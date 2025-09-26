@@ -1,0 +1,6022 @@
+Directory structure:
+└── jigsawstack-jigsawstack-python/
+    ├── README.md
+    ├── biome.json
+    ├── requirements.txt
+    ├── setup.py
+    ├── jigsawstack/
+    │   ├── __init__.py
+    │   ├── _config.py
+    │   ├── async_request.py
+    │   ├── audio.py
+    │   ├── classification.py
+    │   ├── custom_typing.py
+    │   ├── embedding.py
+    │   ├── exceptions.py
+    │   ├── geo.py
+    │   ├── helpers.py
+    │   ├── image_generation.py
+    │   ├── prediction.py
+    │   ├── prompt_engine.py
+    │   ├── request.py
+    │   ├── search.py
+    │   ├── sentiment.py
+    │   ├── sql.py
+    │   ├── store.py
+    │   ├── summary.py
+    │   ├── translate.py
+    │   ├── validate.py
+    │   ├── version.py
+    │   ├── vision.py
+    │   └── web.py
+    ├── tests/
+    │   ├── __init__.py
+    │   ├── test_async_web.py
+    │   ├── test_audio.py
+    │   ├── test_classification.py
+    │   ├── test_embedding_async.py
+    │   ├── test_file_store.py
+    │   ├── test_geo.py
+    │   ├── test_image_generation.py
+    │   ├── test_object_detection.py
+    │   ├── test_prompt_engine.py
+    │   ├── test_search.py
+    │   ├── test_sentiment.py
+    │   ├── test_store.py
+    │   ├── test_validate.py
+    │   ├── test_vision.py
+    │   └── test_web.py
+    └── .github/
+        └── workflows/
+            └── publish.yml
+
+================================================
+FILE: README.md
+================================================
+# JigsawStack AI SDK
+
+The JigsawStack AI SDK is a Python library that allows you to interact with powerful AI services to build AI-powered applications.
+
+- 🧩 Powerful AI services all in one SDK
+- ⌨️ Fully typed parameters and responses
+- 📡 Built in Webhook support for long-running tasks
+- 📦 Built in file system for easy file uploads
+- 🍃 Lightweight and blazing fast
+
+## Learn more
+
+To learn more about all available JigsawStack AI services, view the [Documentation](https://jigsawstack.com/docs) or [Website](https://jigsawstack.com).
+
+## All APIs
+
+| Category          | APIs                                               |
+| ----------------- | -------------------------------------------------- |
+| **👉 General**    | Translation, Summarization, Sentiment Analysis     |
+| **🌐 Web**        | AI Web Scraping, AI Web Search                     |
+| **🎵 Audio**      | Text to Speech, Speech to Text                     |
+| **👀 Vision**     | vOCR, Object Detection                             |
+| **🧠 LLMs**       | Prompt Engine                                      |
+| **🖼️ Generative** | AI Image (Flux, SD, SDXL-Fast & more), HTML to Any |
+| **✅ Validation** | Email, NSFW images, profanity & more               |
+
+Learn more of about each category in the [API reference](https://docs.jigsawstack.com/api-reference)
+
+## Installation
+
+To install JigsawStack Python SDK, simply execute the following command in a terminal:
+
+```
+pip install jigsawstack
+```
+
+## Setup
+
+First, get your API key from the [JigsawStack Dashboard](https://jigsawstack.com/dashboard)
+
+Then, initialize the SDK:
+
+```py
+from jigsawstack import JigsawStack
+
+jigsaw = JigsawStack(api_key="your-api-key")
+```
+
+## Usage
+
+AI Scraping Example:
+
+```py
+params = {
+ "url": "https://www.amazon.com/Cadbury-Mini-Caramel-Eggs-Bulk/dp/B0CWM99G5W",
+ "element_prompts": ["prices"]
+}
+result = jigsaw.web.ai_scrape(params)
+```
+
+Text To Speech Example:
+
+```py
+params = {"text": "Hello, how are you doing?"}
+result = jigsaw.audio.text_to_speech(params)
+```
+
+Speech To Text Example:
+
+```py
+params = { "url": "https://rogilvkqloanxtvjfrkm.supabase.co/storage/v1/object/public/demo/Video%201737458382653833217.mp4?t=2024-03-22T09%3A50%3A49.894Z"}
+result = jigsaw.audio.speech_to_text(params)
+```
+
+VOCR:
+
+```py
+params = {
+    "url": "https://rogilvkqloanxtvjfrkm.supabase.co/storage/v1/object/public/demo/Collabo%201080x842.jpg?t=2024-03-22T09%3A22%3A48.442Z"
+}
+result = jigsaw.vision.vocr(params)
+```
+
+## Community
+
+Join JigsawStack community on [Discord](https://discord.gg/dj8fMBpnqd) to connect with other developers, share ideas, and get help with the SDK.
+
+## Related Projects
+
+- [Docs](https://jigsawstack.com/docs)
+- [Javascript SDK](https://github.com/JigsawStack/jigsawstack-js)
+
+## Contributing
+
+JigsawStack AI SDK is open-source and welcomes contributions. Please open an issue or submit a pull request with your changes. Make sure to be as descriptive as possible with your submissions, include examples if relevant.
+
+
+
+================================================
+FILE: biome.json
+================================================
+{
+  "$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
+  "files": {
+    "ignoreUnknown": false,
+    "ignore": []
+  },
+  "formatter": {
+    "enabled": true,
+    "useEditorconfig": true,
+    "formatWithErrors": false,
+    "indentStyle": "space",
+    "indentWidth": 2,
+    "lineEnding": "lf",
+    "lineWidth": 150,
+    "attributePosition": "auto",
+    "bracketSpacing": true
+  },
+  "organizeImports": {
+    "enabled": true
+  },
+  "linter": {
+    "enabled": false
+  },
+  "javascript": {
+    "formatter": {
+      "jsxQuoteStyle": "double",
+      "quoteProperties": "asNeeded",
+      "trailingCommas": "es5",
+      "semicolons": "always",
+      "arrowParentheses": "always",
+      "bracketSameLine": false,
+      "quoteStyle": "double",
+      "attributePosition": "auto",
+      "bracketSpacing": true
+    }
+  }
+}
+
+
+
+================================================
+FILE: requirements.txt
+================================================
+requests>=2.31.0
+typing_extensions
+aiohttp
+
+
+================================================
+FILE: setup.py
+================================================
+#!/usr/bin/env python
+
+from setuptools import find_packages, setup
+
+install_requires = open("requirements.txt").readlines()
+
+setup(
+    name="jigsawstack",
+    version="0.2.9",
+    description="JigsawStack - The AI SDK for Python",
+    long_description=open("README.md", encoding="utf8").read(),
+    long_description_content_type="text/markdown",
+    author="JigsawStack",
+    author_email="hello@jigsawstack.com",
+    url="https://github.com/jigsawstack/jigsawstack-python",
+    packages=find_packages(include=["jigsawstack"]),
+    install_requires=install_requires,
+    zip_safe=False,
+    python_requires=">=3.7",
+    keywords=["AI", "AI Tooling"],
+    setup_requires=["pytest-runner"],
+    tests_require=["pytest"],
+    test_suite="tests",
+    classifiers=[
+        "Development Status :: 4 - Beta",
+        "Intended Audience :: Developers",
+        "License :: OSI Approved :: MIT License",
+        "Natural Language :: English",
+        "Operating System :: OS Independent",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
+    ],
+)
+
+
+
+================================================
+FILE: jigsawstack/__init__.py
+================================================
+from typing import Union
+import os
+from .audio import Audio, AsyncAudio
+from .vision import Vision, AsyncVision
+from .search import Search
+from .prediction import Prediction, AsyncPrediction
+from .sql import SQL, AsyncSQL
+from .store import Store, AsyncStore
+from .translate import Translate, AsyncTranslate
+from .web import Web, AsyncWeb
+from .sentiment import Sentiment, AsyncSentiment
+from .validate import Validate, AsyncValidate
+from .summary import Summary, AsyncSummary
+from .prompt_engine import PromptEngine, AsyncPromptEngine
+from .embedding import Embedding, AsyncEmbedding
+from .exceptions import JigsawStackError
+from .image_generation import ImageGeneration, AsyncImageGeneration
+from .classification import Classification, AsyncClassification
+
+
+class JigsawStack:
+    audio: Audio
+    vision: Vision
+    image_generation: ImageGeneration
+    file: Store
+    web: Web
+    search: Search
+    prompt_engine: PromptEngine
+    classification: Classification
+    api_key: str
+    api_url: str
+    disable_request_logging: bool
+
+    def __init__(
+        self,
+        api_key: Union[str, None] = None,
+        api_url: Union[str, None] = None,
+        disable_request_logging: Union[bool, None] = None,
+    ) -> None:
+        if api_key is None:
+            api_key = os.environ.get("JIGSAWSTACK_API_KEY")
+
+        if api_key is None:
+            raise ValueError(
+                "The api_key client option must be set either by passing api_key to the client or by setting the JIGSAWSTACK_API_KEY environment variable"
+            )
+
+        if api_url is None:
+            api_url = os.environ.get("JIGSAWSTACK_API_URL")
+        if api_url is None:
+            api_url = f"https://api.jigsawstack.com/v1"
+
+        self.api_key = api_key
+        self.api_url = api_url
+
+        self.audio = Audio(
+            api_key=api_key,
+            api_url=api_url,
+            disable_request_logging=disable_request_logging,
+        )
+        self.web = Web(
+            api_key=api_key,
+            api_url=api_url,
+            disable_request_logging=disable_request_logging,
+        )
+        self.sentiment = Sentiment(
+            api_key=api_key,
+            api_url=api_url,
+            disable_request_logging=disable_request_logging,
+        ).analyze
+        self.validate = Validate(
+            api_key=api_key,
+            api_url=api_url,
+            disable_request_logging=disable_request_logging,
+        )
+        self.summary = Summary(
+            api_key=api_key,
+            api_url=api_url,
+            disable_request_logging=disable_request_logging,
+        ).summarize
+        self.vision = Vision(
+            api_key=api_key,
+            api_url=api_url,
+            disable_request_logging=disable_request_logging,
+        )
+        self.prediction = Prediction(
+            api_key=api_key,
+            api_url=api_url,
+            disable_request_logging=disable_request_logging,
+        ).predict
+        self.text_to_sql = SQL(
+            api_key=api_key,
+            api_url=api_url,
+            disable_request_logging=disable_request_logging,
+        ).text_to_sql
+        self.store = Store(
+            api_key=api_key,
+            api_url=api_url,
+            disable_request_logging=disable_request_logging,
+        )
+        self.translate = Translate(
+            api_key=api_key,
+            api_url=api_url,
+            disable_request_logging=disable_request_logging,
+        )
+        
+        self.prompt_engine = PromptEngine(
+            api_key=api_key,
+            api_url=api_url,
+            disable_request_logging=disable_request_logging,
+        )
+        self.embedding = Embedding(
+            api_key=api_key,
+            api_url=api_url,
+            disable_request_logging=disable_request_logging,
+        ).execute
+        self.image_generation = ImageGeneration(
+            api_key=api_key,
+            api_url=api_url,
+            disable_request_logging=disable_request_logging,
+        ).image_generation
+
+        self.classification = Classification(
+            api_key=api_key,
+            api_url=api_url,
+            disable_request_logging=disable_request_logging,
+        )
+
+
+
+class AsyncJigsawStack:
+    validate: AsyncValidate
+    web: AsyncWeb
+    audio: AsyncAudio
+    vision: AsyncVision
+    image_generation: AsyncImageGeneration
+    store: AsyncStore
+    prompt_engine: AsyncPromptEngine
+    api_key: str
+    api_url: str
+    disable_request_logging: bool
+
+    def __init__(
+        self,
+        api_key: Union[str, None] = None,
+        api_url: Union[str, None] = None,
+        disable_request_logging: Union[bool, None] = None,
+    ) -> None:
+        if api_key is None:
+            api_key = os.environ.get("JIGSAWSTACK_API_KEY")
+
+        if api_key is None:
+            raise ValueError(
+                "The api_key client option must be set either by passing api_key to the client or by setting the JIGSAWSTACK_API_KEY environment variable"
+            )
+
+        if api_url is None:
+            api_url = os.environ.get("JIGSAWSTACK_API_URL")
+        if api_url is None:
+            api_url = f"https://api.jigsawstack.com/v1"
+
+        self.api_key = api_key
+        self.api_url = api_url
+
+        self.web = AsyncWeb(
+            api_key=api_key,
+            api_url=api_url,
+            disable_request_logging=disable_request_logging,
+        )
+
+        self.validate = AsyncValidate(
+            api_key=api_key,
+            api_url=api_url,
+            disable_request_logging=disable_request_logging,
+        )
+        self.audio = AsyncAudio(
+            api_key=api_key,
+            api_url=api_url,
+            disable_request_logging=disable_request_logging,
+        )
+
+        self.vision = AsyncVision(
+            api_key=api_key,
+            api_url=api_url,
+            disable_request_logging=disable_request_logging,
+        )
+
+        self.store = AsyncStore(
+            api_key=api_key,
+            api_url=api_url,
+            disable_request_logging=disable_request_logging,
+        )
+
+        self.summary = AsyncSummary(
+            api_key=api_key,
+            api_url=api_url,
+            disable_request_logging=disable_request_logging,
+        ).summarize
+
+        self.prediction = AsyncPrediction(
+            api_key=api_key,
+            api_url=api_url,
+            disable_request_logging=disable_request_logging,
+        ).predict
+        self.text_to_sql = AsyncSQL(
+            api_key=api_key,
+            api_url=api_url,
+            disable_request_logging=disable_request_logging,
+        ).text_to_sql
+
+        self.sentiment = AsyncSentiment(
+            api_key=api_key,
+            api_url=api_url,
+            disable_request_logging=disable_request_logging,
+        ).analyze
+
+        self.translate = AsyncTranslate(
+            api_key=api_key,
+            api_url=api_url,
+            disable_request_logging=disable_request_logging,
+        )
+
+        self.prompt_engine = AsyncPromptEngine(
+            api_key=api_key,
+            api_url=api_url,
+            disable_request_logging=disable_request_logging,
+        )
+        self.embedding = AsyncEmbedding(
+            api_key=api_key,
+            api_url=api_url,
+            disable_request_logging=disable_request_logging,
+        ).execute
+
+        self.image_generation = AsyncImageGeneration(
+            api_key=api_key,
+            api_url=api_url,
+            disable_request_logging=disable_request_logging,
+        ).image_generation
+
+        self.classification = AsyncClassification(
+            api_key=api_key,
+            api_url=api_url,
+            disable_request_logging=disable_request_logging,
+        )
+
+
+
+# Create a global instance of the Web class
+__all__ = ["JigsawStack", "Search", "JigsawStackError", "AsyncJigsawStack"]
+
+
+
+================================================
+FILE: jigsawstack/_config.py
+================================================
+from typing import Union
+
+
+class ClientConfig:
+    base_url: str
+    api_key: str
+    disable_request_logging: Union[bool, None] = None
+
+    def __init__(
+        self,
+        api_key: str,
+        api_url: str,
+        disable_request_logging: Union[bool, None] = None,
+    ):
+        self.api_key = api_key
+        self.api_url = api_url
+        self.disable_request_logging = disable_request_logging
+
+
+
+================================================
+FILE: jigsawstack/async_request.py
+================================================
+from typing import Any, Dict, Generic, List, Union, cast, TypedDict, AsyncGenerator
+import aiohttp
+from typing_extensions import Literal, TypeVar
+from .exceptions import NoContentError, raise_for_code_and_type
+import json
+
+RequestVerb = Literal["get", "post", "put", "patch", "delete"]
+
+T = TypeVar("T")
+
+
+class AsyncRequestConfig(TypedDict):
+    api_url: str
+    api_key: str
+    disable_request_logging: Union[bool, None] = False
+
+
+class AsyncRequest(Generic[T]):
+    def __init__(
+        self,
+        config: AsyncRequestConfig,
+        path: str,
+        params: Union[Dict[Any, Any], List[Dict[Any, Any]]],
+        verb: RequestVerb,
+        headers: Dict[str, str] = {"Content-Type": "application/json"},
+        data: Union[bytes, None] = None,
+        stream: Union[bool, None] = False,
+    ):
+        self.path = path
+        self.params = params
+        self.verb = verb
+        self.api_url = config.get("api_url")
+        self.api_key = config.get("api_key")
+        self.data = data
+        self.headers = headers
+        self.disable_request_logging = config.get("disable_request_logging")
+        self.stream = stream
+
+    def __convert_params(self, params: Union[Dict[Any, Any], List[Dict[Any, Any]]]) -> Dict[str, str]:
+        """
+        Convert parameters to string values for URL encoding.
+        """
+        if params is None:
+            return {}
+
+        if isinstance(params, str):
+            return params
+        
+        if isinstance(params, list):
+            return {}  # List params are only used in JSON body
+        
+        converted = {}
+        for key, value in params.items():
+            if isinstance(value, bool):
+                converted[key] = str(value).lower()
+            else:
+                converted[key] = str(value)
+        return converted
+
+    async def perform(self) -> Union[T, None]:
+        """
+        Async method to make an HTTP request to the JigsawStack API.
+        """
+        async with self.__get_session() as session:
+            resp = await self.make_request(session, url=f"{self.api_url}{self.path}")
+
+            # For binary responses
+            if resp.status == 200:
+                content_type = resp.headers.get("content-type", "")
+                if not resp.text or any(t in content_type for t in ["audio/", "image/", "application/octet-stream", "image/png"]):
+                    content = await resp.read()
+                    return cast(T, content)
+
+            # For error responses
+            if resp.status != 200:
+                try:
+                    error = await resp.json()
+                    raise_for_code_and_type(
+                        code=resp.status,
+                        message=error.get("message"),
+                        err=error.get("error"),
+                    )
+                except json.JSONDecodeError:
+                    raise_for_code_and_type(
+                        code=500,
+                        message="Failed to parse response. Invalid content type or encoding.",
+                    )
+
+            # For JSON responses
+            try:
+                return cast(T, await resp.json())
+            except json.JSONDecodeError:
+                content = await resp.read()
+                return cast(T, content)
+
+    async def perform_file(self) -> Union[T, None]:
+        async with self.__get_session() as session:
+            resp = await self.make_request(session, url=f"{self.api_url}{self.path}")
+
+            if resp.status != 200:
+                try:
+                    error = await resp.json()
+                    raise_for_code_and_type(
+                        code=resp.status,
+                        message=error.get("message"),
+                        err=error.get("error"),
+                    )
+                except json.JSONDecodeError:
+                    raise_for_code_and_type(
+                        code=500,
+                        message="Failed to parse response. Invalid content type or encoding.",
+                    )
+
+            # For binary responses
+            if resp.status == 200:
+                content_type = resp.headers.get("content-type", "")
+                if "application/json" not in content_type:
+                    content = await resp.read()
+                    return cast(T, content)
+
+            return cast(T, await resp.json())
+
+    async def perform_with_content(self) -> T:
+        """
+        Perform an async HTTP request and return the response content.
+
+        Returns:
+            T: The content of the response
+
+        Raises:
+            NoContentError: If the response content is `None`.
+        """
+        resp = await self.perform()
+        if resp is None:
+            raise NoContentError()
+        return resp
+
+    async def perform_with_content_file(self) -> Union[aiohttp.ClientResponse, None]:
+        """
+        Perform an async HTTP request and return the raw response.
+
+        Returns:
+            Union[aiohttp.ClientResponse, None]: The raw response
+
+        Raises:
+            NoContentError: If the response content is `None`.
+        """
+        resp = await self.perform_file()
+        if resp is None:
+            raise NoContentError()
+        return resp
+
+    def __get_headers(self) -> Dict[str, str]:
+        """
+        Prepare HTTP headers for the request.
+
+        Returns:
+            Dict[str, str]: Configured HTTP Headers
+        """
+        h = {
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+            "x-api-key": f"{self.api_key}",
+        }
+
+        if self.disable_request_logging:
+            h["x-jigsaw-no-request-log"] = "true"
+
+        _headers = h.copy()
+        _headers.update(self.headers)
+
+        return _headers
+
+    async def perform_streaming(self) -> AsyncGenerator[Union[T, str], None]:
+        """
+        Async method to stream response from JigsawStack API.
+
+        Returns:
+            AsyncGenerator[Union[T, str], None]: A generator of response chunks
+        """
+        async with self.__get_session() as session:
+            resp = await self.make_request(session, url=f"{self.api_url}{self.path}")
+
+            # delete calls do not return a body
+            if await resp.text() == "":
+                return
+
+            if resp.status != 200:
+                error = await resp.json()
+                raise_for_code_and_type(
+                    code=resp.status,
+                    message=error.get("message"),
+                    err=error.get("error"),
+                )
+
+            async for chunk in resp.content.iter_chunked(1024):  # 1KB chunks
+                if chunk:
+                    yield await self.__try_parse_data(chunk)
+
+    async def perform_with_content_streaming(
+        self,
+    ) -> AsyncGenerator[Union[T, str], None]:
+        """
+        Perform an async HTTP request and return the response content as a streaming response.
+
+        Returns:
+            AsyncGenerator[Union[T, str], None]: Streaming response content
+
+        Raises:
+            NoContentError: If the response content is `None`.
+        """
+        resp = await self.perform_streaming()
+        if resp is None:
+            raise NoContentError()
+        return resp
+
+    async def make_request(
+        self, session: aiohttp.ClientSession, url: str
+    ) -> aiohttp.ClientResponse:
+        headers = self.__get_headers()
+        verb = self.verb
+        data = self.data
+
+        # Convert params to string values for URL encoding
+        converted_params = self.__convert_params(self.params)
+
+        if verb.lower() in ["get", "delete"]:
+            return await session.request(
+                verb,
+                url,
+                params=converted_params,
+                headers=headers,
+            )
+        else:
+            if data is not None:
+                return await session.request(
+                    verb,
+                    url,
+                    data=data,
+                    params=converted_params,  # Use converted params
+                    headers=headers,
+                )
+            else:
+                return await session.request(
+                    verb,
+                    url,
+                    json=self.params,  # Keep JSON body as original
+                    headers=headers,
+                )
+
+    def __get_session(self) -> aiohttp.ClientSession:
+        """
+        Create and return an async client session.
+
+        Returns:
+            aiohttp.ClientSession: An async client session
+        """
+        return aiohttp.ClientSession()
+
+    @staticmethod
+    async def __try_parse_data(chunk: bytes) -> Union[T, str]:
+        """
+        Attempt to parse a chunk of data as JSON or return as text.
+
+        Args:
+            chunk (bytes): The data chunk to parse
+
+        Returns:
+            Union[T, str]: Parsed JSON or raw text
+        """
+        if not chunk:
+            return chunk
+
+        # Decode bytes to text
+        text = chunk.decode("utf-8")
+
+        try:
+            # Try to parse as JSON
+            return json.loads(text)
+        except json.JSONDecodeError:
+            # Return as text if not valid JSON
+            return text
+
+
+
+================================================
+FILE: jigsawstack/audio.py
+================================================
+from typing import Any, Dict, List, cast, Union, Optional, overload
+from typing_extensions import NotRequired, TypedDict
+from .request import Request, RequestConfig
+from .async_request import AsyncRequest, AsyncRequestConfig
+from ._config import ClientConfig
+from typing import Any, Dict, List, cast
+from typing_extensions import NotRequired, TypedDict, Literal
+from .custom_typing import SupportedAccents
+from .helpers import build_path
+
+
+class TextToSpeechParams(TypedDict):
+    text: str
+    accent: NotRequired[SupportedAccents]
+    speaker_clone_url: NotRequired[str]
+    speaker_clone_file_store_key: NotRequired[str]
+    return_type: NotRequired[Literal["url", "binary", "base64"]]
+
+
+class TTSCloneParams(TypedDict):
+    url: NotRequired[str]
+    file_store_key: NotRequired[str]
+    name: str
+
+
+class ListTTSVoiceClonesParams(TypedDict):
+    limit: NotRequired[int]
+    page: NotRequired[int]
+
+
+class TextToSpeechResponse(TypedDict):
+    success: bool
+    text: str
+    chunks: List[object]
+
+
+class SpeechToTextParams(TypedDict):
+    url: NotRequired[str]
+    file_store_key: NotRequired[str]
+    language: NotRequired[str]
+    translate: NotRequired[bool]
+    by_speaker: NotRequired[bool]
+    webhook_url: NotRequired[str]
+    batch_size: NotRequired[int]
+    chunk_duration: NotRequired[int]
+
+
+class ChunkParams(TypedDict):
+    text: str
+    timestamp: tuple[int, int]
+
+
+class BySpeakerParams(ChunkParams):
+    speaker: str
+
+
+class SpeechToTextResponse(TypedDict):
+    success: bool
+    text: str
+    chunks: List[ChunkParams]
+    speakers: Optional[List[BySpeakerParams]]
+
+
+class Audio(ClientConfig):
+    config: RequestConfig
+
+    def __init__(
+        self,
+        api_key: str,
+        api_url: str,
+        disable_request_logging: Union[bool, None] = False,
+    ):
+        super().__init__(api_key, api_url, disable_request_logging)
+        self.config = RequestConfig(
+            api_url=api_url,
+            api_key=api_key,
+            disable_request_logging=disable_request_logging,
+        )
+
+    @overload
+    def speech_to_text(self, params: SpeechToTextParams) -> SpeechToTextResponse: ...
+    @overload
+    def speech_to_text(self, file: bytes, options: Optional[SpeechToTextParams] = None) -> SpeechToTextResponse: ...
+
+    def speech_to_text(self, blob: Union[SpeechToTextParams, bytes], options: Optional[SpeechToTextParams] = None) -> SpeechToTextResponse:
+        if isinstance(
+            blob, dict
+        ):  # If params is provided as a dict, we assume it's the first argument
+            resp = Request(
+                config=self.config,
+                path="/ai/transcribe",
+                params=cast(Dict[Any, Any], blob),
+                verb="post",
+            ).perform_with_content()
+            return resp
+
+        options = options or {}
+        path = build_path(base_path="/ai/transcribe", params=options)
+        content_type = options.get("content_type", "application/octet-stream")
+        headers = {"Content-Type": content_type}
+
+        resp = Request(config=self.config, path=path, params=options, data=blob, headers=headers, verb="post").perform_with_content()
+        return resp
+
+    def text_to_speech(self, params: TextToSpeechParams) -> TextToSpeechResponse:
+        path = "/ai/tts"
+        resp = Request(
+            config=self.config,
+            path=path,
+            params=cast(Dict[Any, Any], params),
+            verb="post",
+        ).perform_with_content()
+        return resp
+
+    def speaker_voice_accents(self) -> TextToSpeechResponse:
+        path = "/ai/tts"
+        resp = Request(config=self.config, path=path, params={}, verb="get").perform_with_content()
+        return resp
+
+    def create_clone(self, params: TTSCloneParams) -> TextToSpeechResponse:
+        path = "/ai/tts/clone"
+        resp = Request(config=self.config, path=path, params=cast(Dict[Any, Any], params), verb="post").perform_with_content()
+
+        return resp
+
+    def list_clones(self, params: ListTTSVoiceClonesParams) -> TextToSpeechResponse:
+        path = "/ai/tts/clone"
+        resp = Request(config=self.config, path=path, params=cast(Dict[Any, Any], params), verb="get").perform_with_content()
+        return resp
+
+    def delete_clone(self, voice_id: str) -> TextToSpeechResponse:
+        path = f"/ai/tts/clone/{voice_id}"
+        resp = Request(config=self.config, path=path, params={}, verb="delete").perform_with_content()
+        return resp
+
+
+class AsyncAudio(ClientConfig):
+    config: AsyncRequestConfig
+
+    def __init__(
+        self,
+        api_key: str,
+        api_url: str,
+        disable_request_logging: Union[bool, None] = False,
+    ):
+        super().__init__(api_key, api_url, disable_request_logging)
+        self.config = AsyncRequestConfig(
+            api_url=api_url,
+            api_key=api_key,
+            disable_request_logging=disable_request_logging,
+        )
+
+    @overload
+    async def speech_to_text(self, params: SpeechToTextParams) -> SpeechToTextResponse: ...
+    @overload
+    async def speech_to_text(
+        self, file: bytes, options: Optional[SpeechToTextParams] = None
+    ) -> SpeechToTextResponse: ...
+
+    async def speech_to_text(
+        self,
+        blob: Union[SpeechToTextParams, bytes],
+        options: Optional[SpeechToTextParams] = None,
+    ) -> SpeechToTextResponse:
+        if isinstance(blob, dict):
+            resp = await AsyncRequest(
+                config=self.config,
+                path="/ai/transcribe",
+                params=cast(Dict[Any, Any], blob),
+                verb="post",
+            ).perform_with_content()
+            return resp
+
+        options = options or {}
+        path = build_path(base_path="/ai/transcribe", params=options)
+        content_type = options.get("content_type", "application/octet-stream")
+        headers = {"Content-Type": content_type}
+
+        resp = await AsyncRequest(
+            config=self.config,
+            path=path,
+            params=options,
+            data=blob,
+            headers=headers,
+            verb="post",
+        ).perform_with_content()
+        return resp
+
+    async def text_to_speech(self, params: TextToSpeechParams) -> TextToSpeechResponse:
+        path = "/ai/tts"
+        resp = await AsyncRequest(
+            config=self.config,
+            path=path,
+            params=cast(Dict[Any, Any], params),
+            verb="post",
+        ).perform_with_content()
+        return resp
+
+    async def speaker_voice_accents(self) -> TextToSpeechResponse:
+        path = "/ai/tts"
+        resp = await AsyncRequest(
+            config=self.config,
+            path=path,
+            params={},
+            verb="get",
+        ).perform_with_content()
+        return resp
+
+    async def create_clone(self, params: TTSCloneParams) -> TextToSpeechResponse:
+        path = "/ai/tts/clone"
+        resp = await AsyncRequest(
+            config=self.config, 
+            path=path, 
+            params=cast(Dict[Any, Any], params), 
+            verb="post"
+        ).perform_with_content()
+        return resp
+
+    async def list_clones(self, params: ListTTSVoiceClonesParams) -> TextToSpeechResponse:
+        path = "/ai/tts/clone"
+        resp = await AsyncRequest(
+            config=self.config, 
+            path=path, 
+            params=cast(Dict[Any, Any], params), 
+            verb="get"
+        ).perform_with_content()
+        return resp
+
+    async def delete_clone(self, voice_id: str) -> TextToSpeechResponse:
+        path = f"/ai/tts/clone/{voice_id}"
+        resp = await AsyncRequest(
+            config=self.config, 
+            path=path, 
+            params={}, 
+            verb="delete"
+        ).perform_with_content()
+        return resp
+
+
+
+================================================
+FILE: jigsawstack/classification.py
+================================================
+from typing import Any, Dict, List, Union, cast
+from typing_extensions import NotRequired, TypedDict, Literal
+from .request import Request, RequestConfig
+from .async_request import AsyncRequest, AsyncRequestConfig
+from ._config import ClientConfig
+
+
+class DatasetItemText(TypedDict):
+    type: Literal["text"]
+    """
+    Type of the dataset item: text
+    """
+    
+    value: str
+    """
+    Value of the dataset item
+    """
+
+
+class DatasetItemImage(TypedDict):
+    type: Literal["image"]
+    """
+    Type of the dataset item: image
+    """
+    
+    value: str
+    """
+    Value of the dataset item
+    """
+
+
+class LabelItemText(TypedDict):
+    key: NotRequired[str]
+    """
+    Optional key for the label
+    """
+    
+    type: Literal["text"]
+    """
+    Type of the label: text
+    """
+    
+    value: str
+    """
+    Value of the label
+    """
+
+
+class LabelItemImage(TypedDict):
+    key: NotRequired[str]
+    """
+    Optional key for the label
+    """
+    
+    type: Literal["image", "text"]
+    """
+    Type of the label: image or text
+    """
+    
+    value: str
+    """
+    Value of the label
+    """
+
+
+class ClassificationTextParams(TypedDict):
+    dataset: List[DatasetItemText]
+    """
+    List of text dataset items to classify
+    """
+    
+    labels: List[LabelItemText]
+    """
+    List of text labels for classification
+    """
+    
+    multiple_labels: NotRequired[bool]
+    """
+    Whether to allow multiple labels per item
+    """
+
+
+class ClassificationImageParams(TypedDict):
+    dataset: List[DatasetItemImage]
+    """
+    List of image dataset items to classify
+    """
+    
+    labels: List[LabelItemImage]
+    """
+    List of labels for classification
+    """
+    
+    multiple_labels: NotRequired[bool]
+    """
+    Whether to allow multiple labels per item
+    """
+
+
+class ClassificationResponse(TypedDict):
+    predictions: List[Union[str, List[str]]]
+    """
+    Classification predictions - single labels or multiple labels per item
+    """
+
+
+
+class Classification(ClientConfig):
+
+    config: RequestConfig
+
+    def __init__(
+        self,
+        api_key: str,
+        api_url: str,
+        disable_request_logging: Union[bool, None] = False,
+    ):
+        super().__init__(api_key, api_url, disable_request_logging)
+        self.config = RequestConfig(
+            api_url=api_url,
+            api_key=api_key,
+            disable_request_logging=disable_request_logging,
+        )
+
+    def text(self, params: ClassificationTextParams) -> ClassificationResponse:
+        path = "/classification"
+        resp = Request(
+            config=self.config,
+            path=path,
+            params=cast(Dict[Any, Any], params),
+            verb="post",
+        ).perform_with_content()
+        return resp
+    def image(self, params: ClassificationImageParams) -> ClassificationResponse:
+        path = "/classification"
+        resp = Request(
+            config=self.config,
+            path=path,
+            params=cast(Dict[Any, Any], params),
+            verb="post",
+        ).perform_with_content()
+        return resp
+
+
+
+class AsyncClassification(ClientConfig):
+    config: AsyncRequestConfig
+
+    def __init__(
+        self,
+        api_key: str,
+        api_url: str,
+        disable_request_logging: Union[bool, None] = False,
+    ):
+        super().__init__(api_key, api_url, disable_request_logging)
+        self.config = AsyncRequestConfig(
+            api_url=api_url,
+            api_key=api_key,
+            disable_request_logging=disable_request_logging,
+        )
+
+    async def text(self, params: ClassificationTextParams) -> ClassificationResponse:
+        path = "/classification"
+        resp = await AsyncRequest(
+            config=self.config,
+            path=path,
+            params=cast(Dict[Any, Any], params),
+            verb="post",
+        ).perform_with_content()
+        return resp
+
+    async def image(self, params: ClassificationImageParams) -> ClassificationResponse:
+        path = "/classification"
+        resp = await AsyncRequest(
+            config=self.config,
+            path=path,
+            params=cast(Dict[Any, Any], params),
+            verb="post",
+        ).perform_with_content()
+        return resp
+
+
+================================================
+FILE: jigsawstack/custom_typing.py
+================================================
+from typing import Literal
+
+SupportedAccents = Literal[
+    "af-ZA-female-1",
+    "af-ZA-male-1",
+    "am-ET-female-1",
+    "am-ET-male-1",
+    "ar-AE-female-1",
+    "ar-AE-male-1",
+    "ar-BH-female-1",
+    "ar-BH-male-1",
+    "ar-DZ-female-1",
+    "ar-DZ-male-1",
+    "ar-EG-female-1",
+    "ar-EG-male-1",
+    "ar-IQ-female-1",
+    "ar-IQ-male-1",
+    "ar-JO-female-1",
+    "ar-JO-male-1",
+    "ar-KW-female-1",
+    "ar-KW-male-1",
+    "ar-LB-female-1",
+    "ar-LB-male-1",
+    "ar-LY-female-1",
+    "ar-LY-male-1",
+    "ar-MA-female-1",
+    "ar-MA-male-1",
+    "ar-OM-female-1",
+    "ar-OM-male-1",
+    "ar-QA-female-1",
+    "ar-QA-male-1",
+    "ar-SA-female-1",
+    "ar-SA-male-1",
+    "ar-SY-female-1",
+    "ar-SY-male-1",
+    "ar-TN-female-1",
+    "ar-TN-male-1",
+    "ar-YE-female-1",
+    "ar-YE-male-1",
+    "as-IN-male-1",
+    "as-IN-female-1",
+    "az-AZ-female-1",
+    "az-AZ-male-1",
+    "bg-BG-female-1",
+    "bg-BG-male-1",
+    "bn-BD-female-1",
+    "bn-BD-male-1",
+    "bn-IN-female-1",
+    "bn-IN-male-1",
+    "bs-BA-female-1",
+    "bs-BA-male-1",
+    "ca-ES-female-1",
+    "ca-ES-male-1",
+    "ca-ES-female-2",
+    "cs-CZ-female-1",
+    "cs-CZ-male-1",
+    "cy-GB-female-1",
+    "cy-GB-male-1",
+    "da-DK-female-1",
+    "da-DK-male-1",
+    "de-AT-female-1",
+    "de-AT-male-1",
+    "de-CH-female-1",
+    "de-CH-male-1",
+    "de-DE-female-1",
+    "de-DE-male-1",
+    "de-DE-female-2",
+    "de-DE-male-2",
+    "de-DE-male-3",
+    "de-DE-female-3",
+    "de-DE-male-4",
+    "de-DE-male-5",
+    "de-DE-female-4",
+    "de-DE-male-6",
+    "de-DE-male-7",
+    "de-DE-female-5",
+    "de-DE-male-8",
+    "de-DE-female-6",
+    "de-DE-female-7",
+    "de-DE-male-9",
+    "de-DE-female-8",
+    "de-DE-female-9",
+    "de-DE-female-10",
+    "el-GR-female-2",
+    "el-GR-male-2",
+    "en-AU-female-2",
+    "en-AU-male-2",
+    "en-AU-female-3",
+    "en-AU-female-4",
+    "en-AU-male-3",
+    "en-AU-male-4",
+    "en-AU-female-5",
+    "en-AU-female-6",
+    "en-AU-female-7",
+    "en-AU-male-5",
+    "en-AU-female-8",
+    "en-AU-male-6",
+    "en-AU-male-7",
+    "en-AU-female-9",
+    "en-CA-female-2",
+    "en-CA-male-2",
+    "en-GB-female-2",
+    "en-GB-male-2",
+    "en-GB-female-3",
+    "en-GB-female-4",
+    "en-GB-male-3",
+    "en-GB-female-5",
+    "en-GB-male-4",
+    "en-GB-male-5",
+    "en-GB-female-6",
+    "en-GB-female-7",
+    "en-GB-male-6",
+    "en-GB-male-7",
+    "en-GB-female-8",
+    "en-GB-male-8",
+    "en-GB-female-9",
+    "en-GB-female-10",
+    "en-GB-male-9",
+    "en-GB-male-10",
+    "en-GB-female-11",
+    "en-HK-female-1",
+    "en-HK-male-1",
+    "en-IE-female-3",
+    "en-IE-male-3",
+    "en-IN-female-3",
+    "en-IN-male-3",
+    "en-IN-male-4",
+    "en-IN-female-4",
+    "en-IN-female-5",
+    "en-IN-female-6",
+    "en-IN-male-5",
+    "en-IN-male-6",
+    "en-KE-female-1",
+    "en-KE-male-1",
+    "en-NG-female-1",
+    "en-NG-male-1",
+    "en-NZ-female-1",
+    "en-NZ-male-1",
+    "en-PH-female-1",
+    "en-PH-male-1",
+    "en-SG-female-1",
+    "en-SG-male-1",
+    "en-TZ-female-1",
+    "en-TZ-male-1",
+    "en-US-female-3",
+    "en-US-female-4",
+    "en-US-male-3",
+    "en-US-male-4",
+    "en-US-female-5",
+    "en-US-female-6",
+    "en-US-male-5",
+    "en-US-male-6",
+    "en-US-female-7",
+    "en-US-male-7",
+    "en-US-female-8",
+    "en-US-male-8",
+    "en-US-female-9",
+    "en-US-male-9",
+    "en-US-female-10",
+    "en-US-male-10",
+    "en-US-female-11",
+    "en-US-male-11",
+    "en-US-female-12",
+    "en-US-male-12",
+    "en-US-female-13",
+    "en-US-female-14",
+    "en-US-female-15",
+    "en-US-female-16",
+    "en-US-male-13",
+    "en-US-male-14",
+    "en-US-female-17",
+    "en-US-female-18",
+    "en-US-male-15",
+    "en-US-male-16",
+    "en-US-female-19",
+    "en-US-female-20",
+    "en-US-female-21",
+    "en-US-female-22",
+    "en-US-male-17",
+    "en-US-male-18",
+    "en-US-male-19",
+    "en-US-male-20",
+    "en-US-male-21",
+    "en-US-female-23",
+    "en-US-male-22",
+    "en-US-male-23",
+    "en-US-neutral-1",
+    "en-US-male-24",
+    "en-US-male-25",
+    "en-US-male-26",
+    "en-US-male-27",
+    "en-US-female-24",
+    "en-US-female-25",
+    "en-US-female-26",
+    "en-US-female-27",
+    "en-US-male-28",
+    "en-US-female-28",
+    "en-US-female-29",
+    "en-US-female-30",
+    "en-US-male-29",
+    "en-US-male-30",
+    "en-ZA-female-1",
+    "en-ZA-male-1",
+    "es-AR-female-1",
+    "es-AR-male-1",
+    "es-BO-female-1",
+    "es-BO-male-1",
+    "es-CL-female-1",
+    "es-CL-male-1",
+    "es-CO-female-1",
+    "es-CO-male-1",
+    "es-CR-female-1",
+    "es-CR-male-1",
+    "es-CU-female-1",
+    "es-CU-male-1",
+    "es-DO-female-1",
+    "es-DO-male-1",
+    "es-EC-female-1",
+    "es-EC-male-1",
+    "es-ES-female-9",
+    "es-ES-male-10",
+    "es-ES-female-10",
+    "es-ES-male-11",
+    "es-ES-male-12",
+    "es-ES-male-13",
+    "es-ES-female-11",
+    "es-ES-female-12",
+    "es-ES-female-13",
+    "es-ES-female-14",
+    "es-ES-male-14",
+    "es-ES-male-15",
+    "es-ES-male-16",
+    "es-ES-female-15",
+    "es-ES-female-16",
+    "es-ES-female-17",
+    "es-ES-female-18",
+    "es-ES-female-19",
+    "es-ES-female-20",
+    "es-ES-female-21",
+    "es-ES-male-17",
+    "es-ES-male-18",
+    "es-ES-female-22",
+    "es-ES-female-23",
+    "es-GQ-female-1",
+    "es-GQ-male-1",
+    "es-GT-female-1",
+    "es-GT-male-1",
+    "es-HN-female-1",
+    "es-HN-male-1",
+    "es-MX-female-12",
+    "es-MX-male-11",
+    "es-MX-female-13",
+    "es-MX-female-14",
+    "es-MX-female-15",
+    "es-MX-male-12",
+    "es-MX-male-13",
+    "es-MX-female-16",
+    "es-MX-male-14",
+    "es-MX-male-15",
+    "es-MX-female-17",
+    "es-MX-female-18",
+    "es-MX-male-16",
+    "es-MX-female-19",
+    "es-MX-male-17",
+    "es-NI-female-1",
+    "es-NI-male-1",
+    "es-PA-female-1",
+    "es-PA-male-1",
+    "es-PE-female-1",
+    "es-PE-male-1",
+    "es-PR-female-1",
+    "es-PR-male-1",
+    "es-PY-female-1",
+    "es-PY-male-1",
+    "es-SV-female-1",
+    "es-SV-male-1",
+    "es-US-female-1",
+    "es-US-male-1",
+    "es-UY-female-1",
+    "es-UY-male-1",
+    "es-VE-female-1",
+    "es-VE-male-1",
+    "et-EE-female-11",
+    "et-EE-male-10",
+    "eu-ES-female-11",
+    "eu-ES-male-10",
+    "fa-IR-female-11",
+    "fa-IR-male-10",
+    "fi-FI-female-12",
+    "fi-FI-male-11",
+    "fi-FI-female-13",
+    "fil-PH-female-11",
+    "fil-PH-male-10",
+    "fr-BE-female-12",
+    "fr-BE-male-11",
+    "fr-CA-female-12",
+    "fr-CA-male-11",
+    "fr-CA-male-12",
+    "fr-CA-male-13",
+    "fr-CH-female-12",
+    "fr-CH-male-11",
+    "fr-FR-female-12",
+    "fr-FR-male-11",
+    "fr-FR-male-12",
+    "fr-FR-female-13",
+    "fr-FR-female-14",
+    "fr-FR-male-13",
+    "fr-FR-female-15",
+    "fr-FR-female-16",
+    "fr-FR-female-17",
+    "fr-FR-male-14",
+    "fr-FR-female-18",
+    "fr-FR-male-15",
+    "fr-FR-male-16",
+    "fr-FR-male-17",
+    "fr-FR-female-19",
+    "fr-FR-female-20",
+    "fr-FR-male-18",
+    "fr-FR-female-21",
+    "fr-FR-male-19",
+    "fr-FR-male-20",
+    "ga-IE-female-12",
+    "ga-IE-male-12",
+    "gl-ES-female-12",
+    "gl-ES-male-12",
+    "gu-IN-female-1",
+    "gu-IN-male-1",
+    "he-IL-female-12",
+    "he-IL-male-12",
+    "hi-IN-female-13",
+    "hi-IN-male-13",
+    "hi-IN-male-14",
+    "hi-IN-female-14",
+    "hi-IN-female-15",
+    "hi-IN-male-15",
+    "hi-IN-male-16",
+    "hr-HR-female-12",
+    "hr-HR-male-12",
+    "hu-HU-female-13",
+    "hu-HU-male-13",
+    "hy-AM-female-12",
+    "hy-AM-male-12",
+    "id-ID-female-13",
+    "id-ID-male-13",
+    "is-IS-female-12",
+    "is-IS-male-12",
+    "it-IT-female-13",
+    "it-IT-female-14",
+    "it-IT-male-13",
+    "it-IT-male-14",
+    "it-IT-male-15",
+    "it-IT-male-16",
+    "it-IT-female-15",
+    "it-IT-female-16",
+    "it-IT-male-17",
+    "it-IT-male-18",
+    "it-IT-female-17",
+    "it-IT-female-18",
+    "it-IT-male-19",
+    "it-IT-female-19",
+    "it-IT-female-20",
+    "it-IT-male-20",
+    "it-IT-male-21",
+    "it-IT-male-22",
+    "it-IT-male-23",
+    "it-IT-male-24",
+    "it-IT-female-21",
+    "it-IT-female-22",
+    "it-IT-male-25",
+    "it-IT-male-26",
+    "iu-Cans-CA-female-1",
+    "iu-Cans-CA-male-1",
+    "iu-Latn-CA-female-1",
+    "iu-Latn-CA-male-1",
+    "ja-JP-female-14",
+    "ja-JP-male-16",
+    "ja-JP-female-15",
+    "ja-JP-male-17",
+    "ja-JP-female-16",
+    "ja-JP-male-18",
+    "ja-JP-female-17",
+    "ja-JP-male-19",
+    "ja-JP-male-20",
+    "jv-ID-female-13",
+    "jv-ID-male-16",
+    "ka-GE-female-13",
+    "ka-GE-male-16",
+    "kk-KZ-female-13",
+    "kk-KZ-male-16",
+    "km-KH-female-13",
+    "km-KH-male-16",
+    "kn-IN-female-13",
+    "kn-IN-male-16",
+    "ko-KR-female-14",
+    "ko-KR-male-17",
+    "ko-KR-male-18",
+    "ko-KR-male-19",
+    "ko-KR-male-20",
+    "ko-KR-female-15",
+    "ko-KR-female-16",
+    "ko-KR-female-17",
+    "ko-KR-female-18",
+    "ko-KR-male-21",
+    "ko-KR-male-22",
+    "lo-LA-female-13",
+    "lo-LA-male-17",
+    "lt-LT-female-13",
+    "lt-LT-male-17",
+    "lv-LV-female-13",
+    "lv-LV-male-17",
+    "mk-MK-female-13",
+    "mk-MK-male-17",
+    "ml-IN-female-13",
+    "ml-IN-male-17",
+    "mn-MN-female-13",
+    "mn-MN-male-17",
+    "mr-IN-female-1",
+    "mr-IN-male-1",
+    "ms-MY-female-13",
+    "ms-MY-male-17",
+    "mt-MT-female-13",
+    "mt-MT-male-17",
+    "my-MM-female-13",
+    "my-MM-male-17",
+    "nb-NO-female-14",
+    "nb-NO-male-18",
+    "nb-NO-female-15",
+    "ne-NP-female-13",
+    "ne-NP-male-17",
+    "nl-BE-female-14",
+    "nl-BE-male-18",
+    "nl-NL-female-14",
+    "nl-NL-male-18",
+    "nl-NL-female-15",
+    "or-IN-female-1",
+    "or-IN-male-1",
+    "pa-IN-male-1",
+    "pa-IN-female-1",
+    "pl-PL-female-14",
+    "pl-PL-male-18",
+    "pl-PL-female-15",
+    "ps-AF-female-13",
+    "ps-AF-male-17",
+    "pt-BR-female-14",
+    "pt-BR-male-18",
+    "pt-BR-female-15",
+    "pt-BR-male-19",
+    "pt-BR-female-16",
+    "pt-BR-male-20",
+    "pt-BR-female-17",
+    "pt-BR-male-21",
+    "pt-BR-male-22",
+    "pt-BR-female-18",
+    "pt-BR-female-19",
+    "pt-BR-female-20",
+    "pt-BR-male-23",
+    "pt-BR-female-21",
+    "pt-BR-male-24",
+    "pt-BR-female-22",
+    "pt-BR-male-25",
+    "pt-BR-male-26",
+    "pt-BR-female-23",
+    "pt-BR-female-24",
+    "pt-PT-female-15",
+    "pt-PT-male-19",
+    "pt-PT-female-16",
+    "ro-RO-female-14",
+    "ro-RO-male-18",
+    "ru-RU-female-15",
+    "ru-RU-male-19",
+    "ru-RU-female-16",
+    "si-LK-female-14",
+    "si-LK-male-18",
+    "sk-SK-female-14",
+    "sk-SK-male-18",
+    "sl-SI-female-14",
+    "sl-SI-male-18",
+    "so-SO-female-14",
+    "so-SO-male-18",
+    "sq-AL-female-14",
+    "sq-AL-male-18",
+    "sr-Latn-RS-male-1",
+    "sr-Latn-RS-female-1",
+    "sr-RS-female-14",
+    "sr-RS-male-18",
+    "su-ID-female-14",
+    "su-ID-male-18",
+    "sv-SE-female-15",
+    "sv-SE-male-19",
+    "sv-SE-female-16",
+    "sw-KE-female-14",
+    "sw-KE-male-18",
+    "sw-TZ-female-1",
+    "sw-TZ-male-1",
+    "ta-IN-female-14",
+    "ta-IN-male-18",
+    "ta-LK-female-1",
+    "ta-LK-male-1",
+    "ta-MY-female-1",
+    "ta-MY-male-1",
+    "ta-SG-female-1",
+    "ta-SG-male-1",
+    "te-IN-female-14",
+    "te-IN-male-18",
+    "th-TH-female-15",
+    "th-TH-male-19",
+    "th-TH-female-16",
+    "tr-TR-female-15",
+    "tr-TR-male-19",
+    "uk-UA-female-14",
+    "uk-UA-male-18",
+    "ur-IN-female-1",
+    "ur-IN-male-1",
+    "ur-PK-female-14",
+    "ur-PK-male-18",
+    "uz-UZ-female-14",
+    "uz-UZ-male-18",
+    "vi-VN-female-14",
+    "vi-VN-male-18",
+    "wuu-CN-female-1",
+    "wuu-CN-male-1",
+    "yue-CN-female-1",
+    "yue-CN-male-1",
+    "zh-CN-female-15",
+    "zh-CN-male-19",
+    "zh-CN-male-20",
+    "zh-CN-female-16",
+    "zh-CN-male-21",
+    "zh-CN-female-17",
+    "zh-CN-female-18",
+    "zh-CN-female-19",
+    "zh-CN-female-20",
+    "zh-CN-female-21",
+    "zh-CN-female-22",
+    "zh-CN-female-23",
+    "zh-CN-female-24",
+    "zh-CN-female-25",
+    "zh-CN-female-26",
+    "zh-CN-female-27",
+    "zh-CN-female-28",
+    "zh-CN-female-29",
+    "zh-CN-female-30",
+    "zh-CN-female-31",
+    "zh-CN-female-32",
+    "zh-CN-female-33",
+    "zh-CN-female-34",
+    "zh-CN-male-22",
+    "zh-CN-male-23",
+    "zh-CN-male-24",
+    "zh-CN-male-25",
+    "zh-CN-male-26",
+    "zh-CN-male-27",
+    "zh-CN-male-28",
+    "zh-CN-male-29",
+    "zh-CN-male-30",
+    "zh-CN-male-31",
+    "zh-CN-male-32",
+    "zh-CN-male-33",
+    "zh-CN-guangxi-male-1",
+    "zh-CN-henan-male-1",
+    "zh-CN-liaoning-female-2",
+    "zh-CN-liaoning-male-1",
+    "zh-CN-shaanxi-female-2",
+    "zh-CN-shandong-male-1",
+    "zh-CN-sichuan-male-1",
+    "zh-HK-female-18",
+    "zh-HK-male-22",
+    "zh-HK-female-19",
+    "zh-TW-female-19",
+    "zh-TW-male-22",
+    "zh-TW-female-20",
+    "zu-ZA-female-17",
+    "zu-ZA-male-21",
+]
+
+
+
+================================================
+FILE: jigsawstack/embedding.py
+================================================
+from typing import Any, Dict, List, Union, cast, Literal, overload
+from typing_extensions import NotRequired, TypedDict
+from .request import Request, RequestConfig
+from .async_request import AsyncRequest
+from typing import List, Union
+from ._config import ClientConfig
+from .helpers import build_path
+
+
+class EmbeddingParams(TypedDict):
+    text: NotRequired[str]
+    file_content: NotRequired[Any]
+    type: Literal["text", "text-other", "image", "audio", "pdf"]
+    url: NotRequired[str]
+    file_store_key: NotRequired[str]
+    token_overflow_mode: NotRequired[Literal["truncate", "chunk", "error"]] = "chunk"
+
+
+class EmbeddingResponse(TypedDict):
+    success: bool
+    embeddings: List[List[float]]
+    chunks: List[str]
+
+
+class Embedding(ClientConfig):
+
+    config: RequestConfig
+
+    def __init__(
+        self,
+        api_key: str,
+        api_url: str,
+        disable_request_logging: Union[bool, None] = False,
+    ):
+        super().__init__(api_key, api_url, disable_request_logging)
+        self.config = RequestConfig(
+            api_url=api_url,
+            api_key=api_key,
+            disable_request_logging=disable_request_logging,
+        )
+
+    @overload
+    def execute(self, params: EmbeddingParams) -> EmbeddingResponse: ...
+    @overload
+    def execute(self, file: bytes, options: EmbeddingParams = None) -> EmbeddingResponse: ...
+
+    def execute(
+        self,
+        blob: Union[EmbeddingParams, bytes],
+        options: EmbeddingParams = None,
+    ) -> EmbeddingResponse:
+        path="/embedding"
+        if isinstance(blob, dict):
+            resp = Request(
+                config=self.config,
+                path=path,
+                params=cast(Dict[Any, Any], blob),
+                verb="post",
+            ).perform_with_content()
+            return resp
+
+        options = options or {}
+        path = build_path(base_path=path, params=options)
+        content_type = options.get("content_type", "application/octet-stream")
+        _headers = {"Content-Type": content_type}
+
+        resp = Request(
+            config=self.config,
+            path=path,
+            params=options,
+            data=blob,
+            headers=_headers,
+            verb="post",
+        ).perform_with_content()
+        return resp
+
+
+class AsyncEmbedding(ClientConfig):
+
+    config: RequestConfig
+
+    def __init__(
+        self,
+        api_key: str,
+        api_url: str,
+        disable_request_logging: Union[bool, None] = False,
+    ):
+        super().__init__(api_key, api_url, disable_request_logging)
+        self.config = RequestConfig(
+            api_url=api_url,
+            api_key=api_key,
+            disable_request_logging=disable_request_logging,
+        )
+
+    @overload
+    async def execute(self, params: EmbeddingParams) -> EmbeddingResponse: ...
+    @overload
+    async def execute(self, file: bytes, options: EmbeddingParams = None) -> EmbeddingResponse: ...
+
+    async def execute(
+        self,
+        blob: Union[EmbeddingParams, bytes],
+        options: EmbeddingParams = None,
+    ) -> EmbeddingResponse:
+        path="/embedding"
+        if isinstance(blob, dict):
+            resp = await AsyncRequest(
+                config=self.config,
+                path=path,
+                params=cast(Dict[Any, Any], blob),
+                verb="post",
+            ).perform_with_content()
+            return resp
+
+        options = options or {}
+        path = build_path(base_path=path, params=options)
+        content_type = options.get("content_type", "application/octet-stream")
+        _headers = {"Content-Type": content_type}
+
+        resp = await AsyncRequest(
+            config=self.config,
+            path=path,
+            params=options,
+            data=blob,
+            headers=_headers,
+            verb="post",
+        ).perform_with_content()
+        return resp
+
+
+
+================================================
+FILE: jigsawstack/exceptions.py
+================================================
+"""JigsawStack Exceptions module.
+
+This module defines the base types for platform-wide error
+
+"""
+
+from typing import Any, Dict, Union
+
+
+class JigsawStackError(Exception):
+    """Base class for all errors raised by JigsawStack SDK.
+    This is the parent class of all exceptions (server side)
+    raised by the JigsawStack SDK. Developers can simply catch
+    this class and inspect its `code` to implement more specific
+    error handling. Note that for some client-side errors ie:
+    some method argument missing, a ValueError would be raised.
+
+    Args:
+        code: A string error indicating the HTTP status code
+        attributed to that Error.
+        message: A human-readable error message string.
+        suggested_action: A suggested action path to help the user.
+        error_type: Maps to the `type` field from the JigsawStack API
+    """
+
+    def __init__(
+        self,
+        code: Union[str, int],
+        message: str,
+        suggested_action: str,
+        err: Union[str, Dict[str, Any]] = None,
+    ):
+        Exception.__init__(self, message)
+        self.code = code
+        self.message = message
+        self.suggested_action = suggested_action
+        self.error = err
+        self.success = False
+
+
+class MissingApiKeyError(JigsawStackError):
+
+    def __init__(
+        self,
+        message: str,
+        error_type: str,
+        code: Union[str, int],
+    ):
+        suggested_action = """Include the following header
+        Authorization: Bearer YOUR_API_KEY in the request."""
+
+        message = "Missing API key in the authorization header."
+
+        JigsawStackError.__init__(
+            self,
+            message=message,
+            suggested_action=suggested_action,
+            code=code,
+            error_type=error_type,
+        )
+
+
+class InvalidApiKeyError(JigsawStackError):
+   
+
+    def __init__(
+        self,
+        message: str,
+        error_type: str,
+        code: Union[str, int],
+    ):
+        suggested_action = """Generate a new API key in the dashboard."""
+
+        JigsawStackError.__init__(
+            self,
+            message=message,
+            suggested_action=suggested_action,
+            code=code,
+            error_type=error_type,
+        )
+
+
+class ValidationError(JigsawStackError):
+
+
+    def __init__(
+        self,
+        message: str,
+        error_type: str,
+        code: Union[str, int],
+    ):
+        default_message = """
+        The request body is missing one or more required fields."""
+
+        suggested_action = """Check the error message
+        to see the list of missing fields."""
+
+        if message == "":
+            message = default_message
+
+        JigsawStackError.__init__(
+            self,
+            code=code or "400",
+            message=message,
+            suggested_action=suggested_action,
+            error_type=error_type,
+        )
+
+
+class MissingRequiredFieldsError(JigsawStackError):
+
+    def __init__(
+        self,
+        message: str,
+        error_type: str,
+        code: Union[str, int],
+    ):
+        default_message = """
+        The request body is missing one or more required fields."""
+
+        suggested_action = """Check the error message
+        to see the list of missing fields."""
+
+        if message == "":
+            message = default_message
+
+        JigsawStackError.__init__(
+            self,
+            code=code or "422",
+            message=message,
+            suggested_action=suggested_action,
+            error_type=error_type,
+        )
+
+
+class ApplicationError(JigsawStackError):
+
+
+    def __init__(
+        self,
+        message: str,
+        error_type: str,
+        code: Union[str, int],
+    ):
+        default_message = """
+        Something went wrong."""
+
+        suggested_action = """Contact JigsawStack support."""
+
+        if message == "":
+            message = default_message
+
+        JigsawStackError.__init__(
+            self,
+            code=code or "500",
+            message=message,
+            suggested_action=suggested_action,
+            error_type=error_type,
+        )
+
+
+# Dict with error code -> error type mapping
+ERRORS: Dict[str, Dict[str, Any]] = {
+    "400": {"validation_error": ValidationError},
+    "422": {
+        "missing_required_fields": MissingRequiredFieldsError,
+        "validation_error": ValidationError,
+    },
+    "401": {"missing_api_key": MissingApiKeyError},
+    "403": {"invalid_api_key": InvalidApiKeyError},
+    "500": {"application_error": ApplicationError},
+}
+
+
+def raise_for_code_and_type(
+    code: Union[str, int], message: str, err : Union[str, Dict[str, Any]] = None
+) -> None:
+    """Raise the appropriate error based on the code and type.
+
+    Args:
+        code (str): The error code
+        error_type (str): The error type
+        message (str): The error message
+
+    Raises:
+        JigsawStackError: If it is a JigsawStack err
+            or
+        ValidationError: If the error type is validation_error
+            or
+        MissingRequiredFieldsError: If the error type is missing_required_fields
+            or
+        MissingApiKeyError: If the error type is missing_api_key
+            or
+        InvalidApiKeyError: If the error type is invalid_api_key
+            or
+        ApplicationError: If the error type is application_error
+            or
+        TypeError: If the error type is not found
+    """
+    error = ERRORS.get(str(code))
+
+    # Handle the case where the error might be unknown
+    if error is None:
+        raise JigsawStackError(
+            code=code, message=message, err=err, suggested_action=""
+        )
+
+    # defaults to JigsawStackError if finally can't find error type
+    raise JigsawStackError(
+        code=code, message=message, err=err,  suggested_action=""
+    )
+
+
+class NoContentError(Exception):
+    """Raised when the response body is empty."""
+
+    def __init__(self) -> None:
+        self.message = """No content was returned from the API.
+            Please contact Jigsawstack support."""
+        Exception.__init__(self, self.message)
+
+
+================================================
+FILE: jigsawstack/geo.py
+================================================
+from typing import Any, Dict, List, Union, cast
+from typing_extensions import NotRequired, TypedDict
+from .request import Request, RequestConfig
+from .async_request import AsyncRequestConfig, AsyncRequest
+from typing import List, Union
+from ._config import ClientConfig
+
+
+class BaseResponse:
+    success: bool
+
+
+class GeoParams(TypedDict):
+    search_value: str
+    lat: str
+    lng: str
+    country_code: str
+    proximity_lat: str
+    proximity_lng: str
+    types: str
+    city_code: str
+    state_code: str
+    limit: int
+
+
+class GeoSearchParams(TypedDict):
+    search_value: str
+    country_code: NotRequired[str] = None
+    proximity_lat: NotRequired[str] = None
+    proximity_lng: NotRequired[str] = None
+    types: NotRequired[str] = None
+
+
+class Geoloc(TypedDict):
+    type: str
+    coordinates: List[float]
+
+
+class Region(TypedDict):
+    name: str
+    region_code: str
+    region_code_full: str
+
+
+class Country(TypedDict):
+    name: str
+    country_code: str
+    country_code_alpha_3: str
+
+
+class GeoSearchResult(TypedDict):
+    type: str
+    full_address: str
+    name: str
+    place_formatted: str
+    postcode: str
+    place: str
+    region: Region
+    country: Country
+    language: str
+    geoloc: Geoloc
+    poi_category: List[str]
+    additional_properties: Dict[str, any]
+
+
+class CityResult(TypedDict):
+    state_code: str
+    name: str
+    city_code: str
+    state: "StateResult"
+
+
+class CountryResult(TypedDict):
+    country_code: str
+    name: str
+    iso2: str
+    iso3: str
+    capital: str
+    phone_code: str
+    region: str
+    subregion: str
+    currency_code: str
+    geoloc: Geoloc
+    currency_name: str
+    currency_symbol: str
+    tld: str
+    native: str
+    emoji: str
+    emojiU: str
+    latitude: float
+    longitude: float
+
+
+class StateResult(TypedDict):
+    state_code: str
+    name: str
+    country_code: str
+    country: CountryResult
+
+
+class GeoSearchResponse(BaseResponse):
+    data: List[GeoSearchResult]
+
+
+class GeocodeParams(TypedDict):
+    search_value: str
+    lat: str
+    lng: str
+    country_code: str
+    proximity_lat: str
+    proximity_lng: str
+    types: str
+    limit: int
+
+
+class GeoCityParams(TypedDict):
+    country_code: str
+    city_code: str
+    state_code: str
+    search_value: str
+    lat: str
+    lng: str
+    limit: int
+
+
+class GeoCityResponse(BaseResponse):
+    city: List[CityResult]
+
+
+class GeoCountryParams(TypedDict):
+    country_code: str
+    city_code: str
+    search_value: str
+    lat: str
+    lng: str
+    limit: int
+    currency_code: str
+
+
+class GeoCountryResponse(BaseResponse):
+    country: List[CountryResult]
+
+
+class GeoStateParams(TypedDict):
+    country_code: str
+    state_code: str
+    search_value: str
+    lat: str
+    lng: str
+    limit: int
+
+
+class GeoStateResponse(BaseResponse):
+    state: List[StateResult]
+
+
+class GeoDistanceParams(TypedDict):
+    unit: NotRequired[str] = None  # "K" or "N"
+    lat1: str
+    lng1: str
+    lat2: str
+    lng2: str
+
+
+class GeoDistanceResponse(BaseResponse):
+    distance: float
+
+
+class GeoTimezoneParams(TypedDict):
+    lat: str
+    lng: str
+    city_code: NotRequired[str] = None
+    country_code: NotRequired[str] = None
+
+
+class GeoTimezoneResponse(BaseResponse):
+    timezone: Dict[str, any]
+
+
+class GeohashParams(TypedDict):
+    lat: str
+    lng: str
+    precision: int
+
+
+class GeohashResponse(BaseResponse):
+    geohash: str
+
+
+class GeohashDecodeResponse(BaseResponse):
+    latitude: float
+    longitude: float
+
+
+class Geo(ClientConfig):
+
+    config: RequestConfig
+
+    def __init__(
+        self,
+        api_key: str,
+        api_url: str,
+        disable_request_logging: Union[bool, None] = False,
+    ):
+        super().__init__(api_key, api_url, disable_request_logging)
+        self.config = RequestConfig(
+            api_url=api_url,
+            api_key=api_key,
+            disable_request_logging=disable_request_logging,
+        )
+
+    def search(self, params: GeoSearchParams) -> GeoSearchResponse:
+        path = "/geo/search"
+        resp = Request(
+            config=self.config,
+            path=path,
+            params=cast(Dict[Any, Any], params),
+            verb="get",
+        ).perform_with_content()
+        return resp
+
+    def geocode(self, params: GeocodeParams) -> GeohashDecodeResponse:
+        path = "/geo/geocode"
+        resp = Request(
+            config=self.config,
+            path=path,
+            params=cast(Dict[Any, Any], params),
+            verb="get",
+        ).perform_with_content()
+        return resp
+
+    def city(self, params: GeoCityParams) -> GeoCityResponse:
+        path = "/geo/city"
+        resp = Request(
+            config=self.config,
+            path=path,
+            params=cast(Dict[Any, Any], params),
+            verb="get",
+        ).perform_with_content()
+        return resp
+
+    def country(self, params: GeoCountryParams) -> GeoCountryResponse:
+        path = "/geo/country"
+        resp = Request(
+            config=self.config,
+            path=path,
+            params=cast(Dict[Any, Any], params),
+            verb="get",
+        ).perform_with_content()
+        return resp
+
+    def state(self, params: GeoStateParams) -> GeoStateResponse:
+        path = "/geo/state"
+        resp = Request(
+            config=self.config,
+            path=path,
+            params=cast(Dict[Any, Any], params),
+            verb="get",
+        ).perform_with_content()
+        return resp
+
+    def distance(self, params: GeoDistanceParams) -> GeoDistanceResponse:
+        path = "/geo/distance"
+        resp = Request(
+            config=self.config,
+            path=path,
+            params=cast(Dict[Any, Any], params),
+            verb="get",
+        ).perform_with_content()
+        return resp
+
+    def timezone(self, params: GeoTimezoneParams) -> GeoTimezoneResponse:
+        path = "/geo/timezone"
+        resp = Request(
+            config=self.config,
+            path=path,
+            params=cast(Dict[Any, Any], params),
+            verb="get",
+        ).perform_with_content()
+        return resp
+
+    def geohash(self, params: GeohashParams) -> GeohashResponse:
+        path = "/geo/geohash"
+        resp = Request(
+            config=self.config,
+            path=path,
+            params=cast(Dict[Any, Any], params),
+            verb="get",
+        ).perform_with_content()
+        return resp
+
+    def geohash(self, key: str) -> GeohashDecodeResponse:
+        path = f"/geo/geohash/decode/{key}"
+        resp = Request(
+            config=self.config,
+            path=path,
+            params=cast(Dict[Any, Any], params={}),
+            verb="get",
+        ).perform_with_content()
+        return resp
+
+
+class AsyncGeo(ClientConfig):
+
+    config: AsyncRequestConfig
+
+    def __init__(
+        self,
+        api_key: str,
+        api_url: str,
+        disable_request_logging: Union[bool, None] = False,
+    ):
+        super().__init__(api_key, api_url, disable_request_logging)
+        self.config = AsyncRequestConfig(
+            api_url=api_url,
+            api_key=api_key,
+            disable_request_logging=disable_request_logging,
+        )
+
+    async def search(self, params: GeoSearchParams) -> GeoSearchResponse:
+        path = "/geo/search"
+        resp = await AsyncRequest(
+            config=self.config,
+            path=path,
+            params=cast(Dict[Any, Any], params),
+            verb="get",
+        ).perform_with_content()
+        return resp
+
+    async def geocode(self, params: GeocodeParams) -> GeohashDecodeResponse:
+        path = "/geo/geocode"
+        resp = await AsyncRequest(
+            config=self.config,
+            path=path,
+            params=cast(Dict[Any, Any], params),
+            verb="get",
+        ).perform_with_content()
+        return resp
+
+    async def city(self, params: GeoCityParams) -> GeoCityResponse:
+        path = "/geo/city"
+        resp = await AsyncRequest(
+            config=self.config,
+            path=path,
+            params=cast(Dict[Any, Any], params),
+            verb="get",
+        ).perform_with_content()
+        return resp
+
+    async def country(self, params: GeoCountryParams) -> GeoCountryResponse:
+        path = "/geo/country"
+        resp = await AsyncRequest(
+            config=self.config,
+            path=path,
+            params=cast(Dict[Any, Any], params),
+            verb="get",
+        ).perform_with_content()
+        return resp
+
+    async def state(self, params: GeoStateParams) -> GeoStateResponse:
+        path = "/geo/state"
+        resp = await AsyncRequest(
+            config=self.config,
+            path=path,
+            params=cast(Dict[Any, Any], params),
+            verb="get",
+        ).perform_with_content()
+        return resp
+
+    async def distance(self, params: GeoDistanceParams) -> GeoDistanceResponse:
+        path = "/geo/distance"
+        resp = await AsyncRequest(
+            config=self.config,
+            path=path,
+            params=cast(Dict[Any, Any], params),
+            verb="get",
+        ).perform_with_content()
+        return resp
+
+    async def timezone(self, params: GeoTimezoneParams) -> GeoTimezoneResponse:
+        path = "/geo/timezone"
+        resp = await AsyncRequest(
+            config=self.config,
+            path=path,
+            params=cast(Dict[Any, Any], params),
+            verb="get",
+        ).perform_with_content()
+        return resp
+
+    async def geohash(self, params: GeohashParams) -> GeohashResponse:
+        path = "/geo/geohash"
+        resp = await AsyncRequest(
+            config=self.config,
+            path=path,
+            params=cast(Dict[Any, Any], params),
+            verb="get",
+        ).perform_with_content()
+        return resp
+
+    async def geohash(self, key: str) -> GeohashDecodeResponse:
+        path = f"/geo/geohash/decode/{key}"
+        resp = await AsyncRequest(
+            config=self.config,
+            path=path,
+            params=cast(Dict[Any, Any], params={}),
+            verb="get",
+        ).perform_with_content()
+        return resp
+
+
+
+================================================
+FILE: jigsawstack/helpers.py
+================================================
+
+from typing import Dict, Optional, Union
+from urllib.parse import urlencode
+
+def build_path(base_path: str, params: Optional[Dict[str, Union[str, int, bool]]] = None) -> str:
+    """
+    Build an API endpoint path with query parameters.
+
+    Args:
+        base_path (str): The base path endpoint (e.g. '/store/file')
+        params (Optional[Dict[str, Union[str, int, bool]]]): A dictionary of query parameters
+
+    Returns:
+        str: The constructed path with query parameters
+    """
+    if params is None:
+        return base_path
+    
+    #remove None values from the parameters
+    filtered_params = { k: str(v).lower() if isinstance(v, bool) else v for k, v in params.items() if v is not None}
+
+    #encode the parameters
+    return f"{base_path}?{urlencode(filtered_params)}" if filtered_params else base_path
+
+
+
+
+
+================================================
+FILE: jigsawstack/image_generation.py
+================================================
+from typing import Any, Dict, List, Union, cast
+from typing_extensions import NotRequired, TypedDict, Literal, Required
+from .request import Request, RequestConfig
+from .async_request import AsyncRequest
+
+from typing import List, Union
+from ._config import ClientConfig
+
+class AdvanceConfig(TypedDict):
+    negative_prompt: NotRequired[str]
+    guidance: NotRequired[int]
+    seed: NotRequired[int]
+
+class ImageGenerationParams(TypedDict):
+    prompt: Required[str]
+    """
+    The text to generate the image from.
+    """
+    aspect_ratio: NotRequired[Literal["1:1", "16:9", "21:9", "3:2", "2:3", "4:5", "5:4", "3:4", "4:3", "9:16", "9:21"]]
+    """
+    The aspect ratio of the image. The default is 1:1.
+    """
+    width: NotRequired[int]
+    """
+    The width of the image. The default is 512.
+    """
+    height: NotRequired[int]
+    """
+    The height of the image. The default is 512.
+    """
+    steps: NotRequired[int]
+    """
+    The number of steps to generate the image.
+    """
+    output_format: NotRequired[Literal["png", "svg"]]
+    """
+    The output format of the generated image. Can be 'png' or 'svg'.
+    """
+    advance_config: NotRequired[AdvanceConfig]
+    """
+    The advance configuration for the image generation. The default is None.
+    You can pass the following:
+    - `negative_prompt`: The negative prompt for the image generation
+    - `guidance`: The guidance scale for the image generation
+    - `seed`: The seed for reproducible generation
+    """
+    url: NotRequired[str]
+    """
+    URL to use as image input.
+    """
+    file_store_key: NotRequired[str]
+    """
+    File store key to use as image input.
+    """
+
+    return_type: NotRequired[Literal["url", "binary", "base64"]]
+
+class ImageGenerationResponse(TypedDict):
+    success: bool
+    """
+    Indicates whether the image generation was successful.
+    """
+    image: bytes
+    """
+    The generated image as a blob.
+    """
+
+class ImageGeneration(ClientConfig):
+    config: RequestConfig
+
+    def __init__(
+        self,
+        api_key: str,
+        api_url: str,
+        disable_request_logging: Union[bool, None] = False,
+    ):
+        super().__init__(api_key, api_url, disable_request_logging=disable_request_logging)
+        self.config = RequestConfig(
+            api_url=api_url,
+            api_key=api_key,
+            disable_request_logging=disable_request_logging,
+        )
+
+    def image_generation(self, params: ImageGenerationParams) -> ImageGenerationResponse:
+        path = "/ai/image_generation"
+        resp = Request(
+            config=self.config,
+            path=path,
+            params=cast(Dict[Any, Any], params), # type: ignore
+            verb="post",
+        ).perform()
+        return resp
+    
+class AsyncImageGeneration(ClientConfig):
+    config: RequestConfig
+
+    def __init__(
+        self,
+        api_key: str,
+        api_url: str,
+        disable_request_logging: Union[bool, None] = False,
+    ):
+        super().__init__(api_key, api_url, disable_request_logging=disable_request_logging)
+        self.config = RequestConfig(
+            api_url=api_url,
+            api_key=api_key,
+            disable_request_logging=disable_request_logging,
+        )
+
+    async def image_generation(self, params: ImageGenerationParams) -> ImageGenerationResponse:
+        path = "/ai/image_generation"
+        resp = await AsyncRequest(
+            config=self.config,
+            path=path,
+            params=cast(Dict[Any, Any], params), # type: ignore
+            verb="post",
+        ).perform()
+        return resp
+    
+
+
+    
+
+
+================================================
+FILE: jigsawstack/prediction.py
+================================================
+from typing import Any, Dict, List, Union, cast
+from typing_extensions import NotRequired, TypedDict
+from .request import Request, RequestConfig
+from .async_request import AsyncRequest
+
+from typing import List, Union
+from ._config import ClientConfig
+
+
+class Dataset(TypedDict):
+    value: int
+    """
+    The value of the dataset.
+    """
+
+    date: str
+    """
+    The date of the dataset.
+    """
+
+
+class PredictionParams(TypedDict):
+    dataset: List[Dataset]
+    """
+    The dataset to make predictions on. This is an array of object with keys date and value. See example below for more information.
+    """
+    steps: int
+    """
+    The number of predictions to make. The defualt is 5. 
+    """
+
+
+class PredictionResponse(TypedDict):
+    success: bool
+    """
+    Indicates whether the translation was successful.
+    """
+    prediction: object
+
+
+class Prediction(ClientConfig):
+
+    config: RequestConfig
+
+    def __init__(
+        self,
+        api_key: str,
+        api_url: str,
+        disable_request_logging: Union[bool, None] = False,
+    ):
+        super().__init__(api_key, api_url, disable_request_logging)
+        self.config = RequestConfig(
+            api_url=api_url,
+            api_key=api_key,
+            disable_request_logging=disable_request_logging,
+        )
+
+    def predict(self, params: PredictionParams) -> PredictionResponse:
+        path = "/ai/prediction"
+        resp = Request(
+            config=self.config,
+            path=path,
+            params=cast(Dict[Any, Any], params),
+            verb="post",
+        ).perform_with_content()
+        return resp
+
+
+class AsyncPrediction(ClientConfig):
+
+    config: RequestConfig
+
+    def __init__(
+        self,
+        api_key: str,
+        api_url: str,
+        disable_request_logging: Union[bool, None] = False,
+    ):
+        super().__init__(api_key, api_url, disable_request_logging)
+        self.config = RequestConfig(
+            api_url=api_url,
+            api_key=api_key,
+            disable_request_logging=disable_request_logging,
+        )
+
+    async def predict(self, params: PredictionParams) -> PredictionResponse:
+        path = "/ai/prediction"
+        resp = await AsyncRequest(
+            config=self.config,
+            path=path,
+            params=cast(Dict[Any, Any], params),
+            verb="post",
+        ).perform_with_content()
+        return resp
+
+
+
+================================================
+FILE: jigsawstack/prompt_engine.py
+================================================
+from typing import Any, Dict, List, Union, cast, Generator, Literal
+from typing_extensions import NotRequired, TypedDict
+from .request import Request, RequestConfig
+from .async_request import AsyncRequest
+from typing import List, Union
+from ._config import ClientConfig
+from .helpers import build_path
+
+
+class PromptEngineResult(TypedDict):
+    prompt: str
+    return_prompt: str
+    id: str
+
+
+class PromptEngineRunParams(TypedDict):
+    prompt: str
+    inputs: NotRequired[List[object]]
+    return_prompt: Union[str, List[object], Dict[str, str]]
+    input_values: NotRequired[Dict[str, str]]
+    stream: Union[bool, None] = False
+    use_internet: Union[bool, None] = False
+    prompt_guard: NotRequired[
+        Literal[
+            "defamation",
+            "specialized_advice",
+            "privacy",
+            "intellectual_property",
+            "indiscriminate_weapons",
+            "hate",
+            "sexual_content",
+            "elections",
+            "code_interpreter_abuse",
+        ]
+    ]
+
+
+class PromptEngineExecuteParams(TypedDict):
+    id: str
+    input_values: object
+    stream: Union[bool, None] = False
+
+
+class PromptEngineRunResponse(TypedDict):
+    success: bool
+    result: Any
+
+
+class PromptEngineCreateParams(TypedDict):
+    prompt: str
+    inputs: NotRequired[List[object]]
+    return_prompt: Union[str, List[object], Dict[str, str]]
+    use_internet: Union[bool, None] = False
+    optimize_prompt: Union[bool, None] = False
+    prompt_guard: NotRequired[
+        Literal[
+            "defamation",
+            "specialized_advice",
+            "privacy",
+            "intellectual_property",
+            "indiscriminate_weapons",
+            "hate",
+            "sexual_content",
+            "elections",
+            "code_interpreter_abuse",
+        ]
+    ]
+
+
+class PromptEngineCreateResponse(TypedDict):
+    success: bool
+    prompt_engine_id: str
+
+
+class PromptEngineGetResponse(PromptEngineResult):
+    success: bool
+
+
+class PromptEngineListResponse(TypedDict):
+    success: bool
+    prompt_engines: List[PromptEngineResult]
+
+
+class PromptEngineListParams(TypedDict):
+    limit: str
+    page: str
+
+
+class PromptEngineDeleteResponse(TypedDict):
+    prompt_engine_id: str
+
+
+class PromptEngine(ClientConfig):
+
+    config: RequestConfig
+
+    def __init__(
+        self,
+        api_key: str,
+        api_url: str,
+        disable_request_logging: Union[bool, None] = False,
+    ):
+        super().__init__(api_key, api_url, disable_request_logging)
+        self.config = RequestConfig(
+            api_url=api_url,
+            api_key=api_key,
+            disable_request_logging=disable_request_logging,
+        )
+
+    def create(self, params: PromptEngineCreateParams) -> PromptEngineCreateResponse:
+        path = "/prompt_engine"
+        resp = Request(
+            config=self.config,
+            path=path,
+            params=cast(Dict[Any, Any], params),
+            verb="post",
+        ).perform_with_content()
+        return resp
+
+    def get(self, id: str) -> PromptEngineGetResponse:
+        path = f"/prompt_engine/{id}"
+        resp = Request(
+            config=self.config, path=path, params={}, verb="get"
+        ).perform_with_content()
+        return resp
+
+    def list(
+        self, params: Union[PromptEngineListParams, None] = None
+    ) -> PromptEngineListResponse:
+
+        if params is None:
+            params = {}
+
+        # Default limit and page to 20 and 1 respectively
+        if params.get("limit") is None:
+            params["limit"] = 20
+
+        if params.get("page") is None:
+            params["page"] = 0
+
+        path = build_path(
+            base_path="/prompt_engine",
+            params=params,
+        )
+        resp = Request(
+            config=self.config, path=path, params={}, verb="get"
+        ).perform_with_content()
+        return resp
+
+    def delete(self, id: str) -> PromptEngineDeleteResponse:
+        path = f"/prompt_engine/{id}"
+        resp = Request(
+            config=self.config,
+            path=path,
+            params={},
+            verb="DELETE",
+        ).perform_with_content()
+        return resp
+
+    def run_prompt_direct(
+        self, params: PromptEngineRunParams
+    ) -> Union[PromptEngineRunResponse, Generator[Any, None, None]]:
+        path = "/prompt_engine/run"
+        stream = params.get("stream")
+        if stream:
+            resp = Request(
+                config=self.config,
+                path=path,
+                params=cast(Dict[Any, Any], params),
+                verb="post",
+            ).perform_with_content_streaming()
+            return resp
+
+        resp = Request(
+            config=self.config,
+            path=path,
+            params=cast(Dict[Any, Any], params),
+            verb="post",
+        ).perform_with_content()
+        return resp
+
+    def run(
+        self, params: PromptEngineExecuteParams
+    ) -> Union[PromptEngineRunResponse, Generator[Any, None, None]]:
+        id = params.get("id")
+        path = f"/prompt_engine/{id}"
+        stream = params.get("stream")
+
+        if stream:
+            resp = Request(
+                config=self.config,
+                path=path,
+                params=cast(Dict[Any, Any], params),
+                verb="post",
+            ).perform_with_content_streaming()
+            return resp
+
+        resp = Request(
+            config=self.config,
+            path=path,
+            params=cast(Dict[Any, Any], params),
+            verb="post",
+        ).perform_with_content()
+        return resp
+
+
+class AsyncPromptEngine(ClientConfig):
+
+    config: RequestConfig
+
+    def __init__(
+        self,
+        api_key: str,
+        api_url: str,
+        disable_request_logging: Union[bool, None] = False,
+    ):
+        super().__init__(api_key, api_url, disable_request_logging)
+        self.config = RequestConfig(
+            api_url=api_url,
+            api_key=api_key,
+            disable_request_logging=disable_request_logging,
+        )
+
+    async def create(
+        self, params: PromptEngineCreateParams
+    ) -> PromptEngineCreateResponse:
+        path = "/prompt_engine"
+        resp = await AsyncRequest(
+            config=self.config,
+            path=path,
+            params=cast(Dict[Any, Any], params),
+            verb="post",
+        ).perform_with_content()
+        return resp
+
+    async def get(self, id: str) -> PromptEngineGetResponse:
+        path = f"/prompt_engine/{id}"
+        resp = await AsyncRequest(
+            config=self.config, path=path, params={}, verb="get"
+        ).perform_with_content()
+        return resp
+
+    async def list(
+        self, params: Union[PromptEngineListParams, None] = None
+    ) -> PromptEngineListResponse:
+
+        if params is None:
+            params = {}
+
+        # Default limit and page to 20 and 1 respectively
+        if params.get("limit") is None:
+            params["limit"] = 20
+
+        if params.get("page") is None:
+            params["page"] = 0
+
+        path = build_path(
+            base_path="/prompt_engine",
+            params=params,
+        )
+        resp = await AsyncRequest(
+            config=self.config, path=path, params={}, verb="get"
+        ).perform_with_content()
+        return resp
+
+    async def delete(self, id: str) -> PromptEngineDeleteResponse:
+        path = f"/prompt_engine/{id}"
+        resp = await AsyncRequest(
+            config=self.config,
+            path=path,
+            params={},
+            verb="DELETE",
+        ).perform_with_content()
+        return resp
+
+    async def run_prompt_direct(
+        self, params: PromptEngineRunParams
+    ) -> Union[PromptEngineRunResponse, Generator[Any, None, None]]:
+        path = "/prompt_engine/run"
+        stream = params.get("stream")
+        if stream:
+            resp = await AsyncRequest(
+                config=self.config,
+                path=path,
+                params=cast(Dict[Any, Any], params),
+                verb="post",
+            ).perform_with_content_streaming()
+            return resp
+        resp = await AsyncRequest(
+            config=self.config,
+            path=path,
+            params=cast(Dict[Any, Any], params),
+            verb="post",
+        ).perform_with_content()
+        return resp
+
+    async def run(
+        self, params: PromptEngineExecuteParams
+    ) -> Union[PromptEngineRunResponse, Generator[Any, None, None]]:
+        id = params.get("id")
+        path = f"/prompt_engine/{id}"
+        stream = params.get("stream")
+
+        if stream:
+            resp = await AsyncRequest(
+                config=self.config,
+                path=path,
+                params=cast(Dict[Any, Any], params),
+                verb="post",
+            ).perform_with_content_streaming()
+            return resp
+
+        resp = await AsyncRequest(
+            config=self.config,
+            path=path,
+            params=cast(Dict[Any, Any], params),
+            verb="post",
+        ).perform_with_content()
+        return resp
+
+
+
+================================================
+FILE: jigsawstack/request.py
+================================================
+from typing import Any, Dict, Generic, List, Union, cast, TypedDict, Generator
+import requests
+from typing_extensions import Literal, TypeVar
+from .exceptions import NoContentError, raise_for_code_and_type
+import json
+
+RequestVerb = Literal["get", "post", "put", "patch", "delete"]
+
+T = TypeVar("T")
+
+
+class RequestConfig(TypedDict):
+    api_url: str
+    api_key: str
+    disable_request_logging: Union[bool, None] = False
+
+
+# This class wraps the HTTP request creation logic
+class Request(Generic[T]):
+    def __init__(
+        self,
+        config: RequestConfig,
+        path: str,
+        params: Union[Dict[Any, Any], List[Dict[Any, Any]]],
+        verb: RequestVerb,
+        headers: Dict[str, str] = {"Content-Type": "application/json"},
+        data: Union[bytes, None] = None,
+        stream: Union[bool, None] = False,
+    ):
+        self.path = path
+        self.params = params
+        self.verb = verb
+        self.api_url = config.get("api_url")
+        self.api_key = config.get("api_key")
+        self.data = data
+        self.headers = headers
+        self.disable_request_logging = config.get("disable_request_logging")
+        self.stream = stream
+
+    def perform(self) -> Union[T, None]:
+        """Is the main function that makes the HTTP request
+        to the JigsawStack API. It uses the path, params, and verb attributes
+        to make the request.
+
+        Returns:
+            Union[T, None]: A generic type of the Request class or None
+
+        Raises:
+            requests.HTTPError: If the request fails
+        """
+        resp = self.make_request(url=f"{self.api_url}{self.path}")
+
+        #for binary responses
+        if resp.status_code == 200:
+            content_type = resp.headers.get("content-type", "")
+            if not resp.text or any(t in content_type for t in ["audio/", "image/", "application/octet-stream", "image/png"]):
+                return cast(T, resp.content)
+
+        #for json resposes.
+        if resp.status_code != 200:
+            try:
+                error = resp.json()
+                raise_for_code_and_type(
+                    code=resp.status_code,
+                    message=error.get("message"),
+                    err=error.get("error"),
+                )
+            except json.JSONDecodeError:
+                raise_for_code_and_type(
+                    code=500,
+                    message="Failed to parse response. Invalid content type or encoding.",
+                )
+
+        # For JSON responses
+        try:
+            return cast(T, resp.json())
+        except json.JSONDecodeError:
+            return cast(T, resp)
+
+    def perform_file(self) -> Union[T, None]:
+
+        resp = self.make_request(url=f"{self.api_url}{self.path}")
+
+        # delete calls do not return a body
+        if resp.text == "" and resp.status_code == 200:
+            return None
+        # handle error in case there is a statusCode attr present
+        # and status != 200 and response is a json.
+
+        if (
+            "application/json" not in resp.headers["content-type"]
+            and resp.status_code != 200
+        ):
+            raise_for_code_and_type(
+                code=500,
+                message="Failed to parse JigsawStack API response. Please try again.",
+                error_type="InternalServerError",
+            )
+
+        if resp.status_code != 200:
+            error = resp.json()
+            raise_for_code_and_type(
+                code=resp.status_code,
+                message=error.get("message"),
+                err=error.get("error"),
+            )
+
+        #for binary responses
+        if resp.status_code == 200:
+            content_type = resp.headers.get("content-type", "")
+            if "application/json" not in content_type:
+                resp = cast(T, resp.content)
+        return resp
+
+    def perform_with_content(self) -> T:
+        """
+        Perform an HTTP request and return the response content.
+
+        Returns:
+            T: The content of the response
+
+        Raises:
+            NoContentError: If the response content is `None`.
+        """
+        resp = self.perform()
+        if resp is None:
+            raise NoContentError()
+        return resp
+
+    def perform_with_content_file(self) -> T:
+        """
+        Perform an HTTP request and return the response content.
+
+        Returns:
+            T: The content of the response
+
+        Raises:
+            NoContentError: If the response content is `None`.
+        """
+        resp = self.perform_file()
+        if resp is None:
+            raise NoContentError()
+        return resp
+
+    def __get_headers(self) -> Dict[Any, Any]:
+        """get_headers returns the HTTP headers that will be
+        used for every req.
+
+        Returns:
+            Dict: configured HTTP Headers
+        """
+
+        h = {
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+            "x-api-key": f"{self.api_key}",
+        }
+
+        if self.disable_request_logging:
+            h["x-jigsaw-no-request-log"] = "true"
+
+        _headers = h.copy()
+        _headers.update(self.headers)
+
+        return _headers
+
+    def perform_streaming(self) -> Generator[Union[T, str], None, None]:
+        """Is the main function that makes the HTTP request
+        to the JigsawStack API. It uses the path, params, and verb attributes
+        to make the request.
+
+        Returns:
+            Generator[bytes, None, None]: A generator of bytes
+
+        Raises:
+            requests.HTTPError: If the request fails
+        """
+        resp = self.make_request(url=f"{self.api_url}{self.path}")
+
+        # delete calls do not return a body
+        if resp.text == "":
+            return None
+
+        if resp.status_code != 200:
+            error = resp.json()
+            raise_for_code_and_type(
+                code=resp.status_code,
+                message=error.get("message"),
+                err=error.get("error"),
+            )
+
+        def try_parse_data(chunk: bytes) -> Union[T, str]:
+            if not chunk:
+                return chunk
+            # Decode bytes to text
+            text = chunk.decode("utf-8")
+
+            try:
+                # Try to parse as JSON
+                return json.loads(text)
+            except json.JSONDecodeError:
+                # Return as text if not valid JSON
+                return text
+
+        # Yield content in chunks
+        def chunk_generator():
+            for chunk in resp.iter_content(chunk_size=1024):  # 1KB chunks
+                if chunk:  # Filter out keep-alive new chunks
+                    yield try_parse_data(chunk)
+
+        return chunk_generator()
+
+    def perform_with_content_streaming(self) -> Generator[Union[T, str], None, None]:
+        """
+        Perform an HTTP request and return the response content as a streaming response.
+
+        Returns:
+            T: The content of the response
+
+        Raises:
+            NoContentError: If the response content is `None`.
+        """
+        resp = self.perform_streaming()
+        if resp is None:
+            raise NoContentError()
+        return resp
+
+    def make_request(self, url: str) -> requests.Response:
+        """make_request is a helper function that makes the actual
+        HTTP request to the JigsawStack API.
+
+        Args:
+            url (str): The URL to make the request to
+
+        Returns:
+            requests.Response: The response object from the request
+
+        Raises:
+            requests.HTTPError: If the request fails
+        """
+        headers = self.__get_headers()
+        params = self.params
+        verb = self.verb
+        data = self.data
+
+        _requestParams = None
+
+        if verb.lower() in ["get", "delete"]:
+            _requestParams = params
+
+        try:
+            return requests.request(
+                verb,
+                url,
+                params=_requestParams,
+                json=params,
+                headers=headers,
+                data=data,
+                stream=self.stream,
+            )
+        except requests.HTTPError as e:
+            raise e
+
+
+
+================================================
+FILE: jigsawstack/search.py
+================================================
+from typing import Any, Dict, List, Union, cast, Literal
+from typing_extensions import NotRequired, TypedDict
+from .request import Request, RequestConfig
+from .async_request import AsyncRequest, AsyncRequestConfig
+from typing_extensions import NotRequired, TypedDict
+from ._config import ClientConfig
+
+
+class SearchResponse(TypedDict):
+    success: bool
+    """
+    Whether the search request was successful
+    """
+
+    query: str
+    """
+    The search query that was used
+    """
+
+    ai_overview: str
+    """
+    AI-generated overview/summary of the search results
+    or deep research results if enabled
+    """
+
+    results: List[Any]
+    """
+    List of search result items
+    """
+
+    is_safe: bool
+    """
+    Whether the search results passed safe search filtering
+    """
+
+    spell_fixed: bool
+    """
+    Whether the query was spell-checked and fixed
+    """
+
+    geo_results: List[Any]
+    """
+    List of location/geographic search results if applicable
+    """
+
+    image_urls: List[str]
+    """
+    List of image URLs found in the search results
+    """
+
+    links: List[str]
+    """
+    List of web page URLs found in the search results
+    """
+
+
+class SearchSuggestionsResponse(TypedDict):
+    success: bool
+    """
+    Whether the search suggestions request was successful
+    """
+
+    suggestions: List[str]
+    """
+    List of search suggestions
+    """
+
+
+class SearchSuggestionsParams(TypedDict):
+    query: str
+    """
+    The search value. The maximum query character length is 200.
+    """
+
+class DeepResearchConfig(TypedDict):
+    max_depth: NotRequired[int]
+    max_breadth: NotRequired[int]
+    max_output_tokens: NotRequired[int]
+    target_output_tokens: NotRequired[int]
+
+class SearchParams(TypedDict):
+    query: str
+    """
+    The search query string to execute
+    """
+
+    spell_check: NotRequired[bool]
+    """
+    Whether to perform spell checking on the query. Defaults to True.
+    """
+
+    safe_search: NotRequired[Literal["strict", "moderate", "off"]]
+    """
+    Safe search filtering level. Can be 'strict', 'moderate', or 'off'
+    """
+
+    ai_overview: NotRequired[bool]
+    """
+    Whether to generate an AI-powered overview of the search results. Defaults to True.
+    """
+
+    byo_urls: NotRequired[List[str]]
+    """
+    List of custom URLs to include in the search results
+    """
+
+    country_code: NotRequired[str]
+    """
+    Two-letter country code to localize search results (e.g. 'US', 'GB')
+    """
+
+    auto_scrape: NotRequired[bool]
+    """
+    Whether to automatically scrape content from search result URLs
+    """
+
+    deep_research: NotRequired[bool]
+    """
+    Enable deep research mode for more comprehensive results
+    """
+
+    deep_research_config: NotRequired[DeepResearchConfig]
+    """
+    Configuration options for deep research mode
+    """
+
+
+
+
+class Search(ClientConfig):
+    config: RequestConfig
+
+    def __init__(
+        self,
+        api_key: str,
+        api_url: str,
+        disable_request_logging: Union[bool, None] = False,
+    ):
+        super().__init__(api_key, api_url, disable_request_logging)
+        self.config = RequestConfig(
+            api_url=api_url,
+            api_key=api_key,
+            disable_request_logging=disable_request_logging,
+        )
+
+    def search(self, params: SearchParams) -> SearchResponse:
+        query = params["query"]
+        ai_overview = params.get("ai_overview", "True")
+        safe_search = params.get("safe_search", "moderate")
+        spell_check = params.get("spell_check", "True")
+
+        body = {
+            "byo_urls": params.get("byo_urls", []),
+            "query": query,
+            "ai_overview": ai_overview,
+            "safe_search": safe_search,
+            "spell_check": spell_check,
+        }
+
+        path = f"/web/search"
+        resp = Request(
+            config=self.config,
+            path=path,
+            params=cast(Dict[Any, Any], body),
+            verb="POST",
+        ).perform_with_content()
+
+        return resp
+
+    def suggestions(self, params: SearchSuggestionsParams) -> SearchSuggestionsResponse:
+        query = params["query"]
+        path = f"/web/search/suggest?query={query}"
+        resp = Request(
+            config=self.config,
+            path=path,
+            params=cast(Dict[Any, Any], params),
+            verb="GET",
+        ).perform_with_content()
+        return resp
+
+
+class AsyncSearch(ClientConfig):
+    config: AsyncRequestConfig
+
+    def __init__(
+        self,
+        api_key: str,
+        api_url: str,
+        disable_request_logging: Union[bool, None] = False,
+    ):
+        super().__init__(api_key, api_url, disable_request_logging)
+        self.config = RequestConfig(
+            api_url=api_url,
+            api_key=api_key,
+            disable_request_logging=disable_request_logging,
+        )
+
+    async def search(self, params: SearchParams) -> SearchResponse:
+        path = f"/web/search"
+        query = params["query"]
+        ai_overview = params.get("ai_overview", "True")
+        safe_search = params.get("safe_search", "moderate")
+        spell_check = params.get("spell_check", "True")
+
+        body = {
+            "byo_urls": params.get("byo_urls", []),
+            "query": query,
+            "ai_overview": ai_overview,
+            "safe_search": safe_search,
+            "spell_check": spell_check,
+        }
+        resp = await AsyncRequest(
+            config=self.config,
+            path=path,
+            params=cast(Dict[Any, Any], body),
+            verb="POST",
+        ).perform_with_content()
+        return resp
+
+    async def suggestions(
+        self, params: SearchSuggestionsParams
+    ) -> SearchSuggestionsResponse:
+        query = params["query"]
+        path = f"/web/search/suggest?query={query}"
+        resp = await AsyncRequest(
+            config=self.config,
+            path=path,
+            params=cast(Dict[Any, Any], params),
+            verb="GET",
+        ).perform_with_content()
+        return resp
+
+
+
+================================================
+FILE: jigsawstack/sentiment.py
+================================================
+from typing import Any, Dict, List, Union, cast
+from typing_extensions import NotRequired, TypedDict
+from .request import Request, RequestConfig
+from .async_request import AsyncRequest
+from typing import List, Union
+from ._config import ClientConfig
+
+
+class SentimentParams(TypedDict):
+    text: str
+    """
+    The text.
+    """
+
+
+class SentimentSentenceResult(TypedDict):
+    score: float
+    emotion: str
+    text: str
+    sentiment: str
+
+
+class SentimentResult(TypedDict):
+    emotion: str
+    """
+     The emotion detected in the text.
+     """
+    sentiment: str
+    """
+     The sentiment detected in the text.
+     """
+    score: float
+    """
+      The score of the sentiment.
+     """
+    sentences: List[SentimentSentenceResult]
+
+
+class SentimentResponse(TypedDict):
+    success: bool
+    """
+    Indicates whether the translation was successful.
+    """
+    sentiment: SentimentResult
+
+
+class Sentiment(ClientConfig):
+
+    config: RequestConfig
+
+    def __init__(
+        self,
+        api_key: str,
+        api_url: str,
+        disable_request_logging: Union[bool, None] = False,
+    ):
+        super().__init__(api_key, api_url, disable_request_logging)
+        self.config = RequestConfig(
+            api_url=api_url,
+            api_key=api_key,
+            disable_request_logging=disable_request_logging,
+        )
+
+    def analyze(self, params: SentimentParams) -> SentimentResponse:
+        path = "/ai/sentiment"
+        resp = Request(
+            config=self.config,
+            path=path,
+            params=cast(Dict[Any, Any], params),
+            verb="post",
+        ).perform_with_content()
+        return resp
+
+
+class AsyncSentiment(ClientConfig):
+
+    config: RequestConfig
+
+    def __init__(
+        self,
+        api_key: str,
+        api_url: str,
+        disable_request_logging: Union[bool, None] = False,
+    ):
+        super().__init__(api_key, api_url, disable_request_logging)
+        self.config = RequestConfig(
+            api_url=api_url,
+            api_key=api_key,
+            disable_request_logging=disable_request_logging,
+        )
+
+    async def analyze(self, params: SentimentParams) -> SentimentResponse:
+        path = "/ai/sentiment"
+        resp = await AsyncRequest(
+            config=self.config,
+            path=path,
+            params=cast(Dict[Any, Any], params),
+            verb="post",
+        ).perform_with_content()
+        return resp
+
+
+
+================================================
+FILE: jigsawstack/sql.py
+================================================
+from typing import Any, Dict, List, Union, cast, Literal
+from typing_extensions import NotRequired, TypedDict
+from .request import Request, RequestConfig
+from .async_request import AsyncRequest
+from typing import List, Union
+from ._config import ClientConfig
+
+
+class SQLParams(TypedDict):
+    prompt: str
+    """
+    The prompt that will be translated to an SQL query.
+    """
+
+    sql_schema: NotRequired[str]
+
+    """
+    The database schema where the query will be run. Not required if file_store_key is specified.
+    """
+
+    file_store_key: NotRequired[str]
+    """
+    The key used to store the database schema on Jigsawstack file Storage. Not required if sql_schema is specified.
+    """
+    database: NotRequired[Literal["mysql", "postgresql", "sqlite"]]
+    """
+    The type of database for the SQL query (mysql, postgresql, sqlite).
+    """
+
+
+class SQLResponse(TypedDict):
+    success: bool
+    """
+    Indicates whether the translation was successful.
+    """
+    sql: str
+    """
+    The SQL statement.
+    """
+
+
+class SQL(ClientConfig):
+
+    config: RequestConfig
+
+    def __init__(
+        self,
+        api_key: str,
+        api_url: str,
+        disable_request_logging: Union[bool, None] = False,
+    ):
+        super().__init__(api_key, api_url, disable_request_logging)
+        self.config = RequestConfig(
+            api_url=api_url,
+            api_key=api_key,
+            disable_request_logging=disable_request_logging,
+        )
+
+    def text_to_sql(self, params: SQLParams) -> SQLResponse:
+        path = "/ai/sql"
+        resp = Request(
+            config=self.config,
+            path=path,
+            params=cast(Dict[Any, Any], params),
+            verb="post",
+        ).perform_with_content()
+        return resp
+
+
+class AsyncSQL(ClientConfig):
+
+    config: RequestConfig
+
+    def __init__(
+        self,
+        api_key: str,
+        api_url: str,
+        disable_request_logging: Union[bool, None] = False,
+    ):
+        super().__init__(api_key, api_url, disable_request_logging)
+        self.config = RequestConfig(
+            api_url=api_url,
+            api_key=api_key,
+            disable_request_logging=disable_request_logging,
+        )
+
+    async def text_to_sql(self, params: SQLParams) -> SQLResponse:
+        path = "/ai/sql"
+        resp = await AsyncRequest(
+            config=self.config,
+            path=path,
+            params=cast(Dict[Any, Any], params),
+            verb="post",
+        ).perform_with_content()
+        return resp
+
+
+
+================================================
+FILE: jigsawstack/store.py
+================================================
+from typing import Any, Dict, List, Union, cast
+from typing_extensions import NotRequired, TypedDict
+from .request import Request, RequestConfig
+from .async_request import AsyncRequest, AsyncRequestConfig
+from ._config import ClientConfig
+from .helpers import build_path
+from .exceptions import JigsawStackError
+class FileDeleteResponse(TypedDict):
+    success: bool
+
+class FileUploadParams(TypedDict):
+    overwrite: NotRequired[bool]
+    key: NotRequired[str]
+    content_type: NotRequired[str]
+    temp_public_url: NotRequired[bool]
+
+class FileUploadResponse(TypedDict):
+    key: str
+    url: str
+    size: int
+    temp_public_url: NotRequired[str] # Optional, only if temp_public_url is set to True in params
+    
+
+class Store(ClientConfig):
+
+    config: RequestConfig
+
+    def __init__(
+        self,
+        api_key: str,
+        api_url: str,
+        disable_request_logging: Union[bool, None] = False,
+    ):
+        super().__init__(api_key, api_url, disable_request_logging)
+        self.config = RequestConfig(
+            api_url=api_url,
+            api_key=api_key,
+            disable_request_logging=disable_request_logging,
+        )
+
+    def upload(self, file: bytes, options: Union[FileUploadParams, None] = None) -> FileUploadResponse:
+        if options is None:
+            options = {}
+            
+        path = build_path(base_path="/store/file", params=options)
+        content_type = options.get("content_type", "application/octet-stream")
+        
+        _headers = {"Content-Type": content_type}
+
+        resp = Request(
+            config=self.config,
+            params=options,  # Empty params since we're using them in the URL
+            path=path,
+            data=file,
+            headers=_headers,
+            verb="post",
+        ).perform_with_content()
+        return resp
+
+    def get(self, key: str) -> Any:
+        path = f"/store/file/read/{key}"
+        resp = Request(
+            config=self.config,
+            path=path,
+            params=None,
+            verb="get",
+        ).perform_with_content_file()
+        return resp
+
+    def delete(self, key: str) -> FileDeleteResponse:
+        path = f"/store/file/read/{key}"
+        resp = Request(
+            config=self.config,
+            path=path,
+            params=key,
+            verb="delete",
+        ).perform_with_content()
+        return resp
+
+
+class AsyncStore(ClientConfig):
+    config: AsyncRequestConfig
+
+    def __init__(
+        self,
+        api_key: str,
+        api_url: str,
+        disable_request_logging: Union[bool, None] = False,
+    ):
+        super().__init__(api_key, api_url, disable_request_logging)
+        self.config = AsyncRequestConfig(
+            api_url=api_url,
+            api_key=api_key,
+            disable_request_logging=disable_request_logging,
+        )
+        
+
+    async def upload(self, file: bytes, options: Union[FileUploadParams, None] = None) -> FileUploadResponse:
+        if options is None:
+            options = {}
+            
+        path = build_path(base_path="/store/file", params=options)
+        content_type = options.get("content_type", "application/octet-stream")
+        _headers = {"Content-Type": content_type}
+        resp = await AsyncRequest(
+            config=self.config,
+            params=options,  # Empty params since we're using them in the URL
+            path=path,
+            data=file,
+            headers=_headers,
+            verb="post",
+        ).perform_with_content()
+        return resp
+
+    async def get(self, key: str) -> Any:
+        path = f"/store/file/read/{key}"
+        resp = await AsyncRequest(
+            config=self.config,
+            path=path,
+            params=None,
+            verb="get",
+        ).perform_with_content_file()
+        return resp
+
+    async def delete(self, key: str) -> FileDeleteResponse:
+        path = f"/store/file/read/{key}"
+        resp = await AsyncRequest(
+            config=self.config,
+            path=path,
+            params=key,
+            verb="delete",
+        ).perform_with_content()
+        return resp
+
+
+
+================================================
+FILE: jigsawstack/summary.py
+================================================
+from typing import Any, Dict, List, Union, cast, Literal
+from typing_extensions import NotRequired, TypedDict
+from .request import Request, RequestConfig
+from .async_request import AsyncRequest
+from typing import List, Union
+from ._config import ClientConfig
+
+
+class SummaryParams(TypedDict):
+    text: Union[str, List[str]]
+    """
+    The text to summarize.
+    """
+
+    type: NotRequired[Literal["text", "points"]]
+
+    """
+   The summary result type. Supported values are: text, points
+    """
+    url: NotRequired[str]
+    file_store_key: NotRequired[str]
+    max_points: NotRequired[int]
+    max_characters: NotRequired[int]
+
+
+class SummaryResponse(TypedDict):
+    success: bool
+    """
+    Indicates whether the translation was successful.
+    """
+    summary: str
+    """
+    The summarized text.
+    """
+
+
+class SummaryListResponse(TypedDict):
+    success: bool
+    """
+    Indicates whether the translation was successful.
+    """
+    summary: List[str]
+    """
+    The summarized text.
+    """
+
+
+class Summary(ClientConfig):
+
+    config: RequestConfig
+
+    def __init__(
+        self,
+        api_key: str,
+        api_url: str,
+        disable_request_logging: Union[bool, None] = False,
+    ):
+        super().__init__(api_key, api_url, disable_request_logging)
+        self.config = RequestConfig(
+            api_url=api_url,
+            api_key=api_key,
+            disable_request_logging=disable_request_logging,
+        )
+
+    def summarize(
+        self, params: SummaryParams
+    ) -> Union[SummaryResponse, SummaryListResponse]:
+        path = "/ai/summary"
+        resp = Request(
+            config=self.config,
+            path=path,
+            params=cast(Dict[Any, Any], params),
+            verb="post",
+        ).perform_with_content()
+        return resp
+
+
+class AsyncSummary(ClientConfig):
+
+    config: RequestConfig
+
+    def __init__(
+        self,
+        api_key: str,
+        api_url: str,
+        disable_request_logging: Union[bool, None] = False,
+    ):
+        super().__init__(api_key, api_url, disable_request_logging)
+        self.config = RequestConfig(
+            api_url=api_url,
+            api_key=api_key,
+            disable_request_logging=disable_request_logging,
+        )
+
+    async def summarize(
+        self, params: SummaryParams
+    ) -> Union[SummaryResponse, SummaryListResponse]:
+        path = "/ai/summary"
+        resp = await AsyncRequest(
+            config=self.config,
+            path=path,
+            params=cast(Dict[Any, Any], params),
+            verb="post",
+        ).perform_with_content()
+        return resp
+
+
+
+================================================
+FILE: jigsawstack/translate.py
+================================================
+from typing import Any, Dict, List, Union, cast, overload
+from typing_extensions import NotRequired, TypedDict, Literal
+from .request import Request, RequestConfig
+from .async_request import AsyncRequest
+from typing import List, Union
+from ._config import ClientConfig
+from .helpers import build_path
+
+class TranslateImageParams(TypedDict):
+    target_language: str
+    """
+    Target langauge to translate to.
+    """
+    url: NotRequired[str]
+    """
+    The URL of the image to translate.
+    """
+    file_store_key: NotRequired[str]
+    """
+    The file store key of the image to translate.
+    """
+
+    return_type: NotRequired[Literal["url", "binary", "base64"]]
+
+class TranslateParams(TypedDict):
+    target_language: str
+    """
+    Target langauge to translate to.
+    """
+    current_language: str
+    """
+    Language to translate from.
+    """
+    text: Union[str, List[str]]
+    """
+    The text to translate.
+    """
+
+class TranslateResponse(TypedDict):
+    success: bool
+    """
+    Indicates whether the translation was successful.
+    """
+    translated_text: str
+    """
+    The translated text.
+    """
+
+class TranslateImageResponse(TypedDict):
+    success: bool
+    """
+    Indicates whether the translation was successful.
+    """
+    image: bytes
+    """
+    The image data that was translated.
+    """
+
+class TranslateListResponse(TypedDict):
+    success: bool
+    """
+    Indicates whether the translation was successful.
+    """
+    translated_text: List[str]
+    """
+    The translated text.
+    """
+
+
+class Translate(ClientConfig):
+
+    config: RequestConfig
+
+    def __init__(
+        self,
+        api_key: str,
+        api_url: str,
+        disable_request_logging: Union[bool, None] = False,
+    ):
+        super().__init__(api_key, api_url, disable_request_logging)
+        self.config = RequestConfig(
+            api_url=api_url,
+            api_key=api_key,
+            disable_request_logging=disable_request_logging,
+        )
+
+    def text(
+        self, params: TranslateParams
+    ) -> Union[TranslateResponse, TranslateListResponse]:
+        resp = Request(
+            config=self.config,
+            path="/ai/translate",
+            params=cast(Dict[Any, Any], params),
+            verb="post",
+        ).perform()
+        return resp
+    
+    @overload
+    def image(self, params: TranslateImageParams) -> TranslateImageResponse: ...
+    @overload
+    def image(self, file: bytes, options: TranslateImageParams = None) -> TranslateImageParams: ...
+
+    def image(
+        self,
+        blob: Union[TranslateImageParams, bytes],
+        options: TranslateImageParams = None,
+    ) -> TranslateImageResponse:
+        if isinstance(blob, dict): # If params is provided as a dict, we assume it's the first argument
+            resp = Request(
+                config=self.config,
+                path="/ai/translate/image",
+                params=cast(Dict[Any, Any], blob),
+                verb="post",
+            ).perform_with_content()
+            return resp
+
+        options = options or {}
+        path = build_path(base_path="/ai/translate/image", params=options)
+        content_type = options.get("content_type", "application/octet-stream")
+        headers = {"Content-Type": content_type}
+
+        resp = Request(
+            config=self.config,
+            path=path,
+            params=options,
+            data=blob,
+            headers=headers,
+            verb="post",
+        ).perform_with_content()
+        return resp
+
+
+class AsyncTranslate(ClientConfig):
+    config: RequestConfig
+
+    def __init__(
+        self,
+        api_key: str,
+        api_url: str,
+        disable_request_logging: Union[bool, None] = False,
+    ):
+        super().__init__(api_key, api_url, disable_request_logging)
+        self.config = RequestConfig(
+            api_url=api_url,
+            api_key=api_key,
+            disable_request_logging=disable_request_logging,
+        )
+
+    async def text(
+        self, params: TranslateParams
+    ) -> Union[TranslateResponse, TranslateListResponse]:
+        resp = await AsyncRequest(
+            config=self.config,
+            path="/ai/translate",
+            params=cast(Dict[Any, Any], params),
+            verb="post",
+        ).perform()
+        return resp
+    
+    @overload
+    async def image(self, params: TranslateImageParams) -> TranslateImageResponse: ...
+    @overload
+    async def image(self, file: bytes, options: TranslateImageParams = None) -> TranslateImageParams: ...
+    
+    async def image(
+        self,
+        blob: Union[TranslateImageParams, bytes],
+        options: TranslateImageParams = None,
+    ) -> TranslateImageResponse:
+        if isinstance(blob, dict):
+            resp = await AsyncRequest(
+                config=self.config,
+                path="/ai/translate/image",
+                params=cast(Dict[Any, Any], blob),
+                verb="post",
+            ).perform_with_content()
+            return resp
+
+        options = options or {}
+        path = build_path(base_path="/ai/translate/image", params=options)
+        content_type = options.get("content_type", "application/octet-stream")
+        headers = {"Content-Type": content_type}
+
+        resp = await AsyncRequest(
+            config=self.config,
+            path=path,
+            params=options,
+            data=blob,
+            headers=headers,
+            verb="post",
+        ).perform_with_content()
+        return resp
+
+
+================================================
+FILE: jigsawstack/validate.py
+================================================
+from typing import Any, Dict, List, Union, cast, overload
+from typing_extensions import NotRequired, TypedDict
+from .request import Request, RequestConfig
+from .async_request import AsyncRequest, AsyncRequestConfig
+from ._config import ClientConfig
+from typing import Any, Dict, List, cast
+from typing_extensions import NotRequired, TypedDict, Union, Optional
+from .helpers import build_path
+
+
+class Spam(TypedDict):
+    is_spam: bool
+    score: float
+
+
+class SpamCheckParams(TypedDict):
+    text: Union[str, List[str]]
+
+
+class SpamCheckResponse(TypedDict):
+    success: bool
+    check: Spam
+
+
+class SpellCheckParams(TypedDict):
+    text: str
+    language_code: str
+
+
+class SpellCheckResponse(TypedDict):
+    success: bool
+    misspellings_found: int
+    auto_correct_text: str
+
+
+class ProfanityParams(TypedDict):
+    text: str
+    censor_replacement: NotRequired[str]
+
+
+class ProfanityResponse(TypedDict):
+    success: bool
+    clean_text: str
+    profanities: List[str]
+    profanities_found: int
+
+
+class NSFWParams(TypedDict):
+    url: NotRequired[str]
+    file_store_key: NotRequired[str]
+
+
+
+class NSFWResponse(TypedDict):
+    success: bool
+    nsfw: bool
+    nudity: bool
+    gore: bool
+    nsfw_score: float
+    nudity_score: float
+    gore_score: float
+
+
+class EmailValidationParams(TypedDict):
+    email: str
+
+
+class EmailValidationResponse(TypedDict):
+    success: bool
+    email: str
+    disposable: bool
+    role_account: bool
+    free: bool
+    has_mx_records: bool
+    username: bool
+    domain: bool
+    valid: bool
+
+
+class Validate(ClientConfig):
+
+    config: RequestConfig
+
+    def __init__(
+        self,
+        api_key: str,
+        api_url: str,
+        disable_request_logging: Union[bool, None] = False,
+    ):
+        super().__init__(api_key, api_url, disable_request_logging)
+        self.config = RequestConfig(
+            api_url=api_url,
+            api_key=api_key,
+            disable_request_logging=disable_request_logging,
+        )
+
+    def email(self, params: EmailValidationParams) -> EmailValidationResponse:
+        path = build_path(
+            base_path="/validate/email",
+            params=params,
+        )
+
+        resp = Request(
+            config=self.config,
+            path=path,
+            params=cast(Dict[Any, Any], params),
+            verb="get",
+        ).perform_with_content()
+        return resp
+    
+    def nsfw(self, params: Union[NSFWParams, bytes]) -> NSFWResponse:
+        path="/validate/nsfw"
+        if isinstance(params, dict):
+            resp = Request(
+                config=self.config,
+                path=path,
+                params=cast(Dict[Any, Any], params),
+                verb="post",
+            ).perform_with_content()
+            return resp
+
+        _headers = {"Content-Type": "application/octet-stream"}
+        resp = Request(
+            config=self.config,
+            path=path,
+            params={}, #since we're already passing data.
+            data=params,
+            headers=_headers,
+            verb="post",
+        ).perform_with_content()
+        return resp
+
+    def profanity(self, params: ProfanityParams) -> ProfanityResponse:
+        path = build_path(
+            base_path="/validate/profanity",
+            params=params,
+        )
+        resp = Request(
+            config=self.config,
+            path=path,
+            params=cast(
+                Dict[Any, Any], params
+            ),
+            verb="post",
+        ).perform_with_content()
+        return resp
+
+    def spellcheck(self, params: SpellCheckParams) -> SpellCheckResponse:
+        path = build_path(
+            base_path="/validate/spell_check",
+            params=params,
+        )
+        resp = Request(
+            config=self.config,
+            path=path,
+            params=cast(Dict[Any, Any], params),
+            verb="post",
+        ).perform_with_content()
+        return resp
+
+    def spamcheck(self, params: SpamCheckParams) -> SpamCheckResponse:
+        path = "/validate/spam_check"
+        resp = Request(
+            config=self.config,
+            path=path,
+            params=cast(Dict[Any, Any], params),
+            verb="post",
+        ).perform_with_content()
+        return resp
+
+
+class AsyncValidate(ClientConfig):
+
+    config: AsyncRequestConfig
+
+    def __init__(
+        self,
+        api_key: str,
+        api_url: str,
+        disable_request_logging: Union[bool, None] = False,
+    ):
+        super().__init__(api_key, api_url, disable_request_logging)
+        self.config = AsyncRequestConfig(
+            api_url=api_url,
+            api_key=api_key,
+            disable_request_logging=disable_request_logging,
+        )
+
+    async def email(self, params: EmailValidationParams) -> EmailValidationResponse:
+        path = build_path(
+            base_path="/validate/email",
+            params=params,
+        )
+        resp = await AsyncRequest(
+            config=self.config,
+            path=path,
+            params=cast(Dict[Any, Any], params),
+            verb="get",
+        ).perform_with_content()
+        return resp
+    
+    async def nsfw(self, params: Union[NSFWParams, bytes]) -> NSFWResponse:
+        path="/validate/nsfw"
+        if isinstance(params, dict):
+            resp = await AsyncRequest(
+                config=self.config,
+                path=path,
+                params=cast(Dict[Any, Any], params),
+                verb="post",
+            ).perform_with_content()
+            return resp
+
+        _headers = {"Content-Type": "application/octet-stream"}
+        resp = await AsyncRequest(
+            config=self.config,
+            path=path,
+            params={},
+            data=params,
+            headers=_headers,
+            verb="post",
+        ).perform_with_content()
+        return resp
+
+    async def profanity(self, params: ProfanityParams) -> ProfanityResponse:
+        path = build_path(
+            base_path="/validate/profanity",
+            params=params,
+        )
+        resp = await AsyncRequest(
+            config=self.config,
+            path=path,
+            params=cast(
+                Dict[Any, Any], params
+            ),
+            verb="post",
+        ).perform_with_content()
+        return resp
+
+    async def spellcheck(self, params: SpellCheckParams) -> SpellCheckResponse:
+        path = build_path(
+            base_path="/validate/spell_check",
+            params=params,
+        )
+        resp = await AsyncRequest(
+            config=self.config,
+            path=path,
+            params=cast(Dict[Any, Any], params),
+            verb="post",
+        ).perform_with_content()
+        return resp
+
+    async def spamcheck(self, params: SpamCheckParams) -> SpamCheckResponse:
+        path = "/validate/spam_check"
+        resp = await AsyncRequest(
+            config=self.config,
+            path=path,
+            params=cast(Dict[Any, Any], params),
+            verb="post",
+        ).perform_with_content()
+        return resp
+
+
+
+================================================
+FILE: jigsawstack/version.py
+================================================
+__version__ = "0.2.9"
+
+
+def get_version() -> str:
+    """
+    Returns the current version of this lib
+    """
+    return __version__
+
+
+================================================
+FILE: jigsawstack/vision.py
+================================================
+from typing import Any, Dict, List, Union, cast, Optional
+from typing_extensions import NotRequired, TypedDict, Literal
+from typing import Any, Dict, List, cast
+from typing_extensions import NotRequired, TypedDict, Literal
+from .request import Request, RequestConfig
+from .async_request import AsyncRequest, AsyncRequestConfig
+from ._config import ClientConfig
+
+
+class Point(TypedDict):
+    x: int
+    """
+    X coordinate of the point
+    """
+    
+    y: int
+    """
+    Y coordinate of the point
+    """
+
+
+class BoundingBox(TypedDict):
+    top_left: Point
+    """
+    Top-left corner of the bounding box
+    """
+    
+    top_right: Point
+    """
+    Top-right corner of the bounding box
+    """
+    
+    bottom_left: Point
+    """
+    Bottom-left corner of the bounding box
+    """
+    
+    bottom_right: Point
+    """
+    Bottom-right corner of the bounding box
+    """
+    
+    width: int
+    """
+    Width of the bounding box
+    """
+    
+    height: int
+    """
+    Height of the bounding box
+    """
+
+
+class GuiElement(TypedDict):
+    bounds: BoundingBox
+    """
+    Bounding box coordinates of the GUI element
+    """
+    
+    content: Union[str, None]
+    """
+    Content of the GUI element, can be null if no object detected
+    """
+
+
+class DetectedObject(TypedDict):
+    bounds: BoundingBox
+    """
+    Bounding box coordinates of the detected object
+    """
+    
+    mask: NotRequired[str]
+    """
+    URL or base64 string depending on return_type - only present for some objects
+    """
+
+
+
+class ObjectDetectionParams(TypedDict):
+    url: NotRequired[str]
+    """
+    URL of the image to process
+    """
+    
+    file_store_key: NotRequired[str]
+    """
+    File store key of the image to process
+    """
+    
+    prompts: NotRequired[List[str]]
+    """
+    List of prompts for object detection
+    """
+    
+    features: NotRequired[List[Literal["object_detection", "gui"]]]
+    """
+    List of features to enable: object_detection, gui
+    """
+    
+    annotated_image: NotRequired[bool]
+    """
+    Whether to return an annotated image
+    """
+    
+    return_type: NotRequired[Literal["url", "base64"]]
+    """
+    Format for returned images: url or base64
+    """
+
+
+class ObjectDetectionResponse(TypedDict):
+    annotated_image: NotRequired[str]
+    """
+    URL or base64 string of annotated image (included only if annotated_image=true and objects/gui_elements exist)
+    """
+    
+    gui_elements: NotRequired[List[GuiElement]]
+    """
+    List of detected GUI elements (included only if features includes "gui")
+    """
+    
+    objects: NotRequired[List[DetectedObject]]
+    """
+    List of detected objects (included only if features includes "object_detection")
+    """
+
+
+class VOCRParams(TypedDict):
+    prompt: Union[str, List[str]]
+    url: NotRequired[str]
+    file_store_key: NotRequired[str]
+    page_range: NotRequired[List[int]]
+
+
+class OCRResponse(TypedDict):
+    success: bool
+    context: str
+    width: int
+    height: int
+    tags: List[str]
+    has_text: bool
+    sections: List[object]
+    total_pages: Optional[int]  # Only available for PDFs
+    page_ranges: Optional[
+        List[int]
+    ]  # Only available if page_ranges is set in the request parameters.
+
+
+class Vision(ClientConfig):
+
+    config: RequestConfig
+
+    def __init__(
+        self,
+        api_key: str,
+        api_url: str,
+        disable_request_logging: Union[bool, None] = False,
+    ):
+        super().__init__(api_key, api_url, disable_request_logging)
+        self.config = RequestConfig(
+            api_url=api_url,
+            api_key=api_key,
+            disable_request_logging=disable_request_logging,
+        )
+
+    def vocr(self, params: VOCRParams) -> OCRResponse:
+        path = "/vocr"
+        resp = Request(
+            config=self.config,
+            path=path,
+            params=cast(Dict[Any, Any], params),
+            verb="post",
+        ).perform_with_content()
+        return resp
+
+    def object_detection(self, params: ObjectDetectionParams) -> ObjectDetectionResponse:
+        path = "/object_detection"
+        resp = Request(
+            config=self.config,
+            path=path,
+            params=cast(Dict[Any, Any], params),
+            verb="post",
+        ).perform_with_content()
+        return resp
+
+
+class AsyncVision(ClientConfig):
+    config: AsyncRequestConfig
+
+    def __init__(
+        self,
+        api_key: str,
+        api_url: str,
+        disable_request_logging: Union[bool, None] = False,
+    ):
+        super().__init__(api_key, api_url, disable_request_logging)
+        self.config = AsyncRequestConfig(
+            api_url=api_url,
+            api_key=api_key,
+            disable_request_logging=disable_request_logging,
+        )
+
+    async def vocr(self, params: VOCRParams) -> OCRResponse:
+        path = "/vocr"
+        resp = await AsyncRequest(
+            config=self.config,
+            path=path,
+            params=cast(Dict[Any, Any], params),
+            verb="post",
+        ).perform_with_content()
+        return resp
+
+    async def object_detection(self, params: ObjectDetectionParams) -> ObjectDetectionResponse:
+        path = "/object_detection"
+        resp = await AsyncRequest(
+            config=self.config,
+            path=path,
+            params=cast(Dict[Any, Any], params),
+            verb="post",
+        ).perform_with_content()
+        return resp
+
+
+
+================================================
+FILE: jigsawstack/web.py
+================================================
+from typing import Any, Dict, List, Union, Optional, cast, Literal
+from typing_extensions import NotRequired, TypedDict
+
+from .request import Request, RequestConfig
+from .async_request import AsyncRequest, AsyncRequestConfig
+from ._config import ClientConfig
+from .search import (
+    Search,
+    SearchParams,
+    SearchSuggestionsParams,
+    SearchSuggestionsResponse,
+    SearchResponse,
+    AsyncSearch,
+)
+from .helpers import build_path
+
+
+#
+# DNS
+#
+class DNSParams(TypedDict):
+    domain: str
+    type: NotRequired[str]
+
+
+class DNSResponse(TypedDict):
+    success: bool
+    domain: str
+    type: str
+    type_value: int
+    records: List[object]
+    DNSSEC_validation_disabled: bool
+    DNSSEC_verified: bool
+    recursion_available: bool
+    recursion_desired: bool
+    truncated: bool
+    additional: List
+    authority: List
+
+
+#
+# HTML to Any
+#
+class HTMLToAnyParams(TypedDict):
+    html: NotRequired[str]
+    url: NotRequired[str]
+    goto_options: NotRequired[Dict[str, Union[int, str]]]
+    scale: NotRequired[int]
+    full_page: NotRequired[bool]
+    omit_background: NotRequired[bool]
+    quality: NotRequired[int]
+    type: NotRequired[str]
+    width: NotRequired[int]
+    height: NotRequired[int]
+    size_preset: NotRequired[str]
+    pdf_display_header_footer: NotRequired[bool]
+    pdf_print_background: NotRequired[bool]
+    pdf_page_range: NotRequired[str]
+    is_mobile: NotRequired[bool]
+    dark_mode: NotRequired[bool]
+    use_graphic_renderer: NotRequired[bool]
+    return_type: NotRequired[Literal["url", "binary", "base64"]]
+
+
+class HTMLToAnyResponse(TypedDict):
+    html: str
+
+
+#
+# BYO Proxy
+#
+class CookieParameter(TypedDict):
+    name: str
+    value: str
+    url: NotRequired[str]
+    domain: NotRequired[str]
+    path: NotRequired[str]
+    secure: NotRequired[bool]
+    httpOnly: NotRequired[bool]
+    sameSite: NotRequired[Literal["Strict", "Lax", "None"]]
+    expires: NotRequired[bool]
+    priority: NotRequired[str]
+    sameParty: NotRequired[bool]
+
+
+class GotoOptions(TypedDict):
+    timeout: int
+    wait_until: str
+
+
+class WaitFor(TypedDict):
+    mode: str
+    value: Union[str, int]
+
+
+class AdvanceConfigRequest(TypedDict):
+    console: bool
+    network: bool
+    cookies: bool
+
+
+class AdvanceConfigResponse(TypedDict):
+    console: list
+    network: list
+    cookies: list
+
+
+class BYOProxyAuth(TypedDict):
+    username: str
+    password: str
+
+
+class BYOProxy(TypedDict):
+    server: str
+    auth: NotRequired[BYOProxyAuth]
+
+
+class BaseAIScrapeParams(TypedDict):
+    url: str
+    root_element_selector: NotRequired[str]
+    page_position: NotRequired[int]
+    http_headers: NotRequired[Dict[str, Any]]
+    reject_request_pattern: NotRequired[List[str]]
+    goto_options: NotRequired[GotoOptions]
+    wait_for: NotRequired[WaitFor]
+    advance_config: NotRequired[AdvanceConfigRequest]
+    size_preset: NotRequired[str]
+    is_mobile: NotRequired[bool]
+    scale: NotRequired[int]
+    width: NotRequired[int]
+    height: NotRequired[int]
+    cookies: NotRequired[List[CookieParameter]]
+    force_rotate_proxy: NotRequired[bool]
+    byo_proxy: NotRequired[BYOProxy]
+
+
+class AIScrapeParamsWithSelector(BaseAIScrapeParams):
+    selectors: List[str]
+    element_prompts: NotRequired[List[str]]
+
+
+class AIScrapeParamsWithPrompts(BaseAIScrapeParams):
+    selectors: NotRequired[List[str]]
+    element_prompts: List[str]
+
+
+AIScrapeParams = Union[AIScrapeParamsWithSelector, AIScrapeParamsWithPrompts]
+
+
+class Attribute(TypedDict):
+    name: str
+    value: str
+
+
+class Result(TypedDict):
+    html: str
+    text: str
+    attributes: List[Attribute]
+
+
+class DataItem(TypedDict):
+    key: str
+    selectors: str
+    results: List[Result]
+
+
+class Link(TypedDict):
+    href: str
+    text: Optional[str]
+    type: Literal["a", "img"]
+
+
+class Meta(TypedDict):
+    title: Optional[str]
+    description: Optional[str]
+    keywords: Optional[str]
+    og_image: Optional[str]
+
+
+class AIScrapeResponse(TypedDict):
+    success: bool
+    data: List[DataItem]
+    page_position: int
+    page_position_length: int
+    advance_config: Optional[AdvanceConfigResponse]
+    context: Any
+    selectors: Dict[str, List[str]]
+    meta: Optional[Meta]
+    link: List[Link]
+
+
+#
+# Web Client
+#
+class Web(ClientConfig):
+
+    config: RequestConfig
+
+    def __init__(
+        self,
+        api_key: str,
+        api_url: str,
+        disable_request_logging: Union[bool, None] = False,
+    ):
+        super().__init__(api_key, api_url, disable_request_logging)
+        self.config = RequestConfig(
+            api_url=api_url,
+            api_key=api_key,
+            disable_request_logging=disable_request_logging,
+        )
+
+    def ai_scrape(self, params: AIScrapeParams) -> AIScrapeResponse:
+        path = "/ai/scrape"
+        resp = Request(
+            config=self.config,
+            path=path,
+            params=cast(Dict[Any, Any], params),
+            verb="post",
+        ).perform_with_content()
+        return resp
+
+    def html_to_any(self, params: HTMLToAnyParams) -> Any:
+        path = "/web/html_to_any"
+        resp = Request(
+            config=self.config,
+            path=path,
+            params=cast(Dict[Any, Any], params),
+            verb="post",
+        ).perform_with_content_file()
+        return resp
+
+    def dns(self, params: DNSParams) -> DNSResponse:
+        path = build_path(
+            base_path="/web/html_to_any",
+            params=params,
+        )
+        resp = Request(
+            config=self.config,
+            path=path,
+            params=cast(Dict[Any, Any], params),
+            verb="get",
+        ).perform_with_content()
+        return resp
+
+    def search(self, params: SearchParams) -> SearchResponse:
+        s = Search(
+            self.api_key,
+            self.api_url,
+            disable_request_logging=self.config.get("disable_request_logging"),
+        )
+        return s.search(params)
+
+    def search_suggestions(
+        self, params: SearchSuggestionsParams
+    ) -> SearchSuggestionsResponse:
+        s = Search(
+            self.api_key,
+            self.api_url,
+            disable_request_logging=self.config.get("disable_request_logging"),
+        )
+        return s.suggestions(params)
+
+
+#
+# Async Web Client
+#
+class AsyncWeb(ClientConfig):
+
+    config: AsyncRequestConfig
+
+    def __init__(
+        self,
+        api_key: str,
+        api_url: str,
+        disable_request_logging: Union[bool, None] = False,
+    ):
+        super().__init__(api_key, api_url, disable_request_logging)
+        self.config = RequestConfig(
+            api_url=api_url,
+            api_key=api_key,
+            disable_request_logging=disable_request_logging,
+        )
+
+    async def ai_scrape(self, params: AIScrapeParams) -> AIScrapeResponse:
+        path = "/ai/scrape"
+        resp = await AsyncRequest(
+            config=self.config,
+            path=path,
+            params=cast(Dict[Any, Any], params),
+            verb="post",
+        ).perform_with_content()
+        return resp
+
+    async def html_to_any(self, params: HTMLToAnyParams) -> Any:
+        path = "/web/html_to_any"
+        resp = await AsyncRequest(
+            config=self.config,
+            path=path,
+            params=cast(Dict[Any, Any], params),
+            verb="post",
+        ).perform_with_content_file()
+        return resp
+
+    async def dns(self, params: DNSParams) -> DNSResponse:
+        path = build_path(
+            base_path="/web/html_to_any",
+            params=params,
+        )
+        resp = await AsyncRequest(
+            config=self.config,
+            path=path,
+            params=cast(Dict[Any, Any], params),
+            verb="get",
+        ).perform_with_content()
+        return resp
+
+    async def search(self, params: SearchParams) -> SearchResponse:
+        s = AsyncSearch(
+            self.api_key,
+            self.api_url,
+            disable_request_logging=self.config.get("disable_request_logging"),
+        )
+        return await s.search(params)
+
+    async def search_suggestions(
+        self, params: SearchSuggestionsParams
+    ) -> SearchSuggestionsResponse:
+        s = AsyncSearch(
+            self.api_key,
+            self.api_url,
+            disable_request_logging=self.config.get("disable_request_logging"),
+        )
+        return await s.suggestions(params)
+
+
+
+================================================
+FILE: tests/__init__.py
+================================================
+[Empty file]
+
+
+================================================
+FILE: tests/test_async_web.py
+================================================
+from unittest.mock import MagicMock
+import unittest
+from jigsawstack.exceptions import JigsawStackError
+from jigsawstack import AsyncJigsawStack
+import pytest
+import asyncio
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+
+def test_async_web_search_response():
+    async def _test():
+        client = AsyncJigsawStack()
+        try:
+            result = await client.web.search({"query": "JigsawStack fund raising"})
+            # logger.info(result)
+            assert result["success"] == True
+        except JigsawStackError as e:
+            pytest.fail(f"Unexpected JigsawStackError: {e}")
+
+    asyncio.run(_test())
+
+
+def test_async_web_search_suggestion_response():
+    async def _test():
+        client = AsyncJigsawStack()
+        try:
+            result = await client.web.search_suggestion({"query": "Lagos"})
+            logger.info(result)
+            assert result["success"] == True
+        except JigsawStackError as e:
+            pytest.fail(f"Unexpected JigsawStackError: {e}")
+
+    asyncio.run(_test())
+
+
+
+================================================
+FILE: tests/test_audio.py
+================================================
+from unittest.mock import MagicMock
+import unittest
+from jigsawstack.exceptions import JigsawStackError
+from jigsawstack import AsyncJigsawStack
+import pytest
+import asyncio
+import logging
+from jigsawstack import AsyncJigsawStack
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+
+def test_text_to_speech():
+    async def _test():
+        client = AsyncJigsawStack()
+
+        """Test converting text to speech"""
+        try:
+            response = await client.audio.text_to_speech(
+                {
+                    "text": "Hello world, this is a test of the JigsawStack text to speech API."
+                }
+            )
+            print("Text to speech response:", response)
+            assert response["success"] == True
+
+        except Exception as e:
+            print(f"Error in text_to_speech test: {e}")
+
+    asyncio.run(_test())
+
+
+def test_speaker_voice_accents():
+    async def _test():
+        client = AsyncJigsawStack()
+
+        """Test getting available voice accents"""
+        try:
+            response = await client.audio.speaker_voice_accents()
+            print("Speaker voice accents response:", response)
+            assert response["success"] == True
+
+        except Exception as e:
+            print(f"Error in speaker voice accents test: {e}")
+
+
+def test_create_clone():
+    async def _test():
+        client = AsyncJigsawStack()
+
+        """Test creating a voice clone with URL"""
+        try:
+            audio_url = (
+                "https://jigsawstack.com/audio/test.mp3"  # Replace with an actual URL
+            )
+            clone_response_url = await client.audio.create_clone(
+                {"url": audio_url, "name": "Test Voice Clone URL"}
+            )
+
+            assert clone_response_url["success"] == True
+
+            clone_response_file_store_key = client.audio.create_clone(
+                {
+                    "file_store_key": "hello_audio",
+                    "name": "Test Voice Clone File Store Key",
+                }
+            )
+
+            assert clone_response_file_store_key["success"] == True
+
+        except Exception as e:
+            print(f"Error in voice_cloning test: {e}")
+
+    asyncio.run(_test())
+
+
+def test_list_clones():
+    async def _test():
+        client = AsyncJigsawStack()
+        """Test listing voice clones"""
+        try:
+            # List available voice clones
+            clones_response = await client.audio.list_clones({"limit": 10, "page": 1})
+
+            assert clones_response["success"] == True
+
+        except Exception as e:
+            print(f"Error in voice_cloning test: {e}")
+
+    asyncio.run(_test())
+
+
+def test_delete_clone():
+    async def _test():
+        client = AsyncJigsawStack()
+        """Test getting a voice clone"""
+        try:
+            create_clone_response = await client.audio.create_clone(
+                {"name": "Test Voice Clone URL", "file_store_key": "hello_audio"}
+            )
+            clones = await client.audio.list_clones({"limit": 10, "page": 1})
+            print("Clones:", clones)
+            clone_id = clones["data"][0]["id"]
+            delete_clone_response = await client.audio.delete_clone(clone_id)
+            print("Delete clone response:", delete_clone_response)
+            assert delete_clone_response["success"] == True
+
+        except Exception as e:
+            print(f"Error in list_clones test: {e}")
+
+    asyncio.run(_test())
+
+
+
+================================================
+FILE: tests/test_classification.py
+================================================
+from jigsawstack.exceptions import JigsawStackError
+from jigsawstack import JigsawStack
+
+import pytest
+
+# flake8: noqa
+
+client = JigsawStack()
+
+
+@pytest.mark.parametrize("dataset,labels", [
+    (
+        [
+            {"type": "text", "value": "I love programming"},
+            {"type": "text", "value": "I love reading books"},
+            {"type": "text", "value": "I love watching movies"},
+            {"type": "text", "value": "I love playing games"},
+        ],
+        [
+            {"type": "text", "value": "programming"},
+            {"type": "text", "value": "reading"},
+            {"type": "text", "value": "watching"},
+            {"type": "text", "value": "playing"},
+        ]
+    ),
+    (
+        [
+            {"type": "text", "value": "This is awesome!"},
+            {"type": "text", "value": "I hate this product"},
+            {"type": "text", "value": "It's okay, nothing special"},
+        ],
+        [
+            {"type": "text", "value": "positive"},
+            {"type": "text", "value": "negative"},
+            {"type": "text", "value": "neutral"},
+        ]
+    ),
+    (
+        [
+            {"type": "text", "value": "The weather is sunny today"},
+            {"type": "text", "value": "It's raining heavily outside"},
+            {"type": "text", "value": "Snow is falling gently"},
+        ],
+        [
+            {"type": "text", "value": "sunny"},
+            {"type": "text", "value": "rainy"},
+            {"type": "text", "value": "snowy"},
+        ]
+    ),
+])
+def test_classification_text_success_response(dataset, labels) -> None:
+    params = {
+        "dataset": dataset,
+        "labels": labels,
+    }
+    try:
+        result = client.classification.text(params)
+        print(result)
+        assert result["success"] == True
+    except JigsawStackError as e:
+        print(str(e))
+        assert e.message == "Failed to parse API response. Please try again."
+
+
+@pytest.mark.parametrize("dataset,labels", [
+    (
+        [
+            {"type": "image", "value": "https://as2.ftcdn.net/v2/jpg/02/24/11/57/1000_F_224115780_2ssvcCoTfQrx68Qsl5NxtVIDFWKtAgq2.jpg"},
+            {"type": "image", "value": "https://t3.ftcdn.net/jpg/02/95/44/22/240_F_295442295_OXsXOmLmqBUfZreTnGo9PREuAPSLQhff.jpg"},
+            {"type": "image", "value": "https://as1.ftcdn.net/v2/jpg/05/54/94/46/1000_F_554944613_okdr3fBwcE9kTOgbLp4BrtVi8zcKFWdP.jpg"},
+        ],
+        [
+            {"type": "text", "value": "banana"},
+            {"type": "image", "value": "https://upload.wikimedia.org/wikipedia/commons/8/8a/Banana-Single.jpg"},
+            {"type": "text", "value": "kisses"},
+        ]
+    ),
+])
+def test_classification_image_success_response(dataset, labels) -> None:
+    params = {
+        "dataset": dataset,
+        "labels": labels,
+    }
+    try:
+        result = client.classification.image(params)
+        print(result)
+        assert result["success"] == True
+    except JigsawStackError as e:
+        print(str(e))
+        assert e.message == "Failed to parse API response. Please try again."
+
+
+
+================================================
+FILE: tests/test_embedding_async.py
+================================================
+from unittest.mock import MagicMock
+import unittest
+from jigsawstack.exceptions import JigsawStackError
+from jigsawstack import AsyncJigsawStack
+import pytest
+import asyncio
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+
+def test_async_embedding_generation_response():
+    async def _test():
+        client = AsyncJigsawStack()
+        try:
+            result = await client.embedding({"text": "Hello, World!", "type": "text"})
+            logger.info(result)
+            assert result["success"] == True
+        except JigsawStackError as e:
+            pytest.fail(f"Unexpected JigsawStackError: {e}")
+
+    asyncio.run(_test())
+
+
+
+================================================
+FILE: tests/test_file_store.py
+================================================
+from unittest.mock import MagicMock
+import unittest
+from jigsawstack.exceptions import JigsawStackError
+from jigsawstack import JigsawStack
+
+import pytest
+
+# flake8: noqa
+
+client = JigsawStack()
+
+
+@pytest.mark.skip(reason="Skipping TestStoreAPI class for now")
+class TestStoreAPI(unittest.TestCase):
+    def test_upload_success_response(self) -> None:
+        # Sample file content as bytes
+        file_content = b"This is a test file content"
+        options = {
+            "key": "test-file.txt",
+            "content_type": "text/plain",
+            "overwrite": True,
+            "temp_public_url": True
+        }
+        try:
+            result = client.store.upload(file_content, options)
+            assert result["success"] == True
+        except JigsawStackError as e:
+            assert e.message == "Failed to parse API response. Please try again."
+
+    def test_get_success_response(self) -> None:
+        key = "test-file.txt"
+        try:
+            result = client.store.get(key)
+            # For file retrieval, we expect the actual file content
+            assert result is not None
+        except JigsawStackError as e:
+            assert e.message == "Failed to parse API response. Please try again."
+
+    def test_delete_success_response(self) -> None:
+        key = "test-file.txt"
+        try:
+            result = client.store.delete(key)
+            assert result["success"] == True
+        except JigsawStackError as e:
+            assert e.message == "Failed to parse API response. Please try again."
+
+    def test_upload_without_options_success_response(self) -> None:
+        # Test upload without optional parameters
+        file_content = b"This is another test file content"
+        try:
+            result = client.store.upload(file_content)
+            assert result["success"] == True
+        except JigsawStackError as e:
+            assert e.message == "Failed to parse API response. Please try again."
+
+    def test_upload_with_partial_options_success_response(self) -> None:
+        # Test upload with partial options
+        file_content = b"This is a test file with partial options"
+        options = {
+            "key": "partial-test-file.txt",
+            "overwrite": False
+        }
+        try:
+            result = client.store.upload(file_content, options)
+            assert result["success"] == True
+        except JigsawStackError as e:
+            assert e.message == "Failed to parse API response. Please try again."
+
+
+
+================================================
+FILE: tests/test_geo.py
+================================================
+from unittest.mock import MagicMock
+import unittest
+from jigsawstack.exceptions import JigsawStackError
+from jigsawstack import AsyncJigsawStack
+import pytest
+import asyncio
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+
+@pytest.mark.skip(reason="Skipping TestWebAPI class for now")
+def test_async_country_response():
+    async def _test():
+        client = AsyncJigsawStack()
+        try:
+            result = await client.geo.country({"country_code": "SGP"})
+            logger.info(result)
+            assert result["success"] == True
+        except JigsawStackError as e:
+            pytest.fail(f"Unexpected JigsawStackError: {e}")
+
+    asyncio.run(_test())
+
+
+@pytest.mark.skip(reason="Skipping TestWebAPI class for now")
+def test_async_search_response():
+    async def _test():
+        client = AsyncJigsawStack()
+        try:
+            result = await client.geo.search({"search_value": "Nigeria"})
+            logger.info(result)
+            assert result["success"] == True
+        except JigsawStackError as e:
+            pytest.fail(f"Unexpected JigsawStackError: {e}")
+
+    asyncio.run(_test())
+
+
+
+================================================
+FILE: tests/test_image_generation.py
+================================================
+from unittest.mock import MagicMock
+import unittest
+from jigsawstack.exceptions import JigsawStackError
+import jigsawstack
+import pytest
+import asyncio
+import logging
+import io
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+jigsaw = jigsawstack.JigsawStack()
+async_jigsaw = jigsawstack.AsyncJigsawStack()
+
+
+def test_image_generation_response():
+    async def _test():
+        client = jigsawstack.AsyncJigsawStack()
+        try:
+            result = await client.image_generation({
+                "prompt": "A beautiful mountain landscape at sunset",
+                "aspect_ratio": "16:9"
+            })
+            # Just check if we got some data back
+            assert result is not None
+            assert len(result) > 0
+        except JigsawStackError as e:
+            pytest.fail(f"Unexpected JigsawStackError: {e}")
+
+    asyncio.run(_test())
+
+
+def test_image_generation_with_advanced_config():
+    async def _test():
+        client = jigsawstack.AsyncJigsawStack()
+        try:
+            result = await client.image_generation({
+                "prompt": "A beautiful mountain landscape at sunset",
+                "output_format": "png",
+                "advance_config": {
+                    "negative_prompt": "blurry, low quality",
+                    "guidance": 7,
+                    "seed": 42
+                }
+            })
+            # Just check if we got some data back
+            assert result is not None
+            assert len(result) > 0
+        except JigsawStackError as e:
+            pytest.fail(f"Unexpected JigsawStackError: {e}")
+
+    asyncio.run(_test())
+
+
+================================================
+FILE: tests/test_object_detection.py
+================================================
+from unittest.mock import MagicMock
+import unittest
+from jigsawstack.exceptions import JigsawStackError
+import jigsawstack
+import pytest
+import asyncio
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+jigsaw = jigsawstack.JigsawStack()
+async_jigsaw = jigsawstack.AsyncJigsawStack()
+
+
+def test_object_detection_response():
+    try:
+        result = jigsaw.vision.object_detection({"url": "https://rogilvkqloanxtvjfrkm.supabase.co/storage/v1/object/public/demo/Collabo%201080x842.jpg"})
+        print(result)
+        assert result["success"] == True
+    except JigsawStackError as e:
+        pytest.fail(f"Unexpected JigsawStackError: {e}")
+
+
+def test_object_detection_response_async():
+    async def _test():
+        client = jigsawstack.AsyncJigsawStack()
+        try:
+            result = await client.vision.object_detection({"url": "https://rogilvkqloanxtvjfrkm.supabase.co/storage/v1/object/public/demo/Collabo%201080x842.jpg"})
+            print(result)
+            assert result["success"] == True
+        except JigsawStackError as e:
+            pytest.fail(f"Unexpected JigsawStackError: {e}")
+
+    asyncio.run(_test())
+
+
+
+
+================================================
+FILE: tests/test_prompt_engine.py
+================================================
+from unittest.mock import MagicMock
+import unittest
+from jigsawstack.exceptions import JigsawStackError
+import jigsawstack
+import pytest
+
+# flake8: noq
+
+jigsaw = jigsawstack.JigsawStack()
+
+
+@pytest.mark.skip(reason="Skipping TestWebAPI class for now")
+class TestPromptEngine(unittest.TestCase):
+
+    def test_get_prompt_engine_response_success(self) -> None:
+        try:
+            result = jigsaw.prompt_engine.get("b08921b8-0b30-409e-8257-06fa1620c7e6")
+            assert result["success"] == True
+        except JigsawStackError as e:
+            assert e.message == "Failed to parse API response. Please try again."
+
+
+
+================================================
+FILE: tests/test_search.py
+================================================
+from unittest.mock import MagicMock
+import unittest
+from jigsawstack.exceptions import JigsawStackError
+import jigsawstack
+import pytest
+import asyncio
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+jigsaw = jigsawstack.JigsawStack()
+async_jigsaw = jigsawstack.AsyncJigsawStack()
+
+
+def test_search_suggestion_response():
+    try:
+        result = jigsaw.web.search({"query": "Where is San Francisco"})
+        assert result["success"] == True
+    except JigsawStackError as e:
+        pytest.fail(f"Unexpected JigsawStackError: {e}")
+
+
+def test_ai_search_response():
+    try:
+        result = jigsaw.web.search({"query": "Where is San Francisco"})
+        assert result["success"] == True  
+    except JigsawStackError as e:
+        pytest.fail(f"Unexpected JigsawStackError: {e}")
+
+
+def test_search_suggestion_response_async():
+    async def _test():
+        client = jigsawstack.AsyncJigsawStack()
+        try:
+            result = await client.web.search({"query": "Where is San Francisco"})
+            assert result["success"] == True
+        except JigsawStackError as e:
+            pytest.fail(f"Unexpected JigsawStackError: {e}")
+
+    asyncio.run(_test())
+
+
+def test_ai_search_response_async():
+    async def _test():
+        client = jigsawstack.AsyncJigsawStack()
+        try:
+            result = await client.web.search({"query": "Where is San Francisco"})
+            assert result["success"] == True
+        except JigsawStackError as e:
+            pytest.fail(f"Unexpected JigsawStackError: {e}")
+
+    asyncio.run(_test())
+
+
+================================================
+FILE: tests/test_sentiment.py
+================================================
+from unittest.mock import MagicMock
+import unittest
+from jigsawstack.exceptions import JigsawStackError
+import jigsawstack
+
+import pytest
+
+# flake8: noqa
+
+client = jigsawstack.JigsawStack()
+
+
+@pytest.mark.skip(reason="Skipping TestWebAPI class for now")
+class TestSentimentAPI(unittest.TestCase):
+    def test_sentiment_response_success(self) -> None:
+        params = {"text": "I am so excited"}
+        try:
+            result = client.sentiment(params)
+            assert result["success"] == True
+        except JigsawStackError as e:
+
+            assert e.message == "Failed to parse API response. Please try again."
+
+
+
+================================================
+FILE: tests/test_store.py
+================================================
+from unittest.mock import MagicMock
+import unittest
+from jigsawstack.exceptions import JigsawStackError
+from jigsawstack import AsyncJigsawStack
+import pytest
+import asyncio
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+
+@pytest.mark.skip(reason="Skipping TestWebAPI class for now")
+class TestAsyncFileOperations:
+    """
+    Test class for async file operations.
+    Add your file operation tests here.
+    """
+    
+    def test_async_file_upload(self):
+        # Template for future file upload tests
+        pass
+        
+    def test_async_file_retrieval(self):
+        # Template for future file retrieval tests
+        pass
+        
+    def test_async_file_deletion(self):
+        # Template for future file deletion tests
+        pass
+
+
+# Example file upload test 
+# Uncomment and modify as needed
+"""
+def test_async_file_upload_example():
+    async def _test():
+        client = AsyncJigsawStack()
+        try:
+            file_content = b"test file content"
+            result = await client.store.upload(
+                file_content, 
+                {"filename": "test.txt", "overwrite": True}
+            )
+            logger.info(result)
+            assert result["success"] == True 
+        except JigsawStackError as e:
+            pytest.fail(f"Unexpected JigsawStackError: {e}")
+
+    asyncio.run(_test())
+"""
+
+
+================================================
+FILE: tests/test_validate.py
+================================================
+from unittest.mock import MagicMock
+import unittest
+from jigsawstack.exceptions import JigsawStackError
+from jigsawstack import AsyncJigsawStack
+import pytest
+import asyncio
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+
+@pytest.mark.skip(reason="Skipping TestWebAPI class for now")
+def test_async_spam_check_response():
+    async def _test():
+        client = AsyncJigsawStack()
+        try:
+            result = await client.validate.spamcheck({"text": "I am happy!"})
+            logger.info(result)
+            assert result["success"] == True
+        except JigsawStackError as e:
+            pytest.fail(f"Unexpected JigsawStackError: {e}")
+
+    asyncio.run(_test())
+
+
+@pytest.mark.skip(reason="Skipping TestWebAPI class for now")
+def test_async_spell_check_response():
+    async def _test():
+        client = AsyncJigsawStack()
+        try:
+            result = await client.validate.spellcheck(
+                {
+                    "text": "All the world's a stage, and all the men and women merely players. They have their exits and their entrances; And one man in his time plays many parts"
+                }
+            )
+            logger.info(result)
+            assert result["success"] == True
+        except JigsawStackError as e:
+            pytest.fail(f"Unexpected JigsawStackError: {e}")
+
+    asyncio.run(_test())
+
+
+
+================================================
+FILE: tests/test_vision.py
+================================================
+from unittest.mock import MagicMock
+import unittest
+from jigsawstack.exceptions import JigsawStackError
+from jigsawstack import AsyncJigsawStack
+import pytest
+import asyncio
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+
+def test_async_vocr_response():
+    async def _test():
+        client = AsyncJigsawStack()
+        try:
+            result = await client.vision.vocr(
+                {
+                    "url": "https://rogilvkqloanxtvjfrkm.supabase.co/storage/v1/object/public/demo/Collabo%201080x842.jpg?t=2024-03-22T09%3A22%3A48.442Z",
+                    "prompt": ["Hello"],
+                }
+            )
+
+            assert result["success"] == True
+        except JigsawStackError as e:
+            pytest.fail(f"Unexpected JigsawStackError: {e}")
+
+    asyncio.run(_test())
+
+
+
+================================================
+FILE: tests/test_web.py
+================================================
+from unittest.mock import MagicMock
+import unittest
+from jigsawstack.exceptions import JigsawStackError
+from jigsawstack import JigsawStack
+
+import pytest
+
+# flake8: noqa
+
+client = JigsawStack()
+
+
+@pytest.mark.skip(reason="Skipping TestWebAPI class for now")
+class TestWebAPI(unittest.TestCase):
+    def test_ai_scrape_success_response(self) -> None:
+        params = {
+            "url": "https://supabase.com/pricing",
+            "element_prompts": ["Plan title", "Plan price"],
+        }
+        try:
+            result = client.file.upload(params)
+            assert result["success"] == True
+        except JigsawStackError as e:
+            assert e.message == "Failed to parse API response. Please try again."
+
+    def test_scrape_success_response(self) -> None:
+        params = {
+            "url": "https://supabase.com/pricing",
+        }
+        try:
+            result = client.web.scrape(params)
+            assert result["success"] == True
+        except JigsawStackError as e:
+            assert e.message == "Failed to parse API response. Please try again."
+
+    def test_dns_success_response(self) -> None:
+
+        params = {
+            "url": "https://supabase.com/pricing",
+        }
+        try:
+            result = client.web.dns(params)
+            assert result["success"] == True
+        except JigsawStackError as e:
+            assert e.message == "Failed to parse API response. Please try again."
+
+
+================================================
+FILE: .github/workflows/publish.yml
+================================================
+name: Deploy JigsawStack Package to PyPI when a Release is Created
+
+on:
+  release:
+    types: [created]
+jobs:
+  pypi-publish:
+    name: Publish release to PyPI
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/jigsawstack
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.x"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install setuptools wheel
+      - name: Build package
+        run: |
+          python setup.py sdist bdist_wheel
+      - name: Publish package distributions to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+
+

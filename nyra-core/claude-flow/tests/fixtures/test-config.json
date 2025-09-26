@@ -1,0 +1,38 @@
+{
+  "mcpServers": {
+    "test-stdio": {
+      "type": "stdio",
+      "command": "node",
+      "args": ["./tests/fixtures/mock-mcp-server.js"]
+    },
+    "test-http": {
+      "type": "http",
+      "url": "http://localhost:3001",
+      "headers": {
+        "Authorization": "Bearer test-token"
+      }
+    },
+    "test-disabled": {
+      "type": "stdio",
+      "command": "echo",
+      "disabled": true
+    }
+  },
+  "performance": {
+    "maxConnections": 5,
+    "connectionTimeout": 5000,
+    "healthCheckInterval": 30000,
+    "tokenExpiry": 3600000,
+    "sessionExpiry": 86400000
+  },
+  "auth": {
+    "tokenExpiry": 3600000,
+    "sessionExpiry": 86400000,
+    "maxRetries": 3
+  },
+  "logging": {
+    "level": "debug",
+    "enableConsole": true,
+    "enableFile": false
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "projects": [
+    {
+      "id": "0c5ccb29-8da5-4d43-b17e-b334008e77ae",
+      "name": "Project Nyra"
+    }
+  ],
+  "secrets": [
+    /* ---------- CORE (Flow Nexus / Notion) ---------- */
+    { "name": "FLOW_NEXUS_TOKEN", "value": "", "env": "dev"  },
+    { "name": "FLOW_NEXUS_URL",   "value": "https://api.flow-nexus.io", "env": "dev"  },
+    { "name": "NOTION_TOKEN",     "value": "", "env": "dev"  },
+
+    { "name": "FLOW_NEXUS_TOKEN", "value": "", "env": "prod" },
+    { "name": "FLOW_NEXUS_URL",   "value": "https://api.flow-nexus.io", "env": "prod" },
+    { "name": "NOTION_TOKEN",     "value": "", "env": "prod" },
+
+    /* ---------- OPENAI / ANTHROPIC / GOOGLE ---------- */
+    { "name": "OPENAI_API_KEY",      "value": "", "env": "dev"  },
+    { "name": "ANTHROPIC_API_KEY",   "value": "", "env": "dev"  },
+    { "name": "GOOGLE_API_KEY",      "value": "", "env": "dev"  },
+
+    { "name": "OPENAI_API_KEY",      "value": "", "env": "prod" },
+    { "name": "ANTHROPIC_API_KEY",   "value": "", "env": "prod" },
+    { "name": "GOOGLE_API_KEY",      "value": "", "env": "prod" },
+
+    /* ---------- GIT / VCS ---------- */
+    { "name": "GITHUB_TOKEN",         "value": "", "env": "dev"  },
+    { "name": "GITHUB_TOKEN",         "value": "", "env": "prod" },
+
+    /* ---------- VECTORS / STORAGE (pick what you use) ---------- */
+    { "name": "QDRANT_URL",           "value": "", "env": "dev"  },
+    { "name": "QDRANT_API_KEY",       "value": "", "env": "dev"  },
+    { "name": "QDRANT_URL",           "value": "", "env": "prod" },
+    { "name": "QDRANT_API_KEY",       "value": "", "env": "prod" },
+
+    { "name": "HUGGINGFACEHUB_API_TOKEN", "value": "", "env": "dev"  },
+    { "name": "HUGGINGFACEHUB_API_TOKEN", "value": "", "env": "prod" },
+
+    /* ---------- OPTIONAL / NICE-TO-HAVE ---------- */
+    { "name": "ACTIVEPIECES_API_KEY", "value": "", "env": "dev"  },
+    { "name": "ACTIVEPIECES_API_KEY", "value": "", "env": "prod" },
+
+    { "name": "TOME_API_KEY",         "value": "", "env": "dev"  },
+    { "name": "TOME_API_KEY",         "value": "", "env": "prod" },
+
+    { "name": "GOFASTMCP_API_KEY",    "value": "", "env": "dev"  },
+    { "name": "GOFASTMCP_API_KEY",    "value": "", "env": "prod" }
+  ]
+}

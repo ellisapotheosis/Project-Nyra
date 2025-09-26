@@ -1,0 +1,25 @@
+endpoint:
+  http:
+    host: 0.0.0.0
+    port: 8060
+servers:
+  archon:
+    transport: http
+    url: http://host.docker.internal:8051/mcp   # Archon MCP
+  flow:
+    transport: http
+    url: https://mcp.flow.com/mcp               # Flow MCP (example)
+  roo:
+    transport: http
+    url: http://localhost:7777/mcp              # Roo MCP if exposed
+  fastmcp_docs:
+    transport: http
+    url: http://localhost:8000/mcp              # your FastMCP server(s)
+routing:
+  prefix:
+    archon: "archon__"
+    flow: "flow__"
+    roo: "roo__"
+    fastmcp_docs: "docs__"
+security:
+  allowAnonymous: true  # tighten later with JWT/headers

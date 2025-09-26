@@ -1,0 +1,59 @@
+{
+  "mcpServers": {
+    "filesystem": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "C:\\Users\\edane\\OneDrive\\Documents\\DevProjects\\Project-Nyra"
+      ]
+    },
+    "github": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-github"
+      ],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "your-github-token"
+      }
+    },
+    "qdrant-mcp": {
+      "command": "node",
+      "args": [
+        "C:\\Users\\edane\\OneDrive\\Documents\\DevProjects\\Project-Nyra\\nyra-mcp-servers\\local\\qdrant-mcp\\index.js"
+      ],
+      "env": {
+        "QDRANT_URL": "http://localhost:6333",
+        "QDRANT_API_KEY": ""
+      }
+    },
+    "zep-mcp": {
+      "command": "node",
+      "args": [
+        "C:\\Users\\edane\\OneDrive\\Documents\\DevProjects\\Project-Nyra\\nyra-mcp-servers\\local\\zep-mcp\\index.js"
+      ],
+      "env": {
+        "ZEP_API_URL": "http://localhost:8000",
+        "ZEP_API_KEY": ""
+      }
+    },
+    "mem0-mcp": {
+      "command": "C:\\Users\\edane\\OneDrive\\Documents\\DevProjects\\Project-Nyra\\nyra-mcp-servers\\local\\mem0-mcp\\venv\\Scripts\\python",
+      "args": [
+        "-m",
+        "mem0_mcp"
+      ],
+      "env": {
+        "MEM0_API_KEY": "your-mem0-api-key"
+      }
+    },
+    "archon-mcp": {
+      "command": "C:\\Users\\edane\\OneDrive\\Documents\\DevProjects\\Project-Nyra\\nyra-mcp-servers\\local\\archon-mcp\\venv\\Scripts\\python",
+      "args": [
+        "-m",
+        "archon_mcp"
+      ]
+    }
+  }
+}

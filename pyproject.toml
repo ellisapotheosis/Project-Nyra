@@ -1,0 +1,103 @@
+[project]
+name = "project-nyra"
+version = "0.1.0"
+description = "Nyra - AI-powered mortgage assistant and self-building dev stack"
+authors = [
+    { name = "ellisapotheosis", email = "edaneandersen@gmail.com" }
+]
+dependencies = [
+    "chromadb>=1.0.20",
+    "llama-index>=0.13.6",
+    "repoagent>=0.2.0",
+    "mcp-server-qdrant>=0.8.0",
+    "fastmcp>=2.12.2",
+]
+readme = "README.md"
+requires-python = ">= 3.11"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[dependency-groups]
+dev = [
+    "pytest>=7.0.0",
+    "black>=23.0.0",
+    "ruff>=0.1.0",
+    "mypy>=1.0.0",
+    "pre-commit>=3.0.0",
+]
+test = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "pytest-asyncio>=0.21.0",
+]
+lint = [
+    "black>=23.0.0",
+    "ruff>=0.1.0",
+    "mypy>=1.0.0",
+]
+mcp = [
+    "mcp>=1.0.0",
+    "qdrant-client>=1.0.0",
+    "zep-python>=2.0.0",
+    "graphiti-core>=0.3.0",
+]
+memory = [
+    "letta>=0.3.0",
+    "mem0ai>=0.1.0",
+    "chromadb>=1.0.20",
+]
+agents = [
+    "langgraph>=0.2.0",
+    "autogen>=0.2.0",
+    "praisonai>=0.1.0",
+]
+
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/project_nyra"]
+
+[tool.uv]
+managed = true
+dev-dependencies = []
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+exclude = [
+    ".git",
+    ".venv",
+    "__pycache__",
+    "build",
+    "dist",
+    "Cleaning-Setup",
+    "extraction_scripts",
+    "*.egg-info",
+]
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I"]
+ignore = ["E501"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
+[tool.black]
+line-length = 88
+target-version = ['py311']
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py", "*_test.py"]
+addopts = "-v --tb=short"
