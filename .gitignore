@@ -29,7 +29,21 @@ PYTHONPATH
 .env
 .env.*
 !.env.example
-!.env.development
+
+# Security and secrets
+secrets/
+credentials/
+*.key
+*.pem
+*.p12
+*.pfx
+*.keystore
+config/local.py
+config/production.py
+.secrets
+.credentials
+auth.json
+service-account*.json
 
 # IDE
 .vscode/
