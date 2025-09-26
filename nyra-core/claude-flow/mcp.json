@@ -1,0 +1,73 @@
+{
+  "clients": {
+    "desktop-commander": {
+      "command": "C:\\Program Files\\Git\\bin\\bash.exe",
+      "args": ["--login", "-i"]
+    }
+  },
+  "mcpServers": {
+    "claude-flow": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["claude-flow@alpha", "mcp", "start"]
+    },
+    "ruv-swarm": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["ruv-swarm@latest", "mcp", "start"],
+      "disabled": "${RUV_DISABLED:false}"
+    },
+    "filesystem": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["@modelcontextprotocol/server-filesystem", "--root", "${WORKSPACE_ROOT:.}"]
+    },
+    "notion": {
+      "type": "http",
+      "url": "https://mcp.notion.com/mcp",
+      "headers": {
+        "Authorization": "Bearer ${NOTION_TOKEN}"
+      },
+      "disabled": "${NOTION_DISABLED:false}"
+    },
+
+    /* ---- Optional / to-enable-after-install (set *_DISABLED=false or remove 'disabled') ---- */
+
+    "archon": {
+      "type": "stdio",
+      "command": "python",
+      "args": ["-m", "archon.mcp", "start"],
+      "disabled": "${ARCHON_DISABLED:true}"
+    },
+    "mcp-use": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["mcp-use@latest", "start"],
+      "disabled": "${MCP_USE_DISABLED:true}"
+    },
+    "tome": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["@runebookai/tome-mcp@latest", "start"],
+      "disabled": "${TOME_DISABLED:true}"
+    },
+    "gofastmcp": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["@gofastmcp/server@latest", "start"],
+      "disabled": "${GOFAST_DISABLED:true}"
+    },
+    "activepieces": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["@activepieces/mcp@latest", "start"],
+      "disabled": "${ACTIVEPIECES_DISABLED:true}"
+    },
+    "pulse-fs": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["@pulsemcp/filesystem@latest", "start", "--root", "${WORKSPACE_ROOT:.}"],
+      "disabled": "${PULSE_FS_DISABLED:true}"
+    }
+  }
+}

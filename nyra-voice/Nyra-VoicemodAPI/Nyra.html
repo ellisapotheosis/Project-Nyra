@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Nyra Voice Interface</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <h1>Nyra - Voice Interface</h1>
+
+  <label>Voicemod API Key:</label>
+  <input id="api-key" type="text" placeholder="Paste your clientKey..." />
+
+  <label>Text to Speak:</label>
+  <textarea id="voice-input" rows="4" placeholder="Type or paste something to say..."></textarea>
+  <button id="speak-btn">🗣️ Speak It</button>
+
+  <label><input type="checkbox" id="read-toggle" /> 📋 Auto-read clipboard (every 3s)</label>
+  <button id="read-once">📋 Read Clipboard Now</button>
+
+  <label><input type="checkbox" id="hotkey-toggle" /> ⌨️ Enable Ctrl+N Hotkey</label>
+
+  <script src="nyra.js"></script>
+</body>
+</html>

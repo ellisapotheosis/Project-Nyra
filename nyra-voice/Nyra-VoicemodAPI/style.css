@@ -1,0 +1,80 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap');
+
+body {
+  font-family: 'Orbitron', sans-serif;
+  background: linear-gradient(to right, #0f0f1e, #141422);
+  color: #9be7ff;
+  padding: 2rem;
+  max-width: 700px;
+  margin: auto;
+  box-shadow: 0 0 20px #bc84f7aa;
+  border-radius: 12px;
+  animation: pulse-glow 12s infinite alternate;
+}
+
+@keyframes pulse-glow {
+  0% { box-shadow: 0 0 10px #bc84f7aa; }
+  100% { box-shadow: 0 0 30px #57f5f1aa; }
+}
+
+h1 {
+  font-size: 2.2rem;
+  background: linear-gradient(to right, #bc84f7, #57f5f1);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 1rem;
+}
+
+input, textarea {
+  width: 100%;
+  padding: 0.6rem;
+  background: #1a1a24;
+  color: #f5f5f5;
+  border: 1px solid #444;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+  font-size: 1rem;
+}
+
+button {
+  background: #bc84f7;
+  color: #111;
+  font-weight: bold;
+  border: none;
+  border-radius: 6px;
+  padding: 0.6rem 1.2rem;
+  margin: 0.25rem 0.5rem 1rem 0;
+  cursor: pointer;
+  box-shadow: 0 0 10px #bc84f7aa;
+  transition: background 0.3s ease, transform 0.1s ease;
+}
+
+button:hover {
+  background: #57f5f1;
+  transform: scale(1.05);
+  box-shadow: 0 0 20px #57f5f1aa;
+}
+
+label {
+  display: block;
+  margin-top: 1rem;
+  color: #ccc;
+  font-size: 0.95rem;
+}
+
+input[type="checkbox"] {
+  margin-right: 0.4rem;
+  transform: scale(1.2);
+}
+
+textarea {
+  resize: vertical;
+}
+
+footer {
+  margin-top: 2rem;
+  text-align: center;
+  font-size: 0.8rem;
+  color: #666;
+}

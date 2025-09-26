@@ -1,0 +1,93 @@
+{
+  "name": "MCP Server Configuration",
+  "version": "1.0.0",
+  "description": "Comprehensive MCP server configuration for Project Nyra",
+  "servers": {
+    "desktop-commander": {
+      "name": "Desktop Commander",
+      "command": "npx",
+      "args": ["-y", "@wonderwhy-er/desktop-commander@latest"],
+      "description": "Advanced desktop operations and file management",
+      "status": "connected",
+      "capabilities": [
+        "file_operations",
+        "process_management", 
+        "system_commands",
+        "search_operations",
+        "terminal_sessions"
+      ],
+      "priority": "high",
+      "fallback": "bash_commands"
+    },
+    "ruv-swarm": {
+      "name": "rUv Swarm",
+      "command": "npx",
+      "args": ["ruv-swarm@latest", "mcp", "start"],
+      "description": "Enhanced swarm coordination and neural features",
+      "status": "connected",
+      "capabilities": [
+        "swarm_initialization",
+        "agent_spawning",
+        "task_orchestration",
+        "neural_training",
+        "memory_management",
+        "performance_benchmarking"
+      ],
+      "priority": "medium",
+      "fallback": "claude-flow"
+    },
+    "flow-nexus": {
+      "name": "Flow Nexus",
+      "command": "npx", 
+      "args": ["flow-nexus@latest", "mcp", "start"],
+      "description": "Cloud-based orchestration with 70+ tools",
+      "status": "connected",
+      "capabilities": [
+        "cloud_sandboxes",
+        "template_deployment",
+        "neural_ai_models",
+        "github_integration",
+        "real_time_monitoring",
+        "storage_management"
+      ],
+      "priority": "low",
+      "authentication_required": true,
+      "fallback": "ruv-swarm"
+    },
+    "claude-flow": {
+      "name": "Claude Flow",
+      "command": "npx",
+      "args": ["claude-flow@alpha", "mcp", "start"],
+      "description": "Core SPARC methodology and agent coordination",
+      "status": "disconnected",
+      "capabilities": [
+        "sparc_workflows",
+        "agent_coordination",
+        "hooks_system",
+        "memory_persistence",
+        "github_tools"
+      ],
+      "priority": "critical",
+      "fallback": "ruv-swarm"
+    }
+  },
+  "integration_patterns": {
+    "hierarchical_fallback": {
+      "description": "Use servers in priority order with automatic fallback",
+      "order": ["claude-flow", "desktop-commander", "ruv-swarm", "flow-nexus"]
+    },
+    "capability_routing": {
+      "description": "Route operations to servers based on capability matching",
+      "file_operations": "desktop-commander",
+      "swarm_coordination": "ruv-swarm", 
+      "cloud_execution": "flow-nexus",
+      "sparc_workflows": "claude-flow"
+    },
+    "error_handling": {
+      "retry_attempts": 3,
+      "retry_delay": 1000,
+      "fallback_enabled": true,
+      "graceful_degradation": true
+    }
+  }
+}

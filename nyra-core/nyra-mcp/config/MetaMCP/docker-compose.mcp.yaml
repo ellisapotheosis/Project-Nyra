@@ -1,0 +1,9 @@
+services:
+  metamcp:
+    image: ghcr.io/metatool-ai/metamcp:latest
+    container_name: metamcp
+    ports: ["8060:8060"]  # HTTP/streamable endpoint
+    environment:
+      METAMCP_CONFIG: /app/config/metamcp.yaml
+    volumes:
+      - ./mcp/config:/app/config:ro
