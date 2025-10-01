@@ -1,4 +1,0 @@
-openai
-crewai
-pydantic
-python-dotenv

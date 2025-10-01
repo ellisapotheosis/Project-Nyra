@@ -1,96 +1,52 @@
+# Node
+node_modules/
+dist/
+build/
+
 # Python
 __pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-share/python-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-PYTHONPATH
+*.pyc
 
-# UV
-.venv/
-
-# Environment variables
+# Misc
 .env
-.env.*
-!.env.example
-
-# Security and secrets
-secrets/
-credentials/
-*.key
-*.pem
-*.p12
-*.pfx
-*.keystore
-config/local.py
-config/production.py
-.secrets
-.credentials
-auth.json
-service-account*.json
-
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
-
-# OS
 .DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
-desktop.ini
-
-# Logs
 *.log
-logs/
 
-# Testing
-.pytest_cache/
-.coverage
-htmlcov/
-.tox/
-.nox/
+# VSCode
+.vscode/
 
-# Jupyter
-.ipynb_checkpoints
+# OS generated files
+Thumbs.db
 
-# Node (for any JS tooling)
-node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
+desktop.ini
+.env*
+.flaskenv*
+!.env.project
+!.env.vault
 
-# Archives
-*.zip
-*.tar.gz
-*.rar
-
-# Temporary files
-*.tmp
-*.temp
-
-# Project-specific exclusions
-Cleaning-Setup/
-extraction_scripts/
+# Claude Flow generated files
+.claude/settings.local.json
+.mcp.json
+claude-flow.config.json
+.swarm/
+.hive-mind/
+.claude-flow/
+memory/
+coordination/
+memory/claude-flow-data.json
+memory/sessions/*
+!memory/sessions/README.md
+memory/agents/*
+!memory/agents/README.md
+coordination/memory_bank/*
+coordination/subtasks/*
+coordination/orchestration/*
+*.db
+*.db-journal
+*.db-wal
+*.sqlite
+*.sqlite-journal
+*.sqlite-wal
+claude-flow
+# Removed Windows wrapper files per user request
+hive-mind-prompt-*.txt

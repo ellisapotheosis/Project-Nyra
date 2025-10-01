@@ -1,2 +1,0 @@
-# memGPT
-Future memory module.

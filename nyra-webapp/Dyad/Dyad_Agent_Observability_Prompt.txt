@@ -1,0 +1,18 @@
+
+# Agent Observability & Control Panel
+Goal: a dashboard to watch and steer multi-agent behavior (cloud + local GPUs).
+
+## UI
+- Top: agent grid cards (Lead Intake, Classifier, Scheduler, Comms, Quotes, Orchestrator).
+- Center: live event stream (events, inbound STOPs, errors) with filters.
+- Right: controls (pause campaign sends, drain queue, retry failed).
+- Modal: dependency graph (Mermaid) fed by a `/agents/graph` endpoint.
+
+## Backend
+- Emit OpenTelemetry spans from each module; collect minimal metrics (events sent/min, failures).
+- Redis metrics: queue sizes, active jobs.
+- `POST /control/{agent}/{cmd}` for pause/resume/drain; guard with owner role.
+- Log to `agent_logs` table; stream via WS.
+
+## Hosting
+- Put this under `dev.domain.com/ops`, behind auth. Use Coolify to deploy and keep it near Redis and the scheduler.

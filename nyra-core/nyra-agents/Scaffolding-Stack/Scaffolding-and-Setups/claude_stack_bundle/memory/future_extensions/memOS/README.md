@@ -1,2 +1,0 @@
-# memOS
-Semantic memory system.

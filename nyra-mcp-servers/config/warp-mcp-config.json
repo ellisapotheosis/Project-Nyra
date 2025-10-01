@@ -1,0 +1,127 @@
+{
+  "mcpServers": {
+    "mem0-mcp": {
+      "cwd": "C:\\Users\\edane\\OneDrive\\Documents\\DevProjects\\Project-Nyra\\nyra-mcp-servers\\local\\mem0-mcp",
+      "command": "uv",
+      "env": {
+        "NYRA_ENVIRONMENT": "dev",
+        "MCP_SERVER_NAME": "mem0-mcp"
+      },
+      "args": [
+        "run",
+        "python",
+        "main.py"
+      ]
+    },
+    "fastmcp": {
+      "command": "uvx",
+      "env": {},
+      "args": [
+        "fastmcp",
+        "serve"
+      ]
+    },
+    "infisical-mcp": {
+      "cwd": "C:\\Users\\edane\\OneDrive\\Documents\\DevProjects\\Project-Nyra\\nyra-mcp-servers\\local\\infisical-mcp",
+      "command": "uv",
+      "env": {
+        "NYRA_ENVIRONMENT": "dev",
+        "MCP_SERVER_NAME": "infisical-mcp"
+      },
+      "args": [
+        "run",
+        "python",
+        "main.py"
+      ]
+    },
+    "metamcp-local": {
+      "cwd": "C:\\Users\\edane\\OneDrive\\Documents\\DevProjects\\Project-Nyra\\nyra-mcp-servers\\local\\metamcp",
+      "command": "uv",
+      "env": {
+        "NYRA_ENVIRONMENT": "dev",
+        "MCP_SERVER_NAME": "metamcp-local"
+      },
+      "args": [
+        "run",
+        "python",
+        "main.py"
+      ]
+    },
+    "filesystem": {
+      "command": "npx",
+      "env": {},
+      "args": [
+        "@modelcontextprotocol/server-filesystem"
+      ]
+    },
+    "zep-mcp": {
+      "cwd": "C:\\Users\\edane\\OneDrive\\Documents\\DevProjects\\Project-Nyra\\nyra-mcp-servers\\local\\zep-mcp",
+      "command": "uv",
+      "env": {
+        "NYRA_ENVIRONMENT": "dev",
+        "MCP_SERVER_NAME": "zep-mcp"
+      },
+      "args": [
+        "run",
+        "python",
+        "main.py"
+      ]
+    },
+    "flow-nexus": {
+      "command": "npx",
+      "env": {},
+      "args": [
+        "flow-nexus"
+      ]
+    },
+    "archon-mcp": {
+      "cwd": "C:\\Users\\edane\\OneDrive\\Documents\\DevProjects\\Project-Nyra\\nyra-mcp-servers\\local\\archon-mcp",
+      "command": "uv",
+      "env": {
+        "NYRA_ENVIRONMENT": "dev",
+        "MCP_SERVER_NAME": "archon-mcp"
+      },
+      "args": [
+        "run",
+        "python",
+        "main.py"
+      ]
+    },
+    "claude-flow": {
+      "command": "npx",
+      "env": {},
+      "args": [
+        "claude-flow"
+      ]
+    },
+    "qdrant-local": {
+      "cwd": "C:\\Users\\edane\\OneDrive\\Documents\\DevProjects\\Project-Nyra\\nyra-mcp-servers\\local\\qdrant-mcp",
+      "command": "uv",
+      "env": {
+        "NYRA_ENVIRONMENT": "dev",
+        "MCP_SERVER_NAME": "qdrant-local"
+      },
+      "args": [
+        "run",
+        "python",
+        "main.py"
+      ]
+    },
+    "notion": {
+      "command": "npx",
+      "env": {
+        "NOTION_TOKEN": "${NOTION_TOKEN}"
+      },
+      "args": [
+        "@eyelidlessness/notion-api-mcp-server"
+      ]
+    },
+    "desktop-commander": {
+      "command": "npx",
+      "env": {},
+      "args": [
+        "desktop-commander"
+      ]
+    }
+  }
+}

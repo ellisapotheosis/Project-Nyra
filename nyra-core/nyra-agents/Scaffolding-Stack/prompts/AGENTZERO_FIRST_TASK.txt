@@ -1,9 +1,0 @@
-First Task:
-- Connect to MCP stdio server "NYRA-FastMCP"; sanity-check fs_list and google_search('site:github.com fastmcp').
-- Iterate DeepCode instances from env DEEPCODE_BASE_PORT; for each, open its UI and paste its TASK_PROMPT.txt.
-- Ask each instance to:
-  1) Create/extend monorepo skeleton.
-  2) Generate ADR-0001 (Scaffolding) and ADR-0002 (Memory Plan).
-  3) Write Makefile + .vscode/tasks.json.
-  4) Emit a health script that checks MCP endpoints (including google_search + firecrawl_scrape), DeepCode UI readiness, and .env keys.
-- When all instances report 'OK', summarize artifacts and next steps.

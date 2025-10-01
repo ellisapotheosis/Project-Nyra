@@ -1,7 +1,0 @@
-{
-  "yaml.schemas": {
-    "kilo-schema.json": ["*.kilo.yml", "*.kilo.yaml"]
-  },
-  "yaml.validate": true,
-  "kilo-code.serverTimeout": 30000
-}
