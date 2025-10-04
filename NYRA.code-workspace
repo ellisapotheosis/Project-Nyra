@@ -1,0 +1,37 @@
+{
+  "folders": [
+    {
+      "path": "."
+    }
+  ],
+  "settings": {
+    "chat.tools.autoApprove": true,
+    "chat.agent.maxRequests": 200,
+    "chat.mcp.enabled": true,
+    "chat.mcp.discovery.enabled": true,
+    "github.copilot.chat.virtualTools.threshold": 128,
+    "editor.formatOnSave": true,
+    "files.trimTrailingWhitespace": true,
+    "files.insertFinalNewline": true,
+    "files.exclude": {
+      "**/.env*": true,
+      "**/node_modules": true,
+      "**/.venv": true,
+      "**/dist": true,
+      "**/build": true
+    }
+  },
+  "extensions": {
+    "recommendations": [
+      "kilocode.Kilo-Code",
+      "anthropic.claude-code",
+      "GitHub.copilot",
+      "GitHub.copilot-chat",
+      "ms-playwright.playwright",
+      "ms-python.python",
+      "ms-vscode.powershell",
+      "EditorConfig.EditorConfig",
+      "eamodio.gitlens"
+    ]
+  }
+}

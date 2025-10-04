@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+  - github
+  - filesystem
+  - database
+  - browser
+  - devops
+  - mortgage_ops
+  }
+}
