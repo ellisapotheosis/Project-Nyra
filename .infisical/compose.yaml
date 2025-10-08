@@ -1,0 +1,16 @@
+# compose.yml (in an empty folder)
+services:
+  infisical-mcp:
+    image: ghcr.io/infisical/infisical-mcp-server:latest
+    # Option A: inject env via Infisical CLI wrapper
+    entrypoint: ["/bin/sh","-lc"]
+    command: >
+      'MI_TOKEN=$(infisical login --silent --plain) &&
+       INFISICAL_TOKEN=$$MI_TOKEN
+       ./start-mcp --project-id ${PROJECT_ID} --env ${ENV} --path ${SECRETS_PATH}'
+    environment:
+      # For the CLI inside container to contact Infisical; if using self-host, add --api-url
+      PROJECT_ID:    "<YOUR_PROJECT_ID>"
+      ENV:           "dev"                 # dev|staging|prod
+      SECRETS_PATH:  "/project-nyra"
+    # mount nothing sensitive; prefer runtime tokens
