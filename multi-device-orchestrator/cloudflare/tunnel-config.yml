@@ -1,0 +1,104 @@
+tunnel: UPDATE_WITH_NYRA_MAIN_TUNNEL_ID
+credentials-file: /etc/cloudflared/nyra-main.json
+
+# NYRA Multi-Device Orchestrator Tunnel Configuration
+# This routes traffic from ratehunter.net subdomains to local NYRA devices
+
+ingress:
+  # Main orchestrator interface (Minisforum UM680)
+  - hostname: nyra-orchestrator.ratehunter.net
+    service: http://192.168.1.103:8084
+    originRequest:
+      httpHostHeader: nyra-orchestrator.ratehunter.net
+      
+  # Primary GPU compute node (Alienware Area-51 RTX 5090)
+  - hostname: nyra-gpu1.ratehunter.net
+    service: http://192.168.1.101:8081
+    originRequest:
+      httpHostHeader: nyra-gpu1.ratehunter.net
+      connectTimeout: 30s
+      
+  # Secondary GPU compute node (Desktop RTX 3090 Ti)
+  - hostname: nyra-gpu2.ratehunter.net
+    service: http://192.168.1.102:8082
+    originRequest:
+      httpHostHeader: nyra-gpu2.ratehunter.net
+      connectTimeout: 30s
+      
+  # Development laptop interface
+  - hostname: nyra-dev.ratehunter.net
+    service: http://192.168.1.100:8080
+    originRequest:
+      httpHostHeader: nyra-dev.ratehunter.net
+      
+  # Jupyter notebook access (Area-51)
+  - hostname: jupyter-gpu1.ratehunter.net
+    service: http://192.168.1.101:8888
+    originRequest:
+      httpHostHeader: jupyter-gpu1.ratehunter.net
+      
+  # Jupyter notebook access (Desktop)
+  - hostname: jupyter-gpu2.ratehunter.net
+    service: http://192.168.1.102:8889
+    originRequest:
+      httpHostHeader: jupyter-gpu2.ratehunter.net
+      
+  # TensorBoard access
+  - hostname: tensorboard-gpu1.ratehunter.net
+    service: http://192.168.1.101:6006
+    originRequest:
+      httpHostHeader: tensorboard-gpu1.ratehunter.net
+      
+  - hostname: tensorboard-gpu2.ratehunter.net
+    service: http://192.168.1.102:6007
+    originRequest:
+      httpHostHeader: tensorboard-gpu2.ratehunter.net
+      
+  # MCP ecosystem access
+  - hostname: mcp.ratehunter.net
+    service: http://192.168.1.103:8086
+    originRequest:
+      httpHostHeader: mcp.ratehunter.net
+      
+  # Web UI for development
+  - hostname: ui.ratehunter.net
+    service: http://192.168.1.100:3000
+    originRequest:
+      httpHostHeader: ui.ratehunter.net
+      
+  # Monitoring and metrics
+  - hostname: monitoring.ratehunter.net
+    service: http://192.168.1.103:8085
+    originRequest:
+      httpHostHeader: monitoring.ratehunter.net
+      
+  # SSH tunneling for secure connections
+  - hostname: ssh-tunnel.ratehunter.net
+    service: tcp://192.168.1.103:22
+    
+  # Catch-all rule (must be last)
+  - service: http_status:404
+
+# Logging configuration
+logging:
+  level: info
+  format: json
+  output: /var/log/cloudflared/nyra-tunnel.log
+
+# Metrics and monitoring
+metrics: 0.0.0.0:8090
+
+# Auto-update configuration
+autoupdate-freq: 24h
+
+# Connection settings
+heartbeat-interval: 30s
+grace-period: 30s
+compression: gzip
+
+# Security settings
+proxy-dns: true
+proxy-dns-port: 5053
+proxy-dns-upstream:
+  - https://1.1.1.1/dns-query
+  - https://1.0.0.1/dns-query

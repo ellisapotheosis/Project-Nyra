@@ -1,0 +1,221 @@
+{
+  "servers": {
+    "filesystem": {
+      "name": "FileSystem MCP",
+      "description": "File system operations (read, write, list, etc.)",
+      "type": "HTTP",
+      "endpoint": "http://host.docker.internal:8000/mcp",
+      "startup_command": {
+        "type": "docker-compose",
+        "working_directory": "../FileSystemMCP",
+        "command": ["docker", "compose", "up", "-d"],
+        "health_check": "http://host.docker.internal:8000/"
+      },
+      "auto_start": true,
+      "tags": ["filesystem", "files", "directories"]
+    },
+    
+    "github": {
+      "name": "GitHub MCP", 
+      "description": "GitHub repository operations and Git commands",
+      "type": "HTTP",
+      "endpoint": "http://host.docker.internal:8001/mcp",
+      "startup_command": {
+        "type": "docker-compose",
+        "working_directory": "../GithubMCP",
+        "command": ["docker", "compose", "up", "-d"],
+        "health_check": "http://host.docker.internal:8001/"
+      },
+      "auto_start": true,
+      "environment": {
+        "GITHUB_TOKEN": "${GITHUB_TOKEN}",
+        "GIT_AUTHOR_NAME": "${GIT_AUTHOR_NAME}",
+        "GIT_AUTHOR_EMAIL": "${GIT_AUTHOR_EMAIL}",
+        "NGROK_AUTHTOKEN": "${NGROK_AUTHTOKEN}",
+        "NGROK_API_KEY": "${NGROK_API_KEY}"
+      },
+      "tags": ["github", "git", "repositories", "version-control"]
+    },
+
+    "docker": {
+      "name": "Docker MCP",
+      "description": "Docker container and image management",
+      "type": "STDIO",
+      "command": "uvx",
+      "args": ["mcp-server-docker"],
+      "working_directory": "../DockerMCP",
+      "auto_start": true,
+      "environment": {
+        "DOCKER_HOST": "${DOCKER_HOST}"
+      },
+      "tags": ["docker", "containers", "images", "orchestration"]
+    },
+
+    "docker-hub": {
+      "name": "Docker Hub MCP",
+      "description": "Docker Hub operations and image search",
+      "type": "STDIO", 
+      "command": "uvx",
+      "args": ["docker-mcp"],
+      "working_directory": "../DockerHubMCP",
+      "auto_start": true,
+      "tags": ["docker-hub", "images", "registry", "search"]
+    },
+
+    "bitwarden": {
+      "name": "Bitwarden MCP",
+      "description": "Password management and vault operations",
+      "type": "STDIO",
+      "command": "npx",
+      "args": ["-y", "@bitwarden/mcp-server"],
+      "working_directory": "../BitwardenMCP",
+      "auto_start": false,
+      "environment": {
+        "BW_SESSION": "${BW_SESSION}",
+        "BW_CLIENT_ID": "${BW_CLIENT_ID}",
+        "BW_CLIENT_SECRET": "${BW_CLIENT_SECRET}"
+      },
+      "tags": ["passwords", "secrets", "vault", "security"]
+    },
+
+    "infisical": {
+      "name": "Infisical MCP",
+      "description": "Secrets management and environment variables",
+      "type": "STDIO",
+      "command": "node",
+      "args": ["../Infisical/run-infisical-mcp.ps1"],
+      "working_directory": "../Infisical",
+      "auto_start": false,
+      "environment": {
+        "INFISICAL_ENVIRONMENT": "${INFISICAL_ENVIRONMENT:-dev}",
+        "INFISICAL_PROJECT_ID": "${INFISICAL_PROJECT_ID}",
+        "INFISICAL_UNIVERSAL_AUTH_CLIENT_ID": "${INFISICAL_UNIVERSAL_AUTH_CLIENT_ID}",
+        "INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET": "${INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET}"
+      },
+      "tags": ["secrets", "environment", "infisical", "security"]
+    },
+
+    "kilo-code": {
+      "name": "Kilo Code MCP",
+      "description": "Internationalization and development tools",
+      "type": "STDIO",
+      "command": "npm",
+      "args": ["run", "mcp:i18n"],
+      "working_directory": "../KiloCodeMCP",
+      "auto_start": false,
+      "environment": {
+        "OPENROUTER_API_KEY": "${OPENROUTER_API_KEY}",
+        "DEFAULT_MODEL": "anthropic/claude-3.7-sonnet"
+      },
+      "tags": ["i18n", "localization", "development", "translation"]
+    },
+
+    "claude-flow": {
+      "name": "Claude Flow MCP",
+      "description": "AI orchestration and swarm intelligence",
+      "type": "STDIO",
+      "command": "npx",
+      "args": ["claude-flow@alpha", "mcp", "start"],
+      "working_directory": "../ClaudeFlowMCP",
+      "auto_start": true,
+      "environment": {
+        "OPENAI_API_KEY": "${OPENAI_API_KEY}",
+        "ANTHROPIC_API_KEY": "${ANTHROPIC_API_KEY}"
+      },
+      "tags": ["ai", "orchestration", "swarm", "automation", "claude"]
+    },
+
+    "gemini": {
+      "name": "Gemini CLI MCP",
+      "description": "Google Gemini AI integration and tools", 
+      "type": "STDIO",
+      "command": "npx",
+      "args": ["@mgabr/gemini-mcp-server"],
+      "working_directory": "../GeminiCLI",
+      "auto_start": false,
+      "environment": {
+        "GOOGLE_APPLICATION_CREDENTIALS": "${GOOGLE_APPLICATION_CREDENTIALS}",
+        "GOOGLE_API_KEY": "${GOOGLE_API_KEY}",
+        "VERTEX_AI_PROJECT": "${VERTEX_AI_PROJECT}",
+        "VERTEX_AI_LOCATION": "${VERTEX_AI_LOCATION:-us-central1}"
+      },
+      "tags": ["ai", "gemini", "google", "vertex-ai", "integration"]
+    }
+  },
+
+  "namespaces": {
+    "development": {
+      "name": "Development Tools",
+      "description": "Core development and DevOps tools",
+      "servers": ["filesystem", "github", "docker", "docker-hub", "claude-flow", "gemini"],
+      "middlewares": ["filter-inactive-tools"],
+      "default": true
+    },
+
+    "security": {
+      "name": "Security & Secrets",
+      "description": "Password management and secrets handling",
+      "servers": ["bitwarden", "infisical"],
+      "middlewares": ["filter-inactive-tools", "audit-logging"]
+    },
+
+    "localization": {
+      "name": "Internationalization",
+      "description": "Translation and localization tools",
+      "servers": ["kilo-code"],
+      "middlewares": ["filter-inactive-tools"]
+    },
+
+    "full-suite": {
+      "name": "Complete NYRA Suite",
+      "description": "All available MCP servers",
+      "servers": ["filesystem", "github", "docker", "docker-hub", "bitwarden", "infisical", "kilo-code", "claude-flow", "gemini"],
+      "middlewares": ["filter-inactive-tools"]
+    }
+  },
+
+  "endpoints": {
+    "nyra-dev": {
+      "name": "NYRA Development",
+      "description": "Primary development endpoint for ChatGPT integration",
+      "namespace": "development",
+      "auth": {
+        "type": "api_key",
+        "api_key": "sk_mt_nyra_dev_2025"
+      },
+      "transports": ["sse", "http"],
+      "public": false
+    },
+
+    "nyra-security": {
+      "name": "NYRA Security",
+      "description": "Secrets and password management endpoint",
+      "namespace": "security", 
+      "auth": {
+        "type": "api_key",
+        "api_key": "sk_mt_nyra_sec_2025"
+      },
+      "transports": ["sse", "http"],
+      "public": false
+    },
+
+    "nyra-complete": {
+      "name": "NYRA Complete Suite",
+      "description": "All tools and capabilities",
+      "namespace": "full-suite",
+      "auth": {
+        "type": "api_key", 
+        "api_key": "sk_mt_nyra_all_2025"
+      },
+      "transports": ["sse", "http"],
+      "public": false
+    }
+  },
+
+  "global_settings": {
+    "idle_sessions": 1,
+    "session_timeout": 3600,
+    "auto_cleanup": true,
+    "log_level": "info"
+  }
+}

@@ -1,0 +1,2 @@
+@echo off
+powershell -NoLogo -NoProfile -ExecutionPolicy Bypass -File "C:\Dev\NyraTools\mcp_manager.ps1" -Stack nyra -Action stop

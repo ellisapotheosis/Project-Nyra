@@ -1,0 +1,79 @@
+version: '3.8'
+
+services:
+  # NYRA Core Orchestrator
+  nyra-orchestrator:
+    build: 
+      context: ./nyra-core
+      dockerfile: Dockerfile.orchestrator
+    ports:
+      - "8000:8000"
+    environment:
+      - NYRA_MODE=development
+      - NYRA_LOG_LEVEL=debug
+    volumes:
+      - ./logs:/app/logs
+      - ./configs:/app/configs
+    depends_on:
+      - nyra-memory
+      - nyra-database
+    
+  # Memory System (FalkorDB + ChromaDB)  
+  nyra-memory:
+    image: falkordb/falkordb:latest
+    ports:
+      - "6379:6379"
+    volumes:
+      - nyra_falkordb:/data
+      
+  nyra-chromadb:
+    image: chromadb/chroma:latest
+    ports:
+      - "8001:8000"
+    volumes:
+      - nyra_chroma:/chroma/chroma
+    
+  # Database
+  nyra-database:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: nyra_mortgage
+      POSTGRES_USER: nyra
+      POSTGRES_PASSWORD: \
+    ports:
+      - "5432:5432"
+    volumes:
+      - nyra_postgres:/var/lib/postgresql/data
+      
+  # Web UI
+  nyra-webui:
+    build:
+      context: ./nyra-webapp
+      dockerfile: Dockerfile.webui
+    ports:
+      - "3000:3000"
+    environment:
+      - NYRA_API_URL=http://nyra-orchestrator:8000
+    depends_on:
+      - nyra-orchestrator
+      
+  # MCP Server Integration
+  nyra-mcp:
+    build:
+      context: ./configs/mcp
+      dockerfile: Dockerfile.mcp
+    ports:
+      - "8002:8002"
+    volumes:
+      - ./nyra-prompts:/app/prompts
+      - ./docs:/app/docs
+
+volumes:
+  nyra_falkordb:
+  nyra_chroma:
+  nyra_postgres:
+
+networks:
+  default:
+    name: nyra-network
+    driver: bridge

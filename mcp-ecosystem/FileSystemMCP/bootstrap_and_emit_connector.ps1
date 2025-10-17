@@ -1,0 +1,51 @@
+Set-StrictMode -Version Latest
+$ErrorActionPreference = 'Stop'
+$Root = "C:\Dev\Tools\MCP-Servers\FileSystemMCP"
+$HealthUrl = "http://localhost:8000/"
+$NgrokApi = "http://localhost:4040/api/tunnels"
+Push-Location $Root
+try { docker compose up -d --build } finally { Pop-Location }
+# wait health
+$deadline = (Get-Date).AddMinutes(3); $ok=$false
+while((Get-Date) -lt $deadline){
+  try{ $r=Invoke-WebRequest $HealthUrl -UseBasicParsing -TimeoutSec 5; if($r.StatusCode -eq 200){$ok=$true;break}}catch{ Start-Sleep -Milliseconds 600 } ; Start-Sleep -Milliseconds 600
+}
+if(-not $ok){ throw "Service not healthy at $HealthUrl" }
+# wait ngrok api
+$deadline = (Get-Date).AddMinutes(3); $ok=$false
+while((Get-Date) -lt $deadline){
+  try{ $r=Invoke-WebRequest "http://localhost:4040/status" -UseBasicParsing -TimeoutSec 5; $ok=$true; break }catch{ Start-Sleep -Milliseconds 600 }
+}
+if(-not $ok){ throw "Ngrok API not up at :4040" }
+# fetch public https
+$json = Invoke-RestMethod $NgrokApi -TimeoutSec 5
+$pub = $json.tunnels | ? { $_.public_url -like 'https://*' } | select -First 1 -ExpandProperty public_url
+if(-not $pub){ throw "No https tunnel found in ngrok API" }
+$connectorUrl = "$pub/mcp"
+$connectorForm = Join-Path $Root 'CONNECTOR_CREATE_FORM.txt'
+$connectorFormMS = Join-Path $Root 'CONNECTOR_CREATE_FORM_MSAPP.txt'
+$desc = @"
+Remote filesystem tools for listing, reading, writing, creating, and removing files/folders within a confined workspace.
+Scope: files under /data (mounted from host ./data). Use when you need to inspect or edit local project files.
+"@.Trim()
+@"
+===============================
+ChatGPT Developer Mode → Connectors → Create
+===============================
+Name:
+Nyra Filesystem (NyraFS)
+
+Description:
+$desc
+
+Connector URL:
+$connectorUrl
+
+Authentication:
+Bearer (Authorization header)
+
+Authorization Header:
+Bearer apotheosis2142
+"@ | Set-Content -Encoding UTF8 -LiteralPath $connectorForm
+Get-Content $connectorForm | Set-Content -Encoding UTF8 -LiteralPath $connectorFormMS
+Write-Host "Public MCP endpoint: $connectorUrl"

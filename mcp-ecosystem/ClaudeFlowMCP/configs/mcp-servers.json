@@ -1,0 +1,81 @@
+{
+  "windows_compatibility": {
+    "shell": "pwsh",
+    "working_directory": "C:\\Dev\\claude-flow",
+    "use_cmd_wrapper": true
+  },
+  "global_env": {
+    "PATH": "$env:PATH;C:\\Dev\\claude-flow\\node_modules\\.bin",
+    "NYRA_CLAUDE_BASE": "C:\\Dev\\claude-flow"
+  },
+  "servers": {
+    "nyra-sparc2": {
+      "command": "pwsh",
+      "env": {
+        "NYRA_ENV": "development",
+        "SPARC2_WORKSPACE": "C:\\Dev\\nyra-core"
+      },
+      "args": [
+        "-c",
+        "& npx ruvnet-sparc2 --enhanced-mode --port 3004"
+      ],
+      "timeout": 25000,
+      "auto_restart": true
+    },
+    "nyra-secrets": {
+      "command": "pwsh",
+      "env": {
+        "NYRA_SECRETS_PATH": "C:\\Dev\\nyra-core\\secrets",
+        "OP_SESSION_my": "$env:OP_SESSION_my",
+        "INFISICAL_TOKEN": "$env:INFISICAL_TOKEN",
+        "BW_SESSION": "$env:BW_SESSION"
+      },
+      "args": [
+        "-c",
+        "& npx ruvnet-roo --secrets-mode --port 3002"
+      ],
+      "timeout": 15000,
+      "auto_restart": true
+    },
+    "nyra-core": {
+      "command": "pwsh",
+      "env": {
+        "NYRA_ENV": "development",
+        "NYRA_BASE_PATH": "C:\\Dev",
+        "NODE_ENV": "development"
+      },
+      "args": [
+        "-c",
+        "& npx claude-flow --server --port 3001 --config C:\\Dev\\claude-flow\\configs\\claude-flow.json"
+      ],
+      "timeout": 30000,
+      "auto_restart": true
+    },
+    "nyra-nexus": {
+      "command": "pwsh",
+      "env": {
+        "NYRA_WORKFLOW_PATH": "C:\\Dev\\nyra-core\\workflows",
+        "NEXUS_CONFIG": "C:\\Dev\\claude-flow\\configs\\nexus-config.json"
+      },
+      "args": [
+        "-c",
+        "& npx ruv-nexus-flow --workflow-engine --port 3005"
+      ],
+      "timeout": 35000,
+      "auto_restart": true
+    },
+    "nyra-spar": {
+      "command": "pwsh",
+      "env": {
+        "NYRA_ENV": "development",
+        "SPAR_CONFIG_PATH": "C:\\Dev\\nyra-core\\spar-config"
+      },
+      "args": [
+        "-c",
+        "& npx ruv-spar --dev-mode --port 3003"
+      ],
+      "timeout": 20000,
+      "auto_restart": true
+    }
+  }
+}

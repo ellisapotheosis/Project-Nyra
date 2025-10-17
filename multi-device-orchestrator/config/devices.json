@@ -1,0 +1,246 @@
+{
+  "devices": {
+    "current-m15r7": {
+      "name": "Alienware M15R7 (Current)",
+      "hostname": "ALIENWARE-M15R7",
+      "ip": "192.168.1.100",
+      "mac": "UPDATE_WITH_ACTUAL_MAC",
+      "gpu": {
+        "model": "RTX 3060",
+        "vram": 12,
+        "compute_capability": "8.6"
+      },
+      "cpu": {
+        "model": "Intel i7-12700H",
+        "cores": 14,
+        "threads": 20
+      },
+      "memory": 32,
+      "role": "Development/Controller",
+      "capabilities": [
+        "development",
+        "light-gpu",
+        "orchestration",
+        "web-ui"
+      ],
+      "services": {
+        "ssh_port": 22,
+        "tunnel_port": 8080,
+        "wol_port": 9,
+        "web_ui_port": 3000
+      },
+      "auto_wake": false,
+      "priority": 3
+    },
+    "area51-rtx5090": {
+      "name": "Alienware Area-51 RTX 5090",
+      "hostname": "ALIENWARE-AREA51",
+      "ip": "192.168.1.101",
+      "mac": "UPDATE_WITH_ACTUAL_MAC",
+      "gpu": {
+        "model": "RTX 5090",
+        "vram": 32,
+        "compute_capability": "9.0"
+      },
+      "cpu": {
+        "model": "Intel i9-14900KS",
+        "cores": 24,
+        "threads": 32
+      },
+      "memory": 64,
+      "role": "Primary GPU Compute",
+      "capabilities": [
+        "heavy-gpu",
+        "llm-inference",
+        "model-training",
+        "image-generation",
+        "video-processing",
+        "rendering"
+      ],
+      "services": {
+        "ssh_port": 22,
+        "tunnel_port": 8081,
+        "wol_port": 9,
+        "jupyter_port": 8888,
+        "tensorboard_port": 6006
+      },
+      "auto_wake": true,
+      "priority": 1
+    },
+    "desktop-rtx3090ti": {
+      "name": "Desktop RTX 3090 Ti",
+      "hostname": "DESKTOP-RTX3090TI",
+      "ip": "192.168.1.102",
+      "mac": "UPDATE_WITH_ACTUAL_MAC",
+      "gpu": {
+        "model": "RTX 3090 Ti",
+        "vram": 24,
+        "compute_capability": "8.6"
+      },
+      "cpu": {
+        "model": "AMD Ryzen 9 5950X",
+        "cores": 16,
+        "threads": 32
+      },
+      "memory": 64,
+      "role": "Secondary GPU Compute",
+      "capabilities": [
+        "heavy-gpu",
+        "parallel-processing",
+        "backup-compute",
+        "video-processing",
+        "rendering"
+      ],
+      "services": {
+        "ssh_port": 22,
+        "tunnel_port": 8082,
+        "wol_port": 9,
+        "jupyter_port": 8889,
+        "tensorboard_port": 6007
+      },
+      "auto_wake": true,
+      "priority": 2
+    },
+    "minisforum-um680": {
+      "name": "Minisforum UM680 Orchestrator",
+      "hostname": "MINISFORUM-UM680",
+      "ip": "192.168.1.103",
+      "mac": "UPDATE_WITH_ACTUAL_MAC",
+      "gpu": {
+        "model": "AMD Radeon 680M (iGPU)",
+        "vram": 2,
+        "compute_capability": "rdna2"
+      },
+      "cpu": {
+        "model": "AMD Ryzen 7 6800H",
+        "cores": 8,
+        "threads": 16
+      },
+      "memory": 32,
+      "role": "Orchestrator/Always-On Controller",
+      "capabilities": [
+        "orchestration",
+        "monitoring",
+        "wake-on-lan",
+        "tunneling",
+        "routing",
+        "mcp-hosting",
+        "always-on"
+      ],
+      "services": {
+        "ssh_port": 22,
+        "tunnel_port": 8083,
+        "wol_port": 9,
+        "orchestrator_port": 8084,
+        "monitoring_port": 8085,
+        "mcp_port": 8086
+      },
+      "auto_wake": false,
+      "priority": 4,
+      "always_on": true
+    }
+  },
+  "network": {
+    "domain": "ratehunter.net",
+    "subnet": "192.168.1.0/24",
+    "gateway": "192.168.1.1",
+    "dns_servers": [
+      "1.1.1.1",
+      "1.0.0.1"
+    ],
+    "subdomains": {
+      "nyra-orchestrator": "192.168.1.103",
+      "nyra-gpu1": "192.168.1.101",
+      "nyra-gpu2": "192.168.1.102",
+      "nyra-dev": "192.168.1.100"
+    },
+    "cloudflare_tunnels": {
+      "nyra-main": {
+        "tunnel_id": "UPDATE_WITH_ACTUAL_TUNNEL_ID",
+        "target": "192.168.1.103:8084"
+      },
+      "nyra-gpu": {
+        "tunnel_id": "UPDATE_WITH_ACTUAL_TUNNEL_ID",
+        "target": "192.168.1.101:8081"
+      },
+      "nyra-orchestrator": {
+        "tunnel_id": "UPDATE_WITH_ACTUAL_TUNNEL_ID",
+        "target": "192.168.1.103:8083"
+      }
+    }
+  },
+  "gpu_tasks": {
+    "llm-inference": {
+      "preferred_devices": ["area51-rtx5090", "desktop-rtx3090ti"],
+      "min_vram_gb": 16,
+      "parallel_capable": true,
+      "cpu_intensive": false,
+      "network_bandwidth": "high",
+      "estimated_duration": "medium"
+    },
+    "image-generation": {
+      "preferred_devices": ["area51-rtx5090", "desktop-rtx3090ti"],
+      "min_vram_gb": 12,
+      "parallel_capable": true,
+      "cpu_intensive": false,
+      "network_bandwidth": "medium",
+      "estimated_duration": "short"
+    },
+    "video-processing": {
+      "preferred_devices": ["desktop-rtx3090ti", "area51-rtx5090"],
+      "min_vram_gb": 8,
+      "parallel_capable": true,
+      "cpu_intensive": true,
+      "network_bandwidth": "very_high",
+      "estimated_duration": "long"
+    },
+    "model-training": {
+      "preferred_devices": ["area51-rtx5090"],
+      "min_vram_gb": 20,
+      "parallel_capable": false,
+      "cpu_intensive": true,
+      "network_bandwidth": "high",
+      "estimated_duration": "very_long"
+    },
+    "code-analysis": {
+      "preferred_devices": ["current-m15r7", "desktop-rtx3090ti"],
+      "min_vram_gb": 4,
+      "parallel_capable": true,
+      "cpu_intensive": true,
+      "network_bandwidth": "low",
+      "estimated_duration": "short"
+    }
+  },
+  "secrets": {
+    "cloudflare_token": {
+      "source": "bitwarden",
+      "key": "nyra-cloudflare-token"
+    },
+    "ssh_keys": {
+      "source": "filesystem",
+      "path": "~/.ssh/nyra_rsa"
+    },
+    "api_keys": {
+      "openai": {
+        "source": "1password",
+        "key": "nyra-openai-api"
+      },
+      "anthropic": {
+        "source": "1password", 
+        "key": "nyra-anthropic-api"
+      },
+      "huggingface": {
+        "source": "bitwarden",
+        "key": "nyra-hf-token"
+      }
+    }
+  },
+  "monitoring": {
+    "health_check_interval": 30,
+    "wake_retry_attempts": 3,
+    "wake_timeout_seconds": 120,
+    "tunnel_heartbeat_interval": 10,
+    "log_level": "INFO",
+    "metrics_collection": true
+  }
+}

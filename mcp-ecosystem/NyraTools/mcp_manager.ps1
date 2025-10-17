@@ -1,0 +1,199 @@
+# mcp_manager.ps1
+# Central launcher for Nyra MCP stacks (Filesystem + GitHub).
+# Actions: start | stop | restart | status | url | openforms | menu
+# Usage examples:
+#   pwsh -NoProfile -ExecutionPolicy Bypass -File C:\Dev\Tools\MCP-Servers\NyraTools\mcp_manager.ps1 -Stack nyra -Action start
+#   pwsh -NoProfile -ExecutionPolicy Bypass -File C:\Dev\Tools\MCP-Servers\NyraTools\mcp_manager.ps1 -Stack github -Action url
+# Optional Infisical injection:
+#   ... -UseInfisical -InfisicalProjectId "8374cea9-e5e8-4050-bda4-b91f25ab30ef" -InfisicalEnv dev -Action start
+
+[CmdletBinding()]
+param(
+  [ValidateSet("nyra","github","menu")]
+  [string]$Stack = "menu",
+  [ValidateSet("start","stop","restart","status","url","openforms","menu")]
+  [string]$Action = "menu",
+  [switch]$UseInfisical,
+  [string]$InfisicalProjectId = "8374cea9-e5e8-4050-bda4-b91f25ab30ef",  # CHANGE_ME if needed
+  [string]$InfisicalEnv = "dev"
+)
+
+Set-StrictMode -Version Latest
+$ErrorActionPreference = 'Stop'
+
+function Get-StackConfig([string]$which){
+  switch ($which.ToLower()) {
+    "nyra" {
+      # Original filesystem stack
+      return [ordered]@{
+        Name         = "Nyra Filesystem (NyraFS)"
+        Root         = "C:\Dev\Tools\MCP-Servers\FileSystemMCP"
+        HealthPort   = 8000
+        NgrokPort    = 4040
+        FormPath     = "C:\Dev\Tools\MCP-Servers\FileSystemMCP\CONNECTOR_CREATE_FORM.txt"
+        Desc         = "Filesystem MCP tools (list/read/write/mkdir/remove). No Auth."
+      }
+    }
+    "github" {
+      # Isolated Git/GitHub stack (your second folder, ports 8001/4041 per our isolation)
+      return [ordered]@{
+        Name         = "Nyra Git/GitHub"
+        Root         = "C:\Dev\Tools\MCP-Servers\GithubMCP"
+        HealthPort   = 8001
+        NgrokPort    = 4041
+        FormPath     = "C:\Dev\Tools\MCP-Servers\GithubMCP\CONNECTOR_CREATE_FORM.txt"
+        Desc         = "Filesystem + git + git-lfs + GitHub (repo/branch/PR). No Auth."
+      }
+    }
+    default { throw "Unknown stack '$which'." }
+  }
+}
+
+function Wait-Url($url, [int]$minutes = 3){
+  $deadline = (Get-Date).AddMinutes($minutes)
+  while ((Get-Date) -lt $deadline) {
+    try {
+      $r = Invoke-WebRequest -Uri $url -UseBasicParsing -TimeoutSec 5
+      if ($r.StatusCode -eq 200) { return $true }
+    } catch { Start-Sleep -Milliseconds 500 }
+    Start-Sleep -Milliseconds 500
+  }
+  return $false
+}
+
+function ComposeUp($cfg){
+  $root = $cfg.Root
+  if ($UseInfisical) {
+    # Inject secrets into compose via env var interpolation
+    $cmd = @(
+      "infisical","run","--env=$InfisicalEnv","--projectId=$InfisicalProjectId","--",
+      "docker","compose","--project-directory",$root,"up","-d","--build"
+    )
+  } else {
+    $cmd = @("docker","compose","--project-directory",$root,"up","-d","--build")
+  }
+  Write-Host ">>" ($cmd -join ' ')
+  $p = Start-Process -FilePath $cmd[0] -ArgumentList $cmd[1..($cmd.Length-1)] -NoNewWindow -Wait -PassThru
+  if ($p.ExitCode -ne 0) { throw "compose up failed ($($p.ExitCode))" }
+}
+
+function ComposeDown($cfg){
+  $cmd = @("docker","compose","--project-directory",$cfg.Root,"down")
+  Write-Host ">>" ($cmd -join ' ')
+  $p = Start-Process -FilePath $cmd[0] -ArgumentList $cmd[1..($cmd.Length-1)] -NoNewWindow -Wait -PassThru
+  if ($p.ExitCode -ne 0) { throw "compose down failed ($($p.ExitCode))" }
+}
+
+function ComposePS($cfg){
+  $cmd = @("docker","compose","--project-directory",$cfg.Root,"ps")
+  & $cmd[0] $cmd[1..($cmd.Length-1)]
+}
+
+function Get-PublicUrl($cfg){
+  $api = "http://127.0.0.1:{0}/api/tunnels" -f $cfg.NgrokPort
+  $t = Invoke-RestMethod -Uri $api -TimeoutSec 5
+  ($t.tunnels | Where-Object { $_.public_url -like 'https://*' } | Select-Object -First 1 -ExpandProperty public_url)
+}
+
+function Emit-Form($cfg, $publicUrl){
+  $connectorUrl = "$publicUrl/mcp"
+  $text = @"
+Name:
+$($cfg.Name)
+
+Description:
+$($cfg.Desc)
+
+Connector URL:
+$connectorUrl
+
+Authentication:
+No Auth
+"@
+  $dir = Split-Path -Parent $cfg.FormPath
+  if (-not (Test-Path $dir)) { New-Item -ItemType Directory -Path $dir | Out-Null }
+  $text | Set-Content -Encoding UTF8 -LiteralPath $cfg.FormPath
+  return $connectorUrl
+}
+
+function Start-Stack($cfg){
+  ComposeUp $cfg
+
+  $health = "http://127.0.0.1:{0}/" -f $cfg.HealthPort
+  if (-not (Wait-Url $health 3)) { throw "Service not healthy at $health" }
+
+  $statusUrl = "http://127.0.0.1:{0}/status" -f $cfg.NgrokPort
+  if (-not (Wait-Url $statusUrl 3)) { throw "ngrok admin not healthy at :$($cfg.NgrokPort)" }
+
+  $pub = Get-PublicUrl $cfg
+  if (-not $pub) { throw "No https tunnel from ngrok on :$($cfg.NgrokPort)" }
+
+  $mcpUrl = Emit-Form $cfg $pub
+  Write-Host "Public MCP endpoint: $mcpUrl"
+  Write-Host "Paste EXACTLY from: $($cfg.FormPath)"
+}
+
+function OpenForms($cfg){
+  if (Test-Path $cfg.FormPath) { Start-Process notepad.exe $cfg.FormPath }
+  else { Write-Host "No form yet at $($cfg.FormPath). Run -Action start or -Action url first." -ForegroundColor Yellow }
+}
+
+function PrintMenu(){
+  Write-Host ""
+  Write-Host "=== Nyra MCP Launcher ==="
+  Write-Host "Stacks:"
+  Write-Host "  [1] Nyra Filesystem (8000/4040)"
+  Write-Host "  [2] Nyra Git/GitHub (8001/4041)"
+  Write-Host "Actions:"
+  Write-Host "  s: start   x: stop   r: restart   p: status   u: show URL   o: open forms   q: quit"
+}
+
+# ----- main -----
+if ($Stack -eq "menu" -or $Action -eq "menu") {
+  while ($true) {
+    PrintMenu
+    $stackKey = Read-Host "Pick stack (1/2 or q)"
+    if ($stackKey -eq "q") { break }
+    $stackName = if ($stackKey -eq "1") { "nyra" } elseif ($stackKey -eq "2") { "github" } else { continue }
+    $cfg = Get-StackConfig $stackName
+
+    $act = Read-Host "Action (s/x/r/p/u/o/q)"
+    switch ($act) {
+      "s" { Start-Stack $cfg }
+      "x" { ComposeDown $cfg }
+      "r" { ComposeDown $cfg; Start-Stack $cfg }
+      "p" { ComposePS $cfg }
+      "u" {
+        $pub = Get-PublicUrl $cfg
+        if (-not $pub) { Write-Host "No https tunnel yet; start the stack first." -ForegroundColor Yellow }
+        else {
+          $mcp = Emit-Form $cfg $pub
+          Write-Host "Public MCP endpoint: $mcp"
+          Write-Host "Form: $($cfg.FormPath)"
+        }
+      }
+      "o" { OpenForms $cfg }
+      "q" { break }
+      default { }
+    }
+  }
+  exit 0
+}
+
+# non-interactive path
+$cfg = Get-StackConfig $Stack
+switch ($Action) {
+  "start"     { Start-Stack $cfg }
+  "stop"      { ComposeDown $cfg }
+  "restart"   { ComposeDown $cfg; Start-Stack $cfg }
+  "status"    { ComposePS $cfg }
+  "url"       {
+    $pub = Get-PublicUrl $cfg
+    if (-not $pub) { throw "No https tunnel yet; start the stack first." }
+    $mcp = Emit-Form $cfg $pub
+    Write-Host "Public MCP endpoint: $mcp"
+    Write-Host "Form: $($cfg.FormPath)"
+  }
+  "openforms" { OpenForms $cfg }
+  default     { Write-Host "Unknown action"; exit 1 }
+}
