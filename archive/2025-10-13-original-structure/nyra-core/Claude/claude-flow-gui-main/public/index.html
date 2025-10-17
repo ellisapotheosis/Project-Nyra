@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Claude Flow Command Builder</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="app">
+        <header>
+            <h1>Claude Flow Command Builder</h1>
+            <div class="status-bar">
+                <span id="claude-code-status" class="status-text">Claude Code: Checking...</span>
+                <span id="claude-flow-status" class="status-text">Claude Flow: Checking...</span>
+            </div>
+        </header>
+
+        <main>
+            <div class="sidebar">
+                <nav>
+                    <button class="nav-btn active" data-tab="builder">Command Builder</button>
+                    <button class="nav-btn" data-tab="workflows">Workflows</button>
+                    <button class="nav-btn" data-tab="history">History</button>
+                    <button class="nav-btn" data-tab="setup">Setup</button>
+                </nav>
+            </div>
+
+            <div class="content">
+                <!-- Command Builder Tab -->
+                <section id="builder-tab" class="tab-content active">
+                    <h2>Build Claude Flow Commands</h2>
+                    
+                    <div class="builder-section">
+                        <h3>Quick Commands</h3>
+                        <div class="quick-commands">
+                            <button class="quick-cmd" data-cmd="npx claude-flow init --sparc">Initialize SPARC in Project</button>
+                            <button class="quick-cmd" data-cmd="npx claude-flow sparc modes">List SPARC Modes</button>
+                            <button class="quick-cmd" data-cmd="npx claude-flow memory export project-state.json">Export Memory</button>
+                        </div>
+                    </div>
+
+                    <div class="builder-section">
+                        <h3>SPARC Command Builder</h3>
+                        <div class="command-builder">
+                            <div class="form-group">
+                                <label for="sparc-mode-select">SPARC Mode:</label>
+                                <select id="sparc-mode-select">
+                                    <option value="auto">Auto (Orchestrator)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="sparc-prompt">Prompt:</label>
+                                <textarea id="sparc-prompt" rows="3" placeholder="What do you want Claude to do?"></textarea>
+                            </div>
+                            <div class="options-group">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="opt-non-interactive">
+                                    Non-interactive (JSON output)
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="opt-enable-permissions">
+                                    Enable permissions (skip dangerous flag)
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="opt-ui">
+                                    Enable Web UI
+                                </label>
+                            </div>
+                            <button id="generate-sparc-btn" class="primary-btn">Generate SPARC Command</button>
+                        </div>
+                    </div>
+
+                    <div class="builder-section">
+                        <h3>Claude Spawn Builder</h3>
+                        <div class="command-builder">
+                            <div class="form-group">
+                                <label for="claude-prompt">Task Description:</label>
+                                <textarea id="claude-prompt" rows="3" placeholder="Describe the task for Claude"></textarea>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="coverage">Test Coverage (%):</label>
+                                    <input type="number" id="coverage" min="0" max="100" placeholder="95">
+                                </div>
+                                <div class="form-group">
+                                    <label for="agents">Number of Agents:</label>
+                                    <input type="number" id="agents" min="1" max="10" placeholder="3">
+                                </div>
+                            </div>
+                            <div class="options-group">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="opt-research">
+                                    Enable research mode
+                                </label>
+                            </div>
+                            <button id="generate-claude-btn" class="primary-btn">Generate Claude Spawn Command</button>
+                        </div>
+                    </div>
+
+                    <div class="builder-section">
+                        <h3>Memory Operations</h3>
+                        <div class="memory-builder">
+                            <div class="form-row">
+                                <select id="memory-operation">
+                                    <option value="store">Store</option>
+                                    <option value="query">Query</option>
+                                    <option value="export">Export</option>
+                                    <option value="import">Import</option>
+                                </select>
+                                <input type="text" id="memory-key" placeholder="Key or search term">
+                                <input type="text" id="memory-value" placeholder="Value (for store)" style="display: none;">
+                            </div>
+                            <button id="generate-memory-btn" class="secondary-btn">Generate Memory Command</button>
+                        </div>
+                    </div>
+
+                    <div class="command-output">
+                        <h3>Generated Command</h3>
+                        <div class="command-display">
+                            <pre id="generated-command">Your command will appear here...</pre>
+                            <button id="copy-command" class="small-btn">Copy</button>
+                            <button id="save-favorite" class="small-btn">Save as Favorite</button>
+                        </div>
+                        <div class="command-explanation" id="command-explanation"></div>
+                    </div>
+                </section>
+
+                <!-- Workflows Tab -->
+                <section id="workflows-tab" class="tab-content">
+                    <h2>Workflow Templates</h2>
+                    
+                    <div class="workflow-list" id="workflow-list">
+                        <!-- Workflow templates will be loaded here -->
+                    </div>
+
+                    <div class="workflow-builder">
+                        <h3>Create New Workflow</h3>
+                        <div class="form-group">
+                            <label for="workflow-name">Workflow Name:</label>
+                            <input type="text" id="workflow-name" placeholder="e.g., API Development">
+                        </div>
+                        <div class="form-group">
+                            <label for="workflow-description">Description:</label>
+                            <input type="text" id="workflow-description" placeholder="Brief description">
+                        </div>
+                        <div class="workflow-steps" id="workflow-steps">
+                            <h4>Steps</h4>
+                            <div class="step-list" id="step-list"></div>
+                            <button id="add-step-btn" class="secondary-btn">Add Step</button>
+                        </div>
+                        <button id="save-workflow-btn" class="primary-btn">Save Workflow</button>
+                    </div>
+
+                    <div class="workflow-executor" style="display: none;">
+                        <h3>Execute Workflow: <span id="executing-workflow-name"></span></h3>
+                        <div class="workflow-variables" id="workflow-variables"></div>
+                        <div class="workflow-progress" id="workflow-progress"></div>
+                        <button id="start-workflow-btn" class="primary-btn">Start Workflow</button>
+                        <button id="cancel-workflow-btn" class="secondary-btn">Cancel</button>
+                    </div>
+                </section>
+
+                <!-- History Tab -->
+                <section id="history-tab" class="tab-content">
+                    <h2>Command History & Favorites</h2>
+                    
+                    <div class="history-section">
+                        <h3>Favorites</h3>
+                        <div class="favorites-list" id="favorites-list">
+                            <!-- Favorites will be loaded here -->
+                        </div>
+                    </div>
+
+                    <div class="history-section">
+                        <h3>Recent Commands</h3>
+                        <div class="history-list" id="history-list">
+                            <!-- History will be loaded here -->
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Setup Tab -->
+                <section id="setup-tab" class="tab-content">
+                    <h2>Setup & Configuration</h2>
+                    
+                    <div class="setup-section">
+                        <h3>System Status</h3>
+                        <div class="status-grid">
+                            <div class="status-card">
+                                <h4>Claude Code</h4>
+                                <p id="claude-code-detail">Checking installation...</p>
+                                <a href="https://claude.ai/code" target="_blank" class="help-link">Installation Guide</a>
+                            </div>
+                            <div class="status-card">
+                                <h4>Claude Flow</h4>
+                                <p id="claude-flow-detail">Checking installation...</p>
+                                <code class="install-cmd">npm install -g claude-flow</code>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="setup-section">
+                        <h3>Claude Flow Repository</h3>
+                        <div class="form-group">
+                            <label for="repo-url">Repository URL:</label>
+                            <input type="text" id="repo-url" value="https://github.com/ruvnet/claude-code-flow.git">
+                        </div>
+                        <div class="form-group">
+                            <label for="install-path">Install Path:</label>
+                            <input type="text" id="install-path" placeholder="/home/luke/claude-flow-repo">
+                        </div>
+                        <button id="setup-repo-btn" class="primary-btn">Clone/Update Repository</button>
+                        <div id="setup-output" class="output-box"></div>
+                    </div>
+
+                    <div class="setup-section">
+                        <h3>Project Configuration</h3>
+                        <div class="form-group">
+                            <label for="project-path">Current Project Path:</label>
+                            <input type="text" id="project-path" placeholder="/path/to/your/project">
+                        </div>
+                        <button id="init-project-btn" class="secondary-btn">Initialize Claude Flow in Project</button>
+                        <div id="project-output" class="output-box"></div>
+                    </div>
+
+                    <div class="setup-section">
+                        <h3>Resources</h3>
+                        <ul class="resource-links">
+                            <li><a href="https://github.com/ruvnet/claude-code-flow" target="_blank">Claude Flow GitHub</a></li>
+                            <li><a href="https://claude.ai/code" target="_blank">Claude Code Documentation</a></li>
+                            <li><a href="https://docs.anthropic.com/claude/docs" target="_blank">Claude API Docs</a></li>
+                        </ul>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

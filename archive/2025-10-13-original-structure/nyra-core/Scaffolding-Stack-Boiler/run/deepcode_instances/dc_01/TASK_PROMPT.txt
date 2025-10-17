@@ -1,0 +1,1 @@
+Scaffold the nyra-dev-stack monorepo: /orchestration, /agents, /mcp, /memory, /prompts, /infra, /docs. Generate ADR-0001 and ADR-0002. Use MCP tools (google_search, firecrawl_scrape).
