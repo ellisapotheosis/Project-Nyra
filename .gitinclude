@@ -1,0 +1,27 @@
+# Essential Project Nyra files to include
+apps/
+docs/
+infra/
+libs/
+mcp/
+memory/
+packages/
+services/
+workflows/
+archive/
+nyra-configs/
+nyra-source/
+nyra-src/
+nyra-ui/
+nyra-voice/
+nyra-webapp/
+config-consolidated/
+CLAUDE.md
+WARP.md
+README.md
+*.ps1
+*.yml
+*.json
+.gitignore
+.infisical.json
+pyproject.toml

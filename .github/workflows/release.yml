@@ -1,0 +1,418 @@
+name: 🏷️ Release & Version
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - '.github/**'
+      - '!.github/workflows/**'
+  workflow_dispatch:
+    inputs:
+      version_type:
+        description: 'Version bump type'
+        required: true
+        default: 'auto'
+        type: choice
+        options:
+        - auto
+        - patch
+        - minor
+        - major
+        - prerelease
+
+env:
+  PYTHON_VERSION: "3.11"
+
+permissions:
+  contents: write
+  packages: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  # 🔍 Analyze Changes
+  analyze-changes:
+    name: 🔍 Analyze Changes
+    runs-on: ubuntu-latest
+    outputs:
+      version-type: ${{ steps.analyze.outputs.version-type }}
+      should-release: ${{ steps.analyze.outputs.should-release }}
+      changelog: ${{ steps.analyze.outputs.changelog }}
+      
+    steps:
+    - name: 🛒 Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: 🔍 Analyze commit messages
+      id: analyze
+      run: |
+        # Get commits since last tag
+        LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+        if [[ -z "$LAST_TAG" ]]; then
+          COMMITS=$(git log --oneline --since="1 week ago")
+          RANGE="HEAD~10..HEAD"
+        else
+          COMMITS=$(git log ${LAST_TAG}..HEAD --oneline)
+          RANGE="${LAST_TAG}..HEAD"
+        fi
+        
+        echo "Analyzing commits in range: $RANGE"
+        echo "$COMMITS"
+        
+        # Analyze commit types based on conventional commits
+        BREAKING_CHANGES=$(echo "$COMMITS" | grep -E "(BREAKING CHANGE|!:|^feat!:|^fix!:|^refactor!:)" | wc -l)
+        FEATURES=$(echo "$COMMITS" | grep -E "^feat(\([^)]+\))?" | wc -l) 
+        FIXES=$(echo "$COMMITS" | grep -E "^fix(\([^)]+\))?" | wc -l)
+        CHORES=$(echo "$COMMITS" | grep -E "^(chore|docs|style|refactor|test)(\([^)]+\))?" | wc -l)
+        
+        echo "Breaking changes: $BREAKING_CHANGES"
+        echo "Features: $FEATURES" 
+        echo "Fixes: $FIXES"
+        echo "Chores: $CHORES"
+        
+        # Determine version type
+        if [[ "${{ github.event.inputs.version_type }}" != "auto" ]]; then
+          VERSION_TYPE="${{ github.event.inputs.version_type }}"
+        elif [[ $BREAKING_CHANGES -gt 0 ]]; then
+          VERSION_TYPE="major"
+        elif [[ $FEATURES -gt 0 ]]; then
+          VERSION_TYPE="minor"
+        elif [[ $FIXES -gt 0 ]]; then
+          VERSION_TYPE="patch"
+        else
+          VERSION_TYPE="none"
+        fi
+        
+        # Determine if we should release
+        if [[ "$VERSION_TYPE" == "none" ]]; then
+          SHOULD_RELEASE="false"
+        else
+          SHOULD_RELEASE="true"
+        fi
+        
+        echo "version-type=$VERSION_TYPE" >> $GITHUB_OUTPUT
+        echo "should-release=$SHOULD_RELEASE" >> $GITHUB_OUTPUT
+        
+        # Generate changelog content
+        CHANGELOG=$(cat << EOF
+        ## 🔄 Changes in this release
+        
+        $(if [[ $BREAKING_CHANGES -gt 0 ]]; then
+          echo "### 💥 Breaking Changes"
+          echo "$COMMITS" | grep -E "(BREAKING CHANGE|!:|^feat!:|^fix!:|^refactor!:)" | sed 's/^/- /'
+          echo ""
+        fi)
+        
+        $(if [[ $FEATURES -gt 0 ]]; then
+          echo "### ✨ New Features"  
+          echo "$COMMITS" | grep -E "^feat(\([^)]+\))?" | sed 's/^/- /'
+          echo ""
+        fi)
+        
+        $(if [[ $FIXES -gt 0 ]]; then
+          echo "### 🐛 Bug Fixes"
+          echo "$COMMITS" | grep -E "^fix(\([^)]+\))?" | sed 's/^/- /'
+          echo ""
+        fi)
+        
+        $(if [[ $CHORES -gt 0 ]]; then
+          echo "### 🔧 Maintenance & Other"
+          echo "$COMMITS" | grep -E "^(chore|docs|style|refactor|test)(\([^)]+\))?" | sed 's/^/- /' | head -5
+          echo ""
+        fi)
+        
+        ### 👥 Contributors
+        $(git log $RANGE --format='- %an' | sort -u | head -10)
+        
+        ---
+        **Full Changelog**: https://github.com/${{ github.repository }}/compare/${LAST_TAG:-$(git rev-list --max-parents=0 HEAD)}...v\${NEW_VERSION}
+        EOF
+        )
+        
+        # Save changelog to file and output
+        echo "$CHANGELOG" > CHANGELOG_TEMP.md
+        {
+          echo 'changelog<<EOF'
+          echo "$CHANGELOG" 
+          echo EOF
+        } >> $GITHUB_OUTPUT
+
+    - name: 📋 Upload changelog
+      uses: actions/upload-artifact@v4
+      with:
+        name: release-changelog
+        path: CHANGELOG_TEMP.md
+
+  # 🏷️ Create Release
+  create-release:
+    name: 🏷️ Create Release
+    runs-on: ubuntu-latest
+    needs: analyze-changes
+    if: needs.analyze-changes.outputs.should-release == 'true'
+    outputs:
+      new-version: ${{ steps.version.outputs.new-version }}
+      release-url: ${{ steps.create-release.outputs.html_url }}
+
+    steps:
+    - name: 🛒 Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: 🔧 Install uv  
+      uses: astral-sh/setup-uv@v4
+      with:
+        enable-cache: true
+
+    - name: 🐍 Set up Python
+      run: uv python install ${{ env.PYTHON_VERSION }}
+
+    - name: 📦 Install dependencies
+      run: uv sync
+
+    - name: 🔢 Calculate new version
+      id: version
+      run: |
+        # Get current version from pyproject.toml
+        CURRENT_VERSION=$(grep '^version = ' pyproject.toml | sed 's/version = "\(.*\)"/\1/')
+        echo "Current version: $CURRENT_VERSION"
+        
+        # Calculate new version based on type
+        VERSION_TYPE="${{ needs.analyze-changes.outputs.version-type }}"
+        
+        if [[ "$VERSION_TYPE" == "prerelease" ]]; then
+          # Handle prerelease versions
+          if [[ "$CURRENT_VERSION" =~ -rc\. ]]; then
+            # Increment RC number
+            NEW_VERSION=$(echo $CURRENT_VERSION | awk -F'-rc.' '{print $1"-rc."($2+1)}')
+          else
+            # Add RC suffix
+            NEW_VERSION="${CURRENT_VERSION}-rc.1"
+          fi
+        else
+          # Parse version parts
+          IFS='.' read -ra VERSION_PARTS <<< "$CURRENT_VERSION"
+          MAJOR=${VERSION_PARTS[0]}
+          MINOR=${VERSION_PARTS[1]}
+          PATCH=${VERSION_PARTS[2]%%[-+]*}  # Remove any suffix
+          
+          case "$VERSION_TYPE" in
+            "major")
+              MAJOR=$((MAJOR + 1))
+              MINOR=0
+              PATCH=0
+              ;;
+            "minor")
+              MINOR=$((MINOR + 1))
+              PATCH=0
+              ;;
+            "patch")
+              PATCH=$((PATCH + 1))
+              ;;
+          esac
+          
+          NEW_VERSION="${MAJOR}.${MINOR}.${PATCH}"
+        fi
+        
+        echo "New version: $NEW_VERSION"
+        echo "new-version=$NEW_VERSION" >> $GITHUB_OUTPUT
+        
+        # Update pyproject.toml
+        sed -i "s/^version = \".*\"/version = \"$NEW_VERSION\"/" pyproject.toml
+        
+        # Commit version change
+        git config --global user.name 'github-actions[bot]'
+        git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+        git add pyproject.toml
+        git commit -m "🔖 Bump version to $NEW_VERSION [skip ci]"
+
+    - name: 🏗️ Build package
+      run: |
+        uv build
+        ls -la dist/
+
+    - name: 📋 Download changelog
+      uses: actions/download-artifact@v4
+      with:
+        name: release-changelog
+
+    - name: 📝 Prepare release notes
+      run: |
+        NEW_VERSION="${{ steps.version.outputs.new-version }}"
+        sed "s/\${NEW_VERSION}/$NEW_VERSION/g" CHANGELOG_TEMP.md > RELEASE_NOTES.md
+        
+        echo "" >> RELEASE_NOTES.md
+        echo "## 📦 Installation" >> RELEASE_NOTES.md
+        echo "" >> RELEASE_NOTES.md
+        echo "\`\`\`bash" >> RELEASE_NOTES.md
+        echo "pip install project-nyra==$NEW_VERSION" >> RELEASE_NOTES.md
+        echo "\`\`\`" >> RELEASE_NOTES.md
+
+    - name: 🏷️ Create Git tag
+      run: |
+        NEW_VERSION="${{ steps.version.outputs.new-version }}"
+        git tag -a "v$NEW_VERSION" -m "Release version $NEW_VERSION"
+        git push origin "v$NEW_VERSION"
+        git push origin main
+
+    - name: 🎉 Create GitHub Release
+      id: create-release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: v${{ steps.version.outputs.new-version }}
+        release_name: "🚀 NYRA v${{ steps.version.outputs.new-version }}"
+        body_path: RELEASE_NOTES.md
+        draft: false
+        prerelease: ${{ contains(steps.version.outputs.new-version, 'rc') }}
+
+    - name: 📦 Upload release assets
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create-release.outputs.upload_url }}
+        asset_path: dist/
+        asset_name: nyra-dist-${{ steps.version.outputs.new-version }}.tar.gz
+        asset_content_type: application/gzip
+
+  # 📤 Publish Package
+  publish:
+    name: 📤 Publish Package
+    runs-on: ubuntu-latest
+    needs: [analyze-changes, create-release]
+    if: needs.analyze-changes.outputs.should-release == 'true' && !contains(needs.create-release.outputs.new-version, 'rc')
+    environment: pypi
+
+    steps:
+    - name: 🛒 Checkout code
+      uses: actions/checkout@v4
+      with:
+        ref: v${{ needs.create-release.outputs.new-version }}
+
+    - name: 🔧 Install uv
+      uses: astral-sh/setup-uv@v4
+      with:
+        enable-cache: true
+
+    - name: 🐍 Set up Python
+      run: uv python install ${{ env.PYTHON_VERSION }}
+
+    - name: 📦 Install dependencies
+      run: uv sync
+
+    - name: 🏗️ Build package
+      run: uv build
+
+    - name: 🔍 Verify build
+      run: |
+        echo "📦 Built packages:"
+        ls -la dist/
+        echo ""
+        echo "📋 Package info:"
+        uv run twine check dist/*
+
+    - name: 🚀 Publish to PyPI
+      env:
+        TWINE_USERNAME: __token__
+        TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
+      run: |
+        uv add --dev twine
+        uv run twine upload dist/* --verbose
+
+    - name: ✅ Verify installation
+      run: |
+        sleep 30  # Wait for PyPI to propagate
+        pip install project-nyra==${{ needs.create-release.outputs.new-version }}
+        python -c "import project_nyra; print(f'✅ Successfully installed project-nyra {project_nyra.__version__}')"
+
+  # 📢 Announce Release
+  announce:
+    name: 📢 Announce Release
+    runs-on: ubuntu-latest
+    needs: [analyze-changes, create-release, publish]
+    if: always() && needs.analyze-changes.outputs.should-release == 'true'
+
+    steps:
+    - name: 📢 Create announcement issue
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const version = "${{ needs.create-release.outputs.new-version }}";
+          const releaseUrl = "${{ needs.create-release.outputs.release-url }}";
+          const versionType = "${{ needs.analyze-changes.outputs.version-type }}";
+          
+          const announcementBody = `# 🎉 NYRA v${version} Released!
+          
+          We're excited to announce the release of **NYRA v${version}**!
+          
+          ## 🔗 Quick Links
+          - 📖 [Release Notes](${releaseUrl})
+          - 📦 [PyPI Package](https://pypi.org/project/project-nyra/${version}/)
+          - 🔧 [Installation Guide](https://github.com/${{ github.repository }}#installation)
+          
+          ## 📦 Installation
+          \`\`\`bash
+          pip install --upgrade project-nyra
+          \`\`\`
+          
+          ## 🆕 What's New
+          This is a **${versionType}** release with exciting updates to the NYRA AI-powered mortgage assistant and development stack.
+          
+          ${needs.analyze-changes.outputs.changelog}
+          
+          ## 🤝 Get Involved
+          - 🐛 [Report Issues](https://github.com/${{ github.repository }}/issues/new/choose)
+          - 💡 [Request Features](https://github.com/${{ github.repository }}/issues/new/choose) 
+          - 📖 [Documentation](https://github.com/${{ github.repository }}/wiki)
+          - 💬 [Discussions](https://github.com/${{ github.repository }}/discussions)
+          
+          Thank you to all contributors who made this release possible! 🙏
+          `;
+          
+          await github.rest.issues.create({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            title: \`🎉 NYRA v\${version} Released!\`,
+            body: announcementBody,
+            labels: ['announcement', 'release', \`version-\${version}\`]
+          });
+
+    - name: 🐦 Tweet announcement (if configured)
+      if: env.TWITTER_BEARER_TOKEN != ''
+      uses: actions/github-script@v7
+      env:
+        TWITTER_BEARER_TOKEN: ${{ secrets.TWITTER_BEARER_TOKEN }}
+      with:
+        script: |
+          // This would require Twitter API setup
+          console.log("🐦 Tweet announcement feature placeholder");
+          console.log("Configure TWITTER_BEARER_TOKEN secret to enable Twitter announcements");
+          
+    - name: 📊 Update project stats
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const version = "${{ needs.create-release.outputs.new-version }}";
+          
+          // Update repository topics to include latest version
+          try {
+            await github.rest.repos.replaceAllTopics({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              names: [
+                'ai-powered', 'mortgage-assistant', 'multi-agent', 
+                'mcp-servers', 'python', 'fastapi', 'langchain',
+                \`version-\${version.replace(/\./g, '-')}\`
+              ]
+            });
+          } catch (error) {
+            console.log('Could not update topics:', error.message);
+          }

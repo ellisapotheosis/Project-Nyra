@@ -1,0 +1,173 @@
+name: 🐛 Bug Report
+description: Report a bug to help us improve NYRA
+title: "[BUG] "
+labels: ["bug", "triage"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        # 🐛 Bug Report
+        
+        Thank you for taking the time to report a bug! Please fill out the information below to help us resolve the issue quickly.
+        
+  - type: checkboxes
+    attributes:
+      label: 🔍 Pre-check
+      description: Please verify these steps before submitting
+      options:
+        - label: I have searched existing issues to ensure this bug hasn't been reported
+          required: true
+        - label: I have checked the documentation and FAQ
+          required: true
+        - label: I am using a supported version of NYRA
+          required: true
+
+  - type: textarea
+    attributes:
+      label: 📝 Bug Description
+      description: A clear and concise description of what the bug is
+      placeholder: Describe the bug...
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: 🔄 Steps to Reproduce
+      description: Steps to reproduce the behavior
+      placeholder: |
+        1. Go to...
+        2. Click on...
+        3. Scroll down to...
+        4. See error
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: ✅ Expected Behavior
+      description: A clear and concise description of what you expected to happen
+      placeholder: What should have happened?
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: ❌ Actual Behavior  
+      description: What actually happened instead
+      placeholder: What actually happened?
+    validations:
+      required: true
+
+  - type: dropdown
+    attributes:
+      label: 🏷️ Component
+      description: Which component is affected?
+      options:
+        - MCP Servers
+        - Multi-Agent System
+        - Mortgage Operations
+        - Memory System
+        - Web Interface
+        - Authentication
+        - API
+        - Documentation
+        - Installation/Setup
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    attributes:
+      label: 🚨 Severity
+      description: How severe is this bug?
+      options:
+        - Critical (System crash, data loss)
+        - High (Major feature broken)
+        - Medium (Minor feature broken)
+        - Low (Cosmetic issue)
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: 🖥️ Environment
+      description: |
+        Please provide details about your environment
+      value: |
+        - OS: [e.g. Windows 11, Ubuntu 22.04, macOS 14.0]
+        - Python version: [e.g. 3.11.5]
+        - NYRA version: [e.g. 0.1.0]
+        - Browser (if web-related): [e.g. Chrome 120.0]
+        - Node.js version (if relevant): [e.g. 20.10.0]
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: 📊 Error Logs/Stack Trace
+      description: If applicable, add error messages or stack traces
+      placeholder: Paste error logs here...
+      render: shell
+    validations:
+      required: false
+
+  - type: textarea
+    attributes:
+      label: 📸 Screenshots
+      description: If applicable, add screenshots to help explain your problem
+      placeholder: Drag and drop screenshots here or paste URLs
+    validations:
+      required: false
+
+  - type: textarea
+    attributes:
+      label: ⚙️ Configuration
+      description: Relevant configuration files or environment variables (redact sensitive info)
+      placeholder: |
+        ```yaml
+        # Relevant config here
+        ```
+      render: yaml
+    validations:
+      required: false
+
+  - type: checkboxes
+    attributes:
+      label: 🔌 MCP Server Related
+      description: If this bug involves MCP servers, check all that apply
+      options:
+        - label: FileSystem MCP
+        - label: GitHub MCP  
+        - label: Infisical MCP
+        - label: Qdrant MCP
+        - label: Custom MCP server
+
+  - type: textarea
+    attributes:
+      label: 🔧 Attempted Solutions
+      description: What have you tried to fix this issue?
+      placeholder: |
+        - Tried solution A, but...
+        - Attempted solution B, result was...
+    validations:
+      required: false
+
+  - type: checkboxes
+    attributes:
+      label: 💡 Additional Context
+      options:
+        - label: This is a regression (worked in a previous version)
+        - label: This affects multiple users/environments
+        - label: This is blocking critical functionality
+        - label: I can provide additional debugging information if needed
+        - label: I'm willing to test potential fixes
+
+  - type: textarea
+    attributes:
+      label: 📋 Additional Information
+      description: Add any other context about the problem here
+      placeholder: Any other relevant information...
+    validations:
+      required: false

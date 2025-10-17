@@ -1,0 +1,287 @@
+{
+  "metamcp_version": "2.0",
+  "generated": "2025-10-17T14:45:00Z",
+  "description": "Unified MetaMCP configuration for Project NYRA - combines active configs with archived channel definitions",
+  
+  "channels": {
+    "nyra-memory-core": {
+      "description": "Core memory services - vector search, knowledge graphs",
+      "namespace": "memory-core", 
+      "transport": "SSE",
+      "servers": ["qdrant-vector", "graphiti-kg"],
+      "tool_filter": {
+        "mode": "allow",
+        "tools": ["qdrant-store*", "qdrant-find*", "search_nodes", "search_facts", "get_episodes", "add_episode", "add_edge", "clear_graph"]
+      },
+      "priority": 1,
+      "token_weight": "medium"
+    },
+    
+    "nyra-memory-bus": {
+      "description": "Memory bus for conversation context and short-term storage",
+      "namespace": "memory-bus",
+      "transport": "SSE", 
+      "servers": ["openmemory"],
+      "tool_filter": {
+        "mode": "allow",
+        "tools": ["add_memories", "search_memory", "list_memories", "delete_all_memories"]
+      },
+      "priority": 2,
+      "token_weight": "light"
+    },
+    
+    "nyra-memory-all": {
+      "description": "Unified memory interface - all memory services with safety filters",
+      "namespace": "memory-all",
+      "transport": "SSE",
+      "servers": ["qdrant-vector", "graphiti-kg", "openmemory"],
+      "tool_filter": {
+        "mode": "deny",
+        "tools": ["*danger*", "*delete*"]
+      },
+      "priority": 3,
+      "token_weight": "medium"
+    },
+    
+    "claude-flow-orchestration": {
+      "description": "Claude-flow orchestration and agent coordination",
+      "use_cases": ["agent coordination", "swarm management", "hive mind control", "task orchestration"],
+      "servers": ["claude-flow", "ruv-swarm", "flow-nexus", "archon"],
+      "token_weight": "medium",
+      "priority": 1
+    },
+    
+    "claude-flow-workflows": {
+      "description": "Claude-flow workflow execution and pipeline management", 
+      "use_cases": ["workflow execution", "document processing", "pipeline management", "batch operations"],
+      "servers": ["claude-flow-worker", "fastmcp", "filesystem"],
+      "token_weight": "light",
+      "priority": 2
+    },
+    
+    "claude-flow-documents": {
+      "description": "Document cleaning, ingestion, and indexing",
+      "use_cases": ["document cleaning", "content ingestion", "text processing", "knowledge extraction"],
+      "servers": ["llamaindex", "notion", "tome"],
+      "token_weight": "light", 
+      "priority": 3
+    },
+    
+    "heavy-mcp-desktop": {
+      "description": "Heavy context token servers (140k+ tokens) - isolated channel",
+      "use_cases": ["desktop automation", "system control", "high-token operations"],
+      "servers": ["desktop-commander"],
+      "token_weight": "heavy",
+      "priority": 10,
+      "context_isolation": true,
+      "require_explicit_activation": true
+    },
+    
+    "development": {
+      "description": "Code development and repository management",
+      "use_cases": ["code review", "file management", "git operations"],
+      "servers": ["github", "filesystem", "sparc2", "gemini-assistant"],
+      "token_weight": "medium",
+      "priority": 4
+    },
+    
+    "ai-coding": {
+      "description": "AI-powered coding assistance",
+      "use_cases": ["code generation", "refactoring", "debugging"],
+      "servers": ["gemini-assistant", "sparc2"],
+      "token_weight": "light",
+      "priority": 5
+    },
+    
+    "orchestration": {
+      "description": "Agent orchestration and workflow management",
+      "use_cases": ["hot-potato workflows", "agent coordination", "task management"],
+      "servers": ["archon-mcp", "metamcp-local", "claude-flow"],
+      "token_weight": "medium",
+      "priority": 1
+    },
+    
+    "security": {
+      "description": "Security and secrets management",
+      "use_cases": ["secret rotation", "environment management", "compliance"],
+      "servers": ["infisical-mcp"],
+      "token_weight": "light",
+      "priority": 6
+    },
+    
+    "infrastructure": {
+      "description": "Infrastructure and system management", 
+      "use_cases": ["system monitoring", "deployment", "configuration"],
+      "servers": ["filesystem", "fastmcp", "metamcp"],
+      "token_weight": "light",
+      "priority": 7
+    },
+    
+    "knowledge": {
+      "description": "Knowledge management and documentation",
+      "use_cases": ["documentation", "knowledge base", "team collaboration"],
+      "servers": ["notion"],
+      "token_weight": "light",
+      "priority": 8
+    }
+  },
+  
+  "endpoints": [
+    {
+      "name": "nyra-core",
+      "namespace": "memory-core", 
+      "transport": "SSE",
+      "auth": {"type": "apiKey", "key": ""},
+      "url": "http://localhost:12008/metamcp/nyra-core/sse"
+    },
+    {
+      "name": "nyra-bus",
+      "namespace": "memory-bus",
+      "transport": "SSE", 
+      "auth": {"type": "apiKey", "key": ""},
+      "url": "http://localhost:12008/metamcp/nyra-bus/sse"
+    },
+    {
+      "name": "nyra-all",
+      "namespace": "memory-all",
+      "transport": "SSE",
+      "auth": {"type": "apiKey", "key": ""},
+      "url": "http://localhost:12008/metamcp/nyra-all/sse"
+    }
+  ],
+  
+  "servers": {
+    "openmemory": {
+      "type": "SSE",
+      "url": "http://openmemory:8765/mcp/nyra/sse/nyra",
+      "description": "Local dev memory bus"
+    },
+    "qdrant-vector": {
+      "type": "SSE", 
+      "url": "http://qdrant-mcp:8066/sse",
+      "description": "Vector memory (FastEmbed)"
+    },
+    "graphiti-kg": {
+      "type": "SSE",
+      "url": "http://graphiti-mcp:8000/sse", 
+      "description": "Temporal knowledge graph (Neo4j)"
+    },
+    "claude-flow": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "claude-flow@alpha", "mcp", "start"],
+      "description": "Claude-flow orchestration system"
+    },
+    "fastmcp": {
+      "type": "stdio",
+      "command": "python",
+      "args": ["-m", "fastmcp"],
+      "description": "FastMCP Python tool creation"
+    },
+    "filesystem": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "C:/Dev/DevProjects/Personal-Projects/Project-Nyra"],
+      "description": "Filesystem access server"
+    },
+    "github": {
+      "type": "stdio", 
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": {"GITHUB_TOKEN": "${GITHUB_TOKEN}"},
+      "description": "GitHub integration server"
+    },
+    "archon-mcp": {
+      "type": "stdio",
+      "command": "python",
+      "args": ["-m", "archon.mcp"],
+      "description": "Archon orchestration utilities"
+    },
+    "desktop-commander": {
+      "type": "stdio",
+      "command": "npx", 
+      "args": ["-y", "@wonderwhy-er/desktop-commander@latest"],
+      "description": "Desktop automation (130k+ tokens)",
+      "context_warning": "130,000 tokens"
+    },
+    "infisical-mcp": {
+      "type": "stdio",
+      "command": "infisical-mcp",
+      "description": "Infisical secrets management"
+    }
+  },
+  
+  "routing_rules": {
+    "memory": {
+      "load_balancing": "weighted",
+      "fallback_enabled": false,
+      "priority": 3
+    },
+    "development": {
+      "load_balancing": "least_connections", 
+      "fallback_enabled": true,
+      "priority": 2
+    },
+    "orchestration": {
+      "load_balancing": "round_robin",
+      "fallback_enabled": true,
+      "priority": 1
+    }
+  },
+  
+  "client_configurations": {
+    "claude_desktop": {
+      "mcpServers": {
+        "MetaMCP-Nyra-Core": {
+          "url": "http://localhost:12008/metamcp/nyra-core/sse",
+          "apiKey": "nyra-local-key"
+        },
+        "MetaMCP-Nyra-Bus": {
+          "url": "http://localhost:12008/metamcp/nyra-bus/sse", 
+          "apiKey": "nyra-local-key"
+        }
+      }
+    }
+  },
+  
+  "orchestration": {
+    "auto_start_channels": ["nyra-memory-core", "claude-flow-orchestration"],
+    "lazy_load_channels": ["heavy-mcp-desktop", "development"],
+    "max_concurrent_servers": 10,
+    "health_check_interval": 30,
+    "rules": [
+      {
+        "name": "Heavy Service Isolation",
+        "condition": "server.context_warning exists", 
+        "action": "isolate_to_dedicated_port"
+      },
+      {
+        "name": "Auto-disable on high memory",
+        "condition": "memory_usage > 80%",
+        "action": "disable_optional_services"
+      }
+    ]
+  },
+  
+  "security": {
+    "allowed_paths": [
+      "C:/Dev/DevProjects/Personal-Projects/Project-Nyra",
+      "C:/Users/edane/Desktop/Scratch", 
+      "C:/NYRA/sandbox"
+    ],
+    "blocked_commands": [
+      "rm -rf",
+      "del /f /s /q", 
+      "format"
+    ],
+    "required_api_keys": [
+      "GITHUB_TOKEN"
+    ],
+    "optional_api_keys": [
+      "NOTION_TOKEN",
+      "QDRANT_URL",
+      "QDRANT_API_KEY",
+      "FIRECRAWL_API_KEY"
+    ]
+  }
+}

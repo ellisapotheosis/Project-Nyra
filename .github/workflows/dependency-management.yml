@@ -1,0 +1,345 @@
+name: 🔄 Dependency Management
+
+on:
+  schedule:
+    # Run daily at 2 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+    inputs:
+      update_type:
+        description: 'Type of dependency update'
+        required: true
+        default: 'minor'
+        type: choice
+        options:
+        - patch
+        - minor
+        - major
+      create_pr:
+        description: 'Create PR for updates'
+        required: false
+        default: true
+        type: boolean
+
+env:
+  PYTHON_VERSION: "3.11"
+
+permissions:
+  contents: write
+  pull-requests: write
+  security-events: write
+
+jobs:
+  # 🔄 Update Dependencies
+  update-dependencies:
+    name: 🔄 Update Dependencies
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: 🛒 Checkout code
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        fetch-depth: 0
+
+    - name: 🔧 Install uv
+      uses: astral-sh/setup-uv@v4
+      with:
+        enable-cache: true
+
+    - name: 🐍 Set up Python
+      run: uv python install ${{ env.PYTHON_VERSION }}
+
+    - name: 📋 Backup current lockfile
+      run: cp uv.lock uv.lock.backup
+
+    - name: 🔄 Update dependencies
+      run: |
+        echo "🔄 Updating dependencies with type: ${{ github.event.inputs.update_type || 'minor' }}"
+        case "${{ github.event.inputs.update_type || 'minor' }}" in
+          "patch")
+            uv sync --upgrade-package "*" --resolution lowest-direct
+            ;;
+          "minor")
+            uv sync --upgrade-package "*"
+            ;;
+          "major")
+            uv sync --upgrade-package "*" --resolution highest
+            ;;
+        esac
+
+    - name: 🧪 Test with updated dependencies
+      run: |
+        uv sync --group test --group lint
+        uv run pytest tests/ --maxfail=5 -x
+      continue-on-error: true
+
+    - name: 🔒 Security audit
+      run: |
+        uv add --dev safety
+        uv run safety check --json --output safety-report.json || true
+        
+        # Check if there are high severity vulnerabilities
+        if [[ -f safety-report.json ]]; then
+          high_vuln_count=$(jq '[.vulnerabilities[] | select(.severity == "high" or .severity == "critical")] | length' safety-report.json)
+          if [[ $high_vuln_count -gt 0 ]]; then
+            echo "⚠️ Found $high_vuln_count high/critical vulnerabilities"
+            echo "SECURITY_ISSUES=true" >> $GITHUB_ENV
+          fi
+        fi
+
+    - name: 📝 Generate update summary
+      run: |
+        echo "# 🔄 Dependency Update Summary" > update-summary.md
+        echo "" >> update-summary.md
+        echo "## 📦 Updated Packages" >> update-summary.md
+        
+        # Compare lockfiles to show what changed
+        if ! diff -q uv.lock.backup uv.lock > /dev/null 2>&1; then
+          echo "Dependencies have been updated:" >> update-summary.md
+          echo '```diff' >> update-summary.md
+          diff uv.lock.backup uv.lock | head -50 >> update-summary.md || true
+          echo '```' >> update-summary.md
+        else
+          echo "No dependency updates available." >> update-summary.md
+        fi
+        
+        echo "" >> update-summary.md
+        echo "## 🔒 Security Status" >> update-summary.md
+        if [[ "${SECURITY_ISSUES:-false}" == "true" ]]; then
+          echo "⚠️ Security vulnerabilities detected. Please review safety-report.json" >> update-summary.md
+        else
+          echo "✅ No high-severity security issues detected" >> update-summary.md
+        fi
+        
+        echo "" >> update-summary.md
+        echo "## 🧪 Test Results" >> update-summary.md
+        echo "Automated tests were run against the updated dependencies." >> update-summary.md
+
+    - name: 📊 Upload security report
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: dependency-security-report
+        path: |
+          safety-report.json
+          update-summary.md
+
+    - name: 🚀 Create Pull Request
+      if: github.event.inputs.create_pr != 'false'
+      uses: peter-evans/create-pull-request@v5
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        commit-message: |
+          🔄 Update dependencies (${{ github.event.inputs.update_type || 'minor' }})
+          
+          - Automated dependency update
+          - Security status: ${{ env.SECURITY_ISSUES == 'true' && '⚠️ Issues detected' || '✅ Clean' }}
+          - Update type: ${{ github.event.inputs.update_type || 'minor' }}
+        title: "🔄 Automated Dependency Update (${{ github.event.inputs.update_type || 'minor' }})"
+        body-path: update-summary.md
+        branch: dependency-updates/${{ github.run_number }}
+        delete-branch: true
+        labels: |
+          dependencies
+          automated
+          ${{ env.SECURITY_ISSUES == 'true' && 'security' || '' }}
+
+  # 🛡️ Security Monitoring
+  security-scan:
+    name: 🛡️ Security Scan
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule'
+
+    steps:
+    - name: 🛒 Checkout code
+      uses: actions/checkout@v4
+
+    - name: 🔧 Install uv
+      uses: astral-sh/setup-uv@v4
+      with:
+        enable-cache: true
+
+    - name: 🐍 Set up Python
+      run: uv python install ${{ env.PYTHON_VERSION }}
+
+    - name: 📦 Install dependencies
+      run: uv sync --group dev
+
+    - name: 🔍 Run comprehensive security scan
+      run: |
+        # Safety check for known vulnerabilities
+        uv add --dev safety bandit semgrep
+        
+        echo "🔒 Running safety check..."
+        uv run safety check --json --output safety-report.json || true
+        
+        echo "🔍 Running bandit security linter..."
+        uv run bandit -r src/ -f json -o bandit-report.json -ll || true
+        
+        echo "🛡️ Running semgrep security analysis..."
+        uv run semgrep --config=auto --json --output=semgrep-report.json src/ || true
+
+    - name: 📤 Upload security reports to GitHub Security
+      uses: github/codeql-action/upload-sarif@v3
+      if: always()
+      with:
+        sarif_file: semgrep-report.json
+      continue-on-error: true
+
+    - name: 📊 Upload security artifacts
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: security-scan-reports
+        path: |
+          safety-report.json
+          bandit-report.json
+          semgrep-report.json
+
+    - name: 🚨 Create security issue if vulnerabilities found
+      if: always()
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+          
+          let hasIssues = false;
+          let issueBody = '# 🚨 Security Scan Alert\n\n';
+          issueBody += 'Automated security scan detected potential issues:\n\n';
+          
+          // Check safety report
+          if (fs.existsSync('safety-report.json')) {
+            const safetyData = JSON.parse(fs.readFileSync('safety-report.json', 'utf8'));
+            if (safetyData.vulnerabilities && safetyData.vulnerabilities.length > 0) {
+              hasIssues = true;
+              issueBody += `## 🔒 Safety Vulnerabilities (${safetyData.vulnerabilities.length})\n`;
+              safetyData.vulnerabilities.slice(0, 5).forEach(vuln => {
+                issueBody += `- **${vuln.package_name}**: ${vuln.advisory}\n`;
+              });
+              issueBody += '\n';
+            }
+          }
+          
+          // Check bandit report  
+          if (fs.existsSync('bandit-report.json')) {
+            const banditData = JSON.parse(fs.readFileSync('bandit-report.json', 'utf8'));
+            if (banditData.results && banditData.results.length > 0) {
+              hasIssues = true;
+              issueBody += `## 🔍 Bandit Issues (${banditData.results.length})\n`;
+              banditData.results.slice(0, 5).forEach(issue => {
+                issueBody += `- **${issue.test_name}**: ${issue.issue_text}\n`;
+              });
+              issueBody += '\n';
+            }
+          }
+          
+          if (hasIssues) {
+            issueBody += '\n📊 Full reports are available in the workflow artifacts.\n';
+            issueBody += `🔗 [View Workflow Run](https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId})`;
+            
+            // Check if there's already an open security issue
+            const { data: issues } = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'security,automated',
+              per_page: 1
+            });
+            
+            if (issues.length === 0) {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: '🚨 Security Vulnerabilities Detected',
+                body: issueBody,
+                labels: ['security', 'automated', 'high-priority']
+              });
+            }
+          }
+
+  # 📈 Dependency Health Report
+  health-report:
+    name: 📈 Dependency Health
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule'
+
+    steps:
+    - name: 🛒 Checkout code
+      uses: actions/checkout@v4
+
+    - name: 🔧 Install uv
+      uses: astral-sh/setup-uv@v4
+      with:
+        enable-cache: true
+
+    - name: 🐍 Set up Python
+      run: uv python install ${{ env.PYTHON_VERSION }}
+
+    - name: 📦 Install dependencies
+      run: uv sync
+
+    - name: 📈 Generate dependency health report
+      run: |
+        echo "# 📈 Dependency Health Report" > health-report.md
+        echo "" >> health-report.md
+        echo "Generated on: $(date)" >> health-report.md
+        echo "" >> health-report.md
+        
+        echo "## 📦 Package Count" >> health-report.md
+        total_packages=$(uv pip list --format=json | jq '. | length')
+        echo "Total packages: $total_packages" >> health-report.md
+        echo "" >> health-report.md
+        
+        echo "## 🔍 Outdated Packages" >> health-report.md
+        echo "Checking for outdated packages..." >> health-report.md
+        # Note: uv doesn't have a direct outdated command yet, but we can check pip-audit
+        uv add --dev pip-audit
+        uv run pip-audit --desc --format=json --output=audit-report.json || true
+        
+        if [[ -f audit-report.json ]] && [[ $(jq '.vulnerabilities | length' audit-report.json) -gt 0 ]]; then
+          echo "⚠️ Vulnerabilities found:" >> health-report.md
+          jq -r '.vulnerabilities[] | "- \(.package) \(.installed_version): \(.id)"' audit-report.json >> health-report.md
+        else
+          echo "✅ No known vulnerabilities detected" >> health-report.md
+        fi
+        
+        echo "" >> health-report.md
+        echo "## 🏷️ License Summary" >> health-report.md
+        uv run pip-licenses --format=markdown >> health-report.md || echo "License information not available" >> health-report.md
+
+    - name: 📊 Upload health report
+      uses: actions/upload-artifact@v4
+      with:
+        name: dependency-health-report
+        path: |
+          health-report.md
+          audit-report.json
+
+    - name: 💬 Post to Discussions (if enabled)
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+          
+          if (!fs.existsSync('health-report.md')) {
+            console.log('Health report not found, skipping discussion post');
+            return;
+          }
+          
+          const healthReport = fs.readFileSync('health-report.md', 'utf8');
+          
+          // Note: This requires GitHub Discussions to be enabled
+          // Uncomment and modify if you want to auto-post to discussions
+          /*
+          try {
+            await github.rest.teams.createDiscussionInOrg({
+              org: context.repo.owner,
+              team_slug: 'developers',
+              title: '📈 Weekly Dependency Health Report',
+              body: healthReport
+            });
+          } catch (error) {
+            console.log('Could not post to discussions:', error.message);
+          }
+          */

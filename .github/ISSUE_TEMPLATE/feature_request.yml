@@ -1,0 +1,212 @@
+name: ✨ Feature Request
+description: Suggest a new feature or enhancement for NYRA
+title: "[FEATURE] "
+labels: ["enhancement", "triage"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        # ✨ Feature Request
+        
+        Thank you for suggesting a new feature! Your ideas help make NYRA better for everyone.
+        
+  - type: checkboxes
+    attributes:
+      label: 🔍 Pre-check
+      description: Please verify these steps before submitting
+      options:
+        - label: I have searched existing issues to ensure this feature hasn't been requested
+          required: true
+        - label: I have checked the roadmap and documentation
+          required: true
+        - label: This feature aligns with NYRA's goals as an AI-powered mortgage assistant
+          required: true
+
+  - type: textarea
+    attributes:
+      label: 🎯 Feature Summary
+      description: A clear and concise description of the feature you'd like to see
+      placeholder: What feature would you like to see added?
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: 🔍 Problem/Need
+      description: What problem does this feature solve? Why is it needed?
+      placeholder: |
+        - Current situation...
+        - Why this is a problem...
+        - How it affects users...
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: 💡 Proposed Solution
+      description: How would you like this feature to work?
+      placeholder: Describe your ideal solution...
+    validations:
+      required: true
+
+  - type: dropdown
+    attributes:
+      label: 🏷️ Component
+      description: Which component would this feature affect?
+      options:
+        - MCP Servers
+        - Multi-Agent System
+        - Mortgage Operations
+        - Memory System
+        - Web Interface
+        - Authentication
+        - API
+        - Documentation
+        - Developer Tools
+        - Infrastructure
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    attributes:
+      label: 📈 Priority
+      description: How important is this feature to you?
+      options:
+        - Critical (Blocking current work)
+        - High (Would significantly improve workflow)
+        - Medium (Nice to have)
+        - Low (Minor improvement)
+    validations:
+      required: true
+
+  - type: checkboxes
+    attributes:
+      label: 👥 User Type
+      description: Who would benefit from this feature?
+      options:
+        - label: Mortgage brokers/loan officers
+        - label: Developers integrating NYRA
+        - label: System administrators
+        - label: End users/borrowers
+        - label: Data analysts
+        - label: Compliance officers
+        - label: Other stakeholders
+
+  - type: textarea
+    attributes:
+      label: 🎨 User Experience
+      description: How should users interact with this feature?
+      placeholder: |
+        1. User goes to...
+        2. They click/enter...
+        3. The system should...
+        4. User sees/receives...
+    validations:
+      required: false
+
+  - type: textarea
+    attributes:
+      label: 📊 Success Criteria
+      description: How will we know this feature is successful?
+      placeholder: |
+        - Measurable outcome 1
+        - Measurable outcome 2
+        - User satisfaction metric
+    validations:
+      required: false
+
+  - type: textarea
+    attributes:
+      label: 🔧 Technical Considerations
+      description: Any technical requirements or constraints to consider?
+      placeholder: |
+        - Performance requirements
+        - Integration needs
+        - Security considerations
+        - Scalability requirements
+    validations:
+      required: false
+
+  - type: textarea
+    attributes:
+      label: 🌟 Alternative Solutions
+      description: Have you considered any alternative approaches?
+      placeholder: |
+        - Alternative 1: ...
+        - Alternative 2: ...
+        - Workarounds currently using...
+    validations:
+      required: false
+
+  - type: checkboxes
+    attributes:
+      label: 🔌 Integration Needs
+      description: Would this feature require integration with external systems?
+      options:
+        - label: Mortgage industry APIs (Fannie Mae, Freddie Mac, etc.)
+        - label: Credit reporting services
+        - label: Document management systems
+        - label: CRM systems
+        - label: LOS (Loan Origination Systems)
+        - label: Banking/financial APIs
+        - label: Government compliance systems
+        - label: Third-party AI services
+        - label: None
+
+  - type: textarea
+    attributes:
+      label: 📚 Examples/References
+      description: Any examples, mockups, or references that illustrate this feature?
+      placeholder: |
+        - Similar feature in other tools
+        - Mockups or wireframes
+        - Industry standards or regulations
+        - Research papers or articles
+    validations:
+      required: false
+
+  - type: dropdown
+    attributes:
+      label: 🎯 Implementation Complexity
+      description: How complex do you think this feature would be to implement?
+      options:
+        - Simple (Few hours to days)
+        - Moderate (Weeks)
+        - Complex (Months)
+        - Major (Quarter+ effort)
+        - Unsure
+    validations:
+      required: false
+
+  - type: checkboxes
+    attributes:
+      label: 🤝 Contribution
+      options:
+        - label: I would be willing to help with requirements gathering
+        - label: I can provide domain expertise (mortgage industry)
+        - label: I could help with testing this feature
+        - label: I might be able to contribute code
+        - label: I can help with documentation
+
+  - type: textarea
+    attributes:
+      label: 📋 Additional Context
+      description: Any other context, screenshots, or information about the feature request
+      placeholder: Add any other relevant information...
+    validations:
+      required: false
+
+  - type: textarea
+    attributes:
+      label: 📊 Business Impact
+      description: How would this feature impact business/workflow efficiency?
+      placeholder: |
+        - Time savings: ...
+        - Cost reduction: ...
+        - Error reduction: ...
+        - Improved customer experience: ...
+    validations:
+      required: false

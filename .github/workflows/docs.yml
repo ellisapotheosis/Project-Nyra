@@ -1,0 +1,459 @@
+name: 📚 Documentation
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'src/**'
+      - 'docs/**'
+      - '**.md'
+      - 'pyproject.toml'
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'src/**'
+      - 'docs/**'
+      - '**.md'
+  workflow_dispatch:
+    inputs:
+      generate_api_docs:
+        description: 'Generate API documentation'
+        required: false
+        default: true
+        type: boolean
+      update_readme:
+        description: 'Update README badges and stats'
+        required: false
+        default: true
+        type: boolean
+
+env:
+  PYTHON_VERSION: "3.11"
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  # 📖 Generate API Documentation
+  generate-api-docs:
+    name: 📖 Generate API Docs
+    runs-on: ubuntu-latest
+    if: github.event.inputs.generate_api_docs != 'false'
+
+    steps:
+    - name: 🛒 Checkout code
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: 🔧 Install uv
+      uses: astral-sh/setup-uv@v4
+      with:
+        enable-cache: true
+
+    - name: 🐍 Set up Python
+      run: uv python install ${{ env.PYTHON_VERSION }}
+
+    - name: 📦 Install dependencies
+      run: |
+        uv sync --group dev
+        uv add --dev sphinx sphinx-autodoc-typehints sphinx-rtd-theme myst-parser
+
+    - name: 📖 Generate API documentation
+      run: |
+        # Create docs structure if not exists
+        mkdir -p docs/api
+        mkdir -p docs/_static
+        mkdir -p docs/_templates
+        
+        # Generate Sphinx config if not exists
+        if [[ ! -f docs/conf.py ]]; then
+          cat > docs/conf.py << 'EOF'
+        import os
+        import sys
+        sys.path.insert(0, os.path.abspath('../src'))
+        
+        project = 'NYRA'
+        copyright = '2025, ellisapotheosis'
+        author = 'ellisapotheosis'
+        
+        extensions = [
+            'sphinx.ext.autodoc',
+            'sphinx.ext.viewcode', 
+            'sphinx.ext.napoleon',
+            'sphinx.ext.intersphinx',
+            'sphinx_autodoc_typehints',
+            'myst_parser'
+        ]
+        
+        templates_path = ['_templates']
+        exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
+        
+        html_theme = 'sphinx_rtd_theme'
+        html_static_path = ['_static']
+        
+        autodoc_default_options = {
+            'members': True,
+            'undoc-members': True,
+            'show-inheritance': True,
+        }
+        
+        intersphinx_mapping = {
+            'python': ('https://docs.python.org/3', None),
+            'fastapi': ('https://fastapi.tiangolo.com', None),
+        }
+        
+        source_suffix = {
+            '.rst': None,
+            '.md': 'myst_parser',
+        }
+        EOF
+        fi
+        
+        # Generate module documentation
+        uv run sphinx-apidoc -f -o docs/api src/project_nyra
+        
+        # Build documentation
+        uv run sphinx-build -b html docs docs/_build/html
+
+    - name: 📊 Upload API docs
+      uses: actions/upload-artifact@v4
+      with:
+        name: api-documentation
+        path: docs/_build/html/
+
+  # 📝 Update README and Badges
+  update-readme:
+    name: 📝 Update README
+    runs-on: ubuntu-latest
+    if: github.event.inputs.update_readme != 'false'
+
+    steps:
+    - name: 🛒 Checkout code
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: 🔧 Install uv
+      uses: astral-sh/setup-uv@v4
+      with:
+        enable-cache: true
+
+    - name: 🐍 Set up Python
+      run: uv python install ${{ env.PYTHON_VERSION }}
+
+    - name: 📦 Install dependencies
+      run: uv sync
+
+    - name: 📊 Generate project statistics
+      run: |
+        # Get project stats
+        TOTAL_LINES=$(find src -name "*.py" -exec wc -l {} \; | awk '{sum+=$1} END {print sum}')
+        TOTAL_FILES=$(find src -name "*.py" | wc -l)
+        PYTHON_VERSION=$(grep "requires-python" pyproject.toml | sed 's/.*">= \([^"]*\)".*/\1/')
+        PROJECT_VERSION=$(grep "^version = " pyproject.toml | sed 's/version = "\(.*\)"/\1/')
+        
+        echo "TOTAL_LINES=$TOTAL_LINES" >> $GITHUB_ENV
+        echo "TOTAL_FILES=$TOTAL_FILES" >> $GITHUB_ENV
+        echo "PYTHON_VERSION=$PYTHON_VERSION" >> $GITHUB_ENV
+        echo "PROJECT_VERSION=$PROJECT_VERSION" >> $GITHUB_ENV
+        
+        # Generate component overview
+        echo "## 📊 Project Statistics" > project-stats.md
+        echo "" >> project-stats.md
+        echo "- **Total Python Files:** $TOTAL_FILES" >> project-stats.md
+        echo "- **Lines of Code:** $TOTAL_LINES" >> project-stats.md
+        echo "- **Python Version:** $PYTHON_VERSION+" >> project-stats.md
+        echo "- **Current Version:** v$PROJECT_VERSION" >> project-stats.md
+        echo "" >> project-stats.md
+        
+        # Component breakdown
+        echo "### 🏗️ Component Breakdown" >> project-stats.md
+        echo "" >> project-stats.md
+        
+        for component in mcp agents memory webapp; do
+          if [[ -d "src/project_nyra/$component" ]] || [[ -d "$component" ]] || [[ -d "nyra-$component" ]]; then
+            files=$(find . -path "*$component*" -name "*.py" | wc -l)
+            lines=$(find . -path "*$component*" -name "*.py" -exec wc -l {} \; 2>/dev/null | awk '{sum+=$1} END {print sum}' || echo "0")
+            echo "- **$(echo $component | tr '[:lower:]' '[:upper:]'):** $files files, $lines lines" >> project-stats.md
+          fi
+        done
+
+    - name: 🏷️ Update badges in README
+      run: |
+        # Backup original README
+        cp README.md README.md.bak
+        
+        # Update version badge
+        sed -i "s|version-[^-]*-|version-$PROJECT_VERSION-|g" README.md
+        
+        # Update Python version badge
+        sed -i "s|python-[^-]*-|python-$PYTHON_VERSION+-|g" README.md
+        
+        # Add/update build status badge
+        if ! grep -q "github/workflow/status" README.md; then
+          # Add build status badge after title if not exists
+          sed -i '1a\\n![Build Status](https://img.shields.io/github/actions/workflow/status/ellisapotheosis/Project-Nyra/ci-cd.yml?branch=main&label=build&logo=github)' README.md
+        fi
+        
+        # Add/update coverage badge
+        if ! grep -q "codecov" README.md; then
+          sed -i '2a\\n![Coverage](https://img.shields.io/codecov/c/github/ellisapotheosis/Project-Nyra?logo=codecov)' README.md
+        fi
+        
+        # Add/update license badge
+        if ! grep -q "license" README.md; then
+          sed -i '3a\\n![License](https://img.shields.io/github/license/ellisapotheosis/Project-Nyra)' README.md
+        fi
+
+    - name: 📈 Generate API usage examples
+      run: |
+        cat > docs/examples.md << 'EOF'
+        # 🚀 NYRA Usage Examples
+        
+        ## 🔌 MCP Server Integration
+        
+        ```python
+        from project_nyra.mcp import MCPServer
+        
+        # Start MCP server
+        server = MCPServer()
+        server.start()
+        
+        # Register tools
+        @server.tool("mortgage_calculator")
+        def calculate_mortgage(principal: float, rate: float, term: int) -> dict:
+            monthly_payment = principal * (rate / 12) / (1 - (1 + rate / 12) ** (-term * 12))
+            return {
+                "monthly_payment": monthly_payment,
+                "total_paid": monthly_payment * term * 12,
+                "total_interest": (monthly_payment * term * 12) - principal
+            }
+        ```
+        
+        ## 🤖 Multi-Agent Workflow
+        
+        ```python
+        from project_nyra.agents import AgentOrchestrator
+        
+        # Initialize orchestrator
+        orchestrator = AgentOrchestrator()
+        
+        # Create workflow
+        workflow = orchestrator.create_workflow("mortgage_processing")
+        workflow.add_agent("intake_agent", role="document_collection")
+        workflow.add_agent("underwriter_agent", role="risk_assessment")
+        workflow.add_agent("compliance_agent", role="regulatory_check")
+        
+        # Execute workflow
+        result = await workflow.execute(loan_application)
+        ```
+        
+        ## 🧠 Memory System
+        
+        ```python
+        from project_nyra.memory import MemoryManager
+        
+        # Initialize memory
+        memory = MemoryManager()
+        
+        # Store loan information
+        await memory.store("loan_123", {
+            "borrower": "John Doe",
+            "amount": 350000,
+            "status": "processing"
+        })
+        
+        # Query similar cases
+        similar_loans = await memory.search("first-time homebuyer FHA loan")
+        ```
+        EOF
+
+    - name: 📝 Generate CHANGELOG
+      run: |
+        # Generate/update CHANGELOG.md
+        if [[ ! -f CHANGELOG.md ]]; then
+          cat > CHANGELOG.md << 'EOF'
+        # Changelog
+        
+        All notable changes to this project will be documented in this file.
+        
+        The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+        and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+        
+        ## [Unreleased]
+        
+        ### Added
+        - Initial NYRA AI-powered mortgage assistant
+        - Multi-agent system architecture
+        - MCP server infrastructure
+        - Memory management system
+        - Web interface components
+        
+        ### Changed
+        - Nothing yet
+        
+        ### Deprecated
+        - Nothing yet
+        
+        ### Removed
+        - Nothing yet
+        
+        ### Fixed
+        - Nothing yet
+        
+        ### Security
+        - Nothing yet
+        EOF
+        fi
+
+    - name: 🔄 Commit documentation updates
+      run: |
+        git config --global user.name 'github-actions[bot]'
+        git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+        
+        # Check if there are changes
+        if ! git diff --quiet README.md docs/ CHANGELOG.md; then
+          git add README.md docs/ CHANGELOG.md project-stats.md
+          git commit -m "📚 docs: update documentation and badges [skip ci]"
+          git push origin ${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}
+        fi
+
+  # 🌐 Deploy to GitHub Pages
+  deploy-docs:
+    name: 🌐 Deploy Docs
+    runs-on: ubuntu-latest
+    needs: [generate-api-docs]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+    - name: 📦 Download API docs
+      uses: actions/download-artifact@v4
+      with:
+        name: api-documentation
+        path: docs
+
+    - name: 🛒 Checkout code
+      uses: actions/checkout@v4
+      with:
+        path: source
+
+    - name: 📄 Setup Pages
+      uses: actions/configure-pages@v4
+
+    - name: 🏗️ Build pages
+      run: |
+        # Create a comprehensive docs site
+        mkdir -p site
+        
+        # Copy API docs
+        cp -r docs/* site/ 2>/dev/null || true
+        
+        # Copy additional documentation
+        cp -r source/docs/* site/ 2>/dev/null || true
+        cp source/README.md site/index.md 2>/dev/null || true
+        
+        # Create index.html if it doesn't exist
+        if [[ ! -f site/index.html ]]; then
+          cat > site/index.html << 'EOF'
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>NYRA Documentation</title>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1">
+            <style>
+                body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 40px; line-height: 1.6; }
+                .header { text-align: center; margin-bottom: 40px; }
+                .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+                .card { border: 1px solid #ddd; border-radius: 8px; padding: 20px; }
+                .card h3 { margin-top: 0; color: #7572F7; }
+                a { color: #7572F7; text-decoration: none; }
+                a:hover { text-decoration: underline; }
+            </style>
+        </head>
+        <body>
+            <div class="header">
+                <h1>🏠 NYRA Documentation</h1>
+                <p>AI-Powered Mortgage Assistant & Multi-Agent Development Stack</p>
+            </div>
+            
+            <div class="cards">
+                <div class="card">
+                    <h3>📖 API Reference</h3>
+                    <p>Complete API documentation with examples and type hints.</p>
+                    <a href="./api/">View API Docs →</a>
+                </div>
+                
+                <div class="card">
+                    <h3>🚀 Getting Started</h3>
+                    <p>Quick start guide and installation instructions.</p>
+                    <a href="./index.md">Read Guide →</a>
+                </div>
+                
+                <div class="card">
+                    <h3>🔌 MCP Servers</h3>
+                    <p>Model Context Protocol server documentation.</p>
+                    <a href="#mcp">MCP Guide →</a>
+                </div>
+                
+                <div class="card">
+                    <h3>🤖 Multi-Agent</h3>
+                    <p>Agent orchestration and workflow documentation.</p>
+                    <a href="#agents">Agents Guide →</a>
+                </div>
+            </div>
+        </body>
+        </html>
+        EOF
+        fi
+
+    - name: 📤 Upload pages artifact
+      uses: actions/upload-pages-artifact@v3
+      with:
+        path: site
+
+    - name: 🌐 Deploy to GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v4
+
+  # 📊 Generate Documentation Report
+  docs-report:
+    name: 📊 Documentation Report
+    runs-on: ubuntu-latest
+    needs: [generate-api-docs, update-readme, deploy-docs]
+    if: always()
+
+    steps:
+    - name: 📊 Create documentation summary
+      run: |
+        echo "# 📚 Documentation Workflow Summary" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "## 🎯 Completed Tasks" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "- 📖 API Documentation: ${{ needs.generate-api-docs.result }}" >> $GITHUB_STEP_SUMMARY
+        echo "- 📝 README Update: ${{ needs.update-readme.result }}" >> $GITHUB_STEP_SUMMARY
+        echo "- 🌐 Pages Deploy: ${{ needs.deploy-docs.result }}" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        
+        if [[ "${{ needs.deploy-docs.result }}" == "success" ]]; then
+          echo "## 🌐 Documentation Site" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Your documentation has been deployed to GitHub Pages!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "📖 [View Documentation](https://ellisapotheosis.github.io/Project-Nyra/)" >> $GITHUB_STEP_SUMMARY
+        fi
+        
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "## 📋 Next Steps" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "- Review updated README badges and stats" >> $GITHUB_STEP_SUMMARY
+        echo "- Check generated API documentation" >> $GITHUB_STEP_SUMMARY
+        echo "- Update any missing documentation sections" >> $GITHUB_STEP_SUMMARY
+        echo "- Consider adding more usage examples" >> $GITHUB_STEP_SUMMARY

@@ -1,0 +1,410 @@
+name: 🔧 Development Workflow
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+  issue_comment:
+    types: [created]
+  issues:
+    types: [opened, labeled, assigned]
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+  checks: write
+
+jobs:
+  # 🏷️ Auto-label PRs
+  auto-label-pr:
+    name: 🏷️ Auto Label PR
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+
+    steps:
+    - name: 🛒 Checkout code
+      uses: actions/checkout@v4
+
+    - name: 🏷️ Apply labels based on files changed
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const { data: files } = await github.rest.pulls.listFiles({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            pull_number: context.issue.number,
+          });
+
+          const labels = new Set();
+          const filePatterns = {
+            // Component-based labels
+            'mcp': /^(mcp|.*mcp.*)/i,
+            'agents': /^(agents|.*agent.*)/i,
+            'memory': /^(memory|.*memory.*)/i,
+            'webapp': /^(nyra-webapp|.*webapp.*|.*web.*)/i,
+            'api': /^(api|.*api.*)/i,
+            'docs': /\.(md|rst|txt)$|^docs\//i,
+            'tests': /^tests\/|.*test.*\.py$/i,
+            'ci': /^\.github\/workflows/i,
+            
+            // Technology labels  
+            'python': /\.py$/i,
+            'javascript': /\.(js|ts|jsx|tsx)$/i,
+            'docker': /(dockerfile|docker-compose|\.dockerignore)/i,
+            'config': /\.(yml|yaml|json|toml|ini|cfg)$/i,
+          };
+
+          for (const file of files) {
+            for (const [label, pattern] of Object.entries(filePatterns)) {
+              if (pattern.test(file.filename)) {
+                labels.add(label);
+              }
+            }
+          }
+
+          // Size labels based on changes
+          const totalChanges = files.reduce((sum, file) => sum + file.changes, 0);
+          if (totalChanges < 50) labels.add('size/small');
+          else if (totalChanges < 200) labels.add('size/medium');  
+          else if (totalChanges < 500) labels.add('size/large');
+          else labels.add('size/xl');
+
+          // Apply labels
+          if (labels.size > 0) {
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              labels: Array.from(labels)
+            });
+          }
+
+  # 🔍 PR Title Validation
+  validate-pr-title:
+    name: 🔍 Validate PR Title
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+
+    steps:
+    - name: 🔍 Check PR title format
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const title = context.payload.pull_request.title;
+          const conventionalCommitRegex = /^(feat|fix|docs|style|refactor|test|chore|perf|ci|build|revert)(\(.+\))?: .+/;
+          
+          if (!conventionalCommitRegex.test(title)) {
+            const comment = `## ❌ PR Title Format Issue
+            
+            Your PR title doesn't follow the conventional commit format. Please update it to match:
+            
+            **Format:** \`type(scope): description\`
+            
+            **Examples:**
+            - \`feat(mcp): add new qdrant MCP server\`
+            - \`fix(agents): resolve memory leak in agent orchestrator\`
+            - \`docs: update README with installation instructions\`
+            
+            **Valid types:** feat, fix, docs, style, refactor, test, chore, perf, ci, build, revert
+            
+            This helps with automated changelog generation and release management.`;
+            
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: comment
+            });
+            
+            core.setFailed('PR title does not follow conventional commit format');
+          }
+
+  # 🤖 Auto-assign reviewers
+  auto-assign-reviewers:
+    name: 🤖 Auto Assign Reviewers
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' && github.event.action == 'opened'
+
+    steps:
+    - name: 🛒 Checkout code
+      uses: actions/checkout@v4
+
+    - name: 🤖 Assign reviewers based on CODEOWNERS
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+          
+          // Try to read CODEOWNERS file
+          let codeowners = '';
+          try {
+            if (fs.existsSync('.github/CODEOWNERS')) {
+              codeowners = fs.readFileSync('.github/CODEOWNERS', 'utf8');
+            }
+          } catch (error) {
+            console.log('No CODEOWNERS file found');
+          }
+          
+          // Get files changed in PR
+          const { data: files } = await github.rest.pulls.listFiles({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            pull_number: context.issue.number,
+          });
+          
+          const reviewers = new Set();
+          
+          // Default reviewers for different components
+          const defaultReviewers = {
+            'mcp': ['ellisapotheosis'],
+            'agents': ['ellisapotheosis'],  
+            'webapp': ['ellisapotheosis'],
+            'docs': ['ellisapotheosis']
+          };
+          
+          // Add reviewers based on file patterns
+          for (const file of files) {
+            if (file.filename.includes('mcp')) reviewers.add('ellisapotheosis');
+            if (file.filename.includes('agent')) reviewers.add('ellisapotheosis');
+            if (file.filename.includes('webapp')) reviewers.add('ellisapotheosis');
+          }
+          
+          // Don't assign PR author as reviewer
+          reviewers.delete(context.payload.pull_request.user.login);
+          
+          if (reviewers.size > 0) {
+            await github.rest.pulls.requestReviewers({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number,
+              reviewers: Array.from(reviewers)
+            });
+          }
+
+  # 📋 Issue Triage
+  triage-issues:
+    name: 📋 Issue Triage  
+    runs-on: ubuntu-latest
+    if: github.event_name == 'issues' && github.event.action == 'opened'
+
+    steps:
+    - name: 📋 Auto-triage new issues
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const issue = context.payload.issue;
+          const labels = [];
+          
+          // Auto-label based on title/body content
+          const title = issue.title.toLowerCase();
+          const body = issue.body ? issue.body.toLowerCase() : '';
+          const content = title + ' ' + body;
+          
+          // Component detection
+          if (content.includes('mcp') || content.includes('server')) labels.push('mcp');
+          if (content.includes('agent') || content.includes('multi-agent')) labels.push('agents');
+          if (content.includes('memory') || content.includes('chromadb')) labels.push('memory');
+          if (content.includes('webapp') || content.includes('web') || content.includes('ui')) labels.push('webapp');
+          if (content.includes('mortgage') || content.includes('loan')) labels.push('mortgage');
+          if (content.includes('install') || content.includes('setup')) labels.push('installation');
+          if (content.includes('doc') || content.includes('documentation')) labels.push('documentation');
+          
+          // Priority detection
+          if (content.includes('critical') || content.includes('urgent') || content.includes('broken')) {
+            labels.push('priority/high');
+          } else if (content.includes('enhancement') || content.includes('feature')) {
+            labels.push('priority/medium');
+          }
+          
+          // Apply labels
+          if (labels.length > 0) {
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issue.number,
+              labels: labels
+            });
+          }
+          
+          // Welcome comment for first-time contributors
+          const { data: user } = await github.rest.users.getByUsername({
+            username: issue.user.login
+          });
+          
+          const { data: userIssues } = await github.rest.issues.listForRepo({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            creator: issue.user.login,
+            state: 'all'
+          });
+          
+          if (userIssues.length === 1) { // First issue from this user
+            const welcomeComment = `## 👋 Welcome to NYRA!
+            
+            Thank you for your interest in NYRA and for taking the time to create this ${issue.title.startsWith('[BUG]') ? 'bug report' : 'issue'}!
+            
+            **What happens next:**
+            1. 🏷️ We've automatically added some labels based on your issue content
+            2. 🔍 A maintainer will review and triage your issue soon  
+            3. 📋 We may ask for additional information or clarification
+            4. 🚀 If it's a bug, we'll prioritize fixing it. If it's a feature request, we'll consider it for our roadmap.
+            
+            **Helpful resources:**
+            - 📖 [Documentation](https://github.com/${context.repo.owner}/${context.repo.repo}/wiki)
+            - 💬 [Discussions](https://github.com/${context.repo.owner}/${context.repo.repo}/discussions) for questions
+            - 🤝 [Contributing Guide](https://github.com/${context.repo.owner}/${context.repo.repo}/blob/main/CONTRIBUTING.md)
+            
+            Thanks for helping make NYRA better! 🙏`;
+            
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issue.number,
+              body: welcomeComment
+            });
+          }
+
+  # 🎯 Command Handler (slash commands in PR comments)
+  handle-commands:
+    name: 🎯 Handle Commands
+    runs-on: ubuntu-latest
+    if: github.event_name == 'issue_comment' && github.event.action == 'created' && startsWith(github.event.comment.body, '/')
+
+    steps:
+    - name: 🎯 Process slash commands
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const comment = context.payload.comment.body.trim();
+          const user = context.payload.comment.user.login;
+          const issueNumber = context.payload.issue.number;
+          
+          // Check if user has permission (collaborator, owner, or member)
+          let hasPermission = false;
+          try {
+            const { data: collaboration } = await github.rest.repos.getCollaboratorPermissionLevel({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              username: user
+            });
+            hasPermission = ['admin', 'write', 'maintain'].includes(collaboration.permission);
+          } catch (error) {
+            console.log('Could not check permissions:', error.message);
+          }
+          
+          if (!hasPermission) {
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issueNumber,
+              body: '❌ You do not have permission to use slash commands.'
+            });
+            return;
+          }
+          
+          // Parse commands
+          if (comment.startsWith('/label ')) {
+            const labels = comment.replace('/label ', '').split(',').map(l => l.trim());
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issueNumber,
+              labels: labels
+            });
+            
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issueNumber,
+              body: `✅ Added labels: ${labels.join(', ')}`
+            });
+          }
+          
+          else if (comment.startsWith('/assign ')) {
+            const assignees = comment.replace('/assign ', '').split(',').map(a => a.trim().replace('@', ''));
+            await github.rest.issues.addAssignees({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issueNumber,
+              assignees: assignees
+            });
+            
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issueNumber,
+              body: `✅ Assigned to: ${assignees.map(a => '@' + a).join(', ')}`
+            });
+          }
+          
+          else if (comment === '/close') {
+            await github.rest.issues.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issueNumber,
+              state: 'closed'
+            });
+            
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issueNumber,
+              body: '✅ Issue closed via slash command.'
+            });
+          }
+          
+          else if (comment === '/help') {
+            const helpText = `## 🎯 Available Slash Commands
+            
+            - \`/label label1, label2\` - Add labels to this issue/PR
+            - \`/assign @user1, @user2\` - Assign users to this issue/PR  
+            - \`/close\` - Close this issue/PR
+            - \`/help\` - Show this help message
+            
+            **Note:** Only collaborators with write access can use these commands.`;
+            
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issueNumber,
+              body: helpText
+            });
+          }
+
+  # 📊 Generate workflow summary
+  workflow-summary:
+    name: 📊 Workflow Summary
+    runs-on: ubuntu-latest
+    needs: [auto-label-pr, validate-pr-title, auto-assign-reviewers, triage-issues]
+    if: always()
+
+    steps:
+    - name: 📊 Create workflow summary
+      run: |
+        echo "# 🔧 Development Workflow Summary" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "## Completed Actions" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        
+        if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+          echo "### 🔄 Pull Request Processing" >> $GITHUB_STEP_SUMMARY
+          echo "- 🏷️ Auto-labeling: ${{ needs.auto-label-pr.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- 🔍 Title validation: ${{ needs.validate-pr-title.result }}" >> $GITHUB_STEP_SUMMARY  
+          echo "- 🤖 Reviewer assignment: ${{ needs.auto-assign-reviewers.result }}" >> $GITHUB_STEP_SUMMARY
+        elif [[ "${{ github.event_name }}" == "issues" ]]; then
+          echo "### 📋 Issue Processing" >> $GITHUB_STEP_SUMMARY
+          echo "- 📋 Issue triage: ${{ needs.triage-issues.result }}" >> $GITHUB_STEP_SUMMARY
+        fi
+        
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "## 🎯 Next Steps" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+          echo "- Review the auto-assigned labels and modify if needed" >> $GITHUB_STEP_SUMMARY
+          echo "- Wait for reviewer feedback" >> $GITHUB_STEP_SUMMARY
+          echo "- Address any CI/CD pipeline feedback" >> $GITHUB_STEP_SUMMARY
+        elif [[ "${{ github.event_name }}" == "issues" ]]; then
+          echo "- Review the auto-applied labels" >> $GITHUB_STEP_SUMMARY
+          echo "- Provide additional context if requested" >> $GITHUB_STEP_SUMMARY
+          echo "- Wait for maintainer response" >> $GITHUB_STEP_SUMMARY
+        fi
