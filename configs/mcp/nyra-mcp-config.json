@@ -1,0 +1,33 @@
+{
+  "servers": {
+    "nyra-docker": {
+      "args": [
+        "-m",
+        "docker_mcp"
+      ],
+      "env": {
+        "DOCKER_CONTEXT": "nyra-development"
+      },
+      "command": "python"
+    },
+    "nyra-github": {
+      "args": [
+        "C:\\Dev\\NYRA-AIO-Bootstrap\\tools\\mcp-servers\\github\\index.js"
+      ],
+      "env": {
+        "NYRA_REPO_CONTEXT": "mortgage-assistant",
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "$GITHUB_TOKEN"
+      },
+      "command": "node"
+    },
+    "nyra-filesystem": {
+      "args": [
+        "C:\\Dev\\NYRA-AIO-Bootstrap\\tools\\mcp-servers\\filesystem\\index.js"
+      ],
+      "env": {
+        "NYRA_PROJECT_ROOT": "C:\\Dev\\DevProjects\\Personal-Projects\\Project-Nyra"
+      },
+      "command": "node"
+    }
+  }
+}

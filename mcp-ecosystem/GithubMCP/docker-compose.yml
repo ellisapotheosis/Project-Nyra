@@ -1,0 +1,37 @@
+name: nyra-github-mcp
+services:
+  mcp:
+    build:
+      context: .
+      dockerfile: Dockerfile.mcp
+    environment:
+      - BASE_DIR=/data
+      - MCP_API_KEY=
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+      - GIT_AUTHOR_NAME=${GIT_AUTHOR_NAME}
+      - GIT_AUTHOR_EMAIL=${GIT_AUTHOR_EMAIL}
+    volumes:
+      - ./data:/data
+    ports:
+      - "8001:8000"
+    networks: [ mcpnetgit ]
+    restart: unless-stopped
+
+  ngrok:
+    image: ngrok/ngrok:latest
+    depends_on:
+      - mcp
+    ports:
+      - "4041:4040"
+    command:
+      - "http"
+      - "mcp:8000"
+      - "--log=stdout"
+    environment:
+      - NGROK_AUTHTOKEN=${NGROK_AUTHTOKEN}
+      - NGROK_API_KEY=${NGROK_API_KEY}
+    networks: [ mcpnetgit ]
+    restart: unless-stopped
+
+networks:
+  mcpnetgit: {}

@@ -1,0 +1,85 @@
+# isolate_githubmcp.ps1
+[CmdletBinding()]
+param(
+  [string]$ProjectRoot = "C:\Dev\Tools\MCP-Servers\GithubMCP",
+  [int]$HostMcpPort = 8001,
+  [int]$HostNgrokPort = 4041,
+  [string]$ProjectName = "nyra-github-mcp",
+  [string]$NewNet = "mcpnetgit"
+)
+
+Set-StrictMode -Version Latest
+$ErrorActionPreference = 'Stop'
+function Wait-Url($u, $min=3){
+  $deadline=(Get-Date).AddMinutes($min)
+  while((Get-Date) -lt $deadline){
+    try{ $r=Invoke-WebRequest $u -UseBasicParsing -TimeoutSec 5; if($r.StatusCode -eq 200){ return $true } }catch{}
+    Start-Sleep -Milliseconds 600
+  }
+  return $false
+}
+
+$root = $ProjectRoot
+$composePath = Join-Path $root 'docker-compose.yml'
+if(!(Test-Path $composePath)){ throw "No docker-compose.yml in $root" }
+
+$content = Get-Content -Raw -LiteralPath $composePath
+
+# 1) Remove container_name lines (let compose auto-name per project)
+$content = [regex]::Replace($content, '(?im)^\s*container_name:.*\r?\n', '')
+
+# 2) Ports: 8000->HostMcpPort, 4040->HostNgrokPort
+$content = [regex]::Replace($content, '(?m)^\s*-\s*\"?8000:8000\"?', "      - `"$HostMcpPort`:8000`"")
+$content = [regex]::Replace($content, '(?m)^\s*-\s*\"?4040:4040\"?', "      - `"$HostNgrokPort`:4040`"")
+
+# 3) Networks: rename mcpnet -> $NewNet
+$content = $content -replace '(?im)networks:\s*\[\s*mcpnet\s*\]', "networks: [$NewNet]"
+$content = $content -replace '(?im)^\s*mcpnet:\s*\{\s*\}\s*$', "$NewNet: {}"
+
+# 4) Ensure top-level name:
+if ($content -notmatch '(?m)^\s*name:\s*') {
+  $content = "name: $ProjectName`r`n" + $content
+}
+
+Set-Content -Encoding UTF8 -LiteralPath $composePath -Value $content
+
+# 5) Bring stack up
+Push-Location $root
+try {
+  docker compose down | Out-Null
+  docker compose up -d --build | Out-Null
+} finally { Pop-Location }
+
+# 6) Emit connector info (No Auth)
+$health      = "http://127.0.0.1:$HostMcpPort/"
+$ngrokStatus = "http://127.0.0.1:$HostNgrokPort/status"
+$ngrokApi    = "http://127.0.0.1:$HostNgrokPort/api/tunnels"
+if(-not (Wait-Url $health)){ throw "GitHub MCP not healthy on :$HostMcpPort" }
+if(-not (Wait-Url $ngrokStatus)){ throw "ngrok admin not healthy on :$HostNgrokPort" }
+
+$tunnels = Invoke-RestMethod $ngrokApi
+$pub = $tunnels.tunnels | ? { $_.public_url -like 'https://*' } | select -First 1 -ExpandProperty public_url
+if(-not $pub){ throw "No https tunnel found on $ngrokApi" }
+
+$connectorUrl = "$pub/mcp"
+$desc = @"
+Nyra Git/GitHub MCP: filesystem + git + git-lfs + GitHub (repo/branch/PR) tools.
+"@.Trim()
+$Form = Join-Path $root 'CONNECTOR_CREATE_FORM.txt'
+@"
+Name:
+Nyra Git/GitHub
+
+Description:
+$desc
+
+Connector URL:
+$connectorUrl
+
+Authentication:
+No Auth
+"@ | Set-Content -Encoding UTF8 -LiteralPath $Form
+
+Write-Host "GitHub MCP is up."
+Write-Host "Public MCP endpoint: $connectorUrl"
+Write-Host "Paste EXACTLY from: $Form"

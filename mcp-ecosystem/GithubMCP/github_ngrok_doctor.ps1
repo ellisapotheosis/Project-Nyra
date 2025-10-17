@@ -1,0 +1,100 @@
+# github_ngrok_doctor.ps1
+# - Optionally stops the other ngrok (NyraFS) if you're on ngrok free plan (1 tunnel at a time).
+# - Restarts GitHubMCP ngrok, waits for admin API, and writes CONNECTOR_CREATE_FORM.txt.
+# - If API still unavailable, parses logs to get the URL.
+
+[CmdletBinding()]
+param(
+  [switch]$StopNyraTemporarily,
+  [string]$NyraRoot = "C:\Dev\Tools\MCP-Servers\FileSystemMCP",
+  [string]$GithubRoot = "C:\Dev\Tools\MCP-Servers\GithubMCP",
+  [int]$AdminPort = 4041
+)
+
+Set-StrictMode -Version Latest
+$ErrorActionPreference = 'Stop'
+
+function Wait-Url($u, [int]$sec=20){
+  $deadline=(Get-Date).AddSeconds($sec)
+  while((Get-Date) -lt $deadline){
+    try { $r = Invoke-WebRequest $u -UseBasicParsing -TimeoutSec 3; if($r.StatusCode -eq 200){ return $true } } catch { }
+    Start-Sleep -Milliseconds 500
+  }
+  return $false
+}
+
+function Get-UrlFromAPI([int]$port){
+  try {
+    $api="http://127.0.0.1:$port/api/tunnels"
+    $t=Invoke-RestMethod $api -TimeoutSec 3
+    $u=$t.tunnels | ? { $_.public_url -like 'https://*' } | select -First 1 -ExpandProperty public_url
+    return $u
+  } catch { return $null }
+}
+function Get-UrlFromLogs([string]$dir){
+  try {
+    $logs = docker compose --project-directory $dir logs ngrok --no-log-prefix --tail 400 2>$null
+    if($logs){
+      $m = [regex]::Matches($logs, 'https://[a-z0-9-]+\.ngrok-free\.dev', 'IgnoreCase')
+      if($m.Count -gt 0){ return $m[$m.Count-1].Value }
+    }
+  } catch { }
+  return $null
+}
+
+# 0) Optional: stop NyraFS ngrok to free token (ngrok free often allows only 1 tunnel)
+if ($StopNyraTemporarily -and (Test-Path $NyraRoot)) {
+  Write-Host "Stopping NyraFS ngrok to free ngrok token..." -ForegroundColor Yellow
+  docker compose --project-directory $NyraRoot stop ngrok | Out-Null
+}
+
+# 1) Ensure GitHub stack is up and restart ngrok cleanly
+docker compose --project-directory $GithubRoot up -d --build | Out-Null
+docker compose --project-directory $GithubRoot restart ngrok | Out-Null
+
+# 2) Wait for admin API, then fetch URL (fallback to logs if needed)
+$ok = Wait-Url ("http://127.0.0.1:{0}/status" -f $AdminPort) 20
+$pub = if($ok){ Get-UrlFromAPI $AdminPort } else { $null }
+if(-not $pub){ $pub = Get-UrlFromLogs $GithubRoot }
+
+# 3) Emit form
+$form = Join-Path $GithubRoot 'CONNECTOR_CREATE_FORM.txt'
+if($pub){
+  $mcp = "$pub/mcp"
+  @"
+Name:
+Nyra Git/GitHub
+
+Description:
+Filesystem + git + git-lfs + GitHub (repo/branch/PR) tools.
+
+Connector URL:
+$mcp
+
+Authentication:
+No Auth
+"@ | Set-Content -Encoding UTF8 -LiteralPath $form
+  Write-Host "✅ Wrote: $form"
+  Write-Host "🔗 $mcp"
+} else {
+  @"
+Name:
+Nyra Git/GitHub
+
+Description:
+Filesystem + git + git-lfs + GitHub (repo/branch/PR) tools.
+
+Connector URL:
+<NO URL FOUND – try with -StopNyraTemporarily, then re-run>
+
+Authentication:
+No Auth
+"@ | Set-Content -Encoding UTF8 -LiteralPath $form
+  Write-Host "⚠️  Could not discover https tunnel. Try: `pwsh -File .\github_ngrok_doctor.ps1 -StopNyraTemporarily`" -ForegroundColor Yellow
+}
+
+# 4) Optional: bring NyraFS ngrok back up
+if ($StopNyraTemporarily -and (Test-Path $NyraRoot)) {
+  Write-Host "Restarting NyraFS ngrok..." -ForegroundColor Yellow
+  docker compose --project-directory $NyraRoot up -d ngrok | Out-Null
+}

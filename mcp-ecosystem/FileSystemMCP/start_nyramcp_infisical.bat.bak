@@ -1,0 +1,4 @@
+@echo off
+powershell -NoLogo -NoProfile -ExecutionPolicy Bypass ^
+  -File "C:\Dev\NyraTools\mcp_manager.ps1" -Stack nyra -Action start ^
+  -UseInfisical -InfisicalProjectId "8374cea9-e5e8-4050-bda4-b91f25ab30ef" -InfisicalEnv dev

@@ -1,0 +1,334 @@
+# fix_project.ps1
+# One-shot repair + deploy for FileSystemMCP (MCP + ngrok) with embedded secrets.
+
+[CmdletBinding()]
+param(
+  [string]$ProjectRoot = "C:\Dev\Tools\MCP-Servers\FileSystemMCP",
+  [string]$McpContainerName = "FileSystemMCP-mcp-1",
+  [string]$NgrokContainerName = "FileSystemMCP-ngrok-1",
+  [string]$ServiceNetwork = "mcpnet",
+  [int]$McpPort = 8000,
+  [int]$NgrokApiPort = 4040,
+  # Embedded secrets (swap later as needed)
+  [string]$NGROK_AUTHTOKEN = "342u1RKgsUdqKdsFAULKog4bYOi_eWjUXBr6WrAJefn7UjsV",
+  [string]$NGROK_API_KEY   = "342uszUwmwbdkFLeb4434b0iRLC_2SFP9wDMgcruZBbUaejBz",
+  [string]$MCP_API_KEY     = "apotheosis2142"
+)
+
+Set-StrictMode -Version Latest
+$ErrorActionPreference = 'Stop'
+
+function Ensure-Dir([string]$Path) { if (-not (Test-Path -LiteralPath $Path)) { New-Item -ItemType Directory -Path $Path | Out-Null } }
+
+$Root            = $ProjectRoot
+$AppDir          = Join-Path $Root 'mcp_app'
+$DataDir         = Join-Path $Root 'data'
+$DockerfilePath  = Join-Path $Root 'Dockerfile.mcp'
+$ComposePath     = Join-Path $Root 'docker-compose.yml'
+$DockerIgnore    = Join-Path $Root '.dockerignore'
+$DotEnv          = Join-Path $Root '.env'
+$ServerPy        = Join-Path $AppDir 'server.py'
+$ConnectorForm   = Join-Path $Root 'CONNECTOR_CREATE_FORM.txt'
+$ConnectorFormMS = Join-Path $Root 'CONNECTOR_CREATE_FORM_MSAPP.txt'
+$HealthUrl       = "http://localhost:$McpPort/"
+$NgrokApiUrl     = "http://localhost:$NgrokApiPort/api/tunnels"
+
+Ensure-Dir $Root
+Ensure-Dir $AppDir
+Ensure-Dir $DataDir
+
+# ---------- server.py ----------
+$serverPyContent = @'
+from __future__ import annotations
+import os, base64
+from pathlib import Path
+from typing import List, Dict, Any
+from fastapi import FastAPI, Request, HTTPException
+from fastmcp import FastMCP
+
+api = FastAPI(title="FileSystemMCP", version="1.0.0")
+
+@api.get("/", summary="healthcheck")
+def root():
+    return {"ok": True, "name": "FileSystemMCP", "mcp_path": "/mcp"}
+
+BASE_DIR = Path(os.getenv("BASE_DIR", "/data")).resolve()
+BASE_DIR.mkdir(parents=True, exist_ok=True)
+
+def _safe_path(user_path: str) -> Path:
+    p = (BASE_DIR / user_path.lstrip("/\\")).resolve()
+    if not str(p).startswith(str(BASE_DIR)):
+        raise ValueError("Path escapes base directory")
+    return p
+
+mcp = FastMCP("NyraFS")
+
+@mcp.tool()
+def fs_list(path: str = ".", include_hidden: bool = False, limit: int = 500) -> List[Dict[str, Any]]:
+    p = _safe_path(path)
+    if not p.exists():
+        raise FileNotFoundError(f"{path} does not exist")
+    if not p.is_dir():
+        raise NotADirectoryError(f"{path} is not a directory")
+    out = []
+    count = 0
+    for entry in p.iterdir():
+        if count >= limit: break
+        name = entry.name
+        if not include_hidden and name.startswith("."): continue
+        out.append({
+            "name": name,
+            "is_dir": entry.is_dir(),
+            "size": entry.stat().st_size if entry.is_file() else None,
+            "path": str(entry.relative_to(BASE_DIR).as_posix()),
+        })
+        count += 1
+    return out
+
+@mcp.tool()
+def fs_read_text(path: str, max_bytes: int = 1_000_000, encoding: str = "utf-8") -> Dict[str, Any]:
+    p = _safe_path(path)
+    if not p.exists() or not p.is_file():
+        raise FileNotFoundError(f"{path} not found")
+    data = p.read_bytes()[:max_bytes]
+    try:
+        text = data.decode(encoding, errors="replace")
+        return {"path": path, "encoding": encoding, "text": text, "truncated": p.stat().st_size > len(data)}
+    except Exception:
+        b64 = base64.b64encode(data).decode("ascii")
+        return {"path": path, "base64": b64, "truncated": p.stat().st_size > len(data)}
+
+@mcp.tool()
+def fs_write_text(path: str, content: str, overwrite: bool = True, encoding: str = "utf-8") -> Dict[str, Any]:
+    p = _safe_path(path)
+    p.parent.mkdir(parents=True, exist_ok=True)
+    if p.exists() and not overwrite:
+        raise FileExistsError(f"{path} already exists")
+    p.write_text(content, encoding=encoding)
+    return {"path": path, "bytes": p.stat().st_size}
+
+@mcp.tool()
+def fs_mkdir(path: str, exist_ok: bool = True) -> Dict[str, Any]:
+    p = _safe_path(path)
+    p.mkdir(parents=True, exist_ok=exist_ok)
+    return {"path": path, "created": True}
+
+@mcp.tool()
+def fs_remove(path: str, recursive: bool = False) -> Dict[str, Any]:
+    p = _safe_path(path)
+    if not p.exists():
+        return {"path": path, "removed": False, "reason": "not found"}
+    if p.is_dir():
+        if recursive:
+            import shutil; shutil.rmtree(p)
+            return {"path": path, "removed": True, "type": "dir", "recursive": True}
+        else:
+            p.rmdir()
+            return {"path": path, "removed": True, "type": "dir"}
+    else:
+        p.unlink()
+        return {"path": path, "removed": True, "type": "file"}
+
+# Optional auth: if MCP_API_KEY is set, require it via Authorization: Bearer <key> or X-API-Key header.
+REQUIRED_KEY = os.getenv("MCP_API_KEY", "").strip()
+mcp_asgi = mcp.http_app(path="/mcp")
+
+if REQUIRED_KEY:
+    from fastapi import Response
+    from starlette.middleware.base import BaseHTTPMiddleware
+
+    class KeyMiddleware(BaseHTTPMiddleware):
+        async def dispatch(self, request: Request, call_next):
+            if request.url.path.startswith("/mcp"):
+                got = request.headers.get("authorization","")
+                if got.lower().startswith("bearer "):
+                    token = got[7:].strip()
+                else:
+                    token = request.headers.get("x-api-key","").strip()
+                if token != REQUIRED_KEY:
+                    return Response("Unauthorized", status_code=401)
+            return await call_next(request)
+
+    app = FastAPI(title="FileSystemMCP Combined", routes=[*mcp_asgi.routes, *api.routes], lifespan=mcp_asgi.lifespan)
+    app.add_middleware(KeyMiddleware)
+else:
+    from fastapi import FastAPI as _F
+    app = _F(title="FileSystemMCP Combined", routes=[*mcp_asgi.routes, *api.routes], lifespan=mcp_asgi.lifespan)
+'@
+$serverPyContent | Set-Content -Encoding UTF8 -LiteralPath $ServerPy
+
+# ---------- Dockerfile.mcp ----------
+$dockerfileContent = @'
+FROM python:3.11-slim
+ENV PYTHONUNBUFFERED=1 BASE_DIR=/data
+WORKDIR /app
+COPY mcp_app /app/mcp_app
+RUN pip install --no-cache-dir fastmcp==2.12.4 fastapi uvicorn
+VOLUME ["/data"]
+EXPOSE 8000
+CMD ["uvicorn","mcp_app.server:app","--host","0.0.0.0","--port","8000"]
+'@
+$dockerfileContent | Set-Content -Encoding UTF8 -LiteralPath $DockerfilePath
+
+# ---------- docker-compose.yml via placeholder replacement (avoids $var: YAML/PS conflicts) ----------
+$composeTemplate = @'
+services:
+  mcp:
+    build:
+      context: .
+      dockerfile: Dockerfile.mcp
+    container_name: __MCP_CONTAINER__
+    environment:
+      - BASE_DIR=/data
+      - MCP_API_KEY=__MCP_API_KEY__
+    volumes:
+      - ./data:/data
+    ports:
+      - "__MCP_PORT__:8000"
+    networks: [__SERVICENET__]
+    restart: unless-stopped
+
+  ngrok:
+    image: ngrok/ngrok:latest
+    container_name: __NGROK_CONTAINER__
+    depends_on:
+      - mcp
+    ports:
+      - "__NGROK_API_PORT__:4040"
+    command: >
+      http --log=stdout
+      --web-port 4040
+      mcp:8000
+    environment:
+      - NGROK_AUTHTOKEN=__NGROK_TOKEN__
+      - NGROK_API_KEY=__NGROK_API_KEY__
+    networks: [__SERVICENET__]
+    restart: unless-stopped
+
+networks:
+  __SERVICENET__: {}
+'@
+
+$composeResolved = $composeTemplate.
+  Replace('__MCP_CONTAINER__', $McpContainerName).
+  Replace('__NGROK_CONTAINER__', $NgrokContainerName).
+  Replace('__SERVICENET__', $ServiceNetwork).
+  Replace('__MCP_PORT__', "$McpPort").
+  Replace('__NGROK_API_PORT__', "$NgrokApiPort").
+  Replace('__NGROK_TOKEN__', $NGROK_AUTHTOKEN).
+  Replace('__NGROK_API_KEY__', $NGROK_API_KEY).
+  Replace('__MCP_API_KEY__', $MCP_API_KEY)
+
+$composeResolved | Set-Content -Encoding UTF8 -LiteralPath $ComposePath
+
+# ---------- .dockerignore ----------
+$dockerIgnoreContent = @'
+**/__pycache__/
+**/.pytest_cache/
+**/*.pyc
+**/*.pyo
+**/*.pyd
+.env
+.git
+.gitignore
+.vscode
+.idea
+'@
+$dockerIgnoreContent | Set-Content -Encoding UTF8 -LiteralPath $DockerIgnore
+
+# ---------- .env (mirror) ----------
+@"
+NGROK_AUTHTOKEN=$NGROK_AUTHTOKEN
+NGROK_API_KEY=$NGROK_API_KEY
+MCP_API_KEY=$MCP_API_KEY
+"@ | Set-Content -Encoding UTF8 -LiteralPath $DotEnv
+
+# ---------- seed sample ----------
+"hello from NyraFS $(Get-Date -Format s)" | Set-Content -Encoding UTF8 -LiteralPath (Join-Path $DataDir "hello.txt")
+
+# ---------- compose down/build/up ----------
+Push-Location $Root
+try {
+  docker compose down | Out-Null
+  docker compose build --no-cache
+  docker compose up -d
+} finally { Pop-Location }
+
+# ---------- wait for health ----------
+$deadline = (Get-Date).AddMinutes(3)
+$ok = $false
+while ((Get-Date) -lt $deadline) {
+  try {
+    $r = Invoke-WebRequest -Uri $HealthUrl -UseBasicParsing -TimeoutSec 5
+    if ($r.StatusCode -eq 200) { $ok = $true; break }
+  } catch { Start-Sleep -Milliseconds 600 }
+  Start-Sleep -Milliseconds 600
+}
+if (-not $ok) { throw "MCP server did not become ready on $HealthUrl." }
+
+# ---------- discover ngrok https url ----------
+$deadline = (Get-Date).AddMinutes(3)
+$publicHttps = $null
+while ((Get-Date) -lt $deadline) {
+  try {
+    $json = Invoke-RestMethod -Uri $NgrokApiUrl -TimeoutSec 5
+    foreach ($t in $json.tunnels) {
+      if ($t.public_url -like "https://*") { $publicHttps = $t.public_url; break }
+    }
+    if ($publicHttps) { break }
+  } catch { Start-Sleep -Milliseconds 600 }
+  Start-Sleep -Milliseconds 600
+}
+if (-not $publicHttps) { throw "Could not discover ngrok https public URL. Check 'docker compose logs ngrok'." }
+
+# ---------- connector forms ----------
+$connectorName = "Nyra Filesystem (NyraFS)"
+$connectorDesc = @"
+Remote filesystem tools for listing, reading, writing, creating, and removing files/folders within a confined workspace.
+Scope: files under /data (mounted from host ./data). Use when you need to inspect or edit local project files.
+"@.Trim()
+$connectorUrl = "$publicHttps/mcp"
+$connectorAuth = (if ($MCP_API_KEY -and $MCP_API_KEY.Trim()) {'Bearer (Authorization header)'} else {'Anonymous'})
+
+@"
+===============================
+ChatGPT Developer Mode → Connectors → Create
+===============================
+Name:
+$connectorName
+
+Description:
+$connectorDesc
+
+Connector URL:
+$connectorUrl
+
+Authentication:
+$connectorAuth
+$(if ($MCP_API_KEY -and $MCP_API_KEY.Trim()) {"Authorization Header:
+Bearer $MCP_API_KEY"})
+"@ | Set-Content -Encoding UTF8 -LiteralPath $ConnectorForm
+
+@"
+===============================
+ChatGPT (Microsoft Store App) → Developer Mode → Create Connector
+===============================
+Name:
+$connectorName
+
+Description:
+$connectorDesc
+
+Connector URL:
+$connectorUrl
+
+Authentication:
+$connectorAuth
+$(if ($MCP_API_KEY -and $MCP_API_KEY.Trim()) {"Authorization Header:
+Bearer $MCP_API_KEY"})
+"@ | Set-Content -Encoding UTF8 -LiteralPath $ConnectorFormMS
+
+Write-Host "MCP ready at: $connectorUrl"
+Write-Host "Paste EXACTLY from:"
+Write-Host "  $ConnectorForm"
+Write-Host "  $ConnectorFormMS"
