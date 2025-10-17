@@ -1,0 +1,142 @@
+archon_system_version: "1.0"
+generated: "2025-10-17T22:45:00Z"
+description: "Unified Archon orchestration system for Project NYRA - consolidates all scattered Archon configs"
+
+archon_core:
+  enabled: true
+  endpoint: "http://localhost:4000"
+  database_url: "postgresql://nyra_user:nyra_pass@localhost:5432/nyra_archon"
+  source_directory: "archive/2025-10-13-original-structure/nyra-core/nyra-orchestration/archon"
+  
+database_setup:
+  migrations_directory: "archive/2025-10-13-original-structure/nyra-core/nyra-orchestration/archon/migration"
+  required_migrations:
+    - file: "complete_setup.sql"
+      description: "Complete Archon database schema setup"
+      order: 1
+    - file: "add_hybrid_search_tsvector.sql" 
+      description: "Add hybrid search capabilities with tsvector"
+      order: 2
+      
+ui_components:
+  archon_ui:
+    source: "archive/2025-10-13-original-structure/nyra-core/nyra-orchestration/archon/archon-ui-main"
+    port: 3000
+    build_command: "npm run build"
+    
+  mcp_config_section:
+    component: "src/features/mcp/components/McpConfigSection.tsx"
+    description: "MCP configuration management UI"
+    integration_points:
+      - metamcp_proxy_configuration
+      - server_health_monitoring
+      - channel_management
+      
+docker_configuration:
+  dockerfile_source: "archive/2025-10-13-original-structure/nyra-core/nyra-orchestration/archon/Dockerfile"
+  compose_integration:
+    service_name: "nyra-archon"
+    networks: ["nyra-network"]
+    depends_on: ["postgres", "metamcp"]
+    
+environment_variables:
+  NODE_ENV: "production"
+  DATABASE_URL: "postgresql://nyra_user:nyra_pass@postgres:5432/nyra_archon"
+  METAMCP_URL: "http://metamcp:12008"
+  ARCHON_PORT: 4000
+  
+integration_points:
+  metamcp_proxy:
+    endpoint: "http://localhost:12008"
+    channels:
+      - "orchestration"
+      - "claude-flow-orchestration"
+      - "workflows"
+    authentication: "api_key"
+    
+  claude_desktop:
+    integration_enabled: true
+    config_path: "config-consolidated/claude-ecosystem/claude-desktop-config.json"
+    archon_endpoint_exposed: true
+    
+  nyra_ecosystem:
+    crm_integration: "http://localhost:3000"
+    voice_service: "http://localhost:8080" 
+    memory_stack: "http://localhost:12008/metamcp/nyra-core/sse"
+    
+hot_potato_workflow:
+  enabled: true
+  description: "Multi-agent hot-potato workflow orchestration"
+  agents:
+    - name: "lead_coder"
+      role: "Primary development and architecture"
+      handoff_conditions: ["code_review_required", "testing_needed"]
+      
+    - name: "morph_dspy"
+      role: "Minimal-diff refactoring and optimization"
+      handoff_conditions: ["refactoring_complete", "performance_optimized"]
+      
+    - name: "debug_aider"
+      role: "Debugging and issue resolution"
+      handoff_conditions: ["bugs_fixed", "tests_passing"]
+      
+    - name: "small_code_specialist"
+      role: "Small code changes and utilities"
+      handoff_conditions: ["utilities_complete", "documentation_updated"]
+      
+    - name: "external_reviewer"
+      role: "Code review and quality assurance" 
+      handoff_conditions: ["review_complete", "quality_approved"]
+      
+  handoff_protocol:
+    required_artifacts: ["diff", "tests", "rationale"]
+    validation: "automated_tests"
+    approval_process: "consensus_based"
+    
+deployment_profiles:
+  local_dev:
+    database: "local_postgres"
+    metamcp_url: "http://localhost:12008"
+    ui_enabled: true
+    hot_reload: true
+    
+  docker_dev:
+    database: "docker_postgres_service"
+    metamcp_url: "http://nyra-metamcp:12008"
+    ui_enabled: true
+    container_networking: true
+    
+  staging:
+    database: "managed_postgres_staging"
+    metamcp_url: "https://metamcp-staging.ratehunter.net"
+    ui_enabled: true
+    ssl_required: true
+    
+  production:
+    database: "managed_postgres_production"
+    metamcp_url: "https://metamcp.ratehunter.net"
+    ui_enabled: false
+    ssl_required: true
+    monitoring_enabled: true
+    
+startup_sequence:
+  order: 3
+  dependencies: ["postgres", "metamcp"]
+  health_check: "http://localhost:4000/health"
+  readiness_probe: "http://localhost:4000/ready"
+  
+monitoring:
+  metrics_endpoint: "/metrics"
+  health_endpoint: "/health"
+  logging_level: "info"
+  
+security:
+  authentication_required: true
+  api_key_validation: true
+  rate_limiting: "100_requests_per_minute"
+  cors_origins: ["http://localhost:3000", "https://nyra.ratehunter.net"]
+  
+backup_strategy:
+  database_backups: "daily"
+  configuration_backups: "on_change"
+  restore_procedures: "documented_in_runbooks"

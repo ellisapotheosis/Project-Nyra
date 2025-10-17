@@ -1,0 +1,172 @@
+{
+  "claude_desktop_version": "1.0",
+  "generated": "2025-10-17T22:40:00Z",
+  "description": "Unified Claude Desktop configuration for Project NYRA - consolidates all scattered Claude configs",
+  
+  "mcpServers": {
+    "MetaMCP-Nyra-Core": {
+      "url": "http://localhost:12008/metamcp/nyra-core/sse",
+      "apiKey": "nyra-local-key",
+      "description": "Core memory services via MetaMCP proxy",
+      "tools": ["qdrant-store", "qdrant-find", "search_nodes", "search_facts", "get_episodes", "add_episode"]
+    },
+    
+    "MetaMCP-Nyra-Bus": {
+      "url": "http://localhost:12008/metamcp/nyra-bus/sse", 
+      "apiKey": "nyra-local-key",
+      "description": "Memory bus for conversation context",
+      "tools": ["add_memories", "search_memory", "list_memories"]
+    },
+    
+    "MetaMCP-Development": {
+      "url": "http://localhost:12008/metamcp/development/sse",
+      "apiKey": "nyra-local-key", 
+      "description": "Development tools via MetaMCP proxy",
+      "tools": ["github", "filesystem", "code_analysis"]
+    },
+    
+    "GitHub-Direct": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": {
+        "GITHUB_TOKEN": "${GITHUB_TOKEN}"
+      },
+      "description": "Direct GitHub integration",
+      "enabled": false
+    },
+    
+    "Filesystem-Direct": {
+      "command": "npx", 
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "C:/Dev/DevProjects/Personal-Projects/Project-Nyra"],
+      "description": "Direct filesystem access",
+      "enabled": false
+    },
+    
+    "Infisical-MCP": {
+      "command": "powershell",
+      "args": ["-ExecutionPolicy", "Bypass", "-File", "config-consolidated/environments/scripts/run-infisical-mcp.ps1"],
+      "description": "Infisical secrets management with Bootstrap v2.1 integration",
+      "env": {
+        "INFISICAL_ENVIRONMENT": "dev",
+        "INFISICAL_PROJECT_ID": "${INFISICAL_PROJECT_ID}"
+      }
+    }
+  },
+  
+  "claude_flow_integration": {
+    "enabled": true,
+    "workflow_directory": "mcp-ecosystem/ClaudeFlowMCP/.claude",
+    "agents": {
+      "github_sync_coordinator": {
+        "path": "mcp-ecosystem/ClaudeFlowMCP/.claude/agents/github/sync-coordinator.md",
+        "description": "Coordinates GitHub repository synchronization"
+      },
+      "repo_architect": {
+        "path": "mcp-ecosystem/ClaudeFlowMCP/.claude/agents/github/repo-architect.md", 
+        "description": "Repository architecture and structure management"
+      },
+      "migration_planner": {
+        "path": "mcp-ecosystem/ClaudeFlowMCP/.claude/agents/templates/migration-plan.md",
+        "description": "System migration planning and execution"
+      }
+    },
+    
+    "commands": {
+      "pair_mode": {
+        "path": "mcp-ecosystem/ClaudeFlowMCP/.claude/commands/pair",
+        "description": "Collaborative pair programming workflows"
+      },
+      "stream_chain": {
+        "path": "mcp-ecosystem/ClaudeFlowMCP/.claude/commands/stream-chain",
+        "description": "Streaming workflow pipeline management"
+      },
+      "automation": {
+        "path": "mcp-ecosystem/ClaudeFlowMCP/.claude/commands/automation",
+        "description": "Session memory and automation tools"
+      },
+      "verification": {
+        "path": "mcp-ecosystem/ClaudeFlowMCP/.claude/commands/verify",
+        "description": "Code and system verification workflows"
+      }
+    },
+    
+    "hooks": {
+      "setup": {
+        "path": "mcp-ecosystem/ClaudeFlowMCP/.claude/commands/hooks/setup.md",
+        "description": "Claude Flow setup and initialization"
+      },
+      "checkpoint_manager": {
+        "path": "mcp-ecosystem/ClaudeFlowMCP/.claude/helpers/checkpoint-manager.sh",
+        "description": "Checkpoint and state management"
+      },
+      "quick_start": {
+        "path": "mcp-ecosystem/ClaudeFlowMCP/.claude/helpers/quick-start.sh",
+        "description": "Quick start automation script"
+      }
+    }
+  },
+  
+  "archon_integration": {
+    "enabled": true,
+    "archon_endpoint": "http://localhost:4000",
+    "database_url": "postgresql://nyra_user:nyra_pass@localhost:5432/nyra_archon",
+    "ui_components": {
+      "mcp_config_section": {
+        "path": "archive/2025-10-13-original-structure/nyra-core/nyra-orchestration/archon/archon-ui-main/src/features/mcp/components/McpConfigSection.tsx",
+        "description": "MCP configuration UI component"
+      }
+    },
+    "sql_migrations": {
+      "directory": "archive/2025-10-13-original-structure/nyra-core/nyra-orchestration/archon/migration",
+      "files": [
+        "complete_setup.sql",
+        "add_hybrid_search_tsvector.sql"
+      ]
+    }
+  },
+  
+  "profile_integrations": {
+    "powershell_claude_module": {
+      "path": "NYRA-AIO-Bootstrap/PowerShell/Modules/Apotheosis.Claude/Apotheosis.Claude.psm1",
+      "description": "PowerShell module for Claude integration"
+    },
+    "warp_integration": {
+      "enabled": true,
+      "config_path": "mcp-ecosystem/warp-mcp-config.json",
+      "rules_path": "mcp-ecosystem/WARP-MCP-INTEGRATION-RULES.md"
+    }
+  },
+  
+  "environment_configs": {
+    "local_dev": {
+      "metamcp_url": "http://localhost:12008",
+      "archon_url": "http://localhost:4000",
+      "secrets_source": "credential_manager"
+    },
+    "docker_dev": {
+      "metamcp_url": "http://nyra-metamcp:12008", 
+      "archon_url": "http://nyra-archon:4000",
+      "secrets_source": "infisical"
+    },
+    "production": {
+      "metamcp_url": "https://metamcp.ratehunter.net",
+      "archon_url": "https://archon.ratehunter.net", 
+      "secrets_source": "infisical_production"
+    }
+  },
+  
+  "usage_instructions": {
+    "quick_start": [
+      "1. Start NYRA ecosystem: .\\config-consolidated\\Start-NyraEcosystem.ps1",
+      "2. This config connects Claude Desktop to MetaMCP proxy",
+      "3. All MCP servers are accessible through unified endpoints",
+      "4. Claude Flow workflows available in mcp-ecosystem/ClaudeFlowMCP/.claude/"
+    ],
+    "advanced_usage": [
+      "1. Enable direct server connections by setting 'enabled': true",
+      "2. Configure environment-specific endpoints",
+      "3. Use Infisical MCP for secrets management",
+      "4. Access Archon orchestration via localhost:4000"
+    ]
+  }
+}
