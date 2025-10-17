@@ -1,0 +1,19 @@
+# Base DeepCode MCP client config (per-instance overrides port via 8602)
+mcp:
+  filesystem:
+    enabled: true
+  fetch:
+    enabled: true
+  github-downloader:
+    enabled: true
+  # Search/Crawl via FastMCP tools:
+  # - google_search(query, num)
+  # - firecrawl_scrape(url, extract)
+models:
+  primary: "${PRIMARY_MODEL}"
+  fallback: "${FALLBACK_MODEL}"
+server:
+  ui: true
+  port: 8602
+project:
+  name: "nyra-scaffold-core"

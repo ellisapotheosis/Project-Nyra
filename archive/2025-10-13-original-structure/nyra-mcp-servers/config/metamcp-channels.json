@@ -1,0 +1,264 @@
+{
+  "channels": {
+    "claude-flow-orchestration": {
+      "use_cases": [
+        "agent coordination",
+        "swarm management",
+        "hive mind control",
+        "task orchestration"
+      ],
+      "description": "Claude-flow orchestration and agent coordination",
+      "primary_servers": [
+        "claude-flow",
+        "ruv-swarm",
+        "flow-nexus",
+        "archon"
+      ],
+      "token_weight": "medium",
+      "priority": 1
+    },
+    "claude-flow-workflows": {
+      "use_cases": [
+        "workflow execution",
+        "document processing",
+        "pipeline management",
+        "batch operations"
+      ],
+      "description": "Claude-flow workflow execution and pipeline management",
+      "primary_servers": [
+        "claude-flow-worker",
+        "fastmcp",
+        "filesystem"
+      ],
+      "token_weight": "light",
+      "priority": 2
+    },
+    "claude-flow-documents": {
+      "use_cases": [
+        "document cleaning",
+        "content ingestion",
+        "text processing",
+        "knowledge extraction"
+      ],
+      "description": "Document cleaning, ingestion, and indexing",
+      "primary_servers": [
+        "llamaindex",
+        "notion",
+        "tome"
+      ],
+      "token_weight": "light",
+      "priority": 3
+    },
+    "heavy-mcp-desktop": {
+      "use_cases": [
+        "desktop automation",
+        "system control",
+        "high-token operations"
+      ],
+      "description": "Heavy context token servers (140k+ tokens) - isolated channel",
+      "primary_servers": [
+        "desktop-commander"
+      ],
+      "token_weight": "heavy",
+      "priority": 10,
+      "context_isolation": true,
+      "require_explicit_activation": true
+    },
+    "knowledge": {
+      "use_cases": [
+        "documentation",
+        "knowledge base",
+        "team collaboration"
+      ],
+      "description": "Knowledge management and documentation",
+      "primary_servers": [
+        "notion"
+      ]
+    },
+    "infrastructure": {
+      "use_cases": [
+        "system monitoring",
+        "deployment",
+        "configuration"
+      ],
+      "description": "Infrastructure and system management",
+      "primary_servers": [
+        "filesystem",
+        "fastmcp",
+        "metamcp"
+      ]
+    },
+    "workflows": {
+      "use_cases": [
+        "process automation",
+        "integration workflows",
+        "data pipelines"
+      ],
+      "description": "Workflow automation and integration",
+      "primary_servers": [
+        "claude-flow",
+        "flow-nexus"
+      ]
+    },
+    "memory": {
+      "use_cases": [
+        "vector search",
+        "long-term memory",
+        "conversation context"
+      ],
+      "description": "Memory management and context persistence",
+      "primary_servers": [
+        "qdrant-local",
+        "mem0-mcp",
+        "zep-mcp"
+      ]
+    },
+    "ai-coding": {
+      "use_cases": [
+        "code generation",
+        "refactoring",
+        "debugging"
+      ],
+      "description": "AI-powered coding assistance",
+      "primary_servers": [
+        "gemini-assistant",
+        "sparc2"
+      ]
+    },
+    "orchestration": {
+      "use_cases": [
+        "hot-potato workflows",
+        "agent coordination",
+        "task management"
+      ],
+      "description": "Agent orchestration and workflow management",
+      "primary_servers": [
+        "archon-mcp",
+        "metamcp-local",
+        "claude-flow"
+      ]
+    },
+    "security": {
+      "use_cases": [
+        "secret rotation",
+        "environment management",
+        "compliance"
+      ],
+      "description": "Security and secrets management",
+      "primary_servers": [
+        "infisical-mcp"
+      ]
+    },
+    "development": {
+      "use_cases": [
+        "code review",
+        "file management",
+        "git operations"
+      ],
+      "description": "Code development and repository management",
+      "primary_servers": [
+        "github",
+        "filesystem",
+        "sparc2",
+        "gemini-assistant"
+      ]
+    }
+  },
+  "routing_rules": {
+    "memory": {
+      "load_balancing": "weighted",
+      "fallback_enabled": false,
+      "priority": 3
+    },
+    "development": {
+      "load_balancing": "least_connections",
+      "fallback_enabled": true,
+      "priority": 2
+    },
+    "orchestration": {
+      "load_balancing": "round_robin",
+      "fallback_enabled": true,
+      "priority": 1
+    }
+  },
+  "server_definitions": {
+    "metamcp-docker": {
+      "name": "metamcp-docker",
+      "transport": "http",
+      "url": "http://localhost:12008",
+      "description": "Docker MetaMCP instance for channel orchestration",
+      "env": {},
+      "capabilities": ["orchestration", "channel_management", "server_discovery"]
+    },
+    "github-docker": {
+      "name": "github-docker",
+      "transport": "http",
+      "url": "http://localhost:3876",
+      "description": "Docker GitHub MCP Server",
+      "env": {},
+      "capabilities": ["git_operations", "issue_management", "pr_management"]
+    }
+  },
+  "server_assignments": {
+    "claude-flow-orchestration": [
+      "claude-flow",
+      "ruv-swarm",
+      "flow-nexus",
+      "archon"
+    ],
+    "claude-flow-workflows": [
+      "claude-flow-worker",
+      "fastmcp", 
+      "filesystem",
+      "gofastmcp"
+    ],
+    "claude-flow-documents": [
+      "llamaindex",
+      "notion",
+      "tome"
+    ],
+    "heavy-mcp-desktop": [
+      "desktop-commander"
+    ],
+    "ai-coding": [
+      "sparc2",
+      "gemini-assistant"
+    ],
+    "workflows": [
+      "flow-nexus",
+      "claude-flow"
+    ],
+    "security": [
+      "infisical-mcp"
+    ],
+    "development": [
+      "github",
+      "github-docker",
+      "filesystem",
+      "gemini-assistant"
+    ],
+    "memory": [
+      "qdrant-mcp",
+      "mem0-mcp",
+      "zep-mcp",
+      "qdrant-local"
+    ],
+    "infrastructure": [
+      "metamcp",
+      "metamcp-docker",
+      "filesystem",
+      "fastmcp",
+      "metamcp-local"
+    ],
+    "knowledge": [
+      "notion"
+    ],
+    "orchestration": [
+      "metamcp",
+      "metamcp-docker",
+      "claude-flow",
+      "archon-mcp",
+      "metamcp-local"
+    ]
+  }
+}

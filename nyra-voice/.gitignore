@@ -1,0 +1,57 @@
+#TBD Implementations, Binaries, etc.
+TBD
+
+# Environment variables (NEVER commit these)
+.env
+.env.local
+.env.*.local
+
+# API Keys and secrets
+*.key
+autogen_config.yaml
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Ignore Python venvs
+venv/
+.venv/
+__pycache__/
+*.pyc
+
+# Ignore dotenv secrets
+.env

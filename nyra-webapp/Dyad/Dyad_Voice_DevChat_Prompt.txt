@@ -1,0 +1,24 @@
+
+# Voice-First Dev Chat Workspace (Personal)
+Build a minimal, fast voice+text workspace so I can talk to Nyra during development and drive tasks.
+
+## Stack
+- Next.js or Vite + vanilla TS.
+- WebSocket to `/dev/ws` for live logs (JSON lines).
+- STT (phase 1): Web Speech API in-browser. TTS: `/voice/speak` → ElevenLabs. Prepare adapters for Kyutai (next-tts / moshi / hibiki / unmute).
+- LLM: Gemini 1.5 Pro default; auto-fallback to GPT‑4.1 on tool-call or parsing failures.
+
+## Features
+- Push‑to‑talk mic; partial transcript stream.
+- Chat window with memory; commands: `/status`, `/todo`, `/lead <name>`, `/errors`.
+- Right panel: real-time event timeline (scheduler sends, lead responses).
+- File drop: attach spec snippets; index to vector store for memory.
+- Auth protected (Supabase). Route only bundled when `AI_PORTAL=true`.
+
+## Endpoints
+- `POST /dev/ask {text, context}` → returns `{reply, actions?}`; if `actions` include `generate_template` or `schedule_event`, ask for confirmation before executing.
+- `WS /dev/ws` → streams `agent_logs` and `events` updates.
+
+## Deliverables
+- Working page at `/dev` with voice loop, chat, logs.
+- Docs explaining how to switch TTS/STT providers and model fallbacks.

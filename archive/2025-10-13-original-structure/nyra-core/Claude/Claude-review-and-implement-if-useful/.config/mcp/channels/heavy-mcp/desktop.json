@@ -1,0 +1,56 @@
+{
+  "name": "heavy-mcp-desktop",
+  "description": "Heavy context token servers channel (~140k+ tokens each)",
+  "priority": 10,
+  "token_weight": "heavy",
+  "context_isolation": true,
+  "servers": {
+    "desktop-commander": {
+      "type": "stdio", 
+      "command": "npx",
+      "args": ["-y", "@wonderwhy-er/desktop-commander@latest"],
+      "env": {
+        "DESKTOP_COMMANDER_MODE": "isolated",
+        "DESKTOP_COMMANDER_WORKSPACE": "C:\\Dev\\DevProjects\\Personal-Projects\\Project-Nyra"
+      },
+      "capabilities": [
+        "desktop_automation",
+        "system_control",
+        "application_management",
+        "window_operations"
+      ],
+      "estimated_tokens": 140000,
+      "context_compression": "aggressive"
+    }
+  },
+  "routing": {
+    "load_balancing": "none",
+    "fallback_enabled": false,
+    "retry_attempts": 1,
+    "timeout": 60000,
+    "lazy_loading": true
+  },
+  "context_management": {
+    "token_limit": 200000,
+    "compression_enabled": true,
+    "compression_ratio": 0.3,
+    "context_rotation": true,
+    "isolated_context": true,
+    "memory_management": {
+      "gc_threshold": 150000,
+      "context_cleanup": true,
+      "lazy_initialization": true
+    }
+  },
+  "access_control": {
+    "require_explicit_activation": true,
+    "auto_deactivate_timeout": 300000,
+    "usage_monitoring": true
+  },
+  "optimization": {
+    "context_pruning": true,
+    "selective_loading": true,
+    "background_preload": false,
+    "resource_pooling": false
+  }
+}
