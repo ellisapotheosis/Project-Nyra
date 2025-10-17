@@ -1,0 +1,5 @@
+{ "endpoints": [
+  { "name":"nyra-core","namespace":"memory-core","transport":"SSE","auth":{"type":"apiKey","key":""} },
+  { "name":"nyra-bus", "namespace":"memory-bus", "transport":"SSE","auth":{"type":"apiKey","key":""} },
+  { "name":"nyra-all", "namespace":"memory-all", "transport":"SSE","auth":{"type":"apiKey","key":""} }
+]}

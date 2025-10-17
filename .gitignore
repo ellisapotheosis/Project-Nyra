@@ -17,7 +17,7 @@ __pycache__/
 
 # OS generated files
 Thumbs.db
-
+.env
 desktop.ini
 .env*
 .flaskenv*
@@ -52,3 +52,15 @@ claude-flow
 hive-mind-prompt-*.txt
 
 .git_backup/
+# Large files and directories to exclude
+.git_backup/
+*.zip
+*.tar.gz
+*.pack
+.venv/
+node_modules/
+ffmpeg.exe
+*.pyd
+
+# Temporary files
+tmp_pack_*

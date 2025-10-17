@@ -1,3 +1,14 @@
+# Recommended first-time setup with SPARC
+npx claude-flow@latest init --sparc
+
+# Minimal setup
+npx claude-flow init --minimal
+
+# Force overwrite existing files
+npx claude-flow init --force
+
+
+
 # Claude Code Configuration - SPARC Development Environment
 
 ## 🚨 CRITICAL: CONCURRENT EXECUTION & FILE MANAGEMENT
