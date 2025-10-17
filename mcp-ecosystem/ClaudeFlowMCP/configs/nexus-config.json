@@ -1,0 +1,22 @@
+{
+  "security": {
+    "enable_auth": false,
+    "api_keys_required": false
+  },
+  "integrations": {
+    "memory_store": {
+      "enabled": true,
+      "connection": "postgresql://localhost:5432/nyra_memory",
+      "type": "postgres"
+    },
+    "nyra_core": {
+      "api_endpoint": "http://localhost:3000",
+      "enabled": true
+    }
+  },
+  "workflow_engine": {
+    "enabled": true,
+    "auto_discover": true,
+    "base_path": "C:\\Dev\\nyra-core\\workflows"
+  }
+}

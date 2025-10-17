@@ -1,0 +1,4 @@
+@echo off
+powershell -NoLogo -NoProfile -ExecutionPolicy Bypass ^
+  -File "C:\Dev\Tools\MCP-Servers\NyraTools\mcp_manager.ps1" -Stack github -Action start ^
+  -UseInfisical -InfisicalProjectId "8374cea9-e5e8-4050-bda4-b91f25ab30ef" -InfisicalEnv dev

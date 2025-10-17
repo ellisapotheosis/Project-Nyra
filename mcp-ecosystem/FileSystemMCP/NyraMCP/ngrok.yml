@@ -1,0 +1,11 @@
+version: 3
+
+agent:
+  authtoken: YOUR_NGROK_AUTHTOKEN
+  api_key: YOUR_NGROK_APIKEY
+
+endpoints:
+  - name: mcp
+    upstream:
+      url: http://mcp:8000
+      protocol: http1

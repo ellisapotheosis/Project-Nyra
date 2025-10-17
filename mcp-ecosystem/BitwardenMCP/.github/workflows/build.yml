@@ -1,0 +1,158 @@
+name: Build
+
+on:
+  pull_request:
+  push:
+    branches:
+      - "main"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      security-events: write
+      packages: write
+      id-token: write
+    env:
+      _IMAGE_NAME: ghcr.io/bitwarden/mcp-server
+
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          persist-credentials: false
+
+      - name: Get package version
+        id: retrieve-package-version
+        run: |
+          PKG_VERSION=$(jq -r .version package.json)
+          echo "package_version=$PKG_VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Get Node version
+        id: retrieve-node-version
+        run: |
+          NODE_NVMRC=$(cat .nvmrc)
+          NODE_VERSION=${NODE_NVMRC/v/''}
+          echo "node_version=$NODE_VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Set up Node
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          cache: "npm"
+          cache-dependency-path: "**/package-lock.json"
+          node-version: ${{ steps.retrieve-node-version.outputs.node_version }}
+
+      - name: Install Node dependencies
+        run: npm install
+
+      - name: Build
+        run: npm run build
+
+      - name: Archive
+        env:
+          PACKAGE_VERSION: ${{ steps.retrieve-package-version.outputs.package_version }}
+        run: |
+          zip -r "mcp-server-${PACKAGE_VERSION}.zip" dist
+
+      - name: Upload archive to GitHub
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: mcp-server-${{ steps.retrieve-package-version.outputs.package_version }}.zip
+          path: mcp-server-${{ steps.retrieve-package-version.outputs.package_version }}.zip
+          if-no-files-found: error
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 # v3.4.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate Docker image tag
+        id: tag
+        env:
+          EVENT_TYPE: ${{ contains(github.event_name, 'pull_request') && 'pull_request' || '' }}
+        run: |
+          if [[ "$EVENT_TYPE" == "pull_request" ]]; then
+            IMAGE_TAG="pr-${{ github.event.pull_request.number }}"
+          else
+            IMAGE_TAG=$(echo "${GITHUB_REF:11}" | sed "s#/#-#g")  # slash safe branch name
+            if [[ "$IMAGE_TAG" == "main" ]]; then
+              IMAGE_TAG=dev
+            fi
+          fi
+          echo "image_tag=$IMAGE_TAG" >> "$GITHUB_OUTPUT"
+
+      - name: Generate image tag(s)
+        id: image-tags
+        env:
+          IMAGE_TAG: ${{ steps.tag.outputs.image_tag }}
+          SHA: ${{ github.sha }}
+        run: |
+          TAGS="${_IMAGE_NAME}:${IMAGE_TAG}"
+          echo "primary_tag=$TAGS" >> "$GITHUB_OUTPUT"
+          if [[ "$IMAGE_TAG" == "dev" ]]; then
+            SHORT_SHA="$(git rev-parse --short "${SHA}")"
+            TAGS="$TAGS,${_IMAGE_NAME}:${IMAGE_TAG}-${SHORT_SHA}"
+          fi
+          echo "tags=$TAGS" >> "$GITHUB_OUTPUT"
+
+      - name: Build Docker image
+        id: build-docker
+        uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
+        with:
+          file: Dockerfile
+          platforms: linux/amd64
+          push: ${{ github.ref == 'refs/heads/main' }}
+          tags: ${{ steps.image-tags.outputs.tags }}
+
+      - name: Install Cosign
+        if: ${{ github.ref == 'refs/heads/main' }}
+        uses: sigstore/cosign-installer@d58896d6a1865668819e1d91763c7751a165e159 # v3.9.2
+
+      - name: Sign image with Cosign
+        if: ${{ github.ref == 'refs/heads/main' }}
+        id: cosign
+        env:
+          DIGEST: ${{ steps.build-docker.outputs.digest }}
+          TAGS: ${{ steps.image-tags.outputs.tags }}
+        run: |
+          IFS=',' read -r -a tags_array <<< "${TAGS}"
+          images=()
+          for tag in "${tags_array[@]}"; do
+            images+=("${tag}@${DIGEST}")
+          done
+          cosign sign --yes "${images[@]}"
+          echo "images=${images[*]}" >> "$GITHUB_OUTPUT"
+
+      - name: Verify the signed image with Cosign
+        if: ${{ github.ref == 'refs/heads/main' }}
+        env:
+          COSIGN_IMAGES: ${{ steps.cosign.outputs.images }}
+        run: |
+          read -r -a images_array <<< "${COSIGN_IMAGES}"
+          cosign verify \
+            --certificate-identity "${GITHUB_SERVER_URL}/${GITHUB_WORKFLOW_REF}" \
+            --certificate-oidc-issuer "https://token.actions.githubusercontent.com" \
+            "${images_array[@]}"
+
+      - name: Scan Docker image
+        id: container-scan
+        uses: anchore/scan-action@f6601287cdb1efc985d6b765bbf99cb4c0ac29d8 # v7.0.0
+        with:
+          image: ${{ steps.image-tags.outputs.primary_tag }}
+          fail-build: false
+          output-format: sarif
+
+      - name: Upload Grype results to GitHub
+        uses: github/codeql-action/upload-sarif@51f77329afa6477de8c49fc9c7046c15b9a4e79d # v3.29.5
+        with:
+          sarif_file: ${{ steps.container-scan.outputs.sarif }}
+          sha: ${{ contains(github.event_name, 'pull_request') && github.event.pull_request.head.sha || github.sha }}
+          ref: ${{ contains(github.event_name, 'pull_request') && format('refs/pull/{0}/head', github.event.pull_request.number) || github.ref }}

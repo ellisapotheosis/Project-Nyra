@@ -1,0 +1,69 @@
+{
+  "warp_version": "2.0",
+  "config_name": "NYRA MCP Integration",
+  "description": "Complete MCP server integration for Warp terminal on Windows 11",
+  
+  "mcp_servers": {
+    "infisical": {
+      "name": "Infisical MCP",
+      "command": "powershell.exe",
+      "args": [
+        "-NoProfile", 
+        "-ExecutionPolicy", "Bypass",
+        "-File", "C:\\Dev\\Tools\\MCP-Servers\\Infisical\\run-infisical-mcp.ps1"
+      ],
+      "env": {
+        "INFISICAL_ENVIRONMENT": "dev",
+        "INFISICAL_PROJECT_ID": "${INFISICAL_PROJECT_ID}",
+        "INFISICAL_UNIVERSAL_AUTH_CLIENT_ID": "${INFISICAL_UNIVERSAL_AUTH_CLIENT_ID}",
+        "INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET": "${INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET}"
+      },
+      "auto_start": true,
+      "priority": 1
+    },
+    
+    "bitwarden": {
+      "name": "Bitwarden MCP", 
+      "command": "npx",
+      "args": ["-y", "@bitwarden/mcp-server"],
+      "env": {
+        "BW_SESSION": "${BW_SESSION}",
+        "BW_CLIENT_ID": "${BW_CLIENT_ID}",
+        "BW_CLIENT_SECRET": "${BW_CLIENT_SECRET}"
+      },
+      "auto_start": true,
+      "priority": 2
+    },
+
+    "metamcp": {
+      "name": "MetaMCP Orchestrator",
+      "command": "docker",
+      "args": ["compose", "-f", "C:\\Dev\\Tools\\MCP-Servers\\MetaMCP\\docker-compose.yml", "up", "-d"],
+      "health_check": "http://localhost:12008",
+      "auto_start": true,
+      "priority": 3
+    }
+  },
+
+  "warp_integration": {
+    "terminal_hooks": {
+      "on_startup": [
+        "echo '🚀 Initializing NYRA MCP ecosystem...'",
+        "pwsh -Command \"$env:NYRA_MCP_SERVERS_PATH = 'C:\\Dev\\Tools\\MCP-Servers'; & 'C:\\Dev\\Tools\\MCP-Servers\\mcp_manager.ps1' -Action status\"",
+        "echo '✅ MCP servers ready for Warp integration'"
+      ],
+      "on_command": [
+        "# Auto-inject secrets via Infisical MCP when needed"
+      ]
+    },
+    
+    "ai_assistant_config": {
+      "primary_endpoint": "http://localhost:12008/metamcp/nyra-dev/sse",
+      "api_key": "sk_mt_nyra_dev_2025",
+      "fallback_servers": [
+        "http://localhost:8000/mcp",
+        "http://localhost:8001/mcp"
+      ]
+    }
+  }
+}

@@ -1,0 +1,369 @@
+name: 🚀 NYRA MCP Deployment Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'src/**'
+      - 'package.json'
+      - 'docker-compose.yml'
+      - '.github/workflows/**'
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment Environment'
+        required: true
+        default: 'dev'
+        type: choice
+        options:
+          - dev
+          - staging
+          - production
+      skip_tests:
+        description: 'Skip test suite'
+        required: false
+        default: false
+        type: boolean
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}/nyra-mcp
+  INFISICAL_PROJECT_ID: ${{ secrets.INFISICAL_PROJECT_ID }}
+
+jobs:
+  setup-mcp-environment:
+    name: 🔧 Setup MCP Environment
+    runs-on: ubuntu-latest
+    outputs:
+      mcp-config: ${{ steps.mcp-setup.outputs.config }}
+      infisical-token: ${{ steps.auth.outputs.token }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Infisical CLI
+        run: |
+          curl -1sLf 'https://dl.cloudsmith.io/public/infisical/infisical-cli/setup.deb.sh' | sudo -E bash
+          sudo apt-get update && sudo apt-get install -y infisical
+
+      - name: Authenticate with Infisical
+        id: auth
+        run: |
+          export INFISICAL_TOKEN=$(infisical auth universal-auth \
+            --client-id ${{ secrets.INFISICAL_CLIENT_ID }} \
+            --client-secret ${{ secrets.INFISICAL_CLIENT_SECRET }} \
+            --silent --plain)
+          echo "::add-mask::$INFISICAL_TOKEN"
+          echo "token=$INFISICAL_TOKEN" >> $GITHUB_OUTPUT
+
+      - name: Setup MCP Configuration
+        id: mcp-setup
+        env:
+          INFISICAL_TOKEN: ${{ steps.auth.outputs.token }}
+        run: |
+          # Fetch secrets from Infisical
+          infisical export --format=json --env=${{ github.event.inputs.environment || 'dev' }} > secrets.json
+          
+          # Generate MCP configuration
+          cat > mcp-config.json << EOF
+          {
+            "environment": "${{ github.event.inputs.environment || 'dev' }}",
+            "deployment_id": "${{ github.run_id }}",
+            "commit_sha": "${{ github.sha }}",
+            "branch": "${{ github.ref_name }}",
+            "servers": {
+              "filesystem": {
+                "enabled": true,
+                "port": 8000
+              },
+              "github": {
+                "enabled": true,
+                "port": 8001,
+                "token": "$(cat secrets.json | jq -r '.GITHUB_TOKEN')"
+              },
+              "infisical": {
+                "enabled": true,
+                "port": 3001,
+                "environment": "${{ github.event.inputs.environment || 'dev' }}"
+              },
+              "bitwarden": {
+                "enabled": true,
+                "session": "$(cat secrets.json | jq -r '.BW_SESSION')"
+              }
+            }
+          }
+          EOF
+          
+          echo "config=$(cat mcp-config.json | base64 -w 0)" >> $GITHUB_OUTPUT
+
+  security-scan:
+    name: 🔍 Security & Code Quality
+    runs-on: ubuntu-latest
+    needs: setup-mcp-environment
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run ESLint
+        run: npm run lint
+
+      - name: Run Security Audit
+        run: |
+          npm audit --audit-level high
+          npx audit-ci --config .audit-ci.json
+
+      - name: Secret Scanning
+        run: |
+          # Install and run gitleaks
+          wget -O gitleaks.tar.gz https://github.com/gitleaks/gitleaks/releases/latest/download/gitleaks_*_linux_x64.tar.gz
+          tar -xzf gitleaks.tar.gz
+          ./gitleaks detect --source . --verbose
+
+      - name: SAST with CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: javascript
+      
+      - name: CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+
+  test-mcp-integration:
+    name: 🧪 Test MCP Integration
+    runs-on: ubuntu-latest
+    needs: [setup-mcp-environment, security-scan]
+    if: ${{ !github.event.inputs.skip_tests }}
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: testpass
+          POSTGRES_DB: nyra_test
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Setup test environment with secrets
+        env:
+          INFISICAL_TOKEN: ${{ needs.setup-mcp-environment.outputs.infisical-token }}
+          MCP_CONFIG: ${{ needs.setup-mcp-environment.outputs.mcp-config }}
+        run: |
+          # Decode MCP configuration
+          echo "$MCP_CONFIG" | base64 -d > mcp-test-config.json
+          
+          # Setup test database
+          export DATABASE_URL="postgresql://postgres:testpass@localhost:5432/nyra_test"
+          
+          # Run database migrations
+          npm run db:migrate:test
+
+      - name: Run Unit Tests
+        run: |
+          npm run test:unit -- --coverage --verbose
+          
+      - name: Run Integration Tests
+        run: |
+          # Start MCP servers in test mode
+          npm run mcp:start:test &
+          sleep 10
+          
+          # Run integration tests
+          npm run test:integration
+          
+          # Cleanup
+          npm run mcp:stop:test
+
+      - name: Upload Coverage Reports
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./coverage/lcov.info
+          fail_ci_if_error: true
+
+  build-and-push:
+    name: 🏗️ Build & Push Container Images
+    runs-on: ubuntu-latest
+    needs: [setup-mcp-environment, test-mcp-integration]
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      image-digest: ${{ steps.build.outputs.digest }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=sha,prefix=sha-
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build and push Docker image
+        id: build
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./docker/Dockerfile.mcp
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            MCP_CONFIG=${{ needs.setup-mcp-environment.outputs.mcp-config }}
+            BUILD_DATE=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.created'] }}
+            VERSION=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.version'] }}
+
+  deploy:
+    name: 🚀 Deploy to ${{ github.event.inputs.environment || 'dev' }}
+    runs-on: ubuntu-latest
+    needs: [setup-mcp-environment, build-and-push]
+    environment:
+      name: ${{ github.event.inputs.environment || 'dev' }}
+      url: ${{ steps.deploy.outputs.url }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Kubernetes Tools
+        run: |
+          # Install kubectl
+          curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+          chmod +x kubectl && sudo mv kubectl /usr/local/bin/
+
+          # Install Helm
+          curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+
+      - name: Configure Kubernetes Access
+        env:
+          KUBE_CONFIG: ${{ secrets.KUBE_CONFIG_BASE64 }}
+        run: |
+          echo "$KUBE_CONFIG" | base64 -d > $HOME/.kube/config
+          chmod 600 $HOME/.kube/config
+
+      - name: Deploy with Helm
+        id: deploy
+        env:
+          INFISICAL_TOKEN: ${{ needs.setup-mcp-environment.outputs.infisical-token }}
+          IMAGE_DIGEST: ${{ needs.build-and-push.outputs.image-digest }}
+        run: |
+          # Create namespace if it doesn't exist
+          kubectl create namespace nyra-mcp-${{ github.event.inputs.environment || 'dev' }} --dry-run=client -o yaml | kubectl apply -f -
+
+          # Fetch secrets from Infisical for deployment
+          infisical export --format=dotenv --env=${{ github.event.inputs.environment || 'dev' }} > deployment.env
+
+          # Deploy using Helm
+          helm upgrade --install nyra-mcp-${{ github.event.inputs.environment || 'dev' }} ./helm/nyra-mcp \
+            --namespace nyra-mcp-${{ github.event.inputs.environment || 'dev' }} \
+            --set image.repository=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }} \
+            --set image.digest=${{ env.IMAGE_DIGEST }} \
+            --set environment=${{ github.event.inputs.environment || 'dev' }} \
+            --set-file secrets=deployment.env \
+            --wait --timeout=10m
+
+          # Get service URL
+          SERVICE_URL=$(kubectl get service nyra-mcp-${{ github.event.inputs.environment || 'dev' }} \
+            -n nyra-mcp-${{ github.event.inputs.environment || 'dev' }} \
+            -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
+          
+          echo "url=https://$SERVICE_URL" >> $GITHUB_OUTPUT
+
+      - name: Run Smoke Tests
+        run: |
+          # Wait for deployment to be ready
+          kubectl wait --for=condition=available deployment/nyra-mcp-${{ github.event.inputs.environment || 'dev' }} \
+            -n nyra-mcp-${{ github.event.inputs.environment || 'dev' }} --timeout=300s
+
+          # Run smoke tests
+          npm run test:smoke -- --environment=${{ github.event.inputs.environment || 'dev' }}
+
+  notify:
+    name: 📢 Notify Deployment Status
+    runs-on: ubuntu-latest
+    needs: [deploy]
+    if: always()
+    steps:
+      - name: Notify Slack on Success
+        if: ${{ needs.deploy.result == 'success' }}
+        uses: 8398a7/action-slack@v3
+        with:
+          status: success
+          text: |
+            🚀 NYRA MCP deployment to ${{ github.event.inputs.environment || 'dev' }} completed successfully!
+            
+            📦 **Deployment Details:**
+            • Environment: ${{ github.event.inputs.environment || 'dev' }}
+            • Branch: ${{ github.ref_name }}
+            • Commit: ${{ github.sha }}
+            • URL: ${{ needs.deploy.outputs.url }}
+            
+            🔐 **MCP Servers Status:**
+            • Infisical MCP: ✅ Active
+            • Bitwarden MCP: ✅ Active  
+            • GitHub MCP: ✅ Active
+            • MetaMCP Orchestrator: ✅ Active
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+      - name: Notify Slack on Failure
+        if: ${{ needs.deploy.result == 'failure' }}
+        uses: 8398a7/action-slack@v3
+        with:
+          status: failure
+          text: |
+            ❌ NYRA MCP deployment to ${{ github.event.inputs.environment || 'dev' }} failed!
+            
+            📦 **Failure Details:**
+            • Environment: ${{ github.event.inputs.environment || 'dev' }}
+            • Branch: ${{ github.ref_name }}
+            • Commit: ${{ github.sha }}
+            • Workflow: ${{ github.workflow }}
+            
+            👀 **Check the logs:** ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}

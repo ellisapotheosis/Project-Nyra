@@ -1,0 +1,83 @@
+# finish_githubmcp.ps1
+# - Ensures GithubMCP is up on 8001/4041
+# - Emits CONNECTOR_CREATE_FORM.txt with the current ngrok https URL
+# - Configures git *inside the container* to use your GITHUB_TOKEN for GitHub pushes
+
+[CmdletBinding()]
+param(
+  [string]$ProjectRoot = "C:\Dev\Tools\MCP-Servers\GithubMCP",
+  [int]$HostMcpPort    = 8001,
+  [int]$HostNgrokPort  = 4041
+)
+
+Set-StrictMode -Version Latest
+$ErrorActionPreference = 'Stop'
+
+function Wait-Url($u, [int]$minutes=3) {
+  $deadline=(Get-Date).AddMinutes($minutes)
+  while((Get-Date) -lt $deadline){
+    try { $r = Invoke-WebRequest $u -UseBasicParsing -TimeoutSec 5; if($r.StatusCode -eq 200){ return $true } }
+    catch { Start-Sleep -Milliseconds 600 }
+    Start-Sleep -Milliseconds 600
+  }
+  return $false
+}
+
+# 0) (Re)start stack if needed
+Push-Location $ProjectRoot
+try {
+  # If not running, bring it up (idempotent)
+  docker compose up -d --build | Out-Null
+} finally { Pop-Location }
+
+# 1) Health checks
+$healthUrl = "http://127.0.0.1:$HostMcpPort/"
+$ngrokStatus = "http://127.0.0.1:$HostNgrokPort/status"
+$ngrokApi    = "http://127.0.0.1:$HostNgrokPort/api/tunnels"
+
+if (-not (Wait-Url $healthUrl))   { throw "MCP not healthy at $healthUrl" }
+if (-not (Wait-Url $ngrokStatus)) { throw "ngrok admin not healthy at :$HostNgrokPort" }
+
+# 2) Get https tunnel and emit connector form
+$tunnels = Invoke-RestMethod $ngrokApi
+$pub = $tunnels.tunnels | Where-Object { $_.public_url -like 'https://*' } | Select-Object -First 1 -ExpandProperty public_url
+if (-not $pub) { throw "No https tunnel found at $ngrokApi" }
+
+$connectorUrl = "$pub/mcp"
+$formPath = Join-Path $ProjectRoot 'CONNECTOR_CREATE_FORM.txt'
+@"
+Name:
+Nyra Git/GitHub
+
+Description:
+Filesystem + git + git-lfs + GitHub (repo/branch/PR) tools.
+
+Connector URL:
+$connectorUrl
+
+Authentication:
+No Auth
+"@ | Set-Content -Encoding UTF8 -LiteralPath $formPath
+
+# 3) Configure git in the *container* to auto-use the PAT for GitHub over HTTPS
+#    (rewrites https://github.com/... to https://x-access-token:${GITHUB_TOKEN}@github.com/...)
+$cmd = @'
+set -e
+git config --global url."https://x-access-token:${GITHUB_TOKEN}@github.com/".insteadOf https://github.com/
+git config --global user.name "${GIT_AUTHOR_NAME:-Nyra}"
+git config --global user.email "${GIT_AUTHOR_EMAIL:-nyra@example.com}"
+git config --global push.default simple
+git --version
+git lfs version || true
+'@
+$bytes = [System.Text.Encoding]::UTF8.GetBytes($cmd)
+$base64 = [Convert]::ToBase64String($bytes)
+
+# feed the script to /bin/sh -lc via base64 to avoid quoting hell on Windows
+docker compose --project-directory $ProjectRoot exec -T mcp /bin/sh -lc "echo $base64 | base64 -d | /bin/sh"
+
+Write-Host ""
+Write-Host "✅ GithubMCP is up."
+Write-Host "🔗 Public MCP endpoint: $connectorUrl"
+Write-Host "📝 Paste EXACTLY from: $formPath"
+Write-Host "🧰 Git inside container is now configured to use \$GITHUB_TOKEN for pushes to github.com."

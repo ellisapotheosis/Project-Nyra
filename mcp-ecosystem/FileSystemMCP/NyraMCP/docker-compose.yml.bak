@@ -1,0 +1,35 @@
+services:
+  mcp:
+    build:
+      context: .
+      dockerfile: Dockerfile.mcp
+    container_name: nyramcp-mcp-1
+    environment:
+      - BASE_DIR=/data
+      - MCP_API_KEY=apotheosis2142
+    volumes:
+      - ./data:/data
+    ports:
+      - "8000:8000"
+    networks: [mcpnet]
+    restart: unless-stopped
+
+  ngrok:
+    image: ngrok/ngrok:latest
+    container_name: nyramcp-ngrok-1
+    depends_on:
+      - mcp
+    ports:
+      - "4040:4040"
+    command: >
+      http --log=stdout
+      --web-port 4040
+      mcp:8000
+    environment:
+      - NGROK_AUTHTOKEN=342u1RKgsUdqKdsFAULKog4bYOi_eWjUXBr6WrAJefn7UjsV
+      - NGROK_API_KEY=342uszUwmwbdkFLeb4434b0iRLC_2SFP9wDMgcruZBbUaejBz
+    networks: [mcpnet]
+    restart: unless-stopped
+
+networks:
+  mcpnet: {}

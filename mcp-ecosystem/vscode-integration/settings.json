@@ -1,0 +1,74 @@
+{
+  "mcp.servers": {
+    "nyra-metamcp": {
+      "command": "node",
+      "args": ["C:\\Dev\\Tools\\MCP-Servers\\MetaMCP\\src\\index.js"],
+      "env": {
+        "METAMCP_CONFIG_PATH": "C:\\Dev\\Tools\\MCP-Servers\\mcp-servers-config.json",
+        "METAMCP_PORT": "12008",
+        "METAMCP_API_KEY": "sk_mt_nyra_dev_2025"
+      }
+    },
+    "nyra-infisical": {
+      "command": "powershell.exe",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "C:\\Dev\\Tools\\MCP-Servers\\Infisical\\run-infisical-mcp.ps1"
+      ],
+      "env": {
+        "INFISICAL_ENVIRONMENT": "dev",
+        "INFISICAL_PROJECT_ID": "${env:INFISICAL_PROJECT_ID}",
+        "INFISICAL_UNIVERSAL_AUTH_CLIENT_ID": "${env:INFISICAL_UNIVERSAL_AUTH_CLIENT_ID}",
+        "INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET": "${env:INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET}"
+      }
+    },
+    "nyra-bitwarden": {
+      "command": "npx",
+      "args": ["-y", "@bitwarden/mcp-server"],
+      "env": {
+        "BW_SESSION": "${env:BW_SESSION}",
+        "BW_CLIENT_ID": "${env:BW_CLIENT_ID}",
+        "BW_CLIENT_SECRET": "${env:BW_CLIENT_SECRET}"
+      }
+    }
+  },
+  "mcp.clientOptions": {
+    "timeout": 30000,
+    "retries": 3,
+    "healthCheck": true,
+    "healthCheckInterval": 30000
+  },
+  "editor.inlineSuggest.enabled": true,
+  "editor.suggest.insertMode": "replace",
+  "workbench.commandPalette.experimental.suggestCommands": true,
+  "chat.experimental.implicitContext": true,
+  "github.copilot.enable": {
+    "*": true,
+    "yaml": true,
+    "plaintext": true,
+    "markdown": true,
+    "json": true,
+    "jsonc": true,
+    "dockerfile": true,
+    "powershell": true
+  },
+  "extensions.experimental.affinity": {
+    "claude-dev": 1,
+    "continue": 1,
+    "codeium": 1
+  },
+  "nyra.mcp.autoStart": [
+    "nyra-infisical",
+    "nyra-bitwarden",
+    "nyra-metamcp"
+  ],
+  "nyra.mcp.priorityOrder": [
+    "secrets",
+    "filesystem",
+    "git",
+    "docker"
+  ]
+}

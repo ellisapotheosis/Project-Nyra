@@ -1,0 +1,127 @@
+{
+  "orchestrators": {
+    "primary": {
+      "name": "Primary Orchestrator",
+      "responsibilities": [
+        "tool/MCP routing",
+        "policy",
+        "inter-agent comms"
+      ],
+      "framework": "LangGraph"
+    },
+    "taskgen": {
+      "name": "TaskGen Orchestrator",
+      "responsibilities": [
+        "goal→task DAGs",
+        "acceptance tests",
+        "convergence"
+      ],
+      "framework": "AutoGen2"
+    }
+  },
+  "infrastructure": {
+    "cloud": {
+      "primary": "Koyeb",
+      "secondary": "VPS as needed"
+    },
+    "secrets": {
+      "planned": "Infisical",
+      "current": "Bitwarden"
+    },
+    "local": {
+      "gpus": [
+        "RTX 5090",
+        "RTX 3090",
+        "RTX 3060"
+      ],
+      "tunnel": "Cloudflare Tunnel under ratehunter.net"
+    }
+  },
+  "description": "NYRA - End-to-End AI Mortgage Assistant",
+  "architecture": "split-orchestrator",
+  "memory": {
+    "chromadb": {
+      "type": "Vector Store",
+      "description": "Hot local vectors"
+    },
+    "graphiti": {
+      "type": "Knowledge Graph",
+      "description": "Relationship mapping"
+    },
+    "memos": {
+      "type": "memOS",
+      "description": "MemoryTensor integration"
+    },
+    "falkordb": {
+      "type": "Graph Database",
+      "description": "Primary graph storage"
+    }
+  },
+  "created": "2025-10-17 15:36:56",
+  "mortgage_ops": {
+    "integrations": [
+      "pricing engines",
+      "LOS/CRM",
+      "OCR/extraction",
+      "email/SMS",
+      "compliance logging"
+    ],
+    "workflow": [
+      "intake",
+      "pre-qual",
+      "pricing",
+      "docs",
+      "LOS",
+      "disclosures",
+      "UW/appraisal",
+      "conditions",
+      "rate locks",
+      "CTC",
+      "post-close"
+    ]
+  },
+  "version": "1.0.0",
+  "agents": {
+    "morph-dspy": {
+      "role": "Minimal-diff refactoring",
+      "name": "Morph/DSPy",
+      "capabilities": [
+        "code optimization",
+        "refactoring",
+        "performance"
+      ]
+    },
+    "voice": {
+      "integration": [
+        "Voicemod",
+        "Kyutai Unmute"
+      ],
+      "role": "Voice interaction handling",
+      "name": "Voice Agent",
+      "capabilities": [
+        "speech recognition",
+        "TTS",
+        "voice UI"
+      ]
+    },
+    "lead-coder": {
+      "role": "Primary development agent",
+      "name": "Lead Coder",
+      "capabilities": [
+        "code generation",
+        "architecture",
+        "reviews"
+      ]
+    },
+    "debug-aider": {
+      "role": "Debugging and issue resolution",
+      "name": "Debug/Aider",
+      "capabilities": [
+        "debugging",
+        "error resolution",
+        "testing"
+      ]
+    }
+  },
+  "name": "Project-Nyra"
+}

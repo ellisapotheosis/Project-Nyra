@@ -1,0 +1,22 @@
+{
+  "name": "nyra-claude-flow",
+  "nyra_integration": {
+    "base_path": "C:\\Dev",
+    "enable_voice": true,
+    "enable_workflow": true,
+    "enable_secrets": true
+  },
+  "description": "NYRA AI-Powered Mortgage Assistant - Claude-flow Integration",
+  "mcp_servers": {
+    "enabled": true,
+    "auto_start": false,
+    "timeout": 30000
+  },
+  "version": "1.0.0",
+  "logging": {
+    "file": "C:\\Dev\\claude-flow\\logs\\claude-flow.log",
+    "console": true,
+    "level": "info"
+  },
+  "environment": "development"
+}

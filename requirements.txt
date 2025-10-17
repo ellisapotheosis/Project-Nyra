@@ -1,0 +1,26 @@
+# NYRA Core Dependencies
+langgraph>=0.1.0
+autogen>=0.2.0
+openai>=1.0.0
+anthropic>=0.25.0
+
+# Memory Systems
+chromadb>=0.4.0
+redis>=4.5.0
+psycopg2-binary>=2.9.0
+
+# Web Framework
+fastapi>=0.100.0
+streamlit>=1.28.0
+gradio>=4.0.0
+
+# Mortgage-Specific
+pandas>=2.0.0
+numpy>=1.24.0
+pydantic>=2.0.0
+
+# Development
+pytest>=7.4.0
+black>=23.0.0
+flake8>=6.0.0
+mypy>=1.5.0

@@ -1,0 +1,8 @@
+FROM python:3.11-slim
+ENV PYTHONUNBUFFERED=1 BASE_DIR=/data
+WORKDIR /app
+COPY mcp_app /app/mcp_app
+RUN pip install --no-cache-dir fastmcp==2.12.4 fastapi uvicorn
+VOLUME ["/data"]
+EXPOSE 8000
+CMD ["uvicorn","mcp_app.server:app","--host","0.0.0.0","--port","8000"]
