@@ -1,0 +1,286 @@
+version: '3.8'
+
+# Project NYRA - Master Docker Compose Infrastructure
+# Consolidates all scattered Docker configurations into unified system
+# Generated: 2025-10-17T15:15:00Z
+
+networks:
+  nyra-network:
+    driver: bridge
+    name: nyra-network
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+volumes:
+  # MetaMCP Data
+  metamcp-data:
+    name: nyra-metamcp-data
+  
+  # Memory Stack Data  
+  qdrant-data:
+    name: nyra-qdrant-data
+  neo4j-data:
+    name: nyra-neo4j-data
+  
+  # Database Data
+  postgres-data:
+    name: nyra-postgres-data
+    
+  # Application Data
+  nyra-webapp-data:
+    name: nyra-webapp-data
+
+services:
+  # MetaMCP Proxy - Central MCP orchestration hub
+  metamcp:
+    image: metatool-ai/metamcp:latest
+    container_name: nyra-metamcp
+    restart: unless-stopped
+    ports:
+      - "12008:12008"
+    volumes:
+      - metamcp-data:/app/data
+      - ../config-consolidated/metamcp:/app/config:ro
+    environment:
+      - METAMCP_CONFIG_PATH=/app/config/unified-metamcp-config.json
+      - METAMCP_PORT=12008
+      - NODE_ENV=production
+    networks:
+      - nyra-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:12008/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    depends_on:
+      - qdrant-mcp
+      - graphiti-mcp
+      - openmemory
+
+  # Vector Memory - Qdrant MCP Server  
+  qdrant-mcp:
+    image: qdrant/qdrant:latest
+    container_name: nyra-qdrant-mcp
+    restart: unless-stopped
+    ports:
+      - "8066:6333"
+      - "8067:6334"  
+    volumes:
+      - qdrant-data:/qdrant/storage
+    environment:
+      - QDRANT__SERVICE__HTTP_PORT=6333
+      - QDRANT__SERVICE__GRPC_PORT=6334
+    networks:
+      - nyra-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6333/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Knowledge Graph - Graphiti MCP Server
+  graphiti-mcp:
+    image: neo4j:5.15
+    container_name: nyra-graphiti-mcp
+    restart: unless-stopped
+    ports:
+      - "8000:7474"
+      - "8001:7687"
+    volumes:
+      - neo4j-data:/data
+    environment:
+      - NEO4J_AUTH=neo4j/nyra-local-dev
+      - NEO4J_PLUGINS=["graph-data-science"]
+      - NEO4J_apoc_export_file_enabled=true
+      - NEO4J_apoc_import_file_enabled=true
+    networks:
+      - nyra-network
+    healthcheck:
+      test: ["CMD", "cypher-shell", "-u", "neo4j", "-p", "nyra-local-dev", "RETURN 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Memory Bus - OpenMemory MCP Server
+  openmemory:
+    image: python:3.11-slim
+    container_name: nyra-openmemory
+    restart: unless-stopped
+    ports:
+      - "8765:8765"
+    working_dir: /app
+    command: >
+      sh -c "
+        pip install openmemory fastapi uvicorn &&
+        python -m openmemory.server --host 0.0.0.0 --port 8765 --mcp-path /mcp/nyra/sse/nyra
+      "
+    environment:
+      - PYTHONUNBUFFERED=1
+      - OPENMEMORY_DB_PATH=/app/data/memories.db
+    volumes:
+      - ./data/openmemory:/app/data
+    networks:
+      - nyra-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8765/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # NYRA Voice Processing
+  nyra-voice:
+    build:
+      context: ../../nyra-voice
+      dockerfile: Dockerfile
+    container_name: nyra-voice-service
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - VOICE_SERVICE_PORT=8080
+      - VOICE_ENGINE=voicemod
+    networks:
+      - nyra-network
+    volumes:
+      - ../../nyra-voice/config:/app/config:ro
+    depends_on:
+      - postgres
+
+  # NYRA CRM System
+  nyra-crm:
+    build:
+      context: ../../nyra-webapp/nyra-CRM
+      dockerfile: Dockerfile
+    container_name: nyra-crm-service
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://nyra_user:nyra_pass@postgres:5432/nyra_crm
+      - METAMCP_URL=http://metamcp:12008
+    networks:
+      - nyra-network
+    volumes:
+      - nyra-webapp-data:/app/data
+    depends_on:
+      - postgres
+      - metamcp
+
+  # Mortgage Services
+  mortgage-services:
+    build:
+      context: ../../nyra-webapp/nyra-front-end/mortgage-services
+      dockerfile: Dockerfile
+    container_name: nyra-mortgage-services
+    restart: unless-stopped
+    ports:
+      - "3001:3000"
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://nyra_user:nyra_pass@postgres:5432/nyra_mortgage
+      - CRM_SERVICE_URL=http://nyra-crm:3000
+    networks:
+      - nyra-network
+    depends_on:
+      - postgres
+      - nyra-crm
+
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15
+    container_name: nyra-postgres
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=nyra_main
+      - POSTGRES_USER=nyra_user  
+      - POSTGRES_PASSWORD=nyra_pass
+      - POSTGRES_MULTIPLE_DATABASES=nyra_crm,nyra_mortgage,nyra_archon
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ../scripts/init-multiple-databases.sh:/docker-entrypoint-initdb.d/init-multiple-databases.sh:ro
+    networks:
+      - nyra-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U nyra_user -d nyra_main"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # Archon Orchestrator (Optional - activate with profile)
+  archon:
+    build:
+      context: ../../archive/2025-10-13-original-structure/nyra-core/nyra-orchestration/archon
+      dockerfile: Dockerfile
+    container_name: nyra-archon
+    restart: unless-stopped
+    ports:
+      - "4000:4000"
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://nyra_user:nyra_pass@postgres:5432/nyra_archon  
+      - METAMCP_URL=http://metamcp:12008
+      - ARCHON_PORT=4000
+    networks:
+      - nyra-network
+    depends_on:
+      - postgres
+      - metamcp
+    profiles:
+      - archon
+      - full
+
+  # GitHub MCP Server (Dev Tools)
+  github-mcp:
+    image: node:18-alpine
+    container_name: nyra-github-mcp
+    restart: unless-stopped
+    ports:
+      - "3876:3876"
+    working_dir: /app
+    command: >
+      sh -c "
+        npm install -g @modelcontextprotocol/server-github &&
+        npx @modelcontextprotocol/server-github --port 3876
+      "
+    environment:
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+      - MCP_SERVER_PORT=3876
+    networks:
+      - nyra-network
+    profiles:
+      - development
+      - full
+
+  # Infisical MCP Server (Secrets Management)  
+  infisical-mcp:
+    image: node:18-alpine
+    container_name: nyra-infisical-mcp
+    restart: unless-stopped
+    ports:
+      - "3877:3877"
+    working_dir: /app
+    command: >
+      sh -c "
+        npm install -g @infisical/mcp &&
+        npx @infisical/mcp --port 3877
+      "
+    environment:
+      - INFISICAL_ENVIRONMENT=${INFISICAL_ENVIRONMENT:-dev}
+      - INFISICAL_PROJECT_ID=${INFISICAL_PROJECT_ID}
+      - INFISICAL_UNIVERSAL_AUTH_CLIENT_ID=${INFISICAL_UNIVERSAL_AUTH_CLIENT_ID}
+      - INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET=${INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET}
+      - MCP_SERVER_PORT=3877
+    networks:
+      - nyra-network
+    profiles:
+      - security
+      - full
+
+# Override configurations for different environments
+# Use: docker-compose --profile development up
+# Use: docker-compose --profile production up  
+# Use: docker-compose --profile full up (all services)
