@@ -1,0 +1,7 @@
+   mcp:
+     endpoints:
+       primary: wss://mcp.kilo.quantum/v3
+       fallback: wss://backup.mcp.kilo.quantum/v3
+     security:
+       quantum_tunneling: enabled
+       entanglement_verification: strict

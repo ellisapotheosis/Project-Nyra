@@ -1,0 +1,1 @@
+Initialize Chroma scratchpad with example notes and tag schema. Expose a simple Python API to read/write memories.

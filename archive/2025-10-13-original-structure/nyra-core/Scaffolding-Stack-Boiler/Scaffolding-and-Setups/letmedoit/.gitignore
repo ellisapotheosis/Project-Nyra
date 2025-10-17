@@ -1,0 +1,11 @@
+*venv*
+/files*
+/temp*
+/Documents*
+/history*
+/plugins*
+*__pycache__*
+*.DS_Store*
+.python-version
+.cache/*
+coding/*
