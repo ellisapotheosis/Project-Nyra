@@ -1,0 +1,54 @@
+{
+  "namespaces": [
+    {
+      "name": "memory-core",
+      "servers": [
+        "qdrant-vector",
+        "graphiti-kg"
+      ],
+      "toolFilter": {
+        "mode": "allow",
+        "tools": [
+          "qdrant-store*",
+          "qdrant-find*",
+          "search_nodes",
+          "search_facts",
+          "get_episodes",
+          "add_episode",
+          "add_edge",
+          "clear_graph"
+        ]
+      }
+    },
+    {
+      "name": "memory-bus",
+      "servers": [
+        "openmemory"
+      ],
+      "toolFilter": {
+        "mode": "allow",
+        "tools": [
+          "add_memories",
+          "search_memory",
+          "list_memories",
+          "delete_all_memories"
+        ]
+      }
+    },
+    {
+      "name": "memory-all",
+      "servers": [
+        "qdrant-vector",
+        "graphiti-kg",
+        "openmemory"
+      ],
+      "toolFilter": {
+        "mode": "deny",
+        "tools": [
+          "*danger*",
+          "*delete*"
+        ]
+      }
+    }
+  ]
+}

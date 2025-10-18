@@ -1,0 +1,19 @@
+{
+  "mcpServers": {
+    "openmemory": {
+      "type": "SSE",
+      "url": "http://openmemory:8765/mcp/nyra/sse/nyra",
+      "description": "Local-first dev memory bus"
+    },
+    "qdrant-vector": {
+      "type": "SSE",
+      "url": "http://qdrant-mcp:8066/sse",
+      "description": "Vector memory (FastEmbed)"
+    },
+    "graphiti-kg": {
+      "type": "SSE",
+      "url": "http://graphiti-mcp:8000/sse",
+      "description": "Temporal knowledge graph"
+    }
+  }
+}
