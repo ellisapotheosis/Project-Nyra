@@ -1,0 +1,19 @@
+{
+  "mcpServers": {
+    "NYRA-Memory-Core": {
+      "url": "http://localhost:12008/metamcp/nyra-core/sse",
+      "apiKey": "nyra-local-key",
+      "description": "Core memory system (Qdrant vectors + Graphiti knowledge graph)"
+    },
+    "NYRA-Memory-Bus": {
+      "url": "http://localhost:12008/metamcp/nyra-bus/sse", 
+      "apiKey": "nyra-local-key",
+      "description": "Development memory bus (OpenMemory)"
+    },
+    "NYRA-Memory-All": {
+      "url": "http://localhost:12008/metamcp/nyra-all/sse",
+      "apiKey": "nyra-local-key", 
+      "description": "Full memory access (all systems with safety filters)"
+    }
+  }
+}
