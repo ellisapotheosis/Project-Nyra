@@ -1,0 +1,14 @@
+version: "3.9"
+services:
+  vllm:
+    image: vllm/vllm-openai:latest
+    container_name: nyra-vllm
+    runtime: nvidia
+    environment: [ "HUGGING_FACE_HUB_TOKEN=${HF_TOKEN}" ]
+    command: >
+      --host 0.0.0.0 --port 8000
+      --model NousResearch/Meta-Llama-3-8B-Instruct
+      --dtype auto
+      --api-key token-abc123
+    ports: ["8000:8000"]
+    volumes: [ "${USERPROFILE}/.cache/huggingface:/root/.cache/huggingface" ]

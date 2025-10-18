@@ -1,0 +1,31 @@
+{
+  "endpoints": [
+    {
+      "name": "nyra-core",
+      "namespace": "memory-core",
+      "transport": "SSE",
+      "auth": {
+        "type": "apiKey",
+        "key": "${METAMCP_API_KEY}"
+      }
+    },
+    {
+      "name": "nyra-bus",
+      "namespace": "memory-bus",
+      "transport": "SSE",
+      "auth": {
+        "type": "apiKey",
+        "key": "${METAMCP_API_KEY}"
+      }
+    },
+    {
+      "name": "nyra-all",
+      "namespace": "memory-all",
+      "transport": "SSE",
+      "auth": {
+        "type": "apiKey",
+        "key": "${METAMCP_API_KEY}"
+      }
+    }
+  ]
+}
