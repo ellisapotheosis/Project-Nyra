@@ -1,0 +1,37 @@
+version: "3.9"
+services:
+  metamcp:
+    image: ghcr.io/metatool-ai/metamcp:latest
+    restart: unless-stopped
+    env_file: [ "../config/metamcp.env" ]
+    ports: [ "12008:12008" ]
+    volumes: [ "metamcp_data:/app/data" ]
+  n8n:
+    image: n8nio/n8n:latest
+    restart: unless-stopped
+    environment:
+      N8N_HOST: localhost
+      N8N_PORT: 5678
+      N8N_PROTOCOL: http
+      GENERIC_TIMEZONE: America/Los_Angeles
+    volumes: [ "n8n_data:/home/node/.n8n" ]
+    ports: [ "5678:5678" ]
+  flowise:
+    image: flowiseai/flowise:latest
+    restart: unless-stopped
+    environment:
+      PORT: 3001
+      FLOWISE_USERNAME: admin
+      FLOWISE_PASSWORD: admin
+      DATABASE_PATH: /root/.flowise
+    volumes: [ "flowise_data:/root/.flowise" ]
+    ports: [ "3001:3001" ]
+  dify:
+    image: langgenius/dify:latest
+    restart: unless-stopped
+    env_file: [ "../config/dify.env" ]
+    ports: [ "8000:80" ]
+volumes:
+  metamcp_data: {}
+  n8n_data: {}
+  flowise_data: {}

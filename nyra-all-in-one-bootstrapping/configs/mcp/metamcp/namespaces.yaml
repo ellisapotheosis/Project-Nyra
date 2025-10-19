@@ -1,0 +1,7 @@
+namespaces:
+  nyra-core:
+    servers:
+      memory:
+        type: STDIO
+        command: "npx"
+        args: ["-y", "@modelcontextprotocol/server-memory"]
