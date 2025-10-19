@@ -1,0 +1,36 @@
+version: "3.9"
+services:
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:main
+    restart: unless-stopped
+    environment:
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-replace_me}
+    volumes: [ "owui_data:/app/backend/data" ]
+    ports: [ "3000:8080" ]
+    depends_on: [ mcpo, pipelines ]
+  pipelines:
+    image: ghcr.io/open-webui/pipelines:latest
+    restart: unless-stopped
+    environment: { PORT: 9099 }
+    ports: [ "9099:9099" ]
+  mcpo:
+    image: ghcr.io/open-webui/mcpo:latest
+    restart: unless-stopped
+    environment:
+      MCP_SERVER_COMMAND: "uvx mcp-proxy --transport streamablehttp http://metamcp:12008/metamcp/default/mcp"
+      API_ACCESS_TOKEN: ${METAMCP_API_KEY:-changeme}
+    ports: [ "3339:3339" ]
+  lobechat:
+    image: lobehub/lobe-chat:latest
+    restart: unless-stopped
+    environment:
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-replace_me}
+    ports: [ "3210:3210" ]
+  librechat:
+    image: ghcr.io/danny-avila/librechat:latest
+    restart: unless-stopped
+    environment:
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-replace_me}
+    ports: [ "3333:3000" ]
+volumes:
+  owui_data: {}

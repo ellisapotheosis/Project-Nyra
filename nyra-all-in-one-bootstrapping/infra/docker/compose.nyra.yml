@@ -1,0 +1,69 @@
+version: "3.8"
+name: nyra
+networks: { nyra-net: { name: ${NYRA_NETWORK:-nyra-net} } }
+volumes: { prometheus-data: {}, grafana-data: {} }
+services:
+  litellm:
+    image: ghcr.io/berriai/litellm:latest
+    container_name: nyra-litellm
+    command: ["--config", "/app/config/config.yaml"]
+    ports: ["${LITELLM_PORT:-4000}:4000"]
+    environment: [ "OPENAI_API_KEY=${OPENAI_API_KEY}", "ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}", "GEMINI_API_KEY=${GEMINI_API_KEY}" ]
+    volumes: [ "../../nyra-configs/litellm/config.yaml:/app/config/config.yaml:ro" ]
+    networks: [ nyra-net ]
+    profiles: [ "gateway" ]
+  archgw:
+    image: ghcr.io/katanemox/archgw:latest
+    container_name: nyra-archgw
+    depends_on: [ metamcp ]
+    ports: ["${ARCHGW_PORT:-13080}:8080"]
+    environment: { ARCHGW_CONFIG_PATH: "/etc/archgw/config.yaml" }
+    volumes: [ "../../nyra-configs/archgw/config.yaml:/etc/archgw/config.yaml:ro" ]
+    networks: [ nyra-net ]
+    profiles: [ "gateway" ]
+  metamcp:
+    image: acuvity/mcp-server-metatool-app:latest
+    container_name: nyra-metamcp
+    ports: ["${METAMCP_PORT:-12008}:12008"]
+    environment: [ "APP_URL=${METAMCP_APP_URL:-http://localhost:12008}", "BETTER_AUTH_SECRET=${BETTER_AUTH_SECRET}", "METAMCP_API_KEY=${METAMCP_API_KEY}", "POSTGRES_PASSWORD=${POSTGRES_PASSWORD}" ]
+    volumes: [ "../../configs/mcp/metamcp/namespaces.yaml:/app/config/namespaces.yaml:ro" ]
+    networks: [ nyra-net ]
+    profiles: [ "mcp-core" ]
+  archon:
+    image: ghcr.io/archon-labs/archon:latest
+    container_name: nyra-archon
+    environment: [ "NODE_ENV=production" ]
+    ports: ["8051:8051"]
+    networks: [ nyra-net ]
+    profiles: [ "mcp-core" ]
+  openwebui:
+    image: ghcr.io/open-webui/open-webui:main
+    container_name: nyra-openwebui
+    ports: ["${OPENWEBUI_PORT:-3000}:8080"]
+    environment: [ "WEBUI_NAME=Project Nyra", "ENABLE_OPENAI_API=True", "OPENAI_API_BASE_URL=http://litellm:4000/v1", "OPENAI_API_KEY=${LITELLM_API_KEY}" ]
+    depends_on: [ litellm ]
+    networks: [ nyra-net ]
+    profiles: [ "ui" ]
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: nyra-prometheus
+    command: ["--config.file=/etc/prometheus/prometheus.yml", "--storage.tsdb.retention.time=15d"]
+    volumes: [ "./prometheus.nyra.yml:/etc/prometheus/prometheus.yml:ro", "prometheus-data:/prometheus" ]
+    ports: ["${PROM_PORT:-9090}:9090"]
+    networks: [ nyra-net ]
+    profiles: [ "metrics" ]
+  grafana:
+    image: grafana/grafana:latest
+    container_name: nyra-grafana
+    ports: ["${GRAFANA_PORT:-3001}:3000"]
+    volumes: [ "grafana-data:/var/lib/grafana", "../../nyra-configs/grafana/provisioning:/etc/grafana/provisioning" ]
+    networks: [ nyra-net ]
+    profiles: [ "metrics" ]
+  dcgm:
+    image: nvcr.io/nvidia/k8s/dcgm-exporter:4.4.1-4.6.0-ubuntu22.04
+    container_name: nyra-dcgm
+    runtime: nvidia
+    cap_add: ["SYS_ADMIN"]
+    ports: ["${DCGM_EXPORTER_PORT:-9400}:9400"]
+    networks: [ nyra-net ]
+    profiles: [ "gpu-node" ]
