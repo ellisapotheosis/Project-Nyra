@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:docs.anthropic.com)",
+      "mcp__ruv-swarm",
+      "mcp__claude-flow"
+    ],
+    "deny": []
+  }
+}
