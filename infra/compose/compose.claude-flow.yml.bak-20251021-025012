@@ -1,0 +1,31 @@
+version: "3.9"
+
+networks:
+  nyra-network:
+    external: true
+
+services:
+  claude-flow:
+    # If you have your own image, swap it here. This is a placeholder.
+    # For local dev, you can build a tiny FastAPI/Node shim that proxies to Anthropic.
+    env_file:
+      - ../.env
+    build:
+      context: ../../nyra-agents/claude-flow
+      dockerfile: Dockerfile
+    container_name: claude-flow
+    restart: unless-stopped
+    ports:
+      - "12018:12018"
+    env_file:`r`n      -     
+    environment:
+      # Default: Haiku for cheap orchestration; override to sonnet when needed
+      CLAUDE_MODEL: ${CLAUDE_MODEL:-claude-3-7-haiku}
+      CLAUDE_ESCALATE_MODEL: ${CLAUDE_ESCALATE_MODEL:-claude-3-7-sonnet}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      # optional toggles
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+    networks:
+      - nyra-network
+
+

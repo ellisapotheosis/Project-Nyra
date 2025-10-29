@@ -1,0 +1,20 @@
+[2025-10-21 16:45:59] [INFO] 🚀 Starting NYRA Claude-Flow setup (Mode: fresh, Type: local)
+[2025-10-21 16:45:59] [INFO] 🔍 Checking system prerequisites...
+[2025-10-21 16:45:59] [SUCCESS] ✅ PowerShell 7.6.0-preview.5
+[2025-10-21 16:45:59] [SUCCESS] ✅ Node.js v22.20.0
+[2025-10-21 16:45:59] [SUCCESS] ✅ Python Python 3.13.9
+[2025-10-21 16:46:15] [WARN] ⚠️  UV not found (optional for Python package management)
+[2025-10-21 16:46:15] [SUCCESS] ✅ Git git version 2.51.1.windows.1
+[2025-10-21 16:46:15] [SUCCESS] ✅ All prerequisites satisfied
+[2025-10-21 16:46:15] [INFO] 📦 Installing Python dependencies...
+[2025-10-21 16:46:32] [INFO] Using pip for Python package management
+[2025-10-21 16:46:32] [INFO] Installing llama-index...
+[2025-10-21 16:47:01] [WARN] ⚠️  Failed to install llama-index: The term 'pip' is not recognized as a name of a cmdlet, function, script file, or executable program.
+Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+[2025-10-21 16:47:01] [INFO] Installing llama-index-readers-file...
+[2025-10-21 16:47:21] [WARN] ⚠️  Failed to install llama-index-readers-file: The term 'pip' is not recognized as a name of a cmdlet, function, script file, or executable program.
+Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+[2025-10-21 16:47:21] [INFO] Installing llama-index-embeddings-openai...
+[2025-10-21 16:48:01] [WARN] ⚠️  Failed to install llama-index-embeddings-openai: The term 'pip' is not recognized as a name of a cmdlet, function, script file, or executable program.
+Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+[2025-10-21 16:48:01] [INFO] Installing llama-index-vector-stores-chroma...

@@ -1,0 +1,70 @@
+version: "3.9"
+
+# Master compose file that includes all component files with profiles
+name: nyra
+
+include:
+  - compose.metamcp.yml
+  - compose.memory.yml
+  - compose.ui.yml
+  - compose.orchestration.yml
+
+# Define profiles for each service group
+x-metamcp-profile: &metamcp-profile
+  profiles: ["metamcp", "all"]
+
+x-memory-profile: &memory-profile
+  profiles: ["memory", "all"]
+
+x-ui-profile: &ui-profile
+  profiles: ["ui", "all"]
+
+x-orchestration-profile: &orchestration-profile
+  profiles: ["orchestration", "all"]
+
+# Add profiles to imported services
+services:
+  # MetaMCP services
+  metamcp:
+    <<: *metamcp-profile
+  caddy:
+    <<: *metamcp-profile
+  infisical-mcp:
+    <<: *metamcp-profile
+  bitwarden-mcp:
+    <<: *metamcp-profile
+
+  # Memory services
+  qdrant:
+    <<: *memory-profile
+  postgres:
+    <<: *memory-profile
+  neo4j:
+    <<: *memory-profile
+  redis:
+    <<: *memory-profile
+
+  # UI services
+  archon-frontend:
+    <<: *ui-profile
+  open-webui:
+    <<: *ui-profile
+  pipelines-ui:
+    <<: *ui-profile
+  librechat:
+    <<: *ui-profile
+
+  # Orchestration services
+  claude-flow:
+    <<: *orchestration-profile
+  archon-server:
+    <<: *orchestration-profile
+  archon-mcp:
+    <<: *orchestration-profile
+  archon-agents:
+    <<: *orchestration-profile
+
+networks:
+  nyra-network:
+    name: nyra-network
+    driver: bridge

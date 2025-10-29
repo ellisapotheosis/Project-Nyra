@@ -1,0 +1,10 @@
+FROM python:3.11-slim
+ENV PYTHONUNBUFFERED=1 BASE_DIR=/data
+WORKDIR /app
+RUN apt-get update && apt-get install -y --no-install-recommends git git-lfs ca-certificates curl && \
+    git lfs install --system && rm -rf /var/lib/apt/lists/*
+COPY mcp_app /app/mcp_app
+RUN pip install --no-cache-dir fastmcp==2.12.4 fastapi uvicorn requests
+VOLUME ["/data"]
+EXPOSE 8000
+CMD ["uvicorn","mcp_app.server:app","--host","0.0.0.0","--port","8000"]

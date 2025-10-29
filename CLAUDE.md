@@ -1,14 +1,3 @@
-# Recommended first-time setup with SPARC
-npx claude-flow@latest init --sparc
-
-# Minimal setup
-npx claude-flow init --minimal
-
-# Force overwrite existing files
-npx claude-flow init --force
-
-
-
 # Claude Code Configuration - SPARC Development Environment
 
 ## 🚨 CRITICAL: CONCURRENT EXECUTION & FILE MANAGEMENT
@@ -361,3 +350,18 @@ NEVER create files unless they're absolutely necessary for achieving your goal.
 ALWAYS prefer editing an existing file to creating a new one.
 NEVER proactively create documentation files (*.md) or README files. Only create documentation files if explicitly requested by the User.
 Never save working files, text/mds and tests to the root folder.
+- we may be having issues due to me having switched to volta as my package manager? please also review any errors you are receiving and diagnose them, i see one error off the bat with bashrc. once completed, id like you to run the following commands that ive explained and spelled out below: 0) Start UI and verify
+npx claude-flow@latest init --sparc
+./claude-flow start --ui
+./claude-flow status
+
+# 1) Secrets & runtime (no .env)
+infisical login
+infisical run -- ./claude-flow status
+
+# 2) Attach Claude-Flow MCP to Claude Code (stdio)
+claude mcp add claude-flow npx claude-flow@alpha mcp start   # coordination only
+# (Add Infisical MCP separately if you want secrets as a tool.)
+
+# 3) Self-bootstrap (CLI mode, 5 agents, parallel)
+infisical run -- ./claude-flow swarm "RUN ./SELF_BOOTSTRAP_MISSION.md" --max-agents 5 --parallel

@@ -1,0 +1,85 @@
+{
+  "channels": [
+    {
+      "id": "claude-3-opus",
+      "type": "llm",
+      "provider": "anthropic",
+      "model": "claude-3-opus-20240229",
+      "description": "Anthropic Claude 3 Opus - best for complex reasoning, multi-step problem solving, and strategic planning.",
+      "config": {
+        "api_key_env": "ANTHROPIC_API_KEY",
+        "temperature": 0.7,
+        "max_tokens": 4000
+      }
+    },
+    {
+      "id": "gemini-1.5-pro",
+      "type": "llm",
+      "provider": "google",
+      "model": "gemini-1.5-pro-latest",
+      "description": "Google Gemini 1.5 Pro - strong multimodal capabilities, good for code generation, data analysis, and large context tasks.",
+      "config": {
+        "api_key_env": "GOOGLE_API_KEY",
+        "temperature": 0.7,
+        "max_tokens": 4000
+      }
+    },
+    {
+      "id": "local-ollama-llama3-70b",
+      "type": "llm",
+      "provider": "ollama",
+      "model": "llama3:70b",
+      "description": "Local Ollama Llama3 70B - a powerful open-source model running on a local GPU workstation for private, low-latency tasks.",
+      "config": {
+        "base_url": "http://<tailscale_ip_of_gpu_machine>:11434/api",
+        "temperature": 0.7,
+        "max_tokens": 4000
+      },
+      "enabled": false
+    },
+    {
+      "id": "fs-tool",
+      "type": "tool",
+      "provider": "ngrok-filesys",
+      "description": "Filesystem access tool for reading, writing, and listing files within the project data directory.",
+      "tools": [
+        "fs_list",
+        "fs_read_text",
+        "fs_write_text"
+      ]
+    },
+    {
+      "id": "git-tool",
+      "type": "tool",
+      "provider": "ngrok-filesys",
+      "description": "Git operations tool for managing repositories (init, clone, status, add/commit, push/pull, branch).",
+      "tools": [
+        "git_init",
+        "git_clone",
+        "git_status",
+        "git_set_remote",
+        "git_add_commit",
+        "git_switch_branch",
+        "git_pull",
+        "git_push",
+        "git_lfs_install",
+        "git_lfs_track"
+      ]
+    },
+    {
+      "id": "github-tool",
+      "type": "tool",
+      "provider": "ngrok-filesys",
+      "description": "GitHub API tool for repository and branch management (create repo, create branch, create PR).",
+      "tools": [
+        "gh_repo_create",
+        "gh_branch_create",
+        "gh_pr_create"
+      ],
+      "config": {
+        "github_token_env": "GITHUB_TOKEN"
+      }
+    }
+  ],
+  "default_llm_channel": "claude-3-opus"
+}

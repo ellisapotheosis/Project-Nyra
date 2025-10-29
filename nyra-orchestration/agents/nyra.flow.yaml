@@ -1,0 +1,22 @@
+version: "0.1"
+providers:
+  default_base_url: ${OPENAI_COMPAT_BASE_URL:-http://localhost:4000}
+  anthropic: { api_key_env: ANTHROPIC_API_KEY, model: claude-sonnet }
+  gemini:    { model: gemini-flash }
+  openai:    { model: gpt-4o-mini }
+  offline:   { model: ollama-qwen }
+
+modes:
+  cheap-gemini:   { default_model: gemini-flash, tags: ["bulk"] }
+  balanced-mix:   { default_model: claude-sonnet, fallbacks: ["gemini-flash","gpt-4o-mini"] }
+  offline-ollama: { default_model: ollama-qwen, tags: ["offline"] }
+
+hooks: { file: ./hooks/hooks.v2.yaml }
+
+commands:
+  booster-batch:
+    run: "npx claude-flow@alpha booster batch \"{pattern}\" --instructions \"{edit}\""
+  safe-refactor:
+    steps:
+      - run: "codanna impact --symbol {symbol}"
+      - run: "npx claude-flow@alpha booster batch \"{pattern}\" --instructions \"{edit}\""

@@ -1,0 +1,16 @@
+﻿===============================
+ChatGPT Developer Mode â†’ Connectors â†’ Create
+===============================
+
+Name:
+Nyra Filesystem (NyraFS)
+
+Description:
+Remote filesystem tools for listing, reading, writing, creating, and removing files/folders within a confined workspace.
+Scope: files under /data (mounted from host ./data). Use when you need to inspect or edit local project files.
+
+Connector URL:
+https://unparenthetical-exculpatory-maci.ngrok-free.dev/mcp
+
+Authentication:
+No Auth

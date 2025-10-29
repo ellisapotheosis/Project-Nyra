@@ -1,0 +1,83 @@
+version: '3.8'
+
+services:
+  # Qdrant Vector Database
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: nyra-qdrant
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - qdrant-data:/qdrant/storage
+    environment:
+      - QDRANT__SERVICE__GRPC_PORT=6334
+    networks:
+      - nyra-network
+
+  # Zep Memory Service
+  zep:
+    image: ghcr.io/getzep/zep:latest
+    container_name: nyra-zep
+    ports:
+      - "8000:8000"
+    environment:
+      - ZEP_AUTH_REQUIRED=false
+      - ZEP_STORE_TYPE=postgres
+      - ZEP_PG_HOST=zep-postgres
+      - ZEP_PG_PORT=5432
+      - ZEP_OPENAI_API_KEY=${OPENAI_API_KEY}
+    depends_on:
+      - zep-postgres
+    networks:
+      - nyra-network
+
+  # PostgreSQL for Zep
+  zep-postgres:
+    image: postgres:15-alpine
+    container_name: nyra-zep-postgres
+    environment:
+      - POSTGRES_USER=zep
+      - POSTGRES_PASSWORD=zep
+      - POSTGRES_DB=zep
+    volumes:
+      - zep-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U zep"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - nyra-network
+
+  # FalkorDB for Graphiti
+  falkordb:
+    image: falkordb/falkordb:latest
+    container_name: nyra-falkordb
+    ports:
+      - "6379:6379"
+    volumes:
+      - falkordb-data:/data
+    networks:
+      - nyra-network
+
+  # Redis for caching (optional but recommended)
+  redis:
+    image: redis:7-alpine
+    container_name: nyra-redis
+    ports:
+      - "6380:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - nyra-network
+
+volumes:
+  qdrant-data:
+  zep-postgres-data:
+  falkordb-data:
+  redis-data:
+
+networks:
+  nyra-network:
+    driver: bridge

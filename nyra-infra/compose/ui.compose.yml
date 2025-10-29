@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  # Open-WebUI - Web interface for AI models
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:main
+    container_name: nyra-open-webui
+    ports:
+      - "3002:8080"
+    environment:
+      - WEBUI_NAME=NYRA AI Interface
+      - WEBUI_AUTH=true
+      - OLLAMA_BASE_URL=http://ollama:11434
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ENABLE_RAG_WEB_SEARCH=true
+      - ENABLE_IMAGE_GENERATION=true
+    volumes:
+      - open-webui-data:/app/backend/data
+    depends_on:
+      - ollama
+    networks:
+      - nyra-network
+    restart: unless-stopped
+
+  # Ollama - Local LLM runtime
+  ollama:
+    image: ollama/ollama:latest
+    container_name: nyra-ollama
+    ports:
+      - "11434:11434"
+    environment:
+      - OLLAMA_HOST=0.0.0.0
+    volumes:
+      - ollama-data:/root/.ollama
+    networks:
+      - nyra-network
+    restart: unless-stopped
+    # Uncomment for GPU support (requires NVIDIA Docker)
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [gpu]
+
+volumes:
+  open-webui-data:
+  ollama-data:
+
+networks:
+  nyra-network:
+    name: nyra-network
+    external: true

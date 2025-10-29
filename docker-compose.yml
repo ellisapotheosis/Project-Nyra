@@ -39,7 +39,7 @@ services:
     environment:
       POSTGRES_DB: nyra_mortgage
       POSTGRES_USER: nyra
-      POSTGRES_PASSWORD: \
+      POSTGRES_PASSWORD: nyra_pass
     ports:
       - "5432:5432"
     volumes:

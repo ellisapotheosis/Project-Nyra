@@ -1,0 +1,18 @@
+ui_integration:
+  archon:
+    endpoint: "/archon"
+    type: reverse_proxy
+    upstream: "http://archon-ui:8080"
+    auth_required: true
+    
+  open_webui:
+    endpoint: "/owui"
+    type: full_proxy
+    upstream: "http://open-webui:3000"
+    auth_required: true
+    
+  shared_extensions:
+    - name: archon_extensions
+      path: "/nyra-mcp/integrations/archon-extensions"
+    - name: open_webui_plugins
+      path: "/nyra-mcp/integrations/owui-plugins"

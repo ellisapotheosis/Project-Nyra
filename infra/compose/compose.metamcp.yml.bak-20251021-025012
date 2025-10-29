@@ -1,0 +1,19 @@
+services:
+  metamcp:
+    # Prefer building the local MetaMCP gateway in your repo.
+    build:
+      context: ../../mcp-ecosystem/MetaMCP
+      dockerfile: Dockerfile
+    container_name: metamcp
+    restart: unless-stopped
+    ports:
+      - "12008:12008"
+    environment:
+      APP_URL: ${APP_URL:-http://localhost:12008}
+      API_ACCESS_TOKEN: ${API_ACCESS_TOKEN:-changeme}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+    networks: ["nyra-network"]
+
+networks:
+  nyra-network:
+    external: true
