@@ -1,0 +1,34 @@
+{
+  "mcpServers": {
+    "gemini-flow-stdio": {
+      "command": "node",
+      "args": [
+        "C:\\Dev\\Tools\\MCP-Servers\\Gemini-Flow\\gemini-flow\\dist\\index.js",
+        "--cwd",
+        "C:\\Dev\\Tools\\MCP-Servers\\Gemini-Flow\\gemini-flow"
+      ],
+      "env": {
+        "NODE_ENV": "production"
+      }
+    },
+    "metamcp-nyra": {
+      "httpUrl": "'http://localhost:12008'/metamcp/default/mcp",
+      "headers": {
+        "Authorization": "Bearer 'sk_mt_LQmtAxlB8srS5zH0gB1Gbl2vJba1ruXUXKlAU7Oz21iMAOXXfSmZSiDEOLN6Ve7S'"
+      }
+    },
+    "gemini-flow-tsx": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "tsx",
+        "src/index.ts",
+        "--cwd",
+        "C:\\Dev\\Tools\\MCP-Servers\\Gemini-Flow\\gemini-flow"
+      ],
+      "env": {
+        "NODE_ENV": "development"
+      }
+    }
+  }
+}

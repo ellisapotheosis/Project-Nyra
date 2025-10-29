@@ -1,0 +1,116 @@
+# switch_to_no_auth.ps1
+# Purpose: Disable API-key auth (since ChatGPT Developer Mode currently offers only OAuth or No Auth),
+#          redeploy, fetch your public https URL, and regenerate the connector form for "No Auth".
+# Usage:
+#   cd C:\Dev\Tools\MCP-Servers\FileSystemMCP
+#   powershell -NoProfile -ExecutionPolicy Bypass -File .\switch_to_no_auth.ps1
+
+Set-StrictMode -Version Latest
+$ErrorActionPreference = 'Stop'
+
+# --- Paths ---
+$Root              = "C:\Dev\Tools\MCP-Servers\FileSystemMCP"
+$ComposePath       = Join-Path $Root 'docker-compose.yml'
+$ConnectorForm     = Join-Path $Root 'CONNECTOR_CREATE_FORM.txt'
+$ConnectorFormMS   = Join-Path $Root 'CONNECTOR_CREATE_FORM_MSAPP.txt'
+$HealthUrl         = "http://localhost:8000/"
+$NgrokStatusUrl    = "http://127.0.0.1:4040/status"
+$NgrokTunnelsUrl   = "http://127.0.0.1:4040/api/tunnels"
+
+if (-not (Test-Path -LiteralPath $Root)) { throw "Project root not found: $Root" }
+if (-not (Test-Path -LiteralPath $ComposePath)) { throw "Compose file not found: $ComposePath" }
+
+# --- 1) Edit docker-compose.yml to remove auth requirement ---
+# Our server only enforces auth if MCP_API_KEY is non-empty. We blank it out.
+$content = Get-Content -Raw -LiteralPath $ComposePath
+
+if ($content -match 'MCP_API_KEY=') {
+  $content = [regex]::Replace($content, '(?im)^\s*-\s*MCP_API_KEY\s*=\s*.*$', '      - MCP_API_KEY=')
+} else {
+  # Insert an empty MCP_API_KEY directly after BASE_DIR for the mcp service
+  $content = [regex]::Replace(
+    $content,
+    '(?im)(^\s*-\s*BASE_DIR=/data\s*$)',
+    '$1' + "`r`n" + '      - MCP_API_KEY='
+  )
+}
+
+# Write back
+Set-Content -LiteralPath $ComposePath -Encoding UTF8 -Value $content
+
+# --- 2) Redeploy stack cleanly ---
+Push-Location $Root
+try {
+  docker compose down | Out-Null
+  docker compose up -d --build
+} finally {
+  Pop-Location
+}
+
+# --- 3) Wait for local health (uvicorn) ---
+Write-Host "Waiting for MCP health at $HealthUrl ..."
+$deadline = (Get-Date).AddMinutes(3)
+$ok = $false
+while ((Get-Date) -lt $deadline) {
+  try {
+    $r = Invoke-WebRequest -Uri $HealthUrl -UseBasicParsing -TimeoutSec 5
+    if ($r.StatusCode -eq 200) { $ok = $true; break }
+  } catch { Start-Sleep -Milliseconds 600 }
+  Start-Sleep -Milliseconds 600
+}
+if (-not $ok) { throw "MCP server did not become ready on $HealthUrl." }
+
+# --- 4) Wait for ngrok API, then fetch https public URL ---
+Write-Host "Waiting for ngrok API at http://127.0.0.1:4040 ..."
+$deadline = (Get-Date).AddMinutes(3)
+$apiOk = $false
+while ((Get-Date) -lt $deadline) {
+  try {
+    $r = Invoke-WebRequest -Uri $NgrokStatusUrl -UseBasicParsing -TimeoutSec 5
+    $apiOk = $true; break
+  } catch { Start-Sleep -Milliseconds 600 }
+}
+if (-not $apiOk) { throw "Ngrok API did not come up on :4040. Check 'docker compose logs ngrok'." }
+
+$tunnels = Invoke-RestMethod -Uri $NgrokTunnelsUrl -TimeoutSec 5
+$pub = $tunnels.tunnels | Where-Object { $_.public_url -like 'https://*' } | Select-Object -First 1 -ExpandProperty public_url
+if (-not $pub) { throw "No https tunnel found in ngrok API. Check 'docker compose logs ngrok'." }
+
+$connectorUrl = "$pub/mcp"
+
+# --- 5) Regenerate connector “paste-this” files for NO AUTH ---
+$connectorName = "Nyra Filesystem (NyraFS)"
+$connectorDesc = @"
+Remote filesystem tools for listing, reading, writing, creating, and removing files/folders within a confined workspace.
+Scope: files under /data (mounted from host ./data). Use when you need to inspect or edit local project files.
+"@.Trim()
+
+$noauthForm = @"
+===============================
+ChatGPT Developer Mode → Connectors → Create
+===============================
+
+Name:
+$connectorName
+
+Description:
+$connectorDesc
+
+Connector URL:
+$connectorUrl
+
+Authentication:
+No Auth
+"@
+
+$noauthForm | Set-Content -Encoding UTF8 -LiteralPath $ConnectorForm
+$noauthForm | Set-Content -Encoding UTF8 -LiteralPath $ConnectorFormMS
+
+# --- 6) Echo results ---
+Write-Host ""
+Write-Host "MCP health:            $HealthUrl"
+Write-Host "Public MCP endpoint:   $connectorUrl"
+Write-Host "Authentication:        No Auth"
+Write-Host "Paste EXACTLY from:"
+Write-Host "  $ConnectorForm"
+Write-Host "  $ConnectorFormMS"

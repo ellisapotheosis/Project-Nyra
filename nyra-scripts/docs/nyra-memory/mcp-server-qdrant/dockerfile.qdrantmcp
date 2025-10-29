@@ -1,0 +1,10 @@
+# Build the container
+docker build -t mcp-server-qdrant .
+
+# Run the container
+docker run -p 8000:8000 \
+  -e FASTMCP_HOST="0.0.0.0" \
+  -e QDRANT_URL="http://localhost:6333" \
+  -e QDRANT_API_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2Nlc3MiOiJtIn0.Irr842mOGAVzQR2351WrpcK0R0zV55avL0iFP8Dh0Bw" \
+  -e COLLECTION_NAME="nyra-memory" \
+  mcp-server-qdrant

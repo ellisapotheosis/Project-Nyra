@@ -1,2 +1,0 @@
-# Nyra-Core
-Nyra-Core

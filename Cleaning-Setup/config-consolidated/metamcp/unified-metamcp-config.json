@@ -1,0 +1,288 @@
+{
+  "servers": {
+    "filesystem": {
+      "name": "FileSystem MCP",
+      "description": "File system operations (read, write, list, etc.)",
+      "type": "HTTP",
+      "endpoint": "http://filesystem-mcp:8000/mcp",
+      "auto_start": true,
+      "tags": ["filesystem", "files", "directories"]
+    },
+    "github": {
+      "name": "GitHub MCP",
+      "description": "GitHub repository operations and Git commands",
+      "type": "HTTP",
+      "endpoint": "http://github-mcp:8001/mcp",
+      "auto_start": true,
+      "environment": {
+        "GITHUB_TOKEN": "${GITHUB_TOKEN}",
+        "GIT_AUTHOR_NAME": "${GIT_AUTHOR_NAME}",
+        "GIT_AUTHOR_EMAIL": "${GIT_AUTHOR_EMAIL}"
+      },
+      "tags": ["github", "git", "repositories", "version-control"]
+    },
+    "docker": {
+      "name": "Docker MCP",
+      "description": "Docker container and image management",
+      "type": "HTTP",
+      "endpoint": "http://docker-mcp:8002/mcp",
+      "auto_start": true,
+      "tags": ["docker", "containers", "images", "orchestration"]
+    },
+    "docker-hub": {
+      "name": "Docker Hub MCP",
+      "description": "Docker Hub registry search and image introspection",
+      "type": "STDIO",
+      "command": "uvx",
+      "args": ["docker-mcp"],
+      "auto_start": false,
+      "tags": ["docker-hub", "images", "registry", "search"]
+    },
+    "bitwarden": {
+      "name": "Bitwarden MCP",
+      "description": "Password vault and secure secret retrieval",
+      "type": "HTTP",
+      "endpoint": "http://bitwarden-mcp:3002/mcp",
+      "auto_start": false,
+      "environment": {
+        "BW_SESSION": "${BW_SESSION}",
+        "BW_CLIENT_ID": "${BW_CLIENT_ID}",
+        "BW_CLIENT_SECRET": "${BW_CLIENT_SECRET}"
+      },
+      "tags": ["passwords", "secrets", "vault", "security"]
+    },
+    "infisical": {
+      "name": "Infisical MCP",
+      "description": "Secrets management and environment variables",
+      "type": "HTTP",
+      "endpoint": "http://infisical-mcp:3001/mcp",
+      "auto_start": true,
+      "environment": {
+        "INFISICAL_ENVIRONMENT": "${INFISICAL_ENVIRONMENT:-dev}",
+        "INFISICAL_PROJECT_ID": "${INFISICAL_PROJECT_ID}",
+        "INFISICAL_UNIVERSAL_AUTH_CLIENT_ID": "${INFISICAL_UNIVERSAL_AUTH_CLIENT_ID}",
+        "INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET": "${INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET}"
+      },
+      "tags": ["secrets", "environment", "infisical", "security"]
+    },
+    "kilo-code": {
+      "name": "Kilo Code MCP",
+      "description": "Internationalization and development tooling",
+      "type": "STDIO",
+      "command": "npm",
+      "args": ["run", "mcp:i18n"],
+      "auto_start": false,
+      "environment": {
+        "OPENROUTER_API_KEY": "${OPENROUTER_API_KEY}",
+        "DEFAULT_MODEL": "anthropic/claude-3.7-sonnet"
+      },
+      "tags": ["i18n", "localization", "development", "translation"]
+    },
+    "claude-flow": {
+      "name": "Claude Flow MCP",
+      "description": "AI orchestration / swarm intelligence coordinator",
+      "type": "STDIO",
+      "command": "npx",
+      "args": ["claude-flow@alpha", "mcp", "start"],
+      "auto_start": false,
+      "environment": {
+        "OPENAI_API_KEY": "${OPENAI_API_KEY}",
+        "ANTHROPIC_API_KEY": "${ANTHROPIC_API_KEY}"
+      },
+      "tags": ["ai", "orchestration", "swarm", "automation", "claude"]
+    },
+    "gemini": {
+      "name": "Gemini CLI MCP",
+      "description": "Google Gemini AI tools and integration helpers",
+      "type": "STDIO",
+      "command": "npx",
+      "args": ["@mgabr/gemini-mcp-server"],
+      "auto_start": false,
+      "environment": {
+        "GOOGLE_APPLICATION_CREDENTIALS": "${GOOGLE_APPLICATION_CREDENTIALS}",
+        "GOOGLE_API_KEY": "${GOOGLE_API_KEY}",
+        "VERTEX_AI_PROJECT": "${VERTEX_AI_PROJECT}",
+        "VERTEX_AI_LOCATION": "${VERTEX_AI_LOCATION:-us-central1}"
+      },
+      "tags": ["ai", "gemini", "google", "vertex-ai", "integration"]
+    },
+    "metamcp": {
+      "name": "MetaMCP (Docker)",
+      "description": "Primary MetaMCP orchestration endpoint",
+      "type": "HTTP",
+      "endpoint": "http://metamcp:12008/metamcp/default/mcp",
+      "auto_start": true,
+      "capabilities": ["orchestration", "channel_management", "server_discovery"]
+    },
+    "metamcp-local": {
+      "name": "MetaMCP (Local Development)",
+      "description": "Local MetaMCP instance for development tooling",
+      "type": "HTTP",
+      "endpoint": "http://metamcp:12008/metamcp/default/mcp",
+      "auto_start": false
+    }
+  },
+  "channels": {
+    "claude-flow-orchestration": {
+      "use_cases": ["agent coordination", "swarm management", "hive mind control", "task orchestration"],
+      "description": "Claude-flow orchestration and agent coordination",
+      "primary_servers": ["claude-flow", "metamcp"],
+      "token_weight": "medium",
+      "priority": 1
+    },
+    "claude-flow-workflows": {
+      "use_cases": ["workflow execution", "document processing", "pipeline management", "batch operations"],
+      "description": "Workflow execution and pipeline management",
+      "primary_servers": ["claude-flow", "filesystem"],
+      "token_weight": "light",
+      "priority": 2
+    },
+    "knowledge": {
+      "use_cases": ["documentation", "knowledge base", "team collaboration"],
+      "description": "Knowledge management and documentation",
+      "primary_servers": ["filesystem", "github"]
+    },
+    "infrastructure": {
+      "use_cases": ["system monitoring", "deployment", "configuration"],
+      "description": "Infrastructure and system management",
+      "primary_servers": ["metamcp", "docker", "docker-hub", "filesystem"]
+    },
+    "workflows": {
+      "use_cases": ["process automation", "integration workflows", "data pipelines"],
+      "description": "Workflow automation and integration",
+      "primary_servers": ["claude-flow", "metamcp"]
+    },
+    "memory": {
+      "use_cases": ["vector search", "long-term memory", "conversation context"],
+      "description": "Memory management and context persistence",
+      "primary_servers": ["filesystem"]
+    },
+    "ai-coding": {
+      "use_cases": ["code generation", "refactoring", "debugging"],
+      "description": "AI-powered coding assistance",
+      "primary_servers": ["claude-flow", "gemini"]
+    },
+    "orchestration": {
+      "use_cases": ["hot-potato workflows", "agent coordination", "task management"],
+      "description": "Agent orchestration and workflow management",
+      "primary_servers": ["metamcp", "claude-flow", "filesystem"]
+    },
+    "security": {
+      "use_cases": ["secret rotation", "environment management", "compliance"],
+      "description": "Security and secrets management",
+      "primary_servers": ["infisical", "bitwarden"]
+    },
+    "development": {
+      "use_cases": ["code review", "file management", "git operations"],
+      "description": "Code development and repository management",
+      "primary_servers": ["filesystem", "github", "docker", "docker-hub", "gemini"]
+    },
+    "heavy-mcp-desktop": {
+      "use_cases": ["desktop automation", "system control", "high-token operations"],
+      "description": "Heavy context token servers (130k+ tokens) - isolated channel",
+      "primary_servers": ["claude-flow"],
+      "token_weight": "heavy",
+      "priority": 10,
+      "context_isolation": true,
+      "require_explicit_activation": true
+    }
+  },
+  "routing_rules": {
+    "memory": {
+      "load_balancing": "weighted",
+      "fallback_enabled": false,
+      "priority": 3
+    },
+    "development": {
+      "load_balancing": "least_connections",
+      "fallback_enabled": true,
+      "priority": 2
+    },
+    "orchestration": {
+      "load_balancing": "round_robin",
+      "fallback_enabled": true,
+      "priority": 1
+    }
+  },
+  "server_assignments": {
+    "claude-flow-orchestration": ["claude-flow", "metamcp"],
+    "claude-flow-workflows": ["claude-flow", "filesystem"],
+    "knowledge": ["filesystem", "github"],
+    "infrastructure": ["metamcp", "docker", "docker-hub", "filesystem"],
+    "workflows": ["claude-flow", "metamcp"],
+    "memory": ["filesystem"],
+    "ai-coding": ["claude-flow", "gemini"],
+    "orchestration": ["metamcp", "claude-flow", "filesystem"],
+    "security": ["infisical", "bitwarden"],
+    "development": ["filesystem", "github", "docker", "docker-hub", "gemini"],
+    "heavy-mcp-desktop": ["claude-flow"]
+  },
+  "namespaces": {
+    "development": {
+      "name": "Development Tools",
+      "description": "Core development and DevOps tools",
+      "servers": ["filesystem", "github", "docker", "docker-hub", "claude-flow", "gemini"],
+      "middlewares": ["filter-inactive-tools"],
+      "default": true
+    },
+    "security": {
+      "name": "Security & Secrets",
+      "description": "Password management and secrets handling",
+      "servers": ["bitwarden", "infisical"],
+      "middlewares": ["filter-inactive-tools", "audit-logging"]
+    },
+    "localization": {
+      "name": "Internationalization",
+      "description": "Translation and localization tools",
+      "servers": ["kilo-code"],
+      "middlewares": ["filter-inactive-tools"]
+    },
+    "full-suite": {
+      "name": "Complete NYRA Suite",
+      "description": "All available MCP servers",
+      "servers": ["filesystem", "github", "docker", "docker-hub", "bitwarden", "infisical", "kilo-code", "claude-flow", "gemini"],
+      "middlewares": ["filter-inactive-tools"]
+    }
+  },
+  "endpoints": {
+    "nyra-dev": {
+      "name": "NYRA Development",
+      "description": "Primary development endpoint for ChatGPT integration",
+      "namespace": "development",
+      "auth": {
+        "type": "api_key",
+        "api_key": "sk_mt_nyra_dev_2025"
+      },
+      "transports": ["sse", "http"],
+      "public": false
+    },
+    "nyra-security": {
+      "name": "NYRA Security",
+      "description": "Secrets and password management endpoint",
+      "namespace": "security",
+      "auth": {
+        "type": "api_key",
+        "api_key": "sk_mt_nyra_sec_2025"
+      },
+      "transports": ["sse", "http"],
+      "public": false
+    },
+    "nyra-complete": {
+      "name": "NYRA Complete Suite",
+      "description": "All tools and capabilities",
+      "namespace": "full-suite",
+      "auth": {
+        "type": "api_key",
+        "api_key": "sk_mt_nyra_all_2025"
+      },
+      "transports": ["sse", "http"],
+      "public": false
+    }
+  },
+  "global_settings": {
+    "idle_sessions": 1,
+    "session_timeout": 3600,
+    "auto_cleanup": true,
+    "log_level": "info"
+  }
+}

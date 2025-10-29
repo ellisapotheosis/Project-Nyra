@@ -1,0 +1,81 @@
+version: '3.8'
+
+services:
+  # MetaMCP Gateway - MCP server router and coordinator
+  metamcp:
+    build:
+      context: ../../nyra-mcp/servers/MetaMCP
+      dockerfile: Dockerfile
+    container_name: nyra-metamcp
+    ports:
+      - "3000:3000"  # HTTP API
+      - "3001:3001"  # WebSocket
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://nyra:${DB_PASSWORD}@postgres:5432/metamcp
+      - MCP_SERVER_PORT=3000
+      - WEBSOCKET_PORT=3001
+      - INFISICAL_URL=http://infisical:8080
+      - INFISICAL_TOKEN=${INFISICAL_TOKEN}
+    volumes:
+      - metamcp-data:/app/data
+      - ../../nyra-mcp/servers:/app/mcp-servers:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - nyra-network
+    restart: unless-stopped
+
+  # Archon MCP - Task orchestration and agent coordination
+  archon-mcp:
+    build:
+      context: ../../nyra-orchestration/archon
+      dockerfile: Dockerfile
+    container_name: nyra-archon-mcp
+    ports:
+      - "3003:3003"
+    environment:
+      - NODE_ENV=production
+      - MCP_PORT=3003
+      - METAMCP_URL=http://metamcp:3000
+      - CLAUDE_FLOW_URL=http://claude-flow:3004
+    volumes:
+      - archon-data:/app/data
+      - ../../nyra-orchestration/agents:/app/agents:ro
+      - ../../nyra-orchestration/workflows:/app/workflows:ro
+    depends_on:
+      - metamcp
+    networks:
+      - nyra-network
+    restart: unless-stopped
+
+  # Archon UI - Web interface for Archon orchestration
+  archon-ui:
+    image: node:20-alpine
+    container_name: nyra-archon-ui
+    working_dir: /app
+    command: sh -c "npm install && npm run dev"
+    ports:
+      - "3005:3005"
+    environment:
+      - VITE_ARCHON_API_URL=http://localhost:3003
+      - VITE_METAMCP_API_URL=http://localhost:3000
+    volumes:
+      - ../../nyra-orchestration/archon-ui:/app
+      - archon-ui-node-modules:/app/node_modules
+    depends_on:
+      - archon-mcp
+    networks:
+      - nyra-network
+    restart: unless-stopped
+
+volumes:
+  metamcp-data:
+  archon-data:
+  archon-ui-node-modules:
+
+networks:
+  nyra-network:
+    name: nyra-network
+    external: true

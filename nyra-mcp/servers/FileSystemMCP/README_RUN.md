@@ -1,0 +1,28 @@
+# FileSystemMCP (fixed 2025-10-14T12:00:56.299109Z)
+
+## Quickstart
+```powershell
+cd C:\Dev\Tools\MCP-Servers\FileSystemMCP
+powershell -ExecutionPolicy Bypass -File .\bootstrap_and_emit_connector.ps1
+```
+This builds and runs Docker Compose, waits for health, fetches the ngrok https URL, and writes:
+- `CONNECTOR_CREATE_FORM.txt`
+- `CONNECTOR_CREATE_FORM_MSAPP.txt`
+
+Use those to create your ChatGPT connector (Developer Mode).
+
+## Manual
+```powershell
+cd C:\Dev\Tools\MCP-Servers\FileSystemMCP
+docker compose up -d --build
+iwr http://localhost:8000/ -UseBasicParsing | % Content
+$pub = (Invoke-RestMethod http://localhost:4040/api/tunnels).tunnels | ? {$_.public_url -like 'https://*'} | select -First 1 -ExpandProperty public_url
+$pub
+iwr "$pub/mcp" -Headers @{Authorization="Bearer apotheosis2142"}
+```
+
+## Notes
+- ngrok admin interface is served on 4040 and must be published (`4040:4040`).
+- Connector URL must be HTTPS and end in `/mcp`.
+- Authorization header: `Bearer apotheosis2142`.
+

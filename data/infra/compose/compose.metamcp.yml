@@ -1,0 +1,86 @@
+version: "3.9"
+
+services:
+  # MetaMCP - Main API Gateway
+  metamcp:
+    image: node:20-alpine
+    container_name: metamcp
+    working_dir: /app
+    volumes:
+      - ../nyra/nyra-orchestration/metamcp:/app
+      - ../nyra/nyra-orchestration/channels.d:/app/channels.d
+    ports:
+      - "8080:8080"
+    environment:
+      - NODE_ENV=development
+      - PORT=8080
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+    command: sh -c "npm install && npm run dev"
+    networks:
+      - nyra-network
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8080/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+  
+  # Caddy - Reverse Proxy
+  caddy:
+    image: caddy:2
+    container_name: caddy
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ../nyra/nyra-infra/ops/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - metamcp
+    networks:
+      - nyra-network
+    restart: unless-stopped
+  
+  # Infisical MCP - Secret Management
+  infisical-mcp:
+    image: node:20-alpine
+    container_name: infisical-mcp
+    working_dir: /app
+    volumes:
+      - ../mcp-servers/infisical-mcp:/app
+    ports:
+      - "8081:8081"
+    environment:
+      - NODE_ENV=development
+      - PORT=8081
+      - INFISICAL_TOKEN=${INFISICAL_TOKEN:-}
+    command: sh -c "if [ -f package.json ]; then npm install && npm run dev; else echo 'Waiting for infisical-mcp implementation...' && tail -f /dev/null; fi"
+    networks:
+      - nyra-network
+  
+  # Bitwarden MCP - Password Management
+  bitwarden-mcp:
+    image: node:20-alpine
+    container_name: bitwarden-mcp
+    working_dir: /app
+    volumes:
+      - ../mcp-servers/bitwarden-mcp:/app
+    ports:
+      - "8082:8082"
+    environment:
+      - NODE_ENV=development
+      - PORT=8082
+      - BITWARDEN_CLIENT_ID=${BITWARDEN_CLIENT_ID:-}
+      - BITWARDEN_CLIENT_SECRET=${BITWARDEN_CLIENT_SECRET:-}
+    command: sh -c "if [ -f package.json ]; then npm install && npm run dev; else echo 'Waiting for bitwarden-mcp implementation...' && tail -f /dev/null; fi"
+    networks:
+      - nyra-network
+
+volumes:
+  caddy_data:
+  caddy_config:
+
+networks:
+  nyra-network:
+    external: true

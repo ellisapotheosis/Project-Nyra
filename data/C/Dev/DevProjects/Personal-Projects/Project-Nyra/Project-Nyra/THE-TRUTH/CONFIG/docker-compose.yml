@@ -1,0 +1,83 @@
+version: '3.8'
+
+services:
+  caddy:
+    image: caddy:2.7.5-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      - nyra-network
+
+  # Infisical client to fetch secrets
+  infisical-client:
+    image: infisical/infisical-cli:latest
+    container_name: infisical-client
+    restart: "no" # This is a one-shot container to get secrets
+    entrypoint: sh -c "infisical auth login --token $$INFISICAL_TOKEN && infisical export --format docker --path /infisical/secrets.env"
+    environment:
+      # This token should be provided as an environment variable to the Docker host
+      # Or, if running locally, directly in your shell before docker compose up
+      - INFISICAL_TOKEN=${INFISICAL_TOKEN}
+    volumes:
+      # Mount a volume to share the secrets.env file with other services
+      - infisical_secrets:/infisical
+    networks:
+      - nyra-network
+
+  metamcp:
+    image: ghcr.io/your-github-user/metamcp:latest # Replace with your actual MetaMCP image if custom
+    restart: unless-stopped
+    # Use 'infisical run' to inject secrets from the infisical_secrets volume
+    # Make sure this matches the actual entrypoint of your MetaMCP image.
+    # If MetaMCP image has a complex entrypoint, you might need to adjust this.
+    entrypoint: sh -c "infisical run --env-file /infisical/secrets.env -- /app/metamcp_main_script.py" # Adjust /app/metamcp_main_script.py to your MetaMCP's actual main executable
+    environment:
+      # No direct API keys here; they will be injected by Infisical
+      # You might still need to define some non-secret environment variables here
+      # For example, if you have a local LLM service URL that isn't a secret:
+      # - LOCAL_LLM_API_URL=http://<tailscale_ip_of_gpu_machine>:11434/api/generate
+    volumes:
+      - ./channels.json:/app/config/channels.json:ro # Assuming MetaMCP expects config in /app/config
+      - infisical_secrets:/infisical:ro # Read-only access to secrets
+      # Mount other configuration or data volumes if needed for MetaMCP tools
+    networks:
+      - nyra-network
+
+  # Example of a local LLM service if you plan to run Ollama on the orchestrator
+  # ollama:
+  #   image: ollama/ollama:latest
+  #   restart: unless-stopped
+  #   ports:
+  #     - "11434:11434" # Expose Ollama port for local network access
+  #   volumes:
+  #     - ollama_data:/root/.ollama
+  #   # For GPU support, uncomment the lines below and ensure your system has NVIDIA drivers and Docker configured for GPU access
+  #   # deploy:
+  #   #   resources:
+  #   #     reservations:
+  #   #       devices:
+  #   #         - driver: nvidia
+  #   #           count: all
+  #   #           capabilities: [gpu]
+  #   networks:
+  #     - nyra-network
+
+volumes:
+  caddy_data:
+  caddy_config:
+  ollama_data: # If you uncomment the ollama service
+  infisical_secrets: # Volume to share secrets.env
+
+networks:
+  nyra-network:
+    # Use a custom bridge network for internal communication
+    # You might also consider 'host' network mode for simpler Tailscale integration
+    # depending on your exact setup and security considerations.
+    driver: bridge

@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "data_source": {
+    "Tantivy": {
+      "path": "C:\\Dev\\DevProjects\\Personal-Projects\\Project-Nyra\\.codanna\\index\\tantivy",
+      "doc_count": 23738,
+      "timestamp": 1761093838
+    }
+  },
+  "symbol_count": 15929,
+  "file_count": 1049,
+  "last_modified": 1761093838
+}
