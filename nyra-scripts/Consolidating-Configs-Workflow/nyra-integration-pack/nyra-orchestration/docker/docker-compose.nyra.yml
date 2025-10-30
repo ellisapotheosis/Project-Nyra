@@ -1,0 +1,45 @@
+services:
+  openwebui:
+    image: ghcr.io/open-webui/open-webui:latest
+    environment:
+      - OLLAMA_BASE_URL=http://ollama:11434
+      - OPENAI_API_BASE_URL=http://pipelines:9099
+    ports: ["${OPENWEBUI_PORT}:8080"]
+    depends_on: [ollama, pipelines]
+    volumes: [ "owui:/app/backend/data" ]
+
+  pipelines:
+    image: ghcr.io/open-webui/pipelines:latest
+    environment:
+      - PIPELINES_PORT=${PIPELINES_PORT}
+    ports: ["${PIPELINES_PORT}:${PIPELINES_PORT}"]
+    volumes: [ "pipestore:/data" ]
+
+  mcpo:
+    image: ghcr.io/open-webui/mcpo:latest
+    environment:
+      - PORT=${MCPO_PORT}
+    ports: ["${MCPO_PORT}:${MCPO_PORT}"]
+
+  qdrant:
+    image: qdrant/qdrant:latest
+    ports: ["${QDRANT_PORT}:6333"]
+    volumes: [ "qdrant:/qdrant/storage" ]
+
+  ollama:
+    image: ollama/ollama:latest
+    environment: [ "OLLAMA_HOST=${OLLAMA_HOST}" ]
+    ports: ["11434:11434"]
+    volumes: [ "ollama:/root/.ollama" ]
+
+  a2a-demo:
+    build:
+      context: ../
+      dockerfile: nyra-orchestration/docker/Dockerfile.a2a
+    ports: ["10003:10003"]
+
+volumes:
+  owui:
+  pipestore:
+  qdrant:
+  ollama:

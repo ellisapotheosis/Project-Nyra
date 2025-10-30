@@ -1,0 +1,6 @@
+provider: google
+api_key_env: NYRA_GEMINI_API_KEY
+model_env: NYRA_GEMINI_MODEL
+default_model: gemini-1.5-pro
+prompt_search_paths:
+  - ./.gemini/prompts

@@ -1,0 +1,9 @@
+version: 0.1
+name: nyra-orchestration
+model: \
+entry:
+  system_prompt: "./.claude/prompts/system.md"
+  steps:
+    - id: boot
+      type: message
+      content: "Nyra Orchestration online."
