@@ -1,0 +1,1 @@
+print('Codanna integration stub')

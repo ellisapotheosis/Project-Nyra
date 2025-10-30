@@ -1,0 +1,8 @@
+fastapi==0.112.2
+uvicorn==0.30.6
+sse-starlette==2.2.1
+httpx==0.27.2
+autogen-agentchat>=0.4.0
+autogen-ext[openai]>=0.4.0
+grpcio>=1.65.5
+mcp>=1.2.1

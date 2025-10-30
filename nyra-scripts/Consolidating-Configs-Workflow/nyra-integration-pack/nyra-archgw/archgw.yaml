@@ -1,0 +1,9 @@
+listen:
+  addr: ":8080"
+routes:
+  - match: "code.*"
+    to_model: "openai:gpt-4.1-mini"
+guards:
+  - prompt_guard: true
+observability:
+  access_log: true

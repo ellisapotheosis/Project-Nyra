@@ -1,0 +1,9 @@
+{
+  "name": "nyra-openwebui-extension",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "build": "node ./scripts/build.js || exit 0",
+    "dev": "node ./scripts/dev.js || exit 0"
+  }
+}
