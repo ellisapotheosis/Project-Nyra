@@ -1,7 +1,0 @@
-{
-  "type": "module",
-  "private": true,
-  "name": "claude-code-development-kit",
-  "scripts": {},
-  "version": "0.0.0"
-}
