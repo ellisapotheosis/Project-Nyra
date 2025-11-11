@@ -1,0 +1,26 @@
+version: '3.9'
+services:
+  casistack:
+    build:
+      context: https://github.com/casistack/mcp-openwebui-docker-orchestrator.git
+      dockerfile: Dockerfile
+    container_name: casistack-mcp-manager
+    ports:
+      - "${MANAGER_PORT:-3001}:3001"
+      - "${PORT_RANGE_START:-4200}-${PORT_RANGE_END:-4300}:${PORT_RANGE_START:-4200}-${PORT_RANGE_END:-4300}"
+    environment:
+      MCP_PROXY_MODE: "${MCP_PROXY_MODE:-unified}"
+      MCP_PROXY_TYPE: "${MCP_PROXY_TYPE:-mcpo}"
+      PORT_RANGE_START: "${PORT_RANGE_START:-4200}"
+      PORT_RANGE_END: "${PORT_RANGE_END:-4300}"
+      MANAGER_PORT: "${MANAGER_PORT:-3001}"
+      CLAUDE_CONFIG_PATH: "/config/claude_desktop_config.json"
+    volumes:
+      - ${CLAUDE_CONFIG_PATH:-~/.config/Claude/claude_desktop_config.json}:/config/claude_desktop_config.json:ro
+      - ./logs/casistack:/var/log/mcp-proxy-manager
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    restart: unless-stopped

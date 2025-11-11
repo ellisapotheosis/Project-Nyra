@@ -1,0 +1,16 @@
+{
+  "mcpServers": {
+    "always-on": {
+      "transport": "sse",
+      "url": "http://localhost:12008/metamcp/always-on/sse"
+    },
+    "light": {
+      "transport": "sse",
+      "url": "http://localhost:12008/metamcp/light/sse"
+    },
+    "hungry": {
+      "transport": "sse",
+      "url": "http://localhost:12008/metamcp/hungry/sse"
+    }
+  }
+}
