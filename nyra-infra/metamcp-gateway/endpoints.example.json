@@ -1,0 +1,22 @@
+{
+  "endpoints": [
+    {
+      "name": "always-on",
+      "namespace": "always_on",
+      "transport": "sse",
+      "url": "http://localhost:12008/metamcp/always-on/sse"
+    },
+    {
+      "name": "light",
+      "namespace": "context_light",
+      "transport": "sse",
+      "url": "http://localhost:12008/metamcp/light/sse"
+    },
+    {
+      "name": "hungry",
+      "namespace": "context_hungry",
+      "transport": "sse",
+      "url": "http://localhost:12008/metamcp/hungry/sse"
+    }
+  ]
+}

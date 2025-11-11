@@ -1,0 +1,14 @@
+version: '3.9'
+services:
+  metamcp:
+    image: ghcr.io/metatool-ai/metamcp:latest
+    container_name: metamcp
+    env_file:
+      - ./env/metamcp.env
+    ports:
+      - "12008:12008"
+    volumes:
+      - metamcp_data:/data
+    restart: unless-stopped
+volumes:
+  metamcp_data: {}

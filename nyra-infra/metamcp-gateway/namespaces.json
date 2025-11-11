@@ -1,0 +1,22 @@
+{
+  "namespaces": {
+    "always_on": [
+      "infisical-mcp",
+      "bitwarden-mcp",
+      "auth-mcp",
+      "ssl-mcp",
+      "filesystem-mcp"
+    ],
+    "context_light": [
+      "github-mcp",
+      "activepieces-mcp"
+    ],
+    "context_hungry": [
+      "websearch-mcp",
+      "qdrant-mcp",
+      "neo4j-mcp",
+      "postgres-mcp",
+      "elasticsearch-mcp"
+    ]
+  }
+}
