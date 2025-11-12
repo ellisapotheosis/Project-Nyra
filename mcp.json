@@ -1,0 +1,126 @@
+{
+  "clients": {
+    "desktop-commander": {
+      "command": "C:\\Windows\\System32\\cmd.exe",
+      "args": ["/c", "C:\\Program Files\\Git\\bin\\bash.exe", "--login", "-i"]
+    }
+  },
+  "mcpServers": {
+    "claude-flow": {
+      "type": "stdio",
+      "command": "cmd",
+      "args": ["/c", "npx", "-y", "claude-flow@alpha", "mcp", "start"]
+    },
+    "ruv-swarm": {
+      "type": "stdio",
+      "command": "cmd",
+      "args": ["/c", "npx", "-y", "ruv-swarm@latest", "mcp", "start"]
+    },
+    "flow-nexus": {
+      "type": "stdio",
+      "command": "cmd",
+      "args": ["/c", "npx", "-y", "flow-nexus@latest", "start"],
+      "disabled": "${FLOW_NEXUS_DISABLED:true}"
+    },
+    "hive-mind": {
+      "type": "stdio",
+      "command": "cmd",
+      "args": ["/c", "npx", "-y", "hive-mind@latest", "start"],
+      "disabled": "${HIVEMIND_DISABLED:true}"
+    },
+    "sparc": {
+      "type": "stdio",
+      "command": "cmd",
+      "args": ["/c", "npx", "-y", "sparc@latest", "start"],
+      "disabled": "${SPARC_DISABLED:true}"
+    },
+    "sparc2": {
+      "type": "stdio",
+      "command": "cmd",
+      "args": ["/c", "npx", "-y", "sparc2@latest", "start"],
+      "disabled": "${SPARC2_DISABLED:true}"
+    },
+    "roo": {
+      "type": "stdio",
+      "command": "cmd",
+      "args": ["/c", "npx", "-y", "roo@latest", "start"],
+      "disabled": "${ROO_DISABLED:true}"
+    },
+    "codanna": {
+      "type": "stdio",
+      "command": "cmd",
+      "args": ["/c", "npx", "-y", "codanna-mcp@latest", "start"],
+      "disabled": "${CODANNA_DISABLED:false}"
+    },
+    "serena": {
+      "type": "stdio",
+      "command": "cmd",
+      "args": ["/c", "npx", "-y", "serena-mcp@latest", "start"],
+      "disabled": "${SERENA_DISABLED:false}"
+    },
+    "filesystem": {
+      "type": "stdio",
+      "command": "cmd",
+      "args": ["/c", "npx", "-y", "@modelcontextprotocol/server-filesystem", "--root", "${WORKSPACE_ROOT:.}"]
+    },
+    "notion": {
+      "type": "http",
+      "url": "https://mcp.notion.com/mcp",
+      "headers": { "Authorization": "Bearer ${NOTION_TOKEN}" }
+    },
+    "mcp-use": {
+      "type": "stdio",
+      "command": "cmd",
+      "args": ["/c", "npx", "-y", "mcp-use@latest", "start"],
+      "disabled": "${MCP_USE_DISABLED:false}"
+    },
+    "activepieces": {
+      "type": "stdio",
+      "command": "cmd",
+      "args": ["/c", "npx", "-y", "@activepieces/mcp@latest", "start"],
+      "disabled": "${ACTIVEPIECES_DISABLED:false}"
+    },
+    "tome": {
+      "type": "stdio",
+      "command": "cmd",
+      "args": ["/c", "npx", "-y", "tome-mcp@latest", "start"],
+      "disabled": "${TOME_DISABLED:true}"
+    },
+    "gofastmcp": {
+      "type": "stdio",
+      "command": "cmd",
+      "args": ["/c", "npx", "-y", "gofastmcp@latest", "start"],
+      "disabled": "${GOFAST_DISABLED:true}"
+    },
+    "pulse-fs": {
+      "type": "stdio",
+      "command": "cmd",
+      "args": ["/c", "npx", "-y", "@pulsemcp/filesystem@latest", "start", "--root", "${WORKSPACE_ROOT:.}"],
+      "disabled": "${PULSE_FS_DISABLED:false}"
+    },
+    "fastmcp": {
+      "type": "stdio",
+      "command": "uvx",
+      "args": ["fastmcp", "serve"],
+      "disabled": "${FASTMCP_DISABLED:false}"
+    },
+    "metamcp": {
+      "type": "stdio",
+      "command": "uvx",
+      "args": ["metamcp", "start"],
+      "disabled": "${METAMCP_DISABLED:true}"
+    },
+    "archon": {
+      "type": "stdio",
+      "command": "uvx",
+      "args": ["python", "-m", "ARCHON_MCP_MODULE", "start"],
+      "disabled": "${ARCHON_DISABLED:true}"
+    },
+    "archgw": {
+      "type": "stdio",
+      "command": "cmd",
+      "args": ["/c", "npx", "-y", "archgw-mcp@latest", "start"],
+      "disabled": "${ARCHGW_DISABLED:true}"
+    }
+  }
+}
