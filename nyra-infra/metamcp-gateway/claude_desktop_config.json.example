@@ -1,16 +1,16 @@
 {
   "mcpServers": {
-    "always-on": {
+    "MetaMCP": {
       "transport": "sse",
-      "url": "http://localhost:12008/metamcp/always-on/sse"
+      "url": "http://localhost:12008/metamcp/nyra-core/sse"
     },
-    "light": {
+    "MetaMCP-Heavy": {
       "transport": "sse",
-      "url": "http://localhost:12008/metamcp/light/sse"
+      "url": "http://localhost:12008/metamcp/nyra-heavy/sse"
     },
-    "hungry": {
+    "MetaMCP-Research": {
       "transport": "sse",
-      "url": "http://localhost:12008/metamcp/hungry/sse"
+      "url": "http://localhost:12008/metamcp/nyra-research/sse"
     }
   }
 }
