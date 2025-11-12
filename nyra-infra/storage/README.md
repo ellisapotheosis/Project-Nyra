@@ -1,0 +1,1 @@
+# Nyra Storage Profile`r`n`r`n`nyra.storage.profile.yml` declares named volumes and bind mounts used across stacks (MetaMCP, Open WebUI, dbs). Compose includes this profile to keep data persistent and portable.`r`n`r`n- Use it to define host paths for Windows-friendly locations.`r`n- One place to adjust data roots if you move machines.`r`n
