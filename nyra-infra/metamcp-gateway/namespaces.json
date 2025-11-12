@@ -1,22 +1,11 @@
 {
-  "namespaces": {
-    "always_on": [
-      "infisical-mcp",
-      "bitwarden-mcp",
-      "auth-mcp",
-      "ssl-mcp",
-      "filesystem-mcp"
-    ],
-    "context_light": [
-      "github-mcp",
-      "activepieces-mcp"
-    ],
-    "context_hungry": [
-      "websearch-mcp",
-      "qdrant-mcp",
-      "neo4j-mcp",
-      "postgres-mcp",
-      "elasticsearch-mcp"
-    ]
+  "always_on": {
+    "description": "Channels that are safe+light to keep connected (e.g., secrets, auth, filesystem)"
+  },
+  "context_light": {
+    "description": "Low-cost context MCPs suitable for general agents"
+  },
+  "context_hungry": {
+    "description": "High-cost context MCPs (web search, embeddings, ingestion)"
   }
 }
