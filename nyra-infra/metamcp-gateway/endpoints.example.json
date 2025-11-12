@@ -1,22 +1,19 @@
 {
   "endpoints": [
     {
-      "name": "always-on",
-      "namespace": "always_on",
-      "transport": "sse",
-      "url": "http://localhost:12008/metamcp/always-on/sse"
+      "name": "nyra-core",
+      "namespace": "always-on",
+      "auth": { "type": "api-key" }
     },
     {
-      "name": "light",
-      "namespace": "context_light",
-      "transport": "sse",
-      "url": "http://localhost:12008/metamcp/light/sse"
+      "name": "nyra-heavy",
+      "namespace": "context-hungry",
+      "auth": { "type": "api-key" }
     },
     {
-      "name": "hungry",
-      "namespace": "context_hungry",
-      "transport": "sse",
-      "url": "http://localhost:12008/metamcp/hungry/sse"
+      "name": "nyra-research",
+      "namespace": "research",
+      "auth": { "type": "api-key" }
     }
   ]
 }
