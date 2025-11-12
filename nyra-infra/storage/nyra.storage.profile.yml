@@ -1,0 +1,13 @@
+version: 1
+volumes:
+  metamcp_pg_data:
+    description: Postgres data for MetaMCP
+    driver: local
+  casistack_logs:
+    description: Orchestrator logs
+    driver: local
+paths:
+  claude_config:
+    description: Claude Desktop MCP config used by orchestrator
+    host: ../nyra-infra/metamcp-gateway/claude_desktop_config.json
+    container: /config/claude_desktop_config.json

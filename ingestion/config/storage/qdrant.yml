@@ -1,0 +1,5 @@
+target: qdrant
+host: localhost
+port: 6333
+collection: nyra_docs
+embed_dim: 1536
