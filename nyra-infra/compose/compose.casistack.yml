@@ -1,26 +1,37 @@
 version: '3.9'
+
+name: nyra-casistack
+
+networks:
+  nyra:
+    external: true
+
+volumes:
+  casistack_logs: {}
+
 services:
-  casistack:
+  casistack-orchestrator:
+    # Replace build with image when upstream publishes:
+    # image: ghcr.io/casistack/mcp-openwebui-docker-orchestrator:latest
     build:
-      context: https://github.com/casistack/mcp-openwebui-docker-orchestrator.git
+      context: ../casistack-orchestrator
       dockerfile: Dockerfile
-    container_name: casistack-mcp-manager
-    ports:
-      - "${MANAGER_PORT:-3001}:3001"
-      - "${PORT_RANGE_START:-4200}-${PORT_RANGE_END:-4300}:${PORT_RANGE_START:-4200}-${PORT_RANGE_END:-4300}"
-    environment:
-      MCP_PROXY_MODE: "${MCP_PROXY_MODE:-unified}"
-      MCP_PROXY_TYPE: "${MCP_PROXY_TYPE:-mcpo}"
-      PORT_RANGE_START: "${PORT_RANGE_START:-4200}"
-      PORT_RANGE_END: "${PORT_RANGE_END:-4300}"
-      MANAGER_PORT: "${MANAGER_PORT:-3001}"
-      CLAUDE_CONFIG_PATH: "/config/claude_desktop_config.json"
-    volumes:
-      - ${CLAUDE_CONFIG_PATH:-~/.config/Claude/claude_desktop_config.json}:/config/claude_desktop_config.json:ro
-      - ./logs/casistack:/var/log/mcp-proxy-manager
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
+    container_name: nyra-casistack
     restart: unless-stopped
+    env_file:
+      - ./env/merged.env
+      - ../../.env.master.example
+    environment:
+      - MANAGER_PORT=${MANAGER_PORT:-3001}
+      - MCP_PROXY_MODE=${MCP_PROXY_MODE:-unified}
+      - MCP_PROXY_TYPE=${MCP_PROXY_TYPE:-mcpo}
+      - PORT_RANGE_START=${PORT_RANGE_START:-4200}
+      - PORT_RANGE_END=${PORT_RANGE_END:-4300}
+      - CLAUDE_CONFIG_PATH=${CLAUDE_CONFIG_PATH:-/config/claude_desktop_config.json}
+    ports:
+      - '3001:3001'
+      - '4200-4300:4200-4300'
+    volumes:
+      - casistack_logs:/var/log/mcp-proxy-manager
+      - ../metamcp-gateway/claude_desktop_config.json:/config/claude_desktop_config.json:ro
+    networks: [nyra]
