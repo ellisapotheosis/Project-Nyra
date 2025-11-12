@@ -1,0 +1,25 @@
+{
+  "mcpServers": {
+    "nyra-always-on": {
+      "command": {},
+      "args": [],
+      "serverUrls": [
+        "http://localhost:12008/metamcp/always_on/sse"
+      ]
+    },
+    "nyra-light": {
+      "command": {},
+      "args": [],
+      "serverUrls": [
+        "http://localhost:12008/metamcp/context_light/sse"
+      ]
+    },
+    "nyra-hungry": {
+      "command": {},
+      "args": [],
+      "serverUrls": [
+        "http://localhost:12008/metamcp/context_hungry/sse"
+      ]
+    }
+  }
+}

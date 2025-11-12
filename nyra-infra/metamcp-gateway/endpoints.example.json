@@ -1,0 +1,19 @@
+{
+  "endpoints": [
+    {
+      "name": "nyra-core",
+      "namespace": "always-on",
+      "auth": { "type": "api-key" }
+    },
+    {
+      "name": "nyra-heavy",
+      "namespace": "context-hungry",
+      "auth": { "type": "api-key" }
+    },
+    {
+      "name": "nyra-research",
+      "namespace": "research",
+      "auth": { "type": "api-key" }
+    }
+  ]
+}

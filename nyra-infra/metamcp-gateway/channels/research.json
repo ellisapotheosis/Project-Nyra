@@ -1,0 +1,11 @@
+{
+  "description": "Research-oriented MCPs with their own route.",
+  "servers": {
+    "Memory": {
+      "type": "STDIO",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-memory"],
+      "env": {}
+    }
+  }
+}

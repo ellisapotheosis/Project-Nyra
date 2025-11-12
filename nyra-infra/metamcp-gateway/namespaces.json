@@ -1,0 +1,11 @@
+{
+  "always_on": {
+    "description": "Channels that are safe+light to keep connected (e.g., secrets, auth, filesystem)"
+  },
+  "context_light": {
+    "description": "Low-cost context MCPs suitable for general agents"
+  },
+  "context_hungry": {
+    "description": "High-cost context MCPs (web search, embeddings, ingestion)"
+  }
+}
