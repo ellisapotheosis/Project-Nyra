@@ -1,0 +1,8 @@
+{
+  "name": "serena",
+  "description": "Serena MCP tools for research/cleaning",
+  "includes": [
+    "../always-on.json",
+    "../research.json"
+  ]
+}
