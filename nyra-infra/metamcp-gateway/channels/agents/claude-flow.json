@@ -1,0 +1,8 @@
+{
+  "name": "claude-flow",
+  "description": "Channel exposing Claude Flow-friendly tools via MetaMCP",
+  "includes": [
+    "../always-on.json",
+    "../research.json"
+  ]
+}
