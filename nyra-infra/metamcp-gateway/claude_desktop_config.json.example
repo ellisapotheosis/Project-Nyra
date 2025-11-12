@@ -1,16 +1,25 @@
 {
   "mcpServers": {
-    "MetaMCP": {
-      "transport": "sse",
-      "url": "http://localhost:12008/metamcp/nyra-core/sse"
+    "nyra-always-on": {
+      "command": {},
+      "args": [],
+      "serverUrls": [
+        "http://localhost:12008/metamcp/always_on/sse"
+      ]
     },
-    "MetaMCP-Heavy": {
-      "transport": "sse",
-      "url": "http://localhost:12008/metamcp/nyra-heavy/sse"
+    "nyra-light": {
+      "command": {},
+      "args": [],
+      "serverUrls": [
+        "http://localhost:12008/metamcp/context_light/sse"
+      ]
     },
-    "MetaMCP-Research": {
-      "transport": "sse",
-      "url": "http://localhost:12008/metamcp/nyra-research/sse"
+    "nyra-hungry": {
+      "command": {},
+      "args": [],
+      "serverUrls": [
+        "http://localhost:12008/metamcp/context_hungry/sse"
+      ]
     }
   }
 }
