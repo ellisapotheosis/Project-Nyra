@@ -1,0 +1,17 @@
+version: '3.9'
+services:
+  nyra-ingestion:
+    build:
+      context: ../../nyra-ingestion
+      dockerfile: docker/Dockerfile
+    env_file:
+      - ../.env
+    environment:
+      - INGEST_INPUT=${INGEST_INPUT:-C:\Dev\Data\nyra_bootstraps}
+      - INGEST_OUTPUT=${INGEST_OUTPUT:-C:\Dev\Data\nyra_bootstraps_out}
+      - INGEST_CACHE=${INGEST_CACHE:-.\.cache}
+    volumes:
+      - ${INGEST_INPUT:-C:\Dev\Data\nyra_bootstraps}:/data/input
+      - ${INGEST_OUTPUT:-C:\Dev\Data\nyra_bootstraps_out}:/data/output
+    working_dir: /app
+    command: ["python", "pipelines/bootstrap_ingest.py"]
