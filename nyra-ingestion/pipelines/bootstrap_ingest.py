@@ -59,9 +59,11 @@ for f in UNIFIED.glob('**/*'):
         rec = {"path": str(f), "hash": h, "duplicate_of": seen[h] if dup else None, "size": f.stat().st_size}
         if is_text(f.name):
             try:
-                with open(f, 'r', encoding='utf-8', errors='ignore') as fh:
+                with open(f, 'r', encoding='utf-8', errors='replace') as fh:
                     head = fh.read(4000)
                 rec.update({"sample": head})
+                if '\uFFFD' in head:
+                    rec.update({"sample_warning": "Some characters were replaced due to encoding errors."})
             except Exception as e:
                 rec.update({"sample_error": str(e)})
         records.append(rec)
@@ -86,7 +88,8 @@ for r in records:
     try:
         with open(p, 'r', encoding='utf-8', errors='ignore') as fh: txt = fh.read()
         # crude normalization
-        lines = [ln.strip('') for ln in txt.splitlines()]
+        lines = [ln.strip('
+') for ln in txt.splitlines()]
         steps = [STEP_RX.match(ln).group(1) for ln in lines if STEP_RX.match(ln)]
         out_obj = {
             'source': str(p),
