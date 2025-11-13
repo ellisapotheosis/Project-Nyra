@@ -1,1 +1,5 @@
-FROM python:3.11-slim`r`nWORKDIR /app`r`nCOPY pipelines ./pipelines`r`nCOPY .env.example ./.env`r`nRUN pip install --no-cache-dir`r`nCMD ["python", "pipelines/sample_pipeline.py"]`r`n
+FROM python:3.11-slim
+WORKDIR /app
+COPY . .
+RUN pip install --no-cache-dir chardet
+CMD ["python", "pipelines/bootstrap_ingest.py"]

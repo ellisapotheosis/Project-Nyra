@@ -1,0 +1,9 @@
+{
+  "name": "flow-nexus",
+  "description": "Flow-Nexus agent surface via MetaMCP",
+  "includes": [
+    "../always-on.json",
+    "../research.json",
+    "../context-hungry.json"
+  ]
+}
