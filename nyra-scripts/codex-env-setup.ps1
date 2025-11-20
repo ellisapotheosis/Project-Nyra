@@ -63,7 +63,7 @@ Write-Host "[codex] Starting Project Nyra Windows bootstrap" -ForegroundColor Gr
 
 Install-IfMissing -Command git -WingetId Git.Git -DisplayName 'Git'
 Install-IfMissing -Command unzip -WingetId 7zip.7zip -DisplayName '7zip' -SkipIfMissingWinget
-Install-IfMissing -Command curl -WingetId GnuWin32.Curl -DisplayName 'curl' -SkipIfMissingWinget
+Install-IfMissing -Command curl -WingetId Curl.Curl -DisplayName 'curl' -SkipIfMissingWinget
 
 if (-not $NoNode) {
     Install-IfMissing -Command node -WingetId OpenJS.NodeJS.LTS -DisplayName 'Node.js LTS'
