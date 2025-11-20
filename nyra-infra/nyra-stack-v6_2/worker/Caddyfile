@@ -1,0 +1,4 @@
+:8080 {
+  encode gzip
+  handle { respond "Worker portal alive. Ollama :11434" 200 }
+}
