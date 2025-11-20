@@ -52,7 +52,15 @@ fi
 if [ "$NOPython" = false ]; then
   sudo apt-get install -y python3 python3-venv python3-pip
   if ! command -v uv >/dev/null 2>&1; then
-    curl -LsSf https://astral.sh/uv/install.sh | sh
+    # WARNING: Downloading and executing remote scripts can be risky if the source is compromised.
+    # Consider verifying the script's integrity before running it.
+    # See: https://astral.sh/uv/docs/install/#shell
+    TMP_UV_INSTALL_SCRIPT="$(mktemp)"
+    curl -LsSf https://astral.sh/uv/install.sh -o "$TMP_UV_INSTALL_SCRIPT"
+    # If a checksum is available, verify it here. Example:
+    # echo "<expected-checksum>  $TMP_UV_INSTALL_SCRIPT" | sha256sum -c -
+    sh "$TMP_UV_INSTALL_SCRIPT"
+    rm -f "$TMP_UV_INSTALL_SCRIPT"
     export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$PATH"
   fi
 fi
