@@ -64,7 +64,15 @@ packages = ["src/project_nyra"]
 
 [tool.uv]
 managed = true
-dev-dependencies = []
+dev-dependencies = [
+    "black>=23.0.0",
+    "ruff>=0.1.0",
+    "mypy>=1.0.0",
+    "pre-commit>=3.0.0",
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "pytest-asyncio>=0.21.0",
+]
 
 [tool.uv.workspace]
 members = [
