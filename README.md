@@ -2,6 +2,16 @@
 
 **Mission**: Automate the complete broker pipeline from intake to post-close while a multi-agent team continuously improves the product.
 
+## 🧭 Infra Bundle (v6.2)
+
+This repository now includes a complete infra bundle under `nyra-infra/nyra-stack-v6_2/`:
+- Orchestrator (MetaMCP, Open WebUI, Caddy, cloudflared, Postgres, Redis, Infisical MCP, optional LiteLLM)
+- Worker (Ollama)
+- DevContainer, WSL helpers, Infisical secret flow, auto-discovered integrations
+- CI to publish a zipped artifact of the infra folder
+
+Start here: `nyra-infra/nyra-stack-v6_2/docs/MASTER_STEPS_6_2.md`
+
 ## 🎯 Core Architecture
 
 ### Split-Orchestrator Design
