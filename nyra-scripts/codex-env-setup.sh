@@ -29,6 +29,10 @@ ensure_cmd() {
 log "Starting Project Nyra Linux bootstrap"
 
 if command -v apt-get >/dev/null 2>&1; then
+  if ! sudo -v >/dev/null 2>&1; then
+    warn "Sudo privileges are required to run apt-get commands. Please run as a user with sudo access."
+    exit 1
+  fi
   sudo apt-get update -y
   sudo apt-get install -y git curl unzip ca-certificates build-essential
 else
