@@ -88,8 +88,7 @@ for r in records:
     try:
         with open(p, 'r', encoding='utf-8', errors='ignore') as fh: txt = fh.read()
         # crude normalization
-        lines = [ln.strip('
-') for ln in txt.splitlines()]
+        lines = [ln.strip(" \t") for ln in txt.splitlines()]
         steps = [STEP_RX.match(ln).group(1) for ln in lines if STEP_RX.match(ln)]
         out_obj = {
             'source': str(p),
