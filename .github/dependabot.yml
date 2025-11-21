@@ -1,69 +1,20 @@
 version: 2
 updates:
-  # ── Python ──────────────────────────────
+  # Python dependencies updated weekly
   - package-ecosystem: "pip"
-    directory: "/"  # Location of requirements.txt
+    directory: "/"
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 5
     rebase-strategy: "auto"
     ignore:
-      - dependency-name: "torch"  # Example: ignore large deps you handle manually
+      - dependency-name: "torch"
         update-types: ["version-update:semver-major"]
       - dependency-name: "tensorflow"
 
-  # ── GitHub Actions ──────────────────────
+  # GitHub Actions dependencies updated monthly
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "monthly"
     open-pull-requests-limit: 3
-
-  # ── Optional: Docker (add when ready) ──
-  # - package-ecosystem: "docker"
-  #   directory: "/" # Path to Dockerfile
-  #   schedule:
-  #     interval: "monthly"
-
-  # ── Optional: npm (if you add frontend/tools) ──
-  # - package-ecosystem: "npm"
-  #   directory: "/"
-  #   schedule:
-  #     interval: "weekly"
-version: 2
-updates:
-  # ── 🔐 SECURITY UPDATES ────────────────
-  - package-ecosystem: "pip"
-    directory: "/"
-    schedule:
-      interval: "daily"
-    allow:
-      - dependency-type: "direct"
-    insecure-external-code-execution: "deny"
-    commit-message:
-      prefix: "[SECURITY]"
-    labels:
-      - "dependencies"
-      - "security"
-    ignore:
-      - dependency-name: "tensorflow"
-        update-types: ["version-update:semver-major"]
-
-  - package-ecosystem: "github-actions"
-    directory: "/"
-    schedule:
-      interval: "daily"
-    commit-message:
-      prefix: "[SECURITY]"
-    labels:
-      - "ci"
-      - "security"
-
-  # ── ♻️ REGULAR VERSION UPDATES ─────────
-  - package-ecosystem: "pip"
-    directory: "/"
-    schedule:
-      interval: "weekly"
-    open-pull-requests-limit: 5
-    rebase-strategy: "auto"
-    commit-message:
