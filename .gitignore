@@ -34,6 +34,7 @@ hive-mind-prompt-*.txt
 .env
 .secrets/
 
+nyra-ingestion/
 /nyra-ingestion/.venv
 /nyra-ingestion/node_modules
 /nyra-ingestion/.pytest_cache
