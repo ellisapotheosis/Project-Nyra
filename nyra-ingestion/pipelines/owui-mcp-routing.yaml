@@ -1,0 +1,23 @@
+# Open WebUI / MetaMCP routing for document cleaning workflows
+# Aligns Claude-Flow + Archon as primary orchestrators with per-channel intents.
+channels:
+  claude-flow-core:
+    servers:
+      - claude-flow
+      - filesystem
+    intent: "Swarm coordination + SPARC entrypoint"
+  archon-core:
+    servers:
+      - archon
+    intent: "Archon analytics/UI-backed tasks"
+  metamcp-aggregate:
+    servers:
+      - metamcp
+      - claude-flow
+      - archon
+      - filesystem
+    intent: "Proxy aggregator for Open WebUI pipelines"
+  lobechat-experiments:
+    servers:
+      - claude-flow
+    intent: "Run lobechat or OWUI pipelines against cleaned docs"
