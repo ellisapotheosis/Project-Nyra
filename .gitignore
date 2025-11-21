@@ -71,4 +71,5 @@ claude-flow
 .env.*
 !.env.example
 *.env
+nyra-ingestion/
 .aider*
