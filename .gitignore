@@ -80,3 +80,4 @@ hive-mind-prompt-*.txt
 .env.*
 !.env.example
 *.env
+.aider*
