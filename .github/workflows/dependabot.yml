@@ -1,38 +1,6 @@
 version: 2
 updates:
-  # ── Python ──────────────────────────────
-  - package-ecosystem: "pip"
-    directory: "/"  # Location of requirements.txt
-    schedule:
-      interval: "weekly"
-    open-pull-requests-limit: 5
-    rebase-strategy: "auto"
-    ignore:
-      - dependency-name: "torch"  # Example: ignore large deps you handle manually
-        update-types: ["version-update:semver-major"]
-      - dependency-name: "tensorflow"
-
-  # ── GitHub Actions ──────────────────────
-  - package-ecosystem: "github-actions"
-    directory: "/"
-    schedule:
-      interval: "monthly"
-    open-pull-requests-limit: 3
-
-  # ── Optional: Docker (add when ready) ──
-  # - package-ecosystem: "docker"
-  #   directory: "/" # Path to Dockerfile
-  #   schedule:
-  #     interval: "monthly"
-
-  # ── Optional: npm (if you add frontend/tools) ──
-  # - package-ecosystem: "npm"
-  #   directory: "/"
-  #   schedule:
-  #     interval: "weekly"
-version: 2
-updates:
-  # ── 🔐 SECURITY UPDATES ────────────────
+  # Daily security-focused updates
   - package-ecosystem: "pip"
     directory: "/"
     schedule:
@@ -59,11 +27,27 @@ updates:
       - "ci"
       - "security"
 
-  # ── ♻️ REGULAR VERSION UPDATES ─────────
+  # Regular dependency maintenance
   - package-ecosystem: "pip"
     directory: "/"
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 5
     rebase-strategy: "auto"
-    commit-message:
+    ignore:
+      - dependency-name: "torch"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "tensorflow"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    open-pull-requests-limit: 3
+
+  - package-ecosystem: "npm"
+    directory: "/archive/2025-10-13-original-structure/nyra-core/nyra-orchestration/archon/archon-ui-main"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    rebase-strategy: "auto"

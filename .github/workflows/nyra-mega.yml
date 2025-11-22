@@ -1,0 +1,111 @@
+name: NYRA Mega Automaton
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+  checks: write
+  security-events: write
+
+jobs:
+  ###############################################
+  # 1 — CODEQL ANALYSIS
+  ###############################################
+  codeql-scan:
+    name: CodeQL Scan
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        language: ["python", "javascript-typescript", "actions"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: github/codeql-action/init@v4
+        with:
+          languages: ${{ matrix.language }}
+
+      - uses: github/codeql-action/analyze@v4
+
+  ###############################################
+  # 2 — GITSTREAM agent (AI PR routing)
+  ###############################################
+  gitstream:
+    name: GitStream Agent
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: gitStream repo agent
+        uses: linear-b/gitstream-github-action@2.0.185
+        with:
+          full_repository: ${{ github.repository }}
+          head_ref: ${{ github.head_ref }}
+          base_ref: ${{ github.base_ref }}
+          client_payload: ${{ toJson(github.event.client_payload) }}
+          resolver_url: https://api.gitstream.cmcore.app/api/recipes/resolve
+          resolver_token: ${{ secrets.GITSTREAM_TOKEN }}
+          debug_mode: false
+
+  ###############################################
+  # 3 — LABEL AUTOMATION
+  ###############################################
+  autolabel:
+    name: Smart Labeling
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions-ecosystem/action-add-labels@v1
+        with:
+          labels: "auto,nyra,ci"
+
+  ###############################################
+  # 4 — MERGE QUEUE
+  ###############################################
+  merge-queue:
+    name: Merge Queue
+    needs: [codeql-scan, gitstream]
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Queue merge
+        uses: autifyhq/merge-queue-action@v0.1.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+  ###############################################
+  # 5 — AUTO MERGE (when passing)
+  ###############################################
+  auto-merge:
+    name: AutoMerge When Ready
+    needs: [merge-queue]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: pascalgn/automerge-action@v0.15.6
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MERGE_LABELS: "auto"
+          MERGE_METHOD: "squash"
+          UPDATE_METHOD: "rebase"
+
+  ###############################################
+  # 6 — CLEANUP MERGED BRANCHES
+  ###############################################
+  cleanup:
+    name: Cleanup Branches
+    needs: [auto-merge]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete merged branches
+        uses: tarakaprabhuchinta/github-merged-branch-remover@v2.0.0
+        with:
+          organization: ${{ github.repository_owner }}
+          repository: ${{ github.event.repository.name }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
