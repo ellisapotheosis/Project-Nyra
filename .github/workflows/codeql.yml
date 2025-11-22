@@ -1,0 +1,39 @@
+# .github/workflows/codeql.yml
+name: "CodeQL Ultra"
+
+on:
+  push: { branches: ["main"] }
+  pull_request: { branches: ["main"] }
+  schedule:
+    - cron: "0 3 * * *"
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [ "actions", "javascript-typescript", "python" ]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: github/codeql-action/init@v4
+        with:
+          languages: ${{ matrix.language }}
+          build-mode: none
+
+      - uses: github/codeql-action/analyze@v4
+        with:
+          category: "/lang:${{ matrix.language }}"
+
+      - name: Merge When Passing
+        uses: pascalgn/automerge-action@v0.15.6
+        with:
+          mergeMethod: squash
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
