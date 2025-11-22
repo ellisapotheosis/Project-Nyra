@@ -51,3 +51,24 @@ updates:
       interval: "weekly"
     open-pull-requests-limit: 5
     rebase-strategy: "auto"
+name: Validate Dependabot configuration
+
+on:
+  push:
+    paths:
+      - .github/dependabot.yml
+  pull_request:
+    paths:
+      - .github/dependabot.yml
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Validate Dependabot config
+        uses: dependabot/cli-action@v3
+        with:
+          command: validate
