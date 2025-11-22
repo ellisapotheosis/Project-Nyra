@@ -1,20 +1,45 @@
+# .github/dependabot.yml
 version: 2
 updates:
-  # Python dependencies updated weekly
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "daily"
+    allow:
+      - dependency-type: "direct"
+    insecure-external-code-execution: "deny"
+    commit-message:
+      prefix: "[SECURITY]"
+    labels: ["dependencies","security"]
+    rebase-strategy: auto
+    open-pull-requests-limit: 10
+
   - package-ecosystem: "pip"
     directory: "/"
     schedule:
       interval: "weekly"
-    open-pull-requests-limit: 5
-    rebase-strategy: "auto"
-    ignore:
-      - dependency-name: "torch"
-        update-types: ["version-update:semver-major"]
-      - dependency-name: "tensorflow"
+    commit-message:
+      prefix: "[AUTO]"
+    rebase-strategy: auto
+    open-pull-requests-limit: 10
 
-  # GitHub Actions dependencies updated monthly
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: "monthly"
-    open-pull-requests-limit: 3
+      interval: "daily"
+    commit-message:
+      prefix: "[SECURITY]"
+    rebase-strategy: auto
+    labels: ["ci","security"]
+
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    rebase-strategy: auto
+
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    rebase-strategy: auto
