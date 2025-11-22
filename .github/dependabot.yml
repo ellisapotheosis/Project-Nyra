@@ -6,6 +6,7 @@ updates:
       interval: "weekly"
     open-pull-requests-limit: 5
     rebase-strategy: "auto"
+    insecure-external-code-execution: "deny"
     ignore:
       - dependency-name: "torch"
         update-types: ["version-update:semver-major"]
