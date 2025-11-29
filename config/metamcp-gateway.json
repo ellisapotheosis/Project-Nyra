@@ -1,0 +1,152 @@
+{
+  "metaMcpGateway": {
+    "name": "MetaMCP Gateway",
+    "version": "1.0.0",
+    "description": "Proxy aggregator and service discovery for MCP ecosystem",
+    "configuration": {
+      "server": {
+        "host": "0.0.0.0",
+        "port": 8080,
+        "protocol": "http+stdio",
+        "maxConnections": 1000,
+        "timeout": 30000,
+        "keepAlive": true
+      },
+      "proxy": {
+        "enabled": true,
+        "compression": true,
+        "caching": {
+          "enabled": true,
+          "ttl": 300,
+          "maxSize": "100MB"
+        },
+        "rateLimiting": {
+          "enabled": true,
+          "windowMs": 60000,
+          "maxRequests": 1000
+        }
+      },
+      "serviceDiscovery": {
+        "type": "consul",
+        "refreshInterval": 30000,
+        "healthCheckInterval": 10000,
+        "services": [
+          {
+            "name": "archon-mcp",
+            "address": "localhost:8081",
+            "tags": ["coordination", "memory", "agent-management"],
+            "health": "/health"
+          },
+          {
+            "name": "claude-flow-mcp",
+            "address": "localhost:8082",
+            "tags": ["sparc", "swarm", "workflow"],
+            "health": "/health"
+          },
+          {
+            "name": "nyra-orchestrator",
+            "address": "localhost:8083",
+            "tags": ["gpu", "compute", "mortgage"],
+            "health": "/health"
+          },
+          {
+            "name": "infisical-mcp",
+            "address": "localhost:8084",
+            "tags": ["secrets", "environment", "security"],
+            "health": "/health"
+          },
+          {
+            "name": "kg-local-mcp",
+            "address": "localhost:8085",
+            "tags": ["knowledge", "memory", "graph"],
+            "health": "/health"
+          }
+        ]
+      },
+      "loadBalancing": {
+        "algorithm": "round-robin",
+        "healthChecks": true,
+        "failover": {
+          "enabled": true,
+          "retryAttempts": 3,
+          "backoffMs": 1000
+        }
+      },
+      "routing": {
+        "rules": [
+          {
+            "pattern": "/agent/**",
+            "target": "archon-mcp",
+            "priority": 1
+          },
+          {
+            "pattern": "/swarm/**",
+            "target": "claude-flow-mcp",
+            "priority": 1
+          },
+          {
+            "pattern": "/gpu/**",
+            "target": "nyra-orchestrator",
+            "priority": 1
+          },
+          {
+            "pattern": "/secrets/**",
+            "target": "infisical-mcp",
+            "priority": 1
+          },
+          {
+            "pattern": "/memory/**",
+            "target": "kg-local-mcp",
+            "priority": 1
+          }
+        ],
+        "defaultTarget": "claude-flow-mcp"
+      },
+      "security": {
+        "authentication": {
+          "type": "jwt+ed25519",
+          "tokenExpiry": 3600,
+          "refreshEnabled": true
+        },
+        "authorization": {
+          "type": "rbac",
+          "roles": [
+            {
+              "name": "admin",
+              "permissions": ["*"]
+            },
+            {
+              "name": "orchestrator",
+              "permissions": ["agent:*", "swarm:*", "gpu:*"]
+            },
+            {
+              "name": "worker",
+              "permissions": ["agent:read", "swarm:read", "gpu:execute"]
+            }
+          ]
+        },
+        "cors": {
+          "enabled": true,
+          "origins": ["https://nyra.ratehunter.net", "http://localhost:*"]
+        }
+      },
+      "monitoring": {
+        "metrics": {
+          "enabled": true,
+          "endpoint": "/metrics",
+          "format": "prometheus"
+        },
+        "logging": {
+          "level": "info",
+          "format": "json",
+          "outputs": ["stdout", "file"]
+        },
+        "tracing": {
+          "enabled": true,
+          "sampler": 0.1,
+          "exporter": "jaeger"
+        }
+      }
+    }
+  }
+}

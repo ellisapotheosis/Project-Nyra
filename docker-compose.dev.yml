@@ -1,0 +1,296 @@
+version: '3.8'
+
+services:
+  # Development Environment Container
+  nyra-dev:
+    build:
+      context: ./infra/docker/dev
+      dockerfile: Dockerfile.dev
+      args:
+        NODE_VERSION: 24.11.0
+        PYTHON_VERSION: 3.11
+    volumes:
+      # Source code from Windows/WSL
+      - .:/workspace:cached
+      # Performance optimization for node_modules
+      - nyra_dev_node_modules:/workspace/node_modules
+      - nyra_dev_python_cache:/home/vscode/.cache
+      # Git configuration persistence
+      - nyra_dev_git_config:/home/vscode/.gitconfig
+      # SSH keys for git operations
+      - ${HOME}/.ssh:/home/vscode/.ssh:ro
+      # Volta/npm cache
+      - nyra_dev_volta_cache:/home/vscode/.volta
+    environment:
+      # Development flags
+      - NODE_ENV=development
+      - NYRA_MODE=development
+      - NYRA_LOG_LEVEL=debug
+      # Service URLs (internal container network)
+      - CLAUDE_FLOW_URL=http://claude-flow-mcp:8003
+      - ARCHON_MCP_URL=http://archon-mcp:8004
+      - METAMCP_GATEWAY_URL=http://metamcp-gateway:8005
+      - POSTGRES_URL=postgresql://nyra:${POSTGRES_PASSWORD}@postgres:5432/nyra_db
+      - FALKORDB_URL=redis://falkordb:6379
+      - CHROMADB_URL=http://chromadb:8000
+      # Infisical integration
+      - INFISICAL_TOKEN=${INFISICAL_TOKEN}
+      - INFISICAL_PROJECT_ID=${INFISICAL_PROJECT_ID}
+      # Git configuration for containers
+      - GIT_CONFIG_GLOBAL=/home/vscode/.gitconfig
+    ports:
+      - "3001:3000"  # Dev server
+      - "5173:5173"  # Vite dev server
+      - "8080:8080"  # Debug ports
+    depends_on:
+      - postgres
+      - falkordb
+      - chromadb
+      - infisical-sync
+    networks:
+      - nyra-dev-network
+    restart: unless-stopped
+
+  # MetaMCP Gateway - Central MCP Proxy/Aggregator
+  metamcp-gateway:
+    build:
+      context: ./infra/docker/metamcp
+      dockerfile: Dockerfile.gateway
+    environment:
+      - GATEWAY_PORT=8005
+      - CLAUDE_FLOW_ENDPOINT=http://claude-flow-mcp:8003
+      - ARCHON_MCP_ENDPOINT=http://archon-mcp:8004
+      - INFISICAL_ENDPOINT=http://infisical-sync:8006
+      - LOG_LEVEL=debug
+    ports:
+      - "8005:8005"
+    depends_on:
+      - claude-flow-mcp
+      - archon-mcp
+      - infisical-sync
+    networks:
+      - nyra-dev-network
+    restart: unless-stopped
+
+  # Claude Flow MCP Server
+  claude-flow-mcp:
+    build:
+      context: ./infra/docker/claude-flow
+      dockerfile: Dockerfile.claude-flow
+    environment:
+      - MCP_PORT=8003
+      - SPARC_MODE=enabled
+      - MEMORY_BACKEND=postgres
+      - POSTGRES_URL=postgresql://nyra:${POSTGRES_PASSWORD}@postgres:5432/nyra_db
+      - SWARM_CONFIG_PATH=/app/config/swarm.json
+    ports:
+      - "8003:8003"
+    volumes:
+      - ./.claude-flow:/app/.claude-flow:cached
+      - ./configs/claude-flow:/app/config:ro
+      - nyra_claude_flow_cache:/app/cache
+    depends_on:
+      - postgres
+      - falkordb
+    networks:
+      - nyra-dev-network
+    restart: unless-stopped
+
+  # Archon MCP Server - Advanced AI Orchestration
+  archon-mcp:
+    build:
+      context: ./infra/docker/archon
+      dockerfile: Dockerfile.archon
+    environment:
+      - MCP_PORT=8004
+      - ARCHON_MODE=development
+      - AI_PROVIDER=anthropic
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - MEMORY_STORE=postgres
+      - POSTGRES_URL=postgresql://nyra:${POSTGRES_PASSWORD}@postgres:5432/nyra_db
+    ports:
+      - "8004:8004"
+    volumes:
+      - ./configs/archon:/app/config:ro
+      - nyra_archon_cache:/app/cache
+    depends_on:
+      - postgres
+    networks:
+      - nyra-dev-network
+    restart: unless-stopped
+
+  # Infisical Secrets Sync Service
+  infisical-sync:
+    build:
+      context: ./infra/docker/infisical
+      dockerfile: Dockerfile.sync
+    environment:
+      - SYNC_PORT=8006
+      - INFISICAL_TOKEN=${INFISICAL_TOKEN}
+      - INFISICAL_PROJECT_ID=${INFISICAL_PROJECT_ID}
+      - SYNC_INTERVAL=300  # 5 minutes
+      - TARGET_ENV_FILE=/app/shared/.env.synced
+    ports:
+      - "8006:8006"
+    volumes:
+      - nyra_infisical_secrets:/app/shared
+      - ./configs/infisical:/app/config:ro
+    networks:
+      - nyra-dev-network
+    restart: unless-stopped
+
+  # PostgreSQL - Primary Database
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: nyra_db
+      POSTGRES_USER: nyra
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-nyra_dev_pass}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "5432:5432"
+    volumes:
+      - nyra_postgres_data:/var/lib/postgresql/data
+      - ./infra/sql/init:/docker-entrypoint-initdb.d:ro
+    networks:
+      - nyra-dev-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U nyra -d nyra_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # FalkorDB - Graph Database for Memory System
+  falkordb:
+    image: falkordb/falkordb:latest
+    ports:
+      - "6379:6379"
+    volumes:
+      - nyra_falkordb_data:/data
+      - ./configs/falkordb:/etc/falkordb:ro
+    command: ["falkordb-server", "--loadmodule", "/usr/lib/redis/modules/falkordb.so"]
+    networks:
+      - nyra-dev-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  # ChromaDB - Vector Database for Embeddings
+  chromadb:
+    image: chromadb/chroma:latest
+    environment:
+      - CHROMA_SERVER_AUTHN_CREDENTIALS_PROVIDER=chromadb.auth.token.TokenAuthenticationProvider
+      - CHROMA_SERVER_AUTHN_TOKEN_TRANSPORT_HEADER=Authorization
+      - CHROMA_TOKEN=${CHROMA_TOKEN:-nyra_chroma_dev_token}
+    ports:
+      - "8001:8000"
+    volumes:
+      - nyra_chromadb_data:/chroma/chroma
+      - ./configs/chromadb:/chroma/config:ro
+    networks:
+      - nyra-dev-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/heartbeat"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Nyra Core Orchestrator
+  nyra-orchestrator:
+    build:
+      context: .
+      dockerfile: ./infra/docker/nyra/Dockerfile.orchestrator
+    environment:
+      - NYRA_MODE=development
+      - NYRA_LOG_LEVEL=debug
+      - POSTGRES_URL=postgresql://nyra:${POSTGRES_PASSWORD}@postgres:5432/nyra_db
+      - FALKORDB_URL=redis://falkordb:6379
+      - CHROMADB_URL=http://chromadb:8000
+      - CLAUDE_FLOW_URL=http://claude-flow-mcp:8003
+      - ARCHON_MCP_URL=http://archon-mcp:8004
+      - METAMCP_GATEWAY_URL=http://metamcp-gateway:8005
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./logs:/app/logs:cached
+      - ./configs/nyra:/app/configs:ro
+      - nyra_orchestrator_cache:/app/cache
+    depends_on:
+      - postgres
+      - falkordb
+      - chromadb
+      - metamcp-gateway
+    networks:
+      - nyra-dev-network
+    restart: unless-stopped
+
+  # Nyra Web UI
+  nyra-webui:
+    build:
+      context: .
+      dockerfile: ./infra/docker/nyra/Dockerfile.webui
+    environment:
+      - NODE_ENV=development
+      - VITE_API_URL=http://nyra-orchestrator:8000
+      - VITE_WS_URL=ws://nyra-orchestrator:8000
+      - VITE_MCP_GATEWAY_URL=http://metamcp-gateway:8005
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./nyra-ui:/app:cached
+      - nyra_webui_node_modules:/app/node_modules
+    depends_on:
+      - nyra-orchestrator
+    networks:
+      - nyra-dev-network
+    restart: unless-stopped
+
+  # Cloudflared Tunnel (for remote access)
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    environment:
+      - TUNNEL_TOKEN=${CLOUDFLARED_TOKEN}
+    command: tunnel run
+    depends_on:
+      - nyra-orchestrator
+      - nyra-webui
+    networks:
+      - nyra-dev-network
+    restart: unless-stopped
+    profiles:
+      - production
+
+volumes:
+  # Development container volumes
+  nyra_dev_node_modules:
+  nyra_dev_python_cache:
+  nyra_dev_git_config:
+  nyra_dev_volta_cache:
+
+  # Service-specific volumes
+  nyra_claude_flow_cache:
+  nyra_archon_cache:
+  nyra_infisical_secrets:
+  nyra_orchestrator_cache:
+  nyra_webui_node_modules:
+
+  # Database volumes
+  nyra_postgres_data:
+  nyra_falkordb_data:
+  nyra_chromadb_data:
+
+networks:
+  nyra-dev-network:
+    name: nyra-dev-network
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.20.0.0/16
+          gateway: 172.20.0.1

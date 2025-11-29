@@ -1,0 +1,244 @@
+# Docker Compose - Orchestrator Node (Minisforum UH680)
+# Services: API Gateway, Monitoring, Coordination
+
+version: '3.8'
+
+services:
+  # Main API Gateway with LiteLLM
+  api-gateway:
+    image: ghcr.io/berriai/litellm:main-latest
+    container_name: nyra-api-gateway
+    restart: unless-stopped
+    ports:
+      - "8000:4000"    # Main API
+      - "4000:4000"    # Admin UI
+    environment:
+      - LITELLM_MASTER_KEY=${LITELLM_MASTER_KEY}
+      - DATABASE_URL=postgresql://litellm:${POSTGRES_PASSWORD}@postgres:5432/litellm
+      - REDIS_URL=redis://redis:6379
+      - LITELLM_LOG=INFO
+    volumes:
+      - "./config/litellm-gateway.yaml:/app/config.yaml"
+      - "gateway-data:/app/data"
+    depends_on:
+      - postgres
+      - redis
+    command: ["--config", "/app/config.yaml", "--port", "4000", "--num_workers", "8"]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # PostgreSQL Database for LiteLLM
+  postgres:
+    image: postgres:15-alpine
+    container_name: nyra-postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=litellm
+      - POSTGRES_USER=litellm
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    volumes:
+      - "postgres-data:/var/lib/postgresql/data"
+      - "./scripts/init-db.sql:/docker-entrypoint-initdb.d/init.sql"
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U litellm"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: nyra-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - "redis-data:/data"
+      - "./config/redis.conf:/usr/local/etc/redis/redis.conf"
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # ArchGW Router (MCP-based intelligent routing)
+  archgw-router:
+    image: nyra/archgw-router:latest
+    container_name: nyra-archgw-router
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - ORCHESTRATOR_MODE=true
+      - WORKER_DISCOVERY=true
+      - HEALTH_CHECK_INTERVAL=30
+      - ROUTING_STRATEGY=intelligent
+    volumes:
+      - "./config/orchestrator-config.yaml:/app/config.yaml"
+      - "router-data:/app/data"
+    depends_on:
+      - postgres
+      - redis
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Prometheus Monitoring
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: nyra-prometheus
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    volumes:
+      - "./config/prometheus.yml:/etc/prometheus/prometheus.yml"
+      - "prometheus-data:/prometheus"
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=30d'
+      - '--web.enable-lifecycle'
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:9090/-/healthy"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Grafana Dashboard
+  grafana:
+    image: grafana/grafana:latest
+    container_name: nyra-grafana
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD}
+      - GF_INSTALL_PLUGINS=redis-datasource,prometheus
+    volumes:
+      - "grafana-data:/var/lib/grafana"
+      - "./config/grafana-datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml"
+      - "./config/grafana-dashboards:/etc/grafana/provisioning/dashboards"
+    depends_on:
+      - prometheus
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Wake-on-LAN Service
+  wake-on-lan:
+    image: nyra/wake-on-lan:latest
+    container_name: nyra-wol
+    restart: unless-stopped
+    network_mode: host  # Required for WOL magic packets
+    environment:
+      - WOL_CONFIG_PATH=/app/config.yaml
+      - LOG_LEVEL=INFO
+    volumes:
+      - "./config/orchestrator-config.yaml:/app/config.yaml"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8090/health"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+
+  # Cloudflared Tunnel
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: nyra-cloudflared-orchestrator
+    restart: unless-stopped
+    environment:
+      - TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN}
+    volumes:
+      - "./config/cloudflared-orchestrator.yaml:/etc/cloudflared/config.yaml"
+    command: ["tunnel", "--config", "/etc/cloudflared/config.yaml", "run", "nyra-orchestrator-tunnel"]
+    depends_on:
+      - api-gateway
+    healthcheck:
+      test: ["CMD", "cloudflared", "tunnel", "info", "nyra-orchestrator-tunnel"]
+      interval: 60s
+      timeout: 30s
+      retries: 3
+
+  # Performance Monitor & Auto-scaler
+  perf-monitor:
+    image: nyra/performance-monitor:latest
+    container_name: nyra-perf-monitor
+    restart: unless-stopped
+    ports:
+      - "8090:8090"
+    environment:
+      - PROMETHEUS_URL=http://prometheus:9090
+      - REDIS_URL=redis://redis:6379
+      - AUTO_SCALING_ENABLED=true
+    volumes:
+      - "./config/orchestrator-config.yaml:/app/config.yaml"
+      - "monitor-data:/app/data"
+    depends_on:
+      - prometheus
+      - redis
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8090/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Model Cache Manager
+  model-cache:
+    image: nyra/model-cache:latest
+    container_name: nyra-model-cache
+    restart: unless-stopped
+    ports:
+      - "8091:8091"
+    environment:
+      - CACHE_SIZE_GB=10
+      - REDIS_URL=redis://redis:6379
+      - CLEANUP_INTERVAL=3600
+    volumes:
+      - "model-cache:/app/cache"
+      - "./config/orchestrator-config.yaml:/app/config.yaml"
+    depends_on:
+      - redis
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8091/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  postgres-data:
+    driver: local
+  redis-data:
+    driver: local
+  prometheus-data:
+    driver: local
+  grafana-data:
+    driver: local
+  gateway-data:
+    driver: local
+  router-data:
+    driver: local
+  monitor-data:
+    driver: local
+  model-cache:
+    driver: local
+
+networks:
+  default:
+    name: nyra-orchestrator
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16

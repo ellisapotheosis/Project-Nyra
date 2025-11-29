@@ -1,0 +1,42 @@
+# MetaMCP Gateway - Central MCP Proxy/Aggregator
+FROM node:24.11.0-alpine AS base
+
+# Install system dependencies
+RUN apk add --no-cache \
+    curl \
+    git \
+    bash \
+    tini
+
+# Create app user
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S gateway -u 1001
+
+# Set working directory
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Install dependencies
+RUN npm ci --only=production && npm cache clean --force
+
+# Copy application code
+COPY . .
+
+# Change ownership
+RUN chown -R gateway:nodejs /app
+USER gateway
+
+# Expose port
+EXPOSE 8005
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:8005/health || exit 1
+
+# Use tini as entrypoint
+ENTRYPOINT ["/sbin/tini", "--"]
+
+# Start the gateway
+CMD ["node", "src/gateway.js"]

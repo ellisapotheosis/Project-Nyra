@@ -1,0 +1,182 @@
+# Orchestrator Node Configuration - Project Nyra
+# Minisforum UH680 (Ryzen 7 6800H, 16GB DDR5)
+
+orchestrator:
+  name: "nyra-orchestrator"
+  hostname: "orchestrator.nyra.local"
+  role: "coordinator"
+
+network:
+  api_gateway_port: 8000
+  monitoring_port: 9090
+  management_port: 8080
+  cloudflare_tunnel:
+    name: "nyra-orchestrator-tunnel"
+    subdomain: "api.nyra.ratehunter.net"
+    config_file: "/etc/cloudflared/nyra-orchestrator.yaml"
+
+api_gateway:
+  litellm:
+    config_path: "/app/config/litellm-gateway.yaml"
+    admin_ui_port: 4000
+    database_url: "sqlite:///app/data/litellm.db"
+    master_key: "${LITELLM_MASTER_KEY}"
+
+  rate_limiting:
+    requests_per_minute: 1000
+    burst_limit: 100
+    enabled: true
+
+  caching:
+    redis_url: "redis://redis:6379"
+    ttl_seconds: 300
+    enabled: true
+
+workers:
+  worker1:
+    hostname: "worker1.nyra.local"
+    tunnel_name: "nyra-worker1-tunnel"
+    gpu: "rtx_3060"
+    vram_gb: 6
+    specialization: "code"
+    health_check_url: "http://worker1.nyra.local:8001/health"
+    priority: 3
+
+  worker2:
+    hostname: "worker2.nyra.local"
+    tunnel_name: "nyra-worker2-tunnel"
+    gpu: "rtx_5090"
+    vram_gb: 32
+    specialization: "reasoning"
+    health_check_url: "http://worker2.nyra.local:8002/health"
+    priority: 1
+
+  worker3:
+    hostname: "worker3.nyra.local"
+    tunnel_name: "nyra-worker3-tunnel"
+    gpu: "rtx_3090ti"
+    vram_gb: 24
+    specialization: "research"
+    health_check_url: "http://worker3.nyra.local:8003/health"
+    priority: 2
+
+routing:
+  strategy: "intelligent"
+  algorithms:
+    - "capability_based"
+    - "load_balanced"
+    - "latency_optimized"
+
+  rules:
+    code_tasks:
+      patterns: ["code", "programming", "debug", "implement"]
+      primary_worker: "worker1"
+      fallback_workers: ["worker3", "worker2"]
+
+    reasoning_tasks:
+      patterns: ["analyze", "reason", "complex", "multi-step"]
+      primary_worker: "worker2"
+      fallback_workers: ["worker3", "worker1"]
+
+    research_tasks:
+      patterns: ["research", "write", "summarize", "explain"]
+      primary_worker: "worker3"
+      fallback_workers: ["worker2", "worker1"]
+
+external_apis:
+  anthropic:
+    api_key: "${ANTHROPIC_API_KEY}"
+    base_url: "https://api.anthropic.com"
+    models: ["claude-3-5-sonnet-20241022", "claude-3-haiku-20240307"]
+    cost_per_1k_tokens: 0.015
+
+  openai:
+    api_key: "${OPENAI_API_KEY}"
+    base_url: "https://api.openai.com/v1"
+    models: ["gpt-4-turbo", "gpt-3.5-turbo"]
+    cost_per_1k_tokens: 0.01
+
+  google:
+    api_key: "${GOOGLE_API_KEY}"
+    base_url: "https://generativelanguage.googleapis.com/v1beta"
+    models: ["gemini-1.5-pro", "gemini-1.5-flash"]
+    cost_per_1k_tokens: 0.0125
+
+monitoring:
+  prometheus:
+    port: 9090
+    scrape_interval: 15
+    metrics_retention: "30d"
+
+  grafana:
+    port: 3000
+    admin_user: "${GRAFANA_ADMIN_USER}"
+    admin_password: "${GRAFANA_ADMIN_PASSWORD}"
+
+  alerting:
+    slack_webhook: "${SLACK_WEBHOOK_URL}"
+    email_smtp:
+      host: "${SMTP_HOST}"
+      port: 587
+      username: "${SMTP_USERNAME}"
+      password: "${SMTP_PASSWORD}"
+
+  health_checks:
+    interval_seconds: 30
+    timeout_seconds: 10
+    failure_threshold: 3
+
+wake_on_lan:
+  enabled: true
+  workers:
+    worker1:
+      mac_address: "${WORKER1_MAC_ADDRESS}"
+      ip_address: "192.168.1.101"
+
+    worker2:
+      mac_address: "${WORKER2_MAC_ADDRESS}"
+      ip_address: "192.168.1.102"
+
+    worker3:
+      mac_address: "${WORKER3_MAC_ADDRESS}"
+      ip_address: "192.168.1.103"
+
+  auto_shutdown:
+    enabled: true
+    idle_threshold_minutes: 30
+    exclude_hours: ["09:00-17:00"]  # Business hours
+
+security:
+  api_keys:
+    rotation_days: 30
+    encryption: "AES-256-GCM"
+
+  network:
+    allowed_ips: ["192.168.1.0/24", "10.0.0.0/8"]
+    rate_limiting: true
+    ddos_protection: true
+
+  logging:
+    level: "INFO"
+    retention_days: 90
+    audit_enabled: true
+
+performance:
+  model_warming:
+    enabled: true
+    schedule: "0 8 * * *"  # 8 AM daily
+    critical_models:
+      - "llama-3.1-8b-instruct"
+      - "llama-3.1-70b-instruct"
+      - "code-llama-7b"
+
+  caching:
+    prompt_cache_size: "1GB"
+    response_cache_size: "2GB"
+    model_cache_size: "10GB"
+
+  auto_scaling:
+    enabled: true
+    cpu_threshold: 80
+    memory_threshold: 85
+    response_time_threshold_ms: 2000

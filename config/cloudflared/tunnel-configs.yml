@@ -1,0 +1,149 @@
+# Nyra Cloudflared Tunnel Configurations
+# Per-PC tunnel setup with Infisical secret management
+
+# Orchestrator Tunnel Configuration
+orchestrator:
+  tunnel_name: "nyra-orchestrator"
+  credentials_file: "/app/secrets/cloudflared-orchestrator.json"
+  ingress:
+    # Main orchestrator API
+    - hostname: "nyra-orchestrator.ratehunter.net"
+      service: "http://nyra-orchestrator:8000"
+      originRequest:
+        noTLSVerify: true
+        connectTimeout: 30s
+        tlsTimeout: 10s
+
+    # Web UI
+    - hostname: "nyra.ratehunter.net"
+      service: "http://nyra-webui:3000"
+      originRequest:
+        noTLSVerify: true
+        connectTimeout: 30s
+
+    # MetaMCP Gateway
+    - hostname: "mcp.ratehunter.net"
+      service: "http://metamcp-gateway-enhanced:8005"
+      originRequest:
+        noTLSVerify: true
+        connectTimeout: 30s
+
+    # Infisical MCP
+    - hostname: "secrets.ratehunter.net"
+      service: "http://infisical-mcp:8006"
+      originRequest:
+        noTLSVerify: true
+        connectTimeout: 30s
+
+    # Catch-all
+    - service: "http_status:404"
+
+  # Tunnel settings
+  tunnel_settings:
+    loglevel: "info"
+    transport_loglevel: "info"
+    retries: 3
+    grace_period: "30s"
+
+# Worker 1 Tunnel Configuration (RTX 3060)
+worker-1:
+  tunnel_name: "nyra-worker-1"
+  credentials_file: "/app/secrets/cloudflared-worker-1.json"
+  ingress:
+    # Worker API
+    - hostname: "worker-1.ratehunter.net"
+      service: "http://nyra-worker-1:8000"
+      originRequest:
+        noTLSVerify: true
+        connectTimeout: 30s
+
+    # GPU Metrics
+    - hostname: "gpu-1.ratehunter.net"
+      service: "http://nyra-worker-1:9000"
+      originRequest:
+        noTLSVerify: true
+        connectTimeout: 30s
+
+    # Catch-all
+    - service: "http_status:404"
+
+  tunnel_settings:
+    loglevel: "info"
+    retries: 3
+    grace_period: "30s"
+
+# Worker 2 Tunnel Configuration (RTX 5090)
+worker-2:
+  tunnel_name: "nyra-worker-2"
+  credentials_file: "/app/secrets/cloudflared-worker-2.json"
+  ingress:
+    # Worker API
+    - hostname: "worker-2.ratehunter.net"
+      service: "http://nyra-worker-2:8000"
+      originRequest:
+        noTLSVerify: true
+        connectTimeout: 30s
+
+    # GPU Metrics
+    - hostname: "gpu-2.ratehunter.net"
+      service: "http://nyra-worker-2:9000"
+      originRequest:
+        noTLSVerify: true
+        connectTimeout: 30s
+
+    # Catch-all
+    - service: "http_status:404"
+
+  tunnel_settings:
+    loglevel: "info"
+    retries: 3
+    grace_period: "30s"
+
+# Worker 3 Tunnel Configuration (RTX 3090Ti)
+worker-3:
+  tunnel_name: "nyra-worker-3"
+  credentials_file: "/app/secrets/cloudflared-worker-3.json"
+  ingress:
+    # Worker API
+    - hostname: "worker-3.ratehunter.net"
+      service: "http://nyra-worker-3:8000"
+      originRequest:
+        noTLSVerify: true
+        connectTimeout: 30s
+
+    # GPU Metrics
+    - hostname: "gpu-3.ratehunter.net"
+      service: "http://nyra-worker-3:9000"
+      originRequest:
+        noTLSVerify: true
+        connectTimeout: 30s
+
+    # Catch-all
+    - service: "http_status:404"
+
+  tunnel_settings:
+    loglevel: "info"
+    retries: 3
+    grace_period: "30s"
+
+# Shared tunnel configuration template
+shared_settings:
+  # Origin settings
+  origin_request:
+    no_tls_verify: true
+    connect_timeout: "30s"
+    tls_timeout: "10s"
+    tcp_keep_alive: "30s"
+    keep_alive_connections: 100
+    keep_alive_timeout: "1m30s"
+
+  # Metrics and health
+  metrics_server:
+    enable: true
+    port: 8080
+
+  # Protocol settings
+  protocol: "auto"
+
+  # Edge settings
+  edge_ip_version: "auto"
