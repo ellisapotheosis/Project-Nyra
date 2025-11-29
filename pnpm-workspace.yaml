@@ -1,0 +1,7 @@
+ignoredBuiltDependencies:
+  - agentdb
+  - agentic-flow
+  - better-sqlite3
+  - hnswlib-node
+  - protobufjs
+  - sharp

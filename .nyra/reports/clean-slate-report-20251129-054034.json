@@ -1,0 +1,63 @@
+{
+  "timestamp": "2025-11-29T05:40:34.9717937-08:00",
+  "repoRoot": "C:\\Dev\\DevProjects\\Personal-Projects\\Project-Nyra",
+  "force": false,
+  "dockerPrune": false,
+  "resetVolta": false,
+  "detected": {
+    "node": "v24.11.0",
+    "npm": "11.6.2",
+    "pnpm": "10.15.1",
+    "uv": "uv 0.9.13 (7ca92dcf6 2025-11-26)",
+    "pnpmStorePath": "C:\\pnpm-store\\v10",
+    "npmCache": "C:\\Users\\edane\\.npm-cache",
+    "uvCache": "C:\\Users\\edane\\AppData\\Local\\uv\\cache",
+    "voltaHome": "C:\\Users\\edane\\AppData\\Local\\Volta"
+  },
+  "actions": [
+    {
+      "type": "remove",
+      "path": "C:\\Dev\\DevProjects\\Personal-Projects\\Project-Nyra\\node_modules"
+    },
+    {
+      "type": "remove",
+      "path": "C:\\Dev\\DevProjects\\Personal-Projects\\Project-Nyra\\.venv"
+    },
+    {
+      "type": "remove",
+      "path": "C:\\Dev\\DevProjects\\Personal-Projects\\Project-Nyra\\.pytest_cache"
+    },
+    {
+      "type": "remove",
+      "path": "C:\\Dev\\DevProjects\\Personal-Projects\\Project-Nyra\\.ruff_cache"
+    },
+    {
+      "cmd": "pnpm store prune",
+      "type": "command"
+    },
+    {
+      "type": "clear",
+      "path": "C:\\pnpm-store\\v10"
+    },
+    {
+      "cmd": "npm cache clean --force",
+      "type": "command"
+    },
+    {
+      "type": "clear",
+      "path": "C:\\Users\\edane\\.npm-cache"
+    },
+    {
+      "cmd": "uv cache clean/prune (best-effort)",
+      "type": "command"
+    },
+    {
+      "type": "clear",
+      "path": "C:\\Users\\edane\\AppData\\Local\\uv\\cache"
+    },
+    {
+      "type": "clear",
+      "path": "C:\\Users\\edane\\AppData\\Local\\pip\\Cache"
+    }
+  ]
+}

@@ -1,0 +1,87 @@
+{
+  "mcpArchitecture": {
+    "version": "2.0.0",
+    "description": "Comprehensive MCP Integration Architecture for Project-Nyra",
+    "components": {
+      "metaMcpGateway": {
+        "name": "MetaMCP Gateway",
+        "role": "Proxy aggregator and service discovery",
+        "port": 8080,
+        "features": [
+          "Service discovery and registration",
+          "Load balancing across MCP servers",
+          "Health monitoring and status reporting",
+          "Circuit breaker for failed services",
+          "Request routing and transformation",
+          "Authentication and authorization"
+        ]
+      },
+      "archonMcp": {
+        "name": "Archon MCP",
+        "role": "Advanced agent coordination and memory management",
+        "port": 8081,
+        "features": [
+          "Multi-agent coordination patterns",
+          "Distributed memory system",
+          "Task orchestration workflows",
+          "Performance optimization",
+          "Neural network integration",
+          "Cross-system state synchronization"
+        ]
+      },
+      "claudeFlowMcp": {
+        "name": "Claude-Flow MCP",
+        "role": "SPARC methodology and swarm management",
+        "port": 8082,
+        "features": [
+          "SPARC workflow automation",
+          "Swarm topology management",
+          "Real-time monitoring and metrics",
+          "Cross-session memory persistence",
+          "GitHub integration",
+          "Neural pattern training"
+        ]
+      },
+      "nyraOrchestrator": {
+        "name": "Nyra Orchestrator",
+        "role": "Project-specific coordination and GPU compute management",
+        "port": 8083,
+        "features": [
+          "GPU cluster management",
+          "Wake-on-LAN coordination",
+          "Cloudflared tunnel management",
+          "Mortgage workflow automation",
+          "Lead processing and distribution",
+          "Cross-PC resource allocation"
+        ]
+      }
+    },
+    "serviceMesh": {
+      "architecture": "mesh",
+      "communication": "grpc+stdio",
+      "security": {
+        "tls": true,
+        "mTLS": true,
+        "authentication": "jwt+ed25519",
+        "authorization": "rbac"
+      },
+      "observability": {
+        "tracing": "opentelemetry",
+        "metrics": "prometheus",
+        "logging": "structured-json",
+        "healthChecks": "interval-based"
+      }
+    },
+    "deployment": {
+      "environment": "hybrid",
+      "orchestrator": "Minisforum UH680",
+      "workers": [
+        "Alienware M15R7 (RTX 3060)",
+        "Alienware Area-51 (RTX 5090)",
+        "Desktop PC (RTX 3090Ti)"
+      ],
+      "cloud": "Koyeb.com VPS",
+      "networking": "cloudflared tunnels"
+    }
+  }
+}

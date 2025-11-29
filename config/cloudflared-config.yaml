@@ -1,0 +1,251 @@
+# Cloudflared Tunnel Configuration for Nyra Distributed AI Infrastructure
+# Secure communication between orchestrator and worker nodes
+
+# Orchestrator Tunnel Configuration
+orchestrator:
+  tunnel: nyra-orchestrator-tunnel
+  credentials-file: /etc/cloudflared/nyra-orchestrator-tunnel.json
+  ingress:
+    # Main API Gateway
+    - hostname: api.nyra.ratehunter.net
+      service: http://localhost:8000
+      originRequest:
+        httpHostHeader: api.nyra.ratehunter.net
+        connectTimeout: 30s
+        tlsTimeout: 30s
+        tcpKeepAlive: 30s
+
+    # Admin Interface
+    - hostname: admin.nyra.ratehunter.net
+      service: http://localhost:4000
+      originRequest:
+        httpHostHeader: admin.nyra.ratehunter.net
+
+    # Monitoring Dashboard
+    - hostname: monitor.nyra.ratehunter.net
+      service: http://localhost:3000
+      originRequest:
+        httpHostHeader: monitor.nyra.ratehunter.net
+
+    # Prometheus Metrics
+    - hostname: metrics.nyra.ratehunter.net
+      service: http://localhost:9090
+      originRequest:
+        httpHostHeader: metrics.nyra.ratehunter.net
+
+    # Default catch-all
+    - service: http_status:404
+
+# Worker 1 Tunnel Configuration (RTX 3060 - Code Specialist)
+worker1:
+  tunnel: nyra-worker1-tunnel
+  credentials-file: /etc/cloudflared/nyra-worker1-tunnel.json
+  ingress:
+    # Worker 1 API
+    - hostname: worker1.nyra.ratehunter.net
+      service: http://localhost:4001
+      originRequest:
+        httpHostHeader: worker1.nyra.ratehunter.net
+        connectTimeout: 60s
+        tlsTimeout: 30s
+
+    # Worker 1 Health Check
+    - hostname: worker1-health.nyra.ratehunter.net
+      service: http://localhost:8081
+      originRequest:
+        httpHostHeader: worker1-health.nyra.ratehunter.net
+
+    # Worker 1 Metrics
+    - hostname: worker1-metrics.nyra.ratehunter.net
+      service: http://localhost:9001
+      originRequest:
+        httpHostHeader: worker1-metrics.nyra.ratehunter.net
+
+    # Default catch-all
+    - service: http_status:404
+
+# Worker 2 Tunnel Configuration (RTX 5090 - Reasoning Specialist)
+worker2:
+  tunnel: nyra-worker2-tunnel
+  credentials-file: /etc/cloudflared/nyra-worker2-tunnel.json
+  ingress:
+    # Worker 2 API
+    - hostname: worker2.nyra.ratehunter.net
+      service: http://localhost:4002
+      originRequest:
+        httpHostHeader: worker2.nyra.ratehunter.net
+        connectTimeout: 120s  # Longer timeout for large models
+        tlsTimeout: 30s
+
+    # Worker 2 Health Check
+    - hostname: worker2-health.nyra.ratehunter.net
+      service: http://localhost:8082
+      originRequest:
+        httpHostHeader: worker2-health.nyra.ratehunter.net
+
+    # Worker 2 Metrics
+    - hostname: worker2-metrics.nyra.ratehunter.net
+      service: http://localhost:9002
+      originRequest:
+        httpHostHeader: worker2-metrics.nyra.ratehunter.net
+
+    # Default catch-all
+    - service: http_status:404
+
+# Worker 3 Tunnel Configuration (RTX 3090Ti - Research Specialist)
+worker3:
+  tunnel: nyra-worker3-tunnel
+  credentials-file: /etc/cloudflared/nyra-worker3-tunnel.json
+  ingress:
+    # Worker 3 API
+    - hostname: worker3.nyra.ratehunter.net
+      service: http://localhost:4003
+      originRequest:
+        httpHostHeader: worker3.nyra.ratehunter.net
+        connectTimeout: 90s
+        tlsTimeout: 30s
+
+    # Worker 3 Health Check
+    - hostname: worker3-health.nyra.ratehunter.net
+      service: http://localhost:8083
+      originRequest:
+        httpHostHeader: worker3-health.nyra.ratehunter.net
+
+    # Worker 3 Metrics
+    - hostname: worker3-metrics.nyra.ratehunter.net
+      service: http://localhost:9003
+      originRequest:
+        httpHostHeader: worker3-metrics.nyra.ratehunter.net
+
+    # Document Processing Service
+    - hostname: worker3-docs.nyra.ratehunter.net
+      service: http://localhost:8084
+      originRequest:
+        httpHostHeader: worker3-docs.nyra.ratehunter.net
+
+    # Vision Service
+    - hostname: worker3-vision.nyra.ratehunter.net
+      service: http://localhost:8085
+      originRequest:
+        httpHostHeader: worker3-vision.nyra.ratehunter.net
+
+    # Default catch-all
+    - service: http_status:404
+
+# Global Settings
+global_settings:
+  # DNS settings
+  dns:
+    resolver: cloudflare-dns.com
+    fallback: 1.1.1.1
+
+  # Logging
+  logging:
+    level: info
+    file: /var/log/cloudflared.log
+    max_size: 100MB
+    max_backups: 5
+
+  # Performance tuning
+  transport:
+    protocol: quic
+    keep_alive_connections: 4
+    keep_alive_timeout: 30s
+
+  # Security
+  security:
+    tls_version: "1.3"
+    cert_compression: true
+
+  # Auto-update
+  autoupdate:
+    frequency: 24h
+    check_interval: 5m
+
+# Monitoring and Health Checks
+monitoring:
+  metrics:
+    enabled: true
+    port: 8080
+    path: /metrics
+
+  health_checks:
+    enabled: true
+    interval: 30s
+    timeout: 10s
+    failure_threshold: 3
+
+# Network Optimization
+network:
+  tcp_keepalive: 30s
+  no_happy_eyeballs: false
+  http2_origin: true
+  compression: gzip
+
+# Edge Configuration
+edge:
+  # IP rules for worker access
+  ip_rules:
+    - rule: "ip.src in {192.168.1.0/24 10.0.0.0/8}"
+      action: allow
+    - rule: "ip.src eq 0.0.0.0/0"
+      action: challenge
+
+  # Rate limiting
+  rate_limiting:
+    threshold: 1000  # requests per minute
+    period: 60s
+    action: challenge
+
+  # Caching rules
+  cache_rules:
+    - match: "http.request.uri.path matches \"^/static/\""
+      action: cache
+      edge_ttl: 1h
+    - match: "http.request.uri.path matches \"^/api/\""
+      action: bypass
+
+# Deployment Scripts
+deployment:
+  install_script: |
+    #!/bin/bash
+    # Install cloudflared
+    curl -L https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64 -o cloudflared
+    chmod +x cloudflared
+    sudo mv cloudflared /usr/local/bin/
+
+  service_script: |
+    #!/bin/bash
+    # Create systemd service
+    sudo tee /etc/systemd/system/cloudflared-nyra.service > /dev/null <<EOF
+    [Unit]
+    Description=Cloudflared tunnel for Nyra
+    After=network.target
+
+    [Service]
+    Type=simple
+    User=cloudflared
+    ExecStart=/usr/local/bin/cloudflared tunnel --config /etc/cloudflared/config.yaml run
+    Restart=on-failure
+    RestartSec=5s
+
+    [Install]
+    WantedBy=multi-user.target
+    EOF
+
+    sudo systemctl daemon-reload
+    sudo systemctl enable cloudflared-nyra
+    sudo systemctl start cloudflared-nyra
+
+# Environment-specific settings
+environments:
+  development:
+    log_level: debug
+    auto_update: false
+    metrics_enabled: true
+
+  production:
+    log_level: info
+    auto_update: true
+    metrics_enabled: true
+    security_enhanced: true

@@ -1,0 +1,35 @@
+{
+  "name": "nyra-metamcp-gateway-enhanced",
+  "version": "2.0.0",
+  "description": "Enhanced MetaMCP Gateway with Infisical Integration for Nyra",
+  "main": "src/gateway-enhanced.js",
+  "scripts": {
+    "start": "node src/gateway-enhanced.js",
+    "dev": "nodemon src/gateway-enhanced.js",
+    "health": "curl -f http://localhost:${GATEWAY_PORT:-8005}/health",
+    "test": "echo \"No tests specified\" && exit 0"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^0.5.0",
+    "express": "^4.18.2",
+    "http-proxy-middleware": "^2.0.6",
+    "ws": "^8.14.2",
+    "axios": "^1.6.0",
+    "winston": "^3.11.0",
+    "joi": "^17.11.0",
+    "helmet": "^7.1.0",
+    "cors": "^2.8.5",
+    "uuid": "^9.0.1",
+    "lodash": "^4.17.21",
+    "redis": "^4.6.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "author": "Project Nyra Team",
+  "license": "MIT"
+}

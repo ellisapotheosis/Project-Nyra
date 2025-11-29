@@ -1,0 +1,192 @@
+{
+  "claudeFlowMcp": {
+    "name": "Claude-Flow MCP",
+    "version": "2.0.0",
+    "description": "SPARC methodology integration and swarm management system",
+    "configuration": {
+      "server": {
+        "host": "localhost",
+        "port": 8082,
+        "protocol": "stdio",
+        "maxAgents": 100,
+        "sessionTimeout": 1800000
+      },
+      "sparc": {
+        "methodology": {
+          "specification": {
+            "enabled": true,
+            "aiAssisted": true,
+            "templateGeneration": true
+          },
+          "pseudocode": {
+            "enabled": true,
+            "languageAgnostic": true,
+            "algorithmOptimization": true
+          },
+          "architecture": {
+            "enabled": true,
+            "patternRecognition": true,
+            "modularDesign": true,
+            "scalabilityAnalysis": true
+          },
+          "refinement": {
+            "enabled": true,
+            "tddIntegration": true,
+            "codeQuality": true,
+            "performanceOptimization": true
+          },
+          "completion": {
+            "enabled": true,
+            "integrationTesting": true,
+            "documentationGeneration": true,
+            "deploymentAutomation": true
+          }
+        },
+        "workflows": {
+          "parallel": true,
+          "adaptive": true,
+          "memoryPersistent": true,
+          "crossSessionContinuity": true
+        }
+      },
+      "swarmManagement": {
+        "topologies": {
+          "mesh": {
+            "enabled": true,
+            "selfHealing": true,
+            "dynamicReconnection": true
+          },
+          "hierarchical": {
+            "enabled": true,
+            "leaderElection": "raft",
+            "spanOfControl": 7
+          },
+          "ring": {
+            "enabled": true,
+            "bidirectional": true,
+            "faultTolerance": true
+          },
+          "star": {
+            "enabled": true,
+            "centralCoordinator": true,
+            "loadDistribution": true
+          }
+        },
+        "agents": {
+          "types": [
+            "researcher", "coder", "tester", "reviewer", "architect",
+            "coordinator", "optimizer", "validator", "integrator"
+          ],
+          "spawning": "dynamic",
+          "lifecycle": "managed",
+          "communication": "event-driven"
+        }
+      },
+      "monitoring": {
+        "realTime": {
+          "enabled": true,
+          "updateInterval": 1000,
+          "metricTypes": [
+            "agent-performance",
+            "task-completion",
+            "memory-usage",
+            "network-latency",
+            "error-rates"
+          ]
+        },
+        "analytics": {
+          "patternDetection": true,
+          "performanceTrends": true,
+          "bottleneckIdentification": true,
+          "optimizationSuggestions": true
+        }
+      },
+      "memory": {
+        "crossSession": {
+          "enabled": true,
+          "persistence": "sqlite+redis",
+          "encryption": true,
+          "compression": true
+        },
+        "contextual": {
+          "enabled": true,
+          "semanticSearch": true,
+          "relationshipMapping": true,
+          "temporalOrdering": true
+        },
+        "sharing": {
+          "crossAgent": true,
+          "crossSwarm": true,
+          "permissionBased": true
+        }
+      },
+      "integration": {
+        "github": {
+          "enabled": true,
+          "automation": [
+            "issue-triage",
+            "pr-enhancement",
+            "code-review",
+            "release-management"
+          ]
+        },
+        "neuralPatterns": {
+          "enabled": true,
+          "learningTypes": [
+            "convergent",
+            "divergent",
+            "lateral",
+            "systems",
+            "critical",
+            "abstract"
+          ],
+          "adaptiveTraining": true
+        },
+        "hooks": {
+          "preTask": true,
+          "postTask": true,
+          "sessionRestore": true,
+          "memorySync": true,
+          "performanceAnalysis": true
+        }
+      },
+      "performance": {
+        "optimization": {
+          "tokenReduction": 0.323,
+          "speedImprovement": 2.8,
+          "parallelEfficiency": 0.848,
+          "neuralModels": 27
+        },
+        "benchmarking": {
+          "sweoBenchSolveRate": 0.848,
+          "continuousMonitoring": true,
+          "performanceRegression": true
+        }
+      }
+    },
+    "apis": {
+      "sparc": {
+        "run": "/api/v1/sparc/run",
+        "batch": "/api/v1/sparc/batch",
+        "pipeline": "/api/v1/sparc/pipeline",
+        "status": "/api/v1/sparc/status"
+      },
+      "swarm": {
+        "init": "/api/v1/swarm/init",
+        "spawn": "/api/v1/swarm/spawn",
+        "orchestrate": "/api/v1/swarm/orchestrate",
+        "monitor": "/api/v1/swarm/monitor"
+      },
+      "memory": {
+        "store": "/api/v1/memory/store",
+        "retrieve": "/api/v1/memory/retrieve",
+        "sync": "/api/v1/memory/sync"
+      },
+      "hooks": {
+        "pre": "/api/v1/hooks/pre",
+        "post": "/api/v1/hooks/post",
+        "session": "/api/v1/hooks/session"
+      }
+    }
+  }
+}
