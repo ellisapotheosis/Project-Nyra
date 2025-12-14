@@ -73,3 +73,5 @@ claude-flow
 *.env
 nyra-ingestion/
 .aider*
+
+ENVIRONMENT_SECRETS_DOCUMENTATION.md
