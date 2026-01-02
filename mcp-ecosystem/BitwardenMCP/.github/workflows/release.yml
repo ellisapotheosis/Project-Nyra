@@ -1,0 +1,123 @@
+name: Release
+run-name: ${{ inputs.release_type == 'Dry Run' && 'Release (Dry Run)' || 'Release' }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_type:
+        description: "Release options"
+        required: true
+        default: "Initial Release"
+        type: choice
+        options:
+          - Initial Release
+          - Dry Run
+
+permissions:
+  contents: read
+
+jobs:
+  setup:
+    name: Setup
+    runs-on: ubuntu-24.04
+    outputs:
+      release_version: ${{ steps.version.outputs.version }}
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          persist-credentials: false
+
+      - name: Check branch
+        if: ${{ inputs.release_type != 'Dry Run' }}
+        run: |
+          if [[ "$GITHUB_REF" != "refs/heads/main" ]]; then
+            echo "==================================="
+            echo "[!] Can only release from the 'main' branch"
+            echo "==================================="
+            exit 1
+          fi
+
+      - name: Check release version
+        id: version
+        uses: bitwarden/gh-actions/release-version-check@main
+        with:
+          release-type: ${{ inputs.release_type }}
+          project-type: ts
+          file: ./package.json
+
+  release:
+    name: Release
+    runs-on: ubuntu-24.04
+    needs: setup
+    env:
+      _PKG_VERSION: ${{ needs.setup.outputs.release_version }}
+    permissions:
+      contents: write
+      packages: read
+      actions: read
+
+    steps:
+      - name: Download all release artifacts
+        if: ${{ inputs.release_type != 'Dry Run' }}
+        uses: bitwarden/gh-actions/download-artifacts@main
+        with:
+          workflow: build.yml
+          workflow_conclusion: success
+          artifacts: "mcp-server-${{ env._PKG_VERSION }}.zip"
+          branch: ${{ github.ref_name }}
+
+      - name: Dry Run - Download all artifacts
+        if: ${{ inputs.release_type == 'Dry Run' }}
+        uses: bitwarden/gh-actions/download-artifacts@main
+        with:
+          workflow: build.yml
+          workflow_conclusion: success
+          artifacts: "mcp-server-${{ env._PKG_VERSION }}.zip"
+          branch: main
+
+      - name: Create release
+        if: ${{ inputs.release_type != 'Dry Run' }}
+        uses: ncipollo/release-action@bcfe5470707e8832e12347755757cec0eb3c22af # v1.18.0
+        with:
+          artifacts: "./mcp-server-${{ env._PKG_VERSION }}.zip"
+          commit: ${{ github.sha }}
+          tag: v${{ env._PKG_VERSION }}
+          name: v${{ env._PKG_VERSION }}
+          body: "<insert release notes here>"
+          token: ${{ secrets.GITHUB_TOKEN }}
+          draft: true
+
+  release-ghcr:
+    name: Push Release to GitHub Container Registry
+    runs-on: ubuntu-24.04
+    needs: setup
+    env:
+      _RELEASE_TAG: ${{ needs.setup.outputs.release_version }}
+      _IMAGE_NAME: ghcr.io/bitwarden/mcp-server
+    permissions:
+      packages: write
+
+    steps:
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 # v3.4.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Dry Run - Pull, tag, and push release
+        if: ${{ inputs.release_type == 'Dry Run' }}
+        run: |
+          docker pull "${_IMAGE_NAME}:dev"
+          docker tag "${_IMAGE_NAME}:dev" "${_IMAGE_NAME}:${_RELEASE_TAG}"
+
+      - name: Pull, tag, and push release
+        if: ${{ inputs.release_type != 'Dry Run' }}
+        run: |
+          docker pull "${_IMAGE_NAME}:dev"
+          docker tag "${_IMAGE_NAME}:dev" "${_IMAGE_NAME}:${_RELEASE_TAG}"
+          docker push "${_IMAGE_NAME}:${_RELEASE_TAG}"
+
+      - name: Log out of Docker
+        run: docker logout ghcr.io

@@ -1,0 +1,46 @@
+Set-StrictMode -Version Latest
+$ErrorActionPreference = 'Stop'
+$Root = "C:\Dev\Tools\MCP-Servers\FileSystemMCP"
+$ComposePath = Join-Path $Root 'docker-compose.yml'
+@'
+services:
+  mcp:
+    build:
+      context: .
+      dockerfile: Dockerfile.mcp
+    container_name: FileSystemMCP-mcp-1
+    environment:
+      - BASE_DIR=/data
+      - MCP_API_KEY=apotheosis2142
+    volumes:
+      - ./data:/data
+    ports:
+      - "8000:8000"
+    networks: [mcpnet]
+    restart: unless-stopped
+
+  ngrok:
+    image: ngrok/ngrok:latest
+    container_name: FileSystemMCP-ngrok-1
+    depends_on:
+      - mcp
+    ports:
+      - "4040:4040"
+    command:
+      - "http"
+      - "mcp:8000"
+      - "--log=stdout"
+    environment:
+      - NGROK_AUTHTOKEN=342u1RKgsUdqKdsFAULKog4bYOi_eWjUXBr6WrAJefn7UjsV
+      - NGROK_API_KEY=342uszUwmwbdkFLeb4434b0iRLC_2SFP9wDMgcruZBbUaejBz
+    networks:
+      - mcpnet
+    restart: unless-stopped
+
+networks:
+  mcpnet: {}
+
+'@ | Set-Content -Encoding UTF8 -LiteralPath $ComposePath
+Push-Location $Root
+try { docker compose down | Out-Null; docker compose up -d --build } finally { Pop-Location }
+Write-Host "Repaired ngrok. Visit http://localhost:4040 to verify."

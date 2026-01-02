@@ -1,0 +1,352 @@
+version: '3.8'
+
+networks:
+  nyra-mcp:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+volumes:
+  postgres-data:
+    driver: local
+  redis-data:
+    driver: local
+  mcp-logs:
+    driver: local
+
+services:
+  # 🗄️ PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: nyra-mcp-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: nyra_dev
+      POSTGRES_USER: nyra_user
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-dev_password_change_me}
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --lc-collate=C --lc-ctype=C"
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./init-scripts:/docker-entrypoint-initdb.d:ro
+    networks:
+      nyra-mcp:
+        ipv4_address: 172.20.0.10
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U nyra_user -d nyra_dev"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # 🔄 Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: nyra-mcp-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      nyra-mcp:
+        ipv4_address: 172.20.0.11
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-dev_redis_password}
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  # 📁 FileSystem MCP Server
+  filesystem-mcp:
+    build:
+      context: ../FileSystemMCP
+      dockerfile: Dockerfile
+    container_name: nyra-filesystem-mcp
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=development
+      - MCP_PORT=8000
+      - LOG_LEVEL=debug
+      - ALLOWED_PATHS=/workspace,/tmp,/var/log
+    ports:
+      - "8000:8000"
+    volumes:
+      - ../:/workspace:cached
+      - mcp-logs:/var/log/mcp
+      - /tmp:/tmp
+    networks:
+      nyra-mcp:
+        ipv4_address: 172.20.0.20
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 15s
+      timeout: 10s
+      retries: 3
+
+  # 🐙 GitHub MCP Server  
+  github-mcp:
+    build:
+      context: ../GithubMCP
+      dockerfile: Dockerfile
+    container_name: nyra-github-mcp
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=development
+      - MCP_PORT=8001
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+      - GITHUB_OWNER=${GITHUB_OWNER:-xulbux}
+      - LOG_LEVEL=debug
+    ports:
+      - "8001:8001"
+    volumes:
+      - mcp-logs:/var/log/mcp
+    networks:
+      nyra-mcp:
+        ipv4_address: 172.20.0.21
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
+      interval: 15s
+      timeout: 10s
+      retries: 3
+
+  # 🐳 Docker MCP Server
+  docker-mcp:
+    build:
+      context: ../DockerMCP
+      dockerfile: Dockerfile
+    container_name: nyra-docker-mcp
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=development
+      - MCP_PORT=8002
+      - DOCKER_HOST=unix:///var/run/docker.sock
+      - LOG_LEVEL=debug
+    ports:
+      - "8002:8002"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - mcp-logs:/var/log/mcp
+    networks:
+      nyra-mcp:
+        ipv4_address: 172.20.0.22
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8002/health"]
+      interval: 15s
+      timeout: 10s
+      retries: 3
+
+  # 🔐 Infisical MCP Server
+  infisical-mcp:
+    build:
+      context: ../Infisical
+      dockerfile: Dockerfile
+    container_name: nyra-infisical-mcp
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=development
+      - MCP_PORT=3001
+      - INFISICAL_ENVIRONMENT=${INFISICAL_ENVIRONMENT:-dev}
+      - INFISICAL_PROJECT_ID=${INFISICAL_PROJECT_ID}
+      - INFISICAL_UNIVERSAL_AUTH_CLIENT_ID=${INFISICAL_UNIVERSAL_AUTH_CLIENT_ID}
+      - INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET=${INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET}
+      - LOG_LEVEL=debug
+    ports:
+      - "3001:3001"
+    volumes:
+      - mcp-logs:/var/log/mcp
+    networks:
+      nyra-mcp:
+        ipv4_address: 172.20.0.23
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+      interval: 15s
+      timeout: 10s
+      retries: 3
+
+  # 🔑 Bitwarden MCP Server
+  bitwarden-mcp:
+    build:
+      context: ../Bitwarden
+      dockerfile: Dockerfile
+    container_name: nyra-bitwarden-mcp
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=development
+      - BW_SESSION=${BW_SESSION}
+      - BW_CLIENT_ID=${BW_CLIENT_ID}
+      - BW_CLIENT_SECRET=${BW_CLIENT_SECRET}
+      - LOG_LEVEL=debug
+    ports:
+      - "3002:3002"
+    volumes:
+      - mcp-logs:/var/log/mcp
+    networks:
+      nyra-mcp:
+        ipv4_address: 172.20.0.24
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3002/health"]
+      interval: 15s
+      timeout: 10s
+      retries: 3
+
+  # 🎛️ MetaMCP Orchestrator
+  metamcp:
+    build:
+      context: ../MetaMCP
+      dockerfile: Dockerfile
+    container_name: nyra-metamcp-orchestrator
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=development
+      - METAMCP_PORT=12008
+      - METAMCP_CONFIG_PATH=/app/config/mcp-servers-config.json
+      - METAMCP_API_KEY=sk_mt_nyra_dev_2025
+      - REDIS_URL=redis://:${REDIS_PASSWORD:-dev_redis_password}@redis:6379
+      - DATABASE_URL=postgresql://nyra_user:${POSTGRES_PASSWORD:-dev_password_change_me}@postgres:5432/nyra_dev
+      - LOG_LEVEL=debug
+    ports:
+      - "12008:12008"
+      - "12009:12009" # WebSocket port
+    volumes:
+      - ../mcp-servers-config.json:/app/config/mcp-servers-config.json:ro
+      - mcp-logs:/var/log/mcp
+    networks:
+      nyra-mcp:
+        ipv4_address: 172.20.0.30
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      filesystem-mcp:
+        condition: service_healthy
+      github-mcp:
+        condition: service_healthy
+      infisical-mcp:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:12008/health"]
+      interval: 15s
+      timeout: 10s
+      retries: 3
+
+  # 🌐 Web Dashboard
+  web-dashboard:
+    build:
+      context: ./web-dashboard
+      dockerfile: Dockerfile
+      target: development
+    container_name: nyra-mcp-dashboard
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=development
+      - VITE_API_URL=http://localhost:12008
+      - VITE_WS_URL=ws://localhost:12009
+      - CHOKIDAR_USEPOLLING=true
+    ports:
+      - "3000:3000"
+      - "3001:3001" # HMR port
+    volumes:
+      - ./web-dashboard:/app:cached
+      - /app/node_modules
+    networks:
+      nyra-mcp:
+        ipv4_address: 172.20.0.40
+    depends_on:
+      metamcp:
+        condition: service_healthy
+    command: npm run dev
+
+  # 📊 Monitoring Stack
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: nyra-mcp-prometheus
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    networks:
+      nyra-mcp:
+        ipv4_address: 172.20.0.50
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--web.enable-lifecycle'
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: nyra-mcp-grafana
+    restart: unless-stopped
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+    networks:
+      nyra-mcp:
+        ipv4_address: 172.20.0.51
+    depends_on:
+      - prometheus
+
+  # 🔍 Log Aggregation
+  loki:
+    image: grafana/loki:latest
+    container_name: nyra-mcp-loki
+    restart: unless-stopped
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./monitoring/loki.yml:/etc/loki/local-config.yaml:ro
+    networks:
+      nyra-mcp:
+        ipv4_address: 172.20.0.52
+    command: -config.file=/etc/loki/local-config.yaml
+
+  promtail:
+    image: grafana/promtail:latest
+    container_name: nyra-mcp-promtail
+    restart: unless-stopped
+    volumes:
+      - mcp-logs:/var/log/mcp:ro
+      - ./monitoring/promtail.yml:/etc/promtail/config.yml:ro
+    networks:
+      nyra-mcp:
+        ipv4_address: 172.20.0.53
+    depends_on:
+      - loki
+    command: -config.file=/etc/promtail/config.yml
+
+  # 🧪 Development Tools Container
+  dev-tools:
+    build:
+      context: ./dev-tools
+      dockerfile: Dockerfile
+    container_name: nyra-dev-tools
+    restart: "no"
+    working_dir: /workspace
+    environment:
+      - NODE_ENV=development
+      - TERM=xterm-256color
+    volumes:
+      - ../:/workspace:cached
+      - ~/.gitconfig:/root/.gitconfig:ro
+      - ~/.ssh:/root/.ssh:ro
+    networks:
+      nyra-mcp:
+        ipv4_address: 172.20.0.60
+    profiles:
+      - tools
+    tty: true
+    stdin_open: true

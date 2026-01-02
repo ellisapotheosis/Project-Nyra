@@ -1,0 +1,137 @@
+{
+  "name": "nyra-mcp-integration",
+  "displayName": "NYRA MCP Integration",
+  "description": "Integrates VSCode with NYRA MCP ecosystem for AI-powered development workflows",
+  "version": "1.0.0",
+  "publisher": "xulbux",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "AI",
+    "Other",
+    "Extension Packs"
+  ],
+  "keywords": [
+    "mcp",
+    "ai",
+    "secrets",
+    "infisical",
+    "bitwarden",
+    "nyra",
+    "development"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "nyra.mcp.startAll",
+        "title": "Start All MCP Servers",
+        "category": "NYRA MCP"
+      },
+      {
+        "command": "nyra.mcp.stopAll",
+        "title": "Stop All MCP Servers",
+        "category": "NYRA MCP"
+      },
+      {
+        "command": "nyra.mcp.status",
+        "title": "Show MCP Status",
+        "category": "NYRA MCP"
+      },
+      {
+        "command": "nyra.mcp.getSecret",
+        "title": "Get Secret from Infisical",
+        "category": "NYRA MCP"
+      },
+      {
+        "command": "nyra.mcp.getPassword",
+        "title": "Get Password from Bitwarden",
+        "category": "NYRA MCP"
+      },
+      {
+        "command": "nyra.mcp.injectSecrets",
+        "title": "Inject Secrets into Terminal",
+        "category": "NYRA MCP"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "nyra.mcp.startAll",
+        "key": "ctrl+shift+m s",
+        "when": "!terminalFocus"
+      },
+      {
+        "command": "nyra.mcp.status",
+        "key": "ctrl+shift+m t",
+        "when": "!terminalFocus"
+      },
+      {
+        "command": "nyra.mcp.getSecret",
+        "key": "ctrl+shift+m k",
+        "when": "!terminalFocus"
+      }
+    ],
+    "configuration": {
+      "title": "NYRA MCP Integration",
+      "properties": {
+        "nyra.mcp.autoStartOnVSCodeLaunch": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically start MCP servers when VSCode opens"
+        },
+        "nyra.mcp.infisicalEnvironment": {
+          "type": "string",
+          "default": "dev",
+          "description": "Default Infisical environment"
+        },
+        "nyra.mcp.metaMcpEndpoint": {
+          "type": "string",
+          "default": "http://localhost:12008",
+          "description": "MetaMCP orchestrator endpoint"
+        },
+        "nyra.mcp.enableStatusBarItem": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show MCP status in status bar"
+        }
+      }
+    },
+    "views": {
+      "explorer": [
+        {
+          "id": "nyra-mcp-servers",
+          "name": "NYRA MCP Servers",
+          "when": "workspaceFolderCount != 0"
+        }
+      ]
+    },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "nyra-mcp",
+          "title": "NYRA MCP",
+          "icon": "$(key)"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.85.0",
+    "@types/node": "^20.x",
+    "typescript": "^5.3.0"
+  },
+  "dependencies": {
+    "axios": "^1.6.0",
+    "ws": "^8.14.0"
+  }
+}
