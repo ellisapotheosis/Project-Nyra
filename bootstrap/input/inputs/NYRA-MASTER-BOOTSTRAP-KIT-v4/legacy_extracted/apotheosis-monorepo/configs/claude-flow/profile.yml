@@ -1,0 +1,14 @@
+name: apotheosis
+mcp:
+  enableProjectServers: true
+  approveAll: true
+  file: .mcp.json
+tasks:
+  - name: research-and-build
+    goal: multi-discipline research + build
+    mode: team
+    orchestration: anemoi
+  - name: quick-microteam
+    goal: quick unit test scaffolding
+    mode: micro
+    orchestration: ag2

@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__desktop-commander__list_directory",
+      "Bash(tree:*)",
+      "Bash(git ls-tree:*)",
+      "Bash(git checkout:*)"
+    ]
+  },
+  "enabledPlugins": {
+    "frontend-design@claude-plugins-official": true,
+    "pr-review-toolkit@claude-plugins-official": true,
+    "explanatory-output-style@claude-plugins-official": true,
+    "Notion@claude-plugins-official": true,
+    "typescript-lsp@claude-plugins-official": true,
+    "plugin-dev@claude-plugins-official": true,
+    "greptile@claude-plugins-official": true,
+    "hookify@claude-plugins-official": true,
+    "feature-dev@claude-plugins-official": true
+  }
+}

@@ -1,0 +1,75 @@
+version: '3.8'
+
+services:
+  claude-flow:
+    build:
+      context: ../..
+      dockerfile: Dockerfile
+      target: development
+      args:
+        NODE_ENV: development
+    container_name: claude-flow-dev
+    ports:
+      - "3000:3000"
+      - "9229:9229"  # Debug port
+    environment:
+      - NODE_ENV=development
+      - DEBUG=*
+      - LOG_LEVEL=debug
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/claude_flow_dev
+      - REDIS_URL=redis://redis:6379
+      - CONFIG_PATH=/app/config/development
+    volumes:
+      - ../../:/app
+      - /app/node_modules
+      - ../../config/development:/app/config/development
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - claude-flow-network
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: claude-flow-postgres-dev
+    environment:
+      - POSTGRES_DB=claude_flow_dev
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - claude-flow-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: claude-flow-redis-dev
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - claude-flow-network
+
+networks:
+  claude-flow-network:
+    driver: bridge
+
+volumes:
+  postgres-data:
+  redis-data:

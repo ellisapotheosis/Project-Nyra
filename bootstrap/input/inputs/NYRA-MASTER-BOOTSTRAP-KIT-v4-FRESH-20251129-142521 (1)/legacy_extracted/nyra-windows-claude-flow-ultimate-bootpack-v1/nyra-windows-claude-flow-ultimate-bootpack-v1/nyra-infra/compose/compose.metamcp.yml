@@ -1,0 +1,15 @@
+services:
+  metamcp:
+    image: ghcr.io/metatool-ai/metamcp:latest
+    container_name: nyra_metamcp
+    ports: ["12008:12008"]
+    volumes:
+      - ./mcp/metamcp.config.json:/app/config.json:ro
+    environment:
+      - PORT=12008
+    networks: [nyra-network]
+
+networks:
+  nyra-network:
+    name: nyra-network
+    external: true

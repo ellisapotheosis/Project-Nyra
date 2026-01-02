@@ -1,0 +1,197 @@
+name: CI - Claude-Flow
+
+on:
+  push:
+    branches: [main, develop, feature/*]
+  pull_request:
+    branches: [main, develop]
+  schedule:
+    # Weekly upstream sync check
+    - cron: '0 0 * * 0'
+
+env:
+  NODE_VERSION: '20'
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}/claude-flow
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run linting
+        run: npm run lint
+
+      - name: Run type checking
+        run: npm run typecheck
+
+      - name: Run tests
+        run: npm run test -- --coverage
+
+      - name: Upload coverage
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./coverage/coverage-final.json
+          flags: unittests
+          name: claude-flow-coverage
+
+  security-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run npm audit
+        run: npm audit --production
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+
+      - name: Upload Trivy results to GitHub Security
+        uses: github/codeql-action/upload-sarif@v2
+        if: always()
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+  build-container:
+    runs-on: ubuntu-latest
+    needs: [lint-and-test]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=sha,prefix={{branch}}-
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            NODE_ENV=production
+            VERSION=${{ github.sha }}
+
+  upstream-sync-check:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup upstream
+        run: |
+          git remote add upstream https://github.com/ruvnet/claude-flow.git
+          git fetch upstream
+
+      - name: Check for upstream changes
+        id: check
+        run: |
+          CHANGES=$(git log HEAD..upstream/main --oneline | wc -l)
+          echo "changes=$CHANGES" >> $GITHUB_OUTPUT
+
+          if [ "$CHANGES" -gt 0 ]; then
+            echo "## 🔄 Upstream Changes Detected" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "There are $CHANGES new commits in upstream/main" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "Recent upstream commits:" >> $GITHUB_STEP_SUMMARY
+            git log HEAD..upstream/main --oneline --max-count=10 >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Create upstream sync issue
+        if: steps.check.outputs.changes > 0
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const changes = '${{ steps.check.outputs.changes }}';
+            const { data: issues } = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'upstream-sync'
+            });
+
+            if (issues.length === 0) {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: `🔄 Upstream sync available (${changes} commits)`,
+                body: `Upstream repository has ${changes} new commits.\n\nRun: \`./scripts/sync/sync-upstream.sh\``,
+                labels: ['upstream-sync', 'maintenance']
+              });
+            }
+
+  integration-test:
+    runs-on: ubuntu-latest
+    needs: [build-container]
+    if: github.event_name != 'schedule'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Create Kind cluster
+        uses: helm/kind-action@v1
+        with:
+          cluster_name: test-cluster
+
+      - name: Deploy to Kind
+        run: |
+          chmod +x scripts/deploy/kind-deploy.sh
+          ./scripts/deploy/kind-deploy.sh development
+
+      - name: Run integration tests
+        run: npm run test:integration
+
+      - name: Collect logs
+        if: failure()
+        run: |
+          kubectl logs -n claude-flow-development -l app=claude-flow > deployment-logs.txt
+
+      - name: Upload logs
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: deployment-logs
+          path: deployment-logs.txt

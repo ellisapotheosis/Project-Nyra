@@ -1,0 +1,40 @@
+# Node.js dependencies
+node_modules/
+**/node_modules/
+
+# Build outputs
+dist/
+build/
+*.log
+*.tsbuildinfo
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Problematic Windows reserved filenames
+**/nul
+**/NUL
+**/CON
+**/PRN
+**/AUX
+
+# Bootstrap GUI installer (contains deeply nested legacy files with path length issues)
+bootstrap/gui-installer/
+
+# Temporary files
+*.tmp
+.cache/

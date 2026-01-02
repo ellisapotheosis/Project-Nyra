@@ -1,0 +1,40 @@
+{
+  "servers": [
+    {
+      "name": "meta",
+      "url": "http://localhost:7400"
+    },
+    {
+      "name": "flow-nexus",
+      "url": "http://localhost:7401"
+    },
+    {
+      "name": "roo",
+      "url": "http://localhost:7402"
+    },
+    {
+      "name": "sparc",
+      "url": "http://localhost:7403"
+    },
+    {
+      "name": "sparc2",
+      "url": "http://localhost:7404"
+    },
+    {
+      "name": "zep",
+      "url": "http://localhost:7405"
+    },
+    {
+      "name": "qdrant",
+      "url": "http://localhost:7406"
+    },
+    {
+      "name": "graphiti",
+      "url": "http://localhost:7407"
+    },
+    {
+      "name": "memtensor",
+      "url": "http://localhost:7408"
+    }
+  ]
+}

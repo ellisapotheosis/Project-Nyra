@@ -1,0 +1,22 @@
+{
+  "memory": {
+    "retention": "30d",
+    "maxSize": "1GB"
+  },
+  "agents": {
+    "cache": {
+      "results": true,
+      "ttl": 1800
+    },
+    "pooling": {
+      "enabled": true,
+      "idle-timeout": 300
+    }
+  },
+  "github": {
+    "cache": {
+      "enabled": true,
+      "ttl": 3600
+    }
+  }
+}
