@@ -1,0 +1,4 @@
+name: ingest-docs
+steps:
+  - id: upsert
+    call: graphiti.graph.upsert

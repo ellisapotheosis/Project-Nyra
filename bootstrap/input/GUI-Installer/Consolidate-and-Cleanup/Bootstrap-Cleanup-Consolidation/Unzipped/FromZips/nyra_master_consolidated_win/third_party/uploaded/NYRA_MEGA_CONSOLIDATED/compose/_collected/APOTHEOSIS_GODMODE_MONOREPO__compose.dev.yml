@@ -1,0 +1,11 @@
+version: '3.9'
+services:
+  agent-gateway:
+    build: ../../apps/orchestrator
+    ports: ['5055:5055']
+  nyra-web:
+    build: ../../apps/nyra-web
+    ports: ['3000:3000']
+  voice-bridge:
+    build: ../../apps/voice-bridge
+    ports: ['8765:8765']

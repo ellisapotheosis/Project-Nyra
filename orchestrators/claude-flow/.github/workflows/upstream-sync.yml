@@ -1,0 +1,153 @@
+name: Upstream Sync - Claude-Flow
+
+on:
+  workflow_dispatch:
+    inputs:
+      auto_merge:
+        description: 'Automatically merge if no conflicts'
+        required: false
+        type: boolean
+        default: false
+  schedule:
+    # Run weekly on Monday at 00:00 UTC
+    - cron: '0 0 * * 1'
+
+env:
+  UPSTREAM_REPO: ruvnet/claude-flow
+  UPSTREAM_BRANCH: main
+
+jobs:
+  sync-upstream:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout fork
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Add upstream remote
+        run: |
+          git remote add upstream https://github.com/${{ env.UPSTREAM_REPO }}.git
+          git fetch upstream
+
+      - name: Check for changes
+        id: check_changes
+        run: |
+          CHANGES=$(git log HEAD..upstream/${{ env.UPSTREAM_BRANCH }} --oneline | wc -l)
+          echo "changes=$CHANGES" >> $GITHUB_OUTPUT
+
+          if [ "$CHANGES" -eq 0 ]; then
+            echo "✅ No upstream changes detected"
+            echo "## ✅ Fork is up to date" >> $GITHUB_STEP_SUMMARY
+            exit 0
+          fi
+
+          echo "## 🔄 Upstream Sync Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Found $CHANGES new commits from upstream" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Recent Upstream Commits" >> $GITHUB_STEP_SUMMARY
+          git log HEAD..upstream/${{ env.UPSTREAM_BRANCH }} --oneline --max-count=20 >> $GITHUB_STEP_SUMMARY
+
+      - name: Create backup branch
+        if: steps.check_changes.outputs.changes > 0
+        run: |
+          BACKUP_BRANCH="backup-$(date +%Y%m%d-%H%M%S)"
+          git branch $BACKUP_BRANCH
+          echo "Created backup branch: $BACKUP_BRANCH"
+          echo "backup_branch=$BACKUP_BRANCH" >> $GITHUB_OUTPUT
+        id: backup
+
+      - name: Attempt merge
+        if: steps.check_changes.outputs.changes > 0
+        id: merge
+        continue-on-error: true
+        run: |
+          git merge upstream/${{ env.UPSTREAM_BRANCH }} --no-edit
+
+      - name: Check for conflicts
+        if: steps.check_changes.outputs.changes > 0
+        id: check_conflicts
+        run: |
+          if git diff --name-only --diff-filter=U | grep -q .; then
+            echo "has_conflicts=true" >> $GITHUB_OUTPUT
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### ⚠️ Merge Conflicts Detected" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "Conflicted files:" >> $GITHUB_STEP_SUMMARY
+            git diff --name-only --diff-filter=U >> $GITHUB_STEP_SUMMARY
+            git merge --abort
+          else
+            echo "has_conflicts=false" >> $GITHUB_OUTPUT
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### ✅ Merge Successful" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Push changes
+        if: |
+          steps.check_changes.outputs.changes > 0 &&
+          steps.check_conflicts.outputs.has_conflicts == 'false' &&
+          (github.event.inputs.auto_merge == 'true' || github.event_name == 'schedule')
+        run: |
+          git push origin ${{ github.ref_name }}
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🚀 Changes Pushed" >> $GITHUB_STEP_SUMMARY
+          echo "Upstream changes have been merged and pushed to fork" >> $GITHUB_STEP_SUMMARY
+
+      - name: Create PR for conflicts
+        if: |
+          steps.check_changes.outputs.changes > 0 &&
+          steps.check_conflicts.outputs.has_conflicts == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const branch = 'upstream-sync-' + new Date().toISOString().split('T')[0];
+
+            // Create branch
+            await github.rest.git.createRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: `refs/heads/${branch}`,
+              sha: context.sha
+            });
+
+            // Create PR
+            const { data: pr } = await github.rest.pulls.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: '🔄 Upstream sync with conflicts',
+              head: branch,
+              base: context.ref.replace('refs/heads/', ''),
+              body: `## Upstream Sync\n\nThis PR contains changes from upstream that have conflicts.\n\n### Action Required\n1. Review conflicted files\n2. Resolve conflicts\n3. Test changes\n4. Merge PR\n\n**Backup branch:** ${context.payload.backup_branch || 'N/A'}`
+            });
+
+            core.summary.addRaw(`\n### 📝 Pull Request Created\nPR #${pr.number}: ${pr.html_url}`);
+
+      - name: Run tests
+        if: |
+          steps.check_changes.outputs.changes > 0 &&
+          steps.check_conflicts.outputs.has_conflicts == 'false'
+        run: |
+          if [ -f "package.json" ]; then
+            npm ci
+            npm run test || echo "⚠️ Tests failed - review changes"
+          fi
+
+      - name: Notify on failure
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: '❌ Upstream sync failed',
+              body: `Upstream sync workflow failed.\n\nCheck the [workflow run](${context.payload.repository.html_url}/actions/runs/${context.runId}) for details.`,
+              labels: ['upstream-sync', 'bug']
+            });

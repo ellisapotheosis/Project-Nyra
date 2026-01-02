@@ -1,42 +1,55 @@
-# Node
+# Node.js dependencies
 node_modules/
+**/node_modules/
+
+# Build outputs
 dist/
 build/
+*.log
+*.tsbuildinfo
 
 # Python
 __pycache__/
 *.pyc
 
-# Misc
+# Environment files - NEVER commit these
 .env
-.DS_Store
-*.log
-
-# VSCode
-.vscode/
-
-# OS generated files
-Thumbs.db
-.env
-desktop.ini
-.env*
-.flaskenv*
+.env.*
+.env.local
+.env.*.local
+!.env.example
 !.env.project
 !.env.vault
+.flaskenv*
+*.env
+ENVIRONMENT_SECRETS_DOCUMENTATION.md
 
-
-# Removed Windows wrapper files per user request
-hive-mind-prompt-*.txt
-
-.git_backup/
-
-# secrets
-.env
+# Secrets
 .secrets/
 
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.aider*
 
+# OS generated files
+.DS_Store
+Thumbs.db
+Desktop.ini
+desktop.ini
 
+# Problematic Windows reserved filenames
+**/nul
+**/NUL
+**/CON
+**/PRN
+**/AUX
 
+# Bootstrap GUI installer (contains deeply nested legacy files with path length issues)
+bootstrap/gui-installer/
 
 # Removed Windows wrapper files per user request
 hive-mind-prompt-*.txt
@@ -66,12 +79,10 @@ coordination/orchestration/*
 *.sqlite-wal
 claude-flow
 
-# Environment files - NEVER commit these
-.env
-.env.*
-!.env.example
-*.env
-nyra-ingestion/
-.aider*
+# Temporary files
+*.tmp
+.cache/
 
-ENVIRONMENT_SECRETS_DOCUMENTATION.md
+# Misc
+.git_backup/
+nyra-ingestion/

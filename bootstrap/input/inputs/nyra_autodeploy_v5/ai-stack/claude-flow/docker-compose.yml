@@ -1,0 +1,8 @@
+
+version: '3.8'
+services:
+  claude-flow:
+    image: alpine:latest
+    command: ["sh","-c","echo Running claude-flow; sleep infinity"]
+    ports:
+      - "0.0.0.0:0"

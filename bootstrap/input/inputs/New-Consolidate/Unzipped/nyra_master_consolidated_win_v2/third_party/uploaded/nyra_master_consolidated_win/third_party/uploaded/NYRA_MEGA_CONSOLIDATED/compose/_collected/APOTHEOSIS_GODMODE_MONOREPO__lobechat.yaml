@@ -1,0 +1,10 @@
+
+name: apotheosis-lobechat
+services:
+  lobechat:
+    image: lobehub/lobe-chat:latest
+    ports: ["${LOBEC_CHAT_PORT:-3210}:3210"]
+    environment: ["NEXT_TELEMETRY_DISABLED=1"]
+networks:
+  default:
+    name: apotheosis-net

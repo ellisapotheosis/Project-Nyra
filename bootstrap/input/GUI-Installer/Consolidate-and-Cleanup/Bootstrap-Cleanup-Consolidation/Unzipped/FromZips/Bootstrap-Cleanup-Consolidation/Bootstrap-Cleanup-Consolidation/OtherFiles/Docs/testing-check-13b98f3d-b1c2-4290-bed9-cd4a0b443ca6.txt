@@ -1,0 +1,530 @@
+Directory structure:
+└── cartographai-atlas-docs-mcp/
+    ├── README.md
+    ├── biome.json
+    ├── Dockerfile
+    ├── LICENSE
+    ├── package.json
+    ├── smithery.yaml
+    ├── tsconfig.json
+    ├── tsup.config.ts
+    ├── .env.example
+    └── src/
+        └── index.ts
+
+================================================
+FILE: README.md
+================================================
+# Atlas Docs MCP Server
+
+[![NPM Version](https://img.shields.io/npm/v/%40cartographai%2Fatlas-docs-mcp)](https://www.npmjs.com/package/@cartographai/atlas-docs-mcp)
+[![smithery badge](https://smithery.ai/badge/@CartographAI/atlas-docs-mcp)](https://smithery.ai/server/@CartographAI/atlas-docs-mcp)
+
+A [Model Context Protocol (MCP)](https://modelcontextprotocol.io/introduction) server that provides AI assistants with documentation for libraries and frameworks.
+
+> [!WARNING]
+> Atlas Docs is currently in beta. Not everything might work perfectly, but we're actively improving the service. Your patience and [feedback](#support--feedback) are greatly appreciated!
+
+## What Does This Server Do?
+
+LLMs are great at generating general code, but suck at correctly using less popular or newly released libraries. This isn't surprising, since the models have not been trained comprehensively on code using these libraries.
+
+Atlas Docs MCP server:
+
+- Provides technical documentation for libraries and frameworks
+- Processes the official docs into a clean markdown version for LLM consumption
+- Is easy to set up with Cursor, Cline, Windsurf and any other MCP-compatible LLM clients
+
+**Claude 3.5 Sonnet on its own:**
+
+![elevenlabs-without-atlas-annotated](https://github.com/user-attachments/assets/78b8309c-0f86-4b20-93d7-2116419f75fd)
+
+**Claude 3.5 Sonnet with Atlas Docs MCP:**
+
+![elevenlabs-with-atlas-annotated](https://github.com/user-attachments/assets/258c5126-242f-43d1-8e78-ea655f44d76a)
+
+<video src="https://github.com/user-attachments/assets/5fb1f3f2-18db-4ba4-8f47-da3892af22ee"></video>
+
+## 📦 Installation
+
+Atlas Docs MCP server works with any MCP client that supports the `stdio` protocol, including:
+
+- Cursor
+- Cline
+- Windsurf
+- Claude Desktop
+
+Add the following to your MCP client configuration file:
+
+```json
+{
+  "mcpServers": {
+    "atlas-docs": {
+      "command": "npx",
+      "args": ["-y", "@cartographai/atlas-docs-mcp"]
+    }
+  }
+}
+```
+
+That's it! You may need to restart the app (for Claude Desktop) for the server to be recognised.
+
+**Tip**: Prompt your model to check the docs eg. "Use the tools to check the documentation for Astro to ensure that you use the library correctly."
+
+### Installing via Smithery
+
+Alternatively, you can install Atlas Docs MCP automatically via [Smithery](https://smithery.ai/server/@CartographAI/atlas-docs-mcp). Example for claude desktop:
+
+```bash
+npx -y @smithery/cli install @CartographAI/atlas-docs-mcp --client claude
+```
+
+Change "claude" to "cursor", "cline" or "windsurf" for the respective clients.
+
+## 📒 Available Libraries
+
+- AI-SDK (source: https://sdk.vercel.ai/docs/introduction)
+- Astro (source: https://docs.astro.build/en/getting-started)
+- ast-grep (source: https://ast-grep.github.io/llms.txt)
+- Bun (source: https://bun.sh/llms.txt)
+- CrewAI (source: https://docs.crewai.com/llms.txt)
+- Drizzle (source: https://orm.drizzle.team/llms.txt)
+- ElevenLabs (source: https://elevenlabs.io/docs/llms.txt)
+- Fireworks (source: https://docs.fireworks.ai/llms.txt)
+- Hono (source: https://hono.dev/llms.txt)
+- Langgraph-js (source: https://langchain-ai.github.io/langgraphjs/llms.txt)
+- Langgraph-py (source: https://langchain-ai.github.io/langgraph/llms.txt)
+- Mastra (source: https://mastra.ai/llms.txt)
+- ModelContextProtocol (source: https://modelcontextprotocol.io/llms.txt)
+- Pglite (source: https://pglite.dev/docs/about)
+- Prisma (source: https://www.prisma.io/docs/llms.txt)
+- Resend (source: https://resend.com/docs/llms.txt)
+- shadcn/ui (source: https://ui.shadcn.com/docs)
+- Stripe (source: https://docs.stripe.com/llms.txt)
+- Svelte (source: https://svelte.dev/docs/svelte/overview)
+- SvelteKit (source: https://svelte.dev/docs/kit/introduction)
+- tailwindcss (source: https://tailwindcss.com/docs/installation)
+- TanStack-Router (source: https://tanstack.com/router/latest/docs/framework/react/overview)
+- Trigger.dev (source: https://trigger.dev/docs/llms.txt)
+- X (source: https://docs.x.com/llms.txt)
+- Zapier (source: https://docs.zapier.com/llms.txt)
+
+Want docs for another library not in this list? Please [open an issue](https://github.com/CartographAI/atlas/issues/new) in this repo, we'll try to process and add it!
+
+## 🔨 Available Tools
+
+1. `list_docs`: List all available documentation sets
+2. `get_docs_index`: Retrieves a condensed, LLM-friendly index of a documentation set
+3. `get_docs_full`: Retrieves a complete documentation set in a single consolidated file
+4. `search_docs`: Search a documentation set by keywords
+5. `get_docs_page`: Retrieves a specific page of a documentation set
+
+## 💭 How It Works
+
+Atlas Docs processes tech libraries' documentation sites into clean, markdown versions. This MCP server provides the docs as MCP tools, calling Atlas Docs APIs for the data.
+
+## Running the backend locally
+
+Please visit [CartographAI/atlas](https://github.com/CartographAI/atlas) and follow the instructions in the README.
+Update ATLAS_API_URL with the url of your deployment.
+
+## Support & Feedback
+
+Please [open an issue](https://github.com/CartographAI/atlas/issues/new) in this repo to request docs for a library, or to report a bug.
+
+If you have any questions, feedback, or just want to say hi, we'd love to hear from you. You can find us on Cartograph's [Discord comunity](https://discord.gg/MsBA7U7hH5) for real-time support, or email us at [contact@cartograph.app](mailto:contact@cartograph.app)
+
+
+
+================================================
+FILE: biome.json
+================================================
+{
+	"$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
+	"formatter": {
+		"indentStyle": "space",
+		"lineWidth": 120
+	},
+	"organizeImports": {
+		"enabled": true
+	},
+	"linter": {
+		"enabled": true,
+		"rules": {
+			"recommended": true
+		}
+	}
+}
+
+
+
+================================================
+FILE: Dockerfile
+================================================
+# Generated by https://smithery.ai. See: https://smithery.ai/docs/config#dockerfile
+FROM node:lts-alpine
+
+# Set working directory
+WORKDIR /app
+
+# Copy package.json and package-lock.json (if any) and other config files
+COPY package.json tsup.config.ts ./
+
+# Copy source files
+COPY src ./src
+COPY tsconfig.json ./
+
+# Install dependencies (ignoring scripts to avoid issues)
+RUN npm install --ignore-scripts
+
+# Build the project
+RUN npm run build
+
+# Expose no ports as MCP uses stdio
+
+# Command to run the MCP server
+CMD ["node", "dist/index.js"]
+
+
+
+================================================
+FILE: LICENSE
+================================================
+MIT License
+
+Copyright (c) 2025 Cartograph
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+
+
+================================================
+FILE: package.json
+================================================
+{
+  "name": "@cartographai/atlas-docs-mcp",
+  "version": "0.2.0",
+  "description": "MCP server for getting documentation for libraries and frameworks",
+  "homepage": "https://github.com/CartographAI/atlas-docs-mcp",
+  "license": "MIT",
+  "keywords": ["agents", "llm", "model-context-protocol"],
+  "type": "module",
+  "bin": "dist/index.js",
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsup"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "tsup": "^8.4.0"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.7.0",
+    "zod": "^3.24.2",
+    "zod-to-json-schema": "^3.24.5"
+  }
+}
+
+
+
+================================================
+FILE: smithery.yaml
+================================================
+# Smithery configuration file: https://smithery.ai/docs/config#smitheryyaml
+
+startCommand:
+  type: stdio
+  configSchema:
+    # JSON Schema defining the configuration options for the MCP.
+    type: object
+    properties: {}
+  commandFunction:
+    # A JS function that produces the CLI command based on the given config to start the MCP on stdio.
+    |-
+    (config) => ({ command: 'node', args: ['dist/index.js'] })
+  exampleConfig: {}
+
+
+
+================================================
+FILE: tsconfig.json
+================================================
+{
+  "compilerOptions": {
+    // Enable latest features
+    "lib": ["ESNext", "DOM"],
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleDetection": "force",
+    "jsx": "react-jsx",
+    "allowJs": true,
+
+    // Bundler mode
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
+    "noEmit": true,
+
+    // Best practices
+    "strict": true,
+    "skipLibCheck": true,
+    "noFallthroughCasesInSwitch": true,
+
+    // Some stricter flags (disabled by default)
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noPropertyAccessFromIndexSignature": false
+  }
+}
+
+
+
+================================================
+FILE: tsup.config.ts
+================================================
+import { defineConfig } from "tsup";
+
+export default defineConfig({
+	entry: {
+		index: "src/index.ts",
+	},
+	sourcemap: true,
+	clean: true,
+	format: ["esm"],
+});
+
+
+
+================================================
+FILE: .env.example
+================================================
+ATLAS_API_URL="" # optional, defaults to https://atlas.cartograph.app/api if not provided
+
+
+
+================================================
+FILE: src/index.ts
+================================================
+#!/usr/bin/env node
+
+import { Server } from "@modelcontextprotocol/sdk/server/index.js";
+import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { CallToolRequestSchema, ListToolsRequestSchema, ToolSchema } from "@modelcontextprotocol/sdk/types.js";
+import { z } from "zod";
+import { zodToJsonSchema } from "zod-to-json-schema";
+
+const ATLAS_API_URL = process.env.ATLAS_API_URL ?? "https://atlas.cartograph.app/api";
+
+const server = new Server(
+  {
+    name: "atlas-docs-mcp-server",
+    version: "0.2.0",
+  },
+  {
+    capabilities: {
+      tools: {},
+    },
+  },
+);
+
+// Schema definitions
+const ListDocsSchema = z.object({});
+
+const GetDocsIndexSchema = z.object({
+  docName: z.string().describe("Name of the documentation set"),
+});
+
+const GetDocsFullSchema = z.object({
+  docName: z.string().describe("Name of the documentation set"),
+});
+
+const GetDocsPageSchema = z.object({
+  docName: z.string().describe("Name of the documentation set"),
+  pagePath: z
+    .string()
+    .describe(
+      "The root-relative path of the specific documentation page (e.g., '/guides/getting-started', '/api/authentication')",
+    ),
+});
+
+const SearchDocsSchema = z.object({
+  docName: z.string().describe("Name of the documentation set"),
+  query: z.string().describe("Search query to find relevant pages within the documentation set"),
+});
+
+const ToolInputSchema = ToolSchema.shape.inputSchema;
+type ToolInput = z.infer<typeof ToolInputSchema>;
+
+async function fetchApi(path: string) {
+  const response = await fetch(`${ATLAS_API_URL}${path}`);
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || "API request failed");
+  }
+  return response.json();
+}
+
+server.setRequestHandler(ListToolsRequestSchema, async () => {
+  return {
+    tools: [
+      {
+        name: "list_docs",
+        description:
+          "Lists all available documentation libraries and frameworks. Use this as your first step to discover available documentation sets. Returns name, description and source url for each documentation set. Required before using other documentation tools since you need the docName.",
+        inputSchema: zodToJsonSchema(ListDocsSchema) as ToolInput,
+      },
+      {
+        name: "search_docs",
+        description:
+          "Searches a documentation set for specific content. Use this to find pages containing particular keywords, concepts, or topics. Returns matching pages ranked by relevance with their paths and descriptions. Follow up with get_docs_page to get full content.",
+        inputSchema: zodToJsonSchema(SearchDocsSchema) as ToolInput,
+      },
+      {
+        name: "get_docs_index",
+        description:
+          "Retrieves a condensed, LLM-friendly index of the pages in a documentation set. Use this for initial exploration to understand what's covered and identify relevant pages. Returns a markdown page with a list of available pages. Follow up with get_docs_page to get full content.",
+        inputSchema: zodToJsonSchema(GetDocsIndexSchema) as ToolInput,
+      },
+      {
+        name: "get_docs_page",
+        description:
+          "Retrieves a specific documentation page's content using its relative path. Use this to get detailed information about a known topic, after identifying the relevant page through get_docs_index or search_docs. Returns the complete content of a single documentation page.",
+        inputSchema: zodToJsonSchema(GetDocsPageSchema) as ToolInput,
+      },
+      {
+        name: "get_docs_full",
+        description:
+          "Retrieves the complete documentation content in a single consolidated file. Use this when you need comprehensive knowledge or need to analyze the full documentation context. Returns a large volume of text - consider using get_docs_page or search_docs for targeted information.",
+        inputSchema: zodToJsonSchema(GetDocsFullSchema) as ToolInput,
+      },
+    ],
+  };
+});
+
+server.setRequestHandler(CallToolRequestSchema, async (request) => {
+  try {
+    const { name, arguments: args } = request.params;
+
+    switch (name) {
+      case "list_docs": {
+        const docs = await fetchApi("/docs");
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(docs, null, 2),
+            },
+          ],
+        };
+      }
+
+      case "get_docs_index": {
+        const parsedArgs = GetDocsIndexSchema.safeParse(args);
+        if (!parsedArgs.success) {
+          throw new Error(`Invalid arguments: ${parsedArgs.error}`);
+        }
+
+        const docName = parsedArgs.data.docName;
+        const page = await fetchApi(`/docs/${docName}/pages/%2Fllms.txt`);
+
+        return {
+          content: [{ type: "text", text: JSON.stringify(page, null, 2) }],
+        };
+      }
+
+      case "get_docs_full": {
+        const parsedArgs = GetDocsFullSchema.safeParse(args);
+        if (!parsedArgs.success) {
+          throw new Error(`Invalid arguments: ${parsedArgs.error}`);
+        }
+
+        const docName = parsedArgs.data.docName;
+        const page = await fetchApi(`/docs/${docName}/pages/%2Fllms-full.txt`);
+
+        return {
+          content: [{ type: "text", text: JSON.stringify(page, null, 2) }],
+        };
+      }
+
+      case "get_docs_page": {
+        const parsedArgs = GetDocsPageSchema.safeParse(args);
+        if (!parsedArgs.success) {
+          throw new Error(`Invalid arguments: ${parsedArgs.error}`);
+        }
+
+        const { docName, pagePath } = parsedArgs.data;
+        // we need to encodeURIComponent as the pagePath is likely to contain slashes
+        const page = await fetchApi(`/docs/${docName}/pages/${encodeURIComponent(pagePath)}`);
+
+        return {
+          content: [{ type: "text", text: JSON.stringify(page, null, 2) }],
+        };
+      }
+
+      case "search_docs": {
+        const parsedArgs = SearchDocsSchema.safeParse(args);
+        if (!parsedArgs.success) {
+          throw new Error(`Invalid arguments: ${parsedArgs.error}`);
+        }
+
+        const { docName, query } = parsedArgs.data;
+        const searchResults = await fetchApi(`/docs/${docName}/search?q=${encodeURIComponent(query)}`);
+
+        return {
+          content: [{ type: "text", text: JSON.stringify(searchResults, null, 2) }],
+        };
+      }
+
+      default:
+        return {
+          content: [{ type: "text", text: `Unknown tool: ${name}` }],
+          isError: true,
+        };
+    }
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    return {
+      content: [{ type: "text", text: `Error: ${errorMessage}` }],
+      isError: true,
+    };
+  }
+});
+
+// Start server
+export async function runServer() {
+  try {
+    const transport = new StdioServerTransport();
+    await server.connect(transport);
+
+    console.error("Documentation MCP Server running on stdio");
+  } catch (error) {
+    console.error("Error during server setup:", error);
+    process.exit(1);
+  }
+}
+
+runServer().catch((error) => {
+  console.error("Fatal error running server:", error);
+  process.exit(1);
+});
+
+

@@ -1,0 +1,73 @@
+{
+  "name": "project-nyra-mcp-stack",
+  "version": "1.0.0",
+  "description": "Project Nyra Multi-Agent MCP Development Stack",
+  "main": "src/orchestration/archon-mcp-orchestrator.js",
+  "scripts": {
+    "start": "node scripts/archon-startup.js",
+    "start:interactive": "node scripts/archon-startup.js --interactive",
+    "test:startup": "node scripts/archon-startup.js --test",
+    "archon:start": "node scripts/archon-startup.js",
+    "archon:status": "node -e \"const {ArchonMcpOrchestrator} = require('./src/orchestration/archon-mcp-orchestrator'); const a = new ArchonMcpOrchestrator(); a.initialize().then(() => console.log(JSON.stringify(a.getStatus(), null, 2)))\"",
+    "archon:test-sparc": "node -e \"const {ArchonMcpOrchestrator} = require('./src/orchestration/archon-mcp-orchestrator'); const a = new ArchonMcpOrchestrator(); a.initialize().then(() => a.executeSPARCWorkflow('Test SPARC workflow')).then(console.log)\"",
+    "archon:test-webapp": "node -e \"const {ArchonMcpOrchestrator} = require('./src/orchestration/archon-mcp-orchestrator'); const a = new ArchonMcpOrchestrator(); a.initialize().then(() => a.executeWebAppScaffolding({name: 'TestApp', stack: 'react-express'})).then(console.log)\"",
+    "archon:test-connections": "node -e \"const {McpArchonConfig} = require('./config/mcp-archon-config'); const c = new McpArchonConfig(); console.log('Validation errors:', c.validate())\"",
+    "github:test": "node scripts/github-mcp-test.js",
+    "github:test-analysis": "node -e \"const {GitHubMcpCoordinator} = require('./src/coordination/github-mcp-coordinator'); const c = new GitHubMcpCoordinator(); c.initialize().then(() => c.analyzeRepository('project-nyra/nyra-core', 'code_quality')).then(console.log)\"",
+    "github:test-workflow": "node -e \"const {GitHubMcpCoordinator} = require('./src/coordination/github-mcp-coordinator'); const c = new GitHubMcpCoordinator(); c.initialize().then(() => c.executeWorkflow('code_quality_check', 'project-nyra/nyra-core')).then(console.log)\"",
+    "github:status": "node -e \"const {GitHubMcpCoordinator} = require('./src/coordination/github-mcp-coordinator'); const c = new GitHubMcpCoordinator(); c.initialize().then(() => console.log(JSON.stringify(c.getStatus(), null, 2)))\"",
+    "env:check": "node -e \"const {McpEnvConfig} = require('./config/mcp-env-config'); const c = new McpEnvConfig(); c.displayStatus()\"",
+    "env:template": "node -e \"const {McpEnvConfig} = require('./config/mcp-env-config'); const c = new McpEnvConfig(); console.log(c.generateEnvTemplate())\"",
+    "env:setup": "powershell -ExecutionPolicy Bypass -File scripts/setup-env.ps1",
+    "mcp:status": "claude mcp list",
+    "mcp:flow-nexus-status": "node -e \"console.log('Flow Nexus Status:', process.env.FLOW_NEXUS_TOKEN ? 'Token Set' : 'Token Missing', process.env.FLOW_NEXUS_URL ? 'URL Set' : 'URL Missing')\"",
+    "hooks:pre-task": "npx claude-flow@alpha hooks pre-task",
+    "hooks:post-task": "npx claude-flow@alpha hooks post-task",
+    "hooks:session-restore": "npx claude-flow@alpha hooks session-restore",
+    "hooks:session-end": "npx claude-flow@alpha hooks session-end",
+    "dev": "npm run start:interactive",
+    "build": "echo 'Project Nyra MCP stack ready'",
+    "lint": "echo 'Linting MCP stack...'",
+    "test": "npm run test:startup && npm run archon:test-connections && npm run env:check"
+  },
+  "keywords": [
+    "project-nyra",
+    "mcp",
+    "orchestration", 
+    "multi-agent",
+    "sparc",
+    "claude-code",
+    "archon",
+    "github-integration",
+    "flow-nexus"
+  ],
+  "author": "Project Nyra Team",
+  "license": "MIT",
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "dependencies": {},
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/project-nyra/nyra-core"
+  },
+  "bugs": {
+    "url": "https://github.com/project-nyra/nyra-core/issues"
+  },
+  "homepage": "https://github.com/project-nyra/nyra-core#readme",
+  "infisical": {
+    "environment": "prod",
+    "required_secrets": [
+      "FLOW_NEXUS_TOKEN",
+      "FLOW_NEXUS_URL"
+    ],
+    "optional_secrets": [
+      "NOTION_TOKEN",
+      "GITHUB_TOKEN",
+      "DESKTOP_COMMANDER_CONFIG",
+      "RUV_SWARM_TOKEN",
+      "CLAUDE_FLOW_CONFIG"
+    ]
+  }
+}
