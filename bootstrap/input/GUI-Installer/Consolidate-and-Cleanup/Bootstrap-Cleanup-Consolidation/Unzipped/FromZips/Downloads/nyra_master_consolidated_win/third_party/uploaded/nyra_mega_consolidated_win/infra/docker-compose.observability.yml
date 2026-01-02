@@ -1,0 +1,23 @@
+services:
+  langfuse:
+    image: ghcr.io/langfuse/langfuse:latest
+    container_name: nyra-langfuse
+    ports: ["${LANGFUSE_PORT}:3000"]
+    environment:
+      - NEXTAUTH_SECRET=randomlongsecret
+      - NEXTAUTH_URL=http://localhost:${LANGFUSE_PORT}
+      - DATABASE_URL=postgresql://postgres:postgres@langfuse-db:5432/langfuse
+      - DIRECT_URL=postgresql://postgres:postgres@langfuse-db:5432/langfuse
+    depends_on: [langfuse-db]
+    restart: unless-stopped
+
+  langfuse-db:
+    image: postgres:16-alpine
+    container_name: nyra-langfuse-db
+    environment:
+      - POSTGRES_DB=langfuse
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres
+    volumes:
+      - ${LANGFUSE_DATA}:/var/lib/postgresql/data
+    restart: unless-stopped

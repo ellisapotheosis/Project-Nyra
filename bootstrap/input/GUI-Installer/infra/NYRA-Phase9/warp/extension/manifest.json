@@ -1,0 +1,10 @@
+{
+    "name": "nyra-warp-ext",
+    "version": "1.0.0",
+    "commands": [
+        {
+            "name": "nyra",
+            "cmd": "nyra-cli"
+        }
+    ]
+}

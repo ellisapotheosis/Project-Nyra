@@ -1,0 +1,68 @@
+
+name: apotheosis-core
+services:
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_DB: langfuse
+    ports: ["5432:5432"]
+    volumes:
+      - ./docker-data/postgres:/var/lib/postgresql/data
+
+  langfuse:
+    image: langfuse/langfuse:latest
+    depends_on: [postgres]
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/langfuse
+      - NEXTAUTH_SECRET=secret
+      - NEXTAUTH_URL=http://localhost:3100
+      - TELEMETRY_ENABLED=false
+    ports: ["3100:3000"]
+
+  archgw:
+    image: ghcr.io/katanemo/archgw:latest
+    command: ["archgw","up"]
+    volumes:
+      - ./infra/archgw/arch_config.yaml:/work/arch_config.yaml
+    ports: ["7749:7749"]
+
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:main
+    environment:
+      - OLLAMA_BASE_URL=http://host.docker.internal:11434
+      - WEBUI_SECRET_KEY=dev
+      - ENABLE_OPENAPI_TOOLS=true
+    ports: ["${OPENWEBUI_PORT:-3000}:8080"]
+    volumes:
+      - ${OPENWEBUI_DATA:-./docker-data/open-webui}:/app/backend/data
+    depends_on: [pipelines, mcpo]
+
+  pipelines:
+    image: ghcr.io/open-webui/pipelines:main
+    command: ["pipelines","serve","--host","0.0.0.0","--port","9099"]
+    ports: ["${PIPELINES_PORT:-9099}:9099"]
+    volumes:
+      - ./apps/pipelines:/app/pipelines
+
+  mcpo:
+    image: ghcr.io/open-webui/mcpo:main
+    environment:
+      - MCPO_CONFIG=/config/mcpo.config.json
+    volumes:
+      - ./infra/mcpo/mcpo.config.json:/config/mcpo.config.json
+    ports: ["${MCPO_PORT:-4505}:4505"]
+
+  openhands:
+    image: docker.all-hands.dev/all-hands-ai/openhands:0.58
+    ports: ["${OPENHANDS_PORT:-3030}:3000"]
+    volumes:
+      - ~/.openhands:/.openhands
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - LOG_ALL_EVENTS=true
+
+networks:
+  default:
+    name: apotheosis-net

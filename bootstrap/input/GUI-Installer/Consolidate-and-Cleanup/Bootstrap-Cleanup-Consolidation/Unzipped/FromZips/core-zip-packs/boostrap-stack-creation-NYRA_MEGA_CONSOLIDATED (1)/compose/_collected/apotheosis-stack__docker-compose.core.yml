@@ -1,0 +1,39 @@
+services:
+  ollama:
+    image: ollama/ollama:latest
+    restart: unless-stopped
+    environment: [ "OLLAMA_HOST=${OLLAMA_HOST}" ]
+    ports: [ "11434:11434" ]
+    volumes: [ "ollama_models:/root/.ollama" ]
+
+  openwebui:
+    image: ghcr.io/open-webui/open-webui:latest
+    restart: unless-stopped
+    depends_on: [ollama]
+    environment: [ "OLLAMA_BASE_URL=http://ollama:11434" ]
+    ports: [ "${OPENWEBUI_PORT}:8080" ]
+
+  flowise:
+    image: flowiseai/flowise:latest
+    restart: unless-stopped
+    environment: [ "PORT=3000", "DATABASE_PATH=/root/.flowise" ]
+    ports: [ "${FLOWISE_PORT}:3000" ]
+
+  n8n:
+    image: n8nio/n8n:latest
+    restart: unless-stopped
+    ports: [ "${N8N_PORT}:5678" ]
+    environment: [ "N8N_DIAGNOSTICS_ENABLED=false" ]
+
+  qdrant:
+    image: qdrant/qdrant:latest
+    restart: unless-stopped
+    ports: [ "${QDRANT_PORT}:6333" ]
+
+  searxng:
+    image: searxng/searxng:latest
+    restart: unless-stopped
+    ports: [ "${SEARXNG_PORT}:8080" ]
+
+volumes:
+  ollama_models:

@@ -1,0 +1,2 @@
+# qdrant
+Memory component.

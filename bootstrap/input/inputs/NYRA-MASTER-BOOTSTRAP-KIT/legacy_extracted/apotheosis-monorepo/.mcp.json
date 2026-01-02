@@ -1,0 +1,58 @@
+{
+  "mcpServers": {
+    "graphiti": {
+      "command": "curl",
+      "args": [
+        "-N",
+        "http://localhost:8001/sse"
+      ]
+    },
+    "qdrant": {
+      "command": "uvx",
+      "args": [
+        "mcp-server-qdrant",
+        "--transport",
+        "sse"
+      ],
+      "env": {
+        "QDRANT_URL": "http://localhost:6333",
+        "COLLECTION_NAME": "global_mem",
+        "EMBEDDING_MODEL": "sentence-transformers/all-MiniLM-L6-v2"
+      }
+    },
+    "openmemory": {
+      "command": "npx",
+      "args": [
+        "@openmemory/install",
+        "local",
+        "http://localhost:8765/mcp/claude/sse/ellis",
+        "--client",
+        "claude"
+      ]
+    },
+    "letta": {
+      "command": "npx",
+      "args": [
+        "letta-mcp"
+      ],
+      "env": {
+        "LETTA_BASE_URL": "http://localhost:7777/v1",
+        "LETTA_PASSWORD": "change-me"
+      }
+    },
+    "falkordb": {
+      "command": "curl",
+      "args": [
+        "-N",
+        "http://localhost:18030/api/mcp/sse"
+      ]
+    },
+    "anemoi": {
+      "command": "curl",
+      "args": [
+        "-N",
+        "http://localhost:18020/mcp/sse"
+      ]
+    }
+  }
+}
