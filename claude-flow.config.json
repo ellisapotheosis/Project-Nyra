@@ -1,7 +1,12 @@
 {
   "memory": {
     "retention": "30d",
-    "maxSize": "1GB"
+    "maxSize": "1GB",
+    "compression": "Enabled",
+    "cacheSizeMB": 512,
+    "indexingEnabled": true,
+    "autoCleanup": true,
+    "cacheSize": 512
   },
   "agents": {
     "cache": {
@@ -18,5 +23,25 @@
       "enabled": true,
       "ttl": 3600
     }
+  },
+  "orchestrator": {
+    "maxConcurrentAgents": 50,
+    "agentPoolSize": 20
+  },
+  "swarm": {
+    "autoScaling": true,
+    "minAgents": 5,
+    "maxAgents": 100
+  },
+  "performance": {
+    "cacheEnabled": true,
+    "cacheStrategy": "aggressive"
+  },
+  "network": {
+    "connectionPooling": true,
+    "compressionEnabled": true
+  },
+  "terminal": {
+    "poolSize": 30
   }
 }

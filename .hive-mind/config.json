@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "initialized": "2025-12-31T11:37:10.864Z",
+  "initialized": "2026-01-08T06:27:38.018Z",
   "system": {
     "enabled": true,
     "autoStart": false,
@@ -83,7 +83,7 @@
       "fallbackMode": "sequential"
     },
     "claudeCode": {
-      "enabled": false,
+      "enabled": true,
       "autoSpawn": true,
       "coordination": true,
       "sharedContext": true

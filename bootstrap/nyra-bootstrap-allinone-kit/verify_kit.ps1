@@ -1,0 +1,1 @@
+$ErrorActionPreference = "Stop"\npython (Join-Path $PSScriptRoot "verify_kit.py")\n

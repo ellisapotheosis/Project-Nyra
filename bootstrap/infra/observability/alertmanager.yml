@@ -1,0 +1,132 @@
+global:
+  resolve_timeout: 5m
+  smtp_from: 'alerts@nyra.example.com'
+  smtp_smarthost: 'smtp.example.com:587'
+  smtp_auth_username: 'alerts@nyra.example.com'
+  smtp_auth_password: '${SMTP_PASSWORD}'
+  slack_api_url: '${SLACK_WEBHOOK_URL}'
+
+# Route configuration
+route:
+  group_by: ['alertname', 'cluster', 'service']
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 4h
+  receiver: 'default'
+  routes:
+    # Critical alerts go to PagerDuty and Slack
+    - match:
+        severity: critical
+      receiver: 'pagerduty-critical'
+      continue: true
+
+    - match:
+        severity: critical
+      receiver: 'slack-critical'
+      group_wait: 10s
+
+    # Warning alerts go to Slack
+    - match:
+        severity: warning
+      receiver: 'slack-warnings'
+
+    # Campaign-specific alerts
+    - match:
+        category: campaign
+      receiver: 'campaign-team'
+
+    # Quote engine alerts
+    - match:
+        category: quote-engine
+      receiver: 'quote-team'
+
+# Inhibit rules - prevent notification spam
+inhibit_rules:
+  # If service is down, don't alert on high latency
+  - source_match:
+      severity: 'critical'
+      alertname: 'ServiceDown'
+    target_match:
+      severity: 'warning'
+      alertname: 'HighLatency'
+    equal: ['job', 'instance']
+
+  # If high error rate, don't alert on individual errors
+  - source_match:
+      alertname: 'HighErrorRate'
+    target_match:
+      category: 'errors'
+    equal: ['job', 'instance']
+
+# Receiver configurations
+receivers:
+  - name: 'default'
+    email_configs:
+      - to: 'ops-team@nyra.example.com'
+        headers:
+          Subject: '[Nyra Alert] {{ .GroupLabels.alertname }}'
+        html: |
+          {{ range .Alerts }}
+          <b>Alert:</b> {{ .Labels.alertname }}<br>
+          <b>Severity:</b> {{ .Labels.severity }}<br>
+          <b>Service:</b> {{ .Labels.job }}<br>
+          <b>Description:</b> {{ .Annotations.description }}<br>
+          <hr>
+          {{ end }}
+
+  - name: 'pagerduty-critical'
+    pagerduty_configs:
+      - service_key: '${PAGERDUTY_SERVICE_KEY}'
+        description: '{{ .GroupLabels.alertname }}: {{ .CommonAnnotations.summary }}'
+        severity: '{{ .CommonLabels.severity }}'
+        details:
+          firing: '{{ .Alerts.Firing | len }}'
+          resolved: '{{ .Alerts.Resolved | len }}'
+          description: '{{ .CommonAnnotations.description }}'
+
+  - name: 'slack-critical'
+    slack_configs:
+      - channel: '#alerts-critical'
+        title: ':rotating_light: Critical Alert'
+        text: |
+          *Alert:* {{ .GroupLabels.alertname }}
+          *Severity:* {{ .CommonLabels.severity }}
+          *Service:* {{ .CommonLabels.job }}
+          {{ range .Alerts }}
+          *Description:* {{ .Annotations.description }}
+          {{ end }}
+        color: 'danger'
+        send_resolved: true
+
+  - name: 'slack-warnings'
+    slack_configs:
+      - channel: '#alerts-warnings'
+        title: ':warning: Warning Alert'
+        text: |
+          *Alert:* {{ .GroupLabels.alertname }}
+          *Service:* {{ .CommonLabels.job }}
+          {{ range .Alerts }}
+          *Description:* {{ .Annotations.description }}
+          {{ end }}
+        color: 'warning'
+        send_resolved: true
+
+  - name: 'campaign-team'
+    slack_configs:
+      - channel: '#campaign-alerts'
+        title: 'Campaign System Alert'
+        text: |
+          *Alert:* {{ .GroupLabels.alertname }}
+          {{ range .Alerts }}
+          {{ .Annotations.description }}
+          {{ end }}
+
+  - name: 'quote-team'
+    slack_configs:
+      - channel: '#quote-alerts'
+        title: 'Quote Engine Alert'
+        text: |
+          *Alert:* {{ .GroupLabels.alertname }}
+          {{ range .Alerts }}
+          {{ .Annotations.description }}
+          {{ end }}

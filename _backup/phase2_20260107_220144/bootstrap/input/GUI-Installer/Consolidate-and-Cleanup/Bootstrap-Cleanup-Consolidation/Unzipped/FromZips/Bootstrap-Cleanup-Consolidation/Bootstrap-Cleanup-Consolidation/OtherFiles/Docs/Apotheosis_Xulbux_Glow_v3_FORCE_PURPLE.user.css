@@ -1,0 +1,105 @@
+
+/* ==UserStyle==
+@name         Apotheosis - Xulbux Glow v3 (ChatGPT + OpenAI) — FORCE PURPLE
+@namespace    https://github.com/EllisApotheosis
+@version      2025.09.06-force
+@description  Force Xulbux Purple text everywhere on ChatGPT + fix black-on-black from extensions. Single Nerd Font.
+@preprocessor default
+@var text accentColor "Accent Hex" #7169EB
+==/UserStyle== */
+
+/* Scope core domains */
+@-moz-document domain("chatgpt.com"), domain("openai.com") {
+
+  /* Tokens + font */
+  :root, html, body {
+    --apoth-accent: /*[[accentColor]]*/;
+    --apoth-bg: #000000;
+    --apoth-surface: #0b0b12;
+    --apoth-code-bg: #0c0c16;
+
+    /* Try to hijack common token names used on site/UIs */
+    --foreground: var(--apoth-accent) !important;
+    --muted-foreground: color-mix(in oklab, var(--apoth-accent) 65%, #9aa) !important;
+    --text-primary: var(--apoth-accent) !important;
+    --text-secondary: color-mix(in oklab, var(--apoth-accent) 75%, #bcbcd9) !important;
+    --text-tertiary: color-mix(in oklab, var(--apoth-accent) 55%, #a8a8c8) !important;
+    --token-text-primary: var(--apoth-accent) !important;
+    --token-text-secondary: color-mix(in oklab, var(--apoth-accent) 70%, #c9c9e6) !important;
+    --token-text-tertiary: color-mix(in oklab, var(--apoth-accent) 55%, #b8b8d8) !important;
+    --link-color: var(--apoth-accent) !important;
+  }
+
+  @font-face {
+    font-family: "Caskaydia Cove Nerd Font";
+    src: local("Caskaydia Cove Nerd Font"), local("Cascadia Code"), local("Cascadia Mono");
+    font-display: swap;
+  }
+
+  html, body, #__next {
+    background: var(--apoth-bg) !important;
+    color: var(--apoth-accent) !important;
+    font-family: "Caskaydia Cove Nerd Font", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif !important;
+  }
+
+  /* GLOBAL TEXT OVERRIDES (high specificity, broad targets) */
+  /* Tailwind text-* classes + token classes */
+  :is(.text-token-text-primary,.text-token-text-secondary,.text-token-text-tertiary,
+      .text-foreground,.text-muted-foreground,
+      .text-default,[class*="text-"],[class^="text-"],
+      .prose,.markdown,main,section,article,.container,.content,.message,.chat-message,
+      .cm-editor,.cm-scroller,.text-base,.text-message) {
+    color: var(--apoth-accent) !important;
+  }
+
+  /* Generic element fallback */
+  :where(h1,h2,h3,h4,h5,h6,p,li,span,div,blockquote,pre,code,kbd,samp,em,strong,small,label,a,th,td,input,textarea,select) {
+    color: var(--apoth-accent) !important;
+  }
+
+  /* Anything explicitly set to black → flip to accent */
+  :where(*[style*="color:#000"], *[style*="color: #000"], *[style*="color:black"], *[style*="color: black"],
+         *[style*="color:rgb(0,0,0)"], .text-black, [class*="text-black"]) {
+    color: var(--apoth-accent) !important;
+  }
+
+  /* Normalize backgrounds to true black/glass so purple pops */
+  :where(.prose,.markdown,main,section,article,.container,.content) { background: transparent !important; }
+  :where(.message,.chat-message,.prose > div,.markdown > div,.result,.text-base,.text-message,.cm-editor .cm-scroller) {
+    background: rgba(8,8,15,0.55) !important;
+    backdrop-filter: blur(6px);
+  }
+
+  /* Links stay accent */
+  a, [role="link"] { color: var(--apoth-accent) !important; text-decoration: none !important; }
+
+  /* Inputs/editors */
+  textarea, [contenteditable="true"], .ProseMirror,
+  input[type="text"], input[type="search"], input[type="email"], input[type="password"], select {
+    background: var(--apoth-surface) !important;
+    color: var(--apoth-accent) !important;
+    border: 1px solid color-mix(in oklab, var(--apoth-accent) 35%, #333) !important;
+  }
+  ::placeholder { color: color-mix(in oklab, var(--apoth-accent) 45%, #8b8ba8) !important; }
+
+  /* Code */
+  pre, code { background: var(--apoth-code-bg) !important; color: #DDE1FF !important; }
+
+  /* --- EXTENSION FIX: Superpower ChatGPT / “superpower” class soup --- */
+  :is([id*="superpower"], [class*="superpower"], [id*="superpowers"], [class*="superpowers"]) * {
+    color: var(--apoth-accent) !important;
+    background-color: transparent !important;
+  }
+
+  /* If extension renders chips/badges with black text */
+  :is([id*="superpower"], [class*="superpower"]) :is(.badge,.chip,.tag,.label,[class*="badge"],[class*="chip"],[class*="tag"],[class*="label"]) {
+    color: var(--apoth-accent) !important;
+    border-color: color-mix(in oklab, var(--apoth-accent) 40%, #333) !important;
+  }
+
+  /* Force any pure-black container to flip its text to accent */
+  :is([style*="background:#000"],[style*="background: #000"],[style*="background-color:#000"],[style*="background-color: #000"],
+      [style*="rgb(0, 0, 0)"], .bg-black, .bg-[#000], .bg-[#000000]) :is(*){
+    color: var(--apoth-accent) !important;
+  }
+}

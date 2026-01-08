@@ -1,0 +1,31 @@
+{
+  "name": "project-nyra",
+  "version": "1.0.0",
+  "description": "AI-Powered Mortgage Automation Platform with Multi-Agent Orchestration",
+  "private": true,
+  "packageManager": "pnpm@10.27.0",
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "test": "turbo run test",
+    "lint": "turbo run lint",
+    "clean": "turbo run clean",
+    "db:generate": "cd packages/database && prisma generate",
+    "db:migrate": "cd packages/database && prisma migrate deploy",
+    "db:studio": "cd packages/database && prisma studio",
+    "docker:up": "docker-compose -f infra/docker-compose.dev.yml up -d",
+    "docker:down": "docker-compose -f infra/docker-compose.dev.yml down",
+    "mcp:health-check": "npx claude-flow@alpha mcp status"
+  },
+  "devDependencies": {
+    "turbo": "^2.4.0",
+    "@types/node": "^20.0.0",
+    "typescript": "^5.7.0",
+    "prettier": "^3.4.2",
+    "eslint": "^9.18.0"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=10.0.0"
+  }
+}

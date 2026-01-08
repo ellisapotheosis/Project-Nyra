@@ -1,0 +1,23 @@
+version: "3.8"
+services:
+  qdrant:
+    image: qdrant/qdrant:latest
+    ports: ["6333:6333","6334:6334"]
+    volumes: ["./data/qdrant:/qdrant/storage"]
+  redis:
+    image: redis/redis-stack:latest
+    ports: ["6379:6379","8001:8001"]
+  zep:
+    image: getzep/zep:latest
+    ports: ["8000:8000"]
+    environment:
+      - ZEP_API_KEY=changeme
+    volumes: ["./data/zep:/data"]
+  # neo4j: # optional
+  #   image: neo4j:5-community
+  #   ports: ["7474:7474","7687:7687"]
+  #   environment:
+  #     NEO4J_AUTH: neo4j/test
+  # falkordb: # optional (requires compatible image)
+  #   image: falkordb/falkordb:latest
+  #   ports: ["6379:6379"]
