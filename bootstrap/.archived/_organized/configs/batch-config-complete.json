@@ -1,0 +1,714 @@
+{
+  "version": "2.0.0",
+  "projectName": "Project-Nyra",
+  "description": "AI-Powered Mortgage Automation Platform with Multi-Agent Orchestration",
+  "rootPath": "C:\\Dev\\Projects\\Repos\\Project-Nyra",
+  "templateEngine": "claude-flow",
+  "globalSettings": {
+    "packageManager": "pnpm",
+    "nodeVersion": "20.x",
+    "pythonVersion": "3.11",
+    "dockerEnabled": true,
+    "monorepoStructure": true,
+    "sparc": true,
+    "gitInitialize": false
+  },
+  "author": {
+    "name": "Apotheosis",
+    "role": "Mortgage Broker & Real Estate Broker & Branch Manager",
+    "domain": "Mortgage Automation & AI Orchestration",
+    "methodology": "SPARC (Specification, Pseudocode, Architecture, Refinement, Completion)"
+  },
+  "modules": [
+    {
+      "name": "root-monorepo",
+      "type": "monorepo",
+      "path": ".",
+      "template": "turborepo",
+      "description": "Root monorepo configuration with SPARC methodology",
+      "sparc": true,
+      "features": [
+        "turborepo-caching",
+        "pnpm-workspaces",
+        "git-hooks",
+        "ci-cd-github-actions",
+        "docker-compose",
+        "infisical-secrets"
+      ],
+      "memorySystems": {
+        "enabled": true,
+        "systems": ["ruvector", "letta", "graphiti", "mem0", "openmemory"],
+        "config": {
+          "ruvector": {
+            "mode": "distributed",
+            "vectorDimensions": 1536,
+            "indexType": "HNSW",
+            "distanceMetric": "cosine"
+          },
+          "letta": {
+            "serverUrl": "http://localhost:8283",
+            "agentPooling": true,
+            "contextWindowSize": 32000
+          },
+          "graphiti": {
+            "backend": "falkordb",
+            "temporalTracking": true,
+            "relationshipInference": true
+          },
+          "mem0": {
+            "userPersonalization": true,
+            "crossAppSync": true,
+            "retentionDays": 90
+          },
+          "openmemory": {
+            "sharedMemory": true,
+            "encryption": true
+          }
+        }
+      },
+      "claudeConfig": {
+        "generateCLAUDEmd": true,
+        "includeMemoryGuide": true,
+        "includeAgentCatalog": true,
+        "includeMortgageDomain": true
+      }
+    },
+    {
+      "name": "webapp",
+      "type": "app",
+      "path": "apps/webapp",
+      "template": "nextjs-14",
+      "description": "Main Next.js 14 web application with AI chatbot and mortgage tools",
+      "sparc": true,
+      "stack": {
+        "framework": "Next.js 14",
+        "ui": "shadcn/ui + Tailwind CSS",
+        "state": "Zustand",
+        "api": "tRPC",
+        "auth": "Clerk",
+        "db": "PostgreSQL (Prisma)"
+      },
+      "features": [
+        "ai-chatbot-interface",
+        "mortgage-calculators",
+        "document-upload",
+        "loan-application-flow",
+        "rate-comparison",
+        "borrower-dashboard",
+        "real-time-updates"
+      ],
+      "memorySystems": {
+        "primary": "letta",
+        "secondary": ["mem0", "ruvector"],
+        "useCases": {
+          "letta": "Conversational AI context and borrower interactions",
+          "mem0": "User preferences and personalization",
+          "ruvector": "Fast document search and similarity matching"
+        }
+      },
+      "claudeConfig": {
+        "generateCLAUDEmd": true,
+        "includeNextJSPatterns": true,
+        "includeMemoryIntegration": true
+      }
+    },
+    {
+      "name": "landing",
+      "type": "app",
+      "path": "apps/landing",
+      "template": "nextjs-landing",
+      "description": "Marketing landing page for Project Nyra",
+      "sparc": true,
+      "stack": {
+        "framework": "Next.js 14",
+        "ui": "Tailwind CSS + Framer Motion",
+        "deployment": "Vercel"
+      },
+      "features": [
+        "hero-section",
+        "features-showcase",
+        "pricing-tiers",
+        "testimonials",
+        "contact-form",
+        "seo-optimization"
+      ]
+    },
+    {
+      "name": "ratehunter",
+      "type": "app",
+      "path": "apps/ratehunter",
+      "template": "nextjs-14",
+      "description": "RateHunter.net public-facing rate comparison tool",
+      "sparc": true,
+      "stack": {
+        "framework": "Next.js 14",
+        "ui": "Tailwind CSS",
+        "api": "tRPC"
+      },
+      "features": [
+        "real-time-rate-display",
+        "multi-lender-comparison",
+        "loan-calculator",
+        "lead-capture-form",
+        "rate-alerts"
+      ],
+      "memorySystems": {
+        "primary": "ruvector",
+        "useCases": {
+          "ruvector": "Cache rate comparisons and fast retrieval"
+        }
+      }
+    },
+    {
+      "name": "crm-dashboard",
+      "type": "app",
+      "path": "apps/crm-dashboard",
+      "template": "react-dashboard",
+      "description": "CRM dashboard for loan pipeline management",
+      "sparc": true,
+      "stack": {
+        "framework": "React 18",
+        "ui": "shadcn/ui + Recharts",
+        "state": "Zustand",
+        "routing": "React Router"
+      },
+      "features": [
+        "lead-management",
+        "pipeline-kanban",
+        "activity-timeline",
+        "analytics-charts",
+        "task-automation",
+        "communication-hub"
+      ],
+      "memorySystems": {
+        "primary": "graphiti",
+        "secondary": ["mem0"],
+        "useCases": {
+          "graphiti": "Track lead journey and status evolution over time",
+          "mem0": "Remember broker preferences and saved views"
+        }
+      }
+    },
+    {
+      "name": "mortgage-assistant",
+      "type": "app",
+      "path": "apps/mortgage-assistant",
+      "template": "dify-integration",
+      "description": "Dify-powered mortgage chatbot interface",
+      "sparc": true,
+      "stack": {
+        "framework": "Dify",
+        "integration": "API + Webhooks"
+      },
+      "features": [
+        "conversational-loan-qualification",
+        "document-request-automation",
+        "rate-quote-generation",
+        "appointment-scheduling",
+        "borrower-education"
+      ],
+      "memorySystems": {
+        "primary": "letta",
+        "secondary": ["graphiti", "mem0"],
+        "useCases": {
+          "letta": "Persistent conversation memory across sessions",
+          "graphiti": "Track conversation evolution and decision history",
+          "mem0": "Borrower profile and preferences"
+        }
+      }
+    },
+    {
+      "name": "nyra-admin",
+      "type": "app",
+      "path": "apps/nyra-admin",
+      "template": "admin-panel",
+      "description": "Administrative control panel for system configuration",
+      "sparc": true,
+      "features": [
+        "user-management",
+        "system-settings",
+        "workflow-builder",
+        "campaign-templates",
+        "integration-configs",
+        "audit-logs"
+      ]
+    },
+    {
+      "name": "quote-api",
+      "type": "service",
+      "path": "services/quote-api",
+      "template": "fastapi",
+      "description": "FastAPI service for mortgage quote generation",
+      "sparc": true,
+      "stack": {
+        "framework": "FastAPI",
+        "language": "Python 3.11",
+        "db": "PostgreSQL",
+        "cache": "Redis"
+      },
+      "features": [
+        "multi-lender-integration",
+        "rate-aggregation",
+        "quote-calculation",
+        "dti-calculation",
+        "eligibility-check",
+        "api-rate-limiting"
+      ],
+      "integrations": [
+        "rocket-mortgage",
+        "lenderprice",
+        "optimal-blue"
+      ],
+      "memorySystems": {
+        "primary": "ruvector",
+        "secondary": ["graphiti"],
+        "useCases": {
+          "ruvector": "Cache quote calculations for fast retrieval",
+          "graphiti": "Track quote history and rate changes over time"
+        }
+      },
+      "claudeConfig": {
+        "generateCLAUDEmd": true,
+        "includeFastAPIPatterns": true,
+        "includeMortgageAPIs": true
+      }
+    },
+    {
+      "name": "quote-engine",
+      "type": "service",
+      "path": "services/quote-engine",
+      "template": "python-service",
+      "description": "Core quote calculation engine with business logic",
+      "sparc": true,
+      "stack": {
+        "language": "Python 3.11",
+        "framework": "None (pure Python)",
+        "db": "PostgreSQL"
+      },
+      "features": [
+        "loan-calculation-formulas",
+        "apr-calculation",
+        "payment-schedules",
+        "closing-cost-estimation",
+        "mortgage-insurance-calculation",
+        "tax-deduction-estimation"
+      ],
+      "memorySystems": {
+        "primary": "ruvector",
+        "useCases": {
+          "ruvector": "Cache calculation results for common scenarios"
+        }
+      }
+    },
+    {
+      "name": "campaign-engine",
+      "type": "service",
+      "path": "services/campaign-engine",
+      "template": "nestjs",
+      "description": "NestJS service for drip campaign orchestration",
+      "sparc": true,
+      "stack": {
+        "framework": "NestJS",
+        "language": "TypeScript",
+        "queue": "BullMQ",
+        "db": "PostgreSQL"
+      },
+      "features": [
+        "drip-campaign-scheduler",
+        "sms-automation",
+        "email-sequences",
+        "voicemail-drops",
+        "missed-call-pings",
+        "campaign-analytics"
+      ],
+      "integrations": [
+        "twilio",
+        "sendgrid",
+        "n8n-webhooks"
+      ],
+      "memorySystems": {
+        "primary": "graphiti",
+        "secondary": ["mem0"],
+        "useCases": {
+          "graphiti": "Track campaign progression and borrower engagement timeline",
+          "mem0": "Personalize messages based on borrower preferences and history"
+        }
+      },
+      "claudeConfig": {
+        "generateCLAUDEmd": true,
+        "includeNestJSPatterns": true,
+        "includeCampaignWorkflows": true
+      }
+    },
+    {
+      "name": "nyra-orchestrator",
+      "type": "service",
+      "path": "services/nyra-orchestrator",
+      "template": "nestjs-orchestrator",
+      "description": "Central orchestration service for agent coordination",
+      "sparc": true,
+      "stack": {
+        "framework": "NestJS",
+        "language": "TypeScript",
+        "queue": "BullMQ",
+        "cache": "Redis"
+      },
+      "features": [
+        "agent-task-distribution",
+        "workflow-orchestration",
+        "swarm-coordination",
+        "task-prioritization",
+        "result-aggregation",
+        "error-recovery"
+      ],
+      "memorySystems": {
+        "primary": "letta",
+        "secondary": ["ruvector", "graphiti"],
+        "useCases": {
+          "letta": "Maintain agent state and coordination memory",
+          "ruvector": "Fast agent capability lookup and task matching",
+          "graphiti": "Track task execution history and performance patterns"
+        }
+      },
+      "claudeConfig": {
+        "generateCLAUDEmd": true,
+        "includeSwarmPatterns": true,
+        "includeAgentOrchestration": true
+      }
+    },
+    {
+      "name": "document-processor",
+      "type": "service",
+      "path": "services/document-processor",
+      "template": "python-ocr",
+      "description": "Document OCR and processing service",
+      "sparc": true,
+      "stack": {
+        "language": "Python 3.11",
+        "ocr": "Tesseract + PyMuPDF",
+        "storage": "S3/MinIO"
+      },
+      "features": [
+        "pdf-text-extraction",
+        "ocr-processing",
+        "document-classification",
+        "data-extraction",
+        "document-validation",
+        "secure-storage"
+      ],
+      "memorySystems": {
+        "primary": "ruvector",
+        "secondary": ["letta"],
+        "useCases": {
+          "ruvector": "Vector search for similar documents and smart classification",
+          "letta": "Remember document processing context for borrowers"
+        }
+      }
+    },
+    {
+      "name": "letta-server",
+      "type": "mcp-server",
+      "path": "mcp-servers/letta",
+      "template": "python-mcp",
+      "description": "Letta (MemGPT) MCP server for agent memory",
+      "sparc": true,
+      "stack": {
+        "language": "Python 3.11",
+        "framework": "Letta",
+        "db": "PostgreSQL"
+      },
+      "features": [
+        "agent-memory-management",
+        "core-memory-updates",
+        "archival-memory-search",
+        "conversation-persistence",
+        "agent-creation"
+      ],
+      "config": {
+        "port": 8283,
+        "dbConnection": "${LETTA_DB_URL}",
+        "maxAgents": 20
+      }
+    },
+    {
+      "name": "graphiti-server",
+      "type": "mcp-server",
+      "path": "mcp-servers/graphiti",
+      "template": "python-mcp",
+      "description": "Graphiti MCP server for temporal knowledge graphs",
+      "sparc": true,
+      "stack": {
+        "language": "Python 3.11",
+        "framework": "Graphiti",
+        "backend": "FalkorDB"
+      },
+      "features": [
+        "temporal-node-creation",
+        "relationship-tracking",
+        "evolution-queries",
+        "time-travel-queries",
+        "graph-visualization"
+      ],
+      "config": {
+        "falkordbUrl": "${FALKORDB_URL}",
+        "temporalTracking": true,
+        "autoSnapshot": true
+      }
+    },
+    {
+      "name": "ruvector-server",
+      "type": "mcp-server",
+      "path": "mcp-servers/ruvector",
+      "template": "rust-mcp",
+      "description": "RuVector distributed vector search MCP server",
+      "sparc": true,
+      "stack": {
+        "language": "Rust",
+        "framework": "RuVector"
+      },
+      "features": [
+        "vector-indexing",
+        "similarity-search",
+        "distributed-consensus",
+        "high-performance-search",
+        "multi-tenant-support"
+      ],
+      "config": {
+        "port": 7000,
+        "mode": "distributed",
+        "vectorDimensions": 1536,
+        "indexType": "HNSW"
+      }
+    },
+    {
+      "name": "mem0-server",
+      "type": "mcp-server",
+      "path": "mcp-servers/mem0",
+      "template": "python-mcp",
+      "description": "Mem0 MCP server for user personalization",
+      "sparc": true,
+      "stack": {
+        "language": "Python 3.11",
+        "framework": "Mem0"
+      },
+      "features": [
+        "user-profile-management",
+        "preference-storage",
+        "cross-app-sync",
+        "memory-search",
+        "auto-personalization"
+      ],
+      "config": {
+        "port": 8081,
+        "vectorStore": "qdrant",
+        "encryption": true
+      }
+    },
+    {
+      "name": "openmemory-server",
+      "type": "mcp-server",
+      "path": "mcp-servers/openmemory",
+      "template": "nodejs-mcp",
+      "description": "OpenMemory MCP server for shared collaborative memory",
+      "sparc": true,
+      "stack": {
+        "language": "Node.js",
+        "framework": "OpenMemory"
+      },
+      "features": [
+        "shared-memory-storage",
+        "collaborative-knowledge",
+        "memory-querying",
+        "encryption",
+        "access-control"
+      ],
+      "config": {
+        "port": 8080,
+        "sharedMemory": true,
+        "encryption": true
+      }
+    },
+    {
+      "name": "docker-infrastructure",
+      "type": "infrastructure",
+      "path": "infra/docker",
+      "template": "docker-compose",
+      "description": "Docker Compose configurations for all services",
+      "sparc": false,
+      "files": [
+        "docker-compose.yml",
+        "docker-compose.memory.yml",
+        "docker-compose.dev.yml",
+        "docker-compose.prod.yml"
+      ],
+      "services": [
+        "postgresql",
+        "redis",
+        "neo4j",
+        "falkordb",
+        "qdrant",
+        "minio",
+        "dify",
+        "n8n",
+        "activepieces",
+        "twentycrm"
+      ]
+    },
+    {
+      "name": "kubernetes",
+      "type": "infrastructure",
+      "path": "infra/k8s",
+      "template": "kubernetes",
+      "description": "Kubernetes manifests for production deployment",
+      "sparc": false,
+      "manifests": [
+        "deployments",
+        "services",
+        "ingress",
+        "configmaps",
+        "secrets",
+        "persistent-volumes"
+      ]
+    },
+    {
+      "name": "github-actions",
+      "type": "ci-cd",
+      "path": ".github/workflows",
+      "template": "github-actions",
+      "description": "CI/CD workflows for testing and deployment",
+      "sparc": false,
+      "workflows": [
+        "ci.yml",
+        "deploy-staging.yml",
+        "deploy-production.yml",
+        "test-coverage.yml",
+        "security-scan.yml"
+      ]
+    },
+    {
+      "name": "coordination",
+      "type": "agent-configs",
+      "path": "coordination",
+      "template": "agent-configs",
+      "description": "Agent configuration files for Claude Flow and swarms",
+      "sparc": false,
+      "agents": [
+        "mortgage-quote-agent",
+        "loan-qualification-agent",
+        "document-processor-agent",
+        "compliance-agent",
+        "underwriting-agent",
+        "closing-coordinator-agent",
+        "borrower-communication-agent",
+        "lead-nurture-agent"
+      ]
+    },
+    {
+      "name": "memory-storage",
+      "type": "data",
+      "path": "memory",
+      "template": "storage",
+      "description": "Storage directories for all memory systems",
+      "sparc": false,
+      "directories": [
+        "ruvector",
+        "letta",
+        "graphiti",
+        "mem0",
+        "openmemory",
+        "qdrant",
+        "backups"
+      ]
+    },
+    {
+      "name": "testing",
+      "type": "test-suite",
+      "path": "tests",
+      "template": "testing",
+      "description": "Comprehensive testing infrastructure",
+      "sparc": false,
+      "frameworks": [
+        "vitest",
+        "playwright",
+        "pytest",
+        "jest"
+      ]
+    }
+  ],
+  "postInitialization": {
+    "tasks": [
+      {
+        "name": "install-dependencies",
+        "command": "pnpm install",
+        "description": "Install all project dependencies"
+      },
+      {
+        "name": "initialize-memory-systems",
+        "command": "pnpm run memory:init",
+        "description": "Initialize all memory systems"
+      },
+      {
+        "name": "start-docker-services",
+        "command": "docker-compose -f infra/docker/docker-compose.memory.yml up -d",
+        "description": "Start all memory system containers"
+      },
+      {
+        "name": "run-migrations",
+        "command": "pnpm run db:migrate",
+        "description": "Run database migrations"
+      },
+      {
+        "name": "sync-infisical",
+        "command": "pnpm run secrets:sync",
+        "description": "Sync secrets from Infisical"
+      },
+      {
+        "name": "build-all",
+        "command": "pnpm run build:all",
+        "description": "Build all packages and apps"
+      },
+      {
+        "name": "run-tests",
+        "command": "pnpm run test:all",
+        "description": "Run all tests"
+      }
+    ]
+  },
+  "validation": {
+    "checks": [
+      {
+        "name": "memory-systems-health",
+        "type": "service-health",
+        "services": [
+          "ruvector:7000",
+          "letta:8283",
+          "falkordb:6379",
+          "mem0:8081",
+          "openmemory:8080",
+          "qdrant:6333"
+        ]
+      },
+      {
+        "name": "mcp-servers-responding",
+        "type": "http-health",
+        "endpoints": [
+          "http://localhost:8283/health",
+          "http://localhost:8081/health",
+          "http://localhost:8080/health"
+        ]
+      },
+      {
+        "name": "environment-variables",
+        "type": "env-check",
+        "required": [
+          "ANTHROPIC_API_KEY",
+          "INFISICAL_PROJECT_ID",
+          "DATABASE_URL",
+          "REDIS_URL",
+          "FALKORDB_URL",
+          "QDRANT_URL"
+        ]
+      }
+    ]
+  }
+}

@@ -1,2 +1,0 @@
-# falkordb
-Memory component.
