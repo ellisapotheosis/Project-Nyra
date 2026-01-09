@@ -1,0 +1,181 @@
+version: '3.8'
+
+services:
+  # Claude Flow - Primary Orchestrator
+  claude-flow:
+    image: node:20-alpine
+    container_name: nyra-claude-flow
+    restart: unless-stopped
+    ports:
+      - "9000:9000"
+    environment:
+      - NODE_ENV=development
+      - PORT=9000
+      - ORCHESTRATOR_MODE=dual
+    env_file:
+      - ../../services/claude-flow/.env.development
+    volumes:
+      - ../../services/claude-flow:/app
+      - /app/node_modules
+    working_dir: /app
+    command: sh -c "npm install && npm run dev"
+    depends_on:
+      - postgres
+      - redis
+      - qdrant
+      - falkordb
+    networks:
+      - nyra-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:9000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # Archon OS - Secondary Orchestrator
+  archon-os:
+    image: node:20-alpine
+    container_name: nyra-archon-os
+    restart: unless-stopped
+    ports:
+      - "9001:9001"
+    environment:
+      - NODE_ENV=development
+      - PORT=9001
+      - ORCHESTRATOR_MODE=dual
+    env_file:
+      - ../../services/archon-os/.env.development
+    volumes:
+      - ../../services/archon-os:/app
+      - /app/node_modules
+    working_dir: /app
+    command: sh -c "npm install && npm run dev"
+    depends_on:
+      - postgres
+      - redis
+      - claude-flow
+    networks:
+      - nyra-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:9001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # Gemini MCP Server
+  gemini-mcp:
+    image: node:20-alpine
+    container_name: nyra-gemini-mcp
+    restart: unless-stopped
+    ports:
+      - "8085:8085"
+    env_file:
+      - ../../services/gemini-mcp/.env.development
+    volumes:
+      - ../../services/gemini-mcp:/app
+      - /app/node_modules
+    working_dir: /app
+    command: sh -c "npm install && npm start"
+    depends_on:
+      - redis
+      - nexus-router
+    networks:
+      - nyra-network
+
+  # Serena MCP - Codebase Analysis
+  serena-mcp:
+    image: node:20-alpine
+    container_name: nyra-serena-mcp
+    restart: unless-stopped
+    ports:
+      - "8086:8086"
+    env_file:
+      - ../../services/serena-mcp/.env.development
+    volumes:
+      - ../../services/serena-mcp:/app
+      - ../../:/workspace:ro
+      - /app/node_modules
+    working_dir: /app
+    command: sh -c "npm install && npm start"
+    depends_on:
+      - redis
+      - qdrant
+      - nexus-router
+    networks:
+      - nyra-network
+
+  # Mem0 - User Personalization
+  mem0:
+    image: node:20-alpine
+    container_name: nyra-mem0
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    env_file:
+      - ../../services/mem0/.env.development
+    volumes:
+      - ../../services/mem0:/app
+      - /app/node_modules
+    working_dir: /app
+    command: sh -c "npm install && npm start"
+    depends_on:
+      - postgres
+      - redis
+      - qdrant
+      - nexus-router
+    networks:
+      - nyra-network
+
+  # Letta - OS-like Agent Memory
+  letta:
+    image: letta/letta:latest
+    container_name: nyra-letta
+    restart: unless-stopped
+    ports:
+      - "8283:8283"
+    environment:
+      - LETTA_PG_URI=postgresql://nyra_user:nyra_secure_password@postgres:5432/nyra_db
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - NEXUS_ROUTER_URL=http://nexus-router:8000
+    volumes:
+      - letta-data:/root/.letta
+    depends_on:
+      - postgres
+    networks:
+      - nyra-network
+
+  # Nexus Router - MCP Proxy Aggregator & LLM Gateway
+  nexus-router:
+    build:
+      context: ../../services/nexus-router
+      dockerfile: Dockerfile
+    container_name: nyra-nexus-router
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+      - "4001:4001"
+    environment:
+      - NODE_ENV=development
+      - NEXUS_ROUTER_PORT=8000
+      - NEXUS_ROUTER_MCP_PORT=4001
+    env_file:
+      - ../../services/nexus-router/.env.example
+    depends_on:
+      - redis
+    networks:
+      - nyra-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  nyra-network:
+    external: true
+
+volumes:
+  letta-data:
