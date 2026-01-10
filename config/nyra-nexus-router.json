@@ -1,0 +1,310 @@
+{
+  "nexus_router": {
+    "name": "NYRA Comprehensive MCP Nexus Router",
+    "description": "Central aggregation point for all 22+ MCP servers with fuzzy tool search",
+    "version": "2.0.0",
+    "listen": {
+      "host": "0.0.0.0",
+      "port": 12010
+    }
+  },
+
+  "aggregated_servers": {
+    "core_development": {
+      "filesystem": {
+        "type": "http",
+        "url": "http://localhost:7400/mcp",
+        "tags": ["filesystem", "files", "directories"],
+        "priority": 1
+      },
+      "git": {
+        "type": "stdio",
+        "command": "npx",
+        "args": ["-y", "git-mcp-server"],
+        "env": {"GIT_WORKDIR": "${NYRA_REPO_ROOT}"},
+        "tags": ["git", "version-control"],
+        "priority": 1
+      },
+      "github": {
+        "type": "http",
+        "url": "http://localhost:7402/mcp",
+        "tags": ["github", "repositories"],
+        "priority": 1
+      },
+      "docker": {
+        "type": "stdio",
+        "command": "uvx",
+        "args": ["mcp-server-docker"],
+        "env": {"DOCKER_HOST": "${DOCKER_HOST}"},
+        "tags": ["docker", "containers"],
+        "priority": 2
+      },
+      "shell": {
+        "type": "stdio",
+        "command": "uvx",
+        "args": ["mcp-server-shell"],
+        "tags": ["shell", "terminal"],
+        "priority": 2
+      }
+    },
+
+    "ai_orchestration": {
+      "claude-flow": {
+        "type": "stdio",
+        "command": "cmd",
+        "args": ["/c", "npx", "claude-flow@alpha", "mcp", "start"],
+        "tags": ["ai", "orchestration", "swarm"],
+        "priority": 1
+      },
+      "ruv-swarm": {
+        "type": "stdio",
+        "command": "cmd",
+        "args": ["/c", "npx", "ruv-swarm@latest", "mcp", "start"],
+        "tags": ["swarm", "coordination"],
+        "priority": 1
+      },
+      "flow-nexus": {
+        "type": "http",
+        "url": "http://localhost:7401/mcp",
+        "tags": ["nexus", "cloud", "workflows"],
+        "priority": 1
+      },
+      "claude-flow-dev": {
+        "type": "http",
+        "url": "http://localhost:7403/mcp",
+        "tags": ["claude-flow", "development"],
+        "priority": 2
+      },
+      "gemini": {
+        "type": "stdio",
+        "command": "npx",
+        "args": ["-y", "@mgabr/gemini-mcp-server"],
+        "env": {
+          "GOOGLE_API_KEY": "${GOOGLE_API_KEY}",
+          "VERTEX_AI_PROJECT": "${VERTEX_AI_PROJECT}"
+        },
+        "tags": ["ai", "gemini", "google"],
+        "priority": 3
+      }
+    },
+
+    "security_secrets": {
+      "bitwarden": {
+        "type": "http",
+        "url": "http://localhost:7405/mcp",
+        "tags": ["passwords", "vault", "security"],
+        "priority": 1
+      },
+      "infisical": {
+        "type": "http",
+        "url": "http://localhost:7404/mcp",
+        "tags": ["secrets", "environment", "security"],
+        "priority": 1
+      }
+    },
+
+    "memory_knowledge": {
+      "ruvector": {
+        "type": "http",
+        "url": "http://localhost:7406/mcp",
+        "tags": ["vector", "ruvector", "memory"],
+        "priority": 1
+      },
+      "agentdb": {
+        "type": "http",
+        "url": "http://localhost:7407/mcp",
+        "tags": ["agent", "database", "memory"],
+        "priority": 1
+      },
+      "graphiti": {
+        "type": "http",
+        "url": "http://localhost:8797/mcp",
+        "tags": ["knowledge", "graph", "temporal"],
+        "priority": 1
+      },
+      "mem0": {
+        "type": "stdio",
+        "command": "npx",
+        "args": ["-y", "@mem0ai/mem0-mcp"],
+        "tags": ["memory", "personalization"],
+        "priority": 2
+      }
+    },
+
+    "web_automation": {
+      "browser-use": {
+        "type": "stdio",
+        "command": "uvx",
+        "args": ["browser-use", "--mcp"],
+        "tags": ["browser", "automation"],
+        "priority": 1
+      },
+      "puppeteer": {
+        "type": "stdio",
+        "command": "npx",
+        "args": ["-y", "@modelcontextprotocol/server-puppeteer"],
+        "tags": ["puppeteer", "web", "automation"],
+        "priority": 2
+      },
+      "fetch": {
+        "type": "stdio",
+        "command": "uvx",
+        "args": ["mcp-server-fetch"],
+        "tags": ["fetch", "http", "api"],
+        "priority": 2
+      }
+    },
+
+    "productivity": {
+      "time": {
+        "type": "stdio",
+        "command": "uvx",
+        "args": ["mcp-server-time", "--local-timezone=${NYRA_TIMEZONE}"],
+        "tags": ["time", "scheduling"],
+        "priority": 2
+      },
+      "context7": {
+        "type": "stdio",
+        "command": "npx",
+        "args": ["-y", "@upstash/context7-mcp"],
+        "env": {"CONTEXT7_API_KEY": "${CONTEXT7_API_KEY}"},
+        "tags": ["context", "analytics"],
+        "priority": 3
+      },
+      "sequential-thinking": {
+        "type": "stdio",
+        "command": "npx",
+        "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"],
+        "tags": ["thinking", "reasoning"],
+        "priority": 3
+      }
+    },
+
+    "development_tools": {
+      "codanna": {
+        "type": "stdio",
+        "command": "npx",
+        "args": ["-y", "@codanna/mcp"],
+        "tags": ["code", "analysis"],
+        "priority": 2
+      },
+      "repo-docs": {
+        "type": "stdio",
+        "command": "npx",
+        "args": ["-y", "@modelcontextprotocol/server-markdown"],
+        "tags": ["docs", "markdown"],
+        "priority": 3
+      },
+      "inception": {
+        "type": "stdio",
+        "command": "npx",
+        "args": ["-y", "@tanevanwifferen/mcp-inception"],
+        "tags": ["meta", "recursive"],
+        "priority": 3
+      }
+    },
+
+    "specialized": {
+      "serena-mcp": {
+        "type": "http",
+        "url": "http://localhost:8092/mcp",
+        "tags": ["serena", "assistant"],
+        "priority": 2
+      },
+      "gemini-assistant": {
+        "type": "http",
+        "url": "http://localhost:8093/mcp",
+        "tags": ["gemini", "assistant"],
+        "priority": 2
+      },
+      "archon": {
+        "type": "streamable-http",
+        "url": "http://localhost:8051/mcp",
+        "tags": ["archon", "os"],
+        "priority": 1
+      }
+    },
+
+    "gateway_routers": {
+      "metamcp": {
+        "type": "http",
+        "url": "http://localhost:12008/mcp",
+        "tags": ["gateway", "router"],
+        "priority": 3,
+        "note": "Redundant with nexus router - consider disabling"
+      }
+    }
+  },
+
+  "fuzzy_search": {
+    "enabled": true,
+    "algorithm": "fuse.js",
+    "options": {
+      "threshold": 0.3,
+      "keys": ["name", "description", "tags", "tools.name", "tools.description"],
+      "includeScore": true,
+      "includeMatches": true
+    },
+    "indexing": {
+      "auto_refresh": true,
+      "refresh_interval": 300,
+      "cache_results": true,
+      "cache_ttl": 600
+    }
+  },
+
+  "routing": {
+    "strategy": "priority_weighted",
+    "load_balancing": true,
+    "health_checks": {
+      "enabled": true,
+      "interval": 30,
+      "timeout": 5,
+      "retries": 3
+    },
+    "failover": {
+      "enabled": true,
+      "backup_servers": ["metamcp", "claude-flow"],
+      "circuit_breaker": true
+    }
+  },
+
+  "endpoints": {
+    "nyra_complete": {
+      "path": "/nyra/complete",
+      "description": "All 22+ MCP servers with fuzzy search",
+      "servers": "all",
+      "auth": {
+        "type": "api_key",
+        "api_key": "sk_nyra_nexus_complete_2025"
+      },
+      "features": ["fuzzy_search", "load_balancing", "health_checks"]
+    },
+    "nyra_core": {
+      "path": "/nyra/core",
+      "description": "Core development tools only",
+      "servers": ["filesystem", "git", "github", "claude-flow", "ruv-swarm"],
+      "auth": {
+        "type": "api_key",
+        "api_key": "sk_nyra_nexus_core_2025"
+      }
+    }
+  },
+
+  "global_settings": {
+    "max_concurrent_connections": 100,
+    "request_timeout": 30,
+    "keepalive_timeout": 60,
+    "compression": true,
+    "cors": {
+      "enabled": true,
+      "origins": ["http://localhost:*", "https://*.nyra.dev"]
+    },
+    "logging": {
+      "level": "info",
+      "requests": true,
+      "errors": true,
+      "performance": true
+    }
+  }
+}

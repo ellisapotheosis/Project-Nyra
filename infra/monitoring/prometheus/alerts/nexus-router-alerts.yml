@@ -1,0 +1,290 @@
+# Nexus Router Alert Rules
+# Alerts for LLM routing, GPU workers, and cost management
+
+groups:
+  - name: nexus_router_alerts
+    interval: 30s
+    rules:
+      # ==========================================
+      # NEXUS ROUTER AVAILABILITY
+      # ==========================================
+
+      - alert: NexusRouterDown
+        expr: up{job="nexus-router"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          category: application
+          component: nexus-router
+        annotations:
+          summary: "Nexus Router is down"
+          description: "Nexus Router service is not responding"
+          action: "Check Nexus Router service immediately - all LLM requests affected"
+          dashboard: "http://grafana:3000/d/nexus-router"
+
+      - alert: NexusRouterHighErrorRate
+        expr: sum(rate(nexus_router_errors_total[5m])) / sum(rate(nexus_router_requests_total[5m])) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+          category: application
+          component: nexus-router
+        annotations:
+          summary: "High error rate in Nexus Router"
+          description: "Error rate: {{ $value | humanizePercentage }} (threshold: 5%)"
+          dashboard: "http://grafana:3000/d/nexus-router"
+
+      - alert: NexusRouterCriticalErrorRate
+        expr: sum(rate(nexus_router_errors_total[5m])) / sum(rate(nexus_router_requests_total[5m])) > 0.15
+        for: 2m
+        labels:
+          severity: critical
+          category: application
+          component: nexus-router
+        annotations:
+          summary: "CRITICAL: Nexus Router error rate"
+          description: "Error rate: {{ $value | humanizePercentage }}"
+          action: "Immediate investigation required"
+
+      - alert: NexusRouterHighLatency
+        expr: histogram_quantile(0.95, sum(rate(nexus_router_request_duration_bucket[5m])) by (le)) > 5
+        for: 5m
+        labels:
+          severity: warning
+          category: application
+          component: nexus-router
+        annotations:
+          summary: "High latency in Nexus Router"
+          description: "P95 latency: {{ $value | humanizeDuration }}"
+          dashboard: "http://grafana:3000/d/nexus-router"
+
+      # ==========================================
+      # GPU WORKER HEALTH
+      # ==========================================
+
+      - alert: GPUWorkerDown
+        expr: up{job="gpu-workers"} == 0
+        for: 2m
+        labels:
+          severity: critical
+          category: infrastructure
+          component: gpu-worker
+        annotations:
+          summary: "GPU Worker {{ $labels.worker }} is down"
+          description: "GPU worker {{ $labels.worker }} is not responding"
+          action: "Check GPU worker health - local inference unavailable"
+          dashboard: "http://grafana:3000/d/gpu-workers"
+
+      - alert: GPUWorkerUnhealthy
+        expr: gpu_worker_health_status == 0
+        for: 5m
+        labels:
+          severity: warning
+          category: infrastructure
+          component: gpu-worker
+        annotations:
+          summary: "GPU Worker {{ $labels.worker }} unhealthy"
+          description: "GPU worker reporting unhealthy status"
+          dashboard: "http://grafana:3000/d/gpu-workers"
+
+      - alert: GPUWorkerHighUtilization
+        expr: avg(gpu_utilization_percent) by (worker) > 90
+        for: 10m
+        labels:
+          severity: warning
+          category: infrastructure
+          component: gpu-worker
+        annotations:
+          summary: "High GPU utilization on {{ $labels.worker }}"
+          description: "GPU utilization: {{ $value | humanizePercentage }}"
+          dashboard: "http://grafana:3000/d/gpu-workers"
+
+      - alert: GPUMemoryHigh
+        expr: (gpu_memory_used_bytes / gpu_memory_total_bytes) > 0.90
+        for: 5m
+        labels:
+          severity: warning
+          category: infrastructure
+          component: gpu-worker
+        annotations:
+          summary: "High GPU memory on {{ $labels.worker }}"
+          description: "GPU memory usage: {{ $value | humanizePercentage }}"
+          dashboard: "http://grafana:3000/d/gpu-workers"
+
+      - alert: GPUTemperatureHigh
+        expr: gpu_temperature_celsius > 80
+        for: 5m
+        labels:
+          severity: warning
+          category: infrastructure
+          component: gpu-worker
+        annotations:
+          summary: "High GPU temperature on {{ $labels.worker }}"
+          description: "GPU temperature: {{ $value }}°C on {{ $labels.gpu_id }}"
+
+      - alert: GPUTemperatureCritical
+        expr: gpu_temperature_celsius > 90
+        for: 1m
+        labels:
+          severity: critical
+          category: infrastructure
+          component: gpu-worker
+        annotations:
+          summary: "CRITICAL: GPU temperature on {{ $labels.worker }}"
+          description: "GPU temperature: {{ $value }}°C - risk of thermal throttling"
+          action: "Check GPU cooling immediately"
+
+      - alert: GPUThrottling
+        expr: gpu_clock_throttle_reasons != 0
+        for: 5m
+        labels:
+          severity: warning
+          category: infrastructure
+          component: gpu-worker
+        annotations:
+          summary: "GPU throttling on {{ $labels.worker }}"
+          description: "GPU {{ $labels.gpu_id }} is being throttled"
+
+      # ==========================================
+      # MODEL ROUTING
+      # ==========================================
+
+      - alert: AllWorkersDown
+        expr: count(up{job="gpu-workers"} == 1) == 0
+        for: 2m
+        labels:
+          severity: critical
+          category: infrastructure
+          component: gpu-worker
+        annotations:
+          summary: "All GPU workers are down"
+          description: "No GPU workers available - falling back to cloud"
+          action: "Immediate attention - all local inference unavailable"
+
+      - alert: ModelNotAvailable
+        expr: nexus_router_model_available{model=~"qwen.*|llama.*|mistral.*"} == 0
+        for: 5m
+        labels:
+          severity: warning
+          category: application
+          component: model-availability
+        annotations:
+          summary: "Model {{ $labels.model }} not available"
+          description: "Requested model not available on any worker"
+          dashboard: "http://grafana:3000/d/nexus-router"
+
+      - alert: HighCloudFallbackRate
+        expr: sum(rate(nexus_router_requests_total{destination="cloud"}[5m])) / sum(rate(nexus_router_requests_total[5m])) > 0.30
+        for: 10m
+        labels:
+          severity: warning
+          category: application
+          component: routing
+        annotations:
+          summary: "High cloud fallback rate"
+          description: "{{ $value | humanizePercentage }} of requests using cloud API"
+          dashboard: "http://grafana:3000/d/nexus-router"
+
+      - alert: ExcessiveCloudFallback
+        expr: sum(rate(nexus_router_requests_total{destination="cloud"}[5m])) / sum(rate(nexus_router_requests_total[5m])) > 0.70
+        for: 5m
+        labels:
+          severity: critical
+          category: application
+          component: routing
+        annotations:
+          summary: "Excessive cloud fallback"
+          description: "{{ $value | humanizePercentage }} of requests using cloud - GPU workers may be down"
+          action: "Check GPU worker availability"
+
+      # ==========================================
+      # COST MANAGEMENT
+      # ==========================================
+
+      - alert: HighHourlyCost
+        expr: sum(rate(nexus_router_cost_total[1h])) * 3600 > 10
+        for: 30m
+        labels:
+          severity: warning
+          category: business
+          component: cost
+        annotations:
+          summary: "High hourly LLM cost"
+          description: "Current hourly cost: ${{ $value | humanize }}"
+          dashboard: "http://grafana:3000/d/cost-tracking"
+
+      - alert: CriticalHourlyCost
+        expr: sum(rate(nexus_router_cost_total[1h])) * 3600 > 25
+        for: 15m
+        labels:
+          severity: critical
+          category: business
+          component: cost
+        annotations:
+          summary: "CRITICAL: Hourly LLM cost exceeded"
+          description: "Current hourly cost: ${{ $value | humanize }} (threshold: $25/hr)"
+          action: "Review routing strategy and usage patterns"
+
+      - alert: LowCostSavings
+        expr: sum(rate(nexus_router_cost_saved_total[1h])) * 3600 < 5
+        for: 1h
+        labels:
+          severity: warning
+          category: business
+          component: cost
+        annotations:
+          summary: "Low cost savings from local GPU"
+          description: "Hourly savings: ${{ $value | humanize }} - consider GPU worker health"
+          dashboard: "http://grafana:3000/d/cost-tracking"
+
+      - alert: DailyBudgetExceeded
+        expr: sum(increase(nexus_router_cost_total[24h])) > 200
+        for: 5m
+        labels:
+          severity: critical
+          category: business
+          component: cost
+        annotations:
+          summary: "Daily cost budget exceeded"
+          description: "24-hour cost: ${{ $value | humanize }} (budget: $200)"
+          action: "Review and potentially throttle requests"
+
+      # ==========================================
+      # PERFORMANCE
+      # ==========================================
+
+      - alert: SlowModelInference
+        expr: histogram_quantile(0.95, sum(rate(model_inference_duration_bucket[5m])) by (model, worker, le)) > 30
+        for: 10m
+        labels:
+          severity: warning
+          category: application
+          component: performance
+        annotations:
+          summary: "Slow inference for {{ $labels.model }}"
+          description: "P95 inference time: {{ $value | humanizeDuration }}"
+          dashboard: "http://grafana:3000/d/gpu-workers"
+
+      - alert: HighQueueDepth
+        expr: nexus_router_queue_depth > 100
+        for: 5m
+        labels:
+          severity: warning
+          category: application
+          component: queue
+        annotations:
+          summary: "High request queue depth"
+          description: "Queue depth: {{ $value }} requests"
+          dashboard: "http://grafana:3000/d/nexus-router"
+
+      - alert: CriticalQueueDepth
+        expr: nexus_router_queue_depth > 500
+        for: 2m
+        labels:
+          severity: critical
+          category: application
+          component: queue
+        annotations:
+          summary: "CRITICAL: Request queue overloaded"
+          description: "Queue depth: {{ $value }} requests"
+          action: "Scale GPU workers or throttle requests"

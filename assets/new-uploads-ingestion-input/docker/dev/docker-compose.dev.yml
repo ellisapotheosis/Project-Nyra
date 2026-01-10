@@ -1,0 +1,237 @@
+version: '3.8'
+
+services:
+  # Development PostgreSQL
+  postgres:
+    image: postgres:16-alpine
+    container_name: dev-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: dev_db
+      POSTGRES_USER: dev_user
+      POSTGRES_PASSWORD: dev_password
+      POSTGRES_HOST_AUTH_METHOD: trust
+    volumes:
+      - dev_postgres_data:/var/lib/postgresql/data
+      - ../configs/postgres/init-dev.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    ports:
+      - "5432:5432"
+    networks:
+      - dev
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dev_user -d dev_db"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+
+  # Development Redis
+  redis:
+    image: redis:7-alpine
+    container_name: dev-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --requirepass dev_password
+    volumes:
+      - dev_redis_data:/data
+    ports:
+      - "6379:6379"
+    networks:
+      - dev
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+
+  # Development MinIO
+  minio:
+    image: minio/minio:latest
+    container_name: dev-minio
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: devuser
+      MINIO_ROOT_PASSWORD: devpassword
+    volumes:
+      - dev_minio_data:/data
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    networks:
+      - dev
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # Development Ollama
+  ollama-dev:
+    image: ollama/ollama:latest
+    container_name: dev-ollama
+    restart: unless-stopped
+    environment:
+      OLLAMA_HOST: 0.0.0.0:11434
+      OLLAMA_ORIGINS: "*"
+    volumes:
+      - dev_ollama_data:/root/.ollama
+    ports:
+      - "11434:11434"
+    networks:
+      - dev
+    profiles:
+      - gpu
+    runtime: nvidia
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Hot-Reload Development Server
+  dev-server:
+    build:
+      context: ../dockerfiles
+      dockerfile: Dockerfile.dev
+      target: development
+    container_name: dev-server
+    restart: unless-stopped
+    environment:
+      NODE_ENV: development
+      DATABASE_URL: postgresql://dev_user:dev_password@postgres:5432/dev_db
+      REDIS_URL: redis://:dev_password@redis:6379
+      OLLAMA_BASE_URL: http://ollama-dev:11434
+      MINIO_ENDPOINT: http://minio:9000
+      MINIO_ACCESS_KEY: devuser
+      MINIO_SECRET_KEY: devpassword
+      HOT_RELOAD: "true"
+    volumes:
+      - ../../src:/app/src:delegated
+      - ../../tests:/app/tests:delegated
+      - ../../package.json:/app/package.json:ro
+      - ../../tsconfig.json:/app/tsconfig.json:ro
+      - /app/node_modules
+      - dev_node_modules:/app/node_modules
+    ports:
+      - "3000:3000"
+      - "9229:9229" # Node.js debugging
+    networks:
+      - dev
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    command: npm run dev
+    stdin_open: true
+    tty: true
+
+  # Development Mailhog (Email Testing)
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: dev-mailhog
+    restart: unless-stopped
+    ports:
+      - "1025:1025" # SMTP
+      - "8025:8025" # Web UI
+    networks:
+      - dev
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "2"
+
+  # Development Adminer (Database UI)
+  adminer:
+    image: adminer:latest
+    container_name: dev-adminer
+    restart: unless-stopped
+    environment:
+      ADMINER_DEFAULT_SERVER: postgres
+    ports:
+      - "8080:8080"
+    networks:
+      - dev
+    depends_on:
+      - postgres
+
+  # Development Prometheus
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: dev-prometheus
+    restart: unless-stopped
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=7d'
+      - '--web.enable-lifecycle'
+    volumes:
+      - ../configs/prometheus/prometheus-dev.yml:/etc/prometheus/prometheus.yml:ro
+      - dev_prometheus_data:/prometheus
+    ports:
+      - "9090:9090"
+    networks:
+      - dev
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:9090/-/healthy"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Development Grafana
+  grafana:
+    image: grafana/grafana:latest
+    container_name: dev-grafana
+    restart: unless-stopped
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Admin
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    volumes:
+      - dev_grafana_data:/var/lib/grafana
+      - ../configs/grafana/provisioning:/etc/grafana/provisioning:ro
+    ports:
+      - "3001:3000"
+    networks:
+      - dev
+    depends_on:
+      - prometheus
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+networks:
+  dev:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.22.0.0/16
+
+volumes:
+  dev_postgres_data:
+    driver: local
+  dev_redis_data:
+    driver: local
+  dev_minio_data:
+    driver: local
+  dev_ollama_data:
+    driver: local
+  dev_node_modules:
+    driver: local
+  dev_prometheus_data:
+    driver: local
+  dev_grafana_data:
+    driver: local

@@ -1,0 +1,191 @@
+groups:
+  - name: node_health
+    interval: 30s
+    rules:
+      # PC Down Alert
+      - alert: PCDown
+        expr: up{job=~".*-node"} == 0
+        for: 2m
+        labels:
+          severity: critical
+          category: infrastructure
+        annotations:
+          summary: "PC {{ $labels.instance }} is down"
+          description: "{{ $labels.instance }} has been down for more than 2 minutes"
+
+      # High CPU Usage
+      - alert: HighCPUUsage
+        expr: 100 - (avg by(instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 85
+        for: 5m
+        labels:
+          severity: warning
+          category: performance
+        annotations:
+          summary: "High CPU usage on {{ $labels.instance }}"
+          description: "CPU usage is above 85% (current: {{ $value }}%)"
+
+      # High Memory Usage
+      - alert: HighMemoryUsage
+        expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 90
+        for: 5m
+        labels:
+          severity: warning
+          category: performance
+        annotations:
+          summary: "High memory usage on {{ $labels.instance }}"
+          description: "Memory usage is above 90% (current: {{ $value }}%)"
+
+      # Disk Space Low
+      - alert: DiskSpaceLow
+        expr: (node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"}) * 100 < 15
+        for: 5m
+        labels:
+          severity: warning
+          category: storage
+        annotations:
+          summary: "Low disk space on {{ $labels.instance }}"
+          description: "Available disk space is below 15% (current: {{ $value }}%)"
+
+      # Disk Space Critical
+      - alert: DiskSpaceCritical
+        expr: (node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"}) * 100 < 5
+        for: 1m
+        labels:
+          severity: critical
+          category: storage
+        annotations:
+          summary: "Critical disk space on {{ $labels.instance }}"
+          description: "Available disk space is below 5% (current: {{ $value }}%)"
+
+  - name: gpu_health
+    interval: 30s
+    rules:
+      # GPU Temperature High
+      - alert: GPUTemperatureHigh
+        expr: DCGM_FI_DEV_GPU_TEMP > 85
+        for: 5m
+        labels:
+          severity: warning
+          category: hardware
+        annotations:
+          summary: "High GPU temperature on {{ $labels.instance }}"
+          description: "GPU temperature is above 85°C (current: {{ $value }}°C)"
+
+      # GPU Memory Usage High
+      - alert: GPUMemoryHigh
+        expr: (DCGM_FI_DEV_FB_USED / DCGM_FI_DEV_FB_FREE) * 100 > 90
+        for: 5m
+        labels:
+          severity: warning
+          category: performance
+        annotations:
+          summary: "High GPU memory usage on {{ $labels.instance }}"
+          description: "GPU memory usage is above 90% (current: {{ $value }}%)"
+
+      # GPU Down
+      - alert: GPUDown
+        expr: up{job=~".*-gpu"} == 0
+        for: 2m
+        labels:
+          severity: critical
+          category: hardware
+        annotations:
+          summary: "GPU exporter down on {{ $labels.instance }}"
+          description: "Cannot collect GPU metrics from {{ $labels.instance }}"
+
+  - name: service_health
+    interval: 30s
+    rules:
+      # Service Down
+      - alert: ServiceDown
+        expr: up{job=~".*-(ollama|n8n|grafana|prometheus|traefik)"} == 0
+        for: 2m
+        labels:
+          severity: critical
+          category: service
+        annotations:
+          summary: "Service {{ $labels.job }} is down"
+          description: "Service {{ $labels.job }} on {{ $labels.instance }} has been down for more than 2 minutes"
+
+      # Ollama High Latency
+      - alert: OllamaHighLatency
+        expr: histogram_quantile(0.95, rate(ollama_request_duration_seconds_bucket[5m])) > 10
+        for: 5m
+        labels:
+          severity: warning
+          category: performance
+        annotations:
+          summary: "High Ollama latency on {{ $labels.instance }}"
+          description: "95th percentile latency is above 10s (current: {{ $value }}s)"
+
+      # Container Restart
+      - alert: ContainerRestarting
+        expr: rate(docker_container_restarts_total[15m]) > 0
+        for: 5m
+        labels:
+          severity: warning
+          category: stability
+        annotations:
+          summary: "Container {{ $labels.container_name }} is restarting"
+          description: "Container has restarted {{ $value }} times in the last 15 minutes"
+
+  - name: network_health
+    interval: 30s
+    rules:
+      # High Network Error Rate
+      - alert: HighNetworkErrors
+        expr: rate(node_network_receive_errs_total[5m]) + rate(node_network_transmit_errs_total[5m]) > 10
+        for: 5m
+        labels:
+          severity: warning
+          category: network
+        annotations:
+          summary: "High network error rate on {{ $labels.instance }}"
+          description: "Network interface {{ $labels.device }} has high error rate ({{ $value }} errors/s)"
+
+      # Network Interface Down
+      - alert: NetworkInterfaceDown
+        expr: node_network_up{device!~"lo|docker.*|veth.*"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          category: network
+        annotations:
+          summary: "Network interface down on {{ $labels.instance }}"
+          description: "Interface {{ $labels.device }} is down"
+
+  - name: docker_health
+    interval: 30s
+    rules:
+      # High Container CPU
+      - alert: ContainerHighCPU
+        expr: sum by(container_name) (rate(container_cpu_usage_seconds_total{container_name!=""}[5m])) * 100 > 80
+        for: 5m
+        labels:
+          severity: warning
+          category: performance
+        annotations:
+          summary: "High CPU usage for container {{ $labels.container_name }}"
+          description: "Container CPU usage is above 80% (current: {{ $value }}%)"
+
+      # High Container Memory
+      - alert: ContainerHighMemory
+        expr: (container_memory_usage_bytes / container_spec_memory_limit_bytes) * 100 > 90
+        for: 5m
+        labels:
+          severity: warning
+          category: performance
+        annotations:
+          summary: "High memory usage for container {{ $labels.container_name }}"
+          description: "Container memory usage is above 90% (current: {{ $value }}%)"
+
+      # Container OOMKilled
+      - alert: ContainerOOMKilled
+        expr: sum by(container_name) (container_oom_events_total) > 0
+        for: 1m
+        labels:
+          severity: critical
+          category: stability
+        annotations:
+          summary: "Container {{ $labels.container_name }} was OOM killed"
+          description: "Container ran out of memory and was killed by the OOM killer"

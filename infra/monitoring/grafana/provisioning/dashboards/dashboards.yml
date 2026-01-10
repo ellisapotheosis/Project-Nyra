@@ -1,0 +1,61 @@
+# Grafana Dashboard Provisioning
+# Auto-load dashboards on startup
+
+apiVersion: 1
+
+providers:
+  - name: 'Default'
+    orgId: 1
+    folder: ''
+    type: file
+    disableDeletion: false
+    editable: true
+    updateIntervalSeconds: 10
+    allowUiUpdates: true
+    options:
+      path: /var/lib/grafana/dashboards
+
+  - name: 'Nexus Router'
+    orgId: 1
+    folder: 'Nexus Router'
+    type: file
+    disableDeletion: false
+    editable: true
+    options:
+      path: /var/lib/grafana/dashboards/nexus-router
+
+  - name: 'MCP Servers'
+    orgId: 1
+    folder: 'MCP Servers'
+    type: file
+    disableDeletion: false
+    editable: true
+    options:
+      path: /var/lib/grafana/dashboards/mcp-servers
+
+  - name: 'GPU Workers'
+    orgId: 1
+    folder: 'GPU Workers'
+    type: file
+    disableDeletion: false
+    editable: true
+    options:
+      path: /var/lib/grafana/dashboards/gpu-workers
+
+  - name: 'System'
+    orgId: 1
+    folder: 'System'
+    type: file
+    disableDeletion: false
+    editable: true
+    options:
+      path: /var/lib/grafana/dashboards/system
+
+  - name: 'Cost Tracking'
+    orgId: 1
+    folder: 'Cost & Business'
+    type: file
+    disableDeletion: false
+    editable: true
+    options:
+      path: /var/lib/grafana/dashboards/cost

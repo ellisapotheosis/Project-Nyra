@@ -1,0 +1,24 @@
+{
+  "integration": {
+    "claude_flow_primary": true,
+    "sync_enabled": true,
+    "archon_secondary": true,
+    "dual_orchestrator": true
+  },
+  "repositories": {
+    "archon": {
+      "frontend_port": 8051,
+      "branch": "nyra-development",
+      "mode": "development",
+      "backend_port": 8080,
+      "path": "./submodules/archon"
+    },
+    "claude_flow": {
+      "branch": "nyra-development",
+      "mode": "development",
+      "mcp_port": 7403,
+      "path": "./submodules/claude-flow"
+    }
+  },
+  "development_mode": true
+}

@@ -1,75 +1,78 @@
-export default {
-  preset: 'ts-jest/presets/default-esm',
-  extensionsToTreatAsEsm: ['.ts'],
+/**
+ * Jest Configuration for Project Nyra Monorepo
+ * Root configuration for all test types
+ */
+
+module.exports = {
+  projects: [
+    '<rootDir>/jest.config.unit.js',
+    '<rootDir>/jest.config.integration.js',
+  ],
+
+  // Global settings
   testEnvironment: 'node',
-  roots: ['<rootDir>/src', '<rootDir>/tests'],
-  testMatch: [
-    '<rootDir>/tests/**/*.test.ts',
-    '<rootDir>/tests/**/*.test.js',
-    '<rootDir>/tests/**/*.spec.ts',
-    '<rootDir>/tests/**/*.spec.js',
-    '<rootDir>/src/**/*.test.ts',
-    '<rootDir>/src/**/*.test.js',
-    '<rootDir>/src/**/*.spec.ts',
-    '<rootDir>/src/**/*.spec.js'
-  ],
-  testPathIgnorePatterns: [
-    '<rootDir>/node_modules/',
-    '<rootDir>/dist/',
-    '<rootDir>/bin/',
-    '<rootDir>/tests/.*\\.broken$'
-  ],
-  transform: {
-    '^.+\\.ts$': ['ts-jest', {
-      useESM: true,
-      tsconfig: {
-        module: 'es2022',
-        moduleResolution: 'node',
-        allowSyntheticDefaultImports: true,
-        esModuleInterop: true,
-        target: 'es2022'
-      }
-    }],
-    '^.+\\.js$': ['babel-jest', {
-      presets: [['@babel/preset-env', { modules: false }]]
-    }]
-  },
-  moduleNameMapper: {
-    '^(\\.{1,2}/.*)\\.js$': '$1',
-    '^~/(.*)$': '<rootDir>/src/$1',
-    '^@/(.*)$': '<rootDir>/src/$1',
-    '^@tests/(.*)$': '<rootDir>/tests/$1'
-  },
-  modulePathIgnorePatterns: [
-    '<rootDir>/dist/',
-    '<rootDir>/bin/',
-    '<rootDir>/node_modules/'
-  ],
-  transformIgnorePatterns: [
-    'node_modules/(?!(chalk|ora|inquirer|nanoid|fs-extra|ansi-styles|ruv-swarm|@modelcontextprotocol)/)'
-  ],
-  resolver: undefined,
+
+  // Coverage settings
   collectCoverageFrom: [
-    'src/**/*.ts',
-    'src/**/*.js',
-    '!src/**/*.d.ts',
-    '!src/**/*.test.ts',
-    '!src/**/*.test.js',
-    '!src/**/*.spec.ts',
-    '!src/**/*.spec.js'
+    'apps/**/*.{ts,tsx,js,jsx}',
+    'services/**/*.{ts,tsx,js,jsx}',
+    'packages/**/*.{ts,tsx,js,jsx}',
+    '!**/*.d.ts',
+    '!**/node_modules/**',
+    '!**/dist/**',
+    '!**/build/**',
+    '!**/.next/**',
+    '!**/coverage/**',
+    '!**/*.config.{js,ts}',
+    '!**/tests/**',
   ],
-  coverageDirectory: 'coverage',
-  coverageReporters: ['text', 'lcov', 'html'],
+
+  coverageThreshold: {
+    global: {
+      branches: 80,
+      functions: 80,
+      lines: 80,
+      statements: 80,
+    },
+  },
+
+  coverageReporters: ['text', 'lcov', 'html', 'json-summary'],
+
+  // Module resolution
+  moduleNameMapper: {
+    '^@nyra/(.*)$': '<rootDir>/packages/$1/src',
+    '^@/(.*)$': '<rootDir>/src/$1',
+  },
+
+  // Setup files
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
-  testTimeout: 30000,
-  verbose: true,
-  // Enhanced error handling
-  errorOnDeprecated: false,
-  // Better module resolution
+
+  // Ignore patterns
+  testPathIgnorePatterns: [
+    '/node_modules/',
+    '/dist/',
+    '/build/',
+    '/.next/',
+    '/coverage/',
+  ],
+
+  // Transform settings
+  transform: {
+    '^.+\.(ts|tsx)$': ['ts-jest', {
+      tsconfig: {
+        jsx: 'react',
+        esModuleInterop: true,
+        allowSyntheticDefaultImports: true,
+      },
+    }],
+  },
+
+  // Module file extensions
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
-  // Clear mocks between tests
-  clearMocks: true,
-  restoreMocks: true,
-  // Remove deprecated globals configuration
-  // ts-jest configuration moved to transform options above
+
+  // Verbose output
+  verbose: true,
+
+  // Timeout
+  testTimeout: 30000,
 };
