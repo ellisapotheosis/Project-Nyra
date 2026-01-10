@@ -6,7 +6,7 @@ import { createLogger } from '../utils/logger';
 const logger = createLogger('models-route');
 const router = Router();
 
-router.get('/', async (req: Request, res: Response) => {
+router.get('/', async (_req: Request, res: Response) => {
   try {
     const workerManager = WorkerManager.getInstance();
     const workerHealth = workerManager.getWorkerHealthStatus();
@@ -93,7 +93,7 @@ router.get('/', async (req: Request, res: Response) => {
   }
 });
 
-router.get('/:model', async (req: Request, res: Response) => {
+router.get('/:model', async (req: Request, res: Response): Promise<void> => {
   try {
     const modelId = req.params.model;
     const workerManager = WorkerManager.getInstance();
@@ -126,12 +126,13 @@ router.get('/:model', async (req: Request, res: Response) => {
       config.workers.cloud.anthropic.apiKey || config.workers.cloud.openrouter.apiKey;
 
     if (!foundLocally && !cloudAvailable) {
-      return res.status(404).json({
+      res.status(404).json({
         error: {
           message: `Model '${modelId}' not found or unavailable`,
           type: 'invalid_request_error',
         },
       });
+      return;
     }
 
     res.json({

@@ -8,7 +8,7 @@ import { CompletionRequest, CompletionResponse } from '../types';
 const logger = createLogger('completion-route');
 const router = Router();
 
-router.post('/', async (req: Request, res: Response) => {
+router.post('/', async (req: Request, res: Response): Promise<void> => {
   const startTime = Date.now();
 
   try {
@@ -16,12 +16,13 @@ router.post('/', async (req: Request, res: Response) => {
 
     // Validate request
     if (!requestBody.messages || !Array.isArray(requestBody.messages)) {
-      return res.status(400).json({
+      res.status(400).json({
         error: {
           message: 'Invalid request: messages array is required',
           type: 'invalid_request_error',
         },
       });
+      return;
     }
 
     // Check for cached response
@@ -33,11 +34,12 @@ router.post('/', async (req: Request, res: Response) => {
       logger.info('Returning cached response');
       await redis.incrementMetric('requests:cached');
 
-      return res.json({
+      res.json({
         ...JSON.parse(cachedResponse),
         cached: true,
         responseTime: Date.now() - startTime,
       });
+      return;
     }
 
     // Route the request

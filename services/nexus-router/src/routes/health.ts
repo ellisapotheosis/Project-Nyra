@@ -6,7 +6,7 @@ import { createLogger } from '../utils/logger';
 const logger = createLogger('health-route');
 const router = Router();
 
-router.get('/', async (req: Request, res: Response) => {
+router.get('/', async (_req: Request, res: Response) => {
   try {
     const redis = RedisClient.getInstance();
     const workerManager = WorkerManager.getInstance();
@@ -64,7 +64,7 @@ router.get('/', async (req: Request, res: Response) => {
   }
 });
 
-router.get('/ready', async (req: Request, res: Response) => {
+router.get('/ready', async (_req: Request, res: Response) => {
   try {
     const redis = RedisClient.getInstance();
     const isReady = redis.isConnected();
@@ -91,7 +91,7 @@ router.get('/ready', async (req: Request, res: Response) => {
   }
 });
 
-router.get('/live', (req: Request, res: Response) => {
+router.get('/live', (_req: Request, res: Response) => {
   res.status(200).json({
     status: 'alive',
     timestamp: new Date().toISOString(),

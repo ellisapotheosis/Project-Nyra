@@ -73,7 +73,7 @@ services:
     volumes:
       - falkordb_data:/data
     ports:
-      - "6379:6379"
+      - "${FALKORDB_PORT}:6379"
     networks:
       - nyra-network
     healthcheck:
@@ -240,8 +240,8 @@ services:
     volumes:
       - letta_data:/root/.letta
     ports:
-      - "${LETTA_API_URL#http://localhost:}:8283"
-      - "${LETTA_MCP_PORT}:${LETTA_MCP_PORT}"
+      - "8283:8283"
+      - "8284:8284"
     networks:
       - nyra-network
     depends_on:

@@ -22,10 +22,12 @@ import { config } from './config';
 import { healthRouter } from './routes/health';
 import { completionRouter } from './routes/completion';
 import { modelsRouter } from './routes/models';
+import { mcpRouter } from './routes/mcp';
 import { errorHandler } from './middleware/error-handler';
 import { requestLogger } from './middleware/request-logger';
 import { RedisClient } from './services/redis-client';
 import { WorkerManager } from './services/worker-manager';
+import { MCPProxyService } from './services/mcp-proxy';
 
 const logger = createLogger('nexus-router');
 
@@ -43,6 +45,11 @@ async function startServer(): Promise<void> {
   const workerManager = WorkerManager.getInstance();
   await workerManager.initialize();
   logger.info('Worker manager initialized');
+
+  // Initialize MCP proxy
+  const mcpProxy = MCPProxyService.getInstance();
+  await mcpProxy.initialize();
+  logger.info('MCP proxy initialized');
 
   // Security middleware
   app.use(helmet());
@@ -72,22 +79,37 @@ async function startServer(): Promise<void> {
   app.use('/health', healthRouter);
   app.use('/v1/chat/completions', completionRouter);
   app.use('/v1/models', modelsRouter);
+  app.use('/mcp', mcpRouter);
 
   // Root endpoint
-  app.get('/', (req, res) => {
+  app.get('/', (_req, res) => {
     res.json({
       name: 'Nexus Router',
       version: '1.0.0',
-      description: 'Intelligent LLM request routing service',
+      description: 'Intelligent LLM request routing service with MCP proxy aggregator',
       endpoints: {
         health: '/health',
         completions: '/v1/chat/completions',
-        models: '/v1/models'
+        models: '/v1/models',
+        mcp: {
+          servers: '/mcp/servers',
+          tools: '/mcp/tools',
+          search: '/mcp/tools/search',
+          call: '/mcp/tools/call',
+          proxy: '/mcp/proxy/:serverId',
+          metrics: '/mcp/metrics'
+        }
       },
       routing: {
         strategy: config.routing.strategy,
         preferLocal: config.routing.preferLocal,
         fallbackCloud: config.routing.fallbackCloud
+      },
+      features: {
+        fuzzyToolSearch: true,
+        mcpAggregator: true,
+        caching: true,
+        healthChecks: true
       }
     });
   });

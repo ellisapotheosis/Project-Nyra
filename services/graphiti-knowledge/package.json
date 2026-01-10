@@ -25,7 +25,7 @@
   ],
   "dependencies": {
     "express": "^4.18.2",
-    "falkordb": "^1.0.5",
+    "falkordb": "^6.4.1",
     "compromise": "^14.10.0",
     "natural": "^6.10.0",
     "node-nlp": "^4.27.0",

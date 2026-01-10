@@ -1,4 +1,4 @@
-import axios, { AxiosError } from 'axios';
+import axios from 'axios';
 import crypto from 'crypto';
 import { config, Worker } from '../config';
 import { createLogger } from '../utils/logger';
