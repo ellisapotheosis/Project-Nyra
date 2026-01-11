@@ -1,0 +1,581 @@
+openapi: 3.0.3
+info:
+  title: Nyra Orchestrator API
+  description: |
+    Central orchestration and workflow coordination service for Project Nyra.
+
+    The Orchestrator manages multi-service workflows, coordinates business processes,
+    handles async task execution, and provides unified API access across all services.
+
+    **Base URL**: `http://localhost:8003` (development)
+
+    **Production URL**: `https://api.ratehunter.net/orchestrator`
+  version: 1.0.0
+  contact:
+    name: Project Nyra API Support
+    email: api@ratehunter.net
+  license:
+    name: Proprietary
+
+servers:
+  - url: http://localhost:8003
+    description: Local development server
+  - url: http://orchestrator:8003
+    description: Docker internal network
+  - url: https://api.ratehunter.net/orchestrator
+    description: Production API
+
+tags:
+  - name: workflows
+    description: Business workflow orchestration
+  - name: tasks
+    description: Async task management
+  - name: integrations
+    description: External service integrations
+  - name: health
+    description: Service health and status
+
+paths:
+  /health:
+    get:
+      summary: Health check endpoint
+      tags: [health]
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "healthy"
+                  services:
+                    type: object
+                    properties:
+                      quote_engine:
+                        type: string
+                        example: "healthy"
+                      campaign_engine:
+                        type: string
+                        example: "healthy"
+                      mem0:
+                        type: string
+                        example: "healthy"
+
+  /workflows/lead-intake:
+    post:
+      summary: Execute lead intake workflow
+      tags: [workflows]
+      description: |
+        Complete end-to-end lead intake process.
+
+        **Workflow Steps**:
+        1. Validate lead data
+        2. Generate mortgage quote
+        3. Create lead in CRM
+        4. Enroll in welcome campaign
+        5. Trigger compliance checks
+        6. Assign to loan officer
+        7. Send confirmation email
+
+        **Average Duration**: 2-3 seconds
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LeadIntakeRequest'
+      responses:
+        '200':
+          description: Workflow executed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkflowResponse'
+        '400':
+          description: Validation error
+        '500':
+          description: Workflow execution failed
+
+  /workflows/quote-to-application:
+    post:
+      summary: Convert quote to loan application
+      tags: [workflows]
+      description: |
+        Transition lead from quote stage to full loan application.
+
+        **Steps**:
+        1. Verify quote validity
+        2. Create application record
+        3. Request documents
+        4. Initiate credit pull
+        5. Update campaign sequence
+        6. Notify loan officer
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [lead_id, quote_id]
+              properties:
+                lead_id:
+                  type: string
+                quote_id:
+                  type: string
+      responses:
+        '200':
+          description: Application created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkflowResponse'
+
+  /workflows/rate-lock:
+    post:
+      summary: Execute rate lock workflow
+      tags: [workflows]
+      description: |
+        Lock in quoted interest rate.
+
+        **Steps**:
+        1. Verify rate availability
+        2. Calculate lock fees
+        3. Generate lock agreement
+        4. Update quote status
+        5. Notify lender
+        6. Send confirmation
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [quote_id, lock_period]
+              properties:
+                quote_id:
+                  type: string
+                lock_period:
+                  type: integer
+                  enum: [30, 45, 60]
+                  description: Lock period in days
+      responses:
+        '200':
+          description: Rate locked successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  lock_id:
+                    type: string
+                  locked_rate:
+                    type: number
+                    format: float
+                  lock_expires_at:
+                    type: string
+                    format: date-time
+                  lock_fee:
+                    type: number
+
+  /tasks:
+    post:
+      summary: Create async task
+      tags: [tasks]
+      description: |
+        Queue an async task for background processing.
+
+        **Task Types**:
+        - document_processing
+        - credit_report_pull
+        - appraisal_order
+        - title_search
+        - income_verification
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskRequest'
+      responses:
+        '202':
+          description: Task accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskResponse'
+
+    get:
+      summary: List tasks
+      tags: [tasks]
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, processing, completed, failed]
+        - name: task_type
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Tasks retrieved
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TaskResponse'
+
+  /tasks/{task_id}:
+    get:
+      summary: Get task status
+      tags: [tasks]
+      parameters:
+        - name: task_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Task status retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskDetailResponse'
+
+  /integrations/credit-report:
+    post:
+      summary: Pull credit report
+      tags: [integrations]
+      description: |
+        Order credit report from Experian/Equifax/TransUnion.
+
+        **Required Consent**: Must have signed consent form on file.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [lead_id, ssn, consent_id]
+              properties:
+                lead_id:
+                  type: string
+                ssn:
+                  type: string
+                  description: Social Security Number (encrypted)
+                consent_id:
+                  type: string
+                  description: Consent form ID
+                bureau:
+                  type: string
+                  enum: [experian, equifax, transunion, all]
+                  default: all
+      responses:
+        '200':
+          description: Credit report retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  report_id:
+                    type: string
+                  credit_score:
+                    type: integer
+                  credit_score_range:
+                    type: string
+                    example: "670-739"
+                  report_date:
+                    type: string
+                    format: date
+                  details_url:
+                    type: string
+                    description: Secure URL to full report
+
+  /integrations/appraisal:
+    post:
+      summary: Order property appraisal
+      tags: [integrations]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [lead_id, property_address]
+              properties:
+                lead_id:
+                  type: string
+                property_address:
+                  type: object
+                  properties:
+                    street:
+                      type: string
+                    city:
+                      type: string
+                    state:
+                      type: string
+                    zip:
+                      type: string
+                rush_order:
+                  type: boolean
+                  default: false
+      responses:
+        '202':
+          description: Appraisal ordered
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  appraisal_id:
+                    type: string
+                  estimated_completion:
+                    type: string
+                    format: date
+                  cost:
+                    type: number
+
+  /integrations/document-upload:
+    post:
+      summary: Upload and process document
+      tags: [integrations]
+      description: |
+        Upload document for OCR processing and classification.
+
+        **Supported Types**:
+        - Pay stubs
+        - W-2 forms
+        - Bank statements
+        - Tax returns
+        - ID documents
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file, lead_id, document_type]
+              properties:
+                file:
+                  type: string
+                  format: binary
+                lead_id:
+                  type: string
+                document_type:
+                  type: string
+                  enum: [pay_stub, w2, bank_statement, tax_return, id_document, other]
+      responses:
+        '200':
+          description: Document uploaded and processed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  document_id:
+                    type: string
+                  classification:
+                    type: string
+                  extracted_data:
+                    type: object
+                  verification_status:
+                    type: string
+                    enum: [verified, needs_review, failed]
+
+  /analytics/dashboard:
+    get:
+      summary: Get dashboard metrics
+      tags: [workflows]
+      description: |
+        Retrieve aggregated metrics for operations dashboard.
+
+        **Metrics Included**:
+        - Total leads (today, week, month)
+        - Active campaigns
+        - Quotes generated
+        - Applications in progress
+        - Average response time
+        - Conversion rates
+      responses:
+        '200':
+          description: Dashboard data retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DashboardMetrics'
+
+components:
+  schemas:
+    LeadIntakeRequest:
+      type: object
+      required: [email, firstName, lastName, loanAmount, propertyValue, creditScore]
+      properties:
+        email:
+          type: string
+          format: email
+        firstName:
+          type: string
+        lastName:
+          type: string
+        phone:
+          type: string
+        loanAmount:
+          type: number
+        propertyValue:
+          type: number
+        creditScore:
+          type: integer
+        employmentStatus:
+          type: string
+        leadSource:
+          type: string
+        utmParams:
+          type: object
+
+    WorkflowResponse:
+      type: object
+      properties:
+        workflow_id:
+          type: string
+        status:
+          type: string
+          enum: [success, partial_success, failed]
+        lead_id:
+          type: string
+        quote_id:
+          type: string
+        campaign_id:
+          type: string
+        steps_completed:
+          type: array
+          items:
+            type: object
+            properties:
+              step:
+                type: string
+              status:
+                type: string
+              timestamp:
+                type: string
+                format: date-time
+              error:
+                type: string
+        execution_time_ms:
+          type: integer
+
+    TaskRequest:
+      type: object
+      required: [task_type, lead_id]
+      properties:
+        task_type:
+          type: string
+          enum: [document_processing, credit_report_pull, appraisal_order, title_search, income_verification]
+        lead_id:
+          type: string
+        priority:
+          type: string
+          enum: [low, normal, high, urgent]
+          default: normal
+        parameters:
+          type: object
+
+    TaskResponse:
+      type: object
+      properties:
+        task_id:
+          type: string
+        task_type:
+          type: string
+        status:
+          type: string
+          enum: [pending, processing, completed, failed]
+        created_at:
+          type: string
+          format: date-time
+        estimated_completion:
+          type: string
+          format: date-time
+
+    TaskDetailResponse:
+      allOf:
+        - $ref: '#/components/schemas/TaskResponse'
+        - type: object
+          properties:
+            progress:
+              type: integer
+              minimum: 0
+              maximum: 100
+            result:
+              type: object
+            error:
+              type: string
+            logs:
+              type: array
+              items:
+                type: object
+
+    DashboardMetrics:
+      type: object
+      properties:
+        leads:
+          type: object
+          properties:
+            today:
+              type: integer
+            week:
+              type: integer
+            month:
+              type: integer
+            total:
+              type: integer
+        campaigns:
+          type: object
+          properties:
+            active:
+              type: integer
+            total_sends_today:
+              type: integer
+            avg_open_rate:
+              type: number
+              format: float
+        quotes:
+          type: object
+          properties:
+            generated_today:
+              type: integer
+            avg_rate:
+              type: number
+              format: float
+        applications:
+          type: object
+          properties:
+            in_progress:
+              type: integer
+            approved_this_week:
+              type: integer
+        performance:
+          type: object
+          properties:
+            avg_response_time_ms:
+              type: integer
+            conversion_rate:
+              type: number
+              format: float
+
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+
+security:
+  - ApiKeyAuth: []

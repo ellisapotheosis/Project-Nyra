@@ -498,3 +498,59 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
+
+  # ============================================================================
+  # FRONTEND APPLICATIONS
+  # ============================================================================
+
+  ratehunter:
+    build:
+      context: ../../apps/ratehunter
+      dockerfile: Dockerfile
+    container_name: nyra-ratehunter
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - QUOTE_ENGINE_URL=http://quote-engine:8001
+      - CAMPAIGN_ENGINE_URL=http://campaign-engine:8002
+    networks:
+      - nyra-network
+    depends_on:
+      quote-engine:
+        condition: service_healthy
+      campaign-engine:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  nyra-admin:
+    build:
+      context: ../../apps/nyra-admin
+      dockerfile: Dockerfile
+    container_name: nyra-admin
+    ports:
+      - "3001:80"
+    environment:
+      - NODE_ENV=production
+    networks:
+      - nyra-network
+    depends_on:
+      orchestrator:
+        condition: service_healthy
+      quote-engine:
+        condition: service_healthy
+      campaign-engine:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s

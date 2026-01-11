@@ -1,40 +1,34 @@
 {
-  "name": "nyra-admin",
+  "name": "@nyra/admin",
+  "version": "1.0.0",
   "private": true,
-  "version": "0.1.0",
+  "description": "Nyra Admin - Internal operations dashboard",
   "type": "module",
   "scripts": {
-    "dev": "next dev -p 3008",
-    "build": "next build",
-    "start": "next start -p 3008",
-    "lint": "next lint",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage"
+    "dev": "vite --port 3101",
+    "build": "tsc && vite build",
+    "preview": "vite preview --port 3101",
+    "lint": "eslint . --ext ts,tsx"
   },
   "dependencies": {
-    "next": "14.2.5",
-    "react": "18.3.1",
-    "react-dom": "18.3.1",
-    "clsx": "2.1.1",
-    "tailwind-merge": "2.5.2",
-    "lucide-react": "0.427.0",
-    "zod": "3.23.8"
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-router-dom": "^6.28.0",
+    "@tanstack/react-query": "^5.61.5",
+    "axios": "^1.7.9",
+    "recharts": "^2.15.0",
+    "lucide-react": "^0.468.0",
+    "clsx": "^2.1.1"
   },
   "devDependencies": {
-    "@types/node": "20.14.10",
-    "@types/react": "18.3.3",
-    "@types/react-dom": "18.3.0",
-    "typescript": "5.5.4",
-    "tailwindcss": "3.4.7",
-    "postcss": "8.4.40",
-    "autoprefixer": "10.4.19",
-    "@vitejs/plugin-react": "4.3.1",
-    "@testing-library/react": "16.0.0",
-    "@testing-library/jest-dom": "6.4.6",
-    "@vitest/ui": "2.0.2",
-    "vitest": "2.0.2",
-    "jsdom": "24.1.0",
-    "@vitest/coverage-v8": "2.0.2"
+    "@types/react": "^19.0.2",
+    "@types/react-dom": "^19.0.2",
+    "@vitejs/plugin-react": "^4.3.4",
+    "typescript": "^5.7.2",
+    "vite": "^6.0.7",
+    "tailwindcss": "^3.4.17",
+    "postcss": "^8.4.49",
+    "autoprefixer": "^10.4.20",
+    "eslint": "^9.17.0"
   }
 }
