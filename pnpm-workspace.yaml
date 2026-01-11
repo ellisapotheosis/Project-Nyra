@@ -12,6 +12,7 @@ onlyBuiltDependencies:
   - '@scarf/scarf'
   - aws-sdk
   - bcrypt
+  - better-sqlite3
   - esbuild
   - msgpackr-extract
   - prisma

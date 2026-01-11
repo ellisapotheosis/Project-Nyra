@@ -1,79 +1,94 @@
-from __future__ import annotations
-
-import json
-from pathlib import Path
-from typing import Any, Dict, List, Optional
-
 from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel, Field
-from jinja2 import Template
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+from typing import List, Optional
+from datetime import datetime, timedelta
+from enum import Enum
+import logging
 
-DATA_DIR = Path(__file__).resolve().parents[2] / "data" / "campaigns"
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
-app = FastAPI(title="Nyra Campaign Engine", version="0.1.0")
+app = FastAPI(title="Nyra Campaign Engine", version="1.0.0")
+app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_credentials=True, allow_methods=["*"], allow_headers=["*"])
 
-class CampaignInfo(BaseModel):
-    id: str
+class CampaignType(str, Enum):
+    EMAIL = "email"
+    SMS = "sms"
+    CALL = "call"
+    MIXED = "mixed"
+
+class CampaignStatus(str, Enum):
+    DRAFT = "draft"
+    ACTIVE = "active"
+    PAUSED = "paused"
+    COMPLETED = "completed"
+
+class Campaign(BaseModel):
+    id: Optional[str] = None
     name: str
-    version: str
-    timezone: str
+    type: CampaignType
+    status: CampaignStatus = CampaignStatus.DRAFT
+    leads: List[str]
+    schedule_days: List[int]
+    content: dict
+    created_at: Optional[datetime] = None
 
-class RenderRequest(BaseModel):
-    campaign_id: str
-    step_index: int = Field(..., ge=0)
-    variables: Dict[str, Any] = Field(default_factory=dict)
+class CampaignCreate(BaseModel):
+    name: str
+    type: CampaignType
+    leads: List[str]
+    schedule_days: List[int]
+    content: dict
 
-class TriggerRequest(BaseModel):
-    campaign_id: str
-    lead_id: str
-    variables: Dict[str, Any] = Field(default_factory=dict)
-    # where n8n listens
-    n8n_webhook_url: Optional[str] = None
+campaigns_db = {}
 
-def load_campaign(path: Path) -> Dict[str, Any]:
-    with path.open("r", encoding="utf-8") as f:
-        return json.load(f)
+@app.post("/campaigns", response_model=Campaign)
+async def create_campaign(campaign: CampaignCreate):
+    campaign_id = f"CAMP{datetime.now().strftime('%Y%m%d%H%M%S')}"
+    new_campaign = Campaign(
+        id=campaign_id,
+        name=campaign.name,
+        type=campaign.type,
+        status=CampaignStatus.DRAFT,
+        leads=campaign.leads,
+        schedule_days=campaign.schedule_days,
+        content=campaign.content,
+        created_at=datetime.now()
+    )
+    campaigns_db[campaign_id] = new_campaign
+    logger.info(f"Created campaign {campaign_id}")
+    return new_campaign
 
-def list_campaign_paths() -> List[Path]:
-    return sorted(DATA_DIR.glob("*.json"))
+@app.get("/campaigns/{campaign_id}", response_model=Campaign)
+async def get_campaign(campaign_id: str):
+    if campaign_id not in campaigns_db:
+        raise HTTPException(status_code=404, detail="Campaign not found")
+    return campaigns_db[campaign_id]
+
+@app.get("/campaigns", response_model=List[Campaign])
+async def list_campaigns():
+    return list(campaigns_db.values())
+
+@app.post("/campaigns/{campaign_id}/start")
+async def start_campaign(campaign_id: str):
+    if campaign_id not in campaigns_db:
+        raise HTTPException(status_code=404, detail="Campaign not found")
+    campaigns_db[campaign_id].status = CampaignStatus.ACTIVE
+    logger.info(f"Started campaign {campaign_id}")
+    return {"message": "Campaign started", "campaign_id": campaign_id}
+
+@app.post("/campaigns/{campaign_id}/pause")
+async def pause_campaign(campaign_id: str):
+    if campaign_id not in campaigns_db:
+        raise HTTPException(status_code=404, detail="Campaign not found")
+    campaigns_db[campaign_id].status = CampaignStatus.PAUSED
+    return {"message": "Campaign paused"}
 
 @app.get("/health")
-def health():
-    return {"ok": True, "campaign_dir": str(DATA_DIR)}
+async def health_check():
+    return {"status": "healthy", "service": "campaign-engine"}
 
-@app.get("/v1/campaigns", response_model=List[CampaignInfo])
-def campaigns():
-    out=[]
-    for p in list_campaign_paths():
-        c=load_campaign(p)
-        out.append(CampaignInfo(id=c["id"], name=c.get("name",""), version=c.get("version",""), timezone=c.get("timezone","UTC")))
-    return out
-
-@app.post("/v1/campaigns/render")
-def render(req: RenderRequest):
-    path = next((p for p in list_campaign_paths() if load_campaign(p).get("id")==req.campaign_id), None)
-    if not path:
-        raise HTTPException(404, "campaign not found")
-    c=load_campaign(path)
-    steps=c.get("steps",[])
-    if req.step_index >= len(steps):
-        raise HTTPException(400, "step_index out of range")
-    step=steps[req.step_index]
-    body=step.get("body","")
-    # Jinja2 template render
-    rendered = Template(body).render(**req.variables)
-    return {"campaign_id": c["id"], "step_index": req.step_index, "channel": step.get("channel"), "rendered": rendered}
-
-@app.post("/v1/campaigns/n8n_payload")
-def n8n_payload(req: TriggerRequest):
-    """Produce a payload n8n can execute. (You post this to an n8n webhook.)"""
-    path = next((p for p in list_campaign_paths() if load_campaign(p).get("id")==req.campaign_id), None)
-    if not path:
-        raise HTTPException(404, "campaign not found")
-    c=load_campaign(path)
-    return {
-        "campaign": c,
-        "lead_id": req.lead_id,
-        "variables": req.variables,
-        "recommended_webhook": req.n8n_webhook_url or "http://n8n:5678/webhook/nyra/campaign/execute"
-    }
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8002)

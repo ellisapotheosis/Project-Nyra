@@ -1,0 +1,56 @@
+model_list:
+  - model_name: claude-3-5-sonnet
+    litellm_params:
+      model: anthropic/claude-3-5-sonnet-20241022
+      api_key: os.environ/ANTHROPIC_API_KEY
+
+  - model_name: claude-sonnet-4
+    litellm_params:
+      model: anthropic/claude-sonnet-4-20250514
+      api_key: os.environ/ANTHROPIC_API_KEY
+
+  - model_name: llama-70b
+    litellm_params:
+      model: openrouter/meta-llama/llama-3.1-70b-instruct
+      api_key: os.environ/OPENROUTER_API_KEY
+      api_base: https://openrouter.ai/api/v1
+
+  - model_name: deepseek-r1
+    litellm_params:
+      model: openrouter/deepseek/deepseek-r1
+      api_key: os.environ/OPENROUTER_API_KEY
+      api_base: https://openrouter.ai/api/v1
+
+  - model_name: gemini-flash
+    litellm_params:
+      model: gemini/gemini-2.0-flash
+      api_key: os.environ/GOOGLE_GEMINI_API_KEY
+
+router_settings:
+  routing_strategy: cost-based
+  model_group_alias:
+    cheap: ["gemini-flash", "deepseek-r1"]
+    balanced: ["llama-70b"]
+    premium: ["claude-3-5-sonnet", "claude-sonnet-4"]
+
+  fallbacks:
+    - model: claude-3-5-sonnet
+      fallback: llama-70b
+    - model: llama-70b
+      fallback: gemini-flash
+
+litellm_settings:
+  success_callback: ["prometheus"]
+  failure_callback: ["prometheus"]
+  cache: true
+  cache_params:
+    type: redis
+    host: redis
+    port: 6379
+
+  num_retries: 3
+  request_timeout: 600
+
+  max_parallel_requests: 100
+  tpm_limit: 1000000
+  rpm_limit: 10000

@@ -1,0 +1,47 @@
+[
+  {
+    "id": "lead-001",
+    "name": "John Smith",
+    "email": "john.smith@example.com",
+    "phone": "555-0101",
+    "loanAmount": 350000,
+    "loanType": "purchase",
+    "propertyValue": 450000,
+    "creditScore": 740,
+    "employmentStatus": "employed",
+    "annualIncome": 95000,
+    "downPayment": 70000,
+    "status": "new",
+    "source": "website"
+  },
+  {
+    "id": "lead-002",
+    "name": "Sarah Johnson",
+    "email": "sarah.johnson@example.com",
+    "phone": "555-0102",
+    "loanAmount": 280000,
+    "loanType": "refinance",
+    "propertyValue": 320000,
+    "creditScore": 680,
+    "employmentStatus": "employed",
+    "annualIncome": 72000,
+    "downPayment": 0,
+    "status": "contacted",
+    "source": "referral"
+  },
+  {
+    "id": "lead-003",
+    "name": "Michael Brown",
+    "email": "michael.brown@example.com",
+    "phone": "555-0103",
+    "loanAmount": 425000,
+    "loanType": "purchase",
+    "propertyValue": 550000,
+    "creditScore": 780,
+    "employmentStatus": "self-employed",
+    "annualIncome": 125000,
+    "downPayment": 110000,
+    "status": "qualified",
+    "source": "paid-ads"
+  }
+]

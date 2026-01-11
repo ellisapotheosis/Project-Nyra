@@ -5,28 +5,12 @@
       "args": [
         "/c",
         "node",
-        "C:\\Dev\\Projects\\Repos\\Project-Nyra\\submodules\\claude-flow\\cli.mjs",
-        "mcp",
-        "start"
+        "C:\\Dev\\Projects\\Repos\\Project-Nyra\\submodules\\claude-flow\\dist\\src\\mcp\\mcp-server.js"
       ],
       "type": "stdio",
       "env": {
         "NODE_ENV": "development",
         "DEBUG": "claude-flow:*"
-      }
-    },
-    "archon": {
-      "command": "cmd",
-      "args": [
-        "/c",
-        "node",
-        "C:\\Dev\\Projects\\Repos\\Project-Nyra\\submodules\\archon\\archon-ui-main\\server.js",
-        "--dev"
-      ],
-      "type": "stdio",
-      "env": {
-        "NODE_ENV": "development",
-        "DEBUG": "archon:*"
       }
     },
     "ruv-swarm": {
@@ -198,6 +182,48 @@
       "args": [
         "-y",
         "@tanevanwifferen/mcp-inception"
+      ],
+      "type": "stdio"
+    },
+    "archon-os": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@archon-os/mcp-server"
+      ],
+      "type": "stdio",
+      "env": {
+        "NODE_ENV": "production",
+        "DEBUG": "archon:*"
+      }
+    },
+    "serena": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@serena/mcp-server"
+      ],
+      "type": "stdio",
+      "env": {
+        "WORKSPACE_ROOT": "C:\\Dev\\Projects\\Repos\\Project-Nyra"
+      }
+    },
+    "gemini-assistant": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@google/mcp-gemini-assistant"
+      ],
+      "type": "stdio",
+      "env": {
+        "GOOGLE_GEMINI_API_KEY": "${GOOGLE_GEMINI_API_KEY}"
+      }
+    },
+    "claude-code-development-kit": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@anthropic/claude-code-dev-kit"
       ],
       "type": "stdio"
     }
