@@ -1,0 +1,89 @@
+# ============================================================================
+# Phase 3 UI Services Stack - Docker Compose
+# ============================================================================
+# User interface services: Open-WebUI, LobeChat (Optional)
+#
+# Usage with Infisical:
+#   infisical run --projectId="8374cea9-e5e8-4050-bda4-b91f25ab30ef" \
+#     --env="dev" --path="/shared" -- docker compose -f docker-compose.ui.yml up
+# ============================================================================
+
+version: '3.8'
+
+networks:
+  nyra-network:
+    external: true
+
+services:
+  # Open-WebUI - Primary development interface
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:main
+    container_name: nyra-open-webui
+    restart: unless-stopped
+    environment:
+      # Database
+      DATABASE_URL: ${DATABASE_URL}
+
+      # OpenAI-compatible API endpoint (points to Nexus Router)
+      OPENAI_API_BASE_URL: http://nexus-router:${NEXUS_ROUTER_PORT}/v1
+      OPENAI_API_KEY: ${ANTHROPIC_API_KEY}
+
+      # Authentication
+      WEBUI_SECRET_KEY: ${SESSION_SECRET}
+
+      # Features
+      ENABLE_SIGNUP: "false"
+      ENABLE_RAG: "true"
+      ENABLE_IMAGE_GENERATION: "false"
+
+      # Integrations
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY}
+    volumes:
+      - open_webui_data:/app/backend/data
+    ports:
+      - "${OPEN_WEBUI_PORT}:8080"
+    networks:
+      - nyra-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # LobeChat - Alternative development interface (Optional)
+  lobechat:
+    image: lobehub/lobe-chat:latest
+    container_name: nyra-lobechat
+    restart: unless-stopped
+    environment:
+      # Database
+      DATABASE_URL: ${DATABASE_URL}
+
+      # API Configuration
+      OPENAI_API_KEY: ${ANTHROPIC_API_KEY}
+      OPENAI_PROXY_URL: http://nexus-router:${NEXUS_ROUTER_PORT}/v1
+
+      # Access Control
+      ACCESS_CODE: ${LOBECHAT_ACCESS_CODE:-}
+
+      # Features
+      ENABLE_OAUTH_SSO: "false"
+      NEXT_PUBLIC_BASE_PATH: ""
+    volumes:
+      - lobechat_data:/app/.next
+    ports:
+      - "${LOBECHAT_PORT}:3210"
+    networks:
+      - nyra-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3210/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  open_webui_data:
+    driver: local
+  lobechat_data:
+    driver: local

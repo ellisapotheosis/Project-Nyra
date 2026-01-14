@@ -1,0 +1,1264 @@
+openapi: 3.0.3
+info:
+  title: Project Nyra API
+  description: |
+    Intelligent Mortgage Platform with AI-Powered Orchestration
+
+    ## Features
+    - LLM Request Routing (local GPU + cloud fallback)
+    - MCP Server Aggregation and Tool Discovery
+    - Real-time WebSocket Events
+    - Multi-Agent Coordination
+    - Document Processing
+
+    ## Base URLs
+    - Production: `https://api.project-nyra.io`
+    - Staging: `https://staging-api.project-nyra.io`
+    - Development: `http://localhost:3000`
+
+    ## Authentication
+    All endpoints require Bearer token authentication except health checks.
+    Include your API token in the Authorization header:
+    ```
+    Authorization: Bearer YOUR_API_TOKEN
+    ```
+  version: 1.0.0
+  contact:
+    name: Project Nyra Support
+    email: support@project-nyra.io
+    url: https://project-nyra.io
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: https://api.project-nyra.io/v1
+    description: Production server
+  - url: https://staging-api.project-nyra.io/v1
+    description: Staging server
+  - url: http://localhost:3000/v1
+    description: Development server
+
+security:
+  - BearerAuth: []
+
+tags:
+  - name: Health
+    description: Service health and status endpoints
+  - name: Chat Completions
+    description: LLM chat completion requests
+  - name: Models
+    description: Available LLM models
+  - name: MCP
+    description: Model Context Protocol server aggregation
+  - name: Users
+    description: User management
+  - name: Applications
+    description: Mortgage applications
+  - name: Documents
+    description: Document management
+  - name: Agents
+    description: AI agent coordination
+  - name: Tasks
+    description: Task orchestration
+  - name: Analytics
+    description: System analytics and metrics
+
+paths:
+  /health:
+    get:
+      tags:
+        - Health
+      summary: Health check
+      description: Get service health status and component information
+      operationId: getHealth
+      security: []
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+              example:
+                service: Nexus Router
+                status: healthy
+                timestamp: '2026-01-10T00:00:00Z'
+                components:
+                  redis:
+                    status: healthy
+                    latency: 2
+                  workers:
+                    status: healthy
+                    total: 3
+                    available: 2
+                  mcp:
+                    status: healthy
+                    servers: 5
+                    tools: 47
+                metrics:
+                  uptime: 86400
+                  requests_total: 150000
+                  requests_cached: 45000
+
+  /chat/completions:
+    post:
+      tags:
+        - Chat Completions
+      summary: Create chat completion
+      description: |
+        Send chat completion request. The system will intelligently route to:
+        1. Local GPU workers (priority) for cost savings
+        2. Cloud APIs (fallback) for guaranteed availability
+
+        Supports OpenAI-compatible format with extended features.
+      operationId: createChatCompletion
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CompletionRequest'
+            examples:
+              simple:
+                summary: Simple completion
+                value:
+                  model: gpt-4
+                  messages:
+                    - role: system
+                      content: You are a helpful mortgage assistant.
+                    - role: user
+                      content: What is the current 30-year fixed rate?
+              coding:
+                summary: Coding task
+                value:
+                  model: claude-sonnet-4
+                  messages:
+                    - role: user
+                      content: Write a function to calculate mortgage payments
+                  temperature: 0.7
+                  max_tokens: 2000
+      responses:
+        '200':
+          description: Successful completion
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CompletionResponse'
+              example:
+                id: chatcmpl-abc123
+                object: chat.completion
+                created: 1704931200
+                model: claude-sonnet-4
+                choices:
+                  - index: 0
+                    message:
+                      role: assistant
+                      content: The current 30-year fixed mortgage rate...
+                    finish_reason: stop
+                usage:
+                  prompt_tokens: 45
+                  completion_tokens: 120
+                  total_tokens: 165
+                metadata:
+                  provider: local-gpu
+                  worker: gpu-worker-1
+                  responseTime: 850
+                  cached: false
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /models:
+    get:
+      tags:
+        - Models
+      summary: List available models
+      description: Get list of all available LLM models from local workers and cloud providers
+      operationId: listModels
+      responses:
+        '200':
+          description: List of models
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModelsResponse'
+              example:
+                object: list
+                data:
+                  - id: claude-sonnet-4
+                    object: model
+                    created: 1704931200
+                    owned_by: anthropic
+                    available: true
+                    provider: cloud
+                  - id: llama-3-70b
+                    object: model
+                    created: 1704931200
+                    owned_by: meta
+                    available: true
+                    provider: local-gpu
+                metadata:
+                  totalModels: 15
+                  localModels: 8
+                  cloudModels: 7
+                  healthyWorkers: 3
+                  totalWorkers: 3
+
+  /mcp/servers:
+    get:
+      tags:
+        - MCP
+      summary: List MCP servers
+      description: Get all registered Model Context Protocol servers
+      operationId: listMcpServers
+      responses:
+        '200':
+          description: List of MCP servers
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  servers:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/MCPServer'
+                  total:
+                    type: integer
+                  enabled:
+                    type: integer
+              example:
+                servers:
+                  - id: claude-flow
+                    name: Claude Flow
+                    url: http://localhost:3001/mcp
+                    enabled: true
+                    priority: 10
+                    toolCount: 25
+                    lastSync: '2026-01-10T00:00:00Z'
+                  - id: ruv-swarm
+                    name: Ruv Swarm
+                    url: http://localhost:3002/mcp
+                    enabled: true
+                    priority: 9
+                    toolCount: 22
+                    lastSync: '2026-01-10T00:00:00Z'
+                total: 5
+                enabled: 5
+
+  /mcp/tools:
+    get:
+      tags:
+        - MCP
+      summary: List MCP tools
+      description: Get all available tools across all MCP servers
+      operationId: listMcpTools
+      parameters:
+        - name: server
+          in: query
+          description: Filter by server ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of tools
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  tools:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/MCPTool'
+                  total:
+                    type: integer
+                  server:
+                    type: string
+              example:
+                tools:
+                  - name: swarm_init
+                    description: Initialize a new swarm with specified topology
+                    server: ruv-swarm
+                    inputSchema:
+                      type: object
+                      properties:
+                        topology:
+                          type: string
+                          enum: [mesh, hierarchical, ring, star]
+                      required: [topology]
+                total: 47
+                server: all
+
+  /mcp/tools/search:
+    get:
+      tags:
+        - MCP
+      summary: Search MCP tools
+      description: Fuzzy search for tools across all MCP servers
+      operationId: searchMcpTools
+      parameters:
+        - name: q
+          in: query
+          required: true
+          description: Search query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: Maximum results
+          schema:
+            type: integer
+            default: 10
+      responses:
+        '200':
+          description: Search results
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  query:
+                    type: string
+                  results:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        tool:
+                          $ref: '#/components/schemas/MCPTool'
+                        score:
+                          type: number
+                        matches:
+                          type: array
+                          items:
+                            type: string
+                  total:
+                    type: integer
+              example:
+                query: swarm
+                results:
+                  - tool:
+                      name: swarm_init
+                      description: Initialize a new swarm
+                      server: ruv-swarm
+                    score: 0.95
+                    matches: ['name', 'description']
+                total: 5
+
+  /mcp/tools/call:
+    post:
+      tags:
+        - MCP
+      summary: Call MCP tool
+      description: Execute a tool on an MCP server
+      operationId: callMcpTool
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - tool
+              properties:
+                tool:
+                  type: string
+                  description: Tool name
+                params:
+                  type: object
+                  description: Tool parameters
+            example:
+              tool: swarm_init
+              params:
+                topology: mesh
+                maxAgents: 5
+      responses:
+        '200':
+          description: Tool execution result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  tool:
+                    type: string
+                  result:
+                    type: object
+                  timestamp:
+                    type: string
+                    format: date-time
+              example:
+                tool: swarm_init
+                result:
+                  success: true
+                  swarmId: swarm-abc123
+                  agents: 5
+                timestamp: '2026-01-10T00:00:00Z'
+
+  /mcp/proxy/{serverId}:
+    post:
+      tags:
+        - MCP
+      summary: Proxy MCP request
+      description: Send raw MCP request to specific server
+      operationId: proxyMcpRequest
+      parameters:
+        - name: serverId
+          in: path
+          required: true
+          description: MCP server ID
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - method
+              properties:
+                jsonrpc:
+                  type: string
+                  default: '2.0'
+                method:
+                  type: string
+                params:
+                  type: object
+                id:
+                  oneOf:
+                    - type: string
+                    - type: integer
+                    - type: 'null'
+      responses:
+        '200':
+          description: MCP response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  jsonrpc:
+                    type: string
+                  result:
+                    type: object
+                  id:
+                    oneOf:
+                      - type: string
+                      - type: integer
+                      - type: 'null'
+
+  /mcp/metrics:
+    get:
+      tags:
+        - MCP
+      summary: Get MCP metrics
+      description: Get aggregated metrics from all MCP servers
+      operationId: getMcpMetrics
+      responses:
+        '200':
+          description: MCP metrics
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  mcp:
+                    type: object
+                  timestamp:
+                    type: string
+                    format: date-time
+
+  /users:
+    get:
+      tags:
+        - Users
+      summary: List users
+      description: Get paginated list of users
+      operationId: listUsers
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+        - name: role
+          in: query
+          description: Filter by role
+          schema:
+            type: string
+            enum: [admin, user, agent]
+        - name: search
+          in: query
+          description: Search by name or email
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of users
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/User'
+                  pagination:
+                    $ref: '#/components/schemas/PagePagination'
+
+    post:
+      tags:
+        - Users
+      summary: Create user
+      description: Create a new user account
+      operationId: createUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - name
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                name:
+                  type: string
+                password:
+                  type: string
+                  format: password
+                role:
+                  type: string
+                  enum: [admin, user, agent]
+                  default: user
+      responses:
+        '201':
+          description: User created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+
+  /users/{id}:
+    get:
+      tags:
+        - Users
+      summary: Get user
+      description: Get user by ID
+      operationId: getUser
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      responses:
+        '200':
+          description: User details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    patch:
+      tags:
+        - Users
+      summary: Update user
+      description: Update user information
+      operationId: updateUser
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                profile:
+                  type: object
+      responses:
+        '200':
+          description: User updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+
+    delete:
+      tags:
+        - Users
+      summary: Delete user
+      description: Delete user account
+      operationId: deleteUser
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      responses:
+        '204':
+          description: User deleted
+
+  /applications:
+    get:
+      tags:
+        - Applications
+      summary: List applications
+      description: Get paginated list of mortgage applications
+      operationId: listApplications
+      parameters:
+        - name: status
+          in: query
+          description: Filter by status
+          schema:
+            type: string
+            enum: [draft, submitted, processing, approved, rejected]
+        - name: user_id
+          in: query
+          description: Filter by user ID
+          schema:
+            type: string
+        - name: from_date
+          in: query
+          description: Filter from date
+          schema:
+            type: string
+            format: date-time
+        - name: to_date
+          in: query
+          description: Filter to date
+          schema:
+            type: string
+            format: date-time
+        - name: limit
+          in: query
+          description: Results per page
+          schema:
+            type: integer
+            default: 20
+            maximum: 100
+        - name: cursor
+          in: query
+          description: Pagination cursor
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of applications
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Application'
+                  pagination:
+                    $ref: '#/components/schemas/CursorPagination'
+
+    post:
+      tags:
+        - Applications
+      summary: Create application
+      description: Create a new mortgage application
+      operationId: createApplication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApplicationCreate'
+      responses:
+        '201':
+          description: Application created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Application'
+
+  /applications/{id}:
+    get:
+      tags:
+        - Applications
+      summary: Get application
+      description: Get application by ID with full details
+      operationId: getApplication
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Application details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Application'
+
+    patch:
+      tags:
+        - Applications
+      summary: Update application
+      description: Update application information
+      operationId: updateApplication
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  enum: [draft, submitted, processing, approved, rejected]
+                data:
+                  type: object
+      responses:
+        '200':
+          description: Application updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Application'
+
+    delete:
+      tags:
+        - Applications
+      summary: Delete application
+      description: Delete application
+      operationId: deleteApplication
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Application deleted
+
+  /agents:
+    get:
+      tags:
+        - Agents
+      summary: List agents
+      description: Get list of active agents
+      operationId: listAgents
+      responses:
+        '200':
+          description: List of agents
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Agent'
+
+    post:
+      tags:
+        - Agents
+      summary: Spawn agent
+      description: Create a new AI agent
+      operationId: spawnAgent
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - type
+              properties:
+                type:
+                  type: string
+                  enum: [researcher, coder, analyst, optimizer, coordinator]
+                capabilities:
+                  type: array
+                  items:
+                    type: string
+                config:
+                  type: object
+      responses:
+        '201':
+          description: Agent spawned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Agent'
+
+  /agents/{id}:
+    get:
+      tags:
+        - Agents
+      summary: Get agent status
+      description: Get agent status and metrics
+      operationId: getAgent
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Agent details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Agent'
+
+    delete:
+      tags:
+        - Agents
+      summary: Terminate agent
+      description: Terminate an agent
+      operationId: terminateAgent
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Agent terminated
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        JWT Bearer token authentication. Obtain token via `/auth/login`.
+        Include in Authorization header as: `Bearer YOUR_TOKEN`
+
+  parameters:
+    UserId:
+      name: id
+      in: path
+      required: true
+      description: User ID
+      schema:
+        type: string
+        pattern: '^usr_[a-zA-Z0-9]{8,}$'
+
+    Page:
+      name: page
+      in: query
+      description: Page number
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+
+    PerPage:
+      name: per_page
+      in: query
+      description: Items per page
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 25
+
+  schemas:
+    HealthResponse:
+      type: object
+      required:
+        - service
+        - status
+        - timestamp
+        - components
+      properties:
+        service:
+          type: string
+        status:
+          type: string
+          enum: [healthy, unhealthy, degraded]
+        timestamp:
+          type: string
+          format: date-time
+        components:
+          type: object
+          additionalProperties:
+            type: object
+            properties:
+              status:
+                type: string
+                enum: [healthy, unhealthy, degraded]
+        metrics:
+          type: object
+
+    CompletionRequest:
+      type: object
+      required:
+        - messages
+      properties:
+        model:
+          type: string
+          default: default
+          example: claude-sonnet-4
+        messages:
+          type: array
+          items:
+            type: object
+            required:
+              - role
+              - content
+            properties:
+              role:
+                type: string
+                enum: [system, user, assistant]
+              content:
+                type: string
+        temperature:
+          type: number
+          minimum: 0
+          maximum: 2
+          default: 1
+        max_tokens:
+          type: integer
+          minimum: 1
+          maximum: 100000
+        top_p:
+          type: number
+          minimum: 0
+          maximum: 1
+        frequency_penalty:
+          type: number
+          minimum: -2
+          maximum: 2
+        presence_penalty:
+          type: number
+          minimum: -2
+          maximum: 2
+        stop:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        stream:
+          type: boolean
+          default: false
+
+    CompletionResponse:
+      type: object
+      required:
+        - id
+        - object
+        - created
+        - model
+        - choices
+        - usage
+      properties:
+        id:
+          type: string
+        object:
+          type: string
+          enum: [chat.completion]
+        created:
+          type: integer
+        model:
+          type: string
+        choices:
+          type: array
+          items:
+            type: object
+            properties:
+              index:
+                type: integer
+              message:
+                type: object
+                properties:
+                  role:
+                    type: string
+                  content:
+                    type: string
+              finish_reason:
+                type: string
+        usage:
+          type: object
+          properties:
+            prompt_tokens:
+              type: integer
+            completion_tokens:
+              type: integer
+            total_tokens:
+              type: integer
+        cached:
+          type: boolean
+        metadata:
+          type: object
+          properties:
+            provider:
+              type: string
+            worker:
+              type: string
+            responseTime:
+              type: number
+            cached:
+              type: boolean
+
+    ModelsResponse:
+      type: object
+      properties:
+        object:
+          type: string
+          enum: [list]
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              object:
+                type: string
+                enum: [model]
+              created:
+                type: integer
+              owned_by:
+                type: string
+              available:
+                type: boolean
+              provider:
+                type: string
+        metadata:
+          type: object
+
+    MCPServer:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        url:
+          type: string
+        enabled:
+          type: boolean
+        priority:
+          type: integer
+        toolCount:
+          type: integer
+        lastSync:
+          type: string
+          format: date-time
+
+    MCPTool:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        server:
+          type: string
+        inputSchema:
+          type: object
+
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+        email:
+          type: string
+          format: email
+        name:
+          type: string
+        role:
+          type: string
+          enum: [admin, user, agent]
+        profile:
+          type: object
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    Application:
+      type: object
+      properties:
+        id:
+          type: string
+        user_id:
+          type: string
+        status:
+          type: string
+          enum: [draft, submitted, processing, approved, rejected]
+        type:
+          type: string
+        amount:
+          type: number
+        property_address:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    ApplicationCreate:
+      type: object
+      required:
+        - type
+        - data
+      properties:
+        type:
+          type: string
+        data:
+          type: object
+
+    Agent:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+          enum: [researcher, coder, analyst, optimizer, coordinator]
+        status:
+          type: string
+          enum: [active, idle, busy, terminated]
+        capabilities:
+          type: array
+          items:
+            type: string
+        current_tasks:
+          type: integer
+        max_tasks:
+          type: integer
+        metrics:
+          type: object
+        created_at:
+          type: string
+          format: date-time
+
+    PagePagination:
+      type: object
+      properties:
+        current_page:
+          type: integer
+        per_page:
+          type: integer
+        total_pages:
+          type: integer
+        total_items:
+          type: integer
+
+    CursorPagination:
+      type: object
+      properties:
+        has_more:
+          type: boolean
+        next_cursor:
+          type: string
+        prev_cursor:
+          type: string
+
+    Error:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: object
+          required:
+            - code
+            - message
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            details:
+              type: object
+            request_id:
+              type: string
+
+  responses:
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error:
+              code: INVALID_REQUEST
+              message: Invalid request parameters
+              details:
+                field: messages
+                issue: Required field missing
+
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error:
+              code: AUTHENTICATION_REQUIRED
+              message: Valid authentication token required
+
+    NotFound:
+      description: Not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error:
+              code: RESOURCE_NOT_FOUND
+              message: The requested resource was not found
+
+    RateLimited:
+      description: Rate limit exceeded
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error:
+              code: RATE_LIMIT_EXCEEDED
+              message: Rate limit exceeded. Try again in 60 seconds.
+              retry_after: 60
+
+    InternalError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error:
+              code: INTERNAL_ERROR
+              message: An unexpected error occurred
+              request_id: req_abc123

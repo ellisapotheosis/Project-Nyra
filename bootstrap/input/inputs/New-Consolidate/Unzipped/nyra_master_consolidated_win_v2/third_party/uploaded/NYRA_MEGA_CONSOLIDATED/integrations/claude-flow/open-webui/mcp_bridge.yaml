@@ -1,5 +1,0 @@
-version: 1
-servers:
-  meta:
-    url: http://localhost:7400
-    default: true

@@ -1,0 +1,217 @@
+name: Auto PR Creation
+
+on:
+  push:
+    branches:
+      - 'feature/**'
+      - 'fix/**'
+      - 'chore/**'
+      - 'refactor/**'
+      - 'consolidation/**'
+  workflow_dispatch:
+    inputs:
+      base_branch:
+        description: 'Base branch for PR'
+        required: false
+        default: 'main'
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  create-pr:
+    name: Auto Create Pull Request
+    runs-on: ubuntu-latest
+    if: |
+      startsWith(github.ref, 'refs/heads/feature/') ||
+      startsWith(github.ref, 'refs/heads/fix/') ||
+      startsWith(github.ref, 'refs/heads/chore/') ||
+      startsWith(github.ref, 'refs/heads/refactor/') ||
+      startsWith(github.ref, 'refs/heads/consolidation/')
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Extract branch information
+        id: branch-info
+        run: |
+          BRANCH_NAME="${GITHUB_REF#refs/heads/}"
+          echo "branch-name=$BRANCH_NAME" >> $GITHUB_OUTPUT
+
+          # Extract type and description from branch name
+          TYPE=$(echo $BRANCH_NAME | cut -d'/' -f1)
+          DESCRIPTION=$(echo $BRANCH_NAME | cut -d'/' -f2- | sed 's/-/ /g' | sed 's/\b\(.\)/\u\1/g')
+
+          echo "type=$TYPE" >> $GITHUB_OUTPUT
+          echo "description=$DESCRIPTION" >> $GITHUB_OUTPUT
+
+          # Determine base branch
+          BASE_BRANCH="${{ github.event.inputs.base_branch }}"
+          if [ -z "$BASE_BRANCH" ]; then
+            if [[ "$TYPE" == "consolidation" ]]; then
+              BASE_BRANCH="main"
+            else
+              BASE_BRANCH="develop"
+            fi
+          fi
+          echo "base-branch=$BASE_BRANCH" >> $GITHUB_OUTPUT
+
+      - name: Generate PR title
+        id: pr-title
+        run: |
+          TYPE="${{ steps.branch-info.outputs.type }}"
+          DESC="${{ steps.branch-info.outputs.description }}"
+
+          # Capitalize type
+          case "$TYPE" in
+            feature) PREFIX="✨ feat" ;;
+            fix) PREFIX="🐛 fix" ;;
+            chore) PREFIX="🔧 chore" ;;
+            refactor) PREFIX="♻️ refactor" ;;
+            consolidation) PREFIX="🔀 consolidation" ;;
+            *) PREFIX="$TYPE" ;;
+          esac
+
+          TITLE="$PREFIX: $DESC"
+          echo "title=$TITLE" >> $GITHUB_OUTPUT
+
+      - name: Detect changed services
+        id: changes
+        run: |
+          BASE="${{ steps.branch-info.outputs.base-branch }}"
+          git fetch origin $BASE
+
+          CHANGED_FILES=$(git diff --name-only origin/$BASE...HEAD)
+          echo "$CHANGED_FILES"
+
+          # Detect which workspaces changed
+          WORKSPACES=""
+          if echo "$CHANGED_FILES" | grep -q "^apps/"; then
+            APPS=$(echo "$CHANGED_FILES" | grep "^apps/" | cut -d'/' -f2 | sort -u | tr '\n' ', ')
+            WORKSPACES="$WORKSPACES\n**Apps:** $APPS"
+          fi
+          if echo "$CHANGED_FILES" | grep -q "^services/"; then
+            SERVICES=$(echo "$CHANGED_FILES" | grep "^services/" | cut -d'/' -f2 | sort -u | tr '\n' ', ')
+            WORKSPACES="$WORKSPACES\n**Services:** $SERVICES"
+          fi
+          if echo "$CHANGED_FILES" | grep -q "^packages/"; then
+            PACKAGES=$(echo "$CHANGED_FILES" | grep "^packages/" | cut -d'/' -f2 | sort -u | tr '\n' ', ')
+            WORKSPACES="$WORKSPACES\n**Packages:** $PACKAGES"
+          fi
+          if echo "$CHANGED_FILES" | grep -q "^mcp-"; then
+            MCP=$(echo "$CHANGED_FILES" | grep "^mcp-" | cut -d'/' -f1-2 | sort -u | tr '\n' ', ')
+            WORKSPACES="$WORKSPACES\n**MCP Services:** $MCP"
+          fi
+
+          echo "workspaces<<EOF" >> $GITHUB_OUTPUT
+          echo -e "$WORKSPACES" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Generate commit summary
+        id: commits
+        run: |
+          BASE="${{ steps.branch-info.outputs.base-branch }}"
+          git fetch origin $BASE
+
+          COMMITS=$(git log origin/$BASE..HEAD --pretty=format:"- %s" --no-merges)
+
+          echo "summary<<EOF" >> $GITHUB_OUTPUT
+          echo "$COMMITS" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Check if PR exists
+        id: check-pr
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          BRANCH="${{ steps.branch-info.outputs.branch-name }}"
+          BASE="${{ steps.branch-info.outputs.base-branch }}"
+
+          PR_EXISTS=$(gh pr list --head "$BRANCH" --base "$BASE" --json number --jq length)
+          echo "exists=$PR_EXISTS" >> $GITHUB_OUTPUT
+
+      - name: Create Pull Request
+        if: steps.check-pr.outputs.exists == '0'
+        id: create-pr
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TITLE="${{ steps.pr-title.outputs.title }}"
+          BASE="${{ steps.branch-info.outputs.base-branch }}"
+          BRANCH="${{ steps.branch-info.outputs.branch-name }}"
+
+          # Generate PR body
+          cat > pr-body.md << 'EOF'
+          ## 📋 Description
+
+          <!-- Describe your changes -->
+          Auto-generated pull request for branch `${{ steps.branch-info.outputs.branch-name }}`
+
+          ## 🔄 Changes
+
+          ${{ steps.commits.outputs.summary }}
+
+          ## 📦 Affected Workspaces
+
+          ${{ steps.changes.outputs.workspaces }}
+
+          ## ✅ Checklist
+
+          - [ ] Tests added/updated
+          - [ ] Documentation updated
+          - [ ] No breaking changes
+          - [ ] All CI checks passing
+
+          ## 🤖 Auto-generated
+
+          This PR was automatically created by GitHub Actions.
+
+          **Type:** `${{ steps.branch-info.outputs.type }}`
+          **Base Branch:** `${{ steps.branch-info.outputs.base-branch }}`
+          EOF
+
+          PR_URL=$(gh pr create \
+            --title "$TITLE" \
+            --body-file pr-body.md \
+            --base "$BASE" \
+            --head "$BRANCH" \
+            --label "auto-pr,${{ steps.branch-info.outputs.type }}")
+
+          echo "pr-url=$PR_URL" >> $GITHUB_OUTPUT
+          echo "## 🎉 Pull Request Created!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**URL:** $PR_URL" >> $GITHUB_STEP_SUMMARY
+          echo "**Title:** $TITLE" >> $GITHUB_STEP_SUMMARY
+          echo "**Base:** $BASE" >> $GITHUB_STEP_SUMMARY
+
+      - name: Add reviewers and assignees
+        if: steps.check-pr.outputs.exists == '0'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          PR_URL="${{ steps.create-pr.outputs.pr-url }}"
+
+          # Extract PR number
+          PR_NUMBER=$(echo $PR_URL | grep -oP '\d+$')
+
+          # Add default reviewers (customize this)
+          # gh pr edit $PR_NUMBER --add-reviewer "team-name"
+
+          # Assign to PR creator
+          gh pr edit $PR_NUMBER --add-assignee "${{ github.actor }}"
+
+          echo "Added assignees and reviewers"
+
+      - name: Enable auto-merge if tests pass
+        if: steps.check-pr.outputs.exists == '0'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          PR_URL="${{ steps.create-pr.outputs.pr-url }}"
+          PR_NUMBER=$(echo $PR_URL | grep -oP '\d+$')
+
+          # Enable auto-merge with squash strategy
+          gh pr merge $PR_NUMBER --auto --squash --delete-branch || echo "Auto-merge not available (may need branch protection rules)"

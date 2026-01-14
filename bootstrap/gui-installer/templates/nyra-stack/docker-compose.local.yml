@@ -1,0 +1,12 @@
+# Local development overlay: build Nyra services from this repo (instead of pulling images)
+# Start with:
+#   docker compose -f docker-compose.yml -f docker-compose.services.yml -f docker-compose.local.yml up -d --build
+
+services:
+  nyra_orchestrator:
+    build:
+      context: ../services/nyra-orchestrator
+    environment:
+      - N8N_WEBHOOK_URL=http://n8n:5678/webhook/nyra/dispatch
+    ports:
+      - "9000:9000"

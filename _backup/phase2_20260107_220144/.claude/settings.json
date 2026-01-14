@@ -1,0 +1,647 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "description": "Claude Flow Master Configuration - Project-Nyra (Ultimate Edition)",
+  "env": {
+    "_COMMENT": "--- CORE CLAUDE FLOW SETTINGS ---",
+    "CLAUDE_FLOW_MODE": "orchestrator",
+    "CLAUDE_FLOW_AUTO_COMMIT": "true",
+    "CLAUDE_FLOW_AUTO_PUSH": "false",
+    "CLAUDE_FLOW_HOOKS_ENABLED": "true",
+    "CLAUDE_FLOW_TELEMETRY_ENABLED": "true",
+    "CLAUDE_FLOW_REMOTE_EXECUTION": "true",
+    "CLAUDE_FLOW_GITHUB_INTEGRATION": "true",
+    "CLAUDE_FLOW_CHECKPOINT_ENABLED": "true",
+    "CLAUDE_FLOW_CHECKPOINTS_ENABLED": "true",
+    "CLAUDE_FLOW_MEMORY_PERSISTENCE": "true",
+    "CLAUDE_FLOW_NEURAL_OPTIMIZATION": "true",
+    "CLAUDE_FLOW_AUTO_LEARNING": "true",
+    "CLAUDE_FLOW_PERFORMANCE_MODE": "optimized",
+    "CLAUDE_FLOW_CACHE_ENABLED": "true",
+    "CLAUDE_FLOW_PARALLEL_PROCESSING": "true",
+    "CLAUDE_FLOW_AGENT_POOL": "true",
+    "CLAUDE_FLOW_MCP_MODE": "advanced",
+    "CLAUDE_FLOW_TRUTH_THRESHOLD": "0.95",
+    "CLAUDE_FLOW_VERIFY_MODE": "strict",
+    "CLAUDE_FLOW_SECURITY_AUDIT": "true",
+    "CREATE_GH_RELEASE": "true",
+
+    "_COMMENT": "--- RUV NET ECOSYSTEM (RuVector/Fast) ---",
+    "RUVECTOR_ENABLED": "true",
+    "RUVECTOR_MODE": "distributed",
+    "RUVECTOR_CONSENSUS": "raft",
+    "RUVECTOR_GNN_LAYERS": "true",
+    "RUVECTOR_QUANTIZATION": "binary",
+    "RUV_FAST_NETWORKING": "true",
+    "RUV_FOX_VERSION_MANAGER": "true",
+
+    "_COMMENT": "--- AGENTDB & MEMORY SETTINGS ---",
+    "AGENTDB_ENABLED": "true",
+    "AGENTDB_PATH": ".agentdb/claude-flow.db",
+    "AGENTDB_VECTOR_ENABLED": "true",
+    "AGENTDB_QUANTIZATION": "scalar",
+    "AGENTDB_CACHE_ENABLED": "true",
+    "AGENTDB_CACHE_SIZE": "2000",
+    "AGENTDB_HNSW_M": "32",
+    "AGENTDB_HNSW_EF": "200",
+    "AGENTDB_LEARNING": "true",
+    "AGENTDB_LEARNING_ALGORITHM": "decision-transformer",
+    "AGENTDB_QUIC_SYNC": "true",
+    
+    "_COMMENT": "--- ADVANCED MEMORY PROVIDERS ---",
+    "REASONINGBANK_ENABLED": "true",
+    "REASONINGBANK_K": "5",
+    "REASONINGBANK_MIN_CONFIDENCE": "0.6",
+    "MEM0_ENABLED": "true",
+    "OPENMEMORY_MCP_ENABLED": "true",
+    "LETTA_ENABLED": "true",
+    "LETTA_MEMORY_MANAGER": "true",
+    "GRAPHITI_ENABLED": "true",
+    "GRAPHITI_BACKEND": "falkordb", 
+    "QDRANT_ENABLED": "true",
+    "QDRANT_LOCAL": "true",
+
+    "_COMMENT": "--- SWARM & HIVE MIND ---",
+    "RUV_SWARM_ENABLED": "true",
+    "RUV_SWARM_MODE": "neural",
+    "RUV_SWARM_TOPOLOGY": "adaptive",
+    "RUV_SWARM_MAX_AGENTS": "50",
+    "RUV_SWARM_WASM_ENABLED": "true",
+    "RUV_SWARM_NEURAL_ENABLED": "true",
+    "RUV_SWARM_DAA_ENABLED": "true",
+    "RUV_SWARM_MEMORY_MODE": "persistent",
+    "HIVE_MIND_ENABLED": "true",
+    "HIVE_MIND_QUEEN_TYPE": "coordinator",
+    "HIVE_MIND_ENABLE_CONSENSUS": "true",
+    "SWARM_TOPOLOGY": "mesh",
+    "MAX_AGENTS": "100",
+    "AGENTIC_FLOW_MAX_AGENTS": "15",
+    "AGENTIC_FLOW_TOPOLOGY": "mesh",
+    "AGENTIC_FLOW_MEMORY_ENABLED": "true",
+
+    "_COMMENT": "--- FLOW NEXUS & CLOUD ---",
+    "FLOW_NEXUS_ENABLED": "true",
+    "FLOW_NEXUS_MODE": "hybrid",
+    "FLOW_NEXUS_URL": "https://mcp-flow-nexus.ruv.io",
+    "MCP_PROTOCOL_VERSION": "2025-06-18",
+    "N8N_PROTOCOL": "https",
+    "SUPABASE_URL": "${SUPABASE_URL}",
+
+    "_COMMENT": "--- INFRASTRUCTURE ---",
+    "NODE_ENV": "production",
+    "LOG_LEVEL": "info",
+    "ENABLE_METRICS": "true",
+    "ENABLE_TRACING": "true",
+    "QUIC_SYNC_ENABLED": "true"
+  },
+  "permissions": {
+    "defaultMode": "bypassPermissions",
+    "allow": [
+      "Bash",
+      "Read",
+      "Write",
+      "Edit",
+      "WebFetch",
+      "Bash(npx claude-flow*)",
+      "Bash(npx agentic-flow*)",
+      "Bash(npx agentdb*)",
+      "Bash(npx ruv-swarm*)",
+      "Bash(npx agent-booster*)",
+      "Bash(npx epic-sdk*)",
+      "Bash(npx ruvector*)",
+      "Bash(npm run*)",
+      "Bash(npm test*)",
+      "Bash(git *)",
+      "Bash(jq *)",
+      "Bash(node *)",
+      "Bash(which *)",
+      "Bash(pwd)",
+      "Bash(ls *)",
+      "Bash(test *)",
+      "Bash(find *)",
+      "Bash(grep *)",
+      "Bash(sed *)",
+      "Bash(awk *)",
+      "Bash(curl *)",
+      "Bash(mkdir *)",
+      "Bash(cd *)",
+      "Bash(cat *)",
+      "Bash(echo *)",
+      "Bash(./claude-flow *)",
+      "Bash(./.claude/helpers/*)",
+      "mcp__*"
+    ],
+    "deny": [
+      "Bash(rm -rf /)",
+      "Bash(curl * | bash)",
+      "Bash(wget * | sh)",
+      "Bash(eval *)"
+    ],
+    "autoApprove": {
+      "mcp__ruv-swarm": ["*"],
+      "mcp__claude-flow": ["*"],
+      "mcp__flow-nexus": ["*"],
+      "mcp__agentic-flow": ["*"],
+      "mcp__agentdb": ["*"],
+      "mcp__agent-booster": ["*"],
+      "mcp__epic-sdk": ["*"],
+      "mcp__ruvector": ["*"],
+      "mcp__openmemory": ["*"],
+      "mcp__letta": ["*"]
+    }
+  },
+  "performance": {
+    "cacheEnabled": true,
+    "cacheStrategy": "aggressive",
+    "caching": {
+      "hooks": {
+        "enabled": true,
+        "ttl": 600000,
+        "maxSize": 5000
+      },
+      "neural": {
+        "enabled": true,
+        "ttl": 600000,
+        "maxSize": 50000
+      },
+      "memory": {
+        "enabled": true,
+        "ttl": 300000,
+        "maxSize": 5000
+      }
+    },
+    "parallelization": {
+      "enabled": true,
+      "maxConcurrent": 50,
+      "workerThreads": 16,
+      "taskQueue": {
+        "size": 1000,
+        "priorityLevels": 10
+      }
+    },
+    "batching": {
+      "hooks": {
+        "enabled": true,
+        "size": 50,
+        "flushInterval": 50
+      },
+      "memory": {
+        "enabled": true,
+        "size": 200,
+        "flushInterval": 500
+      },
+      "neural": {
+        "enabled": true,
+        "size": 200,
+        "maxWaitTime": 25
+      }
+    },
+    "pooling": {
+      "enabled": true,
+      "idle-timeout": 1200,
+      "agents": {
+        "enabled": true,
+        "sizes": {
+          "coordinator": { "min": 2, "max": 10 },
+          "coder": { "min": 5, "max": 20 },
+          "researcher": { "min": 2, "max": 10 },
+          "analyst": { "min": 2, "max": 5 },
+          "tester": { "min": 2, "max": 5 }
+        },
+        "idleTimeout": 1200000,
+        "recycleAfter": 1000
+      },
+      "connections": {
+        "database": { "min": 5, "max": 50 },
+        "mcp": { "min": 2, "max": 20 }
+      }
+    }
+  },
+  "checkpoints": {
+    "enabled": true,
+    "interval": 300,
+    "auto_commit": true,
+    "commit_message_prefix": "🔄 Checkpoint:",
+    "include_metrics": true,
+    "branch_strategy": "checkpoint/{timestamp}",
+    "max_checkpoints": 50
+  },
+  "memory": {
+    "auto_persist": true,
+    "compression": true,
+    "sync_interval": 30,
+    "namespaces": ["swarm", "tasks", "patterns", "errors", "optimizations", "code", "commands", "nyra", "graph", "temporal"],
+    "retention_days": 90,
+    "backup_to_github": true,
+    "maxSize": "8GB",
+    "cacheSizeMB": 4096,
+    "indexingEnabled": true,
+    "autoCleanup": true,
+    "optimization": {
+      "writeBatch": true,
+      "readCache": true,
+      "compressionThreshold": 256
+    }
+  },
+  "neural": {
+    "auto_optimize": true,
+    "optimization_triggers": ["error", "success", "pattern", "performance"],
+    "models": {
+      "task_predictor": {
+        "enabled": true,
+        "learning_rate": 0.001,
+        "update_frequency": 50,
+        "preload": true,
+        "cache": true
+      },
+      "error_preventer": {
+        "enabled": true,
+        "threshold": 0.85,
+        "block_risky_operations": true,
+        "preload": true,
+        "cache": true
+      },
+      "performance_optimizer": {
+        "enabled": true,
+        "target_metrics": ["speed", "accuracy", "efficiency"],
+        "auto_tune": true,
+        "preload": true,
+        "cache": true
+      }
+    },
+    "wasm": {
+      "enabled": true,
+      "simd": true,
+      "threads": 8,
+      "memoryPages": 512
+    }
+  },
+  "orchestrator": {
+    "maxConcurrentAgents": 100,
+    "agentPoolSize": 50
+  },
+  "swarm": {
+    "autoScaling": true,
+    "minAgents": 5,
+    "maxAgents": 200,
+    "batchtools": {
+      "enabled": true,
+      "maxConcurrentAgents": 50,
+      "parallelCoordination": true,
+      "batchTaskProcessing": true,
+      "concurrentMonitoring": true,
+      "performanceOptimization": true
+    }
+  },
+  "network": {
+    "connectionPooling": true,
+    "compressionEnabled": true
+  },
+  "hooks": {
+    "_optimization": {
+      "batch": true,
+      "parallel": true,
+      "cache": true,
+      "deduplicate": true
+    },
+    "SessionStart": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "infisical run --projectId=\"8374cea9-e5e8-4050-bda4-b91f25ab30ef\" --env=\"dev\" --path=\"/shared\" -- claude mcp start"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "batch": true,
+        "parallel": true,
+        "hooks": [
+          {
+            "type": "command",
+            "command": "npx claude-flow@alpha hooks pre-command --command \"$CLAUDE_COMMAND\" --validate-safety true --prepare-resources true --predict-outcome true --check-patterns true --batch true --cache true"
+          },
+          {
+            "type": "command",
+            "command": "npx claude-flow@alpha memory store --key \"command/pre/$CLAUDE_TIMESTAMP\" --value \"$CLAUDE_COMMAND\" --namespace \"commands\" --batch true"
+          },
+          {
+            "type": "command",
+            "command": "npx claude-flow@alpha neural predict --model \"error_preventer\" --input \"$CLAUDE_COMMAND\" --block-if-risky true --cache true"
+          }
+        ]
+      },
+      {
+        "matcher": "Write|Edit|MultiEdit",
+        "batch": true,
+        "parallel": true,
+        "hooks": [
+          {
+            "type": "command",
+            "command": "npx claude-flow@alpha hooks pre-edit --file \"$CLAUDE_EDITED_FILE\" --auto-assign-agents true --load-context true --analyze-impact true --batch true --cache true"
+          },
+          {
+            "type": "command",
+            "command": "npx claude-flow@alpha memory store --key \"edit/pre/$CLAUDE_EDITED_FILE\" --value \"$CLAUDE_OPERATION_CONTEXT\" --namespace \"edits\" --batch true"
+          },
+          {
+            "type": "command",
+            "command": "npx claude-flow@alpha neural optimize --operation \"file-edit\" --target \"$CLAUDE_EDITED_FILE\" --suggest-improvements true --cache true"
+          },
+          {
+            "type": "command",
+            "command": "/bin/bash -c 'FILE=$(cat | jq -r \".tool_input.file_path // .tool_input.path // empty\"); if [ -n \"$FILE\" ]; then CHECKPOINT_BRANCH=\"checkpoint/pre-edit-$(date +%Y%m%d-%H%M%S)\"; git add -A && git stash push -m \"Pre-edit checkpoint for $FILE\" >/dev/null 2>&1 && git branch \"$CHECKPOINT_BRANCH\" && mkdir -p .claude/checkpoints && echo \"{\\\"branch\\\": \\\"$CHECKPOINT_BRANCH\\\", \\\"file\\\": \\\"$FILE\\\", \\\"timestamp\\\": \\\"$(date -u +%Y-%m-%dT%H:%M:%SZ)\\\", \\\"type\\\": \\\"pre-edit\\\", \\\"original_branch\\\": \\\"$(git branch --show-current)\\\"}\" > \".claude/checkpoints/$(date +%s).json\" && git stash pop --quiet >/dev/null 2>&1 || true && echo \"✅ Created checkpoint: $CHECKPOINT_BRANCH for $FILE\"; fi'"
+          }
+        ]
+      },
+      {
+        "matcher": "TodoWrite",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "npx claude-flow@alpha memory store --key \"todos/$(date +%s)\" --value \"$CLAUDE_TODOS\" --namespace \"tasks\" --batch true"
+          },
+          {
+            "type": "command",
+            "command": "npx claude-flow@alpha neural predict --model \"task_predictor\" --input \"$CLAUDE_TODOS\" --optimize-order true --cache true"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Bash",
+        "batch": true,
+        "parallel": true,
+        "hooks": [
+          {
+            "type": "command",
+            "command": "npx claude-flow@alpha hooks post-command --command \"$CLAUDE_COMMAND\" --track-metrics true --store-results true --analyze-performance true --batch true"
+          },
+          {
+            "type": "command",
+            "command": "npx claude-flow@alpha memory store --key \"command/post/$CLAUDE_TIMESTAMP\" --value \"{\\\"command\\\": \\\"$CLAUDE_COMMAND\\\", \\\"result\\\": \\\"$CLAUDE_RESULT\\\", \\\"duration\\\": $CLAUDE_DURATION}\" --namespace \"commands\" --batch true"
+          },
+          {
+            "type": "command",
+            "command": "npx claude-flow@alpha neural train --model \"performance_optimizer\" --data \"{\\\"operation\\\": \\\"bash\\\", \\\"duration\\\": $CLAUDE_DURATION, \\\"success\\\": $CLAUDE_SUCCESS}\" --batch true"
+          }
+        ]
+      },
+      {
+        "matcher": "Write|Edit|MultiEdit",
+        "batch": true,
+        "parallel": true,
+        "hooks": [
+          {
+            "type": "command",
+            "command": "npx claude-flow@alpha hooks post-edit --file \"$CLAUDE_EDITED_FILE\" --format true --update-memory true --train-neural true --analyze-quality true"
+          },
+          {
+            "type": "command",
+            "command": "npx claude-flow@alpha memory store --key \"edit/post/{}\" --value '{\"changes\": $CLAUDE_CHANGES, \"quality_score\": $CLAUDE_QUALITY_SCORE}' --namespace \"edits\" --batch true"
+          },
+          {
+            "type": "command",
+            "command": "npx claude-flow@alpha neural train --model \"task_predictor\" --data '{\"file_type\": \"$CLAUDE_FILE_TYPE\", \"operation\": \"$CLAUDE_OPERATION\", \"success\": true}' --batch true"
+          },
+          {
+            "type": "command",
+            "command": "/bin/bash -c 'FILE=$(cat | jq -r \".tool_input.file_path // .tool_input.path // empty\"); if [ -n \"$FILE\" ] && [ -f \"$FILE\" ]; then if ! git ls-files --error-unmatch \"$FILE\" >/dev/null 2>&1; then git add \"$FILE\"; fi; if ! (git diff --cached --quiet \"$FILE\" 2>/dev/null && git diff --quiet \"$FILE\" 2>/dev/null); then TAG_NAME=\"checkpoint-$(date +%Y%m%d-%H%M%S)\"; BRANCH=$(git branch --show-current); git add \"$FILE\" && git commit -m \"🔖 Checkpoint: Edit $FILE\" --quiet && git tag -a \"$TAG_NAME\" -m \"Checkpoint after editing $FILE\" && mkdir -p .claude/checkpoints && DIFF_STATS=$(git diff HEAD~1 --stat | tr \"\\n\" \" \" | sed \"s/\\\"/\\\\\\\\\\\"/g\") && echo \"{\\\"tag\\\": \\\"$TAG_NAME\\\", \\\"file\\\": \\\"$FILE\\\", \\\"timestamp\\\": \\\"$(date -u +%Y-%m-%dT%H:%M:%SZ)\\\", \\\"type\\\": \\\"post-edit\\\", \\\"branch\\\": \\\"$BRANCH\\\", \\\"diff_summary\\\": \\\"$DIFF_STATS\\\"}\" > \".claude/checkpoints/$(date +%s).json\" && echo \"✅ Created checkpoint: $TAG_NAME for $FILE\"; else echo \"ℹ️  No changes to checkpoint for $FILE\"; fi; fi'"
+          }
+        ]
+      },
+      {
+        "matcher": "Task",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "npx claude-flow@alpha memory store --key \"task/complete/$CLAUDE_TASK_ID\" --value '{\"task\": \"$CLAUDE_TASK\", \"agent\": \"$CLAUDE_AGENT\", \"result\": \"$CLAUDE_RESULT\"}' --namespace \"tasks\""
+          },
+          {
+            "type": "command",
+            "command": "npx claude-flow@alpha neural train --model \"task_predictor\" --data '{\"task_type\": \"$CLAUDE_TASK_TYPE\", \"agent_type\": \"$CLAUDE_AGENT_TYPE\", \"performance\": $CLAUDE_PERFORMANCE}'"
+          }
+        ]
+      }
+    ],
+    "user-prompt-submit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "npx claude-flow@alpha memory store --key \"prompt/$(date +%s)\" --value \"$CLAUDE_PROMPT\" --namespace \"prompts\""
+          },
+          {
+            "type": "command",
+            "command": "npx claude-flow@alpha neural analyze --prompt \"$CLAUDE_PROMPT\" --suggest-approach true --predict-complexity true"
+          },
+          {
+            "type": "command",
+            "command": "/bin/bash -c 'TASK=$(echo \"{{user_prompt}}\" | head -c 100 | tr \"\\n\" \" \"); if [ -n \"$TASK\" ]; then CHECKPOINT_NAME=\"task-$(date +%Y%m%d-%H%M%S)\"; git add -A && git commit -m \"🔖 Task checkpoint: $TASK...\" --quiet || true; if command -v gh &> /dev/null; then echo \"🚀 Creating GitHub release for checkpoint...\"; gh release create \"$CHECKPOINT_NAME\" --title \"Checkpoint: $(date +\"%Y-%m-%d %H:%M\")\" --notes \"Task: $TASK\n\n## Checkpoint Details\n- Branch: $(git branch --show-current)\n- Commit: $(git rev-parse HEAD)\n- Files changed: $(git diff HEAD~1 --stat 2>/dev/null | wc -l || echo 0) files\n\n## Rollback Instructions\n\\`\\`\\`bash\n# To rollback to this checkpoint:\ngit checkout $CHECKPOINT_NAME\n\\`\\`\\`\" --prerelease || echo \"⚠️  Failed to create GitHub release\"; fi; mkdir -p .claude/checkpoints && echo \"{\\\"checkpoint\\\": \\\"$CHECKPOINT_NAME\\\", \\\"task\\\": \\\"$TASK\\\", \\\"timestamp\\\": \\\"$(date -u +%Y-%m-%dT%H:%M:%SZ)\\\", \\\"commit\\\": \\\"$(git rev-parse HEAD)\\\", \\\"github_release\\\": \\\"$(command -v gh &> /dev/null && echo true || echo false)\\\"}\" > \".claude/checkpoints/task-$(date +%s).json\" && echo \"✅ Created task checkpoint: $CHECKPOINT_NAME\"; fi'"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "npx claude-flow@alpha hooks session-end --generate-summary true --persist-state true --export-metrics true --backup-memory true --optimize-models true"
+          },
+          {
+            "type": "command",
+            "command": "/bin/bash -c 'SESSION_ID=\"session-$(date +%Y%m%d-%H%M%S)\"; SUMMARY_FILE=\".claude/checkpoints/summary-$SESSION_ID.md\"; mkdir -p .claude/checkpoints && echo \"# Session Summary - $(date +\"%Y-%m-%d %H:%M:%S\")\n\n## Checkpoints Created\n$(find .claude/checkpoints -name \"*.json\" -mtime -1 -exec basename {} \\; | sort)\n\n## Files Modified\n$(git diff --name-only $(git log --format=%H -n 1 --before=\"1 hour ago\" 2>/dev/null) 2>/dev/null || echo \"No files tracked\")\n\n## Recent Commits\n$(git log --oneline -10 --grep=\"Checkpoint\" || echo \"No checkpoint commits\")\n\n## GitHub Releases Created\n$(gh release list --limit 10 | grep \"checkpoint-\" || echo \"No GitHub releases\")\n\n## Rollback Instructions\nTo rollback to a specific checkpoint:\n\\`\\`\\`bash\n# List all checkpoints\ngit tag -l \"checkpoint-*\" | sort -r\n\n# List GitHub releases\ngh release list\n\n# Rollback to a checkpoint\ngit checkout checkpoint-YYYYMMDD-HHMMSS\n\\`\\`\\`\" > \"$SUMMARY_FILE\" && git add -A && git commit -m \"🏁 Session end checkpoint: $SESSION_ID\" --quiet || true && git tag -a \"session-end-$SESSION_ID\" -m \"End of Claude session\" && if command -v gh &> /dev/null; then echo \"📊 Creating GitHub session summary...\"; gh release create \"session-$SESSION_ID\" --title \"Session Summary: $(date +\"%Y-%m-%d %H:%M\")\" --notes-file \"$SUMMARY_FILE\" --prerelease || echo \"⚠️  Failed to create GitHub session summary\"; fi && echo \"✅ Session summary saved to: $SUMMARY_FILE\" && echo \"📌 Final checkpoint: session-end-$SESSION_ID\"'"
+          },
+          {
+            "type": "command",
+            "command": "npx claude-flow@alpha memory backup --namespace \"all\" --destination \".claude/memory-backup-$CLAUDE_SESSION_ID.json\""
+          },
+          {
+            "type": "command",
+            "command": "npx claude-flow@alpha neural train --model \"all\" --data \"session\" --comprehensive true"
+          },
+          {
+            "type": "command",
+            "command": "git add .claude/memory-backup-*.json && git commit -m \"🧠 Session memory backup: $CLAUDE_SESSION_ID\" || true"
+          },
+          {
+            "type": "command",
+            "command": "npx claude-flow@alpha github create-gist --name \"session-learnings-$CLAUDE_SESSION_ID\" --content \"$CLAUDE_SESSION_LEARNINGS\" --private true || true"
+          }
+        ]
+      }
+    ],
+    "checkpoint": [
+      {
+        "interval": 300,
+        "hooks": [
+          {
+            "type": "command",
+            "command": "npx claude-flow@alpha checkpoint create --message \"Auto-checkpoint: $CLAUDE_OPERATIONS_COUNT operations\" --include-memory true"
+          },
+          {
+            "type": "command",
+            "command": "git add -A && git commit -m \"🔄 Auto-checkpoint: $(date +%Y%m%d-%H%M%S)\" || true"
+          },
+          {
+            "type": "command",
+            "command": "npx claude-flow@alpha memory sync --remote true --compress true"
+          }
+        ]
+      }
+    ],
+    "error": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "npx claude-flow@alpha memory store --key \"error/$CLAUDE_ERROR_ID\" --value '{\"error\": \"$CLAUDE_ERROR\", \"context\": \"$CLAUDE_ERROR_CONTEXT\"}' --namespace \"errors\""
+          },
+          {
+            "type": "command",
+            "command": "npx claude-flow@alpha neural train --model \"error_preventer\" --data '{\"error_type\": \"$CLAUDE_ERROR_TYPE\", \"operation\": \"$CLAUDE_OPERATION\", \"prevent\": true}'"
+          },
+          {
+            "type": "command",
+            "command": "npx claude-flow@alpha analysis error-pattern --error \"$CLAUDE_ERROR\" --suggest-fix true --store-pattern true"
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "matcher": "manual",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/bin/bash -c 'INPUT=$(cat); CUSTOM=$(echo \"$INPUT\" | jq -r \".custom_instructions // \\\"\\\"\"); SESSION_COUNT=$(npx claude-flow@alpha memory stats --reasoningbank 2>/dev/null | grep -oP \"Total.*: \\K[0-9]+\" || echo \"0\"); echo \"🔄 PreCompact Guidance:\"; echo \"📋 IMPORTANT: Review CLAUDE.md in project root for:\"; echo \"   • 54 available agents and concurrent usage patterns\"; echo \"   • Swarm coordination strategies (hierarchical, mesh, adaptive)\"; echo \"   • SPARC methodology workflows with batchtools optimization\"; echo \"   • Critical concurrent execution rules (GOLDEN RULE: 1 MESSAGE = ALL OPERATIONS)\"; echo \"🧠 ReasoningBank: $SESSION_COUNT total patterns stored\"; if [ -n \"$CUSTOM\" ]; then echo \"🎯 Custom compact instructions: $CUSTOM\"; fi; echo \"✅ Ready for compact operation\"'"
+          }
+        ]
+      },
+      {
+        "matcher": "auto",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/bin/bash -c 'TOP_PATTERNS=$(npx claude-flow@alpha memory list --reasoningbank --limit 3 2>/dev/null | grep -oP \"\\d+ patterns\" || echo \"patterns available\"); echo \"🔄 Auto-Compact Guidance (Context Window Full):\"; echo \"📋 CRITICAL: Before compacting, ensure you understand:\"; echo \"   • All 54 agents available in .claude/agents/ directory\"; echo \"   • Concurrent execution patterns from CLAUDE.md\"; echo \"   • Batchtools optimization for 300% performance gains\"; echo \"   • Swarm coordination strategies for complex tasks\"; echo \"   • ReasoningBank Context: $TOP_PATTERNS\"; echo \"⚡ Apply GOLDEN RULE: Always batch operations in single messages\"; echo \"✅ Auto-compact proceeding with full agent context\"'"
+          }
+        ]
+      }
+    ]
+  },
+  "github": {
+    "checkpoint_branch": "checkpoints",
+    "memory_backup_gists": true,
+    "auto_issue_on_error": false,
+    "pr_on_major_improvement": false,
+    "sync_learnings": true
+  },
+  "optimization": {
+    "continuous_improvement": true,
+    "performance_targets": {
+      "command_execution": "< 100ms overhead",
+      "memory_operations": "< 20ms",
+      "neural_predictions": "< 10ms",
+      "hook_execution": "< 50ms",
+      "agent_spawn": "< 100ms"
+    },
+    "auto_tune_parameters": true,
+    "share_anonymized_patterns": true,
+    "monitoring": {
+      "enabled": true,
+      "metrics": ["latency", "throughput", "errors", "cache_hits"],
+      "alert_thresholds": {
+        "latency": 200,
+        "error_rate": 0.05
+      }
+    }
+  },
+  "statusLine": {
+    "type": "command",
+    "command": ".claude/statusline-command.sh"
+  },
+  "includeCoAuthoredBy": true,
+  "enabledPlugins": {
+    "claude-flow@claude-flow-marketplace": true
+  },
+  "enabledMcpjsonServers": [
+    "claude-flow",
+    "ruv-swarm",
+    "flow-nexus",
+    "agentic-flow",
+    "agentdb",
+    "agent-booster",
+    "epic-sdk",
+    "ruvector",
+    "letta",
+    "graphiti",
+    "openmemory"
+  ],
+  "mcpServers": {
+    "claude-flow": {
+      "command": "cmd",
+      "args": ["/c", "npx", "claude-flow@alpha", "mcp", "start"],
+      "type": "stdio"
+    },
+    "ruv-swarm": {
+      "command": "cmd",
+      "args": ["/c", "npx", "ruv-swarm@latest", "mcp", "start"],
+      "type": "stdio"
+    },
+    "agentic-flow": {
+      "command": "cmd",
+      "args": ["/c", "npx", "agentic-flow", "mcp", "start"],
+      "type": "stdio"
+    },
+    "agentdb": {
+      "command": "cmd",
+      "args": ["/c", "npx", "agentdb", "mcp", "start"],
+      "type": "stdio"
+    },
+    "flow-nexus": {
+      "command": "cmd",
+      "args": ["/c", "npx", "flow-nexus", "mcp", "start"],
+      "type": "stdio"
+    },
+    "agent-booster": {
+      "command": "cmd",
+      "args": ["/c", "npx", "agent-booster", "mcp", "start"],
+      "type": "stdio"
+    },
+    "epic-sdk": {
+      "command": "cmd",
+      "args": ["/c", "npx", "epic-sdk", "mcp", "start"],
+      "type": "stdio"
+    },
+    "ruvector": {
+      "command": "cmd",
+      "args": ["/c", "npx", "ruvector", "mcp", "start"],
+      "type": "stdio"
+    },
+    "letta": {
+      "command": "cmd",
+      "args": ["/c", "npx", "letta", "mcp", "start"],
+      "type": "stdio"
+    },
+    "openmemory": {
+      "command": "cmd",
+      "args": ["/c", "npx", "openmemory", "mcp", "start"],
+      "type": "stdio"
+    }
+  },
+  "alwaysThinkingEnabled": true,
+  "capabilities": {
+    "allowUnsandboxedCommands": true,
+    "webSearch": true,
+    "pdfRead": true
+  },
+  "thinking": {
+    "enabled": true,
+    "budgetTokens": 4000
+  }
+}

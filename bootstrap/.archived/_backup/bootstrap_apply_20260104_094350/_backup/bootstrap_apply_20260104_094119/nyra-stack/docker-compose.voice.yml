@@ -1,0 +1,10 @@
+# Placeholder overlay: Kokoro-TTS (future)
+# Intentionally not implemented yet — keep as a feature-flagged overlay.
+# When you’re ready, add:
+# - ASR service (e.g., Whisper)
+# - TTS service (kokoro-tts workers on GPUs)
+# - WebRTC gateway (optional) or websocket audio stream
+#
+# Start would look like:
+#   docker compose -f docker-compose.yml -f docker-compose.voice.yml up -d
+services: {}

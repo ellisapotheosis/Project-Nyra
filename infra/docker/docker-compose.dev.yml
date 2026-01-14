@@ -1,0 +1,502 @@
+# ============================================================================
+# Project Nyra - Development Stack - Docker Compose
+# ============================================================================
+# Development-optimized configuration with:
+# - Hot reload for all services
+# - Debug ports exposed
+# - Verbose logging enabled
+# - Source code mounted as volumes
+# - Relaxed resource limits
+# - Development tools and utilities
+#
+# Usage:
+#   docker compose -f docker-compose.dev.yml up -d
+#   docker compose -f docker-compose.dev.yml logs -f <service>
+#
+# With Infisical:
+#   infisical run --projectId="8374cea9-e5e8-4050-bda4-b91f25ab30ef" \
+#     --env="dev" --path="/shared" -- docker compose -f docker-compose.dev.yml up -d
+# ============================================================================
+
+version: '3.8'
+
+networks:
+  nyra-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.28.0.0/16
+
+services:
+  # ==========================================================================
+  # DATABASE LAYER - Development Configuration
+  # ==========================================================================
+
+  postgresql:
+    image: postgres:16-alpine
+    container_name: nyra-postgres-dev
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-nyra_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-nyra_secure_password}
+      POSTGRES_DB: ${POSTGRES_DB:-nyra_db}
+      POSTGRES_MULTIPLE_DATABASES: ${LETTA_DB_NAME:-letta_db},${TWENTY_DB_NAME:-twenty_db},${DIFY_DB_NAME:-dify_db},${N8N_DB_NAME:-n8n_db}
+      PGDATA: /var/lib/postgresql/data/pgdata
+      POSTGRES_INITDB_ARGS: "-E UTF8 --locale=C"
+      POSTGRES_HOST_AUTH_METHOD: trust
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
+      - ./scripts/postgres-init:/docker-entrypoint-initdb.d
+      - ./scripts/dev-sql:/docker-entrypoint-initdb.d/dev:ro
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    networks:
+      - nyra-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-nyra_user}"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  redis:
+    image: redis:7-alpine
+    container_name: nyra-redis-dev
+    restart: unless-stopped
+    command: >
+      redis-server
+      --loglevel debug
+      --requirepass ${REDIS_PASSWORD:-redis_secure_pass}
+      --maxmemory 512mb
+      --maxmemory-policy allkeys-lru
+      --appendonly no
+      --save ""
+    volumes:
+      - redis_dev_data:/data
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    networks:
+      - nyra-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  falkordb:
+    image: falkordb/falkordb:latest
+    container_name: nyra-falkordb-dev
+    restart: unless-stopped
+    command: >
+      redis-server
+      --loglevel debug
+      --requirepass ${FALKORDB_PASSWORD:-falkordb_secure_pass}
+      --appendonly no
+      --save ""
+      --maxmemory 1gb
+    volumes:
+      - falkordb_dev_data:/data
+    ports:
+      - "${FALKORDB_PORT:-6380}:6379"
+    networks:
+      - nyra-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${FALKORDB_PASSWORD:-falkordb_secure_pass}", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: nyra-qdrant-dev
+    restart: unless-stopped
+    environment:
+      QDRANT__SERVICE__API_KEY: ${QDRANT_API_KEY:-qdrant_secure_key}
+      QDRANT__LOG_LEVEL: DEBUG
+      QDRANT__SERVICE__GRPC_PORT: 6334
+    volumes:
+      - qdrant_dev_data:/qdrant/storage
+    ports:
+      - "${QDRANT_PORT:-6333}:6333"
+      - "6334:6334"
+    networks:
+      - nyra-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6333/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ==========================================================================
+  # ORCHESTRATION LAYER - Development with Hot Reload
+  # ==========================================================================
+
+  claude-flow:
+    build:
+      context: ../../orchestration/claude-flow
+      dockerfile: Dockerfile.dev
+      target: development
+    container_name: nyra-claude-flow-dev
+    restart: unless-stopped
+    working_dir: /app
+    command: sh -c "npm install -g pnpm nodemon && pnpm install && nodemon --watch src --exec 'pnpm start'"
+    environment:
+      NODE_ENV: development
+      PORT: ${CLAUDE_FLOW_PORT:-9000}
+      DEBUG: "nyra:*,claude-flow:*"
+      LOG_LEVEL: debug
+      DATABASE_URL: ${DATABASE_URL:-postgresql://nyra_user:nyra_secure_password@postgresql:5432/nyra_db}
+      REDIS_URL: ${REDIS_URL:-redis://:redis_secure_pass@redis:6379}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY}
+      CLAUDE_FLOW_MODE: ${CLAUDE_FLOW_MODE:-dual-orchestrator}
+      CLAUDE_FLOW_TELEMETRY_ENABLED: "true"
+      CLAUDE_FLOW_PERFORMANCE_MODE: debug
+      CLAUDE_FLOW_AUTO_COMMIT: "false"
+      CLAUDE_FLOW_HOOKS_ENABLED: "true"
+      CLAUDE_FLOW_NEURAL_OPTIMIZATION: "false"
+      GITHUB_TOKEN: ${GITHUB_TOKEN}
+      GITHUB_REPO: ${GITHUB_REPO:-Project-Nyra}
+      GITHUB_OWNER: ${GITHUB_OWNER}
+      NODE_OPTIONS: "--inspect=0.0.0.0:9229 --max-old-space-size=2048"
+    volumes:
+      - ../../orchestration/claude-flow:/app
+      - /app/node_modules
+      - claude_flow_dev_data:/app/data
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - "${CLAUDE_FLOW_PORT:-9000}:${CLAUDE_FLOW_PORT:-9000}"
+      - "9229:9229"
+    networks:
+      - nyra-network
+    depends_on:
+      postgresql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:${CLAUDE_FLOW_PORT:-9000}/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "5"
+
+  nexus-router:
+    build:
+      context: ../../services/nexus-router
+      dockerfile: Dockerfile.dev
+      target: development
+    container_name: nyra-nexus-router-dev
+    restart: unless-stopped
+    working_dir: /app
+    command: sh -c "npm install && npm run dev"
+    environment:
+      NODE_ENV: development
+      PORT: ${NEXUS_ROUTER_PORT:-8000}
+      DEBUG: "nexus:*"
+      LOG_LEVEL: debug
+      REDIS_URL: ${REDIS_URL:-redis://:redis_secure_pass@redis:6379}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY}
+      NODE_OPTIONS: "--inspect=0.0.0.0:9231 --max-old-space-size=1024"
+    volumes:
+      - ../../services/nexus-router:/app
+      - /app/node_modules
+      - nexus_router_dev_data:/app/data
+    ports:
+      - "${NEXUS_ROUTER_PORT:-8000}:${NEXUS_ROUTER_PORT:-8000}"
+      - "9231:9231"
+    networks:
+      - nyra-network
+    depends_on:
+      - redis
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:${NEXUS_ROUTER_PORT:-8000}/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "5"
+
+  # ==========================================================================
+  # AI SERVICES
+  # ==========================================================================
+
+  letta:
+    image: letta/letta:latest
+    container_name: nyra-letta-dev
+    restart: unless-stopped
+    environment:
+      LETTA_SERVER_PASSWORD: ${LETTA_SERVER_PASSWORD:-letta_secure_pass_2024}
+      LETTA_POSTGRES_URI: ${LETTA_POSTGRES_URI:-postgresql://nyra_user:nyra_secure_password@postgresql:5432/letta_db}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      LETTA_LOG_LEVEL: DEBUG
+    volumes:
+      - letta_dev_data:/root/.letta
+    ports:
+      - "8283:8283"
+      - "8284:8284"
+    networks:
+      - nyra-network
+    depends_on:
+      postgresql:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8283/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "5"
+
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:main
+    container_name: nyra-open-webui-dev
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-postgresql://nyra_user:nyra_secure_password@postgresql:5432/nyra_db}
+      OPENAI_API_BASE_URL: http://nexus-router:${NEXUS_ROUTER_PORT:-8000}/v1
+      OPENAI_API_KEY: ${ANTHROPIC_API_KEY}
+      WEBUI_SECRET_KEY: ${SESSION_SECRET:-dev_secret_key}
+      ENABLE_SIGNUP: "true"
+      ENABLE_RAG: "true"
+      LOG_LEVEL: DEBUG
+    volumes:
+      - open_webui_dev_data:/app/backend/data
+    ports:
+      - "${OPEN_WEBUI_PORT:-3210}:8080"
+    networks:
+      - nyra-network
+    depends_on:
+      postgresql:
+        condition: service_healthy
+      nexus-router:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "5"
+
+  # ==========================================================================
+  # DEVELOPMENT TOOLS
+  # ==========================================================================
+
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: nyra-redis-commander
+    restart: unless-stopped
+    environment:
+      REDIS_HOSTS: local:redis:6379:0:${REDIS_PASSWORD:-redis_secure_pass}
+    ports:
+      - "8081:8081"
+    networks:
+      - nyra-network
+    depends_on:
+      - redis
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "2"
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: nyra-pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@nyra.dev}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin}
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+    volumes:
+      - pgadmin_dev_data:/var/lib/pgadmin
+    ports:
+      - "5050:80"
+    networks:
+      - nyra-network
+    depends_on:
+      - postgresql
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "2"
+
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: nyra-mailhog
+    restart: unless-stopped
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+    networks:
+      - nyra-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "2"
+
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: nyra-portainer
+    restart: unless-stopped
+    command: -H unix:///var/run/docker.sock
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer_dev_data:/data
+    ports:
+      - "9443:9443"
+      - "9000:9000"
+    networks:
+      - nyra-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "2"
+
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: nyra-n8n-dev
+    restart: unless-stopped
+    environment:
+      N8N_HOST: localhost
+      N8N_PORT: 5678
+      N8N_PROTOCOL: http
+      WEBHOOK_URL: http://localhost:5678/
+      N8N_BASIC_AUTH_ACTIVE: "true"
+      N8N_BASIC_AUTH_USER: ${N8N_BASIC_AUTH_USER:-nyra}
+      N8N_BASIC_AUTH_PASSWORD: ${N8N_BASIC_AUTH_PASSWORD:-changeme}
+    volumes:
+      - n8n_data:/home/node/.n8n
+    ports:
+      - "5678:5678"
+    networks:
+      - nyra-network
+    depends_on:
+      - postgresql
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "2"
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: nyra-prometheus-dev
+    restart: unless-stopped
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.enable-lifecycle'
+    volumes:
+      - ./observability/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_dev_data:/prometheus
+    ports:
+      - "9090:9090"
+    networks:
+      - nyra-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "2"
+
+  loki:
+    image: grafana/loki:latest
+    container_name: nyra-loki-dev
+    restart: unless-stopped
+    ports:
+      - "3100:3100"
+    networks:
+      - nyra-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "2"
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: nyra-grafana-dev
+    restart: unless-stopped
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_dev_data:/var/lib/grafana
+    networks:
+      - nyra-network
+    depends_on:
+      - prometheus
+      - loki
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "2"
+
+volumes:
+  postgres_dev_data:
+    driver: local
+  redis_dev_data:
+    driver: local
+  falkordb_dev_data:
+    driver: local
+  qdrant_dev_data:
+    driver: local
+  claude_flow_dev_data:
+    driver: local
+  nexus_router_dev_data:
+    driver: local
+  letta_dev_data:
+    driver: local
+  open_webui_dev_data:
+    driver: local
+  pgadmin_dev_data:
+    driver: local
+  portainer_dev_data:
+    driver: local
+  n8n_data:
+    driver: local
+  prometheus_dev_data:
+    driver: local
+  grafana_dev_data:
+    driver: local

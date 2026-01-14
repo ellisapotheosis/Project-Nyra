@@ -1,0 +1,12 @@
+https://tweakcn.com/
+
+
+
+pnpm dlx shadcn@latest add https://tweakcn.com/r/themes/cmk7m78h5000b04l57xtdhejt
+npx shadcn@latest add https://tweakcn.com/r/themes/cmk7m78h5000b04l57xtdhejt
+yarn dlx shadcn@latest add https://tweakcn.com/r/themes/cmk7m78h5000b04l57xtdhejt
+bunx shadcn@latest add https://tweakcn.com/r/themes/cmk7m78h5000b04l57xtdhejt
+
+Tailwind v4 (with v3 option) - Dropdown for: oklch, hsl, rgb, hex
+
+

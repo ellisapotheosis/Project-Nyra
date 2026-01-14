@@ -1,0 +1,236 @@
+# System-level Alert Rules
+# CPU, Memory, Disk, Network alerts
+
+groups:
+  - name: system_alerts
+    interval: 30s
+    rules:
+      # ==========================================
+      # CPU ALERTS
+      # ==========================================
+
+      - alert: HighCPUUsage
+        expr: 100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 5m
+        labels:
+          severity: warning
+          category: system
+          component: cpu
+        annotations:
+          summary: "High CPU usage detected on {{ $labels.instance }}"
+          description: "CPU usage is above 80% (current value: {{ $value | humanizePercentage }})"
+          dashboard: "http://grafana:3000/d/system-overview"
+          runbook: "https://docs.example.com/runbooks/high-cpu"
+
+      - alert: CriticalCPUUsage
+        expr: 100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 95
+        for: 2m
+        labels:
+          severity: critical
+          category: system
+          component: cpu
+        annotations:
+          summary: "CRITICAL: CPU usage on {{ $labels.instance }}"
+          description: "CPU usage is above 95% (current value: {{ $value | humanizePercentage }})"
+          action: "Investigate immediately - possible DoS or runaway process"
+
+      # ==========================================
+      # MEMORY ALERTS
+      # ==========================================
+
+      - alert: HighMemoryUsage
+        expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 80
+        for: 5m
+        labels:
+          severity: warning
+          category: system
+          component: memory
+        annotations:
+          summary: "High memory usage on {{ $labels.instance }}"
+          description: "Memory usage is above 80% (current value: {{ $value | humanizePercentage }})"
+          dashboard: "http://grafana:3000/d/system-overview"
+
+      - alert: CriticalMemoryUsage
+        expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 95
+        for: 2m
+        labels:
+          severity: critical
+          category: system
+          component: memory
+        annotations:
+          summary: "CRITICAL: Memory usage on {{ $labels.instance }}"
+          description: "Memory usage is above 95% (current value: {{ $value | humanizePercentage }})"
+          action: "Immediate attention required - risk of OOM killer"
+
+      - alert: MemoryPressure
+        expr: rate(node_vmstat_pgmajfault[5m]) > 1000
+        for: 5m
+        labels:
+          severity: warning
+          category: system
+          component: memory
+        annotations:
+          summary: "High memory pressure on {{ $labels.instance }}"
+          description: "Major page faults rate: {{ $value }} pages/sec"
+
+      # ==========================================
+      # DISK ALERTS
+      # ==========================================
+
+      - alert: DiskSpaceLow
+        expr: (node_filesystem_avail_bytes{fstype!~"tmpfs|fuse.lxcfs|squashfs|vfat"} / node_filesystem_size_bytes) * 100 < 20
+        for: 5m
+        labels:
+          severity: warning
+          category: system
+          component: disk
+        annotations:
+          summary: "Low disk space on {{ $labels.instance }}:{{ $labels.mountpoint }}"
+          description: "Only {{ $value | humanizePercentage }} space remaining"
+          dashboard: "http://grafana:3000/d/system-overview"
+
+      - alert: DiskSpaceCritical
+        expr: (node_filesystem_avail_bytes{fstype!~"tmpfs|fuse.lxcfs|squashfs|vfat"} / node_filesystem_size_bytes) * 100 < 10
+        for: 2m
+        labels:
+          severity: critical
+          category: system
+          component: disk
+        annotations:
+          summary: "CRITICAL: Disk space on {{ $labels.instance }}:{{ $labels.mountpoint }}"
+          description: "Only {{ $value | humanizePercentage }} space remaining"
+          action: "Clean up disk space immediately"
+
+      - alert: DiskWillFillIn4Hours
+        expr: predict_linear(node_filesystem_free_bytes{fstype!~"tmpfs|fuse.lxcfs|squashfs|vfat"}[1h], 4*3600) < 0
+        for: 5m
+        labels:
+          severity: warning
+          category: system
+          component: disk
+        annotations:
+          summary: "Disk will fill on {{ $labels.instance }}:{{ $labels.mountpoint }}"
+          description: "Disk is predicted to fill within 4 hours at current rate"
+
+      - alert: HighDiskIOWait
+        expr: rate(node_cpu_seconds_total{mode="iowait"}[5m]) * 100 > 10
+        for: 5m
+        labels:
+          severity: warning
+          category: system
+          component: disk
+        annotations:
+          summary: "High I/O wait on {{ $labels.instance }}"
+          description: "I/O wait is {{ $value | humanizePercentage }} - disk may be bottleneck"
+
+      - alert: DiskReadLatencyHigh
+        expr: rate(node_disk_read_time_seconds_total[5m]) / rate(node_disk_reads_completed_total[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+          category: system
+          component: disk
+        annotations:
+          summary: "High disk read latency on {{ $labels.instance }}"
+          description: "Average read latency: {{ $value | humanizeDuration }}"
+
+      # ==========================================
+      # NETWORK ALERTS
+      # ==========================================
+
+      - alert: HighNetworkTransmitRate
+        expr: rate(node_network_transmit_bytes_total[5m]) > 100000000
+        for: 5m
+        labels:
+          severity: warning
+          category: system
+          component: network
+        annotations:
+          summary: "High network transmit rate on {{ $labels.instance }}"
+          description: "Transmit rate: {{ $value | humanize }}B/s on {{ $labels.device }}"
+
+      - alert: HighNetworkReceiveRate
+        expr: rate(node_network_receive_bytes_total[5m]) > 100000000
+        for: 5m
+        labels:
+          severity: warning
+          category: system
+          component: network
+        annotations:
+          summary: "High network receive rate on {{ $labels.instance }}"
+          description: "Receive rate: {{ $value | humanize }}B/s on {{ $labels.device }}"
+
+      - alert: NetworkErrors
+        expr: rate(node_network_receive_errs_total[5m]) > 10 or rate(node_network_transmit_errs_total[5m]) > 10
+        for: 5m
+        labels:
+          severity: warning
+          category: system
+          component: network
+        annotations:
+          summary: "Network errors on {{ $labels.instance }}"
+          description: "Network errors detected on {{ $labels.device }}"
+
+      # ==========================================
+      # SYSTEM AVAILABILITY
+      # ==========================================
+
+      - alert: InstanceDown
+        expr: up == 0
+        for: 1m
+        labels:
+          severity: critical
+          category: system
+          component: availability
+        annotations:
+          summary: "Instance {{ $labels.instance }} is down"
+          description: "{{ $labels.job }} instance {{ $labels.instance }} has been down for more than 1 minute"
+          action: "Check instance immediately"
+
+      - alert: HighSystemLoad
+        expr: node_load15 / count without (cpu, mode) (node_cpu_seconds_total{mode="system"}) > 2
+        for: 10m
+        labels:
+          severity: warning
+          category: system
+          component: cpu
+        annotations:
+          summary: "High system load on {{ $labels.instance }}"
+          description: "Load average (15m): {{ $value }} (threshold: 2x CPU cores)"
+
+      - alert: TooManyProcesses
+        expr: node_processes_state{state="running"} > 1000
+        for: 5m
+        labels:
+          severity: warning
+          category: system
+          component: processes
+        annotations:
+          summary: "Too many processes on {{ $labels.instance }}"
+          description: "Running processes: {{ $value }}"
+
+      # ==========================================
+      # HARDWARE ALERTS
+      # ==========================================
+
+      - alert: HardwareTemperatureHigh
+        expr: node_hwmon_temp_celsius > 75
+        for: 5m
+        labels:
+          severity: warning
+          category: system
+          component: hardware
+        annotations:
+          summary: "High hardware temperature on {{ $labels.instance }}"
+          description: "Temperature: {{ $value }}°C on {{ $labels.chip }}"
+
+      - alert: HardwareTemperatureCritical
+        expr: node_hwmon_temp_celsius > 85
+        for: 1m
+        labels:
+          severity: critical
+          category: system
+          component: hardware
+        annotations:
+          summary: "CRITICAL: Hardware temperature on {{ $labels.instance }}"
+          description: "Temperature: {{ $value }}°C on {{ $labels.chip }} - risk of thermal shutdown"

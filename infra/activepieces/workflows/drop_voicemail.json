@@ -1,0 +1,81 @@
+{
+  "displayName": "Drop Voicemail with Compliance",
+  "trigger": {
+    "type": "WEBHOOK",
+    "settings": {
+      "inputUiInfo": {
+        "currentSelectedData": "body"
+      }
+    }
+  },
+  "steps": {
+    "extract_webhook_data": {
+      "type": "CODE",
+      "settings": {
+        "sourceCode": {
+          "code": "export const code = async (inputs) => {\n  return {\n    to: inputs.webhook_body.to,\n    body: inputs.webhook_body.body,\n    lead_id: inputs.webhook_body.lead_id,\n    step_id: inputs.webhook_body.step_id\n  };\n};"
+        },
+        "input": {
+          "webhook_body": "{{trigger.body}}"
+        }
+      },
+      "nextAction": "create_twiml"
+    },
+    "create_twiml": {
+      "type": "CODE",
+      "settings": {
+        "sourceCode": {
+          "code": "export const code = async (inputs) => {\n  // Convert text to TwiML for voicemail\n  const twiml = `<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<Response>\n  <Say voice=\"Polly.Joanna\" language=\"en-US\">\n    ${inputs.body}\n  </Say>\n</Response>`;\n  \n  return { twiml: twiml };\n};"
+        },
+        "input": {
+          "body": "{{extract_webhook_data.output.body}}"
+        }
+      },
+      "nextAction": "make_call"
+    },
+    "make_call": {
+      "type": "PIECE",
+      "settings": {
+        "packageType": "REGISTRY",
+        "pieceType": "twilio",
+        "pieceName": "@activepieces/piece-twilio",
+        "pieceVersion": "^0.3.0",
+        "actionName": "make_call",
+        "input": {
+          "from": "{{connections.twilio.from_number}}",
+          "to": "{{extract_webhook_data.output.to}}",
+          "twiml": "{{create_twiml.output.twiml}}",
+          "machineDetection": "DetectMessageEnd",
+          "asyncAmd": "true"
+        }
+      },
+      "nextAction": "log_metrics"
+    },
+    "log_metrics": {
+      "type": "CODE",
+      "settings": {
+        "sourceCode": {
+          "code": "export const code = async (inputs) => {\n  const metric = {\n    job: 'campaign_engine',\n    instance: 'activepieces',\n    labels: {\n      channel: 'voicemail',\n      step_id: inputs.step_id,\n      lead_id: inputs.lead_id,\n      status: inputs.call_status\n    },\n    value: 1,\n    timestamp: Date.now()\n  };\n  \n  console.log('Voicemail Metric:', metric);\n  \n  return metric;\n};"
+        },
+        "input": {
+          "step_id": "{{extract_webhook_data.output.step_id}}",
+          "lead_id": "{{extract_webhook_data.output.lead_id}}",\n          "call_status": "{{make_call.output.status}}"
+        }
+      },
+      "nextAction": "return_response"
+    },
+    "return_response": {
+      "type": "CODE",
+      "settings": {
+        "sourceCode": {
+          "code": "export const code = async (inputs) => {\n  return {\n    status: 'success',\n    channel: 'voicemail',\n    call_sid: inputs.call_sid,\n    lead_id: inputs.lead_id,\n    step_id: inputs.step_id,\n    sent_at: new Date().toISOString()\n  };\n};"
+        },
+        "input": {
+          "call_sid": "{{make_call.output.sid}}",
+          "lead_id": "{{extract_webhook_data.output.lead_id}}",
+          "step_id": "{{extract_webhook_data.output.step_id}}"
+        }
+      }
+    }
+  }
+}

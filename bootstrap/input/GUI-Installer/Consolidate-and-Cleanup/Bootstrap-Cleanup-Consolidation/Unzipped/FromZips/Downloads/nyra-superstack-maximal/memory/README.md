@@ -1,3 +1,0 @@
-- **Letta** — episodic/stateful agent memory
-- **Zep** — chat memory & context building
-- **memOS** — experimental layer for later grafting

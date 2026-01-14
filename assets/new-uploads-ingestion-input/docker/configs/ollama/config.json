@@ -1,0 +1,61 @@
+{
+  "model_config": {
+    "default_context_length": 4096,
+    "max_context_length": 8192,
+    "gpu_layers": -1,
+    "gpu_memory_fraction": 0.9,
+    "cpu_threads": 8,
+    "use_mmap": true,
+    "use_mlock": true,
+    "numa": false
+  },
+  "performance": {
+    "batch_size": 512,
+    "num_parallel": 4,
+    "max_loaded_models": 3,
+    "keep_alive": "5m",
+    "flash_attention": true,
+    "kv_cache_type": "q8_0"
+  },
+  "models": {
+    "llama2": {
+      "name": "llama2:latest",
+      "context_length": 4096,
+      "temperature": 0.7,
+      "top_p": 0.9,
+      "top_k": 40,
+      "repeat_penalty": 1.1,
+      "seed": -1
+    },
+    "mistral": {
+      "name": "mistral:latest",
+      "context_length": 8192,
+      "temperature": 0.7,
+      "top_p": 0.9,
+      "top_k": 40,
+      "repeat_penalty": 1.1
+    },
+    "codellama": {
+      "name": "codellama:latest",
+      "context_length": 16384,
+      "temperature": 0.2,
+      "top_p": 0.95,
+      "top_k": 50,
+      "repeat_penalty": 1.05
+    }
+  },
+  "logging": {
+    "level": "info",
+    "format": "json",
+    "output": "stdout"
+  },
+  "security": {
+    "allow_origins": ["*"],
+    "max_request_size": "100MB",
+    "rate_limit": {
+      "enabled": true,
+      "requests_per_minute": 60,
+      "burst": 10
+    }
+  }
+}

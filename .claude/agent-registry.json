@@ -1,0 +1,228 @@
+{
+  "version": "3.0.0",
+  "project": "Project Nyra",
+  "topology": "hierarchical-mesh",
+  "orchestrators": [
+    {
+      "name": "claude-flow",
+      "role": "planning",
+      "port": 6100,
+      "mode": "v3"
+    },
+    {
+      "name": "archon-os",
+      "role": "execution",
+      "port": 6200,
+      "mode": "distributed"
+    }
+  ],
+  "agents": {
+    "mortgage_domain": [
+      {
+        "id": "mortgage_architect",
+        "file": ".claude/agents/custom/mortgage-architect.md",
+        "role": "architecture",
+        "capabilities": [
+          "compliance-design",
+          "data-flow-architecture",
+          "integration-patterns",
+          "regulatory-adherence"
+        ],
+        "priority": "critical",
+        "autoLoad": true
+      },
+      {
+        "id": "compliance_sentinel",
+        "file": ".claude/agents/custom/compliance-sentinel.md",
+        "role": "compliance",
+        "capabilities": [
+          "tila-respa-validation",
+          "fair-lending-enforcement",
+          "state-regulations",
+          "audit-trail-generation"
+        ],
+        "priority": "critical",
+        "autoLoad": true
+      }
+    ],
+    "backend_development": [
+      {
+        "id": "fastapi_backend_engineer",
+        "file": ".claude/agents/custom/fastapi-backend-engineer.md",
+        "role": "backend",
+        "capabilities": [
+          "fastapi-development",
+          "async-patterns",
+          "pydantic-models",
+          "postgres-integration",
+          "health-checks"
+        ],
+        "priority": "high",
+        "autoLoad": true
+      }
+    ],
+    "frontend_development": [
+      {
+        "id": "nextjs_frontend_engineer",
+        "file": ".claude/agents/custom/nextjs-frontend-engineer.md",
+        "role": "frontend",
+        "capabilities": [
+          "nextjs-15-development",
+          "typescript-react",
+          "server-components",
+          "responsive-design",
+          "performance-optimization"
+        ],
+        "priority": "high",
+        "autoLoad": true
+      }
+    ],
+    "infrastructure": [
+      {
+        "id": "devops_orchestrator",
+        "file": ".claude/agents/custom/devops-orchestrator.md",
+        "role": "devops",
+        "capabilities": [
+          "docker-orchestration",
+          "monitoring-setup",
+          "4pc-cluster-management",
+          "cloudflare-tunnels",
+          "secrets-management"
+        ],
+        "priority": "high",
+        "autoLoad": true
+      },
+      {
+        "id": "integration_specialist",
+        "file": ".claude/agents/custom/integration-specialist.md",
+        "role": "integration",
+        "capabilities": [
+          "api-client-development",
+          "webhook-handlers",
+          "mcp-server-creation",
+          "rate-limiting",
+          "external-monitoring"
+        ],
+        "priority": "high",
+        "autoLoad": true
+      }
+    ],
+    "core_agents": [
+      {
+        "id": "coder",
+        "file": ".claude/agents/core/coder.md",
+        "role": "implementation",
+        "capabilities": [
+          "code-generation",
+          "refactoring",
+          "bug-fixing"
+        ],
+        "priority": "normal",
+        "autoLoad": false
+      },
+      {
+        "id": "planner",
+        "file": ".claude/agents/core/planner.md",
+        "role": "planning",
+        "capabilities": [
+          "task-decomposition",
+          "resource-allocation",
+          "timeline-estimation"
+        ],
+        "priority": "normal",
+        "autoLoad": false
+      },
+      {
+        "id": "researcher",
+        "file": ".claude/agents/core/researcher.md",
+        "role": "research",
+        "capabilities": [
+          "codebase-exploration",
+          "documentation-analysis",
+          "pattern-recognition"
+        ],
+        "priority": "normal",
+        "autoLoad": false
+      },
+      {
+        "id": "reviewer",
+        "file": ".claude/agents/core/reviewer.md",
+        "role": "review",
+        "capabilities": [
+          "code-review",
+          "quality-assurance",
+          "security-analysis"
+        ],
+        "priority": "normal",
+        "autoLoad": false
+      },
+      {
+        "id": "tester",
+        "file": ".claude/agents/core/tester.md",
+        "role": "testing",
+        "capabilities": [
+          "test-generation",
+          "test-execution",
+          "coverage-analysis"
+        ],
+        "priority": "normal",
+        "autoLoad": false
+      }
+    ]
+  },
+  "swarmConfiguration": {
+    "maxConcurrentAgents": 15,
+    "coordinationStrategy": "hierarchical-mesh",
+    "communicationProtocol": "async-message-passing",
+    "loadBalancing": "priority-based",
+    "failover": "auto-reassign"
+  },
+  "memoryConfiguration": {
+    "backend": "hybrid",
+    "primaryStore": "letta",
+    "secondaryStore": "mem0",
+    "enableHNSW": true,
+    "caching": true,
+    "retention": {
+      "shortTerm": "24h",
+      "longTerm": "30d"
+    }
+  },
+  "integrations": {
+    "llmGateway": {
+      "service": "nexus-router",
+      "port": 6000,
+      "providers": ["anthropic", "openrouter", "gemini"]
+    },
+    "crm": {
+      "service": "twentycrm",
+      "port": 3000,
+      "database": "postgresql"
+    },
+    "workflow": {
+      "service": "n8n",
+      "port": 5678
+    },
+    "chat": {
+      "service": "dify",
+      "port": 3001
+    },
+    "observability": {
+      "prometheus": 9090,
+      "grafana": 3005,
+      "loki": 3100
+    }
+  },
+  "compliance": {
+    "enforceValidation": true,
+    "blockNonCompliant": true,
+    "auditLogging": true,
+    "regulations": [
+      "TILA",
+      "RESPA",
+      "Fair-Housing-Act",
+      "ECOA",
+      "CFPB-Standards"
+    ]
+  }
+}

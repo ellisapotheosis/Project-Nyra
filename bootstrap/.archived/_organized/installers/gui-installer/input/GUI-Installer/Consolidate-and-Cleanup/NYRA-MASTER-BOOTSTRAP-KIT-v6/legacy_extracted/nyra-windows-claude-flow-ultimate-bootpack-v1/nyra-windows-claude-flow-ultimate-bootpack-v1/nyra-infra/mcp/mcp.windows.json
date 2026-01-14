@@ -1,0 +1,93 @@
+{
+  "windows_compatibility": {
+    "shell": "pwsh",
+    "use_cmd_wrapper": true,
+    "working_directory": "C:\\Dev\\DevProjects\\Personal-Projects\\Project-Nyra"
+  },
+  "global_env": {
+    "PATH": "$env:PATH;C:\\Dev\\claude-flow\\node_modules\\.bin",
+    "NYRA_CLAUDE_BASE": "C:\\Dev\\claude-flow"
+  },
+  "mcpServers": {
+    "Filesystem": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "C:\\Dev\\DevProjects\\Personal-Projects\\Project-Nyra"
+      ],
+      "timeout": 600
+    },
+    "Puppeteer": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-puppeteer"
+      ],
+      "timeout": 600
+    },
+    "Sequential Thinking": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-sequential-thinking"
+      ],
+      "timeout": 600
+    },
+    "Git Tools": {
+      "type": "stdio",
+      "command": "python",
+      "args": [
+        "-m",
+        "mcp_server_git"
+      ],
+      "timeout": 900
+    },
+    "Supabase": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@supabase/mcp-server-supabase@latest",
+        "--access-token",
+        "${SUPABASE_ACCESS_TOKEN}"
+      ],
+      "timeout": 1800
+    },
+    "Claude Flow": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "claude-flow@alpha",
+        "mcp",
+        "start"
+      ],
+      "timeout": 1800
+    },
+    "Flow Nexus": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "flow-nexus@latest",
+        "mcp",
+        "start"
+      ],
+      "timeout": 1800
+    },
+    "MetaMCP Gateway": {
+      "type": "http",
+      "url": "http://localhost:12008/mcp",
+      "timeout": 600
+    }
+  },
+  "inputs": [
+    {
+      "id": "SUPABASE_ACCESS_TOKEN",
+      "description": "Supabase access token",
+      "type": "secret"
+    }
+  ]
+}

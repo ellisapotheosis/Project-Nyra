@@ -1,0 +1,656 @@
+{
+  "name": "Mortgage 45-Day Drip Campaign",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "start-campaign",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-trigger",
+      "name": "Campaign Start Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300],
+      "webhookId": "campaign-start"
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "={\"status\": \"success\", \"campaign_id\": \"{{ $json.borrower_id }}\", \"message\": \"Campaign started\"}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "id": "webhook-response",
+      "name": "Webhook Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "resource": "campaigns",
+        "url": "={{ $env.POSTGRES_URL }}",
+        "query": "INSERT INTO campaigns (borrower_id, campaign_type, status, current_day, total_days, started_at, next_action_at) VALUES ('{{ $json.body.borrower_id }}', '45_day_drip', 'active', 0, 45, NOW(), NOW()) RETURNING id"
+      },
+      "id": "create-campaign-record",
+      "name": "Create Campaign Record",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 1,
+      "position": [650, 300],
+      "credentials": {
+        "postgres": {
+          "id": "1",
+          "name": "PostgreSQL account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "resource": "borrowers",
+        "url": "={{ $env.POSTGRES_URL }}",
+        "query": "SELECT * FROM borrowers WHERE id = '{{ $json.body.borrower_id }}'"
+      },
+      "id": "get-borrower-data",
+      "name": "Get Borrower Data",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 1,
+      "position": [850, 300]
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "resource": "quotes",
+        "url": "={{ $env.POSTGRES_URL }}",
+        "query": "SELECT * FROM quotes WHERE borrower_id = '{{ $json.body.borrower_id }}' ORDER BY created_at DESC LIMIT 1"
+      },
+      "id": "get-latest-quote",
+      "name": "Get Latest Quote",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 1,
+      "position": [1050, 300]
+    },
+    {
+      "parameters": {
+        "fromEmail": "={{ $env.SMTP_FROM_EMAIL }}",
+        "toEmail": "={{ $json.email }}",
+        "subject": "Welcome to RateHunter - Your Mortgage Journey Starts Here",
+        "emailType": "html",
+        "message": "<html><body><h2>Hi {{ $json.first_name }},</h2><p>Thank you for choosing RateHunter for your mortgage needs. We're excited to help you find the best rates.</p><p><strong>Your Personalized Quote:</strong></p><ul><li>Loan Amount: ${{ $json.loan_amount }}</li><li>Interest Rate: {{ $json.interest_rate }}%</li><li>Monthly Payment: ${{ $json.monthly_payment }}</li></ul><p><strong>Next Steps:</strong></p><ol><li>Review your quote details</li><li>Submit your full application</li><li>Get pre-approved within 24 hours</li></ol><p>Questions? Reply to this email or call us at {{ $env.TWILIO_PHONE_NUMBER }}</p><p>Best regards,<br>The RateHunter Team</p></body></html>"
+      },
+      "id": "day-0-welcome-email",
+      "name": "Day 0 - Welcome Email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [1250, 300],
+      "credentials": {
+        "smtp": {
+          "id": "1",
+          "name": "SMTP account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "resource": "messages",
+        "url": "={{ $env.POSTGRES_URL }}",
+        "query": "INSERT INTO messages (campaign_id, borrower_id, channel, template_id, subject, content, status, sent_at) VALUES ('{{ $json.campaign_id }}', '{{ $json.borrower_id }}', 'email', 'welcome_email', 'Welcome to RateHunter', '{{ $json.message }}', 'sent', NOW())"
+      },
+      "id": "log-welcome-email",
+      "name": "Log Welcome Email",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 1,
+      "position": [1450, 300]
+    },
+    {
+      "parameters": {
+        "amount": 3,
+        "unit": "days"
+      },
+      "id": "wait-3-days",
+      "name": "Wait 3 Days",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [1650, 300]
+    },
+    {
+      "parameters": {
+        "fromNumber": "={{ $env.TWILIO_PHONE_NUMBER }}",
+        "toNumber": "={{ $json.phone }}",
+        "message": "Hi {{ $json.first_name }}, just checking in on your mortgage quote. Have questions? Reply YES for a callback from our team. - RateHunter"
+      },
+      "id": "day-3-sms",
+      "name": "Day 3 - Follow-up SMS",
+      "type": "n8n-nodes-base.twilio",
+      "typeVersion": 1,
+      "position": [1850, 300],
+      "credentials": {
+        "twilioApi": {
+          "id": "1",
+          "name": "Twilio account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "resource": "messages",
+        "url": "={{ $env.POSTGRES_URL }}",
+        "query": "INSERT INTO messages (campaign_id, borrower_id, channel, template_id, content, status, sent_at) VALUES ('{{ $json.campaign_id }}', '{{ $json.borrower_id }}', 'sms', 'day_3_followup', '{{ $json.message }}', 'sent', NOW())"
+      },
+      "id": "log-sms-day3",
+      "name": "Log SMS Day 3",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 1,
+      "position": [2050, 300]
+    },
+    {
+      "parameters": {
+        "amount": 4,
+        "unit": "days"
+      },
+      "id": "wait-4-days",
+      "name": "Wait 4 Days (Day 7)",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [2250, 300]
+    },
+    {
+      "parameters": {
+        "fromEmail": "={{ $env.SMTP_FROM_EMAIL }}",
+        "toEmail": "={{ $json.email }}",
+        "subject": "Understanding Mortgage Rates - Your Guide",
+        "emailType": "html",
+        "message": "<html><body><h2>Hi {{ $json.first_name }},</h2><p>Want to understand what affects your mortgage rate? Here's a quick guide:</p><h3>Factors That Impact Your Rate:</h3><ul><li><strong>Credit Score:</strong> Higher scores mean lower rates</li><li><strong>Down Payment:</strong> 20%+ avoids PMI</li><li><strong>Loan Term:</strong> 15-year loans have lower rates</li><li><strong>Property Type:</strong> Single-family homes get best rates</li></ul><p><strong>Your Current Rate: {{ $json.interest_rate }}%</strong></p><p>Based on your profile, you're getting an excellent rate! Lock it in before rates change.</p><p><a href=\"{{ $env.SUBDOMAIN_NYRA }}/apply\" style=\"background-color: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;\">Complete Your Application</a></p><p>Best regards,<br>The RateHunter Team</p></body></html>"
+      },
+      "id": "day-7-education-email",
+      "name": "Day 7 - Educational Email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [2450, 300]
+    },
+    {
+      "parameters": {
+        "amount": 7,
+        "unit": "days"
+      },
+      "id": "wait-7-days",
+      "name": "Wait 7 Days (Day 14)",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [2650, 300]
+    },
+    {
+      "parameters": {
+        "fromNumber": "={{ $env.TWILIO_PHONE_NUMBER }}",
+        "toNumber": "={{ $json.phone }}",
+        "message": "Hi {{ $json.first_name }}, this is RateHunter. We haven't seen your application yet. Our team is here to help! Reply START to begin your application or CALL for a callback.",
+        "messageType": "text"
+      },
+      "id": "day-14-application-reminder",
+      "name": "Day 14 - Application Reminder SMS",
+      "type": "n8n-nodes-base.twilio",
+      "typeVersion": 1,
+      "position": [2850, 300]
+    },
+    {
+      "parameters": {
+        "amount": 7,
+        "unit": "days"
+      },
+      "id": "wait-7-days-2",
+      "name": "Wait 7 Days (Day 21)",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [3050, 300]
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.CAMPAIGN_ENGINE_URL }}/voice/check-in",
+        "method": "POST",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "borrower_id",
+              "value": "={{ $json.borrower_id }}"
+            },
+            {
+              "name": "phone",
+              "value": "={{ $json.phone }}"
+            },
+            {
+              "name": "first_name",
+              "value": "={{ $json.first_name }}"
+            }
+          ]
+        }
+      },
+      "id": "day-21-voice-call",
+      "name": "Day 21 - Automated Voice Call",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [3250, 300]
+    },
+    {
+      "parameters": {
+        "amount": 9,
+        "unit": "days"
+      },
+      "id": "wait-9-days",
+      "name": "Wait 9 Days (Day 30)",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [3450, 300]
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.QUOTE_ENGINE_URL }}/rates",
+        "method": "GET"
+      },
+      "id": "get-current-rates",
+      "name": "Get Current Rates",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [3650, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{ $json.current_rate }}",
+              "operation": "smaller",
+              "value2": "={{ $json.original_rate }}"
+            }
+          ]
+        }
+      },
+      "id": "check-rate-drop",
+      "name": "Check Rate Drop",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [3850, 300]
+    },
+    {
+      "parameters": {
+        "fromEmail": "={{ $env.SMTP_FROM_EMAIL }}",
+        "toEmail": "={{ $json.email }}",
+        "subject": "Good News! Rates Have Dropped",
+        "emailType": "html",
+        "message": "<html><body><h2>Hi {{ $json.first_name }},</h2><p style=\"color: green; font-size: 18px;\"><strong>Great news! Interest rates have decreased.</strong></p><p>Your previous rate was <strong>{{ $json.original_rate }}%</strong>, and you may now qualify for <strong>{{ $json.current_rate }}%</strong>!</p><p>This could save you <strong>${{ $json.monthly_savings }}/month</strong> - that's <strong>${{ $json.yearly_savings }}/year</strong>!</p><p style=\"background-color: #f0f8ff; padding: 15px; border-left: 4px solid #007bff;\">Lock in this rate before it changes. Rates can fluctuate daily.</p><p><a href=\"{{ $env.SUBDOMAIN_NYRA }}/apply\" style=\"background-color: #28a745; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;\">Lock In Your New Rate</a></p><p>Best regards,<br>The RateHunter Team</p></body></html>"
+      },
+      "id": "day-30-rate-alert",
+      "name": "Day 30 - Rate Alert",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [4050, 200]
+    },
+    {
+      "parameters": {
+        "fromEmail": "={{ $env.SMTP_FROM_EMAIL }}",
+        "toEmail": "={{ $json.email }}",
+        "subject": "Market Update: Your Mortgage Rate Review",
+        "emailType": "html",
+        "message": "<html><body><h2>Hi {{ $json.first_name }},</h2><p>Here's your 30-day mortgage rate review:</p><p><strong>Your Quote Rate:</strong> {{ $json.original_rate }}%<br><strong>Current Market Rate:</strong> {{ $json.current_rate }}%</p><p>You're still locked in at a competitive rate! The market has been stable.</p><p>Don't miss out - complete your application to secure this rate.</p><p><a href=\"{{ $env.SUBDOMAIN_NYRA }}/apply\" style=\"background-color: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;\">Complete Application</a></p><p>Best regards,<br>The RateHunter Team</p></body></html>"
+      },
+      "id": "day-30-rate-update",
+      "name": "Day 30 - Rate Update",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [4050, 400]
+    },
+    {
+      "parameters": {
+        "amount": 15,
+        "unit": "days"
+      },
+      "id": "wait-15-days",
+      "name": "Wait 15 Days (Day 45)",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [4250, 300]
+    },
+    {
+      "parameters": {
+        "fromEmail": "={{ $env.SMTP_FROM_EMAIL }}",
+        "toEmail": "={{ $json.email }}",
+        "subject": "Final Check-In: We're Here When You're Ready",
+        "emailType": "html",
+        "message": "<html><body><h2>Hi {{ $json.first_name }},</h2><p>It's been 45 days since we generated your mortgage quote. We understand that buying a home is a big decision, and we're here whenever you're ready.</p><p><strong>Your Quote Summary:</strong></p><ul><li>Original Rate: {{ $json.interest_rate }}%</li><li>Monthly Payment: ${{ $json.monthly_payment }}</li><li>Quote Expires: {{ $json.expires_at }}</li></ul><p>If your situation has changed or you're ready to move forward, we're just a call or click away:</p><ul><li>📞 Call us: {{ $env.TWILIO_PHONE_NUMBER }}</li><li>✉️ Reply to this email</li><li>🌐 Visit: {{ $env.SUBDOMAIN_NYRA }}</li></ul><p>We'll keep your information on file for 90 days. After that, you're welcome to request a new quote anytime.</p><p>Thank you for considering RateHunter!</p><p>Best regards,<br>The RateHunter Team</p></body></html>"
+      },
+      "id": "day-45-final-touchpoint",
+      "name": "Day 45 - Final Touchpoint",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [4450, 300]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "resource": "campaigns",
+        "url": "={{ $env.POSTGRES_URL }}",
+        "query": "UPDATE campaigns SET status = 'completed', completed_at = NOW() WHERE borrower_id = '{{ $json.borrower_id }}' AND campaign_type = '45_day_drip'"
+      },
+      "id": "complete-campaign",
+      "name": "Mark Campaign Complete",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 1,
+      "position": [4650, 300]
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "resource": "audit_logs",
+        "url": "={{ $env.POSTGRES_URL }}",
+        "query": "INSERT INTO audit_logs (borrower_id, service, action, decision, rationale, created_at) VALUES ('{{ $json.borrower_id }}', 'campaign_engine', 'campaign_completed', 'completed', '45-day drip campaign finished', NOW())"
+      },
+      "id": "log-campaign-completion",
+      "name": "Log Campaign Completion",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 1,
+      "position": [4850, 300]
+    }
+  ],
+  "connections": {
+    "Campaign Start Webhook": {
+      "main": [
+        [
+          {
+            "node": "Webhook Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook Response": {
+      "main": [
+        [
+          {
+            "node": "Create Campaign Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Campaign Record": {
+      "main": [
+        [
+          {
+            "node": "Get Borrower Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Borrower Data": {
+      "main": [
+        [
+          {
+            "node": "Get Latest Quote",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Latest Quote": {
+      "main": [
+        [
+          {
+            "node": "Day 0 - Welcome Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Day 0 - Welcome Email": {
+      "main": [
+        [
+          {
+            "node": "Log Welcome Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Welcome Email": {
+      "main": [
+        [
+          {
+            "node": "Wait 3 Days",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 3 Days": {
+      "main": [
+        [
+          {
+            "node": "Day 3 - Follow-up SMS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Day 3 - Follow-up SMS": {
+      "main": [
+        [
+          {
+            "node": "Log SMS Day 3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log SMS Day 3": {
+      "main": [
+        [
+          {
+            "node": "Wait 4 Days (Day 7)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 4 Days (Day 7)": {
+      "main": [
+        [
+          {
+            "node": "Day 7 - Educational Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Day 7 - Educational Email": {
+      "main": [
+        [
+          {
+            "node": "Wait 7 Days (Day 14)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 7 Days (Day 14)": {
+      "main": [
+        [
+          {
+            "node": "Day 14 - Application Reminder SMS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Day 14 - Application Reminder SMS": {
+      "main": [
+        [
+          {
+            "node": "Wait 7 Days (Day 21)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 7 Days (Day 21)": {
+      "main": [
+        [
+          {
+            "node": "Day 21 - Automated Voice Call",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Day 21 - Automated Voice Call": {
+      "main": [
+        [
+          {
+            "node": "Wait 9 Days (Day 30)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 9 Days (Day 30)": {
+      "main": [
+        [
+          {
+            "node": "Get Current Rates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Current Rates": {
+      "main": [
+        [
+          {
+            "node": "Check Rate Drop",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Rate Drop": {
+      "main": [
+        [
+          {
+            "node": "Day 30 - Rate Alert",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Day 30 - Rate Update",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Day 30 - Rate Alert": {
+      "main": [
+        [
+          {
+            "node": "Wait 15 Days (Day 45)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Day 30 - Rate Update": {
+      "main": [
+        [
+          {
+            "node": "Wait 15 Days (Day 45)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 15 Days (Day 45)": {
+      "main": [
+        [
+          {
+            "node": "Day 45 - Final Touchpoint",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Day 45 - Final Touchpoint": {
+      "main": [
+        [
+          {
+            "node": "Mark Campaign Complete",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark Campaign Complete": {
+      "main": [
+        [
+          {
+            "node": "Log Campaign Completion",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "1",
+  "id": "mortgage-45-day-drip",
+  "meta": {
+    "instanceId": "nyra-n8n"
+  },
+  "tags": [
+    {
+      "name": "mortgage",
+      "id": "1"
+    },
+    {
+      "name": "drip-campaign",
+      "id": "2"
+    },
+    {
+      "name": "45-day",
+      "id": "3"
+    }
+  ]
+}

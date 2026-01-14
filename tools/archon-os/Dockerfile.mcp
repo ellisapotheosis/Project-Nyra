@@ -1,0 +1,47 @@
+# Archon OS - MCP Server Dockerfile
+FROM python:3.11-slim
+
+LABEL maintainer="Project Nyra"
+LABEL description="Archon OS MCP server for knowledge base and task management"
+LABEL version="1.0.0"
+
+# Set working directory
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    curl \
+    git \
+    postgresql-client \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy requirements
+COPY backend/requirements.txt .
+
+# Install Python dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy MCP server code
+COPY backend/mcp_server/ ./mcp_server/
+COPY backend/shared/ ./shared/
+
+# Create directories
+RUN mkdir -p /app/data/{knowledge,tasks,cache}
+
+# Environment variables
+ENV PYTHONUNBUFFERED=1
+ENV MCP_PORT=8051
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD python -c "import sys; import requests; sys.exit(0 if requests.get('http://localhost:8051/health').status_code == 200 else 1)" || exit 1
+
+# Expose MCP port
+EXPOSE 8051
+
+# Non-root user for security
+RUN useradd -m -u 1000 mcp && chown -R mcp:mcp /app
+USER mcp
+
+# Run Archon OS MCP server
+CMD ["python", "-m", "mcp_server.main"]

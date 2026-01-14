@@ -1,0 +1,17 @@
+{
+  "loan_amount": 450000.0,
+  "property_value": 500000.0,
+  "annual_interest_rate": 0.07,
+  "term_years": 30,
+  "start_date": "2024-01-01",
+  "credit_score": 720,
+  "down_payment": 50000.0,
+  "annual_property_tax": 6000.0,
+  "annual_home_insurance": 1200.0,
+  "monthly_hoa": 100.0,
+  "extra_principal": 0.0,
+  "compounding": "Monthly",
+  "payment_frequency": "Monthly",
+  "include_schedule": false,
+  "_comment": "10% down, 90% LTV - will have PMI"
+}

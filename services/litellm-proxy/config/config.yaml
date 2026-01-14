@@ -1,0 +1,455 @@
+# LiteLLM Proxy Configuration for Project Nyra
+# Optimized for cost savings with local GPU workers + OpenRouter fallback
+
+# ========================================
+# MODEL CONFIGURATION
+# ========================================
+model_list:
+  # ========================================
+  # GPU WORKER 1: RTX 5090 (48GB VRAM)
+  # Primary Use: Large reasoning models
+  # ========================================
+  - model_name: "llama-3.1-405b"
+    litellm_params:
+      model: "openai/llama-3.1-405b"
+      api_base: "${WORKER_5090_URL}"
+      api_key: "${WORKER_5090_API_KEY}"
+      timeout: 180
+      max_tokens: 65536
+    model_info:
+      mode: "chat"
+      supports_function_calling: true
+      supports_vision: false
+      input_cost_per_token: 0.0000001  # Local - nearly free
+      output_cost_per_token: 0.0000001
+      max_tokens: 65536
+      max_input_tokens: 32768
+
+  - model_name: "qwen-2.5-72b"
+    litellm_params:
+      model: "openai/qwen-2.5-72b"
+      api_base: "${WORKER_5090_URL}"
+      api_key: "${WORKER_5090_API_KEY}"
+      timeout: 180
+      max_tokens: 32768
+    model_info:
+      mode: "chat"
+      supports_function_calling: true
+      supports_vision: false
+      input_cost_per_token: 0.0000001
+      output_cost_per_token: 0.0000001
+      max_tokens: 32768
+
+  - model_name: "deepseek-v3"
+    litellm_params:
+      model: "openai/deepseek-v3"
+      api_base: "${WORKER_5090_URL}"
+      api_key: "${WORKER_5090_API_KEY}"
+      timeout: 180
+      max_tokens: 65536
+    model_info:
+      mode: "chat"
+      supports_function_calling: true
+      supports_vision: false
+      input_cost_per_token: 0.0000001
+      output_cost_per_token: 0.0000001
+      max_tokens: 65536
+
+  # ========================================
+  # GPU WORKER 2: RTX 3090 (24GB VRAM)
+  # Primary Use: Medium-large analysis models
+  # ========================================
+  - model_name: "llama-3.1-70b"
+    litellm_params:
+      model: "openai/llama-3.1-70b"
+      api_base: "${WORKER_3090_URL}"
+      api_key: "${WORKER_3090_API_KEY}"
+      timeout: 120
+      max_tokens: 32768
+    model_info:
+      mode: "chat"
+      supports_function_calling: true
+      supports_vision: false
+      input_cost_per_token: 0.0000001
+      output_cost_per_token: 0.0000001
+      max_tokens: 32768
+
+  - model_name: "qwen-2.5-32b"
+    litellm_params:
+      model: "openai/qwen-2.5-32b"
+      api_base: "${WORKER_3090_URL}"
+      api_key: "${WORKER_3090_API_KEY}"
+      timeout: 120
+      max_tokens: 32768
+    model_info:
+      mode: "chat"
+      supports_function_calling: true
+      supports_vision: false
+      input_cost_per_token: 0.0000001
+      output_cost_per_token: 0.0000001
+      max_tokens: 32768
+
+  - model_name: "mixtral-8x22b"
+    litellm_params:
+      model: "openai/mixtral-8x22b"
+      api_base: "${WORKER_3090_URL}"
+      api_key: "${WORKER_3090_API_KEY}"
+      timeout: 120
+      max_tokens: 32768
+    model_info:
+      mode: "chat"
+      supports_function_calling: true
+      supports_vision: false
+      input_cost_per_token: 0.0000001
+      output_cost_per_token: 0.0000001
+      max_tokens: 32768
+
+  # ========================================
+  # GPU WORKER 3: RTX 3060 (12GB VRAM)
+  # Primary Use: Specialized coding models
+  # ========================================
+  - model_name: "llama-3.1-8b"
+    litellm_params:
+      model: "openai/llama-3.1-8b"
+      api_base: "${WORKER_3060_URL}"
+      api_key: "${WORKER_3060_API_KEY}"
+      timeout: 90
+      max_tokens: 8192
+    model_info:
+      mode: "chat"
+      supports_function_calling: true
+      supports_vision: false
+      input_cost_per_token: 0.0000001
+      output_cost_per_token: 0.0000001
+      max_tokens: 8192
+
+  - model_name: "qwen-2.5-7b"
+    litellm_params:
+      model: "openai/qwen-2.5-7b"
+      api_base: "${WORKER_3060_URL}"
+      api_key: "${WORKER_3060_API_KEY}"
+      timeout: 90
+      max_tokens: 8192
+    model_info:
+      mode: "chat"
+      supports_function_calling: true
+      supports_vision: false
+      input_cost_per_token: 0.0000001
+      output_cost_per_token: 0.0000001
+      max_tokens: 8192
+
+  - model_name: "deepseek-coder-6.7b"
+    litellm_params:
+      model: "openai/deepseek-coder-6.7b"
+      api_base: "${WORKER_3060_URL}"
+      api_key: "${WORKER_3060_API_KEY}"
+      timeout: 90
+      max_tokens: 16384
+    model_info:
+      mode: "chat"
+      supports_function_calling: true
+      supports_vision: false
+      input_cost_per_token: 0.0000001
+      output_cost_per_token: 0.0000001
+      max_tokens: 16384
+
+  # ========================================
+  # OPENROUTER FALLBACK MODELS
+  # Used when local GPU workers are unavailable
+  # ========================================
+  - model_name: "deepseek-r1"
+    litellm_params:
+      model: "openrouter/deepseek/deepseek-r1"
+      api_key: "${OPENROUTER_API_KEY}"
+      api_base: "https://openrouter.ai/api/v1"
+      timeout: 120
+    model_info:
+      mode: "chat"
+      supports_function_calling: true
+      supports_vision: false
+      input_cost_per_token: 0.000001  # $1.00 per 1M tokens
+      output_cost_per_token: 0.000004
+      max_tokens: 8192
+
+  - model_name: "qwen-coder"
+    litellm_params:
+      model: "openrouter/qwen/qwen-3-coder"
+      api_key: "${OPENROUTER_API_KEY}"
+      api_base: "https://openrouter.ai/api/v1"
+      timeout: 120
+    model_info:
+      mode: "chat"
+      supports_function_calling: true
+      supports_vision: false
+      input_cost_per_token: 0.000001
+      output_cost_per_token: 0.000004
+      max_tokens: 8192
+
+  - model_name: "gpt-4o-mini"
+    litellm_params:
+      model: "openrouter/openai/gpt-4o-mini"
+      api_key: "${OPENROUTER_API_KEY}"
+      api_base: "https://openrouter.ai/api/v1"
+      timeout: 120
+    model_info:
+      mode: "chat"
+      supports_function_calling: true
+      supports_vision: true
+      input_cost_per_token: 0.00000015  # $0.15 per 1M tokens
+      output_cost_per_token: 0.0000006
+      max_tokens: 16384
+
+  - model_name: "claude-3-5-sonnet"
+    litellm_params:
+      model: "openrouter/anthropic/claude-3.5-sonnet"
+      api_key: "${OPENROUTER_API_KEY}"
+      api_base: "https://openrouter.ai/api/v1"
+      timeout: 120
+    model_info:
+      mode: "chat"
+      supports_function_calling: true
+      supports_vision: true
+      input_cost_per_token: 0.000003  # $3.00 per 1M tokens
+      output_cost_per_token: 0.000015
+      max_tokens: 8192
+
+  # ========================================
+  # MODEL ALIASES FOR CONVENIENCE
+  # ========================================
+  - model_name: "default"
+    litellm_params:
+      model: "openai/llama-3.1-70b"
+      api_base: "${WORKER_3090_URL}"
+      api_key: "${WORKER_3090_API_KEY}"
+
+  - model_name: "cheap"
+    litellm_params:
+      model: "openai/llama-3.1-8b"
+      api_base: "${WORKER_3060_URL}"
+      api_key: "${WORKER_3060_API_KEY}"
+
+  - model_name: "reasoning"
+    litellm_params:
+      model: "openai/deepseek-v3"
+      api_base: "${WORKER_5090_URL}"
+      api_key: "${WORKER_5090_API_KEY}"
+
+# ========================================
+# FALLBACK CHAIN CONFIGURATION
+# ========================================
+fallbacks:
+  # Reasoning task fallback chain
+  - reasoning_chain:
+      - deepseek-v3          # Local 5090 - Primary
+      - llama-3.1-405b       # Local 5090 - Backup
+      - deepseek-r1          # OpenRouter - Cloud fallback
+      - claude-3-5-sonnet    # OpenRouter - Premium fallback
+
+  # Coding task fallback chain
+  - coding_chain:
+      - deepseek-coder-6.7b  # Local 3060 - Primary
+      - qwen-2.5-7b          # Local 3060 - Backup
+      - qwen-coder           # OpenRouter - Cloud fallback
+      - gpt-4o-mini          # OpenRouter - Premium fallback
+
+  # Analysis task fallback chain
+  - analysis_chain:
+      - llama-3.1-70b        # Local 3090 - Primary
+      - qwen-2.5-32b         # Local 3090 - Backup
+      - deepseek-r1          # OpenRouter - Cloud fallback
+      - gpt-4o-mini          # OpenRouter - Cheap cloud
+
+# ========================================
+# ROUTER CONFIGURATION
+# ========================================
+router_settings:
+  # Routing strategy
+  routing_strategy: "cost-optimized"  # cost-optimized | latency-optimized | quality-optimized
+
+  # Retry configuration
+  num_retries: 3
+  timeout: 180  # seconds
+  fallback_on_timeout: true
+
+  # Load balancing
+  load_balance_algorithm: "least-busy"  # round-robin | least-busy | latency-based
+
+  # Health checks
+  enable_health_checks: true
+  health_check_interval: 60  # seconds
+
+  # Cost optimization
+  prefer_local_workers: true
+  cloud_fallback_threshold: 0.90  # Use cloud if local success rate < 90%
+  max_cost_per_request: 0.10  # USD - block requests exceeding this
+
+# ========================================
+# GENERAL SETTINGS
+# ========================================
+general_settings:
+  # Master key for admin access
+  master_key: "${LITELLM_MASTER_KEY}"
+
+  # Database for persistence (optional)
+  database_url: "${DATABASE_URL}"
+
+  # Request configuration
+  request_timeout: 600  # seconds
+  max_parallel_requests: 100
+  stream_timeout: 300
+
+  # Caching
+  cache_enabled: true
+  cache_ttl: 3600  # seconds
+  redis_host: "${REDIS_HOST}"
+  redis_port: "${REDIS_PORT}"
+  redis_password: "${REDIS_PASSWORD}"
+
+  # Logging
+  set_verbose: false
+  json_logs: true
+  log_level: "INFO"  # DEBUG | INFO | WARNING | ERROR
+
+  # CORS
+  allowed_origins: ["*"]
+
+  # Rate limiting (per API key)
+  rate_limit:
+    enabled: true
+    requests_per_minute: 60
+    requests_per_hour: 1000
+    requests_per_day: 10000
+
+# ========================================
+# COST TRACKING & BUDGETS
+# ========================================
+budgets:
+  # Global budget
+  - budget_id: "global"
+    max_budget: 1000.0  # USD per month
+    time_period: "monthly"
+    alert_threshold: 0.80  # Alert at 80%
+    block_on_exceed: false
+
+  # Team budgets
+  - budget_id: "engineering"
+    max_budget: 500.0
+    time_period: "monthly"
+    alert_threshold: 0.80
+    block_on_exceed: false
+
+  - budget_id: "research"
+    max_budget: 300.0
+    time_period: "monthly"
+    alert_threshold: 0.80
+    block_on_exceed: false
+
+  - budget_id: "production"
+    max_budget: 200.0
+    time_period: "monthly"
+    alert_threshold: 0.90
+    block_on_exceed: true
+
+# ========================================
+# TENANT CONFIGURATION
+# ========================================
+tenants:
+  # Engineering team
+  - tenant_id: "engineering"
+    api_key: "${TENANT_ENGINEERING_KEY}"
+    allowed_models:
+      - llama-3.1-70b
+      - qwen-2.5-32b
+      - deepseek-coder-6.7b
+      - qwen-coder
+    budget_id: "engineering"
+    rate_limit:
+      requests_per_minute: 100
+      requests_per_hour: 2000
+
+  # Research team
+  - tenant_id: "research"
+    api_key: "${TENANT_RESEARCH_KEY}"
+    allowed_models:
+      - llama-3.1-405b
+      - deepseek-v3
+      - qwen-2.5-72b
+      - claude-3-5-sonnet
+    budget_id: "research"
+    rate_limit:
+      requests_per_minute: 50
+      requests_per_hour: 1000
+
+  # Production services
+  - tenant_id: "production"
+    api_key: "${TENANT_PRODUCTION_KEY}"
+    allowed_models:
+      - llama-3.1-8b
+      - qwen-2.5-7b
+      - deepseek-r1
+      - gpt-4o-mini
+    budget_id: "production"
+    rate_limit:
+      requests_per_minute: 200
+      requests_per_hour: 5000
+
+# ========================================
+# MONITORING & ALERTING
+# ========================================
+monitoring:
+  # Prometheus metrics
+  prometheus:
+    enabled: true
+    port: 9090
+
+  # Health endpoints
+  health_check_path: "/health"
+  readiness_path: "/health/ready"
+  liveness_path: "/health/live"
+
+  # Alerting
+  alerts:
+    # Cost alerts
+    - type: "cost"
+      threshold: 0.80
+      channels: ["email", "slack"]
+
+    # Error rate alerts
+    - type: "error_rate"
+      threshold: 0.05  # 5% error rate
+      window: 300  # 5 minutes
+      channels: ["email", "slack"]
+
+    # Latency alerts
+    - type: "latency"
+      threshold: 5000  # 5 seconds
+      percentile: 0.95
+      channels: ["slack"]
+
+    # Worker health alerts
+    - type: "worker_health"
+      threshold: 0.50  # Alert if <50% workers healthy
+      channels: ["email", "slack", "pagerduty"]
+
+# ========================================
+# SECURITY SETTINGS
+# ========================================
+security:
+  # API key management
+  api_key_rotation_days: 90
+
+  # Request validation
+  validate_requests: true
+  max_request_size: 1048576  # 1MB
+
+  # Input sanitization
+  sanitize_inputs: true
+
+  # Audit logging
+  audit_log_enabled: true
+  audit_log_retention_days: 90
+
+  # IP allowlist (optional)
+  # ip_allowlist:
+  #   - "192.168.1.0/24"
+  #   - "10.0.0.0/8"

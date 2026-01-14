@@ -1,0 +1,15 @@
+{
+    "name": "nyra-warp-extension",
+    "version": "1.0.0",
+    "description": "Warp extension for NYRA",
+    "commands": [
+        {
+            "name": "nyra-build",
+            "cmd": "nyra-cli --build"
+        },
+        {
+            "name": "nyra-ai",
+            "cmd": "nyra-cli --ai"
+        }
+    ]
+}

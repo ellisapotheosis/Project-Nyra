@@ -1,0 +1,9 @@
+services:
+  lobechat:
+    image: lobehub/lobe-chat:latest
+    ports: ["3210:3210"]
+    networks: [nyra-network]
+networks:
+  nyra-network:
+    name: nyra-network
+    external: true

@@ -8,24 +8,10 @@ build/
 *.log
 *.tsbuildinfo
 
-# Python
-__pycache__/
-*.pyc
-
-# Environment files - NEVER commit these
+# Environment files
 .env
-.env.*
 .env.local
 .env.*.local
-!.env.example
-!.env.project
-!.env.vault
-.flaskenv*
-*.env
-ENVIRONMENT_SECRETS_DOCUMENTATION.md
-
-# Secrets
-.secrets/
 
 # IDE files
 .vscode/
@@ -33,13 +19,11 @@ ENVIRONMENT_SECRETS_DOCUMENTATION.md
 *.swp
 *.swo
 *~
-.aider*
 
-# OS generated files
+# OS files
 .DS_Store
 Thumbs.db
 Desktop.ini
-desktop.ini
 
 # Problematic Windows reserved filenames
 **/nul
@@ -48,8 +32,14 @@ desktop.ini
 **/PRN
 **/AUX
 
-# Bootstrap GUI installer (contains deeply nested legacy files with path length issues)
-bootstrap/gui-installer/
+# Temporary files
+*.tmp
+.cache/
+
+
+# Removed Windows wrapper files per user request
+hive-mind-prompt-*.txt
+
 
 # Removed Windows wrapper files per user request
 hive-mind-prompt-*.txt
@@ -78,11 +68,5 @@ coordination/orchestration/*
 *.sqlite-journal
 *.sqlite-wal
 claude-flow
-
-# Temporary files
-*.tmp
-.cache/
-
-# Misc
-.git_backup/
-nyra-ingestion/
+# Removed Windows wrapper files per user request
+hive-mind-prompt-*.txt

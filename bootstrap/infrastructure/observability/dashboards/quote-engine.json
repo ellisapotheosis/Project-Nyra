@@ -1,0 +1,180 @@
+{
+  "dashboard": {
+    "id": null,
+    "uid": "quote-engine-perf",
+    "title": "Quote Engine Performance",
+    "tags": ["nyra", "quote", "performance"],
+    "timezone": "browser",
+    "schemaVersion": 30,
+    "version": 1,
+    "refresh": "30s",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Quotes Calculated/min",
+        "type": "stat",
+        "gridPos": {"h": 6, "w": 6, "x": 0, "y": 0},
+        "targets": [
+          {
+            "expr": "rate(quotes_calculated_total[5m]) * 60"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "qpm"
+          }
+        }
+      },
+      {
+        "id": 2,
+        "title": "Calculation Success Rate",
+        "type": "gauge",
+        "gridPos": {"h": 6, "w": 6, "x": 6, "y": 0},
+        "targets": [
+          {
+            "expr": "1 - (rate(quote_calculation_failures_total[5m]) / rate(quotes_calculated_total[5m]))"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percentunit",
+            "min": 0,
+            "max": 1,
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"value": 0, "color": "red"},
+                {"value": 0.95, "color": "yellow"},
+                {"value": 0.99, "color": "green"}
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 3,
+        "title": "Avg Calculation Time",
+        "type": "stat",
+        "gridPos": {"h": 6, "w": 6, "x": 12, "y": 0},
+        "targets": [
+          {
+            "expr": "rate(quote_calculation_duration_seconds_sum[5m]) / rate(quote_calculation_duration_seconds_count[5m])"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "s"
+          }
+        }
+      },
+      {
+        "id": 4,
+        "title": "Quote Cache Hit Rate",
+        "type": "stat",
+        "gridPos": {"h": 6, "w": 6, "x": 18, "y": 0},
+        "targets": [
+          {
+            "expr": "rate(quote_cache_hits_total[5m]) / (rate(quote_cache_hits_total[5m]) + rate(quote_cache_misses_total[5m]))"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percentunit"
+          }
+        }
+      },
+      {
+        "id": 5,
+        "title": "Quote Calculation Duration (Percentiles)",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 6},
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.50, rate(quote_calculation_duration_seconds_bucket[5m]))",
+            "legendFormat": "p50"
+          },
+          {
+            "expr": "histogram_quantile(0.95, rate(quote_calculation_duration_seconds_bucket[5m]))",
+            "legendFormat": "p95"
+          },
+          {
+            "expr": "histogram_quantile(0.99, rate(quote_calculation_duration_seconds_bucket[5m]))",
+            "legendFormat": "p99"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "s"
+          }
+        }
+      },
+      {
+        "id": 6,
+        "title": "Quote Types Distribution",
+        "type": "piechart",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 6},
+        "targets": [
+          {
+            "expr": "sum by (quote_type) (rate(quotes_calculated_total[5m]))"
+          }
+        ]
+      },
+      {
+        "id": 7,
+        "title": "Formula Execution Time by Type",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 14},
+        "targets": [
+          {
+            "expr": "rate(formula_execution_duration_seconds_sum[5m]) / rate(formula_execution_duration_seconds_count[5m])",
+            "legendFormat": "{{formula_type}}"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "s"
+          }
+        }
+      },
+      {
+        "id": 8,
+        "title": "Quote Validation Failures",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 14},
+        "targets": [
+          {
+            "expr": "rate(quote_validation_failures_total[5m])",
+            "legendFormat": "{{validation_type}}"
+          }
+        ]
+      },
+      {
+        "id": 9,
+        "title": "Quote Engine Memory Usage",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 22},
+        "targets": [
+          {
+            "expr": "process_resident_memory_bytes{job=\"quote-engine\"}"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "bytes"
+          }
+        }
+      },
+      {
+        "id": 10,
+        "title": "Formula Cache Size",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 22},
+        "targets": [
+          {
+            "expr": "formula_cache_entries"
+          }
+        ]
+      }
+    ]
+  }
+}

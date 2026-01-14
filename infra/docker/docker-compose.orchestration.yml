@@ -1,0 +1,272 @@
+# ============================================================================
+# Phase 3 Orchestration Stack - Docker Compose
+# ============================================================================
+# Core orchestration services: Claude Flow, Archon OS, databases
+#
+# Usage with Infisical:
+#   infisical run --projectId="8374cea9-e5e8-4050-bda4-b91f25ab30ef" \
+#     --env="dev" --path="/shared" -- docker compose -f docker-compose.orchestration.yml up
+# ============================================================================
+
+version: '3.8'
+
+networks:
+  nyra-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.28.0.0/16
+
+services:
+  # PostgreSQL Database - Primary data store for Claude Flow and Archon
+  postgresql:
+    image: postgres:16-alpine
+    container_name: nyra-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_MULTIPLE_DATABASES: ${LETTA_DB_NAME},${TWENTY_DB_NAME},${DIFY_DB_NAME},${N8N_DB_NAME}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/postgres-init:/docker-entrypoint-initdb.d
+    ports:
+      - "${POSTGRES_PORT}:5432"
+    networks:
+      - nyra-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis - Caching, queues, and session storage
+  redis:
+    image: redis:7-alpine
+    container_name: nyra-redis
+    restart: unless-stopped
+    command: redis-server --requirepass ${REDIS_PASSWORD} --maxmemory ${REDIS_MAX_MEMORY} --maxmemory-policy ${REDIS_EVICTION_POLICY}
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+    volumes:
+      - redis_data:/data
+    ports:
+      - "${REDIS_PORT}:6379"
+    networks:
+      - nyra-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  # FalkorDB - Temporal knowledge graphs (Redis-compatible graph database)
+  falkordb:
+    image: falkordb/falkordb:latest
+    container_name: nyra-falkordb
+    restart: unless-stopped
+    command: redis-server --requirepass ${FALKORDB_PASSWORD} --appendonly yes --appendfsync ${FALKORDB_AOF_SYNC} --maxmemory ${FALKORDB_MAX_MEMORY}
+    environment:
+      REDIS_PASSWORD: ${FALKORDB_PASSWORD}
+    volumes:
+      - falkordb_data:/data
+    ports:
+      - "${FALKORDB_PORT}:6379"
+    networks:
+      - nyra-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${FALKORDB_PASSWORD}", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  # Qdrant - Vector database for embeddings
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: nyra-qdrant
+    restart: unless-stopped
+    environment:
+      QDRANT__SERVICE__API_KEY: ${QDRANT_API_KEY}
+    volumes:
+      - qdrant_data:/qdrant/storage
+    ports:
+      - "${QDRANT_PORT}:6333"
+      - "6334:6334"  # GRPC port
+    networks:
+      - nyra-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6333/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Claude Flow - Multi-agent workflow orchestration
+  claude-flow:
+    image: node:20-alpine
+    container_name: nyra-claude-flow
+    restart: unless-stopped
+    working_dir: /app
+    command: sh -c "npm install -g pnpm && pnpm install && pnpm start"
+    environment:
+      NODE_ENV: ${NODE_ENV}
+      PORT: ${CLAUDE_FLOW_PORT}
+      DATABASE_URL: ${DATABASE_URL}
+      REDIS_URL: ${REDIS_URL}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY}
+      CLAUDE_FLOW_MODE: ${CLAUDE_FLOW_MODE}
+      CLAUDE_FLOW_TELEMETRY_ENABLED: ${CLAUDE_FLOW_TELEMETRY_ENABLED}
+      CLAUDE_FLOW_PERFORMANCE_MODE: ${CLAUDE_FLOW_PERFORMANCE_MODE}
+      CLAUDE_FLOW_AUTO_COMMIT: ${CLAUDE_FLOW_AUTO_COMMIT}
+      CLAUDE_FLOW_HOOKS_ENABLED: ${CLAUDE_FLOW_HOOKS_ENABLED}
+      CLAUDE_FLOW_NEURAL_OPTIMIZATION: ${CLAUDE_FLOW_NEURAL_OPTIMIZATION}
+      GITHUB_TOKEN: ${GITHUB_TOKEN}
+      GITHUB_REPO: ${GITHUB_REPO}
+      GITHUB_OWNER: ${GITHUB_OWNER}
+    volumes:
+      - ../../orchestration/claude-flow:/app
+      - claude_flow_data:/app/data
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - "${CLAUDE_FLOW_PORT}:${CLAUDE_FLOW_PORT}"
+    networks:
+      - nyra-network
+    depends_on:
+      postgresql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:${CLAUDE_FLOW_PORT}/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Archon OS - Agent operating system for task management
+  archon-os:
+    image: node:20-alpine
+    container_name: nyra-archon-os
+    restart: unless-stopped
+    working_dir: /app
+    command: sh -c "npm install -g pnpm && pnpm install && pnpm start"
+    environment:
+      NODE_ENV: ${NODE_ENV}
+      PORT: ${ARCHON_PORT}
+      DATABASE_URL: ${DATABASE_URL}
+      REDIS_URL: ${REDIS_URL}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      ARCHON_MCP_PORT: ${ARCHON_MCP_PORT}
+      ARCHON_TOPOLOGY: ${ARCHON_TOPOLOGY}
+      ARCHON_MAX_DEPTH: ${ARCHON_MAX_DEPTH}
+      ARCHON_PARALLEL_BRANCHES: ${ARCHON_PARALLEL_BRANCHES}
+    volumes:
+      - ../../orchestration/archon-os:/app
+      - archon_data:/app/data
+    ports:
+      - "${ARCHON_PORT}:${ARCHON_PORT}"
+      - "${ARCHON_MCP_PORT}:${ARCHON_MCP_PORT}"
+    networks:
+      - nyra-network
+    depends_on:
+      postgresql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:${ARCHON_PORT}/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Nexus Router - Intelligent LLM request routing (GPU → Cloud)
+  nexus-router:
+    image: node:20-alpine
+    container_name: nyra-nexus-router
+    restart: unless-stopped
+    working_dir: /app
+    command: sh -c "npm install && npm start"
+    environment:
+      NODE_ENV: ${NODE_ENV}
+      PORT: ${NEXUS_ROUTER_PORT}
+      MCP_PORT: ${NEXUS_ROUTER_MCP_PORT}
+      REDIS_URL: ${REDIS_URL}
+
+      # Local GPU Workers
+      WORKER_5090_URL: ${WORKER_5090_URL}
+      WORKER_5090_MODELS: ${WORKER_5090_MODELS}
+      WORKER_3090_URL: ${WORKER_3090_URL}
+      WORKER_3090_MODELS: ${WORKER_3090_MODELS}
+      WORKER_3060_URL: ${WORKER_3060_URL}
+      WORKER_3060_MODELS: ${WORKER_3060_MODELS}
+
+      # Cloud API Fallbacks
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      ANTHROPIC_MODEL: ${ANTHROPIC_MODEL}
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY}
+      OPENROUTER_BASE_URL: ${OPENROUTER_BASE_URL}
+
+      # Routing Strategy
+      MODEL_ROUTING_STRATEGY: ${MODEL_ROUTING_STRATEGY}
+      MODEL_ROUTING_PREFER_LOCAL: ${MODEL_ROUTING_PREFER_LOCAL}
+      MODEL_ROUTING_FALLBACK_CLOUD: ${MODEL_ROUTING_FALLBACK_CLOUD}
+      MODEL_ROUTING_COST_THRESHOLD: ${MODEL_ROUTING_COST_THRESHOLD}
+    volumes:
+      - ../../services/nexus-router:/app
+      - nexus_router_data:/app/data
+    ports:
+      - "${NEXUS_ROUTER_PORT}:${NEXUS_ROUTER_PORT}"
+      - "${NEXUS_ROUTER_MCP_PORT}:${NEXUS_ROUTER_MCP_PORT}"
+    networks:
+      - nyra-network
+    depends_on:
+      - redis
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:${NEXUS_ROUTER_PORT}/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Letta - OS-like agent memory management
+  letta:
+    image: letta/letta:latest
+    container_name: nyra-letta
+    restart: unless-stopped
+    environment:
+      LETTA_SERVER_PASSWORD: ${LETTA_SERVER_PASSWORD}
+      LETTA_POSTGRES_URI: ${LETTA_POSTGRES_URI}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+    volumes:
+      - letta_data:/root/.letta
+    ports:
+      - "8283:8283"
+      - "8284:8284"
+    networks:
+      - nyra-network
+    depends_on:
+      postgresql:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8283/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  falkordb_data:
+    driver: local
+  qdrant_data:
+    driver: local
+  claude_flow_data:
+    driver: local
+  archon_data:
+    driver: local
+  nexus_router_data:
+    driver: local
+  letta_data:
+    driver: local

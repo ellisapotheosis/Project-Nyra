@@ -1,0 +1,287 @@
+# Enhanced Prometheus Configuration
+# Comprehensive scraping for Nexus Router, MCP servers, GPU workers
+
+global:
+  scrape_interval: 15s
+  scrape_timeout: 10s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: 'nyra-production'
+    environment: 'production'
+
+# Alertmanager configuration
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+            - alertmanager:9093
+      timeout: 10s
+
+# Load alert rules
+rule_files:
+  - '/etc/prometheus/alerts/*.yml'
+  - '/etc/prometheus/recording-rules.yml'
+
+# Scrape configurations
+scrape_configs:
+  # ==========================================
+  # NEXUS ROUTER & GPU WORKERS
+  # ==========================================
+
+  # Nexus Router - Main routing service
+  - job_name: 'nexus-router'
+    static_configs:
+      - targets: ['nexus-router:8000']
+        labels:
+          service: 'nexus-router'
+          tier: 'routing'
+    metrics_path: '/metrics'
+    scrape_interval: 10s
+
+  # GPU Worker - RTX 5090
+  - job_name: 'gpu-workers'
+    static_configs:
+      - targets: ['gpu-worker-5090:8001']
+        labels:
+          worker: '5090'
+          gpu_type: 'rtx-5090'
+          tier: 'compute'
+      - targets: ['gpu-worker-3090:8002']
+        labels:
+          worker: '3090'
+          gpu_type: 'rtx-3090'
+          tier: 'compute'
+      - targets: ['gpu-worker-3060:8003']
+        labels:
+          worker: '3060'
+          gpu_type: 'rtx-3060'
+          tier: 'compute'
+    metrics_path: '/metrics'
+    scrape_interval: 10s
+
+  # NVIDIA DCGM Exporter for GPU metrics
+  - job_name: 'dcgm-exporter'
+    static_configs:
+      - targets: ['dcgm-exporter:9400']
+        labels:
+          service: 'dcgm'
+          tier: 'monitoring'
+    scrape_interval: 10s
+
+  # ==========================================
+  # MCP SERVERS
+  # ==========================================
+
+  # Flow Nexus MCP
+  - job_name: 'mcp-servers'
+    static_configs:
+      - targets: ['flow-nexus-mcp:3100']
+        labels:
+          server: 'flow-nexus'
+          mcp_type: 'cloud-platform'
+      - targets: ['ruv-swarm-mcp:3101']
+        labels:
+          server: 'ruv-swarm'
+          mcp_type: 'swarm-orchestration'
+      - targets: ['letta-mcp:3102']
+        labels:
+          server: 'letta'
+          mcp_type: 'memory-management'
+      - targets: ['archon-os-mcp:3103']
+        labels:
+          server: 'archon-os'
+          mcp_type: 'agent-os'
+    metrics_path: '/metrics'
+    scrape_interval: 15s
+
+  # ==========================================
+  # ORCHESTRATION SERVICES
+  # ==========================================
+
+  # Claude Flow
+  - job_name: 'claude-flow'
+    static_configs:
+      - targets: ['claude-flow:8000']
+        labels:
+          service: 'claude-flow'
+          tier: 'orchestration'
+    metrics_path: '/metrics'
+
+  # Archon OS
+  - job_name: 'archon-os'
+    static_configs:
+      - targets: ['archon-os:8001']
+        labels:
+          service: 'archon-os'
+          tier: 'orchestration'
+    metrics_path: '/metrics'
+
+  # ==========================================
+  # PROMETHEUS SELF-MONITORING
+  # ==========================================
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+        labels:
+          service: 'prometheus'
+          tier: 'monitoring'
+
+  # ==========================================
+  # SYSTEM METRICS
+  # ==========================================
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['node-exporter:9100']
+        labels:
+          service: 'node'
+          tier: 'infrastructure'
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+        regex: '([^:]+)(?::\d+)?'
+        replacement: '${1}'
+
+  # Container metrics via cAdvisor
+  - job_name: 'cadvisor'
+    static_configs:
+      - targets: ['cadvisor:8080']
+        labels:
+          service: 'containers'
+          tier: 'infrastructure'
+    metric_relabel_configs:
+      # Drop unnecessary container metrics
+      - source_labels: [__name__]
+        regex: 'container_(network_tcp_usage_total|network_udp_usage_total|tasks_state|cpu_load_average_10s)'
+        action: drop
+
+  # ==========================================
+  # APPLICATION SERVICES
+  # ==========================================
+
+  # API Gateway metrics
+  - job_name: 'api-gateway'
+    static_configs:
+      - targets: ['api-gateway:8000']
+        labels:
+          service: 'api-gateway'
+          tier: 'application'
+    metrics_path: '/metrics'
+
+  # Backend services (service discovery)
+  - job_name: 'backend-services'
+    consul_sd_configs:
+      - server: 'consul:8500'
+        services: ['backend']
+    relabel_configs:
+      - source_labels: [__meta_consul_service]
+        target_label: service
+      - source_labels: [__meta_consul_node]
+        target_label: node
+      - source_labels: [__meta_consul_tags]
+        target_label: tags
+        regex: ',(.*),'
+
+  # ==========================================
+  # DATABASES
+  # ==========================================
+
+  # PostgreSQL metrics
+  - job_name: 'postgres'
+    static_configs:
+      - targets: ['postgres-exporter:9187']
+        labels:
+          service: 'postgres'
+          tier: 'database'
+          database: 'nyra'
+
+  # Redis metrics
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['redis-exporter:9121']
+        labels:
+          service: 'redis'
+          tier: 'cache'
+
+  # Qdrant vector database
+  - job_name: 'qdrant'
+    static_configs:
+      - targets: ['qdrant:6333']
+        labels:
+          service: 'qdrant'
+          tier: 'database'
+    metrics_path: '/metrics'
+
+  # ==========================================
+  # BLACKBOX PROBING
+  # ==========================================
+
+  # HTTP endpoint monitoring
+  - job_name: 'blackbox-http'
+    metrics_path: /probe
+    params:
+      module: [http_2xx]
+    static_configs:
+      - targets:
+          - http://nexus-router:8000/health
+          - http://claude-flow:8000/health
+          - http://archon-os:8001/health
+          - http://api-gateway:8000/health
+        labels:
+          probe_type: 'http'
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox-exporter:9115
+
+  # TCP endpoint monitoring
+  - job_name: 'blackbox-tcp'
+    metrics_path: /probe
+    params:
+      module: [tcp_connect]
+    static_configs:
+      - targets:
+          - postgres:5432
+          - redis:6379
+          - qdrant:6333
+        labels:
+          probe_type: 'tcp'
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox-exporter:9115
+
+  # ==========================================
+  # BATCH JOBS
+  # ==========================================
+
+  # Pushgateway for batch job metrics
+  - job_name: 'pushgateway'
+    honor_labels: true
+    static_configs:
+      - targets: ['pushgateway:9091']
+        labels:
+          service: 'pushgateway'
+          tier: 'monitoring'
+
+# Remote write configuration (optional - for long-term storage)
+remote_write:
+  - url: http://mimir:9009/api/v1/push
+    queue_config:
+      capacity: 10000
+      max_shards: 200
+      min_shards: 1
+      max_samples_per_send: 5000
+      batch_send_deadline: 5s
+      min_backoff: 30ms
+      max_backoff: 100ms
+
+# Remote read configuration (optional)
+remote_read:
+  - url: http://mimir:9009/api/v1/read
+    read_recent: true

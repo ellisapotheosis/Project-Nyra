@@ -1,7 +1,22 @@
-ignoredBuiltDependencies:
-  - agentdb
-  - agentic-flow
+packages:
+  - apps/*
+  - services/*
+  - mcp-servers/*
+  - packages/*
+  - submodules/claude-flow
+  - submodules/archon
+
+onlyBuiltDependencies:
+  - '@prisma/client'
+  - '@prisma/engines'
+  - '@scarf/scarf'
+  - aws-sdk
+  - bcrypt
   - better-sqlite3
-  - hnswlib-node
+  - esbuild
+  - msgpackr-extract
+  - prisma
   - protobufjs
   - sharp
+  - tesseract.js
+  - unrs-resolver

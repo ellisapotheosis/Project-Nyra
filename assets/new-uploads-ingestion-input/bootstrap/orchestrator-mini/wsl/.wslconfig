@@ -1,0 +1,84 @@
+# WSL Configuration for Project-Nyra orchestrator-mini
+# Place this file in: %USERPROFILE%\.wslconfig (C:\Users\<username>\.wslconfig)
+# After changes, restart WSL: wsl --shutdown
+
+[wsl2]
+# Memory allocation (adjust based on your system - recommend 50-75% of total RAM)
+# orchestrator-mini typically has 32GB, so 16GB for WSL is reasonable
+memory=16GB
+
+# Number of processors (adjust based on your system)
+# orchestrator-mini typically has 8+ cores
+processors=8
+
+# Swap size (1/2 of memory is good practice)
+swap=8GB
+
+# Swap file location (optional - uncomment to customize)
+# swapFile=C:\\Users\\edane\\wsl-swap.vhdx
+
+# Enable localhost forwarding (allows Windows to access WSL services via localhost)
+localhostForwarding=true
+
+# Kernel command line parameters (optional)
+# kernelCommandLine =
+
+# Path to custom kernel (optional)
+# kernel=C:\\Users\\edane\\bzImage
+
+# Additional virtual hard disk size (optional)
+# vmIdleTimeout=60000
+
+[experimental]
+# Automatic memory reclaim (gradual|dropcache|disabled)
+# gradual: slowly reclaim memory back to Windows
+autoMemoryReclaim=gradual
+
+# Mirrored networking mode (better for Docker and services)
+# Allows WSL to have the same network interface as Windows
+networkingMode=mirrored
+
+# DNS tunneling (improves DNS resolution in mirrored mode)
+dnsTunneling=true
+
+# Enable Windows firewall integration
+firewall=true
+
+# Host address loopback (allows WSL to connect to Windows services)
+# hostAddressLoopback=true
+
+# Sparse VHD (automatically shrinks VHDX file)
+sparseVhd=true
+
+# Initial auto proxy configuration
+autoProxy=true
+
+# Comments:
+# - Memory: 16GB is suitable for running multiple Docker containers, databases, and services
+# - Processors: 8 cores provides good parallel processing for builds and tests
+# - Swap: 8GB provides buffer for memory-intensive operations
+# - Mirrored networking: Essential for Docker container networking and Tailscale VPN
+# - DNS tunneling: Improves reliability of DNS resolution
+# - Auto memory reclaim: Returns unused memory to Windows gradually
+# - Sparse VHD: Keeps VHDX file size manageable
+
+# Troubleshooting:
+# - If services can't connect: Check networkingMode and localhostForwarding
+# - If out of memory: Reduce memory allocation or increase swap
+# - If slow performance: Increase processors or reduce background services
+# - If VHDX file too large: Enable sparseVhd and compact manually:
+#   wsl --shutdown
+#   Optimize-VHD -Path $env:LOCALAPPDATA\Packages\CanonicalGroupLimited.Ubuntu22.04LTS_*\LocalState\ext4.vhdx -Mode Full
+
+# Network ports exposed to Windows:
+# - 3000: Main web application
+# - 5432: PostgreSQL
+# - 6379: Redis
+# - 9090: Prometheus
+# - 3001: Grafana
+# - 3020: Gitea
+# - 8080: Nginx
+# - 9100: Node exporter
+
+# For more information:
+# https://learn.microsoft.com/en-us/windows/wsl/wsl-config#wslconfig

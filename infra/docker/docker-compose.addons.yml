@@ -1,0 +1,94 @@
+# Optional add-ons: Dify + n8n
+# Start with:
+#   docker compose -f docker-compose.yml -f docker-compose.addons.yml up -d
+
+services:
+  # ---- n8n workflow engine ----
+  n8n:
+    image: n8nio/n8n:latest
+    restart: unless-stopped
+    ports:
+      - "5678:5678"
+    environment:
+      - N8N_HOST=localhost
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http
+      - WEBHOOK_URL=http://localhost:5678/
+      - GENERIC_TIMEZONE=America/Los_Angeles
+      # Basic auth (recommended even locally)
+      - N8N_BASIC_AUTH_ACTIVE=true
+      - N8N_BASIC_AUTH_USER=${N8N_BASIC_AUTH_USER:-nyra}
+      - N8N_BASIC_AUTH_PASSWORD=${N8N_BASIC_AUTH_PASSWORD:-changeme}
+    volumes:
+      - n8n_data:/home/node/.n8n
+    depends_on:
+      - postgres
+
+  # ---- Dify (minimal) ----
+  dify-db:
+    image: postgres:15
+    restart: unless-stopped
+    environment:
+      - POSTGRES_PASSWORD=${DIFY_POSTGRES_PASSWORD:-dify}
+      - POSTGRES_USER=${DIFY_POSTGRES_USER:-dify}
+      - POSTGRES_DB=${DIFY_POSTGRES_DB:-dify}
+    ports:
+      - "5434:5432"
+    volumes:
+      - dify_pgdata:/var/lib/postgresql/data
+
+  dify-redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    ports:
+      - "6380:6379"
+    volumes:
+      - dify_redis:/data
+
+  dify-sandbox:
+    image: langgenius/dify-sandbox:latest
+    restart: unless-stopped
+
+  dify-api:
+    image: langgenius/dify-api:latest
+    restart: unless-stopped
+    depends_on:
+      - dify-db
+      - dify-redis
+      - dify-sandbox
+    environment:
+      - MODE=api
+      - LOG_LEVEL=INFO
+      - SECRET_KEY=${DIFY_SECRET_KEY:-replace_me}
+      - CONSOLE_WEB_URL=http://localhost:3005
+      - SERVICE_API_URL=http://localhost:5001
+      - DB_USERNAME=${DIFY_POSTGRES_USER:-dify}
+      - DB_PASSWORD=${DIFY_POSTGRES_PASSWORD:-dify}
+      - DB_HOST=dify-db
+      - DB_PORT=5432
+      - DB_DATABASE=${DIFY_POSTGRES_DB:-dify}
+      - REDIS_HOST=dify-redis
+      - REDIS_PORT=6379
+      - SANDBOX_HOST=dify-sandbox
+      - SANDBOX_PORT=8194
+      # Model routing via Nexus (OpenAI-compatible)
+      - OPENAI_API_BASE=http://nexus:6000/llm/openai/v1
+      - OPENAI_API_KEY=${OPENROUTER_API_KEY:-dummy}
+    ports:
+      - "5001:5001"
+
+  dify-web:
+    image: langgenius/dify-web:latest
+    restart: unless-stopped
+    depends_on:
+      - dify-api
+    environment:
+      - CONSOLE_API_URL=http://localhost:5001
+      - APP_API_URL=http://localhost:5001
+    ports:
+      - "3005:3000"
+
+volumes:
+  n8n_data:
+  dify_pgdata:
+  dify_redis:
