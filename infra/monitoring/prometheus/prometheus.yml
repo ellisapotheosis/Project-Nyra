@@ -1,9 +1,5 @@
-# Prometheus Configuration
-# Scrape configs for all monitoring targets
-
 global:
   scrape_interval: 15s
-  scrape_timeout: 10s
   evaluation_interval: 15s
   external_labels:
     cluster: 'nyra-production'
@@ -15,17 +11,14 @@ alerting:
     - static_configs:
         - targets:
             - alertmanager:9093
-      timeout: 10s
 
-# Load alert rules
+# Load rules from files
 rule_files:
-  - '/etc/prometheus/alerts/*.yml'
+  - "alerts/*.yml"
 
 # Scrape configurations
 scrape_configs:
-  # ==========================================
-  # PROMETHEUS SELF-MONITORING
-  # ==========================================
+  # Prometheus self-monitoring
   - job_name: 'prometheus'
     static_configs:
       - targets: ['localhost:9090']
@@ -33,236 +26,112 @@ scrape_configs:
           service: 'prometheus'
           tier: 'monitoring'
 
-  # ==========================================
-  # SYSTEM METRICS
-  # ==========================================
-  - job_name: 'node-exporter'
+  # Grafana monitoring
+  - job_name: 'grafana'
     static_configs:
-      - targets: ['node-exporter:9100']
+      - targets: ['grafana:3000']
         labels:
-          service: 'node'
-          tier: 'infrastructure'
-    relabel_configs:
-      - source_labels: [__address__]
-        target_label: instance
-        regex: '([^:]+)(?::\d+)?'
-        replacement: '${1}'
+          service: 'grafana'
+          tier: 'monitoring'
 
-  # Container metrics via cAdvisor
-  - job_name: 'cadvisor'
+  # Node Exporter - System Metrics
+  # PC1 - Orchestrator
+  - job_name: 'node-exporter-pc1'
     static_configs:
-      - targets: ['cadvisor:8080']
+      - targets: ['10.0.0.1:9100']
         labels:
-          service: 'containers'
-          tier: 'infrastructure'
-    metric_relabel_configs:
-      # Drop unnecessary container metrics
-      - source_labels: [__name__]
-        regex: 'container_(network_tcp_usage_total|network_udp_usage_total|tasks_state|cpu_load_average_10s)'
-        action: drop
+          instance: 'pc1-orchestrator'
+          pc: 'pc1'
+          role: 'orchestrator'
 
-  # ==========================================
-  # APPLICATION SERVICES
-  # ==========================================
-
-  # API Gateway metrics
-  - job_name: 'api-gateway'
+  # PC2 - GPU Worker 1
+  - job_name: 'node-exporter-pc2'
     static_configs:
-      - targets: ['api-gateway:8000']
+      - targets: ['10.0.0.2:9100']
         labels:
-          service: 'api-gateway'
-          tier: 'application'
+          instance: 'pc2-gpu-worker-1'
+          pc: 'pc2'
+          role: 'gpu-worker'
+
+  # PC3 - GPU Worker 2
+  - job_name: 'node-exporter-pc3'
+    static_configs:
+      - targets: ['10.0.0.3:9100']
+        labels:
+          instance: 'pc3-gpu-worker-2'
+          pc: 'pc3'
+          role: 'gpu-worker'
+
+  # PC4 - GPU Worker 3
+  - job_name: 'node-exporter-pc4'
+    static_configs:
+      - targets: ['10.0.0.4:9100']
+        labels:
+          instance: 'pc4-gpu-worker-3'
+          pc: 'pc4'
+          role: 'gpu-worker'
+
+  # Business Services (PC4)
+  - job_name: 'quote-engine'
+    static_configs:
+      - targets: ['quote-engine:8001']
+        labels:
+          service: 'quote-engine'
+          tier: 'business'
+          pc: 'pc4'
     metrics_path: '/metrics'
 
-  # Backend services
-  - job_name: 'backend-services'
-    consul_sd_configs:
-      - server: 'consul:8500'
-        services: ['backend']
-    relabel_configs:
-      - source_labels: [__meta_consul_service]
-        target_label: service
-      - source_labels: [__meta_consul_node]
-        target_label: node
-      - source_labels: [__meta_consul_tags]
-        target_label: tags
-        regex: ',(.*),'
-
-  # Frontend metrics (if exposing metrics)
-  - job_name: 'frontend'
+  - job_name: 'campaign-engine'
     static_configs:
-      - targets: ['frontend:3000']
+      - targets: ['campaign-engine:8002']
         labels:
-          service: 'frontend'
-          tier: 'application'
-    metrics_path: '/api/metrics'
+          service: 'campaign-engine'
+          tier: 'business'
+          pc: 'pc4'
+    metrics_path: '/metrics'
 
-  # ==========================================
-  # DATABASES
-  # ==========================================
-
-  # PostgreSQL metrics
-  - job_name: 'postgres'
+  - job_name: 'orchestrator'
     static_configs:
-      - targets: ['postgres-exporter:9187']
+      - targets: ['orchestrator:8010']
         labels:
-          service: 'postgres'
+          service: 'orchestrator'
+          tier: 'business'
+          pc: 'pc4'
+    metrics_path: '/metrics'
+
+  # Ruvector Cluster (PC2, PC3, PC4)
+  - job_name: 'ruvector-leader'
+    static_configs:
+      - targets: ['10.0.0.2:6370']
+        labels:
+          service: 'ruvector'
+          role: 'leader'
           tier: 'database'
-          database: 'nyra'
+          pc: 'pc2'
 
-  # Redis metrics
-  - job_name: 'redis'
+  - job_name: 'ruvector-follower-1'
     static_configs:
-      - targets: ['redis-exporter:9121']
+      - targets: ['10.0.0.3:6370']
         labels:
-          service: 'redis'
-          tier: 'cache'
+          service: 'ruvector'
+          role: 'follower'
+          tier: 'database'
+          pc: 'pc3'
 
-  # ==========================================
-  # MESSAGE QUEUES
-  # ==========================================
-
-  # RabbitMQ metrics (if using)
-  - job_name: 'rabbitmq'
+  - job_name: 'ruvector-follower-2'
     static_configs:
-      - targets: ['rabbitmq:15692']
+      - targets: ['10.0.0.4:6370']
         labels:
-          service: 'rabbitmq'
-          tier: 'messaging'
-    metrics_path: '/metrics'
+          service: 'ruvector'
+          role: 'follower'
+          tier: 'database'
+          pc: 'pc4'
 
-  # Kafka metrics (if using)
-  - job_name: 'kafka'
-    static_configs:
-      - targets: ['kafka-exporter:9308']
-        labels:
-          service: 'kafka'
-          tier: 'messaging'
-
-  # ==========================================
-  # BLACKBOX PROBING
-  # ==========================================
-
-  # HTTP endpoint monitoring
-  - job_name: 'blackbox-http'
-    metrics_path: /probe
-    params:
-      module: [http_2xx]
-    static_configs:
-      - targets:
-          - https://api.example.com/health
-          - https://app.example.com/health
-          - https://admin.example.com/health
-        labels:
-          probe_type: 'http'
-    relabel_configs:
-      - source_labels: [__address__]
-        target_label: __param_target
-      - source_labels: [__param_target]
-        target_label: instance
-      - target_label: __address__
-        replacement: blackbox-exporter:9115
-
-  # TCP endpoint monitoring
-  - job_name: 'blackbox-tcp'
-    metrics_path: /probe
-    params:
-      module: [tcp_connect]
-    static_configs:
-      - targets:
-          - postgres:5432
-          - redis:6379
-        labels:
-          probe_type: 'tcp'
-    relabel_configs:
-      - source_labels: [__address__]
-        target_label: __param_target
-      - source_labels: [__param_target]
-        target_label: instance
-      - target_label: __address__
-        replacement: blackbox-exporter:9115
-
-  # ==========================================
-  # BATCH JOBS
-  # ==========================================
-
-  # Pushgateway for batch job metrics
+  # Pushgateway for batch jobs
   - job_name: 'pushgateway'
-    honor_labels: true
     static_configs:
       - targets: ['pushgateway:9091']
         labels:
           service: 'pushgateway'
           tier: 'monitoring'
-
-  # ==========================================
-  # KUBERNETES (if applicable)
-  # ==========================================
-
-  # Kubernetes API server
-  - job_name: 'kubernetes-apiservers'
-    kubernetes_sd_configs:
-      - role: endpoints
-    scheme: https
-    tls_config:
-      ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
-    bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
-    relabel_configs:
-      - source_labels: [__meta_kubernetes_namespace, __meta_kubernetes_service_name, __meta_kubernetes_endpoint_port_name]
-        action: keep
-        regex: default;kubernetes;https
-
-  # Kubernetes nodes
-  - job_name: 'kubernetes-nodes'
-    kubernetes_sd_configs:
-      - role: node
-    scheme: https
-    tls_config:
-      ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
-    bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
-    relabel_configs:
-      - action: labelmap
-        regex: __meta_kubernetes_node_label_(.+)
-
-  # Kubernetes pods
-  - job_name: 'kubernetes-pods'
-    kubernetes_sd_configs:
-      - role: pod
-    relabel_configs:
-      - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
-        action: keep
-        regex: true
-      - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_path]
-        action: replace
-        target_label: __metrics_path__
-        regex: (.+)
-      - source_labels: [__address__, __meta_kubernetes_pod_annotation_prometheus_io_port]
-        action: replace
-        regex: ([^:]+)(?::\d+)?;(\d+)
-        replacement: $1:$2
-        target_label: __address__
-      - action: labelmap
-        regex: __meta_kubernetes_pod_label_(.+)
-      - source_labels: [__meta_kubernetes_namespace]
-        action: replace
-        target_label: kubernetes_namespace
-      - source_labels: [__meta_kubernetes_pod_name]
-        action: replace
-        target_label: kubernetes_pod_name
-
-# Remote write configuration (optional - for long-term storage)
-remote_write:
-  - url: http://mimir:9009/api/v1/push
-    queue_config:
-      capacity: 10000
-      max_shards: 200
-      min_shards: 1
-      max_samples_per_send: 5000
-      batch_send_deadline: 5s
-      min_backoff: 30ms
-      max_backoff: 100ms
-
-# Remote read configuration (optional)
-remote_read:
-  - url: http://mimir:9009/api/v1/read
-    read_recent: true
+    honor_labels: true

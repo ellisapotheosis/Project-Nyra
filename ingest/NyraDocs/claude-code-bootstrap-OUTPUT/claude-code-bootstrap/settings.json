@@ -1,0 +1,33 @@
+{
+  "permissions": {
+    "defaultMode": "bypassPermissions",
+    "allow": [
+      "Bash",
+      "Read",
+      "Write",
+      "Edit",
+      "WebFetch"
+    ]
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "infisical run --projectId=\"8374cea9-e5e8-4050-bda4-b91f25ab30ef\" --env=\"dev\" --path=\"/shared\" -- claude mcp start"
+          }
+        ]
+      }
+    ]
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File \"C:\\Users\\edane\\.claude\\starship-statusline.ps1\""
+  },
+  "enabledPlugins": {
+    "claude-flow@claude-flow-marketplace": true
+  },
+  "alwaysThinkingEnabled": true
+}

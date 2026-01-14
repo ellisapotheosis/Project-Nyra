@@ -1,0 +1,395 @@
+{
+  "name": "Mortgage 5-Day Drip Campaign",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "campaigns/enroll",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "name": "Webhook: Enroll Lead",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300],
+      "webhookId": "mortgage-drip-enroll"
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "lead_id",
+              "value": "={{$json[\"lead_id\"]}}"
+            },
+            {
+              "name": "first_name",
+              "value": "={{$json[\"first_name\"]}}"
+            },
+            {
+              "name": "last_name",
+              "value": "={{$json[\"last_name\"]}}"
+            },
+            {
+              "name": "phone",
+              "value": "={{$json[\"phone\"]}}"
+            },
+            {
+              "name": "email",
+              "value": "={{$json[\"email\"]}}"
+            },
+            {
+              "name": "loan_amount",
+              "value": "={{$json[\"loan_amount\"]}}"
+            },
+            {
+              "name": "interest_rate",
+              "value": "={{$json[\"interest_rate\"]}}"
+            },
+            {
+              "name": "monthly_payment",
+              "value": "={{$json[\"monthly_payment\"]}}"
+            },
+            {
+              "name": "credit_score_range",
+              "value": "={{$json[\"credit_score_range\"]}}"
+            },
+            {
+              "name": "agent_name",
+              "value": "={{$json[\"agent_name\"] || 'Sarah Johnson'}}"
+            },
+            {
+              "name": "agent_phone",
+              "value": "={{$json[\"agent_phone\"] || '(555) 123-4567'}}"
+            },
+            {
+              "name": "agent_email",
+              "value": "={{$json[\"agent_email\"] || 'sarah@nyra.io'}}"
+            },
+            {
+              "name": "calendly_link",
+              "value": "={{$json[\"calendly_link\"]}}"
+            },
+            {
+              "name": "campaign_yaml",
+              "value": "day1-5.yaml"
+            }
+          ]
+        }
+      },
+      "name": "Extract Lead Data",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 2,
+      "position": [470, 300]
+    },
+    {
+      "parameters": {
+        "url": "={{$env.ORCHESTRATOR_URL}}/compliance/check",
+        "method": "POST",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"lead_id\": \"{{$json[\"lead_id\"]}}\",\n  \"message_type\": \"sms\",\n  \"phone\": \"{{$json[\"phone\"]}}\",\n  \"scheduled_time\": \"{{DateTime.now().toISO()}}\"\n}",
+        "options": {}
+      },
+      "name": "Check Compliance",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [690, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json[\"allowed\"]}}",
+              "operation": "equals",
+              "value2": "true"
+            }
+          ]
+        }
+      },
+      "name": "Compliance Gate",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [910, 300]
+    },
+    {
+      "parameters": {
+        "operation": "read",
+        "filePath": "={{$env.CAMPAIGN_PATH}}/{{$node[\"Extract Lead Data\"].json[\"campaign_yaml\"]}}"
+      },
+      "name": "Load Campaign YAML",
+      "type": "n8n-nodes-base.readFile",
+      "typeVersion": 1,
+      "position": [1130, 200]
+    },
+    {
+      "parameters": {
+        "mode": "jsonToBinary",
+        "options": {}
+      },
+      "name": "Parse YAML",
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1,
+      "position": [1350, 200]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Load campaign steps from YAML\nconst campaignData = JSON.parse($input.item.json.data);\nconst steps = campaignData.steps;\nconst leadData = $node[\"Extract Lead Data\"].json;\n\n// Helper function to replace placeholders\nfunction replacePlaceholders(text, data) {\n  let result = text;\n  for (const [key, value] of Object.entries(data)) {\n    const regex = new RegExp(`\\\\{\\\\{${key}\\\\}\\\\}`, 'g');\n    result = result.replace(regex, value);\n  }\n  return result;\n}\n\n// Process each campaign step\nconst scheduledMessages = steps.map(step => {\n  // Calculate send time\n  const now = new Date();\n  const sendTime = new Date(now.getTime() + \n    (step.day * 24 * 60 * 60 * 1000) + \n    (step.delay_hours * 60 * 60 * 1000) + \n    (step.delay_minutes * 60 * 1000)\n  );\n\n  // Expand placeholders in message body\n  const body = replacePlaceholders(step.body, leadData);\n  const subject = step.subject ? replacePlaceholders(step.subject, leadData) : null;\n\n  return {\n    step_id: step.id,\n    lead_id: leadData.lead_id,\n    channel: step.channel,\n    to: step.channel === 'sms' ? leadData.phone : leadData.email,\n    body: body,\n    subject: subject,\n    scheduled_for: sendTime.toISOString(),\n    day: step.day,\n    delay_hours: step.delay_hours,\n    delay_minutes: step.delay_minutes,\n    compliance_notes: step.compliance_notes\n  };\n});\n\nreturn scheduledMessages.map(msg => ({ json: msg }));"
+      },
+      "name": "Build Message Schedule",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 1,
+      "position": [1570, 200]
+    },
+    {
+      "parameters": {
+        "batchSize": 1,
+        "options": {}
+      },
+      "name": "Split Into Messages",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [1790, 200]
+    },
+    {
+      "parameters": {
+        "amount": "={{DateTime.fromISO($json[\"scheduled_for\"]).diff(DateTime.now()).milliseconds}}",
+        "unit": "ms"
+      },
+      "name": "Wait Until Scheduled Time",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [2010, 200]
+    },
+    {
+      "parameters": {
+        "url": "={{$env.ORCHESTRATOR_URL}}/compliance/check",
+        "method": "POST",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"lead_id\": \"{{$json[\"lead_id\"]}}\",\n  \"message_type\": \"{{$json[\"channel\"]}}\",\n  \"phone\": \"{{$json[\"to\"]}}\",\n  \"scheduled_time\": \"{{$json[\"scheduled_for\"]}}\"\n}",
+        "options": {}
+      },
+      "name": "Re-check Compliance",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [2230, 200]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json[\"allowed\"]}}",
+              "operation": "equals",
+              "value2": "true"
+            }
+          ]
+        }
+      },
+      "name": "Final Compliance Check",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [2450, 200]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$node[\"Split Into Messages\"].json[\"channel\"]}}",
+              "operation": "equals",
+              "value2": "sms"
+            }
+          ]
+        }
+      },
+      "name": "Route by Channel",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [2670, 100]
+    },
+    {
+      "parameters": {
+        "url": "={{$env.ACTIVEPIECES_URL}}/webhooks/send_sms",
+        "method": "POST",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"to\": \"{{$node[\"Split Into Messages\"].json[\"to\"]}}\",\n  \"body\": \"{{$node[\"Split Into Messages\"].json[\"body\"]}}\",\n  \"lead_id\": \"{{$node[\"Split Into Messages\"].json[\"lead_id\"]}}\",\n  \"step_id\": \"{{$node[\"Split Into Messages\"].json[\"step_id\"]}}\"\n}",
+        "options": {}
+      },
+      "name": "Send SMS (Activepieces)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [2890, 50]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$node[\"Split Into Messages\"].json[\"channel\"]}}",
+              "operation": "equals",
+              "value2": "email"
+            }
+          ]
+        }
+      },
+      "name": "Is Email?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [2890, 200]
+    },
+    {
+      "parameters": {
+        "url": "={{$env.ACTIVEPIECES_URL}}/webhooks/send_email",
+        "method": "POST",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"to\": \"{{$node[\"Split Into Messages\"].json[\"to\"]}}\",\n  \"subject\": \"{{$node[\"Split Into Messages\"].json[\"subject\"]}}\",\n  \"body\": \"{{$node[\"Split Into Messages\"].json[\"body\"]}}\",\n  \"lead_id\": \"{{$node[\"Split Into Messages\"].json[\"lead_id\"]}}\",\n  \"step_id\": \"{{$node[\"Split Into Messages\"].json[\"step_id\"]}}\"\n}",
+        "options": {}
+      },
+      "name": "Send Email (Activepieces)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [3110, 200]
+    },
+    {
+      "parameters": {
+        "url": "={{$env.ACTIVEPIECES_URL}}/webhooks/drop_voicemail",
+        "method": "POST",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"to\": \"{{$node[\"Split Into Messages\"].json[\"to\"]}}\",\n  \"body\": \"{{$node[\"Split Into Messages\"].json[\"body\"]}}\",\n  \"lead_id\": \"{{$node[\"Split Into Messages\"].json[\"lead_id\"]}}\",\n  \"step_id\": \"{{$node[\"Split Into Messages\"].json[\"step_id\"]}}\"\n}",
+        "options": {}
+      },
+      "name": "Drop Voicemail (Activepieces)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [3110, 350]
+    },
+    {
+      "parameters": {
+        "url": "={{$env.TWENTYCRM_URL}}/api/v1/activities",
+        "method": "POST",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "twentyCrmApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"contact_id\": \"{{$node[\"Split Into Messages\"].json[\"lead_id\"]}}\",\n  \"type\": \"outbound_{{$node[\"Split Into Messages\"].json[\"channel\"]}}\",\n  \"subject\": \"Campaign: {{$node[\"Split Into Messages\"].json[\"step_id\"]}}\",\n  \"body\": \"{{$node[\"Split Into Messages\"].json[\"body\"]}}\",\n  \"timestamp\": \"{{DateTime.now().toISO()}}\",\n  \"status\": \"sent\",\n  \"campaign_id\": \"day1-5\"\n}",
+        "options": {}
+      },
+      "name": "Log to TwentyCRM",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [3330, 200]
+    },
+    {
+      "parameters": {
+        "url": "={{$env.ORCHESTRATOR_URL}}/audit/logs",
+        "method": "POST",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"lead_id\": \"{{$node[\"Split Into Messages\"].json[\"lead_id\"]}}\",\n  \"step_id\": \"{{$node[\"Split Into Messages\"].json[\"step_id\"]}}\",\n  \"channel\": \"{{$node[\"Split Into Messages\"].json[\"channel\"]}}\",\n  \"status\": \"sent\",\n  \"timestamp\": \"{{DateTime.now().toISO()}}\",\n  \"compliance_notes\": \"{{$node[\"Split Into Messages\"].json[\"compliance_notes\"]}}\"\n}",
+        "options": {}
+      },
+      "name": "Log Audit Trail",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [3550, 200]
+    },
+    {
+      "parameters": {
+        "errorMessage": "Campaign blocked: {{$json[\"reason\"]}}"
+      },
+      "name": "Compliance Blocked",
+      "type": "n8n-nodes-base.stopAndError",
+      "typeVersion": 1,
+      "position": [1130, 400]
+    },
+    {
+      "parameters": {
+        "errorMessage": "Message blocked at send time: {{$json[\"reason\"]}}"
+      },
+      "name": "Message Blocked",
+      "type": "n8n-nodes-base.stopAndError",
+      "typeVersion": 1,
+      "position": [2670, 300]
+    }
+  ],
+  "connections": {
+    "Webhook: Enroll Lead": {
+      "main": [[{ "node": "Extract Lead Data", "type": "main", "index": 0 }]]
+    },
+    "Extract Lead Data": {
+      "main": [[{ "node": "Check Compliance", "type": "main", "index": 0 }]]
+    },
+    "Check Compliance": {
+      "main": [[{ "node": "Compliance Gate", "type": "main", "index": 0 }]]
+    },
+    "Compliance Gate": {
+      "main": [
+        [{ "node": "Load Campaign YAML", "type": "main", "index": 0 }],
+        [{ "node": "Compliance Blocked", "type": "main", "index": 0 }]
+      ]
+    },
+    "Load Campaign YAML": {
+      "main": [[{ "node": "Parse YAML", "type": "main", "index": 0 }]]
+    },
+    "Parse YAML": {
+      "main": [[{ "node": "Build Message Schedule", "type": "main", "index": 0 }]]
+    },
+    "Build Message Schedule": {
+      "main": [[{ "node": "Split Into Messages", "type": "main", "index": 0 }]]
+    },
+    "Split Into Messages": {
+      "main": [[{ "node": "Wait Until Scheduled Time", "type": "main", "index": 0 }]]
+    },
+    "Wait Until Scheduled Time": {
+      "main": [[{ "node": "Re-check Compliance", "type": "main", "index": 0 }]]
+    },
+    "Re-check Compliance": {
+      "main": [[{ "node": "Final Compliance Check", "type": "main", "index": 0 }]]
+    },
+    "Final Compliance Check": {
+      "main": [
+        [{ "node": "Route by Channel", "type": "main", "index": 0 }],
+        [{ "node": "Message Blocked", "type": "main", "index": 0 }]
+      ]
+    },
+    "Route by Channel": {
+      "main": [
+        [{ "node": "Send SMS (Activepieces)", "type": "main", "index": 0 }],
+        [{ "node": "Is Email?", "type": "main", "index": 0 }]
+      ]
+    },
+    "Is Email?": {
+      "main": [
+        [{ "node": "Send Email (Activepieces)", "type": "main", "index": 0 }],
+        [{ "node": "Drop Voicemail (Activepieces)", "type": "main", "index": 0 }]
+      ]
+    },
+    "Send SMS (Activepieces)": {
+      "main": [[{ "node": "Log to TwentyCRM", "type": "main", "index": 0 }]]
+    },
+    "Send Email (Activepieces)": {
+      "main": [[{ "node": "Log to TwentyCRM", "type": "main", "index": 0 }]]
+    },
+    "Drop Voicemail (Activepieces)": {
+      "main": [[{ "node": "Log to TwentyCRM", "type": "main", "index": 0 }]]
+    },
+    "Log to TwentyCRM": {
+      "main": [[{ "node": "Log Audit Trail", "type": "main", "index": 0 }]]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "1",
+  "meta": {
+    "instanceId": "nyra-production"
+  },
+  "tags": []
+}

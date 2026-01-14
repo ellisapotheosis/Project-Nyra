@@ -1,0 +1,84 @@
+{
+  "displayName": "Send Email with Compliance",
+  "trigger": {
+    "type": "WEBHOOK",
+    "settings": {
+      "inputUiInfo": {
+        "currentSelectedData": "body"
+      }
+    }
+  },
+  "steps": {
+    "extract_webhook_data": {
+      "type": "CODE",
+      "settings": {
+        "sourceCode": {
+          "code": "export const code = async (inputs) => {\n  return {\n    to: inputs.webhook_body.to,\n    subject: inputs.webhook_body.subject,\n    body: inputs.webhook_body.body,\n    lead_id: inputs.webhook_body.lead_id,\n    step_id: inputs.webhook_body.step_id\n  };\n};"
+        },
+        "input": {
+          "webhook_body": "{{trigger.body}}"
+        }
+      },
+      "nextAction": "inject_unsubscribe"
+    },
+    "inject_unsubscribe": {
+      "type": "CODE",
+      "settings": {
+        "sourceCode": {
+          "code": "export const code = async (inputs) => {\n  let htmlBody = inputs.body.replace(/\\n/g, '<br>');\n  \n  // Append unsubscribe link\n  const unsubscribeLink = `${inputs.base_url}/opt-out?lead=${inputs.lead_id}`;\n  \n  htmlBody += `\n  <hr style=\"margin-top: 30px; border: none; border-top: 1px solid #eee;\">\n  <p style=\"font-size: 12px; color: #999; text-align: center;\">\n    You are receiving this email because you requested a mortgage quote from Nyra.<br>\n    <a href=\"${unsubscribeLink}\" style=\"color: #666;\">Unsubscribe</a> | \n    <a href=\"${inputs.base_url}/privacy\" style=\"color: #666;\">Privacy Policy</a>\n  </p>`;\n  \n  return { \n    html_body: htmlBody,\n    text_body: inputs.body + `\\n\\nTo unsubscribe, visit: ${unsubscribeLink}`\n  };\n};"
+        },
+        "input": {
+          "body": "{{extract_webhook_data.output.body}}",
+          "lead_id": "{{extract_webhook_data.output.lead_id}}",
+          "base_url": "https://nyra.io"
+        }
+      },
+      "nextAction": "send_sendgrid_email"
+    },
+    "send_sendgrid_email": {
+      "type": "PIECE",
+      "settings": {
+        "packageType": "REGISTRY",
+        "pieceType": "sendgrid",
+        "pieceName": "@activepieces/piece-sendgrid",
+        "pieceVersion": "^0.3.0",
+        "actionName": "send_email",
+        "input": {
+          "from": "{{connections.sendgrid.from_email}}",
+          "to": "{{extract_webhook_data.output.to}}",
+          "subject": "{{extract_webhook_data.output.subject}}",
+          "html": "{{inject_unsubscribe.output.html_body}}",
+          "text": "{{inject_unsubscribe.output.text_body}}"
+        }
+      },
+      "nextAction": "log_metrics"
+    },
+    "log_metrics": {
+      "type": "CODE",
+      "settings": {
+        "sourceCode": {
+          "code": "export const code = async (inputs) => {\n  const metric = {\n    job: 'campaign_engine',\n    instance: 'activepieces',\n    labels: {\n      channel: 'email',\n      step_id: inputs.step_id,\n      lead_id: inputs.lead_id,\n      status: inputs.success ? 'sent' : 'failed'\n    },\n    value: 1,\n    timestamp: Date.now()\n  };\n  \n  console.log('Email Metric:', metric);\n  \n  return metric;\n};"
+        },
+        "input": {
+          "step_id": "{{extract_webhook_data.output.step_id}}",
+          "lead_id": "{{extract_webhook_data.output.lead_id}}",
+          "success": "{{send_sendgrid_email.output.statusCode === 202}}"
+        }
+      },
+      "nextAction": "return_response"
+    },
+    "return_response": {
+      "type": "CODE",
+      "settings": {
+        "sourceCode": {
+          "code": "export const code = async (inputs) => {\n  return {\n    status: 'success',\n    channel: 'email',\n    message_id: inputs.message_id,\n    lead_id: inputs.lead_id,\n    step_id: inputs.step_id,\n    sent_at: new Date().toISOString()\n  };\n};"
+        },
+        "input": {
+          "message_id": "{{send_sendgrid_email.output.messageId}}",
+          "lead_id": "{{extract_webhook_data.output.lead_id}}",
+          "step_id": "{{extract_webhook_data.output.step_id}}"
+        }
+      }
+    }
+  }
+}

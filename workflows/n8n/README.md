@@ -4,44 +4,59 @@ This directory contains production-ready n8n workflow templates for automated mo
 
 ## Available Workflows
 
-### 1. Lead Capture Webhook (`01-lead-capture-webhook.json`)
-**Trigger**: HTTP Webhook
-**Purpose**: Capture leads from RateHunter frontend, generate quotes, and initiate welcome campaigns
+### 1. Mortgage 45-Day Drip Campaign (`templates/mortgage-45-day-drip-campaign.json`) ✅
+**Trigger**: HTTP Webhook (POST /start-campaign)
+**Purpose**: Complete 45-day automated nurture campaign for mortgage leads
 
-**Flow**:
-1. Webhook receives lead data (POST /lead-capture)
-2. Save lead to PostgreSQL database
-3. Generate mortgage quote via Quote Engine API
-4. Trigger welcome campaign via Campaign Engine
-5. Send quote email to lead
-6. Return success response with lead and quote IDs
+**Touchpoints**:
+- **Day 0**: Welcome email with quote details
+- **Day 3**: Follow-up SMS check-in
+- **Day 7**: Educational email about mortgage rates
+- **Day 14**: Application reminder SMS
+- **Day 21**: Automated voice call check-in
+- **Day 30**: Rate alert (conditional on rate changes)
+- **Day 45**: Final touchpoint email
+
+**Features**:
+- Multi-channel (email, SMS, voice)
+- Conditional logic for rate alerts
+- Automatic campaign status tracking
+- Complete audit logging
+- Database integration (PostgreSQL)
+- Compliance-ready messaging
 
 **Required Credentials**:
-- PostgreSQL (Letta database)
-- SMTP (SendGrid)
+- PostgreSQL (Nyra database)
+- SMTP (Email delivery)
+- Twilio (SMS/Voice)
 
-**Webhook URL**: `http://n8n:5678/webhook/lead-capture`
+**Webhook URL**: `http://n8n:5678/webhook/start-campaign`
+
+**Integration**:
+```bash
+# Trigger campaign after quote generation
+curl -X POST http://n8n:5678/webhook/start-campaign \
+  -H "Content-Type: application/json" \
+  -d '{
+    "borrower_id": "uuid-here",
+    "body": {
+      "borrower_id": "uuid-here"
+    }
+  }'
+```
 
 ---
 
-### 2. Drip Campaign Automation (`02-drip-campaign-automation.json`)
-**Trigger**: Cron (Daily at 9 AM)
-**Purpose**: Automated email sequences for active leads
+### 2. Lead Capture Webhook (`01-lead-capture-webhook.json`) 🚧
+**Status**: Template available in existing README
+**Trigger**: HTTP Webhook
+**Purpose**: Capture leads from RateHunter frontend, generate quotes, and initiate welcome campaigns
 
-**Flow**:
-1. Query active leads (last contact > 2 days ago, email count < 5)
-2. Batch process leads (10 at a time)
-3. Determine email sequence stage:
-   - **Email 0**: Welcome + quote details
-   - **Email 1**: Document request
-   - **Email 2+**: Urgency/rate lock reminder
-4. Send personalized email
-5. Update lead contact tracking
+---
 
-**Email Cadence**:
-- Day 1: Welcome email
-- Day 3: Document request
-- Day 5+: Urgency emails
+### 3. Drip Campaign Automation (`02-drip-campaign-automation.json`) 🚧
+**Status**: Superseded by 45-day drip campaign template
+**Note**: The comprehensive 45-day template above provides all drip campaign functionality
 
 ---
 

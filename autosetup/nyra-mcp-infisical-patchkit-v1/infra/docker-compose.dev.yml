@@ -1,0 +1,85 @@
+services:
+  nexus:
+    image: grafbase/nexus:latest
+    ports: ["7000:7000"]
+    volumes:
+      - ./nexus:/etc/nexus
+    environment:
+      - NEXUS_JWT_SECRET=${NEXUS_JWT_SECRET}
+      - NEXUS_ADMIN_TOKEN=${NEXUS_ADMIN_TOKEN}
+    command: ["serve","--config","/etc/nexus/nexus.yaml"]
+
+  litellm:
+    image: ghcr.io/berriai/litellm:main
+    ports: ["4000:4000"]
+    environment:
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+      - LITELLM_MASTER_KEY=${LITELLM_MASTER_KEY}
+      - DATABASE_URL=${LITELLM_DATABASE_URL}
+    volumes:
+      - litellm_data:/data
+
+  dify:
+    image: langgenius/dify:latest
+    ports: ["3001:80"]
+    environment:
+      - SECRET_KEY=${DIFY_SECRET_KEY}
+      - ENCRYPTION_KEY=${DIFY_ENCRYPTION_KEY}
+
+  activepieces:
+    image: activepieces/activepieces:latest
+    ports: ["3002:80"]
+    environment:
+      - AP_API_KEY=${ACTIVEPIECES_API_KEY}
+
+  n8n:
+    image: n8nio/n8n:latest
+    ports: ["5678:5678"]
+    environment:
+      - N8N_BASIC_AUTH_ACTIVE=true
+      - N8N_BASIC_AUTH_USER=${N8N_BASIC_AUTH_USER}
+      - N8N_BASIC_AUTH_PASSWORD=${N8N_BASIC_AUTH_PASSWORD}
+      - N8N_ENCRYPTION_KEY=${N8N_ENCRYPTION_KEY}
+    volumes:
+      - n8n_data:/home/node/.n8n
+
+  falkordb:
+    image: falkordb/falkordb:latest
+    ports: ["6379:6379"]
+
+  graphiti_mcp:
+    image: getzep/graphiti-mcp:latest
+    ports: ["9100:9100"]
+    environment:
+      - GRAPH_DB=falkordb
+      - FALKORDB_URL=redis://falkordb:6379
+  letta:
+    image: letta/letta:latest
+    ports: ["8283:8283"]
+    environment:
+      - LETTA_API_KEY=${LETTA_API_KEY}
+    volumes:
+      - letta_pgdata:/var/lib/postgresql/data
+
+
+  prometheus:
+    image: prom/prometheus:latest
+    ports: ["9090:9090"]
+    volumes:
+      - ./observability/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+
+  loki:
+    image: grafana/loki:latest
+    ports: ["3100:3100"]
+
+  grafana:
+    image: grafana/grafana:latest
+    ports: ["3000:3000"]
+    volumes:
+      - grafana_data:/var/lib/grafana
+
+volumes:
+  litellm_data:
+  n8n_data:
+  grafana_data:
+  letta_pgdata:

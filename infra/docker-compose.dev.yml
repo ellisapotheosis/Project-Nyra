@@ -1,126 +1,580 @@
+# Project Nyra - Development Docker Compose
+# Following BOOTSTRAP-WORKFLOW.md Week 2: Core Services Deployment
+# Updated: 2026-01-12
+
 services:
-  nexus:
-    image: grafbase/nexus:latest
-    ports:
-    - 7000:7000
+  # =============================================================================
+  # DATABASES
+  # =============================================================================
+
+  # PostgreSQL - Shared database for Dify, TwentyCRM, Letta, n8n, LiteLLM (with pgvector extension)
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: nyra-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      # Multiple databases created via init script
+      POSTGRES_MULTIPLE_DATABASES: dify,twenty,letta,n8n,litellm,nyra,activepieces
     volumes:
-    - ./nexus:/etc/nexus
-    environment:
-    - NEXUS_JWT_SECRET=${NEXUS_JWT_SECRET}
-    - NEXUS_ADMIN_TOKEN=${NEXUS_ADMIN_TOKEN}
-    command:
-    - serve
-    - --config
-    - /etc/nexus/nexus.yaml
-    depends_on:
-    - litellm
-    - activepieces
-    - graphiti_mcp
-    - mem0_mcp
-  litellm:
-    image: ghcr.io/berriai/litellm:main
+      - postgres-data:/var/lib/postgresql/data
+      - ./postgres-init:/docker-entrypoint-initdb.d:ro
     ports:
-    - 4000:4000
-    environment:
-    - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
-    - LITELLM_MASTER_KEY=${LITELLM_MASTER_KEY}
-    - DATABASE_URL=${LITELLM_DATABASE_URL}
+      - "${POSTGRES_PORT:-5432}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - nyra-network
+
+  # Redis - For caching (Dify, n8n, Activepieces) - Using port 6380 to avoid conflict with FalkorDB
+  redis:
+    image: redis:7-alpine
+    container_name: nyra-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes
     volumes:
-    - litellm_data:/data
-  dify:
-    image: langgenius/dify:latest
+      - redis-data:/data
     ports:
-    - 3001:80
-    environment:
-    - SECRET_KEY=${DIFY_SECRET_KEY}
-    - ENCRYPTION_KEY=${DIFY_ENCRYPTION_KEY}
-  activepieces:
-    image: activepieces/activepieces:latest
-    ports:
-    - 3002:80
-    environment:
-    - AP_API_KEY=${ACTIVEPIECES_API_KEY}
-  n8n:
-    image: n8nio/n8n:latest
-    ports:
-    - 5678:5678
-    environment:
-    - N8N_BASIC_AUTH_ACTIVE=true
-    - N8N_BASIC_AUTH_USER=${N8N_BASIC_AUTH_USER}
-    - N8N_BASIC_AUTH_PASSWORD=${N8N_BASIC_AUTH_PASSWORD}
-    - N8N_ENCRYPTION_KEY=${N8N_ENCRYPTION_KEY}
+      - "${REDIS_PORT:-6380}:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - nyra-network
+
+  # Qdrant - Vector database for embeddings
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: nyra-qdrant
+    restart: unless-stopped
     volumes:
-    - n8n_data:/home/node/.n8n
+      - qdrant-data:/qdrant/storage
+    ports:
+      - "${QDRANT_PORT:-6333}:6333"
+      - "6334:6334"
+    environment:
+      - QDRANT_ALLOW_RECOVERY_MODE=true
+    healthcheck:
+      test: ["CMD-SHELL", "timeout 1 bash -c '</dev/tcp/localhost/6333' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - nyra-network
+
+  # FalkorDB - Graph database (alternative to Neo4j, Redis-compatible)
   falkordb:
     image: falkordb/falkordb:latest
+    container_name: nyra-falkordb
+    restart: unless-stopped
+    volumes:
+      - falkordb-data:/data
     ports:
-    - 6379:6379
-  graphiti_mcp:
-    image: getzep/graphiti-mcp:latest
-    ports:
-    - 9100:9100
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - nyra-network
+
+  # =============================================================================
+  # LLM INFRASTRUCTURE
+  # =============================================================================
+
+  # LiteLLM - Unified LLM proxy
+  litellm:
+    image: ghcr.io/berriai/litellm:main-latest
+    container_name: nyra-litellm
+    restart: unless-stopped
     environment:
-    - GRAPH_DB=falkordb
-    - FALKORDB_URL=redis://falkordb:6379
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - LITELLM_MASTER_KEY=${LITELLM_MASTER_KEY:-sk-litellm-master-key}
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/litellm
+    volumes:
+      - litellm-data:/data
+    ports:
+      - "${PORT_LITELLM:-4000}:4000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - nyra-network
+
+  # Nexus Router - Will be installed as npm package in Week 3
+  # nexus:
+  #   image: grafbase/nexus:latest
+  #   container_name: nyra-nexus
+  #   restart: unless-stopped
+  #   environment:
+  #     - NEXUS_JWT_SECRET=${NEXUS_JWT_SECRET:-your-jwt-secret}
+  #     - NEXUS_ADMIN_TOKEN=${NEXUS_ADMIN_TOKEN:-your-admin-token}
+  #   volumes:
+  #     - ./nexus:/etc/nexus
+  #   ports:
+  #     - "${NEXUS_ROUTER_PORT:-7000}:7000"
+  #   command:
+  #     - serve
+  #     - --config
+  #     - /etc/nexus/nexus.yaml
+  #   depends_on:
+  #     - litellm
+  #     - graphiti-mcp
+  #     - mem0-mcp
+  #   networks:
+  #     - nyra-network
+
+  # =============================================================================
+  # WORKFLOW AUTOMATION
+  # =============================================================================
+
+  # n8n - Workflow automation platform
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: nyra-n8n
+    restart: unless-stopped
+    environment:
+      - N8N_BASIC_AUTH_ACTIVE=true
+      - N8N_BASIC_AUTH_USER=${N8N_BASIC_AUTH_USER:-admin}
+      - N8N_BASIC_AUTH_PASSWORD=${N8N_BASIC_AUTH_PASSWORD:-admin}
+      - N8N_ENCRYPTION_KEY=${N8N_ENCRYPTION_KEY:-your-encryption-key}
+      - DB_TYPE=postgresdb
+      - DB_POSTGRESDB_HOST=postgres
+      - DB_POSTGRESDB_PORT=5432
+      - DB_POSTGRESDB_DATABASE=n8n
+      - DB_POSTGRESDB_USER=${POSTGRES_USER:-postgres}
+      - DB_POSTGRESDB_PASSWORD=${POSTGRES_PASSWORD:-postgres}
+      - N8N_HOST=${N8N_HOST:-localhost}
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http
+      - WEBHOOK_URL=http://localhost:5678
+    volumes:
+      - n8n-data:/home/node/.n8n
+    ports:
+      - "${PORT_N8N:-5678}:5678"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - nyra-network
+
+  # Activepieces - Low-code automation for message delivery
+  activepieces:
+    image: activepieces/activepieces:latest
+    container_name: nyra-activepieces
+    restart: unless-stopped
+    environment:
+      - AP_API_KEY=${ACTIVEPIECES_API_KEY:-your-activepieces-key}
+      - AP_ENCRYPTION_KEY=${AP_ENCRYPTION_KEY:-your-encryption-key}
+      - AP_JWT_SECRET=${AP_JWT_SECRET:-your-jwt-secret}
+      - AP_ENVIRONMENT=prod
+      - AP_FRONTEND_URL=http://localhost:3002
+      - AP_POSTGRES_HOST=postgres
+      - AP_POSTGRES_PORT=5432
+      - AP_POSTGRES_DATABASE=activepieces
+      - AP_POSTGRES_USERNAME=${POSTGRES_USER:-postgres}
+      - AP_POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}
+      - AP_REDIS_HOST=redis
+      - AP_REDIS_PORT=6379
+    ports:
+      - "${PORT_ACTIVEPIECES:-3002}:80"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - nyra-network
+
+  # Dify - AI chat interface
+  dify-api:
+    image: langgenius/dify-api:latest
+    container_name: nyra-dify-api
+    restart: unless-stopped
+    environment:
+      - SECRET_KEY=${DIFY_SECRET_KEY:-your-secret-key}
+      - ENCRYPTION_KEY=${DIFY_ENCRYPTION_KEY:-your-encryption-key}
+      - DB_USERNAME=${POSTGRES_USER:-postgres}
+      - DB_PASSWORD=${POSTGRES_PASSWORD:-postgres}
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_DATABASE=dify
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_DB=0
+      - REDIS_USE_SSL=false
+      - VECTOR_STORE=qdrant
+      - QDRANT_URL=http://qdrant:6333
+      - STORAGE_TYPE=local
+      - STORAGE_LOCAL_PATH=/app/storage
+    volumes:
+      - dify-storage:/app/storage
+    ports:
+      - "5001:5001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      qdrant:
+        condition: service_healthy
+    networks:
+      - nyra-network
+
+  dify-web:
+    image: langgenius/dify-web:latest
+    container_name: nyra-dify-web
+    restart: unless-stopped
+    environment:
+      - CONSOLE_API_URL=http://dify-api:5001
+      - APP_API_URL=http://dify-api:5001
+    ports:
+      - "${PORT_DIFY:-3001}:3000"
+    depends_on:
+      - dify-api
+    networks:
+      - nyra-network
+
+  # =============================================================================
+  # CRM
+  # =============================================================================
+
+  # TwentyCRM - Open source CRM
+  twentycrm:
+    image: twentycrm/twenty:latest
+    container_name: nyra-twentycrm
+    restart: unless-stopped
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/twenty
+      - PGHOST=postgres
+      - PGPORT=5432
+      - PGUSER=${POSTGRES_USER:-postgres}
+      - PGPASSWORD=${POSTGRES_PASSWORD:-postgres}
+      - PGDATABASE=twenty
+      - REDIS_URL=redis://redis:6379
+      - ACCESS_TOKEN_SECRET=${TWENTY_ACCESS_TOKEN_SECRET:-your-access-token-secret}
+      - LOGIN_TOKEN_SECRET=${TWENTY_LOGIN_TOKEN_SECRET:-your-login-token-secret}
+      - REFRESH_TOKEN_SECRET=${TWENTY_REFRESH_TOKEN_SECRET:-your-refresh-token-secret}
+      - FILE_TOKEN_SECRET=${TWENTY_FILE_TOKEN_SECRET:-your-file-token-secret}
+      - FRONT_BASE_URL=http://localhost:3010
+      - SERVER_URL=http://localhost:3010
+    ports:
+      - "${PORT_TWENTYCRM:-3010}:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - nyra-network
+
+  # =============================================================================
+  # MEMORY SYSTEMS
+  # =============================================================================
+
+  # Letta - Memory server
   letta:
     image: letta/letta:latest
-    ports:
-    - 8283:8283
+    container_name: nyra-letta
+    restart: unless-stopped
     environment:
-    - LETTA_API_KEY=${LETTA_API_KEY}
+      - LETTA_API_KEY=${LETTA_API_KEY:-your-letta-api-key}
+      - LETTA_SERVER_PASS=${LETTA_SERVER_PASS:-your-server-password}
+      - LETTA_PG_URI=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/letta
     volumes:
-    - letta_pgdata:/var/lib/postgresql/data
+      - letta-data:/var/lib/letta
+    ports:
+      - "${PORT_LETTA:-8283}:8283"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - nyra-network
+
+  # Graphiti MCP - Will be configured in Week 3
+  # graphiti-mcp:
+  #   image: getzep/graphiti-mcp:latest
+  #   container_name: nyra-graphiti-mcp
+  #   restart: unless-stopped
+  #   environment:
+  #     - GRAPH_DB=falkordb
+  #     - FALKORDB_URL=redis://falkordb:6379
+  #     - GRAPHITI_TEMPORAL_TRACKING=${GRAPHITI_TEMPORAL_TRACKING:-true}
+  #     - GRAPHITI_RELATIONSHIP_INFERENCE=${GRAPHITI_RELATIONSHIP_INFERENCE:-true}
+  #   ports:
+  #     - "9100:9100"
+  #   depends_on:
+  #     falkordb:
+  #       condition: service_healthy
+  #   networks:
+  #     - nyra-network
+
+  # Mem0 MCP - Will be configured in Week 3
+  # mem0-mcp:
+  #   build:
+  #     context: ../services/mem0-mcp
+  #     dockerfile: Dockerfile
+  #   container_name: nyra-mem0-mcp
+  #   restart: unless-stopped
+  #   environment:
+  #     - MEM0_API_KEY=${MEM0_API_KEY:-your-mem0-api-key}
+  #     - MEM0_DEFAULT_USER_ID=${MEM0_DEFAULT_USER_ID:-default}
+  #     - MEM0_BASE_URL=${MEM0_BASE_URL:-https://api.mem0.ai}
+  #     - MEM0_VECTOR_STORE=qdrant
+  #     - MEM0_QDRANT_URL=http://qdrant:6333
+  #   volumes:
+  #     - mem0-data:/data
+  #   ports:
+  #     - "${MEM0_PORT:-8081}:8081"
+  #   depends_on:
+  #     qdrant:
+  #       condition: service_healthy
+  #   networks:
+  #     - nyra-network
+
+  # =============================================================================
+  # MONITORING & OBSERVABILITY
+  # =============================================================================
+
+  # Prometheus - Metrics collection
   prometheus:
     image: prom/prometheus:latest
-    ports:
-    - 9090:9090
+    container_name: nyra-prometheus
+    restart: unless-stopped
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=${PROMETHEUS_RETENTION:-15d}'
     volumes:
-    - ./observability/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    ports:
+      - "${PROMETHEUS_PORT:-9090}:9090"
+    networks:
+      - nyra-network
+
+  # Loki - Log aggregation
   loki:
     image: grafana/loki:latest
+    container_name: nyra-loki
+    restart: unless-stopped
+    volumes:
+      - loki-data:/loki
     ports:
-    - 3100:3100
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml
+    networks:
+      - nyra-network
+
+  # Grafana - Visualization dashboard
   grafana:
     image: grafana/grafana:latest
-    ports:
-    - 3000:3000
+    container_name: nyra-grafana
+    restart: unless-stopped
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin}
+      - GF_SERVER_ROOT_URL=http://localhost:3000
     volumes:
-    - grafana_data:/var/lib/grafana
-  mem0_mcp:
+      - grafana-data:/var/lib/grafana
+      - ./monitoring/grafana-datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml:ro
+    ports:
+      - "${GRAFANA_PORT:-3000}:3000"
+    depends_on:
+      - prometheus
+      - loki
+    networks:
+      - nyra-network
+
+  # =============================================================================
+  # BUSINESS SERVICES
+  # =============================================================================
+
+  # Quote Engine - Mortgage quote generation service
+  quote-engine:
     build:
-      context: ../services/mem0-mcp
-    ports:
-    - 8081:8081
+      context: ../services/quote-engine
+      dockerfile: Dockerfile
+    container_name: nyra-quote-engine
+    restart: unless-stopped
     environment:
-    - MEM0_API_KEY=${MEM0_API_KEY}
-    - MEM0_DEFAULT_USER_ID=${MEM0_DEFAULT_USER_ID}
-    - MEM0_BASE_URL=${MEM0_BASE_URL:-https://api.mem0.ai}
+      - QUOTE_ENGINE_PORT=${QUOTE_ENGINE_PORT:-8001}
+      - QUOTE_ENGINE_HOST=0.0.0.0
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/nyra
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
+      - NEXUS_URL=${NEXUS_URL:-http://nexus:7000}
+    ports:
+      - "${QUOTE_ENGINE_PORT:-8001}:8001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:8001/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - nyra-network
+
+  # =============================================================================
+  # MCP SERVERS - MODEL CONTEXT PROTOCOL
+  # =============================================================================
+
+  # VSCode MCP - Code editing operations
+  mcp-vscode:
+    build:
+      context: ../infra/mcp-servers/vscode
+      dockerfile: Dockerfile
+    container_name: nyra-mcp-vscode
+    restart: unless-stopped
+    environment:
+      - WORKSPACE_DIR=/workspace
+      - VSCODE_SERVER_PORT=8081
     volumes:
-    - mem0_data:/data
-  mcp_filesystem:
-    image: mcp/filesystem:latest
+      - ../..:/workspace
     ports:
-    - 8111:8080
+      - "${MCP_VSCODE_PORT:-8081}:8081"
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:8081/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - nyra-network
+
+  # TwentyCRM MCP - CRM operations
+  mcp-twentycrm:
+    build:
+      context: ../infra/mcp-servers/twentycrm
+      dockerfile: Dockerfile
+    container_name: nyra-mcp-twentycrm
+    restart: unless-stopped
     environment:
-    - ALLOWED_DIRECTORIES=/workspace
+      - TWENTY_API_URL=http://twentycrm:3000/graphql
+      - TWENTY_WORKSPACE_ID=default
+      - MCP_SERVER_PORT=8082
+    ports:
+      - "${MCP_TWENTYCRM_PORT:-8082}:8082"
+    depends_on:
+      - twentycrm
+    networks:
+      - nyra-network
+
+  # Dify MCP Proxy - Dify workflow operations
+  mcp-dify:
+    build:
+      context: ../infra/mcp-servers/dify
+      dockerfile: Dockerfile
+    container_name: nyra-mcp-dify
+    restart: unless-stopped
+    environment:
+      - DIFY_API_URL=http://dify-api:5001
+      - DIFY_API_KEY=${DIFY_SECRET_KEY}
+      - MCP_SERVER_PORT=8083
+    ports:
+      - "${MCP_DIFY_PORT:-8083}:8083"
+    depends_on:
+      - dify-api
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8083/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - nyra-network
+
+  # Bitwarden MCP - Secrets management
+  mcp-bitwarden:
+    build:
+      context: ../infra/mcp-servers/bitwarden
+      dockerfile: Dockerfile
+    container_name: nyra-mcp-bitwarden
+    restart: unless-stopped
+    environment:
+      - BITWARDEN_CLIENT_ID=${BITWARDEN_CLIENT_ID}
+      - BITWARDEN_CLIENT_SECRET=${BITWARDEN_CLIENT_SECRET}
+      - BITWARDEN_PASSWORD=${BITWARDEN_PASSWORD}
+      - BW_SESSION=${BW_SESSION}
+      - MCP_SERVER_PORT=8087
+    ports:
+      - "${MCP_BITWARDEN_PORT:-8087}:8087"
+    networks:
+      - nyra-network
+
+  # MCP Filesystem - File access MCP server
+  mcp-filesystem:
+    image: modelcontextprotocol/server-filesystem:latest
+    container_name: nyra-mcp-filesystem
+    restart: unless-stopped
+    environment:
+      - ALLOWED_DIRECTORIES=/workspace
     volumes:
-    - ../..:/workspace
-  mcp_github:
-    image: mcp/github:latest
+      - ../..:/workspace:ro
     ports:
-    - 8112:8080
+      - "${MCP_FILESYSTEM_PORT:-8084}:8080"
+    networks:
+      - nyra-network
+
+  # MCP GitHub - GitHub integration MCP server
+  mcp-github:
+    image: modelcontextprotocol/server-github:latest
+    container_name: nyra-mcp-github
+    restart: unless-stopped
     environment:
-    - GITHUB_TOKEN=${GITHUB_TOKEN}
-  mcp_dockerhub:
-    image: mcp/dockerhub:latest
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
     ports:
-    - 8113:8080
-    environment:
-    - DOCKERHUB_USERNAME=${DOCKERHUB_USERNAME}
-    - DOCKERHUB_TOKEN=${DOCKERHUB_TOKEN}
+      - "${MCP_GITHUB_PORT:-8085}:8080"
+    networks:
+      - nyra-network
+
+# =============================================================================
+# NETWORKS
+# =============================================================================
+
+networks:
+  nyra-network:
+    external: true
+    name: nyra-network
+
+# =============================================================================
+# VOLUMES
+# =============================================================================
+
 volumes:
-  litellm_data: null
-  n8n_data: null
-  grafana_data: null
-  letta_pgdata: null
-  mem0_data: {}
+  postgres-data:
+    driver: local
+  redis-data:
+    driver: local
+  qdrant-data:
+    driver: local
+  falkordb-data:
+    driver: local
+  litellm-data:
+    driver: local
+  n8n-data:
+    driver: local
+  letta-data:
+    driver: local
+  mem0-data:
+    driver: local
+  grafana-data:
+    driver: local
+  prometheus-data:
+    driver: local
+  loki-data:
+    driver: local
+  dify-storage:
+    driver: local
