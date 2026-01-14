@@ -1,0 +1,57 @@
+[
+  {
+    "env": "dev",
+    "path": "/base/network",
+    "file": "env/base.network.env"
+  },
+  {
+    "env": "dev",
+    "path": "/apps/nyra/common",
+    "file": "env/apps.nyra.dev.env"
+  },
+  {
+    "env": "dev",
+    "path": "/clients/cloudflare",
+    "file": "env/clients.cloudflare.env"
+  },
+  {
+    "env": "dev",
+    "path": "/machines/orchestrator-mini",
+    "file": "env/machines.orchestrator-mini.env"
+  },
+  {
+    "env": "dev",
+    "path": "/machines/worker-rtx3060",
+    "file": "env/machines.worker-rtx3060.env"
+  },
+  {
+    "env": "staging",
+    "path": "/base/network",
+    "file": "env/base.network.env"
+  },
+  {
+    "env": "staging",
+    "path": "/apps/nyra/common",
+    "file": "env/apps.nyra.staging.env"
+  },
+  {
+    "env": "staging",
+    "path": "/clients/cloudflare",
+    "file": "env/clients.cloudflare.env"
+  },
+  {
+    "env": "prod",
+    "path": "/base/network",
+    "file": "env/base.network.env"
+  },
+  {
+    "env": "prod",
+    "path": "/apps/nyra/common",
+    "file": "env/apps.nyra.prod.env"
+  },
+  {
+    "env": "prod",
+    "path": "/clients/cloudflare",
+    "file": "env/clients.cloudflare.env"
+  }
+]

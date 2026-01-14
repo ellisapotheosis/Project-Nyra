@@ -1,8 +1,36 @@
 {
-  "provider": "anthropic",
-  "api_key_env": "NYRA_ANTHROPIC_API_KEY",
-  "model_env": "NYRA_ANTHROPIC_MODEL",
-  "default_model": "claude-3-5-sonnet-2024-06",
-  "prompt_search_paths": ["./.claude/prompts"],
-  "workflow_paths": ["./.claude/workflows"]
+  "version": "1.0",
+  "sparc": {
+    "enabled": true,
+    "modes": [
+      "orchestrator",
+      "coder",
+      "researcher",
+      "tdd",
+      "architect",
+      "reviewer",
+      "debugger",
+      "tester",
+      "analyzer",
+      "optimizer",
+      "documenter",
+      "designer",
+      "innovator",
+      "swarm-coordinator",
+      "memory-manager",
+      "batch-executor",
+      "workflow-manager"
+    ]
+  },
+  "swarm": {
+    "enabled": true,
+    "strategies": [
+      "research",
+      "development",
+      "analysis",
+      "testing",
+      "optimization",
+      "maintenance"
+    ]
+  }
 }

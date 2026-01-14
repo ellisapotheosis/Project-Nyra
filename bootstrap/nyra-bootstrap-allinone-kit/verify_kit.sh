@@ -1,0 +1,1 @@
+#!/usr/bin/env bash\nset -euo pipefail\npython3 "$(dirname "${BASH_SOURCE[0]}")/verify_kit.py"\n

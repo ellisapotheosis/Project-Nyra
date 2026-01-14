@@ -1,0 +1,158 @@
+{
+  "dashboard": {
+    "id": null,
+    "uid": "campaign-metrics",
+    "title": "Campaign Engine Metrics",
+    "tags": ["nyra", "campaign", "metrics"],
+    "timezone": "browser",
+    "schemaVersion": 30,
+    "version": 1,
+    "refresh": "30s",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Campaigns Processed",
+        "type": "stat",
+        "gridPos": {"h": 6, "w": 6, "x": 0, "y": 0},
+        "targets": [
+          {
+            "expr": "rate(campaigns_processed_total[5m]) * 60",
+            "legendFormat": "per minute"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "cpm"
+          }
+        }
+      },
+      {
+        "id": 2,
+        "title": "Campaign Queue Size",
+        "type": "stat",
+        "gridPos": {"h": 6, "w": 6, "x": 6, "y": 0},
+        "targets": [
+          {
+            "expr": "campaign_queue_size"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"value": 0, "color": "green"},
+                {"value": 50, "color": "yellow"},
+                {"value": 100, "color": "red"}
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 3,
+        "title": "Campaign Success Rate",
+        "type": "gauge",
+        "gridPos": {"h": 6, "w": 6, "x": 12, "y": 0},
+        "targets": [
+          {
+            "expr": "1 - (rate(campaign_failures_total[5m]) / rate(campaigns_processed_total[5m]))"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percentunit",
+            "min": 0,
+            "max": 1,
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"value": 0, "color": "red"},
+                {"value": 0.9, "color": "yellow"},
+                {"value": 0.95, "color": "green"}
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 4,
+        "title": "Campaign Processing Time",
+        "type": "stat",
+        "gridPos": {"h": 6, "w": 6, "x": 18, "y": 0},
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, rate(campaign_processing_duration_seconds_bucket[5m]))"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "s"
+          }
+        }
+      },
+      {
+        "id": 5,
+        "title": "Campaign Processing Rate",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 6},
+        "targets": [
+          {
+            "expr": "rate(campaigns_processed_total[5m])",
+            "legendFormat": "Processed"
+          },
+          {
+            "expr": "rate(campaign_failures_total[5m])",
+            "legendFormat": "Failed"
+          }
+        ]
+      },
+      {
+        "id": 6,
+        "title": "Campaign Types Distribution",
+        "type": "piechart",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 6},
+        "targets": [
+          {
+            "expr": "sum by (campaign_type) (rate(campaigns_processed_total[5m]))"
+          }
+        ]
+      },
+      {
+        "id": 7,
+        "title": "Campaign Processing Duration Histogram",
+        "type": "heatmap",
+        "gridPos": {"h": 8, "w": 24, "x": 0, "y": 14},
+        "targets": [
+          {
+            "expr": "rate(campaign_processing_duration_seconds_bucket[5m])",
+            "format": "heatmap"
+          }
+        ]
+      },
+      {
+        "id": 8,
+        "title": "Campaign Failures by Type",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 22},
+        "targets": [
+          {
+            "expr": "rate(campaign_failures_total[5m])",
+            "legendFormat": "{{failure_type}}"
+          }
+        ]
+      },
+      {
+        "id": 9,
+        "title": "Campaign Active Workers",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 22},
+        "targets": [
+          {
+            "expr": "campaign_workers_active"
+          }
+        ]
+      }
+    ]
+  }
+}

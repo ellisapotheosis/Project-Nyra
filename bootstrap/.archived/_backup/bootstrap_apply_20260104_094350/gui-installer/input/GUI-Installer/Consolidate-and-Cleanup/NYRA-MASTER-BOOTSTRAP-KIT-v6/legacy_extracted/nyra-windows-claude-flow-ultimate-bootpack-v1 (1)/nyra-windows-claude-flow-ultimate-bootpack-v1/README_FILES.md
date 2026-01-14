@@ -1,0 +1,14 @@
+# Nyra Ultimate Bootpack — Files & Folders
+- `.claude/settings.json` — Hooks & memory (PowerShell). Backups pre-edit, compose validation post-edit.
+- `.claude/skills/nyra-consolidate-bootstraps/SKILL.md` — Find/move all bootstrap scripts into `nyra-infra/tasks/windows` with inventory.
+- `.claude/skills/nyra-consolidate-docker/SKILL.md` — Unify compose/Dockerfiles/configs into `nyra-infra/compose` with validation.
+- `.claude/skills/nyra-consolidate-mcp/SKILL.md` — Merge MCP configs into a single `nyra-infra/mcp/mcp.windows.json`; wire MetaMCP + optional Casistack.
+- `.claude/skills/nyra-git-discipline/SKILL.md` — Commit hygiene and reversible edits.
+- `.claude/skills/nyra-cheap-mode/SKILL.md` — Cost routing policy (Haiku default → Sonnet on demand).
+- `nyra-infra/compose/compose.core.yml` — MetaMCP + LiteLLM + OpenWebUI core stack.
+- `nyra-infra/compose/compose.tools.yml` — Optional tools: LobeChat, Dify, Casistack orchestrator.
+- `nyra-infra/compose/compose.metamcp.yml` — Minimal MetaMCP-only compose.
+- `nyra-infra/router/litellm.config.yaml` — Cost router (Gemini/Claude) with tag routing.
+- `nyra-infra/mcp/mcp.windows.json` — **Single consolidated MCP configuration** (Windows-first).
+- `nyra-infra/mcp/metamcp.config.json` — Upstreams list for MetaMCP to aggregate.
+- `nyra-infra/tasks/windows/nyra-*.ps1` — Backup, Compose validation, envfile injector, MetaMCP doctor, and master bootstrap.

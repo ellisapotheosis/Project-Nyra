@@ -3,7 +3,7 @@
   "initialized": "2025-12-24T20:16:11.095Z",
   "system": {
     "enabled": true,
-    "autoStart": false,
+    "autoStart": true,
     "maxRetries": 3,
     "healthCheckInterval": 30000
   },
@@ -83,24 +83,24 @@
       "fallbackMode": "sequential"
     },
     "claudeCode": {
-      "enabled": false,
+      "enabled": true,
       "autoSpawn": true,
       "coordination": true,
       "sharedContext": true
     },
     "github": {
-      "enabled": false,
-      "autoCommit": false,
+      "enabled": true,
+      "autoCommit": true,
       "branchStrategy": "feature"
     }
   },
   "monitoring": {
-    "enabled": false,
+    "enabled": true,
     "metricsCollection": true,
     "performanceTracking": true,
     "healthChecks": true,
     "alerting": {
-      "enabled": false,
+      "enabled": true,
       "thresholds": {
         "errorRate": 0.1,
         "responseTime": 5000,

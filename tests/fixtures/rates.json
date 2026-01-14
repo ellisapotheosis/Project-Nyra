@@ -1,0 +1,62 @@
+[
+  {
+    "id": "rate-001",
+    "lender": "Bank of America",
+    "loanType": "30-year-fixed",
+    "rate": 6.375,
+    "apr": 6.625,
+    "points": 0,
+    "monthlyPayment": 1872.68,
+    "fees": {
+      "origination": 2000,
+      "appraisal": 500,
+      "title": 1200,
+      "total": 3700
+    },
+    "requirements": {
+      "minCreditScore": 680,
+      "maxLTV": 80,
+      "minDownPayment": 20
+    }
+  },
+  {
+    "id": "rate-002",
+    "lender": "Wells Fargo",
+    "loanType": "30-year-fixed",
+    "rate": 6.25,
+    "apr": 6.5,
+    "points": 1,
+    "monthlyPayment": 1847.15,
+    "fees": {
+      "origination": 1500,
+      "appraisal": 500,
+      "title": 1200,
+      "total": 3200
+    },
+    "requirements": {
+      "minCreditScore": 700,
+      "maxLTV": 80,
+      "minDownPayment": 20
+    }
+  },
+  {
+    "id": "rate-003",
+    "lender": "Quicken Loans",
+    "loanType": "15-year-fixed",
+    "rate": 5.75,
+    "apr": 5.95,
+    "points": 0,
+    "monthlyPayment": 2491.41,
+    "fees": {
+      "origination": 1800,
+      "appraisal": 500,
+      "title": 1200,
+      "total": 3500
+    },
+    "requirements": {
+      "minCreditScore": 720,
+      "maxLTV": 80,
+      "minDownPayment": 20
+    }
+  }
+]

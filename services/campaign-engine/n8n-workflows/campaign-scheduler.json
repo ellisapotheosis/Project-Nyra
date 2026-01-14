@@ -1,0 +1,162 @@
+{
+  "name": "Nyra Campaign Scheduler",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "campaign/schedule",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300],
+      "webhookId": "campaign-scheduler"
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "executionId",
+              "value": "={{$json[\"executionId\"]}}"
+            },
+            {
+              "name": "campaignId",
+              "value": "={{$json[\"campaignId\"]}}"
+            },
+            {
+              "name": "contactId",
+              "value": "={{$json[\"contactId\"]}}"
+            },
+            {
+              "name": "stepId",
+              "value": "={{$json[\"stepId\"]}}"
+            },
+            {
+              "name": "channel",
+              "value": "={{$json[\"channel\"]}}"
+            },
+            {
+              "name": "to",
+              "value": "={{$json[\"to\"]}}"
+            },
+            {
+              "name": "body",
+              "value": "={{$json[\"body\"]}}"
+            },
+            {
+              "name": "subject",
+              "value": "={{$json[\"subject\"]}}"
+            },
+            {
+              "name": "scheduledFor",
+              "value": "={{$json[\"scheduledFor\"]}}"
+            }
+          ]
+        }
+      },
+      "name": "Extract Data",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 2,
+      "position": [470, 300]
+    },
+    {
+      "parameters": {
+        "amount": "={{DateTime.fromISO($json[\"scheduledFor\"]).diff(DateTime.now()).milliseconds}}",
+        "unit": "ms"
+      },
+      "name": "Wait Until Scheduled Time",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [690, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json[\"channel\"]}}",
+              "operation": "equals",
+              "value2": "sms"
+            }
+          ]
+        }
+      },
+      "name": "Route by Channel",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [910, 300]
+    },
+    {
+      "parameters": {
+        "url": "={{$env.TWILIO_API_URL}}/Accounts/={{$env.TWILIO_ACCOUNT_SID}}/Messages.json",
+        "method": "POST",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "twilioApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"From\": \"{{$env.TWILIO_FROM_NUMBER}}\",\n  \"To\": \"{{$json[\"to\"]}}\",\n  \"Body\": \"{{$json[\"body\"]}}\"\n}",
+        "options": {}
+      },
+      "name": "Send SMS",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1150, 200]
+    },
+    {
+      "parameters": {
+        "fromEmail": "={{$env.SMTP_USER}}",
+        "toEmail": "={{$json[\"to\"]}}",
+        "subject": "={{$json[\"subject\"] || 'Nyra Update'}}",
+        "text": "={{$json[\"body\"]}}",
+        "options": {}
+      },
+      "name": "Send Email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [1150, 400]
+    },
+    {
+      "parameters": {
+        "url": "={{$env.CAMPAIGN_ENGINE_URL}}/api/executions/={{$json[\"executionId\"]}}/step-complete",
+        "method": "POST",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"stepId\": \"{{$json[\"stepId\"]}}\",\n  \"status\": \"sent\",\n  \"sentAt\": \"{{DateTime.now().toISO()}}\",\n  \"messageId\": \"{{$json[\"sid\"] || $json[\"messageId\"]}}\"\n}",
+        "options": {}
+      },
+      "name": "Update Campaign Engine",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1370, 300]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [[{ "node": "Extract Data", "type": "main", "index": 0 }]]
+    },
+    "Extract Data": {
+      "main": [[{ "node": "Wait Until Scheduled Time", "type": "main", "index": 0 }]]
+    },
+    "Wait Until Scheduled Time": {
+      "main": [[{ "node": "Route by Channel", "type": "main", "index": 0 }]]
+    },
+    "Route by Channel": {
+      "main": [
+        [{ "node": "Send SMS", "type": "main", "index": 0 }],
+        [{ "node": "Send Email", "type": "main", "index": 0 }]
+      ]
+    },
+    "Send SMS": {
+      "main": [[{ "node": "Update Campaign Engine", "type": "main", "index": 0 }]]
+    },
+    "Send Email": {
+      "main": [[{ "node": "Update Campaign Engine", "type": "main", "index": 0 }]]
+    }
+  },
+  "active": false,
+  "settings": {},
+  "versionId": "1"
+}

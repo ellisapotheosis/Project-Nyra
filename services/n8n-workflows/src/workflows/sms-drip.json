@@ -1,0 +1,282 @@
+{
+  "name": "Mortgage SMS Drip Campaign",
+  "nodes": [
+    {
+      "parameters": {},
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300],
+      "webhookId": "mortgage-sms-drip",
+      "id": "webhook-trigger"
+    },
+    {
+      "parameters": {
+        "functionCode": "const lead = items[0].json;\nconst currentDay = lead.dayInSequence || 0;\n\nreturn [\n  {\n    json: {\n      ...lead,\n      dayInSequence: currentDay,\n      shouldSendSMS: currentDay <= 21 && lead.smsOptIn === true\n    }\n  }\n];"
+      },
+      "name": "Check SMS Eligibility",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [450, 300],
+      "id": "check-eligibility"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{$json.shouldSendSMS}}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "name": "SMS Opt-In Check",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [650, 300],
+      "id": "opt-in-check"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{$json.dayInSequence}}",
+              "operation": "equal",
+              "value2": 0
+            }
+          ]
+        }
+      },
+      "name": "Day 0 - Welcome SMS",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [850, 200],
+      "id": "day-0-sms"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{$json.dayInSequence}}",
+              "operation": "equal",
+              "value2": 2
+            }
+          ]
+        }
+      },
+      "name": "Day 2 - Rate Alert",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [850, 350],
+      "id": "day-2-sms"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{$json.dayInSequence}}",
+              "operation": "equal",
+              "value2": 5
+            }
+          ]
+        }
+      },
+      "name": "Day 5 - Quick Tip",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [850, 500],
+      "id": "day-5-sms"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{$json.dayInSequence}}",
+              "operation": "equal",
+              "value2": 10
+            }
+          ]
+        }
+      },
+      "name": "Day 10 - Check-In",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [850, 650],
+      "id": "day-10-sms"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{$json.dayInSequence}}",
+              "operation": "equal",
+              "value2": 21
+            }
+          ]
+        }
+      },
+      "name": "Day 21 - Final Nudge",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [850, 800],
+      "id": "day-21-sms"
+    },
+    {
+      "parameters": {
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "twilioApi",
+        "fromPhoneNumber": "+15551234567",
+        "toPhoneNumber": "={{$json.phoneNumber}}",
+        "message": "Welcome {{$json.firstName}}! 🏡 We're excited to help with your mortgage. Check your email for next steps or reply HELP anytime. - Your Mortgage Team"
+      },
+      "name": "Send Welcome SMS",
+      "type": "n8n-nodes-base.twilio",
+      "typeVersion": 1,
+      "position": [1050, 200],
+      "id": "send-welcome-sms"
+    },
+    {
+      "parameters": {
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "twilioApi",
+        "fromPhoneNumber": "+15551234567",
+        "toPhoneNumber": "={{$json.phoneNumber}}",
+        "message": "📊 {{$json.firstName}}, rates just updated! Current 30-yr fixed: {{$json.currentRate}}%. See if you qualify: {{$json.portalUrl}}/rates"
+      },
+      "name": "Send Rate Alert SMS",
+      "type": "n8n-nodes-base.twilio",
+      "typeVersion": 1,
+      "position": [1050, 350],
+      "id": "send-rate-sms"
+    },
+    {
+      "parameters": {
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "twilioApi",
+        "fromPhoneNumber": "+15551234567",
+        "toPhoneNumber": "={{$json.phoneNumber}}",
+        "message": "💡 Quick tip: Getting pre-approved takes ~10 minutes and strengthens your offer. Ready? {{$json.portalUrl}}/pre-approval Reply STOP to unsubscribe."
+      },
+      "name": "Send Tip SMS",
+      "type": "n8n-nodes-base.twilio",
+      "typeVersion": 1,
+      "position": [1050, 500],
+      "id": "send-tip-sms"
+    },
+    {
+      "parameters": {
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "twilioApi",
+        "fromPhoneNumber": "+15551234567",
+        "toPhoneNumber": "={{$json.phoneNumber}}",
+        "message": "Hi {{$json.firstName}}! 👋 Just checking in. Have questions about your mortgage options? Call us at (555) 123-4567 or reply here."
+      },
+      "name": "Send Check-In SMS",
+      "type": "n8n-nodes-base.twilio",
+      "typeVersion": 1,
+      "position": [1050, 650],
+      "id": "send-checkin-sms"
+    },
+    {
+      "parameters": {
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "twilioApi",
+        "fromPhoneNumber": "+15551234567",
+        "toPhoneNumber": "={{$json.phoneNumber}}",
+        "message": "🏠 {{$json.firstName}}, you're closer to homeownership than you think! Let's complete your application. We're here to help: {{$json.portalUrl}}"
+      },
+      "name": "Send Final SMS",
+      "type": "n8n-nodes-base.twilio",
+      "typeVersion": 1,
+      "position": [1050, 800],
+      "id": "send-final-sms"
+    },
+    {
+      "parameters": {
+        "functionCode": "const lead = items[0].json;\nreturn [\n  {\n    json: {\n      leadId: lead.leadId,\n      phoneNumber: lead.phoneNumber,\n      dayInSequence: lead.dayInSequence + 1,\n      smsSent: true,\n      timestamp: new Date().toISOString()\n    }\n  }\n];"
+      },
+      "name": "Update SMS Status",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [1250, 500],
+      "id": "update-sms-status"
+    },
+    {
+      "parameters": {
+        "url": "={{$env.API_BASE_URL}}/api/leads/{{$json.leadId}}/sms-status",
+        "method": "PATCH",
+        "jsonParameters": true,
+        "options": {},
+        "bodyParametersJson": "={{ JSON.stringify($json) }}"
+      },
+      "name": "Update CRM",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [1450, 500],
+      "id": "update-crm-sms"
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [[{ "node": "Check SMS Eligibility", "type": "main", "index": 0 }]]
+    },
+    "Check SMS Eligibility": {
+      "main": [[{ "node": "SMS Opt-In Check", "type": "main", "index": 0 }]]
+    },
+    "SMS Opt-In Check": {
+      "main": [
+        [
+          { "node": "Day 0 - Welcome SMS", "type": "main", "index": 0 },
+          { "node": "Day 2 - Rate Alert", "type": "main", "index": 0 },
+          { "node": "Day 5 - Quick Tip", "type": "main", "index": 0 },
+          { "node": "Day 10 - Check-In", "type": "main", "index": 0 },
+          { "node": "Day 21 - Final Nudge", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Day 0 - Welcome SMS": {
+      "main": [[{ "node": "Send Welcome SMS", "type": "main", "index": 0 }]]
+    },
+    "Day 2 - Rate Alert": {
+      "main": [[{ "node": "Send Rate Alert SMS", "type": "main", "index": 0 }]]
+    },
+    "Day 5 - Quick Tip": {
+      "main": [[{ "node": "Send Tip SMS", "type": "main", "index": 0 }]]
+    },
+    "Day 10 - Check-In": {
+      "main": [[{ "node": "Send Check-In SMS", "type": "main", "index": 0 }]]
+    },
+    "Day 21 - Final Nudge": {
+      "main": [[{ "node": "Send Final SMS", "type": "main", "index": 0 }]]
+    },
+    "Send Welcome SMS": {
+      "main": [[{ "node": "Update SMS Status", "type": "main", "index": 0 }]]
+    },
+    "Send Rate Alert SMS": {
+      "main": [[{ "node": "Update SMS Status", "type": "main", "index": 0 }]]
+    },
+    "Send Tip SMS": {
+      "main": [[{ "node": "Update SMS Status", "type": "main", "index": 0 }]]
+    },
+    "Send Check-In SMS": {
+      "main": [[{ "node": "Update SMS Status", "type": "main", "index": 0 }]]
+    },
+    "Send Final SMS": {
+      "main": [[{ "node": "Update SMS Status", "type": "main", "index": 0 }]]
+    },
+    "Update SMS Status": {
+      "main": [[{ "node": "Update CRM", "type": "main", "index": 0 }]]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": ["mortgage", "sms", "drip-campaign", "twilio"]
+}

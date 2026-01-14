@@ -1,8 +1,0 @@
-version: 1
-workspaces:
-  - name: nyra-local
-    env:
-      LLM_BASE_URL: "http://localhost:4000"
-      MCP_META_URL: "http://localhost:7400"
-    mcp_config: "./mcp.json"
-    router_rules: "./meta-mcp.router.json"

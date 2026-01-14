@@ -1,10 +1,12 @@
 [
   {
-    "id": "cmd-hooks-1767350642865",
-    "type": "hooks",
-    "success": true,
-    "duration": 3145.1277999999998,
-    "timestamp": 1767350646011,
-    "metadata": {}
+    "id": "cmd-init-1767225575350",
+    "type": "init",
+    "success": false,
+    "duration": 0.519800000000032,
+    "timestamp": 1767225575350,
+    "metadata": {
+      "error": "cwd is not defined"
+    }
   }
 ]

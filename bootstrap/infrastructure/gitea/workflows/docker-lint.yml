@@ -1,0 +1,107 @@
+name: Docker Lint
+
+on:
+  push:
+    paths:
+      - '**/Dockerfile'
+      - '**/docker-compose*.yml'
+      - '**/docker-compose*.yaml'
+  pull_request:
+    paths:
+      - '**/Dockerfile'
+      - '**/docker-compose*.yml'
+      - '**/docker-compose*.yaml'
+
+jobs:
+  hadolint:
+    name: Lint Dockerfiles
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Run hadolint
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          recursive: true
+          ignore: DL3008,DL3015
+          failure-threshold: warning
+
+  docker-compose-validate:
+    name: Validate Docker Compose
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install docker-compose
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y docker-compose
+
+      - name: Run docker-compose lint
+        run: |
+          chmod +x bootstrap/ci/docker-compose-lint.sh
+          ./bootstrap/ci/docker-compose-lint.sh
+
+  docker-security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service:
+          - campaign-engine
+          - quote-engine
+          - quote-api
+          - nyra-orchestrator
+          - mem0-mcp
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Build image
+        run: |
+          cd bootstrap/services/${{ matrix.service }}
+          docker build -t nyra/${{ matrix.service }}:scan .
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: 'nyra/${{ matrix.service }}:scan'
+          format: 'sarif'
+          output: 'trivy-results-${{ matrix.service }}.sarif'
+          severity: 'CRITICAL,HIGH'
+
+      - name: Upload Trivy results
+        uses: actions/upload-artifact@v3
+        with:
+          name: trivy-results-${{ matrix.service }}
+          path: 'trivy-results-${{ matrix.service }}.sarif'
+
+  dockerfile-best-practices:
+    name: Check Best Practices
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Check for best practices
+        run: |
+          echo "Checking Dockerfile best practices..."
+
+          # Check for LABEL maintainer
+          if ! find . -name "Dockerfile" -exec grep -l "LABEL maintainer" {} \;; then
+            echo "⚠️  WARNING: Some Dockerfiles missing maintainer label"
+          fi
+
+          # Check for multi-stage builds
+          echo "Checking for multi-stage builds..."
+          find . -name "Dockerfile" -exec sh -c 'if grep -c "^FROM" "$1" | grep -q "^1$"; then echo "⚠️  Single-stage build: $1"; fi' _ {} \;
+
+          # Check for USER directive
+          echo "Checking for USER directive..."
+          find . -name "Dockerfile" -exec sh -c 'if ! grep -q "^USER" "$1"; then echo "⚠️  No USER directive: $1"; fi' _ {} \;
+
+          # Check for HEALTHCHECK
+          echo "Checking for HEALTHCHECK..."
+          find . -name "Dockerfile" -exec sh -c 'if ! grep -q "^HEALTHCHECK" "$1"; then echo "ℹ️  No HEALTHCHECK: $1"; fi' _ {} \;

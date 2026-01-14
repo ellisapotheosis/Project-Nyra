@@ -1,2 +1,0 @@
-# graphiti
-Memory component.

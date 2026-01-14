@@ -1,0 +1,51 @@
+{
+  "name": "@nyra/twentycrm-integration",
+  "version": "1.0.0",
+  "description": "TwentyCRM Integration Service with bidirectional sync, conflict resolution, and health monitoring",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "lint": "eslint src/**/*.ts",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "dev": "ts-node src/index.ts"
+  },
+  "keywords": [
+    "crm",
+    "twentycrm",
+    "integration",
+    "sync",
+    "webhook",
+    "bidirectional-sync"
+  ],
+  "author": "Nyra Team",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.6.0",
+    "express": "^4.18.2",
+    "dotenv": "^16.3.1",
+    "winston": "^3.11.0",
+    "lodash": "^4.17.21",
+    "date-fns": "^2.30.0",
+    "uuid": "^9.0.1",
+    "joi": "^17.11.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "@types/express": "^4.17.21",
+    "@types/jest": "^29.5.0",
+    "@types/lodash": "^4.14.202",
+    "@types/uuid": "^9.0.7",
+    "@typescript-eslint/eslint-plugin": "^6.13.0",
+    "@typescript-eslint/parser": "^6.13.0",
+    "eslint": "^8.54.0",
+    "jest": "^29.7.0",
+    "prettier": "^3.1.0",
+    "ts-jest": "^29.1.0",
+    "ts-node": "^10.9.0",
+    "typescript": "^5.3.0"
+  }
+}

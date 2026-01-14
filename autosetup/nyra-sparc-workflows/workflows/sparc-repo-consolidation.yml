@@ -1,0 +1,91 @@
+name: "sparc-repo-consolidation"
+description: >
+  SPARC workflow to have Claude Flow deeply analyze the Project NYRA repo
+  (and satellites) and produce a single, coherent MCP + Docker + config
+  layout with deduplicated servers, metamcp channels, and env wiring.
+
+inputs:
+  repo_root:
+    description: "Path to the main project repo (e.g., ./project-nyra)"
+    required: true
+
+phases:
+  - name: specification
+    cli:
+      command: npx
+      args:
+        - claude-flow
+        - sparc
+        - run
+        - specification
+        - >
+          "Given the repo at ${repo_root}, enumerate all MCP servers, docker files,
+          metamcp configs, CI workflows, and env files. Define a target state:
+          one canonical MCP servers tree, one docker-compose stack, one metamcp
+          channels config, and one env variable contract suitable for Infisical."
+
+    artifacts:
+      - path: docs/sparc/repo-consolidation-spec.md
+        from: stdout
+
+  - name: architecture
+    depends_on: [specification]
+    cli:
+      command: npx
+      args:
+        - claude-flow
+        - sparc
+        - run
+        - architecture
+        - >
+          "Design a consolidated layout under Tools/MCP-Servers, Docker/,
+          .claude-flow/, and .github/workflows/ that removes duplication and
+          expresses everything via env-driven configuration. Include a migration
+          plan and mapping from old paths to new paths."
+
+    artifacts:
+      - path: docs/sparc/repo-consolidation-architecture.yaml
+        from: stdout
+
+  - name: refinement
+    depends_on: [architecture]
+    cli:
+      command: npx
+      args:
+        - claude-flow
+        - sparc
+        - run
+        - refinement
+        - >
+          "Apply the consolidation plan: move/rename MCP servers, unify Dockerfiles,
+          generate a master docker-compose, normalize metamcp configs, and generate
+          Infisical-ready .env templates. Use TDD where possible for critical
+          MCP servers and bootstrap scripts."
+
+    artifacts:
+      - path: docs/sparc/repo-consolidation-refinement-report.md
+        from: stdout
+
+  - name: completion
+    depends_on: [refinement]
+    cli:
+      command: npx
+      args:
+        - claude-flow
+        - sparc
+        - run
+        - completion
+        - >
+          "Verify the consolidated repo builds and boots: run docker-compose
+          up, MCP health checks, and a smoke-test Claude Flow workflow. Emit a
+          final migration report listing all changes and deprecated paths."
+
+    artifacts:
+      - path: docs/sparc/repo-consolidation-completion-checklist.md
+        from: stdout
+
+defaults:
+  env:
+    INFISICAL_TOKEN: "${INFISICAL_TOKEN}"
+    INFISICAL_PROJECT_ID: "${INFISICAL_PROJECT_ID}"
+    INFISICAL_ENV: "prod"

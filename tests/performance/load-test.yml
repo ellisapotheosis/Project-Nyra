@@ -1,0 +1,158 @@
+# Artillery Load Test Configuration
+# Performance testing for Project Nyra APIs
+
+config:
+  target: "http://localhost:3000"
+  phases:
+    # Warm up phase
+    - duration: 60
+      arrivalRate: 5
+      name: "Warm up"
+
+    # Ramp up phase
+    - duration: 120
+      arrivalRate: 5
+      rampTo: 50
+      name: "Ramp up load"
+
+    # Sustained load phase
+    - duration: 300
+      arrivalRate: 50
+      name: "Sustained load"
+
+    # Spike phase
+    - duration: 60
+      arrivalRate: 100
+      name: "Spike load"
+
+    # Cool down
+    - duration: 60
+      arrivalRate: 10
+      name: "Cool down"
+
+  processor: "./load-test-processor.js"
+
+  variables:
+    testUserId: "test-user-123"
+    testEmail: "load-test@example.com"
+
+  defaults:
+    headers:
+      Content-Type: "application/json"
+      User-Agent: "Artillery Load Test"
+
+scenarios:
+  # Health check scenario
+  - name: "Health Check"
+    weight: 10
+    flow:
+      - get:
+          url: "/health"
+          expect:
+            - statusCode: 200
+            - hasProperty: "status"
+
+  # Lead creation scenario
+  - name: "Create Lead"
+    weight: 30
+    flow:
+      - post:
+          url: "/api/leads"
+          json:
+            name: "{{ $randomString() }}"
+            email: "{{ $randomString() }}@example.com"
+            phone: "555-{{ $randomNumber(1000, 9999) }}"
+            loanAmount: 300000
+            loanType: "purchase"
+          capture:
+            - json: "$.id"
+              as: "leadId"
+          expect:
+            - statusCode: 201
+            - hasProperty: "id"
+
+  # List leads scenario
+  - name: "List Leads"
+    weight: 40
+    flow:
+      - get:
+          url: "/api/leads?page=1&pageSize=10"
+          expect:
+            - statusCode: 200
+            - hasProperty: "data"
+            - hasProperty: "pagination"
+
+  # Get lead details scenario
+  - name: "Get Lead Details"
+    weight: 15
+    flow:
+      - post:
+          url: "/api/leads"
+          json:
+            name: "Test Lead"
+            email: "{{ $randomString() }}@example.com"
+            phone: "555-0100"
+            loanAmount: 300000
+          capture:
+            - json: "$.id"
+              as: "leadId"
+
+      - get:
+          url: "/api/leads/{{ leadId }}"
+          expect:
+            - statusCode: 200
+            - hasProperty: "id"
+
+  # Chat completion scenario
+  - name: "LLM Chat Completion"
+    weight: 5
+    flow:
+      - post:
+          url: "/v1/chat/completions"
+          json:
+            model: "gpt-4"
+            messages:
+              - role: "user"
+                content: "What is a mortgage?"
+            max_tokens: 100
+          expect:
+            - statusCode: 200
+            - hasProperty: "choices"
+
+  # MCP tool call scenario
+  - name: "MCP Tool Call"
+    weight: 10
+    flow:
+      - post:
+          url: "/mcp/tools/call"
+          json:
+            server: "filesystem"
+            tool: "read_file"
+            arguments:
+              path: "/test/file.txt"
+          expect:
+            - statusCode: [200, 404]
+
+  # Rate comparison scenario
+  - name: "Rate Comparison"
+    weight: 20
+    flow:
+      - post:
+          url: "/api/rates/compare"
+          json:
+            loanAmount: 300000
+            loanType: "30-year-fixed"
+            creditScore: 720
+            downPayment: 60000
+          expect:
+            - statusCode: 200
+            - hasProperty: "rates"
+
+# Performance thresholds
+expect:
+  - http.response_time.p95: 500
+  - http.response_time.p99: 1000
+  - http.response_time.median: 200
+  - http.request_rate: 50
+  - http.codes.200: 95%
+  - http.codes.201: 90%

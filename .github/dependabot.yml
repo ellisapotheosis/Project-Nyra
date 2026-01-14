@@ -1,69 +1,52 @@
 version: 2
 updates:
-  # ── Python ──────────────────────────────
-  - package-ecosystem: "pip"
-    directory: "/"  # Location of requirements.txt
+  # Enable version updates for npm dependencies in the memory module
+  - package-ecosystem: "npm"
+    directory: "/memory"
     schedule:
       interval: "weekly"
-    open-pull-requests-limit: 5
-    rebase-strategy: "auto"
-    ignore:
-      - dependency-name: "torch"  # Example: ignore large deps you handle manually
-        update-types: ["version-update:semver-major"]
-      - dependency-name: "tensorflow"
-
-  # ── GitHub Actions ──────────────────────
-  - package-ecosystem: "github-actions"
-    directory: "/"
-    schedule:
-      interval: "monthly"
-    open-pull-requests-limit: 3
-
-  # ── Optional: Docker (add when ready) ──
-  # - package-ecosystem: "docker"
-  #   directory: "/" # Path to Dockerfile
-  #   schedule:
-  #     interval: "monthly"
-
-  # ── Optional: npm (if you add frontend/tools) ──
-  # - package-ecosystem: "npm"
-  #   directory: "/"
-  #   schedule:
-  #     interval: "weekly"
-version: 2
-updates:
-  # ── 🔐 SECURITY UPDATES ────────────────
-  - package-ecosystem: "pip"
-    directory: "/"
-    schedule:
-      interval: "daily"
-    allow:
-      - dependency-type: "direct"
-    insecure-external-code-execution: "deny"
-    commit-message:
-      prefix: "[SECURITY]"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 10
+    reviewers:
+      - "ruvnet"
     labels:
       - "dependencies"
-      - "security"
-    ignore:
-      - dependency-name: "tensorflow"
-        update-types: ["version-update:semver-major"]
+      - "npm"
+    commit-message:
+      prefix: "chore"
+      include: "scope"
 
+  # Enable version updates for GitHub Actions
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: "daily"
-    commit-message:
-      prefix: "[SECURITY]"
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "ruvnet"
     labels:
-      - "ci"
-      - "security"
+      - "dependencies"
+      - "github-actions"
+    commit-message:
+      prefix: "chore"
+      include: "scope"
 
-  # ── ♻️ REGULAR VERSION UPDATES ─────────
-  - package-ecosystem: "pip"
+  # Enable version updates for Deno dependencies
+  - package-ecosystem: "gomod"
     directory: "/"
     schedule:
       interval: "weekly"
+      day: "monday"
+      time: "09:00"
     open-pull-requests-limit: 5
-    rebase-strategy: "auto"
+    reviewers:
+      - "ruvnet"
+    labels:
+      - "dependencies"
+      - "deno"
     commit-message:
+      prefix: "chore"
+      include: "scope"

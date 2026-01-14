@@ -1,0 +1,98 @@
+version: "3.9"
+services:
+  core:
+    build:
+      context: ..
+      dockerfile: infra/Dockerfile
+    profiles: ["base"]
+    environment:
+      - LITELLM_MASTER_KEY=${LITELLM_MASTER_KEY}
+    ports: ["8000:8000"]
+    networks: ["nyra"]
+
+  litellm:
+    image: ghcr.io/berriai/litellm:latest
+    profiles: ["base"]
+    command: ["--config", "/config/config.yaml"]
+    ports: ["${LITELLM_PORT:-4000}:4000"]
+    volumes:
+      - ../gateways/litellm/config.yaml:/config/config.yaml:ro
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+    networks: ["nyra"]
+
+  qdrant:
+    image: qdrant/qdrant:latest
+    profiles: ["rag","base"]
+    ports: ["6333:6333"]
+    volumes:
+      - ../volumes/qdrant:/qdrant/storage
+    networks: ["nyra"]
+
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:latest
+    profiles: ["ui"]
+    ports: ["3000:8080"]
+    environment:
+      - OLLAMA_BASE_URL=http://ollama:11434
+    depends_on: [ollama]
+    networks: ["nyra"]
+
+  ollama:
+    image: ollama/ollama:latest
+    profiles: ["ui"]
+    ports: ["11434:11434"]
+    volumes:
+      - ../volumes/ollama:/root/.ollama
+    networks: ["nyra"]
+
+  lobechat:
+    image: ghcr.io/lobehub/lobe-chat:latest
+    profiles: ["ui"]
+    ports: ["3210:3210"]
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    networks: ["nyra"]
+
+  prometheus:
+    image: prom/prometheus:latest
+    profiles: ["obs"]
+    ports: ["9090:9090"]
+    volumes:
+      - ../observability/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    networks: ["nyra"]
+
+  loki:
+    image: grafana/loki:2.9.6
+    profiles: ["obs"]
+    command: ["-config.file=/etc/loki/config/loki-config.yml"]
+    ports: ["3100:3100"]
+    volumes:
+      - ../observability/loki/loki-config.yml:/etc/loki/config/loki-config.yml:ro
+      - ../volumes/loki:/loki
+    networks: ["nyra"]
+
+  grafana:
+    image: grafana/grafana:latest
+    profiles: ["obs"]
+    ports: ["3001:3000"]
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GF_SECURITY_ADMIN_USER}
+      - GF_SECURITY_ADMIN_PASSWORD=${GF_SECURITY_ADMIN_PASSWORD}
+    volumes:
+      - ../observability/grafana/provisioning:/etc/grafana/provisioning:ro
+    networks: ["nyra"]
+
+  # mcpo:
+  #   image: ghcr.io/open-webui/mcpo:latest
+  #   profiles: ["mcp"]
+  #   ports: ["8050:8050"]
+  #   volumes:
+  #     - ../mcp/mcpo/config.example.yaml:/app/config.yaml:ro
+  #   networks: ["nyra"]
+
+networks:
+  nyra:
+    name: nyra

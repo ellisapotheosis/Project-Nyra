@@ -1,0 +1,72 @@
+{
+  "name": "nyra-bootstrap-gui",
+  "version": "1.0.0",
+  "description": "Project Nyra 4-PC Bootstrap Wizard - Complete setup automation for distributed AI mortgage platform",
+  "main": "dist/main.js",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:electron\" \"npm run dev:react\"",
+    "dev:electron": "tsc -p tsconfig.electron.json && electron .",
+    "dev:react": "vite",
+    "build": "npm run build:react && npm run build:electron",
+    "build:react": "vite build",
+    "build:electron": "tsc -p tsconfig.electron.json",
+    "package": "electron-builder",
+    "package:win": "electron-builder --win",
+    "package:mac": "electron-builder --mac",
+    "package:all": "electron-builder -mwl"
+  },
+  "keywords": [
+    "nyra",
+    "bootstrap",
+    "mortgage",
+    "ai",
+    "cluster",
+    "setup"
+  ],
+  "author": "Project Nyra",
+  "license": "MIT",
+  "dependencies": {
+    "electron-store": "^8.1.0",
+    "axios": "^1.6.5",
+    "node-fetch": "^3.3.2",
+    "sudo-prompt": "^9.2.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.5",
+    "@types/react": "^18.2.48",
+    "@types/react-dom": "^18.2.18",
+    "@vitejs/plugin-react": "^4.2.1",
+    "concurrently": "^8.2.2",
+    "electron": "^28.1.3",
+    "electron-builder": "^24.9.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "tailwindcss": "^3.4.1",
+    "typescript": "^5.3.3",
+    "vite": "^5.0.11"
+  },
+  "build": {
+    "appId": "com.projectnyra.bootstrap",
+    "productName": "Nyra Bootstrap",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "assets/**/*"
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "assets/icon.ico"
+    },
+    "mac": {
+      "target": "dmg",
+      "icon": "assets/icon.icns",
+      "category": "public.app-category.developer-tools"
+    },
+    "linux": {
+      "target": "AppImage",
+      "category": "Development"
+    }
+  }
+}

@@ -1,0 +1,63 @@
+# Prometheus Configuration for GPU Worker
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: 'worker'
+    worker_id: '${WORKER_ID:-1}'
+
+# Scrape configurations
+scrape_configs:
+  # Prometheus itself
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # NVIDIA GPU Exporter
+  - job_name: 'nvidia-gpu'
+    scrape_interval: 10s
+    static_configs:
+      - targets: ['nvidia-exporter:9835']
+        labels:
+          service: 'gpu'
+
+  # Node Exporter (system metrics)
+  - job_name: 'node'
+    static_configs:
+      - targets: ['node-exporter:9100']
+        labels:
+          service: 'node'
+
+  # Ollama
+  - job_name: 'ollama'
+    scrape_interval: 30s
+    static_configs:
+      - targets: ['ollama:11434']
+        labels:
+          service: 'ollama'
+    metrics_path: /metrics
+
+  # vLLM (if enabled)
+  - job_name: 'vllm'
+    scrape_interval: 30s
+    static_configs:
+      - targets: ['vllm:8000']
+        labels:
+          service: 'vllm'
+    metrics_path: /metrics
+
+  # Redis
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['redis:6379']
+        labels:
+          service: 'redis'
+
+# Push metrics to orchestrator Prometheus
+remote_write:
+  - url: http://${ORCHESTRATOR_IP:-orchestrator-mini}:9090/api/v1/write
+    queue_config:
+      max_samples_per_send: 10000
+      batch_send_deadline: 5s
+      max_shards: 10

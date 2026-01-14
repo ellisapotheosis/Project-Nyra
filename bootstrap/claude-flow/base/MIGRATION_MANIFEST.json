@@ -1,8 +1,0 @@
-{
-  "MigrationDate": "2025-12-22 14:46:52",
-  "TargetPath": "bootstrap\\claude-flow\\base",
-  "Category": "Claude Flow Integration",
-  "RobocopyExitCode": 1,
-  "Description": "Complete Claude Flow integration, Windows-optimized",
-  "SourcePackage": "nyra-windows-claude-flow-ultimate-bootpack-v1"
-}

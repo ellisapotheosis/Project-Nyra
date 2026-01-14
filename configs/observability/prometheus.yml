@@ -1,0 +1,69 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: 'nyra-production'
+    environment: 'production'
+
+scrape_configs:
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  - job_name: 'nexus-router'
+    static_configs:
+      - targets: ['nexus:6000']
+    metrics_path: '/metrics'
+
+  - job_name: 'litellm'
+    static_configs:
+      - targets: ['litellm:4000']
+    metrics_path: '/metrics'
+
+  - job_name: 'quote-engine'
+    static_configs:
+      - targets: ['quote_engine:8001']
+    metrics_path: '/metrics'
+
+  - job_name: 'campaign-engine'
+    static_configs:
+      - targets: ['campaign_engine:8002']
+    metrics_path: '/metrics'
+
+  - job_name: 'nyra-orchestrator'
+    static_configs:
+      - targets: ['nyra_orchestrator:8010']
+    metrics_path: '/metrics'
+
+  - job_name: 'mem0-rest'
+    static_configs:
+      - targets: ['mem0:4321']
+    metrics_path: '/metrics'
+
+  - job_name: 'letta'
+    static_configs:
+      - targets: ['letta:8283']
+
+  - job_name: 'twenty-crm'
+    static_configs:
+      - targets: ['twenty_crm:3000']
+
+  - job_name: 'n8n'
+    static_configs:
+      - targets: ['n8n:5678']
+
+  - job_name: 'dify-api'
+    static_configs:
+      - targets: ['dify_api:5001']
+
+  - job_name: 'grafana'
+    static_configs:
+      - targets: ['grafana:3000']
+
+  - job_name: 'neo4j'
+    static_configs:
+      - targets: ['neo4j:7474']
+
+  - job_name: 'postgres'
+    static_configs:
+      - targets: ['letta_postgres:5432', 'twenty_postgres:5432', 'dify_postgres:5432']
