@@ -552,6 +552,143 @@ Storage:
   - PersistentVolumeClaims: Application data
 ```
 
+### 4-PC Windows Distributed Architecture
+
+**Current Production Setup**: Distributed deployment across 4 Windows PCs with hybrid Windows/WSL2 environment.
+
+See detailed configuration: [4PC-DISTRIBUTED-ARCHITECTURE.md](./4PC-DISTRIBUTED-ARCHITECTURE.md)
+
+#### Architecture Overview
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  Windows Orchestrator PC (Mini PC)                          │
+│  ├── Docker Desktop + WSL2 (Ubuntu 24.04)                  │
+│  ├── Orchestration Services (Claude Flow, Archon OS)       │
+│  ├── MCP Servers (claude-flow, ruv-swarm, agentdb, etc.)  │
+│  ├── Message Queue (RabbitMQ)                              │
+│  ├── Databases (PostgreSQL, Redis, Qdrant, FalkorDB)      │
+│  └── Magic Packet Wake-on-LAN for worker management        │
+└─────────────────────────────────────────────────────────────┘
+                          │
+                          ├── Cloudflared Tunnels (Secure Communication)
+                          │
+    ┌─────────────────────┼─────────────────────┐
+    │                     │                     │
+┌───▼────┐           ┌────▼───┐           ┌────▼───┐
+│Worker 1│           │Worker 2│           │Worker 3│
+│GPU PC  │           │GPU PC  │           │GPU PC  │
+│RTX 4090│           │RTX 4090│           │RTX 4090│
+│24GB    │           │24GB    │           │24GB    │
+└────────┘           └────────┘           └────────┘
+```
+
+#### Key Features
+
+- **Orchestrator PC** (Windows 11 Pro + WSL2):
+  - Runs Docker Desktop with WSL2 backend for Linux container compatibility
+  - Hosts all orchestration services (Claude Flow, Archon OS)
+  - Manages MCP server integration
+  - Coordinates distributed GPU compute via Cloudflared tunnels
+  - Wake-on-LAN support for power-efficient worker management
+
+- **Worker PCs** (3x RTX 4090 24GB):
+  - Distributed GPU compute for AI inference and training
+  - Runs local LLM models via Ollama/vLLM
+  - Task-specific workload distribution
+  - On-demand activation via Wake-on-LAN
+
+- **Network Architecture**:
+  - Cloudflared tunnels for secure orchestrator ↔ worker communication
+  - Docker overlay networks for service mesh
+  - Windows host ↔ WSL2 communication via localhost forwarding
+
+- **Bootstrap System**:
+  - GUI installer for component deployment
+  - PowerShell scripts for Windows-specific installation
+  - Bash scripts for WSL2 environment setup
+  - Configuration templates for Claude Code, Docker, WSL2, Infisical, Gitea
+
+#### Configuration Management
+
+**Orchestrator PC** (`~/.wslconfig`):
+```ini
+[wsl2]
+memory=8GB           # Adjust based on available RAM
+processors=4         # Adjust based on available cores
+swap=4GB
+localhostForwarding=true
+nestedVirtualization=true
+```
+
+**Docker Desktop** (`%APPDATA%\Docker\daemon.json`):
+```json
+{
+  "builder": { "gc": { "enabled": true } },
+  "storage-driver": "overlay2",
+  "log-driver": "json-file",
+  "log-opts": {
+    "max-size": "10m",
+    "max-file": "3"
+  },
+  "default-address-pools": [
+    { "base": "172.20.0.0/16", "size": 24 }
+  ]
+}
+```
+
+**Bootstrap Installation**:
+```powershell
+# GUI installer (recommended)
+cd bootstrap
+pnpm install
+pnpm start
+
+# Follow GUI to:
+# 1. Select PC type (orchestrator/worker/standalone)
+# 2. Choose components (Docker, WSL, Claude Flow, etc.)
+# 3. Deploy configuration templates
+# 4. Initialize services
+```
+
+#### Service Distribution
+
+**Orchestrator PC Services**:
+- PostgreSQL (pgvector) - Primary database
+- Redis - Cache layer
+- Qdrant - Vector database
+- FalkorDB - Graph database
+- Letta - Agent memory system
+- Claude Flow - Multi-agent orchestration
+- Nexus Router - LLM request routing
+- MCP Servers - Model Context Protocol integration
+- Monitoring stack (Prometheus, Grafana, Loki)
+
+**Worker PC Services**:
+- Ollama - Local LLM inference
+- vLLM - Fast inference engine
+- Text Generation WebUI - Model management
+
+#### Deployment Workflow
+
+1. **Orchestrator Setup**:
+   - Run bootstrap GUI installer
+   - Deploy Docker Desktop + WSL2
+   - Install Claude Flow and MCP servers
+   - Configure Cloudflared tunnels
+   - Deploy infrastructure services
+
+2. **Worker Setup**:
+   - Run bootstrap GUI installer (worker mode)
+   - Configure Cloudflared client
+   - Install Ollama/vLLM
+   - Register with orchestrator
+
+3. **Service Coordination**:
+   - Orchestrator receives user requests via MCP
+   - Claude Flow distributes tasks across workers
+   - Results aggregated and returned to user
+
 ### Infrastructure as Code
 
 **Terraform Modules:**

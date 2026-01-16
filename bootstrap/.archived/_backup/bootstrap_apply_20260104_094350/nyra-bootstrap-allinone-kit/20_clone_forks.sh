@@ -1,1 +1,0 @@
-#!/usr/bin/env bash\nset -e\n"$(dirname "${BASH_SOURCE[0]}")/clone_forks.sh"\n

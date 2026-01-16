@@ -1,0 +1,121 @@
+{
+  "$schema": "https://modelcontextprotocol.io/schemas/mcp-config-schema.json",
+  "mcpServers": {
+    "claude-flow": {
+      "command": "npx",
+      "args": ["-y", "@claude-flow/cli@latest"],
+      "env": {
+        "CLAUDE_FLOW_CONFIG": "${PROJECT_ROOT}/claude-flow.config.json",
+        "CLAUDE_FLOW_LOG_LEVEL": "info",
+        "CLAUDE_FLOW_MEMORY_BACKEND": "hybrid",
+        "CLAUDE_FLOW_MEMORY_PATH": "${PROJECT_ROOT}/data/memory",
+        "CLAUDE_FLOW_MCP_TRANSPORT": "stdio",
+        "NODE_ENV": "production"
+      },
+      "description": "Claude Flow V3 multi-agent orchestration framework with HNSW indexing, SONA neural architecture, and ReasoningBank intelligence",
+      "autoStart": true,
+      "retryOnFailure": true,
+      "retryAttempts": 3,
+      "retryDelay": 2000
+    },
+    "ruv-swarm": {
+      "command": "npx",
+      "args": ["-y", "ruv-swarm", "mcp", "start"],
+      "env": {
+        "RUV_SWARM_PORT": "3001",
+        "RUV_SWARM_HOST": "localhost",
+        "RUV_SWARM_LOG_LEVEL": "info",
+        "NODE_ENV": "production"
+      },
+      "description": "RUV Swarm coordination MCP server for distributed agent communication",
+      "autoStart": false,
+      "optional": true
+    },
+    "flow-nexus": {
+      "command": "npx",
+      "args": ["-y", "flow-nexus@latest", "mcp", "start"],
+      "env": {
+        "FLOW_NEXUS_PORT": "3002",
+        "FLOW_NEXUS_HOST": "localhost",
+        "FLOW_NEXUS_LOG_LEVEL": "info",
+        "NODE_ENV": "production"
+      },
+      "description": "Flow Nexus platform management - sandboxes, neural training, and deployment",
+      "autoStart": false,
+      "optional": true
+    },
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "${PROJECT_ROOT}"],
+      "env": {},
+      "description": "File system operations within project directory",
+      "autoStart": true,
+      "allowedPaths": [
+        "${PROJECT_ROOT}"
+      ]
+    },
+    "git": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-git"],
+      "env": {
+        "GIT_WORK_TREE": "${PROJECT_ROOT}",
+        "GIT_DIR": "${PROJECT_ROOT}/.git"
+      },
+      "description": "Git operations and repository management",
+      "autoStart": true
+    },
+    "github": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": {
+        "GITHUB_TOKEN": "${GITHUB_TOKEN}",
+        "GITHUB_OWNER": "your-org",
+        "GITHUB_REPO": "Project-Nyra"
+      },
+      "description": "GitHub API integration for issues, PRs, and workflows",
+      "autoStart": false,
+      "optional": true
+    },
+    "postgres": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-postgres"],
+      "env": {
+        "POSTGRES_CONNECTION_STRING": "${POSTGRES_CONNECTION_STRING}"
+      },
+      "description": "PostgreSQL database operations",
+      "autoStart": false,
+      "optional": true
+    },
+    "brave-search": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-brave-search"],
+      "env": {
+        "BRAVE_API_KEY": "${BRAVE_API_KEY}"
+      },
+      "description": "Brave search API for web searches",
+      "autoStart": false,
+      "optional": true
+    },
+    "memory": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-memory"],
+      "env": {
+        "MEMORY_PATH": "${PROJECT_ROOT}/data/mcp-memory"
+      },
+      "description": "Simple key-value memory storage",
+      "autoStart": true
+    }
+  },
+  "globalSettings": {
+    "timeout": 30000,
+    "maxConcurrentRequests": 10,
+    "logLevel": "info",
+    "logPath": "${PROJECT_ROOT}/logs/claude-desktop.log"
+  },
+  "projectSettings": {
+    "name": "Project-Nyra",
+    "root": "${PROJECT_ROOT}",
+    "defaultWorkspace": "main",
+    "autoStartServers": true
+  }
+}

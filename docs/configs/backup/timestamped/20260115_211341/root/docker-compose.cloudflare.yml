@@ -1,0 +1,299 @@
+# ==============================================================================
+# Project Nyra - Cloudflare Tunnel Integration with Infisical
+# ==============================================================================
+# Adds Cloudflare tunnel support with Infisical secret management
+#
+# Usage:
+#   docker-compose -f docker-compose.yml -f docker-compose.cloudflare.yml up -d
+#
+# Prerequisites:
+#   1. Infisical server running (from docker-compose.yml)
+#   2. Cloudflare tunnel tokens stored in Infisical
+#   3. Infisical client credentials configured
+#
+# Security:
+#   - Tunnel tokens are NEVER stored in plaintext
+#   - Secrets injected via Infisical agent sidecar pattern
+#   - Automatic secret rotation support
+#
+# Generated: 2026-01-15
+# ==============================================================================
+
+version: '3.9'
+
+services:
+
+  # ============================================================================
+  # INFISICAL AGENTS FOR CLOUDFLARE TUNNELS
+  # ============================================================================
+
+  # Infisical Agent - Orchestrator Cloudflare Tunnel
+  agent-cloudflare-orchestrator:
+    image: infisical/agent:latest
+    container_name: nyra-agent-cloudflare-orchestrator
+    restart: unless-stopped
+    environment:
+      INFISICAL_CLIENT_ID: ${INFISICAL_CLIENT_ID_ORCHESTRATOR:?INFISICAL_CLIENT_ID_ORCHESTRATOR required}
+      INFISICAL_CLIENT_SECRET: ${INFISICAL_CLIENT_SECRET_ORCHESTRATOR:?INFISICAL_CLIENT_SECRET_ORCHESTRATOR required}
+      INFISICAL_HOST_URL: http://nyra-infisical:8080
+      INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
+      INFISICAL_ENV: ${INFISICAL_ENV:-production}
+    volumes:
+      - cloudflare_orchestrator_secrets:/secrets
+      - ./bootstrap/configs/infisical/agent-orchestrator.yaml:/config/config.yaml:ro
+    networks:
+      - nyra-network
+    depends_on:
+      - infisical
+    healthcheck:
+      test: ["CMD", "test", "-f", "/secrets/cloudflare.env"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    labels:
+      - "com.nyra.service=secrets"
+      - "com.nyra.category=cloudflare-tunnel"
+      - "com.nyra.component=orchestrator"
+
+  # Infisical Agent - Worker RTX 5090 Cloudflare Tunnel
+  agent-cloudflare-worker-rtx5090:
+    image: infisical/agent:latest
+    container_name: nyra-agent-cloudflare-worker-rtx5090
+    restart: unless-stopped
+    environment:
+      INFISICAL_CLIENT_ID: ${INFISICAL_CLIENT_ID_WORKER_RTX5090:?INFISICAL_CLIENT_ID_WORKER_RTX5090 required}
+      INFISICAL_CLIENT_SECRET: ${INFISICAL_CLIENT_SECRET_WORKER_RTX5090:?INFISICAL_CLIENT_SECRET_WORKER_RTX5090 required}
+      INFISICAL_HOST_URL: http://nyra-infisical:8080
+      INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
+      INFISICAL_ENV: ${INFISICAL_ENV:-production}
+    volumes:
+      - cloudflare_worker_rtx5090_secrets:/secrets
+      - ./bootstrap/configs/infisical/agent-worker-rtx5090.yaml:/config/config.yaml:ro
+    networks:
+      - nyra-network
+    depends_on:
+      - infisical
+    healthcheck:
+      test: ["CMD", "test", "-f", "/secrets/cloudflare.env"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    labels:
+      - "com.nyra.service=secrets"
+      - "com.nyra.category=cloudflare-tunnel"
+      - "com.nyra.component=worker-rtx5090"
+
+  # Infisical Agent - Worker RTX 3060 Cloudflare Tunnel
+  agent-cloudflare-worker-rtx3060:
+    image: infisical/agent:latest
+    container_name: nyra-agent-cloudflare-worker-rtx3060
+    restart: unless-stopped
+    environment:
+      INFISICAL_CLIENT_ID: ${INFISICAL_CLIENT_ID_WORKER_RTX3060:?INFISICAL_CLIENT_ID_WORKER_RTX3060 required}
+      INFISICAL_CLIENT_SECRET: ${INFISICAL_CLIENT_SECRET_WORKER_RTX3060:?INFISICAL_CLIENT_SECRET_WORKER_RTX3060 required}
+      INFISICAL_HOST_URL: http://nyra-infisical:8080
+      INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
+      INFISICAL_ENV: ${INFISICAL_ENV:-production}
+    volumes:
+      - cloudflare_worker_rtx3060_secrets:/secrets
+      - ./bootstrap/configs/infisical/agent-worker-rtx3060.yaml:/config/config.yaml:ro
+    networks:
+      - nyra-network
+    depends_on:
+      - infisical
+    healthcheck:
+      test: ["CMD", "test", "-f", "/secrets/cloudflare.env"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    labels:
+      - "com.nyra.service=secrets"
+      - "com.nyra.category=cloudflare-tunnel"
+      - "com.nyra.component=worker-rtx3060"
+
+  # Infisical Agent - Worker RTX 3090Ti Cloudflare Tunnel
+  agent-cloudflare-worker-rtx3090ti:
+    image: infisical/agent:latest
+    container_name: nyra-agent-cloudflare-worker-rtx3090ti
+    restart: unless-stopped
+    environment:
+      INFISICAL_CLIENT_ID: ${INFISICAL_CLIENT_ID_WORKER_RTX3090TI:?INFISICAL_CLIENT_ID_WORKER_RTX3090TI required}
+      INFISICAL_CLIENT_SECRET: ${INFISICAL_CLIENT_SECRET_WORKER_RTX3090TI:?INFISICAL_CLIENT_SECRET_WORKER_RTX3090TI required}
+      INFISICAL_HOST_URL: http://nyra-infisical:8080
+      INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
+      INFISICAL_ENV: ${INFISICAL_ENV:-production}
+    volumes:
+      - cloudflare_worker_rtx3090ti_secrets:/secrets
+      - ./bootstrap/configs/infisical/agent-worker-rtx3090ti.yaml:/config/config.yaml:ro
+    networks:
+      - nyra-network
+    depends_on:
+      - infisical
+    healthcheck:
+      test: ["CMD", "test", "-f", "/secrets/cloudflare.env"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    labels:
+      - "com.nyra.service=secrets"
+      - "com.nyra.category=cloudflare-tunnel"
+      - "com.nyra.component=worker-rtx3090ti"
+
+  # ============================================================================
+  # CLOUDFLARE TUNNEL SERVICES
+  # ============================================================================
+
+  # Cloudflared Tunnel - Orchestrator
+  cloudflared-orchestrator:
+    image: cloudflare/cloudflared:latest
+    container_name: nyra-cloudflared-orchestrator
+    restart: unless-stopped
+    command: >
+      sh -c "
+      set -a &&
+      if [ -f /secrets/cloudflare.env ]; then
+        . /secrets/cloudflare.env
+      fi &&
+      set +a &&
+      cloudflared tunnel --no-autoupdate run --token \$CLOUDFLARE_TUNNEL_TOKEN
+      "
+    volumes:
+      - cloudflare_orchestrator_secrets:/secrets:ro
+    networks:
+      - nyra-network
+    depends_on:
+      agent-cloudflare-orchestrator:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "cloudflared", "--version"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    labels:
+      - "com.nyra.service=network"
+      - "com.nyra.category=cloudflare-tunnel"
+      - "com.nyra.component=orchestrator"
+
+  # Cloudflared Tunnel - Worker RTX 5090
+  cloudflared-worker-rtx5090:
+    image: cloudflare/cloudflared:latest
+    container_name: nyra-cloudflared-worker-rtx5090
+    restart: unless-stopped
+    command: >
+      sh -c "
+      set -a &&
+      if [ -f /secrets/cloudflare.env ]; then
+        . /secrets/cloudflare.env
+      fi &&
+      set +a &&
+      cloudflared tunnel --no-autoupdate run --token \$CLOUDFLARE_TUNNEL_TOKEN
+      "
+    volumes:
+      - cloudflare_worker_rtx5090_secrets:/secrets:ro
+    networks:
+      - nyra-network
+    depends_on:
+      agent-cloudflare-worker-rtx5090:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "cloudflared", "--version"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    labels:
+      - "com.nyra.service=network"
+      - "com.nyra.category=cloudflare-tunnel"
+      - "com.nyra.component=worker-rtx5090"
+
+  # Cloudflared Tunnel - Worker RTX 3060
+  cloudflared-worker-rtx3060:
+    image: cloudflare/cloudflared:latest
+    container_name: nyra-cloudflared-worker-rtx3060
+    restart: unless-stopped
+    command: >
+      sh -c "
+      set -a &&
+      if [ -f /secrets/cloudflare.env ]; then
+        . /secrets/cloudflare.env
+      fi &&
+      set +a &&
+      cloudflared tunnel --no-autoupdate run --token \$CLOUDFLARE_TUNNEL_TOKEN
+      "
+    volumes:
+      - cloudflare_worker_rtx3060_secrets:/secrets:ro
+    networks:
+      - nyra-network
+    depends_on:
+      agent-cloudflare-worker-rtx3060:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "cloudflared", "--version"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    labels:
+      - "com.nyra.service=network"
+      - "com.nyra.category=cloudflare-tunnel"
+      - "com.nyra.component=worker-rtx3060"
+
+  # Cloudflared Tunnel - Worker RTX 3090Ti
+  cloudflared-worker-rtx3090ti:
+    image: cloudflare/cloudflared:latest
+    container_name: nyra-cloudflared-worker-rtx3090ti
+    restart: unless-stopped
+    command: >
+      sh -c "
+      set -a &&
+      if [ -f /secrets/cloudflare.env ]; then
+        . /secrets/cloudflare.env
+      fi &&
+      set +a &&
+      cloudflared tunnel --no-autoupdate run --token \$CLOUDFLARE_TUNNEL_TOKEN
+      "
+    volumes:
+      - cloudflare_worker_rtx3090ti_secrets:/secrets:ro
+    networks:
+      - nyra-network
+    depends_on:
+      agent-cloudflare-worker-rtx3090ti:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "cloudflared", "--version"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    labels:
+      - "com.nyra.service=network"
+      - "com.nyra.category=cloudflare-tunnel"
+      - "com.nyra.component=worker-rtx3090ti"
+
+# ==============================================================================
+# VOLUMES
+# ==============================================================================
+
+volumes:
+  # Cloudflare tunnel secret volumes (managed by Infisical agents)
+  cloudflare_orchestrator_secrets:
+    driver: local
+  cloudflare_worker_rtx5090_secrets:
+    driver: local
+  cloudflare_worker_rtx3060_secrets:
+    driver: local
+  cloudflare_worker_rtx3090ti_secrets:
+    driver: local
+
+# ==============================================================================
+# NETWORKS
+# ==============================================================================
+
+networks:
+  nyra-network:
+    external: true
+
+# ==============================================================================
+# END OF CONFIGURATION
+# ==============================================================================

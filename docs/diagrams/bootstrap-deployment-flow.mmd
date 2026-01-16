@@ -1,0 +1,79 @@
+%% Bootstrap Deployment Flow - Sequence Diagram
+
+sequenceDiagram
+    actor User
+    participant GUI as GUI Installer
+    participant FS as File System
+    participant Val as Validator
+    participant Win as Windows Scripts
+    participant WSL as WSL Scripts
+    participant PC as Target PC
+
+    Note over User,PC: Phase 1: Selection & Validation
+    User->>GUI: Select PC (e.g., worker-rtx3060)
+    GUI->>FS: Load manifests/*.yaml
+    FS-->>GUI: PC configuration
+
+    User->>GUI: Select components
+    GUI->>GUI: Build component list
+
+    User->>GUI: Click "Install"
+    GUI->>Val: Validate prerequisites
+    Val->>PC: Check disk space, RAM, etc.
+    PC-->>Val: System info
+    Val-->>GUI: Validation result
+
+    alt Validation Failed
+        GUI->>User: Show errors, abort
+    end
+
+    Note over User,PC: Phase 2: Backup
+    GUI->>FS: Backup existing configs
+    FS-->>GUI: Backup complete
+
+    Note over User,PC: Phase 3: Windows Bootstrap
+    loop For each component
+        GUI->>FS: Load scripts/components/windows/{component}.ps1
+        GUI->>Win: Execute PowerShell script
+        Win->>PC: Install component
+        PC-->>Win: Installation result
+        Win-->>GUI: Success/Failure
+        GUI->>User: Update progress bar
+    end
+
+    Note over User,PC: Phase 4: WSL Bootstrap (if required)
+    alt PC has WSL
+        loop For each component
+            GUI->>FS: Load scripts/components/wsl/{component}.sh
+            GUI->>WSL: Execute Bash script
+            WSL->>PC: Install component in WSL
+            PC-->>WSL: Installation result
+            WSL-->>GUI: Success/Failure
+            GUI->>User: Update progress bar
+        end
+    end
+
+    Note over User,PC: Phase 5: Config Deployment
+    loop For each component config
+        GUI->>FS: Load configs/{component}/*
+        GUI->>GUI: Inject PC-specific variables
+        GUI->>PC: Deploy config file
+        PC-->>GUI: Deployment result
+        GUI->>User: Update progress bar
+    end
+
+    Note over User,PC: Phase 6: Post-Validation
+    GUI->>PC: Run smoke tests
+    PC-->>GUI: Test results
+
+    alt Tests Failed
+        GUI->>User: Show errors
+        User->>GUI: Rollback?
+        alt User confirms rollback
+            GUI->>PC: Restore backups
+            PC-->>GUI: Rollback complete
+            GUI->>User: Installation rolled back
+        end
+    else Tests Passed
+        GUI->>User: Installation complete!
+    end

@@ -1,0 +1,546 @@
+# ==============================================================================
+# Orchestrator-Mini Services - Docker Compose Configuration
+# ==============================================================================
+# This configuration runs ALL databases on the orchestrator machine
+#
+# Databases:
+#   - PostgreSQL (multiple databases for different services)
+#   - Redis (cache + pub/sub)
+#   - MongoDB (document storage)
+#   - AgentDB (vector storage with HNSW - using Qdrant)
+#   - Infisical database backend (uses PostgreSQL)
+#   - Gitea (local git server with PostgreSQL backend)
+#   - Cloudflared tunnel (secure external access)
+#
+# Quick Start:
+#   1. Copy .env.example to .env and configure secrets
+#   2. Run: docker-compose up -d
+#   3. Run: ./scripts/setup-databases.sh
+#   4. Verify: ./scripts/health-check-databases.sh
+#
+# ==============================================================================
+
+version: '3.9'
+
+# ==============================================================================
+# NETWORKS
+# ==============================================================================
+
+networks:
+  nyra-network:
+    external: true
+    name: infra_nyra-network
+  monitoring:
+    external: true
+    name: infra_monitoring
+  databases:
+    external: true
+    name: infra_databases
+
+# ==============================================================================
+# SERVICES
+# ==============================================================================
+
+services:
+
+  # ============================================================================
+  # POSTGRESQL - Main Relational Database
+  # ============================================================================
+  postgres:
+    image: postgres:16-alpine
+    container_name: orchestrator-postgres
+    restart: unless-stopped
+    environment:
+      # Root credentials (from Infisical or .env)
+      POSTGRES_USER: ${POSTGRES_ROOT_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_ROOT_PASSWORD:?POSTGRES_ROOT_PASSWORD required}
+
+      # Multiple databases to create (space-separated)
+      POSTGRES_MULTIPLE_DATABASES: nyra_main nyra_auth nyra_analytics infisical
+
+      # PostgreSQL configuration
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=en_US.UTF-8"
+
+      # Performance tuning
+      POSTGRES_MAX_CONNECTIONS: ${POSTGRES_MAX_CONNECTIONS:-200}
+      POSTGRES_SHARED_BUFFERS: ${POSTGRES_SHARED_BUFFERS:-256MB}
+      POSTGRES_EFFECTIVE_CACHE_SIZE: ${POSTGRES_EFFECTIVE_CACHE_SIZE:-1GB}
+    volumes:
+      # Persistent data
+      - postgres_data:/var/lib/postgresql/data
+
+      # Init scripts (run on first startup)
+      - ./configs/databases/postgres/init-scripts:/docker-entrypoint-initdb.d:ro
+
+      # Custom PostgreSQL configuration
+      - ./configs/databases/postgres/postgresql.conf:/etc/postgresql/postgresql.conf:ro
+      - ./configs/databases/postgres/pg_hba.conf:/etc/postgresql/pg_hba.conf:ro
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_ROOT_USER:-postgres} -d postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - databases
+      - nyra-network
+    labels:
+      - "com.nyra.service=database"
+      - "com.nyra.category=postgres"
+      - "com.nyra.pc=orchestrator-mini"
+      - "com.nyra.backup=daily"
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "20m"
+        max-file: "5"
+
+  # ============================================================================
+  # REDIS - Cache and Pub/Sub
+  # ============================================================================
+  redis:
+    image: redis:7-alpine
+    container_name: orchestrator-redis
+    restart: unless-stopped
+    command: >
+      redis-server
+      --appendonly yes
+      --appendfsync everysec
+      --save 900 1
+      --save 300 10
+      --save 60 10000
+      --maxmemory ${REDIS_MAXMEMORY:-512mb}
+      --maxmemory-policy ${REDIS_MAXMEMORY_POLICY:-allkeys-lru}
+      --requirepass ${REDIS_PASSWORD:?REDIS_PASSWORD required}
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD:?REDIS_PASSWORD required}
+      REDIS_REPLICATION_MODE: master
+    volumes:
+      # Persistent data (AOF + RDB)
+      - redis_data:/data
+
+      # Custom Redis configuration
+      - ./configs/databases/redis/redis.conf:/usr/local/etc/redis/redis.conf:ro
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+    networks:
+      - databases
+      - nyra-network
+    labels:
+      - "com.nyra.service=database"
+      - "com.nyra.category=redis"
+      - "com.nyra.pc=orchestrator-mini"
+      - "com.nyra.backup=daily"
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 768M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ============================================================================
+  # MONGODB - Document Store
+  # ============================================================================
+  mongodb:
+    image: mongo:7
+    container_name: orchestrator-mongodb
+    restart: unless-stopped
+    environment:
+      # Root credentials
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USER:-admin}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD:?MONGO_ROOT_PASSWORD required}
+
+      # Initial database
+      MONGO_INITDB_DATABASE: nyra
+
+      # Replica set configuration
+      MONGO_REPLICA_SET_NAME: ${MONGO_REPLICA_SET_NAME:-rs0}
+    command: >
+      mongod
+      --replSet ${MONGO_REPLICA_SET_NAME:-rs0}
+      --bind_ip_all
+      --auth
+      --wiredTigerCacheSizeGB ${MONGO_CACHE_SIZE_GB:-0.5}
+    volumes:
+      # Persistent data
+      - mongodb_data:/data/db
+      - mongodb_config:/data/configdb
+
+      # Init scripts
+      - ./configs/databases/mongodb/init-scripts:/docker-entrypoint-initdb.d:ro
+    ports:
+      - "${MONGODB_PORT:-27017}:27017"
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+    networks:
+      - databases
+      - nyra-network
+    labels:
+      - "com.nyra.service=database"
+      - "com.nyra.category=mongodb"
+      - "com.nyra.pc=orchestrator-mini"
+      - "com.nyra.backup=daily"
+    deploy:
+      resources:
+        limits:
+          cpus: '1.5'
+          memory: 1.5G
+        reservations:
+          cpus: '0.25'
+          memory: 512M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "20m"
+        max-file: "5"
+
+  # ============================================================================
+  # QDRANT - Vector Database (AgentDB)
+  # ============================================================================
+  agentdb:
+    image: qdrant/qdrant:latest
+    container_name: orchestrator-agentdb
+    restart: unless-stopped
+    environment:
+      # API configuration
+      QDRANT__SERVICE__HTTP_PORT: 6333
+      QDRANT__SERVICE__GRPC_PORT: 6334
+
+      # Storage configuration
+      QDRANT__STORAGE__STORAGE_PATH: /qdrant/storage
+      QDRANT__STORAGE__SNAPSHOTS_PATH: /qdrant/snapshots
+
+      # HNSW configuration (high performance)
+      QDRANT__STORAGE__HNSW_INDEX__M: ${QDRANT_HNSW_M:-16}
+      QDRANT__STORAGE__HNSW_INDEX__EF_CONSTRUCT: ${QDRANT_HNSW_EF_CONSTRUCT:-100}
+
+      # Performance tuning
+      QDRANT__STORAGE__PERFORMANCE__MAX_SEARCH_THREADS: ${QDRANT_MAX_SEARCH_THREADS:-4}
+
+      # Security (optional API key)
+      QDRANT__SERVICE__API_KEY: ${QDRANT_API_KEY:-}
+    volumes:
+      # Persistent storage
+      - agentdb_data:/qdrant/storage
+      - agentdb_snapshots:/qdrant/snapshots
+
+      # Custom configuration
+      - ./configs/databases/agentdb/config.yml:/qdrant/config/production.yaml:ro
+    ports:
+      - "${QDRANT_HTTP_PORT:-6333}:6333"
+      - "${QDRANT_GRPC_PORT:-6334}:6334"
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:6333/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    networks:
+      - databases
+      - nyra-network
+    labels:
+      - "com.nyra.service=database"
+      - "com.nyra.category=vector-db"
+      - "com.nyra.pc=orchestrator-mini"
+      - "com.nyra.backup=daily"
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "20m"
+        max-file: "5"
+
+  # ============================================================================
+  # GITEA - Local Git Server
+  # ============================================================================
+
+  # PostgreSQL Database for Gitea
+  gitea-db:
+    image: postgres:16-alpine
+    container_name: orchestrator-gitea-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${GITEA_DB_USER:-gitea}
+      POSTGRES_PASSWORD: ${GITEA_DB_PASSWORD:-gitea_password}
+      POSTGRES_DB: ${GITEA_DB_NAME:-gitea}
+    volumes:
+      - gitea_db_data:/var/lib/postgresql/data
+    networks:
+      - databases
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${GITEA_DB_USER:-gitea}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    labels:
+      - "com.nyra.service=database"
+      - "com.nyra.category=gitea"
+      - "com.nyra.pc=orchestrator-mini"
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # Gitea - Self-hosted Git Service
+  gitea:
+    image: gitea/gitea:latest
+    container_name: orchestrator-gitea
+    restart: unless-stopped
+    depends_on:
+      gitea-db:
+        condition: service_healthy
+    environment:
+      # Database configuration
+      GITEA__database__DB_TYPE: postgres
+      GITEA__database__HOST: gitea-db:5432
+      GITEA__database__NAME: ${GITEA_DB_NAME:-gitea}
+      GITEA__database__USER: ${GITEA_DB_USER:-gitea}
+      GITEA__database__PASSWD: ${GITEA_DB_PASSWORD:-gitea_password}
+
+      # Server configuration
+      GITEA__server__DOMAIN: ${GITEA_DOMAIN:-localhost}
+      GITEA__server__HTTP_PORT: 3000
+      GITEA__server__ROOT_URL: http://${GITEA_DOMAIN:-localhost}:3001/
+      GITEA__server__SSH_DOMAIN: ${GITEA_DOMAIN:-localhost}
+      GITEA__server__SSH_PORT: 2222
+      GITEA__server__SSH_LISTEN_PORT: 22
+      GITEA__server__DISABLE_SSH: false
+      GITEA__server__START_SSH_SERVER: true
+      GITEA__server__LFS_START_SERVER: true
+      GITEA__server__OFFLINE_MODE: false
+
+      # Security configuration
+      GITEA__security__INSTALL_LOCK: true
+      GITEA__security__SECRET_KEY: ${GITEA_SECRET_KEY:-changeme-secret-key-minimum-32-chars}
+      GITEA__security__INTERNAL_TOKEN: ${GITEA_INTERNAL_TOKEN:-changeme-internal-token}
+
+      # Service configuration
+      GITEA__service__DISABLE_REGISTRATION: true
+      GITEA__service__REQUIRE_SIGNIN_VIEW: false
+      GITEA__service__REGISTER_EMAIL_CONFIRM: false
+      GITEA__service__ENABLE_NOTIFY_MAIL: false
+      GITEA__service__DEFAULT_KEEP_EMAIL_PRIVATE: true
+
+      # Repository configuration
+      GITEA__repository__DEFAULT_BRANCH: main
+      GITEA__repository__DEFAULT_PRIVATE: private
+      GITEA__repository__ENABLE_PUSH_CREATE_USER: true
+      GITEA__repository__ENABLE_PUSH_CREATE_ORG: true
+
+      # Webhook configuration
+      GITEA__webhook__ALLOWED_HOST_LIST: "*"
+
+      # Log configuration
+      GITEA__log__MODE: console
+      GITEA__log__LEVEL: ${GITEA_LOG_LEVEL:-Info}
+
+      # Performance
+      GITEA__cache__ENABLED: true
+      GITEA__cache__ADAPTER: memory
+
+      # Admin user (created on first start if not exists)
+      GITEA_ADMIN_USER: ${GITEA_ADMIN_USER:-admin}
+      GITEA_ADMIN_PASSWORD: ${GITEA_ADMIN_PASSWORD:-admin_password}
+      GITEA_ADMIN_EMAIL: ${GITEA_ADMIN_EMAIL:-admin@localhost}
+    ports:
+      - "3001:3000"  # HTTP
+      - "2222:22"    # SSH
+    volumes:
+      - gitea_data:/data
+      - gitea_config:/etc/gitea
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    networks:
+      - nyra-network
+      - databases
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    labels:
+      - "com.nyra.service=git-server"
+      - "com.nyra.category=vcs"
+      - "com.nyra.pc=orchestrator-mini"
+      - "traefik.enable=true"
+      - "traefik.http.routers.gitea.rule=Host(`git.local.nyra`)"
+      - "traefik.http.services.gitea.loadbalancer.server.port=3000"
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ============================================================================
+  # CLOUDFLARE TUNNEL (Orchestrator-Mini)
+  # ============================================================================
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: orchestrator-cloudflared
+    restart: unless-stopped
+    command: tunnel --no-autoupdate run
+    environment:
+      # Tunnel token from Cloudflare Zero Trust Dashboard
+      TUNNEL_TOKEN: ${CLOUDFLARE_TUNNEL_TOKEN_ORCHESTRATOR:?CLOUDFLARE_TUNNEL_TOKEN_ORCHESTRATOR required}
+
+      # Logging configuration
+      TUNNEL_LOGLEVEL: ${CLOUDFLARE_TUNNEL_LOGLEVEL:-info}
+      TUNNEL_LOGFILE: /var/log/cloudflared.log
+
+      # Metrics
+      TUNNEL_METRICS: ${CLOUDFLARE_TUNNEL_METRICS:-0.0.0.0:9126}
+    volumes:
+      # Config file for advanced routing rules (optional)
+      - ./configs/cloudflared/config.yml:/etc/cloudflared/config.yml:ro
+      # Logs
+      - cloudflared_logs:/var/log
+    healthcheck:
+      test: ["CMD", "cloudflared", "tunnel", "info"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+    networks:
+      - nyra-network
+      - monitoring
+      - databases
+    labels:
+      - "com.nyra.service=infrastructure"
+      - "com.nyra.category=tunnel"
+      - "com.nyra.ingress=orchestrator"
+      - "com.nyra.pc=orchestrator-mini"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.1'
+          memory: 64M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+# ==============================================================================
+# VOLUMES
+# ==============================================================================
+
+volumes:
+  # PostgreSQL
+  postgres_data:
+    driver: local
+    labels:
+      - "com.nyra.backup=critical"
+      - "com.nyra.retention=90days"
+
+  # Redis
+  redis_data:
+    driver: local
+    labels:
+      - "com.nyra.backup=daily"
+      - "com.nyra.retention=7days"
+
+  # MongoDB
+  mongodb_data:
+    driver: local
+    labels:
+      - "com.nyra.backup=critical"
+      - "com.nyra.retention=90days"
+
+  mongodb_config:
+    driver: local
+
+  # AgentDB (Qdrant)
+  agentdb_data:
+    driver: local
+    labels:
+      - "com.nyra.backup=critical"
+      - "com.nyra.retention=90days"
+
+  agentdb_snapshots:
+    driver: local
+    labels:
+      - "com.nyra.backup=daily"
+      - "com.nyra.retention=30days"
+
+  # Cloudflared
+  cloudflared_logs:
+    driver: local
+
+  # Gitea
+  gitea_data:
+    driver: local
+    labels:
+      - "com.nyra.backup=critical"
+      - "com.nyra.retention=90days"
+
+  gitea_config:
+    driver: local
+    labels:
+      - "com.nyra.backup=critical"
+      - "com.nyra.retention=90days"
+
+  gitea_db_data:
+    driver: local
+    labels:
+      - "com.nyra.backup=critical"
+      - "com.nyra.retention=90days"
+
+# ==============================================================================
+# END OF CONFIGURATION
+# ==============================================================================

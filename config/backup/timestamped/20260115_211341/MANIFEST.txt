@@ -1,0 +1,65 @@
+Config Backup Manifest
+======================
+Timestamp: 20260115_211341
+Date: 2026-01-15 21:13:56 PST
+Hostname: AlienApotheosis
+User: edane
+Repo Root: /c/Dev/Projects/Repos/Project-Nyra
+
+Backed up directories:
+  - orchestrator-mini
+  - worker-rtx3060
+  - worker-rtx3090ti
+  - worker-rtx5090
+
+File tree:
+./.audit-ci.json
+./.circleci/config.yml
+./.claude/agent-registry.json
+./.claude/agents/analysis/analyze-code-quality.md
+./.claude/agents/analysis/code-analyzer.md
+./.claude/agents/analysis/code-review/analyze-code-quality.md
+./.claude/agents/architecture/arch-system-design.md
+./.claude/agents/architecture/system-design/arch-system-design.md
+./.claude/agents/base-template-generator.md
+./.claude/agents/consensus/byzantine-coordinator.md
+./.claude/agents/consensus/crdt-synchronizer.md
+./.claude/agents/consensus/gossip-coordinator.md
+./.claude/agents/consensus/performance-benchmarker.md
+./.claude/agents/consensus/quorum-manager.md
+./.claude/agents/consensus/raft-manager.md
+./.claude/agents/consensus/security-manager.md
+./.claude/agents/core/coder.md
+./.claude/agents/core/planner.md
+./.claude/agents/core/researcher.md
+./.claude/agents/core/reviewer.md
+./.claude/agents/core/tester.md
+./.claude/agents/custom/compliance-sentinel.md
+./.claude/agents/custom/devops-orchestrator.md
+./.claude/agents/custom/fastapi-backend-engineer.md
+./.claude/agents/custom/integration-specialist.md
+./.claude/agents/custom/mortgage-architect.md
+./.claude/agents/custom/nextjs-frontend-engineer.md
+./.claude/agents/custom/test-long-runner.md
+./.claude/agents/data/data-ml-model.md
+./.claude/agents/data/ml/data-ml-model.md
+./.claude/agents/development/backend/dev-backend-api.md
+./.claude/agents/development/dev-backend-api.md
+./.claude/agents/devops/ci-cd/ops-cicd-github.md
+./.claude/agents/devops/ops-cicd-github.md
+./.claude/agents/documentation/api-docs/docs-api-openapi.md
+./.claude/agents/documentation/docs-api-openapi.md
+./.claude/agents/flow-nexus/app-store.md
+./.claude/agents/flow-nexus/authentication.md
+./.claude/agents/flow-nexus/challenges.md
+./.claude/agents/flow-nexus/neural-network.md
+./.claude/agents/flow-nexus/payments.md
+./.claude/agents/flow-nexus/sandbox.md
+./.claude/agents/flow-nexus/swarm.md
+./.claude/agents/flow-nexus/user-tools.md
+./.claude/agents/flow-nexus/workflow.md
+./.claude/agents/github/code-review-swarm.md
+./.claude/agents/github/github-modes.md
+./.claude/agents/github/issue-tracker.md
+./.claude/agents/github/multi-repo-swarm.md
+./.claude/agents/github/pr-manager.md
