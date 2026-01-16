@@ -1,4 +1,116 @@
+# Project Nyra - Consolidated CLAUDE.md
 # Claude Code Configuration - Claude Flow V3
+
+> **Master Configuration Guide**: This file provides comprehensive orchestration guidance for the entire Project Nyra monorepo. For technology-specific development guidelines, see the [Component Guide Index](#-component-guide-index) below.
+
+## 📚 Table of Contents
+
+1. [Quick Start](#-quick-start)
+2. [Component Guide Index](#-component-guide-index)
+3. [Automatic Swarm Orchestration](#-automatic-swarm-orchestration)
+4. [Auto-Learning Protocol](#-auto-learning-protocol)
+5. [Agent Routing (Anti-Drift)](#-agent-routing-anti-drift)
+6. [Concurrent Execution & File Management](#-critical-concurrent-execution--file-management)
+7. [V3 CLI Commands](#-v3-cli-commands-26-commands-140-subcommands)
+8. [Available Agents](#-available-agents-60-types)
+9. [V3 Hooks System](#-v3-hooks-system-27-hooks--12-workers)
+10. [Intelligence System](#-intelligence-system-ruvector)
+11. [Performance Optimization](#-performance-optimization-protocol)
+12. [Memory Commands](#-memory-commands-reference-important)
+13. [Environment Variables](#-environment-variables)
+14. [Support & Resources](#support)
+
+---
+
+## 🚀 Quick Start
+
+**For AI Assistants (Claude Code)**:
+1. Read this file for orchestration and swarm coordination
+2. Consult component-specific CLAUDE.md files for tech-stack guidelines
+3. Use CLI commands for coordination, Task tool for execution
+
+**For Developers**:
+1. See [README.md](./README.md) for project overview
+2. Review component guides for technology-specific patterns
+3. Run `npx @claude-flow/cli@latest doctor` for system diagnostics
+
+---
+
+## 📖 Component Guide Index
+
+Project Nyra uses **component-specific CLAUDE.md files** for technology-stack-specific development guidelines. Each file is auto-generated from templates and contains:
+- Tech stack patterns and best practices
+- Code examples and snippets
+- Development commands
+- Claude Flow agent recommendations
+- Testing and deployment guidelines
+
+### 🎯 When to Use Which CLAUDE.md
+
+| Situation | Use This CLAUDE.md |
+|-----------|-------------------|
+| Multi-agent coordination | **This file** (root) |
+| Swarm orchestration | **This file** (root) |
+| CLI commands and hooks | **This file** (root) |
+| Memory and intelligence | **This file** (root) |
+| Next.js development | `apps/[app-name]/CLAUDE.md` |
+| Python/FastAPI development | `services/[service-name]/CLAUDE.md` |
+| Docker/Infrastructure | `infra/CLAUDE.md` |
+| CI/CD workflows | `.github/CLAUDE.md` |
+| Documentation writing | `docs/CLAUDE.md` |
+| Automation scripts | `scripts/CLAUDE.md` |
+| Monorepo management | `config/claude-configs/CLAUDE.md` |
+
+### 📁 Component CLAUDE.md Files
+
+#### Applications (`apps/`)
+- **[RateHunter Landing Page](apps/ratehunter/CLAUDE.md)** - Next.js 14 + TypeScript, Marketing landing page
+- **[Nyra Admin Panel](apps/nyra-admin/CLAUDE.md)** - Next.js 14 + TypeScript, Admin dashboard for mortgage ops
+- **[CRM Application](apps/crm/CLAUDE.md)** - Customer relationship management
+- **[CRM Dashboard](apps/crm-dashboard/CLAUDE.md)** - Analytics dashboard
+- **[Nexus Dashboard](apps/nexus-dashboard/CLAUDE.md)** - System monitoring
+- **[Web Application](apps/webapp/CLAUDE.md)** - Main web app
+
+#### Services (`services/`)
+- **[Quote API](services/quote-api/CLAUDE.md)** - Python 3.11 + FastAPI, Mortgage quote calculation engine
+
+#### Infrastructure & DevOps
+- **[Infrastructure as Code](infra/CLAUDE.md)** - Docker Compose, container orchestration, multi-stage builds
+- **[CI/CD Workflows](.github/CLAUDE.md)** - GitHub Actions, matrix builds, security scanning
+- **[Automation Scripts](scripts/CLAUDE.md)** - PowerShell and Bash scripting best practices
+
+#### Configuration & Documentation
+- **[Monorepo Management](config/claude-configs/CLAUDE.md)** - pnpm workspaces, Turborepo, cross-package development
+- **[Documentation Guidelines](docs/CLAUDE.md)** - Markdown, Mermaid diagrams, ADRs, API docs
+
+#### Bootstrap & Tooling
+- **[Bootstrap Agent Templates](.claude/skills/bootstrap-agent/templates/CLAUDE.md)** - Component initialization templates
+- **[Archon OS](tools/archon-os/CLAUDE.md)** - AI operating system framework
+- **[Claude Flow MCP](mcp-servers/claude-flow/CLAUDE.md)** - MCP server integration
+- **[RUV Swarm](mcp-servers/ruv-swarm/CLAUDE.md)** - Swarm coordination MCP
+
+#### Submodules (External Dependencies)
+- **[Claude Flow V3](submodules/claude-flow/CLAUDE.md)** - Multi-agent orchestration framework
+- **[Archon Framework](submodules/archon/CLAUDE.md)** - AI agent coordination
+
+### 🔄 Auto-Generated Component Files
+
+All component CLAUDE.md files (except this root file) are **auto-generated** using:
+```bash
+node scripts/batch-claude-md/batch-template-engine.js
+```
+
+**Template Structure**:
+- Profile type (nextjs-typescript, python-fastapi, docker-infra, etc.)
+- Project overview
+- Tech stack details
+- Development commands
+- Claude Flow integration
+- Tech-stack-specific guidelines with code examples
+
+**Last Generated**: 2026-01-09
+
+---
 
 ## 🚨 AUTOMATIC SWARM ORCHESTRATION
 

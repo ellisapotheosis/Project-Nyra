@@ -1,0 +1,27 @@
+[wsl2]
+# WSL2 kernel configuration for Project Nyra orchestrator
+
+# Memory allocation (adjust based on available RAM)
+memory=8GB
+
+# CPU core allocation (adjust based on available cores)
+processors=4
+
+# Swap space
+swap=4GB
+
+# Networking
+localhostForwarding=true
+networkingMode=NAT
+
+# Advanced settings
+nestedVirtualization=true
+vmIdleTimeout=60000
+
+# Kernel parameters
+kernelCommandLine=vsyscall=emulate
+
+[experimental]
+# Enable experimental features
+autoMemoryReclaim=gradual
+sparseVhd=true

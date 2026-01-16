@@ -1,0 +1,376 @@
+```mermaid
+graph TB
+    subgraph "User Interface Layer"
+        UI[React Frontend<br/>Wizard Screens]
+        Progress[Progress Tracking<br/>Phase Indicators]
+        Logs[Real-time Logs<br/>Error Display]
+    end
+
+    subgraph "State Management"
+        Store[Zustand Store<br/>setupStore.ts]
+        Store --> |PC Detection State|PCD[detectedType, hardwareInfo]
+        Store --> |Network Config State|NET[staticIPConfig, wakeOnLAN]
+        Store --> |Infrastructure State|INF[docker, wsl2, nvidia]
+        Store --> |VPN/Tunnel State|VPN[tailscale, cloudflared]
+        Store --> |Services State|SVC[gitea, databases, claude]
+        Store --> |Progress State|PRG[currentPhase, checkpoints]
+    end
+
+    subgraph "Service Layer"
+        HW[HardwareDetector<br/>CPU, RAM, GPU, Network]
+        NC[NetworkConfigurator<br/>Static IP, WoL]
+        INS[Installers<br/>Docker, WSL2, NVIDIA]
+        VPNS[VPN Managers<br/>Tailscale, Cloudflared]
+        DEP[Deployers<br/>Gitea, DBs, Claude]
+        VAL[ValidationEngine<br/>Multi-level checks]
+        RB[CheckpointManager<br/>Rollback support]
+        CONF[InfisicalClient<br/>Config storage]
+    end
+
+    subgraph "IPC Bridge"
+        IPC[Electron IPC<br/>Main ↔ Renderer]
+    end
+
+    subgraph "System Integration"
+        SYS[System APIs<br/>OS Commands]
+        DOCKER[Docker API<br/>Container mgmt]
+        TS[Tailscale API<br/>VPN setup]
+        CF[Cloudflare API<br/>Tunnels]
+        IS[Infisical API<br/>Secrets storage]
+    end
+
+    subgraph "External Resources"
+        DC[Docker Compose Files<br/>/docker/orchestrator/<br/>/docker/client/]
+        CONFIGS[Service Configs<br/>/configs/gitea/<br/>/configs/postgresql/]
+        SCRIPTS[Setup Scripts<br/>/bootstrap/windows/<br/>/bootstrap/wsl/]
+    end
+
+    UI --> Store
+    Progress --> Store
+    Logs --> Store
+
+    Store --> IPC
+
+    IPC --> HW
+    IPC --> NC
+    IPC --> INS
+    IPC --> VPNS
+    IPC --> DEP
+    IPC --> VAL
+    IPC --> RB
+    IPC --> CONF
+
+    HW --> SYS
+    NC --> SYS
+    INS --> SYS
+    INS --> DOCKER
+
+    VPNS --> TS
+    VPNS --> CF
+
+    DEP --> DOCKER
+    DEP --> DC
+    DEP --> CONFIGS
+
+    CONF --> IS
+
+    VAL --> SYS
+    VAL --> DOCKER
+
+    RB --> SYS
+
+    classDef uiLayer fill:#e1f5ff,stroke:#01579b,stroke-width:2px
+    classDef stateLayer fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
+    classDef serviceLayer fill:#e8f5e9,stroke:#1b5e20,stroke-width:2px
+    classDef ipcLayer fill:#fff3e0,stroke:#e65100,stroke-width:2px
+    classDef systemLayer fill:#fce4ec,stroke:#880e4f,stroke-width:2px
+    classDef externalLayer fill:#f1f8e9,stroke:#33691e,stroke-width:2px
+
+    class UI,Progress,Logs uiLayer
+    class Store,PCD,NET,INF,VPN,SVC,PRG stateLayer
+    class HW,NC,INS,VPNS,DEP,VAL,RB,CONF serviceLayer
+    class IPC ipcLayer
+    class SYS,DOCKER,TS,CF,IS systemLayer
+    class DC,CONFIGS,SCRIPTS externalLayer
+```
+
+---
+
+# Physical PC Setup GUI - System Architecture Diagram
+
+## Workflow Flow
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant UI as React UI
+    participant Store as Zustand Store
+    participant IPC as Electron IPC
+    participant HW as Hardware Service
+    participant Net as Network Service
+    participant Infra as Infrastructure Service
+    participant Deploy as Deployment Service
+    participant Infis as Infisical
+
+    User->>UI: Open Application
+    UI->>IPC: Detect Hardware
+    IPC->>HW: detectHardware()
+    HW->>HW: Collect CPU, RAM, GPU, Network
+    HW-->>Store: Update hardwareInfo
+    Store-->>UI: Display Hardware Info
+
+    User->>UI: Configure Static IP
+    UI->>IPC: Configure Network
+    IPC->>Net: configureStaticIP(config)
+    Net->>Net: Apply netsh commands
+    Net->>Net: Validate connectivity
+    Net-->>Infis: Store network config
+    Net-->>Store: Update networkConfig
+    Store-->>UI: Show success
+
+    User->>UI: Install Docker
+    UI->>IPC: Install Docker
+    IPC->>Infra: installDocker()
+    Infra->>Infra: Download & install
+    Infra->>Infra: Validate installation
+    Infra-->>Store: Update infrastructure state
+    Store-->>UI: Show progress
+
+    User->>UI: Deploy Services
+    UI->>IPC: Deploy Service
+    IPC->>Deploy: deployGitea()
+    Deploy->>Deploy: Pull Docker images
+    Deploy->>Deploy: Run containers
+    Deploy->>Deploy: Wait for healthy
+    Deploy-->>Infis: Store credentials
+    Deploy-->>Store: Update services state
+    Store-->>UI: Show completion
+```
+
+## PC Detection Flow
+
+```mermaid
+stateDiagram-v2
+    [*] --> DetectHardware
+
+    DetectHardware --> CollectCPU
+    DetectHardware --> CollectRAM
+    DetectHardware --> CollectGPU
+    DetectHardware --> CollectNetwork
+
+    CollectCPU --> ScorePCType
+    CollectRAM --> ScorePCType
+    CollectGPU --> ScorePCType
+    CollectNetwork --> ScorePCType
+
+    ScorePCType --> Orchestrator: Ryzen 7 6800H<br/>16GB RAM<br/>No GPU
+    ScorePCType --> WorkerRTX3060: RTX 3060<br/>32GB RAM
+    ScorePCType --> WorkerRTX5090: RTX 5090<br/>32GB RAM
+    ScorePCType --> WorkerRTX3090Ti: RTX 3090Ti<br/>32GB RAM
+
+    Orchestrator --> ValidateCompat
+    WorkerRTX3060 --> ValidateCompat
+    WorkerRTX5090 --> ValidateCompat
+    WorkerRTX3090Ti --> ValidateCompat
+
+    ValidateCompat --> StoreInfisical: Compatible
+    ValidateCompat --> ManualOverride: Incompatible
+
+    ManualOverride --> StoreInfisical
+
+    StoreInfisical --> [*]
+```
+
+## Setup Phases
+
+```mermaid
+graph LR
+    P1[Phase 1<br/>PC Detection] --> P2[Phase 2<br/>Network Config]
+    P2 --> P3[Phase 3<br/>Infrastructure]
+    P3 --> P4[Phase 4<br/>VPN/Tunnels]
+    P4 --> P5[Phase 5<br/>Services]
+    P5 --> P6[Phase 6<br/>Validation]
+
+    P1 -.->|Checkpoint| C1[CP1]
+    P2 -.->|Checkpoint| C2[CP2]
+    P3 -.->|Checkpoint| C3[CP3]
+    P4 -.->|Checkpoint| C4[CP4]
+    P5 -.->|Checkpoint| C5[CP5]
+
+    C5 -.->|Rollback| C4
+    C4 -.->|Rollback| C3
+    C3 -.->|Rollback| C2
+    C2 -.->|Rollback| C1
+
+    style P1 fill:#e3f2fd
+    style P2 fill:#e8f5e9
+    style P3 fill:#fff3e0
+    style P4 fill:#f3e5f5
+    style P5 fill:#fce4ec
+    style P6 fill:#e0f2f1
+
+    style C1 fill:#ffebee
+    style C2 fill:#ffebee
+    style C3 fill:#ffebee
+    style C4 fill:#ffebee
+    style C5 fill:#ffebee
+```
+
+## Component Hierarchy
+
+```mermaid
+graph TD
+    App[App.tsx<br/>Main Application]
+
+    App --> Header[ProgressHeader<br/>Phase & Progress]
+    App --> Router[WizardRouter<br/>Phase Navigation]
+    App --> Footer[Footer<br/>Actions]
+
+    Router --> P1[Phase1_PCDetection]
+    Router --> P2[Phase2_NetworkConfig]
+    Router --> P3[Phase3_Infrastructure]
+    Router --> P4[Phase4_VPNTunnel]
+    Router --> P5[Phase5_ServiceDeployment]
+    Router --> P6[Phase6_Validation]
+
+    P1 --> P1_1[PCDetectionScreen]
+    P1 --> P1_2[HardwareCollectionScreen]
+
+    P1_1 --> P1_1_1[HardwareInfoDisplay]
+    P1_1 --> P1_1_2[PCTypeSelector]
+    P1_1 --> P1_1_3[CompatibilityValidator]
+
+    P1_2 --> P1_2_1[CPUInfoCard]
+    P1_2 --> P1_2_2[RAMInfoCard]
+    P1_2 --> P1_2_3[GPUInfoCard]
+    P1_2 --> P1_2_4[NetworkInfoCard]
+
+    P2 --> P2_1[NetworkConfigScreen]
+    P2 --> P2_2[WakeOnLANSetup]
+
+    P2_1 --> P2_1_1[CurrentNetworkDisplay]
+    P2_1 --> P2_1_2[StaticIPWizard]
+    P2_1 --> P2_1_3[NetworkTestPanel]
+
+    P3 --> P3_1[DockerSetupScreen]
+    P3 --> P3_2[WSL2SetupScreen]
+    P3 --> P3_3[NVIDIASetupScreen]
+
+    P4 --> P4_1[TailscaleSetupScreen]
+    P4 --> P4_2[CloudflaredSetupScreen]
+
+    P5 --> P5_1[GiteaSetupScreen]
+    P5 --> P5_2[DatabaseSetupScreen]
+    P5 --> P5_3[ClaudeSetupScreen]
+
+    P6 --> P6_1[HealthCheckScreen]
+    P6 --> P6_2[ConfigReviewScreen]
+    P6 --> P6_3[CompletionScreen]
+
+    classDef phase fill:#e3f2fd,stroke:#01579b
+    classDef screen fill:#e8f5e9,stroke:#1b5e20
+    classDef component fill:#fff3e0,stroke:#e65100
+
+    class Router,P1,P2,P3,P4,P5,P6 phase
+    class P1_1,P1_2,P2_1,P2_2,P3_1,P3_2,P3_3,P4_1,P4_2,P5_1,P5_2,P5_3,P6_1,P6_2,P6_3 screen
+    class P1_1_1,P1_1_2,P1_1_3,P1_2_1,P1_2_2,P1_2_3,P1_2_4,P2_1_1,P2_1_2,P2_1_3 component
+```
+
+## Service Deployment (Orchestrator)
+
+```mermaid
+graph TB
+    Start[Start Service Deployment]
+
+    Start --> Gitea[Deploy Gitea]
+    Gitea --> |Pull image|GiteaImg[gitea/gitea:latest]
+    GiteaImg --> |Run container|GiteaRun[docker-compose up]
+    GiteaRun --> |Wait|GiteaHealth{Healthy?}
+    GiteaHealth --> |Yes|GiteaCred[Store credentials<br/>in Infisical]
+    GiteaHealth --> |No|GiteaRetry[Retry]
+    GiteaRetry --> GiteaRun
+
+    GiteaCred --> Postgres[Deploy PostgreSQL]
+    Postgres --> |Generate password|PGPass[Random password]
+    PGPass --> |Run container|PGRun[docker-compose up]
+    PGRun --> |Wait|PGHealth{Healthy?}
+    PGHealth --> |Yes|PGCred[Store credentials<br/>in Infisical]
+    PGHealth --> |No|PGRetry[Retry]
+    PGRetry --> PGRun
+
+    PGCred --> Redis[Deploy Redis]
+    Redis --> RedisRun[docker-compose up]
+    RedisRun --> |Wait|RedisHealth{Healthy?}
+    RedisHealth --> |Yes|RedisCred[Store config<br/>in Infisical]
+    RedisHealth --> |No|RedisRetry[Retry]
+    RedisRetry --> RedisRun
+
+    RedisCred --> Timescale[Deploy TimescaleDB]
+    Timescale --> TSPass[Random password]
+    TSPass --> TSRun[docker-compose up]
+    TSRun --> |Wait|TSHealth{Healthy?}
+    TSHealth --> |Yes|TSCred[Store credentials<br/>in Infisical]
+    TSHealth --> |No|TSRetry[Retry]
+    TSRetry --> TSRun
+
+    TSCred --> Qdrant[Deploy Qdrant]
+    Qdrant --> QRun[docker-compose up]
+    QRun --> |Wait|QHealth{Healthy?}
+    QHealth --> |Yes|QCred[Store config<br/>in Infisical]
+    QHealth --> |No|QRetry[Retry]
+    QRetry --> QRun
+
+    QCred --> Complete[Deployment Complete]
+
+    style Start fill:#e3f2fd
+    style Gitea fill:#e8f5e9
+    style Postgres fill:#fff3e0
+    style Redis fill:#f3e5f5
+    style Timescale fill:#fce4ec
+    style Qdrant fill:#e0f2f1
+    style Complete fill:#c8e6c9
+```
+
+## Rollback Strategy
+
+```mermaid
+graph LR
+    Error[Phase Error Detected]
+
+    Error --> Analyze{Determine<br/>Recovery}
+
+    Analyze --> |Non-critical|Retry[Retry Phase]
+    Analyze --> |Reversible|Rollback[Rollback to<br/>Checkpoint]
+    Analyze --> |Skip|Skip[Skip Phase]
+    Analyze --> |Critical|Abort[Abort Setup]
+
+    Retry --> |Max attempts|Rollback
+
+    Rollback --> RestoreFiles[Restore Files<br/>from Backup]
+    RestoreFiles --> RestoreState[Restore State<br/>Snapshot]
+    RestoreState --> RevertSystem[Revert System<br/>Changes]
+
+    RevertSystem --> |Network|NetworkRB[Restore DHCP<br/>Reset DNS]
+    RevertSystem --> |Services|ServicesRB[Stop Containers<br/>Remove Volumes]
+    RevertSystem --> |VPN|VPNRB[Disconnect VPN<br/>Remove Creds]
+
+    NetworkRB --> Validated{Rollback<br/>Validated?}
+    ServicesRB --> Validated
+    VPNRB --> Validated
+
+    Validated --> |Yes|Success[Rollback Success]
+    Validated --> |No|Manual[Manual<br/>Intervention]
+
+    Skip --> Continue[Continue to<br/>Next Phase]
+
+    Abort --> Cleanup[Cleanup<br/>Resources]
+    Cleanup --> End[Setup Aborted]
+
+    Success --> Restart[Restart Phase<br/>or Exit]
+    Continue --> Restart
+
+    style Error fill:#ffebee
+    style Rollback fill:#fff3e0
+    style Success fill:#c8e6c9
+    style Abort fill:#ffcdd2
+```

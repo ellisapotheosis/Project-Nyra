@@ -1,8 +1,10 @@
 import React from 'react';
 import { useInstallStore } from '../store/installStore';
+import { useInstallation } from '../hooks/useInstallation';
 
 export const InstallationProgress: React.FC = () => {
   const { currentPhase, progress, logs, isInstalling } = useInstallStore();
+  const { retryInstallation, rollbackInstallation } = useInstallation();
 
   const phaseLabels: Record<string, string> = {
     selection: 'Selection',
@@ -115,19 +117,13 @@ export const InstallationProgress: React.FC = () => {
         ) : currentPhase === 'error' ? (
           <>
             <button
-              onClick={() => {
-                // TODO: Implement rollback
-                console.log('Rollback');
-              }}
+              onClick={rollbackInstallation}
               className="px-6 py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
             >
               Rollback
             </button>
             <button
-              onClick={() => {
-                // TODO: Retry installation
-                console.log('Retry');
-              }}
+              onClick={retryInstallation}
               className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
             >
               Retry

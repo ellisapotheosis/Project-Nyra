@@ -9,6 +9,30 @@
 
 ## Quick Start
 
+### Option 1: GUI Installer (Recommended for Windows)
+
+```powershell
+# Run the interactive installer
+cd bootstrap
+pnpm install
+pnpm start
+
+# Follow the GUI to select:
+# - PC configuration (orchestrator, worker, or standalone)
+# - Components to install (Docker, WSL, Claude Flow, etc.)
+# - Configuration templates to deploy
+```
+
+The GUI installer handles:
+- Component detection and validation
+- Configuration file deployment
+- Service installation and setup
+- Windows/WSL hybrid environment configuration
+
+See [Bootstrap Documentation](bootstrap/README.md) for detailed installation instructions.
+
+### Option 2: Manual Setup
+
 ```bash
 # Install dependencies
 pnpm install
@@ -56,8 +80,48 @@ Project Nyra is an intelligent mortgage automation platform that combines:
 
 ## Architecture
 
+### Deployment Architecture
+
+**Current Setup:** 4-PC Windows Distributed Architecture
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  Windows Orchestrator PC (Mini PC)                          │
+│  ├── Docker Desktop + WSL2                                  │
+│  ├── Orchestration Services (Claude Flow, Archon OS)       │
+│  ├── Message Queue (RabbitMQ)                              │
+│  ├── Coordination Layer                                     │
+│  └── Magic Packet Wake-on-LAN for workers                  │
+└─────────────────────────────────────────────────────────────┘
+                          │
+                          ├── Cloudflared Tunnels
+                          │
+    ┌─────────────────────┼─────────────────────┐
+    │                     │                     │
+┌───▼────┐           ┌────▼───┐           ┌────▼───┐
+│Worker 1│           │Worker 2│           │Worker 3│
+│GPU PC  │           │GPU PC  │           │GPU PC  │
+│RTX 4090│           │RTX 4090│           │RTX 4090│
+└────────┘           └────────┘           └────────┘
+```
+
+**Key Features:**
+- Windows orchestrator with WSL2 for Linux containers
+- Distributed GPU compute across 3 worker PCs
+- Cloudflared tunnels for secure communication
+- Wake-on-LAN for power-efficient worker management
+- Centralized configuration via bootstrap system
+
+### Monorepo Structure
+
 ```
 Project-Nyra/
+├── bootstrap/               # Installation and setup system
+│   ├── installer/           # React GUI installer
+│   ├── scripts/             # PowerShell installation scripts
+│   ├── configs/             # Configuration templates
+│   └── docs/                # Bootstrap documentation
+│
 ├── apps/                    # Frontend applications (5 apps)
 │   ├── mortgage-assistant/  # Loan officer dashboard
 │   ├── nexus-dashboard/     # Admin & monitoring
@@ -107,10 +171,12 @@ Project-Nyra/
 ## Documentation
 
 ### Getting Started
+- **[Bootstrap Installation](bootstrap/README.md)** - GUI installer and setup guide
 - [Quick Start Guide](docs/deployment/QUICK-START.md) - Get up and running in 10 minutes
 - [Local Development (Windows)](docs/deployment/LOCAL-DEV-WINDOWS.md) - Windows development setup
 - [Linux Deployment](docs/deployment/LINUX-ORCHESTRATOR-DEPLOY.md) - Linux production deployment
 - [Environment Setup](docs/guides/environment-setup.md) - Configure your environment
+- **[Configuration Templates](bootstrap/configs/README.md)** - Pre-built configuration files
 
 ### Architecture
 - [System Architecture](docs/architecture/system-architecture.md) - Complete architectural overview
@@ -159,12 +225,15 @@ Project-Nyra/
 - **MCP Protocol:** Model Context Protocol
 - **Memory System:** Letta + AgentDB
 
-### DevOps
+### DevOps & Infrastructure
+- **OS:** Windows 11 (Orchestrator) + WSL2 (Ubuntu 24.04)
+- **Containerization:** Docker Desktop with WSL2 backend
 - **CI/CD:** GitHub Actions
-- **Orchestration:** Kubernetes
+- **Orchestration:** Kubernetes / Docker Compose
 - **Monitoring:** Prometheus + Grafana
 - **Logging:** Loki + ELK Stack
 - **Secrets:** Infisical
+- **Tunneling:** Cloudflared (secure worker communication)
 
 ## Development Commands
 
@@ -234,6 +303,46 @@ pnpm --filter @nyra/utils test
 
 ## Infrastructure
 
+### Bootstrap System
+
+Project Nyra includes a comprehensive bootstrap system for setting up the 4-PC distributed architecture:
+
+**Components:**
+- **GUI Installer** - React-based interactive installer (port 5173)
+- **PowerShell Scripts** - Automated component installation
+- **Configuration Templates** - Pre-configured settings for:
+  - Claude Code / Claude Desktop
+  - Claude Flow V3
+  - Docker Desktop
+  - WSL2 (.wslconfig)
+  - Infisical (secrets management)
+  - Gitea (self-hosted Git)
+
+**Installation Workflow:**
+```powershell
+# 1. Run GUI installer
+cd bootstrap
+pnpm install && pnpm start
+
+# 2. Select PC type (orchestrator/worker/standalone)
+
+# 3. Choose components to install:
+#    - Docker Desktop
+#    - WSL2 + Ubuntu
+#    - Claude Flow
+#    - Development tools
+#    - Configuration templates
+
+# 4. Installer handles:
+#    - Component detection
+#    - Dependency validation
+#    - Configuration deployment
+#    - Service initialization
+```
+
+**Configuration Templates:**
+See [bootstrap/configs/README.md](bootstrap/configs/README.md) for details on all available templates.
+
 ### Orchestration Stack
 
 **Services Running:**
@@ -255,6 +364,21 @@ docker compose -f docker-compose.orchestration.yml up -d
 ### Port Allocation
 
 See [Services README](services/README.md) for complete port allocation table.
+
+### Windows/WSL Hybrid Architecture
+
+**Orchestrator PC Configuration:**
+- **Host OS:** Windows 11 Pro
+- **Container Runtime:** Docker Desktop with WSL2 backend
+- **WSL Distribution:** Ubuntu 24.04 LTS
+- **Memory Allocation:** 8GB (configurable in `.wslconfig`)
+- **CPU Cores:** 4 (configurable in `.wslconfig`)
+
+**Key Benefits:**
+- Native Windows tooling (PowerShell, VS Code, etc.)
+- Linux container compatibility via WSL2
+- GPU passthrough to worker PCs via network
+- Efficient resource management
 
 ## Multi-Agent System
 
@@ -325,6 +449,30 @@ We welcome contributions! Please read our [Contributing Guide](CONTRIBUTING.md) 
 
 ### Common Issues
 
+**Bootstrap installer won't start:**
+```powershell
+# Ensure Node.js 20+ and pnpm 10+ are installed
+node --version  # Should be 20+
+pnpm --version  # Should be 10+
+
+# Install dependencies
+cd bootstrap
+pnpm install
+
+# Start installer
+pnpm start
+```
+
+**Configuration templates not copying:**
+```powershell
+# Run PowerShell as Administrator
+# Navigate to bootstrap/scripts
+cd bootstrap/scripts
+
+# Run specific component installer
+.\install-claude-code.ps1
+```
+
 **pnpm install fails:**
 ```bash
 # Clear pnpm cache
@@ -374,6 +522,9 @@ docker logs nyra-claude-flow
 ## Support
 
 - **Documentation:** [docs/](docs/)
+- **Bootstrap Guide:** [bootstrap/README.md](bootstrap/README.md)
+- **Configuration Help:** [bootstrap/configs/README.md](bootstrap/configs/README.md)
+- **Component Guides:** See [CLAUDE.md](CLAUDE.md#-component-guide-index) for tech-stack-specific docs
 - **Issues:** [GitHub Issues](https://github.com/your-org/project-nyra/issues)
 - **Discussions:** [GitHub Discussions](https://github.com/your-org/project-nyra/discussions)
 

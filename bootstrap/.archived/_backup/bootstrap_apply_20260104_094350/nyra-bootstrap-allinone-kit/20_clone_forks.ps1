@@ -1,1 +1,0 @@
-PowerShell -ExecutionPolicy Bypass -File (Join-Path $PSScriptRoot "clone_forks.ps1")\n

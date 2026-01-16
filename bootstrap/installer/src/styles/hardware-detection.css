@@ -1,0 +1,399 @@
+/**
+ * Hardware Detection Display Styles
+ */
+
+.hardware-detection-container {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.detection-loading,
+.detection-error {
+  text-align: center;
+  padding: 40px;
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid #f3f3f3;
+  border-top: 5px solid #3498db;
+  border-radius: 50%;
+  margin: 0 auto 20px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.hardware-section {
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.hardware-section h3 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  color: #2c3e50;
+  font-size: 1.3em;
+  border-bottom: 2px solid #3498db;
+  padding-bottom: 10px;
+}
+
+.hardware-section h4 {
+  margin: 15px 0 10px;
+  color: #34495e;
+  font-size: 1.1em;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.info-item {
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+  background: #f8f9fa;
+  border-radius: 4px;
+}
+
+.info-item.full-width {
+  grid-column: 1 / -1;
+}
+
+.info-item label {
+  font-size: 0.85em;
+  color: #7f8c8d;
+  margin-bottom: 5px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.info-item .value {
+  font-size: 1em;
+  color: #2c3e50;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.copy-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 2px 6px;
+  font-size: 0.9em;
+  transition: transform 0.2s;
+}
+
+.copy-btn:hover {
+  transform: scale(1.2);
+}
+
+/* RAM Modules */
+.ram-modules {
+  margin-top: 15px;
+}
+
+.modules-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.module-card {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 15px;
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 0.9em;
+}
+
+.module-size {
+  font-size: 1.3em;
+  font-weight: bold;
+}
+
+.module-type {
+  font-size: 1em;
+  opacity: 0.9;
+}
+
+.module-speed,
+.module-slot,
+.module-mfg {
+  font-size: 0.85em;
+  opacity: 0.8;
+}
+
+/* GPU Cards */
+.gpu-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.gpu-card {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  color: white;
+  padding: 20px;
+  border-radius: 8px;
+}
+
+.gpu-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.gpu-vendor-badge {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.85em;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.gpu-vendor-badge[data-vendor="nvidia"] {
+  background: #76b900;
+}
+
+.gpu-vendor-badge[data-vendor="amd"] {
+  background: #ed1c24;
+}
+
+.gpu-vendor-badge[data-vendor="intel"] {
+  background: #0071c5;
+}
+
+.gpu-vendor-badge[data-vendor="apple"] {
+  background: #555;
+}
+
+.gpu-model {
+  font-size: 1.2em;
+  font-weight: bold;
+  flex: 1;
+}
+
+.gpu-details {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px;
+}
+
+.gpu-details .info-item {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.gpu-details .info-item label {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.gpu-details .info-item .value {
+  color: white;
+}
+
+/* Network Cards */
+.network-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.network-card {
+  background: white;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 15px;
+  transition: all 0.3s;
+}
+
+.network-card.active {
+  border-color: #27ae60;
+  background: #f0fff4;
+}
+
+.network-card.inactive {
+  opacity: 0.6;
+}
+
+.network-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 15px;
+  flex-wrap: wrap;
+}
+
+.network-name {
+  font-size: 1.1em;
+  font-weight: bold;
+  color: #2c3e50;
+}
+
+.network-type-badge {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.85em;
+  font-weight: 600;
+  background: #ecf0f1;
+  color: #2c3e50;
+}
+
+.network-type-badge[data-type="wi-fi"] {
+  background: #3498db;
+  color: white;
+}
+
+.network-type-badge[data-type="ethernet"] {
+  background: #2ecc71;
+  color: white;
+}
+
+.network-type-badge[data-type="bluetooth"] {
+  background: #9b59b6;
+  color: white;
+}
+
+.status-badge {
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.8em;
+  font-weight: bold;
+}
+
+.status-badge.active {
+  background: #27ae60;
+  color: white;
+}
+
+.network-details {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 10px;
+}
+
+/* Timestamp and Actions */
+.detection-timestamp {
+  text-align: center;
+  color: #7f8c8d;
+  font-size: 0.9em;
+  margin: 20px 0;
+  padding: 10px;
+  background: #f8f9fa;
+  border-radius: 4px;
+}
+
+/* Buttons */
+.btn-primary,
+.btn-secondary {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 6px;
+  font-size: 1em;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  display: inline-block;
+  margin: 0 auto;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.btn-secondary {
+  background: #ecf0f1;
+  color: #2c3e50;
+}
+
+.btn-secondary:hover {
+  background: #bdc3c7;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .modules-list {
+    grid-template-columns: 1fr;
+  }
+
+  .network-details {
+    grid-template-columns: 1fr;
+  }
+
+  .gpu-details {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .hardware-section {
+    background: #2c3e50;
+    color: #ecf0f1;
+  }
+
+  .hardware-section h3,
+  .hardware-section h4 {
+    color: #ecf0f1;
+    border-bottom-color: #667eea;
+  }
+
+  .info-item {
+    background: #34495e;
+  }
+
+  .info-item label {
+    color: #95a5a6;
+  }
+
+  .info-item .value {
+    color: #ecf0f1;
+  }
+
+  .network-card {
+    background: #34495e;
+    border-color: #4a5f7f;
+  }
+
+  .network-card.active {
+    background: #1e3a2e;
+    border-color: #27ae60;
+  }
+
+  .network-name {
+    color: #ecf0f1;
+  }
+
+  .detection-timestamp {
+    background: #34495e;
+    color: #95a5a6;
+  }
+}

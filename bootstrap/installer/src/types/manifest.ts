@@ -65,10 +65,15 @@ export type ComponentId =
 // Installation phases
 export type InstallPhase =
   | 'selection'
-  | 'windows'
-  | 'wsl'
+  | 'environment'
+  | 'components'
+  | 'mcp-servers'
+  | 'docker'
+  | 'cloudflare-tunnels'
+  | 'configuration'
+  | 'shims'
   | 'deployment'
-  | 'validation'
+  | 'health-check'
   | 'complete'
   | 'error';
 
@@ -109,4 +114,106 @@ export interface ValidationResult {
   valid: boolean;
   message: string;
   details?: string;
+}
+
+// Docker types
+export type DockerContainerStatus = 'running' | 'stopped' | 'paused' | 'restarting' | 'unknown';
+
+export interface DockerContainer {
+  id: string;
+  name: string;
+  image: string;
+  status: DockerContainerStatus;
+  ports: string[];
+  created: Date;
+  health?: 'healthy' | 'unhealthy' | 'starting';
+}
+
+export interface DockerService {
+  name: string;
+  displayName: string;
+  description: string;
+  containers: DockerContainer[];
+  required: boolean;
+}
+
+// MCP Server types
+export interface MCPServer {
+  id: string;
+  name: string;
+  displayName: string;
+  description: string;
+  enabled: boolean;
+  command: string;
+  args?: string[];
+  env?: Record<string, string>;
+  status: 'active' | 'inactive' | 'error';
+}
+
+// Shim types
+export interface ShimConfig {
+  name: string;
+  targetPath: string;
+  shimPath: string;
+  arguments?: string[];
+  environment?: Record<string, string>;
+}
+
+// Environment types
+export type EnvironmentType = 'development' | 'production' | 'pc1' | 'pc2' | 'pc3' | 'pc4';
+
+export interface EnvironmentConfig {
+  type: EnvironmentType;
+  apiEndpoint: string;
+  mcpServers: string[];
+  dockerServices: string[];
+  features: Record<string, boolean>;
+}
+
+// Configuration file types
+export interface ConfigFileData {
+  path: string;
+  content: string;
+  type: 'env' | 'yaml' | 'json' | 'toml';
+  editable: boolean;
+}
+
+// Health check types
+export interface HealthCheck {
+  service: string;
+  status: 'healthy' | 'unhealthy' | 'degraded' | 'unknown';
+  message: string;
+  lastCheck: Date;
+  details?: Record<string, any>;
+}
+
+// Cloudflare Tunnel types
+export interface CloudflareTunnelService {
+  id: string;
+  name: string;
+  displayName: string;
+  description: string;
+  port: number;
+  protocol: 'http' | 'https' | 'tcp' | 'ssh';
+  enabled: boolean;
+  hostname?: string;
+}
+
+export interface CloudflareTunnelConfig {
+  apiToken: string;
+  accountId?: string;
+  tunnelId?: string;
+  tunnelName: string;
+  services: CloudflareTunnelService[];
+  status: 'idle' | 'configuring' | 'connecting' | 'active' | 'error';
+  tunnelUrl?: string;
+  error?: string;
+}
+
+export interface TunnelConnectionTest {
+  service: string;
+  url: string;
+  status: 'pending' | 'testing' | 'success' | 'failed';
+  responseTime?: number;
+  error?: string;
 }

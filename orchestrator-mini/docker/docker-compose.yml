@@ -1,0 +1,671 @@
+version: '3.8'
+
+# Orchestrator Mini - Intel NUC 12 Pro
+# Role: Central orchestrator for distributed Claude Flow swarm
+# Hardware: Intel i7-1260P, 64GB RAM, 2TB NVMe
+# Services: Claude Flow Orchestrator, MCP Servers, Monitoring, Reverse Proxy
+
+networks:
+  nyra-network:
+    driver: bridge
+    name: nyra-network
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+          gateway: 172.20.0.1
+
+volumes:
+  # Claude Flow & MCP
+  claude-flow-data:
+    driver: local
+  claude-flow-cache:
+    driver: local
+  claude-flow-logs:
+    driver: local
+  agentdb-data:
+    driver: local
+  ruvector-data:
+    driver: local
+
+  # Memory Systems
+  letta-data:
+    driver: local
+  postgres-letta-data:
+    driver: local
+  mem0-data:
+    driver: local
+  qdrant-data:
+    driver: local
+
+  # Monitoring
+  traefik-certificates:
+    driver: local
+  prometheus-data:
+    driver: local
+  grafana-data:
+    driver: local
+  loki-data:
+    driver: local
+  portainer-data:
+    driver: local
+
+  # Infrastructure
+  infisical-data:
+    driver: local
+  redis-orchestrator-data:
+    driver: local
+
+services:
+  # ===================================================================
+  # CORE CLAUDE FLOW SERVICES
+  # ===================================================================
+
+  # Claude Flow Orchestrator - Central coordination hub
+  claude-flow:
+    image: ghcr.io/ruv-inc/claude-flow:alpha
+    container_name: orchestrator-claude-flow
+    hostname: orchestrator-mini
+    restart: unless-stopped
+    ports:
+      - "3010:3010"    # Claude Flow API
+      - "8003:8003"    # MCP Server
+    environment:
+      # Mode Configuration
+      - CLAUDE_FLOW_MODE=orchestrator
+      - CLAUDE_FLOW_VERSION=3.0.0
+
+      # Swarm Configuration
+      - SWARM_TOPOLOGY=hierarchical-mesh
+      - SWARM_MAX_AGENTS=31
+      - SWARM_STRATEGY=specialized
+      - SWARM_CONSENSUS=raft
+
+      # Memory Configuration
+      - MEMORY_BACKEND=hybrid
+      - MEMORY_PATH=/app/data/memory
+      - AGENTDB_URL=http://agentdb:8080
+      - RUVECTOR_URL=http://ruvector:8888
+      - REASONINGBANK_ENABLED=true
+
+      # Hooks & Intelligence
+      - HOOKS_ENABLED=true
+      - HOOKS_PRE_TASK=true
+      - HOOKS_POST_TASK=true
+      - HOOKS_INTELLIGENCE=true
+      - NEURAL_ENABLED=true
+      - SONA_ENABLED=true
+      - MOE_ENABLED=true
+      - FLASH_ATTENTION=true
+
+      # LLM Providers
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      - NEXUS_ROUTER_URL=http://nexus-router:6000
+
+      # Memory Integrations
+      - LETTA_URL=http://letta:8283
+      - MEM0_URL=http://mem0:4321
+
+      # Security & Secrets
+      - INFISICAL_ENABLED=true
+      - INFISICAL_URL=http://infisical:8080
+      - INFISICAL_PROJECT_ID=${INFISICAL_PROJECT_ID}
+      - SECURITY_INPUT_VALIDATION=true
+      - SECURITY_PATH_VALIDATION=true
+      - SECURITY_SAFE_EXECUTION=true
+
+      # Performance
+      - MAX_CONCURRENT_TASKS=15
+      - TASK_TIMEOUT=600000
+      - MEMORY_LIMIT=32GB
+      - CPU_LIMIT=12
+
+      # Logging & Observability
+      - LOG_LEVEL=info
+      - LOG_FILE=/app/logs/claude-flow.log
+      - PROMETHEUS_URL=http://prometheus:9090
+      - GRAFANA_URL=http://grafana:3000
+      - LOKI_URL=http://loki:3100
+
+      # Metadata
+      - PC_ID=orchestrator-mini
+      - PC_NAME=Intel NUC Orchestrator
+      - PC_ROLE=orchestrator
+      - NETWORK_IP=10.0.0.1
+    volumes:
+      - claude-flow-data:/app/data
+      - claude-flow-cache:/app/cache
+      - claude-flow-logs:/app/logs
+      - ../../config/claude-flow/orchestrator:/app/config:ro
+    networks:
+      nyra-network:
+        ipv4_address: 172.20.0.10
+    depends_on:
+      - nexus-router
+      - agentdb
+      - ruvector
+      - redis-orchestrator
+      - infisical
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3010/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.claude-flow.rule=Host(`claude-flow.nyra.local`)"
+      - "traefik.http.services.claude-flow.loadbalancer.server.port=3010"
+
+  # ===================================================================
+  # LLM GATEWAY & ROUTING
+  # ===================================================================
+
+  # Nexus Router - Multi-provider LLM gateway
+  nexus-router:
+    image: ghcr.io/ruv-inc/nexus-router:latest
+    container_name: orchestrator-nexus-router
+    restart: unless-stopped
+    ports:
+      - "6000:6000"
+    environment:
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - DEFAULT_PROVIDER=anthropic
+      - FALLBACK_PROVIDERS=openrouter,google,openai
+      - RATE_LIMIT_ENABLED=true
+      - RATE_LIMIT_REQUESTS_PER_MINUTE=100
+      - CACHE_ENABLED=true
+      - CACHE_TTL=3600
+      - LOG_LEVEL=info
+    networks:
+      nyra-network:
+        ipv4_address: 172.20.0.11
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.nexus.rule=Host(`nexus.nyra.local`)"
+      - "traefik.http.services.nexus.loadbalancer.server.port=6000"
+
+  # ===================================================================
+  # MEMORY SYSTEMS
+  # ===================================================================
+
+  # AgentDB - HNSW vector database (150x-12,500x faster)
+  agentdb:
+    image: ghcr.io/ruv-inc/agentdb:latest
+    container_name: orchestrator-agentdb
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - AGENTDB_HNSW_M=16
+      - AGENTDB_HNSW_EF_CONSTRUCTION=200
+      - AGENTDB_HNSW_EF_SEARCH=100
+      - AGENTDB_QUANTIZATION=scalar
+      - AGENTDB_CACHE_SIZE=512
+      - AGENTDB_MAX_CONNECTIONS=100
+      - LOG_LEVEL=info
+    volumes:
+      - agentdb-data:/app/data
+    networks:
+      nyra-network:
+        ipv4_address: 172.20.0.12
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.agentdb.rule=Host(`agentdb.nyra.local`)"
+      - "traefik.http.services.agentdb.loadbalancer.server.port=8080"
+
+  # RuVector - Memory optimization with SONA/MoE/Flash Attention
+  ruvector:
+    image: ghcr.io/ruv-inc/ruvector:latest
+    container_name: orchestrator-ruvector
+    restart: unless-stopped
+    ports:
+      - "8888:8888"
+    environment:
+      - RUVECTOR_SONA_ENABLED=true
+      - RUVECTOR_SONA_ADAPTATION_THRESHOLD=0.05
+      - RUVECTOR_MOE_ENABLED=true
+      - RUVECTOR_MOE_EXPERT_COUNT=8
+      - RUVECTOR_FLASH_ATTENTION=true
+      - RUVECTOR_EWC_ENABLED=true
+      - RUVECTOR_EWC_LAMBDA=0.4
+      - AGENTDB_URL=http://agentdb:8080
+      - LOG_LEVEL=info
+    volumes:
+      - ruvector-data:/app/data
+    networks:
+      nyra-network:
+        ipv4_address: 172.20.0.13
+    depends_on:
+      - agentdb
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8888/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.ruvector.rule=Host(`ruvector.nyra.local`)"
+      - "traefik.http.services.ruvector.loadbalancer.server.port=8888"
+
+  # Letta (MemGPT) - Stateful conversation memory
+  letta:
+    image: letta/letta:latest
+    container_name: orchestrator-letta
+    restart: unless-stopped
+    ports:
+      - "8283:8283"
+    environment:
+      - LETTA_LLM_ENDPOINT=http://nexus-router:6000
+      - LETTA_EMBEDDING_ENDPOINT=http://nexus-router:6000
+      - LETTA_PG_DB=letta
+      - LETTA_PG_USER=letta
+      - LETTA_PG_PASSWORD=${LETTA_PG_PASSWORD}
+      - LETTA_PG_HOST=postgres-letta
+      - LETTA_PG_PORT=5432
+    volumes:
+      - letta-data:/app/data
+    networks:
+      nyra-network:
+        ipv4_address: 172.20.0.14
+    depends_on:
+      - nexus-router
+      - postgres-letta
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8283/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.letta.rule=Host(`letta.nyra.local`)"
+      - "traefik.http.services.letta.loadbalancer.server.port=8283"
+
+  postgres-letta:
+    image: pgvector/pgvector:pg16
+    container_name: orchestrator-postgres-letta
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=letta
+      - POSTGRES_USER=letta
+      - POSTGRES_PASSWORD=${LETTA_PG_PASSWORD}
+    volumes:
+      - postgres-letta-data:/var/lib/postgresql/data
+    networks:
+      nyra-network:
+        ipv4_address: 172.20.0.15
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U letta"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # Mem0 - Universal memory layer
+  mem0:
+    image: mem0ai/mem0:latest
+    container_name: orchestrator-mem0
+    restart: unless-stopped
+    ports:
+      - "4321:4321"
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - QDRANT_URL=http://qdrant:6333
+      - QDRANT_API_KEY=${QDRANT_API_KEY}
+      - MEM0_LOG_LEVEL=info
+    volumes:
+      - mem0-data:/app/data
+    networks:
+      nyra-network:
+        ipv4_address: 172.20.0.16
+    depends_on:
+      - qdrant
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4321/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.mem0.rule=Host(`mem0.nyra.local`)"
+      - "traefik.http.services.mem0.loadbalancer.server.port=4321"
+
+  # Qdrant - Vector database for Mem0
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: orchestrator-qdrant
+    restart: unless-stopped
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    environment:
+      - QDRANT__SERVICE__HTTP_PORT=6333
+      - QDRANT__SERVICE__GRPC_PORT=6334
+    volumes:
+      - qdrant-data:/qdrant/storage
+    networks:
+      nyra-network:
+        ipv4_address: 172.20.0.17
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6333/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.qdrant.rule=Host(`qdrant.nyra.local`)"
+      - "traefik.http.services.qdrant.loadbalancer.server.port=6333"
+
+  # ===================================================================
+  # INFRASTRUCTURE & SECURITY
+  # ===================================================================
+
+  # Infisical - Secrets management
+  infisical:
+    image: infisical/infisical:latest
+    container_name: orchestrator-infisical
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - ENCRYPTION_KEY=${INFISICAL_ENCRYPTION_KEY}
+      - JWT_SECRET=${INFISICAL_JWT_SECRET}
+      - MONGO_URL=mongodb://infisical-mongo:27017/infisical
+      - SITE_URL=http://infisical.nyra.local
+    volumes:
+      - infisical-data:/app/data
+    networks:
+      nyra-network:
+        ipv4_address: 172.20.0.18
+    depends_on:
+      - infisical-mongo
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/status"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.infisical.rule=Host(`infisical.nyra.local`)"
+      - "traefik.http.services.infisical.loadbalancer.server.port=8080"
+
+  infisical-mongo:
+    image: mongo:7
+    container_name: orchestrator-infisical-mongo
+    restart: unless-stopped
+    environment:
+      - MONGO_INITDB_DATABASE=infisical
+    volumes:
+      - infisical-data:/data/db
+    networks:
+      nyra-network:
+        ipv4_address: 172.20.0.19
+
+  # Redis - Caching and message broker
+  redis-orchestrator:
+    image: redis:7-alpine
+    container_name: orchestrator-redis
+    restart: unless-stopped
+    ports:
+      - "6380:6379"
+    command: redis-server --requirepass ${REDIS_PASSWORD} --maxmemory 4gb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis-orchestrator-data:/data
+    networks:
+      nyra-network:
+        ipv4_address: 172.20.0.20
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    labels:
+      - "traefik.enable=true"
+      - "traefik.tcp.routers.redis.rule=HostSNI(`*`)"
+      - "traefik.tcp.routers.redis.entrypoints=redis"
+      - "traefik.tcp.services.redis.loadbalancer.server.port=6379"
+
+  # ===================================================================
+  # REVERSE PROXY & ROUTING
+  # ===================================================================
+
+  # Traefik - Reverse proxy and load balancer
+  traefik:
+    image: traefik:v3.0
+    container_name: orchestrator-traefik
+    restart: unless-stopped
+    command:
+      - "--api.insecure=true"
+      - "--api.dashboard=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--providers.docker.network=nyra-network"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--entrypoints.redis.address=:6379"
+      - "--metrics.prometheus=true"
+      - "--metrics.prometheus.entryPoint=metrics"
+      - "--entrypoints.metrics.address=:8082"
+      - "--log.level=INFO"
+      - "--accesslog=true"
+    ports:
+      - "80:80"       # HTTP
+      - "443:443"     # HTTPS
+      - "8080:8080"   # Traefik Dashboard
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - traefik-certificates:/certificates
+    networks:
+      nyra-network:
+        ipv4_address: 172.20.0.5
+    healthcheck:
+      test: ["CMD", "traefik", "healthcheck", "--ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.dashboard.rule=Host(`traefik.nyra.local`)"
+      - "traefik.http.routers.dashboard.service=api@internal"
+
+  # ===================================================================
+  # MONITORING & OBSERVABILITY
+  # ===================================================================
+
+  # Prometheus - Metrics collection
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: orchestrator-prometheus
+    restart: unless-stopped
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=30d'
+      - '--web.enable-lifecycle'
+      - '--web.enable-admin-api'
+    ports:
+      - "9090:9090"
+    volumes:
+      - ../monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ../monitoring/alert-rules.yml:/etc/prometheus/alert-rules.yml:ro
+      - prometheus-data:/prometheus
+    networks:
+      nyra-network:
+        ipv4_address: 172.20.0.30
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:9090/-/healthy"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.prometheus.rule=Host(`prometheus.nyra.local`)"
+      - "traefik.http.services.prometheus.loadbalancer.server.port=9090"
+
+  # Grafana - Metrics visualization
+  grafana:
+    image: grafana/grafana:latest
+    container_name: orchestrator-grafana
+    restart: unless-stopped
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_USER:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
+      - GF_SERVER_ROOT_URL=http://grafana.nyra.local
+      - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource,grafana-piechart-panel
+      - GF_AUTH_ANONYMOUS_ENABLED=false
+      - GF_ANALYTICS_REPORTING_ENABLED=false
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana-data:/var/lib/grafana
+    networks:
+      nyra-network:
+        ipv4_address: 172.20.0.31
+    depends_on:
+      - prometheus
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.grafana.rule=Host(`grafana.nyra.local`)"
+      - "traefik.http.services.grafana.loadbalancer.server.port=3000"
+
+  # Loki - Log aggregation
+  loki:
+    image: grafana/loki:latest
+    container_name: orchestrator-loki
+    restart: unless-stopped
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/loki-config.yml
+    volumes:
+      - loki-data:/loki
+    networks:
+      nyra-network:
+        ipv4_address: 172.20.0.32
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3100/ready"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.loki.rule=Host(`loki.nyra.local`)"
+      - "traefik.http.services.loki.loadbalancer.server.port=3100"
+
+  # Promtail - Log shipper
+  promtail:
+    image: grafana/promtail:latest
+    container_name: orchestrator-promtail
+    restart: unless-stopped
+    volumes:
+      - /var/log:/var/log:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+    command: -config.file=/etc/promtail/config.yml
+    networks:
+      nyra-network:
+        ipv4_address: 172.20.0.33
+    depends_on:
+      - loki
+
+  # Node Exporter - System metrics
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: orchestrator-node-exporter
+    restart: unless-stopped
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+      - '--path.rootfs=/host'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    ports:
+      - "9100:9100"
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/host:ro
+    networks:
+      nyra-network:
+        ipv4_address: 172.20.0.34
+
+  # cAdvisor - Container metrics
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    container_name: orchestrator-cadvisor
+    restart: unless-stopped
+    ports:
+      - "8081:8080"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+    networks:
+      nyra-network:
+        ipv4_address: 172.20.0.35
+    privileged: true
+    devices:
+      - /dev/kmsg
+
+  # ===================================================================
+  # MANAGEMENT UI
+  # ===================================================================
+
+  # Portainer - Container management UI
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: orchestrator-portainer
+    restart: unless-stopped
+    ports:
+      - "9443:9443"
+      - "9000:9000"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer-data:/data
+    networks:
+      nyra-network:
+        ipv4_address: 172.20.0.40
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:9000/api/status"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.portainer.rule=Host(`portainer.nyra.local`)"
+      - "traefik.http.services.portainer.loadbalancer.server.port=9000"
+
+  # Watchtower - Automatic container updates
+  watchtower:
+    image: containrrr/watchtower:latest
+    container_name: orchestrator-watchtower
+    restart: unless-stopped
+    environment:
+      - WATCHTOWER_CLEANUP=true
+      - WATCHTOWER_SCHEDULE=0 0 4 * * *
+      - WATCHTOWER_NOTIFICATIONS=shoutrrr
+      - WATCHTOWER_NOTIFICATION_URL=${WATCHTOWER_NOTIFICATION_URL:-}
+      - WATCHTOWER_INCLUDE_STOPPED=true
+      - WATCHTOWER_REVIVE_STOPPED=false
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      nyra-network:
+        ipv4_address: 172.20.0.41
