@@ -142,6 +142,59 @@ npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 8 --
 
 ---
 
+### 💰 Model Selection Guidelines (Cost Optimization)
+
+**CRITICAL: Choose the right Claude model for the task to optimize costs.**
+
+| Task Type | Model | Cost | When to Use |
+|-----------|-------|------|-------------|
+| **Consolidation** (file moves, archiving, cleanup) | **haiku** | 12x cheaper | Default for bulk operations |
+| **Code Review** (quality checks, security scans) | **haiku** | 12x cheaper | Fast validation tasks |
+| **Implementation** (writing code, refactoring) | **sonnet** | Balanced | Complex logic requiring reasoning |
+| **Architecture** (system design, critical decisions) | **sonnet** | Balanced | Important design work |
+| **Security Analysis** (threat modeling, CVE research) | **opus** | Most expensive | Only when expertise needed |
+
+**Model Pricing** (per million tokens):
+- **Haiku**: $0.25 input / $1.25 output (FAST & CHEAP)
+- **Sonnet**: $3 input / $15 output (BALANCED - current default)
+- **Opus**: $15 input / $75 output (MOST CAPABLE)
+
+**Usage Pattern**:
+```javascript
+// Use Haiku for consolidation/cleanup tasks
+Task({
+  prompt: "Move 200+ docker-compose files to infra/docker/",
+  subagent_type: "coder",
+  model: "haiku",  // ← 12x cheaper than sonnet!
+  run_in_background: true
+})
+
+// Use Sonnet for complex implementation
+Task({
+  prompt: "Design and implement OAuth2 authentication flow",
+  subagent_type: "system-architect",
+  model: "sonnet",  // ← Balanced for complex logic
+  run_in_background: true
+})
+
+// Reserve Opus for critical architecture decisions only
+Task({
+  prompt: "Evaluate security implications of multi-tenant architecture",
+  subagent_type: "security-architect",
+  model: "opus",  // ← Only when deep expertise needed
+  run_in_background: true
+})
+```
+
+**Cost Savings Example**:
+- 15 agents × 100k tokens = 1.5M tokens
+- **Sonnet**: ~$27 total
+- **Haiku**: ~$2.25 total (**90% savings!**)
+
+**Default Policy**: Use **Haiku** for all consolidation, cleanup, validation, and bulk operations. Reserve **Sonnet** for implementation and architecture. Use **Opus** sparingly only for critical security/architecture decisions.
+
+---
+
 ### 🔄 Auto-Start Swarm Protocol (Background Execution)
 
 When the user requests a complex task, **spawn agents in background and WAIT for completion:**
