@@ -55,7 +55,7 @@ importers:
         specifier: ^29.4.6
         version: 29.4.6(@babel/core@7.28.6)(@jest/transform@30.2.0)(@jest/types@30.2.0)(babel-jest@30.2.0(@babel/core@7.28.6))(jest-util@30.2.0)(jest@30.2.0(@types/node@20.19.30)(ts-node@10.9.2(@types/node@20.19.30)(typescript@5.9.3)))(typescript@5.9.3)
       turbo:
-        specifier: ^2.4.0
+        specifier: ^2.7.5
         version: 2.7.5
       typescript:
         specifier: ^5.7.0
@@ -213,7 +213,7 @@ importers:
         version: 1.2.8(@types/react-dom@19.2.3(@types/react@19.2.8))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@xterm/addon-canvas':
         specifier: ^0.7.0
-        version: 0.7.0(@xterm/xterm@5.5.0)
+        version: 0.7.0(@xterm/xterm@6.0.0)
       '@xterm/addon-fit':
         specifier: ^0.11.0
         version: 0.11.0
@@ -227,8 +227,8 @@ importers:
         specifier: ^0.19.0
         version: 0.19.0
       '@xterm/xterm':
-        specifier: 5.5.0
-        version: 5.5.0
+        specifier: 6.0.0
+        version: 6.0.0
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -1240,6 +1240,9 @@ importers:
 
   services/nexus-router:
     dependencies:
+      '@types/ws':
+        specifier: ^8.18.1
+        version: 8.18.1
       axios:
         specifier: ^1.6.2
         version: 1.13.2
@@ -1285,6 +1288,9 @@ importers:
       uuid:
         specifier: ^9.0.1
         version: 9.0.1
+      ws:
+        specifier: ^8.19.0
+        version: 8.19.0
       zod:
         specifier: ^3.22.4
         version: 3.25.76
@@ -1292,6 +1298,9 @@ importers:
       '@types/cors':
         specifier: ^2.8.17
         version: 2.8.19
+      '@types/eventsource':
+        specifier: ^1.1.15
+        version: 1.1.15
       '@types/express':
         specifier: ^4.17.21
         version: 4.17.25
@@ -4890,6 +4899,9 @@ packages:
   '@types/estree@1.0.8':
     resolution: {integrity: sha512-dWHzHa2WqEXI/O1E9OjrocMTKJl2mSrEolh1Iomrv6U+JuNwaHXsXx9bLu5gG7BUWFIN0skIQJQ/L1rIex4X6w==}
 
+  '@types/eventsource@1.1.15':
+    resolution: {integrity: sha512-XQmGcbnxUNa06HR3VBVkc9+A2Vpi9ZyLJcdS5dwaQQ/4ZMWFO+5c90FnMUpbtMZwB/FChoYHwuVg8TvkECacTA==}
+
   '@types/express-serve-static-core@4.19.8':
     resolution: {integrity: sha512-02S5fmqeoKzVZCHPZid4b8JH2eM5HzQLZWN2FohQEy/0eXTq8VXZfSN6Pcr3F6N9R/vNrj7cpgbhjie6m/1tCA==}
 
@@ -5290,8 +5302,8 @@ packages:
   '@xterm/addon-webgl@0.19.0':
     resolution: {integrity: sha512-b3fMOsyLVuCeNJWxolACEUED0vm7qC0cy4wRvf3oURSzDTYVQiGPhTnhWZwIHdvC48Y+oLhvYXnY4XDXPoJo6A==}
 
-  '@xterm/xterm@5.5.0':
-    resolution: {integrity: sha512-hqJHYaQb5OptNunnyAnkHyM8aCjZ1MEIDTQu1iIbbTD/xops91NB5yq1ZK/dC2JDbVWtF23zUtl9JE2NqwT87A==}
+  '@xterm/xterm@6.0.0':
+    resolution: {integrity: sha512-TQwDdQGtwwDt+2cgKDLn0IRaSxYu1tSUjgKarSDkUM0ZNiSRXFpjxEsvc/Zgc5kq5omJ+V0a8/kIM2WD3sMOYg==}
 
   abab@2.0.6:
     resolution: {integrity: sha512-j2afSsaIENvHZN2B8GOpF566vZ5WVk5opAiMTvWgaQT8DkbOqsTfvNAvHoRGU2zzP8cPoqys+xHTRDWW8L+/BA==}
@@ -14885,6 +14897,8 @@ snapshots:
 
   '@types/estree@1.0.8': {}
 
+  '@types/eventsource@1.1.15': {}
+
   '@types/express-serve-static-core@4.19.8':
     dependencies:
       '@types/node': 20.19.30
@@ -15377,9 +15391,9 @@ snapshots:
 
   '@xmldom/xmldom@0.8.11': {}
 
-  '@xterm/addon-canvas@0.7.0(@xterm/xterm@5.5.0)':
+  '@xterm/addon-canvas@0.7.0(@xterm/xterm@6.0.0)':
     dependencies:
-      '@xterm/xterm': 5.5.0
+      '@xterm/xterm': 6.0.0
 
   '@xterm/addon-fit@0.11.0': {}
 
@@ -15389,7 +15403,7 @@ snapshots:
 
   '@xterm/addon-webgl@0.19.0': {}
 
-  '@xterm/xterm@5.5.0': {}
+  '@xterm/xterm@6.0.0': {}
 
   abab@2.0.6: {}
 
