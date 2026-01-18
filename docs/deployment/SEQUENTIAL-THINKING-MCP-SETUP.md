@@ -51,15 +51,36 @@ docker network create nyra-mcp-network
 
 ### Step 2: Build and Start Server
 
+The Sequential Thinking MCP server is built from source using a **multi-stage Docker build** for optimal security and control.
+
+**Build Process:**
+1. **Builder Stage**: Compiles TypeScript source to JavaScript using Node 22 Alpine
+2. **Runtime Stage**: Creates minimal production image with only compiled code and runtime dependencies
+
 ```bash
 # From project root
 cd C:\Dev\Projects\Repos\Project-Nyra
 
-# Start the server
-docker-compose -f docker-compose.sequential-thinking-mcp.yml up -d
+# Build from source and start the server
+docker-compose -f docker-compose.sequential-thinking-mcp.yml up -d --build
 
 # Verify it's running
 docker ps | grep sequential-thinking
+
+# Check build logs
+docker-compose -f docker-compose.sequential-thinking-mcp.yml logs sequential-thinking-mcp
+```
+
+**Source Structure:**
+```
+mcp-servers/sequential-thinking-mcp/
+├── src/
+│   ├── index.ts          # MCP server entry point
+│   ├── lib.ts            # SequentialThinkingServer implementation
+├── package.json          # Dependencies and scripts
+├── tsconfig.json         # TypeScript configuration
+├── Dockerfile            # Multi-stage build definition
+└── .dockerignore         # Build optimization
 ```
 
 ### Step 3: Configure Claude Desktop

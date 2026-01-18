@@ -507,7 +507,7 @@ nyra-src/            →          src/
 nyra-webapp/         →          src/webapp/
 nyra-voice/          →          src/voice/
 nyra-scripts/        →          scripts/
-nyra-tools/          →          scripts/tools/
+nyra-tools/          →          tools/nyra-scaffold/  ✅ DONE (Jan 2026)
 nyra-configs/        →          config/
 ```
 

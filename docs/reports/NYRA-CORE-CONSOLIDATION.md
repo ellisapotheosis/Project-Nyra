@@ -64,22 +64,32 @@ git mv nyra-core/src/nyra-mortgage-campaign-agents → packages/agents/campaign
 
 **Status**: Skeleton structure only, no implementation yet. Ready for future development.
 
-### 3. Secrets Management Docs → `docs/security/secrets-management/` (16KB)
+### 3. Secrets Management Docs → Already Present in `docs/security/`
 
-**Rationale**: Security documentation belongs in docs hierarchy for easy discovery.
+**Rationale**: Security documentation was consolidated to docs hierarchy.
 
 **Original Location**: `nyra-core/src/Secrets-Management/`
 
 **Contents**:
 - `SECRET_ROTATION_GUIDE.md` - Comprehensive guide for rotating compromised secrets
-- `QUICK_ROTATION_LINKS.md` - Emergency rotation reference with direct links
+- `QUICK_ROTATION_LINKS.md` - Emergency rotation reference with direct links (227 lines)
+
+**Discovery**: These files already existed in `docs/security/` with identical content (verified via MD5 checksum: `1a017c679462bfedccf0a0a3b1b71405`). The nyra-core versions were duplicates.
 
 **Actions**:
 ```bash
+# Files moved during initial consolidation
 git mv nyra-core/src/Secrets-Management/* → docs/security/secrets-management/
+
+# Discovered duplicates, removed newly moved versions
+rm -rf docs/security/secrets-management/
+
+# Existing files retained at:
+# docs/security/QUICK_ROTATION_LINKS.md (already tracked)
+# docs/security/SECRET_ROTATION_GUIDE.md (already tracked)
 ```
 
-**Git History**: ✅ Preserved with `git mv`
+**Git History**: ✅ Originals already tracked, duplicates removed
 
 ### 4. Project-Nyra Core Files → Removed
 
@@ -115,7 +125,7 @@ rm -rf nyra-core/         # Parent directory now empty
 
 ### Preserved History (git mv)
 - ✅ Campaign agents: `nyra-core/src/nyra-mortgage-campaign-agents` → `packages/agents/campaign`
-- ✅ Secrets docs: `nyra-core/src/Secrets-Management` → `docs/security/secrets-management`
+- ⚠️ Secrets docs: Duplicates discovered and removed (originals already existed in `docs/security/`)
 
 ### Direct Move (mv)
 - ⚠️ Serena toolkit: `nyra-core/serena` → `tools/serena` (permission issues prevented git mv)
@@ -131,13 +141,14 @@ rm -rf nyra-core/         # Parent directory now empty
 ```
 Project-Nyra/
 ├── tools/
-│   └── serena/                    # 4.7MB - MCP coding agent toolkit
+│   └── serena/                         # 4.7MB - MCP coding agent toolkit
 ├── packages/
 │   └── agents/
-│       └── campaign/              # 1KB - Agent skeletons
+│       └── campaign/                   # 1KB - Agent skeletons
 └── docs/
     └── security/
-        └── secrets-management/    # 16KB - Security rotation guides
+        ├── QUICK_ROTATION_LINKS.md     # Already existed (duplicate removed)
+        └── SECRET_ROTATION_GUIDE.md    # Already existed (duplicate removed)
 ```
 
 ## Size Verification
@@ -146,8 +157,10 @@ Project-Nyra/
 |----------|------|---------|
 | `tools/serena/` | 4.7MB | Complete Serena MCP toolkit with docs, tests, language servers |
 | `packages/agents/campaign/` | 1KB | Empty agent structure skeletons for future development |
-| `docs/security/secrets-management/` | 16KB | Secret rotation guides and emergency links |
-| **Total** | **4.716MB** | **Matches original 4.8MB** (accounting for rounding) |
+| `docs/security/` | 0KB* | Secret rotation docs already existed (duplicates removed) |
+| **Total** | **4.701MB** | **Matches original 4.8MB** (accounting for rounding and duplicates) |
+
+*Security documentation was already present in the monorepo at `docs/security/`. Duplicate files from nyra-core were removed.
 
 ## Import Reference Analysis
 
@@ -172,10 +185,11 @@ grep -r "from nyra-core" --include="*.py" --include="*.ts" --include="*.tsx"
 - [ ] Create package.json or pyproject.toml for dependency management
 - [ ] Add tests in corresponding test directory
 
-### 3. Documentation (docs/security/secrets-management)
-- [ ] Review secret rotation guides for accuracy
+### 3. Documentation (docs/security/)
+- [x] Verified secret rotation guides already present
+- [ ] Review guides for accuracy
 - [ ] Update guides with Infisical integration details (if applicable)
-- [ ] Link from main security documentation
+- [ ] Ensure proper cross-linking in main security documentation
 
 ### 4. Cleanup
 - [ ] Remove any dangling references in documentation
