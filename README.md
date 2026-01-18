@@ -168,7 +168,21 @@ Project-Nyra/
     └── guides/              # How-to guides
 ```
 
-## Documentation
+## 📚 Documentation
+
+### 🆕 Infrastructure Consolidation (January 2026)
+
+**Project Nyra has undergone comprehensive infrastructure consolidation!**
+
+- ✅ **202 Docker Compose files** organized by function
+- ✅ **Bootstrap materials** unified into single GUI installer
+- ✅ **Environment variables** standardized with Infisical integration
+- ✅ **~700 MB** of historical materials safely archived with rollback instructions
+
+**Essential Consolidation Docs:**
+- 🔥 **[Consolidation Complete](docs/operations/CONSOLIDATION-COMPLETE.md)** - Full summary, before/after stats, rollback instructions
+- 🔥 **[Environment Variables Guide](docs/operations/ENV-VARIABLE-GUIDE.md)** - Complete variable reference, per-PC distribution, Infisical migration
+- 🔥 **[Docker Usage Guide](infra/docker/USAGE-GUIDE.md)** - Modular Docker structure, PC-specific deployment, troubleshooting
 
 ### Getting Started
 - **[Bootstrap Installation](bootstrap/README.md)** - GUI installer and setup guide
@@ -180,6 +194,7 @@ Project-Nyra/
 
 ### Architecture
 - [System Architecture](docs/architecture/system-architecture.md) - Complete architectural overview
+- **[4-PC Distributed Architecture](docs/architecture/4PC-DISTRIBUTED-ARCHITECTURE.md)** - Multi-PC deployment with GPU workers
 - [Dual Orchestrator Design](docs/architecture/DUAL-ORCHESTRATOR-ARCHITECTURE.md) - Claude Flow + Archon OS integration
 - [Memory Systems](docs/architecture/memory-systems.md) - Agent memory architecture
 - [API Contracts](docs/architecture/api-contracts.md) - Service interfaces
@@ -191,6 +206,9 @@ Project-Nyra/
 - [API Documentation](docs/api/rest-api.md) - REST API reference
 
 ### Operations
+- **[Consolidation Complete](docs/operations/CONSOLIDATION-COMPLETE.md)** - Infrastructure consolidation summary
+- **[Environment Variables Guide](docs/operations/ENV-VARIABLE-GUIDE.md)** - Complete environment configuration
+- **[Docker Usage Guide](infra/docker/USAGE-GUIDE.md)** - Docker deployment patterns
 - [Deployment Status](docs/deployment/DEPLOYMENT-STATUS.md) - Current deployment state
 - [Secrets Management](docs/deployment/INFISICAL-SECRETS-REFERENCE.md) - Secrets configuration
 - [MCP Server Setup](docs/deployment/MCP-SERVER-SETUP.md) - Model Context Protocol setup

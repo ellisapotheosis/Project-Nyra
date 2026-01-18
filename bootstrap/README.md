@@ -1398,6 +1398,80 @@ dir bootstrap\orchestrator-mini\configs\.env
 
 ---
 
+## 🔗 Monorepo Integration
+
+The bootstrap installer is being integrated into the Project Nyra pnpm monorepo for better code reuse and maintainability.
+
+### Integration Status
+
+- **Status**: DESIGN PHASE ✅
+- **Plan Document**: [BOOTSTRAP-INTEGRATION-PLAN.md](../docs/architecture/BOOTSTRAP-INTEGRATION-PLAN.md)
+- **Quick Start**: [INTEGRATION-QUICKSTART.md](./INTEGRATION-QUICKSTART.md)
+
+### Planned Package Structure
+
+Once integrated, the bootstrap system will be split into:
+
+- **@nyra/installer** (`apps/installer`) - Electron + React GUI installer
+- **@nyra/bootstrap-types** (`packages/bootstrap-types`) - TypeScript type definitions
+- **@nyra/bootstrap-ui** (`packages/bootstrap-ui`) - React component library
+- **@nyra/bootstrap-config** (`packages/bootstrap-config`) - Config schemas and validators
+
+### Benefits of Integration
+
+✅ **Code Reuse**: Components can be used in admin dashboard and other apps
+✅ **Type Safety**: Centralized TypeScript types prevent drift
+✅ **Build Speed**: Turbo caching reduces build times by 70-90%
+✅ **Maintainability**: Single source of truth for shared logic
+✅ **Developer Experience**: Unified tooling and hot-reload across all packages
+
+### Quick Commands After Integration
+
+```bash
+# Install dependencies
+pnpm install
+
+# Start installer in dev mode
+pnpm --filter @nyra/installer run dev
+
+# Build all bootstrap packages
+pnpm turbo run build --filter='@nyra/bootstrap-*'
+
+# Package installer for distribution
+pnpm --filter @nyra/installer run package:win
+```
+
+### Using Bootstrap Components in Other Apps
+
+```typescript
+// Import types
+import { PCRole, InstallState, DockerContainer } from '@nyra/bootstrap-types';
+
+// Import UI components
+import { PCSelector, HealthDashboard, InstallationProgress } from '@nyra/bootstrap-ui';
+
+// Import validators
+import { validateManifest, manifestSchema } from '@nyra/bootstrap-config';
+```
+
+### Documentation
+
+- **Full Architecture Plan**: [BOOTSTRAP-INTEGRATION-PLAN.md](../docs/architecture/BOOTSTRAP-INTEGRATION-PLAN.md) - 50+ page comprehensive design
+- **Quick Start Guide**: [INTEGRATION-QUICKSTART.md](./INTEGRATION-QUICKSTART.md) - 90-minute implementation guide
+- **Migration Checklist**: See "Migration Checklist" section in architecture plan
+
+### Timeline
+
+- **Phase 1**: Workspace setup (2 hours)
+- **Phase 2**: Package extraction (4 hours)
+- **Phase 3**: Turbo configuration (1 hour)
+- **Phase 4**: Testing & validation (2 hours)
+- **Phase 5**: Documentation (1 hour)
+
+**Total Estimated Time**: 10 hours
+
+---
+
 ## 📝 Version History
 
 - **v5.0.0** (2026-01-15): Comprehensive documentation with network topology, ASCII diagrams, decision trees
