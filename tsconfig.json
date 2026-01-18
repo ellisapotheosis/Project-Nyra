@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "./tsconfig.base.json",
+  "display": "Project Nyra Root",
+  "files": [],
+  "references": [
+    { "path": "./apps/ratehunter" },
+    { "path": "./apps/nyra-admin" },
+    { "path": "./services/quote-api" },
+    { "path": "./services/nexus-router" },
+    { "path": "./packages/database" },
+    { "path": "./mcp-servers/claude-flow" },
+    { "path": "./mcp-servers/ruv-swarm" }
+  ],
+  "compilerOptions": {
+    "composite": true,
+    "incremental": true
+  }
+}

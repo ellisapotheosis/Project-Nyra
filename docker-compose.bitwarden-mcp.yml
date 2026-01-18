@@ -1,0 +1,99 @@
+version: '3.8'
+
+# Nyra Bitwarden Secrets Manager MCP Integration
+# Secure credential management via Bitwarden Secrets Manager (BWS)
+
+services:
+  # Bitwarden MCP Server
+  bitwarden-mcp:
+    build:
+      context: ./mcp-servers/bitwarden-mcp
+      dockerfile: Dockerfile
+    container_name: nyra-bitwarden-mcp
+    environment:
+      - MCP_PORT=8007
+      - NYRA_ENVIRONMENT=${NYRA_ENVIRONMENT:-development}
+      - NYRA_PC_ID=${NYRA_PC_ID:-orchestrator}
+      - BWS_ACCESS_TOKEN=${BWS_ACCESS_TOKEN}
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - NODE_ENV=production
+    ports:
+      - "8007:8007"
+    volumes:
+      # Configuration
+      - ./config/bitwarden/${NYRA_PC_ID:-orchestrator}:/app/config:ro
+      # Cache and logs
+      - bitwarden_cache:/app/data/cache
+      - ./logs/bitwarden:/app/logs
+      # Secrets cache (optional, for offline access)
+      - bitwarden_secrets:/app/data/secrets
+    networks:
+      - nyra-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8007/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
+  # MetaMCP Gateway with Bitwarden Integration
+  metamcp-gateway-bitwarden:
+    build:
+      context: ./infra/docker/metamcp
+      dockerfile: Dockerfile.gateway-enhanced
+    container_name: nyra-metamcp-gateway-bitwarden
+    environment:
+      - GATEWAY_PORT=8005
+      - NYRA_PC_ID=${NYRA_PC_ID:-orchestrator}
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      # MCP Server Endpoints
+      - BITWARDEN_MCP_ENDPOINT=http://bitwarden-mcp:8007
+      - CLAUDE_FLOW_ENDPOINT=http://claude-flow-mcp:8003
+      - ARCHON_MCP_ENDPOINT=http://archon-mcp:8004
+      # Bitwarden Integration
+      - BWS_ACCESS_TOKEN=${BWS_ACCESS_TOKEN}
+      - AUTO_SECRET_INJECTION=true
+    ports:
+      - "8005:8005"
+    volumes:
+      - ./config/metamcp/${NYRA_PC_ID:-orchestrator}:/app/config:ro
+      - metamcp_cache:/app/cache
+      - ./logs/metamcp:/app/logs
+      - bitwarden_secrets:/app/secrets:ro
+    depends_on:
+      - bitwarden-mcp
+    networks:
+      - nyra-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8005/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  # Bitwarden specific volumes
+  bitwarden_cache:
+    name: nyra_bitwarden_cache
+  bitwarden_secrets:
+    name: nyra_bitwarden_secrets
+    driver: local
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
+      o: mode=0600,uid=1000
+
+  # MetaMCP volumes
+  metamcp_cache:
+    name: nyra_metamcp_cache
+
+networks:
+  nyra-network:
+    name: nyra-bitwarden-network
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.22.0.0/16
+          gateway: 172.22.0.1

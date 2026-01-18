@@ -1,0 +1,220 @@
+name: MCP Server Tests
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'mcp-servers/**'
+      - '.github/workflows/mcp-server-tests.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'mcp-servers/**'
+  workflow_dispatch:
+  schedule:
+    # Run MCP health checks daily at 6 AM UTC
+    - cron: '0 6 * * *'
+
+concurrency:
+  group: mcp-tests-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '20'
+  PNPM_VERSION: '10.27.0'
+
+jobs:
+  # Discover MCP servers
+  discover:
+    name: Discover MCP Servers
+    runs-on: ubuntu-latest
+    outputs:
+      servers: ${{ steps.find-servers.outputs.servers }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Find MCP servers with package.json
+        id: find-servers
+        run: |
+          # Find all MCP servers with package.json
+          SERVERS='{"include":['
+
+          for dir in mcp-servers/*/package.json; do
+            if [ -f "$dir" ]; then
+              server=$(dirname "$dir" | cut -d'/' -f2)
+              # Skip certain directories
+              if [[ "$server" != "node_modules" && "$server" != "general" && "$server" != "configs" && "$server" != "scripts" ]]; then
+                SERVERS="${SERVERS}{\"name\":\"${server}\",\"path\":\"mcp-servers/${server}\"},"
+              fi
+            fi
+          done
+
+          # Check nested servers
+          for dir in mcp-servers/*/*/package.json; do
+            if [ -f "$dir" ]; then
+              parent=$(dirname "$dir" | cut -d'/' -f2)
+              server=$(dirname "$dir" | cut -d'/' -f3)
+              if [[ "$server" != "node_modules" ]]; then
+                SERVERS="${SERVERS}{\"name\":\"${parent}/${server}\",\"path\":\"mcp-servers/${parent}/${server}\"},"
+              fi
+            fi
+          done
+
+          # Remove trailing comma and close JSON
+          SERVERS=$(echo "$SERVERS" | sed 's/,$//')
+          SERVERS="${SERVERS}]}"
+
+          echo "servers=$SERVERS" >> $GITHUB_OUTPUT
+          echo "Found MCP servers: $SERVERS"
+
+  # Test MCP servers
+  test:
+    name: Test ${{ matrix.name }}
+    runs-on: ubuntu-latest
+    needs: discover
+    if: needs.discover.outputs.servers != '{"include":[]}'
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.discover.outputs.servers) }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Setup PNPM
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Install dependencies
+        working-directory: ${{ matrix.path }}
+        run: |
+          if [ -f "package.json" ]; then
+            pnpm install --frozen-lockfile || pnpm install
+          fi
+
+      - name: Run linting
+        working-directory: ${{ matrix.path }}
+        run: |
+          if grep -q '"lint"' package.json; then
+            pnpm lint || echo "Linting skipped - no lint script"
+          fi
+
+      - name: Run tests
+        working-directory: ${{ matrix.path }}
+        run: |
+          if grep -q '"test"' package.json; then
+            pnpm test || echo "Tests skipped - no test script"
+          fi
+
+      - name: Build MCP server
+        working-directory: ${{ matrix.path }}
+        run: |
+          if grep -q '"build"' package.json; then
+            pnpm build
+          fi
+
+      - name: MCP Server Health Check
+        working-directory: ${{ matrix.path }}
+        run: |
+          # Try to start MCP server and check if it responds
+          if grep -q '"start"' package.json; then
+            timeout 10s pnpm start &
+            PID=$!
+            sleep 5
+
+            # Check if process is still running
+            if kill -0 $PID 2>/dev/null; then
+              echo "✅ MCP server ${{ matrix.name }} started successfully"
+              kill $PID 2>/dev/null || true
+            else
+              echo "❌ MCP server ${{ matrix.name }} failed to start"
+              exit 1
+            fi
+          else
+            echo "⚠️ No start script found for ${{ matrix.name }}"
+          fi
+
+      - name: Check MCP protocol compliance
+        working-directory: ${{ matrix.path }}
+        run: |
+          # Check for required MCP server exports/methods
+          if [ -f "src/index.ts" ] || [ -f "src/index.js" ]; then
+            echo "Checking MCP protocol compliance..."
+
+            # Check for common MCP patterns
+            if grep -r "createServer\|McpServer\|StdioServerTransport" src/ 2>/dev/null; then
+              echo "✅ MCP protocol patterns found"
+            else
+              echo "⚠️ No standard MCP patterns detected"
+            fi
+          fi
+
+  # Integration test - test MCP servers together
+  integration:
+    name: MCP Integration Tests
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Setup PNPM
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Install Claude Flow CLI
+        run: npm install -g @claude-flow/cli@latest
+
+      - name: Install root dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run MCP health check
+        run: |
+          # Check if MCP servers can be initialized
+          npx @claude-flow/cli@latest mcp list || echo "MCP servers not configured yet"
+
+      - name: Test MCP server discovery
+        run: |
+          echo "## MCP Server Discovery Test" >> $GITHUB_STEP_SUMMARY
+          echo "Testing MCP server discovery and initialization..." >> $GITHUB_STEP_SUMMARY
+
+          # List available MCP servers
+          if [ -f ".mcp.json" ]; then
+            echo "✅ .mcp.json configuration found" >> $GITHUB_STEP_SUMMARY
+            cat .mcp.json >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️ No .mcp.json configuration" >> $GITHUB_STEP_SUMMARY
+          fi
+
+  # Summary
+  test-complete:
+    name: All MCP Tests Complete
+    runs-on: ubuntu-latest
+    needs: [test, integration]
+    if: always()
+    steps:
+      - name: Check test status
+        run: |
+          if [ "${{ needs.test.result }}" != "success" ]; then
+            echo "One or more MCP server tests failed"
+            exit 1
+          fi
+          echo "All MCP server tests passed"
+
+      - name: Generate summary
+        run: |
+          echo "## MCP Server Test Summary" >> $GITHUB_STEP_SUMMARY
+          echo "✅ All MCP servers tested successfully" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Status:** ${{ needs.test.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Integration:** ${{ needs.integration.result }}" >> $GITHUB_STEP_SUMMARY

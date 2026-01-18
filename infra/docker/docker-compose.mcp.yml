@@ -168,6 +168,56 @@ services:
       - "com.project-nyra.environment=production"
       - "com.project-nyra.version=1.0.0"
 
+  # Exa MCP Server - AI-powered search and research
+  mcp-exa:
+    build:
+      context: ../../bootstrap/mcp-servers/exa
+      dockerfile: Dockerfile
+    container_name: nyra-mcp-exa
+    environment:
+      - EXA_API_KEY=${EXA_API_KEY}
+      - MCP_PORT=8007
+      - NODE_ENV=production
+      - LOG_LEVEL=info
+      - CACHE_ENABLED=true
+      - CACHE_TTL=3600
+      - MAX_RESULTS=10
+      - TIMEOUT=30000
+    volumes:
+      # Persistent search cache
+      - mcp-exa-cache:/app/cache
+      # Production logs
+      - /var/log/nyra/mcp-exa:/app/logs
+      # Exa configuration (read-only)
+      - ../../.exa:/app/.exa:ro
+    ports:
+      - "8007:8007"
+    networks:
+      - mcp-network
+    restart: always
+    depends_on:
+      redis-mcp:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    healthcheck:
+      test: ["CMD", "npx", "@modelcontextprotocol/server-exa", "health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    labels:
+      - "com.project-nyra.service=mcp-exa"
+      - "com.project-nyra.environment=production"
+      - "com.project-nyra.version=1.0.0"
+      - "com.project-nyra.category=search"
+
   # PostgreSQL for MCP data (production)
   postgres-mcp:
     image: postgres:15-alpine
@@ -279,6 +329,9 @@ volumes:
     driver: local
   mcp-archon-data:
     name: nyra-mcp-archon-data
+    driver: local
+  mcp-exa-cache:
+    name: nyra-mcp-exa-cache
     driver: local
   postgres-mcp-data:
     name: nyra-postgres-mcp-data

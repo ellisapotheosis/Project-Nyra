@@ -1,6 +1,0 @@
-general_settings:
-  master_key: ${LITELLM_API_KEY}
-model_list:
-  - model_name: nyra-gpt-4o
-    litellm_params: { model: openai/gpt-4o }
-router_settings: { num_retries: 2 }

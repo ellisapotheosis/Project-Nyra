@@ -1,0 +1,183 @@
+name: Docker Build Matrix
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'apps/**/Dockerfile'
+      - 'services/**/Dockerfile'
+      - 'infra/**'
+      - '.github/workflows/docker-build-matrix.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'apps/**/Dockerfile'
+      - 'services/**/Dockerfile'
+  workflow_dispatch:
+    inputs:
+      service:
+        description: 'Specific service to build (leave empty for all)'
+        required: false
+        type: string
+
+concurrency:
+  group: docker-build-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_PREFIX: ${{ github.repository_owner }}/nyra
+
+jobs:
+  # Detect which services changed
+  detect-changes:
+    name: Detect Changed Dockerfiles
+    runs-on: ubuntu-latest
+    outputs:
+      apps: ${{ steps.filter.outputs.apps }}
+      services: ${{ steps.filter.outputs.services }}
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Filter changed paths
+        uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            apps:
+              - 'apps/**/Dockerfile'
+            services:
+              - 'services/**/Dockerfile'
+
+      - name: Set build matrix
+        id: set-matrix
+        run: |
+          # Build matrix of all services with Dockerfiles
+          MATRIX='{"include":['
+
+          # Add apps
+          if [ "${{ steps.filter.outputs.apps }}" == "true" ] || [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            for dir in apps/*/Dockerfile; do
+              if [ -f "$dir" ]; then
+                app=$(dirname "$dir" | cut -d'/' -f2)
+                MATRIX="${MATRIX}{\"name\":\"${app}\",\"context\":\"apps/${app}\",\"dockerfile\":\"apps/${app}/Dockerfile\",\"type\":\"app\"},"
+              fi
+            done
+          fi
+
+          # Add services
+          if [ "${{ steps.filter.outputs.services }}" == "true" ] || [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            for dir in services/*/Dockerfile; do
+              if [ -f "$dir" ]; then
+                service=$(dirname "$dir" | cut -d'/' -f2)
+                MATRIX="${MATRIX}{\"name\":\"${service}\",\"context\":\"services/${service}\",\"dockerfile\":\"services/${service}/Dockerfile\",\"type\":\"service\"},"
+              fi
+            done
+          fi
+
+          # Remove trailing comma and close JSON
+          MATRIX=$(echo "$MATRIX" | sed 's/,$//')
+          MATRIX="${MATRIX}]}"
+
+          echo "matrix=$MATRIX" >> $GITHUB_OUTPUT
+          echo "Generated matrix: $MATRIX"
+
+  # Build Docker images
+  build:
+    name: Build ${{ matrix.name }}
+    runs-on: ubuntu-latest
+    needs: detect-changes
+    if: needs.detect-changes.outputs.matrix != '{"include":[]}'
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.detect-changes.outputs.matrix) }}
+
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          driver-opts: |
+            image=moby/buildkit:latest
+            network=host
+
+      - name: Log in to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-${{ matrix.name }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=sha,prefix={{branch}}-
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: ${{ matrix.context }}
+          file: ${{ matrix.dockerfile }}
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha,scope=${{ matrix.name }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.name }}
+          platforms: linux/amd64,linux/arm64
+          build-args: |
+            BUILD_DATE=${{ github.event.head_commit.timestamp }}
+            VCS_REF=${{ github.sha }}
+            VERSION=${{ steps.meta.outputs.version }}
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        if: github.event_name != 'pull_request'
+        with:
+          image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-${{ matrix.name }}:${{ steps.meta.outputs.version }}
+          format: 'sarif'
+          output: 'trivy-results-${{ matrix.name }}.sarif'
+
+      - name: Upload Trivy results to GitHub Security
+        uses: github/codeql-action/upload-sarif@v3
+        if: github.event_name != 'pull_request'
+        with:
+          sarif_file: 'trivy-results-${{ matrix.name }}.sarif'
+          category: 'docker-${{ matrix.name }}'
+
+  # Verify all builds succeeded
+  build-complete:
+    name: All Docker Builds Complete
+    runs-on: ubuntu-latest
+    needs: build
+    if: always()
+    steps:
+      - name: Check build status
+        run: |
+          if [ "${{ needs.build.result }}" != "success" ]; then
+            echo "One or more Docker builds failed"
+            exit 1
+          fi
+          echo "All Docker builds completed successfully"
+
+      - name: Summary
+        run: |
+          echo "## Docker Build Summary" >> $GITHUB_STEP_SUMMARY
+          echo "✅ All images built and pushed to ${{ env.REGISTRY }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Registry:** \`${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-*\`" >> $GITHUB_STEP_SUMMARY

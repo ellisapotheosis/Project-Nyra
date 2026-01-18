@@ -19,6 +19,96 @@
         "CLAUDE_FLOW_MEMORY_BACKEND": "hybrid"
       },
       "autoStart": false
+    },
+    "sequential-thinking": {
+      "command": "docker",
+      "args": [
+        "exec",
+        "-i",
+        "nyra-sequential-thinking-mcp",
+        "npx",
+        "-y",
+        "@modelcontextprotocol/server-sequential-thinking"
+      ],
+      "env": {
+        "ENABLE_REVISIONS": "true",
+        "ENABLE_BRANCHING": "true",
+        "ENABLE_DYNAMIC_ADJUSTMENT": "true",
+        "MAX_THOUGHTS": "100",
+        "MAX_BRANCHES": "10",
+        "LOG_LEVEL": "info"
+      },
+      "autoStart": false
+    },
+    "dockerhub": {
+      "command": "docker",
+      "args": [
+        "exec",
+        "-i",
+        "nyra-dockerhub-mcp",
+        "node",
+        "src/mcp-server.js"
+      ],
+      "env": {
+        "MCP_PORT": "8007",
+        "DOCKERHUB_NAMESPACE": "projectnyra",
+        "LOG_LEVEL": "info",
+        "CACHE_TTL": "300",
+        "RATE_LIMIT": "100"
+      },
+      "autoStart": false
+    },
+    "bitwarden": {
+      "command": "docker",
+      "args": [
+        "exec",
+        "-i",
+        "nyra-bitwarden-mcp",
+        "node",
+        "/app/src/index.js"
+      ],
+      "env": {
+        "BWS_ACCESS_TOKEN": "${BWS_ACCESS_TOKEN}",
+        "LOG_LEVEL": "info"
+      },
+      "autoStart": false
+    },
+    "infisical-mcp": {
+      "command": "docker",
+      "args": [
+        "exec",
+        "-i",
+        "nyra-infisical-mcp",
+        "node",
+        "src/index.js"
+      ],
+      "env": {
+        "MCP_PORT": "8006",
+        "LOG_LEVEL": "info",
+        "INFISICAL_ENVIRONMENT": "development",
+        "NYRA_PC_ID": "orchestrator",
+        "INFISICAL_TOKEN": "${INFISICAL_TOKEN}",
+        "INFISICAL_PROJECT_ID": "${INFISICAL_PROJECT_ID}"
+      },
+      "autoStart": false,
+      "description": "Secure secret management via Infisical"
+    },
+    "docker-mcp": {
+      "command": "docker",
+      "args": [
+        "exec",
+        "-i",
+        "nyra-docker-mcp",
+        "node",
+        "dist/index.js"
+      ],
+      "env": {
+        "NODE_ENV": "production",
+        "LOG_LEVEL": "info",
+        "DOCKER_HOST": "unix:///var/run/docker.sock"
+      },
+      "autoStart": false,
+      "description": "Docker operations and container management"
     }
   }
 }

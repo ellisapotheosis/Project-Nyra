@@ -364,7 +364,51 @@ The MCP server infrastructure is partially operational but has significant gaps:
 
 ---
 
-**Report Generated**: 2026-01-14
+---
+
+## 🆕 Update: Git MCP vs GitHub MCP Analysis (2026-01-17)
+
+### Decision: ENHANCE Existing GitHub MCP (No New Git MCP)
+
+**Analysis Document**: [GIT-VS-GITHUB-MCP-ANALYSIS.md](./GIT-VS-GITHUB-MCP-ANALYSIS.md)
+
+**Key Findings**:
+- Existing GitHub MCP at `mcp-servers/implementations/GithubMCP` already provides core Git operations
+- Adding separate Git MCP would create **40-50% redundancy**
+- Current GitHub MCP capabilities:
+  - ✅ Git operations: init, clone, add, commit, push, branch, LFS
+  - ✅ GitHub API: repo creation, branch creation, PR creation
+  - ✅ File system operations
+
+**Identified Gaps** (HIGH Priority):
+- ❌ git_status (show working tree status)
+- ❌ git_log (view commit history)
+- ❌ git_diff (view changes)
+- ❌ git_pull (pull from remote)
+- ❌ git_fetch (fetch from remote)
+- ❌ git_merge (merge branches)
+- ❌ git_reset (reset repository state)
+- ❌ git_stash (stash changes)
+- ❌ git_remote (manage remotes)
+
+**Decision Rationale**:
+1. Avoids redundancy and confusion
+2. Reduces resource usage by 50%
+3. Maintains single source of truth
+4. Lower development effort (4-6 hours vs ongoing dual maintenance)
+5. Better integration between Git and GitHub operations
+
+**Implementation Plan**:
+- Phase 1: Essential Git operations (2 hours) - status, log, diff, pull, fetch
+- Phase 2: Advanced Git operations (2 hours) - merge, reset, stash, remote
+- Phase 3: Enhanced GitHub API (2 hours) - issues, PR reviews
+- Phase 4: Testing & documentation (2 hours)
+
+**Status**: Analysis complete, ready for implementation
+
+---
+
+**Report Generated**: 2026-01-14 (Updated: 2026-01-17)
 **Next Review**: After completing architectural refactoring
 **Status**: Task #15 - MCP Audit Complete ⚠️
 
@@ -373,4 +417,5 @@ The MCP server infrastructure is partially operational but has significant gaps:
 - Switch to npm package installations
 - Setup Infisical Docker integration
 - Configure all missing MCP servers
+- **[NEW]** Enhance GitHub MCP with missing Git operations (4-6 hours)
 - Test and verify connectivity

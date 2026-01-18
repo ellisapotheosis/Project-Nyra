@@ -1,0 +1,19 @@
+# Turborepo Configuration
+# https://turbo.build/repo/docs/reference/configuration
+
+# Cache directory (default: ./node_modules/.cache/turbo)
+# cache-dir = "./node_modules/.cache/turbo"
+
+# Enable daemon for faster subsequent runs
+daemon = true
+
+# UI mode (stream, default, or tui)
+ui = "stream"
+
+# Log level (debug, info, warn, error)
+# log-level = "info"
+
+# Remote cache settings (optional - configure when ready)
+# remote-cache-enabled = true
+# team = "project-nyra"
+# api-url = "https://api.vercel.com"
