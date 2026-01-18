@@ -1,8 +1,0 @@
-{
-  "mcpServers": {
-    "MetaMCP-Nyra": {
-      "url": "http://localhost:12008/metamcp/nyra-core/sse",
-      "apiKey": "nyra-local-key"
-    }
-  }
-}

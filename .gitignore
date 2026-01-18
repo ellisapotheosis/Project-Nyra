@@ -37,6 +37,11 @@ Desktop.ini
 *.tmp
 .cache/
 
+# Turborepo
+.turbo/
+.turbo
+*.turbo.json
+
 
 # Removed Windows wrapper files per user request
 hive-mind-prompt-*.txt

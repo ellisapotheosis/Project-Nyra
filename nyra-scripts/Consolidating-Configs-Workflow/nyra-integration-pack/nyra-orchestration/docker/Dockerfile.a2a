@@ -1,6 +1,0 @@
-FROM python:3.11-slim
-WORKDIR /app
-COPY nyra-orchestration/python/requirements.txt ./requirements.txt
-RUN pip install -r requirements.txt
-COPY nyra-orchestration/a2a ./a2a
-CMD ["python","a2a/nyra_a2a_server.py"]

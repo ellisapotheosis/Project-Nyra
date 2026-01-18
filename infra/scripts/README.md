@@ -48,6 +48,58 @@ bash consolidate-docker-configs.sh
   - `infra-services.txt` - Services in infra/
   - `missing-from-bootstrap.txt` - Services not in bootstrap/
 
+### sync-secrets.sh
+
+Synchronizes secrets across services.
+
+**Usage:**
+```bash
+./sync-secrets.sh
+```
+
+---
+
+## 📦 Consolidated Scripts from nyra-scripts
+
+The following scripts were consolidated from `nyra-scripts/` on 2026-01-16:
+
+### Runtime Scripts (`runtime/`)
+
+| Script | Platform | Purpose | Source |
+|--------|----------|---------|--------|
+| `metamcp-integration.ps1` | Windows | MetaMCP integration | nyra-scripts/ |
+| `ui-integration.ps1` | Windows | UI integration | nyra-scripts/ |
+| `start-mcp-servers.ps1` | Windows | MCP server starting | nyra-scripts/docs/ |
+| `NYRA-DeviceOrchestrator.ps1` | Windows | Device orchestration | nyra-scripts/Consolidating-Configs-Workflow/ |
+| `nyra-up.ps1` | Windows | Service startup | nyra-scripts/Consolidating-Configs-Workflow/ |
+| `nyra-up.sh` | Linux/macOS | Service startup | nyra-scripts/Consolidating-Configs-Workflow/ |
+| `dev.sh` | Linux/macOS | Development server | nyra-scripts/Consolidating-Configs-Workflow/ |
+| `connect-mcp-ecosystem.ps1` | Windows | MCP ecosystem connection | nyra-scripts/docs/ |
+| `DEMO-NYRA-SYSTEM.ps1` | Windows | System demo | nyra-scripts/Consolidating-Configs-Workflow/ |
+
+### Security Scripts (`security/`)
+
+| Script | Platform | Purpose | Source |
+|--------|----------|---------|--------|
+| `Reset-MetaMCP-Password.ps1` | Windows | MetaMCP password reset | nyra-scripts/Consolidating-Configs-Workflow/ |
+| `rotate-secrets.ps1` | Windows | Secret rotation | nyra-scripts/docs/ |
+| `batch-rotate.ps1` | Windows | Batch secret rotation | nyra-scripts/docs/ |
+| `swap-secret.ps1` | Windows | Secret swapping | nyra-scripts/docs/ |
+| `setup-memory-stack.ps1` | Windows | Memory stack security | nyra-scripts/Consolidating-Configs-Workflow/ |
+
+### Utility Scripts (`utilities/`)
+
+| Script | Platform | Purpose | Source |
+|--------|----------|---------|--------|
+| `import-warp-mcp-config.ps1` | Windows | Warp MCP config import | nyra-scripts/docs/ |
+| `claude-mcp-commands.ps1` | Windows | Claude MCP commands | nyra-scripts/docs/ |
+| `nyra-agent-importerPS5.ps1` | Windows | Agent importer | nyra-scripts/Consolidating-Configs-Workflow/ |
+| `Nyra-MCP-Import-GUI.ps1` | Windows | MCP import GUI | nyra-scripts/Consolidating-Configs-Workflow/ |
+
+**For full consolidation details, see**: `scripts/CONSOLIDATION-LOG.md`
+
+---
+
 ### Other Scripts (Coming Soon)
 
 - `start-all.sh` - Start all infrastructure services

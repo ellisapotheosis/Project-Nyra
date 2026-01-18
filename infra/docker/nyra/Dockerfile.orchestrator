@@ -32,7 +32,8 @@ RUN if [ -f requirements.txt ]; then pip3 install --no-cache-dir -r requirements
 
 # Copy application source
 COPY --chown=nyra:nodejs nyra-src/ ./src/
-COPY --chown=nyra:nodejs nyra-configs/ ./configs/
+COPY --chown=nyra:nodejs config/env/ ./configs/env/
+COPY --chown=nyra:nodejs config/ ./configs/
 
 # Create necessary directories
 RUN mkdir -p {logs,cache,temp} && \

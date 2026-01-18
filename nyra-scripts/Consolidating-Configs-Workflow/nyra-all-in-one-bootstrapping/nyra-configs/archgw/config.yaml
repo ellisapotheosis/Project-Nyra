@@ -1,8 +1,0 @@
-listen: ":8080"
-routes:
-  - match: "/metamcp"
-    upstream: "${ARCHGW_UPSTREAM}"
-    auth:
-      type: apiKey
-      header: Authorization
-      value: "Bearer ${METAMCP_API_KEY}"

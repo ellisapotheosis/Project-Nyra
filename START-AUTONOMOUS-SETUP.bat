@@ -17,7 +17,7 @@ echo.
 echo Starting PowerShell setup script...
 echo.
 
-PowerShell -NoProfile -ExecutionPolicy Bypass -Command "& '%~dp0setup-autonomous.ps1'"
+PowerShell -NoProfile -ExecutionPolicy Bypass -Command "& '%~dp0infra\shared\scripts\setup-autonomous.ps1'"
 
 if %ERRORLEVEL% EQU 0 (
     echo.

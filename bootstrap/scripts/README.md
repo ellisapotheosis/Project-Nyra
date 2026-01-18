@@ -149,5 +149,48 @@ cd ../../validation
 
 ---
 
-**Last Updated**: January 15, 2026
-**Version**: 4.0.0
+## 📦 Consolidated Scripts from nyra-scripts
+
+The following scripts were consolidated from `nyra-scripts/` on 2026-01-16:
+
+### Additional Setup Scripts
+
+| Script | Platform | Purpose | Source |
+|--------|----------|---------|--------|
+| `codex-env-setup.ps1` | Windows | Codex-friendly environment bootstrap | nyra-scripts/ |
+| `codex-env-setup.sh` | Linux/macOS | Codex-friendly environment bootstrap | nyra-scripts/ |
+| `Setup-NYRAOrchestrator.ps1` | Windows | NYRA orchestrator setup | nyra-scripts/Consolidating-Configs-Workflow/ |
+| `install-nyra-mcp.ps1` | Windows | MCP installation | nyra-scripts/docs/ |
+| `setup-env.ps1` | Windows | Environment configuration | nyra-scripts/docs/ |
+| `setup-mcp-servers.ps1` | Windows | MCP server setup | nyra-scripts/docs/ |
+| `Start-NYRA-All.ps1` | Windows | All-in-one bootstrapping | nyra-scripts/Consolidating-Configs-Workflow/ |
+| `start-nyra-all.sh` | Linux/macOS | All-in-one bootstrapping | nyra-scripts/Consolidating-Configs-Workflow/ |
+| `bootstrap-mcp-ecosystem.ps1` | Windows | MCP ecosystem bootstrap | nyra-scripts/docs/ |
+
+### Helper Scripts (`helpers/`)
+
+| Script | Purpose | Source |
+|--------|---------|--------|
+| `quick-start.sh` | Quick start helper | nyra-scripts/.claude/helpers/ |
+| `setup-mcp.sh` | MCP setup helper | nyra-scripts/.claude/helpers/ |
+| `github-setup.sh` | GitHub configuration | nyra-scripts/.claude/helpers/ |
+| `github-safe.js` | GitHub safe operations | nyra-scripts/.claude/helpers/ |
+| `checkpoint-manager.sh` | Checkpoint management | nyra-scripts/.claude/helpers/ |
+| `standard-checkpoint-hooks.sh` | Checkpoint hooks | nyra-scripts/.claude/helpers/ |
+
+### Orchestration Scripts (`orchestration/`)
+
+| Script | Platform | Purpose | Source |
+|--------|----------|---------|--------|
+| `nyra-mode.sh` | Linux/macOS | NYRA mode switcher | nyra-scripts/scripts/ |
+| `run-all.ps1` | Windows | Run all services | nyra-scripts/scripts/ |
+| `run-all.sh` | Linux/macOS | Run all services | nyra-scripts/scripts/ |
+| `verify.sh` | Linux/macOS | Verification | nyra-scripts/scripts/ |
+| `booster-codemod.sh` | Linux/macOS | Code modification | nyra-scripts/scripts/ |
+
+**For full consolidation details, see**: `scripts/CONSOLIDATION-LOG.md`
+
+---
+
+**Last Updated**: January 16, 2026
+**Version**: 4.1.0
