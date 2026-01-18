@@ -98,7 +98,7 @@ CMD ["node", "server.js"]
 # ==================================================================
 # STAGE 5: Runtime - Python Services
 # ==================================================================
-FROM python:3.11-slim AS runner-python
+FROM python:3.14-slim AS runner-python
 
 # Install system dependencies
 RUN apt-get update && \
