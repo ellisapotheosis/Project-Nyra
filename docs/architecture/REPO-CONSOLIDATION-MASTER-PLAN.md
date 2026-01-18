@@ -58,7 +58,7 @@ This document outlines a comprehensive strategy to consolidate Project Nyra's re
 | `nyra-memory` | 689K | Memory system clients, deployment configs | Active |
 | `nyra-infra` | 560K | Docker configs, MCP-Servers, metamcp-gateway | Active |
 | `nyra-docs` | 105K | Documentation (to merge with /docs) | Archive |
-| `nyra-tools` | 78K | VSCode extensions, scaffold tools | Active |
+| ~~`nyra-tools`~~ | ~~78K~~ | ✅ **CONSOLIDATED** → `tools/nyra-scaffold/` | ✅ Complete |
 | `nyra-stack` | 68K | Docker compose stack files (.env.example, compose configs) | Active |
 | `nyra-src` | 24K | Source artifacts (mortgage-campaign-agents, Secrets-Management) | Archive |
 | `nyra-configs` | 17K | Configuration files | Archive |
@@ -91,7 +91,7 @@ This document outlines a comprehensive strategy to consolidate Project Nyra's re
 | `nyra-memory/` | `memory/` | **Merge** - Memory system |
 | `nyra-docs/` | `docs/` | **Merge** - Documentation |
 | `nyra-webapp/` | `apps/` | **Merge** - Web applications |
-| `nyra-tools/` | `tools/` | **Merge** - Developer tools |
+| ~~`nyra-tools/`~~ | `tools/nyra-scaffold/` | ✅ **Complete** - Developer scaffold |
 | `nyra-configs/` | `config/` or `configs/` | **Merge** - Consolidate config folders |
 | `nyra-src/` | `src/` | **Merge** - Source code |
 | `nyra-stack/` | `infra/docker/` | **Merge** - Docker compose stacks |
@@ -241,8 +241,7 @@ Project-Nyra/
 │
 ├── tools/                     # 🎯 DEVELOPER TOOLS
 │   ├── archon-os/             # Archon OS tooling
-│   ├── vscode-extensions/     # 🆕 VSCode tools (from nyra-tools)
-│   ├── scaffold/              # 🆕 Scaffold generators (from nyra-tools)
+│   ├── nyra-scaffold/         # ✅ VSCode profiles, agent definitions (consolidated Jan 2026)
 │   └── [other tools]/
 │
 ├── config/                    # 🎯 CONFIGURATION (CONSOLIDATED)
@@ -398,7 +397,7 @@ packages:
 
 | Source | Destination | Action | Priority | Notes |
 |--------|-------------|--------|----------|-------|
-| `nyra-tools/nyra-vscode-and-scaffold/` | `tools/vscode-extensions/` | `git mv` | 🟢 Low | Developer tools |
+| ~~`nyra-tools/nyra-vscode-and-scaffold/`~~ | `tools/nyra-scaffold/` | ✅ `git mv` | ✅ Done | Developer tools |
 | `nyra-configs/**` | `config/legacy/` or merge with `config/` | `git mv` | 🟢 Low | Review relevance |
 | `batch-config.json` | `config/batch-config.json` | `git mv` | 🟢 Low | Root → config |
 
