@@ -15,9 +15,13 @@ router.get('/servers', async (_req: Request, res: Response) => {
       servers: servers.map((s) => ({
         id: s.id,
         name: s.name,
-        url: s.url,
+        protocol: s.protocol,
+        config: s.config,
+        auth: s.auth ? { type: s.auth.type } : undefined,
         enabled: s.enabled,
         priority: s.priority,
+        status: s.status,
+        errorMessage: s.errorMessage,
         toolCount: s.tools?.length || 0,
         lastSync: s.lastSync,
       })),
@@ -29,6 +33,157 @@ router.get('/servers', async (_req: Request, res: Response) => {
     res.status(500).json({
       error: {
         message: error instanceof Error ? error.message : 'Failed to list servers',
+        type: 'server_error',
+      },
+    });
+  }
+});
+
+// Add a new MCP server
+router.post('/servers', async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id, name, protocol, config, auth, enabled = true, priority = 10 } = req.body;
+
+    // Validation
+    if (!id || !name || !protocol || !config) {
+      res.status(400).json({
+        error: {
+          message: 'Missing required fields: id, name, protocol, config',
+          type: 'invalid_request_error',
+        },
+      });
+      return;
+    }
+
+    if (!['stdio', 'sse', 'http'].includes(protocol)) {
+      res.status(400).json({
+        error: {
+          message: 'Invalid protocol. Must be: stdio, sse, or http',
+          type: 'invalid_request_error',
+        },
+      });
+      return;
+    }
+
+    const mcpProxy = MCPProxyService.getInstance();
+    const existingServers = mcpProxy.getAllServers();
+    if (existingServers.find((s) => s.id === id)) {
+      res.status(409).json({
+        error: {
+          message: `Server with id '${id}' already exists`,
+          type: 'conflict_error',
+        },
+      });
+      return;
+    }
+
+    const newServer = {
+      id,
+      name,
+      protocol,
+      config,
+      auth,
+      enabled,
+      priority,
+    };
+
+    await mcpProxy.registerServer(newServer);
+
+    res.status(201).json({
+      server: {
+        ...newServer,
+        status: 'connected',
+      },
+      message: `MCP server '${name}' registered successfully`,
+    });
+  } catch (error) {
+    logger.error('Error adding MCP server:', error);
+    res.status(500).json({
+      error: {
+        message: error instanceof Error ? error.message : 'Failed to add server',
+        type: 'server_error',
+      },
+    });
+  }
+});
+
+// Update an existing MCP server
+router.patch('/servers/:id', async (req: Request, res: Response): Promise<void> => {
+  try {
+    const serverId = req.params.id;
+    const updates = req.body;
+
+    const mcpProxy = MCPProxyService.getInstance();
+    const updatedServer = await mcpProxy.updateServer(serverId, updates);
+
+    res.json({
+      server: {
+        id: updatedServer.id,
+        name: updatedServer.name,
+        protocol: updatedServer.protocol,
+        config: updatedServer.config,
+        auth: updatedServer.auth ? { type: updatedServer.auth.type } : undefined,
+        enabled: updatedServer.enabled,
+        priority: updatedServer.priority,
+        status: updatedServer.status,
+        errorMessage: updatedServer.errorMessage,
+      },
+      message: `Server '${serverId}' updated successfully`,
+    });
+  } catch (error) {
+    logger.error('Error updating MCP server:', error);
+    const statusCode = error instanceof Error && error.message.includes('not found') ? 404 : 500;
+    res.status(statusCode).json({
+      error: {
+        message: error instanceof Error ? error.message : 'Failed to update server',
+        type: statusCode === 404 ? 'not_found_error' : 'server_error',
+      },
+    });
+  }
+});
+
+// Remove an MCP server
+router.delete('/servers/:id', async (req: Request, res: Response): Promise<void> => {
+  try {
+    const serverId = req.params.id;
+
+    const mcpProxy = MCPProxyService.getInstance();
+    await mcpProxy.unregisterServer(serverId);
+
+    res.json({
+      message: `Server '${serverId}' removed successfully`,
+      id: serverId,
+    });
+  } catch (error) {
+    logger.error('Error removing MCP server:', error);
+    const statusCode = error instanceof Error && error.message.includes('not found') ? 404 : 500;
+    res.status(statusCode).json({
+      error: {
+        message: error instanceof Error ? error.message : 'Failed to remove server',
+        type: statusCode === 404 ? 'not_found_error' : 'server_error',
+      },
+    });
+  }
+});
+
+// Test connection to an MCP server
+router.post('/servers/:id/test', async (req: Request, res: Response): Promise<void> => {
+  try {
+    const serverId = req.params.id;
+
+    const mcpProxy = MCPProxyService.getInstance();
+    const result = await mcpProxy.testConnection(serverId);
+
+    res.json({
+      serverId,
+      ...result,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error) {
+    logger.error('Error testing MCP server connection:', error);
+    res.status(500).json({
+      error: {
+        message: error instanceof Error ? error.message : 'Connection test failed',
         type: 'server_error',
       },
     });

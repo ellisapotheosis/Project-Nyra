@@ -56,10 +56,27 @@ jobs:
             all:
               - '**'
 
+  # Secret Validation
+  validate-secrets:
+    name: Validate Required Secrets
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate required secrets
+        run: |
+          MISSING_SECRETS=""
+          if [ -z "${{ secrets.TURBO_TOKEN }}" ]; then
+            echo "::warning::TURBO_TOKEN not configured - Turbo caching will be disabled"
+          fi
+          if [ -z "${{ secrets.INFISICAL_TOKEN }}" ]; then
+            echo "::warning::INFISICAL_TOKEN not configured - Secret injection disabled"
+          fi
+          echo "✓ Secret validation complete"
+
   # Install Dependencies with Caching
   install:
     name: Install Dependencies
     runs-on: ubuntu-latest
+    needs: validate-secrets
     steps:
       - uses: actions/checkout@v4
 

@@ -1,0 +1,239 @@
+{
+  "analysis_date": "2026-01-18",
+  "analysis_phase": "MCP Containerization Cleanup Review",
+  "current_containerized_architecture": {
+    "description": "All MCP services now run in docker-compose.infisical.yml with proper networking",
+    "services": [
+      "infisical-mcp (port 8006) - Secrets management and environment variables",
+      "claude-flow-mcp (port 8003) - SPARC methodology and swarm management",
+      "metamcp-gateway-enhanced (port 8005) - MCP proxy aggregation and service discovery",
+      "nyra-orchestrator (port 8000) - GPU cluster and mortgage workflow coordination",
+      "nyra-worker-1/2/3 (ports 8001-8003) - GPU compute workers"
+    ]
+  },
+  "cleanup_candidates_by_category": {
+    "CATEGORY_1_OLD_DEPLOYMENT_SCRIPTS": {
+      "severity": "HIGH - Remove immediately",
+      "description": "Non-containerized MCP deployment scripts (all functionality replaced by Docker Compose)",
+      "files": [
+        {
+          "path": "scripts/deploy-mcp-ecosystem.sh",
+          "reason": "Standalone bash script for local MCP installation and service mesh setup",
+          "current_use": "None - superseded by docker-compose.infisical.yml",
+          "what_it_does": "Installs npm packages globally, registers with Claude CLI, creates docker-compose.servicemesh.yml",
+          "why_obsolete": "Docker Compose now handles all of this via containerized services with proper networking",
+          "safety": "Safe to remove - Docker Compose is the canonical method",
+          "recommendation": "DELETE or ARCHIVE to _deprecated"
+        },
+        {
+          "path": "scripts/mcp-server-registration.ps1",
+          "reason": "PowerShell script for Windows MCP registration and health checks",
+          "current_use": "None - replaced by docker-compose.infisical.yml",
+          "what_it_does": "Installs MCP servers globally, registers with Claude CLI, checks health",
+          "why_obsolete": "All services containerized - no global npm installations needed",
+          "safety": "Safe to remove - containers handle all setup",
+          "recommendation": "DELETE or ARCHIVE to _deprecated"
+        }
+      ],
+      "action": "REMOVE both files - they are obsolete and represent old deployment methodology"
+    },
+    "CATEGORY_2_HARDCODED_LOCALHOST_CONFIGS": {
+      "severity": "MEDIUM - Archive these configs",
+      "description": "Config files with hardcoded localhost:808x addresses (only work for non-containerized local setup)",
+      "files": [
+        {
+          "path": "configs/metamcp-gateway.json",
+          "reason": "Service discovery hardcoded to localhost:8081, 8082, 8083, 8084, 8085",
+          "lines_of_concern": "Lines 35-64 with hardcoded 'address': 'localhost:8081' pattern",
+          "current_use": "Not used - docker-compose uses service DNS names (claude-flow-mcp, infisical-mcp, etc.)",
+          "why_obsolete": "Docker Compose networking uses internal DNS names, not localhost addresses",
+          "safety": "Safe to archive - containerized setup doesn't use this",
+          "recommendation": "ARCHIVE to _archive/configs-deprecated-2026-01-18"
+        },
+        {
+          "path": "configs/service-mesh-config.json",
+          "reason": "References Consul, Prometheus, Grafana, Jaeger on localhost",
+          "current_use": "Not used - now configured via docker-compose.infisical.yml services",
+          "why_obsolete": "These services would be containerized; this represents old local mesh setup",
+          "safety": "Safe to archive - service mesh now defined in docker-compose",
+          "recommendation": "ARCHIVE to _archive/configs-deprecated-2026-01-18"
+        },
+        {
+          "path": "configs/archon-mcp-config.json",
+          "reason": "References localhost:8081 for Archon MCP coordination",
+          "current_use": "Not used - Archon functionality integrated into metamcp-gateway",
+          "why_obsolete": "Single gateway handles all coordination; old distributed setup no longer needed",
+          "safety": "Safe to archive",
+          "recommendation": "ARCHIVE to _archive/configs-deprecated-2026-01-18"
+        },
+        {
+          "path": "configs/claude-flow-mcp-config.json",
+          "reason": "References localhost:8082 for Claude-Flow MCP server",
+          "current_use": "Not used - configured via docker-compose.infisical.yml (claude-flow-mcp service)",
+          "why_obsolete": "Docker Compose defines the canonical configuration",
+          "safety": "Safe to archive",
+          "recommendation": "ARCHIVE to _archive/configs-deprecated-2026-01-18"
+        },
+        {
+          "path": "configs/nyra-orchestrator-config.json",
+          "reason": "Service routing hardcoded to localhost addresses",
+          "current_use": "Not used - orchestrator service defined in docker-compose",
+          "why_obsolete": "Container-based orchestrator uses Docker networking",
+          "safety": "Safe to archive",
+          "recommendation": "ARCHIVE to _archive/configs-deprecated-2026-01-18"
+        },
+        {
+          "path": "configs/mcp-architecture.json",
+          "reason": "Documents architecture with hardcoded localhost port references",
+          "current_use": "Documentation only - not loaded by any service",
+          "why_obsolete": "Architecture now defined in docker-compose.infisical.yml and container Dockerfiles",
+          "safety": "Safe to archive",
+          "recommendation": "ARCHIVE to _archive/configs-deprecated-2026-01-18"
+        }
+      ],
+      "action": "ARCHIVE all 6 files to _archive/configs-deprecated-2026-01-18 directory"
+    },
+    "CATEGORY_3_BATCH_CONFIGURATION_FILES": {
+      "severity": "LOW - Archive as cleanup",
+      "description": "Old batch configuration files with localhost dependencies",
+      "files": [
+        {
+          "path": "configs/batch/batch-config.json",
+          "reason": "Health checks hardcoded to localhost:8080, localhost:8081",
+          "current_use": "Not used",
+          "why_obsolete": "Health checks now defined in docker-compose.infisical.yml services",
+          "recommendation": "ARCHIVE to _archive/configs-deprecated-2026-01-18"
+        },
+        {
+          "path": "configs/batch/project-nyra-batch.json",
+          "reason": "Duplicate of batch-config.json with same localhost references",
+          "current_use": "Not used",
+          "why_obsolete": "Redundant configuration",
+          "recommendation": "ARCHIVE to _archive/configs-deprecated-2026-01-18"
+        },
+        {
+          "path": "configs/batch/PROJECT-NYRA-ULTIMATE-BATCH-CONFIG.json",
+          "reason": "Ultimate batch config with localhost:8080 serverUrl references",
+          "current_use": "Not used",
+          "why_obsolete": "Batch operations now handled via docker-compose orchestration",
+          "recommendation": "ARCHIVE to _archive/configs-deprecated-2026-01-18"
+        }
+      ],
+      "action": "ARCHIVE all 3 batch config files"
+    },
+    "CATEGORY_4_BACKUP_CONFIGURATION_SNAPSHOTS": {
+      "severity": "LOW - Clean up backup directory",
+      "description": "Timestamped backup snapshots of configurations (redundant)",
+      "files": [
+        {
+          "path": "configs/backup/latest/root/.mcp.json",
+          "reason": "Backup snapshot of root .mcp.json",
+          "current_use": "None - original is in root",
+          "why_keep": "Keep only if version control is insufficient (but Git provides this)",
+          "recommendation": "REMOVE - Git provides version history"
+        },
+        {
+          "path": "configs/backup/latest/root/claude-flow.config.json",
+          "reason": "Backup snapshot of claude-flow config",
+          "recommendation": "REMOVE - Git provides version history"
+        },
+        {
+          "path": "configs/backup/timestamped/20260115_211341/root/.mcp.json",
+          "reason": "Timestamped snapshot (old date: 2026-01-15)",
+          "recommendation": "REMOVE - Old backup no longer needed"
+        },
+        {
+          "path": "configs/backup/timestamped/20260115_211341/root/claude-flow.config.json",
+          "reason": "Timestamped snapshot (old date)",
+          "recommendation": "REMOVE - Old backup no longer needed"
+        },
+        {
+          "path": "docs/configs/backup/latest/root/.mcp.json",
+          "reason": "Redundant backup in docs folder",
+          "recommendation": "REMOVE - Keep single source of truth in root"
+        },
+        {
+          "path": "docs/configs/backup/timestamped/20260115_211341/root/.mcp.json",
+          "reason": "Redundant timestamped backup in docs folder",
+          "recommendation": "REMOVE - Consolidate to single location"
+        }
+      ],
+      "action": "Remove entire configs/backup directory and consolidate any recent configs back to root"
+    },
+    "CATEGORY_5_MCP_JAVASCRIPT_CONFIGURATIONS": {
+      "severity": "KEEP - These are development utilities",
+      "description": "MCP configuration and orchestration JavaScript files (still in use)",
+      "files": [
+        {
+          "path": ".claude/src/mcp/config/mcp-config.js",
+          "reason": "MCP configuration loader used by .claude development tooling",
+          "current_use": "Active - used by Claude Desktop MCP setup",
+          "recommendation": "KEEP - Development utility"
+        },
+        {
+          "path": ".claude/src/orchestration/mcp-integration.js",
+          "reason": "MCP integration orchestration logic",
+          "current_use": "Active - used for coordination",
+          "recommendation": "KEEP - Development orchestration"
+        },
+        {
+          "path": ".claude/scripts/mcp-setup.js",
+          "reason": "MCP setup script for development",
+          "current_use": "May be used",
+          "recommendation": "KEEP - Development setup utility"
+        }
+      ],
+      "action": "KEEP all JavaScript configuration files"
+    },
+    "CATEGORY_6_DOCKER_CONFIGURATION_EXAMPLES": {
+      "severity": "REVIEW - Template/example files",
+      "description": "Configuration template files for Docker setup",
+      "files": [
+        {
+          "path": "scripts/batch-claude-md/templates/stacks/nodejs-mcp.md",
+          "reason": "Template documentation for Node.js MCP setup",
+          "current_use": "Template reference",
+          "recommendation": "KEEP - May be useful for documentation"
+        }
+      ],
+      "action": "KEEP - Documentation/template files"
+    }
+  },
+  "summary_counts": {
+    "total_files_analyzed": 17,
+    "high_priority_removals": 2,
+    "medium_priority_archives": 6,
+    "low_priority_cleanups": 3,
+    "keep_as_is": 6
+  },
+  "removal_plan": {
+    "phase_1_immediate_removal": [
+      "scripts/deploy-mcp-ecosystem.sh",
+      "scripts/mcp-server-registration.ps1"
+    ],
+    "phase_2_archive_to_deprecated": [
+      "configs/metamcp-gateway.json",
+      "configs/service-mesh-config.json",
+      "configs/archon-mcp-config.json",
+      "configs/claude-flow-mcp-config.json",
+      "configs/nyra-orchestrator-config.json",
+      "configs/mcp-architecture.json",
+      "configs/batch/batch-config.json",
+      "configs/batch/project-nyra-batch.json",
+      "configs/batch/PROJECT-NYRA-ULTIMATE-BATCH-CONFIG.json"
+    ],
+    "phase_3_cleanup_backups": [
+      "Delete: configs/backup directory entirely",
+      "Delete: docs/configs/backup directory entirely"
+    ]
+  },
+  "safety_verification": {
+    "verification_checklist": [
+      "Confirm docker-compose.infisical.yml works with current .mcp.json files",
+      "Verify Claude Desktop can still register MCP servers from root .mcp.json",
+      "Check that no scripts or configs still reference deleted files",
+      "Ensure all MCP services start correctly after cleanup"
+    ]
+  },
+  "key_principle": "Single Source of Truth: docker-compose.infisical.yml is the canonical MCP deployment configuration"
+}

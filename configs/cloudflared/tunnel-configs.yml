@@ -35,6 +35,15 @@ orchestrator:
         noTLSVerify: true
         connectTimeout: 30s
 
+    # Open WebUI - AI Chat Interface
+    - hostname: "chat.ratehunter.net"
+      service: "http://nyra-open-webui:3333"
+      originRequest:
+        noTLSVerify: true
+        connectTimeout: 30s
+        keepAliveTimeout: 90s
+        httpHostHeader: chat.ratehunter.net
+
     # Catch-all
     - service: "http_status:404"
 

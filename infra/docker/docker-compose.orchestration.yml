@@ -113,7 +113,8 @@ services:
       NODE_ENV: ${NODE_ENV}
       PORT: ${CLAUDE_FLOW_PORT}
       DATABASE_URL: ${DATABASE_URL}
-      REDIS_URL: ${REDIS_URL}
+      # Redis with Database 1 (isolated from Nexus Router DB 0)
+      REDIS_URL: ${CLAUDE_FLOW_REDIS_URL}
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
       OPENROUTER_API_KEY: ${OPENROUTER_API_KEY}
       CLAUDE_FLOW_MODE: ${CLAUDE_FLOW_MODE}
@@ -155,7 +156,8 @@ services:
       NODE_ENV: ${NODE_ENV}
       PORT: ${ARCHON_PORT}
       DATABASE_URL: ${DATABASE_URL}
-      REDIS_URL: ${REDIS_URL}
+      # Redis with Database 2 (isolated from Nexus Router DB 0, Claude Flow DB 1)
+      REDIS_URL: ${ARCHON_REDIS_URL}
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
       ARCHON_MCP_PORT: ${ARCHON_MCP_PORT}
       ARCHON_TOPOLOGY: ${ARCHON_TOPOLOGY}
@@ -191,7 +193,8 @@ services:
       NODE_ENV: ${NODE_ENV}
       PORT: ${NEXUS_ROUTER_PORT}
       MCP_PORT: ${NEXUS_ROUTER_MCP_PORT}
-      REDIS_URL: ${REDIS_URL}
+      # Redis with Database 0 (isolated from Claude Flow DB 1)
+      REDIS_URL: ${NEXUS_REDIS_URL}
 
       # Local GPU Workers
       WORKER_5090_URL: ${WORKER_5090_URL}

@@ -9,39 +9,61 @@ import { NexusAPI } from '@/lib/api';
 import { formatNumber, formatDuration } from '@/lib/utils';
 
 export default function DashboardPage() {
-  const { metrics, setMetrics, setWSConnected } = useNexusStore();
+  const { metrics, setMetrics, wsConnected, setWSConnected } = useNexusStore();
   const [chartData, setChartData] = useState<any[]>([]);
 
   useEffect(() => {
+    // Mock data for development/demo when backend is unavailable
+    const mockMetrics = {
+      totalRequests: 12847,
+      successRate: 98.7,
+      avgLatency: 142,
+      activeConnections: 23,
+      queuedTasks: 7,
+      totalCost: 24.58,
+    };
+
     // Initial data fetch
     const fetchData = async () => {
       try {
         const data = await NexusAPI.getMetrics();
         setMetrics(data);
       } catch (error) {
-        console.error('Failed to fetch metrics:', error);
+        console.warn('Backend unavailable, using mock data:', error);
+        // Use mock data when backend isn't available
+        setMetrics(mockMetrics);
       }
     };
 
     fetchData();
 
     // WebSocket connection for real-time updates
-    const ws = NexusAPI.connectWebSocket((data) => {
-      if (data.type === 'metrics') {
-        setMetrics(data.payload);
-      } else if (data.type === 'chart') {
-        setChartData((prev) => [...prev.slice(-19), data.payload]);
-      }
-    });
+    let ws: WebSocket | null = null;
+    try {
+      ws = NexusAPI.connectWebSocket((data) => {
+        if (data.type === 'metrics') {
+          setMetrics(data.payload);
+        } else if (data.type === 'chart') {
+          setChartData((prev) => [...prev.slice(-19), data.payload]);
+        }
+      });
 
-    ws.onopen = () => setWSConnected(true);
-    ws.onclose = () => setWSConnected(false);
+      ws.onopen = () => setWSConnected(true);
+      ws.onclose = () => setWSConnected(false);
+      ws.onerror = () => {
+        console.warn('WebSocket connection failed, using mock data');
+        setWSConnected(false);
+      };
+    } catch (error) {
+      console.warn('WebSocket unavailable:', error);
+      setWSConnected(false);
+    }
 
     // Poll for updates every 30 seconds as fallback
     const interval = setInterval(fetchData, 30000);
 
     return () => {
-      ws.close();
+      if (ws) ws.close();
       clearInterval(interval);
     };
   }, [setMetrics, setWSConnected]);
@@ -129,22 +151,22 @@ export default function DashboardPage() {
             <div className="flex items-center justify-between">
               <span className="text-sm text-muted-foreground">WebSocket</span>
               <div className="flex items-center gap-2">
-                <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
-                <span className="text-sm font-medium">Connected</span>
+                <div className={`h-2 w-2 rounded-full ${wsConnected ? 'bg-green-500 animate-pulse' : 'bg-gray-400'}`} />
+                <span className="text-sm font-medium">{wsConnected ? 'Connected' : 'Disconnected'}</span>
               </div>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm text-muted-foreground">API Gateway</span>
               <div className="flex items-center gap-2">
-                <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
-                <span className="text-sm font-medium">Operational</span>
+                <div className={`h-2 w-2 rounded-full ${metrics.totalRequests > 0 ? 'bg-green-500 animate-pulse' : 'bg-yellow-500'}`} />
+                <span className="text-sm font-medium">{metrics.totalRequests > 0 ? 'Operational' : 'Demo Mode'}</span>
               </div>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">Database</span>
+              <span className="text-sm text-muted-foreground">Backend</span>
               <div className="flex items-center gap-2">
-                <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
-                <span className="text-sm font-medium">Healthy</span>
+                <div className={`h-2 w-2 rounded-full ${wsConnected ? 'bg-green-500 animate-pulse' : 'bg-orange-500'}`} />
+                <span className="text-sm font-medium">{wsConnected ? 'Connected' : 'Using Mock Data'}</span>
               </div>
             </div>
           </div>

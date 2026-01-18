@@ -1,23 +1,6 @@
 version: 2
 updates:
-  # Enable version updates for npm dependencies in the memory module
-  - package-ecosystem: "npm"
-    directory: "/memory"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "09:00"
-    open-pull-requests-limit: 10
-    reviewers:
-      - "ruvnet"
-    labels:
-      - "dependencies"
-      - "npm"
-    commit-message:
-      prefix: "chore"
-      include: "scope"
-
-  # Enable version updates for GitHub Actions
+  # GitHub Actions workflows
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
@@ -31,10 +14,133 @@ updates:
       - "dependencies"
       - "github-actions"
     commit-message:
-      prefix: "chore"
+      prefix: "ci"
       include: "scope"
 
-  # Enable version updates for Deno dependencies
+  # npm - Root package (monorepo)
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 10
+    reviewers:
+      - "ruvnet"
+    labels:
+      - "dependencies"
+      - "npm"
+    commit-message:
+      prefix: "deps"
+      include: "scope"
+
+  # npm - Memory module
+  - package-ecosystem: "npm"
+    directory: "/memory"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 10
+    reviewers:
+      - "ruvnet"
+    labels:
+      - "dependencies"
+      - "npm"
+      - "memory"
+    commit-message:
+      prefix: "deps"
+      include: "scope"
+
+  # npm - Apps directory
+  - package-ecosystem: "npm"
+    directory: "/apps"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 10
+    reviewers:
+      - "ruvnet"
+    labels:
+      - "dependencies"
+      - "npm"
+      - "apps"
+    commit-message:
+      prefix: "deps"
+      include: "scope"
+
+  # npm - Services directory
+  - package-ecosystem: "npm"
+    directory: "/services"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 10
+    reviewers:
+      - "ruvnet"
+    labels:
+      - "dependencies"
+      - "npm"
+      - "services"
+    commit-message:
+      prefix: "deps"
+      include: "scope"
+
+  # npm - Packages directory
+  - package-ecosystem: "npm"
+    directory: "/packages"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 10
+    reviewers:
+      - "ruvnet"
+    labels:
+      - "dependencies"
+      - "npm"
+      - "packages"
+    commit-message:
+      prefix: "deps"
+      include: "scope"
+
+  # Docker images
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "ruvnet"
+    labels:
+      - "dependencies"
+      - "docker"
+    commit-message:
+      prefix: "deps"
+      include: "scope"
+
+  # Python dependencies
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "ruvnet"
+    labels:
+      - "dependencies"
+      - "python"
+    commit-message:
+      prefix: "deps"
+      include: "scope"
+
+  # Go modules (if present)
   - package-ecosystem: "gomod"
     directory: "/"
     schedule:
@@ -46,7 +152,7 @@ updates:
       - "ruvnet"
     labels:
       - "dependencies"
-      - "deno"
+      - "go"
     commit-message:
-      prefix: "chore"
+      prefix: "deps"
       include: "scope"
