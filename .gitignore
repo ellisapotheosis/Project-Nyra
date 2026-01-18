@@ -1,82 +1,217 @@
-# Node.js dependencies
+################################################################################
+# Project Nyra .gitignore
+# Organized by category for maintainability
+################################################################################
+
+################################################################################
+# Node.js and Dependencies
+################################################################################
 node_modules/
 **/node_modules/
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+.pnp/
+.pnp.js
 
-# Build outputs
+################################################################################
+# Build Outputs and Artifacts
+################################################################################
 dist/
 build/
+out/
+.next/
+.nuxt/
+.output/
 *.log
 *.tsbuildinfo
+coverage/
+.nyc_output/
 
-# Environment files
+################################################################################
+# Environment Files and Secrets
+################################################################################
 .env
 .env.local
 .env.*.local
+.env.development.local
+.env.test.local
+.env.production.local
 .env.cloudflare
+*.pem
+*.key
+*.cert
+secrets/
+credentials/
 
-# IDE files
+################################################################################
+# IDE and Editor Files
+################################################################################
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
+.project
+.classpath
+.settings/
+*.sublime-project
+*.sublime-workspace
 
-# OS files
+################################################################################
+# OS Files
+################################################################################
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
 Desktop.ini
 
-# Problematic Windows reserved filenames
+################################################################################
+# Windows Reserved Filenames (Security)
+################################################################################
 **/nul
 **/NUL
 **/CON
 **/PRN
 **/AUX
+**/COM[1-9]
+**/LPT[1-9]
 
-# Temporary files
+################################################################################
+# Temporary and Cache Files
+################################################################################
 *.tmp
+*.temp
 .cache/
+.temp/
+tmp/
+temp/
+*.swp
+*.bak
 
-# Archive and backup directories (may contain secrets)
-_archive/
+################################################################################
+# Archive and Backup Directories
+# Note: The _archive/ directory itself is tracked, but certain files within
+# are excluded to prevent committing sensitive data from archived projects
+################################################################################
+# Exclude common build artifacts and dependencies in archives
+_archive/**/node_modules/
+_archive/**/dist/
+_archive/**/build/
+_archive/**/.next/
+_archive/**/.nuxt/
+
+# Exclude logs and temporary files in archives
+_archive/**/*.log
+_archive/**/*.tmp
+_archive/**/*.temp
+
+# Exclude environment and secret files in archives
+_archive/**/.env
+_archive/**/.env.*
+_archive/**/*.pem
+_archive/**/*.key
+
+# Exclude database files in archives
+_archive/**/*.db
+_archive/**/*.sqlite
+_archive/**/*.db-journal
+
+# BUT: Keep the _archive directory structure and documentation
+!_archive/
+!_archive/**/README.md
+!_archive/**/ARCHIVE-INFO.md
+!_archive/**/.gitkeep
+
+# Backup directories (completely excluded)
 _backup/
+*.backup
+backup/
+backups/
 
+# Temporary consolidation files
+**/consolidation-temp/
+**/consolidation-tmp/
+consolidation-work/
+
+################################################################################
 # Turborepo
+################################################################################
 .turbo/
 .turbo
 *.turbo.json
 
-
-# Removed Windows wrapper files per user request
-hive-mind-prompt-*.txt
-
-
-# Removed Windows wrapper files per user request
-hive-mind-prompt-*.txt
-
-# Claude Flow generated files
+################################################################################
+# Claude Flow Generated Files and Data
+################################################################################
+# Local settings and configurations
 .claude/settings.local.json
 .mcp.json
 claude-flow.config.json
+
+# Runtime directories
 .swarm/
 .hive-mind/
 .claude-flow/
 memory/
 coordination/
+
+# Memory and session data
 memory/claude-flow-data.json
 memory/sessions/*
 !memory/sessions/README.md
 memory/agents/*
 !memory/agents/README.md
+
+# Coordination data
 coordination/memory_bank/*
 coordination/subtasks/*
 coordination/orchestration/*
+
+# Claude Flow executable
+claude-flow
+
+# Generated prompt files
+hive-mind-prompt-*.txt
+swarm-prompt-*.txt
+
+################################################################################
+# Database Files
+################################################################################
 *.db
 *.db-journal
 *.db-wal
 *.sqlite
 *.sqlite-journal
 *.sqlite-wal
-claude-flow
-# Removed Windows wrapper files per user request
-hive-mind-prompt-*.txt
+*.sql.gz
+
+################################################################################
+# Testing and Coverage
+################################################################################
+.coverage
+htmlcov/
+.pytest_cache/
+.jest/
+junit.xml
+test-results/
+*.test.log
+
+################################################################################
+# Docker and Container Files
+################################################################################
+.docker/
+docker-compose.override.yml
+.dockerignore.local
+
+################################################################################
+# Miscellaneous
+################################################################################
+*.orig
+*.rej
+.eslintcache
+.stylelintcache
