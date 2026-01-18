@@ -10,6 +10,52 @@
     "costOptimized": "gemini-2.0-flash-001"
   },
 
+  "providers": [
+    {
+      "name": "anthropic",
+      "type": "anthropic",
+      "apiKey": "${ANTHROPIC_API_KEY}",
+      "models": ["claude-opus-4-5-20251101", "claude-3-5-sonnet-20241022", "claude-3-5-haiku-20241022"]
+    },
+    {
+      "name": "openai",
+      "type": "openai",
+      "apiKey": "${OPENAI_API_KEY}",
+      "models": ["gpt-4", "gpt-4-turbo", "gpt-3.5-turbo"]
+    },
+    {
+      "name": "gemini",
+      "type": "google",
+      "apiKey": "${GOOGLE_API_KEY}",
+      "models": ["gemini-2.0-flash-001"]
+    }
+  ],
+
+  "agents": {
+    "defaultType": "coder",
+    "maxConcurrent": 15,
+    "pool": []
+  },
+
+  "mcpServers": [
+    {
+      "name": "claude-flow",
+      "command": "npx",
+      "args": ["-y", "@claude-flow/cli@latest", "mcp"],
+      "enabled": true
+    }
+  ],
+
+  "hooks": {
+    "enabled": true,
+    "preTask": true,
+    "postTask": true,
+    "preEdit": true,
+    "postEdit": true,
+    "preCommand": true,
+    "postCommand": true
+  },
+
   "swarm": {
     "topology": "hierarchical-mesh",
     "maxAgents": 15,

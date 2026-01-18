@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
   Activity,
+  Brain,
   Cpu,
   Database,
   Home,
@@ -45,6 +46,12 @@ const routes = [
     icon: Zap,
     href: '/routes',
     color: 'text-emerald-500',
+  },
+  {
+    label: 'Claude Flow',
+    icon: Brain,
+    href: '/claude-flow',
+    color: 'text-purple-500',
   },
   {
     label: 'Configuration',

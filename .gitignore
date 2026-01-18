@@ -37,6 +37,10 @@ Desktop.ini
 *.tmp
 .cache/
 
+# Archive and backup directories (may contain secrets)
+_archive/
+_backup/
+
 # Turborepo
 .turbo/
 .turbo
