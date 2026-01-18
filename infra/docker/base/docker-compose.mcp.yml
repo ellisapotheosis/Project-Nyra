@@ -1,0 +1,271 @@
+# Docker Compose - MCP Servers
+# Claude Flow, Infisical, Memory Services (Mem0, Letta), AgentDB, RuVector
+
+services:
+  # Nexus Router - LLM Gateway
+  nexus-router:
+    image: ghcr.io/grafbase/nexus:latest
+    container_name: nyra-nexus
+    restart: unless-stopped
+    ports:
+      - "6000:6000"
+    environment:
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - DEFAULT_PROVIDER=anthropic
+      - FALLBACK_PROVIDERS=openrouter,google
+      - RATE_LIMIT_ENABLED=true
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+    volumes:
+      - nexus-data:/app/data
+    networks:
+      - nyra-mcp
+      - nyra-core
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # LiteLLM - Model Proxy
+  litellm:
+    image: ghcr.io/berriai/litellm:main-stable
+    container_name: nyra-litellm
+    restart: unless-stopped
+    ports:
+      - "4000:4000"
+    environment:
+      - LITELLM_MASTER_KEY=${LITELLM_MASTER_KEY}
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+    volumes:
+      - ./configs/litellm/config.yaml:/app/config.yaml:ro
+    networks:
+      - nyra-mcp
+      - nyra-core
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Letta (MemGPT) - Stateful Conversation Memory
+  letta:
+    image: letta/letta:latest
+    container_name: nyra-letta
+    restart: unless-stopped
+    ports:
+      - "8283:8283"
+    environment:
+      - LETTA_LLM_ENDPOINT=http://nexus-router:6000
+      - LETTA_EMBEDDING_ENDPOINT=http://nexus-router:6000
+      - LETTA_PG_DB=letta
+      - LETTA_PG_USER=letta
+      - LETTA_PG_PASSWORD=${LETTA_PG_PASSWORD}
+      - LETTA_PG_HOST=postgres-letta
+      - LETTA_PG_PORT=5432
+    volumes:
+      - letta-data:/app/data
+    networks:
+      - nyra-mcp
+      - nyra-core
+    depends_on:
+      - nexus-router
+      - postgres-letta
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8283/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  postgres-letta:
+    image: pgvector/pgvector:pg16
+    container_name: nyra-postgres-letta
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=letta
+      - POSTGRES_USER=letta
+      - POSTGRES_PASSWORD=${LETTA_PG_PASSWORD}
+    volumes:
+      - letta-pg-data:/var/lib/postgresql/data
+    networks:
+      - nyra-mcp
+
+  # Mem0 - Universal Memory Layer
+  mem0:
+    image: mem0ai/mem0:latest
+    container_name: nyra-mem0
+    restart: unless-stopped
+    ports:
+      - "4321:4321"
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - MEM0_STORE_PATH=/data/mem0.sqlite
+      - NEXUS_OPENAI_BASE_URL=http://nexus-router:6000/llm/openai/v1
+      - MEM0_LOG_LEVEL=${LOG_LEVEL:-info}
+    volumes:
+      - mem0-data:/data
+    networks:
+      - nyra-mcp
+      - nyra-core
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4321/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # OpenMemory MCP Server
+  openmemory-mcp:
+    image: mem0/openmemory-mcp:latest
+    container_name: nyra-openmemory-mcp
+    restart: unless-stopped
+    ports:
+      - "8081:8081"
+    environment:
+      - MEM0_REST_URL=http://mem0:4321
+    networks:
+      - nyra-mcp
+    depends_on:
+      - mem0
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Claude Flow - Multi-Agent Orchestrator
+  claude-flow:
+    image: ghcr.io/ruv-inc/claude-flow:alpha
+    container_name: nyra-claude-flow
+    restart: unless-stopped
+    ports:
+      - "3010:3010"
+    environment:
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - CLAUDE_FLOW_MODE=orchestrator
+      - AGENTDB_URL=http://agentdb:8080
+      - REASONINGBANK_ENABLED=true
+      - SWARM_MAX_AGENTS=31
+      - SWARM_TOPOLOGY=hierarchical
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+    volumes:
+      - claude-flow-data:/app/data
+    networks:
+      - nyra-mcp
+      - nyra-core
+    depends_on:
+      - nexus-router
+      - agentdb
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3010/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # AgentDB - HNSW Vector Database
+  agentdb:
+    image: ghcr.io/ruv-inc/agentdb:latest
+    container_name: nyra-agentdb
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - AGENTDB_HNSW_M=16
+      - AGENTDB_HNSW_EF_CONSTRUCTION=200
+      - AGENTDB_QUANTIZATION=scalar
+      - AGENTDB_CACHE_SIZE=256
+    volumes:
+      - agentdb-data:/app/data
+    networks:
+      - nyra-mcp
+      - nyra-core
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # RuVector - Memory Optimization
+  ruvector:
+    image: ghcr.io/ruv-inc/ruvector:latest
+    container_name: nyra-ruvector
+    restart: unless-stopped
+    ports:
+      - "8888:8888"
+    environment:
+      - RUVECTOR_SONA_ENABLED=true
+      - RUVECTOR_MOE_ENABLED=true
+      - RUVECTOR_FLASH_ATTENTION=true
+      - RUVECTOR_EWC_ENABLED=true
+    volumes:
+      - ruvector-data:/app/data
+    networks:
+      - nyra-mcp
+      - nyra-core
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8888/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Infisical - Secrets Management
+  infisical:
+    image: infisical/infisical:latest
+    container_name: nyra-infisical
+    restart: unless-stopped
+    ports:
+      - "8082:8080"
+    environment:
+      - ENCRYPTION_KEY=${INFISICAL_ENCRYPTION_KEY}
+      - JWT_SECRET=${INFISICAL_JWT_SECRET}
+      - MONGO_URL=mongodb://infisical-mongo:27017/infisical
+    volumes:
+      - infisical-data:/app/data
+    networks:
+      - nyra-mcp
+    depends_on:
+      - infisical-mongo
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  infisical-mongo:
+    image: mongo:7
+    container_name: nyra-infisical-mongo
+    restart: unless-stopped
+    volumes:
+      - infisical-mongo-data:/data/db
+    networks:
+      - nyra-mcp
+
+networks:
+  nyra-mcp:
+    name: nyra-mcp
+    driver: bridge
+  nyra-core:
+    external: true
+
+volumes:
+  nexus-data:
+    driver: local
+  letta-data:
+    driver: local
+  letta-pg-data:
+    driver: local
+  mem0-data:
+    driver: local
+  claude-flow-data:
+    driver: local
+  agentdb-data:
+    driver: local
+  ruvector-data:
+    driver: local
+  infisical-data:
+    driver: local
+  infisical-mongo-data:
+    driver: local

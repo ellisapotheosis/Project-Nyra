@@ -1,3 +1,81 @@
+# Docker Compose - Nyra Main Orchestrator
+# Modular composition using includes for clean separation of concerns
+#
+# Usage:
+#   Full stack:       docker-compose up -d
+#   Core only:        docker-compose -f base/docker-compose.core.yml up -d
+#   MCP servers:      docker-compose -f base/docker-compose.mcp.yml up -d
+#   Apps:             docker-compose -f apps/docker-compose.apps.yml up -d
+#   Orchestrator:     docker-compose -f orchestrator/docker-compose.orchestrator.yml up -d
+#   Worker RTX3060:   docker-compose -f workers/docker-compose.worker-rtx3060.yml up -d
+#   Worker RTX5090:   docker-compose -f workers/docker-compose.worker-rtx5090.yml up -d
+#   Worker RTX3090Ti: docker-compose -f workers/docker-compose.worker-rtx3090ti.yml up -d
+#
+# Network Architecture:
+#   - nyra-core: Core services (postgres, redis, qdrant, neo4j, falkordb)
+#   - nyra-mcp: MCP servers (nexus, litellm, letta, mem0, claude-flow, agentdb, ruvector, infisical)
+#   - nyra-apps: Applications (twenty, n8n, dify, openwebui, nyra-orchestrator)
+#   - nyra-orchestrator: Orchestrator services (archgw-router, prometheus, grafana, loki, alertmanager)
+#   - nyra-worker-*: Worker-specific networks for PC2, PC3, PC4
+
+include:
+  # Base infrastructure - Core databases and caches
+  - path: ./base/docker-compose.core.yml
+    env_file: ../.env
+
+  # MCP servers - AI/ML orchestration and memory services
+  - path: ./base/docker-compose.mcp.yml
+    env_file: ../.env
+
+  # Applications - User-facing services
+  - path: ./apps/docker-compose.apps.yml
+    env_file: ../.env
+
+  # Orchestrator - Central coordination (PC1)
+  - path: ./orchestrator/docker-compose.orchestrator.yml
+    env_file: ../.env
+
+  # Workers - Optional, deploy per machine
+  # Uncomment based on your hardware setup:
+
+  # PC2 - RTX 3060 (Code generation, CRM, workflows)
+  # - path: ./workers/docker-compose.worker-rtx3060.yml
+  #   env_file: ../.env
+
+  # PC3 - RTX 5090 (High-performance inference, vLLM, graphs)
+  # - path: ./workers/docker-compose.worker-rtx5090.yml
+  #   env_file: ../.env
+
+  # PC4 - RTX 3090 Ti (Monitoring, observability, logs)
+  # - path: ./workers/docker-compose.worker-rtx3090ti.yml
+  #   env_file: ../.env
+
+# Global configuration
+# These settings apply to all included services unless overridden
+
+# Default environment variables
+# Create a .env file in infra/ directory with:
+#   - API keys (ANTHROPIC_API_KEY, OPENROUTER_API_KEY, etc.)
+#   - Database passwords (POSTGRES_PASSWORD, REDIS_PASSWORD, etc.)
+#   - Service credentials
+#   - LAN_IP for inter-machine communication
+
+# Notes:
+# - Each module can be deployed independently
+# - Networks are designed for cross-module communication
+# - Volumes are managed per module for data persistence
+# - Health checks ensure service reliability
+# - Resource limits should be configured per worker based on hardware
+
+# Architecture Decision Record (ADR):
+# - Why includes? Modularity, maintainability, selective deployment
+# - Why external networks? Inter-module communication, worker isolation
+# - Why this structure? PC-based roles, clear separation of concerns
+# - Why not profiles? More flexible, easier to reason about, better for distributed setup
+
+# LEGACY SERVICES (Kept for backwards compatibility)
+# The following services are from the old monolithic structure and can be gradually migrated:
+
 version: '3.9'
 
 networks:

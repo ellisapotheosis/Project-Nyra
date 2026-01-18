@@ -4,7 +4,7 @@
   "enabled": true,
 
   "modelPreferences": {
-    "default": "claude-opus-4-5-20251101",
+    "default": "claude-sonnet-4-5",
     "routing": "claude-3-5-haiku-20241022",
     "fallback": "claude-3-5-sonnet-20241022",
     "costOptimized": "gemini-2.0-flash-001"
@@ -15,7 +15,7 @@
       "name": "anthropic",
       "type": "anthropic",
       "apiKey": "${ANTHROPIC_API_KEY}",
-      "models": ["claude-opus-4-5-20251101", "claude-3-5-sonnet-20241022", "claude-3-5-haiku-20241022"]
+      "models": ["claude-sonnet-4-5", "claude-3-5-sonnet-20241022", "claude-3-5-haiku-20241022"]
     },
     {
       "name": "openai",

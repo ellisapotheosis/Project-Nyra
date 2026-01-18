@@ -1,0 +1,229 @@
+# Docker Compose - Worker Node RTX 5090 (PC3)
+# Specialization: High-performance LLM inference, vLLM, graph databases
+
+services:
+  # vLLM Server - High-Performance Inference
+  vllm:
+    image: vllm/vllm-openai:latest
+    container_name: nyra-worker-rtx5090-vllm
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=0
+      - CUDA_VISIBLE_DEVICES=0
+    command:
+      - --model
+      - meta-llama/Llama-3.1-70B-Instruct
+      - --tensor-parallel-size
+      - "1"
+      - --max-model-len
+      - "32768"
+      - --gpu-memory-utilization
+      - "0.95"
+      - --host
+      - "0.0.0.0"
+      - --port
+      - "8000"
+    volumes:
+      - vllm-models:/root/.cache/huggingface
+    networks:
+      - nyra-worker-rtx5090
+      - nyra-core
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 15s
+      retries: 3
+      start_period: 120s
+
+  # Ollama - Additional Model Support
+  ollama:
+    image: ollama/ollama:latest
+    container_name: nyra-worker-rtx5090-ollama
+    restart: unless-stopped
+    ports:
+      - "11435:11434"
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=0
+      - OLLAMA_HOST=0.0.0.0
+      - OLLAMA_MODELS=/app/models
+      - OLLAMA_NUM_PARALLEL=8
+      - OLLAMA_MAX_LOADED_MODELS=4
+    volumes:
+      - ollama-models-rtx5090:/app/models
+    networks:
+      - nyra-worker-rtx5090
+      - nyra-core
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      interval: 30s
+      timeout: 15s
+      retries: 3
+
+  # Neo4j - Graph Database
+  neo4j:
+    image: neo4j:5
+    container_name: nyra-worker-rtx5090-neo4j
+    restart: unless-stopped
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    environment:
+      - NEO4J_AUTH=neo4j/${NEO4J_PASSWORD}
+      - NEO4J_PLUGINS=["graph-data-science", "apoc"]
+      - NEO4J_dbms_memory_heap_max__size=8G
+      - NEO4J_dbms_memory_pagecache_size=4G
+    volumes:
+      - neo4j-data:/data
+    networks:
+      - nyra-worker-rtx5090
+      - nyra-core
+    healthcheck:
+      test: ["CMD", "neo4j", "status"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # FalkorDB - Knowledge Graph
+  falkordb:
+    image: falkordb/falkordb:latest
+    container_name: nyra-worker-rtx5090-falkordb
+    restart: unless-stopped
+    ports:
+      - "6380:6379"
+    volumes:
+      - falkordb-data:/data
+    networks:
+      - nyra-worker-rtx5090
+      - nyra-core
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Model Manager - vLLM & Ollama
+  model-manager:
+    image: nyra/model-manager:latest
+    container_name: nyra-worker-rtx5090-model-manager
+    restart: unless-stopped
+    ports:
+      - "8082:8080"
+    environment:
+      - WORKER_ID=worker-rtx5090
+      - GPU_TYPE=rtx_5090
+      - VRAM_GB=32
+      - VLLM_API_BASE=http://vllm:8000
+      - OLLAMA_API_BASE=http://ollama:11434
+      - SPECIALIZATION=inference
+    volumes:
+      - ../configs/worker-rtx5090-config.yaml:/app/config.yaml:ro
+      - vllm-models:/app/vllm-models
+      - ollama-models-rtx5090:/app/ollama-models
+      - manager-data:/app/data
+    networks:
+      - nyra-worker-rtx5090
+    depends_on:
+      - vllm
+      - ollama
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Performance Monitor - GPU Metrics
+  perf-monitor:
+    image: nyra/worker-perf-monitor:latest
+    container_name: nyra-worker-rtx5090-perf
+    restart: unless-stopped
+    ports:
+      - "9002:9090"
+    environment:
+      - WORKER_ID=worker-rtx5090
+      - GPU_MONITORING=true
+      - PROMETHEUS_PUSH_GATEWAY=http://prometheus:9091
+    volumes:
+      - ../configs/worker-rtx5090-config.yaml:/app/config.yaml:ro
+      - monitor-data:/app/data
+    networks:
+      - nyra-worker-rtx5090
+      - nyra-orchestrator
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9090/metrics"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Health Check Service
+  health-check:
+    image: nyra/health-check:latest
+    container_name: nyra-worker-rtx5090-health
+    restart: unless-stopped
+    ports:
+      - "8092:8080"
+    environment:
+      - WORKER_ID=worker-rtx5090
+      - CHECK_INTERVAL=30
+      - ORCHESTRATOR_URL=http://archgw-router:8080
+    volumes:
+      - ../configs/worker-rtx5090-config.yaml:/app/config.yaml:ro
+    networks:
+      - nyra-worker-rtx5090
+      - nyra-orchestrator
+    depends_on:
+      - vllm
+      - ollama
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 60s
+      timeout: 15s
+      retries: 3
+
+networks:
+  nyra-worker-rtx5090:
+    name: nyra-worker-rtx5090
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.22.0.0/16
+  nyra-core:
+    external: true
+  nyra-orchestrator:
+    external: true
+
+volumes:
+  vllm-models:
+    driver: local
+  ollama-models-rtx5090:
+    driver: local
+  neo4j-data:
+    driver: local
+  falkordb-data:
+    driver: local
+  manager-data:
+    driver: local
+  monitor-data:
+    driver: local

@@ -1,0 +1,224 @@
+# Docker Compose - Application Services
+# TwentyCRM, n8n, Dify, OpenWebUI, RateHunter, Nyra Admin
+
+services:
+  # TwentyCRM - CRM System
+  twenty:
+    image: twentycrm/twenty:latest
+    container_name: nyra-twenty
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - SERVER_URL=${TWENTY_SERVER_URL}
+      - ENCRYPTION_SECRET=${TWENTY_ENCRYPTION_SECRET}
+      - JWT_SECRET=${TWENTY_JWT_SECRET}
+      - PASSWORD_SALT=${TWENTY_PASSWORD_SALT}
+      - PGHOST=twenty-postgres
+      - PGPORT=5432
+      - PGUSER=twenty
+      - PGPASSWORD=${TWENTY_PG_PASSWORD}
+      - PGDATABASE=twenty
+    volumes:
+      - twenty-data:/app/data
+    networks:
+      - nyra-apps
+      - nyra-core
+    depends_on:
+      - twenty-postgres
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  twenty-postgres:
+    image: pgvector/pgvector:pg16
+    container_name: nyra-twenty-postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=twenty
+      - POSTGRES_PASSWORD=${TWENTY_PG_PASSWORD}
+      - POSTGRES_DB=twenty
+    volumes:
+      - twenty-pg-data:/var/lib/postgresql/data
+    networks:
+      - nyra-apps
+
+  # n8n - Workflow Automation
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: nyra-n8n
+    restart: unless-stopped
+    ports:
+      - "5678:5678"
+    environment:
+      - DB_TYPE=postgresdb
+      - DB_POSTGRESDB_HOST=n8n-postgres
+      - DB_POSTGRESDB_PORT=5432
+      - DB_POSTGRESDB_DATABASE=n8n
+      - DB_POSTGRESDB_USER=n8n
+      - DB_POSTGRESDB_PASSWORD=${N8N_PG_PASSWORD}
+      - N8N_BASIC_AUTH_ACTIVE=true
+      - N8N_BASIC_AUTH_USER=${N8N_USER}
+      - N8N_BASIC_AUTH_PASSWORD=${N8N_PASSWORD}
+      - WEBHOOK_URL=http://${LAN_IP}:5678
+      - GENERIC_TIMEZONE=America/New_York
+    volumes:
+      - n8n-data:/home/node/.n8n
+    networks:
+      - nyra-apps
+      - nyra-core
+    depends_on:
+      - n8n-postgres
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5678/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  n8n-postgres:
+    image: postgres:16-alpine
+    container_name: nyra-n8n-postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=n8n
+      - POSTGRES_USER=n8n
+      - POSTGRES_PASSWORD=${N8N_PG_PASSWORD}
+    volumes:
+      - n8n-pg-data:/var/lib/postgresql/data
+    networks:
+      - nyra-apps
+
+  # Dify - AI Chat UI
+  dify-api:
+    image: langgenius/dify-api:latest
+    container_name: nyra-dify-api
+    restart: unless-stopped
+    ports:
+      - "3001:5001"
+    environment:
+      - MODE=api
+      - DB_USERNAME=dify
+      - DB_PASSWORD=${DIFY_PG_PASSWORD}
+      - DB_HOST=dify-postgres
+      - DB_PORT=5432
+      - DB_DATABASE=dify
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - SECRET_KEY=${DIFY_SECRET_KEY}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+    volumes:
+      - dify-data:/app/api/storage
+    networks:
+      - nyra-apps
+      - nyra-core
+    depends_on:
+      - dify-postgres
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  dify-web:
+    image: langgenius/dify-web:latest
+    container_name: nyra-dify-web
+    restart: unless-stopped
+    ports:
+      - "3002:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://${LAN_IP}:3001
+      - NEXT_PUBLIC_CONSOLE_URL=http://${LAN_IP}:3002
+    networks:
+      - nyra-apps
+    depends_on:
+      - dify-api
+
+  dify-postgres:
+    image: pgvector/pgvector:pg16
+    container_name: nyra-dify-postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=dify
+      - POSTGRES_USER=dify
+      - POSTGRES_PASSWORD=${DIFY_PG_PASSWORD}
+    volumes:
+      - dify-pg-data:/var/lib/postgresql/data
+    networks:
+      - nyra-apps
+
+  # OpenWebUI - LLM Chat Interface
+  openwebui:
+    image: ghcr.io/open-webui/open-webui:main
+    container_name: nyra-openwebui
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - OPENAI_API_BASE_URL=http://nexus-router:6000/llm/openai/v1
+      - OPENAI_API_KEY=dummy
+    volumes:
+      - openwebui-data:/app/backend/data
+    networks:
+      - nyra-apps
+      - nyra-mcp
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Nyra Orchestrator Service
+  nyra-orchestrator:
+    build:
+      context: ../../services/nyra-orchestrator
+      dockerfile: Dockerfile
+    container_name: nyra-orchestrator
+    restart: unless-stopped
+    ports:
+      - "8010:8010"
+    environment:
+      - NYRA_POLICY_MODE=${NYRA_POLICY_MODE:-strict}
+      - NYRA_ALLOWED_CHANNELS=${NYRA_ALLOWED_CHANNELS:-sms,email,webchat}
+      - NYRA_ESCALATION_EMAIL=${NYRA_ESCALATION_EMAIL:-ops@example.com}
+      - TWENTY_BASE_URL=http://twenty:3000
+      - NEXUS_BASE_URL=http://nexus-router:6000
+      - MEM0_REST_URL=http://mem0:4321
+      - FALKOR_URL=redis://falkordb:6379
+      - LETTA_BASE_URL=http://letta:8283
+    networks:
+      - nyra-apps
+      - nyra-mcp
+      - nyra-core
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8010/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+networks:
+  nyra-apps:
+    name: nyra-apps
+    driver: bridge
+  nyra-core:
+    external: true
+  nyra-mcp:
+    external: true
+
+volumes:
+  twenty-data:
+    driver: local
+  twenty-pg-data:
+    driver: local
+  n8n-data:
+    driver: local
+  n8n-pg-data:
+    driver: local
+  dify-data:
+    driver: local
+  dify-pg-data:
+    driver: local
+  openwebui-data:
+    driver: local

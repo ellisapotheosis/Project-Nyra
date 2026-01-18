@@ -1,116 +1,4 @@
-# Project Nyra - Consolidated CLAUDE.md
 # Claude Code Configuration - Claude Flow V3
-
-> **Master Configuration Guide**: This file provides comprehensive orchestration guidance for the entire Project Nyra monorepo. For technology-specific development guidelines, see the [Component Guide Index](#-component-guide-index) below.
-
-## 📚 Table of Contents
-
-1. [Quick Start](#-quick-start)
-2. [Component Guide Index](#-component-guide-index)
-3. [Automatic Swarm Orchestration](#-automatic-swarm-orchestration)
-4. [Auto-Learning Protocol](#-auto-learning-protocol)
-5. [Agent Routing (Anti-Drift)](#-agent-routing-anti-drift)
-6. [Concurrent Execution & File Management](#-critical-concurrent-execution--file-management)
-7. [V3 CLI Commands](#-v3-cli-commands-26-commands-140-subcommands)
-8. [Available Agents](#-available-agents-60-types)
-9. [V3 Hooks System](#-v3-hooks-system-27-hooks--12-workers)
-10. [Intelligence System](#-intelligence-system-ruvector)
-11. [Performance Optimization](#-performance-optimization-protocol)
-12. [Memory Commands](#-memory-commands-reference-important)
-13. [Environment Variables](#-environment-variables)
-14. [Support & Resources](#support)
-
----
-
-## 🚀 Quick Start
-
-**For AI Assistants (Claude Code)**:
-1. Read this file for orchestration and swarm coordination
-2. Consult component-specific CLAUDE.md files for tech-stack guidelines
-3. Use CLI commands for coordination, Task tool for execution
-
-**For Developers**:
-1. See [README.md](./README.md) for project overview
-2. Review component guides for technology-specific patterns
-3. Run `npx @claude-flow/cli@latest doctor` for system diagnostics
-
----
-
-## 📖 Component Guide Index
-
-Project Nyra uses **component-specific CLAUDE.md files** for technology-stack-specific development guidelines. Each file is auto-generated from templates and contains:
-- Tech stack patterns and best practices
-- Code examples and snippets
-- Development commands
-- Claude Flow agent recommendations
-- Testing and deployment guidelines
-
-### 🎯 When to Use Which CLAUDE.md
-
-| Situation | Use This CLAUDE.md |
-|-----------|-------------------|
-| Multi-agent coordination | **This file** (root) |
-| Swarm orchestration | **This file** (root) |
-| CLI commands and hooks | **This file** (root) |
-| Memory and intelligence | **This file** (root) |
-| Next.js development | `apps/[app-name]/CLAUDE.md` |
-| Python/FastAPI development | `services/[service-name]/CLAUDE.md` |
-| Docker/Infrastructure | `infra/CLAUDE.md` |
-| CI/CD workflows | `.github/CLAUDE.md` |
-| Documentation writing | `docs/CLAUDE.md` |
-| Automation scripts | `scripts/CLAUDE.md` |
-| Monorepo management | `config/claude-configs/CLAUDE.md` |
-
-### 📁 Component CLAUDE.md Files
-
-#### Applications (`apps/`)
-- **[RateHunter Landing Page](apps/ratehunter/CLAUDE.md)** - Next.js 14 + TypeScript, Marketing landing page
-- **[Nyra Admin Panel](apps/nyra-admin/CLAUDE.md)** - Next.js 14 + TypeScript, Admin dashboard for mortgage ops
-- **[CRM Application](apps/crm/CLAUDE.md)** - Customer relationship management
-- **[CRM Dashboard](apps/crm-dashboard/CLAUDE.md)** - Analytics dashboard
-- **[Nexus Dashboard](apps/nexus-dashboard/CLAUDE.md)** - System monitoring
-- **[Web Application](apps/webapp/CLAUDE.md)** - Main web app
-
-#### Services (`services/`)
-- **[Quote API](services/quote-api/CLAUDE.md)** - Python 3.11 + FastAPI, Mortgage quote calculation engine
-
-#### Infrastructure & DevOps
-- **[Infrastructure as Code](infra/CLAUDE.md)** - Docker Compose, container orchestration, multi-stage builds
-- **[CI/CD Workflows](.github/CLAUDE.md)** - GitHub Actions, matrix builds, security scanning
-- **[Automation Scripts](scripts/CLAUDE.md)** - PowerShell and Bash scripting best practices
-
-#### Configuration & Documentation
-- **[Monorepo Management](config/claude-configs/CLAUDE.md)** - pnpm workspaces, Turborepo, cross-package development
-- **[Documentation Guidelines](docs/CLAUDE.md)** - Markdown, Mermaid diagrams, ADRs, API docs
-
-#### Bootstrap & Tooling
-- **[Bootstrap Agent Templates](.claude/skills/bootstrap-agent/templates/CLAUDE.md)** - Component initialization templates
-- **[Archon OS](tools/archon-os/CLAUDE.md)** - AI operating system framework
-- **[Claude Flow MCP](mcp-servers/claude-flow/CLAUDE.md)** - MCP server integration
-- **[RUV Swarm](mcp-servers/ruv-swarm/CLAUDE.md)** - Swarm coordination MCP
-
-#### Submodules (External Dependencies)
-- **[Claude Flow V3](submodules/claude-flow/CLAUDE.md)** - Multi-agent orchestration framework
-- **[Archon Framework](submodules/archon/CLAUDE.md)** - AI agent coordination
-
-### 🔄 Auto-Generated Component Files
-
-All component CLAUDE.md files (except this root file) are **auto-generated** using:
-```bash
-node scripts/batch-claude-md/batch-template-engine.js
-```
-
-**Template Structure**:
-- Profile type (nextjs-typescript, python-fastapi, docker-infra, etc.)
-- Project overview
-- Tech stack details
-- Development commands
-- Claude Flow integration
-- Tech-stack-specific guidelines with code examples
-
-**Last Generated**: 2026-01-09
-
----
 
 ## 🚨 AUTOMATIC SWARM ORCHESTRATION
 
@@ -129,69 +17,63 @@ node scripts/batch-claude-md/batch-template-engine.js
 
 **CLI coordinates, Task tool agents do the actual work!**
 
+### 🤖 INTELLIGENT 3-TIER MODEL ROUTING (ADR-026)
+
+**The routing system has 3 tiers for optimal cost/performance:**
+
+| Tier | Handler | Latency | Cost | Use Cases |
+|------|---------|---------|------|-----------|
+| **1** | Agent Booster | <1ms | $0 | Simple transforms (var→const, add-types, remove-console) |
+| **2** | Haiku | ~500ms | $0.0002 | Simple tasks, bug fixes, low complexity |
+| **3** | Sonnet/Opus | 2-5s | $0.003-$0.015 | Architecture, security, complex reasoning |
+
+**Before spawning agents, get routing recommendation:**
+```bash
+npx @claude-flow/cli@latest hooks pre-task --description "[task description]"
+```
+
+**When you see these recommendations:**
+
+1. `[AGENT_BOOSTER_AVAILABLE]` → Skip LLM entirely, use Edit tool directly
+   - Intent types: `var-to-const`, `add-types`, `add-error-handling`, `async-await`, `add-logging`, `remove-console`
+
+2. `[TASK_MODEL_RECOMMENDATION] Use model="X"` → Use that model in Task tool:
+```javascript
+Task({
+  prompt: "...",
+  subagent_type: "coder",
+  model: "haiku"  // ← USE THE RECOMMENDED MODEL (haiku/sonnet/opus)
+})
+```
+
+**Benefits:** 75% cost reduction, 352x faster for Tier 1 tasks
+
+---
+
 ### 🛡️ Anti-Drift Config (PREFERRED)
 
 **Use this to prevent agent drift:**
 ```bash
+# Small teams (6-8 agents) - use hierarchical for tight control
 npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 8 --strategy specialized
+
+# Large teams (10-15 agents) - use hierarchical-mesh for V3 queen + peer communication
+npx @claude-flow/cli@latest swarm init --topology hierarchical-mesh --max-agents 15 --strategy specialized
 ```
+
+**Valid Topologies:**
+- `hierarchical` - Queen controls workers directly (anti-drift for small teams)
+- `hierarchical-mesh` - V3 queen + peer communication (recommended for 10+ agents)
+- `mesh` - Fully connected peer network
+- `ring` - Circular communication pattern
+- `star` - Central coordinator with spokes
+- `hybrid` - Dynamic topology switching
+
+**Anti-Drift Guidelines:**
 - **hierarchical**: Coordinator catches divergence
 - **max-agents 6-8**: Smaller team = less drift
 - **specialized**: Clear roles, no overlap
 - **consensus**: raft (leader maintains state)
-
----
-
-### 💰 Model Selection Guidelines (Cost Optimization)
-
-**CRITICAL: Choose the right Claude model for the task to optimize costs.**
-
-| Task Type | Model | Cost | When to Use |
-|-----------|-------|------|-------------|
-| **Consolidation** (file moves, archiving, cleanup) | **haiku** | 12x cheaper | Default for bulk operations |
-| **Code Review** (quality checks, security scans) | **haiku** | 12x cheaper | Fast validation tasks |
-| **Implementation** (writing code, refactoring) | **sonnet** | Balanced | Complex logic requiring reasoning |
-| **Architecture** (system design, critical decisions) | **sonnet** | Balanced | Important design work |
-| **Security Analysis** (threat modeling, CVE research) | **opus** | Most expensive | Only when expertise needed |
-
-**Model Pricing** (per million tokens):
-- **Haiku**: $0.25 input / $1.25 output (FAST & CHEAP)
-- **Sonnet**: $3 input / $15 output (BALANCED - current default)
-- **Opus**: $15 input / $75 output (MOST CAPABLE)
-
-**Usage Pattern**:
-```javascript
-// Use Haiku for consolidation/cleanup tasks
-Task({
-  prompt: "Move 200+ docker-compose files to infra/docker/",
-  subagent_type: "coder",
-  model: "haiku",  // ← 12x cheaper than sonnet!
-  run_in_background: true
-})
-
-// Use Sonnet for complex implementation
-Task({
-  prompt: "Design and implement OAuth2 authentication flow",
-  subagent_type: "system-architect",
-  model: "sonnet",  // ← Balanced for complex logic
-  run_in_background: true
-})
-
-// Reserve Opus for critical architecture decisions only
-Task({
-  prompt: "Evaluate security implications of multi-tenant architecture",
-  subagent_type: "security-architect",
-  model: "opus",  // ← Only when deep expertise needed
-  run_in_background: true
-})
-```
-
-**Cost Savings Example**:
-- 15 agents × 100k tokens = 1.5M tokens
-- **Sonnet**: ~$27 total
-- **Haiku**: ~$2.25 total (**90% savings!**)
-
-**Default Policy**: Use **Haiku** for all consolidation, cleanup, validation, and bulk operations. Reserve **Sonnet** for implementation and architecture. Use **Opus** sparingly only for critical security/architecture decisions.
 
 ---
 
@@ -792,6 +674,21 @@ npx @claude-flow/cli@latest memory init --force --verbose
 ```
 
 **KEY**: CLI coordinates the strategy via Bash, Claude Code's Task tool executes with real agents.
+
+## 📚 Full Capabilities Reference
+
+For a comprehensive overview of all Claude Flow V3 features, agents, commands, and integrations, see:
+
+**`.claude-flow/CAPABILITIES.md`** - Complete reference generated during init
+
+This includes:
+- All 60+ agent types with routing recommendations
+- All 26 CLI commands with 140+ subcommands
+- All 27 hooks + 12 background workers
+- RuVector intelligence system details
+- Hive-Mind consensus mechanisms
+- Integration ecosystem (agentic-flow, agentdb, ruv-swarm, flow-nexus, agentic-jujutsu)
+- Performance targets and status
 
 ## Support
 
