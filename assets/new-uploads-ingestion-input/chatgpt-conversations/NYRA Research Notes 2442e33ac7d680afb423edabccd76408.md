@@ -1,3 +1,0 @@
-# NYRA Research Notes
-
-[NYRA_Research_Notes_Template_v2](NYRA_Research_Notes_Template_v2%202442e33ac7d6814e826be726aba4c1b4.md)

@@ -1,0 +1,35 @@
+{
+  "timestamp": "2026-01-18T04:57:44.979Z",
+  "summary": {
+    "total": 18,
+    "passed": 15,
+    "failed": 1,
+    "warnings": 2
+  },
+  "checks": {
+    "passed": [
+      "No broken nyra-* imports found",
+      "turbo.json is valid JSON",
+      "Turbo task defined: build",
+      "Turbo task defined: dev",
+      "Turbo task defined: test",
+      "Turbo task defined: lint",
+      "All 69 Dockerfiles located",
+      ".mcp.json is valid JSON",
+      "MCP server configured: claude-flow",
+      "MCP server configured: sequential-thinking",
+      "Git history preserved for: apps/ratehunter/package.json",
+      "No broken symlinks found",
+      "package.json is valid JSON",
+      "pnpm-workspace.yaml exists",
+      "Found 110 scripts"
+    ],
+    "failed": [
+      "Found nyra-* folders in root: nyra-core"
+    ],
+    "warnings": [
+      "No workspace protocol references found",
+      "Unexpected items in root: .audit-ci.json, .changeset, .circleci, .claude-flow@alpha, .claude-plugin, .codanna, .codannaignore, .devcontainer, .dockerignore, .editorconfig, .env, .env.claude-flow, .env.cloudflare.example, .env.development, .env.example, .env.master, .env.orchestration.template, .env.production, .eslintrc.json, .gemini, .gitattributes, .githooks, .hive-mind, .husky, .infisical.json, .jjconfig, .manypkg, .mcp.json.backup-20260116-035516, .mcp.json.development, .mcp.json.production, .npmrc, .prettierrc.json, .releaserc.json, .research, .roo, .roomodes, .serena, .swarm, .syncpackrc.json, .turborc, .venv, .vs, .vscode, .yamllint.yml, agents, assets, batch-config.json, ci, claude-dump.txt, claude-flow.config.json, claude-flow.config.json.backup, codecov.yml, configs, coordination, core, CDevProjectsReposProject-Nyradocsresearch, data, devcontainer, devcontainer.json, docker, docker-compose.bitwarden-mcp.yml, docker-compose.cloudflare.yml, docker-compose.docker-mcp.yml, docker-compose.dockerhub-mcp.yml, docker-compose.infisical.yml, docker-compose.memory.yml, docker-compose.sequential-thinking-mcp.yml, docker-compose.voice.yml, docker-compose.yml, Dockerfile, Dockerfile.optimized, docker 2&1 && cp CDevProjectsReposProject-Nyrabootstrapinstallerdocker.env.example CDevProjectsReposProject-Nyradocker, EXTRACTION-STATUS.txt, gitea, ingestion, jest.config.integration.js, jest.config.js.backup, jest.config.unit.js, jest.setup.js, jest.setup.js.backup, master-.env.example, mcp, mcp-ecosystem, mcp.json, memory, nextjs.yml, nul, nyra-core, orchestration, package-lock.json, playwright.config.ts, PROJECT-NYRA-ULTIMATE-BATCH-CONFIG.json, prompts, pyproject.toml, requirements.txt, scaffolding-rules, src, START-AUTONOMOUS-SETUP.bat, test-sqlite-import.js, test-sqlite-simple.js, tsconfig.base.json, turbo, ui, workflows, _archived, _backup"
+    ]
+  }
+}

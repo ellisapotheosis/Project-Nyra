@@ -1,4 +1,0 @@
-Agent,Stack,Voice,Notes
-nyra-voice,Agent-Zero,via SuperAGI,External HTTP bridge
-superagi-voice-agent,SuperAGI,✅,Built-in TTS + STT
-nyra-voice-electron,Future,🎙️,Voicemod + Home Assistant planned
