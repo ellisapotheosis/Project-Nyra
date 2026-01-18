@@ -12,7 +12,7 @@
 # ==================================================================
 # STAGE 1: Base Image with pnpm
 # ==================================================================
-FROM node:20-alpine AS base
+FROM node:25-alpine AS base
 
 # Install pnpm globally with specific version
 ENV PNPM_VERSION=10.27.0
