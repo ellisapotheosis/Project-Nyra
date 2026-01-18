@@ -55,7 +55,7 @@ importers:
         specifier: ^29.4.6
         version: 29.4.6(@babel/core@7.28.6)(@jest/transform@30.2.0)(@jest/types@30.2.0)(babel-jest@30.2.0(@babel/core@7.28.6))(jest-util@30.2.0)(jest@30.2.0(@types/node@20.19.30)(ts-node@10.9.2(@types/node@20.19.30)(typescript@5.9.3)))(typescript@5.9.3)
       turbo:
-        specifier: ^2.4.0
+        specifier: ^2.7.5
         version: 2.7.5
       typescript:
         specifier: ^5.7.0
@@ -88,8 +88,8 @@ importers:
         specifier: ^13.1.1
         version: 13.1.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react-calendar:
-        specifier: ^4.7.0
-        version: 4.8.0(@types/react@18.3.27)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: ^6.0.0
+        version: 6.0.0(@types/react@18.3.27)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react-dom:
         specifier: ^18.2.0
         version: 18.3.1(react@18.3.1)
@@ -1240,6 +1240,9 @@ importers:
 
   services/nexus-router:
     dependencies:
+      '@types/ws':
+        specifier: ^8.18.1
+        version: 8.18.1
       axios:
         specifier: ^1.6.2
         version: 1.13.2
@@ -1285,6 +1288,9 @@ importers:
       uuid:
         specifier: ^9.0.1
         version: 9.0.1
+      ws:
+        specifier: ^8.19.0
+        version: 8.19.0
       zod:
         specifier: ^3.22.4
         version: 3.25.76
@@ -1292,6 +1298,9 @@ importers:
       '@types/cors':
         specifier: ^2.8.17
         version: 2.8.19
+      '@types/eventsource':
+        specifier: ^1.1.15
+        version: 1.1.15
       '@types/express':
         specifier: ^4.17.21
         version: 4.17.25
@@ -4890,6 +4899,9 @@ packages:
   '@types/estree@1.0.8':
     resolution: {integrity: sha512-dWHzHa2WqEXI/O1E9OjrocMTKJl2mSrEolh1Iomrv6U+JuNwaHXsXx9bLu5gG7BUWFIN0skIQJQ/L1rIex4X6w==}
 
+  '@types/eventsource@1.1.15':
+    resolution: {integrity: sha512-XQmGcbnxUNa06HR3VBVkc9+A2Vpi9ZyLJcdS5dwaQQ/4ZMWFO+5c90FnMUpbtMZwB/FChoYHwuVg8TvkECacTA==}
+
   '@types/express-serve-static-core@4.19.8':
     resolution: {integrity: sha512-02S5fmqeoKzVZCHPZid4b8JH2eM5HzQLZWN2FohQEy/0eXTq8VXZfSN6Pcr3F6N9R/vNrj7cpgbhjie6m/1tCA==}
 
@@ -5263,8 +5275,8 @@ packages:
     peerDependencies:
       vite: ^4.2.0 || ^5.0.0 || ^6.0.0 || ^7.0.0
 
-  '@wojtekmaj/date-utils@1.5.1':
-    resolution: {integrity: sha512-+i7+JmNiE/3c9FKxzWFi2IjRJ+KzZl1QPu6QNrsgaa2MuBgXvUy4gA1TVzf/JMdIIloB76xSKikTWuyYAIVLww==}
+  '@wojtekmaj/date-utils@2.0.2':
+    resolution: {integrity: sha512-Do66mSlSNifFFuo3l9gNKfRMSFi26CRuQMsDJuuKO/ekrDWuTTtE4ZQxoFCUOG+NgxnpSeBq/k5TY8ZseEzLpA==}
 
   '@xenova/transformers@2.17.2':
     resolution: {integrity: sha512-lZmHqzrVIkSvZdKZEx7IYY51TK0WDrC8eR0c5IMnBsO8di8are1zzw8BlLhyO2TklZKLN5UffNGs1IJwT6oOqQ==}
@@ -7234,8 +7246,8 @@ packages:
     resolution: {integrity: sha512-b1O07XYq8eRuVzBNgJLstU6FYc1tS6wnMtF1I1D9lE8LxZSOGZ7LhxN54yPP6mGw5f2CkXY2BQUL9Fx41qvcIg==}
     engines: {node: '>= 14'}
 
-  get-user-locale@2.3.2:
-    resolution: {integrity: sha512-O2GWvQkhnbDoWFUJfaBlDIKUEdND8ATpBXD6KXcbhxlfktyD/d8w6mkzM/IlQEqGZAMz/PW6j6Hv53BiigKLUQ==}
+  get-user-locale@3.0.0:
+    resolution: {integrity: sha512-iJfHSmdYV39UUBw7Jq6GJzeJxUr4U+S03qdhVuDsR9gCEnfbqLy9gYDJFBJQL1riqolFUKQvx36mEkp2iGgJ3g==}
 
   github-from-package@0.0.0:
     resolution: {integrity: sha512-SyHy3T1v2NUXn29OsWdxmK6RwHD+vkj3v8en8AOBZ1wBQ/hCAQ5bAQTD02kW4W9tUp/3Qh6J8r9EvntiyCmOOw==}
@@ -8399,10 +8411,6 @@ packages:
     engines: {node: '>=12.0.0'}
     hasBin: true
 
-  map-age-cleaner@0.1.3:
-    resolution: {integrity: sha512-bJzx6nMoP6PDLPBFmg7+xRKeFZvFboMrGlxmNj9ClvX53KrmvM5bXFXEWjbz4cz1AFn+jWJ9z/DJSz7hrs0w3w==}
-    engines: {node: '>=6'}
-
   math-intrinsics@1.1.0:
     resolution: {integrity: sha512-/IXtbwEk5HTPyEwyKX6hGkYXxM9nbj64B+ilVJnC/R6B0pH5G4V3b0pVbL7DBj4tkhBAppbQUlf6F6Xl9LHu1g==}
     engines: {node: '>= 0.4'}
@@ -8411,16 +8419,16 @@ packages:
     resolution: {integrity: sha512-dq+qelQ9akHpcOl/gUVRTxVIOkAJ1wR3QAvb4RsVjS8oVoFjDGTc679wJYmUmknUF5HwMLOgb5O+a3KxfWapPQ==}
     engines: {node: '>= 0.6'}
 
-  mem@8.1.1:
-    resolution: {integrity: sha512-qFCFUDs7U3b8mBDPyz5EToEKoAkgCzqquIgi9nkkR9bixxOVOre+09lbuH7+9Kn2NFpm56M3GUWVbU2hQgdACA==}
-    engines: {node: '>=10'}
-
   memjs@1.3.2:
     resolution: {integrity: sha512-qUEg2g8vxPe+zPn09KidjIStHPtoBO8Cttm8bgJFWWabbsjQ9Av9Ky+6UcvKx6ue0LLb/LEhtcyQpRyKfzeXcg==}
     engines: {node: '>=0.10.0'}
 
   memoize-one@5.2.1:
     resolution: {integrity: sha512-zYiwtZUcYyXKo/np96AGZAckk+FWWsUdJ3cHGGmld7+AhvcWmQyGCYUh1hc4Q/pkOhb65dQR/pqCyK0cOaHz4Q==}
+
+  memoize@10.2.0:
+    resolution: {integrity: sha512-DeC6b7QBrZsRs3Y02A6A7lQyzFbsQbqgjI6UW0GigGWV+u1s25TycMr0XHZE4cJce7rY/vyw2ctMQqfDkIhUEA==}
+    engines: {node: '>=18'}
 
   memory-pager@1.5.0:
     resolution: {integrity: sha512-ZS4Bp4r/Zoeq6+NLJpP+0Zzm0pR8whtGPf1XExKLJBAczGMnSi3It14OiNCStjQjM6NU1okjQGSxgEZN8eBYKg==}
@@ -8468,10 +8476,6 @@ packages:
   mimic-fn@2.1.0:
     resolution: {integrity: sha512-OqbOk5oEQeAZ8WXWydlu9HJjz9WVdEIvamMCcXmuqUYjTknH/sqsWvhQ3vgwKFRR1HpjvNBKQ37nbJgYzGqGcg==}
     engines: {node: '>=6'}
-
-  mimic-fn@3.1.0:
-    resolution: {integrity: sha512-Ysbi9uYW9hFyfrThdDEQuykN4Ey6BuwPD2kpI5ES/nFTDn/98yxYNLZJcgUAKPT/mcrLLKaGzJR9YVxJrIdASQ==}
-    engines: {node: '>=8'}
 
   mimic-function@5.0.1:
     resolution: {integrity: sha512-VP79XUPxV2CigYP3jWwAUFSku2aKqBH7uTAapFWCBqutsbmDo96KY5o8uh6U+/YSIn5OxJnXp73beVkpqMIGhA==}
@@ -8935,10 +8939,6 @@ packages:
   own-keys@1.0.1:
     resolution: {integrity: sha512-qFOyK5PjiWZd+QQIh+1jhdb9LpxTF0qs7Pm8o5QHYZ0M3vKqSqzsZaEB6oWlxZ+q2sJBMI/Ktgd2N5ZwQoRHfg==}
     engines: {node: '>= 0.4'}
-
-  p-defer@1.0.0:
-    resolution: {integrity: sha512-wB3wfAxZpk2AzOfUMJNL+d36xothRSyj8EXOa4f6GMqYDN9BJaaSISbsk+wS9abmnebVw95C2Kb5t85UmpCxuw==}
-    engines: {node: '>=4'}
 
   p-filter@2.1.0:
     resolution: {integrity: sha512-ZBxxZ5sL2HghephhpGAQdoskxplTwr7ICaehZwLIlfL6acuVgZPm8yBNuRAFBGEqtD/hmUeq9eqLg2ys9Xr/yw==}
@@ -9422,12 +9422,12 @@ packages:
       react: ^16.8.5 || ^17.0.0 || ^18.0.0
       react-dom: ^16.8.5 || ^17.0.0 || ^18.0.0
 
-  react-calendar@4.8.0:
-    resolution: {integrity: sha512-qFgwo+p58sgv1QYMI1oGNaop90eJVKuHTZ3ZgBfrrpUb+9cAexxsKat0sAszgsizPMVo7vOXedV7Lqa0GQGMvA==}
+  react-calendar@6.0.0:
+    resolution: {integrity: sha512-6wqaki3Us0DNDjZDr0DYIzhSFprNoy4FdPT9Pjy5aD2hJJVjtJwmdMT9VmrTUo949nlk35BOxehThxX62RkuRQ==}
     peerDependencies:
-      '@types/react': ^16.8.0 || ^17.0.0 || ^18.0.0
-      react: ^16.8.0 || ^17.0.0 || ^18.0.0
-      react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
+      '@types/react': ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+      react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
     peerDependenciesMeta:
       '@types/react':
         optional: true
@@ -14885,6 +14885,8 @@ snapshots:
 
   '@types/estree@1.0.8': {}
 
+  '@types/eventsource@1.1.15': {}
+
   '@types/express-serve-static-core@4.19.8':
     dependencies:
       '@types/node': 20.19.30
@@ -15361,7 +15363,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@wojtekmaj/date-utils@1.5.1': {}
+  '@wojtekmaj/date-utils@2.0.2': {}
 
   '@xenova/transformers@2.17.2':
     dependencies:
@@ -17832,9 +17834,9 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  get-user-locale@2.3.2:
+  get-user-locale@3.0.0:
     dependencies:
-      mem: 8.1.1
+      memoize: 10.2.0
 
   github-from-package@0.0.0: {}
 
@@ -19453,22 +19455,17 @@ snapshots:
       underscore: 1.13.7
       xmlbuilder: 10.1.1
 
-  map-age-cleaner@0.1.3:
-    dependencies:
-      p-defer: 1.0.0
-
   math-intrinsics@1.1.0: {}
 
   media-typer@0.3.0: {}
 
-  mem@8.1.1:
-    dependencies:
-      map-age-cleaner: 0.1.3
-      mimic-fn: 3.1.0
-
   memjs@1.3.2: {}
 
   memoize-one@5.2.1: {}
+
+  memoize@10.2.0:
+    dependencies:
+      mimic-function: 5.0.1
 
   memory-pager@1.5.0: {}
 
@@ -19498,8 +19495,6 @@ snapshots:
   mime@2.6.0: {}
 
   mimic-fn@2.1.0: {}
-
-  mimic-fn@3.1.0: {}
 
   mimic-function@5.0.1: {}
 
@@ -20059,8 +20054,6 @@ snapshots:
       object-keys: 1.1.1
       safe-push-apply: 1.0.0
 
-  p-defer@1.0.0: {}
-
   p-filter@2.1.0:
     dependencies:
       p-map: 2.1.0
@@ -20580,12 +20573,11 @@ snapshots:
     transitivePeerDependencies:
       - react-native
 
-  react-calendar@4.8.0(@types/react@18.3.27)(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+  react-calendar@6.0.0(@types/react@18.3.27)(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:
-      '@wojtekmaj/date-utils': 1.5.1
+      '@wojtekmaj/date-utils': 2.0.2
       clsx: 2.1.1
-      get-user-locale: 2.3.2
-      prop-types: 15.8.1
+      get-user-locale: 3.0.0
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
       warning: 4.0.3
