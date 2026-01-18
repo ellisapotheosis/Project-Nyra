@@ -383,32 +383,85 @@ docker port nyra-sequential-thinking-mcp
 
 ### Building from Source
 
+This MCP server is built from TypeScript source using a multi-stage Docker build.
+
+**Local Development:**
+
 ```bash
-# Clone the repository
-git clone https://github.com/modelcontextprotocol/servers.git
-cd servers/src/sequentialthinking
+# Navigate to the server directory
+cd mcp-servers/sequential-thinking-mcp
 
 # Install dependencies
 npm install
 
-# Build
+# Build TypeScript to JavaScript
 npm run build
 
 # Run locally
 npm start
+
+# Or run in development mode with watch
+npm run dev
 ```
+
+**Docker Build:**
+
+```bash
+# Build the Docker image
+docker build -t nyra/sequential-thinking-mcp:latest ./mcp-servers/sequential-thinking-mcp
+
+# Or use docker-compose
+docker-compose -f docker-compose.sequential-thinking-mcp.yml build
+```
+
+**Source Structure:**
+- `src/index.ts` - MCP server entry point with tool registration
+- `src/lib.ts` - SequentialThinkingServer class implementation
+- `package.json` - Dependencies (@modelcontextprotocol/sdk, chalk, yargs)
+- `tsconfig.json` - TypeScript compiler configuration
+- `Dockerfile` - Multi-stage build (builder + runtime)
 
 ### Testing
 
+**Unit Tests** (when test files are added):
+
 ```bash
-# Run unit tests
+# Run unit tests with Vitest
 npm test
 
-# Integration tests with MCP SDK
-npm run test:integration
+# Run with coverage
+npm run test:coverage
 
-# End-to-end tests
-npm run test:e2e
+# Watch mode during development
+npm run test:watch
+```
+
+**Manual Testing with MCP:**
+
+```bash
+# Start the server in one terminal
+npm run build && npm start
+
+# In another terminal, test via Claude Desktop with the server configured in .mcp.json
+
+# Or test with stdio directly (send MCP protocol messages)
+echo '{"jsonrpc":"2.0","method":"tools/list","id":1}' | node dist/index.js
+```
+
+**Docker Container Testing:**
+
+```bash
+# Build and start
+docker-compose -f docker-compose.sequential-thinking-mcp.yml up -d --build
+
+# Check logs
+docker logs nyra-sequential-thinking-mcp
+
+# Test health check
+docker inspect --format='{{json .State.Health}}' nyra-sequential-thinking-mcp | jq
+
+# Enter container for debugging
+docker exec -it nyra-sequential-thinking-mcp sh
 ```
 
 ## References
