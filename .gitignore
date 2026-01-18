@@ -215,3 +215,7 @@ docker-compose.override.yml
 *.rej
 .eslintcache
 .stylelintcache
+
+# Infisical documentation with example credentials
+INFISICAL-ENV-VARIABLES.md
+INFISICAL-QUICK-SETUP.txt

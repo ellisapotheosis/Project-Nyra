@@ -11,6 +11,25 @@ const path = require('path');
 const { execSync } = require('child_process');
 
 // Configuration
+function loadConfig() {
+  try {
+    const configPath = path.join(process.cwd(), 'claude-flow.config.json');
+    if (fs.existsSync(configPath)) {
+      const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
+      return {
+        maxAgents: config.swarm?.maxAgents || config.agents?.maxConcurrent || 35,
+        topology: config.swarm?.topology || 'hierarchical-mesh',
+      };
+    }
+  } catch (e) {
+    // Ignore errors, use defaults
+  }
+  return {
+    maxAgents: 35,
+    topology: 'hierarchical-mesh',
+  };
+}
+
 const CONFIG = {
   enabled: true,
   showProgress: true,
@@ -19,8 +38,7 @@ const CONFIG = {
   showHooks: true,
   showPerformance: true,
   refreshInterval: 5000,
-  maxAgents: 15,
-  topology: 'hierarchical-mesh',
+  ...loadConfig(),
 };
 
 // ANSI colors

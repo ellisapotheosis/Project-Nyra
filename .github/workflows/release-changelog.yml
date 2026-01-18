@@ -1,0 +1,132 @@
+name: Release & Changelog Automation
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version number (e.g., v1.2.3)'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  generate-changelog:
+    name: Generate changelog and create release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate required secrets
+        run: |
+          if [ -z "${{ secrets.GH_PAT_WORKFLOWS }}" ]; then
+            echo "::warning::GH_PAT_WORKFLOWS not configured, using GITHUB_TOKEN"
+          fi
+          echo "✓ Secret validation complete"
+
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GH_PAT_WORKFLOWS || secrets.GITHUB_TOKEN }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Cache npm globals
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-npm-globals-changelog
+          restore-keys: |
+            ${{ runner.os }}-npm-globals-
+            ${{ runner.os }}-npm-
+
+      - name: Install changelog tools
+        run: |
+          npm install -g conventional-changelog-cli
+          npm install -g auto-changelog
+
+      - name: Determine version
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            VERSION="${{ inputs.version }}"
+          else
+            VERSION="${{ github.ref_name }}"
+          fi
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "Using version: ${VERSION}"
+
+      - name: Generate conventional changelog
+        run: |
+          conventional-changelog -p angular -i CHANGELOG.md -s -r 0
+
+      - name: Generate detailed changelog
+        run: |
+          auto-changelog --template compact --unreleased --commit-limit false
+
+      - name: Extract release notes for this version
+        id: extract
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          # Extract just the latest version section from CHANGELOG.md
+          awk "/^## \[?${VERSION#v}\]?/,/^## \[?[0-9]/" CHANGELOG.md | sed '$d' > RELEASE_NOTES.md
+
+          # If empty, create a basic release note
+          if [ ! -s RELEASE_NOTES.md ]; then
+            echo "## Release ${VERSION}" > RELEASE_NOTES.md
+            echo "" >> RELEASE_NOTES.md
+            echo "See [CHANGELOG.md](CHANGELOG.md) for full details." >> RELEASE_NOTES.md
+          fi
+
+      - name: Commit changelog
+        run: |
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git add CHANGELOG.md .auto-changelog 2>/dev/null || true
+          git commit -m "chore(release): update changelog for ${{ steps.version.outputs.version }}" || echo "No changes to commit"
+          git push origin HEAD:main || echo "No changes to push"
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT_WORKFLOWS || secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+
+          # Check if release already exists
+          if gh release view "$VERSION" >/dev/null 2>&1; then
+            echo "Release $VERSION already exists, updating..."
+            gh release edit "$VERSION" --notes-file RELEASE_NOTES.md
+          else
+            echo "Creating new release $VERSION..."
+            gh release create "$VERSION" \
+              --title "Release $VERSION" \
+              --notes-file RELEASE_NOTES.md \
+              --draft=false \
+              --prerelease=false
+          fi
+
+      - name: Upload changelog artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: changelog-${{ steps.version.outputs.version }}
+          path: |
+            CHANGELOG.md
+            RELEASE_NOTES.md
+
+  notify-release:
+    name: Notify about release
+    needs: generate-changelog
+    runs-on: ubuntu-latest
+    if: success()
+    steps:
+      - name: Release notification
+        run: |
+          echo "✅ Release completed successfully!"
+          echo "📋 Changelog updated"
+          echo "🚀 GitHub release created"

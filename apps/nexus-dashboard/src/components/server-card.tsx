@@ -1,11 +1,13 @@
 'use client';
 
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Database, Activity, Clock } from 'lucide-react';
+import { Database, Activity, Clock, Settings } from 'lucide-react';
 import { MCPServer } from '@/lib/store';
 import { cn } from '@/lib/utils';
+import { ServerConfigDialog } from './mcp/server-config-dialog';
 
 interface ServerCardProps {
   server: MCPServer;
@@ -13,6 +15,7 @@ interface ServerCardProps {
 }
 
 export function ServerCard({ server, onTest }: ServerCardProps) {
+  const [configOpen, setConfigOpen] = useState(false);
   const statusColors = {
     online: 'success',
     offline: 'destructive',
@@ -70,13 +73,28 @@ export function ServerCard({ server, onTest }: ServerCardProps) {
             Last checked: {new Date(server.lastCheck).toLocaleTimeString()}
           </div>
 
-          {onTest && (
-            <Button variant="outline" size="sm" className="w-full mt-2" onClick={onTest}>
-              Test Connection
+          <div className="flex gap-2 mt-4">
+            <Button variant="outline" size="sm" className="flex-1" onClick={() => setConfigOpen(true)}>
+              <Settings className="h-4 w-4 mr-1" />
+              Configure
             </Button>
-          )}
+            {onTest && (
+              <Button variant="outline" size="sm" className="flex-1" onClick={onTest}>
+                Test Connection
+              </Button>
+            )}
+          </div>
         </div>
       </CardContent>
+
+      <ServerConfigDialog
+        server={server}
+        open={configOpen}
+        onOpenChange={setConfigOpen}
+        onSave={(headers) => {
+          console.log('Headers saved for', server.name, ':', headers);
+        }}
+      />
     </Card>
   );
 }

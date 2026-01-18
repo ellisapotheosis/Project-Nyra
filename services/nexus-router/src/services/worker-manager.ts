@@ -20,14 +20,29 @@ interface RoutingDecision {
   reason: string;
 }
 
+interface RoutingConfig {
+  strategy: 'cost-optimized' | 'latency-optimized' | 'quality-optimized';
+  preferLocal: boolean;
+  fallbackCloud: boolean;
+  costThreshold: number;
+}
+
 export class WorkerManager {
   private static instance: WorkerManager;
   private workerHealth: Map<string, WorkerHealth> = new Map();
   private healthCheckInterval: NodeJS.Timeout | null = null;
   private redis: RedisClient;
+  private routingConfig: RoutingConfig;
 
   private constructor() {
     this.redis = RedisClient.getInstance();
+    // Initialize with default config values
+    this.routingConfig = {
+      strategy: config.routing.strategy,
+      preferLocal: config.routing.preferLocal,
+      fallbackCloud: config.routing.fallbackCloud,
+      costThreshold: config.routing.costThreshold,
+    };
   }
 
   public static getInstance(): WorkerManager {
@@ -40,6 +55,9 @@ export class WorkerManager {
   public async initialize(): Promise<void> {
     logger.info('Initializing Worker Manager...');
 
+    // Load routing config from Redis if available
+    await this.loadRoutingConfig();
+
     // Initial health check for all workers
     for (const worker of config.workers.local) {
       await this.checkWorkerHealth(worker);
@@ -49,6 +67,25 @@ export class WorkerManager {
     this.startHealthChecks();
 
     logger.info(`Worker Manager initialized with ${config.workers.local.length} local workers`);
+    logger.info(`Routing strategy: ${this.routingConfig.strategy}`);
+  }
+
+  private async loadRoutingConfig(): Promise<void> {
+    try {
+      if (!this.redis.isConnected()) {
+        logger.debug('Redis not connected, using default routing config');
+        return;
+      }
+
+      const savedConfig = await this.redis.get('routing:config');
+      if (savedConfig) {
+        const parsedConfig = JSON.parse(savedConfig);
+        this.routingConfig = { ...this.routingConfig, ...parsedConfig };
+        logger.info('Loaded routing config from Redis');
+      }
+    } catch (error) {
+      logger.warn('Error loading routing config from Redis:', error);
+    }
   }
 
   private startHealthChecks(): void {
@@ -104,8 +141,21 @@ export class WorkerManager {
   }
 
   public async routeRequest(model: string, taskType?: string): Promise<RoutingDecision> {
+    // Apply routing strategy
+    switch (this.routingConfig.strategy) {
+      case 'latency-optimized':
+        return this.routeLatencyOptimized(model, taskType);
+      case 'quality-optimized':
+        return this.routeQualityOptimized(model, taskType);
+      case 'cost-optimized':
+      default:
+        return this.routeCostOptimized(model, taskType);
+    }
+  }
+
+  private async routeCostOptimized(model: string, taskType?: string): Promise<RoutingDecision> {
     // Check if we should prefer local
-    if (!config.routing.preferLocal) {
+    if (!this.routingConfig.preferLocal) {
       return this.routeToCloud();
     }
 
@@ -117,18 +167,18 @@ export class WorkerManager {
       const health = this.workerHealth.get(workerId);
 
       if (health?.healthy) {
-        logger.info(`Routing to local worker ${workerId} for model ${model}`);
+        logger.info(`Routing to local worker ${workerId} for model ${model} (cost-optimized)`);
         await this.redis.incrementMetric('requests:local');
         return {
           worker: suitableWorker,
           provider: 'local',
-          reason: `Local worker available (${suitableWorker.primaryUse})`,
+          reason: `Local worker available (${suitableWorker.primaryUse}) - Cost optimized`,
         };
       }
     }
 
     // Fallback to cloud if configured
-    if (config.routing.fallbackCloud) {
+    if (this.routingConfig.fallbackCloud) {
       logger.info(`No healthy local workers, falling back to cloud for model ${model}`);
       await this.redis.incrementMetric('requests:cloud');
       return this.routeToCloud();
@@ -136,6 +186,91 @@ export class WorkerManager {
 
     // No workers available
     throw new Error('No available workers (local unhealthy, cloud fallback disabled)');
+  }
+
+  private async routeLatencyOptimized(model: string, taskType?: string): Promise<RoutingDecision> {
+    // Find worker with best response time
+    const healthyWorkers = config.workers.local.filter((worker) => {
+      const workerId = this.getWorkerId(worker.url);
+      const health = this.workerHealth.get(workerId);
+      return health?.healthy;
+    });
+
+    if (healthyWorkers.length > 0) {
+      // Sort by response time (ascending)
+      const fastestWorker = healthyWorkers.reduce((fastest, current) => {
+        const fastestId = this.getWorkerId(fastest.url);
+        const currentId = this.getWorkerId(current.url);
+        const fastestHealth = this.workerHealth.get(fastestId);
+        const currentHealth = this.workerHealth.get(currentId);
+
+        if (!fastestHealth?.responseTime) return current;
+        if (!currentHealth?.responseTime) return fastest;
+
+        return currentHealth.responseTime < fastestHealth.responseTime ? current : fastest;
+      });
+
+      const workerId = this.getWorkerId(fastestWorker.url);
+      const health = this.workerHealth.get(workerId);
+
+      logger.info(`Routing to fastest worker ${workerId} (${health?.responseTime}ms) for model ${model}`);
+      await this.redis.incrementMetric('requests:local');
+
+      return {
+        worker: fastestWorker,
+        provider: 'local',
+        reason: `Fastest local worker (${health?.responseTime}ms response time)`,
+      };
+    }
+
+    // Fallback to cloud
+    if (this.routingConfig.fallbackCloud) {
+      await this.redis.incrementMetric('requests:cloud');
+      return this.routeToCloud();
+    }
+
+    throw new Error('No available workers');
+  }
+
+  private async routeQualityOptimized(model: string, taskType?: string): Promise<RoutingDecision> {
+    // For quality-optimized, prefer cloud providers (especially Anthropic)
+    // unless explicitly preferring local or cost threshold is met
+
+    // Check cost threshold - if request is below threshold, use local
+    const estimatedCost = this.estimateRequestCost(model);
+    if (estimatedCost < this.routingConfig.costThreshold && this.routingConfig.preferLocal) {
+      const suitableWorker = this.findBestWorker(model, taskType);
+      if (suitableWorker) {
+        const workerId = this.getWorkerId(suitableWorker.url);
+        const health = this.workerHealth.get(workerId);
+
+        if (health?.healthy) {
+          logger.info(`Routing to local worker ${workerId} (cost ${estimatedCost} < threshold ${this.routingConfig.costThreshold})`);
+          await this.redis.incrementMetric('requests:local');
+          return {
+            worker: suitableWorker,
+            provider: 'local',
+            reason: `Cost below threshold (${estimatedCost} < ${this.routingConfig.costThreshold})`,
+          };
+        }
+      }
+    }
+
+    // Route to cloud for best quality
+    logger.info(`Routing to cloud for quality optimization (model: ${model})`);
+    await this.redis.incrementMetric('requests:cloud');
+    return this.routeToCloud();
+  }
+
+  private estimateRequestCost(model: string): number {
+    // Simple cost estimation based on model name
+    // In production, this would use actual pricing data
+    if (model.toLowerCase().includes('opus') || model.toLowerCase().includes('gpt-4')) {
+      return 0.15;
+    } else if (model.toLowerCase().includes('sonnet') || model.toLowerCase().includes('gpt-3.5')) {
+      return 0.05;
+    }
+    return 0.01; // Default low cost for other models
   }
 
   private findBestWorker(model: string, taskType?: string): Worker | null {
@@ -304,6 +439,18 @@ export class WorkerManager {
       cloudRequests,
       workers: this.getWorkerHealthStatus(),
     };
+  }
+
+  public getRoutingConfig(): RoutingConfig {
+    return { ...this.routingConfig };
+  }
+
+  public updateRoutingConfig(updates: Partial<RoutingConfig>): void {
+    this.routingConfig = {
+      ...this.routingConfig,
+      ...updates,
+    };
+    logger.info('Routing configuration updated:', this.routingConfig);
   }
 
   public shutdown(): void {

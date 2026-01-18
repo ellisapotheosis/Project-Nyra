@@ -1,0 +1,42 @@
+# CODEOWNERS - Automatic code review assignment
+# https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Default owners for everything in the repo
+* @ellisapotheosis
+
+# GitHub workflows and CI/CD
+/.github/ @ellisapotheosis
+
+# Applications
+/apps/ @ellisapotheosis
+
+# Services (microservices)
+/services/ @ellisapotheosis
+
+# Packages (shared libraries)
+/packages/ @ellisapotheosis
+
+# MCP Servers
+/mcp-servers/ @ellisapotheosis
+
+# Infrastructure and deployment
+/infra/ @ellisapotheosis
+/docker/ @ellisapotheosis
+docker-compose*.yml @ellisapotheosis
+
+# Configuration files
+*.config.js @ellisapotheosis
+*.config.ts @ellisapotheosis
+.env.* @ellisapotheosis
+
+# Documentation
+/docs/ @ellisapotheosis
+*.md @ellisapotheosis
+
+# Scripts
+/scripts/ @ellisapotheosis
+
+# Security-sensitive files
+/security/ @ellisapotheosis
+/.github/workflows/security-scan.yml @ellisapotheosis
+/.github/workflows/codeql.yml @ellisapotheosis

@@ -55,6 +55,15 @@ ingress:
     originRequest:
       bastionMode: true
 
+  # Open WebUI - AI Chat Interface (RateHunter.net)
+  - hostname: chat.ratehunter.net
+    service: http://nyra-open-webui:3333
+    originRequest:
+      noTLSVerify: true
+      connectTimeout: 30s
+      keepAliveTimeout: 90s
+      httpHostHeader: chat.ratehunter.net
+
   # Catch-all rule (required)
   - service: http_status:404
 

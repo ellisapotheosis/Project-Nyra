@@ -1,0 +1,174 @@
+name: Deploy to Cloudflare Pages
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'apps/ratehunter-landing/**'
+      - '.github/workflows/deploy-cloudflare-pages.yml'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'apps/ratehunter-landing/**'
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment environment'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+          - production
+          - preview
+
+permissions:
+  contents: read
+  deployments: write
+  pull-requests: write
+
+jobs:
+  deploy:
+    name: Deploy to Cloudflare Pages
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{ github.event.inputs.environment || (github.event_name == 'pull_request' && 'preview' || 'production') }}
+      url: ${{ steps.deploy.outputs.url }}
+    steps:
+      - name: Validate required secrets
+        run: |
+          MISSING_SECRETS=""
+          if [ -z "${{ secrets.CLOUDFLARE_API_TOKEN }}" ]; then
+            MISSING_SECRETS="${MISSING_SECRETS}CLOUDFLARE_API_TOKEN "
+          fi
+          if [ -z "${{ secrets.CLOUDFLARE_ACCOUNT_ID }}" ]; then
+            MISSING_SECRETS="${MISSING_SECRETS}CLOUDFLARE_ACCOUNT_ID "
+          fi
+          if [ -n "$MISSING_SECRETS" ]; then
+            echo "::error::Missing required secrets: $MISSING_SECRETS"
+            echo "Please configure these secrets in your repository settings"
+            exit 1
+          fi
+          echo "✓ All required secrets validated"
+
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Cache npm dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.npm
+            apps/ratehunter-landing/node_modules
+          key: ${{ runner.os }}-ratehunter-landing-${{ hashFiles('apps/ratehunter-landing/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-ratehunter-landing-
+
+      - name: Install dependencies
+        working-directory: ./apps/ratehunter-landing
+        run: |
+          if [ -f "package.json" ]; then
+            npm ci || npm install
+          else
+            echo "No package.json found, assuming static site"
+          fi
+
+      - name: Build Next.js app
+        working-directory: ./apps/ratehunter-landing
+        run: |
+          if [ -f "package.json" ] && npm run | grep -q "build"; then
+            echo "Running Next.js build..."
+            npm run build
+            # For Next.js, check for out directory (static export) or .next directory
+            if [ -d "out" ]; then
+              BUILD_DIR="out"
+              echo "Static export detected (out directory)"
+            elif [ -d ".next" ]; then
+              BUILD_DIR=".next"
+              echo "Next.js build detected (.next directory)"
+            else
+              BUILD_DIR="dist"
+              echo "Using default dist directory"
+            fi
+            echo "BUILD_DIR=${BUILD_DIR}" >> $GITHUB_ENV
+          else
+            echo "No build script found, deploying static files"
+            echo "BUILD_DIR=." >> $GITHUB_ENV
+          fi
+
+      - name: Deploy to Cloudflare Pages
+        id: deploy
+        uses: cloudflare/pages-action@v1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: ratehunter-landing
+          directory: apps/ratehunter-landing/${{ env.BUILD_DIR }}
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ github.head_ref || github.ref_name }}
+          wranglerVersion: '3'
+
+      - name: Create deployment summary
+        run: |
+          {
+            echo "## 🚀 Cloudflare Pages Deployment"
+            echo ""
+            echo "**Status**: ✅ Deployed"
+            echo "**Environment**: ${{ github.event.inputs.environment || (github.event_name == 'pull_request' && 'preview' || 'production') }}"
+            echo "**URL**: ${{ steps.deploy.outputs.url }}"
+            echo "**Deployment ID**: ${{ steps.deploy.outputs.id }}"
+            echo "**Branch**: ${{ github.head_ref || github.ref_name }}"
+            echo "**Commit**: ${{ github.sha }}"
+            echo ""
+            echo "### Next Steps"
+            if [ "${{ github.event_name }}" == "pull_request" ]; then
+              echo "- 🔍 Review the preview deployment"
+              echo "- ✅ Test all functionality"
+              echo "- 💬 Leave feedback on this PR"
+            else
+              echo "- ✅ Production deployment complete"
+              echo "- 🌐 Visit [ratehunter.net](https://ratehunter.net)"
+              echo "- 📊 Monitor Cloudflare Analytics"
+            fi
+          } >> $GITHUB_STEP_SUMMARY
+
+      - name: Comment on PR
+        if: github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT_WORKFLOWS || secrets.GITHUB_TOKEN }}
+        run: |
+          echo "${{ secrets.GH_PAT_WORKFLOWS || secrets.GITHUB_TOKEN }}" | gh auth login --with-token >/dev/null
+          gh pr comment "${{ github.event.pull_request.number }}" --body "
+          ## 🚀 Cloudflare Pages Preview Deployment
+
+          **Preview URL**: ${{ steps.deploy.outputs.url }}
+
+          The preview deployment is ready for review. Please test all changes before merging.
+
+          **Deployment Details**:
+          - Environment: Preview
+          - Branch: \`${{ github.head_ref }}\`
+          - Commit: \`${{ github.sha }}\`
+          - Deployment ID: ${{ steps.deploy.outputs.id }}
+          " || echo "Could not comment on PR"
+
+  # Optional: Run lighthouse performance audit on preview
+  performance-audit:
+    name: Lighthouse audit
+    needs: deploy
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run Lighthouse CI
+        uses: treosh/lighthouse-ci-action@v10
+        with:
+          urls: |
+            https://ratehunter.pages.dev
+          uploadArtifacts: true
+          temporaryPublicStorage: true
