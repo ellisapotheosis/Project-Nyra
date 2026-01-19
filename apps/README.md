@@ -4,7 +4,13 @@
 
 ## Overview
 
-Project Nyra's frontend consists of 5 specialized applications built with React and Next.js. Each app serves a specific user role and use case, from mortgage processing to rate comparison to system administration.
+Project Nyra's frontend consists of 9 specialized applications and workspaces built with React and Next.js. Each app serves a specific user role and use case, from mortgage processing to rate comparison to system administration.
+
+### Special Workspace: apps/ingestion/
+
+In addition to the production applications, the `apps/` folder includes a dedicated **ingestion/** workspace for processing complex content that requires systematic integration. This workspace uses the SPARC (Specification, Pseudocode, Architecture, Refinement, Completion) methodology to ensure quality-assured content transformation.
+
+See **[apps/ingestion/README.md](ingestion/README.md)** for details on the ingestion workflow.
 
 ## Applications
 

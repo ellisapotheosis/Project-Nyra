@@ -1,0 +1,45 @@
+# Claude Flow V3 Production Container
+FROM node:20-alpine AS base
+
+# Install system dependencies
+RUN apk add --no-cache \
+    git \
+    python3 \
+    make \
+    g++ \
+    bash \
+    curl
+
+# Set working directory
+WORKDIR /app
+
+# Copy package files
+COPY package.json pnpm-lock.yaml ./
+
+# Install pnpm
+RUN npm install -g pnpm@10.27.0
+
+# Install dependencies (including zod)
+RUN pnpm install --frozen-lockfile
+
+# Install claude-flow@alpha globally
+RUN pnpm add -g claude-flow@alpha
+
+# Copy application code
+COPY . .
+
+# Copy agent configurations
+COPY .claude/ /app/.claude/
+
+# Create required directories
+RUN mkdir -p /app/.swarm /app/.claude-flow/metrics /app/logs
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+    CMD npx claude-flow@alpha status || exit 1
+
+# Expose ports
+EXPOSE 6100 6200
+
+# Start Claude Flow daemon
+CMD ["npx", "claude-flow@alpha", "daemon", "start", "--daemon"]

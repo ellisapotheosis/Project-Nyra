@@ -788,7 +788,7 @@
       "type": "stdio",
       "env": {
         "GRAPHITI_BACKEND": "falkordb",
-        "FALKORDB_URL": "redis://localhost:6379"
+        "FALKORDB_URL": "redis://localhost:6380"
       },
       "_comment": "Temporal knowledge graph server for tracking entity relationships and state changes over time."
     }

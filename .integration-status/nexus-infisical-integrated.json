@@ -1,0 +1,36 @@
+{
+  "integration": "nexus-infisical",
+  "status": "complete",
+  "timestamp": "2026-01-19T00:00:00Z",
+  "components": {
+    "dockerfile": "C:/Dev/Projects/Repos/Project-Nyra/infra/docker/build/services/nexus-router/Dockerfile",
+    "entrypoint": "C:/Dev/Projects/Repos/Project-Nyra/infra/docker/build/services/nexus-router/entrypoint.sh",
+    "compose": "C:/Dev/Projects/Repos/Project-Nyra/infra/docker-compose/docker-compose.ai.yml",
+    "readme": "C:/Dev/Projects/Repos/Project-Nyra/infra/docker/build/services/nexus-router/README.md",
+    "dockerignore": "C:/Dev/Projects/Repos/Project-Nyra/infra/docker/build/services/nexus-router/.dockerignore",
+    "documentation": "C:/Dev/Projects/Repos/Project-Nyra/docs/NEXUS-INFISICAL-INTEGRATION-COMPLETE.md"
+  },
+  "build_status": "successful",
+  "image": "nyra-nexus-router:test",
+  "infisical_version": "0.43.47",
+  "configuration": {
+    "project_id": "8374cea9-e5e8-4050-bda4-b91f25ab30ef",
+    "environment": "dev",
+    "path": "/shared",
+    "required_env_var": "INFISICAL_TOKEN"
+  },
+  "features": [
+    "Infisical CLI integration",
+    "Runtime secret injection",
+    "Zero-secret Docker images",
+    "Health checks",
+    "Non-root execution",
+    "Debug logging"
+  ],
+  "next_steps": [
+    "Set INFISICAL_TOKEN in .env",
+    "Configure secrets in Infisical",
+    "Build and test locally",
+    "Deploy to environment"
+  ]
+}

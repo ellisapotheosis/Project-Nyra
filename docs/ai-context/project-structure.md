@@ -149,7 +149,7 @@ Document planned technology additions:
 │   └── maintenance/                    # Maintenance scripts
 ├── [INFRASTRUCTURE-DIR]/               # Infrastructure as code (if applicable)
 │   ├── [PROVIDER]/                     # Cloud provider configurations
-│   ├── docker/                         # Container configurations
+│   ├── infra/docker/                   # Container configurations (consolidated)
 │   └── monitoring/                     # Monitoring and alerting
 └── [CONFIG-FILES]                      # Root-level configuration files
 ```

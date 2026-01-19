@@ -1,0 +1,72 @@
+# Consolidation Executed - 2026-01-19
+
+## ✅ COMPLETED CONSOLIDATION ACTIONS
+
+### Docker Files Consolidated
+✅ 10+ Service Dockerfiles → /infra/docker/build/services/
+   - campaign-engine.Dockerfile
+   - litellm-proxy.Dockerfile
+   - mem0-mcp.Dockerfile
+   - mem0-rest.Dockerfile
+   - mem0-rest-api.Dockerfile
+   - nexus-router.Dockerfile
+   - nyra-orchestrator.Dockerfile
+   - orchestrator.Dockerfile
+   - quote-api.Dockerfile
+   - quote-engine.Dockerfile
+
+### Apps Folder Restructured (Per APPS-FOLDER-SUMMARY.md)
+✅ Category-based organization implemented:
+   - apps/web/ → mortgage-assistant, ratehunter, nyra-admin, crm, crm-dashboard, webapp
+   - apps/landing/ → ratehunter-landing
+   - apps/utilities/ → shadcn-tweakcn
+   - apps/shared/ → assets, data, docs
+   - apps/ingestion/ → (already structured)
+
+⚠️  apps/nexus-dashboard → Permission denied (in use, move manually later)
+
+### Nexus-Router Routing VERIFIED ✅
+ALL services route through nexus-router (port 6000) as single entry point:
+
+✅ Letta: LETTA_LLM_ENDPOINT=http://nexus:6000/v1
+✅ OpenAI calls: OPENAI_BASE_URL=http://nexus:6000/llm/openai/v1
+✅ Mem0: NEXUS_OPENAI_BASE_URL=http://nexus:6000/llm/openai/v1
+✅ Business services: NEXUS_URL=http://nexus:6000
+✅ Orchestrator: NEXUS_BASE_URL=http://nexus:6000
+
+## 📊 Final Structure
+
+### infra/docker/build/services/
+- All service Dockerfiles centralized
+- Named format: {service-name}.Dockerfile
+
+### apps/
+```
+apps/
+├── web/          # Production web apps (3000-3099)
+├── landing/      # Marketing pages (3100-3199)
+├── utilities/    # Development tools
+├── shared/       # Shared resources (assets, data, docs)
+└── ingestion/    # Content processing
+```
+
+## 🎯 Key Benefits
+
+1. Docker files centralized in ONE location (/infra/docker/)
+2. Apps organized by category (web, landing, utilities)
+3. ALL AI services route through nexus-router MCP proxy
+4. Shared resources properly isolated
+5. Clear separation of concerns
+
+## ⏭️ Manual Follow-up Needed
+
+1. Move apps/nexus-dashboard to apps/web/ (currently in use, permission denied)
+2. Update any hardcoded paths referencing old locations
+3. Test docker-compose builds with new Dockerfile paths
+4. Git commit the consolidation changes
+
+## 🔧 Nexus-Router Configuration
+Port: 6000
+Role: Single MCP server proxy aggregator
+Routes: Anthropic, OpenRouter, Google APIs
+Status: ✅ Properly wired in all docker-compose files

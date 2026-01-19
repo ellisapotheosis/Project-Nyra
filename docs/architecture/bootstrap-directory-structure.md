@@ -46,7 +46,7 @@ bootstrap/
 │   ├── tsconfig.json
 │   └── vite.config.ts
 │
-├── docker/                             # Docker Configurations (5 GB images)
+├── infra/docker/                       # Docker Configurations (consolidated in infra/)
 │   ├── compose/                        # Docker Compose Files
 │   │   ├── docker-compose.base.yml     # Core infrastructure
 │   │   ├── docker-compose.mcp.yml      # All MCP servers

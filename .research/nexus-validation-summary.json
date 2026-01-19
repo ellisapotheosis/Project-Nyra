@@ -1,0 +1,232 @@
+{
+  "validation_date": "2026-01-19",
+  "author": "Security Auditor Agent (Claude Sonnet 4.5)",
+  "purpose": "Nexus Router routing preservation during Docker consolidation",
+
+  "critical_routing_dependencies": {
+    "letta": {
+      "container": "nyra-letta",
+      "endpoint": "http://nexus:6000/v1",
+      "env_vars": [
+        "LETTA_LLM_ENDPOINT=http://nexus:6000/v1",
+        "OPENAI_BASE_URL=http://nexus:6000/llm/openai/v1",
+        "OPENAI_API_KEY=dummy"
+      ],
+      "must_route_through_nexus": true
+    },
+    "mem0": {
+      "container": "nyra-mem0",
+      "endpoint": "http://nexus:6000/llm/openai/v1",
+      "env_vars": [
+        "NEXUS_OPENAI_BASE_URL=http://nexus:6000/llm/openai/v1",
+        "OPENAI_API_KEY=dummy"
+      ],
+      "must_route_through_nexus": true
+    },
+    "openwebui": {
+      "container": "nyra-openwebui",
+      "endpoint": "http://nexus:3000/llm/openai",
+      "env_vars": [
+        "OPENAI_API_BASE_URL=http://nexus:3000/llm/openai",
+        "OPENAI_API_KEY=dummy"
+      ],
+      "must_route_through_nexus": true
+    },
+    "nyra_orchestrator": {
+      "container": "nyra-orchestrator",
+      "endpoint": "http://nexus:6000",
+      "env_vars": [
+        "NEXUS_BASE_URL=http://nexus:6000"
+      ],
+      "must_route_through_nexus": true
+    },
+    "quote_engine": {
+      "container": "nyra-quote-engine",
+      "endpoint": "http://nexus:6000",
+      "env_vars": [
+        "NEXUS_URL=${NEXUS_URL:-http://nexus:6000}"
+      ],
+      "must_route_through_nexus": true
+    }
+  },
+
+  "network_configuration": {
+    "network_name": "nyra-network",
+    "driver": "bridge",
+    "subnet": "172.28.0.0/16",
+    "dns_resolution": "Docker internal DNS resolves 'nexus' hostname",
+    "isolation": "Services on nyra-network can reach each other, external access via ports only"
+  },
+
+  "nexus_container": {
+    "name": "nyra-nexus",
+    "image": "ghcr.io/grafbase/nexus:latest",
+    "internal_port": 3000,
+    "external_port": 6000,
+    "port_mapping": "6000:3000",
+    "hostname": "nexus"
+  },
+
+  "environment_variables": {
+    "nexus_container": [
+      "ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}",
+      "OPENROUTER_API_KEY=${OPENROUTER_API_KEY}",
+      "GOOGLE_API_KEY=${GOOGLE_API_KEY}"
+    ],
+    "optional": [
+      "NEXUS_PORT=6000"
+    ],
+    "dependent_services": [
+      "OPENAI_API_KEY=dummy (Nexus handles real keys)"
+    ]
+  },
+
+  "startup_dependencies": {
+    "order": [
+      "1. litellm",
+      "2. nexus (depends_on: litellm)",
+      "3. letta (depends_on: nexus with health check)",
+      "4. mem0 (depends_on: nexus)",
+      "5. openwebui (depends_on: nexus with health check)",
+      "6. nyra_orchestrator (depends_on: nexus with health check)"
+    ],
+    "health_check": {
+      "test": "wget -qO- http://localhost:3000/health",
+      "interval": "20s",
+      "timeout": "5s",
+      "retries": 10
+    }
+  },
+
+  "health_endpoints": {
+    "internal": "http://localhost:3000/health (inside container)",
+    "external": "http://localhost:6000/health (from host)",
+    "service_to_service": "http://nexus:6000/health (Docker DNS)"
+  },
+
+  "api_key_security": {
+    "storage": "API keys stored in Nexus container via environment variables",
+    "injection": "Nexus injects real keys when routing to cloud providers",
+    "isolation": "Dependent services never see real API keys (use dummy)",
+    "config_mount": "Config file mounted read-only (:ro)"
+  },
+
+  "services_that_can_bypass": [
+    {
+      "service": "postgres",
+      "reason": "Database - no LLM calls"
+    },
+    {
+      "service": "redis",
+      "reason": "Caching - no LLM calls"
+    },
+    {
+      "service": "falkordb",
+      "reason": "Graph database - no LLM calls"
+    },
+    {
+      "service": "qdrant",
+      "reason": "Vector database - no LLM calls"
+    },
+    {
+      "service": "litellm",
+      "reason": "LLM proxy - receives requests from Nexus"
+    },
+    {
+      "service": "quote-api",
+      "reason": "REST API - uses quote-engine, not direct LLM"
+    },
+    {
+      "service": "campaign-engine",
+      "reason": "Campaign management - no direct LLM calls"
+    }
+  ],
+
+  "validation_script": {
+    "path": ".research/docker-consolidation-validation.sh",
+    "command": "bash .research/docker-consolidation-validation.sh",
+    "checks": [
+      "Network configuration",
+      "Nexus container status",
+      "Service routing dependencies",
+      "Environment variables",
+      "Nexus configuration files",
+      "Health endpoints",
+      "Docker compose validation",
+      "Active routing tests",
+      "Security configuration",
+      "Services that can bypass"
+    ]
+  },
+
+  "validation_commands": {
+    "check_network": "docker network inspect nyra-network",
+    "check_nexus_running": "docker ps | grep nyra-nexus",
+    "check_nexus_health": "curl http://localhost:6000/health",
+    "test_connectivity_letta": "docker exec nyra-letta curl http://nexus:6000/health",
+    "test_connectivity_mem0": "docker exec nyra-mem0 curl http://nexus:6000/health",
+    "test_connectivity_openwebui": "docker exec nyra-openwebui curl http://nexus:6000/health",
+    "test_llm_endpoint": "curl http://localhost:6000/v1/models"
+  },
+
+  "consolidation_rules": {
+    "do": [
+      "Preserve network name: nyra-network",
+      "Preserve container name: nyra-nexus",
+      "Preserve port mapping: 6000:3000",
+      "Preserve health checks",
+      "Preserve environment variables (all NEXUS_* vars)",
+      "Keep volume mounts for config file"
+    ],
+    "dont": [
+      "Don't change network name",
+      "Don't change Nexus hostname",
+      "Don't skip health checks",
+      "Don't expose internal port 3000",
+      "Don't remove API key environment variables",
+      "Don't change config paths"
+    ]
+  },
+
+  "critical_files": {
+    "docker_compose": "infra/docker-compose/docker-compose.ai.yml",
+    "nexus_config": "configs/nexus/nexus.toml",
+    "env_file": "infra/docker-compose/.env",
+    "validation_script": ".research/docker-consolidation-validation.sh",
+    "documentation": "docs/NEXUS-ROUTER-VALIDATION.md"
+  },
+
+  "troubleshooting": {
+    "service_cannot_reach_nexus": {
+      "symptom": "Connection refused errors",
+      "diagnosis": "docker inspect <service> --format '{{range $key, $value := .NetworkSettings.Networks}}{{$key}}{{end}}'",
+      "solution": "Ensure service is on nyra-network"
+    },
+    "health_check_fails": {
+      "symptom": "Services waiting for healthy nexus",
+      "diagnosis": "docker logs nyra-nexus --tail 50",
+      "solution": "Check API keys in .env, verify config file exists"
+    },
+    "api_keys_not_working": {
+      "symptom": "Authentication errors in LLM requests",
+      "diagnosis": "docker inspect nyra-nexus --format '{{json .Config.Env}}' | grep API_KEY",
+      "solution": "Verify .env file exists with correct keys, restart nexus"
+    }
+  },
+
+  "references": {
+    "nexus_readme": "services/nexus-router/README.md",
+    "architecture_analysis": "docs/architecture/NEXUS-ROUTER-ARCHITECTURE-ANALYSIS.md",
+    "docker_compose_files": "infra/docker-compose/*.yml",
+    "validation_script": ".research/docker-consolidation-validation.sh",
+    "existing_validation": "scripts/validate-nexus-router.sh"
+  },
+
+  "status": {
+    "audit_complete": true,
+    "validation_script_created": true,
+    "documentation_created": true,
+    "memory_stored": true,
+    "ready_for_consolidation": true
+  }
+}

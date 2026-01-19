@@ -1,1371 +1,449 @@
 # ==============================================================================
-# Project Nyra - Unified Docker Compose Configuration
+# Project Nyra - Master Infrastructure Orchestration
 # ==============================================================================
-# Consolidated from 274 scattered docker-compose files into single source of truth
+# Consolidated master compose file using modular includes
 #
-# Services: 40+ services across all layers
-# Generated: 2026-01-15
-# Architecture: Distributed AI Mortgage Platform (4-PC Cluster)
+# Architecture: Modular, layered infrastructure with proper dependency ordering
+# Generated: 2026-01-18
 #
 # Quick Start:
-#   docker-compose up -d                    # Start all services
-#   docker-compose up -d core              # Start only core services
-#   docker-compose ps                       # Check status
-#   docker-compose logs -f claude-flow      # View logs
+#   docker compose up -d                    # Start all services
+#   docker compose up -d --profile core     # Core services only
+#   docker compose up -d --profile ai       # AI stack
+#   docker compose up -d --profile full     # Everything
 #
+# Selective Start:
+#   docker compose up -d postgres redis     # Just databases
+#   docker compose up -d nexus litellm      # AI gateway
+#   docker compose up -d nyra_orchestrator  # Orchestrator + deps
+#
+# Environment:
+#   Copy .env.example to .env and customize
+#
+# Override:
+#   Local development overrides in docker-compose.override.yml
 # ==============================================================================
 
 version: '3.9'
 
 # ==============================================================================
-# NETWORKS
+# MODULAR SERVICE INCLUDES (Dependency-Ordered)
 # ==============================================================================
+# Services are included in dependency order:
+# 1. Base (postgres, redis) - Foundation layer
+# 2. Databases (specialized stores) - Data layer
+# 3. AI Services - Intelligence layer
+# 4. CRM - Business layer
+# 5. Workflow - Automation layer
+# 6. Observability - Monitoring layer
+# 7. Orchestrator - Coordination layer
+# 8. Business Services - Application layer
+
+include:
+  # Layer 1: Core Foundation (databases first)
+  - path: ./docker-compose/docker-compose.base.yml
+    env_file: .env
+
+  # Layer 2: Specialized Databases
+  - path: ./docker-compose/docker-compose.databases.yml
+    env_file: .env
+
+  # Layer 2.5: MCP Servers (depend on databases)
+  - path: ./docker-compose/docker-compose.mcp-servers.yml
+    env_file: .env
+
+  # Layer 3: AI & Intelligence Services
+  - path: ./docker-compose/docker-compose.ai.yml
+    env_file: .env
+
+  # Layer 4: CRM & Customer Management
+  - path: ./docker-compose/docker-compose.crm.yml
+    env_file: .env
+
+  # Layer 5: Workflow Automation
+  - path: ./docker-compose/docker-compose.workflow.yml
+    env_file: .env
+
+  # Layer 6: Observability & Monitoring (depends on services)
+  - path: ./docker-compose/docker-compose.observability.yml
+    env_file: .env
+
+  # Layer 7: Orchestration (depends on all core services)
+  - path: ./docker-compose/docker-compose.orchestrator.yml
+    env_file: .env
+
+  # Layer 8: Business Logic Services (top layer)
+  - path: ./docker-compose/docker-compose.business.yml
+    env_file: .env
+
+# ==============================================================================
+# GLOBAL NETWORKS
+# ==============================================================================
+# Shared across all included compose files
 
 networks:
   nyra-network:
-    driver: bridge
-    ipam:
-      config:
-        - subnet: ${DOCKER_SUBNET:-172.20.0.0/16}
-    driver_opts:
-      com.docker.network.bridge.name: nyra-br0
+    name: nyra-network
+    external: true
 
   databases:
+    name: nyra-databases
     driver: bridge
     internal: true
+    labels:
+      - "com.nyra.network=databases"
+      - "com.nyra.purpose=database-isolation"
 
   monitoring:
+    name: nyra-monitoring
     driver: bridge
-
-  observability:
-    driver: bridge
+    labels:
+      - "com.nyra.network=monitoring"
+      - "com.nyra.purpose=observability"
 
 # ==============================================================================
-# VOLUMES
+# GLOBAL VOLUMES
 # ==============================================================================
+# Persistent data storage across all services
 
 volumes:
   # Core Database Volumes
-  postgres_data:
+  nyra_postgres_data:
+    name: nyra_postgres_data
     driver: local
-  redis_data:
-    driver: local
-  mongo_data:
-    driver: local
+    labels:
+      - "com.nyra.volume=database"
+      - "com.nyra.service=postgres"
+      - "com.nyra.backup=critical"
 
-  # Application Database Volumes
-  letta_postgres_data:
+  nyra_redis_data:
+    name: nyra_redis_data
     driver: local
-  twenty_postgres_data:
-    driver: local
-  dify_postgres_data:
-    driver: local
+    labels:
+      - "com.nyra.volume=cache"
+      - "com.nyra.service=redis"
 
-  # Graph Database Volumes
-  neo4j_data:
+  # Specialized Databases
+  nyra_falkordb_data:
+    name: nyra_falkordb_data
     driver: local
-  neo4j_logs:
-    driver: local
-  falkordb_data:
-    driver: local
+    labels:
+      - "com.nyra.volume=database"
+      - "com.nyra.service=falkordb"
+      - "com.nyra.type=graph"
 
-  # MCP & AI Service Volumes
-  claude_flow_data:
+  nyra_qdrant_data:
+    name: nyra_qdrant_data
     driver: local
-  claude_flow_logs:
-    driver: local
-  claude_flow_secrets:
-    driver: local
-  archon_data:
-    driver: local
-  archon_logs:
-    driver: local
-  archon_secrets:
-    driver: local
-  graphiti_data:
-    driver: local
-  mem0_data:
-    driver: local
-  letta_data:
-    driver: local
+    labels:
+      - "com.nyra.volume=database"
+      - "com.nyra.service=qdrant"
+      - "com.nyra.type=vector"
 
-  # Secret Management
-  infisical_data:
+  # AI Service Volumes
+  nyra_litellm_data:
+    name: nyra_litellm_data
     driver: local
+    labels:
+      - "com.nyra.volume=ai"
+      - "com.nyra.service=litellm"
 
-  # Development Tools
-  gitea_data:
+  nyra_letta_data:
+    name: nyra_letta_data
     driver: local
-  n8n_data:
-    driver: local
-  n8n_local_files:
-    driver: local
-  activepieces_data:
-    driver: local
+    labels:
+      - "com.nyra.volume=ai"
+      - "com.nyra.service=letta"
+      - "com.nyra.backup=important"
 
-  # Application Services
-  dify_data:
+  nyra_mem0_data:
+    name: nyra_mem0_data
     driver: local
-  twenty_data:
-    driver: local
+    labels:
+      - "com.nyra.volume=ai"
+      - "com.nyra.service=mem0"
 
-  # Monitoring & Observability
-  prometheus_data:
+  # Workflow Volumes
+  nyra_n8n_data:
+    name: nyra_n8n_data
     driver: local
-  grafana_data:
-    driver: local
-  loki_data:
-    driver: local
-  tempo_data:
-    driver: local
-  alertmanager_data:
-    driver: local
-  langfuse_data:
-    driver: local
+    labels:
+      - "com.nyra.volume=workflow"
+      - "com.nyra.service=n8n"
 
-  # Storage
-  minio_data:
+  nyra_dify_data:
+    name: nyra_dify_data
     driver: local
+    labels:
+      - "com.nyra.volume=workflow"
+      - "com.nyra.service=dify"
 
-  # Admin Tools
-  pgadmin_data:
+  nyra_activepieces_data:
+    name: nyra_activepieces_data
     driver: local
+    labels:
+      - "com.nyra.volume=workflow"
+      - "com.nyra.service=activepieces"
+
+  # Observability Volumes
+  nyra_prometheus_data:
+    name: nyra_prometheus_data
+    driver: local
+    labels:
+      - "com.nyra.volume=monitoring"
+      - "com.nyra.service=prometheus"
+      - "com.nyra.backup=important"
+
+  nyra_grafana_data:
+    name: nyra_grafana_data
+    driver: local
+    labels:
+      - "com.nyra.volume=monitoring"
+      - "com.nyra.service=grafana"
+
+  nyra_loki_data:
+    name: nyra_loki_data
+    driver: local
+    labels:
+      - "com.nyra.volume=monitoring"
+      - "com.nyra.service=loki"
+
+  # CRM Volumes
+  nyra_twentycrm_data:
+    name: nyra_twentycrm_data
+    driver: local
+    labels:
+      - "com.nyra.volume=crm"
+      - "com.nyra.service=twentycrm"
+      - "com.nyra.backup=critical"
 
 # ==============================================================================
-# SERVICES
+# DEPLOYMENT PROFILES
+# ==============================================================================
+# Use profiles to control which services start
+#
+# Examples:
+#   docker compose --profile core up -d       # Core only
+#   docker compose --profile ai up -d         # AI services
+#   docker compose --profile full up -d       # Everything
+#
+# Services without profiles always start (default behavior)
 # ==============================================================================
 
-services:
-
-  # ============================================================================
-  # CORE INFRASTRUCTURE LAYER
-  # ============================================================================
-
-  # PostgreSQL - Primary Database (Main Nyra DB)
-  postgres:
-    image: postgres:16-alpine
-    container_name: nyra-postgres
-    restart: unless-stopped
-    environment:
-      POSTGRES_DB: ${POSTGRES_DB:-nyra}
-      POSTGRES_USER: ${POSTGRES_USER:-nyra}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD required}
-      POSTGRES_INITDB_ARGS: "-E UTF8 --locale=en_US.UTF-8"
-      PGDATA: /var/lib/postgresql/data/pgdata
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    ports:
-      - "${POSTGRES_PORT:-5432}:5432"
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-nyra} -d ${POSTGRES_DB:-nyra}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 10s
-    networks:
-      - nyra-network
-      - databases
-    deploy:
-      resources:
-        limits:
-          cpus: '4'
-          memory: 4G
-        reservations:
-          cpus: '1'
-          memory: 1G
-    labels:
-      - "com.nyra.service=core"
-      - "com.nyra.category=database"
-
-  # Redis - Cache & Queue Management
-  redis:
-    image: redis:7-alpine
-    container_name: nyra-redis
-    restart: unless-stopped
-    command: >
-      redis-server
-      --requirepass ${REDIS_PASSWORD:?REDIS_PASSWORD required}
-      --maxmemory ${REDIS_MAX_MEMORY:-2gb}
-      --maxmemory-policy allkeys-lru
-      --appendonly yes
-      --appendfsync everysec
-    volumes:
-      - redis_data:/data
-    ports:
-      - "${REDIS_PORT:-6379}:6379"
-    healthcheck:
-      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
-      interval: 10s
-      timeout: 3s
-      retries: 5
-      start_period: 5s
-    networks:
-      - nyra-network
-      - databases
-    deploy:
-      resources:
-        limits:
-          cpus: '2'
-          memory: 2G
-        reservations:
-          cpus: '0.5'
-          memory: 512M
-    labels:
-      - "com.nyra.service=core"
-      - "com.nyra.category=cache"
-
-  # MongoDB - Infisical Backend
-  mongo:
-    image: mongo:7
-    container_name: nyra-mongo
-    restart: unless-stopped
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USER:-admin}
-      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD:?MONGO_ROOT_PASSWORD required}
-    volumes:
-      - mongo_data:/data/db
-    ports:
-      - "${MONGO_PORT:-27017}:27017"
-    healthcheck:
-      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 10s
-    networks:
-      - nyra-network
-      - databases
-    deploy:
-      resources:
-        limits:
-          cpus: '2'
-          memory: 2G
-        reservations:
-          cpus: '0.5'
-          memory: 512M
-    labels:
-      - "com.nyra.service=core"
-      - "com.nyra.category=database"
-
-  # ============================================================================
-  # SECRET MANAGEMENT LAYER
-  # ============================================================================
-
-  # Infisical - Secret Management Server
-  infisical:
-    image: infisical/infisical:latest
-    container_name: nyra-infisical
-    restart: unless-stopped
-    environment:
-      ENCRYPTION_KEY: ${INFISICAL_ENCRYPTION_KEY:?INFISICAL_ENCRYPTION_KEY required}
-      JWT_SECRET: ${INFISICAL_JWT_SECRET:?INFISICAL_JWT_SECRET required}
-      MONGO_URL: mongodb://${MONGO_ROOT_USER:-admin}:${MONGO_ROOT_PASSWORD}@mongo:27017/infisical?authSource=admin
-      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379/3
-      SITE_URL: ${INFISICAL_SITE_URL:-http://localhost:8080}
-      SMTP_HOST: ${SMTP_HOST:-}
-      SMTP_PORT: ${SMTP_PORT:-587}
-      SMTP_FROM_ADDRESS: ${SMTP_FROM_ADDRESS:-}
-    volumes:
-      - infisical_data:/data
-    ports:
-      - "${INFISICAL_PORT:-8080}:8080"
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/api/status"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
-    depends_on:
-      mongo:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    networks:
-      - nyra-network
-    labels:
-      - "com.nyra.service=core"
-      - "com.nyra.category=secrets"
-
-  # Infisical Agent - Claude Flow Sidecar (Real-time secret injection)
-  agent-claude-flow:
-    image: infisical/agent:latest
-    container_name: nyra-agent-claude-flow
-    restart: unless-stopped
-    environment:
-      INFISICAL_CLIENT_ID: ${INFISICAL_CLIENT_ID_CLAUDE_FLOW:?INFISICAL_CLIENT_ID_CLAUDE_FLOW required}
-      INFISICAL_CLIENT_SECRET: ${INFISICAL_CLIENT_SECRET_CLAUDE_FLOW:?INFISICAL_CLIENT_SECRET_CLAUDE_FLOW required}
-      INFISICAL_HOST_URL: http://nyra-infisical:8080
-      INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
-      INFISICAL_ENV: ${INFISICAL_ENV:-development}
-    volumes:
-      - claude_flow_secrets:/secrets
-      - ./configs/infisical/agent-claude-flow.yaml:/config/config.yaml:ro
-    networks:
-      - nyra-network
-    depends_on:
-      - infisical
-    labels:
-      - "com.nyra.service=secrets"
-      - "com.nyra.category=agent"
-
-  # Infisical Agent - Archon Sidecar
-  agent-archon:
-    image: infisical/agent:latest
-    container_name: nyra-agent-archon
-    restart: unless-stopped
-    environment:
-      INFISICAL_CLIENT_ID: ${INFISICAL_CLIENT_ID_ARCHON:?INFISICAL_CLIENT_ID_ARCHON required}
-      INFISICAL_CLIENT_SECRET: ${INFISICAL_CLIENT_SECRET_ARCHON:?INFISICAL_CLIENT_SECRET_ARCHON required}
-      INFISICAL_HOST_URL: http://nyra-infisical:8080
-      INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
-      INFISICAL_ENV: ${INFISICAL_ENV:-development}
-    volumes:
-      - archon_secrets:/secrets
-      - ./configs/infisical/agent-archon.yaml:/config/config.yaml:ro
-    networks:
-      - nyra-network
-    depends_on:
-      - infisical
-    labels:
-      - "com.nyra.service=secrets"
-      - "com.nyra.category=agent"
-
-  # ============================================================================
-  # AI/MCP ORCHESTRATION LAYER
-  # ============================================================================
-
-  # Claude Flow - Multi-Agent Orchestration (MCP Mode)
-  claude-flow:
-    build:
-      context: ../..
-      dockerfile: infra/Dockerfiles/claude-flow.Dockerfile
-      args:
-        NODE_VERSION: ${NODE_VERSION:-20}
-        VOLTA_VERSION: ${VOLTA_VERSION:-1.1.1}
-    container_name: nyra-claude-flow
-    restart: unless-stopped
-    environment:
-      # Core Configuration
-      NODE_ENV: ${NODE_ENV:-production}
-      CLAUDE_FLOW_MODE: mcp
-      CLAUDE_FLOW_CONFIG: /app/claude-flow.config.json
-
-      # MCP Configuration
-      CLAUDE_FLOW_MCP_PORT: ${CLAUDE_FLOW_MCP_PORT:-3000}
-      CLAUDE_FLOW_MCP_HOST: ${CLAUDE_FLOW_MCP_HOST:-0.0.0.0}
-      CLAUDE_FLOW_MCP_TRANSPORT: ${CLAUDE_FLOW_MCP_TRANSPORT:-stdio}
-
-      # Memory & Intelligence
-      CLAUDE_FLOW_MEMORY_BACKEND: ${CLAUDE_FLOW_MEMORY_BACKEND:-hybrid}
-      CLAUDE_FLOW_MEMORY_PATH: /app/data/memory
-      AGENTDB_PATH: /app/data/agentdb
-
-      # Database Connections
-      DATABASE_URL: postgresql://${POSTGRES_USER:-nyra}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-nyra}
-      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379/0
-
-      # Logging
-      CLAUDE_FLOW_LOG_LEVEL: ${CLAUDE_FLOW_LOG_LEVEL:-info}
-      LOG_FORMAT: json
-    volumes:
-      - claude_flow_data:/app/data
-      - claude_flow_logs:/app/logs
-      - claude_flow_secrets:/secrets:ro
-      - type: bind
-        source: ../../.claude-flow
-        target: /app/.claude-flow
-    ports:
-      - "${CLAUDE_FLOW_MCP_PORT:-3000}:3000"
-      - "${CLAUDE_FLOW_METRICS_PORT:-9090}:9090"
-    command: >
-      sh -c "
-      set -a &&
-      if [ -f /secrets/claude-flow.env ]; then
-        . /secrets/claude-flow.env
-      fi &&
-      set +a &&
-      node dist/index.js
-      "
-    healthcheck:
-      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/health', (r) => process.exit(r.statusCode === 200 ? 0 : 1))"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-      agent-claude-flow:
-        condition: service_started
-    networks:
-      - nyra-network
-    deploy:
-      resources:
-        limits:
-          cpus: '4'
-          memory: 8G
-        reservations:
-          cpus: '1'
-          memory: 2G
-    labels:
-      - "com.nyra.service=ai"
-      - "com.nyra.category=orchestration"
-
-  # Archon OS - AI Operating System Framework
-  archon:
-    build:
-      context: ../..
-      dockerfile: infra/Dockerfiles/archon.Dockerfile
-      args:
-        PYTHON_VERSION: ${PYTHON_VERSION:-3.11}
-    container_name: nyra-archon
-    restart: unless-stopped
-    environment:
-      # Core Configuration
-      PYTHON_ENV: ${PYTHON_ENV:-production}
-      ARCHON_CONFIG_PATH: /app/config
-
-      # API Configuration
-      API_HOST: ${ARCHON_API_HOST:-0.0.0.0}
-      API_PORT: ${ARCHON_API_PORT:-8000}
-      API_WORKERS: ${ARCHON_API_WORKERS:-4}
-
-      # Database Connections
-      DATABASE_URL: postgresql://${POSTGRES_USER:-nyra}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-nyra}
-      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379/1
-
-      # Logging
-      LOG_LEVEL: ${ARCHON_LOG_LEVEL:-INFO}
-      LOG_FORMAT: json
-    volumes:
-      - archon_data:/app/data
-      - archon_logs:/app/logs
-      - archon_secrets:/secrets:ro
-      - type: bind
-        source: ../../.archon
-        target: /app/.archon
-    ports:
-      - "${ARCHON_API_PORT:-8000}:8000"
-      - "${ARCHON_METRICS_PORT:-9091}:9091"
-    command: >
-      sh -c "
-      set -a &&
-      if [ -f /secrets/archon.env ]; then
-        . /secrets/archon.env
-      fi &&
-      set +a &&
-      uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 4
-      "
-    healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health').read()"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-      agent-archon:
-        condition: service_started
-    networks:
-      - nyra-network
-    deploy:
-      resources:
-        limits:
-          cpus: '4'
-          memory: 8G
-        reservations:
-          cpus: '1'
-          memory: 2G
-    labels:
-      - "com.nyra.service=ai"
-      - "com.nyra.category=framework"
-
-  # Graphiti MCP - Knowledge Graph Memory
-  graphiti-mcp:
-    image: ghcr.io/getzep/graphiti:latest
-    container_name: nyra-graphiti-mcp
-    restart: unless-stopped
-    environment:
-      DATABASE_URL: postgresql://${POSTGRES_USER:-nyra}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-nyra}
-      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
-      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
-      LOG_LEVEL: ${GRAPHITI_LOG_LEVEL:-info}
-    volumes:
-      - graphiti_data:/data
-    ports:
-      - "${GRAPHITI_PORT:-8001}:8000"
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 30s
-    depends_on:
-      postgres:
-        condition: service_healthy
-    networks:
-      - nyra-network
-    labels:
-      - "com.nyra.service=ai"
-      - "com.nyra.category=memory"
-
-  # Mem0 MCP - Long-term Memory
-  mem0-mcp:
-    image: mem0ai/mem0:latest
-    container_name: nyra-mem0-mcp
-    restart: unless-stopped
-    environment:
-      DATABASE_URL: postgresql://${POSTGRES_USER:-nyra}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-nyra}
-      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379/2
-      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
-      LOG_LEVEL: ${MEM0_LOG_LEVEL:-info}
-    volumes:
-      - mem0_data:/data
-    ports:
-      - "${MEM0_PORT:-8002}:8000"
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 30s
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    networks:
-      - nyra-network
-    labels:
-      - "com.nyra.service=ai"
-      - "com.nyra.category=memory"
-
-  # Letta - Agent Memory System
-  letta:
-    image: letta/letta:latest
-    container_name: nyra-letta
-    restart: unless-stopped
-    environment:
-      POSTGRES_URI: postgresql://letta:${LETTA_POSTGRES_PASSWORD}@letta_postgres:5432/letta
-      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379/4
-      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
-      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
-    volumes:
-      - letta_data:/data
-    ports:
-      - "${LETTA_PORT:-8283}:8283"
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8283/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    depends_on:
-      letta_postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    networks:
-      - nyra-network
-      - databases
-    labels:
-      - "com.nyra.service=ai"
-      - "com.nyra.category=memory"
-
-  # Letta PostgreSQL Database
-  letta_postgres:
-    image: ankane/pgvector:latest
-    container_name: nyra-letta-postgres
-    restart: unless-stopped
-    environment:
-      POSTGRES_USER: letta
-      POSTGRES_PASSWORD: ${LETTA_POSTGRES_PASSWORD:?LETTA_POSTGRES_PASSWORD required}
-      POSTGRES_DB: letta
-    volumes:
-      - letta_postgres_data:/var/lib/postgresql/data
-    ports:
-      - "${LETTA_POSTGRES_PORT:-5433}:5432"
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U letta"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    networks:
-      - databases
-    deploy:
-      resources:
-        limits:
-          cpus: '2'
-          memory: 2G
-    labels:
-      - "com.nyra.service=database"
-      - "com.nyra.category=ai-memory"
-
-  # ============================================================================
-  # GRAPH DATABASE LAYER
-  # ============================================================================
-
-  # Neo4j - Graph Database
-  neo4j:
-    image: neo4j:5-community
-    container_name: nyra-neo4j
-    restart: unless-stopped
-    environment:
-      NEO4J_AUTH: neo4j/${NEO4J_PASSWORD:?NEO4J_PASSWORD required}
-      NEO4J_PLUGINS: '["graph-data-science", "apoc"]'
-      NEO4J_dbms_memory_heap_max__size: 4G
-      NEO4J_dbms_memory_pagecache_size: 2G
-    volumes:
-      - neo4j_data:/data
-      - neo4j_logs:/logs
-    ports:
-      - "${NEO4J_HTTP_PORT:-7474}:7474"
-      - "${NEO4J_BOLT_PORT:-7687}:7687"
-    healthcheck:
-      test: ["CMD", "cypher-shell", "-u", "neo4j", "-p", "${NEO4J_PASSWORD}", "RETURN 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 60s
-    networks:
-      - nyra-network
-      - databases
-    deploy:
-      resources:
-        limits:
-          cpus: '4'
-          memory: 8G
-        reservations:
-          cpus: '1'
-          memory: 2G
-    labels:
-      - "com.nyra.service=database"
-      - "com.nyra.category=graph"
-
-  # FalkorDB - Redis-based Graph Database
-  falkordb:
-    image: falkordb/falkordb:latest
-    container_name: nyra-falkordb
-    restart: unless-stopped
-    command: >
-      redis-server
-      --loadmodule /usr/lib/redis/modules/libgraphblas.so
-      --requirepass ${FALKORDB_PASSWORD:-}
-    volumes:
-      - falkordb_data:/data
-    ports:
-      - "${FALKORDB_PORT:-6380}:6379"
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
-    networks:
-      - nyra-network
-      - databases
-    labels:
-      - "com.nyra.service=database"
-      - "com.nyra.category=graph"
-
-  # ============================================================================
-  # API GATEWAY LAYER
-  # ============================================================================
-
-  # Nexus - API Gateway & Router
-  nexus:
-    image: grafbase/nexus:latest
-    container_name: nyra-nexus
-    restart: unless-stopped
-    environment:
-      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
-      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
-      GOOGLE_GEMINI_API_KEY: ${GOOGLE_GEMINI_API_KEY:-}
-    volumes:
-      - ./configs/nexus/nexus.toml:/app/config/nexus.toml:ro
-    ports:
-      - "${NEXUS_PORT:-6000}:6000"
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:6000/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 10s
-    networks:
-      - nyra-network
-    labels:
-      - "com.nyra.service=gateway"
-      - "com.nyra.category=routing"
-
-  # LiteLLM - LLM Proxy & Load Balancer
-  litellm:
-    image: ghcr.io/berriai/litellm:latest
-    container_name: nyra-litellm
-    restart: unless-stopped
-    environment:
-      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
-      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
-      GOOGLE_GEMINI_API_KEY: ${GOOGLE_GEMINI_API_KEY:-}
-      DATABASE_URL: postgresql://${POSTGRES_USER:-nyra}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-nyra}
-      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379/5
-    volumes:
-      - ./configs/litellm/config.yaml:/app/config.yaml:ro
-    ports:
-      - "${LITELLM_PORT:-4000}:4000"
-    command: ["--config", "/app/config.yaml", "--port", "4000"]
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:4000/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    depends_on:
-      - redis
-      - postgres
-    networks:
-      - nyra-network
-    labels:
-      - "com.nyra.service=gateway"
-      - "com.nyra.category=llm-proxy"
-
-  # ============================================================================
-  # APPLICATION SERVICES LAYER
-  # ============================================================================
-
-  # Dify - LLM Application Builder
-  dify:
-    image: langgenius/dify-web:latest
-    container_name: nyra-dify-web
-    restart: unless-stopped
-    environment:
-      EDITION: SELF_HOSTED
-      CONSOLE_API_URL: http://dify-api:5001
-      APP_API_URL: http://dify-api:5001
-    ports:
-      - "${DIFY_WEB_PORT:-3002}:3000"
-    depends_on:
-      - dify-api
-    networks:
-      - nyra-network
-    labels:
-      - "com.nyra.service=application"
-      - "com.nyra.category=llm-builder"
-
-  # Dify API
-  dify-api:
-    image: langgenius/dify-api:latest
-    container_name: nyra-dify-api
-    restart: unless-stopped
-    environment:
-      MODE: api
-      SECRET_KEY: ${DIFY_SECRET_KEY:?DIFY_SECRET_KEY required}
-      DB_USERNAME: dify
-      DB_PASSWORD: ${DIFY_POSTGRES_PASSWORD}
-      DB_HOST: dify_postgres
-      DB_PORT: 5432
-      DB_DATABASE: dify
-      REDIS_HOST: redis
-      REDIS_PORT: 6379
-      REDIS_PASSWORD: ${REDIS_PASSWORD}
-      REDIS_DB: 6
-      CELERY_BROKER_URL: redis://:${REDIS_PASSWORD}@redis:6379/7
-      STORAGE_TYPE: local
-      VECTOR_STORE: postgres
-    volumes:
-      - dify_data:/app/storage
-    ports:
-      - "${DIFY_API_PORT:-5001}:5001"
-    depends_on:
-      dify_postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-      dify-sandbox:
-        condition: service_started
-    networks:
-      - nyra-network
-      - databases
-    labels:
-      - "com.nyra.service=application"
-      - "com.nyra.category=llm-builder"
-
-  # Dify Sandbox - Code Execution Environment
-  dify-sandbox:
-    image: langgenius/dify-sandbox:latest
-    container_name: nyra-dify-sandbox
-    restart: unless-stopped
-    environment:
-      API_KEY: ${DIFY_SANDBOX_API_KEY:?DIFY_SANDBOX_API_KEY required}
-      GIN_MODE: release
-    ports:
-      - "${DIFY_SANDBOX_PORT:-8194}:8194"
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8194/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    networks:
-      - nyra-network
-    labels:
-      - "com.nyra.service=application"
-      - "com.nyra.category=sandbox"
-
-  # Dify PostgreSQL Database
-  dify_postgres:
-    image: postgres:15-alpine
-    container_name: nyra-dify-postgres
-    restart: unless-stopped
-    environment:
-      POSTGRES_USER: dify
-      POSTGRES_PASSWORD: ${DIFY_POSTGRES_PASSWORD:?DIFY_POSTGRES_PASSWORD required}
-      POSTGRES_DB: dify
-      PGDATA: /var/lib/postgresql/data/pgdata
-    volumes:
-      - dify_postgres_data:/var/lib/postgresql/data
-    ports:
-      - "${DIFY_POSTGRES_PORT:-5434}:5432"
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U dify"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    networks:
-      - databases
-    labels:
-      - "com.nyra.service=database"
-      - "com.nyra.category=application"
-
-  # Twenty CRM - Customer Relationship Management
-  twenty-crm:
-    image: twentycrm/twenty:latest
-    container_name: nyra-twenty-crm
-    restart: unless-stopped
-    environment:
-      PORT: 3000
-      SERVER_URL: ${TWENTY_SERVER_URL:-http://localhost:3020}
-      PG_DATABASE_URL: postgresql://twenty:${TWENTY_POSTGRES_PASSWORD}@twenty_postgres:5432/twenty
-      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379/8
-      STORAGE_TYPE: local
-      ACCESS_TOKEN_SECRET: ${TWENTY_ACCESS_TOKEN_SECRET:?TWENTY_ACCESS_TOKEN_SECRET required}
-      LOGIN_TOKEN_SECRET: ${TWENTY_LOGIN_TOKEN_SECRET:?TWENTY_LOGIN_TOKEN_SECRET required}
-      REFRESH_TOKEN_SECRET: ${TWENTY_REFRESH_TOKEN_SECRET:?TWENTY_REFRESH_TOKEN_SECRET required}
-    volumes:
-      - twenty_data:/app/storage
-    ports:
-      - "${TWENTY_PORT:-3020}:3000"
-    depends_on:
-      twenty_postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    networks:
-      - nyra-network
-      - databases
-    labels:
-      - "com.nyra.service=application"
-      - "com.nyra.category=crm"
-
-  # Twenty PostgreSQL Database
-  twenty_postgres:
-    image: postgres:15-alpine
-    container_name: nyra-twenty-postgres
-    restart: unless-stopped
-    environment:
-      POSTGRES_USER: twenty
-      POSTGRES_PASSWORD: ${TWENTY_POSTGRES_PASSWORD:?TWENTY_POSTGRES_PASSWORD required}
-      POSTGRES_DB: twenty
-    volumes:
-      - twenty_postgres_data:/var/lib/postgresql/data
-    ports:
-      - "${TWENTY_POSTGRES_PORT:-5435}:5432"
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U twenty"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    networks:
-      - databases
-    labels:
-      - "com.nyra.service=database"
-      - "com.nyra.category=application"
-
-  # Quote API - Mortgage Quote Calculation Engine
-  quote-api:
-    build:
-      context: ../../services/quote-api
-      dockerfile: Dockerfile
-    container_name: nyra-quote-api
-    restart: unless-stopped
-    environment:
-      PYTHON_ENV: ${PYTHON_ENV:-production}
-      DATABASE_URL: postgresql://${POSTGRES_USER:-nyra}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-nyra}
-      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379/9
-      LOG_LEVEL: ${QUOTE_API_LOG_LEVEL:-INFO}
-    ports:
-      - "${QUOTE_API_PORT:-8089}:8080"
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    networks:
-      - nyra-network
-    labels:
-      - "com.nyra.service=application"
-      - "com.nyra.category=mortgage"
-
-  # Campaign Engine - Drip Campaign Service
-  campaign-engine:
-    build:
-      context: ../../services/campaign-engine
-      dockerfile: Dockerfile
-    container_name: nyra-campaign-engine
-    restart: unless-stopped
-    environment:
-      DATABASE_URL: postgresql://${POSTGRES_USER:-nyra}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-nyra}
-      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379/10
-      TWILIO_ACCOUNT_SID: ${TWILIO_ACCOUNT_SID:-}
-      TWILIO_AUTH_TOKEN: ${TWILIO_AUTH_TOKEN:-}
-      SENDGRID_API_KEY: ${SENDGRID_API_KEY:-}
-    ports:
-      - "${CAMPAIGN_ENGINE_PORT:-8020}:8020"
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8020/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    networks:
-      - nyra-network
-    labels:
-      - "com.nyra.service=application"
-      - "com.nyra.category=mortgage"
-
-  # ============================================================================
-  # DEVELOPMENT & WORKFLOW TOOLS
-  # ============================================================================
-
-  # Gitea - Self-hosted Git Service
-  gitea:
-    image: gitea/gitea:latest
-    container_name: nyra-gitea
-    restart: unless-stopped
-    environment:
-      USER_UID: 1000
-      USER_GID: 1000
-      GITEA__database__DB_TYPE: postgres
-      GITEA__database__HOST: postgres:5432
-      GITEA__database__NAME: ${POSTGRES_DB:-nyra}
-      GITEA__database__USER: ${POSTGRES_USER:-nyra}
-      GITEA__database__PASSWD: ${POSTGRES_PASSWORD}
-      GITEA__server__ROOT_URL: ${GITEA_ROOT_URL:-http://localhost:3001}
-      GITEA__server__SSH_DOMAIN: ${GITEA_SSH_DOMAIN:-localhost}
-      GITEA__server__DOMAIN: ${GITEA_DOMAIN:-localhost}
-      GITEA__server__HTTP_PORT: 3000
-      GITEA__server__SSH_PORT: 22
-      GITEA__actions__ENABLED: true
-    volumes:
-      - gitea_data:/data
-      - /etc/timezone:/etc/timezone:ro
-      - /etc/localtime:/etc/localtime:ro
-    ports:
-      - "${GITEA_HTTP_PORT:-3001}:3000"
-      - "${GITEA_SSH_PORT:-2222}:22"
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/api/healthz"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 60s
-    depends_on:
-      postgres:
-        condition: service_healthy
-    networks:
-      - nyra-network
-    labels:
-      - "com.nyra.service=devtools"
-      - "com.nyra.category=vcs"
-
-  # Gitea Runner - CI/CD for Gitea Actions
-  gitea-runner:
-    image: gitea/act_runner:latest
-    container_name: nyra-gitea-runner
-    restart: unless-stopped
-    environment:
-      GITEA_INSTANCE_URL: http://gitea:3000
-      GITEA_RUNNER_REGISTRATION_TOKEN: ${GITEA_RUNNER_TOKEN:?GITEA_RUNNER_TOKEN required}
-      GITEA_RUNNER_NAME: ${GITEA_RUNNER_NAME:-nyra-runner-01}
-      GITEA_RUNNER_LABELS: docker,ubuntu-latest,self-hosted
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - ./configs/gitea/runner-config.yaml:/config/config.yaml:ro
-    depends_on:
-      - gitea
-    networks:
-      - nyra-network
-    labels:
-      - "com.nyra.service=devtools"
-      - "com.nyra.category=ci-cd"
-
-  # n8n - Workflow Automation
-  n8n:
-    image: n8nio/n8n:latest
-    container_name: nyra-n8n
-    restart: unless-stopped
-    environment:
-      N8N_PROTOCOL: ${N8N_PROTOCOL:-http}
-      N8N_HOST: ${N8N_HOST:-localhost}
-      N8N_PORT: 5678
-      N8N_BASIC_AUTH_ACTIVE: ${N8N_BASIC_AUTH_ACTIVE:-true}
-      N8N_BASIC_AUTH_USER: ${N8N_BASIC_AUTH_USER:-admin}
-      N8N_BASIC_AUTH_PASSWORD: ${N8N_BASIC_AUTH_PASSWORD:?N8N_BASIC_AUTH_PASSWORD required}
-      DB_TYPE: postgresdb
-      DB_POSTGRESDB_HOST: postgres
-      DB_POSTGRESDB_PORT: 5432
-      DB_POSTGRESDB_DATABASE: ${POSTGRES_DB:-nyra}
-      DB_POSTGRESDB_USER: ${POSTGRES_USER:-nyra}
-      DB_POSTGRESDB_PASSWORD: ${POSTGRES_PASSWORD}
-      EXECUTIONS_DATA_SAVE_ON_ERROR: all
-      EXECUTIONS_DATA_SAVE_ON_SUCCESS: all
-      GENERIC_TIMEZONE: ${TIMEZONE:-UTC}
-    volumes:
-      - n8n_data:/home/node/.n8n
-      - n8n_local_files:/files
-    ports:
-      - "${N8N_PORT:-5678}:5678"
-    healthcheck:
-      test: ["CMD", "wget", "--spider", "-q", "http://localhost:5678/healthz"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 60s
-    depends_on:
-      postgres:
-        condition: service_healthy
-    networks:
-      - nyra-network
-    labels:
-      - "com.nyra.service=devtools"
-      - "com.nyra.category=workflow"
-
-  # Activepieces - Open Source Workflow Automation (Alternative to n8n)
-  activepieces:
-    image: activepieces/activepieces:latest
-    container_name: nyra-activepieces
-    restart: unless-stopped
-    environment:
-      AP_ENGINE_EXECUTABLE_PATH: dist/packages/engine/main.js
-      AP_POSTGRES_DATABASE: ${POSTGRES_DB:-nyra}
-      AP_POSTGRES_HOST: postgres
-      AP_POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      AP_POSTGRES_PORT: 5432
-      AP_POSTGRES_USERNAME: ${POSTGRES_USER:-nyra}
-      AP_REDIS_HOST: redis
-      AP_REDIS_PORT: 6379
-      AP_REDIS_PASSWORD: ${REDIS_PASSWORD}
-      AP_FRONTEND_URL: ${ACTIVEPIECES_FRONTEND_URL:-http://localhost:8082}
-      AP_ENCRYPTION_KEY: ${ACTIVEPIECES_ENCRYPTION_KEY:?ACTIVEPIECES_ENCRYPTION_KEY required}
-      AP_JWT_SECRET: ${ACTIVEPIECES_JWT_SECRET:?ACTIVEPIECES_JWT_SECRET required}
-    volumes:
-      - activepieces_data:/data
-    ports:
-      - "${ACTIVEPIECES_PORT:-8082}:80"
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:80/api/v1/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    networks:
-      - nyra-network
-    labels:
-      - "com.nyra.service=devtools"
-      - "com.nyra.category=workflow"
-
-  # ============================================================================
-  # MONITORING & OBSERVABILITY LAYER
-  # ============================================================================
-
-  # Prometheus - Metrics Collection
-  prometheus:
-    image: prom/prometheus:v2.48.0
-    container_name: nyra-prometheus
-    restart: unless-stopped
-    user: root
-    command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-      - '--storage.tsdb.path=/prometheus'
-      - '--storage.tsdb.retention.time=30d'
-      - '--storage.tsdb.retention.size=50GB'
-      - '--web.console.libraries=/etc/prometheus/console_libraries'
-      - '--web.console.templates=/etc/prometheus/consoles'
-      - '--web.enable-lifecycle'
-      - '--web.enable-admin-api'
-    volumes:
-      - ./configs/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
-      - ./configs/prometheus/alerts:/etc/prometheus/alerts:ro
-      - prometheus_data:/prometheus
-    ports:
-      - "${PROMETHEUS_PORT:-9090}:9090"
-    healthcheck:
-      test: ["CMD", "wget", "--spider", "-q", "http://localhost:9090/-/healthy"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
-    depends_on:
-      - alertmanager
-    networks:
-      - nyra-network
-      - monitoring
-    labels:
-      - "com.nyra.service=monitoring"
-      - "com.nyra.category=metrics"
-
-  # Grafana - Visualization & Dashboards
-  grafana:
-    image: grafana/grafana:latest
-    container_name: nyra-grafana
-    restart: unless-stopped
-    environment:
-      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-admin}
-      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:?GRAFANA_ADMIN_PASSWORD required}
-      GF_INSTALL_PLUGINS: grafana-clock-panel,grafana-simple-json-datasource
-      GF_SERVER_ROOT_URL: ${GRAFANA_ROOT_URL:-http://localhost:3003}
-    volumes:
-      - grafana_data:/var/lib/grafana
-      - ./configs/grafana/provisioning:/etc/grafana/provisioning:ro
-      - ./configs/grafana/dashboards:/var/lib/grafana/dashboards:ro
-    ports:
-      - "${GRAFANA_PORT:-3003}:3000"
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    depends_on:
-      - prometheus
-    networks:
-      - nyra-network
-      - monitoring
-    labels:
-      - "com.nyra.service=monitoring"
-      - "com.nyra.category=visualization"
-
-  # Loki - Log Aggregation
-  loki:
-    image: grafana/loki:latest
-    container_name: nyra-loki
-    restart: unless-stopped
-    command: -config.file=/etc/loki/local-config.yaml
-    volumes:
-      - ./configs/loki/loki-config.yaml:/etc/loki/local-config.yaml:ro
-      - loki_data:/loki
-    ports:
-      - "${LOKI_PORT:-3100}:3100"
-    healthcheck:
-      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3100/ready"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    networks:
-      - nyra-network
-      - monitoring
-    labels:
-      - "com.nyra.service=monitoring"
-      - "com.nyra.category=logs"
-
-  # AlertManager - Alert Routing
-  alertmanager:
-    image: prom/alertmanager:v0.26.0
-    container_name: nyra-alertmanager
-    restart: unless-stopped
-    command:
-      - '--config.file=/etc/alertmanager/alertmanager.yml'
-      - '--storage.path=/alertmanager'
-      - '--web.external-url=http://localhost:9093'
-    volumes:
-      - ./configs/alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
-      - alertmanager_data:/alertmanager
-    ports:
-      - "${ALERTMANAGER_PORT:-9093}:9093"
-    healthcheck:
-      test: ["CMD", "wget", "--spider", "-q", "http://localhost:9093/-/healthy"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    networks:
-      - monitoring
-    labels:
-      - "com.nyra.service=monitoring"
-      - "com.nyra.category=alerting"
-
-  # cAdvisor - Container Resource Monitoring
-  cadvisor:
-    image: gcr.io/cadvisor/cadvisor:latest
-    container_name: nyra-cadvisor
-    restart: unless-stopped
-    privileged: true
-    devices:
-      - /dev/kmsg
-    volumes:
-      - /:/rootfs:ro
-      - /var/run:/var/run:ro
-      - /sys:/sys:ro
-      - /var/lib/docker/:/var/lib/docker:ro
-      - /dev/disk/:/dev/disk:ro
-    ports:
-      - "${CADVISOR_PORT:-8081}:8080"
-    networks:
-      - monitoring
-    labels:
-      - "com.nyra.service=monitoring"
-      - "com.nyra.category=containers"
-
-  # Langfuse - LLM Observability & Tracing
-  langfuse:
-    image: langfuse/langfuse:latest
-    container_name: nyra-langfuse
-    restart: unless-stopped
-    environment:
-      DATABASE_URL: postgresql://${POSTGRES_USER:-nyra}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-nyra}
-      NEXTAUTH_URL: ${LANGFUSE_URL:-http://localhost:3004}
-      NEXTAUTH_SECRET: ${LANGFUSE_NEXTAUTH_SECRET:?LANGFUSE_NEXTAUTH_SECRET required}
-      SALT: ${LANGFUSE_SALT:?LANGFUSE_SALT required}
-      TELEMETRY_ENABLED: ${LANGFUSE_TELEMETRY:-true}
-    volumes:
-      - langfuse_data:/app/data
-    ports:
-      - "${LANGFUSE_PORT:-3004}:3000"
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    depends_on:
-      postgres:
-        condition: service_healthy
-    networks:
-      - nyra-network
-    labels:
-      - "com.nyra.service=monitoring"
-      - "com.nyra.category=llm-observability"
-
-  # ============================================================================
-  # ADMIN & MANAGEMENT TOOLS
-  # ============================================================================
-
-  # pgAdmin - PostgreSQL Admin UI
-  pgadmin:
-    image: dpage/pgadmin4:latest
-    container_name: nyra-pgadmin
-    restart: unless-stopped
-    environment:
-      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@nyra.local}
-      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:?PGADMIN_PASSWORD required}
-      PGADMIN_CONFIG_SERVER_MODE: 'False'
-      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: 'False'
-    volumes:
-      - pgadmin_data:/var/lib/pgadmin
-      - ./configs/pgadmin/servers.json:/pgadmin4/servers.json:ro
-    ports:
-      - "${PGADMIN_PORT:-5050}:80"
-    depends_on:
-      postgres:
-        condition: service_healthy
-    networks:
-      - nyra-network
-      - databases
-    labels:
-      - "com.nyra.service=admin"
-      - "com.nyra.category=database-ui"
-
-  # ============================================================================
-  # STORAGE LAYER
-  # ============================================================================
-
-  # MinIO - S3-Compatible Object Storage
-  minio:
-    image: minio/minio:latest
-    container_name: nyra-minio
-    restart: unless-stopped
-    command: server /data --console-address ":9001"
-    environment:
-      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
-      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?MINIO_ROOT_PASSWORD required}
-      MINIO_REGION: ${MINIO_REGION:-us-east-1}
-    volumes:
-      - minio_data:/data
-    ports:
-      - "${MINIO_API_PORT:-9000}:9000"
-      - "${MINIO_CONSOLE_PORT:-9001}:9001"
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    networks:
-      - nyra-network
-    labels:
-      - "com.nyra.service=storage"
-      - "com.nyra.category=object-storage"
-
-  # ============================================================================
-  # CLOUDFLARE TUNNEL (Orchestrator-Mini Ingress)
-  # ============================================================================
-
-  # Cloudflared - Secure External Access via Cloudflare Tunnel
-  cloudflared:
-    image: cloudflare/cloudflared:latest
-    container_name: nyra-cloudflared
-    restart: unless-stopped
-    command: tunnel --no-autoupdate run
-    environment:
-      TUNNEL_TOKEN: ${CLOUDFLARE_TUNNEL_TOKEN_ORCHESTRATOR:?CLOUDFLARE_TUNNEL_TOKEN_ORCHESTRATOR required}
-    healthcheck:
-      test: ["CMD", "cloudflared", "tunnel", "info"]
-      interval: 60s
-      timeout: 10s
-      retries: 3
-      start_period: 20s
-    depends_on:
-      - grafana
-      - prometheus
-      - infisical
-      - nexus
-      - postgres
-    networks:
-      - nyra-network
-      - monitoring
-      - databases
-    labels:
-      - "com.nyra.service=infrastructure"
-      - "com.nyra.category=tunnel"
-      - "com.nyra.ingress=orchestrator"
-    deploy:
-      resources:
-        limits:
-          cpus: '0.5'
-          memory: 256M
-        reservations:
-          cpus: '0.1'
-          memory: 64M
+# Note: Profile assignments are defined in individual compose files
+# Core services (postgres, redis) have no profile (always start)
+# AI services have 'ai' profile
+# Monitoring services have 'monitoring' profile
+# Business services have 'business' profile
 
 # ==============================================================================
-# END OF CONFIGURATION
+# HEALTH CHECK CONFIGURATION
+# ==============================================================================
+# All critical services include health checks:
+#
+# - postgres: pg_isready check every 10s
+# - redis: redis-cli ping every 10s
+# - nexus: HTTP health endpoint every 30s
+# - litellm: HTTP health endpoint every 30s
+# - letta: HTTP health endpoint every 30s
+# - nyra_orchestrator: HTTP health endpoint every 30s
+# - prometheus: HTTP health endpoint every 30s
+# - grafana: HTTP health endpoint every 30s
+#
+# Health checks ensure:
+# 1. Proper startup ordering via depends_on with condition: service_healthy
+# 2. Automatic container restart on failure
+# 3. Load balancer integration readiness
+# 4. Rolling update compatibility
+# ==============================================================================
+
+# ==============================================================================
+# DEPENDENCY GRAPH
+# ==============================================================================
+#
+# Level 1 (Foundation):
+#   postgres ────────────────────┐
+#   redis ───────────────────────┤
+#                                │
+# Level 2 (Data Layer):          │
+#   falkordb ────────────────────┤
+#   qdrant ──────────────────────┤
+#                                │
+# Level 3 (AI Gateway):          │
+#   litellm ─────────────────────┤
+#   nexus ───────────────────────┤
+#                                │
+# Level 4 (AI Services):         │
+#   letta ───────────────────────┤
+#   mem0 ────────────────────────┤
+#   openmemory_mcp ──────────────┤
+#   openwebui ───────────────────┤
+#                                │
+# Level 5 (Business Apps):       │
+#   twentycrm ───────────────────┤
+#   n8n ─────────────────────────┤
+#   dify-api ────────────────────┤
+#   activepieces ────────────────┤
+#                                │
+# Level 6 (Monitoring):          │
+#   prometheus ──────────────────┤
+#   grafana ─────────────────────┤
+#   loki ────────────────────────┤
+#   alertmanager ────────────────┤
+#                                │
+# Level 7 (Orchestration):       │
+#   nyra_orchestrator ───────────┤ (depends on all above)
+#                                │
+# Level 8 (Business Logic):      │
+#   quote-engine ────────────────┤
+#   campaign-engine ─────────────┤
+#   quote-api ───────────────────┘
+#
+# ==============================================================================
+
+# ==============================================================================
+# RESOURCE ALLOCATION SUMMARY
+# ==============================================================================
+#
+# Total Resource Requirements (default limits):
+# - CPU: ~20 cores (limit), ~8 cores (reservation)
+# - Memory: ~40GB (limit), ~16GB (reservation)
+#
+# Per-Service Breakdown:
+# - postgres: 4GB RAM, 2 CPU
+# - redis: 2GB RAM, 1 CPU
+# - litellm: 2GB RAM, 1 CPU
+# - letta: 2GB RAM, 1 CPU
+# - nexus: 2GB RAM, 1 CPU
+# - nyra_orchestrator: 4GB RAM, 2 CPU
+# - prometheus: 4GB RAM, 2 CPU
+# - grafana: 2GB RAM, 1 CPU
+# - (see individual compose files for complete details)
+#
+# Recommended Minimum Hardware:
+# - Development: 16GB RAM, 8 cores
+# - Production: 64GB RAM, 16 cores
+# ==============================================================================
+
+# ==============================================================================
+# SECURITY NOTES
+# ==============================================================================
+#
+# 1. Environment Variables:
+#    - NEVER commit .env to version control
+#    - Use strong passwords for all services
+#    - Rotate secrets regularly
+#
+# 2. Network Isolation:
+#    - Database network is internal (no external access)
+#    - Only necessary ports exposed to host
+#    - Services communicate via internal networks
+#
+# 3. Volume Security:
+#    - All volumes use named volumes (not bind mounts in production)
+#    - Backup critical volumes regularly
+#    - Encrypt volumes at rest in production
+#
+# 4. Service Hardening:
+#    - Health checks detect compromised containers
+#    - Resource limits prevent DoS
+#    - Non-root users in containers (where supported)
+#
+# 5. Secret Management:
+#    - Consider using Docker secrets or Infisical
+#    - API keys should be in .env, not hardcoded
+#    - Use read-only mounts for config files
+#
+# ==============================================================================
+
+# ==============================================================================
+# MAINTENANCE & OPERATIONS
+# ==============================================================================
+#
+# Start Services:
+#   docker compose up -d
+#
+# Stop Services:
+#   docker compose down
+#
+# View Logs:
+#   docker compose logs -f [service_name]
+#
+# Check Status:
+#   docker compose ps
+#
+# Restart Service:
+#   docker compose restart [service_name]
+#
+# Update Images:
+#   docker compose pull
+#   docker compose up -d --force-recreate
+#
+# Backup Volumes:
+#   docker run --rm -v nyra_postgres_data:/data -v $(pwd):/backup \
+#     alpine tar czf /backup/postgres.tar.gz /data
+#
+# Monitor Resources:
+#   docker stats
+#
+# Health Checks:
+#   docker compose ps  # Shows health status
+#
+# ==============================================================================
+
+# ==============================================================================
+# TROUBLESHOOTING
+# ==============================================================================
+#
+# Services won't start:
+# 1. Check logs: docker compose logs -f [service_name]
+# 2. Verify .env file exists and has required variables
+# 3. Check port conflicts: netstat -an | grep [port]
+# 4. Verify dependencies are healthy: docker compose ps
+#
+# Database connection issues:
+# 1. Ensure postgres is healthy: docker compose ps postgres
+# 2. Check connection string in service logs
+# 3. Test manually: docker exec nyra-postgres psql -U nyra_user -c "SELECT 1"
+#
+# Performance issues:
+# 1. Check resource usage: docker stats
+# 2. Review resource limits in compose files
+# 3. Increase Docker memory allocation
+# 4. Scale horizontally (add workers)
+#
+# Network issues:
+# 1. Verify network exists: docker network ls | grep nyra
+# 2. Check service network membership: docker network inspect nyra-network
+# 3. Test connectivity: docker exec [service] ping [other_service]
+#
+# ==============================================================================
+
+# ==============================================================================
+# MIGRATION FROM OLD COMPOSE FILES
+# ==============================================================================
+#
+# Old single-file compose (infra/docker-compose.yml) has been replaced
+# with this modular architecture. To migrate:
+#
+# 1. Review your current .env configuration
+# 2. Stop old stack: docker compose down
+# 3. Backup volumes (see backup commands above)
+# 4. Start new stack: docker compose up -d
+# 5. Verify all services: docker compose ps
+# 6. Check logs for any errors: docker compose logs -f
+#
+# Old compose file archived as: docker-compose.yml.old
+#
+# ==============================================================================
+
+# ==============================================================================
+# DOCUMENTATION
+# ==============================================================================
+#
+# - Architecture: docs/architecture/CONTAINERIZATION-ARCHITECTURE.md
+# - Configuration: docs/operations/DOCKER-QUICK-REFERENCE.md
+# - Service Guide: docker-compose/README.md
+# - Troubleshooting: docs/operations/DOCKER-CONSOLIDATION-GUIDE.md
+#
 # ==============================================================================

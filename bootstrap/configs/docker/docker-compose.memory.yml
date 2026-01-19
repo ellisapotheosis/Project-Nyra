@@ -8,7 +8,7 @@ services:
     image: falkordb/falkordb:latest
     container_name: nyra-falkordb
     ports:
-      - "6379:6379"
+      - "6380:6379"
     volumes:
       - falkordb-data:/data
     environment:
@@ -30,7 +30,7 @@ services:
       - "7459:7459"
     environment:
       - FALKORDB_HOST=falkordb
-      - FALKORDB_PORT=6379
+      - FALKORDB_PORT=6380
       - FALKORDB_PASSWORD=${FALKORDB_PASSWORD:-changeme}
       - GRAPHITI_API_KEY=${GRAPHITI_API_KEY}
       - LOG_LEVEL=info

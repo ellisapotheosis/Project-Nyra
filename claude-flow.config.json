@@ -1,76 +1,159 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "version": "3.0.0",
-  "enabled": true,
 
-  "modelPreferences": {
-    "default": "claude-sonnet-4-5",
-    "routing": "claude-3-5-haiku-20241022",
-    "fallback": "claude-3-5-sonnet-20241022"
+  "orchestrator": {
+    "timeout": 180000,
+    "retryAttempts": 3,
+    "retryDelay": 3000
   },
 
-  "providers": [
-    {
-      "name": "anthropic",
-      "type": "anthropic",
-      "apiKey": "${ANTHROPIC_API_KEY}",
-      "models": ["claude-opus-4-5-20251101", "claude-3-5-sonnet-20241022", "claude-3-5-haiku-20241022"]
-    },
-    {
-      "name": "openai",
-      "type": "openai",
-      "apiKey": "${OPENAI_API_KEY}",
-      "models": ["gpt-4", "gpt-4-turbo", "gpt-3.5-turbo"]
-    },
-    {
-      "name": "gemini",
-      "type": "google",
-      "apiKey": "${GOOGLE_API_KEY}",
-      "models": ["gemini-2.0-flash-001"]
-    }
-  ],
+  "terminal": {
+    "emulateEnvironment": true,
+    "defaultShell": "/bin/bash",
+    "workingDirectory": "./",
+    "maxOutputLength": 50000,
+    "timeout": 120000
+  },
 
-  "agents": {
-    "defaultType": "coder",
-    "maxConcurrent": 35
+  "memory": {
+    "type": "hybrid",
+    "path": "./data",
+    "maxEntries": 50000,
+    "ttl": 604800,
+    "hnsw": {
+      "m": 32,
+      "ef": 400,
+      "efConstruction": 400
+    },
+    "encryption": {
+      "enabled": false,
+      "algorithm": "aes-256-gcm"
+    }
   },
 
   "swarm": {
     "topology": "hierarchical-mesh",
-    "maxAgents": 35
+    "maxAgents": 35,
+    "strategy": "specialized",
+    "heartbeatInterval": 3000,
+    "taskQueueSize": 200
   },
 
-  "memory": {
-    "backend": "hybrid",
-    "cacheSize": 512
+  "coordination": {
+    "mode": "hub-spoke",
+    "maxRetries": 5,
+    "retryDelay": 5000,
+    "circuitBreaker": {
+      "enabled": true,
+      "threshold": 5,
+      "timeout": 30000,
+      "resetTimeout": 180000
+    }
+  },
+
+  "loadBalancing": {
+    "strategy": "round-robin",
+    "healthCheckInterval": 15000,
+    "maxLoad": 0.85
   },
 
   "mcp": {
     "transport": "stdio",
-    "tools": "all"
-  },
-
-  "hooks": {
-    "enabled": true
-  },
-
-  "daemon": {
-    "autoStart": true
+    "port": 3000,
+    "host": "localhost"
   },
 
   "neural": {
-    "enabled": true
+    "enabled": true,
+    "sona": {
+      "enabled": true,
+      "adaptationTime": 0.05,
+      "learningRate": 0.001
+    },
+    "ewc": {
+      "enabled": true,
+      "lambda": 0.5,
+      "preventForgetting": true
+    },
+    "moe": {
+      "enabled": true,
+      "experts": 12,
+      "topK": 3,
+      "loadBalancing": true
+    },
+    "flashAttention": {
+      "enabled": true,
+      "targetSpeedup": 5.0,
+      "memoryEfficient": true
+    },
+    "lora": {
+      "enabled": true,
+      "rank": 8,
+      "alpha": 16
+    }
   },
 
   "security": {
-    "autoScan": true
-  },
-
-  "performance": {
-    "enabled": true
+    "mode": "strict",
+    "inputValidation": true,
+    "pathValidation": true,
+    "authentication": {
+      "required": false,
+      "method": "jwt"
+    },
+    "rateLimit": {
+      "enabled": true,
+      "maxRequests": 5000,
+      "windowMs": 60000
+    }
   },
 
   "logging": {
-    "level": "INFO"
+    "level": "warn",
+    "format": "json",
+    "destination": "file",
+    "filePath": "./logs/claude-flow.log",
+    "maxFileSize": "500MB",
+    "maxFiles": 5
+  },
+
+  "monitoring": {
+    "enabled": true,
+    "metricsInterval": 30000,
+    "alertThresholds": {
+      "errorRate": 0.03,
+      "responseTime": 3000,
+      "memoryUsage": 0.85
+    }
+  },
+
+  "providers": {
+    "default": "anthropic",
+    "fallback": ["openai", "google"],
+    "anthropic": {
+      "model": "claude-sonnet-4-5-20250929",
+      "maxTokens": 16384
+    },
+    "openai": {
+      "model": "gpt-4o",
+      "maxTokens": 8192
+    },
+    "google": {
+      "model": "gemini-2.0-flash-exp",
+      "maxTokens": 8192
+    }
+  },
+
+  "hooks": {
+    "enabled": true,
+    "learning": true,
+    "pretrainOnStart": true
+  },
+
+  "update": {
+    "autoCheck": true,
+    "checkInterval": 43200000,
+    "allowPrerelease": true
   }
 }

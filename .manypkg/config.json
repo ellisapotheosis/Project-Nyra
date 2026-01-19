@@ -1,7 +1,0 @@
-{
-  "$schema": "https://unpkg.com/@manypkg/cli@0.25.1/schema.json",
-  "defaultBranch": "main",
-  "ignoredRules": [],
-  "rootPackageNames": ["project-nyra"],
-  "workspaceProtocol": "workspace"
-}

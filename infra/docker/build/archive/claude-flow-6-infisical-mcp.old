@@ -1,0 +1,58 @@
+# Claude Flow V3 MCP Server with Infisical Integration
+FROM node:22-alpine
+
+LABEL maintainer="Project Nyra Team" \
+      version="3.0.0-alpha.104" \
+      description="Claude Flow V3 MCP Server for Nyra Distributed Infrastructure"
+
+# Install system dependencies
+RUN apk add --no-cache \
+    curl \
+    bash \
+    jq \
+    ca-certificates \
+    git \
+    python3 \
+    py3-pip \
+    build-base \
+    tini
+
+# Install Infisical CLI for secret injection
+RUN curl -1sLf 'https://dl.cloudsmith.io/public/infisical/infisical-cli/setup.alpine.sh' | bash && \
+    apk add infisical
+
+# Create app directory
+WORKDIR /app
+
+# Install pnpm for package management
+RUN npm install -g pnpm@latest
+
+# Install Claude Flow CLI V3
+RUN pnpm add -g @claude-flow/cli@3.0.0-alpha.104
+
+# Create non-root user
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S claude-flow -u 1001 -G nodejs
+
+# Create necessary directories
+RUN mkdir -p /app/{config,cache,logs,secrets,.claude-flow} && \
+    chown -R claude-flow:nodejs /app
+
+# Switch to non-root user
+USER claude-flow
+
+# Initialize Claude Flow V3 with default configuration
+RUN npx @claude-flow/cli@latest init --yes --topology hierarchical-mesh --max-agents 15 --strategy specialized
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD curl -f http://localhost:${MCP_PORT:-8003}/health || exit 1
+
+# Expose MCP port
+EXPOSE ${MCP_PORT:-8003}
+
+# Use tini as entrypoint for proper signal handling
+ENTRYPOINT ["/sbin/tini", "--"]
+
+# Start Claude Flow MCP server with Infisical secret injection
+CMD ["sh", "-c", "infisical run --env=production --path=/nyra/claude-flow -- npx @claude-flow/cli@latest mcp start --port ${MCP_PORT:-8003} --host 0.0.0.0"]

@@ -1,0 +1,218 @@
+{
+  "timestamp": "2026-01-18T13:45:00Z",
+  "summary": {
+    "total_apps": 6,
+    "total_services": 4,
+    "scattered_duplicates": 2,
+    "tools": 1,
+    "incomplete_placeholders": 8
+  },
+  "main_apps": [
+    {
+      "name": "mortgage-assistant",
+      "path": "C:\\Dev\\Projects\\Repos\\Project-Nyra\\apps\\mortgage-assistant",
+      "type": "frontend",
+      "tech_stack": "Next.js 14, React 18, TypeScript",
+      "port": "default",
+      "description": "Mortgage Assistant Frontend - Loan Officer Dashboard",
+      "status": "complete",
+      "key_dependencies": ["next@14.0.4", "react@18.2.0", "zustand", "recharts"]
+    },
+    {
+      "name": "nexus-dashboard",
+      "path": "C:\\Dev\\Projects\\Repos\\Project-Nyra\\apps\\nexus-dashboard",
+      "type": "frontend",
+      "tech_stack": "Next.js 15, React 19, TypeScript, Tailwind v4 (OKLCH)",
+      "port": "3005",
+      "description": "Nexus Router Dashboard - AI Orchestration Platform Monitoring",
+      "status": "complete",
+      "key_dependencies": ["next@15.1.0", "react@19.0.0", "@radix-ui", "zustand"]
+    },
+    {
+      "name": "nyra-admin",
+      "path": "C:\\Dev\\Projects\\Repos\\Project-Nyra\\apps\\nyra-admin",
+      "type": "frontend",
+      "tech_stack": "Vite, React 19, TypeScript",
+      "port": "3101",
+      "description": "Nyra Admin - Internal operations dashboard",
+      "status": "complete",
+      "key_dependencies": ["react@19.0.0", "vite@6.0.7", "@tanstack/react-query"]
+    },
+    {
+      "name": "ratehunter",
+      "path": "C:\\Dev\\Projects\\Repos\\Project-Nyra\\apps\\ratehunter",
+      "type": "frontend",
+      "tech_stack": "Next.js 15, React 19, TypeScript",
+      "port": "3100",
+      "description": "RateHunter - Public mortgage rate comparison platform",
+      "status": "complete",
+      "key_dependencies": ["next@15.1.4", "react@19.0.0", "@tanstack/react-query"]
+    },
+    {
+      "name": "ratehunter-landing",
+      "path": "C:\\Dev\\Projects\\Repos\\Project-Nyra\\apps\\ratehunter-landing",
+      "type": "frontend",
+      "tech_stack": "Next.js 14, React 18, TypeScript",
+      "port": "default",
+      "description": "Marketing landing page for RateHunter",
+      "status": "complete",
+      "key_dependencies": ["next@14.2.18", "react@18.3.1", "zod"]
+    },
+    {
+      "name": "webapp",
+      "path": "C:\\Dev\\Projects\\Repos\\Project-Nyra\\apps\\webapp",
+      "type": "fullstack-workspace",
+      "tech_stack": "Next.js (workspace), TypeScript",
+      "port": "various",
+      "description": "Nyra Web Application - Mortgage Services and UI (monorepo)",
+      "status": "complete",
+      "sub_apps": [
+        {
+          "name": "mortgage-ui",
+          "path": "C:\\Dev\\Projects\\Repos\\Project-Nyra\\apps\\webapp\\mortgage-ui",
+          "type": "frontend",
+          "tech_stack": "Next.js 15, shadcn/ui",
+          "status": "complete"
+        },
+        {
+          "name": "mortgage-services",
+          "path": "C:\\Dev\\Projects\\Repos\\Project-Nyra\\apps\\webapp\\mortgage-services",
+          "type": "frontend",
+          "tech_stack": "Next.js 15",
+          "status": "complete"
+        }
+      ]
+    }
+  ],
+  "backend_services": [
+    {
+      "name": "auth-service",
+      "path": "C:\\Dev\\Projects\\Repos\\Project-Nyra\\services\\auth-service",
+      "type": "backend-api",
+      "tech_stack": "Express, TypeScript, MongoDB, Redis",
+      "description": "Comprehensive authentication and authorization service",
+      "status": "complete",
+      "key_dependencies": ["express", "jsonwebtoken", "passport", "mongoose"]
+    },
+    {
+      "name": "nexus-router",
+      "path": "C:\\Dev\\Projects\\Repos\\Project-Nyra\\services\\nexus-router",
+      "type": "backend-api",
+      "tech_stack": "Express, TypeScript, WebSocket",
+      "description": "Intelligent LLM request routing service - Local GPU to Cloud fallback",
+      "status": "complete",
+      "key_dependencies": ["express", "ws", "axios", "ioredis"]
+    },
+    {
+      "name": "ratehunter-api",
+      "path": "C:\\Dev\\Projects\\Repos\\Project-Nyra\\services\\ratehunter-api",
+      "type": "backend-api",
+      "tech_stack": "Express, TypeScript, Prisma, PostgreSQL",
+      "description": "RateHunter Landing Page API - Mortgage Rate Quotes & Lead Capture",
+      "status": "complete",
+      "key_dependencies": ["express", "@prisma/client", "redis", "nodemailer"]
+    },
+    {
+      "name": "mortgage-assistant-api",
+      "path": "C:\\Dev\\Projects\\Repos\\Project-Nyra\\services\\mortgage-assistant-api",
+      "type": "backend-api",
+      "tech_stack": "Express, TypeScript, Prisma",
+      "description": "Mortgage Assistant Core Application Backend API",
+      "status": "complete",
+      "key_dependencies": ["express", "@prisma/client", "twilio", "nodemailer"]
+    }
+  ],
+  "scattered_duplicates": [
+    {
+      "name": "ratehunter-web (duplicate)",
+      "path": "C:\\Dev\\Projects\\Repos\\Project-Nyra\\assets\\new-uploads-ingestion-input\\project-nyra\\apps\\ratehunter-web",
+      "type": "frontend",
+      "tech_stack": "Next.js 14, React 18",
+      "status": "duplicate-older-version",
+      "action_needed": "Should be consolidated or archived",
+      "relationship": "Older version of apps/ratehunter"
+    },
+    {
+      "name": "ratehunter-api (duplicate)",
+      "path": "C:\\Dev\\Projects\\Repos\\Project-Nyra\\assets\\new-uploads-ingestion-input\\project-nyra\\apps\\ratehunter-api",
+      "type": "backend-api",
+      "tech_stack": "NestJS, TypeScript, TypeORM",
+      "status": "duplicate-different-framework",
+      "action_needed": "Should be consolidated or archived",
+      "relationship": "Alternative NestJS implementation of services/ratehunter-api"
+    }
+  ],
+  "tools": [
+    {
+      "name": "archon-ui-main",
+      "path": "C:\\Dev\\Projects\\Repos\\Project-Nyra\\tools\\archon\\archon-ui-main",
+      "type": "frontend-tool",
+      "tech_stack": "Vite, React 18, TypeScript, TanStack Query",
+      "port": "3737",
+      "description": "Archon - Knowledge management system with AI capabilities",
+      "status": "complete",
+      "key_dependencies": ["react@18.3.1", "@tanstack/react-query", "vite"]
+    }
+  ],
+  "incomplete_placeholders": [
+    {
+      "name": "crm",
+      "path": "C:\\Dev\\Projects\\Repos\\Project-Nyra\\apps\\crm",
+      "status": "incomplete",
+      "contains": [".env", "CLAUDE.md"],
+      "action_needed": "Complete implementation or remove"
+    },
+    {
+      "name": "crm-dashboard",
+      "path": "C:\\Dev\\Projects\\Repos\\Project-Nyra\\apps\\crm-dashboard",
+      "status": "incomplete",
+      "contains": ["CLAUDE.md", ".claude-flow"],
+      "action_needed": "Complete implementation or remove"
+    },
+    {
+      "name": "landing",
+      "path": "C:\\Dev\\Projects\\Repos\\Project-Nyra\\apps\\landing",
+      "status": "incomplete",
+      "contains": [".env.local"],
+      "action_needed": "Complete implementation or remove"
+    },
+    {
+      "name": "shadcn-tweakcn",
+      "path": "C:\\Dev\\Projects\\Repos\\Project-Nyra\\apps\\shadcn-tweakcn",
+      "status": "incomplete",
+      "contains": ["CSS files", "SVG files", "txt file"],
+      "action_needed": "Determine purpose or remove"
+    },
+    {
+      "name": "docs",
+      "path": "C:\\Dev\\Projects\\Repos\\Project-Nyra\\apps\\docs",
+      "status": "empty",
+      "action_needed": "Remove or populate"
+    },
+    {
+      "name": "data",
+      "path": "C:\\Dev\\Projects\\Repos\\Project-Nyra\\apps\\data",
+      "status": "empty",
+      "action_needed": "Remove or populate"
+    },
+    {
+      "name": "assets",
+      "path": "C:\\Dev\\Projects\\Repos\\Project-Nyra\\apps\\assets",
+      "status": "empty",
+      "action_needed": "Remove or populate"
+    },
+    {
+      "name": "ingestion",
+      "path": "C:\\Dev\\Projects\\Repos\\Project-Nyra\\apps\\ingestion",
+      "status": "transient",
+      "action_needed": "Likely created during research, can be removed"
+    }
+  ],
+  "consolidation_recommendations": [
+    "Move scattered duplicates from assets/new-uploads-ingestion-input to _archive",
+    "Remove or complete incomplete placeholder directories in apps/",
+    "Consider standardizing tech stack versions (Next.js 14 vs 15, React 18 vs 19)",
+    "Evaluate if webapp workspace should be split or if other apps should join it",
+    "Consider consolidating API services into a unified services/ structure"
+  ]
+}
