@@ -1,0 +1,45 @@
+{
+  "archived_date": "2026-01-19",
+  "reason": "Root directory cleanup - final consolidation phase",
+  "archived_by": "claude-code-agent",
+  "files": [
+    {
+      "file": "docker-compose.infisical.yml.old",
+      "size": "11.7 KB",
+      "reason": "Deprecated infisical service configuration",
+      "original_date": "2026-01-14"
+    },
+    {
+      "file": "docker-compose.memory.yml.old",
+      "size": "5.3 KB",
+      "reason": "Deprecated memory service configuration",
+      "original_date": "2026-01-14"
+    },
+    {
+      "file": "docker-compose.voice.yml.old",
+      "size": "0.4 KB",
+      "reason": "Deprecated voice service configuration",
+      "original_date": "2026-01-15"
+    },
+    {
+      "file": "docker-compose.yml.old",
+      "size": "5.5 KB",
+      "reason": "Backup of old main compose file",
+      "original_date": "2026-01-15"
+    },
+    {
+      "file": "Dockerfile.old",
+      "size": "0.8 KB",
+      "reason": "Deprecated Dockerfile",
+      "original_date": "2026-01-14"
+    },
+    {
+      "file": "Dockerfile.optimized.old",
+      "size": "4.7 KB",
+      "reason": "Optimized Dockerfile variant - superseded",
+      "original_date": "2026-01-16"
+    }
+  ],
+  "total_size": "28.4 KB",
+  "recovery_instructions": "Files can be restored from this archive if needed. All paths are relative to repository root."
+}

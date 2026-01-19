@@ -1,0 +1,35 @@
+# ============================================================================
+# Project Nyra - Master Development Environment
+# ============================================================================
+# Complete development environment with all services
+#
+# This is the consolidated master compose file that includes all services.
+# For production or specific deployment scenarios, use individual compose files.
+#
+# Quick Start:
+#   docker compose up -d
+#
+# Selective Start (examples):
+#   docker compose up -d postgres redis  # Just databases
+#   docker compose up -d nexus litellm letta mem0  # AI stack
+#   docker compose up -d nyra_orchestrator  # Full orchestrator with deps
+#
+# Environment Variables:
+#   Copy .env.example to .env and customize
+#
+# Documentation:
+#   See README.md in this directory
+# ============================================================================
+
+version: '3.8'
+
+# Include all service definitions from modular compose files
+include:
+  - docker-compose.base.yml           # PostgreSQL, Redis
+  - docker-compose.databases.yml     # FalkorDB, Qdrant
+  - docker-compose.ai.yml             # Nexus, LiteLLM, Letta, Mem0, Open-WebUI
+  - docker-compose.crm.yml            # TwentyCRM
+  - docker-compose.workflow.yml      # n8n, Dify, Activepieces
+  - docker-compose.observability.yml # Prometheus, Grafana, Loki, etc.
+  - docker-compose.orchestrator.yml  # Nyra Orchestrator
+  - docker-compose.business.yml      # Quote Engine, Campaign Engine

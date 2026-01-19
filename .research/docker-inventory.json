@@ -1,0 +1,416 @@
+{
+  "inventory_date": "2026-01-18",
+  "total_docker_references": 809,
+  "docker_compose_files": {
+    "main_orchestration": {
+      "path": "infra/docker/docker-compose.orchestration.yml",
+      "purpose": "Core orchestration services - Claude Flow, Archon OS, databases",
+      "services": [
+        "postgresql (postgres:16-alpine) - Primary data store",
+        "redis (redis:7-alpine) - Caching and queues",
+        "falkordb (falkordb/falkordb:latest) - Temporal knowledge graphs",
+        "qdrant (qdrant/qdrant:latest) - Vector database for embeddings",
+        "claude-flow (node:20-alpine) - Multi-agent workflow orchestration",
+        "archon-os (node:20-alpine) - Agent operating system for task management",
+        "nexus-router (node:20-alpine) - Intelligent LLM routing (GPU to Cloud)",
+        "letta (letta/letta:latest) - OS-like agent memory management"
+      ],
+      "ports": {
+        "postgresql": "5432 (env:POSTGRES_PORT)",
+        "redis": "6379 (env:REDIS_PORT)",
+        "falkordb": "6379 (env:FALKORDB_PORT)",
+        "qdrant": "6333, 6334 (HTTP, GRPC)",
+        "claude_flow": "env:CLAUDE_FLOW_PORT",
+        "archon_os": "env:ARCHON_PORT, env:ARCHON_MCP_PORT",
+        "nexus_router": "env:NEXUS_ROUTER_PORT, env:NEXUS_ROUTER_MCP_PORT",
+        "letta": "8283, 8284"
+      },
+      "volumes": [
+        "postgres_data",
+        "redis_data",
+        "falkordb_data",
+        "qdrant_data",
+        "claude_flow_data",
+        "archon_data",
+        "nexus_router_data",
+        "letta_data"
+      ],
+      "networks": ["nyra-network (172.28.0.0/16)"],
+      "infisical_integration": "Uses Infisical for environment variable injection",
+      "usage_command": "infisical run --projectId=8374cea9-e5e8-4050-bda4-b91f25ab30ef --env=dev --path=/shared -- docker compose -f docker-compose.orchestration.yml up"
+    },
+    "base_infrastructure": {
+      "path": "infra/docker/docker-compose.yml",
+      "type": "modular_base_with_includes",
+      "includes": [
+        "base/docker-compose.core.yml - Core databases and caches",
+        "base/docker-compose.mcp.yml - MCP servers",
+        "apps/docker-compose.apps.yml - Applications",
+        "orchestrator/docker-compose.orchestrator.yml - Orchestrator services"
+      ],
+      "legacy_services_count": 25,
+      "key_legacy_services": [
+        "nexus (grafbase/nexus:latest) - port 6000",
+        "litellm (ghcr.io/berriai/litellm:latest) - port 4000",
+        "letta_postgres (ankane/pgvector:latest) - port 5432",
+        "twenty_postgres (postgres:15-alpine) - port 5433",
+        "dify_postgres (postgres:15-alpine) - port 5434",
+        "neo4j (neo4j:5-community) - port 7474, 7687",
+        "n8n (n8nio/n8n:latest) - port 5678",
+        "dify (langgenius/dify-web:latest) - port 3001",
+        "twenty_crm (twentycrm/twenty:latest) - port 3000",
+        "prometheus (prom/prometheus:latest) - port 9090",
+        "grafana (grafana/grafana:latest) - port 3005"
+      ]
+    },
+    "worker_specific": {
+      "rtx3060": {
+        "path": "infra/docker/workers/docker-compose.worker-rtx3060.yml",
+        "env_file": "configs/env/.env.worker-rtx3060"
+      },
+      "rtx5090": {
+        "path": "infra/docker/workers/docker-compose.worker-rtx5090.yml",
+        "env_file": "configs/env/.env.worker-rtx5090"
+      },
+      "rtx3090ti": {
+        "path": "infra/docker/workers/docker-compose.worker-rtx3090ti.yml",
+        "env_file": "configs/env/.env.worker-rtx3090ti"
+      }
+    },
+    "specialized_compose_files": [
+      {
+        "file": "infra/docker/docker-compose.services.yml",
+        "purpose": "14 microservices (auth, campaign, doc management, etc.)"
+      },
+      {
+        "file": "infra/docker/docker-compose.monitoring.yml",
+        "purpose": "Prometheus + Grafana + Node Exporter + cAdvisor"
+      },
+      {
+        "file": "infra/docker/docker-compose.observability.yml",
+        "purpose": "Loki + Promtail + Tempo for logging and tracing"
+      },
+      {
+        "file": "infra/docker/docker-compose.ui.yml",
+        "purpose": "User interfaces (Open-WebUI, LobeChat, Dify, TwentyCRM)"
+      },
+      {
+        "file": "infra/docker/docker-compose.dev.yml",
+        "purpose": "Development overrides (hot reload, debug ports, verbose logging)"
+      },
+      {
+        "file": "infra/docker/docker-compose.prod.yml",
+        "purpose": "Production overrides (resource limits, health checks, restart policies)"
+      },
+      {
+        "file": "infra/docker/docker-compose.mcp-dev.yml",
+        "purpose": "MCP development environment"
+      },
+      {
+        "file": "infra/docker/docker-compose.graphiti.yml",
+        "purpose": "Graph memory services"
+      },
+      {
+        "file": "infra/docker/docker-compose.gitea.yml",
+        "purpose": "Self-hosted Git server"
+      },
+      {
+        "file": "infra/docker/docker-compose.voice.yml",
+        "purpose": "Twilio voice/SMS integration"
+      },
+      {
+        "file": "infra/docker/docker-compose.dual-orchestrator.yml",
+        "purpose": "Dual orchestrator setup"
+      },
+      {
+        "file": "infra/docker/docker-compose.full.yml",
+        "purpose": "Complete stack (all-in-one deployment)"
+      },
+      {
+        "file": "infra/docker/docker-compose.local.yml",
+        "purpose": "Local development"
+      },
+      {
+        "file": "infra/docker/docker-compose.mcp.yml",
+        "purpose": "MCP production"
+      }
+    ]
+  },
+  "dockerfiles": {
+    "key_locations": [
+      "services/quote-engine/Dockerfile",
+      "services/campaign-engine/Dockerfile",
+      "services/nyra-orchestrator/Dockerfile",
+      "infra/sequential-thinking-mcp/Dockerfile",
+      "infra/docker-mcp/Dockerfile",
+      "infra/dockerhub-mcp/Dockerfile",
+      "infra/git-mcp/Dockerfile",
+      "infra/dual-orchestrator/archon-os/Dockerfile",
+      "infra/ruv-swarm/Dockerfile",
+      "apps/webapp/mortgage-services/Dockerfile",
+      "apps/ratehunter/Dockerfile",
+      "apps/nyra-admin/Dockerfile"
+    ]
+  },
+  "dockerignore": {
+    "path": ".dockerignore",
+    "categories": [
+      "Dependencies (node_modules, pnpm-store)",
+      "Build outputs (dist, build, .next, .turbo)",
+      "Testing files (__tests__, *.test.ts, coverage)",
+      "Git files (.git, .github)",
+      "IDE files (.vscode, .idea)",
+      "Environment files (.env, .env.local)",
+      "Documentation (*.md, docs, README)",
+      "CI/CD files (.gitlab-ci.yml, Jenkinsfile)",
+      "Docker files (Dockerfile*, docker-compose*.yml)",
+      "Logs (*.log, logs)",
+      "TypeScript build info (*.tsbuildinfo)",
+      "Python cache (__pycache__, *.pyc)",
+      "Backup files (_backup, *.bak)",
+      "Temporary files (tmp, temp)",
+      "Monorepo specific (bootstrap/installer, _archive)"
+    ]
+  },
+  "package_json_scripts": {
+    "docker_commands": [
+      "docker:up - Start dev environment",
+      "docker:down - Stop dev environment",
+      "docker:test:up - Start test environment",
+      "docker:test:down - Stop test environment with volume cleanup",
+      "start:orchestrator - Start orchestrator services",
+      "start:worker - Start worker services",
+      "stop:orchestrator - Stop orchestrator",
+      "stop:worker - Stop worker",
+      "infra:up - Start all infrastructure",
+      "infra:down - Stop all infrastructure",
+      "infra:logs - View infrastructure logs",
+      "infra:ps - List running containers",
+      "infra:restart - Restart infrastructure"
+    ]
+  },
+  "ci_cd_integration": {
+    "workflow_file": ".github/workflows/ci-main.yml",
+    "docker_services_in_ci": [
+      {
+        "service": "postgres",
+        "image": "postgres:16-alpine",
+        "port": 5432,
+        "health_check": "pg_isready",
+        "env": {
+          "POSTGRES_USER": "postgres",
+          "POSTGRES_PASSWORD": "postgres",
+          "POSTGRES_DB": "nyra_test"
+        }
+      },
+      {
+        "service": "redis",
+        "image": "redis:7-alpine",
+        "port": 6379,
+        "health_check": "redis-cli ping"
+      }
+    ],
+    "integration_tests": "Uses GitHub Actions services for PostgreSQL and Redis",
+    "docker_commands_in_ci": [
+      "Docker image builds for services",
+      "Integration test setup with databases",
+      "Health checks before tests"
+    ]
+  },
+  "environment_configurations": {
+    "docker_specific_env_files": [
+      "infra/docker/.env.mcp.template",
+      "bootstrap/orchestrator-mini/docker/.env.example",
+      "bootstrap/worker-rtx3090ti/docker/.env.example",
+      "bootstrap/worker-rtx3060/docker/.env.example",
+      "bootstrap/worker-rtx5090/docker/.env.example",
+      "infra/dual-orchestrator/archon-os/.env.example",
+      "assets/new-uploads-ingestion-input/docker/wsl/.env.example"
+    ],
+    "key_docker_variables": [
+      "NEXUS_REDIS_URL - Redis connection for Nexus Router (DB 0)",
+      "CLAUDE_FLOW_REDIS_URL - Redis connection for Claude Flow (DB 1)",
+      "ARCHON_REDIS_URL - Redis connection for Archon OS (DB 2)",
+      "DATABASE_URL - PostgreSQL connection string",
+      "POSTGRES_USER - PostgreSQL username",
+      "POSTGRES_PASSWORD - PostgreSQL password",
+      "POSTGRES_DB - PostgreSQL database name",
+      "REDIS_PASSWORD - Redis authentication",
+      "FALKORDB_PASSWORD - FalkorDB authentication",
+      "QDRANT_API_KEY - Qdrant authentication",
+      "CLAUDE_FLOW_PORT - Claude Flow service port",
+      "ARCHON_PORT - Archon OS service port",
+      "ARCHON_MCP_PORT - Archon OS MCP server port",
+      "NEXUS_ROUTER_PORT - Nexus Router service port",
+      "NEXUS_ROUTER_MCP_PORT - Nexus Router MCP port"
+    ]
+  },
+  "documentation": {
+    "docker_troubleshooting": {
+      "path": "DOCKER-TROUBLESHOOTING.md",
+      "size": "13.8 KB",
+      "purpose": "Comprehensive troubleshooting guide for Docker Desktop and container issues",
+      "key_sections": [
+        "Docker Desktop not running - Critical error resolution",
+        "Environment variables not loading - .env file location issues",
+        "Port conflicts - netstat commands and resolution",
+        "WSL 2 installation - Windows integration",
+        "GPU accessibility - NVIDIA Container Toolkit",
+        "Common Docker commands and health checks"
+      ]
+    },
+    "containerization_summary": {
+      "path": "CONTAINERIZATION-SUMMARY.md",
+      "size": "15.7 KB",
+      "purpose": "Claude Flow containerization guide - 15 containers for full features",
+      "containers_required": 15,
+      "core_stack": 8,
+      "mcp_servers": 4,
+      "supporting_services": 3,
+      "key_containers": [
+        "claude-flow - Main orchestrator + CLI + MCP server",
+        "agentdb - Vector memory backend (PostgreSQL + pgvector)",
+        "ruvector - Distributed vector search (150x-12,500x faster)",
+        "onnx-runtime - ONNX embedding service (75x faster)",
+        "transformers.js - Local embeddings (Xenova models)",
+        "redis - Caching & pub/sub",
+        "postgres - Persistent storage",
+        "agent-booster - Tier 1 transforms (352x faster)",
+        "ruv-swarm - MCP: Swarm coordination",
+        "agentic-flow - MCP: Core intelligence",
+        "epic-sdk - MCP: Event processing",
+        "agentic-jujutsu - MCP: Self-learning version control",
+        "qdrant - Alternative vector DB",
+        "jaeger - Distributed tracing",
+        "prometheus + grafana - Monitoring"
+      ]
+    },
+    "usage_guide": {
+      "path": "infra/docker/USAGE-GUIDE.md",
+      "size": "50.8 KB",
+      "version": "5.0.0",
+      "compose_files_documented": 17,
+      "key_sections": [
+        "Overview - Modular Docker Compose architecture",
+        "Quick Start - Orchestrator and Worker deployment",
+        "Modular Docker Structure - Base, Orchestration, Microservices",
+        "PC-Specific Deployment - PC1 (Orchestrator), PC2/3/4 (Workers)",
+        "Development vs Production - Separate configurations",
+        "Common Operations - Start, stop, logs, scaling, updates",
+        "Troubleshooting - 5 major issues with solutions",
+        "Performance Optimization - Volumes, network, build, resources"
+      ]
+    }
+  },
+  "architecture": {
+    "design_principles": [
+      "Modularity - Services grouped by function",
+      "Composability - Mix and match compose files",
+      "PC-Aware - Profiles for orchestrator and workers",
+      "Environment-Aware - Development and production modes",
+      "Infisical-Ready - Integrated secrets management"
+    ],
+    "networks": [
+      "nyra-network (bridge, 172.28.0.0/16) - Main application network",
+      "observability (bridge) - Monitoring services",
+      "databases (bridge) - Database isolation"
+    ],
+    "resource_requirements": {
+      "minimum": {
+        "ram": "8 GB",
+        "cpu": "4 cores",
+        "disk": "50 GB",
+        "gpu": "Not required for orchestrator"
+      },
+      "recommended": {
+        "ram": "16 GB",
+        "cpu": "8 cores",
+        "disk": "100 GB (with monitoring)",
+        "gpu": "Optional"
+      },
+      "production": {
+        "ram": "32 GB",
+        "cpu": "16 cores",
+        "disk": "250 GB",
+        "gpu": "Required for workers (RTX 3060, 5090, 3090 Ti)"
+      }
+    }
+  },
+  "deployment_modes": {
+    "orchestrator_pc1": {
+      "services": [
+        "All base infrastructure (PostgreSQL, Redis, FalkorDB, Qdrant)",
+        "All orchestration services (Claude Flow, Archon OS, Nexus Router, Letta)",
+        "Monitoring stack (Prometheus, Grafana)",
+        "MCP servers",
+        "Optional UI services (Open-WebUI, TwentyCRM)"
+      ],
+      "compose_files": [
+        "docker-compose.yml",
+        "docker-compose.orchestration.yml",
+        "docker-compose.monitoring.yml"
+      ],
+      "resource_allocation": {
+        "ram": "8-16 GB",
+        "cpu": "4-8 cores",
+        "disk": "100 GB",
+        "gpu": "Not required"
+      }
+    },
+    "worker_pc2_pc3_pc4": {
+      "services": [
+        "Ollama (GPU inference)",
+        "vLLM (GPU inference)",
+        "Worker agent daemon",
+        "Cloudflared tunnel for secure access"
+      ],
+      "gpu_required": true,
+      "resource_allocation": {
+        "ram": "16-32 GB",
+        "cpu": "8-16 cores",
+        "disk": "50 GB",
+        "gpu": "RTX 3060 (12GB), RTX 5090 (24GB), or RTX 3090 Ti (24GB)"
+      }
+    }
+  },
+  "key_findings": {
+    "total_docker_files": "809 files with Docker references",
+    "total_services": "35+ containerized services across all compose files",
+    "modular_architecture": "17 specialized Docker Compose files",
+    "multi_pc_architecture": "1 Orchestrator + 3 Worker PCs with GPU support",
+    "monitoring_stack": "Prometheus, Grafana, Loki, Tempo, Alertmanager",
+    "development_production_separation": "Separate compose files with environment-specific overrides",
+    "infisical_integration": "Centralized secret management",
+    "gpu_support": "NVIDIA runtime for GPU workers",
+    "database_stack": "PostgreSQL, Redis, Neo4j, FalkorDB, Qdrant",
+    "mcp_ecosystem": "12+ MCP servers for AI orchestration",
+    "observability": "Distributed tracing with Jaeger, log aggregation with Loki",
+    "high_availability": "Health checks, restart policies, resource limits",
+    "scalability": "Service scaling support, multiple worker nodes"
+  },
+  "recommendations": {
+    "consolidation": [
+      "Consider merging legacy docker-compose.yml services into modular structure",
+      "Standardize on single base compose file with includes",
+      "Document which compose files are actively used vs archived"
+    ],
+    "optimization": [
+      "Implement resource limits on all services for production",
+      "Add health checks to all custom-built services",
+      "Consider multi-stage Dockerfiles for smaller image sizes",
+      "Use BuildKit for faster builds with layer caching"
+    ],
+    "security": [
+      "Rotate all secrets stored in Infisical",
+      "Implement Docker socket security (avoid mounting in containers)",
+      "Use read-only file systems where possible",
+      "Scan images for vulnerabilities with Trivy or Snyk"
+    ],
+    "documentation": [
+      "Create architecture diagram showing all services and dependencies",
+      "Document port allocation strategy (avoid conflicts)",
+      "Add deployment runbooks for each PC configuration",
+      "Document disaster recovery procedures for databases"
+    ]
+  }
+}

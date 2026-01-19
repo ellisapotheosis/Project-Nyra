@@ -7,6 +7,14 @@ services:
     container_name: nyra-qdrant
     ports: ["6333:6333"]
     volumes: [ "qdrant_data:/qdrant/storage" ]
+    labels:
+      nyra.service.name: "qdrant"
+      nyra.service.type: "database"
+      nyra.service.category: "vector"
+      nyra.mcp.enabled: "false"
+      nyra.api.enabled: "true"
+      nyra.api.port: "6333"
+      nyra.api.protocol: "rest"
     networks: [ nyra_net ]
   neo4j:
     image: neo4j:5-community
@@ -17,6 +25,14 @@ services:
       - NEO4J_PLUGINS=["apoc"]
     ports: ["7474:7474","7687:7687"]
     volumes: [ "neo4j_data:/data", "neo4j_logs:/logs" ]
+    labels:
+      nyra.service.name: "neo4j"
+      nyra.service.type: "database"
+      nyra.service.category: "graph"
+      nyra.mcp.enabled: "false"
+      nyra.api.enabled: "true"
+      nyra.api.port: "7687"
+      nyra.api.protocol: "bolt"
     networks: [ nyra_net ]
   graphiti-mcp:
     image: ghcr.io/getzep/graphiti-mcp:latest
@@ -31,6 +47,14 @@ services:
       - GRAPHITI_PORT=8000
     depends_on: { neo4j: { condition: service_started } }
     ports: ["7459:8000"]
+    labels:
+      nyra.service.name: "graphiti-mcp"
+      nyra.service.type: "mcp-server"
+      nyra.service.category: "graph-memory"
+      nyra.mcp.enabled: "true"
+      nyra.mcp.transport: "sse"
+      nyra.mcp.port: "8000"
+      nyra.api.enabled: "false"
     networks: [ nyra_net ]
     restart: unless-stopped
   qdrant-mcp:
@@ -45,6 +69,14 @@ services:
       - FASTMCP_HOST=0.0.0.0
     depends_on: { qdrant: { condition: service_started } }
     ports: ["8066:8066"]
+    labels:
+      nyra.service.name: "qdrant-mcp"
+      nyra.service.type: "mcp-server"
+      nyra.service.category: "vector-memory"
+      nyra.mcp.enabled: "true"
+      nyra.mcp.transport: "http"
+      nyra.mcp.port: "8066"
+      nyra.api.enabled: "false"
     networks: [ nyra_net ]
     restart: unless-stopped
   openmemory:
@@ -56,6 +88,14 @@ services:
       - NEXT_PUBLIC_USER_ID=${OPENMEMORY_USER:-nyra}
       - USER=${OPENMEMORY_USER:-nyra}
     ports: ["8765:8765","3000:3000"]
+    labels:
+      nyra.service.name: "openmemory"
+      nyra.service.type: "api"
+      nyra.service.category: "memory"
+      nyra.mcp.enabled: "false"
+      nyra.api.enabled: "true"
+      nyra.api.port: "8765"
+      nyra.api.protocol: "rest"
     networks: [ nyra_net ]
     restart: unless-stopped
   metamcp:
@@ -68,5 +108,15 @@ services:
       - ./metamcp/namespaces.json:/app/namespaces.json:ro
       - ./metamcp/endpoints.json:/app/endpoints.json:ro
     ports: ["12008:12008","12005:12005"]
+    labels:
+      nyra.service.name: "metamcp"
+      nyra.service.type: "mcp-server"
+      nyra.service.category: "gateway"
+      nyra.mcp.enabled: "true"
+      nyra.mcp.transport: "http"
+      nyra.mcp.port: "12008"
+      nyra.api.enabled: "true"
+      nyra.api.port: "12005"
+      nyra.api.protocol: "rest"
     networks: [ nyra_net ]
     restart: unless-stopped

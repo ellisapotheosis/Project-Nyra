@@ -1,0 +1,40 @@
+DOCKER STACK VALIDATION - KEY FINDINGS
+Date: 2026-01-18
+File: infra/docker-compose.yml
+Services: 40
+
+VALIDATION STATUS: FAILED (3 Critical Issues)
+
+CRITICAL ISSUES:
+1. Missing env var: CLOUDFLARE_TUNNEL_TOKEN_ORCHESTRATOR (Line 1339)
+2. Missing 8 config directories: nexus, litellm, prometheus, grafana, loki, alertmanager, pgadmin, gitea
+3. Missing .archon directory for bind mount
+
+PASSED VALIDATIONS:
+✅ No port conflicts (35 unique ports)
+✅ All 31 Docker images valid
+✅ All 40 services have discovery labels
+✅ Network segmentation properly configured
+✅ 33 volumes for persistence
+✅ 28 services have health checks
+✅ Resource limits on critical services
+✅ Nexus Router ready for service discovery
+
+IMMEDIATE ACTIONS:
+1. Add CLOUDFLARE_TUNNEL_TOKEN_ORCHESTRATOR to infra/.env
+2. Create config directories: mkdir -p infra/configs/{nexus,litellm,prometheus,grafana,loki,alertmanager,pgadmin,gitea}
+3. Create .archon directory: mkdir -p .archon
+4. Generate config files from templates in VALIDATION-SUMMARY.md
+5. Re-validate: docker compose -f infra/docker-compose.yml config
+
+NEXUS ROUTER COMPATIBILITY: READY
+- All services labeled with com.nyra.service and com.nyra.category
+- Fuzzy matching enabled
+- 40 discoverable services across 6 categories
+
+ESTIMATED FIX TIME: 30-45 minutes
+
+Full reports available:
+- infra/validation-report.json (detailed JSON)
+- infra/VALIDATION-SUMMARY.md (human-readable guide)
+- infra/validation-key-findings.txt (this file)

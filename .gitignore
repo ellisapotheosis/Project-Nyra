@@ -19,6 +19,8 @@ pnpm-lock.yaml
 ################################################################################
 dist/
 build/
+# Exception: Docker build directory should be tracked
+!infra/docker/build/
 out/
 .next/
 .nuxt/

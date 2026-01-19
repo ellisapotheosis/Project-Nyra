@@ -1,0 +1,116 @@
+%% Archon OS Database Schema (Entity Relationship Diagram)
+%% Project Nyra - PostgreSQL Database
+%% Generated: 2026-01-18
+
+erDiagram
+    AGENTS ||--o{ TASKS : "assigned to"
+    AGENTS ||--o{ SWARM_MEMBERSHIPS : "member of"
+    SWARMS ||--o{ SWARM_MEMBERSHIPS : "contains"
+    AGENTS ||--o{ CHECKPOINTS : "has state"
+    TASKS ||--o{ CHECKPOINTS : "has state"
+    SWARMS ||--o{ CHECKPOINTS : "has state"
+    AGENTS ||--o{ METRICS : "tracked by"
+    TASKS ||--o{ METRICS : "tracked by"
+    SWARMS ||--o{ METRICS : "tracked by"
+
+    AGENTS {
+        uuid id PK
+        varchar name UK "Unique agent name"
+        varchar type "researcher, coder, reviewer, etc."
+        varchar status "idle, active, busy, error"
+        jsonb capabilities "Array of capabilities"
+        jsonb resources "CPU, memory allocation"
+        jsonb metadata "Custom fields"
+        timestamptz created_at
+        timestamptz updated_at
+        timestamptz last_active_at
+    }
+
+    TASKS {
+        uuid id PK
+        uuid agent_id FK "Assigned agent"
+        varchar name
+        text description
+        varchar type
+        varchar status "pending, running, completed, failed"
+        integer priority "1-5, default 3"
+        jsonb input "Task input data"
+        jsonb output "Task result"
+        text error "Error message if failed"
+        timestamptz started_at
+        timestamptz completed_at
+        integer timeout_seconds "Default 300"
+        integer retry_count
+        integer max_retries "Default 3"
+        jsonb metadata
+        timestamptz created_at
+        timestamptz updated_at
+    }
+
+    SWARMS {
+        uuid id PK
+        varchar name UK "Unique swarm name"
+        varchar topology "mesh, hierarchical, ring, star"
+        varchar status "initializing, active, paused, terminated"
+        integer max_agents "Default 50"
+        varchar coordination_mode "adaptive, fixed"
+        jsonb metadata
+        timestamptz created_at
+        timestamptz updated_at
+    }
+
+    SWARM_MEMBERSHIPS {
+        uuid id PK
+        uuid swarm_id FK "Swarm reference"
+        uuid agent_id FK "Agent reference"
+        varchar role "worker, specialist, coordinator"
+        timestamptz joined_at
+    }
+
+    SESSIONS {
+        uuid id PK
+        varchar name
+        varchar status "active, paused, completed"
+        jsonb context "Session context data"
+        jsonb memory "Session memory"
+        jsonb metadata
+        timestamptz created_at
+        timestamptz updated_at
+        timestamptz expires_at "TTL expiration"
+    }
+
+    CHECKPOINTS {
+        uuid id PK
+        varchar entity_type "agent, task, swarm"
+        uuid entity_id "Reference to entity"
+        jsonb state "Serialized state snapshot"
+        timestamptz created_at
+        jsonb metadata
+    }
+
+    METRICS {
+        uuid id PK
+        varchar metric_type "task_duration, agent_load, etc."
+        varchar entity_type "agent, task, swarm"
+        uuid entity_id "Reference to entity"
+        numeric value "Metric value"
+        jsonb tags "Additional tags"
+        timestamptz timestamp
+    }
+
+    API_KEYS {
+        uuid id PK
+        varchar key_hash UK "Hashed API key"
+        varchar name
+        jsonb permissions "Array of permissions"
+        integer rate_limit "Requests per minute"
+        timestamptz expires_at
+        timestamptz last_used_at
+        timestamptz created_at
+        timestamptz revoked_at
+    }
+
+    %% Annotations
+    %% Extensions: uuid-ossp, pg_trgm, btree_gin
+    %% Indexes: B-tree on status/type/priority, GIN on JSONB columns
+    %% Triggers: auto-update updated_at on row modification

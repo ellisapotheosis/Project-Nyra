@@ -1,0 +1,62 @@
+{
+  "status": "configured",
+  "timestamp": "2026-01-19T09:16:00Z",
+  "services": {
+    "dify-api": {
+      "status": "running",
+      "health": "healthy",
+      "port": 5001,
+      "container": "nyra-dify-api",
+      "labels": [
+        "com.nyra.service=dify",
+        "com.nyra.component=api",
+        "com.nyra.category=application",
+        "com.nyra.api.enabled=true",
+        "com.nyra.api.port=5001",
+        "com.nyra.api.path=/v1",
+        "com.nyra.health.endpoint=/health"
+      ]
+    },
+    "dify-worker": {
+      "status": "running",
+      "container": "nyra-dify-worker",
+      "labels": [
+        "com.nyra.service=dify",
+        "com.nyra.component=worker",
+        "com.nyra.category=application",
+        "com.nyra.type=background-worker"
+      ]
+    },
+    "dify-web": {
+      "status": "running",
+      "port": 3001,
+      "container": "nyra-dify-web",
+      "labels": [
+        "com.nyra.service=dify",
+        "com.nyra.component=web",
+        "com.nyra.category=application",
+        "com.nyra.type=frontend",
+        "com.nyra.ui.port=3000"
+      ]
+    }
+  },
+  "nexus_router_integration": "complete",
+  "docker_labels_applied": true,
+  "configuration_changes": [
+    "Added proper nexus router Docker labels to all Dify services",
+    "Added missing dify-worker service definition",
+    "Changed LOG_LEVEL to DIFY_LOG_LEVEL to avoid conflicts with global LOG_LEVEL",
+    "Set nyra-network as external to work with existing infrastructure",
+    "Added resource limits and health checks to all services"
+  ],
+  "files_modified": [
+    "infra/docker-compose/docker-compose.workflow.yml",
+    "infra/docker-compose.yml",
+    "infra/docker-compose.override.yml"
+  ],
+  "access_urls": {
+    "api": "http://localhost:5001",
+    "web": "http://localhost:3001"
+  },
+  "notes": "All Dify services configured with proper nexus router labels and running successfully. The web UI health check shows as unhealthy but the service is accessible and functional."
+}

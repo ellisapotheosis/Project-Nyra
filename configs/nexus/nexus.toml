@@ -1,50 +1,21 @@
 [server]
-host = "0.0.0.0"
-port = 6000
+listen_address = "0.0.0.0:6000"
 
 [llm]
-default_provider = "anthropic"
-fallback_provider = "openrouter"
+enabled = true
 
-[[providers]]
-name = "anthropic"
+[llm.providers.anthropic]
 type = "anthropic"
 api_key_env = "ANTHROPIC_API_KEY"
-models = ["claude-3-5-sonnet-20241022", "claude-sonnet-4-20250514"]
-rate_limit = 50
 
-[[providers]]
-name = "openrouter"
-type = "openrouter"
+[llm.providers.openrouter]
+type = "openai"
 api_key_env = "OPENROUTER_API_KEY"
 base_url = "https://openrouter.ai/api/v1"
-models = ["meta-llama/llama-3.1-70b-instruct", "deepseek/deepseek-r1"]
-rate_limit = 100
 
-[[providers]]
-name = "gemini"
+[llm.providers.google]
 type = "google"
-api_key_env = "GOOGLE_GEMINI_API_KEY"
-models = ["gemini-2.0-flash"]
-rate_limit = 1000
+api_key_env = "GOOGLE_API_KEY"
 
-[routing]
-strategy = "cost_based"
-cost_threshold = 0.001  # Route to cheaper model if cost per token < threshold
-
-[mcp]
-enabled = true
-proxy_mode = true
-aggregation = true
-
-[[mcp.servers]]
-name = "letta"
-url = "http://letta:8283"
-
-[[mcp.servers]]
-name = "mem0"
-url = "http://openmemory_mcp:8081"
-
-[[mcp.servers]]
-name = "serena"
-url = "http://serena:8086"
+# [mcp]
+# enabled = true

@@ -10,6 +10,14 @@ services:
     environment:
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
       - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+    labels:
+      nyra.service.name: "nexus-grafbase"
+      nyra.service.type: "api"
+      nyra.service.category: "routing"
+      nyra.mcp.enabled: "false"
+      nyra.api.enabled: "true"
+      nyra.api.port: "6000"
+      nyra.api.protocol: "graphql"
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://localhost:6000/health"]
       interval: 20s
@@ -30,6 +38,14 @@ services:
     environment:
       - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
       - OPENAI_API_KEY=${OPENAI_API_KEY}
+    labels:
+      nyra.service.name: "litellm"
+      nyra.service.type: "api"
+      nyra.service.category: "proxy"
+      nyra.mcp.enabled: "false"
+      nyra.api.enabled: "true"
+      nyra.api.port: "4000"
+      nyra.api.protocol: "openai-compatible"
     networks: [nyra]
 
   # ---------- CRM ----------
@@ -50,6 +66,14 @@ services:
       - PGUSER=twenty
       - PGPASSWORD=twenty
       - PGDATABASE=twenty
+    labels:
+      nyra.service.name: "twenty-crm"
+      nyra.service.type: "api"
+      nyra.service.category: "crm"
+      nyra.mcp.enabled: "false"
+      nyra.api.enabled: "true"
+      nyra.api.port: "3000"
+      nyra.api.protocol: "rest"
     networks: [nyra]
 
   twenty_postgres:
@@ -61,6 +85,12 @@ services:
       - POSTGRES_DB=twenty
     volumes:
       - twenty_pg:/var/lib/postgresql/data
+    labels:
+      nyra.service.name: "twenty-postgres"
+      nyra.service.type: "database"
+      nyra.service.category: "relational"
+      nyra.mcp.enabled: "false"
+      nyra.api.enabled: "false"
     networks: [nyra]
 
   # ---------- Graph memory ----------
@@ -71,6 +101,12 @@ services:
       - "6379:6379"
     volumes:
       - falkor_data:/data
+    labels:
+      nyra.service.name: "falkordb"
+      nyra.service.type: "database"
+      nyra.service.category: "graph"
+      nyra.mcp.enabled: "false"
+      nyra.api.enabled: "false"
     networks: [nyra]
 
   # ---------- Agent state manager ----------
@@ -83,6 +119,12 @@ services:
       - POSTGRES_DB=letta
     volumes:
       - letta_pg:/var/lib/postgresql/data
+    labels:
+      nyra.service.name: "letta-postgres"
+      nyra.service.type: "database"
+      nyra.service.category: "relational"
+      nyra.mcp.enabled: "false"
+      nyra.api.enabled: "false"
     networks: [nyra]
 
   letta:
@@ -97,6 +139,14 @@ services:
       # Letta supports multiple model providers; we point it at Nexus so routing is centralized.
       - OPENAI_BASE_URL=http://nexus:6000/llm/openai/v1
       - OPENAI_API_KEY=dummy
+    labels:
+      nyra.service.name: "letta"
+      nyra.service.type: "api"
+      nyra.service.category: "agent-memory"
+      nyra.mcp.enabled: "false"
+      nyra.api.enabled: "true"
+      nyra.api.port: "8283"
+      nyra.api.protocol: "rest"
     networks: [nyra]
 
   # ---------- Universal memory ----------
@@ -113,6 +163,14 @@ services:
       - OPENAI_API_KEY=dummy
     volumes:
       - mem0_data:/data
+    labels:
+      nyra.service.name: "mem0"
+      nyra.service.type: "api"
+      nyra.service.category: "memory"
+      nyra.mcp.enabled: "false"
+      nyra.api.enabled: "true"
+      nyra.api.port: "4321"
+      nyra.api.protocol: "rest"
     networks: [nyra]
 
   openmemory_mcp:
@@ -122,6 +180,14 @@ services:
       - "8081:8081"
     environment:
       - MEM0_REST_URL=http://mem0:4321
+    labels:
+      nyra.service.name: "openmemory-mcp"
+      nyra.service.type: "mcp-server"
+      nyra.service.category: "memory"
+      nyra.mcp.enabled: "true"
+      nyra.mcp.transport: "http"
+      nyra.mcp.port: "8081"
+      nyra.api.enabled: "false"
     networks: [nyra]
 
   # ---------- Nyra Orchestrator ----------
@@ -141,6 +207,14 @@ services:
       - MEM0_REST_URL=http://mem0:4321
       - FALKOR_URL=redis://falkordb:6379
       - LETTA_BASE_URL=http://letta:8283
+    labels:
+      nyra.service.name: "orchestrator"
+      nyra.service.type: "api"
+      nyra.service.category: "orchestration"
+      nyra.mcp.enabled: "false"
+      nyra.api.enabled: "true"
+      nyra.api.port: "8010"
+      nyra.api.protocol: "rest"
     depends_on:
       - nexus
       - twenty
@@ -157,6 +231,14 @@ services:
       - "9090:9090"
     volumes:
       - ./configs/observability/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    labels:
+      nyra.service.name: "prometheus"
+      nyra.service.type: "monitoring"
+      nyra.service.category: "metrics"
+      nyra.mcp.enabled: "false"
+      nyra.api.enabled: "true"
+      nyra.api.port: "9090"
+      nyra.api.protocol: "http"
     networks: [nyra]
 
   loki:
@@ -167,6 +249,14 @@ services:
     command: -config.file=/etc/loki/config.yml
     volumes:
       - ./configs/observability/loki.yml:/etc/loki/config.yml:ro
+    labels:
+      nyra.service.name: "loki"
+      nyra.service.type: "monitoring"
+      nyra.service.category: "logs"
+      nyra.mcp.enabled: "false"
+      nyra.api.enabled: "true"
+      nyra.api.port: "3100"
+      nyra.api.protocol: "http"
     networks: [nyra]
 
   grafana:
@@ -180,6 +270,14 @@ services:
     volumes:
       - ./configs/observability/grafana/provisioning:/etc/grafana/provisioning:ro
       - grafana_data:/var/lib/grafana
+    labels:
+      nyra.service.name: "grafana"
+      nyra.service.type: "monitoring"
+      nyra.service.category: "dashboard"
+      nyra.mcp.enabled: "false"
+      nyra.api.enabled: "true"
+      nyra.api.port: "3000"
+      nyra.api.protocol: "http"
     networks: [nyra]
 
   alertmanager:
@@ -189,6 +287,14 @@ services:
       - "9093:9093"
     volumes:
       - ./configs/observability/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+    labels:
+      nyra.service.name: "alertmanager"
+      nyra.service.type: "monitoring"
+      nyra.service.category: "alerting"
+      nyra.mcp.enabled: "false"
+      nyra.api.enabled: "true"
+      nyra.api.port: "9093"
+      nyra.api.protocol: "http"
     networks: [nyra]
 
   # ---------- Optional UI ----------
@@ -200,6 +306,14 @@ services:
     environment:
       - OPENAI_API_BASE_URL=http://nexus:6000/llm/openai/v1
       - OPENAI_API_KEY=dummy
+    labels:
+      nyra.service.name: "openwebui"
+      nyra.service.type: "api"
+      nyra.service.category: "ui"
+      nyra.mcp.enabled: "false"
+      nyra.api.enabled: "true"
+      nyra.api.port: "8080"
+      nyra.api.protocol: "http"
     depends_on:
       - nexus
     networks: [nyra]

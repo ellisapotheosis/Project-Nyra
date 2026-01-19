@@ -1,0 +1,128 @@
+# ============================================================================
+# Project Nyra - MCP Servers
+# ============================================================================
+# Model Context Protocol server infrastructure
+# Includes: Graphiti MCP, Qdrant MCP, MetaMCP gateway
+#
+# Dependencies: base, databases, ai
+# Usage:
+#   docker compose -f docker-compose.base.yml -f docker-compose.mcp-servers.yml up -d
+# ============================================================================
+
+version: '3.8'
+
+volumes:
+  metamcp_pg_data:
+    name: nyra_metamcp_pg_data
+    driver: local
+
+services:
+  # ==========================================================================
+  # Graphiti MCP - Graph memory server for Neo4j
+  # ==========================================================================
+  graphiti-mcp:
+    image: ghcr.io/getzep/graphiti-mcp:latest
+    container_name: nyra-graphiti-mcp
+    restart: unless-stopped
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - MODEL_NAME=${GRAPHITI_MODEL:-gpt-4o-mini}
+      - NEO4J_URI=bolt://neo4j:7687
+      - NEO4J_USER=neo4j
+      - NEO4J_PASSWORD=${NEO4J_PASSWORD:-neo4j_secure_pass}
+      - GRAPHITI_TRANSPORT=sse
+      - GRAPHITI_PORT=8000
+    depends_on:
+      neo4j:
+        condition: service_healthy
+    ports:
+      - "${GRAPHITI_PORT:-7459}:8000"
+    networks:
+      - nyra-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 1G
+        reservations:
+          cpus: '0.25'
+          memory: 512M
+
+  # ==========================================================================
+  # Qdrant MCP - Vector search MCP server
+  # ==========================================================================
+  qdrant-mcp:
+    image: ghcr.io/qdrant/mcp-server-qdrant:latest
+    container_name: nyra-qdrant-mcp
+    restart: unless-stopped
+    environment:
+      - QDRANT_URL=http://qdrant:6333
+      - QDRANT_API_KEY=${QDRANT_API_KEY:-qdrant_secure_key}
+      - COLLECTION_NAME=${QDRANT_COLLECTION:-nyra}
+      - EMBEDDING_PROVIDER=fastembed
+      - EMBEDDING_MODEL=sentence-transformers/all-MiniLM-L6-v2
+      - FASTMCP_PORT=8066
+      - FASTMCP_HOST=0.0.0.0
+    depends_on:
+      qdrant:
+        condition: service_healthy
+    ports:
+      - "${QDRANT_MCP_PORT:-8066}:8066"
+    networks:
+      - nyra-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8066/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 1G
+        reservations:
+          cpus: '0.25'
+          memory: 512M
+
+  # ==========================================================================
+  # MetaMCP - Universal MCP gateway and routing
+  # ==========================================================================
+  metamcp:
+    image: ghcr.io/metatool-ai/metamcp:latest
+    container_name: nyra-metamcp
+    restart: unless-stopped
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-nyra_user}:${POSTGRES_PASSWORD:-nyra_secure_password}@postgres:5432/${METAMCP_DB:-metamcp}
+      - PORT=12008
+      - GRPC_PORT=12005
+    volumes:
+      - metamcp_pg_data:/var/lib/postgresql/data
+      - ../../configs/metamcp/servers.json:/app/servers.json:ro
+      - ../../configs/metamcp/namespaces.json:/app/namespaces.json:ro
+      - ../../configs/metamcp/endpoints.json:/app/endpoints.json:ro
+    ports:
+      - "${METAMCP_PORT:-12008}:12008"
+      - "${METAMCP_GRPC_PORT:-12005}:12005"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - nyra-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:12008/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
