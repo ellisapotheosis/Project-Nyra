@@ -3,8 +3,6 @@ packages:
   - services/*
   - mcp-servers/*
   - packages/*
-  - submodules/claude-flow
-  - submodules/archon
 
 onlyBuiltDependencies:
   - '@prisma/client'
