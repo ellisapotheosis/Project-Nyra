@@ -94,11 +94,6 @@ export function metricsTracker(req: Request, res: Response, next: NextFunction):
  * Get provider from request
  */
 function getProviderFromRequest(req: Request): string {
-  // Try to get from response locals (set by routing logic)
-  if (res.locals?.provider) {
-    return res.locals.provider;
-  }
-
   // Try to get from request body
   if (req.body?.provider) {
     return req.body.provider;

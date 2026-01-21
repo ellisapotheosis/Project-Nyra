@@ -17,14 +17,18 @@
   },
 
   "memory": {
-    "type": "hybrid",
+    "backend": "hybrid",
     "path": "./data",
     "maxEntries": 50000,
     "ttl": 604800,
     "hnsw": {
-      "m": 32,
-      "ef": 400,
-      "efConstruction": 400
+      "enabled": true,
+      "efConstruction": 200,
+      "m": 16
+    },
+    "quantization": {
+      "enabled": true,
+      "bits": 8
     },
     "encryption": {
       "enabled": false,
@@ -36,6 +40,8 @@
     "topology": "hierarchical-mesh",
     "maxAgents": 35,
     "strategy": "specialized",
+    "consensus": "raft",
+    "autoScale": true,
     "heartbeatInterval": 3000,
     "taskQueueSize": 200
   },
@@ -59,6 +65,7 @@
   },
 
   "mcp": {
+    "enabled": true,
     "transport": "stdio",
     "port": 3000,
     "host": "localhost"
@@ -68,8 +75,7 @@
     "enabled": true,
     "sona": {
       "enabled": true,
-      "adaptationTime": 0.05,
-      "learningRate": 0.001
+      "adaptationRate": 0.001
     },
     "ewc": {
       "enabled": true,
@@ -78,7 +84,7 @@
     },
     "moe": {
       "enabled": true,
-      "experts": 12,
+      "expertCount": 12,
       "topK": 3,
       "loadBalancing": true
     },
@@ -148,7 +154,21 @@
   "hooks": {
     "enabled": true,
     "learning": true,
-    "pretrainOnStart": true
+    "pretrainOnStart": true,
+    "preTask": true,
+    "postTask": true,
+    "preEdit": true,
+    "postEdit": true,
+    "route": true,
+    "intelligence": true,
+    "daemon": {
+      "enabled": true,
+      "port": 3001
+    },
+    "workers": {
+      "enabled": true,
+      "maxWorkers": 4
+    }
   },
 
   "update": {
