@@ -1,4 +1,55 @@
-# Claude Code Configuration - Claude Flow V3
+# Project Nyra - Claude Code Configuration (Claude Flow V3)
+
+> **AI-Powered Mortgage Automation Platform**
+> Multi-agent orchestration for mortgage operations with strict compliance requirements
+
+## 🏠 PROJECT CONTEXT
+
+**Mission**: AI-powered mortgage brokerage automation handling lead-to-close workflows with 80% reduction in manual work.
+
+**Domain**: Mortgage operations including lead intake, quote generation, document processing, drip campaigns, compliance validation, and borrower assistance.
+
+**Architecture**: Dual-orchestrator system combining Claude Flow (planning/SPARC) with Archon OS (task execution) serving mortgage brokerage with ~100-500 monthly leads.
+
+**Infrastructure**: 4-PC local LAN cluster (1 orchestrator mini + 3 GPU workers with RTX 5090/3090/3060) running local LLMs via Ollama with cloud fallback.
+
+### 🔒 Locked Architecture Components
+
+**DO NOT MODIFY** these finalized decisions:
+
+| Component | Technology | Port | Purpose |
+|-----------|-----------|------|---------|
+| **LLM Gateway** | Nexus Router + LiteLLM | 6000 | Model routing, OpenRouter integration |
+| **CRM** | TwentyCRM | 3000 | System of record for leads/pipeline |
+| **Memory** | Letta + Graphiti + Mem0 + RuVector | Multiple | Multi-system memory architecture |
+| **Workflows** | n8n + Activepieces | 5678 | Campaign automation, integrations |
+| **Chat UI** | Dify | 3001 | Borrower-facing chat interface |
+| **Observability** | Prometheus + Grafana + Loki | 9090/3005/3100 | Monitoring stack |
+
+### 📚 Documentation References
+
+- **Whitepaper**: `ToDo/whitepaper-workflow/nyra-mcp-infisical-patchkit-v1/docs/whitepaper/WHITEPAPER.md`
+- **Architecture**: `ToDo/whitepaper-workflow/nyra-mcp-infisical-patchkit-v1/docs/whitepaper/ARCHITECTURE.md`
+- **SPARC Workflows**: `ToDo/whitepaper-workflow/Nyra-Truth-and-Standards/MORTGAGE-SPARC-WORKFLOWS.md`
+- **Capabilities**: `.claude-flow/CAPABILITIES.md`
+
+### 🎯 Mortgage-Specific Requirements
+
+**Compliance-First Development**: Every mortgage feature MUST include:
+- TILA/RESPA/TRID disclosure validation
+- Anti-steering policy enforcement
+- Fair lending law compliance
+- State-specific regulations (50 states)
+- CFPB examination standards
+
+**Domain-Specific Agents**:
+- `mortgage-quote-agent` - Rate calculation, lender comparison
+- `loan-qualification-agent` - DTI, credit, eligibility analysis
+- `document-processor-agent` - OCR, validation, extraction
+- `compliance-agent` - Regulatory verification
+- `borrower-communication-agent` - Email, SMS, call automation
+
+---
 
 ## 🚨 AUTOMATIC SWARM ORCHESTRATION
 
@@ -267,6 +318,79 @@ Bash("npx @claude-flow/cli@latest hooks worker dispatch --trigger optimize")
 - `/config` - Configuration files
 - `/scripts` - Utility scripts
 - `/examples` - Example code
+- `/apps` - Frontend applications (Next.js/React)
+- `/services` - Backend microservices (FastAPI/NestJS)
+- `/mcp-servers` - MCP server implementations
+- `/infra` - Infrastructure as Code (Docker, K8s, Terraform)
+
+### 🏗️ Polyglot Architecture
+
+Project Nyra uses multiple languages requiring component-level CLAUDE.md files:
+
+**Python Services (FastAPI)**:
+- Location: `/services/quote-api`, `/services/quote-engine`, `/services/campaign-engine`
+- CLAUDE.md: Include FastAPI patterns, Pydantic models, async/await, pytest strategies
+- Pattern: Mesh topology for data processing
+- Example: `services/quote-engine/.claude/CLAUDE.md`
+
+**TypeScript Applications (Next.js/React)**:
+- Location: `/apps/ratehunter`, `/apps/nyra-admin`
+- CLAUDE.md: Include Server Components, tRPC, Zustand, Tailwind patterns
+- Pattern: Star topology for type propagation
+- Example: `apps/ratehunter/.claude/CLAUDE.md`
+
+**Node.js Services (NestJS)**:
+- Location: `/services/nyra-orchestrator`
+- CLAUDE.md: Include modules, providers, dependency injection patterns
+- Pattern: Hierarchical with domain-driven design
+- Example: `services/nyra-orchestrator/.claude/CLAUDE.md`
+
+### 🧠 Memory System Integration
+
+Project Nyra uses **5 memory systems** with specific use cases:
+
+#### Memory Priority Order
+1. **RuVector** (Primary) - Fast vector search, code retrieval, document similarity
+2. **Letta** - Conversational memory, agent state, task context
+3. **Graphiti** - Temporal knowledge graphs, relationship tracking, loan evolution
+4. **Mem0** - User personalization, borrower preferences across apps
+5. **OpenMemory** - Shared collaborative memory, team knowledge
+
+#### When to Use Each System
+
+| Use Case | System | Command |
+|----------|--------|---------|
+| Find similar mortgage quotes | RuVector | `ruvector_search(query, k=5)` |
+| Remember borrower conversation | Letta | `letta_update_memory(agent_id, content)` |
+| Track loan status changes | Graphiti | `graphiti_get_evolution(loan_id, timerange)` |
+| Store borrower preferences | Mem0 | `mem0_update_profile(borrower_id, prefs)` |
+| Share compliance patterns | OpenMemory | `openmemory_share(pattern, agents)` |
+| Search mortgage documents | RuVector | `ruvector_index(doc, metadata)` |
+| Query relationship history | Graphiti | `graphiti_query(cypher_query)` |
+
+#### Memory Coordination Pattern
+
+```bash
+# Before any mortgage task, check relevant memory
+npx @claude-flow/cli@latest memory search --query "conventional loan qualification" --namespace mortgage-patterns
+
+# After successful task, store pattern
+npx @claude-flow/cli@latest memory store --key "pattern-dti-calculation" --value "Verified DTI formula with CFPB guidelines" --namespace mortgage-patterns
+
+# Update agent memory
+letta_update_memory(borrower_agent_id, {
+  last_quote_amount: 350000,
+  preferred_loan_type: "conventional",
+  target_down_payment: 20
+})
+
+# Track in knowledge graph
+graphiti_add_node({
+  type: "MortgageQuote",
+  properties: { amount, rate, lender },
+  relationships: [{ type: "QUOTED_FOR", targetId: borrower_id }]
+})
+```
 
 ## Project Config (Anti-Drift Defaults)
 
@@ -675,6 +799,129 @@ npx @claude-flow/cli@latest memory init --force --verbose
 
 **KEY**: CLI coordinates the strategy via Bash, Claude Code's Task tool executes with real agents.
 
+## 🖥️ Local LLM Infrastructure
+
+### GPU Worker Cluster
+
+Project Nyra uses a **local-first LLM strategy** with 3 GPU workers:
+
+| Worker | GPU | VRAM | Models | Purpose |
+|--------|-----|------|--------|---------|
+| **Worker-5090** | RTX 5090 | 48GB | DeepSeek-R1 236B, Qwen 2.5 72B | Complex reasoning, compliance analysis |
+| **Worker-3090** | RTX 3090 Ti | 24GB | Llama 3.1 70B, Mistral Large 123B | General purpose, quote generation |
+| **Worker-3060** | RTX 3060 | 12GB | CodeLlama 34B, Qwen 32B, Gemma 2 27B | Document processing, embeddings |
+
+**LLM Routing Strategy**:
+1. **Local-First**: Route 80%+ requests to GPU workers via Ollama
+2. **Cloud Fallback**: OpenRouter DeepSeek-R1 for overflow
+3. **Critical Tasks**: Anthropic Claude Sonnet 4 for compliance, legal, complex mortgage logic
+
+**Cost Optimization**:
+- Local inference: $0/request (electricity only)
+- DeepSeek-R1: $0.14/1M input, $0.55/1M output (99% cheaper than GPT-4)
+- Claude Sonnet 4: Reserve for high-stakes decisions only
+
+### Accessing GPU Workers
+
+```bash
+# Check worker availability
+curl http://worker-5090.tail-net.ts.net:11434/v1/models
+curl http://worker-3090.tail-net.ts.net:11434/v1/models
+curl http://worker-3060.tail-net.ts.net:11434/v1/models
+
+# Route via Nexus
+curl -X POST http://localhost:6000/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "ollama/deepseek-r1:236b",
+    "messages": [{"role": "user", "content": "Calculate DTI for income $8000, debts $3000"}]
+  }'
+```
+
+## 🎯 Nyra-Specific Performance Targets
+
+### Business Metrics
+| Metric | Target | Monitoring |
+|--------|--------|------------|
+| Lead conversion rate | >15% | TwentyCRM pipeline |
+| Time to quote generation | <2 minutes | Quote API metrics |
+| Documents processed/hour | >50 | Document processor logs |
+| Email/SMS open rates | >40% | Campaign engine analytics |
+| Borrower satisfaction | >4.5/5 | Dify chat feedback |
+
+### Technical Metrics
+| Metric | Target | Tool |
+|--------|--------|------|
+| API response time (p95) | <200ms | Prometheus |
+| LLM routing local vs cloud | >80% local | Nexus logs |
+| Memory system read latency | <50ms | AgentDB metrics |
+| Agent task completion rate | >95% | Claude Flow dashboard |
+| System uptime | >99.9% | Grafana alerts |
+
+### Compliance Metrics
+| Metric | Target | Tool |
+|--------|--------|------|
+| Disclosure generation success | 100% | Compliance agent logs |
+| Audit log completeness | 100% | Loki queries |
+| TRID timeline adherence | 100% | Campaign engine validation |
+| Data encryption coverage | 100% PII | Security scan |
+
+## 🏠 Mortgage Workflow Examples
+
+### Lead-to-Quote Workflow
+```bash
+# 1. Initialize swarm for new lead
+npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 6 --strategy specialized
+
+# 2. Spawn mortgage workflow agents (in ONE message)
+Task({
+  prompt: "Analyze lead data, check credit requirements, store borrower profile in Letta and Mem0",
+  subagent_type: "loan-qualification-agent",
+  description: "Qualify borrower for loan types",
+  run_in_background: true
+})
+Task({
+  prompt: "Generate multi-lender quote using Rocket Mortgage and LenderPrice APIs, store in RuVector",
+  subagent_type: "mortgage-quote-agent",
+  description: "Create mortgage quote",
+  run_in_background: true
+})
+Task({
+  prompt: "Validate TILA/RESPA disclosure requirements, check state regulations",
+  subagent_type: "compliance-agent",
+  description: "Compliance validation",
+  run_in_background: true
+})
+Task({
+  prompt: "Create Graphiti knowledge graph relationships: Lead → Borrower → Quote",
+  subagent_type: "memory-specialist",
+  description: "Memory coordination",
+  run_in_background: true
+})
+
+# 3. Agents work in parallel, coordinator synthesizes results
+```
+
+### Document Processing Workflow
+```bash
+# Process borrower documents with OCR and validation
+npx @claude-flow/cli@latest workflow run document-processing \
+  --borrower-id 12345 \
+  --files "paystub.pdf,w2.pdf,bank_statement.pdf" \
+  --agents "document-processor-agent,compliance-agent" \
+  --parallel true
+```
+
+### Drip Campaign Workflow
+```bash
+# Start automated drip sequence
+npx @claude-flow/cli@latest workflow run drip-campaign \
+  --borrower-id 12345 \
+  --sequence "pre-approval-nurture" \
+  --channels "email,sms" \
+  --compliance-check true
+```
+
 ## 📚 Full Capabilities Reference
 
 For a comprehensive overview of all Claude Flow V3 features, agents, commands, and integrations, see:
@@ -690,21 +937,123 @@ This includes:
 - Integration ecosystem (agentic-flow, agentdb, ruv-swarm, flow-nexus, agentic-jujutsu)
 - Performance targets and status
 
-## Support
+### Component-Specific Documentation
 
-- Documentation: https://github.com/ruvnet/claude-flow
-- Issues: https://github.com/ruvnet/claude-flow/issues
+Each service and application has its own CLAUDE.md:
+
+**Backend Services**:
+- `services/quote-engine/.claude/CLAUDE.md` - FastAPI quote calculations
+- `services/campaign-engine/.claude/CLAUDE.md` - NestJS drip automation
+- `services/nyra-orchestrator/.claude/CLAUDE.md` - Multi-agent coordination
+- `services/mem0-rest/.claude/CLAUDE.md` - Memory REST API
+
+**Frontend Applications**:
+- `apps/ratehunter/.claude/CLAUDE.md` - Next.js public rate site
+- `apps/nyra-admin/.claude/CLAUDE.md` - React admin dashboard
+- `apps/mortgage-assistant/.claude/CLAUDE.md` - Dify chat interface
+
+**MCP Servers**:
+- `mcp-servers/letta/.claude/CLAUDE.md` - Letta memory integration
+- `mcp-servers/graphiti/.claude/CLAUDE.md` - Temporal knowledge graphs
+- `mcp-servers/ruvector/.claude/CLAUDE.md` - Vector search server
+
+**Infrastructure**:
+- `infra/docker/.claude/CLAUDE.md` - Docker Compose patterns
+- `infra/kubernetes/.claude/CLAUDE.md` - K8s deployment
+
+## 🏆 Development Priorities
+
+### Phase 1: Core Infrastructure (Week 1)
+- All Docker services healthy and networked
+- Nexus Router routing to all 3 LLM providers
+- TwentyCRM initialized with test data
+- Observability dashboards showing metrics
+
+### Phase 2: Business Services (Week 2)
+- Quote Engine calculating rates accurately
+- Campaign Engine integrating with n8n + Twilio
+- Nyra Orchestrator validating compliance
+- All services with comprehensive health checks
+
+### Phase 3: Frontend Applications (Week 3)
+- RateHunter public site with rate calculator
+- Nyra Admin dashboard with lead management
+- Dify chat interface embedded in both apps
+- Mobile-responsive design throughout
+
+### Phase 4: Integration & Testing (Week 4)
+- LendingTree/FreeRateUpdate API integration
+- Twilio SMS/voice/email working
+- Full workflow testing (lead → quote → campaign → conversion)
+- 90%+ test coverage
+
+## 📚 Support & Resources
+
+### Claude Flow V3
+- **Documentation**: https://github.com/ruvnet/claude-flow
+- **Issues**: https://github.com/ruvnet/claude-flow/issues
+- **Capabilities**: `.claude-flow/CAPABILITIES.md`
+
+### Project Nyra
+- **Whitepaper**: `ToDo/whitepaper-workflow/nyra-mcp-infisical-patchkit-v1/docs/whitepaper/WHITEPAPER.md`
+- **Architecture**: `ToDo/whitepaper-workflow/nyra-mcp-infisical-patchkit-v1/docs/whitepaper/ARCHITECTURE.md`
+- **SPARC Workflows**: `ToDo/whitepaper-workflow/Nyra-Truth-and-Standards/MORTGAGE-SPARC-WORKFLOWS.md`
+- **Compliance Guide**: `ToDo/whitepaper-workflow/nyra-mcp-infisical-patchkit-v1/docs/COMPLIANCE_GUARDRAILS.md`
+- **Stack Decisions**: `ToDo/whitepaper-workflow/nyra-mcp-infisical-patchkit-v1/docs/STACK_DECISIONS.md`
+
+### MCP Integrations
+- **Nexus Router**: https://nexusrouter.com/docs
+- **Dify**: https://docs.dify.ai/en/use-dify/build/mcp
+- **Activepieces**: https://www.activepieces.com/blog/model-context-protocol-mcp
+- **Graphiti**: https://help.getzep.com/graphiti/getting-started/mcp-server
+- **Letta**: https://docs.letta.com/advanced/memory-management/
+
+### Quick Reference Commands
+
+```bash
+# System health check
+npx @claude-flow/cli@latest doctor --fix
+
+# Initialize memory systems
+npx @claude-flow/cli@latest memory init --all-systems
+
+# Start daemon with background workers
+npx @claude-flow/cli@latest daemon start
+
+# Spawn swarm for mortgage workflow
+npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 8
+
+# Check GPU workers
+curl http://worker-5090.tail-net.ts.net:11434/v1/models
+
+# View system status
+npx @claude-flow/cli@latest status --watch
+
+# Search memory for patterns
+npx @claude-flow/cli@latest memory search --query "mortgage patterns" --namespace patterns
+```
 
 ---
 
-Remember: **Claude Flow CLI coordinates, Claude Code Task tool creates!**
+**Remember: Claude Flow CLI coordinates, Claude Code Task tool creates!**
 
-# important-instruction-reminders
-Do what has been asked; nothing more, nothing less.
-NEVER create files unless they're absolutely necessary for achieving your goal.
-ALWAYS prefer editing an existing file to creating a new one.
-NEVER proactively create documentation files (*.md) or README files. Only create documentation files if explicitly requested by the User.
-Never save working files, text/mds and tests to the root folder.
+---
+
+# IMPORTANT INSTRUCTION REMINDERS
+
+## Core Principles
+1. **Do what has been asked; nothing more, nothing less.**
+2. **NEVER create files unless absolutely necessary for achieving your goal.**
+3. **ALWAYS prefer editing an existing file to creating a new one.**
+4. **NEVER proactively create documentation files (*.md) or README files.** Only create documentation files if explicitly requested by the User.
+5. **Never save working files, text/mds and tests to the root folder.** Use appropriate subdirectories (`/docs`, `/tests`, `/apps`, `/services`, etc.).
+
+## Mortgage Domain Rules
+6. **Every mortgage feature MUST include compliance validation** (TILA, RESPA, TRID, state regulations).
+7. **DO NOT MODIFY locked architecture components** without explicit approval (Nexus, TwentyCRM, Dify, n8n, Letta, Graphiti).
+8. **Use local LLMs first** (80%+ on GPU workers), fallback to cloud only when necessary.
+9. **Store all sensitive borrower data encrypted** (SSN, income, credit scores, financial documents).
+10. **Maintain complete audit trails** for all mortgage operations (quotes, disclosures, communications).
 
 ## 🚨 SWARM EXECUTION RULES (CRITICAL)
 1. **SPAWN IN BACKGROUND**: Use `run_in_background: true` for all agent Task calls

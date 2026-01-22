@@ -69,7 +69,7 @@ services:
     environment:
       - WORKER_ID=worker-rtx3060
       - GPU_TYPE=rtx_3060
-      - VRAM_GB=6
+      - VRAM_GB=12
       - OLLAMA_API_BASE=http://ollama:11434
       - SPECIALIZATION=code
     volumes:

@@ -130,5 +130,8 @@
   "dependencies": {
     "@claude-flow/cli": "3.0.0-alpha.104",
     "agentic-jujutsu": "^2.3.6"
+  },
+  "volta": {
+    "node": "22.22.0"
   }
 }

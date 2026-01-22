@@ -21,9 +21,9 @@ orchestrator:
         noTLSVerify: true
         connectTimeout: 30s
 
-    # MetaMCP Gateway
+    # Nexus Router Gateway (Unified MCP + LLM)
     - hostname: "mcp.ratehunter.net"
-      service: "http://metamcp-gateway-enhanced:8005"
+      service: "http://nexus-router:6000"
       originRequest:
         noTLSVerify: true
         connectTimeout: 30s

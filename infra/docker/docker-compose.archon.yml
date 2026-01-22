@@ -2,6 +2,9 @@
 # Full Archon system routed through Nexus Router
 
 services:
+  # Note: Using shared nyra-postgres container (defined in docker-compose.base.yml)
+  # Archon tables have been migrated to nyra_production database
+
   # Archon Server - FastAPI Backend with RAG
   archon-server:
     build:
@@ -49,6 +52,9 @@ services:
       - archon-data:/app/data
       - ../../tools/archon/python/src:/app/src:ro  # Hot reload in dev
       - ../../tools/archon/migration:/app/migration:ro
+    depends_on:
+      archon-postgres:
+        condition: service_healthy
     extra_hosts:
       - "host.docker.internal:host-gateway"
     healthcheck:
@@ -75,9 +81,10 @@ services:
     ports:
       - "8051:8051"
     environment:
-      # Supabase Configuration
-      - SUPABASE_URL=${SUPABASE_URL}
-      - SUPABASE_SERVICE_KEY=${SUPABASE_SERVICE_KEY}
+      # Database Configuration (using shared nyra-postgres)
+      - SUPABASE_URL=postgresql://nyra:k5yfv1CJQxDeBr40NobmuAV3ISWi2zwT@nyra-postgres:5432/nyra_production
+      - SUPABASE_SERVICE_KEY=${SUPABASE_SERVICE_KEY:-local-postgres-no-jwt}
+      - DATABASE_URL=postgresql://nyra:k5yfv1CJQxDeBr40NobmuAV3ISWi2zwT@nyra-postgres:5432/nyra_production
 
       # Service Discovery
       - SERVICE_DISCOVERY_MODE=docker_compose
@@ -102,6 +109,8 @@ services:
       - nyra-mcp
       - nyra-core
     depends_on:
+      postgres:
+        condition: service_healthy
       archon-server:
         condition: service_healthy
     extra_hosts:
@@ -176,9 +185,9 @@ services:
     ports:
       - "8052:8052"
     environment:
-      # Supabase Configuration
-      - SUPABASE_URL=${SUPABASE_URL}
-      - SUPABASE_SERVICE_KEY=${SUPABASE_SERVICE_KEY}
+      # Database Configuration (using shared nyra-postgres)
+      - SUPABASE_URL=postgresql://nyra:k5yfv1CJQxDeBr40NobmuAV3ISWi2zwT@nyra-postgres:5432/nyra_production
+      - SUPABASE_SERVICE_KEY=${SUPABASE_SERVICE_KEY:-local-postgres-no-jwt}
 
       # LLM Configuration
       - OPENAI_API_KEY=${OPENAI_API_KEY:-}

@@ -448,6 +448,12 @@ See **[Docker Canonical Design](../docs/architecture/docker-canonical-design.md)
 
 ---
 
-**Last Updated**: 2026-01-18
-**Version**: 1.0.0 (Consolidated)
+**Last Updated**: 2026-01-21
+**Version**: 1.0.1 (Documentation Update)
 **Maintainer**: Project Nyra Team
+
+**Key Documentation:**
+- [Architecture Overview](../docs/architecture/ARCHITECTURE-OVERVIEW.md) - Complete system architecture
+- [4-PC Distributed Architecture](../docs/architecture/4PC-DISTRIBUTED-ARCHITECTURE.md) - Multi-PC deployment guide
+- [Project Whitepaper](../docs/WHITEPAPER.md) - Business case and ROI analysis
+- [Infisical Secrets Management](../docs/deployment/INFISICAL-SECRETS-REFERENCE.md) - Secrets configuration

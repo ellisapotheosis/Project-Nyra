@@ -226,13 +226,7 @@
     },
 
     "gateway_routers": {
-      "metamcp": {
-        "type": "http",
-        "url": "http://localhost:12008/mcp",
-        "tags": ["gateway", "router"],
-        "priority": 3,
-        "note": "Redundant with nexus router - consider disabling"
-      }
+      "note": "Nexus Router serves as the unified gateway - no additional gateways needed"
     }
   },
 
@@ -264,7 +258,7 @@
     },
     "failover": {
       "enabled": true,
-      "backup_servers": ["metamcp", "claude-flow"],
+      "backup_servers": ["claude-flow", "archon"],
       "circuit_breaker": true
     }
   },

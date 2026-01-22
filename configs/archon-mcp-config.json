@@ -107,10 +107,11 @@
           "syncInterval": 1000,
           "memorySharing": true
         },
-        "metaMcp": {
+        "nexusRouter": {
           "enabled": true,
           "registration": "automatic",
-          "healthReporting": true
+          "healthReporting": true,
+          "note": "Uses Nexus Router unified gateway (replaces MetaMCP per ADR-002)"
         },
         "nyraOrchestrator": {
           "enabled": true,

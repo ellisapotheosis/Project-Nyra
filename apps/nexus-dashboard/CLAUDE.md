@@ -32,20 +32,85 @@ pnpm type-check
 pnpm lint
 ```
 
-## 🧠 Claude Flow Integration
+## 🧠 Claude Flow V3 Integration
+
+### 3-Tier Model Routing (ADR-026)
+
+Before spawning agents, get routing recommendation:
+```bash
+npx @claude-flow/cli@latest hooks pre-task \
+  --description "Dashboard component development task"
+```
+
+Use recommended model in development:
+- **Tier 1 (Agent Booster)**: Simple UI tweaks (var→const, styling)
+- **Tier 2 (Haiku)**: Component updates, bug fixes
+- **Tier 3 (Sonnet)**: Complex features, architecture changes
 
 ### Available Agents
 
-- coder
-- reviewer
-- tester
+- **coder**: Component implementation
+- **reviewer**: Code quality and security review
+- **tester**: Component and integration testing
+- **performance-engineer**: Dashboard optimization
 
 ### Recommended Workflows
 
-- Component development
-- UI/UX improvements
-- Performance optimization
-- Feature additions
+**1. New Dashboard Feature**
+```bash
+# Initialize hierarchical swarm
+npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 4 --strategy specialized
+
+# Store context
+npx @claude-flow/cli@latest memory store \
+  --namespace dashboard \
+  --key "feature/[name]" \
+  --value "Dashboard feature requirements and design"
+```
+
+**2. Performance Optimization**
+```bash
+# Run performance benchmark
+npx @claude-flow/cli@latest performance benchmark --suite dashboard
+
+# Store optimization results
+npx @claude-flow/cli@latest hooks post-task \
+  --task-id "perf-opt-001" \
+  --success true \
+  --store-results true
+```
+
+**3. Real-Time Data Integration**
+```bash
+# Search for WebSocket patterns
+npx @claude-flow/cli@latest memory search \
+  --query "websocket real-time dashboard" \
+  --namespace patterns
+```
+
+### Auto-Learning Protocol
+
+**Before Development**:
+```bash
+# Search memory for relevant patterns
+npx @claude-flow/cli@latest memory search \
+  --query "dashboard component [feature]" \
+  --namespace patterns
+```
+
+**After Successful Implementation**:
+```bash
+# Store successful pattern
+npx @claude-flow/cli@latest memory store \
+  --namespace patterns \
+  --key "dashboard-success-$(date +%Y%m%d)" \
+  --value "Successfully implemented [feature] in Nexus Dashboard"
+
+# Train neural patterns
+npx @claude-flow/cli@latest hooks post-edit \
+  --file "src/components/[component].tsx" \
+  --train-neural true
+```
 
 ---
 
@@ -250,6 +315,32 @@ useEffect(() => {
 
 ---
 
+## 🔄 Integration with Nexus Router
+
+### API Endpoints
+- **Nexus Router**: http://localhost:8000
+- **WebSocket**: ws://localhost:8000/ws
+- **Health Check**: http://localhost:8000/health
+
+### Data Flow
+```
+Nexus Dashboard (3005) ←→ Nexus Router (8000) ←→ LLM Providers
+                              ↓
+                         Metrics & Logs
+```
+
+### Real-Time Monitoring
+- WebSocket connection for live metrics
+- Auto-reconnect on connection loss
+- Fallback to polling if WebSocket unavailable
+- Performance metrics updated every 5 seconds
+
+## 📚 Related Documentation
+
+- **Root CLAUDE.md**: V3 orchestration patterns
+- **apps/web/CLAUDE.md**: Web application ecosystem
+- **Nexus Router API**: Backend routing documentation
+
 ## 📝 Notes
 
 - Dashboard connects to Nexus Router on port 8000
@@ -257,3 +348,4 @@ useEffect(() => {
 - OKLCH color space for better perceptual uniformity
 - Fully responsive design
 - Production-ready with error handling
+- Integrated with Claude Flow V3 hooks and memory systems

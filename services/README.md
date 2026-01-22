@@ -686,4 +686,10 @@ curl -v http://localhost:3100/health
 
 ---
 
-**Last Updated:** January 10, 2026
+**Last Updated:** January 21, 2026
+
+**References:**
+- [Architecture Overview](../docs/architecture/ARCHITECTURE-OVERVIEW.md) - Complete system design
+- [API Contracts](../docs/architecture/api-contracts.md) - Service interface specifications
+- [4-PC Distributed Architecture](../docs/architecture/4PC-DISTRIBUTED-ARCHITECTURE.md) - Deployment architecture
+- [Project Whitepaper](../docs/WHITEPAPER.md) - Business case and technical details

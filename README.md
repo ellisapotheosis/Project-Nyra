@@ -70,7 +70,7 @@ Project Nyra is an intelligent mortgage automation platform that combines:
 
 **Current Phase:** Phase 3 - Dual Orchestration Integration (Claude Flow + Archon OS)
 
-**Last Updated:** January 9, 2026
+**Last Updated:** January 21, 2026
 
 **Active Development:**
 - Multi-agent swarm coordination
@@ -192,6 +192,8 @@ Executed by a **15-agent swarm** using hierarchical coordination:
 
 ### Getting Started
 - **[Bootstrap Installation](bootstrap/README.md)** - GUI installer and setup guide
+- **[Project Whitepaper](docs/WHITEPAPER.md)** - Complete system architecture and business case
+- **[SPARC Specifications](docs/SPARC-SPECIFICATIONS.md)** - Development methodology and workflow
 - [Quick Start Guide](docs/deployment/QUICK-START.md) - Get up and running in 10 minutes
 - [Local Development (Windows)](docs/deployment/LOCAL-DEV-WINDOWS.md) - Windows development setup
 - [Linux Deployment](docs/deployment/LINUX-ORCHESTRATOR-DEPLOY.md) - Linux production deployment
@@ -199,11 +201,13 @@ Executed by a **15-agent swarm** using hierarchical coordination:
 - **[Configuration Templates](bootstrap/configs/README.md)** - Pre-built configuration files
 
 ### Architecture
-- [System Architecture](docs/architecture/system-architecture.md) - Complete architectural overview
+- **[Architecture Overview](docs/architecture/ARCHITECTURE-OVERVIEW.md)** - Complete system design (Level 1 & 2 diagrams)
+- [System Architecture](docs/architecture/system-architecture.md) - Detailed architectural specifications
 - **[4-PC Distributed Architecture](docs/architecture/4PC-DISTRIBUTED-ARCHITECTURE.md)** - Multi-PC deployment with GPU workers
-- [Dual Orchestrator Design](docs/architecture/DUAL-ORCHESTRATOR-ARCHITECTURE.md) - Claude Flow + Archon OS integration
-- [Memory Systems](docs/architecture/memory-systems.md) - Agent memory architecture
+- [Dual Orchestrator Design](docs/architecture/DUAL-ORCHESTRATOR-ARCHITECTURE.md)** - Claude Flow + Archon OS integration
+- [Memory Systems](docs/architecture/memory-systems.md) - Agent memory architecture (Letta, Mem0, Graphiti, Qdrant)
 - [API Contracts](docs/architecture/api-contracts.md) - Service interfaces
+- **[Architecture Decisions](docs/architecture/ARCHITECTURE-DECISIONS.md)** - ADRs and technology choices
 
 ### Development
 - [Apps Overview](apps/README.md) - Frontend applications guide
@@ -216,7 +220,7 @@ Executed by a **15-agent swarm** using hierarchical coordination:
 - **[Environment Variables Guide](docs/operations/ENV-VARIABLE-GUIDE.md)** - Complete environment configuration
 - **[Docker Usage Guide](infra/docker/USAGE-GUIDE.md)** - Docker deployment patterns
 - [Deployment Status](docs/deployment/DEPLOYMENT-STATUS.md) - Current deployment state
-- [Secrets Management](docs/deployment/INFISICAL-SECRETS-REFERENCE.md) - Secrets configuration
+- **[Infisical Secrets](docs/deployment/INFISICAL-SECRETS-REFERENCE.md)** - Secrets management with Infisical
 - [MCP Server Setup](docs/deployment/MCP-SERVER-SETUP.md) - Model Context Protocol setup
 
 ## Technology Stack
@@ -256,7 +260,7 @@ Executed by a **15-agent swarm** using hierarchical coordination:
 - **Orchestration:** Kubernetes / Docker Compose
 - **Monitoring:** Prometheus + Grafana
 - **Logging:** Loki + ELK Stack
-- **Secrets:** Infisical
+- **Secrets:** Infisical (self-hosted secrets management)
 - **Tunneling:** Cloudflared (secure worker communication)
 
 ## Development Commands
@@ -567,4 +571,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 **Built with ❤️ by the Project Nyra Team**
 
-**Last Updated:** January 10, 2026
+**Last Updated:** January 21, 2026
