@@ -108,14 +108,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "npx @claude-flow/cli@3.0.0-alpha.104 hooks session-end --export-metrics true 2>/dev/null || true",
-            "timeout": 5000,
-            "continueOnError": true,
-            "name": "session-end-export"
-          },
-          {
-            "type": "command",
-            "command": "echo '{\"ok\": true}'",
+            "command": "echo '{\"ok\": true, \"session\": \"ended\"}'",
             "timeout": 1000
           }
         ]
