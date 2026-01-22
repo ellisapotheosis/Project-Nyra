@@ -3,17 +3,20 @@
     "version": "2.0.0",
     "description": "Comprehensive MCP Integration Architecture for Project-Nyra",
     "components": {
-      "metaMcpGateway": {
-        "name": "MetaMCP Gateway",
-        "role": "Proxy aggregator and service discovery",
-        "port": 8080,
+      "nexusRouter": {
+        "name": "Nexus Router Gateway",
+        "role": "Unified MCP + LLM gateway (replaces MetaMCP per ADR-002)",
+        "port": 6000,
         "features": [
-          "Service discovery and registration",
+          "Unified MCP server aggregation",
+          "Intelligent LLM routing with cost optimization",
           "Load balancing across MCP servers",
           "Health monitoring and status reporting",
           "Circuit breaker for failed services",
+          "Fuzzy tool matching and discovery",
           "Request routing and transformation",
-          "Authentication and authorization"
+          "Authentication and authorization",
+          "Integrated caching and rate limiting"
         ]
       },
       "archonMcp": {

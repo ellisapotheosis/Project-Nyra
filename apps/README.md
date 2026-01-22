@@ -772,4 +772,10 @@ pnpm run typecheck
 
 ---
 
-**Last Updated:** January 10, 2026
+**Last Updated:** January 21, 2026
+
+**References:**
+- [Architecture Overview](../docs/architecture/ARCHITECTURE-OVERVIEW.md) - System architecture and component design
+- [Project Whitepaper](../docs/WHITEPAPER.md) - Complete platform documentation
+- [Deployment Guide](../docs/deployment/README.md) - Production deployment instructions
+- [SPARC Specifications](../docs/SPARC-SPECIFICATIONS.md) - Development methodology

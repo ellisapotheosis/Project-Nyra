@@ -275,10 +275,11 @@
         }
       },
       "integration": {
-        "metamcp": {
+        "nexusRouter": {
           "enabled": true,
           "registration": "automatic",
-          "healthReporting": true
+          "healthReporting": true,
+          "note": "Uses Nexus Router unified gateway (replaces MetaMCP per ADR-002)"
         },
         "archonMcp": {
           "enabled": true,

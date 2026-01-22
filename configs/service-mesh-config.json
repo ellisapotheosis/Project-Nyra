@@ -11,16 +11,16 @@
       "loadBalancing": "round-robin+least-connections"
     },
     "services": {
-      "metamcp-gateway": {
-        "name": "MetaMCP Gateway",
-        "address": "localhost:8080",
+      "nexus-router": {
+        "name": "Nexus Router Gateway",
+        "address": "localhost:6000",
         "protocol": "http+stdio",
-        "role": "api-gateway",
+        "role": "unified-gateway",
         "dependencies": ["consul", "jaeger"],
         "sidecar": {
           "proxy": "envoy",
-          "port": 8180,
-          "config": "/etc/envoy/gateway.yaml"
+          "port": 6100,
+          "config": "/etc/envoy/nexus-router.yaml"
         }
       },
       "archon-mcp": {
