@@ -275,46 +275,46 @@ Phase 5: POST-INITIALIZATION (< 1s)
 
 ```bash
 # 1. Pre-task preparation
-npx claude-flow@alpha hooks pre-task --description "Implement ConfigManager and MemoryManager"
-npx claude-flow@alpha hooks session-restore --session-id "swarm-1767046360338"
+npx @claude-flow/cli@latest hooks pre-task --description "Implement ConfigManager and MemoryManager"
+npx @claude-flow/cli@latest hooks session-restore --session-id "swarm-1767046360338"
 
 # 2. Retrieve architecture
-npx claude-flow@alpha memory query "architecture" --namespace swarm --basic
+npx @claude-flow/cli@latest memory query "architecture" --namespace swarm --basic
 
 # 3. During implementation (after each file)
-npx claude-flow@alpha hooks post-edit --memory-key "swarm/code/ConfigManager"
+npx @claude-flow/cli@latest hooks post-edit --memory-key "swarm/code/ConfigManager"
 
 # 4. After Phase 1 complete
-npx claude-flow@alpha memory store "swarm/code/phase1" "Foundation complete. Files: ConfigManager.js, MemoryManager.js" --basic --namespace swarm
-npx claude-flow@alpha hooks notify --message "Phase 1 complete: ConfigManager + MemoryManager implemented"
-npx claude-flow@alpha hooks post-task --task-id "coder-phase1"
+npx @claude-flow/cli@latest memory store "swarm/code/phase1" "Foundation complete. Files: ConfigManager.js, MemoryManager.js" --basic --namespace swarm
+npx @claude-flow/cli@latest hooks notify --message "Phase 1 complete: ConfigManager + MemoryManager implemented"
+npx @claude-flow/cli@latest hooks post-task --task-id "coder-phase1"
 ```
 
 ### Tester Agent (Phase 4 Start)
 
 ```bash
 # 1. Pre-task preparation
-npx claude-flow@alpha hooks pre-task --description "Create comprehensive test suite"
+npx @claude-flow/cli@latest hooks pre-task --description "Create comprehensive test suite"
 
 # 2. Retrieve implementation
-npx claude-flow@alpha memory query "code" --namespace swarm --basic
+npx @claude-flow/cli@latest memory query "code" --namespace swarm --basic
 
 # 3. After tests complete
-npx claude-flow@alpha memory store "swarm/tests/coverage" "90%+ coverage achieved. Unit+Integration+E2E complete" --basic --namespace swarm
-npx claude-flow@alpha hooks notify --message "Test suite complete with 90%+ coverage"
+npx @claude-flow/cli@latest memory store "swarm/tests/coverage" "90%+ coverage achieved. Unit+Integration+E2E complete" --basic --namespace swarm
+npx @claude-flow/cli@latest hooks notify --message "Test suite complete with 90%+ coverage"
 ```
 
 ### Reviewer Agent (Phase 5 Start)
 
 ```bash
 # 1. Pre-task preparation
-npx claude-flow@alpha hooks pre-task --description "Code review and security audit"
+npx @claude-flow/cli@latest hooks pre-task --description "Code review and security audit"
 
 # 2. Retrieve all artifacts
-npx claude-flow@alpha memory query "code|tests" --namespace swarm --basic
+npx @claude-flow/cli@latest memory query "code|tests" --namespace swarm --basic
 
 # 3. After review complete
-npx claude-flow@alpha memory store "swarm/review/status" "Code approved. Security validated. Performance meets targets." --basic --namespace swarm
+npx @claude-flow/cli@latest memory store "swarm/review/status" "Code approved. Security validated. Performance meets targets." --basic --namespace swarm
 ```
 
 ---
@@ -415,7 +415,7 @@ project/
 
 ### Immediate Actions (Coder Agent)
 1. ✓ Read: `C:/Users/edane/docs/initialization-architecture.md`
-2. ✓ Query memory: `npx claude-flow@alpha memory query "architecture" --namespace swarm --basic`
+2. ✓ Query memory: `npx @claude-flow/cli@latest memory query "architecture" --namespace swarm --basic`
 3. → START: Implement ConfigManager.js (Phase 1)
 4. → CREATE: MemoryManager.js (Phase 1)
 5. → TEST: Unit tests for Phase 1
@@ -506,15 +506,15 @@ The initialization system architecture is **COMPLETE** and **PRODUCTION-READY**.
 ### Essential Commands
 ```bash
 # Query architecture
-npx claude-flow@alpha memory query "architecture" --namespace swarm --basic
+npx @claude-flow/cli@latest memory query "architecture" --namespace swarm --basic
 
 # Store progress
-npx claude-flow@alpha memory store "swarm/code/[component]" "[message]" --basic --namespace swarm
+npx @claude-flow/cli@latest memory store "swarm/code/[component]" "[message]" --basic --namespace swarm
 
 # Execute hooks
-npx claude-flow@alpha hooks pre-task --description "[task]"
-npx claude-flow@alpha hooks post-task --task-id "[task-id]"
-npx claude-flow@alpha hooks notify --message "[status]"
+npx @claude-flow/cli@latest hooks pre-task --description "[task]"
+npx @claude-flow/cli@latest hooks post-task --task-id "[task-id]"
+npx @claude-flow/cli@latest hooks notify --message "[status]"
 ```
 
 ### Essential Files

@@ -13,10 +13,10 @@ Claude Flow v2.0.0 introduces **automatic GitHub releases** for every checkpoint
 ### Quick Start
 ```bash
 # Standard init (local checkpoints only)
-npx claude-flow@alpha init
+npx @claude-flow/cli@latest init
 
 # GitHub-enhanced init (automatic releases)
-npx claude-flow@alpha github init
+npx @claude-flow/cli@latest github init
 ```
 
 ### Key Features

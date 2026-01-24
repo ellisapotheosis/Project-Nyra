@@ -61,7 +61,7 @@
 
 ### 1. Add MCP Server
 ```bash
-claude mcp add claude-flow npx claude-flow@alpha mcp start
+claude mcp add claude-flow npx @claude-flow/cli@latest mcp start
 ```
 
 ### 2. Key MCP Tools
@@ -83,20 +83,20 @@ claude mcp add claude-flow npx claude-flow@alpha mcp start
 
 **Before Starting:**
 ```bash
-npx claude-flow@alpha hooks pre-task --description "[task]"
-npx claude-flow@alpha hooks session-restore --session-id "swarm-[id]"
+npx @claude-flow/cli@latest hooks pre-task --description "[task]"
+npx @claude-flow/cli@latest hooks session-restore --session-id "swarm-[id]"
 ```
 
 **During Work:**
 ```bash
-npx claude-flow@alpha hooks post-edit --file "[file]" --memory-key "agent/[step]"
-npx claude-flow@alpha hooks notify --message "[decision]"
+npx @claude-flow/cli@latest hooks post-edit --file "[file]" --memory-key "agent/[step]"
+npx @claude-flow/cli@latest hooks notify --message "[decision]"
 ```
 
 **After Completion:**
 ```bash
-npx claude-flow@alpha hooks post-task --task-id "[task]" --analyze-performance true
-npx claude-flow@alpha hooks session-end --export-metrics true
+npx @claude-flow/cli@latest hooks post-task --task-id "[task]" --analyze-performance true
+npx @claude-flow/cli@latest hooks session-end --export-metrics true
 ```
 
 ## ⚡ Parallel Execution Examples

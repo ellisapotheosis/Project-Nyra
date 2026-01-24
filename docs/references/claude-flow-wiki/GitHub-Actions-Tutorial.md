@@ -68,7 +68,7 @@ jobs:
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
-          npx claude-flow@alpha swarm "analyze code quality" \
+          npx @claude-flow/cli@latest swarm "analyze code quality" \
             --output-format json \
             --output-file analysis.json
             
@@ -123,7 +123,7 @@ jobs:
           echo "${{ steps.changed-files.outputs.all_changed_files }}" > changed_files.txt
           
           # Run AI review
-          npx claude-flow@alpha swarm "review code changes in changed_files.txt for bugs, security issues, and improvements" \
+          npx @claude-flow/cli@latest swarm "review code changes in changed_files.txt for bugs, security issues, and improvements" \
             --agents 5 \
             --output-format json \
             --output-file review.json
@@ -203,7 +203,7 @@ jobs:
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
-          npx claude-flow@alpha swarm "analyze codebase for security vulnerabilities, check dependencies, review authentication" \
+          npx @claude-flow/cli@latest swarm "analyze codebase for security vulnerabilities, check dependencies, review authentication" \
             --agents 8 \
             --mode distributed \
             --output-format json \
@@ -312,7 +312,7 @@ jobs:
           for file in ${{ steps.new-code.outputs.all_changed_files }}; do
             echo "Generating tests for: $file"
             
-            npx claude-flow@alpha sparc tdd "create comprehensive unit tests for $file" \
+            npx @claude-flow/cli@latest sparc tdd "create comprehensive unit tests for $file" \
               --no-interactive \
               --output-format json \
               --output-file "test-${file//\//-}.json"
@@ -386,7 +386,7 @@ jobs:
           SCOPE="${{ github.event.inputs.scope || 'full' }}"
           
           # Run documentation generation
-          npx claude-flow@alpha swarm "generate comprehensive $SCOPE documentation, API references, usage examples, and tutorials" \
+          npx @claude-flow/cli@latest swarm "generate comprehensive $SCOPE documentation, API references, usage examples, and tutorials" \
             --agents 6 \
             --strategy parallel \
             --output-format json \
@@ -471,7 +471,7 @@ jobs:
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
-          npx claude-flow@alpha swarm "analyze ${{ matrix.analysis-type }}" \
+          npx @claude-flow/cli@latest swarm "analyze ${{ matrix.analysis-type }}" \
             --agents ${{ matrix.agent-count }} \
             --output-format json \
             --output-file "results-${{ matrix.analysis-type }}-${{ matrix.agent-count }}.json"
@@ -534,7 +534,7 @@ jobs:
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
-          npx claude-flow@alpha swarm "deep security analysis of authentication changes" \
+          npx @claude-flow/cli@latest swarm "deep security analysis of authentication changes" \
             --agents 8 \
             --mode distributed
             
@@ -547,7 +547,7 @@ jobs:
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
-          npx claude-flow@alpha swarm "analyze performance impact and suggest optimizations" \
+          npx @claude-flow/cli@latest swarm "analyze performance impact and suggest optimizations" \
             --agents 5
 ```
 
@@ -572,7 +572,7 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
           # Initialize distributed swarm
-          OUTPUT=$(npx claude-flow@alpha hive init \
+          OUTPUT=$(npx @claude-flow/cli@latest hive init \
             --topology mesh \
             --agents 10 \
             --distributed \
@@ -589,7 +589,7 @@ jobs:
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
-          npx claude-flow@alpha swarm "analyze frontend code" \
+          npx @claude-flow/cli@latest swarm "analyze frontend code" \
             --swarm-id ${{ needs.orchestrate.outputs.swarm-id }} \
             --focus frontend
             
@@ -601,7 +601,7 @@ jobs:
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
-          npx claude-flow@alpha swarm "analyze backend code" \
+          npx @claude-flow/cli@latest swarm "analyze backend code" \
             --swarm-id ${{ needs.orchestrate.outputs.swarm-id }} \
             --focus backend
             
@@ -613,7 +613,7 @@ jobs:
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
-          npx claude-flow@alpha swarm "analyze database schema and queries" \
+          npx @claude-flow/cli@latest swarm "analyze database schema and queries" \
             --swarm-id ${{ needs.orchestrate.outputs.swarm-id }} \
             --focus database
             
@@ -625,7 +625,7 @@ jobs:
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
-          npx claude-flow@alpha swarm consolidate \
+          npx @claude-flow/cli@latest swarm consolidate \
             --swarm-id ${{ needs.orchestrate.outputs.swarm-id }} \
             --output-format json \
             --output-file final-report.json
@@ -722,7 +722,7 @@ jobs:
       AGENTS=8
     fi
     
-    npx claude-flow@alpha swarm "analyze" --agents $AGENTS
+    npx @claude-flow/cli@latest swarm "analyze" --agents $AGENTS
 ```
 
 ### 3. Parallel Execution
@@ -731,9 +731,9 @@ jobs:
 - name: Parallel Analysis
   run: |
     # Run multiple analyses in parallel
-    npx claude-flow@alpha swarm "security scan" --output-file security.json &
-    npx claude-flow@alpha swarm "performance check" --output-file perf.json &
-    npx claude-flow@alpha swarm "code quality" --output-file quality.json &
+    npx @claude-flow/cli@latest swarm "security scan" --output-file security.json &
+    npx @claude-flow/cli@latest swarm "performance check" --output-file perf.json &
+    npx @claude-flow/cli@latest swarm "code quality" --output-file quality.json &
     
     # Wait for all to complete
     wait
@@ -751,7 +751,7 @@ jobs:
     
 - name: Run Analysis
   if: steps.check-changes.outputs.skip != 'true'
-  run: npx claude-flow@alpha swarm "analyze changes"
+  run: npx @claude-flow/cli@latest swarm "analyze changes"
 ```
 
 ## Troubleshooting
@@ -789,7 +789,7 @@ jobs:
 - name: Long Analysis
   timeout-minutes: 30 # Default is 6 hours
   run: |
-    npx claude-flow@alpha swarm "complex analysis" \
+    npx @claude-flow/cli@latest swarm "complex analysis" \
       --timeout 25 # Task timeout in minutes
 ```
 
@@ -804,7 +804,7 @@ jobs:
       - name: Analysis
         run: |
           # Limit concurrent agents
-          npx claude-flow@alpha swarm "analyze" \
+          npx @claude-flow/cli@latest swarm "analyze" \
             --agents 3 \
             --max-memory 2048
 ```
@@ -817,7 +817,7 @@ jobs:
     DEBUG: "claude-flow:*"
     CLAUDE_FLOW_VERBOSE: "true"
   run: |
-    npx claude-flow@alpha swarm "debug analysis" \
+    npx @claude-flow/cli@latest swarm "debug analysis" \
       --verbose \
       --dry-run
 ```

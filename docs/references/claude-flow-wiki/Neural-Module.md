@@ -10,18 +10,18 @@ The Neural Module provides Self-Aware Feedback Loop Algorithm (SAFLA) capabiliti
 
 ```bash
 # Initialize neural module in current project
-npx claude-flow@alpha neural init
+npx @claude-flow/cli@latest neural init
 
 # Force overwrite existing module
-npx claude-flow@alpha neural init --force
+npx @claude-flow/cli@latest neural init --force
 
 # Install to custom directory
-npx claude-flow@alpha neural init --target ./my-agents/neural
+npx @claude-flow/cli@latest neural init --target ./my-agents/neural
 ```
 
 ### What Gets Created
 
-Running `npx claude-flow@alpha neural init` creates:
+Running `npx @claude-flow/cli@latest neural init` creates:
 
 ```
 .claude/agents/neural/
@@ -155,13 +155,13 @@ mcp__claude-flow__coordination_sync {
 1. **Module Already Exists**
    - Solution: Use `--force` flag to overwrite
    ```bash
-   npx claude-flow@alpha neural init --force
+   npx @claude-flow/cli@latest neural init --force
    ```
 
 2. **Custom Directory Not Found**
    - Solution: Directory will be created automatically
    ```bash
-   npx claude-flow@alpha neural init --target ./custom/path
+   npx @claude-flow/cli@latest neural init --target ./custom/path
    ```
 
 3. **Memory Persistence Issues**

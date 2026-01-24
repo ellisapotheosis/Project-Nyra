@@ -1,0 +1,56 @@
+{
+  "interfaces": [
+    {
+      "name": "Bluetooth Network Connection",
+      "mac": "C4-03-A8-BA-FC-1F",
+      "ip": "169.254.127.153",
+      "status": "Disconnected"
+    },
+    {
+      "name": null,
+      "mac": null,
+      "ip": "169.254.134.196",
+      "status": null
+    },
+    {
+      "name": null,
+      "mac": null,
+      "ip": "169.254.134.18",
+      "status": null
+    },
+    {
+      "name": "Wi-Fi",
+      "mac": "C2-B3-B9-2F-4C-D2",
+      "ip": "192.168.1.221",
+      "status": "Up"
+    },
+    {
+      "name": "Tailscale",
+      "mac": "",
+      "ip": "100.83.23.49",
+      "status": "Up"
+    },
+    {
+      "name": "Ethernet",
+      "mac": "04-BF-1B-29-A3-F3",
+      "ip": "169.254.102.76",
+      "status": "Disconnected"
+    }
+  ],
+  "hostname": "ALIENAPOTHEOSIS",
+  "gpu_name": "NVIDIA GeForce RTX 3060 Laptop GPU",
+  "gpu_vram_gb": 4.0,
+  "ollama_port": 11434,
+  "ollama_installed": false,
+  "ip_wifi": "192.168.1.221",
+  "tailscale_domain": "tail558973.ts.net",
+  "username": "edane",
+  "gpu_type": "rtx_3060",
+  "tailscale_fqdn": "alienapotheosis.tail558973.ts.net",
+  "role": "worker-rtx3060",
+  "timestamp": "2026-01-22 08:17:43",
+  "mac_wifi": "C2-B3-B9-2F-4C-D2",
+  "ip_tailscale": "100.83.23.49",
+  "ollama_models": [],
+  "specialization": "code"
+}

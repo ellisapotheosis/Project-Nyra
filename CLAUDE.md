@@ -13,6 +13,36 @@
 
 **Infrastructure**: 4-PC local LAN cluster (1 orchestrator mini + 3 GPU workers with RTX 5090/3090/3060) running local LLMs via Ollama with cloud fallback.
 
+## 🎯 PROJECT CONFIGURATION (template-config.yml)
+
+**Project Type**: Web Development
+**Stack**: React + TypeScript + Node.js + PostgreSQL
+**Methodology**: Agile (small team)
+**Testing Pattern**: TDD (Test-Driven Development)
+**Architecture**: Microservices
+**Deployment**: Containerized (Docker/Kubernetes)
+
+### 🔄 Swarm Configuration (MESH TOPOLOGY)
+
+**Default Swarm Settings**:
+```yaml
+topology: mesh              # Peer-to-peer coordination
+max_agents: 8              # Optimal for small team
+coordination: parallel     # Concurrent execution
+strategy: balanced         # Equal peer participation
+```
+
+**Mesh Topology Benefits**:
+- **Peer-to-peer communication**: Agents collaborate directly without bottleneck
+- **Resilience**: No single point of failure
+- **Scalability**: Easy to add/remove agents dynamically
+- **Parallel coordination**: All agents work concurrently
+- **Equal participation**: No hierarchical constraints
+
+**When to use Mesh vs Hierarchical**:
+- **Mesh** (default): TDD workflows, microservices, parallel feature development
+- **Hierarchical**: Complex compliance workflows, strict audit requirements, sequential tasks
+
 ### 🔒 Locked Architecture Components
 
 **DO NOT MODIFY** these finalized decisions:
@@ -101,9 +131,18 @@ Task({
 
 ---
 
-### 🛡️ Anti-Drift Config (PREFERRED)
+### 🛡️ Swarm Topology Configuration
 
-**Use this to prevent agent drift:**
+**MESH TOPOLOGY (Default for Nyra)**:
+```bash
+# Mesh topology for parallel TDD workflows and microservices development
+npx @claude-flow/cli@latest swarm init --topology mesh --max-agents 8 --strategy balanced
+
+# Mesh with adaptive scaling for variable workloads
+npx @claude-flow/cli@latest swarm init --topology mesh --max-agents 8 --strategy adaptive
+```
+
+**HIERARCHICAL TOPOLOGY (For compliance-critical workflows)**:
 ```bash
 # Small teams (6-8 agents) - use hierarchical for tight control
 npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 8 --strategy specialized
@@ -113,18 +152,23 @@ npx @claude-flow/cli@latest swarm init --topology hierarchical-mesh --max-agents
 ```
 
 **Valid Topologies:**
-- `hierarchical` - Queen controls workers directly (anti-drift for small teams)
-- `hierarchical-mesh` - V3 queen + peer communication (recommended for 10+ agents)
-- `mesh` - Fully connected peer network
+- `mesh` - **DEFAULT** - Fully connected peer network for parallel TDD workflows
+- `hierarchical` - Queen controls workers directly (compliance/audit workflows)
+- `hierarchical-mesh` - V3 queen + peer communication (hybrid approach)
 - `ring` - Circular communication pattern
 - `star` - Central coordinator with spokes
 - `hybrid` - Dynamic topology switching
 
-**Anti-Drift Guidelines:**
-- **hierarchical**: Coordinator catches divergence
-- **max-agents 6-8**: Smaller team = less drift
-- **specialized**: Clear roles, no overlap
-- **consensus**: raft (leader maintains state)
+**Topology Selection Guide:**
+
+| Workflow Type | Topology | Reason |
+|---------------|----------|---------|
+| TDD Feature Development | `mesh` | Parallel test writing and implementation |
+| Microservices Communication | `mesh` | Service-to-service coordination |
+| Compliance Validation | `hierarchical` | Sequential audit trail required |
+| Document Processing | `mesh` | Parallel OCR and extraction |
+| Quote Generation | `mesh` | Multi-lender parallel queries |
+| Campaign Orchestration | `hierarchical-mesh` | Coordinator + parallel execution |
 
 ---
 
@@ -133,39 +177,39 @@ npx @claude-flow/cli@latest swarm init --topology hierarchical-mesh --max-agents
 When the user requests a complex task, **spawn agents in background and WAIT for completion:**
 
 ```javascript
-// STEP 1: Initialize swarm coordination (anti-drift config)
-Bash("npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 8 --strategy specialized")
+// STEP 1: Initialize swarm coordination (MESH for TDD/microservices)
+Bash("npx @claude-flow/cli@latest swarm init --topology mesh --max-agents 8 --strategy balanced")
 
 // STEP 2: Spawn ALL agents IN BACKGROUND in a SINGLE message
 // Use run_in_background: true so agents work concurrently
 Task({
-  prompt: "Research requirements, analyze codebase patterns, store findings in memory",
-  subagent_type: "researcher",
-  description: "Research phase",
+  prompt: "Write failing tests first (TDD Red phase). Define expected behavior.",
+  subagent_type: "tester",
+  description: "TDD Red phase - Write failing tests",
   run_in_background: true  // ← CRITICAL: Run in background
 })
 Task({
-  prompt: "Design architecture based on research. Document decisions.",
+  prompt: "Research requirements, analyze codebase patterns, store findings in memory",
+  subagent_type: "researcher",
+  description: "Research phase",
+  run_in_background: true
+})
+Task({
+  prompt: "Design microservices architecture based on research. Document API contracts.",
   subagent_type: "system-architect",
   description: "Architecture phase",
   run_in_background: true
 })
 Task({
-  prompt: "Implement the solution following the design. Write clean code.",
+  prompt: "Implement the solution to make tests pass (TDD Green phase). Write clean code.",
   subagent_type: "coder",
-  description: "Implementation phase",
+  description: "TDD Green phase - Implementation",
   run_in_background: true
 })
 Task({
-  prompt: "Write comprehensive tests for the implementation.",
-  subagent_type: "tester",
-  description: "Testing phase",
-  run_in_background: true
-})
-Task({
-  prompt: "Review code quality, security, and best practices.",
+  prompt: "Refactor code for quality (TDD Refactor phase). Review and optimize.",
   subagent_type: "reviewer",
-  description: "Review phase",
+  description: "TDD Refactor phase - Code review",
   run_in_background: true
 })
 
@@ -185,14 +229,14 @@ Task({
 
 **Example response after spawning:**
 ```
-I've launched 5 concurrent agents to work on this:
+I've launched 5 concurrent agents in mesh topology:
+- 🧪 Tester: Writing failing tests (TDD Red)
 - 🔍 Researcher: Analyzing requirements and codebase
-- 🏗️ Architect: Designing the implementation approach
-- 💻 Coder: Implementing the solution
-- 🧪 Tester: Writing tests
-- 👀 Reviewer: Code review and security check
+- 🏗️ Architect: Designing microservices architecture
+- 💻 Coder: Implementing solution (TDD Green)
+- 👀 Reviewer: Refactoring and optimization (TDD Refactor)
 
-They're working in parallel. I'll synthesize their results when they complete.
+They're working in parallel with peer-to-peer coordination. I'll synthesize when they complete.
 ```
 
 ### 🚫 DO NOT:
@@ -261,29 +305,39 @@ Bash("npx @claude-flow/cli@latest hooks worker dispatch --trigger optimize")
 - Finding a performance fix (store the optimization)
 - Discovering a security issue (store the vulnerability pattern)
 
-### 📋 Agent Routing (Anti-Drift)
+### 📋 Agent Routing (TDD + Microservices)
 
-| Code | Task | Agents |
-|------|------|--------|
-| 1 | Bug Fix | coordinator, researcher, coder, tester |
-| 3 | Feature | coordinator, architect, coder, tester, reviewer |
-| 5 | Refactor | coordinator, architect, coder, reviewer |
-| 7 | Performance | coordinator, perf-engineer, coder |
-| 9 | Security | coordinator, security-architect, auditor |
-| 11 | Docs | researcher, api-docs |
+| Code | Task | Agents | Topology |
+|------|------|--------|----------|
+| 1 | Bug Fix | tester, coder, reviewer | mesh |
+| 3 | Feature (TDD) | tester, researcher, architect, coder, reviewer | mesh |
+| 5 | Refactor | tester, architect, coder, reviewer | mesh |
+| 7 | Performance | tester, perf-engineer, coder | mesh |
+| 9 | Security | security-architect, auditor, compliance-agent | hierarchical |
+| 11 | Docs | researcher, api-docs | mesh |
+| 13 | Microservice | architect, coder, tester, reviewer | mesh |
 
-**Codes 1-9: hierarchical/specialized (anti-drift). Code 11: mesh/balanced**
+**TDD Workflow Pattern (mesh/balanced)**:
+1. **Red**: Tester writes failing tests
+2. **Green**: Coder implements minimal solution
+3. **Refactor**: Reviewer optimizes code quality
+
+**Compliance Workflow Pattern (hierarchical/specialized)**:
+1. Coordinator ensures sequential validation
+2. Compliance agent validates regulations
+3. Auditor creates audit trail
 
 ### 🎯 Task Complexity Detection
 
 **AUTO-INVOKE SWARM when task involves:**
 - Multiple files (3+)
-- New feature implementation
+- New feature implementation (TDD)
 - Refactoring across modules
 - API changes with tests
 - Security-related changes
 - Performance optimization
 - Database schema changes
+- Microservices communication
 
 **SKIP SWARM for:**
 - Single file edits
@@ -302,6 +356,15 @@ Bash("npx @claude-flow/cli@latest hooks worker dispatch --trigger optimize")
 
 ### ⚡ GOLDEN RULE: "1 MESSAGE = ALL RELATED OPERATIONS"
 
+## 📋 Scope Note: TodoWrite vs Archon
+
+**In Claude Flow context (this file)**:
+- **TodoWrite**: For in-session task tracking within Claude Code's task management system. Use for immediate work organization and progress tracking during a single conversation.
+- **Archon**: For cross-session project management and team coordination. Refer to `tools/archon/CLAUDE.md` for Archon-specific workflows.
+
+**When to Use TodoWrite**: Quick task lists during active development, coordinating multi-agent work within one session
+**When to Use Archon**: Project planning, persistent task tracking, team collaboration, knowledge management
+
 **MANDATORY PATTERNS:**
 - **TodoWrite**: ALWAYS batch ALL todos in ONE call (5-10+ todos minimum)
 - **Task tool (Claude Code)**: ALWAYS spawn ALL agents in ONE message with full instructions
@@ -313,7 +376,7 @@ Bash("npx @claude-flow/cli@latest hooks worker dispatch --trigger optimize")
 
 **NEVER save to root folder. Use these directories:**
 - `/src` - Source code files
-- `/tests` - Test files
+- `/tests` - Test files (TDD: write tests first!)
 - `/docs` - Documentation and markdown files
 - `/config` - Configuration files
 - `/scripts` - Utility scripts
@@ -323,27 +386,76 @@ Bash("npx @claude-flow/cli@latest hooks worker dispatch --trigger optimize")
 - `/mcp-servers` - MCP server implementations
 - `/infra` - Infrastructure as Code (Docker, K8s, Terraform)
 
-### 🏗️ Polyglot Architecture
+### 🏗️ Microservices Architecture Pattern
 
-Project Nyra uses multiple languages requiring component-level CLAUDE.md files:
+Project Nyra uses microservices requiring clear service boundaries:
+
+**Service Communication Patterns**:
+- **API Gateway**: Nexus Router handles routing and load balancing
+- **Service Mesh**: Direct service-to-service communication via mesh topology
+- **Event-Driven**: Message queues for async workflows (n8n, Activepieces)
+- **Data Store per Service**: Each service owns its data (PostgreSQL, Redis)
+
+**TypeScript/Node.js Services (NestJS)**:
+- Location: `/services/nyra-orchestrator`, `/services/orchestrator`, `/services/auth-service`
+- CLAUDE.md: Include modules, providers, dependency injection patterns
+- Pattern: Mesh topology for service coordination
+- Example: `services/nyra-orchestrator/CLAUDE.md`, `services/auth-service/CLAUDE.md`
 
 **Python Services (FastAPI)**:
 - Location: `/services/quote-api`, `/services/quote-engine`, `/services/campaign-engine`
 - CLAUDE.md: Include FastAPI patterns, Pydantic models, async/await, pytest strategies
 - Pattern: Mesh topology for data processing
-- Example: `services/quote-engine/.claude/CLAUDE.md`
+- Example: `services/quote-api/CLAUDE.md`, `services/campaign-engine/CLAUDE.md`
 
 **TypeScript Applications (Next.js/React)**:
-- Location: `/apps/ratehunter`, `/apps/nyra-admin`
+- Location: `/apps/web`, `/apps/web/crm-dashboard`, `/apps/landing`
 - CLAUDE.md: Include Server Components, tRPC, Zustand, Tailwind patterns
 - Pattern: Star topology for type propagation
-- Example: `apps/ratehunter/.claude/CLAUDE.md`
+- Example: `apps/web/CLAUDE.md`, `apps/landing/CLAUDE.md`
 
-**Node.js Services (NestJS)**:
-- Location: `/services/nyra-orchestrator`
-- CLAUDE.md: Include modules, providers, dependency injection patterns
-- Pattern: Hierarchical with domain-driven design
-- Example: `services/nyra-orchestrator/.claude/CLAUDE.md`
+### 🧪 TDD (Test-Driven Development) Protocol
+
+**MANDATORY TDD Workflow for ALL Features:**
+
+```bash
+# 1. RED: Write failing tests FIRST
+npx @claude-flow/cli@latest swarm init --topology mesh --max-agents 6
+
+Task({
+  prompt: "Write comprehensive unit tests that define expected behavior. Tests should FAIL.",
+  subagent_type: "tester",
+  description: "TDD Red - Write failing tests",
+  run_in_background: true
+})
+
+# 2. GREEN: Implement minimal code to pass tests
+Task({
+  prompt: "Write minimal implementation to make all tests pass. No over-engineering.",
+  subagent_type: "coder",
+  description: "TDD Green - Minimal implementation",
+  run_in_background: true
+})
+
+# 3. REFACTOR: Improve code quality while keeping tests green
+Task({
+  prompt: "Refactor code for readability, performance, maintainability. Keep tests passing.",
+  subagent_type: "reviewer",
+  description: "TDD Refactor - Code quality",
+  run_in_background: true
+})
+```
+
+**TDD Benefits**:
+- **Design First**: Tests define API contracts before implementation
+- **Fast Feedback**: Catch bugs immediately
+- **Confidence**: Refactor without fear of breaking functionality
+- **Documentation**: Tests serve as living documentation
+
+**Test Coverage Requirements**:
+- **Unit Tests**: 90%+ coverage for business logic
+- **Integration Tests**: All API endpoints and service boundaries
+- **E2E Tests**: Critical user workflows (quote generation, compliance validation)
 
 ### 🧠 Memory System Integration
 
@@ -392,12 +504,85 @@ graphiti_add_node({
 })
 ```
 
-## Project Config (Anti-Drift Defaults)
+## 🐳 Containerized Deployment Pattern
 
-- **Topology**: hierarchical (prevents drift)
-- **Max Agents**: 8 (smaller = less drift)
-- **Strategy**: specialized (clear roles)
-- **Consensus**: raft
+**All services run in Docker containers orchestrated via Docker Compose:**
+
+### Container Architecture
+```yaml
+# docker-compose.yml structure
+services:
+  # Frontend (React + TypeScript)
+  web:
+    build: ./apps/web
+    ports: ["3000:3000"]
+    environment:
+      - NEXT_PUBLIC_API_URL=http://api:8000
+
+  # API Gateway (Node.js + NestJS)
+  orchestrator:
+    build: ./services/nyra-orchestrator
+    ports: ["8000:8000"]
+    depends_on: [postgres, redis]
+
+  # Quote Engine (Python + FastAPI)
+  quote-api:
+    build: ./services/quote-api
+    ports: ["8001:8001"]
+    depends_on: [postgres]
+
+  # Database (PostgreSQL)
+  postgres:
+    image: postgres:16
+    volumes: [postgres-data:/var/lib/postgresql/data]
+
+  # Cache (Redis)
+  redis:
+    image: redis:7-alpine
+```
+
+### Deployment Commands
+```bash
+# Local development
+docker-compose up -d
+
+# Production build
+docker-compose -f docker-compose.prod.yml build
+
+# Scale specific service
+docker-compose up -d --scale quote-api=3
+
+# View logs
+docker-compose logs -f quote-api
+
+# Health check
+docker-compose ps
+```
+
+### Kubernetes Deployment (Production)
+```bash
+# Apply manifests
+kubectl apply -f infra/k8s/
+
+# Check pods
+kubectl get pods -n nyra
+
+# Scale deployment
+kubectl scale deployment/quote-api --replicas=5 -n nyra
+
+# Rolling update
+kubectl rollout restart deployment/orchestrator -n nyra
+```
+
+## Project Config (Mesh + TDD Defaults)
+
+- **Topology**: mesh (peer-to-peer coordination)
+- **Max Agents**: 8 (optimal for small team)
+- **Strategy**: balanced (equal participation)
+- **Coordination**: parallel (concurrent execution)
+- **Testing**: TDD (test-first development)
+- **Architecture**: microservices
+- **Deployment**: containerized (Docker/K8s)
 - **Memory**: hybrid
 - **HNSW**: Enabled
 - **Neural**: Enabled
@@ -450,8 +635,8 @@ npx @claude-flow/cli@latest daemon start
 # Spawn an agent
 npx @claude-flow/cli@latest agent spawn -t coder --name my-coder
 
-# Initialize swarm
-npx @claude-flow/cli@latest swarm init --v3-mode
+# Initialize swarm (MESH topology)
+npx @claude-flow/cli@latest swarm init --topology mesh --max-agents 8 --strategy balanced
 
 # Search memory (HNSW-indexed)
 npx @claude-flow/cli@latest memory search --query "authentication patterns"
@@ -577,7 +762,7 @@ npx @claude-flow/cli@latest hooks worker list
 npx @claude-flow/cli@latest hooks worker dispatch --trigger audit
 npx @claude-flow/cli@latest hooks worker status
 
-# Coverage-aware routing
+# Coverage-aware routing (TDD support)
 npx @claude-flow/cli@latest hooks coverage-gaps --format table
 npx @claude-flow/cli@latest hooks coverage-route --task "[task]"
 
@@ -630,12 +815,13 @@ Features:
 ## 🐝 Hive-Mind Consensus
 
 ### Topologies
+- `mesh` - **DEFAULT** - Fully connected peer network
 - `hierarchical` - Queen controls workers directly
-- `mesh` - Fully connected peer network
-- `hierarchical-mesh` - Hybrid (recommended)
+- `hierarchical-mesh` - Hybrid (recommended for 10+ agents)
 - `adaptive` - Dynamic based on load
 
 ### Consensus Strategies
+- `balanced` - Equal peer participation (default for mesh)
 - `byzantine` - BFT (tolerates f < n/3 faulty)
 - `raft` - Leader-based (tolerates f < n/2)
 - `gossip` - Epidemic for eventual consistency
@@ -868,12 +1054,18 @@ curl -X POST http://localhost:6000/v1/chat/completions \
 
 ## 🏠 Mortgage Workflow Examples
 
-### Lead-to-Quote Workflow
+### Lead-to-Quote Workflow (TDD + Mesh Topology)
 ```bash
-# 1. Initialize swarm for new lead
-npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 6 --strategy specialized
+# 1. Initialize mesh swarm for parallel processing
+npx @claude-flow/cli@latest swarm init --topology mesh --max-agents 8 --strategy balanced
 
-# 2. Spawn mortgage workflow agents (in ONE message)
+# 2. Spawn mortgage workflow agents (in ONE message, mesh coordination)
+Task({
+  prompt: "Write tests for loan qualification logic (DTI, credit, income validation)",
+  subagent_type: "tester",
+  description: "TDD Red - Qualification tests",
+  run_in_background: true
+})
 Task({
   prompt: "Analyze lead data, check credit requirements, store borrower profile in Letta and Mem0",
   subagent_type: "loan-qualification-agent",
@@ -899,7 +1091,7 @@ Task({
   run_in_background: true
 })
 
-# 3. Agents work in parallel, coordinator synthesizes results
+# 3. Agents work in mesh topology with peer-to-peer coordination
 ```
 
 ### Document Processing Workflow
@@ -942,24 +1134,26 @@ This includes:
 Each service and application has its own CLAUDE.md:
 
 **Backend Services**:
-- `services/quote-engine/.claude/CLAUDE.md` - FastAPI quote calculations
-- `services/campaign-engine/.claude/CLAUDE.md` - NestJS drip automation
-- `services/nyra-orchestrator/.claude/CLAUDE.md` - Multi-agent coordination
-- `services/mem0-rest/.claude/CLAUDE.md` - Memory REST API
+- `services/quote-api/CLAUDE.md` - FastAPI quote calculations
+- `services/nyra-orchestrator/CLAUDE.md` - Multi-agent orchestration
+- `services/mem0/CLAUDE.md` - Memory system implementation
+- `services/mem0-mcp/CLAUDE.md` - Memory MCP server
+- `services/letta-integration/CLAUDE.md` - Letta memory integration
+- `services/graphiti-knowledge/CLAUDE.md` - Temporal knowledge graphs
+- `services/auth-service/CLAUDE.md` - Authentication service
 
 **Frontend Applications**:
-- `apps/ratehunter/.claude/CLAUDE.md` - Next.js public rate site
-- `apps/nyra-admin/.claude/CLAUDE.md` - React admin dashboard
-- `apps/mortgage-assistant/.claude/CLAUDE.md` - Dify chat interface
+- `apps/landing/CLAUDE.md` - Next.js public rate site
+- `apps/web/CLAUDE.md` - Main web application
+- `apps/web/crm-dashboard/CLAUDE.md` - CRM admin dashboard
+- `apps/web/mortgage-assistant/CLAUDE.md` - Mortgage assistant interface
 
-**MCP Servers**:
-- `mcp-servers/letta/.claude/CLAUDE.md` - Letta memory integration
-- `mcp-servers/graphiti/.claude/CLAUDE.md` - Temporal knowledge graphs
-- `mcp-servers/ruvector/.claude/CLAUDE.md` - Vector search server
-
-**Infrastructure**:
-- `infra/docker/.claude/CLAUDE.md` - Docker Compose patterns
-- `infra/kubernetes/.claude/CLAUDE.md` - K8s deployment
+**Infrastructure & MCP**:
+- `infra/CLAUDE.md` - Docker Compose and infrastructure patterns
+- `infra/git-mcp/CLAUDE.md` - Git MCP server implementation
+- `infra/infisical-mcp/CLAUDE.md` - Secrets management MCP
+- `infra/bitwarden-mcp/CLAUDE.md` - Bitwarden MCP integration
+- `services/ruvector-search/CLAUDE.md` - Vector search implementation
 
 ## 🏆 Development Priorities
 
@@ -985,7 +1179,7 @@ Each service and application has its own CLAUDE.md:
 - LendingTree/FreeRateUpdate API integration
 - Twilio SMS/voice/email working
 - Full workflow testing (lead → quote → campaign → conversion)
-- 90%+ test coverage
+- 90%+ test coverage (TDD enforcement)
 
 ## 📚 Support & Resources
 
@@ -1020,8 +1214,8 @@ npx @claude-flow/cli@latest memory init --all-systems
 # Start daemon with background workers
 npx @claude-flow/cli@latest daemon start
 
-# Spawn swarm for mortgage workflow
-npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 8
+# Spawn mesh swarm for TDD workflow
+npx @claude-flow/cli@latest swarm init --topology mesh --max-agents 8 --strategy balanced
 
 # Check GPU workers
 curl http://worker-5090.tail-net.ts.net:11434/v1/models
@@ -1031,6 +1225,9 @@ npx @claude-flow/cli@latest status --watch
 
 # Search memory for patterns
 npx @claude-flow/cli@latest memory search --query "mortgage patterns" --namespace patterns
+
+# Check test coverage gaps
+npx @claude-flow/cli@latest hooks coverage-gaps --format table
 ```
 
 ---
@@ -1048,17 +1245,27 @@ npx @claude-flow/cli@latest memory search --query "mortgage patterns" --namespac
 4. **NEVER proactively create documentation files (*.md) or README files.** Only create documentation files if explicitly requested by the User.
 5. **Never save working files, text/mds and tests to the root folder.** Use appropriate subdirectories (`/docs`, `/tests`, `/apps`, `/services`, etc.).
 
+## TDD Principles (NEW)
+6. **ALWAYS write tests FIRST** before implementing features (Red-Green-Refactor cycle).
+7. **90%+ test coverage** is mandatory for all business logic.
+8. **Use mesh topology** for TDD workflows to enable parallel test writing and implementation.
+
 ## Mortgage Domain Rules
-6. **Every mortgage feature MUST include compliance validation** (TILA, RESPA, TRID, state regulations).
-7. **DO NOT MODIFY locked architecture components** without explicit approval (Nexus, TwentyCRM, Dify, n8n, Letta, Graphiti).
-8. **Use local LLMs first** (80%+ on GPU workers), fallback to cloud only when necessary.
-9. **Store all sensitive borrower data encrypted** (SSN, income, credit scores, financial documents).
-10. **Maintain complete audit trails** for all mortgage operations (quotes, disclosures, communications).
+9. **Every mortgage feature MUST include compliance validation** (TILA, RESPA, TRID, state regulations).
+10. **DO NOT MODIFY locked architecture components** without explicit approval (Nexus, TwentyCRM, Dify, n8n, Letta, Graphiti).
+11. **Use local LLMs first** (80%+ on GPU workers), fallback to cloud only when necessary.
+12. **Store all sensitive borrower data encrypted** (SSN, income, credit scores, financial documents).
+13. **Maintain complete audit trails** for all mortgage operations (quotes, disclosures, communications).
+
+## Microservices Rules (NEW)
+14. **Each microservice owns its data** - No shared databases across services.
+15. **Use mesh topology** for service-to-service coordination and API development.
+16. **All services MUST be containerized** with Docker and have health check endpoints.
 
 ## 🚨 SWARM EXECUTION RULES (CRITICAL)
 1. **SPAWN IN BACKGROUND**: Use `run_in_background: true` for all agent Task calls
 2. **SPAWN ALL AT ONCE**: Put ALL agent Task calls in ONE message for parallel execution
-3. **TELL USER**: After spawning, list what each agent is doing (use emojis for clarity)
+3. **TELL USER**: After spawning, list what each agent is doing
 4. **STOP AND WAIT**: After spawning, STOP - do NOT add more tool calls or check status
 5. **NO POLLING**: Never poll TaskOutput or check swarm status - trust agents to return
 6. **SYNTHESIZE**: When agent results arrive, review ALL results before proceeding
@@ -1066,10 +1273,11 @@ npx @claude-flow/cli@latest memory search --query "mortgage patterns" --namespac
 
 Example spawn message:
 ```
-"I've launched 4 agents in background:
-- 🔍 Researcher: [task]
-- 💻 Coder: [task]
-- 🧪 Tester: [task]
-- 👀 Reviewer: [task]
-Working in parallel - I'll synthesize when they complete."
+"I've launched 5 agents in mesh topology for parallel TDD workflow:
+- 🧪 Tester: Writing failing tests (Red phase)
+- 🔍 Researcher: Analyzing requirements
+- 🏗️ Architect: Designing microservices API
+- 💻 Coder: Minimal implementation (Green phase)
+- 👀 Reviewer: Refactoring and optimization
+Working with peer-to-peer coordination - I'll synthesize when they complete."
 ```

@@ -257,7 +257,7 @@ EOF
 ### 2. Server Connectivity Testing
 ```bash
 # Test stdio servers
-npx claude-flow@alpha mcp start  # Test if command is accessible
+npx @claude-flow/cli@latest mcp start  # Test if command is accessible
 npx ruv-swarm@latest mcp start
 uvx mcp-server-time
 
@@ -273,7 +273,7 @@ curl http://localhost:12010/nyra/complete  # nexus router
 node scripts/validate-mcp-configs.js
 
 # Test specific server configs
-npx @modelcontextprotocol/inspector npx claude-flow@alpha mcp start
+npx @modelcontextprotocol/inspector npx @claude-flow/cli@latest mcp start
 ```
 
 ---

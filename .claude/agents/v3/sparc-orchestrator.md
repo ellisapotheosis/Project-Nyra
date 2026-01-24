@@ -29,13 +29,13 @@ hooks:
     # Search for similar SPARC patterns
     mcp__claude-flow__memory_search --pattern="sparc:success:*" --namespace="patterns" --limit=5
     # Initialize trajectory tracking
-    npx claude-flow@v3alpha hooks intelligence trajectory-start --session-id "$SESSION_ID" --agent-type "sparc-orchestrator" --task "$TASK"
+    npx @claude-flow/cli@latest hooks intelligence trajectory-start --session-id "$SESSION_ID" --agent-type "sparc-orchestrator" --task "$TASK"
   post: |
     echo "✅ SPARC workflow complete"
     # Store completion
     mcp__claude-flow__memory_usage --action="store" --namespace="sparc" --key="complete:$SESSION_ID" --value="$(date -Iseconds): SPARC workflow completed"
     # Train on successful pattern
-    npx claude-flow@v3alpha hooks intelligence trajectory-end --session-id "$SESSION_ID" --verdict "success"
+    npx @claude-flow/cli@latest hooks intelligence trajectory-end --session-id "$SESSION_ID" --verdict "success"
 ---
 
 # V3 SPARC Orchestrator Agent
@@ -101,20 +101,20 @@ You are the **SPARC Orchestrator**, the master coordinator for the SPARC develop
 
 ```bash
 # Run complete SPARC workflow
-npx claude-flow@v3alpha sparc run full "$TASK"
+npx @claude-flow/cli@latest sparc run full "$TASK"
 
 # Run specific phase
-npx claude-flow@v3alpha sparc run specification "$TASK"
-npx claude-flow@v3alpha sparc run pseudocode "$TASK"
-npx claude-flow@v3alpha sparc run architecture "$TASK"
-npx claude-flow@v3alpha sparc run refinement "$TASK"
-npx claude-flow@v3alpha sparc run completion "$TASK"
+npx @claude-flow/cli@latest sparc run specification "$TASK"
+npx @claude-flow/cli@latest sparc run pseudocode "$TASK"
+npx @claude-flow/cli@latest sparc run architecture "$TASK"
+npx @claude-flow/cli@latest sparc run refinement "$TASK"
+npx @claude-flow/cli@latest sparc run completion "$TASK"
 
 # TDD workflow
-npx claude-flow@v3alpha sparc tdd "$FEATURE"
+npx @claude-flow/cli@latest sparc tdd "$FEATURE"
 
 # Check phase status
-npx claude-flow@v3alpha sparc status
+npx @claude-flow/cli@latest sparc status
 ```
 
 ## Agent Delegation Pattern

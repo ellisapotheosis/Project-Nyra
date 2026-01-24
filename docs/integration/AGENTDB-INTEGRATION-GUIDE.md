@@ -504,7 +504,7 @@ async function storeAndRetrieveExample() {
     "matcher": "^(Write|Edit|Task)$",
     "hooks": [{
       "type": "command",
-      "command": "npx claude-flow@v3alpha hooks intelligence trajectory-step --session-id $SESSION_ID --operation $TOOL_NAME --outcome $TOOL_SUCCESS"
+      "command": "npx @claude-flow/cli@latest hooks intelligence trajectory-step --session-id $SESSION_ID --operation $TOOL_NAME --outcome $TOOL_SUCCESS"
     }]
   }]
 }
@@ -915,7 +915,7 @@ npx agentdb@latest benchmark
 # ✅ Memory Efficiency: 4-32x reduction with quantization
 
 # Test QUIC synchronization
-npx claude-flow@v3alpha test quic-sync \
+npx @claude-flow/cli@latest test quic-sync \
   --source 192.168.1.1:4433 \
   --target 192.168.1.10:4433
 ```
@@ -949,7 +949,7 @@ npx agentdb@latest stats .agentdb/reasoningbank.db
 
 3. Prune old patterns:
    ```bash
-   npx claude-flow@v3alpha hooks intelligence prune \
+   npx @claude-flow/cli@latest hooks intelligence prune \
      --min-confidence 0.5 \
      --max-age 30d
    ```
@@ -990,7 +990,7 @@ ping 192.168.1.10
 sudo ufw status | grep 4433
 
 # Check QUIC logs
-DEBUG=agentdb:quic npx claude-flow@v3alpha swarm status
+DEBUG=agentdb:quic npx @claude-flow/cli@latest swarm status
 ```
 
 **Solutions**:
@@ -1007,7 +1007,7 @@ DEBUG=agentdb:quic npx claude-flow@v3alpha swarm status
 
 3. Check network topology:
    ```bash
-   npx claude-flow@v3alpha network diagnose
+   npx @claude-flow/cli@latest network diagnose
    ```
 
 #### Issue 4: Low Accuracy Results

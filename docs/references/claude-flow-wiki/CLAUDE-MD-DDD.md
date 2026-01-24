@@ -66,8 +66,8 @@
 
 ```bash
 # Domain language validation (each developer runs this)
-npx claude-flow@alpha hooks pre-task --description "Validate domain language usage" --auto-spawn-agents false
-npx claude-flow@alpha hooks notify --message "Using domain terms: [Order, Customer, Product, Inventory]" --telemetry true
+npx @claude-flow/cli@latest hooks pre-task --description "Validate domain language usage" --auto-spawn-agents false
+npx @claude-flow/cli@latest hooks notify --message "Using domain terms: [Order, Customer, Product, Inventory]" --telemetry true
 ```
 
 ### Bounded Context Agent Template
@@ -261,8 +261,8 @@ export class Order {
 
 ```bash
 # Context relationship validation
-npx claude-flow@alpha hooks pre-search --query "validate context boundaries" --cache-results true
-npx claude-flow@alpha hooks notify --message "Context mapping: [upstream/downstream relationships]" --telemetry true
+npx @claude-flow/cli@latest hooks pre-search --query "validate context boundaries" --cache-results true
+npx @claude-flow/cli@latest hooks notify --message "Context mapping: [upstream/downstream relationships]" --telemetry true
 ```
 
 ### Anti-Corruption Layer Pattern
@@ -328,8 +328,8 @@ npx claude-flow@alpha hooks notify --message "Context mapping: [upstream/downstr
 
 ```bash
 # Event storming session coordination
-npx claude-flow@alpha hooks pre-task --description "Event storming session" --auto-spawn-agents false
-npx claude-flow@alpha hooks notify --message "Domain events identified: [list of events]" --telemetry true
+npx @claude-flow/cli@latest hooks pre-task --description "Event storming session" --auto-spawn-agents false
+npx @claude-flow/cli@latest hooks notify --message "Domain events identified: [list of events]" --telemetry true
 ```
 
 ### Domain Expert Collaboration

@@ -144,7 +144,7 @@ Claude Flow can enhance this setup with its swarm orchestration capabilities:
 
 1. **Initialize Claude Flow MCP**:
 ```bash
-claude mcp add claude-flow npx claude-flow@alpha mcp start
+claude mcp add claude-flow npx @claude-flow/cli@latest mcp start
 ```
 
 2. **Configure for Open Models**:
@@ -162,10 +162,10 @@ export CLAUDE_FLOW_TELEMETRY_ENABLED="true"
 3. **Leverage Swarm Coordination**:
 ```bash
 # Initialize a swarm for complex tasks
-npx claude-flow@alpha swarm init --topology mesh --max-agents 5
+npx @claude-flow/cli@latest swarm init --topology mesh --max-agents 5
 
 # Use SPARC methodology with open models
-npx claude-flow@alpha sparc run architect "Design authentication system"
+npx @claude-flow/cli@latest sparc run architect "Design authentication system"
 ```
 
 ### Benefits of Claude Flow + Open Models

@@ -1,0 +1,33 @@
+# Nexus Router config (Nyra)
+# Docs: https://nexusrouter.com/docs
+http:
+  port: 7000
+
+auth:
+  jwt_secret: ${NEXUS_JWT_SECRET}
+  admin_token: ${NEXUS_ADMIN_TOKEN}
+
+llm:
+  providers:
+    - name: litellm
+      type: openai_compatible
+      base_url: http://litellm:4000
+      api_key: ${LITELLM_MASTER_KEY}
+
+mcp:
+  servers:
+    - name: activepieces
+      url: http://activepieces:80/mcp
+      auth: bearer
+      token: ${ACTIVEPIECES_API_KEY}
+    - name: graphiti
+      url: http://graphiti_mcp:9100
+
+policies:
+  - name: borrower_minimal_tools
+    allow_tools:
+      - graphiti.*
+    deny_tools:
+      - filesystem.*
+      - docker.*
+      - github.*

@@ -1,21 +1,248 @@
+# ==============================================================================
+# Nexus Router Configuration - Project Nyra
+# ==============================================================================
+# MCP Proxy Aggregator + LLM Router for local GPU cluster with cloud fallback
+#
+# Architecture:
+#   - Port 6000: Main gateway for all LLM and MCP requests
+#   - Local-first routing: 80%+ to GPU workers (RTX 5090, 3090 Ti, 3060)
+#   - Cloud fallback: OpenRouter DeepSeek-R1, Anthropic Claude Sonnet 4
+#   - MCP aggregation: All MCP servers proxied through Nexus
+# ==============================================================================
+
 [server]
 listen_address = "0.0.0.0:6000"
+log_level = "info"
+enable_metrics = true
+metrics_port = 6001
+
+# ==============================================================================
+# LLM Provider Configuration
+# ==============================================================================
 
 [llm]
 enabled = true
+default_provider = "worker-5090"
+fallback_providers = ["worker-3090", "openrouter", "anthropic"]
+timeout_seconds = 120
+max_retries = 3
 
+# GPU Worker 1 - RTX 5090 (Primary for complex reasoning)
+[llm.providers.worker-5090]
+type = "openai"
+base_url_env = "WORKER_5090_URL"
+models = [
+    "ollama/deepseek-r1:236b",
+    "ollama/qwen2.5:72b",
+    "ollama/llama3.1:70b"
+]
+priority = 1
+health_check = true
+health_check_interval = 60
+
+# GPU Worker 2 - RTX 3090 Ti (General purpose, quote generation)
+[llm.providers.worker-3090]
+type = "openai"
+base_url_env = "WORKER_3090_URL"
+models = [
+    "ollama/llama3.1:70b",
+    "ollama/mistral-large:123b",
+    "ollama/qwen2.5:32b"
+]
+priority = 2
+health_check = true
+health_check_interval = 60
+
+# GPU Worker 3 - RTX 3060 (Document processing, embeddings)
+[llm.providers.worker-3060]
+type = "openai"
+base_url_env = "WORKER_3060_URL"
+models = [
+    "ollama/codellama:34b",
+    "ollama/qwen2.5:32b",
+    "ollama/gemma2:27b",
+    "ollama/nomic-embed-text"
+]
+priority = 3
+health_check = true
+health_check_interval = 60
+
+# Cloud Provider 1 - Anthropic (Critical compliance, legal tasks)
 [llm.providers.anthropic]
 type = "anthropic"
 api_key_env = "ANTHROPIC_API_KEY"
+models = [
+    "claude-sonnet-4-20250514",
+    "claude-sonnet-3-5-20241022",
+    "claude-haiku-3-5-20241022"
+]
+priority = 4
+rate_limit = 100
 
+# Cloud Provider 2 - OpenRouter (Overflow and fallback)
 [llm.providers.openrouter]
 type = "openai"
 api_key_env = "OPENROUTER_API_KEY"
 base_url = "https://openrouter.ai/api/v1"
+models = [
+    "deepseek/deepseek-r1",
+    "anthropic/claude-sonnet-4",
+    "google/gemini-2.0-flash-thinking-exp"
+]
+priority = 5
+rate_limit = 200
 
+# Cloud Provider 3 - Google Gemini (Multimodal tasks)
 [llm.providers.google]
 type = "google"
 api_key_env = "GOOGLE_API_KEY"
+models = [
+    "gemini-2.0-flash-exp",
+    "gemini-1.5-pro"
+]
+priority = 6
+rate_limit = 100
 
-# [mcp]
-# enabled = true
+# ==============================================================================
+# MCP Server Aggregation
+# ==============================================================================
+
+[mcp]
+enabled = true
+timeout_seconds = 30
+max_concurrent_requests = 50
+
+# LiteLLM - Model routing proxy
+[mcp.servers.litellm]
+url = "http://litellm:4000"
+transport = "http"
+enabled = true
+health_check = "/health"
+
+# Letta - Conversational memory
+[mcp.servers.letta]
+url = "http://letta:8283"
+transport = "http"
+enabled = true
+health_check = "/health"
+
+# Mem0 - Universal memory layer
+[mcp.servers.mem0]
+url = "http://mem0:4321"
+transport = "http"
+enabled = true
+health_check = "/health"
+
+# OpenMemory MCP Server
+[mcp.servers.openmemory]
+url = "http://openmemory-mcp:8081"
+transport = "http"
+enabled = true
+health_check = "/health"
+
+# Claude Flow - Multi-agent orchestrator
+[mcp.servers.claude-flow]
+url = "http://claude-flow:3010"
+transport = "http"
+enabled = true
+health_check = "/health"
+
+# AgentDB - HNSW vector database
+[mcp.servers.agentdb]
+url = "http://agentdb:8080"
+transport = "http"
+enabled = true
+health_check = "/health"
+
+# RuVector - Memory optimization
+[mcp.servers.ruvector]
+url = "http://ruvector:8888"
+transport = "http"
+enabled = true
+health_check = "/health"
+
+# Infisical - Secrets management
+[mcp.servers.infisical]
+url = "http://infisical:8080"
+transport = "http"
+enabled = true
+health_check = "/health"
+
+# ==============================================================================
+# Routing Strategy
+# ==============================================================================
+
+[routing]
+strategy = "local-first"
+local_threshold_percentage = 80
+fallback_on_timeout = true
+fallback_on_error = true
+sticky_sessions = true
+
+# Model routing rules
+[[routing.rules]]
+pattern = "deepseek-r1.*"
+providers = ["worker-5090", "openrouter"]
+
+[[routing.rules]]
+pattern = "qwen.*"
+providers = ["worker-5090", "worker-3090", "worker-3060"]
+
+[[routing.rules]]
+pattern = "llama.*"
+providers = ["worker-5090", "worker-3090"]
+
+[[routing.rules]]
+pattern = "claude.*"
+providers = ["anthropic", "openrouter"]
+
+[[routing.rules]]
+pattern = ".*embed.*"
+providers = ["worker-3060", "worker-3090"]
+
+[[routing.rules]]
+pattern = "codellama.*"
+providers = ["worker-3060"]
+
+# ==============================================================================
+# Rate Limiting & Load Balancing
+# ==============================================================================
+
+[rate_limiting]
+enabled = true
+requests_per_minute = 1000
+burst_size = 100
+strategy = "token_bucket"
+
+[load_balancing]
+algorithm = "weighted_round_robin"
+health_check_interval = 30
+unhealthy_threshold = 3
+healthy_threshold = 2
+
+# ==============================================================================
+# Observability
+# ==============================================================================
+
+[observability]
+prometheus_enabled = true
+prometheus_port = 6001
+log_requests = true
+log_responses = false
+trace_sampling_rate = 0.1
+
+[observability.metrics]
+latency_buckets = [10, 50, 100, 500, 1000, 5000, 10000]
+track_token_usage = true
+track_model_usage = true
+
+# ==============================================================================
+# Security
+# ==============================================================================
+
+[security]
+enable_api_keys = true
+api_key_header = "X-API-Key"
+cors_enabled = true
+cors_origins = ["http://localhost:3000", "http://localhost:3001"]
+max_request_size_mb = 10

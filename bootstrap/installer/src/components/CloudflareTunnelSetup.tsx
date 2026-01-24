@@ -3,10 +3,11 @@ import { useInstallStore } from '../store/installStore';
 import { TunnelConfigForm } from './TunnelConfigForm';
 import { TunnelStatusDisplay } from './TunnelStatusDisplay';
 import {
-  CloudflareTunnelService,
+  CloudflareTunnelService as CloudflareTunnelServiceType,
   CloudflareTunnelConfig,
   TunnelConnectionTest,
 } from '../types/manifest';
+import { CloudflareTunnelService } from '../services/cloudflareTunnel';
 
 interface CloudflareTunnelSetupProps {
   onComplete: () => void;
@@ -33,7 +34,7 @@ export const CloudflareTunnelSetup: React.FC<CloudflareTunnelSetupProps> = ({
   }, [selectedPC]);
 
   // Define available services based on PC type
-  const getAvailableServices = (): CloudflareTunnelService[] => {
+  const getAvailableServices = (): CloudflareTunnelServiceType[] => {
     const baseServices: CloudflareTunnelService[] = [
       {
         id: 'claude-desktop',
@@ -111,12 +112,21 @@ export const CloudflareTunnelSetup: React.FC<CloudflareTunnelSetupProps> = ({
     tunnelName: string,
     selectedServiceIds: Set<string>
   ) => {
+    if (!selectedPC) {
+      addLog({
+        level: 'error',
+        message: 'No PC selected for Cloudflare Tunnel setup',
+        component: 'Cloudflare Tunnel',
+      });
+      return;
+    }
+
     setIsConfiguring(true);
 
     try {
       addLog({
         level: 'info',
-        message: 'Configuring Cloudflare Tunnel...',
+        message: 'Configuring Cloudflare Tunnel via PowerShell bootstrap...',
         component: 'Cloudflare Tunnel',
       });
 
@@ -126,32 +136,41 @@ export const CloudflareTunnelSetup: React.FC<CloudflareTunnelSetupProps> = ({
         enabled: selectedServiceIds.has(service.id),
       }));
 
-      // Simulate tunnel creation (in real implementation, this would call Cloudflare API)
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-
       const tunnelConfig: CloudflareTunnelConfig = {
         apiToken,
         tunnelName,
         services: configuredServices,
         status: 'configuring',
       };
-
       setCloudflareTunnel(tunnelConfig);
 
-      addLog({
-        level: 'info',
-        message: 'Creating Cloudflare Tunnel...',
-        component: 'Cloudflare Tunnel',
-      });
+      // Execute PC-specific PowerShell setup script which installs cloudflared and registers the tunnel
+      const service = new CloudflareTunnelService(apiToken);
+      const setupResult = await service.executeTunnelSetup(
+        selectedPC,
+        tunnelName,
+        configuredServices,
+        (line) => {
+          const msg = line.trim();
+          if (!msg) return;
+          addLog({
+            level: 'info',
+            message: msg,
+            component: 'Cloudflare Tunnel',
+          });
+        }
+      );
 
-      // Simulate tunnel activation
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      if (!setupResult.success) {
+        throw new Error(setupResult.error || 'Cloudflare Tunnel setup failed');
+      }
 
       const activeTunnelConfig: CloudflareTunnelConfig = {
         ...tunnelConfig,
         status: 'active',
-        tunnelUrl: `https://${tunnelName}.tunnel.cloudflare.com`,
-        tunnelId: `tunnel-${Date.now()}`,
+        tunnelUrl:
+          setupResult.tunnelUrl || `https://${tunnelName}.tunnel.cloudflare.com`,
+        tunnelId: setupResult.tunnelId || `tunnel-${Date.now()}`,
       };
 
       setCloudflareTunnel(activeTunnelConfig);
@@ -163,11 +182,12 @@ export const CloudflareTunnelSetup: React.FC<CloudflareTunnelSetupProps> = ({
         details: `Tunnel URL: ${activeTunnelConfig.tunnelUrl}`,
       });
     } catch (error) {
+      const msg = error instanceof Error ? error.message : 'Unknown error';
       addLog({
         level: 'error',
         message: 'Failed to configure Cloudflare Tunnel',
         component: 'Cloudflare Tunnel',
-        details: error instanceof Error ? error.message : 'Unknown error',
+        details: msg,
       });
 
       setCloudflareTunnel({
@@ -175,7 +195,7 @@ export const CloudflareTunnelSetup: React.FC<CloudflareTunnelSetupProps> = ({
         tunnelName,
         services: availableServices,
         status: 'error',
-        error: error instanceof Error ? error.message : 'Configuration failed',
+        error: msg,
       });
     } finally {
       setIsConfiguring(false);

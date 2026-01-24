@@ -35,6 +35,10 @@ include:
   - path: ./orchestrator/docker-compose.orchestrator.yml
     env_file: ../.env
 
+  # Embedding Services - ONNX Runtime + Xenova/Transformers (Orchestrator only)
+  - path: ./services/docker-compose.embeddings.yml
+    env_file: ../.env
+
   # Workers - Optional, deploy per machine
   # Uncomment based on your hardware setup:
 
@@ -105,16 +109,29 @@ services:
   # ============================================================================
 
   nexus:
-    image: grafbase/nexus:latest
+    build:
+      context: ./build/services/nexus-router
+      dockerfile: Dockerfile
+      args:
+        NEXUS_VERSION: latest
+    image: nyra-nexus-router:latest
     container_name: nyra-nexus
     ports:
       - "6000:6000"
     volumes:
-      - ../../configs/nexus/nexus.toml:/app/config/nexus.toml:ro
+      - ../../configs/nexus/nexus.toml:/etc/nexus.toml:ro
     environment:
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
       - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
       - GOOGLE_GEMINI_API_KEY=${GOOGLE_GEMINI_API_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - INFISICAL_TOKEN=${INFISICAL_TOKEN}
+      - INFISICAL_PROJECT_ID=${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
+      - INFISICAL_ENV=${INFISICAL_ENV:-dev}
+      - NEXUS_CONFIG=/etc/nexus.toml
+      - WORKER_5090_URL=${WORKER_5090_URL:-http://worker-5090.tail-net.ts.net:11434}
+      - WORKER_3090_URL=${WORKER_3090_URL:-http://worker-3090.tail-net.ts.net:11434}
+      - WORKER_3060_URL=${WORKER_3060_URL:-http://worker-3060.tail-net.ts.net:11434}
     networks:
       - nyra-network
     restart: unless-stopped
@@ -123,7 +140,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 10s
+      start_period: 60s
 
   litellm:
     image: ghcr.io/berriai/litellm:latest

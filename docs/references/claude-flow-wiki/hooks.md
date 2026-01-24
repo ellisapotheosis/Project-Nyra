@@ -201,7 +201,7 @@ if command -v npx >/dev/null 2>&1; then
   echo "📊 Claude Flow Verification:" | tee -a /tmp/claude-hooks.log
   
   # Run verification and capture output
-  VERIFY_OUTPUT=$(npx claude-flow@alpha verify verify "$FILE" --agent coder --threshold 0.95 2>&1)
+  VERIFY_OUTPUT=$(npx @claude-flow/cli@latest verify verify "$FILE" --agent coder --threshold 0.95 2>&1)
   
   # Extract and display actual scores
   echo "$VERIFY_OUTPUT" | grep -E "Score:|compile:|test:|lint:|Status:" | while read line; do
@@ -209,7 +209,7 @@ if command -v npx >/dev/null 2>&1; then
   done
   
   # Get current truth scores
-  TRUTH_JSON=$(npx claude-flow@alpha truth --json 2>/dev/null)
+  TRUTH_JSON=$(npx @claude-flow/cli@latest truth --json 2>/dev/null)
   if [ $? -eq 0 ]; then
     AVG_SCORE=$(echo "$TRUTH_JSON" | jq -r '.averageScore // "N/A"')
     THRESHOLD=$(echo "$TRUTH_JSON" | jq -r '.threshold // "0.85"')
@@ -319,14 +319,14 @@ Integrate Claude Flow's verification system for automated truth scoring:
     "matcher": "Write|Edit|MultiEdit",
     "hooks": [{
       "type": "command",
-      "command": "echo '🔬 Initializing Claude Flow Verification...' && npx claude-flow@alpha verify init strict 2>/dev/null && echo '✅ Strict mode: 0.95 threshold' || echo '⚠️  Claude Flow not available'"
+      "command": "echo '🔬 Initializing Claude Flow Verification...' && npx @claude-flow/cli@latest verify init strict 2>/dev/null && echo '✅ Strict mode: 0.95 threshold' || echo '⚠️  Claude Flow not available'"
     }]
   }],
   "PostToolUse": [{
     "matcher": "Write|Edit|MultiEdit",
     "hooks": [{
       "type": "command",
-      "command": "FILE=$(cat | jq -r '.tool_input.file_path // .tool_input.path // empty') && echo '📊 CLAUDE FLOW VERIFICATION' && npx claude-flow@alpha verify verify \"$FILE\" --agent coder --threshold 0.95 2>/dev/null || echo '  Manual check required' && npx claude-flow@alpha truth --agent coder --json 2>/dev/null | jq -r '\"Truth Score: \\(.averageScore // \"N/A\")\"' || true"
+      "command": "FILE=$(cat | jq -r '.tool_input.file_path // .tool_input.path // empty') && echo '📊 CLAUDE FLOW VERIFICATION' && npx @claude-flow/cli@latest verify verify \"$FILE\" --agent coder --threshold 0.95 2>/dev/null || echo '  Manual check required' && npx @claude-flow/cli@latest truth --agent coder --json 2>/dev/null | jq -r '\"Truth Score: \\(.averageScore // \"N/A\")\"' || true"
     }]
   }]
 }
@@ -342,7 +342,7 @@ Combine Claude Flow verification with manual scoring:
     "matcher": "Write|Edit|MultiEdit",
     "hooks": [{
       "type": "command",
-      "command": "FILE=$(cat | jq -r '.tool_input.file_path // .tool_input.path // empty') && echo '📊 CODE QUALITY ANALYSIS' && echo \"File: $FILE\" && SCORE=100 && grep -q 'TODO' \"$FILE\" 2>/dev/null && { echo '  ❌ TODO found (-15)'; SCORE=$((SCORE-15)); } || echo '  ✓ No TODOs' && grep -q 'console.log' \"$FILE\" 2>/dev/null && { echo '  ⚠️  console.log (-5)'; SCORE=$((SCORE-5)); } || echo '  ✓ No console.log' && grep -qE 'mock|Mock|placeholder' \"$FILE\" 2>/dev/null && { echo '  ❌ Mock detected (-25)'; SCORE=$((SCORE-25)); } || echo '  ✓ No mocks' && echo \"📊 Manual Score: $SCORE/100\" && echo '' && echo '🔬 Claude Flow Truth Analysis:' && npx claude-flow@alpha truth --report --agent coder 2>/dev/null | head -10 || echo '  Claude Flow not available'"
+      "command": "FILE=$(cat | jq -r '.tool_input.file_path // .tool_input.path // empty') && echo '📊 CODE QUALITY ANALYSIS' && echo \"File: $FILE\" && SCORE=100 && grep -q 'TODO' \"$FILE\" 2>/dev/null && { echo '  ❌ TODO found (-15)'; SCORE=$((SCORE-15)); } || echo '  ✓ No TODOs' && grep -q 'console.log' \"$FILE\" 2>/dev/null && { echo '  ⚠️  console.log (-5)'; SCORE=$((SCORE-5)); } || echo '  ✓ No console.log' && grep -qE 'mock|Mock|placeholder' \"$FILE\" 2>/dev/null && { echo '  ❌ Mock detected (-25)'; SCORE=$((SCORE-25)); } || echo '  ✓ No mocks' && echo \"📊 Manual Score: $SCORE/100\" && echo '' && echo '🔬 Claude Flow Truth Analysis:' && npx @claude-flow/cli@latest truth --report --agent coder 2>/dev/null | head -10 || echo '  Claude Flow not available'"
     }]
   }]
 }
@@ -440,9 +440,9 @@ npm install -g claude-flow@alpha
 
 ### Quick Commands
 ```bash
-npx claude-flow@alpha verify init strict  # 0.95 threshold
-npx claude-flow@alpha truth               # View scores
-npx claude-flow@alpha verify verify "$FILE" --threshold 0.95
+npx @claude-flow/cli@latest verify init strict  # 0.95 threshold
+npx @claude-flow/cli@latest truth               # View scores
+npx @claude-flow/cli@latest verify verify "$FILE" --threshold 0.95
 ```
 
 ## 📚 Claude Flow Commands Reference
@@ -451,27 +451,27 @@ npx claude-flow@alpha verify verify "$FILE" --threshold 0.95
 
 #### Initialize verification modes
 ```bash
-npx claude-flow@alpha verify init strict          # 0.95 threshold
-npx claude-flow@alpha verify init moderate        # 0.85 threshold
-npx claude-flow@alpha verify init development     # 0.75 threshold
+npx @claude-flow/cli@latest verify init strict          # 0.95 threshold
+npx @claude-flow/cli@latest verify init moderate        # 0.85 threshold
+npx @claude-flow/cli@latest verify init development     # 0.75 threshold
 ```
 
 #### Run verification on files/tasks
 ```bash
-npx claude-flow@alpha verify verify <file> --agent coder --threshold 0.95
-npx claude-flow@alpha verify status --recent 10
-npx claude-flow@alpha verify rollback --checkpoint last
+npx @claude-flow/cli@latest verify verify <file> --agent coder --threshold 0.95
+npx @claude-flow/cli@latest verify status --recent 10
+npx @claude-flow/cli@latest verify rollback --checkpoint last
 ```
 
 ### Truth Command (Score Analytics)
 
 #### View and analyze scores
 ```bash
-npx claude-flow@alpha truth                       # Current scores
-npx claude-flow@alpha truth --report              # Detailed report
-npx claude-flow@alpha truth --analyze             # Pattern analysis
-npx claude-flow@alpha truth --agent coder         # Filter by agent
-npx claude-flow@alpha truth --json | jq .averageScore  # For hooks
+npx @claude-flow/cli@latest truth                       # Current scores
+npx @claude-flow/cli@latest truth --report              # Detailed report
+npx @claude-flow/cli@latest truth --analyze             # Pattern analysis
+npx @claude-flow/cli@latest truth --agent coder         # Filter by agent
+npx @claude-flow/cli@latest truth --json | jq .averageScore  # For hooks
 ```
 
 ---

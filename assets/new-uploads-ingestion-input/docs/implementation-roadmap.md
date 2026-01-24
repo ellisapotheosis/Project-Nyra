@@ -352,48 +352,48 @@ Day 21: Release preparation
 ### For Coder Agent:
 1. **Before starting Phase 1:**
    ```bash
-   npx claude-flow@alpha hooks pre-task --description "Implement ConfigManager"
-   npx claude-flow@alpha hooks session-restore --session-id "swarm-1767046360338"
-   npx claude-flow@alpha memory query "architecture" --namespace swarm
+   npx @claude-flow/cli@latest hooks pre-task --description "Implement ConfigManager"
+   npx @claude-flow/cli@latest hooks session-restore --session-id "swarm-1767046360338"
+   npx @claude-flow/cli@latest memory query "architecture" --namespace swarm
    ```
 
 2. **During implementation:**
    ```bash
    # After each file created
-   npx claude-flow@alpha hooks post-edit --memory-key "swarm/code/[component]"
+   npx @claude-flow/cli@latest hooks post-edit --memory-key "swarm/code/[component]"
    ```
 
 3. **After completing Phase 1:**
    ```bash
-   npx claude-flow@alpha memory store "swarm/code/phase1-complete" "ConfigManager, MemoryManager implemented. Files: src/init/ConfigManager.js, src/init/MemoryManager.js"
-   npx claude-flow@alpha hooks notify --message "Phase 1 complete: Foundation components implemented"
-   npx claude-flow@alpha hooks post-task --task-id "coder-phase1"
+   npx @claude-flow/cli@latest memory store "swarm/code/phase1-complete" "ConfigManager, MemoryManager implemented. Files: src/init/ConfigManager.js, src/init/MemoryManager.js"
+   npx @claude-flow/cli@latest hooks notify --message "Phase 1 complete: Foundation components implemented"
+   npx @claude-flow/cli@latest hooks post-task --task-id "coder-phase1"
    ```
 
 ### For Tester Agent:
 1. **Before starting Phase 4:**
    ```bash
-   npx claude-flow@alpha hooks pre-task --description "Create test suite"
-   npx claude-flow@alpha memory query "code" --namespace swarm
+   npx @claude-flow/cli@latest hooks pre-task --description "Create test suite"
+   npx @claude-flow/cli@latest memory query "code" --namespace swarm
    ```
 
 2. **After creating tests:**
    ```bash
-   npx claude-flow@alpha memory store "swarm/tests/coverage" "90%+ coverage achieved"
-   npx claude-flow@alpha hooks notify --message "Test suite complete"
+   npx @claude-flow/cli@latest memory store "swarm/tests/coverage" "90%+ coverage achieved"
+   npx @claude-flow/cli@latest hooks notify --message "Test suite complete"
    ```
 
 ### For Reviewer Agent:
 1. **Before starting Phase 5:**
    ```bash
-   npx claude-flow@alpha hooks pre-task --description "Review implementation"
-   npx claude-flow@alpha memory query "code" --namespace swarm
-   npx claude-flow@alpha memory query "tests" --namespace swarm
+   npx @claude-flow/cli@latest hooks pre-task --description "Review implementation"
+   npx @claude-flow/cli@latest memory query "code" --namespace swarm
+   npx @claude-flow/cli@latest memory query "tests" --namespace swarm
    ```
 
 2. **After review:**
    ```bash
-   npx claude-flow@alpha memory store "swarm/review/results" "Code approved. No security issues found."
+   npx @claude-flow/cli@latest memory store "swarm/review/results" "Code approved. No security issues found."
    ```
 
 ---
@@ -526,7 +526,7 @@ try {
 
 ### Immediate (Coder Agent):
 1. Read architecture document: `C:/Users/edane/docs/initialization-architecture.md`
-2. Query collective memory: `npx claude-flow@alpha memory query "architecture" --namespace swarm`
+2. Query collective memory: `npx @claude-flow/cli@latest memory query "architecture" --namespace swarm`
 3. Start Phase 1: Implement ConfigManager
 4. Follow coordination protocol (hooks)
 

@@ -730,7 +730,7 @@ Claude Flow provides swarm orchestration and agent coordination.
 
 ```bash
 # Option A: Using npx (Recommended)
-npx claude-flow@alpha mcp start
+npx @claude-flow/cli@latest mcp start
 
 # Option B: Global installation
 npm install -g claude-flow@alpha

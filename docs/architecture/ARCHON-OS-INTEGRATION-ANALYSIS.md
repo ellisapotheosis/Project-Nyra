@@ -102,10 +102,10 @@ Archon OS integrates with Claude Flow V3 through:
 **Initialization** (`entrypoint.sh`):
 ```bash
 # Restore session state from Claude Flow
-npx claude-flow@alpha hooks session-restore --session-id "archon-os-main"
+npx @claude-flow/cli@latest hooks session-restore --session-id "archon-os-main"
 
 # Register task start with coordination
-npx claude-flow@alpha hooks pre-task --description "Starting Archon OS orchestrator"
+npx @claude-flow/cli@latest hooks pre-task --description "Starting Archon OS orchestrator"
 ```
 
 **Configuration** (`archon-config.yml`):

@@ -239,10 +239,12 @@ pageReporting=false
   async installDockerInWSL(
     distro: string = 'Ubuntu-22.04'
   ): Promise<WSLInstallResult> {
-    this.logger.info(`Installing Docker in ${distro}`);
+    this.logger.info(`Installing Docker + Volta/Node/pnpm in ${distro}`);
 
     try {
       const dockerInstallScript = `
+        set -e
+        
         # Update package index
         sudo apt-get update
 
@@ -261,26 +263,46 @@ pageReporting=false
         sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
 
         # Add nyra user to docker group
-        sudo usermod -aG docker nyra
+        if id "nyra" >/dev/null 2>&1; then
+          sudo usermod -aG docker nyra
+        fi
 
-        # Start Docker service
-        sudo service docker start
+        # Start Docker service if available
+        if command -v service >/dev/null 2>&1; then
+          sudo service docker start || true
+        fi
+
+        # -----------------------------
+        # Volta + Node LTS + pnpm setup
+        # -----------------------------
+        if id "nyra" >/dev/null 2>&1; then
+          echo "Installing Volta for user nyra..."
+          sudo -u nyra bash -c "curl https://get.volta.sh | bash" || true
+
+          # Ensure Volta is on PATH for this script execution
+          export VOLTA_HOME="/home/nyra/.volta"
+          export PATH="$VOLTA_HOME/bin:$PATH"
+
+          echo "Installing Node LTS and pnpm via Volta..."
+          sudo -u nyra bash -c "export VOLTA_HOME=\"$VOLTA_HOME\"; export PATH=\"$VOLTA_HOME/bin:$PATH\"; volta install node@lts || true"
+          sudo -u nyra bash -c "export VOLTA_HOME=\"$VOLTA_HOME\"; export PATH=\"$VOLTA_HOME/bin:$PATH\"; volta install pnpm || true"
+        fi
       `;
 
       await execAsync(`wsl -d ${distro} -- bash -c "${dockerInstallScript}"`, {
         timeout: 300000, // 5 minutes
       });
 
-      this.logger.success('Docker installed in WSL');
+      this.logger.success('Docker + Volta/Node/pnpm installed in WSL');
       return {
         success: true,
-        message: 'Docker installed successfully in WSL',
+        message: 'Docker and developer tooling installed successfully in WSL',
       };
     } catch (error: any) {
-      this.logger.error('Docker installation in WSL failed', error.message);
+      this.logger.error('Docker/dev tooling installation in WSL failed', error.message);
       return {
         success: false,
-        message: `Docker installation failed: ${error.message}`,
+        message: `Docker/dev tooling installation failed: ${error.message}`,
       };
     }
   }

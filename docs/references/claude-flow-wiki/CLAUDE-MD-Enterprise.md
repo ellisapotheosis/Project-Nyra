@@ -87,8 +87,8 @@
 
 ```bash
 # Enterprise architecture review coordination
-npx claude-flow@alpha hooks pre-task --description "Enterprise architecture review and approval process" --auto-spawn-agents false
-npx claude-flow@alpha hooks notify --message "Architecture Review: [proposal], Stakeholders: [divisions], Compliance: [requirements], Impact: [enterprise-wide]" --telemetry true
+npx @claude-flow/cli@latest hooks pre-task --description "Enterprise architecture review and approval process" --auto-spawn-agents false
+npx @claude-flow/cli@latest hooks notify --message "Architecture Review: [proposal], Stakeholders: [divisions], Compliance: [requirements], Impact: [enterprise-wide]" --telemetry true
 ```
 
 ### Enterprise Agent Template
@@ -296,8 +296,8 @@ REMEMBER: Enterprise decisions impact hundreds of people and millions of users!
 
 ```bash
 # Global talent coordination
-npx claude-flow@alpha hooks pre-task --description "Global talent development and career progression"
-npx claude-flow@alpha hooks notify --message "Global talent review: [region], Career progression: [promotions], Skills development: [training programs], Cross-regional mobility: [transfers]" --telemetry true
+npx @claude-flow/cli@latest hooks pre-task --description "Global talent development and career progression"
+npx @claude-flow/cli@latest hooks notify --message "Global talent review: [region], Career progression: [promotions], Skills development: [training programs], Cross-regional mobility: [transfers]" --telemetry true
 ```
 
 ## 📊 ENTERPRISE PERFORMANCE AND ANALYTICS
@@ -434,8 +434,8 @@ npx claude-flow@alpha hooks notify --message "Global talent review: [region], Ca
 
 ```bash
 # Enterprise agility coordination
-npx claude-flow@alpha hooks pre-task --description "Enterprise agility assessment and improvement"
-npx claude-flow@alpha hooks notify --message "Agility metrics: [time to market], [adaptation speed], [innovation rate], Impediments: [bureaucracy levels], Improvements: [process optimizations]" --telemetry true
+npx @claude-flow/cli@latest hooks pre-task --description "Enterprise agility assessment and improvement"
+npx @claude-flow/cli@latest hooks notify --message "Agility metrics: [time to market], [adaptation speed], [innovation rate], Impediments: [bureaucracy levels], Improvements: [process optimizations]" --telemetry true
 ```
 
 ### Merger and Acquisition Integration

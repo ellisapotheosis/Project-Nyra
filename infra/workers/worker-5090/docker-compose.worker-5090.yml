@@ -1,0 +1,208 @@
+# Docker Compose - Worker Node RTX 5090
+# GPU: NVIDIA RTX 5090 48GB VRAM
+# Specialization: Complex reasoning (DeepSeek-R1 236B, Qwen 2.5 72B)
+# Models: DeepSeek-R1 236B, Qwen 2.5 72B for mortgage calculations, compliance analysis
+
+version: '3.8'
+
+services:
+  # Ollama - Primary LLM Inference
+  ollama:
+    image: ollama/ollama:latest
+    container_name: nyra-worker-5090-ollama
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=0
+      - OLLAMA_HOST=0.0.0.0
+      - OLLAMA_MODELS=/app/models
+      - OLLAMA_NUM_PARALLEL=8
+      - OLLAMA_MAX_LOADED_MODELS=2
+      - OLLAMA_KEEP_ALIVE=30m
+      - OLLAMA_MAX_VRAM=46GB
+    volumes:
+      - ollama-models-5090:/app/models
+      - ./ollama-config:/root/.ollama:ro
+    networks:
+      - nyra-worker-5090
+      - nyra-core
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      interval: 30s
+      timeout: 15s
+      retries: 3
+      start_period: 60s
+
+  # LiteLLM Proxy - OpenAI-compatible API
+  litellm:
+    image: ghcr.io/berriai/litellm:main-latest
+    container_name: nyra-worker-5090-litellm
+    restart: unless-stopped
+    ports:
+      - "4000:4000"
+    environment:
+      - LITELLM_MASTER_KEY=${LITELLM_MASTER_KEY}
+      - LITELLM_LOG=INFO
+      - DATABASE_URL=${LITELLM_DATABASE_URL:-postgresql://postgres:password@postgres:5432/litellm}
+    volumes:
+      - ./litellm-config.yaml:/app/config.yaml:ro
+    command: --config /app/config.yaml --port 4000
+    networks:
+      - nyra-worker-5090
+      - nyra-core
+    depends_on:
+      - ollama
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Model Manager - Monitor and manage loaded models
+  model-manager:
+    image: nyra/model-manager:latest
+    build:
+      context: ../../services/model-manager
+      dockerfile: Dockerfile
+    container_name: nyra-worker-5090-model-manager
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - WORKER_ID=worker-5090
+      - GPU_TYPE=rtx_5090
+      - VRAM_GB=48
+      - OLLAMA_API_BASE=http://ollama:11434
+      - LITELLM_API_BASE=http://litellm:4000
+      - SPECIALIZATION=complex_reasoning
+      - PRIMARY_MODELS=deepseek-r1:236b-instruct-q4_K_M,qwen2.5:72b-instruct-q5_K_M
+    volumes:
+      - ./worker-5090-config.yaml:/app/config.yaml:ro
+      - ollama-models-5090:/app/models:ro
+      - manager-data:/app/data
+    networks:
+      - nyra-worker-5090
+      - nyra-orchestrator
+    depends_on:
+      - ollama
+      - litellm
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Performance Monitor - GPU metrics and health
+  perf-monitor:
+    image: nyra/worker-perf-monitor:latest
+    build:
+      context: ../../services/worker-perf-monitor
+      dockerfile: Dockerfile
+    container_name: nyra-worker-5090-perf
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    environment:
+      - WORKER_ID=worker-5090
+      - GPU_MONITORING=true
+      - PROMETHEUS_PUSH_GATEWAY=${PROMETHEUS_PUSH_GATEWAY:-http://prometheus:9091}
+      - SCRAPE_INTERVAL=15s
+      - ALERT_THRESHOLD_GPU_TEMP=85
+      - ALERT_THRESHOLD_VRAM_USAGE=90
+    volumes:
+      - ./worker-5090-config.yaml:/app/config.yaml:ro
+      - monitor-data:/app/data
+    networks:
+      - nyra-worker-5090
+      - nyra-orchestrator
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9090/metrics"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Health Check Service - Report to orchestrator
+  health-check:
+    image: nyra/health-check:latest
+    build:
+      context: ../../services/health-check
+      dockerfile: Dockerfile
+    container_name: nyra-worker-5090-health
+    restart: unless-stopped
+    ports:
+      - "8081:8080"
+    environment:
+      - WORKER_ID=worker-5090
+      - CHECK_INTERVAL=30
+      - ORCHESTRATOR_URL=${ORCHESTRATOR_URL:-http://nexus:7000}
+      - NEXUS_ADMIN_TOKEN=${NEXUS_ADMIN_TOKEN}
+      - SERVICES=ollama,litellm,model-manager,perf-monitor
+    volumes:
+      - ./worker-5090-config.yaml:/app/config.yaml:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - nyra-worker-5090
+      - nyra-orchestrator
+    depends_on:
+      - ollama
+      - litellm
+      - model-manager
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 60s
+      timeout: 15s
+      retries: 3
+
+  # Log Shipper - Forward logs to orchestrator
+  log-shipper:
+    image: grafana/promtail:latest
+    container_name: nyra-worker-5090-logs
+    restart: unless-stopped
+    volumes:
+      - /var/log:/var/log:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - ./promtail-config.yaml:/etc/promtail/config.yaml:ro
+    command: -config.file=/etc/promtail/config.yaml
+    networks:
+      - nyra-worker-5090
+      - nyra-orchestrator
+    environment:
+      - LOKI_URL=${LOKI_URL:-http://loki:3100}
+
+networks:
+  nyra-worker-5090:
+    name: nyra-worker-5090
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.25.0.0/16
+  nyra-core:
+    external: true
+  nyra-orchestrator:
+    external: true
+
+volumes:
+  ollama-models-5090:
+    name: nyra-ollama-models-5090
+    driver: local
+  manager-data:
+    name: nyra-worker-5090-manager
+    driver: local
+  monitor-data:
+    name: nyra-worker-5090-monitor
+    driver: local

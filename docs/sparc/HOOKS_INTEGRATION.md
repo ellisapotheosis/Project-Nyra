@@ -31,7 +31,7 @@ Claude-Flow hooks are automated triggers that execute before, during, and after 
 
 **Pre-Task Hook:**
 ```bash
-npx claude-flow@alpha hooks pre-task \
+npx @claude-flow/cli@latest hooks pre-task \
   --description "Specification phase: [Feature Name]" \
   --phase "specification" \
   --feature "[feature-id]"
@@ -47,20 +47,20 @@ npx claude-flow@alpha hooks pre-task \
 **During Specification:**
 ```bash
 # After creating specification document
-npx claude-flow@alpha hooks post-edit \
+npx @claude-flow/cli@latest hooks post-edit \
   --file "docs/sparc/specifications/[feature].md" \
   --memory-key "sparc/[feature]/spec" \
   --content-type "specification"
 
 # Notify other agents of specification completion
-npx claude-flow@alpha hooks notify \
+npx @claude-flow/cli@latest hooks notify \
   --message "Specification complete for [feature]" \
   --target "architecture-agent"
 ```
 
 **Post-Task Hook:**
 ```bash
-npx claude-flow@alpha hooks post-task \
+npx @claude-flow/cli@latest hooks post-task \
   --task-id "[task-id-from-pre-task]" \
   --status "completed" \
   --phase "specification" \
@@ -80,7 +80,7 @@ npx claude-flow@alpha hooks post-task \
 
 **Pre-Task Hook:**
 ```bash
-npx claude-flow@alpha hooks pre-task \
+npx @claude-flow/cli@latest hooks pre-task \
   --description "Pseudocode phase: [Feature Name]" \
   --phase "pseudocode" \
   --feature "[feature-id]" \
@@ -96,13 +96,13 @@ npx claude-flow@alpha hooks pre-task \
 **During Pseudocode:**
 ```bash
 # After creating pseudocode document
-npx claude-flow@alpha hooks post-edit \
+npx @claude-flow/cli@latest hooks post-edit \
   --file "docs/sparc/pseudocode/[feature].md" \
   --memory-key "sparc/[feature]/pseudocode" \
   --content-type "algorithm"
 
 # Store algorithm patterns for reuse
-npx claude-flow@alpha hooks store-pattern \
+npx @claude-flow/cli@latest hooks store-pattern \
   --pattern-type "algorithm" \
   --pattern-name "[algorithm-name]" \
   --complexity "O(n)" \
@@ -111,7 +111,7 @@ npx claude-flow@alpha hooks store-pattern \
 
 **Post-Task Hook:**
 ```bash
-npx claude-flow@alpha hooks post-task \
+npx @claude-flow/cli@latest hooks post-task \
   --task-id "[task-id]" \
   --status "completed" \
   --phase "pseudocode" \
@@ -124,7 +124,7 @@ npx claude-flow@alpha hooks post-task \
 
 **Pre-Task Hook:**
 ```bash
-npx claude-flow@alpha hooks pre-task \
+npx @claude-flow/cli@latest hooks pre-task \
   --description "Architecture phase: [Feature Name]" \
   --phase "architecture" \
   --feature "[feature-id]" \
@@ -140,13 +140,13 @@ npx claude-flow@alpha hooks pre-task \
 **During Architecture:**
 ```bash
 # After creating architecture document
-npx claude-flow@alpha hooks post-edit \
+npx @claude-flow/cli@latest hooks post-edit \
   --file "docs/sparc/architecture/[feature].md" \
   --memory-key "sparc/[feature]/architecture" \
   --content-type "architecture"
 
 # Store architectural decision records
-npx claude-flow@alpha hooks store-adr \
+npx @claude-flow/cli@latest hooks store-adr \
   --title "[Decision Title]" \
   --decision "[What was decided]" \
   --rationale "[Why]" \
@@ -155,7 +155,7 @@ npx claude-flow@alpha hooks store-adr \
 
 **Post-Task Hook:**
 ```bash
-npx claude-flow@alpha hooks post-task \
+npx @claude-flow/cli@latest hooks post-task \
   --task-id "[task-id]" \
   --status "completed" \
   --phase "architecture" \
@@ -168,7 +168,7 @@ npx claude-flow@alpha hooks post-task \
 
 **Pre-Task Hook:**
 ```bash
-npx claude-flow@alpha hooks pre-task \
+npx @claude-flow/cli@latest hooks pre-task \
   --description "Refinement phase: [Feature Name]" \
   --phase "refinement" \
   --feature "[feature-id]" \
@@ -184,14 +184,14 @@ npx claude-flow@alpha hooks pre-task \
 **During Refinement:**
 ```bash
 # After creating test file
-npx claude-flow@alpha hooks post-edit \
+npx @claude-flow/cli@latest hooks post-edit \
   --file "tests/test_[feature].py" \
   --memory-key "sparc/[feature]/tests" \
   --content-type "test" \
   --auto-format true
 
 # After implementing code
-npx claude-flow@alpha hooks post-edit \
+npx @claude-flow/cli@latest hooks post-edit \
   --file "app/[feature].py" \
   --memory-key "sparc/[feature]/implementation" \
   --content-type "code" \
@@ -199,7 +199,7 @@ npx claude-flow@alpha hooks post-edit \
   --run-tests true
 
 # Track TDD cycles
-npx claude-flow@alpha hooks tdd-cycle \
+npx @claude-flow/cli@latest hooks tdd-cycle \
   --cycle-number 1 \
   --phase "red"  # or "green" or "refactor"
 ```
@@ -213,7 +213,7 @@ Hooks automatically run formatters after code changes:
 **Auto-Testing:**
 Hooks can automatically run tests after implementation:
 ```bash
-npx claude-flow@alpha hooks post-edit \
+npx @claude-flow/cli@latest hooks post-edit \
   --file "app/[feature].py" \
   --run-tests true \
   --test-suite "tests/test_[feature].py"
@@ -221,7 +221,7 @@ npx claude-flow@alpha hooks post-edit \
 
 **Post-Task Hook:**
 ```bash
-npx claude-flow@alpha hooks post-task \
+npx @claude-flow/cli@latest hooks post-task \
   --task-id "[task-id]" \
   --status "completed" \
   --phase "refinement" \
@@ -235,7 +235,7 @@ npx claude-flow@alpha hooks post-task \
 
 **Pre-Task Hook:**
 ```bash
-npx claude-flow@alpha hooks pre-task \
+npx @claude-flow/cli@latest hooks pre-task \
   --description "Completion phase: [Feature Name]" \
   --phase "completion" \
   --feature "[feature-id]" \
@@ -251,26 +251,26 @@ npx claude-flow@alpha hooks pre-task \
 **During Completion:**
 ```bash
 # After creating Dockerfile
-npx claude-flow@alpha hooks post-edit \
+npx @claude-flow/cli@latest hooks post-edit \
   --file "Dockerfile" \
   --memory-key "sparc/[feature]/deployment/docker" \
   --validate-docker true
 
 # After integration tests
-npx claude-flow@alpha hooks post-edit \
+npx @claude-flow/cli@latest hooks post-edit \
   --file "docs/sparc/completion/[feature].md" \
   --memory-key "sparc/[feature]/completion" \
   --content-type "deployment"
 
 # Trigger deployment pipeline
-npx claude-flow@alpha hooks trigger-deployment \
+npx @claude-flow/cli@latest hooks trigger-deployment \
   --target "staging" \
   --feature "[feature-id]"
 ```
 
 **Post-Task Hook:**
 ```bash
-npx claude-flow@alpha hooks post-task \
+npx @claude-flow/cli@latest hooks post-task \
   --task-id "[task-id]" \
   --status "completed" \
   --phase "completion" \
@@ -287,7 +287,7 @@ npx claude-flow@alpha hooks post-task \
 **When to use:** Beginning a multi-hour or multi-day SPARC cycle
 
 ```bash
-npx claude-flow@alpha hooks session-start \
+npx @claude-flow/cli@latest hooks session-start \
   --session-name "sparc-[feature-id]" \
   --duration "8h" \
   --phases "all"
@@ -306,7 +306,7 @@ npx claude-flow@alpha hooks session-start \
 **When to use:** End of work day, before long break, after major milestone
 
 ```bash
-npx claude-flow@alpha hooks session-checkpoint \
+npx @claude-flow/cli@latest hooks session-checkpoint \
   --session-id "[session-id]" \
   --description "Completed specification and pseudocode phases"
 ```
@@ -324,7 +324,7 @@ npx claude-flow@alpha hooks session-checkpoint \
 **When to use:** Resuming work after break or on different machine
 
 ```bash
-npx claude-flow@alpha hooks session-restore \
+npx @claude-flow/cli@latest hooks session-restore \
   --session-id "sparc-[feature-id]" \
   --restore-context true
 ```
@@ -342,7 +342,7 @@ npx claude-flow@alpha hooks session-restore \
 **When to use:** After completing all SPARC phases
 
 ```bash
-npx claude-flow@alpha hooks session-end \
+npx @claude-flow/cli@latest hooks session-end \
   --session-id "[session-id]" \
   --export-metrics true \
   --generate-report true
@@ -399,13 +399,13 @@ sparc/
 
 ```bash
 # Store specification context
-npx claude-flow@alpha hooks memory-store \
+npx @claude-flow/cli@latest hooks memory-store \
   --key "sparc/[feature]/spec/requirements" \
   --value "[JSON or text content]" \
   --ttl "30d"
 
 # Store with tags for retrieval
-npx claude-flow@alpha hooks memory-store \
+npx @claude-flow/cli@latest hooks memory-store \
   --key "sparc/[feature]/architecture/components" \
   --value "[content]" \
   --tags "architecture,components,microservices"
@@ -415,16 +415,16 @@ npx claude-flow@alpha hooks memory-store \
 
 ```bash
 # Retrieve specific key
-npx claude-flow@alpha hooks memory-retrieve \
+npx @claude-flow/cli@latest hooks memory-retrieve \
   --key "sparc/[feature]/spec/requirements"
 
 # Search by pattern
-npx claude-flow@alpha hooks memory-search \
+npx @claude-flow/cli@latest hooks memory-search \
   --query "webhook" \
   --pattern "sparc/*/spec/*"
 
 # Retrieve by tags
-npx claude-flow@alpha hooks memory-search \
+npx @claude-flow/cli@latest hooks memory-search \
   --tags "architecture,microservices"
 ```
 
@@ -497,14 +497,14 @@ Task("TDD Agent", "Implement with TDD", "sparc-coder")
 
 ```bash
 # Agent 1 completes work
-npx claude-flow@alpha hooks post-task \
+npx @claude-flow/cli@latest hooks post-task \
   --task-id "[task-1-id]" \
   --status "completed" \
   --signal-next "architecture-agent"
 
 # Agent 2 receives signal via pre-task hook
 # Pre-task hook checks for completion signals
-npx claude-flow@alpha hooks pre-task \
+npx @claude-flow/cli@latest hooks pre-task \
   --description "Architecture phase" \
   --wait-for-signal "specification-complete"
 ```
@@ -518,7 +518,7 @@ npx claude-flow@alpha hooks pre-task \
 **Automatic code formatting after edits:**
 
 ```bash
-npx claude-flow@alpha hooks post-edit \
+npx @claude-flow/cli@latest hooks post-edit \
   --file "app/service.py" \
   --auto-format true \
   --formatters "black,isort"
@@ -537,7 +537,7 @@ Supported formatters:
 **Automatic test execution after code changes:**
 
 ```bash
-npx claude-flow@alpha hooks post-edit \
+npx @claude-flow/cli@latest hooks post-edit \
   --file "app/service.py" \
   --run-tests true \
   --test-suite "tests/" \
@@ -555,7 +555,7 @@ If tests fail, hook returns error and prevents phase progression.
 After completing a SPARC cycle, hooks automatically train neural models:
 
 ```bash
-npx claude-flow@alpha hooks session-end \
+npx @claude-flow/cli@latest hooks session-end \
   --session-id "[session-id]" \
   --train-patterns true \
   --success-metrics "coverage=94%,latency=145ms"
@@ -580,7 +580,7 @@ npx claude-flow@alpha hooks session-end \
 **Automatic PR creation after completion:**
 
 ```bash
-npx claude-flow@alpha hooks post-task \
+npx @claude-flow/cli@latest hooks post-task \
   --task-id "[task-id]" \
   --phase "completion" \
   --create-pr true \
@@ -591,7 +591,7 @@ npx claude-flow@alpha hooks post-task \
 **Automatic commit messages:**
 
 ```bash
-npx claude-flow@alpha hooks post-edit \
+npx @claude-flow/cli@latest hooks post-edit \
   --file "app/service.py" \
   --auto-commit true \
   --commit-msg "Implement [component] - Refinement phase"
@@ -667,7 +667,7 @@ Override global settings in project-specific config:
 **Solution:**
 ```bash
 # Check hooks installation
-npx claude-flow@alpha hooks status
+npx @claude-flow/cli@latest hooks status
 
 # Reinstall if needed
 npm install -g claude-flow@alpha
@@ -685,14 +685,14 @@ cat .claude-flow/config.json
 **Solution:**
 ```bash
 # Check memory database
-npx claude-flow@alpha hooks memory-status
+npx @claude-flow/cli@latest hooks memory-status
 
 # Verify storage path
 echo $CLAUDE_FLOW_MEMORY_PATH
 
 # Manually test store/retrieve
-npx claude-flow@alpha hooks memory-store --key "test" --value "hello"
-npx claude-flow@alpha hooks memory-retrieve --key "test"
+npx @claude-flow/cli@latest hooks memory-store --key "test" --value "hello"
+npx @claude-flow/cli@latest hooks memory-retrieve --key "test"
 ```
 
 ---
@@ -714,7 +714,7 @@ npm install -g prettier eslint  # for JavaScript
 black app/service.py
 
 # Check hook configuration
-npx claude-flow@alpha hooks config show formatters
+npx @claude-flow/cli@latest hooks config show formatters
 ```
 
 ---
@@ -745,71 +745,71 @@ npx claude-flow@alpha hooks config show formatters
 
 ```bash
 # 1. Start session
-npx claude-flow@alpha hooks session-start \
+npx @claude-flow/cli@latest hooks session-start \
   --session-name "sparc-twenty-bridge" \
   --phases "all"
 
 # 2. Specification phase
-npx claude-flow@alpha hooks pre-task \
+npx @claude-flow/cli@latest hooks pre-task \
   --description "Specification: Twenty-Bridge webhook"
 
 # ... create specification ...
 
-npx claude-flow@alpha hooks post-edit \
+npx @claude-flow/cli@latest hooks post-edit \
   --file "docs/sparc/specifications/twenty-bridge.md" \
   --memory-key "sparc/twenty-bridge/spec"
 
-npx claude-flow@alpha hooks post-task \
+npx @claude-flow/cli@latest hooks post-task \
   --task-id "[from-pre-task]" \
   --next-phase "architecture"
 
 # 3. Architecture phase
-npx claude-flow@alpha hooks pre-task \
+npx @claude-flow/cli@latest hooks pre-task \
   --description "Architecture: Twenty-Bridge webhook" \
   --depends-on "specification"
 
 # ... create architecture ...
 
-npx claude-flow@alpha hooks post-edit \
+npx @claude-flow/cli@latest hooks post-edit \
   --file "docs/sparc/architecture/twenty-bridge.md" \
   --memory-key "sparc/twenty-bridge/architecture"
 
-npx claude-flow@alpha hooks post-task \
+npx @claude-flow/cli@latest hooks post-task \
   --task-id "[from-pre-task]" \
   --next-phase "refinement"
 
 # 4. Refinement phase
-npx claude-flow@alpha hooks pre-task \
+npx @claude-flow/cli@latest hooks pre-task \
   --description "Refinement: Twenty-Bridge webhook" \
   --mode "tdd"
 
 # ... TDD cycle: write tests, implement, refactor ...
 
-npx claude-flow@alpha hooks post-edit \
+npx @claude-flow/cli@latest hooks post-edit \
   --file "app/webhook.py" \
   --auto-format true \
   --run-tests true
 
-npx claude-flow@alpha hooks post-task \
+npx @claude-flow/cli@latest hooks post-task \
   --task-id "[from-pre-task]" \
   --next-phase "completion"
 
 # 5. Completion phase
-npx claude-flow@alpha hooks pre-task \
+npx @claude-flow/cli@latest hooks pre-task \
   --description "Completion: Twenty-Bridge webhook"
 
 # ... integration testing, deployment ...
 
-npx claude-flow@alpha hooks post-edit \
+npx @claude-flow/cli@latest hooks post-edit \
   --file "docs/sparc/completion/twenty-bridge.md" \
   --memory-key "sparc/twenty-bridge/completion"
 
-npx claude-flow@alpha hooks post-task \
+npx @claude-flow/cli@latest hooks post-task \
   --task-id "[from-pre-task]" \
   --create-pr true
 
 # 6. End session
-npx claude-flow@alpha hooks session-end \
+npx @claude-flow/cli@latest hooks session-end \
   --session-id "sparc-twenty-bridge" \
   --export-metrics true \
   --train-patterns true

@@ -19,10 +19,10 @@ This guide shows you how to use the SPARC (Specification, Pseudocode, Architectu
 
 ```bash
 # Start SPARC coordination
-npx claude-flow@alpha hooks pre-task --description "Twenty-Bridge webhook service"
+npx @claude-flow/cli@latest hooks pre-task --description "Twenty-Bridge webhook service"
 
 # Initialize swarm (optional, for complex features)
-npx claude-flow@alpha swarm init --topology mesh --agents 5
+npx @claude-flow/cli@latest swarm init --topology mesh --agents 5
 ```
 
 ### 2. Execute Full SPARC Pipeline
@@ -64,7 +64,7 @@ npx claude-flow memory search --query "twenty-bridge"
 
 ```bash
 # Export metrics and end session
-npx claude-flow@alpha hooks session-end --export-metrics true
+npx @claude-flow/cli@latest hooks session-end --export-metrics true
 
 # Create PR (if ready)
 npx claude-flow github pr create --title "Add Twenty-Bridge webhook service"
@@ -473,10 +473,10 @@ npx claude-flow memory list
 cat .claude-flow/config.json
 
 # Manually store context
-npx claude-flow@alpha hooks post-edit --memory-key "sparc/feature/context"
+npx @claude-flow/cli@latest hooks post-edit --memory-key "sparc/feature/context"
 
 # Restore session
-npx claude-flow@alpha hooks session-restore --session-id "sparc-[feature]"
+npx @claude-flow/cli@latest hooks session-restore --session-id "sparc-[feature]"
 ```
 
 ---
@@ -511,7 +511,7 @@ npx claude-flow@alpha hooks session-restore --session-id "sparc-[feature]"
 
 ```bash
 # 1. Initialize
-npx claude-flow@alpha hooks pre-task --description "Twenty-Bridge webhook"
+npx @claude-flow/cli@latest hooks pre-task --description "Twenty-Bridge webhook"
 npx claude-flow swarm init --topology mesh --agents 5
 
 # 2. Specification
@@ -540,7 +540,7 @@ npx claude-flow github pr create \
   --body "Implements webhook receiver for TwentyCRM events"
 
 # 7. Finalize
-npx claude-flow@alpha hooks session-end --export-metrics true
+npx @claude-flow/cli@latest hooks session-end --export-metrics true
 ```
 
 **Time:** ~2 days (16 hours)

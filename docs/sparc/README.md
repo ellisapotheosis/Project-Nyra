@@ -306,13 +306,13 @@ All agents use [Claude-Flow hooks](./HOOKS_INTEGRATION.md) for coordination:
 
 ```bash
 # Pre-task: Prepare environment
-npx claude-flow@alpha hooks pre-task --description "[task]"
+npx @claude-flow/cli@latest hooks pre-task --description "[task]"
 
 # During work: Store progress
-npx claude-flow@alpha hooks post-edit --file "[file]" --memory-key "sparc/[feature]/[phase]"
+npx @claude-flow/cli@latest hooks post-edit --file "[file]" --memory-key "sparc/[feature]/[phase]"
 
 # Post-task: Finalize and signal next phase
-npx claude-flow@alpha hooks post-task --task-id "[id]" --next-phase "[next]"
+npx @claude-flow/cli@latest hooks post-task --task-id "[id]" --next-phase "[next]"
 ```
 
 ### Parallel vs Sequential

@@ -1,0 +1,382 @@
+# NYRA Enhanced Starship Configuration
+# Full feature set with Volta, Docker, and NYRA-specific integrations
+# For use in bash and other terminals (not Warp-optimized)
+
+format = """
+$os$username$hostname$directory$git_branch$git_status$git_state$python$nodejs$docker_context$container$package$cmd_duration
+$character"""
+
+right_format = """$time"""
+
+# Add a new line before the character
+add_newline = true
+
+# OS segment
+[os]
+format = "[$symbol ]($style)"
+style = "bold #7572F7"
+disabled = false
+
+[os.symbols]
+Windows = ""
+
+# Username (session)
+[username]
+format = "[$user ]($style)"
+style_user = "bold #B38CFF" 
+style_root = "bold #FF5DAE"
+show_always = true
+
+# Directory
+[directory]
+format = "[$path ]($style)[$read_only]($read_only_style)"
+style = "bold #668CFF"
+read_only = ""
+read_only_style = "bold #FF5DAE"
+truncation_length = 5
+truncation_symbol = "…/"
+home_symbol = "~"
+
+# Special NYRA project path substitutions
+[directory.substitutions]
+"/c/Dev/DevProjects/Personal-Projects/Project-Nyra" = " NYRA"
+"/c/Dev/DevProjects/Personal-Projects/claude-flow" = " CF"
+"/c/Dev/DevProjects/Personal-Projects" = " DEV"
+"C:/Dev/DevProjects/Personal-Projects/Project-Nyra" = " NYRA"
+"C:/Dev/DevProjects/Personal-Projects/claude-flow" = " CF"
+"C:/Dev/DevProjects/Personal-Projects" = " DEV"
+
+# Git branch
+[git_branch]
+format = "[$symbol$branch ]($style)"
+style = "bold #96FFBE"
+symbol = " "
+
+# Git status
+[git_status]
+format = "([$all_status$ahead_behind ]($style))"
+style = "bold #FF5DAE"
+conflicted = "="
+ahead = "⇡${count}"
+behind = "⇣${count}"
+diverged = "⇕⇡${ahead_count}⇣${behind_count}"
+untracked = "?"
+stashed = "$"
+modified = "!"
+staged = "+"
+renamed = "»"
+deleted = "✘"
+
+# Git state (for rebase, merge, etc.)
+[git_state]
+format = '\([$state( $progress_current/$progress_total)]($style)\) '
+style = "bright-black"
+
+# Python (UV-aware)
+[python]
+format = '[${symbol}${pyenv_prefix}(${version} )(($virtualenv) )]($style)'
+symbol = " "
+style = "bold #9CF6FF"
+pyenv_version_name = true
+detect_extensions = ["py"]
+detect_files = [".python-version", "pyproject.toml", "Pipfile", "requirements.txt", "setup.py", "uv.lock"]
+detect_folders = ["__pycache__", ".venv", "venv"]
+
+# Node.js (Volta-aware)
+[nodejs]
+format = "[$symbol($version )]($style)"
+symbol = "⚡ "  # Volta lightning bolt
+style = "bold #A7FFD7"
+detect_extensions = ["js", "mjs", "cjs", "ts", "tsx", "vue", "jsx"]
+detect_files = ["package.json", ".nvmrc", "volta.json", ".node-version"]
+detect_folders = ["node_modules"]
+
+# Docker context (for NYRA development)
+[docker_context]
+format = "[$symbol$context ]($style)"
+style = "bold #9CF6FF"
+symbol = "🐳 "
+only_with_files = true
+detect_files = ["docker-compose.yml", "docker-compose.yaml", "Dockerfile", ".dockerignore"]
+detect_folders = [".docker"]
+disabled = false
+
+# Container detection
+[container]
+format = "[$symbol \\[$name\\]]($style)"
+style = "bold dimmed #9CF6FF"
+symbol = "⬢"
+
+# Package version
+[package]
+format = "[$symbol$version ]($style)"
+style = "bold #A7FFD7"
+symbol = "📦 "
+disabled = false
+
+# Command duration
+[cmd_duration]
+format = "[$duration ]($style)"
+style = "bold #9CF6FF"
+min_time = 500
+show_milliseconds = true
+
+# Time (right-aligned)
+[time]
+format = "[$time ]($style)"
+style = "bold #7572F7"
+time_format = "%H:%M:%S"
+disabled = false
+
+# Character (prompt symbol)
+[character]
+success_symbol = "[❯](bold #B38CFF)"
+error_symbol = "[❯](bold #FF78B4)"
+vicmd_symbol = "[❮](bold #C16BFF)"
+
+# Memory usage (for debugging)
+[memory_usage]
+format = "[$symbol${ram}( | ${swap})]($style)"
+style = "bold dimmed #9CF6FF"
+symbol = " "
+threshold = 70
+disabled = false
+
+# Status codes
+[status]
+format = "[$symbol$status ]($style)"
+style = "bold #FF5DAE"
+symbol = "✘ "
+not_executable_symbol = "🚫 "
+not_found_symbol = "🔍 "
+sigint_symbol = "🧱 "
+signal_symbol = "⚡ "
+disabled = false
+
+# Jobs
+[jobs]
+format = "[$symbol$number ]($style)"
+style = "bold #FF5DAE"
+symbol = "✦ "
+number_threshold = 1
+symbol_threshold = 1
+disabled = false
+
+# Environment variables (for NYRA development)
+[env_var.NYRA_ENV]
+format = "[\\($env_value\\) ]($style)"
+style = "bold #96FFBE"
+variable = "NYRA_ENV"
+default = "dev"
+
+# Custom NYRA modules
+[custom.claude_flow]
+command = "if [ -f .mcp.json ]; then echo 'CF'; fi"
+when = "test -f .mcp.json"
+format = "[$symbol$output ]($style)"
+style = "bold #B38CFF"
+symbol = "🤖 "
+shell = ["bash", "-c"]
+disabled = false
+
+[custom.volta]
+command = "volta --version 2>/dev/null | cut -d' ' -f1"
+when = "command -v volta"
+format = "[⚡$output ]($style)"
+style = "bold #FFD700"
+shell = ["bash", "-c"]
+disabled = false
+
+[custom.docker_status]
+command = "docker info >/dev/null 2>&1 && echo 'ON' || echo 'OFF'"
+when = "command -v docker"
+format = "[$symbol$output ]($style)"
+style = "bold #00D4FF"
+symbol = "🐳"
+shell = ["bash", "-c"]
+disabled = false
+
+# Enable helpful but less critical modules
+[aws]
+format = "[$symbol($profile)(\\($region\\))(\\[$duration\\])]($style)"
+style = "bold #FF9900"
+symbol = "☁️ "
+disabled = false
+
+[kubernetes]
+format = "[$symbol$context( ($namespace))]($style)"
+style = "bold #326CE5"
+symbol = "⎈ "
+disabled = false
+
+[terraform]
+format = "[$symbol$workspace ]($style)"
+style = "bold #7B42BC"
+symbol = "💠 "
+disabled = false
+
+# Disable less relevant modules for NYRA development
+[azure]
+disabled = true
+
+[gcloud]
+disabled = true
+
+[helm]
+disabled = true
+
+[vagrant]
+disabled = true
+
+[nix_shell]
+disabled = true
+
+[conda]
+disabled = true
+
+[battery]
+disabled = true
+
+[rust]
+disabled = true
+
+[golang]
+disabled = true
+
+[java]
+disabled = true
+
+[dotnet]
+disabled = true
+
+[php]
+disabled = true
+
+[ruby]
+disabled = true
+
+[crystal]
+disabled = true
+
+[nim]
+disabled = true
+
+[c]
+disabled = true
+
+[cmake]
+disabled = true
+
+[deno]
+disabled = true
+
+[zig]
+disabled = true
+
+[scala]
+disabled = true
+
+[kotlin]
+disabled = true
+
+[haskell]
+disabled = true
+
+[julia]
+disabled = true
+
+[lua]
+disabled = true
+
+[dart]
+disabled = true
+
+[swift]
+disabled = true
+
+[red]
+disabled = true
+
+[vlang]
+disabled = true
+
+[rlang]
+disabled = true
+
+[ocaml]
+disabled = true
+
+[purescript]
+disabled = true
+
+[elm]
+disabled = true
+
+[erlang]
+disabled = true
+
+[elixir]
+disabled = true
+
+[perl]
+disabled = true
+
+[raku]
+disabled = true
+
+[haxe]
+disabled = true
+
+[solidity]
+disabled = true
+
+[openstack]
+disabled = true
+
+[singularity]
+disabled = true
+
+[pulumi]
+disabled = true
+
+[buf]
+disabled = true
+
+[guix_shell]
+disabled = true
+
+[daml]
+disabled = true
+
+[fossil_branch]
+disabled = true
+
+[pijul_channel]
+disabled = true
+
+[hg_branch]
+disabled = true
+
+[bzr_branch]
+disabled = true
+
+[svn_branch]
+disabled = true
+
+[localip]
+disabled = true
+
+[spack]
+disabled = true
+
+[shell]
+disabled = true
+
+[sudo]
+disabled = true
+
+[line_break]
+disabled = true
+
+[fill]
+disabled = true

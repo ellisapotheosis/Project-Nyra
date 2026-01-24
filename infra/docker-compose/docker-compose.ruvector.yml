@@ -1,0 +1,195 @@
+# ==============================================================================
+# Project Nyra - RuVector Intelligence System
+# ==============================================================================
+# High-performance neural pattern matching with SONA, MoE, HNSW, EWC++
+#
+# Components:
+#   - SONA: Self-Optimizing Neural Architecture (<0.05ms adaptation)
+#   - MoE: Mixture of Experts (12 experts, top-3 routing)
+#   - HNSW: 150x-12,500x faster pattern search
+#   - EWC++: Elastic Weight Consolidation (prevent forgetting)
+#   - Flash Attention: 2.49x-7.47x speedup
+#   - LoRA: Low-rank adaptation for fine-tuning
+#
+# 4-Step Intelligence Pipeline:
+#   1. RETRIEVE: HNSW pattern search
+#   2. JUDGE: Verdict evaluation
+#   3. DISTILL: LoRA key learnings
+#   4. CONSOLIDATE: EWC++ prevent forgetting
+#
+# Dependencies: None (standalone service)
+# Usage:
+#   docker compose -f docker-compose.ruvector.yml up -d
+# ==============================================================================
+
+version: '3.8'
+
+services:
+  # ==========================================================================
+  # RuVector Intelligence System
+  # ==========================================================================
+  ruvector:
+    build:
+      context: ../docker/services/ruvector
+      dockerfile: Dockerfile
+    image: nyra/ruvector:latest
+    container_name: nyra-ruvector
+    restart: unless-stopped
+
+    environment:
+      # Service Configuration
+      RUVECTOR_HOST: 0.0.0.0
+      RUVECTOR_PORT: 7000
+      VERSION: 1.0.0
+
+      # Data Paths
+      NEURAL_DATA_PATH: /data/neural
+      AGENTDB_PATH: /data/agentdb
+      CACHE_PATH: /data/cache
+
+      # SONA Configuration
+      SONA_ENABLED: "true"
+      SONA_ADAPTATION_TIME: "0.05"
+      SONA_LEARNING_RATE: "0.001"
+      SONA_MODE: balanced
+
+      # MoE Configuration
+      MOE_ENABLED: "true"
+      MOE_EXPERT_COUNT: "12"
+      MOE_TOP_K: "3"
+      MOE_LOAD_BALANCING: "true"
+      MOE_SPECIALIZATION: adaptive
+
+      # HNSW Configuration
+      HNSW_ENABLED: "true"
+      HNSW_M: "32"
+      HNSW_EF: "400"
+      HNSW_EF_CONSTRUCTION: "400"
+      HNSW_SPACE: cosine
+
+      # EWC++ Configuration
+      EWC_ENABLED: "true"
+      EWC_LAMBDA: "0.5"
+      EWC_CONSOLIDATION_INTERVAL: "100"
+
+      # Flash Attention Configuration
+      FLASH_ATTENTION_ENABLED: "true"
+      FLASH_ATTENTION_BLOCK_SIZE: "64"
+      FLASH_ATTENTION_TARGET_SPEEDUP: "5.0"
+
+      # LoRA Configuration
+      LORA_ENABLED: "true"
+      LORA_RANK: "8"
+      LORA_ALPHA: "16"
+      LORA_DROPOUT: "0.1"
+
+      # Embedding Configuration
+      EMBEDDING_MODEL: sentence-transformers/all-MiniLM-L6-v2
+      EMBEDDING_DIMENSIONS: "384"
+      EMBEDDING_BATCH_SIZE: "32"
+
+      # Intelligence Pipeline
+      TRAJECTORY_TRACKING: "true"
+      VERDICT_JUDGMENT: "true"
+      PATTERN_DISTILLATION: "true"
+      MEMORY_CONSOLIDATION: "true"
+
+      # Performance
+      MAX_WORKERS: "4"
+      CACHE_SIZE: "10000"
+
+      # Logging
+      LOG_LEVEL: INFO
+
+    ports:
+      - "${RUVECTOR_PORT:-7000}:7000"
+
+    volumes:
+      # Mount .claude-flow/neural for persistent patterns
+      - ../../.claude-flow/neural:/data/neural
+      # AgentDB integration
+      - ruvector_agentdb:/data/agentdb
+      # Cache directory
+      - ruvector_cache:/data/cache
+
+    networks:
+      - nyra-network
+
+    labels:
+      - "nyra.service.name=ruvector"
+      - "nyra.service.type=intelligence"
+      - "nyra.mcp.enabled=true"
+      - "nyra.mcp.transport=http"
+      - "nyra.mcp.port=7000"
+      - "nyra.mcp.health_endpoint=/health"
+      - "nyra.mcp.metrics_endpoint=/metrics"
+      - "nyra.mcp.keywords=intelligence,neural,patterns,hnsw,sona,moe"
+      - "nyra.tier=orchestrator"
+      - "nyra.component=ruvector-intelligence"
+
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:7000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 4G
+        reservations:
+          cpus: '1.0'
+          memory: 2G
+
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+# ==============================================================================
+# Networks
+# ==============================================================================
+networks:
+  nyra-network:
+    name: nyra-network
+    external: true
+
+# ==============================================================================
+# Volumes
+# ==============================================================================
+volumes:
+  ruvector_agentdb:
+    name: nyra_ruvector_agentdb
+    driver: local
+    labels:
+      - "com.nyra.volume=intelligence"
+      - "com.nyra.service=ruvector"
+      - "com.nyra.backup=important"
+
+  ruvector_cache:
+    name: nyra_ruvector_cache
+    driver: local
+    labels:
+      - "com.nyra.volume=cache"
+      - "com.nyra.service=ruvector"
+
+# ==============================================================================
+# Deployment Profiles
+# ==============================================================================
+# docker compose --profile intelligence up -d
+
+# ==============================================================================
+# Endpoints
+# ==============================================================================
+# Health:       http://localhost:7000/health
+# Metrics:      http://localhost:7000/metrics
+# Retrieve:     POST http://localhost:7000/retrieve
+# Judge:        POST http://localhost:7000/judge
+# Distill:      POST http://localhost:7000/distill
+# Consolidate:  POST http://localhost:7000/consolidate
+# Search:       POST http://localhost:7000/search
+# Embed:        POST http://localhost:7000/embed
+# ==============================================================================

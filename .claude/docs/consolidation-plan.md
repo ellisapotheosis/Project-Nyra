@@ -388,7 +388,7 @@ The NYRA repository has accumulated significant organizational debt through rapi
    # Or: npm install --force
 
    # Verify hooks work
-   npx claude-flow@alpha hooks session-restore --session-id "test"
+   npx @claude-flow/cli@latest hooks session-restore --session-id "test"
    ```
 
 2. **Clean `.gitignore` and Remove Tracked Artifacts**
@@ -475,10 +475,10 @@ The NYRA repository has accumulated significant organizational debt through rapi
    npx claude-flow sparc status
 
    # Test agent spawning
-   npx claude-flow@alpha hooks session-restore --session-id "validation-test"
+   npx @claude-flow/cli@latest hooks session-restore --session-id "validation-test"
 
    # Test memory operations
-   npx claude-flow@alpha hooks pre-task --description "validation"
+   npx @claude-flow/cli@latest hooks pre-task --description "validation"
    ```
 
 3. **Validate Documentation Links**
@@ -618,7 +618,7 @@ fi
 # Validate hooks
 echo ""
 echo "🪝 Validating Claude Flow Hooks:"
-if npx claude-flow@alpha hooks session-restore --session-id "test" 2>&1 | grep -q "Session restored"; then
+if npx @claude-flow/cli@latest hooks session-restore --session-id "test" 2>&1 | grep -q "Session restored"; then
   echo "  ✅ Hooks working"
 else
   echo "  ⚠️  Hooks need repair"
@@ -818,7 +818,7 @@ du -sh .
 find . -type f ! -path "./.git/*" | wc -l
 
 # Verify hooks
-npx claude-flow@alpha hooks session-restore --session-id "test"
+npx @claude-flow/cli@latest hooks session-restore --session-id "test"
 
 # Run tests
 npm run test --workspaces

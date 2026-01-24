@@ -1,6 +1,19 @@
 # Project Nyra - Infrastructure
 
+> Queen Coordinator: 15-Agent Swarm Orchestration System
 > Consolidated Docker infrastructure for the distributed AI mortgage platform
+> Claude Flow V3 Alpha with AgentDB, RuVector, and Multi-GPU Workers
+
+## Queen Coordinator Status
+
+**Swarm Configuration**: 15 agents, hierarchical-mesh topology
+**All components validated**:
+- Nexus Router (port 6000) - LLM Gateway
+- Claude Flow @alpha (port 3010) - Multi-agent orchestration
+- AgentDB (port 8080) - HNSW vector database
+- RuVector (port 8888) - Memory optimization (SONA/MoE/Flash Attention)
+- Open-WebUI (port 3333) - Development chat interface
+- Worker setup scripts with Infisical integration
 
 ## Overview
 
@@ -13,15 +26,39 @@ Project Nyra's infrastructure consolidates **274 Docker Compose files** into a u
 
 ## Quick Start
 
-```bash
-# Clone repository and navigate to infra
-cd infra
+### PowerShell (Recommended for Windows)
 
+```powershell
+# Navigate to infrastructure scripts
+cd C:\Dev\Projects\Repos\Project-Nyra\infra\scripts
+
+# Start all services (includes Infisical secrets)
+.\start-all.ps1
+
+# Or skip Infisical (use .env files)
+.\start-all.ps1 -SkipInfisical
+
+# Check status
+.\start-all.ps1 -Status
+
+# Open dashboards
+.\start-all.ps1 -Dashboard
+
+# Stop all services
+.\start-all.ps1 -Down
+
+# Include GPU workers
+.\start-all.ps1 -Workers
+```
+
+### Makefile (Linux/macOS)
+
+```bash
 # Initialize environment (first time only)
 make init
 
 # Edit .env with your API keys and passwords
-nano .env  # or your preferred editor
+nano .env
 
 # Start all services
 make up
@@ -34,6 +71,53 @@ make urls
 ```
 
 **That's it!** Your complete development environment is running.
+
+## Worker PC Setup (3 GPU Workers)
+
+### Worker RTX 5090 (PC2) - High-Performance Inference
+
+```powershell
+# On the RTX 5090 worker machine
+cd C:\Dev\Projects\Repos\Project-Nyra\infra\scripts\workers
+
+.\setup-worker-5090.ps1 -Install      # First-time setup
+.\setup-worker-5090.ps1 -SyncSecrets  # Sync from Infisical
+.\setup-worker-5090.ps1 -Start        # Start services
+.\setup-worker-5090.ps1 -PullModels   # Download DeepSeek-R1 236B (~220GB)
+.\setup-worker-5090.ps1 -Status       # Check health
+```
+
+**Ports**: Ollama (11435), vLLM (8000), Neo4j (7474), FalkorDB (6380), Metrics (9002)
+**Models**: DeepSeek-R1 236B, Qwen 72B
+
+### Worker RTX 3090 Ti (PC4) - Monitoring Stack
+
+```powershell
+cd C:\Dev\Projects\Repos\Project-Nyra\infra\scripts\workers
+
+.\setup-worker-3090ti.ps1 -Install
+.\setup-worker-3090ti.ps1 -SyncSecrets
+.\setup-worker-3090ti.ps1 -Start
+.\setup-worker-3090ti.ps1 -Status
+```
+
+**Ports**: Prometheus (9091), Grafana (3006), Loki (3101), Alertmanager (9094)
+**Retention**: Metrics 90 days, Logs 30 days
+
+### Worker RTX 3060 (PC3) - Code Generation
+
+```powershell
+cd C:\Dev\Projects\Repos\Project-Nyra\infra\scripts\workers
+
+.\setup-worker-3060.ps1 -Install
+.\setup-worker-3060.ps1 -SyncSecrets
+.\setup-worker-3060.ps1 -Start
+.\setup-worker-3060.ps1 -PullModels   # Download CodeLlama, Qwen 32B (~70GB)
+.\setup-worker-3060.ps1 -Status
+```
+
+**Ports**: Ollama (11434), LiteLLM (4001), Redis (6380), Metrics (9001)
+**Models**: CodeLlama 34B, Qwen 2.5 32B, nomic-embed-text
 
 ## Documentation
 
@@ -448,8 +532,70 @@ See **[Docker Canonical Design](../docs/architecture/docker-canonical-design.md)
 
 ---
 
-**Last Updated**: 2026-01-21
-**Version**: 1.0.1 (Documentation Update)
+## Complete Port Mapping Reference
+
+### Orchestrator (PC1)
+
+| Port | Service | Purpose |
+|------|---------|---------|
+| **3010** | Claude Flow V3 | Multi-agent swarm orchestration |
+| **6000** | Nexus Router | LLM gateway, model routing |
+| **8080** | AgentDB | HNSW vector database |
+| **8888** | RuVector | Memory optimization (SONA/MoE) |
+| **3333** | Open-WebUI | Development chat (NOT borrower) |
+| **8082** | Infisical | Secrets management |
+| **8283** | Letta | Stateful agent memory |
+| **4321** | Mem0 | Universal memory layer |
+| **4000** | LiteLLM | Model proxy |
+| **5432** | PostgreSQL | Primary database |
+| **6379** | Redis | Cache/sessions |
+| **6333** | Qdrant | Vector embeddings |
+| **6380** | FalkorDB | Graph database |
+| **7474/7687** | Neo4j | Knowledge graph |
+| **3000** | TwentyCRM | CRM system |
+| **5678** | n8n | Workflow automation |
+| **3001/3002** | Dify | Borrower chat |
+| **9090** | Prometheus | Metrics |
+| **3005** | Grafana | Dashboards |
+| **3100** | Loki | Logs |
+
+### Worker RTX 5090 (PC2)
+
+| Port | Service | Purpose |
+|------|---------|---------|
+| **8000** | vLLM | High-performance inference |
+| **11435** | Ollama | DeepSeek-R1, Qwen 72B |
+| **7474** | Neo4j | Graph database |
+| **6380** | FalkorDB | Knowledge graph |
+| **9002** | Metrics | GPU monitoring |
+| **8092** | Health | Health check |
+
+### Worker RTX 3060 (PC3)
+
+| Port | Service | Purpose |
+|------|---------|---------|
+| **11434** | Ollama | CodeLlama, Qwen 32B |
+| **4001** | LiteLLM | Local model proxy |
+| **6380** | Redis | Local cache |
+| **9001** | Metrics | GPU monitoring |
+| **8091** | Health | Health check |
+
+### Worker RTX 3090 Ti (PC4)
+
+| Port | Service | Purpose |
+|------|---------|---------|
+| **9091** | Prometheus | Long-term metrics |
+| **3006** | Grafana | Visualization |
+| **3101** | Loki | Log aggregation |
+| **9094** | Alertmanager | Alerts |
+| **9100** | Node Exporter | System metrics |
+| **8083** | cAdvisor | Container metrics |
+| **8093** | Health | Health check |
+
+---
+
+**Last Updated**: 2026-01-22
+**Version**: 2.0.0 (Queen Coordinator Update)
 **Maintainer**: Project Nyra Team
 
 **Key Documentation:**
@@ -457,3 +603,5 @@ See **[Docker Canonical Design](../docs/architecture/docker-canonical-design.md)
 - [4-PC Distributed Architecture](../docs/architecture/4PC-DISTRIBUTED-ARCHITECTURE.md) - Multi-PC deployment guide
 - [Project Whitepaper](../docs/WHITEPAPER.md) - Business case and ROI analysis
 - [Infisical Secrets Management](../docs/deployment/INFISICAL-SECRETS-REFERENCE.md) - Secrets configuration
+- **Master Startup Script**: `infra/scripts/start-all.ps1`
+- **Worker Setup Scripts**: `infra/scripts/workers/setup-worker-*.ps1`

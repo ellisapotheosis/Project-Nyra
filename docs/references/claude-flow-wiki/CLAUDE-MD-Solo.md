@@ -64,8 +64,8 @@
 
 ```bash
 # Daily development check-in (run each coding session)
-npx claude-flow@alpha hooks pre-task --description "Daily coding session start" --auto-spawn-agents false
-npx claude-flow@alpha hooks notify --message "Today's focus: [feature/bug/refactor], Time available: [hours], Goals: [specific targets]" --telemetry true
+npx @claude-flow/cli@latest hooks pre-task --description "Daily coding session start" --auto-spawn-agents false
+npx @claude-flow/cli@latest hooks notify --message "Today's focus: [feature/bug/refactor], Time available: [hours], Goals: [specific targets]" --telemetry true
 ```
 
 ### Solo Developer Agent Template
@@ -200,9 +200,9 @@ REMEMBER: You are the entire development team - plan, code, test, and deploy eff
 
 ```bash
 # Learning session coordination
-npx claude-flow@alpha hooks pre-task --description "Learning new technology/pattern"
-npx claude-flow@alpha hooks notify --message "Learning: [technology], Application: [how it helps project], Time spent: [duration]" --telemetry true
-npx claude-flow@alpha hooks post-task --task-id "learning_session" --analyze-performance true
+npx @claude-flow/cli@latest hooks pre-task --description "Learning new technology/pattern"
+npx @claude-flow/cli@latest hooks notify --message "Learning: [technology], Application: [how it helps project], Time spent: [duration]" --telemetry true
+npx @claude-flow/cli@latest hooks post-task --task-id "learning_session" --analyze-performance true
 ```
 
 ### Personal Knowledge Base
@@ -244,9 +244,9 @@ npx claude-flow@alpha hooks post-task --task-id "learning_session" --analyze-per
 
 ```bash
 # Focused coding session (25-minute Pomodoro)
-npx claude-flow@alpha hooks pre-task --description "Pomodoro coding session: [specific task]"
+npx @claude-flow/cli@latest hooks pre-task --description "Pomodoro coding session: [specific task]"
 # ... 25 minutes of focused coding ...
-npx claude-flow@alpha hooks post-task --task-id "pomodoro_session" --analyze-performance true
+npx @claude-flow/cli@latest hooks post-task --task-id "pomodoro_session" --analyze-performance true
 ```
 
 ### Priority-Based Task Management

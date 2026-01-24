@@ -86,32 +86,32 @@ export CLAUDE_API_KEY="sk-ant-..."
 
 ```bash
 # Explicit non-interactive mode
-npx claude-flow@alpha swarm "task" --no-interactive
+npx @claude-flow/cli@latest swarm "task" --no-interactive
 
 # Headless mode (forces non-interactive + JSON output)
-npx claude-flow@alpha swarm "task" --headless
+npx @claude-flow/cli@latest swarm "task" --headless
 
 # JSON output (auto-enables non-interactive)
-npx claude-flow@alpha swarm "task" --output-format json
+npx @claude-flow/cli@latest swarm "task" --output-format json
 
 # Save output to file
-npx claude-flow@alpha swarm "task" --output-format json --output-file results.json
+npx @claude-flow/cli@latest swarm "task" --output-format json --output-file results.json
 ```
 
 ### Advanced Flags
 
 ```bash
 # Disable auto permissions (requires manual approval)
-npx claude-flow@alpha swarm "task" --no-interactive --no-auto-permissions
+npx @claude-flow/cli@latest swarm "task" --no-interactive --no-auto-permissions
 
 # Stream JSON output (real-time updates)
-npx claude-flow@alpha swarm "task" --output-format stream-json
+npx @claude-flow/cli@latest swarm "task" --output-format stream-json
 
 # JSON-formatted logs
-npx claude-flow@alpha swarm "task" --json-logs
+npx @claude-flow/cli@latest swarm "task" --json-logs
 
 # Verbose output in non-interactive mode
-npx claude-flow@alpha swarm "task" --no-interactive --verbose
+npx @claude-flow/cli@latest swarm "task" --no-interactive --verbose
 ```
 
 ## 🚀 Automation Commands (NEW!)
@@ -311,7 +311,7 @@ export ANTHROPIC_API_KEY="sk-ant-api03-..."
 export CLAUDE_API_KEY="sk-ant-api03-..."
 
 # Run command
-npx claude-flow@alpha swarm "analyze codebase" --no-interactive
+npx @claude-flow/cli@latest swarm "analyze codebase" --no-interactive
 ```
 
 ### Authentication Validation
@@ -332,7 +332,7 @@ if (!process.env.ANTHROPIC_API_KEY && !process.env.CLAUDE_API_KEY) {
 ### Standard JSON Output
 
 ```bash
-npx claude-flow@alpha swarm "build API" --output-format json
+npx @claude-flow/cli@latest swarm "build API" --output-format json
 ```
 
 Output structure:
@@ -389,7 +389,7 @@ Output structure:
 ### Streaming JSON Output
 
 ```bash
-npx claude-flow@alpha swarm "task" --output-format stream-json
+npx @claude-flow/cli@latest swarm "task" --output-format stream-json
 ```
 
 Real-time updates as newline-delimited JSON:
@@ -439,7 +439,7 @@ services:
     command: |
       sh -c "
         npm install -g claude-flow@alpha &&
-        npx claude-flow@alpha swarm 'analyze codebase' --output-format json --output-file /workspace/analysis.json
+        npx @claude-flow/cli@latest swarm 'analyze codebase' --output-format json --output-file /workspace/analysis.json
       "
 ```
 
@@ -469,7 +469,7 @@ spec:
         - -c
         - |
           npm install -g claude-flow@alpha
-          npx claude-flow@alpha swarm "analyze and optimize" \
+          npx @claude-flow/cli@latest swarm "analyze and optimize" \
             --output-format json \
             --output-file /results/analysis.json
         volumeMounts:
@@ -510,7 +510,7 @@ jobs:
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
-          npx claude-flow@alpha swarm "analyze code quality and security" \
+          npx @claude-flow/cli@latest swarm "analyze code quality and security" \
             --output-format json \
             --output-file analysis-results.json
       
@@ -531,7 +531,7 @@ export ANTHROPIC_API_KEY="sk-ant-..."
 export CLAUDE_FLOW_NON_INTERACTIVE=true
 
 # Run daily code review
-npx claude-flow@alpha swarm "review recent commits for issues" \
+npx @claude-flow/cli@latest swarm "review recent commits for issues" \
   --output-format json \
   --output-file "reviews/review-$(date +%Y%m%d).json"
 
@@ -551,7 +551,7 @@ const fs = require('fs');
 
 async function generateAPIDocs() {
   const command = `
-    npx claude-flow@alpha swarm "generate OpenAPI documentation from code" \
+    npx @claude-flow/cli@latest swarm "generate OpenAPI documentation from code" \
       --no-interactive \
       --output-format json
   `;
@@ -589,7 +589,7 @@ tasks=(
 for task in "${tasks[@]}"; do
   echo "Processing: $task"
   
-  npx claude-flow@alpha swarm "$task" \
+  npx @claude-flow/cli@latest swarm "$task" \
     --no-interactive \
     --output-format json \
     --output-file "results/${task// /-}.json" &
@@ -631,13 +631,13 @@ Enable detailed logging for troubleshooting:
 
 ```bash
 # Verbose output
-npx claude-flow@alpha swarm "task" --no-interactive --verbose
+npx @claude-flow/cli@latest swarm "task" --no-interactive --verbose
 
 # Debug environment detection
-DEBUG=claude-flow:* npx claude-flow@alpha swarm "task" --no-interactive
+DEBUG=claude-flow:* npx @claude-flow/cli@latest swarm "task" --no-interactive
 
 # JSON logs for parsing
-npx claude-flow@alpha swarm "task" --json-logs
+npx @claude-flow/cli@latest swarm "task" --json-logs
 ```
 
 ### Environment Validation
@@ -646,13 +646,13 @@ Test your environment setup:
 
 ```bash
 # Check environment detection
-npx claude-flow@alpha env check
+npx @claude-flow/cli@latest env check
 
 # Validate API key
-npx claude-flow@alpha auth validate --no-interactive
+npx @claude-flow/cli@latest auth validate --no-interactive
 
 # Test non-interactive mode
-npx claude-flow@alpha test non-interactive
+npx @claude-flow/cli@latest test non-interactive
 ```
 
 ## Best Practices
@@ -672,10 +672,10 @@ ANTHROPIC_API_KEY=sk-ant-...
 
 ```bash
 # Parse results with jq
-npx claude-flow@alpha swarm "task" --output-format json | jq '.summary'
+npx @claude-flow/cli@latest swarm "task" --output-format json | jq '.summary'
 
 # Save for later processing
-npx claude-flow@alpha swarm "task" --output-format json > results.json
+npx @claude-flow/cli@latest swarm "task" --output-format json > results.json
 ```
 
 ### 3. Handle Errors Gracefully
@@ -684,7 +684,7 @@ npx claude-flow@alpha swarm "task" --output-format json > results.json
 #!/bin/bash
 set -e
 
-npx claude-flow@alpha swarm "task" --no-interactive || {
+npx @claude-flow/cli@latest swarm "task" --no-interactive || {
   echo "Task failed"
   exit 1
 }
@@ -694,10 +694,10 @@ npx claude-flow@alpha swarm "task" --no-interactive || {
 
 ```bash
 # Limit execution time
-timeout 30m npx claude-flow@alpha swarm "task" --no-interactive
+timeout 30m npx @claude-flow/cli@latest swarm "task" --no-interactive
 
 # Monitor memory usage
-/usr/bin/time -v npx claude-flow@alpha swarm "task" --no-interactive
+/usr/bin/time -v npx @claude-flow/cli@latest swarm "task" --no-interactive
 ```
 
 ## Related Documentation

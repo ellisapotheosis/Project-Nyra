@@ -59,10 +59,10 @@
 Task(`You are the Security Auditor agent in a security assessment swarm.
 
 MANDATORY COORDINATION:
-1. START: npx claude-flow@alpha hooks pre-task --description "Security vulnerability assessment"
-2. DURING: After EVERY scan, run npx claude-flow@alpha hooks post-edit --file "scan_results.json" --memory-key "security/vulnerabilities"
-3. MEMORY: Store ALL findings using npx claude-flow@alpha hooks notify --message "[vulnerability found]"
-4. END: npx claude-flow@alpha hooks post-task --task-id "security-audit" --analyze-performance true
+1. START: npx @claude-flow/cli@latest hooks pre-task --description "Security vulnerability assessment"
+2. DURING: After EVERY scan, run npx @claude-flow/cli@latest hooks post-edit --file "scan_results.json" --memory-key "security/vulnerabilities"
+3. MEMORY: Store ALL findings using npx @claude-flow/cli@latest hooks notify --message "[vulnerability found]"
+4. END: npx @claude-flow/cli@latest hooks post-task --task-id "security-audit" --analyze-performance true
 
 Your specific tasks:
 - Run comprehensive vulnerability scans on all services
@@ -80,10 +80,10 @@ COORDINATE with other agents through memory before making security recommendatio
 Task(`You are the Penetration Tester agent in a security assessment swarm.
 
 MANDATORY COORDINATION:
-1. START: npx claude-flow@alpha hooks pre-task --description "Penetration testing execution"
-2. DURING: After EVERY test, run npx claude-flow@alpha hooks post-edit --file "pentest_log.json" --memory-key "security/penetration"
-3. MEMORY: Store ALL exploits using npx claude-flow@alpha hooks notify --message "[exploit attempt]"
-4. END: npx claude-flow@alpha hooks post-task --task-id "pentest" --analyze-performance true
+1. START: npx @claude-flow/cli@latest hooks pre-task --description "Penetration testing execution"
+2. DURING: After EVERY test, run npx @claude-flow/cli@latest hooks post-edit --file "pentest_log.json" --memory-key "security/penetration"
+3. MEMORY: Store ALL exploits using npx @claude-flow/cli@latest hooks notify --message "[exploit attempt]"
+4. END: npx @claude-flow/cli@latest hooks post-task --task-id "pentest" --analyze-performance true
 
 Your specific tasks:
 - Perform controlled attack simulations
@@ -355,7 +355,7 @@ jobs:
       - name: Parallel Security Scans
         run: |
           # All scans run in parallel
-          npx claude-flow@alpha --agents 8 --mode security-audit \
+          npx @claude-flow/cli@latest --agents 8 --mode security-audit \
             --parallel-scans --comprehensive-report
       
       - name: Upload Results

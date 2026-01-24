@@ -198,17 +198,17 @@ SPARC automatically integrates with claude-flow hooks:
 
 **Pre-Task Hooks:**
 ```bash
-npx claude-flow@alpha hooks pre-task --description "<feature>"
+npx @claude-flow/cli@latest hooks pre-task --description "<feature>"
 ```
 
 **Post-Edit Hooks:**
 ```bash
-npx claude-flow@alpha hooks post-edit --file "<file>" --memory-key "sparc/<phase>/<feature>"
+npx @claude-flow/cli@latest hooks post-edit --file "<file>" --memory-key "sparc/<phase>/<feature>"
 ```
 
 **Post-Task Hooks:**
 ```bash
-npx claude-flow@alpha hooks post-task --task-id "<task-id>"
+npx @claude-flow/cli@latest hooks post-task --task-id "<task-id>"
 ```
 
 **Memory Coordination:**

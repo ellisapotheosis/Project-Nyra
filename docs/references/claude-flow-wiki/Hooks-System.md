@@ -20,7 +20,7 @@ The Hooks System intercepts key operations in your workflow, executing custom lo
 Executes before starting any task, initializing tracking and context.
 
 ```bash
-npx claude-flow@alpha hooks pre-task --description "Implement user authentication"
+npx @claude-flow/cli@latest hooks pre-task --description "Implement user authentication"
 ```
 
 **Parameters:**
@@ -40,7 +40,7 @@ npx claude-flow@alpha hooks pre-task --description "Implement user authenticatio
 Executes after task completion, storing results and metrics.
 
 ```bash
-npx claude-flow@alpha hooks post-task --task-id "task-1753483207250-u7wbmsetj" --status "completed"
+npx @claude-flow/cli@latest hooks post-task --task-id "task-1753483207250-u7wbmsetj" --status "completed"
 ```
 
 **Parameters:**
@@ -55,7 +55,7 @@ npx claude-flow@alpha hooks post-task --task-id "task-1753483207250-u7wbmsetj" -
 Executes before file modifications, creating backups and tracking changes.
 
 ```bash
-npx claude-flow@alpha hooks pre-edit --file "src/auth.js" --operation "update authentication logic"
+npx @claude-flow/cli@latest hooks pre-edit --file "src/auth.js" --operation "update authentication logic"
 ```
 
 **Parameters:**
@@ -67,7 +67,7 @@ npx claude-flow@alpha hooks pre-edit --file "src/auth.js" --operation "update au
 Executes after file modifications, validating changes and updating memory.
 
 ```bash
-npx claude-flow@alpha hooks post-edit --file "src/auth.js" --memory-key "auth/implementation"
+npx @claude-flow/cli@latest hooks post-edit --file "src/auth.js" --memory-key "auth/implementation"
 ```
 
 **Parameters:**
@@ -82,7 +82,7 @@ npx claude-flow@alpha hooks post-edit --file "src/auth.js" --memory-key "auth/im
 Initializes a new development session with context restoration.
 
 ```bash
-npx claude-flow@alpha hooks session-start --restore-context --load-agents
+npx @claude-flow/cli@latest hooks session-start --restore-context --load-agents
 ```
 
 **Parameters:**
@@ -94,7 +94,7 @@ npx claude-flow@alpha hooks session-start --restore-context --load-agents
 Finalizes session, saving state and generating reports.
 
 ```bash
-npx claude-flow@alpha hooks session-end --save-state --generate-report
+npx @claude-flow/cli@latest hooks session-end --save-state --generate-report
 ```
 
 **Parameters:**
@@ -108,7 +108,7 @@ npx claude-flow@alpha hooks session-end --save-state --generate-report
 Executes when creating new agents, configuring their environment.
 
 ```bash
-npx claude-flow@alpha hooks agent-spawn --type "coder" --config '{"language":"typescript"}'
+npx @claude-flow/cli@latest hooks agent-spawn --type "coder" --config '{"language":"typescript"}'
 ```
 
 **Parameters:**
@@ -120,7 +120,7 @@ npx claude-flow@alpha hooks agent-spawn --type "coder" --config '{"language":"ty
 Executes when agents finish their tasks, collecting results.
 
 ```bash
-npx claude-flow@alpha hooks agent-complete --agent-id "agent-123" --merge-results
+npx @claude-flow/cli@latest hooks agent-complete --agent-id "agent-123" --merge-results
 ```
 
 **Parameters:**
@@ -134,7 +134,7 @@ npx claude-flow@alpha hooks agent-complete --agent-id "agent-123" --merge-result
 Begins performance monitoring for an operation.
 
 ```bash
-npx claude-flow@alpha hooks perf-start --operation "database-query" --track-memory
+npx @claude-flow/cli@latest hooks perf-start --operation "database-query" --track-memory
 ```
 
 **Parameters:**
@@ -146,7 +146,7 @@ npx claude-flow@alpha hooks perf-start --operation "database-query" --track-memo
 Completes performance monitoring and stores metrics.
 
 ```bash
-npx claude-flow@alpha hooks perf-end --operation "database-query" --alert-threshold 1000
+npx @claude-flow/cli@latest hooks perf-end --operation "database-query" --alert-threshold 1000
 ```
 
 **Parameters:**
@@ -176,7 +176,7 @@ Configure hooks in `.claude/settings.json`:
         "failOnError": true
       },
       "afterDeploy": {
-        "command": "npx claude-flow@alpha notify --channel deployment",
+        "command": "npx @claude-flow/cli@latest notify --channel deployment",
         "async": true
       }
     },
@@ -221,15 +221,15 @@ Synchronize work across multiple agents:
 
 ```bash
 # Master coordinator
-npx claude-flow@alpha hooks pre-task --description "Refactor authentication system" --metadata '{"agents":["architect","coder","tester"]}'
+npx @claude-flow/cli@latest hooks pre-task --description "Refactor authentication system" --metadata '{"agents":["architect","coder","tester"]}'
 
 # Each agent registers
-npx claude-flow@alpha hooks agent-spawn --type "architect" --parent-task "task-123"
-npx claude-flow@alpha hooks agent-spawn --type "coder" --parent-task "task-123"
-npx claude-flow@alpha hooks agent-spawn --type "tester" --parent-task "task-123"
+npx @claude-flow/cli@latest hooks agent-spawn --type "architect" --parent-task "task-123"
+npx @claude-flow/cli@latest hooks agent-spawn --type "coder" --parent-task "task-123"
+npx @claude-flow/cli@latest hooks agent-spawn --type "tester" --parent-task "task-123"
 
 # Coordination through hooks
-npx claude-flow@alpha hooks post-edit --file "architecture.md" --sync-agents --memory-key "refactor/architecture"
+npx @claude-flow/cli@latest hooks post-edit --file "architecture.md" --sync-agents --memory-key "refactor/architecture"
 ```
 
 ### 3. Performance Monitoring Pattern
@@ -255,16 +255,16 @@ Maintain context across sessions:
 
 ```bash
 # Start session with context
-npx claude-flow@alpha hooks session-start --restore-context
+npx @claude-flow/cli@latest hooks session-start --restore-context
 
 # Work with automatic memory updates
-npx claude-flow@alpha hooks post-edit --file "feature.js" --memory-key "feature/implementation"
+npx @claude-flow/cli@latest hooks post-edit --file "feature.js" --memory-key "feature/implementation"
 
 # Query memory during development
-npx claude-flow@alpha memory search --pattern "feature/*"
+npx @claude-flow/cli@latest memory search --pattern "feature/*"
 
 # End session with state preservation
-npx claude-flow@alpha hooks session-end --save-state
+npx @claude-flow/cli@latest hooks session-end --save-state
 ```
 
 ## Performance Optimization
@@ -301,7 +301,7 @@ npx claude-flow@alpha hooks session-end --save-state
   "hooks": {
     "customHooks": {
       "backgroundSync": {
-        "command": "npx claude-flow@alpha sync --remote",
+        "command": "npx @claude-flow/cli@latest sync --remote",
         "async": true,
         "timeout": 30000
       }
@@ -316,7 +316,7 @@ Hooks automatically collect performance metrics:
 
 ```bash
 # View hook performance
-npx claude-flow@alpha hooks metrics --last 24h
+npx @claude-flow/cli@latest hooks metrics --last 24h
 
 # Output:
 ┌─────────────┬──────────┬─────────┬─────────┐
@@ -360,7 +360,7 @@ agent.on('taskComplete', async (result) => {
 
 ```bash
 # Agent A completes analysis
-npx claude-flow@alpha hooks post-task --task-id "analysis-123" --sync-agents --broadcast "analysis-complete"
+npx @claude-flow/cli@latest hooks post-task --task-id "analysis-123" --sync-agents --broadcast "analysis-complete"
 
 # Agent B receives notification through hook
 # Automatically triggered: pre-task hook with context from Agent A
@@ -373,13 +373,13 @@ npx claude-flow@alpha hooks post-task --task-id "analysis-123" --sync-agents --b
   "hooks": {
     "swarmHooks": {
       "onSwarmInit": {
-        "command": "npx claude-flow@alpha swarm prepare --topology hierarchical"
+        "command": "npx @claude-flow/cli@latest swarm prepare --topology hierarchical"
       },
       "onConsensus": {
-        "command": "npx claude-flow@alpha memory store --key 'consensus/${timestamp}'"
+        "command": "npx @claude-flow/cli@latest memory store --key 'consensus/${timestamp}'"
       },
       "onSwarmComplete": {
-        "command": "npx claude-flow@alpha report generate --type swarm-summary"
+        "command": "npx @claude-flow/cli@latest report generate --type swarm-summary"
       }
     }
   }
@@ -494,7 +494,7 @@ Create complex workflows by chaining hooks:
 
 Execute chain:
 ```bash
-npx claude-flow@alpha hooks chain --name deploymentPipeline
+npx @claude-flow/cli@latest hooks chain --name deploymentPipeline
 ```
 
 ## Conclusion

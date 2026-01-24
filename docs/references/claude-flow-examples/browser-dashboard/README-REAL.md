@@ -9,7 +9,7 @@ Browser Dashboard (dashboard.js)
         ↓ WebSocket (JSON-RPC 2.0)
 Node.js Bridge (server-real.js)
         ↓ stdio (JSON-RPC 2.0)
-Claude Flow MCP Server (npx claude-flow@alpha mcp start)
+Claude Flow MCP Server (npx @claude-flow/cli@latest mcp start)
         ↓ Direct function calls
 Real MCP Tools (90 tools)
         ↓ Actual operations
@@ -18,7 +18,7 @@ Claude Flow Core (swarm orchestration, agents, tasks)
 
 ## How It Works
 
-1. **server-real.js** spawns `npx claude-flow@alpha mcp start` as a child process
+1. **server-real.js** spawns `npx @claude-flow/cli@latest mcp start` as a child process
 2. Browser sends WebSocket messages (JSON-RPC 2.0)
 3. Bridge translates and forwards to MCP server via stdio
 4. MCP server executes real claude-flow operations
@@ -127,10 +127,10 @@ Open http://localhost:8080 and try:
 **MCP Server Won't Start**:
 ```bash
 # Check if claude-flow is installed
-npx claude-flow@alpha --version
+npx @claude-flow/cli@latest --version
 
 # Test MCP server manually
-npx claude-flow@alpha mcp start
+npx @claude-flow/cli@latest mcp start
 ```
 
 **Port Already in Use**:

@@ -67,8 +67,8 @@
 
 ```bash
 # Daily team sync (each team member runs this)
-npx claude-flow@alpha hooks pre-task --description "Daily team sync and task coordination" --auto-spawn-agents false
-npx claude-flow@alpha hooks notify --message "Team member: [name], Today's work: [tasks], Blockers: [issues], Help needed: [requests]" --telemetry true
+npx @claude-flow/cli@latest hooks pre-task --description "Daily team sync and task coordination" --auto-spawn-agents false
+npx @claude-flow/cli@latest hooks notify --message "Team member: [name], Today's work: [tasks], Blockers: [issues], Help needed: [requests]" --telemetry true
 ```
 
 ### Small Team Agent Template
@@ -171,9 +171,9 @@ REMEMBER: In a small team, everyone's contribution is critical to success!
 
 ```bash
 # Feature branch creation with team coordination
-npx claude-flow@alpha hooks pre-task --description "Creating feature branch for team collaboration"
+npx @claude-flow/cli@latest hooks pre-task --description "Creating feature branch for team collaboration"
 git checkout -b feature/user-dashboard-team-collab
-npx claude-flow@alpha hooks notify --message "Feature branch created: feature/user-dashboard-team-collab, Assigned to: [team members], Expected completion: [date]" --telemetry true
+npx @claude-flow/cli@latest hooks notify --message "Feature branch created: feature/user-dashboard-team-collab, Assigned to: [team members], Expected completion: [date]" --telemetry true
 ```
 
 ## 🎯 AGILE WORKFLOW FOR SMALL TEAMS
@@ -292,7 +292,7 @@ npx claude-flow@alpha hooks notify --message "Feature branch created: feature/us
 
 ```bash
 # Team communication coordination
-npx claude-flow@alpha hooks notify --message "Team communication: [async/sync], Topic: [technical/planning/blocker], Participants: [team members]" --telemetry true
+npx @claude-flow/cli@latest hooks notify --message "Team communication: [async/sync], Topic: [technical/planning/blocker], Participants: [team members]" --telemetry true
 ```
 
 ## 🚀 SMALL TEAM BEST PRACTICES
@@ -369,8 +369,8 @@ npx claude-flow@alpha hooks notify --message "Team communication: [async/sync], 
 
 ```bash
 # Weekly team improvement check
-npx claude-flow@alpha hooks pre-task --description "Weekly team improvement session"
-npx claude-flow@alpha hooks notify --message "Team improvements: [what worked well], [what to improve], [action items for next week]" --telemetry true
+npx @claude-flow/cli@latest hooks pre-task --description "Weekly team improvement session"
+npx @claude-flow/cli@latest hooks notify --message "Team improvements: [what worked well], [what to improve], [action items for next week]" --telemetry true
 ```
 
 ## 🎯 PROJECT TYPES FOR SMALL TEAMS
@@ -449,8 +449,8 @@ npx claude-flow@alpha hooks notify --message "Team improvements: [what worked we
 
 ```bash
 # Team knowledge preservation
-npx claude-flow@alpha hooks post-task --task-id "knowledge_documentation" --analyze-performance true
-npx claude-flow@alpha hooks notify --message "Knowledge documented: [technical decisions], [lessons learned], [best practices discovered]" --telemetry true
+npx @claude-flow/cli@latest hooks post-task --task-id "knowledge_documentation" --analyze-performance true
+npx @claude-flow/cli@latest hooks notify --message "Knowledge documented: [technical decisions], [lessons learned], [best practices discovered]" --telemetry true
 ```
 
 ---

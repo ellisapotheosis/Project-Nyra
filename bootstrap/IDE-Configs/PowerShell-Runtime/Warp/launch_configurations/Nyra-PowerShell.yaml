@@ -1,0 +1,7 @@
+
+name: Nyra PowerShell
+command: pwsh.exe -NoLogo
+env:
+  NYRA_OMP_CONFIG: "C:\Dev\Profiles\PowerShell\PoshThemes\xulbux-ultimate.omp.json"
+  STARSHIP_CONFIG: "C:\Dev\Profiles\PowerShell\Starship\starship-warp.toml"
+  WARP_DEFAULT_PROMPT: "starship"

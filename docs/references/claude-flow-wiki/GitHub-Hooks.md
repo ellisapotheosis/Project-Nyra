@@ -42,7 +42,7 @@ Developers get a clear, structured trail of:
 ### Enable GitHub-Enhanced Hooks
 ```bash
 # Initialize with full GitHub integration
-npx claude-flow@alpha github init --force
+npx @claude-flow/cli@latest github init --force
 ```
 
 This enables:
@@ -85,7 +85,7 @@ Complete session tracking:
 
 ```bash
 # Initialize GitHub hooks
-npx claude-flow@alpha github init --force
+npx @claude-flow/cli@latest github init --force
 
 # Start development - everything is automatically tracked
 claude
@@ -259,7 +259,7 @@ Every session generates a comprehensive summary:
 npm install -g claude-flow@alpha
 
 # Initialize GitHub hooks
-npx claude-flow@alpha github init --force
+npx @claude-flow/cli@latest github init --force
 
 # Start coding with full observability
 claude

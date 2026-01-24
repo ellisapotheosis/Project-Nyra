@@ -1,335 +1,496 @@
-# Landing - RateHunter Public Landing Pages
+# Landing Page - CLAUDE.md
 
-## 🎯 APPLICATION CONTEXT
+**Inherits from**: `apps/CLAUDE.md`
+**Stack**: React 18, TypeScript, Node.js, Vite
+**Port**: 3000
+**Type**: landing (Marketing and lead generation landing pages)
 
-**Purpose**: Static landing pages and marketing sites for RateHunter.net, optimized for Cloudflare Pages deployment with edge caching, SEO, and conversion optimization.
+## Overview
 
-**Primary Site**: ratehunter-landing (Next.js 14)
-**Deployment**: Cloudflare Pages (Free tier)
-**CDN**: 300+ global edge locations
-**Type**: Static Site Generation (SSG) + Edge Functions
+Landing Page app contains marketing-focused, public-facing landing pages for Project Nyra. This document provides landing page-specific configuration and development guidelines.
 
-## 🚨 CRITICAL DEVELOPMENT RULES
+## App-Specific Configuration
 
-### SEO & Performance First
-**MANDATORY**: All landing pages must achieve:
-- **Core Web Vitals**: LCP < 2.5s, FID < 100ms, CLS < 0.1
-- **Lighthouse Score**: 95+ on all metrics
-- **Mobile-First**: Fully responsive designs
-- **Edge Optimization**: Leverage Cloudflare edge caching
+### Routes
 
-### Parallel Page Development Pattern
-**MANDATORY**: Develop all pages and components concurrently:
+- `/` - Main landing page (hero, features, CTA)
+- `/about` - About page (company, team, mission)
+- `/contact` - Contact form page
+- `/pricing` - Pricing plans and features
+- `/blog` - Blog listing and articles
+- `/blog/:slug` - Individual blog post
+- `/faq` - Frequently asked questions
+- `/terms` - Terms of service
+- `/privacy` - Privacy policy
 
-```javascript
-// ✅ CORRECT: Batch landing page development in ONE message
-[Single Message]:
-  // Landing pages (Next.js)
-  - Write("ratehunter-landing/app/page.tsx", homepage)
-  - Write("ratehunter-landing/app/about/page.tsx", aboutPage)
-  - Write("ratehunter-landing/app/contact/page.tsx", contactPage)
-  - Write("ratehunter-landing/app/privacy/page.tsx", privacyPage)
+### Features
 
-  // Components
-  - Write("ratehunter-landing/components/hero-section.tsx", heroComponent)
-  - Write("ratehunter-landing/components/features.tsx", featuresComponent)
-  - Write("ratehunter-landing/components/testimonials.tsx", testimonialsComponent)
-  - Write("ratehunter-landing/components/cta.tsx", ctaComponent)
+- Responsive marketing website
+- Lead capture forms with validation
+- Contact form with email notifications
+- Blog/content system
+- SEO optimization
+- Analytics and conversion tracking
+- Email subscription signup
+- Testimonials and case studies
+- FAQ accordion
+- Social media links
 
-  // SEO assets
-  - Write("ratehunter-landing/public/robots.txt", robotsTxt)
-  - Write("ratehunter-landing/public/sitemap.xml", sitemap)
-  - Write("ratehunter-landing/app/manifest.json", pwaManifest)
+### Dependencies
 
-  // Cloudflare configuration
-  - Write("ratehunter-landing/_headers", securityHeaders)
-  - Write("ratehunter-landing/_redirects", redirectRules)
+**Shared Packages**:
+- `@nyra/ui` - Shared UI component library
+- `@nyra/utils` - Shared utilities and helpers
 
-// ❌ WRONG: Sequential page development
-[Message 1]: Write homepage
-[Message 2]: Write about page
-[Message 3]: Write contact page
+**App-Specific Dependencies**:
+- `react-hook-form` - Form state management
+- `zod` - Schema validation
+- `axios` - HTTP client
+- `date-fns` - Date utilities
+- `clsx` - Utility for conditional CSS classes
+- `react-markdown` - Markdown rendering for blog posts
+- `lucide-react` - Icon library
+
+### Environment Variables
+
+```bash
+# API Configuration
+VITE_API_URL=http://localhost:3000/api
+VITE_API_TIMEOUT=30000
+
+# Email Configuration
+VITE_EMAIL_SERVICE_URL=http://localhost:3000/api/email
+VITE_FROM_EMAIL=noreply@nyra.com
+
+# Analytics
+VITE_ANALYTICS_ID=landing-page
+VITE_GOOGLE_ANALYTICS_ID=G-XXXXXXXXXX
+VITE_ENVIRONMENT=development
+
+# SEO
+VITE_SITE_URL=http://localhost:3000
+VITE_SITE_TITLE=Nyra - Modern Mortgage Solutions
+VITE_SITE_DESCRIPTION=Discover better mortgage rates and solutions
+
+# Features
+VITE_FEATURE_BLOG=true
+VITE_FEATURE_NEWSLETTER=true
+VITE_FEATURE_CONTACT_FORM=true
 ```
 
-### Cloudflare Pages Optimization
-**CRITICAL**: Leverage Cloudflare features for maximum performance:
+### Container Configuration
 
-- **Edge Caching**: Cache static assets at edge locations
-- **Auto-Minify**: Enable JS/CSS/HTML minification
-- **Brotli Compression**: Automatic compression
-- **HTTP/3**: QUIC protocol support
-- **Image Optimization**: Cloudflare Images integration
-- **Web Analytics**: Privacy-friendly analytics
+- **Base Image**: node:18-alpine
+- **Port**: 3000
+- **Build Command**: `pnpm build`
+- **Start Command**: `pnpm start`
+- **Dockerfile**: `Dockerfile` in app root
+- **Static Generation**: Pre-render for SEO optimization
 
-## 📊 LANDING ARCHITECTURE
+## Testing (TDD)
 
-### RateHunter Landing Structure
+### Test Structure
+
+- **Test Files**: `src/**/*.test.tsx`, `src/**/*.test.ts`
+- **Test Utilities**: `tests/utils` (shared test helpers)
+- **Mock Data**: `tests/fixtures/` (blog posts, testimonials, etc.)
+- **Coverage Requirement**: 80%+ for all source files
+
+### Running Tests
+
+```bash
+# Run all tests
+pnpm test
+
+# Run tests in watch mode
+pnpm test:watch
+
+# Run tests with coverage
+pnpm test:coverage
+
+# Run specific test file
+pnpm test -- ContactForm.test.tsx
+
+# Run tests matching pattern
+pnpm test -- --grep "form"
 ```
-apps/landing/ratehunter-landing/
-├── app/
-│   ├── page.tsx                    # Homepage (hero, features, CTA)
-│   ├── layout.tsx                  # Root layout with SEO
-│   ├── about/page.tsx              # About page
-│   ├── contact/page.tsx            # Contact form
-│   ├── privacy/page.tsx            # Privacy policy
-│   ├── terms/page.tsx              # Terms of service
-│   └── api/
-│       └── contact/route.ts        # Contact form handler
-├── components/
-│   ├── hero-section.tsx            # Hero with CTA
-│   ├── features.tsx                # Feature highlights
-│   ├── testimonials.tsx            # Customer reviews
-│   ├── cta-section.tsx             # Call-to-action
-│   ├── navigation.tsx              # Header navigation
-│   └── footer.tsx                  # Footer with links
+
+### Key Test Scenarios
+
+1. **Lead Capture Forms**
+   - Form validation with Zod
+   - Email format validation
+   - Required field validation
+   - Form submission handling
+   - Success/error messages
+
+2. **Contact Form**
+   - Name, email, subject, message validation
+   - Form submission
+   - Email notification
+   - User confirmation
+
+3. **Navigation**
+   - Links work correctly
+   - Mobile menu toggle
+   - Active route highlighting
+   - Responsive layout
+
+4. **Content Rendering**
+   - Blog posts render correctly
+   - Markdown parsing works
+   - Images load properly
+   - Testimonials display
+
+## API Integration
+
+- **Backend URL**: `http://localhost:3000/api` (development)
+- **Authentication**: Public endpoints, no auth required
+- **Error Handling**: User-friendly error messages
+- **HTTP Client**: Axios (configured in shared utils)
+- **Email**: Contact form sends to backend email service
+
+### API Endpoints Used
+
+```
+GET  /api/blog              - Get blog posts list
+GET  /api/blog/:slug        - Get individual blog post
+POST /api/contact           - Submit contact form
+POST /api/newsletter        - Subscribe to newsletter
+POST /api/lead-capture      - Submit lead capture form
+```
+
+## Development Commands
+
+### Local Development
+
+```bash
+# Install dependencies
+pnpm install
+
+# Start development server (port 3000)
+pnpm dev
+
+# Build for production
+pnpm build
+
+# Preview production build
+pnpm preview
+
+# Run linting
+pnpm lint
+
+# Fix linting issues
+pnpm lint:fix
+
+# Format code
+pnpm format
+
+# Generate static site
+pnpm build:static
+```
+
+### Testing & Quality
+
+```bash
+# Run all tests
+pnpm test
+
+# Watch mode
+pnpm test:watch
+
+# Coverage report
+pnpm test:coverage
+
+# Lint and format
+pnpm lint && pnpm format
+
+# Type check
+pnpm type-check
+```
+
+### Docker Development
+
+```bash
+# Build Docker image
+docker build -t landing-page:latest .
+
+# Run container locally
+docker run -p 3000:3000 landing-page:latest
+
+# Docker Compose (from project root)
+docker-compose -f infra/docker/docker-compose.yml up landing
+```
+
+## File Structure
+
+```
+apps/landing/
+├── src/
+│   ├── components/
+│   │   ├── Header.tsx
+│   │   ├── Footer.tsx
+│   │   ├── Hero.tsx
+│   │   ├── Features.tsx
+│   │   ├── Testimonials.tsx
+│   │   ├── PricingTable.tsx
+│   │   ├── ContactForm.tsx
+│   │   ├── Newsletter.tsx
+│   │   ├── BlogCard.tsx
+│   │   ├── FAQAccordion.tsx
+│   │   └── ...
+│   ├── pages/
+│   │   ├── Home.tsx
+│   │   ├── About.tsx
+│   │   ├── Contact.tsx
+│   │   ├── Pricing.tsx
+│   │   ├── Blog.tsx
+│   │   ├── BlogPost.tsx
+│   │   ├── FAQ.tsx
+│   │   ├── Terms.tsx
+│   │   └── Privacy.tsx
+│   ├── hooks/
+│   │   ├── useBlog.ts
+│   │   ├── useContactForm.ts
+│   │   ├── useNewsletter.ts
+│   │   └── ...
+│   ├── api/
+│   │   ├── blog.ts
+│   │   ├── contact.ts
+│   │   ├── newsletter.ts
+│   │   └── ...
+│   ├── types/
+│   │   ├── blog.ts
+│   │   ├── contact.ts
+│   │   └── ...
+│   ├── content/
+│   │   ├── blog/
+│   │   │   ├── post-1.md
+│   │   │   └── ...
+│   │   ├── pages/
+│   │   │   ├── faq.json
+│   │   │   ├── testimonials.json
+│   │   │   └── ...
+│   │   └── ...
+│   ├── utils/
+│   │   ├── seo.ts
+│   │   ├── formatting.ts
+│   │   └── ...
+│   ├── App.tsx
+│   └── main.tsx
+├── tests/
+│   ├── utils/
+│   │   ├── testHelpers.ts
+│   │   └── mockData.ts
+│   ├── fixtures/
+│   │   ├── blog-posts.json
+│   │   ├── testimonials.json
+│   │   └── ...
+│   └── setup.ts
 ├── public/
-│   ├── robots.txt                  # SEO robots file
-│   ├── sitemap.xml                 # XML sitemap
-│   ├── manifest.json               # PWA manifest
-│   └── images/                     # Optimized images
-├── _headers                        # Cloudflare security headers
-├── _redirects                      # URL redirects
-├── next.config.js                  # Next.js + Cloudflare config
-├── QUICK-START.md                  # 15-minute deploy guide
-├── CLOUDFLARE-SETUP.md             # Complete setup guide
-└── DEPLOYMENT-CHECKLIST.md         # Production checklist
+│   ├── images/
+│   │   ├── logo.svg
+│   │   ├── hero-bg.jpg
+│   │   └── ...
+│   ├── blog/
+│   │   └── images/
+│   └── ...
+├── content/
+│   ├── blog/
+│   │   ├── first-post.md
+│   │   └── ...
+│   └── pages/
+│       ├── faq.json
+│       └── testimonials.json
+├── Dockerfile
+├── vite.config.ts
+├── vitest.config.ts
+├── tsconfig.json
+├── package.json
+└── pnpm-lock.yaml
 ```
 
-## 🧠 CLAUDE FLOW INTEGRATION
+## Key Components
 
-### Available Agents
-```yaml
-agents:
-  landing_page_optimizer:
-    role: Landing page development and conversion optimization
-    focus: [hero-sections, cta-optimization, social-proof]
-    responsibilities:
-      - Create compelling hero sections
-      - Design conversion-focused CTAs
-      - Implement testimonials and social proof
-      - A/B testing recommendations
+### Hero Section
+Main landing page hero with headline, subheading, and CTA button.
 
-  seo_specialist:
-    role: Search engine optimization
-    focus: [meta-tags, structured-data, sitemaps, keywords]
-    responsibilities:
-      - Comprehensive metadata for mortgage keywords
-      - Schema.org structured data
-      - XML sitemap generation
-      - robots.txt optimization
+### Features Section
+Displays key product features in a grid layout with icons and descriptions.
 
-  performance_engineer:
-    role: Web performance optimization
-    focus: [core-web-vitals, bundle-optimization, edge-caching]
-    responsibilities:
-      - Achieve LCP < 2.5s
-      - Minimize JavaScript bundle
-      - Optimize images and fonts
-      - Configure edge caching strategies
+### ContactForm
+Email validated contact form with success/error handling.
 
-  cloudflare_specialist:
-    role: Cloudflare Pages deployment expert
-    focus: [edge-functions, security-headers, cdn-config]
-    responsibilities:
-      - Configure Cloudflare Pages builds
-      - Implement security headers
-      - Set up edge functions
-      - Optimize CDN caching
+### Newsletter
+Email subscription form for newsletter signup.
+
+### BlogCard
+Card component for displaying blog post previews.
+
+### FAQAccordion
+Expandable FAQ section with smooth animations.
+
+## SEO Optimization
+
+### Meta Tags
+
+```typescript
+// Use in page components
+import { SEO } from '@/utils/seo';
+
+export default function BlogPost() {
+  return (
+    <>
+      <SEO
+        title="Blog Post Title"
+        description="Blog post description"
+        canonicalUrl="https://nyra.com/blog/post-slug"
+        ogImage="https://nyra.com/og-image.jpg"
+      />
+      {/* Page content */}
+    </>
+  );
+}
 ```
 
-### Recommended Workflows
+### Open Graph & Social
 
-**1. New Landing Page**
+```html
+<meta property="og:title" content="Page Title" />
+<meta property="og:description" content="Page description" />
+<meta property="og:image" content="https://nyra.com/og-image.jpg" />
+<meta property="og:url" content="https://nyra.com/page" />
+<meta name="twitter:card" content="summary_large_image" />
+```
+
+## Development Workflow
+
+### Blog Post Creation
+
+1. Create markdown file in `src/content/blog/`
+2. Add frontmatter with metadata
+3. Write content in markdown
+4. Add featured image
+5. Test rendering locally
+
+### Example Blog Post
+
+```markdown
+---
+title: "10 Tips for Getting Better Mortgage Rates"
+slug: "mortgage-rates-tips"
+date: "2026-01-22"
+author: "John Doe"
+description: "Learn strategies to get better mortgage rates"
+featured_image: "/blog/images/rates-tips.jpg"
+tags: ["mortgage", "rates", "tips"]
+---
+
+# 10 Tips for Getting Better Mortgage Rates
+
+Content here...
+```
+
+## Code Review Checklist
+
+- [ ] Tests pass: `pnpm test`
+- [ ] Coverage maintained: >80%
+- [ ] Linting passes: `pnpm lint`
+- [ ] Types correct: `pnpm type-check`
+- [ ] Mobile responsive
+- [ ] SEO meta tags present
+- [ ] Images optimized
+- [ ] Forms have validation
+- [ ] Accessibility tested
+- [ ] No console.log or debugger statements
+- [ ] Links work correctly
+
+## Performance Optimization
+
+### Key Optimizations
+
+1. **Image Optimization**: Use optimized formats (WebP, AVIF)
+2. **Code Splitting**: Lazy load heavy components
+3. **CSS Optimization**: Purge unused styles
+4. **Minification**: Minify HTML, CSS, JS
+5. **Caching**: Set appropriate cache headers
+
+## Deployment
+
+### Production Build
+
 ```bash
-# Get routing recommendation
+pnpm build
+pnpm preview
+```
+
+### Environment Setup
+
+```bash
+# Production environment variables
+VITE_API_URL=https://api.nyra.com
+VITE_SITE_URL=https://nyra.com
+VITE_ENVIRONMENT=production
+VITE_GOOGLE_ANALYTICS_ID=G-XXXXXXXXXX
+```
+
+### Cloudflare Pages Deployment
+
+```bash
+# Build is automatically deployed from git
+# Cloudflare configuration in wrangler.toml
+```
+
+## Accessibility
+
+### WCAG 2.1 Compliance
+
+- All images have alt text
+- Heading hierarchy is correct (H1, H2, H3...)
+- Form labels associated with inputs
+- Keyboard navigation works
+- Color contrast meets standards
+- Focus indicators visible
+- ARIA labels for complex components
+
+## Claude Flow Integration
+
+### Memory-Based Development
+
+```bash
+# Store landing page patterns
+npx @claude-flow/cli@latest memory store \
+  --key "landing-form-pattern" \
+  --value "Lead capture form with email validation" \
+  --namespace app-specific
+
+# Search for CTA and hero patterns
+npx @claude-flow/cli@latest memory search \
+  --query "hero section CTA patterns"
+```
+
+### Task Coordination
+
+```bash
+# Pre-task: Get routing for new landing feature
 npx @claude-flow/cli@latest hooks pre-task \
-  --description "Create new landing page with SEO and performance optimization"
+  --description "Implement testimonials section on landing page"
 
-# Initialize swarm for parallel development
-npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 4 --strategy specialized
-
-# Spawn agents: landing_page_optimizer, seo_specialist, performance_engineer, cloudflare_specialist
-```
-
-**2. Performance Optimization**
-```bash
-# Run performance benchmark
-npx @claude-flow/cli@latest performance benchmark --suite all
-
-# Analyze bottlenecks
-npx @claude-flow/cli@latest performance profile --target "landing-pages"
-
-# Store optimization learnings
+# Post-task: Store results
 npx @claude-flow/cli@latest hooks post-task \
-  --task-id "perf-opt-001" \
+  --task-id "task-landing-testimonials" \
   --success true \
   --store-results true
 ```
 
-**3. SEO Enhancement**
-```bash
-# Search for successful SEO patterns
-npx @claude-flow/cli@latest memory search \
-  --query "landing page SEO mortgage keywords" \
-  --namespace patterns
+## References
 
-# Store new SEO strategy
-npx @claude-flow/cli@latest memory store \
-  --namespace patterns \
-  --key "seo-mortgage-landing" \
-  --value "Successful keywords and meta strategies"
-```
-
-## 🔧 CLOUDFLARE PAGES SETUP
-
-### Quick Deploy (5 Minutes)
-```bash
-# 1. Push to GitHub
-git push origin main
-
-# 2. Connect in Cloudflare Dashboard
-# https://dash.cloudflare.com/ > Pages > Create Project
-
-# 3. Build Settings
-Framework: Next.js
-Build command: npm run build
-Build output: .next
-Node version: 18
-```
-
-### Security Headers (_headers file)
-```
-/*
-  X-Frame-Options: DENY
-  X-Content-Type-Options: nosniff
-  X-XSS-Protection: 1; mode=block
-  Referrer-Policy: strict-origin-when-cross-origin
-  Permissions-Policy: geolocation=(), microphone=(), camera=()
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline';
-  Strict-Transport-Security: max-age=31536000; includeSubDomains
-```
-
-### Performance Headers
-```
-/*.js
-  Cache-Control: public, max-age=31536000, immutable
-
-/*.css
-  Cache-Control: public, max-age=31536000, immutable
-
-/images/*
-  Cache-Control: public, max-age=31536000, immutable
-```
-
-## 📈 PERFORMANCE TARGETS
-
-### Core Web Vitals
-- **LCP (Largest Contentful Paint)**: < 2.5s
-- **FID (First Input Delay)**: < 100ms
-- **CLS (Cumulative Layout Shift)**: < 0.1
-
-### Lighthouse Scores
-- Performance: 95+
-- Accessibility: 100
-- Best Practices: 100
-- SEO: 100
-
-### Load Times
-- **First Byte**: < 200ms (edge caching)
-- **First Contentful Paint**: < 1.5s
-- **Time to Interactive**: < 3.5s
-
-### Bundle Sizes
-- Initial JavaScript: < 150KB
-- Total JavaScript: < 400KB
-- CSS: < 30KB
-- Images: WebP format, lazy loaded
-
-## 🔒 SECURITY & COMPLIANCE
-
-### Security Features
-- **CSP**: Content Security Policy headers
-- **HSTS**: HTTP Strict Transport Security
-- **XSS Protection**: Cross-site scripting prevention
-- **HTTPS Only**: Automatic SSL certificates
-- **Secure Cookies**: HttpOnly, Secure, SameSite flags
-
-### Mortgage Compliance
-- **Equal Housing Opportunity**: Display EHO logo
-- **Privacy Policy**: CCPA/GDPR compliant
-- **Terms of Service**: Clear lending disclaimers
-- **Cookie Consent**: User privacy controls
-- **Accessibility**: WCAG 2.1 Level AA compliance
-
-## 🧪 TESTING & VALIDATION
-
-### Pre-Deployment Checklist
-```bash
-# 1. Build locally
-npm run build
-
-# 2. Test production build
-npm run start
-
-# 3. Run Lighthouse
-lighthouse https://localhost:3000 --view
-
-# 4. Check security headers
-curl -I https://localhost:3000
-
-# 5. Validate sitemap
-curl https://localhost:3000/sitemap.xml
-
-# 6. Test robots.txt
-curl https://localhost:3000/robots.txt
-```
-
-### Post-Deployment Validation
-- [ ] Homepage loads < 2.5s
-- [ ] All pages mobile-responsive
-- [ ] Forms submit successfully
-- [ ] Analytics tracking works
-- [ ] Security headers present
-- [ ] Sitemap accessible
-- [ ] robots.txt correct
-- [ ] Lighthouse score 95+
-
-## 🔄 AUTO-LEARNING PROTOCOL
-
-### Before Landing Page Development
-```bash
-# Search for successful landing page patterns
-npx @claude-flow/cli@latest memory search \
-  --query "high converting mortgage landing pages" \
-  --namespace patterns
-
-# Load learned optimizations
-npx @claude-flow/cli@latest hooks route \
-  --task "Create conversion-optimized landing page"
-```
-
-### After Successful Launch
-```bash
-# Store successful pattern
-npx @claude-flow/cli@latest memory store \
-  --namespace patterns \
-  --key "landing-success-$(date +%Y%m%d)" \
-  --value "Achieved 95+ Lighthouse, <2.5s LCP, conversion rate X%"
-
-# Train neural patterns
-npx @claude-flow/cli@latest neural train \
-  --pattern-type landing-optimization \
-  --epochs 10
-```
-
-## 📚 RELATED DOCUMENTATION
-
-- **Root CLAUDE.md**: V3 orchestration patterns
-- **apps/web/ratehunter/CLAUDE.md**: Full RateHunter app with backend
-- **QUICK-START.md**: 15-minute deployment guide
-- **CLOUDFLARE-SETUP.md**: Complete Cloudflare configuration
-- **DEPLOYMENT-CHECKLIST.md**: Production launch checklist
+- **Project CLAUDE.md**: `CLAUDE.md` (root)
+- **Apps CLAUDE.md**: `apps/CLAUDE.md`
+- **Shared UI**: `apps/shared/ui/`
+- **Docker Config**: `infra/docker/`
 
 ---
 
-**Landing pages are the first impression for potential customers. Every element must be optimized for speed, SEO, conversion, and mobile experience. Cloudflare Pages provides free hosting with enterprise CDN performance.**
+**Last Updated**: 2026-01-22
+**Maintained By**: Development Team

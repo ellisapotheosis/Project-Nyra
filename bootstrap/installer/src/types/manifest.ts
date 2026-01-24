@@ -63,8 +63,16 @@ export type ComponentId =
   | 'nvidia';
 
 // Installation phases
+// Note: some phases are primarily used for UI grouping (windows/wsl),
+// others for more fine-grained future workflows.
 export type InstallPhase =
   | 'selection'
+  | 'windows'
+  | 'wsl'
+  | 'deployment'
+  | 'validation'
+  | 'complete'
+  | 'error'
   | 'environment'
   | 'components'
   | 'mcp-servers'
@@ -72,10 +80,7 @@ export type InstallPhase =
   | 'cloudflare-tunnels'
   | 'configuration'
   | 'shims'
-  | 'deployment'
-  | 'health-check'
-  | 'complete'
-  | 'error';
+  | 'health-check';
 
 // Log entry
 export interface LogEntry {

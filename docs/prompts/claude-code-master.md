@@ -42,7 +42,7 @@ pnpm dev -- --port 3002
 From repo root:
 
 ```powershell
-npx claude-flow@alpha init --sparc
+npx @claude-flow/cli@latest init --sparc
 npx claude-flow sparc batch "prompts/claude-flow/NYRA_MASTER_SWARM.md"
 ```
 

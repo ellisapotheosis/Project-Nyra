@@ -17,7 +17,7 @@ The Truth Verification System is a framework that provides verification and trut
 ./claude-flow verify init development # Development mode (0.75 threshold)
 
 # After npm publish, will be available as:
-npx claude-flow@alpha verify init strict
+npx @claude-flow/cli@latest verify init strict
 ```
 
 ## Current Implementation Status

@@ -102,8 +102,8 @@
 
 ```bash
 # Global edge deployment coordination
-npx claude-flow@alpha hooks pre-task --description "Deploying edge functions across 450+ locations"
-npx claude-flow@alpha hooks notify --message "Edge deployment: [regions], Functions: [count], Latency target: <50ms globally"
+npx @claude-flow/cli@latest hooks pre-task --description "Deploying edge functions across 450+ locations"
+npx @claude-flow/cli@latest hooks notify --message "Edge deployment: [regions], Functions: [count], Latency target: <50ms globally"
 ```
 
 ## 🗣️ LOCALIZATION AND I18N
@@ -297,8 +297,8 @@ npx claude-flow@alpha hooks notify --message "Edge deployment: [regions], Functi
 
 ```bash
 # Cross-region synchronization
-npx claude-flow@alpha hooks pre-task --description "Synchronizing deployments across 8 regions"
-npx claude-flow@alpha hooks notify --message "Region sync: [regions], Latency: [metrics], Status: [health]"
+npx @claude-flow/cli@latest hooks pre-task --description "Synchronizing deployments across 8 regions"
+npx @claude-flow/cli@latest hooks notify --message "Region sync: [regions], Latency: [metrics], Status: [health]"
 ```
 
 ### Cultural Adaptations

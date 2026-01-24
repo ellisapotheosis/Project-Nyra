@@ -97,17 +97,17 @@ npx @claude-flow/cli@latest memory search \
 **Trajectory Tracking**:
 ```bash
 # Start tracking
-npx claude-flow@v3alpha hooks intelligence trajectory-start \
+npx @claude-flow/cli@latest hooks intelligence trajectory-start \
   --task "performance-analysis" \
   --context "performance-engineer"
 
 # Record each step
-npx claude-flow@v3alpha hooks intelligence trajectory-step \
+npx @claude-flow/cli@latest hooks intelligence trajectory-step \
   --operation "write-test" \
   --outcome "success"
 
 # End with verdict
-npx claude-flow@v3alpha hooks intelligence trajectory-end \
+npx @claude-flow/cli@latest hooks intelligence trajectory-end \
   --session-id "$SESSION_ID" \
   --verdict "success" \
   --reward 0.95
@@ -356,10 +356,10 @@ calculateEWCPenalty(currentWeights, taskId) {
 **Hooks**:
 ```bash
 # Pre-task: Initialize trajectory
-npx claude-flow@alpha hooks pre-task --description "$TASK"
+npx @claude-flow/cli@latest hooks pre-task --description "$TASK"
 
 # Post-task: Record outcome
-npx claude-flow@alpha hooks post-task --task-id "$ID" --success true
+npx @claude-flow/cli@latest hooks post-task --task-id "$ID" --success true
 ```
 
 **Agent**: `.claude/agents/sona/sona-learning-optimizer.md`
@@ -448,20 +448,20 @@ npx @claude-flow/cli@latest memory init --force --verbose
 **Hooks System**:
 ```bash
 # Start trajectory
-npx claude-flow@v3alpha hooks intelligence trajectory-start
+npx @claude-flow/cli@latest hooks intelligence trajectory-start
 
 # Record step
-npx claude-flow@v3alpha hooks intelligence trajectory-step \
+npx @claude-flow/cli@latest hooks intelligence trajectory-step \
   --operation "$OPERATION" \
   --outcome "$OUTCOME"
 
 # End trajectory
-npx claude-flow@v3alpha hooks intelligence trajectory-end \
+npx @claude-flow/cli@latest hooks intelligence trajectory-end \
   --session-id "$SESSION_ID" \
   --verdict "$VERDICT"
 
 # Search patterns
-npx claude-flow@v3alpha hooks intelligence pattern-search \
+npx @claude-flow/cli@latest hooks intelligence pattern-search \
   --query "$QUERY" \
   --min-reward 0.8
 ```
@@ -469,13 +469,13 @@ npx claude-flow@v3alpha hooks intelligence pattern-search \
 **Neural Commands**:
 ```bash
 # Train neural patterns
-npx claude-flow@v3alpha neural train --pattern-type coordination
+npx @claude-flow/cli@latest neural train --pattern-type coordination
 
 # Predict optimal approach
-npx claude-flow@v3alpha neural predict --input "[task]"
+npx @claude-flow/cli@latest neural predict --input "[task]"
 
 # Consolidate patterns
-npx claude-flow@v3alpha neural consolidate --namespace reasoningbank
+npx @claude-flow/cli@latest neural consolidate --namespace reasoningbank
 ```
 
 ### MCP Tools

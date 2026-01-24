@@ -388,7 +388,7 @@ async function retryOperation(operation, maxRetries = 3) {
 
 ### 6.2 MCP Servers Required
 1. **claude-flow** (Required)
-   - Installation: `claude mcp add claude-flow npx claude-flow@alpha mcp start`
+   - Installation: `claude mcp add claude-flow npx @claude-flow/cli@latest mcp start`
    - Purpose: Core swarm coordination
 
 2. **ruv-swarm** (Optional)

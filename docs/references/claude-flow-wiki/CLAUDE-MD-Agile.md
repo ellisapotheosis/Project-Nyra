@@ -60,8 +60,8 @@
 
 ```bash
 # Daily standup check-in (each developer runs this)
-npx claude-flow@alpha hooks pre-task --description "Daily standup check-in" --auto-spawn-agents false
-npx claude-flow@alpha hooks notify --message "Yesterday: [completed work], Today: [planned work], Blockers: [impediments]" --telemetry true
+npx @claude-flow/cli@latest hooks pre-task --description "Daily standup check-in" --auto-spawn-agents false
+npx @claude-flow/cli@latest hooks notify --message "Yesterday: [completed work], Today: [planned work], Blockers: [impediments]" --telemetry true
 ```
 
 ### Sprint Execution Pattern
@@ -146,11 +146,11 @@ For Kanban teams, use continuous deployment strategy:
 
 ```bash
 # Sprint end retrospective coordination
-npx claude-flow@alpha hooks post-task --task-id "sprint_retrospective" --analyze-performance true
-npx claude-flow@alpha hooks session-end --export-metrics true --generate-summary true
+npx @claude-flow/cli@latest hooks post-task --task-id "sprint_retrospective" --analyze-performance true
+npx @claude-flow/cli@latest hooks session-end --export-metrics true --generate-summary true
 
 # Store retrospective insights
-npx claude-flow@alpha hooks notify --message "Sprint retrospective: [what went well], [what to improve], [action items]" --telemetry true
+npx @claude-flow/cli@latest hooks notify --message "Sprint retrospective: [what went well], [what to improve], [action items]" --telemetry true
 ```
 
 ### Velocity Tracking and Planning
@@ -196,7 +196,7 @@ npx claude-flow@alpha hooks notify --message "Sprint retrospective: [what went w
 
 ```bash
 # Daily burndown update (automated)
-npx claude-flow@alpha hooks post-edit --file "sprint-burndown.json" --memory-key "agile/burndown/day_${DAY}"
+npx @claude-flow/cli@latest hooks post-edit --file "sprint-burndown.json" --memory-key "agile/burndown/day_${DAY}"
 ```
 
 ### Team Performance Dashboard
@@ -216,7 +216,7 @@ npx claude-flow@alpha hooks post-edit --file "sprint-burndown.json" --memory-key
 
 ```bash
 # Sync with external Agile tools
-npx claude-flow@alpha hooks notify --message "Sync sprint board with JIRA" --integration "jira"
+npx @claude-flow/cli@latest hooks notify --message "Sync sprint board with JIRA" --integration "jira"
 ```
 
 ### CI/CD Pipeline for Agile

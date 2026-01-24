@@ -221,3 +221,28 @@ docker-compose.override.yml
 # Infisical documentation with example credentials
 INFISICAL-ENV-VARIABLES.md
 INFISICAL-QUICK-SETUP.txt
+
+################################################################################
+# Documentation Archive (docs/archive/)
+# Purpose: Store obsolete but potentially recoverable files
+################################################################################
+# Track archive documentation and structure
+!docs/archive/
+!docs/archive/**/*.md
+!docs/archive/**/.gitkeep
+
+# Exclude build artifacts from archives
+docs/archive/**/node_modules/
+docs/archive/**/.next/
+docs/archive/**/dist/
+docs/archive/**/build/
+docs/archive/**/*.log
+docs/archive/**/*.tmp
+docs/archive/**/*.old
+
+# Exclude sensitive files that may have been archived
+docs/archive/**/.env
+docs/archive/**/.env.*
+docs/archive/**/*.pem
+docs/archive/**/*.key
+docs/archive/**/*.db

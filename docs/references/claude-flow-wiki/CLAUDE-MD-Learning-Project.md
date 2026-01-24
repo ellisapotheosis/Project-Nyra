@@ -317,16 +317,16 @@ learning-project/
 
 ```bash
 # Before creating educational content
-npx claude-flow@alpha hooks pre-task --description "Creating lesson on [topic]" --education-mode true
+npx @claude-flow/cli@latest hooks pre-task --description "Creating lesson on [topic]" --education-mode true
 
 # After each lesson component
-npx claude-flow@alpha hooks post-edit --file "[lesson-file]" --lesson-component "[intro|example|exercise]"
+npx @claude-flow/cli@latest hooks post-edit --file "[lesson-file]" --lesson-component "[intro|example|exercise]"
 
 # Track learning path progress
-npx claude-flow@alpha hooks notify --message "Completed lesson section: [section]" --difficulty "[beginner|intermediate|advanced]"
+npx @claude-flow/cli@latest hooks notify --message "Completed lesson section: [section]" --difficulty "[beginner|intermediate|advanced]"
 
 # Validate educational quality
-npx claude-flow@alpha hooks post-task --validate-education true --check-prerequisites true
+npx @claude-flow/cli@latest hooks post-task --validate-education true --check-prerequisites true
 ```
 
 ## 🎯 Success Metrics for Educational Projects

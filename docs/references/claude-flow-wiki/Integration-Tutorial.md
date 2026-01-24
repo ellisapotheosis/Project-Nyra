@@ -54,13 +54,13 @@ git --version
 npm install -g claude-flow@alpha
 
 # Verify installation
-npx claude-flow@alpha --version
+npx @claude-flow/cli@latest --version
 ```
 
 ### 2. Configure MCP Servers
 ```bash
 # Add all three MCP servers
-claude mcp add claude-flow npx claude-flow@alpha mcp start
+claude mcp add claude-flow npx @claude-flow/cli@latest mcp start
 claude mcp add flow-nexus npx flow-nexus mcp start
 claude mcp add ruv-swarm npx ruv-swarm mcp start
 
@@ -71,7 +71,7 @@ claude mcp list
 ### 3. Test Integration
 ```bash
 # Quick integration test
-npx claude-flow@alpha sparc run test "Integration verification"
+npx @claude-flow/cli@latest sparc run test "Integration verification"
 ```
 
 ## 🛠️ Step-by-Step Setup
@@ -127,10 +127,10 @@ mcp__flow-nexus__sandbox_create({
 ### Step 4: Orchestrate with Claude Flow
 ```bash
 # Use SPARC methodology for systematic development
-npx claude-flow@alpha sparc run dev "Full-stack application"
+npx @claude-flow/cli@latest sparc run dev "Full-stack application"
 
 # Enable coordination hooks
-npx claude-flow@alpha hooks session-start --integration-mode
+npx @claude-flow/cli@latest hooks session-start --integration-mode
 ```
 
 ## 🔗 Integration Patterns
@@ -138,7 +138,7 @@ npx claude-flow@alpha hooks session-start --integration-mode
 ### Pattern 1: Local Development Workflow
 ```bash
 # 1. Design with SPARC
-npx claude-flow@alpha sparc run architecture "E-commerce API"
+npx @claude-flow/cli@latest sparc run architecture "E-commerce API"
 
 # 2. Prototype with ruv-swarm
 mcp__ruv-swarm__task_orchestrate({
@@ -148,7 +148,7 @@ mcp__ruv-swarm__task_orchestrate({
 })
 
 # 3. Test locally
-npx claude-flow@alpha sparc run test "API validation"
+npx @claude-flow/cli@latest sparc run test "API validation"
 ```
 
 ### Pattern 2: Neural Network Development
@@ -203,7 +203,7 @@ mcp__flow-nexus__workflow_create({
 ### Example 1: AI-Powered Code Review
 ```bash
 # Setup review swarm
-npx claude-flow@alpha sparc batch "review,test,optimize" "Code quality check"
+npx @claude-flow/cli@latest sparc batch "review,test,optimize" "Code quality check"
 
 # Deploy review agents
 mcp__ruv-swarm__agent_spawn({
@@ -246,7 +246,7 @@ mcp__flow-nexus__realtime_subscribe({
 ### Example 3: Automated Testing Suite
 ```bash
 # Comprehensive testing with all systems
-npx claude-flow@alpha sparc run test "Full application suite"
+npx @claude-flow/cli@latest sparc run test "Full application suite"
 
 # Parallel test execution
 mcp__ruv-swarm__task_orchestrate({
@@ -301,13 +301,13 @@ mcp__flow-nexus__swarm_scale({
 ### Claude Flow Coordination
 ```bash
 # Performance monitoring
-npx claude-flow@alpha hooks post-task --analyze-performance true
+npx @claude-flow/cli@latest hooks post-task --analyze-performance true
 
 # Memory management
-npx claude-flow@alpha hooks session-restore --optimize-memory
+npx @claude-flow/cli@latest hooks session-restore --optimize-memory
 
 # Batch operations for efficiency
-npx claude-flow@alpha sparc batch "code,tdd,devops" "Optimized pipeline"
+npx @claude-flow/cli@latest sparc batch "code,tdd,devops" "Optimized pipeline"
 ```
 
 ## 🔧 Troubleshooting
@@ -325,7 +325,7 @@ claude mcp remove flow-nexus
 claude mcp remove ruv-swarm
 
 # Re-add MCP servers
-claude mcp add claude-flow npx claude-flow@alpha mcp start
+claude mcp add claude-flow npx @claude-flow/cli@latest mcp start
 claude mcp add flow-nexus npx flow-nexus mcp start
 claude mcp add ruv-swarm npx ruv-swarm mcp start
 
@@ -365,13 +365,13 @@ mcp__flow-nexus__sandbox_stop({sandbox_id: "problematic-sandbox"})
 #### Slow Agent Spawning
 ```bash
 # Analyze performance metrics
-npx claude-flow@alpha hooks post-task --analyze-performance
+npx @claude-flow/cli@latest hooks post-task --analyze-performance
 
 # Optimize agent count
 mcp__ruv-swarm__swarm_scale({target_agents: 3})
 
 # Use batch operations
-npx claude-flow@alpha sparc pipeline "Optimized workflow"
+npx @claude-flow/cli@latest sparc pipeline "Optimized workflow"
 ```
 
 #### High Memory Usage
@@ -391,7 +391,7 @@ mcp__ruv-swarm__benchmark_run({type: "memory"})
 ### Enterprise-Scale Development
 ```bash
 # Multi-team coordination
-npx claude-flow@alpha sparc batch "architecture,backend,frontend,testing" "Enterprise app"
+npx @claude-flow/cli@latest sparc batch "architecture,backend,frontend,testing" "Enterprise app"
 
 # Distributed neural training
 mcp__flow-nexus__neural_cluster_init({
@@ -422,13 +422,13 @@ mcp__flow-nexus__sandbox_create({
 })
 
 // Collaborative research
-npx claude-flow@alpha hooks team-coordination --research-mode
+npx @claude-flow/cli@latest hooks team-coordination --research-mode
 ```
 
 ### DevOps Automation
 ```bash
 # Complete CI/CD pipeline
-npx claude-flow@alpha sparc pipeline "Automated deployment"
+npx @claude-flow/cli@latest sparc pipeline "Automated deployment"
 
 # Infrastructure as Code
 mcp__flow-nexus__workflow_create({

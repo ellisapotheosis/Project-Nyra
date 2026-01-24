@@ -75,7 +75,7 @@
 
 ```bash
 # 1. Start Claude Flow MCP Server
-npx claude-flow@alpha mcp start
+npx @claude-flow/cli@latest mcp start
 
 # 2. Start Nexus Router (includes MCP proxy)
 cd services/nexus-router
@@ -153,17 +153,17 @@ MCP Proxy (Built-in Component)
 
 ```bash
 # Option A: Using npx (recommended for latest)
-npx claude-flow@alpha mcp start
+npx @claude-flow/cli@latest mcp start
 
 # Option B: Using global installation
 npm install -g claude-flow@alpha
 claude-flow mcp start
 
 # Option C: Custom port
-npx claude-flow@alpha mcp start --port 3100
+npx @claude-flow/cli@latest mcp start --port 3100
 
 # Option D: With custom config
-npx claude-flow@alpha mcp start --config ./config/claude-flow-mcp.json
+npx @claude-flow/cli@latest mcp start --config ./config/claude-flow-mcp.json
 ```
 
 **Default Port**: 3100
@@ -239,7 +239,7 @@ Create a startup script:
 echo "🚀 Starting all MCP servers..."
 
 # Start Claude Flow
-npx claude-flow@alpha mcp start &
+npx @claude-flow/cli@latest mcp start &
 CLAUDE_FLOW_PID=$!
 
 # Start Archon OS
@@ -733,7 +733,7 @@ netstat -ano | findstr :3100  # Windows
 lsof -i :3100                 # Linux/Mac
 
 # Restart the server
-npx claude-flow@alpha mcp start
+npx @claude-flow/cli@latest mcp start
 ```
 
 #### 2. Tools Not Appearing
@@ -809,7 +809,7 @@ Enable debug logging:
 
 ```bash
 # For Claude Flow
-DEBUG=claude-flow:* npx claude-flow@alpha mcp start
+DEBUG=claude-flow:* npx @claude-flow/cli@latest mcp start
 
 # For Nexus Router
 DEBUG=nexus:mcp:* pnpm dev
@@ -1031,7 +1031,7 @@ Document all custom tools:
 
 ```bash
 # Start Claude Flow MCP
-npx claude-flow@alpha mcp start
+npx @claude-flow/cli@latest mcp start
 
 # Check MCP health
 curl http://localhost:3000/mcp/health

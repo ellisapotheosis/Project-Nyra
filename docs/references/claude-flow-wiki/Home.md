@@ -42,12 +42,12 @@ Initialize powerful AI modules with a single command:
 
 ```bash
 # Initialize SAFLA Neural Module - Self-learning AI systems
-npx claude-flow@alpha neural init
-npx claude-flow@alpha neural init --force  # Overwrite existing
+npx @claude-flow/cli@latest neural init
+npx @claude-flow/cli@latest neural init --force  # Overwrite existing
 
 # Initialize GOAP Goal Module - Intelligent planning systems  
-npx claude-flow@alpha goal init
-npx claude-flow@alpha goal init --force    # Overwrite existing
+npx @claude-flow/cli@latest goal init
+npx @claude-flow/cli@latest goal init --force    # Overwrite existing
 ```
 
 #### **What You Get:**
@@ -63,20 +63,20 @@ Claude-Flow now enforces **"truth is enforced, not assumed"** with mandatory ver
 
 ```bash
 # Initialize project with verification
-npx claude-flow@alpha init --verify  # Truth verification mode
-npx claude-flow@alpha init --pair    # Pair programming mode
-npx claude-flow@alpha init --verify --pair  # Combined mode
+npx @claude-flow/cli@latest init --verify  # Truth verification mode
+npx @claude-flow/cli@latest init --pair    # Pair programming mode
+npx @claude-flow/cli@latest init --verify --pair  # Combined mode
 
 # Run verification system
-npx claude-flow@alpha verify init strict     # 0.95 threshold, auto-rollback
-npx claude-flow@alpha verify status          # Check system status
+npx @claude-flow/cli@latest verify init strict     # 0.95 threshold, auto-rollback
+npx @claude-flow/cli@latest verify status          # Check system status
 
 # Run verification
-npx claude-flow@alpha verify verify task-123 --agent coder
-npx claude-flow@alpha truth                  # View truth scores
+npx @claude-flow/cli@latest verify verify task-123 --agent coder
+npx @claude-flow/cli@latest truth                  # View truth scores
 
 # Pair programming with real-time verification
-npx claude-flow@alpha pair --start           # Start collaborative session
+npx @claude-flow/cli@latest pair --start           # Start collaborative session
 ```
 
 **Key Verification Features:**
@@ -109,7 +109,7 @@ Claude-Flow Alpha.88 includes a comprehensive agent system with **64 specialized
 ### ⚡ **Quick Agent Examples**
 ```bash
 # Initialize with complete agent system
-npx claude-flow@alpha init
+npx @claude-flow/cli@latest init
 
 # Deploy multi-agent swarm
 claude-flow swarm "Build REST API with authentication" --agents 8

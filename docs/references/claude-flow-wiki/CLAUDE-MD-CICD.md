@@ -68,9 +68,9 @@
 
 ```bash
 # Build stage coordination (automated in CI)
-npx claude-flow@alpha hooks pre-task --description "Build stage execution" --auto-spawn-agents false
-npx claude-flow@alpha hooks post-edit --file "build-artifacts" --memory-key "cicd/build/stage_${STAGE}"
-npx claude-flow@alpha hooks notify --message "Build status: [success/failure], Artifacts: [list]" --telemetry true
+npx @claude-flow/cli@latest hooks pre-task --description "Build stage execution" --auto-spawn-agents false
+npx @claude-flow/cli@latest hooks post-edit --file "build-artifacts" --memory-key "cicd/build/stage_${STAGE}"
+npx @claude-flow/cli@latest hooks notify --message "Build status: [success/failure], Artifacts: [list]" --telemetry true
 ```
 
 ### CI/CD Agent Template
@@ -248,8 +248,8 @@ jobs:
 
 ```bash
 # Test execution with quality gates
-npx claude-flow@alpha hooks pre-task --description "Test execution with quality gates"
-npx claude-flow@alpha hooks notify --message "Test results: Unit: 95% coverage, Integration: All passed, E2E: 98% success rate" --telemetry true
+npx @claude-flow/cli@latest hooks pre-task --description "Test execution with quality gates"
+npx @claude-flow/cli@latest hooks notify --message "Test results: Unit: 95% coverage, Integration: All passed, E2E: 98% success rate" --telemetry true
 ```
 
 ## 🛡️ SECURITY INTEGRATION
