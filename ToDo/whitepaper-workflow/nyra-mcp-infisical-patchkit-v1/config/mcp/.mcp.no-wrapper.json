@@ -1,0 +1,66 @@
+{
+  "mcpServers": {
+    "filesystem": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "./",
+        "../NYRA-AIO-Bootstrap"
+      ]
+    },
+    "github": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-github"
+      ],
+      "env": {
+        "GITHUB_TOKEN": "${GITHUB_TOKEN}"
+      }
+    },
+    "serena": {
+      "command": "uvx",
+      "args": [
+        "--from",
+        "git+https://github.com/oraios/serena",
+        "serena",
+        "start-mcp-server",
+        "--context",
+        ".",
+        "--project",
+        "nyra"
+      ],
+      "env": {
+        "SERENA_LOG_LEVEL": "info"
+      }
+    },
+    "claude-flow": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "claude-flow@alpha",
+        "mcp",
+        "start"
+      ]
+    },
+    "ruv-swarm": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "ruv-swarm",
+        "mcp",
+        "start"
+      ]
+    },
+    "flow-nexus": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "flow-nexus",
+        "mcp",
+        "start"
+      ]
+    }
+  }
+}

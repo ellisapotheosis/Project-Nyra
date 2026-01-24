@@ -76,6 +76,10 @@ include:
   - path: ./docker-compose/docker-compose.business.yml
     env_file: .env
 
+  # Layer 9: Intelligence Services (RuVector)
+  - path: ./docker-compose/docker-compose.ruvector.yml
+    env_file: .env
+
 # ==============================================================================
 # GLOBAL NETWORKS
 # ==============================================================================

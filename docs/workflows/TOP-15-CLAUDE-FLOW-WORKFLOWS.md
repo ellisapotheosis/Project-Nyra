@@ -87,7 +87,7 @@ def calculate_apr(loan_amount, rate, term, points=0):
 
 **Command**:
 ```bash
-npx claude-flow@alpha hive-mind init --topology hierarchical --max-agents 31
+npx @claude-flow/cli@latest hive-mind init --topology hierarchical --max-agents 31
 ```
 
 **What It Does**:
@@ -121,7 +121,7 @@ npx claude-flow@alpha hive-mind init --topology hierarchical --max-agents 31
 
 **Command**:
 ```bash
-npx claude-flow@alpha swarm "Analyze all mortgage compliance documents" \
+npx @claude-flow/cli@latest swarm "Analyze all mortgage compliance documents" \
   --agents researcher,compliance-sentinel,coder --parallel
 ```
 
@@ -276,7 +276,7 @@ Models Generated:
 
 **Command**:
 ```bash
-npx claude-flow@alpha hive-mind spawn \
+npx @claude-flow/cli@latest hive-mind spawn \
   "Generate API documentation for all 6 microservices" \
   --workers 6 --claude
 ```
@@ -376,7 +376,7 @@ Network Error → Switch to backup network route
 
 **Command**:
 ```bash
-npx claude-flow@alpha swarm code-review --target services/quote-engine \
+npx @claude-flow/cli@latest swarm code-review --target services/quote-engine \
   --reviewers security,performance,style,tests
 ```
 
@@ -408,7 +408,7 @@ Action Items:
 
 **Command**:
 ```bash
-npx claude-flow@alpha swarm multi-repo-sync \
+npx @claude-flow/cli@latest swarm multi-repo-sync \
   --repos Project-Nyra,NyraDocs,NYRA-AIO-Bootstrap \
   --sync-targets configs,docs,workflows
 ```
@@ -446,7 +446,7 @@ Conflicts Resolved:
 
 **Command**:
 ```bash
-npx claude-flow@alpha swarm test-all-services \
+npx @claude-flow/cli@latest swarm test-all-services \
   --services quote,campaign,orchestrator,mem0,ratehunter,admin \
   --test-types unit,integration,e2e
 ```

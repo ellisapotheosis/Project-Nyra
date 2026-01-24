@@ -548,16 +548,16 @@ portfolio-project/
 
 ```bash
 # Initialize portfolio project
-npx claude-flow@alpha hooks pre-task --description "Building portfolio showcase" --quality-mode true
+npx @claude-flow/cli@latest hooks pre-task --description "Building portfolio showcase" --quality-mode true
 
 # Track skills demonstrated
-npx claude-flow@alpha hooks post-edit --file "[file]" --skills "[React,TypeScript,Testing]"
+npx @claude-flow/cli@latest hooks post-edit --file "[file]" --skills "[React,TypeScript,Testing]"
 
 # Monitor code quality
-npx claude-flow@alpha hooks notify --message "Code quality check passed: A grade" --metrics true
+npx @claude-flow/cli@latest hooks notify --message "Code quality check passed: A grade" --metrics true
 
 # Generate portfolio report
-npx claude-flow@alpha hooks post-task --generate-portfolio-summary true --include-metrics true
+npx @claude-flow/cli@latest hooks post-task --generate-portfolio-summary true --include-metrics true
 ```
 
 ## 🎯 Success Metrics for Portfolio Projects

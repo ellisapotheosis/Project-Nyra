@@ -1,0 +1,141 @@
+{
+  "tier1": {
+    "description": "Agent Booster - Pattern-based transforms without LLM",
+    "latency": "<1ms",
+    "cost": "$0",
+    "patterns": [
+      {
+        "intent": "var-to-const",
+        "regex": "var.*(const|let)",
+        "examples": [
+          "Convert var to const",
+          "Change var declarations to let",
+          "Replace var with const"
+        ]
+      },
+      {
+        "intent": "add-types",
+        "regex": "add.*type",
+        "examples": [
+          "Add TypeScript types",
+          "Add type annotations",
+          "Type this function"
+        ]
+      },
+      {
+        "intent": "remove-console",
+        "regex": "remove.*console",
+        "examples": [
+          "Remove console.log",
+          "Delete console statements",
+          "Strip console logs"
+        ]
+      },
+      {
+        "intent": "add-logging",
+        "regex": "add.*log",
+        "examples": [
+          "Add logging",
+          "Add structured logs",
+          "Implement logging"
+        ]
+      },
+      {
+        "intent": "async-await",
+        "regex": "async.*await",
+        "examples": [
+          "Convert to async/await",
+          "Use async await instead of callbacks",
+          "Modernize to async/await"
+        ]
+      },
+      {
+        "intent": "add-error-handling",
+        "regex": "error.*handling",
+        "examples": [
+          "Add error handling",
+          "Wrap with try-catch",
+          "Add error checks"
+        ]
+      },
+      {
+        "intent": "format-code",
+        "regex": "format.*code",
+        "examples": [
+          "Format code",
+          "Run prettier",
+          "Format with prettier"
+        ]
+      }
+    ]
+  },
+  "tier3": {
+    "description": "Claude Sonnet/Opus - Complex reasoning required",
+    "latency": "2-5s",
+    "cost": "$0.003-$0.015",
+    "keywords": [
+      "architecture",
+      "design",
+      "security",
+      "compliance",
+      "complex",
+      "refactor",
+      "optimize",
+      "analyze",
+      "strategy",
+      "plan",
+      "mortgage",
+      "financial",
+      "legal",
+      "regulation",
+      "audit",
+      "risk"
+    ],
+    "conditions": {
+      "longDescription": {
+        "enabled": true,
+        "threshold": 200
+      },
+      "multipleSteps": {
+        "enabled": true,
+        "minSteps": 3
+      }
+    },
+    "models": {
+      "opus": {
+        "triggers": ["critical", "compliance", "security", "legal"],
+        "cost": "$0.015",
+        "latency": "5s"
+      },
+      "sonnet": {
+        "default": true,
+        "cost": "$0.003",
+        "latency": "2s"
+      }
+    }
+  },
+  "tier2": {
+    "description": "Claude Haiku - Simple tasks and bug fixes",
+    "latency": "~500ms",
+    "cost": "$0.0002",
+    "default": true,
+    "useCases": [
+      "Bug fixes",
+      "Simple implementations",
+      "Code documentation",
+      "Unit test writing",
+      "Variable renaming",
+      "Simple refactoring"
+    ]
+  },
+  "costSavings": {
+    "tier1VsTier3": 0.003,
+    "tier2VsTier3": 0.0028,
+    "expectedDistribution": {
+      "tier1": "20%",
+      "tier2": "60%",
+      "tier3": "20%"
+    },
+    "projectedSavings": "75%"
+  }
+}

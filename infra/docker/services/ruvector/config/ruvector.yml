@@ -1,0 +1,69 @@
+# ==============================================================================
+# RuVector Intelligence System - Configuration
+# ==============================================================================
+
+service:
+  name: ruvector
+  version: 1.0.0
+  host: 0.0.0.0
+  port: 7000
+
+neural:
+  sona:
+    enabled: true
+    adaptation_time_ms: 0.05
+    learning_rate: 0.001
+    mode: balanced  # fast, balanced, quality
+
+  moe:
+    enabled: true
+    expert_count: 12
+    top_k: 3
+    load_balancing: true
+    specialization: adaptive
+
+  hnsw:
+    enabled: true
+    m: 32
+    ef: 400
+    ef_construction: 400
+    space: cosine  # cosine, l2, ip
+
+  ewc:
+    enabled: true
+    lambda: 0.5
+    consolidation_interval: 100
+
+  flash_attention:
+    enabled: true
+    block_size: 64
+    target_speedup: 5.0
+    memory_efficient: true
+
+  lora:
+    enabled: true
+    rank: 8
+    alpha: 16
+    dropout: 0.1
+
+embeddings:
+  model: sentence-transformers/all-MiniLM-L6-v2
+  dimensions: 384
+  batch_size: 32
+  normalize: true
+
+intelligence:
+  trajectory_tracking: true
+  verdict_judgment: true
+  pattern_distillation: true
+  memory_consolidation: true
+
+performance:
+  max_workers: 4
+  cache_size: 10000
+  batch_processing: true
+
+logging:
+  level: INFO
+  format: json
+  include_timestamp: true

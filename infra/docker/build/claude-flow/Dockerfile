@@ -26,7 +26,9 @@ RUN apk add --no-cache \
     py3-pip \
     build-base \
     tini \
-    docker-cli
+    docker-cli \
+    postgresql-client \
+    redis
 
 # Install Infisical CLI for secret injection
 RUN curl -1sLf 'https://dl.cloudsmith.io/public/infisical/infisical-cli/setup.alpine.sh' | bash && \
@@ -98,6 +100,11 @@ COPY --chown=claude-flow:nodejs config/ ./config/ 2>/dev/null || true
 COPY --chown=claude-flow:nodejs scripts/ ./scripts/ 2>/dev/null || true
 COPY --chown=claude-flow:nodejs .claude/ ./.claude/ 2>/dev/null || true
 
+# Copy Docker automation scripts
+COPY infra/docker/scripts/docker-entrypoint-claude-flow.sh /usr/local/bin/
+COPY infra/docker/scripts/docker-healthcheck-claude-flow.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/docker-*.sh
+
 # Create necessary directories
 RUN mkdir -p /app/{data,logs,cache,secrets,sessions,memory,.claude-flow,.swarm} && \
     chown -R claude-flow:nodejs /app
@@ -108,11 +115,8 @@ RUN rm -rf /var/cache/apk/* /tmp/* /root/.npm
 # Switch to non-root user
 USER claude-flow
 
-# Initialize Claude Flow with recommended topology
-RUN npx @claude-flow/cli@latest init --yes \
-    --topology hierarchical-mesh \
-    --max-agents 15 \
-    --strategy specialized 2>/dev/null || true
+# NOTE: Initialization moved to entrypoint script (docker-entrypoint-claude-flow.sh)
+# This ensures proper initialization with docker-specific settings and dependency checks
 
 # Environment variables with sensible defaults
 ENV NODE_ENV=production \
@@ -131,28 +135,15 @@ ENV NODE_ENV=production \
 # Expose all potential ports
 EXPOSE ${MCP_PORT} ${DAEMON_PORT} ${API_PORT} ${GRPC_PORT} ${METRICS_PORT}
 
-# Health check (works for MCP, daemon, and API modes)
+# Health check using dedicated script
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
-    CMD npx @claude-flow/cli@latest status 2>/dev/null || \
-        curl -f http://localhost:${MCP_PORT}/health 2>/dev/null || \
-        curl -f http://localhost:${API_PORT}/health 2>/dev/null || \
-        exit 1
+    CMD /usr/local/bin/docker-healthcheck-claude-flow.sh
 
-# Use tini as entrypoint for proper signal handling
-ENTRYPOINT ["/sbin/tini", "--"]
+# Use tini as entrypoint for proper signal handling, then run our custom entrypoint
+ENTRYPOINT ["/sbin/tini", "--", "/usr/local/bin/docker-entrypoint-claude-flow.sh"]
 
-# Default: Start MCP server with Infisical secret injection
-# Override with environment variable MODE=daemon or MODE=api
-CMD ["sh", "-c", "\
-    if [ \"$MODE\" = \"daemon\" ]; then \
-        npx @claude-flow/cli@latest daemon start --daemon; \
-    elif [ \"$MODE\" = \"api\" ]; then \
-        node src/index.js || node dist/index.js; \
-    else \
-        infisical run --env=${INFISICAL_ENV:-production} --path=${INFISICAL_PATH:-/nyra/claude-flow} -- \
-            npx @claude-flow/cli@latest mcp start --port ${MCP_PORT} --host 0.0.0.0 || \
-        npx @claude-flow/cli@latest mcp start --port ${MCP_PORT} --host 0.0.0.0; \
-    fi"]
+# No CMD needed - entrypoint script handles everything
+# Override entrypoint if you need custom startup (e.g., MODE=daemon, MODE=api)
 
 # ============================================================================
 # Stage 5: Development - For local development

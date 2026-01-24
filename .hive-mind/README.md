@@ -19,9 +19,9 @@ This directory contains the Claude Flow Hive Mind system configuration and data.
 
 ## Getting Started
 
-1. Initialize: `npx claude-flow@alpha hive-mind init`
-2. Spawn swarm: `npx claude-flow@alpha hive-mind spawn "your objective"`
-3. Check status: `npx claude-flow@alpha hive-mind status`
+1. Initialize: `npx @claude-flow/cli@latest hive-mind init`
+2. Spawn swarm: `npx @claude-flow/cli@latest hive-mind spawn "your objective"`
+3. Check status: `npx @claude-flow/cli@latest hive-mind status`
 
 ## Features
 

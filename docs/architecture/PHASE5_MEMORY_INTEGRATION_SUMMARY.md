@@ -546,23 +546,23 @@ Time:        8.234s
 
 ### Pre-Task
 ```bash
-✅ npx claude-flow@alpha hooks pre-task
+✅ npx @claude-flow/cli@latest hooks pre-task
    --description "Memory systems integration - Phase 5"
 ```
 
 ### During Task
 ```bash
-✅ npx claude-flow@alpha hooks post-edit
+✅ npx @claude-flow/cli@latest hooks post-edit
    --file "src/services/memory/*.ts"
    --memory-key "swarm/integration/memory/services"
 
-✅ npx claude-flow@alpha hooks notify
+✅ npx @claude-flow/cli@latest hooks notify
    --message "Memory services implemented"
 ```
 
 ### Post-Task
 ```bash
-✅ npx claude-flow@alpha hooks post-task
+✅ npx @claude-flow/cli@latest hooks post-task
    --task-id "memory-systems-integration"
 ```
 

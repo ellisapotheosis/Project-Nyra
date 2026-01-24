@@ -15,6 +15,7 @@ export interface ScriptOptions {
   onProgress?: (progress: number) => void;
   cwd?: string;
   timeout?: number;
+  args?: string[]; // additional PowerShell script arguments
 }
 
 /**
@@ -25,14 +26,15 @@ export async function runPowerShellScript(
   options: ScriptOptions = {}
 ): Promise<ScriptResult> {
   const startTime = Date.now();
-  const { onOutput, cwd } = options;
+  const { onOutput, cwd, args } = options;
 
   return new Promise((resolve, reject) => {
-    const ps = spawn(
-      'powershell.exe',
-      ['-ExecutionPolicy', 'Bypass', '-File', scriptPath],
-      { cwd, shell: true }
-    );
+    const psArgs = ['-ExecutionPolicy', 'Bypass', '-File', scriptPath];
+    if (args && args.length > 0) {
+      psArgs.push(...args);
+    }
+
+    const ps = spawn('powershell.exe', psArgs, { cwd, shell: true });
 
     let stdout = '';
     let stderr = '';

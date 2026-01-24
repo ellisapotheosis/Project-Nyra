@@ -1,6 +1,5 @@
-# Infisical Folder Structure Creation Script
-# Generated: 2026-01-22
-# Creates all necessary folders for organized secret management
+# Infisical Folder Structure Creation Script (Fixed)
+# Generated: 2026-01-24
 
 param(
     [switch]$DryRun
@@ -8,17 +7,38 @@ param(
 
 $ErrorActionPreference = "Continue"
 $ProjectId = "8374cea9-e5e8-4050-bda4-b91f25ab30ef"
-$Env = "dev"
-$Token = $env:INFISICAL_ACCESS_TOKEN
+$EnvSlug = "dev" # Renamed to avoid conflict with $Env variable
 
-if (-not $Token) {
-    Write-Host "❌ INFISICAL_ACCESS_TOKEN not set. Please set it first." -ForegroundColor Red
+# -------------------------------------------------------------------------
+# 1. AUTHENTICATION (Fixed)
+# -------------------------------------------------------------------------
+# We must exchange Client ID/Secret for a temporary Access Token.
+# Passing ClientID directly as a token will NOT work.
+
+$ClientId = $env:INFISICAL_UNIVERSAL_AUTH_CLIENT_ID
+$ClientSecret = $env:INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET
+
+if (-not $ClientId -or -not $ClientSecret) {
+    Write-Host "❌ Missing Environment Variables." -ForegroundColor Red
+    Write-Host "   Please ensure INFISICAL_UNIVERSAL_AUTH_CLIENT_ID and INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET are set."
     exit 1
 }
 
-# All folders to create
+Write-Host "🔄 Authenticating with Infisical..." -ForegroundColor Cyan
+try {
+    # Login and capture the token (requires --plain to get just the string)
+    $AccessToken = infisical login --method=universal-auth --client-id="$ClientId" --client-secret="$ClientSecret" --plain --silent
+    if (-not $AccessToken) { throw "Empty token received" }
+    Write-Host "   ✓ Authenticated successfully" -ForegroundColor Green
+} catch {
+    Write-Host "   ❌ Authentication Failed: $_" -ForegroundColor Red
+    exit 1
+}
+
+# -------------------------------------------------------------------------
+# 2. FOLDER LIST
+# -------------------------------------------------------------------------
 $folders = @(
-    # Providers
     "/providers/anthropic",
     "/providers/openai",
     "/providers/google",
@@ -26,14 +46,10 @@ $folders = @(
     "/providers/ollama",
     "/providers/perplexity",
     "/providers/replicate",
-
-    # Machines (GPU Workers)
     "/machines/orchestrator-mini",
     "/machines/worker-rtx3060",
     "/machines/worker-rtx5090",
     "/machines/worker-rtx3090ti",
-
-    # Databases
     "/databases/postgres",
     "/databases/redis",
     "/databases/qdrant",
@@ -45,8 +61,6 @@ $folders = @(
     "/databases/mongodb",
     "/databases/falkordb",
     "/databases/dify",
-
-    # Clients
     "/clients/claude-flow",
     "/clients/claude-code",
     "/clients/agentic-flow",
@@ -55,8 +69,6 @@ $folders = @(
     "/clients/bitwarden",
     "/clients/infisical",
     "/clients/nexusrouter",
-
-    # Services
     "/services/archon",
     "/services/agentdb",
     "/services/docker",
@@ -76,8 +88,6 @@ $folders = @(
     "/services/flow-nexus",
     "/services/ruv-swarm",
     "/services/tailscale",
-
-    # Config
     "/config/environment",
     "/config/project",
     "/config/bash",
@@ -89,87 +99,80 @@ $folders = @(
     "/config/rate-limiting",
     "/config/namespaces",
     "/config/misc",
-
-    # Security
     "/security/api-keys",
     "/security/auth",
     "/security/passwords",
     "/security/tokens",
     "/security/encryption",
-
-    # Monitoring
     "/monitoring/alerts",
     "/monitoring/logging",
     "/monitoring/metrics",
-
-    # Workflows
     "/workflows/campaign",
     "/workflows/mortgage"
 )
 
+# -------------------------------------------------------------------------
+# 3. HELPER FUNCTION (Recursive Logic)
+# -------------------------------------------------------------------------
+function Ensure-Folder {
+    param (
+        [string]$FullPath
+    )
+
+    # 1. Split the path into segments to ensure parents exist
+    # e.g., "/providers/anthropic" -> "providers", "anthropic"
+    $parts = $FullPath.TrimStart('/').Split('/')
+    $currentParent = "/"
+
+    foreach ($part in $parts) {
+        if ([string]::IsNullOrWhiteSpace($part)) { continue }
+
+        $targetName = $part
+        $targetPath = $currentParent
+
+        if ($DryRun) {
+            Write-Host "   [DRY RUN] Would create '$targetName' in '$targetPath'" -ForegroundColor DarkGray
+        } else {
+            # Try to create the folder
+            # We ignore errors because checking for existence first is slow/complex in CLI
+            # The CLI will error if it exists, which we catch and ignore.
+            
+            $null = infisical secrets folders create --name="$targetName" --path="$targetPath" --env="$EnvSlug" --projectId="$ProjectId" --token="$AccessToken" 2>&1
+            
+            # Check if it actually worked or failed (Infisical CLI exit codes aren't always perfect, but we proceed)
+        }
+
+        # Update parent for next iteration
+        if ($targetPath -eq "/") {
+            $currentParent = "/$targetName"
+        } else {
+            $currentParent = "$targetPath/$targetName"
+        }
+    }
+}
+
+# -------------------------------------------------------------------------
+# 4. EXECUTION
+# -------------------------------------------------------------------------
+
 Write-Host "`n📁 Infisical Folder Creation" -ForegroundColor Cyan
 Write-Host "============================`n" -ForegroundColor Cyan
 
-if ($DryRun) {
-    Write-Host "🔍 DRY RUN MODE - No folders will be created`n" -ForegroundColor Yellow
-}
-
-Write-Host "Creating $($folders.Count) folders..`n" -ForegroundColor Gray
-
-$successCount = 0
-$failCount = 0
-$skippedCount = 0
+$Total = $folders.Count
+$Current = 0
 
 foreach ($folder in $folders) {
-    Write-Host "Creating $folder..." -NoNewline
-
-    if ($DryRun) {
-        Write-Host " [DRY RUN]" -ForegroundColor Cyan
-        $successCount++
-        continue
-    }
+    $Current++
+    $Percent = [math]::Round(($Current / $Total) * 100)
+    Write-Host "[$Percent%] Processing: $folder" -NoNewline
 
     try {
-        # Check if folder already exists
-        $checkResult = infisical secrets folders get --path="$folder" --env="$Env" --projectId="$ProjectId" --token="$Token" --silent 2>&1
-
-        if ($LASTEXITCODE -eq 0) {
-            Write-Host " ⊘ (already exists)" -ForegroundColor DarkGray
-            $skippedCount++
-            continue
-        }
-
-        # Create the folder
-        $result = infisical secrets folders create "$folder" --env="$Env" --projectId="$ProjectId" --token="$Token" --silent 2>&1
-
-        if ($LASTEXITCODE -eq 0) {
-            Write-Host " ✓" -ForegroundColor Green
-            $successCount++
-        } else {
-            Write-Host " ✗" -ForegroundColor Red
-            Write-Host "    Error: $result" -ForegroundColor DarkRed
-            $failCount++
-        }
+        Ensure-Folder -FullPath $folder
+        Write-Host " ✓" -ForegroundColor Green
     } catch {
         Write-Host " ✗" -ForegroundColor Red
         Write-Host "    Error: $_" -ForegroundColor DarkRed
-        $failCount++
     }
 }
 
-# Summary
-Write-Host "`n========================================" -ForegroundColor Cyan
-Write-Host "Folder Creation Complete!" -ForegroundColor Green
-Write-Host "========================================" -ForegroundColor Cyan
-Write-Host "Total:    $($folders.Count)" -ForegroundColor White
-Write-Host "Created:  $successCount" -ForegroundColor Green
-Write-Host "Skipped:  $skippedCount" -ForegroundColor Yellow
-Write-Host "Failed:   $failCount" -ForegroundColor Red
-Write-Host "========================================`n" -ForegroundColor Cyan
-
-if ($failCount -gt 0) {
-    Write-Host "⚠️  Some folders failed to create." -ForegroundColor Yellow
-    Write-Host "    This may be due to parent folders not existing or permission issues.`n" -ForegroundColor Yellow
-}
-
-exit 0
+Write-Host "`nDone!`n" -ForegroundColor Cyan

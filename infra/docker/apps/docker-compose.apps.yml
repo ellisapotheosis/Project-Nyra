@@ -149,26 +149,63 @@ services:
     networks:
       - nyra-apps
 
-  # OpenWebUI - LLM Chat Interface
+  # OpenWebUI - Development LLM Chat Interface (Port 3333)
+  # NOTE: This is for DEVELOPMENT/TESTING only. Borrowers use Dify on port 3000.
   openwebui:
     image: ghcr.io/open-webui/open-webui:main
     container_name: nyra-openwebui
     restart: unless-stopped
     ports:
-      - "8080:8080"
+      - "3333:8080"
     environment:
-      - OPENAI_API_BASE_URL=http://nexus-router:6000/llm/openai/v1
-      - OPENAI_API_KEY=dummy
+      # Nexus Router Integration (OpenAI-compatible endpoint)
+      - OPENAI_API_BASE_URL=http://nexus-router:6000/v1
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+
+      # Authentication (required for production)
+      - WEBUI_AUTH=true
+      - WEBUI_SECRET_KEY=${WEBUI_SECRET_KEY:-default_secret_key_change_in_production}
+
+      # Model Configuration
+      - DEFAULT_MODELS=deepseek-r1:236b,qwen2.5:72b,llama3.1:70b
+      - ENABLE_OLLAMA_API=true
+      - OLLAMA_BASE_URL=http://nexus-router:6000/v1
+
+      # RAG Configuration (AgentDB integration)
+      - ENABLE_RAG_WEB_SEARCH=true
+      - ENABLE_RAG_HYBRID_SEARCH=true
+      - RAG_EMBEDDING_ENGINE=sentence-transformers
+      - RAG_EMBEDDING_MODEL=all-MiniLM-L6-v2
+      - CHUNK_SIZE=1500
+      - CHUNK_OVERLAP=100
+
+      # Function Calling & Tools
+      - ENABLE_COMMUNITY_SHARING=false
+      - ENABLE_MESSAGE_RATING=true
+      - ENABLE_API_KEY=true
+
+      # UI Customization
+      - WEBUI_NAME=Nyra Development Chat
+      - DEFAULT_USER_ROLE=user
+
+      # Logging
+      - WEBUI_LOG_LEVEL=${LOG_LEVEL:-info}
     volumes:
       - openwebui-data:/app/backend/data
+      - ./config/open-webui.json:/app/backend/data/config.json:ro
     networks:
       - nyra-apps
       - nyra-mcp
+      - nyra-core
+    depends_on:
+      nexus-router:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
       interval: 30s
       timeout: 10s
       retries: 3
+      start_period: 30s
 
   # Nyra Orchestrator Service
   nyra-orchestrator:
@@ -198,6 +235,97 @@ services:
       timeout: 10s
       retries: 3
 
+  # Claude Flow V3 Alpha - Multi-Agent Orchestration
+  claude-flow-alpha:
+    build:
+      context: ../../
+      dockerfile: infra/docker/build/claude-flow.Dockerfile
+      target: production
+      args:
+        - VERSION=3.0.0-alpha
+        - BUILD_DATE=${BUILD_DATE}
+        - GIT_COMMIT=${GIT_COMMIT}
+    container_name: nyra-claude-flow-alpha
+    restart: unless-stopped
+    ports:
+      - "9000:3000"
+    environment:
+      # Infisical Integration
+      - INFISICAL_TOKEN=${INFISICAL_TOKEN}
+      - INFISICAL_ENV=${INFISICAL_ENV:-production}
+      - INFISICAL_PATH=${INFISICAL_PATH:-/nyra/claude-flow}
+
+      # API Keys (from Infisical or direct env)
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+
+      # Nexus Router Integration
+      - NEXUS_ROUTER_URL=http://nexus-router:6000
+      - CLAUDE_FLOW_LLM_ENDPOINT=http://nexus-router:6000/llm
+
+      # Claude Flow Configuration
+      - NODE_ENV=production
+      - MCP_PORT=3000
+      - CLAUDE_FLOW_CONFIG=/app/claude-flow.config.json
+      - CLAUDE_FLOW_HOME=/app
+      - CLAUDE_FLOW_DATA_DIR=/app/data
+      - CLAUDE_FLOW_LOGS_DIR=/app/logs
+      - CLAUDE_FLOW_MEMORY_DIR=/app/memory
+
+      # Swarm Configuration (from config: mesh topology)
+      - SWARM_TOPOLOGY=mesh
+      - SWARM_MAX_AGENTS=8
+      - SWARM_STRATEGY=balanced
+
+      # Memory System Integration
+      - MEMORY_BACKEND=hybrid
+      - AGENTDB_URL=http://agentdb:8080
+      - RUVECTOR_URL=http://ruvector:8888
+      - MEM0_REST_URL=http://mem0:4321
+      - LETTA_BASE_URL=http://letta:8283
+
+      # Features
+      - REASONINGBANK_ENABLED=true
+      - HNSW_ENABLED=true
+      - NEURAL_PATTERNS_ENABLED=true
+      - HOOKS_ENABLED=true
+      - DAEMON_ENABLED=true
+
+      # Logging
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - CLAUDE_FLOW_LOG_FORMAT=json
+    volumes:
+      # Persistent data volumes
+      - claude-flow-alpha-data:/app/data
+      - claude-flow-alpha-logs:/app/logs
+      - claude-flow-alpha-claude-flow:/app/.claude-flow
+      - claude-flow-alpha-cache:/app/cache
+      - claude-flow-alpha-sessions:/app/sessions
+      - claude-flow-alpha-memory:/app/memory
+
+      # Optional: Mount config for runtime updates (read-only)
+      - ../../claude-flow.config.json:/app/claude-flow.config.json:ro
+    networks:
+      - nyra-apps
+      - nyra-mcp
+      - nyra-core
+    depends_on:
+      nexus-router:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "npx", "@claude-flow/cli@latest", "status"]
+      interval: 30s
+      timeout: 10s
+      start_period: 60s
+      retries: 3
+    labels:
+      - "com.docker.compose.project=nyra"
+      - "com.nyra.service=claude-flow-alpha"
+      - "com.nyra.tier=orchestration"
+      - "com.nyra.version=3.0.0-alpha"
+
 networks:
   nyra-apps:
     name: nyra-apps
@@ -221,4 +349,16 @@ volumes:
   dify-pg-data:
     driver: local
   openwebui-data:
+    driver: local
+  claude-flow-alpha-data:
+    driver: local
+  claude-flow-alpha-logs:
+    driver: local
+  claude-flow-alpha-claude-flow:
+    driver: local
+  claude-flow-alpha-cache:
+    driver: local
+  claude-flow-alpha-sessions:
+    driver: local
+  claude-flow-alpha-memory:
     driver: local

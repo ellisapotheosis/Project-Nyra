@@ -202,7 +202,7 @@ The swarm automatically:
 
 ```bash
 # Core MCP (required)
-claude mcp add claude-flow npx claude-flow@alpha mcp start
+claude mcp add claude-flow npx @claude-flow/cli@latest mcp start
 
 # Enhanced coordination (optional)
 claude mcp add ruv-swarm npx ruv-swarm mcp start
@@ -297,7 +297,7 @@ ls ~/.claude/commands/
 cat ~/.claude/settings.json
 
 # Verify MCP package
-npx claude-flow@alpha --version
+npx @claude-flow/cli@latest --version
 
 # Reinstall if needed
 npm install -g claude-flow@alpha

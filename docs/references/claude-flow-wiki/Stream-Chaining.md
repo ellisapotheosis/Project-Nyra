@@ -429,13 +429,13 @@ Each agent in a chain must use coordination hooks:
 
 ```bash
 # Before starting (load context from previous agents)
-npx claude-flow@alpha hooks pre-task --description "Process chained input" --session-id "chain-123"
+npx @claude-flow/cli@latest hooks pre-task --description "Process chained input" --session-id "chain-123"
 
 # During work (store progress for downstream agents)
-npx claude-flow@alpha hooks post-edit --file "results.json" --memory-key "chain/agent2/progress"
+npx @claude-flow/cli@latest hooks post-edit --file "results.json" --memory-key "chain/agent2/progress"
 
 # After completion (signal completion to monitoring)
-npx claude-flow@alpha hooks post-task --task-id "task2" --analyze-performance true
+npx @claude-flow/cli@latest hooks post-task --task-id "task2" --analyze-performance true
 ```
 
 ## 📈 **Benefits & Performance**

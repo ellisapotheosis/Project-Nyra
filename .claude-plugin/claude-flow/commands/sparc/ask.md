@@ -52,7 +52,7 @@ mcp__claude-flow__sparc_mode {
 npx claude-flow sparc run ask "help me choose the right mode"
 
 # For alpha features
-npx claude-flow@alpha sparc run ask "help me choose the right mode"
+npx @claude-flow/cli@latest sparc run ask "help me choose the right mode"
 
 # With namespace
 npx claude-flow sparc run ask "your task" --namespace ask

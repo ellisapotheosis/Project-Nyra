@@ -79,7 +79,7 @@ npx claude-flow sparc tdd "implement user authentication"
 npx claude-flow sparc modes --verbose
 
 # For alpha features
-npx claude-flow@alpha sparc run <mode> "your task"
+npx @claude-flow/cli@latest sparc run <mode> "your task"
 ```
 
 ### Option 3: Local Installation

@@ -79,7 +79,7 @@ NODE_MODULE_VERSION 137. This version of Node.js requires NODE_MODULE_VERSION 12
 **Recommended Actions**:
 1. Rebuild native modules:
    ```bash
-   npx claude-flow@alpha rebuild
+   npx @claude-flow/cli@latest rebuild
    # OR
    cd ~/.cache/npm-cache/_npx/<claude-flow-dir>
    npm rebuild better-sqlite3
@@ -87,7 +87,7 @@ NODE_MODULE_VERSION 137. This version of Node.js requires NODE_MODULE_VERSION 12
 2. Consider upgrading to Node.js v24.x (matches compiled modules)
 3. Add to project scripts:
    ```json
-   "postinstall": "npx claude-flow@alpha rebuild || true"
+   "postinstall": "npx @claude-flow/cli@latest rebuild || true"
    ```
 
 ### 4. **Duplicate .gitignore Entries**

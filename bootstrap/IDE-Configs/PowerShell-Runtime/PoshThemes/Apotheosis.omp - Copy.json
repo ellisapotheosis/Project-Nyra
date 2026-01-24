@@ -1,0 +1,86 @@
+{
+  "$schema": "https://ohmyposh.dev/schema.json",
+  "final_space": true,
+  "blocks": [
+    {
+      "type": "prompt",
+      "alignment": "left",
+      "segments": [
+        {
+          "type": "session",
+          "style": "powerline",
+          "foreground": "#121212",
+          "background": "#00FFC3",
+          "properties": {
+            "prefix": "🔮 ",
+            "display_host": true
+          }
+        },
+        {
+          "type": "path",
+          "style": "powerline",
+          "foreground": "#ffffff",
+          "background": "#7D00FF",
+          "properties": {
+            "style": "full",
+            "prefix": " 📁 "
+          }
+        },
+        {
+          "type": "git",
+          "style": "powerline",
+          "foreground": "#000000",
+          "background": "#B17FFF",
+          "properties": {
+            "prefix": "🌸 ",
+            "display_status": true,
+            "display_stash_count": true,
+            "display_upstream_icon": true
+          }
+        },
+        {
+          "type": "executiontime",
+          "style": "powerline",
+          "foreground": "#000000",
+          "background": "#82FFE5",
+          "properties": {
+            "prefix": "⏱ "
+          }
+        },
+        {
+          "type": "exit",
+          "style": "plain",
+          "foreground": "#FFFFFF",
+          "background": "#FF00B7",
+          "properties": {
+            "always_enabled": true,
+            "prefix": "❌ "
+          }
+        }
+      ]
+    },
+    {
+      "type": "rprompt",
+      "segments": [
+        {
+          "type": "time",
+          "style": "plain",
+          "foreground": "#D6ACFF",
+          "properties": {
+            "prefix": "🕒 ",
+            "time_format": "15:04"
+          }
+        },
+        {
+          "type": "battery",
+          "style": "plain",
+          "foreground": "#D1FFFC",
+          "properties": {
+            "discharging_icon": "🔋",
+            "charging_icon": "⚡"
+          }
+        }
+      ]
+    }
+  ]
+}

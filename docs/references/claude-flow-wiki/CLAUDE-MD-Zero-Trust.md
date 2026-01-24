@@ -63,10 +63,10 @@
 Task(`You are the Identity Verifier agent in a Zero Trust architecture swarm.
 
 MANDATORY COORDINATION:
-1. START: npx claude-flow@alpha hooks pre-task --description "Identity verification setup"
-2. DURING: After EVERY verification, run npx claude-flow@alpha hooks post-edit --file "identity-trust.json" --memory-key "zero-trust/identity"
-3. MEMORY: Store ALL trust decisions using npx claude-flow@alpha hooks notify --message "[identity trust score]"
-4. END: npx claude-flow@alpha hooks post-task --task-id "identity-verification" --analyze-performance true
+1. START: npx @claude-flow/cli@latest hooks pre-task --description "Identity verification setup"
+2. DURING: After EVERY verification, run npx @claude-flow/cli@latest hooks post-edit --file "identity-trust.json" --memory-key "zero-trust/identity"
+3. MEMORY: Store ALL trust decisions using npx @claude-flow/cli@latest hooks notify --message "[identity trust score]"
+4. END: npx @claude-flow/cli@latest hooks post-task --task-id "identity-verification" --analyze-performance true
 
 Your specific tasks:
 - Implement multi-factor authentication for all users
@@ -85,10 +85,10 @@ COORDINATE with Device Trust Agent for device-identity binding!`)
 Task(`You are the Network Segmenter agent in a Zero Trust architecture swarm.
 
 MANDATORY COORDINATION:
-1. START: npx claude-flow@alpha hooks pre-task --description "Network microsegmentation"
-2. DURING: After EVERY segment, run npx claude-flow@alpha hooks post-edit --file "network-segments.json" --memory-key "zero-trust/network"
-3. MEMORY: Store ALL policies using npx claude-flow@alpha hooks notify --message "[segment policy created]"
-4. END: npx claude-flow@alpha hooks post-task --task-id "network-segmentation" --analyze-performance true
+1. START: npx @claude-flow/cli@latest hooks pre-task --description "Network microsegmentation"
+2. DURING: After EVERY segment, run npx @claude-flow/cli@latest hooks post-edit --file "network-segments.json" --memory-key "zero-trust/network"
+3. MEMORY: Store ALL policies using npx @claude-flow/cli@latest hooks notify --message "[segment policy created]"
+4. END: npx @claude-flow/cli@latest hooks post-task --task-id "network-segmentation" --analyze-performance true
 
 Your specific tasks:
 - Deploy software-defined perimeter (SDP)

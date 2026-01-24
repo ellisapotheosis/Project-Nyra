@@ -315,16 +315,16 @@ if (!dep.found) {
 
 ```bash
 # View all agent statuses
-npx claude-flow@alpha memory search "swarm/*/status" --namespace coordination
+npx @claude-flow/cli@latest memory search "swarm/*/status" --namespace coordination
 
 # Check progress
-npx claude-flow@alpha memory search "swarm/*/progress" --namespace coordination  
+npx @claude-flow/cli@latest memory search "swarm/*/progress" --namespace coordination  
 
 # Find blocking issues
-npx claude-flow@alpha memory search "swarm/*/waiting" --namespace coordination
+npx @claude-flow/cli@latest memory search "swarm/*/waiting" --namespace coordination
 
 # List shared components
-npx claude-flow@alpha memory search "swarm/shared/*" --namespace coordination
+npx @claude-flow/cli@latest memory search "swarm/shared/*" --namespace coordination
 ```
 
 ## Common Pitfalls to Avoid

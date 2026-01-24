@@ -144,7 +144,7 @@
         }
       },
       "features": {
-        "wsl_required": false,
+        "wsl_required": true,
         "gpu_required": true,
         "wol_enabled": false
       }
@@ -188,6 +188,17 @@
             }
           ]
         },
+        "wsl-setup": {
+          "enabled": true,
+          "displayName": "WSL Setup",
+          "description": "WSL 2 + Ubuntu 22.04 configuration",
+          "files": [
+            {
+              "source": "wsl/.wslconfig",
+              "target": "%USERPROFILE%/.wslconfig"
+            }
+          ]
+        },
         "nvidia": {
           "enabled": true,
           "displayName": "NVIDIA Container Toolkit",
@@ -196,7 +207,7 @@
         }
       },
       "features": {
-        "wsl_required": false,
+        "wsl_required": true,
         "gpu_required": true,
         "wol_enabled": true,
         "disconnectable": true
@@ -241,6 +252,17 @@
             }
           ]
         },
+        "wsl-setup": {
+          "enabled": true,
+          "displayName": "WSL Setup",
+          "description": "WSL 2 + Ubuntu 22.04 configuration",
+          "files": [
+            {
+              "source": "wsl/.wslconfig",
+              "target": "%USERPROFILE%/.wslconfig"
+            }
+          ]
+        },
         "nvidia": {
           "enabled": true,
           "displayName": "NVIDIA Container Toolkit",
@@ -249,7 +271,7 @@
         }
       },
       "features": {
-        "wsl_required": false,
+        "wsl_required": true,
         "gpu_required": true,
         "wol_enabled": true,
         "disconnectable": true

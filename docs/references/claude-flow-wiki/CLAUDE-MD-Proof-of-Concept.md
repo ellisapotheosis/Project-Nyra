@@ -385,16 +385,16 @@ poc-project/
 
 ```bash
 # Start experimentation sprint
-npx claude-flow@alpha hooks pre-task --description "POC: [concept name]" --mode "experimental"
+npx @claude-flow/cli@latest hooks pre-task --description "POC: [concept name]" --mode "experimental"
 
 # Track experiment results
-npx claude-flow@alpha hooks post-edit --file "[experiment]" --track-metrics true --experiment-id "[exp-1]"
+npx @claude-flow/cli@latest hooks post-edit --file "[experiment]" --track-metrics true --experiment-id "[exp-1]"
 
 # Log pivot decisions
-npx claude-flow@alpha hooks notify --message "Pivoting from [A] to [B] because [reason]" --pivot true
+npx @claude-flow/cli@latest hooks notify --message "Pivoting from [A] to [B] because [reason]" --pivot true
 
 # Generate feasibility report
-npx claude-flow@alpha hooks post-task --generate-poc-report true --include-metrics true
+npx @claude-flow/cli@latest hooks post-task --generate-poc-report true --include-metrics true
 ```
 
 ## 🎯 Success Metrics for POC Projects

@@ -208,7 +208,7 @@ Your new statusline is active! Restart Claude Code or run:
 2. Check logs: `claude mcp logs`
 3. Manually start if needed:
    ```bash
-   npx claude-flow@alpha mcp start
+   npx @claude-flow/cli@latest mcp start
    npx ruv-swarm mcp start
    ```
 

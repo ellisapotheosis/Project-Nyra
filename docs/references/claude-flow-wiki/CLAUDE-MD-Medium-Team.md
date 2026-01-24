@@ -75,8 +75,8 @@
 
 ```bash
 # Cross-squad coordination (squad leads run this)
-npx claude-flow@alpha hooks pre-task --description "Cross-squad coordination and dependency management" --auto-spawn-agents false
-npx claude-flow@alpha hooks notify --message "Squad: [name], Dependencies: [other squads], Blockers: [cross-squad issues], Deliverables: [squad contributions]" --telemetry true
+npx @claude-flow/cli@latest hooks pre-task --description "Cross-squad coordination and dependency management" --auto-spawn-agents false
+npx @claude-flow/cli@latest hooks notify --message "Squad: [name], Dependencies: [other squads], Blockers: [cross-squad issues], Deliverables: [squad contributions]" --telemetry true
 ```
 
 ### Medium Team Agent Template
@@ -261,8 +261,8 @@ REMEMBER: Balance squad autonomy with organizational alignment!
 
 ```bash
 # Scaled Agile coordination
-npx claude-flow@alpha hooks pre-task --description "Program increment planning and cross-squad coordination"
-npx claude-flow@alpha hooks notify --message "PI Planning: [objectives], Squad commitments: [deliverables], Dependencies: [cross-squad items]" --telemetry true
+npx @claude-flow/cli@latest hooks pre-task --description "Program increment planning and cross-squad coordination"
+npx @claude-flow/cli@latest hooks notify --message "PI Planning: [objectives], Squad commitments: [deliverables], Dependencies: [cross-squad items]" --telemetry true
 ```
 
 ## 🔧 DEVELOPMENT WORKFLOW AND TOOLING
@@ -422,8 +422,8 @@ npx claude-flow@alpha hooks notify --message "PI Planning: [objectives], Squad c
 
 ```bash
 # Technology adoption coordination
-npx claude-flow@alpha hooks pre-task --description "New technology evaluation and adoption across squads"
-npx claude-flow@alpha hooks notify --message "Technology evaluation: [technology], Pilot squad: [squad], Success criteria: [metrics], Timeline: [duration]" --telemetry true
+npx @claude-flow/cli@latest hooks pre-task --description "New technology evaluation and adoption across squads"
+npx @claude-flow/cli@latest hooks notify --message "Technology evaluation: [technology], Pilot squad: [squad], Success criteria: [metrics], Timeline: [duration]" --telemetry true
 ```
 
 ### Cross-Squad Learning and Development

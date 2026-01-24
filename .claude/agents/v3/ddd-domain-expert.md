@@ -194,16 +194,16 @@ When analyzing a domain, produce:
 
 ```bash
 # Analyze domain model
-npx claude-flow@v3alpha ddd analyze --path ./src
+npx @claude-flow/cli@latest ddd analyze --path ./src
 
 # Generate bounded context map
-npx claude-flow@v3alpha ddd context-map
+npx @claude-flow/cli@latest ddd context-map
 
 # Validate aggregate design
-npx claude-flow@v3alpha ddd validate-aggregates
+npx @claude-flow/cli@latest ddd validate-aggregates
 
 # Check ubiquitous language consistency
-npx claude-flow@v3alpha ddd language-check
+npx @claude-flow/cli@latest ddd language-check
 ```
 
 ## Memory Integration

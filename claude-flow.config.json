@@ -5,7 +5,8 @@
   "orchestrator": {
     "timeout": 180000,
     "retryAttempts": 3,
-    "retryDelay": 3000
+    "retryDelay": 3000,
+    "maxConcurrent": 10
   },
 
   "terminal": {
@@ -18,36 +19,49 @@
 
   "memory": {
     "backend": "hybrid",
-    "path": "./data",
+    "path": "./data/memory",
     "maxEntries": 50000,
     "ttl": 604800,
+    "indexing": {
+      "enabled": true,
+      "strategy": "hnsw"
+    },
     "hnsw": {
       "enabled": true,
-      "efConstruction": 200,
-      "m": 16
+      "m": 32,
+      "ef": 400,
+      "efConstruction": 400
     },
     "quantization": {
       "enabled": true,
-      "bits": 8
+      "bits": 8,
+      "method": "scalar"
     },
     "encryption": {
       "enabled": false,
       "algorithm": "aes-256-gcm"
+    },
+    "embeddings": {
+      "provider": "agentic-flow",
+      "model": "all-minilm-l6-v2",
+      "dimensions": 384,
+      "batchSize": 32
     }
   },
 
   "swarm": {
-    "topology": "hierarchical-mesh",
-    "maxAgents": 35,
-    "strategy": "specialized",
-    "consensus": "raft",
+    "topology": "mesh",
+    "maxAgents": 8,
+    "strategy": "balanced",
+    "consensus": "majority",
     "autoScale": true,
     "heartbeatInterval": 3000,
-    "taskQueueSize": 200
+    "taskQueueSize": 200,
+    "coordinationMode": "parallel"
   },
 
   "coordination": {
-    "mode": "hub-spoke",
+    "mode": "peer-to-peer",
     "maxRetries": 5,
     "retryDelay": 5000,
     "circuitBreaker": {
@@ -59,44 +73,70 @@
   },
 
   "loadBalancing": {
+    "enabled": true,
     "strategy": "round-robin",
     "healthCheckInterval": 15000,
-    "maxLoad": 0.85
+    "maxLoad": 0.85,
+    "failoverEnabled": true
   },
 
   "mcp": {
     "enabled": true,
     "transport": "stdio",
     "port": 3000,
-    "host": "localhost"
+    "host": "localhost",
+    "toolGroups": [
+      "create",
+      "implement",
+      "test",
+      "fix",
+      "optimize",
+      "memory",
+      "security",
+      "monitor"
+    ],
+    "toolMode": "develop"
   },
 
   "neural": {
     "enabled": true,
     "sona": {
       "enabled": true,
-      "adaptationRate": 0.001
+      "adaptationTime": 0.05,
+      "adaptationRate": 0.001,
+      "learningRate": 0.001,
+      "mode": "balanced"
     },
     "ewc": {
       "enabled": true,
       "lambda": 0.5,
-      "preventForgetting": true
+      "preventForgetting": true,
+      "consolidationInterval": 100
     },
     "moe": {
       "enabled": true,
       "expertCount": 12,
+      "experts": 12,
       "topK": 3,
-      "loadBalancing": true
+      "loadBalancing": true,
+      "specialization": "adaptive"
     },
     "flashAttention": {
       "enabled": true,
       "targetSpeedup": 5.0,
-      "memoryEfficient": true
+      "memoryEfficient": true,
+      "blockSize": 64
     },
     "lora": {
       "enabled": true,
       "rank": 8,
-      "alpha": 16
+      "alpha": 16,
+      "dropout": 0.1
+    },
+    "rl": {
+      "enabled": true,
+      "algorithm": "ppo",
+      "learningMode": "balanced"
     }
   },
 
@@ -104,24 +144,37 @@
     "mode": "strict",
     "inputValidation": true,
     "pathValidation": true,
+    "commandValidation": true,
     "authentication": {
       "required": false,
-      "method": "jwt"
+      "method": "jwt",
+      "tokenExpiry": 3600
+    },
+    "authorization": {
+      "enabled": true,
+      "claimsBasedAccess": true
     },
     "rateLimit": {
       "enabled": true,
       "maxRequests": 5000,
       "windowMs": 60000
+    },
+    "encryption": {
+      "inTransit": true,
+      "atRest": false
     }
   },
 
   "logging": {
+    "enabled": true,
     "level": "warn",
     "format": "json",
     "destination": "file",
     "filePath": "./logs/claude-flow.log",
     "maxFileSize": "500MB",
-    "maxFiles": 5
+    "maxFiles": 5,
+    "includeTimestamp": true,
+    "includeStackTrace": true
   },
 
   "monitoring": {
@@ -130,23 +183,40 @@
     "alertThresholds": {
       "errorRate": 0.03,
       "responseTime": 3000,
-      "memoryUsage": 0.85
-    }
+      "memoryUsage": 0.85,
+      "cpuUsage": 0.90
+    },
+    "exportMetrics": true,
+    "prometheusPort": 9090
   },
 
   "providers": {
     "default": "anthropic",
-    "fallback": ["openai", "google"],
+    "fallback": ["openai", "google", "ollama"],
+    "loadBalancing": {
+      "enabled": true,
+      "strategy": "cost-based"
+    },
     "anthropic": {
       "model": "claude-sonnet-4-5-20250929",
-      "maxTokens": 16384
+      "maxTokens": 16384,
+      "temperature": 0.7,
+      "topP": 1.0
     },
     "openai": {
       "model": "gpt-4o",
-      "maxTokens": 8192
+      "maxTokens": 8192,
+      "temperature": 0.7
     },
     "google": {
       "model": "gemini-2.0-flash-exp",
+      "maxTokens": 8192,
+      "temperature": 0.7
+    },
+    "ollama": {
+      "enabled": true,
+      "baseUrl": "http://localhost:11434",
+      "model": "deepseek-r1:70b",
       "maxTokens": 8192
     }
   },
@@ -155,25 +225,124 @@
     "enabled": true,
     "learning": true,
     "pretrainOnStart": true,
-    "preTask": true,
-    "postTask": true,
-    "preEdit": true,
-    "postEdit": true,
-    "route": true,
-    "intelligence": true,
+    "autoTrigger": true,
+    "enabled_hooks": [
+      "pre-task",
+      "post-task",
+      "pre-edit",
+      "post-edit",
+      "pre-command",
+      "post-command",
+      "session-start",
+      "session-end",
+      "route",
+      "intelligence",
+      "coverage-route"
+    ],
     "daemon": {
       "enabled": true,
-      "port": 3001
+      "autoStart": true,
+      "port": 3001,
+      "host": "localhost"
     },
     "workers": {
       "enabled": true,
-      "maxWorkers": 4
+      "maxWorkers": 6,
+      "enabled_workers": [
+        "ultralearn",
+        "optimize",
+        "consolidate",
+        "predict",
+        "audit",
+        "map",
+        "deepdive",
+        "document",
+        "testgaps"
+      ],
+      "priorities": {
+        "audit": "critical",
+        "optimize": "high",
+        "ultralearn": "normal",
+        "consolidate": "low"
+      }
+    },
+    "intelligence": {
+      "enabled": true,
+      "ruvector": true,
+      "trajectoryTracking": true,
+      "verdictJudgment": true,
+      "patternDistillation": true
     }
+  },
+
+  "session": {
+    "persistence": true,
+    "autoSave": true,
+    "saveInterval": 60000,
+    "maxSessions": 50,
+    "path": "./data/sessions"
+  },
+
+  "performance": {
+    "enabled": true,
+    "benchmarking": true,
+    "profiling": false,
+    "optimization": {
+      "autoOptimize": true,
+      "targets": {
+        "cliStartup": 500,
+        "mcpInit": 400,
+        "vectorSearch": 1,
+        "consensusLatency": 100
+      }
+    }
+  },
+
+  "testing": {
+    "enabled": true,
+    "tdd": true,
+    "coverageTracking": true,
+    "coverageThreshold": 90,
+    "autoRunTests": false
+  },
+
+  "deployment": {
+    "containerized": true,
+    "orchestration": "docker-compose",
+    "healthChecks": true,
+    "gracefulShutdown": true,
+    "shutdownTimeout": 30000
+  },
+
+  "features": {
+    "autoSwarm": true,
+    "backgroundAgents": true,
+    "intelligentRouting": true,
+    "modelRecommendation": true,
+    "agentBooster": true,
+    "crossSessionMemory": true,
+    "reasoningBank": true,
+    "hiveMind": true
   },
 
   "update": {
     "autoCheck": true,
     "checkInterval": 43200000,
-    "allowPrerelease": true
+    "allowPrerelease": true,
+    "notifyOnUpdate": true
+  },
+
+  "plugins": {
+    "enabled": true,
+    "autoLoad": true,
+    "paths": ["./plugins"]
+  },
+
+  "workspace": {
+    "root": "./",
+    "dataDir": "./data",
+    "logsDir": "./logs",
+    "tempDir": "./tmp",
+    "cacheDir": "./cache"
   }
 }

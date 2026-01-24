@@ -338,8 +338,8 @@ Always validate improvements:
 # .github/workflows/training.yml
 - name: Run Training Pipeline
   run: |
-    npx claude-flow@alpha train-pipeline run --iterations 5
-    npx claude-flow@alpha train-pipeline validate
+    npx @claude-flow/cli@latest train-pipeline run --iterations 5
+    npx @claude-flow/cli@latest train-pipeline validate
 ```
 
 ## Performance Impact

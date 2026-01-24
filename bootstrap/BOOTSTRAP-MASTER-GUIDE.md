@@ -105,6 +105,104 @@ start health-dashboard.html
 
 ---
 
+## GUI Installer – What It Does on Each PC
+
+The **React/Electron GUI installer** under `bootstrap/installer` wires into
+existing PowerShell bootstrap scripts and the WSL setup service.
+
+At a high level, when you start an installation for a given PC:
+
+1. **Detection (PCSelector)**
+   - Detects hardware: CPU, RAM, GPUs (via `nvidia-smi`/`wmic`).
+   - Detects network (static vs dynamic IPs) and whether Docker is already
+     running on the host.
+   - Matches against PC signatures:
+     - `orchestrator-mini`
+     - `worker-rtx3060`
+     - `worker-rtx3090ti`
+     - `worker-rtx5090`
+   - Recommends components per PC (Claude Code, Claude Flow, Docker, WSL, etc.).
+
+2. **Windows bootstrap phase**
+   - For **orchestrator-mini**:
+     - Runs `bootstrap/orchestrator-mini/scripts/bootstrap-orchestrator.ps1` via
+       PowerShell with `ExecutionPolicy Bypass`.
+     - That script:
+       - Ensures Docker Desktop is installed and running.
+       - Ensures Tailscale is installed and optionally connects with an auth key.
+       - Clones/updates the `Project-Nyra` repo under `C:\Dev\Projects\Repos`.
+       - Creates `.env` from `master-.env.example` if missing.
+       - Brings up orchestrator services using
+         `infra/docker-compose.orchestrator.yml`.
+       - Performs health checks for Nexus Router, Letta, Mem0, Claude Flow,
+         AgentDB, and Redis on localhost.
+   - For **worker PCs**:
+     - Runs the correct worker script with a mapped role:
+       - `worker-rtx3060` →
+         `bootstrap/worker-rtx3060/scripts/bootstrap-worker.ps1 -WorkerRole worker-2`
+       - `worker-rtx5090` →
+         `bootstrap/worker-rtx5090/scripts/bootstrap-worker.ps1 -WorkerRole worker-3`
+       - `worker-rtx3090ti` →
+         `bootstrap/worker-rtx3090ti/scripts/bootstrap-worker.ps1 -WorkerRole worker-4`
+     - Each worker script:
+       - Configures a static IP (10.0.0.2/3/4 as appropriate) and DNS.
+       - Ensures Docker Desktop is installed and running.
+       - Verifies NVIDIA GPU and configures GPU container support.
+       - Installs Tailscale and optionally connects using an auth key.
+       - Clones/updates the `Project-Nyra` repo.
+       - Creates `.env` from `master-.env.example` if missing.
+       - Starts worker-specific Docker profiles from
+         `infra/docker-compose.worker.yml`.
+       - For the RTX 5090 node, pulls Ollama models.
+       - For the monitoring node, prints Grafana access details.
+       - Runs health checks for the services mapped to that worker
+         (TwentyCRM/n8n/Dify, Ollama/Neo4j/FalkorDB, Prometheus/Grafana/Loki).
+
+   These Windows bootstraps are orchestrated from the installer via
+   `InstallOrchestrator.runWindowsBootstrap`, which resolves the bootstrap root
+   from `BOOTSTRAP_PATH` or `../bootstrap` and then runs the appropriate
+   PowerShell script for the selected PC.
+
+3. **WSL bootstrap phase (all 4 PCs)**
+   - When the `wsl-setup` component is selected (now enabled for all PCs),
+     `InstallOrchestrator.runWSLBootstrap` uses the `WSLInstaller` service to:
+     - Check whether WSL2 + Ubuntu 22.04 is installed.
+     - If missing, enable the Windows WSL and Virtual Machine Platform
+       features and run `wsl --install -d Ubuntu-22.04`.
+     - Compute a recommended `.wslconfig` based on PC type and total RAM:
+       - Orchestrator gets more conservative limits.
+       - Workers get more generous memory/CPU allocations for Docker workloads.
+     - Write `.wslconfig` into `%USERPROFILE%\.wslconfig`.
+     - Create a `nyra` user inside the Ubuntu distro with sudo.
+     - Install full Docker Engine inside WSL and add `nyra` to the `docker`
+       group.
+     - Enable `systemd` in `/etc/wsl.conf` and trigger a WSL restart.
+     - Validate that WSL2 is present, version 2, and has at least one distro.
+
+   This ensures **both Windows and WSL** are provisioned on all four PCs when
+   requested via the installer.
+
+4. **Config deployment phase**
+   - The `FileDeployer` handles copying per-component configuration
+     files (Claude Code settings, Claude Flow `.env`, etc.) to:
+     - Windows locations (e.g. `%APPDATA%`, `%USERPROFILE%`).
+     - WSL paths (`/home/...`) via `wsl cp`.
+   - Deployment history is tracked so that rollback can restore from backups.
+
+5. **Validation and health checks**
+   - Before and after installation, the `Validator` service can check:
+     - Docker installed & running.
+     - WSL availability.
+     - Claude Code CLI presence.
+     - Claude Flow MCP status.
+     - NVIDIA GPU drivers (for workers).
+     - Optional Gitea and Infisical status.
+   - Results are shown in the installer log and summarized per component.
+
+The net effect is that the **single GUI workflow** now drives the existing
+orchestrator and worker PowerShell bootstrap scripts, plus WSL2 provisioning,
+for all four PCs.
+
 ## Detailed Step-by-Step
 
 ### Phase 1: Pre-Flight Checks (15 minutes)

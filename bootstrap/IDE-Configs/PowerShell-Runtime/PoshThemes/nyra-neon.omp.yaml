@@ -1,0 +1,274 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/schema.json
+
+palette:
+    blue: '#86A3F3'
+    cyan: '#B2F9EC'
+    heliotrope: '#BC6AF0'
+    mint-green: '#C6FBB7'
+    neon-green: '#A8F9B0'
+    pink: '#CC69E1'
+    purple: '#9A7CF0'
+    rose-pink: '#C95B90'
+    xulbux-purple: '#766EEF'
+secondary_prompt:
+    template: '<#766EEF>...</> '
+transient_prompt:
+    template: '<#9A7CF0>Γ¥»</> '
+upgrade:
+    source: cdn
+    interval: 168h
+    auto: false
+    notice: false
+console_title_template: '{{ if .Root }}# {{ end }}{{ .Folder }}{{ if .Segments.Git.HEAD }} - {{ .Segments.Git.HEAD }}{{ end }} - {{ .Shell }}'
+blocks:
+    - type: prompt
+      alignment: left
+      segments:
+        - properties:
+            windows: ∩à║
+          leading_diamond: εé╢
+          trailing_diamond: εé┤
+          template: ' {{ .Icon }} '
+          foreground: '#766EEF'
+          background: '#000000'
+          type: os
+          style: diamond
+        - properties:
+            display_host: false
+          leading_diamond: ' εé╢'
+          trailing_diamond: εé┤
+          template: ' {{ if .SSHSession }}∩áù {{ end }}{{ .UserName }} '
+          foreground: '#9A7CF0'
+          background: '#000000'
+          type: session
+          style: diamond
+        - properties:
+            folder_icon: ∩ü╝
+            folder_separator_template: <#C95B90>/<#CC69E1>
+            hide_root_location: true
+            home_icon: ∩Çò
+            max_depth: 4
+            style: unique
+          leading_diamond: ' εé╢'
+          trailing_diamond: εé┤
+          template: ' {{ if .UpstreamURL }}∩é¢ {{ end }}∩ü╝ {{ .Path }} '
+          foreground: '#BC6AF0'
+          background: '#000000'
+          type: path
+          style: diamond
+        - properties:
+            branch_icon: 'εéá '
+            display_stash_count: true
+            fetch_stash_count: true
+            fetch_status: true
+            fetch_upstream_icon: true
+            fetch_worktree_count: true
+          leading_diamond: ' εé╢'
+          trailing_diamond: εé┤
+          template: ' {{ .UpstreamIcon }}{{ .HEAD }}{{ if .BranchStatus }} {{ .BranchStatus }}{{ end }}{{ if .Working.Changed }} ∩üä({{ .Working.String }}){{ end }}{{ if and (.Working.Changed) (.Staging.Changed) }} |{{ end }}{{ if .Staging.Changed }} ∩üå({{ .Staging.String }}){{ end }}{{ if gt .StashCount 0 }} ∩Ç£{{ .StashCount }}{{ end }}{{ if gt .WorktreeCount 0 }} ∩å╗{{ .WorktreeCount }}{{ end }} '
+          foreground: '#C6FBB7'
+          background: '#000000'
+          type: git
+          style: diamond
+          foreground_templates:
+            - '{{ if or (.Working.Changed) (.Staging.Changed) }}#CC69E1{{ end }}'
+            - '{{ if and (gt .Ahead 0) (gt .Behind 0) }}#C95B90{{ end }}'
+            - '{{ if gt .Ahead 0 }}#A8F9B0{{ end }}'
+            - '{{ if gt .Behind 0 }}#BC6AF0{{ end }}'
+            - '{{ if .UpstreamGone }}#C95B90{{ end }}'
+          background_templates:
+            - '{{ if or (.Working.Changed) (.Staging.Changed) }}#000000{{ end }}'
+            - '{{ if and (gt .Ahead 0) (gt .Behind 0) }}#000000{{ end }}'
+            - '{{ if gt .Ahead 0 }}#000000{{ end }}'
+            - '{{ if gt .Behind 0 }}#000000{{ end }}'
+            - '{{ if .UpstreamGone }}#000000{{ end }}'
+    - type: prompt
+      alignment: right
+      segments:
+        - properties:
+            display_error: false
+          leading_diamond: εé╢
+          trailing_diamond: 'εé┤ '
+          template: ' ∩┤▒ {{.Context}}{{if .Namespace}} :: {{.Namespace}}{{end}} '
+          foreground: '#86A3F3'
+          background: '#000000'
+          type: kubectl
+          style: diamond
+        - properties:
+            display_default: false
+          leading_diamond: ' εé╢'
+          trailing_diamond: 'εé┤ '
+          template: ' ∩ë░ {{ .Profile }}{{ if .Region }}@{{ .Region }}{{ end }} '
+          foreground: '#B2F9EC'
+          background: '#000000'
+          type: aws
+          style: diamond
+        - properties:
+            precision: 1
+          leading_diamond: ' εé╢'
+          trailing_diamond: 'εé┤ '
+          template: ' ∩Æ╝ {{ round .PhysicalPercentUsed .Precision }}% '
+          foreground: '#A8F9B0'
+          background: '#000000'
+          type: sysinfo
+          style: diamond
+        - leading_diamond: ' εé╢'
+          trailing_diamond: 'εé┤ '
+          template: ' {{ if .Error }}∩Çì{{ else }}{{ if eq "Charging" .State.String }}∩âº{{ else if eq "Discharging" .State.String }}∩ò╕{{ else if eq "Full" .State.String }}∩ëÇ{{ else }}∩ò╕{{ end }} {{ .Percentage }}%{{ end }} '
+          background: '#000000'
+          type: battery
+          style: diamond
+          foreground_templates:
+            - '{{ if .Error }}#C95B90{{ end }}'
+            - '{{ if le .Percentage 15 }}#C95B90{{ end }}'
+            - '{{ if and (ge .Percentage 16) (le .Percentage 30) }}#BC6AF0{{ end }}'
+            - '{{ if and (ge .Percentage 31) (le .Percentage 50) }}#CC69E1{{ end }}'
+            - '{{ if and (ge .Percentage 51) (le .Percentage 70) }}#86A3F3{{ end }}'
+            - '{{ if and (ge .Percentage 71) (le .Percentage 90) }}#A8F9B0{{ end }}'
+            - '{{ if ge .Percentage 91 }}#C6FBB7{{ end }}'
+        - properties:
+            time_format: "15:04"
+          leading_diamond: ' εé╢'
+          trailing_diamond: 'εé┤ '
+          template: ' ∩Çù {{ .CurrentDate | date .Format }} '
+          background: '#000000'
+          type: time
+          style: diamond
+          foreground_templates:
+            - '{{ if regexMatch "^(06|07|08|09|10|11):" (.CurrentDate | date .Format) }}#C6FBB7{{ end }}'
+            - '{{ if regexMatch "^(12|13|14):" (.CurrentDate | date .Format) }}#A8F9B0{{ end }}'
+            - '{{ if regexMatch "^(15|16|17):" (.CurrentDate | date .Format) }}#B2F9EC{{ end }}'
+            - '{{ if regexMatch "^(18|19|20|21|22|23):" (.CurrentDate | date .Format) }}#86A3F3{{ end }}'
+            - '{{ if regexMatch "^(00|01|02|03|04|05):" (.CurrentDate | date .Format) }}#766EEF{{ end }}'
+        - properties:
+            style: austin
+            threshold: 100
+          leading_diamond: ' εé╢'
+          trailing_diamond: εé┤
+          template: ' ∩ëÆ {{ .FormattedMs }} '
+          background: '#000000'
+          type: executiontime
+          style: diamond
+          foreground_templates:
+            - '{{ if lt .Ms 500 }}#C6FBB7{{ end }}'
+            - '{{ if and (ge .Ms 500) (lt .Ms 2000) }}#A8F9B0{{ end }}'
+            - '{{ if and (ge .Ms 2000) (lt .Ms 10000) }}#B2F9EC{{ end }}'
+            - '{{ if and (ge .Ms 10000) (lt .Ms 30000) }}#CC69E1{{ end }}'
+            - '{{ if ge .Ms 30000 }}#C95B90{{ end }}'
+    - type: prompt
+      alignment: left
+      segments:
+        - properties:
+            fetch_version: true
+          leading_diamond: ' εé╢'
+          trailing_diamond: 'εé┤ '
+          template: ' ε¥ô {{ if .Error }}{{ .Error }}{{ else }}{{ .Full }}{{ end }} '
+          foreground: '#C95B90'
+          background: '#000000'
+          type: angular
+          style: diamond
+        - properties:
+            display_mode: files
+            fetch_version: true
+          leading_diamond: εé╢
+          trailing_diamond: 'εé┤ '
+          template: ' ε£ÿ {{ if .PackageManagerIcon }}{{ .PackageManagerIcon }} {{ end }}{{ .Full }} '
+          foreground: '#86A3F3'
+          background: '#000000'
+          type: node
+          style: diamond
+        - properties:
+            display_mode: files
+            fetch_virtual_env: true
+          leading_diamond: εé╢
+          trailing_diamond: 'εé┤ '
+          template: ' εê╡ {{ if .Error }}{{ .Error }}{{ else }}{{ .Full }}{{ end }}{{ if .Venv }} εÿí {{ .Venv }}{{ end }} '
+          foreground: '#B2F9EC'
+          background: '#000000'
+          type: python
+          style: diamond
+        - properties:
+            fetch_version: true
+          leading_diamond: εé╢
+          trailing_diamond: 'εé┤ '
+          template: ' εÿª {{ if .Error }}{{ .Error }}{{ else }}{{ .Full }}{{ end }} '
+          foreground: '#A8F9B0'
+          background: '#000000'
+          type: go
+          style: diamond
+        - properties:
+            display_mode: files
+            fetch_version: true
+          leading_diamond: εé╢
+          trailing_diamond: 'εé┤ '
+          template: ' ε₧¿ {{ if .Error }}{{ .Error }}{{ else }}{{ .Full }}{{ end }} '
+          foreground: '#CC69E1'
+          background: '#000000'
+          type: rust
+          style: diamond
+        - properties:
+            fetch_version: true
+          leading_diamond: εé╢
+          trailing_diamond: 'εé┤ '
+          template: ' εêä {{ if .Error }}{{ .Error }}{{ else }}{{ .Full }}{{ end }} '
+          foreground: '#BC6AF0'
+          background: '#000000'
+          type: java
+          style: diamond
+        - properties:
+            fetch_version: true
+          leading_diamond: εé╢
+          trailing_diamond: 'εé┤ '
+          template: ' ε¥┐ {{ if .Unsupported }}∩ü▒{{ else }}{{ .Full }}{{ end }} '
+          foreground: '#766EEF'
+          background: '#000000'
+          type: dotnet
+          style: diamond
+        - properties:
+            fetch_version: true
+          leading_diamond: εé╢
+          trailing_diamond: 'εé┤ '
+          template: ' εÿê {{ if .Error }}{{ .Error }}{{ else }}{{ .Full }}{{ end }} '
+          foreground: '#9A7CF0'
+          background: '#000000'
+          type: php
+          style: diamond
+    - type: prompt
+      alignment: left
+      segments:
+        - leading_diamond: εé╢
+          trailing_diamond: 'εé┤ '
+          template: ' ∩âº {{ if .Root }}ADMIN{{ end }} '
+          foreground: '#C95B90'
+          background: '#000000'
+          type: root
+          style: diamond
+        - leading_diamond: ' εé╢'
+          trailing_diamond: 'εé┤ '
+          template: '{{ if .Segments.Session.SSHSession }} ∩áù SSH {{ end }}'
+          foreground: '#86A3F3'
+          background: '#000000'
+          type: text
+          style: diamond
+          foreground_templates:
+            - '{{ if .Segments.Session.SSHSession }}#B2F9EC{{ end }}'
+          background_templates:
+            - '{{ if .Segments.Session.SSHSession }}#000000{{ end }}'
+        - properties:
+            always_enabled: true
+          leading_diamond: ' εé╢'
+          trailing_diamond: 'εé┤ '
+          template: " {{ if gt .Code 0 }}\U0001F494{{ else }}ΓÖÑ{{ end }} {{ if ne .Code 0 }}{{ .Code }}{{ end }} "
+          background: '#000000'
+          type: status
+          style: diamond
+          foreground_templates:
+            - '{{ if gt .Code 0 }}#C95B90{{ end }}'
+            - '{{ if eq .Code 0 }}#A8F9B0{{ end }}'
+        - template: 'Γ¥» '
+          foreground: '#9A7CF0'
+          type: text
+          style: plain
+      newline: true
+version: 3
+final_space: true

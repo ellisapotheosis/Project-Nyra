@@ -1,0 +1,65 @@
+name: nyra-core
+
+services:
+  ruvector-postgres:
+    image: ruvnet/ruvector-postgres:latest
+    container_name: ruvector-postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "5432:5432"
+    volumes:
+      - ruvector_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: ["redis-server", "--appendonly", "yes"]
+
+  litellm:
+    image: ghcr.io/berriai/litellm:main
+    container_name: litellm
+    environment:
+      LITELLM_MASTER_KEY: ${LITELLM_MASTER_KEY}
+      # Provider keys (ok for local; for prod inject via Infisical/1Password/etc)
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY}
+    volumes:
+      - ./configs/litellm/config.yaml:/app/config.yaml:ro
+    command: ["--config", "/app/config.yaml", "--port", "${LITELLM_PORT}"]
+    ports:
+      - "${LITELLM_PORT}:${LITELLM_PORT}"
+    depends_on:
+      ruvector-postgres:
+        condition: service_healthy
+
+  traefik:
+    image: traefik:v3.1
+    container_name: traefik
+    command:
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--api.dashboard=true"
+    ports:
+      - "80:80"
+      - "8080:8080" # dashboard
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+
+volumes:
+  ruvector_pg_data:
+  redis_data:

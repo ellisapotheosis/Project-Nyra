@@ -178,18 +178,18 @@ Archon integrates with existing claude-flow hooks for seamless coordination:
 
 ### Pre-Task Hooks
 ```bash
-npx claude-flow@alpha hooks pre-task --description "Generate API" --agentType "coder"
+npx @claude-flow/cli@latest hooks pre-task --description "Generate API" --agentType "coder"
 ```
 
 ### Post-Task Hooks
 ```bash
-npx claude-flow@alpha hooks post-task --taskId "task-123" --success true
+npx @claude-flow/cli@latest hooks post-task --taskId "task-123" --success true
 ```
 
 ### Session Management
 ```bash
-npx claude-flow@alpha hooks session-restore --sessionId "sparc-workflow-456"
-npx claude-flow@alpha hooks session-end --sessionId "sparc-workflow-456" --exportMetrics true
+npx @claude-flow/cli@latest hooks session-restore --sessionId "sparc-workflow-456"
+npx @claude-flow/cli@latest hooks session-end --sessionId "sparc-workflow-456" --exportMetrics true
 ```
 
 ## Performance Characteristics

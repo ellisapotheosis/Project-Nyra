@@ -151,7 +151,7 @@
 - Examples align with actual project structure
 
 **⚠️ Minor Issues:**
-- Some docs use `npx claude-flow@alpha` while others use `npx @claude-flow/cli@latest`
+- Some docs use `npx @claude-flow/cli@latest` while others use `npx @claude-flow/cli@latest`
 - Workflow JSON locations vary slightly
 - Some examples reference non-existent files (need verification)
 

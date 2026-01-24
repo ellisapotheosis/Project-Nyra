@@ -307,7 +307,7 @@ Then in Claude Code:
 
 ```bash
 # Add MCP servers to Claude Code
-claude mcp add claude-flow npx claude-flow@alpha mcp start
+claude mcp add claude-flow npx @claude-flow/cli@latest mcp start
 claude mcp add ruv-swarm npx ruv-swarm mcp start  # Optional
 claude mcp add flow-nexus npx flow-nexus@latest mcp start  # Optional
 ```
@@ -361,7 +361,7 @@ cp -r agents ~/.claude/agents/
 
 ```bash
 # Run setup via npx
-npx claude-flow@alpha init --plugin
+npx @claude-flow/cli@latest init --plugin
 
 # This will:
 # 1. Create .claude directory

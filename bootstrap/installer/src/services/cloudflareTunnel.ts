@@ -3,7 +3,13 @@
  * Handles Cloudflare Tunnel API integration and configuration
  */
 
-import { CloudflareTunnelConfig, CloudflareTunnelService, TunnelConnectionTest } from '../types/manifest';
+import path from 'path';
+import { runPowerShellScript } from './scriptRunner';
+import {
+  CloudflareTunnelConfig,
+  CloudflareTunnelService as CloudflareTunnelServiceType,
+  TunnelConnectionTest,
+} from '../types/manifest';
 
 export interface CloudflareApiResponse {
   success: boolean;
@@ -17,6 +23,13 @@ export interface TunnelCreateResponse {
   name: string;
   created_at: string;
   connections: any[];
+}
+
+export interface TunnelSetupResult {
+  success: boolean;
+  tunnelId?: string;
+  tunnelUrl?: string;
+  error?: string;
 }
 
 export class CloudflareTunnelService {
@@ -90,7 +103,7 @@ export class CloudflareTunnelService {
    */
   generateTunnelConfig(
     tunnelId: string,
-    services: CloudflareTunnelService[]
+    services: CloudflareTunnelServiceType[]
   ): string {
     const ingress = services
       .filter((s) => s.enabled)
@@ -301,15 +314,59 @@ Write-Host "Tunnel ID: ${tunnelId}"
       };
     }
   }
+
+  /**
+   * Execute PC-specific PowerShell setup script to install cloudflared and register tunnel
+   */
+  async executeTunnelSetup(
+    pcId: string,
+    tunnelName: string,
+    services: CloudflareTunnelServiceType[],
+    onOutput?: (line: string) => void
+  ): Promise<TunnelSetupResult> {
+    try {
+      const bootstrapRoot =
+        process.env.BOOTSTRAP_PATH ||
+        path.resolve(process.cwd(), '..', 'bootstrap');
+
+      // Map PC id to bootstrap subfolder
+      const pcFolder = pcId;
+      const scriptPath = path.join(
+        bootstrapRoot,
+        pcFolder,
+        'setup',
+        'setup-cloudflare-tunnel.ps1'
+      );
+
+      const result = await runPowerShellScript(scriptPath, {
+        args: ['-CloudflareToken', this.apiToken, '-TunnelName', tunnelName],
+        cwd: bootstrapRoot,
+        timeout: 900000,
+        onOutput: (data, type) => {
+          onOutput?.(data.toString());
+        },
+      });
+
+      if (result.exitCode !== 0) {
+        return {
+          success: false,
+          error: result.stderr || 'Cloudflare Tunnel setup script failed',
+        };
+      }
+
+      // We don't parse tunnelId from output here; scripts log it to console.
+      return {
+        success: true,
+        tunnelUrl: `https://${tunnelName}.tunnel.cloudflare.com`,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Tunnel setup failed',
+      };
+    }
+  }
 }
-
-/**
- * Helper function to detect current PC type
- */
-export function detectPCType(): string {
-  // Check environment variables or system info
-  const hostname = typeof window !== 'undefined' ? window.location.hostname : '';
-
   if (hostname.includes('orchestrator') || hostname.includes('mini')) {
     return 'orchestrator-mini';
   }

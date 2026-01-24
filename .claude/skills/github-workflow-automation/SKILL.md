@@ -73,7 +73,7 @@ gh run view <run-id> --json jobs,conclusion | \
 
 ```bash
 # Usage example
-npx claude-flow@alpha github gh-coordinator \
+npx @claude-flow/cli@latest github gh-coordinator \
   "Coordinate multi-repo release across 5 repositories"
 ```
 
@@ -99,7 +99,7 @@ gh pr create --title "Feature: New capability" \
 
 ```bash
 # Create coordinated issue workflow
-npx claude-flow@alpha github issue-tracker \
+npx @claude-flow/cli@latest github issue-tracker \
   "Manage sprint issues with automated tracking"
 ```
 
@@ -111,7 +111,7 @@ npx claude-flow@alpha github issue-tracker \
 
 ```bash
 # Automated release management
-npx claude-flow@alpha github release-manager \
+npx @claude-flow/cli@latest github release-manager \
   "Create v2.0.0 release with changelog and deployment"
 ```
 
@@ -123,7 +123,7 @@ npx claude-flow@alpha github release-manager \
 
 ```bash
 # Optimize repository structure
-npx claude-flow@alpha github repo-architect \
+npx @claude-flow/cli@latest github repo-architect \
   "Restructure monorepo with optimal organization"
 ```
 
@@ -149,7 +149,7 @@ gh pr view 123 --json files | \
 
 ```bash
 # Orchestrate CI/CD pipeline
-npx claude-flow@alpha github ci-orchestrator \
+npx @claude-flow/cli@latest github ci-orchestrator \
   "Setup parallel test execution with smart caching"
 ```
 
@@ -559,17 +559,17 @@ mcp__claude-flow__task_orchestrate {
 #### GitHub Hooks Integration
 ```bash
 # Pre-task: Setup GitHub context
-npx claude-flow@alpha hooks pre-task \
+npx @claude-flow/cli@latest hooks pre-task \
   --description "PR review workflow" \
   --context "pr-123"
 
 # During task: Track progress
-npx claude-flow@alpha hooks notify \
+npx @claude-flow/cli@latest hooks notify \
   --message "Completed security scan" \
   --type "github-action"
 
 # Post-task: Export results
-npx claude-flow@alpha hooks post-task \
+npx @claude-flow/cli@latest hooks post-task \
   --task-id "pr-review-123" \
   --export-github-summary
 ```
@@ -917,7 +917,7 @@ jobs:
 #### Example 3: Multi-Repo Synchronization
 ```bash
 # Synchronize multiple repositories
-npx claude-flow@alpha github sync-coordinator \
+npx @claude-flow/cli@latest github sync-coordinator \
   "Synchronize version updates across:
    - github.com/org/repo-a
    - github.com/org/repo-b

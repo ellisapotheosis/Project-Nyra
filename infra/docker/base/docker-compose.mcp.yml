@@ -2,9 +2,14 @@
 # Claude Flow, Infisical, Memory Services (Mem0, Letta), AgentDB, RuVector
 
 services:
-  # Nexus Router - LLM Gateway
+  # Nexus Router - LLM Gateway & MCP Aggregator
   nexus-router:
-    image: ghcr.io/grafbase/nexus:latest
+    build:
+      context: ../build/services/nexus-router
+      dockerfile: Dockerfile
+      args:
+        NEXUS_VERSION: latest
+    image: nyra-nexus-router:latest
     container_name: nyra-nexus
     restart: unless-stopped
     ports:
@@ -14,12 +19,20 @@ services:
       - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
       - GOOGLE_API_KEY=${GOOGLE_API_KEY}
       - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - INFISICAL_TOKEN=${INFISICAL_TOKEN}
+      - INFISICAL_PROJECT_ID=${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
+      - INFISICAL_ENV=${INFISICAL_ENV:-dev}
       - DEFAULT_PROVIDER=anthropic
       - FALLBACK_PROVIDERS=openrouter,google
       - RATE_LIMIT_ENABLED=true
       - LOG_LEVEL=${LOG_LEVEL:-info}
+      - NEXUS_CONFIG=/etc/nexus.toml
+      - WORKER_5090_URL=${WORKER_5090_URL:-http://worker-5090.tail-net.ts.net:11434}
+      - WORKER_3090_URL=${WORKER_3090_URL:-http://worker-3090.tail-net.ts.net:11434}
+      - WORKER_3060_URL=${WORKER_3060_URL:-http://worker-3060.tail-net.ts.net:11434}
     volumes:
       - nexus-data:/app/data
+      - ../../configs/nexus/nexus.toml:/etc/nexus.toml:ro
     networks:
       - nyra-mcp
       - nyra-core
@@ -28,6 +41,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
+      start_period: 60s
 
   # LiteLLM - Model Proxy
   litellm:

@@ -56,9 +56,9 @@
 Task(`You are the Performance Engineer agent.
 
 MANDATORY COORDINATION:
-1. START: npx claude-flow@alpha hooks pre-task --description "Profiling application performance"
+1. START: npx @claude-flow/cli@latest hooks pre-task --description "Profiling application performance"
 2. PROFILE: Run comprehensive profiling tools
-3. STORE: npx claude-flow@alpha hooks notify --message "Profile results: [metrics]"
+3. STORE: npx @claude-flow/cli@latest hooks notify --message "Profile results: [metrics]"
 4. ANALYZE: Identify bottlenecks and hotspots
 
 TASKS:
@@ -75,7 +75,7 @@ TASKS:
 Task(`You are the Profiling Analyst agent.
 
 MANDATORY COORDINATION:
-1. LOAD: npx claude-flow@alpha hooks session-restore --load-memory true
+1. LOAD: npx @claude-flow/cli@latest hooks session-restore --load-memory true
 2. ANALYZE: Review profiling data from Performance Engineer
 3. IDENTIFY: Find optimization opportunities
 4. RECOMMEND: Create optimization strategies

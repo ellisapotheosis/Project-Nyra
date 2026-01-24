@@ -49,10 +49,10 @@ The Pair Programming System in Claude-Flow enables collaborative development bet
 ./claude-flow init --verify --pair
 
 # After npm publish, will be available as:
-npx claude-flow@alpha init --verify --pair
+npx @claude-flow/cli@latest init --verify --pair
 
 # Force overwrite existing configuration
-npx claude-flow@alpha init --verify --pair --force
+npx @claude-flow/cli@latest init --verify --pair --force
 ```
 
 This creates a specialized `CLAUDE.md` configuration with:
@@ -67,42 +67,42 @@ This creates a specialized `CLAUDE.md` configuration with:
 Start a pair programming session:
 ```bash
 # Basic interactive session
-npx claude-flow@alpha pair --start
+npx @claude-flow/cli@latest pair --start
 
 # With manual verification
-npx claude-flow@alpha pair --start --verify
+npx @claude-flow/cli@latest pair --start --verify
 
 # With automatic verification (60s cooldown)
-npx claude-flow@alpha pair --start --verify --auto
+npx @claude-flow/cli@latest pair --start --verify --auto
 
 # With testing enabled
-npx claude-flow@alpha pair --start --test
+npx @claude-flow/cli@latest pair --start --test
 ```
 
 ### Configuration Options
 
 ```bash
 # Set custom verification threshold
-npx claude-flow@alpha pair --threshold 0.95
+npx @claude-flow/cli@latest pair --threshold 0.95
 
 # Enable verification (manual by default)
-npx claude-flow@alpha pair --verify
+npx @claude-flow/cli@latest pair --verify
 
 # Enable automatic verification with cooldown
-npx claude-flow@alpha pair --verify --auto
+npx @claude-flow/cli@latest pair --verify --auto
 
 # Set programming mode
-npx claude-flow@alpha pair --mode <driver|navigator|switch>
+npx @claude-flow/cli@latest pair --mode <driver|navigator|switch>
 
 # Run in background
-npx claude-flow@alpha pair --start --background
+npx @claude-flow/cli@latest pair --start --background
 ```
 
 ## Verification Modes
 
 ### 1. **Strict Mode** (Recommended for Production)
 ```bash
-npx claude-flow@alpha pair --mode strict
+npx @claude-flow/cli@latest pair --mode strict
 ```
 - Truth threshold: 0.95
 - Auto-rollback: Enabled
@@ -111,7 +111,7 @@ npx claude-flow@alpha pair --mode strict
 
 ### 2. **Standard Mode** (Default)
 ```bash
-npx claude-flow@alpha pair --mode standard
+npx @claude-flow/cli@latest pair --mode standard
 ```
 - Truth threshold: 0.85
 - Auto-rollback: Optional
@@ -120,7 +120,7 @@ npx claude-flow@alpha pair --mode standard
 
 ### 3. **Development Mode**
 ```bash
-npx claude-flow@alpha pair --mode development
+npx @claude-flow/cli@latest pair --mode development
 ```
 - Truth threshold: 0.75
 - Auto-rollback: Disabled
@@ -131,7 +131,7 @@ npx claude-flow@alpha pair --mode development
 
 ### 1. Session Initialization
 ```
-Developer: npx claude-flow@alpha pair --start --verify
+Developer: npx @claude-flow/cli@latest pair --start --verify
 System: ✅ Interactive session started
         ✅ Verification ready (manual mode)
         ✅ Session commands available
@@ -278,7 +278,7 @@ Verification: ✅ Score improved from 0.82 to 0.96
 ```bash
 # .git/hooks/pre-commit
 #!/bin/bash
-npx claude-flow@alpha pair --verify --threshold 0.95
+npx @claude-flow/cli@latest pair --verify --threshold 0.95
 ```
 
 ### CI/CD Pipeline
@@ -294,8 +294,8 @@ jobs:
       - uses: actions/checkout@v3
       - name: Run Pair Verification
         run: |
-          npx claude-flow@alpha pair --verify
-          npx claude-flow@alpha truth --threshold 0.95
+          npx @claude-flow/cli@latest pair --verify
+          npx @claude-flow/cli@latest truth --threshold 0.95
 ```
 
 ## Monitoring and Metrics
@@ -369,7 +369,7 @@ verification.applyLearnedPatterns(patterns);
 ### 2. Multi-Agent Collaboration
 ```bash
 # Enable multiple specialized agents
-npx claude-flow@alpha pair --agents "coder,reviewer,tester"
+npx @claude-flow/cli@latest pair --agents "coder,reviewer,tester"
 
 # Each agent focuses on specific aspects:
 # - Coder: Implementation quality
@@ -398,7 +398,7 @@ Begin pair programming at the start of your work:
 ```bash
 # Morning routine
 cd my-project
-npx claude-flow@alpha pair --start --mode strict
+npx @claude-flow/cli@latest pair --start --mode strict
 ```
 
 ### 2. Incremental Development
@@ -418,10 +418,10 @@ function validateAndSaveUser(userData) {
 ### 3. Review Verification Feedback
 ```bash
 # Always check why verification failed
-npx claude-flow@alpha truth --analyze
+npx @claude-flow/cli@latest truth --analyze
 
 # Understand patterns
-npx claude-flow@alpha pair --report
+npx @claude-flow/cli@latest pair --report
 ```
 
 ## Troubleshooting
@@ -431,11 +431,11 @@ npx claude-flow@alpha pair --report
 #### 1. Verification Loop / Spam
 ```bash
 # Solution: Use manual verification
-npx claude-flow@alpha pair --start --verify
+npx @claude-flow/cli@latest pair --start --verify
 # Use /verify command when needed
 
 # If auto-verify is needed, it has 60s cooldown
-npx claude-flow@alpha pair --start --verify --auto
+npx @claude-flow/cli@latest pair --start --verify --auto
 ```
 
 #### 2. Low Verification Scores
@@ -452,19 +452,19 @@ npm run build      # Check compilation
 #### 3. Session Not Responding
 ```bash
 # End current session
-npx claude-flow@alpha pair --end
+npx @claude-flow/cli@latest pair --end
 
 # Check for active sessions
-npx claude-flow@alpha pair --status
+npx @claude-flow/cli@latest pair --status
 
 # Start fresh
-npx claude-flow@alpha pair --start
+npx @claude-flow/cli@latest pair --start
 ```
 
 #### 4. Performance Issues
 ```bash
 # Use manual verification only
-npx claude-flow@alpha pair --start --verify
+npx @claude-flow/cli@latest pair --start --verify
 # Don't use --auto flag
 
 # Check metrics to identify patterns
@@ -644,10 +644,10 @@ After Optimization:
 ### Getting Help
 ```bash
 # Built-in help
-npx claude-flow@alpha pair --help
+npx @claude-flow/cli@latest pair --help
 
 # Interactive tutorial
-npx claude-flow@alpha pair --tutorial
+npx @claude-flow/cli@latest pair --tutorial
 
 # Community forum
 https://github.com/ruvnet/claude-flow/discussions

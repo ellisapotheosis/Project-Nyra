@@ -10,18 +10,18 @@ The Goal Module provides Goal-Oriented Action Planning (GOAP) capabilities for d
 
 ```bash
 # Initialize goal module in current project
-npx claude-flow@alpha goal init
+npx @claude-flow/cli@latest goal init
 
 # Force overwrite existing module
-npx claude-flow@alpha goal init --force
+npx @claude-flow/cli@latest goal init --force
 
 # Install to custom directory
-npx claude-flow@alpha goal init --target ./my-agents/goal
+npx @claude-flow/cli@latest goal init --target ./my-agents/goal
 ```
 
 ### What Gets Created
 
-Running `npx claude-flow@alpha goal init` creates:
+Running `npx @claude-flow/cli@latest goal init` creates:
 
 ```
 .claude/agents/goal/
@@ -195,12 +195,12 @@ All GOAP agent capabilities and configuration are built into the agent definitio
 
 1. **Module Already Exists**
    ```bash
-   npx claude-flow@alpha goal init --force
+   npx @claude-flow/cli@latest goal init --force
    ```
 
 2. **Custom Directory Setup**
    ```bash
-   npx claude-flow@alpha goal init --target ./custom/agents/goal
+   npx @claude-flow/cli@latest goal init --target ./custom/agents/goal
    ```
 
 3. **Planning Takes Too Long**

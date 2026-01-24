@@ -1,0 +1,31 @@
+name: nyra-edge
+
+services:
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: cloudflared
+    command: ["tunnel", "run"]
+    environment:
+      TUNNEL_TOKEN: ${CLOUDFLARED_TOKEN}
+    restart: unless-stopped
+
+  # Optional pattern: tailscale in a container.
+  # I generally recommend installing tailscale on the HOST instead,
+  # but this is here if you need it for portability.
+  tailscale:
+    image: tailscale/tailscale:stable
+    container_name: tailscale
+    network_mode: "host"
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    environment:
+      TS_AUTHKEY: ${TAILSCALE_AUTHKEY}
+      TS_HOSTNAME: ${TAILSCALE_HOSTNAME}
+      TS_STATE_DIR: /var/lib/tailscale
+    volumes:
+      - tailscale_state:/var/lib/tailscale
+    restart: unless-stopped
+
+volumes:
+  tailscale_state:

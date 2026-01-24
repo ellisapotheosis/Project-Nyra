@@ -23,30 +23,30 @@
 
 ```bash
 # Status & Info
-npx claude-flow@alpha status              # Overall system status
-npx claude-flow@alpha agents list         # List all agents
-npx claude-flow@alpha tasks list          # Active tasks
-npx claude-flow@alpha memory stats        # Memory usage
+npx @claude-flow/cli@latest status              # Overall system status
+npx @claude-flow/cli@latest agents list         # List all agents
+npx @claude-flow/cli@latest tasks list          # Active tasks
+npx @claude-flow/cli@latest memory stats        # Memory usage
 
 # Daemon Control
-npx claude-flow@alpha daemon start        # Start daemon
-npx claude-flow@alpha daemon stop         # Stop daemon
-npx claude-flow@alpha daemon restart      # Restart daemon
+npx @claude-flow/cli@latest daemon start        # Start daemon
+npx @claude-flow/cli@latest daemon stop         # Stop daemon
+npx @claude-flow/cli@latest daemon restart      # Restart daemon
 
 # Swarm Operations
-npx claude-flow@alpha swarm init --topology hierarchical-mesh
-npx claude-flow@alpha swarm status
-npx claude-flow@alpha swarm scale --agents 15
+npx @claude-flow/cli@latest swarm init --topology hierarchical-mesh
+npx @claude-flow/cli@latest swarm status
+npx @claude-flow/cli@latest swarm scale --agents 15
 
 # Memory Operations
-npx claude-flow@alpha memory store --namespace [ns] --key [k] --value [v]
-npx claude-flow@alpha memory get --namespace [ns] --key [k]
-npx claude-flow@alpha memory search --query [q]
+npx @claude-flow/cli@latest memory store --namespace [ns] --key [k] --value [v]
+npx @claude-flow/cli@latest memory get --namespace [ns] --key [k]
+npx @claude-flow/cli@latest memory search --query [q]
 
 # MCP Server
-npx claude-flow@alpha mcp start
-npx claude-flow@alpha mcp status
-npx claude-flow@alpha mcp stop
+npx @claude-flow/cli@latest mcp start
+npx @claude-flow/cli@latest mcp status
+npx @claude-flow/cli@latest mcp stop
 ```
 
 ## Configuration Files

@@ -611,7 +611,7 @@ curl http://localhost:3009/health  # ratehunter
 curl http://localhost:8000/health  # quote-api
 
 # Phase 4.8: MCP server validation
-npx claude-flow@alpha mcp health
+npx @claude-flow/cli@latest mcp health
 
 # Phase 4.9: Memory system validation
 curl http://localhost:7000/health   # RuVector

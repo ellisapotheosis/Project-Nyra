@@ -176,7 +176,7 @@ sudo ./01-gitea-setup.sh
 
 **Monitor:**
 ```bash
-npx claude-flow@alpha swarm status
+npx @claude-flow/cli@latest swarm status
 tailscale status
 systemctl status gitea cloudflared
 ```
@@ -337,13 +337,13 @@ tailscale status
 ### Monitor Distributed Tasks
 ```bash
 # Claude-Flow status
-npx claude-flow@alpha swarm status
+npx @claude-flow/cli@latest swarm status
 
 # Agent list
-npx claude-flow@alpha agent list
+npx @claude-flow/cli@latest agent list
 
 # Task status
-npx claude-flow@alpha task list
+npx @claude-flow/cli@latest task list
 ```
 
 ### Network Status
@@ -398,12 +398,12 @@ curl http://localhost:3000/api/healthz
 
 ### Review Code
 ```bash
-npx claude-flow@alpha github code-review owner/repo --pr 123
+npx @claude-flow/cli@latest github code-review owner/repo --pr 123
 ```
 
 ### Run Tests
 ```bash
-npx claude-flow@alpha task create tester "Run full test suite"
+npx @claude-flow/cli@latest task create tester "Run full test suite"
 ```
 
 ## 🤝 Support

@@ -814,12 +814,12 @@ class DashboardCoordinator:
 
 ```bash
 # Initialize data science project with swarm coordination
-npx claude-flow@alpha init --template data_science --agents 8
+npx @claude-flow/cli@latest init --template data_science --agents 8
 
 # Or with specific analysis focus
-npx claude-flow@alpha init --template statistical_analysis --agents 6
-npx claude-flow@alpha init --template business_intelligence --agents 7
-npx claude-flow@alpha init --template time_series --agents 5
+npx @claude-flow/cli@latest init --template statistical_analysis --agents 6
+npx @claude-flow/cli@latest init --template business_intelligence --agents 7
+npx @claude-flow/cli@latest init --template time_series --agents 5
 ```
 
 ### Environment Setup:

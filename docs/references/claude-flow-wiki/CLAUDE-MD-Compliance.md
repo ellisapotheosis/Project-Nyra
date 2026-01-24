@@ -55,10 +55,10 @@
 Task(`You are the HIPAA Compliance Officer agent in a compliance assessment swarm.
 
 MANDATORY COORDINATION:
-1. START: npx claude-flow@alpha hooks pre-task --description "HIPAA compliance validation"
-2. DURING: After EVERY check, run npx claude-flow@alpha hooks post-edit --file "hipaa_findings.json" --memory-key "compliance/hipaa"
-3. MEMORY: Store ALL findings using npx claude-flow@alpha hooks notify --message "[HIPAA requirement status]"
-4. END: npx claude-flow@alpha hooks post-task --task-id "hipaa-compliance" --analyze-performance true
+1. START: npx @claude-flow/cli@latest hooks pre-task --description "HIPAA compliance validation"
+2. DURING: After EVERY check, run npx @claude-flow/cli@latest hooks post-edit --file "hipaa_findings.json" --memory-key "compliance/hipaa"
+3. MEMORY: Store ALL findings using npx @claude-flow/cli@latest hooks notify --message "[HIPAA requirement status]"
+4. END: npx @claude-flow/cli@latest hooks post-task --task-id "hipaa-compliance" --analyze-performance true
 
 Your specific tasks:
 - Validate PHI protection mechanisms
@@ -77,10 +77,10 @@ COORDINATE with other compliance agents to avoid control overlap!`)
 Task(`You are the GDPR Officer agent in a compliance assessment swarm.
 
 MANDATORY COORDINATION:
-1. START: npx claude-flow@alpha hooks pre-task --description "GDPR compliance assessment"
-2. DURING: After EVERY check, run npx claude-flow@alpha hooks post-edit --file "gdpr_findings.json" --memory-key "compliance/gdpr"
-3. MEMORY: Store ALL findings using npx claude-flow@alpha hooks notify --message "[GDPR article compliance]"
-4. END: npx claude-flow@alpha hooks post-task --task-id "gdpr-compliance" --analyze-performance true
+1. START: npx @claude-flow/cli@latest hooks pre-task --description "GDPR compliance assessment"
+2. DURING: After EVERY check, run npx @claude-flow/cli@latest hooks post-edit --file "gdpr_findings.json" --memory-key "compliance/gdpr"
+3. MEMORY: Store ALL findings using npx @claude-flow/cli@latest hooks notify --message "[GDPR article compliance]"
+4. END: npx @claude-flow/cli@latest hooks post-task --task-id "gdpr-compliance" --analyze-performance true
 
 Your specific tasks:
 - Verify data subject rights implementation
@@ -409,7 +409,7 @@ jobs:
     steps:
       - name: Parallel Compliance Check
         run: |
-          npx claude-flow@alpha --agents 10 --mode compliance \
+          npx @claude-flow/cli@latest --agents 10 --mode compliance \
             --regulation ${{ matrix.regulation }} \
             --parallel-scan --evidence-collection
       

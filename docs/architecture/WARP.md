@@ -153,7 +153,7 @@ This project uses SPARC (Specification, Pseudocode, Architecture, Refinement, Co
 
 ```bash
 # Add MCP servers (Claude Flow required, others optional)
-claude mcp add claude-flow npx claude-flow@alpha mcp start
+claude mcp add claude-flow npx @claude-flow/cli@latest mcp start
 claude mcp add ruv-swarm npx ruv-swarm mcp start  # Optional: Enhanced coordination
 claude mcp add flow-nexus npx flow-nexus@latest mcp start  # Optional: Cloud features
 ```
@@ -228,20 +228,20 @@ Flow-Nexus extends MCP capabilities with 70+ cloud-based orchestration tools:
 
 **1️⃣ BEFORE Work:**
 ```bash
-npx claude-flow@alpha hooks pre-task --description "[task]"
-npx claude-flow@alpha hooks session-restore --session-id "swarm-[id]"
+npx @claude-flow/cli@latest hooks pre-task --description "[task]"
+npx @claude-flow/cli@latest hooks session-restore --session-id "swarm-[id]"
 ```
 
 **2️⃣ DURING Work:**
 ```bash
-npx claude-flow@alpha hooks post-edit --file "[file]" --memory-key "swarm/[agent]/[step]"
-npx claude-flow@alpha hooks notify --message "[what was done]"
+npx @claude-flow/cli@latest hooks post-edit --file "[file]" --memory-key "swarm/[agent]/[step]"
+npx @claude-flow/cli@latest hooks notify --message "[what was done]"
 ```
 
 **3️⃣ AFTER Work:**
 ```bash
-npx claude-flow@alpha hooks post-task --task-id "[task]"
-npx claude-flow@alpha hooks session-end --export-metrics true
+npx @claude-flow/cli@latest hooks post-task --task-id "[task]"
+npx @claude-flow/cli@latest hooks session-end --export-metrics true
 ```
 
 ## 🎯 Concurrent Execution Examples

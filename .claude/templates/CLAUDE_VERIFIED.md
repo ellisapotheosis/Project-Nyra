@@ -8,13 +8,13 @@ Current Mode: **PASSIVE** | Truth Threshold: **0.80**
 ### Quick Enable
 ```bash
 # Enable verification (non-breaking, opt-in)
-npx claude-flow verify --enable
+npx @claude-flow/cli@latest verify --enable
 
 # Set verification mode
-npx claude-flow verify --mode strict  # passive|active|strict
+npx @claude-flow/cli@latest verify --mode strict  # passive|active|strict
 
 # Set truth threshold
-npx claude-flow verify --threshold 0.95
+npx @claude-flow/cli@latest verify --threshold 0.95
 ```
 
 ## 🎯 Truth Scoring Integration
@@ -29,13 +29,13 @@ Every agent action is automatically scored for truthfulness:
 ### Check Truth Scores
 ```bash
 # Current agent score
-npx claude-flow truth score [agent-id]
+npx @claude-flow/cli@latest truth score [agent-id]
 
 # Agent reliability over time
-npx claude-flow truth reliability [agent-id]
+npx @claude-flow/cli@latest truth reliability [agent-id]
 
 # Full truth report
-npx claude-flow truth report --format markdown
+npx @claude-flow/cli@latest truth report --format markdown
 ```
 
 ## 🚨 CRITICAL: Concurrent Execution Rules
@@ -230,9 +230,9 @@ npx claude-flow truth report --format json | jq '.agents'
 ```yaml
 - name: Run with Verification
   run: |
-    npx claude-flow@alpha verify --enable
-    npx claude-flow@alpha sparc run dev "$TASK" --verify
-    npx claude-flow@alpha truth report
+    npx @claude-flow/cli@latest verify --enable
+    npx @claude-flow/cli@latest sparc run dev "$TASK" --verify
+    npx @claude-flow/cli@latest truth report
   env:
     VERIFICATION_MODE: strict
     TRUTH_THRESHOLD: 0.95
@@ -241,7 +241,7 @@ npx claude-flow truth report --format json | jq '.agents'
 ### PR Verification
 ```yaml
 - name: Verify PR
-  run: npx claude-flow@alpha verify --pr ${{ github.event.pull_request.number }}
+  run: npx @claude-flow/cli@latest verify --pr ${{ github.event.pull_request.number }}
 ```
 
 ## ⚡ Performance Tips with Verification
@@ -256,7 +256,7 @@ npx claude-flow truth report --format json | jq '.agents'
 ### For Existing Projects
 ```bash
 # 1. Install verification (non-breaking)
-npx claude-flow@alpha init --add-verification
+npx @claude-flow/cli@latest init --add-verification
 
 # 2. Start in passive mode
 npx claude-flow verify --enable --mode passive

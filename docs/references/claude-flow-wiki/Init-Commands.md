@@ -20,7 +20,7 @@ The Claude-Flow initialization system provides multiple specialized initializati
 ### Basic Init
 ```bash
 # Initialize new project with standard configuration
-npx claude-flow@alpha init
+npx @claude-flow/cli@latest init
 
 # What it creates:
 # - CLAUDE.md with standard swarm orchestration patterns
@@ -32,7 +32,7 @@ npx claude-flow@alpha init
 ### Force Overwrite
 ```bash
 # Force overwrite existing CLAUDE.md
-npx claude-flow@alpha init --force
+npx @claude-flow/cli@latest init --force
 
 # Use when:
 # - Updating to latest configuration format
@@ -45,7 +45,7 @@ npx claude-flow@alpha init --force
 ### Truth Verification System
 ```bash
 # Initialize with Truth Verification System
-npx claude-flow@alpha init --verify
+npx @claude-flow/cli@latest init --verify
 
 # Creates CLAUDE.md with:
 # - Truth enforcement principle: "truth is enforced, not assumed"
@@ -85,7 +85,7 @@ The `--verify` flag creates a specialized configuration that includes:
 ### Collaborative Development Setup
 ```bash
 # Initialize with Pair Programming mode
-npx claude-flow@alpha init --pair
+npx @claude-flow/cli@latest init --pair
 
 # Creates CLAUDE.md with:
 # - Real-time verification workflow
@@ -121,7 +121,7 @@ The `--pair` flag enables:
 ### Maximum Quality Enforcement
 ```bash
 # Initialize with both verification and pair programming
-npx claude-flow@alpha init --verify --pair
+npx @claude-flow/cli@latest init --verify --pair
 
 # Combines all features:
 # - Truth Verification System (95% threshold)
@@ -161,7 +161,7 @@ All verification commands use run_in_background:
 ### Advanced Configuration
 ```bash
 # Initialize with enhanced features
-npx claude-flow@alpha init --enhanced
+npx @claude-flow/cli@latest init --enhanced
 
 # Includes:
 # - Advanced swarm orchestration
@@ -303,13 +303,13 @@ Legend: ✅ Full support | ⚠️ Partial support | ❌ Not included
 cp CLAUDE.md CLAUDE.md.backup
 
 # Switch to verification mode
-npx claude-flow@alpha init --verify --force
+npx @claude-flow/cli@latest init --verify --force
 
 # Switch to pair programming
-npx claude-flow@alpha init --pair --force
+npx @claude-flow/cli@latest init --pair --force
 
 # Upgrade to combined mode
-npx claude-flow@alpha init --verify --pair --force
+npx @claude-flow/cli@latest init --verify --pair --force
 
 # Revert if needed
 cp CLAUDE.md.backup CLAUDE.md
@@ -339,15 +339,15 @@ Add specific checks for your agents:
 
 ```bash
 # Development environment
-npx claude-flow@alpha init --verify --pair
+npx @claude-flow/cli@latest init --verify --pair
 # Then modify CLAUDE.md: set threshold to 0.85
 
 # Staging environment
-npx claude-flow@alpha init --verify
+npx @claude-flow/cli@latest init --verify
 # Then modify CLAUDE.md: set threshold to 0.90
 
 # Production environment
-npx claude-flow@alpha init --verify --pair
+npx @claude-flow/cli@latest init --verify --pair
 # Keep default 0.95 threshold
 ```
 
@@ -359,14 +359,14 @@ npx claude-flow@alpha init --verify --pair
 ```bash
 # Error: CLAUDE.md already exists
 # Solution: Use --force flag
-npx claude-flow@alpha init --verify --force
+npx @claude-flow/cli@latest init --verify --force
 ```
 
 #### 2. Mode Not Applying
 ```bash
 # Ensure clean initialization
 rm CLAUDE.md
-npx claude-flow@alpha init --verify --pair
+npx @claude-flow/cli@latest init --verify --pair
 ```
 
 #### 3. Background Tasks Not Running
@@ -375,7 +375,7 @@ npx claude-flow@alpha init --verify --pair
 grep "run_in_background" CLAUDE.md
 
 # Verify background task support
-npx claude-flow@alpha init --verify --force
+npx @claude-flow/cli@latest init --verify --force
 ```
 
 ## Advanced Usage
@@ -410,7 +410,7 @@ const customTemplate = {
 };
 
 // Apply custom template
-npx claude-flow@alpha init --template custom
+npx @claude-flow/cli@latest init --template custom
 ```
 
 ## Related Documentation
@@ -426,7 +426,7 @@ npx claude-flow@alpha init --template custom
 ### Full Command Syntax
 
 ```bash
-npx claude-flow@alpha init [options]
+npx @claude-flow/cli@latest init [options]
 
 Options:
   --verify       Enable Truth Verification System
@@ -437,12 +437,12 @@ Options:
   --help         Show help information
 
 Examples:
-  npx claude-flow@alpha init
-  npx claude-flow@alpha init --verify
-  npx claude-flow@alpha init --pair
-  npx claude-flow@alpha init --verify --pair
-  npx claude-flow@alpha init --verify --pair --force
-  npx claude-flow@alpha init --enhanced --force
+  npx @claude-flow/cli@latest init
+  npx @claude-flow/cli@latest init --verify
+  npx @claude-flow/cli@latest init --pair
+  npx @claude-flow/cli@latest init --verify --pair
+  npx @claude-flow/cli@latest init --verify --pair --force
+  npx @claude-flow/cli@latest init --enhanced --force
 ```
 
 ## Summary

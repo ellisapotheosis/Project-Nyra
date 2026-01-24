@@ -269,19 +269,19 @@ This roadmap outlines the systematic implementation of Project Nyra features usi
 
 **Pre-Task Hooks:**
 ```bash
-npx claude-flow@alpha hooks pre-task --description "[phase]-[feature]"
+npx @claude-flow/cli@latest hooks pre-task --description "[phase]-[feature]"
 ```
 
 **During Development:**
 ```bash
-npx claude-flow@alpha hooks post-edit --file "[file]" --memory-key "sparc/[feature]/[phase]"
-npx claude-flow@alpha hooks notify --message "[progress update]"
+npx @claude-flow/cli@latest hooks post-edit --file "[file]" --memory-key "sparc/[feature]/[phase]"
+npx @claude-flow/cli@latest hooks notify --message "[progress update]"
 ```
 
 **Post-Task Hooks:**
 ```bash
-npx claude-flow@alpha hooks post-task --task-id "[task-id]"
-npx claude-flow@alpha hooks session-end --export-metrics true
+npx @claude-flow/cli@latest hooks post-task --task-id "[task-id]"
+npx @claude-flow/cli@latest hooks session-end --export-metrics true
 ```
 
 ### Memory Coordination
@@ -294,7 +294,7 @@ npx claude-flow@alpha hooks session-end --export-metrics true
 
 **Retrieve Context:**
 ```bash
-npx claude-flow@alpha hooks session-restore --session-id "sparc-[feature]"
+npx @claude-flow/cli@latest hooks session-restore --session-id "sparc-[feature]"
 ```
 
 ---

@@ -79,7 +79,7 @@ services:
 #### **AI Orchestration** (6 servers)
 | Server | Transport | Endpoint/Command | Tags |
 |--------|-----------|------------------|------|
-| claude-flow | stdio | `npx claude-flow@alpha mcp start` | ai, orchestration, swarm |
+| claude-flow | stdio | `npx @claude-flow/cli@latest mcp start` | ai, orchestration, swarm |
 | ruv-swarm | stdio | `npx ruv-swarm@latest mcp start` | swarm, coordination |
 | flow-nexus | HTTP | http://localhost:7401/mcp | nexus, cloud, workflows |
 | claude-flow-dev | HTTP | http://localhost:7403/mcp | claude-flow, development |
@@ -1026,7 +1026,7 @@ curl http://localhost:6000/health | jq '.metrics.cacheHitRate'
 | 3 | github | HTTP | http://localhost:7402/mcp | 7402 | mcp-github | `curl -f /health` |
 | 4 | docker | stdio | `uvx mcp-server-docker` | - | - | - |
 | 5 | shell | stdio | `uvx mcp-server-shell` | - | - | - |
-| 6 | claude-flow | stdio | `npx claude-flow@alpha mcp start` | - | - | - |
+| 6 | claude-flow | stdio | `npx @claude-flow/cli@latest mcp start` | - | - | - |
 | 7 | ruv-swarm | stdio | `npx ruv-swarm@latest mcp start` | - | - | - |
 | 8 | flow-nexus | HTTP | http://localhost:7401/mcp | 7401 | flow-nexus | `curl -f /health` |
 | 9 | claude-flow-dev | HTTP | http://localhost:7403/mcp | 7403 | claude-flow-dev | `curl -f /health` |

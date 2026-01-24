@@ -3,6 +3,9 @@ import { runPowerShellScript, runWSLScript } from './scriptRunner';
 import { createFileDeployer, DeployResult } from './fileDeployer';
 import { createValidator } from './validator';
 import { createLogger, Logger } from './logger';
+import path from 'path';
+import os from 'os';
+import { WSLInstaller } from './wslInstaller';
 
 export interface InstallOptions {
   pcId: PCId;
@@ -216,31 +219,100 @@ export class InstallOrchestrator {
     pcId: PCId,
     components: ComponentId[]
   ): Promise<void> {
-    const scriptsToRun: string[] = [];
+    // Resolve bootstrap root. Prefer BOOTSTRAP_PATH env, fall back to ../bootstrap
+    const bootstrapRoot =
+      process.env.BOOTSTRAP_PATH || path.resolve(process.cwd(), '..', 'bootstrap');
 
-    // Add PC-specific bootstrap script
-    scriptsToRun.push(`bootstrap/windows/${pcId}/bootstrap.ps1`);
+    type ScriptSpec = { scriptPath: string; args?: string[] };
+    const scriptsToRun: ScriptSpec[] = [];
 
-    // Add component-specific scripts
-    for (const component of components) {
-      const scriptPath = `bootstrap/windows/components/${component}.ps1`;
-      scriptsToRun.push(scriptPath);
+    // PC-specific bootstrap scripts wired to existing orchestrator/worker entrypoints
+    if (pcId === 'orchestrator-mini') {
+      scriptsToRun.push({
+        scriptPath: path.join(
+          bootstrapRoot,
+          'orchestrator-mini',
+          'scripts',
+          'bootstrap-orchestrator.ps1'
+        ),
+      });
+    } else if (pcId === 'worker-rtx3060') {
+      scriptsToRun.push({
+        scriptPath: path.join(
+          bootstrapRoot,
+          'worker-rtx3060',
+          'scripts',
+          'bootstrap-worker.ps1'
+        ),
+        args: ['-WorkerRole', 'worker-2'],
+      });
+    } else if (pcId === 'worker-rtx5090') {
+      scriptsToRun.push({
+        scriptPath: path.join(
+          bootstrapRoot,
+          'worker-rtx5090',
+          'scripts',
+          'bootstrap-worker.ps1'
+        ),
+        args: ['-WorkerRole', 'worker-3'],
+      });
+    } else if (pcId === 'worker-rtx3090ti') {
+      scriptsToRun.push({
+        scriptPath: path.join(
+          bootstrapRoot,
+          'worker-rtx3090ti',
+          'scripts',
+          'bootstrap-worker.ps1'
+        ),
+        args: ['-WorkerRole', 'worker-4'],
+      });
     }
 
-    for (let i = 0; i < scriptsToRun.length; i++) {
-      const scriptPath = scriptsToRun[i];
-      this.logger.info(`Running Windows script: ${scriptPath}`);
+  // Append shared developer environment setup script (Volta/Node/pnpm/Claude hints)
+  const devEnvScript = path.join(
+    bootstrapRoot,
+    'scripts',
+    'setup',
+    'setup-dev-env.ps1'
+  );
+  scriptsToRun.push({ scriptPath: devEnvScript });
 
-      const result = await runPowerShellScript(scriptPath, {
+  // Apply Nyra Windows Terminal Preview profiles (Nyra Full/Minimal/Starship, etc.)
+  const terminalScript = path.join(
+    bootstrapRoot,
+    'scripts',
+    'setup',
+    'setup-windows-terminal.ps1'
+  );
+  scriptsToRun.push({ scriptPath: terminalScript });
+
+  if (scriptsToRun.length === 0) {
+    this.logger.warn(`No Windows bootstrap scripts mapped for PC: ${pcId}`);
+    return;
+  }
+
+    for (let i = 0; i < scriptsToRun.length; i++) {
+      const spec = scriptsToRun[i];
+      this.logger.info(`Running Windows script: ${spec.scriptPath}`);
+
+      const result = await runPowerShellScript(spec.scriptPath, {
         logger: this.logger,
-        timeout: 300000, // 5 minutes
+        timeout: 900000, // up to 15 minutes for installs
+        cwd: bootstrapRoot,
+        args: spec.args,
       });
 
       if (result.exitCode !== 0) {
-        throw new Error(`Windows script failed: ${scriptPath}\n${result.stderr}`);
+        throw new Error(
+          `Windows script failed: ${spec.scriptPath}\n${result.stderr}`
+        );
       }
 
-      this.updateProgress(((i + 1) / scriptsToRun.length) * 100, i + 1, scriptsToRun.length);
+      this.updateProgress(
+        ((i + 1) / scriptsToRun.length) * 100,
+        i + 1,
+        scriptsToRun.length
+      );
     }
   }
 
@@ -251,32 +323,86 @@ export class InstallOrchestrator {
     pcId: PCId,
     components: ComponentId[]
   ): Promise<void> {
-    const scriptsToRun: string[] = [];
-
-    // Add PC-specific bootstrap script
-    scriptsToRun.push(`bootstrap/wsl/${pcId}/bootstrap.sh`);
-
-    // Add component-specific scripts
-    for (const component of components) {
-      const scriptPath = `bootstrap/wsl/components/${component}.sh`;
-      scriptsToRun.push(scriptPath);
+    // Only run WSL bootstrap if the wsl-setup component is selected
+    if (!components.includes('wsl-setup')) {
+      this.logger.info('WSL setup component not selected; skipping WSL bootstrap');
+      return;
     }
 
-    for (let i = 0; i < scriptsToRun.length; i++) {
-      const scriptPath = scriptsToRun[i];
-      this.logger.info(`Running WSL script: ${scriptPath}`);
+    const installer = new WSLInstaller(this.logger);
 
-      const result = await runWSLScript(scriptPath, {
-        logger: this.logger,
-        timeout: 300000, // 5 minutes
-      });
-
-      if (result.exitCode !== 0) {
-        throw new Error(`WSL script failed: ${scriptPath}\n${result.stderr}`);
+    // 1) Ensure WSL2 + Ubuntu 22.04 is installed
+    const status = await installer.checkStatus();
+    if (!status.installed) {
+      this.logger.info('WSL2 is not installed; starting installation');
+      const installResult = await installer.install();
+      if (!installResult.success) {
+        throw new Error(`WSL2 installation failed: ${installResult.message}`);
       }
-
-      this.updateProgress(((i + 1) / scriptsToRun.length) * 100, i + 1, scriptsToRun.length);
+      if (installResult.requiresReboot) {
+        this.logger.warn(
+          'WSL2 installation completed but requires a reboot before continuing'
+        );
+      }
     }
+
+    // 2) Configure .wslconfig based on PC type and RAM
+    const totalRAMGB = Math.round(os.totalmem() / (1024 ** 3));
+    const cfg = WSLInstaller.getRecommendedConfig(pcId, totalRAMGB);
+    const cfgResult = await installer.configure(cfg);
+    if (!cfgResult.success) {
+      throw new Error(`WSL configuration failed: ${cfgResult.message}`);
+    }
+
+    // 3) Ensure nyra user and Docker inside WSL
+    const userResult = await installer.setupUser();
+    if (!userResult.success) {
+      this.logger.warn(`WSL user setup warning: ${userResult.message}`);
+    }
+
+    const dockerResult = await installer.installDockerInWSL();
+    if (!dockerResult.success) {
+      this.logger.warn(`WSL Docker/dev tooling setup warning: ${dockerResult.message}`);
+    }
+
+    const systemdResult = await installer.enableSystemd();
+    if (!systemdResult.success) {
+      this.logger.warn(`WSL systemd enablement warning: ${systemdResult.message}`);
+    }
+
+    // 4) Run Nyra shell helper to configure zsh + oh-my-zsh for nyra
+    try {
+      const bootstrapRoot =
+        process.env.BOOTSTRAP_PATH || path.resolve(process.cwd(), '..', 'bootstrap');
+      const helperScript = path.join(
+        bootstrapRoot,
+        'wsl',
+        'nyra-shell-setup.sh'
+      );
+      this.logger.info(`Running WSL shell helper: ${helperScript}`);
+      const helperResult = await runWSLScript(helperScript, {
+        logger: this.logger,
+        timeout: 300000,
+      });
+      if (helperResult.exitCode !== 0) {
+        this.logger.warn(
+          `WSL shell helper exited with non-zero code: ${helperResult.exitCode}`
+        );
+      }
+    } catch (error) {
+      this.logger.warn(
+        'WSL shell helper failed; continuing without zsh/oh-my-zsh autoconfig',
+        (error as Error).message
+      );
+    }
+
+    // 5) Final validation
+    const valid = await installer.validate();
+    if (!valid) {
+      throw new Error('WSL validation failed after installation/configuration');
+    }
+
+    this.logger.success('WSL bootstrap completed successfully');
   }
 
   /**
@@ -330,27 +456,57 @@ export class InstallOrchestrator {
    * This is a placeholder - would typically load from a manifest file
    */
   private getConfigFilesForComponents(pcId: PCId, components: ComponentId[]) {
-    const files = [];
+    const files = [] as ConfigFile[];
 
-    // Example: Claude Code config
+    // Claude Code MCP configuration (Windows + WSL)
     if (components.includes('claude-code')) {
+      const appData = process.env.APPDATA || (process.env.USERPROFILE
+        ? `${process.env.USERPROFILE}\\AppData\\Roaming`
+        : '');
+
+      if (appData) {
+        files.push({
+          // Use the shared MCP config as Claude's mcp.json
+          source: 'bootstrap/configs/mcp/mcp.development.json',
+          target: `${appData}\\Claude\\mcp.json`,
+          checksum: undefined,
+        });
+      }
+
+      // WSL side: nyra user's Claude MCP config
       files.push({
-        source: 'bootstrap/configs/claude-code/.mcp.json',
-        target: `${process.env.USERPROFILE}\\.claude\\.mcp.json`,
+        source: 'bootstrap/configs/mcp/mcp.development.json',
+        target: '/home/nyra/.claude/mcp.json',
         checksum: undefined,
       });
     }
 
-    // Example: Claude Flow config
+    // Claude Flow configuration (Windows + WSL)
     if (components.includes('claude-flow')) {
+      const userProfile = process.env.USERPROFILE || '';
+
+      if (userProfile) {
+        files.push({
+          source: 'bootstrap/configs/claude-flow/settings.json',
+          target: `${userProfile}\\.claude-flow\\settings.json`,
+          checksum: undefined,
+        });
+        files.push({
+          source: 'bootstrap/configs/claude-flow/claude-flow.config.json',
+          target: `${userProfile}\\.claude-flow\\claude-flow.config.json`,
+          checksum: undefined,
+        });
+      }
+
+      // WSL side: nyra user's Claude Flow config
       files.push({
-        source: 'bootstrap/configs/claude-flow/.env.claude-flow',
-        target: `${process.env.USERPROFILE}\\.env.claude-flow`,
+        source: 'bootstrap/configs/claude-flow/settings.json',
+        target: '/home/nyra/.claude-flow/settings.json',
         checksum: undefined,
       });
       files.push({
-        source: 'bootstrap/configs/claude-flow/.claude/settings.json',
-        target: '/home/user/.claude/settings.json',
+        source: 'bootstrap/configs/claude-flow/claude-flow.config.json',
+        target: '/home/nyra/.claude-flow/claude-flow.config.json',
         checksum: undefined,
       });
     }

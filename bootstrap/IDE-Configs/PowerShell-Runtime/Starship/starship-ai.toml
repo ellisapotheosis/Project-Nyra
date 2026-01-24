@@ -1,0 +1,18 @@
+add_newline = false
+command_timeout = 500
+
+[character]
+success_symbol = "❯"
+error_symbol = "❯"
+
+[node]
+disabled = true
+
+[python]
+disabled = true
+
+[git_status]
+disabled = false
+
+[time]
+disabled = false

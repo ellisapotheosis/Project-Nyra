@@ -310,12 +310,14 @@ export class PCDetector {
       // Gitea is optional but can be included
     } else {
       // Worker-specific components
-      const hasGPU = specs.gpus.some(gpu => gpu.detected);
+      const hasGPU = specs.gpus.some((gpu) => gpu.detected);
       if (hasGPU) {
         recommendedComponents.push('nvidia');
       }
-      // Skip orchestrator-only components on workers
-      skipComponents.push('claude-desktop', 'wsl-setup', 'gitea', 'infisical');
+      // All PCs should have WSL available for dev; keep it recommended here
+      recommendedComponents.push('wsl-setup');
+      // Skip orchestrator-only components on workers (but NOT wsl-setup)
+      skipComponents.push('claude-desktop', 'gitea', 'infisical');
     }
 
     return { recommendedComponents, skipComponents };

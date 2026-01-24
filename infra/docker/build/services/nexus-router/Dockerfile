@@ -82,9 +82,9 @@ WORKDIR /app
 # Expose Nexus Router port
 EXPOSE 6000
 
-# Health check endpoint
+# Health check endpoint (using curl for consistency)
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
-    CMD wget --no-verbose --tries=1 --spider http://localhost:6000/health || exit 1
+    CMD curl -f http://localhost:6000/health || exit 1
 
 # Set entrypoint to use Infisical wrapper
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]

@@ -58,9 +58,9 @@
 Task(`You are the Scale Architect agent designing for massive scale.
 
 MANDATORY COORDINATION:
-1. START: npx claude-flow@alpha hooks pre-task --description "Designing scalable architecture"
+1. START: npx @claude-flow/cli@latest hooks pre-task --description "Designing scalable architecture"
 2. DESIGN: Create horizontally scalable service architecture
-3. STORE: npx claude-flow@alpha hooks notify --message "Architecture decisions: [patterns]"
+3. STORE: npx @claude-flow/cli@latest hooks notify --message "Architecture decisions: [patterns]"
 4. VALIDATE: Ensure all components can scale independently
 
 IMPLEMENT:

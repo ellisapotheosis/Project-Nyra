@@ -718,12 +718,12 @@ class NLPCoordinator:
 
 ```bash
 # Initialize ML project with swarm coordination
-npx claude-flow@alpha init --template ml_project --agents 8
+npx @claude-flow/cli@latest init --template ml_project --agents 8
 
 # Or with specific ML focus
-npx claude-flow@alpha init --template deep_learning --agents 6
-npx claude-flow@alpha init --template computer_vision --agents 7
-npx claude-flow@alpha init --template nlp_project --agents 8
+npx @claude-flow/cli@latest init --template deep_learning --agents 6
+npx @claude-flow/cli@latest init --template computer_vision --agents 7
+npx @claude-flow/cli@latest init --template nlp_project --agents 8
 ```
 
 ### Environment Setup:

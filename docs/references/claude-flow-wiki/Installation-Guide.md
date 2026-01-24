@@ -90,7 +90,7 @@ claude-flow sparc modes
 
 ```bash
 # Add Claude-Flow as MCP server to Claude Code
-claude mcp add claude-flow npx claude-flow@alpha mcp start
+claude mcp add claude-flow npx @claude-flow/cli@latest mcp start
 
 # Verify MCP integration
 claude mcp list
