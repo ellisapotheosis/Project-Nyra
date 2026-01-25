@@ -4,12 +4,12 @@
 
 param(
     [switch]$DryRun,
-    [switch]$Verbose
+    [switch]$Verbose,
+    [string]$Env = "dev"
 )
 
 $ErrorActionPreference = "Continue"
 $ProjectId = "8374cea9-e5e8-4050-bda4-b91f25ab30ef"
-$Env = "dev"
 $Token = $env:INFISICAL_ACCESS_TOKEN
 
 if (-not $Token) {
