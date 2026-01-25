@@ -306,7 +306,7 @@ services:
       - claude-flow-alpha-memory:/app/memory
 
       # Optional: Mount config for runtime updates (read-only)
-      - ../../claude-flow.config.json:/app/claude-flow.config.json:ro
+      - ../../infra/configs/claude-flow/claude-flow.config.json:/app/claude-flow.config.json:ro
     networks:
       - nyra-apps
       - nyra-mcp
