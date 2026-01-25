@@ -1,0 +1,94 @@
+version: '3.8'
+
+services:
+  nexus-router:
+    image: ghcr.io/grafbase/nexus:latest
+    container_name: nyra-nexus-router
+    restart: unless-stopped
+    ports:
+      - "6000:6000"
+    volumes:
+      # Mount nexus.toml configuration
+      - ../../../configs/nexus/nexus.toml:/etc/nexus/nexus.toml:ro
+      
+      # Optional: Mount TLS certs for production
+      # - ../../../configs/nexus/certs:/etc/nexus/certs:ro
+    environment:
+      # API Keys (loaded from Infisical or .env)
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+      - TAVILY_API_KEY=${TAVILY_API_KEY}
+      - PERPLEXITY_API_KEY=${PERPLEXITY_API_KEY}
+      - FIRECRAWL_API_KEY=${FIRECRAWL_API_KEY}
+      - NOTION_TOKEN=${NOTION_TOKEN}
+      
+      # Infisical MCP
+      - INFISICAL_UNIVERSAL_AUTH_CLIENT_ID=${INFISICAL_UNIVERSAL_AUTH_CLIENT_ID}
+      - INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET=${INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET}
+      
+      # Bitwarden MCP
+      - BWS_ACCESS_TOKEN=${BWS_ACCESS_TOKEN}
+      
+      # Qdrant
+      - QDRANT_API_KEY=${QDRANT_API_KEY}
+      
+      # Neo4j (for Graphiti)
+      - NEO4J_PASSWORD=${NEO4J_PASSWORD}
+      
+      # AWS Bedrock (optional)
+      - AWS_REGION=${AWS_REGION:-us-east-1}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      
+      # Admin configuration
+      - ADMIN_EMAIL=${ADMIN_EMAIL:-admin@ratehunter.net}
+      - DEV_TEAM_EMAILS=${DEV_TEAM_EMAILS}
+      
+      # Node environment
+      - NODE_ENV=${NODE_ENV:-production}
+    networks:
+      - nyra-mcp
+      - nyra-core
+    depends_on:
+      - redis
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    labels:
+      - "com.docker.compose.project=nyra"
+      - "com.nyra.service=nexus-router"
+      - "com.nyra.tier=orchestration"
+      - "com.nyra.critical=true"
+
+  # Redis for distributed rate limiting
+  redis:
+    image: redis:7-alpine
+    container_name: nyra-nexus-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - nexus-redis-data:/data
+    command: redis-server --appendonly yes
+    networks:
+      - nyra-core
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+networks:
+  nyra-mcp:
+    external: true
+  nyra-core:
+    external: true
+
+volumes:
+  nexus-redis-data:
+    driver: local
