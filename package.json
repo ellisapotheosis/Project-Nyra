@@ -128,7 +128,7 @@
     "pnpm": ">=10.0.0"
   },
   "dependencies": {
-    "@claude-flow/cli": "3.0.0-alpha.104",
+    "@claude-flow/cli": "3.0.0-alpha.179",
     "agentic-jujutsu": "^2.3.6"
   },
   "volta": {
