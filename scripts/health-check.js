@@ -142,6 +142,49 @@ async function checkClaudeFlow() {
   );
 }
 
+async function checkNyraServices() {
+  console.log(`\n${COLORS.blue}=== Nyra Core Services ===${COLORS.reset}`);
+
+  await runCheck(
+    'Nexus Router (6000)',
+    "curl -s -o /dev/null -w '%{http_code}' http://localhost:6000/health",
+    {
+      validator: (code) => code.trim().startsWith('2'),
+      failMessage: 'Nexus /health did not return 2xx'
+    }
+  );
+
+  await runCheck(
+    'LiteLLM Proxy (4000)',
+    "curl -s -o /dev/null -w '%{http_code}' http://localhost:4000/health || curl -s -o /dev/null -w '%{http_code}' http://localhost:4000",
+    {
+      optional: true,
+      validator: (code) => code && code.trim().startsWith('2'),
+      failMessage: 'LiteLLM health check did not return 2xx'
+    }
+  );
+
+  await runCheck(
+    'Gitea (3005)',
+    "curl -s -o /dev/null -w '%{http_code}' http://localhost:3005/",
+    {
+      optional: true,
+      validator: (code) => code && (code.trim().startsWith('2') || code.trim().startsWith('3')),
+      failMessage: 'Gitea UI not reachable on http://localhost:3005/'
+    }
+  );
+
+  await runCheck(
+    'OpenMemory MCP (8081)',
+    "curl -s -o /dev/null -w '%{http_code}' http://localhost:8081/health || curl -s -o /dev/null -w '%{http_code}' http://localhost:8081",
+    {
+      optional: true,
+      validator: (code) => code && code.trim().startsWith('2'),
+      failMessage: 'OpenMemory MCP not responding on port 8081'
+    }
+  );
+}
+
 async function checkDatabase() {
   console.log(`\n${COLORS.blue}=== Database ===${COLORS.reset}`);
 
@@ -279,6 +322,7 @@ async function main() {
     await checkNodeServices();
     await checkDockerServices();
     await checkDatabase();
+    await checkNyraServices();
     await checkClaudeFlow();
     await checkInfrastructure();
     await checkGitRepository();

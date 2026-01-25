@@ -1,10 +1,53 @@
 {
   "permissions": {
+    "defaultMode": "bypassPermissions",
     "allow": [
-      "mcp__ruv-swarm",
-      "mcp__claude-flow@alpha",
-      "mcp__flow-nexus"
+      "mcp__*",
+      "Bash",
+      "Read",
+      "Write",
+      "Edit",
+      "MultiEdit",
+      "Glob",
+      "Grep",
+      "Task",
+      "TodoWrite",
+      "AskUserQuestion",
+      "Skill",
+      "NotebookEdit",
+      "EnterPlanMode",
+      "ExitPlanMode",
+      "KillShell",
+      "TaskOutput"
     ],
-    "deny": []
-  }
+    "deny": [
+      "Bash(rm -rf /)",
+      "Bash(rm -rf /*)",
+      "Bash(rm -rf ~)",
+      "Bash(rm -rf ~/*)",
+      "Bash(curl * | bash)",
+      "Bash(curl * | sudo bash)",
+      "Bash(wget * | sh)",
+      "Bash(wget * | sudo sh)",
+      "Bash(eval *)",
+      "Bash(shutdown *)",
+      "Bash(reboot *)",
+      "Bash(halt *)",
+      "Bash(dd if=*)",
+      "Bash(mkfs.*)",
+      "Bash(format *)",
+      "Bash(fdisk *)",
+      "Bash(parted *)"
+    ]
+  },
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": [
+    "claude-flow",
+    "ruv-swarm",
+    "flow-nexus",
+    "agentic-flow",
+    "agentdb",
+    "agent-booster",
+    "epic-sdk"
+  ]
 }
