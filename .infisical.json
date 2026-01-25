@@ -1,5 +1,10 @@
 {
-    "workspaceId": "pbcskpxyqtysbxjvecfo",
-    "defaultEnvironment": "dev",
-    "gitBranchToEnvironmentMapping": null
+  "workspaceId": "8374cea9-e5e8-4050-bda4-b91f25ab30ef",
+  "defaultEnvironment": "dev",
+  "gitBranchToEnvironmentMapping": {
+    "main": "prod",
+    "dev": "dev",
+    "staging": "CI",
+    "ci/pipeline": "CI"
+  }
 }
