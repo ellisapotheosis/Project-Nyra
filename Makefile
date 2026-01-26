@@ -12,7 +12,7 @@
         nexus-start nexus-stop nexus-status nexus-logs \
         infra-up infra-down infra-status \
         env-setup env-verify bootstrap-orchestrator bootstrap-worker \
-        archon-up archon-down openwebui-up openwebui-down
+        archon-up archon-down
 
 # Default target
 .DEFAULT_GOAL := help
@@ -64,6 +64,8 @@ help:
 	@echo "  make env-verify         - Verify environment configuration"
 	@echo "  make bootstrap-orchestrator - Bootstrap orchestrator PC"
 	@echo "  make bootstrap-worker   - Bootstrap worker PC"
+	@echo "  make archon-up          - Start Archon OS stack (using docker-compose.archon.yml)"
+	@echo "  make archon-down        - Stop Archon OS stack"
 	@echo ""
 
 ## install: Install all dependencies
@@ -217,27 +219,12 @@ bootstrap-worker:
 	@echo "🚀 Bootstrapping worker PC..."
 	@pwsh -Command "if (Test-Path scripts/operations/bootup.ps1) { & scripts/operations/bootup.ps1 } else { Write-Host '❌ Bootstrap script not found' }"
 
-## archon-up: Start standalone Archon OS tool stack
+## archon-up: Start Archon OS stack via docker-compose.archon.yml
 archon-up:
-	@echo "🧠 Starting Archon OS tool stack..."
-	@cd infra/tools/archon && docker-compose up -d
-	@echo "✅ Archon OS running:"
-	@echo "  - API:      http://localhost:8181"
-	@echo "  - MCP:      http://localhost:8051"
-	@echo "  - UI:       http://localhost:3737"
+	@echo "🧠 Starting Archon OS stack (docker-compose.archon.yml)..."
+	docker-compose -f infra/docker/docker-compose.archon.yml up -d
 
-## archon-down: Stop standalone Archon OS tool stack
+## archon-down: Stop Archon OS stack
 archon-down:
-	@echo "🧠 Stopping Archon OS tool stack..."
-	@cd infra/tools/archon && docker-compose down
-
-## openwebui-up: Start Open WebUI tool stack
-openwebui-up:
-	@echo "🖥️  Starting Open WebUI tool stack..."
-	@cd infra/tools/open-webui && docker-compose up -d
-	@echo "✅ Open WebUI running at: http://localhost:3002"
-
-## openwebui-down: Stop Open WebUI tool stack
-openwebui-down:
-	@echo "🖥️  Stopping Open WebUI tool stack..."
-	@cd infra/tools/open-webui && docker-compose down
+	@echo "🧠 Stopping Archon OS stack..."
+	docker-compose -f infra/docker/docker-compose.archon.yml down

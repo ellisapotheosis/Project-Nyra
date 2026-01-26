@@ -36,8 +36,10 @@ services:
     ports:
       - "8181:8181"
     environment:
-      # Local Postgres (Supabase-style URL)
-      - SUPABASE_URL=postgresql://nyra:${ARCHON_POSTGRES_PASSWORD:-nyra-archon-password}@archon-postgres:5432/nyra_archon
+      # Local Postgres (Supabase-style settings)
+      # Archon requires SUPABASE_URL to be HTTP/HTTPS, so we use a dummy local URL
+      # and rely on DATABASE_URL for actual Postgres connectivity.
+      - SUPABASE_URL=${SUPABASE_URL:-https://local-supabase}
       - SUPABASE_SERVICE_KEY=${SUPABASE_SERVICE_KEY:-local-postgres-no-jwt}
       - DATABASE_URL=postgresql://nyra:${ARCHON_POSTGRES_PASSWORD:-nyra-archon-password}@archon-postgres:5432/nyra_archon
 
@@ -95,7 +97,7 @@ services:
       - "8051:8051"
     environment:
       # Database Configuration (local Postgres)
-      - SUPABASE_URL=postgresql://nyra:${ARCHON_POSTGRES_PASSWORD:-nyra-archon-password}@archon-postgres:5432/nyra_archon
+      - SUPABASE_URL=${SUPABASE_URL:-https://local-supabase}
       - SUPABASE_SERVICE_KEY=${SUPABASE_SERVICE_KEY:-local-postgres-no-jwt}
       - DATABASE_URL=postgresql://nyra:${ARCHON_POSTGRES_PASSWORD:-nyra-archon-password}@archon-postgres:5432/nyra_archon
 
@@ -187,7 +189,7 @@ services:
       - "8052:8052"
     environment:
       # Database Configuration (local Postgres)
-      - SUPABASE_URL=postgresql://nyra:${ARCHON_POSTGRES_PASSWORD:-nyra-archon-password}@archon-postgres:5432/nyra_archon
+      - SUPABASE_URL=${SUPABASE_URL:-https://local-supabase}
       - SUPABASE_SERVICE_KEY=${SUPABASE_SERVICE_KEY:-local-postgres-no-jwt}
 
       # LLM Configuration
