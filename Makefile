@@ -11,7 +11,8 @@
         mcp-start mcp-stop mcp-status mcp-health mcp-logs \
         nexus-start nexus-stop nexus-status nexus-logs \
         infra-up infra-down infra-status \
-        env-setup env-verify bootstrap-orchestrator bootstrap-worker
+        env-setup env-verify bootstrap-orchestrator bootstrap-worker \
+        archon-up archon-down openwebui-up openwebui-down
 
 # Default target
 .DEFAULT_GOAL := help
@@ -215,3 +216,28 @@ bootstrap-orchestrator:
 bootstrap-worker:
 	@echo "🚀 Bootstrapping worker PC..."
 	@pwsh -Command "if (Test-Path scripts/operations/bootup.ps1) { & scripts/operations/bootup.ps1 } else { Write-Host '❌ Bootstrap script not found' }"
+
+## archon-up: Start standalone Archon OS tool stack
+archon-up:
+	@echo "🧠 Starting Archon OS tool stack..."
+	@cd infra/tools/archon && docker-compose up -d
+	@echo "✅ Archon OS running:"
+	@echo "  - API:      http://localhost:8181"
+	@echo "  - MCP:      http://localhost:8051"
+	@echo "  - UI:       http://localhost:3737"
+
+## archon-down: Stop standalone Archon OS tool stack
+archon-down:
+	@echo "🧠 Stopping Archon OS tool stack..."
+	@cd infra/tools/archon && docker-compose down
+
+## openwebui-up: Start Open WebUI tool stack
+openwebui-up:
+	@echo "🖥️  Starting Open WebUI tool stack..."
+	@cd infra/tools/open-webui && docker-compose up -d
+	@echo "✅ Open WebUI running at: http://localhost:3002"
+
+## openwebui-down: Stop Open WebUI tool stack
+openwebui-down:
+	@echo "🖥️  Stopping Open WebUI tool stack..."
+	@cd infra/tools/open-webui && docker-compose down
