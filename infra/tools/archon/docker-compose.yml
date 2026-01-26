@@ -1,0 +1,227 @@
+version: '3.8'
+
+# Archon OS - Standalone Tool Stack
+# Self-contained: local Postgres + Archon backend + MCP + UI (optional agents)
+
+services:
+  archon-postgres:
+    image: postgres:16-alpine
+    container_name: nyra-archon-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: nyra
+      POSTGRES_PASSWORD: ${ARCHON_POSTGRES_PASSWORD:-nyra-archon-password}
+      POSTGRES_DB: nyra_archon
+    volumes:
+      - archon-postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5442:5432" # Local Postgres for Archon only
+    networks:
+      - archon-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U nyra -d nyra_archon"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  archon-server:
+    build:
+      context: ../../../tools/archon/python
+      dockerfile: Dockerfile.server
+      args:
+        BUILDKIT_INLINE_CACHE: 1
+        ARCHON_SERVER_PORT: 8181
+    container_name: nyra-archon-server
+    restart: unless-stopped
+    ports:
+      - "8181:8181"
+    environment:
+      # Local Postgres (Supabase-style URL)
+      - SUPABASE_URL=postgresql://nyra:${ARCHON_POSTGRES_PASSWORD:-nyra-archon-password}@archon-postgres:5432/nyra_archon
+      - SUPABASE_SERVICE_KEY=${SUPABASE_SERVICE_KEY:-local-postgres-no-jwt}
+      - DATABASE_URL=postgresql://nyra:${ARCHON_POSTGRES_PASSWORD:-nyra-archon-password}@archon-postgres:5432/nyra_archon
+
+      # LLM Configuration (can route through Nexus Router on host)
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY:-}
+
+      # Service Discovery
+      - SERVICE_DISCOVERY_MODE=docker_compose
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+
+      # Port Configuration
+      - ARCHON_SERVER_PORT=8181
+      - ARCHON_MCP_PORT=8051
+      - ARCHON_AGENTS_PORT=8052
+      - ARCHON_HOST=${HOST:-localhost}
+
+      # Feature Flags
+      - AGENTS_ENABLED=${ARCHON_AGENTS_ENABLED:-false}
+      - ENABLE_AGENT_WORK_ORDERS=${ARCHON_ENABLE_WORK_ORDERS:-false}
+
+      # Nexus Router Integration (optional)
+      - NEXUS_ROUTER_URL=${NEXUS_ROUTER_URL:-http://host.docker.internal:6000}
+      - USE_NEXUS_ROUTER=${USE_NEXUS_ROUTER:-true}
+
+    networks:
+      - archon-net
+    volumes:
+      - archon-data:/app/data
+      - ../../../tools/archon/python/src:/app/src:ro
+      - ../../../tools/archon/migration:/app/migration:ro
+    depends_on:
+      archon-postgres:
+        condition: service_healthy
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8181/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  archon-mcp:
+    build:
+      context: ../../../tools/archon/python
+      dockerfile: Dockerfile.mcp
+      args:
+        BUILDKIT_INLINE_CACHE: 1
+        ARCHON_MCP_PORT: 8051
+    container_name: nyra-archon-mcp
+    restart: unless-stopped
+    ports:
+      - "8051:8051"
+    environment:
+      # Database Configuration (local Postgres)
+      - SUPABASE_URL=postgresql://nyra:${ARCHON_POSTGRES_PASSWORD:-nyra-archon-password}@archon-postgres:5432/nyra_archon
+      - SUPABASE_SERVICE_KEY=${SUPABASE_SERVICE_KEY:-local-postgres-no-jwt}
+      - DATABASE_URL=postgresql://nyra:${ARCHON_POSTGRES_PASSWORD:-nyra-archon-password}@archon-postgres:5432/nyra_archon
+
+      # Service Discovery
+      - SERVICE_DISCOVERY_MODE=docker_compose
+      - TRANSPORT=sse
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+
+      # Service URLs
+      - API_SERVICE_URL=http://archon-server:8181
+      - AGENTS_ENABLED=${ARCHON_AGENTS_ENABLED:-false}
+      - AGENTS_SERVICE_URL=http://archon-agents:8052
+
+      # Port Configuration
+      - ARCHON_MCP_PORT=8051
+      - ARCHON_SERVER_PORT=8181
+      - ARCHON_AGENTS_PORT=8052
+
+      # Nexus Router Integration (optional)
+      - NEXUS_ROUTER_URL=${NEXUS_ROUTER_URL:-http://host.docker.internal:6000}
+      - MCP_PROXY_ENABLED=true
+
+    networks:
+      - archon-net
+    depends_on:
+      archon-postgres:
+        condition: service_healthy
+      archon-server:
+        condition: service_healthy
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8051/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  archon-ui:
+    build:
+      context: ../../../tools/archon/archon-ui-main
+      dockerfile: Dockerfile
+    container_name: nyra-archon-ui
+    restart: unless-stopped
+    ports:
+      - "3737:3737"
+    environment:
+      # API Configuration (relative URLs through Vite proxy)
+      - VITE_ARCHON_SERVER_PORT=8181
+      - ARCHON_SERVER_PORT=8181
+      - HOST=${HOST:-localhost}
+      - PROD=${PROD:-false}
+
+      # Development Configuration
+      - VITE_ALLOWED_HOSTS=${VITE_ALLOWED_HOSTS:-}
+      - VITE_SHOW_DEVTOOLS=${VITE_SHOW_DEVTOOLS:-false}
+      - DOCKER_ENV=true
+
+      # Nexus Router Integration (optional)
+      - NEXUS_ROUTER_URL=${NEXUS_ROUTER_URL:-http://host.docker.internal:6000}
+
+    networks:
+      - archon-net
+    volumes:
+      - ../../../tools/archon/archon-ui-main/src:/app/src:ro
+      - ../../../tools/archon/archon-ui-main/public:/app/public:ro
+    depends_on:
+      archon-server:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3737"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  archon-agents:
+    profiles:
+      - agents  # Only starts with --profile agents
+    build:
+      context: ../../../tools/archon/python
+      dockerfile: Dockerfile.agents
+      args:
+        BUILDKIT_INLINE_CACHE: 1
+        ARCHON_AGENTS_PORT: 8052
+    container_name: nyra-archon-agents
+    restart: unless-stopped
+    ports:
+      - "8052:8052"
+    environment:
+      # Database Configuration (local Postgres)
+      - SUPABASE_URL=postgresql://nyra:${ARCHON_POSTGRES_PASSWORD:-nyra-archon-password}@archon-postgres:5432/nyra_archon
+      - SUPABASE_SERVICE_KEY=${SUPABASE_SERVICE_KEY:-local-postgres-no-jwt}
+
+      # LLM Configuration
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+
+      # Service Configuration
+      - SERVICE_DISCOVERY_MODE=docker_compose
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - ARCHON_AGENTS_PORT=8052
+      - ARCHON_SERVER_PORT=8181
+
+      # Nexus Router Integration (optional)
+      - NEXUS_ROUTER_URL=${NEXUS_ROUTER_URL:-http://host.docker.internal:6000}
+      - USE_NEXUS_ROUTER=true
+
+    networks:
+      - archon-net
+    depends_on:
+      archon-postgres:
+        condition: service_healthy
+      archon-server:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8052/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  archon-net:
+    driver: bridge
+
+volumes:
+  archon-data:
+  archon-postgres-data:
