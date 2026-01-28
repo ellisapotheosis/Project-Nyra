@@ -121,11 +121,10 @@ The simplest fix is to add secrets directly to GitHub:
 
 ### Add to GitHub
 
-1. Go to your repository: `github.com/ellisapotheosis/Project-Nyra`
-2. Navigate to **Settings** → **Secrets and variables** → **Actions**
-3. Click **New repository secret**
-4. Add `CLOUDFLARE_ACCOUNT_ID` with your account ID
-5. Add `CLOUDFLARE_API_TOKEN` with your API token
+1. Go to your repository settings: **Settings** → **Secrets and variables** → **Actions**
+2. Click **New repository secret**
+3. Add `CLOUDFLARE_ACCOUNT_ID` with your account ID
+4. Add `CLOUDFLARE_API_TOKEN` with your API token
 
 ### Trigger Deployment
 

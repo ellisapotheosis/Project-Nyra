@@ -104,8 +104,14 @@ jobs:
             echo "should_deploy=true" >> $GITHUB_OUTPUT
             echo "✅ Changes detected in ${{ env.APP_DIR }}"
           else
-            echo "should_deploy=true" >> $GITHUB_OUTPUT
-            echo "ℹ️ No changes in app directory, but deploying anyway for workflow dispatch"
+            # For workflow_dispatch, still deploy; for push, only deploy if workflow file changed
+            if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+              echo "should_deploy=true" >> $GITHUB_OUTPUT
+              echo "ℹ️ Workflow dispatch - deploying regardless of changes"
+            else
+              echo "should_deploy=true" >> $GITHUB_OUTPUT
+              echo "ℹ️ Workflow file changed - deploying"
+            fi
           fi
 
       - name: Check available secrets configuration
@@ -402,13 +408,18 @@ jobs:
         run: |
           if [ -f "/tmp/cloudflare-secrets.env" ]; then
             echo "🔐 Loading secrets from Infisical..."
-            # Source the secrets and export to GITHUB_ENV
+            # First pass: mask all values before any output
             while IFS='=' read -r key value; do
               if [ -n "$key" ] && [ -n "$value" ] && [[ ! "$key" =~ ^# ]]; then
-                # Export to environment for subsequent steps
-                echo "$key=$value" >> $GITHUB_ENV
-                # Mask sensitive values
+                # Mask sensitive values FIRST
                 echo "::add-mask::$value"
+              fi
+            done < /tmp/cloudflare-secrets.env
+            
+            # Second pass: export to GITHUB_ENV (now safely masked)
+            while IFS='=' read -r key value; do
+              if [ -n "$key" ] && [ -n "$value" ] && [[ ! "$key" =~ ^# ]]; then
+                echo "$key=$value" >> $GITHUB_ENV
               fi
             done < /tmp/cloudflare-secrets.env
             echo "✅ Secrets loaded from Infisical"
