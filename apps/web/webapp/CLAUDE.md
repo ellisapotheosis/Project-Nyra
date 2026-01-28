@@ -1,127 +1,323 @@
-# Nyra Web Application - Claude Flow V3 Configuration
+# Borrower Portal - Claude Flow V3 Configuration
 
-## 🚨 AUTOMATIC SWARM ORCHESTRATION
-
-**When starting work on complex tasks, Claude Code MUST automatically:**
-
-1. **Initialize the swarm** using CLI tools via Bash
-2. **Spawn concurrent agents** using Claude Code's Task tool
-3. **Coordinate via hooks** and memory
-
-**CLI coordinates, Task tool agents do the actual work!**
+> **Self-service borrower application and document portal**
+>
+> **Inherits from**: `apps/web/CLAUDE.md`
+> **Stack**: React 19, Vite, TypeScript 5, Tailwind CSS 4, TanStack Query
+> **Port**: 3002
+> **Type**: SPA (Single-Page Application)
+> **Users**: Active borrowers, applicants
 
 ---
 
-## 🤖 INTELLIGENT 3-TIER MODEL ROUTING (ADR-026)
+## APPLICATION CONTEXT
 
-| Tier | Handler | Latency | Cost | Use Cases |
-|------|---------|---------|------|-----------|
-| **1** | Agent Booster | <1ms | $0 | Simple transforms |
-| **2** | Haiku | ~500ms | $0.0002 | Simple tasks, bug fixes |
-| **3** | Sonnet/Opus | 2-5s | $0.003-$0.015 | Complex reasoning |
+### Purpose
+The Borrower Portal provides active borrowers with secure self-service access to application status, document management, messaging with loan officers, and rate lock management.
 
----
+### Key Features
+- Application status tracking with timeline
+- Secure document upload and management
+- e-Signature integration
+- Real-time messaging with loan officers
+- Rate lock management
+- Profile and settings management
+- Secure data access with encryption
+- Mobile-responsive design
 
-## 🛡️ ANTI-DRIFT CONFIG (PREFERRED)
-
-```bash
-npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 5 --strategy specialized
+### Architecture
+```
+React SPA (Vite)
+    ├── Dashboard
+    ├── Applications
+    ├── Documents
+    ├── Messages
+    └── Settings
+         ↓
+Backend APIs (8000)
+    ├── Authentication
+    ├── Application data
+    ├── Documents
+    └── Messages
 ```
 
 ---
 
-## 🔄 AUTO-START SWARM PROTOCOL
+## TECH STACK SPECIFICS
 
-Spawn agents in background and WAIT.
+### Vite Configuration
+```typescript
+// vite.config.ts
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
 
----
-
-## ⏸️ CRITICAL: Spawn and Wait Pattern
-
-1. **TELL USER** - List concurrent tasks
-2. **STOP** - No more tool calls
-3. **WAIT** - Let agents work
-4. **RESPOND** - Synthesize results
-
----
-
-## 🧠 AUTO-LEARNING PROTOCOL
-
-### Before Task
-```bash
-npx @claude-flow/cli@latest memory search --query '[keywords]' --namespace patterns
+export default defineConfig({
+  plugins: [react()],
+  server: {
+    port: 3002,
+    proxy: {
+      '/api': 'http://localhost:8000',
+    },
+  },
+  build: {
+    target: 'ES2020',
+    outDir: 'dist',
+    sourcemap: process.env.NODE_ENV === 'development',
+  },
+});
 ```
 
-### After Task
-```bash
-npx @claude-flow/cli@latest memory store --namespace patterns --key '[pattern]' --value '[result]'
-npx @claude-flow/cli@latest hooks post-task --task-id '[id]' --success true --store-results true
+### State Management (Zustand + React Query)
+```typescript
+// stores/authStore.ts
+import { create } from 'zustand';
+
+interface AuthStore {
+  user: User | null;
+  login: (credentials: Credentials) => Promise<void>;
+  logout: () => void;
+  isAuthenticated: boolean;
+}
+
+export const useAuthStore = create<AuthStore>((set) => ({
+  user: null,
+  isAuthenticated: false,
+  login: async (credentials) => {
+    // Login logic
+  },
+  logout: () => set({ user: null, isAuthenticated: false }),
+}));
+```
+
+### Component Structure
+```
+components/
+├── Layout
+│   ├── Navbar.tsx
+│   ├── Sidebar.tsx
+│   └── Footer.tsx
+├── Dashboard
+│   ├── Dashboard.tsx
+│   ├── StatusCard.tsx
+│   └── QuickLinks.tsx
+├── Applications
+│   ├── ApplicationList.tsx
+│   ├── ApplicationDetail.tsx
+│   └── Timeline.tsx
+├── Documents
+│   ├── DocumentUpload.tsx
+│   ├── DocumentList.tsx
+│   └── DocumentViewer.tsx
+├── Messages
+│   ├── MessageThread.tsx
+│   ├── MessageList.tsx
+│   └── MessageComposer.tsx
+└── Auth
+    ├── LoginPage.tsx
+    ├── RegisterPage.tsx
+    └── PasswordReset.tsx
 ```
 
 ---
 
-## 🚀 V3 CLI Commands (26 Commands, 140+ Subcommands)
+## AUTHENTICATION
 
-```bash
-npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 5
-npx @claude-flow/cli@latest memory store --key "pattern" --value "content"
-npx @claude-flow/cli@latest memory search --query "search term"
-npx @claude-flow/cli@latest hooks pre-task --description "[task]"
-npx @claude-flow/cli@latest hooks post-task --task-id "[id]" --success true
+### JWT Token Handling
+```typescript
+// lib/auth.ts
+export class AuthService {
+  static async login(email: string, password: string) {
+    const response = await fetch('/api/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({ email, password }),
+    });
+
+    const { accessToken, refreshToken } = await response.json();
+
+    localStorage.setItem('accessToken', accessToken);
+    localStorage.setItem('refreshToken', refreshToken);
+
+    return { accessToken, refreshToken };
+  }
+
+  static async refreshToken() {
+    const refreshToken = localStorage.getItem('refreshToken');
+
+    const response = await fetch('/api/auth/refresh', {
+      method: 'POST',
+      body: JSON.stringify({ refreshToken }),
+    });
+
+    const { accessToken } = await response.json();
+    localStorage.setItem('accessToken', accessToken);
+
+    return accessToken;
+  }
+
+  static logout() {
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+  }
+}
+```
+
+### API Client with Auth
+```typescript
+// lib/apiClient.ts
+import axios, { AxiosError } from 'axios';
+
+export const apiClient = axios.create({
+  baseURL: process.env.REACT_APP_API_URL,
+});
+
+apiClient.interceptors.request.use((config) => {
+  const token = localStorage.getItem('accessToken');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+apiClient.interceptors.response.use(
+  (response) => response,
+  async (error: AxiosError) => {
+    if (error.response?.status === 401) {
+      const newToken = await AuthService.refreshToken();
+      if (newToken) {
+        // Retry request with new token
+      }
+    }
+    return Promise.reject(error);
+  }
+);
 ```
 
 ---
 
-## 🚀 Available Agents (60+ Types)
+## DATA FETCHING (React Query)
 
-- `coder`: Webapp feature implementation
-- `reviewer`: Code quality and security review
-- `tester`: E2E and component testing
-- `frontend-specialist`: React/Vite optimization
-- `ux-designer`: Borrower experience design
-- `performance-engineer`: Speed optimization
+### Application Queries
+```typescript
+// hooks/useApplications.ts
+import { useQuery } from '@tanstack/react-query';
 
----
+export function useApplications() {
+  return useQuery({
+    queryKey: ['applications'],
+    queryFn: async () => {
+      const response = await apiClient.get('/applications');
+      return response.data;
+    },
+  });
+}
 
-## 🪝 V3 Hooks System (27 Hooks + 12 Workers)
+export function useApplicationDetail(applicationId: string) {
+  return useQuery({
+    queryKey: ['applications', applicationId],
+    queryFn: async () => {
+      const response = await apiClient.get(`/applications/${applicationId}`);
+      return response.data;
+    },
+  });
+}
+```
 
-```bash
-npx @claude-flow/cli@latest hooks pre-task --description "borrower portal feature"
-npx @claude-flow/cli@latest hooks post-edit --file "webapp.tsx" --train-neural true
+### Document Mutations
+```typescript
+// hooks/useUploadDocument.ts
+import { useMutation } from '@tanstack/react-query';
+
+export function useUploadDocument() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (file: File, applicationId: string) => {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await apiClient.post(
+        `/applications/${applicationId}/documents`,
+        formData,
+        {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        }
+      );
+
+      return response.data;
+    },
+    onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ['documents', variables],
+      });
+    },
+  });
+}
 ```
 
 ---
 
-## 📝 Memory Commands Reference
+## TESTING STRATEGY (TDD)
 
-```bash
-npx @claude-flow/cli@latest memory store --key "webapp-pattern" --value "content" --namespace patterns
-npx @claude-flow/cli@latest memory search --query "borrower portal features" --namespace patterns
-npx @claude-flow/cli@latest memory retrieve --key "pattern" --namespace patterns
+### Unit Tests
+```typescript
+// __tests__/utils/calculation.test.ts
+describe('Mortgage calculations', () => {
+  it('calculates monthly payment correctly', () => {
+    const payment = calculateMonthlyPayment({
+      principal: 300000,
+      annualRate: 0.065,
+      years: 30,
+    });
+
+    expect(payment).toBeCloseTo(1896.2, 1);
+  });
+});
+```
+
+### Component Tests
+```typescript
+// __tests__/components/ApplicationCard.test.tsx
+import { render, screen } from '@testing-library/react';
+import { ApplicationCard } from '@/components/ApplicationCard';
+
+describe('ApplicationCard', () => {
+  it('displays application status', () => {
+    const app = {
+      id: '1',
+      status: 'IN_REVIEW',
+      loanAmount: 300000,
+    };
+
+    render(<ApplicationCard application={app} />);
+
+    expect(screen.getByText('In Review')).toBeInTheDocument();
+    expect(screen.getByText('$300,000')).toBeInTheDocument();
+  });
+});
+```
+
+### E2E Tests
+```typescript
+// e2e/borrower-flow.spec.ts
+import { test, expect } from '@playwright/test';
+
+test('Borrower views application status', async ({ page }) => {
+  await page.goto('http://localhost:3002/login');
+
+  await page.fill('input[name="email"]', 'borrower@example.com');
+  await page.fill('input[name="password"]', 'password123');
+  await page.click('button:has-text("Login")');
+
+  await expect(page).toHaveURL('http://localhost:3002/dashboard');
+
+  await page.click('button:has-text("View Application")');
+  await expect(page.locator('text=Application Status')).toBeVisible();
+});
 ```
 
 ---
 
-## 🚨 CRITICAL: CONCURRENT EXECUTION & FILE MANAGEMENT
-
-**GOLDEN RULE: "1 MESSAGE = ALL RELATED OPERATIONS"**
-
----
-
-**Profile**: react-typescript
-**Generated**: 2026-01-09
-
-## 🎯 Project Overview
-
-Main web application for mortgage customers
-
-## 🏗️ Architecture
-
-**Tech Stack**: React 18, TypeScript, Vite, Tailwind CSS
-**Port**: 3002
-**Type**: React SPA
-
-## 📋 Development Commands
+## DEVELOPMENT COMMANDS
 
 ```bash
 # Development
@@ -130,254 +326,59 @@ pnpm dev
 # Build
 pnpm build
 
-# Test
-pnpm test
+# Preview production build
+pnpm preview
 
-# Lint
+# Type check
+pnpm type-check
+
+# Lint and format
 pnpm lint
-```
+pnpm format
 
-## 🧠 Claude Flow V3 Integration
+# Testing
+pnpm test
+pnpm test:watch
+pnpm test:coverage
 
-### 3-Tier Model Routing
-
-```bash
-npx @claude-flow/cli@latest hooks pre-task \
-  --description "Borrower portal feature development"
-```
-
-### Available Agents
-
-- **coder**: Webapp feature implementation
-- **reviewer**: Code quality and security review
-- **tester**: E2E and component testing
-- **frontend-specialist**: React/Vite optimization
-- **ux-designer**: Borrower experience design
-
-### Recommended Workflows
-
-**1. Borrower Feature Development**
-```bash
-# Initialize swarm for borrower features
-npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 5 --strategy specialized
-
-# Store borrower context
-npx @claude-flow/cli@latest memory store \
-  --namespace webapp \
-  --key "features/borrower-portal" \
-  --value "Self-service borrower features and workflows"
-```
-
-**2. User Flow Optimization**
-```bash
-# Search for UX patterns
-npx @claude-flow/cli@latest memory search \
-  --query "borrower self-service mortgage application" \
-  --namespace patterns
-
-# Store successful flow
-npx @claude-flow/cli@latest hooks post-task \
-  --task-id "ux-opt-001" \
-  --success true \
-  --store-results true
-```
-
-**3. Performance Optimization**
-```bash
-# Run performance benchmarks
-npx @claude-flow/cli@latest performance benchmark --suite webapp
-
-# Analyze and optimize
-npx @claude-flow/cli@latest hooks worker dispatch --trigger optimize
-```
-
-**4. Accessibility Improvements**
-```bash
-# Check accessibility patterns
-npx @claude-flow/cli@latest memory search \
-  --query "wcag accessibility borrower portal" \
-  --namespace patterns
-```
-
-### Auto-Learning Protocol
-
-**Before Development**:
-```bash
-npx @claude-flow/cli@latest memory search \
-  --query "borrower portal features mortgage" \
-  --namespace patterns
-```
-
-**After Successful Implementation**:
-```bash
-npx @claude-flow/cli@latest memory store \
-  --namespace patterns \
-  --key "webapp-success-$(date +%Y%m%d)" \
-  --value "Implemented borrower [feature] successfully"
-
-npx @claude-flow/cli@latest neural train \
-  --pattern-type borrower-workflows \
-  --epochs 10
+# E2E tests
+pnpm e2e
+pnpm e2e:debug
 ```
 
 ---
 
-## 🛠️ Tech Stack Specific Guidelines
+## DEPLOYMENT
 
-## React + TypeScript Development Guidelines
+### Environment Variables
+```bash
+VITE_API_URL=http://localhost:8000
+VITE_ENVIRONMENT=development
 
-### Project Structure
-```
-src/
-├── components/       # Reusable UI components
-├── features/        # Feature-specific modules
-├── hooks/           # Custom React hooks
-├── utils/           # Utility functions
-├── types/           # TypeScript type definitions
-├── api/             # API client and services
-└── App.tsx          # Root component
+# Production
+VITE_API_URL=https://api.nyra.com
+VITE_ENVIRONMENT=production
 ```
 
-### Component Patterns
-```typescript
-// Functional Components with Props
-interface ButtonProps {
-  onClick: () => void;
-  children: React.ReactNode;
-  variant?: 'primary' | 'secondary';
-}
+### Docker
+```dockerfile
+FROM node:20-alpine AS builder
+WORKDIR /app
+COPY package.json pnpm-lock.yaml ./
+RUN npm install -g pnpm && pnpm install
+COPY . .
+RUN pnpm build
 
-export const Button: React.FC<ButtonProps> = ({
-  onClick,
-  children,
-  variant = 'primary'
-}) => {
-  return <button onClick={onClick} className={variant}>{children}</button>;
-};
+FROM node:20-alpine
+WORKDIR /app
+COPY --from=builder /app/dist dist
+RUN npm install -g serve
+EXPOSE 3002
+CMD ["serve", "-s", "dist", "-l", "3002"]
 ```
-
-### State Management
-- Use React Context for global state
-- Custom hooks for shared logic
-- Consider Zustand for complex state
-- useReducer for complex component state
-
-### Custom Hooks
-```typescript
-export function useApi<T>(endpoint: string) {
-  const [data, setData] = useState<T | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
-
-  useEffect(() => {
-    fetchData();
-  }, [endpoint]);
-
-  return { data, loading, error };
-}
-```
-
-### Type Safety
-- Define prop interfaces explicitly
-- Use discriminated unions for variants
-- Leverage TypeScript generics
-- Strict null checks enabled
-
-### Performance Optimization
-- React.memo for expensive components
-- useMemo for expensive calculations
-- useCallback for stable function references
-- Code splitting with React.lazy
-
-### Testing
-- Jest + React Testing Library
-- Test component behavior, not implementation
-- Mock external dependencies
-- Test custom hooks with renderHook
-
-### Best Practices
-- Single Responsibility Principle
-- Composition over inheritance
-- Keep components pure when possible
-- Use TypeScript strict mode
-- Follow React hooks rules
-
 
 ---
 
-## 🎯 Borrower Portal Features
-
-### Core Functionality
-- **Application Status**: Real-time loan application tracking
-- **Document Upload**: Secure document submission with progress
-- **Secure Messaging**: Direct communication with loan officer
-- **Rate Lock**: View and manage rate lock status
-- **Milestone Tracking**: Visualize loan process progress
-- **Profile Management**: Update contact info and preferences
-
-### User Experience Priorities
-- **Mobile-First**: 70% of borrowers use mobile devices
-- **Simplicity**: Clear, jargon-free language
-- **Progress Indicators**: Always show where borrower is in process
-- **Help & Support**: Contextual help and FAQ access
-- **Notifications**: Email/SMS for important updates
-
-### Security & Privacy
-- **Authentication**: Secure login with MFA option
-- **Data Encryption**: All PII encrypted at rest and in transit
-- **Session Management**: Auto-logout after inactivity
-- **Document Security**: Encrypted document storage
-- **Privacy Controls**: GDPR/CCPA compliant data management
-
-## 🔄 Integration Points
-
-### Quote Engine (8001)
-- Loan application data
-- Rate information retrieval
-- Pre-qualification calculations
-
-### TwentyCRM (3000)
-- Borrower profile and contact info
-- Loan officer assignment
-- Application status updates
-
-### Campaign Engine (8002)
-- Notification preferences
-- Drip campaign opt-in/out
-
-### Mem0 (4321)
-- Conversation history with loan officer
-- Document upload history
-- Activity timeline
-
-## 📈 Performance & Accessibility
-
-### Performance Targets
-- **First Load**: < 2s
-- **Page Transitions**: < 500ms
-- **Document Upload**: Progress indicators for all uploads
-- **API Response**: < 1s for data fetching
-
-### Accessibility Requirements
-- **WCAG 2.1 Level AA**: Full compliance
-- **Screen Readers**: Semantic HTML and ARIA labels
-- **Keyboard Navigation**: Complete keyboard accessibility
-- **Color Contrast**: 4.5:1 minimum ratio
-- **Focus Indicators**: Clear focus states
-
-## 📚 Related Documentation
-
-- **Root CLAUDE.md**: V3 orchestration patterns
-- **apps/web/CLAUDE.md**: Web ecosystem overview
-- **apps/web/crm/CLAUDE.md**: Loan officer CRM interface
-- **services/quote-engine/**: Backend loan processing
-
-## 📝 Notes
-
-- Self-service borrower portal for active mortgage applicants
-- React 18 + Vite for fast SPA performance
-- Tailwind CSS for responsive design
-- Focus on mobile experience (70% mobile users)
-- Claude Flow V3 integrated development
-- Security and privacy are paramount
-- Accessibility compliant (WCAG 2.1 AA)
+**Profile**: webapp
+**Generated**: 2026-01-26
+**Port**: 3002

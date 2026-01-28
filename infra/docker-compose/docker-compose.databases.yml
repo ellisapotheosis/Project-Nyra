@@ -43,7 +43,7 @@ services:
     volumes:
       - falkordb_data:/data
     ports:
-      - "${FALKORDB_PORT:-6380}:6379"
+      - "${FALKORDB_PORT:-6381}:6379"
     networks:
       - nyra-network
     healthcheck:

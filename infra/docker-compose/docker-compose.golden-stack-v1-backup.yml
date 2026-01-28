@@ -1,0 +1,362 @@
+# ============================================================================
+# Project Nyra - Golden Stack Architecture
+# ============================================================================
+# The optimized "Brain" for Project Nyra:
+#   - RuVector PostgreSQL: Internal pattern memory (Claude Flow native)
+#   - Archon: Management layer (UI + Tasks + Docs)
+#   - Zep + FalkorDB: Episodic memory (history + facts + graph knowledge)
+#   - Redis: Fast caching and session management
+#
+# This replaces the fragmented stack (Letta, Mem0, Qdrant, OpenMemory)
+#
+# Usage with Infisical:
+#   infisical run -- docker compose -f docker-compose.golden-stack.yml up -d
+# ============================================================================
+
+version: '3.8'
+
+networks:
+  nyra-network:
+    name: nyra-network
+    driver: bridge
+
+volumes:
+  ruvector_data:
+    name: nyra_ruvector_data
+    driver: local
+  falkordb_data:
+    name: nyra_falkordb_data
+    driver: local
+  redis_data:
+    name: nyra_redis_data
+    driver: local
+  archon_data:
+    name: nyra_archon_data
+    driver: local
+
+services:
+  # ==========================================================================
+  # RuVector PostgreSQL - Internal Pattern Memory
+  # ==========================================================================
+  # High-performance vector database with 77+ SQL functions
+  # Performance: ~61µs latency, 16,400 QPS with HNSW
+  # Features: Hyperbolic embeddings, GNN support, SIMD acceleration
+  # ==========================================================================
+  ruvector-postgres:
+    image: ruvnet/ruvector-postgres:latest
+    container_name: nyra-ruvector-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${RUVECTOR_POSTGRES_USER:-claude}
+      POSTGRES_PASSWORD: ${RUVECTOR_POSTGRES_PASSWORD:-claude-flow-secure}
+      POSTGRES_DB: ${RUVECTOR_POSTGRES_DB:-claude_flow}
+    ports:
+      - "${RUVECTOR_PORT:-5433}:5432"
+    volumes:
+      - ruvector_data:/var/lib/postgresql/data
+      - ../ruvector/scripts/init-db.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+    networks:
+      - nyra-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${RUVECTOR_POSTGRES_USER:-claude} -d ${RUVECTOR_POSTGRES_DB:-claude_flow}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    command: >
+      postgres
+      -c work_mem=256MB
+      -c maintenance_work_mem=512MB
+      -c shared_buffers=512MB
+      -c effective_cache_size=2GB
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 4G
+        reservations:
+          cpus: '1.0'
+          memory: 2G
+    labels:
+      - "com.nyra.service=ruvector-postgres"
+      - "com.nyra.category=memory"
+      - "com.nyra.stack=golden"
+
+  # ==========================================================================
+  # Redis - Fast Cache and Session Store
+  # ==========================================================================
+  redis:
+    image: redis:7-alpine
+    container_name: nyra-redis
+    restart: unless-stopped
+    command: >
+      redis-server
+      --requirepass ${REDIS_PASSWORD:-redis-secure-password}
+      --maxmemory ${REDIS_MAX_MEMORY:-2gb}
+      --maxmemory-policy allkeys-lru
+      --appendonly yes
+      --appendfsync everysec
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-redis-secure-password}
+    volumes:
+      - redis_data:/data
+    ports:
+      - "${REDIS_PORT:-6380}:6379"
+    networks:
+      - nyra-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 1G
+    labels:
+      - "com.nyra.service=redis"
+      - "com.nyra.category=cache"
+      - "com.nyra.stack=golden"
+
+  # ==========================================================================
+  # FalkorDB - Graph Database for Zep Knowledge Graph
+  # ==========================================================================
+  # High-performance graph database for temporal knowledge graphs
+  # Used by Zep for relationship tracking and context management
+  # ==========================================================================
+  falkordb:
+    image: falkordb/falkordb:latest
+    container_name: nyra-falkordb
+    restart: unless-stopped
+    command: >
+      redis-server
+      --requirepass ${FALKORDB_PASSWORD:-falkordb-secure-pass}
+      --appendonly yes
+      --appendfsync everysec
+      --maxmemory ${FALKORDB_MAX_MEMORY:-4gb}
+    environment:
+      REDIS_PASSWORD: ${FALKORDB_PASSWORD:-falkordb-secure-pass}
+    volumes:
+      - falkordb_data:/data
+    ports:
+      - "${FALKORDB_PORT:-6381}:6379"
+    networks:
+      - nyra-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${FALKORDB_PASSWORD:-falkordb-secure-pass}", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 4G
+        reservations:
+          cpus: '1.0'
+          memory: 2G
+    labels:
+      - "com.nyra.service=falkordb"
+      - "com.nyra.category=graph-database"
+      - "com.nyra.stack=golden"
+
+  # ==========================================================================
+  # Zep Knowledge Graph MCP - Episodic Memory Manager
+  # ==========================================================================
+  # Manages long-term conversation history, user facts, and relationships
+  # Connects to FalkorDB for graph-based knowledge storage
+  # MCP Server Port: 8000
+  # ==========================================================================
+  zep-mcp:
+    image: zepai/knowledge-graph-mcp:latest
+    container_name: nyra-zep-mcp
+    restart: unless-stopped
+    environment:
+      # Graph Database Connection
+      FALKORDB_HOST: falkordb
+      FALKORDB_PORT: 6379
+      FALKORDB_PASSWORD: ${FALKORDB_PASSWORD:-falkordb-secure-pass}
+
+      # Zep Configuration
+      ZEP_API_KEY: ${ZEP_API_KEY}
+      ZEP_GRAPH_NAME: ${ZEP_GRAPH_NAME:-nyra_knowledge}
+
+      # MCP Server Settings
+      MCP_PORT: 8000
+      MCP_HOST: 0.0.0.0
+
+      # LLM Settings (for embedding generation)
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      EMBEDDING_MODEL: ${ZEP_EMBEDDING_MODEL:-text-embedding-3-small}
+    ports:
+      - "${ZEP_MCP_PORT:-8000}:8000"
+    networks:
+      - nyra-network
+    depends_on:
+      falkordb:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 1G
+    labels:
+      - "com.nyra.service=zep-mcp"
+      - "com.nyra.category=mcp-server"
+      - "com.nyra.stack=golden"
+      - "com.nyra.mcp.role=episodic-memory"
+
+  # ==========================================================================
+  # Archon - Management Layer (UI + Tasks + Docs)
+  # ==========================================================================
+  # Project management, task tracking, and document search
+  # Replaces OpenMemory/Graphiti for document storage
+  # Ports: UI (3737), API (8181), MCP (8051)
+  # ==========================================================================
+
+  # Archon API Server
+  archon-api:
+    image: archon/api:latest
+    container_name: nyra-archon-api
+    restart: unless-stopped
+    environment:
+      # Supabase Connection
+      SUPABASE_URL: ${SUPABASE_URL}
+      SUPABASE_ANON_KEY: ${SUPABASE_ANON_KEY}
+      SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY}
+
+      # Database
+      DATABASE_URL: postgresql://${ARCHON_DB_USER:-archon}:${ARCHON_DB_PASSWORD}@ruvector-postgres:5432/${ARCHON_DB_NAME:-archon}
+
+      # API Settings
+      PORT: 8181
+      NODE_ENV: ${NODE_ENV:-production}
+
+      # Authentication
+      JWT_SECRET: ${ARCHON_JWT_SECRET}
+
+    ports:
+      - "${ARCHON_API_PORT:-8181}:8181"
+    networks:
+      - nyra-network
+    depends_on:
+      ruvector-postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8181/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    labels:
+      - "com.nyra.service=archon-api"
+      - "com.nyra.category=management"
+      - "com.nyra.stack=golden"
+
+  # Archon UI
+  archon-ui:
+    image: archon/ui:latest
+    container_name: nyra-archon-ui
+    restart: unless-stopped
+    environment:
+      VITE_API_URL: http://localhost:8181
+      VITE_SUPABASE_URL: ${SUPABASE_URL}
+      VITE_SUPABASE_ANON_KEY: ${SUPABASE_ANON_KEY}
+    ports:
+      - "${ARCHON_UI_PORT:-3737}:3737"
+    networks:
+      - nyra-network
+    depends_on:
+      - archon-api
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3737"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    labels:
+      - "com.nyra.service=archon-ui"
+      - "com.nyra.category=frontend"
+      - "com.nyra.stack=golden"
+
+  # Archon MCP Server
+  archon-mcp:
+    image: archon/mcp:latest
+    container_name: nyra-archon-mcp
+    restart: unless-stopped
+    environment:
+      # API Connection
+      ARCHON_API_URL: http://archon-api:8181
+      ARCHON_API_KEY: ${ARCHON_API_KEY}
+
+      # MCP Settings
+      MCP_PORT: 8051
+      MCP_HOST: 0.0.0.0
+
+      # Features
+      ENABLE_TASK_MANAGEMENT: "true"
+      ENABLE_DOC_SEARCH: "true"
+      ENABLE_PROJECT_TRACKING: "true"
+    ports:
+      - "${ARCHON_MCP_PORT:-8051}:8051"
+    networks:
+      - nyra-network
+    depends_on:
+      - archon-api
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8051/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    labels:
+      - "com.nyra.service=archon-mcp"
+      - "com.nyra.category=mcp-server"
+      - "com.nyra.stack=golden"
+      - "com.nyra.mcp.role=project-management"
+
+# ==========================================================================
+# Health Check Summary
+# ==========================================================================
+# Service              Port     Health Endpoint
+# -------------------  -------  ----------------------
+# ruvector-postgres    5433     pg_isready
+# redis                6380     redis-cli ping
+# falkordb             6381     redis-cli ping
+# zep-mcp              8000     /health
+# archon-api           8181     /health
+# archon-ui            3737     /
+# archon-mcp           8051     /health
+# ==========================================================================

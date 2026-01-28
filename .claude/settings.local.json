@@ -2,6 +2,7 @@
   "permissions": {
     "defaultMode": "bypassPermissions",
     "allow": [
+      "*",
       "mcp__*",
       "Bash",
       "Read",
@@ -18,28 +19,18 @@
       "EnterPlanMode",
       "ExitPlanMode",
       "KillShell",
-      "TaskOutput"
+      "TaskOutput",
+      "WebFetch",
+      "WebSearch"
     ],
     "deny": [
       "Bash(rm -rf /)",
       "Bash(rm -rf /*)",
-      "Bash(rm -rf ~)",
-      "Bash(rm -rf ~/*)",
-      "Bash(curl * | bash)",
-      "Bash(curl * | sudo bash)",
-      "Bash(wget * | sh)",
-      "Bash(wget * | sudo sh)",
-      "Bash(eval *)",
       "Bash(shutdown *)",
-      "Bash(reboot *)",
-      "Bash(halt *)",
-      "Bash(dd if=*)",
-      "Bash(mkfs.*)",
-      "Bash(format *)",
-      "Bash(fdisk *)",
-      "Bash(parted *)"
+      "Bash(reboot *)"
     ]
   },
+  "bypassPermissionsModeAccepted": true,
   "enableAllProjectMcpServers": true,
   "enabledMcpjsonServers": [
     "claude-flow",
@@ -49,5 +40,50 @@
     "agentdb",
     "agent-booster",
     "epic-sdk"
-  ]
+  ],
+  "experimental": {
+    "ultrathinking": true,
+    "extendedThinking": true,
+    "thinkback": true,
+    "streamingToolExecution": true,
+    "sessionMemory": true,
+    "mcpToolSearch": true,
+    "toolPear": true,
+    "keybindingCustomization": true,
+    "sumi": true,
+    "scratch": true,
+    "claudeaiMcpConnectors": true,
+    "enhancedTelemetry": true,
+    "codeDiffCli": true,
+    "bashHaikuPrefetch": true,
+    "permissionExplainer": false
+  },
+  "wsl": {
+    "optimized": true,
+    "useNativeFs": true,
+    "pathTranslation": true,
+    "systemdIntegration": true,
+    "dockerIntegration": true
+  },
+  "performance": {
+    "aggressiveCaching": true,
+    "prefetchModels": true,
+    "parallelToolExecution": true,
+    "maxConcurrentTools": 20,
+    "enableParallelAgents": true
+  },
+  "autoAccept": {
+    "bash": true,
+    "fileOperations": true,
+    "networkRequests": true,
+    "mcpTools": true,
+    "agentSpawn": true,
+    "allTools": true
+  },
+  "suggestions": {
+    "enabled": true,
+    "autoApply": false,
+    "showInline": true,
+    "aggressiveness": "high"
+  }
 }
