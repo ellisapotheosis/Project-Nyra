@@ -36,11 +36,12 @@ services:
     ports:
       - "${NEXUS_PORT:-6000}:3000"
     volumes:
-      - ../../configs/nexus/nexus.toml:/etc/nexus.toml:ro
+      - ../configs/nexus/nexus-minimal.toml:/etc/nexus.toml:ro
     environment:
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
       - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
       - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      - NEXUS_JWT_SECRET=${NEXUS_JWT_SECRET}
     networks:
       - nyra-network
     depends_on:

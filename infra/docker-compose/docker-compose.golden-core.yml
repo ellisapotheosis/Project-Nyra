@@ -1,0 +1,111 @@
+# Golden Stack Core - Available Components Only
+# RuVector + Zep + FalkorDB + Redis
+# (Archon images don't exist - will need to build from source)
+
+version: '3.8'
+
+networks:
+  nyra-network:
+    name: nyra-network
+    external: true
+
+volumes:
+  ruvector_data:
+  falkordb_data:
+  redis_data:
+
+services:
+  # RuVector PostgreSQL
+  ruvector-postgres:
+    image: ruvnet/ruvector-postgres:latest
+    container_name: nyra-ruvector
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${RUVECTOR_POSTGRES_USER:-claude}
+      POSTGRES_PASSWORD: ${RUVECTOR_POSTGRES_PASSWORD:-claude-flow-secure}
+      POSTGRES_DB: ${RUVECTOR_POSTGRES_DB:-claude_flow}
+    ports:
+      - "5433:5432"
+    volumes:
+      - ruvector_data:/var/lib/postgresql/data
+      - ../ruvector/scripts/init-db.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+    networks:
+      - nyra-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U claude -d claude_flow"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    command: >
+      postgres
+      -c work_mem=256MB
+      -c maintenance_work_mem=512MB
+      -c shared_buffers=512MB
+      -c effective_cache_size=2GB
+
+  # Redis
+  redis:
+    image: redis:7-alpine
+    container_name: nyra-redis-golden
+    restart: unless-stopped
+    command: >
+      redis-server
+      --requirepass ${REDIS_PASSWORD:-redis-secure-password}
+      --maxmemory 2gb
+      --maxmemory-policy allkeys-lru
+      --appendonly yes
+    ports:
+      - "6380:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - nyra-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  # FalkorDB
+  falkordb:
+    image: falkordb/falkordb:latest
+    container_name: nyra-falkordb-golden
+    restart: unless-stopped
+    command: >
+      redis-server
+      --requirepass ${FALKORDB_PASSWORD:-falkordb-secure}
+      --appendonly yes
+      --maxmemory 4gb
+    ports:
+      - "6381:6379"
+    volumes:
+      - falkordb_data:/data
+    networks:
+      - nyra-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "falkordb-secure", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  # Zep
+  zep:
+    image: zepai/zep:latest
+    container_name: nyra-zep
+    restart: unless-stopped
+    environment:
+      ZEP_CONFIG_FILE: /config.yaml
+    volumes:
+      - ../configs/zep/config.yaml:/config.yaml:ro
+    ports:
+      - "8000:8000"
+    networks:
+      - nyra-network
+    depends_on:
+      - falkordb
+      - ruvector-postgres
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
