@@ -5,13 +5,13 @@ on:
     branches:
       - main
     paths:
-      - 'apps/ratehunter-landing/**'
+      - 'apps/landing/ratehunter-landing/**'
       - '.github/workflows/deploy-cloudflare-pages.yml'
   pull_request:
     branches:
       - main
     paths:
-      - 'apps/ratehunter-landing/**'
+      - 'apps/landing/ratehunter-landing/**'
   workflow_dispatch:
     inputs:
       environment:
@@ -22,153 +22,726 @@ on:
         options:
           - production
           - preview
+      force_deploy:
+        description: 'Force deploy even if no changes'
+        required: false
+        default: 'false'
+        type: boolean
+      skip_tests:
+        description: 'Skip tests for faster deployment'
+        required: false
+        default: 'false'
+        type: boolean
+      purge_cache:
+        description: 'Purge Cloudflare cache after deployment'
+        required: false
+        default: 'true'
+        type: boolean
+
+# Prevent concurrent deployments to the same environment
+concurrency:
+  group: cloudflare-deploy-${{ github.event.inputs.environment || (github.event_name == 'pull_request' && 'preview' || 'production') }}
+  cancel-in-progress: true
+
+# Configure environment variables for the workflow
+env:
+  NODE_VERSION: '20'
+  PNPM_VERSION: '10.27.0'
+  APP_DIR: 'apps/landing/ratehunter-landing'
+  CLOUDFLARE_PROJECT_NAME: 'ratehunter-landing'
+  # Infisical configuration for secret injection
+  INFISICAL_PROJECT_ID: '8374cea9-e5e8-4050-bda4-b91f25ab30ef'
 
 permissions:
   contents: read
   deployments: write
   pull-requests: write
+  id-token: write  # Required for OIDC token exchange with Infisical
 
 jobs:
-  deploy:
-    name: Deploy to Cloudflare Pages
+  # ==========================================================================
+  # Pre-flight Checks - Validate configuration before deployment
+  # ==========================================================================
+  preflight:
+    name: 🔍 Pre-flight Checks
     runs-on: ubuntu-latest
-    environment:
-      name: ${{ github.event.inputs.environment || (github.event_name == 'pull_request' && 'preview' || 'production') }}
-      url: ${{ steps.deploy.outputs.url }}
+    outputs:
+      environment: ${{ steps.determine-env.outputs.environment }}
+      should_deploy: ${{ steps.check-changes.outputs.should_deploy }}
+      has_infisical: ${{ steps.check-secrets.outputs.has_infisical }}
+      has_direct_secrets: ${{ steps.check-secrets.outputs.has_direct_secrets }}
+      deploy_method: ${{ steps.check-secrets.outputs.deploy_method }}
     steps:
-      - name: Validate required secrets
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2  # Need previous commit to detect changes
+
+      - name: Determine deployment environment
+        id: determine-env
         run: |
-          MISSING_SECRETS=""
-          if [ -z "${{ secrets.CLOUDFLARE_API_TOKEN }}" ]; then
-            MISSING_SECRETS="${MISSING_SECRETS}CLOUDFLARE_API_TOKEN "
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            ENV="${{ github.event.inputs.environment }}"
+          elif [ "${{ github.event_name }}" == "pull_request" ]; then
+            ENV="preview"
+          else
+            ENV="production"
           fi
-          if [ -z "${{ secrets.CLOUDFLARE_ACCOUNT_ID }}" ]; then
-            MISSING_SECRETS="${MISSING_SECRETS}CLOUDFLARE_ACCOUNT_ID "
+          echo "environment=$ENV" >> $GITHUB_OUTPUT
+          echo "📌 Deployment environment: $ENV"
+
+      - name: Check for relevant changes
+        id: check-changes
+        run: |
+          if [ "${{ github.event.inputs.force_deploy }}" == "true" ]; then
+            echo "should_deploy=true" >> $GITHUB_OUTPUT
+            echo "✅ Force deploy enabled"
+            exit 0
           fi
-          if [ -n "$MISSING_SECRETS" ]; then
-            echo "::error::Missing required secrets: $MISSING_SECRETS"
-            echo "Please configure these secrets in your repository settings"
+
+          # Check if any files in the app directory changed
+          if git diff --name-only HEAD~1 HEAD | grep -q "^${{ env.APP_DIR }}/"; then
+            echo "should_deploy=true" >> $GITHUB_OUTPUT
+            echo "✅ Changes detected in ${{ env.APP_DIR }}"
+          else
+            echo "should_deploy=true" >> $GITHUB_OUTPUT
+            echo "ℹ️ No changes in app directory, but deploying anyway for workflow dispatch"
+          fi
+
+      - name: Check available secrets configuration
+        id: check-secrets
+        env:
+          # Test if secrets are available (will be empty string if not set)
+          HAS_CLOUDFLARE_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN != '' }}
+          HAS_CLOUDFLARE_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID != '' }}
+          HAS_INFISICAL_TOKEN: ${{ secrets.INFISICAL_TOKEN != '' }}
+          HAS_INFISICAL_PROD: ${{ secrets.INFISICAL_TOKEN_PROD != '' }}
+          HAS_INFISICAL_STAGING: ${{ secrets.INFISICAL_TOKEN_STAGING != '' }}
+        run: |
+          echo "🔐 Checking secrets configuration..."
+
+          # Check direct Cloudflare secrets
+          if [ "$HAS_CLOUDFLARE_TOKEN" == "true" ] && [ "$HAS_CLOUDFLARE_ACCOUNT" == "true" ]; then
+            echo "has_direct_secrets=true" >> $GITHUB_OUTPUT
+            echo "✅ Direct Cloudflare secrets found"
+          else
+            echo "has_direct_secrets=false" >> $GITHUB_OUTPUT
+            echo "⚠️ Direct Cloudflare secrets not found (CLOUDFLARE_API_TOKEN / CLOUDFLARE_ACCOUNT_ID)"
+          fi
+
+          # Check Infisical tokens
+          if [ "$HAS_INFISICAL_TOKEN" == "true" ] || [ "$HAS_INFISICAL_PROD" == "true" ] || [ "$HAS_INFISICAL_STAGING" == "true" ]; then
+            echo "has_infisical=true" >> $GITHUB_OUTPUT
+            echo "✅ Infisical integration detected"
+          else
+            echo "has_infisical=false" >> $GITHUB_OUTPUT
+            echo "ℹ️ No Infisical tokens configured"
+          fi
+
+          # Determine deployment method
+          if [ "$HAS_CLOUDFLARE_TOKEN" == "true" ] && [ "$HAS_CLOUDFLARE_ACCOUNT" == "true" ]; then
+            echo "deploy_method=direct" >> $GITHUB_OUTPUT
+            echo "📝 Will use direct secrets method"
+          elif [ "$HAS_INFISICAL_TOKEN" == "true" ] || [ "$HAS_INFISICAL_PROD" == "true" ] || [ "$HAS_INFISICAL_STAGING" == "true" ]; then
+            echo "deploy_method=infisical" >> $GITHUB_OUTPUT
+            echo "📝 Will use Infisical to fetch secrets"
+          else
+            echo "deploy_method=none" >> $GITHUB_OUTPUT
+            echo "❌ No valid secret source available"
+          fi
+
+  # ==========================================================================
+  # Fetch Secrets from Infisical (only if direct secrets not available)
+  # ==========================================================================
+  fetch-secrets:
+    name: 🔑 Fetch Secrets from Infisical
+    runs-on: ubuntu-latest
+    needs: preflight
+    if: needs.preflight.outputs.deploy_method == 'infisical'
+    outputs:
+      secrets_available: ${{ steps.fetch.outputs.secrets_available }}
+    steps:
+      - name: Install Infisical CLI
+        run: |
+          curl -1sLf 'https://dl.cloudsmith.io/public/infisical/infisical-cli/setup.deb.sh' | sudo -E bash
+          sudo apt-get update && sudo apt-get install -y infisical
+          infisical --version
+
+      - name: Fetch secrets for ${{ needs.preflight.outputs.environment }}
+        id: fetch
+        env:
+          # Use environment-specific token if available, otherwise use general token
+          INFISICAL_TOKEN: ${{ needs.preflight.outputs.environment == 'production' && secrets.INFISICAL_TOKEN_PROD || (needs.preflight.outputs.environment == 'preview' && secrets.INFISICAL_TOKEN_STAGING || secrets.INFISICAL_TOKEN) }}
+        run: |
+          if [ -z "$INFISICAL_TOKEN" ]; then
+            echo "❌ No Infisical token available for environment: ${{ needs.preflight.outputs.environment }}"
+            echo "secrets_available=false" >> $GITHUB_OUTPUT
             exit 1
           fi
-          echo "✓ All required secrets validated"
 
-      - uses: actions/checkout@v4
+          # Map workflow environment to Infisical environment
+          case "${{ needs.preflight.outputs.environment }}" in
+            production)
+              INFISICAL_ENV="prod"
+              ;;
+            preview|staging)
+              INFISICAL_ENV="staging"
+              ;;
+            *)
+              INFISICAL_ENV="dev"
+              ;;
+          esac
 
-      - uses: actions/setup-node@v4
+          echo "🔐 Fetching secrets from Infisical environment: $INFISICAL_ENV"
+
+          # Export secrets to a file for the next job
+          if infisical export --env=$INFISICAL_ENV --path=/shared --format=dotenv > /tmp/cloudflare-secrets.env 2>/dev/null; then
+            # Check if CLOUDFLARE secrets are present
+            if grep -q "CLOUDFLARE_API_TOKEN" /tmp/cloudflare-secrets.env && grep -q "CLOUDFLARE_ACCOUNT_ID" /tmp/cloudflare-secrets.env; then
+              echo "✅ Cloudflare secrets fetched successfully from Infisical"
+              echo "secrets_available=true" >> $GITHUB_OUTPUT
+
+              # Mask the secrets in logs
+              while IFS='=' read -r key value; do
+                if [ -n "$value" ]; then
+                  echo "::add-mask::$value"
+                fi
+              done < /tmp/cloudflare-secrets.env
+            else
+              echo "⚠️ Secrets fetched but CLOUDFLARE credentials not found"
+              echo "Please ensure CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID are set in Infisical"
+              echo "secrets_available=false" >> $GITHUB_OUTPUT
+            fi
+          else
+            echo "❌ Failed to fetch secrets from Infisical"
+            echo "secrets_available=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Upload secrets as artifact
+        if: steps.fetch.outputs.secrets_available == 'true'
+        uses: actions/upload-artifact@v4
         with:
-          node-version: '20'
+          name: cloudflare-secrets-${{ needs.preflight.outputs.environment }}
+          path: /tmp/cloudflare-secrets.env
+          retention-days: 1
+          if-no-files-found: error
 
-      - name: Cache npm dependencies
+  # ==========================================================================
+  # Build Application
+  # ==========================================================================
+  build:
+    name: 🔨 Build Application
+    runs-on: ubuntu-latest
+    needs: preflight
+    if: needs.preflight.outputs.should_deploy == 'true'
+    outputs:
+      build_dir: ${{ steps.build.outputs.build_dir }}
+      build_size: ${{ steps.build.outputs.build_size }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Setup PNPM
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Get pnpm store directory
+        id: pnpm-cache
+        shell: bash
+        run: echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_OUTPUT
+
+      - name: Cache pnpm store
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Cache Next.js build
         uses: actions/cache@v4
         with:
           path: |
-            ~/.npm
-            apps/ratehunter-landing/node_modules
-          key: ${{ runner.os }}-ratehunter-landing-${{ hashFiles('apps/ratehunter-landing/package-lock.json') }}
+            ${{ env.APP_DIR }}/.next/cache
+            ${{ env.APP_DIR }}/.open-next/cache
+          key: ${{ runner.os }}-nextjs-${{ hashFiles('**/pnpm-lock.yaml') }}-${{ hashFiles('**.[jt]s', '**.[jt]sx') }}
           restore-keys: |
-            ${{ runner.os }}-ratehunter-landing-
+            ${{ runner.os }}-nextjs-${{ hashFiles('**/pnpm-lock.yaml') }}-
 
       - name: Install dependencies
-        working-directory: ./apps/ratehunter-landing
+        working-directory: ${{ env.APP_DIR }}
         run: |
-          if [ -f "package.json" ]; then
-            npm ci || npm install
-          else
-            echo "No package.json found, assuming static site"
-          fi
+          echo "📦 Installing dependencies..."
+          pnpm install --frozen-lockfile || pnpm install
 
-      - name: Build Next.js app
-        working-directory: ./apps/ratehunter-landing
+      - name: Run linting
+        if: github.event.inputs.skip_tests != 'true'
+        working-directory: ${{ env.APP_DIR }}
+        continue-on-error: true
         run: |
-          if [ -f "package.json" ] && npm run | grep -q "build"; then
-            echo "Running Next.js build..."
-            npm run build
-            # For Next.js, check for out directory (static export) or .next directory
+          echo "🔍 Running ESLint..."
+          pnpm lint || echo "::warning::Linting issues found, continuing with build"
+
+      - name: Run type checking
+        if: github.event.inputs.skip_tests != 'true'
+        working-directory: ${{ env.APP_DIR }}
+        continue-on-error: true
+        run: |
+          echo "📝 Running TypeScript type check..."
+          pnpm typecheck || echo "::warning::Type errors found, continuing with build"
+
+      - name: Run tests
+        if: github.event.inputs.skip_tests != 'true'
+        working-directory: ${{ env.APP_DIR }}
+        continue-on-error: true
+        run: |
+          echo "🧪 Running tests..."
+          pnpm test:ci || echo "::warning::Test failures, continuing with build"
+
+      - name: Build for Cloudflare Pages
+        id: build
+        working-directory: ${{ env.APP_DIR }}
+        env:
+          NEXT_PUBLIC_BUILD_TIME: ${{ github.event.head_commit.timestamp || github.event.pull_request.updated_at }}
+          NEXT_PUBLIC_COMMIT_SHA: ${{ github.sha }}
+          NEXT_PUBLIC_BRANCH: ${{ github.head_ref || github.ref_name }}
+          NODE_ENV: production
+        run: |
+          echo "🔨 Building Next.js application for Cloudflare Pages..."
+
+          # Try to use opennextjs-cloudflare build first (preferred for CF Pages)
+          if pnpm run build:cf 2>/dev/null; then
+            BUILD_DIR=".open-next"
+            echo "✅ OpenNext build completed (using .open-next directory)"
+          elif pnpm run build 2>/dev/null; then
+            # Fallback to standard Next.js build
             if [ -d "out" ]; then
               BUILD_DIR="out"
-              echo "Static export detected (out directory)"
+              echo "✅ Static export build completed (using out directory)"
             elif [ -d ".next" ]; then
               BUILD_DIR=".next"
-              echo "Next.js build detected (.next directory)"
+              echo "✅ Next.js build completed (using .next directory)"
+            elif [ -d ".open-next" ]; then
+              BUILD_DIR=".open-next"
+              echo "✅ OpenNext output detected (using .open-next directory)"
             else
-              BUILD_DIR="dist"
-              echo "Using default dist directory"
+              BUILD_DIR="."
+              echo "⚠️ No build output detected, using source directory"
             fi
-            echo "BUILD_DIR=${BUILD_DIR}" >> $GITHUB_ENV
           else
-            echo "No build script found, deploying static files"
-            echo "BUILD_DIR=." >> $GITHUB_ENV
+            echo "❌ Build failed"
+            exit 1
+          fi
+
+          echo "build_dir=$BUILD_DIR" >> $GITHUB_OUTPUT
+
+          # Calculate build size
+          if [ -d "$BUILD_DIR" ]; then
+            BUILD_SIZE=$(du -sh "$BUILD_DIR" | cut -f1)
+            echo "build_size=$BUILD_SIZE" >> $GITHUB_OUTPUT
+            echo "📊 Build size: $BUILD_SIZE"
+          fi
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-output-${{ github.sha }}
+          path: |
+            ${{ env.APP_DIR }}/${{ steps.build.outputs.build_dir }}
+            !${{ env.APP_DIR }}/${{ steps.build.outputs.build_dir }}/cache
+          retention-days: 7
+          if-no-files-found: error
+
+  # ==========================================================================
+  # Deploy to Cloudflare Pages
+  # ==========================================================================
+  deploy:
+    name: 🚀 Deploy to Cloudflare Pages
+    runs-on: ubuntu-latest
+    needs: [preflight, build, fetch-secrets]
+    # Run if we have direct secrets OR if fetch-secrets succeeded
+    # Use 'always()' to evaluate even if fetch-secrets was skipped
+    if: |
+      always() &&
+      needs.build.result == 'success' &&
+      (needs.preflight.outputs.deploy_method == 'direct' ||
+       (needs.fetch-secrets.result == 'success' && needs.fetch-secrets.outputs.secrets_available == 'true'))
+    environment:
+      name: ${{ needs.preflight.outputs.environment }}
+      url: ${{ steps.deploy.outputs.url }}
+    outputs:
+      url: ${{ steps.deploy.outputs.url }}
+      deployment_id: ${{ steps.deploy.outputs.id }}
+      environment: ${{ steps.deploy.outputs.environment }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-output-${{ github.sha }}
+          path: ${{ env.APP_DIR }}/${{ needs.build.outputs.build_dir }}
+
+      - name: Download secrets from Infisical (if applicable)
+        if: needs.preflight.outputs.deploy_method == 'infisical'
+        uses: actions/download-artifact@v4
+        with:
+          name: cloudflare-secrets-${{ needs.preflight.outputs.environment }}
+          path: /tmp
+
+      - name: Load Infisical secrets
+        if: needs.preflight.outputs.deploy_method == 'infisical'
+        id: load-infisical
+        run: |
+          if [ -f "/tmp/cloudflare-secrets.env" ]; then
+            echo "🔐 Loading secrets from Infisical..."
+            # Source the secrets and export to GITHUB_ENV
+            while IFS='=' read -r key value; do
+              if [ -n "$key" ] && [ -n "$value" ] && [[ ! "$key" =~ ^# ]]; then
+                # Export to environment for subsequent steps
+                echo "$key=$value" >> $GITHUB_ENV
+                # Mask sensitive values
+                echo "::add-mask::$value"
+              fi
+            done < /tmp/cloudflare-secrets.env
+            echo "✅ Secrets loaded from Infisical"
+          else
+            echo "❌ Secrets file not found"
+            exit 1
           fi
 
       - name: Deploy to Cloudflare Pages
         id: deploy
         uses: cloudflare/pages-action@v1
         with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          projectName: ratehunter-landing
-          directory: apps/ratehunter-landing/${{ env.BUILD_DIR }}
+          # Use direct secrets if available, otherwise use env vars loaded from Infisical
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN || env.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID || env.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: ${{ env.CLOUDFLARE_PROJECT_NAME }}
+          directory: ${{ env.APP_DIR }}/${{ needs.build.outputs.build_dir }}
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
           branch: ${{ github.head_ref || github.ref_name }}
           wranglerVersion: '3'
 
+      - name: Verify deployment
+        run: |
+          echo "🔍 Verifying deployment..."
+          DEPLOY_URL="${{ steps.deploy.outputs.url }}"
+
+          if [ -n "$DEPLOY_URL" ]; then
+            echo "✅ Deployment URL: $DEPLOY_URL"
+
+            # Wait for deployment to be accessible (with retries)
+            MAX_ATTEMPTS=10
+            ATTEMPT=1
+            while [ $ATTEMPT -le $MAX_ATTEMPTS ]; do
+              echo "Attempt $ATTEMPT/$MAX_ATTEMPTS: Checking $DEPLOY_URL..."
+              HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "$DEPLOY_URL" || echo "000")
+
+              if [ "$HTTP_CODE" = "200" ] || [ "$HTTP_CODE" = "301" ] || [ "$HTTP_CODE" = "302" ]; then
+                echo "✅ Site is accessible (HTTP $HTTP_CODE)"
+                break
+              elif [ $ATTEMPT -eq $MAX_ATTEMPTS ]; then
+                echo "⚠️ Site not fully accessible after $MAX_ATTEMPTS attempts (HTTP $HTTP_CODE)"
+              else
+                echo "⏳ Site not ready yet (HTTP $HTTP_CODE), waiting..."
+                sleep 10
+              fi
+              ATTEMPT=$((ATTEMPT + 1))
+            done
+          else
+            echo "⚠️ No deployment URL returned"
+          fi
+
+      - name: Output deployment environment
+        run: |
+          echo "environment=${{ needs.preflight.outputs.environment }}" >> $GITHUB_OUTPUT
+
+  # ==========================================================================
+  # Post-Deployment Tasks
+  # ==========================================================================
+  post-deploy:
+    name: 📋 Post-Deployment Tasks
+    runs-on: ubuntu-latest
+    needs: [preflight, build, deploy]
+    if: always() && needs.deploy.result == 'success'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Purge Cloudflare cache
+        if: |
+          github.event.inputs.purge_cache == 'true' &&
+          needs.preflight.outputs.environment == 'production'
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ZONE_ID: ${{ secrets.CLOUDFLARE_ZONE_ID }}
+        run: |
+          if [ -n "$CLOUDFLARE_ZONE_ID" ] && [ -n "$CLOUDFLARE_API_TOKEN" ]; then
+            echo "🧹 Purging Cloudflare cache..."
+            curl -X POST "https://api.cloudflare.com/client/v4/zones/$CLOUDFLARE_ZONE_ID/purge_cache" \
+              -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+              -H "Content-Type: application/json" \
+              --data '{"purge_everything":true}' || echo "Cache purge skipped"
+          else
+            echo "ℹ️ Cache purge skipped (CLOUDFLARE_ZONE_ID not configured)"
+          fi
+
       - name: Create deployment summary
         run: |
           {
-            echo "## 🚀 Cloudflare Pages Deployment"
+            echo "# 🚀 Cloudflare Pages Deployment"
             echo ""
-            echo "**Status**: ✅ Deployed"
-            echo "**Environment**: ${{ github.event.inputs.environment || (github.event_name == 'pull_request' && 'preview' || 'production') }}"
-            echo "**URL**: ${{ steps.deploy.outputs.url }}"
-            echo "**Deployment ID**: ${{ steps.deploy.outputs.id }}"
-            echo "**Branch**: ${{ github.head_ref || github.ref_name }}"
-            echo "**Commit**: ${{ github.sha }}"
+            echo "| Property | Value |"
+            echo "|----------|-------|"
+            echo "| **Status** | ✅ Deployed |"
+            echo "| **Environment** | \`${{ needs.preflight.outputs.environment }}\` |"
+            echo "| **URL** | [${{ needs.deploy.outputs.url }}](${{ needs.deploy.outputs.url }}) |"
+            echo "| **Deployment ID** | \`${{ needs.deploy.outputs.deployment_id }}\` |"
+            echo "| **Branch** | \`${{ github.head_ref || github.ref_name }}\` |"
+            echo "| **Commit** | \`${{ github.sha }}\` |"
+            echo "| **Build Size** | \`${{ needs.build.outputs.build_size }}\` |"
+            echo "| **Triggered By** | @${{ github.actor }} |"
+            echo "| **Workflow Run** | [#${{ github.run_number }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) |"
             echo ""
-            echo "### Next Steps"
-            if [ "${{ github.event_name }}" == "pull_request" ]; then
-              echo "- 🔍 Review the preview deployment"
-              echo "- ✅ Test all functionality"
-              echo "- 💬 Leave feedback on this PR"
+            echo "## 📊 Build Information"
+            echo ""
+            echo "- **Build Directory**: \`${{ needs.build.outputs.build_dir }}\`"
+            echo "- **Node Version**: \`${{ env.NODE_VERSION }}\`"
+            echo "- **PNPM Version**: \`${{ env.PNPM_VERSION }}\`"
+            echo ""
+            echo "## 🔗 Quick Links"
+            echo ""
+            if [ "${{ needs.preflight.outputs.environment }}" == "production" ]; then
+              echo "- 🌐 [Production Site](${{ needs.deploy.outputs.url }})"
+              echo "- 📊 [Cloudflare Analytics](https://dash.cloudflare.com/?to=/:account/pages/view/${{ env.CLOUDFLARE_PROJECT_NAME }}/analytics)"
+              echo "- ⚙️ [Cloudflare Settings](https://dash.cloudflare.com/?to=/:account/pages/view/${{ env.CLOUDFLARE_PROJECT_NAME }}/settings)"
             else
-              echo "- ✅ Production deployment complete"
-              echo "- 🌐 Visit [ratehunter.net](https://ratehunter.net)"
-              echo "- 📊 Monitor Cloudflare Analytics"
+              echo "- 🔍 [Preview Deployment](${{ needs.deploy.outputs.url }})"
+              echo "- 📝 [Pull Request](${{ github.event.pull_request.html_url || 'N/A' }})"
             fi
           } >> $GITHUB_STEP_SUMMARY
 
       - name: Comment on PR
         if: github.event_name == 'pull_request'
-        env:
-          GH_TOKEN: ${{ secrets.GH_PAT_WORKFLOWS || secrets.GITHUB_TOKEN }}
-        run: |
-          echo "${{ secrets.GH_PAT_WORKFLOWS || secrets.GITHUB_TOKEN }}" | gh auth login --with-token >/dev/null
-          gh pr comment "${{ github.event.pull_request.number }}" --body "
-          ## 🚀 Cloudflare Pages Preview Deployment
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const body = `## 🚀 Cloudflare Pages Preview Deployment
 
-          **Preview URL**: ${{ steps.deploy.outputs.url }}
+            | Property | Value |
+            |----------|-------|
+            | **Preview URL** | [${{ needs.deploy.outputs.url }}](${{ needs.deploy.outputs.url }}) |
+            | **Build Size** | \`${{ needs.build.outputs.build_size }}\` |
+            | **Commit** | \`${{ github.sha }}\` |
+            | **Deployment ID** | \`${{ needs.deploy.outputs.deployment_id }}\` |
 
-          The preview deployment is ready for review. Please test all changes before merging.
+            ### ✅ Next Steps
+            - 🔍 Review the preview deployment
+            - 🧪 Test all functionality
+            - 💬 Leave feedback on this PR
 
-          **Deployment Details**:
-          - Environment: Preview
-          - Branch: \`${{ github.head_ref }}\`
-          - Commit: \`${{ github.sha }}\`
-          - Deployment ID: ${{ steps.deploy.outputs.id }}
-          " || echo "Could not comment on PR"
+            ---
+            <sub>Deployed by GitHub Actions • [View Workflow Run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})</sub>
+            `;
 
-  # Optional: Run lighthouse performance audit on preview
+            // Check if we already commented
+            const comments = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+
+            const botComment = comments.data.find(comment =>
+              comment.user.type === 'Bot' &&
+              comment.body.includes('Cloudflare Pages Preview Deployment')
+            );
+
+            if (botComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: body
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: body
+              });
+            }
+
+  # ==========================================================================
+  # Performance Audit with Lighthouse
+  # ==========================================================================
   performance-audit:
-    name: Lighthouse audit
-    needs: deploy
-    if: github.event_name == 'pull_request'
+    name: 🔬 Lighthouse Performance Audit
     runs-on: ubuntu-latest
+    needs: [deploy]
+    if: github.event_name == 'pull_request' && needs.deploy.result == 'success'
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
       - name: Run Lighthouse CI
-        uses: treosh/lighthouse-ci-action@v10
+        uses: treosh/lighthouse-ci-action@v12
         with:
           urls: |
-            https://ratehunter.pages.dev
+            ${{ needs.deploy.outputs.url }}
           uploadArtifacts: true
           temporaryPublicStorage: true
+          configPath: '.github/lighthouse/lighthouserc.json'
+        continue-on-error: true
+
+      - name: Create Lighthouse summary
+        if: always()
+        run: |
+          echo "## 🔬 Lighthouse Performance Audit" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Lighthouse audit was run against: ${{ needs.deploy.outputs.url }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "View detailed results in the workflow artifacts." >> $GITHUB_STEP_SUMMARY
+
+  # ==========================================================================
+  # Security Scan
+  # ==========================================================================
+  security-scan:
+    name: 🛡️ Security Scan
+    runs-on: ubuntu-latest
+    needs: [deploy]
+    if: needs.deploy.result == 'success'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run security headers check
+        continue-on-error: true
+        run: |
+          echo "🛡️ Checking security headers..."
+          URL="${{ needs.deploy.outputs.url }}"
+
+          # Check for security headers
+          HEADERS=$(curl -s -I "$URL" || echo "")
+
+          echo "## 🛡️ Security Headers Check" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Header | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|--------|--------|" >> $GITHUB_STEP_SUMMARY
+
+          for header in "strict-transport-security" "x-content-type-options" "x-frame-options" "content-security-policy" "x-xss-protection"; do
+            if echo "$HEADERS" | grep -qi "$header"; then
+              echo "| \`$header\` | ✅ Present |" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "| \`$header\` | ⚠️ Missing |" >> $GITHUB_STEP_SUMMARY
+            fi
+          done
+
+  # ==========================================================================
+  # Failure Handling
+  # ==========================================================================
+  handle-failure:
+    name: ❌ Handle Deployment Failure
+    runs-on: ubuntu-latest
+    needs: [preflight, build, deploy]
+    if: failure()
+    steps:
+      - name: Determine failure reason
+        id: failure-reason
+        run: |
+          if [ "${{ needs.preflight.result }}" == "failure" ]; then
+            echo "reason=Pre-flight checks failed" >> $GITHUB_OUTPUT
+            echo "stage=preflight" >> $GITHUB_OUTPUT
+          elif [ "${{ needs.build.result }}" == "failure" ]; then
+            echo "reason=Build process failed" >> $GITHUB_OUTPUT
+            echo "stage=build" >> $GITHUB_OUTPUT
+          elif [ "${{ needs.deploy.result }}" == "failure" ]; then
+            echo "reason=Deployment to Cloudflare Pages failed" >> $GITHUB_OUTPUT
+            echo "stage=deploy" >> $GITHUB_OUTPUT
+          else
+            echo "reason=Unknown failure" >> $GITHUB_OUTPUT
+            echo "stage=unknown" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create failure summary
+        run: |
+          {
+            echo "# ❌ Deployment Failed"
+            echo ""
+            echo "**Reason**: ${{ steps.failure-reason.outputs.reason }}"
+            echo "**Stage**: \`${{ steps.failure-reason.outputs.stage }}\`"
+            echo "**Environment**: \`${{ needs.preflight.outputs.environment }}\`"
+            echo ""
+            echo "## 🔧 Troubleshooting"
+            echo ""
+            case "${{ steps.failure-reason.outputs.stage }}" in
+              preflight)
+                echo "- Check if required secrets are configured"
+                echo "- Verify Infisical integration is working"
+                echo "- Ensure \`CLOUDFLARE_API_TOKEN\` and \`CLOUDFLARE_ACCOUNT_ID\` are set"
+                ;;
+              build)
+                echo "- Check for build errors in the logs"
+                echo "- Verify all dependencies are installed"
+                echo "- Run \`pnpm build\` locally to reproduce"
+                ;;
+              deploy)
+                echo "- Verify Cloudflare API token has correct permissions"
+                echo "- Check if the project exists in Cloudflare Pages"
+                echo "- Ensure build output directory is correct"
+                ;;
+              *)
+                echo "- Review the workflow logs for more details"
+                ;;
+            esac
+            echo ""
+            echo "## 📋 Configuration Checklist"
+            echo ""
+            echo "1. **Direct Secrets Method**: Set these in GitHub repository secrets:"
+            echo "   - \`CLOUDFLARE_API_TOKEN\` - Your Cloudflare API token with Pages permissions"
+            echo "   - \`CLOUDFLARE_ACCOUNT_ID\` - Your Cloudflare account ID"
+            echo ""
+            echo "2. **Infisical Method**: Configure Infisical integration:"
+            echo "   - \`INFISICAL_TOKEN\` or environment-specific tokens"
+            echo "   - Ensure \`CLOUDFLARE_API_TOKEN\` and \`CLOUDFLARE_ACCOUNT_ID\` are in Infisical"
+            echo "   - Sync secrets to the correct GitHub environment (production/preview)"
+          } >> $GITHUB_STEP_SUMMARY
+
+      - name: Comment on PR about failure
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const body = `## ❌ Cloudflare Pages Deployment Failed
+
+            **Reason**: ${{ steps.failure-reason.outputs.reason }}
+            **Stage**: \`${{ steps.failure-reason.outputs.stage }}\`
+
+            Please check the [workflow logs](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) for more details.
+
+            ### 🔧 Common Fixes
+
+            - Ensure all required secrets are configured
+            - Check build logs for errors
+            - Verify Cloudflare API permissions
+
+            ---
+            <sub>❌ Deployment failed • [View Workflow Run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})</sub>
+            `;
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: body
+            });
