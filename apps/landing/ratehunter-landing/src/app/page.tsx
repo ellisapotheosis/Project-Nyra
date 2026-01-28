@@ -106,7 +106,7 @@ export default function Home() {
 
   const formatCurrency = (value: string) => {
     const num = parseInt(value.replace(/,/g, ''), 10);
-    if (isNaN(num)) return '';
+    if (isNaN(num) || num < 0) return '0';
     return num.toLocaleString('en-US');
   };
 
@@ -242,7 +242,19 @@ export default function Home() {
                   />
                 </div>
               </div>
-              <button className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-4 rounded-xl font-semibold text-lg hover:shadow-lg hover:shadow-indigo-200 transition transform hover:-translate-y-0.5">
+              <button 
+                type="button"
+                onClick={() => {
+                  // Validate inputs
+                  if (!zipCode || zipCode.length < 5) {
+                    alert('Please enter a valid 5-digit ZIP code');
+                    return;
+                  }
+                  // In production, this would submit to an API
+                  alert(`🎯 Finding personalized rates for ZIP ${zipCode}...\n\nLoan: $${formatCurrency(loanAmount)}\nDown Payment: $${formatCurrency(downPayment)}\nCredit Score: ${creditScore}+\n\n(Demo mode - API integration coming soon!)`);
+                }}
+                className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-4 rounded-xl font-semibold text-lg hover:shadow-lg hover:shadow-indigo-200 transition transform hover:-translate-y-0.5"
+              >
                 🎯 See My Personalized Rates
               </button>
               <p className="text-sm text-slate-500 mt-4 text-center">
@@ -416,14 +428,28 @@ export default function Home() {
                 <p className="text-slate-600 mb-2">Estimated Monthly Payment</p>
                 <p className="text-5xl font-bold text-indigo-600">
                   $
-                  {Math.round(
-                    ((parseInt(loanAmount) - parseInt(downPayment)) *
-                      (0.06875 / 12) *
-                      Math.pow(1 + 0.06875 / 12, 360)) /
-                      (Math.pow(1 + 0.06875 / 12, 360) - 1)
-                  ).toLocaleString()}
+                  {(() => {
+                    // Use the 30-Year Fixed rate from todaysRates
+                    const rate30Year = todaysRates.find(r => r.type === '30-Year Fixed')?.rate || 6.875;
+                    const monthlyRate = rate30Year / 100 / 12;
+                    const principal = parseInt(loanAmount) - parseInt(downPayment);
+                    const numPayments = 360; // 30 years
+                    
+                    // Handle edge cases
+                    if (principal <= 0 || isNaN(principal)) {
+                      return '0';
+                    }
+                    
+                    // Standard mortgage payment formula: M = P * [r(1+r)^n] / [(1+r)^n - 1]
+                    const payment = (principal * monthlyRate * Math.pow(1 + monthlyRate, numPayments)) /
+                      (Math.pow(1 + monthlyRate, numPayments) - 1);
+                    
+                    return Math.round(payment).toLocaleString();
+                  })()}
                 </p>
-                <p className="text-sm text-slate-500 mt-2">Principal & Interest Only</p>
+                <p className="text-sm text-slate-500 mt-2">
+                  Principal & Interest @ {todaysRates.find(r => r.type === '30-Year Fixed')?.rate || 6.875}% (30-Year Fixed)
+                </p>
               </div>
             </div>
           </div>
