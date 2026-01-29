@@ -17,6 +17,18 @@ contextBridge.exposeInMainWorld('bootstrap', {
   saveConfig: (config: any) => ipcRenderer.invoke('save-config', config),
   loadConfig: () => ipcRenderer.invoke('load-config'),
 
+  // Phase 2 - New handlers
+  installPrerequisites: (options: { skipDocker?: boolean; skipNodeJS?: boolean; silent?: boolean }) =>
+    ipcRenderer.invoke('install-prerequisites', options),
+  detectHardware: () => ipcRenderer.invoke('detect-hardware'),
+  setupCloudflareTunnel: (config: { role: string; domain: string; tunnelName?: string; skipInstall?: boolean; skipDNS?: boolean }) =>
+    ipcRenderer.invoke('setup-cloudflare-tunnel', config),
+  detectGPU: () => ipcRenderer.invoke('detect-gpu'),
+  setupVLLM: (config: { workerID: string; model: string; enableLMCache: boolean; redisHost: string; redisPort: number; maxModelLen: number; gpuMemoryUtilization: number }) =>
+    ipcRenderer.invoke('setup-vllm', config),
+  setupOllama: (config: { models: string[] }) =>
+    ipcRenderer.invoke('setup-ollama', config),
+
   // Event listeners
   onDeploymentProgress: (callback: (data: any) => void) => {
     ipcRenderer.on('deployment-progress', (event, data) => callback(data));
@@ -40,6 +52,13 @@ declare global {
       execPrivileged: (command: string) => Promise<any>;
       saveConfig: (config: any) => Promise<any>;
       loadConfig: () => Promise<any>;
+      // Phase 2 - New methods
+      installPrerequisites: (options: { skipDocker?: boolean; skipNodeJS?: boolean; silent?: boolean }) => Promise<any>;
+      detectHardware: () => Promise<any>;
+      setupCloudflareTunnel: (config: { role: string; domain: string; tunnelName?: string; skipInstall?: boolean; skipDNS?: boolean }) => Promise<any>;
+      detectGPU: () => Promise<any>;
+      setupVLLM: (config: { workerID: string; model: string; enableLMCache: boolean; redisHost: string; redisPort: number; maxModelLen: number; gpuMemoryUtilization: number }) => Promise<any>;
+      setupOllama: (config: { models: string[] }) => Promise<any>;
       onDeploymentProgress: (callback: (data: any) => void) => void;
       onGPUProgress: (callback: (data: any) => void) => void;
     };

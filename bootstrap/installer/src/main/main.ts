@@ -327,3 +327,248 @@ ipcMain.handle('load-config', async () => {
     return { success: false, config: null };
   }
 });
+
+// ============================================================================
+// NEW HANDLERS - Phase 2
+// ============================================================================
+
+// Helper function to execute PowerShell scripts
+async function executePowerShellScript(
+  scriptPath: string,
+  args: string[] = []
+): Promise<{ stdout: string; stderr: string; exitCode: number }> {
+  const argsString = args.join(' ');
+  const command = `powershell.exe -ExecutionPolicy Bypass -File "${scriptPath}" ${argsString}`;
+
+  try {
+    const { stdout, stderr } = await execAsync(command);
+    return { stdout, stderr, exitCode: 0 };
+  } catch (error: any) {
+    return {
+      stdout: error.stdout || '',
+      stderr: error.stderr || error.message,
+      exitCode: error.code || 1
+    };
+  }
+}
+
+// Install Prerequisites
+ipcMain.handle('install-prerequisites', async (event, options: {
+  skipDocker?: boolean;
+  skipNodeJS?: boolean;
+  silent?: boolean;
+}) => {
+  try {
+    const scriptPath = path.join(
+      __dirname,
+      '../../../scripts/windows/Install-Prerequisites.ps1'
+    );
+
+    const args: string[] = [];
+    if (options.skipDocker) args.push('-SkipDocker');
+    if (options.skipNodeJS) args.push('-SkipNodeJS');
+    if (options.silent) args.push('-Silent');
+
+    const result = await executePowerShellScript(scriptPath, args);
+
+    if (result.exitCode === 0) {
+      return {
+        success: true,
+        message: 'Prerequisites installed successfully',
+        stdout: result.stdout
+      };
+    } else {
+      return {
+        success: false,
+        message: `Installation failed: ${result.stderr}`,
+        stdout: result.stdout,
+        stderr: result.stderr
+      };
+    }
+  } catch (error: any) {
+    return { success: false, message: error.message };
+  }
+});
+
+// Detect Hardware
+ipcMain.handle('detect-hardware', async () => {
+  try {
+    const scriptPath = path.join(
+      __dirname,
+      '../../../scripts/windows/Get-PCHardwareInfo.ps1'
+    );
+
+    const result = await executePowerShellScript(scriptPath);
+
+    if (result.exitCode === 0) {
+      const hardwareInfo = JSON.parse(result.stdout);
+      return {
+        success: true,
+        hardware: hardwareInfo
+      };
+    } else {
+      return {
+        success: false,
+        message: `Hardware detection failed: ${result.stderr}`
+      };
+    }
+  } catch (error: any) {
+    return { success: false, message: error.message };
+  }
+});
+
+// Setup Cloudflare Tunnel
+ipcMain.handle('setup-cloudflare-tunnel', async (event, config: {
+  role: string;
+  domain: string;
+  tunnelName?: string;
+  skipInstall?: boolean;
+  skipDNS?: boolean;
+}) => {
+  try {
+    const scriptPath = path.join(
+      __dirname,
+      '../../../scripts/cloudflare/Setup-CloudflareTunnel.ps1'
+    );
+
+    const args = [
+      `-Role "${config.role}"`,
+      `-Domain "${config.domain}"`
+    ];
+
+    if (config.tunnelName) args.push(`-TunnelName "${config.tunnelName}"`);
+    if (config.skipInstall) args.push('-SkipInstall');
+    if (config.skipDNS) args.push('-SkipDNS');
+
+    const result = await executePowerShellScript(scriptPath, args);
+
+    if (result.exitCode === 0) {
+      // Extract tunnel ID from output if available
+      const tunnelIdMatch = result.stdout.match(/Tunnel ID:\s*([a-f0-9-]+)/);
+      const tunnelId = tunnelIdMatch ? tunnelIdMatch[1] : null;
+
+      return {
+        success: true,
+        message: 'Cloudflare Tunnel configured successfully',
+        tunnelId,
+        stdout: result.stdout
+      };
+    } else {
+      return {
+        success: false,
+        message: `Tunnel setup failed: ${result.stderr}`,
+        stdout: result.stdout,
+        stderr: result.stderr
+      };
+    }
+  } catch (error: any) {
+    return { success: false, message: error.message };
+  }
+});
+
+// Detect GPU
+ipcMain.handle('detect-gpu', async () => {
+  try {
+    const { stdout } = await execAsync('nvidia-smi --query-gpu=name,memory.total --format=csv,noheader');
+    const [name, memoryStr] = stdout.trim().split(',');
+    const vramGB = parseInt(memoryStr.trim().split(' ')[0]) / 1024;
+
+    return {
+      name: name.trim(),
+      vramGB: Math.round(vramGB),
+      supportsVLLM: vramGB >= 24,
+      recommendation: vramGB >= 32 ? 'vLLM + LMCache (Primary)' :
+                      vramGB >= 24 ? 'vLLM + LMCache (Backup)' :
+                      'Ollama (Development)'
+    };
+  } catch (error) {
+    return {
+      name: 'No NVIDIA GPU detected',
+      vramGB: 0,
+      supportsVLLM: false,
+      recommendation: 'CPU inference only'
+    };
+  }
+});
+
+// Setup vLLM
+ipcMain.handle('setup-vllm', async (event, config: {
+  workerID: string;
+  model: string;
+  enableLMCache: boolean;
+  redisHost: string;
+  redisPort: number;
+  maxModelLen: number;
+  gpuMemoryUtilization: number;
+}) => {
+  try {
+    const scriptPath = path.join(
+      __dirname,
+      '../../../scripts/workers/Setup-vLLM.ps1'
+    );
+
+    const args = [
+      `-WorkerID "${config.workerID}"`,
+      `-Model "${config.model}"`,
+      `-EnableLMCache $${config.enableLMCache}`,
+      `-RedisHost "${config.redisHost}"`,
+      `-RedisPort ${config.redisPort}`,
+      `-MaxModelLen ${config.maxModelLen}`,
+      `-GPUMemoryUtilization ${config.gpuMemoryUtilization}`
+    ];
+
+    const result = await executePowerShellScript(scriptPath, args);
+
+    if (result.exitCode === 0) {
+      return {
+        success: true,
+        message: 'vLLM configured successfully',
+        stdout: result.stdout
+      };
+    } else {
+      return {
+        success: false,
+        message: `vLLM setup failed: ${result.stderr}`,
+        stdout: result.stdout,
+        stderr: result.stderr
+      };
+    }
+  } catch (error: any) {
+    return { success: false, message: error.message };
+  }
+});
+
+// Setup Ollama
+ipcMain.handle('setup-ollama', async (event, config: {
+  models: string[];
+}) => {
+  try {
+    const scriptPath = path.join(
+      __dirname,
+      '../../../scripts/workers/Setup-Ollama.ps1'
+    );
+
+    const args = [
+      `-Models "${config.models.join(',')}"`
+    ];
+
+    const result = await executePowerShellScript(scriptPath, args);
+
+    if (result.exitCode === 0) {
+      return {
+        success: true,
+        message: 'Ollama configured successfully',
+        stdout: result.stdout
+      };
+    } else {
+      return {
+        success: false,
+        message: `Ollama setup failed: ${result.stderr}`,
+        stdout: result.stdout,
+        stderr: result.stderr
+      };
+    }
+  } catch (error: any) {
+    return { success: false, message: error.message };
+  }
+});

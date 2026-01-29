@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import WelcomeScreen from './components/WelcomeScreen';
 import PCDetectionScreen from './components/PCDetectionScreen';
+import PrerequisitesScreen from './components/PrerequisitesScreen';
 import NetworkConfigScreen from './components/NetworkConfigScreen';
 import DockerSetupScreen from './components/DockerSetupScreen';
 import TailscaleSetupScreen from './components/TailscaleSetupScreen';
+import CloudflareSetupScreen from './components/CloudflareSetupScreen';
 import ServiceDeploymentScreen from './components/ServiceDeploymentScreen';
+import VLLMSetupScreen from './components/VLLMSetupScreen';
 import GPUConfigScreen from './components/GPUConfigScreen';
 import HealthCheckScreen from './components/HealthCheckScreen';
 import CompletionScreen from './components/CompletionScreen';
@@ -20,6 +23,12 @@ export interface BootstrapConfig {
   gpuInfo?: string;
   dockerInstalled: boolean;
   servicesDeployed: boolean;
+  // Phase 2 additions
+  prerequisitesInstalled?: boolean;
+  cloudflareTunnelId?: string;
+  cloudflareDomain?: string;
+  lmCacheEnabled?: boolean;
+  hardwareInfo?: any;
 }
 
 const App: React.FC = () => {
@@ -36,13 +45,15 @@ const App: React.FC = () => {
   const steps = [
     { id: 0, name: 'Welcome', component: WelcomeScreen },
     { id: 1, name: 'PC Detection', component: PCDetectionScreen },
-    { id: 2, name: 'Network Config', component: NetworkConfigScreen },
-    { id: 3, name: 'Docker Setup', component: DockerSetupScreen },
-    { id: 4, name: 'Tailscale Setup', component: TailscaleSetupScreen },
-    { id: 5, name: 'Service Deployment', component: ServiceDeploymentScreen },
-    { id: 6, name: 'GPU Configuration', component: GPUConfigScreen },
-    { id: 7, name: 'Health Check', component: HealthCheckScreen },
-    { id: 8, name: 'Complete', component: CompletionScreen }
+    { id: 2, name: 'Prerequisites', component: PrerequisitesScreen },
+    { id: 3, name: 'Network Config', component: NetworkConfigScreen },
+    { id: 4, name: 'Docker Setup', component: DockerSetupScreen },
+    { id: 5, name: 'Tailscale VPN', component: TailscaleSetupScreen },
+    { id: 6, name: 'Cloudflare Tunnel', component: CloudflareSetupScreen },
+    { id: 7, name: 'Services', component: ServiceDeploymentScreen },
+    { id: 8, name: 'GPU/Inference', component: VLLMSetupScreen },
+    { id: 9, name: 'Health Check', component: HealthCheckScreen },
+    { id: 10, name: 'Complete', component: CompletionScreen }
   ];
 
   useEffect(() => {
