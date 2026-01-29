@@ -35,7 +35,7 @@ services:
     restart: unless-stopped
     ports:
       - "${CLAUDE_FLOW_MCP_PORT:-8080}:8080" # MCP Server
-      - "${CLAUDE_FLOW_DASHBOARD_PORT:-3000}:3000" # Dashboard/Metrics
+      - "${CLAUDE_FLOW_DASHBOARD_PORT:-3333}:3000" # Dashboard/Metrics
     volumes:
       - claude_flow_data:/app/.swarm  # Persistent Memory (SQLite + HNSW)
       - claude_flow_logs:/app/logs
