@@ -1,0 +1,44 @@
+version: '3.8'
+
+# Open WebUI - Standalone Tool Stack
+# Self-contained: Open WebUI + optional Ollama backend
+
+services:
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:main
+    container_name: nyra-open-webui
+    restart: unless-stopped
+    ports:
+      - "3002:8080"  # Web UI on http://localhost:3002
+    environment:
+      - WEBUI_NAME=NYRA AI Interface
+      - WEBUI_AUTH=true
+      # Optional: use Ollama for local models
+      - OLLAMA_BASE_URL=http://ollama:11434
+      # Optional: route through Nexus Router (OpenAI-compatible)
+      # Requires Nexus Router running on host at port 6000
+      - OPENAI_API_BASE_URL=${OPENAI_API_BASE_URL:-http://host.docker.internal:6000/llm/openai/v1}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-dummy-key}
+    volumes:
+      - open-webui-data:/app/backend/data
+    networks:
+      - openwebui-net
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: nyra-ollama
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama-data:/root/.ollama
+    networks:
+      - openwebui-net
+
+networks:
+  openwebui-net:
+    driver: bridge
+
+volumes:
+  open-webui-data:
+  ollama-data:
