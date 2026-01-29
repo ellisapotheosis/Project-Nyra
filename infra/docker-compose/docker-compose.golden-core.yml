@@ -88,24 +88,25 @@ services:
       timeout: 3s
       retries: 5
 
-  # Zep
-  zep:
-    image: zepai/zep:latest
-    container_name: nyra-zep
-    restart: unless-stopped
-    environment:
-      ZEP_CONFIG_FILE: /config.yaml
-    volumes:
-      - ../configs/zep/config.yaml:/config.yaml:ro
-    ports:
-      - "8000:8000"
-    networks:
-      - nyra-network
-    depends_on:
-      - falkordb
-      - ruvector-postgres
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+  # Zep - DISABLED: Using Graphiti MCP with FalkorDB instead (496x faster)
+  # See docker-compose.mcp-servers.yml for Graphiti MCP configuration
+  # zep:
+  #   image: zepai/zep:latest
+  #   container_name: nyra-zep
+  #   restart: unless-stopped
+  #   environment:
+  #     ZEP_CONFIG_FILE: /config.yaml
+  #   volumes:
+  #     - ../configs/zep/config.yaml:/config.yaml:ro
+  #   ports:
+  #     - "8000:8000"
+  #   networks:
+  #     - nyra-network
+  #   depends_on:
+  #     - falkordb
+  #     - ruvector-postgres
+  #   healthcheck:
+  #     test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+  #     interval: 30s
+  #     timeout: 10s
+  #     retries: 3
