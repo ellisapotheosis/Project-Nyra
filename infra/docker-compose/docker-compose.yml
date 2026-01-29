@@ -26,9 +26,11 @@ version: '3.8'
 # Include all service definitions from modular compose files
 include:
   - docker-compose.base.yml           # PostgreSQL, Redis
-  - docker-compose.databases.yml     # FalkorDB, Qdrant
-  - docker-compose.ai.yml             # Nexus, LiteLLM, Letta, Mem0, Open-WebUI
+  - docker-compose.golden-core.yml    # RuVector, FalkorDB, Redis (Golden Stack)
+  - docker-compose.databases.yml     # Qdrant
+  - docker-compose.ai.yml             # Nexus Router
   - docker-compose.mcp-servers.yml   # Graphiti MCP, Qdrant MCP
+  - docker-compose.claude-flow.yml   # Claude Flow Brain, CI/CD Worker
   - docker-compose.crm.yml            # TwentyCRM
   - docker-compose.workflow.yml      # n8n, Dify, Activepieces
   - docker-compose.observability.yml # Prometheus, Grafana, Loki, etc.

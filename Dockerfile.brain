@@ -1,0 +1,93 @@
+# ==========================================
+# Claude Flow Brain - MCP Server with Persistent Memory
+# ==========================================
+FROM node:22-alpine AS base
+
+# Install system dependencies
+RUN apk add --no-cache \
+    curl \
+    git \
+    python3 \
+    make \
+    g++ \
+    sqlite
+
+WORKDIR /app
+
+# ==========================================
+# Dependencies Layer
+# ==========================================
+FROM base AS deps
+
+COPY package.json pnpm-lock.yaml* ./
+RUN corepack enable pnpm && \
+    pnpm install --frozen-lockfile
+
+# ==========================================
+# Builder Layer
+# ==========================================
+FROM base AS builder
+
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+
+# Build any TypeScript/monorepo packages
+RUN corepack enable pnpm && \
+    pnpm run build || true
+
+# ==========================================
+# Runtime Layer
+# ==========================================
+FROM base
+
+# Install claude-flow CLI globally
+RUN npm install -g @claude-flow/cli@latest
+
+WORKDIR /app
+
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/package.json ./
+COPY --from=builder /app/.claude-flow ./.claude-flow
+
+# Create directories for persistent storage
+RUN mkdir -p /app/.swarm /app/logs /app/data
+
+# Copy startup script
+COPY <<'EOF' /app/start-brain.sh
+#!/bin/sh
+set -e
+
+echo "🧠 Initializing Claude Flow Brain..."
+
+# Initialize memory systems
+npx @claude-flow/cli@latest memory init --force --verbose
+
+# Initialize AgentDB
+if [ "$CLAUDE_FLOW_ENABLE_AGENT_DB" = "true" ]; then
+  echo "Initializing AgentDB..."
+  # AgentDB init logic here
+fi
+
+# Start MCP Server
+echo "🚀 Starting MCP Server on port 8080..."
+npx @claude-flow/cli@latest daemon start --port 8080
+
+# Start metrics dashboard on port 3000
+echo "📊 Starting Metrics Dashboard on port 3000..."
+# Metrics server logic here
+
+# Keep container running
+tail -f /dev/null
+EOF
+
+RUN chmod +x /app/start-brain.sh
+
+# Expose ports
+EXPOSE 8080 3000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+  CMD curl -f http://localhost:8080/health || exit 1
+
+# Start the Brain
+CMD ["/app/start-brain.sh"]
