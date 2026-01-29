@@ -28,6 +28,7 @@ include:
   - docker-compose.base.yml           # PostgreSQL, Redis
   - docker-compose.databases.yml     # FalkorDB, Qdrant
   - docker-compose.ai.yml             # Nexus, LiteLLM, Letta, Mem0, Open-WebUI
+  - docker-compose.mcp-servers.yml   # Graphiti MCP, Qdrant MCP
   - docker-compose.crm.yml            # TwentyCRM
   - docker-compose.workflow.yml      # n8n, Dify, Activepieces
   - docker-compose.observability.yml # Prometheus, Grafana, Loki, etc.
