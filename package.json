@@ -111,7 +111,7 @@
     "@manypkg/cli": "^0.25.1",
     "@playwright/test": "^1.40.0",
     "@turbo/gen": "^1.9.5",
-    "@types/jest": "^29.5.0",
+    "@types/jest": "^30.0.0",
     "@types/node": "^20.0.0",
     "@types/supertest": "^6.0.0",
     "@vitest/coverage-v8": "^4.0.18",
