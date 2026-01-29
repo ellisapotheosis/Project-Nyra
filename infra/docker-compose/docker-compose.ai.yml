@@ -2,7 +2,7 @@
 # Project Nyra - AI Services
 # ============================================================================
 # AI and LLM infrastructure services
-# Includes: Nexus Router, LiteLLM, Letta, Mem0, Open-WebUI
+# Includes: Nexus Router, Letta, Mem0, Open-WebUI
 #
 # Dependencies: base, databases
 # Usage:
@@ -12,9 +12,6 @@
 version: '3.8'
 
 volumes:
-  litellm_data:
-    name: nyra_litellm_data
-    driver: local
   letta_data:
     name: nyra_letta_data
     driver: local
@@ -44,8 +41,6 @@ services:
       - NEXUS_JWT_SECRET=${NEXUS_JWT_SECRET}
     networks:
       - nyra-network
-    depends_on:
-      - litellm
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://localhost:3000/health"]
       interval: 20s
@@ -55,43 +50,6 @@ services:
       - "com.nyra.service=nexus-router"
       - "com.nyra.category=ai-gateway"
       - "com.nyra.mcp.enabled=true"
-
-  # ==========================================================================
-  # LiteLLM - LLM proxy and load balancer
-  # ==========================================================================
-  litellm:
-    image: ghcr.io/berriai/litellm:main-stable
-    container_name: nyra-litellm
-    restart: unless-stopped
-    ports:
-      - "${LITELLM_PORT:-4000}:4000"
-    volumes:
-      - ../../configs/litellm/config.yaml:/app/config.yaml:ro
-      - litellm_data:/data
-    environment:
-      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
-      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
-      - LITELLM_MASTER_KEY=${LITELLM_MASTER_KEY:-sk-litellm-master-key}
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-nyra_user}:${POSTGRES_PASSWORD:-nyra_secure_password}@postgres:5432/${LITELLM_DB:-litellm}
-    networks:
-      - nyra-network
-    depends_on:
-      postgres:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:4000/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    deploy:
-      resources:
-        limits:
-          cpus: '1.0'
-          memory: 2G
-        reservations:
-          cpus: '0.5'
-          memory: 1G
 
   # ==========================================================================
   # Letta - Agent memory and state management
@@ -177,27 +135,6 @@ services:
         reservations:
           cpus: '0.5'
           memory: 1G
-
-  # ==========================================================================
-  # Mem0 MCP Server
-  # ==========================================================================
-  openmemory_mcp:
-    image: mem0/openmemory-mcp:latest
-    container_name: nyra-openmemory-mcp
-    restart: unless-stopped
-    ports:
-      - "8081:8081"
-    environment:
-      - MEM0_REST_URL=http://mem0:4321
-    networks:
-      - nyra-network
-    depends_on:
-      - mem0
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8081/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
 
   # ==========================================================================
   # Open-WebUI - Chat interface
