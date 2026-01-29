@@ -39,7 +39,8 @@ services:
     volumes:
       - claude_flow_data:/app/.swarm  # Persistent Memory (SQLite + HNSW)
       - claude_flow_logs:/app/logs
-      - ../../.claude-flow:/app/.claude-flow:ro
+      # Mount config read-only, but allow daemon to write logs to /app/logs
+      - ../../.claude-flow:/app/.claude-flow-config:ro
     environment:
       - NODE_ENV=production
       - CLAUDE_FLOW_MODE=server
