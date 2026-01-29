@@ -145,42 +145,9 @@ services:
       timeout: 10s
       retries: 3
 
-  # Archon OS - Agent operating system for task management
-  archon-os:
-    image: node:20-alpine
-    container_name: nyra-archon-os
-    restart: unless-stopped
-    working_dir: /app
-    command: sh -c "npm install -g pnpm && pnpm install && pnpm start"
-    environment:
-      NODE_ENV: ${NODE_ENV}
-      PORT: ${ARCHON_PORT}
-      DATABASE_URL: ${DATABASE_URL}
-      # Redis with Database 2 (isolated from Nexus Router DB 0, Claude Flow DB 1)
-      REDIS_URL: ${ARCHON_REDIS_URL}
-      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
-      ARCHON_MCP_PORT: ${ARCHON_MCP_PORT}
-      ARCHON_TOPOLOGY: ${ARCHON_TOPOLOGY}
-      ARCHON_MAX_DEPTH: ${ARCHON_MAX_DEPTH}
-      ARCHON_PARALLEL_BRANCHES: ${ARCHON_PARALLEL_BRANCHES}
-    volumes:
-      - ../../orchestration/archon-os:/app
-      - archon_data:/app/data
-    ports:
-      - "${ARCHON_PORT}:${ARCHON_PORT}"
-      - "${ARCHON_MCP_PORT}:${ARCHON_MCP_PORT}"
-    networks:
-      - nyra-network
-    depends_on:
-      postgresql:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:${ARCHON_PORT}/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+  # Archon OS was previously part of this orchestrator stack.
+  # It has been moved to a standalone tool stack under infra/tools/archon.
+  # See infra/tools/archon/docker-compose.yml and Makefile targets (archon-up/archon-down).
 
   # Nexus Router - Intelligent LLM request routing (GPU → Cloud)
   nexus-router:

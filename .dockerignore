@@ -104,3 +104,71 @@ nyra-*
 _archive
 _deprecated
 submodules
+
+# Documentation (keep minimal)
+docs/**/*.md
+!docs/README.md
+
+# Scripts (include only necessary ones)
+scripts/
+!scripts/docker/
+!scripts/deployment/
+
+# Test files
+tests/
+!tests/e2e/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+venv/
+ENV/
+
+# Editor configs
+.editorconfig
+.prettierrc*
+.eslintrc*
+
+# Git
+.git/
+.github/
+
+# Volta
+.volta/
+
+# Coverage and test results
+test-results/
+playwright-report/
+
+# Config files (exclude from build)
+infra/configs/
+
+# Development only
+.devcontainer/
+
+# Lock files (keep package.json only)
+yarn.lock
+bun.lock
+
+# Backup and temp
+*.backup
+*.old
+*.swp
+*.swo
+
+# Archives
+*.zip
+*.tar
+*.tar.gz
+*.rar
+
+# Large binary files
+*.mp4
+*.mov
+*.avi
+*.mkv
+*.pdf
+*.psd
+*.ai

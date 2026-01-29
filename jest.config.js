@@ -45,7 +45,7 @@ module.exports = {
   },
 
   // Setup files
-  setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
+  setupFilesAfterEnv: ['<rootDir>/tests/jest.setup.js'],
 
   // Ignore patterns
   testPathIgnorePatterns: [
