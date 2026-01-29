@@ -59,6 +59,46 @@ services:
           memory: 512M
 
   # ==========================================================================
+  # Composio MCP - Integration platform for AI agents
+  # ==========================================================================
+  composio-mcp:
+    image: composiohq/composio:latest
+    container_name: nyra-composio-mcp
+    restart: unless-stopped
+    environment:
+      - COMPOSIO_API_KEY=${COMPOSIO_API_KEY}
+      - COMPOSIO_BASE_URL=${COMPOSIO_BASE_URL:-https://backend.composio.dev}
+      - MCP_PORT=8067
+      - MCP_HOST=0.0.0.0
+    ports:
+      - "${COMPOSIO_MCP_PORT:-8067}:8067"
+    networks:
+      - nyra-network
+    labels:
+      - "nyra.service.name=composio-mcp"
+      - "nyra.service.type=mcp-server"
+      - "nyra.mcp.enabled=true"
+      - "nyra.mcp.transport=http"
+      - "nyra.mcp.port=8067"
+      - "nyra.mcp.health_endpoint=/health"
+      - "nyra.mcp.keywords=integrations,automation,tools,api"
+      - "nyra.mcp.priority=1"
+      - "nyra.tier=orchestrator"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8067/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 1G
+
+  # ==========================================================================
   # Qdrant MCP - Vector search MCP server
   # ==========================================================================
   qdrant-mcp:

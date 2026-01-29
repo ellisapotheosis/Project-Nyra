@@ -32,9 +32,9 @@ services:
       # Service URLs
       - TWENTY_BASE_URL=http://twentycrm:3000
       - NEXUS_BASE_URL=http://nexus:6000
-      - MEM0_REST_URL=http://mem0:4321
+      - GRAPHITI_MCP_URL=http://graphiti-mcp:8000
       - FALKOR_URL=redis://falkordb:6379
-      - LETTA_BASE_URL=http://letta:8283
+      - CLAUDE_FLOW_BRAIN_URL=http://claude-flow-brain:8080
 
       # Database
       - DATABASE_URL=postgresql://${POSTGRES_USER:-nyra_user}:${POSTGRES_PASSWORD:-nyra_secure_password}@postgres:5432/${POSTGRES_DB:-nyra_db}
@@ -57,9 +57,9 @@ services:
         condition: service_healthy
       falkordb:
         condition: service_healthy
-      mem0:
+      graphiti-mcp:
         condition: service_healthy
-      letta:
+      claude-flow-brain:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8010/health"]
