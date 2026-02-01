@@ -228,10 +228,6 @@ env.NEO4J_USER = "neo4j"
 env.NEO4J_PASSWORD = "{{ env.NEO4J_PASSWORD }}"
 description = "Graphiti temporal knowledge graph"
 
-[mcp.servers.mem0]
-protocol = "sse"
-url = "http://mem0:4321/mcp/sse"
-description = "Mem0 memory management system"
 
 ################################################################################
 # MCP Servers - AI Orchestration

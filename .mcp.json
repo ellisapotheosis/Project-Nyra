@@ -15,6 +15,11 @@
         "CLAUDE_FLOW_MEMORY_BACKEND": "hybrid"
       },
       "autoStart": true
+    },
+    "nexus-router": {
+      "url": "http://localhost:6000/mcp/sse",
+      "transport": "sse",
+      "description": "Nexus Router - Smart MCP aggregator with unified access to all MCP servers and intelligent LLM routing"
     }
   }
 }

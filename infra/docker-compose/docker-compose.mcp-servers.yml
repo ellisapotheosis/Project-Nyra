@@ -99,48 +99,4 @@ services:
           cpus: '0.5'
           memory: 1G
 
-  # ==========================================================================
-  # Qdrant MCP - Vector search MCP server
-  # ==========================================================================
-  qdrant-mcp:
-    image: ghcr.io/qdrant/mcp-server-qdrant:latest
-    container_name: nyra-qdrant-mcp
-    restart: unless-stopped
-    environment:
-      - QDRANT_URL=http://qdrant:6333
-      - QDRANT_API_KEY=${QDRANT_API_KEY:-qdrant_secure_key}
-      - COLLECTION_NAME=${QDRANT_COLLECTION:-nyra}
-      - EMBEDDING_PROVIDER=fastembed
-      - EMBEDDING_MODEL=sentence-transformers/all-MiniLM-L6-v2
-      - FASTMCP_PORT=8066
-      - FASTMCP_HOST=0.0.0.0
-    depends_on:
-      qdrant:
-        condition: service_healthy
-    ports:
-      - "${QDRANT_MCP_PORT:-8066}:8066"
-    networks:
-      - nyra-network
-    labels:
-      - "nyra.service.name=qdrant-mcp"
-      - "nyra.service.type=mcp-server"
-      - "nyra.mcp.enabled=true"
-      - "nyra.mcp.transport=http"
-      - "nyra.mcp.port=8066"
-      - "nyra.mcp.health_endpoint=/health"
-      - "nyra.mcp.keywords=vector,search,qdrant,embeddings"
-      - "nyra.mcp.priority=1"
-      - "nyra.tier=orchestrator"
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8066/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    deploy:
-      resources:
-        limits:
-          cpus: '0.5'
-          memory: 1G
-        reservations:
-          cpus: '0.25'
-          memory: 512M
+

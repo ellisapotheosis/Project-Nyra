@@ -64,12 +64,7 @@ services:
       # Mount for development
       - ../../mcp-servers/graphiti:/app:ro
 
-  mem0-mcp:
-    environment:
-      LOG_LEVEL: debug
-    volumes:
-      # Mount for development
-      - ../../mcp-servers/mem0:/app:ro
+
 
   gitea:
     environment:
