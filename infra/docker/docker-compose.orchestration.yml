@@ -198,30 +198,7 @@ services:
       timeout: 10s
       retries: 3
 
-  # Letta - OS-like agent memory management
-  letta:
-    image: letta/letta:latest
-    container_name: nyra-letta
-    restart: unless-stopped
-    environment:
-      LETTA_SERVER_PASSWORD: ${LETTA_SERVER_PASSWORD}
-      LETTA_POSTGRES_URI: ${LETTA_POSTGRES_URI}
-      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
-    volumes:
-      - letta_data:/root/.letta
-    ports:
-      - "8283:8283"
-      - "8284:8284"
-    networks:
-      - nyra-network
-    depends_on:
-      postgresql:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8283/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+
 
 volumes:
   postgres_data:
@@ -238,5 +215,4 @@ volumes:
     driver: local
   nexus_router_data:
     driver: local
-  letta_data:
     driver: local

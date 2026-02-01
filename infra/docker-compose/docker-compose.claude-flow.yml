@@ -1,0 +1,123 @@
+# ============================================================================
+# Project Nyra - Claude Flow Services
+# ============================================================================
+# Claude Flow Brain (MCP Server) and CI/CD Worker
+#
+# Dependencies: base (Redis)
+# Usage:
+#   docker compose -f docker-compose.base.yml -f docker-compose.claude-flow.yml up -d
+# ============================================================================
+
+version: '3.8'
+
+volumes:
+  claude_flow_data:
+    name: nyra_claude_flow_data
+    driver: local
+  claude_flow_logs:
+    name: nyra_claude_flow_logs
+    driver: local
+
+networks:
+  flow-net:
+    name: nyra-flow-net
+    driver: bridge
+
+services:
+  # ==========================================
+  # THE BRAIN: Persistent Memory & MCP Server
+  # ==========================================
+  claude-flow-brain:
+    build:
+      context: ../..
+      dockerfile: Dockerfile.brain
+    container_name: nyra-claude-flow-brain
+    restart: unless-stopped
+    ports:
+      - "${CLAUDE_FLOW_MCP_PORT:-8080}:8080" # MCP Server
+      - "${CLAUDE_FLOW_DASHBOARD_PORT:-3333}:3000" # Dashboard/Metrics
+    volumes:
+      - claude_flow_data:/app/.swarm  # Persistent Memory (SQLite + HNSW)
+      - claude_flow_logs:/app/logs
+      # Mount config read-only, but allow daemon to write logs to /app/logs
+      - ../../.claude-flow:/app/.claude-flow-config:ro
+    environment:
+      - NODE_ENV=production
+      - CLAUDE_FLOW_MODE=server
+      - CLAUDE_FLOW_ENABLE_REASONING_BANK=true
+      - CLAUDE_FLOW_ENABLE_AGENT_DB=true
+      - CLAUDE_FLOW_ENABLE_RUVECTOR=true
+      - REDIS_URL=redis://nyra-redis-golden:6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-redis-secure-password}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      # RuVector connection
+      - RUVECTOR_HOST=nyra-ruvector
+      - RUVECTOR_PORT=5432
+      - RUVECTOR_USER=${RUVECTOR_POSTGRES_USER:-claude}
+      - RUVECTOR_PASSWORD=${RUVECTOR_POSTGRES_PASSWORD:-claude-flow-secure}
+      - RUVECTOR_DATABASE=${RUVECTOR_POSTGRES_DB:-claude_flow}
+    networks:
+      - nyra-network
+      - flow-net
+    depends_on:
+      redis:
+        condition: service_healthy
+      ruvector-postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 4G
+        reservations:
+          cpus: '1.0'
+          memory: 2G
+    labels:
+      - "com.nyra.service=claude-flow-brain"
+      - "com.nyra.category=orchestrator"
+      - "com.nyra.mcp.enabled=true"
+
+  # ==========================================
+  # THE MUSCLE: CI/CD Runner Template
+  # (Use this image for your CI pipelines)
+  # ==========================================
+  claude-flow-cicd:
+    build:
+      context: ../..
+      dockerfile: Dockerfile.cicd
+    container_name: nyra-claude-flow-cicd
+    restart: "no"
+    environment:
+      - CI=true
+      - CLAUDE_FLOW_NON_INTERACTIVE=true
+      - CLAUDE_FLOW_HEADLESS=true
+      # Connects to the Brain for memory (Optional: or runs isolated)
+      - MCP_SERVER_URL=http://claude-flow-brain:8080
+      - REDIS_URL=redis://nyra-redis-golden:6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-redis-secure-password}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    networks:
+      - nyra-network
+      - flow-net
+    depends_on:
+      - claude-flow-brain
+    profiles: ["cicd"] # Only runs when specifically called
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 4G
+        reservations:
+          cpus: '1.0'
+          memory: 2G
+    labels:
+      - "com.nyra.service=claude-flow-cicd"
+      - "com.nyra.category=ci-worker"

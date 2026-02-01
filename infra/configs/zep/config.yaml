@@ -1,0 +1,25 @@
+# Zep Configuration
+api_secret: zep-secure-api-secret-2026
+log_level: info
+
+llm:
+  service: openai
+  model: gpt-4
+
+graph_store:
+  type: redis
+  url: redis://falkordb:6379
+  password: falkordb-secure
+
+store:
+  type: postgres
+  postgres:
+    host: ruvector-postgres
+    port: 5432
+    user: claude
+    password: claude-flow-secure
+    database: claude_flow
+    sslmode: disable
+
+memory:
+  vector_store_type: postgres

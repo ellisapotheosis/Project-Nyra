@@ -7,9 +7,21 @@
 [![pnpm](https://img.shields.io/badge/pnpm-10+-orange)](https://pnpm.io/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-## Quick Start
+## 🚀 Quick Start
 
-### Option 1: GUI Installer (Recommended for Windows)
+### Get Running in 5 Commands (Recommended)
+
+```bash
+cd ~/projects/project-nyra
+docker network create nyra-network
+cp infra/docker-compose/.env.example infra/docker-compose/.env
+docker compose -f infra/docker-compose.yml up -d
+docker compose -f infra/docker-compose.yml ps
+```
+
+**📖 Complete Guide**: See **[STARTUP-GUIDE.md](./STARTUP-GUIDE.md)** for detailed setup, troubleshooting, and advanced usage.
+
+### Option 2: GUI Bootstrap Installer (Windows)
 
 ```powershell
 # Run the interactive installer
@@ -23,15 +35,9 @@ pnpm start
 # - Configuration templates to deploy
 ```
 
-The GUI installer handles:
-- Component detection and validation
-- Configuration file deployment
-- Service installation and setup
-- Windows/WSL hybrid environment configuration
+**Bootstrap Guide**: [bootstrap/README.md](bootstrap/README.md)
 
-See [Bootstrap Documentation](bootstrap/README.md) for detailed installation instructions.
-
-### Option 2: Manual Setup
+### Option 3: Development Mode
 
 ```bash
 # Install dependencies

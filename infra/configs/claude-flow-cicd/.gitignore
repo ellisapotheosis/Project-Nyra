@@ -1,0 +1,49 @@
+# ==============================================================================
+# Claude Flow CI/CD Configuration - Git Ignore
+# ==============================================================================
+# Prevent committing sensitive files
+# ==============================================================================
+
+# Environment files with secrets
+.env.cicd
+.env.*
+!.env.cicd.example
+
+# Git credentials
+git-credentials
+.git-credentials
+
+# SSH keys
+ssh/id_*
+ssh/known_hosts
+ssh/config
+!ssh/.gitkeep
+
+# GPG keys
+gpg/
+*.gpg
+*.asc
+
+# Temporary files
+*.tmp
+*.log
+*.bak
+*.swp
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor files
+.vscode/
+.idea/
+*.sublime-*
+
+# Backup files
+*.backup
+backups/
+
+# Local testing
+test-*.sh
+local-*.yml
