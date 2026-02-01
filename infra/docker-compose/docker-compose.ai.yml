@@ -2,7 +2,7 @@
 # Project Nyra - AI Services
 # ============================================================================
 # AI and LLM infrastructure services
-# Includes: Nexus Router, LiteLLM, Letta, Mem0, Open-WebUI
+# Includes: Nexus Router, Letta, Mem0, Open-WebUI
 #
 # Dependencies: base, databases
 # Usage:
@@ -10,20 +10,6 @@
 # ============================================================================
 
 version: '3.8'
-
-volumes:
-  litellm_data:
-    name: nyra_litellm_data
-    driver: local
-  letta_data:
-    name: nyra_letta_data
-    driver: local
-  mem0_data:
-    name: nyra_mem0_data
-    driver: local
-  open_webui_data:
-    name: nyra_open_webui_data
-    driver: local
 
 services:
   # ==========================================================================
@@ -36,17 +22,16 @@ services:
     ports:
       - "${NEXUS_PORT:-6000}:3000"
     volumes:
-      - ../../configs/nexus/nexus.toml:/etc/nexus.toml:ro
+      - ../configs/nexus/nexus-minimal.toml:/etc/nexus.toml:ro
     environment:
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
       - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
       - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      - NEXUS_JWT_SECRET=${NEXUS_JWT_SECRET}
     networks:
       - nyra-network
-    depends_on:
-      - litellm
     healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://localhost:3000/health"]
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/health"]
       interval: 20s
       timeout: 5s
       retries: 10
@@ -54,192 +39,3 @@ services:
       - "com.nyra.service=nexus-router"
       - "com.nyra.category=ai-gateway"
       - "com.nyra.mcp.enabled=true"
-
-  # ==========================================================================
-  # LiteLLM - LLM proxy and load balancer
-  # ==========================================================================
-  litellm:
-    image: ghcr.io/berriai/litellm:main-stable
-    container_name: nyra-litellm
-    restart: unless-stopped
-    ports:
-      - "${LITELLM_PORT:-4000}:4000"
-    volumes:
-      - ../../configs/litellm/config.yaml:/app/config.yaml:ro
-      - litellm_data:/data
-    environment:
-      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
-      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
-      - LITELLM_MASTER_KEY=${LITELLM_MASTER_KEY:-sk-litellm-master-key}
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-nyra_user}:${POSTGRES_PASSWORD:-nyra_secure_password}@postgres:5432/${LITELLM_DB:-litellm}
-    networks:
-      - nyra-network
-    depends_on:
-      postgres:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:4000/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    deploy:
-      resources:
-        limits:
-          cpus: '1.0'
-          memory: 2G
-        reservations:
-          cpus: '0.5'
-          memory: 1G
-
-  # ==========================================================================
-  # Letta - Agent memory and state management
-  # ==========================================================================
-  letta:
-    image: letta/letta:latest
-    container_name: nyra-letta
-    restart: unless-stopped
-    ports:
-      - "${LETTA_PORT:-8283}:8283"
-      - "8284:8284"
-    environment:
-      - LETTA_API_KEY=${LETTA_API_KEY:-letta_secure_key}
-      - LETTA_SERVER_PASSWORD=${LETTA_SERVER_PASSWORD:-letta_secure_pass}
-      - LETTA_PG_URI=postgresql://${POSTGRES_USER:-nyra_user}:${POSTGRES_PASSWORD:-nyra_secure_password}@postgres:5432/${LETTA_DB:-letta}
-      - LETTA_LLM_ENDPOINT=http://nexus:6000/v1
-      - OPENAI_BASE_URL=http://nexus:6000/llm/openai/v1
-      - OPENAI_API_KEY=dummy
-      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
-    volumes:
-      - letta_data:/var/lib/letta
-    networks:
-      - nyra-network
-    depends_on:
-      postgres:
-        condition: service_healthy
-      nexus:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8283/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    deploy:
-      resources:
-        limits:
-          cpus: '1.0'
-          memory: 2G
-        reservations:
-          cpus: '0.5'
-          memory: 1G
-
-  # ==========================================================================
-  # Mem0 - Universal memory layer
-  # ==========================================================================
-  mem0:
-    build:
-      context: ../../services/mem0-rest
-      dockerfile: ../../infra/docker/build/services/mem0-rest/Dockerfile
-    container_name: nyra-mem0
-    restart: unless-stopped
-    ports:
-      - "${MEM0_PORT:-4321}:4321"
-    environment:
-      - MEM0_STORE_PATH=/data/mem0.sqlite
-      - MEM0_USE_LOCAL=true
-      - NEXUS_OPENAI_BASE_URL=http://nexus:6000/llm/openai/v1
-      - OPENAI_API_KEY=dummy
-      - QDRANT_HOST=qdrant
-      - QDRANT_PORT=6333
-      - QDRANT_API_KEY=${QDRANT_API_KEY:-qdrant_secure_key}
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
-      - REDIS_PASSWORD=${REDIS_PASSWORD:-redis_secure_pass}
-    volumes:
-      - mem0_data:/data
-    networks:
-      - nyra-network
-    depends_on:
-      - redis
-      - qdrant
-      - nexus
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:4321/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    deploy:
-      resources:
-        limits:
-          cpus: '1.0'
-          memory: 2G
-        reservations:
-          cpus: '0.5'
-          memory: 1G
-
-  # ==========================================================================
-  # Mem0 MCP Server
-  # ==========================================================================
-  openmemory_mcp:
-    image: mem0/openmemory-mcp:latest
-    container_name: nyra-openmemory-mcp
-    restart: unless-stopped
-    ports:
-      - "8081:8081"
-    environment:
-      - MEM0_REST_URL=http://mem0:4321
-    networks:
-      - nyra-network
-    depends_on:
-      - mem0
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8081/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-
-  # ==========================================================================
-  # Open-WebUI - Chat interface
-  # ==========================================================================
-  openwebui:
-    image: ghcr.io/open-webui/open-webui:main
-    container_name: nyra-openwebui
-    restart: unless-stopped
-    ports:
-      - "${OPENWEBUI_PORT:-8080}:8080"
-    environment:
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-nyra_user}:${POSTGRES_PASSWORD:-nyra_secure_password}@postgres:5432/${POSTGRES_DB:-nyra_db}
-      - OPENAI_API_BASE_URL=http://nexus:3000/llm/openai
-      - OPENAI_API_KEY=dummy
-      - WEBUI_SECRET_KEY=${SESSION_SECRET:-$(openssl rand -base64 32)}
-      - ENABLE_SIGNUP=false
-      - ENABLE_RAG=true
-      - ENABLE_IMAGE_GENERATION=false
-      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
-      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
-    volumes:
-      - open_webui_data:/app/backend/data
-    networks:
-      - nyra-network
-    depends_on:
-      postgres:
-        condition: service_healthy
-      nexus:
-        condition: service_started
-    labels:
-      - "com.nyra.service=openwebui"
-      - "com.nyra.category=application"
-      - "com.nyra.mcp.enabled=true"
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    deploy:
-      resources:
-        limits:
-          cpus: '2.0'
-          memory: 2G
-        reservations:
-          cpus: '1.0'
-          memory: 1G

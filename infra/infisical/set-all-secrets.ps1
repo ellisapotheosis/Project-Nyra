@@ -72,7 +72,6 @@ infisical secrets set `
 # Database names for services
 Write-Host "Setting service database names..." -ForegroundColor Green
 infisical secrets set `
-  LETTA_DB_NAME=letta `
   TWENTY_DB_NAME=twenty `
   DIFY_DB_NAME=dify `
   N8N_DB_NAME=n8n `
@@ -159,23 +158,6 @@ infisical secrets set `
   OPENROUTER_FALLBACK_MODEL=deepseek/deepseek-r1 `
   --env=$Environment --path="$INFISICAL_PATH" --projectId="$INFISICAL_PROJECT_ID"
 
-Write-Host ""
-Write-Host "============================================================================" -ForegroundColor Cyan
-Write-Host "LETTA MEMORY SYSTEM" -ForegroundColor Cyan
-Write-Host "============================================================================" -ForegroundColor Cyan
-
-$LETTA_SERVER_PASSWORD = Read-Host "Enter Letta server password" -AsSecureString
-$LETTA_SERVER_PASSWORD_PLAIN = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($LETTA_SERVER_PASSWORD))
-
-$LETTA_DB_PASSWORD = Read-Host "Enter Letta database password" -AsSecureString
-$LETTA_DB_PASSWORD_PLAIN = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($LETTA_DB_PASSWORD))
-
-Write-Host "Setting Letta credentials..." -ForegroundColor Green
-infisical secrets set `
-  LETTA_SERVER_PASSWORD=$LETTA_SERVER_PASSWORD_PLAIN `
-  LETTA_DB_PASSWORD=$LETTA_DB_PASSWORD_PLAIN `
-  LETTA_POSTGRES_URI=postgresql://letta:$LETTA_DB_PASSWORD_PLAIN@postgresql:5432/letta `
-  --env=$Environment --path="$INFISICAL_PATH" --projectId="$INFISICAL_PROJECT_ID"
 
 Write-Host ""
 Write-Host "============================================================================" -ForegroundColor Cyan

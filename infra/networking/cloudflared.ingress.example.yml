@@ -1,0 +1,39 @@
+# Project Nyra - Cloudflare Tunnel ingress example
+#
+# This is an example of how you might configure ingress rules for your
+# Cloudflare tunnel. You can either:
+#   - Paste equivalent rules into the Cloudflare Zero Trust dashboard, OR
+#   - Use this as /etc/cloudflared/config.yml if you switch to config-file mode.
+#
+# IMPORTANT: This file is NOT used automatically by docker-compose.network.yml.
+#            It is documentation + a starting point.
+
+# Name of the tunnel you created in Cloudflare
+# (must match the tunnel associated with CLOUDFLARE_TUNNEL_TOKEN_ORCHESTRATOR)
+tunnel: nyra-orchestrator
+
+# Cloudflare account ID (optional here, often handled by credentials file)
+#account-id: your_account_id_here
+
+# Credentials file path if using config-file mode
+#credentials-file: /etc/cloudflared/nyra-orchestrator.json
+
+ingress:
+  # Public hostname for Nexus (MCP + LLM routing)
+  - hostname: nexus.your-domain.com
+    service: http://localhost:6000
+
+  # Public hostname for Gitea UI
+  - hostname: git.your-domain.com
+    service: http://localhost:3005
+
+  # Public hostname for Nyra Orchestrator API
+  - hostname: orchestrator.your-domain.com
+    service: http://localhost:8010
+
+  # Optional: Claude-Flow HTTP (if you expose it via a dedicated port)
+  # - hostname: claude-flow.your-domain.com
+  #   service: http://localhost:8080
+
+  # Default catch-all (do not route anything else)
+  - service: http_status:404

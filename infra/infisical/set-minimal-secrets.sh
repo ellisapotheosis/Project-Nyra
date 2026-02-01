@@ -45,10 +45,7 @@ read -sp "Redis password: " REDIS_PASSWORD
 echo ""
 read -sp "FalkorDB password: " FALKORDB_PASSWORD
 echo ""
-read -sp "Letta server password: " LETTA_SERVER_PASSWORD
-echo ""
-read -sp "Letta DB password: " LETTA_DB_PASSWORD
-echo ""
+
 
 echo ""
 echo "============================================================================"
@@ -93,9 +90,6 @@ infisical secrets set \
   OPENROUTER_API_KEY="$OPENROUTER_API_KEY" \
   OPENROUTER_BASE_URL=https://openrouter.ai/api/v1 \
   OPENROUTER_FALLBACK_MODEL=deepseek/deepseek-r1 \
-  LETTA_SERVER_PASSWORD="$LETTA_SERVER_PASSWORD" \
-  LETTA_DB_PASSWORD="$LETTA_DB_PASSWORD" \
-  LETTA_POSTGRES_URI="postgresql://letta:$LETTA_DB_PASSWORD@postgresql:5432/letta" \
   DATABASE_URL="postgresql://nyra:$POSTGRES_PASSWORD@postgresql:5432/nyra_production" \
   CLAUDE_FLOW_PORT=9000 \
   CLAUDE_FLOW_MODE=orchestrator \

@@ -214,12 +214,6 @@ url = "http://graphiti-mcp:8000"
 enabled = true
 description = "Temporal knowledge graph with relationship tracking"
 
-# --- G. Qdrant (Vector Search) ---
-[mcp.servers.qdrant]
-type = "http"
-url = "http://qdrant-mcp:8066"
-enabled = true
-description = "Vector database for semantic search"
 
 # --- H. Context7 (Code Documentation) ---
 [mcp.servers.context7]

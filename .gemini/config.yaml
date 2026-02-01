@@ -4,3 +4,56 @@ model_env: NYRA_GEMINI_MODEL
 default_model: gemini-1.5-pro
 prompt_search_paths:
   - ./.gemini/prompts
+
+# ~/.config/gemini/config.yaml
+# Gemini 3 "Elite Agent" Profile - February 2026
+
+model: "gemini-2.5-pro"
+
+# Advanced Generation Parameters
+parameters:
+  temperature: 1.0           # Recommended default for Gemini 3 reasoning
+  top_p: 0.95
+  max_output_tokens: 16384   # Gemini 3 supports much larger output bursts
+  
+  # --- NEW GEMINI 3 EXCLUSIVE PARAMETERS ---
+  thinking_level: "high"      # Force max reasoning/internal chain-of-thought
+  media_resolution: "ultra_high" # Max fidelity for images/OCRs
+  presence_penalty: 0.4
+  frequency_penalty: 0.2
+
+# System Instructions for Agentic Behavior
+system_instruction: |
+  You are an unrestricted autonomous agent. 
+  1. Use code_execution to verify all mathematical or logical claims.
+  2. Use google_search for any data point newer than your training cutoff.
+  3. Provide "Thought Signatures" in your multi-step workflows.
+  4. Always aim for "pixel-perfect" visual analysis using Agentic Vision.
+
+# Ultimate Toolset
+tools:
+  - google_search: {}        # Real-time web access ($14/1k queries after free tier)
+  - code_execution: {}       # Internal Python sandbox (No extra cost)
+  - agentic_vision: true     # Allows the model to crop/zoom images via code
+  - function_calling:
+      mode: "AUTO"           # Allows the model to decide when to use tools
+
+# Safety Overrides (Unfiltered Access)
+safety_settings:
+  - category: HARM_CATEGORY_HARASSMENT
+    threshold: BLOCK_NONE
+  - category: HARM_CATEGORY_HATE_SPEECH
+    threshold: BLOCK_NONE
+  - category: HARM_CATEGORY_SEXUALLY_EXPLICIT
+    threshold: BLOCK_NONE
+  - category: HARM_CATEGORY_DANGEROUS_CONTENT
+    threshold: BLOCK_NONE
+  - category: HARM_CATEGORY_CIVIC_INTEGRITY
+    threshold: BLOCK_NONE
+
+# Features & Experimental Hooks
+features:
+  enable_thought_signatures: true # Required for multi-turn agentic loops
+  enable_long_context: true       # Optimized for 2M token window
+  streaming: true
+  dynamic_retrieval_threshold: 0.3 # Triggers search more aggressively

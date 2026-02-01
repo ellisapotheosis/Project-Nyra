@@ -124,8 +124,6 @@ mkdir -p "$SCRIPT_DIR/backups/qdrant"
 mkdir -p "$SCRIPT_DIR/logs/claude-flow"
 mkdir -p "$SCRIPT_DIR/logs/archon-os"
 mkdir -p "$SCRIPT_DIR/logs/nexus-router"
-mkdir -p "$SCRIPT_DIR/logs/letta"
-
 # Pull latest images
 print_info "Pulling latest Docker images..."
 if [ "$USE_INFISICAL" = "true" ]; then
@@ -209,7 +207,7 @@ if [ "$ENVIRONMENT" = "full" ] || [ "$ENVIRONMENT" = "prod" ]; then
     check_service_health "Claude Flow" "nyra-claude-flow*"
     check_service_health "Archon OS" "nyra-archon-os*"
     check_service_health "Nexus Router" "nyra-nexus-router*"
-    check_service_health "Letta" "nyra-letta*"
+    
     check_service_health "Open-WebUI" "nyra-open-webui*"
 fi
 
@@ -222,7 +220,7 @@ if [ "$ENVIRONMENT" = "dev" ]; then
     echo -e "  Open-WebUI:       ${BLUE}http://localhost:3210${NC}"
     echo -e "  Claude Flow:      ${BLUE}http://localhost:9000${NC}"
     echo -e "  Nexus Router:     ${BLUE}http://localhost:8000${NC}"
-    echo -e "  Letta:            ${BLUE}http://localhost:8283${NC}"
+    
     echo -e "  n8n:              ${BLUE}http://localhost:5678${NC}"
     echo -e "  Grafana:          ${BLUE}http://localhost:3000${NC}"
     echo -e "  Prometheus:       ${BLUE}http://localhost:9090${NC}"
