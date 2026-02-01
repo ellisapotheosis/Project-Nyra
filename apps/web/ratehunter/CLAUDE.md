@@ -1,9 +1,12 @@
-# RateHunter - CLAUDE.md
+# RateHunter Web App - Claude Flow V3 Configuration
 
-**Inherits from**: `apps/CLAUDE.md`
-**Stack**: React 18, TypeScript, Node.js, Vite
-**Port**: 3001
-**Type**: public (Rate comparison and mortgage application platform)
+> **Full-featured mortgage rate comparison and application platform**
+>
+> **Inherits from**: `apps/web/CLAUDE.md`
+> **Stack**: Next.js 15, React 19, TypeScript 5, Tailwind CSS 4, TanStack Query
+> **Port**: 3100
+> **Type**: Full-Stack Web Application (public + authenticated)
+> **Users**: Prospective borrowers, rate shoppers, active applicants
 
 ## Overview
 

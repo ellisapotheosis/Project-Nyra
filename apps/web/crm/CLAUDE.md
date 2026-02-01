@@ -1,289 +1,532 @@
-# Nyra CRM - Claude Flow V3 Configuration
+# CRM Dashboard - Claude Flow V3 Configuration
 
-## 🚨 AUTOMATIC SWARM ORCHESTRATION
-
-**When starting work on complex tasks, Claude Code MUST automatically:**
-
-1. **Initialize the swarm** using CLI tools via Bash
-2. **Spawn concurrent agents** using Claude Code's Task tool
-3. **Coordinate via hooks** and memory
-
-### 🚨 CRITICAL: CLI + Task Tool in SAME Message
-
-**When user says "spawn swarm" or requests complex work, Claude Code MUST in ONE message:**
-1. Call CLI tools via Bash to initialize coordination
-2. **IMMEDIATELY** call Task tool to spawn REAL working agents
-3. Both CLI and Task calls must be in the SAME response
-
-**CLI coordinates, Task tool agents do the actual work!**
+> **Lead management and customer relationship management system**
+>
+> **Inherits from**: `apps/web/CLAUDE.md`
+> **Stack**: Next.js 15, React 19, TypeScript 5, Tailwind CSS 4, TanStack Query, Prisma
+> **Port**: 3003
+> **Type**: Full-Stack Admin Application (authenticated)
+> **Users**: Loan officers, sales team, managers
 
 ---
 
-## 🤖 INTELLIGENT 3-TIER MODEL ROUTING (ADR-026)
+## APPLICATION CONTEXT
 
-**The routing system has 3 tiers for optimal cost/performance:**
+### Purpose
+The CRM Dashboard is the operational nerve center for mortgage loan officers and sales teams. It provides lead management, pipeline tracking, activity logging, and customer communication tools integrated with TwentyCRM backend.
 
-| Tier | Handler | Latency | Cost | Use Cases |
-|------|---------|---------|------|-----------|
-| **1** | Agent Booster | <1ms | $0 | Simple transforms (var→const, add-types, remove-console) |
-| **2** | Haiku | ~500ms | $0.0002 | Simple tasks, bug fixes, low complexity |
-| **3** | Sonnet/Opus | 2-5s | $0.003-$0.015 | Architecture, security, complex reasoning |
+### Key Features
+- Lead intake and assignment
+- Pipeline management (qualification → approval → closing)
+- Activity tracking (calls, emails, meetings)
+- Document management and e-signature
+- Drip campaign management
+- Real-time notifications
+- Performance dashboards
+- Rate quote generation
+- Compliance tracking
 
-**Before spawning agents, get routing recommendation:**
+### Architecture
+```
+Next.js App Router (SSR)
+    ├── Dashboard (real-time metrics)
+    ├── Leads (search, filter, assign)
+    ├── Pipelines (kanban board)
+    ├── Communications (emails, calls)
+    ├── Documents (upload, e-sign)
+    └── Settings (team, integrations)
+         ↓
+TwentyCRM API ← Lead source
+Quote Engine ← Rate calculations
+Campaign Engine ← Drip sequences
+PostgreSQL ← Activity, documents, messages
+```
+
+---
+
+## TECH STACK SPECIFICS
+
+### Next.js 15 Architecture
+- **App Router** with layout hierarchy
+- **Server Components** for data fetching
+- **Route Handlers** for API endpoints
+- **Middleware** for authentication/authorization
+- **ISR** for dashboard caching
+
+### Database (Prisma + PostgreSQL)
+```prisma
+// prisma/schema.prisma
+model Lead {
+  id String @id @default(cuid())
+  email String @unique
+  phone String
+  name String
+  status LeadStatus
+  assignedTo User?
+  activities Activity[]
+  documents Document[]
+  createdAt DateTime @default(now())
+}
+
+enum LeadStatus {
+  NEW
+  CONTACTED
+  QUALIFIED
+  PROPOSAL_SENT
+  APPROVED
+  CLOSED
+  LOST
+}
+
+model Activity {
+  id String @id @default(cuid())
+  type ActivityType
+  lead Lead
+  createdBy User
+  notes String
+  timestamp DateTime @default(now())
+}
+
+enum ActivityType {
+  CALL
+  EMAIL
+  MEETING
+  NOTE
+  DOCUMENT_SENT
+  RATE_OFFERED
+}
+```
+
+### Real-Time Features
+- **Socket.io**: Live notifications, lead updates
+- **Webhooks**: TwentyCRM events
+- **Server-Sent Events**: Fallback for notifications
+
+### State Management (Zustand + React Query)
+```typescript
+// Global state for current lead
+import { create } from 'zustand';
+
+interface CRMStore {
+  currentLead: Lead | null;
+  setCurrentLead: (lead: Lead) => void;
+  selectedPipeline: string | null;
+  setSelectedPipeline: (id: string) => void;
+}
+
+export const useCRMStore = create<CRMStore>((set) => ({
+  currentLead: null,
+  setCurrentLead: (lead) => set({ currentLead: lead }),
+  selectedPipeline: null,
+  setSelectedPipeline: (id) => set({ selectedPipeline: id }),
+}));
+```
+
+---
+
+## ROUTE STRUCTURE
+
+### Authenticated Routes
+```
+/dashboard - Overview (metrics, today's calls, upcoming tasks)
+/leads - Lead list with advanced filters
+/leads/new - Create new lead
+/leads/[id] - Specific lead detail view
+/leads/[id]/activities - Activity timeline
+/leads/[id]/documents - Document management
+/leads/[id]/communication - Messages and calls
+/pipelines - Kanban board (drag-drop)
+/pipelines/[id] - Pipeline details
+/tasks - Task management and calendar
+/documents - Document center with e-signature
+/rates - Quote generation tool
+/campaigns - Drip campaign management
+/team - Team management and roles
+/settings - App settings and integrations
+/reports - Analytics and performance dashboards
+```
+
+### Admin-Only Routes
+```
+/admin/users - User management
+/admin/roles - Role management
+/admin/audit - Audit logs
+/admin/compliance - Compliance tracking
+```
+
+---
+
+## COMPONENT ARCHITECTURE
+
+### Feature-Based Organization
+```
+components/
+├── shared/
+│   ├── Navbar.tsx
+│   ├── Sidebar.tsx
+│   ├── BreadcrumbNav.tsx
+│   └── ErrorBoundary.tsx
+├── leads/
+│   ├── LeadList.tsx
+│   ├── LeadCard.tsx
+│   ├── LeadFilters.tsx
+│   ├── LeadForm.tsx
+│   ├── LeadDetail.tsx
+│   └── ActivityTimeline.tsx
+├── pipeline/
+│   ├── PipelineBoard.tsx
+│   ├── PipelineCard.tsx
+│   ├── StageColumn.tsx
+│   └── DragDropContext.tsx
+├── communication/
+│   ├── EmailComposer.tsx
+│   ├── CallLogger.tsx
+│   ├── MessageThread.tsx
+│   └── NotificationBell.tsx
+├── documents/
+│   ├── DocumentUpload.tsx
+│   ├── DocumentViewer.tsx
+│   ├── DocumentSignature.tsx
+│   └── DocumentList.tsx
+└── dashboard/
+    ├── MetricsCard.tsx
+    ├── PerformanceChart.tsx
+    ├── RecentActivity.tsx
+    └── UpcomingTasks.tsx
+```
+
+### Kanban Pipeline View
+```typescript
+// components/pipeline/PipelineBoard.tsx
+'use client';
+
+import { useQuery } from '@tanstack/react-query';
+import { DndContext, closestCorners } from '@dnd-kit/core';
+import { StageColumn } from './StageColumn';
+
+export function PipelineBoard() {
+  const { data: leads } = useQuery({
+    queryKey: ['leads', 'pipeline'],
+    queryFn: async () => {
+      const response = await fetch('/api/leads?view=pipeline');
+      return response.json();
+    },
+  });
+
+  const stages = ['NEW', 'CONTACTED', 'QUALIFIED', 'PROPOSAL', 'APPROVED', 'CLOSED'];
+
+  return (
+    <DndContext collisionDetection={closestCorners}>
+      <div className="flex gap-4 overflow-x-auto">
+        {stages.map((stage) => (
+          <StageColumn
+            key={stage}
+            stage={stage}
+            leads={leads?.filter((l) => l.status === stage) || []}
+          />
+        ))}
+      </div>
+    </DndContext>
+  );
+}
+```
+
+---
+
+## DATA FETCHING PATTERNS
+
+### Server-Side Lead Fetching
+```typescript
+// app/leads/page.tsx
+async function LeadsPage(props: { searchParams: SearchParams }) {
+  const session = await auth();
+  const filters = parseSearchParams(props.searchParams);
+
+  // Fetch from database with filters
+  const leads = await db.lead.findMany({
+    where: {
+      assignedTo: { id: session.user.id },
+      status: filters.status,
+      email: { contains: filters.search },
+    },
+    include: {
+      activities: { take: 3, orderBy: { timestamp: 'desc' } },
+      documents: { take: 2 },
+    },
+    take: 50,
+  });
+
+  return <LeadList initialLeads={leads} />;
+}
+```
+
+### Client-Side Real-Time Updates
+```typescript
+// hooks/useLeadUpdates.ts
+export function useLeadUpdates(leadId: string) {
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    const socket = io(process.env.NEXT_PUBLIC_WS_URL);
+
+    socket.on(`lead:${leadId}:updated`, (updatedLead) => {
+      queryClient.setQueryData(['lead', leadId], updatedLead);
+    });
+
+    return () => socket.disconnect();
+  }, [leadId, queryClient]);
+}
+```
+
+### Mutation with Optimistic Updates
+```typescript
+// hooks/useUpdateLead.ts
+export function useUpdateLead() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: Lead) => updateLeadAPI(data),
+    onMutate: async (newLead) => {
+      // Cancel outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ['lead', newLead.id] });
+
+      // Snapshot old data
+      const previousLead = queryClient.getQueryData(['lead', newLead.id]);
+
+      // Optimistically update UI
+      queryClient.setQueryData(['lead', newLead.id], newLead);
+
+      return { previousLead };
+    },
+    onError: (err, newLead, context) => {
+      queryClient.setQueryData(['lead', newLead.id], context?.previousLead);
+    },
+  });
+}
+```
+
+---
+
+## API ROUTES (Server-Side)
+
+### Lead CRUD Endpoints
+```typescript
+// app/api/leads/route.ts
+export async function GET(request: Request) {
+  const session = await auth();
+  const { searchParams } = new URL(request.url);
+
+  const leads = await db.lead.findMany({
+    where: { assignedTo: { id: session.user.id } },
+    include: { activities: true },
+  });
+
+  return Response.json(leads);
+}
+
+export async function POST(request: Request) {
+  const session = await auth();
+  const body = await request.json();
+
+  const lead = await db.lead.create({
+    data: {
+      ...body,
+      assignedTo: { connect: { id: session.user.id } },
+    },
+  });
+
+  // Trigger compliance check
+  await triggerComplianceValidation(lead);
+
+  return Response.json(lead, { status: 201 });
+}
+
+// app/api/leads/[id]/route.ts
+export async function PUT(request: Request, { params }: { params: { id: string } }) {
+  const body = await request.json();
+
+  const lead = await db.lead.update({
+    where: { id: params.id },
+    data: body,
+  });
+
+  // Broadcast update to connected clients
+  io.emit(`lead:${lead.id}:updated`, lead);
+
+  return Response.json(lead);
+}
+```
+
+### Activity Logging
+```typescript
+// app/api/activities/route.ts
+export async function POST(request: Request) {
+  const session = await auth();
+  const { leadId, type, notes } = await request.json();
+
+  const activity = await db.activity.create({
+    data: {
+      type,
+      notes,
+      lead: { connect: { id: leadId } },
+      createdBy: { connect: { id: session.user.id } },
+    },
+  });
+
+  return Response.json(activity);
+}
+```
+
+---
+
+## TESTING STRATEGY (TDD)
+
+### Unit Tests
+```typescript
+// __tests__/utils/leadScoring.test.ts
+import { calculateLeadScore } from '@/lib/leadScoring';
+
+describe('calculateLeadScore', () => {
+  it('calculates score based on income and credit', () => {
+    const score = calculateLeadScore({
+      income: 100000,
+      creditScore: 750,
+      loanAmount: 300000,
+    });
+
+    expect(score).toBeGreaterThan(0);
+    expect(score).toBeLessThanOrEqual(100);
+  });
+});
+```
+
+### Integration Tests
+```typescript
+// __tests__/integration/lead-flow.test.ts
+describe('Lead Management Flow', () => {
+  it('creates lead and logs activity', async () => {
+    // Create lead
+    const lead = await createLead({
+      email: 'test@example.com',
+      name: 'Test User',
+    });
+
+    // Log activity
+    const activity = await logActivity({
+      leadId: lead.id,
+      type: 'CALL',
+      notes: 'Initial contact',
+    });
+
+    expect(activity.leadId).toBe(lead.id);
+  });
+});
+```
+
+### E2E Tests
+```typescript
+// e2e/crm-flow.spec.ts
+test('Create lead and move through pipeline', async ({ page }) => {
+  await page.goto('http://localhost:3003/dashboard');
+
+  // Create new lead
+  await page.click('button:has-text("New Lead")');
+  await page.fill('input[name="email"]', 'lead@example.com');
+  await page.click('button:has-text("Create")');
+
+  // Move to qualified
+  await page.dragAndDrop('[data-lead-id]', '[data-stage="QUALIFIED"]');
+
+  // Verify update
+  await expect(page.locator('text=Lead qualified')).toBeVisible();
+});
+```
+
+---
+
+## COMPLIANCE & AUDIT
+
+### Audit Trail
+```typescript
+// lib/audit.ts
+export async function logAudit(action: AuditAction) {
+  await db.auditLog.create({
+    data: {
+      action: action.type,
+      userId: action.userId,
+      leadId: action.leadId,
+      changes: action.changes,
+      timestamp: new Date(),
+      ipAddress: action.ipAddress,
+    },
+  });
+}
+```
+
+### Compliance Checks
+```typescript
+// app/api/leads/[id]/validate-compliance/route.ts
+export async function POST(request: Request, { params }: { params: { id: string } }) {
+  const lead = await db.lead.findUnique({ where: { id: params.id } });
+
+  // TILA/RESPA disclosure validation
+  const validation = await validateTILACompliance(lead);
+
+  // Anti-steering check
+  const antiSteering = await checkAntiSteeringPolicy(lead);
+
+  // Fair lending check
+  const fairLending = await validateFairLending(lead);
+
+  return Response.json({
+    compliant: validation.ok && antiSteering.ok && fairLending.ok,
+    issues: [...validation.issues, ...antiSteering.issues, ...fairLending.issues],
+  });
+}
+```
+
+---
+
+## DEPLOYMENT
+
+### Environment Variables
 ```bash
-npx @claude-flow/cli@latest hooks pre-task --description "[task description]"
+# Development
+DATABASE_URL=postgresql://crm_dev:pass@localhost:5432/nyra_crm
+NEXTAUTH_URL=http://localhost:3003
+NEXTAUTH_SECRET=dev-secret
+TWENTYCRM_API_URL=http://localhost:3000
+TWENTYCRM_API_KEY=dev-key
+REDIS_URL=redis://localhost:6379
+
+# Production
+DATABASE_URL=postgresql://crm_prod@prod.db:5432/nyra_crm
+NEXTAUTH_URL=https://crm.nyra.com
+TWENTYCRM_API_URL=https://twentycrm.nyra.com
 ```
 
-**When you see these recommendations:**
+### Docker
+```dockerfile
+FROM node:20-alpine AS builder
+WORKDIR /app
+COPY package.json pnpm-lock.yaml ./
+RUN npm install -g pnpm && pnpm install
+COPY . .
+RUN pnpm build
 
-1. `[AGENT_BOOSTER_AVAILABLE]` → Skip LLM entirely, use Edit tool directly
-   - Intent types: `var-to-const`, `add-types`, `add-error-handling`, `async-await`, `add-logging`, `remove-console`
-
-2. `[TASK_MODEL_RECOMMENDATION] Use model="X"` → Use that model in Task tool:
-```javascript
-Task({
-  prompt: "...",
-  subagent_type: "coder",
-  model: "haiku"  // ← USE THE RECOMMENDED MODEL (haiku/sonnet/opus)
-})
-```
-
-**Benefits:** 75% cost reduction, 352x faster for Tier 1 tasks
-
----
-
-## 🛡️ ANTI-DRIFT CONFIG (PREFERRED)
-
-**Use this to prevent agent drift:**
-```bash
-# Small teams (6-8 agents) - use hierarchical for tight control
-npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 8 --strategy specialized
-
-# Large teams (10-15 agents) - use hierarchical-mesh for V3 queen + peer communication
-npx @claude-flow/cli@latest swarm init --topology hierarchical-mesh --max-agents 15 --strategy specialized
-```
-
-**Valid Topologies:**
-- `hierarchical` - Queen controls workers directly (anti-drift for small teams)
-- `hierarchical-mesh` - V3 queen + peer communication (recommended for 10+ agents)
-- `mesh` - Fully connected peer network
-- `ring` - Circular communication pattern
-- `star` - Central coordinator with spokes
-- `hybrid` - Dynamic topology switching
-
-**Anti-Drift Guidelines:**
-- **hierarchical**: Coordinator catches divergence
-- **max-agents 6-8**: Smaller team = less drift
-- **specialized**: Clear roles, no overlap
-- **consensus**: raft (leader maintains state)
-
----
-
-## 🔄 AUTO-START SWARM PROTOCOL (Background Execution)
-
-When the user requests a complex task, **spawn agents in background and WAIT for completion:**
-
-```javascript
-// STEP 1: Initialize swarm coordination (anti-drift config)
-Bash("npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 8 --strategy specialized")
-
-// STEP 2: Spawn ALL agents IN BACKGROUND in a SINGLE message
-// Use run_in_background: true so agents work concurrently
-Task({
-  prompt: "Research requirements, analyze codebase patterns, store findings in memory",
-  subagent_type: "researcher",
-  description: "Research phase",
-  run_in_background: true  // ← CRITICAL: Run in background
-})
-
-// STEP 3: WAIT - Tell user agents are working, then STOP
+FROM node:20-alpine
+WORKDIR /app
+ENV NODE_ENV=production
+COPY --from=builder /app/.next .next
+COPY --from=builder /app/node_modules node_modules
+COPY package.json ./
+EXPOSE 3003
+CMD ["npm", "start"]
 ```
 
 ---
 
-## ⏸️ CRITICAL: Spawn and Wait Pattern
-
-**After spawning background agents:**
-
-1. **TELL USER** - "I've spawned X agents working in parallel on: [list tasks]"
-2. **STOP** - Do not continue with more tool calls
-3. **WAIT** - Let the background agents complete their work
-4. **RESPOND** - When agents return results, review and synthesize
-
-### ✅ DO:
-- Spawn all agents in ONE message
-- Tell user what's happening
-- Wait for agent results to arrive
-- Synthesize results when they return
-
-### 🚫 DO NOT:
-- Continuously check swarm status
-- Poll TaskOutput repeatedly
-- Add more tool calls after spawning
-- Ask "should I check on the agents?"
-
----
-
-## 🧠 AUTO-LEARNING PROTOCOL
-
-### Before Starting Any Task
-```bash
-# 1. Search memory for relevant patterns from past successes
-npx @claude-flow/cli@latest memory search --query '[task keywords]' --namespace patterns
-
-# 2. Check if similar task was done before
-npx @claude-flow/cli@latest memory search --query '[task type]' --namespace tasks
-
-# 3. Load learned optimizations
-npx @claude-flow/cli@latest hooks route --task '[task description]'
-```
-
-### After Completing Any Task Successfully
-```bash
-# 1. Store successful pattern for future reference
-npx @claude-flow/cli@latest memory store --namespace patterns --key '[pattern-name]' --value '[what worked]'
-
-# 2. Train neural patterns on the successful approach
-npx @claude-flow/cli@latest hooks post-edit --file '[main-file]' --train-neural true
-
-# 3. Record task completion with metrics
-npx @claude-flow/cli@latest hooks post-task --task-id '[id]' --success true --store-results true
-
-# 4. Trigger optimization worker if performance-related
-npx @claude-flow/cli@latest hooks worker dispatch --trigger optimize
-```
-
----
-
-## 🚀 V3 CLI Commands (26 Commands, 140+ Subcommands)
-
-### Quick Reference
-
-```bash
-# Swarm management
-npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 8
-
-# Memory operations
-npx @claude-flow/cli@latest memory store --key "pattern" --value "content" --namespace patterns
-npx @claude-flow/cli@latest memory search --query "search term"
-npx @claude-flow/cli@latest memory retrieve --key "pattern" --namespace patterns
-
-# Hooks and learning
-npx @claude-flow/cli@latest hooks pre-task --description "[task]"
-npx @claude-flow/cli@latest hooks post-task --task-id "[id]" --success true
-npx @claude-flow/cli@latest hooks post-edit --file "[file]" --train-neural true
-
-# Status and monitoring
-npx @claude-flow/cli@latest swarm status
-npx @claude-flow/cli@latest agent list
-npx @claude-flow/cli@latest agent status
-```
-
----
-
-## 🚀 Available Agents (60+ Types)
-
-### For CRM Development
-- `coder`: CRM feature implementation
-- `backend-dev`: API and database operations
-- `reviewer`: Code quality and security review
-- `tester`: Unit and integration testing
-- `compliance-architect`: Mortgage compliance validation
-- `database-architect`: Schema design and migrations
-- `security-auditor`: Security review and vulnerability scanning
-
----
-
-## 🪝 V3 Hooks System (27 Hooks + 12 Workers)
-
-### Essential Hooks for Development
-
-```bash
-# Pre-task hook - get optimization recommendations
-npx @claude-flow/cli@latest hooks pre-task --description "CRM lead management feature"
-
-# Post-edit hook - train neural patterns
-npx @claude-flow/cli@latest hooks post-edit --file "filename.ts" --train-neural true
-
-# Post-task hook - store completion metadata
-npx @claude-flow/cli@latest hooks post-task --task-id "crm-feat-001" --success true --store-results true
-
-# Route hook - get optimal agent assignment
-npx @claude-flow/cli@latest hooks route --task "task description"
-```
-
----
-
-## 📝 Memory Commands Reference
-
-### Store Data
-```bash
-npx @claude-flow/cli@latest memory store \
-  --key "crm-pattern-leads" \
-  --value "Lead capture, assignment, tracking workflow" \
-  --namespace patterns
-```
-
-### Search Data
-```bash
-npx @claude-flow/cli@latest memory search \
-  --query "crm lead management" \
-  --namespace patterns --limit 5
-```
-
-### Retrieve Data
-```bash
-npx @claude-flow/cli@latest memory retrieve \
-  --key "crm-pattern-leads" \
-  --namespace patterns
-```
-
----
-
-## 🚨 CRITICAL: CONCURRENT EXECUTION & FILE MANAGEMENT
-
-**GOLDEN RULE: "1 MESSAGE = ALL RELATED OPERATIONS"**
-
-- **TodoWrite**: ALWAYS batch ALL todos in ONE call
-- **Task tool**: ALWAYS spawn ALL agents in ONE message
-- **File operations**: ALWAYS batch ALL reads/writes/edits in ONE message
-- **Bash commands**: ALWAYS batch ALL terminal operations in ONE message
-
----
-
-## 🎯 Task Complexity Detection
-
-**AUTO-INVOKE SWARM when task involves:**
-- Multiple files (3+)
-- New feature implementation
-- Database schema changes
-- Compliance-related changes
-- Security modifications
-
-**SKIP SWARM for:**
-- Single file edits
-- Simple bug fixes (1-2 lines)
-- Documentation updates
-- Configuration changes
-
----
-
-## 🎯 Project Context
-
-**Profile**: nextjs-typescript
-**Generated**: 2026-01-09
-
-## 🎯 CRM Project Overview
-
-Customer Relationship Management system for mortgage leads
-
-## 🏗️ Architecture
-
-**Tech Stack**: Next.js 14, React 18, TypeScript, Prisma, PostgreSQL
-**Port**: 3003
-**Type**: Next.js Application
-
-## 📋 Development Commands
+## DEVELOPMENT COMMANDS
 
 ```bash
 # Development
@@ -292,208 +535,49 @@ pnpm dev
 # Build
 pnpm build
 
-# Test
+# Production start
+pnpm start
+
+# Database
+pnpm db:migrate
+pnpm db:seed
+pnpm db:reset
+
+# Testing
 pnpm test
+pnpm test:watch
+pnpm test:coverage
 
-# Lint
+# E2E tests
+pnpm e2e
+pnpm e2e:debug
+
+# Linting
 pnpm lint
-```
-
-## 🧠 Claude Flow V3 Integration
-
-### 3-Tier Model Routing (ADR-026)
-
-```bash
-# Get routing recommendation before work
-npx @claude-flow/cli@latest hooks pre-task \
-  --description "CRM lead management feature development"
-```
-
-### Available Agents
-
-- **coder**: CRM feature implementation
-- **backend-dev**: API and database operations
-- **reviewer**: Code quality and security review
-- **tester**: Unit and integration testing
-- **compliance-architect**: Mortgage compliance validation
-
-### Recommended Workflows
-
-**1. Lead Management Feature**
-```bash
-# Initialize swarm for CRM work
-npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 5 --strategy specialized
-
-# Store CRM context
-npx @claude-flow/cli@latest memory store \
-  --namespace crm \
-  --key "leads/workflow" \
-  --value "Lead capture, assignment, tracking, conversion"
-```
-
-**2. TwentyCRM Integration**
-```bash
-# Search for integration patterns
-npx @claude-flow/cli@latest memory search \
-  --query "twentycrm integration api patterns" \
-  --namespace patterns
-
-# Store successful integration
-npx @claude-flow/cli@latest hooks post-task \
-  --task-id "crm-integration-001" \
-  --success true \
-  --store-results true
-```
-
-**3. Database Migration**
-```bash
-# Pre-migration safety check
-npx @claude-flow/cli@latest hooks pre-command \
-  --command "prisma migrate dev" \
-  --validate-safety true
-
-# Post-migration record
-npx @claude-flow/cli@latest hooks post-command \
-  --command "prisma migrate dev" \
-  --track-metrics true
-```
-
-### Auto-Learning Protocol
-
-**Before Development**:
-```bash
-# Search memory for CRM patterns
-npx @claude-flow/cli@latest memory search \
-  --query "crm lead management mortgage" \
-  --namespace patterns
-```
-
-**After Successful Implementation**:
-```bash
-# Store successful pattern
-npx @claude-flow/cli@latest memory store \
-  --namespace patterns \
-  --key "crm-success-$(date +%Y%m%d)" \
-  --value "Successfully implemented [feature] in CRM"
-
-# Train neural patterns
-npx @claude-flow/cli@latest neural train \
-  --pattern-type crm-workflows \
-  --epochs 10
+pnpm format
 ```
 
 ---
 
-## 🛠️ Tech Stack Specific Guidelines
+## INTEGRATION POINTS
 
-## Next.js + TypeScript Development Guidelines
-
-### Code Organization
-- Use App Router (`app/` directory) for new features
-- Organize by feature, not by file type
-- Co-locate components with their pages
-- Use barrel exports (`index.ts`) for clean imports
-
-### Component Patterns
-```typescript
-// Server Components (default)
-export default async function Page() {
-  const data = await fetchData();
-  return <div>{data.content}</div>;
-}
-
-// Client Components (when needed)
-'use client';
-export function InteractiveComponent() {
-  const [state, setState] = useState();
-  return <button onClick={() => setState(...)}>Click</button>;
-}
-```
-
-### Data Fetching
-- Prefer Server Components for data fetching
-- Use React Server Components for better performance
-- Cache API responses with `fetch()` options
-- Use Server Actions for mutations
-
-### Styling
-- Tailwind CSS utility-first approach
-- Use `cn()` utility for conditional classes
-- Shadcn/UI components for consistency
-- CSS Modules for component-specific styles
-
-### Type Safety
-- Strict TypeScript configuration
-- Define props interfaces explicitly
-- Use Zod for runtime validation
-- Type API responses with generated types
-
-### Performance
-- Use `next/image` for optimized images
-- Implement proper loading states
-- Use dynamic imports for code splitting
-- Optimize bundle size with tree shaking
-
-### Testing
-- Jest + React Testing Library
-- E2E tests with Playwright
-- Test Server Components with async utilities
-- Mock API calls appropriately
-
-### Best Practices
-- Follow Next.js 14 conventions
-- Use TypeScript strict mode
-- Implement proper error boundaries
-- Use Server Actions instead of API routes when possible
-- Optimize for Web Vitals (LCP, FID, CLS)
-
+- **TwentyCRM**: Lead source and CRM backend
+- **Quote Engine**: Rate calculations for quotes
+- **Campaign Engine**: Drip campaign workflows
+- **PostgreSQL**: Lead data, activities, documents
+- **Redis**: Session cache, real-time notifications
 
 ---
 
-## 🔒 CRM-Specific Security & Compliance
+## RELATED DOCUMENTATION
 
-### Data Protection
-- Encrypt all PII (names, contact info, financial data)
-- Role-based access control (RBAC)
-- Audit logging for all lead access and modifications
-- Session timeout after 30 minutes
+- **Parent CLAUDE.md**: `apps/web/CLAUDE.md`
+- **Apps CLAUDE.md**: `apps/CLAUDE.md`
+- **Root CLAUDE.md**: `/CLAUDE.md`
 
-### Mortgage Compliance
-- Fair lending practices (no discriminatory data)
-- Equal Housing Opportunity compliance
-- TCPA compliance for communication consent
-- Data retention (3+ years for mortgage records)
+---
 
-## 🔄 Integration Points
-
-### TwentyCRM (Port 3000)
-- Lead CRUD operations
-- Pipeline management
-- Activity tracking
-- Contact management
-
-### Quote Engine (Port 8001)
-- Rate calculations for leads
-- Loan product recommendations
-
-### Campaign Engine (Port 8002)
-- Automated drip campaigns
-- Lead nurturing workflows
-
-### Mem0 (Port 4321)
-- Conversation history
-- Lead interaction tracking
-
-## 📚 Related Documentation
-
-- **Root CLAUDE.md**: V3 orchestration patterns
-- **apps/web/CLAUDE.md**: Web application ecosystem
-- **TwentyCRM API**: CRM backend documentation
-
-## 📝 Notes
-
-- Integrated with TwentyCRM for data persistence
-- Real-time updates via WebSocket
-- Comprehensive lead lifecycle management
-- Claude Flow V3 hooks and memory integration
-- Mortgage-specific compliance features
+**Profile**: crm-dashboard
+**Generated**: 2026-01-26
+**Target Users**: Loan officers, sales teams, managers
+**Port**: 3003
