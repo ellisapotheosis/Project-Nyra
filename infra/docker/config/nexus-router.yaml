@@ -236,9 +236,6 @@ mcp:
         - agents
         - swarm
 
-    # Letta - Stateful Conversation Memory
-    - name: letta
-      url: http://letta:8283
       health_check:
         enabled: true
         endpoint: /health
@@ -272,9 +269,6 @@ mcp:
         - search
         - hnsw
 
-    # Mem0 - Universal Memory Layer
-    - name: mem0
-      url: http://mem0_mcp:8081
       health_check:
         enabled: true
         endpoint: /health
@@ -320,8 +314,7 @@ mcp:
         - ai
 
     # OpenMemory - Shared Collaborative Memory
-    - name: openmemory
-      url: http://openmemory-mcp:8080
+
       health_check:
         enabled: true
         endpoint: /health

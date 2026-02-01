@@ -6,9 +6,7 @@
 # This script starts the complete Project Nyra infrastructure stack:
 #   - Phase 1: Core Infrastructure (PostgreSQL, Redis, Neo4j, Qdrant, FalkorDB)
 #   - Phase 2: Infisical Agent (Secrets Management)
-#   - Phase 3: Nexus Router (LLM Gateway)
-#   - Phase 4: MCP Servers (AgentDB, RuVector, Letta, Mem0)
-#   - Phase 5: Claude Flow @alpha (Multi-Agent Orchestration)
+#   - Phase 3: Nexus Router (LLM Gateway)#   - Phase 5: Claude Flow @alpha (Multi-Agent Orchestration)
 #   - Phase 6: Open-WebUI (Port 3333)
 #   - Phase 7: Applications (TwentyCRM, n8n, Dify)
 #   - Phase 8: Health Validation
@@ -104,7 +102,7 @@ $Services = @{
             @{ Name = "AgentDB"; URL = "http://localhost:8080/health"; Port = 8080; Type = "http" }
             @{ Name = "RuVector"; URL = "http://localhost:8888/health"; Port = 8888; Type = "http" }
             @{ Name = "Letta"; URL = "http://localhost:8283/health"; Port = 8283; Type = "http" }
-            @{ Name = "Mem0"; URL = "http://localhost:4321/health"; Port = 4321; Type = "http" }
+            
         )
     }
     Apps = @{
@@ -363,7 +361,6 @@ else {
 }
 
 # ============================================================================
-# PHASE 3: MCP Servers (Nexus, AgentDB, RuVector, Letta, Mem0)
 # ============================================================================
 Write-Phase "PHASE 3: MCP Servers (Nexus Router, AgentDB, RuVector, Letta, Mem0)"
 
@@ -559,7 +556,7 @@ Write-Host @"
 
   Memory Services:
     Letta (MemGPT):   http://localhost:8283  (Stateful Memory)
-    Mem0:             http://localhost:4321  (Universal Memory)
+    
     OpenMemory MCP:   http://localhost:8081  (MCP Interface)
 
   Orchestration:

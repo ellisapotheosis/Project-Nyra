@@ -1,569 +1,215 @@
-# Nexus Router Complete Configuration for Project Nyra
-# Unified MCP + LLM Gateway with Intelligent Routing
-# Updated: 2026-01-12
-# Based on: FINAL_ARCHITECTURE_DECISIONS_SOURCE.md
+# =============================================================================
+# 🧠 NEXUS ROUTER - PHASE 3 "GOD MODE" GATEWAY
+# =============================================================================
+# Architecture: Intelligent Request Arbitrage & MCP Aggregation
+# Logic: "Route Cheap, Escalate Smart"
+# Updated: Feb 2026 | Project Nyra
 
-http:
-  port: 7000
+server:
+  port: 8000 # Aligned with Docker Compose
   host: 0.0.0.0
   cors:
     enabled: true
-    allow_origins:
-      - "http://localhost:*"
-      - "http://127.0.0.1:*"
-      - "https://*.ratehunter.net"
-    allow_methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
-    allow_headers: ["Authorization", "Content-Type", "X-Request-ID"]
+    allow_origins: ["*"] # Dev Mode: Unrestricted. Prod: Lock this down.
+    allow_methods: ["GET", "POST", "OPTIONS"]
+    max_age: 86400
 
+# Security & Identity (Infisical Injected)
 auth:
-  jwt_secret: ${NEXUS_JWT_SECRET}
-  admin_token: ${NEXUS_ADMIN_TOKEN}
-  jwt_algorithm: HS256
+  jwt_secret: "${NEXUS_JWT_SECRET}"
+  admin_token: "${NEXUS_ADMIN_TOKEN}"
+  enforce_mcp_auth: true # Agents must sign their tool calls
 
 # =============================================================================
-# LLM ROUTING - Intelligent Model Selection
+# 🤖 INTELLIGENT MODEL ROUTING (2026 FRONTIER)
 # =============================================================================
 
 llm:
-  # Nexus Router native LLM routing with intelligent cost optimization
-  # Handles both MCP aggregation AND LLM model selection
-  routing_strategy: cost_optimized  # Options: cost_optimized, quality, latency, manual
+  routing_strategy: "dynamic_complexity" # Options: cost, speed, quality, dynamic
 
-  # Default model for routine tasks (cheapest)
-  default_model: gemini-flash
+  # The "Workhorse" Default
+  default_model: gemini-3-flash
 
-  # Fallback chain if primary model fails
+  # The Panic Button (Fallback)
   fallback_chain:
-    - gemini-flash
-    - claude-sonnet
-    - claude-opus
+    - gemini-3-flash      # Fast, Cheap
+    - claude-3-7-sonnet   # Reliable, Agentic
+    - gpt-5-preview       # Last Resort
 
-  # LLM Provider Configuration
   providers:
-    # Primary: Claude (Anthropic) - Complex reasoning, code generation
+    # --- TIER 1: THE ARCHITECTS (High IQ, High Cost) ---
     - name: claude-opus
       type: anthropic
-      api_key: ${ANTHROPIC_API_KEY}
-      model: claude-opus-4-5-20251101
-      base_url: https://api.anthropic.com/v1
-      priority: high
-      cost_per_million_input: 15.00
-      cost_per_million_output: 75.00
-      use_cases:
-        - complex_reasoning
-        - code_generation
-        - architecture_planning
-        - strategic_decisions
+      model: claude-3-5-opus-latest
+      api_key: "${ANTHROPIC_API_KEY}"
+      priority: 1
+      context_window: 200000
+      capabilities: ["complex_reasoning", "architecture", "security_audit"]
 
+    - name: gpt-5
+      type: openai
+      model: gpt-5-preview
+      api_key: "${OPENAI_API_KEY}"
+      priority: 2
+      capabilities: ["nuance", "creative_writing"]
+
+    # --- TIER 2: THE AGENTS (Best Tool Use) ---
     - name: claude-sonnet
       type: anthropic
-      api_key: ${ANTHROPIC_API_KEY}
-      model: claude-sonnet-4-5-20251022
-      base_url: https://api.anthropic.com/v1
-      priority: medium
-      cost_per_million_input: 3.00
-      cost_per_million_output: 15.00
-      use_cases:
-        - balanced_tasks
-        - code_review
-        - documentation
-        - refactoring
+      model: claude-3-7-sonnet-latest
+      api_key: "${ANTHROPIC_API_KEY}"
+      priority: 0 # Preferred for Tool Use
+      capabilities: ["coding", "tool_orchestration", "data_analysis"]
 
-    # Cost-Efficient: Gemini - Routine tasks, classification
-    - name: gemini-flash
-      type: google
-      api_key: ${GOOGLE_API_KEY}
-      model: gemini-2.0-flash-exp
-      base_url: https://generativelanguage.googleapis.com/v1beta
-      priority: high
-      cost_per_million_input: 0.075
-      cost_per_million_output: 0.30
-      use_cases:
-        - document_classification
-        - lead_scoring
-        - status_updates
-        - routine_queries
-        - data_extraction
-
+    # --- TIER 3: THE WORKERS (Speed & Volume) ---
     - name: gemini-pro
       type: google
-      api_key: ${GOOGLE_API_KEY}
-      model: gemini-2.0-pro
-      base_url: https://generativelanguage.googleapis.com/v1beta
-      priority: medium
-      cost_per_million_input: 1.25
-      cost_per_million_output: 5.00
-      use_cases:
-        - moderate_complexity
-        - analysis
-        - summarization
+      model: gemini-3-pro-preview
+      api_key: "${GOOGLE_GEMINI_API_KEY}"
+      capabilities: ["long_context_retrieval", "video_analysis", "massive_codebase"]
 
-    # Optional: OpenRouter for specialized models
-    - name: openrouter
-      type: openai_compatible
-      api_key: ${OPENROUTER_API_KEY}
-      base_url: https://openrouter.ai/api/v1
-      model: auto  # Dynamic routing
-      priority: low
-      use_cases:
-        - specialized_models
-        - fallback
+    - name: gemini-flash
+      type: google
+      model: gemini-3-flash
+      api_key: "${GOOGLE_GEMINI_API_KEY}"
+      capabilities: ["classification", "extraction", "routing_decisions"]
 
-  # Intelligent routing rules (applied if LiteLLM routing is bypassed)
+  # 🧠 NEURAL ROUTING RULES
+  # Nexus analyzes the prompt intent before selecting a model
   routing_rules:
-    - name: cheap_tasks_to_gemini
+    - name: "Codebase Surgery"
       condition:
-        token_count: < 1000
-        complexity: low
-      route_to: gemini-flash
-
-    - name: complex_to_claude
-      condition:
-        keywords: ["plan", "architect", "design", "strategize", "complex"]
-        complexity: high
-      route_to: claude-opus
-
-    - name: code_generation
-      condition:
-        keywords: ["code", "implement", "function", "class", "API"]
-        tool_use: required
+        contains: ["refactor", "architect", "design pattern", "race condition"]
+        complexity: "high"
       route_to: claude-sonnet
 
-    - name: routine_to_gemini
+    - name: "Massive Context Lookup"
       condition:
-        keywords: ["classify", "score", "update", "status", "extract"]
-      route_to: gemini-flash
+        token_estimate: "> 100000"
+      route_to: gemini-pro # Takes advantage of 2M context window cheap
+
+    - name: "JSON Extraction"
+      condition:
+        intent: "extraction"
+      route_to: gemini-flash # Fastest JSON mode on the market
 
 # =============================================================================
-# MCP SERVERS - All Integrated Services
+# 🔌 MCP SERVER AGGREGATION
 # =============================================================================
 
 mcp:
+  circuit_breaker:
+    enabled: true
+    failure_threshold: 3
+    reset_timeout: 30s
+
   servers:
-    # Knowledge Graph & Memory
+    # --- KNOWLEDGE LAYER ---
     - name: graphiti
       url: http://graphiti-mcp:8000
       transport: sse
-      description: "Knowledge graph with temporal tracking and relationship inference"
-      tools:
-        - graphiti.create_entity
-        - graphiti.create_relation
-        - graphiti.search_graph
-        - graphiti.get_entity_timeline
-      keywords: ["knowledge", "graph", "memory", "temporal", "relationship"]
-      fuzzy_match: true
-
-    # Vector Search & Embeddings
+      description: "Temporal Knowledge Graph & Memory Core"
+      health_check: "/health"
+      
     - name: qdrant
       url: http://qdrant-mcp:8066
       transport: http
-      description: "Vector database for semantic search and embeddings"
-      tools:
-        - qdrant.search
-        - qdrant.insert
-        - qdrant.create_collection
-        - qdrant.delete
-      keywords: ["vector", "search", "embedding", "semantic", "similarity"]
-      fuzzy_match: true
+      description: "Vector Memory & Semantic Recall"
 
-    # Code Documentation
-    - name: context7
-      url: http://context7-mcp:8080
-      transport: stdio
-      description: "Up-to-date code documentation and examples from libraries"
-      tools:
-        - context7.resolve_library
-        - context7.get_docs
-        - context7.search_docs
-      keywords: ["docs", "documentation", "library", "API", "reference"]
-      fuzzy_match: true
-
-    # Web & Code Search
-    - name: exa
-      url: http://exa-mcp:8080
-      transport: stdio
-      description: "Advanced web search and code search across repositories"
-      tools:
-        - exa.web_search
-        - exa.deep_search
-        - exa.get_code_context
-      keywords: ["search", "web", "code", "repository", "github", "find"]
-      fuzzy_match: true
-
-    # Database Operations
-    - name: supabase
-      url: http://supabase-mcp:8080
-      transport: stdio
-      description: "Supabase database management and queries"
-      tools:
-        - supabase.query
-        - supabase.create_table
-        - supabase.insert
-        - supabase.update
-      keywords: ["database", "supabase", "postgres", "query", "SQL"]
-      fuzzy_match: true
-
-    # Code Editing
-    - name: vscode
-      url: http://vscode-mcp:8081
-      transport: http
-      description: "VSCode editing features for AI-assisted coding"
-      tools:
-        - vscode.open_file
-        - vscode.edit_file
-        - vscode.search_files
-        - vscode.refactor
-      keywords: ["edit", "code", "file", "refactor", "IDE"]
-      fuzzy_match: true
-
-    # CRM Operations
-    - name: twentycrm
-      url: http://twentycrm-mcp:8080
-      transport: http
-      description: "TwentyCRM operations for leads, contacts, and deals"
-      tools:
-        - twentycrm.create_contact
-        - twentycrm.update_deal
-        - twentycrm.search_leads
-        - twentycrm.create_task
-      keywords: ["CRM", "contact", "lead", "deal", "customer", "borrower"]
-      fuzzy_match: true
-
-    # Dify Apps
-    - name: dify
-      url: http://dify-mcp-proxy:8080
-      transport: http
-      description: "Dify AI applications and workflows"
-      tools:
-        - dify.run_workflow
-        - dify.chat
-        - dify.get_app_info
-      keywords: ["dify", "workflow", "app", "chat", "AI"]
-      fuzzy_match: true
-
-    # Semantic Code Search
+    # --- CODE INTELLIGENCE ---
     - name: serena
       url: http://serena-mcp:8080
       transport: http
-      description: "Semantic code retrieval and editing"
-      tools:
-        - serena.search_code
-        - serena.get_context
-        - serena.analyze_codebase
-      keywords: ["code", "semantic", "search", "analysis", "codebase"]
-      fuzzy_match: true
+      description: "Semantic Codebase Analysis Agent"
+      timeout: 120s # Give Serena time to think
 
-    # Gemini Assistant
-    - name: gemini_assistant
-      url: http://gemini-mcp:8080
-      transport: http
-      description: "Google Gemini AI assistant for quick tasks"
-      tools:
-        - gemini.generate
-        - gemini.chat
-        - gemini.analyze
-      keywords: ["gemini", "google", "AI", "assistant", "quick"]
-      fuzzy_match: true
+    - name: context7
+      url: http://context7-mcp:8080
+      transport: stdio
+      description: "Live Library Documentation Fetcher"
 
-    # Third-Party Integrations
-    - name: composio
-      url: http://composio-mcp:8080
-      transport: http
-      description: "80+ third-party service integrations"
-      tools:
-        - composio.execute_action
-        - composio.list_integrations
-        - composio.get_connection
-      keywords: ["integration", "third-party", "service", "API", "connect"]
-      fuzzy_match: true
-
-    # Workflow Automation
-    - name: activepieces
-      url: http://activepieces:80/mcp
-      transport: http
-      auth:
-        type: bearer
-        token: ${ACTIVEPIECES_API_KEY}
-      description: "Workflow automation and message delivery"
-      tools:
-        - activepieces.send_message
-        - activepieces.create_task
-        - activepieces.trigger_workflow
-      keywords: ["workflow", "automation", "message", "email", "SMS"]
-      fuzzy_match: true
-
-    # n8n Workflows
-    - name: n8n
-      url: http://n8n:5678/webhook/mcp
-      transport: http
-      description: "n8n workflow orchestration"
-      tools:
-        - n8n.trigger_workflow
-        - n8n.get_execution
-        - n8n.list_workflows
-      keywords: ["n8n", "workflow", "orchestration", "automation"]
-      fuzzy_match: true
-
-    # Development Tools
-    - name: filesystem
-      url: http://mcp-filesystem:8080
-      transport: http
-      description: "File system operations (dev only)"
-      tools:
-        - filesystem.read
-        - filesystem.write
-        - filesystem.list
-        - filesystem.delete
-      keywords: ["file", "directory", "read", "write", "filesystem"]
-      fuzzy_match: true
+    # --- EXTERNAL WORLD ---
+    - name: exa
+      url: http://exa-mcp:8080
+      transport: stdio
+      description: "Neural Web Search"
 
     - name: github
       url: http://mcp-github:8080
-      transport: http
-      auth:
-        type: bearer
-        token: ${GITHUB_TOKEN}
-      description: "GitHub repository automation"
-      tools:
-        - github.create_issue
-        - github.create_pr
-        - github.commit
-        - github.search_repos
-      keywords: ["github", "git", "repo", "issue", "PR", "commit"]
-      fuzzy_match: true
+      auth: { type: "bearer", token: "${GITHUB_TOKEN}" }
+      description: "Repository Management"
 
+    # --- BUSINESS LOGIC ---
+    - name: twentycrm
+      url: http://twentycrm-mcp:8080
+      description: "CRM & Pipeline Management"
+      
+    - name: activepieces
+      url: http://activepieces:80/mcp
+      auth: { type: "bearer", token: "${ACTIVEPIECES_API_KEY}" }
+      description: "Workflow Automation Triggers"
+
+    # --- LOCAL OPERATIONS ---
+    - name: filesystem
+      url: http://mcp-filesystem:8080
+      description: "Local File I/O (Restricted)"
+      
     - name: docker
       url: http://mcp-docker:8080
-      transport: http
-      description: "Docker container operations"
-      tools:
-        - docker.list_containers
-        - docker.start
-        - docker.stop
-        - docker.logs
-      keywords: ["docker", "container", "image", "build", "deploy"]
-      fuzzy_match: true
+      description: "Container Orchestration"
 
 # =============================================================================
-# FUZZY FINDER CONFIGURATION
+# 🔍 FUZZY INTELLIGENCE (The Semantic Glue)
 # =============================================================================
 
 fuzzy:
   enabled: true
-  threshold: 0.7  # Similarity threshold (0-1)
-  algorithm: levenshtein  # Options: levenshtein, jaro_winkler
-
-  # Keyword expansion for better matching
+  threshold: 0.65 # Slightly looser to allow creative tool discovery
+  
+  # Semantic Mapping: "User says X -> Nexus hears Y"
   keyword_aliases:
-    # CRM & Contacts
-    crm: ["customer", "contact", "lead", "deal", "borrower", "client", "prospect", "opportunity", "account", "relationship"]
-    lead: ["prospect", "borrower", "applicant", "customer", "client", "potential", "inquiry"]
-    contact: ["person", "individual", "client", "customer", "borrower", "user", "account"]
-
-    # Mortgage-Specific
-    mortgage: ["loan", "financing", "lending", "home loan", "mortgage loan", "property loan"]
-    loan: ["mortgage", "financing", "lending", "credit", "debt", "borrowing"]
-    rate: ["interest", "APR", "percentage", "pricing", "cost", "fee"]
-    quote: ["estimate", "calculation", "pricing", "proposal", "offer", "rate quote"]
-    borrower: ["client", "customer", "applicant", "homebuyer", "buyer", "lead", "prospect"]
-    lender: ["bank", "creditor", "institution", "servicer", "originator"]
-    closing: ["settlement", "finalization", "completion", "escrow", "signing"]
-    appraisal: ["valuation", "assessment", "evaluation", "property value", "home value"]
-    underwriting: ["approval", "review", "analysis", "qualification", "verification"]
-
-    # Search & Discovery
-    search: ["find", "lookup", "query", "locate", "discover", "seek", "hunt", "retrieve"]
-    find: ["search", "lookup", "locate", "discover", "identify", "detect", "get"]
-    lookup: ["search", "find", "query", "check", "retrieve", "fetch", "get"]
-    query: ["search", "find", "lookup", "ask", "request", "fetch", "retrieve"]
-
-    # Code Operations
-    code: ["programming", "source", "script", "function", "class", "module", "software", "implementation"]
-    programming: ["code", "coding", "development", "software", "scripting"]
-    edit: ["modify", "change", "update", "refactor", "rewrite", "alter", "adjust", "fix"]
-    refactor: ["restructure", "reorganize", "redesign", "improve", "optimize", "clean", "simplify"]
-    debug: ["troubleshoot", "fix", "diagnose", "solve", "resolve", "repair", "patch"]
-    test: ["verify", "validate", "check", "examine", "try", "assess", "evaluate"]
-
-    # Database Operations
-    database: ["db", "data", "table", "record", "SQL", "query", "storage", "persistence"]
-    data: ["information", "records", "entries", "values", "content", "dataset"]
-    store: ["save", "persist", "write", "insert", "put", "create", "add"]
-    retrieve: ["get", "fetch", "load", "read", "query", "find", "lookup"]
-
-    # Workflow & Automation
-    workflow: ["automation", "process", "flow", "pipeline", "sequence", "procedure"]
-    automation: ["workflow", "process", "auto", "automated", "scheduled", "triggered"]
-    trigger: ["initiate", "start", "begin", "launch", "activate", "fire", "execute"]
-    schedule: ["plan", "time", "arrange", "organize", "program", "set up"]
-    execute: ["run", "perform", "do", "carry out", "complete", "accomplish"]
-
-    # Memory & Knowledge
-    memory: ["remember", "recall", "knowledge", "context", "history", "storage", "cache"]
-    remember: ["recall", "store", "save", "memorize", "retain", "keep", "log"]
-    recall: ["remember", "retrieve", "get", "fetch", "access", "lookup"]
-    knowledge: ["information", "data", "facts", "understanding", "wisdom", "learning"]
-    context: ["background", "situation", "environment", "setting", "circumstances"]
-
-    # Document Operations
-    document: ["doc", "file", "paper", "record", "text", "content", "article"]
-    file: ["document", "doc", "data", "content", "resource", "asset"]
-    read: ["view", "see", "look at", "examine", "review", "check", "scan"]
-    write: ["create", "compose", "draft", "author", "generate", "produce"]
-
-    # Communication
-    message: ["text", "SMS", "communication", "note", "notification", "alert"]
-    email: ["mail", "message", "correspondence", "letter", "communication"]
-    sms: ["text", "message", "SMS message", "text message", "mobile message"]
-    call: ["phone", "voice", "telephone", "ring", "dial", "contact"]
-    notify: ["alert", "inform", "tell", "message", "communicate", "update"]
-
-    # Analysis & Intelligence
-    analyze: ["review", "inspect", "examine", "evaluate", "assess", "study", "investigate"]
-    review: ["analyze", "examine", "inspect", "assess", "evaluate", "check", "audit"]
-    evaluate: ["assess", "analyze", "judge", "rate", "score", "measure", "test"]
-    compare: ["contrast", "match", "diff", "versus", "check", "evaluate"]
-
-    # Creation & Modification
-    create: ["new", "add", "make", "generate", "build", "produce", "construct"]
-    add: ["create", "insert", "new", "append", "include", "attach", "put"]
-    update: ["modify", "change", "edit", "revise", "alter", "adjust", "fix"]
-    delete: ["remove", "erase", "clear", "drop", "destroy", "eliminate"]
-    modify: ["change", "update", "edit", "alter", "adjust", "revise", "transform"]
-
-    # Status & State
-    status: ["state", "condition", "situation", "position", "stage", "phase"]
-    track: ["monitor", "watch", "follow", "observe", "check", "trace"]
-    monitor: ["watch", "track", "observe", "supervise", "check", "survey"]
-
-    # Integration & Connection
-    integrate: ["connect", "link", "join", "combine", "merge", "unite", "bind"]
-    connect: ["link", "join", "integrate", "attach", "bind", "associate"]
-    sync: ["synchronize", "align", "match", "coordinate", "harmonize"]
-
-    # Security & Secrets
-    secret: ["password", "credential", "key", "token", "sensitive", "private", "encrypted"]
-    password: ["credential", "secret", "key", "auth", "authentication", "login"]
-    credential: ["password", "secret", "key", "token", "auth", "login info"]
-    secure: ["protected", "safe", "encrypted", "private", "confidential"]
-
-    # Campaign & Marketing
-    campaign: ["outreach", "marketing", "drip", "sequence", "program", "initiative"]
-    drip: ["campaign", "sequence", "series", "automated", "scheduled messages"]
-    template: ["pattern", "model", "sample", "format", "layout", "design"]
+    # Mortgage Domain
+    "loan": ["mortgage", "financing", "debt", "lending", "underwriting"]
+    "rate": ["apr", "interest", "pricing", "quote", "points"]
+    "borrower": ["lead", "client", "applicant", "contact", "prospect"]
+    
+    # Dev Domain
+    "bug": ["issue", "error", "exception", "traceback", "debug"]
+    "deploy": ["publish", "release", "ship", "pipeline", "ci/cd"]
+    "secret": ["env", "key", "token", "password", "credential"]
 
 # =============================================================================
-# POLICIES - Access Control
+# 🛡️ ACCESS CONTROL POLICIES
 # =============================================================================
 
 policies:
-  # Borrower-facing (restricted tools)
-  - name: borrower_minimal_tools
-    allow_tools:
-      - graphiti.*
-      - twentycrm.search_*
-      - twentycrm.create_task
-      - activepieces.send_message
-      - dify.*
-    deny_tools:
-      - filesystem.*
-      - github.*
-      - docker.*
-      - vscode.*
+  - name: "Orchestrator_Tier"
+    roles: ["claude-flow", "archon"]
+    allow: ["*"] # God mode for the AIs
+    deny: ["filesystem.delete_root"]
 
-  # Internal operations (full access)
-  - name: internal_ops_full_tools
-    allow_tools:
-      - "*"
-
-  # AI Orchestrators (Claude-Flow + Archon OS)
-  - name: orchestrator_tools
-    allow_tools:
-      - graphiti.*
-      - qdrant.*
-      - context7.*
-      - exa.*
-      - serena.*
-      - vscode.*
-      - github.*
-      - n8n.*
-      - composio.*
-    deny_tools:
-      - docker.delete_*
-      - filesystem.delete
-
-  # Development/Testing
-  - name: development_tools
-    allow_tools:
-      - vscode.*
-      - github.*
-      - filesystem.*
-      - context7.*
-      - exa.get_code_context
-    deny_tools:
-      - twentycrm.delete_*
-      - supabase.drop_*
+  - name: "Frontend_Tier"
+    roles: ["dify-ui", "web-client"]
+    allow: ["graphiti.search", "twentycrm.create_lead", "gemini.chat"]
+    deny: ["filesystem.*", "docker.*", "github.*", "secrets.*"]
 
 # =============================================================================
-# LOGGING & MONITORING
+# 📊 TELEMETRY & OBSERVABILITY
 # =============================================================================
 
 logging:
-  level: info  # Options: debug, info, warn, error
+  level: info
   format: json
+  anonymize_pii: true # Auto-redact emails/phones in logs
   destinations:
-    - type: stdout
     - type: file
-      path: /var/log/nexus/access.log
+      path: /app/logs/nexus.log
     - type: prometheus
-      metrics_port: 9091
-
-# =============================================================================
-# RATE LIMITING
-# =============================================================================
-
-rate_limiting:
-  enabled: true
-  rules:
-    - name: default
-      requests_per_minute: 60
-      burst: 10
-
-    - name: expensive_llm
-      models: ["claude-opus"]
-      requests_per_minute: 10
-      burst: 2
-
-    - name: cheap_llm
-      models: ["gemini-flash"]
-      requests_per_minute: 120
-      burst: 20
-
-# =============================================================================
-# CACHING
-# =============================================================================
+      port: 9091
 
 caching:
   enabled: true
-  backend: redis
-  redis_url: redis://redis:6379/2
-  ttl: 3600  # 1 hour
-
-  cache_strategies:
-    - name: llm_responses
-      cache_identical_prompts: true
-      ttl: 7200
-
-    - name: mcp_tool_results
-      cache_deterministic_tools: true
-      ttl: 1800
-
-# =============================================================================
-# HEALTH CHECKS
-# =============================================================================
-
-health:
-  endpoint: /health
-  check_mcp_servers: true
-  check_llm_providers: true
-  timeout: 5s
+  redis_url: "${REDIS_URL}"
+  strategies:
+    - type: "semantic" # Cache answers based on meaning, not just exact text
+      ttl: 3600
