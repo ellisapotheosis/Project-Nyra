@@ -50,7 +50,7 @@ help: ## Show this help message
 	@echo ""
 	@echo "$(GREEN)Service Groups:$(NC)"
 	@echo "  $(YELLOW)core$(NC)         - PostgreSQL, Redis, MongoDB"
-	@echo "  $(YELLOW)ai$(NC)           - Claude Flow, Archon, Graphiti, Mem0, Letta"
+	@echo "  $(YELLOW)ai$(NC)           - Claude Flow, Archon, Graphiti"
 	@echo "  $(YELLOW)gateway$(NC)      - Nexus, LiteLLM"
 	@echo "  $(YELLOW)apps$(NC)         - Dify, Twenty CRM, Quote API, Campaign Engine"
 	@echo "  $(YELLOW)devtools$(NC)     - Gitea, n8n, Activepieces"
@@ -105,9 +105,9 @@ up-core: ## Start core infrastructure (postgres, redis, mongo)
 	@echo "$(BLUE)Starting core services...$(NC)"
 	docker-compose $(COMPOSE_FILE) up -d postgres redis mongo
 
-up-ai: up-core ## Start AI/MCP services (claude-flow, archon, graphiti, mem0, letta)
+up-ai: up-core ## Start AI/MCP services (claude-flow, archon, graphiti)
 	@echo "$(BLUE)Starting AI services...$(NC)"
-	docker-compose $(COMPOSE_FILE) up -d infisical agent-claude-flow agent-archon claude-flow archon graphiti-mcp mem0-mcp letta letta_postgres neo4j falkordb
+	docker-compose $(COMPOSE_FILE) up -d infisical agent-claude-flow agent-archon claude-flow archon neo4j falkordb
 
 up-gateway: up-core ## Start API gateway services (nexus, litellm)
 	@echo "$(BLUE)Starting gateway services...$(NC)"
@@ -147,7 +147,7 @@ logs-core: ## View logs from core services
 	docker-compose $(COMPOSE_FILE) logs -f postgres redis mongo
 
 logs-ai: ## View logs from AI services
-	docker-compose $(COMPOSE_FILE) logs -f claude-flow archon graphiti-mcp mem0-mcp letta
+	docker-compose $(COM{_FILE) logs -f claude-flow archon
 
 ps: ## List all running containers
 	@docker-compose $(COMPOSE_FILE) ps
@@ -195,7 +195,6 @@ db-backup-all: ## Backup all PostgreSQL databases
 	@mkdir -p ../backups
 	@echo "$(BLUE)Backing up all databases...$(NC)"
 	@$(MAKE) db-backup
-	docker-compose $(COMPOSE_FILE) exec -T letta_postgres pg_dump -U letta letta > ../backups/letta_postgres_$$(date +%Y%m%d_%H%M%S).sql
 	docker-compose $(COMPOSE_FILE) exec -T twenty_postgres pg_dump -U twenty twenty > ../backups/twenty_postgres_$$(date +%Y%m%d_%H%M%S).sql
 	docker-compose $(COMPOSE_FILE) exec -T dify_postgres pg_dump -U dify dify > ../backups/dify_postgres_$$(date +%Y%m%d_%H%M%S).sql
 	@echo "$(GREEN)✓ All databases backed up$(NC)"
@@ -209,8 +208,6 @@ db-restore: ## Restore main PostgreSQL database (usage: make db-restore FILE=bac
 db-shell: ## Open main PostgreSQL shell
 	docker-compose $(COMPOSE_FILE) exec postgres psql -U nyra -d nyra
 
-db-shell-letta: ## Open Letta PostgreSQL shell
-	docker-compose $(COMPOSE_FILE) exec letta_postgres psql -U letta -d letta
 
 db-shell-twenty: ## Open Twenty PostgreSQL shell
 	docker-compose $(COMPOSE_FILE) exec twenty_postgres psql -U twenty -d twenty
@@ -426,7 +423,7 @@ urls: ## Show all service URLs
 	@echo "  Claude Flow MCP:      http://localhost:3000"
 	@echo "  Archon OS:            http://localhost:8000"
 	@echo "  Graphiti MCP:         http://localhost:8001"
-	@echo "  Mem0 MCP:             http://localhost:8002"
+	
 	@echo "  Letta:                http://localhost:8283"
 	@echo ""
 	@echo "$(GREEN)Gateway Services:$(NC)"

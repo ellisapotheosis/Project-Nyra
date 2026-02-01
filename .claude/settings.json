@@ -1,126 +1,80 @@
 {
-  "hooks": {
-    "PreToolUse": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "npx @claude-flow/cli@3.0.0-alpha.104 hooks pre-edit --file \"$file\" 2>/dev/null || true",
-            "timeout": 5000,
-            "continueOnError": true,
-            "name": "pre-edit-coordination"
-          }
-        ],
-        "name": "PreEdit",
-        "tool": "Edit"
+  "mcpServers": {
+    "nexus-router": {
+      "command": "cmd",
+      "args": [
+        "/c",
+        "docker",
+        "exec",
+        "-i",
+        "nyra-nexus-router",
+        "/usr/bin/nexus-router-mcp-start"
+      ],
+      "env": {
+        "NEXUS_CONFIG": "/etc/nexus.toml",
+        "NEXUS_ROUTER_STRATEGY": "intelligent",
+        "NEXUS_ROUTER_COST_AWARE": "true",
+        "NEXUS_ROUTER_LATENCY_THRESHOLD": "100",
+        "NEXUS_ROUTER_FALLBACK_ENABLED": "true",
+        "NODE_ENV": "development",
+        "NEXUS_ROUTER_HOST": "localhost",
+        "NEXUS_ROUTER_PORT": "6000"
       },
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "npx @claude-flow/cli@3.0.0-alpha.104 hooks pre-edit --file \"$file\" 2>/dev/null || true",
-            "timeout": 5000,
-            "continueOnError": true,
-            "name": "pre-write-coordination"
-          }
-        ],
-        "name": "PreWrite",
-        "tool": "Write"
+      "priority": "critical",
+      "description": "Nexus Router MCP Server"
+    },
+    "claude-flow": {
+      "command": "cmd",
+      "args": [
+        "/c",
+        "npx",
+        "-y",
+        "claude-flow@alpha",
+        "mcp",
+        "start"
+      ],
+      "env": {
+        "CLAUDE_FLOW_MEMORY_ENABLED": "true",
+        "CLAUDE_FLOW_HOOKS_ENABLED": "true",
+        "CLAUDE_FLOW_NEURAL_ENABLED": "true",
+        "CLAUDE_FLOW_GITHUB_ENABLED": "true",
+        "CLAUDE_FLOW_AUTO_SPAWN": "true",
+        "CLAUDE_FLOW_SESSION_MEMORY": "true",
+        "CLAUDE_FLOW_MAX_AGENTS": "20",
+        "CLAUDE_FLOW_CHECKPOINTS_ENABLED": "true",
+        "CLAUDE_FLOW_PERFORMANCE_MODE": "optimized",
+        "CLAUDE_FLOW_CACHE_ENABLED": "true",
+        "CLAUDE_FLOW_PARALLEL_PROCESSING": "true",
+        "CLAUDE_FLOW_AGENT_POOL": "true",
+        "NODE_ENV": "development"
       },
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "npx @claude-flow/cli@3.0.0-alpha.104 hooks pre-task --description \"$description\" 2>/dev/null || true",
-            "timeout": 5000,
-            "continueOnError": true,
-            "name": "pre-task-coordination"
-          }
-        ],
-        "name": "PreTask",
-        "tool": "Bash"
-      }
-    ],
-    "PostToolUse": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "npx @claude-flow/cli@3.0.0-alpha.104 hooks post-edit --file \"$file\" --memory-key \"swarm/edit/$file\" 2>/dev/null || true",
-            "timeout": 5000,
-            "continueOnError": true,
-            "name": "post-edit-coordination"
-          }
-        ],
-        "name": "PostEdit",
-        "tool": "Edit"
+      "priority": "critical",
+      "description": "Main orchestration framework with agent coordination and memory"
+    },
+    "ruv-swarm": {
+      "command": "cmd",
+      "args": [
+        "/c",
+        "npx",
+        "-y",
+        "ruv-swarm@latest",
+        "mcp",
+        "start"
+      ],
+      "env": {
+        "RUV_SWARM_TOPOLOGY": "adaptive",
+        "RUV_SWARM_MAX_AGENTS": "20",
+        "RUV_SWARM_WASM_ENABLED": "true",
+        "RUV_SWARM_NEURAL_ENABLED": "true",
+        "RUV_SWARM_DAA_ENABLED": "true",
+        "RUV_SWARM_MEMORY_MODE": "persistent",
+        "RUV_SWARM_GPU_WORKERS": "3",
+        "RUV_SWARM_DISTRIBUTED": "true",
+        "NODE_ENV": "development"
       },
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "npx @claude-flow/cli@3.0.0-alpha.104 hooks post-edit --file \"$file\" --memory-key \"swarm/write/$file\" 2>/dev/null || true",
-            "timeout": 5000,
-            "continueOnError": true,
-            "name": "post-write-coordination"
-          }
-        ],
-        "name": "PostWrite",
-        "tool": "Write"
-      },
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "npx @claude-flow/cli@3.0.0-alpha.104 hooks post-task --task-id \"$task_id\" 2>/dev/null || true",
-            "timeout": 5000,
-            "continueOnError": true,
-            "name": "post-task-coordination"
-          }
-        ],
-        "name": "PostTask",
-        "tool": "Bash"
-      }
-    ],
-    "UserPromptSubmit": [],
-    "SessionStart": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "npx @claude-flow/cli@3.0.0-alpha.104 daemon start 2>/dev/null || true",
-            "timeout": 5000,
-            "continueOnError": true,
-            "name": "daemon-auto-start"
-          },
-          {
-            "type": "command",
-            "command": "npx @claude-flow/cli@3.0.0-alpha.104 hooks session-restore --session-id \"project-nyra-$timestamp\" 2>/dev/null || true",
-            "timeout": 5000,
-            "continueOnError": true,
-            "name": "session-restore"
-          }
-        ]
-      }
-    ],
-    "Stop": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "echo '{\"ok\": true, \"session\": \"ended\"}'",
-            "timeout": 1000
-          }
-        ]
-      }
-    ],
-    "Notification": []
-  },
-  "statusLine": {
-    "type": "command",
-    "command": "npx @claude-flow/cli@3.0.0-alpha.104 status --format compact 2>/dev/null || echo \"▊ Project Nyra\"",
-    "refreshMs": 5000,
-    "enabled": true
+      "priority": "high",
+      "description": "Distributed swarm coordination with adaptive topology"
+    }
   },
   "permissions": {
     "allow": [
@@ -130,12 +84,162 @@
     ],
     "deny": []
   },
-  "claudeFlow": {
-    "version": "3.0.0",
-    "enabled": true,
-    "modelPreferences": {
-      "default": "claude-opus-4-5-20251101",
-      "routing": "claude-3-5-haiku-20241022"
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "^(Write|Edit|MultiEdit)$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "[ -n \"$TOOL_INPUT_file_path\" ] && npx @claude-flow/cli@latest hooks pre-edit --file \"$TOOL_INPUT_file_path\" 2>/dev/null || true",
+            "timeout": 5000
+          }
+        ]
+      },
+      {
+        "matcher": "^Bash$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "[ -n \"$TOOL_INPUT_command\" ] && npx @claude-flow/cli@latest hooks pre-command --command \"$TOOL_INPUT_command\" 2>/dev/null || true",
+            "timeout": 5000
+          }
+        ]
+      },
+      {
+        "matcher": "^Task$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "[ -n \"$TOOL_INPUT_prompt\" ] && npx @claude-flow/cli@latest hooks pre-task --task-id \"task-$(date +%s)\" --description \"$TOOL_INPUT_prompt\" 2>/dev/null || true",
+            "timeout": 5000
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "^(Write|Edit|MultiEdit)$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "[ -n \"$TOOL_INPUT_file_path\" ] && npx @claude-flow/cli@latest hooks post-edit --file \"$TOOL_INPUT_file_path\" --success \"${TOOL_SUCCESS:-true}\" 2>/dev/null || true",
+            "timeout": 5000
+          }
+        ]
+      },
+      {
+        "matcher": "^Bash$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "[ -n \"$TOOL_INPUT_command\" ] && npx @claude-flow/cli@latest hooks post-command --command \"$TOOL_INPUT_command\" --success \"${TOOL_SUCCESS:-true}\" 2>/dev/null || true",
+            "timeout": 5000
+          }
+        ]
+      },
+      {
+        "matcher": "^Task$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "[ -n \"$TOOL_RESULT_agent_id\" ] && npx @claude-flow/cli@latest hooks post-task --task-id \"$TOOL_RESULT_agent_id\" --success \"${TOOL_SUCCESS:-true}\" 2>/dev/null || true",
+            "timeout": 5000
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "[ -n \"$PROMPT\" ] && npx @claude-flow/cli@latest hooks route --task \"$PROMPT\" || true",
+            "timeout": 5000
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "npx @claude-flow/cli@latest daemon start --quiet 2>/dev/null || true",
+            "timeout": 5000
+          },
+          {
+            "type": "command",
+            "command": "[ -n \"$SESSION_ID\" ] && npx @claude-flow/cli@latest hooks session-restore --session-id \"$SESSION_ID\" 2>/dev/null || true",
+            "timeout": 10000
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "npx @claude-flow/cli@latest hooks session-end --save-state true --export-metrics true 2>/dev/null || true",
+            "timeout": 10000
+          },
+          {
+            "type": "command",
+            "command": "npx @claude-flow/cli@latest daemon stop --graceful 2>/dev/null || true",
+            "timeout": 5000
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "npx @claude-flow/cli@latest hooks session-end --save-state true --export-metrics true 2>/dev/null || true",
+            "timeout": 10000
+          },
+          {
+            "type": "command",
+            "command": "npx @claude-flow/cli@latest memory store --namespace sessions --key \"last-session-$(date +%Y%m%d-%H%M%S)\" --value \"{\\\"endTime\\\": \\\"$(date -Iseconds)\\\", \\\"sessionId\\\": \\\"${SESSION_ID:-unknown}\\\"}\" 2>/dev/null || true",
+            "timeout": 3000
+          }
+        ]
+      }
+    ],
+    "Notification": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "[ -n \"$NOTIFICATION_MESSAGE\" ] && npx @claude-flow/cli@latest memory store --namespace notifications --key \"notify-$(date +%s)\" --value \"$NOTIFICATION_MESSAGE\" 2>/dev/null || true",
+            "timeout": 3000
+          }
+        ]
+      }
+    ]
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "npx @claude-flow/cli@latest hooks statusline 2>/dev/null || node .claude/helpers/statusline.cjs 2>/dev/null || echo \"▊ Claude Flow V3\""
+  },
+  "enabledPlugins": {
+    "serena@claude-plugins-official": true,
+    "github@claude-plugins-official": true,
+    "context7@claude-plugins-official": true,
+    "agent-sdk-dev@claude-plugins-official": true,
+    "greptile@claude-plugins-official": true,
+    "claude-code-setup@claude-plugins-official": true,
+    "superpowers@claude-plugins-official": true
+  },
+"claudeFlow": {
+  "version": "3.0.0",
+  "enabled": true,
+  "modelPreferences": {
+    "default": "claude-3-5-sonnet-20241022",
+    "routing": "claude-4-haiku-20241022",
+    "thinking": "claude-opus-4-5-20251101"
     },
     "swarm": {
       "topology": "hierarchical-mesh",
@@ -163,6 +267,12 @@
         "benchmark"
       ],
       "schedules": {
+        "checkpoint": {
+          "interval": "15m",
+          "priority": "high",
+          "command": ".claude/hooks/checkpoint.sh auto-$(date +%H%M)",
+          "enabled": true
+        },
         "audit": {
           "interval": "1h",
           "priority": "critical"

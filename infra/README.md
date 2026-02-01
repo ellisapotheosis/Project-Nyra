@@ -188,8 +188,6 @@ cd C:\Dev\Projects\Repos\Project-Nyra\infra\scripts\workers
 - **LiteLLM** - LLM proxy and load balancer (port 4000)
 - **Graphiti MCP** - Knowledge graph memory (port 8001)
 - **Mem0** - Universal memory layer (port 4321)
-- **Letta** - Agent memory management (port 8283)
-
 ### Business Applications
 - **Quote API** - Mortgage quote calculation (port 8089)
 - **Campaign Engine** - Drip campaign service (port 8020)
@@ -543,9 +541,7 @@ See **[Docker Canonical Design](../docs/architecture/docker-canonical-design.md)
 | **8080** | AgentDB | HNSW vector database |
 | **8888** | RuVector | Memory optimization (SONA/MoE) |
 | **3333** | Open-WebUI | Development chat (NOT borrower) |
-| **8082** | Infisical | Secrets management |
-| **8283** | Letta | Stateful agent memory |
-| **4321** | Mem0 | Universal memory layer |
+| **8082** | Infisical | Secrets management || **4321** | Mem0 | Universal memory layer |
 | **4000** | LiteLLM | Model proxy |
 | **5432** | PostgreSQL | Primary database |
 | **6379** | Redis | Cache/sessions |

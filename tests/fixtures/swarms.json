@@ -1,0 +1,45 @@
+[
+  {
+    "id": "swarm-tdd-001",
+    "topology": "mesh",
+    "strategy": "balanced",
+    "maxAgents": 8,
+    "agents": [
+      "agent-tester-001",
+      "agent-coder-001",
+      "agent-reviewer-001"
+    ],
+    "status": "active",
+    "tasksCompleted": 0,
+    "createdAt": "2026-01-26T00:00:00Z"
+  },
+  {
+    "id": "swarm-mortgage-001",
+    "topology": "mesh",
+    "strategy": "specialized",
+    "maxAgents": 6,
+    "agents": [
+      "agent-quote-001",
+      "agent-compliance-001",
+      "agent-coder-001"
+    ],
+    "status": "active",
+    "tasksCompleted": 0,
+    "createdAt": "2026-01-26T00:00:00Z"
+  },
+  {
+    "id": "swarm-compliance-001",
+    "topology": "hierarchical",
+    "strategy": "specialized",
+    "maxAgents": 5,
+    "coordinator": "agent-compliance-001",
+    "agents": [
+      "agent-compliance-001",
+      "agent-reviewer-001",
+      "agent-architect-001"
+    ],
+    "status": "idle",
+    "tasksCompleted": 0,
+    "createdAt": "2026-01-26T00:00:00Z"
+  }
+]
