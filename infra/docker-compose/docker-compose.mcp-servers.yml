@@ -58,3 +58,39 @@ services:
           cpus: '0.25'
           memory: 512M
 
+  # ==========================================================================
+  # TwentyCRM MCP - CRM operations MCP server
+  # ==========================================================================
+  twentycrm-mcp:
+    build:
+      context: ../docker/build/mcp-servers/twentycrm
+      dockerfile: Dockerfile
+    container_name: nyra-twentycrm-mcp
+    restart: unless-stopped
+    environment:
+      - TWENTY_API_URL=${TWENTY_API_URL:-http://twentycrm:3000/graphql}
+      - TWENTY_API_KEY=${TWENTY_API_KEY}
+      - TWENTY_WORKSPACE_ID=${TWENTY_WORKSPACE_ID:-default}
+    depends_on:
+      twentycrm:
+        condition: service_started
+    ports:
+      - "8082:8082"
+    networks:
+      - nyra-network
+    labels:
+      - "nyra.service.name=twentycrm-mcp"
+      - "nyra.service.type=mcp-server"
+      - "nyra.mcp.enabled=true"
+      - "nyra.mcp.transport=sse"
+      - "nyra.mcp.port=8082"
+      - "nyra.mcp.health_endpoint=/health"
+      - "nyra.mcp.keywords=crm,contacts,leads,deals"
+      - "nyra.mcp.priority=1"
+      - "nyra.tier=orchestrator"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8082/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
