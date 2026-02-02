@@ -1,0 +1,347 @@
+# ==============================================================================
+# Project Nyra - Claude Flow CI/CD Container
+# ==============================================================================
+# Dedicated container for Claude Flow v3 CI/CD operations
+# Separate from main application services for isolation and security
+#
+# Features:
+# - Claude Flow v3 CLI and all modules
+# - Git configuration for checkpointing
+# - Hook system enabled with background workers
+# - Memory persistence with AgentDB
+# - Configuration mounted from repo
+# - Separate environment variables for CI/CD
+# - MCP protocol support
+# - Neural pattern training
+# - Performance optimization tools
+#
+# Usage:
+#   docker compose -f docker-compose.claude-flow-cicd.yml up -d
+#   docker compose -f docker-compose.claude-flow-cicd.yml exec claude-flow-cicd bash
+#   docker compose -f docker-compose.claude-flow-cicd.yml logs -f
+#
+# Environment:
+#   Copy infra/configs/claude-flow-cicd/.env.cicd to .env and customize
+# ==============================================================================
+
+version: '3.9'
+
+# ==============================================================================
+# NETWORKS
+# ==============================================================================
+networks:
+  nyra-network:
+    name: nyra-network
+    external: true
+
+  claude-flow-cicd:
+    name: claude-flow-cicd
+    driver: bridge
+    labels:
+      - "com.nyra.network=cicd"
+      - "com.nyra.purpose=claude-flow-automation"
+
+# ==============================================================================
+# VOLUMES
+# ==============================================================================
+volumes:
+  # Claude Flow data persistence
+  claude_flow_data:
+    name: claude_flow_cicd_data
+    driver: local
+    labels:
+      - "com.nyra.volume=cicd"
+      - "com.nyra.service=claude-flow"
+      - "com.nyra.backup=important"
+
+  # AgentDB memory database
+  claude_flow_agentdb:
+    name: claude_flow_cicd_agentdb
+    driver: local
+    labels:
+      - "com.nyra.volume=cicd"
+      - "com.nyra.service=agentdb"
+      - "com.nyra.backup=critical"
+
+  # Neural patterns and training data
+  claude_flow_neural:
+    name: claude_flow_cicd_neural
+    driver: local
+    labels:
+      - "com.nyra.volume=cicd"
+      - "com.nyra.service=neural"
+
+  # Git repository cache
+  claude_flow_git_cache:
+    name: claude_flow_cicd_git_cache
+    driver: local
+    labels:
+      - "com.nyra.volume=cicd"
+      - "com.nyra.service=git"
+
+# ==============================================================================
+# SERVICES
+# ==============================================================================
+services:
+  # ============================================================================
+  # Claude Flow CI/CD Container
+  # ============================================================================
+  claude-flow-cicd:
+    image: node:20-bullseye
+    container_name: nyra-claude-flow-cicd
+    restart: unless-stopped
+
+    # Working directory
+    working_dir: /workspace
+
+    # Environment variables from dedicated CI/CD env file
+    env_file:
+      - ./configs/claude-flow-cicd/.env.cicd
+
+    environment:
+      # Core settings
+      NODE_ENV: ${NODE_ENV:-production}
+      CLAUDE_FLOW_MODE: v3
+      CLAUDE_FLOW_VERSION: 3.0.0-alpha.104
+
+      # CI/CD specific settings
+      CLAUDE_FLOW_CICD_MODE: true
+      CLAUDE_FLOW_ENVIRONMENT: cicd
+
+      # Feature flags
+      CLAUDE_FLOW_ENABLED: true
+      CLAUDE_FLOW_HOOKS_ENABLED: true
+      CLAUDE_FLOW_CHECKPOINTS_ENABLED: true
+      CLAUDE_FLOW_MEMORY_PERSISTENCE: true
+      CLAUDE_FLOW_NEURAL_OPTIMIZATION: true
+      CLAUDE_FLOW_AUTO_LEARNING: true
+
+      # Data directories (mounted volumes)
+      CLAUDE_FLOW_DATA_DIR: /data/claude-flow
+      CLAUDE_FLOW_MEMORY_DIR: /data/memory
+      CLAUDE_FLOW_CONFIG_DIR: /workspace/.claude-flow/config
+      AGENTDB_PATH: /data/agentdb/claude-flow.db
+      REASONINGBANK_DB_PATH: /data/memory/reasoning.db
+
+      # AgentDB configuration
+      AGENTDB_ENABLED: true
+      AGENTDB_QUANTIZATION: scalar
+      AGENTDB_HNSW_M: 16
+      AGENTDB_HNSW_EF: 200
+      AGENTDB_LEARNING: true
+
+      # Memory configuration
+      MEMORY_BACKEND: hybrid
+      MEMORY_AUTO_PERSIST: true
+      MEMORY_ENABLE_HNSW: true
+
+      # Neural configuration
+      NEURAL_OPTIMIZATION_ENABLED: true
+      NEURAL_FLASH_ATTENTION: true
+
+      # Swarm configuration
+      SWARM_TOPOLOGY: ${SWARM_TOPOLOGY:-mesh}
+      SWARM_MAX_AGENTS: ${SWARM_MAX_AGENTS:-35}
+
+      # Git configuration
+      GIT_AUTHOR_NAME: ${GIT_AUTHOR_NAME:-Claude Flow CI/CD}
+      GIT_AUTHOR_EMAIL: ${GIT_AUTHOR_EMAIL:-cicd@nyra.local}
+      GIT_COMMITTER_NAME: ${GIT_COMMITTER_NAME:-Claude Flow CI/CD}
+      GIT_COMMITTER_EMAIL: ${GIT_COMMITTER_EMAIL:-cicd@nyra.local}
+
+      # API keys (loaded from env file)
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      GOOGLE_API_KEY: ${GOOGLE_API_KEY}
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY}
+
+      # Security
+      JWT_SECRET: ${JWT_SECRET}
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY}
+
+      # Database connections (optional - connect to main stack)
+      POSTGRES_HOST: ${POSTGRES_HOST:-postgres}
+      POSTGRES_PORT: ${POSTGRES_PORT:-5432}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${CLAUDE_FLOW_DB:-claude_flow_cicd}
+
+      REDIS_HOST: ${REDIS_HOST:-redis}
+      REDIS_PORT: ${REDIS_PORT:-6379}
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+
+    volumes:
+      # Mount workspace (entire project repository)
+      - ../../:/workspace:rw
+
+      # Persistent data volumes
+      - claude_flow_data:/data/claude-flow
+      - claude_flow_agentdb:/data/agentdb
+      - claude_flow_neural:/data/neural
+      - claude_flow_git_cache:/data/git-cache
+
+      # Mount Claude Flow configuration from repo (read-only)
+      - ../../claude-flow.config.json:/workspace/claude-flow.config.json:ro
+      - ../../.claude-flow:/workspace/.claude-flow:rw
+
+      # Mount Git configuration (for checkpointing)
+      - ./configs/claude-flow-cicd/gitconfig:/root/.gitconfig:ro
+      - ./configs/claude-flow-cicd/git-credentials:/root/.git-credentials:ro
+
+      # Mount SSH keys for Git operations (optional)
+      - ./configs/claude-flow-cicd/ssh:/root/.ssh:ro
+
+      # Mount hook scripts
+      - ./configs/claude-flow-cicd/hooks:/workspace/.claude-flow/hooks:ro
+
+    networks:
+      - nyra-network
+      - claude-flow-cicd
+
+    # Health check
+    healthcheck:
+      test: ["CMD", "node", "--version"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          cpus: '4.0'
+          memory: 8G
+        reservations:
+          cpus: '2.0'
+          memory: 4G
+
+    # Install dependencies and keep container running
+    command: >
+      bash -c "
+      echo '🚀 Initializing Claude Flow CI/CD Container...'
+
+      # Install system dependencies
+      apt-get update -qq && apt-get install -y -qq \
+        git \
+        curl \
+        jq \
+        python3 \
+        python3-pip \
+        build-essential \
+        sqlite3 \
+        ca-certificates \
+        gnupg \
+        ssh-client \
+        vim \
+        && rm -rf /var/lib/apt/lists/*
+
+      # Install global npm packages
+      npm install -g \
+        @claude-flow/cli@latest \
+        agentdb@latest \
+        agentic-flow@latest \
+        ruv-swarm@latest \
+        pnpm@latest \
+        typescript@latest \
+        ts-node@latest
+
+      # Install Python dependencies
+      pip3 install --no-cache-dir \
+        anthropic \
+        openai \
+        sentence-transformers \
+        numpy \
+        scipy
+
+      # Navigate to workspace
+      cd /workspace
+
+      # Install project dependencies if package.json exists
+      if [ -f package.json ]; then
+        echo '📦 Installing project dependencies...'
+        npm install --legacy-peer-deps
+      fi
+
+      # Initialize Claude Flow if not already initialized
+      if [ ! -f .claude-flow/settings.json ]; then
+        echo '🧠 Initializing Claude Flow...'
+        npx @claude-flow/cli@latest init --non-interactive --defaults
+      fi
+
+      # Initialize AgentDB
+      echo '🗄️ Initializing AgentDB...'
+      npx @claude-flow/cli@latest memory init --force
+
+      # Start daemon
+      echo '🤖 Starting Claude Flow daemon...'
+      npx @claude-flow/cli@latest daemon start
+
+      # Run system diagnostics
+      echo '🔍 Running system diagnostics...'
+      npx @claude-flow/cli@latest doctor || true
+
+      # Display status
+      echo '✅ Claude Flow CI/CD Container Ready!'
+      echo ''
+      echo 'Available Commands:'
+      echo '  npx @claude-flow/cli@latest <command>'
+      echo '  npx agentdb <command>'
+      echo '  npx ruv-swarm <command>'
+      echo ''
+      echo 'Container Status:'
+      npx @claude-flow/cli@latest status
+
+      # Keep container running with tail
+      tail -f /dev/null
+      "
+
+    labels:
+      - "com.nyra.service=claude-flow-cicd"
+      - "com.nyra.type=automation"
+      - "com.nyra.environment=cicd"
+      - "com.nyra.version=3.0.0-alpha.104"
+      - "traefik.enable=false"
+
+# ==============================================================================
+# CONFIGURATION NOTES
+# ==============================================================================
+#
+# 1. Environment Configuration:
+#    - Copy infra/configs/claude-flow-cicd/.env.cicd.example to .env.cicd
+#    - Set all required API keys and secrets
+#    - Configure Git credentials for checkpointing
+#
+# 2. Git Configuration:
+#    - Configure gitconfig and git-credentials files
+#    - Add SSH keys for private repository access
+#    - Set up Git signing keys (optional)
+#
+# 3. Accessing the Container:
+#    docker compose -f docker-compose.claude-flow-cicd.yml exec claude-flow-cicd bash
+#
+# 4. Running CI/CD Tasks:
+#    docker compose -f docker-compose.claude-flow-cicd.yml exec claude-flow-cicd \
+#      npx @claude-flow/cli@latest swarm init --topology mesh
+#
+# 5. Viewing Logs:
+#    docker compose -f docker-compose.claude-flow-cicd.yml logs -f claude-flow-cicd
+#
+# 6. Memory Backup:
+#    docker run --rm \
+#      -v claude_flow_cicd_agentdb:/data \
+#      -v $(pwd):/backup \
+#      alpine tar czf /backup/agentdb-backup.tar.gz /data
+#
+# 7. Network Connectivity:
+#    - Container connects to nyra-network for main service access
+#    - Isolated claude-flow-cicd network for CI/CD operations
+#    - Can access postgres, redis, and other services via service names
+#
+# 8. Security:
+#    - Store sensitive data in .env.cicd (not committed)
+#    - Use Infisical or Docker secrets in production
+#    - Rotate credentials regularly
+#    - Restrict volume permissions
+#
+# ==============================================================================

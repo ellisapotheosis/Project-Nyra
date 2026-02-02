@@ -1,0 +1,36 @@
+# General Server Configuration
+[server]
+host = "0.0.0.0"
+port = 4000
+# Enable detailed logging for debugging MCP connections
+log_level = "info"
+
+# ---------------------------------------------------------
+# Model Context Protocol (MCP) Configuration
+# ---------------------------------------------------------
+[mcp]
+enabled = true
+# Allow the router to discover local MCP servers
+discover_local = true
+
+# Define your MCP Servers (Agents/Tools)
+# You can map remote MCP servers or local processes here
+
+[[mcp.servers]]
+name = "filesystem"
+command = "npx"
+args = ["-y", "@modelcontextprotocol/server-filesystem", "./files"]
+env = {}
+
+[[mcp.servers]]
+name = "memory"
+command = "npx"
+args = ["-y", "@modelcontextprotocol/server-memory"]
+
+# ---------------------------------------------------------
+# Security / CORS
+# ---------------------------------------------------------
+[cors]
+allow_origins = ["*"]
+allow_methods = ["GET", "POST", "OPTIONS"]
+allow_headers = ["Authorization", "Content-Type"]

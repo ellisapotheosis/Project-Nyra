@@ -14,6 +14,8 @@ services:
     ports:
       - "6000:6000"   # HTTP API
       - "8000:8000"   # gRPC
+    env_file:
+      - ../.env.rendered
     environment:
       # Authentication
       - NEXUS_JWT_SECRET=${NEXUS_JWT_SECRET}
@@ -35,9 +37,6 @@ services:
       # Logging & Debug
       - LOG_LEVEL=${LOG_LEVEL:-info}
       - DEBUG=${DEBUG:-false}
-
-      # Infisical Integration
-      - INFISICAL_TOKEN=${INFISICAL_TOKEN}
     volumes:
       - ../config/nexus-router.yaml:/app/config/nexus-router.yaml:ro
       - nexus-router-logs:/var/log/nexus

@@ -16,20 +16,20 @@ services:
   # Graphiti MCP - Graph memory server for Neo4j
   # ==========================================================================
   graphiti-mcp:
-    image: ghcr.io/getzep/graphiti-mcp:latest
+    image: falkordb/graphiti-knowledge-graph-mcp:latest
     container_name: nyra-graphiti-mcp
     restart: unless-stopped
     environment:
+      - DATABASE_TYPE=falkordb
       - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
       - MODEL_NAME=${GRAPHITI_MODEL:-gpt-4o-mini}
-      - NEO4J_URI=bolt://neo4j:7687
-      - NEO4J_USER=neo4j
-      - NEO4J_PASSWORD=${NEO4J_PASSWORD:-neo4j_secure_pass}
+      - FALKORDB_HOST=nyra-falkordb-golden
+      - FALKORDB_PORT=6379
+      - FALKORDB_DATABASE=default_db
+      - GRAPHITI_GROUP_ID=nyra_mortgage
       - GRAPHITI_TRANSPORT=sse
       - GRAPHITI_PORT=8000
-    depends_on:
-      neo4j:
-        condition: service_healthy
     ports:
       - "${GRAPHITI_PORT:-7459}:8000"
     networks:
@@ -45,10 +45,11 @@ services:
       - "nyra.mcp.priority=1"
       - "nyra.tier=orchestrator"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      test: ["CMD-SHELL", "python3 -c 'import socket; s=socket.socket(); s.settimeout(1); s.connect((\"localhost\", 8000))' || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3
+      start_period: 10s
     deploy:
       resources:
         limits:
@@ -59,38 +60,43 @@ services:
           memory: 512M
 
   # ==========================================================================
-  # TwentyCRM MCP - CRM operations MCP server
+  # Composio MCP - Integration platform for AI agents
   # ==========================================================================
-  twentycrm-mcp:
-    build:
-      context: ../docker/build/mcp-servers/twentycrm
-      dockerfile: Dockerfile
-    container_name: nyra-twentycrm-mcp
+  composio-mcp:
+    image: composiohq/composio:latest
+    container_name: nyra-composio-mcp
     restart: unless-stopped
     environment:
-      - TWENTY_API_URL=${TWENTY_API_URL:-http://twentycrm:3000/graphql}
-      - TWENTY_API_KEY=${TWENTY_API_KEY}
-      - TWENTY_WORKSPACE_ID=${TWENTY_WORKSPACE_ID:-default}
-    depends_on:
-      twentycrm:
-        condition: service_started
+      - COMPOSIO_API_KEY=${COMPOSIO_API_KEY}
+      - COMPOSIO_BASE_URL=${COMPOSIO_BASE_URL:-https://backend.composio.dev}
+      - MCP_PORT=8067
+      - MCP_HOST=0.0.0.0
     ports:
-      - "8082:8082"
+      - "${COMPOSIO_MCP_PORT:-8067}:8067"
     networks:
       - nyra-network
     labels:
-      - "nyra.service.name=twentycrm-mcp"
+      - "nyra.service.name=composio-mcp"
       - "nyra.service.type=mcp-server"
       - "nyra.mcp.enabled=true"
-      - "nyra.mcp.transport=sse"
-      - "nyra.mcp.port=8082"
+      - "nyra.mcp.transport=http"
+      - "nyra.mcp.port=8067"
       - "nyra.mcp.health_endpoint=/health"
-      - "nyra.mcp.keywords=crm,contacts,leads,deals"
+      - "nyra.mcp.keywords=integrations,automation,tools,api"
       - "nyra.mcp.priority=1"
       - "nyra.tier=orchestrator"
     healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://localhost:8082/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:8067/health"]
       interval: 30s
       timeout: 10s
       retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 1G
+
 

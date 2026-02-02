@@ -1,13 +1,24 @@
-# Landing Page - CLAUDE.md
+# Landing Pages Parent - Claude Flow V3 Configuration
 
-**Inherits from**: `apps/CLAUDE.md`
-**Stack**: React 18, TypeScript, Node.js, Vite
-**Port**: 3000
-**Type**: landing (Marketing and lead generation landing pages)
+> **Marketing and lead generation landing pages**
+>
+> **Inherits from**: `apps/CLAUDE.md`
+> **Stack**: Next.js 15/Vite, React 18-19, TypeScript 5, Tailwind CSS 4
+> **Port**: 3001 (RateHunter landing), 3000 (others)
+> **Type**: SSG/Landing Pages (public facing)
 
 ## Overview
 
-Landing Page app contains marketing-focused, public-facing landing pages for Project Nyra. This document provides landing page-specific configuration and development guidelines.
+Landing Pages contains marketing-focused, public-facing landing pages for Project Nyra. This is the parent configuration document for all landing page applications.
+
+### Landing Page Applications
+
+| App | Port | Purpose | Stack |
+|-----|------|---------|-------|
+| **ratehunter-landing** | 3001 | Mortgage rate discovery landing | Next.js 15 SSG |
+| Other landing pages | 3000 | Additional marketing landing pages | Vite/React |
+
+See `apps/landing/ratehunter-landing/CLAUDE.md` for RateHunter landing-specific configuration.
 
 ## App-Specific Configuration
 

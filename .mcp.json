@@ -1,10 +1,8 @@
 {
   "mcpServers": {
     "claude-flow": {
-      "command": "cmd",
+      "command": "npx",
       "args": [
-        "/c",
-        "npx",
         "@claude-flow/cli@latest",
         "mcp",
         "start"
@@ -16,7 +14,7 @@
         "CLAUDE_FLOW_MAX_AGENTS": "15",
         "CLAUDE_FLOW_MEMORY_BACKEND": "hybrid"
       },
-      "autoStart": false
+      "autoStart": true
     },
     "supabase": {
       "command": "npx",
@@ -39,6 +37,11 @@
         "generate_typescript_types",
         "listProjects"
       ]
+    },
+    "nexus-router": {
+      "url": "http://localhost:6000/mcp/sse",
+      "transport": "sse",
+      "description": "Nexus Router - Smart MCP aggregator with unified access to all MCP servers and intelligent LLM routing"
     }
   }
 }

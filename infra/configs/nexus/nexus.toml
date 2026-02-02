@@ -215,11 +215,19 @@ env.BWS_ACCESS_TOKEN = "{{ env.BWS_ACCESS_TOKEN }}"
 # MCP Servers - Memory & Knowledge
 ################################################################################
 
+[mcp.servers.qdrant]
+cmd = ["npx", "-y", "@qdrant/mcp-server-qdrant"]
+env.QDRANT_URL = "http://qdrant:6333"
+env.QDRANT_API_KEY = "{{ env.QDRANT_API_KEY }}"
+description = "Qdrant vector database for semantic memory"
+
 [mcp.servers.graphiti]
 cmd = ["npx", "-y", "@graphiti/mcp-server"]
-env.FALKORDB_URL = "redis://falkordb:6379"
-env.FALKORDB_PASSWORD = "{{ env.FALKORDB_PASSWORD }}"
-description = "Graphiti temporal knowledge graph backed by FalkorDB"
+env.NEO4J_URI = "bolt://neo4j:7687"
+env.NEO4J_USER = "neo4j"
+env.NEO4J_PASSWORD = "{{ env.NEO4J_PASSWORD }}"
+description = "Graphiti temporal knowledge graph"
+
 
 ################################################################################
 # MCP Servers - AI Orchestration
@@ -286,27 +294,7 @@ description = "Notion workspace integration"
 [mcp.servers.twenty]
 protocol = "sse"
 url = "http://twenty:3000/mcp/sse"
-description = "TwentyCRM app integration"
-
-[mcp.servers.twentycrm-mcp]
-protocol = "sse"
-url = "http://twentycrm-mcp:8082"
-description = "TwentyCRM MCP server for CRM operations"
-
-[mcp.servers.composio]
-protocol = "sse"
-url = "http://composio-mcp:8086"
-description = "Composio MCP for third-party integrations"
-
-[mcp.servers.activepieces]
-protocol = "sse"
-url = "http://activepieces-mcp:8087"
-description = "Activepieces MCP for workflow automation"
-
-[mcp.servers.n8n]
-protocol = "sse"
-url = "http://n8n-mcp:8088"
-description = "n8n MCP server for workflow orchestration"
+description = "TwentyCRM integration"
 
 ################################################################################
 # Fuzzy Tool Search Configuration
@@ -410,6 +398,8 @@ mcp_servers = [
 groups = ["agents"]
 mcp_servers = [
     "infisical",
+    "mem0",
+    "qdrant",
     "graphiti",
     "claude-flow",
     "archon"
@@ -519,7 +509,7 @@ telemetry = "info"
 # MCP Server Categories:
 # 1. Infrastructure: filesystem, git, github, docker
 # 2. Secrets: infisical (primary), bitwarden (secondary)
-# 3. Memory: graphiti (FalkorDB)
+# 3. Memory: qdrant, graphiti, mem0
 # 4. Orchestration: claude-flow, archon
 # 5. Development: codanna, serena, sequential-thinking
 # 6. Research: tavily, perplexity, firecrawl

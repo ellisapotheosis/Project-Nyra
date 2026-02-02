@@ -205,7 +205,7 @@ networks:
     driver: bridge
     ipam:
       config:
-        - subnet: 172.20.0.0/16
+        - subnet: 172.22.0.0/16
   nyra-core:
     external: true
   nyra-mcp:
