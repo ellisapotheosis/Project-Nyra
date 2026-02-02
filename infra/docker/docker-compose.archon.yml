@@ -53,7 +53,7 @@ services:
       - ../../tools/archon/python/src:/app/src:ro  # Hot reload in dev
       - ../../tools/archon/migration:/app/migration:ro
     depends_on:
-      archon-postgres:
+      postgresql:
         condition: service_healthy
     extra_hosts:
       - "host.docker.internal:host-gateway"
@@ -109,7 +109,7 @@ services:
       - nyra-mcp
       - nyra-core
     depends_on:
-      postgres:
+      postgresql:
         condition: service_healthy
       archon-server:
         condition: service_healthy

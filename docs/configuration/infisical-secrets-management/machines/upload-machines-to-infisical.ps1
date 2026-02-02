@@ -20,9 +20,9 @@ if (-not $Token) {
 # Machine configurations
 $machines = @(
     @{
-        Name = "orchestrator-mini"
+        Name = "orchestrator"
         File = "orchestrator-mini.env"
-        Path = "/machines/orchestrator-mini"
+        Path = "/machines/orchestrator"
     },
     @{
         Name = "worker-rtx3060"

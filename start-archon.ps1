@@ -35,8 +35,8 @@ Write-Host "Using docker-compose.archon.yml with current environment variables" 
 Write-Host "(Tip: run via Infisical: infisical run --projectId=... --env=dev --path=/shared -- .\start-archon.ps1)" -ForegroundColor Yellow
 Write-Host ""
 
-# Bring up Archon stack
-& docker-compose -f infra/docker/docker-compose.archon.yml up -d
+# Bring up Archon stack together with base orchestration services (for Postgres, Redis, etc.)
+& docker-compose -f infra/docker/docker-compose.orchestration.yml -f infra/docker/docker-compose.archon.yml up -d postgresql archon-server archon-mcp archon-ui
 
 if ($LASTEXITCODE -ne 0) {
     Write-Host "ERROR: docker-compose up failed" -ForegroundColor Red
