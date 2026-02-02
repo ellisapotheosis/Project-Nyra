@@ -484,3 +484,4 @@ docs/archive/**/.env.*
 docs/archive/**/*.pem
 docs/archive/**/*.key
 docs/archive/**/*.db
+bootstrap/
