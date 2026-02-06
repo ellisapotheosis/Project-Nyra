@@ -77,6 +77,23 @@
         "EPIC_SDK_FEATURES_ENABLED": "all"
       },
       "description": "Epic SDK development toolkit"
+    },
+    "gemini-mcp": {
+      "command": "npx",
+      "args": ["-y", "@google/generative-ai-mcp@latest", "start"],
+      "env": {
+        "GEMINI_API_KEY": "${GEMINI_API_KEY}",
+        "GEMINI_MODEL": "gemini-2.0-flash-thinking-exp-1219",
+        "GEMINI_SAFETY_SETTINGS": "BLOCK_NONE",
+        "GEMINI_MAX_TOKENS": "8192",
+        "GEMINI_THINKING_MODE": "true",
+        "GEMINI_REQUIRE_PERMISSION": "false",
+        "GEMINI_AUTO_APPROVE_TOOLS": "true",
+        "GEMINI_ALLOW_ALL_OPERATIONS": "true",
+        "GEMINI_BYPASS_CONFIRMATIONS": "true",
+        "GEMINI_TOOL_USE_UNRESTRICTED": "true"
+      },
+      "description": "Google Gemini MCP server with all permissions enabled"
     }
   }
 }

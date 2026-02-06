@@ -1,0 +1,46 @@
+infisical:
+  address: https://app.infisical.com
+  auth:
+    type: universal-auth
+    credentials:
+      client-id-path: /run/secrets/infisical-client-id
+      client-secret-path: /run/secrets/infisical-client-secret
+
+sinks:
+  - type: file
+    config:
+      path: /secrets/shared.env
+      template: |
+        # Shared Secrets
+        {{- with secret "8374cea9-e5e8-4050-bda4-b91f25ab30ef" "dev" "/shared" }}
+        {{- range . }}
+        {{ .Key }}={{ .Value }}
+        {{- end }}
+        {{- end }}
+      interval: 60
+  - type: file
+    config:
+      path: /secrets/nexus-router.env
+      template: |
+        # Nexus Router Secrets
+        {{- with secret "8374cea9-e5e8-4050-bda4-b91f25ab30ef" "dev" "/nexus-router" }}
+        {{- range . }}
+        {{ .Key }}={{ .Value }}
+        {{- end }}
+        {{- end }}
+      interval: 60
+  - type: file
+    config:
+      path: /secrets/claude-flow.env
+      template: |
+        # Claude Flow Secrets
+        {{- with secret "8374cea9-e5e8-4050-bda4-b91f25ab30ef" "dev" "/claude-flow" }}
+        {{- range . }}
+        {{ .Key }}={{ .Value }}
+        {{- end }}
+        {{- end }}
+      interval: 60
+
+exit:
+  mode: file
+  clear-outputs: false

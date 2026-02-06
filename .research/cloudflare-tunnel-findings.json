@@ -24,7 +24,7 @@
         "monitor.ratehunter.net (port 3000 - Monitoring)",
         "metrics.ratehunter.net (port 9090 - Prometheus)",
         "health.ratehunter.net (port 9090 - Health)",
-        "mcp.ratehunter.net (port 8005 - MetaMCP)",
+        "mcp.ratehunter.net (port 8005 - Grafbase/Nexus (Nexus Router)",
         "secrets.ratehunter.net (port 8006 - Infisical)"
       ],
       "network": {
@@ -103,10 +103,12 @@
       ]
     },
     "api_authentication": {
-      "cloudflare_api_key": "Required for DNS and tunnel management",
-      "cloudflare_email": "Required for account access",
-      "cloudflare_zone_id": "ratehunter.net zone ID",
-      "cloudflare_account_id": "Required for load balancer"
+      "cloudflare_account_id": "2ff5950df9078417fde73fbb184da8a7",
+      "cloudflare_api_key": "907vZFGqMpeSpGm8UDL_FsWY6hn9wCC1FtQ3U-OJ",
+      "cloudflare_email": "edaneandersen@gmail.com",
+      "cloudflare_zone_id": "2ef80fa2c2eaa062c9a5210de8538661",
+      "cf_access_client_id": "7e0e0d778d820d6d49df508a2931a48f.access",
+      "cf_access_client_secret": "ed9b215b78e0aa6f678a21ca05dfe01d2350d45679a695e9c561f1c8bb7ac8fc",
     }
   },
   "services_exposed": {
@@ -116,7 +118,6 @@
         "Nexus Admin (4001)",
         "Claude Flow (9000-9001)",
         "Archon OS (9002-9003)",
-        "MetaMCP Gateway (8005)",
         "Infisical MCP (8006)"
       ],
       "monitoring": [
@@ -128,7 +129,7 @@
       "infrastructure": [
         "PostgreSQL (5432)",
         "FalkorDB (6379)",
-        "ChromaDB (8001)"
+        "Ruvector (7000)"
       ]
     },
     "worker_services": {
