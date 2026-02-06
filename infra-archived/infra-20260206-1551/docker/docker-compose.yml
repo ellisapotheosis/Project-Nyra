@@ -1,0 +1,1172 @@
+version: '3.9'
+
+networks:
+  nyra-core:
+    name: nyra-core
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+  nyra-mcp:
+    name: nyra-mcp
+    driver: bridge
+  nyra-apps:
+    name: nyra-apps
+    driver: bridge
+  nyra-orchestrator:
+    name: nyra-orchestrator
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.22.0.0/16
+  nyra-worker-rtx3060:
+    name: nyra-worker-rtx3060
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.21.0.0/16
+  nyra-worker-rtx3090ti:
+    name: nyra-worker-rtx3090ti
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.23.0.0/16
+  nyra-worker-rtx5090:
+    name: nyra-worker-rtx5090
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.22.0.0/16
+
+volumes:
+  # Core
+  postgres-data:
+  redis-data:
+  qdrant-data:
+  falkordb-data:
+  neo4j-data:
+  nexus-router-data:
+  nexus-router-logs:
+  # MCP
+  claude-flow-data:
+  agentdb-data:
+  ruvector-data:
+  infisical-data:
+  infisical-mongo-data:
+  # Apps
+  twenty-data:
+  twenty-pg-data:
+  n8n-data:
+  n8n-pg-data:
+  dify-data:
+  dify-pg-data:
+  claude-flow-alpha-data:
+  claude-flow-alpha-logs:
+  claude-flow-alpha-claude-flow:
+  claude-flow-alpha-cache:
+  claude-flow-alpha-sessions:
+  claude-flow-alpha-memory:
+  # Orchestrator
+  router-data:
+  prometheus-data:
+  grafana-data:
+  loki-data:
+  alertmanager-data:
+  monitor-data:
+  model-cache-data:
+  # Workers
+  ollama-models-rtx3060:
+  litellm-data:
+  manager-data:
+  vllm-models:
+  ollama-models-rtx5090:
+  # Embeddings
+  onnx-cache:
+  xenova-models:
+  xenova-cache:
+
+services:
+  ##############################################################################
+  # CORE SERVICES
+  ##############################################################################
+  nexus-router:
+    build:
+      context: ../build/services/nexus-router
+      dockerfile: Dockerfile
+      args:
+        NEXUS_VERSION: latest
+    container_name: nyra-nexus-router
+    restart: unless-stopped
+    ports:
+      - "6000:6000"
+      - "8000:8000"
+    volumes:
+      - ../configs/nexus-router.yaml:/app/config/nexus-router.yaml:ro
+      - nexus-router-logs:/var/log/nexus
+      - nexus-router-data:/app/data
+    networks:
+      - nyra-core
+      - nyra-mcp
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
+          cpus: '1.0'
+          memory: 1G
+
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: nyra-postgres
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=nyra
+      - POSTGRES_USER=nyra
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - nyra-core
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U nyra"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: nyra-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    command: redis-server --requirepass ${REDIS_PASSWORD:-redis_default_pass}
+    volumes:
+      - redis-data:/data
+    networks:
+      - nyra-core
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-redis_default_pass}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: nyra-qdrant
+    restart: unless-stopped
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - qdrant-data:/qdrant/storage
+    networks:
+      - nyra-core
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6333/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  falkordb:
+    image: falkordb/falkordb:latest
+    container_name: nyra-falkordb
+    restart: unless-stopped
+    ports:
+      - "6380:6379"
+    volumes:
+      - falkordb-data:/data
+    networks:
+      - nyra-core
+    healthcheck:
+      test: ["CMD", "redis-cli", "-p", "6379", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  neo4j:
+    image: neo4j:5
+    container_name: nyra-neo4j
+    restart: unless-stopped
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    environment:
+      - NEO4J_AUTH=neo4j/${NEO4J_PASSWORD}
+      - NEO4J_PLUGINS=["graph-data-science", "apoc"]
+      - NEO4J_dbms_memory_heap_max__size=4G
+      - NEO4J_dbms_memory_pagecache_size=2G
+    volumes:
+      - neo4j-data:/data
+    networks:
+      - nyra-core
+    healthcheck:
+      test: ["CMD", "neo4j", "status"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  ##############################################################################
+  # MCP SERVICES
+  ##############################################################################
+  litellm:
+    image: ghcr.io/berriai/litellm:main-stable
+    container_name: nyra-litellm
+    restart: unless-stopped
+    ports:
+      - "4000:4000"
+    volumes:
+      - ./configs/litellm/config.yaml:/app/config.yaml:ro
+    networks:
+      - nyra-mcp
+      - nyra-core
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  claude-flow:
+    image: ghcr.io/ruv-inc/claude-flow:alpha
+    container_name: nyra-claude-flow
+    restart: unless-stopped
+    ports:
+      - "3010:3010"
+    volumes:
+      - claude-flow-data:/app/data
+    networks:
+      - nyra-mcp
+      - nyra-core
+    depends_on:
+      - nexus-router
+      - agentdb
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3010/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  agentdb:
+    image: ghcr.io/ruv-inc/agentdb:latest
+    container_name: nyra-agentdb
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    volumes:
+      - agentdb-data:/app/data
+    networks:
+      - nyra-mcp
+      - nyra-core
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  ruvector:
+    image: ghcr.io/ruv-inc/ruvector:latest
+    container_name: nyra-ruvector
+    restart: unless-stopped
+    ports:
+      - "8888:8888"
+    volumes:
+      - ruvector-data:/app/data
+    networks:
+      - nyra-mcp
+      - nyra-core
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8888/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  infisical:
+    image: infisical/infisical:latest
+    container_name: nyra-infisical
+    restart: unless-stopped
+    ports:
+      - "8082:8080"
+    volumes:
+      - infisical-data:/app/data
+    networks:
+      - nyra-mcp
+    depends_on:
+      - infisical-mongo
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  infisical-mongo:
+    image: mongo:7
+    container_name: nyra-infisical-mongo
+    restart: unless-stopped
+    volumes:
+      - infisical-mongo-data:/data/db
+    networks:
+      - nyra-mcp
+
+  ##############################################################################
+  # APP SERVICES
+  ##############################################################################
+  twenty:
+    image: twentycrm/twenty:latest
+    container_name: nyra-twenty
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    volumes:
+      - twenty-data:/app/data
+    networks:
+      - nyra-apps
+      - nyra-core
+    depends_on:
+      - twenty-postgres
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  twenty-postgres:
+    image: pgvector/pgvector:pg16
+    container_name: nyra-twenty-postgres
+    restart: unless-stopped
+    volumes:
+      - twenty-pg-data:/var/lib/postgresql/data
+    networks:
+      - nyra-apps
+
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: nyra-n8n
+    restart: unless-stopped
+    ports:
+      - "5678:5678"
+    volumes:
+      - n8n-data:/home/node/.n8n
+    networks:
+      - nyra-apps
+      - nyra-core
+    depends_on:
+      - n8n-postgres
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5678/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  n8n-postgres:
+    image: postgres:16-alpine
+    container_name: nyra-n8n-postgres
+    restart: unless-stopped
+    volumes:
+      - n8n-pg-data:/var/lib/postgresql/data
+    networks:
+      - nyra-apps
+
+  dify-api:
+    image: langgenius/dify-api:latest
+    container_name: nyra-dify-api
+    restart: unless-stopped
+    ports:
+      - "3001:5001"
+    volumes:
+      - dify-data:/app/api/storage
+    networks:
+      - nyra-apps
+      - nyra-core
+    depends_on:
+      - dify-postgres
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  dify-web:
+    image: langgenius/dify-web:latest
+    container_name: nyra-dify-web
+    restart: unless-stopped
+    ports:
+      - "3002:3000"
+    networks:
+      - nyra-apps
+    depends_on:
+      - dify-api
+
+  dify-postgres:
+    image: pgvector/pgvector:pg16
+    container_name: nyra-dify-postgres
+    restart: unless-stopped
+    volumes:
+      - dify-pg-data:/var/lib/postgresql/data
+    networks:
+      - nyra-apps
+
+  nyra-orchestrator:
+    build:
+      context: ../../services/nyra-orchestrator
+      dockerfile: Dockerfile
+    container_name: nyra-orchestrator
+    restart: unless-stopped
+    ports:
+      - "8010:8010"
+    networks:
+      - nyra-apps
+      - nyra-mcp
+      - nyra-core
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8010/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  claude-flow-alpha:
+    build:
+      context: ../../
+      dockerfile: infra/docker/build/claude-flow.Dockerfile
+      target: production
+    container_name: nyra-claude-flow-alpha
+    restart: unless-stopped
+    ports:
+      - "9000:3000"
+    volumes:
+      - claude-flow-alpha-data:/app/data
+      - claude-flow-alpha-logs:/app/logs
+      - claude-flow-alpha-claude-flow:/app/.claude-flow
+      - claude-flow-alpha-cache:/app/cache
+      - claude-flow-alpha-sessions:/app/sessions
+      - claude-flow-alpha-memory:/app/memory
+      - ../../infra/configs/claude-flow/claude-flow.config.json:/app/claude-flow.config.json:ro
+    networks:
+      - nyra-apps
+      - nyra-mcp
+      - nyra-core
+    depends_on:
+      nexus-router:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "npx", "@claude-flow/cli@latest", "status"]
+      interval: 30s
+      timeout: 10s
+      start_period: 60s
+      retries: 3
+    labels:
+      - "com.docker.compose.project=nyra"
+      - "com.nyra.service=claude-flow-alpha"
+      - "com.nyra.tier=orchestration"
+      - "com.nyra.version=3.0.0-alpha"
+
+  ##############################################################################
+  # ORCHESTRATOR SERVICES
+  ##############################################################################
+  archgw-router:
+    image: nyra/archgw-router:latest
+    container_name: nyra-archgw-router
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    volumes:
+      - ../configs/orchestrator-config.yaml:/app/config.yaml:ro
+      - router-data:/app/data
+    networks:
+      - nyra-orchestrator
+      - nyra-core
+      - nyra-mcp
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: nyra-prometheus
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=30d'
+      - '--web.enable-lifecycle'
+    volumes:
+      - ../configs/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    networks:
+      - nyra-orchestrator
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:9090/-/healthy"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: nyra-grafana
+    restart: unless-stopped
+    ports:
+      - "3005:3000"
+    volumes:
+      - ../configs/grafana/datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml:ro
+      - ../configs/grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - grafana-data:/var/lib/grafana
+    networks:
+      - nyra-orchestrator
+    depends_on:
+      - prometheus
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  loki:
+    image: grafana/loki:latest
+    container_name: nyra-loki
+    restart: unless-stopped
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/config.yml
+    volumes:
+      - ../configs/loki.yml:/etc/loki/config.yml:ro
+      - loki-data:/loki
+    networks:
+      - nyra-orchestrator
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3100/ready"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  alertmanager:
+    image: prom/alertmanager:latest
+    container_name: nyra-alertmanager
+    restart: unless-stopped
+    ports:
+      - "9093:9093"
+    command:
+      - '--config.file=/etc/alertmanager/alertmanager.yml'
+      - '--storage.path=/alertmanager'
+    volumes:
+      - ../configs/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+      - alertmanager-data:/alertmanager
+    networks:
+      - nyra-orchestrator
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:9093/-/healthy"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  wake-on-lan:
+    image: nyra/wake-on-lan:latest
+    container_name: nyra-wol
+    restart: unless-stopped
+    network_mode: host
+    volumes:
+      - ../configs/orchestrator-config.yaml:/app/config.yaml:ro
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8090/health"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+
+  perf-monitor:
+    image: nyra/performance-monitor:latest
+    container_name: nyra-perf-monitor
+    restart: unless-stopped
+    ports:
+      - "8090:8090"
+    volumes:
+      - ../configs/orchestrator-config.yaml:/app/config.yaml:ro
+      - monitor-data:/app/data
+    networks:
+      - nyra-orchestrator
+      - nyra-core
+    depends_on:
+      - prometheus
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8090/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  model-cache:
+    image: nyra/model-cache:latest
+    container_name: nyra-model-cache
+    restart: unless-stopped
+    ports:
+      - "8091:8091"
+    volumes:
+      - model-cache-data:/app/cache
+      - ../configs/orchestrator-config.yaml:/app/config.yaml:ro
+    networks:
+      - nyra-orchestrator
+      - nyra-core
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8091/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: nyra-cloudflared-orchestrator
+    restart: unless-stopped
+    command: ["tunnel", "--config", "/etc/cloudflared/config.yaml", "run", "nyra-orchestrator-tunnel"]
+    networks:
+      - nyra-orchestrator
+    healthcheck:
+      test: ["CMD", "cloudflared", "tunnel", "info", "nyra-orchestrator-tunnel"]
+      interval: 60s
+      timeout: 30s
+      retries: 3
+
+  ##############################################################################
+  # WORKER SERVICES - RTX 3060
+  ##############################################################################
+  ollama-rtx3060:
+    image: ollama/ollama:latest
+    container_name: nyra-worker-rtx3060-ollama
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama-models-rtx3060:/app/models
+    networks:
+      - nyra-worker-rtx3060
+      - nyra-core
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      interval: 30s
+      timeout: 15s
+      retries: 3
+      start_period: 60s
+
+  litellm-proxy-rtx3060:
+    image: ghcr.io/berriai/litellm:main-stable
+    container_name: nyra-worker-rtx3060-litellm
+    restart: unless-stopped
+    ports:
+      - "4001:4000"
+    volumes:
+      - ../configs/litellm-worker-rtx3060.yaml:/app/config.yaml:ro
+      - litellm-data:/app/data
+    networks:
+      - nyra-worker-rtx3060
+      - nyra-core
+    depends_on:
+      - ollama-rtx3060
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  model-manager-rtx3060:
+    image: nyra/model-manager:latest
+    container_name: nyra-worker-rtx3060-model-manager
+    restart: unless-stopped
+    ports:
+      - "8081:8080"
+    volumes:
+      - ../configs/worker-rtx3060-config.yaml:/app/config.yaml:ro
+      - ollama-models-rtx3060:/app/models
+      - manager-data:/app/data
+    networks:
+      - nyra-worker-rtx3060
+    depends_on:
+      - ollama-rtx3060
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  perf-monitor-rtx3060:
+    image: nyra/worker-perf-monitor:latest
+    container_name: nyra-worker-rtx3060-perf
+    restart: unless-stopped
+    ports:
+      - "9001:9090"
+    volumes:
+      - ../configs/worker-rtx3060-config.yaml:/app/config.yaml:ro
+      - monitor-data:/app/data
+    networks:
+      - nyra-worker-rtx3060
+      - nyra-orchestrator
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9090/metrics"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  redis-worker-rtx3060:
+    image: redis:7-alpine
+    container_name: nyra-worker-rtx3060-redis
+    restart: unless-stopped
+    ports:
+      - "6380:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - nyra-worker-rtx3060
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  health-check-rtx3060:
+    image: nyra/health-check:latest
+    container_name: nyra-worker-rtx3060-health
+    restart: unless-stopped
+    ports:
+      - "8091:8080"
+    volumes:
+      - ../configs/worker-rtx3060-config.yaml:/app/config.yaml:ro
+    networks:
+      - nyra-worker-rtx3060
+      - nyra-orchestrator
+    depends_on:
+      - ollama-rtx3060
+      - litellm-proxy-rtx3060
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 60s
+      timeout: 15s
+      retries: 3
+
+  ##############################################################################
+  # WORKER SERVICES - RTX 3090ti
+  ##############################################################################
+  prometheus-rtx3090ti:
+    image: prom/prometheus:latest
+    container_name: nyra-worker-rtx3090ti-prometheus
+    restart: unless-stopped
+    ports:
+      - "9091:9090"
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=90d'
+      - '--web.enable-lifecycle'
+    volumes:
+      - ../configs/prometheus-worker.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    networks:
+      - nyra-worker-rtx3090ti
+      - nyra-orchestrator
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:9090/-/healthy"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  grafana-rtx3090ti:
+    image: grafana/grafana:latest
+    container_name: nyra-worker-rtx3090ti-grafana
+    restart: unless-stopped
+    ports:
+      - "3006:3000"
+    volumes:
+      - ../configs/grafana-worker/provisioning:/etc/grafana/provisioning:ro
+      - grafana-data:/var/lib/grafana
+    networks:
+      - nyra-worker-rtx3090ti
+      - nyra-orchestrator
+    depends_on:
+      - prometheus-rtx3090ti
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  loki-rtx3090ti:
+    image: grafana/loki:latest
+    container_name: nyra-worker-rtx3090ti-loki
+    restart: unless-stopped
+    ports:
+      - "3101:3100"
+    command: -config.file=/etc/loki/config.yml
+    volumes:
+      - ../configs/loki-worker.yml:/etc/loki/config.yml:ro
+      - loki-data:/loki
+    networks:
+      - nyra-worker-rtx3090ti
+      - nyra-orchestrator
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3100/ready"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  promtail-rtx3090ti:
+    image: grafana/promtail:latest
+    container_name: nyra-worker-rtx3090ti-promtail
+    restart: unless-stopped
+    command: -config.file=/etc/promtail/config.yml
+    volumes:
+      - ../configs/promtail-worker.yml:/etc/promtail/config.yml:ro
+      - /var/log:/var/log:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+    networks:
+      - nyra-worker-rtx3090ti
+    depends_on:
+      - loki-rtx3090ti
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:9080/ready"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  alertmanager-rtx3090ti:
+    image: prom/alertmanager:latest
+    container_name: nyra-worker-rtx3090ti-alertmanager
+    restart: unless-stopped
+    ports:
+      - "9094:9093"
+    command:
+      - '--config.file=/etc/alertmanager/alertmanager.yml'
+      - '--storage.path=/alertmanager'
+    volumes:
+      - ../configs/alertmanager-worker.yml:/etc/alertmanager/alertmanager.yml:ro
+      - alertmanager-data:/alertmanager
+    networks:
+      - nyra-worker-rtx3090ti
+      - nyra-orchestrator
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:9093/-/healthy"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  node-exporter-rtx3090ti:
+    image: prom/node-exporter:latest
+    container_name: nyra-worker-rtx3090ti-node-exporter
+    restart: unless-stopped
+    ports:
+      - "9100:9100"
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+      - '--path.rootfs=/host'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/host:ro
+    networks:
+      - nyra-worker-rtx3090ti
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:9100/metrics"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  cadvisor-rtx3090ti:
+    image: gcr.io/cadvisor/cadvisor:latest
+    container_name: nyra-worker-rtx3090ti-cadvisor
+    restart: unless-stopped
+    ports:
+      - "8083:8080"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker:/var/lib/docker:ro
+      - /dev/disk:/dev/disk:ro
+    networks:
+      - nyra-worker-rtx3090ti
+    privileged: true
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8080/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  health-check-rtx3090ti:
+    image: nyra/health-check:latest
+    container_name: nyra-worker-rtx3090ti-health
+    restart: unless-stopped
+    ports:
+      - "8093:8080"
+    volumes:
+      - ../configs/worker-rtx3090ti-config.yaml:/app/config.yaml:ro
+    networks:
+      - nyra-worker-rtx3090ti
+      - nyra-orchestrator
+    depends_on:
+      - prometheus-rtx3090ti
+      - grafana-rtx3090ti
+      - loki-rtx3090ti
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 60s
+      timeout: 15s
+      retries: 3
+
+  ##############################################################################
+  # WORKER SERVICES - RTX 5090
+  ##############################################################################
+  vllm-rtx5090:
+    image: vllm/vllm-openai:latest
+    container_name: nyra-worker-rtx5090-vllm
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    command:
+      - --model
+      - meta-llama/Llama-3.1-70B-Instruct
+      - --tensor-parallel-size
+      - "1"
+      - --max-model-len
+      - "32768"
+      - --gpu-memory-utilization
+      - "0.95"
+      - --host
+      - "0.0.0.0"
+      - --port
+      - "8000"
+    volumes:
+      - vllm-models:/root/.cache/huggingface
+    networks:
+      - nyra-worker-rtx5090
+      - nyra-core
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 15s
+      retries: 3
+      start_period: 120s
+
+  ollama-rtx5090:
+    image: ollama/ollama:latest
+    container_name: nyra-worker-rtx5090-ollama
+    restart: unless-stopped
+    ports:
+      - "11435:11434"
+    volumes:
+      - ollama-models-rtx5090:/app/models
+    networks:
+      - nyra-worker-rtx5090
+      - nyra-core
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      interval: 30s
+      timeout: 15s
+      retries: 3
+
+  neo4j-rtx5090:
+    image: neo4j:5
+    container_name: nyra-worker-rtx5090-neo4j
+    restart: unless-stopped
+    ports:
+      - "7475:7474"
+      - "7688:7687"
+    volumes:
+      - neo4j-data:/data
+    networks:
+      - nyra-worker-rtx5090
+      - nyra-core
+    healthcheck:
+      test: ["CMD", "neo4j", "status"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  falkordb-rtx5090:
+    image: falkordb/falkordb:latest
+    container_name: nyra-worker-rtx5090-falkordb
+    restart: unless-stopped
+    ports:
+      - "6381:6379"
+    volumes:
+      - falkordb-data:/data
+    networks:
+      - nyra-worker-rtx5090
+      - nyra-core
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  model-manager-rtx5090:
+    image: nyra/model-manager:latest
+    container_name: nyra-worker-rtx5090-model-manager
+    restart: unless-stopped
+    ports:
+      - "8082:8080"
+    volumes:
+      - ../configs/worker-rtx5090-config.yaml:/app/config.yaml:ro
+      - vllm-models:/app/vllm-models
+      - ollama-models-rtx5090:/app/ollama-models
+      - manager-data:/app/data
+    networks:
+      - nyra-worker-rtx5090
+    depends_on:
+      - vllm-rtx5090
+      - ollama-rtx5090
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  perf-monitor-rtx5090:
+    image: nyra/worker-perf-monitor:latest
+    container_name: nyra-worker-rtx5090-perf
+    restart: unless-stopped
+    ports:
+      - "9002:9090"
+    volumes:
+      - ../configs/worker-rtx5090-config.yaml:/app/config.yaml:ro
+      - monitor-data:/app/data
+    networks:
+      - nyra-worker-rtx5090
+      - nyra-orchestrator
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9090/metrics"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  health-check-rtx5090:
+    image: nyra/health-check:latest
+    container_name: nyra-worker-rtx5090-health
+    restart: unless-stopped
+    ports:
+      - "8092:8080"
+    volumes:
+      - ../configs/worker-rtx5090-config.yaml:/app/config.yaml:ro
+    networks:
+      - nyra-worker-rtx5090
+      - nyra-orchestrator
+    depends_on:
+      - vllm-rtx5090
+      - ollama-rtx5090
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 60s
+      timeout: 15s
+      retries: 3
+
+  ##############################################################################
+  # EMBEDDING SERVICES
+  ##############################################################################
+  onnx-runtime:
+    build:
+      context: ./onnx-runtime
+      dockerfile: Dockerfile
+    image: nyra/onnx-runtime:latest
+    container_name: nyra-onnx-runtime
+    restart: unless-stopped
+    ports:
+      - "8001:8001"
+    volumes:
+      - ../../.claude-flow/models:/app/models:rw
+      - onnx-cache:/app/cache
+    networks:
+      - nyra-orchestrator
+      - nyra-core
+    deploy:
+      resources:
+        limits:
+          cpus: '4.0'
+          memory: 8G
+        reservations:
+          cpus: '2.0'
+          memory: 4G
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  xenova-embeddings:
+    build:
+      context: ./xenova-transformers
+      dockerfile: Dockerfile
+    image: nyra/xenova-embeddings:latest
+    container_name: nyra-xenova-embeddings
+    restart: unless-stopped
+    ports:
+      - "8002:8002"
+    volumes:
+      - xenova-models:/app/models:rw
+      - xenova-cache:/app/cache
+    networks:
+      - nyra-orchestrator
+      - nyra-core
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 4G
+        reservations:
+          cpus: '1.0'
+          memory: 2G
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8002/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 90s

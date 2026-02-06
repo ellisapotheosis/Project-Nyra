@@ -66,7 +66,6 @@ npx @claude-flow/cli@latest mcp stop
 | Archon OS | 6200 | Orchestrator Mini |
 | Nexus Router | 6000 | Orchestrator Mini |
 | Letta | 8283 | Orchestrator Mini |
-| Mem0 | 4321 | Orchestrator Mini |
 | TwentyCRM | 3000 | GPU Worker 2 |
 | n8n | 5678 | GPU Worker 2 |
 | Dify | 3001 | GPU Worker 2 |
