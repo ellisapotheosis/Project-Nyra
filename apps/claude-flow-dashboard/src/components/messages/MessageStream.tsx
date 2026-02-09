@@ -234,16 +234,21 @@ export const MessageStream: React.FC = () => {
       }
     });
 
+    let timer: NodeJS.Timeout | undefined;
+
     if (newIds.size > 0) {
       setNewMessageIds(newIds);
       // Clear new status after animation
-      const timer = setTimeout(() => {
+      timer = setTimeout(() => {
         setNewMessageIds(new Set());
       }, 500);
-      return () => clearTimeout(timer);
     }
 
     prevMessagesRef.current = filteredMessages;
+
+    return () => {
+      if (timer) clearTimeout(timer);
+    };
   }, [filteredMessages]);
 
   // Auto-scroll to top when new messages arrive (if enabled and not paused)

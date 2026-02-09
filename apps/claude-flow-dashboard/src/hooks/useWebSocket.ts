@@ -74,7 +74,8 @@ const useWebSocket = (
       setIsConnected(false);
 
       // Attempt reconnection if not explicitly closed
-      if (!event.wasClean && reconnectAttemptsRef.current < config.reconnectAttempts) {
+      const maxAttempts = config.reconnectAttempts ?? 5;
+      if (!event.wasClean && reconnectAttemptsRef.current < maxAttempts) {
         setTimeout(() => {
           reconnectAttemptsRef.current += 1;
           connect();
@@ -82,8 +83,9 @@ const useWebSocket = (
       }
     });
 
-    socket.addEventListener('error', (error) => {
-      onError?.(error as Error);
+    socket.addEventListener('error', () => {
+      const error = new Error('WebSocket connection error');
+      onError?.(error);
       setIsConnected(false);
     });
 

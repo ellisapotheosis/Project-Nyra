@@ -83,12 +83,29 @@ const TypeBadge: React.FC<TypeBadgeProps> = ({ type }) => {
  * Direction badge component
  */
 interface DirectionBadgeProps {
-  direction: string;
+  direction?: string;
 }
 
 const DirectionBadge: React.FC<DirectionBadgeProps> = ({ direction }) => {
-  const color = MESSAGE_DIRECTION_COLORS[direction] ?? '#64748b';
-  const label = MESSAGE_DIRECTION_LABELS[direction] ?? direction;
+  if (!direction) {
+    return (
+      <span
+        className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium"
+        style={{
+          backgroundColor: '#64748b20',
+          color: '#64748b',
+          border: '1px solid #64748b40',
+        }}
+      >
+        Unknown
+      </span>
+    );
+  }
+
+  const color = direction in MESSAGE_DIRECTION_COLORS
+    ? MESSAGE_DIRECTION_COLORS[direction as keyof typeof MESSAGE_DIRECTION_COLORS]
+    : '#64748b';
+  const label = MESSAGE_DIRECTION_LABELS[direction as keyof typeof MESSAGE_DIRECTION_LABELS] ?? direction;
 
   return (
     <span
