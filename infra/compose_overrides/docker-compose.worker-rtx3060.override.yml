@@ -1,9 +1,0 @@
-version: '3.8'
-
-# Worker RTX 3060 override: run only the 3060 Ollama inference service.  Adjust
-# service names to match your compose files.
-services:
-  ollama-3060:
-    extends:
-      file: ../infra/docker-compose.gpu-3060.yml
-      service: ollama-3060

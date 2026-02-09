@@ -1,15 +1,10 @@
 import React from 'react';
-import { useMessageStore } from '@/stores/messageStore';
+import { useMessageStore } from '@/store/messageStore';
 import { LoadingSpinner } from '@/components/shared/LoadingSpinner';
+import { MESSAGE_TYPE_CSS_COLORS, MESSAGE_TYPE_LABELS } from '@/types/messages';
 
 export const MessageFeed: React.FC = () => {
   const { messages } = useMessageStore();
-
-  const typeBadgeColors = {
-    system: 'bg-gray-200 text-gray-800',
-    agent: 'bg-blue-200 text-blue-800',
-    user: 'bg-green-200 text-green-800'
-  };
 
   if (messages.length === 0) {
     return (
@@ -34,17 +29,19 @@ export const MessageFeed: React.FC = () => {
           >
             <span
               className={`
-                px-2 py-1 rounded text-xs
-                ${typeBadgeColors[message.type]}
+                px-2 py-1 rounded text-xs font-medium
+                ${MESSAGE_TYPE_CSS_COLORS[message.type] || MESSAGE_TYPE_CSS_COLORS.system}
               `}
             >
-              {message.type}
+              {MESSAGE_TYPE_LABELS[message.type]}
             </span>
             <div>
-              <div className="text-sm font-medium">{message.sender}</div>
+              <div className="text-sm font-medium">{message.source}</div>
               <div className="text-xs text-gray-600">{message.content}</div>
               <div className="text-xs text-gray-400 mt-1">
-                {new Date(message.timestamp).toLocaleTimeString()}
+                {message.timestamp instanceof Date
+                  ? message.timestamp.toLocaleTimeString()
+                  : new Date(message.timestamp).toLocaleTimeString()}
               </div>
             </div>
           </div>

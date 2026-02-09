@@ -1,9 +1,0 @@
-version: '3.8'
-
-# Worker RTX 3090Ti override: run only the 3090Ti Ollama inference service.
-# Adjust service names to match your compose files.
-services:
-  ollama-3090:
-    extends:
-      file: ../infra/docker-compose.gpu-3090.yml
-      service: ollama-3090

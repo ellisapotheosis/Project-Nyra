@@ -16,7 +16,10 @@ const MAX_MESSAGES = 1000;
  */
 export type MessageType =
   | 'task'
+  | 'result'
+  | 'query'
   | 'response'
+  | 'broadcast'
   | 'error'
   | 'info'
   | 'warning'
@@ -139,7 +142,10 @@ const initialStats: MessageStats = {
   total: 0,
   byType: {
     task: 0,
+    result: 0,
+    query: 0,
     response: 0,
+    broadcast: 0,
     error: 0,
     info: 0,
     warning: 0,

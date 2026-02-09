@@ -8,7 +8,7 @@ RUN npm ci --omit=dev
 FROM node:20-alpine AS builder
 WORKDIR /app
 COPY --from=dependencies /app/node_modules ./node_modules
-COPY package.json package-lock.json tsconfig.json tsconfig.node.json vite.config.ts postcss.config.js tailwind.config.js ./
+COPY package.json package-lock.json tsconfig.json tsconfig.node.json vite.config.ts postcss.config.js tailwind.config.js index.html ./
 COPY public ./public
 COPY src ./src
 RUN npm ci && npm run build

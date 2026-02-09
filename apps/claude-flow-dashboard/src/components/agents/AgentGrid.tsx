@@ -1,11 +1,16 @@
 import React from 'react';
-import { useAgentStore } from '@/stores/agentStore';
+import { useAgentStore } from '@/store/agentStore';
 import { LoadingSpinner } from '@/components/shared/LoadingSpinner';
 
-export const AgentGrid: React.FC = () => {
-  const { agents } = useAgentStore();
+interface AgentGridProps {
+  onAgentSelect?: (agent: any) => void;
+}
 
-  if (agents.length === 0) {
+export const AgentGrid: React.FC<AgentGridProps> = ({ onAgentSelect }) => {
+  const { agents } = useAgentStore();
+  const agentsList = Array.from(agents.values());
+
+  if (agentsList.length === 0) {
     return (
       <div className="bg-white shadow rounded-lg p-4">
         <h2 className="text-xl font-semibold mb-4">Agents</h2>
@@ -21,14 +26,15 @@ export const AgentGrid: React.FC = () => {
     <div className="bg-white shadow rounded-lg p-4">
       <h2 className="text-xl font-semibold mb-4">Active Agents</h2>
       <div className="grid grid-cols-2 gap-2">
-        {agents.map((agent) => (
+        {agentsList.map((agent) => (
           <div
             key={agent.id}
             className={`
-              p-2 rounded
-              ${agent.status === 'running' ? 'bg-green-100' :
+              p-2 rounded cursor-pointer
+              ${agent.status === 'active' ? 'bg-green-100' :
                 agent.status === 'error' ? 'bg-red-100' : 'bg-gray-100'}
             `}
+            onClick={() => onAgentSelect?.(agent)}
           >
             <div className="font-medium">{agent.name}</div>
             <div className="text-sm text-gray-500">{agent.type}</div>

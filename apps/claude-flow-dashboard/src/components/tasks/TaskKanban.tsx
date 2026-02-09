@@ -152,7 +152,6 @@ const KanbanColumnComponent: React.FC<KanbanColumnComponentProps> = ({ column, t
 };
 
 export const TaskKanban: React.FC = () => {
-  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   const activeTasks = useTasksArray();
   const taskHistory = useTaskHistory();
 
@@ -185,8 +184,9 @@ export const TaskKanban: React.FC = () => {
     return result;
   }, [activeTasks, taskHistory]);
 
-  const handleTaskClick = useCallback((task: TaskState) => {
-    setSelectedTaskId(task.id);
+  const handleTaskClick = useCallback((task: TaskState): void => {
+    // Task click handler for future expansion
+    console.log('Task selected:', task.id);
   }, []);
 
   // Total task count

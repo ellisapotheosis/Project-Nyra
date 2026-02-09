@@ -120,7 +120,7 @@ const persistSettings = (settings: DashboardSettings): void => {
  */
 export const useDashboardStore = create<DashboardState>()(
   devtools(
-    subscribeWithSelector((set, get) => ({
+    subscribeWithSelector((set) => ({
       // Initial state
       connectionStatus: 'disconnected',
       connectionError: null,
