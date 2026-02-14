@@ -57,11 +57,36 @@ Profiles available in this v2 compose:
 - `edge` (cloudflared)
 - `vector` (ruvector-postgres, pgadmin)
 - `gui` (pgadmin)
+- `archon` (archon-os, archon-server, archon-mcp, archon-ui)
+- `archon-agents` (archon-agents - PydanticAI agents, optional)
 
 Example:
 ```env
 COMPOSE_PROFILES=core,secrets,workflow,edge,vector
 ```
+
+## Archon OS
+
+Archon is the multi-agent orchestration system with RAG, MCP, and PydanticAI agents.
+
+Bring it up:
+```bash
+cd infra
+docker compose -f docker-compose.yml -f compose/docker-compose.archon.yml --profile core --profile archon up -d
+```
+
+With optional agents service (requires more resources):
+```bash
+cd infra
+docker compose -f docker-compose.yml -f compose/docker-compose.archon.yml --profile core --profile archon --profile archon-agents up -d
+```
+
+Services:
+- **archon-os** (port 9001): Core orchestration service
+- **archon-server** (port 8181): RAG backend with web crawling
+- **archon-mcp** (port 8051): MCP protocol server
+- **archon-ui** (port 3737): React dashboard
+- **archon-agents** (port 8052): PydanticAI agents (optional)
 
 ## RuVector
 
