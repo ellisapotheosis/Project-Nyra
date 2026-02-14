@@ -1,0 +1,61 @@
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+setup.log
+validation-results.json
+
+# Node modules
+node_modules/
+embedding-service/node_modules/
+health-monitor/node_modules/
+
+# Docker volumes
+models/
+onnx-models/
+
+# Credentials
+*.json
+!package.json
+!package-lock.json
+cloudflared-credentials.json
+infisical-agent.yaml
+
+# Cache
+.cache/
+*.cache
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Certificates
+*.pem
+*.crt
+*.key
+
+# Backups
+*.bak
+*.backup

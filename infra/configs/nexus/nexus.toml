@@ -1,0 +1,184 @@
+# ==============================================================================
+# Nexus Router Configuration
+# Unified LLM Gateway & MCP Aggregator for Project Nyra
+# ==============================================================================
+# This is the SINGULAR ENTRYPOINT for all LLM/MCP traffic
+# Orchestrator PC hosts this + all services
+# Workers (3060/3090/5090) connect via Tailscale mesh
+# ==============================================================================
+
+[server]
+host = "0.0.0.0"
+port = 7000
+metrics_port = 9091
+
+# ==============================================================================
+# CLOUD PROVIDERS
+# ==============================================================================
+
+[providers.anthropic]
+type = "anthropic"
+api_key_env = "ANTHROPIC_API_KEY"
+models = [
+  "claude-sonnet-4-5-20250929",
+  "claude-3-5-sonnet-20241022",
+  "claude-3-opus-20240229",
+  "claude-3-haiku-20240307"
+]
+priority = 1
+
+[providers.openrouter]
+type = "openai_compatible"
+api_key_env = "OPENROUTER_API_KEY"
+base_url = "https://openrouter.ai/api/v1"
+models = [
+  "anthropic/claude-3.5-sonnet",
+  "google/gemini-pro-1.5",
+  "deepseek/deepseek-r1",
+  "meta-llama/llama-3.1-405b-instruct"
+]
+priority = 3
+
+[providers.google]
+type = "google"
+api_key_env = "GOOGLE_API_KEY"
+models = ["gemini-2.0-flash-exp", "gemini-1.5-pro", "gemini-1.5-flash"]
+priority = 2
+
+# ==============================================================================
+# LOCAL PROVIDERS (LiteLLM Proxy)
+# ==============================================================================
+
+[providers.litellm]
+type = "openai_compatible"
+base_url = "http://litellm:4000"
+api_key_env = "LITELLM_MASTER_KEY"
+models = ["*"]
+priority = 0  # Highest priority - route through LiteLLM first
+
+# ==============================================================================
+# WORKER GPU PROVIDERS (via Tailscale mesh)
+# ==============================================================================
+
+# RTX 3060 Worker (12GB VRAM) - Embeddings & Small Models
+[providers.worker-3060]
+type = "openai_compatible"
+base_url = "http://100.64.0.2:11434/v1"  # Tailscale IP
+models = [
+  "llama3.2:3b",
+  "phi3:mini",
+  "nomic-embed-text",
+  "all-minilm:l6-v2"
+]
+tags = ["local", "embeddings", "fast"]
+priority = 0
+max_concurrent = 2
+
+# RTX 3090 Ti Worker (24GB VRAM) - Medium Models
+[providers.worker-3090]
+type = "openai_compatible"
+base_url = "http://100.64.0.3:11434/v1"  # Tailscale IP
+models = [
+  "llama3.1:8b",
+  "llama3.1:70b-q4",
+  "codellama:34b",
+  "mistral:7b",
+  "mixtral:8x7b",
+  "deepseek-coder:33b"
+]
+tags = ["local", "coding", "reasoning"]
+priority = 0
+max_concurrent = 3
+
+# RTX 5090 Worker (32GB VRAM) - Large Models + vLLM/LMCache
+[providers.worker-5090]
+type = "openai_compatible"
+base_url = "http://100.64.0.4:8000/v1"  # vLLM endpoint
+models = [
+  "llama3.1:70b",
+  "llama3.1:405b-q4",
+  "qwen2.5:72b",
+  "deepseek-r1:70b"
+]
+tags = ["local", "large", "production"]
+priority = 0
+max_concurrent = 4
+
+# ==============================================================================
+# MCP SERVER AGGREGATION
+# ==============================================================================
+
+[mcp]
+enabled = true
+aggregator_port = 8080
+
+[mcp.servers.claude-flow]
+url = "http://claude-flow:8003"
+description = "Claude Flow orchestration and memory"
+enabled = true
+
+[mcp.servers.filesystem]
+command = "npx"
+args = ["-y", "@anthropic-ai/mcp-server-filesystem", "/workspace"]
+enabled = true
+
+[mcp.servers.github]
+command = "npx"
+args = ["-y", "@anthropic-ai/mcp-server-github"]
+env = { GITHUB_TOKEN = "${GITHUB_TOKEN}" }
+enabled = true
+
+[mcp.servers.memory]
+command = "npx"
+args = ["-y", "@anthropic-ai/mcp-server-memory"]
+enabled = true
+
+[mcp.servers.sequential-thinking]
+command = "npx"
+args = ["-y", "@anthropic-ai/mcp-server-sequential-thinking"]
+enabled = true
+
+[mcp.servers.brave-search]
+command = "npx"
+args = ["-y", "@anthropic-ai/mcp-server-brave-search"]
+env = { BRAVE_API_KEY = "${BRAVE_API_KEY}" }
+enabled = true
+
+# ==============================================================================
+# ROUTING CONFIGURATION
+# ==============================================================================
+
+[routing]
+strategy = "smart"  # Uses cost, latency, and availability
+fallback_enabled = true
+retry_attempts = 3
+timeout_seconds = 120
+prefer_local = true  # Prefer worker GPUs when possible
+
+# Cost-based routing rules
+[routing.rules]
+# Use local for embeddings
+embeddings = { providers = ["worker-3060", "worker-3090"], strategy = "round_robin" }
+# Use local for coding tasks
+coding = { providers = ["worker-3090", "worker-5090"], strategy = "least_latency" }
+# Use Claude for complex reasoning
+reasoning = { providers = ["anthropic", "worker-5090"], strategy = "priority" }
+# Clawdbot/Moltbot - mortgage assistant routing
+mortgage = { providers = ["anthropic", "worker-5090", "openrouter"], strategy = "priority" }
+
+# ==============================================================================
+# OBSERVABILITY
+# ==============================================================================
+
+[logging]
+level = "info"
+format = "json"
+output = "stdout"
+
+[metrics]
+enabled = true
+prometheus_endpoint = "/metrics"
+
+[tracing]
+enabled = true
+jaeger_endpoint = "http://jaeger:14268/api/traces"
