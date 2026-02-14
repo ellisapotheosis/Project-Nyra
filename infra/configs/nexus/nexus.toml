@@ -74,35 +74,40 @@ tags = ["local", "embeddings", "fast"]
 priority = 0
 max_concurrent = 2
 
-# RTX 3090 Ti Worker (24GB VRAM) - Medium Models
+# RTX 3090 Ti Worker (24GB VRAM) - vLLM + LMCache
+# Device: Desktop PC | Tailscale IP: 100.64.0.3
 [providers.worker-3090]
 type = "openai_compatible"
-base_url = "http://100.64.0.3:11434/v1"  # Tailscale IP
+base_url = "http://100.64.0.3:8000/v1"  # vLLM endpoint
 models = [
-  "llama3.1:8b",
-  "llama3.1:70b-q4",
-  "codellama:34b",
-  "mistral:7b",
-  "mixtral:8x7b",
-  "deepseek-coder:33b"
+  "meta-llama/Llama-3.1-8B-Instruct",
+  "meta-llama/Llama-3.1-70B-Instruct-AWQ",
+  "codellama/CodeLlama-34b-Instruct-hf",
+  "mistralai/Mixtral-8x7B-Instruct-v0.1-AWQ",
+  "deepseek-ai/deepseek-coder-33b-instruct"
 ]
-tags = ["local", "coding", "reasoning"]
+tags = ["local", "coding", "reasoning", "vllm"]
 priority = 0
 max_concurrent = 3
+health_check_endpoint = "/health"
 
-# RTX 5090 Worker (32GB VRAM) - Large Models + vLLM/LMCache
+# RTX 5090 Worker (32GB VRAM) - vLLM + LMCache
+# Device: Alienware Area-51 Laptop | Tailscale IP: 100.64.0.4
+# Specialization: Large models for mortgage/compliance
 [providers.worker-5090]
 type = "openai_compatible"
 base_url = "http://100.64.0.4:8000/v1"  # vLLM endpoint
 models = [
-  "llama3.1:70b",
-  "llama3.1:405b-q4",
-  "qwen2.5:72b",
-  "deepseek-r1:70b"
+  "meta-llama/Llama-3.1-70B-Instruct-AWQ",
+  "deepseek-ai/DeepSeek-R1-Distill-Llama-70B",
+  "Qwen/Qwen2.5-72B-Instruct-AWQ",
+  "mistralai/Mixtral-8x22B-Instruct-v0.1-AWQ"
 ]
-tags = ["local", "large", "production"]
+tags = ["local", "large", "production", "mortgage", "vllm"]
 priority = 0
 max_concurrent = 4
+health_check_endpoint = "/health"
+specialization = ["mortgage", "compliance", "reasoning"]
 
 # ==============================================================================
 # MCP SERVER AGGREGATION
@@ -182,3 +187,57 @@ prometheus_endpoint = "/metrics"
 [tracing]
 enabled = true
 jaeger_endpoint = "http://jaeger:14268/api/traces"
+
+# ==============================================================================
+# CLOUDFLARE TUNNEL INTEGRATION
+# ==============================================================================
+# The orchestrator exposes services via Cloudflare tunnel
+# External domains: mcp.nyra.dev, api.nyra.dev, dashboard.nyra.dev
+
+[cloudflare]
+enabled = true
+tunnel_name = "nyra-orchestrator"
+
+[cloudflare.routes]
+mcp = "mcp.nyra.dev"          # Nexus MCP aggregator
+api = "api.nyra.dev"          # LiteLLM OpenAI-compatible API
+dashboard = "dashboard.nyra.dev"  # Claude Flow Dashboard
+events = "events.nyra.dev"    # WebSocket event stream
+git = "git.nyra.dev"          # Gitea
+grafana = "grafana.nyra.dev"  # Monitoring
+
+# ==============================================================================
+# TAILSCALE MESH NETWORK
+# ==============================================================================
+# Worker PCs connect via Tailscale for secure GPU access
+
+[tailscale]
+enabled = true
+network = "100.64.0.0/10"  # Tailscale CGNAT range
+
+[tailscale.nodes]
+orchestrator = "100.64.0.1"    # This machine
+worker-3060 = "100.64.0.2"     # Alienware M15R7 laptop (12GB)
+worker-3090 = "100.64.0.3"     # Desktop PC (24GB)
+worker-5090 = "100.64.0.4"     # Alienware Area-51 (32GB)
+
+# ==============================================================================
+# NVIDIA CONTAINER TOOLKIT REQUIREMENTS
+# ==============================================================================
+# All worker PCs must have NVIDIA Container Toolkit installed:
+#
+# Ubuntu/Debian:
+#   curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg
+#   curl -s -L https://nvidia.github.io/libnvidia-container/stable/deb/nvidia-container-toolkit.list | \
+#     sed 's#deb https://#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://#g' | \
+#     sudo tee /etc/apt/sources.list.d/nvidia-container-toolkit.list
+#   sudo apt-get update && sudo apt-get install -y nvidia-container-toolkit
+#   sudo nvidia-ctk runtime configure --runtime=docker
+#   sudo systemctl restart docker
+#
+# Windows (WSL2):
+#   - Ensure NVIDIA drivers are installed on Windows host
+#   - Install Docker Desktop with WSL2 backend
+#   - Enable "Use the WSL 2 based engine" in Docker Desktop settings
+#   - GPU passthrough is automatic in Docker Desktop
+# ==============================================================================

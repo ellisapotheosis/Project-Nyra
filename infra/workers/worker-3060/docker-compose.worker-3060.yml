@@ -1,8 +1,15 @@
+# ============================================================================
+# Worker RTX 3060 - Alienware M15R7 Laptop (12GB VRAM)
+# ============================================================================
+# Ollama-based inference for small/medium models and embeddings
+# Connected via Tailscale mesh to orchestrator
+# ============================================================================
+
 version: '3.9'
 
 services:
   # ============================================================================
-  # Ollama Service (GPU-enabled)
+  # Ollama Service (GPU-enabled) - 12GB VRAM optimized
   # ============================================================================
   ollama:
     image: ollama/ollama:latest
@@ -14,13 +21,16 @@ services:
       - OLLAMA_HOST=0.0.0.0:11434
       - OLLAMA_ORIGINS=*
       - OLLAMA_NUM_PARALLEL=2
-      - OLLAMA_MAX_LOADED_MODELS=3
+      - OLLAMA_MAX_LOADED_MODELS=2  # Limited due to 12GB VRAM
+      - OLLAMA_GPU_OVERHEAD=512     # Reserve 512MB for system
+      - OLLAMA_FLASH_ATTENTION=1
       - CUDA_VISIBLE_DEVICES=0
       - NVIDIA_VISIBLE_DEVICES=all
       - NVIDIA_DRIVER_CAPABILITIES=compute,utility
     volumes:
       - ollama-data:/root/.ollama
       - ./models:/models
+      - ./ollama-modelfile:/modelfiles:ro
     deploy:
       resources:
         reservations:
@@ -28,12 +38,44 @@ services:
             - driver: nvidia
               count: 1
               capabilities: [gpu]
+        limits:
+          memory: 14G  # Leave headroom for system
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:11434/api/version"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 60s
+    networks:
+      - worker-network
+    labels:
+      - "com.nyra.worker=rtx3060"
+      - "com.nyra.vram=12gb"
+      - "com.nyra.device=alienware-m15r7"
+
+  # ============================================================================
+  # Model Preloader - Downloads recommended models on startup
+  # ============================================================================
+  model-preloader:
+    image: curlimages/curl:latest
+    container_name: worker-3060-preloader
+    depends_on:
+      ollama:
+        condition: service_healthy
+    restart: "no"
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        echo "=== Preloading models for RTX 3060 (12GB VRAM) ==="
+        # Small models that fit well in 12GB
+        curl -X POST http://ollama:11434/api/pull -d '{"name": "llama3.2:3b"}'      # 2GB
+        curl -X POST http://ollama:11434/api/pull -d '{"name": "phi3:mini"}'        # 2.3GB  
+        curl -X POST http://ollama:11434/api/pull -d '{"name": "mistral:7b-q4"}'    # 4GB
+        curl -X POST http://ollama:11434/api/pull -d '{"name": "codellama:7b-q4"}' # 4GB
+        # Embedding models
+        curl -X POST http://ollama:11434/api/pull -d '{"name": "nomic-embed-text"}' # 274MB
+        curl -X POST http://ollama:11434/api/pull -d '{"name": "all-minilm:l6-v2"}' # 45MB
+        echo "=== Model preload complete ==="
     networks:
       - worker-network
 

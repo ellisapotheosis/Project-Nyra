@@ -1,26 +1,93 @@
+# ============================================================================
+# Worker RTX 3090 Ti - Desktop PC (24GB VRAM)
+# ============================================================================
+# vLLM + LMCache for high-performance inference
+# Connected via Tailscale mesh to orchestrator
+# ============================================================================
+
 version: '3.8'
 
 services:
   # ============================================================================
-  # Ollama LLM Server with GPU Passthrough
+  # vLLM Server with LMCache (24GB VRAM optimized)
   # ============================================================================
-  ollama:
-    image: ollama/ollama:latest
-    container_name: worker-3090-ollama
-    hostname: worker-3090-ollama
+  vllm:
+    image: vllm/vllm-openai:latest
+    container_name: worker-3090-vllm
+    hostname: worker-3090-vllm
     restart: unless-stopped
     ports:
-      - "${OLLAMA_PORT:-11434}:11434"
+      - "${VLLM_PORT:-8000}:8000"
     volumes:
-      - ollama-models:/root/.ollama
-      - ./logs/ollama:/var/log/ollama
+      - vllm-models:/root/.cache/huggingface
+      - lmcache-data:/root/.cache/lmcache
+      - ./logs/vllm:/var/log/vllm
     environment:
-      - OLLAMA_HOST=0.0.0.0:11434
-      - OLLAMA_MODELS=/root/.ollama/models
-      - OLLAMA_DEBUG=1
       - CUDA_VISIBLE_DEVICES=0
       - NVIDIA_VISIBLE_DEVICES=all
       - NVIDIA_DRIVER_CAPABILITIES=compute,utility
+      - HF_TOKEN=${HF_TOKEN:-}
+      - VLLM_ATTENTION_BACKEND=FLASHINFER
+      # LMCache Configuration
+      - LMCACHE_ENABLED=true
+      - LMCACHE_STORAGE_BACKEND=local
+      - LMCACHE_LOCAL_DEVICE=cuda
+      - LMCACHE_MAX_LOCAL_CACHE_SIZE=8G
+    command: >
+      --model meta-llama/Llama-3.1-8B-Instruct
+      --host 0.0.0.0
+      --port 8000
+      --tensor-parallel-size 1
+      --gpu-memory-utilization 0.90
+      --max-model-len 8192
+      --enable-prefix-caching
+      --enable-chunked-prefill
+      --quantization awq
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+        limits:
+          memory: 32G
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 120s
+    labels:
+      - "com.nyra.service=vllm"
+      - "com.nyra.worker=rtx3090ti"
+      - "com.nyra.gpu=rtx-3090-ti"
+      - "com.nyra.vram=24gb"
+      - "com.nyra.device=desktop-pc"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "5"
+    networks:
+      - worker-network
+
+  # ============================================================================
+  # LMCache Server (KV Cache sharing)
+  # ============================================================================
+  lmcache:
+    image: lmcache/lmcache-server:latest
+    container_name: worker-3090-lmcache
+    hostname: worker-3090-lmcache
+    restart: unless-stopped
+    ports:
+      - "${LMCACHE_PORT:-8100}:8100"
+    volumes:
+      - lmcache-data:/data
+    environment:
+      - LMCACHE_CONFIG_FILE=/etc/lmcache/config.yaml
+      - LMCACHE_STORAGE_BACKEND=local
+      - LMCACHE_LOCAL_DEVICE=cuda
     deploy:
       resources:
         reservations:
@@ -29,22 +96,39 @@ services:
               count: 1
               capabilities: [gpu]
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      test: ["CMD", "curl", "-f", "http://localhost:8100/health"]
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 60s
     labels:
-      - "com.project-nyra.service=ollama"
-      - "com.project-nyra.worker=worker-3090"
-      - "com.project-nyra.gpu=rtx-3090-ti"
-      - "com.project-nyra.vram=24gb"
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "50m"
-        max-file: "5"
-        labels: "com.project-nyra.service,com.project-nyra.worker"
+      - "com.nyra.service=lmcache"
+      - "com.nyra.worker=rtx3090ti"
+    networks:
+      - worker-network
+
+  # ============================================================================
+  # Model Switcher - Hot-swap models based on demand
+  # ============================================================================
+  model-switcher:
+    image: python:3.11-slim
+    container_name: worker-3090-switcher
+    hostname: worker-3090-switcher
+    restart: unless-stopped
+    volumes:
+      - ./model-switcher:/app
+      - vllm-models:/models
+    environment:
+      - VLLM_URL=http://vllm:8000
+      - AVAILABLE_MODELS=meta-llama/Llama-3.1-8B-Instruct,meta-llama/Llama-3.1-70B-Instruct-AWQ,codellama/CodeLlama-34b-Instruct-hf,mistralai/Mixtral-8x7B-Instruct-v0.1-AWQ
+      - DEFAULT_MODEL=meta-llama/Llama-3.1-8B-Instruct
+    command: python /app/switcher.py
+    depends_on:
+      - vllm
+    labels:
+      - "com.nyra.service=model-switcher"
+      - "com.nyra.worker=rtx3090ti"
+    networks:
+      - worker-network
 
   # ============================================================================
   # Health Monitor - Periodic health checks and metrics
