@@ -1,0 +1,190 @@
+version: '3.8'
+
+services:
+  # ============================================================================
+  # Ollama LLM Server with GPU Passthrough
+  # ============================================================================
+  ollama:
+    image: ollama/ollama:latest
+    container_name: worker-3090-ollama
+    hostname: worker-3090-ollama
+    restart: unless-stopped
+    ports:
+      - "${OLLAMA_PORT:-11434}:11434"
+    volumes:
+      - ollama-models:/root/.ollama
+      - ./logs/ollama:/var/log/ollama
+    environment:
+      - OLLAMA_HOST=0.0.0.0:11434
+      - OLLAMA_MODELS=/root/.ollama/models
+      - OLLAMA_DEBUG=1
+      - CUDA_VISIBLE_DEVICES=0
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    labels:
+      - "com.project-nyra.service=ollama"
+      - "com.project-nyra.worker=worker-3090"
+      - "com.project-nyra.gpu=rtx-3090-ti"
+      - "com.project-nyra.vram=24gb"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "5"
+        labels: "com.project-nyra.service,com.project-nyra.worker"
+
+  # ============================================================================
+  # Health Monitor - Periodic health checks and metrics
+  # ============================================================================
+  health-monitor:
+    image: curlimages/curl:latest
+    container_name: worker-3090-health-monitor
+    hostname: worker-3090-health-monitor
+    restart: unless-stopped
+    depends_on:
+      - ollama
+    volumes:
+      - ./health-check.sh:/health-check.sh:ro
+      - ./logs/health:/var/log/health
+    environment:
+      - OLLAMA_URL=http://ollama:11434
+      - WORKER_ID=${WORKER_ID:-worker-3090}
+      - CHECK_INTERVAL=60
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        while true; do
+          echo "[$(date -Iseconds)] Running health check..."
+
+          # Check Ollama API
+          if curl -sf "$${OLLAMA_URL}/api/tags" > /dev/null; then
+            echo "[$(date -Iseconds)] [OK] Ollama API responding"
+          else
+            echo "[$(date -Iseconds)] [ERROR] Ollama API not responding"
+          fi
+
+          # Check model availability
+          MODELS=$$(curl -sf "$${OLLAMA_URL}/api/tags" | grep -o '"name"' | wc -l)
+          echo "[$(date -Iseconds)] [INFO] Available models: $$MODELS"
+
+          # Sleep before next check
+          sleep $${CHECK_INTERVAL}
+        done | tee -a /var/log/health/health-monitor.log
+    labels:
+      - "com.project-nyra.service=health-monitor"
+      - "com.project-nyra.worker=worker-3090"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ============================================================================
+  # Promtail - Log Shipper to Loki
+  # ============================================================================
+  promtail:
+    image: grafana/promtail:latest
+    container_name: worker-3090-promtail
+    hostname: worker-3090-promtail
+    restart: unless-stopped
+    volumes:
+      - ./promtail-config.yml:/etc/promtail/config.yml:ro
+      - ./logs:/var/log/worker-3090:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      - LOKI_URL=${LOKI_URL:-http://loki:3100}
+      - WORKER_ID=${WORKER_ID:-worker-3090}
+      - HOSTNAME=worker-3090
+    command: -config.file=/etc/promtail/config.yml
+    labels:
+      - "com.project-nyra.service=promtail"
+      - "com.project-nyra.worker=worker-3090"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ============================================================================
+  # Node Exporter - System metrics for Prometheus
+  # ============================================================================
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: worker-3090-node-exporter
+    hostname: worker-3090-node-exporter
+    restart: unless-stopped
+    ports:
+      - "9100:9100"
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+      - '--path.rootfs=/rootfs'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    labels:
+      - "com.project-nyra.service=node-exporter"
+      - "com.project-nyra.worker=worker-3090"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ============================================================================
+  # NVIDIA GPU Exporter - GPU metrics for Prometheus
+  # ============================================================================
+  nvidia-gpu-exporter:
+    image: utkuozdemir/nvidia_gpu_exporter:latest
+    container_name: worker-3090-nvidia-exporter
+    hostname: worker-3090-nvidia-exporter
+    restart: unless-stopped
+    ports:
+      - "9835:9835"
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    labels:
+      - "com.project-nyra.service=nvidia-exporter"
+      - "com.project-nyra.worker=worker-3090"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  ollama-models:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${OLLAMA_MODELS_PATH:-./data/ollama-models}
+
+networks:
+  default:
+    name: nyra-worker-3090
+    driver: bridge
