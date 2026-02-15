@@ -1,0 +1,1 @@
+param([string]$Service='metamcp-gateway')`r`n$compose = Join-Path $PSScriptRoot '..\compose\nyra-mcp-stack.yml'`r`n$svc = if ($Service) { $Service } else { 'metamcp-gateway' }`r`n& docker compose -f $compose logs -f $svc`r`n
