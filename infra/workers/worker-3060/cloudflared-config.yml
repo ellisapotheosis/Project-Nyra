@@ -1,0 +1,174 @@
+# Cloudflare Tunnel Configuration for Worker-3060
+# Documentation: https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/install-and-setup/tunnel-guide/
+
+# Tunnel Credentials (managed by Infisical)
+tunnel: worker-3060
+credentials-file: /root/.cloudflared/worker-3060.json
+
+# Ingress Rules - Map public URLs to internal services
+ingress:
+  # Ollama API - Primary LLM endpoint
+  - hostname: ollama-worker-3060.yourdomain.com
+    service: http://localhost:11434
+    originRequest:
+      connectTimeout: 30s
+      noTLSVerify: false
+      http2Origin: true
+
+  # ONNX Runtime - GPU inference
+  - hostname: onnx-worker-3060.yourdomain.com
+    service: http://localhost:8001
+    originRequest:
+      connectTimeout: 10s
+
+  # Embedding Service
+  - hostname: embeddings-worker-3060.yourdomain.com
+    service: http://localhost:8080
+    originRequest:
+      connectTimeout: 15s
+
+  # Health Monitor & Metrics
+  - hostname: health-worker-3060.yourdomain.com
+    service: http://localhost:9090
+    originRequest:
+      connectTimeout: 5s
+
+  # Prometheus Metrics
+  - hostname: metrics-worker-3060.yourdomain.com
+    service: http://localhost:9090
+    originRequest:
+      connectTimeout: 5s
+
+  # Redis (via HTTP proxy - optional)
+  # - hostname: redis-worker-3060.yourdomain.com
+  #   service: tcp://localhost:6379
+
+  # Catch-all rule (required)
+  - service: http_status:404
+
+# Origin Configuration
+originRequest:
+  connectTimeout: 30s
+  tlsTimeout: 10s
+  tcpKeepAlive: 30s
+  noHappyEyeballs: false
+  keepAliveConnections: 10
+  keepAliveTimeout: 90s
+  httpHostHeader: ""
+  originServerName: ""
+  caPool: ""
+  noTLSVerify: false
+  disableChunkedEncoding: false
+  bastionMode: false
+  proxyAddress: ""
+  proxyPort: 0
+  proxyType: ""
+  http2Origin: true
+
+# Tunnel Configuration
+metrics: localhost:2000
+metrics-update-freq: 30s
+
+# Logging
+loglevel: info
+transport-loglevel: warn
+
+# Protocol
+protocol: quic
+
+# Autoupdate
+autoupdate-freq: 24h
+
+# Grace period for shutdown
+grace-period: 30s
+
+# Retry configuration
+retries: 5
+
+# Load Balancing (if using multiple tunnels)
+lb-pool: worker-3060-pool
+
+# Edge IP Version
+edge-ip-version: auto
+
+# ============================================================================
+# Access Control (Optional - via Cloudflare Access)
+# ============================================================================
+# Uncomment to enable authentication via Cloudflare Access
+
+# warp-routing:
+#   enabled: true
+
+# access:
+#   enabled: true
+#   policies:
+#     - name: "Worker-3060 Internal Access"
+#       decision: allow
+#       include:
+#         - email_domain: yourdomain.com
+#         - ip:
+#             - 100.64.0.0/10  # Tailscale network
+
+# ============================================================================
+# SSL/TLS Configuration
+# ============================================================================
+# Cloudflare automatically provisions SSL certificates for tunnel hostnames
+
+# origin-ca-pool: /etc/cloudflared/origin-ca-cert.pem
+# no-tls-verify: false
+
+# ============================================================================
+# Custom Headers
+# ============================================================================
+# Add custom headers to requests
+
+# http-response-headers:
+#   - name: X-Worker-ID
+#     value: worker-3060
+#   - name: X-GPU-Model
+#     value: RTX-3060
+
+# ============================================================================
+# Rate Limiting (via Cloudflare)
+# ============================================================================
+# Configure via Cloudflare dashboard for each hostname
+
+# ============================================================================
+# DDoS Protection
+# ============================================================================
+# Automatic via Cloudflare network
+
+# ============================================================================
+# Notes
+# ============================================================================
+#
+# 1. Setup:
+#    cloudflared tunnel create worker-3060
+#    cloudflared tunnel route dns worker-3060 ollama-worker-3060.yourdomain.com
+#    cloudflared tunnel route dns worker-3060 onnx-worker-3060.yourdomain.com
+#    cloudflared tunnel route dns worker-3060 embeddings-worker-3060.yourdomain.com
+#    cloudflared tunnel route dns worker-3060 health-worker-3060.yourdomain.com
+#
+# 2. Run:
+#    cloudflared tunnel run worker-3060
+#
+# 3. Install as Windows Service:
+#    cloudflared service install
+#    cloudflared --config C:\Path\To\cloudflared-config.yml service install
+#
+# 4. Credentials:
+#    Stored in Infisical under /worker-3060/CLOUDFLARED_TUNNEL_TOKEN
+#
+# 5. Monitoring:
+#    Tunnel health: https://dash.cloudflare.com/
+#    Metrics endpoint: http://localhost:2000/metrics
+#
+# 6. Security:
+#    - All traffic encrypted via Cloudflare Tunnel
+#    - No inbound firewall rules needed
+#    - Zero Trust access control via Cloudflare Access
+#
+# 7. Performance:
+#    - QUIC protocol for improved latency
+#    - HTTP/2 origin connections
+#    - 10 persistent keepalive connections
