@@ -1,0 +1,225 @@
+# ============================================================================
+# Ollama Models for Worker-3090 (RTX 3090 Ti - 24GB VRAM)
+# ============================================================================
+# Reference: https://ollama.ai/library
+
+# ============================================================================
+# Primary Models (Pre-configured)
+# ============================================================================
+
+# Llama 3.1 70B (Primary - General Purpose)
+# - Size: ~40GB disk, ~24GB VRAM (quantized)
+# - Context: 128K tokens
+# - Use: Quote generation, document summarization, borrower Q&A
+# - Performance: 15-20 tokens/sec on RTX 3090 Ti
+llama3.1:70b
+
+# Mistral Large 123B (Secondary - Complex Reasoning)
+# - Size: ~70GB disk, ~24GB VRAM (quantized with offloading)
+# - Context: 32K tokens
+# - Use: Compliance analysis, multi-step workflows, complex reasoning
+# - Performance: 8-12 tokens/sec on RTX 3090 Ti
+mistral-large:123b
+
+# ============================================================================
+# Alternative Models (Optional)
+# ============================================================================
+
+# Llama 3.1 70B Quantized (If 24GB VRAM is tight)
+# - Size: ~28GB disk, ~16GB VRAM
+# - Faster loading, slightly lower quality
+llama3.1:70b-q4_K_M
+llama3.1:70b-q5_K_M
+
+# Mistral Large 123B Quantized
+# - Size: ~50GB disk, ~18GB VRAM
+# - Better fits in 24GB VRAM
+mistral-large:123b-q4_K_M
+
+# Qwen 2.5 72B (Alternative to Llama)
+# - Size: ~41GB disk, ~24GB VRAM
+# - Strong multilingual support
+# - Good for document processing
+qwen2.5:72b
+
+# DeepSeek Coder 33B (Code Generation)
+# - Size: ~19GB disk, ~12GB VRAM
+# - Excellent for code-related tasks
+# - Can run alongside Llama 70B
+deepseek-coder:33b
+
+# CodeLlama 34B (Alternative Code Model)
+# - Size: ~19GB disk, ~12GB VRAM
+# - Good for code generation and analysis
+codellama:34b
+
+# Mixtral 8x7B (Mixture of Experts)
+# - Size: ~26GB disk, ~18GB VRAM
+# - Fast inference with good quality
+# - Good alternative when Llama 70B is busy
+mixtral:8x7b
+
+# ============================================================================
+# Specialized Models (Niche Use Cases)
+# ============================================================================
+
+# Nous Hermes 2 Solar 10.7B (Fast, Smaller)
+# - Size: ~6.4GB disk, ~8GB VRAM
+# - Very fast inference (~40 tokens/sec)
+# - Good for simple tasks, testing
+nous-hermes2-solar:10.7b
+
+# Gemma 2 27B (Google Model)
+# - Size: ~16GB disk, ~12GB VRAM
+# - Good balance of size and quality
+gemma2:27b
+
+# Yi 34B (Strong Multilingual)
+# - Size: ~19GB disk, ~12GB VRAM
+# - Excellent for non-English text
+yi:34b
+
+# ============================================================================
+# Embedding Models (For Vector Search)
+# ============================================================================
+
+# Nomic Embed Text (Fast Embeddings)
+# - Size: ~274MB disk, ~1GB VRAM
+# - 768-dimensional embeddings
+# - Good for document similarity
+nomic-embed-text
+
+# BGE Large (High Quality Embeddings)
+# - Size: ~1.3GB disk, ~2GB VRAM
+# - 1024-dimensional embeddings
+# - Better quality for RAG
+bge-large
+
+# ============================================================================
+# Vision Models (If Needed for Document OCR)
+# ============================================================================
+
+# LLaVA 34B (Vision + Language)
+# - Size: ~20GB disk, ~14GB VRAM
+# - Can process images and documents
+# - Good for complex document understanding
+llava:34b
+
+# Bakllava (Vision Model)
+# - Size: ~4.7GB disk, ~6GB VRAM
+# - Smaller, faster vision model
+bakllava
+
+# ============================================================================
+# Pull Commands
+# ============================================================================
+
+# Pull primary models
+# ollama pull llama3.1:70b
+# ollama pull mistral-large:123b
+
+# Pull alternative models
+# ollama pull qwen2.5:72b
+# ollama pull deepseek-coder:33b
+# ollama pull mixtral:8x7b
+
+# Pull embedding models
+# ollama pull nomic-embed-text
+# ollama pull bge-large
+
+# ============================================================================
+# Model Management Commands
+# ============================================================================
+
+# List installed models
+# ollama list
+
+# Show model details
+# ollama show llama3.1:70b
+
+# Remove a model
+# ollama rm llama3.1:70b
+
+# Copy a model with custom name
+# ollama cp llama3.1:70b my-custom-llama
+
+# ============================================================================
+# Performance Tips
+# ============================================================================
+
+# 1. Use quantized models (q4_K_M, q5_K_M) if VRAM is limited
+# 2. Offload layers to CPU if model doesn't fit in VRAM
+# 3. Adjust OLLAMA_NUM_GPU environment variable
+# 4. Use smaller context windows to reduce memory usage
+# 5. Run multiple smaller models instead of one large model
+# 6. Cache models in RAM for faster loading
+
+# ============================================================================
+# Recommended Model Combinations
+# ============================================================================
+
+# Option 1: Balanced (General Purpose)
+# - llama3.1:70b (primary)
+# - mistral-large:123b (complex reasoning)
+# - nomic-embed-text (embeddings)
+# Total: ~112GB disk
+
+# Option 2: Code-Focused
+# - llama3.1:70b (primary)
+# - deepseek-coder:33b (code)
+# - nomic-embed-text (embeddings)
+# Total: ~60GB disk
+
+# Option 3: Fast & Efficient
+# - mixtral:8x7b (primary)
+# - gemma2:27b (secondary)
+# - nomic-embed-text (embeddings)
+# Total: ~43GB disk
+
+# Option 4: Maximum Quality
+# - mistral-large:123b (primary)
+# - qwen2.5:72b (multilingual)
+# - bge-large (embeddings)
+# Total: ~112GB disk
+
+# ============================================================================
+# Model Selection Criteria
+# ============================================================================
+
+# Use Llama 3.1 70B for:
+# - Quote generation
+# - Borrower Q&A
+# - Document summarization
+# - General conversation
+# - Mortgage calculations
+
+# Use Mistral Large 123B for:
+# - Compliance validation
+# - Multi-step reasoning
+# - Complex loan scenarios
+# - State-specific regulations
+# - Legal document analysis
+
+# Use DeepSeek Coder 33B for:
+# - API integration code
+# - Database queries
+# - Script generation
+# - Code review
+# - Technical documentation
+
+# Use Embedding Models for:
+# - Document similarity search
+# - Semantic search
+# - RAG (Retrieval Augmented Generation)
+# - Knowledge base queries
+# - Duplicate detection
+
+# ============================================================================
+# Notes
+# ============================================================================
+# - All sizes are approximate
+# - VRAM usage depends on context length and batch size
+# - Quantized models trade quality for speed/memory
+# - Multiple models can be loaded simultaneously if VRAM permits
+# - Models are cached locally after first download
+# - Update models periodically: ollama pull <model>

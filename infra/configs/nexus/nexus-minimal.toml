@@ -1,0 +1,19 @@
+# Minimal working Nexus config - MCP and openmemory removed until those services are running
+[server]
+listen_address = "0.0.0.0:3000"
+
+[llm]
+enabled = true
+
+[llm.protocols.openai]
+enabled = true
+path = "/llm/openai/v1"
+
+[llm.protocols.anthropic]
+enabled = true
+path = "/llm/anthropic"
+
+# Providers - Direct to Anthropic (working), skip LiteLLM for now
+[llm.providers.anthropic]
+type = "anthropic"
+api_key = "{{ env.ANTHROPIC_API_KEY }}"
