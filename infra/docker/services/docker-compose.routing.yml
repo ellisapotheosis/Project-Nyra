@@ -1,0 +1,98 @@
+# 3-Tier Model Routing Stack (ADR-026)
+# Epic SDK + Agent Booster for intelligent routing
+
+services:
+  # Tier 1: Agent Booster - Pattern matching (<1ms, $0)
+  agent-booster:
+    build:
+      context: ./agent-booster
+      dockerfile: Dockerfile
+    container_name: nyra-agent-booster
+    restart: unless-stopped
+    ports:
+      - "3010:3010"
+    environment:
+      - NODE_ENV=production
+      - PORT=3010
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+    volumes:
+      - ./agent-booster/logs:/app/logs
+      - ./agent-booster/config:/app/config:ro
+    networks:
+      - nyra-core
+      - nyra-orchestrator
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3010/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    labels:
+      - "com.nyra.service=agent-booster"
+      - "com.nyra.tier=1"
+      - "com.nyra.adr=026"
+
+  # Epic SDK Router - Multi-tier orchestration
+  epic-sdk:
+    build:
+      context: ./epic-sdk
+      dockerfile: Dockerfile
+    container_name: nyra-epic-sdk
+    restart: unless-stopped
+    ports:
+      - "3011:3011"
+    environment:
+      - NODE_ENV=production
+      - PORT=3011
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - AGENT_BOOSTER_URL=http://agent-booster:3010
+      - NEXUS_ROUTER_URL=${NEXUS_ROUTER_URL:-http://localhost:6000}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+    volumes:
+      - ./epic-sdk/logs:/app/logs
+      - ./epic-sdk/config:/app/config:ro
+    networks:
+      - nyra-core
+      - nyra-orchestrator
+    depends_on:
+      agent-booster:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3011/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 1G
+        reservations:
+          cpus: '1.0'
+          memory: 512M
+    labels:
+      - "com.nyra.service=epic-sdk"
+      - "com.nyra.routing=multi-tier"
+      - "com.nyra.adr=026"
+
+networks:
+  nyra-core:
+    external: true
+  nyra-orchestrator:
+    external: true
+
+# Usage:
+# docker-compose -f docker-compose.routing.yml up -d
+#
+# Test endpoints:
+# curl http://localhost:3010/health  # Agent Booster
+# curl http://localhost:3011/health  # Epic SDK
+# curl http://localhost:3011/classify -X POST -H "Content-Type: application/json" \
+#   -d '{"description":"Convert var to const"}'

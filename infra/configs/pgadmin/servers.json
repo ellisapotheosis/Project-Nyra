@@ -1,0 +1,14 @@
+{
+  "Servers": {
+    "1": {
+      "Name": "Nyra PostgreSQL",
+      "Group": "Servers",
+      "Host": "postgres",
+      "Port": 5432,
+      "MaintenanceDB": "nyra",
+      "Username": "nyra",
+      "SSLMode": "prefer",
+      "PassFile": "/pgpass"
+    }
+  }
+}

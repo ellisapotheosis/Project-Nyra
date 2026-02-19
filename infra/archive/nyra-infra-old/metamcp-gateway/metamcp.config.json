@@ -1,0 +1,54 @@
+{
+  "servers": {
+    "infisical-mcp": { "url": "http://nyra-infisical-mcp:8080" },
+    "bitwarden-mcp": { "url": "http://nyra-bitwarden-mcp:8080" },
+    "auth-mcp": { "url": "http://nyra-auth-mcp:8080" },
+    "ssl-mcp": { "url": "http://nyra-ssl-mcp:8080" },
+    "filesystem-mcp": { "url": "http://nyra-filesystem-mcp:8080" },
+    "github-mcp": { "url": "http://nyra-github-mcp:8080" },
+    "activepieces-mcp": { "url": "http://nyra-activepieces-mcp:8080" },
+    "websearch-mcp": { "url": "http://nyra-websearch-mcp:8080" },
+    "qdrant-mcp": { "url": "http://nyra-qdrant-mcp:8080" },
+    "neo4j-mcp": { "url": "http://nyra-neo4j-mcp:8080" },
+    "postgres-mcp": { "url": "http://nyra-postgres-mcp:8080" },
+    "elasticsearch-mcp": { "url": "http://nyra-elasticsearch-mcp:8080" }
+  },
+  "channels": {
+    "always_on": [
+      "infisical-mcp",
+      "bitwarden-mcp",
+      "auth-mcp",
+      "ssl-mcp",
+      "filesystem-mcp"
+    ],
+    "context_light": [
+      "github-mcp",
+      "activepieces-mcp"
+    ],
+    "context_hungry": [
+      "websearch-mcp",
+      "qdrant-mcp",
+      "neo4j-mcp",
+      "postgres-mcp",
+      "elasticsearch-mcp"
+    ],
+    "research": [
+      "websearch-mcp", "github-mcp"
+    ],
+    "code": [
+      "github-mcp", "filesystem-mcp", "infisical-mcp"
+    ],
+    "memory": [
+      "qdrant-mcp", "neo4j-mcp", "postgres-mcp"
+    ],
+    "security": [
+      "auth-mcp", "ssl-mcp", "bitwarden-mcp"
+    ]
+  },
+  "routes": {
+    "default": "always_on",
+    "/metamcp/always-on/sse": "always_on",
+    "/metamcp/light/sse": "context_light",
+    "/metamcp/hungry/sse": "context_hungry"
+  }
+}

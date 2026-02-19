@@ -1,0 +1,145 @@
+# ============================================================================
+# Project Nyra - MCP Servers
+# ============================================================================
+# Model Context Protocol server infrastructure
+# Includes: Graphiti MCP, Qdrant MCP (Nexus-managed)
+#
+# Dependencies: base, databases, ai, nexus-router
+# Usage:
+#   docker compose -f docker-compose.base.yml -f docker-compose.mcp-servers.yml up -d
+# ============================================================================
+
+version: '3.8'
+
+services:
+  # ==========================================================================
+  # Graphiti MCP - Graph memory server for Neo4j
+  # ==========================================================================
+  graphiti-mcp:
+    image: falkordb/graphiti-knowledge-graph-mcp:latest
+    container_name: nyra-graphiti-mcp
+    restart: unless-stopped
+    environment:
+      - DATABASE_TYPE=falkordb
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - MODEL_NAME=${GRAPHITI_MODEL:-gpt-4o-mini}
+      - FALKORDB_HOST=nyra-falkordb-golden
+      - FALKORDB_PORT=6379
+      - FALKORDB_DATABASE=default_db
+      - GRAPHITI_GROUP_ID=nyra_mortgage
+      - GRAPHITI_TRANSPORT=sse
+      - GRAPHITI_PORT=8000
+    ports:
+      - "${GRAPHITI_PORT:-7459}:8000"
+    networks:
+      - nyra-network
+    labels:
+      - "nyra.service.name=graphiti-mcp"
+      - "nyra.service.type=mcp-server"
+      - "nyra.mcp.enabled=true"
+      - "nyra.mcp.transport=sse"
+      - "nyra.mcp.port=8000"
+      - "nyra.mcp.health_endpoint=/health"
+      - "nyra.mcp.keywords=graph,memory,knowledge,neo4j"
+      - "nyra.mcp.priority=1"
+      - "nyra.tier=orchestrator"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 1G
+        reservations:
+          cpus: '0.25'
+          memory: 512M
+
+  # ==========================================================================
+  # Composio MCP - Integration platform for AI agents
+  # ==========================================================================
+  composio-mcp:
+    image: composiohq/composio:latest
+    container_name: nyra-composio-mcp
+    restart: unless-stopped
+    environment:
+      - COMPOSIO_API_KEY=${COMPOSIO_API_KEY}
+      - COMPOSIO_BASE_URL=${COMPOSIO_BASE_URL:-https://backend.composio.dev}
+      - MCP_PORT=8067
+      - MCP_HOST=0.0.0.0
+    ports:
+      - "${COMPOSIO_MCP_PORT:-8067}:8067"
+    networks:
+      - nyra-network
+    labels:
+      - "nyra.service.name=composio-mcp"
+      - "nyra.service.type=mcp-server"
+      - "nyra.mcp.enabled=true"
+      - "nyra.mcp.transport=http"
+      - "nyra.mcp.port=8067"
+      - "nyra.mcp.health_endpoint=/health"
+      - "nyra.mcp.keywords=integrations,automation,tools,api"
+      - "nyra.mcp.priority=1"
+      - "nyra.tier=orchestrator"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8067/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 1G
+
+  # ==========================================================================
+  # Qdrant MCP - Vector search MCP server
+  # ==========================================================================
+  qdrant-mcp:
+    image: ghcr.io/qdrant/mcp-server-qdrant:latest
+    container_name: nyra-qdrant-mcp
+    restart: unless-stopped
+    environment:
+      - QDRANT_URL=http://qdrant:6333
+      - QDRANT_API_KEY=${QDRANT_API_KEY:-qdrant_secure_key}
+      - COLLECTION_NAME=${QDRANT_COLLECTION:-nyra}
+      - EMBEDDING_PROVIDER=fastembed
+      - EMBEDDING_MODEL=sentence-transformers/all-MiniLM-L6-v2
+      - FASTMCP_PORT=8066
+      - FASTMCP_HOST=0.0.0.0
+    depends_on:
+      qdrant:
+        condition: service_healthy
+    ports:
+      - "${QDRANT_MCP_PORT:-8066}:8066"
+    networks:
+      - nyra-network
+    labels:
+      - "nyra.service.name=qdrant-mcp"
+      - "nyra.service.type=mcp-server"
+      - "nyra.mcp.enabled=true"
+      - "nyra.mcp.transport=http"
+      - "nyra.mcp.port=8066"
+      - "nyra.mcp.health_endpoint=/health"
+      - "nyra.mcp.keywords=vector,search,qdrant,embeddings"
+      - "nyra.mcp.priority=1"
+      - "nyra.tier=orchestrator"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8066/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 1G
+        reservations:
+          cpus: '0.25'
+          memory: 512M

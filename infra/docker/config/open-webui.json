@@ -1,0 +1,273 @@
+{
+  "version": "1.0.0",
+  "name": "Nyra Development Chat Interface",
+  "description": "Open-WebUI configured for Project Nyra development and testing. NOT for borrower-facing chat (use Dify port 3000).",
+
+  "ui": {
+    "theme": "dark",
+    "branding": {
+      "name": "Nyra Dev Chat",
+      "logo_url": "/static/logo.png",
+      "favicon_url": "/static/favicon.ico"
+    },
+    "default_layout": "default",
+    "show_username": true,
+    "enable_message_rating": true,
+    "enable_community_sharing": false
+  },
+
+  "models": {
+    "default": "deepseek-r1:236b-q4_K_M",
+    "available": [
+      {
+        "id": "deepseek-r1:236b-q4_K_M",
+        "name": "DeepSeek-R1 236B (Q4)",
+        "description": "Complex reasoning and compliance analysis (Worker-5090)",
+        "context_length": 128000,
+        "max_tokens": 8192,
+        "temperature_default": 0.7,
+        "worker": "worker-5090",
+        "cost_per_1m_tokens": 0.0
+      },
+      {
+        "id": "qwen2.5:72b-instruct-q8_0",
+        "name": "Qwen 2.5 72B (Q8)",
+        "description": "General purpose, high quality (Worker-5090)",
+        "context_length": 32768,
+        "max_tokens": 4096,
+        "temperature_default": 0.7,
+        "worker": "worker-5090",
+        "cost_per_1m_tokens": 0.0
+      },
+      {
+        "id": "llama3.1:70b-instruct-q4_K_M",
+        "name": "Llama 3.1 70B (Q4)",
+        "description": "General purpose, fast inference (Worker-3090)",
+        "context_length": 128000,
+        "max_tokens": 4096,
+        "temperature_default": 0.7,
+        "worker": "worker-3090",
+        "cost_per_1m_tokens": 0.0
+      },
+      {
+        "id": "mistral-large:123b-instruct-2407-q4_K_M",
+        "name": "Mistral Large 123B (Q4)",
+        "description": "Multi-lingual, code generation (Worker-3090)",
+        "context_length": 32768,
+        "max_tokens": 4096,
+        "temperature_default": 0.7,
+        "worker": "worker-3090",
+        "cost_per_1m_tokens": 0.0
+      },
+      {
+        "id": "codellama:34b-instruct-q8_0",
+        "name": "CodeLlama 34B (Q8)",
+        "description": "Code generation and analysis (Worker-3060)",
+        "context_length": 16384,
+        "max_tokens": 4096,
+        "temperature_default": 0.2,
+        "worker": "worker-3060",
+        "cost_per_1m_tokens": 0.0
+      },
+      {
+        "id": "qwen2.5:32b-instruct-q8_0",
+        "name": "Qwen 2.5 32B (Q8)",
+        "description": "Lightweight general purpose (Worker-3060)",
+        "context_length": 32768,
+        "max_tokens": 4096,
+        "temperature_default": 0.7,
+        "worker": "worker-3060",
+        "cost_per_1m_tokens": 0.0
+      },
+      {
+        "id": "claude-sonnet-4-5",
+        "name": "Claude Sonnet 4.5 (Cloud Fallback)",
+        "description": "High-stakes compliance and legal (Anthropic)",
+        "context_length": 200000,
+        "max_tokens": 8192,
+        "temperature_default": 0.7,
+        "provider": "anthropic",
+        "cost_per_1m_tokens": 3.0
+      },
+      {
+        "id": "deepseek/deepseek-r1",
+        "name": "DeepSeek-R1 (Cloud Fallback)",
+        "description": "Cloud overflow routing (OpenRouter)",
+        "context_length": 64000,
+        "max_tokens": 8192,
+        "temperature_default": 0.7,
+        "provider": "openrouter",
+        "cost_per_1m_tokens": 0.55
+      }
+    ],
+    "routing_strategy": "local_first",
+    "fallback_enabled": true,
+    "fallback_threshold_ms": 5000
+  },
+
+  "rag": {
+    "enabled": true,
+    "description": "RAG integration with AgentDB vector search",
+    "embedding_model": "all-MiniLM-L6-v2",
+    "embedding_engine": "sentence-transformers",
+    "vector_store": {
+      "type": "agentdb",
+      "connection_string": "http://agentdb:8080",
+      "collection": "nyra_documents",
+      "similarity_metric": "cosine",
+      "hnsw_enabled": true
+    },
+    "chunking": {
+      "strategy": "recursive",
+      "chunk_size": 1500,
+      "chunk_overlap": 100,
+      "separators": ["\n\n", "\n", ". ", " "]
+    },
+    "retrieval": {
+      "top_k": 5,
+      "score_threshold": 0.7,
+      "rerank_enabled": true,
+      "hybrid_search": true,
+      "hybrid_alpha": 0.5
+    },
+    "web_search": {
+      "enabled": true,
+      "provider": "duckduckgo",
+      "max_results": 5
+    }
+  },
+
+  "functions": {
+    "enabled": true,
+    "description": "Function calling and tool integrations",
+    "available_tools": [
+      {
+        "name": "mortgage_quote_calculator",
+        "description": "Calculate mortgage quotes with multiple lenders",
+        "endpoint": "http://quote-api:8001/calculate",
+        "authentication": "api_key"
+      },
+      {
+        "name": "loan_qualification_checker",
+        "description": "Check borrower qualification (DTI, credit, income)",
+        "endpoint": "http://quote-api:8001/qualify",
+        "authentication": "api_key"
+      },
+      {
+        "name": "compliance_validator",
+        "description": "Validate TILA/RESPA/TRID compliance",
+        "endpoint": "http://compliance-service:8002/validate",
+        "authentication": "api_key"
+      },
+      {
+        "name": "document_processor",
+        "description": "OCR and extract data from mortgage documents",
+        "endpoint": "http://document-processor:8003/process",
+        "authentication": "api_key"
+      },
+      {
+        "name": "agentdb_search",
+        "description": "Semantic search across mortgage knowledge base",
+        "endpoint": "http://agentdb:8080/search",
+        "authentication": "none"
+      }
+    ],
+    "function_calling_model": "deepseek-r1:236b-q4_K_M",
+    "max_function_calls": 5,
+    "parallel_function_calls": true
+  },
+
+  "authentication": {
+    "enabled": true,
+    "require_email_verification": false,
+    "allow_signups": true,
+    "default_role": "user",
+    "roles": [
+      {
+        "name": "admin",
+        "permissions": ["all"]
+      },
+      {
+        "name": "developer",
+        "permissions": ["chat", "models", "tools", "rag"]
+      },
+      {
+        "name": "user",
+        "permissions": ["chat", "basic_tools"]
+      }
+    ]
+  },
+
+  "api": {
+    "enabled": true,
+    "description": "OpenAI-compatible API endpoint",
+    "base_path": "/api/v1",
+    "rate_limiting": {
+      "enabled": true,
+      "requests_per_minute": 60,
+      "requests_per_hour": 1000
+    },
+    "api_key_required": true
+  },
+
+  "monitoring": {
+    "enabled": true,
+    "log_level": "info",
+    "metrics_enabled": true,
+    "trace_enabled": true,
+    "prometheus_endpoint": "/metrics",
+    "health_check_endpoint": "/health"
+  },
+
+  "nexus_integration": {
+    "description": "Integration with Nexus Router for model routing",
+    "nexus_url": "http://nexus-router:6000",
+    "routing_strategy": "cost-optimized",
+    "prefer_local": true,
+    "fallback_cloud": true,
+    "cost_threshold": 0.10,
+    "gpu_workers": [
+      {
+        "name": "worker-5090",
+        "url": "http://worker-5090.tail-net.ts.net:11434",
+        "models": ["deepseek-r1:236b-q4_K_M", "qwen2.5:72b-instruct-q8_0"],
+        "vram_gb": 48,
+        "priority": 1
+      },
+      {
+        "name": "worker-3090",
+        "url": "http://worker-3090.tail-net.ts.net:11434",
+        "models": ["llama3.1:70b-instruct-q4_K_M", "mistral-large:123b-instruct-2407-q4_K_M"],
+        "vram_gb": 24,
+        "priority": 2
+      },
+      {
+        "name": "worker-3060",
+        "url": "http://worker-3060.tail-net.ts.net:11434",
+        "models": ["codellama:34b-instruct-q8_0", "qwen2.5:32b-instruct-q8_0"],
+        "vram_gb": 12,
+        "priority": 3
+      }
+    ]
+  },
+
+  "development": {
+    "purpose": "Development and testing interface for Project Nyra",
+    "borrower_interface": "Dify on port 3000 (NOT Open-WebUI)",
+    "use_cases": [
+      "Test LLM routing and model selection",
+      "Debug agent interactions and tool calling",
+      "Validate RAG retrieval accuracy",
+      "Experiment with prompt engineering",
+      "Monitor local vs cloud LLM usage",
+      "Test compliance validation workflows",
+      "Debug mortgage calculation logic"
+    ],
+    "team_access": [
+      "developers",
+      "qa_engineers",
+      "data_scientists",
+      "system_administrators"
+    ]
+  }
+}

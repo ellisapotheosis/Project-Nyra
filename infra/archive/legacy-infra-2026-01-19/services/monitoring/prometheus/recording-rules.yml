@@ -1,0 +1,123 @@
+# Prometheus Recording Rules
+# Pre-computed aggregations for better dashboard performance
+
+groups:
+  - name: nexus_router_recordings
+    interval: 30s
+    rules:
+      # Request rate by model
+      - record: nexus:request_rate:model
+        expr: sum(rate(nexus_router_requests_total[5m])) by (model, worker_type)
+
+      # Average latency by worker
+      - record: nexus:latency:p95:worker
+        expr: histogram_quantile(0.95, sum(rate(nexus_router_request_duration_bucket[5m])) by (worker, le))
+
+      # Cost per request
+      - record: nexus:cost:per_request:model
+        expr: sum(rate(nexus_router_cost_total[5m])) by (model) / sum(rate(nexus_router_requests_total[5m])) by (model)
+
+      # Worker availability
+      - record: nexus:worker:availability
+        expr: avg(up{job="nexus-router-workers"}) by (worker)
+
+      # GPU utilization average
+      - record: nexus:gpu:utilization:avg
+        expr: avg(gpu_utilization_percent) by (worker, gpu_id)
+
+  - name: mcp_recordings
+    interval: 30s
+    rules:
+      # MCP request rate
+      - record: mcp:request_rate:server
+        expr: sum(rate(mcp_requests_total[5m])) by (server, method)
+
+      # MCP error rate
+      - record: mcp:error_rate:server
+        expr: sum(rate(mcp_errors_total[5m])) by (server) / sum(rate(mcp_requests_total[5m])) by (server)
+
+      # MCP latency
+      - record: mcp:latency:p95:server
+        expr: histogram_quantile(0.95, sum(rate(mcp_request_duration_bucket[5m])) by (server, le))
+
+      # Active connections
+      - record: mcp:connections:active
+        expr: sum(mcp_active_connections) by (server)
+
+  - name: gpu_recordings
+    interval: 30s
+    rules:
+      # GPU memory utilization
+      - record: gpu:memory:utilization
+        expr: gpu_memory_used_bytes / gpu_memory_total_bytes * 100
+
+      # GPU compute utilization trend
+      - record: gpu:compute:utilization:5m
+        expr: avg_over_time(gpu_utilization_percent[5m])
+
+      # GPU temperature average
+      - record: gpu:temperature:avg
+        expr: avg(gpu_temperature_celsius) by (worker, gpu_id)
+
+      # GPU power consumption
+      - record: gpu:power:watts
+        expr: sum(gpu_power_draw_watts) by (worker, gpu_id)
+
+  - name: system_recordings
+    interval: 30s
+    rules:
+      # Overall CPU usage
+      - record: instance:cpu:usage
+        expr: 100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100)
+
+      # Memory usage percentage
+      - record: instance:memory:usage
+        expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100
+
+      # Disk usage percentage
+      - record: instance:disk:usage
+        expr: (1 - (node_filesystem_avail_bytes{fstype!~"tmpfs|fuse.lxcfs|squashfs|vfat"} / node_filesystem_size_bytes)) * 100
+
+      # Network throughput
+      - record: instance:network:throughput:transmit
+        expr: sum(rate(node_network_transmit_bytes_total[5m])) by (instance)
+
+      - record: instance:network:throughput:receive
+        expr: sum(rate(node_network_receive_bytes_total[5m])) by (instance)
+
+  - name: container_recordings
+    interval: 30s
+    rules:
+      # Container CPU usage
+      - record: container:cpu:usage
+        expr: sum(rate(container_cpu_usage_seconds_total{container!=""}[5m])) by (container, pod, namespace) * 100
+
+      # Container memory usage
+      - record: container:memory:usage
+        expr: sum(container_memory_working_set_bytes{container!=""}) by (container, pod, namespace)
+
+      # Container network throughput
+      - record: container:network:transmit
+        expr: sum(rate(container_network_transmit_bytes_total{container!=""}[5m])) by (container, pod, namespace)
+
+      - record: container:network:receive
+        expr: sum(rate(container_network_receive_bytes_total{container!=""}[5m])) by (container, pod, namespace)
+
+  - name: cost_recordings
+    interval: 5m
+    rules:
+      # Total cost per hour
+      - record: cost:total:hourly
+        expr: sum(rate(nexus_router_cost_total[1h])) * 3600
+
+      # Cost by model per hour
+      - record: cost:model:hourly
+        expr: sum(rate(nexus_router_cost_total[1h])) by (model) * 3600
+
+      # Cost savings (local vs cloud)
+      - record: cost:savings:hourly
+        expr: sum(rate(nexus_router_cost_saved_total[1h])) * 3600
+
+      # Request cost efficiency
+      - record: cost:efficiency:requests_per_dollar
+        expr: sum(rate(nexus_router_requests_total[5m])) / sum(rate(nexus_router_cost_total[5m]))

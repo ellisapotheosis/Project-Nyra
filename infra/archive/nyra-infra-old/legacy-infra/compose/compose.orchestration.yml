@@ -1,0 +1,73 @@
+
+services:
+  metamcp:
+    image: ghcr.io/metatool-ai/metamcp:latest
+    profiles: ["orchestration"]
+    restart: unless-stopped
+    env_file:`r`n      -     
+    env_file:
+      - ../.env
+    env_file:
+      - ../.env
+    environment:
+      METAMCP_CONFIG_PATH: /app/config/mcp-servers-config.json
+      APP_URL: ${APP_URL}
+      API_ACCESS_TOKEN: ${API_ACCESS_TOKEN}
+    ports: [ "12008:12008" ]
+    volumes:
+      - metamcp_data:/app/data
+      - ../../config-consolidated/metamcp/unified-metamcp-config.json:/app/config/mcp-servers-config.json:ro
+    depends_on:
+      - filesystem-mcp
+      - github-mcp
+      - docker-mcp
+      - infisical-mcp
+      - bitwarden-mcp
+    networks:
+      - nyra-net
+
+  n8n:
+    image: n8nio/n8n:latest
+    profiles: ["orchestration"]
+    restart: unless-stopped
+    environment:
+      N8N_HOST: localhost
+      N8N_PORT: 5678
+      N8N_PROTOCOL: http
+      GENERIC_TIMEZONE: America/Los_Angeles
+    volumes: [ "n8n_data:/home/node/.n8n" ]
+    ports: [ "5678:5678" ]
+    networks:
+      - nyra-net
+
+  flowise:
+    image: flowiseai/flowise:latest
+    profiles: ["orchestration"]
+    restart: unless-stopped
+    environment:
+      PORT: 3001
+      FLOWISE_USERNAME: admin
+      FLOWISE_PASSWORD: admin
+      DATABASE_PATH: /root/.flowise
+    volumes: [ "flowise_data:/root/.flowise" ]
+    ports: [ "3001:3001" ]
+    networks:
+      - nyra-net
+
+  dify:
+    image: langgenius/dify-api:latest
+    profiles: ["orchestration"]
+    restart: unless-stopped
+    env_file:`r`n      -     
+    ports: [ "8000:80" ]
+    networks:
+      - nyra-net
+
+
+  env_file:`r`n
+
+    - 
+
+  
+
+

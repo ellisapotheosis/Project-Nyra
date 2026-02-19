@@ -1,0 +1,56 @@
+# Nyra Core Orchestrator
+FROM node:24.11.0-alpine AS base
+
+# Install system dependencies
+RUN apk add --no-cache \
+    curl \
+    git \
+    bash \
+    python3 \
+    py3-pip \
+    build-base \
+    postgresql-client \
+    redis \
+    tini
+
+# Create app user
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S nyra -u 1001
+
+# Set working directory
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Install dependencies
+RUN npm ci --only=production && npm cache clean --force
+
+# Install Python dependencies if needed
+COPY requirements.txt* ./
+RUN if [ -f requirements.txt ]; then pip3 install --no-cache-dir -r requirements.txt; fi
+
+# Copy application source
+COPY --chown=nyra:nodejs nyra-src/ ./src/
+COPY --chown=nyra:nodejs config/env/ ./configs/env/
+COPY --chown=nyra:nodejs config/ ./configs/
+
+# Create necessary directories
+RUN mkdir -p {logs,cache,temp} && \
+    chown -R nyra:nodejs /app
+
+# Switch to app user
+USER nyra
+
+# Expose orchestrator port
+EXPOSE 8000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+    CMD curl -f http://localhost:8000/health || exit 1
+
+# Use tini as entrypoint
+ENTRYPOINT ["/sbin/tini", "--"]
+
+# Start orchestrator
+CMD ["node", "src/orchestrator.js"]

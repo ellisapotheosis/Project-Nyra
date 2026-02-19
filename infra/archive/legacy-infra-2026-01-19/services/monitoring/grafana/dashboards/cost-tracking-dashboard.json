@@ -1,0 +1,285 @@
+{
+  "dashboard": {
+    "title": "Cost Tracking - LLM & Infrastructure Costs",
+    "tags": ["cost", "billing", "business"],
+    "timezone": "browser",
+    "editable": true,
+    "graphTooltip": 1,
+    "time": {
+      "from": "now-24h",
+      "to": "now"
+    },
+    "refresh": "1m",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Hourly Cost Trend",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0},
+        "targets": [
+          {
+            "expr": "sum(rate(nexus_router_cost_total[1h])) * 3600",
+            "legendFormat": "Total Cost/hr",
+            "refId": "A"
+          },
+          {
+            "expr": "sum(rate(nexus_router_cost_saved_total[1h])) * 3600",
+            "legendFormat": "Savings/hr",
+            "refId": "B"
+          }
+        ],
+        "yaxes": [
+          {"format": "currencyUSD", "label": "$/hour"},
+          {"format": "short"}
+        ]
+      },
+      {
+        "id": 2,
+        "title": "Cost by Model",
+        "type": "piechart",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0},
+        "targets": [
+          {
+            "expr": "sum(rate(nexus_router_cost_total[1h])) by (model) * 3600",
+            "legendFormat": "{{model}}",
+            "refId": "A"
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "title": "Local vs Cloud Cost",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8},
+        "targets": [
+          {
+            "expr": "sum(rate(nexus_router_cost_total{destination=\"local\"}[1h])) * 3600",
+            "legendFormat": "Local GPU",
+            "refId": "A"
+          },
+          {
+            "expr": "sum(rate(nexus_router_cost_total{destination=\"cloud\"}[1h])) * 3600",
+            "legendFormat": "Cloud API",
+            "refId": "B"
+          }
+        ],
+        "yaxes": [
+          {"format": "currencyUSD", "label": "Cost"},
+          {"format": "short"}
+        ]
+      },
+      {
+        "id": 4,
+        "title": "Cost per 1000 Requests",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8},
+        "targets": [
+          {
+            "expr": "sum(rate(nexus_router_cost_total[5m])) / sum(rate(nexus_router_requests_total[5m])) * 1000",
+            "legendFormat": "$/1k requests",
+            "refId": "A"
+          }
+        ],
+        "yaxes": [
+          {"format": "currencyUSD", "label": "Cost"},
+          {"format": "short"}
+        ]
+      },
+      {
+        "id": 5,
+        "title": "Daily Cost Trend",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 16},
+        "targets": [
+          {
+            "expr": "sum(increase(nexus_router_cost_total[24h]))",
+            "legendFormat": "Daily Cost",
+            "refId": "A"
+          }
+        ],
+        "yaxes": [
+          {"format": "currencyUSD", "label": "$/day"},
+          {"format": "short"}
+        ]
+      },
+      {
+        "id": 6,
+        "title": "Cost Savings Over Time",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 16},
+        "targets": [
+          {
+            "expr": "sum(increase(nexus_router_cost_saved_total[1h])) * 3600",
+            "legendFormat": "Hourly Savings",
+            "refId": "A"
+          },
+          {
+            "expr": "sum(increase(nexus_router_cost_saved_total[24h]))",
+            "legendFormat": "Daily Savings",
+            "refId": "B"
+          }
+        ],
+        "yaxes": [
+          {"format": "currencyUSD", "label": "Savings"},
+          {"format": "short"}
+        ]
+      },
+      {
+        "id": 7,
+        "title": "Cost Efficiency by Worker",
+        "type": "bargauge",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 24},
+        "targets": [
+          {
+            "expr": "sum(rate(nexus_router_requests_total[5m])) by (worker) / sum(rate(nexus_router_cost_total[5m])) by (worker)",
+            "legendFormat": "{{worker}}",
+            "refId": "A"
+          }
+        ],
+        "options": {
+          "orientation": "horizontal",
+          "displayMode": "gradient"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "unit": "ops",
+            "displayName": "Requests per Dollar"
+          }
+        }
+      },
+      {
+        "id": 8,
+        "title": "Monthly Cost Projection",
+        "type": "stat",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 24},
+        "targets": [
+          {
+            "expr": "sum(rate(nexus_router_cost_total[24h])) * 30",
+            "refId": "A"
+          }
+        ],
+        "options": {
+          "colorMode": "background",
+          "graphMode": "area"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "unit": "currencyUSD",
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"color": "green", "value": null},
+                {"color": "yellow", "value": 3000},
+                {"color": "red", "value": 5000}
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 9,
+        "title": "Current Hourly Cost",
+        "type": "stat",
+        "gridPos": {"h": 4, "w": 6, "x": 0, "y": 32},
+        "targets": [
+          {
+            "expr": "sum(rate(nexus_router_cost_total[1h])) * 3600",
+            "refId": "A"
+          }
+        ],
+        "options": {
+          "colorMode": "value",
+          "graphMode": "area"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "unit": "currencyUSD",
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"color": "green", "value": null},
+                {"color": "yellow", "value": 10},
+                {"color": "red", "value": 25}
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 10,
+        "title": "Today's Total Cost",
+        "type": "stat",
+        "gridPos": {"h": 4, "w": 6, "x": 6, "y": 32},
+        "targets": [
+          {
+            "expr": "sum(increase(nexus_router_cost_total[24h]))",
+            "refId": "A"
+          }
+        ],
+        "options": {
+          "colorMode": "value",
+          "graphMode": "area"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "unit": "currencyUSD"
+          }
+        }
+      },
+      {
+        "id": 11,
+        "title": "Today's Savings",
+        "type": "stat",
+        "gridPos": {"h": 4, "w": 6, "x": 12, "y": 32},
+        "targets": [
+          {
+            "expr": "sum(increase(nexus_router_cost_saved_total[24h]))",
+            "refId": "A"
+          }
+        ],
+        "options": {
+          "colorMode": "value",
+          "graphMode": "area"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "unit": "currencyUSD",
+            "color": {
+              "mode": "thresholds"
+            },
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"color": "red", "value": null},
+                {"color": "yellow", "value": 50},
+                {"color": "green", "value": 100}
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 12,
+        "title": "Cost Efficiency Score",
+        "type": "stat",
+        "gridPos": {"h": 4, "w": 6, "x": 18, "y": 32},
+        "targets": [
+          {
+            "expr": "sum(rate(nexus_router_requests_total[5m])) / sum(rate(nexus_router_cost_total[5m]))",
+            "refId": "A"
+          }
+        ],
+        "options": {
+          "colorMode": "value",
+          "graphMode": "area"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "unit": "ops",
+            "displayName": "Req/$"
+          }
+        }
+      }
+    ]
+  }
+}

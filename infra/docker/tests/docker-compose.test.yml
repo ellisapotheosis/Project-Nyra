@@ -1,0 +1,81 @@
+# ============================================================================
+# Project Nyra - Test Environment Configuration
+# Usage: docker-compose -f docker-compose.yml -f tests/docker-compose.test.yml up
+# ============================================================================
+
+version: '3.9'
+
+services:
+  # ============================================================================
+  # Test Overrides
+  # ============================================================================
+
+  postgres:
+    environment:
+      POSTGRES_HOST_AUTH_METHOD: trust
+    ports:
+      - "5432:5432"
+
+  redis:
+    command: redis-server --requirepass test-password
+    ports:
+      - "6379:6379"
+
+  mongo:
+    ports:
+      - "27017:27017"
+
+  claude-flow:
+    environment:
+      NODE_ENV: test
+      CLAUDE_FLOW_LOG_LEVEL: error
+      CI: "true"
+    command: npm run test
+
+  archon:
+    environment:
+      PYTHON_ENV: test
+      ARCHON_LOG_LEVEL: ERROR
+      TESTING: "true"
+    command: pytest
+
+  # ============================================================================
+  # Test-specific Services
+  # ============================================================================
+
+  # Test Runner - Runs all test suites
+  test-runner:
+    image: alpine:latest
+    container_name: nyra-test-runner
+    volumes:
+      - ./tests:/tests:ro
+    command: >
+      sh -c "
+        apk add --no-cache bash curl postgresql-client redis &&
+        cd /tests &&
+        bash health-check-tests.sh &&
+        bash integration-tests.sh &&
+        bash security-tests.sh
+      "
+    depends_on:
+      - postgres
+      - redis
+      - mongo
+      - claude-flow
+      - archon
+    networks:
+      - nyra-network
+
+  # Mock External API - For testing external integrations
+  mock-api:
+    image: mockserver/mockserver:latest
+    container_name: nyra-mock-api
+    environment:
+      MOCKSERVER_PROPERTY_FILE: /config/mockserver.properties
+      MOCKSERVER_INITIALIZATION_JSON_PATH: /config/expectations.json
+    ports:
+      - "1080:1080"
+    volumes:
+      - ./tests/mocks:/config:ro
+    networks:
+      - nyra-network

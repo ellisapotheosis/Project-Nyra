@@ -1,0 +1,38 @@
+{
+  "name": "@nyra/docker-mcp-server",
+  "version": "1.0.0",
+  "description": "MCP server providing Docker operations and management",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "docker-mcp": "dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "start": "node dist/index.js",
+    "inspector": "npx @modelcontextprotocol/inspector dist/index.js"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "docker",
+    "containers",
+    "devops"
+  ],
+  "author": "Project Nyra",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.25.2",
+    "dockerode": "^4.0.2",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@types/dockerode": "^3.3.31",
+    "@types/node": "^20.11.0",
+    "typescript": "^5.3.3"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

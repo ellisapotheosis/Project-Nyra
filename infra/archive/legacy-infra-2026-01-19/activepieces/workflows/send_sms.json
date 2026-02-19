@@ -1,0 +1,92 @@
+{
+  "displayName": "Send SMS with Compliance",
+  "trigger": {
+    "type": "WEBHOOK",
+    "settings": {
+      "inputUiInfo": {
+        "currentSelectedData": "body"
+      }
+    }
+  },
+  "steps": {
+    "extract_webhook_data": {
+      "type": "CODE",
+      "settings": {
+        "sourceCode": {
+          "code": "export const code = async (inputs) => {\n  return {\n    to: inputs.webhook_body.to,\n    body: inputs.webhook_body.body,\n    lead_id: inputs.webhook_body.lead_id,\n    step_id: inputs.webhook_body.step_id\n  };\n};"
+        },
+        "input": {
+          "webhook_body": "{{trigger.body}}"
+        }
+      },
+      "nextAction": "check_opt_out"
+    },
+    "check_opt_out": {
+      "type": "CODE",
+      "settings": {
+        "sourceCode": {
+          "code": "export const code = async (inputs) => {\n  const optOutKeywords = ['STOP', 'UNSUBSCRIBE', 'CANCEL', 'END', 'QUIT'];\n  const bodyUpper = inputs.body.toUpperCase();\n  \n  for (const keyword of optOutKeywords) {\n    if (bodyUpper.includes(keyword)) {\n      return { opted_out: true, keyword: keyword };\n    }\n  }\n  \n  return { opted_out: false };\n};"
+        },
+        "input": {
+          "body": "{{extract_webhook_data.output.body}}"
+        }
+      },
+      "nextAction": "inject_opt_out"
+    },
+    "inject_opt_out": {
+      "type": "CODE",
+      "settings": {
+        "sourceCode": {
+          "code": "export const code = async (inputs) => {\n  let message = inputs.body;\n  \n  // Append opt-out instruction if not already present\n  if (!message.toLowerCase().includes('stop') && !message.toLowerCase().includes('reply')) {\n    message += '\\n\\nReply STOP to opt out.';\n  }\n  \n  return { message: message };\n};"
+        },
+        "input": {
+          "body": "{{extract_webhook_data.output.body}}"
+        }
+      },
+      "nextAction": "send_twilio_sms"
+    },
+    "send_twilio_sms": {
+      "type": "PIECE",
+      "settings": {
+        "packageType": "REGISTRY",
+        "pieceType": "twilio",
+        "pieceName": "@activepieces/piece-twilio",
+        "pieceVersion": "^0.3.0",
+        "actionName": "send_sms",
+        "input": {
+          "from": "{{connections.twilio.from_number}}",
+          "to": "{{extract_webhook_data.output.to}}",
+          "body": "{{inject_opt_out.output.message}}"
+        }
+      },
+      "nextAction": "log_metrics"
+    },
+    "log_metrics": {
+      "type": "CODE",
+      "settings": {
+        "sourceCode": {
+          "code": "export const code = async (inputs) => {\n  // Log to Prometheus pushgateway\n  const metric = {\n    job: 'campaign_engine',\n    instance: 'activepieces',\n    labels: {\n      channel: 'sms',\n      step_id: inputs.step_id,\n      lead_id: inputs.lead_id,\n      status: inputs.success ? 'sent' : 'failed'\n    },\n    value: 1,\n    timestamp: Date.now()\n  };\n  \n  // In production, push to Prometheus pushgateway\n  console.log('SMS Metric:', metric);\n  \n  return metric;\n};"
+        },
+        "input": {
+          "step_id": "{{extract_webhook_data.output.step_id}}",
+          "lead_id": "{{extract_webhook_data.output.lead_id}}",
+          "success": "{{send_twilio_sms.output.status === 'sent'}}"
+        }
+      },
+      "nextAction": "return_response"
+    },
+    "return_response": {
+      "type": "CODE",
+      "settings": {
+        "sourceCode": {
+          "code": "export const code = async (inputs) => {\n  return {\n    status: 'success',\n    channel: 'sms',\n    message_id: inputs.message_sid,\n    lead_id: inputs.lead_id,\n    step_id: inputs.step_id,\n    sent_at: new Date().toISOString()\n  };\n};"
+        },
+        "input": {
+          "message_sid": "{{send_twilio_sms.output.sid}}",
+          "lead_id": "{{extract_webhook_data.output.lead_id}}",
+          "step_id": "{{extract_webhook_data.output.step_id}}"
+        }
+      }
+    }
+  }
+}

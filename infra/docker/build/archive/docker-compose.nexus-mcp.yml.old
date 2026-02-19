@@ -1,0 +1,306 @@
+# Project Nyra - Nexus Router + MCP Servers
+# Unified MCP + LLM Gateway Architecture
+# Updated: 2026-01-12
+# Based on: FINAL_ARCHITECTURE_DECISIONS_SOURCE.md
+
+version: "3.9"
+
+services:
+  # =============================================================================
+  # NEXUS ROUTER - Unified MCP + LLM Gateway (Single Entry Point)
+  # =============================================================================
+  # Nexus Router handles BOTH MCP server aggregation AND LLM routing
+  # Replaces: MetaMCP (MCP aggregation) + LiteLLM (model routing)
+  # Port: 6000 (unified API gateway)
+
+  nexus:
+    image: grafbase/nexus:latest
+    container_name: nyra-nexus-router
+    restart: unless-stopped
+    environment:
+      - NEXUS_JWT_SECRET=${NEXUS_JWT_SECRET:-your-jwt-secret-change-me}
+      - NEXUS_ADMIN_TOKEN=${NEXUS_ADMIN_TOKEN:-your-admin-token-change-me}
+      # LLM Provider Keys (Nexus Router handles model routing internally)
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      - GOOGLE_GEMINI_API_KEY=${GOOGLE_API_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+      # Redis for caching (optional)
+      - REDIS_URL=redis://redis:6379
+    volumes:
+      - ./nexus:/etc/nexus:ro
+      - nexus-cache:/var/lib/nexus
+    ports:
+      - "${NEXUS_ROUTER_PORT:-6000}:6000"
+    command:
+      - serve
+      - --config
+      - /etc/nexus/nexus-complete.yaml
+    depends_on:
+      neo4j:
+        condition: service_healthy
+      qdrant:
+        condition: service_healthy
+    networks:
+      - nyra-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # =============================================================================
+  # GRAPH DATABASE - Neo4j (Primary)
+  # =============================================================================
+
+  neo4j:
+    image: neo4j:5-community
+    container_name: nyra-neo4j
+    restart: unless-stopped
+    environment:
+      - NEO4J_AUTH=neo4j/${NEO4J_PASSWORD:-nyra-graph-password}
+      - NEO4J_dbms_security_procedures_unrestricted=apoc.*,gds.*
+      - NEO4J_PLUGINS=["apoc", "graph-data-science"]
+      - NEO4J_dbms_memory_pagecache_size=512M
+      - NEO4J_dbms_memory_heap_max__size=1G
+      - NEO4J_apoc_export_file_enabled=true
+      - NEO4J_apoc_import_file_enabled=true
+    ports:
+      - "${NEO4J_HTTP_PORT:-7474}:7474"  # HTTP
+      - "${NEO4J_BOLT_PORT:-7687}:7687"  # Bolt
+    volumes:
+      - neo4j-data:/data
+      - neo4j-logs:/logs
+      - neo4j-import:/var/lib/neo4j/import
+      - neo4j-plugins:/plugins
+    networks:
+      - nyra-network
+    healthcheck:
+      test: ["CMD-SHELL", "cypher-shell -u neo4j -p ${NEO4J_PASSWORD:-nyra-graph-password} 'RETURN 1' || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  # =============================================================================
+  # MCP SERVERS - Dockerized
+  # =============================================================================
+
+  # Graphiti MCP - Knowledge graph with temporal tracking
+  graphiti-mcp:
+    image: ghcr.io/getzep/graphiti-mcp:latest
+    container_name: nyra-graphiti-mcp
+    restart: unless-stopped
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - MODEL_NAME=${GRAPHITI_MODEL:-gpt-4o-mini}
+      - NEO4J_URI=bolt://neo4j:7687
+      - NEO4J_USER=neo4j
+      - NEO4J_PASSWORD=${NEO4J_PASSWORD:-nyra-graph-password}
+      - GRAPHITI_TRANSPORT=sse
+      - GRAPHITI_PORT=8000
+      - GRAPHITI_TEMPORAL_TRACKING=true
+      - GRAPHITI_RELATIONSHIP_INFERENCE=true
+    depends_on:
+      neo4j:
+        condition: service_healthy
+    ports:
+      - "7459:8000"
+    networks:
+      - nyra-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Qdrant MCP - Vector search interface
+  qdrant-mcp:
+    image: ghcr.io/qdrant/mcp-server-qdrant:latest
+    container_name: nyra-qdrant-mcp
+    restart: unless-stopped
+    environment:
+      - QDRANT_URL=http://qdrant:6333
+      - COLLECTION_NAME=${QDRANT_COLLECTION:-nyra}
+      - EMBEDDING_PROVIDER=fastembed
+      - EMBEDDING_MODEL=sentence-transformers/all-MiniLM-L6-v2
+      - FASTMCP_PORT=8066
+      - FASTMCP_HOST=0.0.0.0
+    depends_on:
+      qdrant:
+        condition: service_healthy
+    ports:
+      - "8066:8066"
+    networks:
+      - nyra-network
+
+  # Context7 MCP - Code documentation and examples
+  context7-mcp:
+    image: mcp/context7:latest
+    container_name: nyra-context7-mcp
+    restart: unless-stopped
+    environment:
+      - CONTEXT7_API_KEY=${CONTEXT7_API_KEY}
+      - NODE_ENV=production
+    ports:
+      - "7460:8080"
+    networks:
+      - nyra-network
+    stdin_open: true
+    tty: true
+
+  # Exa MCP - Web search and code search
+  exa-mcp:
+    image: mcp/exa:latest
+    container_name: nyra-exa-mcp
+    restart: unless-stopped
+    environment:
+      - EXA_API_KEY=${EXA_API_KEY}
+      - ENABLE_WEB_SEARCH=true
+      - ENABLE_CODE_SEARCH=true
+      - ENABLE_DEEP_SEARCH=true
+    ports:
+      - "7461:8080"
+    networks:
+      - nyra-network
+    stdin_open: true
+    tty: true
+
+  # Supabase MCP - Database operations
+  supabase-mcp:
+    image: mcp/supabase:latest
+    container_name: nyra-supabase-mcp
+    restart: unless-stopped
+    environment:
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_SERVICE_KEY=${SUPABASE_SERVICE_KEY}
+    ports:
+      - "7462:8080"
+    networks:
+      - nyra-network
+    stdin_open: true
+    tty: true
+
+  # VSCode MCP - Code editing operations
+  vscode-mcp:
+    build:
+      context: ./mcp-servers/vscode
+      dockerfile: Dockerfile
+    container_name: nyra-vscode-mcp
+    restart: unless-stopped
+    environment:
+      - WORKSPACE_DIR=/workspace
+      - VSCODE_SERVER_PORT=8081
+    volumes:
+      - ../..:/workspace:rw
+      - vscode-server-data:/root/.vscode-server
+    ports:
+      - "8081:8081"
+    networks:
+      - nyra-network
+
+  # TwentyCRM MCP - CRM operations
+  twentycrm-mcp:
+    build:
+      context: ./mcp-servers/twentycrm
+      dockerfile: Dockerfile
+    container_name: nyra-twentycrm-mcp
+    restart: unless-stopped
+    environment:
+      - TWENTY_API_URL=http://twentycrm:3000/graphql
+      - TWENTY_API_KEY=${TWENTY_API_KEY}
+      - TWENTY_WORKSPACE_ID=${TWENTY_WORKSPACE_ID:-default}
+    depends_on:
+      - twentycrm
+    ports:
+      - "8082:8080"
+    networks:
+      - nyra-network
+
+  # Dify MCP Proxy - Expose Dify apps as MCP
+  dify-mcp-proxy:
+    build:
+      context: ./mcp-servers/dify
+      dockerfile: Dockerfile
+    container_name: nyra-dify-mcp
+    restart: unless-stopped
+    environment:
+      - DIFY_API_URL=http://dify-api:5001
+      - DIFY_API_KEY=${DIFY_API_KEY}
+      - DIFY_APP_ID=${DIFY_APP_ID}
+    depends_on:
+      - dify-api
+    ports:
+      - "8083:8080"
+    networks:
+      - nyra-network
+
+  # Serena MCP - Semantic code retrieval (from architecture doc)
+  serena-mcp:
+    image: ghcr.io/serena-ai/mcp-server:latest
+    container_name: nyra-serena-mcp
+    restart: unless-stopped
+    environment:
+      - WORKSPACE_ROOT=/workspace
+      - SERENA_API_KEY=${SERENA_API_KEY}
+    volumes:
+      - ../..:/workspace:ro
+    ports:
+      - "8084:8080"
+    networks:
+      - nyra-network
+
+  # Gemini Assistant MCP - Cost-efficient inference
+  gemini-mcp:
+    image: ghcr.io/google/mcp-gemini-assistant:latest
+    container_name: nyra-gemini-mcp
+    restart: unless-stopped
+    environment:
+      - GOOGLE_GEMINI_API_KEY=${GOOGLE_GEMINI_API_KEY:-${GOOGLE_API_KEY}}
+      - MODEL_NAME=${GEMINI_MODEL:-gemini-2.0-flash-exp}
+    ports:
+      - "8085:8080"
+    networks:
+      - nyra-network
+
+  # Composio MCP - 80+ third-party integrations
+  composio-mcp:
+    image: ghcr.io/composiohq/mcp-server:latest
+    container_name: nyra-composio-mcp
+    restart: unless-stopped
+    environment:
+      - COMPOSIO_API_KEY=${COMPOSIO_API_KEY}
+      - COMPOSIO_WORKSPACE=${COMPOSIO_WORKSPACE:-nyra}
+    ports:
+      - "8086:8080"
+    networks:
+      - nyra-network
+
+# =============================================================================
+# NETWORKS
+# =============================================================================
+
+networks:
+  nyra-network:
+    external: true
+    name: nyra-network
+
+# =============================================================================
+# VOLUMES
+# =============================================================================
+
+volumes:
+  nexus-cache:
+    driver: local
+  neo4j-data:
+    driver: local
+  neo4j-logs:
+    driver: local
+  neo4j-import:
+    driver: local
+  neo4j-plugins:
+    driver: local
+  vscode-server-data:
+    driver: local

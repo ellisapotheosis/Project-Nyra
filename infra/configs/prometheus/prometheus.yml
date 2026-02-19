@@ -5,18 +5,16 @@ global:
 scrape_configs:
   - job_name: 'prometheus'
     static_configs:
-      - targets: ['prometheus:9090']
+      - targets: ['localhost:9090']
+
+  - job_name: 'claude-flow'
+    static_configs:
+      - targets: ['claude-flow:9090']
+
+  - job_name: 'archon'
+    static_configs:
+      - targets: ['archon:9091']
 
   - job_name: 'cadvisor'
     static_configs:
       - targets: ['cadvisor:8080']
-
-  - job_name: 'n8n'
-    metrics_path: /metrics
-    static_configs:
-      - targets: ['n8n:5678']
-
-  - job_name: 'activepieces'
-    metrics_path: /metrics
-    static_configs:
-      - targets: ['activepieces:80']
