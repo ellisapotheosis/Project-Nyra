@@ -1,0 +1,24 @@
+{
+  "secrets": [
+    { "secretKey": "POSTGRES_PASSWORD", "secretValue": "" },
+    { "secretKey": "REDIS_PASSWORD", "secretValue": "" },
+    { "secretKey": "MONGO_ROOT_PASSWORD", "secretValue": "" },
+    { "secretKey": "INFISICAL_ENCRYPTION_KEY", "secretValue": "" },
+    { "secretKey": "INFISICAL_JWT_SECRET", "secretValue": "" },
+    { "secretKey": "ANTHROPIC_API_KEY", "secretValue": "" },
+    { "secretKey": "OPENAI_API_KEY", "secretValue": "" },
+    { "secretKey": "OPENROUTER_API_KEY", "secretValue": "" },
+    { "secretKey": "GOOGLE_GEMINI_API_KEY", "secretValue": "" },
+    { "secretKey": "NEXUS_JWT_SECRET", "secretValue": "" },
+    { "secretKey": "NEXUS_ADMIN_TOKEN", "secretValue": "" },
+    { "secretKey": "TWENTY_API_KEY", "secretValue": "" },
+    { "secretKey": "TWENTY_DB_PASSWORD", "secretValue": "" },
+    { "secretKey": "N8N_ENCRYPTION_KEY", "secretValue": "" },
+    { "secretKey": "ACTIVEPIECES_ENCRYPTION_KEY", "secretValue": "" },
+    { "secretKey": "ACTIVEPIECES_JWT_SECRET", "secretValue": "" },
+    { "secretKey": "TWILIO_ACCOUNT_SID", "secretValue": "" },
+    { "secretKey": "TWILIO_AUTH_TOKEN", "secretValue": "" },
+    { "secretKey": "SENDGRID_API_KEY", "secretValue": "" },
+    { "secretKey": "GITHUB_TOKEN", "secretValue": "" }
+  ]
+}
