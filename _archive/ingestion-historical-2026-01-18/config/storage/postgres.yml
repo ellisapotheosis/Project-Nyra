@@ -1,0 +1,6 @@
+target: postgres
+host: localhost
+port: 5432
+database: nyra
+user: nyra
+password_env: POSTGRES_PASSWORD

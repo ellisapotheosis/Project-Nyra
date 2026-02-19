@@ -1,0 +1,13 @@
+all: install run
+
+install:
+	bun install
+
+run:
+	export PYTHON_KEYRING_BACKEND=keyring.backends.null.Keyring && infis gemini
+
+docker:
+	docker start nyra-nexus-router || docker run -d --name nyra-nexus-router -p 6000:6000 nexus-router
+
+clean:
+	rm -rf node_modules bun.lockb dist .cache

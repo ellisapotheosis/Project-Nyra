@@ -1,6 +1,7 @@
 packages:
   - apps/*
   - services/*
+  - mcp-servers/*
   - packages/*
 
 onlyBuiltDependencies:

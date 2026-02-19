@@ -1,0 +1,58 @@
+# ==============================================================================
+# Final Comprehensive Cloudflare Tunnel Configuration for Project Nyra
+# ==============================================================================
+# This file will automatically create DNS routes in your Cloudflare account.
+#
+# SECURITY WARNING: You are exposing many internal services. It is CRITICAL
+# that you protect these hostnames with a Cloudflare Access policy that
+# requires BOTH authentication and your Tailscale IP whitelist.
+
+# IMPORTANT: Replace 'YOUR_TUNNEL_ID' with your actual Tunnel ID from Cloudflare.
+tunnel: YOUR_TUNNEL_ID
+credentials-file: /root/.cloudflared/YOUR_TUNNEL_ID.json
+
+ingress:
+    # --- Primary Public-Facing App ---
+    # Your landing page will be hosted on Cloudflare Pages.
+    # Uncomment and adjust this section if you ever decide to serve it
+    # via the tunnel instead (e.g., if Cloudflare Pages is not used).
+    # - hostname: ratehunter.net
+    #   service: http://ratehunter-landing:3000
+
+    # --- Admin & Developer UIs ---
+    - hostname: admin.ratehunter.net # The Nyra Admin Panel
+      service: http://nyra-admin:3101
+    - hostname: gitea.ratehunter.net
+      service: http://gitea:3000
+    - hostname: crm.ratehunter.net # TwentyCRM
+      service: http://twenty:3000
+    - hostname: ui.archon.ratehunter.net # Archon UI
+      service: http://archon-ui:3737
+    - hostname: nexus-dashboard.ratehunter.net # Includes Claude Flow Dashboard
+      service: http://nexus-dashboard:3005
+
+    # --- Workflow & Automation UIs ---
+    - hostname: n8n.ratehunter.net
+      service: http://n8n:5678
+    - hostname: hooks.ratehunter.net # Points to n8n for webhooks
+      service: http://n8n:5678
+    - hostname: activepieces.ratehunter.net
+      service: http://activepieces:80
+    - hostname: dify.ratehunter.net
+      service: http://dify-web:3000
+    - hostname: openwebui.ratehunter.net
+      service: http://openwebui:8080
+
+    # --- API Gateways (Assumed to have their own auth) ---
+    - hostname: nexus.ratehunter.net
+      service: http://nexus:6000
+    - hostname: archon.ratehunter.net # Archon API
+      service: http://archon-api:8181
+
+    # --- Monitoring & Observability UIs ---
+    - hostname: grafana.ratehunter.net
+      service: http://grafana:3000
+
+    # --- Catch-all Rule ---
+    # This MUST be the last rule.
+    - service: http_status:404

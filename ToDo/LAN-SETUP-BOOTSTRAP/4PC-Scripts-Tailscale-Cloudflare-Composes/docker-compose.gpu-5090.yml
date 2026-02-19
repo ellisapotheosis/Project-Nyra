@@ -1,0 +1,58 @@
+# RTX 5090 (32GB VRAM) - Heavy inference with vLLM
+version: '3.8'
+
+services:
+  vllm:
+    image: vllm/vllm-openai:latest
+    container_name: vllm-5090
+    runtime: nvidia
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - HF_TOKEN=${HF_TOKEN}
+      - VLLM_ATTENTION_BACKEND=FLASH_ATTN
+    volumes:
+      - vllm_cache:/root/.cache/huggingface
+    ports:
+      - "8000:8000"
+    command: >
+      --model meta-llama/Llama-3.1-70B-Instruct
+      --tensor-parallel-size 1
+      --max-model-len 16384
+      --gpu-memory-utilization 0.90
+      --enable-chunked-prefill
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    restart: unless-stopped
+
+  # Optional: Ollama for variety of models
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama-5090
+    runtime: nvidia
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - OLLAMA_HOST=0.0.0.0
+      - CUDA_VISIBLE_DEVICES=0
+    volumes:
+      - ollama_data:/root/.ollama
+    ports:
+      - "11434:11434"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    restart: unless-stopped
+    profiles:
+      - ollama  # Only start with: docker compose --profile ollama up
+
+volumes:
+  vllm_cache:
+  ollama_data:

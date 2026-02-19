@@ -1,0 +1,18 @@
+version: 0.1
+name: nyra-archon-integration
+providers:
+  anthropic:
+    model: \
+mcp:
+  servers:
+    - name: archon-mcp
+      from_registry: archon-mcp
+flows:
+  - id: archon-enabled
+    steps:
+      - type: tool
+        server: archon-mcp
+        tool: list_capabilities
+      - type: llm
+        provider: anthropic
+        prompt: "Summarize Archon MCP capabilities for the user."

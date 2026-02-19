@@ -1,0 +1,52 @@
+# RTX 3090Ti (24GB VRAM) - Medium/Large models
+version: '3.8'
+
+services:
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama-3090
+    runtime: nvidia
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - OLLAMA_HOST=0.0.0.0
+      - OLLAMA_ORIGINS=*
+      - OLLAMA_NUM_PARALLEL=4
+    volumes:
+      - ollama_data:/root/.ollama
+    ports:
+      - "11434:11434"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    restart: unless-stopped
+
+  # Text Embeddings Inference - fast embeddings
+  text-embeddings:
+    image: ghcr.io/huggingface/text-embeddings-inference:1.2
+    container_name: tei-3090
+    runtime: nvidia
+    environment:
+      - MODEL_ID=BAAI/bge-large-en-v1.5
+    ports:
+      - "8082:80"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    restart: unless-stopped
+
+volumes:
+  ollama_data:
+
+# Recommended models for 24GB:
+# docker exec ollama-3090 ollama pull llama3.1:70b-q4_K_M
+# docker exec ollama-3090 ollama pull codellama:34b
+# docker exec ollama-3090 ollama pull mixtral:8x7b
+# docker exec ollama-3090 ollama pull deepseek-coder:33b

@@ -1,0 +1,565 @@
+version: '3.8'
+
+# Project-Nyra orchestrator-mini Docker Compose
+# Role: Control plane - orchestration, coordination, data layer
+# Hardware: CPU-only, always-on, 32-64GB RAM, 1TB SSD
+
+services:
+  # ==========================================
+  # API Gateway & Routing
+  # ==========================================
+  nexus-router:
+    image: nyra/nexus-router:latest
+    container_name: nyra-nexus-router
+    hostname: nexus-router
+    restart: unless-stopped
+    networks:
+      - nyra-core-net
+    ports:
+      - "8080:8080"
+    environment:
+      - NEXUS_PORT=8080
+      - NEXUS_HOST=0.0.0.0
+      - NEXUS_REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379
+      - NEXUS_POSTGRES_URL=postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/nyra
+      - NEXUS_JWT_SECRET_FILE=/run/secrets/jwt-secret
+      - NEXUS_LOG_LEVEL=info
+    secrets:
+      - jwt-secret
+    volumes:
+      - ./config/nexus-router.yaml:/etc/nexus/config.yaml:ro
+      - /opt/nyra/logs/nexus:/var/log/nexus
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    deploy:
+      resources:
+        limits:
+          cpus: '4'
+          memory: 4G
+        reservations:
+          cpus: '2'
+          memory: 2G
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ==========================================
+  # Task Orchestration
+  # ==========================================
+  archon-coordinator:
+    image: nyra/archon-coordinator:latest
+    container_name: nyra-archon
+    hostname: archon-coordinator
+    restart: unless-stopped
+    networks:
+      - nyra-core-net
+      - nyra-data-net
+    ports:
+      - "7777:7777"
+    environment:
+      - ARCHON_PORT=7777
+      - ARCHON_HOST=0.0.0.0
+      - ARCHON_REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379
+      - ARCHON_POSTGRES_URL=postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/nyra
+      - ARCHON_LOG_LEVEL=info
+      - ARCHON_HEALTH_CHECK_INTERVAL=30
+      - ARCHON_ENABLE_AUTO_WAKE=true
+    volumes:
+      - ./config/archon.toml:/etc/archon/config.toml:ro
+      - /opt/nyra/logs/archon:/var/log/archon
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "grpc_health_probe", "-addr=:7777"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+    deploy:
+      resources:
+        limits:
+          cpus: '6'
+          memory: 8G
+        reservations:
+          cpus: '4'
+          memory: 4G
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ==========================================
+  # MCP Hub (Model Context Protocol Servers)
+  # ==========================================
+  mcp-filesystem:
+    image: nyra/mcp-filesystem:latest
+    container_name: nyra-mcp-filesystem
+    restart: unless-stopped
+    networks:
+      - nyra-core-net
+    ports:
+      - "3000:3000"
+    environment:
+      - MCP_PORT=3000
+      - MCP_CAPABILITIES=file-read,file-write,directory-list
+    volumes:
+      - /opt/nyra:/workspace:ro
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+
+  mcp-database:
+    image: nyra/mcp-database:latest
+    container_name: nyra-mcp-database
+    restart: unless-stopped
+    networks:
+      - nyra-core-net
+      - nyra-data-net
+    ports:
+      - "3001:3001"
+    environment:
+      - MCP_PORT=3001
+      - MCP_DB_URL=postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/nyra
+    depends_on:
+      - postgres
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+      interval: 30s
+
+  mcp-web-search:
+    image: nyra/mcp-web-search:latest
+    container_name: nyra-mcp-web-search
+    restart: unless-stopped
+    networks:
+      - nyra-core-net
+    ports:
+      - "3002:3002"
+    environment:
+      - MCP_PORT=3002
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3002/health"]
+      interval: 30s
+
+  mcp-code-analysis:
+    image: nyra/mcp-code-analysis:latest
+    container_name: nyra-mcp-code-analysis
+    restart: unless-stopped
+    networks:
+      - nyra-core-net
+    ports:
+      - "3003:3003"
+    environment:
+      - MCP_PORT=3003
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3003/health"]
+      interval: 30s
+
+  mcp-docker:
+    image: nyra/mcp-docker:latest
+    container_name: nyra-mcp-docker
+    restart: unless-stopped
+    networks:
+      - nyra-core-net
+    ports:
+      - "3004:3004"
+    environment:
+      - MCP_PORT=3004
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3004/health"]
+      interval: 30s
+
+  # ==========================================
+  # Data Layer - PostgreSQL
+  # ==========================================
+  postgres:
+    image: postgres:16-alpine
+    container_name: nyra-postgres
+    hostname: postgres
+    restart: unless-stopped
+    networks:
+      - nyra-data-net
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD_FILE=/run/secrets/postgres-password
+      - POSTGRES_DB=nyra
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    secrets:
+      - postgres-password
+    volumes:
+      - nyra-postgres-data:/var/lib/postgresql/data
+      - /var/nyra/backups/postgres:/backups
+      - ./config/postgresql.conf:/etc/postgresql/postgresql.conf:ro
+    command: postgres -c config_file=/etc/postgresql/postgresql.conf
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres", "-d", "nyra"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          cpus: '4'
+          memory: 8G
+        reservations:
+          cpus: '2'
+          memory: 4G
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ==========================================
+  # Data Layer - Redis
+  # ==========================================
+  redis:
+    image: redis:7-alpine
+    container_name: nyra-redis
+    hostname: redis
+    restart: unless-stopped
+    networks:
+      - nyra-data-net
+    ports:
+      - "6379:6379"
+    command: >
+      redis-server
+        --requirepass ${REDIS_PASSWORD}
+        --maxmemory 16gb
+        --maxmemory-policy allkeys-lru
+        --save 900 1
+        --save 300 10
+        --save 60 10000
+        --appendonly yes
+        --appendfsync everysec
+    volumes:
+      - nyra-redis-data:/data
+      - /var/nyra/backups/redis:/backups
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          cpus: '4'
+          memory: 16G
+        reservations:
+          cpus: '2'
+          memory: 8G
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ==========================================
+  # Object Storage - MinIO
+  # ==========================================
+  minio:
+    image: minio/minio:latest
+    container_name: nyra-minio
+    hostname: minio
+    restart: unless-stopped
+    networks:
+      - nyra-data-net
+    ports:
+      - "9000:9000"     # API
+      - "9001:9001"     # Console
+    environment:
+      - MINIO_ROOT_USER=admin
+      - MINIO_ROOT_PASSWORD_FILE=/run/secrets/minio-root-password
+      - MINIO_BROWSER=on
+    secrets:
+      - minio-root-password
+    volumes:
+      - nyra-minio-data:/data
+      - /var/nyra/backups/minio:/backups
+    command: server /data --console-address ":9001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          cpus: '4'
+          memory: 4G
+        reservations:
+          cpus: '2'
+          memory: 2G
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ==========================================
+  # Monitoring - Prometheus
+  # ==========================================
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: nyra-prometheus
+    hostname: prometheus
+    restart: unless-stopped
+    networks:
+      - nyra-core-net
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./config/alerts.yml:/etc/prometheus/alerts.yml:ro
+      - nyra-prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=15d'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:9090/-/healthy"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 4G
+        reservations:
+          cpus: '1'
+          memory: 2G
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ==========================================
+  # Monitoring - Grafana
+  # ==========================================
+  grafana:
+    image: grafana/grafana:latest
+    container_name: nyra-grafana
+    hostname: grafana
+    restart: unless-stopped
+    networks:
+      - nyra-core-net
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD_FILE=/run/secrets/grafana-admin-password
+      - GF_INSTALL_PLUGINS=
+      - GF_SERVER_ROOT_URL=http://nyra.yourdomain.com/grafana
+    secrets:
+      - grafana-admin-password
+    volumes:
+      - nyra-grafana-data:/var/lib/grafana
+      - ./config/grafana/provisioning:/etc/grafana/provisioning:ro
+    depends_on:
+      - prometheus
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+        reservations:
+          cpus: '1'
+          memory: 1G
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ==========================================
+  # Exporters - Node Exporter
+  # ==========================================
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: nyra-node-exporter
+    restart: unless-stopped
+    networks:
+      - nyra-core-net
+    ports:
+      - "9100:9100"
+    command:
+      - '--path.rootfs=/host'
+    volumes:
+      - '/:/host:ro,rslave'
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "2"
+
+  # ==========================================
+  # Exporters - PostgreSQL Exporter
+  # ==========================================
+  postgres-exporter:
+    image: quay.io/prometheuscommunity/postgres-exporter:latest
+    container_name: nyra-postgres-exporter
+    restart: unless-stopped
+    networks:
+      - nyra-core-net
+      - nyra-data-net
+    ports:
+      - "9187:9187"
+    environment:
+      - DATA_SOURCE_NAME=postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/nyra?sslmode=disable
+    depends_on:
+      - postgres
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "2"
+
+  # ==========================================
+  # Exporters - Redis Exporter
+  # ==========================================
+  redis-exporter:
+    image: oliver006/redis_exporter:latest
+    container_name: nyra-redis-exporter
+    restart: unless-stopped
+    networks:
+      - nyra-core-net
+      - nyra-data-net
+    ports:
+      - "9121:9121"
+    environment:
+      - REDIS_ADDR=redis:6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+    depends_on:
+      - redis
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "2"
+
+# ==========================================
+# Networks
+# ==========================================
+networks:
+  nyra-core-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+          gateway: 172.20.0.1
+    driver_opts:
+      com.docker.network.bridge.name: nyra-core
+
+  nyra-data-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.22.0.0/16
+          gateway: 172.22.0.1
+    driver_opts:
+      com.docker.network.bridge.name: nyra-data
+
+# ==========================================
+# Volumes
+# ==========================================
+volumes:
+  nyra-postgres-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /opt/nyra/data/postgres
+
+  nyra-redis-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /opt/nyra/data/redis
+
+  nyra-minio-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /opt/nyra/data/minio
+
+  nyra-prometheus-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /opt/nyra/data/prometheus
+
+  nyra-grafana-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /opt/nyra/data/grafana
+
+# ==========================================
+# Secrets
+# ==========================================
+secrets:
+  postgres-password:
+    file: /opt/nyra/secrets/postgres-password
+  redis-password:
+    file: /opt/nyra/secrets/redis-password
+  minio-root-password:
+    file: /opt/nyra/secrets/minio-root-password
+  jwt-secret:
+    file: /opt/nyra/secrets/jwt-secret
+  grafana-admin-password:
+    file: /opt/nyra/secrets/grafana-admin-password

@@ -1,0 +1,42 @@
+# Cloudflare Tunnel Config - ORCHESTRATOR PC
+# Location: C:\Users\<username>\.cloudflared\config.yml
+# 
+# BEFORE USING:
+# 1. Run: cloudflared tunnel create nyra-orchestrator
+# 2. Replace <TUNNEL-ID> with the ID from step 1
+# 3. Replace <username> with your Windows username
+
+tunnel: <TUNNEL-ID>
+credentials-file: C:\Users\<username>\.cloudflared\<TUNNEL-ID>.json
+
+ingress:
+  # TwentyCRM (adjust port if different)
+  - hostname: crm.ratehunter.net
+    service: http://localhost:3000
+  
+  # n8n Workflow Automation
+  - hostname: n8n.ratehunter.net
+    service: http://localhost:5678
+  
+  # Activepieces
+  - hostname: automations.ratehunter.net
+    service: http://localhost:8080
+  
+  # Nexus Router (API Gateway)  
+  - hostname: api.ratehunter.net
+    service: http://localhost:4000
+  
+  # Dify Chat UI
+  - hostname: chat.ratehunter.net
+    service: http://localhost:3001
+  
+  # Open-WebUI
+  - hostname: webui.ratehunter.net
+    service: http://localhost:8081
+
+  # Grafana Monitoring (optional)
+  - hostname: monitoring.ratehunter.net
+    service: http://localhost:3002
+  
+  # Catch-all (required - must be last)
+  - service: http_status:404

@@ -1,0 +1,86 @@
+tunnel: 64fe03f2-9859-44ca-b0ab-e499d8464104
+credentials-file: C:\Users\edane\.cloudflared\64fe03f2-9859-44ca-b0ab-e499d8464104.json
+
+ingress:
+  # Landing Page (Static site or Next.js)
+  - hostname: ratehunter.net
+    service: http://localhost:3001
+    originRequest:
+      noTLSVerify: true
+      connectTimeout: 30s
+
+  # Main Mortgage Application Webapp
+  - hostname: app.ratehunter.net
+    service: http://localhost:3002
+    originRequest:
+      noTLSVerify: true
+      connectTimeout: 30s
+
+  # Dify AI Chat Interface
+  - hostname: chat.ratehunter.net
+    service: http://localhost:3333
+    originRequest:
+      noTLSVerify: true
+      connectTimeout: 30s
+      keepAliveTimeout: 90s
+      httpHostHeader: chat.ratehunter.net
+
+  # Twenty CRM
+  - hostname: crm.ratehunter.net
+    service: http://localhost:3020
+    originRequest:
+      noTLSVerify: true
+      connectTimeout: 30s
+
+  # Nexus API Gateway
+  - hostname: nexus.ratehunter.net
+    service: http://localhost:6000
+    originRequest:
+      noTLSVerify: true
+      connectTimeout: 30s
+
+  # Main Orchestrator API
+  - hostname: orchestrator.ratehunter.net
+    service: http://localhost:8000
+    originRequest:
+      noTLSVerify: true
+      connectTimeout: 30s
+
+  # Grafana Monitoring
+  - hostname: grafana.ratehunter.net
+    service: http://localhost:3000
+    originRequest:
+      noTLSVerify: true
+      connectTimeout: 30s
+
+  # Archon OS Admin Panel (Phase 2)
+  - hostname: admin.ratehunter.net
+    service: http://localhost:4000
+    originRequest:
+      noTLSVerify: true
+      connectTimeout: 30s
+
+  # Catch-all
+  - service: http_status:404
+
+# Logging
+loglevel: info
+transport-loglevel: info
+
+# Metrics
+metrics: 0.0.0.0:8080
+
+# Origin configuration
+originRequest:
+  connectTimeout: 30s
+  tlsTimeout: 10s
+  tcpKeepAlive: 30s
+  keepAliveConnections: 100
+  keepAliveTimeout: 90s
+  noTLSVerify: true
+
+# Tunnel settings
+retries: 3
+grace-period: 30s
+no-autoupdate: true
+protocol: auto

@@ -1,0 +1,507 @@
+version: '3.8'
+
+# ============================================================================
+# PROJECT NYRA - ORCHESTRATOR COMPLETE DOCKER COMPOSE
+# Minisforum UH680 (Ryzen 7 6800H) - Tailscale IP: 100.64.0.1
+# ============================================================================
+# Services:
+#   - Nexus Router: Unified MCP + LLM gateway (Grafbase)
+#   - Archon: Knowledge hub and MCP server
+#   - Infisical: Secrets management
+#   - Gitea: Internal Git mirror
+#   - Memory Stack: Qdrant, FalkorDB, Zep, Redis
+#   - Monitoring: Prometheus, Grafana, Loki
+#   - Workflow: n8n, Dify
+# ============================================================================
+
+services:
+
+  # ============================================================================
+  # CORE CONTROL PLANE - UNIFIED MCP + LLM GATEWAY
+  # ============================================================================
+
+  nexus-router:
+    image: grafbase/grafbase:latest
+    container_name: nyra-nexus-router
+    restart: unless-stopped
+    ports:
+      - "6000:6000"
+    environment:
+      - NEXUS_ROUTER_PORT=6000
+      - NEXUS_LOG_LEVEL=${NEXUS_LOG_LEVEL:-info}
+      - NEXUS_CONFIG_PATH=/config/nexus
+    volumes:
+      - nexus-config:/config/nexus
+      - nexus-logs:/var/log/nexus
+    networks:
+      - orchestrator-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  archon:
+    image: archon-mcp/archon:latest
+    container_name: nyra-archon
+    restart: unless-stopped
+    ports:
+      - "4000:4000"     # API
+      - "3737:3737"     # UI
+      - "8051:8051"     # MCP
+    environment:
+      - ARCHON_API_PORT=4000
+      - ARCHON_UI_PORT=3737
+      - ARCHON_MCP_PORT=8051
+      - ARCHON_DB_URL=postgresql://archon:${ARCHON_DB_PASSWORD}@postgres-archon:5432/archon
+      - ARCHON_REDIS_URL=redis://redis:6380
+      - CLAUDE_FLOW_PATH=${CLAUDE_FLOW_PATH:-/opt/claude-flow}
+    volumes:
+      - archon-data:/data
+      - archon-logs:/var/log/archon
+    networks:
+      - orchestrator-network
+    depends_on:
+      postgres-archon:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ============================================================================
+  # SECRETS MANAGEMENT
+  # ============================================================================
+
+  infisical:
+    image: infisical/infisical:latest
+    container_name: nyra-infisical
+    restart: unless-stopped
+    ports:
+      - "8080:3000"
+    environment:
+      - DATABASE_URL=postgresql://infisical:${INFISICAL_DB_PASSWORD}@postgres-infisical:5432/infisical
+      - JWT_SIGNUP_SECRET=${JWT_SIGNUP_SECRET}
+      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET}
+      - JWT_AUTH_SECRET=${JWT_AUTH_SECRET}
+      - REDIS_URL=redis://redis:6380
+      - NODE_ENV=production
+    volumes:
+      - infisical-data:/data
+    networks:
+      - orchestrator-network
+    depends_on:
+      postgres-infisical:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/v1/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ============================================================================
+  # GIT SERVER
+  # ============================================================================
+
+  gitea:
+    image: gitea/gitea:latest
+    container_name: nyra-gitea
+    restart: unless-stopped
+    ports:
+      - "3001:3000"  # HTTP
+      - "2222:22"    # SSH
+    environment:
+      - USER_UID=1000
+      - USER_GID=1000
+      - GITEA__server__DOMAIN=orchestrator-mini.tail-net.ts.net
+      - GITEA__server__ROOT_URL=http://orchestrator-mini.tail-net.ts.net:3001/
+      - GITEA__database__DB_TYPE=postgres
+      - GITEA__database__HOST=postgres-gitea:5432
+      - GITEA__database__NAME=gitea
+      - GITEA__database__USER=gitea
+      - GITEA__database__PASSWD=${GITEA_DB_PASSWORD}
+    volumes:
+      - gitea-data:/data
+    networks:
+      - orchestrator-network
+    depends_on:
+      postgres-gitea:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/v1/repos"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ============================================================================
+  # DATABASES
+  # ============================================================================
+
+  postgres-archon:
+    image: postgres:15-alpine
+    container_name: postgres-archon
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=archon
+      - POSTGRES_USER=archon
+      - POSTGRES_PASSWORD=${ARCHON_DB_PASSWORD}
+    volumes:
+      - postgres-archon-data:/var/lib/postgresql/data
+    networks:
+      - orchestrator-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U archon"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  postgres-gitea:
+    image: postgres:15-alpine
+    container_name: postgres-gitea
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=gitea
+      - POSTGRES_USER=gitea
+      - POSTGRES_PASSWORD=${GITEA_DB_PASSWORD}
+    volumes:
+      - postgres-gitea-data:/var/lib/postgresql/data
+    networks:
+      - orchestrator-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U gitea"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  postgres-infisical:
+    image: postgres:15-alpine
+    container_name: postgres-infisical
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=infisical
+      - POSTGRES_USER=infisical
+      - POSTGRES_PASSWORD=${INFISICAL_DB_PASSWORD}
+    volumes:
+      - postgres-infisical-data:/var/lib/postgresql/data
+    networks:
+      - orchestrator-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U infisical"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ============================================================================
+  # MEMORY STACK
+  # ============================================================================
+
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: nyra-qdrant
+    restart: unless-stopped
+    ports:
+      - "6333:6333"
+    environment:
+      - QDRANT_API_KEY=${QDRANT_API_KEY}
+    volumes:
+      - qdrant-data:/qdrant/storage
+    networks:
+      - orchestrator-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6333/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  falkordb:
+    image: falkordb/falkordb:latest
+    container_name: nyra-falkordb
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - falkordb-data:/data
+    networks:
+      - orchestrator-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "PING"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  redis:
+    image: redis:7-alpine
+    container_name: nyra-redis
+    restart: unless-stopped
+    ports:
+      - "6380:6380"
+    command: redis-server --port 6380 --appendonly yes
+    volumes:
+      - redis-data:/data
+    networks:
+      - orchestrator-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "-p", "6380", "PING"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  zep:
+    image: ghcr.io/getzep/zep:latest
+    container_name: nyra-zep
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - ZEP_SERVER_PORT=8000
+      - ZEP_STORE_TYPE=postgres
+      - ZEP_STORE_POSTGRES_DSN=postgresql://zep:${ZEP_DB_PASSWORD}@postgres-zep:5432/zep
+    networks:
+      - orchestrator-network
+    depends_on:
+      postgres-zep:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  postgres-zep:
+    image: postgres:15-alpine
+    container_name: postgres-zep
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=zep
+      - POSTGRES_USER=zep
+      - POSTGRES_PASSWORD=${ZEP_DB_PASSWORD}
+    volumes:
+      - postgres-zep-data:/var/lib/postgresql/data
+    networks:
+      - orchestrator-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U zep"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ============================================================================
+  # MONITORING & OBSERVABILITY
+  # ============================================================================
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: nyra-prometheus
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./configs/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+    networks:
+      - orchestrator-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9090/-/healthy"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: nyra-grafana
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD}
+      - GF_INSTALL_PLUGINS=grafana-piechart-panel
+    volumes:
+      - grafana-data:/var/lib/grafana
+    networks:
+      - orchestrator-network
+    depends_on:
+      - prometheus
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  loki:
+    image: grafana/loki:latest
+    container_name: nyra-loki
+    restart: unless-stopped
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./configs/loki-config.yml:/etc/loki/local-config.yml
+      - loki-data:/loki
+    command: -config.file=/etc/loki/local-config.yml
+    networks:
+      - orchestrator-network
+
+  # ============================================================================
+  # WORKFLOW & AUTOMATION
+  # ============================================================================
+
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: nyra-n8n
+    restart: unless-stopped
+    ports:
+      - "5678:5678"
+    environment:
+      - N8N_HOST=0.0.0.0
+      - N8N_PORT=5678
+      - N8N_DB_TYPE=postgres
+      - N8N_DB_POSTGRESDB_DATABASE=n8n
+      - N8N_DB_POSTGRESDB_HOST=postgres-n8n
+      - N8N_DB_POSTGRESDB_USER=n8n
+      - N8N_DB_POSTGRESDB_PASSWORD=${N8N_DB_PASSWORD}
+      - N8N_ENCRYPTION_KEY=${N8N_ENCRYPTION_KEY}
+    volumes:
+      - n8n-data:/home/node/.n8n
+    networks:
+      - orchestrator-network
+    depends_on:
+      postgres-n8n:
+        condition: service_healthy
+
+  postgres-n8n:
+    image: postgres:15-alpine
+    container_name: postgres-n8n
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=n8n
+      - POSTGRES_USER=n8n
+      - POSTGRES_PASSWORD=${N8N_DB_PASSWORD}
+    volumes:
+      - postgres-n8n-data:/var/lib/postgresql/data
+    networks:
+      - orchestrator-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U n8n"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  dify:
+    image: langgenius/dify-api:latest
+    container_name: nyra-dify
+    restart: unless-stopped
+    ports:
+      - "3002:5001"
+    environment:
+      - DATABASE_URL=postgresql://dify:${DIFY_DB_PASSWORD}@postgres-dify:5432/dify
+      - REDIS_URL=redis://redis:6380/0
+      - SECRET_KEY=${DIFY_SECRET_KEY}
+    volumes:
+      - dify-data:/app/data
+    networks:
+      - orchestrator-network
+    depends_on:
+      postgres-dify:
+        condition: service_healthy
+
+  postgres-dify:
+    image: postgres:15-alpine
+    container_name: postgres-dify
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=dify
+      - POSTGRES_USER=dify
+      - POSTGRES_PASSWORD=${DIFY_DB_PASSWORD}
+    volumes:
+      - postgres-dify-data:/var/lib/postgresql/data
+    networks:
+      - orchestrator-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dify"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ============================================================================
+  # MONITORING AGENTS
+  # ============================================================================
+
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: nyra-node-exporter
+    restart: unless-stopped
+    ports:
+      - "9100:9100"
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    networks:
+      - orchestrator-network
+
+# ============================================================================
+# NETWORKS
+# ============================================================================
+
+networks:
+  orchestrator-network:
+    name: orchestrator-network
+    driver: bridge
+
+# ============================================================================
+# VOLUMES
+# ============================================================================
+
+volumes:
+  nexus-config:
+    name: orchestrator-nexus-config
+  nexus-logs:
+    name: orchestrator-nexus-logs
+  archon-data:
+    name: orchestrator-archon-data
+  archon-logs:
+    name: orchestrator-archon-logs
+  infisical-data:
+    name: orchestrator-infisical-data
+  gitea-data:
+    name: orchestrator-gitea-data
+  postgres-archon-data:
+    name: orchestrator-postgres-archon-data
+  postgres-gitea-data:
+    name: orchestrator-postgres-gitea-data
+  postgres-infisical-data:
+    name: orchestrator-postgres-infisical-data
+  postgres-zep-data:
+    name: orchestrator-postgres-zep-data
+  postgres-n8n-data:
+    name: orchestrator-postgres-n8n-data
+  postgres-dify-data:
+    name: orchestrator-postgres-dify-data
+  qdrant-data:
+    name: orchestrator-qdrant-data
+  falkordb-data:
+    name: orchestrator-falkordb-data
+  redis-data:
+    name: orchestrator-redis-data
+  prometheus-data:
+    name: orchestrator-prometheus-data
+  grafana-data:
+    name: orchestrator-grafana-data
+  loki-data:
+    name: orchestrator-loki-data
+  n8n-data:
+    name: orchestrator-n8n-data
+  dify-data:
+    name: orchestrator-dify-data

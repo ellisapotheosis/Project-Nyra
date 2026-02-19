@@ -1,0 +1,418 @@
+version: '3.8'
+
+# ==============================================================================
+# Project Nyra - Worker RTX 5090 (AREA51)
+# ==============================================================================
+# High-performance GPU worker with integrated vLLM + LMCache
+# Handles: 32B-236B models with CPU offloading for extended context
+# 
+# Quick Start:
+#   docker compose up -d
+#   curl http://localhost:8000/v1/models  # Verify running
+#
+# Features:
+#   - vLLM with LMCache for 128k+ context windows
+#   - Integrated KV cache management (no separate sidecar)
+#   - CPU offloading to system RAM (up to 20GB)
+#   - Flash attention for RTX 5090 optimization
+#   - Host network mode for maximum performance
+#   - Prometheus metrics on port 9100
+#   - Health checks every 30 seconds
+#
+# ==============================================================================
+
+networks:
+  nyra-worker:
+    name: worker-rtx5090-net
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.22.0.0/16
+
+volumes:
+  vllm_models:
+    name: worker-rtx5090-models
+    driver: local
+  vllm_cache:
+    name: worker-rtx5090-cache
+    driver: local
+  ollama_models:
+    name: worker-rtx5090-ollama-models
+    driver: local
+
+# ==============================================================================
+# SERVICES
+# ==============================================================================
+
+services:
+
+  # ============================================================================
+  # PRIMARY: vLLM + LMCache (Qwen 32B - Main Inference)
+  # ============================================================================
+  # Handles: Complex reasoning, context-aware tasks, long conversations
+  # Model: Qwen/Qwen2.5-32B-Instruct-AWQ (~18GB VRAM)
+  # Features:
+  #   - LMCache: CPU offloads KV cache to RAM (enables 128k context)
+  #   - Flash Attention 2: Optimized for RTX 5090
+  #   - Max context: 32,768 tokens (with LMCache: up to 128k+)
+  #   - Concurrent: 6 requests (configurable via MAX_CONCURRENT_REQUESTS)
+  
+  vllm-primary:
+    image: lmcache/vllm-openai:latest
+    container_name: worker-rtx5090-vllm-primary
+    runtime: nvidia
+    network_mode: host              # Performance optimization
+    ipc: host                       # Required for shared memory with LMCache
+    restart: unless-stopped
+    
+    environment:
+      # --- GPU Configuration ---
+      NVIDIA_VISIBLE_DEVICES: all
+      CUDA_DEVICE_ORDER: PCI_BUS_ID
+      
+      # --- vLLM Settings ---
+      VLLM_WORKER_MULTI_GPU: "false"
+      VLLM_TENSOR_PARALLEL_SIZE: 1
+      
+      # --- LMCache Integration (Critical) ---
+      # Backend selection: Use LMCache for KV cache management
+      VLLM_KV_TRANSFER_CONFIG: '{"kv_connector":"LMCacheConnectorV1","kv_role":"kv_both"}'
+      # Enable CPU offloading
+      LMCACHE_LOCAL_CPU: "true"
+      # System RAM budget for KV cache (adjust based on available RAM)
+      # RTX 5090 = 64GB system RAM → use 20GB for cache
+      # If less RAM: reduce to 10-15GB
+      LMCACHE_MAX_LOCAL_CPU_SIZE: "${LMCACHE_MAX_CPU_SIZE:-20}"
+      # Chunk size for KV cache (optimal for most GPUs)
+      LMCACHE_CHUNK_SIZE: 256
+      
+      # --- Model & Context ---
+      HF_TOKEN: "${HF_TOKEN:-}"
+      
+      # --- Optimization Flags ---
+      VLLM_ATTENTION_BACKEND: flashinfer   # RTX 5090 supports Flash Attention 2
+      
+    volumes:
+      - vllm_models:/root/.cache/huggingface
+      - vllm_cache:/root/.local/share/vllm
+    
+    ports:
+      # vLLM API endpoint
+      - "8000:8000"
+      # Optional: Prometheus metrics
+      - "8265:8265"
+    
+    # Command line arguments for vLLM
+    command: >
+      --model ${VLLM_MODEL:-Qwen/Qwen2.5-32B-Instruct-AWQ}
+      --tokenizer-mode auto
+      --tensor-parallel-size 1
+      --max-model-len 32768
+      --max-seq-len-to-capture 32768
+      --enforce-eager
+      --gpu-memory-utilization 0.90
+      --port 8000
+      --host 0.0.0.0
+      --disable-log-requests
+      --kv-transfer-config '{"kv_connector":"LMCacheConnectorV1","kv_role":"kv_both"}'
+      --kv-offloading-backend lmcache
+      --disable-hybrid-kv-cache-manager
+      --enable-prefix-caching
+      --max-num-seqs ${MAX_CONCURRENT_REQUESTS:-6}
+      --num-speculative-tokens 0
+    
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+        limits:
+          cpus: '16'
+          memory: 16G
+    
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 120s
+    
+    labels:
+      - "com.nyra.service=inference"
+      - "com.nyra.model=qwen32b"
+      - "com.nyra.gpu=rtx5090"
+      - "com.nyra.priority=high"
+    
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "5"
+
+  # ============================================================================
+  # SECONDARY: Ollama (DeepSeek-R1 236B or Smaller Models)
+  # ============================================================================
+  # Optional: For fallback or specialized reasoning tasks
+  # Model: deepseek-r1 (if quantized to fit) or mixtral-8x22b
+  # Note: DeepSeek-R1 full size needs 236B params = too large for 24GB
+  #       Use quantized versions or fallback to Mistral/LLaMA
+  
+  ollama-fallback:
+    image: ollama/ollama:latest
+    container_name: worker-rtx5090-ollama-fallback
+    runtime: nvidia
+    restart: unless-stopped
+    
+    environment:
+      NVIDIA_VISIBLE_DEVICES: all
+      CUDA_DEVICE_ORDER: PCI_BUS_ID
+      
+      # --- Ollama Configuration ---
+      OLLAMA_HOST: 0.0.0.0:11434
+      OLLAMA_MODELS: /root/.ollama/models
+      
+      # --- Performance Tuning ---
+      # Keep loaded models in VRAM for 24 hours
+      OLLAMA_KEEP_ALIVE: 24h
+      # Enable Flash Attention 2 (RTX 5090 support)
+      OLLAMA_FLASH_ATTENTION: 1
+      # Handle 2 concurrent requests
+      OLLAMA_NUM_PARALLEL: 2
+      # Only keep 1 model loaded at a time
+      OLLAMA_MAX_LOADED_MODELS: 1
+      
+      # CUDA optimization
+      OLLAMA_LLM_LIBRARY: cuda
+    
+    volumes:
+      - ollama_models:/root/.ollama
+    
+    ports:
+      - "11434:11434"
+    
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+        limits:
+          cpus: '8'
+          memory: 8G
+    
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    
+    labels:
+      - "com.nyra.service=inference"
+      - "com.nyra.type=fallback"
+      - "com.nyra.gpu=rtx5090"
+    
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "3"
+
+  # ============================================================================
+  # MONITORING: Prometheus Node Exporter
+  # ============================================================================
+  # Collects: CPU, memory, disk, network metrics
+  # Exported on: http://localhost:9100/metrics
+  
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: worker-rtx5090-node-exporter
+    restart: unless-stopped
+    
+    environment:
+      NODE_ID: worker-rtx5090
+    
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    
+    ports:
+      - "9100:9100"
+    
+    command:
+      - --path.procfs=/host/proc
+      - --path.sysfs=/host/sys
+      - --path.rootfs=/rootfs
+      - --collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)
+      - --collector.filesystem.fs-types-exclude=^(autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|iso9660|mqueue|nsfs|overlay|proc|procfs|pstore|rpc_pipefs|securityfs|selinuxfs|squashfs|sysfs|tracefs)$$
+    
+    networks:
+      - nyra-worker
+    
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 128M
+    
+    labels:
+      - "com.nyra.service=monitoring"
+      - "com.nyra.metrics=system"
+
+  # ============================================================================
+  # MONITORING: NVIDIA DCGM Exporter (GPU Metrics)
+  # ============================================================================
+  # Collects: GPU utilization, VRAM, temperature, power usage
+  # Exported on: http://localhost:9400/metrics
+  
+  dcgm-exporter:
+    image: nvcr.io/nvidia/k8s/dcgm-exporter:latest
+    container_name: worker-rtx5090-dcgm-exporter
+    restart: unless-stopped
+    
+    environment:
+      DCGM_EXPORTER_LISTEN: :9400
+      DCGM_EXPORTER_KUBERNETES: "false"
+      DCGM_EXPORTER_INTERVAL: 30000  # Collect every 30 seconds
+    
+    ports:
+      - "9400:9400"
+    
+    networks:
+      - nyra-worker
+    
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+        limits:
+          cpus: '0.5'
+          memory: 256M
+    
+    cap_add:
+      - SYS_ADMIN
+    
+    labels:
+      - "com.nyra.service=monitoring"
+      - "com.nyra.metrics=gpu"
+    
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "2"
+
+  # ============================================================================
+  # HEALTHCHECK: Worker Status Reporter
+  # ============================================================================
+  # Sends heartbeat to orchestrator every 30 seconds
+  # Orchestrator address: Use Tailscale IP from network config
+  
+  health-reporter:
+    image: curlimages/curl:latest
+    container_name: worker-rtx5090-health-reporter
+    restart: unless-stopped
+    
+    depends_on:
+      vllm-primary:
+        condition: service_healthy
+    
+    networks:
+      - nyra-worker
+    
+    environment:
+      # Get from NyraFleet network config
+      ORCHESTRATOR_IP: "${ORCHESTRATOR_TAILSCALE_IP:-100.64.0.1}"
+      ORCHESTRATOR_PORT: "${ORCHESTRATOR_PORT:-6100}"
+      ORCHESTRATOR_API_KEY: "${ORCHESTRATOR_API_KEY:-}"
+      WORKER_ID: "${WORKER_ID:-rtx5090}"
+      WORKER_TIER: "1"
+      GPU_TYPE: "NVIDIA RTX 5090"
+      GPU_VRAM_GB: "48"
+      HEALTH_CHECK_INTERVAL: "30"
+    
+    command: >
+      sh -c "
+      while true; do
+        echo '[$(date)] Reporting health to orchestrator...'
+        curl -s -X POST http://$${ORCHESTRATOR_IP}:$${ORCHESTRATOR_PORT}/api/worker/health \
+          -H 'Content-Type: application/json' \
+          -H 'Authorization: Bearer $${ORCHESTRATOR_API_KEY}' \
+          -d '{
+            \"worker_id\": \"'$${WORKER_ID}'\",
+            \"status\": \"healthy\",
+            \"tier\": '$${WORKER_TIER}',
+            \"gpu_type\": \"'$${GPU_TYPE}'\",
+            \"vram_gb\": '$${GPU_VRAM_GB}',
+            \"models\": [\"Qwen/Qwen2.5-32B-Instruct-AWQ\"],
+            \"max_concurrent\": '$${MAX_CONCURRENT_REQUESTS:-6}',
+            \"url\": \"http://localhost:8000/v1\",
+            \"timestamp\": \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"
+          }' || echo '[$(date)] Health report failed'
+        sleep $${HEALTH_CHECK_INTERVAL}
+      done
+      "
+    
+    deploy:
+      resources:
+        limits:
+          cpus: '0.1'
+          memory: 64M
+    
+    labels:
+      - "com.nyra.service=health"
+      - "com.nyra.role=reporter"
+
+# ==============================================================================
+# ENVIRONMENT VARIABLES (.env file)
+# ==============================================================================
+# Create a .env file in the same directory as docker-compose.yml with:
+#
+# # vLLM Configuration
+# VLLM_MODEL=Qwen/Qwen2.5-32B-Instruct-AWQ
+# MAX_CONCURRENT_REQUESTS=6
+# LMCACHE_MAX_CPU_SIZE=20
+# HF_TOKEN=your_hugging_face_token_here
+#
+# # Orchestrator Integration
+# ORCHESTRATOR_TAILSCALE_IP=100.64.0.1
+# ORCHESTRATOR_PORT=6100
+# ORCHESTRATOR_API_KEY=your_api_key_here
+# WORKER_ID=rtx5090
+#
+# # Ollama Configuration
+# OLLAMA_MODEL=mistral:latest
+#
+# ==============================================================================
+# USAGE NOTES
+# ==============================================================================
+#
+# 1. Start services:
+#    docker compose up -d
+#
+# 2. Check vLLM is running:
+#    curl http://localhost:8000/v1/models
+#
+# 3. Check Ollama is running:
+#    curl http://localhost:11434/api/tags
+#
+# 4. View metrics:
+#    http://localhost:9100/metrics (System)
+#    http://localhost:9400/metrics (GPU)
+#
+# 5. Test inference:
+#    curl http://localhost:8000/v1/completions \
+#      -H "Content-Type: application/json" \
+#      -d '{"model":"Qwen/Qwen2.5-32B-Instruct-AWQ","prompt":"Hello","max_tokens":100}'
+#
+# 6. Monitor logs:
+#    docker logs -f worker-rtx5090-vllm-primary
+#
+# ==============================================================================

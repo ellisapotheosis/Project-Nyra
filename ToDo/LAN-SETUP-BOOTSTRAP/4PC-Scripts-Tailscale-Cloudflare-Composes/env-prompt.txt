@@ -1,0 +1,485 @@
+                                                                                                                       ─
+  The user wants me to create a comprehensive prompt for another agent that will:
+
+  1. Understand the full context of what we've done with Infisical
+  2. Scavenge Project-Nyra repo for all .env files and docs with "env", "secrets", or "variables"
+ ⏵3. Create a master.env with all possible env variables categorized
+  4. Create a list of environment-specific variables (dev/staging/prod/ci-cd)
+                                                                                                                         5. Create PC-specific sections (orchestrator-mini, worker-rtx3060, worker-rtx3090ti, worker-rtx5090)
+                                                                                                                         6. Review the /shared folder from the Infisical structure we mapped
+                                                                                                                         7. Create optimal .env files for: dev, staging, prod, ci, and all 4 PCs
+                                                                                                                         8. Compare the /shared folder secrets with the optimal dev .env
+                                                                                                                         9. List missing env variables
+                                                                                                                         10. Map where each missing secret belongs in the Infisical path structure
+                                                                                                                         11. Create import scripts for all environments and PCs
+                                                                                                                        
+                                                                                                                         This is a complex multi-step task. I need to create a clear, comprehensive prompt that gives full context and explicit
+                                                                                                                          instructions.
+                                                                                                                        
+                                                                                                                       ✻ Forming… (esc to interrupt · 12s · ↓ 213 tokens · thinking)
+                                                                                                                        
+                                                                                                                       ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+                                                                                                                       ❯● Comprehensive Agent Prompt for Project-Nyra Environment Variable Management
+                                                                                                                       ─
+  # Mission: Project-Nyra Environment Variable Consolidation & Infisical Integration
+
+  ## Context & Background
+
+ ⏵You are tasked with comprehensive environment variable management for **Project-Nyra**, a multi-agent AI development
+  stack with distributed GPU compute orchestration across 4 physical machines.
+                                                                                                                        
+                                                                                                                         ### What Has Been Done So Far
+                                                                                                                        
+                                                                                                                         **Infisical Structure Mapping (Completed)**:
+                                                                                                                         - Successfully mapped the entire Infisical repository structure for `dev` and `prod` environments
+                                                                                                                         - Created 256+ .env files representing the complete Infisical folder hierarchy
+                                                                                                                         - Location: `/c/Dev/infisical/inf_bulk/mapped/`
+                                                                                                                         - Structure includes 18 root folders:
+                                                                                                                           - `/adapters/` - API adapters (6 subfolders)
+                                                                                                                           - `/apps/` - Application configs (4 subfolders)
+                                                                                                                           - `/base/` - Base configurations
+                                                                                                                           - `/CI-CD/` - CI/CD secrets
+                                                                                                                           - `/clients/` - Third-party services (54 subfolders)
+                                                                                                                           - `/databases/` - Database connections (15 subfolders)
+                                                                                                                           - `/gitea/` - Gitea configs
+                                                                                                                           - `/github/` - GitHub credentials
+                                                                                                                           - `/machines/` - Machine-specific configs (4 subfolders: orchestrator-mini, worker-rtx3060, worker-rtx3090ti,
+                                                                                                                         worker-rtx5090)
+                                                                                                                           - `/monitoring/` - Monitoring tools (3 subfolders)
+                                                                                                                           - `/profiles/` - LLM profiles (6 subfolders)
+                                                                                                                           - `/providers/` - LLM provider keys (17 subfolders)
+                                                                                                                           - `/recovery/` - Recovery configs
+                                                                                                                           - `/router/` - Router configs (3 subfolders)
+                                                                                                                           - `/runs/` - Runtime configs (nested structure)
+                                                                                                                           - `/security/` - Security tools (6 subfolders)
+                                                                                                                           - `/shared/` - **Shared configurations including network settings, git configs, attribution, observability**
+                                                                                                                           - `/workflows/` - Workflow automation (2 subfolders)
+                                                                                                                        
+                                                                                                                         **Infisical Tools Available**:
+                                                                                                                         - PowerShell mapping script: `/c/Dev/infisical/inf_bulk/scripts/Map-InfisicalStructure.ps1`
+                                                                                                                         - Bulk import capabilities via Infisical CLI
+                                                                                                                         - Current project ID: `8374cea9-e5e8-4050-bda4-b91f25ab30ef`
+                                                                                                                         - Authentication: Pre-configured via `INFISICAL_TOKEN` environment variable
+                                                                                                                        
+                                                                                                                         ### Infrastructure Overview
+                                                                                                                        
+                                                                                                                         **Hardware Architecture**:
+                                                                                                                         1. **Orchestrator**: Minisforum UH680 (Ryzen 7 6800H, 16GB DDR5, 1TB SSD)
+                                                                                                                            - Role: Coordination, task distribution, orchestration logic
+                                                                                                                        
+                                                                                                                         2. **Worker 1**: Alienware M15R7 with RTX 3060
+                                                                                                                            - Role: GPU compute workload
+                                                                                                                        
+                                                                                                                         3. **Worker 2**: Desktop PC with RTX 3090Ti
+                                                                                                                            - Role: High-performance GPU compute
+                                                                                                                        
+                                                                                                                         4. **Worker 3**: Alienware Area-51 with RTX 5090
+                                                                                                                            - Role: Maximum performance GPU compute
+                                                                                                                        
+                                                                                                                         **Technology Stack**:
+                                                                                                                         - Claude-Code 2.0 + Anthropic's Agents SDK
+                                                                                                                         - claude-flow@alpha + Archon MCP + ArchGW MCP
+                                                                                                                         - Infisical MCP + Bitwarden MCP (secrets management)
+                                                                                                                         - n8n workflow automation
+                                                                                                                         - Distributed GPU compute with cloudflared tunnels
+                                                                                                                         - Wake-on-LAN (magic packet) for on-demand worker activation
+                                                                                                                         - Koyeb.com VPS for cloud compute
+                                                                                                                        
+                                                                                                                         ---
+                                                                                                                        
+                                                                                                                         ## Your Mission: 4-Phase Comprehensive Task
+                                                                                                                        
+                                                                                                                         ### PHASE 1: Repository Scavenging & Master.env Creation
+                                                                                                                        
+                                                                                                                         **Objective**: Create a comprehensive master list of ALL possible environment variables.
+                                                                                                                        
+                                                                                                                         **Tasks**:
+                                                                                                                         1. **Scavenge Project-Nyra Repository**:
+                                                                                                                            - Find ALL `.env` files (including `.env.example`, `.env.template`, `.env.local`, etc.)
+                                                                                                                            - Find ALL documentation files containing: "env", "environment", "secrets", "variables", "configuration"
+                                                                                                                            - Search file types: `.md`, `.txt`, `.json`, `.yaml`, `.yml`, `.toml`, `.ini`, `.conf`
+                                                                                                                            - Search code comments in: `.js`, `.ts`, `.py`, `.sh`, `.ps1` for env variable references
+                                                                                                                        
+                                                                                                                         2. **Extract & Catalog**:
+                                                                                                                            - Extract EVERY unique environment variable name
+                                                                                                                            - Document the purpose/description of each variable
+                                                                                                                            - Note the source file where each was found
+                                                                                                                            - Identify default values (if any)
+                                                                                                                            - Categorize by functionality
+                                                                                                                        
+                                                                                                                         3. **Create `master.env` Document**:
+                                                                                                                            - Organize variables into logical categories:
+                                                                                                                              ```
+                                                                                                                              # ============================================
+                                                                                                                              # AUTHENTICATION & API KEYS
+                                                                                                                              # ============================================
+                                                                                                                        
+                                                                                                                              # ============================================
+                                                                                                                              # DATABASE CONNECTIONS
+                                                                                                                              # ============================================
+                                                                                                                        
+                                                                                                                              # ============================================
+                                                                                                                              # LLM PROVIDERS
+                                                                                                                              # ============================================
+                                                                                                                        
+                                                                                                                              # ============================================
+                                                                                                                              # INFRASTRUCTURE & NETWORKING
+                                                                                                                              # ============================================
+                                                                                                                        
+                                                                                                                              # ============================================
+                                                                                                                              # GPU COMPUTE & WORKERS
+                                                                                                                              # ============================================
+                                                                                                                        
+                                                                                                                              # ============================================
+                                                                                                                              # MONITORING & OBSERVABILITY
+                                                                                                                              # ============================================
+                                                                                                                        
+                                                                                                                              # ============================================
+                                                                                                                              # CI/CD & DEPLOYMENT
+                                                                                                                              # ============================================
+                                                                                                                        
+                                                                                                                              # ============================================
+                                                                                                                              # WORKFLOW AUTOMATION (n8n)
+                                                                                                                              # ============================================
+                                                                                                                        
+                                                                                                                              # ============================================
+                                                                                                                              # SECURITY & SECRETS MANAGEMENT
+                                                                                                                              # ============================================
+                                                                                                                        
+                                                                                                                              # ============================================
+                                                                                                                              # FEATURE FLAGS & TOGGLES
+                                                                                                                              # ============================================
+                                                                                                                              ```
+                                                                                                                            - Include comprehensive comments for each variable
+                                                                                                                            - Note which variables are required vs optional
+                                                                                                                            - Document dependencies between variables
+                                                                                                                        
+                                                                                                                         ### PHASE 2: Environment-Specific Variable Mapping
+                                                                                                                        
+                                                                                                                         **Objective**: Identify which variables change across environments and machines.
+                                                                                                                        
+                                                                                                                         **Tasks**:
+                                                                                                                        
+                                                                                                                         1. **Create Environment-Specific Lists**:
+                                                                                                                        
+                                                                                                                            **A. `environment-differences.md`**:
+                                                                                                                            ```markdown
+                                                                                                                            # Variables That Change By Environment
+                                                                                                                        
+                                                                                                                            ## DEV Environment
+                                                                                                                            | Variable | Value | Notes |
+                                                                                                                            |----------|-------|-------|
+                                                                                                                            | API_BASE_URL | http://localhost:3000 | Local development |
+                                                                                                                            | LOG_LEVEL | debug | Verbose logging |
+                                                                                                                        
+                                                                                                                            ## STAGING Environment
+                                                                                                                            | Variable | Value | Notes |
+                                                                                                                            |----------|-------|-------|
+                                                                                                                            | API_BASE_URL | https://staging.nyra.ratehunter.net | Staging server |
+                                                                                                                            | LOG_LEVEL | info | Standard logging |
+                                                                                                                        
+                                                                                                                            ## PROD Environment
+                                                                                                                            | Variable | Value | Notes |
+                                                                                                                            |----------|-------|-------|
+                                                                                                                            | API_BASE_URL | https://api.nyra.ratehunter.net | Production |
+                                                                                                                            | LOG_LEVEL | warn | Minimal logging |
+                                                                                                                        
+                                                                                                                            ## CI/CD Environment
+                                                                                                                            | Variable | Value | Notes |
+                                                                                                                            |----------|-------|-------|
+                                                                                                                            | API_BASE_URL | https://ci.nyra.ratehunter.net | CI pipeline |
+                                                                                                                            | LOG_LEVEL | info | Pipeline logging |
+                                                                                                                        
+                                                                                                                         2. Create Machine-Specific Lists:
+                                                                                                                        
+                                                                                                                         2. B. machine-differences.md:
+                                                                                                                         # Variables That Differ By Machine
+                                                                                                                        
+                                                                                                                         ## Orchestrator (orchestrator-mini)
+                                                                                                                         | Variable | Value | Notes |
+                                                                                                                         |----------|-------|-------|
+                                                                                                                         | MACHINE_ROLE | orchestrator | Coordination node |
+                                                                                                                         | ORCHESTRATOR_IP | 192.168.1.100 | Internal IP |
+                                                                                                                         | GPU_ENABLED | false | No GPU on orchestrator |
+                                                                                                                        
+                                                                                                                         ## Worker 1 (worker-rtx3060)
+                                                                                                                         | Variable | Value | Notes |
+                                                                                                                         |----------|-------|-------|
+                                                                                                                         | MACHINE_ROLE | worker | Compute node |
+                                                                                                                         | WORKER_IP | 192.168.1.101 | Internal IP |
+                                                                                                                         | GPU_MODEL | RTX_3060 | GPU identifier |
+                                                                                                                         | GPU_MEMORY | 12GB | VRAM available |
+                                                                                                                        
+                                                                                                                         ## Worker 2 (worker-rtx3090ti)
+                                                                                                                         | Variable | Value | Notes |
+                                                                                                                         |----------|-------|-------|
+                                                                                                                         | MACHINE_ROLE | worker | Compute node |
+                                                                                                                         | WORKER_IP | 192.168.1.102 | Internal IP |
+                                                                                                                         | GPU_MODEL | RTX_3090Ti | GPU identifier |
+                                                                                                                         | GPU_MEMORY | 24GB | VRAM available |
+                                                                                                                        
+                                                                                                                         ## Worker 3 (worker-rtx5090)
+                                                                                                                         | Variable | Value | Notes |
+                                                                                                                         |----------|-------|-------|
+                                                                                                                         | MACHINE_ROLE | worker | Compute node |
+                                                                                                                         | WORKER_IP | 192.168.1.103 | Internal IP |
+                                                                                                                         | GPU_MODEL | RTX_5090 | GPU identifier |
+                                                                                                                         | GPU_MEMORY | 32GB | VRAM available |
+                                                                                                                        
+                                                                                                                         PHASE 3: Optimal .env File Generation
+                                                                                                                        
+                                                                                                                         Objective: Create production-ready, optimized .env files for each environment and machine.
+                                                                                                                        
+                                                                                                                         Tasks:
+                                                                                                                        
+                                                                                                                         1. Generate 8 Optimal .env Files:
+                                                                                                                           - optimal.dev.env - Main development environment
+                                                                                                                           - optimal.staging.env - Staging environment
+                                                                                                                           - optimal.prod.env - Production environment
+                                                                                                                           - optimal.ci-cd.env - CI/CD pipeline
+                                                                                                                           - optimal.orchestrator-mini.env - Orchestrator machine
+                                                                                                                           - optimal.worker-rtx3060.env - Worker 1
+                                                                                                                           - optimal.worker-rtx3090ti.env - Worker 2
+                                                                                                                           - optimal.worker-rtx5090.env - Worker 3
+                                                                                                                         2. Optimization Criteria:
+                                                                                                                           - Include ONLY variables that are actually needed
+                                                                                                                           - Remove redundant or deprecated variables
+                                                                                                                           - Use best practices for naming conventions
+                                                                                                                           - Include sensible defaults where appropriate
+                                                                                                                           - Add clear comments and documentation
+                                                                                                                           - Group related variables together
+                                                                                                                           - Follow security best practices (no hardcoded secrets)
+                                                                                                                           - Ensure machine-specific configs are isolated
+                                                                                                                         3. File Structure Template:
+                                                                                                                         # ============================================
+                                                                                                                         # PROJECT-NYRA ENVIRONMENT CONFIGURATION
+                                                                                                                         # Environment: [DEV/STAGING/PROD/CI-CD]
+                                                                                                                         # Machine: [orchestrator-mini/worker-rtx3060/worker-rtx3090ti/worker-rtx5090/N/A]
+                                                                                                                         # Generated: [DATE]
+                                                                                                                         # ============================================
+                                                                                                                        
+                                                                                                                         # ============================================
+                                                                                                                         # ENVIRONMENT METADATA
+                                                                                                                         # ============================================
+                                                                                                                         NODE_ENV=development
+                                                                                                                         ENVIRONMENT=dev
+                                                                                                                         PROJECT_NAME=project-nyra
+                                                                                                                        
+                                                                                                                         # ============================================
+                                                                                                                         # [CATEGORY 1]
+                                                                                                                         # ============================================
+                                                                                                                        
+                                                                                                                         # ... variables ...
+                                                                                                                        
+                                                                                                                         # ============================================
+                                                                                                                         # [CATEGORY 2]
+                                                                                                                         # ============================================
+                                                                                                                        
+                                                                                                                         # ... variables ...
+                                                                                                                        
+                                                                                                                         PHASE 4: Infisical Integration & Import Script Generation
+                                                                                                                        
+                                                                                                                         Objective: Map all variables to Infisical paths and create import scripts.
+                                                                                                                        
+                                                                                                                         Tasks:
+                                                                                                                        
+                                                                                                                         1. Review /shared Folder Secrets:
+                                                                                                                           - Read: /c/Dev/infisical/inf_bulk/mapped/dev/shared/
+                                                                                                                           - Analyze what secrets are currently stored in:
+                                                                                                                               - shared/shared-base/git/
+                                                                                                                             - shared/shared-network/
+                                                                                                                             - shared/shared-attribution/
+                                                                                                                             - shared/shared-observability/
+                                                                                                                         2. Compare with Optimal Dev Environment:
+                                                                                                                           - Take optimal.dev.env from Phase 3
+                                                                                                                           - Compare against ALL secrets in /shared folder
+                                                                                                                           - Create missing-variables.md listing:
+                                                                                                                           # Missing Variables from Infisical /shared Path
+                                                                                                                        
+                                                                                                                         ## Variables in optimal.dev.env but NOT in Infisical
+                                                                                                                        
+                                                                                                                         | Variable Name | Category | Current Value | Proposed Infisical Path |
+                                                                                                                         |---------------|----------|---------------|-------------------------|
+                                                                                                                         | EXAMPLE_VAR | Authentication | placeholder | /shared/shared-base |
+                                                                                                                         3. Create Infisical Path Mapping:
+                                                                                                                        
+                                                                                                                         3. File: infisical-path-mapping.json:
+                                                                                                                         {
+                                                                                                                           "environment": "dev",
+                                                                                                                           "mappings": [
+                                                                                                                             {
+                                                                                                                               "variable": "VARIABLE_NAME",
+                                                                                                                               "value": "placeholder_value",
+                                                                                                                               "infisicalPath": "/path/to/folder",
+                                                                                                                               "category": "authentication",
+                                                                                                                               "description": "Purpose of this variable"
+                                                                                                                             }
+                                                                                                                           ]
+                                                                                                                         }
+                                                                                                                         4. Generate Import Scripts:
+                                                                                                                        
+                                                                                                                         4. A. PowerShell Script: import-all-secrets.ps1:
+                                                                                                                         # Import all secrets to Infisical
+                                                                                                                         # Usage: ./import-all-secrets.ps1 -Environment dev
+                                                                                                                        
+                                                                                                                         param([string]$Environment = "dev")
+                                                                                                                        
+                                                                                                                         # Import to /shared paths
+                                                                                                                         # Import to environment-specific paths
+                                                                                                                         # Import to machine-specific paths
+                                                                                                                        
+                                                                                                                         4. B. Bash Script: import-all-secrets.sh:
+                                                                                                                         #!/bin/bash
+                                                                                                                         # Import all secrets to Infisical
+                                                                                                                         # Usage: ./import-all-secrets.sh dev
+                                                                                                                        
+                                                                                                                         ENVIRONMENT=${1:-dev}
+                                                                                                                        
+                                                                                                                         # Import logic here
+                                                                                                                         5. Create Import Scripts for All 8 Scenarios:
+                                                                                                                           - import-dev.ps1 / import-dev.sh
+                                                                                                                           - import-staging.ps1 / import-staging.sh
+                                                                                                                           - import-prod.ps1 / import-prod.sh
+                                                                                                                           - import-ci-cd.ps1 / import-ci-cd.sh
+                                                                                                                           - import-orchestrator.ps1 / import-orchestrator.sh
+                                                                                                                           - import-worker-rtx3060.ps1 / import-worker-rtx3060.sh
+                                                                                                                           - import-worker-rtx3090ti.ps1 / import-worker-rtx3090ti.sh
+                                                                                                                           - import-worker-rtx5090.ps1 / import-worker-rtx5090.sh
+                                                                                                                         6. Assume Clean Slate:
+                                                                                                                           - IMPORTANT: Assume that staging, prod, ci-cd, and ALL 4 PC-specific paths have NO secrets currently set
+                                                                                                                           - Generate complete import scripts that will populate from scratch
+                                                                                                                           - Only /shared in dev environment currently has data
+                                                                                                                        
+                                                                                                                         ---
+                                                                                                                         Deliverables Checklist
+                                                                                                                        
+                                                                                                                         Phase 1 Outputs:
+                                                                                                                        
+                                                                                                                         - master.env - Complete list of all possible variables with categories and descriptions
+                                                                                                                         - variable-sources.md - Documentation of where each variable was found
+                                                                                                                        
+                                                                                                                         Phase 2 Outputs:
+                                                                                                                        
+                                                                                                                         - environment-differences.md - Variables that change by environment (dev/staging/prod/ci-cd)
+                                                                                                                         - machine-differences.md - Variables that differ by machine (orchestrator + 3 workers)
+                                                                                                                        
+                                                                                                                         Phase 3 Outputs:
+                                                                                                                        
+                                                                                                                         - optimal.dev.env - Optimized dev environment
+                                                                                                                         - optimal.staging.env - Optimized staging environment
+                                                                                                                         - optimal.prod.env - Optimized production environment
+                                                                                                                         - optimal.ci-cd.env - Optimized CI/CD environment
+                                                                                                                         - optimal.orchestrator-mini.env - Orchestrator-specific config
+                                                                                                                         - optimal.worker-rtx3060.env - Worker 1 config
+                                                                                                                         - optimal.worker-rtx3090ti.env - Worker 2 config
+                                                                                                                         - optimal.worker-rtx5090.env - Worker 3 config
+                                                                                                                        
+                                                                                                                         Phase 4 Outputs:
+                                                                                                                        
+                                                                                                                         - missing-variables.md - Gap analysis between optimal.dev.env and /shared folder
+                                                                                                                         - infisical-path-mapping.json - Complete mapping of variables to Infisical paths
+                                                                                                                         - import-all-secrets.ps1 - Master PowerShell import script
+                                                                                                                         - import-all-secrets.sh - Master Bash import script
+                                                                                                                         - 8 individual import scripts (PS1 + SH for each environment/machine)
+                                                                                                                         - import-instructions.md - Step-by-step guide for running imports
+                                                                                                                        
+                                                                                                                         ---
+                                                                                                                         Critical Guidelines
+                                                                                                                        
+                                                                                                                         Security:
+                                                                                                                        
+                                                                                                                         - NEVER include actual secret values in any documentation
+                                                                                                                         - Use placeholder values like YOUR_API_KEY_HERE, <secret>, [REDACTED]
+                                                                                                                         - Mark sensitive variables clearly
+                                                                                                                         - Follow principle of least privilege
+                                                                                                                        
+                                                                                                                         Best Practices:
+                                                                                                                        
+                                                                                                                         - Use consistent naming conventions (SCREAMING_SNAKE_CASE)
+                                                                                                                         - Group related variables together
+                                                                                                                         - Include clear, concise comments
+                                                                                                                         - Document dependencies between variables
+                                                                                                                         - Note which variables are environment-specific vs shared
+                                                                                                                         - Mark required vs optional variables
+                                                                                                                        
+                                                                                                                         Infisical Structure:
+                                                                                                                        
+                                                                                                                         - Respect the existing folder hierarchy
+                                                                                                                         - Use the mapped structure from /c/Dev/infisical/inf_bulk/mapped/ as reference
+                                                                                                                         - Create new subfolders only when necessary
+                                                                                                                         - Prefer /shared paths for truly shared configurations
+                                                                                                                         - Use machine-specific paths (/machines/*) for hardware-dependent configs
+                                                                                                                        
+                                                                                                                         File Organization:
+                                                                                                                        
+                                                                                                                         - Save all outputs to: /c/Dev/infisical/inf_bulk/analysis/ (create this directory)
+                                                                                                                         - Use clear, descriptive filenames
+                                                                                                                         - Include timestamps in generated scripts
+                                                                                                                         - Create a summary README.md in the analysis folder
+                                                                                                                        
+                                                                                                                         ---
+                                                                                                                         Tools & Commands Available
+                                                                                                                        
+                                                                                                                         Infisical CLI:
+                                                                                                                        
+                                                                                                                         # Export secrets
+                                                                                                                         infisical export --path /path/to/folder --env dev --format dotenv
+                                                                                                                        
+                                                                                                                         # Set secret
+                                                                                                                         infisical secrets set KEY=VALUE --path /path/to/folder --env dev
+                                                                                                                        
+                                                                                                                         # Import from file
+                                                                                                                         infisical secrets set --file path/to/.env --path /path/to/folder --env dev
+                                                                                                                        
+                                                                                                                         # List folders
+                                                                                                                         infisical secrets folders get --path /parent/path --env dev
+                                                                                                                        
+                                                                                                                         File Search:
+                                                                                                                        
+                                                                                                                         # Find all .env files
+                                                                                                                         find . -type f -name "*.env*"
+                                                                                                                        
+                                                                                                                         # Search for env variable patterns
+                                                                                                                         grep -r "export [A-Z_]*=" .
+                                                                                                                         grep -r "process.env\." .
+                                                                                                                         grep -r "\$\{[A-Z_]*\}" .
+                                                                                                                        
+                                                                                                                         ---
+                                                                                                                         Success Criteria
+                                                                                                                        
+                                                                                                                         Your task is successful when:
+                                                                                                                         1. ✅ Every environment variable in Project-Nyra is cataloged in master.env
+                                                                                                                         2. ✅ All environment-specific and machine-specific differences are documented
+                                                                                                                         3. ✅ 8 optimal .env files are created with production-ready configurations
+                                                                                                                         4. ✅ Complete gap analysis between optimal.dev.env and Infisical /shared is done
+                                                                                                                         5. ✅ All missing variables are mapped to appropriate Infisical paths
+                                                                                                                         6. ✅ Import scripts are generated and ready to execute
+                                                                                                                         7. ✅ Documentation is clear, comprehensive, and actionable
+                                                                                                                        
+                                                                                                                         ---
+                                                                                                                         Begin Your Task
+                                                                                                                        
+                                                                                                                         Please proceed with Phase 1 and work systematically through all 4 phases. Document your progress and findings as you
+                                                                                                                         go. Ask for clarification if any requirements are ambiguous.
+                                                                                                                        
+                                                                                                                         Project-Nyra Repository Location: [USER WILL PROVIDE]
+                                                                                                                         Infisical Mapping Location: /c/Dev/infisical/inf_bulk/mapped/
+                                                                                                                         Output Directory: /c/Dev/infisical/inf_bulk/analysis/ (create if needed)
+                                                                                                                        
+                                                                                                                         Good luck! 🚀
+                                                                                                                        
+                                                                                                                         ---
+                                                                                                                        
+                                                                                                                         This prompt provides:
+                                                                                                                         - ✅ Complete context of what's been done
+                                                                                                                         - ✅ Clear infrastructure overview
+                                                                                                                         - ✅ 4-phase structured approach
+                                                                                                                         - ✅ Specific deliverables for each phase
+                                                                                                                         - ✅ Security guidelines
+                                                                                                                         - ✅ File templates and examples
+                                                                                                                         - ✅ Tool commands and usage
+                                                                                                                         - ✅ Success criteria
+                                                                                                                         - ✅ Emphasis on the /shared folder comparison
+                                                                                                                         - ✅ Assumption that staging/prod/ci/machines are empty
+                                                                                                                         - ✅ Import script generation for all scenarios
+                                                                                                                        

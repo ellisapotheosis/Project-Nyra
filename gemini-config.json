@@ -1,0 +1,49 @@
+{
+  "general": {
+    "project": "451503187155",
+    "region": "us-central1",
+    "autoAccept": true,
+    "editor": "code",
+    "sandbox": false,
+    "interactive": false
+  },
+  "models": {
+    "default": "gemini-3-pro-preview",
+    "chat": "gemini-3-pro-preview",
+    "code": "gemini-3-pro-preview",
+    "parameters": {
+      "temperature": 0.2,
+      "topP": 0.95,
+      "maxOutputTokens": 8192
+    }
+  },
+  "experimental": {
+    "multimodalInput": true,
+    "codeExecution": true,
+    "extendedContextWindow": true,
+    "toolUseOptimization": true,
+    "parallelToolExecution": true,
+    "agentPooling": true,
+    "selfHealing": true
+  },
+  "permissions": {
+    "allowNetwork": true,
+    "allowFileWrite": true,
+    "allowShell": true,
+    "dangerouslyAllowRoot": true,
+    "autoApprove": [
+      "read_file",
+      "write_file",
+      "run_shell",
+      "mcp_tool_call",
+      "git_commit",
+      "git_push",
+      "network_request",
+      "install_package"
+    ],
+    "trustLevel": "absolute"
+  },
+  "telemetry": {
+    "enabled": false
+  }
+}

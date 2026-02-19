@@ -1,0 +1,118 @@
+{
+  "collected_at": "2026-01-25T11:37:24.5812624-08:00",
+  "role": "worker",
+  "host": {
+    "computername": "MINISAPOTHEOSIS",
+    "total_physical_memory_bytes": 14761603072,
+    "model": "EliteMini Series",
+    "username": "MINISAPOTHEOSIS\\edane",
+    "manufacturer": "Micro Computer (HK) Tech Limited"
+  },
+  "os": {
+    "install_date": "2025-10-29T20:56:28-07:00",
+    "last_boot": "2026-01-22T10:39:09.5-08:00",
+    "version": "10.0.26200",
+    "caption": "Microsoft Windows 11 Pro",
+    "build": "26200"
+  },
+  "cpu": {
+    "Name": "AMD Ryzen 7 6800H with Radeon Graphics         ",
+    "NumberOfCores": 8,
+    "NumberOfLogicalProcessors": 16,
+    "MaxClockSpeed": 3201
+  },
+  "gpus": {
+    "Name": "AMD Radeon(TM) Graphics",
+    "AdapterRAM": 2147483648,
+    "DriverVersion": "32.0.21041.1000"
+  },
+  "memory_modules": {
+    "Capacity": 17179869184,
+    "Speed": 4800,
+    "Manufacturer": "A-DATA Technology",
+    "PartNumber": "                    "
+  },
+  "disks": {
+    "Model": "KINGSTON OM8PGP41024N-A0",
+    "Size": 1024203640320,
+    "InterfaceType": "SCSI",
+    "MediaType": "Fixed hard disk media",
+    "SerialNumber": "0000_0000_0000_0000_0026_B738_3A12_C9E5."
+  },
+  "network": {
+    "default_routes": {
+      "InterfaceAlias": "Wi-Fi 2",
+      "NextHop": "192.168.1.254",
+      "RouteMetric": 0
+    },
+    "connection_profiles": [
+      {
+        "Name": "Apotheosis",
+        "InterfaceAlias": "Ethernet 3",
+        "IPv4Connectivity": 3,
+        "NetworkCategory": 0
+      },
+      {
+        "Name": "Apotheosis 2",
+        "InterfaceAlias": "Wi-Fi 2",
+        "IPv4Connectivity": 4,
+        "NetworkCategory": 0
+      },
+      {
+        "Name": "Tailscale",
+        "InterfaceAlias": "Tailscale",
+        "IPv4Connectivity": 3,
+        "NetworkCategory": 1
+      }
+    ],
+    "ipv4": [
+      {
+        "InterfaceAlias": "Wi-Fi 2",
+        "IPAddress": "192.168.1.222",
+        "PrefixLength": 24
+      },
+      {
+        "InterfaceAlias": "Tailscale",
+        "IPAddress": "100.115.69.115",
+        "PrefixLength": 32
+      },
+      {
+        "InterfaceAlias": "Loopback Pseudo-Interface 1",
+        "IPAddress": "127.0.0.1",
+        "PrefixLength": 8
+      }
+    ],
+    "public_ip": "107.142.246.181",
+    "adapters_up": [
+      {
+        "Name": "Ethernet 3",
+        "InterfaceDescription": "Realtek Gaming 2.5GbE Family Controller #3",
+        "MacAddress": "58-47-CA-78-B0-8F",
+        "LinkSpeed": "1 Gbps",
+        "Status": "Up"
+      },
+      {
+        "Name": "Tailscale",
+        "InterfaceDescription": "Tailscale Tunnel",
+        "MacAddress": null,
+        "LinkSpeed": "100 Gbps",
+        "Status": "Up"
+      },
+      {
+        "Name": "Wi-Fi 2",
+        "InterfaceDescription": "MediaTek Wi-Fi 6E MT7902 Wireless LAN Card",
+        "MacAddress": "4C-A7-02-21-8F-36",
+        "LinkSpeed": "600.5 Mbps",
+        "Status": "Up"
+      }
+    ]
+  },
+  "tools": {
+    "cloudflared": {
+      "version": "cloudflared version 2025.8.1 (built 2025-08-21-1534 UTC)"
+    },
+    "tailscale": {
+      "ipv4": "100.115.69.115"
+    }
+  }
+}

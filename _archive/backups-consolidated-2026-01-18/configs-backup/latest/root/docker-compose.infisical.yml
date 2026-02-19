@@ -1,0 +1,398 @@
+version: '3.8'
+
+# Nyra Infisical MCP Integration
+# Per-PC Environment Management with MetaMCP Gateway
+
+services:
+  # Infisical MCP Server
+  infisical-mcp:
+    build:
+      context: ./infra/docker/infisical
+      dockerfile: Dockerfile.mcp
+    container_name: nyra-infisical-mcp
+    environment:
+      - MCP_PORT=8006
+      - NYRA_ENVIRONMENT=${NYRA_ENVIRONMENT:-development}
+      - NYRA_PC_ID=${NYRA_PC_ID:-orchestrator}
+      - INFISICAL_PROJECT_ID=${INFISICAL_PROJECT_ID}
+      - INFISICAL_TOKEN=${INFISICAL_TOKEN}
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - INFISICAL_DISABLE_UPDATE_CHECK=true
+    ports:
+      - "8006:8006"
+    volumes:
+      # Infisical configuration and credentials
+      - infisical_config:/home/infisical/.infisical
+      - ./config/infisical/${NYRA_PC_ID:-orchestrator}:/app/config:ro
+      - infisical_cache:/app/cache
+      - ./logs/infisical:/app/logs
+      # Shared secrets volume for other services
+      - infisical_secrets:/app/secrets
+    networks:
+      - nyra-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8006/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # Claude Flow MCP Server
+  claude-flow-mcp:
+    build:
+      context: ./infra/docker/claude-flow
+      dockerfile: Dockerfile.mcp
+    container_name: nyra-claude-flow-mcp
+    environment:
+      - MCP_PORT=8003
+      - NYRA_ENVIRONMENT=${NYRA_ENVIRONMENT:-development}
+      - NYRA_PC_ID=${NYRA_PC_ID:-orchestrator}
+      - CLAUDE_FLOW_MODE=v3
+      - CLAUDE_FLOW_HOOKS_ENABLED=true
+      - CLAUDE_FLOW_TOPOLOGY=hierarchical-mesh
+      - CLAUDE_FLOW_MAX_AGENTS=15
+      - CLAUDE_FLOW_MEMORY_BACKEND=hybrid
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      # Infisical integration (secrets injected via volume)
+      - INFISICAL_PROJECT_ID=${INFISICAL_PROJECT_ID}
+      - INFISICAL_TOKEN=${INFISICAL_TOKEN}
+    ports:
+      - "8003:8003"
+    volumes:
+      - ./config/claude-flow/${NYRA_PC_ID:-orchestrator}:/app/config:ro
+      - claude_flow_cache:/app/cache
+      - ./logs/claude-flow:/app/logs
+      - infisical_secrets:/app/secrets:ro
+    depends_on:
+      - infisical-mcp
+    networks:
+      - nyra-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8003/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # Enhanced MetaMCP Gateway with Infisical Integration
+  metamcp-gateway-enhanced:
+    build:
+      context: ./infra/docker/metamcp
+      dockerfile: Dockerfile.gateway-enhanced
+    container_name: nyra-metamcp-gateway-enhanced
+    environment:
+      - GATEWAY_PORT=8005
+      - NYRA_PC_ID=${NYRA_PC_ID:-orchestrator}
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      # MCP Server Endpoints
+      - CLAUDE_FLOW_ENDPOINT=http://claude-flow-mcp:8003
+      - ARCHON_MCP_ENDPOINT=http://archon-mcp:8004
+      - INFISICAL_MCP_ENDPOINT=http://infisical-mcp:8006
+      # Infisical Integration
+      - INFISICAL_PROJECT_ID=${INFISICAL_PROJECT_ID}
+      - INFISICAL_TOKEN=${INFISICAL_TOKEN}
+      - AUTO_SECRET_INJECTION=true
+    ports:
+      - "8005:8005"
+    volumes:
+      - ./config/metamcp/${NYRA_PC_ID:-orchestrator}:/app/config:ro
+      - metamcp_cache:/app/cache
+      - ./logs/metamcp:/app/logs
+      - infisical_secrets:/app/secrets:ro
+    depends_on:
+      - infisical-mcp
+      - claude-flow-mcp
+    networks:
+      - nyra-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8005/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Orchestrator Service (with Infisical integration)
+  nyra-orchestrator:
+    profiles: ["orchestrator"]
+    build:
+      context: .
+      dockerfile: ./infra/docker/nyra/Dockerfile.orchestrator
+    container_name: nyra-orchestrator
+    environment:
+      - NYRA_MODE=orchestrator
+      - NYRA_PC_ID=orchestrator
+      - NYRA_LOG_LEVEL=${NYRA_LOG_LEVEL:-info}
+      # Database URLs (injected via Infisical)
+      - POSTGRES_URL=${POSTGRES_URL}
+      - FALKORDB_URL=${FALKORDB_URL}
+      - CHROMADB_URL=${CHROMADB_URL}
+      # MCP Endpoints
+      - METAMCP_GATEWAY_URL=http://metamcp-gateway-enhanced:8005
+      - INFISICAL_MCP_URL=http://infisical-mcp:8006
+      # Cloudflare tunnel configuration
+      - CLOUDFLARED_TOKEN=${CLOUDFLARED_TOKEN}
+      - CLOUDFLARE_TUNNEL_NAME=${CLOUDFLARE_TUNNEL_NAME:-nyra-orchestrator}
+    ports:
+      - "8000:8000"  # Orchestrator API
+      - "8080:8080"  # Management interface
+    volumes:
+      - ./src:/app/src:cached
+      - ./config/orchestrator:/app/config:ro
+      - orchestrator_cache:/app/cache
+      - ./logs/orchestrator:/app/logs
+      - infisical_secrets:/app/secrets:ro
+    depends_on:
+      - postgres
+      - falkordb
+      - chromadb
+      - metamcp-gateway-enhanced
+    networks:
+      - nyra-network
+    restart: unless-stopped
+    command: >
+      sh -c "infisical run --env=production --path=/nyra/orchestrator --
+             node src/orchestrator/main.js"
+
+  # Worker 1 Service (RTX 3060)
+  nyra-worker-1:
+    profiles: ["worker-1"]
+    build:
+      context: .
+      dockerfile: ./infra/docker/nyra/Dockerfile.worker
+    container_name: nyra-worker-1
+    environment:
+      - NYRA_MODE=worker
+      - NYRA_PC_ID=worker-1
+      - NYRA_GPU_TYPE=rtx_3060
+      - NYRA_WORKER_ID=1
+      - ORCHESTRATOR_URL=${ORCHESTRATOR_URL:-https://nyra-orchestrator.yourdomain.com}
+      - CLOUDFLARED_TOKEN=${CLOUDFLARED_TOKEN_WORKER_1}
+      - CLOUDFLARE_TUNNEL_NAME=${CLOUDFLARE_TUNNEL_NAME_WORKER_1:-nyra-worker-1}
+    ports:
+      - "8001:8000"  # Worker API
+      - "9001:9000"  # GPU metrics
+    volumes:
+      - ./src:/app/src:cached
+      - ./config/worker-1:/app/config:ro
+      - worker1_cache:/app/cache
+      - ./logs/worker-1:/app/logs
+      - infisical_secrets:/app/secrets:ro
+      # GPU access
+      - /dev:/dev
+    devices:
+      - "/dev/nvidia0:/dev/nvidia0"
+      - "/dev/nvidiactl:/dev/nvidiactl"
+      - "/dev/nvidia-uvm:/dev/nvidia-uvm"
+    depends_on:
+      - metamcp-gateway-enhanced
+    networks:
+      - nyra-network
+    restart: unless-stopped
+    runtime: nvidia
+    command: >
+      sh -c "infisical run --env=production --path=/nyra/worker-1 --
+             node src/worker/main.js"
+
+  # Worker 2 Service (RTX 5090)
+  nyra-worker-2:
+    profiles: ["worker-2"]
+    build:
+      context: .
+      dockerfile: ./infra/docker/nyra/Dockerfile.worker
+    container_name: nyra-worker-2
+    environment:
+      - NYRA_MODE=worker
+      - NYRA_PC_ID=worker-2
+      - NYRA_GPU_TYPE=rtx_5090
+      - NYRA_WORKER_ID=2
+      - ORCHESTRATOR_URL=${ORCHESTRATOR_URL:-https://nyra-orchestrator.yourdomain.com}
+      - CLOUDFLARED_TOKEN=${CLOUDFLARED_TOKEN_WORKER_2}
+      - CLOUDFLARE_TUNNEL_NAME=${CLOUDFLARE_TUNNEL_NAME_WORKER_2:-nyra-worker-2}
+    ports:
+      - "8002:8000"  # Worker API
+      - "9002:9000"  # GPU metrics
+    volumes:
+      - ./src:/app/src:cached
+      - ./config/worker-2:/app/config:ro
+      - worker2_cache:/app/cache
+      - ./logs/worker-2:/app/logs
+      - infisical_secrets:/app/secrets:ro
+      # GPU access
+      - /dev:/dev
+    devices:
+      - "/dev/nvidia0:/dev/nvidia0"
+      - "/dev/nvidiactl:/dev/nvidiactl"
+      - "/dev/nvidia-uvm:/dev/nvidia-uvm"
+    depends_on:
+      - metamcp-gateway-enhanced
+    networks:
+      - nyra-network
+    restart: unless-stopped
+    runtime: nvidia
+    command: >
+      sh -c "infisical run --env=production --path=/nyra/worker-2 --
+             node src/worker/main.js"
+
+  # Worker 3 Service (RTX 3090Ti)
+  nyra-worker-3:
+    profiles: ["worker-3"]
+    build:
+      context: .
+      dockerfile: ./infra/docker/nyra/Dockerfile.worker
+    container_name: nyra-worker-3
+    environment:
+      - NYRA_MODE=worker
+      - NYRA_PC_ID=worker-3
+      - NYRA_GPU_TYPE=rtx_3090ti
+      - NYRA_WORKER_ID=3
+      - ORCHESTRATOR_URL=${ORCHESTRATOR_URL:-https://nyra-orchestrator.yourdomain.com}
+      - CLOUDFLARED_TOKEN=${CLOUDFLARED_TOKEN_WORKER_3}
+      - CLOUDFLARE_TUNNEL_NAME=${CLOUDFLARE_TUNNEL_NAME_WORKER_3:-nyra-worker-3}
+    ports:
+      - "8003:8000"  # Worker API
+      - "9003:9000"  # GPU metrics
+    volumes:
+      - ./src:/app/src:cached
+      - ./config/worker-3:/app/config:ro
+      - worker3_cache:/app/cache
+      - ./logs/worker-3:/app/logs
+      - infisical_secrets:/app/secrets:ro
+      # GPU access
+      - /dev:/dev
+    devices:
+      - "/dev/nvidia0:/dev/nvidia0"
+      - "/dev/nvidiactl:/dev/nvidiactl"
+      - "/dev/nvidia-uvm:/dev/nvidia-uvm"
+    depends_on:
+      - metamcp-gateway-enhanced
+    networks:
+      - nyra-network
+    restart: unless-stopped
+    runtime: nvidia
+    command: >
+      sh -c "infisical run --env=production --path=/nyra/worker-3 --
+             node src/worker/main.js"
+
+  # Shared Infrastructure Services
+  postgres:
+    profiles: ["orchestrator", "shared"]
+    image: postgres:15-alpine
+    container_name: nyra-postgres
+    environment:
+      # Credentials injected via Infisical
+      POSTGRES_DB: ${POSTGRES_DB:-nyra_db}
+      POSTGRES_USER: ${POSTGRES_USER:-nyra}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./infra/sql/init:/docker-entrypoint-initdb.d:ro
+    networks:
+      - nyra-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-nyra} -d ${POSTGRES_DB:-nyra_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  falkordb:
+    profiles: ["orchestrator", "shared"]
+    image: falkordb/falkordb:latest
+    container_name: nyra-falkordb
+    ports:
+      - "6379:6379"
+    volumes:
+      - falkordb_data:/data
+      - ./config/falkordb:/etc/falkordb:ro
+    networks:
+      - nyra-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  chromadb:
+    profiles: ["orchestrator", "shared"]
+    image: chromadb/chroma:latest
+    container_name: nyra-chromadb
+    environment:
+      - CHROMA_TOKEN=${CHROMA_TOKEN}
+    ports:
+      - "8001:8000"
+    volumes:
+      - chromadb_data:/chroma/chroma
+      - ./config/chromadb:/chroma/config:ro
+    networks:
+      - nyra-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/heartbeat"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Cloudflared Tunnel Services
+  cloudflared-orchestrator:
+    profiles: ["orchestrator", "tunnels"]
+    image: cloudflare/cloudflared:latest
+    container_name: nyra-cloudflared-orchestrator
+    environment:
+      - TUNNEL_TOKEN=${CLOUDFLARED_TOKEN}
+    command: tunnel run --url http://nyra-orchestrator:8000
+    depends_on:
+      - nyra-orchestrator
+    networks:
+      - nyra-network
+    restart: unless-stopped
+
+volumes:
+  # Infisical specific volumes
+  infisical_config:
+    name: nyra_infisical_config
+  infisical_cache:
+    name: nyra_infisical_cache
+  infisical_secrets:
+    name: nyra_infisical_secrets
+
+  # MetaMCP volumes
+  metamcp_cache:
+    name: nyra_metamcp_cache
+
+  # Claude Flow volumes
+  claude_flow_cache:
+    name: nyra_claude_flow_cache
+
+  # Service specific volumes
+  orchestrator_cache:
+    name: nyra_orchestrator_cache
+  worker1_cache:
+    name: nyra_worker1_cache
+  worker2_cache:
+    name: nyra_worker2_cache
+  worker3_cache:
+    name: nyra_worker3_cache
+
+  # Database volumes
+  postgres_data:
+    name: nyra_postgres_data
+  falkordb_data:
+    name: nyra_falkordb_data
+  chromadb_data:
+    name: nyra_chromadb_data
+
+networks:
+  nyra-network:
+    name: nyra-infisical-network
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.21.0.0/16
+          gateway: 172.21.0.1

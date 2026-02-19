@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  # vLLM with LMCache Integrated
+  # We use the 'host' network for maximum performance and 'ipc: host' for memory sharing.
+  vllm-5090:
+    image: lmcache/vllm-openai:latest
+    container_name: vllm-5090
+    runtime: nvidia
+    network_mode: host    # Bypasses Docker bridge for lower latency
+    ipc: host             # Required for PyTorch/LMCache shared memory
+    restart: unless-stopped
+    environment:
+      # --- GPU Configuration ---
+      - NVIDIA_VISIBLE_DEVICES=all
+      - HF_TOKEN=${HF_TOKEN}  # Create a .env file with your token if needed
+      
+      # --- LMCache Configuration (The Magic) ---
+      # Tells vLLM to use LMCache backend
+      - VLLM_KV_TRANSFER_CONFIG={"kv_connector":"LMCacheConnectorV1","kv_role":"kv_both"}
+      # Enable CPU offloading (Uses your laptop's RAM)
+      - LMCACHE_LOCAL_CPU=True
+      # How much System RAM to use for cache (Adjust based on your laptop specs)
+      # If you have 64GB RAM, set to 30. If 32GB, set to 10.
+      - LMCACHE_MAX_LOCAL_CPU_SIZE=20
+      # Chunk size (Default is 256, optimal for most GPUs)
+      - LMCACHE_CHUNK_SIZE=256
+
+    volumes:
+      - vllm_5090_cache:/root/.cache/huggingface
+
+    # The Command
+    # 1. Use the AWQ quantized model (fits in 24GB)
+    # 2. Reserve 90% VRAM for weights + minimal cache
+    # 3. Disable the native hybrid cache manager so LMCache takes over
+    command: >
+      --model Qwen/Qwen2.5-32B-Instruct-AWQ
+      --tensor-parallel-size 1
+      --max-model-len 32768
+      --gpu-memory-utilization 0.90
+      --port 8000
+      --kv-transfer-config '{"kv_connector":"LMCacheConnectorV1", "kv_role":"kv_both"}'
+      --kv-offloading-backend lmcache
+      --disable-hybrid-kv-cache-manager
+
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+volumes:
+  vllm_5090_cache:

@@ -1,0 +1,19 @@
+# Project-Nyra orchestrator-mini Environment Variables
+# Copy this file to .env and fill in actual values
+
+# PostgreSQL
+POSTGRES_PASSWORD=CHANGE_ME_STRONG_PASSWORD
+
+# Redis
+REDIS_PASSWORD=CHANGE_ME_STRONG_PASSWORD
+
+# Tailscale
+TAILSCALE_HOSTNAME=nyra-orchestrator
+TAILSCALE_AUTH_KEY=tskey-auth-XXXXXXXXXXXX
+
+# Network
+LAN_IP=192.168.1.100
+TAILSCALE_IP=100.64.1.1
+
+# Domain (for Cloudflared)
+NYRA_DOMAIN=nyra.yourdomain.com

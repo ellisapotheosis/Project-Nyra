@@ -1,0 +1,128 @@
+{
+  "collected_at": "2026-01-28T22:08:51.2465237-08:00",
+  "role": "worker",
+  "host": {
+    "computername": "ALIENAPOTHEOSIS",
+    "username": "ALIENAPOTHEOSIS\\edane",
+    "manufacturer": "Alienware",
+    "model": "Alienware m15 R7",
+    "total_physical_memory_bytes": 34029162496
+  },
+  "os": {
+    "caption": "Microsoft Windows 11 Home",
+    "version": "10.0.26120",
+    "install_date": "2025-07-13T23:45:33-07:00",
+    "last_boot": "2026-01-27T20:47:01.5-08:00",
+    "build": "26120"
+  },
+  "cpu": {
+    "Name": "12th Gen Intel(R) Core(TM) i7-12700H",
+    "NumberOfCores": 14,
+    "NumberOfLogicalProcessors": 20,
+    "MaxClockSpeed": 2300
+  },
+  "gpus": [
+    {
+      "Name": "Intel(R) UHD Graphics",
+      "AdapterRAM": 2147479552,
+      "DriverVersion": "32.0.101.7077"
+    },
+    {
+      "Name": "NVIDIA GeForce RTX 3060 Laptop GPU",
+      "AdapterRAM": 4293918720,
+      "DriverVersion": "32.0.15.8132"
+    }
+  ],
+  "memory_modules": {
+    "Capacity": 34359738368,
+    "Speed": 4800,
+    "Manufacturer": "859B0000802C",
+    "PartNumber": "CT32G48C40S5.M16A1            "
+  },
+  "disks": [
+    {
+      "Model": "Generic MassStorageClass USB Device",
+      "Size": null,
+      "InterfaceType": "USB",
+      "MediaType": null,
+      "SerialNumber": "000000001536"
+    },
+    {
+      "Model": "Generic MassStorageClass USB Device",
+      "Size": null,
+      "InterfaceType": "USB",
+      "MediaType": null,
+      "SerialNumber": "000000001536"
+    },
+    {
+      "Model": "NVMe PC801 NVMe SK hynix 1TB",
+      "Size": 1024203640320,
+      "InterfaceType": "SCSI",
+      "MediaType": "Fixed hard disk media",
+      "SerialNumber": "ACE4_2E00_25C2_788B_2EE4_AC00_0000_0001."
+    }
+  ],
+  "network": {
+    "default_routes": {
+      "InterfaceAlias": "Ethernet",
+      "NextHop": "192.168.1.254",
+      "RouteMetric": 0
+    },
+    "adapters_up": [
+      {
+        "Name": "Ethernet",
+        "InterfaceDescription": "Killer E3100G 2.5 Gigabit Ethernet Controller",
+        "MacAddress": "04-BF-1B-29-A3-F3",
+        "LinkSpeed": "2.5 Gbps",
+        "Status": "Up"
+      },
+      {
+        "Name": "Tailscale",
+        "InterfaceDescription": "Tailscale Tunnel",
+        "MacAddress": null,
+        "LinkSpeed": "100 Gbps",
+        "Status": "Up"
+      }
+    ],
+    "ipv4": [
+      {
+        "InterfaceAlias": "Tailscale",
+        "IPAddress": "100.126.61.37",
+        "PrefixLength": 32
+      },
+      {
+        "InterfaceAlias": "Ethernet",
+        "IPAddress": "192.168.1.104",
+        "PrefixLength": 24
+      },
+      {
+        "InterfaceAlias": "Loopback Pseudo-Interface 1",
+        "IPAddress": "127.0.0.1",
+        "PrefixLength": 8
+      }
+    ],
+    "connection_profiles": [
+      {
+        "Name": "Tailscale",
+        "InterfaceAlias": "Tailscale",
+        "IPv4Connectivity": 3,
+        "NetworkCategory": 1
+      },
+      {
+        "Name": "Network",
+        "InterfaceAlias": "Ethernet",
+        "IPv4Connectivity": 4,
+        "NetworkCategory": 0
+      }
+    ],
+    "public_ip": "107.142.246.181"
+  },
+  "tools": {
+    "cloudflared": {
+      "version": "cloudflared version 2026.1.2 (built 2026-01-23T12:45 UTC)"
+    },
+    "tailscale": {
+      "ipv4": "100.126.61.37"
+    }
+  }
+}

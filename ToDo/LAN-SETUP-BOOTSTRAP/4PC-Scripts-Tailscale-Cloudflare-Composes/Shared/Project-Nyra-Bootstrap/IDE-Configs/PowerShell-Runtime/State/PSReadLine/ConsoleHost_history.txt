@@ -1,0 +1,3 @@
+Write-Host "`nAll set. Restart PowerShell, then click OneDrive > Manage Backup > Try again."
+"C:\Dev\Profiles\PowerShell\bootstrap.unified.master.ps1"
+C:\Dev\Profiles\PowerShell\bootstrap.unified.master.ps1

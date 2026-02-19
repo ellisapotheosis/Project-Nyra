@@ -1,8 +1,0 @@
-{
-  "name": "sparc",
-  "description": "SPARC agent surface via MetaMCP",
-  "includes": [
-    "../always-on.json",
-    "../context-hungry.json"
-  ]
-}

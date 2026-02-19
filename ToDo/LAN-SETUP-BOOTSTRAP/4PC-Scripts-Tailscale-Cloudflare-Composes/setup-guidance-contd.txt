@@ -1,0 +1,154 @@
+2️⃣ 🔐 systemd-resolved hardening (WSL-safe)
+
+This prevents DNS poisoning, VPN overrides, and latency storms.
+
+📌 Paste into Ubuntu
+sudo tee /etc/systemd/resolved.conf > /dev/null <<'EOF'
+[Resolve]
+DNS=1.1.1.1 1.0.0.1
+FallbackDNS=
+DNSSEC=no
+DNSOverTLS=no
+Cache=yes
+EOF
+
+sudo systemctl restart systemd-resolved || true
+
+
+Now lock WSL so Windows cannot overwrite it:
+
+sudo tee /etc/wsl.conf > /dev/null <<'EOF'
+[network]
+generateResolvConf = false
+EOF
+
+sudo rm -f /etc/resolv.conf
+sudo tee /etc/resolv.conf > /dev/null <<'EOF'
+nameserver 1.1.1.1
+nameserver 1.0.0.1
+options timeout:1 attempts:3 rotate
+EOF
+
+sudo chattr +i /etc/resolv.conf
+
+⚠️ Required once:
+wsl --shutdown
+
+3️⃣ ⚡ Bun-specific network tuning (registry + fetch stability)
+
+This reduces:
+
+integrity check failures
+
+slow installs
+
+random hangs
+
+📌 Paste into Ubuntu
+mkdir -p ~/.config/bun
+
+cat > ~/.config/bun/config.toml <<'EOF'
+[install]
+registry = "https://registry.npmjs.org"
+cache = true
+concurrentScripts = 4
+
+[fetch]
+retries = 5
+timeout = 30000
+
+[http]
+keepalive = true
+EOF
+
+
+Optional but recommended (forces clean DNS usage):
+
+export BUN_INSTALL_CACHE_DIR="$HOME/.bun/install/cache"
+
+4️⃣ 🧠 Health-check script (DNS + registries + GitHub + HuggingFace)
+
+This is your “is this machine sane?” button.
+
+📌 Paste into Ubuntu
+cat > ~/healthcheck.sh <<'EOF'
+#!/bin/bash
+set -e
+
+echo "🧠 SYSTEM HEALTH CHECK"
+echo "━━━━━━━━━━━━━━━━━━━━━━"
+
+check() {
+  printf "%-30s" "$1"
+  if timeout 5 curl -fsI "$2" >/dev/null; then
+    echo "✅"
+  else
+    echo "❌"
+  fi
+}
+
+echo ""
+echo "🔎 DNS"
+resolvectl status 2>/dev/null || cat /etc/resolv.conf
+echo ""
+
+echo "🌐 Network Targets"
+check "npm registry" https://registry.npmjs.org
+check "bun.sh" https://bun.sh
+check "GitHub" https://github.com
+check "HuggingFace" https://huggingface.co
+check "Cloudflare" https://1.1.1.1
+
+echo ""
+echo "⏱ Latency test (npm)"
+time curl -fsI https://registry.npmjs.org >/dev/null
+
+echo ""
+echo "✅ Health check complete"
+EOF
+
+chmod +x ~/healthcheck.sh
+
+
+Run anytime with:
+
+~/healthcheck.sh
+
+5️⃣ 🧰 One-click bootstrap repo (new machine standard)
+
+This lets you onboard any future PC in minutes.
+
+📌 Paste into Ubuntu
+mkdir -p ~/bootstrap
+cd ~/bootstrap
+
+cat > bootstrap.sh <<'EOF'
+#!/bin/bash
+set -e
+
+echo "🚀 Bootstrapping machine..."
+
+bash ~/setup-dns-wsl.sh || true
+bash ~/healthcheck.sh || true
+
+echo ""
+echo "📦 Installing core tools"
+
+command -v bun >/dev/null || curl -fsSL https://bun.sh/install | bash
+command -v git >/dev/null || sudo apt install -y git
+
+echo ""
+echo "✅ Bootstrap complete"
+EOF
+
+chmod +x bootstrap.sh
+
+
+Now every new machine just needs:
+
+git clone <your-bootstrap-repo>
+cd bootstrap
+./bootstrap.sh
+
+
+(When you’re ready, we can turn this into a private GitHub repo.)

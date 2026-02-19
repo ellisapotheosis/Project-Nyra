@@ -1,0 +1,90 @@
+Name:	vEthernet (WSL (Hyper-V firewall))
+Description:	Hyper-V Virtual Ethernet Adapter
+Physical address (MAC):	00:15:5d:5f:79:7c
+Status:	Operational
+Maximum transmission unit:	1500
+IPv4 address:	172.21.0.1/20
+IPv6 address:	fe80::9829:9c23:ebfb:fd5c%46/64
+DNS servers:	fec0:0:0:ffff::1%1 (Unencrypted)
+fec0:0:0:ffff::2%1 (Unencrypted)
+fec0:0:0:ffff::3%1 (Unencrypted)
+Connectivity (IPv4/IPv6):	Disconnected
+Name:	Ethernet
+Description:	Killer E5000 5 Gigabit Ethernet Controller
+Physical address (MAC):	e8:cf:83:ed:e4:95
+Status:	Operational
+Maximum transmission unit:	1500
+Aggregated link speed (Receive/Transmit):	2500/2500 (Mbps)
+DHCP enabled:	Yes
+DHCP servers:	192.168.1.254
+DHCP lease obtained:	‎Wednesday, ‎February ‎4, ‎2026 4:40:00 AM
+DHCP lease expires:	‎Thursday, ‎February ‎5, ‎2026 4:40:00 AM
+IPv4 address:	192.168.1.234/24
+IPv6 address:	2600:1700:65f0:8960::3f/128, 2600:1700:65f0:8960:a28d:33e8:21ef:771d/64, 2600:1700:65f0:8960:b4ae:2337:31e1:c02a/128, fe80::2bde:28ce:5255:f267%7/64
+IPv4 default gateway:	192.168.1.254
+IPv6 default gateway:	fe80::4ae2:adff:fe08:92f1%7
+DNS servers:	2600:1700:65f0:8960::1 (Unencrypted)
+192.168.1.254 (Unencrypted)
+2600:1700:65f0:8960::1 (Unencrypted)
+DNS domain name:	attlocal.net
+DNS connection suffix:	attlocal.net
+DNS search suffix list:	attlocal.net, attlocal.net
+Network name:	Apotheosis
+Network category:	Private
+Connectivity (IPv4/IPv6):	Connected to local network
+Name:	Wi-Fi 3
+Description:	Killer(TM) Wi-Fi 7 BE1750w 320MHz Wireless Network Adapter (BE200D2W) #3
+Physical address (MAC):	80:c0:1e:5f:69:6f
+Status:	Not operational
+Maximum transmission unit:	1500
+IPv4 address:	169.254.182.41/16
+IPv6 address:	fe80::6a87:e837:b8b4:e9e3%12/64
+DNS servers:	fec0:0:0:ffff::1%1 (Unencrypted)
+fec0:0:0:ffff::2%1 (Unencrypted)
+fec0:0:0:ffff::3%1 (Unencrypted)
+Connectivity (IPv4/IPv6):	Disconnected
+Name:	Wi-Fi 5
+Description:	Killer(TM) Wi-Fi 7 BE1750w 320MHz Wireless Network Adapter (BE200D2W) #5
+Physical address (MAC):	82:c0:1e:5f:69:6e
+Status:	Not operational
+Maximum transmission unit:	1500
+IPv4 address:	169.254.72.240/16
+IPv6 address:	fe80::4c72:6d5b:6eef:b95%15/64
+DNS servers:	fec0:0:0:ffff::1%1 (Unencrypted)
+fec0:0:0:ffff::2%1 (Unencrypted)
+fec0:0:0:ffff::3%1 (Unencrypted)
+Connectivity (IPv4/IPv6):	Disconnected
+Name:	Wi-Fi
+Description:	Killer(TM) Wi-Fi 7 BE1750w 320MHz Wireless Network Adapter (BE200D2W)
+Physical address (MAC):	8e:4c:d1:e6:0b:42
+Status:	Operational
+Maximum transmission unit:	1500
+Aggregated link speed (Receive/Transmit):	1081/245 (Mbps)
+DHCP enabled:	Yes
+DHCP servers:	192.168.1.254
+DHCP lease obtained:	‎Wednesday, ‎February ‎4, ‎2026 10:16:27 AM
+DHCP lease expires:	‎Thursday, ‎February ‎5, ‎2026 10:16:27 AM
+IPv4 address:	192.168.1.235/24
+IPv6 address:	2600:1700:65f0:8960::11/128, 2600:1700:65f0:8960:da98:c093:13fc:273/64, 2600:1700:65f0:8960:343d:23ea:5bb3:fd3c/128, fe80::e360:e821:f8a2:f891%19/64
+IPv4 default gateway:	192.168.1.254
+IPv6 default gateway:	fe80::4ae2:adff:fe08:92f1%19
+DNS servers:	2600:1700:65f0:8960::1 (Unencrypted)
+192.168.1.254 (Unencrypted)
+2600:1700:65f0:8960::1 (Unencrypted)
+DNS domain name:	attlocal.net
+DNS connection suffix:	attlocal.net
+DNS search suffix list:	attlocal.net, attlocal.net
+Network name:	Apotheosis 2
+Network category:	Public
+Connectivity (IPv4/IPv6):	Connected to Internet
+Name:	Bluetooth Network Connection
+Description:	Bluetooth Device (Personal Area Network)
+Physical address (MAC):	80:c0:1e:5f:69:72
+Status:	Not operational
+Maximum transmission unit:	1500
+IPv4 address:	169.254.39.224/16
+IPv6 address:	fe80::c375:d235:e664:6d14%16/64
+DNS servers:	fec0:0:0:ffff::1%1 (Unencrypted)
+fec0:0:0:ffff::2%1 (Unencrypted)
+fec0:0:0:ffff::3%1 (Unencrypted)
+Connectivity (IPv4/IPv6):	Disconnected

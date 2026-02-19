@@ -1,0 +1,246 @@
+# Koyeb Deployment Manifest for n8n Workflows
+# Documentation: https://www.koyeb.com/docs/reference/api
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nyra-n8n-orchestrator
+  labels:
+    app: n8n
+    tier: automation
+    environment: production
+spec:
+  # Service definition
+  type: web
+  ports:
+    - port: 5678
+      protocol: http
+
+  # Deployment configuration
+  deployment:
+    # Docker image
+    image: n8nio/n8n:latest
+
+    # Resource allocation (Free tier: 1 vCPU, 512 MB RAM, 2.5 GB disk)
+    resources:
+      cpu: "0.5"          # 0.5 vCPU (Free tier compatible)
+      memory: "512Mi"     # 512 MB RAM
+      disk: "2Gi"         # 2 GB persistent disk
+
+    # Scaling configuration
+    scaling:
+      min: 1              # Minimum instances (Free tier: max 1)
+      max: 1              # Maximum instances
+      type: fixed         # Fixed scaling for free tier
+
+    # Health checks
+    healthCheck:
+      httpGet:
+        path: /healthz
+        port: 5678
+      initialDelaySeconds: 30
+      periodSeconds: 10
+      timeoutSeconds: 5
+      failureThreshold: 3
+
+    # Environment variables (pulled from Infisical)
+    env:
+      # n8n Core Configuration
+      - name: N8N_PROTOCOL
+        value: "https"
+      - name: N8N_HOST
+        value: "n8n.nyra.koyeb.app"
+      - name: N8N_PORT
+        value: "5678"
+      - name: WEBHOOK_URL
+        value: "https://n8n.nyra.koyeb.app/"
+
+      # Database Configuration (Infisical-managed)
+      - name: DB_TYPE
+        valueFrom:
+          secret:
+            name: infisical-secrets
+            key: N8N_DB_TYPE
+      - name: DB_POSTGRESDB_HOST
+        valueFrom:
+          secret:
+            name: infisical-secrets
+            key: N8N_DB_HOST
+      - name: DB_POSTGRESDB_PORT
+        valueFrom:
+          secret:
+            name: infisical-secrets
+            key: N8N_DB_PORT
+      - name: DB_POSTGRESDB_DATABASE
+        valueFrom:
+          secret:
+            name: infisical-secrets
+            key: N8N_DB_DATABASE
+      - name: DB_POSTGRESDB_USER
+        valueFrom:
+          secret:
+            name: infisical-secrets
+            key: N8N_DB_USER
+      - name: DB_POSTGRESDB_PASSWORD
+        valueFrom:
+          secret:
+            name: infisical-secrets
+            key: N8N_DB_PASSWORD
+
+      # Encryption and Security
+      - name: N8N_ENCRYPTION_KEY
+        valueFrom:
+          secret:
+            name: infisical-secrets
+            key: N8N_ENCRYPTION_KEY
+
+      # User Management
+      - name: N8N_USER_MANAGEMENT_JWT_SECRET
+        valueFrom:
+          secret:
+            name: infisical-secrets
+            key: N8N_JWT_SECRET
+
+      # Execution Configuration
+      - name: EXECUTIONS_MODE
+        value: "regular"
+      - name: EXECUTIONS_TIMEOUT
+        value: "300"
+      - name: EXECUTIONS_DATA_SAVE_ON_ERROR
+        value: "all"
+      - name: EXECUTIONS_DATA_SAVE_ON_SUCCESS
+        value: "all"
+
+      # Generic timezone
+      - name: GENERIC_TIMEZONE
+        value: "America/New_York"
+
+      # Workflow Settings
+      - name: N8N_METRICS
+        value: "true"
+      - name: N8N_LOG_LEVEL
+        value: "info"
+      - name: N8N_LOG_OUTPUT
+        value: "console"
+
+    # Volume mounts for persistent storage
+    volumes:
+      - name: n8n-data
+        mountPath: /home/node/.n8n
+        size: "2Gi"
+
+    # Deployment strategy
+    strategy:
+      type: RollingUpdate
+      rollingUpdate:
+        maxSurge: 0         # Free tier: no surge capacity
+        maxUnavailable: 0   # Zero downtime preference
+
+  # Networking
+  networking:
+    # Custom domains
+    domains:
+      - name: n8n.nyra.koyeb.app
+        type: custom
+
+    # TLS/SSL
+    tls:
+      enabled: true
+      provider: letsencrypt
+
+  # Regions (Free tier: single region)
+  regions:
+    - was  # Washington, D.C. (closest to target audience)
+
+  # Auto-sleep (Free tier feature)
+  autoSleep:
+    enabled: false        # Keep running for webhook reliability
+    idleTimeout: 300      # 5 minutes idle timeout
+
+---
+# Mortgage Lead Drip Campaign Workflows Configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: n8n-workflows-config
+  namespace: automation
+data:
+  # Campaign workflow identifiers
+  workflows.json: |
+    {
+      "campaigns": {
+        "lead_capture": {
+          "workflow_id": "lead-capture-webhook",
+          "triggers": ["website_form", "api_endpoint"],
+          "actions": ["enrich_lead", "qualify_score", "route_to_crm"]
+        },
+        "nurture_sequence": {
+          "workflow_id": "mortgage-nurture-drip",
+          "triggers": ["new_lead", "lead_score_change"],
+          "schedule": "0 9 * * *",
+          "actions": [
+            "day_1_welcome_email",
+            "day_3_education_content",
+            "day_7_rate_alert",
+            "day_14_consultation_offer"
+          ]
+        },
+        "rate_alerts": {
+          "workflow_id": "rate-change-notification",
+          "triggers": ["rate_drop_detected", "lead_preference_match"],
+          "schedule": "0 */4 * * *",
+          "actions": ["check_rate_changes", "match_lead_criteria", "send_notification"]
+        },
+        "appointment_booking": {
+          "workflow_id": "appointment-scheduler",
+          "triggers": ["booking_request", "calendar_sync"],
+          "actions": ["check_availability", "create_booking", "send_confirmations"]
+        }
+      },
+      "integrations": {
+        "infisical": {
+          "enabled": true,
+          "method": "agent_sidecar",
+          "sync_interval": 60
+        },
+        "crm": {
+          "provider": "hubspot",
+          "webhook_enabled": true
+        },
+        "email": {
+          "provider": "sendgrid",
+          "templates_enabled": true
+        },
+        "sms": {
+          "provider": "twilio",
+          "opt_in_required": true
+        }
+      }
+    }
+
+---
+# Resource Quotas (Free Tier Limits)
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: free-tier-limits
+spec:
+  hard:
+    # Compute
+    requests.cpu: "0.5"
+    requests.memory: "512Mi"
+    limits.cpu: "1"
+    limits.memory: "512Mi"
+
+    # Storage
+    requests.storage: "2.5Gi"
+    persistentvolumeclaims: "1"
+
+    # Networking
+    services: "1"
+
+    # Build
+    builds.monthly: "100"    # Free tier build limit
+
+    # Execution
+    execution.hours: "730"   # ~30 days * 24 hours

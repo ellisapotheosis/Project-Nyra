@@ -1,0 +1,42 @@
+tunnel: 3280936b-7bbd-40ed-a6fc-02c42d6a11f0
+credentials-file: C:\Users\edane\.cloudflared\3280936b-7bbd-40ed-a6fc-02c42d6a11f0.json
+
+ingress:
+  # Worker API
+  - hostname: worker-m15r7.ratehunter.net
+    service: http://localhost:8000
+    originRequest:
+      noTLSVerify: true
+      connectTimeout: 30s
+
+  # GPU Metrics
+  - hostname: rtx3060.ratehunter.net
+    service: http://localhost:9000
+    originRequest:
+      noTLSVerify: true
+      connectTimeout: 30s
+
+  # Catch-all
+  - service: http_status:404
+
+# Logging
+loglevel: info
+transport-loglevel: info
+
+# Metrics
+metrics: 0.0.0.0:8080
+
+# Origin configuration
+originRequest:
+  connectTimeout: 30s
+  tlsTimeout: 10s
+  tcpKeepAlive: 30s
+  keepAliveConnections: 100
+  keepAliveTimeout: 90s
+  noTLSVerify: true
+
+# Tunnel settings
+retries: 3
+grace-period: 30s
+no-autoupdate: true
+protocol: auto

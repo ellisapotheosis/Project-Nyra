@@ -1,0 +1,56 @@
+# NYRA: <subject line - max 50 chars>
+
+# Detailed explanation of the change (wrap at 72 characters)
+# - Why is this change needed?
+# - What does it solve?
+# - Any breaking changes or important notes?
+
+
+# Type of change (uncomment one):
+# feat: new feature for users or existing feature enhancement
+# fix: bug fix that resolves an issue
+# docs: documentation only changes
+# style: formatting, missing semicolons, etc (no code change)
+# refactor: code change that neither fixes bug nor adds feature
+# perf: code change that improves performance
+# test: adding missing tests or correcting existing tests
+# chore: changes to build process, dependencies, or dev tools
+# ci: changes to CI/CD configuration files and scripts
+# build: changes that affect the build system or external dependencies
+
+# NYRA Component (uncomment if applicable):
+# Component: core
+# Component: webapp  
+# Component: memory
+# Component: infra
+# Component: prompts
+# Component: voice
+# Component: secrets
+# Component: monitoring
+
+# Issue reference (if applicable):
+# Closes #123
+# Fixes #456
+# Related to #789
+
+# Breaking changes (if any):
+# BREAKING CHANGE: describe what breaks and how to migrate
+
+# Co-authored-by: Name <email@example.com>
+
+# ============================================================================
+# NYRA Commit Message Guidelines:
+# 
+# 1. Use the imperative mood: "Add feature" not "Added feature"
+# 2. Don't end the subject line with a period
+# 3. Capitalize the subject line
+# 4. Separate subject from body with a blank line
+# 5. Use the body to explain what and why vs. how
+# 6. Reference issues and pull requests liberally after the first line
+# 
+# Examples:
+# feat(core): add mortgage calculation API endpoint
+# fix(webapp): resolve authentication redirect loop
+# docs(readme): update installation instructions for UV
+# refactor(secrets): migrate from pyenv to UV package management
+# ============================================================================

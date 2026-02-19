@@ -1,8 +1,0 @@
-{
-  "name": "hive-mind",
-  "description": "Hive-Mind agent surface via MetaMCP",
-  "includes": [
-    "../always-on.json",
-    "../research.json"
-  ]
-}

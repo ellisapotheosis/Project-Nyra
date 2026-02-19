@@ -1,0 +1,148 @@
+# ==================== Starship Configuration for Claude Development ====================
+# Optimized for Claude Code, Claude Flow, and AI-assisted development on Windows 11
+# Clean, information-dense prompt with excellent git integration and context awareness
+
+format = """
+[╭─](bold purple)\
+$username\
+$hostname\
+$directory\
+$git_branch\
+$git_status\
+$git_state\
+$python\
+$nodejs\
+$package\
+$docker_context\
+$line_break\
+[╰─](bold purple)$character"""
+
+[character]
+success_symbol = "[λ](bold green)"
+error_symbol = "[λ](bold red)"
+vicmd_symbol = "[V](bold yellow)"
+
+[username]
+show_always = false
+style_user = "bold cyan"
+style_root = "bold red"
+format = "[$user]($style)[@](bold white)"
+
+[hostname]
+ssh_only = false
+format = "[$hostname](bold yellow) "
+disabled = false
+
+[directory]
+truncation_length = 3
+truncate_to_repo = true
+format = "[$path]($style)[$read_only]($read_only_style) "
+style = "bold blue"
+read_only = " 🔒"
+read_only_style = "red"
+
+[directory.substitutions]
+"C:/Dev/DevProjects/Personal-Projects/Project-Nyra" = "NYRA"
+"C:/Dev/DevProjects" = "Dev"
+"C:/Users/edane" = "~"
+
+[git_branch]
+symbol = " "
+format = "on [$symbol$branch(:$remote_branch)]($style) "
+style = "bold purple"
+truncation_length = 20
+
+[git_status]
+format = '([\[$all_status$ahead_behind\]]($style) )'
+style = "bold red"
+conflicted = "🏳"
+ahead = "⇡${count}"
+behind = "⇣${count}"
+diverged = "⇕⇡${ahead_count}⇣${behind_count}"
+up_to_date = "✓"
+untracked = "?${count}"
+stashed = "$${count}"
+modified = "!${count}"
+staged = "+${count}"
+renamed = "»${count}"
+deleted = "✘${count}"
+
+[git_state]
+format = '\([$state( $progress_current/$progress_total)]($style)\) '
+style = "bright-black"
+rebase = "REBASING"
+merge = "MERGING"
+revert = "REVERTING"
+cherry_pick = "CHERRY-PICKING"
+bisect = "BISECTING"
+am = "AM"
+am_or_rebase = "AM/REBASE"
+
+[python]
+symbol = "🐍 "
+format = 'via [$symbol$pyenv_prefix($version )(\($virtualenv\) )]($style)'
+style = "yellow bold"
+pyenv_version_name = true
+detect_extensions = ["py"]
+detect_files = ["requirements.txt", "pyproject.toml", ".python-version"]
+
+[nodejs]
+symbol = " "
+format = "via [$symbol($version )]($style)"
+style = "bold green"
+detect_extensions = ["js", "mjs", "cjs", "ts", "tsx"]
+detect_files = ["package.json", ".node-version", ".nvmrc"]
+
+[package]
+symbol = "📦 "
+format = "[$symbol$version]($style) "
+style = "208 bold"
+display_private = false
+
+[docker_context]
+symbol = "🐳 "
+format = "via [$symbol$context]($style) "
+style = "blue bold"
+only_with_files = true
+
+[cmd_duration]
+min_time = 2_000
+format = "took [$duration](bold yellow) "
+disabled = false
+
+[time]
+disabled = false
+format = '🕙[\[ $time \]]($style) '
+time_format = "%T"
+utc_time_offset = "local"
+style = "cyan"
+
+[line_break]
+disabled = false
+
+# Context markers for Claude environment
+[env_var.CLAUDE_ENVIRONMENT]
+format = "[🤖CLAUDE]($style) "
+style = "bold cyan"
+
+[env_var.CLAUDE_FLOW_ACTIVE]
+format = "[⚡CF]($style) "
+style = "bold green"
+
+[env_var.ARCHON_MCP_ACTIVE]
+format = "[🎯ARCHON]($style) "
+style = "bold magenta"
+
+[env_var.WSL_DISTRO_NAME]
+format = "[WSL:$env_value]($style) "
+style = "bold yellow"
+
+# Disable less useful modules for cleaner prompt
+[aws]
+disabled = true
+
+[gcloud]
+disabled = true
+
+[kubernetes]
+disabled = true

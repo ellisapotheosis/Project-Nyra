@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  ollama-3090ti:
+    image: ollama/ollama:latest
+    container_name: ollama-3090ti
+    runtime: nvidia
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - OLLAMA_HOST=0.0.0.0
+      - OLLAMA_MODELS=/root/.ollama/models
+      # Keep model loaded in VRAM for 24h (Instant response for agents)
+      - OLLAMA_KEEP_ALIVE=24h
+      # Enable Flash Attention for speed (Supported on 3090 Ti)
+      - OLLAMA_FLASH_ATTENTION=1
+      # handle 4 concurrent requests (Great for n8n/agents)
+      - OLLAMA_NUM_PARALLEL=4
+      # Allow loading 2 smaller models simultaneously if needed
+      - OLLAMA_MAX_LOADED_MODELS=2
+    volumes:
+      - ollama_3090ti_data:/root/.ollama
+    ports:
+      # Standard port exposed to Tailscale/LAN
+      - "11434:11434"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    restart: unless-stopped
+
+volumes:
+  ollama_3090ti_data:

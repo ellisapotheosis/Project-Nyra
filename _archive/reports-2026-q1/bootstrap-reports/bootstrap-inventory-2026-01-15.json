@@ -1,0 +1,531 @@
+{
+  "scan_date": "2026-01-15",
+  "scan_scope": "All bootstrap-related files outside bootstrap/ folder",
+  "summary": {
+    "total_directories": 6,
+    "total_root_scripts": 11,
+    "total_config_files": 50,
+    "total_doc_files": 12,
+    "estimated_total_size": "32MB"
+  },
+  "categories": {
+    "root_directories": {
+      "autosetup": {
+        "path": "/autosetup",
+        "size": "31M",
+        "purpose": "Autonomous setup scripts and batch kits for SPARC workflows, MCP patches",
+        "belongs_to": "configs",
+        "subdirectories": [
+          "autonomous-claude-desktop",
+          "claude-templating--ps1-files",
+          "nyra-aio-sparc-batch-kit",
+          "nyra-mcp-infisical-patchkit-v1",
+          "nyra-sparc-workflows"
+        ],
+        "notes": "Contains full bootstrap materials within nyra-mcp-infisical-patchkit-v1/bootstrap/"
+      },
+      "bootstrap-kit-pc1": {
+        "path": "/bootstrap-kit-pc1",
+        "size": "96K",
+        "purpose": "Bootstrap kit for PC1 (orchestrator-mini or main machine)",
+        "belongs_to": "orchestrator-mini",
+        "key_files": [
+          "scripts/doctor.ps1",
+          "scripts/down.ps1",
+          "scripts/inspect.ps1",
+          "scripts/up.ps1",
+          "configs/nexus/nexus.toml"
+        ]
+      },
+      "bootstrap-kit-pc2": {
+        "path": "/bootstrap-kit-pc2",
+        "size": "24K",
+        "purpose": "Bootstrap kit for PC2 (worker-rtx3060)",
+        "belongs_to": "worker-rtx3060"
+      },
+      "bootstrap-kit-pc3": {
+        "path": "/bootstrap-kit-pc3",
+        "size": "20K",
+        "purpose": "Bootstrap kit for PC3 (worker-rtx5090)",
+        "belongs_to": "worker-rtx5090"
+      },
+      "bootstrap-kit-pc4": {
+        "path": "/bootstrap-kit-pc4",
+        "size": "20K",
+        "purpose": "Bootstrap kit for PC4 (worker-rtx3090ti)",
+        "belongs_to": "worker-rtx3090ti"
+      },
+      "claude-bootstrap": {
+        "path": "/claude-bootstrap",
+        "size": "88K",
+        "purpose": "Claude Flow bootstrap initialization scripts",
+        "belongs_to": "configs",
+        "subdirectories": [
+          "configs",
+          "docs",
+          "orchestrator (init-orchestrator.sh)",
+          "shared (network-setup.sh)",
+          "worker (init-worker.sh)"
+        ]
+      }
+    },
+    "root_scripts": {
+      "setup-autonomous.ps1": {
+        "path": "/setup-autonomous.ps1",
+        "size": "20K",
+        "purpose": "Main autonomous setup script for Windows",
+        "belongs_to": "scripts"
+      },
+      "setup-autonomous.sh": {
+        "path": "/setup-autonomous.sh",
+        "size": "14K",
+        "purpose": "Main autonomous setup script for Linux/WSL",
+        "belongs_to": "scripts"
+      },
+      "setup-dev.ps1": {
+        "path": "/setup-dev.ps1",
+        "size": "923 bytes",
+        "purpose": "Development environment setup launcher",
+        "belongs_to": "scripts"
+      },
+      "setup-dev-environment.ps1": {
+        "path": "/setup-dev-environment.ps1",
+        "size": "6.4K",
+        "purpose": "Development environment configuration script",
+        "belongs_to": "scripts"
+      },
+      "setup-dev-environment.sh": {
+        "path": "/setup-dev-environment.sh",
+        "size": "4.0K",
+        "purpose": "Development environment configuration script (Linux)",
+        "belongs_to": "scripts"
+      },
+      "setup-dev-linking.cmd": {
+        "path": "/setup-dev-linking.cmd",
+        "size": "1.3K",
+        "purpose": "Development symbolic linking setup",
+        "belongs_to": "scripts"
+      },
+      "setup-github-actions.ps1": {
+        "path": "/setup-github-actions.ps1",
+        "size": "11K",
+        "purpose": "GitHub Actions CI/CD setup",
+        "belongs_to": "scripts"
+      },
+      "setup-memory-stack.ps1": {
+        "path": "/setup-memory-stack.ps1",
+        "size": "3.4K",
+        "purpose": "Memory stack (Mem0/AgentDB) setup",
+        "belongs_to": "scripts"
+      },
+      "validate-setup.ps1": {
+        "path": "/validate-setup.ps1",
+        "size": "12K",
+        "purpose": "Validate installation and configuration",
+        "belongs_to": "scripts"
+      },
+      "validate-setup.sh": {
+        "path": "/validate-setup.sh",
+        "size": "3.9K",
+        "purpose": "Validate installation (Linux)",
+        "belongs_to": "scripts"
+      },
+      "verify-setup-final.sh": {
+        "path": "/verify-setup-final.sh",
+        "size": "3.9K",
+        "purpose": "Final verification after setup",
+        "belongs_to": "scripts"
+      }
+    },
+    "config_directories": {
+      "config/claude-flow": {
+        "path": "/config/claude-flow",
+        "purpose": "Claude Flow configurations per machine",
+        "belongs_to": "configs",
+        "subdirectories": {
+          "orchestrator": "orchestrator-mini configuration",
+          "worker-1": "worker-rtx3060 configuration",
+          "worker-2": "worker-rtx5090 configuration",
+          "worker-3": "worker-rtx3090ti configuration",
+          "worker-laptop-1": "laptop worker configuration",
+          "worker-laptop-2": "laptop worker configuration"
+        }
+      },
+      "config/docker-compose": {
+        "path": "/config",
+        "files": [
+          "docker-compose.orchestrator.yml (6.7K)",
+          "docker-compose.worker1.yml (6.0K)",
+          "docker-compose.worker2.yml (7.8K)",
+          "docker-compose.worker3.yml (9.2K)"
+        ],
+        "purpose": "Per-machine Docker Compose configurations",
+        "belongs_to": "configs"
+      },
+      "config/machine-configs": {
+        "path": "/config",
+        "files": [
+          "nyra-orchestrator-config.json",
+          "orchestrator-config.yaml",
+          "worker1-rtx3060-config.yaml",
+          "worker2-rtx5090-config.yaml",
+          "worker3-rtx3090ti-config.yaml"
+        ],
+        "purpose": "Machine-specific configurations",
+        "belongs_to": "configs"
+      },
+      "config/tunnels": {
+        "path": "/config/tunnels",
+        "files": [
+          "orchestrator.yml",
+          "worker-template.yml"
+        ],
+        "purpose": "Cloudflare tunnel configurations",
+        "belongs_to": "configs"
+      },
+      "configs": {
+        "path": "/configs",
+        "purpose": "Central configuration directory (duplicate of config/?)",
+        "belongs_to": "configs",
+        "subdirectories": [
+          "claude-code",
+          "claude-desktop",
+          "claude-flow",
+          "docker",
+          "gitea",
+          "infisical",
+          "litellm",
+          "mcp",
+          "nexus",
+          "observability",
+          "wsl"
+        ]
+      }
+    },
+    "infra_directories": {
+      "infra/orchestrator-mini": {
+        "path": "/infra/orchestrator-mini",
+        "purpose": "Orchestrator-mini infrastructure configs",
+        "belongs_to": "orchestrator-mini",
+        "key_files": [
+          "configs/.env.template"
+        ]
+      },
+      "infra/dual-orchestrator": {
+        "path": "/infra/dual-orchestrator",
+        "purpose": "Dual orchestrator setup (Archon OS + Claude Flow)",
+        "belongs_to": "orchestrator-mini",
+        "subdirectories": [
+          "archon-os (Docker, configs, agent templates)",
+          "claude-flow (Docker, configs, scripts)"
+        ]
+      },
+      "infra/orchestrators": {
+        "path": "/infra/orchestrators",
+        "purpose": "Multiple orchestrator configurations",
+        "belongs_to": "orchestrator-mini"
+      },
+      "infra/docker-compose-files": {
+        "files": [
+          "infra/docker-compose.orchestrator.yml (5.8K)",
+          "infra/docker-compose.worker.yml (8.4K)",
+          "infra/docker/docker-compose.dual-orchestrator.yml"
+        ],
+        "purpose": "Infrastructure Docker Compose files",
+        "belongs_to": "configs"
+      },
+      "infra/docker/nyra": {
+        "path": "/infra/docker/nyra",
+        "files": [
+          "Dockerfile.orchestrator"
+        ],
+        "purpose": "Nyra-specific Dockerfiles",
+        "belongs_to": "orchestrator-mini"
+      }
+    },
+    "scripts_directory": {
+      "scripts/bootstrap": {
+        "path": "/scripts/bootstrap",
+        "files": [
+          "analyze-bootstrap.ps1"
+        ],
+        "purpose": "Bootstrap analysis scripts",
+        "belongs_to": "scripts"
+      },
+      "scripts/orchestrator-worker": {
+        "path": "/scripts",
+        "files": [
+          "bootstrap-orchestrator.ps1",
+          "bootstrap-orchestrator.sh",
+          "bootstrap-worker.ps1",
+          "bootstrap-worker.sh"
+        ],
+        "purpose": "Bootstrap scripts for orchestrator and workers",
+        "belongs_to": "scripts"
+      },
+      "scripts/deployment": {
+        "path": "/scripts/deployment",
+        "files": [
+          "deploy-orchestrator.sh"
+        ],
+        "purpose": "Deployment scripts",
+        "belongs_to": "scripts"
+      },
+      "scripts/setup": {
+        "path": "/scripts/setup",
+        "files": [
+          "setup-orchestrator.sh",
+          "setup-worker.sh",
+          "complete-setup.ps1",
+          "install-all-components.ps1",
+          "cloudflare-setup.sh",
+          "infisical-setup.sh"
+        ],
+        "purpose": "Setup and installation scripts",
+        "belongs_to": "scripts"
+      },
+      "scripts/distributed-setup": {
+        "path": "/scripts/distributed-setup",
+        "files": [
+          "01-gitea-setup.sh",
+          "02-cloudflared-setup.sh",
+          "03-tailscale-setup.sh"
+        ],
+        "purpose": "Distributed infrastructure setup",
+        "belongs_to": "scripts"
+      },
+      "scripts/extraction": {
+        "path": "/scripts",
+        "files": [
+          "extract-bootstrap-materials.ps1",
+          "extract-bootstrap-phase2.ps1"
+        ],
+        "purpose": "Bootstrap material extraction scripts",
+        "belongs_to": "scripts"
+      },
+      "scripts/infisical": {
+        "path": "/scripts/infisical",
+        "files": [
+          "setup-pc-environments.sh",
+          "setup-tunnels.sh"
+        ],
+        "purpose": "Infisical secrets management setup",
+        "belongs_to": "configs"
+      },
+      "scripts/orchestrator": {
+        "path": "/scripts/orchestrator",
+        "files": [
+          "wake-gpu-worker.sh"
+        ],
+        "purpose": "Orchestrator utility scripts",
+        "belongs_to": "orchestrator-mini"
+      },
+      "scripts/misc": {
+        "path": "/scripts",
+        "files": [
+          "setup-development-repos.ps1",
+          "setup-distributed-memory.ps1",
+          "setup-env-secrets.ps1"
+        ],
+        "purpose": "Miscellaneous setup scripts",
+        "belongs_to": "scripts"
+      }
+    },
+    "integrations": {
+      "integrations/infisical": {
+        "path": "/integrations/infisical",
+        "files": [
+          "inf_bulk/env/machines.orchestrator-mini.env",
+          "inf_bulk/env/machines.worker-rtx3060.env",
+          "inf_path/envtree/dev/machines/orchestrator-mini.env",
+          "inf_path/envtree/dev/machines/worker-rtx3060.env"
+        ],
+        "purpose": "Infisical environment files per machine",
+        "belongs_to": "configs"
+      }
+    },
+    "mcp_ecosystem": {
+      "mcp-ecosystem/FileSystemMCP": {
+        "files": [
+          "bootstrap_and_emit_connector.ps1",
+          "bootstrap_and_emit_connector.ps1.bak"
+        ],
+        "purpose": "FileSystemMCP bootstrap connector",
+        "belongs_to": "GUI-Installer"
+      },
+      "mcp-ecosystem/GithubMCP": {
+        "files": [
+          "bootstrap_githubmcp.ps1",
+          "bootstrap_githubmcp.ps1.bak",
+          "repair_bootstrap_githubmcp.ps1",
+          "repair_bootstrap_githubmcp.ps1.bak",
+          "install_github_git_tools.ps1",
+          "install_github_git_tools.ps1.bak"
+        ],
+        "purpose": "GithubMCP bootstrap and installation",
+        "belongs_to": "GUI-Installer"
+      },
+      "mcp-ecosystem/cross-platform-bootstrap": {
+        "files": [
+          "install.sh"
+        ],
+        "purpose": "Cross-platform bootstrap installer",
+        "belongs_to": "GUI-Installer"
+      },
+      "mcp-ecosystem/ClaudeFlowMCP": {
+        "files": [
+          ".claude/agents/hive-mind/worker-specialist.md",
+          ".claude/agents/templates/orchestrator-task.md",
+          ".claude/commands/hooks/setup.md",
+          ".claude/commands/sparc/orchestrator.md",
+          ".claude/helpers/github-setup.sh",
+          ".claude/helpers/setup-mcp.sh",
+          "scripts/mcp-setup.js",
+          "scripts/setup-env.ps1",
+          "src/orchestration/archon-mcp-orchestrator.js",
+          "src/orchestration/archon-orchestrator.js",
+          "tests/setup.js"
+        ],
+        "purpose": "Claude Flow MCP setup and orchestration",
+        "belongs_to": "configs"
+      },
+      "mcp-ecosystem/orchestrators": {
+        "files": [
+          "code-review-system/review-orchestrator.py",
+          "intelligent-workflow/workflow-orchestrator.py"
+        ],
+        "purpose": "Workflow orchestration scripts",
+        "belongs_to": "orchestrator-mini"
+      }
+    },
+    "documentation": {
+      "docs/architecture": {
+        "path": "/docs/architecture",
+        "files": [
+          "bootstrap-directory-structure.md",
+          "bootstrap-executive-summary.md",
+          "bootstrap-implementation-roadmap.md",
+          "bootstrap-installer-audit-summary.md",
+          "bootstrap-installer-quick-reference.md",
+          "bootstrap-unified-architecture.md"
+        ],
+        "purpose": "Bootstrap architecture documentation",
+        "belongs_to": "docs"
+      },
+      "docs/reports": {
+        "path": "/docs/reports",
+        "files": [
+          "bootstrap-agent-skill-completion.md",
+          "bootstrap-execution-report.md",
+          "bootstrap-extraction-20260108-162758.log",
+          "bootstrap-extraction-phase2-20260108-163051.log",
+          "bootstrap-extraction-summary.md",
+          "bootstrap_apply_report.md"
+        ],
+        "purpose": "Bootstrap execution reports and logs",
+        "belongs_to": "docs"
+      },
+      "docs/api": {
+        "path": "/docs/api",
+        "files": [
+          "orchestrator-openapi.yaml"
+        ],
+        "purpose": "Orchestrator API documentation",
+        "belongs_to": "docs"
+      },
+      "infra/analysis": {
+        "path": "/infra/analysis",
+        "files": [
+          "bootstrap-services.txt"
+        ],
+        "purpose": "Bootstrap service analysis",
+        "belongs_to": "docs"
+      }
+    }
+  },
+  "recommendations": {
+    "consolidation": {
+      "high_priority": [
+        "Move all root-level setup scripts to bootstrap/scripts/",
+        "Consolidate autosetup/ into bootstrap/ (31MB of content)",
+        "Move bootstrap-kit-pc* directories into bootstrap/configs/machines/",
+        "Move claude-bootstrap/ into bootstrap/claude-flow/"
+      ],
+      "medium_priority": [
+        "Consolidate config/ and configs/ directories (appears to be duplication)",
+        "Move config/claude-flow/* to bootstrap/configs/machines/",
+        "Move infra/orchestrator-mini and infra/dual-orchestrator to bootstrap/infra/"
+      ],
+      "low_priority": [
+        "Move bootstrap documentation from docs/ to bootstrap/docs/",
+        "Consolidate MCP bootstrap scripts into bootstrap/mcp-ecosystem/",
+        "Move integrations/infisical machine configs to bootstrap/configs/machines/"
+      ]
+    },
+    "categorization": {
+      "orchestrator-mini": [
+        "bootstrap-kit-pc1",
+        "config/claude-flow/orchestrator",
+        "infra/orchestrator-mini",
+        "infra/dual-orchestrator",
+        "infra/orchestrators",
+        "claude-bootstrap/orchestrator"
+      ],
+      "worker-rtx3060": [
+        "bootstrap-kit-pc2",
+        "config/claude-flow/worker-1",
+        "config/worker1-rtx3060-config.yaml"
+      ],
+      "worker-rtx5090": [
+        "bootstrap-kit-pc3",
+        "config/claude-flow/worker-2",
+        "config/worker2-rtx5090-config.yaml"
+      ],
+      "worker-rtx3090ti": [
+        "bootstrap-kit-pc4",
+        "config/claude-flow/worker-3",
+        "config/worker3-rtx3090ti-config.yaml"
+      ],
+      "configs": [
+        "autosetup",
+        "config/",
+        "configs/",
+        "claude-bootstrap/configs",
+        "all setup and validation scripts"
+      ],
+      "scripts": [
+        "All root-level setup*.*, validate*.*, verify*.*",
+        "scripts/bootstrap",
+        "scripts/setup",
+        "scripts/deployment",
+        "scripts/distributed-setup"
+      ],
+      "GUI-Installer": [
+        "mcp-ecosystem/FileSystemMCP/bootstrap*",
+        "mcp-ecosystem/GithubMCP/bootstrap*",
+        "mcp-ecosystem/cross-platform-bootstrap"
+      ],
+      "docs": [
+        "docs/architecture/bootstrap-*",
+        "docs/reports/bootstrap-*",
+        "docs/api/orchestrator-openapi.yaml"
+      ]
+    }
+  },
+  "notes": {
+    "duplication": [
+      "config/ and configs/ appear to be duplicate directories",
+      "Multiple docker-compose.orchestrator.yml files in config/ and infra/",
+      "Bootstrap materials exist in autosetup/nyra-mcp-infisical-patchkit-v1/bootstrap/"
+    ],
+    "large_items": [
+      "autosetup/ is 31MB - largest directory to consolidate"
+    ],
+    "critical_files": [
+      "All machine-specific configurations (orchestrator, worker1-3)",
+      "Docker compose files for each machine",
+      "Claude Flow configs per machine",
+      "Infisical environment files"
+    ]
+  }
+}

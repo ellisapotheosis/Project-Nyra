@@ -1,0 +1,101 @@
+PS C:\Users\edane> ipconfig /all
+
+Windows IP Configuration
+
+   Host Name . . . . . . . . . . . . : MinisApotheosis
+   Primary Dns Suffix  . . . . . . . :
+   Node Type . . . . . . . . . . . . : Hybrid
+   IP Routing Enabled. . . . . . . . : No
+   WINS Proxy Enabled. . . . . . . . : No
+   DNS Suffix Search List. . . . . . : tail3f6834.ts.net
+                                       ratehunter.net
+                                       attlocal.net
+
+Unknown adapter Tailscale:
+
+   Connection-specific DNS Suffix  . : tail3f6834.ts.net
+   Description . . . . . . . . . . . : Tailscale Tunnel
+   Physical Address. . . . . . . . . :
+   DHCP Enabled. . . . . . . . . . . : No
+   Autoconfiguration Enabled . . . . : Yes
+   IPv6 Address. . . . . . . . . . . : fd7a:115c:a1e0::7a01:eb93(Preferred)
+   Link-local IPv6 Address . . . . . : fe80::7e06:4c04:6f76:54e2%31(Preferred)
+   IPv4 Address. . . . . . . . . . . : 100.64.0.1(Preferred)
+   Subnet Mask . . . . . . . . . . . : 255.255.255.255
+   Default Gateway . . . . . . . . . :
+   DNS Servers . . . . . . . . . . . : 100.100.100.100
+   NetBIOS over Tcpip. . . . . . . . : Enabled
+   Connection-specific DNS Suffix Search List :
+                                       tail3f6834.ts.net
+                                       ratehunter.net
+
+Ethernet adapter Ethernet:
+
+   Connection-specific DNS Suffix  . : attlocal.net
+   Description . . . . . . . . . . . : Realtek Gaming 2.5GbE Family Controller
+   Physical Address. . . . . . . . . : 58-47-CA-78-B0-8F
+   DHCP Enabled. . . . . . . . . . . : Yes
+   Autoconfiguration Enabled . . . . : Yes
+   IPv6 Address. . . . . . . . . . . : 2600:1700:65f0:8960::15(Preferred)
+   Lease Obtained. . . . . . . . . . : Thursday, February 5, 2026 4:31:31 PM
+   Lease Expires . . . . . . . . . . : Friday, February 6, 2026 11:31:30 AM
+   IPv6 Address. . . . . . . . . . . : 2600:1700:65f0:8960:1681:ec34:9159:5fb0(Preferred)
+   IPv6 Address. . . . . . . . . . . : fd15:2e23:265a:4ba5:b997:7237:28d1:c514(Preferred)
+   Temporary IPv6 Address. . . . . . : 2600:1700:65f0:8960:5c43:280a:2c87:f85f(Preferred)
+   Temporary IPv6 Address. . . . . . : fd15:2e23:265a:4ba5:5c43:280a:2c87:f85f(Preferred)
+   Link-local IPv6 Address . . . . . : fe80::53b4:3407:459:d5d1%9(Preferred)
+   IPv4 Address. . . . . . . . . . . : 192.168.1.213(Preferred)
+   Subnet Mask . . . . . . . . . . . : 255.255.255.0
+   Lease Obtained. . . . . . . . . . : Thursday, February 5, 2026 4:26:31 PM
+   Lease Expires . . . . . . . . . . : Saturday, February 7, 2026 4:26:40 AM
+   Default Gateway . . . . . . . . . : fe80::4ae2:adff:fe08:92f1%9
+                                       192.168.1.254
+   DHCP Server . . . . . . . . . . . : 192.168.1.254
+   DHCPv6 IAID . . . . . . . . . . . : 358107082
+   DHCPv6 Client DUID. . . . . . . . : 00-01-01-00-31-0F-9B-47-70-C9-12-FF-ED-0F
+   DNS Servers . . . . . . . . . . . : 2600:1700:65f0:8960::1
+                                       1.1.1.1
+                                         DoH: https://cloudflare-dns.com/dns-query
+                                       1.0.0.1
+                                         DoH: https://cloudflare-dns.com/dns-query
+                                       2600:1700:65f0:8960::1
+   NetBIOS over Tcpip. . . . . . . . : Enabled
+   Connection-specific DNS Suffix Search List :
+                                       attlocal.net
+                                       attlocal.net
+
+Wireless LAN adapter Wi-Fi:
+
+   Media State . . . . . . . . . . . : Media disconnected
+   Connection-specific DNS Suffix  . :
+   Description . . . . . . . . . . . : MediaTek Wi-Fi 6E MT7902 Wireless LAN Card
+   Physical Address. . . . . . . . . : 70-C9-12-FF-ED-0F
+   DHCP Enabled. . . . . . . . . . . : Yes
+   Autoconfiguration Enabled . . . . : Yes
+
+Wireless LAN adapter Local Area Connection* 8:
+
+   Media State . . . . . . . . . . . : Media disconnected
+   Connection-specific DNS Suffix  . :
+   Description . . . . . . . . . . . : Microsoft Wi-Fi Direct Virtual Adapter
+   Physical Address. . . . . . . . . : 72-C9-12-FF-CD-2F
+   DHCP Enabled. . . . . . . . . . . : Yes
+   Autoconfiguration Enabled . . . . : Yes
+
+Wireless LAN adapter Local Area Connection* 10:
+
+   Media State . . . . . . . . . . . : Media disconnected
+   Connection-specific DNS Suffix  . :
+   Description . . . . . . . . . . . : Microsoft Wi-Fi Direct Virtual Adapter #2
+   Physical Address. . . . . . . . . : 72-C9-12-FF-DD-3F
+   DHCP Enabled. . . . . . . . . . . : Yes
+   Autoconfiguration Enabled . . . . : Yes
+
+Ethernet adapter Bluetooth Network Connection:
+
+   Media State . . . . . . . . . . . : Media disconnected
+   Connection-specific DNS Suffix  . :
+   Description . . . . . . . . . . . : Bluetooth Device (Personal Area Network)
+   Physical Address. . . . . . . . . : 70-C9-12-FF-ED-10
+   DHCP Enabled. . . . . . . . . . . : Yes
+   Autoconfiguration Enabled . . . . : Yes

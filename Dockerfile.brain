@@ -59,10 +59,6 @@ set -e
 
 echo "🧠 Initializing Claude Flow Brain..."
 
-# Set log directory to writable location
-export CLAUDE_FLOW_LOG_DIR=/app/logs
-export CLAUDE_FLOW_DATA_DIR=/app/.swarm
-
 # Initialize memory systems
 npx @claude-flow/cli@latest memory init --force --verbose
 
@@ -72,20 +68,16 @@ if [ "$CLAUDE_FLOW_ENABLE_AGENT_DB" = "true" ]; then
   # AgentDB init logic here
 fi
 
-# Start MCP Server in background
+# Start MCP Server
 echo "🚀 Starting MCP Server on port 8080..."
-npx @claude-flow/cli@latest daemon start --port 8080 --log-file /app/logs/daemon.log &
-
-# Wait for daemon to start
-sleep 5
+npx @claude-flow/cli@latest daemon start --port 8080
 
 # Start metrics dashboard on port 3000
 echo "📊 Starting Metrics Dashboard on port 3000..."
-# Metrics server logic here (placeholder for future implementation)
+# Metrics server logic here
 
-# Keep container running and tail logs
-echo "✅ Claude Flow Brain started successfully"
-tail -f /app/logs/daemon.log
+# Keep container running
+tail -f /dev/null
 EOF
 
 RUN chmod +x /app/start-brain.sh

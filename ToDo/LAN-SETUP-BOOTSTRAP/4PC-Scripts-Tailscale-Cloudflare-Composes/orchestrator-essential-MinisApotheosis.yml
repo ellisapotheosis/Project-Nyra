@@ -1,0 +1,104 @@
+# Project Nyra - Cloudflared Tunnel Configuration
+# Location: C:\Users\edane\OneDrive\LANShare\cloudflared-configs\orchestrator-essential.yml
+#
+# Start with:
+#   cloudflared tunnel --config "C:\Users\edane\OneDrive\LANShare\cloudflared-configs\orchestrator-essential.yml" run
+
+tunnel: 64fe03f2-9859-44ca-b0ab-e499d8464104
+credentials-file: C:\Users\edane\.cloudflared\64fe03f2-9859-44ca-b0ab-e499d8464104.json
+
+ingress:
+  # ========================================
+  # PUBLIC WEBSITES (Customer-facing)
+  # ========================================
+
+  # Landing page - Marketing site (PUBLIC, no auth needed)
+  - hostname: ratehunter.net
+    service: http://localhost:3001
+    originRequest:
+      noTLSVerify: true
+      connectTimeout: 30s
+
+  # Nyra Broker Portal - For other mortgage brokers (PUBLIC, auth required)
+  - hostname: nyra.ratehunter.net
+    service: http://localhost:3002
+    originRequest:
+      noTLSVerify: true
+      connectTimeout: 30s
+
+  # Admin Dashboard - For your team (PUBLIC, auth required)
+  - hostname: admin.ratehunter.net
+    service: http://localhost:4000
+    originRequest:
+      noTLSVerify: true
+      connectTimeout: 30s
+
+  # Claude-Flow UI - Flow builder interface (PUBLIC, auth required)
+  - hostname: flow.ratehunter.net
+    service: http://localhost:3100
+    originRequest:
+      noTLSVerify: true
+      connectTimeout: 30s
+
+  # ========================================
+  # INTERNAL TEAM TOOLS (Team access only)
+  # ========================================
+
+  # CRM interface (Sales team)
+  - hostname: crm.ratehunter.net
+    service: http://localhost:3020
+    originRequest:
+      noTLSVerify: true
+      connectTimeout: 30s
+
+  # n8n workflow automation
+  - hostname: n8n.ratehunter.net
+    service: http://localhost:5678
+    originRequest:
+      noTLSVerify: true
+      connectTimeout: 30s
+
+  # Activepieces workflow automation
+  - hostname: flows.ratehunter.net
+    service: http://localhost:5000
+    originRequest:
+      noTLSVerify: true
+      connectTimeout: 30s
+
+  # Grafana monitoring dashboards
+  - hostname: grafana.ratehunter.net
+    service: http://localhost:3000
+    originRequest:
+      noTLSVerify: true
+      connectTimeout: 30s
+
+  # ========================================
+  # CATCH-ALL (404 for undefined routes)
+  # ========================================
+  - service: http_status:404
+
+# ========================================
+# TUNNEL CONFIGURATION
+# ========================================
+
+# Logging
+loglevel: info
+transport-loglevel: info
+
+# Metrics endpoint (for monitoring tunnel health)
+metrics: 0.0.0.0:9999
+
+# Default origin settings for all routes
+originRequest:
+  connectTimeout: 30s
+  tlsTimeout: 10s
+  tcpKeepAlive: 30s
+  keepAliveConnections: 100
+  keepAliveTimeout: 90s
+  noTLSVerify: true
+
+# Tunnel reliability settings
+retries: 3
+grace-period: 30s
+no-autoupdate: true
+protocol: auto

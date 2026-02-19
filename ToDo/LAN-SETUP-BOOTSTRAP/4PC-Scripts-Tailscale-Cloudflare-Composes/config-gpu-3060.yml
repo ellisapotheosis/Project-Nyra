@@ -1,0 +1,17 @@
+# Cloudflare Tunnel Config - RTX 3060 LAPTOP
+# Location: C:\Users\<username>\.cloudflared\config.yml
+
+tunnel: <TUNNEL-ID>
+credentials-file: C:\Users\<username>\.cloudflared\<TUNNEL-ID>.json
+
+ingress:
+  # Ollama API (for external access if needed)
+  - hostname: ollama-3060.ratehunter.net
+    service: http://localhost:11434
+  
+  # Dev services (add as needed)
+  # - hostname: dev.ratehunter.net
+  #   service: http://localhost:3000
+  
+  # Catch-all
+  - service: http_status:404

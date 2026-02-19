@@ -1,0 +1,95 @@
+⚠️ Critical Hardware Reality Check
+You requested meta-llama/Llama-3.1-70B-Instruct.
+
+The Problem: A 70B model requires ~40GB VRAM even at 4-bit quantization. It will crash immediately on your 24GB RTX 5090.
+
+The Fix: I have swapped it to Qwen/Qwen2.5-32B-Instruct-AWQ.
+
+Size: ~18GB VRAM.
+
+Why: This fits on your card with ~6GB left over. LMCache will then use your System RAM to handle the long context (128k+) that would otherwise cause an OOM (Out of Memory) error. This is the perfect use case for LMCache.
+
+🚀 The "Maximalist" Docker Compose (docker-compose.yml)
+Save this file on your Alienware.
+
+YAML
+version: '3.8'
+
+services:
+  # vLLM with LMCache Integrated
+  # We use the 'host' network for maximum performance and 'ipc: host' for memory sharing.
+  vllm-5090:
+    image: lmcache/vllm-openai:latest
+    container_name: vllm-5090
+    runtime: nvidia
+    network_mode: host    # Bypasses Docker bridge for lower latency
+    ipc: host             # Required for PyTorch/LMCache shared memory
+    restart: unless-stopped
+    environment:
+      # --- GPU Configuration ---
+      - NVIDIA_VISIBLE_DEVICES=all
+      - HF_TOKEN=${HF_TOKEN}  # Create a .env file with your token if needed
+      
+      # --- LMCache Configuration (The Magic) ---
+      # Tells vLLM to use LMCache backend
+      - VLLM_KV_TRANSFER_CONFIG={"kv_connector":"LMCacheConnectorV1","kv_role":"kv_both"}
+      # Enable CPU offloading (Uses your laptop's RAM)
+      - LMCACHE_LOCAL_CPU=True
+      # How much System RAM to use for cache (Adjust based on your laptop specs)
+      # If you have 64GB RAM, set to 30. If 32GB, set to 10.
+      - LMCACHE_MAX_LOCAL_CPU_SIZE=20
+      # Chunk size (Default is 256, optimal for most GPUs)
+      - LMCACHE_CHUNK_SIZE=256
+
+    volumes:
+      - vllm_5090_cache:/root/.cache/huggingface
+
+    # The Command
+    # 1. Use the AWQ quantized model (fits in 24GB)
+    # 2. Reserve 90% VRAM for weights + minimal cache
+    # 3. Disable the native hybrid cache manager so LMCache takes over
+    command: >
+      --model Qwen/Qwen2.5-32B-Instruct-AWQ
+      --tensor-parallel-size 1
+      --max-model-len 32768
+      --gpu-memory-utilization 0.90
+      --port 8000
+      --kv-transfer-config '{"kv_connector":"LMCacheConnectorV1", "kv_role":"kv_both"}'
+      --kv-offloading-backend lmcache
+      --disable-hybrid-kv-cache-manager
+
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+volumes:
+  vllm_5090_cache:
+📋 Setup Steps
+Create a .env file in the same folder if you need a Hugging Face token (usually not needed for Qwen, but needed if you switch back to Llama):
+
+Bash
+HF_TOKEN=your_token_here
+Adjust RAM Usage: Look at the environment variable LMCACHE_MAX_LOCAL_CPU_SIZE=20.
+
+If your Alienware has 64GB RAM, leave it at 20 (or increase to 30).
+
+If it has 32GB RAM, lower it to 10 to prevent crashing Windows.
+
+Run it:
+
+Bash
+docker compose up -d
+Connect (from Orchestrator/n8n):
+
+URL: http://<ALIENWARE-TAILSCALE-IP>:8000/v1
+
+Model Name: Qwen/Qwen2.5-32B-Instruct-AWQ
+
+🔍 Comparison with LMCache GitHub
+Your Snippet: Attempted to run lmcache as a separate container ("sidecar"). While supported (LMCacheMPConnector), the official LMCache docs recommend the integrated image (lmcache/vllm-openai) for single-node setups because it avoids the overhead of sending data between two containers over TCP/IP.
+
+My Fix: I used the integrated image. This runs the LMCache logic inside the vLLM process, directly offloading to your system RAM via C++ bindings. It is significantly faster for your use case.

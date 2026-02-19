@@ -1,0 +1,424 @@
+" NYRA Apotheosis Vim Configuration
+" Enhanced for modern development with UV Python support
+
+" =====================================================
+" VIM-PLUG PLUGIN MANAGER
+" =====================================================
+call plug#begin('~/.vim/plugged')
+
+" Core Editing
+Plug 'tpope/vim-sensible'              " Sensible defaults
+Plug 'tpope/vim-surround'              " Surround text objects
+Plug 'tpope/vim-commentary'            " Easy commenting
+Plug 'tpope/vim-repeat'                " Better . repeat
+Plug 'jiangmiao/auto-pairs'            " Auto brackets
+
+" File Navigation
+Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
+Plug 'junegunn/fzf.vim'                " Fuzzy finder
+Plug 'preservim/nerdtree'              " File tree
+Plug 'Xuyuanp/nerdtree-git-plugin'     " Git status in NerdTree
+
+" Git Integration
+Plug 'tpope/vim-fugitive'              " Git commands
+Plug 'airblade/vim-gitgutter'          " Git diff in gutter
+Plug 'tpope/vim-rhubarb'               " GitHub integration
+
+" Language Support
+Plug 'sheerun/vim-polyglot'            " Language pack
+Plug 'dense-analysis/ale'              " Linting and fixing
+Plug 'neoclide/coc.nvim', {'branch': 'release'} " LSP support
+
+" Python (UV focused)
+Plug 'vim-python/python-syntax'        " Enhanced Python syntax
+Plug 'Vimjas/vim-python-pep8-indent'   " PEP8 indentation
+Plug 'jeetsukumaran/vim-pythonsense'   " Python text objects
+
+" TypeScript/JavaScript
+Plug 'pangloss/vim-javascript'         " JavaScript syntax
+Plug 'leafgarland/typescript-vim'      " TypeScript syntax
+Plug 'maxmellon/vim-jsx-pretty'        " JSX/TSX syntax
+
+" Appearance
+Plug 'vim-airline/vim-airline'         " Status line
+Plug 'vim-airline/vim-airline-themes'  " Airline themes
+Plug 'morhetz/gruvbox'                 " Gruvbox color scheme
+Plug 'dracula/vim', { 'as': 'dracula' } " Dracula theme
+Plug 'joshdick/onedark.vim'            " One Dark theme
+
+" Utilities
+Plug 'mbbill/undotree'                 " Undo history
+Plug 'preservim/tagbar'                " Tag browser
+Plug 'Yggdroot/indentLine'             " Indent guides
+Plug 'ryanoasis/vim-devicons'          " File icons
+
+call plug#end()
+
+" =====================================================
+" GENERAL SETTINGS
+" =====================================================
+
+set nocompatible                       " Not compatible with vi
+set encoding=utf-8                     " UTF-8 encoding
+set fileencoding=utf-8                 " UTF-8 file encoding
+set backspace=indent,eol,start         " Better backspace
+set hidden                             " Allow hidden buffers
+set autoread                           " Auto-reload changed files
+set clipboard=unnamedplus              " System clipboard
+
+" Visual settings
+set number                             " Line numbers
+set relativenumber                     " Relative line numbers
+set cursorline                         " Highlight current line
+set showmatch                          " Highlight matching brackets
+set laststatus=2                       " Always show status line
+set ruler                              " Show cursor position
+set showcmd                            " Show command in status
+set wildmenu                           " Enhanced command completion
+set wildmode=list:longest,full         " Command completion mode
+set signcolumn=yes                     " Always show sign column
+
+" Indentation
+set tabstop=4                          " Tab width
+set shiftwidth=4                       " Indent width
+set softtabstop=4                      " Soft tab stop
+set expandtab                          " Use spaces instead of tabs
+set smarttab                           " Smart tab handling
+set autoindent                         " Auto indent
+set smartindent                        " Smart indent
+set cindent                            " C-style indenting
+
+" Search
+set hlsearch                           " Highlight search results
+set incsearch                          " Incremental search
+set ignorecase                         " Ignore case in search
+set smartcase                          " Smart case sensitivity
+
+" Performance
+set lazyredraw                         " Don't redraw during macros
+set updatetime=300                     " Faster completion
+set timeoutlen=500                     " Faster key sequence completion
+
+" Backup and swap
+set nobackup                           " No backup files
+set nowritebackup                      " No backup when writing
+set noswapfile                         " No swap files
+set undofile                           " Persistent undo
+set undodir=~/.vim/undodir             " Undo directory
+
+" =====================================================
+" THEME AND COLORS
+" =====================================================
+
+syntax enable                          " Enable syntax highlighting
+set termguicolors                      " True color support
+
+" NYRA theme selection (Xulbux Purple inspired)
+if has('termguicolors')
+    set termguicolors
+    colorscheme onedark
+    " Custom NYRA colors
+    hi Normal guibg=#1e1e2e guifg=#cdd6f4
+    hi CursorLine guibg=#313244
+    hi LineNr guifg=#6c7086
+    hi Comment guifg=#9399b2
+    hi String guifg=#a6e3a1
+    hi Keyword guifg=#cba6f7
+    hi Function guifg=#89b4fa
+    hi Type guifg=#f38ba8
+else
+    colorscheme desert
+endif
+
+" =====================================================
+" AIRLINE CONFIGURATION
+" =====================================================
+
+let g:airline_theme='onedark'
+let g:airline_powerline_fonts = 1
+let g:airline#extensions#branch#enabled = 1
+let g:airline#extensions#ale#enabled = 1
+let g:airline#extensions#tabline#enabled = 1
+let g:airline#extensions#tabline#buffer_idx_mode = 1
+
+" =====================================================
+" PLUGIN CONFIGURATIONS
+" =====================================================
+
+" FZF Configuration
+let g:fzf_layout = { 'down': '30%' }
+let g:fzf_colors = {
+\ 'fg':      ['fg', 'Normal'],
+\ 'bg':      ['bg', 'Normal'],
+\ 'hl':      ['fg', 'Comment'],
+\ 'fg+':     ['fg', 'CursorLine', 'CursorColumn', 'Normal'],
+\ 'bg+':     ['bg', 'CursorLine', 'CursorColumn'],
+\ 'hl+':     ['fg', 'Statement'],
+\ 'info':    ['fg', 'PreProc'],
+\ 'border':  ['fg', 'Ignore'],
+\ 'prompt':  ['fg', 'Conditional'],
+\ 'pointer': ['fg', 'Exception'],
+\ 'marker':  ['fg', 'Keyword'],
+\ 'spinner': ['fg', 'Label'],
+\ 'header':  ['fg', 'Comment'] }
+
+" NerdTree Configuration
+let NERDTreeShowHidden = 1
+let NERDTreeIgnore = ['\.git$', '\.DS_Store$', '__pycache__', '\.pyc$', 'node_modules']
+let NERDTreeWinSize = 30
+
+" ALE Configuration (Linting)
+let g:ale_linters = {
+\   'python': ['ruff', 'mypy'],
+\   'javascript': ['eslint'],
+\   'typescript': ['eslint', 'tsserver'],
+\   'json': ['jsonlint'],
+\   'yaml': ['yamllint'],
+\   'markdown': ['markdownlint'],
+\}
+
+let g:ale_fixers = {
+\   'python': ['ruff_format', 'ruff'],
+\   'javascript': ['eslint', 'prettier'],
+\   'typescript': ['eslint', 'prettier'],
+\   'json': ['prettier'],
+\   'yaml': ['prettier'],
+\   'markdown': ['prettier'],
+\}
+
+let g:ale_fix_on_save = 1
+let g:ale_lint_on_text_changed = 'always'
+let g:ale_lint_on_insert_leave = 1
+
+" Python configuration (UV focused)
+let g:python3_host_prog = system('which python3 | tr -d "\n"')
+let g:ale_python_ruff_executable = 'uv'
+let g:ale_python_ruff_options = 'run ruff'
+let g:ale_python_mypy_executable = 'uv'
+let g:ale_python_mypy_options = 'run mypy'
+
+" CoC Extensions
+let g:coc_global_extensions = [
+\   'coc-pyright',
+\   'coc-tsserver',
+\   'coc-json',
+\   'coc-yaml',
+\   'coc-html',
+\   'coc-css',
+\   'coc-prettier'
+\]
+
+" GitGutter Configuration
+let g:gitgutter_max_signs = 500
+let g:gitgutter_map_keys = 0
+let g:gitgutter_preview_win_floating = 1
+
+" IndentLine Configuration
+let g:indentLine_enabled = 1
+let g:indentLine_char = '┊'
+let g:indentLine_color_gui = '#3b4261'
+
+" =====================================================
+" KEY MAPPINGS
+" =====================================================
+
+" Leader key
+let mapleader = ","
+let maplocalleader = "\\"
+
+" General mappings
+nnoremap <silent> <C-h> :wincmd h<CR>
+nnoremap <silent> <C-j> :wincmd j<CR>
+nnoremap <silent> <C-k> :wincmd k<CR>
+nnoremap <silent> <C-l> :wincmd l<CR>
+
+" Clear search highlighting
+nnoremap <leader><space> :noh<CR>
+
+" Quick save and quit
+nnoremap <leader>w :w<CR>
+nnoremap <leader>q :q<CR>
+nnoremap <leader>wq :wq<CR>
+
+" Buffer navigation
+nnoremap <leader>bn :bnext<CR>
+nnoremap <leader>bp :bprev<CR>
+nnoremap <leader>bd :bdelete<CR>
+
+" File operations
+nnoremap <leader>ff :Files<CR>
+nnoremap <leader>fb :Buffers<CR>
+nnoremap <leader>fg :Rg<CR>
+nnoremap <leader>fh :History<CR>
+
+" NerdTree
+nnoremap <leader>nt :NERDTreeToggle<CR>
+nnoremap <leader>nf :NERDTreeFind<CR>
+
+" Git operations (Fugitive)
+nnoremap <leader>gs :Git status<CR>
+nnoremap <leader>gc :Git commit<CR>
+nnoremap <leader>gp :Git push<CR>
+nnoremap <leader>gl :Git log --oneline<CR>
+nnoremap <leader>gd :Gdiffsplit<CR>
+nnoremap <leader>gb :Git blame<CR>
+
+" GitGutter
+nnoremap <leader>gn :GitGutterNextHunk<CR>
+nnoremap <leader>gp :GitGutterPrevHunk<CR>
+nnoremap <leader>gu :GitGutterUndoHunk<CR>
+nnoremap <leader>gv :GitGutterPreviewHunk<CR>
+
+" ALE
+nnoremap <leader>an :ALENext<CR>
+nnoremap <leader>ap :ALEPrevious<CR>
+nnoremap <leader>af :ALEFix<CR>
+nnoremap <leader>ai :ALEInfo<CR>
+
+" CoC mappings
+inoremap <silent><expr> <TAB>
+      \ pumvisible() ? "\<C-n>" :
+      \ <SID>check_back_space() ? "\<TAB>" :
+      \ coc#refresh()
+inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
+
+function! s:check_back_space() abort
+  let col = col('.') - 1
+  return !col || getline('.')[col - 1]  =~# '\s'
+endfunction
+
+" GoTo code navigation
+nmap <silent> gd <Plug>(coc-definition)
+nmap <silent> gy <Plug>(coc-type-definition)
+nmap <silent> gi <Plug>(coc-implementation)
+nmap <silent> gr <Plug>(coc-references)
+
+" Rename symbol
+nmap <leader>rn <Plug>(coc-rename)
+
+" Utilities
+nnoremap <leader>ut :UndotreeToggle<CR>
+nnoremap <leader>tb :TagbarToggle<CR>
+
+" =====================================================
+" NYRA-SPECIFIC CONFIGURATIONS
+" =====================================================
+
+" NYRA file templates
+autocmd BufNewFile *.py call s:NYRAPythonTemplate()
+autocmd BufNewFile *.ts call s:NYRATypeScriptTemplate()
+
+function! s:NYRAPythonTemplate()
+    0r ~/.vim/templates/nyra_python.py
+    $delete
+    normal! gg
+endfunction
+
+function! s:NYRATypeScriptTemplate()
+    0r ~/.vim/templates/nyra_typescript.ts  
+    $delete
+    normal! gg
+endfunction
+
+" UV Python integration
+command! UVInit :!uv init --python 3.12
+command! UVAdd :!uv add <args>
+command! UVSync :!uv sync
+command! UVRun :!uv run <args>
+
+" NYRA project commands
+command! NYRATest :!uv run pytest tests/ -v
+command! NYRALint :!uv run ruff check .
+command! NYRAFormat :!uv run ruff format .
+command! NYRATypeCheck :!uv run mypy .
+
+" Quick NYRA navigation
+nnoremap <leader>nc :cd /c/Dev/nyra-core<CR>:pwd<CR>
+nnoremap <leader>nw :cd /c/Dev/nyra-webapp<CR>:pwd<CR>
+nnoremap <leader>nm :cd /c/Dev/nyra-memory<CR>:pwd<CR>
+nnoremap <leader>ni :cd /c/Dev/nyra-infra<CR>:pwd<CR>
+nnoremap <leader>np :cd /c/Dev/nyra-prompts<CR>:pwd<CR>
+
+" =====================================================
+" AUTOCOMMANDS
+" =====================================================
+
+augroup NYRAGroup
+    autocmd!
+    
+    " Auto-save on focus lost
+    autocmd FocusLost * :wa
+    
+    " Auto-reload vimrc
+    autocmd BufWritePost _vimrc,vimrc source $MYVIMRC | echom "Vimrc reloaded!"
+    
+    " Python-specific settings
+    autocmd FileType python setlocal tabstop=4 shiftwidth=4 softtabstop=4
+    autocmd FileType python setlocal foldmethod=indent
+    
+    " TypeScript/JavaScript settings  
+    autocmd FileType typescript,javascript setlocal tabstop=2 shiftwidth=2 softtabstop=2
+    autocmd FileType typescript,javascript setlocal foldmethod=syntax
+    
+    " JSON settings
+    autocmd FileType json setlocal tabstop=2 shiftwidth=2 softtabstop=2
+    
+    " YAML settings
+    autocmd FileType yaml setlocal tabstop=2 shiftwidth=2 softtabstop=2
+    
+    " Remove trailing whitespace on save
+    autocmd BufWritePre * :%s/\s\+$//e
+    
+    " Return to last edit position
+    autocmd BufReadPost *
+         \ if line("'\"") > 0 && line("'\"") <= line("$") |
+         \   exe "normal! g`\"" |
+         \ endif
+    
+augroup END
+
+" =====================================================
+" STATUS LINE CUSTOMIZATION
+" =====================================================
+
+set statusline=
+set statusline+=%#PmenuSel#
+set statusline+=%{StatuslineMode()}
+set statusline+=%#LineNr#
+set statusline+=\ %f
+set statusline+=%m\
+set statusline+=%=
+set statusline+=%#CursorColumn#
+set statusline+=\ %y
+set statusline+=\ %{&fileencoding?&fileencoding:&encoding}
+set statusline+=\[%{&fileformat}\]
+set statusline+=\ %p%%
+set statusline+=\ %l:%c
+set statusline+=\
+
+function! StatuslineMode()
+  let l:mode=mode()
+  if l:mode==#"n"
+    return "NORMAL"
+  elseif l:mode==?"v"
+    return "VISUAL"
+  elseif l:mode==#"i"
+    return "INSERT"
+  elseif l:mode==#"R"
+    return "REPLACE"
+  elseif l:mode==?"s"
+    return "SELECT"
+  elseif l:mode==#"t"
+    return "TERMINAL"
+  elseif l:mode==#"c"
+    return "COMMAND"
+  elseif l:mode==#"!"
+    return "SHELL"
+  endif
+endfunction
+
+" =====================================================
+" WELCOME MESSAGE
+" =====================================================
+
+echo "🚀 NYRA Vim Configuration Loaded - UV Python Ready!"

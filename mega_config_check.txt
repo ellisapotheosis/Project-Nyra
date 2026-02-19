@@ -1,0 +1,390 @@
+name: project-nyra
+services:
+  activepieces:
+    container_name: nyra-activepieces
+    environment:
+      AP_ENVIRONMENT: PRODUCTION
+    image: activepieces/activepieces:latest
+    networks:
+      nyra-core: null
+    ports:
+      - mode: ingress
+        target: 80
+        published: "3002"
+        protocol: tcp
+    restart: unless-stopped
+  agentdb:
+    container_name: nyra-agentdb
+    environment:
+      POSTGRES_DB: agentdb
+      POSTGRES_PASSWORD: agentdb
+      POSTGRES_USER: agentdb
+    image: postgres:15-alpine
+    networks:
+      nyra-core: null
+  archon-mcp:
+    build:
+      context: \\wsl.localhost\Ubuntu\home\ellisapotheosis\projects\project-nyra\tools\archon\python
+      dockerfile: Dockerfile.mcp
+    container_name: nyra-archon-mcp
+    environment:
+      NEXUS_ROUTER_URL: http://nexus:6000
+    networks:
+      nyra-mcp: null
+    ports:
+      - mode: ingress
+        target: 8051
+        published: "8051"
+        protocol: tcp
+    restart: unless-stopped
+  archon-server:
+    build:
+      context: \\wsl.localhost\Ubuntu\home\ellisapotheosis\projects\project-nyra\tools\archon\python
+      dockerfile: Dockerfile.server
+    container_name: nyra-archon-server
+    depends_on:
+      postgresql:
+        condition: service_started
+        required: true
+    environment:
+      NEXUS_ROUTER_URL: http://nexus:6000
+      SUPABASE_SERVICE_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+      SUPABASE_URL: https://your-project.supabase.co
+    networks:
+      nyra-core: null
+      nyra-mcp: null
+    ports:
+      - mode: ingress
+        target: 8181
+        published: "8181"
+        protocol: tcp
+    restart: unless-stopped
+  archon-ui:
+    build:
+      context: \\wsl.localhost\Ubuntu\home\ellisapotheosis\projects\project-nyra\tools\archon\archon-ui-main
+      dockerfile: Dockerfile
+    container_name: nyra-archon-ui
+    networks:
+      nyra-core: null
+    ports:
+      - mode: ingress
+        target: 3737
+        published: "3737"
+        protocol: tcp
+    restart: unless-stopped
+  claude-flow:
+    build:
+      context: \\wsl.localhost\Ubuntu\home\ellisapotheosis\projects\project-nyra\services\claude-flow
+      dockerfile: Dockerfile
+    container_name: nyra-claude-flow
+    depends_on:
+      agentdb:
+        condition: service_started
+        required: true
+      nexus:
+        condition: service_started
+        required: true
+    environment:
+      AGENTDB_URL: postgresql://agentdb:agentdb@agentdb:5432/agentdb
+      CLAUDE_FLOW_MODE: orch
+      NEXUS_ROUTER_URL: http://nexus:6000
+    networks:
+      nyra-core: null
+      nyra-mcp: null
+    ports:
+      - mode: ingress
+        target: 8080
+        published: "8084"
+        protocol: tcp
+    restart: unless-stopped
+  dashboard-ui:
+    build:
+      context: \\wsl.localhost\Ubuntu\home\ellisapotheosis\projects\project-nyra\apps\claude-flow-dashboard-ui
+      dockerfile: Dockerfile
+    container_name: nyra-dashboard-ui
+    networks:
+      nyra-core: null
+    ports:
+      - mode: ingress
+        target: 3000
+        published: "8085"
+        protocol: tcp
+    restart: unless-stopped
+  falkordb:
+    container_name: nyra-falkordb
+    image: falkordb/falkordb:latest
+    networks:
+      nyra-core: null
+    ports:
+      - mode: ingress
+        target: 6379
+        published: "6380"
+        protocol: tcp
+    restart: unless-stopped
+    volumes:
+      - type: volume
+        source: falkordb_data
+        target: /data
+        volume: {}
+  gitea:
+    container_name: nyra-gitea
+    image: gitea/gitea:latest
+    networks:
+      nyra-core: null
+    ports:
+      - mode: ingress
+        target: 3000
+        published: "3001"
+        protocol: tcp
+      - mode: ingress
+        target: 22
+        published: "2222"
+        protocol: tcp
+    restart: unless-stopped
+    volumes:
+      - type: volume
+        source: gitea_data
+        target: /data
+        volume: {}
+  graphiti_mcp:
+    container_name: nyra-graphiti-mcp
+    depends_on:
+      falkordb:
+        condition: service_started
+        required: true
+      nexus:
+        condition: service_started
+        required: true
+    environment:
+      FALKORDB_URI: redis://falkordb:6379
+      OPENAI_BASE_URL: http://nexus:6000/llm/openai/v1
+    image: zepai/knowledge-graph-mcp:standalone
+    networks:
+      nyra-mcp: null
+    restart: unless-stopped
+  letta:
+    container_name: nyra-letta
+    depends_on:
+      letta-db:
+        condition: service_started
+        required: true
+    environment:
+      LETTA_PG_URI: postgresql://letta:letta@letta-db:5432/letta
+      LETTA_SERVER_PORT: "8282"
+      OPENAI_API_BASE: http://nexus:6000/llm/openai/v1
+    image: letta/letta:latest
+    networks:
+      nyra-core: null
+    ports:
+      - mode: ingress
+        target: 8282
+        published: "8282"
+        protocol: tcp
+    restart: unless-stopped
+  letta-db:
+    container_name: nyra-letta-db
+    environment:
+      POSTGRES_DB: letta
+      POSTGRES_PASSWORD: letta
+      POSTGRES_USER: letta
+    image: postgres:15-alpine
+    networks:
+      nyra-core: null
+  litellm:
+    container_name: nyra-litellm
+    environment:
+      ANTHROPIC_API_KEY: sk-ant-...
+      OPENAI_API_KEY: sk-proj-...
+    image: ghcr.io/berriai/litellm:main-latest
+    networks:
+      nyra-core: null
+    ports:
+      - mode: ingress
+        target: 4000
+        published: "4000"
+        protocol: tcp
+    restart: unless-stopped
+  mem0:
+    container_name: nyra-mem0
+    image: mem0/mem0:latest
+    networks:
+      nyra-core: null
+    ports:
+      - mode: ingress
+        target: 8080
+        published: "8083"
+        protocol: tcp
+    restart: unless-stopped
+  n8n:
+    container_name: nyra-n8n
+    image: n8nio/n8n:latest
+    networks:
+      nyra-core: null
+    ports:
+      - mode: ingress
+        target: 5678
+        published: "5678"
+        protocol: tcp
+    restart: unless-stopped
+  nexus:
+    container_name: nyra-nexus
+    environment:
+      ADMIN_EMAIL: ""
+      ANTHROPIC_API_KEY: sk-ant-...
+      GITHUB_TOKEN: ""
+      GOOGLE_API_KEY: AIzaSy...
+      OPENAI_API_KEY: sk-proj-...
+    healthcheck:
+      test:
+        - CMD
+        - curl
+        - -f
+        - http://localhost:6000/health
+      timeout: 10s
+      interval: 30s
+      retries: 3
+    image: grafbase/nexus:latest
+    networks:
+      nyra-core: null
+      nyra-mcp: null
+    ports:
+      - mode: ingress
+        target: 6000
+        published: "6000"
+        protocol: tcp
+    restart: unless-stopped
+    volumes:
+      - type: bind
+        source: \\wsl.localhost\Ubuntu\home\ellisapotheosis\projects\project-nyra\nexus_master.toml
+        target: /etc/nexus/nexus.toml
+        read_only: true
+        bind: {}
+  postgresql:
+    container_name: nyra-postgres
+    environment:
+      POSTGRES_DB: nyra_production
+      POSTGRES_PASSWORD: nyra_password
+      POSTGRES_USER: nyra
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - pg_isready -U nyra -d nyra_production
+      timeout: 5s
+      interval: 10s
+      retries: 5
+    image: postgres:15-alpine
+    networks:
+      nyra-core: null
+    ports:
+      - mode: ingress
+        target: 5432
+        published: "5432"
+        protocol: tcp
+    restart: unless-stopped
+  prometheus:
+    container_name: nyra-prometheus
+    image: prom/prometheus:latest
+    networks:
+      nyra-core: null
+    volumes:
+      - type: bind
+        source: \\wsl.localhost\Ubuntu\home\ellisapotheosis\projects\project-nyra\infra\configs\prometheus
+        target: /etc/prometheus
+        bind: {}
+  qdrant:
+    container_name: nyra-qdrant
+    image: qdrant/qdrant:latest
+    networks:
+      nyra-core: null
+    ports:
+      - mode: ingress
+        target: 6333
+        published: "6333"
+        protocol: tcp
+    restart: unless-stopped
+    volumes:
+      - type: volume
+        source: qdrant_data
+        target: /qdrant/storage
+        volume: {}
+  redis:
+    container_name: nyra-redis
+    image: redis:alpine
+    networks:
+      nyra-core: null
+    ports:
+      - mode: ingress
+        target: 6379
+        published: "6379"
+        protocol: tcp
+    restart: unless-stopped
+  ruv-swarm:
+    container_name: nyra-ruv-swarm
+    environment:
+      NEXUS_URL: http://nexus:6000
+    image: ruvnet/ruv-swarm:latest
+    networks:
+      nyra-core: null
+      nyra-mcp: null
+    restart: unless-stopped
+  ruvector:
+    container_name: nyra-ruvector
+    image: ruvnet/ruvector:latest
+    networks:
+      nyra-core: null
+    ports:
+      - mode: ingress
+        target: 8080
+        published: "8082"
+        protocol: tcp
+    restart: unless-stopped
+  tempo:
+    container_name: nyra-tempo
+    image: grafana/tempo:latest
+    networks:
+      nyra-core: null
+    ports:
+      - mode: ingress
+        target: 4317
+        published: "4317"
+        protocol: tcp
+    restart: unless-stopped
+  twenty:
+    container_name: nyra-twenty
+    depends_on:
+      twenty-db:
+        condition: service_started
+        required: true
+    environment:
+      PG_DATABASE_URL: postgresql://twenty:twenty@twenty-db:5432/twenty
+      PORT: "3000"
+    image: twentycrm/twenty:latest
+    networks:
+      nyra-core: null
+    ports:
+      - mode: ingress
+        target: 3000
+        published: "3000"
+        protocol: tcp
+    restart: unless-stopped
+  twenty-db:
+    container_name: nyra-twenty-db
+    environment:
+      POSTGRES_DB: twenty
+      POSTGRES_PASSWORD: twenty
+      POSTGRES_USER: twenty
+    image: postgres:15-alpine
+    networks:
+      nyra-core: null
+networks:
+  nyra-core:
+    name: nyra-core
+  nyra-mcp:
+    name: nyra-mcp
+volumes:
+  falkordb_data:
+    name: project-nyra_falkordb_data
+  gitea_data:
+    name: project-nyra_gitea_data
+  qdrant_data:
+    name: project-nyra_qdrant_data

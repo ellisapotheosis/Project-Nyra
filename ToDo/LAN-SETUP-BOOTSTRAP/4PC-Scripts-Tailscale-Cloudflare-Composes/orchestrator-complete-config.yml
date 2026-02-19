@@ -1,0 +1,238 @@
+tunnel: 64fe03f2-9859-44ca-b0ab-e499d8464104
+credentials-file: C:\Users\edane\.cloudflared\64fe03f2-9859-44ca-b0ab-e499d8464104.json
+
+ingress:
+  # ===== PHASE 1: ESSENTIAL PUBLIC SERVICES =====
+
+  # Landing & Core Apps
+  - hostname: ratehunter.net
+    service: http://localhost:3001
+    originRequest:
+      noTLSVerify: true
+      connectTimeout: 30s
+
+  - hostname: app.ratehunter.net
+    service: http://localhost:3002
+    originRequest:
+      noTLSVerify: true
+      connectTimeout: 30s
+
+  - hostname: portal.ratehunter.net
+    service: http://localhost:3003
+    originRequest:
+      noTLSVerify: true
+      connectTimeout: 30s
+
+  - hostname: assistant.ratehunter.net
+    service: http://localhost:3004
+    originRequest:
+      noTLSVerify: true
+      connectTimeout: 30s
+
+  # Admin & Monitoring Dashboards
+  - hostname: admin.ratehunter.net
+    service: http://localhost:3101
+    originRequest:
+      noTLSVerify: true
+      connectTimeout: 30s
+
+  - hostname: archon.ratehunter.net
+    service: http://localhost:4000
+    originRequest:
+      noTLSVerify: true
+      connectTimeout: 30s
+
+  - hostname: nexus-dash.ratehunter.net
+    service: http://localhost:3005
+    originRequest:
+      noTLSVerify: true
+      connectTimeout: 30s
+
+  # CRM
+  - hostname: crm.ratehunter.net
+    service: http://localhost:3020
+    originRequest:
+      noTLSVerify: true
+      connectTimeout: 30s
+
+  - hostname: crm-dash.ratehunter.net
+    service: http://localhost:3021
+    originRequest:
+      noTLSVerify: true
+      connectTimeout: 30s
+
+  # AI & Chat
+  - hostname: chat.ratehunter.net
+    service: http://localhost:3333
+    originRequest:
+      noTLSVerify: true
+      connectTimeout: 30s
+      keepAliveTimeout: 90s
+      httpHostHeader: chat.ratehunter.net
+
+  - hostname: composio.ratehunter.net
+    service: http://localhost:8001
+    originRequest:
+      noTLSVerify: true
+      connectTimeout: 30s
+
+  # Workflow Automation
+  - hostname: n8n.ratehunter.net
+    service: http://localhost:5678
+    originRequest:
+      noTLSVerify: true
+      connectTimeout: 30s
+
+  - hostname: flows.ratehunter.net
+    service: http://localhost:5000
+    originRequest:
+      noTLSVerify: true
+      connectTimeout: 30s
+
+  # Core Backend Services
+  - hostname: nexus.ratehunter.net
+    service: http://localhost:6000
+    originRequest:
+      noTLSVerify: true
+      connectTimeout: 30s
+
+  - hostname: orchestrator.ratehunter.net
+    service: http://localhost:8000
+    originRequest:
+      noTLSVerify: true
+      connectTimeout: 30s
+
+  - hostname: auth.ratehunter.net
+    service: http://localhost:8080
+    originRequest:
+      noTLSVerify: true
+      connectTimeout: 30s
+
+  - hostname: api.ratehunter.net
+    service: http://localhost:6000
+    originRequest:
+      noTLSVerify: true
+      connectTimeout: 30s
+
+  # Real-time Communication
+  - hostname: ws.ratehunter.net
+    service: http://localhost:9000
+    originRequest:
+      noTLSVerify: true
+      connectTimeout: 30s
+
+  # ===== PHASE 2: AI & KNOWLEDGE SERVICES =====
+
+  # Knowledge & Memory
+  - hostname: graph.ratehunter.net
+    service: http://localhost:8100
+    originRequest:
+      noTLSVerify: true
+      connectTimeout: 30s
+
+  - hostname: vector.ratehunter.net
+    service: http://localhost:8200
+    originRequest:
+      noTLSVerify: true
+      connectTimeout: 30s
+
+  - hostname: memory.ratehunter.net
+    service: http://localhost:8300
+    originRequest:
+      noTLSVerify: true
+      connectTimeout: 30s
+
+  - hostname: letta.ratehunter.net
+    service: http://localhost:8400
+    originRequest:
+      noTLSVerify: true
+      connectTimeout: 30s
+
+  # LLM Infrastructure
+  - hostname: llm.ratehunter.net
+    service: http://localhost:8500
+    originRequest:
+      noTLSVerify: true
+      connectTimeout: 30s
+
+  # ===== PHASE 3: BUSINESS LOGIC APIS =====
+
+  # Lead Management
+  - hostname: leads.ratehunter.net
+    service: http://localhost:8010
+    originRequest:
+      noTLSVerify: true
+      connectTimeout: 30s
+
+  # Quote & Rate Services
+  - hostname: quotes.ratehunter.net
+    service: http://localhost:8020
+    originRequest:
+      noTLSVerify: true
+      connectTimeout: 30s
+
+  - hostname: rates.ratehunter.net
+    service: http://localhost:8030
+    originRequest:
+      noTLSVerify: true
+      connectTimeout: 30s
+
+  # Document Management
+  - hostname: docs.ratehunter.net
+    service: http://localhost:8040
+    originRequest:
+      noTLSVerify: true
+      connectTimeout: 30s
+
+  # Campaign Management
+  - hostname: campaigns.ratehunter.net
+    service: http://localhost:8050
+    originRequest:
+      noTLSVerify: true
+      connectTimeout: 30s
+
+  # ===== PHASE 4: MONITORING & OBSERVABILITY =====
+
+  # Monitoring Stack
+  - hostname: grafana.ratehunter.net
+    service: http://localhost:3000
+    originRequest:
+      noTLSVerify: true
+      connectTimeout: 30s
+
+  - hostname: metrics.ratehunter.net
+    service: http://localhost:9090
+    originRequest:
+      noTLSVerify: true
+      connectTimeout: 30s
+
+  - hostname: logs.ratehunter.net
+    service: http://localhost:5601
+    originRequest:
+      noTLSVerify: true
+      connectTimeout: 30s
+
+  # ===== CATCH-ALL =====
+  - service: http_status:404
+
+# Logging
+loglevel: info
+transport-loglevel: info
+
+# Metrics
+metrics: 0.0.0.0:8080
+
+# Origin configuration
+originRequest:
+  connectTimeout: 30s
+  tlsTimeout: 10s
+  tcpKeepAlive: 30s
+  keepAliveConnections: 100
+  keepAliveTimeout: 90s
+  noTLSVerify: true
+
+# Tunnel settings
+retries: 3
+grace-period: 30s
+no-autoupdate: true
+protocol: auto

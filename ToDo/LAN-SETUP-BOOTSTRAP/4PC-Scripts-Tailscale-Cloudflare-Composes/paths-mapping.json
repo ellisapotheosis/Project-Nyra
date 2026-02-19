@@ -1,0 +1,338 @@
+{
+  "paths": {
+    "/shared/shared-base": {
+      "description": "Global defaults used by many services",
+      "owner": "infra",
+      "scope": "global",
+      "category": "shared",
+      "variables": [
+        "DEFAULT_TIMEOUT_S",
+        "LOG_LEVEL",
+        "NYRA_STACK_NAME",
+        "NAMESPACE_PREFIX",
+        "NAMESPACE_ENVIRONMENT"
+      ]
+    },
+    "/shared/shared-network": {
+      "description": "Network constants used across machines",
+      "owner": "infra",
+      "scope": "global",
+      "category": "shared",
+      "variables": [
+        "INTERNAL_NETWORK",
+        "INTERNAL_NETWORK_GATEWAY",
+        "INTERNAL_NETWORK_DNS_PRIMARY",
+        "INTERNAL_NETWORK_DNS_SECONDARY"
+      ]
+    },
+    "/shared/shared-observability": {
+      "description": "Monitoring and observability configuration",
+      "owner": "infra",
+      "scope": "global",
+      "category": "shared",
+      "variables": [
+        "PROMETHEUS_RETENTION_DAYS",
+        "GRAFANA_DEFAULT_DASHBOARD",
+        "LOG_AGGREGATION_ENABLED"
+      ]
+    },
+    "/shared/shared-attribution": {
+      "description": "Attribution and licensing information",
+      "owner": "legal",
+      "scope": "global",
+      "category": "shared",
+      "variables": [
+        "PROJECT_ATTRIBUTION",
+        "LICENSE_TYPE"
+      ]
+    },
+    "/machines/orchestrator": {
+      "description": "Orchestrator-mini PC configuration",
+      "owner": "infra",
+      "scope": "per-machine",
+      "category": "machines",
+      "variables": [
+        "ORCHESTRATOR_IP",
+        "ORCHESTRATOR_TAILSCALE_IP",
+        "ORCHESTRATOR_HOSTNAME",
+        "ORCHESTRATOR_PORT"
+      ]
+    },
+    "/machines/worker-rtx3060": {
+      "description": "RTX 3060 GPU worker configuration",
+      "owner": "infra",
+      "scope": "per-machine",
+      "category": "machines",
+      "variables": [
+        "WORKER_RTX3060_IP",
+        "WORKER_RTX3060_TAILSCALE_IP",
+        "WORKER_RTX3060_HOSTNAME",
+        "WORKER_RTX3060_GPU_VRAM_GB"
+      ]
+    },
+    "/machines/worker-rtx3090ti": {
+      "description": "RTX 3090 Ti GPU worker configuration",
+      "owner": "infra",
+      "scope": "per-machine",
+      "category": "machines",
+      "variables": [
+        "WORKER_RTX3090TI_IP",
+        "WORKER_RTX3090TI_TAILSCALE_IP",
+        "WORKER_RTX3090TI_HOSTNAME",
+        "WORKER_RTX3090TI_GPU_VRAM_GB"
+      ]
+    },
+    "/machines/worker-rtx5090": {
+      "description": "RTX 5090 GPU worker configuration",
+      "owner": "infra",
+      "scope": "per-machine",
+      "category": "machines",
+      "variables": [
+        "WORKER_RTX5090_IP",
+        "WORKER_RTX5090_TAILSCALE_IP",
+        "WORKER_RTX5090_HOSTNAME",
+        "WORKER_RTX5090_GPU_VRAM_GB"
+      ]
+    },
+    "/clients/cloudflare": {
+      "description": "Cloudflare tunnel and DNS integration",
+      "owner": "infra",
+      "scope": "service",
+      "category": "clients",
+      "variables": [
+        "CLOUDFLARE_API_TOKEN",
+        "CLOUDFLARE_ZONE_ID",
+        "CLOUDFLARE_TUNNEL_ID",
+        "CLOUDFLARE_TUNNEL_TOKEN"
+      ]
+    },
+    "/clients/tailscale": {
+      "description": "Tailscale VPN mesh network configuration",
+      "owner": "infra",
+      "scope": "service",
+      "category": "clients",
+      "variables": [
+        "TAILSCALE_API_KEY",
+        "TAILSCALE_AUTH_KEY",
+        "TAILSCALE_TAILNET",
+        "TAILSCALE_ACL_ENABLED"
+      ]
+    },
+    "/clients/github": {
+      "description": "GitHub integration and authentication",
+      "owner": "devops",
+      "scope": "service",
+      "category": "clients",
+      "variables": [
+        "GITHUB_TOKEN",
+        "GITHUB_APP_ID",
+        "GITHUB_APP_PRIVATE_KEY",
+        "GITHUB_WEBHOOK_SECRET"
+      ]
+    },
+    "/clients/claude-flow": {
+      "description": "Claude Flow MCP server configuration",
+      "owner": "ai-infra",
+      "scope": "service",
+      "category": "clients",
+      "variables": [
+        "CLAUDE_FLOW_API_KEY",
+        "CLAUDE_FLOW_BASE_URL",
+        "CLAUDE_FLOW_TIMEOUT_S"
+      ]
+    },
+    "/clients/archon": {
+      "description": "Archon agent orchestrator configuration",
+      "owner": "ai-infra",
+      "scope": "service",
+      "category": "clients",
+      "variables": [
+        "ARCHON_API_KEY",
+        "ARCHON_BASE_URL",
+        "ARCHON_AUTH_ENABLED"
+      ]
+    },
+    "/clients/ngrok": {
+      "description": "Ngrok tunneling service (alternative to Cloudflare)",
+      "owner": "infra",
+      "scope": "service",
+      "category": "clients",
+      "variables": [
+        "NGROK_AUTH_TOKEN",
+        "NGROK_API_KEY"
+      ]
+    },
+    "/databases/postgres": {
+      "description": "PostgreSQL database configuration",
+      "owner": "infra",
+      "scope": "service",
+      "category": "databases",
+      "variables": [
+        "POSTGRES_HOST",
+        "POSTGRES_PORT",
+        "POSTGRES_USER",
+        "POSTGRES_PASSWORD",
+        "POSTGRES_DB",
+        "DATABASE_URL"
+      ]
+    },
+    "/databases/redis": {
+      "description": "Redis cache and session store",
+      "owner": "infra",
+      "scope": "service",
+      "category": "databases",
+      "variables": [
+        "REDIS_HOST",
+        "REDIS_PORT",
+        "REDIS_PASSWORD",
+        "REDIS_DB",
+        "REDIS_URL"
+      ]
+    },
+    "/databases/qdrant": {
+      "description": "Qdrant vector database configuration",
+      "owner": "ai-infra",
+      "scope": "service",
+      "category": "databases",
+      "variables": [
+        "QDRANT_HOST",
+        "QDRANT_PORT",
+        "QDRANT_API_KEY",
+        "QDRANT_COLLECTION_NAME"
+      ]
+    },
+    "/databases/chromadb": {
+      "description": "ChromaDB vector store configuration",
+      "owner": "ai-infra",
+      "scope": "service",
+      "category": "databases",
+      "variables": [
+        "CHROMADB_HOST",
+        "CHROMADB_PORT",
+        "CHROMADB_API_KEY"
+      ]
+    },
+    "/providers/anthropic": {
+      "description": "Anthropic Claude API configuration",
+      "owner": "ai-infra",
+      "scope": "service",
+      "category": "providers",
+      "variables": [
+        "ANTHROPIC_API_KEY",
+        "ANTHROPIC_BASE_URL",
+        "ANTHROPIC_MODEL_TIMEOUT_S"
+      ]
+    },
+    "/providers/openai": {
+      "description": "OpenAI API configuration",
+      "owner": "ai-infra",
+      "scope": "service",
+      "category": "providers",
+      "variables": [
+        "OPENAI_API_KEY",
+        "OPENAI_BASE_URL",
+        "OPENAI_ORG_ID"
+      ]
+    },
+    "/providers/google": {
+      "description": "Google API configuration (Gemini, Vertex AI)",
+      "owner": "ai-infra",
+      "scope": "service",
+      "category": "providers",
+      "variables": [
+        "GOOGLE_API_KEY",
+        "GOOGLE_PROJECT_ID",
+        "GOOGLE_CLOUD_CREDENTIALS_JSON"
+      ]
+    },
+    "/providers/huggingface": {
+      "description": "Hugging Face model hub integration",
+      "owner": "ai-infra",
+      "scope": "service",
+      "category": "providers",
+      "variables": [
+        "HF_TOKEN",
+        "HF_HOME",
+        "HF_API_KEY"
+      ]
+    },
+    "/adapters/litellm": {
+      "description": "LiteLLM model routing and fallback",
+      "owner": "ai-infra",
+      "scope": "service",
+      "category": "adapters",
+      "variables": [
+        "LITELLM_API_KEY",
+        "LITELLM_BASE_URL",
+        "LITELLM_MASTER_KEY",
+        "LITELLM_LOG_LEVEL"
+      ]
+    },
+    "/adapters/openrouter": {
+      "description": "OpenRouter model aggregation",
+      "owner": "ai-infra",
+      "scope": "service",
+      "category": "adapters",
+      "variables": [
+        "OPENROUTER_API_KEY",
+        "OPENROUTER_BASE_URL"
+      ]
+    },
+    "/router/nexus": {
+      "description": "Nexus MCP router configuration",
+      "owner": "ai-infra",
+      "scope": "service",
+      "category": "router",
+      "variables": [
+        "NEXUS_PORT",
+        "NEXUS_HOST",
+        "NEXUS_MODEL_ROUTING_ENABLED",
+        "NEXUS_CONTEXT_AGGREGATION"
+      ]
+    },
+    "/github-actions": {
+      "description": "GitHub Actions CI/CD configuration",
+      "owner": "devops",
+      "scope": "service",
+      "category": "github",
+      "variables": [
+        "CI",
+        "GITHUB_TOKEN",
+        "GITHUB_REPOSITORY",
+        "GITHUB_REF"
+      ]
+    },
+    "/security/secrets": {
+      "description": "Master secrets vault",
+      "owner": "security",
+      "scope": "global",
+      "category": "security",
+      "variables": [
+        "MASTER_ENCRYPTION_KEY",
+        "API_KEY_ROTATION_INTERVAL_DAYS"
+      ]
+    },
+    "/runs/job-config": {
+      "description": "Job execution configuration",
+      "owner": "infra",
+      "scope": "service",
+      "category": "runs",
+      "variables": [
+        "JOB_RETRY_ATTEMPTS",
+        "JOB_TIMEOUT_MINUTES",
+        "JOB_QUEUE_SIZE"
+      ]
+    },
+    "/profiles/user-default": {
+      "description": "Default user profile settings",
+      "owner": "product",
+      "scope": "global",
+      "category": "profiles",
+      "variables": [
+        "DEFAULT_MODEL",
+        "DEFAULT_CONTEXT_WINDOW",
+        "DEFAULT_TEMPERATURE"
+      ]
+    }
+  }
+}

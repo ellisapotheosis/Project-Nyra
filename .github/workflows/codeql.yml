@@ -1,77 +1,39 @@
-# For most projects, this workflow file will not need changing; you simply need
-# to commit it to your repository.
-#
-# customized for Project-Nyra by Gemini
-#
-name: "CodeQL Advanced"
+# .github/workflows/codeql.yml
+name: "CodeQL Ultra"
 
 on:
-  push:
-    branches: [ "main" ]
-    paths-ignore:
-      - '**/*.md'
-      - '**/*.txt'
-  pull_request:
-    branches: [ "main" ]
-    paths-ignore:
-      - '**/*.md'
-      - '**/*.txt'
+  push: { branches: ["main"] }
+  pull_request: { branches: ["main"] }
   schedule:
-    - cron: '37 12 * * 1'
-  workflow_dispatch: # Allows you to run this manually from the Actions tab
+    - cron: "0 3 * * *"
 
-# Cancels previous runs if you push a new commit to the same branch (saves usage minutes)
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+permissions:
+  contents: read
+  security-events: write
 
 jobs:
   analyze:
-    name: Analyze (${{ matrix.language }})
-    runs-on: ${{ (matrix.language == 'swift' && 'macos-latest') || 'ubuntu-latest' }}
-    permissions:
-      security-events: write
-      packages: read
-      actions: read
-      contents: read
-
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        include:
-        - language: actions
-          build-mode: none
-        # I have enabled these common languages for you.
-        # If your project does NOT contain one of these, you can delete the 2 lines for that language.
-        - language: python
-          build-mode: none
-        - language: javascript-typescript
-          build-mode: none
-        # Add more here if needed (e.g., 'go', 'ruby', 'java-kotlin')
+        language: [ "actions", "javascript-typescript", "python" ]
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: Initialize CodeQL
-      uses: github/codeql-action/init@v3
-      with:
-        languages: ${{ matrix.language }}
-        build-mode: ${{ matrix.build-mode }}
-        # "security-and-quality" finds more issues than the default
-        queries: security-and-quality
+      - uses: github/codeql-action/init@v4
+        with:
+          languages: ${{ matrix.language }}
+          build-mode: none
 
-    # Only runs for manual build modes (not needed for Python/JS/Actions usually)
-    - if: matrix.build-mode == 'manual'
-      shell: bash
-      run: |
-        echo 'If you are using a "manual" build mode for one or more of the' \
-          'languages you are analyzing, replace this with the commands to build' \
-          'your code, for example:'
-        echo '  make bootstrap'
-        echo '  make release'
+      - uses: github/codeql-action/analyze@v4
+        with:
+          category: "/lang:${{ matrix.language }}"
 
-    - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@v3
-      with:
-        category: "/language:${{ matrix.language }}"
+      - name: Merge When Passing
+        uses: pascalgn/automerge-action@v0.15.6
+        with:
+          mergeMethod: squash
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

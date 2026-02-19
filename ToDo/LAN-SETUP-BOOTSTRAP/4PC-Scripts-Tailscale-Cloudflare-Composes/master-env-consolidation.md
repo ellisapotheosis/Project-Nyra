@@ -1,0 +1,1 @@
+ effffffffffffffd1r4rrrrrrr infisical export --projectId=:8374cea9-e5e8-4050-bda4-b91f25ab30ef" --env=dev --path="/shared" --output-file=".env"

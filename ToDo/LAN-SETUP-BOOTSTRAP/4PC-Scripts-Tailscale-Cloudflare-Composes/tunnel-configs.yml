@@ -1,0 +1,203 @@
+# ==============================================================================
+# Nyra Cloudflared Tunnel Configurations
+# ==============================================================================
+# Per-PC tunnel setup with Infisical secret management
+
+# ------------------------------------------------------------------------------
+# 1. Orchestrator Tunnel (Central Gateway & Web Services)
+# ------------------------------------------------------------------------------
+orchestrator:
+  tunnel_name: "orchestrator"
+  credentials_file: "/app/secrets/cloudflared-orchestrator.json"
+  ingress:
+    # --- Public Web Apps ---
+    
+    # 1. Landing Page
+    - hostname: "ratehunter.net"
+      service: "http://landing-page:80"
+      originRequest:
+        noTLSVerify: true
+        connectTimeout: 30s
+
+    # 2. Mortgage Application Webapp
+    - hostname: "app.ratehunter.net"
+      service: "http://mortgage-webapp:3000"
+      originRequest:
+        noTLSVerify: true
+        connectTimeout: 30s
+
+    # 3. Dify Chat UI (Embedded)
+    - hostname: "chat.ratehunter.net"
+      service: "http://dify-chat:3333"
+      originRequest:
+        noTLSVerify: true
+        connectTimeout: 30s
+        keepAliveTimeout: 90s
+        httpHostHeader: chat.ratehunter.net
+
+    # 4. Twenty CRM
+    - hostname: "crm.ratehunter.net"
+      service: "http://twenty-crm:3000"
+      originRequest:
+        noTLSVerify: true
+        connectTimeout: 30s
+
+    # Existing Web UI (Nyra)
+    - hostname: "nyra.ratehunter.net"
+      service: "http://nyra-webui:3000"
+      originRequest:
+        noTLSVerify: true
+        connectTimeout: 30s
+
+    # --- APIs & Backend ---
+
+    # 5. Nexus API Gateway (Unified MCP + LLM)
+    - hostname: "nexus.ratehunter.net"
+      service: "http://nexus-router:6000"
+      originRequest:
+        noTLSVerify: true
+        connectTimeout: 30s
+
+    # 6. Orchestrator Core API
+    - hostname: "orchestrator.ratehunter.net"
+      service: "http://orchestrator:8000"
+      originRequest:
+        noTLSVerify: true
+        connectTimeout: 30s
+
+    # Infisical MCP
+    - hostname: "infisical.ratehunter.net"
+      service: "http://infisical-mcp:8006"
+      originRequest:
+        noTLSVerify: true
+        connectTimeout: 30s
+
+    # --- Infrastructure & Monitoring ---
+
+    # 7. Grafana Monitoring
+    - hostname: "grafana.ratehunter.net"
+      service: "http://grafana:3000"
+      originRequest:
+        noTLSVerify: true
+        connectTimeout: 30s
+
+    # Catch-all
+    - service: "http_status:404"
+
+  # Tunnel settings
+  tunnel_settings:
+    loglevel: "info"
+    transport_loglevel: "info"
+    retries: 3
+    grace_period: "30s"
+
+# ------------------------------------------------------------------------------
+# 2. Worker Tunnel (RTX 3060 - Laptop)
+# ------------------------------------------------------------------------------
+worker-m15r7:
+  tunnel_name: "worker-m15r7"
+  credentials_file: "/app/secrets/cloudflared-rtx3060.json"
+  ingress:
+    # Worker API
+    - hostname: "worker-m15r7.ratehunter.net"
+      service: "http://worker-m15r7:8000"
+      originRequest:
+        noTLSVerify: true
+        connectTimeout: 30s
+
+    # GPU Metrics
+    - hostname: "rtx3060.ratehunter.net"
+      service: "http://rtx3060:9000"
+      originRequest:
+        noTLSVerify: true
+        connectTimeout: 30s
+
+    # Catch-all
+    - service: "http_status:404"
+
+  tunnel_settings:
+    loglevel: "info"
+    retries: 3
+    grace_period: "30s"
+
+# ------------------------------------------------------------------------------
+# 3. Worker Tunnel (RTX 5090 - Area51)
+# ------------------------------------------------------------------------------
+worker-area51:
+  tunnel_name: "worker-area51"
+  credentials_file: "/app/secrets/cloudflared-rtx5090.json"
+  ingress:
+    # Worker API
+    - hostname: "worker-area51.ratehunter.net"
+      service: "http://worker-area51:8000"
+      originRequest:
+        noTLSVerify: true
+        connectTimeout: 30s
+
+    # GPU Metrics
+    - hostname: "rtx5090.ratehunter.net"
+      service: "http://rtx5090:9000"
+      originRequest:
+        noTLSVerify: true
+        connectTimeout: 30s
+
+    # Catch-all
+    - service: "http_status:404"
+
+  tunnel_settings:
+    loglevel: "info"
+    retries: 3
+    grace_period: "30s"
+
+# ------------------------------------------------------------------------------
+# 4. Worker Tunnel (RTX 3090Ti - Desktop)
+# ------------------------------------------------------------------------------
+worker-rtx3090ti:
+  tunnel_name: "worker-rtx3090ti"
+  credentials_file: "/app/secrets/cloudflared-rtx3090ti.json"
+  ingress:
+    # Worker API
+    - hostname: "worker-rtx3090ti.ratehunter.net"
+      service: "http://worker-rtx3090ti:8000"
+      originRequest:
+        noTLSVerify: true
+        connectTimeout: 30s
+
+    # GPU Metrics
+    - hostname: "rtx3090ti.ratehunter.net"
+      service: "http://rtx3090ti:9000"
+      originRequest:
+        noTLSVerify: true
+        connectTimeout: 30s
+
+    # Catch-all
+    - service: "http_status:404"
+
+  tunnel_settings:
+    loglevel: "info"
+    retries: 3
+    grace_period: "30s"
+
+# ------------------------------------------------------------------------------
+# Shared Settings Template
+# ------------------------------------------------------------------------------
+shared_settings:
+  # Origin settings
+  origin_request:
+    no_tls_verify: true
+    connect_timeout: "30s"
+    tls_timeout: "10s"
+    tcp_keep_alive: "30s"
+    keep_alive_connections: 100
+    keep_alive_timeout: "1m30s"
+
+  # Metrics and health
+  metrics_server:
+    enable: true
+    port: 8080
+
+  # Protocol settings
+  protocol: "auto"
+
+  # Edge settings
+  edge_ip_version: "auto"
