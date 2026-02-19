@@ -1,0 +1,5 @@
+
+/* compact class works with your stylus theme */
+:root.apoth-compact { --apoth-t: .2s ease; }
+:root.apoth-compact .message,
+:root.apoth-compact .markdown > div { margin-block: 6px !important; }

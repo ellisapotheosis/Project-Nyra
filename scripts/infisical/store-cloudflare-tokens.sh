@@ -34,12 +34,12 @@ ENVIRONMENT="${1:-development}"
 
 # Infisical paths for each service
 declare -A INFISICAL_PATHS=(
-    ["orchestrator"]="/machines/orchestrator"
-    ["worker-rtx5090"]="/machines/worker-rtx5090"
-    ["worker-rtx3060"]="/machines/worker-rtx3060"
-    ["worker-rtx3090ti"]="/machines/worker-rtx3090ti"
-    ["flow"]="/clients/claude-flow"
-    ["archon"]="/clients/archon"
+    ["orchestrator"]="/nyra/orchestrator"
+    ["worker-rtx5090"]="/nyra/worker-rtx5090"
+    ["worker-rtx3060"]="/nyra/worker-rtx3060"
+    ["worker-rtx3090ti"]="/nyra/worker-rtx3090ti"
+    ["claude-flow"]="/nyra/claude-flow"
+    ["archon"]="/nyra/archon"
 )
 
 # Function to print colored output

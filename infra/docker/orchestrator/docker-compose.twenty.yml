@@ -1,0 +1,83 @@
+version: '3.8'
+
+services:
+  twenty:
+    image: twentycrm/twenty:latest
+    container_name: nyra-twenty
+    logging:
+      driver: 'json-file'
+    ports:
+      - '3020:3000'
+    environment:
+      - DATABASE_URL=postgres://twenty:passwordecretsaltencryption@twenty-postgres:5432/twenty
+      - PG_DATABASE_URL=postgres://twenty:passwordecretsaltencryption@twenty-postgres:5432/twenty
+      - PGHOST=twenty-postgres
+      - PGUSER=twenty
+      - PGPASSWORD=passwordecretsaltencryption
+      - PGDATABASE=twenty
+      - SERVER_PORT=3000
+      - REDIS_URL=redis://nyra-redis:6379
+      - FRONT_BASE_URL=http://localhost:3020
+    depends_on:
+      twenty-postgres:
+        condition: service_started
+      redis:
+        condition: service_started
+    networks:
+      - nyra-core
+    restart: unless-stopped
+
+  twenty-postgres:
+    image: postgres:15-alpine
+    container_name: nyra-twenty-postgres
+    ports:
+      - '5432:5432'
+    environment:
+      - POSTGRES_USER=twenty
+      - POSTGRES_PASSWORD=${TWENTY_DB_PASSWORD}
+      - POSTGRES_DB=twenty
+    volumes:
+      - twenty_postgres_data:/var/lib/postgresql/data
+    #    healthcheck:
+    #      test: ["CMD-SHELL", "pg_isready -U twenty"]
+    #      interval: 10s
+    #      timeout: 5s
+    #      retries: 5
+    networks:
+      - nyra-core
+    restart: unless-stopped
+
+  twenty-mcp:
+    build:
+      context: ../../../../twenty-mcp-jezweb
+    container_name: nyra-twenty-mcp
+    ports:
+      - '8400:8400'
+    environment:
+      - TWENTY_API_KEY=${TWENTY_API_KEY}
+      - TWENTY_API_URL=http://twenty:3000
+      - TWENTY_GRAPHQL_URL=http://twenty:3000/graphql
+      - APP_URL_INTERNAL=http://nyra-twenty:3000
+      - APP_URL_PUBLIC=https://twenty.ratehunter.net
+      - PORT=8400
+    depends_on:
+      - twenty
+    networks:
+      - nyra-core
+    restart: unless-stopped
+
+  # External Redis reference if needed locally in this file for depends_on,
+  # but since we split files, depends_on across files is tricky.
+  # We assume redis is running in memory stack.
+  # If strictly required here, we can use external links or just rely on network DNS.
+  # For this specific file, we'll keep redis service definition minimal or external.
+  # Actually, 'redis' is in docker-compose.memory.yml.
+  # Docker Compose split stacks share networks but `depends_on` won't work across files easily
+  # without a shared project name. We will assume standard startup order.
+
+volumes:
+  twenty_postgres_data:
+
+networks:
+  nyra-core:
+    external: true

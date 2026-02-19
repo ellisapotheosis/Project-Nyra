@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: nyra-n8n
+    restart: unless-stopped
+    ports:
+      - '5678:5678'
+    networks:
+      - nyra-core
+
+  activepieces:
+    image: activepieces/activepieces:latest
+    container_name: nyra-activepieces
+    restart: unless-stopped
+    ports:
+      - '5000:80'
+    environment:
+      - AP_ENVIRONMENT=PRODUCTION
+    networks:
+      - nyra-core
+
+  activepieces-worker:
+    image: activepieces/activepieces:latest
+    container_name: nyra-activepieces-worker
+    command: ['worker']
+    restart: unless-stopped
+    environment:
+      - AP_ENVIRONMENT=PRODUCTION
+    networks:
+      - nyra-core
+    depends_on:
+      - activepieces
+
+networks:
+  nyra-core:
+    external: true

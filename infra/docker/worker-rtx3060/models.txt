@@ -1,0 +1,5 @@
+llama3.2:3b
+phi3:mini
+nomic-embed-text
+codellama:7b
+mistral:7b-instruct

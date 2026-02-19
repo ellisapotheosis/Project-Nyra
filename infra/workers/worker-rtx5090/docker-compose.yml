@@ -1,0 +1,52 @@
+version: '3.8'
+
+# This compose file uses variables from the .env file.
+# Make sure the .env file is present in this directory.
+
+services:
+  vllm:
+    image: vllm/vllm-openai:latest
+    container_name: vllm_worker_5090
+    restart: unless-stopped
+    ports:
+      - "${VLLM_PORT}:8000"
+    volumes:
+      # This named volume will cache downloaded models to speed up subsequent launches.
+      - vllm_models:/root/.cache/huggingface
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all # Use all available GPUs
+              capabilities: [gpu]
+    command:
+      # These arguments are passed to the vllm entrypoint.
+      - --model
+      - ${VLLM_MODEL}
+      - --trust-remote-code
+    environment:
+      # Pass a Hugging Face token if you need to access private/gated models.
+      # You can add this to your .env file.
+      - HUGGING_FACE_HUB_TOKEN=${HUGGING_FACE_HUB_TOKEN}
+
+  lmcache:
+    image: unidef/lmcache:latest
+    container_name: lmcache_worker_5090
+    restart: unless-stopped
+    depends_on:
+      - vllm
+    ports:
+      - "${LMCACHE_PORT}:8001"
+    command:
+      # These arguments configure lmcache to proxy requests to the vllm service.
+      - --listen-port
+      - '8001'
+      - --backend-host
+      - vllm      # This is the service name of the vllm container.
+      - --backend-port
+      - '8000'    # This is the internal port of the vllm service.
+
+volumes:
+  vllm_models:
+    driver: local

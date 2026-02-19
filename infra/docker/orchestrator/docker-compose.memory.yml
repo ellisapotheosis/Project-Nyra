@@ -1,0 +1,123 @@
+version: '3.8'
+
+services:
+  #  graphiti:
+  #    image: zepai/knowledge-graph-mcp:standalone
+  #    container_name: nyra-graphiti
+  #    restart: unless-stopped
+  #    ports:
+  #      - '8100:8000'
+  #    environment:
+  #      - FALKORDB_URI=redis://falkordb:6379
+  #      - OPENAI_BASE_URL=http://nexus:6000/llm/openai/v1
+  #    networks:
+  #      - nyra-core
+  #      - nyra-mcp
+  #    depends_on:
+  #      - falkordb
+  #      - nexus
+
+  falkordb:
+    image: falkordb/falkordb:latest
+    container_name: nyra-falkordb
+    restart: unless-stopped
+    ports:
+      - '6380:6379'
+    volumes:
+      - falkordb_data:/data
+    networks:
+      - nyra-core
+
+  #  ruvector:
+  #    image: ruvnet/ruvector:latest
+  #    container_name: nyra-ruvector
+  #    restart: unless-stopped
+  #    ports:
+  #      - '8200:8080'
+  #    networks:
+  #      - nyra-core
+
+  #  ruvector-postgres:
+  #    image: postgres:15-alpine
+  #    container_name: nyra-ruvector-postgres
+  #    environment:
+  #      - POSTGRES_USER=ruvector
+  #      - POSTGRES_PASSWORD=ruvector
+  #      - POSTGRES_DB=ruvector
+  #    ports:
+  #      - '5433:5432'
+  #    networks:
+  #      - nyra-core
+
+  letta:
+    image: letta/letta:latest
+    container_name: nyra-letta
+    restart: unless-stopped
+    ports:
+      - '8283:8283'
+    environment:
+      - LETTA_SERVER_PORT=8283
+      - LETTA_PG_URI=postgresql://letta:letta@letta-db:5432/letta
+      - OPENAI_API_BASE=http://nexus:6000/llm/openai/v1
+    networks:
+      - nyra-core
+    depends_on:
+      - letta-db
+
+  letta-db:
+    image: postgres:15-alpine
+    container_name: nyra-letta-db
+    environment:
+      - POSTGRES_USER=letta
+      - POSTGRES_PASSWORD=letta
+      - POSTGRES_DB=letta
+    networks:
+      - nyra-core
+
+  agentdb:
+    image: python:3.9-slim
+    container_name: nyra-agentdb
+    volumes:
+      - ../../../infra/scripts/mock_service.py:/app/mock_service.py
+    command: python /app/mock_service.py
+    ports:
+      - '8300:8300'
+    networks:
+      - nyra-core
+
+  redis:
+    image: redis:alpine
+    container_name: nyra-redis
+    restart: unless-stopped
+    ports:
+      - '6379:6379'
+    networks:
+      - nyra-core
+
+  mem0:
+    image: mem0/mem0:latest
+    container_name: nyra-mem0
+    profiles:
+      - disable
+    networks:
+      - nyra-core
+
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: nyra-qdrant
+    profiles:
+      - disable
+    volumes:
+      - qdrant_data:/qdrant/storage
+    networks:
+      - nyra-core
+
+volumes:
+  falkordb_data:
+  qdrant_data:
+
+networks:
+  nyra-core:
+    external: true
+  nyra-mcp:
+    external: true

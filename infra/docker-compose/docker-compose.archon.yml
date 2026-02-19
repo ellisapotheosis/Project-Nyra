@@ -1,0 +1,227 @@
+# Docker Compose - Archon Integration
+# Full Archon system routed through Nexus Router
+
+services:
+  # Note: Using shared nyra-postgres container (defined in docker-compose.base.yml)
+  # Archon tables have been migrated to nyra_production database
+
+  # Archon Server - FastAPI Backend with RAG
+  archon-server:
+    build:
+      context: ../../tools/archon/python
+      dockerfile: Dockerfile.server
+      args:
+        BUILDKIT_INLINE_CACHE: 1
+        ARCHON_SERVER_PORT: 8181
+    container_name: nyra-archon-server
+    restart: unless-stopped
+    ports:
+      - "8181:8181"
+    environment:
+      # Supabase Configuration
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_SERVICE_KEY=${SUPABASE_SERVICE_KEY}
+
+      # LLM Configuration (route through Nexus Router)
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY:-}
+
+      # Service Discovery
+      - SERVICE_DISCOVERY_MODE=docker_compose
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+
+      # Port Configuration
+      - ARCHON_SERVER_PORT=8181
+      - ARCHON_MCP_PORT=8051
+      - ARCHON_AGENTS_PORT=8052
+      - ARCHON_HOST=${HOST:-localhost}
+
+      # Feature Flags
+      - AGENTS_ENABLED=${ARCHON_AGENTS_ENABLED:-false}
+      - ENABLE_AGENT_WORK_ORDERS=${ARCHON_ENABLE_WORK_ORDERS:-false}
+
+      # Nexus Router Integration
+      - NEXUS_ROUTER_URL=http://nexus-router:6000
+      - USE_NEXUS_ROUTER=${USE_NEXUS_ROUTER:-true}
+
+    networks:
+      - nyra-mcp
+      - nyra-core
+    volumes:
+      - archon-data:/app/data
+      - ../../tools/archon/python/src:/app/src:ro  # Hot reload in dev
+      - ../../tools/archon/migration:/app/migration:ro
+    depends_on:
+      postgresql:
+        condition: service_healthy
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8181/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.archon-api.rule=Host(`archon.localhost`) && PathPrefix(`/api`)"
+      - "traefik.http.services.archon-api.loadbalancer.server.port=8181"
+
+  # Archon MCP Server - Model Context Protocol Interface
+  archon-mcp:
+    build:
+      context: ../../tools/archon/python
+      dockerfile: Dockerfile.mcp
+      args:
+        BUILDKIT_INLINE_CACHE: 1
+        ARCHON_MCP_PORT: 8051
+    container_name: nyra-archon-mcp
+    restart: unless-stopped
+    ports:
+      - "8051:8051"
+    environment:
+      # Database Configuration (using shared nyra-postgres)
+      - SUPABASE_URL=postgresql://nyra:k5yfv1CJQxDeBr40NobmuAV3ISWi2zwT@nyra-postgres:5432/nyra_production
+      - SUPABASE_SERVICE_KEY=${SUPABASE_SERVICE_KEY:-local-postgres-no-jwt}
+      - DATABASE_URL=postgresql://nyra:k5yfv1CJQxDeBr40NobmuAV3ISWi2zwT@nyra-postgres:5432/nyra_production
+
+      # Service Discovery
+      - SERVICE_DISCOVERY_MODE=docker_compose
+      - TRANSPORT=sse
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+
+      # Service URLs
+      - API_SERVICE_URL=http://archon-server:8181
+      - AGENTS_ENABLED=${ARCHON_AGENTS_ENABLED:-false}
+      - AGENTS_SERVICE_URL=http://archon-agents:8052
+
+      # Port Configuration
+      - ARCHON_MCP_PORT=8051
+      - ARCHON_SERVER_PORT=8181
+      - ARCHON_AGENTS_PORT=8052
+
+      # Nexus Router Integration
+      - NEXUS_ROUTER_URL=http://nexus-router:6000
+      - MCP_PROXY_ENABLED=true
+
+    networks:
+      - nyra-mcp
+      - nyra-core
+    depends_on:
+      postgresql:
+        condition: service_healthy
+      archon-server:
+        condition: service_healthy
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8051/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.archon-mcp.rule=Host(`archon.localhost`) && PathPrefix(`/mcp`)"
+      - "traefik.http.services.archon-mcp.loadbalancer.server.port=8051"
+
+  # Archon Frontend - React Dashboard
+  archon-ui:
+    build:
+      context: ../../tools/archon/archon-ui-main
+      dockerfile: Dockerfile
+    container_name: nyra-archon-ui
+    restart: unless-stopped
+    ports:
+      - "3737:3737"
+    environment:
+      # API Configuration (relative URLs through Vite proxy)
+      - VITE_ARCHON_SERVER_PORT=8181
+      - ARCHON_SERVER_PORT=8181
+      - HOST=${HOST:-localhost}
+      - PROD=${PROD:-false}
+
+      # Development Configuration
+      - VITE_ALLOWED_HOSTS=${VITE_ALLOWED_HOSTS:-}
+      - VITE_SHOW_DEVTOOLS=${VITE_SHOW_DEVTOOLS:-false}
+      - DOCKER_ENV=true
+
+      # Nexus Router Integration
+      - NEXUS_ROUTER_URL=http://nexus-router:6000
+
+    networks:
+      - nyra-mcp
+      - nyra-core
+    volumes:
+      - ../../tools/archon/archon-ui-main/src:/app/src:ro  # Hot reload in dev
+      - ../../tools/archon/archon-ui-main/public:/app/public:ro
+    depends_on:
+      archon-server:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3737"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.archon-ui.rule=Host(`archon.localhost`)"
+      - "traefik.http.services.archon-ui.loadbalancer.server.port=3737"
+
+  # Archon Agents Service (Optional - PydanticAI)
+  archon-agents:
+    profiles:
+      - agents  # Only starts with --profile agents
+    build:
+      context: ../../tools/archon/python
+      dockerfile: Dockerfile.agents
+      args:
+        BUILDKIT_INLINE_CACHE: 1
+        ARCHON_AGENTS_PORT: 8052
+    container_name: nyra-archon-agents
+    restart: unless-stopped
+    ports:
+      - "8052:8052"
+    environment:
+      # Database Configuration (using shared nyra-postgres)
+      - SUPABASE_URL=postgresql://nyra:k5yfv1CJQxDeBr40NobmuAV3ISWi2zwT@nyra-postgres:5432/nyra_production
+      - SUPABASE_SERVICE_KEY=${SUPABASE_SERVICE_KEY:-local-postgres-no-jwt}
+
+      # LLM Configuration
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+
+      # Service Configuration
+      - SERVICE_DISCOVERY_MODE=docker_compose
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - ARCHON_AGENTS_PORT=8052
+      - ARCHON_SERVER_PORT=8181
+
+      # Nexus Router Integration
+      - NEXUS_ROUTER_URL=http://nexus-router:6000
+      - USE_NEXUS_ROUTER=true
+
+    networks:
+      - nyra-mcp
+      - nyra-core
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8052/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  nyra-mcp:
+    name: nyra-mcp
+    external: true
+  nyra-core:
+    name: nyra-core
+    external: true
+
+volumes:
+  archon-data:
+    name: archon-data
+    driver: local

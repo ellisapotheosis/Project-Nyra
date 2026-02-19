@@ -1,0 +1,419 @@
+version: '3.9'
+
+# ==============================================================================
+# Project Nyra - Consolidated Orchestrator Stack
+# ==============================================================================
+# This file is auto-generated based on the user's requested services
+# and definitions found in the project's archived configurations.
+#
+# Placeholders are included for services where no definition was found.
+# These will need to be completed with the correct image, build context, etc.
+# ==============================================================================
+
+networks:
+  nyra_network:
+    driver: bridge
+    name: nyra_orchestrator_network
+
+volumes:
+  # Databases
+  falkordb_data:
+  ruvector_postgres_data:
+  twenty_postgres_data:
+  agentdb_data:
+  gitea_data:
+
+  # Services
+  n8n_data:
+  litellm_config:
+  nexus_config:
+
+  # MCPs
+  claude_flow_data:
+  ruv_swarm_data:
+  archon_data:
+  # molbot_data: # Placeholder
+  # bitwarden_mcp_data: # Placeholder
+
+services:
+  # ============================================================================
+  # Core Infrastructure & Databases
+  # ============================================================================
+
+  gitea:
+    image: gitea/gitea:latest
+    container_name: nyra_gitea
+    restart: unless-stopped
+    environment:
+      - USER_UID=1000
+      - USER_GID=1000
+      - GITEA__database__DB_TYPE=sqlite3
+      - GITEA__database__PATH=/data/gitea/gitea.db
+      - GITEA__server__DOMAIN=${GITEA_HOST_IP}
+      - GITEA__server__SSH_DOMAIN=${GITEA_HOST_IP}
+      - GITEA__server__ROOT_URL=http://${GITEA_HOST_IP}:${GITEA_HOST_HTTP_PORT}
+      - GITEA__server__SSH_PORT=${GITEA_HOST_SSH_PORT}
+      - GITEA__server__SSH_LISTEN_PORT=22
+    ports:
+      - "${GITEA_HOST_HTTP_PORT}:3000"
+      - "${GITEA_HOST_SSH_PORT}:22"
+    volumes:
+      - gitea_data:/data
+    networks:
+      - nyra_network
+
+  falkordb:
+    image: falkordb/falkordb:latest
+    container_name: nyra_falkordb
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - falkordb_data:/data
+    networks:
+      - nyra_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  ruvector_postgres:
+    image: ankane/pgvector:latest
+    container_name: nyra_ruvector_postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=ruvector
+      - POSTGRES_PASSWORD=${RUVECTOR_POSTGRES_PASSWORD}
+      - POSTGRES_DB=ruvector
+    volumes:
+      - ruvector_postgres_data:/var/lib/postgresql/data
+    networks:
+      - nyra_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ruvector"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  twenty_postgres:
+    image: postgres:15-alpine
+    container_name: nyra_twenty_postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=twenty
+      - POSTGRES_PASSWORD=${TWENTY_POSTGRES_PASSWORD}
+      - POSTGRES_DB=twenty
+    volumes:
+      - twenty_postgres_data:/var/lib/postgresql/data
+    networks:
+      - nyra_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U twenty"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ============================================================================
+  # LLM, Proxy & Automation
+  # ============================================================================
+
+  nexus:
+    build:
+      context: ./infra/_archive/docker-configs-2026-02-15-102028/build/services/nexus-router # TODO: Fix this context path
+      dockerfile: Dockerfile
+    image: nyra-nexus-router:latest # Assuming this is a custom image
+    container_name: nyra_nexus
+    restart: unless-stopped
+    ports:
+      - "6000:6000"
+    volumes:
+      - nexus_config:/etc/nexus.toml:ro
+    environment:
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+      - GOOGLE_GEMINI_API_KEY=${GOOGLE_GEMINI_API_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - INFISICAL_TOKEN=${INFISICAL_TOKEN}
+      - NEXUS_CONFIG=/etc/nexus.toml
+      - WORKER_5090_URL=http://${WORKER_5090_HOST}:${WORKER_5090_PORT}
+      - WORKER_3090TI_URL=http://${WORKER_3090TI_HOST}:${WORKER_3090TI_PORT}
+      - WORKER_3060_URL=http://${WORKER_3060_HOST}:${WORKER_3060_PORT}
+    networks:
+      - nyra_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  litellm:
+    image: ghcr.io/berriai/litellm:latest
+    container_name: nyra_litellm
+    restart: unless-stopped
+    ports:
+      - "4000:4000"
+    volumes:
+      - litellm_config:/app/config.yaml:ro
+    command: ["--config", "/app/config.yaml", "--port", "4000"]
+    networks:
+      - nyra_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: nyra_n8n
+    restart: unless-stopped
+    ports:
+      - "5678:5678"
+    environment:
+      - N8N_BASIC_AUTH_ACTIVE=true
+      - N8N_BASIC_AUTH_USER=admin
+      - N8N_BASIC_AUTH_PASSWORD=${N8N_PASSWORD}
+      - WEBHOOK_URL=http://localhost:5678/
+    volumes:
+      - n8n_data:/home/node/.n8n
+    networks:
+      - nyra_network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:5678/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ============================================================================
+  # Core Applications
+  # ============================================================================
+
+  twenty_crm:
+    image: twentycrm/twenty:latest
+    container_name: nyra_twenty_crm
+    restart: unless-stopped
+    ports:
+      - "3002:3000" # Port changed to avoid conflict with Gitea
+    environment:
+      - PG_DATABASE_URL=postgres://twenty:${TWENTY_POSTGRES_PASSWORD}@twenty_postgres:5432/twenty
+    networks:
+      - nyra_network
+    depends_on:
+      twenty_postgres:
+        condition: service_healthy
+
+  letta:
+    image: letta/letta:latest
+    container_name: nyra_letta
+    restart: unless-stopped
+    ports:
+      - "8283:8283"
+    environment:
+      - LETTA_POSTGRES_HOST=ruvector_postgres # Assuming it shares the pgvector DB
+      - LETTA_POSTGRES_PORT=5432
+      - LETTA_POSTGRES_USER=ruvector
+      - LETTA_POSTGRES_PASSWORD=${RUVECTOR_POSTGRES_PASSWORD}
+      - LETTA_POSTGRES_DB=ruvector
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+    networks:
+      - nyra_network
+    depends_on:
+      ruvector_postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8283/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ============================================================================
+  # Archon OS
+  # ============================================================================
+
+  archon_server:
+    build:
+      context: ../../tools/archon/python
+      dockerfile: Dockerfile.server
+    container_name: nyra_archon_server
+    restart: unless-stopped
+    ports:
+      - "8181:8181"
+    environment:
+      - SUPABASE_URL=${SUPABASE_URL} # Archon needs its own DB, user mentioned Supabase
+      - SUPABASE_SERVICE_KEY=${SUPABASE_SERVICE_KEY}
+      - NEXUS_ROUTER_URL=http://nexus:6000
+    networks:
+      - nyra_network
+    volumes:
+      - archon_data:/app/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8181/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  archon_mcp:
+    build:
+      context: ../../tools/archon/python
+      dockerfile: Dockerfile.mcp
+    container_name: nyra_archon_mcp
+    restart: unless-stopped
+    ports:
+      - "8051:8051"
+    environment:
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_SERVICE_KEY=${SUPABASE_SERVICE_KEY}
+      - API_SERVICE_URL=http://archon_server:8181
+      - NEXUS_ROUTER_URL=http://nexus:6000
+    networks:
+      - nyra_network
+    depends_on:
+      archon_server:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8051/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+
+
+  archon_agents:
+    profiles: ["agents"] # Not started by default
+    build:
+      context: ../../tools/archon/python
+      dockerfile: Dockerfile.agents
+    container_name: nyra_archon_agents
+    restart: unless-stopped
+    ports:
+      - "8052:8052"
+    environment:
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_SERVICE_KEY=${SUPABASE_SERVICE_KEY}
+      - NEXUS_ROUTER_URL=http://nexus:6000
+    networks:
+      - nyra_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8052/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ============================================================================
+  # Claude Flow & Swarm
+  # ============================================================================
+
+  claude_flow:
+    build:
+      context: ../../bootstrap/mcp-servers/claude-flow # TODO: Verify build context
+      dockerfile: Dockerfile
+    container_name: nyra_claude_flow
+    restart: unless-stopped
+    environment:
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - NODE_ENV=production
+    volumes:
+      - claude_flow_data:/app/data
+      - ../../.claude-flow:/app/.claude-flow:ro
+    networks:
+      - nyra_network
+    healthcheck:
+      test: ["CMD", "npx", "@rUv/claude-flow@alpha", "health"] # TODO: Verify health check
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  ruv_swarm:
+    build:
+      context: ../../bootstrap/mcp-servers/ruv-swarm # TODO: Verify build context
+      dockerfile: Dockerfile
+    container_name: nyra_ruv_swarm
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+    volumes:
+      - ruv_swarm_data:/app/data
+      - ../../.swarm:/app/.swarm:ro
+    networks:
+      - nyra_network
+    healthcheck:
+      test: ["CMD", "npx", "@rUv/ruv-swarm@latest", "health"] # TODO: Verify health check
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ============================================================================
+  # Placeholders for Missing Services
+  # ============================================================================
+
+  # ruvector:
+  #   image: ??? # TODO: User to provide image/build context
+  #   container_name: nyra_ruvector
+  #   restart: unless-stopped
+  #   networks: [nyra_network]
+  #   depends_on: [ruvector_postgres]
+
+  # ruvector_cli:
+  #   image: ??? # TODO: User to provide image/build context
+  #   container_name: nyra_ruvector_cli
+  #   networks: [nyra_network]
+  #   depends_on: [ruvector]
+  #   stdin_open: true # CLI tool
+  #   tty: true
+
+  # twenty_mcp:
+  #   image: ??? # TODO: User to provide image/build context for 'jezweb'
+  #   container_name: nyra_twenty_mcp
+  #   restart: unless-stopped
+  #   networks: [nyra_network]
+
+  # activepieces_mcp:
+  #   image: ??? # TODO: User to provide image/build context
+  #   container_name: nyra_activepieces_mcp
+  #   restart: unless-stopped
+  #   networks: [nyra_network]
+
+  # github_mcp:
+  #   image: ??? # TODO: User to provide image/build context
+  #   container_name: nyra_github_mcp
+  #   restart: unless-stopped
+  #   networks: [nyra_network]
+
+  # filesystem_mcp:
+  #   image: ??? # TODO: User to provide image/build context
+  #   container_name: nyra_filesystem_mcp
+  #   restart: unless-stopped
+  #   networks: [nyra_network]
+
+  # docker_mcp:
+  #   image: ??? # TODO: User to provide image/build context
+  #   container_name: nyra_docker_mcp
+  -  restart: unless-stopped
+  #   networks: [nyra_network]
+
+  # docker_hub_mcp:
+  #   image: ??? # TODO: User to provide image/build context
+  #   container_name: nyra_docker_hub_mcp
+  #   restart: unless-stopped
+  #   networks: [nyra_network]
+
+  # moltbot:
+  #   image: ??? # TODO: User to provide image/build context for 'clawdbot'
+  #   container_name: nyra_moltbot
+  #   restart: unless-stopped
+  #   networks: [nyra_network]
+
+  # bitwarden_mcp:
+  #   image: ??? # TODO: User to provide image/build context
+  #   container_name: nyra_bitwarden_mcp
+  #   restart: unless-stopped
+  #   networks: [nyra_network]
+
+  # infisical_cli:
+  #   image: infisical/infisical-cli:latest
+  #   container_name: nyra_infisical_cli
+  #   environment:
+  #     - INFISICAL_TOKEN=${INFISICAL_TOKEN}
+  #   entrypoint: ["tail", "-f", "/dev/null"] # Keep container alive
+  #   networks: [nyra_network]

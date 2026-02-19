@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  nexus:
+    image: grafbase/nexus:latest
+    container_name: nyra-nexus
+    restart: unless-stopped
+    ports:
+      - '6000:6000'
+    volumes:
+      - ../../../nexus_master.toml:/etc/nexus/nexus.toml:ro
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+      - ADMIN_EMAIL=${ADMIN_EMAIL}
+    networks:
+      - nyra-core
+      - nyra-mcp
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:6000/health']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  litellm:
+    image: ghcr.io/berriai/litellm:main-latest
+    container_name: nyra-litellm
+    restart: unless-stopped
+    ports:
+      - '8500:4000'
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+    networks:
+      - nyra-core
+
+networks:
+  nyra-core:
+    external: true
+  nyra-mcp:
+    external: true

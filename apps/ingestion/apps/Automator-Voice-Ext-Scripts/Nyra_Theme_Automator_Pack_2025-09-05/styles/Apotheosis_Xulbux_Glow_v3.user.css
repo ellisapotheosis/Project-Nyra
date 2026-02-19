@@ -1,0 +1,262 @@
+/* ==UserStyle==
+@name         Apotheosis - Xulbux Glow v3 (ChatGPT + OpenAI + Sidebar)
+@namespace    https://github.com/EllisApotheosis
+@version      2025.09.05
+@description  Black + Violet-Blue Quantum Glow for ChatGPT/OpenAI + matching Sidebar
+@author       EllisApotheosis
+@preprocessor default
+
+@var select fontVariant "Font Variant" ["Fira Code:fire","Caskaydia Cove (Nerd):cask"]
+@var text   accentColor "Accent Hex" #7169EB
+@var checkbox compactUI "Compact UI (denser layout)" 1
+@var checkbox softGlow "Soft Neon Glow" 1
+@var checkbox highContrast "High Contrast Text" 0
+@var checkbox monoCode "Mono in UI (everywhere)" 0
+==/UserStyle== */
+
+/* -------------------------------------------------
+   SCOPE: chatgpt.com + openai.com
+   (we also include a separate block for the sidebar page below)
+--------------------------------------------------*/
+@-moz-document domain("chatgpt.com"), domain("openai.com") {
+
+	/* ============= Core Tokens ============= */
+	:root {
+		--apoth-accent: {{ accentColor }};
+		--apoth-bg: #000000;
+		--apoth-bg-2: #08080f;
+		--apoth-glass: rgba(8, 8, 15, 0.55);
+		--apoth-glass-strong: rgba(8, 8, 15, 0.75);
+		--apoth-fade: color-mix(in oklab, var(--apoth-accent) 25%, transparent);
+		--apoth-text: {{ highContrast ? '#F4F4FF' : '#E6E6FA' }};
+		--apoth-subtext: {{ highContrast ? '#CFCFE6' : '#BDBDDB' }};
+		--apoth-muted: #8b8ba8;
+		--apoth-code-bg: #0c0c16;
+		--apoth-surface: #11121a;
+		--apoth-success: #48ff91;
+		--apoth-warn: #ffcc66;
+		--apoth-error: #ff3f7f;
+		--apoth-radius: 12px;
+		--apoth-focus: 0 0 0 2px color-mix(in oklab, var(--apoth-accent) 70%, white 0%);
+		--apoth-t: 0.25s ease;
+	}
+
+	/* ============= Font Setup ============= */
+	@font-face { font-family: "Fira Code"; src: local("Fira Code"), local("FiraCode"); font-display: swap; }
+	@font-face { font-family: "Caskaydia Cove Nerd Font"; src: local("Caskaydia Cove Nerd Font"), local("Cascadia Code"), local("Cascadia Mono"); font-display: swap; }
+
+	html, body {
+		background: var(--apoth-bg) !important;
+		color: var(--apoth-text);
+		font-family: {{ fontVariant == "fire" ? (monoCode ? "'Fira Code', monospace" : "Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, 'Fira Code', monospace") : (monoCode ? "'Caskaydia Cove Nerd Font', monospace" : "Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, 'Caskaydia Cove Nerd Font', monospace") }};
+		font-size: {{ compactUI ? '14px' : '15px' }};
+		-webkit-font-smoothing: antialiased;
+		text-rendering: optimizeLegibility;
+	}
+
+	/* ============= Global polish ============= */
+	*:focus-visible { outline: none !important; box-shadow: var(--apoth-focus) !important; border-radius: 8px; }
+	::selection { background: var(--apoth-accent); color: #050507; }
+
+	/* Scrollbars */
+	::-webkit-scrollbar { width: {{ compactUI ? '8px' : '10px' }}; height: 10px; }
+	::-webkit-scrollbar-thumb {
+		background: linear-gradient(180deg, var(--apoth-accent), color-mix(in oklab, var(--apoth-accent) 60%, #222));
+		border-radius: 8px;
+		{{ softGlow ? 'box-shadow: 0 0 10px var(--apoth-accent);' : '' }}
+		border: 2px solid #000;
+	}
+	::-webkit-scrollbar-track { background: #000; }
+
+	/* Links / hover */
+	a, [role="link"] { color: var(--apoth-accent) !important; text-decoration: none; transition: color var(--apoth-t), text-shadow var(--apoth-t); }
+	a:hover { text-shadow: 0 0 10px var(--apoth-accent); }
+
+	/* ============= Layout containers ============= */
+	.message, .group, .prose, .markdown, .container, .content, main, section, article { max-width: 1024px; margin-inline: auto; }
+
+	/* chat bubble glass */
+	.message, .markdown > div, .prose > div, .result, .chat-message, .text-base, .text-message, .cm-editor .cm-scroller {
+		background: var(--apoth-glass);
+		backdrop-filter: blur(6px);
+		border-radius: var(--apoth-radius);
+		{{ softGlow ? 'box-shadow: 0 0 14px var(--apoth-fade);' : 'box-shadow: none;' }}
+	}
+
+	/* Chat rows normalize */
+	.bg-token, .bg-muted, .bg-gray, .bg-surface, .border-token {
+		background: transparent !important;
+		border-color: color-mix(in oklab, var(--apoth-accent) 20%, #333) !important;
+	}
+
+	/* ============= Composer / Textarea ============= */
+	textarea, [contenteditable="true"], .ProseMirror, input[type="text"], input[type="search"] {
+		background: var(--apoth-surface) !important;
+		color: var(--apoth-text) !important;
+		border: 1px solid color-mix(in oklab, var(--apoth-accent) 35%, #333);
+		border-radius: 14px !important;
+		padding: {{ compactUI ? '10px 12px' : '12px 14px' }} !important;
+		transition: box-shadow var(--apoth-t), border-color var(--apoth-t);
+	}
+	textarea:focus, input[type="text"]:focus, input[type="search"]:focus, .ProseMirror:focus-within {
+		border-color: var(--apoth-accent);
+		{{ softGlow ? 'box-shadow: 0 0 16px var(--apoth-accent);' : '' }}
+	}
+	::placeholder { color: var(--apoth-muted) !important; }
+
+	/* ============= Buttons ============= */
+	button, .btn, [role="button"], .c-button, .s-btn {
+		background: linear-gradient(180deg, color-mix(in oklab, var(--apoth-accent) 90%, #fff 0%), color-mix(in oklab, var(--apoth-accent) 70%, #000 0%));
+		border: none !important;
+		color: white !important;
+		border-radius: 12px !important;
+		padding: {{ compactUI ? '8px 12px' : '10px 14px' }} !important;
+		font-weight: 600;
+		letter-spacing: .02em;
+		transition: transform var(--apoth-t), box-shadow var(--apoth-t), filter var(--apoth-t);
+		{{ softGlow ? 'box-shadow: 0 0 12px var(--apoth-accent);' : '' }}
+	}
+	button:hover, .btn:hover, [role="button"]:hover, .c-button:hover, .s-btn:hover {
+		transform: translateY(-1px) scale(1.02);
+		{{ softGlow ? 'box-shadow: 0 0 18px var(--apoth-accent);' : '' }}
+		filter: brightness(1.05);
+	}
+	button:disabled, .btn[disabled] { opacity: .5; cursor: not-allowed; }
+
+	/* ============= Markdown / Prose ============= */
+	.markdown, .prose, .result, article { color: var(--apoth-text); line-height: 1.65; }
+	.markdown h1, .prose h1, h1 { font-size: {{ compactUI ? '1.5rem' : '1.7rem' }}; color: var(--apoth-text); }
+	.markdown h2, .prose h2, h2 { font-size: {{ compactUI ? '1.28rem' : '1.38rem' }}; color: var(--apoth-text); }
+	.markdown h3, .prose h3, h3 { font-size: {{ compactUI ? '1.12rem' : '1.2rem' }}; color: var(--apoth-text); }
+
+	.markdown blockquote {
+		border-left: 3px solid var(--apoth-accent);
+		background: color-mix(in oklab, var(--apoth-accent) 12%, #0a0a12);
+		padding: 10px 14px; border-radius: 10px; color: var(--apoth-subtext);
+	}
+
+	/* Tables */
+	table { border-collapse: collapse; width: 100%; overflow: hidden; border-radius: 10px; }
+	th, td { border: 1px solid #202030; padding: 8px 10px; }
+	thead th { background: #121223; color: var(--apoth-text); }
+	tbody tr:nth-child(even) { background: #0c0c16; }
+
+	/* Code */
+	pre, code, kbd, samp {
+		font-family: {{ fontVariant == "fire" ? "'Fira Code', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" : "'Caskaydia Cove Nerd Font', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" }} !important;
+	}
+	pre code, code {
+		background: var(--apoth-code-bg) !important;
+		color: #DDE1FF !important;
+		border-radius: 10px;
+		padding: 0.2rem 0.5rem;
+		box-shadow: inset 0 0 10px color-mix(in oklab, var(--apoth-accent) 24%, #000);
+	}
+	pre { padding: {{ compactUI ? '10px' : '12px' }} !important; overflow: auto; position: relative; }
+
+	/* copy button */
+	pre [data-copy], pre .copy, pre .btn-copy, pre .absolute.right-2, pre .copy-button {
+		position: absolute !important; top: 8px; right: 8px; opacity: .85; backdrop-filter: blur(4px);
+	}
+
+	/* ============= Navbars / Sidebars ============= */
+	header, nav, .sidebar, .overflow-y-auto, [data-testid="left-sidebar"], [data-testid="sidebar"] {
+		background: linear-gradient(180deg, #050508, #0b0b12 60%, #050508 100%) !important;
+		border-right: 1px solid #141428 !important;
+		{{ softGlow ? 'box-shadow: inset -1px 0 12px var(--apoth-fade);' : '' }}
+	}
+	[aria-current="page"], .active, .selected, .current {
+		background: color-mix(in oklab, var(--apoth-accent) 18%, #0a0a12) !important;
+		border-left: 3px solid var(--apoth-accent) !important;
+	}
+
+	.badge, .pill, .tag {
+		background: color-mix(in oklab, var(--apoth-accent) 20%, #0a0a12);
+		color: var(--apoth-text);
+		border: 1px solid color-mix(in oklab, var(--apoth-accent) 35%, #222);
+		border-radius: 999px; padding: 2px 8px;
+	}
+
+	/* Popovers / Menus / Modals */
+	.popover, .menu, .dropdown, .tooltip, [role="menu"], [role="listbox"], .absolute.z-50, .shadow-xl, .modal {
+		background: var(--apoth-glass-strong) !important;
+		border: 1px solid #1b1b2b !important;
+		border-radius: 12px !important;
+		{{ softGlow ? 'box-shadow: 0 0 16px var(--apoth-fade) !important;' : '' }}
+		backdrop-filter: blur(10px) saturate(110%);
+	}
+
+	/* Inputs / radios / checks */
+	input[type="checkbox"], input[type="radio"] { accent-color: var(--apoth-accent); }
+	select { background: var(--apoth-surface) !important; color: var(--apoth-text) !important; border: 1px solid #24243a !important; border-radius: 10px !important; }
+
+	/* Status/Progress/Toasts */
+	progress, .progress, .loading-bar { appearance: none; height: 6px; border-radius: 999px; background: #141428; }
+	progress::-webkit-progress-value { background: var(--apoth-accent); border-radius: 999px; }
+	.toast, .notification {
+		background: #0c0c16 !important; border: 1px solid #23233a !important;
+		{{ softGlow ? 'box-shadow: 0 0 12px var(--apoth-fade) !important;' : '' }}
+		color: var(--apoth-text) !important;
+	}
+
+	/* Images and media framing */
+	img, video, canvas { border-radius: 8px; background: #0a0a12; }
+
+	/* ====== NEW: Force accent text when directly on pure black ====== */
+	:where([style*="background:#000"], [style*="background: #000"], [style*="background-color:#000"], [style*="background-color: #000"], [style*="rgb(0, 0, 0)"], .bg-black, .bg-[#000], .bg-[#000000])
+	:is(h1,h2,h3,h4,h5,h6,p,li,span,div,a,label,code,pre,em,strong,small) {
+		color: var(--apoth-accent) !important;
+	}
+
+	/* Motion prefs */
+	@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+}
+
+/* -------------------------------------------------
+   SCOPE: Sidebar for ChatGPT – Free Access (extension UI)
+--------------------------------------------------*/
+@-moz-document url-prefix("chrome-extension://") {
+	:root {
+		--apoth-accent: {{ accentColor }};
+		--apoth-bg: #000000;
+		--apoth-text: {{ highContrast ? '#F4F4FF' : '#E6E6FA' }};
+		--apoth-glass: rgba(8, 8, 15, 0.55);
+	}
+	html, body {
+		background: var(--apoth-bg) !important;
+		color: var(--apoth-text) !important;
+		font-family: {{ fontVariant == "fire" ? "'Fira Code', ui-sans-serif, system-ui" : "'Caskaydia Cove Nerd Font', ui-sans-serif, system-ui" }} !important;
+		-webkit-font-smoothing: antialiased;
+	}
+	.rating-container {
+		background: linear-gradient(135deg, color-mix(in oklab, var(--apoth-accent) 50%, #222), #141428) !important;
+		border-bottom: 1px solid #222441 !important;
+		color: var(--apoth-text) !important;
+		backdrop-filter: blur(6px);
+		{{ softGlow ? 'box-shadow: 0 4px 18px color-mix(in oklab, var(--apoth-accent) 40%, transparent);' : '' }}
+	}
+	.rating-text { color: var(--apoth-text) !important; }
+	.star { color: #5a5ac9 !important; }
+	.star:hover, .star:hover ~ .star { color: #ffd700 !important; }
+	#activateVoiceModeButton {
+		background: linear-gradient(135deg, var(--apoth-accent), color-mix(in oklab, var(--apoth-accent) 70%, #000)) !important;
+		{{ softGlow ? 'box-shadow: 0 6px 24px var(--apoth-accent) !important;' : '' }}
+	}
+	iframe { opacity: 0; transition: opacity .4s ease; }
+	iframe.loaded { opacity: 1; }
+	.footer-donation {
+		background: linear-gradient(135deg, var(--apoth-accent), color-mix(in oklab, var(--apoth-accent) 65%, #000)) !important;
+		color: white !important;
+		{{ softGlow ? 'box-shadow: 0 -6px 22px color-mix(in oklab, var(--apoth-accent) 50%, transparent) !important;' : '' }}
+	}
+	.footer-donate-btn { border: 1px solid color-mix(in oklab, white 35%, var(--apoth-accent)); }
+	.loading-container { background: #06060A !important; }
+	.loading-spinner { border-top-color: var(--apoth-accent) !important; }
+	/* Scrollbar */
+	::-webkit-scrollbar { width: 8px; }
+	::-webkit-scrollbar-thumb {
+		background: var(--apoth-accent);
+		{{ softGlow ? 'box-shadow: 0 0 10px var(--apoth-accent);' : '' }}
+		border-radius: 8px;
+	}
+}

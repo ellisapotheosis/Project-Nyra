@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  ollama:
+    image: ollama/ollama:latest
+    container_name: nyra-ollama-3060
+    ports:
+      - '11434:11434'
+    volumes:
+      - ollama_data:/root/.ollama
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    environment:
+      - OLLAMA_HOST=0.0.0.0
+      - OLLAMA_ORIGINS=*
+    restart: unless-stopped
+
+  worker-agent:
+    image: node:20-alpine
+    container_name: nyra-worker-3060
+    ports:
+      - '8000:8000'
+    environment:
+      - WORKER_NAME=worker-rtx3060
+      - WORKER_TYPE=ollama
+      - OLLAMA_HOST=http://ollama:11434
+      - ORCHESTRATOR_IP=100.87.235.78
+      - TAILSCALE_IP=${TAILSCALE_IP}
+    volumes:
+      - ./agent:/app
+    working_dir: /app
+    command: sh -c "npm install 2>/dev/null; npm start || node server.js"
+    depends_on:
+      - ollama
+    restart: unless-stopped
+
+  gpu-metrics:
+    image: utkuozdemir/nvidia_gpu_exporter:latest
+    container_name: nyra-gpu-metrics-3060
+    ports:
+      - '9835:9835'
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    restart: unless-stopped
+
+volumes:
+  ollama_data:

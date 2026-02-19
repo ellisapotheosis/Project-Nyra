@@ -1,0 +1,104 @@
+version: '3.8'
+
+services:
+  archon-server:
+    build:
+      context: ../../../tools/archon/python
+      dockerfile: Dockerfile.server
+    container_name: nyra-archon
+    restart: unless-stopped
+    ports:
+      - '4000:8181'
+    environment:
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_SERVICE_KEY=${SUPABASE_SERVICE_KEY}
+      - NEXUS_ROUTER_URL=http://nexus:6000
+    networks:
+      - nyra-core
+      - nyra-mcp
+    depends_on:
+      - archon-db
+
+  archon-ui:
+    build:
+      context: ../../../tools/archon/archon-ui-main
+      dockerfile: Dockerfile
+    container_name: nyra-archon-ui
+    restart: unless-stopped
+    ports:
+      - '4001:3000' # Assuming UI runs on 3000 internal
+    networks:
+      - nyra-core
+
+  archon-db:
+    image: postgres:15-alpine
+    container_name: nyra-archon-db
+    environment:
+      - POSTGRES_USER=archon
+      - POSTGRES_PASSWORD=${ARCHON_DB_PASSWORD}
+      - POSTGRES_DB=archon
+    ports:
+      - '5434:5432'
+    networks:
+      - nyra-core
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U archon']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  claude-flow:
+    build:
+      context: ../../../services/claude-flow
+    container_name: nyra-claude-flow
+    restart: unless-stopped
+    ports:
+      - '3001:8080' # Assuming internal 8080
+    environment:
+      - CLAUDE_FLOW_MODE=orch
+      - AGENTDB_URL=postgresql://agentdb:agentdb@agentdb:5432/agentdb
+      - NEXUS_ROUTER_URL=http://nexus:6000
+    networks:
+      - nyra-core
+      - nyra-mcp
+
+  dashboard-ui:
+    build:
+      context: ../../../apps/claude-flow-dashboard-ui
+    container_name: nyra-cf-dashboard
+    restart: unless-stopped
+    ports:
+      - '3100:3000'
+    networks:
+      - nyra-core
+
+  gitea:
+    image: gitea/gitea:latest
+    container_name: nyra-gitea
+    restart: unless-stopped
+    ports:
+      - '3000:3000'
+      - '2222:22'
+    volumes:
+      - gitea_data:/data
+    networks:
+      - nyra-core
+
+  moltbot:
+    # Placeholder for Moltbot - verification pending
+    image: python:3.9-slim
+    container_name: nyra-moltbot
+    command: python3 -c "from http.server import HTTPServer, BaseHTTPRequestHandler; HTTPServer(('0.0.0.0', 3333), BaseHTTPRequestHandler).serve_forever()"
+    ports:
+      - '3333:3333'
+    networks:
+      - nyra-core
+
+volumes:
+  gitea_data:
+
+networks:
+  nyra-core:
+    external: true
+  nyra-mcp:
+    external: true

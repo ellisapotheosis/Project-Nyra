@@ -1,0 +1,85 @@
+version: '3.8'
+
+networks:
+  nyra-network:
+    external: true
+    name: nyra-network
+
+services:
+  # ============================================================================
+  # LiteLLM - Universal LLM Proxy
+  # ============================================================================
+  # Provides unified OpenAI-compatible API for all LLM providers
+  # Routes to: Ollama (3060), VLLM (3090Ti, 5090), OpenAI, Anthropic, etc.
+  # ============================================================================
+  litellm:
+    image: ghcr.io/berriai/litellm:main-latest
+    container_name: nyra-litellm
+    restart: unless-stopped
+    ports:
+      - "${LITELLM_PORT:-4000}:4000"
+    environment:
+      # Database for request logging
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/litellm
+
+      # Master key for API access
+      LITELLM_MASTER_KEY: ${LITELLM_MASTER_KEY}
+
+      # Enable UI
+      LITELLM_UI: "true"
+
+      # Logging
+      LITELLM_LOG: "INFO"
+
+      # Cost tracking
+      LITELLM_COST_TRACKING: "true"
+
+      # Cache
+      REDIS_HOST: redis
+      REDIS_PORT: 6380
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+
+      # Model fallbacks
+      LITELLM_FALLBACKS: "true"
+
+      # Load balancing
+      LITELLM_LOAD_BALANCE: "true"
+
+      # Timeouts
+      LITELLM_REQUEST_TIMEOUT: 600
+
+      # Worker endpoints (Tailscale IPs)
+      OLLAMA_API_BASE: http://100.64.0.11:11434
+      VLLM_3090TI_API_BASE: http://100.64.0.12:8000
+      VLLM_5090_API_BASE: http://100.64.0.10:8000
+
+    volumes:
+      - ./configs/litellm/config.yaml:/app/config.yaml:ro
+      - litellm_data:/app/data
+    networks:
+      - nyra-network
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:4000/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    labels:
+      - "com.nyra.service=litellm"
+      - "com.nyra.category=llm-proxy"
+      - "com.nyra.stack=core"
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+
+volumes:
+  litellm_data:
+    driver: local
+    labels:
+      - "com.nyra.backup=daily"
+      - "com.nyra.retention=30days"

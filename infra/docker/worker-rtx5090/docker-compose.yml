@@ -1,0 +1,82 @@
+version: '3.8'
+
+services:
+  vllm:
+    image: vllm/vllm-openai:latest
+    container_name: nyra-vllm-5090
+    ports:
+      - '8080:8000'
+    environment:
+      - HUGGING_FACE_HUB_TOKEN=${HF_TOKEN}
+      - VLLM_LOGGING_LEVEL=INFO
+    volumes:
+      - ./models:/root/.cache/huggingface
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    command: >
+      --model meta-llama/Llama-3.1-70B-Instruct
+      --tensor-parallel-size 1
+      --gpu-memory-utilization 0.90
+      --max-model-len 8192
+      --dtype auto
+    restart: unless-stopped
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:8000/health']
+      interval: 60s
+      timeout: 30s
+      retries: 3
+      start_period: 300s
+
+  lmcache:
+    image: lmcache/lmcache:latest
+    container_name: nyra-lmcache-5090
+    ports:
+      - '8081:8000'
+    environment:
+      - VLLM_HOST=http://vllm:8000
+    depends_on:
+      vllm:
+        condition: service_healthy
+    restart: unless-stopped
+
+  worker-agent:
+    image: node:20-alpine
+    container_name: nyra-worker-5090
+    ports:
+      - '8000:8000'
+    environment:
+      - WORKER_NAME=worker-rtx5090
+      - WORKER_TYPE=vllm
+      - VLLM_HOST=http://vllm:8000
+      - LMCACHE_HOST=http://lmcache:8000
+      - ORCHESTRATOR_IP=100.87.235.78
+      - TAILSCALE_IP=${TAILSCALE_IP}
+    volumes:
+      - ./agent:/app
+    working_dir: /app
+    command: sh -c "npm install 2>/dev/null; npm start || node server.js"
+    depends_on:
+      - vllm
+    restart: unless-stopped
+
+  gpu-metrics:
+    image: utkuozdemir/nvidia_gpu_exporter:latest
+    container_name: nyra-gpu-metrics-5090
+    ports:
+      - '9835:9835'
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    restart: unless-stopped
+
+volumes:
+  models:

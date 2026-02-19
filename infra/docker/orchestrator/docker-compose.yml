@@ -1,0 +1,372 @@
+version: '3.8'
+
+services:
+  # -----------------------------------------------------
+  # INGRESS & GATEWAYS (The Singular Entry Point)
+  # -----------------------------------------------------
+  nexus:
+    image: grafbase/nexus:latest
+    container_name: nyra-nexus
+    restart: unless-stopped
+    ports:
+      - '6000:6000'
+    volumes:
+      - ../../../nexus_master.toml:/etc/nexus/nexus.toml:ro
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+      - ADMIN_EMAIL=${ADMIN_EMAIL}
+    networks:
+      - nyra-core
+      - nyra-mcp
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:6000/health']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  litellm:
+    image: ghcr.io/berriai/litellm:main-latest
+    container_name: nyra-litellm
+    restart: unless-stopped
+    ports:
+      - '4000:4000'
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+    networks:
+      - nyra-core
+
+  # -----------------------------------------------------
+  # ARCHON OS (Priority 1 - Orchestrator)
+  # -----------------------------------------------------
+  archon-server:
+    build:
+      context: ./tools/archon/python
+      dockerfile: Dockerfile.server
+    container_name: nyra-archon-server
+    restart: unless-stopped
+    ports:
+      - '8181:8181'
+    environment:
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_SERVICE_KEY=${SUPABASE_SERVICE_KEY}
+      - NEXUS_ROUTER_URL=http://nexus:6000
+    networks:
+      - nyra-core
+      - nyra-mcp
+    depends_on:
+      - postgresql
+
+  archon-mcp:
+    build:
+      context: ./tools/archon/python
+      dockerfile: Dockerfile.mcp
+    container_name: nyra-archon-mcp
+    restart: unless-stopped
+    ports:
+      - '8051:8051'
+    environment:
+      - NEXUS_ROUTER_URL=http://nexus:6000
+    networks:
+      - nyra-mcp
+
+  archon-ui:
+    build:
+      context: ./tools/archon/archon-ui-main
+      dockerfile: Dockerfile
+    container_name: nyra-archon-ui
+    restart: unless-stopped
+    ports:
+      - '3737:3737'
+    networks:
+      - nyra-core
+
+  # -----------------------------------------------------
+  # MEMORY & GRAPH STACK
+  # -----------------------------------------------------
+  falkordb:
+    image: falkordb/falkordb:latest
+    container_name: nyra-falkordb
+    restart: unless-stopped
+    ports:
+      - '6380:6379' # Redis on 6379, FalkorDB on 6380
+    volumes:
+      - falkordb_data:/data
+    networks:
+      - nyra-core
+
+  graphiti_mcp:
+    image: zepai/knowledge-graph-mcp:standalone
+    container_name: nyra-graphiti-mcp
+    restart: unless-stopped
+    environment:
+      - FALKORDB_URI=redis://falkordb:6379
+      - OPENAI_BASE_URL=http://nexus:6000/llm/openai/v1
+    networks:
+      - nyra-mcp
+    depends_on:
+      - falkordb
+      - nexus
+
+  ruvector:
+    image: ruvnet/ruvector:latest
+    container_name: nyra-ruvector
+    restart: unless-stopped
+    ports:
+      - '8082:8080'
+    networks:
+      - nyra-core
+
+  ruvector-cli:
+    image: ruvnet/ruvector-cli:latest
+    container_name: nyra-ruvector-cli
+    restart: unless-stopped
+    environment:
+      - RUVECTOR_URL=http://ruvector:8080
+    networks:
+      - nyra-core
+
+  ruvector-postgres:
+    image: postgres:15-alpine
+    container_name: nyra-ruvector-postgres
+    environment:
+      - POSTGRES_USER=ruvector
+      - POSTGRES_PASSWORD=ruvector
+      - POSTGRES_DB=ruvector
+    networks:
+      - nyra-core
+
+  # -----------------------------------------------------
+  # BUSINESS & WORKFLOWS
+  # -----------------------------------------------------
+  twenty:
+    image: twentycrm/twenty:latest
+    container_name: nyra-twenty
+    restart: unless-stopped
+    ports:
+      - '3000:3000'
+    environment:
+      - PORT=3000
+      - PG_DATABASE_URL=postgresql://twenty:twenty@twenty-db:5432/twenty
+    networks:
+      - nyra-core
+    depends_on:
+      - twenty-db
+
+  twenty-db:
+    image: postgres:15-alpine
+    container_name: nyra-twenty-db
+    environment:
+      - POSTGRES_USER=twenty
+      - POSTGRES_PASSWORD=twenty
+      - POSTGRES_DB=twenty
+    networks:
+      - nyra-core
+
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: nyra-n8n
+    restart: unless-stopped
+    ports:
+      - '5678:5678'
+    networks:
+      - nyra-core
+
+  activepieces:
+    image: activepieces/activepieces:latest
+    container_name: nyra-activepieces
+    restart: unless-stopped
+    ports:
+      - '3002:80'
+    environment:
+      - AP_ENVIRONMENT=PRODUCTION
+    networks:
+      - nyra-core
+
+  activepieces-worker:
+    image: activepieces/activepieces:latest
+    container_name: nyra-activepieces-worker
+    command: ['worker']
+    restart: unless-stopped
+    environment:
+      - AP_ENVIRONMENT=PRODUCTION
+    networks:
+      - nyra-core
+    depends_on:
+      - activepieces
+
+  # -----------------------------------------------------
+  # MEMORY & GRAPH STACK (Advanced)
+  # -----------------------------------------------------
+  letta:
+    image: letta/letta:latest
+    container_name: nyra-letta
+    restart: unless-stopped
+    ports:
+      - '8282:8282'
+    environment:
+      - LETTA_SERVER_PORT=8282
+      - LETTA_PG_URI=postgresql://letta:letta@letta-db:5432/letta
+      - OPENAI_API_BASE=http://nexus:6000/llm/openai/v1
+    networks:
+      - nyra-core
+    depends_on:
+      - letta-db
+
+  letta-db:
+    image: postgres:15-alpine
+    container_name: nyra-letta-db
+    environment:
+      - POSTGRES_USER=letta
+      - POSTGRES_PASSWORD=letta
+      - POSTGRES_DB=letta
+    networks:
+      - nyra-core
+
+  mem0:
+    image: mem0/mem0:latest
+    container_name: nyra-mem0
+    restart: unless-stopped
+    ports:
+      - '8083:8080'
+    networks:
+      - nyra-core
+
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: nyra-qdrant
+    restart: unless-stopped
+    ports:
+      - '6333:6333'
+    volumes:
+      - qdrant_data:/qdrant/storage
+    networks:
+      - nyra-core
+
+  # -----------------------------------------------------
+  # CORE AI ORCHESTRATION (Claude Flow Stack)
+  # -----------------------------------------------------
+  claude-flow:
+    build:
+      context: ./services/claude-flow
+    container_name: nyra-claude-flow
+    restart: unless-stopped
+    ports:
+      - '8084:8080'
+    environment:
+      - CLAUDE_FLOW_MODE=orch
+      - AGENTDB_URL=postgresql://agentdb:agentdb@agentdb:5432/agentdb
+      - NEXUS_ROUTER_URL=http://nexus:6000
+    networks:
+      - nyra-core
+      - nyra-mcp
+    depends_on:
+      - agentdb
+      - nexus
+
+  agentdb:
+    image: postgres:15-alpine
+    container_name: nyra-agentdb
+    environment:
+      - POSTGRES_USER=agentdb
+      - POSTGRES_PASSWORD=agentdb
+      - POSTGRES_DB=agentdb
+    networks:
+      - nyra-core
+
+  ruv-swarm:
+    image: ruvnet/ruv-swarm:latest
+    container_name: nyra-ruv-swarm
+    restart: unless-stopped
+    environment:
+      - NEXUS_URL=http://nexus:6000
+    networks:
+      - nyra-core
+      - nyra-mcp
+
+  dashboard-ui:
+    build:
+      context: ./apps/claude-flow-dashboard-ui
+    container_name: nyra-dashboard-ui
+    restart: unless-stopped
+    ports:
+      - '8085:3000'
+    networks:
+      - nyra-core
+
+  # -----------------------------------------------------
+  # INFRASTRUCTURE & MONITORING
+  # -----------------------------------------------------
+  gitea:
+    image: gitea/gitea:latest
+    container_name: nyra-gitea
+    restart: unless-stopped
+    ports:
+      - '3001:3000'
+      - '2222:22'
+    volumes:
+      - gitea_data:/data
+    networks:
+      - nyra-core
+
+  tempo:
+    image: grafana/tempo:latest
+    container_name: nyra-tempo
+    restart: unless-stopped
+    ports:
+      - '4317:4317' # OTLP gRPC
+    networks:
+      - nyra-core
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: nyra-prometheus
+    volumes:
+      - ../../configs/prometheus:/etc/prometheus
+    networks:
+      - nyra-core
+
+  # -----------------------------------------------------
+  # INFRASTRUCTURE (Shared)
+  # -----------------------------------------------------
+  postgresql:
+    image: postgres:15-alpine
+    container_name: nyra-postgres
+    restart: unless-stopped
+    ports:
+      - '5432:5432'
+    environment:
+      - POSTGRES_USER=nyra
+      - POSTGRES_PASSWORD=nyra_password
+      - POSTGRES_DB=nyra_production
+    networks:
+      - nyra-core
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U nyra -d nyra_production']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:alpine
+    container_name: nyra-redis
+    restart: unless-stopped
+    ports:
+      - '6379:6379'
+    networks:
+      - nyra-core
+
+networks:
+  nyra-core:
+    name: nyra-core
+  nyra-mcp:
+    name: nyra-mcp
+
+volumes:
+  falkordb_data:
+  archon-data:
+  qdrant_data:
+  gitea_data:

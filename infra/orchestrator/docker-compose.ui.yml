@@ -1,0 +1,49 @@
+version: '3.9'
+
+# ==============================================================================
+# Project Nyra - UI Services
+# ==============================================================================
+# This file contains UI services that can be run on the orchestrator or
+# on a separate development machine.
+#
+# To run on a separate machine, copy this file and create a .env file with the
+# orchestrator's IP address set as ORCHESTRATOR_HOST, then run:
+#   docker compose -f docker-compose.ui.yml up -d
+# ==============================================================================
+
+networks:
+  # This connects to the main network defined in the orchestrator's primary compose file.
+  nyra_orchestrator_network:
+    external: true
+    name: nyra_orchestrator_network
+
+services:
+  archon_ui:
+    build:
+      context: ../../tools/archon/archon-ui-main
+      dockerfile: Dockerfile
+    container_name: nyra_archon_ui
+    restart: unless-stopped
+    ports:
+      - "3737:3737"
+    environment:
+      # Use an environment variable for the orchestrator host for portability
+      - VITE_ARCHON_SERVER_URL=http://${ORCHESTRATOR_HOST:-localhost}:8181
+      - VITE_NEXUS_ROUTER_URL=http://${ORCHESTRATOR_HOST:-localhost}:6000
+    networks:
+      - nyra_orchestrator_network
+    # No 'depends_on', as this service may be running on a different machine from the backend.
+
+  claude_flow_dashboard_ui:
+    build:
+      context: ../../apps/claude-flow-dashboard-ui # NOTE: Assumed build context
+      dockerfile: Dockerfile
+    container_name: nyra_claude_flow_dashboard
+    restart: unless-stopped
+    ports:
+      - "3003:3000" # Using a unique port
+    environment:
+      # NOTE: Assumed the dashboard talks to the Claude Flow MCP service
+      - VITE_CLAUDE_FLOW_API_URL=http://${ORCHESTRATOR_HOST:-localhost}:???? # TODO: Confirm the API endpoint port for claude_flow
+    networks:
+      - nyra_orchestrator_network
