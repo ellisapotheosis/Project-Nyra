@@ -1,484 +1,406 @@
-# ============================================================================
-# Project Nyra - Unified Infrastructure Makefile
-# ============================================================================
-# Consolidated from 274 docker-compose files
-# Manages 40+ services across all layers
-#
-# Quick Start:
-#   make help          - Show all commands
-#   make up            - Start all services
-#   make ps            - List running services
-#   make logs          - View all logs
-#   make health        - Check health status
-#
-# ============================================================================
+# ==============================================================================
+# PROJECT NYRA - MASTER MAKEFILE
+# ==============================================================================
+# Central build automation for all 4-PC distributed stack
+# Usage: make <target>
+# ==============================================================================
 
-.PHONY: help
-
-# Default target
-.DEFAULT_GOAL := help
-
-# Environment
-ENV ?= dev
-COMPOSE_FILE := -f docker-compose.yml
-ifeq ($(ENV),dev)
-	COMPOSE_FILE += -f docker-compose.dev.yml
-else ifeq ($(ENV),prod)
-	COMPOSE_FILE += -f docker-compose.prod.yml
-endif
+.PHONY: help init bootstrap up down logs health-check clean restart tunnel-setup port-discovery verify-connectivity db-init secrets-setup
 
 # Colors for output
-BLUE := \033[0;34m
 GREEN := \033[0;32m
-YELLOW := \033[1;33m
 RED := \033[0;31m
+YELLOW := \033[0;33m
+BLUE := \033[0;34m
 NC := \033[0m # No Color
 
-# ============================================================================
-# Help
-# ============================================================================
+# Defaults
+DOCKER_COMPOSE := docker-compose
+WORKER := all
+SERVICE := all
+PROFILE := all
 
-help: ## Show this help message
-	@echo "$(BLUE)╔══════════════════════════════════════════════════════════╗$(NC)"
-	@echo "$(BLUE)║        Project Nyra - Infrastructure Management          ║$(NC)"
-	@echo "$(BLUE)╚══════════════════════════════════════════════════════════╝$(NC)"
+# ==============================================================================
+# HELP TARGET
+# ==============================================================================
+
+help:
+	@echo "$(BLUE)═══════════════════════════════════════════════════════════════$(NC)"
+	@echo "$(BLUE)PROJECT NYRA - MASTER MAKEFILE$(NC)"
+	@echo "$(BLUE)═══════════════════════════════════════════════════════════════$(NC)"
 	@echo ""
-	@echo "$(GREEN)Usage:$(NC) make [target] ENV=[dev|prod]"
+	@echo "$(YELLOW)INITIALIZATION:$(NC)"
+	@echo "  make init                 - Initialize project (first-time setup)"
+	@echo "  make bootstrap            - Full system bootstrap (all services)"
+	@echo "  make secrets-setup        - Initialize Infisical secrets"
 	@echo ""
-	@echo "$(GREEN)Available targets:$(NC)"
-	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  $(YELLOW)%-30s$(NC) %s\n", $$1, $$2}'
+	@echo "$(YELLOW)ORCHESTRATOR (Control Plane):$(NC)"
+	@echo "  make orchestrator-up      - Start Nexus, Claude Flow, databases"
+	@echo "  make orchestrator-logs    - View orchestrator logs"
+	@echo "  make orchestrator-restart - Restart orchestrator services"
 	@echo ""
-	@echo "$(GREEN)Service Groups:$(NC)"
-	@echo "  $(YELLOW)core$(NC)         - PostgreSQL, Redis, MongoDB"
-	@echo "  $(YELLOW)ai$(NC)           - Claude Flow, Archon, Graphiti, Mem0, Letta"
-	@echo "  $(YELLOW)gateway$(NC)      - Nexus, LiteLLM"
-	@echo "  $(YELLOW)apps$(NC)         - Dify, Twenty CRM, Quote API, Campaign Engine"
-	@echo "  $(YELLOW)devtools$(NC)     - Gitea, n8n, Activepieces"
-	@echo "  $(YELLOW)monitoring$(NC)   - Prometheus, Grafana, Loki, cAdvisor, Langfuse"
-	@echo "  $(YELLOW)storage$(NC)      - MinIO"
-	@echo "  $(YELLOW)admin$(NC)        - pgAdmin"
+	@echo "$(YELLOW)WORKERS (GPU Inference):$(NC)"
+	@echo "  make workers-up           - Start all GPU workers"
+	@echo "  make workers-up WORKER=rtx-5090 - Start specific worker"
+	@echo "  make workers-down         - Stop all workers"
+	@echo "  make workers-logs WORKER=rtx-5090 - View worker logs"
 	@echo ""
-
-# ============================================================================
-# Core Commands
-# ============================================================================
-
-build: ## Build all Docker images
-	@echo "$(BLUE)Building all images...$(NC)"
-	docker-compose $(COMPOSE_FILE) build
-
-build-nocache: ## Build all Docker images without cache
-	@echo "$(BLUE)Building all images (no cache)...$(NC)"
-	docker-compose $(COMPOSE_FILE) build --no-cache
-
-up: ## Start all services
-	@echo "$(BLUE)Starting all services...$(NC)"
-	docker-compose $(COMPOSE_FILE) up -d
-	@echo "$(GREEN)✓ All services started$(NC)"
-	@$(MAKE) ps
-
-up-build: ## Build and start all services
-	@echo "$(BLUE)Building and starting all services...$(NC)"
-	docker-compose $(COMPOSE_FILE) up -d --build
-	@$(MAKE) ps
-
-down: ## Stop all services
-	@echo "$(YELLOW)Stopping all services...$(NC)"
-	docker-compose $(COMPOSE_FILE) down
-	@echo "$(GREEN)✓ All services stopped$(NC)"
-
-down-volumes: ## Stop all services and remove volumes (WARNING: data loss!)
-	@echo "$(RED)WARNING: This will remove all volumes and data!$(NC)"
-	@read -p "Are you sure? [y/N] " -n 1 -r; \
-	echo; \
-	if [[ $$REPLY =~ ^[Yy]$$ ]]; then \
-		docker-compose $(COMPOSE_FILE) down -v; \
-	fi
-
-restart: down up ## Restart all services
-
-# ============================================================================
-# Service Groups
-# ============================================================================
-
-up-core: ## Start core infrastructure (postgres, redis, mongo)
-	@echo "$(BLUE)Starting core services...$(NC)"
-	docker-compose $(COMPOSE_FILE) up -d postgres redis mongo
-
-up-ai: up-core ## Start AI/MCP services (claude-flow, archon, graphiti, mem0, letta)
-	@echo "$(BLUE)Starting AI services...$(NC)"
-	docker-compose $(COMPOSE_FILE) up -d infisical agent-claude-flow agent-archon claude-flow archon graphiti-mcp mem0-mcp letta letta_postgres neo4j falkordb
-
-up-gateway: up-core ## Start API gateway services (nexus, litellm)
-	@echo "$(BLUE)Starting gateway services...$(NC)"
-	docker-compose $(COMPOSE_FILE) up -d nexus litellm
-
-up-apps: up-core ## Start application services (dify, twenty-crm, quote-api, campaign-engine)
-	@echo "$(BLUE)Starting application services...$(NC)"
-	docker-compose $(COMPOSE_FILE) up -d dify dify-api dify-sandbox dify_postgres twenty-crm twenty_postgres quote-api campaign-engine
-
-up-devtools: up-core ## Start development tools (gitea, n8n, activepieces)
-	@echo "$(BLUE)Starting development tools...$(NC)"
-	docker-compose $(COMPOSE_FILE) up -d gitea gitea-runner n8n activepieces
-
-up-monitoring: ## Start monitoring stack (prometheus, grafana, loki, cadvisor, langfuse)
-	@echo "$(BLUE)Starting monitoring services...$(NC)"
-	docker-compose $(COMPOSE_FILE) up -d prometheus grafana loki alertmanager cadvisor langfuse
-
-up-storage: ## Start storage services (minio)
-	@echo "$(BLUE)Starting storage services...$(NC)"
-	docker-compose $(COMPOSE_FILE) up -d minio
-
-up-admin: up-core ## Start admin tools (pgadmin)
-	@echo "$(BLUE)Starting admin tools...$(NC)"
-	docker-compose $(COMPOSE_FILE) up -d pgadmin
-
-# ============================================================================
-# Monitoring & Logs
-# ============================================================================
-
-logs: ## View logs from all services
-	docker-compose $(COMPOSE_FILE) logs -f
-
-logs-%: ## View logs from specific service (e.g., make logs-claude-flow)
-	docker-compose $(COMPOSE_FILE) logs -f $*
-
-logs-core: ## View logs from core services
-	docker-compose $(COMPOSE_FILE) logs -f postgres redis mongo
-
-logs-ai: ## View logs from AI services
-	docker-compose $(COMPOSE_FILE) logs -f claude-flow archon graphiti-mcp mem0-mcp letta
-
-ps: ## List all running containers
-	@docker-compose $(COMPOSE_FILE) ps
-
-status: ps ## Alias for ps
-
-health: ## Check health status of all services
-	@echo "$(BLUE)Checking service health...$(NC)"
-	@docker-compose $(COMPOSE_FILE) ps --format json 2>/dev/null | jq -r '.[] | "\(.Service): \(.Health)"' || docker-compose $(COMPOSE_FILE) ps
-
-health-check: ## Run comprehensive health checks
-	@echo "$(BLUE)Running comprehensive health checks...$(NC)"
-	@bash scripts/health-check.sh
-
-# ============================================================================
-# Service Management
-# ============================================================================
-
-start-%: ## Start specific service (e.g., make start-postgres)
-	@echo "$(BLUE)Starting $*...$(NC)"
-	docker-compose $(COMPOSE_FILE) start $*
-
-stop-%: ## Stop specific service (e.g., make stop-postgres)
-	@echo "$(YELLOW)Stopping $*...$(NC)"
-	docker-compose $(COMPOSE_FILE) stop $*
-
-restart-%: ## Restart specific service (e.g., make restart-claude-flow)
-	@echo "$(BLUE)Restarting $*...$(NC)"
-	docker-compose $(COMPOSE_FILE) restart $*
-
-exec-%: ## Execute shell in specific service (e.g., make exec-postgres)
-	docker-compose $(COMPOSE_FILE) exec $* sh
-
-# ============================================================================
-# Database Operations
-# ============================================================================
-
-db-backup: ## Backup main PostgreSQL database
-	@mkdir -p ../backups
-	@echo "$(BLUE)Backing up main database...$(NC)"
-	docker-compose $(COMPOSE_FILE) exec -T postgres pg_dump -U nyra nyra > ../backups/postgres_$$(date +%Y%m%d_%H%M%S).sql
-	@echo "$(GREEN)✓ Backup created: ../backups/postgres_$$(date +%Y%m%d_%H%M%S).sql$(NC)"
-
-db-backup-all: ## Backup all PostgreSQL databases
-	@mkdir -p ../backups
-	@echo "$(BLUE)Backing up all databases...$(NC)"
-	@$(MAKE) db-backup
-	docker-compose $(COMPOSE_FILE) exec -T letta_postgres pg_dump -U letta letta > ../backups/letta_postgres_$$(date +%Y%m%d_%H%M%S).sql
-	docker-compose $(COMPOSE_FILE) exec -T twenty_postgres pg_dump -U twenty twenty > ../backups/twenty_postgres_$$(date +%Y%m%d_%H%M%S).sql
-	docker-compose $(COMPOSE_FILE) exec -T dify_postgres pg_dump -U dify dify > ../backups/dify_postgres_$$(date +%Y%m%d_%H%M%S).sql
-	@echo "$(GREEN)✓ All databases backed up$(NC)"
-
-db-restore: ## Restore main PostgreSQL database (usage: make db-restore FILE=backup.sql)
-	@if [ -z "$(FILE)" ]; then echo "$(RED)Usage: make db-restore FILE=backup.sql$(NC)"; exit 1; fi
-	@echo "$(BLUE)Restoring database from $(FILE)...$(NC)"
-	docker-compose $(COMPOSE_FILE) exec -T postgres psql -U nyra -d nyra < $(FILE)
-	@echo "$(GREEN)✓ Database restored$(NC)"
-
-db-shell: ## Open main PostgreSQL shell
-	docker-compose $(COMPOSE_FILE) exec postgres psql -U nyra -d nyra
-
-db-shell-letta: ## Open Letta PostgreSQL shell
-	docker-compose $(COMPOSE_FILE) exec letta_postgres psql -U letta -d letta
-
-db-shell-twenty: ## Open Twenty PostgreSQL shell
-	docker-compose $(COMPOSE_FILE) exec twenty_postgres psql -U twenty -d twenty
-
-db-shell-dify: ## Open Dify PostgreSQL shell
-	docker-compose $(COMPOSE_FILE) exec dify_postgres psql -U dify -d dify
-
-redis-cli: ## Open Redis CLI
-	docker-compose $(COMPOSE_FILE) exec redis redis-cli -a $${REDIS_PASSWORD:-dev-only-password}
-
-mongo-shell: ## Open MongoDB shell
-	docker-compose $(COMPOSE_FILE) exec mongo mongosh -u admin -p $${MONGO_ROOT_PASSWORD}
-
-neo4j-shell: ## Open Neo4j Cypher shell
-	docker-compose $(COMPOSE_FILE) exec neo4j cypher-shell -u neo4j -p $${NEO4J_PASSWORD}
-
-# ============================================================================
-# Service Shells
-# ============================================================================
-
-shell-claude-flow: ## Open shell in claude-flow container
-	docker-compose $(COMPOSE_FILE) exec claude-flow sh
-
-shell-archon: ## Open shell in archon container
-	docker-compose $(COMPOSE_FILE) exec archon bash
-
-shell-dify: ## Open shell in dify-api container
-	docker-compose $(COMPOSE_FILE) exec dify-api sh
-
-shell-twenty: ## Open shell in twenty-crm container
-	docker-compose $(COMPOSE_FILE) exec twenty-crm sh
-
-# ============================================================================
-# Development
-# ============================================================================
-
-dev: ## Start development environment
-	@echo "$(GREEN)Starting development environment...$(NC)"
-	ENV=dev $(MAKE) up
+	@echo "$(YELLOW)ORACLE CLOUD (Always-On Services):$(NC)"
+	@echo "  make oracle-up            - Start Oracle Cloud stack (TwentyCRM, n8n, etc)"
+	@echo "  make oracle-down          - Stop Oracle services"
+	@echo "  make oracle-logs          - View Oracle logs"
 	@echo ""
-	@echo "$(GREEN)Development environment ready!$(NC)"
+	@echo "$(YELLOW)NETWORKING:$(NC)"
+	@echo "  make tunnel-setup         - Configure Cloudflared tunnel"
+	@echo "  make tunnel-start         - Start Cloudflared tunnel"
+	@echo "  make tunnel-stop          - Stop Cloudflared tunnel"
+	@echo "  make port-discovery       - Auto-discover all open ports & services"
 	@echo ""
-	@echo "$(YELLOW)Web UIs:$(NC)"
-	@echo "  Claude Flow:    http://localhost:3000"
-	@echo "  Archon OS:      http://localhost:8000"
-	@echo "  Gitea:          http://localhost:3001"
-	@echo "  n8n:            http://localhost:5678"
-	@echo "  Activepieces:   http://localhost:8082"
-	@echo "  Grafana:        http://localhost:3003"
-	@echo "  Prometheus:     http://localhost:9090"
-	@echo "  pgAdmin:        http://localhost:5050"
-	@echo "  Infisical:      http://localhost:8080"
-	@echo "  MinIO Console:  http://localhost:9001"
-	@echo "  Dify:           http://localhost:3002"
-	@echo "  Twenty CRM:     http://localhost:3020"
-	@echo "  Langfuse:       http://localhost:3004"
+	@echo "$(YELLOW)MONITORING & HEALTH:$(NC)"
+	@echo "  make health-check         - Full system health check"
+	@echo "  make health-check SERVICE=postgres - Check specific service"
+	@echo "  make logs SERVICE=nexus-router    - View service logs"
+	@echo "  make metrics              - Show Prometheus metrics"
+	@echo "  make grafana              - Open Grafana dashboard (http://localhost:3005)"
+	@echo ""
+	@echo "$(YELLOW)DATABASE:$(NC)"
+	@echo "  make db-init              - Initialize PostgreSQL databases"
+	@echo "  make db-backup            - Backup all databases"
+	@echo "  make db-restore           - Restore from latest backup"
+	@echo ""
+	@echo "$(YELLOW)DEVELOPMENT:$(NC)"
+	@echo "  make dev                  - Start in development mode (hot-reload)"
+	@echo "  make test                 - Run test suite"
+	@echo "  make lint                 - Lint code"
+	@echo "  make format               - Format code"
+	@echo ""
+	@echo "$(YELLOW)CLEANUP:$(NC)"
+	@echo "  make clean                - Stop all services"
+	@echo "  make clean-volumes        - Stop & remove volumes (⚠️  DATA LOSS!)"
+	@echo "  make clean-all            - Hard reset (volumes + images)"
+	@echo ""
+	@echo "$(YELLOW)DEPLOYMENT:$(NC)"
+	@echo "  make deploy               - Deploy to production"
+	@echo "  make rollback             - Rollback to previous version"
 	@echo ""
 
-dev-logs: ## View development logs
-	ENV=dev $(MAKE) logs
+# ==============================================================================
+# INITIALIZATION
+# ==============================================================================
 
-prod: ## Start production environment
-	@echo "$(GREEN)Starting production environment...$(NC)"
-	ENV=prod $(MAKE) up
+init:
+	@echo "$(GREEN)▶ Initializing Project Nyra...$(NC)"
+	@echo "  1. Checking prerequisites..."
+	@docker --version || (echo "$(RED)✗ Docker not installed$(NC)" && exit 1)
+	@docker-compose --version || (echo "$(RED)✗ Docker Compose not installed$(NC)" && exit 1)
+	@node --version || (echo "$(RED)✗ Node.js not installed$(NC)" && exit 1)
+	@npm --version || (echo "$(RED)✗ npm not installed$(NC)" && exit 1)
+	@echo "  2. Creating directory structure..."
+	@mkdir -p infra/docker/{orchestrator,workers,oracle,services}
+	@mkdir -p src/{orchestrator,agents,services,mcp-servers,workflows}
+	@mkdir -p packages/{types,db,utils,mcp}
+	@mkdir -p apps/{landing,admin-ui,crm-ui,borrower-portal}
+	@mkdir -p config/{orchestrator,oracle,secrets}
+	@mkdir -p docs tests logs
+	@echo "  3. Copying example configs..."
+	@test -f .env.example || cp .env.example.master .env.example
+	@test -f config/orchestrator/.env || cp config/orchestrator/.env.example config/orchestrator/.env
+	@echo "  4. Installing npm dependencies..."
+	@npm install --workspaces
+	@echo "$(GREEN)✓ Initialization complete$(NC)"
+	@echo "$(YELLOW)Next: make bootstrap$(NC)"
 
-prod-logs: ## View production logs
-	ENV=prod $(MAKE) logs
-
-# ============================================================================
-# Testing
-# ============================================================================
-
-test: ## Run all tests
-	@echo "$(BLUE)Running all tests...$(NC)"
-	@bash scripts/test-all.sh
-
-test-health: ## Run health check tests only
-	@bash scripts/test-health.sh
-
-test-integration: ## Run integration tests only
-	@bash scripts/test-integration.sh
-
-test-security: ## Run security tests only
-	@bash scripts/test-security.sh
-
-validate: ## Validate docker-compose.yml syntax
-	@echo "$(BLUE)Validating docker-compose.yml...$(NC)"
-	docker-compose $(COMPOSE_FILE) config > /dev/null
-	@echo "$(GREEN)✓ Configuration valid$(NC)"
-
-# ============================================================================
-# Security
-# ============================================================================
-
-security: ## Run security scan on all images
-	@echo "$(BLUE)Scanning Docker images for vulnerabilities...$(NC)"
-	@docker images --format "{{.Repository}}:{{.Tag}}" | grep nyra | xargs -I {} sh -c 'echo "Scanning: {}" && docker scan {} || true'
-
-security-audit: ## Run comprehensive security audit
-	@echo "$(BLUE)Running security audit...$(NC)"
-	@bash scripts/security-audit.sh
-
-secrets-check: ## Check for exposed secrets in configs
-	@echo "$(BLUE)Checking for exposed secrets...$(NC)"
-	@docker-compose $(COMPOSE_FILE) config | grep -i "password\|secret\|key" || echo "$(GREEN)✓ No exposed secrets found$(NC)"
-
-# ============================================================================
-# Maintenance
-# ============================================================================
-
-clean: ## Remove all stopped containers, unused networks, and dangling images
-	@echo "$(BLUE)Cleaning up Docker resources...$(NC)"
-	docker system prune -f
-	@echo "$(GREEN)✓ Cleanup complete$(NC)"
-
-clean-all: ## Remove all containers, networks, volumes, and images (WARNING!)
-	@echo "$(RED)WARNING: This will remove ALL Docker resources!$(NC)"
-	@read -p "Are you sure? [y/N] " -n 1 -r; \
-	echo; \
-	if [[ $$REPLY =~ ^[Yy]$$ ]]; then \
-		docker-compose $(COMPOSE_FILE) down -v --rmi all; \
-		docker system prune -af --volumes; \
-		echo "$(GREEN)✓ All resources removed$(NC)"; \
-	fi
-
-clean-volumes: ## Remove all volumes (WARNING: data loss!)
-	@echo "$(RED)WARNING: This will remove ALL volumes and data!$(NC)"
-	@read -p "Are you sure? [y/N] " -n 1 -r; \
-	echo; \
-	if [[ $$REPLY =~ ^[Yy]$$ ]]; then \
-		docker-compose $(COMPOSE_FILE) down -v; \
-		echo "$(GREEN)✓ All volumes removed$(NC)"; \
-	fi
-
-update: ## Pull latest images and rebuild
-	@echo "$(BLUE)Updating all images...$(NC)"
-	docker-compose $(COMPOSE_FILE) pull
-	docker-compose $(COMPOSE_FILE) build --pull
-	$(MAKE) up
-
-# ============================================================================
-# Initialization
-# ============================================================================
-
-init: ## Initialize infrastructure (first time setup)
-	@echo "$(BLUE)╔══════════════════════════════════════════════════════════╗$(NC)"
-	@echo "$(BLUE)║          Project Nyra - Infrastructure Setup             ║$(NC)"
-	@echo "$(BLUE)╚══════════════════════════════════════════════════════════╝$(NC)"
-	@echo ""
-	@echo "$(GREEN)Step 1:$(NC) Checking prerequisites..."
-	@command -v docker >/dev/null 2>&1 || { echo "$(RED)✗ Docker not found$(NC)"; exit 1; }
-	@command -v docker-compose >/dev/null 2>&1 || { echo "$(RED)✗ Docker Compose not found$(NC)"; exit 1; }
-	@echo "$(GREEN)✓ Docker found$(NC)"
-	@echo ""
-	@echo "$(GREEN)Step 2:$(NC) Creating .env file..."
-	@if [ ! -f .env ]; then \
-		cp .env.example .env; \
-		echo "$(GREEN)✓ Created .env file$(NC)"; \
-		echo "$(YELLOW)⚠ Please edit .env and add your secrets!$(NC)"; \
-	else \
-		echo "$(YELLOW)⚠ .env already exists$(NC)"; \
-	fi
-	@echo ""
-	@echo "$(GREEN)Step 3:$(NC) Building images..."
-	$(MAKE) build-nocache
-	@echo ""
-	@echo "$(GREEN)Step 4:$(NC) Starting core services..."
-	$(MAKE) up-core
-	@echo ""
-	@echo "$(GREEN)✓ Infrastructure initialized!$(NC)"
+bootstrap: init db-init secrets-setup orchestrator-up
+	@echo "$(GREEN)✓ System bootstrap complete!$(NC)"
 	@echo ""
 	@echo "$(YELLOW)Next steps:$(NC)"
-	@echo "  1. Edit .env and add your API keys and passwords"
-	@echo "  2. Run: make dev (to start all services)"
-	@echo "  3. Run: make health (to check service health)"
-	@echo ""
+	@echo "  1. Wait 30 seconds for services to stabilize"
+	@echo "  2. Run: make health-check"
+	@echo "  3. Run: make port-discovery"
+	@echo "  4. Run: make tunnel-setup"
 
-init-prod: ## Initialize production environment with secure passwords
-	@echo "$(BLUE)Generating secure production passwords...$(NC)"
-	@bash scripts/generate-secrets.sh
-	@$(MAKE) init
+# ==============================================================================
+# ORCHESTRATOR (CONTROL PLANE)
+# ==============================================================================
 
-# ============================================================================
-# Info & Stats
-# ============================================================================
+orchestrator-up:
+	@echo "$(GREEN)▶ Starting Orchestrator (Control Plane)...$(NC)"
+	$(DOCKER_COMPOSE) up -d \
+		nexus-router \
+		claude-flow-orchestrator \
+		postgres \
+		redis \
+		qdrant \
+		graphiti \
+		prometheus \
+		grafana \
+		loki
+	@echo "  Waiting for services to be ready..."
+	@sleep 10
+	@echo "$(GREEN)✓ Orchestrator started$(NC)"
+	@echo ""
+	@echo "  Services:"
+	@echo "    Nexus Router: http://localhost:6000"
+	@echo "    Claude Flow: http://localhost:8000"
+	@echo "    Grafana: http://localhost:3005"
+	@echo "    Postgres: localhost:5432"
+	@echo "    Redis: localhost:6379"
 
-info: ## Show infrastructure information
-	@echo "$(BLUE)╔══════════════════════════════════════════════════════════╗$(NC)"
-	@echo "$(BLUE)║         Project Nyra - Infrastructure Info               ║$(NC)"
-	@echo "$(BLUE)╚══════════════════════════════════════════════════════════╝$(NC)"
-	@echo ""
-	@echo "$(GREEN)Services:$(NC)         40+ services"
-	@echo "$(GREEN)Containers:$(NC)       $(shell docker-compose $(COMPOSE_FILE) ps -q | wc -l) running"
-	@echo "$(GREEN)Networks:$(NC)         $(shell docker network ls | grep nyra | wc -l) networks"
-	@echo "$(GREEN)Volumes:$(NC)          $(shell docker volume ls | grep nyra | wc -l) volumes"
-	@echo "$(GREEN)Images:$(NC)           $(shell docker images | grep nyra | wc -l) images"
-	@echo ""
-	@echo "$(YELLOW)Architecture:$(NC)     4-PC Distributed AI Mortgage Platform"
-	@echo "$(YELLOW)Orchestrator:$(NC)    Area51 (192.168.1.10)"
-	@echo "$(YELLOW)GPU Workers:$(NC)     3 workers (RTX 5090, 3090 Ti, 3060)"
-	@echo ""
+orchestrator-down:
+	@echo "$(YELLOW)⏹ Stopping Orchestrator...$(NC)"
+	$(DOCKER_COMPOSE) stop \
+		nexus-router \
+		claude-flow-orchestrator \
+		postgres \
+		redis \
+		qdrant \
+		graphiti \
+		prometheus \
+		grafana \
+		loki
 
-stats: ## Show resource usage statistics
-	@echo "$(BLUE)Container Resource Usage:$(NC)"
-	@docker stats --no-stream --format "table {{.Name}}\t{{.CPUPerc}}\t{{.MemUsage}}"
+orchestrator-restart: orchestrator-down orchestrator-up
+	@echo "$(GREEN)✓ Orchestrator restarted$(NC)"
 
-urls: ## Show all service URLs
-	@echo "$(BLUE)╔══════════════════════════════════════════════════════════╗$(NC)"
-	@echo "$(BLUE)║              Service URLs (Local Access)                 ║$(NC)"
-	@echo "$(BLUE)╚══════════════════════════════════════════════════════════╝$(NC)"
-	@echo ""
-	@echo "$(GREEN)AI/MCP Services:$(NC)"
-	@echo "  Claude Flow MCP:      http://localhost:3000"
-	@echo "  Archon OS:            http://localhost:8000"
-	@echo "  Graphiti MCP:         http://localhost:8001"
-	@echo "  Mem0 MCP:             http://localhost:8002"
-	@echo "  Letta:                http://localhost:8283"
-	@echo ""
-	@echo "$(GREEN)Gateway Services:$(NC)"
-	@echo "  Nexus Router:         http://localhost:6000"
-	@echo "  LiteLLM Proxy:        http://localhost:4000"
-	@echo ""
-	@echo "$(GREEN)Applications:$(NC)"
-	@echo "  Dify:                 http://localhost:3002"
-	@echo "  Twenty CRM:           http://localhost:3020"
-	@echo "  Quote API:            http://localhost:8089"
-	@echo "  Campaign Engine:      http://localhost:8020"
-	@echo ""
-	@echo "$(GREEN)Development Tools:$(NC)"
-	@echo "  Gitea:                http://localhost:3001"
-	@echo "  n8n:                  http://localhost:5678"
-	@echo "  Activepieces:         http://localhost:8082"
-	@echo ""
-	@echo "$(GREEN)Monitoring:$(NC)"
-	@echo "  Grafana:              http://localhost:3003"
-	@echo "  Prometheus:           http://localhost:9090"
-	@echo "  AlertManager:         http://localhost:9093"
-	@echo "  cAdvisor:             http://localhost:8081"
-	@echo "  Langfuse:             http://localhost:3004"
-	@echo ""
-	@echo "$(GREEN)Admin Tools:$(NC)"
-	@echo "  pgAdmin:              http://localhost:5050"
-	@echo "  Infisical:            http://localhost:8080"
-	@echo "  MinIO Console:        http://localhost:9001"
-	@echo ""
-	@echo "$(GREEN)Databases:$(NC)"
-	@echo "  PostgreSQL:           localhost:5432"
-	@echo "  Redis:                localhost:6379"
-	@echo "  MongoDB:              localhost:27017"
-	@echo "  Neo4j Browser:        http://localhost:7474"
-	@echo "  Neo4j Bolt:           localhost:7687"
-	@echo ""
+orchestrator-logs:
+	$(DOCKER_COMPOSE) logs -f \
+		nexus-router \
+		claude-flow-orchestrator
 
-# ============================================================================
-# Quick Actions
-# ============================================================================
+# ==============================================================================
+# WORKERS (GPU INFERENCE)
+# ==============================================================================
 
-quick-start: init up ## Quick start for new users (init + up)
+workers-up:
+ifeq ($(WORKER),all)
+	@echo "$(GREEN)▶ Starting all GPU workers...$(NC)"
+	$(DOCKER_COMPOSE) --profile workers up -d
+else
+	@echo "$(GREEN)▶ Starting worker: $(WORKER)...$(NC)"
+	$(DOCKER_COMPOSE) --profile $(WORKER) up -d
+endif
+	@echo "$(GREEN)✓ Workers started$(NC)"
+	@sleep 5
+	@make health-check
 
-quick-restart: down up ## Quick restart all services
+workers-down:
+	@echo "$(YELLOW)⏹ Stopping workers...$(NC)"
+	$(DOCKER_COMPOSE) --profile workers down
 
-quick-logs: ## Quick view of important service logs
-	docker-compose $(COMPOSE_FILE) logs -f --tail=20 claude-flow archon postgres redis
+workers-logs:
+ifdef WORKER
+	$(DOCKER_COMPOSE) logs -f worker-$(WORKER)
+else
+	$(DOCKER_COMPOSE) logs -f worker-3060 worker-5090 worker-3090
+endif
 
-quick-health: ## Quick health check of critical services
-	@echo "$(BLUE)Checking critical services...$(NC)"
-	@docker-compose $(COMPOSE_FILE) ps postgres redis mongo claude-flow archon infisical
+# ==============================================================================
+# ORACLE CLOUD (ALWAYS-ON SERVICES)
+# ==============================================================================
 
-# ============================================================================
+oracle-up:
+	@echo "$(GREEN)▶ Starting Oracle Cloud stack...$(NC)"
+	@echo "  Note: These services should run on Oracle Cloud, not locally"
+	@echo "  This is a local preview only"
+	$(DOCKER_COMPOSE) --profile oracle up -d \
+		twentycrm \
+		n8n \
+		activepieces \
+		quote-engine \
+		landing-page \
+		dify
+	@echo "$(GREEN)✓ Oracle services started (local preview)$(NC)"
+
+oracle-down:
+	@echo "$(YELLOW)⏹ Stopping Oracle services...$(NC)"
+	$(DOCKER_COMPOSE) --profile oracle down
+
+oracle-logs:
+	$(DOCKER_COMPOSE) logs -f twentycrm n8n activepieces
+
+# ==============================================================================
+# DATABASE
+# ==============================================================================
+
+db-init:
+	@echo "$(GREEN)▶ Initializing databases...$(NC)"
+	@sleep 5  # Wait for Postgres to start
+	@docker-compose exec -T postgres psql \
+		-U postgres \
+		-f /docker-entrypoint-initdb.d/init-multiple-databases.sh
+	@echo "$(GREEN)✓ Databases initialized$(NC)"
+
+db-backup:
+	@echo "$(GREEN)▶ Backing up databases...$(NC)"
+	@mkdir -p backups
+	@docker-compose exec -T postgres pg_dump \
+		-U postgres \
+		nyra_main > backups/nyra_main-$(shell date +%Y%m%d-%H%M%S).sql
+	@echo "$(GREEN)✓ Backup complete: backups/nyra_main-*.sql$(NC)"
+
+db-restore:
+	@echo "$(YELLOW)⚠ Restoring database...$(NC)"
+	@ls -lt backups/nyra_main-*.sql | head -1
+	@docker-compose exec -T postgres psql \
+		-U postgres \
+		nyra_main < $$(ls -t backups/nyra_main-*.sql | head -1)
+	@echo "$(GREEN)✓ Restore complete$(NC)"
+
+# ==============================================================================
+# NETWORKING & TUNNELING
+# ==============================================================================
+
+port-discovery:
+	@echo "$(GREEN)▶ Discovering all open ports...$(NC)"
+	@bash ./infra/scripts/port-discovery.sh
+	@echo ""
+	@echo "$(YELLOW)Results saved to: PORT_DISCOVERY_REPORT.txt$(NC)"
+
+tunnel-setup:
+	@echo "$(GREEN)▶ Setting up Cloudflared tunnel...$(NC)"
+	@test -f ~/.cloudflared/64fe03f2-9859-44ca-b0ab-e499d8464104.json || \
+		(echo "$(RED)✗ Tunnel credentials not found at ~/.cloudflared/$(NC)" && \
+		 echo "  Get credentials from: https://dash.cloudflare.com/?to=/:account/access/tunnels" && \
+		 exit 1)
+	@bash ./infra/scripts/tunnel-setup.sh
+	@echo "$(GREEN)✓ Tunnel configured$(NC)"
+	@echo "$(YELLOW)Next: make tunnel-start$(NC)"
+
+tunnel-start:
+	@echo "$(GREEN)▶ Starting Cloudflared tunnel...$(NC)"
+	cloudflared tunnel --config infra/cloudflared/config.yml run
+
+tunnel-stop:
+	@echo "$(YELLOW)⏹ Stopping tunnel...$(NC)"
+	@pkill -f "cloudflared tunnel"
+
+verify-connectivity:
+	@echo "$(GREEN)▶ Verifying system connectivity...$(NC)"
+	@bash ./infra/scripts/verify-connectivity.sh
+
+# ==============================================================================
+# SECRETS MANAGEMENT
+# ==============================================================================
+
+secrets-setup:
+	@echo "$(GREEN)▶ Setting up Infisical secrets...$(NC)"
+	@bash ./config/infisical/setup-secrets.sh || echo "$(YELLOW)⚠ Skipping Infisical (not configured yet)$(NC)"
+
+# ==============================================================================
+# MONITORING & HEALTH
+# ==============================================================================
+
+health-check:
+	@echo "$(GREEN)▶ Running system health check...$(NC)"
+	@bash ./infra/scripts/health-check.sh
+	@echo ""
+	@make -s services-summary
+
+services-summary:
+	@echo "$(BLUE)━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━$(NC)"
+	@echo "$(BLUE)SERVICE STATUS SUMMARY$(NC)"
+	@echo "$(BLUE)━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━$(NC)"
+	@docker-compose ps --services | while read service; do \
+		status=$$(docker-compose ps --filter "name=$$service" --format "{{.Status}}" | head -1); \
+		if [[ "$$status" == *"Up"* ]]; then \
+			echo "$(GREEN)✓$(NC) $$service: Up"; \
+		else \
+			echo "$(RED)✗$(NC) $$service: $$status"; \
+		fi; \
+	done
+	@echo "$(BLUE)━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━$(NC)"
+
+logs:
+	@echo "$(GREEN)▶ Viewing logs for: $(SERVICE)$(NC)"
+ifdef SERVICE
+	docker-compose logs -f $(SERVICE)
+else
+	docker-compose logs -f
+endif
+
+metrics:
+	@echo "$(YELLOW)Opening Prometheus metrics: http://localhost:9090$(NC)"
+	@which xdg-open && xdg-open http://localhost:9090 || \
+	 which open && open http://localhost:9090 || \
+	 echo "Visit: http://localhost:9090"
+
+grafana:
+	@echo "$(YELLOW)Opening Grafana: http://localhost:3005$(NC)"
+	@which xdg-open && xdg-open http://localhost:3005 || \
+	 which open && open http://localhost:3005 || \
+	 echo "Visit: http://localhost:3005"
+
+# ==============================================================================
+# DEVELOPMENT
+# ==============================================================================
+
+dev:
+	@echo "$(GREEN)▶ Starting in development mode (hot-reload)...$(NC)"
+	@npm run dev --workspaces
+
+test:
+	@echo "$(GREEN)▶ Running tests...$(NC)"
+	@npm run test --workspaces
+
+lint:
+	@echo "$(GREEN)▶ Linting code...$(NC)"
+	@npm run lint --workspaces
+
+format:
+	@echo "$(GREEN)▶ Formatting code...$(NC)"
+	@npm run format --workspaces
+
+# ==============================================================================
+# CLEANUP
+# ==============================================================================
+
+clean:
+	@echo "$(YELLOW)⏹ Stopping all services...$(NC)"
+	$(DOCKER_COMPOSE) down
+	@echo "$(GREEN)✓ All services stopped$(NC)"
+
+clean-volumes: clean
+	@echo "$(RED)⚠ Removing volumes (DATA LOSS!)...$(NC)"
+	$(DOCKER_COMPOSE) down -v
+	@echo "$(GREEN)✓ Volumes removed$(NC)"
+
+clean-all: clean-volumes
+	@echo "$(RED)⚠ Removing images...$(NC)"
+	docker-compose rmi -a
+	@echo "$(GREEN)✓ All cleaned$(NC)"
+
+# ==============================================================================
+# DEPLOYMENT
+# ==============================================================================
+
+deploy:
+	@echo "$(GREEN)▶ Deploying to production...$(NC)"
+	@echo "  1. Building images..."
+	docker-compose build --pull
+	@echo "  2. Running migrations..."
+	@make db-init
+	@echo "  3. Starting services..."
+	@make bootstrap
+	@echo "$(GREEN)✓ Deployment complete$(NC)"
+
+rollback:
+	@echo "$(YELLOW)⏮ Rolling back to previous version...$(NC)"
+	@echo "$(RED)⚠ Not yet implemented$(NC)"
+
+# ==============================================================================
+# UTILITY TARGETS
+# ==============================================================================
+
+.DEFAULT_GOAL := help
+
+# Display make version
+version:
+	@echo "Make version: $$(make --version | head -1)"
+
+# Run any command in a container
+run-%:
+	docker-compose exec -T $(firstword $(subst -, ,$*)) $(subst $(firstword $(subst -, ,$*))-, ,$*)
+
+# ==============================================================================
 # END OF MAKEFILE
-# ============================================================================
+# ==============================================================================

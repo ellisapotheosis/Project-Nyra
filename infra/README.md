@@ -1,111 +1,243 @@
-# Project Nyra — Infra Package (v2)
+# Project Nyra: AI-Powered Mortgage Lead Orchestration Platform
 
-This package gives you a **single, modular Docker Compose stack** with:
-- **Profiles** so each machine only pulls/runs what it needs
-- **4 node env files** + **4 node override files**
-- **RuVector Postgres** integrated as an optional profile
-- n8n workflows + Koyeb manifests included
+**Status**: MVP Build-Out (Orchestrator + Worker GPU Stack + Oracle Cloud Hub)
 
-## Where to put this
+## 🎯 What is Project Nyra?
 
-Put the `infra/` folder at the **repo root** so paths resolve correctly:
+A **distributed, privacy-first mortgage automation platform** that:
+- Ingests mortgage leads from email, webhooks, and LeadMailbox
+- Normalizes & deduplicates leads → TwentyCRM (system of record)
+- Executes 45–60 day multi-channel drip campaigns (SMS, email, call voicemails)
+- Generates loan quotes via scriptable Quote API (parity with Excel workflow)
+- Uses Graphiti + Mem0 for memory/knowledge without PII exposure
+- Runs on a 4-PC Tailscale mesh: 1 orchestrator + 3 GPU workers
+- Always-on cloud sync via Oracle Cloud (24GB RAM, 200GB storage)
+
+## 🏛️ Architecture at a Glance
+
 ```
-Project-Nyra/
-  infra/
-  services/
-  apps/
-  configs/
-  ...
+┌─ ORACLE CLOUD (Always-On Hub) ────────────────────┐
+│  TwentyCRM (CRM) | Postgres | Redis | Activepieces │
+│  Quote Engine | Mem0 | FalkorDB | Infisical Vault │
+└────────────────────────────────────────────────────┘
+                         ↑↓ (Tailscale VPN)
+┌─ ORCHESTRATOR (Minisforum 16GB) ─────────────────┐
+│  Nexus Router (MCP Hub)                           │
+│  LiteLLM (Model Router)                           │
+│  Claude-Flow | OpenClaw | Archon-OS              │
+│  Docker MCP Toolkit | Infisical Sidecar          │
+└────────────────────────────────────────────────────┘
+      ↓
+┌─ GPU WORKERS (Tailscale Mesh) ────────────────────┐
+│  RTX 5090 (32GB)  → vLLM: DeepSeek-R1 32B         │
+│  RTX 3090Ti (24GB) → vLLM: DeepSeek-Coder         │
+│  RTX 3060 (12GB)   → Ollama: Qwen 2.5 7B          │
+└────────────────────────────────────────────────────┘
 ```
 
-## Should you rename your current infra?
+## 🚀 Quick Start
 
-Yes — safest workflow:
-1. Create a branch and commit your current state.
-2. Archive the existing folder **without deleting** it:
-   ```bash
-   git mv infra infra-archived/infra-$(date +%Y%m%d)
-   ```
-3. Copy this new `infra/` in its place.
-4. Run a quick diff check (the agent prompts below include a verification checklist).
+### Prerequisites
+- 5 PCs (1 orchestrator + 3 GPU workers + optional oracle)
+- Docker Desktop on Windows (all 5 PCs)
+- Tailscale installed (for mesh VPN)
+- WSL2 + Ubuntu 24.04 (all 5 PCs)
 
-If you *don’t* want to move it, you can also drop this as `infra-next/` and migrate gradually.
+### 1. Clone & Setup
+```bash
+git clone <your-repo>
+cd ProjectNyra
+cp config/env.orchestrator .env
+```
 
-## Quick start
-
-### Orchestrator
+### 2. Start Orchestrator (Minisforum)
 ```bash
 cd infra
-./scripts/node-up.sh orchestrator
+make orchestrator-up
 ```
 
-### Worker nodes
+This brings up:
+- Nexus Router (port 6000)
+- LiteLLM (port 4000)
+- Claude-Flow (port 8000)
+- OpenClaw (port 8001)
+
+### 3. Start Workers (RTX PCs)
+On each worker PC:
 ```bash
 cd infra
-./scripts/node-up.sh worker-rtx3060
-./scripts/node-up.sh worker-rtx5090
-./scripts/node-up.sh worker-rtx3090ti
+make workers-up WORKER=rtx-5090  # or rtx-3090ti, rtx-3060
 ```
 
-### Turn on additional service groups
-Edit the node env file and adjust `COMPOSE_PROFILES` (comma-separated).
-Profiles available in this v2 compose:
-- `core` (postgres, redis, mongo)
-- `secrets` (infisical)
-- `workflow` (n8n, activepieces)
-- `observability` (prometheus, loki, grafana, cadvisor)
-- `edge` (cloudflared)
-- `vector` (ruvector-postgres, pgadmin)
-- `gui` (pgadmin)
-- `archon` (archon-os, archon-server, archon-mcp, archon-ui)
-- `archon-agents` (archon-agents - PydanticAI agents, optional)
-
-Example:
-```env
-COMPOSE_PROFILES=core,secrets,workflow,edge,vector
+### 4. Start Oracle Cloud (Optional, for always-on)
+```bash
+ssh oracle-vm
+cd ProjectNyra/infra
+make oracle-up
 ```
 
-## Archon OS
-
-Archon is the multi-agent orchestration system with RAG, MCP, and PydanticAI agents.
-
-Bring it up:
+### 5. Verify Health
 ```bash
 cd infra
-docker compose -f docker-compose.yml -f compose/docker-compose.archon.yml --profile core --profile archon up -d
+bash scripts/health-check.sh
 ```
 
-With optional agents service (requires more resources):
+## 📦 Project Structure
+
+```
+ProjectNyra/
+├── infra/                      # Deployment & infrastructure
+│   ├── docker-compose.*.yml    # Service stacks
+│   ├── nexus/                  # MCP Router (Grafbase Nexus)
+│   ├── litellm/                # Model routing layer
+│   └── scripts/                # Bootstrap, health checks
+├── src/                        # Application code
+│   ├── claude-flow/            # Dev orchestrator
+│   ├── openclaw/               # Borrower-facing agent
+│   └── archon-os/              # Knowledge backbone
+├── services/                   # Microservices
+│   ├── quote-engine/           # Mortgage math API
+│   ├── lead-ingestion/         # Email/webhook handlers
+│   └── drip-campaign/          # Campaign scheduler
+├── packages/                   # Shared libraries
+├── apps/                       # Full UIs
+├── workers/                    # GPU worker configs
+├── docs/                       # Documentation
+└── Makefile                    # Master orchestration
+
+```
+
+## 🔧 Configuration
+
+### Environment Variables (Per Node)
+- `config/env.orchestrator` → Orchestrator
+- `config/env.oracle` → Oracle Cloud
+- `config/env.worker-5090` → RTX 5090
+- `config/env.worker-3090ti` → RTX 3090Ti
+- `config/env.worker-3060` → RTX 3060
+
+See `.env.example` for full template.
+
+## 📚 Documentation
+
+- **ARCHITECTURE.md** — Complete system design, data flows, compliance
+- **docs/SETUP.md** — Detailed setup instructions per node
+- **docs/API.md** — Quote Engine, Lead Ingestion, Memory APIs
+- **docs/DEPLOYMENT.md** — Production checklist, scaling
+- **docs/TROUBLESHOOTING.md** — Common issues & fixes
+
+## 🛠️ Development
+
+### Using Makefile
 ```bash
-cd infra
-docker compose -f docker-compose.yml -f compose/docker-compose.archon.yml --profile core --profile archon --profile archon-agents up -d
+make help                 # See all targets
+make orchestrator-up      # Start orchestrator stack
+make workers-up WORKER=rtx-5090  # Start specific worker
+make oracle-up            # Start oracle stack
+make logs SERVICE=nexus   # Tail logs
+make health-check         # Verify all services
+make clean                # Stop all services
 ```
 
-Services:
-- **archon-os** (port 9001): Core orchestration service
-- **archon-server** (port 8181): RAG backend with web crawling
-- **archon-mcp** (port 8051): MCP protocol server
-- **archon-ui** (port 3737): React dashboard
-- **archon-agents** (port 8052): PydanticAI agents (optional)
-
-## RuVector
-
-Bring it up:
+### Running Claude-Flow
 ```bash
-cd infra
-COMPOSE_PROFILES=vector ./scripts/node-up.sh orchestrator
+cd src/claude-flow
+npm install
+npm run dev
 ```
 
-Test:
+### Running OpenClaw
 ```bash
-docker exec ruvector-postgres psql -U claude -d claude_flow -c "SELECT ruvector_version();"
+cd src/openclaw
+npm install
+npm run dev
 ```
 
-## n8n workflows
+## 🔐 Secrets Management
 
-JSON exports are in `infra/n8n-workflows/`:
-- `mortgage-lead-intake.json`
-- `sms-campaign.json`
+All secrets injected via **Infisical**:
+- API keys, database passwords, encryption keys
+- No `.env` files in git
+- Sidecar pattern (automatic injection)
 
-Import them via n8n UI (Settings → Import) or the n8n API.
+Bootstrap secrets:
+```bash
+cd infra/secrets
+bash bootstrap-secrets.sh
+```
 
+## 🧪 Testing
+
+### Quote Engine
+```bash
+curl -X POST http://localhost:8089/api/v1/quote \
+  -H "Content-Type: application/json" \
+  -d '{
+    "propertyValue": 500000,
+    "downPayment": 100000,
+    "baseInterestRate": 6.5,
+    "termYears": 30,
+    "annualTaxes": 6000,
+    "annualInsurance": 1200
+  }'
+```
+
+### Lead Ingestion
+```bash
+curl -X POST http://localhost:8090/api/v1/leads \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "borrower@example.com",
+    "propertyValue": 400000,
+    "loanPurpose": "purchase"
+  }'
+```
+
+## 🚢 Deployment to Production
+
+See `docs/DEPLOYMENT.md` for:
+- Oracle Cloud provisioning
+- Cloudflare Tunnel setup
+- Database migrations
+- Backup & recovery
+
+## 📊 Monitoring & Debugging
+
+```bash
+# Health check all services
+bash infra/scripts/health-check.sh
+
+# View logs
+docker-compose logs -f nexus
+docker-compose logs -f litellm
+docker-compose logs -f claude-flow
+
+# Access Nexus dashboard
+# http://orchestrator:6000
+
+# Access LiteLLM dashboard
+# http://orchestrator:4000
+```
+
+## 🤝 Contributing
+
+1. Create a feature branch
+2. Make changes in `src/`, `services/`, or `packages/`
+3. Run `npm run lint` and `npm run test`
+4. Push to Gitea (self-hosted)
+5. CI/CD via Gitea Actions
+
+## 📜 License
+
+Proprietary — Apotheosis AI & Partners
+
+## 🆘 Support
+
+- **Docs**: See `docs/` folder
+- **Issues**: Create issue in Gitea
+- **Questions**: DM on Tailscale
+
+---
+
+**Last Updated**: Feb 28, 2026
+**Status**: MVP (Orchestrator + Workers ready, Oracle integration in progress)

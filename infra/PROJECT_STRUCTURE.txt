@@ -1,0 +1,14 @@
+.
+./docs
+./services
+./services/quote-engine
+./services/quote-engine/src
+./services/quote-engine/src/utils
+./services/nexus-router
+./infra
+./infra/scripts
+./infra/config
+./apps
+./apps/archon-os
+./apps/claude-flow
+./apps/openclaw

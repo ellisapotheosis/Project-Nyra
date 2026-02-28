@@ -1,0 +1,191 @@
+# LiteLLM Router Configuration
+# OpenAI-compatible proxy that routes to local GPUs and cloud models
+
+## Model List - Define all available models
+model_list:
+  # ========== LOCAL GPU MODELS ==========
+  
+  # RTX 5090: Heavy reasoning (DeepSeek R1)
+  - model_name: "deep-think"
+    litellm_params:
+      model: "openai/deepseek-r1-distill-32b"
+      api_base: "http://100.x.x.1:8000/v1"
+      api_key: "dummy-key"
+      rpm: 100
+    max_tokens: 8000
+    timeout: 120
+    tags: ["reasoning", "heavy", "local"]
+    priority: 10
+
+  # RTX 5090: Code completion (secondary)
+  - model_name: "code-think"
+    litellm_params:
+      model: "openai/deepseek-r1-distill-32b"
+      api_base: "http://100.x.x.1:8000/v1"
+      api_key: "dummy-key"
+      rpm: 100
+    max_tokens: 6000
+    timeout: 120
+    tags: ["code", "heavy", "local"]
+    priority: 9
+
+  # RTX 3090Ti: Code generation (DeepSeek Coder)
+  - model_name: "coder"
+    litellm_params:
+      model: "openai/deepseek-coder-16b"
+      api_base: "http://100.x.x.2:8000/v1"
+      api_key: "dummy-key"
+      rpm: 150
+    max_tokens: 4096
+    timeout: 60
+    tags: ["code", "generation", "local"]
+    priority: 8
+
+  # RTX 3090Ti: Text generation
+  - model_name: "compose"
+    litellm_params:
+      model: "openai/mistral-7b"
+      api_base: "http://100.x.x.2:8000/v1"
+      api_key: "dummy-key"
+      rpm: 150
+    max_tokens: 2048
+    timeout: 60
+    tags: ["text", "composition", "local"]
+    priority: 7
+
+  # RTX 3060: Fast drafting (Qwen)
+  - model_name: "fast-draft"
+    litellm_params:
+      model: "ollama/qwen:7b"
+      api_base: "http://100.x.x.3:11434"
+      api_key: "dummy-key"
+      rpm: 200
+    max_tokens: 2048
+    timeout: 45
+    tags: ["fast", "draft", "local"]
+    priority: 6
+
+  # RTX 3060: Embeddings
+  - model_name: "embed-nomic"
+    litellm_params:
+      model: "ollama/nomic-embed-text:v1.5"
+      api_base: "http://100.x.x.3:11434"
+      api_key: "dummy-key"
+    max_tokens: 1024
+    timeout: 30
+    tags: ["embeddings", "local"]
+    priority: 5
+
+  # ========== CLOUD MODELS (Fallback) ==========
+
+  # Anthropic Claude 3 Sonnet (for compliance, rate advice)
+  - model_name: "compliance-check"
+    litellm_params:
+      model: "claude-3-sonnet-20240229"
+      api_key: "${ANTHROPIC_API_KEY}"
+      rpm: 50
+    max_tokens: 1024
+    timeout: 60
+    tags: ["compliance", "rate-advice", "cloud"]
+    priority: 4
+
+  # OpenRouter fallback (DeepSeek R1 via API)
+  - model_name: "fallback-reasoning"
+    litellm_params:
+      model: "openrouter/deepseek/deepseek-r1"
+      api_base: "https://openrouter.ai/api/v1"
+      api_key: "${OPENROUTER_API_KEY}"
+      rpm: 30
+    max_tokens: 4000
+    timeout: 120
+    tags: ["reasoning", "fallback", "cloud"]
+    priority: 2
+
+## Routing Rules - Which model for which task type?
+routing:
+  # Fuzzy match on task keywords
+  reasoning:
+    models: ["deep-think", "fallback-reasoning"]
+    fallback: "fallback-reasoning"
+
+  code:
+    models: ["coder", "code-think"]
+    fallback: "fallback-reasoning"
+
+  compliance:
+    models: ["compliance-check"]
+    fallback: "compliance-check"
+
+  fast:
+    models: ["fast-draft"]
+    fallback: "fallback-reasoning"
+
+  embedding:
+    models: ["embed-nomic"]
+    fallback: null
+
+## Default Routing - If no tag match
+default_routing:
+  model: "compose"
+  fallback: "fallback-reasoning"
+
+## Logging
+logging:
+  verbose: true
+  log_all_requests: false
+  log_responses: false
+  log_model_calls: true
+
+## Redis Cache (for conversation memory, token limits)
+redis:
+  host: "localhost"
+  port: 6379
+  db: 0
+  ttl: 3600
+
+## Load Balancing
+load_balancing:
+  strategy: "round-robin"  # or "least-busy"
+  health_check_interval: 30
+  mark_down_on_failure: true
+
+## Rate Limiting (per API key)
+rate_limit:
+  enabled: true
+  type: "token"  # track tokens, not just requests
+  default_limit_per_minute: 1000
+  window: 60
+
+## Database (for token tracking)
+database:
+  type: "postgres"
+  url: "${DATABASE_URL}"
+  track_spend: true
+
+## Streaming
+streaming:
+  enabled: true
+  timeout: 300
+
+## Cost Tracking
+cost_tracking:
+  enabled: true
+  currency: "USD"
+  per_token_pricing: true
+
+# Sample config for agents
+agents:
+  claude-flow:
+    default_model: "deep-think"
+    max_tokens: 8000
+    temperature: 0.7
+    
+  openclaw:
+    default_model: "compose"
+    max_tokens: 2048
+    temperature: 0.5
+    
+  archon-os:
+    default_model: "coder"
+    max_tokens: 4096
+    temperature: 0.3
