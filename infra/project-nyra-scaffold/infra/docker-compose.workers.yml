@@ -1,0 +1,187 @@
+version: '3.9'
+
+# ===== WORKER COMPUTE PLANE =====
+# Deploy on: GPU PCs (RTX 5090, RTX 3090Ti, RTX 3060)
+# Role: Distributed inference via vLLM + Ollama
+# Profiles: area51, 3090ti, 3060 (run specific worker with --profile)
+#
+# Usage:
+#   make workers-up                          # All workers
+#   docker-compose --profile area51 up -d    # Only RTX 5090
+#   docker-compose --profile 3090ti up -d    # Only RTX 3090Ti
+#   docker-compose --profile 3060 up -d      # Only RTX 3060
+
+services:
+  # ===== TAILSCALE (Mesh on All Workers) =====
+  tailscale-worker:
+    image: ghcr.io/tailscale/tailscale:latest
+    container_name: tailscale-worker
+    environment:
+      TS_AUTHKEY: ${TAILSCALE_AUTHKEY}
+      TS_HOSTNAME: worker-${MACHINE_TYPE:-gpu}
+      TS_ADVERTISE_ROUTES: 172.17.0.0/16,172.20.0.0/16
+    volumes:
+      - ./infra/volumes/tailscale-worker:/var/lib/tailscale
+    restart: unless-stopped
+    networks:
+      - worker
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    profiles:
+      - area51
+      - 3090ti
+      - 3060
+
+  # ===== RTX 5090 (Area-51): Heavy Reasoning + LMCache =====
+  vllm-area51:
+    image: vllm/vllm-openai:latest
+    container_name: vllm-worker-area51
+    ports:
+      - "8000:8000"
+    volumes:
+      - /mnt/models:/models
+      - vllm_area51_cache:/root/.cache
+    environment:
+      CUDA_DEVICE_ORDER: PCI_BUS_ID
+      CUDA_VISIBLE_DEVICES: "0"
+      VLLM_ATTENTION_BACKEND: flashinfer
+    command:
+      - --model=/models/mistral-7b
+      - --dtype=float16
+      - --gpu-memory-utilization=0.85
+      - --enable-prefix-caching
+      - --prefix-cache-size-tokens=4096
+      - --max-model-len=4096
+      - --max-num-batched-tokens=16384
+      - --tensor-parallel-size=1
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/v1/models"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - worker
+    profiles:
+      - area51
+    depends_on:
+      - tailscale-worker
+
+  # ===== RTX 3090Ti: Code Generation + Context =====
+  vllm-3090ti:
+    image: vllm/vllm-openai:latest
+    container_name: vllm-worker-3090ti
+    ports:
+      - "8000:8000"
+    volumes:
+      - /mnt/models:/models
+      - vllm_3090ti_cache:/root/.cache
+    environment:
+      CUDA_DEVICE_ORDER: PCI_BUS_ID
+      CUDA_VISIBLE_DEVICES: "0"
+    command:
+      - --model=/models/mistral-7b
+      - --dtype=float16
+      - --gpu-memory-utilization=0.80
+      - --enable-prefix-caching
+      - --prefix-cache-size-tokens=2048
+      - --max-model-len=4096
+      - --max-num-batched-tokens=8192
+      - --tensor-parallel-size=1
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/v1/models"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - worker
+    profiles:
+      - 3090ti
+    depends_on:
+      - tailscale-worker
+
+  # ===== RTX 3060 (m15r7): Fast Utility + Embeddings =====
+  ollama-3060:
+    image: ollama/ollama:latest
+    container_name: ollama-worker-3060
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_3060_data:/root/.ollama
+    environment:
+      OLLAMA_NUM_GPU: 1
+      OLLAMA_KEEP_ALIVE: 5m
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - worker
+    profiles:
+      - 3060
+    depends_on:
+      - tailscale-worker
+
+  # ===== MONITORING (Optional, on all workers) =====
+  prometheus-node-exporter:
+    image: prom/node-exporter:latest
+    container_name: node-exporter-worker
+    ports:
+      - "9100:9100"
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - --path.procfs=/host/proc
+      - --path.sysfs=/host/sys
+      - --collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)
+    restart: unless-stopped
+    networks:
+      - worker
+    profiles:
+      - area51
+      - 3090ti
+      - 3060
+
+# ===== VOLUMES =====
+volumes:
+  vllm_area51_cache:
+    driver: local
+  vllm_3090ti_cache:
+    driver: local
+  ollama_3060_data:
+    driver: local
+
+# ===== NETWORKS =====
+networks:
+  worker:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.25.0.0/16
