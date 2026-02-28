@@ -1,0 +1,242 @@
+version: '3.9'
+
+# ===== ORCHESTRATOR CONTROL PLANE =====
+# Deploy on: Minisforum (Ryzen 6800H, 16GB RAM)
+# Role: AI routing, agent orchestration, dev hub
+# Coordinates with Oracle (cloud) and Workers (GPU)
+
+services:
+  # ===== NEXUS ROUTER (Single Entry Point) =====
+  nexus-router:
+    build:
+      context: services/nexus-router
+      dockerfile: Dockerfile
+    container_name: nexus-router
+    ports:
+      - "6000:6000"
+    environment:
+      NEXUS_PORT: 6000
+      NEXUS_LOG_LEVEL: info
+      LITELLM_BASE_URL: http://litellm:4000
+      ORACLE_POSTGRES_URL: postgres://postgres@oracle-postgres:5432/twenty
+      TAILSCALE_CONTROL_URL: https://control.tailscale.com
+    volumes:
+      - ./infra/config/nexus.toml:/etc/nexus/nexus.toml:ro
+      - nexus_data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - orchestrator
+      - tailscale
+    depends_on:
+      - litellm
+
+  # ===== LiteLLM MODEL ROUTER =====
+  litellm:
+    image: ghcr.io/berriai/litellm:main
+    container_name: litellm-router
+    ports:
+      - "4000:4000"
+    environment:
+      LITELLM_LOG: info
+      LOG_LEVEL: INFO
+    volumes:
+      - ./infra/config/litellm-config.yaml:/app/config.yaml:ro
+      - litellm_data:/data
+    command:
+      - --config
+      - /app/config.yaml
+      - --port
+      - "4000"
+      - --debug
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - orchestrator
+      - tailscale
+
+  # ===== CLAUDE-FLOW (Dev Orchestrator) =====
+  claude-flow:
+    build:
+      context: apps/claude-flow
+      dockerfile: Dockerfile
+    container_name: claude-flow-dev
+    ports:
+      - "8080:8080"
+    environment:
+      CLAUDE_FLOW_PORT: 8080
+      CLAUDE_API_KEY: ${ANTHROPIC_API_KEY}
+      NEXUS_URL: http://nexus-router:6000
+      LITELLM_URL: http://litellm:4000
+      DEBUG: ${DEBUG:-false}
+    volumes:
+      - ./apps/claude-flow:/app
+      - /var/run/docker.sock:/var/run/docker.sock
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - orchestrator
+    depends_on:
+      - nexus-router
+      - litellm
+
+  # ===== OPENCLAW (Mortgage Assistant Agent) =====
+  openclaw:
+    build:
+      context: apps/openclaw
+      dockerfile: Dockerfile
+    container_name: openclaw-agent
+    ports:
+      - "9000:9000"
+    environment:
+      OPENCLAW_PORT: 9000
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      NEXUS_URL: http://nexus-router:6000
+      LITELLM_URL: http://litellm:4000
+      MEM0_API_URL: http://oracle-mem0:9100
+      TWENTY_CRM_URL: https://crm.ratehunter.net
+      QUOTE_ENGINE_URL: https://quotes.ratehunter.net
+      DEBUG: ${DEBUG:-false}
+    volumes:
+      - ./apps/openclaw:/app
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - orchestrator
+      - tailscale
+    depends_on:
+      - nexus-router
+      - litellm
+
+  # ===== ARCHON OS (Knowledge Base & Task Management) =====
+  archon-os:
+    build:
+      context: apps/archon-os
+      dockerfile: Dockerfile
+    container_name: archon-os
+    ports:
+      - "4001:4001"
+    environment:
+      ARCHON_PORT: 4001
+      ARCHON_KB_PATH: /data/archon-kb
+      NEXUS_URL: http://nexus-router:6000
+      LITELLM_URL: http://litellm:4000
+      DEBUG: ${DEBUG:-false}
+    volumes:
+      - archon_data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - orchestrator
+    depends_on:
+      - nexus-router
+
+  # ===== DOCKER MCP TOOLKIT (Expose Host Filesystem) =====
+  docker-mcp-toolkit:
+    image: ghcr.io/modelcontextprotocol/docker:latest
+    container_name: docker-mcp-toolkit
+    ports:
+      - "8811:8811"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./:/workspace:ro
+    environment:
+      MCP_PROTOCOL_VERSION: "1.0"
+    restart: unless-stopped
+    networks:
+      - orchestrator
+
+  # ===== INFISICAL (Secrets Management) =====
+  infisical-cli:
+    image: infisical/cli:latest
+    container_name: infisical-sidecar
+    environment:
+      INFISICAL_TOKEN: ${INFISICAL_TOKEN}
+    volumes:
+      - ./:/workspace
+      - infisical_cache:/root/.infisical
+    restart: unless-stopped
+    networks:
+      - orchestrator
+    command: export --path /machines/orchestrator > /workspace/.env.infisical
+
+  # ===== TAILSCALE (Mesh Networking) =====
+  tailscale:
+    image: ghcr.io/tailscale/tailscale:latest
+    container_name: tailscale-orchestrator
+    environment:
+      TS_AUTHKEY: ${TAILSCALE_AUTHKEY}
+      TS_HOSTNAME: orchestrator
+      TS_ADVERTISE_ROUTES: 172.17.0.0/16,172.20.0.0/16
+      TS_OUTBOUND_HTTP_PROXY_LISTEN: :3128
+    volumes:
+      - ./infra/volumes/tailscale:/var/lib/tailscale
+    restart: unless-stopped
+    networks:
+      - tailscale
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+
+  # ===== REDIS CACHE (Local Session Store) =====
+  redis-local:
+    image: redis:7-alpine
+    container_name: redis-orchestrator
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_local_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - orchestrator
+
+# ===== VOLUMES =====
+volumes:
+  nexus_data:
+    driver: local
+  litellm_data:
+    driver: local
+  archon_data:
+    driver: local
+  infisical_cache:
+    driver: local
+  redis_local_data:
+    driver: local
+
+# ===== NETWORKS =====
+networks:
+  orchestrator:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+  tailscale:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.31.0.0/16
