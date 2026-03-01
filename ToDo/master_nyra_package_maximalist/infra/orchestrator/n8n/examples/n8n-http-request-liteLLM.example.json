@@ -1,0 +1,29 @@
+{
+  "name": "LiteLLM ChatCompletions",
+  "type": "n8n-nodes-base.httpRequest",
+  "typeVersion": 4,
+  "position": [
+    600,
+    300
+  ],
+  "parameters": {
+    "method": "POST",
+    "url": "http://ORCHESTRATOR_HOST:4000/v1/chat/completions",
+    "authentication": "headerAuth",
+    "headerParametersAuth": {
+      "parameters": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{$env.LITELLM_MASTER_KEY}}"
+        },
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ]
+    },
+    "sendBody": true,
+    "contentType": "json",
+    "jsonBody": "{\"model\": \"nyra-local\", \"messages\": [{\"role\": \"system\", \"content\": \"You are a helpful assistant.\"}, {\"role\": \"user\", \"content\": \"Write a short test response.\"}], \"temperature\": 0.2}"
+  }
+}

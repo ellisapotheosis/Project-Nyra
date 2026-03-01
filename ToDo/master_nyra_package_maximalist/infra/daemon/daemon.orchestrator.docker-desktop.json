@@ -1,0 +1,23 @@
+{
+  "experimental": true,
+  "features": { "buildkit": true },
+
+  "log-driver": "json-file",
+  "log-opts": {
+    "max-size": "50m",
+    "max-file": "2"
+  },
+
+  "live-restore": true,
+
+  "insecure-registries": [
+    "100.64.0.10:5000"
+  ],
+
+  "default-address-pools": [
+    { "base": "172.20.0.0/16", "size": 24 }
+  ],
+
+  "dns": ["1.1.1.1", "8.8.8.8"],
+  "log-level": "info"
+}
