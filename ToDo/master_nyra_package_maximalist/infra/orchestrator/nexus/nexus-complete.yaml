@@ -1,0 +1,215 @@
+# =============================================================================
+# 🧠 NEXUS ROUTER - PHASE 3 "GOD MODE" GATEWAY
+# =============================================================================
+# Architecture: Intelligent Request Arbitrage & MCP Aggregation
+# Logic: "Route Cheap, Escalate Smart"
+# Updated: Feb 2026 | Project Nyra
+
+server:
+  port: 8000 # Aligned with Docker Compose
+  host: 0.0.0.0
+  cors:
+    enabled: true
+    allow_origins: ["*"] # Dev Mode: Unrestricted. Prod: Lock this down.
+    allow_methods: ["GET", "POST", "OPTIONS"]
+    max_age: 86400
+
+# Security & Identity (Infisical Injected)
+auth:
+  jwt_secret: "${NEXUS_JWT_SECRET}"
+  admin_token: "${NEXUS_ADMIN_TOKEN}"
+  enforce_mcp_auth: true # Agents must sign their tool calls
+
+# =============================================================================
+# 🤖 INTELLIGENT MODEL ROUTING (2026 FRONTIER)
+# =============================================================================
+
+llm:
+  routing_strategy: "dynamic_complexity" # Options: cost, speed, quality, dynamic
+
+  # The "Workhorse" Default
+  default_model: gemini-3-flash
+
+  # The Panic Button (Fallback)
+  fallback_chain:
+    - gemini-3-flash      # Fast, Cheap
+    - claude-3-7-sonnet   # Reliable, Agentic
+    - gpt-5-preview       # Last Resort
+
+  providers:
+    # --- TIER 1: THE ARCHITECTS (High IQ, High Cost) ---
+    - name: claude-opus
+      type: anthropic
+      model: claude-3-5-opus-latest
+      api_key: "${ANTHROPIC_API_KEY}"
+      priority: 1
+      context_window: 200000
+      capabilities: ["complex_reasoning", "architecture", "security_audit"]
+
+    - name: gpt-5
+      type: openai
+      model: gpt-5-preview
+      api_key: "${OPENAI_API_KEY}"
+      priority: 2
+      capabilities: ["nuance", "creative_writing"]
+
+    # --- TIER 2: THE AGENTS (Best Tool Use) ---
+    - name: claude-sonnet
+      type: anthropic
+      model: claude-3-7-sonnet-latest
+      api_key: "${ANTHROPIC_API_KEY}"
+      priority: 0 # Preferred for Tool Use
+      capabilities: ["coding", "tool_orchestration", "data_analysis"]
+
+    # --- TIER 3: THE WORKERS (Speed & Volume) ---
+    - name: gemini-pro
+      type: google
+      model: gemini-3-pro-preview
+      api_key: "${GOOGLE_GEMINI_API_KEY}"
+      capabilities: ["long_context_retrieval", "video_analysis", "massive_codebase"]
+
+    - name: gemini-flash
+      type: google
+      model: gemini-3-flash
+      api_key: "${GOOGLE_GEMINI_API_KEY}"
+      capabilities: ["classification", "extraction", "routing_decisions"]
+
+  # 🧠 NEURAL ROUTING RULES
+  # Nexus analyzes the prompt intent before selecting a model
+  routing_rules:
+    - name: "Codebase Surgery"
+      condition:
+        contains: ["refactor", "architect", "design pattern", "race condition"]
+        complexity: "high"
+      route_to: claude-sonnet
+
+    - name: "Massive Context Lookup"
+      condition:
+        token_estimate: "> 100000"
+      route_to: gemini-pro # Takes advantage of 2M context window cheap
+
+    - name: "JSON Extraction"
+      condition:
+        intent: "extraction"
+      route_to: gemini-flash # Fastest JSON mode on the market
+
+# =============================================================================
+# 🔌 MCP SERVER AGGREGATION
+# =============================================================================
+
+mcp:
+  circuit_breaker:
+    enabled: true
+    failure_threshold: 3
+    reset_timeout: 30s
+
+  servers:
+    # --- KNOWLEDGE LAYER ---
+    - name: graphiti
+      url: http://graphiti-mcp:8000
+      transport: sse
+      description: "Temporal Knowledge Graph & Memory Core"
+      health_check: "/health"
+      
+    - name: qdrant
+      url: http://qdrant-mcp:8066
+      transport: http
+      description: "Vector Memory & Semantic Recall"
+
+    # --- CODE INTELLIGENCE ---
+    - name: serena
+      url: http://serena-mcp:8080
+      transport: http
+      description: "Semantic Codebase Analysis Agent"
+      timeout: 120s # Give Serena time to think
+
+    - name: context7
+      url: http://context7-mcp:8080
+      transport: stdio
+      description: "Live Library Documentation Fetcher"
+
+    # --- EXTERNAL WORLD ---
+    - name: exa
+      url: http://exa-mcp:8080
+      transport: stdio
+      description: "Neural Web Search"
+
+    - name: github
+      url: http://mcp-github:8080
+      auth: { type: "bearer", token: "${GITHUB_TOKEN}" }
+      description: "Repository Management"
+
+    # --- BUSINESS LOGIC ---
+    - name: twentycrm
+      url: http://twentycrm-mcp:8080
+      description: "CRM & Pipeline Management"
+      
+    - name: activepieces
+      url: http://activepieces:80/mcp
+      auth: { type: "bearer", token: "${ACTIVEPIECES_API_KEY}" }
+      description: "Workflow Automation Triggers"
+
+    # --- LOCAL OPERATIONS ---
+    - name: filesystem
+      url: http://mcp-filesystem:8080
+      description: "Local File I/O (Restricted)"
+      
+    - name: docker
+      url: http://mcp-docker:8080
+      description: "Container Orchestration"
+
+# =============================================================================
+# 🔍 FUZZY INTELLIGENCE (The Semantic Glue)
+# =============================================================================
+
+fuzzy:
+  enabled: true
+  threshold: 0.65 # Slightly looser to allow creative tool discovery
+  
+  # Semantic Mapping: "User says X -> Nexus hears Y"
+  keyword_aliases:
+    # Mortgage Domain
+    "loan": ["mortgage", "financing", "debt", "lending", "underwriting"]
+    "rate": ["apr", "interest", "pricing", "quote", "points"]
+    "borrower": ["lead", "client", "applicant", "contact", "prospect"]
+    
+    # Dev Domain
+    "bug": ["issue", "error", "exception", "traceback", "debug"]
+    "deploy": ["publish", "release", "ship", "pipeline", "ci/cd"]
+    "secret": ["env", "key", "token", "password", "credential"]
+
+# =============================================================================
+# 🛡️ ACCESS CONTROL POLICIES
+# =============================================================================
+
+policies:
+  - name: "Orchestrator_Tier"
+    roles: ["claude-flow", "archon"]
+    allow: ["*"] # God mode for the AIs
+    deny: ["filesystem.delete_root"]
+
+  - name: "Frontend_Tier"
+    roles: ["dify-ui", "web-client"]
+    allow: ["graphiti.search", "twentycrm.create_lead", "gemini.chat"]
+    deny: ["filesystem.*", "docker.*", "github.*", "secrets.*"]
+
+# =============================================================================
+# 📊 TELEMETRY & OBSERVABILITY
+# =============================================================================
+
+logging:
+  level: info
+  format: json
+  anonymize_pii: true # Auto-redact emails/phones in logs
+  destinations:
+    - type: file
+      path: /app/logs/nexus.log
+    - type: prometheus
+      port: 9091
+
+caching:
+  enabled: true
+  redis_url: "${REDIS_URL}"
+  strategies:
+    - type: "semantic" # Cache answers based on meaning, not just exact text
+      ttl: 3600
