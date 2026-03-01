@@ -1,0 +1,207 @@
+version: "3.9"
+
+name: nyra-orchestrator
+
+services:
+  # -------------------------------------------------------
+  # Data stores
+  # -------------------------------------------------------
+  postgres:
+    image: postgres:16-alpine
+    container_name: nyra-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks: [nyra]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    container_name: nyra-redis
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes", "--appendfsync", "everysec"]
+    volumes:
+      - redis_data:/data
+    networks: [nyra]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  # -------------------------------------------------------
+  # Routing and MCP layer
+  # -------------------------------------------------------
+  litellm:
+    image: ghcr.io/berriai/litellm:main-latest
+    container_name: nyra-litellm
+    restart: unless-stopped
+    command: ["--config", "/app/config.yaml", "--port", "4000", "--num_workers", "4"]
+    environment:
+      LITELLM_MASTER_KEY: ${LITELLM_MASTER_KEY}
+      LITELLM_LOG: ${LITELLM_LOG:-INFO}
+      LITELLM_CACHE: redis
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    volumes:
+      - ./litellm/config.yaml:/app/config.yaml:ro
+    depends_on:
+      redis:
+        condition: service_healthy
+    ports:
+      - "4000:4000"
+    networks: [nyra]
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:4000/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+
+  nexus:
+    image: ghcr.io/grafbase/nexus:latest
+    container_name: nyra-nexus
+    restart: unless-stopped
+    environment:
+      NEXUS_CONFIG: /app/nexus.toml
+    volumes:
+      - ./nexus/nexus.toml:/app/nexus.toml:ro
+    depends_on:
+      litellm:
+        condition: service_healthy
+    ports:
+      - "6000:6000"
+    networks: [nyra]
+
+  # -------------------------------------------------------
+  # Automation and CRM
+  # -------------------------------------------------------
+  n8n:
+    image: docker.n8n.io/n8nio/n8n:latest
+    container_name: nyra-n8n
+    restart: unless-stopped
+    environment:
+      N8N_HOST: ${N8N_HOST}
+      N8N_PORT: 5678
+      N8N_PROTOCOL: https
+      WEBHOOK_URL: ${N8N_WEBHOOK_URL}
+      N8N_EDITOR_BASE_URL: ${N8N_EDITOR_BASE_URL}
+      N8N_ENCRYPTION_KEY: ${N8N_ENCRYPTION_KEY}
+      DB_TYPE: postgresdb
+      DB_POSTGRESDB_HOST: postgres
+      DB_POSTGRESDB_PORT: 5432
+      DB_POSTGRESDB_DATABASE: ${POSTGRES_DB}
+      DB_POSTGRESDB_USER: ${POSTGRES_USER}
+      DB_POSTGRESDB_PASSWORD: ${POSTGRES_PASSWORD}
+      NEXUS_BASE_URL: http://nexus:6000
+    volumes:
+      - n8n_data:/home/node/.n8n
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "5678:5678"
+    networks: [nyra]
+
+  activepieces:
+    image: activepieces/activepieces:latest
+    container_name: nyra-activepieces
+    restart: unless-stopped
+    environment:
+      AP_ENVIRONMENT: prod
+      AP_FRONTEND_URL: ${AP_FRONTEND_URL}
+      AP_API_URL: ${AP_API_URL}
+      AP_JWT_SECRET: ${AP_JWT_SECRET}
+      AP_ENCRYPTION_KEY: ${AP_ENCRYPTION_KEY}
+      AP_POSTGRES_HOST: postgres
+      AP_POSTGRES_PORT: 5432
+      AP_POSTGRES_DATABASE: ${POSTGRES_DB}
+      AP_POSTGRES_USERNAME: ${POSTGRES_USER}
+      AP_POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      AP_REDIS_URL: redis://redis:6379
+      NEXUS_BASE_URL: http://nexus:6000
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    ports:
+      - "8081:80"
+    networks: [nyra]
+
+  # -------------------------------------------------------
+  # Version control (optional)
+  # -------------------------------------------------------
+  gitea:
+    image: gitea/gitea:latest
+    container_name: nyra-gitea
+    restart: unless-stopped
+    environment:
+      USER_UID: 1000
+      USER_GID: 1000
+    volumes:
+      - gitea_data:/data
+    ports:
+      - "3001:3000"
+      - "2222:22"
+    networks: [nyra]
+
+  # -------------------------------------------------------
+  # Placeholder for TwentyCRM (self‑hosted).  Adjust the image/tag
+  # according to the upstream project.  Feel free to remove this service if
+  # you plan to use a hosted CRM.
+  twenty:
+    image: twentyhq/twenty:latest
+    container_name: nyra-twenty
+    restart: unless-stopped
+    environment:
+      APP_URL: ${TWENTY_APP_URL}
+      SERVER_URL: ${TWENTY_SERVER_URL}
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      REDIS_URL: redis://redis:6379
+      JWT_SECRET: ${TWENTY_JWT_SECRET}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    ports:
+      - "3000:3000"
+    networks: [nyra]
+
+  # -------------------------------------------------------
+  # Cloudflare Tunnel (optional) – exposes selected services securely
+  # -------------------------------------------------------
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: nyra-cloudflared
+    restart: unless-stopped
+    command: ["tunnel", "run", "--config", "/etc/cloudflared/config.yaml"]
+    environment:
+      TUNNEL_TOKEN: ${CLOUDFLARED_TUNNEL_TOKEN}
+    volumes:
+      - ./cloudflared/config.yaml:/etc/cloudflared/config.yaml:ro
+    depends_on:
+      - nexus
+      - n8n
+      - twenty
+      - gitea
+    networks: [nyra]
+
+networks:
+  nyra:
+    name: nyra
+
+volumes:
+  postgres_data:
+  redis_data:
+  n8n_data:
+  gitea_data:
