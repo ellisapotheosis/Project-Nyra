@@ -1,0 +1,15 @@
+version: '3.8'
+
+# Worker RTX3090Ti override.  Adjust the compose file for the 3090Ti if
+# needed.  By default, services are controlled via profiles.
+
+services:
+  # Example: device mapping for heavy GPU
+  # vllm:
+  #   deploy:
+  #     resources:
+  #       reservations:
+  #         devices:
+  #           - driver: nvidia
+  #             count: 1
+  #             capabilities: [gpu]
