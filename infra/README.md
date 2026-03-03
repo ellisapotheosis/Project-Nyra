@@ -94,6 +94,30 @@ Use root `Makefile` targets and infra scripts:
    ```bash
    ./infra/scripts/bootstrap-import.sh bootstrap/incoming apply
    ```
+```bash
+cp infra/env/nyra.env.example infra/env/nyra.env
+# edit OPENROUTER_API_KEY at minimum
+bash infra/scripts/bootstrap.sh
+```
+
+## Operator interface
+
+Use root `Makefile` targets and infra scripts:
+- `make bootstrap-ultimate`
+- `make health`
+- `./infra/scripts/ultimate-bootstrap.sh <role> <action>`
+
+## Browser upload flow
+
+1. Upload files into `bootstrap/incoming/` (GitHub UI/Codespaces).
+2. Dry-run map:
+   ```bash
+   ./infra/scripts/bootstrap-import.sh bootstrap/incoming dry-run
+   ```
+3. Apply map:
+   ```bash
+   ./infra/scripts/bootstrap-import.sh bootstrap/incoming apply
+   ```
 ### 3. Start Workers (RTX PCs)
 On each worker PC:
 ```bash

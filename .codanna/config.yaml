@@ -1,4 +1,0 @@
-provider: codanna
-api_key_env: NYRA_CODANNA_API_KEY
-model_env: NYRA_CODANNA_MODEL
-default_model: codanna-pro
