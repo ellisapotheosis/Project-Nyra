@@ -8,11 +8,13 @@ on:
       - 'services/**/Dockerfile'
       - 'infra/**'
       - '.github/workflows/docker-build-matrix.yml'
+      - '!**/infra-archived/**'
   pull_request:
     branches: [main]
     paths:
       - 'apps/**/Dockerfile'
       - 'services/**/Dockerfile'
+      - '!**/infra-archived/**'
   workflow_dispatch:
     inputs:
       service:
@@ -49,8 +51,10 @@ jobs:
           filters: |
             apps:
               - 'apps/**/Dockerfile'
+              - '!**/infra-archived/**'
             services:
               - 'services/**/Dockerfile'
+              - '!**/infra-archived/**'
 
       - name: Set build matrix
         id: set-matrix
@@ -61,6 +65,7 @@ jobs:
           # Add apps
           if [ "${{ steps.filter.outputs.apps }}" == "true" ] || [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
             for dir in apps/*/Dockerfile; do
+              if [[ "$dir" == *"infra-archived"* ]]; then continue; fi
               if [ -f "$dir" ]; then
                 app=$(dirname "$dir" | cut -d'/' -f2)
                 MATRIX="${MATRIX}{\"name\":\"${app}\",\"context\":\"apps/${app}\",\"dockerfile\":\"apps/${app}/Dockerfile\",\"type\":\"app\"},"
@@ -71,6 +76,7 @@ jobs:
           # Add services
           if [ "${{ steps.filter.outputs.services }}" == "true" ] || [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
             for dir in services/*/Dockerfile; do
+              if [[ "$dir" == *"infra-archived"* ]]; then continue; fi
               if [ -f "$dir" ]; then
                 service=$(dirname "$dir" | cut -d'/' -f2)
                 MATRIX="${MATRIX}{\"name\":\"${service}\",\"context\":\"services/${service}\",\"dockerfile\":\"services/${service}/Dockerfile\",\"type\":\"service\"},"
