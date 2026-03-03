@@ -485,3 +485,6 @@ docs/archive/**/*.pem
 docs/archive/**/*.key
 docs/archive/**/*.db
 bootstrap/
+
+# Codanna local index/cache
+.codanna/
