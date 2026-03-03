@@ -1,0 +1,260 @@
+version: "3.9"
+
+services:
+  # ============================================================================
+  # SECRETS MANAGEMENT
+  # ============================================================================
+
+  infisical-agent:
+    image: infisical/infisical-agent:latest
+    container_name: nyra-infisical-agent
+    environment:
+      INFISICAL_TOKEN: ${INFISICAL_TOKEN}
+      INFISICAL_API_URL: ${INFISICAL_API_URL}
+    volumes:
+      - secrets_volume:/secrets
+    restart: unless-stopped
+    networks:
+      - nyra-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8200/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ============================================================================
+  # INFRASTRUCTURE CORE
+  # ============================================================================
+
+  redis:
+    image: redis:7-alpine
+    container_name: nyra-redis
+    command: redis-server --save 60 1000 --appendonly yes
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    networks:
+      - nyra-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # ============================================================================
+  # NEXUS ROUTER (MCP Hub)
+  # ============================================================================
+
+  nexus:
+    build:
+      context: ./nexus
+      dockerfile: Dockerfile
+    container_name: nyra-nexus-router
+    ports:
+      - "6000:6000"
+    environment:
+      NODE_ENV: production
+      LOG_LEVEL: info
+      LITELLM_API_BASE: "http://litellm:4000"
+      LITELLM_API_KEY: "dummy-key"
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      GITHUB_TOKEN: ${GITHUB_TOKEN}
+      TWENTY_API_TOKEN: ${TWENTY_API_TOKEN}
+      ACTIVEPIECES_TOKEN: ${ACTIVEPIECES_TOKEN}
+      INFISICAL_TOKEN: ${INFISICAL_TOKEN}
+      REDIS_URL: "redis://redis:6379"
+      DATABASE_URL: ${DATABASE_URL}
+    volumes:
+      - ./nexus/nexus.toml:/app/nexus.toml:ro
+      - secrets_volume:/secrets:ro
+    depends_on:
+      redis:
+        condition: service_healthy
+      infisical-agent:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - nyra-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ============================================================================
+  # LITELLM (Model Router)
+  # ============================================================================
+
+  litellm:
+    image: ghcr.io/berriai/litellm:latest
+    container_name: nyra-litellm-router
+    ports:
+      - "4000:4000"
+    environment:
+      LITELLM_LOG: info
+      LITELLM_CACHE: "true"
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      DATABASE_URL: ${DATABASE_URL}
+    volumes:
+      - ./litellm/config.yaml:/app/config.yaml:ro
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - nyra-network
+    command: ["litellm", "--config", "/app/config.yaml", "--port", "4000"]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # ============================================================================
+  # AGENTS & ORCHESTRATORS
+  # ============================================================================
+
+  claude-flow:
+    build:
+      context: ../src/claude-flow
+      dockerfile: Dockerfile
+    container_name: nyra-claude-flow
+    ports:
+      - "8000:8000"
+    environment:
+      NODE_ENV: production
+      NEXUS_API_URL: "http://nexus:6000"
+      LITELLM_API_URL: "http://litellm:4000"
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      GITHUB_TOKEN: ${GITHUB_TOKEN}
+      DATABASE_URL: ${DATABASE_URL}
+    volumes:
+      - secrets_volume:/secrets:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      nexus:
+        condition: service_healthy
+      litellm:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - nyra-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  openclaw:
+    build:
+      context: ../src/openclaw
+      dockerfile: Dockerfile
+    container_name: nyra-openclaw
+    ports:
+      - "8001:8001"
+    environment:
+      NODE_ENV: production
+      NEXUS_API_URL: "http://nexus:6000"
+      LITELLM_API_URL: "http://litellm:4000"
+      MEM0_API_URL: "http://oracle.trex-fiordland.ts.net:5000"
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      DATABASE_URL: ${DATABASE_URL}
+      QUOTE_ENGINE_URL: "http://oracle.trex-fiordland.ts.net:8089"
+    volumes:
+      - secrets_volume:/secrets:ro
+    depends_on:
+      nexus:
+        condition: service_healthy
+      litellm:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - nyra-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  archon-os:
+    build:
+      context: ../src/archon-os
+      dockerfile: Dockerfile
+    container_name: nyra-archon-os
+    ports:
+      - "8080:8080"
+    environment:
+      NODE_ENV: production
+      NEXUS_API_URL: "http://nexus:6000"
+      LITELLM_API_URL: "http://litellm:4000"
+      REDIS_URL: "redis://redis:6379"
+      DATABASE_URL: ${DATABASE_URL}
+    volumes:
+      - secrets_volume:/secrets:ro
+    depends_on:
+      redis:
+        condition: service_healthy
+      nexus:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - nyra-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  # ============================================================================
+  # LOCAL TOOLKITS
+  # ============================================================================
+
+  docker-mcp-toolkit:
+    image: docker/mcp-toolkit:latest
+    container_name: nyra-docker-toolkit
+    ports:
+      - "8811:8811"
+    environment:
+      MCP_PORT: 8811
+      DOCKER_HOST: unix:///var/run/docker.sock
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /home/user/ProjectNyra:/workspace
+    restart: unless-stopped
+    networks:
+      - nyra-network
+
+  # ============================================================================
+  # MONITORING & UTILITIES
+  # ============================================================================
+
+  postgres-client:
+    image: postgres:16-alpine
+    container_name: nyra-postgres-client
+    environment:
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+    entrypoint: sleep infinity
+    volumes:
+      - secrets_volume:/secrets:ro
+    restart: unless-stopped
+    networks:
+      - nyra-network
+    profiles:
+      - debug
+
+  # ============================================================================
+  # VOLUMES & NETWORKS
+  # ============================================================================
+
+volumes:
+  redis_data:
+  secrets_volume:
+
+networks:
+  nyra-network:
+    driver: bridge

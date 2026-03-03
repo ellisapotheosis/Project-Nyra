@@ -1,0 +1,6 @@
+[mcp]
+enabled = true
+path = "/mcp"
+
+[mcp.servers.nyra]
+url = "http://nyra-mcp:3333/mcp"

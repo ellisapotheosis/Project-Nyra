@@ -1,0 +1,99 @@
+version: "3.9"
+
+name: nyra-worker-rtx5090
+
+services:
+  # ---------------------------------------------------------------------------
+  # Redis – local KV storage for LMCache
+  # ---------------------------------------------------------------------------
+  redis:
+    image: redis:7-alpine
+    container_name: nyra-5090-redis
+    restart: unless-stopped
+    command: ["redis-server", "--save", "60", "1", "--loglevel", "warning"]
+    volumes:
+      - redis_data:/data
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+
+  # ---------------------------------------------------------------------------
+  # LMCache – KV cache service sitting on top of Redis
+  # ---------------------------------------------------------------------------
+  lmcache:
+    build: .
+    image: nyra-worker-rtx5090:latest
+    container_name: nyra-5090-lmcache
+    restart: unless-stopped
+    depends_on:
+      - redis
+    # Run the lmcache server.  We reuse the vLLM image because it has
+    # lmcache installed.  The remote_url points at the redis service.
+    command: [
+      "bash", "-c",
+      "python3.12 -m lmcache.server --port ${LM_CACHE_PORT:-9000} --remote_url redis://redis:6379 --chunk_size ${LMCACHE_CHUNK_SIZE:-256}"
+    ]
+    ports:
+      - "${LM_CACHE_PORT:-9000}:9000"
+    environment:
+      LM_CACHE_PORT: ${LM_CACHE_PORT:-9000}
+      LMCACHE_CHUNK_SIZE: ${LMCACHE_CHUNK_SIZE:-256}
+    volumes:
+      - lmcache_data:/root/.cache/lmcache
+
+  # ---------------------------------------------------------------------------
+  # vLLM – the LLM server with LMCache integration
+  # ---------------------------------------------------------------------------
+  vllm:
+    build: .
+    image: nyra-worker-rtx5090:latest
+    container_name: nyra-5090-vllm
+    restart: unless-stopped
+    runtime: nvidia
+    environment:
+      MODEL_NAME: ${MODEL_NAME}
+      VLLM_PORT: ${VLLM_PORT:-8000}
+      GPU_MEMORY_UTIL: ${GPU_MEMORY_UTIL:-0.90}
+      MAX_MODEL_LEN: ${MAX_MODEL_LEN:-32768}
+      TP_SIZE: ${TP_SIZE:-1}
+    command: ["/workspace/start_vllm.sh"]
+    ports:
+      - "${VLLM_PORT:-8000}:8000"
+    volumes:
+      - models:/workspace/models
+      - hf_cache:/root/.cache/huggingface
+    depends_on:
+      - lmcache
+    shm_size: 16g
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: ["gpu"]
+
+  # ---------------------------------------------------------------------------
+  # NVIDIA DCGM exporter – optional GPU metrics endpoint (Prometheus)
+  # ---------------------------------------------------------------------------
+  dcgm-exporter:
+    image: nvcr.io/nvidia/k8s/dcgm-exporter:latest
+    container_name: nyra-5090-dcgm
+    restart: unless-stopped
+    ports:
+      - "9400:9400"
+    environment:
+      DCGM_EXPORTER_LISTEN: ":9400"
+      DCGM_EXPORTER_KUBERNETES: "false"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: ["gpu"]
+
+volumes:
+  redis_data:
+  lmcache_data:
+  models:
+  hf_cache:

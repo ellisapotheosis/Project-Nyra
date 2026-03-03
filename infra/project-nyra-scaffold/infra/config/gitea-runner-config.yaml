@@ -1,0 +1,50 @@
+log:
+  level: debug
+
+runner:
+  # File path to store the registration token.
+  file: .runner
+  # Timeout for waiting for running jobs, set to 0 to never timeout.
+  timeout: 3h
+  # Whether execute job like a daemon service You should install act_runner using service commands first
+  execute_on_altarch: false
+  # Environment variables that should be set when executing the job.
+  env_vars:
+    A_TEST_ENV_NAME_SUFFIX: "_FROM_GITEA_RUNNER_ENV"
+  # Extra environment variables to run all jobs.
+  env_vars_unprivileged:
+    A_TEST_ENV_NAME_SUFFIX: "_FROM_GITEA_RUNNER_ENV"
+  # File path to store the registration token.
+  privileged: false
+
+cache:
+  # Enable cache.
+  enabled: true
+  # Directory to store the cache.
+  dir: /data/runner-cache
+
+container:
+  # Specifies the network to which the container will connect.
+  # Could be the name of a network the Docker daemon already knows about.
+  # Defaults to creating a new temporary network per job
+  # network: bridge
+  # Docker daemon socket path.
+  docker_host: unix:///var/run/docker.sock
+  # Custom CA root directory
+  ca_root: ""
+  # Custom certificate directory
+  cert_root: ""
+  options:
+  volumes:
+    - /data:/data
+  workdir_parent: /tmp/gitea_runner
+  force_pull: false
+  rebuild: true
+  network: bridge
+
+job:
+  # timeout_ms: 3600000
+
+log:
+  # logging level
+  level: info

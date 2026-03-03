@@ -1,0 +1,226 @@
+# Docker Compose - Archon OS Integration
+# Profile-based Archon multi-agent orchestration system
+#
+# Usage:
+#   docker compose -f docker-compose.yml -f compose/docker-compose.archon.yml --profile archon up -d
+#
+# Services:
+#   - archon-os: Core orchestration service (FastAPI)
+#   - archon-server: RAG server with web crawling
+#   - archon-mcp: MCP protocol server
+#   - archon-agents: PydanticAI agents service (optional)
+#   - archon-ui: React dashboard
+
+x-archon-common: &archon-common
+  networks: [nyra]
+  restart: unless-stopped
+  logging:
+    driver: "json-file"
+    options:
+      max-size: "10m"
+      max-file: "3"
+
+volumes:
+  archon_data: {}
+
+services:
+  # ---------------------------------------------------------------------------
+  # Archon OS - Core Orchestration Service
+  # ---------------------------------------------------------------------------
+  archon-os:
+    build:
+      context: ../../services/archon-os
+      dockerfile: docker/Dockerfile.archon-os
+    container_name: nyra-archon-os
+    profiles: ["archon"]
+    <<: *archon-common
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      NODE_ENV: ${NODE_ENV:-development}
+      PORT: "9001"
+      SERVICE_NAME: archon-os
+      DATABASE_URL: "postgresql://${POSTGRES_USER:-nyra}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-nyra}"
+      REDIS_URL: "redis://:${REDIS_PASSWORD}@redis:6379"
+      # Orchestration
+      ORCHESTRATOR_MODE: dual
+      CLAUDE_FLOW_URL: ${CLAUDE_FLOW_URL:-http://claude-flow:9000}
+      ENABLE_CLAUDE_FLOW_SYNC: "true"
+      # Task Management
+      MAX_CONCURRENT_TASKS: ${ARCHON_MAX_TASKS:-100}
+      TASK_TIMEOUT: "600000"
+      ENABLE_TASK_QUEUE: "true"
+      # AI Provider
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      GOOGLE_API_KEY: ${GOOGLE_API_KEY:-}
+      # Nexus Router
+      NEXUS_ROUTER_URL: ${NEXUS_URL:-http://localhost:7000}
+      ROUTE_ALL_AI_THROUGH_NEXUS: "true"
+    ports:
+      - "${ARCHON_OS_PORT:-9001}:9001"
+    volumes:
+      - archon_data:/opt/archon/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # ---------------------------------------------------------------------------
+  # Archon Server - RAG Backend with Web Crawling
+  # ---------------------------------------------------------------------------
+  archon-server:
+    build:
+      context: ../../services/archon-os
+      dockerfile: docker/Dockerfile.server
+      args:
+        ARCHON_SERVER_PORT: ${ARCHON_SERVER_PORT:-8181}
+    container_name: nyra-archon-server
+    profiles: ["archon"]
+    <<: *archon-common
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      # Database (using shared postgres)
+      DATABASE_URL: "postgresql://${POSTGRES_USER:-nyra}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-nyra}"
+      SUPABASE_URL: ${SUPABASE_URL:-}
+      SUPABASE_SERVICE_KEY: ${SUPABASE_SERVICE_KEY:-}
+      # LLM Configuration
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      GOOGLE_API_KEY: ${GOOGLE_API_KEY:-}
+      # Service Configuration
+      SERVICE_DISCOVERY_MODE: docker_compose
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      ARCHON_SERVER_PORT: ${ARCHON_SERVER_PORT:-8181}
+      HOST: ${ARCHON_HOST:-localhost}
+      # Nexus Router
+      NEXUS_ROUTER_URL: ${NEXUS_URL:-http://localhost:7000}
+      USE_NEXUS_ROUTER: ${USE_NEXUS_ROUTER:-true}
+    ports:
+      - "${ARCHON_SERVER_PORT:-8181}:8181"
+    volumes:
+      - archon_data:/app/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8181/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # ---------------------------------------------------------------------------
+  # Archon MCP Server - Model Context Protocol Interface
+  # ---------------------------------------------------------------------------
+  archon-mcp:
+    build:
+      context: ../../services/archon-os
+      dockerfile: docker/Dockerfile.mcp
+      args:
+        ARCHON_MCP_PORT: ${ARCHON_MCP_PORT:-8051}
+    container_name: nyra-archon-mcp
+    profiles: ["archon"]
+    <<: *archon-common
+    depends_on:
+      postgres:
+        condition: service_healthy
+      archon-server:
+        condition: service_healthy
+    environment:
+      # Database (using shared postgres)
+      DATABASE_URL: "postgresql://${POSTGRES_USER:-nyra}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-nyra}"
+      SUPABASE_URL: ${SUPABASE_URL:-}
+      SUPABASE_SERVICE_KEY: ${SUPABASE_SERVICE_KEY:-}
+      # Service Configuration
+      SERVICE_DISCOVERY_MODE: docker_compose
+      TRANSPORT: sse
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      API_SERVICE_URL: http://archon-server:8181
+      ARCHON_MCP_PORT: ${ARCHON_MCP_PORT:-8051}
+      # Nexus Router
+      NEXUS_ROUTER_URL: ${NEXUS_URL:-http://localhost:7000}
+      MCP_PROXY_ENABLED: "true"
+    ports:
+      - "${ARCHON_MCP_PORT:-8051}:8051"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8051/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # ---------------------------------------------------------------------------
+  # Archon Agents Service - PydanticAI Agents (Optional)
+  # ---------------------------------------------------------------------------
+  archon-agents:
+    build:
+      context: ../../services/archon-os
+      dockerfile: docker/Dockerfile.agents
+      args:
+        ARCHON_AGENTS_PORT: ${ARCHON_AGENTS_PORT:-8052}
+    container_name: nyra-archon-agents
+    profiles: ["archon-agents"]
+    <<: *archon-common
+    depends_on:
+      postgres:
+        condition: service_healthy
+      archon-server:
+        condition: service_healthy
+    environment:
+      # Database (using shared postgres)
+      DATABASE_URL: "postgresql://${POSTGRES_USER:-nyra}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-nyra}"
+      SUPABASE_URL: ${SUPABASE_URL:-}
+      SUPABASE_SERVICE_KEY: ${SUPABASE_SERVICE_KEY:-}
+      # LLM Configuration
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      # Service Configuration
+      SERVICE_DISCOVERY_MODE: docker_compose
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      ARCHON_AGENTS_PORT: ${ARCHON_AGENTS_PORT:-8052}
+      # Nexus Router
+      NEXUS_ROUTER_URL: ${NEXUS_URL:-http://localhost:7000}
+      USE_NEXUS_ROUTER: "true"
+    ports:
+      - "${ARCHON_AGENTS_PORT:-8052}:8052"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8052/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # ---------------------------------------------------------------------------
+  # Archon UI - React Dashboard
+  # ---------------------------------------------------------------------------
+  archon-ui:
+    build:
+      context: ../../tools/archon/archon-ui-main
+      dockerfile: Dockerfile
+    container_name: nyra-archon-ui
+    profiles: ["archon"]
+    <<: *archon-common
+    depends_on:
+      archon-server:
+        condition: service_healthy
+    environment:
+      VITE_ARCHON_SERVER_PORT: ${ARCHON_SERVER_PORT:-8181}
+      ARCHON_SERVER_PORT: ${ARCHON_SERVER_PORT:-8181}
+      HOST: ${ARCHON_HOST:-localhost}
+      PROD: ${ARCHON_PROD:-false}
+      VITE_ALLOWED_HOSTS: ${VITE_ALLOWED_HOSTS:-}
+      VITE_SHOW_DEVTOOLS: ${VITE_SHOW_DEVTOOLS:-false}
+      DOCKER_ENV: "true"
+      NEXUS_ROUTER_URL: ${NEXUS_URL:-http://localhost:7000}
+    ports:
+      - "${ARCHON_UI_PORT:-3737}:3737"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3737"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
