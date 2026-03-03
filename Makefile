@@ -4,6 +4,7 @@ SHELL := /bin/bash
 
 COMPOSE_FILE ?= infra/docker-compose.yml
 COMPOSE ?= docker compose -f $(COMPOSE_FILE)
+STACK_ENV_FILE ?= .env.stack
 
 DEFAULT_PROFILES ?= core,gateway,workflow,crm,archon,apps,observability,vector
 WORKER_PROFILE ?= workers
@@ -11,7 +12,7 @@ WORKER_PROFILE ?= workers
 .PHONY: help install test lint validate compose-config \
   up down restart logs ps pull \
   up-core up-orchestrator up-apps up-dev up-workers up-oracle up-worker-3060 up-worker-3090ti up-worker-5090 \
-  down-workers nexus-up nexus-down health bootstrap-import bootstrap-import-apply bootstrap-ultimate bootstrap-oracle bootstrap-worker-3060 bootstrap-worker-3090ti bootstrap-worker-5090
+  down-workers nexus-up nexus-down health stack-up stack-verify scan-env ports bootstrap-import bootstrap-import-apply bootstrap-ultimate bootstrap-oracle bootstrap-worker-3060 bootstrap-worker-3090ti bootstrap-worker-5090
 
 .DEFAULT_GOAL := help
 
@@ -37,6 +38,10 @@ help:
 	@echo "make nexus-up           Start litellm + nexus-router only"
 	@echo "make nexus-down         Stop litellm + nexus-router"
 	@echo "make health             Basic health check endpoints"
+	@echo "make stack-up           One-command orchestrator bring-up (uses .env.stack)"
+	@echo "make stack-verify       Verify health endpoints + compose status"
+	@echo "make scan-env           Build env inventory + missing env reports"
+	@echo "make ports              Print canonical ports registry path"
 	@echo "make bootstrap-ultimate Bring up orchestrator + oracle + all workers"
 
 install:
@@ -102,10 +107,16 @@ nexus-down:
 	$(COMPOSE) stop nexus-router litellm || true
 
 health:
-	@echo "Nexus health:" && curl -fsS http://localhost:$${NEXUS_ROUTER_PORT:-7000}/health || true
-	@echo "Nexus MCP health:" && curl -fsS http://localhost:$${NEXUS_MCP_PORT:-8080}/health || true
-	@echo "LiteLLM health:" && curl -fsS http://localhost:$${LITELLM_PORT:-4000}/health || true
+	./scripts/verify-stack.sh infra/.env.example
 
+
+
+stack-up:
+	@test -f $(STACK_ENV_FILE) || (echo "Missing $(STACK_ENV_FILE). Copy .env.stack.example -> $(STACK_ENV_FILE)" && exit 1)
+	docker compose --env-file $(STACK_ENV_FILE) -f $(COMPOSE_FILE) --profile core --profile gateway --profile workflow --profile crm --profile archon --profile apps --profile observability --profile vector up -d
+
+stack-verify:
+	./scripts/stack/verify-stack.sh $(STACK_ENV_FILE)
 
 up-oracle:
 	$(COMPOSE) --profile oracle up -d
@@ -144,3 +155,9 @@ bootstrap-worker-3090ti:
 
 bootstrap-worker-5090:
 	./infra/scripts/ultimate-bootstrap.sh worker-5090 up
+
+scan-env:
+	python scripts/generate-env-docs.py
+
+ports:
+	@echo "See docs/02_ports_registry.md"
