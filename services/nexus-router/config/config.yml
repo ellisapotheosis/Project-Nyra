@@ -1,0 +1,27 @@
+server:
+  port: 7000
+  log_level: info
+
+mcp_servers:
+  - id: twenty-crm
+    endpoint: http://twentycrm:3000
+  - id: activepieces
+    endpoint: http://activepieces:80
+  - id: n8n
+    endpoint: http://n8n:5678
+
+routes:
+  - path: /api/quote
+    target: quote-api
+    method: [POST]
+  - path: /api/twenty/*
+    target: twenty-crm
+    method: [GET, POST, PATCH]
+
+worker_lanes:
+  worker-3060:
+    base_url: http://worker-3060-ollama:11434
+  worker-3090ti:
+    base_url: http://worker-3090ti-vllm:8000
+  worker-5090:
+    base_url: http://worker-5090-vllm:8000
