@@ -1,0 +1,32 @@
+version: "3.9"
+
+name: nyra-worker-rtx3060
+
+services:
+  # ---------------------------------------------------------------------------
+  # Ollama – lightweight model server for small/medium models
+  # ---------------------------------------------------------------------------
+  ollama:
+    image: ollama/ollama:latest
+    container_name: nyra-3060-ollama
+    restart: unless-stopped
+    runtime: nvidia
+    environment:
+      OLLAMA_MODELS: ${OLLAMA_MODELS:-llama3}
+      OLLAMA_KEEP_ALIVE: ${OLLAMA_KEEP_ALIVE:-24h}
+      OLLAMA_NUM_PARALLEL: ${OLLAMA_NUM_PARALLEL:-2}
+      OLLAMA_MAX_LOADED_MODELS: ${OLLAMA_MAX_LOADED_MODELS:-1}
+    ports:
+      - "${OLLAMA_PORT:-11434}:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: ["gpu"]
+
+volumes:
+  ollama_data:

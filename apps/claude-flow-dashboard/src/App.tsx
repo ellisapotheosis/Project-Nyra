@@ -11,7 +11,7 @@ import { useDashboardStore } from './store/dashboardStore';
 import { useAgentStore, useAgentsArray, type AgentState } from './store/agentStore';
 import { useTaskStore, type TaskState } from './store/taskStore';
 import { useMessageStore, type Message } from './store/messageStore';
-import { useMemoryStore } from './store/memoryStore';
+import { useMemoryStore, type MemoryOperation } from './store/memoryStore';
 
 /**
  * WebSocket context for sharing connection controls
@@ -526,12 +526,14 @@ const useWebSocket = () => {
                 operation: (op.operation as MemoryOperation['operation']) ?? 'retrieve',
                 namespace: (op.namespace as string) ?? 'default',
                 key: op.key as string,
+                type: 'session' as const,
                 value: op.value,
                 latency: (op.duration as number) ?? (op.latency as number) ?? 0,
+                status: op.status === 'success' || op.success === true ? 'success' : 'error',
                 success: op.status === 'success' || op.success === true,
                 error: op.error as string,
                 agentId: op.agentId as string,
-                timestamp,
+                timestamp: new Date(timestamp),
               });
               break;
             }

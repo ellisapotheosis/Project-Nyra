@@ -47,7 +47,8 @@ export function parseEvent(data: unknown): DashboardEvent | null {
     event.timestamp = Date.now();
   }
 
-  return event as DashboardEvent;
+  // Cast to unknown first, then to DashboardEvent to satisfy TypeScript
+  return event as unknown as DashboardEvent;
 }
 
 /**

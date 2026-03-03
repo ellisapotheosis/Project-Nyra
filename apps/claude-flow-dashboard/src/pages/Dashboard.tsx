@@ -2,10 +2,10 @@
 
 import React, { Suspense } from 'react';
 import { useWebSocketConnection } from '@/hooks/websocket/useWebSocketConnection';
-import { useAgentStore } from '@/stores/agentStore';
-import { useTaskStore } from '@/stores/taskStore';
-import { useMessageStore } from '@/stores/messageStore';
-import { useMemoryStore } from '@/stores/memoryStore';
+import { useAgentsArray } from '@/store/agentStore';
+import { useTasksArray } from '@/store/taskStore';
+import { useMessages } from '@/store/messageStore';
+import { useMemoryStore } from '@/store/memoryStore';
 
 // Shared components
 import { LoadingSpinner } from '@/components/shared/LoadingSpinner';
@@ -24,10 +24,10 @@ import { SystemMetricsGrid } from '@/components/metrics/SystemMetricsGrid';
 const DashboardPage: React.FC = () => {
   const { isConnected } = useWebSocketConnection();
 
-  const { agents } = useAgentStore();
-  const { tasks } = useTaskStore();
-  const { messages } = useMessageStore();
-  const { entries: memoryEntries } = useMemoryStore();
+  const agents = useAgentsArray();
+  const tasks = useTasksArray();
+  const messages = useMessages();
+  const operations = useMemoryStore((s) => s.operations);
 
   return (
     <div className="grid grid-cols-12 gap-4 p-4">
@@ -43,7 +43,7 @@ const DashboardPage: React.FC = () => {
               agents: agents.length,
               tasks: tasks.length,
               messages: messages.length,
-              memory: memoryEntries.length
+              memory: operations.length
             }}
           />
         </div>

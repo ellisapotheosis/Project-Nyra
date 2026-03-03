@@ -12,9 +12,19 @@ import { devtools, subscribeWithSelector } from 'zustand/middleware';
 const MAX_OPERATIONS = 1000;
 
 /**
- * Memory operation types
+ * Memory operation types (matches types/memory.ts)
  */
-export type MemoryOperationType = 'store' | 'retrieve' | 'update' | 'delete' | 'search' | 'clear' | 'prune';
+export type MemoryOperationType =
+  | 'store'
+  | 'retrieve'
+  | 'search'
+  | 'delete'
+  | 'update'
+  | 'clear'
+  | 'batch_store'
+  | 'batch_retrieve'
+  | 'vector_search'
+  | 'list_keys';
 
 /**
  * Memory entry types (aligned with core interfaces)
@@ -47,6 +57,8 @@ export interface MemoryOperation {
   // Metrics
   duration?: number;
   size?: number;
+  latency: number;
+  success?: boolean;
 
   // Search-specific
   searchQuery?: string;
@@ -72,6 +84,7 @@ export interface MemoryFilter {
   types: MemoryType[];
   statuses: OperationStatus[];
   search: string;
+  showValues?: boolean;
   agentId?: string;
 }
 
@@ -91,6 +104,7 @@ export interface MemoryStats {
  * Namespace info for sidebar
  */
 export interface NamespaceInfo {
+  namespace: string;
   name: string;
   keyCount: number;
   lastAccess: Date;
@@ -150,7 +164,10 @@ const initialStats: MemoryStats = {
     delete: 0,
     search: 0,
     clear: 0,
-    prune: 0,
+    batch_store: 0,
+    batch_retrieve: 0,
+    vector_search: 0,
+    list_keys: 0,
   },
   byStatus: {
     pending: 0,
@@ -231,7 +248,10 @@ const calculateStats = (operations: MemoryOperation[]): MemoryStats => {
       delete: 0,
       search: 0,
       clear: 0,
-      prune: 0,
+      batch_store: 0,
+      batch_retrieve: 0,
+      vector_search: 0,
+      list_keys: 0,
     },
     byStatus: {
       pending: 0,
@@ -304,6 +324,7 @@ export const useMemoryStore = create<MemoryStoreState>()(
             const newNamespaces = new Map(state.namespaces);
             const existingNs = newNamespaces.get(newOperation.namespace);
             newNamespaces.set(newOperation.namespace, {
+              namespace: newOperation.namespace,
               name: newOperation.namespace,
               keyCount: existingNs ? existingNs.keyCount + 1 : 1,
               lastAccess: newOperation.timestamp,
@@ -368,6 +389,7 @@ export const useMemoryStore = create<MemoryStoreState>()(
             if (state.namespaces.has(namespace)) return state;
             const newNamespaces = new Map(state.namespaces);
             newNamespaces.set(namespace, {
+              namespace: namespace,
               name: namespace,
               keyCount: 0,
               lastAccess: new Date(),

@@ -1,0 +1,78 @@
+name: nyra-worker-rtx5090
+
+services:
+  # --- Local LLM API (Ollama) ---
+  ollama:
+    image: ollama/ollama:latest
+    container_name: nyra_ollama_5090
+    ports:
+      - "11437:11434"
+    volumes:
+      - ollama_models:/root/.ollama
+    environment:
+      - OLLAMA_HOST=0.0.0.0
+      - OLLAMA_KEEP_ALIVE=24h
+    restart: unless-stopped
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+  # --- OpenAI-compatible inference (vLLM) ---
+  vllm:
+    image: vllm/vllm-openai:latest
+    container_name: nyra_vllm_5090
+    profiles: ["vllm"]
+    ports:
+      - "8003:8000"
+    environment:
+      - HF_TOKEN=${HF_TOKEN}
+      - HF_HOME=/root/.cache/huggingface
+      - TRANSFORMERS_CACHE=/root/.cache/huggingface
+    volumes:
+      - hf_cache:/root/.cache/huggingface
+    command:
+      - "--model"
+      - "${VLLM_MODEL}"
+      - "--dtype"
+      - "auto"
+      - "--max-model-len"
+      - "${VLLM_MAX_LEN}"
+      - "--host"
+      - "0.0.0.0"
+      - "--port"
+      - "8000"
+      - "--gpu-memory-utilization"
+      - "${VLLM_GPU_UTIL}"
+    restart: unless-stopped
+    shm_size: "8gb"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+  # --- GPU metrics exporter (for Prometheus) ---
+  dcgm-exporter:
+    image: nvidia/dcgm-exporter:latest
+    container_name: nyra_dcgm_exporter_5090
+    profiles: ["gpu-metrics"]
+    ports:
+      - "9400:9400"
+    restart: unless-stopped
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+volumes:
+  ollama_models:
+  hf_cache:

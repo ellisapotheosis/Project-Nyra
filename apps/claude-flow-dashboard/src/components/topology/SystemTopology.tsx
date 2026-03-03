@@ -1,19 +1,19 @@
 import React from 'react';
-import { useAgentStore } from '@/stores/agentStore';
+import { useAgentStore } from '@/store/agentStore';
 import { LoadingSpinner } from '@/components/shared/LoadingSpinner';
 
 export const SystemTopology: React.FC = () => {
   const { agents } = useAgentStore();
 
-  const agentsByType = agents.reduce((acc, agent) => {
+  const agentsByType = Array.from(agents.values()).reduce((acc, agent) => {
     if (!acc[agent.type]) {
       acc[agent.type] = [];
     }
     acc[agent.type].push(agent);
     return acc;
-  }, {} as Record<string, typeof agents>);
+  }, {} as Record<string, any[]>);
 
-  if (agents.length === 0) {
+  if (agents.size === 0) {
     return (
       <div className="bg-white shadow rounded-lg p-4">
         <h2 className="text-xl font-semibold mb-4">Topology</h2>

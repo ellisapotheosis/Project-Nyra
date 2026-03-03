@@ -1,5 +1,5 @@
 import React from 'react';
-import { useTaskStore } from '@/stores/taskStore';
+import { useTaskStore } from '@/store/taskStore';
 import { LoadingSpinner } from '@/components/shared/LoadingSpinner';
 
 const statusColors = {
@@ -12,17 +12,17 @@ const statusColors = {
 export const TaskKanbanBoard: React.FC = () => {
   const { tasks } = useTaskStore();
 
-  const groupedTasks = tasks.reduce((acc, task) => {
+  const groupedTasks = Array.from(tasks.values()).reduce((acc, task) => {
     if (!acc[task.status]) {
       acc[task.status] = [];
     }
     acc[task.status].push(task);
     return acc;
-  }, {} as Record<string, typeof tasks>);
+  }, {} as Record<string, any[]>);
 
   const columns = ['pending', 'in-progress', 'completed', 'failed'];
 
-  if (tasks.length === 0) {
+  if (tasks.size === 0) {
     return (
       <div className="bg-white shadow rounded-lg p-4">
         <h2 className="text-xl font-semibold mb-4">Tasks</h2>

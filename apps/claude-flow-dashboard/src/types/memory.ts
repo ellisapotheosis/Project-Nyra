@@ -7,7 +7,17 @@
 /**
  * Types of memory operations
  */
-export type MemoryOperationType = 'store' | 'retrieve' | 'search' | 'delete' | 'update';
+export type MemoryOperationType =
+  | 'store'
+  | 'retrieve'
+  | 'search'
+  | 'delete'
+  | 'update'
+  | 'clear'
+  | 'batch_store'
+  | 'batch_retrieve'
+  | 'vector_search'
+  | 'list_keys';
 
 /**
  * Memory operation type as enum for stricter typing
@@ -35,6 +45,16 @@ export type ExtendedMemoryOperationType =
   | 'vector_search'
   | 'list_keys'
   | 'clear';
+
+/**
+ * Types of memory storage
+ */
+export type MemoryType = 'entry' | 'vector' | 'cache' | 'session' | 'persistent';
+
+/**
+ * Operation status for filtering
+ */
+export type OperationStatus = 'pending' | 'success' | 'error' | 'cached';
 
 /**
  * Memory namespaces
@@ -146,10 +166,10 @@ export interface MemoryOperation {
   resultCount?: number;
   /** Search results (if applicable) */
   results?: VectorSearchResult[];
-  /** Whether it was a cache hit */
-  cacheHit?: boolean;
   /** Operation latency in milliseconds */
   latency: number;
+  /** Whether it was a cache hit */
+  cacheHit?: boolean;
   /** Whether operation succeeded */
   success?: boolean;
   /** Error message if failed */
@@ -341,17 +361,28 @@ export interface MemoryFilters {
   minLatency?: number;
   /** Show only cache hits/misses */
   cacheHitFilter?: 'all' | 'hits' | 'misses';
+  /** Memory types to filter */
+  types?: MemoryType[];
+  /** Operation statuses to filter */
+  statuses?: OperationStatus[];
+  /** Search text */
+  search?: string;
 }
 
 /**
  * Operation type colors for visualization
  */
 export const OPERATION_TYPE_COLORS: Record<MemoryOperationType, string> = {
-  store: '#22c55e',    // Green
-  retrieve: '#3b82f6', // Blue
-  search: '#f59e0b',   // Amber
-  delete: '#ef4444',   // Red
-  update: '#8b5cf6',   // Purple
+  store: '#22c55e',       // Green
+  retrieve: '#3b82f6',    // Blue
+  search: '#f59e0b',      // Amber
+  delete: '#ef4444',      // Red
+  update: '#8b5cf6',      // Purple
+  clear: '#64748b',       // Slate
+  batch_store: '#10b981', // Emerald
+  batch_retrieve: '#06b6d4', // Cyan
+  vector_search: '#ec4899', // Pink
+  list_keys: '#f97316',   // Orange
 };
 
 /**
@@ -363,6 +394,11 @@ export const OPERATION_TYPE_CSS_COLORS: Record<MemoryOperationType, string> = {
   search: 'text-amber-500 bg-amber-500/10',
   delete: 'text-red-500 bg-red-500/10',
   update: 'text-purple-500 bg-purple-500/10',
+  clear: 'text-slate-500 bg-slate-500/10',
+  batch_store: 'text-emerald-500 bg-emerald-500/10',
+  batch_retrieve: 'text-cyan-500 bg-cyan-500/10',
+  vector_search: 'text-pink-500 bg-pink-500/10',
+  list_keys: 'text-orange-500 bg-orange-500/10',
 };
 
 /**
@@ -374,6 +410,11 @@ export const OPERATION_TYPE_LABELS: Record<MemoryOperationType, string> = {
   search: 'Search',
   delete: 'Delete',
   update: 'Update',
+  clear: 'Clear',
+  batch_store: 'Batch Store',
+  batch_retrieve: 'Batch Retrieve',
+  vector_search: 'Vector Search',
+  list_keys: 'List Keys',
 };
 
 /**
@@ -385,6 +426,11 @@ export const ALL_MEMORY_OPERATIONS: MemoryOperationType[] = [
   'search',
   'delete',
   'update',
+  'clear',
+  'batch_store',
+  'batch_retrieve',
+  'vector_search',
+  'list_keys',
 ];
 
 /**

@@ -1,7 +1,6 @@
 import { create } from 'zustand';
 import {
   MemoryOperation,
-  MemoryOperationType,
   MemoryFilters,
   NamespaceStats,
   DEFAULT_MEMORY_FILTERS
