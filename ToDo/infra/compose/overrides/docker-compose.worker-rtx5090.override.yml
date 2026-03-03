@@ -1,0 +1,15 @@
+version: '3.8'
+
+# Worker RTX5090 override.  Use this file to add customizations for the 5090
+# node.  Service selection is handled via COMPOSE_PROFILES.
+
+services:
+  # Example: enable multiple GPUs or high memory options
+  # vllm:
+  #   deploy:
+  #     resources:
+  #       reservations:
+  #         devices:
+  #           - driver: nvidia
+  #             count: 1
+  #             capabilities: [gpu]
