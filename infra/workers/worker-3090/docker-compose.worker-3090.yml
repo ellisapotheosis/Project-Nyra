@@ -1,0 +1,274 @@
+# ============================================================================
+# Worker RTX 3090 Ti - Desktop PC (24GB VRAM)
+# ============================================================================
+# vLLM + LMCache for high-performance inference
+# Connected via Tailscale mesh to orchestrator
+# ============================================================================
+
+version: '3.8'
+
+services:
+  # ============================================================================
+  # vLLM Server with LMCache (24GB VRAM optimized)
+  # ============================================================================
+  vllm:
+    image: vllm/vllm-openai:latest
+    container_name: worker-3090-vllm
+    hostname: worker-3090-vllm
+    restart: unless-stopped
+    ports:
+      - "${VLLM_PORT:-8000}:8000"
+    volumes:
+      - vllm-models:/root/.cache/huggingface
+      - lmcache-data:/root/.cache/lmcache
+      - ./logs/vllm:/var/log/vllm
+    environment:
+      - CUDA_VISIBLE_DEVICES=0
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
+      - HF_TOKEN=${HF_TOKEN:-}
+      - VLLM_ATTENTION_BACKEND=FLASHINFER
+      # LMCache Configuration
+      - LMCACHE_ENABLED=true
+      - LMCACHE_STORAGE_BACKEND=local
+      - LMCACHE_LOCAL_DEVICE=cuda
+      - LMCACHE_MAX_LOCAL_CACHE_SIZE=8G
+    command: >
+      --model meta-llama/Llama-3.1-8B-Instruct
+      --host 0.0.0.0
+      --port 8000
+      --tensor-parallel-size 1
+      --gpu-memory-utilization 0.90
+      --max-model-len 8192
+      --enable-prefix-caching
+      --enable-chunked-prefill
+      --quantization awq
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+        limits:
+          memory: 32G
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 120s
+    labels:
+      - "com.nyra.service=vllm"
+      - "com.nyra.worker=rtx3090ti"
+      - "com.nyra.gpu=rtx-3090-ti"
+      - "com.nyra.vram=24gb"
+      - "com.nyra.device=desktop-pc"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "5"
+    networks:
+      - worker-network
+
+  # ============================================================================
+  # LMCache Server (KV Cache sharing)
+  # ============================================================================
+  lmcache:
+    image: lmcache/lmcache-server:latest
+    container_name: worker-3090-lmcache
+    hostname: worker-3090-lmcache
+    restart: unless-stopped
+    ports:
+      - "${LMCACHE_PORT:-8100}:8100"
+    volumes:
+      - lmcache-data:/data
+    environment:
+      - LMCACHE_CONFIG_FILE=/etc/lmcache/config.yaml
+      - LMCACHE_STORAGE_BACKEND=local
+      - LMCACHE_LOCAL_DEVICE=cuda
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8100/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    labels:
+      - "com.nyra.service=lmcache"
+      - "com.nyra.worker=rtx3090ti"
+    networks:
+      - worker-network
+
+  # ============================================================================
+  # Model Switcher - Hot-swap models based on demand
+  # ============================================================================
+  model-switcher:
+    image: python:3.11-slim
+    container_name: worker-3090-switcher
+    hostname: worker-3090-switcher
+    restart: unless-stopped
+    volumes:
+      - ./model-switcher:/app
+      - vllm-models:/models
+    environment:
+      - VLLM_URL=http://vllm:8000
+      - AVAILABLE_MODELS=meta-llama/Llama-3.1-8B-Instruct,meta-llama/Llama-3.1-70B-Instruct-AWQ,codellama/CodeLlama-34b-Instruct-hf,mistralai/Mixtral-8x7B-Instruct-v0.1-AWQ
+      - DEFAULT_MODEL=meta-llama/Llama-3.1-8B-Instruct
+    command: python /app/switcher.py
+    depends_on:
+      - vllm
+    labels:
+      - "com.nyra.service=model-switcher"
+      - "com.nyra.worker=rtx3090ti"
+    networks:
+      - worker-network
+
+  # ============================================================================
+  # Health Monitor - Periodic health checks and metrics
+  # ============================================================================
+  health-monitor:
+    image: curlimages/curl:latest
+    container_name: worker-3090-health-monitor
+    hostname: worker-3090-health-monitor
+    restart: unless-stopped
+    depends_on:
+      - ollama
+    volumes:
+      - ./health-check.sh:/health-check.sh:ro
+      - ./logs/health:/var/log/health
+    environment:
+      - OLLAMA_URL=http://ollama:11434
+      - WORKER_ID=${WORKER_ID:-worker-3090}
+      - CHECK_INTERVAL=60
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        while true; do
+          echo "[$(date -Iseconds)] Running health check..."
+
+          # Check Ollama API
+          if curl -sf "$${OLLAMA_URL}/api/tags" > /dev/null; then
+            echo "[$(date -Iseconds)] [OK] Ollama API responding"
+          else
+            echo "[$(date -Iseconds)] [ERROR] Ollama API not responding"
+          fi
+
+          # Check model availability
+          MODELS=$$(curl -sf "$${OLLAMA_URL}/api/tags" | grep -o '"name"' | wc -l)
+          echo "[$(date -Iseconds)] [INFO] Available models: $$MODELS"
+
+          # Sleep before next check
+          sleep $${CHECK_INTERVAL}
+        done | tee -a /var/log/health/health-monitor.log
+    labels:
+      - "com.project-nyra.service=health-monitor"
+      - "com.project-nyra.worker=worker-3090"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ============================================================================
+  # Promtail - Log Shipper to Loki
+  # ============================================================================
+  promtail:
+    image: grafana/promtail:latest
+    container_name: worker-3090-promtail
+    hostname: worker-3090-promtail
+    restart: unless-stopped
+    volumes:
+      - ./promtail-config.yml:/etc/promtail/config.yml:ro
+      - ./logs:/var/log/worker-3090:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      - LOKI_URL=${LOKI_URL:-http://loki:3100}
+      - WORKER_ID=${WORKER_ID:-worker-3090}
+      - HOSTNAME=worker-3090
+    command: -config.file=/etc/promtail/config.yml
+    labels:
+      - "com.project-nyra.service=promtail"
+      - "com.project-nyra.worker=worker-3090"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ============================================================================
+  # Node Exporter - System metrics for Prometheus
+  # ============================================================================
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: worker-3090-node-exporter
+    hostname: worker-3090-node-exporter
+    restart: unless-stopped
+    ports:
+      - "9100:9100"
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+      - '--path.rootfs=/rootfs'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    labels:
+      - "com.project-nyra.service=node-exporter"
+      - "com.project-nyra.worker=worker-3090"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ============================================================================
+  # NVIDIA GPU Exporter - GPU metrics for Prometheus
+  # ============================================================================
+  nvidia-gpu-exporter:
+    image: utkuozdemir/nvidia_gpu_exporter:latest
+    container_name: worker-3090-nvidia-exporter
+    hostname: worker-3090-nvidia-exporter
+    restart: unless-stopped
+    ports:
+      - "9835:9835"
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    labels:
+      - "com.project-nyra.service=nvidia-exporter"
+      - "com.project-nyra.worker=worker-3090"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  ollama-models:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${OLLAMA_MODELS_PATH:-./data/ollama-models}
+
+networks:
+  default:
+    name: nyra-worker-3090
+    driver: bridge

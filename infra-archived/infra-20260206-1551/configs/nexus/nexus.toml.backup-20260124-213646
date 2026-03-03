@@ -1,0 +1,11 @@
+[server]
+host = "0.0.0.0"
+port = 6000
+
+[routing]
+fuzzy_match = true
+
+[providers]
+anthropic_api_key = "${ANTHROPIC_API_KEY}"
+openrouter_api_key = "${OPENROUTER_API_KEY}"
+google_gemini_api_key = "${GOOGLE_GEMINI_API_KEY}"

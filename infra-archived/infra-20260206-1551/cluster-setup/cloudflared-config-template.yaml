@@ -1,0 +1,29 @@
+# Cloudflared Configuration Template
+# Copy this file to ~/.cloudflared/config.yaml on each PC
+# Replace placeholders with actual values
+
+# Tunnel ID and credentials
+tunnel: <TUNNEL_ID>
+credentials-file: <PATH_TO_CREDENTIALS_JSON>
+
+# Ingress rules - what to expose
+ingress:
+  # Ollama API (for GPU workers)
+  - hostname: <HOSTNAME>.ratehunter.net
+    service: http://localhost:11434
+    originRequest:
+      noTLSVerify: false
+      connectTimeout: 30s
+
+  # Additional services (optional)
+  # - hostname: admin.<HOSTNAME>.ratehunter.net
+  #   service: http://localhost:3000
+
+  # Catch-all rule (required)
+  - service: http_status:404
+
+# Logging
+loglevel: info
+
+# Metrics (optional)
+metrics: localhost:2000

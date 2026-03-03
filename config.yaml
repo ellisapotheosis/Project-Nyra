@@ -1,0 +1,265 @@
+# Claude Flow V3 Runtime Configuration - INTEGRATED & OPTIMIZED
+# Last Updated: 2026-02-06
+# Project: Nyra - Distributed AI Multi-Agent Orchestration
+
+version: "3.0.0"
+
+# ==============================================================================
+# 1. CORE ORCHESTRATION & SWARM
+# ==============================================================================
+swarm:
+  topology: hierarchical-mesh
+  maxAgents: 35
+  minAgents: 5
+  autoScale: true
+  scaleThreshold: 0.8
+  coordinationStrategy: raft
+  faultTolerance: byzantine
+  adaptiveTopology: true
+  heartbeatInterval: 3000
+  taskQueueSize: 200
+  # Integrated from previous settings
+  agentPool: true
+  distributed: true
+  gpuWorkers: 3
+
+# ==============================================================================
+# 2. MEMORY SYSTEM (RuVector + Letta + Graphiti)
+# ==============================================================================
+memory:
+  type: hybrid
+  enableHNSW: true
+  persistPath: .claude-flow/data
+  cacheSize: 2048 # Increased to 2GB based on previous maximal config
+  maxEntries: 50000
+  ttl: 604800 # 7 days
+  compression: true
+  autoPersist: true
+  syncInterval: 30
+  backupToGithub: true
+  namespaces:
+    - swarm
+    - tasks
+    - patterns
+    - errors
+    - optimizations
+    - code
+    - borrowers
+    - loans
+  quantization:
+    enabled: true
+    bits: 8
+    memoryReduction: 0.75
+  hnsw:
+    m: 32
+    ef: 400
+    efConstruction: 400
+    efSearch: 200
+    numThreads: 8
+    distanceMetric: cosine
+  # Integrated Backend Configurations
+  backends:
+    ruvector:
+      enabled: true
+      priority: 1
+      mode: distributed
+      vectorDim: 1536
+    letta:
+      enabled: true
+      priority: 2
+      archivalMemory: enabled
+    graphiti:
+      enabled: true
+      priority: 3
+      backend: falkordb
+
+# ==============================================================================
+# 3. NEURAL INTELLIGENCE
+# ==============================================================================
+neural:
+  enabled: true
+  modelPath: .claude-flow/neural
+  autoOptimize: true
+  optimizationTriggers: ["error", "success", "pattern", "performance"]
+  sona:
+    enabled: true
+    adaptationTime: 0.05
+    learningRate: 0.001
+  ewc:
+    enabled: true
+    lambda: 0.5
+    preventForgetting: true
+  moe:
+    enabled: true
+    experts: 12
+    topK: 3
+    loadBalancing: true
+  flashAttention:
+    enabled: true
+    targetSpeedup: 5.0
+    memoryEfficient: true
+  wasm:
+    enabled: true
+    simd: true
+    threads: 4
+    memoryPages: 256
+
+# ==============================================================================
+# 4. HOOKS & LIFECYCLE MANAGEMENT
+# ==============================================================================
+hooks:
+  enabled: true
+  autoExecute: true
+  learning: true
+  pretrainOnStart: true
+  autoOptimize: true
+  checkpoints:
+    enabled: true
+    interval: 300
+    autoCommit: true
+    includeMetrics: true
+  workers:
+    enabled: true
+    concurrent: 4
+    types:
+      - optimize
+      - audit
+      - testgaps
+      - document
+      - map
+      - refactor
+      - ultralearn
+  reasoningBank:
+    enabled: true
+    trajectoryTracking: true
+    verdictJudgment: true
+    patternDistillation: true
+  # Integrated Hook Definitions
+  events:
+    PreToolUse:
+      - matcher: "^(Write|Edit|MultiEdit)$"
+        action: "pre-edit"
+        params: { autoAssignAgents: true, loadContext: true }
+      - matcher: "^Bash$"
+        action: "pre-command"
+        params: { validateSafety: true, predictOutcome: true }
+    PostToolUse:
+      - matcher: "^(Write|Edit|MultiEdit)$"
+        action: "post-edit"
+        params: { format: true, updateMemory: true, trainNeural: true }
+    SessionEnd:
+      - action: "consolidate-memory"
+      - action: "generate-summary"
+
+# ==============================================================================
+# 5. MCP SERVER CONFIGURATION
+# ==============================================================================
+mcp:
+  autoStart: true
+  port: 3000
+  host: localhost
+  keepAlive: true
+  timeout: 30000
+  reconnect: true
+  servers:
+    nexus-router:
+      command: docker
+      args: ["exec", "-i", "nyra-nexus-router", "/usr/bin/nexus-router-mcp-start"]
+      env:
+        NEXUS_ROUTER_STRATEGY: "intelligent"
+    claude-flow:
+      command: npx
+      args: ["-y", "claude-flow@alpha", "mcp", "start"]
+    ruv-swarm:
+      command: npx
+      args: ["-y", "ruv-swarm@latest", "mcp", "start"]
+    letta:
+      command: python
+      args: ["-m", "letta.mcp_server"]
+    ruvector:
+      command: ruvector
+      args: ["mcp", "start", "--mode", "distributed"]
+
+# ==============================================================================
+# 6. PERFORMANCE & SCALING
+# ==============================================================================
+performance:
+  tokenOptimization:
+    enabled: true
+    targetReduction: 0.5
+    compressionLevel: high
+  caching:
+    enabled: true
+    aggressiveCaching: true
+    predictivePreload: true
+    ttl:
+      hooks: 300000
+      neural: 300000
+      memory: 120000
+  parallelization:
+    enabled: true
+    maxThreads: 16
+    ioThreads: 8
+    taskSplitting: true
+    maxConcurrent: 20
+  gc:
+    enabled: true
+    interval: 300000
+    aggressive: false
+
+# ==============================================================================
+# 7. LOGGING & MONITORING
+# ==============================================================================
+logging:
+  level: info
+  format: json
+  destination: file
+  filePath: ./logs/claude-flow.log
+  maxFileSize: 500MB
+  maxFiles: 5
+  compress: true
+  async: true
+
+monitoring:
+  enabled: true
+  metricsInterval: 30000
+  detailedMetrics: true
+  predictiveAlerts: true
+  alertThresholds:
+    errorRate: 0.03
+    responseTime: 3000
+    memoryUsage: 0.85
+
+# ==============================================================================
+# 8. SECURITY & PERMISSIONS
+# ==============================================================================
+security:
+  mode: strict
+  inputValidation: true
+  commandSanitization: true
+  autoScan: true
+  rateLimit:
+    enabled: true
+    maxRequests: 5000
+    windowMs: 60000
+  allow:
+    - "Bash(npx claude-flow:*)"
+    - "Bash(git *)"
+    - "Bash(npm run *)"
+    - "mcp__*"
+  deny:
+    - "Bash(rm -rf /)"
+    - "Bash(curl * | bash)"
+
+# ==============================================================================
+# 9. PROVIDER ROUTING
+# ==============================================================================
+providers:
+  default: anthropic
+  routing:
+    useHaiku: true
+    haikuModel: claude-3-5-haiku-20241022
+    complexityThreshold: 0.6
+  anthropic:
+    model: claude-sonnet-4-5-20250929
+    maxTokens: 16384

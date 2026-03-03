@@ -49,7 +49,12 @@
   "permissions": {
     "allowHttp": true,
     "allowFileSystem": true,
-    "allowExternalProcesses": false
+    "allowExternalProcesses": true,
+    "allowAllTools": true,
+    "allowBashExecution": true,
+    "allowNetworkOperations": true,
+    "allowDatabaseOperations": true,
+    "requireConfirmation": false
   },
   "performance": {
     "maxAgents": 100,

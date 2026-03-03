@@ -38,7 +38,7 @@ case "$SERVICE_GROUP" in
         ;;
     ai)
         COMPOSE_FILES="-f docker-compose.base.yml -f docker-compose.databases.yml -f docker-compose.ai.yml"
-        echo "📦 Starting AI services (Nexus, LiteLLM)"
+        echo "📦 Starting AI services (Nexus, LiteLLM, Letta, Mem0)"
         ;;
     mcp)
         COMPOSE_FILES="-f docker-compose.base.yml -f docker-compose.databases.yml -f docker-compose.mcp-servers.yml"

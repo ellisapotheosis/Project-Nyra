@@ -54,7 +54,12 @@ $localServers = @{
         "path" = "nyra-mcp-servers/local/qdrant-mcp"
         "description" = "Local Qdrant MCP - Vector storage"
     }
-
+    "mem0-mcp" = @{
+        "port" = 3004
+        "url" = "http://localhost:3004"
+        "path" = "nyra-mcp-servers/local/mem0-mcp"
+        "description" = "Local Mem0 MCP - Memory management"
+    }
     "zep-mcp" = @{
         "port" = 3005
         "url" = "http://localhost:3005"
@@ -325,7 +330,7 @@ else {
     Write-Host "   📁 Local Archon: http://localhost:3002" -ForegroundColor Blue  
     Write-Host "   📁 Local MetaMCP: http://localhost:3000" -ForegroundColor Blue
     Write-Host "   🔐 Infisical MCP: http://localhost:3001" -ForegroundColor Blue
-    
+    Write-Host "   🧠 Memory Services: localhost:3004 (Mem0), localhost:3005 (Zep)" -ForegroundColor Blue
     
     Write-Host "`n⚡ FastMCP Access:" -ForegroundColor Cyan
     Write-Host "   • Command: fastmcp --help" -ForegroundColor White

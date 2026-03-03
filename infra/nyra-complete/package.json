@@ -1,0 +1,48 @@
+{
+  "name": "project-nyra",
+  "version": "3.0.0",
+  "description": "AI-powered mortgage lead orchestration platform",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "packages/*",
+    "services/*",
+    "src/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "install-all": "npm install",
+    "build": "npm run build -r",
+    "build:filter": "npm run build --workspaces --if-present",
+    "dev": "npm run dev -r",
+    "test": "npm run test -r",
+    "lint": "npm run lint -r",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\"",
+    "type-check": "npm run type-check -r",
+    "clean": "npm run clean -r && rm -rf dist node_modules .turbo",
+    "orchestrator-up": "cd infra && make orchestrator-up",
+    "orchestrator-down": "cd infra && make orchestrator-down",
+    "workers-up": "cd infra && make workers-up",
+    "workers-down": "cd infra && make workers-down",
+    "oracle-up": "cd infra && make oracle-up",
+    "oracle-down": "cd infra && make oracle-down",
+    "health-check": "bash infra/scripts/health-check.sh",
+    "bootstrap": "bash infra/scripts/bootstrap.sh"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.16",
+    "@typescript-eslint/eslint-plugin": "^7.0.0",
+    "@typescript-eslint/parser": "^7.0.0",
+    "eslint": "^8.56.0",
+    "prettier": "^3.2.4",
+    "typescript": "^5.3.3",
+    "vitest": "^1.1.0"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
+  },
+  "author": "Apotheosis AI",
+  "license": "PROPRIETARY"
+}

@@ -214,11 +214,7 @@ if ($PCType -eq "orchestrator") {
     $envVars["ORCHESTRATOR_MGMT_PORT"] = "8080"
     $envVars["POSTGRES_PORT"] = "5432"
     $envVars["REDIS_PORT"] = "6379"
-    $envVars["NEO4J_HTTP_PORT"] = "7474"
-    $envVars["NEO4J_BOLT_PORT"] = "7687"
     $envVars["FALKORDB_PORT"] = "6379"
-    $envVars["CHROMA_PORT"] = "8001"
-    $envVars["QDRANT_PORT"] = "6333"
     $envVars["GITEA_HTTP_PORT"] = "3000"
     $envVars["GITEA_SSH_PORT"] = "222"
     $envVars["N8N_PORT"] = "5678"
@@ -233,7 +229,7 @@ else {
 # MCP Server Ports (all PCs)
 $envVars["MCP_CLAUDE_FLOW_PORT"] = "8003"
 $envVars["MCP_ARCHON_PORT"] = "8004"
-$envVars["MCP_METAMCP_PORT"] = "8005"
+$envVars["MCP_NEXUS_PORT"] = "8005"
 $envVars["MCP_INFISICAL_PORT"] = "8006"
 $envVars["MCP_EXA_PORT"] = "8007"
 
@@ -253,20 +249,11 @@ if ($PCType -eq "orchestrator") {
 
     $envVars["REDIS_PASSWORD"] = Generate-SecurePassword -Length 32
 
-    $envVars["NEO4J_USER"] = "neo4j"
-    $envVars["NEO4J_PASSWORD"] = Generate-SecurePassword -Length 32
-
-    $envVars["CHROMA_TOKEN"] = Generate-HexToken -Bytes 32
-
-    $envVars["QDRANT_API_KEY"] = Generate-HexToken -Bytes 32
 
     # Database URLs
     $envVars["POSTGRES_URL"] = "postgresql://nyra:$($envVars['POSTGRES_PASSWORD'])@postgres:5432/nyra_db"
-    $envVars["REDIS_URL"] = "redis://:$($envVars['REDIS_PASSWORD'])@redis:6379"
-    $envVars["NEO4J_URL"] = "bolt://neo4j:$($envVars['NEO4J_PASSWORD'])@neo4j:7687"
+    $envVars["REDIS_URL"] = "redis://:$($envVars['REDIS_PASSWORD'])@redis:6379"87"
     $envVars["FALKORDB_URL"] = "redis://falkordb:6379"
-    $envVars["CHROMADB_URL"] = "http://chromadb:8000"
-    $envVars["QDRANT_URL"] = "http://qdrant:6333"
 
     Write-Success "Database credentials generated"
 }

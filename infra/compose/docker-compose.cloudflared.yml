@@ -1,0 +1,43 @@
+# ============================================================================
+# Cloudflare Tunnel - Orchestrator External Access
+# ============================================================================
+# Provides secure tunnel from orchestrator to Cloudflare network
+# Routes: MCP servers, apps, dashboard, API endpoints
+# ============================================================================
+
+services:
+  # ============================================================================
+  # Cloudflared Tunnel
+  # ============================================================================
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: nyra-cloudflared
+    hostname: cloudflared
+    restart: unless-stopped
+    command: tunnel --config /etc/cloudflared/config.yml run
+    volumes:
+      - ./configs/cloudflared:/etc/cloudflared:ro
+      - cloudflared-creds:/root/.cloudflared
+    environment:
+      - TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN:-}
+      - TUNNEL_LOGLEVEL=info
+    networks:
+      - nyra-network
+    depends_on:
+      - nexus-router
+    healthcheck:
+      test: ["CMD", "cloudflared", "tunnel", "info"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+    labels:
+      - "com.nyra.service=cloudflared"
+      - "com.nyra.category=networking"
+
+volumes:
+  cloudflared-creds:
+    name: nyra_cloudflared_creds
+
+networks:
+  nyra-network:
+    external: true

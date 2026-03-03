@@ -1,0 +1,112 @@
+version: '3.8'
+
+# Claude Flow Live Operations Dashboard Stack
+# Event Server + Dashboard UI for real-time agent/task monitoring
+
+networks:
+  dashboard-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.31.0.0/16
+
+services:
+  # ===========================================================================
+  # Event Server - WebSocket streaming for live operations
+  # ===========================================================================
+  claude-flow-event-server:
+    build:
+      context: ../services/claude-flow-event-server
+      dockerfile: Dockerfile
+    container_name: claude-flow-event-server
+    restart: unless-stopped
+    ports:
+      - "${EVENT_SERVER_WS_PORT:-3004}:3004"    # WebSocket
+      - "${EVENT_SERVER_HTTP_PORT:-3005}:3005"  # HTTP endpoint
+    environment:
+      # Server Configuration
+      - EVENT_SERVER_PORT=3004
+      - EVENT_SERVER_HOST=0.0.0.0
+      - EVENT_SERVER_MAX_CONNECTIONS=${EVENT_SERVER_MAX_CONNECTIONS:-100}
+      - EVENT_SERVER_REPLAY_BUFFER=${EVENT_SERVER_REPLAY_BUFFER:-1000}
+      - EVENT_SERVER_HEARTBEAT=${EVENT_SERVER_HEARTBEAT:-30000}
+
+      # Logging
+      - NODE_ENV=${NODE_ENV:-development}
+      - DEBUG=${DEBUG:-false}
+    networks:
+      - dashboard-network
+    labels:
+      - "nyra.service.name=claude-flow-event-server"
+      - "nyra.service.type=event-streaming"
+      - "nyra.websocket.enabled=true"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3005/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+
+  # ===========================================================================
+  # Claude Flow Dashboard - React UI for live operations monitoring
+  # ===========================================================================
+  claude-flow-dashboard:
+    build:
+      context: ../apps/claude-flow-dashboard
+      dockerfile: Dockerfile
+    container_name: claude-flow-dashboard
+    restart: unless-stopped
+    ports:
+      - "${CLAUDE_FLOW_DASHBOARD_PORT:-3003}:3003"
+    environment:
+      # Application Configuration
+      - VITE_CLAUDE_FLOW_URL=${VITE_CLAUDE_FLOW_URL:-http://localhost:8080}
+      - VITE_EVENT_SERVER_URL=${VITE_EVENT_SERVER_URL:-ws://localhost:3004}
+      - VITE_EVENT_SERVER_HTTP_URL=${VITE_EVENT_SERVER_HTTP_URL:-http://localhost:3005}
+
+      # Build Configuration
+      - NODE_ENV=${NODE_ENV:-development}
+      - VITE_API_BASE=${VITE_API_BASE:-/api}
+
+      # Features
+      - VITE_ENABLE_AGENT_MONITOR=${VITE_ENABLE_AGENT_MONITOR:-true}
+      - VITE_ENABLE_TASK_TIMELINE=${VITE_ENABLE_TASK_TIMELINE:-true}
+      - VITE_ENABLE_MEMORY_OPS=${VITE_ENABLE_MEMORY_OPS:-true}
+      - VITE_ENABLE_TOPOLOGY=${VITE_ENABLE_TOPOLOGY:-true}
+      - VITE_ENABLE_METRICS=${VITE_ENABLE_METRICS:-true}
+
+      # Performance
+      - VITE_WEBSOCKET_RECONNECT_INTERVAL=${VITE_WEBSOCKET_RECONNECT_INTERVAL:-3000}
+      - VITE_MAX_BUFFER_SIZE=${VITE_MAX_BUFFER_SIZE:-10000}
+    networks:
+      - dashboard-network
+    depends_on:
+      claude-flow-event-server:
+        condition: service_healthy
+    labels:
+      - "nyra.service.name=claude-flow-dashboard"
+      - "nyra.service.type=ui"
+      - "nyra.ui.enabled=true"
+      - "nyra.ui.port=3003"
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3003"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M

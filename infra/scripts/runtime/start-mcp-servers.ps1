@@ -54,7 +54,7 @@ $serverPorts = @{
     "infisical-mcp" = 3001  
     "metamcp-local" = 3000
     "qdrant-local" = 3003
-    
+    "mem0-mcp" = 3004
     "zep-mcp" = 3005
 }
 
@@ -83,7 +83,9 @@ function Start-LocalMCPServer($serverName) {
         "archon-mcp" { "nyra-mcp-servers/local/archon-mcp" }
         "infisical-mcp" { "nyra-mcp-servers/local/infisical-mcp" }
         "metamcp-local" { "nyra-mcp-servers/local/metamcp" }
-        "qdrant-local" { "nyra-mcp-servers/local/qdrant-mcp" }        "zep-mcp" { "nyra-mcp-servers/local/zep-mcp" }
+        "qdrant-local" { "nyra-mcp-servers/local/qdrant-mcp" }
+        "mem0-mcp" { "nyra-mcp-servers/local/mem0-mcp" }
+        "zep-mcp" { "nyra-mcp-servers/local/zep-mcp" }
         default { $null }
     }
     

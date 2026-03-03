@@ -110,13 +110,85 @@ services:
     networks: [nyra]
 
   # ---------- Agent state manager ----------
+  letta_postgres:
+    image: postgres:16
+    container_name: nyra-letta-postgres
+    environment:
+      - POSTGRES_USER=letta
+      - POSTGRES_PASSWORD=letta
+      - POSTGRES_DB=letta
+    volumes:
+      - letta_pg:/var/lib/postgresql/data
+    labels:
+      nyra.service.name: "letta-postgres"
+      nyra.service.type: "database"
+      nyra.service.category: "relational"
+      nyra.mcp.enabled: "false"
+      nyra.api.enabled: "false"
+    networks: [nyra]
 
-
+  letta:
+    image: ghcr.io/letta-ai/letta:latest
+    container_name: nyra-letta
+    ports:
+      - "8283:8283"
+    depends_on:
+      - letta_postgres
+    environment:
+      - DATABASE_URL=postgresql://letta:letta@letta_postgres:5432/letta
+      # Letta supports multiple model providers; we point it at Nexus so routing is centralized.
+      - OPENAI_BASE_URL=http://nexus:6000/llm/openai/v1
+      - OPENAI_API_KEY=dummy
+    labels:
+      nyra.service.name: "letta"
+      nyra.service.type: "api"
+      nyra.service.category: "agent-memory"
+      nyra.mcp.enabled: "false"
+      nyra.api.enabled: "true"
+      nyra.api.port: "8283"
+      nyra.api.protocol: "rest"
+    networks: [nyra]
 
   # ---------- Universal memory ----------
+  mem0:
+    build:
+      context: ./services/mem0-rest
+      dockerfile: Dockerfile
+    container_name: nyra-mem0
+    ports:
+      - "4321:4321"
+    environment:
+      - MEM0_STORE_PATH=/data/mem0.sqlite
+      - NEXUS_OPENAI_BASE_URL=http://nexus:6000/llm/openai/v1
+      - OPENAI_API_KEY=dummy
+    volumes:
+      - mem0_data:/data
+    labels:
+      nyra.service.name: "mem0"
+      nyra.service.type: "api"
+      nyra.service.category: "memory"
+      nyra.mcp.enabled: "false"
+      nyra.api.enabled: "true"
+      nyra.api.port: "4321"
+      nyra.api.protocol: "rest"
+    networks: [nyra]
 
-
-
+  openmemory_mcp:
+    image: mem0/openmemory-mcp:latest
+    container_name: nyra-openmemory-mcp
+    ports:
+      - "8081:8081"
+    environment:
+      - MEM0_REST_URL=http://mem0:4321
+    labels:
+      nyra.service.name: "openmemory-mcp"
+      nyra.service.type: "mcp-server"
+      nyra.service.category: "memory"
+      nyra.mcp.enabled: "true"
+      nyra.mcp.transport: "http"
+      nyra.mcp.port: "8081"
+      nyra.api.enabled: "false"
+    networks: [nyra]
 
   # ---------- Nyra Orchestrator ----------
   nyra_orchestrator:
@@ -252,4 +324,6 @@ networks:
 volumes:
   twenty_pg: {}
   falkor_data: {}
+  letta_pg: {}
+  mem0_data: {}
   grafana_data: {}
