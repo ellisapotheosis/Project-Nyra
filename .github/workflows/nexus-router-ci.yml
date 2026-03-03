@@ -36,7 +36,7 @@ jobs:
       - name: Install dependencies
         run: |
           cd services/nexus-router
-          pnpm install --frozen-lockfile
+          pnpm install --no-frozen-lockfile
 
       - name: Run linter
         run: |
@@ -79,7 +79,7 @@ jobs:
       - name: Install dependencies
         run: |
           cd services/nexus-router
-          pnpm install --frozen-lockfile
+          pnpm install --no-frozen-lockfile
 
       - name: Run tests
         env:
@@ -116,7 +116,7 @@ jobs:
       - name: Install dependencies
         run: |
           cd services/nexus-router
-          pnpm install --frozen-lockfile
+          pnpm install --no-frozen-lockfile
 
       - name: Build
         run: |

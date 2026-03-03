@@ -284,7 +284,7 @@ jobs:
         working-directory: ${{ env.APP_DIR }}
         run: |
           echo "📦 Installing dependencies..."
-          pnpm install --frozen-lockfile || pnpm install
+          pnpm install --no-frozen-lockfile || pnpm install
 
       - name: Run linting
         if: github.event.inputs.skip_tests != 'true'

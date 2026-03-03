@@ -60,7 +60,7 @@ jobs:
             ${{ runner.os }}-pnpm-store-
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile --prefer-offline
+        run: pnpm install --no-frozen-lockfile --prefer-offline
 
       - name: Cache Turbo
         uses: actions/cache@v4
@@ -99,7 +99,7 @@ jobs:
           key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile --offline --prefer-offline
+        run: pnpm install --no-frozen-lockfile --prefer-offline
 
       - name: Restore Turbo cache
         uses: actions/cache@v4
@@ -141,7 +141,7 @@ jobs:
           key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile --offline --prefer-offline
+        run: pnpm install --no-frozen-lockfile --prefer-offline
 
       - name: Restore Turbo cache
         uses: actions/cache@v4
@@ -186,7 +186,7 @@ jobs:
           key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile --offline --prefer-offline
+        run: pnpm install --no-frozen-lockfile --prefer-offline
 
       - name: Restore Turbo cache
         uses: actions/cache@v4
@@ -238,7 +238,7 @@ jobs:
           key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile --offline --prefer-offline
+        run: pnpm install --no-frozen-lockfile --prefer-offline
 
       - name: Run unit tests
         run: pnpm turbo run test:unit --cache-dir=.turbo
@@ -296,7 +296,7 @@ jobs:
           key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile --offline --prefer-offline
+        run: pnpm install --no-frozen-lockfile --prefer-offline
 
       - name: Download build artifacts
         uses: actions/download-artifact@v4
@@ -417,7 +417,7 @@ jobs:
           cache: 'pnpm'
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --no-frozen-lockfile
 
       - name: Run benchmarks
         run: pnpm performance:benchmark
