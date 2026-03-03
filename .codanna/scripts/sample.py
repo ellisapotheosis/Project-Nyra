@@ -1,1 +1,0 @@
-print('Codanna integration stub')
