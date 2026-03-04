@@ -3,8 +3,24 @@ name: CI
 on:
   push:
     branches: [ main, develop ]
+    paths:
+      - '**/*.py'
+      - 'pyproject.toml'
+      - 'uv.lock'
+      - 'pytest.ini'
+      - '.github/workflows/ci.yml'
   pull_request:
     branches: [ main, develop ]
+    paths:
+      - '**/*.py'
+      - 'pyproject.toml'
+      - 'uv.lock'
+      - 'pytest.ini'
+      - '.github/workflows/ci.yml'
+
+concurrency:
+  group: python-ci-${{ github.ref }}
+  cancel-in-progress: true
 
 env:
   PYTHON_VERSION: "3.11"

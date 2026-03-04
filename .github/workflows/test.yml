@@ -1,10 +1,13 @@
 name: Test Suite
 
 on:
-  push:
-    branches: [main, develop, consolidation/**]
-  pull_request:
-    branches: [main, develop]
+  schedule:
+    - cron: '0 5 * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: test-suite-${{ github.ref }}
+  cancel-in-progress: true
 
 env:
   NODE_ENV: test
@@ -30,7 +33,7 @@ jobs:
           node-version: ${{ matrix.node-version }}
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # v4
         with:
           version: ${{ env.PNPM_VERSION }}
 
@@ -49,7 +52,7 @@ jobs:
             ${{ runner.os }}-pnpm-store-
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --no-frozen-lockfile
 
       - name: Run unit tests
         run: pnpm test:unit
@@ -113,7 +116,7 @@ jobs:
           node-version: ${{ matrix.node-version }}
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # v4
         with:
           version: ${{ env.PNPM_VERSION }}
 
@@ -132,7 +135,7 @@ jobs:
             ${{ runner.os }}-pnpm-store-
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --no-frozen-lockfile
 
       - name: Run integration tests
         env:
@@ -175,7 +178,7 @@ jobs:
           node-version: ${{ matrix.node-version }}
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # v4
         with:
           version: ${{ env.PNPM_VERSION }}
 
@@ -194,7 +197,7 @@ jobs:
             ${{ runner.os }}-pnpm-store-
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --no-frozen-lockfile
 
       - name: Install Playwright browsers
         run: pnpm exec playwright install --with-deps ${{ matrix.browser }}

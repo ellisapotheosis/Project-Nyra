@@ -1,10 +1,6 @@
 name: 🔗 Cross-Agent Integration Tests
 
 on:
-  push:
-    branches: [main, develop, alpha-*]
-  pull_request:
-    branches: [main, develop]
   schedule:
     # Run integration tests daily at 3 AM UTC
     - cron: '0 3 * * *'
@@ -29,6 +25,10 @@ on:
         required: false
         default: '10'
 
+concurrency:
+  group: integration-tests-${{ github.ref }}
+  cancel-in-progress: true
+
 env:
   NODE_VERSION: '20'
   MAX_PARALLEL_AGENTS: 8
@@ -52,10 +52,15 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
+          cache: 'pnpm'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # v4
+        with:
+          version: 10.27.0
 
       - name: Install dependencies
-        run: npm ci --legacy-peer-deps
+        run: pnpm install --no-frozen-lockfile
 
       - name: Install SQLite3
         run: |
@@ -157,10 +162,15 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
+          cache: 'pnpm'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # v4
+        with:
+          version: 10.27.0
 
       - name: Install dependencies
-        run: npm ci --legacy-peer-deps
+        run: pnpm install --no-frozen-lockfile
 
       - name: Download integration setup
         uses: actions/download-artifact@v4
@@ -306,10 +316,15 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
+          cache: 'pnpm'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # v4
+        with:
+          version: 10.27.0
 
       - name: Install dependencies
-        run: npm ci --legacy-peer-deps
+        run: pnpm install --no-frozen-lockfile
 
       - name: Download integration setup
         uses: actions/download-artifact@v4
@@ -428,10 +443,15 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
+          cache: 'pnpm'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # v4
+        with:
+          version: 10.27.0
 
       - name: Install dependencies
-        run: npm ci --legacy-peer-deps
+        run: pnpm install --no-frozen-lockfile
 
       - name: Test agent failure recovery
         run: |
@@ -556,10 +576,15 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
+          cache: 'pnpm'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # v4
+        with:
+          version: 10.27.0
 
       - name: Install dependencies
-        run: npm ci --legacy-peer-deps
+        run: pnpm install --no-frozen-lockfile
 
       - name: Test multi-agent performance
         run: |

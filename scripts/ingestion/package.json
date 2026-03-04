@@ -1,0 +1,40 @@
+{
+  "name": "@nyra/ingestion",
+  "version": "1.0.0",
+  "description": "Content ingestion pipeline for Nyra webapp",
+  "type": "module",
+  "main": "ingest-content.ts",
+  "bin": {
+    "ingest-content": "./ingest-content.ts"
+  },
+  "scripts": {
+    "ingest": "node --loader ts-node/esm ingest-content.ts",
+    "ingest:dry-run": "node --loader ts-node/esm ingest-content.ts --dry-run",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "commander": "^11.1.0",
+    "glob": "^10.3.10"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3",
+    "vitest": "^1.2.0"
+  },
+  "optionalDependencies": {
+    "sharp": "^0.33.0",
+    "pdf-parse": "^1.1.1"
+  },
+  "keywords": [
+    "content",
+    "ingestion",
+    "pipeline",
+    "webapp"
+  ],
+  "author": "Project Nyra",
+  "license": "UNLICENSED",
+  "private": true
+}

@@ -2,12 +2,13 @@ name: Docker Build & Push
 
 on:
   push:
-    branches: [main, develop]
     tags:
       - 'v*'
-  pull_request:
-    branches: [main]
   workflow_dispatch:
+
+concurrency:
+  group: docker-build-single-${{ github.ref }}
+  cancel-in-progress: true
 
 env:
   REGISTRY: ghcr.io
