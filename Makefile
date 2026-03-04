@@ -5,6 +5,7 @@ SHELL := /bin/bash
 COMPOSE_FILE ?= infra/docker-compose.yml
 COMPOSE ?= docker compose -f $(COMPOSE_FILE)
 STACK_ENV_FILE ?= .env.stack
+HEALTH_ENV_FILE ?= $(STACK_ENV_FILE)
 
 DEFAULT_PROFILES ?= core,gateway,workflow,crm,archon,apps,observability,vector
 WORKER_PROFILE ?= workers
@@ -37,7 +38,7 @@ help:
 	@echo
 	@echo "make nexus-up           Start litellm + nexus-router only"
 	@echo "make nexus-down         Stop litellm + nexus-router"
-	@echo "make health             Basic health check endpoints"
+	@echo "make health             Stack health checks (uses HEALTH_ENV_FILE/STACK_ENV_FILE)"
 	@echo "make stack-up           One-command orchestrator bring-up (uses .env.stack)"
 	@echo "make stack-verify       Verify health endpoints + compose status"
 	@echo "make scan-env           Build env inventory + missing env reports"
@@ -107,7 +108,7 @@ nexus-down:
 	$(COMPOSE) stop nexus-router litellm || true
 
 health:
-	./scripts/verify-stack.sh infra/.env.example
+	./scripts/verify-stack.sh $(HEALTH_ENV_FILE)
 
 
 

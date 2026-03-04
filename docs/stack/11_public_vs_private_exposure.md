@@ -39,7 +39,7 @@
 - Nexus should call worker endpoints over Tailscale hostnames/IPs only.
 
 ## Openclaw + Kyutai Unmute coexistence (Agent D)
-- Quick default: run Openclaw (`moltbot-web`) on orchestrator; run Kyurei components as separate compose project with explicit GPU device reservations per host.
+- Quick default: run Openclaw (`moltbot-web`) on orchestrator; run Kyutai components as separate compose project with explicit GPU device reservations per host.
 - If co-locating temporarily on one host, pin containers with CUDA visibility and memory-friendly models to avoid VRAM contention.
 - Preferred split (to reduce delay/risk):
   - `worker-5090 (24GB)`: primary generation model

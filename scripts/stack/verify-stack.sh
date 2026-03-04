@@ -44,3 +44,4 @@ if [[ "$failed" -ne 0 ]]; then
 fi
 
 echo "[verify-stack] all checks passed"
+scripts/verify-stack.sh "$ENV_FILE"
