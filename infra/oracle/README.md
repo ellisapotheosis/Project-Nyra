@@ -102,7 +102,7 @@ ssh ubuntu@$(terraform output -raw public_ip)
 ### Capacity error handling
 
 If OCI returns `Out of host capacity`:
-1. Change `availability_domain` to another AD in same region.
+1. Change `availability_domain` to another AD in the same region.
 2. Or temporarily reduce to:
    - `ocpu = 2`
    - `memory_gb = 12`
