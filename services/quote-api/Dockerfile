@@ -1,5 +1,7 @@
 FROM python:3.11-slim
 
+RUN useradd --create-home --shell /usr/sbin/nologin appuser
+
 WORKDIR /app
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
@@ -9,6 +11,9 @@ COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY app ./app
+RUN chown -R appuser:appuser /app
+
+USER appuser
 
 EXPOSE 7070
 
