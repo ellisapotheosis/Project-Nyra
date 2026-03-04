@@ -1,0 +1,24 @@
+name: nyra-oracle
+
+services:
+  nexus-router:
+    extends:
+      file: ../docker-compose.yml
+      service: nexus-router
+
+  litellm:
+    extends:
+      file: ../docker-compose.yml
+      service: litellm
+
+  n8n:
+    extends:
+      file: ../docker-compose.yml
+      service: n8n
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    command: tunnel run
+    environment:
+      TUNNEL_TOKEN: ${CF_TUNNEL_TOKEN}
+    restart: unless-stopped
