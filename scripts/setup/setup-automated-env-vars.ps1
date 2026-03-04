@@ -252,7 +252,7 @@ if ($PCType -eq "orchestrator") {
 
     # Database URLs
     $envVars["POSTGRES_URL"] = "postgresql://nyra:$($envVars['POSTGRES_PASSWORD'])@postgres:5432/nyra_db"
-    $envVars["REDIS_URL"] = "redis://:$($envVars['REDIS_PASSWORD'])@redis:6379"87"
+    $envVars["REDIS_URL"] = "redis://:$($envVars['REDIS_PASSWORD'])@redis:6379"
     $envVars["FALKORDB_URL"] = "redis://falkordb:6379"
 
     Write-Success "Database credentials generated"

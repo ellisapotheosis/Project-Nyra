@@ -11,6 +11,7 @@ node_modules/
 package-lock.json
 yarn.lock
 pnpm-lock.yaml
+!pnpm-lock.yaml
 .pnp/
 .pnp.js
 
@@ -45,6 +46,13 @@ coverage/
 *.cert
 secrets/
 credentials/
+
+# Explicitly blocked leaked secret files (do not commit)
+infra/docker-compose/.env.golden-stack-populated
+infra-archived/infra-20260206-1551/docker-compose/.env.golden-stack-populated
+nyra-configs/.env
+config/env/.env.legacy
+configs/env/.env.legacy
 
 ################################################################################
 # IDE and Editor Files

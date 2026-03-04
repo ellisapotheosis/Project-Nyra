@@ -146,11 +146,16 @@ function Install-NodeDependencies {
     Push-Location $projectRoot
 
     try {
-        # Install dependencies
-        npm install
+        # Install dependencies using pnpm to honor pnpm-lock.yaml
+        if (-not (Get-Command pnpm -ErrorAction SilentlyContinue)) {
+            Write-Log "pnpm not found, enabling Corepack..." "WARNING"
+            corepack enable
+        }
+
+        pnpm install --no-frozen-lockfile
 
         # Install global tools
-        npm install -g pm2 nodemon
+        pnpm add -g pm2 nodemon
 
         Write-Log "Node.js dependencies installed" "SUCCESS"
     }
