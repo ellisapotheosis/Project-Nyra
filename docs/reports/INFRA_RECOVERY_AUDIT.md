@@ -12,6 +12,25 @@
 - Grafbase/Nexus artifacts: `docs/reports/infra-recovery-catalog/grafbase-nexus-files.txt` (11 files)
 - n8n workflows: `docs/reports/infra-recovery-catalog/n8n-workflows.txt` (13 files)
 
+<<<<<<< codex/prevent-.env-files-from-being-uploaded
+=======
+## Security validation: leaked env history is not yet remediated
+- ✅ Verified `.gitignore` blocks future accidental recommits for the named paths.
+- ❌ Verified `infra-archived/infra-20260206-1551/docker-compose/.env.golden-stack-populated` is still tracked in HEAD and present in commit history, so credentials remain recoverable from Git history.
+- Required remediation (outside normal file edits):
+  1. Rotate all credentials present in leaked env files immediately.
+  2. Rewrite repository history (use `git filter-repo` or BFG) to purge the sensitive paths from **all refs**.
+  3. Force-push rewritten branches/tags and coordinate mandatory fresh clones for collaborators.
+  4. Run host scans (`git log --all -- <path>`, GitHub secret scanning, and local grep for known key prefixes) to confirm purge.
+
+### Suggested purge targets
+- `infra/docker-compose/.env.golden-stack-populated`
+- `infra-archived/infra-20260206-1551/docker-compose/.env.golden-stack-populated`
+- `nyra-configs/.env`
+- `config/env/.env.legacy`
+- `configs/env/.env.legacy`
+
+>>>>>>> main
 ## Recovery list (high-priority items missing or weakly represented in active infra)
 | Filename | Path | Service | Recommendation |
 |---|---|---|---|
