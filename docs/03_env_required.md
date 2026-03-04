@@ -1,0 +1,52 @@
+# 03 Required Environment (minimum boot)
+
+## Cloudflare
+- `CF_ACCOUNT_ID`
+- `CF_ZONE_ID`
+- `CF_API_TOKEN`
+- `CF_TUNNEL_NAME`
+- `CF_TUNNEL_TOKEN`
+- `CF_PAGES_PROJECT`
+- `NYRA_DOMAIN_ROOT`
+
+## Core secrets
+- `JWT_SECRET`
+- `SESSION_SECRET`
+- `ENCRYPTION_KEY`
+- `ADMIN_EMAIL`
+- `ADMIN_PASSWORD`
+
+## Data
+- `POSTGRES_DB`
+- `POSTGRES_USER`
+- `POSTGRES_PASSWORD`
+- `REDIS_PASSWORD`
+
+## LLM / routing
+- `OPENROUTER_API_KEY`
+- `LITELLM_MASTER_KEY`
+- `WORKER1_LLM_BASE_URL`
+- `WORKER2_LLM_BASE_URL`
+- `WORKER3_LLM_BASE_URL`
+- `WORKER1_LLM_API_KEY` (optional)
+- `WORKER2_LLM_API_KEY` (optional)
+- `WORKER3_LLM_API_KEY` (optional)
+
+## Tailscale
+- `TAILSCALE_AUTHKEY`
+
+## Kyutai Unmute
+- `HUGGING_FACE_HUB_TOKEN` (if gated model pulls)
+- `KYUTAI_LLM_URL`
+- `KYUTAI_LLM_MODEL`
+- `KYUTAI_LLM_API_KEY`
+
+## Optional secrets manager
+- `INFISICAL_PROJECT_ID`
+- `INFISICAL_CLIENT_ID`
+- `INFISICAL_CLIENT_SECRET`
+
+## How to verify
+```bash
+rg -n '^(CF_|JWT_SECRET|POSTGRES_PASSWORD|LITELLM_MASTER_KEY|KYUTAI_)' infra/.env.example
+```
