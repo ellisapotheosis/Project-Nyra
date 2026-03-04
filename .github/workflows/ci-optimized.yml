@@ -1,13 +1,9 @@
 name: CI - Optimized Monorepo Pipeline
 
 on:
-  push:
-    branches: [main, develop, feature/*, fix/*]
-  pull_request:
-    branches: [main, develop]
+  schedule:
+    - cron: '30 4 * * *'
   workflow_dispatch:
-
-# Cancel in-progress runs for the same workflow
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true

@@ -1,10 +1,8 @@
 name: 🔍 Verification Pipeline
 
 on:
-  push:
-    branches: [main, develop, alpha-*]
-  pull_request:
-    branches: [main, develop]
+  schedule:
+    - cron: '0 6 * * *'
   workflow_dispatch:
     inputs:
       verification_mode:
@@ -16,6 +14,10 @@ on:
           - full
           - quick
           - security-only
+
+concurrency:
+  group: verification-${{ github.ref }}
+  cancel-in-progress: true
 
 env:
   NODE_VERSION: '20'
