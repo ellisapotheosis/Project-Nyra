@@ -34,18 +34,6 @@ variable "ssh_public_key" {
   sensitive   = true
 }
 
-variable "nyra_admin_ssh_cidr" {
-  description = "CIDR block to allow SSH access from (Home IP)"
-  type        = string
-  default     = "107.142.246.181/32"
-}
-
-variable "tailscale_auth_key" {
-  description = "Tailscale Auth Key to automatically join the Tailnet"
-  type        = string
-  sensitive   = true
-}
-
 variable "instance_name" {
   description = "Compute instance display name"
   type        = string

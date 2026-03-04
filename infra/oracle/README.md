@@ -159,6 +159,7 @@ curl -fsS http://localhost:8080 >/dev/null && echo "activepieces up"
 curl -fsS http://localhost:5678 >/dev/null && echo "n8n up"
 curl -fsS http://localhost:18789 >/dev/null && echo "moltbot up"
 curl -fsS "http://localhost:${QUOTE_API_PORT:-7070}/health"
+curl -fsS http://localhost:7070/health
 ```
 
 ### 5) Moltbot first-time onboarding
@@ -167,6 +168,9 @@ curl -fsS "http://localhost:${QUOTE_API_PORT:-7070}/health"
 docker compose --env-file .env -f docker-compose.oracle.yml run --rm moltbot onboard
 # If you need a direct docker run, use the Compose-prefixed volume name:
 # docker run -it --rm -v nyra-oracle_clawdbot_config:/home/node/.clawdbot ${MOLTBOT_IMAGE:-moltbot/moltbot:2026.1.24} onboard
+docker run -it --rm \
+  -v clawdbot_config:/home/node/.clawdbot \
+  moltbot/moltbot:latest onboard
 ```
 
 Mem0 plugin (optional):

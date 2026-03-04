@@ -24,11 +24,10 @@ data "oci_core_images" "ubuntu_arm" {
 }
 
 locals {
-  ubuntu_arm_image_ids = [
+  ubuntu_arm_image_id = [
     for image in data.oci_core_images.ubuntu_arm.images : image.id
     if strcontains(lower(image.display_name), "aarch64")
-  ]
-  ubuntu_arm_image_id = try(element(local.ubuntu_arm_image_ids, 0), null)
+  ][0]
 }
 
 resource "oci_core_vcn" "nyra_vcn" {
@@ -67,8 +66,7 @@ resource "oci_core_network_security_group_security_rule" "ssh_ingress" {
   network_security_group_id = oci_core_network_security_group.nyra_nsg.id
   direction                 = "INGRESS"
   protocol                  = "6"
-  description               = "Allow SSH from approved admin CIDR range"
-  source                    = var.nyra_admin_ssh_cidr
+  source                    = "0.0.0.0/0"
   source_type               = "CIDR_BLOCK"
 
   tcp_options {
@@ -103,13 +101,6 @@ resource "oci_core_instance" "nyra_a1" {
   display_name        = var.instance_name
   shape               = var.shape
 
-  lifecycle {
-    precondition {
-      condition     = local.ubuntu_arm_image_id != null
-      error_message = "No aarch64 Ubuntu image was found for the selected region/compartment. Try another availability domain, ubuntu_version, or region."
-    }
-  }
-
   shape_config {
     ocpus         = var.ocpu
     memory_in_gbs = var.memory_gb
@@ -130,12 +121,6 @@ resource "oci_core_instance" "nyra_a1" {
 
   metadata = {
     ssh_authorized_keys = var.ssh_public_key
-    user_data = base64encode(<<-EOF_U
-      #!/bin/bash
-      set -euo pipefail
-      curl -fsSL https://tailscale.com/install.sh | sh
-      tailscale up --authkey='${var.tailscale_auth_key}' --hostname=nyra-oracle
-    EOF_U
-    )
+    user_data           = ""
   }
 }

@@ -2,7 +2,7 @@ name: nyra-oracle
 
 services:
   postgres:
-    image: ${RUVECTOR_POSTGRES_IMAGE:-ruvnet/ruvector-postgres:0.3.2}
+    image: ruvnet/ruvector-postgres:latest
     container_name: nyra-postgres
     restart: unless-stopped
     environment:
@@ -20,7 +20,7 @@ services:
     networks: [nyra_net]
 
   redis-cache:
-    image: ${REDIS_IMAGE:-redis:7.2-alpine}
+    image: redis:7-alpine
     container_name: nyra-redis-cache
     restart: unless-stopped
     command: ["redis-server", "--appendonly", "yes"]
@@ -34,7 +34,7 @@ services:
     networks: [nyra_net]
 
   falkordb:
-    image: ${FALKORDB_IMAGE:-falkordb/falkordb:edge-alpine}
+    image: falkordb/falkordb:latest
     container_name: nyra-falkordb
     restart: unless-stopped
     volumes:
@@ -47,7 +47,7 @@ services:
     networks: [nyra_net]
 
   graphiti-mcp:
-    image: ${GRAPHITI_MCP_IMAGE:-falkordb/graphiti-knowledge-graph-mcp:v0.4.0}
+    image: falkordb/graphiti-knowledge-graph-mcp:latest
     container_name: nyra-graphiti-mcp
     restart: unless-stopped
     environment:
@@ -63,7 +63,7 @@ services:
     networks: [nyra_net]
 
   twenty:
-    image: ${TWENTY_IMAGE:-twentycrm/twenty:v1.18.1}
+    image: twentycrm/twenty:latest
     container_name: nyra-twenty
     restart: unless-stopped
     depends_on:
@@ -85,7 +85,7 @@ services:
       - "3000:3000"
 
   activepieces:
-    image: ${ACTIVEPIECES_IMAGE:-activepieces/activepieces:0.79.2}
+    image: activepieces/activepieces:latest
     container_name: nyra-activepieces
     restart: unless-stopped
     depends_on:
@@ -113,7 +113,7 @@ services:
       - "8080:80"
 
   n8n:
-    image: ${N8N_IMAGE:-n8nio/n8n:1.123.23}
+    image: n8nio/n8n:latest
     container_name: nyra-n8n
     restart: unless-stopped
     depends_on:
@@ -142,7 +142,7 @@ services:
       - "5678:5678"
 
   moltbot:
-    image: ${MOLTBOT_IMAGE:-moltbot/moltbot:2026.1.24}
+    image: moltbot/moltbot:latest
     container_name: nyra-moltbot
     restart: unless-stopped
     environment:
@@ -166,10 +166,10 @@ services:
       QUOTE_API_SECRET: ${QUOTE_API_SECRET}
     networks: [nyra_net]
     ports:
-      - "${QUOTE_API_PORT:-7070}:${QUOTE_API_PORT:-7070}"
+      - "7070:7070"
 
   cloudflared:
-    image: ${CLOUDFLARED_IMAGE:-cloudflare/cloudflared:latest}
+    image: cloudflare/cloudflared:latest
     container_name: nyra-cloudflared
     restart: unless-stopped
     profiles: ["cloudflared"]
