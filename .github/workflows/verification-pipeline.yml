@@ -1,10 +1,8 @@
 name: 🔍 Verification Pipeline
 
 on:
-  push:
-    branches: [main, develop, alpha-*]
-  pull_request:
-    branches: [main, develop]
+  schedule:
+    - cron: '0 6 * * *'
   workflow_dispatch:
     inputs:
       verification_mode:
@@ -16,6 +14,10 @@ on:
           - full
           - quick
           - security-only
+
+concurrency:
+  group: verification-${{ github.ref }}
+  cancel-in-progress: true
 
 env:
   NODE_VERSION: '20'
@@ -40,7 +42,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
+          cache: 'pnpm'
 
       - name: Generate verification ID
         id: setup
@@ -48,10 +50,10 @@ jobs:
           VERIFICATION_ID="verify-$(date +%Y%m%d-%H%M%S)-${{ github.sha }}"
           echo "verification-id=$VERIFICATION_ID" >> $GITHUB_OUTPUT
           echo "test-matrix={\"include\":[{\"os\":\"ubuntu-latest\",\"node\":\"18\"},{\"os\":\"ubuntu-latest\",\"node\":\"20\"},{\"os\":\"macos-latest\",\"node\":\"20\"},{\"os\":\"windows-latest\",\"node\":\"20\"}]}" >> $GITHUB_OUTPUT
-          echo "cache-key=${{ env.CACHE_VERSION }}-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}" >> $GITHUB_OUTPUT
+          echo "cache-key=${{ env.CACHE_VERSION }}-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}" >> $GITHUB_OUTPUT
 
       - name: Install dependencies
-        run: npm ci --legacy-peer-deps
+        run: pnpm install --no-frozen-lockfile
 
       - name: Cache dependencies
         uses: actions/cache@v4
@@ -76,7 +78,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
+          cache: 'pnpm'
 
       - name: Restore dependencies
         uses: actions/cache@v4
@@ -87,7 +89,7 @@ jobs:
           key: ${{ needs.setup-verification.outputs.cache-key }}
 
       - name: Install dependencies
-        run: npm ci --legacy-peer-deps
+        run: pnpm install --no-frozen-lockfile
 
       - name: Security audit
         run: |
@@ -129,7 +131,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
+          cache: 'pnpm'
 
       - name: Restore dependencies
         uses: actions/cache@v4
@@ -140,24 +142,24 @@ jobs:
           key: ${{ needs.setup-verification.outputs.cache-key }}
 
       - name: Install dependencies
-        run: npm ci --legacy-peer-deps
+        run: pnpm install --no-frozen-lockfile
 
       - name: ESLint code analysis
         run: |
           echo "🔍 Running ESLint..."
-          npm run lint -- --format=json --output-file=eslint-report.json || true
-          npm run lint
+          pnpm lint -- --format=json --output-file=eslint-report.json || true
+          pnpm lint
 
       - name: TypeScript type checking
         run: |
           echo "🔍 Type checking..."
-          npm run typecheck || echo "⚠️ Type checking skipped (TypeScript compiler crash)"
+          pnpm typecheck || echo "⚠️ Type checking skipped (TypeScript compiler crash)"
         continue-on-error: true
 
       - name: Format checking
         run: |
           echo "🎨 Checking code formatting..."
-          npm run format
+          pnpm format
           git diff --exit-code || echo "⚠️ Some files need formatting (non-blocking)"
         continue-on-error: true
 
@@ -191,35 +193,40 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node }}
-          cache: 'npm'
+          cache: 'pnpm'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # v4
+        with:
+          version: 10.27.0
 
       - name: Install dependencies
-        run: npm ci --legacy-peer-deps
+        run: pnpm install --no-frozen-lockfile
 
       - name: Run unit tests
         run: |
           echo "🧪 Running unit tests..."
-          npm run test:unit || echo "⚠️ Some unit tests failed (Jest teardown issues - non-blocking)"
+          pnpm test:unit || echo "⚠️ Some unit tests failed (Jest teardown issues - non-blocking)"
         continue-on-error: true
 
       - name: Run integration tests
         run: |
           echo "🔗 Running integration tests..."
-          npm run test:integration || echo "⚠️ Some integration tests failed (non-blocking)"
+          pnpm test:integration || echo "⚠️ Some integration tests failed (non-blocking)"
         continue-on-error: true
 
       - name: Run performance tests
         if: matrix.os == 'ubuntu-latest' && matrix.node == '20'
         run: |
           echo "⚡ Running performance tests..."
-          npm run test:performance || echo "⚠️ Some performance tests failed (non-blocking)"
+          pnpm test:performance || echo "⚠️ Some performance tests failed (non-blocking)"
         continue-on-error: true
 
       - name: Generate coverage report
         if: matrix.os == 'ubuntu-latest' && matrix.node == '20'
         run: |
           echo "📊 Generating coverage report..."
-          npm run test:coverage || echo "⚠️ Coverage generation failed (non-blocking)"
+          pnpm test:coverage || echo "⚠️ Coverage generation failed (non-blocking)"
         continue-on-error: true
           
       - name: Upload test results
@@ -245,7 +252,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
+          cache: 'pnpm'
 
       - name: Restore dependencies
         uses: actions/cache@v4
@@ -256,17 +263,17 @@ jobs:
           key: ${{ needs.setup-verification.outputs.cache-key }}
 
       - name: Install dependencies
-        run: npm ci --legacy-peer-deps
+        run: pnpm install --no-frozen-lockfile
 
       - name: Build TypeScript
         run: |
           echo "🔨 Building TypeScript..."
-          npm run build:ts
+          pnpm build:ts
 
       - name: Build binary
         run: |
           echo "📦 Building binary..."
-          npm run build:binary || echo "⚠️ Binary build skipped (optional)"
+          pnpm build:binary || echo "⚠️ Binary build skipped (optional)"
 
       - name: Verify CLI functionality
         run: |
@@ -303,7 +310,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
+          cache: 'pnpm'
 
       - name: Check documentation files
         run: |
@@ -338,7 +345,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
+          cache: 'pnpm'
 
       - name: Download build artifacts
         uses: actions/download-artifact@v4
@@ -346,12 +353,12 @@ jobs:
           name: build-artifacts-${{ needs.setup-verification.outputs.verification-id }}
 
       - name: Install dependencies
-        run: npm ci --legacy-peer-deps
+        run: pnpm install --no-frozen-lockfile
 
       - name: Run performance benchmarks
         run: |
           echo "⚡ Running performance benchmarks..."
-          npm run test:benchmark || echo "⚠️ Benchmarks skipped"
+          pnpm test:benchmark || echo "⚠️ Benchmarks skipped"
 
       - name: Memory leak detection
         run: |

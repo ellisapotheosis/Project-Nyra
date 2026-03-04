@@ -1,6 +1,13 @@
 name: Python Lint
 
-on: [push, pull_request]
+on:
+  schedule:
+    - cron: '0 7 * * 1'
+  workflow_dispatch:
+
+concurrency:
+  group: python-lint-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   lint:

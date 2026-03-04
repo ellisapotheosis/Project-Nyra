@@ -1,0 +1,13 @@
+{
+  "name": "lead-ingest-drip-stop",
+  "nodes": [
+    {"name": "Webhook Lead Ingest", "type": "n8n-nodes-base.webhook", "parameters": {"path": "lead-ingest"}},
+    {"name": "STOP Detector", "type": "n8n-nodes-base.if", "parameters": {"conditions": {"string": [{"value1": "={{$json.message}}", "operation": "contains", "value2": "STOP"}]}}},
+    {"name": "Suppress Contact", "type": "n8n-nodes-base.httpRequest", "parameters": {"url": "http://security-service:8090/suppress"}},
+    {"name": "Run Drip Sequence", "type": "n8n-nodes-base.executeWorkflow", "parameters": {"workflowId": "drip-45-day"}}
+  ],
+  "connections": {
+    "Webhook Lead Ingest": {"main": [[{"node": "STOP Detector", "type": "main", "index": 0}]]},
+    "STOP Detector": {"main": [[{"node": "Suppress Contact", "type": "main", "index": 0}], [{"node": "Run Drip Sequence", "type": "main", "index": 0}]]}
+  }
+}

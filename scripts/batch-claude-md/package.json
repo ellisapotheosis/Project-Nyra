@@ -1,0 +1,22 @@
+{
+  "name": "@nyra/batch-claude-md",
+  "version": "1.0.0",
+  "description": "Batch CLAUDE.md generator for Project Nyra",
+  "type": "module",
+  "bin": {
+    "generate-claude-md": "./batch-template-engine.js"
+  },
+  "scripts": {
+    "generate": "node batch-template-engine.js",
+    "generate:dry": "node batch-template-engine.js --dry-run",
+    "generate:verbose": "node batch-template-engine.js --verbose"
+  },
+  "keywords": [
+    "claude-code",
+    "template",
+    "automation",
+    "monorepo"
+  ],
+  "author": "Project Nyra",
+  "license": "MIT"
+}
