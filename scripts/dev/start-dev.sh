@@ -11,7 +11,10 @@ fi
 
 # Load environment variables
 if [ -f .env ]; then
-    export \$(cat .env | xargs)
+    set -a
+    # shellcheck disable=SC1091
+    source .env
+    set +a
     echo "✅ Loaded environment variables from .env"
 else
     echo "⚠️  No .env file found. Using .env.example as template..."
