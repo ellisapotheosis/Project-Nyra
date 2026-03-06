@@ -38,7 +38,9 @@
   },
   "overrides": [
     {
-      "files": ["*.d.ts"],
+      "files": [
+        "*.d.ts"
+      ],
       "rules": {
         "no-var": "off"
       }
@@ -49,6 +51,8 @@
     "node_modules/",
     "coverage/",
     "*.js",
-    "src/terminal/vscode-bridge.ts"
+    "src/terminal/vscode-bridge.ts",
+    "archive/**",
+    "_archived/**"
   ]
 }
