@@ -48,7 +48,7 @@ try_infisical_export(){
   local cid_file="/run/secrets/infisical-client-id"
   local csec_file="/run/secrets/infisical-client_secret"
 
-  if [[ ! -s "$cid_file" ]] || [[ ! -s "$csec_file" ]]; then
+  if [[ ! -f "$cid_file" ]] || [[ ! -f "$csec_file" ]] || [[ ! -s "$cid_file" ]] || [[ ! -s "$csec_file" ]]; then
     log "Infisical creds not present. Skipping pull."
     return 1
   fi

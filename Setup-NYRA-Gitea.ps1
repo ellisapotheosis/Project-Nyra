@@ -40,7 +40,13 @@ function Ensure-Network([string]$name){
 
 function Detect-Role([string]$role){
   if ($role -ne 'auto') { return $role }
-  $hn = $env:COMPUTERNAME.ToLower()
+
+  $hostname = $env:COMPUTERNAME
+  if ([string]::IsNullOrWhiteSpace($hostname)) {
+    try { $hostname = [System.Net.Dns]::GetHostName() } catch { $hostname = '' }
+  }
+
+  $hn = $hostname.ToLower()
   if ($hn -match '3060') { return 'worker-rtx3060' }
   if ($hn -match '3090') { return 'worker-rtx3090ti' }
   if ($hn -match '5090') { return 'worker-rtx5090' }
