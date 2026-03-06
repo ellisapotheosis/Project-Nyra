@@ -13,6 +13,7 @@ WORKER_PROFILE ?= workers
 .PHONY: help install test lint validate compose-config compose-config-all \
   up down restart logs ps pull \
   up-core up-orchestrator up-apps up-dev up-workers up-oracle up-worker-3060 up-worker-3090ti up-worker-5090 \
+  archon-config archon-up archon-down archon-logs archon-ps archon-up-infisical \
   node-up-orchestrator node-up-oracle node-up-worker-3060 node-up-worker-3090ti node-up-worker-5090 node-down-orchestrator node-down-oracle node-down-worker-3060 node-down-worker-3090ti node-down-worker-5090 \
   down-workers nexus-up nexus-down health stack-up stack-verify scan-env ports port-check bootstrap-import bootstrap-import-apply bootstrap-ultimate bootstrap-oracle bootstrap-worker-3060 bootstrap-worker-3090ti bootstrap-worker-5090 \
   gitea-up gitea-up-ai gitea-up-actions gitea-up-infisical-agent gitea-down gitea-ps gitea-config infisical-up infisical-down infisical-config \
@@ -38,6 +39,11 @@ help:
 	@echo "make up-apps            Start apps profile"
 	@echo "make up-dev             Start Claude Flow dev profile"
 	@echo "make up-workers         Start worker profile if defined"
+	@echo "make archon-up          Start dedicated Archon stack (docker-compose.archon.yml)"
+	@echo "make archon-up-infisical Start dedicated Archon stack via infisical run"
+	@echo "make archon-down        Stop dedicated Archon stack"
+	@echo "make archon-logs        Tail dedicated Archon stack logs"
+	@echo "make archon-ps          Show dedicated Archon stack container status"
 	@echo
 	@echo "make nexus-up           Start litellm + nexus-router only"
 	@echo "make nexus-down         Stop litellm + nexus-router"
@@ -117,6 +123,24 @@ up-workers:
 	docker compose -f infra/workers/worker-rtx3060/docker-compose.worker.yml up -d
 	docker compose -f infra/workers/worker-rtx3090ti/docker-compose.worker.yml up -d
 	docker compose -f infra/workers/worker-rtx5090/docker-compose.worker.yml up -d
+
+archon-config:
+	docker compose -f docker-compose.archon.yml config >/dev/null
+
+archon-up:
+	docker compose -f docker-compose.archon.yml --profile archon up -d
+
+archon-up-infisical:
+	infisical run --env=prod --path="/shared" -- docker compose -f docker-compose.archon.yml --profile archon up -d
+
+archon-down:
+	docker compose -f docker-compose.archon.yml down --remove-orphans
+
+archon-logs:
+	docker compose -f docker-compose.archon.yml logs -f --tail=200
+
+archon-ps:
+	docker compose -f docker-compose.archon.yml ps
 
 down-workers:
 	docker compose -f infra/workers/worker-rtx3060/docker-compose.worker.yml down --remove-orphans
