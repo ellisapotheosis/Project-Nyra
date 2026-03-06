@@ -46,9 +46,9 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"],
-      "@app/*": ["./apps/*/src/*"],
-      "@services/*": ["./services/*/src/*"],
-      "@packages/*": ["./packages/*/src/*"]
+      "@app/*": ["./apps/*"],
+      "@services/*": ["./services/*"],
+      "@packages/*": ["./packages/*"]
     }
   },
   "exclude": [
