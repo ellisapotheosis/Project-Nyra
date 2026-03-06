@@ -10,10 +10,11 @@ HEALTH_ENV_FILE ?= $(STACK_ENV_FILE)
 DEFAULT_PROFILES ?= core,gateway,workflow,crm,archon,apps,observability,vector
 WORKER_PROFILE ?= workers
 
-.PHONY: help install test lint validate compose-config \
+.PHONY: help install test lint validate compose-config compose-config-all \
   up down restart logs ps pull \
   up-core up-orchestrator up-apps up-dev up-workers up-oracle up-worker-3060 up-worker-3090ti up-worker-5090 \
-  down-workers nexus-up nexus-down health stack-up stack-verify scan-env ports bootstrap-import bootstrap-import-apply bootstrap-ultimate bootstrap-oracle bootstrap-worker-3060 bootstrap-worker-3090ti bootstrap-worker-5090
+  node-up-orchestrator node-up-oracle node-up-worker-3060 node-up-worker-3090ti node-up-worker-5090 node-down-orchestrator node-down-oracle node-down-worker-3060 node-down-worker-3090ti node-down-worker-5090 \
+  down-workers nexus-up nexus-down health stack-up stack-verify scan-env ports port-check bootstrap-import bootstrap-import-apply bootstrap-ultimate bootstrap-oracle bootstrap-worker-3060 bootstrap-worker-3090ti bootstrap-worker-5090
 
 .DEFAULT_GOAL := help
 
@@ -62,6 +63,13 @@ validate:
 	@echo "compose config ok"
 	-@npm test
 	-@npx eslint .
+
+compose-config-all:
+	docker compose --env-file infra/env/.env.orchestrator -f infra/docker-compose.yml -f infra/compose/overrides/docker-compose.orchestrator.override.yml config >/dev/null
+	docker compose --env-file infra/env/.env.worker-rtx3060 -f infra/docker-compose.yml -f infra/compose/overrides/docker-compose.worker-rtx3060.override.yml config >/dev/null
+	docker compose --env-file infra/env/.env.worker-rtx3090ti -f infra/docker-compose.yml -f infra/compose/overrides/docker-compose.worker-rtx3090ti.override.yml config >/dev/null
+	docker compose --env-file infra/env/.env.worker-rtx5090 -f infra/docker-compose.yml -f infra/compose/overrides/docker-compose.worker-rtx5090.override.yml config >/dev/null
+	@echo "compose config ok for orchestrator and all workers"
 
 up:
 	@profiles=$$(echo "$(DEFAULT_PROFILES)" | tr ',' ' '); \
@@ -161,4 +169,37 @@ scan-env:
 	python scripts/generate-env-docs.py
 
 ports:
-	@echo "See docs/02_ports_registry.md"
+	@echo "See docs/port-map.md"
+
+port-check:
+	python infra/scripts/check-port-collisions.py
+
+node-up-orchestrator:
+	./infra/scripts/node-up.sh orchestrator
+
+node-up-oracle:
+	./infra/scripts/node-up.sh oracle
+
+node-up-worker-3060:
+	./infra/scripts/node-up.sh worker-rtx3060
+
+node-up-worker-3090ti:
+	./infra/scripts/node-up.sh worker-rtx3090ti
+
+node-up-worker-5090:
+	./infra/scripts/node-up.sh worker-rtx5090
+
+node-down-orchestrator:
+	./infra/scripts/node-down.sh orchestrator
+
+node-down-oracle:
+	./infra/scripts/node-down.sh oracle
+
+node-down-worker-3060:
+	./infra/scripts/node-down.sh worker-rtx3060
+
+node-down-worker-3090ti:
+	./infra/scripts/node-down.sh worker-rtx3090ti
+
+node-down-worker-5090:
+	./infra/scripts/node-down.sh worker-rtx5090
