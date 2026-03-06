@@ -1,0 +1,8 @@
+services:
+  kyutai-unmute:
+    image: ghcr.io/kyutai-labs/unmute:latest
+    profiles: ["voice"]
+    environment:
+      KYUTAI_LLM_URL: ${KYUTAI_LLM_URL:-http://litellm:4000}
+    ports:
+      - "127.0.0.1:${UNMUTE_HOST_PORT:-8088}:8080"
