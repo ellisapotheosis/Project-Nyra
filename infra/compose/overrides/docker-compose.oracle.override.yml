@@ -1,0 +1,22 @@
+services:
+  postgres:
+    ports:
+      - '0.0.0.0:${POSTGRES_PORT:-5432}:5432'
+  redis:
+    ports:
+      - '0.0.0.0:${REDIS_PORT:-6379}:6379'
+  mongo:
+    ports:
+      - '0.0.0.0:${MONGO_PORT:-27017}:27017'
+  n8n:
+    ports:
+      - '0.0.0.0:${N8N_PORT:-5678}:5678'
+  activepieces:
+    ports:
+      - '0.0.0.0:${ACTIVEPIECES_PORT:-8082}:80'
+  twentycrm:
+    ports:
+      - '0.0.0.0:${TWENTYCRM_PORT:-3000}:3000'
+  grafana:
+    ports:
+      - '0.0.0.0:${GRAFANA_PORT:-3006}:3000'
