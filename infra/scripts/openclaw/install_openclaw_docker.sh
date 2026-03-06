@@ -1,14 +1,15 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-OPENCLAW_DIR="${OPENCLAW_DIR:-./openclaw-gateway}"
-if [[ ! -d "$OPENCLAW_DIR/.git" ]]; then
-  git clone https://github.com/openclaw/openclaw.git "$OPENCLAW_DIR"
-fi
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
+IMAGE_TAG="${OPENCLAW_CUSTOM_IMAGE_TAG:-nyra/openclaw-cli:local}"
 
-cd "$OPENCLAW_DIR"
-chmod +x ./docker-setup.sh
-./docker-setup.sh || true
+docker build \
+  -f "$ROOT_DIR/infra/openclaw/Dockerfile" \
+  --build-arg OPENCLAW_INSTALL_BROWSER="${OPENCLAW_INSTALL_BROWSER:-1}" \
+  --build-arg OPENCLAW_DOCKER_APT_PACKAGES="${OPENCLAW_DOCKER_APT_PACKAGES:-git curl jq python3 python3-pip build-essential ffmpeg}" \
+  -t "$IMAGE_TAG" \
+  "$ROOT_DIR"
 
-echo "OpenClaw repo prepared at $OPENCLAW_DIR"
-echo "Next: docker compose up -d --build"
+echo "Built $IMAGE_TAG"
+echo "Set OPENCLAW_CLI_IMAGE=$IMAGE_TAG in infra/env/nyra.env to use this image."
