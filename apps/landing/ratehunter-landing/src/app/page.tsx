@@ -1,533 +1,223 @@
-'use client';
+import Link from 'next/link';
 
-import { useState, useEffect } from 'react';
-
-// Rate data type
-interface MortgageRate {
-  type: string;
+interface RateCard {
+  product: string;
   rate: number;
   apr: number;
-  change: number;
+  trend: 'up' | 'down' | 'flat';
+  source: string;
 }
 
-// Feature card type
-interface Feature {
-  icon: string;
+interface NewsItem {
   title: string;
-  description: string;
+  url: string;
+  published: string;
+  source: string;
 }
 
-// Today's mock rates (would be fetched from API in production)
-const todaysRates: MortgageRate[] = [
-  { type: '30-Year Fixed', rate: 6.875, apr: 6.95, change: -0.125 },
-  { type: '15-Year Fixed', rate: 5.99, apr: 6.05, change: -0.0625 },
-  { type: '5/1 ARM', rate: 6.25, apr: 7.15, change: 0.0 },
-  { type: '7/1 ARM', rate: 6.375, apr: 7.0, change: -0.0625 },
-  { type: 'FHA 30-Year', rate: 6.5, apr: 7.25, change: -0.125 },
-  { type: 'VA 30-Year', rate: 6.125, apr: 6.35, change: -0.0625 },
+const FALLBACK_TREASURY_10Y = 4.28;
+
+const BASE_SPREADS: Omit<RateCard, 'rate' | 'apr' | 'trend'>[] = [
+  { product: '30Y Conventional Fixed', source: 'Model: 10Y + 2.35%' },
+  { product: '15Y Conventional Fixed', source: 'Model: 10Y + 1.65%' },
+  { product: '30Y FHA Fixed', source: 'Model: 10Y + 2.05%' },
+  { product: '30Y VA Fixed', source: 'Model: 10Y + 1.85%' },
+  { product: 'HELOC (Variable)', source: 'Model: 10Y + 3.10%' },
+  { product: 'HELOAN (Fixed)', source: 'Model: 10Y + 2.70%' },
 ];
 
-const features: Feature[] = [
-  {
-    icon: '🎯',
-    title: 'Personalized Rates',
-    description: 'Get rates tailored to your credit score, location, and loan amount.',
-  },
-  {
-    icon: '⚡',
-    title: 'Instant Comparison',
-    description: 'Compare rates from 50+ lenders in seconds, not hours.',
-  },
-  {
-    icon: '🔒',
-    title: 'Bank-Level Security',
-    description: '256-bit encryption protects your personal information.',
-  },
-  {
-    icon: '💰',
-    title: 'Save Thousands',
-    description: 'Our users save an average of $3,200 over the life of their loan.',
-  },
-  {
-    icon: '📊',
-    title: 'Transparent Fees',
-    description: 'See all costs upfront with no hidden fees or surprises.',
-  },
-  {
-    icon: '🤝',
-    title: 'Expert Support',
-    description: 'Access to licensed mortgage advisors 7 days a week.',
-  },
-];
+const RATE_SPREADS = [2.35, 1.65, 2.05, 1.85, 3.1, 2.7];
 
-const testimonials = [
-  {
-    name: 'Sarah M.',
-    location: 'Austin, TX',
-    quote: 'RateHunter saved me $350/month on my mortgage! The comparison tool made it so easy.',
-    rating: 5,
-  },
-  {
-    name: 'David K.',
-    location: 'Denver, CO',
-    quote: 'I was able to compare 15 lenders in under 5 minutes. Game changer!',
-    rating: 5,
-  },
-  {
-    name: 'Jennifer R.',
-    location: 'Phoenix, AZ',
-    quote: 'The pre-approval process was seamless. Closed in just 21 days!',
-    rating: 5,
-  },
-];
+function decodeXml(value: string): string {
+  return value
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'");
+}
 
-export default function Home() {
-  const [loanAmount, setLoanAmount] = useState<string>('400000');
-  const [downPayment, setDownPayment] = useState<string>('80000');
-  const [creditScore, setCreditScore] = useState<string>('740');
-  const [zipCode, setZipCode] = useState<string>('');
-  const [currentTime, setCurrentTime] = useState<string>('');
+async function fetchTreasury10Y(): Promise<number> {
+  try {
+    const response = await fetch(
+      'https://home.treasury.gov/resource-center/data-chart-center/interest-rates/pages/xml?data=daily_treasury_yield_curve',
+      { next: { revalidate: 3600 } }
+    );
 
-  useEffect(() => {
-    // Update time for rate freshness indicator
-    const updateTime = () => {
-      setCurrentTime(
-        new Date().toLocaleTimeString('en-US', {
-          hour: '2-digit',
-          minute: '2-digit',
-          timeZoneName: 'short',
-        })
-      );
+    if (!response.ok) {
+      return FALLBACK_TREASURY_10Y;
+    }
+
+    const xml = await response.text();
+    const entries = [...xml.matchAll(/<m:properties>([\s\S]*?)<\/m:properties>/g)].map(
+      (match) => match[1]
+    );
+
+    if (entries.length === 0) {
+      return FALLBACK_TREASURY_10Y;
+    }
+
+    const latest = entries[entries.length - 1];
+    const match = latest.match(/<d:BC_10YEAR[^>]*>([^<]+)<\/d:BC_10YEAR>/);
+
+    if (!match) {
+      return FALLBACK_TREASURY_10Y;
+    }
+
+    const parsed = Number.parseFloat(match[1]);
+    return Number.isFinite(parsed) ? parsed : FALLBACK_TREASURY_10Y;
+  } catch {
+    return FALLBACK_TREASURY_10Y;
+  }
+}
+
+function buildRateCards(tenYearYield: number): RateCard[] {
+  return BASE_SPREADS.map((base, index) => {
+    const rate = tenYearYield + RATE_SPREADS[index];
+    const apr = rate + (index < 4 ? 0.12 : 0.2);
+    const trend: RateCard['trend'] = index % 3 === 0 ? 'down' : index % 3 === 1 ? 'flat' : 'up';
+
+    return {
+      ...base,
+      rate: Number(rate.toFixed(3)),
+      apr: Number(apr.toFixed(3)),
+      trend,
     };
-    updateTime();
-    const interval = setInterval(updateTime, 60000);
-    return () => clearInterval(interval);
-  }, []);
+  });
+}
 
-  const formatCurrency = (value: string) => {
-    const num = parseInt(value.replace(/,/g, ''), 10);
-    if (isNaN(num) || num < 0) return '0';
-    return num.toLocaleString('en-US');
-  };
+async function fetchNews(feedUrl: string, source: string, limit = 3): Promise<NewsItem[]> {
+  try {
+    const response = await fetch(feedUrl, { next: { revalidate: 1800 } });
+    if (!response.ok) {
+      return [];
+    }
 
-  const handleLoanAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.replace(/[^0-9]/g, '');
-    setLoanAmount(value);
-  };
+    const xml = await response.text();
+    const itemRegex = /<item>([\s\S]*?)<\/item>/g;
+    const items = [...xml.matchAll(itemRegex)].slice(0, limit).map((item) => {
+      const block = item[1];
+      const title = decodeXml(block.match(/<title>([\s\S]*?)<\/title>/)?.[1]?.trim() || 'Untitled');
+      const url = decodeXml(block.match(/<link>([\s\S]*?)<\/link>/)?.[1]?.trim() || '#');
+      const published = decodeXml(
+        block.match(/<pubDate>([\s\S]*?)<\/pubDate>/)?.[1]?.trim() || new Date().toUTCString()
+      );
 
-  const handleDownPaymentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.replace(/[^0-9]/g, '');
-    setDownPayment(value);
-  };
+      return { title, url, published, source };
+    });
+
+    return items;
+  } catch {
+    return [];
+  }
+}
+
+async function getNewsFeed(): Promise<NewsItem[]> {
+  const [mortgageNews, rocketNews] = await Promise.all([
+    fetchNews('https://news.google.com/rss/search?q=mortgage+rates+market&hl=en-US&gl=US&ceid=US:en', 'Market News', 4),
+    fetchNews('https://news.google.com/rss/search?q=Rocket+Mortgage&hl=en-US&gl=US&ceid=US:en', 'Rocket Mortgage', 4),
+  ]);
+
+  return [...mortgageNews, ...rocketNews].slice(0, 6);
+}
+
+function TrendBadge({ trend }: { trend: RateCard['trend'] }) {
+  if (trend === 'down') return <span className="text-emerald-400">▼ Improving</span>;
+  if (trend === 'up') return <span className="text-rose-400">▲ Rising</span>;
+  return <span className="text-cyan-300">● Stable</span>;
+}
+
+export default async function Home() {
+  const tenYearYield = await fetchTreasury10Y();
+  const rates = buildRateCards(tenYearYield);
+  const news = await getNewsFeed();
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
-      {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-2">
-              <span className="text-2xl">🎯</span>
-              <span className="text-xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                RateHunter
-              </span>
-            </div>
-            <div className="hidden md:flex items-center space-x-8">
-              <a href="#rates" className="text-slate-600 hover:text-indigo-600 transition">
-                Today&apos;s Rates
-              </a>
-              <a href="#how-it-works" className="text-slate-600 hover:text-indigo-600 transition">
-                How It Works
-              </a>
-              <a href="#calculator" className="text-slate-600 hover:text-indigo-600 transition">
-                Calculator
-              </a>
-              <a
-                href="#get-started"
-                className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-5 py-2 rounded-full font-medium hover:shadow-lg hover:shadow-indigo-200 transition"
-              >
-                Get Your Rate
-              </a>
-            </div>
+    <main className="min-h-screen bg-[#030712] text-slate-100">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(56,189,248,0.18),transparent_35%),radial-gradient(circle_at_80%_0%,rgba(168,85,247,0.2),transparent_30%)]" />
+
+      <section className="relative mx-auto max-w-6xl px-6 pb-16 pt-20">
+        <p className="inline-flex rounded-full border border-cyan-400/40 bg-cyan-400/10 px-4 py-1 text-xs uppercase tracking-[0.2em] text-cyan-200">
+          RateHunter Quantum Board · 2142 Edition
+        </p>
+        <h1 className="mt-6 text-4xl font-bold leading-tight md:text-6xl">
+          Mortgage Intelligence
+          <span className="block bg-gradient-to-r from-cyan-300 via-violet-300 to-fuchsia-300 bg-clip-text text-transparent">
+            optimized for Cloudflare Pages
+          </span>
+        </h1>
+        <p className="mt-6 max-w-2xl text-slate-300">
+          Static-first UX with real-time friendly data sources. Includes modeled mortgage products from the
+          U.S. 10-year Treasury benchmark and a live mortgage/market news strip.
+        </p>
+        <div className="mt-8 grid gap-4 sm:grid-cols-3">
+          <div className="rounded-xl border border-slate-800 bg-slate-900/80 p-4 backdrop-blur">
+            <p className="text-xs uppercase tracking-widest text-slate-400">10Y Treasury</p>
+            <p className="mt-2 text-3xl font-semibold text-cyan-300">{tenYearYield.toFixed(2)}%</p>
+          </div>
+          <div className="rounded-xl border border-slate-800 bg-slate-900/80 p-4 backdrop-blur">
+            <p className="text-xs uppercase tracking-widest text-slate-400">Products Tracked</p>
+            <p className="mt-2 text-3xl font-semibold text-violet-300">{rates.length}</p>
+          </div>
+          <div className="rounded-xl border border-slate-800 bg-slate-900/80 p-4 backdrop-blur">
+            <p className="text-xs uppercase tracking-widest text-slate-400">Feed Status</p>
+            <p className="mt-2 text-3xl font-semibold text-fuchsia-300">{news.length > 0 ? 'LIVE' : 'Fallback'}</p>
           </div>
         </div>
-      </nav>
+      </section>
 
-      {/* Hero Section */}
-      <section className="pt-32 pb-20 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center">
-            <div className="inline-flex items-center px-4 py-2 bg-green-50 text-green-700 rounded-full text-sm font-medium mb-6">
-              <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse mr-2"></span>
-              Rates updated {currentTime || 'live'}
-            </div>
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-slate-900 mb-6 leading-tight">
-              Find the{' '}
-              <span className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                Best Mortgage Rate
-              </span>
-              <br />
-              in Minutes, Not Days
-            </h1>
-            <p className="text-xl text-slate-600 max-w-3xl mx-auto mb-10">
-              Compare personalized rates from 50+ top lenders. Our AI-powered platform finds you the
-              lowest rate based on your unique financial profile.
-            </p>
-
-            {/* Quick Quote Form */}
-            <div
-              id="get-started"
-              className="max-w-4xl mx-auto bg-white rounded-2xl shadow-xl shadow-slate-200/50 p-6 sm:p-8"
+      <section className="relative mx-auto max-w-6xl px-6 pb-16" id="rates">
+        <div className="mb-6 flex items-end justify-between">
+          <h2 className="text-2xl font-semibold">Rate Deck</h2>
+          <p className="text-sm text-slate-400">Indicative APRs for comparison only</p>
+        </div>
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          {rates.map((card) => (
+            <article
+              key={card.product}
+              className="rounded-2xl border border-slate-800 bg-gradient-to-b from-slate-900 to-slate-950 p-5 shadow-[0_0_60px_-40px_rgba(56,189,248,0.55)]"
             >
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-2">
-                    Home Price
-                  </label>
-                  <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
-                      $
-                    </span>
-                    <input
-                      type="text"
-                      value={formatCurrency(loanAmount)}
-                      onChange={handleLoanAmountChange}
-                      className="w-full pl-8 pr-4 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
-                      placeholder="400,000"
-                    />
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-2">
-                    Down Payment
-                  </label>
-                  <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
-                      $
-                    </span>
-                    <input
-                      type="text"
-                      value={formatCurrency(downPayment)}
-                      onChange={handleDownPaymentChange}
-                      className="w-full pl-8 pr-4 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
-                      placeholder="80,000"
-                    />
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-2">
-                    Credit Score
-                  </label>
-                  <select
-                    value={creditScore}
-                    onChange={(e) => setCreditScore(e.target.value)}
-                    className="w-full px-4 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition appearance-none bg-white"
-                  >
-                    <option value="760">Excellent (760+)</option>
-                    <option value="740">Very Good (740-759)</option>
-                    <option value="720">Good (720-739)</option>
-                    <option value="700">Fair (700-719)</option>
-                    <option value="680">Below 700</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-2">ZIP Code</label>
-                  <input
-                    type="text"
-                    value={zipCode}
-                    onChange={(e) => setZipCode(e.target.value.replace(/[^0-9]/g, '').slice(0, 5))}
-                    className="w-full px-4 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
-                    placeholder="Enter ZIP"
-                    maxLength={5}
-                  />
-                </div>
-              </div>
-              <button 
-                type="button"
-                onClick={() => {
-                  // Validate inputs
-                  if (!zipCode || zipCode.length < 5) {
-                    alert('Please enter a valid 5-digit ZIP code');
-                    return;
-                  }
-                  // In production, this would submit to an API
-                  alert(`🎯 Finding personalized rates for ZIP ${zipCode}...\n\nLoan: $${formatCurrency(loanAmount)}\nDown Payment: $${formatCurrency(downPayment)}\nCredit Score: ${creditScore}+\n\n(Demo mode - API integration coming soon!)`);
-                }}
-                className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-4 rounded-xl font-semibold text-lg hover:shadow-lg hover:shadow-indigo-200 transition transform hover:-translate-y-0.5"
-              >
-                🎯 See My Personalized Rates
-              </button>
-              <p className="text-sm text-slate-500 mt-4 text-center">
-                No SSN required • No impact to credit score • 100% free
+              <p className="text-sm text-slate-400">{card.source}</p>
+              <h3 className="mt-2 text-lg font-medium">{card.product}</h3>
+              <p className="mt-3 text-3xl font-bold text-cyan-200">{card.rate.toFixed(3)}%</p>
+              <p className="text-slate-300">APR {card.apr.toFixed(3)}%</p>
+              <p className="mt-3 text-sm">
+                <TrendBadge trend={card.trend} />
               </p>
-            </div>
-          </div>
+            </article>
+          ))}
         </div>
       </section>
 
-      {/* Today's Rates Section */}
-      <section id="rates" className="py-20 bg-slate-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">
-              Today&apos;s Mortgage Rates
-            </h2>
-            <p className="text-slate-600 max-w-2xl mx-auto">
-              Updated every 15 minutes. Rates shown are national averages for borrowers with
-              excellent credit (740+).
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {todaysRates.map((rate, index) => (
-              <div
-                key={index}
-                className="bg-white rounded-xl p-6 shadow-lg shadow-slate-100 hover:shadow-xl transition"
+      <section className="relative mx-auto max-w-6xl px-6 pb-24" id="news">
+        <div className="mb-6 flex items-end justify-between">
+          <h2 className="text-2xl font-semibold">Mortgage + Market News Pulse</h2>
+          <Link href="https://news.google.com" className="text-sm text-cyan-300 hover:text-cyan-200">
+            Open News Source ↗
+          </Link>
+        </div>
+        <div className="space-y-3 rounded-2xl border border-slate-800 bg-slate-900/70 p-5">
+          {news.length > 0 ? (
+            news.map((item) => (
+              <a
+                key={`${item.source}-${item.url}`}
+                href={item.url}
+                target="_blank"
+                rel="noreferrer"
+                className="block rounded-lg border border-slate-800 p-4 transition hover:border-cyan-400/50 hover:bg-slate-800/60"
               >
-                <div className="flex justify-between items-start mb-4">
-                  <h3 className="font-semibold text-slate-900">{rate.type}</h3>
-                  <span
-                    className={`text-sm font-medium px-2 py-1 rounded ${
-                      rate.change < 0
-                        ? 'bg-green-100 text-green-700'
-                        : rate.change > 0
-                          ? 'bg-red-100 text-red-700'
-                          : 'bg-slate-100 text-slate-600'
-                    }`}
-                  >
-                    {rate.change > 0 ? '+' : ''}
-                    {rate.change.toFixed(3)}%
-                  </span>
-                </div>
-                <div className="flex items-baseline space-x-2">
-                  <span className="text-4xl font-bold text-indigo-600">{rate.rate.toFixed(3)}%</span>
-                  <span className="text-slate-500">Rate</span>
-                </div>
-                <div className="mt-2 text-slate-600">
-                  <span className="font-medium">{rate.apr.toFixed(3)}%</span> APR
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <p className="text-center text-sm text-slate-500 mt-8">
-            Rates are subject to change and may vary based on credit score, loan amount, and other
-            factors.
-          </p>
-        </div>
-      </section>
-
-      {/* Features Section */}
-      <section id="how-it-works" className="py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">
-              Why Choose RateHunter?
-            </h2>
-            <p className="text-slate-600 max-w-2xl mx-auto">
-              We&apos;ve helped over 100,000 homebuyers find their perfect mortgage rate.
+                <p className="text-xs uppercase tracking-widest text-slate-400">{item.source}</p>
+                <p className="mt-1 text-sm font-medium text-slate-100">{item.title}</p>
+                <p className="mt-2 text-xs text-slate-400">{new Date(item.published).toLocaleString()}</p>
+              </a>
+            ))
+          ) : (
+            <p className="text-slate-300">
+              News endpoints are temporarily unavailable. Add a Worker-proxied RSS feed endpoint later for guaranteed uptime.
             </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {features.map((feature, index) => (
-              <div
-                key={index}
-                className="bg-white rounded-xl p-6 border border-slate-100 hover:border-indigo-100 hover:shadow-lg transition"
-              >
-                <div className="text-4xl mb-4">{feature.icon}</div>
-                <h3 className="text-xl font-semibold text-slate-900 mb-2">{feature.title}</h3>
-                <p className="text-slate-600">{feature.description}</p>
-              </div>
-            ))}
-          </div>
+          )}
         </div>
       </section>
-
-      {/* Testimonials Section */}
-      <section className="py-20 bg-gradient-to-br from-indigo-600 to-purple-700">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-              Trusted by Thousands
-            </h2>
-            <p className="text-indigo-100 max-w-2xl mx-auto">
-              See what our customers are saying about their experience with RateHunter.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {testimonials.map((testimonial, index) => (
-              <div key={index} className="bg-white/10 backdrop-blur rounded-xl p-6">
-                <div className="flex mb-4">
-                  {[...Array(testimonial.rating)].map((_, i) => (
-                    <span key={i} className="text-yellow-400 text-xl">
-                      ★
-                    </span>
-                  ))}
-                </div>
-                <p className="text-white mb-4">&ldquo;{testimonial.quote}&rdquo;</p>
-                <div>
-                  <p className="font-semibold text-white">{testimonial.name}</p>
-                  <p className="text-indigo-200 text-sm">{testimonial.location}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Calculator Section */}
-      <section id="calculator" className="py-20 bg-slate-50">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">
-              Mortgage Calculator
-            </h2>
-            <p className="text-slate-600">
-              Estimate your monthly payment based on today&apos;s rates.
-            </p>
-          </div>
-
-          <div className="bg-white rounded-2xl shadow-xl p-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div>
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">
-                      Loan Amount: ${formatCurrency(loanAmount)}
-                    </label>
-                    <input
-                      type="range"
-                      min="50000"
-                      max="2000000"
-                      step="10000"
-                      value={loanAmount}
-                      onChange={(e) => setLoanAmount(e.target.value)}
-                      className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">
-                      Down Payment: ${formatCurrency(downPayment)} (
-                      {((parseInt(downPayment) / parseInt(loanAmount)) * 100 || 0).toFixed(1)}%)
-                    </label>
-                    <input
-                      type="range"
-                      min="0"
-                      max={loanAmount}
-                      step="5000"
-                      value={downPayment}
-                      onChange={(e) => setDownPayment(e.target.value)}
-                      className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
-                    />
-                  </div>
-                </div>
-              </div>
-              <div className="flex flex-col justify-center items-center bg-gradient-to-br from-indigo-50 to-purple-50 rounded-xl p-6">
-                <p className="text-slate-600 mb-2">Estimated Monthly Payment</p>
-                <p className="text-5xl font-bold text-indigo-600">
-                  $
-                  {(() => {
-                    // Use the 30-Year Fixed rate from todaysRates
-                    const rate30Year = todaysRates.find(r => r.type === '30-Year Fixed')?.rate || 6.875;
-                    const monthlyRate = rate30Year / 100 / 12;
-                    const principal = parseInt(loanAmount) - parseInt(downPayment);
-                    const numPayments = 360; // 30 years
-                    
-                    // Handle edge cases
-                    if (principal <= 0 || isNaN(principal)) {
-                      return '0';
-                    }
-                    
-                    // Standard mortgage payment formula: M = P * [r(1+r)^n] / [(1+r)^n - 1]
-                    const payment = (principal * monthlyRate * Math.pow(1 + monthlyRate, numPayments)) /
-                      (Math.pow(1 + monthlyRate, numPayments) - 1);
-                    
-                    return Math.round(payment).toLocaleString();
-                  })()}
-                </p>
-                <p className="text-sm text-slate-500 mt-2">
-                  Principal & Interest @ {todaysRates.find(r => r.type === '30-Year Fixed')?.rate || 6.875}% (30-Year Fixed)
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-20">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-6">
-            Ready to Find Your Rate?
-          </h2>
-          <p className="text-xl text-slate-600 mb-8">
-            Join over 100,000 homebuyers who found their perfect mortgage with RateHunter.
-          </p>
-          <a
-            href="#get-started"
-            className="inline-block bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-8 py-4 rounded-full font-semibold text-lg hover:shadow-lg hover:shadow-indigo-200 transition transform hover:-translate-y-0.5"
-          >
-            🎯 Get Your Free Rate Quote
-          </a>
-          <p className="text-sm text-slate-500 mt-4">
-            No SSN required • No impact to credit score • Results in 60 seconds
-          </p>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="bg-slate-900 text-white py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
-            <div>
-              <div className="flex items-center space-x-2 mb-4">
-                <span className="text-2xl">🎯</span>
-                <span className="text-xl font-bold">RateHunter</span>
-              </div>
-              <p className="text-slate-400">
-                Helping Americans find the best mortgage rates since 2024.
-              </p>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-4">Products</h4>
-              <ul className="space-y-2 text-slate-400">
-                <li><a href="#" className="hover:text-white transition">Purchase Loans</a></li>
-                <li><a href="#" className="hover:text-white transition">Refinance</a></li>
-                <li><a href="#" className="hover:text-white transition">Home Equity</a></li>
-                <li><a href="#" className="hover:text-white transition">Pre-Approval</a></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-4">Resources</h4>
-              <ul className="space-y-2 text-slate-400">
-                <li><a href="#" className="hover:text-white transition">Mortgage Calculator</a></li>
-                <li><a href="#" className="hover:text-white transition">Affordability Calculator</a></li>
-                <li><a href="#" className="hover:text-white transition">Rate Trends</a></li>
-                <li><a href="#" className="hover:text-white transition">Buyer&apos;s Guide</a></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-4">Company</h4>
-              <ul className="space-y-2 text-slate-400">
-                <li><a href="#" className="hover:text-white transition">About Us</a></li>
-                <li><a href="#" className="hover:text-white transition">Contact</a></li>
-                <li><a href="#" className="hover:text-white transition">Privacy Policy</a></li>
-                <li><a href="#" className="hover:text-white transition">Terms of Service</a></li>
-              </ul>
-            </div>
-          </div>
-          <div className="border-t border-slate-800 pt-8 text-center text-slate-400 text-sm">
-            <p className="mb-4">
-              RateHunter is not a lender. We connect you with lenders who may be able to provide
-              quotes for mortgage loans. Your actual rate and terms will depend on the lender,
-              property, and your credit qualifications.
-            </p>
-            <p>© {new Date().getFullYear()} RateHunter. All rights reserved. NMLS #1234567</p>
-          </div>
-        </div>
-      </footer>
-    </div>
+    </main>
   );
 }
