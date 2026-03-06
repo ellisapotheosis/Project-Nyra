@@ -15,7 +15,8 @@ WORKER_PROFILE ?= workers
   up-core up-orchestrator up-apps up-dev up-workers up-oracle up-worker-3060 up-worker-3090ti up-worker-5090 \
   node-up-orchestrator node-up-oracle node-up-worker-3060 node-up-worker-3090ti node-up-worker-5090 node-down-orchestrator node-down-oracle node-down-worker-3060 node-down-worker-3090ti node-down-worker-5090 \
   down-workers nexus-up nexus-down health stack-up stack-verify scan-env ports port-check bootstrap-import bootstrap-import-apply bootstrap-ultimate bootstrap-oracle bootstrap-worker-3060 bootstrap-worker-3090ti bootstrap-worker-5090 \
-  gitea-up gitea-up-ai gitea-up-actions gitea-up-infisical-agent gitea-down gitea-ps gitea-config infisical-up infisical-down infisical-config
+  gitea-up gitea-up-ai gitea-up-actions gitea-up-infisical-agent gitea-down gitea-ps gitea-config infisical-up infisical-down infisical-config \
+  up-gitea down-gitea logs-gitea health-gitea up-infisical down-infisical logs-infisical health-infisical
 
 .DEFAULT_GOAL := help
 
@@ -76,8 +77,8 @@ validate:
 compose-config-all:
 	docker compose --env-file infra/env/.env.orchestrator -f infra/docker-compose.yml -f infra/compose/overrides/docker-compose.orchestrator.override.yml config >/dev/null
 	docker compose --env-file infra/env/.env.worker-rtx3060 -f infra/docker-compose.yml -f infra/compose/overrides/docker-compose.worker-rtx3060.override.yml config >/dev/null
-	docker compose --env-file infra/env/.env.worker-rtx3090ti -f infra/docker-compose.yml -f infra/compose/overrides/docker-compose.worker-rtx3090ti.override.yml config >/dev/null
-	docker compose --env-file infra/env/.env.worker-rtx5090 -f infra/docker-compose.yml -f infra/compose/overrides/docker-compose.worker-rtx5090.override.yml config >/dev/null
+	docker compose --env-file infra/env/.env.worker-rtx3090ti -f infra/workers/worker-rtx3090ti/docker-compose.worker.yml config >/dev/null
+	docker compose --env-file infra/env/.env.worker-rtx5090 -f infra/workers/worker-rtx5090/docker-compose.worker.yml config >/dev/null
 	@echo "compose config ok for orchestrator and all workers"
 
 up:
@@ -226,13 +227,13 @@ health-oracle:
 	docker compose -f infra/oracle/docker-compose.oracle.yml ps
 
 down-orchestrator:
-	docker compose -f infra/orchestrator/docker-compose.orchestrator.yml down --remove-orphans
+	docker compose -f infra/docker-compose.yml --profile core --profile gateway --profile workflow --profile crm --profile archon down --remove-orphans
 
 logs-orchestrator:
-	docker compose -f infra/orchestrator/docker-compose.orchestrator.yml logs -f --tail=200
+	docker compose -f infra/docker-compose.yml --profile core --profile gateway --profile workflow --profile crm --profile archon logs -f --tail=200
 
 health-orchestrator:
-	docker compose -f infra/orchestrator/docker-compose.orchestrator.yml ps
+	docker compose -f infra/docker-compose.yml --profile core --profile gateway --profile workflow --profile crm --profile archon ps
 
 health-workers:
 	docker compose -f infra/workers/worker-rtx3060/docker-compose.worker.yml ps || true
@@ -274,3 +275,28 @@ infisical-up:
 
 infisical-down:
 	docker compose -f docker-compose.infisical.yml --env-file .env.infisical down --remove-orphans
+
+# Additive bootstrap-safe wrappers (do not replace existing flows)
+up-gitea:
+	docker compose -f docker-compose.gitea.bootstrap.yml --env-file .env.gitea up -d
+
+down-gitea:
+	docker compose -f docker-compose.gitea.bootstrap.yml --env-file .env.gitea down --remove-orphans
+
+logs-gitea:
+	docker compose -f docker-compose.gitea.bootstrap.yml --env-file .env.gitea logs -f --tail=200
+
+health-gitea:
+	docker compose -f docker-compose.gitea.bootstrap.yml --env-file .env.gitea ps
+
+up-infisical:
+	docker compose -f docker-compose.infisical.bootstrap.yml --env-file .env.infisical up -d
+
+down-infisical:
+	docker compose -f docker-compose.infisical.bootstrap.yml --env-file .env.infisical down --remove-orphans
+
+logs-infisical:
+	docker compose -f docker-compose.infisical.bootstrap.yml --env-file .env.infisical logs -f --tail=200
+
+health-infisical:
+	docker compose -f docker-compose.infisical.bootstrap.yml --env-file .env.infisical ps

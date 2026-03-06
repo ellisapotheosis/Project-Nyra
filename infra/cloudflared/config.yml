@@ -1,18 +1,25 @@
-# Cloudflared ingress template (no credentials)
-# Use with: docker compose -f infra/compose/docker-compose.cloudflared.yml up -d
+# Cloudflared tunnel config (template, no real secrets)
+# Validate with:
+# docker run --rm -v $(pwd)/infra/cloudflared:/etc/cloudflared cloudflare/cloudflared:latest tunnel ingress validate --config /etc/cloudflared/config.yml
 
-tunnel: ${CF_TUNNEL_NAME}
+tunnel: ${CF_TUNNEL_UUID}
 credentials-file: /etc/cloudflared/credentials.json
 
 ingress:
-  - hostname: mcp.${NYRA_DOMAIN_ROOT}
-    service: http://nexus-router:7000
-  - hostname: api.${NYRA_DOMAIN_ROOT}
-    service: http://litellm:4000
   - hostname: n8n.${NYRA_DOMAIN_ROOT}
     service: http://n8n:5678
-  - hostname: chat.${NYRA_DOMAIN_ROOT}
-    service: http://moltbot-web:3030
+  - hostname: activepieces.${NYRA_DOMAIN_ROOT}
+    service: http://activepieces:80
+  - hostname: twentycrm.${NYRA_DOMAIN_ROOT}
+    service: http://twentycrm:3000
+  - hostname: litellm.${NYRA_DOMAIN_ROOT}
+    service: http://litellm:4000
+  - hostname: nexus.${NYRA_DOMAIN_ROOT}
+    service: http://nexus-router:7000
   - hostname: grafana.${NYRA_DOMAIN_ROOT}
     service: http://grafana:3000
+  - hostname: gitea.${NYRA_DOMAIN_ROOT}
+    service: http://gitea:3000
+  - hostname: infisical.${NYRA_DOMAIN_ROOT}
+    service: http://infisical:8080
   - service: http_status:404
