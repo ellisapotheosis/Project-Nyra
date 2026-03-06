@@ -159,6 +159,26 @@ services:
     networks: [nyra]
     logging: *default_logging
 
+  nyra-mcp:
+    build:
+      context: ..
+      dockerfile: infra/mcp/nyra_mcp/Dockerfile
+    container_name: nyra-mcp
+    profiles: ['mcp', 'orchestrator', 'all']
+    environment:
+      PORT: ${NYRA_MCP_PORT:-3333}
+      NYRA_HTTP_ALLOWLIST: ${NYRA_HTTP_ALLOWLIST:-http://nexus-router:8080,http://n8n:5678,http://activepieces:80,http://twentycrm:3000}
+    ports:
+      - '${NYRA_MCP_PORT:-3333}:8081'
+    healthcheck:
+      test: ['CMD', 'wget', '-q', '-O', '-', 'http://localhost:8081/health']
+      interval: 15s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+    networks: [nyra]
+    logging: *default_logging
+
   n8n:
     build:
       context: ..
