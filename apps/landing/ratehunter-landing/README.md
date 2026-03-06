@@ -89,8 +89,8 @@ ratehunter-landing/
 
 ```
 Framework preset: Next.js
-Build command: cd apps/landing/ratehunter-landing && pnpm run build
-Build output: apps/landing/ratehunter-landing/.next
+Build command: cd apps/landing/ratehunter-landing && npm run build:cf
+Build output: apps/landing/ratehunter-landing/.open-next/assets
 Root directory: /
 Node version: 20
 ```
