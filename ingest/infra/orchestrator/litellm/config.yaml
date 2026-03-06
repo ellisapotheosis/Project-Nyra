@@ -1,0 +1,60 @@
+general_settings:
+  master_key: os.environ/LITELLM_MASTER_KEY
+  database_url: os.environ/LITELLM_DATABASE_URL
+  completion_model: nyra/local-auto
+  infer_model_from_keys: true
+
+router_settings:
+  routing_strategy: simple-shuffle
+  num_retries: 2
+  timeout: 120
+  fallbacks:
+    - {"nyra/reasoning-local": ["nyra/reasoning-5090", "nyra/reasoning-3090", "anthropic/claude-3-5-sonnet-20241022"]}
+    - {"nyra/fast-local": ["nyra/fast-3090", "ollama/qwen2.5:7b-instruct", "openai/gpt-4o-mini"]}
+
+model_list:
+  # Logical groups for your apps/agents
+  - model_name: nyra/reasoning-local
+    litellm_params:
+      model: openai/nyra-5090-deepseek-r1
+  - model_name: nyra/fast-local
+    litellm_params:
+      model: openai/nyra-3090-deepseek-r1
+
+  # Worker 5090 (vLLM OpenAI-compatible)
+  - model_name: openai/nyra-5090-deepseek-r1
+    litellm_params:
+      model: openai/${WORKER_5090_MODEL:-deepseek-ai/DeepSeek-R1-Distill-Qwen-32B}
+      api_base: ${WORKER_5090_VLLM_BASE:-http://100.64.0.10:8000/v1}
+      api_key: "none"
+
+  # Worker 3090 Ti (vLLM OpenAI-compatible)
+  - model_name: openai/nyra-3090-deepseek-r1
+    litellm_params:
+      model: openai/${WORKER_3090TI_MODEL:-deepseek-ai/DeepSeek-R1-Distill-Qwen-14B}
+      api_base: ${WORKER_3090TI_VLLM_BASE:-http://100.64.0.12:8000/v1}
+      api_key: "none"
+
+  # Worker 3060 (Ollama)
+  - model_name: ollama/qwen2.5:7b-instruct
+    litellm_params:
+      model: ollama/qwen2.5:7b-instruct
+      api_base: ${WORKER_3060_OLLAMA_BASE:-http://100.64.0.11:11434}
+  - model_name: ollama/deepseek-r1:8b
+    litellm_params:
+      model: ollama/deepseek-r1:8b
+      api_base: ${WORKER_3060_OLLAMA_BASE:-http://100.64.0.11:11434}
+
+  # Optional cloud fallbacks
+  - model_name: openai/gpt-4o-mini
+    litellm_params:
+      model: openai/gpt-4o-mini
+      api_key: os.environ/OPENAI_API_KEY
+  - model_name: anthropic/claude-3-5-sonnet-20241022
+    litellm_params:
+      model: anthropic/claude-3-5-sonnet-20241022
+      api_key: os.environ/ANTHROPIC_API_KEY
+
+litellm_settings:
+  drop_params: true
+  set_verbose: false

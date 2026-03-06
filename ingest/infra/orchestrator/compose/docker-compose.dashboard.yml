@@ -1,0 +1,4 @@
+# Alias to monitoring + observability
+include:
+  - ./docker-compose.observability.yml
+  - ./docker-compose.monitoring.yml

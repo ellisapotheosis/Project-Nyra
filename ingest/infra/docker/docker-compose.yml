@@ -1,0 +1,3 @@
+# Primary infra/docker entrypoint (wrapper around orchestrator stack)
+include:
+  - ../orchestrator/docker-compose.yml

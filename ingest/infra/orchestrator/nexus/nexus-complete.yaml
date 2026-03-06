@@ -1,0 +1,30 @@
+server:
+  listen_address: 0.0.0.0:6000
+  health: { enabled: true, path: /health }
+llm:
+  enabled: true
+  protocols:
+    openai: { enabled: true, path: /llm/openai/v1 }
+    anthropic: { enabled: true, path: /llm/anthropic }
+  providers:
+    litellm:
+      type: openai
+      base_url: http://litellm:4000/v1
+      models:
+        - nyra/reasoning-local
+        - nyra/fast-local
+mcp:
+  enabled: true
+  path: /mcp
+  servers:
+    archon: { url: http://archon-mcp:8051/sse }
+    claude_flow: { url: http://claude-flow-brain:8080/sse }
+    graphiti: { url: http://graphiti-mcp:8000/sse }
+    n8n: { url: http://n8n-mcp:8071/mcp }
+    twenty: { url: http://twenty-mcp:8070/mcp }
+    composio: { url: http://composio-mcp:8067/mcp }
+    openclaw: { url: http://clawhub-mcp:8072/mcp }
+tool_search:
+  enabled: true
+  fuzzy_match: true
+  ranking_strategy: hybrid

@@ -1,0 +1,190 @@
+##############################################################################
+# Nexus Router Configuration (Example)
+#
+# This file configures Grafbase/Nexus as the unified gateway for both LLM
+# requests and MCP server aggregation.  It exposes a single HTTP endpoint
+# (`/query` and `/v1/...`) on port 6000 that routes traffic to your worker
+# GPUs, LiteLLM proxy and optional cloud providers.  Copy this file to
+# `nexus.toml` and customise the provider base URLs to match your Tailscale
+# IPs and ports.  Environment variables referenced below should be set in
+# your orchestrator’s `.env` file.
+##############################################################################
+
+[server]
+host = "0.0.0.0"
+port = 6000
+metrics_port = 9091
+
+##############################################################################
+# PROVIDERS
+#
+# Providers define upstream LLM endpoints.  Nexus will select a provider
+# according to routing rules and priorities.  Models lists restrict which
+# models each provider can handle; use "*" to allow any model.
+##############################################################################
+
+[providers.litellm]
+type = "openai_compatible"
+base_url = "http://litellm:4000"
+api_key_env = "LITELLM_MASTER_KEY"
+models = ["*"]
+priority = 0  # always prefer to route through LiteLLM first
+
+# Worker – RTX 5090 (Alienware Area‑51)
+[providers.worker_5090]
+type = "openai_compatible"
+base_url = "http://TAILSCALE_IP_RTX5090:${VLLM_PORT_5090:-8000}/v1"
+models = [
+  "deepseek-ai/deepseek-v3.2",
+  "glm-4-7b",  # adjust this list if you swap models
+  "qwen/Qwen3-4B",
+  "nomic-embed-text",
+]
+tags = ["local", "blackwell", "high-memory"]
+priority = 0
+max_concurrent = 4
+health_check_endpoint = "/v1/models"
+
+# Worker – RTX 3090 Ti (Desktop)
+[providers.worker_3090]
+type = "openai_compatible"
+base_url = "http://TAILSCALE_IP_RTX3090TI:${VLLM_PORT_3090TI:-8000}/v1"
+models = [
+  "deepseek-ai/deepseek-7b-instruct",
+  "gemma-7b",
+  "llama-3.1-8b",
+  "codellama/CodeLlama-34b-Instruct-hf",
+]
+tags = ["local", "ampere", "mid-range"]
+priority = 0
+max_concurrent = 3
+health_check_endpoint = "/v1/models"
+
+# Worker – RTX 3060 (Laptop) using Ollama
+[providers.worker_3060]
+type = "openai_compatible"
+base_url = "http://TAILSCALE_IP_RTX3060:${OLLAMA_PORT:-11434}"
+models = [
+  "ollama/llama3",
+  "ollama/phi3",
+  "nomic-embed-text",
+]
+tags = ["local", "ollama", "small"]
+priority = 0
+max_concurrent = 2
+health_check_endpoint = "/tags"
+
+# OpenRouter (multi‑model proxy).  Requires OPENROUTER_API_KEY in .env.
+[providers.openrouter]
+type = "openai_compatible"
+base_url = "https://openrouter.ai/api/v1"
+api_key_env = "OPENROUTER_API_KEY"
+models = [
+  "anthropic/claude-3.5-sonnet",
+  "google/gemini-pro-1.5",
+  "deepseek/deepseek-r1",
+  "meta-llama/llama-4-405b",
+]
+priority = 3
+
+# Anthropic API
+[providers.anthropic]
+type = "anthropic"
+api_key_env = "ANTHROPIC_API_KEY"
+models = [
+  "claude-sonnet-4-5-20250929",
+  "claude-3-opus-20240229",
+  "claude-3-haiku-20240307",
+]
+priority = 2
+
+# Google Gemini (optional)
+[providers.google]
+type = "google"
+api_key_env = "GOOGLE_API_KEY"
+models = ["gemini-1.5-pro", "gemini-1.5-flash"]
+priority = 2
+
+##############################################################################
+# MCP SERVER CONFIGURATION
+#
+# MCP servers provide tool use, code execution, memory, etc.  Enable or
+# disable servers as needed.  They will be exposed under the `/mcp` prefix.
+##############################################################################
+
+[mcp]
+enabled = true
+aggregator_port = 8080
+
+[mcp.servers.claude_flow]
+url = "http://claude-flow:8003"
+description = "Claude Flow orchestration and memory"
+enabled = true
+
+[mcp.servers.filesystem]
+command = "npx"
+args = ["-y", "@anthropic-ai/mcp-server-filesystem", "/workspace"]
+enabled = true
+
+[mcp.servers.github]
+command = "npx"
+args = ["-y", "@anthropic-ai/mcp-server-github"]
+env = { GITHUB_TOKEN = "${GITHUB_TOKEN}" }
+enabled = true
+
+[mcp.servers.memory]
+command = "npx"
+args = ["-y", "@anthropic-ai/mcp-server-memory"]
+enabled = true
+
+[mcp.servers.sequential_thinking]
+command = "npx"
+args = ["-y", "@anthropic-ai/mcp-server-sequential-thinking"]
+enabled = true
+
+[mcp.servers.brave_search]
+command = "npx"
+args = ["-y", "@anthropic-ai/mcp-server-brave-search"]
+env = { BRAVE_API_KEY = "${BRAVE_API_KEY}" }
+enabled = false  # enable if you have a Brave Search API key
+
+##############################################################################
+# ROUTING RULES
+#
+# Set `strategy = "smart"` to let Nexus pick the best provider based on
+# latency, cost and availability.  You can also define per‑task rules.
+##############################################################################
+
+[routing]
+strategy = "smart"
+fallback_enabled = true
+retry_attempts = 3
+timeout_seconds = 120
+prefer_local = true
+
+[routing.rules]
+embeddings = { providers = ["worker_3060", "worker_3090"], strategy = "round_robin" }
+coding = { providers = ["worker_3090", "worker_5090"], strategy = "least_latency" }
+reasoning = { providers = ["worker_5090", "anthropic", "openrouter"], strategy = "priority" }
+mortgage = { providers = ["worker_5090", "anthropic", "openrouter"], strategy = "priority" }
+
+##############################################################################
+# OBSERVABILITY SETTINGS
+##############################################################################
+
+[logging]
+level = "info"
+format = "json"
+output = "stdout"
+
+[metrics]
+enabled = true
+prometheus_endpoint = "/metrics"
+
+[tracing]
+enabled = false
+jaeger_endpoint = ""
+
+##############################################################################
+# END OF CONFIG
+##############################################################################

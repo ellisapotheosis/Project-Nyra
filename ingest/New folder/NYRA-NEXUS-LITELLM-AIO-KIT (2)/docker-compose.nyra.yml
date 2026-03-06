@@ -1,0 +1,333 @@
+version: "3.9"
+
+name: nyra
+
+networks:
+  nyra:
+    driver: bridge
+
+volumes:
+  postgres-main-data:
+  postgres-ruvector-data:
+  redis-data:
+  agentdb-data:
+  ruvector-data:
+  qdrant-data:
+  neo4j-data:
+  falkordb-data:
+  openwebui-data:
+
+services:
+  # -------------------------
+  # Core data services
+  # -------------------------
+  postgres-main:
+    image: postgres:16
+    profiles: ["core", "twenty", "graph-neo4j", "graph-falkor"]
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-nyra}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change-me}
+      POSTGRES_DB: ${POSTGRES_DB:-nyra_main}
+    volumes:
+      - postgres-main-data:/var/lib/postgresql/data
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    networks: [nyra]
+
+  # Optional: dedicated Postgres for RuVector to isolate tuning/backups
+  postgres-ruvector:
+    image: postgres:16
+    profiles: ["core"]
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${RUVECTOR_PG_USER:-ruvector}
+      POSTGRES_PASSWORD: ${RUVECTOR_PG_PASSWORD:-change-me}
+      POSTGRES_DB: ${RUVECTOR_PG_DB:-ruvector}
+    volumes:
+      - postgres-ruvector-data:/var/lib/postgresql/data
+    ports:
+      - "${RUVECTOR_PG_PORT:-55432}:5432"
+    networks: [nyra]
+
+  redis:
+    image: redis:7
+    profiles: ["core", "twenty", "graph-neo4j", "graph-falkor"]
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis-data:/data
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    networks: [nyra]
+
+  # -------------------------
+  # Memory / Vector services
+  # -------------------------
+  agentdb:
+    image: ruvnet/agentdb:latest
+    profiles: ["core"]
+    restart: unless-stopped
+    command: ["agentdb", "start", "--data", "/data", "--bind", "0.0.0.0", "--port", "8123"]
+    volumes:
+      - agentdb-data:/data
+    ports:
+      - "${AGENTDB_PORT:-8123}:8123"
+    networks: [nyra]
+
+  qdrant:
+    image: qdrant/qdrant:latest
+    profiles: ["core"]
+    restart: unless-stopped
+    volumes:
+      - qdrant-data:/qdrant/storage
+    ports:
+      - "${QDRANT_PORT:-6333}:6333"
+    networks: [nyra]
+
+  ruvector:
+    image: ruvnet/ruvector:latest
+    profiles: ["core"]
+    restart: unless-stopped
+    depends_on:
+      - postgres-ruvector
+    environment:
+      RUVECTOR_HTTP_PORT: "8000"
+      RUVECTOR_LOG_LEVEL: ${RUVECTOR_LOG_LEVEL:-info}
+      # Prefer dedicated Postgres. Switch to postgres-main if you want.
+      RUVECTOR_DATABASE_URL: ${RUVECTOR_DATABASE_URL:-postgres://ruvector:change-me@postgres-ruvector:5432/ruvector}
+      RUVECTOR_AUTH_KEY: ${RUVECTOR_AUTH_KEY:-}
+      RUVECTOR_MODE: ${RUVECTOR_MODE:-distributed}
+      RUVECTOR_CONSENSUS: ${RUVECTOR_CONSENSUS:-raft}
+      RUVECTOR_CONSENSUS_PEERS: ${RUVECTOR_CONSENSUS_PEERS:-}
+      RUVECTOR_GNN_LAYERS: ${RUVECTOR_GNN_LAYERS:-}
+      RUVECTOR_QUANTIZATION: ${RUVECTOR_QUANTIZATION:-}
+      RUV_FAST_NETWORKING: ${RUV_FAST_NETWORKING:-true}
+    volumes:
+      - ruvector-data:/var/lib/ruvector
+    ports:
+      - "${RUVECTOR_PORT:-8000}:8000"
+    networks: [nyra]
+
+  # -------------------------
+  # Graph backends (choose one profile)
+  # -------------------------
+  neo4j:
+    image: neo4j:5
+    profiles: ["graph-neo4j"]
+    restart: unless-stopped
+    environment:
+      NEO4J_AUTH: ${NEO4J_AUTH:-neo4j/change-me}
+    volumes:
+      - neo4j-data:/data
+    ports:
+      - "${NEO4J_HTTP_PORT:-7474}:7474"
+      - "${NEO4J_BOLT_PORT:-7687}:7687"
+    networks: [nyra]
+
+  falkordb:
+    image: falkordb/falkordb:latest
+    profiles: ["graph-falkor"]
+    restart: unless-stopped
+    volumes:
+      - falkordb-data:/data
+    ports:
+      - "${FALKORDB_PORT:-6378}:6379"
+    networks: [nyra]
+
+  graphiti:
+    image: graphiti/graphiti:latest
+    profiles: ["graph-neo4j", "graph-falkor"]
+    restart: unless-stopped
+    depends_on:
+      - postgres-main
+    environment:
+      GRAPHITI_BACKEND: ${GRAPHITI_BACKEND:-neo4j}
+      GRAPHITI_DATABASE_URL: ${GRAPHITI_DATABASE_URL:-postgres://nyra:change-me@postgres-main:5432/nyra_main}
+      # Neo4j
+      GRAPHITI_NEO4J_URI: ${GRAPHITI_NEO4J_URI:-bolt://neo4j:7687}
+      GRAPHITI_NEO4J_USER: ${GRAPHITI_NEO4J_USER:-neo4j}
+      GRAPHITI_NEO4J_PASSWORD: ${GRAPHITI_NEO4J_PASSWORD:-change-me}
+      # FalkorDB
+      GRAPHITI_FALKORDB_URL: ${GRAPHITI_FALKORDB_URL:-redis://falkordb:6379}
+      GRAPHITI_FALKORDB_GRAPH_KEY: ${GRAPHITI_FALKORDB_GRAPH_KEY:-nyra}
+    ports:
+      - "${GRAPHITI_PORT:-7400}:7400"
+    networks: [nyra]
+
+  # -------------------------
+  # Model broker
+  # -------------------------
+  litellm:
+    image: ghcr.io/berriai/litellm:latest
+    profiles: ["core"]
+    restart: unless-stopped
+    depends_on:
+      - redis
+    environment:
+      LITELLM_CONFIG: /config/litellm.config.yaml
+      # Keys are read from env (inject via Infisical)
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      # Worker endpoints (OpenAI-compatible /v1 base URLs)
+      WORKER_RTX3060_OPENAI_BASE_URL: ${WORKER_RTX3060_OPENAI_BASE_URL:-}
+      WORKER_RTX3090TI_OPENAI_BASE_URL: ${WORKER_RTX3090TI_OPENAI_BASE_URL:-}
+      WORKER_RTX5090_OPENAI_BASE_URL: ${WORKER_RTX5090_OPENAI_BASE_URL:-}
+      # Optional: Ollama endpoints (http://host:11434)
+      WORKER_RTX3060_OLLAMA_URL: ${WORKER_RTX3060_OLLAMA_URL:-}
+      WORKER_RTX3090TI_OLLAMA_URL: ${WORKER_RTX3090TI_OLLAMA_URL:-}
+      WORKER_RTX5090_OLLAMA_URL: ${WORKER_RTX5090_OLLAMA_URL:-}
+    volumes:
+      - ./config/litellm/litellm.config.yaml:/config/litellm.config.yaml:ro
+    ports:
+      - "${LITELLM_PORT:-4000}:4000"
+    networks: [nyra]
+
+  # -------------------------
+  # MCP proxy/aggregator (grafbase/nexus)
+  # -------------------------
+  nexus:
+    image: grafbase/nexus:latest
+    profiles: ["core"]
+    restart: unless-stopped
+    depends_on:
+      - litellm
+    environment:
+      NEXUS_CONFIG_PATH: /config/nexus.config.yaml
+      LITELLM_PROXY_URL: http://litellm:4000
+    volumes:
+      - ./config/nexus/nexus.config.yaml:/config/nexus.config.yaml:ro
+    ports:
+      - "${NEXUS_PORT:-8700}:8700"
+    networks: [nyra]
+
+  # -------------------------
+  # Orchestrators (containerized)
+  # -------------------------
+  claude-flow:
+    image: ruvnet/claude-flow:alpha
+    profiles: ["core"]
+    restart: unless-stopped
+    depends_on:
+      - redis
+      - agentdb
+      - ruvector
+    environment:
+      CLAUDE_FLOW_MODE: ${CLAUDE_FLOW_MODE:-orchestrator}
+      NODE_ENV: ${NODE_ENV:-development}
+      # Use Nexus for tools + LiteLLM for models
+      NYRA_NEXUS_URL: ${NYRA_NEXUS_URL:-http://nexus:8700}
+      LITELLM_PROXY_URL: ${LITELLM_PROXY_URL:-http://litellm:4000}
+      REDIS_URL: ${CLAUDE_FLOW_REDIS_URL:-redis://redis:6379/0}
+      AGENTDB_URL: ${AGENTDB_URL:-http://agentdb:8123}
+      RUVECTOR_API_URL: ${RUVECTOR_API_URL:-http://ruvector:8000}
+      GRAPHITI_URL: ${GRAPHITI_URL:-http://graphiti:7400}
+      # Provider keys injected via Infisical:
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+    volumes:
+      # Mount your repo into the container if you want direct file access
+      # (Recommended: use filesystem MCP instead for controlled access)
+      - ${NYRA_REPO_MOUNT:-./}:/workspace/Project-Nyra
+    ports:
+      - "${CLAUDE_FLOW_PORT:-8787}:8787"
+    networks: [nyra]
+
+  archon-os:
+    image: archon/archon-os:latest
+    profiles: ["core"]
+    restart: unless-stopped
+    depends_on:
+      - redis
+      - agentdb
+      - ruvector
+    environment:
+      ARCHON_ENV: ${ARCHON_ENV:-development}
+      ARCHON_REDIS_URL: ${ARCHON_REDIS_URL:-redis://redis:6379/1}
+      ARCHON_AGENTDB_URL: ${ARCHON_AGENTDB_URL:-http://agentdb:8123}
+      ARCHON_RUVECTOR_URL: ${ARCHON_RUVECTOR_URL:-http://ruvector:8000}
+      ARCHON_GRAPHITI_URL: ${ARCHON_GRAPHITI_URL:-http://graphiti:7400}
+      NYRA_NEXUS_URL: ${NYRA_NEXUS_URL:-http://nexus:8700}
+      LITELLM_PROXY_URL: ${LITELLM_PROXY_URL:-http://litellm:4000}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+    ports:
+      - "${ARCHON_PORT:-8788}:8788"
+    networks: [nyra]
+
+  # -------------------------
+  # Docker MCP Toolkit entrypoint (single MCP endpoint)
+  # -------------------------
+  docker-mcp-toolkit:
+    image: nyra/mcp-toolkit-gateway:latest
+    profiles: ["core"]
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./config/mcp-toolkit/toolkit.yaml:/config/toolkit.yaml:ro
+      # Host folders you want tools to access (filesystem MCP)
+      - ${MCP_HOST_MOUNT_1:-./}:/host/nyra:rw
+      - ${MCP_HOST_MOUNT_2:-./}:/host/extra:rw
+    environment:
+      TOOLKIT_CONFIG_PATH: /config/toolkit.yaml
+      TOOLKIT_PORT: "8082"
+    ports:
+      - "${MCP_TOOLKIT_PORT:-8082}:8082"
+    networks: [nyra]
+
+  # -------------------------
+  # UI (optional)
+  # -------------------------
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:latest
+    profiles: ["ui"]
+    restart: unless-stopped
+    depends_on:
+      - nexus
+    environment:
+      # Point Open WebUI to Nexus or LiteLLM, depending on your preferred flow
+      # Many users connect OWUI to LiteLLM as an OpenAI-compatible endpoint.
+      OPENAI_API_BASE_URL: ${OPENAI_API_BASE_URL:-http://litellm:4000}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-dummy}
+    volumes:
+      - openwebui-data:/app/backend/data
+    ports:
+      - "${OPEN_WEBUI_PORT:-3001}:8080"
+    networks: [nyra]
+
+  lobechat:
+    image: lobehub/lobe-chat:latest
+    profiles: ["ui"]
+    restart: unless-stopped
+    depends_on:
+      - litellm
+    environment:
+      # LobeChat can connect to LiteLLM (OpenAI compatible)
+      NEXT_PUBLIC_OPENAI_API_BASE_URL: ${NEXT_PUBLIC_OPENAI_API_BASE_URL:-http://localhost:${LITELLM_PORT:-4000}}
+      NEXT_PUBLIC_OPENAI_API_KEY: ${NEXT_PUBLIC_OPENAI_API_KEY:-dummy}
+    ports:
+      - "${LOBECHAT_PORT:-3210}:3210"
+    networks: [nyra]
+
+  # -------------------------
+  # Twenty CRM (optional)
+  # -------------------------
+  twenty:
+    image: twentycrm/twenty:latest
+    profiles: ["twenty"]
+    restart: unless-stopped
+    depends_on:
+      - postgres-main
+      - redis
+    environment:
+      DATABASE_URL: ${TWENTY_DATABASE_URL:-postgres://nyra:change-me@postgres-main:5432/nyra_main}
+      REDIS_URL: ${TWENTY_REDIS_URL:-redis://redis:6379/2}
+    ports:
+      - "${TWENTY_PORT:-3002}:3000"
+    networks: [nyra]

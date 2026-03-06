@@ -1,0 +1,6 @@
+# Fallback image if/when official vLLM image supports your 5090 host stack
+FROM vllm/vllm-openai:latest
+RUN pip install --no-cache-dir lmcache
+COPY ../workers/common/start_vllm_lmcache.sh /usr/local/bin/start_vllm_lmcache.sh
+RUN chmod +x /usr/local/bin/start_vllm_lmcache.sh
+ENTRYPOINT ["/usr/local/bin/start_vllm_lmcache.sh"]

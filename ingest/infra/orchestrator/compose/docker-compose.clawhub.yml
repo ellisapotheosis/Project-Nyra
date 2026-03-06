@@ -1,0 +1,4 @@
+# Convenience profile file for OpenClaw / ClawHub / MoltBot
+include:
+  - ./docker-compose.apps.yml
+  - ./docker-compose.mcp.yml

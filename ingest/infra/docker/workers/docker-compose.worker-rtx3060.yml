@@ -1,0 +1,2 @@
+include:
+  - ../../worker-rtx3060/docker-compose.yml

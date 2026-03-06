@@ -1,0 +1,5 @@
+services:
+  vllm-lmcache:
+    environment:
+      VLLM_LOGGING_LEVEL: DEBUG
+    command: ["bash", "-lc", "nvidia-smi && /usr/local/bin/start_vllm_lmcache.sh"]

@@ -1,0 +1,5 @@
+services:
+  vllm-lmcache:
+    environment:
+      # Example shared cache across GPU workers (point to orchestrator or dedicated Redis)
+      LMCACHE_REMOTE_URL: redis://100.64.0.1:6380

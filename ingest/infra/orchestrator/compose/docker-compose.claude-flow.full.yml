@@ -1,0 +1,128 @@
+services:
+  # Production-grade persistent storage for ruvector/agentdb
+  ruvector-postgres:
+    image: ankane/pgvector:latest
+    container_name: nyra-ruvector-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${RUVECTOR_POSTGRES_DB:-claude_flow}
+      POSTGRES_USER: ${RUVECTOR_POSTGRES_USER:-claude}
+      POSTGRES_PASSWORD: ${RUVECTOR_POSTGRES_PASSWORD:-claude-flow-secure}
+    ports: ["${RUVECTOR_PORT:-5440}:5432"]
+    volumes: [ruvector_pg_data:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL","pg_isready -U ${RUVECTOR_POSTGRES_USER:-claude} -d ${RUVECTOR_POSTGRES_DB:-claude_flow}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    networks: [nyra-network]
+
+  claude-flow-brain:
+    build:
+      context: ..
+      dockerfile: claude-flow/Dockerfile.brain
+    image: nyra/claude-flow-brain:local
+    container_name: nyra-claude-flow-brain
+    restart: unless-stopped
+    environment:
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379/1
+      DATABASE_URL: postgresql://${RUVECTOR_POSTGRES_USER:-claude}:${RUVECTOR_POSTGRES_PASSWORD:-claude-flow-secure}@ruvector-postgres:5432/${RUVECTOR_POSTGRES_DB:-claude_flow}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      GOOGLE_API_KEY: ${GOOGLE_API_KEY:-}
+    ports:
+      - "${CLAUDE_FLOW_MCP_PORT:-8088}:8080"
+      - "${CLAUDE_FLOW_DASHBOARD_PORT:-3012}:3000"
+    volumes:
+      - claude_flow_data:/app/.swarm
+      - ../.claude-flow:/app/.claude-flow
+      - ../logs/claude-flow:/app/logs
+    depends_on:
+      redis: { condition: service_healthy }
+      ruvector-postgres: { condition: service_healthy }
+    networks: [nyra-network]
+
+  claude-flow-cicd:
+    build:
+      context: ..
+      dockerfile: claude-flow/Dockerfile.cicd
+    image: nyra/claude-flow-cicd:local
+    container_name: nyra-claude-flow-cicd
+    restart: "no"
+    environment:
+      MCP_SERVER_URL: http://claude-flow-brain:8080
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379/1
+    depends_on:
+      claude-flow-brain: { condition: service_started }
+    networks: [nyra-network]
+    profiles: ["cicd"]
+
+  claude-flow-modules:
+    build:
+      context: ..
+      dockerfile: claude-flow/Dockerfile.modules
+    image: nyra/claude-flow-modules:local
+    container_name: nyra-claude-flow-modules
+    restart: unless-stopped
+    environment:
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379/1
+      DATABASE_URL: postgresql://${RUVECTOR_POSTGRES_USER:-claude}:${RUVECTOR_POSTGRES_PASSWORD:-claude-flow-secure}@ruvector-postgres:5432/${RUVECTOR_POSTGRES_DB:-claude_flow}
+    depends_on:
+      redis: { condition: service_healthy }
+      ruvector-postgres: { condition: service_healthy }
+    networks: [nyra-network]
+    profiles: ["dev","claude-flow-dev"]
+
+  # Maximal module service placeholders (each runs from the same modules image)
+  agentdb:
+    image: nyra/claude-flow-modules:local
+    container_name: nyra-agentdb
+    command: ["bash","-lc","sleep infinity"]
+    restart: unless-stopped
+    profiles: ["claude-flow-dev"]
+    depends_on: [claude-flow-modules]
+    networks: [nyra-network]
+
+  agentic-flow:
+    image: nyra/claude-flow-modules:local
+    container_name: nyra-agentic-flow
+    command: ["bash","-lc","sleep infinity"]
+    restart: unless-stopped
+    profiles: ["claude-flow-dev"]
+    depends_on: [claude-flow-modules]
+    networks: [nyra-network]
+
+  epic-sdk:
+    image: nyra/claude-flow-modules:local
+    container_name: nyra-epic-sdk
+    command: ["bash","-lc","sleep infinity"]
+    restart: unless-stopped
+    profiles: ["claude-flow-dev"]
+    depends_on: [claude-flow-modules]
+    networks: [nyra-network]
+
+  agent-booster:
+    image: nyra/claude-flow-modules:local
+    container_name: nyra-agent-booster
+    command: ["bash","-lc","sleep infinity"]
+    restart: unless-stopped
+    profiles: ["claude-flow-dev"]
+    depends_on: [claude-flow-modules]
+    networks: [nyra-network]
+
+  ruv-swarm:
+    image: nyra/claude-flow-modules:local
+    container_name: nyra-ruv-swarm
+    command: ["bash","-lc","sleep infinity"]
+    restart: unless-stopped
+    profiles: ["claude-flow-dev"]
+    depends_on: [claude-flow-modules]
+    networks: [nyra-network]
+
+  onnx-runtime:
+    image: mcr.microsoft.com/onnxruntime/server:latest
+    container_name: nyra-onnx-runtime
+    restart: unless-stopped
+    ports: ["8086:8001"]
+    profiles: ["claude-flow-dev"]
+    networks: [nyra-network]
