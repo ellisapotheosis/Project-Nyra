@@ -1,0 +1,335 @@
+🧠 MASTER TOPOLOGY (FINAL FORM)
+🧊 Orchestrator (MiniForum 6800H, 16GB RAM, 24/7 Node)
+
+This is your Control Plane.
+
+Run here:
+
+Gitea (Postgres-backed)
+
+Gitea Actions server
+
+LiteLLM
+
+Nexus (MCP aggregator)
+
+n8n
+
+Activepieces
+
+TwentyCRM
+
+TwentyCRM Postgres
+
+RuVector + Postgres
+
+Letta
+
+Graphiti + FalkorDB
+
+Redis (LMCache + workflow cache)
+
+AgentDB
+
+Claude-flow orchestration
+
+Nexus profiles
+
+Cloudflared
+
+Tailscale
+
+Docker MCP toolkit
+
+Admin UI (Archon OS integration)
+
+Do NOT put heavy inference here.
+
+🔥 GPU Workers (Compute Plane)
+RTX 5090 (24GB VRAM)
+
+vLLM (primary inference)
+
+LMCache (Redis-backed)
+
+CUDA-enabled Docker
+
+Claude-flow executor
+
+Embedding generation
+
+Heavy batch processing
+
+RTX 3090 Ti
+
+vLLM secondary node
+
+Test execution
+
+Refactor + merge fixer compute
+
+Qodo Merge execution
+
+RTX 3060 (12GB)
+
+Ollama
+
+Lightweight models
+
+Dev-time agents
+
+Non-production inference
+
+These workers:
+
+Pull jobs from orchestrator
+
+Push results back
+
+Never host stateful services
+
+They are disposable compute limbs.
+
+⚙️ GITEA: PROPER SETUP THIS TIME
+
+You wiped it. Good. We do it correctly.
+
+Required Additions This Time
+
+PostgreSQL (NOT sqlite)
+
+Gitea Actions enabled
+
+3 self-hosted runners (one per worker)
+
+Webhook for automerge
+
+Bot user with scoped token
+
+Branch protection rules
+
+Status checks required
+
+🏗 Gitea Architecture
+Gitea (orchestrator)
+│
+├── Web UI
+├── REST API
+├── Actions server
+├── Webhook dispatcher
+└── Runner registry
+        ├── runner-5090
+        ├── runner-3090ti
+        └── runner-3060
+
+Workers register runners via:
+
+gitea-runner register \
+  --instance http://orchestrator:3000 \
+  --token RUNNER_REGISTRATION_TOKEN \
+  --name rtx5090-runner
+🧬 Gitea Actions = Your Merge Engine
+
+Instead of reinventing everything:
+
+Use:
+
+PR opened → run review agent
+
+PR synchronized → run test agent
+
+PR labeled "automerge" → run automerge job
+
+Merge conflict → trigger merge-fix job
+
+Each runner can be labeled:
+
+gpu
+
+heavy
+
+light
+
+test
+
+refactor
+
+And your workflow yaml:
+
+runs-on: [self-hosted, gpu]
+
+This lets you route compute intelligently.
+
+🧠 CLAUDE-FLOW + LITELLM ROUTING
+
+Workers call:
+
+LiteLLM on orchestrator
+which routes to:
+
+vLLM nodes
+
+Ollama
+
+OpenRouter
+
+Claude API
+
+Any model you want
+
+You’ve basically built your own AI routing fabric.
+
+Beautiful.
+
+🚀 SYSTEMD IN WSL2?
+
+No.
+
+You do NOT use systemd for Docker Desktop.
+
+Docker Desktop:
+
+already manages WSL
+
+auto-starts with Windows
+
+handles container restart policies
+
+Instead:
+
+On every PC:
+
+Enable Docker Desktop “Start on login”
+
+In compose files use:
+
+restart: unless-stopped
+
+That’s it.
+
+No systemd needed.
+
+🌐 ORACLE VPS STRATEGY
+
+You got 24GB RAM + 4 CPUs + 200GB.
+
+Perfect for:
+
+Host Here:
+
+Marketing landing page
+
+Public Nyra API gateway
+
+Webhook relay
+
+Reverse proxy
+
+Read-only dashboard
+
+Static content
+
+CDN-like edge caching
+
+DO NOT host here:
+
+TwentyCRM primary DB
+
+Production Postgres
+
+Sensitive mortgage data
+
+Letta memory
+
+Internal vector DB
+
+Why?
+
+Compliance. Security. Data gravity.
+
+Mortgage data belongs local or in regulated cloud.
+
+💰 DRIP CAMPAIGNS ARCHITECTURE
+
+Use:
+
+n8n = Primary
+
+Why?
+
+More mature
+
+Better webhook triggers
+
+Advanced conditional logic
+
+Easier STOP detection
+
+Activepieces = Secondary
+
+For:
+
+Lightweight triggers
+
+Simple connectors
+
+Fast experiments
+
+🏗 Campaign Structure
+Lead Created → n8n workflow
+        │
+        ├── Send SMS
+        ├── Send Email
+        ├── Wait 2 days
+        ├── Check STOP?
+        ├── Check Reply?
+        ├── Branch logic
+        └── Update TwentyCRM
+
+STOP detection:
+
+inbound webhook from Twilio
+
+check for STOP
+
+immediately cancel workflow
+
+update CRM tag
+
+🧬 QUOTE ENGINE
+
+This should NOT live inside CRM.
+
+Make it:
+
+Separate microservice
+
+Containerized
+
+REST endpoint
+
+Returns 3-option JSON
+
+Stores record in CRM
+
+🏛 ADMIN UI STRATEGY
+
+Correct move:
+
+Grafbase/Nexus UI → integrated into Archon OS shell.
+
+Expose:
+
+Lead status
+
+Campaign builder
+
+Model routing
+
+Worker load
+
+AI merge logs
+
+Cost dashboard
+
+Mortgage pipeline health

@@ -1,0 +1,138 @@
+# Nexus configuration template for Project Nyra
+# NOTE: Nexus schema varies by version; treat this as a reference layout.
+# Key goals:
+#  - One MCP endpoint for Claude Desktop / Claude Code / Claude Flow
+#  - Fuzzy tool selection so tools aren't all blasted every request
+#  - Model routing: cloud providers + LiteLLM local worker pool
+
+server:
+  port: 8700
+
+providers:
+  litellm:
+    type: openai-compatible
+    base_url: ${LITELLM_PROXY_URL:-http://litellm:4000}
+    api_key: ${LITELLM_PROXY_API_KEY:-local}
+    default_model: anthropic/sonnet
+
+  anthropic:
+    type: anthropic
+    api_key: ${ANTHROPIC_API_KEY:-}
+    default_model: claude-3-5-sonnet-20241022
+
+  openrouter:
+    type: openrouter
+    api_key: ${OPENROUTER_API_KEY:-}
+    default_model: anthropic/claude-3.5-sonnet
+
+  openai:
+    type: openai
+    api_key: ${OPENAI_API_KEY:-}
+    default_model: gpt-4.1-mini
+
+  gemini:
+    type: gemini
+    api_key: ${GEMINI_API_KEY:-}
+    default_model: gemini-1.5-flash
+
+models:
+  default:
+    provider: litellm
+    model: anthropic/sonnet
+
+  cheap:
+    provider: openrouter
+    model: anthropic/claude-3-haiku
+
+  fast:
+    provider: openai
+    model: gpt-4.1-mini
+
+  local-rtx3060:
+    provider: litellm
+    model: local/rtx3060-default
+
+  local-rtx3090ti:
+    provider: litellm
+    model: local/rtx3090ti-default
+
+  local-rtx5090:
+    provider: litellm
+    model: local/rtx5090-default
+
+mcp_servers:
+  claude_flow:
+    transport: http
+    url: ${CLAUDE_FLOW_MCP_URL:-http://claude-flow:8787/mcp}
+    tags: [project-nyra, devtools]
+
+  archon_os:
+    transport: http
+    url: ${ARCHON_MCP_URL:-http://archon-os:8788/mcp}
+    tags: [orchestration, memory-manager]
+
+  docker_toolkit:
+    # Single entrypoint to all Docker Desktop MCP Toolkit servers
+    transport: http
+    url: ${DOCKER_MCP_TOOLKIT_URL:-http://docker-mcp-toolkit:8082/mcp}
+    tags: [toolkit, filesystem, docker]
+
+routing:
+  model_routing:
+    - match:
+        tags_any: [local, gpu]
+      target: local-rtx5090
+
+    - match:
+        tags_any: [code]
+      target: local-rtx3090ti
+
+    - match:
+        tags_any: [cheap]
+      target: cheap
+
+    - match:
+        any: true
+      target: default
+
+  tools:
+    fuzzy_tool_find:
+      enabled: true
+      threshold: 0.55
+      max_candidates: 8
+      max_per_server: 4
+      prefer_server_tags:
+        - project-nyra
+        - filesystem
+        - devtools
+        - toolkit
+
+    hard_routes:
+      - match:
+          tool_prefix: filesystem/
+        server: docker_toolkit
+      - match:
+          tool_prefix: docker/
+        server: docker_toolkit
+
+    default_servers:
+      - claude_flow
+      - archon_os
+      - docker_toolkit
+
+limits:
+  max_concurrent_requests: 12
+  per_provider_rpm:
+    litellm: 240
+    anthropic: 60
+    openrouter: 120
+    openai: 120
+
+logging:
+  level: info
+  structured: true
+
+cache:
+  enabled: true
+  ttl_seconds: 600
+  max_entries: 1000

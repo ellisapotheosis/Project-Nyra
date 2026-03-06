@@ -1,0 +1,5 @@
+# Default alias for worker-rtx5090
+FROM scratch
+# This file exists as a pointer. Use one of:
+#   - Dockerfile.blackwell-src  (recommended for 5090)
+#   - Dockerfile.blackwell-official-fallback

@@ -1,0 +1,4 @@
+services:
+  vllm-lmcache:
+    environment:
+      VLLM_LOGGING_LEVEL: DEBUG

@@ -1,0 +1,4 @@
+FROM ollama/ollama:latest
+RUN (apk add --no-cache curl bash 2>/dev/null) || true
+COPY ./bootstrap/pull-models.sh /usr/local/bin/pull-models.sh
+RUN chmod +x /usr/local/bin/pull-models.sh

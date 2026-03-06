@@ -1,0 +1,48 @@
+services:
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: nyra-n8n
+    restart: unless-stopped
+    ports: ["${N8N_PORT:-5678}:5678"]
+    environment:
+      N8N_PORT: "5678"
+      N8N_HOST: ${ORCHESTRATOR_HOSTNAME:-orchestrator.tail-net.ts.net}
+      N8N_PROTOCOL: http
+      WEBHOOK_URL: http://${ORCHESTRATOR_HOSTNAME:-orchestrator.tail-net.ts.net}:${N8N_PORT:-5678}/
+      GENERIC_TIMEZONE: ${TIMEZONE:-America/New_York}
+      DB_TYPE: postgresdb
+      DB_POSTGRESDB_HOST: postgres
+      DB_POSTGRESDB_PORT: "5432"
+      DB_POSTGRESDB_DATABASE: ${POSTGRES_DB:-nyra}
+      DB_POSTGRESDB_USER: ${POSTGRES_USER:-nyra}
+      DB_POSTGRESDB_PASSWORD: ${POSTGRES_PASSWORD}
+      N8N_ENCRYPTION_KEY: ${N8N_ENCRYPTION_KEY:?set N8N_ENCRYPTION_KEY}
+    volumes:
+      - n8n_data:/home/node/.n8n
+      - ../n8n-workflows:/opt/nyra/n8n-workflows:rw
+    depends_on:
+      postgres: { condition: service_healthy }
+    networks: [nyra-network]
+
+  activepieces:
+    image: activepieces/activepieces:latest
+    container_name: nyra-activepieces
+    restart: unless-stopped
+    ports: ["${ACTIVEPIECES_PORT:-8085}:80"]
+    environment:
+      AP_FRONTEND_URL: http://${ORCHESTRATOR_HOSTNAME:-orchestrator.tail-net.ts.net}:${ACTIVEPIECES_PORT:-8085}
+      AP_WEBHOOK_TIMEOUT_SECONDS: "120"
+      AP_POSTGRES_DATABASE: ${POSTGRES_DB:-nyra}
+      AP_POSTGRES_HOST: postgres
+      AP_POSTGRES_PORT: "5432"
+      AP_POSTGRES_USERNAME: ${POSTGRES_USER:-nyra}
+      AP_POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      AP_REDIS_HOST: redis
+      AP_REDIS_PORT: "6379"
+      AP_REDIS_PASSWORD: ${REDIS_PASSWORD}
+      AP_ENCRYPTION_KEY: ${ACTIVEPIECES_ENCRYPTION_KEY:-change_me_activepieces}
+      AP_JWT_SECRET: ${ACTIVEPIECES_JWT_SECRET:-change_me_activepieces_jwt}
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_healthy }
+    networks: [nyra-network]

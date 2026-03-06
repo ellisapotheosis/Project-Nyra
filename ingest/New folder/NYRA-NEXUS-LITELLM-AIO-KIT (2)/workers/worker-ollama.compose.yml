@@ -1,0 +1,20 @@
+version: "3.9"
+name: nyra-worker-ollama
+
+services:
+  ollama:
+    image: ollama/ollama:latest
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama-data:/root/.ollama
+    # For NVIDIA GPUs on Linux/WSL, you may need:
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - capabilities: [gpu]
+
+volumes:
+  ollama-data:

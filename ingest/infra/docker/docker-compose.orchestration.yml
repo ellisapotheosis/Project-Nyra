@@ -1,0 +1,2 @@
+include:
+  - ../orchestrator/compose/docker-compose.orchestration.yml

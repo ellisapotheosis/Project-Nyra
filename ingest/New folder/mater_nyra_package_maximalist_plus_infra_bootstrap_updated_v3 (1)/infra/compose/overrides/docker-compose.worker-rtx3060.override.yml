@@ -1,0 +1,17 @@
+version: '3.8'
+
+# Worker RTX3060 override.  This file exists for completeness; the base
+# compose file uses profile gating to enable only GPU inference and vector
+# services when COMPOSE_PROFILES=gpu,vector,mcp.  Modify this file if you need
+# worker-specific overrides (e.g. device mappings or environment vars).
+
+services:
+  # Example: map GPU device if using nvidia-docker runtime.
+  # ollama:
+  #   deploy:
+  #     resources:
+  #       reservations:
+  #         devices:
+  #           - driver: nvidia
+  #             count: 1
+  #             capabilities: [gpu]

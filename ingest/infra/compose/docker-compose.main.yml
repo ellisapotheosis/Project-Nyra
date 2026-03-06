@@ -1,0 +1,436 @@
+# Project Nyra - Main Docker Compose Configuration
+# AUTHORITATIVE VERSION - Resolves 20+ variant conflicts identified in audit
+# Version: 3.1.0
+# Date: March 3, 2026
+
+version: '3.8'
+
+services:
+  # ============================================================
+  # Core Infrastructure Services
+  # ============================================================
+
+  # Nexus Router - LLM Gateway (Port 6000)
+  nexus-router:
+    build: ../docker/nexus/
+    container_name: nyra_nexus_router
+    ports:
+      - "6000:6000"
+    environment:
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - LOG_LEVEL=INFO
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - nyra-network
+
+  # TwentyCRM - Customer Relationship Management (Port 3000)
+  twenty-crm:
+    image: twentyhq/twenty:latest
+    container_name: nyra_twenty_crm
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/twenty
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - postgres
+      - redis
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - nyra-network
+
+  # Letta - Conversation Memory (Port 8283)
+  letta:
+    build: ../docker/letta/
+    container_name: nyra_letta
+    ports:
+      - "8283:8283"
+    environment:
+      - POSTGRES_URL=postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/letta
+    depends_on:
+      - postgres
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8283/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - nyra-network
+
+  # Mem0 - Universal Memory (Port 4321)
+  mem0:
+    build:
+      context: ../../src/services/mem0-rest
+      dockerfile: Dockerfile
+    container_name: nyra_mem0
+    ports:
+      - "4321:4321"
+    environment:
+      - POSTGRES_URL=postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/mem0
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - postgres
+      - redis
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4321/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - nyra-network
+
+  # n8n - Workflow Engine (Port 5678)
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: nyra_n8n
+    ports:
+      - "5678:5678"
+    environment:
+      - DB_TYPE=postgresdb
+      - DB_POSTGRESDB_HOST=postgres
+      - DB_POSTGRESDB_PORT=5432
+      - DB_POSTGRESDB_DATABASE=n8n
+      - DB_POSTGRESDB_USER=postgres
+      - DB_POSTGRESDB_PASSWORD=${POSTGRES_PASSWORD}
+      - N8N_HOST=0.0.0.0
+      - N8N_PORT=5678
+    depends_on:
+      - postgres
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5678/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - nyra-network
+
+  # Dify - Chat Interface (Port 3001)
+  dify:
+    image: langgenius/dify-api:latest
+    container_name: nyra_dify
+    ports:
+      - "3001:3001"
+    environment:
+      - DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/dify
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - postgres
+      - redis
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - nyra-network
+
+  # ============================================================
+  # Business Services (Mortgage Platform)
+  # ============================================================
+
+  # Quote Engine - Mortgage Calculations (Port 8001)
+  quote-engine:
+    build:
+      context: ../../src/services/quote-engine
+      dockerfile: Dockerfile
+    container_name: nyra_quote_engine
+    ports:
+      - "8001:8001"
+    environment:
+      - DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/quotes
+      - REDIS_URL=redis://redis:6379
+      - NEXUS_URL=http://nexus-router:6000
+    depends_on:
+      - postgres
+      - redis
+      - nexus-router
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - nyra-network
+
+  # Campaign Engine - Drip Automation (Port 8002)
+  campaign-engine:
+    build:
+      context: ../../src/services/campaign-engine
+      dockerfile: Dockerfile
+    container_name: nyra_campaign_engine
+    ports:
+      - "8002:8002"
+    environment:
+      - DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/campaigns
+      - N8N_URL=http://n8n:5678
+      - TWILIO_ACCOUNT_SID=${TWILIO_ACCOUNT_SID}
+      - TWILIO_AUTH_TOKEN=${TWILIO_AUTH_TOKEN}
+      - SENDGRID_API_KEY=${SENDGRID_API_KEY}
+    depends_on:
+      - postgres
+      - n8n
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8002/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - nyra-network
+
+  # Nyra Orchestrator - Master Coordination (Port 8010)
+  nyra-orchestrator:
+    build:
+      context: ../../src/services/nyra-orchestrator
+      dockerfile: Dockerfile
+    container_name: nyra_orchestrator
+    ports:
+      - "8010:8010"
+    environment:
+      - DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/orchestrator
+      - NEXUS_URL=http://nexus-router:6000
+      - LETTA_URL=http://letta:8283
+      - MEM0_URL=http://mem0:4321
+    depends_on:
+      - postgres
+      - nexus-router
+      - letta
+      - mem0
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8010/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - nyra-network
+
+  # RateHunter API - API Gateway (Port 8003)
+  ratehunter-api:
+    build:
+      context: ../../src/services/ratehunter-api
+      dockerfile: Dockerfile
+    container_name: nyra_ratehunter_api
+    ports:
+      - "8003:8003"
+    environment:
+      - DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/ratehunter
+      - JWT_SECRET=${JWT_SECRET}
+      - QUOTE_ENGINE_URL=http://quote-engine:8001
+    depends_on:
+      - postgres
+      - quote-engine
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8003/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - nyra-network
+
+  # ============================================================
+  # Frontend Applications
+  # ============================================================
+
+  # RateHunter Web - Customer Portal (Port 3100)
+  ratehunter-web:
+    build:
+      context: ../../src/apps/ratehunter-web
+      dockerfile: Dockerfile
+    container_name: nyra_ratehunter_web
+    ports:
+      - "3100:3100"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8003
+      - NEXT_PUBLIC_DIFY_URL=http://localhost:3001
+    depends_on:
+      - ratehunter-api
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3100/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - nyra-network
+
+  # Nyra Admin - Internal Dashboard (Port 3101)
+  nyra-admin:
+    build:
+      context: ../../src/apps/nyra-admin
+      dockerfile: Dockerfile
+    container_name: nyra_admin
+    ports:
+      - "3101:3101"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8003
+      - NEXT_PUBLIC_CRM_URL=http://localhost:3000
+      - NEXT_PUBLIC_N8N_URL=http://localhost:5678
+    depends_on:
+      - ratehunter-api
+      - twenty-crm
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3101/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - nyra-network
+
+  # ============================================================
+  # Data Layer
+  # ============================================================
+
+  # PostgreSQL - Primary Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: nyra_postgres
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=nyra
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./sql/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - nyra-network
+
+  # Redis - Caching and Session Store
+  redis:
+    image: redis:7-alpine
+    container_name: nyra_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - nyra-network
+
+  # ============================================================
+  # Observability Stack
+  # ============================================================
+
+  # Prometheus - Metrics Collection (Port 9090)
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: nyra_prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:9090/-/healthy"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - nyra-network
+
+  # Grafana - Dashboards (Port 3005)
+  grafana:
+    image: grafana/grafana:latest
+    container_name: nyra_grafana
+    ports:
+      - "3005:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards
+      - ./monitoring/grafana/datasources:/etc/grafana/provisioning/datasources
+    depends_on:
+      - prometheus
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - nyra-network
+
+  # Loki - Log Aggregation (Port 3100)
+  loki:
+    image: grafana/loki:latest
+    container_name: nyra_loki
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml
+    volumes:
+      - ./monitoring/loki/config.yaml:/etc/loki/local-config.yaml
+      - loki_data:/loki
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3100/ready"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - nyra-network
+
+# ============================================================
+# Network Configuration
+# ============================================================
+
+networks:
+  nyra-network:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.20.0.0/16
+
+# ============================================================
+# Volume Configuration
+# ============================================================
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local
+  loki_data:
+    driver: local

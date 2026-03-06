@@ -1,0 +1,80 @@
+services:
+  # Archon OS split into multiple containers (api, agents, server, mcp, ui, scheduler)
+  archon-api:
+    build:
+      context: ..
+      dockerfile: archon/Dockerfile.node-wrapper
+    image: nyra/archon-wrapper:local
+    container_name: nyra-archon-api
+    restart: unless-stopped
+    environment:
+      ARCHON_ROLE: api
+      ARCHON_PORT: 4000
+      DATABASE_URL: postgresql://${POSTGRES_USER:-nyra}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-nyra}
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379/2
+      FALKORDB_URL: redis://falkordb:6379
+      LETTA_URL: http://letta:8283
+    ports: ["${ARCHON_API_PORT:-4000}:4000"]
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_healthy }
+    networks: [nyra-network]
+
+  archon-server:
+    image: nyra/archon-wrapper:local
+    container_name: nyra-archon-server
+    restart: unless-stopped
+    environment:
+      ARCHON_ROLE: server
+      ARCHON_PORT: 4002
+    depends_on:
+      archon-api: { condition: service_started }
+    networks: [nyra-network]
+
+  archon-agents:
+    image: nyra/archon-wrapper:local
+    container_name: nyra-archon-agents
+    restart: unless-stopped
+    environment:
+      ARCHON_ROLE: agents
+      ARCHON_PORT: 4003
+      NEXUS_URL: http://nexus:6000
+      LITELLM_BASE_URL: http://litellm:4000/v1
+    depends_on:
+      archon-api: { condition: service_started }
+      nexus: { condition: service_healthy }
+    networks: [nyra-network]
+
+  archon-os:
+    image: nyra/archon-wrapper:local
+    container_name: nyra-archon-os
+    restart: unless-stopped
+    environment:
+      ARCHON_ROLE: os
+      ARCHON_PORT: 4004
+    depends_on:
+      archon-api: { condition: service_started }
+    networks: [nyra-network]
+
+  archon-mcp:
+    image: nyra/archon-wrapper:local
+    container_name: nyra-archon-mcp
+    restart: unless-stopped
+    environment:
+      ARCHON_ROLE: mcp
+      ARCHON_PORT: 8051
+    ports: ["${ARCHON_MCP_PORT:-8051}:8051"]
+    depends_on:
+      archon-api: { condition: service_started }
+    networks: [nyra-network]
+
+  archon-ui:
+    image: nginx:alpine
+    container_name: nyra-archon-ui
+    restart: unless-stopped
+    volumes:
+      - ../archon/ui-placeholder:/usr/share/nginx/html:ro
+    ports: ["${ARCHON_UI_PORT:-3737}:80"]
+    depends_on:
+      archon-api: { condition: service_started }
+    networks: [nyra-network]

@@ -1,0 +1,57 @@
+name: nyra-worker-rtx3060
+
+services:
+  ollama:
+    image: ollama/ollama:latest
+    container_name: nyra-worker-3060-ollama
+    restart: unless-stopped
+    gpus: all
+    environment:
+      OLLAMA_HOST: 0.0.0.0:11434
+      OLLAMA_KEEP_ALIVE: ${OLLAMA_KEEP_ALIVE:-24h}
+      NVIDIA_VISIBLE_DEVICES: ${NVIDIA_VISIBLE_DEVICES:-all}
+      NVIDIA_DRIVER_CAPABILITIES: ${NVIDIA_DRIVER_CAPABILITIES:-compute,utility}
+    volumes:
+      - ./ollama:/root/.ollama
+    ports:
+      - "${OLLAMA_PORT:-11434}:11434"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:11434/api/tags >/dev/null || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 20s
+    networks: [worker-net]
+
+  ollama-model-seeder:
+    build:
+      context: .
+      dockerfile: Dockerfile.ollama-tools
+    container_name: nyra-worker-3060-ollama-seeder
+    restart: "no"
+    depends_on:
+      ollama:
+        condition: service_healthy
+    environment:
+      OLLAMA_HOST: http://ollama:11434
+      OLLAMA_MODELS: ${OLLAMA_MODELS:-qwen2.5:7b-instruct,deepseek-r1:8b}
+    entrypoint: ["/bin/sh", "/usr/local/bin/pull-models.sh"]
+    networks: [worker-net]
+    profiles: ["seed-models"]
+
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: nyra-worker-3060-node-exporter
+    restart: unless-stopped
+    command: ["--path.rootfs=/host"]
+    pid: host
+    volumes:
+      - /:/host:ro,rslave
+    ports:
+      - "9100:9100"
+    networks: [worker-net]
+    profiles: ["metrics"]
+
+networks:
+  worker-net:
+    driver: bridge

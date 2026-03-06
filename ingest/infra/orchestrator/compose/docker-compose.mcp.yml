@@ -1,0 +1,75 @@
+services:
+  graphiti-mcp:
+    build:
+      context: ..
+      dockerfile: mcp/graphiti-mcp/Dockerfile
+    image: nyra/graphiti-mcp:local
+    container_name: nyra-graphiti-mcp
+    restart: unless-stopped
+    environment:
+      PORT: ${GRAPHITI_MCP_PORT:-8100}
+      FALKORDB_URI: redis://:${FALKORDB_PASSWORD:-}@falkordb:6379
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379/8
+      MONGO_URI: mongodb://${MONGO_ROOT_USER:-admin}:${MONGO_ROOT_PASSWORD}@mongo:27017/admin
+    ports: ["${GRAPHITI_MCP_PORT:-8100}:8000"]
+    depends_on:
+      falkordb: { condition: service_started }
+      redis: { condition: service_healthy }
+    networks: [nyra-network]
+
+  n8n-mcp:
+    build:
+      context: ..
+      dockerfile: mcp/n8n-mcp/Dockerfile
+    image: nyra/n8n-mcp:local
+    container_name: nyra-n8n-mcp
+    restart: unless-stopped
+    environment:
+      N8N_BASE_URL: http://n8n:5678
+      N8N_API_KEY: ${N8N_API_KEY:-}
+    ports: ["8071:8071"]
+    depends_on:
+      n8n: { condition: service_started }
+    networks: [nyra-network]
+
+  twenty-mcp:
+    build:
+      context: ..
+      dockerfile: mcp/twenty-mcp/Dockerfile
+    image: nyra/twenty-mcp:local
+    container_name: nyra-twenty-mcp
+    restart: unless-stopped
+    environment:
+      TWENTY_BASE_URL: http://twenty:3000
+      TWENTY_API_KEY: ${TWENTY_API_KEY:-}
+    ports: ["${TWENTY_MCP_PORT:-8070}:8070"]
+    depends_on:
+      twenty: { condition: service_started }
+    networks: [nyra-network]
+
+  clawhub-mcp:
+    build:
+      context: ..
+      dockerfile: mcp/clawhub-mcp/Dockerfile
+    image: nyra/clawhub-mcp:local
+    container_name: nyra-clawhub-mcp
+    restart: unless-stopped
+    environment:
+      CLOWHUB_API_URL: http://clawhub-api:3011
+    ports: ["8072:8072"]
+    depends_on:
+      clawhub-api: { condition: service_started }
+    networks: [nyra-network]
+    profiles: ["openclaw"]
+
+  composio-mcp:
+    image: composiohq/composio:latest
+    container_name: nyra-composio-mcp
+    restart: unless-stopped
+    environment:
+      COMPOSIO_API_KEY: ${COMPOSIO_API_KEY:-}
+      MCP_PORT: "8067"
+      MCP_HOST: 0.0.0.0
+    ports: ["${COMPOSIO_MCP_PORT:-8067}:8067"]
+    networks: [nyra-network]
+    profiles: ["composio"]

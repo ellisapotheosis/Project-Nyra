@@ -1,0 +1,29 @@
+{
+  "version": "nyra-routing-v3",
+  "default_strategy": "hybrid_cost_latency",
+  "llm_entrypoints": {
+    "openai_compatible": "/llm/openai/v1",
+    "anthropic_compatible": "/llm/anthropic"
+  },
+  "model_groups": {
+    "reasoning": {
+      "primary": ["litellm/nyra/reasoning-local"],
+      "fallback": ["anthropic/claude-3-5-sonnet-20241022", "openai/gpt-4o-mini"],
+      "policy": {"prefer_local": true, "max_fallback_cost_per_1k": 0.25}
+    },
+    "fast": {
+      "primary": ["litellm/nyra/fast-local"],
+      "fallback": ["openai/gpt-4o-mini"],
+      "policy": {"prefer_local": true}
+    },
+    "tools": {
+      "primary": ["litellm/nyra/fast-local"],
+      "fallback": ["anthropic/claude-3-5-sonnet-20241022"]
+    }
+  },
+  "worker_health": {
+    "check_path": "/health",
+    "interval_seconds": 20,
+    "failures_before_eject": 3
+  }
+}
