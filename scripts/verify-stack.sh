@@ -10,6 +10,33 @@ if ! command -v docker >/dev/null 2>&1; then
   exit 1
 fi
 
+checks=(
+  "nexus-router|${NEXUS_ROUTER_PORT:-7000}|/health"
+  "litellm|${LITELLM_PORT:-4000}|/health"
+  "n8n|${N8N_PORT:-5678}|/"
+  "activepieces|${ACTIVEPIECES_PORT:-8082}|/"
+  "twentycrm|${TWENTYCRM_PORT:-3000}|/"
+  "archon-os|${ARCHON_OS_PORT:-9001}|/"
+  "openwebui|${OPENWEBUI_PORT:-8088}|/"
+  "grafana|${GRAFANA_PORT:-3003}|/api/health"
+  "prometheus|${PROMETHEUS_PORT:-9090}|/-/healthy"
+)
+
+printf "%-20s %-8s %-50s\n" "SERVICE" "RESULT" "URL"
+printf "%-20s %-8s %-50s\n" "-------" "------" "---"
+
+failed=0
+
+docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" ps >/dev/null || {
+  echo "[FAIL] docker compose ps failed"
+  exit 1
+}
+
+for row in "${checks[@]}"; do
+  service="${row%%|*}"
+  rest="${row#*|}"
+  port="${rest%%|*}"
+  path="${rest#*|}"
 if [[ ! -f "$CHECK_MATRIX" ]]; then
   echo "[FAIL] check matrix not found: $CHECK_MATRIX"
   exit 1
