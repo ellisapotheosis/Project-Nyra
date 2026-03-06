@@ -1,0 +1,30 @@
+name: mirror-to-gitea
+
+on:
+  push:
+    branches: [main]
+    tags: ["*"]
+
+jobs:
+  mirror-repository-to-gitea:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.GITEA_MIRROR_SSH_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H "$(echo "${{ secrets.GITEA_MIRROR_URL }}" | sed -E 's#.*@([^:/]+).*#\1#')" >> ~/.ssh/known_hosts || true
+
+      - name: Push to Gitea mirror
+        env:
+          GITEA_MIRROR_URL: ${{ secrets.GITEA_MIRROR_URL }}
+        run: |
+          git remote remove gitea 2>/dev/null || true
+          git remote add gitea "$GITEA_MIRROR_URL"
+          git push gitea --all
+          git push gitea --tags
