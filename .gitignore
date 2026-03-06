@@ -496,3 +496,7 @@ bootstrap/
 
 # Codanna local index/cache
 .codanna/
+.env.gitea
+.env.infisical
+.secrets/
+gitea-setup-summary-*.md

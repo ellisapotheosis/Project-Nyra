@@ -14,7 +14,8 @@ WORKER_PROFILE ?= workers
   up down restart logs ps pull \
   up-core up-orchestrator up-apps up-dev up-workers up-oracle up-worker-3060 up-worker-3090ti up-worker-5090 \
   node-up-orchestrator node-up-oracle node-up-worker-3060 node-up-worker-3090ti node-up-worker-5090 node-down-orchestrator node-down-oracle node-down-worker-3060 node-down-worker-3090ti node-down-worker-5090 \
-  down-workers nexus-up nexus-down health stack-up stack-verify scan-env ports port-check bootstrap-import bootstrap-import-apply bootstrap-ultimate bootstrap-oracle bootstrap-worker-3060 bootstrap-worker-3090ti bootstrap-worker-5090
+  down-workers nexus-up nexus-down health stack-up stack-verify scan-env ports port-check bootstrap-import bootstrap-import-apply bootstrap-ultimate bootstrap-oracle bootstrap-worker-3060 bootstrap-worker-3090ti bootstrap-worker-5090 \
+  gitea-up gitea-up-ai gitea-up-actions gitea-up-infisical-agent gitea-down gitea-ps gitea-config infisical-up infisical-down infisical-config
 
 .DEFAULT_GOAL := help
 
@@ -45,6 +46,14 @@ help:
 	@echo "make scan-env           Build env inventory + missing env reports"
 	@echo "make ports              Print canonical ports registry path"
 	@echo "make bootstrap-ultimate Bring up orchestrator + oracle + all workers"
+	@echo
+	@echo "make gitea-up           Start Gitea bootstrap stack"
+	@echo "make gitea-up-ai        Start Gitea stack with AI reviewer profile"
+	@echo "make gitea-up-actions   Start Gitea stack with actions runner profile"
+	@echo "make gitea-up-infisical-agent Start Gitea stack with Infisical agent profile"
+	@echo "make gitea-config       Validate new Gitea compose config"
+	@echo "make infisical-up       Start Infisical self-host stack"
+	@echo "make infisical-config   Validate new Infisical compose config"
 
 install:
 	npm install
@@ -235,3 +244,33 @@ audit-ports:
 
 audit-env:
 	python scripts/generate-env-docs.py
+
+gitea-config:
+	docker compose -f docker-compose.gitea.yml --env-file .env.gitea config >/dev/null
+
+gitea-up:
+	docker compose -f docker-compose.gitea.yml --env-file .env.gitea up -d
+
+gitea-up-ai:
+	docker compose -f docker-compose.gitea.yml --env-file .env.gitea --profile ai up -d
+
+gitea-up-actions:
+	docker compose -f docker-compose.gitea.yml --env-file .env.gitea --profile actions up -d
+
+gitea-up-infisical-agent:
+	docker compose -f docker-compose.gitea.yml --env-file .env.gitea --profile infisical up -d
+
+gitea-down:
+	docker compose -f docker-compose.gitea.yml --env-file .env.gitea down --remove-orphans
+
+gitea-ps:
+	docker compose -f docker-compose.gitea.yml --env-file .env.gitea ps
+
+infisical-config:
+	docker compose -f docker-compose.infisical.yml --env-file .env.infisical config >/dev/null
+
+infisical-up:
+	docker compose -f docker-compose.infisical.yml --env-file .env.infisical up -d
+
+infisical-down:
+	docker compose -f docker-compose.infisical.yml --env-file .env.infisical down --remove-orphans
