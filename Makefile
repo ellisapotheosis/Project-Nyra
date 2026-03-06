@@ -105,7 +105,7 @@ up-core:
 	$(COMPOSE) --profile core up -d
 
 up-orchestrator:
-	$(COMPOSE) --profile core --profile gateway --profile workflow --profile crm --profile archon up -d
+	docker compose -f infra/orchestrator/docker-compose.orchestrator.yml up -d
 
 up-apps:
 	$(COMPOSE) --profile apps up -d
@@ -114,10 +114,14 @@ up-dev:
 	$(COMPOSE) --profile dev up -d
 
 up-workers:
-	$(COMPOSE) --profile $(WORKER_PROFILE) up -d
+	docker compose -f infra/workers/worker-rtx3060/docker-compose.worker.yml up -d
+	docker compose -f infra/workers/worker-rtx3090ti/docker-compose.worker.yml up -d
+	docker compose -f infra/workers/worker-rtx5090/docker-compose.worker.yml up -d
 
 down-workers:
-	$(COMPOSE) --profile $(WORKER_PROFILE) down --remove-orphans
+	docker compose -f infra/workers/worker-rtx3060/docker-compose.worker.yml down --remove-orphans
+	docker compose -f infra/workers/worker-rtx3090ti/docker-compose.worker.yml down --remove-orphans
+	docker compose -f infra/workers/worker-rtx5090/docker-compose.worker.yml down --remove-orphans
 
 nexus-up:
 	$(COMPOSE) --profile gateway up -d litellm nexus-router
@@ -138,7 +142,7 @@ stack-verify:
 	./scripts/stack/verify-stack.sh $(STACK_ENV_FILE)
 
 up-oracle:
-	$(COMPOSE) --profile oracle up -d
+	docker compose -f infra/oracle/docker-compose.oracle.yml up -d
 
 up-worker-3060:
 	$(COMPOSE) --profile worker-3060 up -d
@@ -215,7 +219,7 @@ node-down-worker-5090:
 	./infra/scripts/node-down.sh worker-rtx5090
 
 # Canonical consolidation wrappers (backwards compatible)
-.PHONY: down-oracle logs-oracle health-oracle down-orchestrator logs-orchestrator health-orchestrator health-workers audit-ports audit-env
+.PHONY: down-oracle logs-oracle health-oracle down-orchestrator logs-orchestrator health-orchestrator health-workers audit-ports audit-env up-twenty down-twenty logs-twenty health-twenty
 
 down-oracle:
 	docker compose -f infra/oracle/docker-compose.oracle.yml down --remove-orphans
@@ -227,13 +231,25 @@ health-oracle:
 	docker compose -f infra/oracle/docker-compose.oracle.yml ps
 
 down-orchestrator:
-	docker compose -f infra/docker-compose.yml --profile core --profile gateway --profile workflow --profile crm --profile archon down --remove-orphans
+	docker compose -f infra/orchestrator/docker-compose.orchestrator.yml down --remove-orphans
 
 logs-orchestrator:
-	docker compose -f infra/docker-compose.yml --profile core --profile gateway --profile workflow --profile crm --profile archon logs -f --tail=200
+	docker compose -f infra/orchestrator/docker-compose.orchestrator.yml logs -f --tail=200
 
 health-orchestrator:
-	docker compose -f infra/docker-compose.yml --profile core --profile gateway --profile workflow --profile crm --profile archon ps
+	docker compose -f infra/orchestrator/docker-compose.orchestrator.yml ps
+
+up-twenty:
+	docker compose -f infra/oracle/docker-compose.oracle.yml up -d twenty postgres
+
+down-twenty:
+	docker compose -f infra/oracle/docker-compose.oracle.yml stop twenty postgres
+
+logs-twenty:
+	docker compose -f infra/oracle/docker-compose.oracle.yml logs -f --tail=200 twenty postgres
+
+health-twenty:
+	docker compose -f infra/oracle/docker-compose.oracle.yml ps twenty postgres
 
 health-workers:
 	docker compose -f infra/workers/worker-rtx3060/docker-compose.worker.yml ps || true
