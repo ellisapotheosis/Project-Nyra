@@ -1,0 +1,7 @@
+services:
+  twenty:
+    image: twentycrm/twenty:latest
+    profiles: ["oracle"]
+    env_file: ["infra/.env"]
+    ports:
+      - "127.0.0.1:${TWENTY_HOST_PORT:-3002}:3000"
