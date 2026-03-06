@@ -10,6 +10,8 @@ export default [
       '.claude/**',
       'docs/**',
       'infra-archived/**',
+      'archive/**',
+      '_archived/**',
       'assets/**'
     ]
   },

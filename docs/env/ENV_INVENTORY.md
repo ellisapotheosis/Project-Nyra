@@ -1,6 +1,6 @@
 # ENV Inventory
 
-Total discovered keys: **547**
+Total discovered keys: **516**
 
 ## `ACTIVEPIECES_API_KEY`
 - `infra/nexus-complete.toml`
@@ -11,9 +11,6 @@ Total discovered keys: **547**
 
 ## `ACTIVEPIECES_BASE_URL`
 - `services/campaign-engine/src/config/index.js`
-
-## `ACTIVEPIECES_DB`
-- `infra/oracle/.env.example`
 
 ## `ACTIVEPIECES_ENCRYPTION_KEY`
 - `infra/docker-compose.yml`
@@ -31,10 +28,10 @@ Total discovered keys: **547**
 - `infra/docs/STACK-ASSET-INVENTORY.md`
 
 ## `ACTIVEPIECES_TOKEN`
-- `infra/docker-compose.orchestrator.yml`
 - `infra/nexus.toml`
 - `infra/nyra-complete/infra/docker-compose.orchestrator.yml`
 - `infra/nyra-complete/infra/nexus/nexus.toml`
+- `infra/orchestrator/docker-compose.orchestrator.yml`
 
 ## `ACTIVEPIECES_WEBHOOK_TIMEOUT_SECONDS`
 - `infra/docker-compose.yml`
@@ -44,9 +41,6 @@ Total discovered keys: **547**
 
 ## `ADMIN_EMAIL`
 - `infra/project-nyra-scaffold/infra/config/litellm-config.yaml`
-
-## `ADMIN_URL`
-- `infra/oracle/.env.example`
 
 ## `AGENTDB_DB`
 - `infra/docker-compose.yml`
@@ -78,13 +72,11 @@ Total discovered keys: **547**
 ## `ANTHROPIC_API_KEY`
 - `apps/ingestion/docs/CLAUDE-FLOW-FULL-FEATURES-CONTAINERIZATION.md`
 - `apps/ingestion/files/nyra-stack/docker-compose.yml`
-- `apps/web/webapp/src/orchestration/claude-flow/orchestrator.ts`
 - `infra/ARCHITECTURE.md`
 - `infra/compose/docker-compose.archon.yml`
 - `infra/config.yaml`
 - `infra/docker-compose.claude-flow-cicd.yml`
 - `infra/docker-compose.oracle.yml`
-- `infra/docker-compose.orchestrator.yml`
 - `infra/docker-compose.yml`
 - `infra/docker-compose/docker-compose.claude-flow.yml`
 - `infra/nexus-complete.toml`
@@ -95,8 +87,10 @@ Total discovered keys: **547**
 - `infra/nyra-complete/infra/litellm/config.yaml`
 - `infra/nyra-complete/infra/nexus/nexus.toml`
 - `infra/oracle/docker-compose.oracle.yml`
+- `infra/orchestrator/docker-compose.orchestrator.yml`
 - `infra/project-nyra-scaffold/docs/ARCHITECTURE.md`
-- ... 14 more
+- `infra/project-nyra-scaffold/infra/config/litellm-config.yaml`
+- ... 13 more
 
 ## `ANTHROPIC_MAX_TOKENS`
 - `services/nexus-router/src/config.ts`
@@ -105,20 +99,12 @@ Total discovered keys: **547**
 - `services/nexus-router/src/config.ts`
 
 ## `API_BASE`
-- `apps/nexus-dashboard/src/app/search-terms/page.tsx`
-- `apps/nexus-dashboard/src/lib/api.ts`
 - `services/nexus-router/examples/mcp-api-usage.ts`
 
 ## `API_BASE_URL`
 - `apps/README.md`
 
 ## `API_KEY`
-- `apps/nexus-dashboard/COMPONENT-ARCHITECTURE.md`
-- `apps/nexus-dashboard/HEADER-MANAGEMENT-IMPLEMENTATION.md`
-- `apps/nexus-dashboard/IMPLEMENTATION-COMPLETE.md`
-- `apps/nexus-dashboard/MCP-HEADER-MANAGEMENT-GUIDE.md`
-- `apps/nexus-dashboard/QUICK-START-HEADERS.md`
-- `apps/nexus-dashboard/src/components/mcp/header-templates.tsx`
 - `services/archon-os/CLAUDE.md`
 - `services/github-mcp/CLAUDE.md`
 
@@ -126,7 +112,7 @@ Total discovered keys: **547**
 - `services/auth-service/src/config/auth.config.ts`
 
 ## `API_TOKEN`
-- `apps/web/mortgage-assistant/CLAUDE.md`
+- `apps/webapp/app/CLAUDE.md`
 
 ## `AP_DB_TYPE`
 - `infra/oracle/docker-compose.oracle.yml`
@@ -218,7 +204,6 @@ Total discovered keys: **547**
 - `services/doc-management-api/src/config/s3.ts`
 
 ## `BASE_URL`
-- `apps/nexus-dashboard/CLAUDE.md`
 - `services/nexus-router/tests/health.test.ts`
 
 ## `BASH_SOURCE`
@@ -292,9 +277,6 @@ Total discovered keys: **547**
 - `infra/workers/worker-rtx3090ti/docker-compose.worker.yml`
 - `infra/workers/worker-rtx5090/docker-compose.worker.yml`
 
-## `CAMPAIGN_ENGINE_URL`
-- `apps/web/ratehunter/next.config.js`
-
 ## `CAMPAIGN_MAX_RETRIES`
 - `services/campaign-engine/src/config/index.js`
 
@@ -304,11 +286,11 @@ Total discovered keys: **547**
 ## `CAMPAIGN_TIMEZONE`
 - `services/campaign-engine/src/config/index.js`
 
-## `CF_TUNNEL_NAME`
-- `infra/cloudflared/config.yml`
-
 ## `CF_TUNNEL_TOKEN`
 - `infra/oracle/compose.oracle.yml`
+
+## `CF_TUNNEL_UUID`
+- `infra/cloudflared/config.yml`
 
 ## `CHECK_INTERVAL`
 - `infra/workers/worker-3060/health-monitor/monitor.js`
@@ -326,9 +308,6 @@ Total discovered keys: **547**
 
 ## `CLAUDE_FLOW_DB`
 - `infra/docker-compose.claude-flow-cicd.yml`
-
-## `CLAUDE_FLOW_ENABLED`
-- `apps/web/webapp/src/orchestration/claude-flow/config.ts`
 
 ## `CLAUDE_FLOW_ENABLE_AGENT_DB`
 - `services/claude-flow/docker-compose.yml`
@@ -420,23 +399,16 @@ Total discovered keys: **547**
 - `infra/scripts/test-rollback.sh`
 - `infra/shared/scripts/setup-autonomous.sh`
 
-## `DATABASE_DIR`
-- `apps/web/webapp/mortgage-services/src/lib/database.ts`
-
 ## `DATABASE_URL`
 - `infra/config.yaml`
-- `infra/docker-compose.orchestrator.yml`
 - `infra/docker-compose.yml`
 - `infra/nyra-complete/infra/docker-compose.orchestrator.yml`
 - `infra/nyra-complete/infra/litellm/config.yaml`
+- `infra/orchestrator/docker-compose.orchestrator.yml`
 - `services/campaign-engine/src/config/index.js`
 - `services/litellm-proxy/config/config.yaml`
 
-## `DB_FULL_PATH`
-- `apps/web/webapp/mortgage-services/src/lib/database.ts`
-
 ## `DB_HOST`
-- `apps/nexus-dashboard/src/app/config/page.tsx`
 - `services/doc-management-api/src/config/database.ts`
 - `services/lead-capture-api/src/config/database.js`
 - `services/rate-comparison-engine/src/config/database.js`
@@ -464,7 +436,6 @@ Total discovered keys: **547**
 - `services/rate-comparison-engine/src/config/database.js`
 
 ## `DB_USER`
-- `apps/nexus-dashboard/src/app/config/page.tsx`
 - `services/doc-management-api/src/config/database.ts`
 - `services/lead-capture-api/src/config/database.js`
 - `services/rate-comparison-engine/src/config/database.js`
@@ -477,24 +448,17 @@ Total discovered keys: **547**
 ## `DEVELOPMENT_MODE`
 - `infra/shared/scripts/setup-dev-environment.sh`
 
-## `DIFY_API_KEY`
-- `infra/nexus-complete.toml`
-
 ## `DIFY_POSTGRES_DB`
 - `apps/ingestion/files/nyra-stack/docker-compose.addons.yml`
-- `infra/stacks/nyra-mortgage/docker-compose.addons.yml`
 
 ## `DIFY_POSTGRES_PASSWORD`
 - `apps/ingestion/files/nyra-stack/docker-compose.addons.yml`
-- `infra/stacks/nyra-mortgage/docker-compose.addons.yml`
 
 ## `DIFY_POSTGRES_USER`
 - `apps/ingestion/files/nyra-stack/docker-compose.addons.yml`
-- `infra/stacks/nyra-mortgage/docker-compose.addons.yml`
 
 ## `DIFY_SECRET_KEY`
 - `apps/ingestion/files/nyra-stack/docker-compose.addons.yml`
-- `infra/stacks/nyra-mortgage/docker-compose.addons.yml`
 
 ## `DIRECTORIES`
 - `infra/shared/scripts/setup-autonomous.sh`
@@ -548,9 +512,6 @@ Total discovered keys: **547**
 ## `ENV`
 - `infra/workers/worker-rtx5090/worker-5090/worker-5090-config.yaml`
 
-## `ENV_VAR`
-- `apps/nexus-dashboard/HEADER-MANAGEMENT-IMPLEMENTATION.md`
-
 ## `EVENT_SERVER_HEARTBEAT`
 - `infra/docker-compose.dashboard.yml`
 
@@ -575,12 +536,6 @@ Total discovered keys: **547**
 
 ## `EXISTING_REPOS`
 - `infra/shared/scripts/setup-autonomous.sh`
-
-## `EXTERNAL_API_URL_SERVICE1`
-- `apps/web/webapp/mortgage-services/next.config.ts`
-
-## `EXTERNAL_API_URL_SERVICE2`
-- `apps/web/webapp/mortgage-services/next.config.ts`
 
 ## `FALKORDB_HOST`
 - `infra/oracle/docker-compose.oracle.yml`
@@ -672,12 +627,12 @@ Total discovered keys: **547**
 ## `GITHUB_TOKEN`
 - `infra/configs/gitea/docker-compose.gitea.yml`
 - `infra/configs/gitea/mirror-sync.sh`
-- `infra/docker-compose.orchestrator.yml`
 - `infra/docker-compose.yml`
 - `infra/nexus-complete.toml`
 - `infra/nexus.toml`
 - `infra/nyra-complete/infra/docker-compose.orchestrator.yml`
 - `infra/nyra-complete/infra/nexus/nexus.toml`
+- `infra/orchestrator/docker-compose.orchestrator.yml`
 - `services/archon-os/.env.development`
 - `services/github-mcp/CLAUDE.md`
 
@@ -732,8 +687,8 @@ Total discovered keys: **547**
 - `infra/workers/worker-rtx5090/worker-5090/docker-compose.worker-5090.yml`
 
 ## `GPU_MEMORY_UTIL`
-- `infra/docker-compose.workers.yml`
 - `infra/nyra-complete/infra/docker-compose.workers.yml`
+- `infra/workers/docker-compose.workers.yml`
 
 ## `GPU_MODEL`
 - `infra/workers/worker-3060/health-monitor/monitor.js`
@@ -826,9 +781,9 @@ Total discovered keys: **547**
 
 ## `INFISICAL_API_URL`
 - `infra/docker-compose.oracle.yml`
-- `infra/docker-compose.orchestrator.yml`
 - `infra/nyra-complete/infra/docker-compose.oracle.yml`
 - `infra/nyra-complete/infra/docker-compose.orchestrator.yml`
+- `infra/orchestrator/docker-compose.orchestrator.yml`
 
 ## `INFISICAL_AUTH_SECRET`
 - `infra/docker-compose.yml`
@@ -943,10 +898,10 @@ Total discovered keys: **547**
 - `infra/docker-compose.yml`
 
 ## `INFISICAL_TOKEN`
-- `infra/docker-compose.orchestrator.yml`
 - `infra/nexus.toml`
 - `infra/nyra-complete/infra/docker-compose.orchestrator.yml`
 - `infra/nyra-complete/infra/nexus/nexus.toml`
+- `infra/orchestrator/docker-compose.orchestrator.yml`
 - `infra/project-nyra-scaffold/infra/docker-compose.orchestrator.yml`
 
 ## `INFISICAL_TWILIO_ACCOUNT_SID`
@@ -965,8 +920,6 @@ Total discovered keys: **547**
 - `infra/oracle/scripts/03_destroy.sh`
 
 ## `JSON`
-- `apps/web/webapp/src/orchestration/claude-flow/coordinator.ts`
-- `apps/web/webapp/src/orchestration/claude-flow/orchestrator.ts`
 - `services/activepieces-flows/CLAUDE.md`
 - `services/n8n-workflows/CLAUDE.md`
 - `services/security-service/src/utils/logger.ts`
@@ -1118,8 +1071,8 @@ Total discovered keys: **547**
 - `services/websocket-hub/src/config/index.ts`
 
 ## `MAX_MODEL_LEN`
-- `infra/docker-compose.workers.yml`
 - `infra/nyra-complete/infra/docker-compose.workers.yml`
+- `infra/workers/docker-compose.workers.yml`
 
 ## `MAX_RETRY_ATTEMPTS`
 - `services/twentycrm-integration/src/config/index.ts`
@@ -1152,9 +1105,6 @@ Total discovered keys: **547**
 - `apps/ingestion/files/services/mem0-mcp/app/main.py`
 - `services/mem0-mcp/app/main.py`
 
-## `MESSAGE_TYPE_CSS_COLORS`
-- `apps/claude-flow-dashboard/src/components/messages/MessageFeed.tsx`
-
 ## `METAMCP_API_KEY`
 - `services/memory/deployment/metamcp/endpoints.json`
 
@@ -1173,21 +1123,17 @@ Total discovered keys: **547**
 ## `MICROSOFT_CLIENT_SECRET`
 - `services/auth-service/src/config/oauth.config.ts`
 
-## `MOBILE_BREAKPOINT`
-- `apps/web/webapp/mortgage-services/src/hooks/use-mobile.tsx`
-- `apps/web/webapp/mortgage-ui/src/hooks/use-mobile.tsx`
-
 ## `MODEL_CACHE_DIR`
-- `infra/docker-compose.workers.yml`
 - `infra/nyra-complete/infra/docker-compose.workers.yml`
+- `infra/workers/docker-compose.workers.yml`
 
 ## `MODEL_DTYPE`
-- `infra/docker-compose.workers.yml`
 - `infra/nyra-complete/infra/docker-compose.workers.yml`
+- `infra/workers/docker-compose.workers.yml`
 
 ## `MODEL_NAME`
-- `infra/docker-compose.workers.yml`
 - `infra/nyra-complete/infra/docker-compose.workers.yml`
+- `infra/workers/docker-compose.workers.yml`
 - `infra/workers/worker-3060/embedding-service/server.js`
 - `services/memory/deployment/docker-compose.memory.yml`
 - `services/memory/infra/docker-compose.master.yml`
@@ -1306,9 +1252,6 @@ Total discovered keys: **547**
 ## `N8N_TWENTY_NODES_GIT`
 - `infra/docker-compose.yml`
 
-## `N8N_URL`
-- `infra/oracle/.env.example`
-
 ## `N8N_WEBHOOK_URL`
 - `services/campaign-engine/src/config/index.js`
 - `services/n8n-workflows/src/services/n8n-client.service.ts`
@@ -1341,27 +1284,8 @@ Total discovered keys: **547**
 ## `NEXT_PUBLIC_API_URL`
 - `apps/README.md`
 
-## `NEXT_PUBLIC_APP_URL`
-- `apps/web/webapp/mortgage-services/AI_RULES.md`
-
-## `NEXT_PUBLIC_DIFY_APP_ID`
-- `apps/web/nyra-admin/app/chat/page.tsx`
-
-## `NEXT_PUBLIC_DIFY_WIDGET_URL`
-- `apps/web/nyra-admin/app/chat/page.tsx`
-
-## `NEXT_PUBLIC_NEXUS_URL`
-- `apps/nexus-dashboard/src/hooks/use-metrics.ts`
-- `apps/nexus-dashboard/src/lib/api.ts`
-- `apps/web/nyra-admin/lib/api/client.ts`
-
 ## `NEXT_PUBLIC_SITE_URL`
-- `apps/landing/ratehunter-landing/next.config.js`
-
-## `NEXT_PUBLIC_WS_URL`
-- `apps/claude-flow-dashboard/src/hooks/websocket/useWebSocketConnection.ts`
-- `apps/claude-flow-dashboard/src/services/websocket/WebSocketManager.ts`
-- `apps/web/crm/CLAUDE.md`
+- `apps/landing/app/next.config.js`
 
 ## `NEXUS_ADMIN_TOKEN`
 - `infra/docker-compose.yml`
@@ -1411,16 +1335,11 @@ Total discovered keys: **547**
 - `services/websocket-hub/src/config/index.ts`
 
 ## `NEXUS_URL`
-- `apps/web/nyra-admin/lib/api/client.ts`
 - `infra/compose/docker-compose.archon.yml`
 - `infra/docker-compose.yml`
 
 ## `NODE_ENV`
 - `apps/ingestion/docs/CLAUDE-FLOW-FULL-FEATURES-CONTAINERIZATION.md`
-- `apps/nexus-dashboard/src/components/error-boundary.tsx`
-- `apps/web/webapp/CLAUDE.md`
-- `apps/web/webapp/mortgage-services/next.config.ts`
-- `apps/web/webapp/mortgage-ui/next.config.ts`
 - `infra/compose/docker-compose.archon.yml`
 - `infra/docker-compose.claude-flow-cicd.yml`
 - `infra/docker-compose.dashboard.yml`
@@ -1436,10 +1355,11 @@ Total discovered keys: **547**
 - `services/mortgage-assistant-api/src/config/database.ts`
 - `services/mortgage-assistant-api/src/config/jwt.ts`
 - `services/mortgage-assistant-api/src/utils/logger.ts`
-- ... 5 more
-
-## `NODE_RADIUS`
-- `apps/claude-flow-dashboard/src/components/topology/LiveTopology.tsx`
+- `services/nexus-router/src/utils/logger.ts`
+- `services/ratehunter-api/src/config/database.ts`
+- `services/twentycrm-integration/src/config/index.ts`
+- `services/twilio-integration/src/config/twilio.config.ts`
+- ... 1 more
 
 ## `NYRA_ALLOWED_CHANNELS`
 - `apps/ingestion/files/nyra-stack/docker-compose.yml`
@@ -1447,6 +1367,7 @@ Total discovered keys: **547**
 
 ## `NYRA_DOMAIN_ROOT`
 - `infra/cloudflared/config.yml`
+- `infra/cloudflared/hostname-map.md`
 
 ## `NYRA_ESCALATION_EMAIL`
 - `apps/ingestion/files/nyra-stack/docker-compose.yml`
@@ -1502,14 +1423,13 @@ Total discovered keys: **547**
 - `apps/ingestion/files/nyra-stack/docker-compose.yml`
 - `infra/config.yaml`
 - `infra/docker-compose.claude-flow-cicd.yml`
-- `infra/docker-compose.orchestrator.yml`
 - `infra/docker-compose.yml`
 - `infra/nexus-complete.toml`
 - `infra/nyra-complete/infra/docker-compose.orchestrator.yml`
 - `infra/nyra-complete/infra/litellm/config.yaml`
+- `infra/orchestrator/docker-compose.orchestrator.yml`
 - `infra/project-nyra-scaffold/infra/config/litellm-config.yaml`
 - `infra/project-nyra-scaffold/infra/config/nexus.toml`
-- `infra/stacks/nyra-mortgage/docker-compose.addons.yml`
 - `infra/stacks/nyra-mortgage/docker-compose.yml`
 - `services/litellm-proxy/config/config.yaml`
 - `services/nexus-router/QUICK-REDIS-SETUP.md`
@@ -1583,7 +1503,6 @@ Total discovered keys: **547**
 ## `POSTGRES_HOST`
 - `infra/configs/claude-flow-cicd/.env.cicd.example`
 - `infra/docker-compose.claude-flow-cicd.yml`
-- `infra/oracle/.env.example`
 - `infra/oracle/docker-compose.oracle.yml`
 
 ## `POSTGRES_HOST_PORT`
@@ -1596,12 +1515,11 @@ Total discovered keys: **547**
 - `infra/configs/claude-flow-cicd/.env.cicd.example`
 - `infra/docker-compose.claude-flow-cicd.yml`
 - `infra/docker-compose.oracle.yml`
-- `infra/docker-compose.orchestrator.yml`
 - `infra/docker-compose.yml`
 - `infra/nyra-complete/infra/docker-compose.oracle.yml`
 - `infra/nyra-complete/infra/docker-compose.orchestrator.yml`
-- `infra/oracle/.env.example`
 - `infra/oracle/docker-compose.oracle.yml`
+- `infra/orchestrator/docker-compose.orchestrator.yml`
 - `services/litellm-proxy/docker-compose.yml`
 
 ## `POSTGRES_PORT`
@@ -1613,7 +1531,6 @@ Total discovered keys: **547**
 - `infra/docker-compose.claude-flow-cicd.yml`
 - `infra/docker-compose.yml`
 - `infra/docs/STACK-ASSET-INVENTORY.md`
-- `infra/oracle/.env.example`
 - `infra/oracle/docker-compose.oracle.yml`
 - `infra/workers/worker-rtx3090ti/docker-compose.worker.yml`
 - `infra/workers/worker-rtx5090/docker-compose.worker.yml`
@@ -1624,7 +1541,6 @@ Total discovered keys: **547**
 - `infra/configs/claude-flow-cicd/.env.cicd.example`
 - `infra/docker-compose.claude-flow-cicd.yml`
 - `infra/docker-compose.yml`
-- `infra/oracle/.env.example`
 - `infra/oracle/docker-compose.oracle.yml`
 
 ## `PRIVATE_KEY_PATH`
@@ -1661,10 +1577,6 @@ Total discovered keys: **547**
 ## `QUOTE_API_SECRET`
 - `infra/oracle/docker-compose.oracle.yml`
 
-## `QUOTE_ENGINE_URL`
-- `apps/web/ratehunter/app/api/quote/route.ts`
-- `apps/web/ratehunter/next.config.js`
-
 ## `RANDOM_ID`
 - `infra/workers/worker-3060/.env.example`
 
@@ -1680,15 +1592,9 @@ Total discovered keys: **547**
 ## `RATE_LIMIT_WINDOW_MS`
 - `services/auth-service/src/config/auth.config.ts`
 
-## `REACT_APP_API_URL`
-- `apps/web/webapp/CLAUDE.md`
-
 ## `REACT_APP_WS_TOKEN`
 - `packages/websocket-client/README.md`
 - `services/websocket-hub/examples/react-dashboard.tsx`
-
-## `RECONNECT_MAX_ATTEMPTS`
-- `apps/claude-flow-dashboard/src/App.tsx`
 
 ## `RED`
 - `infra/health-check.sh`
@@ -1875,32 +1781,11 @@ Total discovered keys: **547**
 ## `SENDGRID_WEBHOOK_PUBLIC_KEY`
 - `services/sendgrid-integration/CLAUDE.md`
 
-## `SERVER_URL`
-- `infra/oracle/.env.example`
-
-## `SERVICE_KEY`
-- `apps/nexus-dashboard/COMPONENT-ARCHITECTURE.md`
-- `apps/nexus-dashboard/HEADER-MANAGEMENT-IMPLEMENTATION.md`
-- `apps/nexus-dashboard/IMPLEMENTATION-COMPLETE.md`
-- `apps/nexus-dashboard/MCP-HEADER-MANAGEMENT-GUIDE.md`
-- `apps/nexus-dashboard/src/components/mcp/header-templates.tsx`
-
 ## `SESSION_TIMEOUT`
 - `services/websocket-hub/src/config/index.ts`
 
-## `SIDEBAR_COOKIE_MAX_AGE`
-- `apps/web/webapp/mortgage-services/src/components/ui/sidebar.tsx`
-- `apps/web/webapp/mortgage-ui/src/components/ui/sidebar.tsx`
-
-## `SIDEBAR_COOKIE_NAME`
-- `apps/web/webapp/mortgage-services/src/components/ui/sidebar.tsx`
-- `apps/web/webapp/mortgage-ui/src/components/ui/sidebar.tsx`
-
 ## `SSH_KEY_PATH`
 - `infra/oracle/scripts/00_prereq_check.sh`
-
-## `STATUS_COLORS`
-- `apps/claude-flow-dashboard/src/components/tasks/TaskTimeline.tsx`
 
 ## `SUPABASE_SERVICE_KEY`
 - `infra/compose/docker-compose.archon.yml`
@@ -1951,9 +1836,6 @@ Total discovered keys: **547**
 ## `TEST_BASE_URL`
 - `services/nexus-router/tests/health.test.ts`
 
-## `THIRD_PARTY_API_URL`
-- `apps/web/webapp/mortgage-services/AI_RULES.md`
-
 ## `TIMESTAMP`
 - `infra/scripts/rollback-consolidation.sh`
 
@@ -1962,9 +1844,6 @@ Total discovered keys: **547**
 
 ## `TOGETHER_API_KEY`
 - `services/nexus-router/src/services/provider-manager.ts`
-
-## `TOML_KEYWORDS`
-- `apps/nexus-dashboard/src/components/config/config-editor.tsx`
 
 ## `TUNNEL_ID`
 - `infra/port-discovery.sh`
@@ -2000,11 +1879,11 @@ Total discovered keys: **547**
 
 ## `TWENTY_API_TOKEN`
 - `infra/docker-compose.oracle.yml`
-- `infra/docker-compose.orchestrator.yml`
 - `infra/nexus.toml`
 - `infra/nyra-complete/infra/docker-compose.oracle.yml`
 - `infra/nyra-complete/infra/docker-compose.orchestrator.yml`
 - `infra/nyra-complete/infra/nexus/nexus.toml`
+- `infra/orchestrator/docker-compose.orchestrator.yml`
 - `infra/project-nyra-scaffold/infra/config/nexus.toml`
 
 ## `TWENTY_APP_SECRET`
@@ -2084,11 +1963,6 @@ Total discovered keys: **547**
 ## `USE_NEXUS_ROUTER`
 - `infra/compose/docker-compose.archon.yml`
 
-## `VARIABLE_NAME`
-- `apps/nexus-dashboard/HEADER-MANAGEMENT-IMPLEMENTATION.md`
-- `apps/nexus-dashboard/IMPLEMENTATION-COMPLETE.md`
-- `apps/nexus-dashboard/MCP-HEADER-MANAGEMENT-GUIDE.md`
-
 ## `VECTOR_DB_PATH`
 - `services/letta-integration/CLAUDE.md`
 
@@ -2140,9 +2014,6 @@ Total discovered keys: **547**
 
 ## `VRAM_GB`
 - `infra/workers/worker-3060/health-monitor/monitor.js`
-
-## `WEATHER_API_URL`
-- `apps/web/webapp/mortgage-services/next.config.ts`
 
 ## `WEBHOOK_BASE_URL`
 - `services/twilio-integration/src/config/twilio.config.ts`
@@ -2208,8 +2079,8 @@ Total discovered keys: **547**
 - `infra/workers/worker-3090/promtail-config.yml`
 
 ## `WORKER_NAME`
-- `infra/docker-compose.workers.yml`
 - `infra/nyra-complete/infra/docker-compose.workers.yml`
+- `infra/workers/docker-compose.workers.yml`
 - `infra/workers/worker-3060/health-monitor/monitor.js`
 
 ## `WORKER_ROLE`
