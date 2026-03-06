@@ -74,6 +74,10 @@ Populate required values:
 - `region`
 - `compartment_ocid`
 - `ssh_public_key`
+- `nyra_admin_ssh_cidr`
+- `tailscale_auth_key`
+
+`tailscale_auth_key` is consumed in cloud-init to install + auto-join Tailscale on first boot (`nyra-oracle` hostname).
 
 Optional:
 - `availability_domain` (useful for capacity retries)
@@ -131,6 +135,10 @@ cp .env.example .env
 
 Set all `CHANGE_ME_*` values before first run.
 
+> The OCI NSG intentionally allows only SSH (port 22) from your admin CIDR.
+> App ports are published at container/host level for local testing, Tailscale access,
+> or private access via Cloudflared + Cloudflare Access, not direct public internet exposure.
+
 ### 2) Validate compose
 
 ```bash
@@ -150,12 +158,16 @@ curl -fsS http://localhost:3000 >/dev/null && echo "twenty up"
 curl -fsS http://localhost:8080 >/dev/null && echo "activepieces up"
 curl -fsS http://localhost:5678 >/dev/null && echo "n8n up"
 curl -fsS http://localhost:18789 >/dev/null && echo "moltbot up"
+curl -fsS "http://localhost:${QUOTE_API_PORT:-7070}/health"
 curl -fsS http://localhost:7070/health
 ```
 
 ### 5) Moltbot first-time onboarding
 
 ```bash
+docker compose --env-file .env -f docker-compose.oracle.yml run --rm moltbot onboard
+# If you need a direct docker run, use the Compose-prefixed volume name:
+# docker run -it --rm -v nyra-oracle_clawdbot_config:/home/node/.clawdbot ${MOLTBOT_IMAGE:-moltbot/moltbot:2026.1.24} onboard
 docker run -it --rm \
   -v clawdbot_config:/home/node/.clawdbot \
   moltbot/moltbot:latest onboard
