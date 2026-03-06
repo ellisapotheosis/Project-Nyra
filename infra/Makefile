@@ -208,7 +208,6 @@ oracle-up:
 		activepieces \
 		quote-engine \
 		landing-page \
-		dify
 	@echo "$(GREEN)✓ Oracle services started (local preview)$(NC)"
 
 oracle-down:

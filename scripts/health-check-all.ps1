@@ -30,8 +30,6 @@ $services = @(
     # PC2 - Worker 2 (10.0.0.2)
     @{PC="PC2"; Name="TwentyCRM"; URL="http://10.0.0.2:3000/health"; Required=$true},
     @{PC="PC2"; Name="n8n"; URL="http://10.0.0.2:5678/healthz"; Required=$true},
-    @{PC="PC2"; Name="Dify API"; URL="http://10.0.0.2:3001/health"; Required=$true},
-    @{PC="PC2"; Name="Dify Web"; URL="http://10.0.0.2:3002"; Required=$true},
     @{PC="PC2"; Name="Redis (Worker)"; URL="http://10.0.0.2:6379"; Required=$true},
 
     # PC3 - Worker 3 (10.0.0.3)

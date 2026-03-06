@@ -417,22 +417,6 @@ tools = [
   "letta.list_agents"
 ]
 
-# Dify - LLM Application Platform
-[[mcp.servers]]
-name = "dify"
-url = "http://dify:5001/mcp"
-transport = "http"
-auth = { type = "bearer", token = "${DIFY_API_KEY}" }
-description = "Dify AI application workflows and chat interfaces"
-keywords = ["dify", "workflow", "app", "chat", "AI", "application"]
-enabled = true
-priority = 2
-tools = [
-  "dify.run_workflow",
-  "dify.chat",
-  "dify.get_app_info"
-]
-
 # ==============================================================================
 # 4. FUZZY SEARCH KEYWORD ALIASES
 # ==============================================================================

@@ -44,7 +44,6 @@ Write-Log "Backing up PostgreSQL databases..." "INFO"
 $databases = @(
     @{Container="postgres-twentycrm"; DB="twentycrm"; User="twentycrm"},
     @{Container="postgres-n8n"; DB="n8n"; User="n8n"},
-    @{Container="postgres-dify"; DB="dify"; User="dify"}
 )
 
 foreach ($db in $databases) {
