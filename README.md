@@ -395,6 +395,20 @@ cd infra/docker
 docker compose -f docker-compose.orchestration.yml up -d
 ```
 
+**Archon Full Stack (Dedicated Compose + Nexus Router + Infisical):**
+```bash
+# Validate compose
+make archon-config
+
+# Start dedicated Archon profile stack
+make archon-up
+
+# Start with Infisical secret injection (/shared path)
+make archon-up-infisical
+# equivalent direct command:
+# infisical run --env=prod --path="/shared" -- docker compose -f docker-compose.archon.yml --profile archon up -d
+```
+
 ### Port Allocation
 
 See [Services README](services/README.md) for complete port allocation table.
