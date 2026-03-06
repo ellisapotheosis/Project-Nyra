@@ -1,0 +1,5 @@
+services:
+  worker-rtx3060:
+    extends:
+      file: ../../compose/workers.override.yml
+      service: vllm-worker

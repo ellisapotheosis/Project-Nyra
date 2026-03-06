@@ -203,3 +203,35 @@ node-down-worker-3090ti:
 
 node-down-worker-5090:
 	./infra/scripts/node-down.sh worker-rtx5090
+
+# Canonical consolidation wrappers (backwards compatible)
+.PHONY: down-oracle logs-oracle health-oracle down-orchestrator logs-orchestrator health-orchestrator health-workers audit-ports audit-env
+
+down-oracle:
+	docker compose -f infra/oracle/docker-compose.oracle.yml down --remove-orphans
+
+logs-oracle:
+	docker compose -f infra/oracle/docker-compose.oracle.yml logs -f --tail=200
+
+health-oracle:
+	docker compose -f infra/oracle/docker-compose.oracle.yml ps
+
+down-orchestrator:
+	docker compose -f infra/orchestrator/docker-compose.orchestrator.yml down --remove-orphans
+
+logs-orchestrator:
+	docker compose -f infra/orchestrator/docker-compose.orchestrator.yml logs -f --tail=200
+
+health-orchestrator:
+	docker compose -f infra/orchestrator/docker-compose.orchestrator.yml ps
+
+health-workers:
+	docker compose -f infra/workers/worker-rtx3060/docker-compose.worker.yml ps || true
+	docker compose -f infra/workers/worker-rtx3090ti/docker-compose.worker.yml ps || true
+	docker compose -f infra/workers/worker-rtx5090/docker-compose.worker.yml ps || true
+
+audit-ports:
+	python infra/scripts/check-port-collisions.py
+
+audit-env:
+	python scripts/generate-env-docs.py

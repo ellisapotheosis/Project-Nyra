@@ -578,3 +578,39 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 **Built with ❤️ by the Project Nyra Team**
 
 **Last Updated:** January 21, 2026
+
+## How to Run the Consolidated Stack
+
+### Oracle VM (production plane)
+- `make up-oracle`
+- `make health-oracle`
+- `make logs-oracle`
+- `make down-oracle`
+
+### Orchestrator PC (control plane)
+- `make up-orchestrator`
+- `make health-orchestrator`
+- `make logs-orchestrator`
+- `make down-orchestrator`
+
+### GPU Workers (inference plane, tailnet only)
+- `make up-workers`
+- `make health-workers`
+- `make down-workers`
+
+### Cloudflared baseline hostnames
+- `ratehunter.net` (landing via Cloudflare Pages)
+- `app.ratehunter.net`
+- `admin.ratehunter.net`
+- `api.ratehunter.net`
+- `hooks.ratehunter.net`
+- `nexus.ratehunter.net`
+- `litellm.ratehunter.net`
+
+## Operator Checklist
+
+1. Provision Oracle VM and attach persistent volumes for Postgres/Redis.
+2. Configure Cloudflare Access applications for all non-landing hostnames.
+3. Put runtime secrets in `.env` (never commit secrets).
+4. Bring up Oracle, then Orchestrator, then Workers.
+5. Run `make audit-ports` and `make audit-env` after any infra change.
