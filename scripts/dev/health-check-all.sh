@@ -27,7 +27,6 @@ services=(
     "http://localhost:8283/health|Letta|true"
     "http://localhost:3000|Twenty CRM|false"
     "http://localhost:5678/healthz|n8n|true"
-    "http://localhost:3001|Dify|false"
     "http://localhost:9090/-/healthy|Prometheus|true"
     "http://localhost:3005/api/health|Grafana|true"
     "http://localhost:3100/ready|Loki|true"
@@ -78,7 +77,7 @@ echo ""
 echo "🐳 Docker Container Status:"
 echo "------------------------"
 cd "$(dirname "$0")/../.." || exit 1
-docker-compose -f infra/docker/docker-compose.yml ps --format "table {{.Name}}\t{{.Status}}\t{{.Ports}}"
+docker compose -f infra/docker-compose.yml ps --format "table {{.Name}}\t{{.Status}}\t{{.Ports}}"
 
 echo ""
 
@@ -92,7 +91,7 @@ echo ""
 # Exit with appropriate code
 if [ $UNHEALTHY -gt 0 ]; then
     echo -e "${RED}⚠️  Some services are unhealthy. Check logs with:${NC}"
-    echo "   docker-compose -f infra/docker/docker-compose.yml logs -f [service_name]"
+    echo "   docker compose -f infra/docker-compose.yml logs -f [service_name]"
     exit 1
 else
     echo -e "${GREEN}✅ All services are healthy!${NC}"

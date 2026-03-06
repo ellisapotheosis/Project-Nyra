@@ -10,7 +10,7 @@
 #   - Phase 4: MCP Servers (AgentDB, RuVector, Letta, Mem0)
 #   - Phase 5: Claude Flow @alpha (Multi-Agent Orchestration)
 #   - Phase 6: Open-WebUI (Port 3333)
-#   - Phase 7: Applications (TwentyCRM, n8n, Dify)
+#   - Phase 7: Applications (TwentyCRM, n8n, OpenClaw UI)
 #   - Phase 8: Health Validation
 #
 # Usage:
@@ -109,13 +109,12 @@ $Services = @{
     }
     Apps = @{
         ComposeFile = "apps/docker-compose.apps.yml"
-        Description = "Applications (TwentyCRM, n8n, Dify, Open-WebUI, Claude Flow)"
+        Description = "Applications (TwentyCRM, n8n, Open-WebUI, Claude Flow)"
         HealthChecks = @(
             @{ Name = "Open-WebUI"; URL = "http://localhost:3333/health"; Port = 3333; Type = "http" }
             @{ Name = "Claude Flow Alpha"; URL = "http://localhost:3010/health"; Port = 3010; Type = "http" }
             @{ Name = "TwentyCRM"; URL = "http://localhost:3000/health"; Port = 3000; Type = "http" }
             @{ Name = "n8n"; URL = "http://localhost:5678/healthz"; Port = 5678; Type = "http" }
-            @{ Name = "Dify API"; URL = "http://localhost:3001/health"; Port = 3001; Type = "http" }
         )
     }
     Orchestrator = @{
@@ -259,7 +258,6 @@ if ($Dashboard) {
         "Prometheus (Monitoring)" = "http://localhost:9090"
         "n8n (Workflows)" = "http://localhost:5678"
         "TwentyCRM" = "http://localhost:3000"
-        "Dify (Borrower Chat)" = "http://localhost:3002"
     }
 
     foreach ($name in $dashboards.Keys) {
@@ -570,7 +568,6 @@ Write-Host @"
     Open-WebUI:       http://localhost:3333  (Dev Chat - NOT BORROWER)
     TwentyCRM:        http://localhost:3000  (CRM System)
     n8n:              http://localhost:5678  (Workflow Automation)
-    Dify:             http://localhost:3002  (Borrower Chat Interface)
 
   Monitoring:
     Grafana:          http://localhost:3005  (Dashboards)

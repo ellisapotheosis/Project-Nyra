@@ -58,7 +58,7 @@ echo ""
 
 echo -e "${BLUE}AI Services:${NC}"
 check_service "Letta" "http://localhost:8283/health" 10
-check_service "Dify" "http://localhost:8080/health" 10
+check_service "OpenClaw UI" "http://localhost:3333/health" 10
 echo ""
 
 echo -e "${BLUE}Workflow Automation:${NC}"

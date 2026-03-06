@@ -191,17 +191,6 @@ check_min_length "N8N_ENCRYPTION_KEY" 32
 echo ""
 
 # ==============================================================================
-# CATEGORY: DIFY
-# ==============================================================================
-
-echo -e "${BLUE}--- Dify AI Platform ---${NC}"
-check_required "DIFY_SECRET_KEY" "Dify application secret"
-check_min_length "DIFY_SECRET_KEY" 32
-check_required "DIFY_ENCRYPTION_KEY" "Dify data encryption"
-check_min_length "DIFY_ENCRYPTION_KEY" 32
-echo ""
-
-# ==============================================================================
 # CATEGORY: TWENTYCRM
 # ==============================================================================
 

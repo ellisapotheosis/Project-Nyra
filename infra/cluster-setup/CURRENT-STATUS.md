@@ -163,7 +163,7 @@ Devices are accessible via:
 
 9. **Production deployment**
    - Set up Docker services on orchestrator
-   - Configure TwentyCRM, n8n, Dify
+   - Configure TwentyCRM, n8n, OpenClaw UI
    - Deploy mortgage workflows
 
 ## Reference Documentation

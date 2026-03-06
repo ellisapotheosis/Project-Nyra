@@ -27,7 +27,7 @@ NC='\033[0m'
 declare -A worker_config=(
     [worker-2-ip]="10.0.0.2"
     [worker-2-gpu]="RTX 3060 12GB"
-    [worker-2-services]="TwentyCRM, n8n, Dify"
+    [worker-2-services]="TwentyCRM, n8n, OpenClaw UI"
     [worker-3-ip]="10.0.0.3"
     [worker-3-gpu]="RTX 5090 32GB"
     [worker-3-services]="Ollama, Neo4j, FalkorDB"
@@ -240,7 +240,7 @@ case "$WORKER_ROLE" in
         service_checks=(
             [TwentyCRM]="http://localhost:3000/health"
             [n8n]="http://localhost:5678/healthz"
-            [Dify]="http://localhost:3001/health"
+            [OpenClawUI]="http://localhost:3333/health"
             [Redis]="http://localhost:6379"
         )
         ;;

@@ -18,7 +18,7 @@ $ProgressPreference = "Continue"
 
 # Map worker roles to IPs and GPU models
 $workerConfig = @{
-    "worker-2" = @{IP="10.0.0.2"; GPU="RTX 3060 12GB"; Services="TwentyCRM, n8n, Dify"}
+    "worker-2" = @{IP="10.0.0.2"; GPU="RTX 3060 12GB"; Services="TwentyCRM, n8n, OpenClaw UI"}
     "worker-3" = @{IP="10.0.0.3"; GPU="RTX 5090 32GB"; Services="Ollama, Neo4j, FalkorDB"}
     "worker-4" = @{IP="10.0.0.4"; GPU="RTX 3090 Ti 24GB"; Services="Prometheus, Grafana, Loki"}
 }
@@ -202,7 +202,7 @@ $serviceChecks = @{
     "worker-2" = @(
         @{Name="TwentyCRM"; URL="http://localhost:3000/health"},
         @{Name="n8n"; URL="http://localhost:5678/healthz"},
-        @{Name="Dify"; URL="http://localhost:3001/health"},
+        @{Name="OpenClaw UI"; URL="http://localhost:3333/health"},
         @{Name="Redis"; URL="http://localhost:6379"}
     )
     "worker-3" = @(

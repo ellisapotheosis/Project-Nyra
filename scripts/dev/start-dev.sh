@@ -25,7 +25,7 @@ fi
 
 # Start infrastructure services
 echo "🐳 Starting infrastructure services..."
-docker-compose -f infra/docker/docker-compose.yml up -d \
+docker compose -f infra/docker-compose.yml up -d \
     nexus litellm \
     letta_postgres letta \
     neo4j falkordb \
@@ -38,12 +38,12 @@ sleep 30
 
 # Start business services
 echo "💼 Starting business services..."
-docker-compose -f infra/docker/docker-compose.yml up -d \
+docker compose -f infra/docker-compose.yml up -d \
     quote_engine campaign_engine nyra_orchestrator mem0
 
 # Start workflow automation
 echo "🔄 Starting workflow automation..."
-docker-compose -f infra/docker/docker-compose.yml up -d n8n dify_postgres dify_api dify
+docker compose -f infra/docker-compose.yml up -d n8n openwebui moltbot-web
 
 echo "✅ All services started!"
 echo ""
@@ -56,9 +56,9 @@ echo "   Mem0 REST API:     http://localhost:4321"
 echo "   Letta:             http://localhost:8283"
 echo "   Twenty CRM:        http://localhost:3000"
 echo "   n8n:               http://localhost:5678"
-echo "   Dify:              http://localhost:3001"
+echo "   OpenWebUI:         http://localhost:8088"
 echo "   Grafana:           http://localhost:3005"
 echo "   Prometheus:        http://localhost:9090"
 echo ""
-echo "🔍 Check status: docker-compose -f infra/docker/docker-compose.yml ps"
-echo "📋 View logs:    docker-compose -f infra/docker/docker-compose.yml logs -f [service]"
+echo "🔍 Check status: docker compose -f infra/docker-compose.yml ps"
+echo "📋 View logs:    docker compose -f infra/docker-compose.yml logs -f [service]"

@@ -42,7 +42,7 @@ GPU Worker 2 (worker-3090.tail-net.ts.net)
 ├── RTX 3090 Ti 24GB VRAM
 ├── TwentyCRM (port 3000)
 ├── n8n (port 5678)
-├── Dify (port 3001)
+├── OpenClaw UI (port 3333)
 └── Redis (port 6379)
 
 GPU Worker 3 (worker-3060.tail-net.ts.net)
