@@ -1,9 +1,10 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
   title: 'RateHunter - Find the Best Mortgage Rates',
-  description: 'Compare mortgage rates from top lenders and save thousands on your home loan. Get personalized quotes in minutes with RateHunter.',
+  description:
+    'Compare mortgage rates from top lenders and save thousands on your home loan. Get personalized quotes in minutes with RateHunter.',
   keywords: 'mortgage rates, home loans, refinance, mortgage calculator, best rates',
   authors: [{ name: 'RateHunter' }],
   openGraph: {
@@ -19,11 +20,6 @@ export const metadata: Metadata = {
     title: 'RateHunter - Find the Best Mortgage Rates',
     description: 'Compare mortgage rates from top lenders and save thousands on your home loan.',
   },
-  viewport: {
-    width: 'device-width',
-    initialScale: 1,
-    maximumScale: 5,
-  },
   robots: {
     index: true,
     follow: true,
@@ -35,6 +31,12 @@ export const metadata: Metadata = {
       'max-snippet': -1,
     },
   },
+};
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
 };
 
 export default function RootLayout({
@@ -55,9 +57,7 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
       </head>
-      <body className="font-sans antialiased">
-        {children}
-      </body>
+      <body className="font-sans antialiased">{children}</body>
     </html>
   );
 }
