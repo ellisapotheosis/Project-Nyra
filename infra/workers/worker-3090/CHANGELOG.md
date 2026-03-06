@@ -155,7 +155,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Prometheus**: Metrics collection
 - **Grafana**: Monitoring dashboards
 - **TwentyCRM**: Borrower data and pipeline
-- **Dify**: Chat interface
+- **OpenClaw UI**: Chat interface
 - **n8n**: Workflow automation
 
 ## [Unreleased]

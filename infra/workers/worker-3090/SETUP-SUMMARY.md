@@ -431,7 +431,7 @@ Git ignore rules to prevent committing sensitive files.
 ### Future
 - **Archon OS** - Task execution coordination
 - **TwentyCRM** - Borrower data integration
-- **Dify** - Chat interface
+- **OpenClaw UI** - Chat interface
 - **n8n** - Workflow automation
 
 ---

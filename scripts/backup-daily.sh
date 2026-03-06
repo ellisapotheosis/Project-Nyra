@@ -51,7 +51,6 @@ log "INFO" "Backing up PostgreSQL databases..."
 declare -A databases=(
     [postgres-twentycrm]="twentycrm"
     [postgres-n8n]="n8n"
-    [postgres-dify]="dify"
 )
 
 for container in "${!databases[@]}"; do

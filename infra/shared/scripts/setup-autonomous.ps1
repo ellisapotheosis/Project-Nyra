@@ -279,7 +279,7 @@ POSTGRES_PASSWORD=nyra_postgres_secure_password_123
 LETTA_POSTGRES_PASSWORD=letta_postgres_secure_password_456
 TWENTY_POSTGRES_PASSWORD=twenty_postgres_secure_password_789
 NEO4J_PASSWORD=neo4j_secure_password_abc
-DIFY_SECRET_KEY=dify_secret_key_change_this_now_xyz
+OPENCLAW_API_KEY=openclaw_api_key_change_this_now_xyz
 
 # ===================================
 # APPLICATION PASSWORDS

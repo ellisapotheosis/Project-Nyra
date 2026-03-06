@@ -44,8 +44,6 @@ declare -a services=(
     # PC2 - Worker 2
     "PC2|TwentyCRM|http://10.0.0.2:3000/health|required"
     "PC2|n8n|http://10.0.0.2:5678/healthz|required"
-    "PC2|Dify API|http://10.0.0.2:3001/health|required"
-    "PC2|Dify Web|http://10.0.0.2:3002|required"
     "PC2|Redis (Worker)|http://10.0.0.2:6379|required"
 
     # PC3 - Worker 3

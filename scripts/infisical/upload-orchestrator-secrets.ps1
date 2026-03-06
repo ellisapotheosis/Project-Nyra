@@ -114,17 +114,6 @@ $result = Upload-Secrets -Secrets $activepiecesSecrets -Path "/orchestrator/acti
 $totalSuccess += $result.Success
 $totalFailed += $result.Failed
 
-# Dify
-$difySecrets = @{
-    "PORT_DIFY" = "3001"
-    "DIFY_URL" = "http://localhost:3001"
-    "DIFY_SECRET_KEY" = $env:DIFY_SECRET_KEY
-    "DIFY_ENCRYPTION_KEY" = $env:DIFY_ENCRYPTION_KEY
-}
-$result = Upload-Secrets -Secrets $difySecrets -Path "/orchestrator/dify" -Category "Dify Platform"
-$totalSuccess += $result.Success
-$totalFailed += $result.Failed
-
 # TwentyCRM
 $twentySecrets = @{
     "PORT_TWENTYCRM" = "3010"
@@ -229,7 +218,6 @@ $totalFailed += $result.Failed
 $mcpSecrets = @{
     "MCP_VSCODE_PORT" = "8081"
     "MCP_TWENTYCRM_PORT" = "8082"
-    "MCP_DIFY_PORT" = "8083"
     "MCP_FILESYSTEM_PORT" = "8084"
     "MCP_GITHUB_PORT" = "8085"
     "MCP_BRAVE_SEARCH_PORT" = "8086"

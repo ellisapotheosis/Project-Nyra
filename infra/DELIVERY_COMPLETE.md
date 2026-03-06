@@ -94,7 +94,7 @@ make verify-connectivity
 | **PostgreSQL, Redis, Qdrant** | PC1 | Internal (Tailscale) | Databases for all services |
 | **GPU Workers (Inference)** | PC2/3/4 (Tailscale mesh) | Internal | Distributed compute |
 | **TwentyCRM, n8n, Activepieces** | Oracle Cloud | Cloudflared | Always-on business logic |
-| **Landing Page, Dify, Admin UI** | Oracle Cloud | Cloudflared | Public-facing apps |
+| **Landing Page, OpenClaw UI, Admin UI** | Oracle Cloud | Cloudflared | Public-facing apps |
 | **Cloudflared Tunnel** | PC1 | Single tunnel | Unified ingress (secure) |
 
 ### Data Flow

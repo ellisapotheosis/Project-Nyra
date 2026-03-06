@@ -61,7 +61,7 @@ Get-Content ..\..\..\.env | ForEach-Object {
 
 ### Orchestrator Secrets (/orchestrator/*)
 - Database passwords (PostgreSQL, Redis, FalkorDB)
-- Service encryption keys (n8n, Dify, TwentyCRM, Letta)
+- Service encryption keys (n8n, OpenClaw UI, TwentyCRM, Letta)
 - Admin credentials
 - Communication secrets (Twilio, SMTP)
 - Business service configs

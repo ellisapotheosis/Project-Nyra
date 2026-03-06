@@ -465,7 +465,6 @@ function Setup-Infrastructure {
             @{ name = "api"; target = "koyeb-instance" },
             @{ name = "ui"; target = "open-webui" },
             @{ name = "chat"; target = "lobechat" },
-            @{ name = "dify"; target = "dify-instance" },
             @{ name = "metrics"; target = "grafana" },
             @{ name = "orchestrator"; target = "local-orchestrator" }
         )
