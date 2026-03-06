@@ -1,6 +1,5 @@
 service,port_env,default_port,path
 nexus-router,NEXUS_ROUTER_PORT,7000,/health
-nexus-mcp,NEXUS_MCP_PORT,8080,/health
 litellm,LITELLM_PORT,4000,/health
 n8n,N8N_PORT,5678,/
 activepieces,ACTIVEPIECES_PORT,8082,/
