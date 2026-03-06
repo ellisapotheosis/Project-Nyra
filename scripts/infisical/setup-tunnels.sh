@@ -119,7 +119,17 @@ store_tunnel_credentials() {
     fi
 
     # Store in Infisical
-    infisical secrets set "CLOUDFLARE_TUNNEL_TOKEN" "$(cloudflared tunnel token $tunnel_name)" \
+    local tunnel_token
+    if ! tunnel_token="$(cloudflared tunnel token "$tunnel_name")"; then
+        log_error "Failed to retrieve tunnel token for $tunnel_name"
+        return 1
+    fi
+    if [[ -z "$tunnel_token" ]]; then
+        log_error "Tunnel token is empty for $tunnel_name"
+        return 1
+    fi
+
+    infisical secrets set "CLOUDFLARE_TUNNEL_TOKEN" "$tunnel_token" \
         --env=production --path="/nyra/${pc_id}"
 
     infisical secrets set "CLOUDFLARE_TUNNEL_NAME" "$tunnel_name" \
@@ -128,7 +138,7 @@ store_tunnel_credentials() {
     infisical secrets set "CLOUDFLARE_TUNNEL_ID" "$tunnel_id" \
         --env=production --path="/nyra/${pc_id}"
 
-    infisical secrets set "CLOUDFLARE_TUNNEL_CREDENTIALS" "$(cat $creds_file | base64 -w 0)" \
+    infisical secrets set "CLOUDFLARE_TUNNEL_CREDENTIALS" "$(base64 -w 0 < "$creds_file")" \
         --env=production --path="/nyra/${pc_id}"
 
     log_success "Stored tunnel credentials for $pc_id in Infisical"

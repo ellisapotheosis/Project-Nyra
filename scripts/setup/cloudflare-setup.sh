@@ -129,7 +129,31 @@ setup_tunnel_config() {
     fi
 
     # Generate orchestrator config with environment substitution
-    envsubst < "$PROJECT_ROOT/config/tunnels/orchestrator.yml" | sudo tee /etc/cloudflared/config.yml > /dev/null
+    local tunnel_template="$PROJECT_ROOT/config/tunnels/orchestrator.yml"
+    if [[ ! -f "$tunnel_template" ]]; then
+        warning "Tunnel template not found at $tunnel_template; trying fallback templates"
+        local fallback_templates=(
+            "$PROJECT_ROOT/infra/cloudflared/config.yml"
+            "$PROJECT_ROOT/infra/compose/configs/cloudflared/config.yml"
+        )
+        for candidate in "${fallback_templates[@]}"; do
+            if [[ -f "$candidate" ]]; then
+                tunnel_template="$candidate"
+                warning "Using fallback tunnel template: $tunnel_template"
+                break
+            fi
+        done
+    fi
+
+    if [[ ! -f "$tunnel_template" ]]; then
+        error "No tunnel config template found. Expected one of:"
+        echo "  - $PROJECT_ROOT/config/tunnels/orchestrator.yml"
+        echo "  - $PROJECT_ROOT/infra/cloudflared/config.yml"
+        echo "  - $PROJECT_ROOT/infra/compose/configs/cloudflared/config.yml"
+        exit 1
+    fi
+
+    envsubst < "$tunnel_template" | sudo tee /etc/cloudflared/config.yml > /dev/null
 
     success "Tunnel configuration applied"
 }

@@ -65,7 +65,7 @@ services:
       [
         'sh',
         '-lc',
-        "redis-server --requirepass '$${REDIS_PASSWORD}' --maxmemory ${REDIS_MAX_MEMORY:-2gb} --maxmemory-policy allkeys-lru",
+        "redis-server --requirepass \"$${REDIS_PASSWORD}\" --maxmemory ${REDIS_MAX_MEMORY:-2gb} --maxmemory-policy allkeys-lru",
       ]
     ports: ['${REDIS_PORT:-6379}:6379']
     volumes: ['redis_data:/data']
