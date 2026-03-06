@@ -297,3 +297,23 @@ Proprietary — Apotheosis AI & Partners
 
 **Last Updated**: Feb 28, 2026
 **Status**: MVP (Orchestrator + Workers ready, Oracle integration in progress)
+
+## OpenClaw Ops Plane (Safe-by-default)
+
+OpenClaw is integrated via `infra/compose/openclaw.profile.yml` and is disabled unless `openclaw` profile is enabled.
+
+Quick start:
+
+```bash
+cp infra/env/nyra.env.example infra/env/nyra.env
+bash infra/scripts/openclaw/onboard.sh
+docker compose -f infra/compose/nyra.compose.yaml --profile openclaw up -d openclaw-gateway openclaw-cli
+```
+
+Key properties:
+- OpenClaw model traffic uses LiteLLM (`LITELLM_MASTER_KEY`) and does not require upstream provider keys.
+- MCP tool calls go through Nexus (`/mcp`) with Nyra MCP fallback.
+- Sandbox enabled by default with outbound allowlist and deny-by-default tools.
+- Skills are scan-first and curated-only (`infra/openclaw/skills-curated.txt`).
+
+See `infra/openclaw/README.md` for secure onboarding, channels, skills, kill-switch flow, and backup runbook.
