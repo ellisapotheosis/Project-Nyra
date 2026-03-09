@@ -95,7 +95,7 @@ jobs:
         run: echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
 
       - name: Cache pnpm store
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
           key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
@@ -103,7 +103,7 @@ jobs:
             ${{ runner.os }}-pnpm-store-
 
       - name: Cache Turbo
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: .turbo
           key: ${{ runner.os }}-turbo-${{ github.sha }}
@@ -114,7 +114,7 @@ jobs:
         run: pnpm install --no-frozen-lockfile
 
       - name: Cache node_modules
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             node_modules
@@ -140,7 +140,7 @@ jobs:
           version: ${{ env.PNPM_VERSION }}
 
       - name: Restore dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             node_modules
@@ -172,7 +172,7 @@ jobs:
           version: ${{ env.PNPM_VERSION }}
 
       - name: Restore dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             node_modules
@@ -201,7 +201,7 @@ jobs:
           version: ${{ env.PNPM_VERSION }}
 
       - name: Restore dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             node_modules
@@ -233,7 +233,7 @@ jobs:
           version: ${{ env.PNPM_VERSION }}
 
       - name: Restore dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             node_modules
@@ -241,7 +241,7 @@ jobs:
           key: ${{ runner.os }}-node-modules-${{ hashFiles('**/pnpm-lock.yaml') }}
 
       - name: Restore Turbo cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: .turbo
           key: ${{ runner.os }}-turbo-${{ github.sha }}
@@ -294,7 +294,7 @@ jobs:
           version: ${{ env.PNPM_VERSION }}
 
       - name: Restore dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             node_modules
@@ -362,7 +362,7 @@ jobs:
           version: ${{ env.PNPM_VERSION }}
 
       - name: Restore dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             node_modules
