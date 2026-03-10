@@ -614,3 +614,53 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 3. Put runtime secrets in `.env` (never commit secrets).
 4. Bring up Oracle, then Orchestrator, then Workers.
 5. Run `make audit-ports` and `make audit-env` after any infra change.
+
+## HOW TO RUN THE STACK
+
+### Oracle stack (single VM)
+```bash
+make up-oracle
+make health-oracle
+```
+
+### Orchestrator stack (home control plane)
+```bash
+make up-orchestrator
+make health-orchestrator
+```
+
+### Worker nodes (3 GPU PCs)
+```bash
+make up-workers
+make health-workers
+```
+
+### TwentyCRM (temporarily in-repo)
+```bash
+make up-twenty
+make health-twenty
+```
+
+### Cloudflared baseline hostnames
+- `ratehunter.net` (landing)
+- `app.ratehunter.net` (webapp)
+- `admin.ratehunter.net` (admin, Access-protected)
+- `api.ratehunter.net` (quote-api)
+- `hooks.ratehunter.net` (webhooks)
+
+## Operator Checklist
+
+1. **Cloudflare Access apps**
+   - Create Access policies for `admin.ratehunter.net` and Twenty endpoints.
+   - Confirm only intended public hostnames are exposed.
+2. **Oracle provisioning**
+   - Create Oracle VM, attach persistent volume, install Docker/Compose.
+   - Place `infra/oracle/.env.example` values into real `.env`.
+3. **Secrets setup**
+   - Load secrets into Infisical.
+   - Sync runtime env into oracle/orchestrator/workers stacks.
+
+## TwentyCRM Future Extraction Handoff
+- Keep upstream under `apps/twenty` as isolated boundary.
+- Keep Nyra adapters in `packages/clients/twenty` + service integrations.
+- Use `docs/apps/TWENTY_EXTRACTION_PLAN.md` when splitting into sibling repo.

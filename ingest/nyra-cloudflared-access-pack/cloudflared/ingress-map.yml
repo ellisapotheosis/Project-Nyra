@@ -1,0 +1,43 @@
+# Single source of truth: hostnames -> internal URLs.
+# Codex will fill ports by scanning the repo.
+hostnames:
+  app.ratehunter.net:
+    host: oracle
+    service: webapp
+    internal_url: "http://localhost:${WEBAPP_PORT}"
+    auth: public
+  admin.ratehunter.net:
+    host: oracle
+    service: nyra-admin
+    internal_url: "http://localhost:${ADMIN_PORT}"
+    auth: access
+  crm.ratehunter.net:
+    host: oracle
+    service: twenty
+    internal_url: "http://localhost:${TWENTY_PORT}"
+    auth: access
+  n8n.ratehunter.net:
+    host: oracle
+    service: n8n
+    internal_url: "http://localhost:${N8N_PORT}"
+    auth: access
+  bot.ratehunter.net:
+    host: oracle
+    service: moltbot
+    internal_url: "http://localhost:${MOLTBOT_PORT}"
+    auth: access
+  webhooks.ratehunter.net:
+    host: oracle
+    service: webhook-relay
+    internal_url: "http://localhost:${WEBHOOKS_PORT}"
+    auth: service_token_or_hmac
+  nexus.ratehunter.net:
+    host: orchestrator
+    service: nexus
+    internal_url: "http://localhost:${NEXUS_PORT}"
+    auth: access
+  grafana.ratehunter.net:
+    host: orchestrator
+    service: grafana
+    internal_url: "http://localhost:${GRAFANA_PORT}"
+    auth: access

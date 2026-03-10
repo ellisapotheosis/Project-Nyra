@@ -1,0 +1,8 @@
+{
+  "compounding": "Monthly",
+  "payment_frequency": "Monthly",
+  "accelerated_rules": {
+    "Acc Bi-Weekly": "monthly_payment/2",
+    "Acc Weekly": "monthly_payment/4"
+  }
+}

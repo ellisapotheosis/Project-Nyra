@@ -1,8 +1,13 @@
-# TwentyCRM Custom Objects
+# Twenty Custom Objects (Nyra)
 
-Define these custom objects in TwentyCRM:
+## MortgageLead
+- Contact identity, property state, loan amount, LTV, credit band, lead source.
 
-1. MortgageLead
-2. Quote
-3. Campaign
-4. DNCEntry
+## Quote
+- Product, rate, APR, term, points, monthly payment, provider, expiration.
+
+## Campaign
+- Segment criteria, cadence, channel mix, compliance flags, performance KPIs.
+
+## DNCEntry
+- Phone/email suppression key, source, legal basis, effective/expiry timestamps.

@@ -1,5 +1,4 @@
-# Archon MCP Server - Model Context Protocol Interface
-# Lightweight HTTP-based microservice for MCP communication
+# MCP Service - Lightweight HTTP-based microservice  
 FROM python:3.12-slim
 
 WORKDIR /app
@@ -8,25 +7,27 @@ WORKDIR /app
 RUN pip install --no-cache-dir uv
 
 # Copy pyproject.toml for dependency installation
-COPY pyproject.toml* ./
+COPY pyproject.toml .
 
-# Install MCP dependencies using uv
-RUN uv pip install --system \
-    mcp \
-    fastapi \
-    uvicorn[standard] \
-    pydantic \
-    httpx \
-    sqlalchemy \
-    asyncpg \
-    redis \
-    sse-starlette
+# Install only mcp dependencies using uv
+RUN uv pip install --system --group mcp
 
 # Create minimal directory structure
 RUN mkdir -p src/mcp_server/features/projects src/mcp_server/features/tasks src/mcp_server/features/documents src/server/services src/server/config
 
-# Copy MCP-specific files
-COPY src/ src/ 2>/dev/null || true
+# Copy only MCP-specific files
+COPY src/mcp_server/ src/mcp_server/
+COPY src/__init__.py src/
+
+# Copy the server files MCP needs for HTTP communication
+COPY src/server/__init__.py src/server/
+COPY src/server/services/__init__.py src/server/services/
+COPY src/server/services/mcp_service_client.py src/server/services/
+COPY src/server/services/client_manager.py src/server/services/
+COPY src/server/services/mcp_session_manager.py src/server/services/
+COPY src/server/config/__init__.py src/server/config/
+COPY src/server/config/service_discovery.py src/server/config/
+COPY src/server/config/logfire_config.py src/server/config/
 
 # Set environment variables
 ENV PYTHONPATH="/app:$PYTHONPATH"
@@ -36,10 +37,6 @@ ENV PYTHONUNBUFFERED=1
 ARG ARCHON_MCP_PORT=8051
 ENV ARCHON_MCP_PORT=${ARCHON_MCP_PORT}
 EXPOSE ${ARCHON_MCP_PORT}
-
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
-    CMD curl -f http://localhost:${ARCHON_MCP_PORT}/health || exit 1
 
 # Run the MCP server
 CMD ["python", "-m", "src.mcp_server.mcp_server"]

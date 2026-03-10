@@ -1,0 +1,33 @@
+# Local-managed config template (credentials-file mode)
+# Replace <TUNNEL_UUID> and credentials-file. MUST end with catch-all http_status:404.
+
+tunnel: <TUNNEL_UUID>
+credentials-file: /etc/cloudflared/<TUNNEL_UUID>.json
+
+originRequest:
+  connectTimeout: 30s
+  noTLSVerify: true
+
+ingress:
+  - hostname: app.ratehunter.net
+    service: http://localhost:${WEBAPP_PORT}
+
+  - hostname: admin.ratehunter.net
+    service: http://localhost:${ADMIN_PORT}
+
+  - hostname: crm.ratehunter.net
+    service: http://localhost:${TWENTY_PORT}
+
+  - hostname: n8n.ratehunter.net
+    service: http://localhost:${N8N_PORT}
+
+  - hostname: bot.ratehunter.net
+    service: http://localhost:${MOLTBOT_PORT}
+
+  - hostname: nexus.ratehunter.net
+    service: http://localhost:${NEXUS_PORT}
+
+  - hostname: grafana.ratehunter.net
+    service: http://localhost:${GRAFANA_PORT}
+
+  - service: http_status:404

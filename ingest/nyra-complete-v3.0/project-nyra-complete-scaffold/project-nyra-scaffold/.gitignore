@@ -1,0 +1,100 @@
+# ===== ENVIRONMENT & SECRETS =====
+.env
+.env.local
+.env.*.local
+.env.infisical
+*.key
+*.pem
+secrets/
+vault/
+
+# ===== DOCKER & VOLUMES =====
+infra/volumes/*
+!infra/volumes/.gitkeep
+docker-compose.override.yml
+.docker/
+
+# ===== BUILD ARTIFACTS =====
+dist/
+build/
+*.egg-info/
+.eggs/
+*.so
+*.pyc
+__pycache__/
+.pytest_cache/
+.mypy_cache/
+node_modules/
+venv/
+env/
+*.tgz
+
+# ===== IDE & EDITORS =====
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+.env.local.php
+Thumbs.db
+*.sublime-workspace
+*.sublime-project
+.editorconfig
+
+# ===== LOGS & TEMP =====
+*.log
+logs/
+tmp/
+temp/
+*.tmp
+.cache/
+
+# ===== DATABASE & DATA =====
+*.db
+*.sqlite
+*.sqlite3
+*.pid
+data/
+backups/
+dumps/
+
+# ===== OS-SPECIFIC =====
+.DS_Store
+Thumbs.db
+.AppleDouble
+.LSOverride
+.vscode-test/
+.env.vault
+
+# ===== PROJECT-SPECIFIC =====
+# Keep config files (they're templates)
+# But ignore actual data
+
+# Tailscale volumes
+infra/volumes/tailscale/
+infra/volumes/tailscale-worker/
+
+# Redis dumps
+dump.rdb
+appendonly.aof
+
+# Model caches
+.cache/huggingface/
+*.gguf
+*.bin
+models/
+
+# Postgres backup
+pg_dump.sql
+pg_backup.tar
+
+# Keep these!
+!.gitkeep
+!.env.example
+!infra/scripts/
+!infra/config/
+!services/
+!apps/
+!src/
+!docs/

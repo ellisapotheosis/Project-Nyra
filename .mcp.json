@@ -1,25 +1,7 @@
 {
   "mcpServers": {
-    "claude-flow": {
-      "command": "infisical",
-      "args": [
-        "run",
-        "--projectId=8374cea9-e5e8-4050-bda4-b91f25ab30ef",
-        "--env=dev",
-        "--path=/shared",
-        "--",
-        "bunx",
-        "claude-flow",
-        "mcp",
-        "start"
-      ],
-      "env": {
-        "CLAUDE_FLOW_MODE": "autonomous",
-        "CLAUDE_FLOW_MEMORY_BACKEND": "json"
-      }
-    },
     "nexus-router": {
-      "url": "http://localhost:6000/mcp/sse",
+      "url": "http://localhost:8080/mcp/sse",
       "transport": "sse"
     }
   }

@@ -1,0 +1,54 @@
+; NYRA Gitea - fully automated bootstrap
+; This file is rendered by Setup-NYRA-Gitea.ps1
+
+APP_NAME = NYRA Gitea
+RUN_MODE = prod
+
+[server]
+PROTOCOL = http
+DOMAIN = __GITEA_DOMAIN__
+ROOT_URL = __GITEA_ROOT_URL__
+HTTP_PORT = 3000
+
+; SSH clone URLs will show this host/port
+START_SSH_SERVER = true
+SSH_DOMAIN = __GITEA_SSH_DOMAIN__
+SSH_PORT = __GITEA_SSH_PORT__
+SSH_LISTEN_PORT = 22
+
+; If you put Cloudflared / reverse-proxy in front later, these help.
+DISABLE_SSH = false
+OFFLINE_MODE = false
+
+[database]
+DB_TYPE  = postgres
+HOST     = gitea-db:5432
+NAME     = gitea
+USER     = gitea
+PASSWD   = __GITEA_DB_PASS__
+SSL_MODE = disable
+
+[security]
+INSTALL_LOCK = true
+SECRET_KEY = __GITEA_SECRET_KEY__
+INTERNAL_TOKEN = __GITEA_INTERNAL_TOKEN__
+PASSWORD_HASH_ALGO = pbkdf2
+
+[service]
+DISABLE_REGISTRATION = true
+REQUIRE_SIGNIN_VIEW = true
+DEFAULT_BRANCH = main
+
+[repository]
+DEFAULT_BRANCH = main
+
+[actions]
+ENABLED = true
+DEFAULT_ACTIONS_URL = github
+
+[log]
+MODE = console
+LEVEL = Info
+
+[mailer]
+ENABLED = false

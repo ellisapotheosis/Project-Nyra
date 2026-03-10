@@ -1,5 +1,4 @@
-# Archon Agents Service - PydanticAI Agents
-# Lightweight microservice for AI agent execution
+# Agents Service - Lightweight Pydantic AI agents
 FROM python:3.12-slim
 
 WORKDIR /app
@@ -8,24 +7,15 @@ WORKDIR /app
 RUN pip install --no-cache-dir uv
 
 # Copy pyproject.toml for dependency installation
-COPY pyproject.toml* ./
+COPY pyproject.toml .
 
-# Install agents dependencies using uv
-RUN uv pip install --system \
-    pydantic-ai \
-    fastapi \
-    uvicorn[standard] \
-    pydantic \
-    httpx \
-    anthropic \
-    openai \
-    litellm \
-    sqlalchemy \
-    asyncpg \
-    redis
+# Install only agents dependencies using uv
+RUN uv pip install --system --group agents
 
-# Copy agents code
-COPY src/ src/ 2>/dev/null || mkdir -p src
+# Copy agents code - no dependencies on server code
+# Agents use MCP tools for all operations
+COPY src/agents/ src/agents/
+COPY src/__init__.py src/
 
 # Set environment variables
 ENV PYTHONPATH="/app:$PYTHONPATH"
@@ -38,7 +28,7 @@ EXPOSE ${ARCHON_AGENTS_PORT}
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-    CMD curl -f http://localhost:${ARCHON_AGENTS_PORT}/health || exit 1
+    CMD sh -c "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:${ARCHON_AGENTS_PORT}/health')\""
 
 # Run the Agents service
 CMD sh -c "python -m uvicorn src.agents.server:app --host 0.0.0.0 --port ${ARCHON_AGENTS_PORT}"

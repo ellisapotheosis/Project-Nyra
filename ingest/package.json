@@ -1,0 +1,54 @@
+{
+  "name": "project-nyra",
+  "version": "3.1.0",
+  "private": true,
+  "description": "AI-Powered Mortgage Platform - RateHunter.net and LenderBridge.ai",
+  "workspaces": [
+    "src/apps/*",
+    "src/services/*",
+    "src/shared/*"
+  ],
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "test": "turbo run test",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "clean": "turbo run clean && rm -rf node_modules",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md,py}\"",
+    "init": "make init",
+    "up": "make up",
+    "down": "make down",
+    "docker:build": "docker-compose -f infra/compose/docker-compose.yml build",
+    "docker:up": "docker-compose -f infra/compose/docker-compose.yml up -d",
+    "docker:down": "docker-compose -f infra/compose/docker-compose.yml down",
+    "docker:logs": "docker-compose -f infra/compose/docker-compose.yml logs -f",
+    "health": "scripts/health-check.sh",
+    "db:migrate": "cd src/services/ratehunter-api && npm run migration:run",
+    "db:seed": "cd src/services/ratehunter-api && npm run seed"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "@typescript-eslint/eslint-plugin": "^6.13.0",
+    "@typescript-eslint/parser": "^6.13.0",
+    "eslint": "^8.54.0",
+    "eslint-config-prettier": "^9.0.0",
+    "prettier": "^3.1.0",
+    "turbo": "^1.11.0",
+    "typescript": "^5.3.0"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "keywords": [
+    "mortgage",
+    "ai",
+    "fintech",
+    "rate-hunting",
+    "lead-generation",
+    "compliance"
+  ],
+  "author": "Project Nyra Team",
+  "license": "PROPRIETARY"
+}

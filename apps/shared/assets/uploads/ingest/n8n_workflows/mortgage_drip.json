@@ -1,0 +1,186 @@
+{
+  "name": "Mortgage Drip Campaign",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "lead-ingest",
+        "httpMethod": "POST",
+        "responseMode": "lastNode",
+        "responseData": {
+          "webhookResponse": true
+        }
+      },
+      "id": "Webhook",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 300]
+    },
+    {
+      "parameters": {
+        "requestMethod": "POST",
+        "url": "={{ $env.TWENTYCRM_API_URL }}/leads",
+        "jsonParameters": true,
+        "options": {},
+        "body": {
+          "content": "={{ $json }}"
+        }
+      },
+      "id": "Create Lead",
+      "name": "Create Lead",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [300, 300]
+    },
+    {
+      "parameters": {
+        "to": "={{ $json.email }}",
+        "subject": "Thank you for your interest in a mortgage!",
+        "message": "Hello,\n\nThank you for reaching out! We’ll follow up with you shortly with a personalised mortgage quote.\n\nBest,\nYour Mortgage Team",
+        "options": {}
+      },
+      "id": "Send Initial Email",
+      "name": "Send Initial Email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 1,
+      "position": [600, 300]
+    },
+    {
+      "parameters": {
+        "unit": "days",
+        "value": 2
+      },
+      "id": "Wait Two Days",
+      "name": "Wait Two Days",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [900, 300]
+    },
+    {
+      "parameters": {
+        "requestMethod": "GET",
+        "url": "={{ $env.TWENTYCRM_API_URL }}/leads/{{$json.id}}/status",
+        "jsonParameters": false,
+        "options": {}
+      },
+      "id": "Check Status",
+      "name": "Check Status",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [1200, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.status }}",
+              "operation": "notEqual",
+              "value2": "responded"
+            },
+            {
+              "value1": "={{ $json.status }}",
+              "operation": "notEqual",
+              "value2": "unsubscribed"
+            }
+          ]
+        }
+      },
+      "id": "If No Response",
+      "name": "If No Response",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [1500, 300]
+    },
+    {
+      "parameters": {
+        "requestMethod": "POST",
+        "url": "={{ $env.SMS_API_URL }}",
+        "jsonParameters": true,
+        "body": {
+          "to": "={{ $json.phone }}",
+          "message": "Hi {{ $json.firstName }}, this is your mortgage team checking in. Let us know if you have any questions! Reply STOP to unsubscribe."
+        },
+        "options": {}
+      },
+      "id": "Send SMS",
+      "name": "Send SMS",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [1800, 300]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Create Lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Lead": {
+      "main": [
+        [
+          {
+            "node": "Send Initial Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Initial Email": {
+      "main": [
+        [
+          {
+            "node": "Wait Two Days",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait Two Days": {
+      "main": [
+        [
+          {
+            "node": "Check Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Status": {
+      "main": [
+        [
+          {
+            "node": "If No Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If No Response": {
+      "main": [
+        [
+          {
+            "node": "Send SMS",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": null,
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    }
+  }
+}

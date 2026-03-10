@@ -1,0 +1,132 @@
+ProjectNyra/
+├── README.md                          # Project overview
+├── ARCHITECTURE.md                    # Master whitepaper
+├── Makefile                           # Single entry point for all commands
+├── .env.example                       # Template for environment variables
+├── .gitignore                         # Git ignore rules
+│
+├── infra/                             # Infrastructure & deployment
+│   ├── Makefile                       # Infra-specific targets
+│   ├── docker-compose.orchestrator.yml      # Orchestrator services (Nexus, LiteLLM, Claude-Flow)
+│   ├── docker-compose.workers.yml           # Worker GPU stack (vLLM/Ollama)
+│   ├── docker-compose.oracle.yml            # Oracle cloud stack (TwentyCRM, Postgres)
+│   ├── docker-compose.local.yml             # Local dev overrides
+│   │
+│   ├── nexus/                         # Nexus Router (MCP aggregator)
+│   │   ├── Dockerfile
+│   │   ├── nexus.toml                 # Main configuration
+│   │   └── tools.json                 # Tool registry
+│   │
+│   ├── litellm/                       # Model router
+│   │   ├── Dockerfile
+│   │   ├── config.yaml                # Router configuration
+│   │   └── models.yaml                # Model definitions
+│   │
+│   ├── secrets/                       # Infisical secrets management
+│   │   ├── docker-compose.secrets.yml
+│   │   └── bootstrap-secrets.sh
+│   │
+│   ├── postgres/                      # Database initialization
+│   │   └── init.sql
+│   │
+│   └── scripts/                       # Deployment helpers
+│       ├── bootstrap.sh
+│       ├── health-check.sh
+│       └── migrate-db.sh
+│
+├── src/                               # Application source code
+│   ├── claude-flow/                   # Claude-Flow dev orchestrator
+│   │   ├── package.json
+│   │   ├── src/
+│   │   │   ├── index.ts
+│   │   │   └── tools/
+│   │   └── Dockerfile
+│   │
+│   ├── openclaw/                      # OpenClaw mortgage assistant
+│   │   ├── package.json
+│   │   ├── src/
+│   │   │   ├── persona.ts             # Borrower-facing persona
+│   │   │   ├── tools.ts               # Available tools (quote, schedule, etc)
+│   │   │   └── mem0-integration.ts    # Memory layer
+│   │   └── Dockerfile
+│   │
+│   └── archon-os/                     # Knowledge/task backbone
+│       ├── package.json
+│       ├── src/
+│       └── Dockerfile
+│
+├── services/                          # Microservices
+│   ├── quote-engine/                  # Mortgage quote API
+│   │   ├── package.json
+│   │   ├── src/
+│   │   │   ├── server.ts
+│   │   │   └── utils/mortgageMath.ts
+│   │   ├── Dockerfile
+│   │   └── tests/
+│   │
+│   ├── lead-ingestion/                # Lead ingestion from email/webhooks
+│   │   ├── package.json
+│   │   ├── src/
+│   │   │   ├── server.ts
+│   │   │   ├── handlers/
+│   │   │   │   ├── email.ts
+│   │   │   │   ├── webhook.ts
+│   │   │   │   └── leadmailbox.ts
+│   │   │   └── adapters/
+│   │   │       └── twenty-crm.ts
+│   │   └── Dockerfile
+│   │
+│   └── drip-campaign/                 # Campaign orchestration
+│       ├── package.json
+│       ├── src/
+│       └── Dockerfile
+│
+├── packages/                          # Shared libraries
+│   ├── types/                         # Shared TypeScript types
+│   │   ├── package.json
+│   │   └── src/
+│   │       ├── borrower.ts
+│   │       ├── quote.ts
+│   │       └── campaign.ts
+│   │
+│   ├── db/                            # Database abstraction
+│   │   ├── package.json
+│   │   └── src/
+│   │
+│   └── utils/                         # Utility functions
+│       ├── package.json
+│       └── src/
+│
+├── apps/                              # Full applications
+│   ├── nyra-admin-ui/                 # Admin dashboard
+│   │   ├── package.json
+│   │   ├── src/
+│   │   │   ├── pages/
+│   │   │   ├── components/
+│   │   │   └── styles/
+│   │   ├── Dockerfile
+│   │   └── next.config.js
+│   │
+│   └── borrower-portal/               # Customer-facing portal
+│       ├── package.json
+│       └── Dockerfile
+│
+├── workers/                           # GPU worker configs
+│   ├── rtx-5090.env
+│   ├── rtx-3090ti.env
+│   ├── rtx-3060.env
+│   └── docker-compose.profiles.yml
+│
+├── docs/                              # Documentation
+│   ├── SETUP.md
+│   ├── API.md
+│   ├── DEPLOYMENT.md
+│   ├── TROUBLESHOOTING.md
+│   └── ARCHITECTURE.md
+│
+└── config/                            # Configuration templates
+    ├── env.orchestrator
+    ├── env.oracle
+    ├── env.worker-5090
+    ├── env.worker-3090ti
+    └── env.worker-3060

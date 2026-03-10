@@ -1,101 +1,71 @@
-# Archon OS Orchestrator Dockerfile
-# Multi-agent orchestration system with dual-orchestrator support
-FROM python:3.11-slim
+# Archon OS - Core orchestration service
+# Uses the imported Archon Python source tree under services/archon-os/src.
+FROM python:3.12 AS builder
 
-# Metadata
-LABEL maintainer="Project Nyra Team"
-LABEL description="Archon OS - Advanced Multi-Agent Orchestration System"
-LABEL version="1.0.0"
+WORKDIR /build
 
-# Set environment variables
-ENV PYTHONUNBUFFERED=1 \
-    PYTHONDONTWRITEBYTECODE=1 \
-    PIP_NO_CACHE_DIR=1 \
-    PIP_DISABLE_PIP_VERSION_CHECK=1 \
-    DEBIAN_FRONTEND=noninteractive \
-    ARCHON_HOME=/opt/archon \
-    ARCHON_CONFIG=/opt/archon/config \
-    ARCHON_DATA=/opt/archon/data
-
-# Install system dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    curl \
-    git \
+RUN apt-get update && apt-get install -y \
     build-essential \
-    libpq-dev \
-    postgresql-client \
-    redis-tools \
-    netcat-openbsd \
-    jq \
+    && rm -rf /var/lib/apt/lists/* \
+    && pip install --no-cache-dir uv
+
+COPY pyproject.toml .
+
+# Install base dependencies and server groups into an isolated venv.
+RUN uv venv /venv && \
+    . /venv/bin/activate && \
+    uv pip install . --group server --group server-reranking
+
+FROM python:3.12-slim
+
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y \
+    wget \
     ca-certificates \
-    && rm -rf /var/lib/apt/lists/*
+    fonts-liberation \
+    libasound2 \
+    libatk-bridge2.0-0 \
+    libatk1.0-0 \
+    libatspi2.0-0 \
+    libcups2 \
+    libdbus-1-3 \
+    libdrm2 \
+    libgbm1 \
+    libgtk-3-0 \
+    libnspr4 \
+    libnss3 \
+    libwayland-client0 \
+    libxcomposite1 \
+    libxdamage1 \
+    libxfixes3 \
+    libxkbcommon0 \
+    libxrandr2 \
+    xdg-utils \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-# Create archon user and directories
-RUN useradd -m -u 1000 -s /bin/bash archon && \
-    mkdir -p ${ARCHON_HOME} ${ARCHON_CONFIG} ${ARCHON_DATA} && \
-    chown -R archon:archon ${ARCHON_HOME}
+COPY --from=builder /venv /venv
 
-# Set working directory
-WORKDIR ${ARCHON_HOME}
+ENV PATH=/venv/bin:$PATH
+ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
+RUN playwright install chromium
 
-# Copy requirements first for layer caching
-COPY requirements.txt* ./
+COPY src/server/ src/server/
+COPY src/agent_work_orders/ src/agent_work_orders/
+COPY src/__init__.py src/
+COPY tests/ tests/
 
-# Install Python dependencies
-RUN pip install --no-cache-dir \
-    fastapi==0.109.0 \
-    uvicorn[standard]==0.27.0 \
-    pydantic==2.5.3 \
-    pydantic-settings==2.1.0 \
-    sqlalchemy==2.0.25 \
-    alembic==1.13.1 \
-    asyncpg==0.29.0 \
-    redis==5.0.1 \
-    aioredis==2.0.1 \
-    celery==5.3.6 \
-    anthropic==0.18.1 \
-    openai==1.12.0 \
-    litellm==1.30.0 \
-    httpx==0.26.0 \
-    websockets==12.0 \
-    python-multipart==0.0.7 \
-    pyyaml==6.0.1 \
-    python-dotenv==1.0.1 \
-    prometheus-client==0.19.0 \
-    structlog==24.1.0 \
-    tenacity==8.2.3 \
-    psutil==5.9.8 \
-    mcp==0.9.0
+ENV PYTHONPATH="/app:$PYTHONPATH"
+ENV PYTHONUNBUFFERED=1
+ENV PATH="/venv/bin:$PATH"
 
-# Install from requirements.txt if exists
-RUN if [ -f requirements.txt ]; then pip install --no-cache-dir -r requirements.txt; fi
+ARG ARCHON_OS_PORT=9001
+ENV ARCHON_OS_PORT=${ARCHON_OS_PORT}
+EXPOSE ${ARCHON_OS_PORT}
 
-# Copy application code
-COPY --chown=archon:archon src/ ${ARCHON_HOME}/src/
-COPY --chown=archon:archon config/ ${ARCHON_CONFIG}/ 2>/dev/null || true
-COPY --chown=archon:archon init-scripts/ ${ARCHON_HOME}/init-scripts/ 2>/dev/null || true
-
-# Make init scripts executable if they exist
-RUN if [ -d ${ARCHON_HOME}/init-scripts ]; then chmod +x ${ARCHON_HOME}/init-scripts/*.sh 2>/dev/null || true; fi
-
-# Create necessary directories
-RUN mkdir -p \
-    ${ARCHON_DATA}/logs \
-    ${ARCHON_DATA}/agents \
-    ${ARCHON_DATA}/sessions \
-    ${ARCHON_DATA}/metrics \
-    ${ARCHON_DATA}/checkpoints && \
-    chown -R archon:archon ${ARCHON_DATA}
-
-# Switch to archon user
-USER archon
-
-# Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-    CMD curl -f http://localhost:9001/health || exit 1
+    CMD sh -c "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:${ARCHON_OS_PORT}/health')\""
 
-# Expose ports
-EXPOSE 9001 9002
-
-# Default command
-CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "9001", "--workers", "4"]
+# Run the core Archon API on the expected Archon OS port.
+CMD sh -c "python -m uvicorn src.server.main:app --host 0.0.0.0 --port ${ARCHON_OS_PORT} --workers 1"

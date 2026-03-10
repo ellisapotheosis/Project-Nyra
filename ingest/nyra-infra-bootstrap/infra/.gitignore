@@ -1,0 +1,10 @@
+# env/secrets
+env/*.env
+env/*.env.local
+**/*.pem
+**/*.key
+**/.DS_Store
+
+# runtime data
+data/
+logs/

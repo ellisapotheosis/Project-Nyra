@@ -1,0 +1,3 @@
+The \apps\REQUIRED-FOR-ALL-UI\shadcn-tweakcn resources must be used for all apps or ui that can integrate shadcn, integrate with magicUI.
+
+The \apps\REQUIRED-FOR-ALL-UI\WEBAPP-COMPETITOR-COMPARISON contains my personal rendition of the competitors web applications in which we are competing against. This is the type of UI flow that the webapp should retain at a minimum, and if not the webapp, wherever we decide to integrate the mortgage lead drip campaign builder as well as the drip campaign UI that integrates all calls/texts/vociemails/emails to/from each lead/borrower in one place showing all drip campaign and borrower correspondence in one place.

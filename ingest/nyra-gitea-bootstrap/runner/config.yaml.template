@@ -1,0 +1,20 @@
+# act_runner config.yaml (rendered by Setup-NYRA-Gitea.ps1)
+log:
+  level: info
+
+runner:
+  capacity: 2
+  timeout: 3h
+
+cache:
+  enabled: true
+  dir: /data/cache
+
+container:
+  # Make job containers join the same network as Gitea so they can reach http://gitea:3000
+  network: "__NYRA_NETWORK__"
+  privileged: false
+  options: ""
+
+host:
+  workdir_parent: /data/workdir

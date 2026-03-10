@@ -1,5 +1,4 @@
-# Archon Server - RAG Backend with Web Crawling
-# Multi-stage build for optimized image size
+# Server Service - Web crawling and document processing microservice
 FROM python:3.12 AS builder
 
 WORKDIR /build
@@ -11,26 +10,13 @@ RUN apt-get update && apt-get install -y \
     && pip install --no-cache-dir uv
 
 # Copy pyproject.toml for dependency installation
-COPY pyproject.toml* ./
+COPY pyproject.toml .
 
 # Install server dependencies to a virtual environment using uv
+# Install base dependencies (includes structlog) and server groups
 RUN uv venv /venv && \
     . /venv/bin/activate && \
-    if [ -f pyproject.toml ]; then uv pip install . || true; fi && \
-    uv pip install \
-        fastapi \
-        uvicorn[standard] \
-        pydantic \
-        httpx \
-        anthropic \
-        openai \
-        litellm \
-        playwright \
-        beautifulsoup4 \
-        markdownify \
-        sqlalchemy \
-        asyncpg \
-        redis
+    uv pip install . --group server --group server-reranking
 
 # Runtime stage
 FROM python:3.12-slim
@@ -40,7 +26,6 @@ WORKDIR /app
 # Install runtime dependencies for Playwright (minimal set)
 RUN apt-get update && apt-get install -y \
     wget \
-    curl \
     ca-certificates \
     fonts-liberation \
     libasound2 \
@@ -70,11 +55,13 @@ COPY --from=builder /venv /venv
 # Install Playwright browsers
 ENV PATH=/venv/bin:$PATH
 ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
-RUN playwright install chromium || true
+RUN playwright install chromium
 
-# Copy server code
-COPY src/ src/ 2>/dev/null || mkdir -p src
-COPY tests/ tests/ 2>/dev/null || true
+# Copy server code, agent work orders, and tests
+COPY src/server/ src/server/
+COPY src/agent_work_orders/ src/agent_work_orders/
+COPY src/__init__.py src/
+COPY tests/ tests/
 
 # Set environment variables
 ENV PYTHONPATH="/app:$PYTHONPATH"
@@ -88,7 +75,7 @@ EXPOSE ${ARCHON_SERVER_PORT}
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-    CMD curl -f http://localhost:${ARCHON_SERVER_PORT}/health || exit 1
+    CMD sh -c "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:${ARCHON_SERVER_PORT}/health')\""
 
 # Run the Server service
 CMD sh -c "python -m uvicorn src.server.main:app --host 0.0.0.0 --port ${ARCHON_SERVER_PORT} --workers 1"

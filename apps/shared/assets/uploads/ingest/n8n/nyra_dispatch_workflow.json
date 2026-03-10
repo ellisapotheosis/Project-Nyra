@@ -1,0 +1,162 @@
+{
+  "name": "Nyra Dispatch (Webhook -> SMS/Email)",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "nyra/dispatch",
+        "responseMode": "onReceived"
+      },
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        300,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "channel",
+              "value": "={{$json[\"channel\"]}}"
+            },
+            {
+              "name": "to",
+              "value": "={{$json[\"to\"]}}"
+            },
+            {
+              "name": "body",
+              "value": "={{$json[\"body\"]}}"
+            }
+          ]
+        }
+      },
+      "name": "Normalize",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 2,
+      "position": [
+        520,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json[\"channel\"]}}",
+              "operation": "equals",
+              "value2": "sms"
+            }
+          ]
+        }
+      },
+      "name": "If SMS",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        740,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://api.twilio.com/2010-04-01/Accounts/{{$env.TWILIO_ACCOUNT_SID}}/Messages.json",
+        "method": "POST",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "twilioApi",
+        "sendBody": true,
+        "bodyParametersUi": {
+          "parameter": [
+            {
+              "name": "From",
+              "value": "={{$env.TWILIO_FROM_NUMBER}}"
+            },
+            {
+              "name": "To",
+              "value": "={{$json[\"to\"]}}"
+            },
+            {
+              "name": "Body",
+              "value": "={{$json[\"body\"]}}"
+            }
+          ]
+        }
+      },
+      "name": "Send SMS (Twilio)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        980,
+        220
+      ],
+      "notesInFlow": true,
+      "notes": "Configure Twilio credentials in n8n Credentials UI (or swap to twilio node)."
+    },
+    {
+      "parameters": {
+        "fromEmail": "={{$env.SMTP_USER}}",
+        "toEmail": "={{$json[\"to\"]}}",
+        "subject": "Nyra Update",
+        "text": "={{$json[\"body\"]}}"
+      },
+      "name": "Send Email (SMTP)",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [
+        980,
+        380
+      ],
+      "notesInFlow": true,
+      "notes": "Configure SMTP credentials in n8n Credentials UI."
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Normalize",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize": {
+      "main": [
+        [
+          {
+            "node": "If SMS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If SMS": {
+      "main": [
+        [
+          {
+            "node": "Send SMS (Twilio)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send Email (SMTP)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {},
+  "versionId": "1"
+}

@@ -1,0 +1,134 @@
+version: "3.9"
+
+services:
+  gitea-db:
+    image: postgres:16
+    container_name: nyra-gitea-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: gitea
+      POSTGRES_USER: gitea
+      POSTGRES_PASSWORD: ${GITEA_DB_PASS}
+    volumes:
+      - gitea_db:/var/lib/postgresql/data
+    networks:
+      - nyra-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U gitea"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+  gitea:
+    image: docker.gitea.com/gitea:1.25.4
+    container_name: nyra-gitea
+    restart: unless-stopped
+    depends_on:
+      gitea-db:
+        condition: service_healthy
+    environment:
+      USER_UID: "1000"
+      USER_GID: "1000"
+    ports:
+      - "${GITEA_WEB_PORT:-3100}:3000"
+      - "${GITEA_SSH_PORT:-2222}:22"
+    volumes:
+      - gitea_data:/data
+      - ./gitea/app.ini:/data/gitea/conf/app.ini:ro
+    networks:
+      - nyra-net
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3000/ >/dev/null 2>&1 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+    labels:
+      - "nyra.service=gitea"
+      - "nyra.machine=${NYRA_MACHINE:-orchestrator}"
+
+  gitea-ai-reviewer:
+    build:
+      context: ./ai-reviewer
+      dockerfile: Dockerfile
+    container_name: nyra-gitea-ai-reviewer
+    restart: unless-stopped
+    depends_on:
+      gitea:
+        condition: service_healthy
+    environment:
+      # Where Gitea is reachable from inside Docker
+      GITEA_BASE_URL: "http://gitea:3000"
+      GITEA_TOKEN: ${GITEA_TOKEN}
+
+      # Webhook verification (recommended)
+      WEBHOOK_SECRET: ${WEBHOOK_SECRET}
+      WEBHOOK_AUTH_TOKEN: ${WEBHOOK_AUTH_TOKEN}
+
+      # OpenAI-compatible endpoint (OpenRouter by default)
+      OPENAI_BASE_URL: ${OPENAI_BASE_URL:-https://openrouter.ai/api/v1}
+      OPENAI_API_KEY: ${OPENROUTER_API_KEY}
+      REVIEW_MODEL: ${REVIEW_MODEL:-anthropic/claude-3.5-sonnet}
+      REVIEW_MAX_CHARS: ${REVIEW_MAX_CHARS:-18000}
+
+      # Behavior
+      REVIEW_POST_AS_REVIEW: ${REVIEW_POST_AS_REVIEW:-true}
+      REVIEW_LABEL: ${REVIEW_LABEL:-ai-reviewed}
+
+      # Nice-to-have context
+      NYRA_MACHINE: ${NYRA_MACHINE:-orchestrator}
+    networks:
+      - nyra-net
+    profiles: ["ai"]
+    # Not exposed by default; Gitea talks to it over the Docker network.
+
+  gitea-act-runner:
+    image: docker.io/gitea/act_runner:latest
+    container_name: nyra-gitea-actions
+    restart: unless-stopped
+    depends_on:
+      gitea:
+        condition: service_healthy
+    environment:
+      CONFIG_FILE: /config.yaml
+      # IMPORTANT: must be reachable from inside runner + job containers.
+      # We keep it Docker-internal to avoid "localhost" traps.
+      GITEA_INSTANCE_URL: "http://gitea:3000"
+      GITEA_RUNNER_REGISTRATION_TOKEN: ${GITEA_RUNNER_TOKEN}
+      GITEA_RUNNER_NAME: "nyra-runner-${NYRA_MACHINE:-orchestrator}"
+      # Labels give you more flexible workflow targeting
+      GITEA_RUNNER_LABELS: ${GITEA_RUNNER_LABELS:-"docker:docker://alpine:3.19,linux:host"}
+    volumes:
+      - act_runner_data:/data
+      - ./runner/config.yaml:/config.yaml:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - nyra-net
+    profiles: ["actions"]
+    labels:
+      - "nyra.service=gitea-actions"
+      - "nyra.machine=${NYRA_MACHINE:-orchestrator}"
+
+  # Optional: expose gitea.ratehunter.net via an existing Cloudflare Tunnel token.
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: nyra-gitea-cloudflared
+    restart: unless-stopped
+    command: tunnel --no-autoupdate run
+    environment:
+      TUNNEL_TOKEN: ${CLOUDFLARED_TUNNEL_TOKEN}
+    networks:
+      - nyra-net
+    profiles: ["public"]
+
+networks:
+  nyra-net:
+    name: ${NYRA_NETWORK:-nyra-net}
+    external: true
+
+volumes:
+  gitea_data:
+    name: nyra-gitea-data
+  gitea_db:
+    name: nyra-gitea-db
+  act_runner_data:
+    name: nyra-gitea-actions-data
