@@ -1,3 +1,11 @@
+## [1.0.2](https://github.com/ellisapotheosis/Project-Nyra/compare/v1.0.1...v1.0.2) (2026-03-10)
+
+
+### Bug Fixes
+
+* **ci:** auto-handle codex PR lifecycle ([#153](https://github.com/ellisapotheosis/Project-Nyra/issues/153)) ([fcd30e4](https://github.com/ellisapotheosis/Project-Nyra/commit/fcd30e491850dad9f56889cc984dca0763fdce54))
+* **landing:** restore ratehunter app and husky hooks after consolidation ([3670127](https://github.com/ellisapotheosis/Project-Nyra/commit/36701271a89e10d081485263364694477e1565a4))
+
 ## [1.0.1](https://github.com/ellisapotheosis/Project-Nyra/compare/v1.0.0...v1.0.1) (2026-03-10)
 
 
