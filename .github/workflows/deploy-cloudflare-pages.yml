@@ -73,7 +73,7 @@ jobs:
       deploy_method: ${{ steps.check-secrets.outputs.deploy_method }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 2  # Need previous commit to detect changes
 
@@ -286,7 +286,7 @@ jobs:
       build_size: ${{ steps.build.outputs.build_size }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Node.js ${{ env.NODE_VERSION }}
         uses: actions/setup-node@v4
@@ -428,7 +428,7 @@ jobs:
       environment: ${{ steps.deploy.outputs.environment }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Download build artifacts
         uses: actions/download-artifact@v4
@@ -526,7 +526,7 @@ jobs:
     if: always() && needs.deploy.result == 'success'
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Purge Cloudflare cache
         if: |
@@ -643,7 +643,7 @@ jobs:
     if: github.event_name == 'pull_request' && needs.deploy.result == 'success'
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Run Lighthouse CI
         uses: treosh/lighthouse-ci-action@v12
@@ -674,7 +674,7 @@ jobs:
     if: needs.deploy.result == 'success'
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Run security headers check
         continue-on-error: true

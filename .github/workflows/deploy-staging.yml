@@ -28,7 +28,7 @@ jobs:
       services: ${{ steps.services.outputs.matrix }}
       deployment-id: ${{ steps.deployment.outputs.deployment_id }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Determine services to deploy
         id: services
@@ -66,7 +66,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [prepare-deployment]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Install Infisical CLI
         run: |
@@ -130,7 +130,7 @@ jobs:
       name: staging
       url: https://${{ matrix.service }}.staging.your-domain.com
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Download secrets
         uses: actions/download-artifact@v4
@@ -333,7 +333,7 @@ jobs:
     needs: [deploy-service]
     if: needs.deploy-service.result == 'success'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Run basic smoke tests
         run: |
