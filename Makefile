@@ -12,6 +12,14 @@ WORKER_PROFILE ?= workers
 TWENTY_COMPOSE_FILE ?= infra/docker-compose.twenty.yml
 TWENTY_COMPOSE ?= docker compose -f $(TWENTY_COMPOSE_FILE)
 
+ifeq (,$(wildcard pnpm-lock.yaml))
+PKG_MGR ?= npm
+PKG_RUN ?= npx
+else
+PKG_MGR ?= pnpm
+PKG_RUN ?= pnpm exec
+endif
+
 .PHONY: help install test lint validate compose-config compose-config-all \
   up down restart logs ps pull \
   up-core up-orchestrator up-apps up-dev up-workers up-oracle up-worker-3060 up-worker-3090ti up-worker-5090 \
@@ -28,8 +36,8 @@ help:
 	@echo "Project Nyra - common targets"
 	@echo
 	@echo "make install            Install root JS dependencies"
-	@echo "make test               Run tests (npm test)"
-	@echo "make lint               Run lint (npx eslint .)"
+	@echo "make test               Run tests ($(PKG_MGR) test)"
+	@echo "make lint               Run lint ($(PKG_RUN) eslint .)"
 	@echo "make validate           Validate compose + test + lint"
 	@echo
 	@echo "make up                 Start default stack profiles"
@@ -66,13 +74,13 @@ help:
 	@echo "make infisical-config   Validate new Infisical compose config"
 
 install:
-	npm install
+	$(PKG_MGR) install
 
 test:
-	npm test
+	$(PKG_MGR) test
 
 lint:
-	npx eslint .
+	$(PKG_RUN) eslint .
 
 compose-config:
 	$(COMPOSE) config >/dev/null
@@ -80,8 +88,8 @@ compose-config:
 validate:
 	$(COMPOSE) config >/dev/null
 	@echo "compose config ok"
-	-@npm test
-	-@npx eslint .
+	-@$(PKG_MGR) test
+	-@$(PKG_RUN) eslint .
 
 compose-config-all:
 	docker compose --env-file infra/env/.env.orchestrator -f infra/docker-compose.yml -f infra/compose/overrides/docker-compose.orchestrator.override.yml config >/dev/null
