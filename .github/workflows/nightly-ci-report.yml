@@ -1,0 +1,42 @@
+name: Nightly CI Report
+
+on:
+  schedule:
+    - cron: '15 8 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  report:
+    name: Generate nightly CI report
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Generate report from recent runs and artifacts
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 scripts/ci/nightly_ci_report.py \
+            --window-hours 24 \
+            --limit 200 \
+            --output reports/nightly-ci-report.md
+
+      - name: Append report to job summary
+        run: cat reports/nightly-ci-report.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload nightly report artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: nightly-ci-report
+          path: reports/nightly-ci-report.md
+          retention-days: 14

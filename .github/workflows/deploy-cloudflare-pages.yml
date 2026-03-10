@@ -68,6 +68,7 @@ jobs:
     outputs:
       environment: ${{ steps.determine-env.outputs.environment }}
       should_deploy: ${{ steps.check-changes.outputs.should_deploy }}
+      app_dir_exists: ${{ steps.verify-app-dir.outputs.app_dir_exists }}
       has_infisical: ${{ steps.check-secrets.outputs.has_infisical }}
       has_direct_secrets: ${{ steps.check-secrets.outputs.has_direct_secrets }}
       deploy_method: ${{ steps.check-secrets.outputs.deploy_method }}
@@ -90,9 +91,26 @@ jobs:
           echo "environment=$ENV" >> $GITHUB_OUTPUT
           echo "📌 Deployment environment: $ENV"
 
+      - name: Verify app directory exists
+        id: verify-app-dir
+        run: |
+          if [ -d "${{ env.APP_DIR }}" ]; then
+            echo "app_dir_exists=true" >> $GITHUB_OUTPUT
+            echo "✅ Found app directory: ${{ env.APP_DIR }}"
+          else
+            echo "app_dir_exists=false" >> $GITHUB_OUTPUT
+            echo "::warning::App directory '${{ env.APP_DIR }}' does not exist in this commit. Deployment will be skipped."
+          fi
+
       - name: Check for relevant changes
         id: check-changes
         run: |
+          if [ "${{ steps.verify-app-dir.outputs.app_dir_exists }}" != "true" ]; then
+            echo "should_deploy=false" >> $GITHUB_OUTPUT
+            echo "ℹ️ Skipping deployment because app directory is missing."
+            exit 0
+          fi
+
           if [ "${{ github.event.inputs.force_deploy }}" == "true" ]; then
             echo "should_deploy=true" >> $GITHUB_OUTPUT
             echo "✅ Force deploy enabled"

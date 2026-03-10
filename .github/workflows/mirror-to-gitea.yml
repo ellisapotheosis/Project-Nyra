@@ -14,17 +14,38 @@ jobs:
           fetch-depth: 0
 
       - name: Setup SSH key
+        id: setup-mirror
+        env:
+          GITEA_MIRROR_URL: ${{ secrets.GITEA_MIRROR_URL }}
+          GITEA_HOST_FALLBACK: 100.64.0.10
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.GITEA_MIRROR_SSH_KEY }}" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
-          ssh-keyscan -H "$(echo "${{ secrets.GITEA_MIRROR_URL }}" | sed -E 's#.*@([^:/]+).*#\1#')" >> ~/.ssh/known_hosts || true
+          MIRROR_HOST="$(echo "$GITEA_MIRROR_URL" | sed -E 's#.*@([^:/]+).*#\1#')"
+          if [ "$MIRROR_HOST" = "orchestrator-win" ]; then
+            MIRROR_HOST="$GITEA_HOST_FALLBACK"
+            GITEA_MIRROR_URL="$(echo "$GITEA_MIRROR_URL" | sed "s/orchestrator-win/$MIRROR_HOST/g")"
+          fi
+          echo "GITEA_MIRROR_URL=$GITEA_MIRROR_URL" >> $GITHUB_ENV
+          echo "mirror_reachable=false" >> $GITHUB_OUTPUT
+          ssh-keyscan -H "$MIRROR_HOST" >> ~/.ssh/known_hosts || true
+          if ! getent hosts "$MIRROR_HOST" >/dev/null 2>&1; then
+            echo "::warning::Mirror host '$MIRROR_HOST' is not resolvable from this runner. Skipping mirror push."
+            exit 0
+          fi
+          echo "mirror_reachable=true" >> $GITHUB_OUTPUT
 
       - name: Push to Gitea mirror
+        if: steps.setup-mirror.outputs.mirror_reachable == 'true'
         env:
-          GITEA_MIRROR_URL: ${{ secrets.GITEA_MIRROR_URL }}
+          GITEA_MIRROR_URL: ${{ env.GITEA_MIRROR_URL }}
         run: |
           git remote remove gitea 2>/dev/null || true
           git remote add gitea "$GITEA_MIRROR_URL"
           git push gitea --all
           git push gitea --tags
+
+      - name: Mirror skipped notice
+        if: steps.setup-mirror.outputs.mirror_reachable != 'true'
+        run: echo "Mirror push skipped because host is unreachable from this runner."
