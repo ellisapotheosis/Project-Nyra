@@ -6,6 +6,7 @@ This folder is the canonical bootstrap package for self-hosted Gitea CI/CD in Pr
 
 - Gitea workflow files (repo): `.gitea/workflows/`
 - Runner config (orchestrator compose mount): `infra/configs/gitea/runner-config.yaml`
+- Large runner config (heavy builds): `infra/configs/gitea/runner-config-large.yaml`
 - Runner bootstrap script (compose entrypoint): `scripts/gitea/bootstrap-act-runner.sh`
 - Orchestrator one-shot bootstrap: `scripts/gitea/bootstrap-orchestrator-gitea.sh`
 
@@ -16,6 +17,7 @@ This folder is the canonical bootstrap package for self-hosted Gitea CI/CD in Pr
 - `act_runner` self-hosted runner container
 - Runner auto-registration using token file: `/run/nyra-secrets/gitea_runner_token`
 - Native Gitea pipelines in `.gitea/workflows/ci-cd.yml`
+- Internal image publish on tags in `.gitea/workflows/publish-images.yml`
 
 ## Required prerequisites
 
@@ -32,6 +34,12 @@ From repo root on orchestrator:
 ```bash
 chmod +x scripts/gitea/bootstrap-orchestrator-gitea.sh
 ENABLE_ACTIONS=true ENABLE_INFISICAL_AGENT=true ./scripts/gitea/bootstrap-orchestrator-gitea.sh
+```
+
+Enable both standard + large runners:
+
+```bash
+ENABLE_ACTIONS=true ENABLE_ACTIONS_LARGE=true ENABLE_INFISICAL_AGENT=true ./scripts/gitea/bootstrap-orchestrator-gitea.sh
 ```
 
 Or via Make target:
@@ -52,6 +60,10 @@ Both mount:
 - `./infra/configs/gitea/runner-config.yaml:/config.template.yaml:ro`
 - `./scripts/gitea/bootstrap-act-runner.sh:/usr/local/bin/bootstrap-act-runner.sh:ro`
 
+Large profile additionally mounts:
+
+- `./infra/configs/gitea/runner-config-large.yaml:/config.template.yaml:ro`
+
 And start runner with entrypoint:
 
 ```yaml
@@ -70,3 +82,11 @@ curl -fsS http://localhost:3100/api/healthz
 - `.github/workflows/*` remains GitHub-specific CI/CD.
 - `.gitea/workflows/*` is the native location Gitea Actions uses.
 - This package reuses the same root build/test commands (`pnpm build`, `pnpm test`) for parity.
+
+## Gitea secrets required for workflows
+
+- `NPM_TOKEN`
+- `NYRA_DEPLOY_ENABLED` (`true` to enable CD deploy step)
+- `GITEA_REGISTRY`
+- `GITEA_REGISTRY_USER`
+- `GITEA_REGISTRY_TOKEN`
