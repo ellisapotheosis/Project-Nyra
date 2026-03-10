@@ -420,21 +420,66 @@ All mortgage-related activities are logged:
 
 ---
 
-## ✅ **TwentyCRM Integration Complete**
+## ✅ **TwentyCRM Integration & Consolidation Complete**
 
-Your TwentyCRM integration is now ready for production use with:
+Your TwentyCRM integration is now ready for production use with complete consolidation of all TwentyCRM materials:
 
-- ✅ **Production & Development environments**
-- ✅ **Nexus Router integration**
-- ✅ **Custom mortgage database schema**
-- ✅ **Automated setup and management**
-- ✅ **MCP Server for Claude integration**
+### **Core Features ✅**
+- ✅ **Production & Development environments** with Docker configurations
+- ✅ **Nexus Router integration** for seamless API routing
+- ✅ **Custom mortgage database schema** with Nyra-specific tables
+- ✅ **Automated setup and management** via Makefile and scripts
+- ✅ **Multiple MCP Server implementations** for Claude integration
 - ✅ **Comprehensive monitoring and health checks**
 
-**Next Steps:**
-1. Run `make twenty-crm-setup` to initialize
-2. Configure your admin dashboard to connect to TwentyCRM
-3. Set up the MCP server for Claude integration
-4. Begin importing your lead data
+### **Consolidated Components ✅**
+- ✅ **Integration Services** (`/integrations/`) - Complete TypeScript service layer
+- ✅ **MCP Servers** (`/mcp-servers/`) - Multiple server implementations (upstream, simple, custom)
+- ✅ **Examples** (`/examples/`) - GraphQL queries, React components, environment configs
+- ✅ **Documentation** (`/documentation/`) - Complete setup guides and API references
+- ✅ **Service Configs** (`/services/`) - Docker Compose and deployment configurations
 
-For questions or issues, refer to the troubleshooting section or check the health status with `make twenty-crm-health`.
+### **Consolidated Source Locations**
+- ✅ `/services/twentycrm-integration/` → `/apps/twenty-crm/integrations/`
+- ✅ `/services/twenty-crm-mcp-server/` → `/apps/twenty-crm/mcp-servers/`
+- ✅ `/infra/docker-compose.twenty.yml` → `/apps/twenty-crm/services/`
+- ✅ `/ingest/infra/orchestrator/mcp/twenty-*` → `/apps/twenty-crm/mcp-servers/`
+- ✅ Documentation scattered across `/ingest/` → `/apps/twenty-crm/documentation/`
+
+### **Final Directory Structure**
+```
+apps/twenty-crm/
+├── README.md                           # This comprehensive guide
+├── package.json                        # NPM scripts and dependencies
+├── docker-compose.yml/.dev.yml        # Local deployment configurations
+├── .env.twenty                         # Environment variables
+├── config/                             # Configuration files
+├── scripts/                            # Setup and database scripts
+├── examples/                           # Working code examples
+│   ├── graphql-queries.ts             # Complete GraphQL API examples
+│   ├── admin-dashboard-integration.tsx # React components and hooks
+│   └── environment-config.env         # Comprehensive env configuration
+├── integrations/                       # TypeScript service layer
+│   └── src/                           # Complete integration service
+├── mcp-servers/                       # Multiple MCP implementations
+│   ├── index.js                       # Production MCP server
+│   ├── simple-server.js              # Minimal MCP server
+│   ├── Dockerfile.upstream           # Upstream build configuration
+│   └── upstream-mcp-readme.md        # Original documentation
+├── services/                          # Deployment configurations
+│   └── docker-compose.production.yml # Production infrastructure
+└── documentation/                     # Complete documentation library
+    ├── INDEX.md                       # Documentation index
+    └── service-catalog-reference.md   # Infrastructure reference
+```
+
+**Next Steps:**
+1. **Setup**: Run `make twenty-crm-setup` to initialize
+2. **Development**: Use examples in `/examples/` for integration
+3. **Configuration**: Reference `/documentation/` for detailed guides
+4. **MCP Integration**: Choose from multiple server implementations in `/mcp-servers/`
+5. **Production**: Use configurations in `/services/` for deployment
+
+**Total Consolidation**: 40+ files from 5+ different directories now organized in a single, coherent structure.
+
+For questions or issues, refer to the troubleshooting section, check `/documentation/INDEX.md`, or run `make twenty-crm-health` for diagnostics.

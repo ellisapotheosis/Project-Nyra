@@ -1,0 +1,9 @@
+{
+  "name": "activepieces-lead-ingest-drip-stop",
+  "trigger": {"type": "webhook", "path": "lead-ingest"},
+  "steps": [
+    {"name": "detect-stop", "type": "condition", "expression": "contains(input.message, 'STOP')"},
+    {"name": "suppress-contact", "type": "http", "method": "POST", "url": "http://security-service:8090/suppress"},
+    {"name": "start-drip", "type": "http", "method": "POST", "url": "http://campaign-engine:8002/drip/start"}
+  ]
+}
