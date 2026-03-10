@@ -63,6 +63,7 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v5
         with:
+          enablement: true
           # Automatically inject router.base in your Nuxt configuration file and set
           # target to static (https://nuxtjs.org/docs/configuration-glossary/configuration-target/).
           #
