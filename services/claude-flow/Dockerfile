@@ -30,8 +30,12 @@ WORKDIR /app
 # Copy package files
 COPY package.json pnpm-lock.yaml* ./
 
-# Install dependencies with frozen lockfile (if lock exists)
-RUN pnpm install --frozen-lockfile 2>/dev/null || pnpm install
+# Install dependencies with frozen lockfile when available
+RUN if [ -f "pnpm-lock.yaml" ]; then \
+      pnpm install --frozen-lockfile; \
+    else \
+      pnpm install; \
+    fi
 
 # Stage 3: Builder
 FROM dependencies AS builder
@@ -65,7 +69,7 @@ WORKDIR /app
 
 # Copy node_modules and built application
 COPY --from=builder --chown=claudeflow:claudeflow /app/node_modules ./node_modules
-COPY --from=builder --chown=claudeflow:claudeflow /app/dist ./dist 2>/dev/null || true
+COPY --from=builder --chown=claudeflow:claudeflow /app/dist ./dist
 COPY --from=builder --chown=claudeflow:claudeflow /app/src ./src
 COPY --from=builder --chown=claudeflow:claudeflow /app/package.json ./
 
