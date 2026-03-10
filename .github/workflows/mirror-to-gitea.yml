@@ -39,6 +39,7 @@ jobs:
 
       - name: Push to Gitea mirror
         if: steps.preflight.outputs.enabled == 'true'
+        continue-on-error: true
         env:
           GITEA_MIRROR_URL: ${{ secrets.GITEA_MIRROR_URL }}
         run: |
