@@ -28,7 +28,7 @@ services:
   postgres:
     image: postgres:16-alpine
     container_name: nyra-postgres
-    profiles: ['core', 'all']
+    profiles: ['core', 'archon', 'all']
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-nyra}
       POSTGRES_USER: ${POSTGRES_USER:-nyra}
@@ -58,7 +58,7 @@ services:
   redis:
     image: redis:7-alpine
     container_name: nyra-redis
-    profiles: ['core', 'all']
+    profiles: ['core', 'archon', 'all']
     environment:
       REDIS_PASSWORD: ${REDIS_PASSWORD:?set REDIS_PASSWORD}
     command:
@@ -99,7 +99,7 @@ services:
   litellm:
     image: ghcr.io/berriai/litellm:main-stable
     container_name: nyra-litellm
-    profiles: ['gateway', 'orchestrator', 'all']
+    profiles: ['gateway', 'orchestrator', 'archon', 'all']
     command: ['--config', '/app/config.yaml', '--port', '4000']
     environment:
       LITELLM_MASTER_KEY: ${LITELLM_MASTER_KEY:?set LITELLM_MASTER_KEY}
@@ -125,7 +125,7 @@ services:
       context: ..
       dockerfile: infra/docker/nexus-router/Dockerfile
     container_name: nyra-nexus-router
-    profiles: ['gateway', 'orchestrator', 'all']
+    profiles: ['gateway', 'orchestrator', 'archon', 'all']
     environment:
       NEXUS_ROUTER_PORT: ${NEXUS_ROUTER_PORT:-7000}
       NEXUS_MCP_PORT: ${NEXUS_MCP_PORT:-8080}
@@ -578,8 +578,8 @@ services:
       INFISICAL_API_URL: ${INFISICAL_API_URL:-https://app.infisical.com}
       INFISICAL_ENV: ${INFISICAL_ENV:-prod}
       INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-}
-      INFISICAL_CLIENT_ID: ${INFISICAL_CLIENT_ID:-}
-      INFISICAL_CLIENT_SECRET: ${INFISICAL_CLIENT_SECRET:-}
+      INFISICAL_UNIVERSAL_AUTH_CLIENT_ID: ${INFISICAL_UNIVERSAL_AUTH_CLIENT_ID:-}
+      INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET: ${INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET:-}
     volumes:
       - ./configs/infisical/agent-archon.yaml:/etc/infisical/agent.yaml:ro
       - ./shared/secrets:/secrets
@@ -610,7 +610,7 @@ services:
   infisical:
     image: infisical/infisical:latest
     container_name: nyra-infisical
-    profiles: ['secrets', 'oracle', 'all']
+    profiles: ['archon', 'secrets', 'oracle', 'all']
     environment:
       NODE_ENV: production
       DB_CONNECTION_URI: postgresql://${POSTGRES_USER:-nyra}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-nyra}
@@ -640,9 +640,6 @@ services:
     environment:
       MCP_HTTP_PORT: 8811
       NEXUS_MCP_PROXY_URL: http://nexus-router:8080
-    depends_on:
-      nexus-router:
-        condition: service_healthy
     restart: unless-stopped
     networks: [nyra]
     logging: *default_logging
@@ -656,9 +653,6 @@ services:
       NEXUS_MCP_PROXY_URL: http://nexus-router:8080
     ports:
       - '${GIT_MCP_PORT:-8812}:8812'
-    depends_on:
-      nexus-router:
-        condition: service_healthy
     restart: unless-stopped
     networks: [nyra]
     logging: *default_logging
@@ -673,9 +667,6 @@ services:
       NEXUS_MCP_PROXY_URL: http://nexus-router:8080
     ports:
       - '${GITHUB_MCP_PORT:-8813}:8813'
-    depends_on:
-      nexus-router:
-        condition: service_healthy
     restart: unless-stopped
     networks: [nyra]
     logging: *default_logging
@@ -689,9 +680,6 @@ services:
       NEXUS_MCP_PROXY_URL: http://nexus-router:8080
     ports:
       - '${BITWARDEN_MCP_PORT:-8814}:8814'
-    depends_on:
-      nexus-router:
-        condition: service_healthy
     restart: unless-stopped
     networks: [nyra]
     logging: *default_logging
@@ -707,8 +695,6 @@ services:
       NEXUS_MCP_PROXY_URL: http://nexus-router:8080
     ports:
       - '${INFISICAL_MCP_PORT:-8815}:8815'
-    depends_on:
-      - infisical
     restart: unless-stopped
     networks: [nyra]
     logging: *default_logging
