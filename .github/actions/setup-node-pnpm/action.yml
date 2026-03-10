@@ -1,0 +1,39 @@
+name: Setup Node + pnpm
+description: Standardized Node.js + pnpm setup for CI jobs
+
+inputs:
+  node-version:
+    description: Node.js version to install
+    required: false
+    default: "20"
+  pnpm-version:
+    description: pnpm version to install
+    required: false
+    default: "10.27.0"
+  install:
+    description: Install dependencies with pnpm install --no-frozen-lockfile
+    required: false
+    default: "true"
+  cache-mode:
+    description: Cache mode for actions/setup-node
+    required: false
+    default: "pnpm"
+
+runs:
+  using: composite
+  steps:
+    - name: Setup pnpm
+      uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # v4
+      with:
+        version: ${{ inputs.pnpm-version }}
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ inputs.node-version }}
+        cache: ${{ inputs.cache-mode }}
+
+    - name: Install dependencies
+      if: inputs.install == 'true'
+      shell: bash
+      run: pnpm install --no-frozen-lockfile
