@@ -369,15 +369,19 @@ jobs:
 
       - name: Login to Infisical
         run: |
-          infisical login --method=universal-auth \
-            --client-id="${{ secrets.INFISICAL_CLIENT_ID }}" \
-            --client-secret="${{ secrets.INFISICAL_CLIENT_SECRET }}"
+          TOKEN=$(infisical login --method=universal-auth \
+            --client-id="${{ secrets.INFISICAL_UNIVERSAL_AUTH_CLIENT_ID }}" \
+            --client-secret="${{ secrets.INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET }}" \
+            --plain --silent)
+          echo "::add-mask::$TOKEN"
+          echo "INFISICAL_TOKEN=$TOKEN" >> $GITHUB_ENV
 
       - name: Start all services with Docker Compose
         run: |
           cd infra/docker
 
           infisical run --projectId="${{ env.INFISICAL_PROJECT_ID }}" \
+            --token="$INFISICAL_TOKEN" \
             --env="${{ env.INFISICAL_ENV }}" \
             --path="${{ env.INFISICAL_PATH }}" -- \
             docker compose -f docker-compose.orchestration.yml \

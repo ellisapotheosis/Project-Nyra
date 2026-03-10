@@ -23,15 +23,15 @@ jobs:
     steps:
       - name: Validate required secrets
         run: |
-          if [ -z "${{ secrets.GH_PAT_WORKFLOWS }}" ]; then
-            echo "::warning::GH_PAT_WORKFLOWS not configured, using GITHUB_TOKEN"
+          if [ -z "${{ secrets.GITHUB_TOKEN }}" ] && [ -z "${{ secrets.GH_TOKEN }}" ] && [ -z "${{ secrets.GH_PAT_WORKFLOWS }}" ]; then
+            echo "::warning::No GitHub token secret configured (GITHUB_TOKEN, GH_TOKEN, GH_PAT_WORKFLOWS)"
           fi
           echo "✓ Secret validation complete"
 
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          token: ${{ secrets.GH_PAT_WORKFLOWS || secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN || secrets.GH_TOKEN || secrets.GH_PAT_WORKFLOWS }}
 
       - uses: actions/setup-node@v4
         with:
@@ -94,7 +94,7 @@ jobs:
 
       - name: Create GitHub Release
         env:
-          GH_TOKEN: ${{ secrets.GH_PAT_WORKFLOWS || secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN || secrets.GH_TOKEN || secrets.GH_PAT_WORKFLOWS }}
         run: |
           VERSION="${{ steps.version.outputs.version }}"
 
