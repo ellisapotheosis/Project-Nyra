@@ -8,5 +8,5 @@
     "path": "security-audit.json"
   },
   "skip-dev": false,
-  "package-manager": "npm"
+  "package-manager": "pnpm"
 }
