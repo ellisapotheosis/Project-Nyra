@@ -1,0 +1,102 @@
+version: '3.8'
+
+services:
+  # Development Database - lighter setup
+  twenty-db-dev:
+    image: postgres:15-alpine
+    container_name: nyra-twenty-db-dev
+    environment:
+      POSTGRES_DB: twenty_dev
+      POSTGRES_USER: twenty
+      POSTGRES_PASSWORD: twenty_dev_pass
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - twenty_db_dev_data:/var/lib/postgresql/data/pgdata
+      - ./scripts/init-dev-db.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    ports:
+      - "5434:5432"
+    networks:
+      - twenty-dev-network
+    restart: unless-stopped
+
+  # Development Redis
+  twenty-redis-dev:
+    image: redis:7-alpine
+    container_name: nyra-twenty-redis-dev
+    command: redis-server --requirepass redis_dev_pass
+    volumes:
+      - twenty_redis_dev_data:/data
+    ports:
+      - "6381:6379"
+    networks:
+      - twenty-dev-network
+    restart: unless-stopped
+
+  # TwentyCRM Development
+  twenty-crm-dev:
+    image: twentycrm/twenty:latest
+    container_name: nyra-twenty-crm-dev
+    environment:
+      # Database Configuration
+      PG_DATABASE_URL: postgresql://twenty:twenty_dev_pass@twenty-db-dev:5432/twenty_dev
+      REDIS_URL: redis://:redis_dev_pass@twenty-redis-dev:6379
+
+      # App Configuration
+      SERVER_URL: http://localhost:3021
+      FRONT_BASE_URL: http://localhost:3021
+      PORT: 3000
+
+      # Development Settings
+      NODE_ENV: development
+      DEBUG_MODE: true
+      SIGN_IN_PREFILLED: true
+      IS_MULTIWORKSPACE_ENABLED: false
+      TELEMETRY_ENABLED: false
+      SUPPORT_CHAT_ENABLED: false
+
+      # Quick Development Secrets (CHANGE IN PRODUCTION)
+      ACCESS_TOKEN_SECRET: dev_access_token_secret_change_me
+      LOGIN_TOKEN_SECRET: dev_login_token_secret_change_me
+      REFRESH_TOKEN_SECRET: dev_refresh_token_secret_change_me
+      FILE_TOKEN_SECRET: dev_file_token_secret_change_me
+
+      # Email (Logger for dev)
+      EMAIL_DRIVER: logger
+      EMAIL_FROM_ADDRESS: dev@nyra.local
+      EMAIL_SYSTEM_ADDRESS: system@nyra.local
+
+      # File Storage
+      STORAGE_TYPE: local
+      STORAGE_LOCAL_PATH: /app/storage
+
+      # API Configuration
+      API_RATE_LIMITING_TTL: 1000
+      API_RATE_LIMITING_REQUEST_COUNT: 1000
+
+    ports:
+      - "3021:3000"
+    volumes:
+      - twenty_storage_dev:/app/storage
+      - ./config/twenty-dev.env:/app/.env:ro
+    networks:
+      - twenty-dev-network
+      - nexus-network
+    depends_on:
+      - twenty-db-dev
+      - twenty-redis-dev
+    restart: unless-stopped
+
+volumes:
+  twenty_db_dev_data:
+    driver: local
+  twenty_redis_dev_data:
+    driver: local
+  twenty_storage_dev:
+    driver: local
+
+networks:
+  twenty-dev-network:
+    driver: bridge
+  nexus-network:
+    external: true
+    name: nexus-network
