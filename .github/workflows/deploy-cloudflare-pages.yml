@@ -342,7 +342,11 @@ jobs:
       - name: Install dependencies
         run: |
           echo "📦 Installing dependencies..."
-          pnpm install --no-frozen-lockfile --filter '!twenty-crm'
+          if [ -f "apps/twenty-crm/package.json" ]; then
+            mv apps/twenty-crm/package.json apps/twenty-crm/package.json.ci-skip
+          fi
+          trap 'if [ -f "apps/twenty-crm/package.json.ci-skip" ]; then mv apps/twenty-crm/package.json.ci-skip apps/twenty-crm/package.json; fi' EXIT
+          pnpm install --no-frozen-lockfile
 
       - name: Run linting
         if: github.event.inputs.skip_tests != 'true'
