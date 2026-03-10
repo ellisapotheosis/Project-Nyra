@@ -19,8 +19,10 @@ This pass reviewed `.github/workflows` and reused portable patterns in `.gitea/w
 ## Native Gitea replacement delivered
 
 - `.gitea/workflows/ci-cd.yml`
+- `.gitea/workflows/publish-images.yml`
 
 This workflow provides:
 
 1. CI on push/PR: install, build, test
 2. CD on `main` using self-hosted runner with orchestrator bootstrap script
+3. Tag-based image publishing to internal registry

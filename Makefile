@@ -68,6 +68,7 @@ help:
 	@echo "make gitea-up           Start Gitea bootstrap stack"
 	@echo "make gitea-up-ai        Start Gitea stack with AI reviewer profile"
 	@echo "make gitea-up-actions   Start Gitea stack with actions runner profile"
+	@echo "make gitea-up-actions-large Start Gitea stack with large actions runner profile"
 	@echo "make gitea-up-infisical-agent Start Gitea stack with Infisical agent profile"
 	@echo "make gitea-config       Validate new Gitea compose config"
 	@echo "make gitea-bootstrap-orchestrator Bring up full Gitea + Actions package"
@@ -310,6 +311,9 @@ gitea-up-ai:
 gitea-up-actions:
 	docker compose -f docker-compose.gitea.yml --env-file .env.gitea --profile actions up -d
 
+gitea-up-actions-large:
+	docker compose -f docker-compose.gitea.yml --env-file .env.gitea --profile actions-large up -d
+
 gitea-up-infisical-agent:
 	docker compose -f docker-compose.gitea.yml --env-file .env.gitea --profile infisical up -d
 
@@ -320,7 +324,7 @@ gitea-ps:
 	docker compose -f docker-compose.gitea.yml --env-file .env.gitea ps
 
 gitea-bootstrap-orchestrator:
-	ENABLE_ACTIONS=true ENABLE_INFISICAL_AGENT=true ./scripts/gitea/bootstrap-orchestrator-gitea.sh
+	ENABLE_ACTIONS=true ENABLE_ACTIONS_LARGE=false ENABLE_INFISICAL_AGENT=true ./scripts/gitea/bootstrap-orchestrator-gitea.sh
 
 infisical-config:
 	docker compose -f docker-compose.infisical.yml --env-file .env.infisical config >/dev/null

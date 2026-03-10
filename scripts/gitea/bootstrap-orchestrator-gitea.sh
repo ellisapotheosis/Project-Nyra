@@ -8,6 +8,7 @@ ENV_FILE="${ENV_FILE:-.env.gitea}"
 COMPOSE_FILE="${COMPOSE_FILE:-docker-compose.gitea.bootstrap.yml}"
 NETWORK_NAME="${NYRA_NETWORK:-nyra-net}"
 ENABLE_ACTIONS="${ENABLE_ACTIONS:-true}"
+ENABLE_ACTIONS_LARGE="${ENABLE_ACTIONS_LARGE:-false}"
 ENABLE_AI="${ENABLE_AI:-false}"
 ENABLE_INFISICAL_AGENT="${ENABLE_INFISICAL_AGENT:-false}"
 
@@ -23,6 +24,7 @@ fi
 
 PROFILES=()
 if [ "$ENABLE_ACTIONS" = "true" ]; then PROFILES+=(--profile actions); fi
+if [ "$ENABLE_ACTIONS_LARGE" = "true" ]; then PROFILES+=(--profile actions-large); fi
 if [ "$ENABLE_AI" = "true" ]; then PROFILES+=(--profile ai); fi
 if [ "$ENABLE_INFISICAL_AGENT" = "true" ]; then PROFILES+=(--profile infisical); fi
 

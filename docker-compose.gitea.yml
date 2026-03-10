@@ -164,6 +164,36 @@ services:
       - "nyra.service=gitea-actions"
       - "nyra.machine=${NYRA_MACHINE:-orchestrator}"
 
+  gitea-act-runner-large:
+    image: gitea/act_runner:0.2.11
+    container_name: nyra-gitea-actions-large
+    depends_on:
+      gitea:
+        condition: service_started
+    environment:
+      TZ: ${TZ:-America/Los_Angeles}
+      GITEA_INSTANCE_URL: http://gitea:3000
+      GITEA_RUNNER_REGISTRATION_TOKEN_FILE: /run/nyra-secrets/gitea_runner_token
+      GITEA_RUNNER_CONFIG_TEMPLATE: /config.template.yaml
+      GITEA_RUNNER_CONFIG_PATH: /data/config.yaml
+      GITEA_RUNNER_NAME: nyra-runner-large-${NYRA_MACHINE:-orchestrator}
+      GITEA_RUNNER_LABELS: ubuntu-latest-large:docker://node:20-bookworm,docker-large:host,self-hosted-large:host
+    volumes:
+      - act_runner_large_data:/data
+      - /var/run/docker.sock:/var/run/docker.sock
+      - nyra_secrets:/run/nyra-secrets:ro
+      - ./infra/configs/gitea/runner-config-large.yaml:/config.template.yaml:ro
+      - ./scripts/gitea/bootstrap-act-runner.sh:/usr/local/bin/bootstrap-act-runner.sh:ro
+    networks:
+      - nyra-net
+    entrypoint: ["/bin/sh", "/usr/local/bin/bootstrap-act-runner.sh"]
+    restart: unless-stopped
+    profiles:
+      - actions-large
+    labels:
+      - "nyra.service=gitea-actions-large"
+      - "nyra.machine=${NYRA_MACHINE:-orchestrator}"
+
 networks:
   nyra-net:
     name: ${NYRA_NETWORK:-nyra-net}
@@ -176,5 +206,7 @@ volumes:
     name: nyra-gitea-db
   act_runner_data:
     name: nyra-gitea-actions-data
+  act_runner_large_data:
+    name: nyra-gitea-actions-large-data
   nyra_secrets:
     name: nyra-secrets
