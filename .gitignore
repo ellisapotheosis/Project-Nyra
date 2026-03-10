@@ -501,3 +501,8 @@ bootstrap/
 .env.infisical
 .secrets/
 gitea-setup-summary-*.md
+
+# Memory database files (cross-PC persistent but too large for git)
+.claude/memory/memory.db
+.claude/memory/hnsw.index
+.claude/memory/hnsw.metadata.json
