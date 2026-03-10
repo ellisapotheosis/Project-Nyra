@@ -1,4 +1,7 @@
 import Link from 'next/link';
+import { PersonalHeader } from '@/components/PersonalHeader';
+import { AboutSection } from '@/components/AboutSection';
+import { PersonalFooter } from '@/components/PersonalFooter';
 
 interface RateCard {
   product: string;
@@ -133,91 +136,105 @@ export default async function Home() {
   const news = await getNewsFeed();
 
   return (
-    <main className="min-h-screen bg-[#030712] text-slate-100">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(56,189,248,0.18),transparent_35%),radial-gradient(circle_at_80%_0%,rgba(168,85,247,0.2),transparent_30%)]" />
+    <div className="min-h-screen bg-[#030712] text-slate-100">
+      <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(56,189,248,0.18),transparent_35%),radial-gradient(circle_at_80%_0%,rgba(168,85,247,0.2),transparent_30%)]" />
 
-      <section className="relative mx-auto max-w-6xl px-6 pb-16 pt-20">
-        <p className="inline-flex rounded-full border border-cyan-400/40 bg-cyan-400/10 px-4 py-1 text-xs uppercase tracking-[0.2em] text-cyan-200">
-          RateHunter Quantum Board · 2142 Edition
-        </p>
-        <h1 className="mt-6 text-4xl font-bold leading-tight md:text-6xl">
-          Mortgage Intelligence
-          <span className="block bg-gradient-to-r from-cyan-300 via-violet-300 to-fuchsia-300 bg-clip-text text-transparent">
-            optimized for Cloudflare Pages
-          </span>
-        </h1>
-        <p className="mt-6 max-w-2xl text-slate-300">
-          Static-first UX with real-time friendly data sources. Includes modeled mortgage products from the
-          U.S. 10-year Treasury benchmark and a live mortgage/market news strip.
-        </p>
-        <div className="mt-8 grid gap-4 sm:grid-cols-3">
-          <div className="rounded-xl border border-slate-800 bg-slate-900/80 p-4 backdrop-blur">
-            <p className="text-xs uppercase tracking-widest text-slate-400">10Y Treasury</p>
-            <p className="mt-2 text-3xl font-semibold text-cyan-300">{tenYearYield.toFixed(2)}%</p>
-          </div>
-          <div className="rounded-xl border border-slate-800 bg-slate-900/80 p-4 backdrop-blur">
-            <p className="text-xs uppercase tracking-widest text-slate-400">Products Tracked</p>
-            <p className="mt-2 text-3xl font-semibold text-violet-300">{rates.length}</p>
-          </div>
-          <div className="rounded-xl border border-slate-800 bg-slate-900/80 p-4 backdrop-blur">
-            <p className="text-xs uppercase tracking-widest text-slate-400">Feed Status</p>
-            <p className="mt-2 text-3xl font-semibold text-fuchsia-300">{news.length > 0 ? 'LIVE' : 'Fallback'}</p>
-          </div>
-        </div>
-      </section>
+      {/* Personal Header with Contact Info */}
+      <PersonalHeader />
 
-      <section className="relative mx-auto max-w-6xl px-6 pb-16" id="rates">
-        <div className="mb-6 flex items-end justify-between">
-          <h2 className="text-2xl font-semibold">Rate Deck</h2>
-          <p className="text-sm text-slate-400">Indicative APRs for comparison only</p>
-        </div>
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {rates.map((card) => (
-            <article
-              key={card.product}
-              className="rounded-2xl border border-slate-800 bg-gradient-to-b from-slate-900 to-slate-950 p-5 shadow-[0_0_60px_-40px_rgba(56,189,248,0.55)]"
-            >
-              <p className="text-sm text-slate-400">{card.source}</p>
-              <h3 className="mt-2 text-lg font-medium">{card.product}</h3>
-              <p className="mt-3 text-3xl font-bold text-cyan-200">{card.rate.toFixed(3)}%</p>
-              <p className="text-slate-300">APR {card.apr.toFixed(3)}%</p>
-              <p className="mt-3 text-sm">
-                <TrendBadge trend={card.trend} />
-              </p>
-            </article>
-          ))}
-        </div>
-      </section>
+      <main className="relative">
+        {/* Hero Section with Ellis Branding */}
+        <section className="relative mx-auto max-w-6xl px-6 pb-16 pt-20">
+          <p className="inline-flex rounded-full border border-cyan-400/40 bg-cyan-400/10 px-4 py-1 text-xs uppercase tracking-[0.2em] text-cyan-200">
+            Ellis Andersen · West Capital Lending · 2026 Edition
+          </p>
+          <h1 className="mt-6 text-4xl font-bold leading-tight md:text-6xl">
+            Mortgage Intelligence
+            <span className="block bg-gradient-to-r from-cyan-300 via-violet-300 to-fuchsia-300 bg-clip-text text-transparent">
+              with Personal Service
+            </span>
+          </h1>
+          <p className="mt-6 max-w-2xl text-slate-300">
+            I shop hundreds of lenders to find you the best rates and terms. Static-first UX with real-time data sources,
+            A+ BBB rating, and faster closing times than industry averages.
+          </p>
+          <div className="mt-8 grid gap-4 sm:grid-cols-3">
+            <div className="rounded-xl border border-slate-800 bg-slate-900/80 p-4 backdrop-blur">
+              <p className="text-xs uppercase tracking-widest text-slate-400">10Y Treasury</p>
+              <p className="mt-2 text-3xl font-semibold text-cyan-300">{tenYearYield.toFixed(2)}%</p>
+            </div>
+            <div className="rounded-xl border border-slate-800 bg-slate-900/80 p-4 backdrop-blur">
+              <p className="text-xs uppercase tracking-widest text-slate-400">Products Tracked</p>
+              <p className="mt-2 text-3xl font-semibold text-violet-300">{rates.length}</p>
+            </div>
+            <div className="rounded-xl border border-slate-800 bg-slate-900/80 p-4 backdrop-blur">
+              <p className="text-xs uppercase tracking-widest text-slate-400">BBB Rating</p>
+              <p className="mt-2 text-3xl font-semibold text-emerald-300">A+</p>
+            </div>
+          </div>
+        </section>
 
-      <section className="relative mx-auto max-w-6xl px-6 pb-24" id="news">
-        <div className="mb-6 flex items-end justify-between">
-          <h2 className="text-2xl font-semibold">Mortgage + Market News Pulse</h2>
-          <Link href="https://news.google.com" className="text-sm text-cyan-300 hover:text-cyan-200">
-            Open News Source ↗
-          </Link>
-        </div>
-        <div className="space-y-3 rounded-2xl border border-slate-800 bg-slate-900/70 p-5">
-          {news.length > 0 ? (
-            news.map((item) => (
-              <a
-                key={`${item.source}-${item.url}`}
-                href={item.url}
-                target="_blank"
-                rel="noreferrer"
-                className="block rounded-lg border border-slate-800 p-4 transition hover:border-cyan-400/50 hover:bg-slate-800/60"
+        {/* Rate Deck Section */}
+        <section className="relative mx-auto max-w-6xl px-6 pb-16" id="rates">
+          <div className="mb-6 flex items-end justify-between">
+            <h2 className="text-2xl font-semibold">Rate Deck</h2>
+            <p className="text-sm text-slate-400">Indicative APRs for comparison only</p>
+          </div>
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {rates.map((card) => (
+              <article
+                key={card.product}
+                className="rounded-2xl border border-slate-800 bg-gradient-to-b from-slate-900 to-slate-950 p-5 shadow-[0_0_60px_-40px_rgba(56,189,248,0.55)]"
               >
-                <p className="text-xs uppercase tracking-widest text-slate-400">{item.source}</p>
-                <p className="mt-1 text-sm font-medium text-slate-100">{item.title}</p>
-                <p className="mt-2 text-xs text-slate-400">{new Date(item.published).toLocaleString()}</p>
-              </a>
-            ))
-          ) : (
-            <p className="text-slate-300">
-              News endpoints are temporarily unavailable. Add a Worker-proxied RSS feed endpoint later for guaranteed uptime.
-            </p>
-          )}
-        </div>
-      </section>
-    </main>
+                <p className="text-sm text-slate-400">{card.source}</p>
+                <h3 className="mt-2 text-lg font-medium">{card.product}</h3>
+                <p className="mt-3 text-3xl font-bold text-cyan-200">{card.rate.toFixed(3)}%</p>
+                <p className="text-slate-300">APR {card.apr.toFixed(3)}%</p>
+                <p className="mt-3 text-sm">
+                  <TrendBadge trend={card.trend} />
+                </p>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        {/* News Section */}
+        <section className="relative mx-auto max-w-6xl px-6 pb-24" id="news">
+          <div className="mb-6 flex items-end justify-between">
+            <h2 className="text-2xl font-semibold">Mortgage + Market News Pulse</h2>
+            <Link href="https://news.google.com" className="text-sm text-cyan-300 hover:text-cyan-200">
+              Open News Source ↗
+            </Link>
+          </div>
+          <div className="space-y-3 rounded-2xl border border-slate-800 bg-slate-900/70 p-5">
+            {news.length > 0 ? (
+              news.map((item) => (
+                <a
+                  key={`${item.source}-${item.url}`}
+                  href={item.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="block rounded-lg border border-slate-800 p-4 transition hover:border-cyan-400/50 hover:bg-slate-800/60"
+                >
+                  <p className="text-xs uppercase tracking-widest text-slate-400">{item.source}</p>
+                  <p className="mt-1 text-sm font-medium text-slate-100">{item.title}</p>
+                  <p className="mt-2 text-xs text-slate-400">{new Date(item.published).toLocaleString()}</p>
+                </a>
+              ))
+            ) : (
+              <p className="text-slate-300">
+                News endpoints are temporarily unavailable. Add a Worker-proxied RSS feed endpoint later for guaranteed uptime.
+              </p>
+            )}
+          </div>
+        </section>
+
+        {/* About Ellis & West Capital Section */}
+        <AboutSection />
+      </main>
+
+      {/* Personal Footer with Contact & Professional Links */}
+      <PersonalFooter />
+    </div>
   );
 }
