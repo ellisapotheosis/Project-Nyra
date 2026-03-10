@@ -28,6 +28,8 @@ jobs:
   # Build job
   build:
     runs-on: ubuntu-latest
+    outputs:
+      can_deploy: ${{ steps.pages-capability.outputs.can_deploy }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -63,7 +65,27 @@ jobs:
         with:
           node-version: "20"
           cache: ${{ steps.detect-package-manager.outputs.manager }}
+      - name: Check Pages integration capability
+        id: pages-capability
+        uses: actions/github-script@v7
+        with:
+          script: |
+            try {
+              await github.rest.repos.getPages({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+              });
+              core.setOutput("can_deploy", "true");
+            } catch (error) {
+              if (error.status === 404 || error.status === 403) {
+                core.warning(`Skipping Pages deploy: ${error.message}`);
+                core.setOutput("can_deploy", "false");
+                return;
+              }
+              throw error;
+            }
       - name: Setup Pages
+        if: steps.pages-capability.outputs.can_deploy == 'true'
         uses: actions/configure-pages@v5
         with:
           enablement: true
@@ -73,6 +95,7 @@ jobs:
           # You may remove this line if you want to manage the configuration yourself.
           static_site_generator: next
       - name: Restore cache
+        if: steps.pages-capability.outputs.can_deploy == 'true'
         uses: actions/cache@v4
         with:
           path: |
@@ -83,16 +106,24 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-nextjs-${{ hashFiles('**/pnpm-lock.yaml', '**/package-lock.json', '**/yarn.lock') }}-
       - name: Install dependencies
+        if: steps.pages-capability.outputs.can_deploy == 'true'
         run: ${{ steps.detect-package-manager.outputs.manager }} ${{ steps.detect-package-manager.outputs.command }}
       - name: Build with Next.js
+        if: steps.pages-capability.outputs.can_deploy == 'true'
         run: ${{ steps.detect-package-manager.outputs.runner }} next build
       - name: Upload artifact
+        if: steps.pages-capability.outputs.can_deploy == 'true'
         uses: actions/upload-pages-artifact@v4
         with:
           path: ./out
+      - name: Pages deploy skipped summary
+        if: steps.pages-capability.outputs.can_deploy != 'true'
+        run: |
+          echo "GitHub Pages deploy skipped: repository Pages access is unavailable." >> "$GITHUB_STEP_SUMMARY"
 
   # Deployment job
   deploy:
+    if: needs.build.outputs.can_deploy == 'true'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
