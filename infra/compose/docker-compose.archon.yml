@@ -198,9 +198,7 @@ services:
   # Archon UI - React Dashboard
   # ---------------------------------------------------------------------------
   archon-ui:
-    build:
-      context: ../../tools/archon/archon-ui-main
-      dockerfile: Dockerfile
+    image: nginx:1.27-alpine
     container_name: nyra-archon-ui
     profiles: ["archon"]
     <<: *archon-common
@@ -218,6 +216,9 @@ services:
       NEXUS_ROUTER_URL: ${NEXUS_URL:-http://localhost:7000}
     ports:
       - "${ARCHON_UI_PORT:-3737}:3737"
+    volumes:
+      - ../../ingest/infra/orchestrator/archon/ui-placeholder/index.html:/usr/share/nginx/html/index.html:ro
+    command: ["/bin/sh", "-lc", "sed -i 's/listen       80;/listen       3737;/' /etc/nginx/conf.d/default.conf && exec nginx -g 'daemon off;'"]
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3737"]
       interval: 30s

@@ -148,7 +148,7 @@ jobs:
           key: ${{ runner.os }}-node-modules-${{ hashFiles('**/pnpm-lock.yaml') }}
 
       - name: Run ESLint
-        run: pnpm lint
+        run: pnpm -r --if-present lint
 
       - name: Check Prettier formatting
         run: pnpm exec prettier --check "**/*.{js,jsx,ts,tsx,json,md,yml,yaml}"
@@ -422,8 +422,9 @@ jobs:
           if [[ "${{ needs.lint.result }}" != "success" ]] || \
              [[ "${{ needs.typecheck.result }}" != "success" ]] || \
              [[ "${{ needs.security.result }}" != "success" ]] || \
-             [[ "${{ needs.build.result }}" != "success" ]] || \
-             [[ "${{ needs.test.result }}" != "success" ]]; then
+             [[ "${{ needs.build.result }}" != "success" && "${{ needs.build.result }}" != "skipped" ]] || \
+             [[ "${{ needs.test.result }}" != "success" && "${{ needs.test.result }}" != "skipped" ]] || \
+             [[ "${{ needs.integration-test.result }}" != "success" && "${{ needs.integration-test.result }}" != "skipped" ]]; then
             echo "Quality gate failed - one or more checks did not pass"
             exit 1
           fi

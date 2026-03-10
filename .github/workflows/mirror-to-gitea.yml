@@ -8,12 +8,14 @@ on:
 jobs:
   mirror-repository-to-gitea:
     runs-on: ubuntu-latest
+    if: ${{ secrets.GITEA_MIRROR_URL != '' }}
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
       - name: Setup SSH key
+        if: ${{ startsWith(secrets.GITEA_MIRROR_URL, 'git@') && secrets.GITEA_MIRROR_SSH_KEY != '' }}
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.GITEA_MIRROR_SSH_KEY }}" > ~/.ssh/id_ed25519
@@ -24,6 +26,11 @@ jobs:
         env:
           GITEA_MIRROR_URL: ${{ secrets.GITEA_MIRROR_URL }}
         run: |
+          HOST=$(echo "$GITEA_MIRROR_URL" | sed -E 's#(https?://)?([^@/]+@)?([^/:]+).*#\3#')
+          if ! getent hosts "$HOST" >/dev/null 2>&1; then
+            echo "Mirror host '$HOST' is not resolvable from this runner. Skipping mirror push."
+            exit 0
+          fi
           git remote remove gitea 2>/dev/null || true
           git remote add gitea "$GITEA_MIRROR_URL"
           git push gitea --all

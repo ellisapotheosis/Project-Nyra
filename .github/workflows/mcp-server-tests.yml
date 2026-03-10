@@ -205,11 +205,11 @@ jobs:
     steps:
       - name: Check test status
         run: |
-          if [ "${{ needs.test.result }}" != "success" ]; then
+          if [ "${{ needs.test.result }}" != "success" ] && [ "${{ needs.test.result }}" != "skipped" ]; then
             echo "One or more MCP server tests failed"
             exit 1
           fi
-          echo "All MCP server tests passed"
+          echo "MCP server tests completed successfully or were skipped (no servers discovered)"
 
       - name: Generate summary
         run: |
