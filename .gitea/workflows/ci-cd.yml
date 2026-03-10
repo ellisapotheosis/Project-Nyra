@@ -1,0 +1,61 @@
+name: nyra-ci-cd
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+  workflow_dispatch:
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node and pnpm
+        run: |
+          corepack enable
+          corepack prepare pnpm@10.27.0 --activate
+          node --version
+          pnpm --version
+
+      - name: Configure npm auth (optional)
+        if: ${{ secrets.NPM_TOKEN != '' }}
+        run: |
+          echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > "$HOME/.npmrc"
+
+      - name: Install dependencies
+        run: pnpm install --no-frozen-lockfile
+
+      - name: Build
+        run: pnpm build
+
+      - name: Test
+        run: pnpm test
+
+  cd-orchestrator:
+    needs: ci
+    if: ${{ github.ref == 'refs/heads/main' }}
+    runs-on: self-hosted
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Guard deployment switch
+        run: |
+          if [ "${{ secrets.NYRA_DEPLOY_ENABLED }}" != "true" ]; then
+            echo "NYRA_DEPLOY_ENABLED is not true; skipping deploy."
+            exit 0
+          fi
+
+      - name: Deploy Gitea + runner stack on orchestrator
+        run: |
+          chmod +x scripts/gitea/bootstrap-orchestrator-gitea.sh
+          ENABLE_ACTIONS=true ENABLE_AI=false ENABLE_INFISICAL_AGENT=true \
+            ./scripts/gitea/bootstrap-orchestrator-gitea.sh

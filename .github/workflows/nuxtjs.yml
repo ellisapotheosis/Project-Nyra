@@ -25,6 +25,13 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  pages-disabled:
+    if: vars.ENABLE_GITHUB_PAGES != 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Skip because Pages is disabled
+        run: echo "Skipping Nuxt Pages deploy because ENABLE_GITHUB_PAGES is not true."
+
   # Build job
   build:
     if: vars.ENABLE_GITHUB_PAGES == 'true'
