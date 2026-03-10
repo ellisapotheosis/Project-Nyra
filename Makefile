@@ -122,7 +122,7 @@ up-core:
 	$(COMPOSE) --profile core up -d
 
 up-orchestrator:
-	docker compose -f infra/orchestrator/docker-compose.orchestrator.yml up -d
+	$(COMPOSE) --profile orchestrator up -d
 
 up-apps:
 	$(COMPOSE) --profile apps up -d
@@ -131,9 +131,9 @@ up-dev:
 	$(COMPOSE) --profile dev up -d
 
 up-workers:
-	docker compose -f infra/workers/worker-rtx3060/docker-compose.worker.yml up -d
-	docker compose -f infra/workers/worker-rtx3090ti/docker-compose.worker.yml up -d
-	docker compose -f infra/workers/worker-rtx5090/docker-compose.worker.yml up -d
+	$(COMPOSE) -f infra/workers/worker-rtx3060/docker-compose.worker.yml --profile worker-3060 up -d || $(COMPOSE) --profile worker-3060 up -d
+	$(COMPOSE) -f infra/workers/worker-rtx3090ti/docker-compose.worker.yml --profile worker-3090ti up -d || $(COMPOSE) --profile worker-3090ti up -d
+	$(COMPOSE) -f infra/workers/worker-rtx5090/docker-compose.worker.yml --profile worker-5090 up -d || $(COMPOSE) --profile worker-5090 up -d
 
 archon-config:
 	docker compose -f docker-compose.archon.yml config >/dev/null
@@ -154,9 +154,9 @@ archon-ps:
 	docker compose -f docker-compose.archon.yml ps
 
 down-workers:
-	docker compose -f infra/workers/worker-rtx3060/docker-compose.worker.yml down --remove-orphans
-	docker compose -f infra/workers/worker-rtx3090ti/docker-compose.worker.yml down --remove-orphans
-	docker compose -f infra/workers/worker-rtx5090/docker-compose.worker.yml down --remove-orphans
+	$(COMPOSE) -f infra/workers/worker-rtx3060/docker-compose.worker.yml down --remove-orphans || $(COMPOSE) --profile worker-3060 down --remove-orphans
+	$(COMPOSE) -f infra/workers/worker-rtx3090ti/docker-compose.worker.yml down --remove-orphans || $(COMPOSE) --profile worker-3090ti down --remove-orphans
+	$(COMPOSE) -f infra/workers/worker-rtx5090/docker-compose.worker.yml down --remove-orphans || $(COMPOSE) --profile worker-5090 down --remove-orphans
 
 nexus-up:
 	$(COMPOSE) --profile gateway up -d litellm nexus-router
@@ -266,13 +266,13 @@ health-oracle:
 	docker compose -f infra/oracle/docker-compose.oracle.yml ps
 
 down-orchestrator:
-	docker compose -f infra/orchestrator/docker-compose.orchestrator.yml down --remove-orphans
+	$(COMPOSE) --profile orchestrator down --remove-orphans
 
 logs-orchestrator:
-	docker compose -f infra/orchestrator/docker-compose.orchestrator.yml logs -f --tail=200
+	$(COMPOSE) --profile orchestrator logs -f --tail=200
 
 health-orchestrator:
-	docker compose -f infra/orchestrator/docker-compose.orchestrator.yml ps
+	$(COMPOSE) --profile orchestrator ps
 
 up-twenty:
 	docker compose -f infra/oracle/docker-compose.oracle.yml up -d twenty postgres
@@ -287,9 +287,9 @@ health-twenty:
 	docker compose -f infra/oracle/docker-compose.oracle.yml ps twenty postgres
 
 health-workers:
-	docker compose -f infra/workers/worker-rtx3060/docker-compose.worker.yml ps || true
-	docker compose -f infra/workers/worker-rtx3090ti/docker-compose.worker.yml ps || true
-	docker compose -f infra/workers/worker-rtx5090/docker-compose.worker.yml ps || true
+	$(COMPOSE) -f infra/workers/worker-rtx3060/docker-compose.worker.yml ps || $(COMPOSE) --profile worker-3060 ps || true
+	$(COMPOSE) -f infra/workers/worker-rtx3090ti/docker-compose.worker.yml ps || $(COMPOSE) --profile worker-3090ti ps || true
+	$(COMPOSE) -f infra/workers/worker-rtx5090/docker-compose.worker.yml ps || $(COMPOSE) --profile worker-5090 ps || true
 
 audit-ports:
 	python infra/scripts/check-port-collisions.py
