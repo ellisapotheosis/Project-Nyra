@@ -7,6 +7,12 @@
 
 .PHONY: help init bootstrap up down logs health-check clean restart tunnel-setup port-discovery verify-connectivity db-init secrets-setup
 
+# Use latest Node installed via nvm when available (helps non-interactive shells).
+NVM_BIN ?= $(shell find "$(HOME)/.nvm/versions/node" -maxdepth 2 -mindepth 2 -type d -name bin 2>/dev/null | sort -V | tail -n1)
+ifneq ($(NVM_BIN),)
+export PATH := $(NVM_BIN):$(PATH)
+endif
+
 # Colors for output
 GREEN := \033[0;32m
 RED := \033[0;31m

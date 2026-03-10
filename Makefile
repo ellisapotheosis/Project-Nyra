@@ -2,6 +2,12 @@
 
 SHELL := /bin/bash
 
+# Use latest Node installed via nvm when available (helps non-interactive shells).
+NVM_BIN ?= $(shell find "$(HOME)/.nvm/versions/node" -maxdepth 2 -mindepth 2 -type d -name bin 2>/dev/null | sort -V | tail -n1)
+ifneq ($(NVM_BIN),)
+export PATH := $(NVM_BIN):$(PATH)
+endif
+
 COMPOSE_FILE ?= infra/docker-compose.yml
 COMPOSE ?= docker compose -f $(COMPOSE_FILE)
 STACK_ENV_FILE ?= .env.stack
