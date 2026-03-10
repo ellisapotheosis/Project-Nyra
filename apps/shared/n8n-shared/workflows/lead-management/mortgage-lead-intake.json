@@ -1,0 +1,359 @@
+{
+  "name": "Mortgage Lead Intake",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "webhook-lead-intake",
+        "options": {
+          "rawBody": true
+        },
+        "responseMode": "lastNode",
+        "responseData": "allEntries"
+      },
+      "id": "webhook-trigger",
+      "name": "Webhook - Lead Capture",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300],
+      "webhookId": "lead-intake-webhook"
+    },
+    {
+      "parameters": {
+        "functionCode": "// Validate and structure lead data\nconst leadData = $input.item.json;\n\n// Extract and validate required fields\nconst lead = {\n  firstName: leadData.firstName || leadData.first_name,\n  lastName: leadData.lastName || leadData.last_name,\n  email: leadData.email,\n  phone: leadData.phone || leadData.phoneNumber,\n  propertyValue: parseFloat(leadData.propertyValue) || 0,\n  loanAmount: parseFloat(leadData.loanAmount) || 0,\n  propertyType: leadData.propertyType || 'primary',\n  creditScore: leadData.creditScore || null,\n  source: leadData.source || 'website',\n  utmSource: leadData.utm_source,\n  utmMedium: leadData.utm_medium,\n  utmCampaign: leadData.utm_campaign,\n  capturedAt: new Date().toISOString(),\n  status: 'new'\n};\n\n// Validate email format\nconst emailRegex = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/;\nif (!emailRegex.test(lead.email)) {\n  throw new Error('Invalid email format');\n}\n\n// Validate phone format (basic)\nconst phoneRegex = /^[+]?[(]?[0-9]{3}[)]?[-\\s\\.]?[0-9]{3}[-\\s\\.]?[0-9]{4,6}$/;\nif (!phoneRegex.test(lead.phone)) {\n  throw new Error('Invalid phone format');\n}\n\n// Calculate loan-to-value ratio\nif (lead.propertyValue > 0) {\n  lead.ltvRatio = (lead.loanAmount / lead.propertyValue * 100).toFixed(2);\n}\n\n// Assign lead score based on initial data\nlead.leadScore = 50; // Base score\nif (lead.creditScore > 700) lead.leadScore += 20;\nif (lead.ltvRatio < 80) lead.leadScore += 15;\nif (lead.propertyType === 'primary') lead.leadScore += 10;\nif (lead.source === 'referral') lead.leadScore += 15;\n\nreturn { json: lead };"
+      },
+      "id": "validate-lead-data",
+      "name": "Validate & Structure Lead",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.CRM_API_URL }}/api/leads",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ 'Bearer ' + $env.CRM_API_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": []
+        },
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json) }}",
+        "options": {}
+      },
+      "id": "create-crm-lead",
+      "name": "Create Lead in CRM",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [650, 300]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO lead_intake_log (lead_id, first_name, last_name, email, phone, source, status, created_at) VALUES ($1, $2, $3, $4, $5, $6, $7, NOW()) RETURNING *",
+        "additionalFields": {
+          "queryParameters": "={{ JSON.stringify([$json.id, $json.firstName, $json.lastName, $json.email, $json.phone, $json.source, $json.status]) }}"
+        }
+      },
+      "id": "log-to-database",
+      "name": "Log to Database",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2,
+      "position": [850, 300],
+      "credentials": {
+        "postgres": {
+          "id": "orchestrator_db",
+          "name": "Orchestrator PostgreSQL"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{ $json.leadScore }}",
+              "operation": "largerEqual",
+              "value2": 75
+            }
+          ]
+        }
+      },
+      "id": "check-lead-quality",
+      "name": "Check Lead Quality",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [1050, 300]
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.N8N_WORKFLOW_URL }}/webhook/high-priority-lead",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": []
+        },
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json) }}",
+        "options": {}
+      },
+      "id": "trigger-high-priority",
+      "name": "Trigger High-Priority Flow",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [1250, 200]
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.N8N_WORKFLOW_URL }}/webhook/standard-lead",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": []
+        },
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json) }}",
+        "options": {}
+      },
+      "id": "trigger-standard",
+      "name": "Trigger Standard Flow",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [1250, 400]
+    },
+    {
+      "parameters": {
+        "operation": "sendSms",
+        "from": "={{ $env.TWILIO_PHONE_NUMBER }}",
+        "to": "={{ $json.phone }}",
+        "message": "Hi {{ $json.firstName }}, thank you for your mortgage inquiry! We've received your information and will reach out within 1 hour. Reply STOP to opt out.",
+        "options": {}
+      },
+      "id": "send-sms-confirmation",
+      "name": "Send SMS Confirmation",
+      "type": "n8n-nodes-base.twilio",
+      "typeVersion": 1,
+      "position": [1450, 300],
+      "credentials": {
+        "twilioApi": {
+          "id": "twilio_account",
+          "name": "Twilio Account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fromEmail": "={{ $env.SMTP_FROM_EMAIL }}",
+        "toEmail": "={{ $json.email }}",
+        "subject": "Welcome! Your Mortgage Journey Starts Here",
+        "emailType": "html",
+        "message": "<!DOCTYPE html><html><body><h2>Welcome {{ $json.firstName }}!</h2><p>Thank you for choosing us for your mortgage needs. We've received your information and our expert loan officers will review it shortly.</p><p><strong>Next Steps:</strong></p><ul><li>You'll receive a call within 1 hour during business hours</li><li>Prepare your financial documents</li><li>Check your email for our document checklist</li></ul><p>Your reference number: {{ $json.id }}</p><p>Best regards,<br>The Mortgage Team</p></body></html>",
+        "options": {}
+      },
+      "id": "send-email-confirmation",
+      "name": "Send Email Confirmation",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [1450, 500],
+      "credentials": {
+        "smtp": {
+          "id": "smtp_account",
+          "name": "SMTP Account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "errorMessage": "Lead intake failed: {{ $json.message }}"
+      },
+      "id": "error-handler",
+      "name": "Error Handler",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [650, 100],
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "operation": "sendSlackMessage",
+        "channel": "#mortgage-leads",
+        "text": "⚠️ Lead intake error: {{ $json.message }}\nLead: {{ $json.email }}",
+        "otherOptions": {}
+      },
+      "id": "notify-error",
+      "name": "Notify Team on Error",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [850, 100],
+      "credentials": {
+        "slackApi": {
+          "id": "slack_workspace",
+          "name": "Slack Workspace"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ success: true, leadId: $json.id, message: 'Lead captured successfully' }) }}"
+      },
+      "id": "webhook-response",
+      "name": "Webhook Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1650, 300]
+    }
+  ],
+  "connections": {
+    "Webhook - Lead Capture": {
+      "main": [
+        [
+          {
+            "node": "Validate & Structure Lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate & Structure Lead": {
+      "main": [
+        [
+          {
+            "node": "Create Lead in CRM",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Lead in CRM": {
+      "main": [
+        [
+          {
+            "node": "Log to Database",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log to Database": {
+      "main": [
+        [
+          {
+            "node": "Check Lead Quality",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Lead Quality": {
+      "main": [
+        [
+          {
+            "node": "Trigger High-Priority Flow",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send SMS Confirmation",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Trigger Standard Flow",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send SMS Confirmation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Trigger High-Priority Flow": {
+      "main": [
+        [
+          {
+            "node": "Send Email Confirmation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Trigger Standard Flow": {
+      "main": [
+        [
+          {
+            "node": "Send Email Confirmation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send SMS Confirmation": {
+      "main": [
+        [
+          {
+            "node": "Webhook Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Email Confirmation": {
+      "main": [
+        [
+          {
+            "node": "Webhook Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "errorWorkflow": "error-handler"
+  },
+  "tags": [
+    {
+      "id": "lead-intake",
+      "name": "Lead Intake"
+    },
+    {
+      "id": "mortgage",
+      "name": "Mortgage"
+    }
+  ],
+  "meta": {
+    "instanceId": "orchestrator-mini"
+  }
+}
