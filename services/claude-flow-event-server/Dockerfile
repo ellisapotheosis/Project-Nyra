@@ -1,16 +1,24 @@
 # Multi-stage build for Claude Flow Event Server
 FROM node:20-alpine AS dependencies
 WORKDIR /app
-COPY package.json package-lock.json ./
-RUN npm ci --omit=dev
+COPY package*.json ./
+RUN if [ -f package-lock.json ]; then \
+      npm ci --omit=dev; \
+    else \
+      npm install --omit=dev; \
+    fi
 
 # Build stage
 FROM node:20-alpine AS builder
 WORKDIR /app
 COPY --from=dependencies /app/node_modules ./node_modules
-COPY package.json package-lock.json tsconfig.json ./
+COPY package*.json tsconfig.json ./
 COPY src ./src
-RUN npm ci && npm run build
+RUN if [ -f package-lock.json ]; then \
+      npm ci; \
+    else \
+      npm install; \
+    fi && npm run build
 
 # Runtime stage
 FROM node:20-alpine
