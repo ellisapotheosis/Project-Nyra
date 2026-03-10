@@ -25,20 +25,12 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  pages-disabled:
-    if: vars.ENABLE_GITHUB_PAGES != 'true'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Skip because Pages is disabled
-        run: echo "Skipping Nuxt Pages deploy because ENABLE_GITHUB_PAGES is not true."
-
   # Build job
   build:
-    if: vars.ENABLE_GITHUB_PAGES == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
       - name: Detect package manager
         id: detect-package-manager
         run: |
@@ -71,14 +63,14 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v5
         with:
+          enablement: true
           # Automatically inject router.base in your Nuxt configuration file and set
           # target to static (https://nuxtjs.org/docs/configuration-glossary/configuration-target/).
           #
           # You may remove this line if you want to manage the configuration yourself.
           static_site_generator: nuxt
-          enablement: true
       - name: Restore cache
-        uses: actions/cache@v5
+        uses: actions/cache@v4
         with:
           path: |
             dist
@@ -97,7 +89,6 @@ jobs:
 
   # Deployment job
   deploy:
-    if: vars.ENABLE_GITHUB_PAGES == 'true'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}

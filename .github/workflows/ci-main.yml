@@ -16,7 +16,6 @@ env:
   PNPM_VERSION: '10.27.0'
   TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
   TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
-  NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
 jobs:
   # Change Detection - Determines which services changed
@@ -32,7 +31,7 @@ jobs:
       infra: ${{ steps.filter.outputs.infra }}
       all-changed: ${{ steps.filter.outputs.all }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
@@ -79,16 +78,12 @@ jobs:
     runs-on: ubuntu-latest
     needs: validate-secrets
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          registry-url: https://registry.npmjs.org
-          always-auth: true
-        env:
-          NODE_AUTH_TOKEN: ${{ env.NPM_TOKEN }}
 
       - name: Setup PNPM
         uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # v4
@@ -100,7 +95,7 @@ jobs:
         run: echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
 
       - name: Cache pnpm store
-        uses: actions/cache@v5
+        uses: actions/cache@v4
         with:
           path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
           key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
@@ -108,7 +103,7 @@ jobs:
             ${{ runner.os }}-pnpm-store-
 
       - name: Cache Turbo
-        uses: actions/cache@v5
+        uses: actions/cache@v4
         with:
           path: .turbo
           key: ${{ runner.os }}-turbo-${{ github.sha }}
@@ -116,18 +111,10 @@ jobs:
             ${{ runner.os }}-turbo-
 
       - name: Install dependencies
-        run: |
-          TWENTY_PKG="apps/twenty-crm/package.json"
-          TWENTY_PKG_BAK="apps/twenty-crm/package.json.ci-disabled"
-          if [ -f "$TWENTY_PKG" ]; then
-            echo "::notice::Temporarily disabling apps/twenty-crm for CI install (private registry dependency)."
-            mv "$TWENTY_PKG" "$TWENTY_PKG_BAK"
-            trap 'if [ -f "$TWENTY_PKG_BAK" ]; then mv "$TWENTY_PKG_BAK" "$TWENTY_PKG"; fi' EXIT
-          fi
-          pnpm install --no-frozen-lockfile
+        run: pnpm install --no-frozen-lockfile
 
       - name: Cache node_modules
-        uses: actions/cache@v5
+        uses: actions/cache@v4
         with:
           path: |
             node_modules
@@ -140,7 +127,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [install]
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -153,7 +140,7 @@ jobs:
           version: ${{ env.PNPM_VERSION }}
 
       - name: Restore dependencies
-        uses: actions/cache@v5
+        uses: actions/cache@v4
         with:
           path: |
             node_modules
@@ -161,8 +148,7 @@ jobs:
           key: ${{ runner.os }}-node-modules-${{ hashFiles('**/pnpm-lock.yaml') }}
 
       - name: Run ESLint
-        run: |
-          pnpm -r --if-present lint || echo "::warning::Lint command issues detected in one or more workspaces."
+        run: pnpm -r --if-present lint
 
       - name: Check Prettier formatting
         run: pnpm exec prettier --check "**/*.{js,jsx,ts,tsx,json,md,yml,yaml}"
@@ -173,7 +159,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [install]
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -186,7 +172,7 @@ jobs:
           version: ${{ env.PNPM_VERSION }}
 
       - name: Restore dependencies
-        uses: actions/cache@v5
+        uses: actions/cache@v4
         with:
           path: |
             node_modules
@@ -194,9 +180,7 @@ jobs:
           key: ${{ runner.os }}-node-modules-${{ hashFiles('**/pnpm-lock.yaml') }}
 
       - name: Run TypeScript check
-        run: |
-          pnpm -r --if-present typecheck || true
-          pnpm -r --if-present type-check || true
+        run: pnpm exec tsc --noEmit
 
   # Security Audit
   security:
@@ -204,7 +188,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [install]
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -217,7 +201,7 @@ jobs:
           version: ${{ env.PNPM_VERSION }}
 
       - name: Restore dependencies
-        uses: actions/cache@v5
+        uses: actions/cache@v4
         with:
           path: |
             node_modules
@@ -225,12 +209,7 @@ jobs:
           key: ${{ runner.os }}-node-modules-${{ hashFiles('**/pnpm-lock.yaml') }}
 
       - name: Run audit-ci
-        run: |
-          if [ -f package-lock.json ] || [ -f npm-shrinkwrap.json ]; then
-            npx audit-ci --config .audit-ci.json
-          else
-            echo "::warning::Skipping audit-ci (npm lockfile not present in this pnpm monorepo)."
-          fi
+        run: npx audit-ci --config .audit-ci.json
 
   # Build - Parallel builds for all workspaces
   build:
@@ -241,7 +220,7 @@ jobs:
       matrix:
         shard: [1, 2, 3, 4]
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -254,7 +233,7 @@ jobs:
           version: ${{ env.PNPM_VERSION }}
 
       - name: Restore dependencies
-        uses: actions/cache@v5
+        uses: actions/cache@v4
         with:
           path: |
             node_modules
@@ -262,7 +241,7 @@ jobs:
           key: ${{ runner.os }}-node-modules-${{ hashFiles('**/pnpm-lock.yaml') }}
 
       - name: Restore Turbo cache
-        uses: actions/cache@v5
+        uses: actions/cache@v4
         with:
           path: .turbo
           key: ${{ runner.os }}-turbo-${{ github.sha }}
@@ -302,7 +281,7 @@ jobs:
           - mcp-servers/ruv-swarm
           - services/campaign-engine
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -315,7 +294,7 @@ jobs:
           version: ${{ env.PNPM_VERSION }}
 
       - name: Restore dependencies
-        uses: actions/cache@v5
+        uses: actions/cache@v4
         with:
           path: |
             node_modules
@@ -323,7 +302,7 @@ jobs:
           key: ${{ runner.os }}-node-modules-${{ hashFiles('**/pnpm-lock.yaml') }}
 
       - name: Download build artifacts
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@v4
         with:
           pattern: build-artifacts-*
           merge-multiple: true
@@ -370,7 +349,7 @@ jobs:
           - 6379:6379
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -383,7 +362,7 @@ jobs:
           version: ${{ env.PNPM_VERSION }}
 
       - name: Restore dependencies
-        uses: actions/cache@v5
+        uses: actions/cache@v4
         with:
           path: |
             node_modules
@@ -421,7 +400,7 @@ jobs:
     needs: [build]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -443,8 +422,9 @@ jobs:
           if [[ "${{ needs.lint.result }}" != "success" ]] || \
              [[ "${{ needs.typecheck.result }}" != "success" ]] || \
              [[ "${{ needs.security.result }}" != "success" ]] || \
-             [[ "${{ needs.build.result }}" != "success" ]] || \
-             [[ "${{ needs.test.result }}" != "success" ]]; then
+             [[ "${{ needs.build.result }}" != "success" && "${{ needs.build.result }}" != "skipped" ]] || \
+             [[ "${{ needs.test.result }}" != "success" && "${{ needs.test.result }}" != "skipped" ]] || \
+             [[ "${{ needs.integration-test.result }}" != "success" && "${{ needs.integration-test.result }}" != "skipped" ]]; then
             echo "Quality gate failed - one or more checks did not pass"
             exit 1
           fi
