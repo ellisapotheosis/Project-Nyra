@@ -37,7 +37,7 @@ jobs:
           version: '10.27.0'
 
       - name: Install dependencies
-        run: pnpm install --no-frozen-lockfile
+        run: pnpm install --no-frozen-lockfile --filter '!twenty-crm'
 
       - name: Verify Release Configuration
         run: |

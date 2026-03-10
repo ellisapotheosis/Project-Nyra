@@ -340,10 +340,9 @@ jobs:
             ${{ runner.os }}-nextjs-${{ hashFiles('**/pnpm-lock.yaml') }}-
 
       - name: Install dependencies
-        working-directory: ${{ env.APP_DIR }}
         run: |
           echo "📦 Installing dependencies..."
-          pnpm install --no-frozen-lockfile || pnpm install
+          pnpm install --no-frozen-lockfile --filter '!twenty-crm'
 
       - name: Run linting
         if: github.event.inputs.skip_tests != 'true'
