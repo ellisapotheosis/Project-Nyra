@@ -1,3 +1,10 @@
+## [1.0.1](https://github.com/ellisapotheosis/Project-Nyra/compare/v1.0.0...v1.0.1) (2026-03-10)
+
+
+### Bug Fixes
+
+* **ci-main:** skip unresolved twenty-crm workspace during install ([1568c4f](https://github.com/ellisapotheosis/Project-Nyra/commit/1568c4f675a8caf9cae8032ad19181f920fb939b))
+
 # 1.0.0 (2026-03-10)
 
 
