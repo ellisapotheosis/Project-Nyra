@@ -112,10 +112,14 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pnpm install --no-frozen-lockfile || {
-            echo "::warning::Full workspace install failed. Retrying without apps/twenty-crm (private package dependency)."
-            pnpm install --no-frozen-lockfile --filter='!./apps/twenty-crm'
-          }
+          TWENTY_PKG="apps/twenty-crm/package.json"
+          TWENTY_PKG_BAK="apps/twenty-crm/package.json.ci-disabled"
+          if [ -f "$TWENTY_PKG" ]; then
+            echo "::notice::Temporarily disabling apps/twenty-crm for CI install (private registry dependency)."
+            mv "$TWENTY_PKG" "$TWENTY_PKG_BAK"
+            trap 'if [ -f "$TWENTY_PKG_BAK" ]; then mv "$TWENTY_PKG_BAK" "$TWENTY_PKG"; fi' EXIT
+          fi
+          pnpm install --no-frozen-lockfile
 
       - name: Cache node_modules
         uses: actions/cache@v5
