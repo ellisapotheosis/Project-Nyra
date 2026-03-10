@@ -24,12 +24,9 @@ concurrency:
   group: "pages"
   cancel-in-progress: false
 
-env:
-  ENABLE_GITHUB_PAGES: ${{ vars.ENABLE_GITHUB_PAGES || 'false' }}
-
 jobs:
   pages-disabled:
-    if: env.ENABLE_GITHUB_PAGES != 'true'
+    if: vars.ENABLE_GITHUB_PAGES != 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Skip because Pages is disabled
