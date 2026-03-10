@@ -1,0 +1,36 @@
+{
+  "$schema": "https://openclaw.dev/schemas/config.json",
+  "provider": {
+    "name": "${OPENCLAW_PROVIDER:-openai}",
+    "baseUrl": "${OPENCLAW_OPENAI_BASE_URL:-https://api.openai.com/v1}",
+    "apiKey": "${OPENAI_API_KEY}"
+  },
+  "plugins": [
+    {
+      "package": "@mem0/openclaw-mem0",
+      "enabled": true,
+      "config": {
+        "mode": "platform",
+        "apiKey": "${MEM0_API_KEY}",
+        "memoryNamespaces": {
+          "conversational": "nyra-conversation",
+          "operational": "nyra-ops",
+          "crm": "nyra-crm"
+        }
+      }
+    }
+  ],
+  "routing": {
+    "mcp": {
+      "primary": "${NEXUS_MCP_URL:-http://nexus-router:8080/mcp}",
+      "mode": "nexus"
+    }
+  },
+  "sessions": {
+    "path": "${OPENCLAW_SESSION_PATH:-/home/node/.openclaw/sessions}",
+    "persist": true
+  },
+  "webhooks": {
+    "ingressPath": "${OPENCLAW_WEBHOOK_INGRESS_PATH:-/webhooks/openclaw/inbound}"
+  }
+}
