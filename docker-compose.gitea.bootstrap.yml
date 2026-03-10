@@ -136,7 +136,7 @@ services:
       - ai
 
   gitea-act-runner:
-    image: vegardit/gitea-act-runner:latest
+    image: gitea/act_runner:0.2.11
     container_name: nyra-gitea-actions
     depends_on:
       gitea:
@@ -145,13 +145,19 @@ services:
       TZ: ${TZ:-America/Los_Angeles}
       GITEA_INSTANCE_URL: http://gitea:3000
       GITEA_RUNNER_REGISTRATION_TOKEN_FILE: /run/nyra-secrets/gitea_runner_token
+      GITEA_RUNNER_CONFIG_TEMPLATE: /config.template.yaml
+      GITEA_RUNNER_CONFIG_PATH: /data/config.yaml
       GITEA_RUNNER_NAME: nyra-runner-${NYRA_MACHINE:-orchestrator}
+      GITEA_RUNNER_LABELS: ubuntu-latest:docker://node:20-bookworm,docker:host,self-hosted:host
     volumes:
       - act_runner_data:/data
       - /var/run/docker.sock:/var/run/docker.sock
       - nyra_secrets:/run/nyra-secrets:ro
+      - ./infra/configs/gitea/runner-config.yaml:/config.template.yaml:ro
+      - ./scripts/gitea/bootstrap-act-runner.sh:/usr/local/bin/bootstrap-act-runner.sh:ro
     networks:
       - nyra-net
+    entrypoint: ["/bin/sh", "/usr/local/bin/bootstrap-act-runner.sh"]
     restart: unless-stopped
     profiles:
       - actions

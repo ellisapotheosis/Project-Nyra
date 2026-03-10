@@ -26,7 +26,7 @@ endif
   archon-config archon-up archon-down archon-logs archon-ps archon-up-infisical \
   node-up-orchestrator node-up-oracle node-up-worker-3060 node-up-worker-3090ti node-up-worker-5090 node-down-orchestrator node-down-oracle node-down-worker-3060 node-down-worker-3090ti node-down-worker-5090 \
   down-workers nexus-up nexus-down health stack-up stack-verify scan-env ports port-check bootstrap-import bootstrap-import-apply bootstrap-ultimate bootstrap-oracle bootstrap-worker-3060 bootstrap-worker-3090ti bootstrap-worker-5090 \
-  gitea-up gitea-up-ai gitea-up-actions gitea-up-infisical-agent gitea-down gitea-ps gitea-config infisical-up infisical-down infisical-config \
+  gitea-up gitea-up-ai gitea-up-actions gitea-up-actions-large gitea-up-infisical-agent gitea-down gitea-ps gitea-config gitea-bootstrap-orchestrator infisical-up infisical-down infisical-config \
   up-gitea down-gitea logs-gitea health-gitea up-infisical down-infisical logs-infisical health-infisical \
   twenty-crm-config twenty-crm-up twenty-crm-down twenty-crm-restart twenty-crm-logs twenty-crm-ps twenty-crm-health twenty-crm-setup twenty-crm-reset twenty-crm-dev twenty-mcp-up twenty-mcp-down
 
@@ -70,6 +70,7 @@ help:
 	@echo "make gitea-up-actions   Start Gitea stack with actions runner profile"
 	@echo "make gitea-up-infisical-agent Start Gitea stack with Infisical agent profile"
 	@echo "make gitea-config       Validate new Gitea compose config"
+	@echo "make gitea-bootstrap-orchestrator Bring up full Gitea + Actions package"
 	@echo "make infisical-up       Start Infisical self-host stack"
 	@echo "make infisical-config   Validate new Infisical compose config"
 
@@ -317,6 +318,9 @@ gitea-down:
 
 gitea-ps:
 	docker compose -f docker-compose.gitea.yml --env-file .env.gitea ps
+
+gitea-bootstrap-orchestrator:
+	ENABLE_ACTIONS=true ENABLE_INFISICAL_AGENT=true ./scripts/gitea/bootstrap-orchestrator-gitea.sh
 
 infisical-config:
 	docker compose -f docker-compose.infisical.yml --env-file .env.infisical config >/dev/null
