@@ -32,7 +32,7 @@ jobs:
       - name: Get PR information
         id: pr-info
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.AUTOMERGE_PAT }}
         run: |
           if [ "${{ github.event_name }}" == "pull_request" ]; then
             PR_NUMBER="${{ github.event.pull_request.number }}"
