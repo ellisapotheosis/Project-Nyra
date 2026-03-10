@@ -26,4 +26,9 @@ set +a
 "$ROOT/infra/scripts/ultimate-bootstrap.sh" orchestrator up
 "$ROOT/infra/scripts/ultimate-bootstrap.sh" oracle up
 
+if [[ "${BOOT_OPENCLAW:-false}" == "true" ]]; then
+  docker compose -f "$ROOT/infra/compose/nyra.compose.yaml" --profile openclaw up -d openclaw-gateway openclaw-cli
+  echo "OpenClaw profile started (BOOT_OPENCLAW=true)."
+fi
+
 echo "Bootstrap complete. Run: make health"
