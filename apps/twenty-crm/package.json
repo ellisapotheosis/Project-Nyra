@@ -1,0 +1,37 @@
+{
+  "name": "twenty-crm",
+  "version": "1.0.0",
+  "private": true,
+  "description": "TwentyCRM integration for Nyra mortgage operations",
+  "type": "module",
+  "scripts": {
+    "dev": "docker compose -f docker-compose.dev.yml up -d",
+    "build": "docker compose -f docker-compose.yml build",
+    "start": "docker compose -f docker-compose.yml up -d",
+    "stop": "docker compose down",
+    "restart": "npm run stop && npm run start",
+    "logs": "docker compose logs -f",
+    "setup": "node scripts/setup.js",
+    "migrate": "docker compose exec twenty-crm npm run database:migrate",
+    "seed": "docker compose exec twenty-crm npm run database:seed",
+    "reset": "docker compose down -v && npm run start",
+    "health": "curl -f http://localhost:3020/health || exit 1",
+    "backup": "node scripts/backup.js",
+    "restore": "node scripts/restore.js"
+  },
+  "dependencies": {
+    "@twenty-crm/twenty": "^0.20.0",
+    "graphql": "^16.8.1",
+    "graphql-request": "^6.1.0",
+    "apollo-client": "^3.8.8",
+    "apollo-cache-inmemory": "^1.6.6",
+    "apollo-link-http": "^1.5.17"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.4",
+    "@types/node": "^20.14.10"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

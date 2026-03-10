@@ -17,7 +17,13 @@
     "DATABASE_URL",
     "REDIS_URL",
     "ANTHROPIC_API_KEY",
-    "CI"
+    "CI",
+    "NEXUS_ROUTER_URL",
+    "TWENTY_CRM_URL",
+    "TWENTY_CRM_API_KEY",
+    "TWENTY_CRM_WORKSPACE_ID",
+    "WEBSOCKET_URL",
+    "JWT_SECRET"
   ],
   "tasks": {
     "build": {
