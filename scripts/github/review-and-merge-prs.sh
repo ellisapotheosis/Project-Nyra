@@ -53,6 +53,11 @@ DRY_RUN="false"
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --repo)
+      if [[ $# -lt 2 || "${2:-}" == --* ]]; then
+        echo "Missing value for --repo (expected owner/name)." >&2
+        usage >&2
+        exit 1
+      fi
       REPO="${2:-}"
       shift 2
       ;;

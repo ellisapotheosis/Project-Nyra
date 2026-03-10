@@ -8,6 +8,7 @@ on:
       - 'chore/**'
       - 'refactor/**'
       - 'consolidation/**'
+      - 'codex/**'
   workflow_dispatch:
     inputs:
       base_branch:
@@ -29,7 +30,8 @@ jobs:
       startsWith(github.ref, 'refs/heads/fix/') ||
       startsWith(github.ref, 'refs/heads/chore/') ||
       startsWith(github.ref, 'refs/heads/refactor/') ||
-      startsWith(github.ref, 'refs/heads/consolidation/')
+      startsWith(github.ref, 'refs/heads/consolidation/') ||
+      startsWith(github.ref, 'refs/heads/codex/')
     steps:
       - uses: actions/checkout@v6
         with:
@@ -51,7 +53,7 @@ jobs:
           # Determine base branch
           BASE_BRANCH="${{ github.event.inputs.base_branch }}"
           if [ -z "$BASE_BRANCH" ]; then
-            if [[ "$TYPE" == "consolidation" ]]; then
+            if [[ "$TYPE" == "consolidation" || "$TYPE" == "codex" ]]; then
               BASE_BRANCH="main"
             else
               BASE_BRANCH="develop"
@@ -72,6 +74,7 @@ jobs:
             chore) PREFIX="🔧 chore" ;;
             refactor) PREFIX="♻️ refactor" ;;
             consolidation) PREFIX="🔀 consolidation" ;;
+            codex) PREFIX="🤖 codex" ;;
             *) PREFIX="$TYPE" ;;
           esac
 
@@ -142,6 +145,7 @@ jobs:
           TITLE="${{ steps.pr-title.outputs.title }}"
           BASE="${{ steps.branch-info.outputs.base-branch }}"
           BRANCH="${{ steps.branch-info.outputs.branch-name }}"
+          TYPE="${{ steps.branch-info.outputs.type }}"
 
           # Generate PR body
           cat > pr-body.md << 'EOF'
@@ -173,12 +177,20 @@ jobs:
           **Base Branch:** `${{ steps.branch-info.outputs.base-branch }}`
           EOF
 
+          EXTRA_LABELS=()
+          if [[ "$TYPE" == "codex" ]]; then
+            EXTRA_LABELS+=(--label "auto-merge")
+            EXTRA_LABELS+=(--label "codex")
+          fi
+
           PR_URL=$(gh pr create \
             --title "$TITLE" \
             --body-file pr-body.md \
             --base "$BASE" \
             --head "$BRANCH" \
-            --label "auto-pr,${{ steps.branch-info.outputs.type }}")
+            --label "auto-pr" \
+            --label "$TYPE" \
+            "${EXTRA_LABELS[@]}")
 
           echo "pr-url=$PR_URL" >> $GITHUB_OUTPUT
           echo "## 🎉 Pull Request Created!" >> $GITHUB_STEP_SUMMARY
