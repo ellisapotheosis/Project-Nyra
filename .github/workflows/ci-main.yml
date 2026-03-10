@@ -90,15 +90,6 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ env.NPM_TOKEN }}
 
-      - name: Validate private npm auth for monorepo install
-        run: |
-          if [ -f apps/twenty-crm/package.json ] && grep -q '"@twenty-crm/twenty"' apps/twenty-crm/package.json; then
-            if [ -z "${NPM_TOKEN}" ]; then
-              echo "::error::NPM_TOKEN is required to install @twenty-crm/twenty during CI."
-              exit 1
-            fi
-          fi
-
       - name: Setup PNPM
         uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # v4
         with:
