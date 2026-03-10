@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Speak as Nyra</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #121212;
+      color: #fff;
+      padding: 20px;
+    }
+    button, input, textarea {
+      font-size: 1em;
+      margin-top: 10px;
+      padding: 10px;
+      border-radius: 5px;
+      border: none;
+    }
+    #result {
+      margin-top: 15px;
+      font-size: 0.95em;
+      color: #00e676;
+    }
+  </style>
+</head>
+<body>
+  <h2>🎙️ Speak as <strong>Nyra</strong></h2>
+
+  <label for="apiKey">Voicemod API Key:</label><br>
+  <input id="apiKey" type="text" placeholder="Enter your API key here..." style="width: 100%;" /><br>
+
+  <label for="biosInput">Message to Speak:</label><br>
+  <textarea id="biosInput" placeholder="Paste text or GPT output here..." style="width: 100%; height: 100px;"></textarea><br>
+
+  <button onclick="speakBIOS()">🗣️ Speak</button>
+  <button onclick="toggleAutoRead()" id="toggleButton">📋 Auto-Read: OFF</button>
+  <button onclick="setHotkey()">⌨️ Set Hotkey</button>
+
+  <div id="result"></div>
+
+  <script>
+    const VOICEMOD_ENDPOINT = "http://localhost:59125/v1/speak";
+    let autoRead = false;
+    let pollingInterval = null;
+    let hotkeyCombo = null;
+
+    const savedKey = localStorage.getItem('vm_api_key');
+    if (savedKey) document.getElementById("apiKey").value = savedKey;
+
+    function speakBIOS() {
+      const message = document.getElementById("biosInput").value.trim();
+      const apiKey = document.getElementById("apiKey").value.trim();
+      if (!message || !apiKey) return;
+
+      localStorage.setItem('vm_api_key', apiKey);
+
+      fetch(VOICEMOD_ENDPOINT, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-client-key": apiKey
+        },
+        body: JSON.stringify({ text: message })
+      })
+      .then(r => r.ok ? r.json() : Promise.reject("Failed to speak"))
+      .then(() => {
+        document.getElementById("result").innerText = `✅ Nyra is speaking: "${message}"`;
+      })
+      .catch(err => {
+        document.getElementById("result").innerText = `❌ Error: ${err}`;
+      });
+    }
+
+    function toggleAutoRead() {
+      autoRead = !autoRead;
+      document.getElementById("toggleButton").innerText = `📋 Auto-Read: ${autoRead ? 'ON' : 'OFF'}`;
+
+      if (autoRead) {
+        pollingInterval = setInterval(() => {
+          navigator.clipboard.readText().then(text => {
+            if (text) {
+              document.getElementById("biosInput").value = text;
+              speakBIOS();
+            }
+          });
+        }, 5000);
+      } else {
+        clearInterval(pollingInterval);
+      }
+    }
+
+    function setHotkey() {
+      document.getElementById("result").innerText = "⌨️ Press your desired hotkey now...";
+      document.addEventListener("keydown", hotkeyHandler);
+    }
+
+    function hotkeyHandler(e) {
+      e.preventDefault();
+      hotkeyCombo = `${e.ctrlKey ? 'Ctrl+' : ''}${e.altKey ? 'Alt+' : ''}${e.key}`;
+      document.getElementById("result").innerText = `🎯 Hotkey set to: ${hotkeyCombo}`;
+      document.removeEventListener("keydown", hotkeyHandler);
+    }
+
+    document.addEventListener("keydown", (e) => {
+      const combo = `${e.ctrlKey ? 'Ctrl+' : ''}${e.altKey ? 'Alt+' : ''}${e.key}`;
+      if (combo === hotkeyCombo) speakBIOS();
+    });
+  </script>
+</body>
+</html>

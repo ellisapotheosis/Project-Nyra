@@ -1,0 +1,15 @@
+{
+  "input_cells": {
+    "loan_amount": "loan_amount",
+    "annual_interest_rate": "start_rate",
+    "term_years": "term",
+    "start_date": "d",
+    "compounding": "compound_periods",
+    "payment_frequency": "frequency"
+  },
+  "derived_names": {
+    "periods_per_year": "periods_per_year",
+    "nper": "nper",
+    "monthly_payment": "monthly_payment"
+  }
+}

@@ -46,7 +46,7 @@ jobs:
       test-scenarios: ${{ steps.setup.outputs.test-scenarios }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -156,7 +156,7 @@ jobs:
       matrix: ${{ fromJson(needs.integration-setup.outputs.agent-matrix) }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -173,7 +173,7 @@ jobs:
         run: pnpm install --no-frozen-lockfile
 
       - name: Download integration setup
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: integration-setup-${{ needs.integration-setup.outputs.test-session-id }}
           path: integration-test-data/
@@ -310,7 +310,7 @@ jobs:
     needs: integration-setup
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -327,7 +327,7 @@ jobs:
         run: pnpm install --no-frozen-lockfile
 
       - name: Download integration setup
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: integration-setup-${{ needs.integration-setup.outputs.test-session-id }}
           path: integration-test-data/
@@ -437,7 +437,7 @@ jobs:
     needs: integration-setup
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -570,7 +570,7 @@ jobs:
     needs: integration-setup
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -723,10 +723,10 @@ jobs:
     if: always()
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Download all test artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           path: integration-test-results/
 

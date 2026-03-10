@@ -57,6 +57,7 @@ This directory contains **all setup and configuration documentation** for Projec
 **Frameworks & Tools**
 - [CLAUDE-FLOW-V3-SETUP.md](CLAUDE-FLOW-V3-SETUP.md)
 - [PNPM_INSTALLATION.md](PNPM_INSTALLATION.md)
+- [CODEX-SKILLS-FOR-NYRA-INFRA.md](CODEX-SKILLS-FOR-NYRA-INFRA.md)
 
 **Deployment**
 - [CLOUDFLARE-PAGES-SETUP.md](CLOUDFLARE-PAGES-SETUP.md)

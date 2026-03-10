@@ -1,21 +1,27 @@
 name: Dependabot Auto Merge
 
 on:
-  pull_request_target:
-    types:
-      - opened
-      - labeled
-      - synchronize
+  pull_request:
+    # Triggering on pull_request is generally safer and more standard for this than pull_request_target
+    types: [opened, synchronize, reopened]
+
+permissions:
+  pull-requests: write
+  contents: write
 
 jobs:
   automerge:
+    # Only run this job if the PR author is Dependabot
     if: github.actor == 'dependabot[bot]'
     runs-on: ubuntu-latest
-    permissions:
-      pull-requests: write
-      contents: write
     steps:
+      - name: Fetch repository metadata
+        uses: actions/checkout@v6
+
       - name: Enable auto-merge for Dependabot PRs
-        uses: peter-evans/enable-pull-request-automerge@v3
-        with:
-          merge-method: squash
+        # Uses the native GitHub CLI instead of a third-party action
+        run: gh pr merge --auto --squash "$PR_URL"
+        env:
+          PR_URL: ${{github.event.pull_request.html_url}}
+          # Uses the built-in token to authenticate the CLI command
+          GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
