@@ -4,14 +4,14 @@
 
 # Infisical Server Connection
 infisical:
-  address: "http://nyra-infisical:8080"
+  address: "https://app.infisical.com"
 
 # Authentication Method: Universal Auth (Machine Identity)
 auth:
   type: "universal-auth"
   config:
-    client_id_env_name: "INFISICAL_CLIENT_ID"
-    client_secret_env_name: "INFISICAL_CLIENT_SECRET"
+    client_id_env_name: "INFISICAL_UNIVERSAL_AUTH_CLIENT_ID"
+    client_secret_env_name: "INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET"
 
 # Secret Sinks - Where to write secrets
 sinks:
