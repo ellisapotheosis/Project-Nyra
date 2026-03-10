@@ -67,8 +67,8 @@ importers:
   packages/database:
     dependencies:
       '@prisma/client':
-        specifier: ^5.22.0
-        version: 5.22.0(prisma@5.22.0)
+        specifier: ^7.4.2
+        version: 7.4.2(prisma@5.22.0)(typescript@5.9.3)
     devDependencies:
       '@types/node':
         specifier: ^20.0.0
@@ -808,8 +808,8 @@ importers:
   services/mortgage-assistant-api:
     dependencies:
       '@prisma/client':
-        specifier: ^5.8.0
-        version: 5.22.0(prisma@5.22.0)
+        specifier: ^7.4.2
+        version: 7.4.2(prisma@5.22.0)(typescript@5.9.3)
       bcryptjs:
         specifier: ^2.4.3
         version: 2.4.3
@@ -1087,8 +1087,8 @@ importers:
   services/ratehunter-api:
     dependencies:
       '@prisma/client':
-        specifier: ^5.9.0
-        version: 5.22.0(prisma@5.22.0)
+        specifier: ^7.4.2
+        version: 7.4.2(prisma@5.22.0)(typescript@5.9.3)
       compression:
         specifier: ^1.7.4
         version: 1.8.1
@@ -3818,13 +3818,19 @@ packages:
     engines: {node: '>=18'}
     hasBin: true
 
-  '@prisma/client@5.22.0':
-    resolution: {integrity: sha512-M0SVXfyHnQREBKxCgyo7sffrKttwE6R8PMq330MIUF0pTwjUhLbW84pFDlf06B27XyCR++VtjugEnIHdr07SVA==}
-    engines: {node: '>=16.13'}
+  '@prisma/client-runtime-utils@7.4.2':
+    resolution: {integrity: sha512-cID+rzOEb38VyMsx5LwJMEY4NGIrWCNpKu/0ImbeooQ2Px7TI+kOt7cm0NelxUzF2V41UVVXAmYjANZQtCu1/Q==}
+
+  '@prisma/client@7.4.2':
+    resolution: {integrity: sha512-ts2mu+cQHriAhSxngO3StcYubBGTWDtu/4juZhXCUKOwgh26l+s4KD3vT2kMUzFyrYnll9u/3qWrtzRv9CGWzA==}
+    engines: {node: ^20.19 || ^22.12 || >=24.0}
     peerDependencies:
       prisma: '*'
+      typescript: '>=5.4.0'
     peerDependenciesMeta:
       prisma:
+        optional: true
+      typescript:
         optional: true
 
   '@prisma/debug@5.22.0':
@@ -14095,9 +14101,14 @@ snapshots:
     dependencies:
       playwright: 1.58.2
 
-  '@prisma/client@5.22.0(prisma@5.22.0)':
+  '@prisma/client-runtime-utils@7.4.2': {}
+
+  '@prisma/client@7.4.2(prisma@5.22.0)(typescript@5.9.3)':
+    dependencies:
+      '@prisma/client-runtime-utils': 7.4.2
     optionalDependencies:
       prisma: 5.22.0
+      typescript: 5.9.3
 
   '@prisma/debug@5.22.0': {}
 
