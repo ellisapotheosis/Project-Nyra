@@ -1,0 +1,18 @@
+version: 2.1
+
+jobs:
+  validate:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - checkout
+      - run:
+          name: CircleCI placeholder validation
+          command: |
+            echo "CircleCI config detected for Project-Nyra."
+
+workflows:
+  version: 2
+  ci:
+    jobs:
+      - validate
