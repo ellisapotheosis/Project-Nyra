@@ -335,6 +335,19 @@ pnpm --filter @nyra/lead-capture-api build
 pnpm --filter @nyra/utils test
 ```
 
+### GitHub PR Maintenance
+
+```bash
+# Review open pull requests (requires GITHUB_TOKEN)
+scripts/github/review-and-merge-prs.sh --repo ellisapotheosis/Project-Nyra
+
+# Merge all currently eligible PRs (squash) after review
+scripts/github/review-and-merge-prs.sh --repo ellisapotheosis/Project-Nyra --merge
+
+# See what would merge without applying changes
+scripts/github/review-and-merge-prs.sh --repo ellisapotheosis/Project-Nyra --merge --dry-run
+```
+
 ## Infrastructure
 
 ### Bootstrap System
