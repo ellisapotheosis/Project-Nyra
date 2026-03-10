@@ -13,14 +13,32 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Validate mirror secrets
+        id: preflight
+        env:
+          GITEA_MIRROR_URL: ${{ secrets.GITEA_MIRROR_URL }}
+          GITEA_MIRROR_SSH_KEY: ${{ secrets.GITEA_MIRROR_SSH_KEY }}
+        run: |
+          if [ -z "$GITEA_MIRROR_URL" ] || [ -z "$GITEA_MIRROR_SSH_KEY" ]; then
+            echo "::warning::Skipping mirror-to-gitea because GITEA_MIRROR_URL or GITEA_MIRROR_SSH_KEY is not configured."
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "enabled=true" >> "$GITHUB_OUTPUT"
+
       - name: Setup SSH key
+        if: steps.preflight.outputs.enabled == 'true'
+        env:
+          GITEA_MIRROR_URL: ${{ secrets.GITEA_MIRROR_URL }}
+          GITEA_MIRROR_SSH_KEY: ${{ secrets.GITEA_MIRROR_SSH_KEY }}
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.GITEA_MIRROR_SSH_KEY }}" > ~/.ssh/id_ed25519
+          echo "$GITEA_MIRROR_SSH_KEY" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
-          ssh-keyscan -H "$(echo "${{ secrets.GITEA_MIRROR_URL }}" | sed -E 's#.*@([^:/]+).*#\1#')" >> ~/.ssh/known_hosts || true
+          ssh-keyscan -H "$(echo "$GITEA_MIRROR_URL" | sed -E 's#.*@([^:/]+).*#\1#')" >> ~/.ssh/known_hosts || true
 
       - name: Push to Gitea mirror
+        if: steps.preflight.outputs.enabled == 'true'
         env:
           GITEA_MIRROR_URL: ${{ secrets.GITEA_MIRROR_URL }}
         run: |
