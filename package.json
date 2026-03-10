@@ -20,7 +20,7 @@
     "docker:down": "docker compose -f infra/docker-compose.yml down"
   },
   "dependencies": {
-    "agentic-flow": "^2.0.2-alpha",
+    "agentic-flow": "2.0.2-alpha",
     "agentic-jujutsu": "^2.3.6",
     "zod": "^4.3.5"
   },
