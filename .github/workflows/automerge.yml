@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Fetch repository metadata
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Enable auto-merge for Dependabot PRs
         # Uses the native GitHub CLI instead of a third-party action
