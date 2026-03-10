@@ -111,6 +111,19 @@ def build_report(runs: list[dict], window_hours: int) -> str:
     window.sort(key=lambda r: r["createdAt"], reverse=True)
 
     by_conclusion = Counter((r.get("conclusion") or "unknown") for r in window)
+    by_status = Counter((r.get("status") or "unknown") for r in window)
+    durations_min = []
+    for r in window:
+        created = r.get("createdAt")
+        updated = r.get("updatedAt")
+        if not created or not updated:
+            continue
+        try:
+            start = iso_to_dt(created)
+            end = iso_to_dt(updated)
+        except Exception:
+            continue
+        durations_min.append(max((end - start).total_seconds() / 60.0, 0.0))
     failed_runs = [r for r in window if r.get("conclusion") in {"failure", "timed_out", "cancelled"}]
 
     failed_by_workflow = Counter(r.get("workflowName") or "(unknown)" for r in failed_runs if r.get("conclusion") == "failure")
@@ -125,6 +138,16 @@ def build_report(runs: list[dict], window_hours: int) -> str:
     lines.append(f"Window: last {window_hours}h")
     lines.append(f"Total runs: {len(window)}")
     lines.append(f"Conclusions: " + ", ".join(f"{k}={v}" for k, v in sorted(by_conclusion.items())))
+    lines.append("")
+    lines.append("## Runner / queue telemetry")
+    lines.append("Status counts: " + ", ".join(f"{k}={v}" for k, v in sorted(by_status.items())))
+    if durations_min:
+        avg = sum(durations_min) / len(durations_min)
+        p95 = sorted(durations_min)[int(max(len(durations_min) * 0.95 - 1, 0))]
+        lines.append(f"Run duration avg: {avg:.1f}m")
+        lines.append(f"Run duration p95: {p95:.1f}m")
+    else:
+        lines.append("Run duration telemetry unavailable.")
     lines.append("")
 
     lines.append("## Failure clusters (observed)")

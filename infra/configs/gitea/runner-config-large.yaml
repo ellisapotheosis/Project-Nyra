@@ -1,0 +1,40 @@
+log:
+  level: info
+
+runner:
+  file: .runner
+  capacity: 2
+  envs:
+    DOCKER_HOST: unix:///var/run/docker.sock
+    NYRA_CI: "true"
+  timeout: 3h
+  shutdown_timeout: 5m
+  insecure: true
+  fetch_timeout: 10s
+  fetch_interval: 2s
+  labels:
+    - "ubuntu-latest-large:docker://node:20-bookworm"
+    - "docker-large:host"
+    - "self-hosted-large:host"
+
+cache:
+  enabled: true
+  dir: /data/cache
+  host:
+    enabled: true
+    workdir_parent: /data/workdir
+
+container:
+  network: nyra-net
+  privileged: true
+  options: --cpus 8 --memory 16g
+  workdir_parent: /data/workdir
+  valid_volumes:
+    - /var/run/docker.sock:/var/run/docker.sock
+    - /data/cache:/data/cache
+    - /tmp:/tmp
+  docker_host: unix:///var/run/docker.sock
+  force_pull: false
+
+host:
+  workdir_parent: /data/workdir
