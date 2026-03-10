@@ -4,13 +4,10 @@
   "display": "Project Nyra Root",
   "files": [],
   "references": [
-    { "path": "./apps/ratehunter" },
-    { "path": "./apps/nyra-admin" },
-    { "path": "./services/quote-api" },
+    { "path": "./apps/admin" },
     { "path": "./services/nexus-router" },
     { "path": "./packages/database" },
-    { "path": "./mcp-servers/claude-flow" },
-    { "path": "./mcp-servers/ruv-swarm" }
+    { "path": "./services/claude-flow" }
   ],
   "compilerOptions": {
     "composite": true,
