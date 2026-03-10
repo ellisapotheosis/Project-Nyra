@@ -5,6 +5,11 @@
   "description": "AI-powered mortgage automation platform with multi-agent orchestration",
   "packageManager": "pnpm@10.27.0",
   "type": "module",
+  "workspaces": [
+    "apps/*",
+    "services/*",
+    "packages/*"
+  ],
   "scripts": {
     "dev": "turbo run dev",
     "build": "turbo run build",
@@ -17,7 +22,12 @@
     "daemon:start": "claude-flow daemon start",
     "daemon:stop": "claude-flow daemon stop",
     "docker:up": "docker compose -f infra/docker-compose.yml up -d",
-    "docker:down": "docker compose -f infra/docker-compose.yml down"
+    "docker:down": "docker compose -f infra/docker-compose.yml down",
+    "twenty:setup": "docker compose -f infra/docker-compose.twenty.yml up -d",
+    "twenty:down": "docker compose -f infra/docker-compose.twenty.yml down",
+    "twenty:dev": "turbo run dev --filter=twenty-crm",
+    "admin:dev": "turbo run dev --filter=nyra-admin",
+    "all:dev": "turbo run dev --parallel"
   },
   "dependencies": {
     "agentic-flow": "2.0.2-alpha",
@@ -29,7 +39,7 @@
     "@playwright/test": "^1.58.2",
     "eslint": "^10.0.3",
     "prettier": "^3.4.2",
-    "turbo": "^2.7.5",
+    "turbo": "^2.8.15",
     "typescript": "^5.7.0",
     "vitest": "^4.0.18"
   },

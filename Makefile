@@ -9,6 +9,8 @@ HEALTH_ENV_FILE ?= $(STACK_ENV_FILE)
 
 DEFAULT_PROFILES ?= core,gateway,workflow,crm,archon,apps,observability,vector
 WORKER_PROFILE ?= workers
+TWENTY_COMPOSE_FILE ?= infra/docker-compose.twenty.yml
+TWENTY_COMPOSE ?= docker compose -f $(TWENTY_COMPOSE_FILE)
 
 .PHONY: help install test lint validate compose-config compose-config-all \
   up down restart logs ps pull \
@@ -17,7 +19,8 @@ WORKER_PROFILE ?= workers
   node-up-orchestrator node-up-oracle node-up-worker-3060 node-up-worker-3090ti node-up-worker-5090 node-down-orchestrator node-down-oracle node-down-worker-3060 node-down-worker-3090ti node-down-worker-5090 \
   down-workers nexus-up nexus-down health stack-up stack-verify scan-env ports port-check bootstrap-import bootstrap-import-apply bootstrap-ultimate bootstrap-oracle bootstrap-worker-3060 bootstrap-worker-3090ti bootstrap-worker-5090 \
   gitea-up gitea-up-ai gitea-up-actions gitea-up-infisical-agent gitea-down gitea-ps gitea-config infisical-up infisical-down infisical-config \
-  up-gitea down-gitea logs-gitea health-gitea up-infisical down-infisical logs-infisical health-infisical
+  up-gitea down-gitea logs-gitea health-gitea up-infisical down-infisical logs-infisical health-infisical \
+  twenty-crm-config twenty-crm-up twenty-crm-down twenty-crm-restart twenty-crm-logs twenty-crm-ps twenty-crm-health twenty-crm-setup twenty-crm-reset twenty-crm-dev twenty-mcp-up twenty-mcp-down
 
 .DEFAULT_GOAL := help
 
@@ -340,3 +343,60 @@ logs-infisical:
 
 health-infisical:
 	docker compose -f docker-compose.infisical.bootstrap.yml --env-file .env.infisical ps
+
+# TwentyCRM Integration Commands
+.PHONY: twenty-crm-config twenty-crm-setup twenty-crm-up twenty-crm-dev twenty-crm-down twenty-crm-restart twenty-crm-logs twenty-crm-ps twenty-crm-health twenty-crm-reset twenty-mcp-up twenty-mcp-down
+
+twenty-crm-config:
+	$(TWENTY_COMPOSE) config >/dev/null
+	@echo "TwentyCRM compose config validated"
+
+twenty-crm-setup:
+	@echo "Setting up TwentyCRM for Nyra..."
+	cd apps/twenty-crm && node scripts/setup.js
+
+twenty-crm-up:
+	@echo "Starting TwentyCRM production stack..."
+	$(TWENTY_COMPOSE) up -d
+	@echo "TwentyCRM available at: http://localhost:3020"
+
+twenty-crm-dev:
+	@echo "Starting TwentyCRM development environment..."
+	cd apps/twenty-crm && npm run dev
+	@echo "TwentyCRM dev environment available at: http://localhost:3021"
+
+twenty-crm-down:
+	@echo "Stopping TwentyCRM stack..."
+	$(TWENTY_COMPOSE) down --remove-orphans
+
+twenty-crm-restart: twenty-crm-down twenty-crm-up
+
+twenty-crm-logs:
+	$(TWENTY_COMPOSE) logs -f --tail=200
+
+twenty-crm-ps:
+	$(TWENTY_COMPOSE) ps
+
+twenty-crm-health:
+	@echo "=== TwentyCRM Health Status ==="
+	$(TWENTY_COMPOSE) ps
+	@echo ""
+	@echo "=== Service Health Checks ==="
+	@docker inspect --format='{{.State.Health.Status}}' nyra-twenty-db 2>/dev/null | xargs -I {} echo "Database: {}" || echo "Database: not running"
+	@docker inspect --format='{{.State.Health.Status}}' nyra-twenty-redis 2>/dev/null | xargs -I {} echo "Redis: {}" || echo "Redis: not running"
+	@docker inspect --format='{{.State.Health.Status}}' nyra-twenty-crm 2>/dev/null | xargs -I {} echo "Application: {}" || echo "Application: not running"
+
+twenty-crm-reset:
+	@echo "WARNING: This will remove all TwentyCRM data!"
+	@read -p "Are you sure? (y/N): " confirm && [ "$$confirm" = "y" ]
+	$(TWENTY_COMPOSE) down -v --remove-orphans
+	@echo "TwentyCRM reset completed. Run 'make twenty-crm-setup' to initialize."
+
+twenty-mcp-up:
+	@echo "Starting TwentyCRM MCP Server..."
+	$(TWENTY_COMPOSE) --profile mcp-server up -d twenty-mcp-server
+	@echo "TwentyCRM MCP Server available at: http://localhost:3022"
+
+twenty-mcp-down:
+	@echo "Stopping TwentyCRM MCP Server..."
+	$(TWENTY_COMPOSE) stop twenty-mcp-server
