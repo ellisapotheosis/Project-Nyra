@@ -3,7 +3,7 @@ version = 1
 name = "project-nyra"
 
 [setup]
-script = ""
+script = "./scripts/setup/Initialize-CodexEnvironment.sh"
 
 [[actions]]
 name = "Run"
