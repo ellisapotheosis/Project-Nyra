@@ -1,0 +1,318 @@
+name: 🏭 Deploy to Production (MANUAL)
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to deploy (e.g., v1.2.3 or git sha)'
+        required: true
+        type: string
+      environment:
+        description: 'Target environment'
+        required: true
+        type: choice
+        options:
+          - production
+          - oracle-vps
+        default: 'production'
+      skip_tests:
+        description: 'Skip production tests'
+        required: false
+        type: boolean
+        default: false
+
+env:
+  DEPLOY_HOST: prod.nyra.internal  # Your production server
+  ORACLE_HOST: oracle.nyra.external  # Your Oracle VPS
+
+jobs:
+  pre-deployment-checks:
+    runs-on: ubuntu-latest
+    outputs:
+      deploy-host: ${{ steps.config.outputs.host }}
+      deploy-user: ${{ steps.config.outputs.user }}
+      environment-name: ${{ steps.config.outputs.env-name }}
+
+    steps:
+      - name: 📋 Configure deployment target
+        id: config
+        run: |
+          if [[ "${{ github.event.inputs.environment }}" == "oracle-vps" ]]; then
+            echo "host=${{ env.ORACLE_HOST }}" >> $GITHUB_OUTPUT
+            echo "user=ubuntu" >> $GITHUB_OUTPUT
+            echo "env-name=oracle-production" >> $GITHUB_OUTPUT
+          else
+            echo "host=${{ env.DEPLOY_HOST }}" >> $GITHUB_OUTPUT
+            echo "user=deploy" >> $GITHUB_OUTPUT
+            echo "env-name=production" >> $GITHUB_OUTPUT
+          fi
+
+      - name: 🔍 Verify version exists
+        run: |
+          VERSION="${{ github.event.inputs.version }}"
+          echo "🏷️ Deploying version: $VERSION"
+
+          # Check if it's a git sha or tag
+          if [[ "$VERSION" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "✅ Deploying release tag: $VERSION"
+          elif [[ ${#VERSION} -eq 40 ]] || [[ ${#VERSION} -eq 7 ]]; then
+            echo "✅ Deploying git commit: $VERSION"
+          else
+            echo "❌ Invalid version format: $VERSION"
+            echo "Expected: v1.2.3 (tag) or abc1234 (git sha)"
+            exit 1
+          fi
+
+      - name: 🔐 Validate secrets
+        run: |
+          echo "🔍 Checking required secrets..."
+          [[ -n "${{ secrets.PROD_SSH_KEY }}" ]] || { echo "❌ PROD_SSH_KEY missing"; exit 1; }
+          [[ -n "${{ secrets.PROD_POSTGRES_PASSWORD }}" ]] || { echo "❌ PROD_POSTGRES_PASSWORD missing"; exit 1; }
+          [[ -n "${{ secrets.ANTHROPIC_API_KEY }}" ]] || { echo "❌ ANTHROPIC_API_KEY missing"; exit 1; }
+          echo "✅ All required secrets present"
+
+  backup-production:
+    runs-on: ubuntu-latest
+    needs: pre-deployment-checks
+    if: github.event.inputs.environment == 'production'
+
+    steps:
+      - name: 🔐 Setup SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.PROD_SSH_KEY }}
+
+      - name: 💾 Create production backup
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ needs.pre-deployment-checks.outputs.deploy-user }}@${{ needs.pre-deployment-checks.outputs.deploy-host }} << 'EOF'
+            cd /opt/project-nyra
+
+            echo "💾 Creating pre-deployment backup..."
+            BACKUP_NAME="backup-$(date +%Y%m%d-%H%M%S)-pre-deploy"
+
+            # Create backup directory
+            sudo mkdir -p /opt/backups/$BACKUP_NAME
+
+            # Backup PostgreSQL
+            docker exec nyra-postgres pg_dumpall -U nyra > /tmp/postgres-backup.sql
+            sudo mv /tmp/postgres-backup.sql /opt/backups/$BACKUP_NAME/
+
+            # Backup Redis
+            docker exec nyra-redis redis-cli BGSAVE
+            docker cp nyra-redis:/data/dump.rdb /tmp/redis-backup.rdb
+            sudo mv /tmp/redis-backup.rdb /opt/backups/$BACKUP_NAME/
+
+            # Backup configs
+            sudo cp -r infra/configs /opt/backups/$BACKUP_NAME/
+            sudo cp .env /opt/backups/$BACKUP_NAME/env-backup
+
+            echo "✅ Backup created: /opt/backups/$BACKUP_NAME"
+          EOF
+
+  deploy-production:
+    runs-on: ubuntu-latest
+    needs: [pre-deployment-checks, backup-production]
+    if: always() && (needs.backup-production.result == 'success' || needs.backup-production.result == 'skipped')
+
+    environment:
+      name: ${{ needs.pre-deployment-checks.outputs.environment-name }}
+      url: ${{ github.event.inputs.environment == 'oracle-vps' && 'https://ratehunter.net' || 'http://prod.nyra.internal' }}
+
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.version }}
+
+      - name: 🔐 Setup SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.PROD_SSH_KEY }}
+
+      - name: 📋 Prepare production deployment
+        run: |
+          VERSION="${{ github.event.inputs.version }}"
+          ENVIRONMENT="${{ github.event.inputs.environment }}"
+
+          mkdir -p deploy-prod
+          cp -r infra/ deploy-prod/
+          cp docker-compose.prod.yml deploy-prod/
+          cp .env.template deploy-prod/
+          cp scripts/validate-env.sh deploy-prod/
+
+          # Create production environment file
+          cat > deploy-prod/.env.production << EOF
+          # Production Environment - Auto-generated
+          NYRA_NODE_TYPE=${ENVIRONMENT}
+          NYRA_ENVIRONMENT=production
+          COMPOSE_PROJECT_NAME=nyra-prod
+
+          # Deployment info
+          DEPLOYMENT_VERSION=${VERSION}
+          DEPLOYMENT_DATE=$(date -Iseconds)
+          DEPLOYMENT_SHA=${GITHUB_SHA}
+
+          # Container images (production versions)
+          NEXUS_ROUTER_IMAGE=gitea.local:3100/nyra/nexus-router:${VERSION}
+          CLAUDE_FLOW_IMAGE=gitea.local:3100/nyra/claude-flow:${VERSION}
+          QUOTE_ENGINE_IMAGE=gitea.local:3100/nyra/quote-engine:${VERSION}
+          CAMPAIGN_ENGINE_IMAGE=gitea.local:3100/nyra/campaign-engine:${VERSION}
+
+          # Security (from secrets)
+          POSTGRES_PASSWORD=${{ secrets.PROD_POSTGRES_PASSWORD }}
+          REDIS_PASSWORD=${{ secrets.PROD_REDIS_PASSWORD }}
+          JWT_SECRET=${{ secrets.PROD_JWT_SECRET }}
+          GRAFANA_ADMIN_PASSWORD=${{ secrets.PROD_GRAFANA_PASSWORD }}
+          N8N_ENCRYPTION_KEY=${{ secrets.PROD_N8N_KEY }}
+          TWENTY_ACCESS_TOKEN_SECRET=${{ secrets.TWENTY_ACCESS_TOKEN_SECRET }}
+          TWENTY_LOGIN_TOKEN_SECRET=${{ secrets.TWENTY_LOGIN_TOKEN_SECRET }}
+          TWENTY_REFRESH_TOKEN_SECRET=${{ secrets.TWENTY_REFRESH_TOKEN_SECRET }}
+          TWENTY_FILE_TOKEN_SECRET=${{ secrets.TWENTY_FILE_TOKEN_SECRET }}
+
+          # API Keys
+          ANTHROPIC_API_KEY=${{ secrets.ANTHROPIC_API_KEY }}
+          OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}
+          GOOGLE_API_KEY=${{ secrets.GOOGLE_API_KEY }}
+          OPENROUTER_API_KEY=${{ secrets.OPENROUTER_API_KEY }}
+
+          # Production overrides
+          LOG_LEVEL=warn
+          HOT_RELOAD_ENABLED=false
+          DEBUG_MODE=false
+          COMPOSE_PROFILES=core,monitoring,workflow,crm,backup
+
+          # Rate limiting
+          RATE_LIMIT_REQUESTS=100
+          RATE_LIMIT_WINDOW_MS=60000
+
+          # Oracle VPS specific
+          $(if [[ "$ENVIRONMENT" == "oracle-vps" ]]; then
+            echo "CLOUDFLARE_TUNNEL_TOKEN=${{ secrets.CLOUDFLARE_TUNNEL_TOKEN }}"
+            echo "DOMAIN_NAME=ratehunter.net"
+            echo "SSL_ENABLED=true"
+          fi)
+          EOF
+
+      - name: 🚀 Execute production deployment
+        run: |
+          HOST="${{ needs.pre-deployment-checks.outputs.deploy-host }}"
+          USER="${{ needs.pre-deployment-checks.outputs.deploy-user }}"
+
+          echo "🚀 Deploying to $HOST as $USER"
+
+          # Copy deployment files
+          scp -o StrictHostKeyChecking=no -r deploy-prod/* $USER@$HOST:/opt/project-nyra/
+
+          # Execute deployment
+          ssh -o StrictHostKeyChecking=no $USER@$HOST << 'EOF'
+            cd /opt/project-nyra
+
+            echo "🔍 Validating production environment..."
+            ./validate-env.sh .env.production --strict
+
+            echo "🛑 Graceful shutdown of existing services..."
+            docker-compose -f infra/docker-compose.yml -f docker-compose.prod.yml --env-file .env.production down --timeout 60
+
+            echo "📥 Pulling production images..."
+            docker-compose -f infra/docker-compose.yml -f docker-compose.prod.yml --env-file .env.production pull
+
+            echo "🚀 Starting production services..."
+            docker-compose -f infra/docker-compose.yml -f docker-compose.prod.yml --env-file .env.production up -d
+
+            echo "⏳ Waiting for production startup..."
+            sleep 60
+
+            echo "🔍 Production health checks..."
+            timeout 30 docker exec nyra-postgres pg_isready -U nyra || { echo "❌ PostgreSQL not ready"; exit 1; }
+            timeout 10 docker exec nyra-redis redis-cli ping || { echo "❌ Redis not ready"; exit 1; }
+
+            # Wait for web services
+            for i in {1..12}; do
+              if curl -f http://localhost:6000/health 2>/dev/null; then
+                echo "✅ Nexus Router ready"
+                break
+              fi
+              echo "⏳ Waiting for Nexus Router... ($i/12)"
+              sleep 10
+            done
+
+            echo "📊 Final production status:"
+            docker-compose -f infra/docker-compose.yml -f docker-compose.prod.yml --env-file .env.production ps
+          EOF
+
+      - name: 🧪 Production smoke tests
+        if: github.event.inputs.skip_tests != true
+        run: |
+          HOST="${{ needs.pre-deployment-checks.outputs.deploy-host }}"
+          USER="${{ needs.pre-deployment-checks.outputs.deploy-user }}"
+
+          ssh -o StrictHostKeyChecking=no $USER@$HOST << 'EOF'
+            cd /opt/project-nyra
+
+            echo "🧪 Running production smoke tests..."
+
+            # Critical service health checks
+            curl -f http://localhost:6000/health && echo "✅ Nexus Router OK" || { echo "❌ Nexus Router failed"; exit 1; }
+            curl -f http://localhost:4000/health && echo "✅ LiteLLM OK" || { echo "❌ LiteLLM failed"; exit 1; }
+            curl -f http://localhost:3005/api/health && echo "✅ Grafana OK" || echo "⚠️ Grafana not ready"
+            curl -f http://localhost:5678/healthz && echo "✅ n8n OK" || echo "⚠️ n8n not ready"
+            curl -f http://localhost:3000/api/health && echo "✅ TwentyCRM OK" || echo "⚠️ TwentyCRM not ready"
+
+            echo "✅ Production deployment verification complete!"
+          EOF
+
+      - name: 📊 Deployment summary
+        if: success()
+        run: |
+          echo "🎉 PRODUCTION DEPLOYMENT SUCCESSFUL!"
+          echo ""
+          echo "📋 Deployment Details:"
+          echo "   Version: ${{ github.event.inputs.version }}"
+          echo "   Environment: ${{ github.event.inputs.environment }}"
+          echo "   Target: ${{ needs.pre-deployment-checks.outputs.deploy-host }}"
+          echo "   Time: $(date -Iseconds)"
+          echo ""
+          if [[ "${{ github.event.inputs.environment }}" == "oracle-vps" ]]; then
+            echo "🔗 Public Access: https://ratehunter.net"
+          else
+            echo "🔗 Internal Access: http://prod.nyra.internal"
+          fi
+          echo "📊 Monitoring: http://${{ needs.pre-deployment-checks.outputs.deploy-host }}:3005"
+
+  rollback:
+    runs-on: ubuntu-latest
+    needs: [pre-deployment-checks, deploy-production]
+    if: failure() && needs.backup-production.result == 'success'
+
+    steps:
+      - name: 🚨 Emergency rollback
+        run: |
+          echo "🚨 DEPLOYMENT FAILED - Initiating emergency rollback"
+
+          HOST="${{ needs.pre-deployment-checks.outputs.deploy-host }}"
+          USER="${{ needs.pre-deployment-checks.outputs.deploy-user }}"
+
+          ssh -o StrictHostKeyChecking=no $USER@$HOST << 'EOF'
+            cd /opt/project-nyra
+
+            echo "🛑 Stopping failed deployment..."
+            docker-compose down --timeout 30
+
+            echo "🔄 Rolling back to previous state..."
+            LATEST_BACKUP=$(ls -t /opt/backups/ | head -n 1)
+
+            if [[ -n "$LATEST_BACKUP" ]]; then
+              echo "📁 Using backup: $LATEST_BACKUP"
+
+              # Restore configs
+              sudo cp -r /opt/backups/$LATEST_BACKUP/configs/* infra/configs/
+              sudo cp /opt/backups/$LATEST_BACKUP/env-backup .env
+
+              echo "🚀 Starting rollback services..."
+              docker-compose up -d
+
+              echo "✅ Rollback completed"
+            else
+              echo "❌ No backup found for rollback"
+            fi
+          EOF

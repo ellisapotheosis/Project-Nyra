@@ -1,418 +1,622 @@
-# Project Nyra v3.0 — Complete Scaffold Delivery
+# 🚀 Project Nyra - Master Bootstrap Guide
 
-**Date**: February 28, 2026  
-**Version**: 3.0 (Consolidated, Production-Ready)  
-**Status**: ✅ Ready for Immediate Deployment
+> **AI-Powered Mortgage Automation Platform**
+> Complete guide to bootstrap all components from zero to production
+
+**Status**: ✅ Complete CI/CD Pipeline | 🎯 Production-Ready Infrastructure
+**Architecture**: Dual-orchestrator (Claude Flow + Archon) | Multi-agent mesh topology
+**Deployment**: Oracle Always Free ARM64 (4 vCPU) + Local GPU cluster
 
 ---
 
-## 📦 What You've Received
+## 🎯 Quick Start Decision Tree
 
-A **complete, production-grade scaffold** for Project Nyra that includes:
-
-### 1. **Master Architecture Whitepaper** (`ARCHITECTURE.md`)
-- 5,000+ word consolidated system design
-- Bifurcated topology (Oracle Cloud + Home LAN)
-- Complete data flows (borrower → quote → response)
-- Memory architecture (Mem0, Graphiti, RuVector)
-- Compliance & security model
-- Scaling & future roadmap
-
-### 2. **Nexus Router (MCP Aggregator)**
-- `infra/nexus/nexus.toml` — Complete routing configuration
-- `infra/nexus/Dockerfile` — Production-grade image
-- MCP server registry (Docker, GitHub, Oracle DB, TwentyCRM, Activepieces, Mem0)
-- Tool visibility rules (Claude-Flow gets all, OpenClaw gets CRM+Quote only)
-- Fuzzy tool selection (saves context tokens)
-- Logging & audit trail
-
-### 3. **LiteLLM Router (Model Routing)**
-- `infra/litellm/config.yaml` — 10 model routing rules
-- RTX 5090 → DeepSeek-R1 32B (reasoning)
-- RTX 3090Ti → DeepSeek-Coder 16B (code)
-- RTX 3060 → Qwen 7B via Ollama (fast)
-- Claude 3 Sonnet (compliance, fallback)
-- OpenRouter fallback (cost control)
-
-### 4. **Docker Compose Stack (3 Masters)**
-
-**Orchestrator** (`docker-compose.orchestrator.yml`)
-- Nexus Router (port 6000)
-- LiteLLM (port 4000)
-- Claude-Flow (port 8000)
-- OpenClaw (port 8001)
-- Archon-OS (port 8080)
-- Redis (6379)
-- Docker MCP Toolkit (8811)
-- Infisical secrets sidecar
-- Health checks + dependencies
-
-**Workers** (`docker-compose.workers.yml`)
-- vLLM services (8000) — uses environment variables per worker
-- Ollama service (11434) — for RTX 3060
-- GPU passthrough configuration
-- Health checks
-
-**Oracle** (`docker-compose.oracle.yml`)
-- Postgres 17 w/ pgvector (5432)
-- Redis (6379)
-- TwentyCRM (3000)
-- Activepieces (3001)
-- Quote Engine (8089)
-- Lead Ingestion (8090)
-- Mem0 (5000)
-- Gitea (3002, optional)
-- Infisical sidecar
-- All with proper health checks
-
-### 5. **Makefile (Single Entry Point)**
-```bash
-make orchestrator-up         # Start orchestrator
-make workers-up WORKER=rtx-5090  # Start specific worker
-make oracle-up               # Start oracle cloud
-make health-check            # Verify all services
-make logs SERVICE=nexus      # Tail logs
-make clean                   # Stop everything
-```
-
-### 6. **Configuration Files**
-
-**Root Level**:
-- `README.md` — Quick start guide
-- `.env.example` — All env vars (100+ fields)
-- `.gitignore` — Comprehensive ignore rules
-- `package.json` — Monorepo workspace setup
-- `CLAUDE_CODE_PROMPT.md` — AI integration checklist
-
-**Per-Worker**:
-- `workers/rtx-5090.env` — 5090 config
-- `workers/rtx-3090ti.env` — 3090Ti config
-- `workers/rtx-3060.env` — 3060 config
-
-**Scripts**:
-- `infra/scripts/health-check.sh` — Full system verification
-- `infra/scripts/bootstrap.sh` — Initial setup (to be created)
-- `infra/scripts/migrate-db.sh` — DB migrations (to be created)
-
-### 7. **Directory Structure** (Ready for Code)
+**Choose your path:**
 
 ```
-ProjectNyra/
-├── infra/                  # COMPLETE
-│   ├── docker-compose.*.yml (3 files)
-│   ├── nexus/
-│   ├── litellm/
-│   └── scripts/
-├── src/                    # STUB STRUCTURE
-│   ├── claude-flow/        (placeholder)
-│   ├── openclaw/           (placeholder)
-│   └── archon-os/          (placeholder)
-├── services/               # STUB STRUCTURE
-│   ├── quote-engine/       (quote math already in composes-gemini.txt)
-│   ├── lead-ingestion/     (ingestion logic ready)
-│   └── drip-campaign/      (Activepieces workflows)
-├── packages/               # READY FOR TYPES
-│   ├── types/
-│   ├── db/
-│   └── utils/
-├── apps/                   # READY FOR UIs
-│   ├── nyra-admin-ui/
-│   └── borrower-portal/
-└── workers/                # COMPLETE
-    ├── rtx-5090.env
-    ├── rtx-3090ti.env
-    └── rtx-3060.env
+┌─ 🏃 Fast Track (30 minutes)
+│  ├─ Gitea + CI/CD only
+│  └─ Jump to: Section 2 (Gitea Bootstrap)
+│
+├─ 🏗️ Full Infrastructure (2-4 hours)
+│  ├─ Complete local + cloud setup
+│  └─ Jump to: Section 1 (Prerequisites)
+│
+└─ 🧪 Development Focus (1 hour)
+   ├─ Local dev stack only
+   └─ Jump to: Section 5 (Development Stack)
 ```
 
 ---
 
-## 🚀 How to Deploy Immediately
+## 📋 Section 1: Prerequisites & Environment Setup
 
-### **Step 1: Unzip**
+### 1.1 System Requirements
+
+**Minimum Requirements:**
+- Ubuntu 20.04+ / Debian 11+ / macOS 12+ / Windows 11 (WSL2)
+- 16GB RAM (32GB recommended for full stack)
+- 100GB free disk space
+- Docker + Docker Compose v2
+
+**Optional GPU Requirements (Local LLM):**
+- NVIDIA RTX 3060+ (12GB VRAM minimum)
+- RTX 4090/5090 (48GB VRAM for DeepSeek-R1 236B)
+
+### 1.2 Essential Dependencies
+
 ```bash
-unzip nyra-complete-v3.0.zip
-cd nyra-complete
-cp .env.example .env
-# Edit .env with your secrets
+# 🔧 Core dependencies (all platforms)
+curl -fsSL https://get.docker.com | sh
+sudo usermod -aG docker $USER
+sudo apt update && sudo apt install -y make git jq htop
+
+# 🌐 Node.js 20+ (via nvm)
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
+nvm install 20 && nvm use 20 && nvm alias default 20
+
+# 🐍 Python 3.11+ (via pyenv)
+curl https://pyenv.run | bash
+pyenv install 3.11 && pyenv global 3.11
+
+# ⚡ Bun (ultra-fast package manager)
+curl -fsSL https://bun.sh/install | bash
+
+# 🔐 Infisical (secrets management)
+curl -1sLf https://artifacts-cli.infisical.com/setup.deb.sh | sudo bash
+sudo apt-get update && sudo apt-get install -y infisical
 ```
 
-### **Step 2: Start Orchestrator (Minisforum)**
+### 1.3 Environment Configuration
+
+**🗂️ Location**: `/` (project root)
+**📝 Files**: `.env.template` (200+ variables), `.env.gitea`, `.env.oracle`
+
 ```bash
-cd infra
-make orchestrator-up
-# Wait 60 seconds
+# Copy and customize base environment
+cp .env.template .env
+cp .env.template .env.local
+
+# Generate secure secrets (all environments)
+./infra/bootstrap/scripts/generate-secrets.sh
+```
+
+---
+
+## 📋 Section 2: Gitea Bootstrap (Self-Hosted Git + CI/CD)
+
+### 2.1 Quick Start (15 minutes)
+
+**🗂️ Location**: `/infra/bootstrap/`
+**📝 Guide**: `README.md` (400+ lines), `GITEA-SETUP-GUIDE.md`
+**🔧 Scripts**: `ultimate-bootstrap.sh`
+
+```bash
+# 🚀 One-command Gitea setup
+cd /home/ellisapotheosis/repos/project-nyra/infra/bootstrap
+sudo ./ultimate-bootstrap.sh
+
+# ✅ Verify installation
+curl -f http://gitea.local:3100/api/healthz
+docker ps | grep gitea  # Should show 3 containers
+
+# 🔐 Initial admin setup
+# Navigate to: http://gitea.local:3100
+# Username: admin | Password: generated in script output
+```
+
+### 2.2 CI/CD Pipeline Setup (15 minutes)
+
+**🗂️ Location**: `/.gitea/workflows/`
+**📝 Workflows**: `test.yml`, `build.yml`, `deploy-staging.yml`, `deploy-production.yml`
+
+```bash
+# 1. Enable Gitea Actions (web interface)
+# Admin Panel → Actions → Enable Actions ✓
+
+# 2. Configure secrets (50+ required)
+# Repository → Settings → Secrets
+# Use: ./infra/bootstrap/scripts/generate-secrets.sh output
+
+# 3. Test pipeline (push triggers full automation)
+echo "# CI/CD test" >> README.md
+git add . && git commit -m "feat: test CI/CD pipeline"
+git push origin main
+# → Auto-test → Auto-build → Auto-deploy staging ✨
+```
+
+**Pipeline Capabilities:**
+- ✅ **Multi-architecture builds** (ARM64 + AMD64)
+- ✅ **Auto-deploy staging** on main push
+- ✅ **Manual production deploy** with backup/rollback
+- ✅ **Security scanning** with Trivy
+- ✅ **Health checks** and validation
+
+---
+
+## 📋 Section 3: Oracle Cloud Infrastructure
+
+### 3.1 Oracle Always Free Setup
+
+**🎯 Benefit**: **4 vCPU + 24GB RAM FREE** (vs 1 vCPU paid AMD64)
+**🗂️ Location**: `/infra/oracle/`, `/environments/oracle-vps/`
+**📝 Guide**: `/infra/bootstrap/README.md` (sections 4-6)
+
+```bash
+# 1. Oracle Cloud account + ARM64 instance
+# Instance: VM.Standard.A1.Flex (4 OCPU, 24GB RAM)
+# OS: Ubuntu 22.04 ARM64
+
+# 2. Configure instance
+scp .env.oracle ubuntu@oracle-ip:~/
+ssh ubuntu@oracle-ip
+
+# On Oracle instance:
+curl -fsSL https://raw.githubusercontent.com/your-repo/infra/bootstrap/oracle-setup.sh | bash
+
+# 3. Deploy with ARM64 containers
+docker-compose -f docker-compose.oracle.yml up -d
+```
+
+**🌐 Networking:**
+- **Cloudflare Tunnel**: Zero-config SSL + CDN
+- **Oracle Security Lists**: Ports 80, 443, 22 only
+- **DDoS Protection**: Cloudflare + Oracle native
+
+---
+
+## 📋 Section 4: Local LLM Infrastructure (GPU Workers)
+
+### 4.1 Multi-GPU Cluster Setup
+
+**🗂️ Location**: `/infra/docker/`, `/services/nexus-router/`
+**🎯 Models**: DeepSeek-R1 236B, Qwen 2.5 72B, CodeLlama 34B
+
+```bash
+# 1. NVIDIA drivers + CUDA (Ubuntu)
+sudo apt update && sudo apt install -y nvidia-driver-535 nvidia-cuda-toolkit
+sudo reboot
+
+# 2. NVIDIA Container Toolkit
+distribution=$(. /etc/os-release;echo $ID$VERSION_ID) \
+curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg \
+curl -s -L https://nvidia.github.io/libnvidia-container/$distribution/libnvidia-container.list | \
+    sed 's#deb https://#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://#g' | \
+    sudo tee /etc/apt/sources.list.d/nvidia-container-toolkit.list
+sudo apt-get update && sudo apt-get install -y nvidia-container-toolkit
+sudo nvidia-ctk runtime configure --runtime=docker
+sudo systemctl restart docker
+
+# 3. Deploy LLM stack
+make llm-cluster-up  # Starts Ollama + LiteLLM + Nexus Router
+```
+
+**🧠 Model Distribution:**
+```bash
+# RTX 5090 (48GB) - Complex reasoning
+docker exec ollama ollama pull deepseek-r1:236b
+
+# RTX 3090 (24GB) - General purpose
+docker exec ollama ollama pull qwen2.5:72b
+
+# RTX 3060 (12GB) - Code + embeddings
+docker exec ollama ollama pull codellama:34b
+```
+
+---
+
+## 📋 Section 5: Development Stack Components
+
+### 5.1 Core Services Architecture
+
+| Service | Location | Port | Purpose |
+|---------|----------|------|---------|
+| **Nexus Router** | `/services/nexus-router/` | 6000 | LLM gateway + routing |
+| **TwentyCRM** | `/apps/twenty-crm/` | 3021 | Lead management |
+| **n8n Workflows** | `/services/n8n/` | 5678 | Campaign automation |
+| **PostgreSQL** | `docker-compose.yml` | 5432 | Primary database |
+| **Redis** | `docker-compose.yml` | 6379 | Caching + sessions |
+| **Grafana** | `/infra/monitoring/` | 3005 | Observability |
+
+### 5.2 Quick Development Setup
+
+```bash
+# 🚀 Start core services (5 minutes)
+make dev-up  # Docker Compose with hot-reload
+
+# 🧪 Start individual components
+make twenty-up    # TwentyCRM + PostgreSQL
+make n8n-up       # Workflow automation
+make monitor-up   # Grafana + Prometheus
+
+# 🔍 Health check all services
 make health-check
-```
+# ✅ All services → http://localhost:3000/health
 
-**Expected Output**:
+# 🛠️ Development tools
+make pgadmin-up      # Database admin (5050)
+make redis-ui-up     # Redis browser (8081)
+make mailhog-up      # Email testing (8025)
 ```
-✓ Nexus Router (6000)
-✓ LiteLLM (4000)
-✓ Claude-Flow (8000)
-✓ OpenClaw (8001)
-✓ Archon-OS (8080)
-✓ Redis (6379)
-```
-
-### **Step 3: Start Workers**
-On each GPU PC (RTX 5090, RTX 3090Ti, RTX 3060):
-```bash
-cd ProjectNyra/infra
-make workers-up WORKER=rtx-5090  # (or rtx-3090ti, rtx-3060)
-```
-
-### **Step 4: Start Oracle Cloud**
-On your Oracle VM:
-```bash
-ssh oracle-vm
-cd ProjectNyra/infra
-make oracle-up
-```
-
-### **Step 5: Verify Everything**
-```bash
-bash infra/scripts/health-check.sh
-```
-
-Should show all services green in ~30 seconds.
 
 ---
 
-## 🔧 What's Next (Post-Deployment)
+## 📋 Section 6: Claude Flow Dashboard & Multi-Agent System
 
-### Claude Code Integration (1 hour)
-Use the included `CLAUDE_CODE_PROMPT.md`:
-1. Open Claude Code
-2. Paste the prompt
-3. Let it consolidate your existing codebase into this scaffold
-4. Review changes, commit
+### 6.1 Claude Flow Dashboard Setup
 
-### Service Implementation (1–2 weeks)
-- [ ] Quote Engine (copied from `composes-gemini.txt`)
-- [ ] Lead Ingestion Service
-- [ ] Claude-Flow integration
-- [ ] OpenClaw persona & tools
-- [ ] Activepieces workflows (n8n → Activepieces migration)
-
-### Database Setup
-- [ ] TwentyCRM custom objects (MortgageLead, Quote, Campaign)
-- [ ] Postgres migrations
-- [ ] Mem0 schema
-- [ ] Graphiti initialization
-
-### Frontend
-- [ ] Nyra Admin UI (campaign builder, lead timeline)
-- [ ] Borrower Portal (quote viewer, application tracker)
-
----
-
-## 📊 Architecture Highlights
-
-| Component | Technology | Host | Port | Purpose |
-|-----------|-----------|------|------|---------|
-| **Nexus Router** | Node.js | Orchestrator | 6000 | MCP hub, tool routing |
-| **LiteLLM** | Python | Orchestrator | 4000 | Model routing, fallback |
-| **Claude-Flow** | Node.js | Orchestrator | 8000 | Dev orchestration |
-| **OpenClaw** | Node.js | Orchestrator | 8001 | Borrower agent |
-| **RTX 5090** | vLLM | Worker 1 | 8000 | Reasoning (DeepSeek R1 32B) |
-| **RTX 3090Ti** | vLLM | Worker 2 | 8000 | Code (DeepSeek Coder) |
-| **RTX 3060** | Ollama | Worker 3 | 11434 | Fast (Qwen 7B) |
-| **TwentyCRM** | Twenty | Oracle | 3000 | System of Record |
-| **Postgres** | pgvector | Oracle | 5432 | All data |
-| **Redis** | Redis Stack | Oracle | 6379 | Cache + FalkorDB |
-| **Activepieces** | Activepieces | Oracle | 3001 | Drip campaigns |
-| **Quote Engine** | Node.js | Oracle | 8089 | Quote math API |
-| **Mem0** | Node.js | Oracle | 5000 | Memory service |
-
----
-
-## 🔐 Security & Compliance
-
-✅ **Implemented**:
-- Infisical secrets sidecar (no plaintext .env in git)
-- TCPA STOP detection (Activepieces + TwentyCRM)
-- PII audit logging (Mem0 tracks all access)
-- Tailscale mesh (no port forwarding)
-- Database encryption (Postgres + Redis)
-- JWT auth (Nexus Router)
-
-✅ **Ready for**:
-- Rate limiting (n8n → Activepieces)
-- DNC list enforcement
-- Compliance reporting
-- SOC 2 certification
-
----
-
-## 📚 Documentation Included
-
-| File | Purpose |
-|------|---------|
-| `README.md` | Quick start (this project) |
-| `ARCHITECTURE.md` | 5,000+ word system design |
-| `CLAUDE_CODE_PROMPT.md` | AI-assisted consolidation |
-| `.env.example` | 100+ configuration variables |
-| `Makefile` | All deployment commands |
-| `infra/scripts/health-check.sh` | Verify all services |
-
-**To Be Created** (stubs provided):
-- `docs/SETUP.md` — Step-by-step bootstrap
-- `docs/API.md` — Service endpoint reference
-- `docs/DEPLOYMENT.md` — Production checklist
-- `docs/TROUBLESHOOTING.md` — Common issues
-
----
-
-## 🎯 Success Criteria (MVP)
-
-All of these should work **immediately** after `make orchestrator-up`:
+**🗂️ Location**: `/apps/claude-flow-dashboard/`
+**📋 Features**: Operations monitoring, agent coordination, workflow visualization
+**🆚 Version**: v3.0.0-alpha.1 (recovered from archive)
 
 ```bash
-# 1. Nexus Router responds
-curl http://localhost:6000/health
-# → {"status": "ok"}
+# Install dependencies
+cd /apps/claude-flow-dashboard/
+npm install  # React 18 + TypeScript + Zustand
 
-# 2. LiteLLM routes models
-curl -X POST http://localhost:4000/v1/chat/completions \
-  -H "Content-Type: application/json" \
-  -d '{"model": "fast-draft", "messages": [{"role": "user", "content": "hello"}]}'
-# → Streams response from RTX 3060 Ollama
+# Configure environment
+cp .env.example .env.local
+# Add: NEXT_PUBLIC_API_URL=http://localhost:6000
 
-# 3. Claude-Flow connects
-curl http://localhost:8000/health
-# → {"status": "ready"}
+# Start development server
+npm run dev  # → http://localhost:3010
 
-# 4. OpenClaw connects
-curl http://localhost:8001/health
-# → {"status": "ready"}
+# Production build
+npm run build && npm run start  # → http://localhost:3010
+```
 
-# 5. All workers reachable
-curl http://100.x.x.1:8000/health  # RTX 5090
-curl http://100.x.x.2:8000/health  # RTX 3090Ti
-curl http://100.x.x.3:11434/api/tags  # RTX 3060 Ollama
+**Dashboard Components:**
+- **Agent Grid**: Real-time agent status and metrics
+- **Workflow Canvas**: Visual pipeline builder
+- **Memory Analytics**: RuVector + Graphiti insights
+- **Performance Metrics**: Latency, cost, success rates
+- **Model Router**: LLM selection and routing logic
 
-# 6. Oracle services running
-curl https://crm.ratehunter.net/health  # TwentyCRM
-curl http://oracle.trex-fiordland.ts.net:8089/health  # Quote Engine
+### 6.2 Multi-Agent Orchestration
+
+**🧠 Architecture**: Mesh topology (peer-to-peer) vs Hierarchical (controlled)
+**🔧 Memory**: RuVector (primary) + Letta + Graphiti + Mem0
+
+```bash
+# Initialize agent swarm
+npx @claude-flow/cli@latest swarm init --topology mesh --max-agents 8
+
+# Memory system setup
+npx @claude-flow/cli@latest memory init --force --backend hybrid
+
+# Start background agents
+npx @claude-flow/cli@latest daemon start
+
+# System health check
+npx @claude-flow/cli@latest doctor --fix
 ```
 
 ---
 
-## 🐛 Troubleshooting Quick Links
+## 📋 Section 7: TwentyCRM Integration
 
-- **Docker won't start**: See `docs/TROUBLESHOOTING.md` (daemon.json validation)
-- **Services can't talk**: Check Tailscale mesh (`tailscale status`)
-- **Models not loading**: Check GPU access (`nvidia-smi` on worker)
-- **Secrets missing**: Run `infra/scripts/bootstrap-secrets.sh`
-- **Database errors**: Check Postgres connections in `.env`
+### 7.1 TwentyCRM Setup
 
----
+**🗂️ Location**: `/apps/twenty-crm/`
+**📋 Features**: Lead pipeline, contact management, mortgage workflow
 
-## 🤝 Next Steps with Claude Code
+```bash
+# Full TwentyCRM setup (10 minutes)
+cd /apps/twenty-crm/
+npm install && npm run setup  # Automated setup script
 
-### Use This Prompt:
-Copy the content from `CLAUDE_CODE_PROMPT.md` into **Claude Code** and run it. It will:
-1. ✅ Inventory your existing codebase
-2. ✅ Migrate code into clean structure
-3. ✅ Fix all import paths
-4. ✅ Validate all configs
-5. ✅ Create documentation
-6. ✅ Setup git repository
-7. ✅ Generate integration checklist
+# Database setup with mortgage schema
+make twenty-db-init  # Creates tables + seed data
 
-**Expected time**: 30–60 minutes  
-**Outcome**: Production-ready repo, zero duplication
+# Start development server
+npm run dev  # → http://localhost:3021
 
----
-
-## 📥 What's in the ZIP
-
-```
-nyra-complete-v3.0.zip (36 KB)
-├── README.md (quick start)
-├── ARCHITECTURE.md (complete design)
-├── CLAUDE_CODE_PROMPT.md (AI integration)
-├── Makefile (all commands)
-├── package.json (monorepo)
-├── .env.example (100+ vars)
-├── .gitignore (comprehensive)
-├── infra/ (COMPLETE)
-│   ├── docker-compose.orchestrator.yml
-│   ├── docker-compose.workers.yml
-│   ├── docker-compose.oracle.yml
-│   ├── nexus/ (config + Dockerfile)
-│   ├── litellm/ (config + Dockerfile)
-│   └── scripts/ (health-check, etc)
-├── src/ (STUBS)
-│   ├── claude-flow/
-│   ├── openclaw/
-│   └── archon-os/
-├── services/ (STUBS)
-│   ├── quote-engine/
-│   ├── lead-ingestion/
-│   └── drip-campaign/
-├── packages/ (STUBS)
-├── apps/ (STUBS)
-└── workers/ (ENV FILES)
-    ├── rtx-5090.env
-    ├── rtx-3090ti.env
-    └── rtx-3060.env
+# MCP Server integration
+make twenty-mcp-up   # → http://localhost:3022/mcp
 ```
 
----
-
-## ✅ Deliverables Checklist
-
-- [x] Master Architecture Whitepaper (5,000 words)
-- [x] Nexus Router config (TOML + Dockerfile)
-- [x] LiteLLM Router config (YAML + 10 routing rules)
-- [x] 3 Docker Compose files (Orchestrator, Workers, Oracle)
-- [x] Master Makefile (all commands)
-- [x] Health check script
-- [x] Worker environment files (3)
-- [x] .env.example (100+ variables)
-- [x] Complete directory structure
-- [x] Claude Code integration prompt
-- [x] README with quick start
-- [x] .gitignore
-- [x] Root package.json (monorepo)
-- [x] Comprehensive ZIP archive
+**Integration Points:**
+- **Nexus Router**: LLM-powered lead scoring
+- **n8n Workflows**: Automated follow-ups
+- **PostgreSQL**: Shared borrower data
+- **Claude Flow**: Multi-agent mortgage processing
 
 ---
 
-## 🎓 Training & Support
+## 📋 Section 8: Memory System Integration
 
-**Quick Reference**:
-- `make help` — See all commands
-- `make orchestrator-up && make health-check` — Full verification
-- `bash infra/scripts/health-check.sh` — Detailed service checks
-- `docker-compose logs -f nexus` — Debug specific service
+### 8.1 Cross-PC Memory Persistence
 
-**Documentation**:
-- See `README.md` for project overview
-- See `ARCHITECTURE.md` for system design
-- See `CLAUDE_CODE_PROMPT.md` for code organization
-- See `.env.example` for all configuration
+**🗂️ Location**: `/.claude/memory/`
+**📋 Files**: `memory.db`, `MEMORY.md`
 
----
+```bash
+# Memory is now stored in repo for cross-PC sync
+ls .claude/memory/
+# memory.db - main storage
+# MEMORY.md - context file (auto-loaded)
 
-## 🎉 You're Ready to Deploy!
+# Environment variables set:
+export MEMORY_BACKEND=hybrid
+export MEMORY_PRIMARY_STORE=letta
+export MEMORY_SECONDARY_STORE=mem0
+```
 
-This scaffold is **100% production-ready**:
-- ✅ All infrastructure code included
-- ✅ All configuration templates provided
-- ✅ All deployment commands automated
-- ✅ All documentation complete
-- ✅ All security practices baked in
-- ✅ All compliance requirements addressed
-
-**Next step**: Unzip, update `.env`, run `make orchestrator-up`. That's it. 
-
-Good luck! 🚀
+**Memory Backend Configuration:**
+- **Primary**: Letta (`.letta/` directory, in repo)
+- **Secondary**: mem0 (cloud sync for cross-PC)
+- **Hybrid**: Both systems active for redundancy
 
 ---
 
-**Delivery Date**: February 28, 2026  
-**Scaffold Version**: 3.0  
-**Status**: Production-Ready  
-**Questions?** Check `ARCHITECTURE.md` or `CLAUDE_CODE_PROMPT.md`
+## 📋 Section 9: Advanced Components & Integrations
+
+### 9.1 OpenClaw/MoltBot Integration
+
+**🗂️ Location**: `/services/openclaw/`, `/archive/moltbot/`
+**🎯 Purpose**: Autonomous operations, mem0 memory integration
+
+```bash
+# OpenClaw setup (Python + FastAPI)
+cd /services/openclaw/
+python -m venv venv && source venv/bin/activate
+pip install -r requirements.txt
+
+# mem0 memory integration
+export MEM0_API_KEY=m0-...  # From mem0.ai
+python -m openclaw.memory.setup  # Initialize memory backend
+
+# Start OpenClaw service
+python -m openclaw.main  # → http://localhost:8001
+```
+
+### 9.2 Agentic-Jujutsu Version Control (Evaluation)
+
+**🗂️ Location**: `/tools/agentic-jujutsu/` (if beneficial)
+**🎯 Features**: Quantum-resistant VCS, AI-native branching
+
+**Evaluation Results**: ⚠️ **Optional/Advanced**
+- **Pros**: Advanced conflict resolution, AI commit analysis, quantum-safe cryptography
+- **Cons**: Early stage, complex integration, Git workflow disruption
+- **Recommendation**: Skip for initial deployment, revisit in Phase 2
+
+### 9.3 Archon OS Integration
+
+**🗂️ Location**: `/infra/docker/archon/`, `/tools/archon/`
+**🎯 Purpose**: Task execution layer, Claude Flow coordination
+**📋 Status**: Ready for immediate deployment
+
+```bash
+# Archon deployment (containerized)
+cd /infra/docker/archon/
+docker-compose -f docker-compose.archon.yml up -d
+
+# Integration with Claude Flow
+export ARCHON_API_URL=http://localhost:7001
+export CLAUDE_FLOW_ARCHON_BRIDGE=enabled
+
+# Health check
+curl http://localhost:7001/health
+```
+
+---
+
+## 📋 Section 10: Shared Libraries & Consolidation
+
+### 10.1 n8n Shared Library
+
+**🗂️ Location**: `/apps/shared/n8n-shared/`
+**📋 Contents**: 40+ workflows, configurations, examples consolidated from scattered locations
+
+```bash
+# n8n workflows organized by category:
+ls /apps/shared/n8n-shared/
+# workflows/mortgage/   - Mortgage-specific flows
+# workflows/general/    - Reusable patterns
+# configs/             - Environment configurations
+# examples/            - Template workflows
+# docs/               - Integration documentation
+```
+
+### 10.2 Component Bootstrap Paths
+
+**Individual Component Setup:**
+
+| Component | Bootstrap Script | Location | Time |
+|-----------|------------------|----------|------|
+| **Gitea** | `ultimate-bootstrap.sh` | `/infra/bootstrap/` | 15 min |
+| **TwentyCRM** | `npm run setup` | `/apps/twenty-crm/` | 10 min |
+| **Claude Flow** | `npm run dev` | `/apps/claude-flow-dashboard/` | 5 min |
+| **OpenClaw** | `python -m openclaw.main` | `/services/openclaw/` | 5 min |
+| **n8n** | `make n8n-up` | Root directory | 5 min |
+| **Nexus Router** | `make nexus-up` | Root directory | 5 min |
+| **Oracle VPS** | `docker-compose -f oracle.yml up` | `/environments/oracle-vps/` | 20 min |
+
+---
+
+## 📋 Section 11: Phase 2 Implementation
+
+### 11.1 Infrastructure Catchup (Automatic)
+
+**🗂️ Location**: `/infra/REPO-CATCHUP.md`
+**📋 Status**: 87+ improvements identified across 4 phases
+
+**Automatic Implementation:**
+- Environment standardization (✅ Complete)
+- Bootstrap script consolidation (✅ Complete)
+- Docker Compose standardization (✅ Complete)
+- CI/CD automation (✅ Complete)
+
+**Requires User Decision:**
+- Agentic-Jujutsu integration (Optional)
+- Service mesh configuration (Istio vs Linkerd)
+- Advanced security features (zero-trust networking)
+
+### 11.2 Multi-Architecture CI/CD
+
+**🎯 Benefit**: Oracle ARM64 = 4x compute power (FREE vs paid AMD64)
+**📝 Implementation**: Complete automated pipeline
+
+**Supported Architectures:**
+- **AMD64**: Traditional x86_64 (Intel/AMD)
+- **ARM64**: Apple Silicon, Oracle Always Free, AWS Graviton
+
+**Build Strategy**: Docker Buildx with QEMU emulation
+- Transparent to developers
+- Automatic multi-platform image creation
+- Registry supports both architectures
+
+---
+
+## 📋 Section 12: Production Deployment
+
+### 12.1 Oracle VPS Production
+
+**🌐 Domain**: `prod.nyra.internal` (Cloudflare managed)
+**🗂️ Location**: `/environments/production/`
+
+```bash
+# 1. Secure production secrets
+infisical run --env=production -- ./deploy/production.sh
+
+# 2. Deploy with zero-downtime
+git push origin main  # Triggers staging deployment
+# Manual production trigger in Gitea Actions
+
+# 3. Health validation
+curl https://prod.nyra.internal/health
+curl https://api.nyra.internal/v1/health
+
+# 4. Rollback (if needed)
+make production-rollback BACKUP_ID=20260310-120000
+```
+
+### 12.2 Multi-Environment Management
+
+```bash
+# Environment switching
+export ENVIRONMENT=staging|production|oracle-vps
+make deploy ENV=$ENVIRONMENT
+
+# Configuration validation
+make validate-env ENV=production  # Checks secrets, connectivity
+
+# Backup management
+make backup-create ENV=production  # Pre-deployment backup
+make backup-restore BACKUP_ID=... ENV=production  # Emergency restore
+```
+
+---
+
+## 📋 Section 13: Troubleshooting & Maintenance
+
+### 13.1 Common Issues
+
+| Issue | Solution | Location |
+|-------|----------|----------|
+| **Gitea containers not starting** | `docker-compose restart` | `/infra/bootstrap/` |
+| **Oracle ARM builds failing** | Check QEMU emulation | `.gitea/workflows/build.yml` |
+| **TwentyCRM database errors** | `make twenty-db-reset` | `/apps/twenty-crm/` |
+| **Memory persistence issues** | Verify mount points | `.claude/memory/` |
+| **Claude Flow dashboard 404** | Check build status | `/apps/claude-flow-dashboard/` |
+
+### 13.2 Health Checks
+
+```bash
+# Full system health
+make health-check-all
+
+# Individual component health
+curl http://localhost:6000/health  # Nexus Router
+curl http://localhost:3021/health  # TwentyCRM
+curl http://localhost:5678/health  # n8n
+curl http://localhost:3010/health  # Claude Flow Dashboard
+
+# Database connectivity
+psql $POSTGRES_URL -c "SELECT 1;"  # PostgreSQL
+redis-cli -u $REDIS_URL ping       # Redis
+```
+
+---
+
+## 🎯 Quick Reference Commands
+
+### Essential Make Targets
+
+```bash
+# Core services
+make dev-up          # Start development stack
+make prod-up         # Start production stack
+make health-check    # Verify all services
+
+# Individual components
+make gitea-up        # Self-hosted Git + CI/CD
+make twenty-up       # TwentyCRM + PostgreSQL
+make llm-cluster-up  # Local LLM inference
+make monitor-up      # Grafana + Prometheus
+
+# Development tools
+make pgadmin-up      # Database management
+make redis-ui-up     # Redis browser
+make mailhog-up      # Email testing
+
+# Maintenance
+make backup-create   # Backup databases
+make logs-follow     # Follow all logs
+make clean-all       # Remove all containers
+```
+
+---
+
+## 🎉 Success Metrics
+
+**After successful bootstrap, you should have:**
+
+✅ **Gitea CI/CD**: Push-to-deploy automation with multi-arch builds
+✅ **Oracle ARM64**: 4 vCPU production infrastructure (FREE)
+✅ **Claude Flow Dashboard**: v3.0.0-alpha.1 operational
+✅ **TwentyCRM**: Complete lead management and mortgage pipeline
+✅ **Multi-Agent System**: Claude Flow + Archon orchestration
+✅ **Memory Persistence**: Cross-PC sync via `.claude/memory/`
+✅ **n8n Shared Library**: 40+ workflows consolidated
+✅ **Security**: Secrets automation + compliance validation
+✅ **Development**: Hot-reload, debugging tools, test automation
+
+**Performance Targets:**
+- **AI Inference**: <2s response time (local LLM)
+- **API Latency**: <100ms for database queries
+- **Deployment**: <5 minutes zero-downtime production deploy
+- **Cost**: 90% reduction via local inference + Oracle Always Free
+
+---
+
+## 🔗 Additional Resources
+
+**Bootstrap Documentation:**
+- [Bootstrap Guide](/infra/bootstrap/README.md) - Comprehensive 400+ line setup
+- [Gitea Setup](/infra/bootstrap/GITEA-SETUP-GUIDE.md) - Step-by-step CI/CD
+- [Phase 2 Summary](/infra/bootstrap/PHASE2-COMPLETION-SUMMARY.md) - CI/CD completion
+- [Repository Catchup](/infra/REPO-CATCHUP.md) - 87+ improvements roadmap
+
+**Architecture Documentation:**
+- [Whitepaper](/ToDo/whitepaper-workflow/nyra-mcp-infisical-patchkit-v1/docs/whitepaper/WHITEPAPER.md)
+- [SPARC Workflows](/ToDo/whitepaper-workflow/Nyra-Truth-and-Standards/MORTGAGE-SPARC-WORKFLOWS.md)
+- [Compliance Guide](/ToDo/whitepaper-workflow/nyra-mcp-infisical-patchkit-v1/docs/COMPLIANCE_GUARDRAILS.md)
+
+**Component Guides:**
+- [Claude Flow Integration](/.claude/CAPABILITIES.md)
+- [TwentyCRM Configuration](/apps/twenty-crm/README.md) (when created)
+- [n8n Shared Library](/apps/shared/n8n-shared/README.md) (when created)
+
+---
+
+**🎯 Ready to build the future of mortgage automation!**
+
+**Recommended Next Steps:**
+1. **Start with Gitea** (Section 2) for immediate CI/CD automation
+2. **Add Oracle VPS** (Section 3) for free production infrastructure
+3. **Deploy Claude Flow Dashboard** (Section 6) for operations visibility
+4. **Integrate TwentyCRM** (Section 7) for lead management
+5. **Scale with GPU cluster** (Section 4) for local LLM inference
+
+**Need help?** Check troubleshooting section or review component-specific documentation.
