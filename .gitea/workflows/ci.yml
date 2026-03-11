@@ -1,0 +1,55 @@
+name: Gitea CI
+
+on:
+  push:
+    branches: ["main", "develop"]
+  pull_request:
+    branches: ["main", "develop"]
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: "10.27.0"
+
+      - name: Install dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -f "apps/twenty-crm/package.json" ]; then
+            mv apps/twenty-crm/package.json apps/twenty-crm/package.json.ci-skip
+          fi
+          trap 'if [ -f "apps/twenty-crm/package.json.ci-skip" ]; then mv apps/twenty-crm/package.json.ci-skip apps/twenty-crm/package.json; fi' EXIT
+          pnpm install --no-frozen-lockfile
+
+      - name: Lint
+        shell: bash
+        run: |
+          set -euo pipefail
+          pnpm -r --if-present lint
+
+      - name: Type check
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -f tsconfig.json ]; then
+            pnpm exec tsc --noEmit
+          fi
+
+      - name: Test
+        shell: bash
+        run: |
+          set -euo pipefail
+          pnpm -r --if-present test
