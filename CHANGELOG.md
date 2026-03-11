@@ -1,3 +1,18 @@
+# [1.1.0](https://github.com/ellisapotheosis/Project-Nyra/compare/v1.0.2...v1.1.0) (2026-03-11)
+
+
+### Bug Fixes
+
+* **ci:** auto-handle codex PR lifecycle ([#153](https://github.com/ellisapotheosis/Project-Nyra/issues/153)) ([46138d6](https://github.com/ellisapotheosis/Project-Nyra/commit/46138d62faae119538a39d281db54f0c8911d645))
+* **codex:** harden environment bootstrap paths ([c68706d](https://github.com/ellisapotheosis/Project-Nyra/commit/c68706d8c18ab100957da287ce8ea245869e511e))
+* **landing:** restore ratehunter app and husky hooks after consolidation ([eea7b3d](https://github.com/ellisapotheosis/Project-Nyra/commit/eea7b3dce930f013b24da253b3cc3e1a8cac5ffa))
+
+
+### Features
+
+* add environment templates and deployment configs ([79653fa](https://github.com/ellisapotheosis/Project-Nyra/commit/79653fa53f356e78adaa620e30ebaae1af012acf))
+* configure cross-PC persistent memory storage ([13f5432](https://github.com/ellisapotheosis/Project-Nyra/commit/13f5432ef1dd5a2500795c0c803673097085f7c8))
+
 ## [1.0.2](https://github.com/ellisapotheosis/Project-Nyra/compare/v1.0.1...v1.0.2) (2026-03-10)
 
 
