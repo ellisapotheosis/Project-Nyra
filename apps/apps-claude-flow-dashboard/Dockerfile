@@ -1,17 +1,16 @@
 # Multi-stage build for Claude Flow Live Operations Dashboard
 FROM node:20-alpine AS dependencies
 WORKDIR /app
-COPY package.json package-lock.json ./
-RUN npm ci --omit=dev
+COPY package.json ./
+RUN npm install --omit=dev
 
 # Build stage
 FROM node:20-alpine AS builder
 WORKDIR /app
 COPY --from=dependencies /app/node_modules ./node_modules
-COPY package.json package-lock.json tsconfig.json tsconfig.node.json vite.config.ts postcss.config.js tailwind.config.js index.html ./
-COPY public ./public
+COPY package.json tsconfig.json tsconfig.node.json vite.config.ts postcss.config.js tailwind.config.js index.html ./
 COPY src ./src
-RUN npm ci && npm run build
+RUN npm install && npm run build
 
 # Runtime stage
 FROM node:20-alpine
