@@ -42,7 +42,7 @@
     "@testing-library/user-event": "^14.5.2",
     "msw": "^2.2.13",
     "jsdom": "^24.0.0",
-    "@vitest/coverage-v8": "^1.4.0"
+    "@vitest/coverage-v8": "^4.0.18"
   },
   "peerDependencies": {
     "react": "^18.0.0",
