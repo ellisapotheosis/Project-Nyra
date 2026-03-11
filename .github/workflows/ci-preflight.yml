@@ -73,12 +73,34 @@ jobs:
               core.setOutput("enabled", "true");
             } catch (error) {
               if (error.status === 404) {
-                core.warning("GitHub Pages is not configured. Nuxt Pages workflow may need bootstrap enablement.");
+                core.warning("GitHub Pages is not configured. Next/Nuxt Pages workflows will skip deploy.");
                 core.setOutput("enabled", "false");
                 return;
               }
               throw error;
             }
+
+      - name: Validate private package reachability
+        id: private-packages
+        shell: bash
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          set -euo pipefail
+          if [ -z "${NPM_TOKEN}" ]; then
+            echo "::warning::NPM_TOKEN is not configured; private package checks are informational only."
+            echo "ok=unknown" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > "${HOME}/.npmrc"
+          if npm view @twenty-crm/twenty version >/dev/null 2>&1; then
+            echo "ok=true" >> "$GITHUB_OUTPUT"
+            echo "Private package @twenty-crm/twenty is reachable."
+          else
+            echo "::warning::Unable to resolve @twenty-crm/twenty from npm registry with current token."
+            echo "ok=false" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Preflight summary
         shell: bash
@@ -100,6 +122,13 @@ jobs:
               echo "- GitHub Pages: ✅ configured"
             else
               echo "- GitHub Pages: ⚠️ not configured"
+            fi
+            if [ "${{ steps.private-packages.outputs.ok }}" = "true" ]; then
+              echo "- Private package access: ✅ reachable"
+            elif [ "${{ steps.private-packages.outputs.ok }}" = "false" ]; then
+              echo "- Private package access: ⚠️ token present but package unreachable"
+            else
+              echo "- Private package access: ⚠️ not validated (no NPM_TOKEN)"
             fi
           } >> "$GITHUB_STEP_SUMMARY"
 

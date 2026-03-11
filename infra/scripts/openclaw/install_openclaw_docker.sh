@@ -2,7 +2,7 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
-IMAGE_TAG="${OPENCLAW_CUSTOM_IMAGE_TAG:-nyra/openclaw-cli:local}"
+IMAGE_TAG="${OPENCLAW_CUSTOM_IMAGE_TAG:-nyra/openclaw-mvp:local}"
 
 docker build \
   -f "$ROOT_DIR/infra/openclaw/Dockerfile" \
@@ -12,4 +12,4 @@ docker build \
   "$ROOT_DIR"
 
 echo "Built $IMAGE_TAG"
-echo "Set OPENCLAW_CLI_IMAGE=$IMAGE_TAG in infra/env/nyra.env to use this image."
+echo "Set OPENCLAW_MVP_IMAGE=$IMAGE_TAG in infra/env/openclaw.env to use this image."
