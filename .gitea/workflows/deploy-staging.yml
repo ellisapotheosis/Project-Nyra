@@ -1,0 +1,150 @@
+name: 🚀 Deploy to Staging (AUTO)
+
+on:
+  push:
+    branches: [ main ]
+  workflow_run:
+    workflows: ["🏗️ Build & Push Multi-Arch"]
+    types: [completed]
+
+env:
+  ENVIRONMENT: staging
+  DEPLOY_HOST: staging.nyra.internal  # Your staging server
+
+jobs:
+  deploy-staging:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+
+    environment:
+      name: staging
+      url: http://staging.nyra.internal
+
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup deployment
+        run: |
+          echo "🚀 Preparing staging deployment"
+          echo "Git SHA: ${GITHUB_SHA:0:7}"
+          echo "Environment: ${{ env.ENVIRONMENT }}"
+
+      - name: 🔐 Setup SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.STAGING_SSH_KEY }}
+
+      - name: 📋 Prepare deployment files
+        run: |
+          # Create deployment package
+          mkdir -p deploy-staging
+          cp -r infra/ deploy-staging/
+          cp docker-compose.*.yml deploy-staging/
+          cp .env.template deploy-staging/.env.template
+          cp scripts/validate-env.sh deploy-staging/
+
+          # Create staging-specific environment
+          cat > deploy-staging/.env.staging << EOF
+          # Auto-generated staging environment
+          NYRA_NODE_TYPE=staging
+          NYRA_ENVIRONMENT=staging
+          COMPOSE_PROJECT_NAME=nyra-staging
+
+          # Image versions (latest main builds)
+          NEXUS_ROUTER_IMAGE=gitea.local:3100/nyra/nexus-router:${GITHUB_SHA:0:7}
+          CLAUDE_FLOW_IMAGE=gitea.local:3100/nyra/claude-flow:${GITHUB_SHA:0:7}
+          QUOTE_ENGINE_IMAGE=gitea.local:3100/nyra/quote-engine:${GITHUB_SHA:0:7}
+          CAMPAIGN_ENGINE_IMAGE=gitea.local:3100/nyra/campaign-engine:${GITHUB_SHA:0:7}
+
+          # Staging-specific settings
+          GRAFANA_ADMIN_PASSWORD=${{ secrets.STAGING_GRAFANA_PASSWORD }}
+          POSTGRES_PASSWORD=${{ secrets.STAGING_POSTGRES_PASSWORD }}
+          REDIS_PASSWORD=${{ secrets.STAGING_REDIS_PASSWORD }}
+          JWT_SECRET=${{ secrets.STAGING_JWT_SECRET }}
+          N8N_ENCRYPTION_KEY=${{ secrets.STAGING_N8N_KEY }}
+
+          # API Keys (shared with prod but rate-limited)
+          ANTHROPIC_API_KEY=${{ secrets.ANTHROPIC_API_KEY }}
+          OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}
+          GOOGLE_API_KEY=${{ secrets.GOOGLE_API_KEY }}
+
+          # Staging-specific overrides
+          COMPOSE_PROFILES=core,monitoring,workflow,crm
+          LOG_LEVEL=debug
+          HOT_RELOAD_ENABLED=true
+          DEBUG_MODE=true
+          EOF
+
+      - name: 📤 Deploy to staging
+        run: |
+          # Copy files to staging server
+          scp -o StrictHostKeyChecking=no -r deploy-staging/* deploy@${{ env.DEPLOY_HOST }}:/opt/project-nyra/
+
+          # Execute deployment on staging server
+          ssh -o StrictHostKeyChecking=no deploy@${{ env.DEPLOY_HOST }} << 'EOF'
+            cd /opt/project-nyra
+
+            echo "🔍 Validating environment..."
+            ./validate-env.sh .env.staging
+
+            echo "🐳 Stopping existing services..."
+            docker-compose -f infra/docker-compose.yml --env-file .env.staging down || true
+
+            echo "📥 Pulling latest images..."
+            docker-compose -f infra/docker-compose.yml --env-file .env.staging pull
+
+            echo "🚀 Starting services..."
+            docker-compose -f infra/docker-compose.yml --env-file .env.staging up -d
+
+            echo "⏳ Waiting for services to be ready..."
+            sleep 30
+
+            echo "🔍 Health checks..."
+            curl -f http://localhost:6000/health || echo "⚠️ Nexus Router not ready"
+            curl -f http://localhost:4000/health || echo "⚠️ LiteLLM not ready"
+            curl -f http://localhost:3010/health || echo "⚠️ Claude Flow not ready"
+
+            echo "📊 Service status:"
+            docker-compose -f infra/docker-compose.yml --env-file .env.staging ps
+          EOF
+
+      - name: 🧪 Run staging tests
+        run: |
+          ssh -o StrictHostKeyChecking=no deploy@${{ env.DEPLOY_HOST }} << 'EOF'
+            cd /opt/project-nyra
+
+            echo "🧪 Running staging smoke tests..."
+
+            # Test API endpoints
+            curl -f http://localhost:6000/health && echo "✅ Nexus Router OK"
+            curl -f http://localhost:4000/health && echo "✅ LiteLLM OK"
+            curl -f http://localhost:3005/api/health && echo "✅ Grafana OK"
+            curl -f http://localhost:5678/healthz && echo "✅ n8n OK"
+
+            # Test database connectivity
+            docker exec nyra-postgres pg_isready -U nyra && echo "✅ PostgreSQL OK"
+            docker exec nyra-redis redis-cli ping && echo "✅ Redis OK"
+
+            echo "✅ Staging deployment successful!"
+          EOF
+
+      - name: 📢 Notify deployment success
+        if: success()
+        run: |
+          echo "🎉 Staging deployment completed successfully!"
+          echo "🔗 Access staging at: http://staging.nyra.internal"
+          echo "📊 Monitoring: http://staging.nyra.internal:3005"
+          echo "🔧 n8n: http://staging.nyra.internal:5678"
+
+      - name: 🚨 Handle deployment failure
+        if: failure()
+        run: |
+          echo "❌ Staging deployment failed!"
+
+          # Get logs for debugging
+          ssh -o StrictHostKeyChecking=no deploy@${{ env.DEPLOY_HOST }} << 'EOF'
+            cd /opt/project-nyra
+            echo "📋 Service logs:"
+            docker-compose -f infra/docker-compose.yml --env-file .env.staging logs --tail=50
+          EOF
