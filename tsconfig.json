@@ -4,7 +4,6 @@
   "display": "Project Nyra Root",
   "files": [],
   "references": [
-    { "path": "./apps/admin" },
     { "path": "./services/nexus-router" },
     { "path": "./packages/database" },
     { "path": "./services/claude-flow" }
