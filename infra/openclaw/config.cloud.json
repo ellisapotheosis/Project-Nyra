@@ -1,0 +1,20 @@
+{
+  "$schema": "https://openclaw.dev/schemas/config.json",
+  "provider": {
+    "name": "openai",
+    "apiKey": "${OPENAI_API_KEY}"
+  },
+  "plugins": [
+    {
+      "package": "@mem0/openclaw-mem0",
+      "enabled": true,
+      "config": {
+        "mode": "platform",
+        "apiKey": "${MEM0_API_KEY}"
+      }
+    }
+  ],
+  "storage": {
+    "path": "/home/node/.openclaw"
+  }
+}

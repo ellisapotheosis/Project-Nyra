@@ -1,0 +1,22 @@
+services:
+  openclaw-ui-proxy:
+    image: nginx:1.27-alpine
+    container_name: nyra-openclaw-ui-proxy
+    profiles: ["openclaw-ui"]
+    environment:
+      OPENCLAW_PUBLIC_BASE_URL: ${OPENCLAW_PUBLIC_BASE_URL:-http://openclaw-mvp:3400}
+      OPENCLAW_UI_PREFIX: ${OPENCLAW_UI_PREFIX:-/tools/openclaw}
+    ports:
+      - "127.0.0.1:${OPENCLAW_UI_PROXY_PORT:-8099}:8080"
+    volumes:
+      - ./openclaw/ui/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      openclaw-mvp:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O- http://localhost:8080/healthz >/dev/null 2>&1"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+    networks: [nyra]

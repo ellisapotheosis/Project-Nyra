@@ -1,5 +1,6 @@
 # OpenClaw Operator Plane for Project Nyra
 
+> For the additive cloud MVP requested (OpenClaw + Mem0 Cloud + Kyutai Unmute), use `infra/openclaw/MVP-README.md`, `infra/compose/openclaw.compose.yml`, and `infra/compose/openclaw.voice.compose.yml`.
 OpenClaw is integrated as a **controlled ops bot** for mortgage CRM workflows.
 
 ## Security Defaults
@@ -108,3 +109,25 @@ Recommended secret injection pattern:
 - keep `infra/env/nyra.env` non-secret where possible
 - inject `LITELLM_MASTER_KEY`, `OPENCLAW_GATEWAY_TOKEN`, channel tokens at runtime via Infisical CLI/agent
 - use `env:SECRET_NAME` refs in OpenClaw config, not plaintext values
+
+## Phase 3 upgrades (current)
+
+- Split overlays for core/voice/UI/ops (`infra/compose/openclaw*.compose.yml`).
+- Added deterministic lifecycle scripts in `infra/openclaw/scripts/`:
+  - `up.sh`, `down.sh`, `doctor.sh`, `status.sh`.
+- Added nginx reverse-proxy baseline under `/tools/openclaw/` for incremental UI integration.
+- Added compose healthchecks for core and UI overlays.
+
+### Recommended operational command sequence
+
+```bash
+bash infra/openclaw/scripts/doctor.sh
+bash infra/openclaw/scripts/up.sh --with-voice --with-ui
+bash infra/openclaw/scripts/status.sh
+```
+
+### Shutdown
+
+```bash
+bash infra/openclaw/scripts/down.sh
+```
