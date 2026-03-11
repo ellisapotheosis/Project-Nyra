@@ -3,9 +3,9 @@ FROM node:20-alpine AS dependencies
 WORKDIR /app
 COPY package*.json ./
 RUN if [ -f package-lock.json ]; then \
-      npm ci --omit=dev; \
+      npm ci --omit=dev --legacy-peer-deps; \
     else \
-      npm install --omit=dev; \
+      npm install --omit=dev --legacy-peer-deps; \
     fi
 
 # Build stage
@@ -15,9 +15,9 @@ COPY --from=dependencies /app/node_modules ./node_modules
 COPY package*.json tsconfig.json ./
 COPY src ./src
 RUN if [ -f package-lock.json ]; then \
-      npm ci; \
+      npm ci --legacy-peer-deps; \
     else \
-      npm install; \
+      npm install --legacy-peer-deps; \
     fi && npm run build
 
 # Runtime stage
