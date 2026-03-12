@@ -4,6 +4,9 @@ on:
   push:
     branches: [main]
     tags: ["*"]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -42,7 +45,7 @@ jobs:
           ssh-keyscan -H "$(echo "${{ secrets.GITEA_MIRROR_URL }}" | sed -E 's#.*@([^:/]+).*#\1#')" >> ~/.ssh/known_hosts || true
 
       - name: Push to Gitea mirror
-        if: ${{ steps.preflight.outputs.enabled == 'true' }}
+        if: ${{ steps.preflight.outputs.enabled == 'true' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch') }}
         continue-on-error: true
         env:
           GITEA_MIRROR_URL: ${{ secrets.GITEA_MIRROR_URL }}
