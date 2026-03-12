@@ -76,6 +76,17 @@ jobs:
             set -euo pipefail
             pnpm -r --if-present test
 
+  # --- NEW DEPLOY JOB ---
+  deploy:
+    executor: node20
+    steps:
+      - checkout
+      - run:
+          name: Deploy Application
+          command: |
+            echo "Replace this echo statement with your actual deployment scripts!"
+            # e.g., pnpm run deploy, or AWS CLI commands, etc.
+
 workflows:
   ci:
     jobs:
@@ -85,3 +96,10 @@ workflows:
           requires:
             - lint
             - typecheck
+      # --- ADDED TO WORKFLOW ---
+      - deploy:
+          requires:
+            - test # Ensures we only deploy if tests pass!
+          filters:
+            branches:
+              only: main # Ensures we only deploy from the main branch
