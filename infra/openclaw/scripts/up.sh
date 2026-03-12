@@ -9,6 +9,15 @@ OPENCLAW_IMAGE_DEFAULT="nyra/openclaw-mvp:local"
 HEALTH_TIMEOUT_S="${OPENCLAW_HEALTH_TIMEOUT_S:-90}"
 COMPOSE_VALIDATE="${OPENCLAW_COMPOSE_VALIDATE:-true}"
 
+resolve_infra_path() {
+  local path="$1"
+  if [[ "$path" = /* ]]; then
+    printf '%s\n' "$path"
+  else
+    printf '%s\n' "$ROOT_DIR/infra/${path#./}"
+  fi
+}
+
 usage() {
   cat <<USAGE
 Usage: $0 [--core-only] [--with-voice] [--with-ui] [--skip-build] [--force-build]
@@ -70,8 +79,8 @@ build_if_needed() {
     log "Building OpenClaw image: $image_tag"
     docker build \
       -f "$ROOT_DIR/infra/openclaw/Dockerfile" \
-      --build-arg OPENCLAW_INSTALL_BROWSER="${OPENCLAW_INSTALL_BROWSER:-1}" \
-      --build-arg OPENCLAW_DOCKER_APT_PACKAGES="${OPENCLAW_DOCKER_APT_PACKAGES:-git curl jq python3 python3-pip build-essential ffmpeg}" \
+      --build-arg OPENCLAW_INSTALL_BROWSER="${OPENCLAW_INSTALL_BROWSER:-0}" \
+      --build-arg OPENCLAW_DOCKER_APT_PACKAGES="${OPENCLAW_DOCKER_APT_PACKAGES:-git curl jq python3}" \
       -t "$image_tag" \
       "$ROOT_DIR"
   else
@@ -150,7 +159,8 @@ ensure_env_file "$ENV_OPENCLAW" "$ROOT_DIR/infra/env/openclaw.env.example"
 source_envs
 validate_required_env
 
-mkdir -p "$ROOT_DIR/infra/data/openclaw/mvp" "$ROOT_DIR/infra/data/openclaw/sessions"
+OPENCLAW_DATA_DIR_RESOLVED="$(resolve_infra_path "${OPENCLAW_DATA_DIR:-./data/openclaw}")"
+mkdir -p "$OPENCLAW_DATA_DIR_RESOLVED" "$OPENCLAW_DATA_DIR_RESOLVED/sessions"
 
 build_if_needed
 

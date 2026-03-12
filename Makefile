@@ -26,6 +26,7 @@ endif
   archon-config archon-up archon-down archon-logs archon-ps archon-up-infisical \
   node-up-orchestrator node-up-oracle node-up-worker-3060 node-up-worker-3090ti node-up-worker-5090 node-down-orchestrator node-down-oracle node-down-worker-3060 node-down-worker-3090ti node-down-worker-5090 \
   down-workers nexus-up nexus-down health stack-up stack-verify scan-env ports port-check bootstrap-import bootstrap-import-apply bootstrap-ultimate bootstrap-oracle bootstrap-worker-3060 bootstrap-worker-3090ti bootstrap-worker-5090 \
+  archive-guard repo-structure-audit \
   gitea-up gitea-up-ai gitea-up-actions gitea-up-actions-large gitea-up-infisical-agent gitea-down gitea-ps gitea-config gitea-bootstrap-orchestrator infisical-up infisical-down infisical-config \
   up-gitea down-gitea logs-gitea health-gitea up-infisical down-infisical logs-infisical health-infisical \
   twenty-crm-config twenty-crm-up twenty-crm-down twenty-crm-restart twenty-crm-logs twenty-crm-ps twenty-crm-health twenty-crm-setup twenty-crm-reset twenty-crm-dev twenty-mcp-up twenty-mcp-down
@@ -62,6 +63,8 @@ help:
 	@echo "make stack-up           One-command orchestrator bring-up (uses .env.stack)"
 	@echo "make stack-verify       Verify health endpoints + compose status"
 	@echo "make scan-env           Build env inventory + missing env reports"
+	@echo "make archive-guard      Fail if deprecated root archive paths return"
+	@echo "make repo-structure-audit Generate structure hotspot report in docs/reports/consolidation"
 	@echo "make ports              Print canonical ports registry path"
 	@echo "make bootstrap-ultimate Bring up orchestrator + oracle + all workers"
 	@echo
@@ -218,6 +221,12 @@ bootstrap-worker-5090:
 
 scan-env:
 	python scripts/generate-env-docs.py
+
+archive-guard:
+	bash ./scripts/maintenance/archive-guard.sh
+
+repo-structure-audit:
+	bash ./scripts/maintenance/repo-structure-audit.sh
 
 ports:
 	@echo "See docs/port-map.md"
