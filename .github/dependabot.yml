@@ -20,6 +20,8 @@ updates:
   # npm - Root package (monorepo)
   - package-ecosystem: "npm"
     directory: "/"
+    exclude-paths:
+      - "apps/twenty-crm/**"
     schedule:
       interval: "weekly"
       day: "monday"
@@ -37,6 +39,8 @@ updates:
   # npm - Memory module
   - package-ecosystem: "npm"
     directory: "/memory"
+    exclude-paths:
+      - "apps/twenty-crm/**"
     schedule:
       interval: "weekly"
       day: "monday"
@@ -55,6 +59,8 @@ updates:
   # npm - Apps directory
   - package-ecosystem: "npm"
     directory: "/apps"
+    exclude-paths:
+      - "apps/twenty-crm/**"
     schedule:
       interval: "weekly"
       day: "monday"
@@ -73,6 +79,8 @@ updates:
   # npm - Services directory
   - package-ecosystem: "npm"
     directory: "/services"
+    exclude-paths:
+      - "apps/twenty-crm/**"
     schedule:
       interval: "weekly"
       day: "monday"
@@ -91,6 +99,8 @@ updates:
   # npm - Packages directory
   - package-ecosystem: "npm"
     directory: "/packages"
+    exclude-paths:
+      - "apps/twenty-crm/**"
     schedule:
       interval: "weekly"
       day: "monday"

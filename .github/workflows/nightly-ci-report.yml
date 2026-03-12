@@ -35,7 +35,7 @@ jobs:
         run: cat reports/nightly-ci-report.md >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload nightly report artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: nightly-ci-report
           path: reports/nightly-ci-report.md

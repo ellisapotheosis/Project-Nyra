@@ -15,7 +15,7 @@ import { ErrorBoundary } from '@/components/shared/ErrorBoundary';
 import { AgentGrid } from '@/components/agents/AgentGrid';
 import { TaskKanbanBoard } from '@/components/tasks/TaskKanbanBoard';
 import { MessageFeed } from '@/components/messages/MessageFeed';
-import { MemoryMetrics } from '@/components/memory/MemoryMetrics';
+import { MemoryMetrics } from '@/components/metrics/MemoryMetrics';
 import { SystemTopology } from '@/components/topology/SystemTopology';
 
 // Metrics
