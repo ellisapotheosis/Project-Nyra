@@ -1,5 +1,11 @@
 # OpenClaw Operations
 
+## Canonical operational path
+
+Use the files under `infra/openclaw/` and `infra/compose/openclaw*.compose.yml` as the primary operational path for the current rollout.
+
+Do not mix that path with the older `infra/scripts/openclaw/*` and `infra/compose/openclaw.profile.yml` path unless you are intentionally doing a later gateway/CLI migration.
+
 ## Operational lifecycle scripts
 
 - Start: `bash infra/openclaw/scripts/up.sh`
@@ -11,8 +17,8 @@
 - Ensures env files exist (copies examples if missing).
 - Validates required keys (`OPENAI_API_KEY`, `MEM0_API_KEY`).
 - Creates persistence paths:
-  - `infra/data/openclaw/mvp`
-  - `infra/data/openclaw/sessions`
+  - `OPENCLAW_DATA_DIR`
+  - `OPENCLAW_DATA_DIR/sessions`
 - Auto-builds image when missing or when `OPENCLAW_FORCE_BUILD=true`.
 - Supports optional overlays:
   - `BOOT_OPENCLAW_VOICE=true`
@@ -56,7 +62,7 @@ Use Mem0 namespaces to avoid cross-contamination:
 
 1. **OpenClaw container fails to start**
    - Run `bash infra/openclaw/scripts/doctor.sh`.
-   - Confirm required env values are non-placeholder.
+   - Confirm required env values are present.
    - Force rebuild image:
      ```bash
      OPENCLAW_FORCE_BUILD=true bash infra/openclaw/scripts/up.sh --force-build
@@ -75,3 +81,25 @@ Use Mem0 namespaces to avoid cross-contamination:
      ```bash
      bash infra/openclaw/scripts/up.sh --with-voice
      ```
+
+4. **Config path or persistence path drift**
+   - Verify:
+     - `OPENCLAW_CONFIG_PATH`
+     - `OPENCLAW_DATA_DIR`
+     - `OPENCLAW_PORT`
+   - Re-run:
+     ```bash
+     bash infra/openclaw/scripts/doctor.sh
+     ```
+
+## Observability notes
+
+- Current overlays use Docker logging and restart policies.
+- Keep OpenClaw loopback-bound unless a reverse proxy or internal ingress layer is explicitly in front of it.
+- If a stable metrics endpoint appears later, add it to Prometheus rather than exposing raw service ports broadly.
+
+## Backup guidance
+
+- Back up the directory referenced by `OPENCLAW_DATA_DIR`.
+- Back up env files out of band; do not commit filled secrets.
+- If enabling channel workflows later, back up the related webhook and workflow configs alongside OpenClaw state.

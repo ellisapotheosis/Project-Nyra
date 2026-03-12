@@ -1,133 +1,131 @@
-# OpenClaw Operator Plane for Project Nyra
+# OpenClaw Cloud MVP for Project Nyra
 
-> For the additive cloud MVP requested (OpenClaw + Mem0 Cloud + Kyutai Unmute), use `infra/openclaw/MVP-README.md`, `infra/compose/openclaw.compose.yml`, and `infra/compose/openclaw.voice.compose.yml`.
-OpenClaw is integrated as a **controlled ops bot** for mortgage CRM workflows.
+This directory is the canonical OpenClaw integration path for the current Nyra rollout:
 
-## Security Defaults
+- cloud-backed OpenClaw core,
+- Mem0 cloud plugin,
+- optional Kyutai Unmute voice overlay,
+- optional UI reverse-proxy overlay,
+- future routing hooks for LiteLLM, Nexus, MCP, and Tailscale workers.
 
-- Sandbox is enabled by default (`OPENCLAW_SANDBOX_ENABLED=true`).
-- Outbound HTTP is restricted by `OPENCLAW_OUTBOUND_HTTP_ALLOWLIST`.
-- Skills are treated as untrusted code; run `skills_scan.sh` before installs.
-- No provider API keys are stored in OpenClaw config; use env refs (`env:...`).
-- Only curated skills are installed from `infra/openclaw/skills-curated.txt`.
+The repo also contains an older OpenClaw gateway/CLI path. Do not treat that path as the default for this rollout unless you are explicitly doing a later routing migration.
 
-## Runtime Topology
+## Canonical files
 
-- OpenClaw model requests -> LiteLLM (`http://litellm:4000/v1`)
-- OpenClaw tools -> Nexus MCP (`http://nexus-router:8080/mcp`)
-- Nexus routes to Nyra MCP (`http://nyra-mcp:3333/mcp`)
+- `infra/compose/openclaw.compose.yml`
+- `infra/compose/openclaw.voice.compose.yml`
+- `infra/compose/openclaw.ui.compose.yml`
+- `infra/compose/openclaw.ops.compose.yml`
+- `infra/env/openclaw.env.example`
+- `infra/env/openclaw.voice.env.example`
+- `infra/env/openclaw.ui.env.example`
+- `infra/openclaw/openclaw.json`
+- `infra/openclaw/Dockerfile`
+- `infra/openclaw/scripts/*.sh`
 
-## Files
+## What this overlay does
 
-- `infra/compose/openclaw.profile.yml`: OpenClaw gateway + CLI services.
-- `infra/openclaw/Dockerfile`: reproducible fallback image strategy with browser + apt packages.
-- `infra/openclaw/skills-curated.txt`: approved skill slugs only.
-- `infra/scripts/openclaw/*.sh`: onboarding, channels, scan/install/update, backups.
-- `infra/openclaw/scan-report.txt`: output from latest skills scan.
+- Runs OpenClaw as a profile-gated internal tool under `openclaw`.
+- Persists OpenClaw state under `OPENCLAW_DATA_DIR`.
+- Loads OpenClaw config from `OPENCLAW_CONFIG_PATH`.
+- Enables the `@mem0/openclaw-mem0` plugin in Mem0 cloud/platform mode.
+- Keeps provider credentials in env vars instead of repo files.
+- Leaves voice and UI exposure disabled unless their profiles are enabled.
+
+## Required env vars
+
+Core MVP:
+
+```dotenv
+OPENAI_API_KEY=
+MEM0_API_KEY=
+OPENCLAW_GATEWAY_TOKEN=
+OPENCLAW_PORT=3401
+OPENCLAW_CONFIG_PATH=./openclaw/openclaw.json
+OPENCLAW_DATA_DIR=./data/openclaw
+```
+
+Optional now, useful later:
+
+```dotenv
+OPENROUTER_API_KEY=
+LITELLM_MASTER_KEY=
+OPENCLAW_PUBLIC_BASE_URL=
+NYRA_CHAT_INTERNAL_API_BASE_URL=
+NEXUS_MCP_URL=
+UNMUTE_PUBLIC_BASE_URL=
+TELEGRAM_BOT_TOKEN=
+DISCORD_BOT_TOKEN=
+TWENTY_API_KEY=
+N8N_API_KEY=
+ACTIVEPIECES_API_KEY=
+INFI_CLIENT_ID=
+INFI_CLIENT_SECRET=
+INFI_PROJECT_ID=
+```
 
 ## Start OpenClaw
 
-```bash
-docker compose -f infra/compose/nyra.compose.yaml --profile openclaw up -d openclaw-gateway openclaw-cli
-```
-
-## Onboarding (secret-ref mode)
+Recommended:
 
 ```bash
-bash infra/scripts/openclaw/onboard.sh
-```
-
-This writes `infra/data/openclaw/config/config.json` with:
-- LiteLLM endpoint
-- `apiKeyRef: env:LITELLM_MASTER_KEY`
-- gateway token reference (`env:OPENCLAW_GATEWAY_TOKEN`)
-- Nexus + Nyra MCP endpoints
-
-## Channel setup
-
-```bash
-bash infra/scripts/openclaw/channels.sh telegram
-bash infra/scripts/openclaw/channels.sh discord
-bash infra/scripts/openclaw/channels.sh whatsapp
-```
-
-WhatsApp flow is QR-based and avoids committing token material.
-
-## Curated skills workflow
-
-1. Scan first:
-   ```bash
-   bash infra/scripts/openclaw/skills_scan.sh
-   ```
-2. Install curated list only:
-   ```bash
-   bash infra/scripts/openclaw/skills_install_curated.sh
-   ```
-3. Update installed curated skills:
-   ```bash
-   bash infra/scripts/openclaw/skills_update.sh
-   ```
-
-If a slug mismatch is found, the installer resolves via `clawhub search` and writes `skills-curated-resolved.txt`. If unresolved, installation aborts.
-
-## Operator patterns
-
-### 1) STOP/Reply Kill Switch
-
-- Import `infra/n8n-workflows/stop-reply-kill-switch.json` into n8n.
-- Expose webhook `/webhook/campaign/stop-reply`.
-- Input payload (minimum):
-  - `contactId`
-  - `replyText`
-- For STOP-like replies, workflow patches Twenty contact with `campaignPaused=true`.
-
-### 2) Lead Ingestion
-
-- OpenClaw channel receives inbound lead.
-- OpenClaw calls Nexus MCP tool endpoint.
-- Nyra MCP triggers n8n workflow (`mortgage-lead-intake`) to parse, enrich, and upsert in Twenty.
-
-### 3) Observability
-
-- Route OpenClaw container logs with Docker default logging; Loki already tails docker logs in stack observability profile.
-- If OpenClaw adds `/metrics`, add it to `infra/configs/prometheus/prometheus.yml` scrape targets.
-
-### 4) Backups (restic)
-
-```bash
-RESTIC_REPOSITORY=... RESTIC_PASSWORD=... bash infra/scripts/openclaw/backup_restic.sh
-```
-
-Script performs:
-- postgres logical dump (`pg_dump`)
-- backs up OpenClaw config + workspace
-- retention policy (`7 daily / 4 weekly / 6 monthly`)
-
-### 5) Infisical plan
-
-Recommended secret injection pattern:
-- keep `infra/env/nyra.env` non-secret where possible
-- inject `LITELLM_MASTER_KEY`, `OPENCLAW_GATEWAY_TOKEN`, channel tokens at runtime via Infisical CLI/agent
-- use `env:SECRET_NAME` refs in OpenClaw config, not plaintext values
-
-## Phase 3 upgrades (current)
-
-- Split overlays for core/voice/UI/ops (`infra/compose/openclaw*.compose.yml`).
-- Added deterministic lifecycle scripts in `infra/openclaw/scripts/`:
-  - `up.sh`, `down.sh`, `doctor.sh`, `status.sh`.
-- Added nginx reverse-proxy baseline under `/tools/openclaw/` for incremental UI integration.
-- Added compose healthchecks for core and UI overlays.
-
-### Recommended operational command sequence
-
-```bash
+cp infra/env/openclaw.env.example infra/env/openclaw.env
 bash infra/openclaw/scripts/doctor.sh
-bash infra/openclaw/scripts/up.sh --with-voice --with-ui
-bash infra/openclaw/scripts/status.sh
+bash infra/openclaw/scripts/up.sh
 ```
 
-### Shutdown
+Core overlay only:
 
 ```bash
-bash infra/openclaw/scripts/down.sh
+docker compose \
+  -f infra/docker-compose.yml \
+  -f infra/compose/openclaw.compose.yml \
+  --profile openclaw up -d openclaw-mvp
 ```
+
+With optional voice:
+
+```bash
+bash infra/openclaw/scripts/up.sh --with-voice
+```
+
+With optional reverse proxy:
+
+```bash
+bash infra/openclaw/scripts/up.sh --with-ui
+```
+
+## Mem0 cloud mode
+
+`infra/openclaw/openclaw.json` enables the Mem0 plugin in platform mode:
+
+- `enabled: true`
+- `mode: "platform"`
+- `apiKey: "${MEM0_API_KEY}"`
+
+No local vector database is required for this path.
+
+## Security defaults
+
+- Sandbox enabled by default.
+- Deny-by-default tool policy.
+- Internal-only host port binding (`127.0.0.1`).
+- Secrets supplied through env files or secret injection tooling, never hardcoded in config.
+- Optional UI and voice overlays remain disabled unless explicitly started.
+
+## Future upgrades
+
+This MVP can later be extended to:
+
+- LiteLLM or OpenRouter as the main routing layer,
+- Nexus/MCP tool calling,
+- Tailscale-connected local GPU workers,
+- an internal admin chat route and operator console,
+- channel automation through Telegram, Discord, WhatsApp, n8n, and Activepieces.
+
+See:
+
+- `infra/docs/OPENCLAW_INTEGRATION_PLAN.md`
+- `infra/docs/OPENCLAW_OPERATIONS.md`
+- `infra/docs/OPENCLAW_CHAT_UI_PLAN.md`
+- `infra/docs/OPENCLAW_FUTURE_ROUTING.md`

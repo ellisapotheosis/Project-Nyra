@@ -1,6 +1,5 @@
 {
   "permissions": {
-    "defaultMode": "bypassPermissions",
     "allow": [
       "*",
       "mcp__*",
@@ -28,9 +27,9 @@
       "Bash(rm -rf /*)",
       "Bash(shutdown *)",
       "Bash(reboot *)"
-    ]
+    ],
+    "defaultMode": "bypassPermissions"
   },
-  "bypassPermissionsModeAccepted": true,
   "enableAllProjectMcpServers": true,
   "enabledMcpjsonServers": [
     "claude-flow",
@@ -41,6 +40,7 @@
     "agent-booster",
     "epic-sdk"
   ],
+  "bypassPermissionsModeAccepted": true,
   "experimental": {
     "ultrathinking": true,
     "extendedThinking": true,
@@ -85,5 +85,6 @@
     "autoApply": false,
     "showInline": true,
     "aggressiveness": "high"
-  }
+  },
+  "outputStyle": "Explanatory"
 }

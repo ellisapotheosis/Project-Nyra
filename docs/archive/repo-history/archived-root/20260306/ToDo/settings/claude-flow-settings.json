@@ -7,7 +7,7 @@
     "CLAUDE_FLOW_MODE": "orchestrator",
     // Enable/disable key Claude Flow features on the fly.
     "CLAUDE_FLOW_AUTO_COMMIT": "true",
-    "CLAUDE_FLOW_AUTO_PUSH": "false",
+    "CLAUDE_FLOW_AUTO_PUSH": "true",
     "CLAUDE_FLOW_HOOKS_ENABLED": "true",
     "CLAUDE_FLOW_GITHUB_INTEGRATION": "true",
     "CLAUDE_FLOW_MEMORY_PERSISTENCE": "true",
@@ -31,13 +31,6 @@
     "AGENTDB_QUIC_SYNC": "true",
     "RUVECTOR_ENABLED": "true",
     "RUVECTOR_MODE": "distributed",
-    "LETTA_ENABLED": "true",
-    "OPENMEMORY_ENABLED": "true",
-    "MEM0_ENABLED": "true",
-    "GRAPHITI_ENABLED": "true",
-    "GRAPHITI_BACKEND": "neo4j",
-    "QDRANT_ENABLED": "true",
-    "FLOW_NEXUS_ENABLED": "true",
     // Agentic Flow & Hive Mind (co‑ordination engines)
     "AGENTIC_FLOW_MEMORY_ENABLED": "true",
     "HIVE_MIND_ENABLE_CONSENSUS": "true",
