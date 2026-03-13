@@ -24,11 +24,10 @@ services:
       OPENCLAW_TOOL_POLICY: ${OPENCLAW_TOOL_POLICY:-deny-by-default}
       OPENCLAW_HTTP_ALLOWLIST: ${OPENCLAW_HTTP_ALLOWLIST:-nexus-router:8080,n8n:5678,activepieces:80,twentycrm:3000}
     ports:
-      - "127.0.0.1:${OPENCLAW_MVP_PORT:-3401}:3400"
+      - "127.0.0.1:${OPENCLAW_PORT:-3401}:3400"
     volumes:
-      - ./openclaw/openclaw.json:/etc/openclaw/openclaw.json:ro
-      - ./data/openclaw/mvp:/home/node/.openclaw
-      - ./data/openclaw/sessions:/home/node/.openclaw/sessions
+      - ${OPENCLAW_CONFIG_PATH:-./openclaw/openclaw.json}:/etc/openclaw/openclaw.json:ro
+      - ${OPENCLAW_DATA_DIR:-./data/openclaw}:/home/node/.openclaw
     depends_on:
       nexus-router:
         condition: service_healthy

@@ -35,7 +35,7 @@ import { AgentDetail } from './components/agents/AgentDetail';
 import { TaskTimeline } from './components/tasks/TaskTimeline';
 import { TaskKanban } from './components/tasks/TaskKanban';
 import { MessageStream } from './components/messages/MessageStream';
-import { MemoryLog } from './components/memory/MemoryLog';
+import { MemoryLog } from './components/metrics/MemoryLog';
 import { LiveTopology } from './components/topology/LiveTopology';
 
 /**
