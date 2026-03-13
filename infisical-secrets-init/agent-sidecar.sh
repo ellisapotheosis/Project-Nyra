@@ -23,7 +23,6 @@ build_agent_files(){
     "WEBHOOK_SECRET:webhook_secret" \
     "GITEA_TOKEN:gitea_pat_token" \
     "OPENAI_API_KEY:openai_api_key" \
-    "GITEA_RUNNER_TOKEN:gitea_runner_token" \
     "GITEA_SECRET_KEY:gitea_secret_key" \
     "GITEA_INTERNAL_TOKEN:gitea_internal_token"
   do
@@ -57,7 +56,6 @@ CFG
     webhook_secret \
     gitea_pat_token \
     openai_api_key \
-    gitea_runner_token \
     gitea_secret_key \
     gitea_internal_token
   do
