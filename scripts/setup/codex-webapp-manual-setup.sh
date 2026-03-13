@@ -384,8 +384,7 @@ ensure_infisical_auth() {
           return 0
         fi
       fi
-      err "Infisical universal auth failed for project '$INFISICAL_PROJECT_ID' at '$INFISICAL_API_URL'. Check INFISICAL_UNIVERSAL_AUTH_CLIENT_ID / INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET or provide INFISICAL_TOKEN."
-      exit 1
+      warn "Infisical universal auth failed for project '$INFISICAL_PROJECT_ID' at '$INFISICAL_API_URL'. Falling back to any existing Infisical CLI session."
     fi
   fi
 
@@ -672,6 +671,11 @@ resolve_github_token() {
 configure_github_auth() {
   local token=""
 
+  if ! token="$(resolve_github_token)"; then
+    warn "No GitHub token found in env or $ROOT_ENV_FILE; skipping gh auth"
+    return 0
+  fi
+
   ensure_github_cli
   if ! command -v gh >/dev/null 2>&1; then
     return 0
@@ -679,11 +683,6 @@ configure_github_auth() {
 
   if gh auth status >/dev/null 2>&1; then
     info "GitHub CLI is already authenticated"
-    return 0
-  fi
-
-  if ! token="$(resolve_github_token)"; then
-    warn "No GitHub token found in env or $ROOT_ENV_FILE; skipping gh auth"
     return 0
   fi
 

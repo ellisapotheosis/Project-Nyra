@@ -1,11 +1,10 @@
 name: 🚀 Deploy to Staging (AUTO)
 
 on:
-  push:
-    branches: [ main ]
   workflow_run:
     workflows: ["🏗️ Build & Push Multi-Arch"]
     types: [completed]
+  workflow_dispatch:
 
 env:
   ENVIRONMENT: staging
@@ -14,7 +13,7 @@ env:
 jobs:
   deploy-staging:
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main')
 
     environment:
       name: staging
@@ -23,11 +22,14 @@ jobs:
     steps:
       - name: 📥 Checkout
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
 
       - name: 🔧 Setup deployment
         run: |
+          DEPLOY_SHA="${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}"
           echo "🚀 Preparing staging deployment"
-          echo "Git SHA: ${GITHUB_SHA:0:7}"
+          echo "Git SHA: ${DEPLOY_SHA:0:7}"
           echo "Environment: ${{ env.ENVIRONMENT }}"
 
       - name: 🔐 Setup SSH
@@ -37,6 +39,9 @@ jobs:
 
       - name: 📋 Prepare deployment files
         run: |
+          DEPLOY_SHA="${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}"
+          SHORT_SHA="${DEPLOY_SHA:0:7}"
+
           # Create deployment package
           mkdir -p deploy-staging
           cp -r infra/ deploy-staging/
@@ -52,10 +57,10 @@ jobs:
           COMPOSE_PROJECT_NAME=nyra-staging
 
           # Image versions (latest main builds)
-          NEXUS_ROUTER_IMAGE=gitea.local:3100/nyra/nexus-router:${GITHUB_SHA:0:7}
-          CLAUDE_FLOW_IMAGE=gitea.local:3100/nyra/claude-flow:${GITHUB_SHA:0:7}
-          QUOTE_ENGINE_IMAGE=gitea.local:3100/nyra/quote-engine:${GITHUB_SHA:0:7}
-          CAMPAIGN_ENGINE_IMAGE=gitea.local:3100/nyra/campaign-engine:${GITHUB_SHA:0:7}
+          NEXUS_ROUTER_IMAGE=gitea.local:3100/nyra/nexus-router:${SHORT_SHA}
+          CLAUDE_FLOW_IMAGE=gitea.local:3100/nyra/claude-flow:${SHORT_SHA}
+          QUOTE_ENGINE_IMAGE=gitea.local:3100/nyra/quote-engine:${SHORT_SHA}
+          CAMPAIGN_ENGINE_IMAGE=gitea.local:3100/nyra/campaign-engine:${SHORT_SHA}
 
           # Staging-specific settings
           GRAFANA_ADMIN_PASSWORD=${{ secrets.STAGING_GRAFANA_PASSWORD }}
@@ -83,19 +88,29 @@ jobs:
 
           # Execute deployment on staging server
           ssh -o StrictHostKeyChecking=no deploy@${{ env.DEPLOY_HOST }} << 'EOF'
+            set -euo pipefail
             cd /opt/project-nyra
+
+            if docker compose version >/dev/null 2>&1; then
+              compose_cmd=(docker compose)
+            elif command -v docker-compose >/dev/null 2>&1; then
+              compose_cmd=(docker-compose)
+            else
+              echo "❌ Docker Compose is unavailable on the staging host"
+              exit 1
+            fi
 
             echo "🔍 Validating environment..."
             ./validate-env.sh .env.staging
 
             echo "🐳 Stopping existing services..."
-            docker-compose -f infra/docker-compose.yml --env-file .env.staging down || true
+            "${compose_cmd[@]}" -f infra/docker-compose.yml --env-file .env.staging down || true
 
             echo "📥 Pulling latest images..."
-            docker-compose -f infra/docker-compose.yml --env-file .env.staging pull
+            "${compose_cmd[@]}" -f infra/docker-compose.yml --env-file .env.staging pull
 
             echo "🚀 Starting services..."
-            docker-compose -f infra/docker-compose.yml --env-file .env.staging up -d
+            "${compose_cmd[@]}" -f infra/docker-compose.yml --env-file .env.staging up -d
 
             echo "⏳ Waiting for services to be ready..."
             sleep 30
@@ -106,7 +121,7 @@ jobs:
             curl -f http://localhost:3010/health || echo "⚠️ Claude Flow not ready"
 
             echo "📊 Service status:"
-            docker-compose -f infra/docker-compose.yml --env-file .env.staging ps
+            "${compose_cmd[@]}" -f infra/docker-compose.yml --env-file .env.staging ps
           EOF
 
       - name: 🧪 Run staging tests
@@ -144,7 +159,16 @@ jobs:
 
           # Get logs for debugging
           ssh -o StrictHostKeyChecking=no deploy@${{ env.DEPLOY_HOST }} << 'EOF'
+            set -euo pipefail
             cd /opt/project-nyra
+            if docker compose version >/dev/null 2>&1; then
+              compose_cmd=(docker compose)
+            elif command -v docker-compose >/dev/null 2>&1; then
+              compose_cmd=(docker-compose)
+            else
+              echo "❌ Docker Compose is unavailable on the staging host"
+              exit 1
+            fi
             echo "📋 Service logs:"
-            docker-compose -f infra/docker-compose.yml --env-file .env.staging logs --tail=50
+            "${compose_cmd[@]}" -f infra/docker-compose.yml --env-file .env.staging logs --tail=50
           EOF

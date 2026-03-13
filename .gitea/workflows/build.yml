@@ -2,9 +2,9 @@ name: 🏗️ Build & Push Multi-Arch
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, develop ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, develop ]
   release:
     types: [ published ]
 
@@ -55,6 +55,10 @@ jobs:
             # Main branch: use commit sha and latest
             SHORT_SHA=${GITHUB_SHA:0:7}
             TAGS="${IMAGE_NAME}:${SHORT_SHA},${IMAGE_NAME}:main"
+          elif [[ "${{ github.ref }}" == "refs/heads/develop" ]]; then
+            # Develop branch: use commit sha and rolling develop tag
+            SHORT_SHA=${GITHUB_SHA:0:7}
+            TAGS="${IMAGE_NAME}:${SHORT_SHA},${IMAGE_NAME}:develop"
           else
             # PR: use PR number
             SHORT_SHA=${GITHUB_SHA:0:7}
@@ -113,7 +117,7 @@ jobs:
       - name: 🔍 Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: '${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/nexus-router:main'
+          image-ref: '${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/nexus-router:${{ github.ref == ''refs/heads/develop'' && ''develop'' || ''main'' }}'
           format: 'sarif'
           output: 'trivy-results.sarif'
 
