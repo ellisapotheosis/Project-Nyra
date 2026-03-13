@@ -7,6 +7,7 @@ services:
       context: ./infisical-secrets-init
       dockerfile: Dockerfile
     container_name: nyra-secrets-init
+    user: "${NYRA_SECRETS_UID:-1000}:${NYRA_SECRETS_GID:-1000}"
     entrypoint: ["/usr/local/bin/secrets-init.sh"]
     environment:
       INFISICAL_API_URL: ${INFISICAL_API_URL:-https://app.infisical.com}
@@ -88,6 +89,7 @@ services:
       context: ./infisical-secrets-init
       dockerfile: Dockerfile
     container_name: nyra-infisical-agent-gitea
+    user: "${NYRA_SECRETS_UID:-1000}:${NYRA_SECRETS_GID:-1000}"
     entrypoint: ["/usr/local/bin/agent-sidecar.sh"]
     depends_on:
       nyra-secrets-init:
