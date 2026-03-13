@@ -139,6 +139,8 @@ jobs:
           cp docker-compose.prod.yml deploy-prod/
           cp .env.template deploy-prod/
           cp scripts/validate-env.sh deploy-prod/
+          mkdir -p deploy-prod/scripts/ci
+          cp scripts/ci/common.sh deploy-prod/scripts/ci/common.sh
 
           # Create production environment file
           cat > deploy-prod/.env.production << EOF
@@ -207,27 +209,20 @@ jobs:
           ssh -o StrictHostKeyChecking=no $USER@$HOST << 'EOF'
             set -euo pipefail
             cd /opt/project-nyra
-
-            if docker compose version >/dev/null 2>&1; then
-              compose_cmd=(docker compose)
-            elif command -v docker-compose >/dev/null 2>&1; then
-              compose_cmd=(docker-compose)
-            else
-              echo "❌ Docker Compose is unavailable on the target host"
-              exit 1
-            fi
+            source ./scripts/ci/common.sh
+            detect_compose
 
             echo "🔍 Validating production environment..."
             ./validate-env.sh .env.production --strict
 
             echo "🛑 Graceful shutdown of existing services..."
-            "${compose_cmd[@]}" -f infra/docker-compose.yml -f docker-compose.prod.yml --env-file .env.production down --timeout 60
+            compose_run -f infra/docker-compose.yml -f docker-compose.prod.yml --env-file .env.production down --timeout 60
 
             echo "📥 Pulling production images..."
-            "${compose_cmd[@]}" -f infra/docker-compose.yml -f docker-compose.prod.yml --env-file .env.production pull
+            compose_run -f infra/docker-compose.yml -f docker-compose.prod.yml --env-file .env.production pull
 
             echo "🚀 Starting production services..."
-            "${compose_cmd[@]}" -f infra/docker-compose.yml -f docker-compose.prod.yml --env-file .env.production up -d
+            compose_run -f infra/docker-compose.yml -f docker-compose.prod.yml --env-file .env.production up -d
 
             echo "⏳ Waiting for production startup..."
             sleep 60
@@ -247,7 +242,7 @@ jobs:
             done
 
             echo "📊 Final production status:"
-            "${compose_cmd[@]}" -f infra/docker-compose.yml -f docker-compose.prod.yml --env-file .env.production ps
+            compose_run -f infra/docker-compose.yml -f docker-compose.prod.yml --env-file .env.production ps
           EOF
 
       - name: 🧪 Production smoke tests
@@ -305,18 +300,11 @@ jobs:
           ssh -o StrictHostKeyChecking=no $USER@$HOST << 'EOF'
             set -euo pipefail
             cd /opt/project-nyra
-
-            if docker compose version >/dev/null 2>&1; then
-              compose_cmd=(docker compose)
-            elif command -v docker-compose >/dev/null 2>&1; then
-              compose_cmd=(docker-compose)
-            else
-              echo "❌ Docker Compose is unavailable on the target host"
-              exit 1
-            fi
+            source ./scripts/ci/common.sh
+            detect_compose
 
             echo "🛑 Stopping failed deployment..."
-            "${compose_cmd[@]}" down --timeout 30
+            compose_run down --timeout 30
 
             echo "🔄 Rolling back to previous state..."
             LATEST_BACKUP=$(ls -t /opt/backups/ | head -n 1)
@@ -329,7 +317,7 @@ jobs:
               sudo cp /opt/backups/$LATEST_BACKUP/env-backup .env
 
               echo "🚀 Starting rollback services..."
-              "${compose_cmd[@]}" up -d
+              compose_run up -d
 
               echo "✅ Rollback completed"
             else

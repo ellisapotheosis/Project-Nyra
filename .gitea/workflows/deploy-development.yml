@@ -26,8 +26,11 @@ jobs:
           ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
 
       - name: 🔧 Setup deployment
+        env:
+          GITHUB_EVENT_WORKFLOW_RUN_HEAD_SHA: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || '' }}
         run: |
-          DEPLOY_SHA="${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}"
+          source scripts/ci/common.sh
+          resolve_deploy_sha "$GITHUB_EVENT_NAME" "$GITHUB_EVENT_WORKFLOW_RUN_HEAD_SHA"
           echo "🛠️ Preparing development deployment"
           echo "Git SHA: ${DEPLOY_SHA:0:7}"
           echo "Environment: ${{ env.ENVIRONMENT }}"
@@ -38,15 +41,19 @@ jobs:
           ssh-private-key: ${{ secrets.DEV_SSH_KEY }}
 
       - name: 📋 Prepare deployment files
+        env:
+          GITHUB_EVENT_WORKFLOW_RUN_HEAD_SHA: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || '' }}
         run: |
-          DEPLOY_SHA="${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}"
-          SHORT_SHA="${DEPLOY_SHA:0:7}"
+          source scripts/ci/common.sh
+          resolve_deploy_sha "$GITHUB_EVENT_NAME" "$GITHUB_EVENT_WORKFLOW_RUN_HEAD_SHA"
 
           mkdir -p deploy-development
           cp -r infra/ deploy-development/
           cp docker-compose.*.yml deploy-development/
           cp .env.template deploy-development/.env.template
           cp scripts/validate-env.sh deploy-development/
+          mkdir -p deploy-development/scripts/ci
+          cp scripts/ci/common.sh deploy-development/scripts/ci/common.sh
 
           cat > deploy-development/.env.development << EOF
           # Auto-generated development environment
@@ -87,30 +94,23 @@ jobs:
           ssh -o StrictHostKeyChecking=no deploy@${{ env.DEPLOY_HOST }} << 'EOF'
             set -euo pipefail
             cd /opt/project-nyra
-
-            if docker compose version >/dev/null 2>&1; then
-              compose_cmd=(docker compose)
-            elif command -v docker-compose >/dev/null 2>&1; then
-              compose_cmd=(docker-compose)
-            else
-              echo "❌ Docker Compose is unavailable on the development host"
-              exit 1
-            fi
+            source ./scripts/ci/common.sh
+            detect_compose
 
             echo "🔍 Validating environment..."
             ./validate-env.sh .env.development
 
             echo "🐳 Stopping existing services..."
-            "${compose_cmd[@]}" -f infra/docker-compose.yml -f docker-compose.dev.yml --env-file .env.development down || true
+            compose_run -f infra/docker-compose.yml -f docker-compose.dev.yml --env-file .env.development down || true
 
             echo "📥 Pulling latest images..."
-            "${compose_cmd[@]}" -f infra/docker-compose.yml -f docker-compose.dev.yml --env-file .env.development pull
+            compose_run -f infra/docker-compose.yml -f docker-compose.dev.yml --env-file .env.development pull
 
             echo "🚀 Starting services..."
-            "${compose_cmd[@]}" -f infra/docker-compose.yml -f docker-compose.dev.yml --env-file .env.development up -d
+            compose_run -f infra/docker-compose.yml -f docker-compose.dev.yml --env-file .env.development up -d
 
             echo "📊 Service status:"
-            "${compose_cmd[@]}" -f infra/docker-compose.yml -f docker-compose.dev.yml --env-file .env.development ps
+            compose_run -f infra/docker-compose.yml -f docker-compose.dev.yml --env-file .env.development ps
           EOF
 
       - name: 🧪 Run development smoke tests

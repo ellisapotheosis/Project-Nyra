@@ -82,15 +82,9 @@ jobs:
       - name: 🐳 Test Docker Compose startup
         run: |
           cp .env.test .env
-          if docker compose version >/dev/null 2>&1; then
-            compose_cmd=(docker compose)
-          elif command -v docker-compose >/dev/null 2>&1; then
-            compose_cmd=(docker-compose)
-          else
-            echo "❌ Docker Compose is unavailable in CI"
-            exit 1
-          fi
-          "${compose_cmd[@]}" -f infra/docker-compose.yml -f docker-compose.dev.yml config
+          source scripts/ci/common.sh
+          detect_compose
+          compose_run -f infra/docker-compose.yml -f docker-compose.dev.yml config
           echo "✅ Docker Compose configuration valid"
 
       - name: 🔐 Security audit

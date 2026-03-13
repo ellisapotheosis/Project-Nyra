@@ -26,8 +26,11 @@ jobs:
           ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
 
       - name: 🔧 Setup deployment
+        env:
+          GITHUB_EVENT_WORKFLOW_RUN_HEAD_SHA: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || '' }}
         run: |
-          DEPLOY_SHA="${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}"
+          source scripts/ci/common.sh
+          resolve_deploy_sha "$GITHUB_EVENT_NAME" "$GITHUB_EVENT_WORKFLOW_RUN_HEAD_SHA"
           echo "🚀 Preparing staging deployment"
           echo "Git SHA: ${DEPLOY_SHA:0:7}"
           echo "Environment: ${{ env.ENVIRONMENT }}"
@@ -38,9 +41,11 @@ jobs:
           ssh-private-key: ${{ secrets.STAGING_SSH_KEY }}
 
       - name: 📋 Prepare deployment files
+        env:
+          GITHUB_EVENT_WORKFLOW_RUN_HEAD_SHA: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || '' }}
         run: |
-          DEPLOY_SHA="${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}"
-          SHORT_SHA="${DEPLOY_SHA:0:7}"
+          source scripts/ci/common.sh
+          resolve_deploy_sha "$GITHUB_EVENT_NAME" "$GITHUB_EVENT_WORKFLOW_RUN_HEAD_SHA"
 
           # Create deployment package
           mkdir -p deploy-staging
@@ -48,6 +53,8 @@ jobs:
           cp docker-compose.*.yml deploy-staging/
           cp .env.template deploy-staging/.env.template
           cp scripts/validate-env.sh deploy-staging/
+          mkdir -p deploy-staging/scripts/ci
+          cp scripts/ci/common.sh deploy-staging/scripts/ci/common.sh
 
           # Create staging-specific environment
           cat > deploy-staging/.env.staging << EOF
@@ -90,27 +97,20 @@ jobs:
           ssh -o StrictHostKeyChecking=no deploy@${{ env.DEPLOY_HOST }} << 'EOF'
             set -euo pipefail
             cd /opt/project-nyra
-
-            if docker compose version >/dev/null 2>&1; then
-              compose_cmd=(docker compose)
-            elif command -v docker-compose >/dev/null 2>&1; then
-              compose_cmd=(docker-compose)
-            else
-              echo "❌ Docker Compose is unavailable on the staging host"
-              exit 1
-            fi
+            source ./scripts/ci/common.sh
+            detect_compose
 
             echo "🔍 Validating environment..."
             ./validate-env.sh .env.staging
 
             echo "🐳 Stopping existing services..."
-            "${compose_cmd[@]}" -f infra/docker-compose.yml --env-file .env.staging down || true
+            compose_run -f infra/docker-compose.yml --env-file .env.staging down || true
 
             echo "📥 Pulling latest images..."
-            "${compose_cmd[@]}" -f infra/docker-compose.yml --env-file .env.staging pull
+            compose_run -f infra/docker-compose.yml --env-file .env.staging pull
 
             echo "🚀 Starting services..."
-            "${compose_cmd[@]}" -f infra/docker-compose.yml --env-file .env.staging up -d
+            compose_run -f infra/docker-compose.yml --env-file .env.staging up -d
 
             echo "⏳ Waiting for services to be ready..."
             sleep 30
@@ -121,7 +121,7 @@ jobs:
             curl -f http://localhost:3010/health || echo "⚠️ Claude Flow not ready"
 
             echo "📊 Service status:"
-            "${compose_cmd[@]}" -f infra/docker-compose.yml --env-file .env.staging ps
+            compose_run -f infra/docker-compose.yml --env-file .env.staging ps
           EOF
 
       - name: 🧪 Run staging tests
@@ -161,14 +161,8 @@ jobs:
           ssh -o StrictHostKeyChecking=no deploy@${{ env.DEPLOY_HOST }} << 'EOF'
             set -euo pipefail
             cd /opt/project-nyra
-            if docker compose version >/dev/null 2>&1; then
-              compose_cmd=(docker compose)
-            elif command -v docker-compose >/dev/null 2>&1; then
-              compose_cmd=(docker-compose)
-            else
-              echo "❌ Docker Compose is unavailable on the staging host"
-              exit 1
-            fi
+            source ./scripts/ci/common.sh
+            detect_compose
             echo "📋 Service logs:"
-            "${compose_cmd[@]}" -f infra/docker-compose.yml --env-file .env.staging logs --tail=50
+            compose_run -f infra/docker-compose.yml --env-file .env.staging logs --tail=50
           EOF
