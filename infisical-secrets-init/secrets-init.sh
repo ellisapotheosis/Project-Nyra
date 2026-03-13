@@ -46,7 +46,6 @@ parse_dotenv_and_write(){
   v="$(getv WEBHOOK_SECRET)";       [[ -n "$v" ]] && write_secret_file "$SECRETS_DIR/webhook_secret" "$v"
   v="$(getv GITEA_TOKEN)";          [[ -n "$v" ]] && write_secret_file "$SECRETS_DIR/gitea_pat_token" "$v"
   v="$(getv OPENAI_API_KEY)";   [[ -n "$v" ]] && write_secret_file "$SECRETS_DIR/openai_api_key" "$v"
-  v="$(getv GITEA_RUNNER_TOKEN)";   [[ -n "$v" ]] && write_secret_file "$SECRETS_DIR/gitea_runner_token" "$v"
   v="$(getv GITEA_SECRET_KEY)";     [[ -n "$v" ]] && write_secret_file "$SECRETS_DIR/gitea_secret_key" "$v"
   v="$(getv GITEA_INTERNAL_TOKEN)"; [[ -n "$v" ]] && write_secret_file "$SECRETS_DIR/gitea_internal_token" "$v"
 }
