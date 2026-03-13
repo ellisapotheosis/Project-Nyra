@@ -114,10 +114,19 @@ jobs:
     if: github.event_name != 'pull_request'
 
     steps:
+      - name: 🏷️ Select security scan tag
+        id: scan-meta
+        run: |
+          if [[ "${GITHUB_REF}" == "refs/heads/develop" ]]; then
+            echo "tag=develop" >> "$GITHUB_OUTPUT"
+          else
+            echo "tag=main" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: 🔍 Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: '${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/nexus-router:${{ github.ref == ''refs/heads/develop'' && ''develop'' || ''main'' }}'
+          image-ref: '${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/nexus-router:${{ steps.scan-meta.outputs.tag }}'
           format: 'sarif'
           output: 'trivy-results.sarif'
 

@@ -4,6 +4,10 @@ set -euo pipefail
 SECRETS_DIR="/run/nyra-secrets"
 INIT_MARK="${SECRETS_DIR}/.initialized"
 FORCE="${NYRA_FORCE_SECRETS:-false}"
+SECRET_UID="${NYRA_SECRETS_UID:-1000}"
+SECRET_GID="${NYRA_SECRETS_GID:-1000}"
+
+umask 077
 
 mkdir -p "$SECRETS_DIR"
 chmod 700 "$SECRETS_DIR"
@@ -23,6 +27,9 @@ write_secret_file(){
   local value="$2"
   printf "%s" "$value" > "$path"
   chmod 600 "$path"
+  if [[ "$(id -u)" -eq 0 ]]; then
+    chown "${SECRET_UID}:${SECRET_GID}" "$path"
+  fi
 }
 
 parse_dotenv_and_write(){
@@ -89,6 +96,10 @@ generate_missing(){
 }
 
 main(){
+  if [[ "$(id -u)" -eq 0 ]]; then
+    chown "${SECRET_UID}:${SECRET_GID}" "$SECRETS_DIR"
+  fi
+
   if ! need_write; then
     log "Secrets already initialized."
     exit 0
@@ -103,5 +114,8 @@ main(){
   generate_missing
   date -Iseconds > "$INIT_MARK"
   chmod 600 "$INIT_MARK"
+  if [[ "$(id -u)" -eq 0 ]]; then
+    chown "${SECRET_UID}:${SECRET_GID}" "$INIT_MARK"
+  fi
 }
 main "$@"
