@@ -33,6 +33,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 ENVIRONMENT="${1:-development}"
 VERBOSE=false
+INFISICAL_PROJECT_ID="${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}"
 
 # Parse command line arguments
 while [[ $# -gt 0 ]]; do
@@ -157,6 +158,7 @@ check_secret_exists() {
     # Try to get the secret
     local secret_value
     secret_value=$(infisical secrets get \
+        --projectId="${INFISICAL_PROJECT_ID}" \
         --env="${ENVIRONMENT}" \
         --path="${infisical_path}" \
         "${secret_name}" \

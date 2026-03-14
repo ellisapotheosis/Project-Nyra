@@ -22,6 +22,9 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
+. "$PSScriptRoot\..\lib\InfisicalToken.ps1"
+$projectId = Get-NyraInfisicalProjectId
+Assert-NyraInfisicalToken
 
 Write-Host "`n🔐 Uploading Orchestrator Secrets to Infisical" -ForegroundColor Cyan
 Write-Host "===============================================`n" -ForegroundColor Cyan
@@ -51,7 +54,7 @@ function Upload-Secrets {
         }
 
         try {
-            infisical secrets set $key $value --path $Path --env $Environment | Out-Null
+            Set-NyraInfisicalSecret -Name $key -Value $value -Environment $Environment -Path $Path -ProjectId $projectId | Out-Null
             Write-Host "   ✅ $key" -ForegroundColor Green
             $success++
         }

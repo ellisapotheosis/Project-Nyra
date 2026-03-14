@@ -6,6 +6,7 @@ INIT_MARK="${SECRETS_DIR}/.initialized"
 FORCE="${NYRA_FORCE_SECRETS:-false}"
 SECRET_UID="${NYRA_SECRETS_UID:-1000}"
 SECRET_GID="${NYRA_SECRETS_GID:-1000}"
+INFISICAL_PROJECT_ID="${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}"
 
 umask 077
 
@@ -51,26 +52,15 @@ parse_dotenv_and_write(){
 }
 
 try_infisical_export(){
-  local cid_file="/run/secrets/infisical-client-id"
-  local csec_file="/run/secrets/infisical-client_secret"
-
-  if [[ ! -f "$cid_file" ]] || [[ ! -f "$csec_file" ]] || [[ ! -s "$cid_file" ]] || [[ ! -s "$csec_file" ]]; then
-    log "Infisical creds not present. Skipping pull."
-    return 1
-  fi
-  if [[ -z "${INFISICAL_PROJECT_ID:-}" ]]; then
-    log "INFISICAL_PROJECT_ID empty. Skipping pull."
+  if [[ -z "${INFISICAL_TOKEN:-}" ]]; then
+    log "INFISICAL_TOKEN is required."
     return 1
   fi
 
   export INFISICAL_API_URL="${INFISICAL_API_URL:-https://app.infisical.com}"
-  local cid csec token
-  cid="$(cat "$cid_file")"
-  csec="$(cat "$csec_file")"
-  token="$(infisical login --method=universal-auth --client-id="$cid" --client-secret="$csec" --silent --plain)"
 
   infisical export \
-    --token="$token" \
+    --token="${INFISICAL_TOKEN}" \
     --projectId="$INFISICAL_PROJECT_ID" \
     --env="${INFISICAL_ENV:-prod}" \
     --path="${INFISICAL_PATH:-/nyra/gitea}" \
@@ -99,6 +89,11 @@ main(){
     chown "${SECRET_UID}:${SECRET_GID}" "$SECRETS_DIR"
   fi
 
+  if [[ -z "${INFISICAL_TOKEN:-}" ]]; then
+    log "INFISICAL_TOKEN is required."
+    exit 1
+  fi
+
   if ! need_write; then
     log "Secrets already initialized."
     exit 0
@@ -107,7 +102,8 @@ main(){
   if try_infisical_export; then
     log "Pulled secrets from Infisical."
   else
-    log "Using local generated secrets (fallback)."
+    log "Failed to pull secrets from Infisical."
+    exit 1
   fi
 
   generate_missing

@@ -298,8 +298,7 @@ SENDGRID_API_KEY=SG.your-sendgrid-key
 # INFISICAL (Optional)
 # ===================================
 INFISICAL_PROJECT_ID=8374cea9-e5e8-4050-bda4-b91f25ab30ef
-INFISICAL_CLIENT_ID=your-client-id
-INFISICAL_CLIENT_SECRET=your-client-secret
+INFISICAL_TOKEN=your-service-token
 
 # ===================================
 # NETWORKING

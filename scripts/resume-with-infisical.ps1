@@ -2,6 +2,7 @@
 # Usage: .\scripts\resume-with-infisical.ps1
 
 Write-Host "🔐 Setting up Infisical MCP environment..." -ForegroundColor Cyan
+. "$PSScriptRoot\lib\InfisicalToken.ps1"
 
 # Load Infisical credentials from your config file
 $envFile = "C:\Dev\Tools\MCP-Servers-NPX\configs\.env.infisical"
@@ -23,8 +24,7 @@ if (Test-Path $envFile) {
     @"
 # Infisical MCP Configuration
 # Get these values from: https://app.infisical.com/
-INFISICAL_UNIVERSAL_AUTH_CLIENT_ID=your_client_id_here
-INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET=your_client_secret_here
+INFISICAL_TOKEN=your_service_token_here
 INFISICAL_PROJECT_ID=8374cea9-e5e8-4050-bda4-b91f25ab30ef
 INFISICAL_ENVIRONMENT=dev
 INFISICAL_FOLDER_PATH=/shared
@@ -37,8 +37,7 @@ INFISICAL_FOLDER_PATH=/shared
 
 # Verify required variables are set
 $required = @(
-    "INFISICAL_UNIVERSAL_AUTH_CLIENT_ID",
-    "INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET",
+    "INFISICAL_TOKEN",
     "INFISICAL_PROJECT_ID",
     "INFISICAL_ENVIRONMENT"
 )
