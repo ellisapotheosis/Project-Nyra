@@ -8,6 +8,9 @@ param(
     [switch]$Help
 )
 
+. "$PSScriptRoot\..\..\..\scripts\lib\InfisicalToken.ps1"
+$projectId = Get-NyraInfisicalProjectId
+
 if ($Help) {
     Write-Host "🔄 NYRA Batch Secret Rotator" -ForegroundColor Cyan
     Write-Host "============================" -ForegroundColor Cyan
@@ -43,21 +46,11 @@ function Mask-Secret($value) {
 # Validate Infisical setup
 function Test-InfisicalSetup {
     try {
-        infisical user get token >$null 2>&1
-        if ($LASTEXITCODE -ne 0) {
-            throw "Not logged in"
-        }
-        
-        if (!(Test-Path ".infisical.json")) {
-            Write-Host "❌ Infisical project not initialized" -ForegroundColor Red
-            Write-Host "Run: infisical init" -ForegroundColor Yellow
-            return $false
-        }
+        Assert-NyraInfisicalToken
         return $true
     }
     catch {
-        Write-Host "❌ Infisical not accessible" -ForegroundColor Red
-        Write-Host "Run: infisical login" -ForegroundColor Yellow
+        Write-Host "❌ $($_.Exception.Message)" -ForegroundColor Red
         return $false
     }
 }
@@ -161,7 +154,7 @@ foreach ($secret in $secretPairs) {
     Write-Host "`n  🔄 Updating $($secret.Name)..." -ForegroundColor Cyan
     
     try {
-        $result = infisical secrets set "$($secret.Name)=$($secret.Value)" --env $Environment 2>&1
+        $result = Set-NyraInfisicalSecret -Name $secret.Name -Value $secret.Value -Environment $Environment -Path "" -ProjectId $projectId 2>&1
         
         if ($LASTEXITCODE -eq 0) {
             Write-Host "    ✅ Success" -ForegroundColor Green

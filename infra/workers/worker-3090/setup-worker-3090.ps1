@@ -26,6 +26,8 @@ param(
     [switch]$DryRun
 )
 
+. "$PSScriptRoot\..\..\..\scripts\lib\InfisicalToken.ps1"
+
 $ErrorActionPreference = "Stop"
 $ProgressPreference = "SilentlyContinue"
 
@@ -289,15 +291,12 @@ if (-not $env:INFISICAL_TOKEN) {
 
 Please set up Infisical authentication:
 
-1. Login to Infisical:
-   infisical login
-
-2. Create a machine identity token:
+1. Create or copy a service token:
    - Go to https://app.infisical.com/project/${INFISICAL_PROJECT_ID}/settings/tokens
-   - Create a new Universal Auth token with 'Read' permissions
+   - Create or copy a service token with 'Read' permissions
    - Set environment variable: `$env:INFISICAL_TOKEN = "your-token-here"
 
-3. Re-run this script
+2. Re-run this script
 
 "@ -ForegroundColor Yellow
     exit 1

@@ -316,7 +316,7 @@ try {
     Write-Host "📚 Next Steps:" -ForegroundColor Cyan
     Write-Host "1. Open project in VS Code with Remote-WSL extension"
     Write-Host "2. Use 'Dev Containers: Rebuild and Reopen in Container' command"
-    Write-Host "3. Configure secrets: infisical login"
+    Write-Host "3. Configure secrets: export INFISICAL_TOKEN and INFISICAL_PROJECT_ID"
     Write-Host "4. Start services: docker-compose -f docker-compose.dev.yml up -d"
     Write-Host "5. Access Nyra UI at: http://localhost:3000"
     Write-Host ""

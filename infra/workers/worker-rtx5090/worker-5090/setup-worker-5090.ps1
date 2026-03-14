@@ -13,6 +13,8 @@ param(
     [switch]$AutoYes
 )
 
+. "$PSScriptRoot\..\..\..\..\scripts\lib\InfisicalToken.ps1"
+
 $ErrorActionPreference = "Stop"
 $ProgressPreference = "SilentlyContinue"
 
@@ -230,25 +232,18 @@ if (-not $SkipInfisical) {
         }
     }
 
-    # Login to Infisical
-    Write-Host "Authenticating with Infisical..." -ForegroundColor $ColorWarning
+    # Validate token auth
+    Write-Host "Validating Infisical token auth..." -ForegroundColor $ColorWarning
     Write-Host "Project ID: 8374cea9-e5e8-4050-bda4-b91f25ab30ef" -ForegroundColor $ColorWarning
     Write-Host "Environment: dev" -ForegroundColor $ColorWarning
     Write-Host "Path: /worker-5090" -ForegroundColor $ColorWarning
     Write-Host ""
 
     try {
-        # Check if already logged in
-        $loginStatus = infisical user 2>$null
-        if ($LASTEXITCODE -ne 0) {
-            Write-Host "Please login to Infisical:" -ForegroundColor $ColorWarning
-            infisical login
-        } else {
-            Write-Host "✓ Already authenticated with Infisical" -ForegroundColor $ColorSuccess
-        }
+        Assert-NyraInfisicalToken
+        Write-Host "✓ INFISICAL_TOKEN is available" -ForegroundColor $ColorSuccess
     } catch {
-        Write-Host "❌ Infisical authentication failed" -ForegroundColor $ColorError
-        Write-Host "Run: infisical login" -ForegroundColor $ColorWarning
+        Write-Host "❌ $($_.Exception.Message)" -ForegroundColor $ColorError
         exit 1
     }
 
@@ -260,7 +255,7 @@ if (-not $SkipInfisical) {
     $path = "/worker-5090"
 
     try {
-        $secrets = infisical secrets get --projectId="$projectId" --env="$env" --path="$path" --format=dotenv
+        $secrets = infisical export --projectId="$projectId" --env="$env" --path="$path" --format=dotenv
 
         if ($LASTEXITCODE -eq 0) {
             # Save to .env file
