@@ -6,10 +6,6 @@ on:
     paths:
       - 'services/nexus-router/**'
       - '.github/workflows/nexus-router-ci.yml'
-  pull_request:
-    branches: [main, develop]
-    paths:
-      - 'services/nexus-router/**'
 
 env:
   SERVICE_NAME: nexus-router
