@@ -35,6 +35,10 @@ jobs:
 
       - name: Install dependencies
         run: |
+          if [ -f "apps/twenty-crm/package.json" ]; then
+            mv apps/twenty-crm/package.json apps/twenty-crm/package.json.ci-skip
+          fi
+          trap 'if [ -f "apps/twenty-crm/package.json.ci-skip" ]; then mv apps/twenty-crm/package.json.ci-skip apps/twenty-crm/package.json; fi' EXIT
           cd services/nexus-router
           pnpm install --no-frozen-lockfile
 
@@ -78,6 +82,10 @@ jobs:
 
       - name: Install dependencies
         run: |
+          if [ -f "apps/twenty-crm/package.json" ]; then
+            mv apps/twenty-crm/package.json apps/twenty-crm/package.json.ci-skip
+          fi
+          trap 'if [ -f "apps/twenty-crm/package.json.ci-skip" ]; then mv apps/twenty-crm/package.json.ci-skip apps/twenty-crm/package.json; fi' EXIT
           cd services/nexus-router
           pnpm install --no-frozen-lockfile
 
@@ -115,6 +123,10 @@ jobs:
 
       - name: Install dependencies
         run: |
+          if [ -f "apps/twenty-crm/package.json" ]; then
+            mv apps/twenty-crm/package.json apps/twenty-crm/package.json.ci-skip
+          fi
+          trap 'if [ -f "apps/twenty-crm/package.json.ci-skip" ]; then mv apps/twenty-crm/package.json.ci-skip apps/twenty-crm/package.json; fi' EXIT
           cd services/nexus-router
           pnpm install --no-frozen-lockfile
 
