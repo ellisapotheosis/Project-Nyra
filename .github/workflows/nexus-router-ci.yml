@@ -6,10 +6,6 @@ on:
     paths:
       - 'services/nexus-router/**'
       - '.github/workflows/nexus-router-ci.yml'
-  pull_request:
-    branches: [main, develop]
-    paths:
-      - 'services/nexus-router/**'
 
 env:
   SERVICE_NAME: nexus-router
@@ -22,19 +18,23 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
+      - name: Install pnpm
+        uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # v4
+        with:
+          version: 10.27.0
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'pnpm'
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # v4
-        with:
-          version: 10.27.0
-
       - name: Install dependencies
         run: |
+          if [ -f "apps/twenty-crm/package.json" ]; then
+            mv apps/twenty-crm/package.json apps/twenty-crm/package.json.ci-skip
+          fi
+          trap 'if [ -f "apps/twenty-crm/package.json.ci-skip" ]; then mv apps/twenty-crm/package.json.ci-skip apps/twenty-crm/package.json; fi' EXIT
           cd services/nexus-router
           pnpm install --no-frozen-lockfile
 
@@ -65,19 +65,23 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
+      - name: Install pnpm
+        uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # v4
+        with:
+          version: 10.27.0
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'pnpm'
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # v4
-        with:
-          version: 10.27.0
-
       - name: Install dependencies
         run: |
+          if [ -f "apps/twenty-crm/package.json" ]; then
+            mv apps/twenty-crm/package.json apps/twenty-crm/package.json.ci-skip
+          fi
+          trap 'if [ -f "apps/twenty-crm/package.json.ci-skip" ]; then mv apps/twenty-crm/package.json.ci-skip apps/twenty-crm/package.json; fi' EXIT
           cd services/nexus-router
           pnpm install --no-frozen-lockfile
 
@@ -102,19 +106,23 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
+      - name: Install pnpm
+        uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # v4
+        with:
+          version: 10.27.0
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'pnpm'
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # v4
-        with:
-          version: 10.27.0
-
       - name: Install dependencies
         run: |
+          if [ -f "apps/twenty-crm/package.json" ]; then
+            mv apps/twenty-crm/package.json apps/twenty-crm/package.json.ci-skip
+          fi
+          trap 'if [ -f "apps/twenty-crm/package.json.ci-skip" ]; then mv apps/twenty-crm/package.json.ci-skip apps/twenty-crm/package.json; fi' EXIT
           cd services/nexus-router
           pnpm install --no-frozen-lockfile
 

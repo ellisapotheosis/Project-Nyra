@@ -13,6 +13,11 @@
 
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+# shellcheck source=scripts/lib/infisical-token.sh
+source "$PROJECT_ROOT/scripts/lib/infisical-token.sh"
+
 # Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -26,7 +31,8 @@ if [[ "${1:-}" == "--dry-run" ]]; then
     DRY_RUN=true
 fi
 
-INFISICAL_PROJECT_ID="8374cea9-e5e8-4050-bda4-b91f25ab30ef"
+nyra_require_infisical_token
+nyra_resolve_infisical_project_id
 INFISICAL_ENV="production"
 
 # Function to print messages
@@ -49,12 +55,6 @@ echo ""
 # Check if Infisical CLI is installed
 if ! command -v infisical &> /dev/null; then
     print_error "Infisical CLI not found. Install with: brew install infisical/get-cli/infisical"
-    exit 1
-fi
-
-# Check if logged in
-if ! infisical whoami &> /dev/null; then
-    print_error "Not logged in to Infisical. Run: infisical login"
     exit 1
 fi
 
@@ -92,11 +92,10 @@ rotate_secret() {
     new_value=$($generator)
 
     # Update in Infisical
-    if infisical secrets update "$secret_name" \
-        --value "$new_value" \
-        --projectId="$INFISICAL_PROJECT_ID" \
-        --env="$INFISICAL_ENV" \
-        --path="$secret_path" 2>&1; then
+    if nyra_infisical_secrets_set \
+        "$INFISICAL_ENV" \
+        "$secret_path" \
+        "$secret_name=$new_value" 2>&1; then
         print_success "$secret_name rotated"
     else
         print_error "Failed to rotate $secret_name"

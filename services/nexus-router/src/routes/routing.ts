@@ -40,7 +40,7 @@ export type CustomRoutingRule = z.infer<typeof CustomRoutingRuleSchema>;
 export type SimulateRequest = z.infer<typeof SimulateRequestSchema>;
 
 // In-memory storage for custom rules (could be moved to Redis for persistence)
-let customRules: Map<string, CustomRoutingRule & { id: string; createdAt: Date }> = new Map();
+const customRules: Map<string, CustomRoutingRule & { id: string; createdAt: Date }> = new Map();
 
 /**
  * GET /api/routing/config

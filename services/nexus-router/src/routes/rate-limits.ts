@@ -595,7 +595,7 @@ router.get('/stats/per-ip', async (req: Request, res: Response) => {
     const stats = store.getStats();
     const { sort = 'requests' } = req.query;
 
-    let data = Object.entries(stats.perIp).map(([ip, stat]) => ({
+    const data = Object.entries(stats.perIp).map(([ip, stat]) => ({
       ip,
       ...stat,
     }));
@@ -638,7 +638,7 @@ router.get('/stats/per-server', async (req: Request, res: Response) => {
     const stats = store.getStats();
     const { sort = 'requests' } = req.query;
 
-    let data = Object.entries(stats.perServer).map(([serverId, stat]) => ({
+    const data = Object.entries(stats.perServer).map(([serverId, stat]) => ({
       serverId,
       ...stat,
     }));
@@ -681,7 +681,7 @@ router.get('/stats/per-tool', async (req: Request, res: Response) => {
     const stats = store.getStats();
     const { sort = 'requests' } = req.query;
 
-    let data = Object.entries(stats.perTool).map(([toolId, stat]) => ({
+    const data = Object.entries(stats.perTool).map(([toolId, stat]) => ({
       toolId,
       ...stat,
     }));

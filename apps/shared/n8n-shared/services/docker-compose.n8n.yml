@@ -570,18 +570,24 @@ services:
     logging: *default_logging
 
   infisical-agent:
-    image: infisical/infisical-agent:latest
+    image: infisical/cli:latest
     container_name: nyra-infisical-agent
     profiles: ['archon', 'secrets', 'oracle', 'all']
+    entrypoint: ['/bin/sh', '-lc']
+    command: >-
+      test -n "$INFISICAL_TOKEN" &&
+      while true; do
+        infisical export --projectId=${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef} --env=${INFISICAL_ENV:-prod} --path=/archon --format=dotenv > /secrets/archon.env &&
+        infisical export --projectId=${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef} --env=${INFISICAL_ENV:-prod} --path=/claude-flow --format=dotenv > /secrets/claude-flow.env &&
+        sleep ${INFISICAL_POLL_INTERVAL:-60};
+      done
     environment:
-      INFISICAL_TOKEN: ${INFISICAL_TOKEN:-}
+      INFISICAL_TOKEN: ${INFISICAL_TOKEN:?set INFISICAL_TOKEN}
       INFISICAL_API_URL: ${INFISICAL_API_URL:-https://app.infisical.com}
       INFISICAL_ENV: ${INFISICAL_ENV:-prod}
-      INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-}
-      INFISICAL_CLIENT_ID: ${INFISICAL_CLIENT_ID:-}
-      INFISICAL_CLIENT_SECRET: ${INFISICAL_CLIENT_SECRET:-}
+      INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
+      INFISICAL_POLL_INTERVAL: ${INFISICAL_POLL_INTERVAL:-60}
     volumes:
-      - ./configs/infisical/agent-archon.yaml:/etc/infisical/agent.yaml:ro
       - ./shared/secrets:/secrets
     restart: unless-stopped
     networks: [nyra]
@@ -593,11 +599,13 @@ services:
     profiles: ['archon', 'secrets', 'all']
     entrypoint: ['/bin/sh', '-lc']
     command: >-
-      infisical export --env=${INFISICAL_ENV:-prod} --path=/shared --format=dotenv
+      test -n "$INFISICAL_TOKEN" &&
+      infisical export --projectId=${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef} --env=${INFISICAL_ENV:-prod} --path=/shared --format=dotenv
       > /workspace/.env.archon.injected && tail -f /dev/null
     environment:
-      INFISICAL_TOKEN: ${INFISICAL_TOKEN:-}
+      INFISICAL_TOKEN: ${INFISICAL_TOKEN:?set INFISICAL_TOKEN}
       INFISICAL_API_URL: ${INFISICAL_API_URL:-https://app.infisical.com}
+      INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
       INFISICAL_DISABLE_UPDATE_CHECK: 'true'
     volumes:
       - ../:/workspace

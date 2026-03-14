@@ -33,7 +33,7 @@ USER_HOME="${SNAP_REAL_HOME:-$HOME}"
 
 INFISICAL_ENV="${INFISICAL_ENV:-dev}"
 INFISICAL_PATH="${INFISICAL_PATH:-/shared}"
-INFISICAL_PROJECT_ID="${INFISICAL_PROJECT_ID:-}"
+INFISICAL_PROJECT_ID="${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}"
 INFISICAL_API_URL="${INFISICAL_API_URL:-https://app.infisical.com/api}"
 ROOT_ENV_FILE="${ROOT_ENV_FILE:-$REPO_ROOT/.env}"
 PYTHON_VENV_DIR="${PYTHON_VENV_DIR:-$REPO_ROOT/.venv}"
@@ -280,14 +280,7 @@ read_dotenv_value() {
 
 resolve_infisical_base_args() {
   INFISICAL_BASE_ARGS=(--domain "$INFISICAL_API_URL" --silent)
-
-  if [[ -n "${INFISICAL_TOKEN:-}" ]]; then
-    INFISICAL_BASE_ARGS+=(--token "$INFISICAL_TOKEN")
-  elif [[ -n "${INFISICAL_ACCESS_TOKEN:-}" ]]; then
-    INFISICAL_BASE_ARGS+=(--token "$INFISICAL_ACCESS_TOKEN")
-  elif [[ -n "${INFISICAL_SESSION_TOKEN:-}" ]]; then
-    INFISICAL_BASE_ARGS+=(--token "$INFISICAL_SESSION_TOKEN")
-  fi
+  INFISICAL_BASE_ARGS+=(--token "$INFISICAL_TOKEN")
 }
 
 run_infisical_cli() {
@@ -302,100 +295,12 @@ read_project_id() {
   INFISICAL_PROJECT_ID="$(read_json_field "$REPO_ROOT/.infisical.json" "workspaceId")"
 }
 
-resolve_infisical_token_from_env_or_file() {
-  local key=""
-  local value=""
-
-  for key in INFISICAL_TOKEN INFISICAL_ACCESS_TOKEN; do
-    value="${!key:-}"
-    if [[ -n "$value" ]]; then
-      printf '%s' "$value"
-      return 0
-    fi
-  done
-
-  for key in INFISICAL_TOKEN INFISICAL_ACCESS_TOKEN; do
-    value="$(read_dotenv_value "$ROOT_ENV_FILE" "$key")"
-    if [[ -n "$value" ]]; then
-      printf '%s' "$value"
-      return 0
-    fi
-  done
-
-  return 1
-}
-
-resolve_infisical_universal_auth_credentials() {
-  local client_id=""
-  local client_secret=""
-
-  client_id="${INFISICAL_UNIVERSAL_AUTH_CLIENT_ID:-${INFISICAL_CLIENT_ID:-}}"
-  client_secret="${INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET:-${INFISICAL_CLIENT_SECRET:-}}"
-
-  if [[ -z "$client_id" ]]; then
-    client_id="$(read_dotenv_value "$ROOT_ENV_FILE" "INFISICAL_UNIVERSAL_AUTH_CLIENT_ID")"
-  fi
-  if [[ -z "$client_id" ]]; then
-    client_id="$(read_dotenv_value "$ROOT_ENV_FILE" "INFISICAL_CLIENT_ID")"
-  fi
-  if [[ -z "$client_secret" ]]; then
-    client_secret="$(read_dotenv_value "$ROOT_ENV_FILE" "INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET")"
-  fi
-  if [[ -z "$client_secret" ]]; then
-    client_secret="$(read_dotenv_value "$ROOT_ENV_FILE" "INFISICAL_CLIENT_SECRET")"
-  fi
-
-  if [[ -n "$client_id" && -n "$client_secret" ]]; then
-    printf '%s\n%s\n' "$client_id" "$client_secret"
-    return 0
-  fi
-
-  return 1
-}
-
 ensure_infisical_auth() {
-  if [[ -n "${INFISICAL_TOKEN:-}" || -n "${INFISICAL_ACCESS_TOKEN:-}" || -n "${INFISICAL_SESSION_TOKEN:-}" ]]; then
-    return 0
+  if [[ -z "${INFISICAL_TOKEN:-}" ]]; then
+    err "INFISICAL_TOKEN environment variable is missing."
+    err "Export INFISICAL_TOKEN before running this setup."
+    exit 1
   fi
-
-  local token=""
-  if token="$(resolve_infisical_token_from_env_or_file 2>/dev/null)"; then
-    INFISICAL_TOKEN="$token"
-    export INFISICAL_TOKEN
-    INFISICAL_SESSION_TOKEN="$token"
-    export INFISICAL_SESSION_TOKEN
-    return 0
-  fi
-
-  local creds=()
-  local client_id=""
-  local client_secret=""
-  if mapfile -t creds < <(resolve_infisical_universal_auth_credentials 2>/dev/null); then
-    client_id="${creds[0]:-}"
-    client_secret="${creds[1]:-}"
-    if [[ -n "$client_id" && -n "$client_secret" ]]; then
-      info "Authenticating Infisical via universal auth"
-      if token="$(infisical login --domain "$INFISICAL_API_URL" --method=universal-auth --client-id="$client_id" --client-secret="$client_secret" --silent --plain 2>/dev/null)"; then
-        if [[ -n "$token" ]]; then
-          INFISICAL_TOKEN="$token"
-          export INFISICAL_TOKEN
-          INFISICAL_SESSION_TOKEN="$token"
-          export INFISICAL_SESSION_TOKEN
-          return 0
-        fi
-      fi
-      err "Infisical universal auth failed for project '$INFISICAL_PROJECT_ID' at '$INFISICAL_API_URL'. Check INFISICAL_UNIVERSAL_AUTH_CLIENT_ID / INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET or provide INFISICAL_TOKEN."
-      exit 1
-    fi
-  fi
-
-  if run_infisical_cli export --env="$INFISICAL_ENV" --path="$INFISICAL_PATH" --format=dotenv >/dev/null 2>&1; then
-    info "Using existing Infisical CLI session"
-    return 0
-  fi
-
-  err "Infisical authentication is not configured. Provide INFISICAL_TOKEN/INFISICAL_ACCESS_TOKEN, valid universal-auth credentials, or a working Infisical CLI session."
-  exit 1
 }
 
 run_with_sudo() {
@@ -672,6 +577,11 @@ resolve_github_token() {
 configure_github_auth() {
   local token=""
 
+  if ! token="$(resolve_github_token)"; then
+    warn "No GitHub token found in env or $ROOT_ENV_FILE; skipping gh auth"
+    return 0
+  fi
+
   ensure_github_cli
   if ! command -v gh >/dev/null 2>&1; then
     return 0
@@ -679,11 +589,6 @@ configure_github_auth() {
 
   if gh auth status >/dev/null 2>&1; then
     info "GitHub CLI is already authenticated"
-    return 0
-  fi
-
-  if ! token="$(resolve_github_token)"; then
-    warn "No GitHub token found in env or $ROOT_ENV_FILE; skipping gh auth"
     return 0
   fi
 
@@ -721,7 +626,11 @@ resolve_infisical_env() {
   local path_arg="$1"
   local resolved=""
   while IFS= read -r candidate; do
-    if run_infisical_cli export --env="$candidate" --path="$path_arg" --format=dotenv >/dev/null 2>&1; then
+    local probe_cmd=(export --env="$candidate" --path="$path_arg" --format=dotenv)
+    if [[ -n "$INFISICAL_PROJECT_ID" ]]; then
+      probe_cmd+=(--projectId="$INFISICAL_PROJECT_ID")
+    fi
+    if run_infisical_cli "${probe_cmd[@]}" >/dev/null 2>&1; then
       resolved="$candidate"
       break
     fi
@@ -746,7 +655,7 @@ export_root_env_file() {
 
   local tmp_file
   tmp_file="$(mktemp)"
-  trap 'rm -f "$tmp_file"' RETURN
+  trap 'if [[ -n "${tmp_file:-}" && -f "${tmp_file:-}" ]]; then rm -f "$tmp_file"; fi' RETURN
 
   local cmd=(export --env="$resolved_env" --path="$INFISICAL_PATH" --format=dotenv --output-file="$tmp_file")
   if [[ -n "$INFISICAL_PROJECT_ID" ]]; then
@@ -767,6 +676,8 @@ export_root_env_file() {
 
   mkdir -p "$(dirname "$ROOT_ENV_FILE")"
   mv "$tmp_file" "$ROOT_ENV_FILE"
+  tmp_file=""
+  trap - RETURN
   chmod 600 "$ROOT_ENV_FILE" || true
   ok "Wrote $(grep -c '=' "$ROOT_ENV_FILE" || echo 0) keys to $ROOT_ENV_FILE"
 }

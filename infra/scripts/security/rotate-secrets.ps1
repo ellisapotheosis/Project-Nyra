@@ -8,6 +8,7 @@ param(
 
 Write-Host "🔐 NYRA Secret Rotation Helper" -ForegroundColor Cyan
 Write-Host "================================" -ForegroundColor Cyan
+. "$PSScriptRoot\..\..\..\scripts\lib\InfisicalToken.ps1"
 
 function Show-RotationPriority {
     Write-Host "`n📋 ROTATION PRIORITY ORDER:" -ForegroundColor Yellow
@@ -68,13 +69,11 @@ function Start-OpenAIRotation {
 function Setup-Infisical {
     Write-Host "`n🔧 Setting up Infisical for NYRA:" -ForegroundColor Green
     
-    # Check if logged in
     try {
-        infisical user get token | Out-Null
-        Write-Host "✅ Already logged into Infisical" -ForegroundColor Green
+        Assert-NyraInfisicalToken
+        Write-Host "✅ INFISICAL_TOKEN is available" -ForegroundColor Green
     } catch {
-        Write-Host "❌ Not logged into Infisical" -ForegroundColor Red
-        Write-Host "Run: infisical login" -ForegroundColor Yellow
+        Write-Host "❌ $($_.Exception.Message)" -ForegroundColor Red
         return
     }
     
@@ -82,13 +81,13 @@ function Setup-Infisical {
     
     # Initialize infisical in project
     Write-Host "Run the following commands:"
-    Write-Host "1. infisical init" -ForegroundColor Yellow
-    Write-Host "2. Select or create 'project-nyra' project" -ForegroundColor Yellow  
-    Write-Host "3. Choose 'dev' environment" -ForegroundColor Yellow
+    Write-Host "1. Export INFISICAL_TOKEN in your shell or runner" -ForegroundColor Yellow
+    Write-Host "2. Use project id 8374cea9-e5e8-4050-bda4-b91f25ab30ef" -ForegroundColor Yellow
+    Write-Host "3. Choose the target environment when setting secrets" -ForegroundColor Yellow
     
     Write-Host "`n🔑 After project setup, you can batch import secrets:"
-    Write-Host "infisical secrets set GITHUB_TOKEN=your_new_token" -ForegroundColor Yellow
-    Write-Host "infisical secrets set OPENAI_API_KEY=your_new_key" -ForegroundColor Yellow
+    Write-Host "infisical secrets set --projectId=8374cea9-e5e8-4050-bda4-b91f25ab30ef --env=dev GITHUB_TOKEN=your_new_token" -ForegroundColor Yellow
+    Write-Host "infisical secrets set --projectId=8374cea9-e5e8-4050-bda4-b91f25ab30ef --env=dev OPENAI_API_KEY=your_new_key" -ForegroundColor Yellow
     Write-Host "# ... etc for all rotated secrets" -ForegroundColor Yellow
 }
 

@@ -7,6 +7,10 @@ param(
     [string]$Environment = "development"
 )
 
+. "$PSScriptRoot\lib\InfisicalToken.ps1"
+$projectId = Get-NyraInfisicalProjectId
+Assert-NyraInfisicalToken
+
 Write-Host "🔐 Setting up NYRA environment secrets via Infisical..." -ForegroundColor Cyan
 
 # Install Infisical CLI if not present
@@ -38,8 +42,10 @@ $claudeCodeWrapper = @"
 #!/usr/bin/env pwsh
 # NYRA Claude Code with Auto-Injected Secrets
 
-# Inject secrets via Infisical
-infisical run --env=$Environment --command "claude `$args"
+. "`$PSScriptRoot\lib\InfisicalToken.ps1"
+`$projectId = Get-NyraInfisicalProjectId
+Assert-NyraInfisicalToken
+& infisical run --projectId=`$projectId --env=$Environment -- claude @args
 "@
 
 $wrapperPath = "C:\Dev\Projects\Repos\Project-Nyra\scripts\nyra-claude.ps1"

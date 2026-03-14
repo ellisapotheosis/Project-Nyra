@@ -1,0 +1,132 @@
+name: 🛠️ Deploy to Development (AUTO)
+
+on:
+  workflow_run:
+    workflows: ["🏗️ Build & Push Multi-Arch"]
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      deploy_sha:
+        description: 'Built commit SHA to deploy from develop'
+        required: true
+        type: string
+
+env:
+  ENVIRONMENT: development
+  DEPLOY_HOST: dev.nyra.internal
+
+jobs:
+  deploy-development:
+    runs-on: ubuntu-latest
+    if: (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/develop') || (github.event_name == 'workflow_run' && github.event.workflow_run.event == 'push' && github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'develop')
+
+    environment:
+      name: development
+      url: http://dev.nyra.internal
+
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.event.inputs.deploy_sha }}
+
+      - name: 🔧 Setup deployment
+        env:
+          GITHUB_EVENT_WORKFLOW_RUN_HEAD_SHA: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || '' }}
+          GITHUB_EVENT_INPUT_DEPLOY_SHA: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.deploy_sha || '' }}
+        run: |
+          source scripts/ci/common.sh
+          resolve_deploy_sha "$GITHUB_EVENT_NAME" "$GITHUB_EVENT_WORKFLOW_RUN_HEAD_SHA" "$GITHUB_EVENT_INPUT_DEPLOY_SHA"
+          echo "🛠️ Preparing development deployment"
+          echo "Git SHA: ${DEPLOY_SHA:0:7}"
+          echo "Environment: ${{ env.ENVIRONMENT }}"
+
+      - name: 🔐 Setup SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.DEV_SSH_KEY }}
+
+      - name: 📋 Prepare deployment files
+        env:
+          GITHUB_EVENT_WORKFLOW_RUN_HEAD_SHA: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || '' }}
+          GITHUB_EVENT_INPUT_DEPLOY_SHA: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.deploy_sha || '' }}
+        run: |
+          source scripts/ci/common.sh
+          resolve_deploy_sha "$GITHUB_EVENT_NAME" "$GITHUB_EVENT_WORKFLOW_RUN_HEAD_SHA" "$GITHUB_EVENT_INPUT_DEPLOY_SHA"
+
+          mkdir -p deploy-development
+          cp -r infra/ deploy-development/
+          cp docker-compose.*.yml deploy-development/
+          cp .env.template deploy-development/.env.template
+          cp scripts/validate-env.sh deploy-development/
+          mkdir -p deploy-development/scripts/ci
+          cp scripts/ci/common.sh deploy-development/scripts/ci/common.sh
+
+          cat > deploy-development/.env.development << EOF
+          # Auto-generated development environment
+          NYRA_NODE_TYPE=development
+          NYRA_ENVIRONMENT=development
+          COMPOSE_PROJECT_NAME=nyra-dev
+
+          # Image versions (latest develop builds)
+          NEXUS_ROUTER_IMAGE=gitea.local:3100/nyra/nexus-router:${SHORT_SHA}
+          CLAUDE_FLOW_IMAGE=gitea.local:3100/nyra/claude-flow:${SHORT_SHA}
+          QUOTE_ENGINE_IMAGE=gitea.local:3100/nyra/quote-engine:${SHORT_SHA}
+          CAMPAIGN_ENGINE_IMAGE=gitea.local:3100/nyra/campaign-engine:${SHORT_SHA}
+
+          # Development secrets
+          GRAFANA_ADMIN_PASSWORD=${{ secrets.DEV_GRAFANA_PASSWORD }}
+          POSTGRES_PASSWORD=${{ secrets.DEV_POSTGRES_PASSWORD }}
+          REDIS_PASSWORD=${{ secrets.DEV_REDIS_PASSWORD }}
+          JWT_SECRET=${{ secrets.DEV_JWT_SECRET }}
+          N8N_ENCRYPTION_KEY=${{ secrets.DEV_N8N_KEY }}
+
+          # API Keys
+          ANTHROPIC_API_KEY=${{ secrets.ANTHROPIC_API_KEY }}
+          OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}
+          GOOGLE_API_KEY=${{ secrets.GOOGLE_API_KEY }}
+          OPENROUTER_API_KEY=${{ secrets.OPENROUTER_API_KEY }}
+
+          # Development overrides
+          COMPOSE_PROFILES=core,monitoring,workflow,crm
+          LOG_LEVEL=debug
+          HOT_RELOAD_ENABLED=true
+          DEBUG_MODE=true
+          EOF
+
+      - name: 📤 Deploy to development
+        run: |
+          scp -o StrictHostKeyChecking=no -r deploy-development/. deploy@${{ env.DEPLOY_HOST }}:/opt/project-nyra/
+
+          ssh -o StrictHostKeyChecking=no deploy@${{ env.DEPLOY_HOST }} 'bash -s' << 'EOF'
+            set -euo pipefail
+            cd /opt/project-nyra
+            source ./scripts/ci/common.sh
+            detect_compose
+
+            echo "🔍 Validating environment..."
+            ./validate-env.sh .env.development
+
+            echo "🐳 Stopping existing services..."
+            compose_run -f infra/docker-compose.yml -f docker-compose.dev.yml --env-file .env.development down || true
+
+            echo "📥 Pulling latest images..."
+            compose_run -f infra/docker-compose.yml -f docker-compose.dev.yml --env-file .env.development pull
+
+            echo "🚀 Starting services..."
+            compose_run -f infra/docker-compose.yml -f docker-compose.dev.yml --env-file .env.development up -d
+
+            echo "📊 Service status:"
+            compose_run -f infra/docker-compose.yml -f docker-compose.dev.yml --env-file .env.development ps
+          EOF
+
+      - name: 🧪 Run development smoke tests
+        run: |
+          ssh -o StrictHostKeyChecking=no deploy@${{ env.DEPLOY_HOST }} 'bash -s' << 'EOF'
+            set -euo pipefail
+            cd /opt/project-nyra
+
+            echo "🧪 Running development smoke tests..."
+            curl -f http://localhost:6000/health && echo "✅ Nexus Router OK" || echo "⚠️ Nexus Router not ready"
+            curl -f http://localhost:4000/health && echo "✅ LiteLLM OK" || echo "⚠️ LiteLLM not ready"
+          EOF

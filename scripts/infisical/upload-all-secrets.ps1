@@ -36,6 +36,8 @@ param(
 
 $ErrorActionPreference = "Stop"
 $ScriptDir = $PSScriptRoot
+. "$PSScriptRoot\..\lib\InfisicalToken.ps1"
+$projectId = Get-NyraInfisicalProjectId
 
 # Colors for output
 function Write-Success { Write-Host $args -ForegroundColor Green }
@@ -59,30 +61,15 @@ try {
     exit 1
 }
 
-# Check if logged in
 try {
-    infisical user me 2>&1 | Out-Null
-    Write-Success "✅ Logged in to Infisical"
+    Assert-NyraInfisicalToken
+    Write-Success "✅ INFISICAL_TOKEN available"
 } catch {
-    Write-Err "❌ Not logged in to Infisical. Run: infisical login"
+    Write-Err "❌ $($_.Exception.Message)"
     exit 1
 }
 
-# Get project info
-try {
-    Write-Info "📋 Fetching project information..."
-    $projects = infisical projects list --format json 2>&1 | ConvertFrom-Json
-    $nyraProject = $projects | Where-Object { $_.name -like "*nyra*" } | Select-Object -First 1
-
-    if ($nyraProject) {
-        Write-Success "✅ Found Project Nyra: $($nyraProject.name) (ID: $($nyraProject.projectId))"
-    } else {
-        Write-Warn "⚠️  Project 'project-nyra' not found. Create it first with:"
-        Write-Warn "   infisical projects create --name 'project-nyra'"
-    }
-} catch {
-    Write-Warn "⚠️  Could not fetch project list. Continuing..."
-}
+Write-Success "✅ Using Infisical project id: $projectId"
 
 # Load current .env file
 $envPath = Join-Path $ScriptDir "..\..\..\.env"
@@ -156,9 +143,9 @@ Write-Info "   PC2: Set-Content .env.worker-rtx3060 'INFISICAL_TOKEN=<token>'"
 Write-Info "   PC3: Set-Content .env.worker-rtx5090 'INFISICAL_TOKEN=<token>'"
 Write-Info "   PC4: Set-Content .env.worker-rtx3090ti 'INFISICAL_TOKEN=<token>'"
 Write-Info "3. Test secret retrieval:"
-Write-Info "   infisical secrets --path /shared --env $Environment"
+Write-Info "   infisical secrets --projectId $projectId --path /shared --env $Environment"
 Write-Info "4. Update docker-compose.yml to use Infisical:"
-Write-Info "   infisical run --env=$Environment --path=/shared --path=/orchestrator -- docker-compose up -d"
+Write-Info "   infisical run --projectId=$projectId --env=$Environment --path=/shared --path=/orchestrator -- docker-compose up -d"
 Write-Info "5. Document any missing secrets that need to be added manually"
 Write-Info "=========================================`n"
 

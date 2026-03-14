@@ -6,6 +6,8 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+source "$PROJECT_ROOT/scripts/lib/infisical-token.sh"
+INFISICAL_PROJECT_ID="${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}"
 
 # Colors for output
 RED='\033[0;31m'
@@ -50,26 +52,25 @@ check_infisical_cli() {
     infisical --version
 }
 
+ensure_infisical_token_auth() {
+    if ! nyra_require_infisical_token; then
+        error "INFISICAL_TOKEN environment variable is required."
+        exit 1
+    fi
+
+    nyra_resolve_infisical_project_id
+}
+
 # Create Infisical project structure
 setup_infisical_project() {
     log "Setting up Infisical project..."
 
-    # Check if already logged in
-    if ! infisical user whoami &> /dev/null; then
-        warning "Please login to Infisical first:"
-        echo "  infisical login"
-        echo "Then re-run this script"
-        exit 1
-    fi
+    ensure_infisical_token_auth
 
-    # Initialize Infisical in project if not already done
-    if [[ ! -f "$PROJECT_ROOT/.infisical.json" ]]; then
-        log "Initializing Infisical project..."
-        cd "$PROJECT_ROOT"
-        infisical init
-        success "Infisical project initialized"
+    if [[ -f "$PROJECT_ROOT/.infisical.json" ]]; then
+        success "Infisical project metadata already present"
     else
-        success "Infisical project already initialized"
+        warning "No .infisical.json found. Continuing with explicit project id only."
     fi
 }
 
@@ -278,12 +279,20 @@ setup_cli_shortcuts() {
 set -euo pipefail
 
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+source "$PROJECT_ROOT/scripts/lib/infisical-token.sh"
+INFISICAL_PROJECT_ID="${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}"
+
+require_token() {
+    nyra_require_infisical_token
+    nyra_resolve_infisical_project_id
+}
 
 # Get all secrets for current environment
 nyra_secrets_get() {
     local env=${1:-development}
+    require_token
     echo "🔐 Getting secrets for environment: $env"
-    infisical secrets --env=$env
+    infisical secrets --projectId="$INFISICAL_PROJECT_ID" --env="$env"
 }
 
 # Set a secret
@@ -297,8 +306,9 @@ nyra_secret_set() {
         return 1
     fi
 
+    require_token
     echo "🔐 Setting secret: $key in $env"
-    infisical secrets set $key="$value" --env=$env
+    infisical secrets set --projectId="$INFISICAL_PROJECT_ID" --env="$env" "$key=$value"
 }
 
 # Run command with secrets injected
@@ -306,27 +316,29 @@ nyra_run_with_secrets() {
     local env=${1:-development}
     shift
 
+    require_token
     echo "🚀 Running command with secrets from $env environment"
-    infisical run --env=$env -- "$@"
+    infisical run --projectId="$INFISICAL_PROJECT_ID" --env="$env" -- "$@"
 }
 
 # Generate secure secrets
 nyra_generate_secrets() {
     local env=${1:-development}
 
+    require_token
     echo "🔐 Generating secure secrets for $env environment"
 
     # Generate JWT secret
     local jwt_secret=$(openssl rand -base64 64 | tr -d '\n')
-    infisical secrets set JWT_SECRET="$jwt_secret" --env=$env
+    infisical secrets set --projectId="$INFISICAL_PROJECT_ID" --env="$env" "JWT_SECRET=$jwt_secret"
 
     # Generate API encryption key
     local api_key=$(openssl rand -base64 32 | tr -d '\n')
-    infisical secrets set API_ENCRYPTION_KEY="$api_key" --env=$env
+    infisical secrets set --projectId="$INFISICAL_PROJECT_ID" --env="$env" "API_ENCRYPTION_KEY=$api_key"
 
     # Generate webhook signing secret
     local webhook_secret=$(openssl rand -base64 32 | tr -d '\n')
-    infisical secrets set WEBHOOK_SIGNING_SECRET="$webhook_secret" --env=$env
+    infisical secrets set --projectId="$INFISICAL_PROJECT_ID" --env="$env" "WEBHOOK_SIGNING_SECRET=$webhook_secret"
 
     echo "✅ Generated secure secrets for $env"
 }
@@ -341,8 +353,9 @@ nyra_export_env() {
         return 1
     fi
 
+    require_token
     echo "📁 Exporting $env secrets to $output_file"
-    infisical export --env=$env --format=dotenv > "$output_file"
+    infisical export --projectId="$INFISICAL_PROJECT_ID" --env="$env" --format=dotenv > "$output_file"
     chmod 600 "$output_file"
     echo "✅ Secrets exported to $output_file"
 }
@@ -357,13 +370,14 @@ nyra_import_secrets() {
         return 1
     fi
 
+    require_token
     echo "📥 Importing secrets from $file to $env environment"
 
     while IFS='=' read -r key value; do
         if [[ ! -z "$key" && ! "$key" =~ ^# ]]; then
             # Remove quotes and whitespace
             value=$(echo "$value" | sed 's/^["'"'"']//' | sed 's/["'"'"']$//' | xargs)
-            infisical secrets set "$key"="$value" --env="$env"
+            infisical secrets set --projectId="$INFISICAL_PROJECT_ID" --env="$env" "$key=$value"
             echo "   ✅ Set: $key"
         fi
     done < "$file"
@@ -375,6 +389,7 @@ nyra_import_secrets() {
 nyra_validate_secrets() {
     local env=${1:-development}
 
+    require_token
     echo "🔍 Validating secrets for $env environment"
 
     local required_secrets=(
@@ -387,7 +402,7 @@ nyra_validate_secrets() {
     local missing_secrets=()
 
     for secret in "${required_secrets[@]}"; do
-        if ! infisical secrets get $secret --env=$env --silent > /dev/null 2>&1; then
+        if ! infisical secrets get "$secret" --projectId="$INFISICAL_PROJECT_ID" --env="$env" --silent > /dev/null 2>&1; then
             missing_secrets+=("$secret")
         fi
     done
@@ -470,7 +485,7 @@ setup_environments() {
 
     for env in "${environments[@]}"; do
         echo "📋 Environment: $env"
-        echo "   Use 'infisical secrets set KEY=VALUE --env=$env' to add secrets"
+        echo "   Use 'infisical secrets set --projectId=$INFISICAL_PROJECT_ID KEY=VALUE --env=$env' to add secrets"
     done
 
     success "Environments configured"
@@ -506,10 +521,10 @@ EOF
     cat <<EOF
 {
   "scripts": {
-    "dev": "infisical run --env=development -- node src/app.js",
-    "start": "infisical run --env=production -- node src/app.js",
-    "start:orchestrator": "infisical run --env=production -- node src/orchestrator/main.js",
-    "start:worker": "infisical run --env=production -- node src/worker/main.js",
+    "dev": "infisical run --projectId=8374cea9-e5e8-4050-bda4-b91f25ab30ef --env=development -- node src/app.js",
+    "start": "infisical run --projectId=8374cea9-e5e8-4050-bda4-b91f25ab30ef --env=production -- node src/app.js",
+    "start:orchestrator": "infisical run --projectId=8374cea9-e5e8-4050-bda4-b91f25ab30ef --env=production -- node src/orchestrator/main.js",
+    "start:worker": "infisical run --projectId=8374cea9-e5e8-4050-bda4-b91f25ab30ef --env=production -- node src/worker/main.js",
     "secrets:validate": "scripts/secrets/infisical-helpers.sh validate",
     "secrets:generate": "scripts/secrets/infisical-helpers.sh generate development"
   }
@@ -548,14 +563,14 @@ This directory contains templates and configuration for managing secrets with In
 
 ## Quick Start
 
-1. Install and login to Infisical:
+1. Export your Infisical service token:
    \`\`\`bash
-   infisical login
+   export INFISICAL_TOKEN=REPLACE_ME_INFISICAL_TOKEN
    \`\`\`
 
-2. Initialize project (if not done):
+2. Ensure the project id is available:
    \`\`\`bash
-   infisical init
+   export INFISICAL_PROJECT_ID=8374cea9-e5e8-4050-bda4-b91f25ab30ef
    \`\`\`
 
 3. Use helper scripts:
@@ -591,19 +606,15 @@ validate_setup() {
     log "Validating Infisical setup..."
 
     # Check CLI access
-    if ! infisical user whoami &> /dev/null; then
-        error "Infisical CLI not authenticated. Run 'infisical login' first."
+    if ! nyra_require_infisical_token; then
+        error "INFISICAL_TOKEN environment variable is required."
         return 1
     fi
 
-    # Check project initialization
-    if [[ ! -f "$PROJECT_ROOT/.infisical.json" ]]; then
-        error "Infisical project not initialized. Run 'infisical init' in project root."
-        return 1
-    fi
+    nyra_resolve_infisical_project_id
 
     # Test secret operations
-    if infisical secrets --env=development > /dev/null 2>&1; then
+    if infisical secrets --projectId="$INFISICAL_PROJECT_ID" --env=development > /dev/null 2>&1; then
         success "Infisical setup validated successfully"
     else
         warning "Infisical setup may have issues. Check project configuration."
@@ -633,16 +644,16 @@ show_setup_summary() {
 📋 Next Steps:
 
 1. Set required Cloudflare secrets:
-   infisical secrets set CLOUDFLARE_API_KEY="your_key"
-   infisical secrets set CLOUDFLARE_EMAIL="your_email"
-   infisical secrets set CLOUDFLARE_ZONE_ID="your_zone_id"
-   infisical secrets set CLOUDFLARE_ACCOUNT_ID="your_account_id"
+   infisical secrets set --projectId=8374cea9-e5e8-4050-bda4-b91f25ab30ef --env=development CLOUDFLARE_API_KEY="your_key"
+   infisical secrets set --projectId=8374cea9-e5e8-4050-bda4-b91f25ab30ef --env=development CLOUDFLARE_EMAIL="your_email"
+   infisical secrets set --projectId=8374cea9-e5e8-4050-bda4-b91f25ab30ef --env=development CLOUDFLARE_ZONE_ID="your_zone_id"
+   infisical secrets set --projectId=8374cea9-e5e8-4050-bda4-b91f25ab30ef --env=development CLOUDFLARE_ACCOUNT_ID="your_account_id"
 
 2. Generate security secrets:
    ./scripts/secrets/infisical-helpers.sh generate development
 
 3. Test integration:
-   infisical run --env=development -- echo "Secrets loaded!"
+   infisical run --projectId=8374cea9-e5e8-4050-bda4-b91f25ab30ef --env=development -- echo "Secrets loaded!"
 
 4. Use in npm scripts:
    npm run dev  # Runs with development secrets

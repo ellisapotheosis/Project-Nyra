@@ -22,6 +22,9 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
+. "$PSScriptRoot\..\lib\InfisicalToken.ps1"
+$projectId = Get-NyraInfisicalProjectId
+Assert-NyraInfisicalToken
 
 Write-Host "`n🔐 Uploading Shared Secrets to Infisical" -ForegroundColor Cyan
 Write-Host "=========================================`n" -ForegroundColor Cyan
@@ -64,7 +67,7 @@ foreach ($key in $sharedSecrets.Keys) {
         }
 
         # Upload to Infisical
-        infisical secrets set $key $value --path /shared --env $Environment | Out-Null
+        Set-NyraInfisicalSecret -Name $key -Value $value -Environment $Environment -Path "/shared" -ProjectId $projectId | Out-Null
         Write-Host "✅ Set $key = $maskedValue in /shared" -ForegroundColor Green
         $successCount++
     }

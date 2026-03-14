@@ -10,7 +10,7 @@
     "build": "tsc",
     "start": "node dist/server.js",
     "test": "vitest",
-    "lint": "eslint . --ext .ts"
+    "lint": "eslint ."
   },
   "dependencies": {
     "dotenv": "^16.4.5",

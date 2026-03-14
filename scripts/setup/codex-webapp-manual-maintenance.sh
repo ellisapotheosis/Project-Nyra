@@ -7,7 +7,7 @@ SETUP_SCRIPT="$REPO_ROOT/scripts/setup/codex-webapp-manual-setup.sh"
 
 INFISICAL_ENV="${INFISICAL_ENV:-dev}"
 INFISICAL_PATH="${INFISICAL_PATH:-/shared}"
-INFISICAL_PROJECT_ID="${INFISICAL_PROJECT_ID:-}"
+INFISICAL_PROJECT_ID="${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}"
 ROOT_ENV_FILE="${ROOT_ENV_FILE:-$REPO_ROOT/.env}"
 PYTHON_VENV_DIR="${PYTHON_VENV_DIR:-$REPO_ROOT/.venv}"
 RUN_GIT_PULL="${RUN_GIT_PULL:-0}"
@@ -104,6 +104,14 @@ require_cmd() {
   fi
 }
 
+ensure_infisical_token() {
+  if [[ -z "${INFISICAL_TOKEN:-}" ]]; then
+    err "INFISICAL_TOKEN environment variable is missing."
+    err "Export INFISICAL_TOKEN before running this maintenance script."
+    exit 1
+  fi
+}
+
 refresh_python_requirements() {
   if [[ ! -d "$PYTHON_VENV_DIR" ]]; then
     warn "Python venv missing at $PYTHON_VENV_DIR; recreating with setup script"
@@ -140,6 +148,7 @@ main() {
   cd "$REPO_ROOT"
   require_cmd bash
   require_cmd git
+  ensure_infisical_token
 
   if [[ ! -x "$SETUP_SCRIPT" ]]; then
     err "Setup script not found or not executable: $SETUP_SCRIPT"

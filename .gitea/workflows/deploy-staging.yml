@@ -1,11 +1,15 @@
 name: 🚀 Deploy to Staging (AUTO)
 
 on:
-  push:
-    branches: [ main ]
   workflow_run:
     workflows: ["🏗️ Build & Push Multi-Arch"]
     types: [completed]
+  workflow_dispatch:
+    inputs:
+      deploy_sha:
+        description: 'Built commit SHA to deploy from main'
+        required: true
+        type: string
 
 env:
   ENVIRONMENT: staging
@@ -14,7 +18,7 @@ env:
 jobs:
   deploy-staging:
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
+    if: (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') || (github.event_name == 'workflow_run' && github.event.workflow_run.event == 'push' && github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main')
 
     environment:
       name: staging
@@ -23,11 +27,18 @@ jobs:
     steps:
       - name: 📥 Checkout
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.event.inputs.deploy_sha }}
 
       - name: 🔧 Setup deployment
+        env:
+          GITHUB_EVENT_WORKFLOW_RUN_HEAD_SHA: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || '' }}
+          GITHUB_EVENT_INPUT_DEPLOY_SHA: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.deploy_sha || '' }}
         run: |
+          source scripts/ci/common.sh
+          resolve_deploy_sha "$GITHUB_EVENT_NAME" "$GITHUB_EVENT_WORKFLOW_RUN_HEAD_SHA" "$GITHUB_EVENT_INPUT_DEPLOY_SHA"
           echo "🚀 Preparing staging deployment"
-          echo "Git SHA: ${GITHUB_SHA:0:7}"
+          echo "Git SHA: ${DEPLOY_SHA:0:7}"
           echo "Environment: ${{ env.ENVIRONMENT }}"
 
       - name: 🔐 Setup SSH
@@ -36,13 +47,21 @@ jobs:
           ssh-private-key: ${{ secrets.STAGING_SSH_KEY }}
 
       - name: 📋 Prepare deployment files
+        env:
+          GITHUB_EVENT_WORKFLOW_RUN_HEAD_SHA: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || '' }}
+          GITHUB_EVENT_INPUT_DEPLOY_SHA: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.deploy_sha || '' }}
         run: |
+          source scripts/ci/common.sh
+          resolve_deploy_sha "$GITHUB_EVENT_NAME" "$GITHUB_EVENT_WORKFLOW_RUN_HEAD_SHA" "$GITHUB_EVENT_INPUT_DEPLOY_SHA"
+
           # Create deployment package
           mkdir -p deploy-staging
           cp -r infra/ deploy-staging/
           cp docker-compose.*.yml deploy-staging/
           cp .env.template deploy-staging/.env.template
           cp scripts/validate-env.sh deploy-staging/
+          mkdir -p deploy-staging/scripts/ci
+          cp scripts/ci/common.sh deploy-staging/scripts/ci/common.sh
 
           # Create staging-specific environment
           cat > deploy-staging/.env.staging << EOF
@@ -52,10 +71,10 @@ jobs:
           COMPOSE_PROJECT_NAME=nyra-staging
 
           # Image versions (latest main builds)
-          NEXUS_ROUTER_IMAGE=gitea.local:3100/nyra/nexus-router:${GITHUB_SHA:0:7}
-          CLAUDE_FLOW_IMAGE=gitea.local:3100/nyra/claude-flow:${GITHUB_SHA:0:7}
-          QUOTE_ENGINE_IMAGE=gitea.local:3100/nyra/quote-engine:${GITHUB_SHA:0:7}
-          CAMPAIGN_ENGINE_IMAGE=gitea.local:3100/nyra/campaign-engine:${GITHUB_SHA:0:7}
+          NEXUS_ROUTER_IMAGE=gitea.local:3100/nyra/nexus-router:${SHORT_SHA}
+          CLAUDE_FLOW_IMAGE=gitea.local:3100/nyra/claude-flow:${SHORT_SHA}
+          QUOTE_ENGINE_IMAGE=gitea.local:3100/nyra/quote-engine:${SHORT_SHA}
+          CAMPAIGN_ENGINE_IMAGE=gitea.local:3100/nyra/campaign-engine:${SHORT_SHA}
 
           # Staging-specific settings
           GRAFANA_ADMIN_PASSWORD=${{ secrets.STAGING_GRAFANA_PASSWORD }}
@@ -79,23 +98,26 @@ jobs:
       - name: 📤 Deploy to staging
         run: |
           # Copy files to staging server
-          scp -o StrictHostKeyChecking=no -r deploy-staging/* deploy@${{ env.DEPLOY_HOST }}:/opt/project-nyra/
+          scp -o StrictHostKeyChecking=no -r deploy-staging/. deploy@${{ env.DEPLOY_HOST }}:/opt/project-nyra/
 
           # Execute deployment on staging server
-          ssh -o StrictHostKeyChecking=no deploy@${{ env.DEPLOY_HOST }} << 'EOF'
+          ssh -o StrictHostKeyChecking=no deploy@${{ env.DEPLOY_HOST }} 'bash -s' << 'EOF'
+            set -euo pipefail
             cd /opt/project-nyra
+            source ./scripts/ci/common.sh
+            detect_compose
 
             echo "🔍 Validating environment..."
             ./validate-env.sh .env.staging
 
             echo "🐳 Stopping existing services..."
-            docker-compose -f infra/docker-compose.yml --env-file .env.staging down || true
+            compose_run -f infra/docker-compose.yml --env-file .env.staging down || true
 
             echo "📥 Pulling latest images..."
-            docker-compose -f infra/docker-compose.yml --env-file .env.staging pull
+            compose_run -f infra/docker-compose.yml --env-file .env.staging pull
 
             echo "🚀 Starting services..."
-            docker-compose -f infra/docker-compose.yml --env-file .env.staging up -d
+            compose_run -f infra/docker-compose.yml --env-file .env.staging up -d
 
             echo "⏳ Waiting for services to be ready..."
             sleep 30
@@ -106,12 +128,12 @@ jobs:
             curl -f http://localhost:3010/health || echo "⚠️ Claude Flow not ready"
 
             echo "📊 Service status:"
-            docker-compose -f infra/docker-compose.yml --env-file .env.staging ps
+            compose_run -f infra/docker-compose.yml --env-file .env.staging ps
           EOF
 
       - name: 🧪 Run staging tests
         run: |
-          ssh -o StrictHostKeyChecking=no deploy@${{ env.DEPLOY_HOST }} << 'EOF'
+          ssh -o StrictHostKeyChecking=no deploy@${{ env.DEPLOY_HOST }} 'bash -s' << 'EOF'
             cd /opt/project-nyra
 
             echo "🧪 Running staging smoke tests..."
@@ -143,8 +165,11 @@ jobs:
           echo "❌ Staging deployment failed!"
 
           # Get logs for debugging
-          ssh -o StrictHostKeyChecking=no deploy@${{ env.DEPLOY_HOST }} << 'EOF'
+          ssh -o StrictHostKeyChecking=no deploy@${{ env.DEPLOY_HOST }} 'bash -s' << 'EOF'
+            set -euo pipefail
             cd /opt/project-nyra
+            source ./scripts/ci/common.sh
+            detect_compose
             echo "📋 Service logs:"
-            docker-compose -f infra/docker-compose.yml --env-file .env.staging logs --tail=50
+            compose_run -f infra/docker-compose.yml --env-file .env.staging logs --tail=50
           EOF

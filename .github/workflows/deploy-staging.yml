@@ -76,38 +76,27 @@ jobs:
       - name: Fetch secrets from Infisical
         env:
           INFISICAL_TOKEN: ${{ secrets.INFISICAL_TOKEN }}
-          INFISICAL_UNIVERSAL_AUTH_CLIENT_ID: ${{ secrets.INFISICAL_UNIVERSAL_AUTH_CLIENT_ID }}
-          INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET: ${{ secrets.INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET }}
         run: |
-          TOKEN="$INFISICAL_TOKEN"
-
-          if [ -z "$TOKEN" ] && [ -n "$INFISICAL_UNIVERSAL_AUTH_CLIENT_ID" ] && [ -n "$INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET" ]; then
-            TOKEN=$(infisical login --method=universal-auth \
-              --client-id="$INFISICAL_UNIVERSAL_AUTH_CLIENT_ID" \
-              --client-secret="$INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET" \
-              --plain --silent)
+          if [ -z "$INFISICAL_TOKEN" ]; then
+            echo "::error::Missing required secret: INFISICAL_TOKEN"
+            exit 1
           fi
 
-          if [ -n "$TOKEN" ]; then
-            echo "::add-mask::$TOKEN"
-            echo "INFISICAL_TOKEN=$TOKEN" >> $GITHUB_ENV
-            INFISICAL_STAGE_ENV="stag"
-            if ! infisical secrets --env="$INFISICAL_STAGE_ENV" --path=/CI-CD --projectId=8374cea9-e5e8-4050-bda4-b91f25ab30ef --token="$TOKEN" --recursive -o json >/dev/null 2>&1; then
-              INFISICAL_STAGE_ENV="staging"
+          echo "::add-mask::$INFISICAL_TOKEN"
+          echo "INFISICAL_TOKEN=$INFISICAL_TOKEN" >> $GITHUB_ENV
+
+          INFISICAL_STAGE_ENV="stag"
+          if ! infisical secrets --env="$INFISICAL_STAGE_ENV" --path=/CI-CD --projectId=8374cea9-e5e8-4050-bda4-b91f25ab30ef --token="$INFISICAL_TOKEN" --recursive -o json >/dev/null 2>&1; then
+            INFISICAL_STAGE_ENV="staging"
+          fi
+
+          infisical export --env="$INFISICAL_STAGE_ENV" --path=/CI-CD --projectId=8374cea9-e5e8-4050-bda4-b91f25ab30ef --format=dotenv --token="$INFISICAL_TOKEN" > .env.staging
+
+          while IFS='=' read -r key value; do
+            if [ -n "$value" ]; then
+              echo "::add-mask::$value"
             fi
-
-            infisical export --env="$INFISICAL_STAGE_ENV" --path=/CI-CD --format=dotenv --token="$TOKEN" > .env.staging
-
-            # Mask sensitive values in logs
-            while IFS='=' read -r key value; do
-              if [ -n "$value" ]; then
-                echo "::add-mask::$value"
-              fi
-            done < .env.staging
-          else
-            echo "Warning: INFISICAL_TOKEN not configured and universal auth credentials missing"
-            touch .env.staging
-          fi
+          done < .env.staging
 
       - name: Upload secrets artifact
         uses: actions/upload-artifact@v7
