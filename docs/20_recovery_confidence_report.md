@@ -1,47 +1,34 @@
 # 20 Recovery Confidence Report
 
-## Method
-
-Confidence levels are assigned based on direct file evidence gathered during inventory and validation.
-
 ## Confirmed
 
-These are directly confirmed by current repo files and validation commands.
-
-- Active stack primary compose is `infra/docker-compose.yml`.
-- Node scripts use base compose + overrides from `infra/compose/overrides/`.
-- Gitea and Infisical compose files exist at repository root.
-- Cloudflared config contains final `http_status:404` catch-all.
-- `.env.gitea`, `.env.infisical`, `.secrets/` are gitignored.
+- `infra/docker-compose.yml` is the primary stack entrypoint referenced by the root `Makefile` and `infra/scripts/ultimate-bootstrap.sh`.
+- `infra/scripts/node-up.sh` composes `infra/docker-compose.yml` with per-node override files under `infra/compose/overrides/`.
+- Dedicated root bootstrap stacks exist for Gitea, Infisical, and Archon: `docker-compose.gitea.yml`, `docker-compose.infisical.yml`, `docker-compose.archon.yml`.
+- The regenerated `infra/cloudflared/config.yml` ends with `http_status:404` and contains no datastore ingress.
+- `.env.gitea`, `.env.infisical`, and `.secrets/` are explicitly gitignored.
 
 ## Inferred
 
-These are strongly likely but depend on deployment-specific environment choices.
-
-- Oracle hosts primary stateful/business workloads in production.
-- Orchestrator hosts control-plane and routing workloads.
-- Worker nodes are intended for private GPU inference only.
-- Existing CI workflows are expected to run compose config validation with dummy env files.
+- Oracle is intended to host durable business-state services because the Oracle compose carries `quote-api`, `twenty`, and stateful backing services.
+- The orchestrator hosts control-plane and gateway services because `infra/docker-compose.yml` carries `nexus-router`, `litellm`, `grafana`, and `cloudflared`.
+- Worker compose files are intended for private GPU execution only because their published services are inference backends and observability components.
 
 ## Unknown
 
-These require runtime environment access or operator confirmation.
+- The real tunnel UUID and the final Cloudflare zone hostname currently in production.
+- Which of the access-protected apps the operator actually wants exposed in production at the same time.
+- Whether any external automation depends on the secondary override/bootstrap compose paths listed in `docs/02_ports_registry.appendix_legacy.md`.
 
-- Production tunnel UUID currently in use.
-- Final authoritative hostname list currently delegated in Cloudflare dashboard.
-- Real Access policies and IdP groups bound to each hostname.
-- Whether downstream consumers depend on any legacy non-canonical compose paths.
+## File-path evidence
 
-## Evidence index
-
-- Makefile compose targets and compose references.
-- `infra/scripts/node-up.sh`, `node-down.sh`, `ultimate-bootstrap.sh`.
-- `infra/cloudflared/config.yml` and `infra/cloudflared/hostname-map.md`.
-- `docker-compose.gitea.yml`, `docker-compose.infisical.yml`.
-- `.github/workflows/infra-validate.yml` and `.gitea/workflows/infra-validate.yml`.
-
-## Confidence summary
-
-- **High confidence**: compose path truth, docs regeneration, non-public datastore policy in docs/config.
-- **Medium confidence**: intended node placement semantics across environments.
-- **Low confidence**: external DNS/Access dashboard state not represented inside git.
+- `Makefile`
+- `infra/scripts/node-up.sh`
+- `infra/scripts/ultimate-bootstrap.sh`
+- `infra/docker-compose.yml`
+- `infra/oracle/docker-compose.oracle.yml`
+- `docker-compose.archon.yml`
+- `docker-compose.gitea.yml`
+- `docker-compose.infisical.yml`
+- `infra/cloudflared/config.yml`
+- `.gitignore`

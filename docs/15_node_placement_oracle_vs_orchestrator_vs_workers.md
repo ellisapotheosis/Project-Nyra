@@ -4,41 +4,24 @@
 
 | Service | Node | Why | Ports | Exposure |
 |---|---|---|---|---|
-| postgres | oracle | durable state and primary datastore | 5432 | private |
-| redis | oracle | shared cache/queue state | 6379 | private |
-| mongo | oracle | document persistence for app subsystems | 27017 | private |
+| postgres | oracle | primary relational state | 5432 | private |
+| redis | oracle | shared cache and queue state | 6379 | private |
 | n8n | oracle/orchestrator | workflow control surface | 5678 | Access-protected public |
-| activepieces | oracle/orchestrator | automation UI/API | 80/8082 | Access-protected public |
-| twenty/twentycrm | oracle | CRM core app, persistent backend | 3000 | Access-protected public |
-| quote-api | oracle | domain API serving upstream apps | 7070 | Access-protected public |
-| litellm | orchestrator | centralized LLM gateway | 4000 | Access-protected public |
-| nexus-router | orchestrator | request routing/API gateway | 7000/8080/9091 | Access-protected public |
-| grafana | orchestrator/oracle | observability UI | 3000 | Access-protected public |
-| gitea | orchestrator | internal forge + CI control plane | 3000/22 | Access-protected (web), SSH restricted |
-| infisical | orchestrator | secrets management control plane | 8080 | Access-protected public |
+| activepieces | oracle/orchestrator | workflow automation surface | 8082 | Access-protected public |
+| twentycrm | oracle | CRM core app with durable backing services | 3000 | Access-protected public |
+| quote-api | oracle | domain API for pricing workflows | 7070 | private |
+| grafana | orchestrator/oracle | operator observability UI | 3003 | Access-protected public |
+| gitea | orchestrator | internal forge and CI control plane | 3100, 2222 | Access-protected web, SSH restricted |
+| infisical | orchestrator | secrets control plane | 8086 | Access-protected public |
+| archon-ui | orchestrator | operator-facing Archon UI | 3737 | Access-protected public |
 | worker-3060-ollama | workers | GPU-bound inference runtime | 11434 | private |
 | worker-3090ti-vllm | workers | GPU-bound inference runtime | 8000 | private |
-| worker-5090-vllm | workers | high-end GPU inference | 8000 | private |
+| worker-5090-vllm | workers | high-end GPU inference runtime | 8001 | private |
 
-## Node role definitions
+## Evidence
 
-- **Oracle**: always-on business/state layer.
-- **Orchestrator**: routing, automation control, governance, and operator interfaces.
-- **Workers**: execution/inference heavy workloads with private network access.
-
-## Placement constraints
-
-1. Datastores remain private regardless of node.
-2. Worker inference endpoints are not internet-routed.
-3. Internet-facing UI/API endpoints are cloudflared + Access only.
-4. Cross-node service communication should prefer private networking/Tailscale.
-
-## Network policy expectations
-- Oracle and orchestrator should communicate over private network only.
-- Worker nodes should accept inference traffic from trusted internal sources.
-- Public traffic should terminate at Cloudflare edge before reaching internal services.
-
-## Capacity guidance
-- Keep stateful and latency-sensitive business services off ephemeral worker nodes.
-- Scale worker pool independently based on GPU workload and model mix.
-- Track per-node saturation to inform future placement shifts.
+- Base stack: `infra/docker-compose.yml`
+- Oracle stack: `infra/oracle/docker-compose.oracle.yml`
+- Dedicated Archon stack: `docker-compose.archon.yml`
+- Dedicated Gitea and Infisical stacks: `docker-compose.gitea.yml`, `docker-compose.infisical.yml`
+- Worker stacks: `infra/workers/worker-rtx3060/docker-compose.worker.yml`, `infra/workers/worker-rtx3090ti/docker-compose.worker.yml`, `infra/workers/worker-rtx5090/docker-compose.worker.yml`
