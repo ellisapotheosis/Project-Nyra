@@ -113,6 +113,8 @@ docs/**/*.md
 scripts/
 !scripts/docker/
 !scripts/deployment/
+!scripts/gitea/
+!scripts/gitea/bootstrap-act-runner.sh
 
 # Test files
 tests/
@@ -144,6 +146,9 @@ playwright-report/
 
 # Config files (exclude from build)
 infra/configs/
+!infra/configs/gitea/
+!infra/configs/gitea/runner-config.yaml
+!infra/configs/gitea/runner-config-large.yaml
 
 # Development only
 .devcontainer/

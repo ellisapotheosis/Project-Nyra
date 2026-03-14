@@ -5,6 +5,11 @@ on:
     workflows: ["🏗️ Build & Push Multi-Arch"]
     types: [completed]
   workflow_dispatch:
+    inputs:
+      deploy_sha:
+        description: 'Built commit SHA to deploy from develop'
+        required: true
+        type: string
 
 env:
   ENVIRONMENT: development
@@ -13,7 +18,7 @@ env:
 jobs:
   deploy-development:
     runs-on: ubuntu-latest
-    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'develop')
+    if: (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/develop') || (github.event_name == 'workflow_run' && github.event.workflow_run.event == 'push' && github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'develop')
 
     environment:
       name: development
@@ -23,14 +28,15 @@ jobs:
       - name: 📥 Checkout
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
+          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.event.inputs.deploy_sha }}
 
       - name: 🔧 Setup deployment
         env:
           GITHUB_EVENT_WORKFLOW_RUN_HEAD_SHA: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || '' }}
+          GITHUB_EVENT_INPUT_DEPLOY_SHA: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.deploy_sha || '' }}
         run: |
           source scripts/ci/common.sh
-          resolve_deploy_sha "$GITHUB_EVENT_NAME" "$GITHUB_EVENT_WORKFLOW_RUN_HEAD_SHA"
+          resolve_deploy_sha "$GITHUB_EVENT_NAME" "$GITHUB_EVENT_WORKFLOW_RUN_HEAD_SHA" "$GITHUB_EVENT_INPUT_DEPLOY_SHA"
           echo "🛠️ Preparing development deployment"
           echo "Git SHA: ${DEPLOY_SHA:0:7}"
           echo "Environment: ${{ env.ENVIRONMENT }}"
@@ -43,9 +49,10 @@ jobs:
       - name: 📋 Prepare deployment files
         env:
           GITHUB_EVENT_WORKFLOW_RUN_HEAD_SHA: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || '' }}
+          GITHUB_EVENT_INPUT_DEPLOY_SHA: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.deploy_sha || '' }}
         run: |
           source scripts/ci/common.sh
-          resolve_deploy_sha "$GITHUB_EVENT_NAME" "$GITHUB_EVENT_WORKFLOW_RUN_HEAD_SHA"
+          resolve_deploy_sha "$GITHUB_EVENT_NAME" "$GITHUB_EVENT_WORKFLOW_RUN_HEAD_SHA" "$GITHUB_EVENT_INPUT_DEPLOY_SHA"
 
           mkdir -p deploy-development
           cp -r infra/ deploy-development/
@@ -89,9 +96,9 @@ jobs:
 
       - name: 📤 Deploy to development
         run: |
-          scp -o StrictHostKeyChecking=no -r deploy-development/* deploy@${{ env.DEPLOY_HOST }}:/opt/project-nyra/
+          scp -o StrictHostKeyChecking=no -r deploy-development/. deploy@${{ env.DEPLOY_HOST }}:/opt/project-nyra/
 
-          ssh -o StrictHostKeyChecking=no deploy@${{ env.DEPLOY_HOST }} << 'EOF'
+          ssh -o StrictHostKeyChecking=no deploy@${{ env.DEPLOY_HOST }} 'bash -s' << 'EOF'
             set -euo pipefail
             cd /opt/project-nyra
             source ./scripts/ci/common.sh
@@ -115,7 +122,7 @@ jobs:
 
       - name: 🧪 Run development smoke tests
         run: |
-          ssh -o StrictHostKeyChecking=no deploy@${{ env.DEPLOY_HOST }} << 'EOF'
+          ssh -o StrictHostKeyChecking=no deploy@${{ env.DEPLOY_HOST }} 'bash -s' << 'EOF'
             set -euo pipefail
             cd /opt/project-nyra
 

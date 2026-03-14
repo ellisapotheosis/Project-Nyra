@@ -84,7 +84,7 @@ jobs:
 
       - name: 💾 Create production backup
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ needs.pre-deployment-checks.outputs.deploy-user }}@${{ needs.pre-deployment-checks.outputs.deploy-host }} << 'EOF'
+          ssh -o StrictHostKeyChecking=no ${{ needs.pre-deployment-checks.outputs.deploy-user }}@${{ needs.pre-deployment-checks.outputs.deploy-host }} 'bash -s' << 'EOF'
             cd /opt/project-nyra
 
             echo "💾 Creating pre-deployment backup..."
@@ -203,10 +203,10 @@ jobs:
           echo "🚀 Deploying to $HOST as $USER"
 
           # Copy deployment files
-          scp -o StrictHostKeyChecking=no -r deploy-prod/* $USER@$HOST:/opt/project-nyra/
+          scp -o StrictHostKeyChecking=no -r deploy-prod/. $USER@$HOST:/opt/project-nyra/
 
           # Execute deployment
-          ssh -o StrictHostKeyChecking=no $USER@$HOST << 'EOF'
+          ssh -o StrictHostKeyChecking=no $USER@$HOST 'bash -s' << 'EOF'
             set -euo pipefail
             cd /opt/project-nyra
             source ./scripts/ci/common.sh
@@ -251,7 +251,7 @@ jobs:
           HOST="${{ needs.pre-deployment-checks.outputs.deploy-host }}"
           USER="${{ needs.pre-deployment-checks.outputs.deploy-user }}"
 
-          ssh -o StrictHostKeyChecking=no $USER@$HOST << 'EOF'
+          ssh -o StrictHostKeyChecking=no $USER@$HOST 'bash -s' << 'EOF'
             cd /opt/project-nyra
 
             echo "🧪 Running production smoke tests..."
@@ -286,7 +286,7 @@ jobs:
 
   rollback:
     runs-on: ubuntu-latest
-    needs: [pre-deployment-checks, deploy-production]
+    needs: [pre-deployment-checks, backup-production, deploy-production]
     if: failure() && needs.backup-production.result == 'success'
 
     steps:
@@ -297,7 +297,7 @@ jobs:
           HOST="${{ needs.pre-deployment-checks.outputs.deploy-host }}"
           USER="${{ needs.pre-deployment-checks.outputs.deploy-user }}"
 
-          ssh -o StrictHostKeyChecking=no $USER@$HOST << 'EOF'
+          ssh -o StrictHostKeyChecking=no $USER@$HOST 'bash -s' << 'EOF'
             set -euo pipefail
             cd /opt/project-nyra
             source ./scripts/ci/common.sh
