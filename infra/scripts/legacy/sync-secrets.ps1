@@ -3,10 +3,14 @@ param(
   [string]$Env = "dev"
 )
 
+. "$PSScriptRoot\..\..\..\scripts\lib\InfisicalToken.ps1"
+$projectId = Get-NyraInfisicalProjectId
+Assert-NyraInfisicalToken
+
 # helper: list keys in a folder (quick parse)
 function Get-InfisicalKeys {
   param([string]$Path, [string]$Env)
-  $out = infisical export --env=$Env --path=$Path 2>$null
+  $out = infisical export --projectId=$projectId --env=$Env --path=$Path 2>$null
   if (-not $out) { return @() }
   $lines = $out -split "`n" | Where-Object { $_ -match '^[A-Z0-9_]+=' }
   return $lines | ForEach-Object { ($_ -split '=',2)[0].Trim() }
@@ -22,7 +26,7 @@ function Set-IfMissing {
     } else {
       $v = $Pairs[$k]
       Write-Host "➕  $Env $Path::$k ← creating" -ForegroundColor Cyan
-      infisical secrets set "$k=$v" --env=$Env --path=$Path | Out-Null
+      infisical secrets set --projectId=$projectId --env=$Env --path=$Path "$k=$v" | Out-Null
     }
   }
 }
@@ -70,9 +74,8 @@ $nyraIngest = @{
 }
 $mcp = @{
   INFISICAL_ENVIRONMENT              = "dev"
-  INFISICAL_PROJECT_ID               = "YOUR_INFISICAL_PROJECT_ID"
-  INFISICAL_UNIVERSAL_AUTH_CLIENT_ID = "client_id_here"
-  INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET = "client_secret_here"
+  INFISICAL_PROJECT_ID               = "8374cea9-e5e8-4050-bda4-b91f25ab30ef"
+  INFISICAL_TOKEN                    = "service_token_here"
   LOG_LEVEL                          = "debug"
   MCP_PORT                           = "3001"
 }

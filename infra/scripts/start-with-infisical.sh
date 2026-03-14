@@ -7,8 +7,8 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$SCRIPT_DIR/../.."
 COMPOSE_DIR="$PROJECT_ROOT/infra/docker-compose"
-
-PROJECT_ID="8374cea9-e5e8-4050-bda4-b91f25ab30ef"
+# shellcheck source=scripts/lib/infisical-token.sh
+source "$PROJECT_ROOT/scripts/lib/infisical-token.sh"
 ENVIRONMENT="${1:-dev}"
 SERVICE_GROUP="${2:-base}"
 
@@ -17,12 +17,8 @@ echo "   Environment: $ENVIRONMENT"
 echo "   Service Group: $SERVICE_GROUP"
 echo ""
 
-# Check Infisical login
-if ! infisical login 2>&1 | grep -q "logged in\|Already"; then
-    echo "❌ Not logged in to Infisical"
-    echo "Please run: infisical login"
-    exit 1
-fi
+nyra_require_infisical_token
+nyra_resolve_infisical_project_id
 
 cd "$COMPOSE_DIR"
 
@@ -59,7 +55,7 @@ esac
 echo ""
 echo "🔐 Injecting secrets from Infisical..."
 infisical run \
-    --projectId="$PROJECT_ID" \
+    --projectId="$INFISICAL_PROJECT_ID" \
     --env="$ENVIRONMENT" \
     --path="/shared" \
     -- docker compose $COMPOSE_FILES up -d --remove-orphans

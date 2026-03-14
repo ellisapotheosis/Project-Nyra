@@ -8,6 +8,9 @@ param(
     [string]$Environment = "dev"
 )
 
+. "$PSScriptRoot\..\..\..\scripts\lib\InfisicalToken.ps1"
+$projectId = Get-NyraInfisicalProjectId
+
 Write-Host "🔄 NYRA Secret Swapper" -ForegroundColor Cyan
 Write-Host "======================" -ForegroundColor Cyan
 
@@ -22,23 +25,11 @@ function Mask-Secret($value) {
 # Helper function to validate Infisical setup
 function Test-InfisicalSetup {
     try {
-        $result = infisical user get token 2>$null
-        if ($LASTEXITCODE -ne 0) {
-            throw "Not logged in"
-        }
-        
-        # Test if project is initialized
-        if (!(Test-Path ".infisical.json")) {
-            Write-Host "❌ Infisical project not initialized in this directory" -ForegroundColor Red
-            Write-Host "Run: infisical init" -ForegroundColor Yellow
-            return $false
-        }
-        
+        Assert-NyraInfisicalToken
         return $true
     }
     catch {
-        Write-Host "❌ Infisical not logged in or accessible" -ForegroundColor Red  
-        Write-Host "Run: infisical login" -ForegroundColor Yellow
+        Write-Host "❌ $($_.Exception.Message)" -ForegroundColor Red
         return $false
     }
 }
@@ -55,12 +46,12 @@ if (-not $SecretName) {
     # Show current secrets (masked)
     Write-Host "`n📋 Current secrets in '$Environment' environment:" -ForegroundColor Blue
     try {
-        $secretsList = infisical secrets get --env $Environment 2>$null
+        $secretsList = & infisical secrets list --projectId $projectId --env $Environment --format json 2>$null | ConvertFrom-Json
         if ($secretsList) {
-            $secretsList | ForEach-Object {
-                if ($_ -match "(\S+)\s*=\s*(.+)") {
-                    $name = $matches[1]
-                    $value = $matches[2]
+            $secretsList.secrets | ForEach-Object {
+                if ($_.secretKey -and $_.secretValue) {
+                    $name = $_.secretKey
+                    $value = $_.secretValue
                     $maskedValue = Mask-Secret $value
                     Write-Host "   $name = $maskedValue" -ForegroundColor DarkGray
                 }
@@ -86,9 +77,9 @@ if (-not $SecretName) {
     
     # Get current value (masked for confirmation)
     try {
-        $currentValue = infisical secrets get $SecretName --env $Environment 2>$null
-        if ($currentValue -and $currentValue -match "=\s*(.+)") {
-            $maskedCurrent = Mask-Secret $matches[1]
+        $currentValue = Get-NyraInfisicalSecret -SecretName $SecretName -Environment $Environment -ProjectId $projectId -ExtraArgs @("--plain") 2>$null
+        if ($currentValue) {
+            $maskedCurrent = Mask-Secret $currentValue
             Write-Host "Current value: $maskedCurrent" -ForegroundColor DarkGray
         }
     }
@@ -127,7 +118,7 @@ Write-Host "`n🔄 Updating secret..." -ForegroundColor Green
 
 try {
     # Update the secret in Infisical
-    $result = infisical secrets set "$SecretName=$NewValue" --env $Environment 2>&1
+    $result = Set-NyraInfisicalSecret -Name $SecretName -Value $NewValue -Environment $Environment -Path "" -ProjectId $projectId 2>&1
     
     if ($LASTEXITCODE -eq 0) {
         $maskedNew = Mask-Secret $NewValue

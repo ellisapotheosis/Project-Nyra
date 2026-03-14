@@ -7,7 +7,9 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+source "$PROJECT_ROOT/scripts/lib/infisical-token.sh"
 TUNNELS_CONFIG="$PROJECT_ROOT/config/cloudflared/tunnel-configs.yml"
+INFISICAL_PROJECT_ID="${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}"
 
 # Colors
 RED='\033[0;31m'
@@ -44,6 +46,13 @@ check_prerequisites() {
         log_error "Infisical CLI not found. Please install it first."
         exit 1
     fi
+
+    if ! nyra_require_infisical_token; then
+        log_error "INFISICAL_TOKEN is required."
+        exit 1
+    fi
+
+    nyra_resolve_infisical_project_id
 
     if [[ -z "${CLOUDFLARE_API_TOKEN:-}" && -z "${CLOUDFLARE_EMAIL:-}" ]]; then
         log_error "Cloudflare credentials not found in environment."
@@ -129,17 +138,17 @@ store_tunnel_credentials() {
         return 1
     fi
 
-    infisical secrets set "CLOUDFLARE_TUNNEL_TOKEN" "$tunnel_token" \
-        --env=production --path="/nyra/${pc_id}"
+    infisical secrets set "CLOUDFLARE_TUNNEL_TOKEN=$tunnel_token" \
+        --projectId="$INFISICAL_PROJECT_ID" --env=production --path="/nyra/${pc_id}"
 
-    infisical secrets set "CLOUDFLARE_TUNNEL_NAME" "$tunnel_name" \
-        --env=production --path="/nyra/${pc_id}"
+    infisical secrets set "CLOUDFLARE_TUNNEL_NAME=$tunnel_name" \
+        --projectId="$INFISICAL_PROJECT_ID" --env=production --path="/nyra/${pc_id}"
 
-    infisical secrets set "CLOUDFLARE_TUNNEL_ID" "$tunnel_id" \
-        --env=production --path="/nyra/${pc_id}"
+    infisical secrets set "CLOUDFLARE_TUNNEL_ID=$tunnel_id" \
+        --projectId="$INFISICAL_PROJECT_ID" --env=production --path="/nyra/${pc_id}"
 
-    infisical secrets set "CLOUDFLARE_TUNNEL_CREDENTIALS" "$(base64 -w 0 < "$creds_file")" \
-        --env=production --path="/nyra/${pc_id}"
+    infisical secrets set "CLOUDFLARE_TUNNEL_CREDENTIALS=$(base64 -w 0 < "$creds_file")" \
+        --projectId="$INFISICAL_PROJECT_ID" --env=production --path="/nyra/${pc_id}"
 
     log_success "Stored tunnel credentials for $pc_id in Infisical"
 }

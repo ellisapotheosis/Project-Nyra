@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   nyra-secrets-init:
     build:
@@ -9,14 +7,13 @@ services:
     entrypoint: ["/usr/local/bin/secrets-init.sh"]
     environment:
       INFISICAL_API_URL: ${INFISICAL_API_URL:-https://app.infisical.com}
-      INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-}
+      INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
+      INFISICAL_TOKEN: ${INFISICAL_TOKEN:?set INFISICAL_TOKEN}
       INFISICAL_ENV: ${INFISICAL_ENV:-prod}
       INFISICAL_PATH: ${INFISICAL_PATH:-/nyra/gitea}
       NYRA_FORCE_SECRETS: ${NYRA_FORCE_SECRETS:-false}
     volumes:
       - nyra_secrets:/run/nyra-secrets
-      - ./.secrets/infisical/client-id:/run/secrets/infisical-client-id:ro
-      - ./.secrets/infisical/client-secret:/run/secrets/infisical-client_secret:ro
     networks:
       - nyra-net
     restart: "no"
@@ -93,14 +90,13 @@ services:
         condition: service_completed_successfully
     environment:
       INFISICAL_API_URL: ${INFISICAL_API_URL:-https://app.infisical.com}
-      INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-}
+      INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
+      INFISICAL_TOKEN: ${INFISICAL_TOKEN:?set INFISICAL_TOKEN}
       INFISICAL_ENV: ${INFISICAL_ENV:-prod}
       INFISICAL_PATH: ${INFISICAL_PATH:-/nyra/gitea}
       INFISICAL_POLL_INTERVAL: ${INFISICAL_POLL_INTERVAL:-60s}
     volumes:
       - nyra_secrets:/run/nyra-secrets
-      - ./.secrets/infisical/client-id:/run/secrets/infisical-client-id:ro
-      - ./.secrets/infisical/client-secret:/run/secrets/infisical-client_secret:ro
     networks:
       - nyra-net
     restart: unless-stopped

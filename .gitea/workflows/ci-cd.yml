@@ -55,6 +55,9 @@ jobs:
           fi
 
       - name: Deploy Gitea + runner stack on orchestrator
+        env:
+          INFISICAL_PROJECT_ID: 8374cea9-e5e8-4050-bda4-b91f25ab30ef
+          INFISICAL_TOKEN: ${{ secrets.INFISICAL_TOKEN }}
         run: |
           chmod +x scripts/gitea/bootstrap-orchestrator-gitea.sh
           ENABLE_ACTIONS=true ENABLE_AI=false ENABLE_INFISICAL_AGENT=true \
