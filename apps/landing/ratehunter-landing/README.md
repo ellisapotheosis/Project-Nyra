@@ -89,19 +89,24 @@ ratehunter-landing/
 
 ```
 Framework preset: Next.js
-Build command: cd apps/landing/ratehunter-landing && npm run build:cf
-Build output: apps/landing/ratehunter-landing/.open-next/assets
-Root directory: /
+Root directory: apps/landing/ratehunter-landing
+Build command: npm run build:cf
+Build output: .open-next/assets
+Install command: npm install
 Node version: 20
 ```
 
 **Environment variables:**
 ```
 NODE_VERSION=20
-PNPM_VERSION=10.27.0
+NODE_ENV=production
 NEXT_TELEMETRY_DISABLED=1
 NEXT_PUBLIC_SITE_URL=https://ratehunter.com
+NEXT_PUBLIC_SITE_NAME=RateHunter
 ```
+
+**Do not use `/` as the root directory in Cloudflare for this repo.**
+That makes Pages install the entire monorepo, which can fail on unrelated workspace packages before the landing app even builds.
 
 ## 🔐 Security Features
 
@@ -137,9 +142,9 @@ git push origin main
 
 ### Manual (Wrangler CLI)
 ```bash
-pnpm run cf:login
-pnpm run build
-pnpm run deploy
+npm run cf:login
+npm run build:cf
+npm run deploy
 ```
 
 ## 🆘 Emergency Rollback
@@ -200,7 +205,7 @@ Private business use.
 ## 🤝 Contributing
 
 This is a business-critical landing page. All changes should:
-1. Be tested locally: `pnpm run build`
+1. Be tested locally: `npm run build:cf`
 2. Pass the deployment checklist
 3. Be deployed to preview first
 4. Be monitored after production deploy
