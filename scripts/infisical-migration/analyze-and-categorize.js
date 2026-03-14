@@ -191,7 +191,7 @@ function generateMigrationScript(categorized) {
   script += `$ErrorActionPreference = "Continue"\n`;
   script += `$ProjectId = "8374cea9-e5e8-4050-bda4-b91f25ab30ef"\n`;
   script += `$Env = "dev"\n`;
-  script += `$Token = $env:INFISICAL_ACCESS_TOKEN\n\n`;
+  script += `$Token = $env:INFISICAL_TOKEN\n\n`;
   script += `Write-Host "Starting Infisical migration..." -ForegroundColor Cyan\n`;
   script += `$totalCount = 0\n`;
   script += `$successCount = 0\n`;

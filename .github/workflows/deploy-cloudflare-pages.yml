@@ -139,8 +139,6 @@ jobs:
           HAS_CLOUDFLARE_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN != '' }}
           HAS_CLOUDFLARE_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID != '' }}
           HAS_INFISICAL_TOKEN: ${{ secrets.INFISICAL_TOKEN != '' }}
-          HAS_INFISICAL_UA_CLIENT_ID: ${{ secrets.INFISICAL_UNIVERSAL_AUTH_CLIENT_ID != '' }}
-          HAS_INFISICAL_UA_CLIENT_SECRET: ${{ secrets.INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET != '' }}
         run: |
           echo "🔐 Checking secrets configuration..."
 
@@ -154,7 +152,7 @@ jobs:
           fi
 
           # Check Infisical tokens
-          if [ "$HAS_INFISICAL_TOKEN" == "true" ] || ([ "$HAS_INFISICAL_UA_CLIENT_ID" == "true" ] && [ "$HAS_INFISICAL_UA_CLIENT_SECRET" == "true" ]); then
+          if [ "$HAS_INFISICAL_TOKEN" == "true" ]; then
             echo "has_infisical=true" >> $GITHUB_OUTPUT
             echo "✅ Infisical integration detected"
           else
@@ -166,7 +164,7 @@ jobs:
           if [ "$HAS_CLOUDFLARE_TOKEN" == "true" ] && [ "$HAS_CLOUDFLARE_ACCOUNT" == "true" ]; then
             echo "deploy_method=direct" >> $GITHUB_OUTPUT
             echo "📝 Will use direct secrets method"
-          elif [ "$HAS_INFISICAL_TOKEN" == "true" ] || ([ "$HAS_INFISICAL_UA_CLIENT_ID" == "true" ] && [ "$HAS_INFISICAL_UA_CLIENT_SECRET" == "true" ]); then
+          elif [ "$HAS_INFISICAL_TOKEN" == "true" ]; then
             echo "deploy_method=infisical" >> $GITHUB_OUTPUT
             echo "📝 Will use Infisical to fetch secrets"
           else
@@ -195,28 +193,15 @@ jobs:
         id: fetch
         env:
           INFISICAL_TOKEN: ${{ secrets.INFISICAL_TOKEN }}
-          INFISICAL_UNIVERSAL_AUTH_CLIENT_ID: ${{ secrets.INFISICAL_UNIVERSAL_AUTH_CLIENT_ID }}
-          INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET: ${{ secrets.INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET }}
         run: |
-          TOKEN="$INFISICAL_TOKEN"
-
-          if [ -z "$TOKEN" ] && [ -n "$INFISICAL_UNIVERSAL_AUTH_CLIENT_ID" ] && [ -n "$INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET" ]; then
-            TOKEN=$(infisical login --method=universal-auth \
-              --client-id="$INFISICAL_UNIVERSAL_AUTH_CLIENT_ID" \
-              --client-secret="$INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET" \
-              --plain --silent)
-          fi
-
-          if [ -n "$TOKEN" ]; then
-            echo "::add-mask::$TOKEN"
-            echo "INFISICAL_TOKEN=$TOKEN" >> $GITHUB_ENV
-          fi
-
-          if [ -z "$TOKEN" ]; then
+          if [ -z "$INFISICAL_TOKEN" ]; then
             echo "❌ No Infisical token available for environment: ${{ needs.preflight.outputs.environment }}"
             echo "secrets_available=false" >> $GITHUB_OUTPUT
             exit 1
           fi
+
+          echo "::add-mask::$INFISICAL_TOKEN"
+          echo "INFISICAL_TOKEN=$INFISICAL_TOKEN" >> $GITHUB_ENV
 
           # Map workflow environment to Infisical environment
           case "${{ needs.preflight.outputs.environment }}" in
@@ -238,21 +223,21 @@ jobs:
           FETCH_ENV=""
 
           # Prefer CI/CD-scoped path first
-          if infisical export --env="$INFISICAL_ENV" --path=/CI-CD --format=dotenv --token="$TOKEN" > /tmp/cloudflare-secrets.env 2>/dev/null; then
+          if infisical export --env="$INFISICAL_ENV" --path=/CI-CD --projectId="${{ env.INFISICAL_PROJECT_ID }}" --format=dotenv --token="$INFISICAL_TOKEN" > /tmp/cloudflare-secrets.env 2>/dev/null; then
             SECRETS_FETCHED=true
             FETCH_PATH="/CI-CD"
             FETCH_ENV="$INFISICAL_ENV"
-          elif [ "$INFISICAL_ENV" = "stag" ] && infisical export --env=staging --path=/CI-CD --format=dotenv --token="$TOKEN" > /tmp/cloudflare-secrets.env 2>/dev/null; then
+          elif [ "$INFISICAL_ENV" = "stag" ] && infisical export --env=staging --path=/CI-CD --projectId="${{ env.INFISICAL_PROJECT_ID }}" --format=dotenv --token="$INFISICAL_TOKEN" > /tmp/cloudflare-secrets.env 2>/dev/null; then
             # Backward-compatible fallback if legacy slug exists
             SECRETS_FETCHED=true
             FETCH_PATH="/CI-CD"
             FETCH_ENV="staging"
           # Backward-compatible fallback path
-          elif infisical export --env="$INFISICAL_ENV" --path=/shared --format=dotenv --token="$TOKEN" > /tmp/cloudflare-secrets.env 2>/dev/null; then
+          elif infisical export --env="$INFISICAL_ENV" --path=/shared --projectId="${{ env.INFISICAL_PROJECT_ID }}" --format=dotenv --token="$INFISICAL_TOKEN" > /tmp/cloudflare-secrets.env 2>/dev/null; then
             SECRETS_FETCHED=true
             FETCH_PATH="/shared"
             FETCH_ENV="$INFISICAL_ENV"
-          elif [ "$INFISICAL_ENV" = "stag" ] && infisical export --env=staging --path=/shared --format=dotenv --token="$TOKEN" > /tmp/cloudflare-secrets.env 2>/dev/null; then
+          elif [ "$INFISICAL_ENV" = "stag" ] && infisical export --env=staging --path=/shared --projectId="${{ env.INFISICAL_PROJECT_ID }}" --format=dotenv --token="$INFISICAL_TOKEN" > /tmp/cloudflare-secrets.env 2>/dev/null; then
             SECRETS_FETCHED=true
             FETCH_PATH="/shared"
             FETCH_ENV="staging"
@@ -784,7 +769,7 @@ jobs:
             echo "   - \`CLOUDFLARE_ACCOUNT_ID\` - Your Cloudflare account ID"
             echo ""
             echo "2. **Infisical Method**: Configure Infisical integration:"
-            echo "   - \`INFISICAL_TOKEN\` (recommended) or universal-auth client credentials"
+            echo "   - \`INFISICAL_TOKEN\`"
             echo "   - Ensure \`CLOUDFLARE_API_TOKEN\` and \`CLOUDFLARE_ACCOUNT_ID\` are in Infisical"
             echo "   - Sync secrets to the correct GitHub environment (production/preview)"
           } >> $GITHUB_STEP_SUMMARY

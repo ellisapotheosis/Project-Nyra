@@ -21,7 +21,7 @@ export interface SearchTerm {
 /**
  * In-memory storage (can be replaced with database later)
  */
-let searchTerms: SearchTerm[] = [
+const searchTerms: SearchTerm[] = [
   {
     id: '1',
     term: 'authentication',
