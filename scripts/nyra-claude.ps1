@@ -1,5 +1,7 @@
 #!/usr/bin/env pwsh
 # NYRA Claude Code with Auto-Injected Secrets
 
-# Inject secrets via Infisical
-infisical run --env=development --command "claude $args"
+. "$PSScriptRoot\lib\InfisicalToken.ps1"
+$projectId = Get-NyraInfisicalProjectId
+Assert-NyraInfisicalToken
+& infisical run --projectId=$projectId --env=development -- claude @args

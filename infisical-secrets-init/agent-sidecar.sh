@@ -2,82 +2,68 @@
 set -euo pipefail
 
 SECRETS_DIR="/run/nyra-secrets"
-CID_FILE="/run/secrets/infisical-client-id"
-CSEC_FILE="/run/secrets/infisical-client_secret"
+INFISICAL_PROJECT_ID="${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}"
 
 log(){ echo "[infisical-agent] $*"; }
 
-build_agent_files(){
-  mkdir -p /tmp/agent/templates
-  chmod 700 /tmp/agent/templates
+write_secret_file(){
+  local path="$1"
+  local value="$2"
+  printf "%s" "$value" > "$path"
+  chmod 600 "$path"
+}
 
-  local pid="${INFISICAL_PROJECT_ID:-}"
-  local env="${INFISICAL_ENV:-prod}"
-  local path="${INFISICAL_PATH:-/nyra/gitea}"
-  local interval="${INFISICAL_POLL_INTERVAL:-60s}"
+sync_secret_file(){
+  local dotenv="$1"
+  local source_key="$2"
+  local target_file="$3"
+  local value
 
-  for pair in \
-    "GITEA_DB_PASS:gitea_db_pass" \
-    "GITEA_ADMIN_PASS:gitea_admin_pass" \
-    "WEBHOOK_AUTH_TOKEN:webhook_auth_token" \
-    "WEBHOOK_SECRET:webhook_secret" \
-    "GITEA_TOKEN:gitea_pat_token" \
-    "OPENAI_API_KEY:openai_api_key" \
-    "GITEA_SECRET_KEY:gitea_secret_key" \
-    "GITEA_INTERNAL_TOKEN:gitea_internal_token"
-  do
-    k="${pair%%:*}"
-    f="${pair#*:}"
-    cat > "/tmp/agent/templates/${f}.tmpl" <<TPL
-{{- with secret "${pid}" "${env}" "${path}" -}}
-{{- range . -}}
-{{- if eq .Key "${k}" -}}{{ .Value }}{{- end -}}
-{{- end -}}
-{{- end -}}
-TPL
-  done
+  value="$(awk -v key="$source_key" -F'=' 'BEGIN{found=0} $1==key && found==0 {sub($1 FS,""); print; found=1}' "$dotenv" | head -n 1)"
+  if [[ -n "$value" ]]; then
+    write_secret_file "${SECRETS_DIR}/${target_file}" "$value"
+  fi
+}
 
-  cat > /tmp/agent/agent.yml <<CFG
-infisical:
-  address: "${INFISICAL_API_URL:-https://app.infisical.com}"
-auth:
-  type: "universal-auth"
-  config:
-    client-id: "${CID_FILE}"
-    client-secret: "${CSEC_FILE}"
-    remove_client_secret_on_read: false
-templates:
-CFG
+poll_infisical(){
+  local tmp_file
+  tmp_file="$(mktemp)"
+  trap 'rm -f "$tmp_file"' RETURN
 
-  for f in \
-    gitea_db_pass \
-    gitea_admin_pass \
-    webhook_auth_token \
-    webhook_secret \
-    gitea_pat_token \
-    openai_api_key \
-    gitea_secret_key \
-    gitea_internal_token
-  do
-    cat >> /tmp/agent/agent.yml <<CFG2
-  - source-path: "/tmp/agent/templates/${f}.tmpl"
-    destination-path: "${SECRETS_DIR}/${f}"
-    config:
-      polling-interval: "${interval}"
-CFG2
-  done
+  infisical export \
+    --token="${INFISICAL_TOKEN}" \
+    --projectId="$INFISICAL_PROJECT_ID" \
+    --env="${INFISICAL_ENV:-prod}" \
+    --path="${INFISICAL_PATH:-/nyra/gitea}" \
+    --format=dotenv \
+    --output-file="$tmp_file" >/dev/null
+
+  sync_secret_file "$tmp_file" "GITEA_DB_PASS" "gitea_db_pass"
+  sync_secret_file "$tmp_file" "GITEA_ADMIN_PASS" "gitea_admin_pass"
+  sync_secret_file "$tmp_file" "WEBHOOK_AUTH_TOKEN" "webhook_auth_token"
+  sync_secret_file "$tmp_file" "WEBHOOK_SECRET" "webhook_secret"
+  sync_secret_file "$tmp_file" "GITEA_TOKEN" "gitea_pat_token"
+  sync_secret_file "$tmp_file" "OPENAI_API_KEY" "openai_api_key"
+  sync_secret_file "$tmp_file" "GITEA_SECRET_KEY" "gitea_secret_key"
+  sync_secret_file "$tmp_file" "GITEA_INTERNAL_TOKEN" "gitea_internal_token"
 }
 
 main(){
   mkdir -p "$SECRETS_DIR"
   chmod 700 "$SECRETS_DIR"
 
-  if [[ ! -s "$CID_FILE" ]] || [[ ! -s "$CSEC_FILE" ]] || [[ -z "${INFISICAL_PROJECT_ID:-}" ]]; then
-    log "Infisical creds or project id missing. Idling."
-    while true; do sleep 300; done
+  if [[ -z "${INFISICAL_TOKEN:-}" ]]; then
+    log "INFISICAL_TOKEN is required."
+    exit 1
   fi
 
-  build_agent_files
-  exec infisical agent --config /tmp/agent/agent.yml
+  while true; do
+    if poll_infisical; then
+      log "Secrets synced from Infisical."
+    else
+      log "Infisical sync failed; retrying."
+    fi
+    sleep "${INFISICAL_POLL_INTERVAL:-60}"
+  done
 }
 main "$@"

@@ -380,9 +380,8 @@ ANTHROPIC_API_KEY=<get-from-console.anthropic.com>
 GOOGLE_AI_API_KEY=<get-from-aistudio.google.com>
 
 # Infisical (Secrets Management)
-INFISICAL_PROJECT_ID=<get-from-infisical-dashboard>
-INFISICAL_UNIVERSAL_AUTH_CLIENT_ID=<create-machine-identity>
-INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET=<create-machine-identity>
+INFISICAL_PROJECT_ID=8374cea9-e5e8-4050-bda4-b91f25ab30ef
+INFISICAL_TOKEN=<service-token-from-infisical>
 
 # Tailscale (VPN)
 TAILSCALE_AUTH_KEY=<get-from-admin.tailscale.com>

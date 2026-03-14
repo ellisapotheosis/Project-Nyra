@@ -265,10 +265,12 @@ if (!(Get-Command infisical -ErrorAction SilentlyContinue)) {
     Write-Success "Infisical CLI already installed"
 }
 
+. "$PSScriptRoot\..\..\..\scripts\lib\InfisicalToken.ps1"
+
 # ============================================================================
-# 8. Setup Infisical Agent
+# 8. Setup Infisical Token Export
 # ============================================================================
-Write-Step "Setting up Infisical agent..."
+Write-Step "Setting up Infisical token export..."
 
 $InfisicalConfig = @{
     ProjectId = "8374cea9-e5e8-4050-bda4-b91f25ab30ef"
@@ -276,31 +278,9 @@ $InfisicalConfig = @{
     Path = "/worker-3060"
 }
 
-# Create .env file from Infisical secrets
 Write-Host "  Pulling secrets from Infisical..."
-Write-Warning "You must login to Infisical first: infisical login"
-
-# Create infisical agent config
-$AgentConfigPath = "$WorkerDir\infisical-agent.yaml"
-$AgentConfig = @"
-project-id: $($InfisicalConfig.ProjectId)
-environment: $($InfisicalConfig.Environment)
-secret-path: $($InfisicalConfig.Path)
-agent:
-  port: 8200
-  tls:
-    enabled: false
-cache:
-  ttl: 300
-"@
-
-$AgentConfig | Out-File -FilePath $AgentConfigPath -Encoding UTF8
-Write-Success "Infisical agent config created"
-
-# Create Windows service for Infisical agent (optional)
-Write-Host "  To run Infisical agent as a service, use NSSM:"
-Write-Host "    choco install nssm -y"
-Write-Host "    nssm install infisical-agent infisical agent --config=$AgentConfigPath"
+Assert-NyraInfisicalToken
+Write-Success "INFISICAL_TOKEN is available"
 
 # ============================================================================
 # 9. Create .env file
@@ -500,8 +480,8 @@ Write-Host "║                      Setup Complete!                       ║"
 Write-Host "╚════════════════════════════════════════════════════════════╝`n"
 
 Write-Host "Next steps:" -ForegroundColor Cyan
-Write-Host "  1. Authenticate Infisical: infisical login"
-Write-Host "  2. Pull secrets: infisical run --env=dev -- docker-compose up -d"
+Write-Host "  1. Export INFISICAL_TOKEN in the worker shell"
+Write-Host "  2. Pull secrets: infisical run --projectId=8374cea9-e5e8-4050-bda4-b91f25ab30ef --env=dev -- docker-compose up -d"
 Write-Host "  3. Start services: docker-compose -f docker-compose.worker-3060.yml up -d"
 Write-Host "  4. Check health: .\health-check.ps1"
 Write-Host "  5. Test Ollama: curl http://localhost:11434/api/generate -d '{`"model`":`"codellama:34b`",`"prompt`":`"Hello`"}'"

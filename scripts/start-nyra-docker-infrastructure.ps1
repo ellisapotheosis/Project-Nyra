@@ -14,11 +14,14 @@ Write-Host "🐳 Starting NYRA Docker Infrastructure..." -ForegroundColor Cyan
 
 $repoRoot = "C:\Dev\Projects\Repos\Project-Nyra"
 Set-Location $repoRoot
+. "$PSScriptRoot\lib\InfisicalToken.ps1"
+$projectId = Get-NyraInfisicalProjectId
 
 # Load environment variables via Infisical
 Write-Host "🔐 Loading environment secrets..." -ForegroundColor Yellow
 if (Get-Command infisical -ErrorAction SilentlyContinue) {
-    infisical run --env=development --command "echo Secrets loaded"
+    Assert-NyraInfisicalToken
+    & infisical run --projectId=$projectId --env=development -- echo "Secrets loaded" | Out-Null
 }
 else {
     Write-Warning "Infisical not found. Install with: winget install infisical.cli"

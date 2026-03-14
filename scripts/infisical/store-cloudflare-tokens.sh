@@ -31,6 +31,7 @@ NC='\033[0m' # No Color
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 ENVIRONMENT="${1:-development}"
+INFISICAL_PROJECT_ID="${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}"
 
 # Infisical paths for each service
 declare -A INFISICAL_PATHS=(
@@ -114,6 +115,7 @@ store_token() {
 
     # Store token using Infisical CLI
     if infisical secrets set \
+        --projectId="${INFISICAL_PROJECT_ID}" \
         --env="${ENVIRONMENT}" \
         --path="${infisical_path}" \
         "CLOUDFLARE_TUNNEL_TOKEN=${token_value}" \
@@ -135,6 +137,7 @@ store_tunnel_name() {
     log_info "Storing Cloudflare tunnel name for ${service_name}..."
 
     if infisical secrets set \
+        --projectId="${INFISICAL_PROJECT_ID}" \
         --env="${ENVIRONMENT}" \
         --path="${infisical_path}" \
         "CLOUDFLARE_TUNNEL_NAME=${tunnel_name}" \

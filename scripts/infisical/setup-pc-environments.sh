@@ -8,8 +8,10 @@ set -euo pipefail
 # Configuration
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+source "$PROJECT_ROOT/scripts/lib/infisical-token.sh"
 CONFIG_DIR="$PROJECT_ROOT/config/infisical"
 LOGS_DIR="$PROJECT_ROOT/logs/infisical"
+INFISICAL_PROJECT_ID="${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}"
 
 # Environment definitions
 declare -A PC_ENVIRONMENTS=(
@@ -54,11 +56,12 @@ check_prerequisites() {
         exit 1
     fi
 
-    # Check if logged in to Infisical
-    if ! infisical secrets get __health_check__ 2>/dev/null; then
-        log_warning "Not authenticated with Infisical. Please run 'infisical login' first."
+    if ! nyra_require_infisical_token; then
+        log_error "INFISICAL_TOKEN is required"
         return 1
     fi
+
+    nyra_resolve_infisical_project_id
 
     log_success "Prerequisites check passed"
     return 0
@@ -302,7 +305,7 @@ create_deployment_commands() {
 
     log_info "Creating deployment commands..."
 
-    cat > "$commands_file" << 'EOF'
+cat > "$commands_file" << 'EOF'
 #!/bin/bash
 
 # Nyra Infisical Deployment Commands
@@ -312,6 +315,8 @@ set -euo pipefail
 
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$PROJECT_ROOT"
+source "$PROJECT_ROOT/scripts/lib/infisical-token.sh"
+INFISICAL_PROJECT_ID="${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}"
 
 # Colors
 GREEN='\033[0;32m'
@@ -321,15 +326,21 @@ NC='\033[0m'
 log_info() { echo -e "${BLUE}[INFO]${NC} $1"; }
 log_success() { echo -e "${GREEN}[SUCCESS]${NC} $1"; }
 
+require_infisical_token() {
+    nyra_require_infisical_token
+    nyra_resolve_infisical_project_id
+}
+
 # Deploy orchestrator
 deploy_orchestrator() {
     local env="${1:-development}"
     log_info "Deploying orchestrator in $env environment..."
+    require_infisical_token
 
     export NYRA_PC_ID=orchestrator
     export NYRA_ENVIRONMENT="$env"
 
-    infisical run --env="$env" --path="/nyra/orchestrator" -- \
+    nyra_infisical_run "$env" "/nyra/orchestrator" \
         docker-compose -f docker-compose.infisical.yml --profile orchestrator up -d
 
     log_success "Orchestrator deployed in $env environment"
@@ -340,11 +351,12 @@ deploy_worker() {
     local worker_id="$1"
     local env="${2:-development}"
     log_info "Deploying worker-$worker_id in $env environment..."
+    require_infisical_token
 
     export NYRA_PC_ID="worker-$worker_id"
     export NYRA_ENVIRONMENT="$env"
 
-    infisical run --env="$env" --path="/nyra/worker-$worker_id" -- \
+    nyra_infisical_run "$env" "/nyra/worker-$worker_id" \
         docker-compose -f docker-compose.infisical.yml --profile "worker-$worker_id" up -d
 
     log_success "Worker-$worker_id deployed in $env environment"
@@ -354,10 +366,11 @@ deploy_worker() {
 deploy_shared() {
     local env="${1:-development}"
     log_info "Deploying shared services in $env environment..."
+    require_infisical_token
 
     export NYRA_ENVIRONMENT="$env"
 
-    infisical run --env="$env" --path="/nyra/shared" -- \
+    nyra_infisical_run "$env" "/nyra/shared" \
         docker-compose -f docker-compose.infisical.yml --profile shared up -d
 
     log_success "Shared services deployed in $env environment"

@@ -7,6 +7,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+source "$PROJECT_ROOT/scripts/lib/infisical-token.sh"
 cd "$PROJECT_ROOT"
 
 # Colors and logging
@@ -27,6 +28,7 @@ log_step() { echo -e "${CYAN}[STEP]${NC} $1"; }
 DEPLOYMENT_ENV="${1:-development}"
 PC_ID="${2:-orchestrator}"
 SKIP_TESTS="${SKIP_TESTS:-false}"
+INFISICAL_PROJECT_ID="${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}"
 
 # Deployment steps tracking
 STEP=0
@@ -44,7 +46,7 @@ error_exit() {
     echo ""
     echo "Troubleshooting steps:"
     echo "1. Check logs: docker-compose -f docker-compose.infisical.yml logs"
-    echo "2. Verify Infisical authentication: infisical secrets get __health_check__"
+    echo "2. Verify INFISICAL_TOKEN is exported for this shell"
     echo "3. Check system requirements: ./scripts/infisical/test-integration.sh"
     echo "4. Review configuration: ls -la config/infisical/"
     exit 1
@@ -103,13 +105,11 @@ check_prerequisites() {
         error_exit "Docker daemon not running"
     fi
 
-    # Check Infisical authentication
-    if ! infisical secrets get __health_check__ &> /dev/null; then
-        log_warning "Infisical not authenticated. Attempting login..."
-        if ! infisical login --interactive; then
-            error_exit "Failed to authenticate with Infisical"
-        fi
+    if ! nyra_require_infisical_token; then
+        error_exit "INFISICAL_TOKEN is required"
     fi
+
+    nyra_resolve_infisical_project_id
 
     log_success "Prerequisites check completed"
 }
@@ -154,13 +154,13 @@ deploy_core_services() {
     next_step "Deploying Core Services"
 
     log_info "Starting Infisical MCP server..."
-    if ! infisical run --env="$DEPLOYMENT_ENV" --path="/nyra/$PC_ID" -- \
+    if ! nyra_infisical_run "$DEPLOYMENT_ENV" "/nyra/$PC_ID" \
          docker-compose -f docker-compose.infisical.yml up -d infisical-mcp; then
         error_exit "Failed to start Infisical MCP server"
     fi
 
     log_info "Starting MetaMCP Gateway..."
-    if ! infisical run --env="$DEPLOYMENT_ENV" --path="/nyra/$PC_ID" -- \
+    if ! nyra_infisical_run "$DEPLOYMENT_ENV" "/nyra/$PC_ID" \
          docker-compose -f docker-compose.infisical.yml up -d metamcp-gateway-enhanced; then
         error_exit "Failed to start MetaMCP Gateway"
     fi
@@ -179,14 +179,14 @@ deploy_pc_services() {
     case "$PC_ID" in
         orchestrator)
             log_info "Deploying orchestrator services..."
-            if ! infisical run --env="$DEPLOYMENT_ENV" --path="/nyra/$PC_ID" -- \
+            if ! nyra_infisical_run "$DEPLOYMENT_ENV" "/nyra/$PC_ID" \
                  docker-compose -f docker-compose.infisical.yml --profile orchestrator --profile shared up -d; then
                 error_exit "Failed to deploy orchestrator services"
             fi
             ;;
         worker-*)
             log_info "Deploying worker services for $PC_ID..."
-            if ! infisical run --env="$DEPLOYMENT_ENV" --path="/nyra/$PC_ID" -- \
+            if ! nyra_infisical_run "$DEPLOYMENT_ENV" "/nyra/$PC_ID" \
                  docker-compose -f docker-compose.infisical.yml --profile "$PC_ID" up -d; then
                 error_exit "Failed to deploy worker services for $PC_ID"
             fi
@@ -348,7 +348,7 @@ find logs/ -name "*.log" -mtime +30 -delete
 docker image prune -f
 
 # Update Infisical secrets if needed
-# infisical secrets set --env=production --path=/nyra/maintenance "LAST_MAINTENANCE" "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+# infisical secrets set --projectId="$INFISICAL_PROJECT_ID" --env=production --path=/nyra/maintenance "LAST_MAINTENANCE=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
 echo "$(date): Maintenance tasks completed"
 EOF
@@ -395,7 +395,7 @@ Next Steps:
 Troubleshooting:
 - Logs: docker-compose -f docker-compose.infisical.yml logs [service]
 - Health: ./scripts/infisical/test-integration.sh health
-- Secrets: infisical secrets get --env=$DEPLOYMENT_ENV --path=/nyra/$PC_ID
+- Secrets: infisical secrets get --projectId=$INFISICAL_PROJECT_ID --env=$DEPLOYMENT_ENV --path=/nyra/$PC_ID
 EOF
 
     log_success "Deployment verification completed"

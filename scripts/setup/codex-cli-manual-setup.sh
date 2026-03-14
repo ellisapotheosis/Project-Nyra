@@ -3,6 +3,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+source "$REPO_ROOT/scripts/lib/infisical-token.sh"
 
 INFISICAL_ENV="${INFISICAL_ENV:-dev}"
 INFISICAL_PATH="${INFISICAL_PATH:-/shared}"
@@ -254,6 +255,8 @@ main() {
   require_cmd infisical
   require_cmd docker
   ensure_node_toolchain
+  nyra_require_infisical_token
+  nyra_resolve_infisical_project_id
 
   export HUSKY=0
 
