@@ -37,12 +37,19 @@ jobs:
             echo "enabled=true" >> "$GITHUB_OUTPUT"
           fi
       - name: Setup SSH key
-        if: ${{ steps.preflight.outputs.enabled == 'true' && startsWith(secrets.GITEA_MIRROR_URL, 'git@') && secrets.GITEA_MIRROR_SSH_KEY != '' }}
+        if: ${{ steps.preflight.outputs.enabled == 'true' }}
+        env:
+          GITEA_MIRROR_URL: ${{ secrets.GITEA_MIRROR_URL }}
+          GITEA_MIRROR_SSH_KEY: ${{ secrets.GITEA_MIRROR_SSH_KEY }}
         run: |
+          if ! echo "$GITEA_MIRROR_URL" | grep -q '^git@'; then
+            echo "Mirror URL does not use SCP-style SSH syntax. Skipping SSH key setup."
+            exit 0
+          fi
           mkdir -p ~/.ssh
-          echo "${{ secrets.GITEA_MIRROR_SSH_KEY }}" > ~/.ssh/id_ed25519
+          echo "$GITEA_MIRROR_SSH_KEY" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
-          ssh-keyscan -H "$(echo "${{ secrets.GITEA_MIRROR_URL }}" | sed -E 's#.*@([^:/]+).*#\1#')" >> ~/.ssh/known_hosts || true
+          ssh-keyscan -H "$(echo "$GITEA_MIRROR_URL" | sed -E 's#.*@([^:/]+).*#\1#')" >> ~/.ssh/known_hosts || true
 
       - name: Push to Gitea mirror
         if: ${{ steps.preflight.outputs.enabled == 'true' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch') }}
