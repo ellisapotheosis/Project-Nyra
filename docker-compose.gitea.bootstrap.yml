@@ -1,5 +1,4 @@
 # Bootstrap-safe variant; canonical docker-compose.gitea.yml kept untouched
-version: "3.8"
 
 services:
   nyra-secrets-init:
