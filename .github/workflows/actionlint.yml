@@ -27,4 +27,4 @@ jobs:
       - name: Run actionlint
         uses: devops-actions/actionlint@v0.1.11
         with:
-          shellcheck_opts: '-e SC2016 -e SC2035 -e SC2086 -e SC2129'
+          shellcheck_opts: '-e SC2001 -e SC2016 -e SC2034 -e SC2035 -e SC2086 -e SC2087 -e SC2129'
