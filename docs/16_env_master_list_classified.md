@@ -1,44 +1,52 @@
 # 16 Environment Master List (Classified)
 
-## Classification model
+## Methodology
+- Source of truth: active `.env*` files in repo root, `infra`, `docs`, `apps`, and `services`.
+- Excluded paths: `archive`, `archives`, `_archived`, `repo-history`, `env-backups`, `references`, `reference`, `node_modules`, `.next`, `.open-next`, `dist`, `build`, and `coverage`.
+- Parser rule: only explicit `KEY=value` assignments are counted.
+- Safety rule: values are never emitted; only key names, scope, and classification are documented.
 
-- **Required runtime**: compose interpolation or service startup critical.
-- **Optional runtime**: feature flags or profile-only values.
-- **Secret**: credentials/tokens/keys; never commit real values.
-- **Derived**: values computed from deployment context.
+## Totals
+- Active `.env*` files scanned: **97**
+- Unique keys across all scopes: **1309**
+- Secret-like keys: **158**
+- Environment-dependent keys: **627**
+- Template/profile/runtime files: **54** template, **27** profile/runtime, **16** runtime
 
-## Core stack examples
+## Environment-Dependent Keys
+These keys should usually differ across `dev`, `staging`, `preview`, `prod`, or machine-role deployments:
+- Endpoint and routing values: anything ending in `_URL`, `_HOST`, `_DOMAIN`, `_ORIGIN`, `_ROOT_URL`, `_SITE_URL`, or `_BASE_URL`.
+- Network and bind values: anything ending in `_PORT`, `_IP`, or `_SUBNET`.
+- Deployment selectors: keys ending in `_ENV`, `_ENVIRONMENT`, `_MODE`, or `_PROJECT_ID`.
+- Public app values: `NEXT_PUBLIC_*` keys, which are safe to expose but still vary by domain or environment.
+- Machine/profile values: worker GPU settings, Tailscale addresses, model choices, and worker-specific tunnel hostnames/tokens.
 
-| Variable | Class | Scope | Notes |
-|---|---|---|---|
-| `POSTGRES_PORT` | required runtime | infra stack | publish mapping for postgres |
-| `REDIS_PORT` | required runtime | infra stack | publish mapping for redis |
-| `MONGO_PORT` | required runtime | infra stack | publish mapping for mongo |
-| `LITELLM_PORT` | optional runtime | orchestrator | gateway exposure point |
-| `NEXUS_ROUTER_PORT` | optional runtime | orchestrator | router API port |
-| `NYRA_DOMAIN_ROOT` | required runtime | edge docs/config | cloudflared hostnames |
-| `CF_TUNNEL_NAME` | required runtime | cloudflared | tunnel identifier |
+## Secret Handling
+- Secret-like keys include `*_TOKEN`, `*_SECRET`, `*_PASSWORD`, `*_API_KEY`, connection URLs such as `DATABASE_URL`, and provider credentials.
+- Keep real values in Infisical, GitHub/Gitea secrets, or ignored local env files such as `.env.gitea`; do not commit live credentials.
+- `NEXT_PUBLIC_*` keys are treated as non-secret even when they are environment-dependent.
 
-## Gitea bootstrap examples
+## Docs-Only Keys
+These keys appear only in live docs-managed env examples and not in active root/infra/apps/services env files. Review them before treating them as required runtime inputs.
 
-| Variable | Class | Notes |
-|---|---|---|
-| `GITEA_PORT` | optional runtime | defaults to 3100 |
-| `GITEA_SSH_PORT` | optional runtime | defaults to 2222 |
-| `INFISICAL_PROJECT_ID` | secret-adjacent | reference only, not a credential itself |
-| `INFISICAL_PATH` | optional runtime | secret namespace path |
+- `AGENTDB_QUIC_PEERS`, `AGENTS_CUSTOM_PATHS`, `AGENTS_DIR`, `AI_REVIEW_MODEL`, `ANTHROPIC_BASE_URL`, `ARCHON_MCP_BIND`, `BITWARDEN_MCP_BIND`, `CHECKPOINT_AUTO_COMMIT`
+- `CHECKPOINT_BRANCH_STRATEGY`, `CHECKPOINT_ENABLED`, `CHECKPOINT_INCLUDE_METRICS`, `CHECKPOINT_MAX_CHECKPOINTS`, `CHECKPOINT_MESSAGE_PREFIX`, `CLAUDE_FLOW_ORCHESTRATOR`, `CLOUDFLARE_TUNNEL_LOGLEVEL`, `CLOUDFLARE_TUNNEL_METRICS`
+- `CLOUDFLARE_TUNNEL_NAME`, `CLOUDFLARE_TUNNEL_TOKEN_WORKER_RTX3060`, `CLOUDFLARE_TUNNEL_TOKEN_WORKER_RTX3090TI`, `CLOUDFLARE_TUNNEL_TOKEN_WORKER_RTX5090`, `DEFAULT_TIMEOUT_S`, `DIFY_WEB_BIND`, `DOCKER_SUBNET_ORCHESTRATOR`, `DOCKER_SUBNET_RTX3060`
+- `DOCKER_SUBNET_RTX3090`, `DOCKER_SUBNET_RTX5090`, `EMAIL_SMTP_HOST`, `EMAIL_SMTP_PASS`, `EMAIL_SMTP_PORT`, `EMAIL_SMTP_USER`, `FALKORDB_BIND`, `FLOW_NEXUS_API_KEY`
+- `FLOW_NEXUS_URL`, `FLOW_NEXUS_USER_ID`, `GH_TOKEN`, `GITHUB_AUTO_ISSUE_ON_ERROR`, `GITHUB_CHECKPOINT_BRANCH`, `GITHUB_MEMORY_BACKUP_GISTS`, `GITHUB_PR_ON_MAJOR_IMPROVEMENT`, `GITHUB_SYNC_LEARNINGS`
+- `GPU_COMPUTE_CAPABILITY`, `GPU_VRAM_MB`, `GPU_WORKER_3060_MODELS`, `GPU_WORKER_3060_PRIORITY`, `GPU_WORKER_3060_SPECIALIZATION`, `GPU_WORKER_3090_MODELS`, `GPU_WORKER_3090_PRIORITY`, `GPU_WORKER_3090_SPECIALIZATION`
+- `GPU_WORKER_5090_MODELS`, `GPU_WORKER_5090_PRIORITY`, `GPU_WORKER_5090_SPECIALIZATION`, `GRAFANA_BIND`, `HOOKS_CUSTOM_PATHS`, `INFISICAL_MCP_BIND`, `INTERNAL_NETWORK`, `LAN_IP`
+- `LETTA_API_BIND`, `LITELLM_LISTEN_PORT`, `MACHINE_CPU`, `MACHINE_CPU_CORES`, `MACHINE_CPU_THREADS`, `MACHINE_GPU_NAME`, `MACHINE_GPU_TYPE`, `MACHINE_GPU_VRAM_GB`
+- `MACHINE_HAS_GPU`, `MACHINE_IP_WIFI`, `MACHINE_MAC_ETHERNET`, `MACHINE_MAC_WIFI`, `MACHINE_MODEL`, `MACHINE_OS`, `MACHINE_PURPOSE`, `MACHINE_RAM_GB`
+- `MACHINE_SPECIALIZATION`, `MACHINE_STORAGE`, `MAC_ETHERNET`, `MAC_WIFI`, `MAX_CONCURRENT_CONNECTIONS`, `MAX_DB_CONNECTIONS`, `METRICS_RETENTION_DAYS`, `N8N_WEB_BIND`
+- `NAMESPACE_CLAUDE_FLOW`, `NAMESPACE_DESKTOP_COMMANDER`, `NAMESPACE_FLOW_NEXUS`, `NAMESPACE_RUV_SWARM`, `NEXUS_ROUTER_BIND`, `NEXUS_ROUTER_MCP_BIND`, `NVIDIA_DCGM_EXPORTER_PORT`, `NYRA_STACK_NAME`
+- `OLLAMA_BIND`, `OLLAMA_GPU_LAYERS`, `OPENAI_API_BASE`, `PC_NAME`, `PC_ROLE`, `POSTGRES_BIND`, `POSTGRES_SHARED_BUFFERS`, `PRIMARY_IP`
+- `PRIMARY_NETWORK_INTERFACE`, `PROMETHEUS_BIND`, `PROMETHEUS_NODE_EXPORTER_PORT`, `PROMETHEUS_REMOTE_WRITE_URL`, `PROMETHEUS_RETENTION_DAYS`, `PROXY_PORT`, `QDRANT_BIND`, `REDIS_BIND`
+- `REDIS_MAX_MEMORY`, `RUVECTOR_BIND`, `RUVECTOR_DATA_DIR`, `RUVECTOR_ENABLED`, `RUVECTOR_LEADER`, `RUVECTOR_MODE`, `RUVECTOR_PEER_ID`, `TAILSCALE_DOMAIN`
+- `TAILSCALE_FQDN`, `TENSORRT_LLM_ENABLED`, `TENSORRT_LLM_PORT`, `TWENTY_CRM_BIND`, `USE_ONNX`, `USE_OPENROUTER`, `VLLM_BIND`, `VLLM_ENABLED`
+- `WAN_IP`, `WORKER1_IP`, `WORKER2_IP`, `WORKER3_IP`, `WORKER_3060_MAX_CONCURRENT`, `WORKER_3060_PRIMARY_USE`, `WORKER_3060_PRIORITY`, `WORKER_3060_SPECIALIZATION`
+- `WORKER_3090_MAX_CONCURRENT`, `WORKER_3090_PRIMARY_USE`, `WORKER_3090_PRIORITY`, `WORKER_3090_SPECIALIZATION`, `WORKER_5090_MAX_CONCURRENT`, `WORKER_5090_PRIMARY_USE`, `WORKER_5090_PRIORITY`, `WORKER_5090_SPECIALIZATION`
+- `WORKER_GPU`, `WORKER_IP`, `WORKER_RTX3060_DEV_UI_PORT`, `WORKER_RTX3060_GPU_MONITOR_PORT`, `WORKER_RTX3060_JUPYTER_PORT`, `WORKER_RTX3060_MLFLOW_PORT`, `WORKER_RTX3060_VSCODE_PORT`, `WORKER_RTX3090_DEV_UI_PORT`
+- `WORKER_RTX3090_GPU_MONITOR_PORT`, `WORKER_RTX3090_JUPYTER_PORT`, `WORKER_RTX3090_MLFLOW_PORT`, `WORKER_RTX3090_VSCODE_PORT`, `WORKER_RTX5090_DEV_UI_PORT`, `WORKER_RTX5090_GPU_MONITOR_PORT`, `WORKER_RTX5090_JUPYTER_PORT`, `WORKER_RTX5090_MLFLOW_PORT`
+- `WORKER_RTX5090_VSCODE_PORT`
 
-## Infisical bootstrap examples
-
-| Variable | Class | Notes |
-|---|---|---|
-| `INFISICAL_POSTGRES_PASSWORD` | secret | must be non-placeholder in runtime |
-| `INFISICAL_ENCRYPTION_KEY` | secret | 32-hex runtime requirement |
-| `INFISICAL_AUTH_SECRET` | secret | base64 secret |
-| `INFISICAL_SITE_URL` | required runtime | UI/API origin |
-
-## Secret safety controls
-
-- `.env.gitea` and `.env.infisical` remain ignored.
-- `.secrets/` remains ignored.
-- templates (`*.template`) are committed for bootstrap onboarding.
