@@ -199,7 +199,7 @@ jobs:
   notify-completion:
     name: Notify Completion
     runs-on: ubuntu-latest
-    needs: [auto-checkpoint]
+    needs: [lint-and-typecheck, test, build, docker-build, auto-checkpoint]
     if: always()
     steps:
       - name: Summary
