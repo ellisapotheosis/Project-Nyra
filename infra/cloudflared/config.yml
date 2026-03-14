@@ -1,25 +1,24 @@
-# Cloudflared tunnel config (template, no real secrets)
+# Cloudflared tunnel config (host-run canonical template)
+# Replace the placeholder tunnel UUID and domain before deployment.
 # Validate with:
 # docker run --rm -v $(pwd)/infra/cloudflared:/etc/cloudflared cloudflare/cloudflared:latest tunnel ingress validate --config /etc/cloudflared/config.yml
 
-tunnel: ${CF_TUNNEL_UUID}
+tunnel: 00000000-0000-0000-0000-000000000000
 credentials-file: /etc/cloudflared/credentials.json
 
 ingress:
-  - hostname: n8n.${NYRA_DOMAIN_ROOT}
-    service: http://n8n:5678
-  - hostname: activepieces.${NYRA_DOMAIN_ROOT}
-    service: http://activepieces:80
-  - hostname: twentycrm.${NYRA_DOMAIN_ROOT}
-    service: http://twentycrm:3000
-  - hostname: litellm.${NYRA_DOMAIN_ROOT}
-    service: http://litellm:4000
-  - hostname: nexus.${NYRA_DOMAIN_ROOT}
-    service: http://nexus-router:7000
-  - hostname: grafana.${NYRA_DOMAIN_ROOT}
-    service: http://grafana:3000
-  - hostname: gitea.${NYRA_DOMAIN_ROOT}
-    service: http://gitea:3000
-  - hostname: infisical.${NYRA_DOMAIN_ROOT}
-    service: http://infisical:8080
+  - hostname: n8n.nyra.example.com
+    service: http://localhost:5678
+  - hostname: activepieces.nyra.example.com
+    service: http://localhost:8082
+  - hostname: twentycrm.nyra.example.com
+    service: http://localhost:3000
+  - hostname: archon.nyra.example.com
+    service: http://localhost:3737
+  - hostname: grafana.nyra.example.com
+    service: http://localhost:3003
+  - hostname: infisical.nyra.example.com
+    service: http://localhost:8086
+  - hostname: gitea.nyra.example.com
+    service: http://localhost:3100
   - service: http_status:404

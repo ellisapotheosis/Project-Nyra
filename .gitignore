@@ -41,10 +41,13 @@ coverage/
 .env.test.local
 .env.production.local
 .env.cloudflare
+.env.gitea
+.env.infisical
 *.pem
 *.key
 *.cert
 secrets/
+.secrets/
 credentials/
 
 # Explicitly blocked leaked secret files (do not commit)
