@@ -11,20 +11,5 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - name: Create CI env files
-        run: |
-          cp .env.gitea.template .env.gitea
-          cp .env.infisical.template .env.infisical
-          sed -i 's/INFISICAL_POSTGRES_PASSWORD=REPLACE_ME/INFISICAL_POSTGRES_PASSWORD=dummy-pass/g' .env.infisical
-          sed -i 's/INFISICAL_ENCRYPTION_KEY=REPLACE_ME_32_HEX/INFISICAL_ENCRYPTION_KEY=0123456789abcdef0123456789abcdef/g' .env.infisical
-          sed -i 's/INFISICAL_AUTH_SECRET=REPLACE_ME_BASE64_32/INFISICAL_AUTH_SECRET=ZHVtbXktc2VjcmV0LWJhc2U2NC0zMi1jaGFycw==/g' .env.infisical
-
-      - name: Compose config (gitea)
-        run: docker compose -f docker-compose.gitea.yml --env-file .env.gitea config >/dev/null
-
-      - name: Compose config (infisical)
-        run: docker compose -f docker-compose.infisical.yml --env-file .env.infisical config >/dev/null
-
-      - name: PowerShell script sanity
-        shell: pwsh
-        run: pwsh -NoProfile -Command "Set-StrictMode -Version Latest; . ./Setup-NYRA-Gitea.ps1 -DryRun | Out-Null"
+      - name: Validate infra setup scripts and compose files
+        run: bash scripts/ci/validate-infra.sh
