@@ -42,7 +42,7 @@ This catalog consolidates active `/infra` services and tracked archived services
 
 | Service           | Profile(s)    | Host target      | Notes                      |
 | ----------------- | ------------- | ---------------- | -------------------------- |
-| archon-os         | archon        | orchestrator     | Archon application service |
+| archon-os         | archon        | orchestrator     | Archon application service backed by managed Supabase |
 | prometheus        | observability | oracle preferred | Metrics storage            |
 | loki              | observability | oracle preferred | Log storage                |
 | grafana           | observability | oracle preferred | Observability UI           |
