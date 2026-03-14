@@ -84,7 +84,7 @@ jobs:
 
       - name: 💾 Create production backup
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ needs.pre-deployment-checks.outputs.deploy-user }}@${{ needs.pre-deployment-checks.outputs.deploy-host }} << 'EOF'
+          ssh -o StrictHostKeyChecking=no ${{ needs.pre-deployment-checks.outputs.deploy-user }}@${{ needs.pre-deployment-checks.outputs.deploy-host }} 'bash -s' << 'EOF'
             cd /opt/project-nyra
 
             echo "💾 Creating pre-deployment backup..."
@@ -139,6 +139,8 @@ jobs:
           cp docker-compose.prod.yml deploy-prod/
           cp .env.template deploy-prod/
           cp scripts/validate-env.sh deploy-prod/
+          mkdir -p deploy-prod/scripts/ci
+          cp scripts/ci/common.sh deploy-prod/scripts/ci/common.sh
 
           # Create production environment file
           cat > deploy-prod/.env.production << EOF
@@ -201,23 +203,26 @@ jobs:
           echo "🚀 Deploying to $HOST as $USER"
 
           # Copy deployment files
-          scp -o StrictHostKeyChecking=no -r deploy-prod/* $USER@$HOST:/opt/project-nyra/
+          scp -o StrictHostKeyChecking=no -r deploy-prod/. $USER@$HOST:/opt/project-nyra/
 
           # Execute deployment
-          ssh -o StrictHostKeyChecking=no $USER@$HOST << 'EOF'
+          ssh -o StrictHostKeyChecking=no $USER@$HOST 'bash -s' << 'EOF'
+            set -euo pipefail
             cd /opt/project-nyra
+            source ./scripts/ci/common.sh
+            detect_compose
 
             echo "🔍 Validating production environment..."
             ./validate-env.sh .env.production --strict
 
             echo "🛑 Graceful shutdown of existing services..."
-            docker-compose -f infra/docker-compose.yml -f docker-compose.prod.yml --env-file .env.production down --timeout 60
+            compose_run -f infra/docker-compose.yml -f docker-compose.prod.yml --env-file .env.production down --timeout 60
 
             echo "📥 Pulling production images..."
-            docker-compose -f infra/docker-compose.yml -f docker-compose.prod.yml --env-file .env.production pull
+            compose_run -f infra/docker-compose.yml -f docker-compose.prod.yml --env-file .env.production pull
 
             echo "🚀 Starting production services..."
-            docker-compose -f infra/docker-compose.yml -f docker-compose.prod.yml --env-file .env.production up -d
+            compose_run -f infra/docker-compose.yml -f docker-compose.prod.yml --env-file .env.production up -d
 
             echo "⏳ Waiting for production startup..."
             sleep 60
@@ -237,7 +242,7 @@ jobs:
             done
 
             echo "📊 Final production status:"
-            docker-compose -f infra/docker-compose.yml -f docker-compose.prod.yml --env-file .env.production ps
+            compose_run -f infra/docker-compose.yml -f docker-compose.prod.yml --env-file .env.production ps
           EOF
 
       - name: 🧪 Production smoke tests
@@ -246,7 +251,7 @@ jobs:
           HOST="${{ needs.pre-deployment-checks.outputs.deploy-host }}"
           USER="${{ needs.pre-deployment-checks.outputs.deploy-user }}"
 
-          ssh -o StrictHostKeyChecking=no $USER@$HOST << 'EOF'
+          ssh -o StrictHostKeyChecking=no $USER@$HOST 'bash -s' << 'EOF'
             cd /opt/project-nyra
 
             echo "🧪 Running production smoke tests..."
@@ -281,7 +286,7 @@ jobs:
 
   rollback:
     runs-on: ubuntu-latest
-    needs: [pre-deployment-checks, deploy-production]
+    needs: [pre-deployment-checks, backup-production, deploy-production]
     if: failure() && needs.backup-production.result == 'success'
 
     steps:
@@ -292,11 +297,14 @@ jobs:
           HOST="${{ needs.pre-deployment-checks.outputs.deploy-host }}"
           USER="${{ needs.pre-deployment-checks.outputs.deploy-user }}"
 
-          ssh -o StrictHostKeyChecking=no $USER@$HOST << 'EOF'
+          ssh -o StrictHostKeyChecking=no $USER@$HOST 'bash -s' << 'EOF'
+            set -euo pipefail
             cd /opt/project-nyra
+            source ./scripts/ci/common.sh
+            detect_compose
 
             echo "🛑 Stopping failed deployment..."
-            docker-compose down --timeout 30
+            compose_run down --timeout 30
 
             echo "🔄 Rolling back to previous state..."
             LATEST_BACKUP=$(ls -t /opt/backups/ | head -n 1)
@@ -309,7 +317,7 @@ jobs:
               sudo cp /opt/backups/$LATEST_BACKUP/env-backup .env
 
               echo "🚀 Starting rollback services..."
-              docker-compose up -d
+              compose_run up -d
 
               echo "✅ Rollback completed"
             else

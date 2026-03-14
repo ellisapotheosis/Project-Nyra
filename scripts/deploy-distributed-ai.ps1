@@ -33,6 +33,9 @@ function Write-Warning { Write-ColorOutput Yellow $args }
 function Write-Error { Write-ColorOutput Red $args }
 function Write-Info { Write-ColorOutput Cyan $args }
 
+. "$PSScriptRoot\lib\InfisicalToken.ps1"
+$ProjectNyraInfisicalProjectId = Get-NyraInfisicalProjectId
+
 # Main deployment function
 function Deploy-DistributedAI {
     Write-Info "🚀 Starting Nyra Distributed AI Infrastructure Deployment"
@@ -102,16 +105,11 @@ function Load-Secrets {
 
     if (Get-Command infisical -ErrorAction SilentlyContinue) {
         try {
-            # Test Infisical connection
-            $infisicalStatus = infisical user 2>$null
-            if ($LASTEXITCODE -eq 0) {
-                Write-Success "Infisical authenticated successfully"
-            } else {
-                Write-Warning "Infisical not authenticated. Run: infisical login"
-                Read-Host "Press Enter after logging into Infisical"
-            }
+            Assert-NyraInfisicalToken
+            Write-Success "INFISICAL_TOKEN is available"
         } catch {
-            Write-Warning "Infisical connection failed: $_"
+            Write-Error $_.Exception.Message
+            exit 1
         }
     } else {
         Write-Warning "Infisical CLI not found. Ensure environment variables are set manually."
@@ -151,7 +149,7 @@ function Deploy-Orchestrator {
     } else {
         Write-Info "Starting orchestrator services..."
         if (Get-Command infisical -ErrorAction SilentlyContinue) {
-            infisical run -- docker-compose -f config/docker-compose.orchestrator.yml up -d
+            & infisical run --projectId=$ProjectNyraInfisicalProjectId --env=development -- docker-compose -f config/docker-compose.orchestrator.yml up -d
         } else {
             docker-compose -f config/docker-compose.orchestrator.yml up -d
         }
@@ -202,7 +200,7 @@ function Deploy-Worker1 {
     } else {
         Write-Info "Starting Worker 1 services..."
         if (Get-Command infisical -ErrorAction SilentlyContinue) {
-            infisical run -- docker-compose -f config/docker-compose.worker1.yml up -d
+            & infisical run --projectId=$ProjectNyraInfisicalProjectId --env=development -- docker-compose -f config/docker-compose.worker1.yml up -d
         } else {
             docker-compose -f config/docker-compose.worker1.yml up -d
         }
@@ -249,7 +247,7 @@ function Deploy-Worker2 {
     } else {
         Write-Info "Starting Worker 2 services..."
         if (Get-Command infisical -ErrorAction SilentlyContinue) {
-            infisical run -- docker-compose -f config/docker-compose.worker2.yml up -d
+            & infisical run --projectId=$ProjectNyraInfisicalProjectId --env=development -- docker-compose -f config/docker-compose.worker2.yml up -d
         } else {
             docker-compose -f config/docker-compose.worker2.yml up -d
         }
@@ -296,7 +294,7 @@ function Deploy-Worker3 {
     } else {
         Write-Info "Starting Worker 3 services..."
         if (Get-Command infisical -ErrorAction SilentlyContinue) {
-            infisical run -- docker-compose -f config/docker-compose.worker3.yml up -d
+            & infisical run --projectId=$ProjectNyraInfisicalProjectId --env=development -- docker-compose -f config/docker-compose.worker3.yml up -d
         } else {
             docker-compose -f config/docker-compose.worker3.yml up -d
         }
@@ -445,7 +443,7 @@ function Test-WorkerHealth {
 
     try {
         $workerHealth = Invoke-RestMethod -Uri "$BaseUrl/health" -Method Get -TimeoutSec 15
-        Write-Success "$WorkerId: $($workerHealth.status)"
+        Write-Success "${WorkerId}: $($workerHealth.status)"
     } catch {
         Write-Warning "$WorkerId health check failed: $_"
     }

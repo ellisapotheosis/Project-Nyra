@@ -21,7 +21,7 @@
     "dev": "tsup --watch",
     "build": "tsup",
     "test": "jest",
-    "lint": "eslint src --ext .ts,.tsx",
+    "lint": "eslint src",
     "type-check": "tsc --noEmit"
   },
   "keywords": ["websocket", "client", "react", "hooks", "real-time"],

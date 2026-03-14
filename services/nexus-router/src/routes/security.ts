@@ -481,7 +481,7 @@ router.post(
 /**
  * Redact sensitive parts of URL
  * e.g., https://auth.example.com/.well-known/jwks.json
- * => https://***/.well-known/jwks.json
+ * => https://redacted.example/.well-known/jwks.json
  */
 function redactUrl(url: string): string {
   try {

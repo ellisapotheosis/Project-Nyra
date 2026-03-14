@@ -2,32 +2,29 @@
 # Infisical Export Helper Script
 # This script exports secrets from Infisical to .env files
 
-set -e
+set -euo pipefail
 
-PROJECT_ID="8374cea9-e5e8-4050-bda4-b91f25ab30ef"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=scripts/lib/infisical-token.sh
+source "$SCRIPT_DIR/lib/infisical-token.sh"
+
 ENVIRONMENT="${1:-dev}"
 PATH_PREFIX="${2:-/shared}"
 OUTPUT_FILE="${3:-.env}"
 
+nyra_require_infisical_token
+nyra_resolve_infisical_project_id
+
 echo "🔐 Exporting Infisical secrets..."
-echo "   Project: $PROJECT_ID"
+echo "   Project: $INFISICAL_PROJECT_ID"
 echo "   Environment: $ENVIRONMENT"
 echo "   Path: $PATH_PREFIX"
 echo "   Output: $OUTPUT_FILE"
 echo ""
 
-# Check if logged in
-if ! infisical login 2>&1 | grep -q "logged in\|Already"; then
-    echo "❌ Not logged in to Infisical"
-    echo "Please run: infisical login --interactive"
-    exit 1
-fi
-
-# Export secrets
-infisical export \
-    --projectId="$PROJECT_ID" \
-    --env="$ENVIRONMENT" \
-    --path="$PATH_PREFIX" \
+nyra_infisical_export \
+    "$ENVIRONMENT" \
+    "$PATH_PREFIX" \
     --format=dotenv \
     > "$OUTPUT_FILE"
 

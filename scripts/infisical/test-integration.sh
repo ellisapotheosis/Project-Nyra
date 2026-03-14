@@ -7,7 +7,9 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+source "$PROJECT_ROOT/scripts/lib/infisical-token.sh"
 cd "$PROJECT_ROOT"
+INFISICAL_PROJECT_ID="${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}"
 
 # Colors
 RED='\033[0;31m'
@@ -81,9 +83,11 @@ test_infisical_auth() {
 
     local result="PASS"
 
-    if ! infisical secrets get __health_check__ 2>/dev/null; then
-        log_warning "Infisical not authenticated or project not initialized"
+    if ! nyra_require_infisical_token; then
+        log_warning "INFISICAL_TOKEN is not set"
         result="FAIL"
+    else
+        nyra_resolve_infisical_project_id
     fi
 
     track_test "Infisical Authentication" "$result"
@@ -419,7 +423,7 @@ generate_report() {
         echo ""
         echo "Troubleshooting:"
         echo "1. Check service logs: docker-compose -f docker-compose.infisical.yml logs"
-        echo "2. Verify Infisical authentication: infisical secrets get __health_check__"
+        echo "2. Verify INFISICAL_TOKEN is exported and project id is correct"
         echo "3. Check network connectivity: docker network ls"
         echo "4. Review configuration files in config/infisical/"
         return 1

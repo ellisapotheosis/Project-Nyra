@@ -11,10 +11,16 @@ ENABLE_ACTIONS="${ENABLE_ACTIONS:-true}"
 ENABLE_ACTIONS_LARGE="${ENABLE_ACTIONS_LARGE:-false}"
 ENABLE_AI="${ENABLE_AI:-false}"
 ENABLE_INFISICAL_AGENT="${ENABLE_INFISICAL_AGENT:-false}"
+INFISICAL_PROJECT_ID="${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}"
 
 if [ ! -f "$ENV_FILE" ]; then
   cp .env.gitea.template "$ENV_FILE"
   echo "Created $ENV_FILE from template"
+fi
+
+if [ -z "${INFISICAL_TOKEN:-}" ]; then
+  echo "INFISICAL_TOKEN is required to bootstrap the Gitea stack." >&2
+  exit 1
 fi
 
 if ! docker network inspect "$NETWORK_NAME" >/dev/null 2>&1; then

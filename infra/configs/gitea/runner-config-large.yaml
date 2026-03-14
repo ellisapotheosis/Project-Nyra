@@ -18,11 +18,8 @@ runner:
     - "self-hosted-large:host"
 
 cache:
-  enabled: true
+  enabled: false
   dir: /data/cache
-  host:
-    enabled: true
-    workdir_parent: /data/workdir
 
 container:
   network: nyra-net

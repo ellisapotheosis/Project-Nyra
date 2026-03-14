@@ -4,9 +4,14 @@ set -euo pipefail
 SECRETS_DIR="/run/nyra-secrets"
 INIT_MARK="${SECRETS_DIR}/.initialized"
 FORCE="${NYRA_FORCE_SECRETS:-false}"
+SECRET_UID="${NYRA_SECRETS_UID:-1000}"
+SECRET_GID="${NYRA_SECRETS_GID:-1000}"
+INFISICAL_PROJECT_ID="${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}"
+
+umask 077
 
 mkdir -p "$SECRETS_DIR"
-chmod 700 "$SECRETS_DIR"
+chmod 700 "$SECRETS_DIR" 2>/dev/null || true
 
 log(){ echo "[secrets-init] $*"; }
 
@@ -23,6 +28,9 @@ write_secret_file(){
   local value="$2"
   printf "%s" "$value" > "$path"
   chmod 600 "$path"
+  if [[ "$(id -u)" -eq 0 ]]; then
+    chown "${SECRET_UID}:${SECRET_GID}" "$path"
+  fi
 }
 
 parse_dotenv_and_write(){
@@ -38,36 +46,25 @@ parse_dotenv_and_write(){
   v="$(getv WEBHOOK_AUTH_TOKEN)";   [[ -n "$v" ]] && write_secret_file "$SECRETS_DIR/webhook_auth_token" "$v"
   v="$(getv WEBHOOK_SECRET)";       [[ -n "$v" ]] && write_secret_file "$SECRETS_DIR/webhook_secret" "$v"
   v="$(getv GITEA_TOKEN)";          [[ -n "$v" ]] && write_secret_file "$SECRETS_DIR/gitea_pat_token" "$v"
-  v="$(getv OPENAI_API_KEY)";   [[ -n "$v" ]] && write_secret_file "$SECRETS_DIR/openai_api_key" "$v"
   v="$(getv GITEA_RUNNER_TOKEN)";   [[ -n "$v" ]] && write_secret_file "$SECRETS_DIR/gitea_runner_token" "$v"
+  v="$(getv OPENAI_API_KEY)";   [[ -n "$v" ]] && write_secret_file "$SECRETS_DIR/openai_api_key" "$v"
   v="$(getv GITEA_SECRET_KEY)";     [[ -n "$v" ]] && write_secret_file "$SECRETS_DIR/gitea_secret_key" "$v"
   v="$(getv GITEA_INTERNAL_TOKEN)"; [[ -n "$v" ]] && write_secret_file "$SECRETS_DIR/gitea_internal_token" "$v"
 }
 
 try_infisical_export(){
-  local cid_file="/run/secrets/infisical-client-id"
-  local csec_file="/run/secrets/infisical-client_secret"
-
-  if [[ ! -f "$cid_file" ]] || [[ ! -f "$csec_file" ]] || [[ ! -s "$cid_file" ]] || [[ ! -s "$csec_file" ]]; then
-    log "Infisical creds not present. Skipping pull."
-    return 1
-  fi
-  if [[ -z "${INFISICAL_PROJECT_ID:-}" ]]; then
-    log "INFISICAL_PROJECT_ID empty. Skipping pull."
+  if [[ -z "${INFISICAL_TOKEN:-}" ]]; then
+    log "INFISICAL_TOKEN is required."
     return 1
   fi
 
   export INFISICAL_API_URL="${INFISICAL_API_URL:-https://app.infisical.com}"
-  local cid csec token
-  cid="$(cat "$cid_file")"
-  csec="$(cat "$csec_file")"
-  token="$(infisical login --method=universal-auth --client-id="$cid" --client-secret="$csec" --silent --plain)"
 
   infisical export \
-    --token="$token" \
+    --token="${INFISICAL_TOKEN}" \
     --projectId="$INFISICAL_PROJECT_ID" \
-    --env="${INFISICAL_ENV:-prod}" \
-    --path="${INFISICAL_PATH:-/nyra/gitea}" \
+    --env="${INFISICAL_ENV:-dev}" \
+    --path="${INFISICAL_PATH:-/shared}" \
     --format=dotenv \
     --output-file="/tmp/nyra.infisical.env" >/dev/null
 
@@ -89,6 +86,15 @@ generate_missing(){
 }
 
 main(){
+  if [[ "$(id -u)" -eq 0 ]]; then
+    chown "${SECRET_UID}:${SECRET_GID}" "$SECRETS_DIR"
+  fi
+
+  if [[ -z "${INFISICAL_TOKEN:-}" ]]; then
+    log "INFISICAL_TOKEN is required."
+    exit 1
+  fi
+
   if ! need_write; then
     log "Secrets already initialized."
     exit 0
@@ -97,11 +103,15 @@ main(){
   if try_infisical_export; then
     log "Pulled secrets from Infisical."
   else
-    log "Using local generated secrets (fallback)."
+    log "Failed to pull secrets from Infisical."
+    exit 1
   fi
 
   generate_missing
   date -Iseconds > "$INIT_MARK"
   chmod 600 "$INIT_MARK"
+  if [[ "$(id -u)" -eq 0 ]]; then
+    chown "${SECRET_UID}:${SECRET_GID}" "$INIT_MARK"
+  fi
 }
 main "$@"

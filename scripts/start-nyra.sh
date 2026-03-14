@@ -1,7 +1,11 @@
 #!/bin/bash
 # Start Project Nyra stack.
 
-set -e
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=scripts/lib/infisical-token.sh
+source "$SCRIPT_DIR/lib/infisical-token.sh"
 
 echo "🚀 Starting Project Nyra..."
 
@@ -17,18 +21,16 @@ export $(grep -v '^#' .env | xargs)
 # Create network if not exists
 docker network create nyra-network 2>/dev/null || true
 
-# Determine if infisical is available
-if command -v infisical &> /dev/null; then
-  echo "📦 Starting with Infisical secrets injection..."
-  infisical run \
-    --projectId="${INFISICAL_PROJECT_ID}" \
-    --env="dev" \
-    --path="/shared" \
-    -- docker compose -f infra/docker-compose.yml up -d
-else
-  echo "📦 Starting with local .env secrets..."
-  docker compose -f infra/docker-compose.yml up -d
-fi
+command -v infisical >/dev/null 2>&1 || {
+  echo "❌ infisical CLI not found." >&2
+  exit 1
+}
+
+nyra_require_infisical_token
+nyra_resolve_infisical_project_id
+
+echo "📦 Starting with Infisical secrets injection..."
+nyra_infisical_run "dev" "/shared" docker compose -f infra/docker-compose.yml up -d
 
 echo ""
 echo "✅ Services started!"
