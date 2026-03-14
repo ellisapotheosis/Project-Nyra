@@ -14,11 +14,11 @@ commands:
     description: Install workspace deps while skipping known private package tree in CI.
     steps:
       - run:
-          name: Enable corepack + pnpm
+          name: Install pnpm
           command: |
             set -euo pipefail
-            corepack enable
-            corepack prepare pnpm@10.27.0 --activate
+            npm install -g pnpm@10.27.0
+            pnpm --version
       - restore_cache:
           keys:
             - v3-pnpm-store-{{ arch }}-{{ checksum "pnpm-lock.yaml" }}
