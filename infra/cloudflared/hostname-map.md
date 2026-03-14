@@ -2,23 +2,26 @@
 
 ## Public internet
 
-- `ratehunter.net` -> Cloudflare Pages (`apps/landing`) (public marketing)
+- `ratehunter.net` -> Cloudflare Pages (`apps/landing/ratehunter-landing`) (public marketing)
 
-## Tunnel hostnames (Access required)
+> Replace `nyra.example.com` and `<TUNNEL_UUID>` with the real zone and tunnel ID before creating DNS records.
 
-| Hostname template | Target service | Record type |
-|---|---|---|
-| `n8n.${NYRA_DOMAIN_ROOT}` | `n8n:5678` | proxied CNAME |
-| `activepieces.${NYRA_DOMAIN_ROOT}` | `activepieces:80` | proxied CNAME |
-| `twentycrm.${NYRA_DOMAIN_ROOT}` | `twentycrm:3000` | proxied CNAME |
-| `litellm.${NYRA_DOMAIN_ROOT}` | `litellm:4000` | proxied CNAME |
-| `nexus.${NYRA_DOMAIN_ROOT}` | `nexus-router:7000` | proxied CNAME |
-| `grafana.${NYRA_DOMAIN_ROOT}` | `grafana:3000` | proxied CNAME |
-| `gitea.${NYRA_DOMAIN_ROOT}` | `gitea:3000` | proxied CNAME |
-| `infisical.${NYRA_DOMAIN_ROOT}` | `infisical:8080` | proxied CNAME |
+## Tunnel hostnames (Cloudflare Access required)
 
-Each CNAME points to `<CF_TUNNEL_UUID>.cfargotunnel.com`.
+| Hostname | Local origin | Record type | Notes |
+|---|---|---|---|
+| `n8n.nyra.example.com` | `http://localhost:5678` | proxied CNAME | automation UI and API |
+| `activepieces.nyra.example.com` | `http://localhost:8082` | proxied CNAME | workflow UI |
+| `twentycrm.nyra.example.com` | `http://localhost:3000` | proxied CNAME | CRM app |
+| `archon.nyra.example.com` | `http://localhost:3737` | proxied CNAME | Archon operator UI |
+| `grafana.nyra.example.com` | `http://localhost:3003` | proxied CNAME | observability UI |
+| `infisical.nyra.example.com` | `http://localhost:8086` | proxied CNAME | secrets UI and API |
+| `gitea.nyra.example.com` | `http://localhost:3100` | proxied CNAME | git forge UI |
+
+Each CNAME points to `<TUNNEL_UUID>.cfargotunnel.com`.
 
 ## Explicitly excluded from tunnel
 
-- All datastore services (`postgres`, `redis`, `mongo`, `agentdb`, `ruvector-postgres`, `gitea-db`, `infisical-db`, `infisical-redis`).
+- Datastores: `postgres`, `redis`, `mongo`, `agentdb`, `ruvector-postgres`, `gitea-db`, `infisical-db`, `infisical-redis`
+- Worker inference backends: `worker-3060-ollama`, `worker-3090ti-vllm`, `worker-5090-vllm`
+- SSH and raw TCP endpoints, including `gitea` SSH on port `22`

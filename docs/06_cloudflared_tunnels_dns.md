@@ -2,43 +2,50 @@
 
 ## Guardrails
 
-- Tunnel only HTTP(S) services.
-- Datastores (postgres/redis/mongo/etc.) are never mapped to hostnames.
-- Default access model is Cloudflare Access required.
-- Final ingress rule must be `http_status:404`.
+- Tunnel only explicit HTTP(S) apps.
+- Cloudflare Access is required for every tunneled hostname in this pack.
+- The marketing landing page remains on Cloudflare Pages and stays public.
+- No datastore, SSH, or raw TCP ingress is included.
+- Final ingress rule is `http_status:404`.
 
-## Active ingress hostnames
+> Replace the example domain `nyra.example.com` and `<TUNNEL_UUID>` before applying DNS or tunnel routes.
 
-| Hostname | Internal service target | Access policy | Notes |
-|---|---|---|---|
-| `n8n.${NYRA_DOMAIN_ROOT}` | `http://n8n:5678` | required | automation UI/API |
-| `activepieces.${NYRA_DOMAIN_ROOT}` | `http://activepieces:80` | required | workflow UI |
-| `twentycrm.${NYRA_DOMAIN_ROOT}` | `http://twentycrm:3000` | required | CRM app |
-| `litellm.${NYRA_DOMAIN_ROOT}` | `http://litellm:4000` | required | LLM gateway |
-| `nexus.${NYRA_DOMAIN_ROOT}` | `http://nexus-router:7000` | required | router API |
-| `grafana.${NYRA_DOMAIN_ROOT}` | `http://grafana:3000` | required | observability |
-| `gitea.${NYRA_DOMAIN_ROOT}` | `http://gitea:3000` | required | git forge UI |
-| `infisical.${NYRA_DOMAIN_ROOT}` | `http://infisical:8080` | required | secrets UI/API |
+## DNS records to create
 
-## DNS records
+- `n8n.nyra.example.com` -> `<TUNNEL_UUID>.cfargotunnel.com`
+- `activepieces.nyra.example.com` -> `<TUNNEL_UUID>.cfargotunnel.com`
+- `twentycrm.nyra.example.com` -> `<TUNNEL_UUID>.cfargotunnel.com`
+- `archon.nyra.example.com` -> `<TUNNEL_UUID>.cfargotunnel.com`
+- `grafana.nyra.example.com` -> `<TUNNEL_UUID>.cfargotunnel.com`
+- `infisical.nyra.example.com` -> `<TUNNEL_UUID>.cfargotunnel.com`
+- `gitea.nyra.example.com` -> `<TUNNEL_UUID>.cfargotunnel.com`
 
-Each hostname should be a proxied CNAME to:
-
-- `<TUNNEL_UUID>.cfargotunnel.com`
-
-CLI alternative per hostname:
+## CLI alternative
 
 ```bash
-cloudflared tunnel route dns <NAME_OR_UUID> n8n.<domain>
-cloudflared tunnel route dns <NAME_OR_UUID> activepieces.<domain>
-cloudflared tunnel route dns <NAME_OR_UUID> twentycrm.<domain>
-cloudflared tunnel route dns <NAME_OR_UUID> litellm.<domain>
-cloudflared tunnel route dns <NAME_OR_UUID> nexus.<domain>
-cloudflared tunnel route dns <NAME_OR_UUID> grafana.<domain>
-cloudflared tunnel route dns <NAME_OR_UUID> gitea.<domain>
-cloudflared tunnel route dns <NAME_OR_UUID> infisical.<domain>
+cloudflared tunnel route dns <NAME_OR_UUID> n8n.nyra.example.com
+cloudflared tunnel route dns <NAME_OR_UUID> activepieces.nyra.example.com
+cloudflared tunnel route dns <NAME_OR_UUID> twentycrm.nyra.example.com
+cloudflared tunnel route dns <NAME_OR_UUID> archon.nyra.example.com
+cloudflared tunnel route dns <NAME_OR_UUID> grafana.nyra.example.com
+cloudflared tunnel route dns <NAME_OR_UUID> infisical.nyra.example.com
+cloudflared tunnel route dns <NAME_OR_UUID> gitea.nyra.example.com
 ```
+
+## Active tunnel hostnames
+
+| Hostname | Local origin | Access policy | Notes |
+|---|---|---|---|
+| `n8n.nyra.example.com` | `http://localhost:5678` | required | automation UI and API |
+| `activepieces.nyra.example.com` | `http://localhost:8082` | required | workflow UI |
+| `twentycrm.nyra.example.com` | `http://localhost:3000` | required | CRM app |
+| `archon.nyra.example.com` | `http://localhost:3737` | required | Archon operator UI |
+| `grafana.nyra.example.com` | `http://localhost:3003` | required | observability UI |
+| `infisical.nyra.example.com` | `http://localhost:8086` | required | secrets UI and API |
+| `gitea.nyra.example.com` | `http://localhost:3100` | required | git forge UI |
 
 ## Explicitly non-exposed services
 
 - `postgres`, `redis`, `mongo`, `agentdb`, `ruvector-postgres`, `gitea-db`, `infisical-db`, `infisical-redis`
+- `worker-3060-ollama`, `worker-3090ti-vllm`, `worker-5090-vllm`
+- `gitea` SSH on port `22`
