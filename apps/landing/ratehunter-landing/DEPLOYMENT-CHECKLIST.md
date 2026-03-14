@@ -15,7 +15,7 @@ Use this checklist to ensure your RateHunter landing page is fully configured an
 - [ ] `robots.txt` configured
 - [ ] `sitemap.xml` created and up to date
 - [ ] PWA `manifest.json` configured
-- [ ] Build succeeds locally: `pnpm run build`
+- [ ] Build succeeds locally: `npm run build:cf`
 
 ### Content Review
 - [ ] All text reviewed for accuracy
@@ -34,16 +34,18 @@ Use this checklist to ensure your RateHunter landing page is fully configured an
 ### Project Configuration
 - [ ] Cloudflare Pages project created
 - [ ] GitHub repository connected
-- [ ] Build command: `cd apps/landing/ratehunter-landing && pnpm run build`
-- [ ] Output directory: `apps/landing/ratehunter-landing/.next`
+- [ ] Root directory: `apps/landing/ratehunter-landing`
+- [ ] Install command: `npm install`
+- [ ] Build command: `npm run build:cf`
+- [ ] Output directory: `.open-next/assets`
 - [ ] Node version: 20
-- [ ] Root directory: `/`
+- [ ] Root directory is **not** `/`
 
 ### Environment Variables (Production)
 - [ ] `NODE_ENV=production`
 - [ ] `NEXT_PUBLIC_SITE_URL=https://ratehunter.com`
+- [ ] `NEXT_PUBLIC_SITE_NAME=RateHunter`
 - [ ] `NODE_VERSION=20`
-- [ ] `PNPM_VERSION=10.27.0`
 - [ ] `NEXT_TELEMETRY_DISABLED=1`
 - [ ] Any API keys or secrets added (encrypted)
 
@@ -245,7 +247,7 @@ Use this checklist to ensure your RateHunter landing page is fully configured an
 ### If Build Fails
 1. Check build logs in Cloudflare Pages
 2. Verify environment variables
-3. Test build locally: `pnpm run build`
+3. Test build locally: `npm run build:cf`
 4. If needed, revert git commit and push
 
 ### If DNS Issues
@@ -279,4 +281,3 @@ _________________________________________________________________
 - [ ] Performance metrics
 - [ ] Content updates needed
 - [ ] Security updates
-

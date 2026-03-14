@@ -28,22 +28,28 @@ This guide walks you through setting up a production-ready Cloudflare Pages depl
 **Build settings**:
 ```
 Framework preset: Next.js
-Build command: cd apps/landing/ratehunter-landing && npm run build:cf
-Build output directory: apps/landing/ratehunter-landing/.open-next/assets
-Root directory: /
+Root directory: apps/landing/ratehunter-landing
+Build command: npm run build:cf
+Build output directory: .open-next/assets
+Install command: npm install
 Node version: 20
 ```
 
 **Required file in repo**:
 - `apps/landing/ratehunter-landing/wrangler.toml` (prevents interactive OpenNext/Wrangler prompts in CI)
 
+**Important**:
+- Do not set the root directory to `/`.
+- This repository is a monorepo, and repo-root installs can fail on unrelated workspace packages before Cloudflare ever reaches the landing app build.
+
 
 **Environment variables** (add these now):
 ```
 NODE_VERSION=20
-PNPM_VERSION=10.27.0
-NPM_CONFIG_IGNORE_SCRIPTS=false
+NODE_ENV=production
 NEXT_TELEMETRY_DISABLED=1
+NEXT_PUBLIC_SITE_URL=https://ratehunter.com
+NEXT_PUBLIC_SITE_NAME=RateHunter
 ```
 
 ### 1.3 Deploy
@@ -250,9 +256,9 @@ Go to **Settings** > **Builds & deployments** > **Branch deployments**
 **Add to your wrangler.toml**:
 ```toml
 [build]
-command = "cd apps/landing/ratehunter-landing && pnpm run build"
+command = "npm run build:cf"
 cwd = ""
-watch_dir = "apps/landing/ratehunter-landing"
+watch_dir = "."
 ```
 
 ### 6.3 Deploy Hooks
@@ -647,4 +653,3 @@ Before going live, verify:
 **Completed By**: ___________
 **Custom Domain**: ___________
 **Production URL**: ___________
-
