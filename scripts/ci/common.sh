@@ -4,8 +4,11 @@ set -euo pipefail
 resolve_deploy_sha() {
   local event_name="${1:-${GITHUB_EVENT_NAME:-}}"
   local workflow_run_head_sha="${2:-${GITHUB_EVENT_WORKFLOW_RUN_HEAD_SHA:-}}"
+  local manual_deploy_sha="${3:-${GITHUB_EVENT_INPUT_DEPLOY_SHA:-}}"
 
-  if [[ "$event_name" == "workflow_run" && -n "$workflow_run_head_sha" ]]; then
+  if [[ "$event_name" == "workflow_dispatch" ]]; then
+    DEPLOY_SHA="$manual_deploy_sha"
+  elif [[ "$event_name" == "workflow_run" && -n "$workflow_run_head_sha" ]]; then
     DEPLOY_SHA="$workflow_run_head_sha"
   else
     DEPLOY_SHA="${GITHUB_SHA:-}"

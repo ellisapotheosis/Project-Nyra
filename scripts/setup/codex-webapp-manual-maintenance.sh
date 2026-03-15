@@ -2,12 +2,39 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+
+resolve_repo_root() {
+  if git -C "$SCRIPT_DIR" rev-parse --show-toplevel >/dev/null 2>&1; then
+    git -C "$SCRIPT_DIR" rev-parse --show-toplevel
+    return 0
+  fi
+
+  local candidate
+  for candidate in \
+    "$SCRIPT_DIR/../.." \
+    "$PWD" \
+    "/workspace/Project-Nyra" \
+    "/workspace/project-nyra" \
+    "$HOME/project-nyra"
+  do
+    candidate="$(cd "$candidate" 2>/dev/null && pwd -P || true)"
+    if [[ -n "$candidate" ]] && ([[ -d "$candidate/.git" ]] || [[ -f "$candidate/package.json" ]]); then
+      printf '%s\n' "$candidate"
+      return 0
+    fi
+  done
+
+  printf 'Unable to resolve Project Nyra repository root from %s\n' "$SCRIPT_DIR" >&2
+  exit 1
+}
+
+REPO_ROOT="$(resolve_repo_root)"
 SETUP_SCRIPT="$REPO_ROOT/scripts/setup/codex-webapp-manual-setup.sh"
 
 INFISICAL_ENV="${INFISICAL_ENV:-dev}"
 INFISICAL_PATH="${INFISICAL_PATH:-/shared}"
 INFISICAL_PROJECT_ID="${INFISICAL_PROJECT_ID:-}"
+INFISICAL_API_URL="${INFISICAL_API_URL:-https://app.infisical.com/api}"
 ROOT_ENV_FILE="${ROOT_ENV_FILE:-$REPO_ROOT/.env}"
 PYTHON_VENV_DIR="${PYTHON_VENV_DIR:-$REPO_ROOT/.venv}"
 RUN_GIT_PULL="${RUN_GIT_PULL:-0}"
@@ -104,6 +131,191 @@ require_cmd() {
   fi
 }
 
+run_with_optional_sudo() {
+  if [[ "${EUID:-$(id -u)}" -eq 0 ]]; then
+    "$@"
+  elif command -v sudo >/dev/null 2>&1 && sudo -n true >/dev/null 2>&1; then
+    sudo "$@"
+  else
+    return 1
+  fi
+}
+
+read_dotenv_value() {
+  local file="$1"
+  local key="$2"
+  local raw=""
+
+  if [[ ! -f "$file" ]]; then
+    return 0
+  fi
+
+  raw="$(grep -E "^${key}=" "$file" | tail -n 1 | cut -d'=' -f2- || true)"
+  raw="${raw#\"}"
+  raw="${raw%\"}"
+  raw="${raw#\'}"
+  raw="${raw%\'}"
+  printf '%s' "$raw"
+}
+
+resolve_infisical_base_args() {
+  INFISICAL_BASE_ARGS=(--domain "$INFISICAL_API_URL" --silent)
+
+  if [[ -n "${INFISICAL_TOKEN:-}" ]]; then
+    INFISICAL_BASE_ARGS+=(--token "$INFISICAL_TOKEN")
+  elif [[ -n "${INFISICAL_ACCESS_TOKEN:-}" ]]; then
+    INFISICAL_BASE_ARGS+=(--token "$INFISICAL_ACCESS_TOKEN")
+  elif [[ -n "${INFISICAL_SESSION_TOKEN:-}" ]]; then
+    INFISICAL_BASE_ARGS+=(--token "$INFISICAL_SESSION_TOKEN")
+  fi
+}
+
+run_infisical_cli() {
+  resolve_infisical_base_args
+  infisical "${INFISICAL_BASE_ARGS[@]}" "$@"
+}
+
+resolve_infisical_token_from_env_or_file() {
+  local key=""
+  local value=""
+
+  for key in INFISICAL_TOKEN INFISICAL_ACCESS_TOKEN; do
+    value="${!key:-}"
+    if [[ -n "$value" ]]; then
+      printf '%s' "$value"
+      return 0
+    fi
+  done
+
+  for key in INFISICAL_TOKEN INFISICAL_ACCESS_TOKEN; do
+    value="$(read_dotenv_value "$ROOT_ENV_FILE" "$key")"
+    if [[ -n "$value" ]]; then
+      printf '%s' "$value"
+      return 0
+    fi
+  done
+
+  return 1
+}
+
+ensure_infisical_auth() {
+  if ! command -v infisical >/dev/null 2>&1; then
+    return 0
+  fi
+
+  if [[ -n "${INFISICAL_TOKEN:-}" || -n "${INFISICAL_ACCESS_TOKEN:-}" || -n "${INFISICAL_SESSION_TOKEN:-}" ]]; then
+    return 0
+  fi
+
+  local token=""
+  if token="$(resolve_infisical_token_from_env_or_file 2>/dev/null)"; then
+    INFISICAL_TOKEN="$token"
+    export INFISICAL_TOKEN
+    INFISICAL_SESSION_TOKEN="$token"
+    export INFISICAL_SESSION_TOKEN
+    return 0
+  fi
+
+  if run_infisical_cli export --env="$INFISICAL_ENV" --path="$INFISICAL_PATH" --format=dotenv >/dev/null 2>&1; then
+    info "Using existing Infisical CLI session"
+    return 0
+  fi
+
+  err "Infisical authentication is not configured. Provide INFISICAL_TOKEN/INFISICAL_ACCESS_TOKEN or a working Infisical CLI session."
+  exit 1
+}
+
+ensure_github_cli() {
+  if command -v gh >/dev/null 2>&1; then
+    return 0
+  fi
+
+  if ! command -v apt-get >/dev/null 2>&1; then
+    warn "apt-get is unavailable; skipping GitHub CLI installation"
+    return 0
+  fi
+
+  if ! run_with_optional_sudo true >/dev/null 2>&1; then
+    warn "No non-interactive sudo access; skipping GitHub CLI installation"
+    return 0
+  fi
+
+  info "Installing GitHub CLI"
+  if ! command -v wget >/dev/null 2>&1; then
+    sudo apt-get update -y
+    sudo apt-get install -y wget
+  fi
+
+  sudo mkdir -p -m 755 /etc/apt/keyrings
+  wget -qO- https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo tee /etc/apt/keyrings/githubcli-archive-keyring.gpg >/dev/null
+  sudo chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg
+  echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list >/dev/null
+  sudo apt-get update -y
+  sudo apt-get install -y gh
+}
+
+resolve_github_token() {
+  local key=""
+  local value=""
+
+  for key in GH_TOKEN GITHUB_TOKEN GITHUB_PERSONAL_ACCESS_TOKEN; do
+    value="${!key:-}"
+    if [[ -n "$value" ]]; then
+      printf '%s' "$value"
+      return 0
+    fi
+  done
+
+  if command -v infisical >/dev/null 2>&1; then
+    ensure_infisical_auth
+    for key in GITHUB_TOKEN GH_TOKEN GITHUB_PERSONAL_ACCESS_TOKEN; do
+      local cmd=(secrets get "$key" --env="$INFISICAL_ENV" --path="$INFISICAL_PATH" --plain)
+      if [[ -n "$INFISICAL_PROJECT_ID" ]]; then
+        cmd+=(--projectId="$INFISICAL_PROJECT_ID")
+      fi
+      value="$(run_infisical_cli "${cmd[@]}" 2>/dev/null || true)"
+      if [[ -n "$value" ]]; then
+        printf '%s' "$value"
+        return 0
+      fi
+    done
+  fi
+
+  for key in GH_TOKEN GITHUB_TOKEN GITHUB_PERSONAL_ACCESS_TOKEN; do
+    value="$(read_dotenv_value "$ROOT_ENV_FILE" "$key")"
+    if [[ -n "$value" ]]; then
+      printf '%s' "$value"
+      return 0
+    fi
+  done
+
+  return 1
+}
+
+configure_github_auth() {
+  local token=""
+
+  ensure_github_cli
+  if ! command -v gh >/dev/null 2>&1; then
+    return 0
+  fi
+
+  if gh auth status >/dev/null 2>&1; then
+    info "GitHub CLI is already authenticated"
+    return 0
+  fi
+
+  if ! token="$(resolve_github_token)"; then
+    warn "No GitHub token found in env or $ROOT_ENV_FILE; skipping gh auth"
+    return 0
+  fi
+
+  info "Authenticating GitHub CLI"
+  printf '%s' "$token" | gh auth login --hostname github.com --with-token --git-protocol https >/dev/null
+  gh auth setup-git >/dev/null 2>&1 || true
+  gh auth status || warn "GitHub CLI auth verification reported a problem"
+}
+
 refresh_python_requirements() {
   if [[ ! -d "$PYTHON_VENV_DIR" ]]; then
     warn "Python venv missing at $PYTHON_VENV_DIR; recreating with setup script"
@@ -141,12 +353,14 @@ main() {
   require_cmd bash
   require_cmd git
 
-  if [[ ! -x "$SETUP_SCRIPT" ]]; then
-    err "Setup script not found or not executable: $SETUP_SCRIPT"
+  if [[ ! -f "$SETUP_SCRIPT" ]]; then
+    err "Setup script not found: $SETUP_SCRIPT"
     exit 1
   fi
 
   if [[ "$RUN_GIT_PULL" -eq 1 ]]; then
+    ensure_infisical_auth
+    configure_github_auth
     info "Updating repository with git pull --rebase"
     git pull --rebase --autostash
   fi
@@ -175,23 +389,25 @@ main() {
   fi
 
   info "Running setup script in maintenance mode"
-  "$SETUP_SCRIPT" "${setup_args[@]}"
+  bash "$SETUP_SCRIPT" "${setup_args[@]}"
 
   if ! refresh_python_requirements; then
     warn "Falling back to full Python dependency setup"
-    "$SETUP_SCRIPT" "${setup_args[@]}" --skip-system-deps --skip-js-deps --skip-services --skip-env-export
+    bash "$SETUP_SCRIPT" "${setup_args[@]}" --skip-system-deps --skip-js-deps --skip-services --skip-env-export
   fi
 
-  require_cmd node
-  require_cmd pnpm
-  require_cmd python3
-  require_cmd docker
-
   info "Final maintenance checks"
-  echo "  node:    $(node -v)"
-  echo "  pnpm:    $(pnpm -v)"
-  echo "  python3: $(python3 --version)"
-  docker ps --format 'table {{.Names}}\t{{.Status}}' | head -n 25 || true
+  echo "  node:      $(node -v 2>/dev/null || echo missing)"
+  echo "  pnpm:      $(pnpm -v 2>/dev/null || echo missing)"
+  echo "  python3:   $(python3 --version 2>/dev/null || echo missing)"
+  echo "  pip:       $(python3 -m pip --version 2>/dev/null || echo missing)"
+  echo "  infisical: $(infisical --version 2>/dev/null || echo missing)"
+  echo "  docker:    $(docker --version 2>/dev/null || echo missing)"
+  if command -v docker >/dev/null 2>&1 && docker info >/dev/null 2>&1; then
+    docker ps --format 'table {{.Names}}\t{{.Status}}' | head -n 25 || true
+  else
+    warn "Docker is unavailable in this environment; skipped container status check"
+  fi
 
   ok "✅ Project Nyra Codex webapp maintenance completed"
 }

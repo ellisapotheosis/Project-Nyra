@@ -6,14 +6,13 @@ services:
       context: ./infisical-secrets-init
       dockerfile: Dockerfile
     container_name: nyra-secrets-init
-    user: "${NYRA_SECRETS_UID:-1000}:${NYRA_SECRETS_GID:-1000}"
     entrypoint: ["/usr/local/bin/secrets-init.sh"]
     environment:
       INFISICAL_API_URL: ${INFISICAL_API_URL:-https://app.infisical.com}
       INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
-      INFISICAL_TOKEN: ${INFISICAL_TOKEN:?set INFISICAL_TOKEN}
-      INFISICAL_ENV: ${INFISICAL_ENV:-prod}
-      INFISICAL_PATH: ${INFISICAL_PATH:-/nyra/gitea}
+      INFISICAL_TOKEN: ${INFISICAL_TOKEN:-}
+      INFISICAL_ENV: ${INFISICAL_ENV:-dev}
+      INFISICAL_PATH: ${INFISICAL_PATH:-/shared}
       NYRA_FORCE_SECRETS: ${NYRA_FORCE_SECRETS:-false}
     volumes:
       - nyra_secrets:/run/nyra-secrets
@@ -57,8 +56,8 @@ services:
       GITEA__database__NAME: gitea
       GITEA__database__USER: gitea
       GITEA__database__PASSWD__FILE: /run/nyra-secrets/gitea_db_pass
-      GITEA__server__ROOT_URL: ${GITEA_ROOT_URL:-http://orchestrator:3100/}
-      GITEA__server__SSH_DOMAIN: ${GITEA_SSH_DOMAIN:-orchestrator}
+      GITEA__server__ROOT_URL: ${GITEA_ROOT_URL:-http://localhost:3100/}
+      GITEA__server__SSH_DOMAIN: ${GITEA_SSH_DOMAIN:-localhost}
       GITEA__server__SSH_PORT: ${GITEA_SSH_PORT:-2222}
       GITEA__server__SSH_LISTEN_PORT: 22
       GITEA__security__SECRET_KEY__FILE: /run/nyra-secrets/gitea_secret_key
@@ -87,7 +86,6 @@ services:
       context: ./infisical-secrets-init
       dockerfile: Dockerfile
     container_name: nyra-infisical-agent-gitea
-    user: "${NYRA_SECRETS_UID:-1000}:${NYRA_SECRETS_GID:-1000}"
     entrypoint: ["/usr/local/bin/agent-sidecar.sh"]
     depends_on:
       nyra-secrets-init:
@@ -95,9 +93,9 @@ services:
     environment:
       INFISICAL_API_URL: ${INFISICAL_API_URL:-https://app.infisical.com}
       INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
-      INFISICAL_TOKEN: ${INFISICAL_TOKEN:?set INFISICAL_TOKEN}
-      INFISICAL_ENV: ${INFISICAL_ENV:-prod}
-      INFISICAL_PATH: ${INFISICAL_PATH:-/nyra/gitea}
+      INFISICAL_TOKEN: ${INFISICAL_TOKEN:-}
+      INFISICAL_ENV: ${INFISICAL_ENV:-dev}
+      INFISICAL_PATH: ${INFISICAL_PATH:-/shared}
       INFISICAL_POLL_INTERVAL: ${INFISICAL_POLL_INTERVAL:-60}
     volumes:
       - nyra_secrets:/run/nyra-secrets
@@ -135,7 +133,12 @@ services:
       - ai
 
   gitea-act-runner:
-    image: gitea/act_runner:0.2.11
+    image: nyra/gitea-act-runner:0.2.11
+    build:
+      context: .
+      dockerfile: infra/docker/gitea-act-runner/Dockerfile
+      args:
+        ACT_RUNNER_VERSION: 0.2.11
     container_name: nyra-gitea-actions
     depends_on:
       gitea:
@@ -144,7 +147,7 @@ services:
       TZ: ${TZ:-America/Los_Angeles}
       GITEA_INSTANCE_URL: http://gitea:3000
       GITEA_RUNNER_REGISTRATION_TOKEN_FILE: /run/nyra-secrets/gitea_runner_token
-      GITEA_RUNNER_CONFIG_TEMPLATE: /config.template.yaml
+      GITEA_RUNNER_CONFIG_TEMPLATE: /opt/nyra/runner-config.yaml
       GITEA_RUNNER_CONFIG_PATH: /data/config.yaml
       GITEA_RUNNER_NAME: nyra-runner-${NYRA_MACHINE:-orchestrator}
       GITEA_RUNNER_LABELS: ubuntu-latest:docker://node:20-bookworm,docker:host,self-hosted:host
@@ -152,8 +155,6 @@ services:
       - act_runner_data:/data
       - /var/run/docker.sock:/var/run/docker.sock
       - nyra_secrets:/run/nyra-secrets:ro
-      - ./infra/configs/gitea/runner-config.yaml:/config.template.yaml:ro
-      - ./scripts/gitea/bootstrap-act-runner.sh:/usr/local/bin/bootstrap-act-runner.sh:ro
     networks:
       - nyra-net
     entrypoint: ["/bin/sh", "/usr/local/bin/bootstrap-act-runner.sh"]
@@ -165,7 +166,12 @@ services:
       - "nyra.machine=${NYRA_MACHINE:-orchestrator}"
 
   gitea-act-runner-large:
-    image: gitea/act_runner:0.2.11
+    image: nyra/gitea-act-runner:0.2.11
+    build:
+      context: .
+      dockerfile: infra/docker/gitea-act-runner/Dockerfile
+      args:
+        ACT_RUNNER_VERSION: 0.2.11
     container_name: nyra-gitea-actions-large
     depends_on:
       gitea:
@@ -174,7 +180,7 @@ services:
       TZ: ${TZ:-America/Los_Angeles}
       GITEA_INSTANCE_URL: http://gitea:3000
       GITEA_RUNNER_REGISTRATION_TOKEN_FILE: /run/nyra-secrets/gitea_runner_token
-      GITEA_RUNNER_CONFIG_TEMPLATE: /config.template.yaml
+      GITEA_RUNNER_CONFIG_TEMPLATE: /opt/nyra/runner-config-large.yaml
       GITEA_RUNNER_CONFIG_PATH: /data/config.yaml
       GITEA_RUNNER_NAME: nyra-runner-large-${NYRA_MACHINE:-orchestrator}
       GITEA_RUNNER_LABELS: ubuntu-latest-large:docker://node:20-bookworm,docker-large:host,self-hosted-large:host
@@ -182,8 +188,6 @@ services:
       - act_runner_large_data:/data
       - /var/run/docker.sock:/var/run/docker.sock
       - nyra_secrets:/run/nyra-secrets:ro
-      - ./infra/configs/gitea/runner-config-large.yaml:/config.template.yaml:ro
-      - ./scripts/gitea/bootstrap-act-runner.sh:/usr/local/bin/bootstrap-act-runner.sh:ro
     networks:
       - nyra-net
     entrypoint: ["/bin/sh", "/usr/local/bin/bootstrap-act-runner.sh"]

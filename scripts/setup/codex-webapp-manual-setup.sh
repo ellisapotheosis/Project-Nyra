@@ -325,34 +325,6 @@ resolve_infisical_token_from_env_or_file() {
   return 1
 }
 
-resolve_infisical_universal_auth_credentials() {
-  local client_id=""
-  local client_secret=""
-
-  client_id="${INFISICAL_UNIVERSAL_AUTH_CLIENT_ID:-${INFISICAL_CLIENT_ID:-}}"
-  client_secret="${INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET:-${INFISICAL_CLIENT_SECRET:-}}"
-
-  if [[ -z "$client_id" ]]; then
-    client_id="$(read_dotenv_value "$ROOT_ENV_FILE" "INFISICAL_UNIVERSAL_AUTH_CLIENT_ID")"
-  fi
-  if [[ -z "$client_id" ]]; then
-    client_id="$(read_dotenv_value "$ROOT_ENV_FILE" "INFISICAL_CLIENT_ID")"
-  fi
-  if [[ -z "$client_secret" ]]; then
-    client_secret="$(read_dotenv_value "$ROOT_ENV_FILE" "INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET")"
-  fi
-  if [[ -z "$client_secret" ]]; then
-    client_secret="$(read_dotenv_value "$ROOT_ENV_FILE" "INFISICAL_CLIENT_SECRET")"
-  fi
-
-  if [[ -n "$client_id" && -n "$client_secret" ]]; then
-    printf '%s\n%s\n' "$client_id" "$client_secret"
-    return 0
-  fi
-
-  return 1
-}
-
 ensure_infisical_auth() {
   if [[ -n "${INFISICAL_TOKEN:-}" || -n "${INFISICAL_ACCESS_TOKEN:-}" || -n "${INFISICAL_SESSION_TOKEN:-}" ]]; then
     return 0
@@ -367,33 +339,12 @@ ensure_infisical_auth() {
     return 0
   fi
 
-  local creds=()
-  local client_id=""
-  local client_secret=""
-  if mapfile -t creds < <(resolve_infisical_universal_auth_credentials 2>/dev/null); then
-    client_id="${creds[0]:-}"
-    client_secret="${creds[1]:-}"
-    if [[ -n "$client_id" && -n "$client_secret" ]]; then
-      info "Authenticating Infisical via universal auth"
-      if token="$(infisical login --domain "$INFISICAL_API_URL" --method=universal-auth --client-id="$client_id" --client-secret="$client_secret" --silent --plain 2>/dev/null)"; then
-        if [[ -n "$token" ]]; then
-          INFISICAL_TOKEN="$token"
-          export INFISICAL_TOKEN
-          INFISICAL_SESSION_TOKEN="$token"
-          export INFISICAL_SESSION_TOKEN
-          return 0
-        fi
-      fi
-      warn "Infisical universal auth failed for project '$INFISICAL_PROJECT_ID' at '$INFISICAL_API_URL'. Falling back to any existing Infisical CLI session."
-    fi
-  fi
-
   if run_infisical_cli export --env="$INFISICAL_ENV" --path="$INFISICAL_PATH" --format=dotenv >/dev/null 2>&1; then
     info "Using existing Infisical CLI session"
     return 0
   fi
 
-  err "Infisical authentication is not configured. Provide INFISICAL_TOKEN/INFISICAL_ACCESS_TOKEN, valid universal-auth credentials, or a working Infisical CLI session."
+  err "Infisical authentication is not configured. Provide INFISICAL_TOKEN/INFISICAL_ACCESS_TOKEN or a working Infisical CLI session."
   exit 1
 }
 

@@ -51,6 +51,30 @@
       }
     },
 
+    "ORCHESTRATOR_SSH": {
+      "type": "stdio",
+      "command": "/home/ellisapotheosis/.local/mcp-tools/node_modules/.bin/mcp-ssh-server-tool",
+      "env": {
+        "MCP_SILENT": "true"
+      }
+    },
+
+    "ORCHESTRATOR_DOCKER": {
+      "type": "stdio",
+      "command": "/home/ellisapotheosis/.local/mcp-tools/node_modules/.bin/docker-mcp",
+      "env": {
+        "DOCKER_HOST": "ssh://edane@orchestrator-win"
+      }
+    },
+
+    "HOMEASSISTANT_SSH": {
+      "type": "stdio",
+      "command": "/home/ellisapotheosis/.local/mcp-tools/node_modules/.bin/mcp-ssh-server-tool",
+      "env": {
+        "MCP_SILENT": "true"
+      }
+    },
+
     "infisical-mcp": {
       "type": "stdio",
       "command": "npx",
@@ -59,8 +83,7 @@
         "@infisical/mcp@latest"
       ],
       "env": {
-        "INFISICAL_UNIVERSAL_AUTH_CLIENT_ID": "${INFISICAL_UNIVERSAL_AUTH_CLIENT_ID}",
-        "INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET": "${INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET}",
+        "INFISICAL_TOKEN": "${INFISICAL_TOKEN}",
         "INFISICAL_PROJECT_ID": "8374cea9-e5e8-4050-bda4-b91f25ab30ef",
         "INFISICAL_ENVIRONMENT": "dev",
         "INFISICAL_FOLDER_PATH": "/shared"

@@ -76,17 +76,8 @@ jobs:
       - name: Fetch secrets from Infisical
         env:
           INFISICAL_TOKEN: ${{ secrets.INFISICAL_TOKEN }}
-          INFISICAL_UNIVERSAL_AUTH_CLIENT_ID: ${{ secrets.INFISICAL_UNIVERSAL_AUTH_CLIENT_ID }}
-          INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET: ${{ secrets.INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET }}
         run: |
           TOKEN="$INFISICAL_TOKEN"
-
-          if [ -z "$TOKEN" ] && [ -n "$INFISICAL_UNIVERSAL_AUTH_CLIENT_ID" ] && [ -n "$INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET" ]; then
-            TOKEN=$(infisical login --method=universal-auth \
-              --client-id="$INFISICAL_UNIVERSAL_AUTH_CLIENT_ID" \
-              --client-secret="$INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET" \
-              --plain --silent)
-          fi
 
           if [ -n "$TOKEN" ]; then
             echo "::add-mask::$TOKEN"
@@ -105,7 +96,7 @@ jobs:
               fi
             done < .env.staging
           else
-            echo "Warning: INFISICAL_TOKEN not configured and universal auth credentials missing"
+            echo "Warning: INFISICAL_TOKEN not configured"
             touch .env.staging
           fi
 
