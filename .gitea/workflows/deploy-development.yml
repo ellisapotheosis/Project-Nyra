@@ -54,15 +54,15 @@ jobs:
 
       - name: 🔐 Setup SSH
         env:
-          PRIMARY_SSH_KEY: ${{ secrets.DEV_SSH_KEY }}
-          FALLBACK_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          PRIMARY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          FALLBACK_SSH_KEY: ${{ secrets.DEV_SSH_KEY }}
         run: |
           SSH_KEY="${PRIMARY_SSH_KEY:-}"
           if [ -z "$SSH_KEY" ]; then
             SSH_KEY="${FALLBACK_SSH_KEY:-}"
           fi
           if [ -z "$SSH_KEY" ]; then
-            echo "❌ Missing SSH deploy key secret (DEV_SSH_KEY or DEPLOY_SSH_KEY)"
+            echo "❌ Missing SSH deploy key secret (DEPLOY_SSH_KEY or DEV_SSH_KEY)"
             exit 1
           fi
 
