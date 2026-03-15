@@ -66,7 +66,7 @@ jobs:
       - name: 🔐 Validate secrets
         run: |
           echo "🔍 Checking required secrets..."
-          [[ -n "${{ secrets.PROD_SSH_KEY }}" ]] || { echo "❌ PROD_SSH_KEY missing"; exit 1; }
+          [[ -n "${{ secrets.PROD_SSH_KEY }}" || -n "${{ secrets.DEPLOY_SSH_KEY }}" ]] || { echo "❌ PROD_SSH_KEY or DEPLOY_SSH_KEY missing"; exit 1; }
           [[ -n "${{ secrets.PROD_POSTGRES_PASSWORD }}" ]] || { echo "❌ PROD_POSTGRES_PASSWORD missing"; exit 1; }
           [[ -n "${{ secrets.ANTHROPIC_API_KEY }}" ]] || { echo "❌ ANTHROPIC_API_KEY missing"; exit 1; }
           echo "✅ All required secrets present"
@@ -77,14 +77,38 @@ jobs:
     if: github.event.inputs.environment == 'production'
 
     steps:
+      - name: 🏷️ Resolve registry
+        run: |
+          REGISTRY="${{ vars.GITEA_REGISTRY }}"
+          if [ -z "$REGISTRY" ]; then
+            REGISTRY="${{ secrets.GITEA_REGISTRY }}"
+          fi
+          if [ -z "$REGISTRY" ]; then
+            REGISTRY="gitea.local:3100"
+          fi
+          echo "REGISTRY=$REGISTRY" >> "$GITHUB_ENV"
+
       - name: 🔐 Setup SSH
-        uses: webfactory/ssh-agent@v0.9.0
-        with:
-          ssh-private-key: ${{ secrets.PROD_SSH_KEY }}
+        env:
+          PRIMARY_SSH_KEY: ${{ secrets.PROD_SSH_KEY }}
+          FALLBACK_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+        run: |
+          SSH_KEY="${PRIMARY_SSH_KEY:-}"
+          if [ -z "$SSH_KEY" ]; then
+            SSH_KEY="${FALLBACK_SSH_KEY:-}"
+          fi
+          if [ -z "$SSH_KEY" ]; then
+            echo "❌ Missing SSH deploy key secret (PROD_SSH_KEY or DEPLOY_SSH_KEY)"
+            exit 1
+          fi
+
+          install -d -m 700 ~/.ssh
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
 
       - name: 💾 Create production backup
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ needs.pre-deployment-checks.outputs.deploy-user }}@${{ needs.pre-deployment-checks.outputs.deploy-host }} << 'EOF'
+          ssh -o StrictHostKeyChecking=no ${{ needs.pre-deployment-checks.outputs.deploy-user }}@${{ needs.pre-deployment-checks.outputs.deploy-host }} 'bash -s' << 'EOF'
             cd /opt/project-nyra
 
             echo "💾 Creating pre-deployment backup..."
@@ -125,9 +149,22 @@ jobs:
           ref: ${{ github.event.inputs.version }}
 
       - name: 🔐 Setup SSH
-        uses: webfactory/ssh-agent@v0.9.0
-        with:
-          ssh-private-key: ${{ secrets.PROD_SSH_KEY }}
+        env:
+          PRIMARY_SSH_KEY: ${{ secrets.PROD_SSH_KEY }}
+          FALLBACK_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+        run: |
+          SSH_KEY="${PRIMARY_SSH_KEY:-}"
+          if [ -z "$SSH_KEY" ]; then
+            SSH_KEY="${FALLBACK_SSH_KEY:-}"
+          fi
+          if [ -z "$SSH_KEY" ]; then
+            echo "❌ Missing SSH deploy key secret (PROD_SSH_KEY or DEPLOY_SSH_KEY)"
+            exit 1
+          fi
+
+          install -d -m 700 ~/.ssh
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
 
       - name: 📋 Prepare production deployment
         run: |
@@ -155,10 +192,10 @@ jobs:
           DEPLOYMENT_SHA=${GITHUB_SHA}
 
           # Container images (production versions)
-          NEXUS_ROUTER_IMAGE=gitea.local:3100/nyra/nexus-router:${VERSION}
-          CLAUDE_FLOW_IMAGE=gitea.local:3100/nyra/claude-flow:${VERSION}
-          QUOTE_ENGINE_IMAGE=gitea.local:3100/nyra/quote-engine:${VERSION}
-          CAMPAIGN_ENGINE_IMAGE=gitea.local:3100/nyra/campaign-engine:${VERSION}
+          NEXUS_ROUTER_IMAGE=${REGISTRY}/nyra/nexus-router:${VERSION}
+          CLAUDE_FLOW_IMAGE=${REGISTRY}/nyra/claude-flow:${VERSION}
+          QUOTE_ENGINE_IMAGE=${REGISTRY}/nyra/quote-engine:${VERSION}
+          CAMPAIGN_ENGINE_IMAGE=${REGISTRY}/nyra/campaign-engine:${VERSION}
 
           # Security (from secrets)
           POSTGRES_PASSWORD=${{ secrets.PROD_POSTGRES_PASSWORD }}
@@ -203,10 +240,10 @@ jobs:
           echo "🚀 Deploying to $HOST as $USER"
 
           # Copy deployment files
-          scp -o StrictHostKeyChecking=no -r deploy-prod/* $USER@$HOST:/opt/project-nyra/
+          scp -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no -r deploy-prod/. $USER@$HOST:/opt/project-nyra/
 
           # Execute deployment
-          ssh -o StrictHostKeyChecking=no $USER@$HOST << 'EOF'
+          ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no $USER@$HOST 'bash -s' << 'EOF'
             set -euo pipefail
             cd /opt/project-nyra
             source ./scripts/ci/common.sh
@@ -251,7 +288,7 @@ jobs:
           HOST="${{ needs.pre-deployment-checks.outputs.deploy-host }}"
           USER="${{ needs.pre-deployment-checks.outputs.deploy-user }}"
 
-          ssh -o StrictHostKeyChecking=no $USER@$HOST << 'EOF'
+          ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no $USER@$HOST 'bash -s' << 'EOF'
             cd /opt/project-nyra
 
             echo "🧪 Running production smoke tests..."
@@ -286,7 +323,7 @@ jobs:
 
   rollback:
     runs-on: ubuntu-latest
-    needs: [pre-deployment-checks, deploy-production]
+    needs: [pre-deployment-checks, backup-production, deploy-production]
     if: failure() && needs.backup-production.result == 'success'
 
     steps:
@@ -297,7 +334,7 @@ jobs:
           HOST="${{ needs.pre-deployment-checks.outputs.deploy-host }}"
           USER="${{ needs.pre-deployment-checks.outputs.deploy-user }}"
 
-          ssh -o StrictHostKeyChecking=no $USER@$HOST << 'EOF'
+          ssh -o StrictHostKeyChecking=no $USER@$HOST 'bash -s' << 'EOF'
             set -euo pipefail
             cd /opt/project-nyra
             source ./scripts/ci/common.sh

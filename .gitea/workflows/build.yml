@@ -40,6 +40,17 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: 🏷️ Resolve registry
+        run: |
+          REGISTRY="${{ vars.GITEA_REGISTRY }}"
+          if [ -z "$REGISTRY" ]; then
+            REGISTRY="${{ secrets.GITEA_REGISTRY }}"
+          fi
+          if [ -z "$REGISTRY" ]; then
+            REGISTRY="${{ env.REGISTRY }}"
+          fi
+          echo "REGISTRY=$REGISTRY" >> "$GITHUB_ENV"
+
       - name: 🏷️ Generate tags
         id: meta
         run: |
@@ -91,7 +102,7 @@ jobs:
           labels: |
             org.opencontainers.image.title=${{ matrix.service.name }}
             org.opencontainers.image.description=Project Nyra ${{ matrix.service.name }} service
-            org.opencontainers.image.source=https://gitea.local:3100/admin/project-nyra
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
             org.opencontainers.image.revision=${{ github.sha }}
             org.opencontainers.image.created=${{ steps.meta.outputs.date }}
           cache-from: type=gha

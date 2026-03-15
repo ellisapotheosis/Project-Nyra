@@ -139,8 +139,6 @@ jobs:
           HAS_CLOUDFLARE_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN != '' }}
           HAS_CLOUDFLARE_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID != '' }}
           HAS_INFISICAL_TOKEN: ${{ secrets.INFISICAL_TOKEN != '' }}
-          HAS_INFISICAL_UA_CLIENT_ID: ${{ secrets.INFISICAL_UNIVERSAL_AUTH_CLIENT_ID != '' }}
-          HAS_INFISICAL_UA_CLIENT_SECRET: ${{ secrets.INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET != '' }}
         run: |
           echo "🔐 Checking secrets configuration..."
 
@@ -154,7 +152,7 @@ jobs:
           fi
 
           # Check Infisical tokens
-          if [ "$HAS_INFISICAL_TOKEN" == "true" ] || ([ "$HAS_INFISICAL_UA_CLIENT_ID" == "true" ] && [ "$HAS_INFISICAL_UA_CLIENT_SECRET" == "true" ]); then
+          if [ "$HAS_INFISICAL_TOKEN" == "true" ]; then
             echo "has_infisical=true" >> $GITHUB_OUTPUT
             echo "✅ Infisical integration detected"
           else
@@ -166,7 +164,7 @@ jobs:
           if [ "$HAS_CLOUDFLARE_TOKEN" == "true" ] && [ "$HAS_CLOUDFLARE_ACCOUNT" == "true" ]; then
             echo "deploy_method=direct" >> $GITHUB_OUTPUT
             echo "📝 Will use direct secrets method"
-          elif [ "$HAS_INFISICAL_TOKEN" == "true" ] || ([ "$HAS_INFISICAL_UA_CLIENT_ID" == "true" ] && [ "$HAS_INFISICAL_UA_CLIENT_SECRET" == "true" ]); then
+          elif [ "$HAS_INFISICAL_TOKEN" == "true" ]; then
             echo "deploy_method=infisical" >> $GITHUB_OUTPUT
             echo "📝 Will use Infisical to fetch secrets"
           else
@@ -195,17 +193,8 @@ jobs:
         id: fetch
         env:
           INFISICAL_TOKEN: ${{ secrets.INFISICAL_TOKEN }}
-          INFISICAL_UNIVERSAL_AUTH_CLIENT_ID: ${{ secrets.INFISICAL_UNIVERSAL_AUTH_CLIENT_ID }}
-          INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET: ${{ secrets.INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET }}
         run: |
           TOKEN="$INFISICAL_TOKEN"
-
-          if [ -z "$TOKEN" ] && [ -n "$INFISICAL_UNIVERSAL_AUTH_CLIENT_ID" ] && [ -n "$INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET" ]; then
-            TOKEN=$(infisical login --method=universal-auth \
-              --client-id="$INFISICAL_UNIVERSAL_AUTH_CLIENT_ID" \
-              --client-secret="$INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET" \
-              --plain --silent)
-          fi
 
           if [ -n "$TOKEN" ]; then
             echo "::add-mask::$TOKEN"
