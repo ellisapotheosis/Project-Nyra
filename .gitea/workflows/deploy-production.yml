@@ -66,7 +66,7 @@ jobs:
       - name: 🔐 Validate secrets
         run: |
           echo "🔍 Checking required secrets..."
-          [[ -n "${{ secrets.PROD_SSH_KEY }}" || -n "${{ secrets.DEPLOY_SSH_KEY }}" ]] || { echo "❌ PROD_SSH_KEY or DEPLOY_SSH_KEY missing"; exit 1; }
+          [[ -n "${{ secrets.DEPLOY_SSH_KEY }}" || -n "${{ secrets.PROD_SSH_KEY }}" ]] || { echo "❌ DEPLOY_SSH_KEY or PROD_SSH_KEY missing"; exit 1; }
           [[ -n "${{ secrets.PROD_POSTGRES_PASSWORD }}" ]] || { echo "❌ PROD_POSTGRES_PASSWORD missing"; exit 1; }
           [[ -n "${{ secrets.ANTHROPIC_API_KEY }}" ]] || { echo "❌ ANTHROPIC_API_KEY missing"; exit 1; }
           echo "✅ All required secrets present"
@@ -90,15 +90,15 @@ jobs:
 
       - name: 🔐 Setup SSH
         env:
-          PRIMARY_SSH_KEY: ${{ secrets.PROD_SSH_KEY }}
-          FALLBACK_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          PRIMARY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          FALLBACK_SSH_KEY: ${{ secrets.PROD_SSH_KEY }}
         run: |
           SSH_KEY="${PRIMARY_SSH_KEY:-}"
           if [ -z "$SSH_KEY" ]; then
             SSH_KEY="${FALLBACK_SSH_KEY:-}"
           fi
           if [ -z "$SSH_KEY" ]; then
-            echo "❌ Missing SSH deploy key secret (PROD_SSH_KEY or DEPLOY_SSH_KEY)"
+            echo "❌ Missing SSH deploy key secret (DEPLOY_SSH_KEY or PROD_SSH_KEY)"
             exit 1
           fi
 
@@ -150,15 +150,15 @@ jobs:
 
       - name: 🔐 Setup SSH
         env:
-          PRIMARY_SSH_KEY: ${{ secrets.PROD_SSH_KEY }}
-          FALLBACK_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          PRIMARY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          FALLBACK_SSH_KEY: ${{ secrets.PROD_SSH_KEY }}
         run: |
           SSH_KEY="${PRIMARY_SSH_KEY:-}"
           if [ -z "$SSH_KEY" ]; then
             SSH_KEY="${FALLBACK_SSH_KEY:-}"
           fi
           if [ -z "$SSH_KEY" ]; then
-            echo "❌ Missing SSH deploy key secret (PROD_SSH_KEY or DEPLOY_SSH_KEY)"
+            echo "❌ Missing SSH deploy key secret (DEPLOY_SSH_KEY or PROD_SSH_KEY)"
             exit 1
           fi
 
