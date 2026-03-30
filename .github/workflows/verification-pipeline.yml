@@ -60,7 +60,7 @@ jobs:
         run: pnpm install --no-frozen-lockfile
 
       - name: Cache dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             node_modules
@@ -84,7 +84,7 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
 
       - name: Restore dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             node_modules
@@ -136,7 +136,7 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
 
       - name: Restore dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             node_modules
@@ -256,7 +256,7 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
 
       - name: Restore dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             node_modules
