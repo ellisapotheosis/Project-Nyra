@@ -1,50 +1,36 @@
-# 18 UI Registry (Active Surfaces)
+# 18 UI Registry (Active HTTP Surfaces)
 
-## Operator/consumer UI surfaces
+## Approved HTTP UIs
+| UI surface | Compose service | Internal port | Host port | Intended access |
+|---|---|---|---|---|
+| n8n | `n8n` | 5678 | 5678 | Access-protected via Cloudflared |
+| Activepieces | `activepieces` | 80 | 8082 | Access-protected via Cloudflared |
+| Twenty CRM | `twentycrm` / `twenty` | 3000 | 3000 | Access-protected via Cloudflared |
+| Archon UI | `archon-ui` | 5173 | 3737 | Access-protected via Cloudflared |
+| Grafana | `grafana` | 3000 | 3003 | Access-protected via Cloudflared |
+| Gitea (web) | `gitea` | 3000 | 3100 | Access-protected via Cloudflared |
+| Infisical | `infisical` | 8080 | 8086 or 3201 | Access-protected via Cloudflared |
 
-| UI | Compose service | Default internal port | Intended access |
-|---|---|---|---|
-| n8n | `n8n` | 5678 | Access-protected via cloudflared |
-| Activepieces | `activepieces` | 80 | Access-protected via cloudflared |
-| Twenty CRM | `twentycrm` / `twenty` | 3000 | Access-protected via cloudflared |
-| Grafana | `grafana` | 3000 | Access-protected via cloudflared |
-| OpenWebUI | `openwebui` | 8080 | private by default |
-| Gitea | `gitea` | 3000 | Access-protected via cloudflared |
-| Infisical | `infisical` | 8080 | Access-protected via cloudflared |
+## Internal-only operator/API surfaces
+- `openwebui` (8088) is currently private by default.
+- `nexus-router`, `litellm`, and MCP adapters are private/internal control APIs.
+- `quote-api` is domain API traffic and remains private unless explicitly approved.
 
-## Non-UI APIs with controlled ingress
+## Deny-by-default exclusions
+- Datastore admin and database ports are non-public.
+- Gitea SSH is not part of HTTP ingress.
+- Worker inference ports stay private even though HTTP-speaking.
 
-- `litellm`
-- `nexus-router`
-- `quote-api`
+## Ownership and review cadence
+- Each public UI requires a named owner and auth policy.
+- New hostname requests should include rollback, observability checks, and expected usage class.
+- Reconcile this registry with `docs/02_ports_registry.md` every infra change touching ports.
 
-## Exposure discipline
+## Evidence
+- `infra/docker-compose.yml`
+- `infra/oracle/docker-compose.oracle.yml`
+- `docker-compose.gitea.yml`
+- `docker-compose.infisical.yml`
+- `infra/cloudflared/config.yml`
 
-- No direct datastore UIs published to public DNS.
-- Admin interfaces use Access policy gates.
-- Catch-all 404 prevents accidental host leakage.
-
-## UX governance
-- Publicly reachable UIs must have explicit owner, auth policy, and uptime target.
-- Admin UIs should include SSO via Access and short session lifetimes.
-
-## Monitoring guidance
-- Add synthetic checks for each Access-protected UI hostname.
-- Track authentication failures separately from backend availability failures.
-
-## Change policy
-- New UI hostname requests must include exposure class and rollback instructions.
-
-## Evidence references
-- Source compose: `infra/docker-compose.yml`
-- Targeting policy: `infra/cloudflared/config.yml`
-- Control surface docs: `docs/02_ports_registry.md`
-
-## Command snippets
-```bash
-rg -n "<service-name>|ports:" infra/docker-compose.yml
-```
-
-```bash
-rg -n "hostname:|service:" infra/cloudflared/config.yml
-```
+- Periodically validate Access policies still enforce SSO and session limits.

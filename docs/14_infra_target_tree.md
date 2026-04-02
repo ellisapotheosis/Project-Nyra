@@ -1,44 +1,42 @@
-# 14 Infra Target Tree (Active Runtime)
+# 14 Infra Target Tree (Post-Move Active Runtime)
 
-## Makefile-driven targets
+## Canonical execution roots
+This target tree is generated from compose usage in root `Makefile`, `ingest/Makefile`, and infra run scripts.
 
-- `make up/down/logs/ps` -> `infra/docker-compose.yml`
-- `make compose-config-all` -> base compose + node-specific overlays/worker files
-- `make node-up-*` -> `infra/scripts/node-up.sh`
-- `make node-down-*` -> `infra/scripts/node-down.sh`
-- `make bootstrap-ultimate` -> `infra/scripts/ultimate-bootstrap.sh`
-- `make gitea-*` -> `docker-compose.gitea.yml`
-- `make infisical-*` -> `docker-compose.infisical.yml`
+## Root Makefile runtime map
+| Target group | Primary compose/files |
+|---|---|
+| Core stack (`up/down/logs/ps`) | `infra/docker-compose.yml` |
+| Global config validation (`compose-config-all`) | `infra/docker-compose.yml`, worker compose files, `infra/compose/overrides/*.override.yml` |
+| Oracle stack (`up-oracle` etc.) | `infra/oracle/docker-compose.oracle.yml` |
+| Worker stacks | `infra/workers/worker-rtx3060/docker-compose.worker.yml`, `infra/workers/worker-rtx3090ti/docker-compose.worker.yml`, `infra/workers/worker-rtx5090/docker-compose.worker.yml` |
+| Archon dedicated stack | `docker-compose.archon.yml` |
+| Gitea dedicated stack | `docker-compose.gitea.yml` (+ bootstrap variant) |
+| Infisical dedicated stack | `docker-compose.infisical.yml` (+ bootstrap variant) |
 
-## Infra scripts path tree
+## Ingest Makefile runtime map
+| Target group | Primary compose/files |
+|---|---|
+| Main ingest stack | `ingest/infra/compose/docker-compose.main.yml` |
+| Workers | `ingest/infra/compose/docker-compose.workers.yml` |
+| Oracle cloud profile | `ingest/infra/compose/docker-compose.oracle-cloud.yml` |
+| Apotheosis profile | `ingest/infra/compose/docker-compose.apotheosis.yml` |
 
+## Infra script path tree
 - `infra/scripts/node-up.sh`
-  - env: `infra/env/.env.<node>`
-  - compose: `infra/docker-compose.yml`
+  - base compose: `infra/docker-compose.yml`
+  - node env: `infra/env/.env.<node>`
   - optional override: `infra/compose/overrides/docker-compose.<node>.override.yml`
+- `infra/scripts/node-down.sh`
+  - same compose/env conventions as node-up.
 - `infra/scripts/ultimate-bootstrap.sh`
-  - compose: `infra/docker-compose.yml`
-  - profiles selected by role
+  - profile-driven bring-up over `infra/docker-compose.yml`.
 
-## Standalone compose roots
+## Edge/runtime docs ownership
+- Tunnel config canonical path: `infra/cloudflared/config.yml`.
+- Hostname policy map: `infra/cloudflared/hostname-map.md`.
+- Ops handoff summaries: `docs/06_cloudflared_tunnels_dns.md`, `docs/edge/CLOUDFLARED_EXPORT.md`.
 
-- `infra/oracle/docker-compose.oracle.yml`
-- `infra/workers/worker-rtx3060/docker-compose.worker.yml`
-- `infra/workers/worker-rtx3090ti/docker-compose.worker.yml`
-- `infra/workers/worker-rtx5090/docker-compose.worker.yml`
-- `infra/orchestrator/docker-compose.nexus-one-hop.yml`
-
-## Edge path
-
-- `infra/cloudflared/config.yml`
-- `infra/cloudflared/hostname-map.md`
-- validation command references official cloudflared image.
-
-## Tree confidence
-- High for Makefile-driven paths.
-- Medium for legacy scripts not currently invoked by standard flows.
-
-## Follow-up hardening
-- Add a script to enumerate missing compose paths and fail CI.
-- Add documentation generation hooks so target tree remains synchronized after infra edits.
-- Pin authoritative scope inside docs metadata for future agents.
+## Trust level
+- **Confirmed**: direct targets/scripts in active Makefiles and infra scripts.
+- **Secondary**: compose files only referenced by overlays/examples and moved to appendix documentation.
