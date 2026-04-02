@@ -14,7 +14,6 @@ networks:
 volumes:
   archon_data: {}
   archon_server_data: {}
-  archon_ui_node_modules: {}
 
 services:
   postgres:
@@ -304,9 +303,7 @@ services:
     logging: *default_logging
 
   archon-ui:
-    build:
-      context: ./tools/archon/archon-ui-main
-      dockerfile: Dockerfile
+    image: nginx:1.27-alpine
     container_name: nyra-archon-ui
     profiles: ['archon', 'all']
     depends_on:
@@ -320,9 +317,13 @@ services:
       VITE_NEXUS_ROUTER_URL: http://nexus-router:7000
       VITE_NEXUS_MCP_PROXY_URL: http://nexus-router:8080
     ports:
-      - '${ARCHON_UI_PORT:-3737}:5173'
+      - '${ARCHON_UI_PORT:-3737}:3737'
     volumes:
-      - archon_ui_node_modules:/app/node_modules
+      - ./ingest/infra/orchestrator/archon/ui-placeholder/index.html:/usr/share/nginx/html/index.html:ro
+    command:
+      - /bin/sh
+      - -lc
+      - sed -i 's/listen       80;/listen       3737;/' /etc/nginx/conf.d/default.conf && exec nginx -g 'daemon off;'
     restart: unless-stopped
     networks: [nyra]
     logging: *default_logging
