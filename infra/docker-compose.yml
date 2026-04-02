@@ -471,9 +471,7 @@ services:
     logging: *default_logging
 
   archon-ui:
-    build:
-      context: ../tools/archon/archon-ui-main
-      dockerfile: Dockerfile
+    image: nginx:1.27-alpine
     container_name: nyra-archon-ui
     profiles: ['archon', 'all']
     depends_on:
@@ -487,7 +485,9 @@ services:
       VITE_NEXUS_ROUTER_URL: http://nexus-router:7000
       VITE_NEXUS_MCP_PROXY_URL: http://nexus-router:8080
     ports:
-      - '${ARCHON_UI_PORT:-3737}:3737'
+      - '${ARCHON_UI_PORT:-3737}:80'
+    volumes:
+      - ../ingest/infra/orchestrator/archon/ui-placeholder:/usr/share/nginx/html:ro
     restart: unless-stopped
     networks: [nyra]
     logging: *default_logging
@@ -591,12 +591,15 @@ services:
       done
     environment:
       INFISICAL_TOKEN: ${INFISICAL_TOKEN:?set INFISICAL_TOKEN}
-      INFISICAL_API_URL: ${INFISICAL_API_URL:-https://app.infisical.com}
+      INFISICAL_API_URL: ${INFISICAL_API_URL:-http://nyra-infisical:8080}
       INFISICAL_ENV: ${INFISICAL_ENV:-prod}
       INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
       INFISICAL_POLL_INTERVAL: ${INFISICAL_POLL_INTERVAL:-60}
     volumes:
       - ./shared/secrets:/secrets
+    depends_on:
+      infisical:
+        condition: service_started
     restart: unless-stopped
     networks: [nyra]
     logging: *default_logging
@@ -612,13 +615,16 @@ services:
       > /workspace/.env.archon.injected && tail -f /dev/null
     environment:
       INFISICAL_TOKEN: ${INFISICAL_TOKEN:?set INFISICAL_TOKEN}
-      INFISICAL_API_URL: ${INFISICAL_API_URL:-https://app.infisical.com}
+      INFISICAL_API_URL: ${INFISICAL_API_URL:-http://nyra-infisical:8080}
       INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
       INFISICAL_DISABLE_UPDATE_CHECK: 'true'
     volumes:
       - ../:/workspace
     depends_on:
-      - infisical-agent
+      infisical:
+        condition: service_started
+      infisical-agent:
+        condition: service_started
     restart: unless-stopped
     networks: [nyra]
     logging: *default_logging
