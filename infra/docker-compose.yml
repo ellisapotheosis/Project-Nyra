@@ -472,7 +472,7 @@ services:
 
   archon-ui:
     build:
-      context: ../tools/archon/archon-ui-main
+      context: ${ARCHON_UI_CONTEXT:-../tools/archon/archon-ui-main}
       dockerfile: Dockerfile
     container_name: nyra-archon-ui
     profiles: ['archon', 'all']
@@ -591,12 +591,15 @@ services:
       done
     environment:
       INFISICAL_TOKEN: ${INFISICAL_TOKEN:?set INFISICAL_TOKEN}
-      INFISICAL_API_URL: ${INFISICAL_API_URL:-https://app.infisical.com}
+      INFISICAL_API_URL: ${INFISICAL_API_URL:-http://infisical:8080}
       INFISICAL_ENV: ${INFISICAL_ENV:-prod}
       INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
       INFISICAL_POLL_INTERVAL: ${INFISICAL_POLL_INTERVAL:-60}
     volumes:
       - ./shared/secrets:/secrets
+    depends_on:
+      infisical:
+        condition: service_started
     restart: unless-stopped
     networks: [nyra]
     logging: *default_logging
