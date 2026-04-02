@@ -195,10 +195,10 @@ up-worker-5090:
 	$(COMPOSE) --profile worker-5090 up -d
 
 bootstrap-import:
-	./infra/scripts/bootstrap-import.sh bootstrap/incoming dry-run
+	./infra/scripts/bootstrap-import.sh infra/bootstrap/incoming dry-run
 
 bootstrap-import-apply:
-	./infra/scripts/bootstrap-import.sh bootstrap/incoming apply
+	./infra/scripts/bootstrap-import.sh infra/bootstrap/incoming apply
 
 
 bootstrap-ultimate:

@@ -1,16 +1,17 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-SRC_DIR="${1:-bootstrap/incoming}"
+SRC_DIR="${1:-infra/bootstrap/incoming}"
 MODE="${2:-dry-run}" # dry-run | apply
-MAP_FILE="bootstrap/file-map.csv"
+MAP_FILE="infra/bootstrap/file-map.csv"
 
 if [[ ! -d "$SRC_DIR" ]]; then
-  echo "Source directory not found: $SRC_DIR"
-  exit 1
+  mkdir -p "$SRC_DIR"
+  echo "Created missing source directory: $SRC_DIR"
 fi
 
 if [[ ! -f "$MAP_FILE" ]]; then
+  mkdir -p "$(dirname "$MAP_FILE")"
   cat > "$MAP_FILE" <<'CSV'
 # source_path,destination_path
 # incoming/example.env,config/orchestrator/.env.example
@@ -35,8 +36,8 @@ while IFS=',' read -r src dst; do
 
   if [[ "$MODE" == "apply" ]]; then
     cp "$from" "$to"
-    mkdir -p bootstrap/applied
-    cp "$from" "bootstrap/applied/$(basename "$src")"
+    mkdir -p infra/bootstrap/applied
+    cp "$from" "infra/bootstrap/applied/$(basename "$src")"
     echo "APPLIED: $from -> $to"
   else
     echo "DRY-RUN: $from -> $to"
