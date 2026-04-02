@@ -304,9 +304,7 @@ services:
     logging: *default_logging
 
   archon-ui:
-    build:
-      context: ./tools/archon/archon-ui-main
-      dockerfile: Dockerfile
+    image: ${ARCHON_UI_IMAGE:-archonos/archon-ui:latest}
     container_name: nyra-archon-ui
     profiles: ['archon', 'all']
     depends_on:
