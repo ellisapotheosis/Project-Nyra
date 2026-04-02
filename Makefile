@@ -10,13 +10,21 @@ HEALTH_ENV_FILE ?= $(STACK_ENV_FILE)
 DEFAULT_PROFILES ?= core,gateway,workflow,crm,archon,apps,observability,vector
 WORKER_PROFILE ?= workers
 
-.PHONY: help install test lint validate compose-config compose-config-all \
+ifeq (,$(wildcard pnpm-lock.yaml))
+PKG_MGR ?= npm
+PKG_RUN ?= npx
+else
+PKG_MGR ?= pnpm
+PKG_RUN ?= pnpm exec
+endif
+
+.PHONY: help env-bootstrap install test lint validate compose-config compose-config-all \
   up down restart logs ps pull \
   up-core up-orchestrator up-apps up-dev up-workers up-oracle up-worker-3060 up-worker-3090ti up-worker-5090 \
-  archon-config archon-up archon-down archon-logs archon-ps archon-up-infisical \
+  archon-config archon-up archon-down archon-logs archon-ps archon-up-infisical archon-readiness \
   node-up-orchestrator node-up-oracle node-up-worker-3060 node-up-worker-3090ti node-up-worker-5090 node-down-orchestrator node-down-oracle node-down-worker-3060 node-down-worker-3090ti node-down-worker-5090 \
   down-workers nexus-up nexus-down health stack-up stack-verify scan-env ports port-check bootstrap-import bootstrap-import-apply bootstrap-ultimate bootstrap-oracle bootstrap-worker-3060 bootstrap-worker-3090ti bootstrap-worker-5090 \
-  gitea-up gitea-up-ai gitea-up-actions gitea-up-infisical-agent gitea-down gitea-ps gitea-config infisical-up infisical-down infisical-config \
+  gitea-up gitea-up-ai gitea-up-actions gitea-up-infisical-agent gitea-up-full gitea-down gitea-ps gitea-config gitea-readiness infisical-up infisical-down infisical-config \
   up-gitea down-gitea logs-gitea health-gitea up-infisical down-infisical logs-infisical health-infisical
 
 .DEFAULT_GOAL := help
@@ -25,8 +33,9 @@ help:
 	@echo "Project Nyra - common targets"
 	@echo
 	@echo "make install            Install root JS dependencies"
-	@echo "make test               Run tests (npm test)"
-	@echo "make lint               Run lint (npx eslint .)"
+	@echo "make env-bootstrap      Create .env.archon/.env.gitea from examples when missing"
+	@echo "make test               Run tests ($(PKG_MGR) test)"
+	@echo "make lint               Run lint ($(PKG_RUN) eslint .)"
 	@echo "make validate           Validate compose + test + lint"
 	@echo
 	@echo "make up                 Start default stack profiles"
@@ -58,18 +67,25 @@ help:
 	@echo "make gitea-up-ai        Start Gitea stack with AI reviewer profile"
 	@echo "make gitea-up-actions   Start Gitea stack with actions runner profile"
 	@echo "make gitea-up-infisical-agent Start Gitea stack with Infisical agent profile"
+	@echo "make gitea-up-full      Start Gitea + actions + AI + Infisical sidecar"
+	@echo "make gitea-readiness    Validate Gitea env + compose service topology"
 	@echo "make gitea-config       Validate new Gitea compose config"
 	@echo "make infisical-up       Start Infisical self-host stack"
 	@echo "make infisical-config   Validate new Infisical compose config"
 
+env-bootstrap:
+	@test -f .env.archon || cp .env.archon.example .env.archon
+	@test -f .env.gitea || cp .env.gitea.example .env.gitea
+
 install:
-	npm install
+	$(MAKE) env-bootstrap
+	$(PKG_MGR) install
 
 test:
-	npm test
+	$(PKG_MGR) test
 
 lint:
-	npx eslint .
+	$(PKG_RUN) eslint .
 
 compose-config:
 	$(COMPOSE) config >/dev/null
@@ -77,8 +93,8 @@ compose-config:
 validate:
 	$(COMPOSE) config >/dev/null
 	@echo "compose config ok"
-	-@npm test
-	-@npx eslint .
+	-@$(PKG_MGR) test
+	-@$(PKG_RUN) eslint .
 
 compose-config-all:
 	docker compose --env-file infra/env/.env.orchestrator -f infra/docker-compose.yml -f infra/compose/overrides/docker-compose.orchestrator.override.yml config >/dev/null
@@ -125,22 +141,25 @@ up-workers:
 	docker compose -f infra/workers/worker-rtx5090/docker-compose.worker.yml up -d
 
 archon-config:
-	docker compose -f docker-compose.archon.yml config >/dev/null
+	docker compose --env-file .env.archon -f docker-compose.archon.yml config >/dev/null
 
 archon-up:
-	docker compose -f docker-compose.archon.yml --profile archon up -d
+	docker compose --env-file .env.archon -f docker-compose.archon.yml --profile archon up -d
 
 archon-up-infisical:
-	infisical run --env=prod --path="/shared" -- docker compose -f docker-compose.archon.yml --profile archon up -d
+	infisical run --env=prod --path="/shared" -- docker compose --env-file .env.archon -f docker-compose.archon.yml --profile archon up -d
 
 archon-down:
-	docker compose -f docker-compose.archon.yml down --remove-orphans
+	docker compose --env-file .env.archon -f docker-compose.archon.yml down --remove-orphans
 
 archon-logs:
-	docker compose -f docker-compose.archon.yml logs -f --tail=200
+	docker compose --env-file .env.archon -f docker-compose.archon.yml logs -f --tail=200
 
 archon-ps:
-	docker compose -f docker-compose.archon.yml ps
+	docker compose --env-file .env.archon -f docker-compose.archon.yml ps
+
+archon-readiness:
+	python3 scripts/validation/compose_readiness.py --stack archon --env-file .env.archon
 
 down-workers:
 	docker compose -f infra/workers/worker-rtx3060/docker-compose.worker.yml down --remove-orphans
@@ -301,11 +320,17 @@ gitea-up-actions:
 gitea-up-infisical-agent:
 	docker compose -f docker-compose.gitea.yml --env-file .env.gitea --profile infisical up -d
 
+gitea-up-full:
+	docker compose -f docker-compose.gitea.yml --env-file .env.gitea --profile actions --profile ai --profile infisical up -d
+
 gitea-down:
 	docker compose -f docker-compose.gitea.yml --env-file .env.gitea down --remove-orphans
 
 gitea-ps:
 	docker compose -f docker-compose.gitea.yml --env-file .env.gitea ps
+
+gitea-readiness:
+	python3 scripts/validation/compose_readiness.py --stack gitea --env-file .env.gitea
 
 infisical-config:
 	docker compose -f docker-compose.infisical.yml --env-file .env.infisical config >/dev/null

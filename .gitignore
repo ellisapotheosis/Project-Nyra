@@ -498,5 +498,6 @@ bootstrap/
 .codanna/
 .env.gitea
 .env.infisical
+.env.archon
 .secrets/
 gitea-setup-summary-*.md
