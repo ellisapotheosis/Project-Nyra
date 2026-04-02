@@ -1,53 +1,44 @@
 # 19 Cloud Offload Recommendations
 
-## Immediate opportunities
+## Immediate decisions
 
-1. Keep static marketing (`apps/landing`) on Cloudflare Pages.
-2. Tunnel only control-plane UIs and gateway APIs through Cloudflared.
-3. Preserve datastore residency on private nodes; no public ingress.
+- Keep static landing on Cloudflare Pages.
+- Tunnel only approved HTTP applications via cloudflared + Access.
+- Keep databases, queues, and vector stores private on node-local networks.
 
-## Candidate offload matrix
+## Candidate matrix
 
-| Component | Offload target | Decision |
+| Component class | Offload target | Decision |
 |---|---|---|
-| Marketing landing | Cloudflare Pages | proceed |
-| App/API front doors | Cloudflared tunnel + Access | proceed |
-| Datastores | none (private infrastructure) | keep private |
-| Worker GPU inference | private worker nodes | keep private |
-| Artifact/object storage | S3-compatible private bucket | evaluate |
+| Marketing UI | Cloudflare Pages | proceed |
+| Operator UIs | Cloudflared tunnel + Access | proceed |
+| Datastores | none/public internet | reject |
+| Worker inference | private worker nodes | keep private |
+| MCP services | private network only | keep private |
 
-## Security-first recommendations
+## Enforcement recommendations
 
-- Require Access policy + IdP for all tunnel hostnames except landing site.
-- Use service tokens for machine clients.
-- Add WAF and rate limiting on API hostnames.
-- Keep SSH access out of public tunnel unless explicitly Access TCP gated.
+- Add CI check to reject datastores in `infra/cloudflared/config.yml`.
+- Keep final ingress catch-all `http_status:404` mandatory.
+- Require explicit owner + policy when adding new tunnel hostnames.
+- Keep SSH, Redis, Postgres, Mongo, and vector DB protocols off public edge routes.
 
-## Operational recommendations
+## Suggested phased rollout
 
-- Automate DNS route creation in deployment scripts.
-- Add CI rule to reject cloudflared config entries targeting datastore services.
-- Add periodic scan comparing active compose ports vs tunnel ingress hostnames.
+1. Stage 1: deploy cloudflared with only `n8n` and `grafana` hostnames.
+2. Stage 2: add `gitea` and `infisical` with stricter Access policies.
+3. Stage 3: add remaining operator surfaces after synthetic monitoring baselines.
+4. Stage 4: continuous drift check between compose ports and ingress hostnames.
 
-## Cost/risk notes
-- Offloading stateless front doors typically reduces maintenance overhead.
-- Stateful services should stay private unless managed service controls exceed current posture.
-- GPU inference offload decisions should include model egress/privacy requirements.
+## Drift detection heuristics
 
-## Decision cadence
-- Reassess offload candidates quarterly against usage, reliability, and compliance constraints.
-- Keep this list synchronized with ports registry and node placement docs.
+- Fail pipeline if a datastore service appears under `ingress:`.
+- Fail pipeline if any ingress target is non-HTTP and non-HTTPS.
+- Warn if a public hostname is missing corresponding CNAME route instructions.
+- Warn if `docs/02_ports_registry.md` and `infra/cloudflared/config.yml` diverge.
 
-## Evidence references
-- Source compose: `infra/docker-compose.yml`
-- Targeting policy: `infra/cloudflared/config.yml`
-- Control surface docs: `docs/02_ports_registry.md`
+## Business-impact rationale
 
-## Command snippets
-```bash
-rg -n "<service-name>|ports:" infra/docker-compose.yml
-```
-
-```bash
-rg -n "hostname:|service:" infra/cloudflared/config.yml
-```
+- Keeping stateful services private reduces accidental data exposure risk.
+- Tunneling only operator UIs keeps administration available without exposing LAN ports.
+- Cloudflare Pages remains the low-risk public surface for marketing content.
