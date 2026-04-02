@@ -1,27 +1,42 @@
 # 15 Node Placement: Oracle vs Orchestrator vs Workers
 
-## Placement matrix (active services)
+## Placement assumptions
+- **Oracle node**: durable business systems + databases.
+- **Orchestrator node**: control plane, gateways, CI/secrets/operator UIs.
+- **Worker nodes**: GPU inference execution, kept private.
 
+## Service placement table
 | Service | Node | Why | Ports | Exposure |
 |---|---|---|---|---|
-| postgres | oracle | primary relational state | 5432 | private |
-| redis | oracle | shared cache and queue state | 6379 | private |
-| n8n | oracle/orchestrator | workflow control surface | 5678 | Access-protected public |
-| activepieces | oracle/orchestrator | workflow automation surface | 8082 | Access-protected public |
-| twentycrm | oracle | CRM core app with durable backing services | 3000 | Access-protected public |
-| quote-api | oracle | domain API for pricing workflows | 7070 | private |
-| grafana | orchestrator/oracle | operator observability UI | 3003 | Access-protected public |
-| gitea | orchestrator | internal forge and CI control plane | 3100, 2222 | Access-protected web, SSH restricted |
-| infisical | orchestrator | secrets control plane | 8086 | Access-protected public |
-| archon-ui | orchestrator | operator-facing Archon UI | 3737 | Access-protected public |
-| worker-3060-ollama | workers | GPU-bound inference runtime | 11434 | private |
-| worker-3090ti-vllm | workers | GPU-bound inference runtime | 8000 | private |
-| worker-5090-vllm | workers | high-end GPU inference runtime | 8001 | private |
+| postgres | oracle | primary relational data store for platform services | 5432 | private |
+| redis | oracle | shared cache/queue backing state | 6379 | private |
+| mongo | oracle | document store for orchestration and tooling components | 27017 | private |
+| twentycrm / twenty | oracle | CRM system of record and business app surface | 3000 | Access-protected HTTP |
+| quote-api | oracle | mortgage quote domain API colocated with durable dependencies | 7070 | private |
+| n8n | orchestrator (or oracle variant) | workflow automation control surface | 5678 | Access-protected HTTP |
+| activepieces | orchestrator (or oracle variant) | workflow/integration automation console | 8082 | Access-protected HTTP |
+| grafana | orchestrator | operator monitoring and dashboards | 3003 | Access-protected HTTP |
+| nexus-router | orchestrator | LLM/API gateway routing and coordination | 7000/8080/9091 | private |
+| litellm | orchestrator | model gateway layer for internal consumers | 4000 | private |
+| archon-ui | orchestrator | operations UI for Archon control plane | 3737 | Access-protected HTTP |
+| gitea | orchestrator | internal forge and CI control plane | 3100 (web), 2222 (ssh) | web Access-protected; ssh private/restricted |
+| infisical | orchestrator | secrets control plane UI/API | 8086 (or 3201 in dedicated stack) | Access-protected HTTP |
+| worker-3060-ollama | workers | GPU-bound local inference endpoint | 11434 | private |
+| worker-3090ti-vllm | workers | GPU inference for mid/high-load model serving | 8000 | private |
+| worker-5090-vllm | workers | high-end inference for heavy workloads | 8001 host -> 8000 container | private |
 
-## Evidence
+## Exposure policy by class
+- Datastores (`postgres`, `redis`, `mongo`, `agentdb`, `ruvector-postgres`, `infisical-db`, `gitea-db`) remain private.
+- Inference backends remain private and should be reachable only from trusted networks.
+- Public edge exposure is limited to approved HTTP apps behind Cloudflare Access.
+- Raw TCP/SSH is not tunnel-exposed by default.
 
-- Base stack: `infra/docker-compose.yml`
-- Oracle stack: `infra/oracle/docker-compose.oracle.yml`
-- Dedicated Archon stack: `docker-compose.archon.yml`
-- Dedicated Gitea and Infisical stacks: `docker-compose.gitea.yml`, `docker-compose.infisical.yml`
-- Worker stacks: `infra/workers/worker-rtx3060/docker-compose.worker.yml`, `infra/workers/worker-rtx3090ti/docker-compose.worker.yml`, `infra/workers/worker-rtx5090/docker-compose.worker.yml`
+## Evidence set
+- `infra/docker-compose.yml`
+- `infra/oracle/docker-compose.oracle.yml`
+- `infra/workers/worker-rtx3060/docker-compose.worker.yml`
+- `infra/workers/worker-rtx3090ti/docker-compose.worker.yml`
+- `infra/workers/worker-rtx5090/docker-compose.worker.yml`
+- `docker-compose.archon.yml`
+- `docker-compose.gitea.yml`
+- `docker-compose.infisical.yml`
