@@ -305,7 +305,7 @@ services:
 
   archon-ui:
     build:
-      context: ./tools/archon/archon-ui-main
+      context: ${ARCHON_UI_CONTEXT:-./tools/archon/archon-ui-main}
       dockerfile: Dockerfile
     container_name: nyra-archon-ui
     profiles: ['archon', 'all']

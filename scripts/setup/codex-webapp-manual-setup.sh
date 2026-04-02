@@ -47,6 +47,8 @@ SKIP_SERVICES=0
 SKIP_ENV_EXPORT=0
 EXTRA_COMPOSE_FILE=""
 EXTRA_INFISICAL_PATH=""
+INFISICAL_CLI_MODE="native"
+INFISICAL_DOCKER_IMAGE="${INFISICAL_DOCKER_IMAGE:-infisical/cli:latest}"
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -87,6 +89,10 @@ EOF
 }
 
 while [[ $# -gt 0 ]]; do
+  if [[ -z "${1//[[:space:]]/}" || "$1" == '\n' || "$1" == '\\n' ]]; then
+    shift
+    continue
+  fi
   case "$1" in
     --env)
       INFISICAL_ENV="$2"
@@ -285,6 +291,15 @@ resolve_infisical_base_args() {
 
 run_infisical_cli() {
   resolve_infisical_base_args
+  if [[ "$INFISICAL_CLI_MODE" == "docker" ]]; then
+    docker run --rm \
+      -v "$REPO_ROOT:$REPO_ROOT" \
+      -w "$REPO_ROOT" \
+      "$INFISICAL_DOCKER_IMAGE" \
+      infisical "${INFISICAL_BASE_ARGS[@]}" "$@"
+    return 0
+  fi
+
   infisical "${INFISICAL_BASE_ARGS[@]}" "$@"
 }
 
@@ -485,6 +500,7 @@ ensure_ruby_tooling() {
 
 ensure_infisical() {
   if command -v infisical >/dev/null 2>&1; then
+    INFISICAL_CLI_MODE="native"
     return 0
   fi
 
@@ -499,11 +515,23 @@ ensure_infisical() {
   mkdir -p "$npm_prefix/bin"
 
   if ! npm install -g @infisical/cli >/dev/null 2>&1; then
-    npm install -g --prefix "$npm_prefix" @infisical/cli >/dev/null
+    npm install -g --prefix "$npm_prefix" @infisical/cli >/dev/null 2>&1 || true
   fi
   add_path_if_exists "$npm_prefix/bin"
 
-  require_cmd infisical
+  if command -v infisical >/dev/null 2>&1; then
+    INFISICAL_CLI_MODE="native"
+    return 0
+  fi
+
+  if command -v docker >/dev/null 2>&1; then
+    INFISICAL_CLI_MODE="docker"
+    warn "Using Dockerized Infisical CLI fallback (${INFISICAL_DOCKER_IMAGE})"
+    return 0
+  fi
+
+  err "Unable to install Infisical CLI and Docker fallback is unavailable."
+  exit 1
 }
 
 ensure_github_cli() {
@@ -801,6 +829,13 @@ start_services() {
 }
 
 print_versions() {
+  local infisical_version="missing"
+  if [[ "$INFISICAL_CLI_MODE" == "docker" ]]; then
+    infisical_version="docker://${INFISICAL_DOCKER_IMAGE}"
+  else
+    infisical_version="$(infisical --version 2>/dev/null || echo missing)"
+  fi
+
   info "Toolchain versions"
   echo "  node:    $(node -v 2>/dev/null || echo missing)"
   echo "  npm:     $(npm -v 2>/dev/null || echo missing)"
@@ -810,7 +845,7 @@ print_versions() {
   echo "  uv:      $(uv --version 2>/dev/null || echo missing)"
   echo "  ruby:    $(ruby --version 2>/dev/null || echo missing)"
   echo "  bundler: $(bundle --version 2>/dev/null || echo missing)"
-  echo "  infisical: $(infisical --version 2>/dev/null || echo missing)"
+  echo "  infisical: ${infisical_version}"
   echo "  docker:  $(docker --version 2>/dev/null || echo missing)"
 }
 
