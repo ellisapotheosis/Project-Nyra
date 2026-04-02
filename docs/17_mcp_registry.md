@@ -1,48 +1,44 @@
 # 17 MCP Registry (Observed in Active Compose)
 
-## MCP-related services in active compose
-
-| Service | Source compose | Port(s) | Exposure default |
+| Service | Source compose | Host port(s) | Exposure |
 |---|---|---|---|
-| `docker-mcp-toolkit` | `infra/docker-compose.yml` | 8811 | private |
-| `git-mcp` | `infra/docker-compose.yml` | 8812 | private |
-| `github-mcp` | `infra/docker-compose.yml` | 8813 | private |
-| `bitwarden-mcp` | `infra/docker-compose.yml` | 8814 | private |
-| `infisical-mcp` | `infra/docker-compose.yml` | 8815 | private |
-| `twentycrm-mcp` | `infra/docker-compose.yml` | 8182 | private |
+| `archon-mcp` | `docker-compose.archon.yml` | `8051` | `private` |
+| `bitwarden-mcp` | `infra/docker-compose.yml` | `8814` | `private` |
+| `docker-mcp-toolkit` | `infra/docker-compose.yml` | `8811` | `private` |
+| `git-mcp` | `infra/docker-compose.yml` | `8812` | `private` |
+| `github-mcp` | `infra/docker-compose.yml` | `8813` | `private` |
+| `graphiti-mcp` | `infra/oracle/docker-compose.oracle.yml` | `—` | `private` |
+| `graphiti_mcp` | `infra/stacks/nyra-mortgage/docker-compose.graphiti.yml` | `8000` | `private` |
+| `infisical-mcp` | `infra/docker-compose.yml` | `8815` | `private` |
+| `nyra-mcp` | `infra/docker-compose.yml` | `3333` | `private` |
+| `openmemory_mcp` | `infra/stacks/nyra-mortgage/docker-compose.yml` | `8081` | `private` |
+| `twenty-mcp-server` | `infra/docker-compose.twenty.yml` | `3022` | `private` |
+| `twentycrm-mcp` | `infra/docker-compose.yml` | `8182` | `private` |
 
-## Registry notes
+All MCP endpoints are private-only by default and excluded from cloudflared ingress.
 
-- MCP services are not included in cloudflared ingress by default.
-- If external access is needed, prefer Access + service token and explicit hostname approval.
-- MCP service credentials should be sourced from Infisical (not committed env).
+## Governance controls
 
-## Validation hooks
+- MCP exposure requires explicit owner approval and Access policy design.
+- Service-to-service credentials should come from Infisical runtime injection.
+- No direct public DNS records are proposed for MCP service endpoints.
+- Health checks should run from private network paths only.
 
-- compose schema validation via `docker compose ... config`
-- runtime reachability should be tested from trusted private network only
+## Operational ownership
 
-## Governance
-- MCP endpoints should require authenticated callers and tight network ACLs.
-- Secrets used by MCP adapters should be rotated via Infisical policies.
+- Platform team owns compose registration and lifecycle wiring.
+- Security/compliance owns secret policy and token rotation cadence.
+- Application teams own functional MCP integrations and call-volume governance.
 
-## Ownership
-- Platform/infra owners maintain compose-level MCP registrations.
-- Application teams request ingress exceptions via documented change process.
+## Network stance
 
-## Future work
-- Add per-MCP health probe mapping and dependency graph to this registry.
+- MCP ports are reachable from trusted private networks only.
+- No Cloudflare tunnel ingress routes are created for MCP ports.
+- Any exception must include Access service-token enforcement.
 
-## Evidence references
-- Source compose: `infra/docker-compose.yml`
-- Targeting policy: `infra/cloudflared/config.yml`
-- Control surface docs: `docs/02_ports_registry.md`
-
-## Command snippets
-```bash
-rg -n "<service-name>|ports:" infra/docker-compose.yml
-```
+## Validation commands
 
 ```bash
-rg -n "hostname:|service:" infra/cloudflared/config.yml
+rg -n "mcp" infra/docker-compose.yml
+rg -n "hostname:" infra/cloudflared/config.yml
 ```

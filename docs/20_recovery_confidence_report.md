@@ -20,6 +20,20 @@
 - Which of the access-protected apps the operator actually wants exposed in production at the same time.
 - Whether any external automation depends on the secondary override/bootstrap compose paths listed in `docs/02_ports_registry.appendix_legacy.md`.
 
+## Risk controls applied
+
+- Fail-closed edge config with mandatory `http_status:404` final ingress rule.
+- No datastores assigned Cloudflared hostnames or DNS instructions.
+- Existing compose and Makefile flows retained; additive bootstrap wrappers only.
+- Secrets policy enforced through template files plus `.gitignore` protections.
+
+## Follow-up checks recommended
+
+1. Run compose config gates in a Docker-enabled environment.
+2. Run cloudflared ingress validation in a Docker-enabled environment.
+3. Execute edge-doc regeneration in CI and diff against committed docs.
+4. Add policy check to reject non-HTTP tunnel routes.
+
 ## File-path evidence
 
 - `Makefile`
