@@ -9,7 +9,7 @@
 #   - Phase 3: Nexus Router (LLM Gateway)
 #   - Phase 4: MCP Servers (AgentDB, RuVector, Letta, Mem0)
 #   - Phase 5: Claude Flow @alpha (Multi-Agent Orchestration)
-#   - Phase 6: Open-WebUI (Port 3333)
+#   - Phase 6: Open-WebUI (Port 8088)
 #   - Phase 7: Applications (TwentyCRM, n8n, OpenClaw UI)
 #   - Phase 8: Health Validation
 #
@@ -111,7 +111,7 @@ $Services = @{
         ComposeFile = "apps/docker-compose.apps.yml"
         Description = "Applications (TwentyCRM, n8n, Open-WebUI, Claude Flow)"
         HealthChecks = @(
-            @{ Name = "Open-WebUI"; URL = "http://localhost:3333/health"; Port = 3333; Type = "http" }
+            @{ Name = "Open-WebUI"; URL = "http://localhost:8088/health"; Port = 8088; Type = "http" }
             @{ Name = "Claude Flow Alpha"; URL = "http://localhost:3010/health"; Port = 3010; Type = "http" }
             @{ Name = "TwentyCRM"; URL = "http://localhost:3000/health"; Port = 3000; Type = "http" }
             @{ Name = "n8n"; URL = "http://localhost:5678/healthz"; Port = 5678; Type = "http" }
@@ -434,17 +434,26 @@ else {
 }
 
 # ============================================================================
-# PHASE 5: Open-WebUI (Port 3333)
+# PHASE 5: Open-WebUI (Port 8088)
 # ============================================================================
 Write-Phase "PHASE 5: Open-WebUI (Development Chat Interface)"
 
-Write-Step "Checking Open-WebUI status..."
-for ($i = 0; $i -lt 30; $i++) {
-    if (Test-ServiceHealth -Name "Open-WebUI" -URL "http://localhost:3333/health" -Port 3333 -MaxRetries 1) {
-        Write-Success "Open-WebUI ready on port 3333"
-        break
+Write-Step "Starting Open-WebUI service..."
+$stackCompose = Join-Path $InfraDir "docker-compose.yml"
+if (Test-Path $stackCompose) {
+    docker compose -f $stackCompose --profile apps up -d openwebui
+
+    Write-Step "Waiting for Open-WebUI..."
+    for ($i = 0; $i -lt 30; $i++) {
+        if (Test-ServiceHealth -Name "Open-WebUI" -URL "http://localhost:8088/health" -Port 8088 -MaxRetries 1) {
+            Write-Success "Open-WebUI ready on port 8088"
+            break
+        }
+        Start-Sleep -Seconds 2
     }
-    Start-Sleep -Seconds 2
+}
+else {
+    Write-Error "Stack compose file not found: $stackCompose"
 }
 
 # ============================================================================
@@ -565,7 +574,7 @@ Write-Host @"
     Infisical:        http://localhost:8082  (Secrets Management)
 
   Applications:
-    Open-WebUI:       http://localhost:3333  (Dev Chat - NOT BORROWER)
+    Open-WebUI:       http://localhost:8088  (Dev Chat - NOT BORROWER)
     TwentyCRM:        http://localhost:3000  (CRM System)
     n8n:              http://localhost:5678  (Workflow Automation)
 
