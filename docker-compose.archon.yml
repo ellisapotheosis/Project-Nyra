@@ -14,7 +14,7 @@ networks:
 volumes:
   archon_data: {}
   archon_server_data: {}
-  archon_ui_node_modules: {}
+  shared_secrets: {}
 
 services:
   postgres:
@@ -137,7 +137,7 @@ services:
       INFISICAL_POLL_INTERVAL: ${INFISICAL_POLL_INTERVAL:-60}
       INFISICAL_SHARED_PATH: ${INFISICAL_SHARED_PATH:-/shared}
     volumes:
-      - ./infra/shared/secrets:/secrets
+      - shared_secrets:/secrets
     restart: unless-stopped
     networks: [nyra]
     logging: *default_logging
@@ -193,7 +193,7 @@ services:
     ports: ['${ARCHON_OS_PORT:-9001}:9001']
     volumes:
       - archon_data:/opt/archon/data
-      - ./infra/shared/secrets:/secrets:ro
+      - shared_secrets:/secrets:ro
     restart: unless-stopped
     networks: [nyra]
     logging: *default_logging
@@ -230,7 +230,7 @@ services:
       - ./submodules/archon/python/src:/app/src
       - ./submodules/archon/python/tests:/app/tests
       - ./submodules/archon/migration:/app/migration
-      - ./infra/shared/secrets:/secrets:ro
+      - shared_secrets:/secrets:ro
       - /var/run/docker.sock:/var/run/docker.sock
     restart: unless-stopped
     networks: [nyra]
@@ -344,15 +344,9 @@ services:
       VITE_NEXUS_ROUTER_URL: http://nexus-router:${NEXUS_ROUTER_PORT:-4000}
       VITE_NEXUS_MCP_PROXY_URL: http://nexus-router:${NEXUS_ROUTER_PORT:-4000}/mcp
     ports:
-      - '${ARCHON_UI_PORT:-3737}:3737'
-    volumes:
-      - ./ingest/infra/orchestrator/archon/ui-placeholder/index.html:/usr/share/nginx/html/index.html:ro
-    command:
-      - /bin/sh
-      - -lc
-      - sed -i 's/listen       80;/listen       3737;/' /etc/nginx/conf.d/default.conf && exec nginx -g 'daemon off;'
+      - '${ARCHON_UI_PORT:-3737}:5173'
     healthcheck:
-      test: ['CMD', 'curl', '-f', 'http://localhost:3737']
+      test: ['CMD', 'curl', '-f', 'http://localhost:5173']
       interval: 30s
       timeout: 10s
       retries: 3
