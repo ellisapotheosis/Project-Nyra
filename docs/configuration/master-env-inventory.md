@@ -5509,18 +5509,18 @@ Generated from files containing `.env` in their filename across repo root, `infr
 | `ANTHROPIC_API_KEY`         | `[REDACTED]`             | possible-secret                     | 7                  |
 | `OPENROUTER_API_KEY`        | `[REDACTED]`             | possible-secret                     | 8                  |
 | `CLAUDE_FLOW_PORT`          | `[REDACTED]`             | possible-secret                     | 11                 |
-| `CLAUDE_FLOW_URL`           | `{{ .CLAUDE_FLOW_URL     | default "http://localhost:9000" }}` | non-secret-literal | 12  |
+| `CLAUDE_FLOW_URL`           | `{{ .CLAUDE_FLOW_URL     \| default "http://localhost:9000" }}` | non-secret-literal | 12  |
 | `ARCHON_PORT`               | `[REDACTED]`             | possible-secret                     | 13                 |
-| `ARCHON_OS_URL`             | `{{ .ARCHON_OS_URL       | default "http://localhost:9001" }}` | non-secret-literal | 14  |
+| `ARCHON_OS_URL`             | `{{ .ARCHON_OS_URL       \| default "http://localhost:9001" }}` | non-secret-literal | 14  |
 | `NEXUS_PORT`                | `[REDACTED]`             | possible-secret                     | 15                 |
-| `NEXUS_ROUTER_URL`          | `{{ .NEXUS_ROUTER_URL    | default "http://localhost:8000" }}` | non-secret-literal | 16  |
+| `NEXUS_ROUTER_URL`          | `{{ .NEXUS_ROUTER_URL    \| default "http://localhost:8000" }}` | non-secret-literal | 16  |
 | `GEMINI_MCP_PORT`           | `[REDACTED]`             | possible-secret                     | 19                 |
-| `GEMINI_MCP_URL`            | `{{ .GEMINI_MCP_URL      | default "http://localhost:8085" }}` | non-secret-literal | 20  |
+| `GEMINI_MCP_URL`            | `{{ .GEMINI_MCP_URL      \| default "http://localhost:8085" }}` | non-secret-literal | 20  |
 | `SERENA_MCP_PORT`           | `[REDACTED]`             | possible-secret                     | 21                 |
-| `SERENA_MCP_URL`            | `{{ .SERENA_MCP_URL      | default "http://localhost:8086" }}` | non-secret-literal | 22  |
+| `SERENA_MCP_URL`            | `{{ .SERENA_MCP_URL      \| default "http://localhost:8086" }}` | non-secret-literal | 22  |
 | `SERENA_REPO_PATH`          | `[REDACTED]`             | possible-secret                     | 23                 |
 | `DIFY_PORT`                 | `[REDACTED]`             | possible-secret                     | 26                 |
-| `DIFY_URL`                  | `{{ .DIFY_URL            | default "http://localhost:3000" }}` | non-secret-literal | 27  |
+| `DIFY_URL`                  | `{{ .DIFY_URL            \| default "http://localhost:3000" }}` | non-secret-literal | 27  |
 | `POSTGRES_USER`             | `[REDACTED]`             | possible-secret                     | 28                 |
 | `POSTGRES_PASSWORD`         | `[REDACTED]`             | possible-secret                     | 29                 |
 | `POSTGRES_DB`               | `[REDACTED]`             | possible-secret                     | 30                 |
