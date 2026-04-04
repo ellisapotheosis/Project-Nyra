@@ -10,6 +10,11 @@
     "services/*",
     "packages/*"
   ],
+  "pnpm": {
+    "overrides": {
+      "agentic-flow": "1.10.2"
+    }
+  },
   "scripts": {
     "dev": "turbo run dev",
     "build": "turbo run build",
@@ -30,7 +35,7 @@
     "all:dev": "turbo run dev --parallel"
   },
   "dependencies": {
-    "agentic-flow": "2.0.2-alpha",
+    "agentic-flow": "1.10.2",
     "agentic-jujutsu": "^2.3.6",
     "zod": "^4.3.5"
   },
