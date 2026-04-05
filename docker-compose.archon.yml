@@ -127,12 +127,15 @@ services:
       done
     environment:
       INFISICAL_TOKEN: ${INFISICAL_TOKEN:?set INFISICAL_TOKEN}
-      INFISICAL_API_URL: ${INFISICAL_API_URL:-https://app.infisical.com}
+      INFISICAL_API_URL: ${INFISICAL_API_URL:-http://infisical:8080}
       INFISICAL_ENV: ${INFISICAL_ENV:-prod}
       INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
       INFISICAL_POLL_INTERVAL: ${INFISICAL_POLL_INTERVAL:-60}
     volumes:
       - ./infra/shared/secrets:/secrets
+    depends_on:
+      infisical:
+        condition: service_started
     restart: unless-stopped
     networks: [nyra]
     logging: *default_logging
@@ -148,13 +151,38 @@ services:
       > /workspace/.env.archon.injected && tail -f /dev/null
     environment:
       INFISICAL_TOKEN: ${INFISICAL_TOKEN:?set INFISICAL_TOKEN}
-      INFISICAL_API_URL: ${INFISICAL_API_URL:-https://app.infisical.com}
+      INFISICAL_API_URL: ${INFISICAL_API_URL:-http://infisical:8080}
       INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
       INFISICAL_DISABLE_UPDATE_CHECK: 'true'
     volumes:
       - ./:/workspace
     depends_on:
-      - infisical-agent
+      infisical:
+        condition: service_started
+      infisical-agent:
+        condition: service_started
+    restart: unless-stopped
+    networks: [nyra]
+    logging: *default_logging
+
+  infisical:
+    image: infisical/infisical:latest
+    container_name: nyra-archon-infisical
+    profiles: ['archon', 'all']
+    environment:
+      NODE_ENV: production
+      DB_CONNECTION_URI: postgresql://${POSTGRES_USER:-nyra}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-nyra}
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
+      ENCRYPTION_KEY: ${INFISICAL_ENCRYPTION_KEY:-${ACTIVEPIECES_ENCRYPTION_KEY:-change-me-32-chars-minimum}}
+      AUTH_SECRET: ${INFISICAL_AUTH_SECRET:-${TWENTY_JWT_SECRET:-change-me-32-chars-minimum}}
+      SITE_URL: ${INFISICAL_SITE_URL:-http://localhost:${INFISICAL_PORT:-8086}}
+    ports:
+      - '${INFISICAL_PORT:-8086}:8080'
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     restart: unless-stopped
     networks: [nyra]
     logging: *default_logging
@@ -303,7 +331,9 @@ services:
     logging: *default_logging
 
   archon-ui:
-    image: nginx:1.27-alpine
+    build:
+      context: ./tools/archon/archon-ui-main
+      dockerfile: Dockerfile
     container_name: nyra-archon-ui
     profiles: ['archon', 'all']
     depends_on:
@@ -317,13 +347,7 @@ services:
       VITE_NEXUS_ROUTER_URL: http://nexus-router:7000
       VITE_NEXUS_MCP_PROXY_URL: http://nexus-router:8080
     ports:
-      - '${ARCHON_UI_PORT:-3737}:3737'
-    volumes:
-      - ./ingest/infra/orchestrator/archon/ui-placeholder/index.html:/usr/share/nginx/html/index.html:ro
-    command:
-      - /bin/sh
-      - -lc
-      - sed -i 's/listen       80;/listen       3737;/' /etc/nginx/conf.d/default.conf && exec nginx -g 'daemon off;'
+      - '${ARCHON_UI_PORT:-3737}:5173'
     restart: unless-stopped
     networks: [nyra]
     logging: *default_logging
