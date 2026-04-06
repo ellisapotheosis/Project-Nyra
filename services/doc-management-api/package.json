@@ -64,7 +64,7 @@
     "supertest": "^6.3.3",
     "eslint": "^10.0.3",
     "@typescript-eslint/eslint-plugin": "^6.17.0",
-    "@typescript-eslint/parser": "^6.17.0",
+    "@typescript-eslint/parser": "^8.58.0",
     "sequelize-cli": "^6.6.2"
   }
 }
