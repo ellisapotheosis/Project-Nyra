@@ -23,7 +23,7 @@
   "author": "Project Nyra",
   "license": "MIT",
   "dependencies": {
-    "express": "^4.18.2",
+    "express": "^5.2.1",
     "axios": "^1.6.2",
     "mammoth": "^1.6.0",
     "node-schedule": "^2.1.1",
