@@ -12,7 +12,7 @@
   ],
   "pnpm": {
     "overrides": {
-      "agentic-flow": "1.10.2"
+      "agentic-flow": "2.0.7"
     }
   },
   "scripts": {
@@ -35,7 +35,7 @@
     "all:dev": "turbo run dev --parallel"
   },
   "dependencies": {
-    "agentic-flow": "1.10.2",
+    "agentic-flow": "2.0.7",
     "agentic-jujutsu": "^2.3.6",
     "zod": "^4.3.5"
   },
