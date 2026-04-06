@@ -27,7 +27,7 @@
     "express": "^5.2.1",
     "falkordb": "^6.4.1",
     "compromise": "^14.10.0",
-    "natural": "^6.10.0",
+    "natural": "^8.1.1",
     "node-nlp": "^4.27.0",
     "uuid": "^13.0.0",
     "date-fns": "^4.1.0",
