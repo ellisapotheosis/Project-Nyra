@@ -14,7 +14,7 @@
     "format": "prisma format"
   },
   "dependencies": {
-    "@prisma/client": "^7.4.2"
+    "@prisma/client": "^7.6.0"
   },
   "devDependencies": {
     "prisma": "^7.4.2",
