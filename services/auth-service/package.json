@@ -23,7 +23,7 @@
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0",
     "passport-microsoft": "^2.1.0",
-    "express-rate-limit": "^7.1.5",
+    "express-rate-limit": "^8.3.2",
     "express-validator": "^7.0.1",
     "mongoose": "^8.0.3",
     "redis": "^5.11.0",
