@@ -263,8 +263,8 @@ importers:
         specifier: ^2.0.0
         version: 2.0.0
       passport-microsoft:
-        specifier: ^1.0.0
-        version: 1.1.0
+        specifier: ^2.1.0
+        version: 2.1.0
       qrcode:
         specifier: ^1.5.3
         version: 1.5.4
@@ -6260,6 +6260,7 @@ packages:
 
   dottie@2.0.7:
     resolution: {integrity: sha512-7lAK2A0b3zZr3UC5aE69CPdCFR4RHW1o2Dr74TqFykxkUCBXSRJum/yPc7g8zRHJqWKomPLHwFLLoUnn8PXXRg==}
+    deprecated: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
 
   doublearray@0.0.2:
     resolution: {integrity: sha512-aw55FtZzT6AmiamEj2kvmR6BuFqvYgKZUkfQ7teqVRNqD5UE0rw8IeW/3gieHNKQ5sPuDKlljWEn4bzv5+1bHw==}
@@ -8560,8 +8561,8 @@ packages:
     resolution: {integrity: sha512-KSk6IJ15RoxuGq7D1UKK/8qKhNfzbLeLrG3gkLZ7p4A6DBCcv7xpyQwuXtWdpyR0+E0mwkpjY1VfPOhxQrKzdQ==}
     engines: {node: '>= 0.4.0'}
 
-  passport-microsoft@1.1.0:
-    resolution: {integrity: sha512-yJyynEkGakK8SveCqILAvrpMBOKpx6TNyxL1ry+eW4m9/qqqDDOUahLdHj7wPSuDReHQ4jArGheH5v0/pNwR+g==}
+  passport-microsoft@2.1.0:
+    resolution: {integrity: sha512-7bOcjEmZCHg5qD55iHaMD/mgBxPtXLbqAwmKox5IsqOSEU50WJk5nQKK4lxKdBHLZ0hf+gzrFgDsTybJP18/JA==}
     engines: {node: '>= 0.4.0'}
 
   passport-oauth2@1.8.0:
@@ -19352,7 +19353,7 @@ snapshots:
     dependencies:
       passport-oauth2: 1.8.0
 
-  passport-microsoft@1.1.0:
+  passport-microsoft@2.1.0:
     dependencies:
       passport-oauth2: 1.8.0
 
