@@ -40,7 +40,7 @@
     "@testing-library/react": "^16.3.2",
     "@testing-library/jest-dom": "^6.4.2",
     "@testing-library/user-event": "^14.5.2",
-    "msw": "^2.2.13",
+    "msw": "^2.12.14",
     "jsdom": "^24.0.0",
     "@vitest/coverage-v8": "^4.0.18"
   },
