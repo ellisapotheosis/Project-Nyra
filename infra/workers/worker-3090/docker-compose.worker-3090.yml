@@ -17,7 +17,7 @@ services:
     hostname: worker-3090-vllm
     restart: unless-stopped
     ports:
-      - "${VLLM_PORT:-8000}:8000"
+      - '${VLLM_PORT:-8000}:8000'
     volumes:
       - vllm-models:/root/.cache/huggingface
       - lmcache-data:/root/.cache/lmcache
@@ -53,22 +53,22 @@ services:
         limits:
           memory: 32G
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      test: ['CMD', 'curl', '-f', 'http://localhost:8000/health']
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 120s
     labels:
-      - "com.nyra.service=vllm"
-      - "com.nyra.worker=rtx3090ti"
-      - "com.nyra.gpu=rtx-3090-ti"
-      - "com.nyra.vram=24gb"
-      - "com.nyra.device=desktop-pc"
+      - 'com.nyra.service=vllm'
+      - 'com.nyra.worker=rtx3090ti'
+      - 'com.nyra.gpu=rtx-3090-ti'
+      - 'com.nyra.vram=24gb'
+      - 'com.nyra.device=desktop-pc'
     logging:
-      driver: "json-file"
+      driver: 'json-file'
       options:
-        max-size: "50m"
-        max-file: "5"
+        max-size: '50m'
+        max-file: '5'
     networks:
       - worker-network
 
@@ -81,7 +81,7 @@ services:
     hostname: worker-3090-lmcache
     restart: unless-stopped
     ports:
-      - "${LMCACHE_PORT:-8100}:8100"
+      - '${LMCACHE_PORT:-8100}:8100'
     volumes:
       - lmcache-data:/data
     environment:
@@ -96,13 +96,13 @@ services:
               count: 1
               capabilities: [gpu]
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8100/health"]
+      test: ['CMD', 'curl', '-f', 'http://localhost:8100/health']
       interval: 30s
       timeout: 10s
       retries: 3
     labels:
-      - "com.nyra.service=lmcache"
-      - "com.nyra.worker=rtx3090ti"
+      - 'com.nyra.service=lmcache'
+      - 'com.nyra.worker=rtx3090ti'
     networks:
       - worker-network
 
@@ -125,8 +125,8 @@ services:
     depends_on:
       - vllm
     labels:
-      - "com.nyra.service=model-switcher"
-      - "com.nyra.worker=rtx3090ti"
+      - 'com.nyra.service=model-switcher'
+      - 'com.nyra.worker=rtx3090ti'
     networks:
       - worker-network
 
@@ -139,42 +139,42 @@ services:
     hostname: worker-3090-health-monitor
     restart: unless-stopped
     depends_on:
-      - ollama
+      - vllm
     volumes:
       - ./health-check.sh:/health-check.sh:ro
       - ./logs/health:/var/log/health
     environment:
-      - OLLAMA_URL=http://ollama:11434
+      - VLLM_URL=http://vllm:8000
       - WORKER_ID=${WORKER_ID:-worker-3090}
       - CHECK_INTERVAL=60
-    entrypoint: ["/bin/sh", "-c"]
+    entrypoint: ['/bin/sh', '-c']
     command:
       - |
         while true; do
           echo "[$(date -Iseconds)] Running health check..."
 
-          # Check Ollama API
-          if curl -sf "$${OLLAMA_URL}/api/tags" > /dev/null; then
-            echo "[$(date -Iseconds)] [OK] Ollama API responding"
+          # Check vLLM API
+          if curl -sf "$${VLLM_URL}/health" > /dev/null; then
+            echo "[$(date -Iseconds)] [OK] vLLM API responding"
           else
-            echo "[$(date -Iseconds)] [ERROR] Ollama API not responding"
+            echo "[$(date -Iseconds)] [ERROR] vLLM API not responding"
           fi
 
           # Check model availability
-          MODELS=$$(curl -sf "$${OLLAMA_URL}/api/tags" | grep -o '"name"' | wc -l)
+          MODELS=$$(curl -sf "$${VLLM_URL}/v1/models" | grep -o '"id"' | wc -l)
           echo "[$(date -Iseconds)] [INFO] Available models: $$MODELS"
 
           # Sleep before next check
           sleep $${CHECK_INTERVAL}
         done | tee -a /var/log/health/health-monitor.log
     labels:
-      - "com.project-nyra.service=health-monitor"
-      - "com.project-nyra.worker=worker-3090"
+      - 'com.project-nyra.service=health-monitor'
+      - 'com.project-nyra.worker=worker-3090'
     logging:
-      driver: "json-file"
+      driver: 'json-file'
       options:
-        max-size: "10m"
-        max-file: "3"
+        max-size: '10m'
+        max-file: '3'
 
   # ============================================================================
   # Promtail - Log Shipper to Loki
@@ -195,13 +195,13 @@ services:
       - HOSTNAME=worker-3090
     command: -config.file=/etc/promtail/config.yml
     labels:
-      - "com.project-nyra.service=promtail"
-      - "com.project-nyra.worker=worker-3090"
+      - 'com.project-nyra.service=promtail'
+      - 'com.project-nyra.worker=worker-3090'
     logging:
-      driver: "json-file"
+      driver: 'json-file'
       options:
-        max-size: "10m"
-        max-file: "3"
+        max-size: '10m'
+        max-file: '3'
 
   # ============================================================================
   # Node Exporter - System metrics for Prometheus
@@ -212,7 +212,7 @@ services:
     hostname: worker-3090-node-exporter
     restart: unless-stopped
     ports:
-      - "9100:9100"
+      - '9100:9100'
     volumes:
       - /proc:/host/proc:ro
       - /sys:/host/sys:ro
@@ -223,13 +223,13 @@ services:
       - '--path.rootfs=/rootfs'
       - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
     labels:
-      - "com.project-nyra.service=node-exporter"
-      - "com.project-nyra.worker=worker-3090"
+      - 'com.project-nyra.service=node-exporter'
+      - 'com.project-nyra.worker=worker-3090'
     logging:
-      driver: "json-file"
+      driver: 'json-file'
       options:
-        max-size: "10m"
-        max-file: "3"
+        max-size: '10m'
+        max-file: '3'
 
   # ============================================================================
   # NVIDIA GPU Exporter - GPU metrics for Prometheus
@@ -240,7 +240,7 @@ services:
     hostname: worker-3090-nvidia-exporter
     restart: unless-stopped
     ports:
-      - "9835:9835"
+      - '9835:9835'
     environment:
       - NVIDIA_VISIBLE_DEVICES=all
       - NVIDIA_DRIVER_CAPABILITIES=compute,utility
@@ -252,13 +252,13 @@ services:
               count: 1
               capabilities: [gpu]
     labels:
-      - "com.project-nyra.service=nvidia-exporter"
-      - "com.project-nyra.worker=worker-3090"
+      - 'com.project-nyra.service=nvidia-exporter'
+      - 'com.project-nyra.worker=worker-3090'
     logging:
-      driver: "json-file"
+      driver: 'json-file'
       options:
-        max-size: "10m"
-        max-file: "3"
+        max-size: '10m'
+        max-file: '3'
 
 volumes:
   ollama-models:
