@@ -161,12 +161,12 @@ services:
     logging: *default_logging
 
   archon-os:
-    build:
-      context: ./services/archon-os
-      dockerfile: docker/Dockerfile.archon-os
+    image: ghcr.io/coleam00/archon:latest
     container_name: nyra-archon-os
     profiles: ['archon', 'all']
     depends_on:
+      infisical-agent:
+        condition: service_started
       nexus-router:
         condition: service_healthy
       postgres:
@@ -175,6 +175,7 @@ services:
         condition: service_healthy
     environment:
       ARCHON_ENV: ${ARCHON_ENV:-production}
+      ARCHON_SETTINGS_FILE: /secrets/archon.env
       NEXUS_BASE_URL: http://nexus-router:7000
       NEXUS_MCP_URL: http://nexus-router:8080
       NEXUS_ROUTER_URL: http://nexus-router:7000
@@ -187,24 +188,28 @@ services:
     volumes:
       - archon_data:/opt/archon/data
       - ./infra/shared/secrets:/secrets:ro
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
     restart: unless-stopped
     networks: [nyra]
     logging: *default_logging
 
   archon-server:
-    build:
-      context: ./services/archon-os
-      dockerfile: docker/Dockerfile.server
-      args:
-        ARCHON_SERVER_PORT: ${ARCHON_SERVER_PORT:-8181}
+    image: ghcr.io/coleam00/archon:latest
     container_name: nyra-archon-server
     profiles: ['archon', 'all']
     depends_on:
+      infisical-agent:
+        condition: service_started
       postgres:
         condition: service_healthy
       nexus-router:
         condition: service_healthy
     environment:
+      ARCHON_SETTINGS_FILE: /secrets/archon.env
       DATABASE_URL: postgresql://${POSTGRES_USER:-nyra}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-nyra}
       SERVICE_DISCOVERY_MODE: docker_compose
       ARCHON_SERVER_PORT: ${ARCHON_SERVER_PORT:-8181}
@@ -218,24 +223,28 @@ services:
     volumes:
       - archon_server_data:/app/data
       - ./infra/shared/secrets:/secrets:ro
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8181/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
     restart: unless-stopped
     networks: [nyra]
     logging: *default_logging
 
   archon-mcp:
-    build:
-      context: ./services/archon-os
-      dockerfile: docker/Dockerfile.mcp
-      args:
-        ARCHON_MCP_PORT: ${ARCHON_MCP_PORT:-8051}
+    image: ghcr.io/coleam00/archon:latest
     container_name: nyra-archon-mcp
     profiles: ['archon', 'all']
     depends_on:
+      infisical-agent:
+        condition: service_started
       archon-server:
         condition: service_started
       nexus-router:
         condition: service_healthy
     environment:
+      ARCHON_SETTINGS_FILE: /secrets/archon.env
       SERVICE_DISCOVERY_MODE: docker_compose
       ARCHON_MCP_PORT: ${ARCHON_MCP_PORT:-8051}
       API_SERVICE_URL: http://archon-server:8181
@@ -243,24 +252,28 @@ services:
       NEXUS_MCP_PROXY_URL: http://nexus-router:8080
     ports:
       - '${ARCHON_MCP_PORT:-8051}:8051'
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8051/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
     restart: unless-stopped
     networks: [nyra]
     logging: *default_logging
 
   archon-agents:
-    build:
-      context: ./services/archon-os
-      dockerfile: docker/Dockerfile.agents
-      args:
-        ARCHON_AGENTS_PORT: ${ARCHON_AGENTS_PORT:-8052}
+    image: ghcr.io/coleam00/archon:latest
     container_name: nyra-archon-agents
     profiles: ['archon', 'all']
     depends_on:
+      infisical-agent:
+        condition: service_started
       archon-server:
         condition: service_started
       nexus-router:
         condition: service_healthy
     environment:
+      ARCHON_SETTINGS_FILE: /secrets/archon.env
       ARCHON_AGENTS_PORT: ${ARCHON_AGENTS_PORT:-8052}
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
@@ -270,6 +283,11 @@ services:
       ARCHON_SERVER_URL: http://archon-server:8181
     ports:
       - '${ARCHON_AGENTS_PORT:-8052}:8052'
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8052/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
     restart: unless-stopped
     networks: [nyra]
     logging: *default_logging
