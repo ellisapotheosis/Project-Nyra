@@ -63,6 +63,17 @@ Use the landing app as the Cloudflare project root so Pages only installs and bu
 
 Do not use `/` as the project root in this monorepo. A repo-root install can fail on unrelated workspace packages before the landing app build starts.
 
+#### If your Cloudflare project keeps using repo root (v2 root directory strategy)
+
+If the Cloudflare UI is currently configured with an empty root directory and a `cd ...` build command, use this exact fallback. **Note:** This is a legacy fallback for existing projects that cannot be easily migrated. New Cloudflare Pages projects should always prefer the explicit `apps/landing/ratehunter-landing` root configuration (Option 1) to avoid monorepo isolation issues.
+
+- **Root directory**: *(leave blank)*
+- **Install command**: `cd apps/landing/ratehunter-landing && npm install`
+- **Build command**: `cd apps/landing/ratehunter-landing && npm run build:cf`
+- **Build output directory**: `apps/landing/ratehunter-landing/.open-next/assets`
+
+This avoids `pnpm install` running at monorepo root and prevents frozen-lockfile failures caused by unrelated workspace packages.
+
 ### Option 2: Direct Upload / Workers Deploy (Manual or CI)
 
 For manual deployments from your local machine:
@@ -107,6 +118,21 @@ Set production environment variables in the Cloudflare dashboard:
 
 1. Go to Workers & Pages > ratehunter-landing > Settings > Environment Variables
 2. Add variables for production and preview environments
+
+Recommended values (**Required for Build/Runtime**):
+
+```bash
+NODE_ENV=production
+NODE_VERSION=20
+NEXT_TELEMETRY_DISABLED=1
+```
+
+Optional Project Branding (**Customizable**):
+
+```bash
+NEXT_PUBLIC_SITE_NAME=RateHunter
+NEXT_PUBLIC_SITE_URL=https://ratehunter.com
+```
 
 Or use Wrangler CLI:
 
