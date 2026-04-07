@@ -14,13 +14,6 @@
     "dev": "turbo run dev",
     "build": "turbo run build",
     "test": "npx -y vitest --config vitest.config.mjs run",
-    "doctor": "claude-flow doctor --fix",
-    "swarm:init": "claude-flow swarm init --topology hierarchical --max-agents 8",
-    "swarm:status": "claude-flow swarm status",
-    "swarm:shutdown": "claude-flow swarm shutdown --graceful",
-    "memory:init": "claude-flow memory init --force",
-    "daemon:start": "claude-flow daemon start",
-    "daemon:stop": "claude-flow daemon stop",
     "docker:up": "docker compose -f infra/docker-compose.yml up -d",
     "docker:down": "docker compose -f infra/docker-compose.yml down",
     "twenty:setup": "docker compose -f infra/docker-compose.twenty.yml up -d",
@@ -30,7 +23,6 @@
     "all:dev": "turbo run dev --parallel"
   },
   "dependencies": {
-    "agentic-flow": "2.0.2-alpha",
     "agentic-jujutsu": "^2.3.6",
     "zod": "^4.3.5"
   },
