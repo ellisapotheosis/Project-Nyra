@@ -26,7 +26,7 @@ endif
   archon-config archon-up archon-down archon-logs archon-ps archon-up-infisical archon-readiness \
   node-up-orchestrator node-up-oracle node-up-worker-3060 node-up-worker-3090ti node-up-worker-5090 node-down-orchestrator node-down-oracle node-down-worker-3060 node-down-worker-3090ti node-down-worker-5090 \
   down-workers nexus-up nexus-down health stack-up stack-verify scan-env ports port-check bootstrap-import bootstrap-import-apply bootstrap-ultimate bootstrap-oracle bootstrap-worker-3060 bootstrap-worker-3090ti bootstrap-worker-5090 \
-  archive-guard repo-structure-audit edge-docs \
+  archive-guard repo-structure-audit edge-docs git-remote-health host-layout-validate \
   gitea-up gitea-up-ai gitea-up-actions gitea-up-actions-large gitea-up-infisical-agent gitea-up-full gitea-down gitea-ps gitea-config gitea-bootstrap-orchestrator gitea-readiness infisical-up infisical-down infisical-config \
   portainer-bootstrap portainer-edge-up portainer-down \
   ha-dashboard-up ha-dashboard-down \
@@ -69,6 +69,8 @@ help:
 	@echo "make archive-guard      Fail if deprecated root archive paths return"
 	@echo "make repo-structure-audit Generate structure hotspot report in docs/reports/consolidation"
 	@echo "make edge-docs          Regenerate ports + cloudflared docs from canonical compose files"
+	@echo "make git-remote-health  Fail if no git remote is configured"
+	@echo "make host-layout-validate Verify canonical infra host split structure"
 	@echo "make ports              Print canonical ports registry path"
 	@echo "make bootstrap-ultimate Bring up orchestrator + oracle + all workers"
 	@echo
@@ -468,3 +470,10 @@ twenty-mcp-up:
 twenty-mcp-down:
 	@echo "Stopping TwentyCRM MCP Server..."
 	$(TWENTY_COMPOSE) stop twenty-mcp-server
+
+
+git-remote-health:
+	bash ./scripts/maintenance/git-remote-health.sh
+
+host-layout-validate:
+	python3 scripts/maintenance/validate_host_layout.py
