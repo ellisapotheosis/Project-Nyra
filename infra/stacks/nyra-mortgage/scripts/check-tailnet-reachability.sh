@@ -27,6 +27,7 @@ check_url() {
 }
 
 check_url "nexus-entrypoint" "$entrypoint"
+check_url "nexus-metrics" "http://localhost:4001/mcp/metrics"
 
 jq -r '.servers[] | "\(.id) \(.default)"' "$ROUTING_TABLE" | while read -r id url; do
   check_url "mcp-$id" "$url"
