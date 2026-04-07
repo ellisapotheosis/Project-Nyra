@@ -54,7 +54,7 @@ services:
       GITEA__database__NAME: gitea
       GITEA__database__USER: gitea
       GITEA__database__PASSWD__FILE: /run/nyra-secrets/gitea_db_pass
-      GITEA__server__ROOT_URL: ${GITEA_ROOT_URL:-http://orchestrator.trex-fiordland.ts.net:3100/}
+      GITEA__server__ROOT_URL: ${GITEA_ROOT_URL:-http://orchestrator.trex-fiordland.ts.net:3000/}
       GITEA__server__SSH_DOMAIN: ${GITEA_SSH_DOMAIN:-orchestrator.trex-fiordland.ts.net}
       GITEA__server__SSH_PORT: ${GITEA_SSH_PORT:-2222}
       GITEA__server__SSH_LISTEN_PORT: 22
@@ -66,7 +66,7 @@ services:
       GITEA__actions__ENABLED: "true"
       GITEA__actions__DEFAULT_ACTIONS_URL: github
     ports:
-      - "${GITEA_PORT:-3100}:3000"
+      - "${GITEA_PORT:-3000}:3000"
       - "${GITEA_SSH_PORT:-2222}:22"
     volumes:
       - gitea_data:/data
@@ -195,6 +195,30 @@ services:
     labels:
       - "nyra.service=gitea-actions-large"
       - "nyra.machine=${NYRA_MACHINE:-orchestrator}"
+
+  gitea-mcp:
+    build:
+      context: ./services/gitea-mcp
+      dockerfile: Dockerfile
+    container_name: nyra-gitea-mcp
+    depends_on:
+      gitea:
+        condition: service_started
+    environment:
+      PORT: ${GITEA_MCP_PORT:-3100}
+      GITEA_URL: http://gitea:3000
+      GITEA_OWNER: ${GITEA_OWNER:-project-nyra}
+      GITEA_REPO: ${GITEA_REPO:-Project-Nyra}
+      GITEA_TOKEN: ${GITEA_TOKEN:-}
+    ports:
+      - "${GITEA_MCP_PORT:-3100}:${GITEA_MCP_PORT:-3100}"
+    networks:
+      - nyra-net
+    restart: unless-stopped
+    labels:
+      - "nyra.service=gitea-mcp"
+      - "nyra.role=mcp-server"
+      - "nyra.transport=sse"
 
 networks:
   nyra-net:
