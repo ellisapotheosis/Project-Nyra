@@ -502,6 +502,10 @@ bootstrap/
 .codanna/
 .env.gitea
 .env.infisical
+.env.archon
+.env.portainer.orchestrator
+.env.portainer.edge
+.env.homeassistant-dashboard
 .secrets/
 gitea-setup-summary-*.md
 
