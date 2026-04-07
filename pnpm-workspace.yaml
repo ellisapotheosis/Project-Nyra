@@ -1,7 +1,14 @@
 packages:
   - apps/*
+  - apps/*/*
+  - apps/*/*/*
   - services/*
+  - services/*/*
   - packages/*
+  - tools/*
+  - mcp-servers/*
+  - '!apps/ingestion/**'
+  - '!docs/archive/**'
 
 onlyBuiltDependencies:
   - '@prisma/client'

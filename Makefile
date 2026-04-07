@@ -38,7 +38,7 @@ help:
 	@echo
 	@echo "make install            Install root JS dependencies"
 	@echo "make test               Run tests ($(PKG_MGR) test)"
-	@echo "make lint               Run lint ($(PKG_RUN) eslint .)"
+	@echo "make lint               Run lint ($(PKG_MGR) lint)"
 	@echo "make validate           Validate compose + test + lint"
 	@echo
 	@echo "make up                 Start default stack profiles"
@@ -86,7 +86,7 @@ test:
 	$(PKG_MGR) test
 
 lint:
-	$(PKG_RUN) eslint .
+	$(PKG_MGR) lint
 
 compose-config:
 	$(COMPOSE) config >/dev/null
@@ -95,7 +95,7 @@ validate:
 	$(COMPOSE) config >/dev/null
 	@echo "compose config ok"
 	-@$(PKG_MGR) test
-	-@$(PKG_RUN) eslint .
+	-@$(PKG_MGR) lint
 
 compose-config-all:
 	docker compose --env-file infra/env/.env.orchestrator -f infra/docker-compose.yml -f infra/compose/overrides/docker-compose.orchestrator.override.yml config >/dev/null
