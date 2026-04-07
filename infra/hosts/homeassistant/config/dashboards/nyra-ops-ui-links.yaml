@@ -7,6 +7,10 @@ views:
       - type: markdown
         title: Core UI / GUI Links
         content: |
+          > NOTE: These links assume a non-TLS `.local` environment. Update hostnames and
+          > protocols to match your deployment, especially when services are fronted by TLS
+          > or a reverse proxy.
+
           - [Webapp](http://orchestrator.local:5173)
           - [Archon UI](http://orchestrator.local:3737)
           - [Open WebUI](http://orchestrator.local:3002)
@@ -14,7 +18,7 @@ views:
           - [Landing Page](http://orchestrator.local:3004)
           - [CRM](http://oracle-vps.local:3000)
           - [Dify Chat UI](http://orchestrator.local:3001)
-          - [Portainer](http://orchestrator.local:9443)
+          - [Portainer](https://orchestrator.local:9443)
           - [Grafana](http://orchestrator.local:3005)
           - [Prometheus](http://orchestrator.local:9090)
           - [n8n](http://orchestrator.local:5678)

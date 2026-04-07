@@ -476,11 +476,4 @@ git-remote-health:
 	bash ./scripts/maintenance/git-remote-health.sh
 
 host-layout-validate:
-	@test -f infra/hosts/host-layout.yaml || (echo "Missing infra/hosts/host-layout.yaml" && exit 1)
-	@test -d infra/hosts/orchestrator || (echo "Missing infra/hosts/orchestrator" && exit 1)
-	@test -d infra/hosts/worker-hosts/worker-rtx5090 || (echo "Missing infra/hosts/worker-hosts/worker-rtx5090" && exit 1)
-	@test -d infra/hosts/worker-hosts/worker-rtx3090ti || (echo "Missing infra/hosts/worker-hosts/worker-rtx3090ti" && exit 1)
-	@test -d infra/hosts/worker-hosts/worker-rtx3060 || (echo "Missing infra/hosts/worker-hosts/worker-rtx3060" && exit 1)
-	@test -d infra/hosts/oracle-vps || (echo "Missing infra/hosts/oracle-vps" && exit 1)
-	@test -f infra/hosts/homeassistant/config/dashboards/nyra-ops-ui-links.yaml || (echo "Missing Home Assistant dashboard links config" && exit 1)
-	@echo "infra host split looks good"
+	python3 scripts/maintenance/validate_host_layout.py
