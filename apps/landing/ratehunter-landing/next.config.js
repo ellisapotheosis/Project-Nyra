@@ -1,5 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  output: 'standalone',
+
   // Production optimizations
   reactStrictMode: true,
   poweredByHeader: false,
@@ -72,7 +74,8 @@ const nextConfig = {
 
   // Environment variables exposed to browser
   env: {
-    NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL || 'https://ratehunter.com',
+    NEXT_PUBLIC_SITE_NAME: process.env.NEXT_PUBLIC_SITE_NAME || 'RateHunter',
+    NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL || 'project-nyra.pages.dev',
   },
 
   // Webpack configuration
