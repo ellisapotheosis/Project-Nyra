@@ -490,16 +490,27 @@ ensure_infisical() {
 
   info "Installing Infisical CLI"
 
+  if command -v apt-get >/dev/null 2>&1 && run_with_optional_sudo true >/dev/null 2>&1; then
+    if run_with_sudo bash -c "curl -1sLf 'https://dl.cloudsmith.io/public/infisical/infisical-cli/setup.deb.sh' | bash" \
+      && run_with_sudo apt-get update -y \
+      && run_with_sudo apt-get install -y infisical; then
+      require_cmd infisical
+      return 0
+    fi
+    warn "apt-based Infisical installation failed, falling back to npm"
+  fi
+
   if ! command -v npm >/dev/null 2>&1; then
-    err "npm is unavailable, cannot install Infisical CLI automatically"
+    err "npm is unavailable and apt installation failed; cannot install Infisical CLI automatically"
     exit 1
   fi
 
   local npm_prefix="${NPM_CONFIG_PREFIX:-$USER_HOME/.local/npm-global}"
   mkdir -p "$npm_prefix/bin"
 
-  if ! npm install -g @infisical/cli >/dev/null 2>&1; then
-    npm install -g --prefix "$npm_prefix" @infisical/cli >/dev/null
+  if ! npm install -g --prefix "$npm_prefix" @infisical/cli >/dev/null 2>&1; then
+    err "Failed to install Infisical CLI via npm"
+    exit 1
   fi
   add_path_if_exists "$npm_prefix/bin"
 

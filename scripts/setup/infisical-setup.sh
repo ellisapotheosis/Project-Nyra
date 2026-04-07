@@ -36,17 +36,51 @@ error() {
 check_infisical_cli() {
     log "Checking Infisical CLI installation..."
 
-    if ! command -v infisical &> /dev/null; then
-        log "Installing Infisical CLI..."
-
-        # Install Infisical CLI
-        curl -1sLf 'https://dl.cloudsmith.io/public/infisical/infisical-cli/setup.deb.sh' | sudo -E bash
-        sudo apt update && sudo apt install infisical
-
-        success "Infisical CLI installed"
-    else
+    if command -v infisical &> /dev/null; then
         success "Infisical CLI already installed"
+        infisical --version
+        return 0
     fi
+
+    log "Installing Infisical CLI..."
+
+    local installed=false
+    local user_bin="$HOME/.local/bin"
+    mkdir -p "$user_bin"
+
+    if [[ "$installed" == "false" ]] && command -v apt-get >/dev/null 2>&1 && command -v sudo >/dev/null 2>&1 && sudo -n true >/dev/null 2>&1; then
+        if curl -1sLf 'https://dl.cloudsmith.io/public/infisical/infisical-cli/setup.deb.sh' | sudo -E bash \
+            && sudo apt-get update -y \
+            && sudo apt-get install -y infisical; then
+            installed=true
+        fi
+    fi
+
+    if [[ "$installed" == "false" ]] && command -v npm >/dev/null 2>&1; then
+        local npm_prefix="${NPM_CONFIG_PREFIX:-$HOME/.local/npm-global}"
+        mkdir -p "$npm_prefix/bin"
+        if npm install -g --prefix "$npm_prefix" @infisical/cli >/dev/null 2>&1; then
+            export PATH="$npm_prefix/bin:$PATH"
+            installed=true
+        fi
+    fi
+
+    if [[ "$installed" == "false" ]]; then
+        error "Unable to auto-install Infisical CLI (no usable apt+sudo or npm path)."
+        error "Install manually, then re-run this script: https://infisical.com/docs/cli/overview"
+        exit 1
+    fi
+
+    if ! command -v infisical >/dev/null 2>&1; then
+        export PATH="$user_bin:$PATH"
+    fi
+
+    if ! command -v infisical >/dev/null 2>&1; then
+        error "Infisical CLI installation completed but binary is not on PATH."
+        exit 1
+    fi
+
+    success "Infisical CLI installed"
 
     # Verify installation
     infisical --version
