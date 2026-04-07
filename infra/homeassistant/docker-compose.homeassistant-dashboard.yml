@@ -1,0 +1,20 @@
+version: "3.8"
+
+services:
+  nyra-home-dashboard:
+    image: ghcr.io/gethomepage/homepage:v0.10.9
+    container_name: nyra-home-dashboard
+    restart: unless-stopped
+    ports:
+      - "${HOMEPAGE_PORT:-3007}:3000"
+    environment:
+      HOMEPAGE_ALLOWED_HOSTS: ${HOMEASSISTANT_IP:-100.64.0.20}:3007,localhost:3007
+      PORTAINER_URL: ${PORTAINER_URL}
+      ARCHON_URL: ${ARCHON_URL}
+      WEBAPP_URL: ${WEBAPP_URL}
+      LANDING_URL: ${LANDING_URL}
+      GRAFANA_URL: ${GRAFANA_URL}
+      NEXUS_URL: ${NEXUS_URL}
+    volumes:
+      - ./homepage/config:/app/config
+      - /var/run/docker.sock:/var/run/docker.sock:ro
