@@ -7,8 +7,13 @@
   "type": "module",
   "workspaces": [
     "apps/*",
+    "apps/*/*",
+    "apps/*/*/*",
     "services/*",
-    "packages/*"
+    "services/*/*",
+    "packages/*",
+    "tools/*",
+    "mcp-servers/*"
   ],
   "pnpm": {
     "overrides": {
@@ -18,6 +23,7 @@
   "scripts": {
     "dev": "turbo run dev",
     "build": "turbo run build",
+    "lint": "node ./scripts/run-workspace-lint.mjs",
     "test": "npx -y vitest --config vitest.config.mjs run",
     "doctor": "claude-flow doctor --fix",
     "swarm:init": "claude-flow swarm init --topology hierarchical --max-agents 8",
