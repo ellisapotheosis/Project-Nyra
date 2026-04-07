@@ -10,6 +10,11 @@
     "services/*",
     "packages/*"
   ],
+  "pnpm": {
+    "overrides": {
+      "agentic-flow": "2.0.7"
+    }
+  },
   "scripts": {
     "dev": "turbo run dev",
     "build": "turbo run build",
@@ -30,18 +35,18 @@
     "all:dev": "turbo run dev --parallel"
   },
   "dependencies": {
-    "agentic-flow": "2.0.2-alpha",
+    "agentic-flow": "2.0.7",
     "agentic-jujutsu": "^2.3.6",
     "zod": "^4.3.5"
   },
   "devDependencies": {
-    "@jest/globals": "^30.2.0",
+    "@jest/globals": "^30.3.0",
     "@playwright/test": "^1.58.2",
     "@typescript-eslint/eslint-plugin": "^8.57.0",
-    "@typescript-eslint/parser": "^8.57.0",
+    "@typescript-eslint/parser": "^8.58.0",
     "eslint": "^10.0.3",
     "prettier": "^3.4.2",
-    "turbo": "^2.8.15",
+    "turbo": "^2.9.4",
     "typescript": "^5.7.0",
     "vitest": "^4.0.18"
   },
