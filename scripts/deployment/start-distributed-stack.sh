@@ -5,6 +5,19 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 COMPOSE_FILE="$REPO_ROOT/infra/compose/distributed/nyra-distributed-compose.yml"
 
+resolve_role_path() {
+  case "$1" in
+    orchestrator) printf '/orchestrator\n' ;;
+    oracle) printf '/oracle\n' ;;
+    worker) printf '/%s\n' "${NYRA_NODE_ROLE:-worker-rtx5090}" ;;
+    homeassistant) printf '/homeassistant\n' ;;
+    *)
+      echo "unsupported role: $1" >&2
+      return 1
+      ;;
+  esac
+}
+
 ROLE="${1:-orchestrator}"
 ROLE="${ROLE#--role=}"
 
@@ -36,12 +49,28 @@ if [[ "$ROLE" == "worker" ]]; then
   export NYRA_NODE_ROLE="${NYRA_NODE_ROLE:-worker-rtx5090}"
 fi
 
-echo "Starting role '$ROLE' with Infisical injection using compose: $COMPOSE_FILE"
-infisical run \
+ROLE_INFISICAL_PATH="$(resolve_role_path "$ROLE")"
+TMP_ENV_FILE="$(mktemp)"
+cleanup() {
+  rm -f "$TMP_ENV_FILE"
+}
+trap cleanup EXIT
+
+echo "Exporting shared secrets from '$INFISICAL_PATH' and role secrets from '$ROLE_INFISICAL_PATH'"
+infisical export \
   --projectId="$INFISICAL_PROJECT_ID" \
   --env="$INFISICAL_ENV" \
   --path="$INFISICAL_PATH" \
-  -- docker compose -f "$COMPOSE_FILE" --profile "$ROLE" up -d
+  --format=dotenv > "$TMP_ENV_FILE"
+printf '\n' >> "$TMP_ENV_FILE"
+infisical export \
+  --projectId="$INFISICAL_PROJECT_ID" \
+  --env="$INFISICAL_ENV" \
+  --path="$ROLE_INFISICAL_PATH" \
+  --format=dotenv >> "$TMP_ENV_FILE"
+
+echo "Starting role '$ROLE' with Infisical injection using compose: $COMPOSE_FILE"
+docker compose --env-file "$TMP_ENV_FILE" -f "$COMPOSE_FILE" --profile "$ROLE" up -d
 
 echo "Validating role '$ROLE' containers"
-docker compose -f "$COMPOSE_FILE" --profile "$ROLE" ps
+docker compose --env-file "$TMP_ENV_FILE" -f "$COMPOSE_FILE" --profile "$ROLE" ps
