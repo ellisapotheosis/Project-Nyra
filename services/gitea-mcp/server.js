@@ -4,7 +4,7 @@ const { Server } = require('@modelcontextprotocol/sdk/server/index.js');
 const fetch = require('node-fetch');
 
 const app = express();
-const PORT = process.env.PORT || 8054;
+const PORT = process.env.PORT || 3100;
 
 const GITEA_URL = process.env.GITEA_URL || 'http://gitea:3000';
 const GITEA_TOKEN = process.env.GITEA_TOKEN;
@@ -141,12 +141,21 @@ server.setRequestHandler('tools/call', async (request) => {
 
 // SSE endpoint for MCP connections
 app.get('/sse', (req, res) => {
-  const transport = new SSEServerTransport('/message', res);
+  const transport = new SSEServerTransport('/mcp/message', res);
+  server.connect(transport);
+});
+
+app.get('/mcp/sse', (req, res) => {
+  const transport = new SSEServerTransport('/mcp/message', res);
   server.connect(transport);
 });
 
 // Basic message endpoint; currently unused but reserved for future expansion
 app.post('/message', express.json(), async (req, res) => {
+  res.json({ success: true });
+});
+
+app.post('/mcp/message', express.json(), async (req, res) => {
   res.json({ success: true });
 });
 
