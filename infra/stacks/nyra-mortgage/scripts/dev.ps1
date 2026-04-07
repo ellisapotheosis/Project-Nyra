@@ -22,7 +22,7 @@ Write-Host ""
 Write-Host "Up. Open:" -ForegroundColor Green
 Write-Host "  Twenty CRM:            http://localhost:3000"
 Write-Host "  Nyra Orchestrator API: http://localhost:8010/docs"
-Write-Host "  Nexus Router:          http://localhost:6000"
+Write-Host "  Nexus Router:          http://localhost:4001"
 Write-Host "  LiteLLM:               http://localhost:4000"
 Write-Host "  Grafana:               http://localhost:3005 (admin/admin)"
 Write-Host "  Open WebUI:            http://localhost:8080"

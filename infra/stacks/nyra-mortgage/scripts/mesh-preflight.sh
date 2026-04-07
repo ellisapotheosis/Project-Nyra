@@ -58,7 +58,7 @@ for endpoint in "${LLXPERT_CODER_BASE_URL:-}" "${LLXPERT_JEFE_BASE_URL:-}"; do
 done
 
 # Optional in-stack route check if stack is already up
-nexus_openai="${NEXUS_OPENAI_BASE_URL:-http://localhost:6000/llm/openai/v1}"
+nexus_openai="${NEXUS_OPENAI_BASE_URL:-http://localhost:4001/llm/openai/v1}"
 if curl -fsS --max-time 3 "$nexus_openai/models" >/dev/null 2>&1; then
   pass "Nexus OpenAI route reachable: $nexus_openai"
 else
