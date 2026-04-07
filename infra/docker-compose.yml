@@ -23,6 +23,8 @@ volumes:
   ruvector_data: {}
   twenty_pg: {}
   infisical_data: {}
+  shared_secrets: {}
+  agentdb_data: {}
 
 services:
   postgres:
@@ -341,7 +343,7 @@ services:
       OPENAI_BASE_URL: http://nexus-router:7000/v1
     ports: ['${ARCHON_OS_PORT:-9001}:9001']
     volumes:
-      - ./shared/secrets:/secrets:ro
+      - shared_secrets:/secrets:ro
     restart: unless-stopped
     networks: [nyra]
     logging: *default_logging
@@ -376,7 +378,7 @@ services:
     ports:
       - '${ARCHON_SERVER_PORT:-8181}:8181'
     volumes:
-      - ./shared/secrets:/secrets:ro
+      - shared_secrets:/secrets:ro
     restart: unless-stopped
     networks: [nyra]
     logging: *default_logging
@@ -487,7 +489,13 @@ services:
       VITE_NEXUS_ROUTER_URL: http://nexus-router:7000
       VITE_NEXUS_MCP_PROXY_URL: http://nexus-router:8080
     ports:
-      - '${ARCHON_UI_PORT:-3737}:3737'
+      - '${ARCHON_UI_PORT:-3737}:5173'
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -q -O - http://localhost:5173 >/dev/null 2>&1 || exit 1']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     restart: unless-stopped
     networks: [nyra]
     logging: *default_logging
@@ -581,6 +589,9 @@ services:
     image: infisical/cli:latest
     container_name: nyra-infisical-agent
     profiles: ['archon', 'secrets', 'oracle', 'all']
+    depends_on:
+      infisical:
+        condition: service_started
     entrypoint: ['/bin/sh', '-lc']
     command: >-
       test -n "$INFISICAL_TOKEN" &&
@@ -591,12 +602,12 @@ services:
       done
     environment:
       INFISICAL_TOKEN: ${INFISICAL_TOKEN:?set INFISICAL_TOKEN}
-      INFISICAL_API_URL: ${INFISICAL_API_URL:-https://app.infisical.com}
+      INFISICAL_API_URL: ${INFISICAL_API_URL:-http://infisical:8080}
       INFISICAL_ENV: ${INFISICAL_ENV:-prod}
       INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
       INFISICAL_POLL_INTERVAL: ${INFISICAL_POLL_INTERVAL:-60}
     volumes:
-      - ./shared/secrets:/secrets
+      - shared_secrets:/secrets
     restart: unless-stopped
     networks: [nyra]
     logging: *default_logging
@@ -612,13 +623,16 @@ services:
       > /workspace/.env.archon.injected && tail -f /dev/null
     environment:
       INFISICAL_TOKEN: ${INFISICAL_TOKEN:?set INFISICAL_TOKEN}
-      INFISICAL_API_URL: ${INFISICAL_API_URL:-https://app.infisical.com}
+      INFISICAL_API_URL: ${INFISICAL_API_URL:-http://infisical:8080}
       INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
       INFISICAL_DISABLE_UPDATE_CHECK: 'true'
     volumes:
       - ../:/workspace
     depends_on:
-      - infisical-agent
+      infisical-agent:
+        condition: service_started
+      infisical:
+        condition: service_started
     restart: unless-stopped
     networks: [nyra]
     logging: *default_logging
@@ -726,7 +740,7 @@ services:
     ports:
       - '${AGENTDB_PORT:-5440}:5432'
     volumes:
-      - ./data/agentdb:/var/lib/postgresql/data
+      - agentdb_data:/var/lib/postgresql/data
     restart: unless-stopped
     networks: [nyra]
     logging: *default_logging
