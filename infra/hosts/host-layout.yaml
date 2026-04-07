@@ -1,0 +1,36 @@
+version: 1
+purpose: Canonical host split for Portainer migration
+hosts:
+  orchestrator:
+    owner: control-plane
+    compose_files:
+      - infra/docker-compose.yml
+      - infra/compose/overrides/docker-compose.orchestrator.override.yml
+    env_files:
+      - infra/env/.env.orchestrator
+  worker-hosts:
+    owner: gpu-workers
+    nodes:
+      worker-rtx5090:
+        compose_files:
+          - infra/workers/worker-rtx5090/docker-compose.worker.yml
+        env_files:
+          - infra/env/.env.worker-rtx5090
+      worker-rtx3090ti:
+        compose_files:
+          - infra/workers/worker-rtx3090ti/docker-compose.worker.yml
+        env_files:
+          - infra/env/.env.worker-rtx3090ti
+      worker-rtx3060:
+        compose_files:
+          - infra/workers/worker-rtx3060/docker-compose.worker.yml
+          - infra/compose/overrides/docker-compose.worker-rtx3060.override.yml
+        env_files:
+          - infra/env/.env.worker-rtx3060
+  oracle-vps:
+    owner: cloud
+    compose_files:
+      - infra/oracle/docker-compose.oracle.yml
+  homeassistant:
+    owner: home-lab-ops
+    ui_links_file: infra/hosts/homeassistant/config/dashboards/nyra-ops-ui-links.yaml

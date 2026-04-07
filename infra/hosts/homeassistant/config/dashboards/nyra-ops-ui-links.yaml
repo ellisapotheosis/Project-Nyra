@@ -1,0 +1,29 @@
+title: Nyra Ops Portal
+views:
+  - title: Stack UIs
+    path: nyra-stack-uis
+    icon: mdi:view-dashboard
+    cards:
+      - type: markdown
+        title: Core UI / GUI Links
+        content: |
+          - [Webapp](http://orchestrator.local:5173)
+          - [Archon UI](http://orchestrator.local:3737)
+          - [Open WebUI](http://orchestrator.local:3002)
+          - [OpenClaw UI](http://orchestrator.local:3003)
+          - [Landing Page](http://orchestrator.local:3004)
+          - [CRM](http://oracle-vps.local:3000)
+          - [Dify Chat UI](http://orchestrator.local:3001)
+          - [Portainer](http://orchestrator.local:9443)
+          - [Grafana](http://orchestrator.local:3005)
+          - [Prometheus](http://orchestrator.local:9090)
+          - [n8n](http://orchestrator.local:5678)
+          - [Gitea](http://orchestrator.local:3006)
+      - type: entities
+        title: Host Reachability Checklist
+        entities:
+          - entity: binary_sensor.orchestrator_host_up
+          - entity: binary_sensor.oracle_vps_host_up
+          - entity: binary_sensor.worker_rtx5090_host_up
+          - entity: binary_sensor.worker_rtx3090ti_host_up
+          - entity: binary_sensor.worker_rtx3060_host_up
