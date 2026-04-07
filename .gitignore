@@ -500,3 +500,8 @@ bootstrap/
 .env.infisical
 .secrets/
 gitea-setup-summary-*.md
+
+# Cloudflared local runtime secrets
+infra/cloudflared/.env.cloudflared
+infra/cloudflared/credentials/*.json
+!infra/cloudflared/credentials/.gitkeep

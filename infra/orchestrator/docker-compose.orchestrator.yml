@@ -49,8 +49,8 @@ services:
 
   nexus:
     build:
-      context: ./nexus
-      dockerfile: Dockerfile
+      context: ../..
+      dockerfile: infra/docker/nexus-router/Dockerfile
     container_name: nyra-nexus-router
     ports:
       - "6000:6000"
@@ -67,7 +67,7 @@ services:
       REDIS_URL: "redis://redis:6379"
       DATABASE_URL: ${DATABASE_URL}
     volumes:
-      - ./nexus/nexus.toml:/app/nexus.toml:ro
+      - ../configs/nexus/nexus.toml:/app/nexus.toml:ro
       - secrets_volume:/secrets:ro
     depends_on:
       redis:
@@ -101,7 +101,7 @@ services:
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
       DATABASE_URL: ${DATABASE_URL}
     volumes:
-      - ./litellm/config.yaml:/app/config.yaml:ro
+      - ../configs/litellm/config.yaml:/app/config.yaml:ro
     depends_on:
       redis:
         condition: service_healthy
@@ -120,95 +120,19 @@ services:
   # ============================================================================
 
   claude-flow:
-    build:
-      context: ../src/claude-flow
-      dockerfile: Dockerfile
+    image: ghcr.io/ellisapotheosis/claude-flow:latest
     container_name: nyra-claude-flow
-    ports:
-      - "8000:8000"
-    environment:
-      NODE_ENV: production
-      NEXUS_API_URL: "http://nexus:6000"
-      LITELLM_API_URL: "http://litellm:4000"
-      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
-      GITHUB_TOKEN: ${GITHUB_TOKEN}
-      DATABASE_URL: ${DATABASE_URL}
-    volumes:
-      - secrets_volume:/secrets:ro
-      - /var/run/docker.sock:/var/run/docker.sock
-    depends_on:
-      nexus:
-        condition: service_healthy
-      litellm:
-        condition: service_healthy
-    restart: unless-stopped
-    networks:
-      - nyra-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
-      interval: 15s
-      timeout: 5s
-      retries: 3
+    profiles: ["_disabled"]
 
   openclaw:
-    build:
-      context: ../src/openclaw
-      dockerfile: Dockerfile
+    image: ghcr.io/ellisapotheosis/openclaw:latest
     container_name: nyra-openclaw
-    ports:
-      - "8001:8001"
-    environment:
-      NODE_ENV: production
-      NEXUS_API_URL: "http://nexus:6000"
-      LITELLM_API_URL: "http://litellm:4000"
-      MEM0_API_URL: "http://oracle.trex-fiordland.ts.net:5000"
-      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
-      DATABASE_URL: ${DATABASE_URL}
-      QUOTE_ENGINE_URL: "http://oracle.trex-fiordland.ts.net:8089"
-    volumes:
-      - secrets_volume:/secrets:ro
-    depends_on:
-      nexus:
-        condition: service_healthy
-      litellm:
-        condition: service_healthy
-    restart: unless-stopped
-    networks:
-      - nyra-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
-      interval: 15s
-      timeout: 5s
-      retries: 3
+    profiles: ["_disabled"]
 
   archon-os:
-    build:
-      context: ../src/archon-os
-      dockerfile: Dockerfile
+    image: ghcr.io/ellisapotheosis/archon-os:latest
     container_name: nyra-archon-os
-    ports:
-      - "8080:8080"
-    environment:
-      NODE_ENV: production
-      NEXUS_API_URL: "http://nexus:6000"
-      LITELLM_API_URL: "http://litellm:4000"
-      REDIS_URL: "redis://redis:6379"
-      DATABASE_URL: ${DATABASE_URL}
-    volumes:
-      - secrets_volume:/secrets:ro
-    depends_on:
-      redis:
-        condition: service_healthy
-      nexus:
-        condition: service_healthy
-    restart: unless-stopped
-    networks:
-      - nyra-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
-      interval: 15s
-      timeout: 5s
-      retries: 3
+    profiles: ["_disabled"]
 
   # ============================================================================
   # LOCAL TOOLKITS

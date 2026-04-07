@@ -1,24 +1,31 @@
-# Hostname Map (Tunnel + DNS)
+# Project Nyra Cloudflared hostname map (`ratehunter.net`)
 
-## Public internet
+## Pages
+- `ratehunter.net` → Cloudflare Pages landing site (not tunnelled)
 
-- `ratehunter.net` -> Cloudflare Pages (`apps/landing`) (public marketing)
-
-## Tunnel hostnames (Access required)
-
-| Hostname template | Target service | Record type |
+## Public tunnel hostnames (no Access policy by default)
+| Hostname | Primary target | Plane |
 |---|---|---|
-| `n8n.${NYRA_DOMAIN_ROOT}` | `n8n:5678` | proxied CNAME |
-| `activepieces.${NYRA_DOMAIN_ROOT}` | `activepieces:80` | proxied CNAME |
-| `twentycrm.${NYRA_DOMAIN_ROOT}` | `twentycrm:3000` | proxied CNAME |
-| `litellm.${NYRA_DOMAIN_ROOT}` | `litellm:4000` | proxied CNAME |
-| `nexus.${NYRA_DOMAIN_ROOT}` | `nexus-router:7000` | proxied CNAME |
-| `grafana.${NYRA_DOMAIN_ROOT}` | `grafana:3000` | proxied CNAME |
-| `gitea.${NYRA_DOMAIN_ROOT}` | `gitea:3000` | proxied CNAME |
-| `infisical.${NYRA_DOMAIN_ROOT}` | `infisical:8080` | proxied CNAME |
+| `nyra.ratehunter.net` | `moltbot-web:3030` | orchestrator |
+| `api.ratehunter.net` | `nexus-router:7000` (orchestrator) / `quote-api:7070` (oracle failover option) | orchestrator/oracle |
+| `hooks.ratehunter.net` | `n8n:5678` | orchestrator |
 
-Each CNAME points to `<CF_TUNNEL_UUID>.cfargotunnel.com`.
+## Access-gated hostnames
+| Hostname | Target service | Plane |
+|---|---|---|
+| `gitea.ratehunter.net` | `host.docker.internal:3100` | orchestrator |
+| `twenty.ratehunter.net` | `twenty:3000` | oracle |
+| `activepieces.ratehunter.net` | `activepieces:80` | orchestrator+oracle |
+| `n8n.ratehunter.net` | `n8n:5678` | orchestrator+oracle |
+| `grafana.ratehunter.net` | `grafana:3000` | orchestrator |
+| `archon.ratehunter.net` | `archon-os:9001` | orchestrator |
+| `bot.ratehunter.net` | `moltbot-web:3030` (orchestrator) / `moltbot:18789` (oracle) | orchestrator+oracle |
 
-## Explicitly excluded from tunnel
+## Explicitly not tunnelled
+- Nexus MCP (`:8080`) and internal LiteLLM admin routes
+- Infisical, Postgres, Redis, Mongo, FalkorDB, Neo4j, vector stores
+- Worker inference endpoints (`worker-*-vllm`, `worker-3060-ollama`)
+- Raw MCP backends and non-HTTP sockets
 
-- All datastore services (`postgres`, `redis`, `mongo`, `agentdb`, `ruvector-postgres`, `gitea-db`, `infisical-db`, `infisical-redis`).
+## DNS record model
+Each hostname above is a proxied CNAME pointing at the appropriate tunnel route (for example, `<ORCHESTRATOR_TUNNEL_UUID>.cfargotunnel.com` or `<ORACLE_TUNNEL_UUID>.cfargotunnel.com`).

@@ -16,7 +16,8 @@ WORKER_PROFILE ?= workers
   node-up-orchestrator node-up-oracle node-up-worker-3060 node-up-worker-3090ti node-up-worker-5090 node-down-orchestrator node-down-oracle node-down-worker-3060 node-down-worker-3090ti node-down-worker-5090 \
   down-workers nexus-up nexus-down health stack-up stack-verify scan-env ports port-check bootstrap-import bootstrap-import-apply bootstrap-ultimate bootstrap-oracle bootstrap-worker-3060 bootstrap-worker-3090ti bootstrap-worker-5090 \
   gitea-up gitea-up-ai gitea-up-actions gitea-up-infisical-agent gitea-down gitea-ps gitea-config infisical-up infisical-down infisical-config \
-  up-gitea down-gitea logs-gitea health-gitea up-infisical down-infisical logs-infisical health-infisical
+  up-gitea down-gitea logs-gitea health-gitea up-infisical down-infisical logs-infisical health-infisical \
+  cloudflared-validate cloudflared-up-orchestrator cloudflared-up-oracle cloudflared-logs-orchestrator cloudflared-logs-oracle
 
 .DEFAULT_GOAL := help
 
@@ -55,6 +56,12 @@ help:
 	@echo "make gitea-config       Validate new Gitea compose config"
 	@echo "make infisical-up       Start Infisical self-host stack"
 	@echo "make infisical-config   Validate new Infisical compose config"
+	@echo
+	@echo "make cloudflared-validate        Validate cloudflared ingress + compose files"
+	@echo "make cloudflared-up-orchestrator Start cloudflared tunnel container for orchestrator plane"
+	@echo "make cloudflared-up-oracle       Start cloudflared tunnel container for oracle plane"
+	@echo "make cloudflared-logs-orchestrator Tail orchestrator cloudflared logs"
+	@echo "make cloudflared-logs-oracle       Tail oracle cloudflared logs"
 
 install:
 	npm install
@@ -77,8 +84,8 @@ validate:
 compose-config-all:
 	docker compose --env-file infra/env/.env.orchestrator -f infra/docker-compose.yml -f infra/compose/overrides/docker-compose.orchestrator.override.yml config >/dev/null
 	docker compose --env-file infra/env/.env.worker-rtx3060 -f infra/docker-compose.yml -f infra/compose/overrides/docker-compose.worker-rtx3060.override.yml config >/dev/null
-	docker compose --env-file infra/env/.env.worker-rtx3090ti -f infra/workers/worker-rtx3090ti/docker-compose.worker.yml config >/dev/null
-	docker compose --env-file infra/env/.env.worker-rtx5090 -f infra/workers/worker-rtx5090/docker-compose.worker.yml config >/dev/null
+	docker compose --env-file infra/env/.env.worker-rtx3090ti -f infra/docker-compose.yml -f infra/compose/overrides/docker-compose.worker-rtx3060.override.yml --profile worker-3090ti config >/dev/null
+	docker compose --env-file infra/env/.env.worker-rtx5090 -f infra/docker-compose.yml -f infra/compose/overrides/docker-compose.worker-rtx3060.override.yml --profile worker-5090 config >/dev/null
 	@echo "compose config ok for orchestrator and all workers"
 
 up:
@@ -105,7 +112,7 @@ up-core:
 	$(COMPOSE) --profile core up -d
 
 up-orchestrator:
-	docker compose -f infra/orchestrator/docker-compose.orchestrator.yml up -d
+	docker compose --env-file infra/env/.env.orchestrator -f infra/docker-compose.yml -f infra/compose/overrides/docker-compose.orchestrator.override.yml up -d
 
 up-apps:
 	$(COMPOSE) --profile apps up -d
@@ -114,14 +121,14 @@ up-dev:
 	$(COMPOSE) --profile dev up -d
 
 up-workers:
-	docker compose -f infra/workers/worker-rtx3060/docker-compose.worker.yml up -d
-	docker compose -f infra/workers/worker-rtx3090ti/docker-compose.worker.yml up -d
-	docker compose -f infra/workers/worker-rtx5090/docker-compose.worker.yml up -d
+	docker compose --env-file infra/env/.env.worker-rtx3060 -f infra/docker-compose.yml -f infra/compose/overrides/docker-compose.worker-rtx3060.override.yml --profile worker-3060 up -d
+	docker compose --env-file infra/env/.env.worker-rtx3090ti -f infra/docker-compose.yml -f infra/compose/overrides/docker-compose.worker-rtx3060.override.yml --profile worker-3090ti up -d
+	docker compose --env-file infra/env/.env.worker-rtx5090 -f infra/docker-compose.yml -f infra/compose/overrides/docker-compose.worker-rtx3060.override.yml --profile worker-5090 up -d
 
 down-workers:
-	docker compose -f infra/workers/worker-rtx3060/docker-compose.worker.yml down --remove-orphans
-	docker compose -f infra/workers/worker-rtx3090ti/docker-compose.worker.yml down --remove-orphans
-	docker compose -f infra/workers/worker-rtx5090/docker-compose.worker.yml down --remove-orphans
+	docker compose --env-file infra/env/.env.worker-rtx3060 -f infra/docker-compose.yml -f infra/compose/overrides/docker-compose.worker-rtx3060.override.yml --profile worker-3060 down --remove-orphans
+	docker compose --env-file infra/env/.env.worker-rtx3090ti -f infra/docker-compose.yml -f infra/compose/overrides/docker-compose.worker-rtx3060.override.yml --profile worker-3090ti down --remove-orphans
+	docker compose --env-file infra/env/.env.worker-rtx5090 -f infra/docker-compose.yml -f infra/compose/overrides/docker-compose.worker-rtx3060.override.yml --profile worker-5090 down --remove-orphans
 
 nexus-up:
 	$(COMPOSE) --profile gateway up -d litellm nexus-router
@@ -316,3 +323,19 @@ logs-infisical:
 
 health-infisical:
 	docker compose -f docker-compose.infisical.bootstrap.yml --env-file .env.infisical ps
+
+
+cloudflared-validate:
+	./scripts/validate-cloudflared.sh
+
+cloudflared-up-orchestrator:
+	./scripts/bootstrap-cloudflared-orchestrator.sh
+
+cloudflared-up-oracle:
+	./scripts/bootstrap-cloudflared-oracle.sh
+
+cloudflared-logs-orchestrator:
+	docker compose -f infra/cloudflared/docker-compose.cloudflared.orchestrator.yml --env-file infra/cloudflared/.env.cloudflared logs -f --tail=200
+
+cloudflared-logs-oracle:
+	docker compose -f infra/cloudflared/docker-compose.cloudflared.oracle.yml --env-file infra/cloudflared/.env.cloudflared logs -f --tail=200
