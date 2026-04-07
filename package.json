@@ -43,7 +43,7 @@
   "dependencies": {
     "agentic-flow": "2.0.7",
     "agentic-jujutsu": "^2.3.6",
-    "zod": "^4.3.5"
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@jest/globals": "^30.3.0",
