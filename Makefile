@@ -77,8 +77,8 @@ validate:
 compose-config-all:
 	docker compose --env-file infra/env/.env.orchestrator -f infra/docker-compose.yml -f infra/compose/overrides/docker-compose.orchestrator.override.yml config >/dev/null
 	docker compose --env-file infra/env/.env.worker-rtx3060 -f infra/docker-compose.yml -f infra/compose/overrides/docker-compose.worker-rtx3060.override.yml config >/dev/null
-	docker compose --env-file infra/env/.env.worker-rtx3090ti -f infra/workers/worker-rtx3090ti/docker-compose.worker.yml config >/dev/null
-	docker compose --env-file infra/env/.env.worker-rtx5090 -f infra/workers/worker-rtx5090/docker-compose.worker.yml config >/dev/null
+	docker compose --env-file infra/env/.env.worker-rtx3090ti -f infra/docker-compose.yml -f infra/compose/overrides/docker-compose.worker-rtx3060.override.yml --profile worker-3090ti config >/dev/null
+	docker compose --env-file infra/env/.env.worker-rtx5090 -f infra/docker-compose.yml -f infra/compose/overrides/docker-compose.worker-rtx3060.override.yml --profile worker-5090 config >/dev/null
 	@echo "compose config ok for orchestrator and all workers"
 
 up:
@@ -105,7 +105,7 @@ up-core:
 	$(COMPOSE) --profile core up -d
 
 up-orchestrator:
-	docker compose -f infra/orchestrator/docker-compose.orchestrator.yml up -d
+	docker compose --env-file infra/env/.env.orchestrator -f infra/docker-compose.yml -f infra/compose/overrides/docker-compose.orchestrator.override.yml up -d
 
 up-apps:
 	$(COMPOSE) --profile apps up -d
@@ -114,14 +114,14 @@ up-dev:
 	$(COMPOSE) --profile dev up -d
 
 up-workers:
-	docker compose -f infra/workers/worker-rtx3060/docker-compose.worker.yml up -d
-	docker compose -f infra/workers/worker-rtx3090ti/docker-compose.worker.yml up -d
-	docker compose -f infra/workers/worker-rtx5090/docker-compose.worker.yml up -d
+	docker compose --env-file infra/env/.env.worker-rtx3060 -f infra/docker-compose.yml -f infra/compose/overrides/docker-compose.worker-rtx3060.override.yml --profile worker-3060 up -d
+	docker compose --env-file infra/env/.env.worker-rtx3090ti -f infra/docker-compose.yml -f infra/compose/overrides/docker-compose.worker-rtx3060.override.yml --profile worker-3090ti up -d
+	docker compose --env-file infra/env/.env.worker-rtx5090 -f infra/docker-compose.yml -f infra/compose/overrides/docker-compose.worker-rtx3060.override.yml --profile worker-5090 up -d
 
 down-workers:
-	docker compose -f infra/workers/worker-rtx3060/docker-compose.worker.yml down --remove-orphans
-	docker compose -f infra/workers/worker-rtx3090ti/docker-compose.worker.yml down --remove-orphans
-	docker compose -f infra/workers/worker-rtx5090/docker-compose.worker.yml down --remove-orphans
+	docker compose --env-file infra/env/.env.worker-rtx3060 -f infra/docker-compose.yml -f infra/compose/overrides/docker-compose.worker-rtx3060.override.yml --profile worker-3060 down --remove-orphans
+	docker compose --env-file infra/env/.env.worker-rtx3090ti -f infra/docker-compose.yml -f infra/compose/overrides/docker-compose.worker-rtx3060.override.yml --profile worker-3090ti down --remove-orphans
+	docker compose --env-file infra/env/.env.worker-rtx5090 -f infra/docker-compose.yml -f infra/compose/overrides/docker-compose.worker-rtx3060.override.yml --profile worker-5090 down --remove-orphans
 
 nexus-up:
 	$(COMPOSE) --profile gateway up -d litellm nexus-router
