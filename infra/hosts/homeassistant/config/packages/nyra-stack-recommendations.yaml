@@ -1,0 +1,13 @@
+input_boolean:
+  nyra_maintenance_mode:
+    name: NYRA Maintenance Mode
+    icon: mdi:wrench-cog
+
+# Recommendations for Home Assistant-hosted operational additions.
+# Enable only what you need and keep production app workloads outside HA.
+# - Vaultwarden add-on for operator credentials
+# - Tailscale integration for host presence
+# - Glances integration for worker telemetry
+# - Uptime Kuma for external endpoint checks
+# - Frigate/USB relay automations for thermal + power recovery workflows
+# - NUT integration if UPS is available
