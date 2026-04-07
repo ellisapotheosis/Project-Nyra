@@ -1,85 +1,295 @@
-# Project Nyra Repo Cleanup & Consolidation Plan (Execution-Ready)
+# Project Nyra Repository Consolidation Plan (Top-to-Bottom, Execution Ready)
 
-## 1) Canonical layout decisions
+## 0) Executive objective and non-negotiables
 
-This is the final placement model so the repository stays understandable:
+Project Nyra should operate as a single, production-oriented monorepo where:
 
-- `infra/` = runtime orchestration and deployment assets only
-  - docker-compose files
-  - Dockerfiles used by compose builds
-  - infra configs (`nexus`, `litellm`, `grafana`, `prometheus`, `loki`)
-  - infra scripts (health, inventory, bootstrap helpers)
-- `services/` = deployable back-end services (Nexus Router, Archon OS, quote API, adapters)
-- `apps/` = user-facing applications and UI shells (admin, borrower/chat UIs, ingestion consoles)
-- `packages/` = shared libraries/types/utils consumed by apps/services
-- `src/` = orchestration/business domain code that is not its own independent service package
-- `workflows/` = n8n and Activepieces export files/source of truth
-- `docs/` = architecture, runbooks, migration and operator guidance
+- service ownership is explicit,
+- local bootstrap is deterministic,
+- CI quality gates are enforced,
+- documentation reflects runtime reality,
+- rollback is always possible.
 
-### Keep or move: claude-flow, clawdbot/moltbot, MCP servers
+This plan preserves locked architecture components and aligns to the existing stack:
+React/TypeScript apps + Node/Python services + PostgreSQL + Docker Compose/Kubernetes migration path.
 
-- `claude-flow`:
-  - Keep implementation in `services/claude-flow` (service lifecycle + image)
-  - Keep compose wiring in `infra/docker-compose.yml`
-- `moltbot`/`clawdbot`:
-  - Keep UI in `apps/` (if borrower-facing chat app)
-  - Keep model/tool backend in `services/` (if API service)
-  - Keep deployment wiring in `infra/`
-- MCP servers:
-  - Keep MCP service implementations in `services/*-mcp`
-  - Keep MCP registry/routing config in `infra/configs/nexus`
-  - Never store MCP runtime orchestration in `src/`
+### Locked components (must not be re-platformed during consolidation)
 
-## 2) Consolidation phases
+- LLM Gateway (Nexus Router + LiteLLM)
+- CRM (TwentyCRM)
+- Memory system (Letta + Graphiti + Mem0 + RuVector)
+- Workflows (n8n + Activepieces)
+- Chat UI (Dify)
+- Observability (Prometheus + Grafana + Loki)
 
-### Phase A — Normalize compose ownership
+---
 
-1. Keep `infra/docker-compose.yml` as the single master compose.
-2. Keep legacy compose files only as migration references.
-3. Use profile contract:
-   - `core`, `gateway`, `workflow`, `crm`, `archon`, `apps`, `observability`, `vector`, `dev`, `oracle`, `worker-*`.
+## 1) Canonical target architecture
 
-### Phase B — Convert service inventory to tracked backlog
+## 1.1 Directory ownership model
 
-Use `infra/docs/CONSOLIDATION-GAPS.md` as the backlog.
-For each missing service:
-- decide: integrate / archive / deprecate
-- if integrate: add profile + healthcheck + env vars
-- if archive: move legacy compose to `infra/compose/archive/` and document reason.
+- `apps/` — user-facing web/mobile/front-end workloads
+- `services/` — deployable backend microservices (API, orchestration, adapters, MCP servers)
+- `packages/` — shared libraries/types/config consumed by apps/services
+- `infra/` — runtime infrastructure: compose, k8s, observability, gateway configs
+- `workflows/` — n8n/Activepieces source-of-truth workflow artifacts
+- `scripts/` — idempotent operational scripts (bootstrap, validation, migration)
+- `config/` — non-secret config templates and inventory manifests
+- `tests/` — cross-service integration and platform-level tests
+- `docs/` — architecture, runbooks, migration guides, compliance controls
+- `src/` — only root-level orchestration/business modules not yet service-extracted
 
-### Phase C — Folder-level prompting + operator docs
+## 1.2 Placement rules
 
-Each app/service should have one implementation prompt file:
-- `services/<name>/CLAUDE.md` (service contract, dependencies, health checks)
-- `apps/<name>/CLAUDE.md` (routes, API dependencies, UX constraints)
-- `packages/<name>/CLAUDE.md` (API surface, versioning rules)
+1. If it is deployable and has its own runtime contract, it belongs in `services/` or `apps/`.
+2. If it is shared code with no independent deploy lifecycle, it belongs in `packages/`.
+3. If it is compose/k8s/runtime wiring, it belongs in `infra/`.
+4. If it is executable operational logic, it belongs in `scripts/`.
+5. Archived or superseded material belongs in `docs/archive/repo-history/` with migration notes.
 
-If missing, create minimal placeholders and expand incrementally.
+## 1.3 Runtime entrypoints
 
-### Phase D — Worker and Oracle deployment model
+- **Primary local entrypoint**: `docker-compose.dev.yml` (developer profile)
+- **Production-shaped compose**: `docker-compose.prod.yml`
+- **Support compose sets**: service-specific compose files only if they are generated or profile-scoped and documented
 
-- Orchestrator profiles: core control plane and gateway.
-- Oracle profiles: heavy non-latency-critical workloads.
-- Worker-specific profiles:
-  - `worker-3060`: ollama + embeddings
-  - `worker-3090ti`: vLLM medium model lane + exporter
-  - `worker-5090`: vLLM large model lane + optional local LiteLLM bridge
+---
 
-### Phase E — Bootstrap intake pipeline
+## 2) Consolidation program phases
 
-- Browser uploads land in `bootstrap/incoming/`
-- Review/approve in `bootstrap/reviewed/`
-- Apply into destination folders via script (`scripts/bootstrap/import-bootstrap.sh`)
-- Regenerate inventory docs post-apply.
+## Phase 1 — Baseline inventory and freeze (Day 0–1)
 
-## 3) Definition of done
+### Actions
 
-Repo is considered consolidated when:
+1. Create a tagged safety snapshot before movement/refactors.
+2. Generate current inventory of:
+   - compose files,
+   - Dockerfiles,
+   - package manifests,
+   - env files/templates,
+   - CI workflows,
+   - active services/apps.
+3. Freeze non-critical feature merges while consolidation branch is in progress.
 
-1. `infra/docker-compose.yml` is validated and is the only production compose entrypoint.
-2. All active services have one clear home (`apps/`, `services/`, `packages/`, or `src/`).
-3. Every active app/service has `CLAUDE.md` with a build/run contract.
-4. `infra/docs/CONSOLIDATION-GAPS.md` is reduced to either intentional archive items or integrated services.
-5. `make up-orchestrator` and `make health` are enough to bootstrap local dev.
-6. Worker onboarding is scriptable and profile-driven.
+### Deliverables
 
+- `docs/configuration/docker-compose-inventory.json` refreshed.
+- `docs/service-catalog.md` refreshed and reconciled with running compose services.
+- `docs/runbook.md` updated with exact baseline commit hash/tag.
+
+### Exit criteria
+
+- Inventory artifacts match repository HEAD and are reviewable.
+
+## Phase 2 — Structure normalization (Day 1–3)
+
+### Actions
+
+1. Move mislocated runtime assets into canonical folders.
+2. Eliminate duplicated root-level script/config variants where a canonical version already exists.
+3. Enforce naming conventions:
+   - services: `services/<name>`
+   - apps: `apps/<name>`
+   - package scope consistency in `package.json` names.
+
+### Deliverables
+
+- Single canonical location per active runtime unit.
+- Archive map documenting source → destination moves.
+
+### Exit criteria
+
+- No active deployable service is split across multiple ambiguous folders.
+
+## Phase 3 — Dependency and install-path hardening (Day 2–4)
+
+### Objective
+
+Resolve “file/package is not auto-installing” behavior by standardizing install hooks and workspace detection.
+
+### Actions
+
+1. Audit root and workspace-level install scripts (`preinstall`, `install`, `postinstall`, `prepare`).
+2. Confirm package manager consistency (`pnpm-workspace.yaml`, lockfile policy, corepack usage).
+3. Validate that all workspace packages are discoverable from root.
+4. Add/repair bootstrap script that performs deterministic install + verification.
+5. Add explicit failure output when expected post-install artifact is missing.
+
+### Debug checklist (fast discriminators)
+
+1. Workspace not included in `pnpm-workspace.yaml`.
+2. Lifecycle script exists but fails silently.
+3. Conditional script skipped due to shell/platform mismatch.
+4. Path assumptions broken between Windows host and WSL2.
+5. Optional dependency marked incorrectly and skipped.
+
+### Deliverables
+
+- Deterministic install command path documented and tested.
+- Install diagnostics script output captured in CI artifact/log.
+
+### Exit criteria
+
+- Fresh clone + one documented install command produces expected artifacts without manual patching.
+
+## Phase 4 — Compose and infra consolidation (Day 3–6)
+
+### Actions
+
+1. Rationalize compose file roles:
+   - dev compose,
+   - prod compose,
+   - optional overlays/profiles.
+2. Remove duplicate service definitions across compose files unless profile-specific by design.
+3. Normalize healthchecks, restart policy, and service dependency blocks.
+4. Verify locked components keep their existing contracts and ports.
+
+### Deliverables
+
+- Compose matrix document: service → compose file/profile ownership.
+- Healthcheck pass report for core stack.
+
+### Exit criteria
+
+- `docker compose config` passes cleanly for all canonical entrypoints.
+
+## Phase 5 — Test/lint gate unification (Day 4–7)
+
+### Actions
+
+1. Define required quality gates for every PR:
+   - lint,
+   - type-check,
+   - unit test,
+   - integration smoke test.
+2. Ensure each workspace has runnable scripts and root orchestrates them.
+3. Add/repair CI job matrix for changed paths to avoid over-running unrelated suites.
+4. Add failing-fast behavior for missing scripts.
+
+### Deliverables
+
+- Root-level quality command contract:
+  - `pnpm lint`
+  - `pnpm test`
+  - `pnpm -r typecheck` (or equivalent)
+- CI status checks required before merge.
+
+### Exit criteria
+
+- Consolidation branch cannot merge while any gate is red.
+
+## Phase 6 — Compliance, security, and secrets hygiene (Day 6–8)
+
+### Actions
+
+1. Verify mortgage compliance guardrails remain discoverable and linked in docs.
+2. Confirm sensitive borrower data paths are encrypted and never committed as plaintext fixtures.
+3. Validate `.env` templates contain placeholders only; no secrets.
+4. Run security scanning against dependencies and container configs.
+
+### Deliverables
+
+- Updated compliance cross-reference in runbook.
+- Security scan summary with remediation list.
+
+### Exit criteria
+
+- No critical secrets/compliance regressions introduced by consolidation.
+
+## Phase 7 — Documentation and operator readiness (Day 7–9)
+
+### Actions
+
+1. Update root onboarding docs with one-path setup flow.
+2. Update service-level contracts (build, run, health endpoints, dependencies).
+3. Publish rollback steps and known limitations.
+
+### Deliverables
+
+- Updated `README.md` quick-start path.
+- Consolidation completion checklist with sign-off owners.
+
+### Exit criteria
+
+- New engineer can clone, install, start, and health-check without tribal knowledge.
+
+---
+
+## 3) Test and validation strategy (required at every change)
+
+For each consolidation change set, run:
+
+1. `pnpm lint` (or language-appropriate lint command for changed subtree)
+2. `pnpm test` (or targeted workspace tests + root smoke tests)
+3. `docker compose -f docker-compose.dev.yml config` (compose validation)
+4. `docker compose -f docker-compose.dev.yml up -d` + health script for core services (when infra is touched)
+5. `pnpm -r typecheck` where TypeScript packages are affected
+
+If a check is intentionally skipped due to environment limitations, the PR must state:
+
+- what was skipped,
+- why,
+- exact command to run later.
+
+---
+
+## 4) Branching, rollout, and rollback
+
+## 4.1 Branching model
+
+- Work on `consolidation/<scope>` branches.
+- Merge in small batches:
+  - structure,
+  - install/path fixes,
+  - infra compose cleanup,
+  - docs updates.
+
+## 4.2 Rollout controls
+
+- Use feature toggles or compose profiles for risky service additions.
+- Keep old compose references in archive during one release window.
+
+## 4.3 Rollback
+
+1. Keep pre-consolidation git tag.
+2. Keep migration map for reverse moves.
+3. Keep a compose fallback file for one release cycle.
+
+---
+
+## 5) Ownership matrix
+
+- **Platform/Infra owner**: compose normalization, healthchecks, observability wiring
+- **Application owners**: app/service relocation and runtime contract validation
+- **QA owner**: quality-gate enforcement and regression sign-off
+- **Security/Compliance owner**: secrets/compliance verification
+- **Release owner**: merge sequencing and rollback readiness
+
+---
+
+## 6) Final definition of done
+
+Consolidation is complete only when all are true:
+
+1. Every active app/service has one canonical home and one runtime contract.
+2. Install path is deterministic from clean clone in WSL2 and documented.
+3. Compose entrypoints are reduced to canonical set and pass validation.
+4. Lint, type-check, and tests are mandatory and green for consolidation PRs.
+5. Locked architecture components remain intact and reachable on expected contracts.
+6. Onboarding docs are accurate and reproducible.
+7. Rollback path is tested and documented.
+
+---
+
+## 7) Suggested immediate next 10 actions (practical kickoff)
+
+1. Tag current state (`pre-consolidation-<date>`).
+2. Refresh compose/service/env inventory artifacts.
+3. Run workspace detection audit and install hook audit.
+4. Fix missing workspace entries and lifecycle script failures.
+5. Validate clean install from fresh clone path.
+6. Normalize compose files and remove duplicate active definitions.
+7. Enforce root quality gate scripts and CI requirements.
+8. Run compliance + secrets scan and remediate findings.
+9. Update onboarding and operator runbooks.
+10. Merge in phased PRs with rollback checkpoints.
