@@ -25,6 +25,7 @@ endif
   node-up-orchestrator node-up-oracle node-up-worker-3060 node-up-worker-3090ti node-up-worker-5090 node-down-orchestrator node-down-oracle node-down-worker-3060 node-down-worker-3090ti node-down-worker-5090 \
   down-workers nexus-up nexus-down health stack-up stack-verify scan-env ports port-check bootstrap-import bootstrap-import-apply bootstrap-ultimate bootstrap-oracle bootstrap-worker-3060 bootstrap-worker-3090ti bootstrap-worker-5090 \
   gitea-up gitea-up-ai gitea-up-actions gitea-up-infisical-agent gitea-up-full gitea-down gitea-ps gitea-config gitea-readiness infisical-up infisical-down infisical-config \
+  portainer-bootstrap portainer-edge-up portainer-down \
   up-gitea down-gitea logs-gitea health-gitea up-infisical down-infisical logs-infisical health-infisical
 
 .DEFAULT_GOAL := help
@@ -70,6 +71,9 @@ help:
 	@echo "make gitea-up-full      Start Gitea + actions + AI + Infisical sidecar"
 	@echo "make gitea-readiness    Validate Gitea env + compose service topology"
 	@echo "make gitea-config       Validate new Gitea compose config"
+	@echo "make portainer-bootstrap Bootstrap Portainer control-plane mesh package"
+	@echo "make portainer-edge-up  Start edge agent using .env.portainer.edge"
+	@echo "make portainer-down     Stop Portainer control-plane"
 	@echo "make infisical-up       Start Infisical self-host stack"
 	@echo "make infisical-config   Validate new Infisical compose config"
 
@@ -340,6 +344,15 @@ infisical-up:
 
 infisical-down:
 	docker compose -f docker-compose.infisical.yml --env-file .env.infisical down --remove-orphans
+
+portainer-bootstrap:
+	./infra/orchestrator/portainer-mesh/bootstrap-portainer-mesh.sh
+
+portainer-edge-up:
+	docker compose --env-file infra/orchestrator/portainer-mesh/.env.portainer.edge -f infra/orchestrator/portainer-mesh/docker-compose.portainer.edge-agent.yml up -d
+
+portainer-down:
+	docker compose --env-file infra/orchestrator/portainer-mesh/.env.portainer.orchestrator -f infra/orchestrator/portainer-mesh/docker-compose.portainer.orchestrator.yml down --remove-orphans
 
 # Additive bootstrap-safe wrappers (do not replace existing flows)
 up-gitea:

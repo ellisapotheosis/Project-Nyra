@@ -499,5 +499,7 @@ bootstrap/
 .env.gitea
 .env.infisical
 .env.archon
+.env.portainer.orchestrator
+.env.portainer.edge
 .secrets/
 gitea-setup-summary-*.md
