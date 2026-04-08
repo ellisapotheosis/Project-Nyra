@@ -3,7 +3,7 @@
  * Root configuration for all test types
  */
 
-module.exports = {
+export default {
   projects: [
     '<rootDir>/jest.config.unit.js',
     '<rootDir>/jest.config.integration.js',

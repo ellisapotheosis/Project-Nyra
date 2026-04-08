@@ -24,6 +24,8 @@ Profiles used: `core gateway workflow crm archon dev`
 
 Profiles used: `oracle apps observability edge`
 
+Archon remains on the orchestrator. When you use a managed Supabase project for Archon, keep `SUPABASE_URL` and `SUPABASE_SERVICE_KEY` in the shared stack env so the orchestrator-hosted Archon services and Oracle-hosted supporting services stay aligned on the same project metadata.
+
 ## 4) Bring up each worker role
 
 ```bash

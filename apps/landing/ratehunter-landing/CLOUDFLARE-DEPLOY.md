@@ -7,7 +7,7 @@ This landing page is configured for deployment to Cloudflare Pages using `@openn
 ## Prerequisites
 
 - Node.js >= 20.0.0
-- pnpm >= 10.0.0
+- npm >= 10.0.0
 - Wrangler CLI >= 3.99.0
 - Cloudflare account with Pages enabled
 
@@ -16,26 +16,21 @@ This landing page is configured for deployment to Cloudflare Pages using `@openn
 ### 1. Install Dependencies
 
 ```bash
-pnpm install
+npm install
 ```
 
 ### 2. Build the Application
 
 ```bash
-pnpm run build
+npm run build:cf
 ```
 
-This runs the standard Next.js build, which is compatible with Cloudflare Pages Git integration.
-
-For advanced Cloudflare Workers builds (requires Linux/WSL):
-```bash
-pnpm run build:cf
-```
+This produces the `.open-next` output consumed by the Cloudflare deployment flow in this repo.
 
 ### 4. Preview Locally
 
 ```bash
-pnpm run preview
+npm run preview
 ```
 
 This starts a local Cloudflare Pages development server at `http://localhost:8788`
@@ -44,40 +39,53 @@ This starts a local Cloudflare Pages development server at `http://localhost:878
 
 ```bash
 # Deploy to preview environment
-pnpm run deploy:preview
+npm run deploy:preview
 
 # Deploy to production
-pnpm run deploy:production
+npm run deploy:production
 
 # Or use the combined command
-pnpm run cf:deploy
+npm run cf:deploy
 ```
 
 ## Deployment Methods
 
-### Option 1: Git Integration (Recommended for CI/CD)
+### Option 1: Cloudflare Pages Git Integration
 
-The repository is already configured with Cloudflare Pages Git integration:
+Use the landing app as the Cloudflare project root so Pages only installs and builds this app:
 
-- **Build command**: `pnpm run build`
-- **Deploy command**: `npx wrangler versions upload`
-- **Root directory**: `/`
-- **Build output**: `.open-next`
+- **Framework preset**: `Next.js`
+- **Root directory**: `apps/landing/ratehunter-landing`
+- **Install command**: `npm install`
+- **Build command**: `npm run build:cf`
+- **Build output directory**: `.open-next/assets`
+- **Node version**: `20`
 
-Every push to the `main` branch will trigger a production deployment.
-Pull requests will automatically create preview deployments.
+Do not use `/` as the project root in this monorepo. A repo-root install can fail on unrelated workspace packages before the landing app build starts.
 
-### Option 2: Direct Upload (Manual/Local)
+#### If your Cloudflare project keeps using repo root (v2 root directory strategy)
+
+If the Cloudflare UI is currently configured with an empty root directory and a `cd ...` build command, use this exact fallback. **Note:** This is a legacy fallback for existing projects that cannot be easily migrated. New Cloudflare Pages projects should always prefer the explicit `apps/landing/ratehunter-landing` root configuration (Option 1) to avoid monorepo isolation issues.
+
+- **Root directory**: *(leave blank)*
+- **Install command**: `cd apps/landing/ratehunter-landing && npm install`
+- **Build command**: `cd apps/landing/ratehunter-landing && npm run build:cf`
+- **Build output directory**: `apps/landing/ratehunter-landing/.open-next/assets`
+
+This avoids `pnpm install` running at monorepo root and prevents frozen-lockfile failures caused by unrelated workspace packages.
+
+### Option 2: Direct Upload / Workers Deploy (Manual or CI)
 
 For manual deployments from your local machine:
 
 ```bash
 # Build and deploy in one command
-pnpm run cf:deploy
+npm run build:cf
+npm run deploy
 
 # Or step by step
-pnpm run build
-pnpm run deploy
+npm run build:cf
+npm run deploy
 ```
 
 ## Configuration
@@ -87,7 +95,7 @@ pnpm run deploy
 The `wrangler.toml` file contains all Cloudflare-specific configuration:
 
 - **name**: `ratehunter-landing`
-- **compatibility_date**: `2026-01-16`
+- **compatibility_date**: `2026-01-20`
 - **compatibility_flags**: `["nodejs_compat"]` (enables Node.js APIs)
 - **main**: `.open-next/worker.js` (entry point)
 - **assets**: `.open-next/assets` (static assets)
@@ -111,6 +119,21 @@ Set production environment variables in the Cloudflare dashboard:
 1. Go to Workers & Pages > ratehunter-landing > Settings > Environment Variables
 2. Add variables for production and preview environments
 
+Recommended values (**Required for Build/Runtime**):
+
+```bash
+NODE_ENV=production
+NODE_VERSION=20
+NEXT_TELEMETRY_DISABLED=1
+```
+
+Optional Project Branding (**Customizable**):
+
+```bash
+NEXT_PUBLIC_SITE_NAME=RateHunter
+NEXT_PUBLIC_SITE_URL=project-nyra.pages.dev
+```
+
 Or use Wrangler CLI:
 
 ```bash
@@ -119,7 +142,7 @@ npx wrangler pages secret put VARIABLE_NAME
 
 ## Build Output Structure
 
-After running `pnpm run build`, the `.open-next` directory contains:
+After running `npm run build:cf`, the `.open-next` directory contains:
 
 ```
 .open-next/
@@ -135,14 +158,12 @@ After running `pnpm run build`, the `.open-next` directory contains:
 
 If the build fails, check:
 
-1. **Git submodules**: Ensure all git submodules are properly configured or removed
-   ```bash
-   git submodule status
-   ```
+1. **Root directory**: Confirm the Cloudflare project root is `apps/landing/ratehunter-landing`, not `/`
 
-2. **Dependencies**: Ensure all dependencies are installed
+2. **Dependencies**: Ensure app dependencies are installed
    ```bash
-   pnpm install
+   cd apps/landing/ratehunter-landing
+   npm install
    ```
 
 3. **Node version**: Check you're using Node.js >= 20
@@ -202,15 +223,15 @@ Enable observability in the Cloudflare dashboard:
 
 | Command | Description |
 |---------|-------------|
-| `pnpm run dev` | Start Next.js development server |
-| `pnpm run build` | Build for Cloudflare (uses opennextjs-cloudflare) |
-| `pnpm run build:next` | Standard Next.js build |
-| `pnpm run preview` | Preview Cloudflare build locally |
-| `pnpm run deploy` | Deploy to Cloudflare Pages |
-| `pnpm run deploy:production` | Deploy to production (main branch) |
-| `pnpm run deploy:preview` | Deploy to preview environment |
-| `pnpm run cf:login` | Login to Cloudflare |
-| `pnpm run cf:deploy` | Build and deploy in one command |
+| `npm run dev` | Start Next.js development server |
+| `npm run build` | Standard Next.js build |
+| `npm run build:cf` | Build OpenNext output for Cloudflare |
+| `npm run preview` | Preview Cloudflare build locally |
+| `npm run deploy` | Deploy to Cloudflare Pages/Workers |
+| `npm run deploy:production` | Deploy to production (main branch) |
+| `npm run deploy:preview` | Deploy to preview environment |
+| `npm run cf:login` | Login to Cloudflare |
+| `npm run cf:deploy` | Standard build plus deploy |
 
 ## Additional Resources
 

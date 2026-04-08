@@ -11,7 +11,7 @@ INFISICAL_PROJECT_ID="${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30
 umask 077
 
 mkdir -p "$SECRETS_DIR"
-chmod 700 "$SECRETS_DIR"
+chmod 700 "$SECRETS_DIR" 2>/dev/null || true
 
 log(){ echo "[secrets-init] $*"; }
 
@@ -46,6 +46,7 @@ parse_dotenv_and_write(){
   v="$(getv WEBHOOK_AUTH_TOKEN)";   [[ -n "$v" ]] && write_secret_file "$SECRETS_DIR/webhook_auth_token" "$v"
   v="$(getv WEBHOOK_SECRET)";       [[ -n "$v" ]] && write_secret_file "$SECRETS_DIR/webhook_secret" "$v"
   v="$(getv GITEA_TOKEN)";          [[ -n "$v" ]] && write_secret_file "$SECRETS_DIR/gitea_pat_token" "$v"
+  v="$(getv GITEA_RUNNER_TOKEN)";   [[ -n "$v" ]] && write_secret_file "$SECRETS_DIR/gitea_runner_token" "$v"
   v="$(getv OPENAI_API_KEY)";   [[ -n "$v" ]] && write_secret_file "$SECRETS_DIR/openai_api_key" "$v"
   v="$(getv GITEA_SECRET_KEY)";     [[ -n "$v" ]] && write_secret_file "$SECRETS_DIR/gitea_secret_key" "$v"
   v="$(getv GITEA_INTERNAL_TOKEN)"; [[ -n "$v" ]] && write_secret_file "$SECRETS_DIR/gitea_internal_token" "$v"
@@ -62,8 +63,8 @@ try_infisical_export(){
   infisical export \
     --token="${INFISICAL_TOKEN}" \
     --projectId="$INFISICAL_PROJECT_ID" \
-    --env="${INFISICAL_ENV:-prod}" \
-    --path="${INFISICAL_PATH:-/nyra/gitea}" \
+    --env="${INFISICAL_ENV:-dev}" \
+    --path="${INFISICAL_PATH:-/shared}" \
     --format=dotenv \
     --output-file="/tmp/nyra.infisical.env" >/dev/null
 

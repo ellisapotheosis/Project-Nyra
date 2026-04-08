@@ -3,7 +3,7 @@
  * Tests for service interactions and API endpoints
  */
 
-module.exports = {
+export default {
   displayName: 'integration',
   testEnvironment: 'node',
 
@@ -21,7 +21,7 @@ module.exports = {
 
   // Setup files
   setupFilesAfterEnv: [
-    '<rootDir>/jest.setup.js',
+    '<rootDir>/tests/jest.setup.js',
     '<rootDir>/tests/integration/setup.ts',
   ],
 

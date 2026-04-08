@@ -13,6 +13,45 @@ base_url = "http://litellm:4000"
 api_key_env = "LITELLM_MASTER_KEY"
 models = ["*"]
 
+[providers.openai]
+type = "openai_compatible"
+base_url = "https://api.openai.com/v1"
+api_key_env = "OPENAI_API_KEY"
+models = ["gpt-5.2-codex"]
+
+[providers.google]
+type = "google"
+api_key_env = "GOOGLE_API_KEY"
+models = ["gemini-2.5-pro"]
+
+# GPU Workers - Direct connections for fallback routing
+[workers.rtx5090]
+name = "RTX 5090 - Large Models (vLLM)"
+url = "http://worker-rtx5090.trex-fiordland.ts.net:8000"
+type = "vllm"
+capabilities = ["large_models", "reasoning", "70b+"]
+vram_gb = 48
+models = ["qwen2.5-72b", "llama-3.1-70b", "deepseek-r1", "deepseek-v3"]
+health_check = "/health"
+
+[workers.rtx3060]
+name = "RTX 3060 - Small Models (Ollama)"
+url = "http://worker-rtx3060.trex-fiordland.ts.net:11434"
+type = "ollama"
+capabilities = ["small_models", "embeddings", "fast_inference"]
+vram_gb = 6
+models = ["qwen2.5:4b", "llama3.2:3b", "phi3:mini", "glm4:9b"]
+health_check = "/api/version"
+
+[workers.rtx3090ti]
+name = "RTX 3090Ti - Medium Models (vLLM)"
+url = "http://worker-rtx3090ti.trex-fiordland.ts.net:8001"
+type = "vllm"
+capabilities = ["medium_models", "coding", "32b", "vllm"]
+vram_gb = 24
+models = ["meta-llama/Llama-3.1-8B-Instruct", "codellama/CodeLlama-34b-Instruct-hf", "deepseek-ai/deepseek-coder-33b-instruct"]
+health_check = "/health"
+
 [logging]
 level = "info"
 format = "json"

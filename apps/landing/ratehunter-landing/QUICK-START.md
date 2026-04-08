@@ -45,17 +45,21 @@ git push origin main
 
 **Build settings**:
 - Framework preset: **Next.js**
-- Build command: `cd apps/landing/ratehunter-landing && pnpm run build`
-- Build output directory: `apps/landing/ratehunter-landing/.next`
-- Root directory: **/** (leave as /)
+- Root directory: **apps/landing/ratehunter-landing**
+- Install command: `npm install`
+- Build command: `npm run build:cf`
+- Build output directory: `.open-next/assets`
 
 **Environment variables** (click "Add variable"):
 ```
 NODE_VERSION = 20
-PNPM_VERSION = 10.27.0
+NODE_ENV = production
 NEXT_TELEMETRY_DISABLED = 1
 NEXT_PUBLIC_SITE_URL = https://ratehunter-landing.pages.dev
+NEXT_PUBLIC_SITE_NAME = RateHunter
 ```
+
+Do not leave the root directory as `/` in this repository. That makes Cloudflare install the whole monorepo instead of just the landing app.
 
 ### 2.5 Deploy
 1. Click **Save and Deploy**
@@ -171,7 +175,7 @@ Cloudflare automatically:
 **Build failing?**
 - Check build logs in Cloudflare dashboard
 - Verify environment variables
-- Test locally: `cd apps/landing/ratehunter-landing && pnpm run build`
+- Test locally: `cd apps/landing/ratehunter-landing && npm install && npm run build:cf`
 
 **Domain not working?**
 - Wait 5-10 minutes for DNS propagation
@@ -230,4 +234,3 @@ If something breaks:
 **Deployment Time**: 15 minutes ✅
 **Monthly Cost**: $0 💰
 **Next Step**: Add content and promote your site! 🎉
-
