@@ -30,6 +30,7 @@ endif
 
 .PHONY: help env-bootstrap install test lint validate compose-config compose-config-all \
   up down restart logs ps pull \
+  profile-up profile-down profile-ps stack-doctor \
   up-core up-orchestrator up-apps up-dev up-workers up-oracle up-worker-3060 up-worker-3090ti up-worker-5090 \
   archon-config archon-up archon-down archon-logs archon-ps archon-up-infisical archon-readiness \
   node-up-orchestrator node-up-oracle node-up-worker-3060 node-up-worker-3090ti node-up-worker-5090 node-down-orchestrator node-down-oracle node-down-worker-3060 node-down-worker-3090ti node-down-worker-5090 \
@@ -54,6 +55,10 @@ help:
 	@echo "make validate           Validate compose + test + lint"
 	@echo
 	@echo "make up                 Start default stack profiles"
+	@echo "make profile-up         Start custom profiles (PROFILES=core,gateway,...)"
+	@echo "make profile-down       Stop services for custom profiles (PROFILES=core,...)"
+	@echo "make profile-ps         Show status for custom profiles (PROFILES=core,...)"
+	@echo "make stack-doctor       Run docker/compose diagnostics for selected profiles"
 	@echo "make down               Stop and remove stack"
 	@echo "make logs               Tail logs for full stack"
 	@echo "make ps                 Show running containers"
@@ -138,6 +143,26 @@ up:
 	echo "Starting profiles: $(DEFAULT_PROFILES)"; \
 	$(COMPOSE) $$args up -d
 
+profile-up:
+	@test -n "$(PROFILES)" || (echo "Missing PROFILES. Example: make profile-up PROFILES=core,gateway,apps" && exit 1)
+	@profiles=$$(echo "$(PROFILES)" | tr ',' ' '); \
+	for p in $$profiles; do args="$$args --profile $$p"; done; \
+	echo "Starting profiles: $(PROFILES)"; \
+	$(COMPOSE) $$args up -d
+
+profile-down:
+	@test -n "$(PROFILES)" || (echo "Missing PROFILES. Example: make profile-down PROFILES=apps,dev" && exit 1)
+	@profiles=$$(echo "$(PROFILES)" | tr ',' ' '); \
+	for p in $$profiles; do args="$$args --profile $$p"; done; \
+	echo "Stopping profiles: $(PROFILES)"; \
+	$(COMPOSE) $$args down --remove-orphans
+
+profile-ps:
+	@test -n "$(PROFILES)" || (echo "Missing PROFILES. Example: make profile-ps PROFILES=core,gateway" && exit 1)
+	@profiles=$$(echo "$(PROFILES)" | tr ',' ' '); \
+	for p in $$profiles; do args="$$args --profile $$p"; done; \
+	$(COMPOSE) $$args ps
+
 down:
 	$(COMPOSE) down --remove-orphans
 
@@ -203,6 +228,9 @@ nexus-down:
 
 health:
 	./scripts/verify-stack.sh $(HEALTH_ENV_FILE)
+
+stack-doctor:
+	./scripts/stack/stack-doctor.sh $(COMPOSE_FILE) "$(PROFILES)"
 
 
 
