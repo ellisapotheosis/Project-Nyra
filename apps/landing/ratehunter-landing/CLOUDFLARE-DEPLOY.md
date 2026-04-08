@@ -95,7 +95,7 @@ npm run deploy
 The `wrangler.toml` file contains all Cloudflare-specific configuration:
 
 - **name**: `ratehunter-landing`
-- **compatibility_date**: `2026-01-16`
+- **compatibility_date**: `2026-01-20`
 - **compatibility_flags**: `["nodejs_compat"]` (enables Node.js APIs)
 - **main**: `.open-next/worker.js` (entry point)
 - **assets**: `.open-next/assets` (static assets)
@@ -131,7 +131,7 @@ Optional Project Branding (**Customizable**):
 
 ```bash
 NEXT_PUBLIC_SITE_NAME=RateHunter
-NEXT_PUBLIC_SITE_URL=https://ratehunter.com
+NEXT_PUBLIC_SITE_URL=project-nyra.pages.dev
 ```
 
 Or use Wrangler CLI:
