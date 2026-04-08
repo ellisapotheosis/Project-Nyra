@@ -1,38 +1,44 @@
 # 16 Environment Master List (Classified)
 
-## Method summary
-This classification is derived from repository env files and compose references, with emphasis on active runtime contexts.
+## Active bootstrap env files
 
-## Classification rules
-1. **Secret material**: keys containing `_TOKEN`, `_SECRET`, `_PASSWORD`, `_KEY`, DB URLs, auth credentials.
-2. **Runtime routing/config**: hostnames, ports, origins, domains, URLs, deployment modes.
-3. **Machine profile**: worker hardware, model limits, orchestration role metadata.
-4. **Public-safe config**: `NEXT_PUBLIC_*` and explicit non-sensitive frontend constants.
-
-## Operational guidance
-- Keep live values in Infisical or CI secret stores.
-- Commit only templates (`*.template`, `*.example`) and non-sensitive defaults.
-- Never commit generated local `.env.gitea`, `.env.infisical`, or `.secrets/*` material.
-
-## Priority env sets
-### Core platform
+- `.env.stack`
+- `.env.gitea`
+- `.env.infisical`
 - `infra/env/.env.orchestrator`
+- `infra/env/.env.oracle`
 - `infra/env/.env.worker-rtx3060`
 - `infra/env/.env.worker-rtx3090ti`
 - `infra/env/.env.worker-rtx5090`
 
-### Dedicated control planes
-- `.env.gitea.template` -> `.env.gitea` (ignored local)
-- `.env.infisical.template` -> `.env.infisical` (ignored local)
+## Secret classes
 
-### Overlay/runtime variants
-- `infra/compose/overrides/*.override.yml` env references
-- `docker-compose.archon.yml` and control-plane env keys
+- Authentication material: `*_TOKEN`, `*_SECRET`, `*_PASSWORD`, `*_API_KEY`.
+- Encryption material: `INFISICAL_ENCRYPTION_KEY`, `INFISICAL_AUTH_SECRET`.
+- Infrastructure credentials: DB credentials and registry auth tokens.
 
-## Risk notes
-- Several env keys appear only in docs/examples; treat those as optional until mapped to active compose/script usage.
-- Cross-machine drift is most likely in host/port/domain keys; validate during preflight.
-- Secret rotation policy should be anchored to Infisical project scopes and CI contexts.
+## Environment-dependent classes
 
-## Compliance reminder
-Mortgage workflows handling borrower data must keep credentials and PII-bearing config off git history and under least-privilege secret delivery.
+- Host routing: `*_URL`, `*_DOMAIN`, `*_HOST`, `*_ROOT_URL`.
+- Port exposure: `*_PORT`.
+- Runtime profile selectors: `*_ENV`, `*_ENVIRONMENT`, role profile variables.
+
+## Repository guardrails
+
+- `.env.gitea`, `.env.infisical`, and `.secrets/` are gitignored.
+- Templates (`.env.*.template`) remain committed for bootstrap reproducibility.
+- Generated docs never embed live secret values.
+
+## Known bootstrap variables (excerpt)
+
+| Variable | Class | Source stack |
+|---|---|---|
+| `GITEA_PORT` | env-dependent | `docker-compose.gitea.yml` |
+| `GITEA_SSH_PORT` | env-dependent | `docker-compose.gitea.yml` |
+| `INFISICAL_PORT` | env-dependent | `docker-compose.infisical.yml` |
+| `INFISICAL_POSTGRES_PASSWORD` | secret | `docker-compose.infisical.yml` |
+| `INFISICAL_ENCRYPTION_KEY` | secret | `docker-compose.infisical.yml` |
+| `INFISICAL_AUTH_SECRET` | secret | `docker-compose.infisical.yml` |
+| `INFISICAL_TOKEN` | secret | `docker-compose.gitea.yml`, `docker-compose.archon.yml` |
+| `INFISICAL_PROJECT_ID` | env-dependent | `docker-compose.gitea.yml`, workflows |
+| `STACK_ENV_FILE` | env-dependent | `Makefile` |

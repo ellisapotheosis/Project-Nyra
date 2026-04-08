@@ -1,38 +1,44 @@
 # 19 Cloud Offload Recommendations
 
-## Default strategy
-- Keep static marketing/public landing on Cloudflare Pages.
-- Publish only approved control-plane HTTP apps through Cloudflared + Access.
-- Keep databases and GPU inference backends private.
+## Immediate decisions
+
+- Keep static landing on Cloudflare Pages.
+- Tunnel only approved HTTP applications via cloudflared + Access.
+- Keep databases, queues, and vector stores private on node-local networks.
 
 ## Candidate matrix
-| Component class | Current location | Offload recommendation | Rationale |
-|---|---|---|---|
-| Marketing landing | `apps/landing` via Pages workflows | keep on Cloudflare Pages | cheap, static, public-safe |
-| Operator/admin UIs | orchestrator/oracle HTTP apps | Cloudflared + Access | centralized auth and edge controls |
-| Gateway APIs | orchestrator | selective tunnel if needed | avoid broad API surface exposure |
-| Datastores | oracle/internal stacks | no public offload endpoint | reduce leak risk/compliance risk |
-| Worker inference | worker nodes | private network only | cost/perf/privacy and attack-surface control |
 
-## Guardrails
-1. No datastore ingress rules in `infra/cloudflared/config.yml`.
-2. All non-marketing hostnames require Cloudflare Access.
-3. Keep final catch-all ingress `http_status:404`.
-4. Route DNS through tunnel CNAME only for approved hostnames.
+| Component class | Offload target | Decision |
+|---|---|---|
+| Marketing UI | Cloudflare Pages | proceed |
+| Operator UIs | Cloudflared tunnel + Access | proceed |
+| Datastores | none/public internet | reject |
+| Worker inference | private worker nodes | keep private |
+| MCP services | private network only | keep private |
 
-## Suggested automation additions
-- CI check that blocks ingress entries pointing to known datastore services.
-- Periodic diff between active ports registry and tunnel hostname map.
-- Pre-merge lint to reject accidental raw TCP ingress without explicit Access design.
-- Post-merge smoke checks for each approved hostname health endpoint.
+## Enforcement recommendations
 
-## Risk watchlist
-- Drift between compose host ports and cloudflared local origin targets.
-- Accidental reuse of public hostname for an internal-only service.
-- Unreviewed app additions in compose profiles bypassing exposure review.
+- Add CI check to reject datastores in `infra/cloudflared/config.yml`.
+- Keep final ingress catch-all `http_status:404` mandatory.
+- Require explicit owner + policy when adding new tunnel hostnames.
+- Keep SSH, Redis, Postgres, Mongo, and vector DB protocols off public edge routes.
 
-## Evidence
-- `docs/02_ports_registry.md`
-- `infra/cloudflared/config.yml`
-- `infra/cloudflared/hostname-map.md`
-- `docs/06_cloudflared_tunnels_dns.md`
+## Suggested phased rollout
+
+1. Stage 1: deploy cloudflared with only `n8n` and `grafana` hostnames.
+2. Stage 2: add `gitea` and `infisical` with stricter Access policies.
+3. Stage 3: add remaining operator surfaces after synthetic monitoring baselines.
+4. Stage 4: continuous drift check between compose ports and ingress hostnames.
+
+## Drift detection heuristics
+
+- Fail pipeline if a datastore service appears under `ingress:`.
+- Fail pipeline if any ingress target is non-HTTP and non-HTTPS.
+- Warn if a public hostname is missing corresponding CNAME route instructions.
+- Warn if `docs/02_ports_registry.md` and `infra/cloudflared/config.yml` diverge.
+
+## Business-impact rationale
+
+- Keeping stateful services private reduces accidental data exposure risk.
+- Tunneling only operator UIs keeps administration available without exposing LAN ports.
+- Cloudflare Pages remains the low-risk public surface for marketing content.
