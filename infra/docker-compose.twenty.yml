@@ -6,15 +6,16 @@ version: '3.8'
 services:
   # TwentyCRM Database
   twenty-db:
-    image: twentycrm/twenty-postgres:latest
+    image: postgres:16-alpine
     container_name: nyra-twenty-db
+    env_file:
+      - ../apps/twenty-crm/.env.twenty
     environment:
       POSTGRES_DB: twenty
       POSTGRES_USER: twenty
       POSTGRES_PASSWORD: ${TWENTY_DB_PASSWORD:-twenty_secure_password}
-      PGDATA: /var/lib/postgresql/data/pgdata
     volumes:
-      - twenty_db_data:/var/lib/postgresql/data/pgdata
+      - twenty_db_data:/var/lib/postgresql/data
       - ../apps/twenty-crm/scripts/init-db.sql:/docker-entrypoint-initdb.d/init.sql:ro
     ports:
       - "5433:5432"
@@ -35,6 +36,8 @@ services:
   twenty-redis:
     image: redis:7-alpine
     container_name: nyra-twenty-redis
+    env_file:
+      - ../apps/twenty-crm/.env.twenty
     command: redis-server --requirepass ${TWENTY_REDIS_PASSWORD:-redis_secure_password}
     volumes:
       - twenty_redis_data:/data
@@ -57,6 +60,8 @@ services:
   twenty-crm:
     image: twentycrm/twenty:latest
     container_name: nyra-twenty-crm
+    env_file:
+      - ../apps/twenty-crm/.env.twenty
     environment:
       # Database Configuration
       PG_DATABASE_URL: postgresql://twenty:${TWENTY_DB_PASSWORD:-twenty_secure_password}@twenty-db:5432/twenty
@@ -75,13 +80,12 @@ services:
 
       # Nyra Integration
       NYRA_NEXUS_ROUTER_URL: http://nexus-router:6000
-      NYRA_WEBHOOK_SECRET: ${NYRA_WEBHOOK_SECRET}
+      NYRA_WEBHOOK_SECRET: ${TWENTY_WEBHOOK_SECRET}
       NYRA_INTEGRATION_ENABLED: true
-
+      
       # External Integrations
       SUPPORT_CHAT_ENABLED: false
       TELEMETRY_ENABLED: false
-      CAPTCHA_DRIVER: none
 
       # Email Configuration
       EMAIL_FROM_ADDRESS: ${EMAIL_FROM_ADDRESS:-noreply@nyra.com}
@@ -135,6 +139,8 @@ services:
   twenty-worker:
     image: twentycrm/twenty:latest
     container_name: nyra-twenty-worker
+    env_file:
+      - ../apps/twenty-crm/.env.twenty
     command: ["npm", "run", "worker:start"]
     environment:
       PG_DATABASE_URL: postgresql://twenty:${TWENTY_DB_PASSWORD:-twenty_secure_password}@twenty-db:5432/twenty
@@ -148,7 +154,9 @@ services:
 
       # Nyra Integration
       NYRA_NEXUS_ROUTER_URL: http://nexus-router:6000
-      NYRA_WEBHOOK_SECRET: ${NYRA_WEBHOOK_SECRET}
+      NYRA_WEBHOOK_SECRET: ${TWENTY_WEBHOOK_SECRET}
+
+
 
     volumes:
       - twenty_storage:/app/storage:rw
