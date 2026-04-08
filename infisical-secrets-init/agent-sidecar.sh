@@ -36,7 +36,7 @@ poll_infisical(){
     --env="${INFISICAL_ENV:-prod}" \
     --path="${INFISICAL_PATH:-/nyra/gitea}" \
     --format=dotenv \
-    --output-file="$tmp_file" >/dev/null
+    > "$tmp_file"
 
   sync_secret_file "$tmp_file" "GITEA_DB_PASS" "gitea_db_pass"
   sync_secret_file "$tmp_file" "GITEA_ADMIN_PASS" "gitea_admin_pass"

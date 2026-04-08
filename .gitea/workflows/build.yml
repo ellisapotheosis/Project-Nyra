@@ -49,6 +49,9 @@ jobs:
           if [ -z "$REGISTRY" ]; then
             REGISTRY="${{ env.REGISTRY }}"
           fi
+          if [ -z "$REGISTRY" ]; then
+            REGISTRY="gitea.local:3100"
+          fi
           echo "REGISTRY=$REGISTRY" >> "$GITHUB_ENV"
 
       - name: 🏷️ Generate tags
