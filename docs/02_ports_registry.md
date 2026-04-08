@@ -11,6 +11,7 @@ _Generated from the canonical compose set used by `Makefile`, `infra/scripts/nod
 - `infra/workers/worker-rtx3060/docker-compose.worker.yml`
 - `infra/workers/worker-rtx3090ti/docker-compose.worker.yml`
 - `infra/workers/worker-rtx5090/docker-compose.worker.yml`
+- `infra/orchestrator/docker-compose.nexus-one-hop.yml`
 
 ## Exposure policy
 - Datastores and worker inference backends default to `private`.
