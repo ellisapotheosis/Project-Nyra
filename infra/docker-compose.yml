@@ -136,7 +136,23 @@ services:
       NEXUS_CONFIG_PATH: /app/nexus.toml
       REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
       LITELLM_BASE_URL: http://litellm:4000
+      MODEL_ROUTING_STRATEGY: ${MODEL_ROUTING_STRATEGY:-cost-optimized}
+      MODEL_ROUTING_PREFER_LOCAL: ${MODEL_ROUTING_PREFER_LOCAL:-true}
+      MODEL_ROUTING_FALLBACK_CLOUD: ${MODEL_ROUTING_FALLBACK_CLOUD:-true}
+      MODEL_ROUTING_COST_THRESHOLD: ${MODEL_ROUTING_COST_THRESHOLD:-0.10}
+      WORKER_5090_URL: ${WORKER_5090_URL:-http://worker-rtx5090.trex-fiordland.ts.net:8000}
+      WORKER_5090_MODELS: ${WORKER_5090_MODELS:-Qwen/Qwen2.5-72B-Instruct-AWQ,deepseek-ai/DeepSeek-R1-Distill-Llama-70B,meta-llama/Llama-3.1-70B-Instruct-AWQ}
+      WORKER_3090_URL: ${WORKER_3090_URL:-http://worker-rtx3090ti.trex-fiordland.ts.net:8001}
+      WORKER_3090_MODELS: ${WORKER_3090_MODELS:-meta-llama/Llama-3.1-8B-Instruct,codellama/CodeLlama-34b-Instruct-hf,deepseek-ai/deepseek-coder-33b-instruct}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_BASE_URL: ${OPENAI_BASE_URL:-https://api.openai.com/v1}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-5.2-codex}
+      OPENAI_MAX_TOKENS: ${OPENAI_MAX_TOKENS:-4096}
       GOOGLE_API_KEY: ${GOOGLE_API_KEY:-}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      GEMINI_BASE_URL: ${GEMINI_BASE_URL:-https://generativelanguage.googleapis.com/v1}
+      GEMINI_MODEL: ${GEMINI_MODEL:-gemini-2.5-pro}
+      GEMINI_MAX_TOKENS: ${GEMINI_MAX_TOKENS:-8192}
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
       OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
       GITHUB_TOKEN: ${GITHUB_TOKEN:-}

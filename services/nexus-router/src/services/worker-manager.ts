@@ -3,8 +3,98 @@ import crypto from 'crypto';
 import { config, Worker } from '../config';
 import { createLogger } from '../utils/logger';
 import { RedisClient } from './redis-client';
+import {
+  buildGeminiRequestBody,
+  CloudProvider,
+  withResolvedModel,
+} from './cloud-provider-adapters';
 
 const logger = createLogger('worker-manager');
+const LOCAL_CLUSTER_ALIASES = new Set([
+  'local-cluster',
+  'local_cluster',
+  'nyra/local-cluster',
+]);
+const REMOTE_OPENAI_ALIASES = new Set([
+  'openai-codex',
+  'remote/openai-codex',
+  'remote-codex',
+]);
+const REMOTE_GEMINI_ALIASES = new Set([
+  'remote/gemini-1.5-pro',
+  'remote-gemini-1.5-pro',
+  'gemini-1.5-pro-expert',
+]);
+
+export function normalizeRoutingModel(model?: string): string {
+  return model?.trim().toLowerCase() || '';
+}
+
+export function isLocalClusterAlias(model?: string): boolean {
+  return LOCAL_CLUSTER_ALIASES.has(normalizeRoutingModel(model));
+}
+
+export function isRemoteOpenAIAlias(model?: string): boolean {
+  return REMOTE_OPENAI_ALIASES.has(normalizeRoutingModel(model));
+}
+
+export function isRemoteGeminiAlias(model?: string): boolean {
+  return REMOTE_GEMINI_ALIASES.has(normalizeRoutingModel(model));
+}
+
+export function resolveProviderModelAlias(
+  requestedModel: string | undefined,
+  provider: 'openai' | 'google-gemini',
+  fallbackModel: string
+): string {
+  if (!requestedModel || requestedModel === 'default') {
+    return fallbackModel;
+  }
+
+  if (provider === 'openai' && isRemoteOpenAIAlias(requestedModel)) {
+    return fallbackModel;
+  }
+
+  if (provider === 'google-gemini' && isRemoteGeminiAlias(requestedModel)) {
+    return fallbackModel;
+  }
+
+  return requestedModel;
+}
+
+function getExplicitWorkerTarget(model?: string): '5090' | '3090' | '3060' | 'cluster' | null {
+  const normalized = normalizeRoutingModel(model);
+
+  if (isLocalClusterAlias(normalized)) {
+    return 'cluster';
+  }
+
+  if (
+    normalized === 'local-5090' ||
+    normalized === 'nyra/local-5090' ||
+    normalized === 'worker-5090'
+  ) {
+    return '5090';
+  }
+
+  if (
+    normalized === 'local-3090' ||
+    normalized === 'nyra/local-3090' ||
+    normalized === 'worker-3090'
+  ) {
+    return '3090';
+  }
+
+  if (
+    normalized === 'local-3060' ||
+    normalized === 'nyra/local-3060' ||
+    normalized === 'worker-3060'
+  ) {
+    return '3060';
+  }
+
+  return null;
+}
 
 interface WorkerHealth {
   workerId: string;
@@ -16,7 +106,7 @@ interface WorkerHealth {
 
 interface RoutingDecision {
   worker: Worker | null;
-  provider: 'local' | 'anthropic' | 'openrouter';
+  provider: 'local' | CloudProvider;
   reason: string;
 }
 
@@ -141,6 +231,11 @@ export class WorkerManager {
   }
 
   public async routeRequest(model: string, taskType?: string): Promise<RoutingDecision> {
+    const explicitRoute = await this.routeExplicitAlias(model, taskType);
+    if (explicitRoute) {
+      return explicitRoute;
+    }
+
     // Apply routing strategy
     switch (this.routingConfig.strategy) {
       case 'latency-optimized':
@@ -153,10 +248,44 @@ export class WorkerManager {
     }
   }
 
+  private async routeExplicitAlias(
+    model: string,
+    taskType?: string
+  ): Promise<RoutingDecision | null> {
+    if (isRemoteOpenAIAlias(model) || isRemoteGeminiAlias(model)) {
+      await this.redis.incrementMetric('requests:cloud');
+      return this.routeToCloud(model);
+    }
+
+    const explicitWorker = this.findExplicitLocalWorker(model, taskType);
+    if (!explicitWorker) {
+      return null;
+    }
+
+    const workerId = this.getWorkerId(explicitWorker.url);
+    const health = this.workerHealth.get(workerId);
+
+    if (health?.healthy) {
+      await this.redis.incrementMetric('requests:local');
+      return {
+        worker: explicitWorker,
+        provider: 'local',
+        reason: `Explicit local route selected for ${model}`,
+      };
+    }
+
+    if (this.routingConfig.fallbackCloud) {
+      await this.redis.incrementMetric('requests:cloud');
+      return this.routeToCloud(model);
+    }
+
+    throw new Error(`Explicit local route requested for ${model}, but no healthy worker was available`);
+  }
+
   private async routeCostOptimized(model: string, taskType?: string): Promise<RoutingDecision> {
     // Check if we should prefer local
     if (!this.routingConfig.preferLocal) {
-      return this.routeToCloud();
+      return this.routeToCloud(model);
     }
 
     // Try to find a suitable local worker
@@ -181,7 +310,7 @@ export class WorkerManager {
     if (this.routingConfig.fallbackCloud) {
       logger.info(`No healthy local workers, falling back to cloud for model ${model}`);
       await this.redis.incrementMetric('requests:cloud');
-      return this.routeToCloud();
+      return this.routeToCloud(model);
     }
 
     // No workers available
@@ -226,7 +355,7 @@ export class WorkerManager {
     // Fallback to cloud
     if (this.routingConfig.fallbackCloud) {
       await this.redis.incrementMetric('requests:cloud');
-      return this.routeToCloud();
+      return this.routeToCloud(model);
     }
 
     throw new Error('No available workers');
@@ -259,7 +388,7 @@ export class WorkerManager {
     // Route to cloud for best quality
     logger.info(`Routing to cloud for quality optimization (model: ${model})`);
     await this.redis.incrementMetric('requests:cloud');
-    return this.routeToCloud();
+    return this.routeToCloud(model);
   }
 
   private estimateRequestCost(model: string): number {
@@ -309,7 +438,115 @@ export class WorkerManager {
     }, healthyWorkers[0]);
   }
 
-  private routeToCloud(): RoutingDecision {
+  private findExplicitLocalWorker(model: string, taskType?: string): Worker | null {
+    const target = getExplicitWorkerTarget(model);
+    if (!target) {
+      return null;
+    }
+
+    const workers = config.workers.local;
+    if (workers.length === 0) {
+      return null;
+    }
+
+    if (target === 'cluster') {
+      const clusterWorkers = workers.filter((worker) => {
+        const url = worker.url.toLowerCase();
+        return (
+          url.includes('5090') ||
+          url.includes('3090') ||
+          worker.primaryUse === 'reasoning' ||
+          worker.primaryUse === 'analysis'
+        );
+      });
+
+      if (clusterWorkers.length === 0) {
+        return null;
+      }
+
+      const preferredUse = taskType === 'reasoning' ? 'reasoning' : 'analysis';
+      const healthyClusterWorkers = clusterWorkers.filter((worker) => {
+        const workerId = this.getWorkerId(worker.url);
+        return this.workerHealth.get(workerId)?.healthy;
+      });
+      const candidates = healthyClusterWorkers.length > 0 ? healthyClusterWorkers : clusterWorkers;
+
+      return (
+        candidates.find((worker) => worker.primaryUse === preferredUse) ||
+        candidates.find((worker) => worker.primaryUse === 'reasoning') ||
+        candidates[0]
+      );
+    }
+
+    return workers.find((worker) => worker.url.toLowerCase().includes(target)) || null;
+  }
+
+  private routeToCloud(model?: string): RoutingDecision {
+    const normalizedModel = normalizeRoutingModel(model);
+    const openAiAvailable = Boolean(config.workers.cloud.openai.apiKey);
+    const geminiAvailable = Boolean(config.workers.cloud.googleGemini.apiKey);
+
+    if (isRemoteGeminiAlias(model)) {
+      if (!geminiAvailable) {
+        throw new Error(
+          'Gemini 1.5 Pro remote expert requested, but GOOGLE_API_KEY/GEMINI_API_KEY is not configured'
+        );
+      }
+      return {
+        worker: null,
+        provider: 'google-gemini',
+        reason: 'Using Google Gemini cloud API for explicit NYRA remote expert request',
+      };
+    }
+
+    if (isRemoteOpenAIAlias(model)) {
+      if (!openAiAvailable) {
+        throw new Error('OpenAI Codex remote expert requested, but OPENAI_API_KEY is not configured');
+      }
+      return {
+        worker: null,
+        provider: 'openai',
+        reason: 'Using OpenAI cloud API for explicit NYRA remote expert request',
+      };
+    }
+
+    if (geminiAvailable && normalizedModel.includes('gemini')) {
+      return {
+        worker: null,
+        provider: 'google-gemini',
+        reason: 'Using Google Gemini cloud API for Gemini model request',
+      };
+    }
+
+    if (
+      openAiAvailable &&
+      (normalizedModel.includes('gpt') ||
+        normalizedModel.includes('codex') ||
+        normalizedModel.includes('openai'))
+    ) {
+      return {
+        worker: null,
+        provider: 'openai',
+        reason: 'Using OpenAI cloud API for OpenAI model request',
+      };
+    }
+
+    if (openAiAvailable) {
+      return {
+        worker: null,
+        provider: 'openai',
+        reason: 'Using OpenAI cloud API',
+      };
+    }
+
+    if (geminiAvailable) {
+      return {
+        worker: null,
+        provider: 'google-gemini',
+        reason: 'Using Google Gemini cloud API',
+      };
+    }
+
     // Prefer Anthropic if API key is configured
     if (config.workers.cloud.anthropic.apiKey) {
       return {
@@ -337,6 +574,10 @@ export class WorkerManager {
   ): Promise<any> {
     if (decision.provider === 'local' && decision.worker) {
       return await this.sendToLocalWorker(decision.worker, requestBody);
+    } else if (decision.provider === 'openai') {
+      return await this.sendToOpenAI(requestBody);
+    } else if (decision.provider === 'google-gemini') {
+      return await this.sendToGoogleGemini(requestBody);
     } else if (decision.provider === 'anthropic') {
       return await this.sendToAnthropic(requestBody);
     } else if (decision.provider === 'openrouter') {
@@ -374,7 +615,10 @@ export class WorkerManager {
       const response = await axios.post(
         'https://api.anthropic.com/v1/messages',
         {
-          model: config.workers.cloud.anthropic.model,
+          model:
+            requestBody.model && requestBody.model !== 'default'
+              ? requestBody.model
+              : config.workers.cloud.anthropic.model,
           max_tokens: config.workers.cloud.anthropic.maxTokens,
           messages: requestBody.messages,
         },
@@ -397,14 +641,75 @@ export class WorkerManager {
     }
   }
 
+  private async sendToOpenAI(requestBody: any): Promise<any> {
+    try {
+      const response = await axios.post(
+        `${config.workers.cloud.openai.baseUrl}/chat/completions`,
+        withResolvedModel(
+          {
+            ...requestBody,
+            model: resolveProviderModelAlias(
+              requestBody.model,
+              'openai',
+              config.workers.cloud.openai.model
+            ),
+          },
+          config.workers.cloud.openai.model
+        ),
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${config.workers.cloud.openai.apiKey}`,
+          },
+          timeout: 120000,
+        }
+      );
+
+      return response.data;
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        logger.error(`OpenAI API error: ${error.message}`);
+        throw new Error(`OpenAI request failed: ${error.message}`);
+      }
+      throw error;
+    }
+  }
+
+  private async sendToGoogleGemini(requestBody: any): Promise<any> {
+    try {
+      const model = resolveProviderModelAlias(
+        requestBody.model,
+        'google-gemini',
+        config.workers.cloud.googleGemini.model
+      );
+
+      const response = await axios.post(
+        `${config.workers.cloud.googleGemini.baseUrl}/models/${model}:generateContent`,
+        buildGeminiRequestBody(requestBody),
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'x-goog-api-key': config.workers.cloud.googleGemini.apiKey,
+          },
+          timeout: 120000,
+        }
+      );
+
+      return response.data;
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        logger.error(`Gemini API error: ${error.message}`);
+        throw new Error(`Gemini request failed: ${error.message}`);
+      }
+      throw error;
+    }
+  }
+
   private async sendToOpenRouter(requestBody: any): Promise<any> {
     try {
       const response = await axios.post(
         `${config.workers.cloud.openrouter.baseUrl}/chat/completions`,
-        {
-          model: config.workers.cloud.openrouter.fallbackModel,
-          messages: requestBody.messages,
-        },
+        withResolvedModel(requestBody, config.workers.cloud.openrouter.fallbackModel),
         {
           headers: {
             'Content-Type': 'application/json',

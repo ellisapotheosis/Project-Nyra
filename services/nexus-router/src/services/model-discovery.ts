@@ -1,4 +1,5 @@
 import axios from 'axios';
+import crypto from 'crypto';
 import { EventEmitter } from 'events';
 import { config, Worker } from '../config';
 import { createLogger } from '../utils/logger';
@@ -13,7 +14,7 @@ export interface ModelCapabilities {
   id: string;
   name: string;
   aliases: string[];
-  provider: 'local-gpu' | 'anthropic' | 'openrouter' | 'ollama';
+  provider: 'local-gpu' | 'anthropic' | 'openrouter' | 'ollama' | 'openai' | 'google-gemini';
   availability: 'available' | 'unavailable' | 'degraded';
 
   // Performance characteristics
@@ -183,8 +184,12 @@ export class ModelDiscoveryService extends EventEmitter {
 
     for (const worker of config.workers.local) {
       try {
-        const workerId = worker.url.split('//')[1]?.split(':')[0] || 'unknown';
-        const health = workerHealth.find((h) => h.workerId.includes(workerId));
+        const workerId = crypto
+          .createHash('md5')
+          .update(worker.url)
+          .digest('hex')
+          .substring(0, 8);
+        const health = workerHealth.find((h) => h.workerId === workerId);
 
         if (!health?.healthy) {
           logger.debug(`Skipping unhealthy worker: ${workerId}`);
@@ -204,7 +209,45 @@ export class ModelDiscoveryService extends EventEmitter {
       }
     }
 
+    models.push(...this.getLocalClusterModels(models));
+
     return models;
+  }
+
+  private getLocalClusterModels(localModels: ModelCapabilities[]): ModelCapabilities[] {
+    const clusterMembers = localModels.filter((model) => {
+      const workerUrl = model.workerUrl?.toLowerCase() || '';
+      return workerUrl.includes('5090') || workerUrl.includes('3090');
+    });
+
+    if (clusterMembers.length === 0) {
+      return [];
+    }
+
+    const primaryMember =
+      clusterMembers.find((model) => model.workerUrl?.includes('5090')) || clusterMembers[0];
+
+    return [
+      {
+        id: 'local-cluster',
+        name: 'NYRA Local Cluster',
+        aliases: ['local-cluster', 'nyra/local-cluster'],
+        provider: 'local-gpu',
+        availability: 'available',
+        maxContextLength: Math.max(...clusterMembers.map((model) => model.maxContextLength)),
+        supportsStreaming: true,
+        supportsToolCalling: clusterMembers.some((model) => model.supportsToolCalling),
+        supportsVision: clusterMembers.some((model) => model.supportsVision),
+        vramRequirements: Math.max(
+          ...clusterMembers.map((model) => model.vramRequirements || 0)
+        ),
+        parameterSize: 'cluster',
+        architecture: 'nyra-grid',
+        workerUrl: primaryMember.workerUrl,
+        workerId: primaryMember.workerId,
+        lastChecked: new Date(),
+      },
+    ];
   }
 
   /**
@@ -403,6 +446,16 @@ export class ModelDiscoveryService extends EventEmitter {
   private async discoverCloudModels(): Promise<ModelCapabilities[]> {
     const models: ModelCapabilities[] = [];
 
+    // OpenAI models
+    if (config.workers.cloud.openai.apiKey) {
+      models.push(...this.getOpenAIModels());
+    }
+
+    // Gemini models
+    if (config.workers.cloud.googleGemini.apiKey) {
+      models.push(...this.getGoogleGeminiModels());
+    }
+
     // Anthropic models
     if (config.workers.cloud.anthropic.apiKey) {
       models.push(...this.getAnthropicModels());
@@ -414,6 +467,51 @@ export class ModelDiscoveryService extends EventEmitter {
     }
 
     return models;
+  }
+
+  private getOpenAIModels(): ModelCapabilities[] {
+    return [
+      {
+        id: config.workers.cloud.openai.model,
+        name: 'OpenAI Codex',
+        aliases: [
+          config.workers.cloud.openai.model,
+          'codex',
+          'openai-codex',
+          'remote/openai-codex',
+        ],
+        provider: 'openai',
+        availability: 'available',
+        maxContextLength: 400000,
+        supportsStreaming: true,
+        supportsToolCalling: true,
+        supportsVision: false,
+        architecture: 'gpt',
+        lastChecked: new Date(),
+      },
+    ];
+  }
+
+  private getGoogleGeminiModels(): ModelCapabilities[] {
+    return [
+      {
+        id: config.workers.cloud.googleGemini.model,
+        name: 'Gemini 1.5 Pro',
+        aliases: [
+          config.workers.cloud.googleGemini.model,
+          'gemini-1.5-pro',
+          'remote/gemini-1.5-pro',
+        ],
+        provider: 'google-gemini',
+        availability: 'available',
+        maxContextLength: 2000000,
+        supportsStreaming: true,
+        supportsToolCalling: true,
+        supportsVision: true,
+        architecture: 'gemini',
+        lastChecked: new Date(),
+      },
+    ];
   }
 
   /**

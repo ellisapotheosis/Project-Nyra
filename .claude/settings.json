@@ -7,6 +7,10 @@
     ],
     "deny": []
   },
+  "env": {
+    "SOURCEGIT_CMD": "/usr/bin/sourcegit",
+    "LLXPRT_SOURCEGIT": "/usr/bin/sourcegit"
+  },
   "hooks": {
     "PreToolUse": [
       {
@@ -154,7 +158,8 @@
     "agent-sdk-dev@claude-plugins-official": false,
     "claude-code-setup@claude-plugins-official": true,
     "superpowers@claude-plugins-official": true,
-    "claude-subconscious@claude-subconscious": true
+    "claude-subconscious@claude-subconscious": true,
+    "oh-my-claudecode@omc": true
   },
   "mcpServers": {
     "nexus-router": {

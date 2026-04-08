@@ -1,5 +1,9 @@
 import { config as dotenvConfig } from 'dotenv';
 import { z } from 'zod';
+import {
+  getDefaultGeminiModel,
+  getDefaultOpenAIModel,
+} from './services/cloud-provider-adapters';
 
 dotenvConfig();
 
@@ -33,6 +37,18 @@ const ConfigSchema = z.object({
   workers: z.object({
     local: z.array(WorkerSchema),
     cloud: z.object({
+      openai: z.object({
+        apiKey: z.string(),
+        baseUrl: z.string().default('https://api.openai.com/v1'),
+        model: z.string().default(getDefaultOpenAIModel()),
+        maxTokens: z.number().default(4096),
+      }),
+      googleGemini: z.object({
+        apiKey: z.string(),
+        baseUrl: z.string().default('https://generativelanguage.googleapis.com/v1'),
+        model: z.string().default(getDefaultGeminiModel()),
+        maxTokens: z.number().default(8192),
+      }),
       anthropic: z.object({
         apiKey: z.string(),
         model: z.string().default('claude-sonnet-4-20250514'),
@@ -113,6 +129,19 @@ export const config = ConfigSchema.parse({
   workers: {
     local: parseLocalWorkers(),
     cloud: {
+      openai: {
+        apiKey: process.env.OPENAI_API_KEY || '',
+        baseUrl: process.env.OPENAI_BASE_URL || 'https://api.openai.com/v1',
+        model: process.env.OPENAI_MODEL || getDefaultOpenAIModel(),
+        maxTokens: parseInt(process.env.OPENAI_MAX_TOKENS || '4096', 10),
+      },
+      googleGemini: {
+        apiKey: process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY || '',
+        baseUrl:
+          process.env.GEMINI_BASE_URL || 'https://generativelanguage.googleapis.com/v1',
+        model: process.env.GEMINI_MODEL || getDefaultGeminiModel(),
+        maxTokens: parseInt(process.env.GEMINI_MAX_TOKENS || '8192', 10),
+      },
       anthropic: {
         apiKey: process.env.ANTHROPIC_API_KEY || '',
         model: process.env.ANTHROPIC_MODEL || 'claude-sonnet-4-20250514',
