@@ -25,7 +25,7 @@ interface GeminiRequestBody {
 }
 
 const DEFAULT_OPENAI_MODEL = 'gpt-5.2-codex';
-const DEFAULT_GEMINI_MODEL = 'gemini-1.5-pro';
+const DEFAULT_GEMINI_MODEL = 'gemini-2.5-pro';
 
 export function resolveRequestModel(
   requestedModel: string | undefined,

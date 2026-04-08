@@ -496,15 +496,15 @@ export class ModelDiscoveryService extends EventEmitter {
     return [
       {
         id: config.workers.cloud.googleGemini.model,
-        name: 'Gemini 1.5 Pro',
+        name: 'Gemini 2.5 Pro',
         aliases: [
           config.workers.cloud.googleGemini.model,
-          'gemini-1.5-pro',
-          'remote/gemini-1.5-pro',
+          'gemini-2.5-pro',
+          'remote/gemini-2.5-pro',
         ],
         provider: 'google-gemini',
         availability: 'available',
-        maxContextLength: 2000000,
+        maxContextLength: 1048576,
         supportsStreaming: true,
         supportsToolCalling: true,
         supportsVision: true,
