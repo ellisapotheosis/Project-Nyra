@@ -176,7 +176,7 @@ Performs a comprehensive connection test including model discovery.
 ### Google Gemini
 - **Type:** `google-gemini`
 - **Base URL:** `https://generativelanguage.googleapis.com/v1`
-- **Default Models:** gemini-2.0-flash-exp, gemini-1.5-pro, gemini-1.5-flash
+- **Default Models:** gemini-2.5-pro, gemini-2.5-flash, gemini-2.5-flash-lite
 - **Environment Variables:** `GOOGLE_API_KEY` or `GEMINI_API_KEY`
 
 ### OpenAI
@@ -188,7 +188,7 @@ Performs a comprehensive connection test including model discovery.
 ### OpenRouter
 - **Type:** `openrouter`
 - **Base URL:** `https://openrouter.ai/api/v1`
-- **Default Models:** deepseek/deepseek-r1, anthropic/claude-3.5-sonnet, google/gemini-2.0-flash-exp
+- **Default Models:** deepseek/deepseek-r1, anthropic/claude-3.5-sonnet, google/gemini-2.5-pro
 - **Environment Variable:** `OPENROUTER_API_KEY`
 
 ### Meta Llama (via Together.ai)

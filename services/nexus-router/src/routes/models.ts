@@ -197,10 +197,7 @@ router.get('/:model', async (req: Request, res: Response): Promise<void> => {
             }
           : {
               location: 'cloud',
-              endpoint:
-                model.provider === 'anthropic'
-                  ? 'https://api.anthropic.com/v1/messages'
-                  : 'https://openrouter.ai/api/v1/chat/completions',
+              endpoint: getCloudEndpoint(model.provider),
             },
 
       // Metadata
@@ -223,6 +220,19 @@ router.get('/:model', async (req: Request, res: Response): Promise<void> => {
     });
   }
 });
+
+function getCloudEndpoint(provider: string): string {
+  switch (provider) {
+    case 'anthropic':
+      return 'https://api.anthropic.com/v1/messages';
+    case 'openai':
+      return 'https://api.openai.com/v1/chat/completions';
+    case 'google-gemini':
+      return 'https://generativelanguage.googleapis.com/v1/models/{model}:generateContent';
+    default:
+      return 'https://openrouter.ai/api/v1/chat/completions';
+  }
+}
 
 /**
  * POST /api/models/discovery/refresh

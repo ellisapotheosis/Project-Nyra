@@ -12,37 +12,37 @@
 
 ## DNS records to create
 
-- `n8n.nyra.example.com` -> `<TUNNEL_UUID>.cfargotunnel.com`
-- `activepieces.nyra.example.com` -> `<TUNNEL_UUID>.cfargotunnel.com`
-- `twentycrm.nyra.example.com` -> `<TUNNEL_UUID>.cfargotunnel.com`
 - `archon.nyra.example.com` -> `<TUNNEL_UUID>.cfargotunnel.com`
-- `grafana.nyra.example.com` -> `<TUNNEL_UUID>.cfargotunnel.com`
-- `infisical.nyra.example.com` -> `<TUNNEL_UUID>.cfargotunnel.com`
 - `gitea.nyra.example.com` -> `<TUNNEL_UUID>.cfargotunnel.com`
+- `infisical.nyra.example.com` -> `<TUNNEL_UUID>.cfargotunnel.com`
+- `activepieces.nyra.example.com` -> `<TUNNEL_UUID>.cfargotunnel.com`
+- `n8n.nyra.example.com` -> `<TUNNEL_UUID>.cfargotunnel.com`
+- `twentycrm.nyra.example.com` -> `<TUNNEL_UUID>.cfargotunnel.com`
+- `grafana.nyra.example.com` -> `<TUNNEL_UUID>.cfargotunnel.com`
 
 ## CLI alternative
 
 ```bash
-cloudflared tunnel route dns <NAME_OR_UUID> n8n.nyra.example.com
-cloudflared tunnel route dns <NAME_OR_UUID> activepieces.nyra.example.com
-cloudflared tunnel route dns <NAME_OR_UUID> twentycrm.nyra.example.com
 cloudflared tunnel route dns <NAME_OR_UUID> archon.nyra.example.com
-cloudflared tunnel route dns <NAME_OR_UUID> grafana.nyra.example.com
-cloudflared tunnel route dns <NAME_OR_UUID> infisical.nyra.example.com
 cloudflared tunnel route dns <NAME_OR_UUID> gitea.nyra.example.com
+cloudflared tunnel route dns <NAME_OR_UUID> infisical.nyra.example.com
+cloudflared tunnel route dns <NAME_OR_UUID> activepieces.nyra.example.com
+cloudflared tunnel route dns <NAME_OR_UUID> n8n.nyra.example.com
+cloudflared tunnel route dns <NAME_OR_UUID> twentycrm.nyra.example.com
+cloudflared tunnel route dns <NAME_OR_UUID> grafana.nyra.example.com
 ```
 
 ## Active tunnel hostnames
 
 | Hostname | Local origin | Access policy | Notes |
 |---|---|---|---|
-| `n8n.nyra.example.com` | `http://localhost:5678` | required | automation UI and API |
-| `activepieces.nyra.example.com` | `http://localhost:8082` | required | workflow UI |
-| `twentycrm.nyra.example.com` | `http://localhost:3000` | required | CRM app |
 | `archon.nyra.example.com` | `http://localhost:3737` | required | Archon operator UI |
-| `grafana.nyra.example.com` | `http://localhost:3003` | required | observability UI |
-| `infisical.nyra.example.com` | `http://localhost:8086` | required | secrets UI and API |
 | `gitea.nyra.example.com` | `http://localhost:3100` | required | git forge UI |
+| `infisical.nyra.example.com` | `http://localhost:3201` | required | secrets UI and API |
+| `activepieces.nyra.example.com` | `http://localhost:3001` | required | workflow UI |
+| `n8n.nyra.example.com` | `http://localhost:5678` | required | automation UI and API |
+| `twentycrm.nyra.example.com` | `http://localhost:3000` | required | CRM app |
+| `grafana.nyra.example.com` | `http://localhost:3003` | required | observability UI |
 
 ## Explicitly non-exposed services
 
