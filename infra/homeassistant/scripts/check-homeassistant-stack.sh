@@ -3,15 +3,16 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
+ENV_FILE="${ROOT_DIR}/.env.homeassistant"
 
 cd "${ROOT_DIR}"
 
 echo "== Compose status: Linkwarden stack =="
-docker compose --env-file .env.homeassistant-linkwarden -f docker-compose.homeassistant-linkwarden.yml ps
+docker compose --env-file "${ENV_FILE}" -f docker-compose.homeassistant-linkwarden.yml ps
 
 echo
 echo "== Compose status: Dashboard =="
-docker compose --env-file .env.homeassistant-dashboard -f docker-compose.homeassistant-dashboard.yml ps
+docker compose --env-file "${ENV_FILE}" -f docker-compose.homeassistant-dashboard.yml ps
 
 echo
 echo "== Container health summary =="
