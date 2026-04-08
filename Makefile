@@ -17,6 +17,8 @@ TWENTY_COMPOSE ?= docker compose -f $(TWENTY_COMPOSE_FILE)
 WORKER_3060_COMPOSE ?= $(COMPOSE) -f $(WORKER_3060_COMPOSE_FILE)
 WORKER_3090TI_COMPOSE ?= $(COMPOSE) -f $(WORKER_3090TI_COMPOSE_FILE)
 WORKER_5090_COMPOSE ?= $(COMPOSE) -f $(WORKER_5090_COMPOSE_FILE)
+BOOTSTRAP_IMPORT_SRC_DIR ?= infra/bootstrap/incoming
+BOOTSTRAP_IMPORT_MAP_FILE ?= infra/bootstrap/file-map.csv
 
 ifeq (,$(wildcard pnpm-lock.yaml))
 PKG_MGR ?= npm
@@ -31,7 +33,7 @@ endif
   up-core up-orchestrator up-apps up-dev up-workers up-oracle up-worker-3060 up-worker-3090ti up-worker-5090 \
   archon-config archon-up archon-down archon-logs archon-ps archon-up-infisical archon-readiness \
   node-up-orchestrator node-up-oracle node-up-worker-3060 node-up-worker-3090ti node-up-worker-5090 node-down-orchestrator node-down-oracle node-down-worker-3060 node-down-worker-3090ti node-down-worker-5090 \
-  down-workers nexus-up nexus-down health stack-up stack-verify scan-env ports port-check bootstrap-import bootstrap-import-apply bootstrap-ultimate bootstrap-oracle bootstrap-worker-3060 bootstrap-worker-3090ti bootstrap-worker-5090 \
+  down-workers nexus-up nexus-down health stack-up stack-verify scan-env ports port-check bootstrap-import bootstrap-import-apply bootstrap-import-init bootstrap-ultimate bootstrap-oracle bootstrap-worker-3060 bootstrap-worker-3090ti bootstrap-worker-5090 \
   archive-guard repo-structure-audit edge-docs git-remote-health host-layout-validate host-plan install-infra-host-layout \
   gitea-up gitea-up-ai gitea-up-actions gitea-up-actions-large gitea-up-infisical-agent gitea-down gitea-ps gitea-config gitea-bootstrap-orchestrator infisical-up infisical-down infisical-config \
   gitea-up gitea-up-ai gitea-up-actions gitea-up-actions-large gitea-up-infisical-agent gitea-up-full gitea-down gitea-ps gitea-config gitea-bootstrap-orchestrator gitea-readiness infisical-up infisical-down infisical-config \
@@ -224,10 +226,13 @@ up-worker-5090:
 	$(COMPOSE) --profile worker-5090 up -d
 
 bootstrap-import:
-	./infra/scripts/bootstrap-import.sh infra/bootstrap/incoming dry-run
+	BOOTSTRAP_IMPORT_SRC_DIR=$(BOOTSTRAP_IMPORT_SRC_DIR) BOOTSTRAP_IMPORT_MAP_FILE=$(BOOTSTRAP_IMPORT_MAP_FILE) ./infra/scripts/bootstrap-import.sh "$(BOOTSTRAP_IMPORT_SRC_DIR)" dry-run "$(BOOTSTRAP_IMPORT_MAP_FILE)"
 
 bootstrap-import-apply:
-	./infra/scripts/bootstrap-import.sh infra/bootstrap/incoming apply
+	BOOTSTRAP_IMPORT_SRC_DIR=$(BOOTSTRAP_IMPORT_SRC_DIR) BOOTSTRAP_IMPORT_MAP_FILE=$(BOOTSTRAP_IMPORT_MAP_FILE) ./infra/scripts/bootstrap-import.sh "$(BOOTSTRAP_IMPORT_SRC_DIR)" apply "$(BOOTSTRAP_IMPORT_MAP_FILE)"
+
+bootstrap-import-init:
+	BOOTSTRAP_IMPORT_SRC_DIR=$(BOOTSTRAP_IMPORT_SRC_DIR) BOOTSTRAP_IMPORT_MAP_FILE=$(BOOTSTRAP_IMPORT_MAP_FILE) ./infra/scripts/bootstrap-import.sh "$(BOOTSTRAP_IMPORT_SRC_DIR)" init "$(BOOTSTRAP_IMPORT_MAP_FILE)"
 
 
 bootstrap-ultimate:
