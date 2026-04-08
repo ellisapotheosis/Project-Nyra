@@ -41,10 +41,13 @@ coverage/
 .env.test.local
 .env.production.local
 .env.cloudflare
+.env.gitea
+.env.infisical
 *.pem
 *.key
 *.cert
 secrets/
+.secrets/
 credentials/
 
 # Explicitly blocked leaked secret files (do not commit)
@@ -494,11 +497,17 @@ docs/archive/**/*.pem
 docs/archive/**/*.key
 docs/archive/**/*.db
 bootstrap/
+!infra/bootstrap/
+!infra/bootstrap/**
 
 # Codanna local index/cache
 .codanna/
 .env.gitea
 .env.infisical
+.env.archon
+.env.portainer.orchestrator
+.env.portainer.edge
+.env.homeassistant-dashboard
 .secrets/
 gitea-setup-summary-*.md
 

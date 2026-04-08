@@ -1,44 +1,38 @@
 # 16 Environment Master List (Classified)
 
-## Classification model
+## Method summary
+This classification is derived from repository env files and compose references, with emphasis on active runtime contexts.
 
-- **Required runtime**: compose interpolation or service startup critical.
-- **Optional runtime**: feature flags or profile-only values.
-- **Secret**: credentials/tokens/keys; never commit real values.
-- **Derived**: values computed from deployment context.
+## Classification rules
+1. **Secret material**: keys containing `_TOKEN`, `_SECRET`, `_PASSWORD`, `_KEY`, DB URLs, auth credentials.
+2. **Runtime routing/config**: hostnames, ports, origins, domains, URLs, deployment modes.
+3. **Machine profile**: worker hardware, model limits, orchestration role metadata.
+4. **Public-safe config**: `NEXT_PUBLIC_*` and explicit non-sensitive frontend constants.
 
-## Core stack examples
+## Operational guidance
+- Keep live values in Infisical or CI secret stores.
+- Commit only templates (`*.template`, `*.example`) and non-sensitive defaults.
+- Never commit generated local `.env.gitea`, `.env.infisical`, or `.secrets/*` material.
 
-| Variable | Class | Scope | Notes |
-|---|---|---|---|
-| `POSTGRES_PORT` | required runtime | infra stack | publish mapping for postgres |
-| `REDIS_PORT` | required runtime | infra stack | publish mapping for redis |
-| `MONGO_PORT` | required runtime | infra stack | publish mapping for mongo |
-| `LITELLM_PORT` | optional runtime | orchestrator | gateway exposure point |
-| `NEXUS_ROUTER_PORT` | optional runtime | orchestrator | router API port |
-| `NYRA_DOMAIN_ROOT` | required runtime | edge docs/config | cloudflared hostnames |
-| `CF_TUNNEL_NAME` | required runtime | cloudflared | tunnel identifier |
+## Priority env sets
+### Core platform
+- `infra/env/.env.orchestrator`
+- `infra/env/.env.worker-rtx3060`
+- `infra/env/.env.worker-rtx3090ti`
+- `infra/env/.env.worker-rtx5090`
 
-## Gitea bootstrap examples
+### Dedicated control planes
+- `.env.gitea.template` -> `.env.gitea` (ignored local)
+- `.env.infisical.template` -> `.env.infisical` (ignored local)
 
-| Variable | Class | Notes |
-|---|---|---|
-| `GITEA_PORT` | optional runtime | defaults to 3100 |
-| `GITEA_SSH_PORT` | optional runtime | defaults to 2222 |
-| `INFISICAL_PROJECT_ID` | secret-adjacent | reference only, not a credential itself |
-| `INFISICAL_PATH` | optional runtime | secret namespace path |
+### Overlay/runtime variants
+- `infra/compose/overrides/*.override.yml` env references
+- `docker-compose.archon.yml` and control-plane env keys
 
-## Infisical bootstrap examples
+## Risk notes
+- Several env keys appear only in docs/examples; treat those as optional until mapped to active compose/script usage.
+- Cross-machine drift is most likely in host/port/domain keys; validate during preflight.
+- Secret rotation policy should be anchored to Infisical project scopes and CI contexts.
 
-| Variable | Class | Notes |
-|---|---|---|
-| `INFISICAL_POSTGRES_PASSWORD` | secret | must be non-placeholder in runtime |
-| `INFISICAL_ENCRYPTION_KEY` | secret | 32-hex runtime requirement |
-| `INFISICAL_AUTH_SECRET` | secret | base64 secret |
-| `INFISICAL_SITE_URL` | required runtime | UI/API origin |
-
-## Secret safety controls
-
-- `.env.gitea` and `.env.infisical` remain ignored.
-- `.secrets/` remains ignored.
-- templates (`*.template`) are committed for bootstrap onboarding.
+## Compliance reminder
+Mortgage workflows handling borrower data must keep credentials and PII-bearing config off git history and under least-privilege secret delivery.

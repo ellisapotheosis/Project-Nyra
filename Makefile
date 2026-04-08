@@ -6,11 +6,19 @@ COMPOSE_FILE ?= infra/docker-compose.yml
 COMPOSE ?= docker compose -f $(COMPOSE_FILE)
 STACK_ENV_FILE ?= .env.stack
 HEALTH_ENV_FILE ?= $(STACK_ENV_FILE)
+WORKER_3060_COMPOSE_FILE ?= infra/workers/worker-rtx3060/docker-compose.worker.yml
+WORKER_3090TI_COMPOSE_FILE ?= infra/workers/worker-rtx3090ti/docker-compose.worker.yml
+WORKER_5090_COMPOSE_FILE ?= infra/workers/worker-rtx5090/docker-compose.worker.yml
 
 DEFAULT_PROFILES ?= core,gateway,workflow,crm,archon,apps,observability,vector
 WORKER_PROFILE ?= workers
 TWENTY_COMPOSE_FILE ?= infra/docker-compose.twenty.yml
 TWENTY_COMPOSE ?= docker compose -f $(TWENTY_COMPOSE_FILE)
+WORKER_3060_COMPOSE ?= $(COMPOSE) -f $(WORKER_3060_COMPOSE_FILE)
+WORKER_3090TI_COMPOSE ?= $(COMPOSE) -f $(WORKER_3090TI_COMPOSE_FILE)
+WORKER_5090_COMPOSE ?= $(COMPOSE) -f $(WORKER_5090_COMPOSE_FILE)
+BOOTSTRAP_IMPORT_SRC_DIR ?= infra/bootstrap/incoming
+BOOTSTRAP_IMPORT_MAP_FILE ?= infra/bootstrap/file-map.csv
 
 ifeq (,$(wildcard pnpm-lock.yaml))
 PKG_MGR ?= npm
@@ -20,14 +28,17 @@ PKG_MGR ?= pnpm
 PKG_RUN ?= pnpm exec
 endif
 
-.PHONY: help install test lint validate compose-config compose-config-all \
+.PHONY: help env-bootstrap install test lint validate compose-config compose-config-all \
   up down restart logs ps pull \
   up-core up-orchestrator up-apps up-dev up-workers up-oracle up-worker-3060 up-worker-3090ti up-worker-5090 \
-  archon-config archon-up archon-down archon-logs archon-ps archon-up-infisical \
+  archon-config archon-up archon-down archon-logs archon-ps archon-up-infisical archon-readiness \
   node-up-orchestrator node-up-oracle node-up-worker-3060 node-up-worker-3090ti node-up-worker-5090 node-down-orchestrator node-down-oracle node-down-worker-3060 node-down-worker-3090ti node-down-worker-5090 \
-  down-workers nexus-up nexus-down health stack-up stack-verify scan-env ports port-check bootstrap-import bootstrap-import-apply bootstrap-ultimate bootstrap-oracle bootstrap-worker-3060 bootstrap-worker-3090ti bootstrap-worker-5090 \
-  archive-guard repo-structure-audit \
+  down-workers nexus-up nexus-down health stack-up stack-verify scan-env ports port-check bootstrap-import bootstrap-import-apply bootstrap-import-init bootstrap-ultimate bootstrap-oracle bootstrap-worker-3060 bootstrap-worker-3090ti bootstrap-worker-5090 \
+  archive-guard repo-structure-audit edge-docs git-remote-health host-layout-validate host-plan install-infra-host-layout \
   gitea-up gitea-up-ai gitea-up-actions gitea-up-actions-large gitea-up-infisical-agent gitea-down gitea-ps gitea-config gitea-bootstrap-orchestrator infisical-up infisical-down infisical-config \
+  gitea-up gitea-up-ai gitea-up-actions gitea-up-actions-large gitea-up-infisical-agent gitea-up-full gitea-down gitea-ps gitea-config gitea-bootstrap-orchestrator gitea-readiness infisical-up infisical-down infisical-config \
+  portainer-bootstrap portainer-edge-up portainer-down \
+  ha-dashboard-up ha-dashboard-down \
   up-gitea down-gitea logs-gitea health-gitea up-infisical down-infisical logs-infisical health-infisical \
   twenty-crm-config twenty-crm-up twenty-crm-down twenty-crm-restart twenty-crm-logs twenty-crm-ps twenty-crm-health twenty-crm-setup twenty-crm-reset twenty-crm-dev twenty-mcp-up twenty-mcp-down
 
@@ -37,8 +48,9 @@ help:
 	@echo "Project Nyra - common targets"
 	@echo
 	@echo "make install            Install root JS dependencies"
+	@echo "make env-bootstrap      Create .env.archon/.env.gitea from examples when missing"
 	@echo "make test               Run tests ($(PKG_MGR) test)"
-	@echo "make lint               Run lint ($(PKG_RUN) eslint .)"
+	@echo "make lint               Run lint ($(PKG_MGR) lint)"
 	@echo "make validate           Validate compose + test + lint"
 	@echo
 	@echo "make up                 Start default stack profiles"
@@ -65,6 +77,11 @@ help:
 	@echo "make scan-env           Build env inventory + missing env reports"
 	@echo "make archive-guard      Fail if deprecated root archive paths return"
 	@echo "make repo-structure-audit Generate structure hotspot report in docs/reports/consolidation"
+	@echo "make edge-docs          Regenerate ports + cloudflared docs from canonical compose files"
+	@echo "make git-remote-health  Fail if no git remote is configured"
+	@echo "make host-layout-validate Verify canonical infra host split structure"
+	@echo "make host-plan          Generate full host service inventory and placement plan"
+	@echo "make install-infra-host-layout Run idempotent infra host prep bootstrap"
 	@echo "make ports              Print canonical ports registry path"
 	@echo "make bootstrap-ultimate Bring up orchestrator + oracle + all workers"
 	@echo
@@ -73,19 +90,31 @@ help:
 	@echo "make gitea-up-actions   Start Gitea stack with actions runner profile"
 	@echo "make gitea-up-actions-large Start Gitea stack with large actions runner profile"
 	@echo "make gitea-up-infisical-agent Start Gitea stack with Infisical agent profile"
+	@echo "make gitea-up-full      Start Gitea + actions + AI + Infisical sidecar"
+	@echo "make gitea-readiness    Validate Gitea env + compose service topology"
 	@echo "make gitea-config       Validate new Gitea compose config"
 	@echo "make gitea-bootstrap-orchestrator Bring up full Gitea + Actions package"
+	@echo "make portainer-bootstrap Bootstrap Portainer control-plane mesh package"
+	@echo "make portainer-edge-up  Start edge agent using .env.portainer.edge"
+	@echo "make portainer-down     Stop Portainer control-plane"
+	@echo "make ha-dashboard-up    Start HomeAssistant dashboard landing page"
+	@echo "make ha-dashboard-down  Stop HomeAssistant dashboard landing page"
 	@echo "make infisical-up       Start Infisical self-host stack"
 	@echo "make infisical-config   Validate new Infisical compose config"
 
+env-bootstrap:
+	@test -f .env.archon || cp .env.archon.example .env.archon
+	@test -f .env.gitea || cp .env.gitea.example .env.gitea
+
 install:
+	$(MAKE) env-bootstrap
 	$(PKG_MGR) install
 
 test:
 	$(PKG_MGR) test
 
 lint:
-	$(PKG_RUN) eslint .
+	$(PKG_MGR) lint
 
 compose-config:
 	$(COMPOSE) config >/dev/null
@@ -94,13 +123,13 @@ validate:
 	$(COMPOSE) config >/dev/null
 	@echo "compose config ok"
 	-@$(PKG_MGR) test
-	-@$(PKG_RUN) eslint .
+	-@$(PKG_MGR) lint
 
 compose-config-all:
 	docker compose --env-file infra/env/.env.orchestrator -f infra/docker-compose.yml -f infra/compose/overrides/docker-compose.orchestrator.override.yml config >/dev/null
-	docker compose --env-file infra/env/.env.worker-rtx3060 -f infra/docker-compose.yml -f infra/compose/overrides/docker-compose.worker-rtx3060.override.yml config >/dev/null
-	docker compose --env-file infra/env/.env.worker-rtx3090ti -f infra/workers/worker-rtx3090ti/docker-compose.worker.yml config >/dev/null
-	docker compose --env-file infra/env/.env.worker-rtx5090 -f infra/workers/worker-rtx5090/docker-compose.worker.yml config >/dev/null
+	docker compose --env-file infra/env/.env.worker-rtx3060 -f $(COMPOSE_FILE) -f infra/compose/overrides/docker-compose.worker-rtx3060.override.yml config >/dev/null
+	docker compose --env-file infra/env/.env.worker-rtx3090ti -f $(COMPOSE_FILE) -f $(WORKER_3090TI_COMPOSE_FILE) config >/dev/null
+	docker compose --env-file infra/env/.env.worker-rtx5090 -f $(COMPOSE_FILE) -f $(WORKER_5090_COMPOSE_FILE) config >/dev/null
 	@echo "compose config ok for orchestrator and all workers"
 
 up:
@@ -136,32 +165,35 @@ up-dev:
 	$(COMPOSE) --profile dev up -d
 
 up-workers:
-	$(COMPOSE) -f infra/workers/worker-rtx3060/docker-compose.worker.yml --profile worker-3060 up -d || $(COMPOSE) --profile worker-3060 up -d
-	$(COMPOSE) -f infra/workers/worker-rtx3090ti/docker-compose.worker.yml --profile worker-3090ti up -d || $(COMPOSE) --profile worker-3090ti up -d
-	$(COMPOSE) -f infra/workers/worker-rtx5090/docker-compose.worker.yml --profile worker-5090 up -d || $(COMPOSE) --profile worker-5090 up -d
+	-$(WORKER_3060_COMPOSE) --profile worker-3060 up -d
+	-$(WORKER_3090TI_COMPOSE) --profile worker-3090ti up -d
+	-$(WORKER_5090_COMPOSE) --profile worker-5090 up -d
 
 archon-config:
-	docker compose -f docker-compose.archon.yml config >/dev/null
+	docker compose --env-file .env.archon -f docker-compose.archon.yml config >/dev/null
 
 archon-up:
-	docker compose -f docker-compose.archon.yml --profile archon up -d
+	docker compose --env-file .env.archon -f docker-compose.archon.yml --profile archon up -d
 
 archon-up-infisical:
-	infisical run --env=prod --path="/shared" -- docker compose -f docker-compose.archon.yml --profile archon up -d
+	infisical run --env=prod --path="/shared" -- docker compose --env-file .env.archon -f docker-compose.archon.yml --profile archon up -d
 
 archon-down:
-	docker compose -f docker-compose.archon.yml down --remove-orphans
+	docker compose --env-file .env.archon -f docker-compose.archon.yml down --remove-orphans
 
 archon-logs:
-	docker compose -f docker-compose.archon.yml logs -f --tail=200
+	docker compose --env-file .env.archon -f docker-compose.archon.yml logs -f --tail=200
 
 archon-ps:
-	docker compose -f docker-compose.archon.yml ps
+	docker compose --env-file .env.archon -f docker-compose.archon.yml ps
+
+archon-readiness:
+	python3 scripts/validation/compose_readiness.py --stack archon --env-file .env.archon
 
 down-workers:
-	$(COMPOSE) -f infra/workers/worker-rtx3060/docker-compose.worker.yml down --remove-orphans || $(COMPOSE) --profile worker-3060 down --remove-orphans
-	$(COMPOSE) -f infra/workers/worker-rtx3090ti/docker-compose.worker.yml down --remove-orphans || $(COMPOSE) --profile worker-3090ti down --remove-orphans
-	$(COMPOSE) -f infra/workers/worker-rtx5090/docker-compose.worker.yml down --remove-orphans || $(COMPOSE) --profile worker-5090 down --remove-orphans
+	-$(WORKER_3060_COMPOSE) --profile worker-3060 down --remove-orphans
+	-$(WORKER_3090TI_COMPOSE) --profile worker-3090ti down --remove-orphans
+	-$(WORKER_5090_COMPOSE) --profile worker-5090 down --remove-orphans
 
 nexus-up:
 	$(COMPOSE) --profile gateway up -d litellm nexus-router
@@ -194,10 +226,13 @@ up-worker-5090:
 	$(COMPOSE) --profile worker-5090 up -d
 
 bootstrap-import:
-	./infra/scripts/bootstrap-import.sh bootstrap/incoming dry-run
+	BOOTSTRAP_IMPORT_SRC_DIR=$(BOOTSTRAP_IMPORT_SRC_DIR) BOOTSTRAP_IMPORT_MAP_FILE=$(BOOTSTRAP_IMPORT_MAP_FILE) ./infra/scripts/bootstrap-import.sh "$(BOOTSTRAP_IMPORT_SRC_DIR)" dry-run "$(BOOTSTRAP_IMPORT_MAP_FILE)"
 
 bootstrap-import-apply:
-	./infra/scripts/bootstrap-import.sh bootstrap/incoming apply
+	BOOTSTRAP_IMPORT_SRC_DIR=$(BOOTSTRAP_IMPORT_SRC_DIR) BOOTSTRAP_IMPORT_MAP_FILE=$(BOOTSTRAP_IMPORT_MAP_FILE) ./infra/scripts/bootstrap-import.sh "$(BOOTSTRAP_IMPORT_SRC_DIR)" apply "$(BOOTSTRAP_IMPORT_MAP_FILE)"
+
+bootstrap-import-init:
+	BOOTSTRAP_IMPORT_SRC_DIR=$(BOOTSTRAP_IMPORT_SRC_DIR) BOOTSTRAP_IMPORT_MAP_FILE=$(BOOTSTRAP_IMPORT_MAP_FILE) ./infra/scripts/bootstrap-import.sh "$(BOOTSTRAP_IMPORT_SRC_DIR)" init "$(BOOTSTRAP_IMPORT_MAP_FILE)"
 
 
 bootstrap-ultimate:
@@ -229,7 +264,10 @@ repo-structure-audit:
 	bash ./scripts/maintenance/repo-structure-audit.sh
 
 ports:
-	@echo "See docs/port-map.md"
+	@echo "See docs/02_ports_registry.md"
+
+edge-docs:
+	python3 scripts/generate-edge-docs.py
 
 port-check:
 	python infra/scripts/check-port-collisions.py
@@ -326,6 +364,9 @@ gitea-up-actions-large:
 gitea-up-infisical-agent:
 	docker compose -f docker-compose.gitea.yml --env-file .env.gitea --profile infisical up -d
 
+gitea-up-full:
+	docker compose -f docker-compose.gitea.yml --env-file .env.gitea --profile actions --profile ai --profile infisical up -d
+
 gitea-down:
 	docker compose -f docker-compose.gitea.yml --env-file .env.gitea down --remove-orphans
 
@@ -335,6 +376,9 @@ gitea-ps:
 gitea-bootstrap-orchestrator:
 	ENABLE_ACTIONS=true ENABLE_ACTIONS_LARGE=false ENABLE_INFISICAL_AGENT=true ./scripts/gitea/bootstrap-orchestrator-gitea.sh
 
+gitea-readiness:
+	python3 scripts/validation/compose_readiness.py --stack gitea --env-file .env.gitea
+
 infisical-config:
 	docker compose -f docker-compose.infisical.yml --env-file .env.infisical config >/dev/null
 
@@ -343,6 +387,21 @@ infisical-up:
 
 infisical-down:
 	docker compose -f docker-compose.infisical.yml --env-file .env.infisical down --remove-orphans
+
+portainer-bootstrap:
+	./infra/orchestrator/portainer-mesh/bootstrap-portainer-mesh.sh
+
+portainer-edge-up:
+	docker compose --env-file infra/orchestrator/portainer-mesh/.env.portainer.edge -f infra/orchestrator/portainer-mesh/docker-compose.portainer.edge-agent.yml up -d
+
+portainer-down:
+	docker compose --env-file infra/orchestrator/portainer-mesh/.env.portainer.orchestrator -f infra/orchestrator/portainer-mesh/docker-compose.portainer.orchestrator.yml down --remove-orphans
+
+ha-dashboard-up:
+	docker compose --env-file infra/homeassistant/.env.homeassistant-dashboard -f infra/homeassistant/docker-compose.homeassistant-dashboard.yml up -d
+
+ha-dashboard-down:
+	docker compose --env-file infra/homeassistant/.env.homeassistant-dashboard -f infra/homeassistant/docker-compose.homeassistant-dashboard.yml down --remove-orphans
 
 # Additive bootstrap-safe wrappers (do not replace existing flows)
 up-gitea:
@@ -425,3 +484,17 @@ twenty-mcp-up:
 twenty-mcp-down:
 	@echo "Stopping TwentyCRM MCP Server..."
 	$(TWENTY_COMPOSE) stop twenty-mcp-server
+
+
+git-remote-health:
+	bash ./scripts/maintenance/git-remote-health.sh
+
+host-layout-validate:
+	python3 scripts/maintenance/validate_host_layout.py
+
+host-plan:
+	python3 scripts/maintenance/generate-host-service-plan.py
+
+
+install-infra-host-layout:
+	bash ./scripts/setup/install-infra-host-layout.sh

@@ -1,92 +1,82 @@
-# 02 Ports Registry (ACTIVE ONLY)
+# 02 Ports Registry (Active Only)
 
-_Generated from authoritative compose set on 2026-03-06._
+_Generated from the canonical compose set used by `Makefile`, `infra/scripts/node-*.sh`, and the dedicated root bootstrap stacks._
 
-## Authoritative compose scope
-- Included: compose files referenced by `Makefile` targets and `infra/scripts/node-*.sh` / `infra/scripts/ultimate-bootstrap.sh`.
-- Included (secondary infra scope): active files under `infra/**/docker-compose*.yml` that are used for runtime bootstrap in this repo.
-- Excluded by default: `docs/**`, `docs/references/**`, `_archived/**`, `infra-archived/**`.
+## Authoritative compose set
+- `infra/docker-compose.yml`
+- `infra/oracle/docker-compose.oracle.yml`
+- `docker-compose.archon.yml`
+- `docker-compose.gitea.yml`
+- `docker-compose.infisical.yml`
+- `infra/workers/worker-rtx3060/docker-compose.worker.yml`
+- `infra/workers/worker-rtx3090ti/docker-compose.worker.yml`
+- `infra/workers/worker-rtx5090/docker-compose.worker.yml`
+- `infra/orchestrator/docker-compose.nexus-one-hop.yml`
+
+## Exposure policy
+- Datastores and worker inference backends default to `private`.
+- Only explicitly approved operator-facing HTTP services receive proposed hostnames or cloudflared snippets.
+- Internal APIs and gateways remain private by default even when they speak HTTP.
+- The marketing landing page stays on Cloudflare Pages and is not tunnel-routed.
+
+> Replace the example domain `nyra.example.com` with your real Cloudflare zone before provisioning DNS.
 
 | Service | Repo path (FINAL) | Compose service name | Container port(s) | Host port(s) | Protocol | Health endpoint | Exposure | Proposed hostname | Cloudflared ingress snippet |
 |---|---|---|---|---|---|---|---|---|---|
-| activepieces | `infra/compose/overrides/docker-compose.oracle.override.yml` | `activepieces` | `80` | `0.0.0.0:${ACTIVEPIECES_PORT:-8082}:80` | tcp | — | public-via-cloudflare-access | activepieces.nyra.local | - hostname: activepieces.nyra.local\n  service: http://activepieces:80 |
-| activepieces | `infra/compose/overrides/docker-compose.orchestrator.override.yml` | `activepieces` | `80` | `0.0.0.0:${ACTIVEPIECES_PORT:-8082}:80` | tcp | — | public-via-cloudflare-access | activepieces.nyra.local | - hostname: activepieces.nyra.local\n  service: http://activepieces:80 |
-| activepieces | `infra/docker-compose.yml` | `activepieces` | `80` | `${ACTIVEPIECES_PORT:-8082}:80` | tcp | — | public-via-cloudflare-access | activepieces.nyra.local | - hostname: activepieces.nyra.local\n  service: http://activepieces:80 |
-| activepieces | `infra/oracle/docker-compose.oracle.yml` | `activepieces` | `80` | `8080:80` | tcp | — | public-via-cloudflare-access | activepieces.nyra.local | - hostname: activepieces.nyra.local\n  service: http://activepieces:80 |
-| agentdb | `infra/docker-compose.yml` | `agentdb` | `5432` | `${AGENTDB_PORT:-5440}:5432` | tcp | — | private |   | — |
-| agentic-flow | `infra/docker-compose.yml` | `agentic-flow` | `8095` | `${AGENTIC_FLOW_PORT:-8095}:8095` | tcp | — | private | agentic-flow.nyra.local | - hostname: agentic-flow.nyra.local\n  service: http://agentic-flow:8095 |
-| archon-os | `infra/docker-compose.yml` | `archon-os` | `9001` | `${ARCHON_OS_PORT:-9001}:9001` | tcp | — | public-via-cloudflare-access | archon-os.nyra.local | - hostname: archon-os.nyra.local\n  service: http://archon-os:9001 |
-| bitwarden-mcp | `infra/docker-compose.yml` | `bitwarden-mcp` | `8814` | `${BITWARDEN_MCP_PORT:-8814}:8814` | tcp | — | private | bitwarden-mcp.nyra.local | - hostname: bitwarden-mcp.nyra.local\n  service: http://bitwarden-mcp:8814 |
-| cadvisor | `infra/compose/overrides/docker-compose.orchestrator.override.yml` | `cadvisor` | `8080` | `0.0.0.0:${CADVISOR_PORT:-8081}:8080` | tcp | — | private | cadvisor.nyra.local | - hostname: cadvisor.nyra.local\n  service: http://cadvisor:8080 |
-| cadvisor | `infra/compose/overrides/docker-compose.worker-rtx3060.override.yml` | `cadvisor` | `8080` | `127.0.0.1:${CADVISOR_PORT:-8081}:8080` | tcp | — | private | cadvisor.nyra.local | - hostname: cadvisor.nyra.local\n  service: http://cadvisor:8080 |
-| cadvisor | `infra/docker-compose.yml` | `cadvisor` | `8080` | `${CADVISOR_PORT:-8081}:8080` | tcp | — | private | cadvisor.nyra.local | - hostname: cadvisor.nyra.local\n  service: http://cadvisor:8080 |
-| cadvisor | `infra/workers/worker-rtx3090ti/docker-compose.worker.yml` | `cadvisor` | `8080` | `127.0.0.1:${CADVISOR_PORT:-8081}:8080` | tcp | — | private | cadvisor.nyra.local | - hostname: cadvisor.nyra.local\n  service: http://cadvisor:8080 |
-| cadvisor | `infra/workers/worker-rtx5090/docker-compose.worker.yml` | `cadvisor` | `8080` | `127.0.0.1:${CADVISOR_PORT:-8081}:8080` | tcp | — | private | cadvisor.nyra.local | - hostname: cadvisor.nyra.local\n  service: http://cadvisor:8080 |
-| claude-flow | `infra/docker-compose.yml` | `claude-flow` | `8080` | `${CLAUDE_FLOW_PORT:-8085}:8080` | tcp | — | public-via-cloudflare-access | claude-flow.nyra.local | - hostname: claude-flow.nyra.local\n  service: http://claude-flow:8080 |
-| docker-mcp-toolkit | `infra/docker-compose.yml` | `docker-mcp-toolkit` | `8811` | `${DOCKER_MCP_PORT:-8811}:8811` | tcp | — | private | docker-mcp-toolkit.nyra.local | - hostname: docker-mcp-toolkit.nyra.local\n  service: http://docker-mcp-toolkit:8811 |
-| git-mcp | `infra/docker-compose.yml` | `git-mcp` | `8812` | `${GIT_MCP_PORT:-8812}:8812` | tcp | — | private | git-mcp.nyra.local | - hostname: git-mcp.nyra.local\n  service: http://git-mcp:8812 |
-| gitea | `docker-compose.gitea.yml` | `gitea` | `22, 3000` | `${GITEA_PORT:-3100}:3000, ${GITEA_SSH_PORT:-2222}:22` | tcp | — | public-via-cloudflare-access | gitea.nyra.local | - hostname: gitea.nyra.local\n  service: http://gitea:3000 |
-| github-mcp | `infra/docker-compose.yml` | `github-mcp` | `8813` | `${GITHUB_MCP_PORT:-8813}:8813` | tcp | — | private | github-mcp.nyra.local | - hostname: github-mcp.nyra.local\n  service: http://github-mcp:8813 |
-| grafana | `infra/compose/overrides/docker-compose.oracle.override.yml` | `grafana` | `3000` | `0.0.0.0:${GRAFANA_PORT:-3006}:3000` | tcp | /api/health | public-via-cloudflare-access | grafana.nyra.local | - hostname: grafana.nyra.local\n  service: http://grafana:3000 |
-| grafana | `infra/compose/overrides/docker-compose.orchestrator.override.yml` | `grafana` | `3000` | `0.0.0.0:${GRAFANA_PORT:-3003}:3000` | tcp | /api/health | public-via-cloudflare-access | grafana.nyra.local | - hostname: grafana.nyra.local\n  service: http://grafana:3000 |
-| grafana | `infra/compose/overrides/docker-compose.worker-rtx3060.override.yml` | `grafana` | `3000` | `127.0.0.1:${GRAFANA_PORT:-3003}:3000` | tcp | /api/health | public-via-cloudflare-access | grafana.nyra.local | - hostname: grafana.nyra.local\n  service: http://grafana:3000 |
-| grafana | `infra/docker-compose.yml` | `grafana` | `3000` | `${GRAFANA_PORT:-3003}:3000` | tcp | /api/health | public-via-cloudflare-access | grafana.nyra.local | - hostname: grafana.nyra.local\n  service: http://grafana:3000 |
-| grafana | `infra/workers/worker-rtx3090ti/docker-compose.worker.yml` | `grafana` | `3000` | `127.0.0.1:${GRAFANA_PORT:-3003}:3000` | tcp | /api/health | public-via-cloudflare-access | grafana.nyra.local | - hostname: grafana.nyra.local\n  service: http://grafana:3000 |
-| grafana | `infra/workers/worker-rtx5090/docker-compose.worker.yml` | `grafana` | `3000` | `127.0.0.1:${GRAFANA_PORT:-3003}:3000` | tcp | /api/health | public-via-cloudflare-access | grafana.nyra.local | - hostname: grafana.nyra.local\n  service: http://grafana:3000 |
-| infisical | `docker-compose.infisical.yml` | `infisical` | `8080` | `${INFISICAL_PORT:-3201}:8080` | tcp | — | public-via-cloudflare-access | infisical.nyra.local | - hostname: infisical.nyra.local\n  service: http://infisical:8080 |
-| infisical | `infra/compose/overrides/docker-compose.orchestrator.override.yml` | `infisical` | `8080` | `0.0.0.0:${INFISICAL_PORT:-8086}:8080` | tcp | — | public-via-cloudflare-access | infisical.nyra.local | - hostname: infisical.nyra.local\n  service: http://infisical:8080 |
-| infisical | `infra/docker-compose.yml` | `infisical` | `8080` | `${INFISICAL_PORT:-8086}:8080` | tcp | — | public-via-cloudflare-access | infisical.nyra.local | - hostname: infisical.nyra.local\n  service: http://infisical:8080 |
-| infisical-mcp | `infra/docker-compose.yml` | `infisical-mcp` | `8815` | `${INFISICAL_MCP_PORT:-8815}:8815` | tcp | — | private | infisical-mcp.nyra.local | - hostname: infisical-mcp.nyra.local\n  service: http://infisical-mcp:8815 |
-| litellm | `infra/docker-compose.yml` | `litellm` | `4000` | `${LITELLM_PORT:-4000}:4000` | tcp | /health | public-via-cloudflare-access | litellm.nyra.local | - hostname: litellm.nyra.local\n  service: http://litellm:4000 |
-| loki | `infra/compose/overrides/docker-compose.orchestrator.override.yml` | `loki` | `3100` | `0.0.0.0:${LOKI_PORT:-3100}:3100` | tcp | — | private | loki.nyra.local | - hostname: loki.nyra.local\n  service: http://loki:3100 |
-| loki | `infra/compose/overrides/docker-compose.worker-rtx3060.override.yml` | `loki` | `3100` | `127.0.0.1:${LOKI_PORT:-3100}:3100` | tcp | — | private | loki.nyra.local | - hostname: loki.nyra.local\n  service: http://loki:3100 |
-| loki | `infra/docker-compose.yml` | `loki` | `3100` | `${LOKI_PORT:-3100}:3100` | tcp | — | private | loki.nyra.local | - hostname: loki.nyra.local\n  service: http://loki:3100 |
-| loki | `infra/workers/worker-rtx3090ti/docker-compose.worker.yml` | `loki` | `3100` | `127.0.0.1:${LOKI_PORT:-3100}:3100` | tcp | — | private | loki.nyra.local | - hostname: loki.nyra.local\n  service: http://loki:3100 |
-| loki | `infra/workers/worker-rtx5090/docker-compose.worker.yml` | `loki` | `3100` | `127.0.0.1:${LOKI_PORT:-3100}:3100` | tcp | — | private | loki.nyra.local | - hostname: loki.nyra.local\n  service: http://loki:3100 |
-| moltbot | `infra/oracle/docker-compose.oracle.yml` | `moltbot` | `18789, 18790` | `18789:18789, 18790:18790` | tcp | — | private | moltbot.nyra.local | - hostname: moltbot.nyra.local\n  service: http://moltbot:18789 |
-| moltbot-web | `infra/docker-compose.yml` | `moltbot-web` | `3030` | `${MOLTBOT_WEB_PORT:-3030}:3030` | tcp | — | public-via-cloudflare-access | moltbot-web.nyra.local | - hostname: moltbot-web.nyra.local\n  service: http://moltbot-web:3030 |
-| mongo | `infra/compose/overrides/docker-compose.oracle.override.yml` | `mongo` | `27017` | `0.0.0.0:${MONGO_PORT:-27017}:27017` | tcp | — | private |   | — |
-| mongo | `infra/compose/overrides/docker-compose.orchestrator.override.yml` | `mongo` | `27017` | `0.0.0.0:${MONGO_PORT:-27017}:27017` | tcp | — | private |   | — |
-| mongo | `infra/compose/overrides/docker-compose.worker-rtx3060.override.yml` | `mongo` | `27017` | `127.0.0.1:${MONGO_PORT:-27017}:27017` | tcp | — | private |   | — |
-| mongo | `infra/docker-compose.yml` | `mongo` | `27017` | `${MONGO_PORT:-27017}:27017` | tcp | docker healthcheck defined | private |   | — |
-| mongo | `infra/workers/worker-rtx3090ti/docker-compose.worker.yml` | `mongo` | `27017` | `127.0.0.1:${MONGO_PORT:-27017}:27017` | tcp | — | private |   | — |
-| mongo | `infra/workers/worker-rtx5090/docker-compose.worker.yml` | `mongo` | `27017` | `127.0.0.1:${MONGO_PORT:-27017}:27017` | tcp | — | private |   | — |
-| n8n | `infra/compose/overrides/docker-compose.oracle.override.yml` | `n8n` | `5678` | `0.0.0.0:${N8N_PORT:-5678}:5678` | tcp | /healthz | public-via-cloudflare-access | n8n.nyra.local | - hostname: n8n.nyra.local\n  service: http://n8n:5678 |
-| n8n | `infra/compose/overrides/docker-compose.orchestrator.override.yml` | `n8n` | `5678` | `0.0.0.0:${N8N_PORT:-5678}:5678` | tcp | /healthz | public-via-cloudflare-access | n8n.nyra.local | - hostname: n8n.nyra.local\n  service: http://n8n:5678 |
-| n8n | `infra/compose/overrides/docker-compose.worker-rtx3060.override.yml` | `n8n` | `5678` | `127.0.0.1:${N8N_PORT:-5678}:5678` | tcp | /healthz | public-via-cloudflare-access | n8n.nyra.local | - hostname: n8n.nyra.local\n  service: http://n8n:5678 |
-| n8n | `infra/docker-compose.yml` | `n8n` | `5678` | `${N8N_PORT:-5678}:5678` | tcp | /healthz | public-via-cloudflare-access | n8n.nyra.local | - hostname: n8n.nyra.local\n  service: http://n8n:5678 |
-| n8n | `infra/oracle/docker-compose.oracle.yml` | `n8n` | `5678` | `5678:5678` | tcp | /healthz | public-via-cloudflare-access | n8n.nyra.local | - hostname: n8n.nyra.local\n  service: http://n8n:5678 |
-| n8n | `infra/workers/worker-rtx3090ti/docker-compose.worker.yml` | `n8n` | `5678` | `127.0.0.1:${N8N_PORT:-5678}:5678` | tcp | /healthz | public-via-cloudflare-access | n8n.nyra.local | - hostname: n8n.nyra.local\n  service: http://n8n:5678 |
-| n8n | `infra/workers/worker-rtx5090/docker-compose.worker.yml` | `n8n` | `5678` | `127.0.0.1:${N8N_PORT:-5678}:5678` | tcp | /healthz | public-via-cloudflare-access | n8n.nyra.local | - hostname: n8n.nyra.local\n  service: http://n8n:5678 |
-| nexus-router | `infra/docker-compose.yml` | `nexus-router` | `7000, 8080, 9091` | `${NEXUS_ROUTER_PORT:-7000}:7000, ${NEXUS_MCP_PORT:-8080}:8080, ${NEXUS_METRICS_PORT:-9091}:9091` | tcp | /health | public-via-cloudflare-access | nexus-router.nyra.local | - hostname: nexus-router.nyra.local\n  service: http://nexus-router:7000 |
-| nexus_onehop | `infra/orchestrator/docker-compose.nexus-one-hop.yml` | `nexus_onehop` | `6000, 6011` | `6000:6000, 6011:6011` | tcp | — | public-via-cloudflare-access | nexus-onehop.nyra.local | - hostname: nexus-onehop.nyra.local\n  service: http://nexus_onehop:6000 |
-| openwebui | `infra/docker-compose.yml` | `openwebui` | `8080` | `${OPENWEBUI_PORT:-8088}:8080` | tcp | — | public-via-cloudflare-access | openwebui.nyra.local | - hostname: openwebui.nyra.local\n  service: http://openwebui:8080 |
-| postgres | `infra/compose/overrides/docker-compose.oracle.override.yml` | `postgres` | `5432` | `0.0.0.0:${POSTGRES_PORT:-5432}:5432` | tcp | — | private |   | — |
-| postgres | `infra/compose/overrides/docker-compose.orchestrator.override.yml` | `postgres` | `5432` | `0.0.0.0:${POSTGRES_PORT:-5432}:5432` | tcp | — | private |   | — |
-| postgres | `infra/compose/overrides/docker-compose.worker-rtx3060.override.yml` | `postgres` | `5432` | `127.0.0.1:${POSTGRES_PORT:-5432}:5432` | tcp | — | private |   | — |
-| postgres | `infra/docker-compose.yml` | `postgres` | `5432` | `${POSTGRES_PORT:-5432}:5432` | tcp | docker healthcheck defined | private |   | — |
-| postgres | `infra/workers/worker-rtx3090ti/docker-compose.worker.yml` | `postgres` | `5432` | `127.0.0.1:${POSTGRES_PORT:-5432}:5432` | tcp | — | private |   | — |
-| postgres | `infra/workers/worker-rtx5090/docker-compose.worker.yml` | `postgres` | `5432` | `127.0.0.1:${POSTGRES_PORT:-5432}:5432` | tcp | — | private |   | — |
-| prometheus | `infra/compose/overrides/docker-compose.orchestrator.override.yml` | `prometheus` | `9090` | `0.0.0.0:${PROMETHEUS_PORT:-9090}:9090` | tcp | — | private | prometheus.nyra.local | - hostname: prometheus.nyra.local\n  service: http://prometheus:9090 |
-| prometheus | `infra/compose/overrides/docker-compose.worker-rtx3060.override.yml` | `prometheus` | `9090` | `127.0.0.1:${PROMETHEUS_PORT:-9090}:9090` | tcp | — | private | prometheus.nyra.local | - hostname: prometheus.nyra.local\n  service: http://prometheus:9090 |
-| prometheus | `infra/docker-compose.yml` | `prometheus` | `9090` | `${PROMETHEUS_PORT:-9090}:9090` | tcp | — | private | prometheus.nyra.local | - hostname: prometheus.nyra.local\n  service: http://prometheus:9090 |
-| prometheus | `infra/workers/worker-rtx3090ti/docker-compose.worker.yml` | `prometheus` | `9090` | `127.0.0.1:${PROMETHEUS_PORT:-9090}:9090` | tcp | — | private | prometheus.nyra.local | - hostname: prometheus.nyra.local\n  service: http://prometheus:9090 |
-| prometheus | `infra/workers/worker-rtx5090/docker-compose.worker.yml` | `prometheus` | `9090` | `127.0.0.1:${PROMETHEUS_PORT:-9090}:9090` | tcp | — | private | prometheus.nyra.local | - hostname: prometheus.nyra.local\n  service: http://prometheus:9090 |
-| quote-api | `infra/oracle/docker-compose.oracle.yml` | `quote-api` | `7070` | `7070:7070` | tcp | /health | public-via-cloudflare-access | quote-api.nyra.local | - hostname: quote-api.nyra.local\n  service: http://quote-api:7070 |
-| redis | `infra/compose/overrides/docker-compose.oracle.override.yml` | `redis` | `6379` | `0.0.0.0:${REDIS_PORT:-6379}:6379` | tcp | — | private |   | — |
-| redis | `infra/compose/overrides/docker-compose.orchestrator.override.yml` | `redis` | `6379` | `0.0.0.0:${REDIS_PORT:-6379}:6379` | tcp | — | private |   | — |
-| redis | `infra/compose/overrides/docker-compose.worker-rtx3060.override.yml` | `redis` | `6379` | `127.0.0.1:${REDIS_PORT:-6379}:6379` | tcp | — | private |   | — |
-| redis | `infra/docker-compose.yml` | `redis` | `6379` | `${REDIS_PORT:-6379}:6379` | tcp | docker healthcheck defined | private |   | — |
-| redis | `infra/workers/worker-rtx3090ti/docker-compose.worker.yml` | `redis` | `6379` | `127.0.0.1:${REDIS_PORT:-6379}:6379` | tcp | — | private |   | — |
-| redis | `infra/workers/worker-rtx5090/docker-compose.worker.yml` | `redis` | `6379` | `127.0.0.1:${REDIS_PORT:-6379}:6379` | tcp | — | private |   | — |
-| ruvector-pgadmin | `infra/compose/overrides/docker-compose.orchestrator.override.yml` | `ruvector-pgadmin` | `80` | `0.0.0.0:${RUVECTOR_PGADMIN_PORT:-5050}:80` | tcp | — | private | ruvector-pgadmin.nyra.local | - hostname: ruvector-pgadmin.nyra.local\n  service: http://ruvector-pgadmin:80 |
-| ruvector-pgadmin | `infra/docker-compose.yml` | `ruvector-pgadmin` | `80` | `${RUVECTOR_PGADMIN_PORT:-5050}:80` | tcp | — | private | ruvector-pgadmin.nyra.local | - hostname: ruvector-pgadmin.nyra.local\n  service: http://ruvector-pgadmin:80 |
-| ruvector-postgres | `infra/compose/overrides/docker-compose.orchestrator.override.yml` | `ruvector-postgres` | `5432` | `0.0.0.0:${RUVECTOR_POSTGRES_PORT:-5436}:5432` | tcp | — | private |   | — |
-| ruvector-postgres | `infra/docker-compose.yml` | `ruvector-postgres` | `5432` | `${RUVECTOR_POSTGRES_PORT:-5436}:5432` | tcp | docker healthcheck defined | private |   | — |
-| twenty | `infra/oracle/docker-compose.oracle.yml` | `twenty` | `3000` | `3000:3000` | tcp | — | public-via-cloudflare-access | twenty.nyra.local | - hostname: twenty.nyra.local\n  service: http://twenty:3000 |
-| twentycrm | `infra/compose/overrides/docker-compose.oracle.override.yml` | `twentycrm` | `3000` | `0.0.0.0:${TWENTYCRM_PORT:-3000}:3000` | tcp | — | public-via-cloudflare-access | twentycrm.nyra.local | - hostname: twentycrm.nyra.local\n  service: http://twentycrm:3000 |
-| twentycrm | `infra/docker-compose.yml` | `twentycrm` | `3000` | `${TWENTYCRM_PORT:-3000}:3000` | tcp | — | public-via-cloudflare-access | twentycrm.nyra.local | - hostname: twentycrm.nyra.local\n  service: http://twentycrm:3000 |
-| twentycrm-mcp | `infra/docker-compose.yml` | `twentycrm-mcp` | `8082` | `${TWENTYCRM_MCP_PORT:-8182}:8082` | tcp | — | private | twentycrm-mcp.nyra.local | - hostname: twentycrm-mcp.nyra.local\n  service: http://twentycrm-mcp:8082 |
-| worker-3060-ollama | `infra/docker-compose.yml` | `worker-3060-ollama` | `11434` | `${WORKER_3060_OLLAMA_PORT:-11434}:11434` | tcp | — | private | worker-3060-ollama.nyra.local | - hostname: worker-3060-ollama.nyra.local\n  service: http://worker-3060-ollama:11434 |
-| worker-3090ti-vllm | `infra/docker-compose.yml` | `worker-3090ti-vllm` | `8000` | `${WORKER_3090TI_VLLM_PORT:-8000}:8000` | tcp | — | private | worker-3090ti-vllm.nyra.local | - hostname: worker-3090ti-vllm.nyra.local\n  service: http://worker-3090ti-vllm:8000 |
-| worker-5090-vllm | `infra/docker-compose.yml` | `worker-5090-vllm` | `8000` | `${WORKER_5090_VLLM_PORT:-8001}:8000` | tcp | — | private | worker-5090-vllm.nyra.local | - hostname: worker-5090-vllm.nyra.local\n  service: http://worker-5090-vllm:8000 |
+| activepieces | `infra/docker-compose.yml` | `activepieces` | `80` | `8082` | `tcp` | — | public-via-cloudflare-access | activepieces.nyra.example.com | - hostname: activepieces.nyra.example.com<br>  service: http://localhost:8082 |
+| agentdb | `infra/docker-compose.yml` | `agentdb` | `5432` | `5440` | `tcp` | — | private |   | — |
+| agentic-flow | `infra/docker-compose.yml` | `agentic-flow` | `8095` | `8095` | `tcp` | — | private |   | — |
+| archon-agent-work-orders | `infra/docker-compose.yml` | `archon-agent-work-orders` | `8053` | `8053` | `tcp` | — | private |   | — |
+| archon-agents | `infra/docker-compose.yml` | `archon-agents` | `8052` | `8052` | `tcp` | — | private |   | — |
+| archon-mcp | `infra/docker-compose.yml` | `archon-mcp` | `8051` | `8051` | `tcp` | — | private |   | — |
+| archon-os | `infra/docker-compose.yml` | `archon-os` | `9001` | `9001` | `tcp` | — | private |   | — |
+| archon-server | `infra/docker-compose.yml` | `archon-server` | `8181` | `8181` | `tcp` | — | private |   | — |
+| archon-ui | `infra/docker-compose.yml` | `archon-ui` | `5173` | `3737` | `tcp` | — | public-via-cloudflare-access | archon.nyra.example.com | - hostname: archon.nyra.example.com<br>  service: http://localhost:3737 |
+| bitwarden-mcp | `infra/docker-compose.yml` | `bitwarden-mcp` | `8814` | `8814` | `tcp` | — | private |   | — |
+| cadvisor | `infra/docker-compose.yml` | `cadvisor` | `8080` | `8081` | `tcp` | — | private |   | — |
+| claude-flow | `infra/docker-compose.yml` | `claude-flow` | `8080` | `8085` | `tcp` | — | private |   | — |
+| cloudflared | `infra/docker-compose.yml` | `cloudflared` | `—` | `—` | `—` | — | private |   | — |
+| docker-mcp-toolkit | `infra/docker-compose.yml` | `docker-mcp-toolkit` | `8811` | `8811` | `tcp` | — | private |   | — |
+| falkordb | `infra/oracle/docker-compose.oracle.yml` | `falkordb` | `—` | `—` | `—` | — | private |   | — |
+| git-mcp | `infra/docker-compose.yml` | `git-mcp` | `8812` | `8812` | `tcp` | — | private |   | — |
+| gitea | `docker-compose.gitea.yml` | `gitea` | `3000, 22` | `3100, 2222` | `tcp` | — | public-via-cloudflare-access | gitea.nyra.example.com | - hostname: gitea.nyra.example.com<br>  service: http://localhost:3100 |
+| gitea-act-runner | `docker-compose.gitea.yml` | `gitea-act-runner` | `—` | `—` | `—` | — | private |   | — |
+| gitea-act-runner-large | `docker-compose.gitea.yml` | `gitea-act-runner-large` | `—` | `—` | `—` | — | private |   | — |
+| gitea-ai-reviewer | `docker-compose.gitea.yml` | `gitea-ai-reviewer` | `—` | `—` | `—` | — | private |   | — |
+| gitea-db | `docker-compose.gitea.yml` | `gitea-db` | `—` | `—` | `—` | — | private |   | — |
+| github-mcp | `infra/docker-compose.yml` | `github-mcp` | `8813` | `8813` | `tcp` | — | private |   | — |
+| grafana | `infra/docker-compose.yml` | `grafana` | `3000` | `3003` | `tcp` | /api/health | public-via-cloudflare-access | grafana.nyra.example.com | - hostname: grafana.nyra.example.com<br>  service: http://localhost:3003 |
+| graphiti-mcp | `infra/oracle/docker-compose.oracle.yml` | `graphiti-mcp` | `—` | `—` | `—` | — | private |   | — |
+| infisical | `infra/docker-compose.yml` | `infisical` | `8080` | `8086` | `tcp` | — | public-via-cloudflare-access | infisical.nyra.example.com | - hostname: infisical.nyra.example.com<br>  service: http://localhost:8086 |
+| infisical-agent | `infra/docker-compose.yml` | `infisical-agent` | `—` | `—` | `—` | — | private |   | — |
+| infisical-agent-gitea | `docker-compose.gitea.yml` | `infisical-agent-gitea` | `—` | `—` | `—` | — | private |   | — |
+| infisical-cli | `infra/docker-compose.yml` | `infisical-cli` | `—` | `—` | `—` | — | private |   | — |
+| infisical-db | `docker-compose.infisical.yml` | `infisical-db` | `—` | `—` | `—` | — | private |   | — |
+| infisical-mcp | `infra/docker-compose.yml` | `infisical-mcp` | `8815` | `8815` | `tcp` | — | private |   | — |
+| infisical-redis | `docker-compose.infisical.yml` | `infisical-redis` | `—` | `—` | `—` | — | private |   | — |
+| litellm | `infra/docker-compose.yml` | `litellm` | `4000` | `4000` | `tcp` | — | private |   | — |
+| loki | `infra/docker-compose.yml` | `loki` | `3100` | `3100` | `tcp` | — | private |   | — |
+| moltbot | `infra/oracle/docker-compose.oracle.yml` | `moltbot` | `18789, 18790` | `18789, 18790` | `tcp` | — | private |   | — |
+| moltbot-web | `infra/docker-compose.yml` | `moltbot-web` | `3030` | `3030` | `tcp` | — | private |   | — |
+| mongo | `infra/docker-compose.yml` | `mongo` | `27017` | `27017` | `tcp` | — | private |   | — |
+| n8n | `infra/docker-compose.yml` | `n8n` | `5678` | `5678` | `tcp` | /healthz | public-via-cloudflare-access | n8n.nyra.example.com | - hostname: n8n.nyra.example.com<br>  service: http://localhost:5678 |
+| nexus-router | `infra/docker-compose.yml` | `nexus-router` | `7000, 8080, 9091` | `7000, 8080, 9091` | `tcp` | — | private |   | — |
+| nexus_onehop | `infra/orchestrator/docker-compose.nexus-one-hop.yml` | `nexus_onehop` | `6000, 6011` | `6000, 6011` | `tcp` | — | private |   | — |
+| nyra-mcp | `infra/docker-compose.yml` | `nyra-mcp` | `8081` | `3333` | `tcp` | — | private |   | — |
+| nyra-secrets-init | `docker-compose.gitea.yml` | `nyra-secrets-init` | `—` | `—` | `—` | — | private |   | — |
+| openwebui | `infra/docker-compose.yml` | `openwebui` | `8080` | `8088` | `tcp` | — | private |   | — |
+| postgres | `infra/docker-compose.yml` | `postgres` | `5432` | `5432` | `tcp` | — | private |   | — |
+| prometheus | `infra/docker-compose.yml` | `prometheus` | `9090` | `9090` | `tcp` | — | private |   | — |
+| quote-api | `infra/oracle/docker-compose.oracle.yml` | `quote-api` | `7070` | `7070` | `tcp` | /health | private |   | — |
+| redis | `infra/docker-compose.yml` | `redis` | `6379` | `6379` | `tcp` | — | private |   | — |
+| redis-cache | `infra/oracle/docker-compose.oracle.yml` | `redis-cache` | `—` | `—` | `—` | — | private |   | — |
+| ruvector-pgadmin | `infra/docker-compose.yml` | `ruvector-pgadmin` | `80` | `5050` | `tcp` | — | private |   | — |
+| ruvector-postgres | `infra/docker-compose.yml` | `ruvector-postgres` | `5432` | `5436` | `tcp` | — | private |   | — |
+| twenty | `infra/oracle/docker-compose.oracle.yml` | `twenty` | `3000` | `3000` | `tcp` | — | private |   | — |
+| twenty-postgres | `infra/docker-compose.yml` | `twenty-postgres` | `—` | `—` | `—` | — | private |   | — |
+| twentycrm | `infra/docker-compose.yml` | `twentycrm` | `3000` | `3000` | `tcp` | — | public-via-cloudflare-access | twentycrm.nyra.example.com | - hostname: twentycrm.nyra.example.com<br>  service: http://localhost:3000 |
+| twentycrm-mcp | `infra/docker-compose.yml` | `twentycrm-mcp` | `8082` | `8182` | `tcp` | — | private |   | — |
+| worker-3060-ollama | `infra/docker-compose.yml` | `worker-3060-ollama` | `11434` | `11434` | `tcp` | — | private |   | — |
+| worker-3090ti-vllm | `infra/docker-compose.yml` | `worker-3090ti-vllm` | `8000` | `8000` | `tcp` | — | private |   | — |
+| worker-5090-vllm | `infra/docker-compose.yml` | `worker-5090-vllm` | `8000` | `8001` | `tcp` | — | private |   | — |
+| worker-rtx3060 | `infra/workers/worker-rtx3060/docker-compose.worker.yml` | `worker-rtx3060` | `—` | `—` | `—` | — | private |   | — |

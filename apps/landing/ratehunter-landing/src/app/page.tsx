@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { BorrowerChatWidget } from '@/components/BorrowerChatWidget';
 
 interface RateCard {
   product: string;
@@ -218,6 +219,7 @@ export default async function Home() {
           )}
         </div>
       </section>
+      <BorrowerChatWidget />
     </main>
   );
 }

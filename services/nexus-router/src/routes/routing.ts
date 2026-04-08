@@ -20,7 +20,7 @@ const RoutingConfigSchema = z.object({
 
 const CustomRoutingRuleSchema = z.object({
   pattern: z.string().min(1),
-  targetProvider: z.enum(['local', 'anthropic', 'openrouter']),
+  targetProvider: z.enum(['local', 'openai', 'google-gemini', 'anthropic', 'openrouter']),
   targetModel: z.string().optional(),
   priority: z.number().int().default(0),
   enabled: z.boolean().default(true),
@@ -40,7 +40,7 @@ export type CustomRoutingRule = z.infer<typeof CustomRoutingRuleSchema>;
 export type SimulateRequest = z.infer<typeof SimulateRequestSchema>;
 
 // In-memory storage for custom rules (could be moved to Redis for persistence)
-let customRules: Map<string, CustomRoutingRule & { id: string; createdAt: Date }> = new Map();
+const customRules: Map<string, CustomRoutingRule & { id: string; createdAt: Date }> = new Map();
 
 /**
  * GET /api/routing/config

@@ -126,6 +126,8 @@ This stack includes:
 - Quote API (containerized from `services/quote-api`)
 - Cloudflared optional profile
 
+Archon is not hosted on the Oracle VM in this layout. The Oracle stack should still carry the shared Supabase coordinates in `.env` so the orchestrator-hosted Archon services can use the same managed project instead of drifting back to a local Postgres-only path.
+
 ### 1) Configure environment
 
 ```bash
@@ -134,6 +136,11 @@ cp .env.example .env
 ```
 
 Set all `CHANGE_ME_*` values before first run.
+
+Set these when Archon is using the managed Supabase project:
+- `SUPABASE_URL`
+- `SUPABASE_SERVICE_KEY`
+- `SUPABASE_ANON_KEY` (optional for frontend/dev tooling)
 
 > The OCI NSG intentionally allows only SSH (port 22) from your admin CIDR.
 > App ports are published at container/host level for local testing, Tailscale access,
