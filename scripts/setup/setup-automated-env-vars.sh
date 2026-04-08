@@ -4,7 +4,7 @@
 # ==============================================================================
 # Sets up environment variables that DO NOT require online account creation.
 # Variables requiring online accounts (API keys) must be set manually.
-# See bootstrap/docs/USER-ACTION-GUIDE.md for manual setup steps.
+# See infra/bootstrap/docs/USER-ACTION-GUIDE.md for manual setup steps.
 # ==============================================================================
 
 set -euo pipefail
@@ -375,7 +375,7 @@ cat > "$OUTPUT_FILE" << EOF
 # ⚠️ DO NOT COMMIT THIS FILE TO GIT
 #
 # This file contains automatically generated configuration.
-# For manual setup requirements, see: bootstrap/docs/USER-ACTION-GUIDE.md
+# For manual setup requirements, see: infra/bootstrap/docs/USER-ACTION-GUIDE.md
 # ============================================================================
 
 # SYSTEM CONFIGURATION
@@ -573,7 +573,7 @@ echo -e "${YELLOW}⚠️  MANUAL SETUP STILL REQUIRED:${NC}"
 echo -e "  • Create online accounts (Anthropic, Google AI, Infisical, Tailscale, Cloudflare)"
 echo -e "  • Get API keys and credentials"
 echo -e "  • Update placeholder values in $OUTPUT_FILE"
-echo -e "  • See: bootstrap/docs/USER-ACTION-GUIDE.md"
+echo -e "  • See: infra/bootstrap/docs/USER-ACTION-GUIDE.md"
 echo ""
 echo -e "${YELLOW}Next Steps:${NC}"
 echo -e "  1. Review and edit $OUTPUT_FILE"

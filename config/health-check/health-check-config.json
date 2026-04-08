@@ -1,0 +1,104 @@
+{
+  "nodes": [
+    {
+      "name": "Orchestrator",
+      "role": "orchestrator",
+      "hostname": "orchestrator.ratehunter.net",
+      "tailscale_ip": "100.64.0.10",
+      "ssh": "ellis@orchestrator.ratehunter.net",
+      "docker_host": "ssh://ellis@orchestrator.ratehunter.net",
+      "gpu": false
+    },
+    {
+      "name": "Worker-3060",
+      "role": "gpu-worker-3060",
+      "hostname": "worker-3060.ratehunter.net",
+      "tailscale_ip": "100.64.0.11",
+      "ssh": "ellis@worker-3060.ratehunter.net",
+      "docker_host": "ssh://ellis@worker-3060.ratehunter.net",
+      "gpu": true
+    },
+    {
+      "name": "Worker-5090",
+      "role": "gpu-worker-5090",
+      "hostname": "worker-5090.ratehunter.net",
+      "tailscale_ip": "100.64.0.12",
+      "ssh": "ellis@worker-5090.ratehunter.net",
+      "docker_host": "ssh://ellis@worker-5090.ratehunter.net",
+      "gpu": true
+    },
+    {
+      "name": "Worker-3090Ti",
+      "role": "gpu-worker-3090ti",
+      "hostname": "worker-3090ti.ratehunter.net",
+      "tailscale_ip": "100.64.0.13",
+      "ssh": "ellis@worker-3090ti.ratehunter.net",
+      "docker_host": "ssh://ellis@worker-3090ti.ratehunter.net",
+      "gpu": true
+    }
+  ],
+  "services": [
+    {
+      "name": "LiteLLM proxy",
+      "type": "http",
+      "endpoint": "http://orchestrator.ratehunter.net:4000/health"
+    },
+    {
+      "name": "Ollama worker RTX 3060",
+      "type": "http",
+      "endpoint": "http://worker-3060.ratehunter.net:11434/health"
+    },
+    {
+      "name": "Ollama worker RTX 3090Ti",
+      "type": "http",
+      "endpoint": "http://worker-3090ti.ratehunter.net:11434/health"
+    },
+    {
+      "name": "vLLM worker RTX 5090",
+      "type": "http",
+      "endpoint": "http://worker-5090.ratehunter.net:8000/health"
+    },
+    {
+      "name": "Twenty CRM",
+      "type": "http",
+      "endpoint": "http://orchestrator.ratehunter.net:3000/healthz"
+    },
+    {
+      "name": "PostgreSQL",
+      "type": "tcp",
+      "host": "orchestrator.ratehunter.net",
+      "port": 5432
+    },
+    {
+      "name": "Redis",
+      "type": "tcp",
+      "host": "orchestrator.ratehunter.net",
+      "port": 6379
+    },
+    {
+      "name": "Cloudflare tunnel status",
+      "type": "command",
+      "command": "cloudflared tunnel list"
+    },
+    {
+      "name": "Grafana",
+      "type": "http",
+      "endpoint": "http://orchestrator.ratehunter.net:3001/api/health"
+    },
+    {
+      "name": "Prometheus",
+      "type": "http",
+      "endpoint": "http://orchestrator.ratehunter.net:9090/-/healthy"
+    }
+  ],
+  "pending_services": [
+    {
+      "name": "EXO experimental cluster",
+      "reason": "Kept pending while LiteLLM/Ollama remains primary GPU routing"
+    },
+    {
+      "name": "Nyra voice gateway",
+      "reason": "Scaffolding (Phase 3.2) is not live yet"
+    }
+  ]
+}

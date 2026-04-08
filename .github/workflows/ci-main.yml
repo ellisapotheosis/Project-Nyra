@@ -33,9 +33,11 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with:
+          fetch-depth: 2
+        with:
           fetch-depth: 0
 
-      - uses: dorny/paths-filter@v3
+      - uses: dorny/paths-filter@v4
         id: filter
         with:
           filters: |
@@ -345,7 +347,7 @@ jobs:
           key: ${{ runner.os }}-node-modules-${{ hashFiles('**/pnpm-lock.yaml') }}
 
       - name: Download build artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           pattern: build-artifacts-*
           merge-multiple: true
@@ -355,7 +357,7 @@ jobs:
         continue-on-error: true
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v6
         with:
           files: ${{ matrix.workspace }}/coverage/coverage-final.json
           flags: ${{ matrix.workspace }}

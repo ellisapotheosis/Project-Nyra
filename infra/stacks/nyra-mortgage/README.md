@@ -27,7 +27,7 @@ This repo is a **batteries-included** Docker Compose stack for Project Nyra:
 ```
 
 ## URLs (defaults)
-- Nexus (LLM + MCP router): http://localhost:6000
+- Nexus (LLM + MCP router): http://localhost:4001
 - Nyra Orchestrator API:    http://localhost:8010
 - Twenty CRM:               http://localhost:3000
 - Grafana:                  http://localhost:3005
@@ -51,4 +51,3 @@ See `docker-compose.yml` and `docs/ARCHITECTURE.md`.
 - Move secrets into a proper manager (1Password/Bitwarden/Vault).
 - Add encryption-at-rest for Postgres volumes.
 - Add a consent ledger + DNC checks before any outbound messaging.
-

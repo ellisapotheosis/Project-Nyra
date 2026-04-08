@@ -1,8 +1,5 @@
 {
   "$schema": "https://turbo.build/schema.json",
-  "experimentalSpaces": {
-    "id": "project-nyra"
-  },
   "remoteCache": {
     "enabled": true
   },

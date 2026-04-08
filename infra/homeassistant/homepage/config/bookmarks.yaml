@@ -1,0 +1,23 @@
+- Infrastructure:
+    - Portainer:
+        - href: "${PORTAINER_URL}"
+          description: Docker mesh management (all endpoints)
+    - Archon UI:
+        - href: "${ARCHON_URL}"
+          description: Agent control plane
+    - Grafana:
+        - href: "${GRAFANA_URL}"
+          description: Observability dashboards
+
+- Product:
+    - Webapp:
+        - href: "${WEBAPP_URL}"
+          description: Main app UI
+    - Landing:
+        - href: "${LANDING_URL}"
+          description: Public marketing site
+
+- Internal APIs:
+    - Nexus Router Health:
+        - href: "${NEXUS_URL}/health"
+          description: Router health endpoint
