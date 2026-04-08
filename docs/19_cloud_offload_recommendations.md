@@ -1,53 +1,38 @@
 # 19 Cloud Offload Recommendations
 
-## Immediate opportunities
+## Default strategy
+- Keep static marketing/public landing on Cloudflare Pages.
+- Publish only approved control-plane HTTP apps through Cloudflared + Access.
+- Keep databases and GPU inference backends private.
 
-1. Keep static marketing (`apps/landing`) on Cloudflare Pages.
-2. Tunnel only control-plane UIs and gateway APIs through Cloudflared.
-3. Preserve datastore residency on private nodes; no public ingress.
+## Candidate matrix
+| Component class | Current location | Offload recommendation | Rationale |
+|---|---|---|---|
+| Marketing landing | `apps/landing` via Pages workflows | keep on Cloudflare Pages | cheap, static, public-safe |
+| Operator/admin UIs | orchestrator/oracle HTTP apps | Cloudflared + Access | centralized auth and edge controls |
+| Gateway APIs | orchestrator | selective tunnel if needed | avoid broad API surface exposure |
+| Datastores | oracle/internal stacks | no public offload endpoint | reduce leak risk/compliance risk |
+| Worker inference | worker nodes | private network only | cost/perf/privacy and attack-surface control |
 
-## Candidate offload matrix
+## Guardrails
+1. No datastore ingress rules in `infra/cloudflared/config.yml`.
+2. All non-marketing hostnames require Cloudflare Access.
+3. Keep final catch-all ingress `http_status:404`.
+4. Route DNS through tunnel CNAME only for approved hostnames.
 
-| Component | Offload target | Decision |
-|---|---|---|
-| Marketing landing | Cloudflare Pages | proceed |
-| App/API front doors | Cloudflared tunnel + Access | proceed |
-| Datastores | none (private infrastructure) | keep private |
-| Worker GPU inference | private worker nodes | keep private |
-| Artifact/object storage | S3-compatible private bucket | evaluate |
+## Suggested automation additions
+- CI check that blocks ingress entries pointing to known datastore services.
+- Periodic diff between active ports registry and tunnel hostname map.
+- Pre-merge lint to reject accidental raw TCP ingress without explicit Access design.
+- Post-merge smoke checks for each approved hostname health endpoint.
 
-## Security-first recommendations
+## Risk watchlist
+- Drift between compose host ports and cloudflared local origin targets.
+- Accidental reuse of public hostname for an internal-only service.
+- Unreviewed app additions in compose profiles bypassing exposure review.
 
-- Require Access policy + IdP for all tunnel hostnames except landing site.
-- Use service tokens for machine clients.
-- Add WAF and rate limiting on API hostnames.
-- Keep SSH access out of public tunnel unless explicitly Access TCP gated.
-
-## Operational recommendations
-
-- Automate DNS route creation in deployment scripts.
-- Add CI rule to reject cloudflared config entries targeting datastore services.
-- Add periodic scan comparing active compose ports vs tunnel ingress hostnames.
-
-## Cost/risk notes
-- Offloading stateless front doors typically reduces maintenance overhead.
-- Stateful services should stay private unless managed service controls exceed current posture.
-- GPU inference offload decisions should include model egress/privacy requirements.
-
-## Decision cadence
-- Reassess offload candidates quarterly against usage, reliability, and compliance constraints.
-- Keep this list synchronized with ports registry and node placement docs.
-
-## Evidence references
-- Source compose: `infra/docker-compose.yml`
-- Targeting policy: `infra/cloudflared/config.yml`
-- Control surface docs: `docs/02_ports_registry.md`
-
-## Command snippets
-```bash
-rg -n "<service-name>|ports:" infra/docker-compose.yml
-```
-
-```bash
-rg -n "hostname:|service:" infra/cloudflared/config.yml
-```
+## Evidence
+- `docs/02_ports_registry.md`
+- `infra/cloudflared/config.yml`
+- `infra/cloudflared/hostname-map.md`
+- `docs/06_cloudflared_tunnels_dns.md`
