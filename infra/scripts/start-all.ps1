@@ -4,13 +4,13 @@
 # ============================================================================
 #
 # This script starts the complete Project Nyra infrastructure stack:
-#   - Phase 1: Core Infrastructure (PostgreSQL, Redis, Neo4j, Qdrant, FalkorDB)
-#   - Phase 2: Infisical Agent (Secrets Management)
-#   - Phase 3: Nexus Router (LLM Gateway)
-#   - Phase 4: MCP Servers (AgentDB, RuVector, Letta, Mem0)
-#   - Phase 5: Claude Flow @alpha (Multi-Agent Orchestration)
-#   - Phase 6: Open-WebUI (Port 8088)
-#   - Phase 7: Applications (TwentyCRM, n8n, OpenClaw UI)
+#   - Phase 1: Infisical Agent (Secrets Management)
+#   - Phase 2: Core Infrastructure (PostgreSQL, Redis, Neo4j, Qdrant, FalkorDB)
+#   - Phase 3: MCP Servers (Nexus Router, AgentDB, RuVector, Letta, Mem0)
+#   - Phase 4: Claude Flow @alpha (Multi-Agent Orchestration)
+#   - Phase 5: Open-WebUI (Port 8088)
+#   - Phase 6: Orchestrator (Prometheus, Grafana, Loki)
+#   - Phase 7: Worker Nodes (Optional)
 #   - Phase 8: Health Validation
 #
 # Usage:
@@ -56,6 +56,9 @@ $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $InfraDir = Split-Path -Parent $ScriptDir
 $DockerDir = Join-Path $InfraDir "docker"
 $ProjectRoot = Split-Path -Parent $InfraDir
+$OpenWebUiPort = 8088
+$OpenWebUiHealthUrl = "http://localhost:$OpenWebUiPort/health"
+$OpenWebUiUrl = "http://localhost:$OpenWebUiPort"
 
 # Color output helpers
 function Write-Phase { param($msg) Write-Host "`n=== $msg ===" -ForegroundColor Cyan }
@@ -111,7 +114,7 @@ $Services = @{
         ComposeFile = "apps/docker-compose.apps.yml"
         Description = "Applications (TwentyCRM, n8n, Open-WebUI, Claude Flow)"
         HealthChecks = @(
-            @{ Name = "Open-WebUI"; URL = "http://localhost:8088/health"; Port = 8088; Type = "http" }
+            @{ Name = "Open-WebUI"; URL = $OpenWebUiHealthUrl; Port = $OpenWebUiPort; Type = "http" }
             @{ Name = "Claude Flow Alpha"; URL = "http://localhost:3010/health"; Port = 3010; Type = "http" }
             @{ Name = "TwentyCRM"; URL = "http://localhost:3000/health"; Port = 3000; Type = "http" }
             @{ Name = "n8n"; URL = "http://localhost:5678/healthz"; Port = 5678; Type = "http" }
@@ -253,7 +256,7 @@ if ($Dashboard) {
     Write-Phase "Opening Dashboard URLs"
 
     $dashboards = @{
-        "Open-WebUI (Dev Chat)" = "http://localhost:3333"
+        "Open-WebUI (Dev Chat)" = $OpenWebUiUrl
         "Grafana (Metrics)" = "http://localhost:3005"
         "Prometheus (Monitoring)" = "http://localhost:9090"
         "n8n (Workflows)" = "http://localhost:5678"
@@ -442,14 +445,18 @@ Write-Step "Starting Open-WebUI service..."
 $stackCompose = Join-Path $InfraDir "docker-compose.yml"
 if (Test-Path $stackCompose) {
     docker compose -f $stackCompose --profile apps up -d openwebui
-
-    Write-Step "Waiting for Open-WebUI..."
-    for ($i = 0; $i -lt 30; $i++) {
-        if (Test-ServiceHealth -Name "Open-WebUI" -URL "http://localhost:8088/health" -Port 8088 -MaxRetries 1) {
-            Write-Success "Open-WebUI ready on port 8088"
-            break
+    if ($LASTEXITCODE -ne 0) {
+        Write-Error "Failed to start Open-WebUI with docker compose (exit code $LASTEXITCODE)."
+    }
+    else {
+        Write-Step "Waiting for Open-WebUI..."
+        for ($i = 0; $i -lt 30; $i++) {
+            if (Test-ServiceHealth -Name "Open-WebUI" -URL $OpenWebUiHealthUrl -Port $OpenWebUiPort -MaxRetries 1) {
+                Write-Success "Open-WebUI ready on port $OpenWebUiPort"
+                break
+            }
+            Start-Sleep -Seconds 2
         }
-        Start-Sleep -Seconds 2
     }
 }
 else {
@@ -574,7 +581,7 @@ Write-Host @"
     Infisical:        http://localhost:8082  (Secrets Management)
 
   Applications:
-    Open-WebUI:       http://localhost:8088  (Dev Chat - NOT BORROWER)
+    Open-WebUI:       $OpenWebUiUrl  (Dev Chat - NOT BORROWER)
     TwentyCRM:        http://localhost:3000  (CRM System)
     n8n:              http://localhost:5678  (Workflow Automation)
 
