@@ -10,13 +10,13 @@
 
 | Hostname | Local origin | Record type | Notes |
 |---|---|---|---|
-| `n8n.nyra.example.com` | `http://localhost:5678` | proxied CNAME | automation UI and API |
-| `activepieces.nyra.example.com` | `http://localhost:8082` | proxied CNAME | workflow UI |
-| `twentycrm.nyra.example.com` | `http://localhost:3000` | proxied CNAME | CRM app |
 | `archon.nyra.example.com` | `http://localhost:3737` | proxied CNAME | Archon operator UI |
-| `grafana.nyra.example.com` | `http://localhost:3003` | proxied CNAME | observability UI |
-| `infisical.nyra.example.com` | `http://localhost:8086` | proxied CNAME | secrets UI and API |
 | `gitea.nyra.example.com` | `http://localhost:3100` | proxied CNAME | git forge UI |
+| `infisical.nyra.example.com` | `http://localhost:3201` | proxied CNAME | secrets UI and API |
+| `activepieces.nyra.example.com` | `http://localhost:3001` | proxied CNAME | workflow UI |
+| `n8n.nyra.example.com` | `http://localhost:5678` | proxied CNAME | automation UI and API |
+| `twentycrm.nyra.example.com` | `http://localhost:3000` | proxied CNAME | CRM app |
+| `grafana.nyra.example.com` | `http://localhost:3003` | proxied CNAME | observability UI |
 
 Each CNAME points to `<TUNNEL_UUID>.cfargotunnel.com`.
 
