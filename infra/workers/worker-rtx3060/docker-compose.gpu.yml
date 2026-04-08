@@ -1,7 +1,7 @@
 services:
   ollama-server:
     image: ollama/ollama:latest
-    container_name: nyra-worker-rtx3060-ollama
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-rtx3060-ollama
     profiles: ['gpu']
     environment:
       - OLLAMA_HOST=${OLLAMA_HOST:-0.0.0.0}
@@ -30,7 +30,7 @@ services:
 
   ollama-model-loader:
     image: ollama/ollama:latest
-    container_name: nyra-worker-rtx3060-model-loader
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-rtx3060-model-loader
     profiles: ['setup']
     depends_on:
       - ollama-server
@@ -41,10 +41,8 @@ services:
     command: >
       sh -c "
         sleep 10 &&
-        ollama pull qwen2.5:4b &&
-        ollama pull llama3.2:3b &&
+        ollama pull qwen2.5:3b &&
         ollama pull phi3:mini &&
-        ollama pull glm4:9b-chat &&
         ollama pull nomic-embed-text &&
         ollama pull all-minilm:l6-v2
       "
