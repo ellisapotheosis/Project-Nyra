@@ -11,7 +11,7 @@
     "deploy:production": "wrangler pages deploy .open-next --branch=main",
     "deploy:preview": "wrangler pages deploy .open-next --branch=preview",
     "start": "next start",
-    "lint": "eslint . --max-warnings=0",
+    "lint": "eslint . --ignore-pattern .open-next --ignore-pattern .next --max-warnings=0",
     "test": "jest --watch",
     "test:ci": "jest --ci --passWithNoTests",
     "typecheck": "tsc --noEmit",

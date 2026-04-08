@@ -1,6 +1,8 @@
 'use client';
 
 import { FormEvent, useMemo, useState } from 'react';
+import { readChatStream } from '@/utils/chatStream';
+import { resolveTenantFromHost } from '@/utils/tenant';
 
 type ChatRole = 'assistant' | 'user';
 
@@ -48,14 +50,17 @@ export function BorrowerChatWidget() {
 
     setIsLoading(true);
     try {
+      const tenantId = resolveTenantFromHost(window.location.hostname);
       const response = await fetch(`${apiBase.replace(/\/$/, '')}/api/chat/stream`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'x-tenant-id': tenantId,
         },
         body: JSON.stringify({
           persona: 'borrower',
           messages: [...messages, userMessage],
+          stream: true,
         }),
       });
 
@@ -63,12 +68,12 @@ export function BorrowerChatWidget() {
         throw new Error(`Chat API returned ${response.status}`);
       }
 
-      const payload = (await response.json()) as { reply?: string };
+      const assistantReply = await readChatStream(response);
       setMessages((prev) => [
         ...prev,
         {
           role: 'assistant',
-          content: payload.reply || 'I am ready, but no response body was returned by your chat backend.',
+          content: assistantReply || 'I am ready, but no response body was returned by your chat backend.',
         },
       ]);
     } catch {
