@@ -6,11 +6,17 @@ COMPOSE_FILE ?= infra/docker-compose.yml
 COMPOSE ?= docker compose -f $(COMPOSE_FILE)
 STACK_ENV_FILE ?= .env.stack
 HEALTH_ENV_FILE ?= $(STACK_ENV_FILE)
+WORKER_3060_COMPOSE_FILE ?= infra/workers/worker-rtx3060/docker-compose.worker.yml
+WORKER_3090TI_COMPOSE_FILE ?= infra/workers/worker-rtx3090ti/docker-compose.worker.yml
+WORKER_5090_COMPOSE_FILE ?= infra/workers/worker-rtx5090/docker-compose.worker.yml
 
 DEFAULT_PROFILES ?= core,gateway,workflow,crm,archon,apps,observability,vector
 WORKER_PROFILE ?= workers
 TWENTY_COMPOSE_FILE ?= infra/docker-compose.twenty.yml
 TWENTY_COMPOSE ?= docker compose -f $(TWENTY_COMPOSE_FILE)
+WORKER_3060_COMPOSE ?= $(COMPOSE) -f $(WORKER_3060_COMPOSE_FILE)
+WORKER_3090TI_COMPOSE ?= $(COMPOSE) -f $(WORKER_3090TI_COMPOSE_FILE)
+WORKER_5090_COMPOSE ?= $(COMPOSE) -f $(WORKER_5090_COMPOSE_FILE)
 
 ifeq (,$(wildcard pnpm-lock.yaml))
 PKG_MGR ?= npm
@@ -116,9 +122,9 @@ validate:
 
 compose-config-all:
 	docker compose --env-file infra/env/.env.orchestrator -f infra/docker-compose.yml -f infra/compose/overrides/docker-compose.orchestrator.override.yml config >/dev/null
-	docker compose --env-file infra/env/.env.worker-rtx3060 -f infra/docker-compose.yml -f infra/compose/overrides/docker-compose.worker-rtx3060.override.yml config >/dev/null
-	docker compose --env-file infra/env/.env.worker-rtx3090ti -f infra/workers/worker-rtx3090ti/docker-compose.worker.yml config >/dev/null
-	docker compose --env-file infra/env/.env.worker-rtx5090 -f infra/workers/worker-rtx5090/docker-compose.worker.yml config >/dev/null
+	docker compose --env-file infra/env/.env.worker-rtx3060 -f $(COMPOSE_FILE) -f infra/compose/overrides/docker-compose.worker-rtx3060.override.yml config >/dev/null
+	docker compose --env-file infra/env/.env.worker-rtx3090ti -f $(COMPOSE_FILE) -f $(WORKER_3090TI_COMPOSE_FILE) config >/dev/null
+	docker compose --env-file infra/env/.env.worker-rtx5090 -f $(COMPOSE_FILE) -f $(WORKER_5090_COMPOSE_FILE) config >/dev/null
 	@echo "compose config ok for orchestrator and all workers"
 
 up:
@@ -154,9 +160,9 @@ up-dev:
 	$(COMPOSE) --profile dev up -d
 
 up-workers:
-	$(COMPOSE) -f infra/workers/worker-rtx3060/docker-compose.worker.yml --profile worker-3060 up -d || $(COMPOSE) --profile worker-3060 up -d
-	$(COMPOSE) -f infra/workers/worker-rtx3090ti/docker-compose.worker.yml --profile worker-3090ti up -d || $(COMPOSE) --profile worker-3090ti up -d
-	$(COMPOSE) -f infra/workers/worker-rtx5090/docker-compose.worker.yml --profile worker-5090 up -d || $(COMPOSE) --profile worker-5090 up -d
+	-$(WORKER_3060_COMPOSE) --profile worker-3060 up -d
+	-$(WORKER_3090TI_COMPOSE) --profile worker-3090ti up -d
+	-$(WORKER_5090_COMPOSE) --profile worker-5090 up -d
 
 archon-config:
 	docker compose --env-file .env.archon -f docker-compose.archon.yml config >/dev/null
@@ -180,9 +186,9 @@ archon-readiness:
 	python3 scripts/validation/compose_readiness.py --stack archon --env-file .env.archon
 
 down-workers:
-	$(COMPOSE) -f infra/workers/worker-rtx3060/docker-compose.worker.yml down --remove-orphans || $(COMPOSE) --profile worker-3060 down --remove-orphans
-	$(COMPOSE) -f infra/workers/worker-rtx3090ti/docker-compose.worker.yml down --remove-orphans || $(COMPOSE) --profile worker-3090ti down --remove-orphans
-	$(COMPOSE) -f infra/workers/worker-rtx5090/docker-compose.worker.yml down --remove-orphans || $(COMPOSE) --profile worker-5090 down --remove-orphans
+	-$(WORKER_3060_COMPOSE) --profile worker-3060 down --remove-orphans
+	-$(WORKER_3090TI_COMPOSE) --profile worker-3090ti down --remove-orphans
+	-$(WORKER_5090_COMPOSE) --profile worker-5090 down --remove-orphans
 
 nexus-up:
 	$(COMPOSE) --profile gateway up -d litellm nexus-router
