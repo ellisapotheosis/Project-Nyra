@@ -16,6 +16,9 @@
     - Landing:
         - href: "${LANDING_URL}"
           description: Public marketing site
+    - Linkwarden:
+        - href: "${LINKWARDEN_URL}"
+          description: Self-hosted bookmark and archive workspace
 
 - Internal APIs:
     - Nexus Router Health:
