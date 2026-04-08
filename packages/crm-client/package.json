@@ -1,0 +1,26 @@
+{
+  "name": "@nyra/crm-client",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Shared GraphQL client for TwentyCRM and Nyra mortgage integrations",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    "./package.json": "./package.json",
+    "./*": "./dist/*.js"
+  },
+  "scripts": {
+    "build": "tsc --build",
+    "clean": "rm -rf dist",
+    "lint": "tsc --noEmit"
+  },
+  "dependencies": {
+    "graphql-request": "^6.1.0",
+    "p-queue": "^8.3.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.10",
+    "typescript": "^5.5.4"
+  }
+}

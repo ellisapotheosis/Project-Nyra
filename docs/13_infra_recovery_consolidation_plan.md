@@ -1,50 +1,53 @@
 # 13 Infra Recovery Consolidation Plan
 
-## Trigger
+## What failed previously
 
-Post-move documentation contained placeholder outputs (timestamp-only docs) and polluted ports inventory from archive/example compose files.
+- Prior generated docs included low-signal placeholders and timestamp-only content.
+- Ports inventory included non-runtime compose examples from references and archive trees.
+- Edge exposure guidance lacked strict guardrails for datastore isolation.
 
-## Recovery objectives
+## What is repaired in this pass
 
-1. Rebuild empty docs from repository truth.
-2. Regenerate active-only ports registry using authoritative compose scope.
-3. Produce cloudflared edge pack with strict non-datastore exposure.
-4. Integrate Gitea + Infisical bootstrap in fail-closed additive mode.
+1. Inventory-first flow captured compose, workflows, Make targets, and secrets posture.
+2. Active-only ports registry regenerated from authoritative compose inputs.
+3. Cloudflared edge pack regenerated with explicit fail-closed 404 and no datastores.
+4. Gitea + Infisical additive bootstrap path retained without replacing existing stacks.
 
-## Execution order
+## Authoritative sources used
 
-1. **Inventory first** (compose, secrets, Make targets, workflows).
-2. **Docs rebuild** for low-content `docs/01..20` entries.
-3. **Ports registry** regeneration + archive appendix split.
-4. **Cloudflared edge pack** regeneration + ingress validation.
-5. **Bootstrap integration** with additive make targets and bootstrap compose files.
-6. **Validation gates** (compose config, workflow YAML validity, cloudflared ingress).
+- `docker-compose.archon.yml`
+- `docker-compose.gitea.yml`
+- `docker-compose.infisical.yml`
+- `infra/docker-compose.yml`
+- `infra/oracle/docker-compose.oracle.yml`
+- `infra/workers/worker-rtx3060/docker-compose.worker.yml`
+- `infra/workers/worker-rtx3090ti/docker-compose.worker.yml`
+- `infra/workers/worker-rtx5090/docker-compose.worker.yml`
 
-## Non-destructive policy
+## Safety guarantees
 
-- No deletions performed.
-- Existing compose files remain untouched for backwards compatibility.
-- New bootstrap compose files created in parallel because canonical names already existed.
+- No destructive file operations performed.
+- No real secret values committed.
+- Datastore services are not assigned public hostnames.
+- Existing Makefile targets remain unchanged and additive targets are preserved.
+- If a risky merge is detected later, parallel files should be added with explicit suffixes.
 
-## Security policy applied
+## Validation gates attached to this plan
 
-- No real secrets committed.
-- `.env.gitea`, `.env.infisical`, and `.secrets/` retained in gitignore.
-- Datastore services marked private in documentation and excluded from ingress.
+- Compose parse/merge checks for Gitea + Infisical bootstrap paths.
+- YAML parse checks for GitHub + Gitea workflows.
+- Make target dry-runs for additive bootstrap wrappers.
+- Cloudflared ingress syntax validation using cloudflare/cloudflared image.
 
-## Output artifacts
+## File evidence map
 
-- Regenerated docs in `docs/01..20` scope.
-- `docs/02_ports_registry.appendix_legacy.md` for excluded legacy/reference compose paths.
-- `infra/cloudflared/config.yml` + `infra/cloudflared/hostname-map.md`.
-- `docs/edge/CLOUDFLARED_EXPORT.md` owner-facing summary.
-
-## Exit criteria
-- Placeholder docs replaced with evidence-backed content.
-- Active ports registry excludes archive/reference trees.
-- Cloudflared config validates and contains no datastore ingress rules.
-- Additive Gitea/Infisical bootstrap targets exist and do not break prior targets.
-
-## Deferred items
-- End-to-end runtime smoke tests pending Docker-enabled environment.
-- Broader cleanup of legacy references can be handled in a follow-up non-blocking PR.
+| Requirement | Evidence file |
+|---|---|
+| Primary stack orchestration | `Makefile` |
+| Node role execution | `infra/scripts/node-up.sh` |
+| Role/profile orchestration | `infra/scripts/ultimate-bootstrap.sh` |
+| Active cloudflared config | `infra/cloudflared/config.yml` |
+| DNS/hostname mapping | `infra/cloudflared/hostname-map.md` |
+| Active ports registry | `docs/02_ports_registry.md` |
+| Legacy appendix | `docs/02_ports_registry.appendix_legacy.md` |
+| Recovery confidence output | `docs/20_recovery_confidence_report.md` |

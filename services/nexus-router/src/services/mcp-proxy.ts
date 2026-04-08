@@ -141,7 +141,7 @@ export class MCPProxyService {
         name: 'Archon OS MCP',
         protocol: 'http',
         config: {
-          url: process.env.ARCHON_MCP_URL || 'http://localhost:9001/mcp',
+          url: process.env.ARCHON_MCP_URL || 'http://localhost:8051/mcp',
         },
         enabled: true,
         priority: 2,
