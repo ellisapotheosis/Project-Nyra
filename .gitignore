@@ -497,6 +497,8 @@ docs/archive/**/*.pem
 docs/archive/**/*.key
 docs/archive/**/*.db
 bootstrap/
+!infra/bootstrap/
+!infra/bootstrap/**
 
 # Codanna local index/cache
 .codanna/
