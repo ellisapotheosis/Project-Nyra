@@ -136,7 +136,8 @@ export default async function Home() {
   const news = await getNewsFeed();
 
   return (
-    <main className="min-h-screen bg-[#030712] text-slate-100">
+    <>
+      <main className="min-h-screen bg-[#030712] text-slate-100">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(56,189,248,0.18),transparent_35%),radial-gradient(circle_at_80%_0%,rgba(168,85,247,0.2),transparent_30%)]" />
 
       <section className="relative mx-auto max-w-6xl px-6 pb-16 pt-20">
@@ -227,7 +228,7 @@ export default async function Home() {
     </main>
 
     {/* Personal Footer */}
-    <PersonalFooter />
-    </div>
+      <PersonalFooter />
+    </>
   );
 }

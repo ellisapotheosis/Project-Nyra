@@ -1,0 +1,64 @@
+services:
+  ollama-server:
+    image: ollama/ollama:latest
+    container_name: nyra-worker-rtx3060-ollama
+    profiles: ['gpu']
+    environment:
+      - OLLAMA_HOST=${OLLAMA_HOST:-0.0.0.0}
+      - OLLAMA_PORT=${OLLAMA_PORT:-11434}
+      - OLLAMA_MODELS=${OLLAMA_MODELS:-/root/.ollama/models}
+      - NVIDIA_VISIBLE_DEVICES=all
+    ports:
+      - "127.0.0.1:${OLLAMA_PORT:-11434}:11434"
+      - "0.0.0.0:11434:11434"  # Expose on all interfaces for Tailscale
+    volumes:
+      - ollama_models:/root/.ollama/models
+      - /root/.ollama:/root/.ollama
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/version"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  ollama-model-loader:
+    image: ollama/ollama:latest
+    container_name: nyra-worker-rtx3060-model-loader
+    profiles: ['setup']
+    depends_on:
+      - ollama-server
+    environment:
+      - OLLAMA_HOST=ollama-server:11434
+    volumes:
+      - ollama_models:/root/.ollama/models
+    command: >
+      sh -c "
+        sleep 10 &&
+        ollama pull qwen2.5:4b &&
+        ollama pull llama3.2:3b &&
+        ollama pull phi3:mini &&
+        ollama pull glm4:9b-chat &&
+        ollama pull nomic-embed-text &&
+        ollama pull all-minilm:l6-v2
+      "
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+volumes:
+  ollama_models:
+
+networks:
+  default:
+    name: nyra-worker-rtx3060

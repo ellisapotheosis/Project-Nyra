@@ -57,7 +57,7 @@ jobs:
           fi
       - name: Setup pnpm
         if: steps.detect-package-manager.outputs.manager == 'pnpm'
-        uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # v4
+        uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v4
         with:
           version: 10.27.0
       - name: Setup Node
@@ -86,7 +86,7 @@ jobs:
             }
       - name: Setup Pages
         if: steps.pages-capability.outputs.can_deploy == 'true'
-        uses: actions/configure-pages@v5
+        uses: actions/configure-pages@v6
         with:
           enablement: true
           # Automatically inject basePath in your Next.js configuration file and disable
@@ -132,4 +132,4 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
