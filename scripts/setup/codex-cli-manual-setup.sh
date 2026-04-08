@@ -164,13 +164,7 @@ run_infisical() {
   local path_arg="$1"
   shift
 
-  local cmd=(infisical run --env="$INFISICAL_ENV" --path="$path_arg")
-  if [[ -n "$INFISICAL_PROJECT_ID" ]]; then
-    cmd+=(--projectId="$INFISICAL_PROJECT_ID")
-  fi
-  cmd+=(--)
-  cmd+=("$@")
-  "${cmd[@]}"
+  nyra_infisical_run "$INFISICAL_ENV" "$path_arg" "$@"
 }
 
 ensure_compose_env_file() {
@@ -197,13 +191,8 @@ export_root_env_file() {
   tmp_file="$(mktemp)"
   trap 'rm -f "$tmp_file"' RETURN
 
-  local export_cmd=(infisical export --env="$INFISICAL_ENV" --path="$INFISICAL_PATH" --format=dotenv --output-file="$tmp_file")
-  if [[ -n "$INFISICAL_PROJECT_ID" ]]; then
-    export_cmd+=(--projectId="$INFISICAL_PROJECT_ID")
-  fi
-
   info "Exporting Infisical secrets to $ROOT_ENV_FILE from $INFISICAL_PATH ($INFISICAL_ENV)"
-  "${export_cmd[@]}"
+  nyra_infisical_export "$INFISICAL_ENV" "$INFISICAL_PATH" --format=dotenv --output-file="$tmp_file"
 
   if [[ ! -s "$tmp_file" ]]; then
     err "Infisical export returned an empty file; aborting."

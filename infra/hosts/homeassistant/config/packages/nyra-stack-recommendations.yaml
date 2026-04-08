@@ -1,0 +1,32 @@
+input_boolean:
+  nyra_maintenance_mode:
+    name: NYRA Maintenance Mode
+    icon: mdi:wrench-cog
+
+panel_iframe:
+  nyra_webapp:
+    title: Nyra Webapp
+    icon: mdi:web
+    url: http://orchestrator.local:5173
+  nyra_archon_ui:
+    title: Archon UI
+    icon: mdi:view-dashboard-outline
+    url: http://orchestrator.local:3737
+  nyra_open_webui:
+    title: Open WebUI
+    icon: mdi:robot-happy-outline
+    url: http://orchestrator.local:3002
+  nyra_portainer:
+    title: Portainer
+    icon: mdi:docker
+    url: http://orchestrator.local:9443
+
+# Recommendations for Home Assistant-hosted operational additions.
+# Enable only what you need and keep production app workloads outside HA.
+# - Vaultwarden add-on for operator credentials
+# - Tailscale integration for host presence
+# - Glances integration for worker telemetry
+# - Uptime Kuma for external endpoint checks
+# - Frigate/USB relay automations for thermal + power recovery workflows
+# - NUT integration for UPS-backed graceful shutdown automation
+# - MQTT bridge for secure one-way automation events to orchestrator
