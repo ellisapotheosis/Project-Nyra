@@ -1,36 +1,40 @@
-# 18 UI Registry (Active HTTP Surfaces)
+# 18 UI Registry (Active Surfaces)
 
-## Approved HTTP UIs
-| UI surface | Compose service | Internal port | Host port | Intended access |
+| UI Service | Source compose | Host port(s) | Access stance | Proposed hostname |
 |---|---|---|---|---|
-| n8n | `n8n` | 5678 | 5678 | Access-protected via Cloudflared |
-| Activepieces | `activepieces` | 80 | 8082 | Access-protected via Cloudflared |
-| Twenty CRM | `twentycrm` / `twenty` | 3000 | 3000 | Access-protected via Cloudflared |
-| Archon UI | `archon-ui` | 5173 | 3737 | Access-protected via Cloudflared |
-| Grafana | `grafana` | 3000 | 3003 | Access-protected via Cloudflared |
-| Gitea (web) | `gitea` | 3000 | 3100 | Access-protected via Cloudflared |
-| Infisical | `infisical` | 8080 | 8086 or 3201 | Access-protected via Cloudflared |
+| `activepieces` | `infra/docker-compose.oracle.yml` | `3001` | Cloudflare Access required | `activepieces.nyra.example.com` |
+| `archon-ui` | `docker-compose.archon.yml` | `3737` | Cloudflare Access required | `archon.nyra.example.com` |
+| `gitea` | `docker-compose.gitea.yml` | `3100, 2222` | Cloudflare Access required | `gitea.nyra.example.com` |
+| `grafana` | `infra/docker-compose.yml` | `3003` | Cloudflare Access required | `grafana.nyra.example.com` |
+| `infisical` | `docker-compose.infisical.yml` | `3201` | Cloudflare Access required | `infisical.nyra.example.com` |
+| `n8n` | `infra/docker-compose.yml` | `5678` | Cloudflare Access required | `n8n.nyra.example.com` |
+| `twentycrm` | `infra/docker-compose.yml` | `3000` | Cloudflare Access required | `twentycrm.nyra.example.com` |
 
-## Internal-only operator/API surfaces
-- `openwebui` (8088) is currently private by default.
-- `nexus-router`, `litellm`, and MCP adapters are private/internal control APIs.
-- `quote-api` is domain API traffic and remains private unless explicitly approved.
+Marketing landing remains on Cloudflare Pages and is the only intended public unauthenticated surface.
 
-## Deny-by-default exclusions
-- Datastore admin and database ports are non-public.
-- Gitea SSH is not part of HTTP ingress.
-- Worker inference ports stay private even though HTTP-speaking.
+## Exposure classes
 
-## Ownership and review cadence
-- Each public UI requires a named owner and auth policy.
-- New hostname requests should include rollback, observability checks, and expected usage class.
-- Reconcile this registry with `docs/02_ports_registry.md` every infra change touching ports.
+- **Public (no Access):** marketing landing only.
+- **Protected via Access:** operator UIs listed in the table.
+- **Private-only:** internal APIs, datastores, MCP adapters, and worker runtimes.
 
-## Evidence
-- `infra/docker-compose.yml`
-- `infra/oracle/docker-compose.oracle.yml`
-- `docker-compose.gitea.yml`
-- `docker-compose.infisical.yml`
-- `infra/cloudflared/config.yml`
+## Change-control checklist for new UIs
 
-- Periodically validate Access policies still enforce SSO and session limits.
+1. Verify service is HTTP(S) and not datastore/queue.
+2. Add hostname + ingress mapping with Access required.
+3. Add DNS CNAME target to tunnel UUID.
+4. Add rollback entry by removing hostname + DNS and re-validating ingress.
+
+## Evidence pointers
+
+- UI host/port declarations: `infra/docker-compose.yml`, `docker-compose.gitea.yml`, `docker-compose.infisical.yml`.
+- Access-protected ingress list: `infra/cloudflared/config.yml`.
+- DNS CNAME plan: `infra/cloudflared/hostname-map.md`.
+- Active-only registry cross-check: `docs/02_ports_registry.md`.
+
+## Monitoring recommendations
+
+- Add uptime probes for each Access-protected hostname through authenticated checks.
+- Alert on repeated 403/401 spikes to identify Access policy drift.
+- Alert on unexpected 404 response volume to catch DNS/ingress mismatches.
+- Track TLS/certificate expiry and Cloudflare tunnel health status per hostname.

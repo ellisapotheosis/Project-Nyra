@@ -1,49 +1,53 @@
 # 13 Infra Recovery Consolidation Plan
 
-## Problem statement
-Post-consolidation documentation drift left several `docs/13..20` files under-filled, and ports data risked contamination from archived/reference compose files. This plan rebuilds those docs from **active repo truth** and hardens edge exposure rules.
+## What failed previously
 
-## Scope and non-goals
-### In scope
-1. Rebuild docs `13..20` using active Makefile/runtime evidence.
-2. Regenerate `docs/02_ports_registry.md` with active-only compose sources.
-3. Rebuild Cloudflared edge pack with strict private datastore posture.
-4. Preserve existing Gitea/Infisical stacks while keeping bootstrap-safe variants.
+- Prior generated docs included low-signal placeholders and timestamp-only content.
+- Ports inventory included non-runtime compose examples from references and archive trees.
+- Edge exposure guidance lacked strict guardrails for datastore isolation.
 
-### Out of scope
-- Runtime architecture redesign.
-- Service deletion or legacy cleanup rewrites.
-- Repointing production DNS/tunnels to real tenant values.
+## What is repaired in this pass
 
-## Source-of-truth inputs
-- Root `Makefile` compose targets (`infra/docker-compose.yml`, worker/oracle files, dedicated root stacks).
-- `ingest/Makefile` compose targets for consolidated ingest infra.
-- `infra/scripts/node-up.sh`, `infra/scripts/node-down.sh`, `infra/scripts/ultimate-bootstrap.sh`.
-- Dedicated root control-plane stacks: `docker-compose.archon.yml`, `docker-compose.gitea.yml`, `docker-compose.infisical.yml`.
+1. Inventory-first flow captured compose, workflows, Make targets, and secrets posture.
+2. Active-only ports registry regenerated from authoritative compose inputs.
+3. Cloudflared edge pack regenerated with explicit fail-closed 404 and no datastores.
+4. Gitea + Infisical additive bootstrap path retained without replacing existing stacks.
 
-## Execution phases
-1. **Inventory before writing**: enumerate compose, secrets patterns, compose-using targets, CI workflow trees.
-2. **Doc repair**: replace placeholder-ish content in `docs/13..20` with tables and evidence.
-3. **Ports registry hard reset**: active-only table + separate legacy appendix.
-4. **Cloudflared edge pack**: host map, DNS outputs, ingress config with final `http_status:404`.
-5. **Bootstrap safety checks**: ensure additive bootstrap files/targets exist and do not override canonical flows.
-6. **Validation gates**: compose config renders, YAML lint pass, ingress validate pass.
+## Authoritative sources used
 
-## Fail-closed merge policy
-- Never remove existing canonical files.
-- If a collision exists, write additive bootstrap variants (`*.bootstrap.yml`) and additive Make targets.
-- Keep secrets template-only; no live creds committed.
-- Datastore and raw-TCP services remain non-public by default.
+- `docker-compose.archon.yml`
+- `docker-compose.gitea.yml`
+- `docker-compose.infisical.yml`
+- `infra/docker-compose.yml`
+- `infra/oracle/docker-compose.oracle.yml`
+- `infra/workers/worker-rtx3060/docker-compose.worker.yml`
+- `infra/workers/worker-rtx3090ti/docker-compose.worker.yml`
+- `infra/workers/worker-rtx5090/docker-compose.worker.yml`
 
-## Deliverables
-- `docs/13..20` rebuilt with concrete repo evidence.
-- `docs/02_ports_registry.md` active-only.
-- `docs/02_ports_registry.appendix_legacy.md` secondary/archive references.
-- `infra/cloudflared/config.yml` and `infra/cloudflared/hostname-map.md` with zero datastore ingress.
-- `docs/06_cloudflared_tunnels_dns.md` and `docs/edge/CLOUDFLARED_EXPORT.md` owner-facing summaries.
+## Safety guarantees
 
-## Completion criteria
-- Every `docs/13..20` file has substantive, evidence-backed content.
-- Active ports registry excludes `docs/**`, `_archived/**`, and `infra-archived/**`.
-- Cloudflared validate command succeeds against committed config.
-- Gitea/Infisical additive flows are still available via Make without breaking canonical targets.
+- No destructive file operations performed.
+- No real secret values committed.
+- Datastore services are not assigned public hostnames.
+- Existing Makefile targets remain unchanged and additive targets are preserved.
+- If a risky merge is detected later, parallel files should be added with explicit suffixes.
+
+## Validation gates attached to this plan
+
+- Compose parse/merge checks for Gitea + Infisical bootstrap paths.
+- YAML parse checks for GitHub + Gitea workflows.
+- Make target dry-runs for additive bootstrap wrappers.
+- Cloudflared ingress syntax validation using cloudflare/cloudflared image.
+
+## File evidence map
+
+| Requirement | Evidence file |
+|---|---|
+| Primary stack orchestration | `Makefile` |
+| Node role execution | `infra/scripts/node-up.sh` |
+| Role/profile orchestration | `infra/scripts/ultimate-bootstrap.sh` |
+| Active cloudflared config | `infra/cloudflared/config.yml` |
+| DNS/hostname mapping | `infra/cloudflared/hostname-map.md` |
+| Active ports registry | `docs/02_ports_registry.md` |
+| Legacy appendix | `docs/02_ports_registry.appendix_legacy.md` |
+| Recovery confidence output | `docs/20_recovery_confidence_report.md` |
