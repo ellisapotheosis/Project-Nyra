@@ -46,9 +46,9 @@ if (-not $SecretName) {
     # Show current secrets (masked)
     Write-Host "`n📋 Current secrets in '$Environment' environment:" -ForegroundColor Blue
     try {
-        $secretsList = & infisical secrets --projectId $projectId --env $Environment -o json 2>$null | ConvertFrom-Json
+        $secretsList = & infisical secrets list --projectId $projectId --env $Environment --format json 2>$null | ConvertFrom-Json
         if ($secretsList) {
-            $secretsList | ForEach-Object {
+            $secretsList.secrets | ForEach-Object {
                 if ($_.secretKey -and $_.secretValue) {
                     $name = $_.secretKey
                     $value = $_.secretValue

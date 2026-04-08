@@ -46,7 +46,7 @@ jobs:
 
       - name: Create deployment
         id: deployment
-        uses: actions/github-script@v8
+        uses: actions/github-script@v7
         with:
           script: |
             const deployment = await github.rest.repos.createDeployment({
@@ -77,26 +77,28 @@ jobs:
         env:
           INFISICAL_TOKEN: ${{ secrets.INFISICAL_TOKEN }}
         run: |
-          if [ -z "$INFISICAL_TOKEN" ]; then
-            echo "::error::Missing required secret: INFISICAL_TOKEN"
-            exit 1
-          fi
+          TOKEN="$INFISICAL_TOKEN"
 
-          echo "::add-mask::$INFISICAL_TOKEN"
-          echo "INFISICAL_TOKEN=$INFISICAL_TOKEN" >> $GITHUB_ENV
-
-          INFISICAL_STAGE_ENV="stag"
-          if ! infisical secrets --env="$INFISICAL_STAGE_ENV" --path=/CI-CD --projectId=8374cea9-e5e8-4050-bda4-b91f25ab30ef --token="$INFISICAL_TOKEN" --recursive -o json >/dev/null 2>&1; then
-            INFISICAL_STAGE_ENV="staging"
-          fi
-
-          infisical export --env="$INFISICAL_STAGE_ENV" --path=/CI-CD --projectId=8374cea9-e5e8-4050-bda4-b91f25ab30ef --format=dotenv --token="$INFISICAL_TOKEN" > .env.staging
-
-          while IFS='=' read -r key value; do
-            if [ -n "$value" ]; then
-              echo "::add-mask::$value"
+          if [ -n "$TOKEN" ]; then
+            echo "::add-mask::$TOKEN"
+            echo "INFISICAL_TOKEN=$TOKEN" >> $GITHUB_ENV
+            INFISICAL_STAGE_ENV="stag"
+            if ! infisical secrets --env="$INFISICAL_STAGE_ENV" --path=/CI-CD --projectId=8374cea9-e5e8-4050-bda4-b91f25ab30ef --token="$TOKEN" --recursive -o json >/dev/null 2>&1; then
+              INFISICAL_STAGE_ENV="staging"
             fi
-          done < .env.staging
+
+            infisical export --env="$INFISICAL_STAGE_ENV" --path=/CI-CD --format=dotenv --token="$TOKEN" > .env.staging
+
+            # Mask sensitive values in logs
+            while IFS='=' read -r key value; do
+              if [ -n "$value" ]; then
+                echo "::add-mask::$value"
+              fi
+            done < .env.staging
+          else
+            echo "Warning: INFISICAL_TOKEN not configured"
+            touch .env.staging
+          fi
 
       - name: Upload secrets artifact
         uses: actions/upload-artifact@v7
@@ -133,8 +135,22 @@ jobs:
             exit 1
           fi
 
-          for required_key in STAGING_HOST STAGING_USER STAGING_SSH_KEY; do
+          for required_key in DEPLOY_HOST DEPLOY_USER DEPLOY_SSH_KEY; do
             value=$(grep -E "^${required_key}=" .env.staging | head -1 | cut -d'=' -f2- || true)
+            if [ -z "$value" ]; then
+              case "$required_key" in
+                DEPLOY_HOST)
+                  legacy_key="STAGING_HOST"
+                  ;;
+                DEPLOY_USER)
+                  legacy_key="STAGING_USER"
+                  ;;
+                DEPLOY_SSH_KEY)
+                  legacy_key="STAGING_SSH_KEY"
+                  ;;
+              esac
+              value=$(grep -E "^${legacy_key}=" .env.staging | head -1 | cut -d'=' -f2- || true)
+            fi
             if [ -z "$value" ]; then
               echo "::error::Missing required key in .env.staging: $required_key"
               exit 1
@@ -144,7 +160,7 @@ jobs:
           done
 
       - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v4
+        uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -198,16 +214,16 @@ jobs:
         run: |
           # Configure SSH
           mkdir -p ~/.ssh
-          echo "$STAGING_SSH_KEY" > ~/.ssh/deploy_key
+          echo "$DEPLOY_SSH_KEY" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
-          ssh-keyscan -H $STAGING_HOST >> ~/.ssh/known_hosts
+          ssh-keyscan -H $DEPLOY_HOST >> ~/.ssh/known_hosts
 
           SERVICE="${{ matrix.service }}"
           PORT="${{ steps.config.outputs.port }}"
           IMAGE="ghcr.io/${{ github.repository_owner }}/$SERVICE:develop"
 
           # Deploy via SSH
-          ssh -i ~/.ssh/deploy_key $STAGING_USER@$STAGING_HOST << EOF
+          ssh -i ~/.ssh/deploy_key $DEPLOY_USER@$DEPLOY_HOST << EOF
             # Stop existing container
             docker stop $SERVICE-staging || true
             docker rm $SERVICE-staging || true
@@ -239,7 +255,7 @@ jobs:
           SERVICE="${{ matrix.service }}"
           HEALTH_PATH="${{ steps.config.outputs.health-path }}"
           PORT="${{ steps.config.outputs.port }}"
-          HOST="$STAGING_HOST"
+          HOST="$DEPLOY_HOST"
 
           MAX_ATTEMPTS=30
           ATTEMPT=0
@@ -265,7 +281,7 @@ jobs:
         run: |
           SERVICE="${{ matrix.service }}"
 
-          ssh -i ~/.ssh/deploy_key $STAGING_USER@$STAGING_HOST << EOF
+          ssh -i ~/.ssh/deploy_key $DEPLOY_USER@$DEPLOY_HOST << EOF
             # Stop failed container
             docker stop $SERVICE-staging || true
             docker rm $SERVICE-staging || true
@@ -292,7 +308,7 @@ jobs:
     if: always()
     steps:
       - name: Update deployment status
-        uses: actions/github-script@v8
+        uses: actions/github-script@v7
         with:
           script: |
             const deploymentId = ${{ needs.prepare-deployment.outputs.deployment-id }};

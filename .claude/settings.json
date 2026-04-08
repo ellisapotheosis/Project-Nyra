@@ -1,106 +1,34 @@
 {
-  "$schema": "https://json.schemastore.org/claude-code-settings.json",
-  "description": "Nyra Orchestrator - Global Machine Config",
-  "minimumVersion": "2.1.72",
-  "theme": "dark",
-  "verboseMode": false,
-  "alwaysThinkingEnabled": true,
-  "model": "opus",
-  "effortLevel": "high",
-  "fastMode": true,
-  "autoUpdatesChannel": "latest",
-  "skipDangerousModePermissionPrompt": true,
-  "autoConnectIde": true,
-  "autoCompact": true,
-
-  "thinking": {
-    "enabled": true,
-    "budgetTokens": 6000
-  },
-
-  "capabilities": {
-    "allowUnsandboxedCommands": true,
-    "webSearch": true,
-    "pdfRead": true,
-    "imageAnalysis": true,
-    "networkAccess": true,
-    "fileSystemAccess": true,
-    "shellAccess": true,
-    "internetAccess": true,
-    "systemCommands": true,
-    "mcpAccess": true,
-    "browserAutomation": true
-  },
-
-  "env": {
-    "SHELL": "/bin/zsh",
-    "ZDOTDIR": "/tmp",
-    "DISABLE_AUTOUPDATER": "0",
-    "ENABLE_METRICS": "true",
-    "ENABLE_TRACING": "true",
-    "LOG_LEVEL": "info"
-  },
-
   "permissions": {
-    "defaultMode": "bypassPermissions",
     "allow": [
-      "*",
-      "mcp__*",
-      "mcp__claude-flow__:*",
-      "Bash",
-      "Read",
-      "Write",
-      "Edit",
-      "MultiEdit",
-      "Task",
-      "TaskCreate",
-      "TaskUpdate",
-      "TaskOutput",
       "Bash(npx claude-flow:*)",
       "Bash(npx @claude-flow/cli:*)",
-      "Bash(claude:*)",
-      "Bash(where.exe:*)",
-      "Bash(tree:*)",
-      "Bash(cat:*)",
-      "Bash(ls:*)",
-      "Bash(find:*)",
-      "Bash(chmod:*)"
+      "mcp__claude-flow__:*"
     ],
-    "deny": [
-      "Bash(rm -rf /)",
-      "Bash(rm -rf /*)",
-      "Bash(shutdown *)",
-      "Bash(reboot *)"
-    ]
+    "deny": []
   },
-
-  "statusLine": {
-    "type": "command",
-    "command": "npx @claude-flow/cli@latest hooks statusline 2>/dev/null || node .claude/helpers/statusline.cjs 2>/dev/null || echo \"▊ Claude Flow V3\""
+  "env": {
+    "SOURCEGIT_CMD": "/usr/bin/sourcegit",
+    "LLXPRT_SOURCEGIT": "/usr/bin/sourcegit"
   },
-
   "hooks": {
     "PreToolUse": [
-      {
-        "matcher": "^Bash$",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "export INFISICAL_TOKEN=$(infisical login --method=universal-auth --client-id=${INFISICAL_UNIVERSAL_AUTH_CLIENT_ID} --client-secret=${INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET} --silent --plain) && infisical export --projectId=\"8374cea9-e5e8-4050-bda4-b91f25ab30ef\" --env=\"dev\" --format=dotenv > .env"
-          },
-          {
-            "type": "command",
-            "command": "[ -n \"$TOOL_INPUT_command\" ] && npx @claude-flow/cli@latest hooks pre-command --command \"$TOOL_INPUT_command\" 2>/dev/null || true",
-            "timeout": 5000
-          }
-        ]
-      },
       {
         "matcher": "^(Write|Edit|MultiEdit)$",
         "hooks": [
           {
             "type": "command",
             "command": "[ -n \"$TOOL_INPUT_file_path\" ] && npx @claude-flow/cli@latest hooks pre-edit --file \"$TOOL_INPUT_file_path\" 2>/dev/null || true",
+            "timeout": 5000
+          }
+        ]
+      },
+      {
+        "matcher": "^Bash$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "[ -n \"$TOOL_INPUT_command\" ] && npx @claude-flow/cli@latest hooks pre-command --command \"$TOOL_INPUT_command\" 2>/dev/null || true",
             "timeout": 5000
           }
         ]
@@ -218,5 +146,199 @@
         ]
       }
     ]
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "npx @claude-flow/cli@latest hooks statusline 2>/dev/null || node .claude/helpers/statusline.cjs 2>/dev/null || echo \"▊ Claude Flow V3\""
+  },
+  "enabledPlugins": {
+    "serena@claude-plugins-official": true,
+    "github@claude-plugins-official": true,
+    "context7@claude-plugins-official": true,
+    "agent-sdk-dev@claude-plugins-official": false,
+    "claude-code-setup@claude-plugins-official": true,
+    "superpowers@claude-plugins-official": true,
+    "claude-subconscious@claude-subconscious": true,
+    "oh-my-claudecode@omc": true
+  },
+  "mcpServers": {
+    "nexus-router": {
+      "command": "cmd",
+      "args": [
+        "/c",
+        "docker",
+        "exec",
+        "-i",
+        "nyra-nexus-router",
+        "/usr/bin/nexus-router-mcp-start"
+      ],
+      "env": {
+        "NEXUS_CONFIG": "/etc/nexus.toml",
+        "NEXUS_ROUTER_STRATEGY": "intelligent",
+        "NEXUS_ROUTER_COST_AWARE": "true",
+        "NEXUS_ROUTER_LATENCY_THRESHOLD": "100",
+        "NEXUS_ROUTER_FALLBACK_ENABLED": "true",
+        "NODE_ENV": "development",
+        "NEXUS_ROUTER_HOST": "localhost",
+        "NEXUS_ROUTER_PORT": "6000"
+      },
+      "priority": "critical",
+      "description": "Nexus Router MCP Server"
+    },
+    "claude-flow": {
+      "command": "cmd",
+      "args": [
+        "/c",
+        "npx",
+        "-y",
+        "claude-flow@alpha",
+        "mcp",
+        "start"
+      ],
+      "env": {
+        "CLAUDE_FLOW_MEMORY_ENABLED": "true",
+        "CLAUDE_FLOW_HOOKS_ENABLED": "true",
+        "CLAUDE_FLOW_NEURAL_ENABLED": "true",
+        "CLAUDE_FLOW_GITHUB_ENABLED": "true",
+        "CLAUDE_FLOW_AUTO_SPAWN": "true",
+        "CLAUDE_FLOW_SESSION_MEMORY": "true",
+        "CLAUDE_FLOW_MAX_AGENTS": "20",
+        "CLAUDE_FLOW_CHECKPOINTS_ENABLED": "true",
+        "CLAUDE_FLOW_PERFORMANCE_MODE": "optimized",
+        "CLAUDE_FLOW_CACHE_ENABLED": "true",
+        "CLAUDE_FLOW_PARALLEL_PROCESSING": "true",
+        "CLAUDE_FLOW_AGENT_POOL": "true",
+        "NODE_ENV": "development"
+      },
+      "priority": "critical",
+      "description": "Main orchestration framework with agent coordination and memory"
+    },
+    "ruv-swarm": {
+      "command": "cmd",
+      "args": [
+        "/c",
+        "npx",
+        "-y",
+        "ruv-swarm@latest",
+        "mcp",
+        "start"
+      ],
+      "env": {
+        "RUV_SWARM_TOPOLOGY": "adaptive",
+        "RUV_SWARM_MAX_AGENTS": "20",
+        "RUV_SWARM_WASM_ENABLED": "true",
+        "RUV_SWARM_NEURAL_ENABLED": "true",
+        "RUV_SWARM_DAA_ENABLED": "true",
+        "RUV_SWARM_MEMORY_MODE": "persistent",
+        "RUV_SWARM_GPU_WORKERS": "3",
+        "RUV_SWARM_DISTRIBUTED": "true",
+        "NODE_ENV": "development"
+      },
+      "priority": "high",
+      "description": "Distributed swarm coordination with adaptive topology"
+    }
+  },
+  "claudeFlow": {
+    "version": "3.0.0",
+    "enabled": true,
+    "modelPreferences": {
+      "default": "claude-3-5-sonnet-20241022",
+      "routing": "claude-4-haiku-20241022",
+      "thinking": "claude-opus-4-5-20251101"
+    },
+    "swarm": {
+      "topology": "hierarchical-mesh",
+      "maxAgents": 15
+    },
+    "memory": {
+      "backend": "hybrid",
+      "enableHNSW": true
+    },
+    "neural": {
+      "enabled": true
+    },
+    "daemon": {
+      "autoStart": true,
+      "workers": [
+        "map",
+        "audit",
+        "optimize",
+        "consolidate",
+        "testgaps",
+        "ultralearn",
+        "deepdive",
+        "document",
+        "refactor",
+        "benchmark"
+      ],
+      "schedules": {
+        "checkpoint": {
+          "interval": "15m",
+          "priority": "high",
+          "command": ".claude/hooks/checkpoint.sh auto-$(date +%H%M)",
+          "enabled": true
+        },
+        "audit": {
+          "interval": "1h",
+          "priority": "critical"
+        },
+        "optimize": {
+          "interval": "30m",
+          "priority": "high"
+        },
+        "consolidate": {
+          "interval": "2h",
+          "priority": "low"
+        },
+        "document": {
+          "interval": "1h",
+          "priority": "normal",
+          "triggers": [
+            "adr-update",
+            "api-change"
+          ]
+        },
+        "deepdive": {
+          "interval": "4h",
+          "priority": "normal",
+          "triggers": [
+            "complex-change"
+          ]
+        },
+        "ultralearn": {
+          "interval": "1h",
+          "priority": "normal"
+        }
+      }
+    },
+    "learning": {
+      "enabled": true,
+      "autoTrain": true,
+      "patterns": [
+        "coordination",
+        "optimization",
+        "prediction"
+      ],
+      "retention": {
+        "shortTerm": "24h",
+        "longTerm": "30d"
+      }
+    },
+    "adr": {
+      "autoGenerate": true,
+      "directory": "/docs/adr",
+      "template": "madr"
+    },
+    "ddd": {
+      "trackDomains": true,
+      "validateBoundedContexts": true,
+      "directory": "/docs/ddd"
+    },
+    "security": {
+      "autoScan": true,
+      "scanOnEdit": true,
+      "cveCheck": true,
+      "threatModel": true
+    }
   }
 }
