@@ -4,7 +4,8 @@ const { Server } = require('@modelcontextprotocol/sdk/server/index.js');
 const fetch = require('node-fetch');
 
 const app = express();
-const PORT = process.env.PORT || 8054;
+const PORT = process.env.PORT || 3100;
+const transports = new Map();
 
 const GITEA_URL = process.env.GITEA_URL || 'http://gitea:3000';
 const GITEA_TOKEN = process.env.GITEA_TOKEN;
@@ -139,15 +140,64 @@ server.setRequestHandler('tools/call', async (request) => {
   }
 });
 
-// SSE endpoint for MCP connections
-app.get('/sse', (req, res) => {
-  const transport = new SSEServerTransport('/message', res);
-  server.connect(transport);
+function createTransport(messagePath, res) {
+  const transport = new SSEServerTransport(messagePath, res);
+  transports.set(transport.sessionId, transport);
+  transport.onclose = () => {
+    transports.delete(transport.sessionId);
+  };
+  return transport;
+}
+
+async function connectTransport(messagePath, res) {
+  const transport = createTransport(messagePath, res);
+  try {
+    await server.connect(transport);
+  } catch (error) {
+    transports.delete(transport.sessionId);
+    if (!res.headersSent) {
+      res.status(500).json({ error: error.message });
+    }
+  }
+}
+
+async function forwardTransportMessage(req, res) {
+  const { sessionId } = req.query;
+  if (typeof sessionId !== 'string' || sessionId.length === 0) {
+    res.status(400).json({ error: 'Missing sessionId query parameter' });
+    return;
+  }
+
+  const transport = transports.get(sessionId);
+  if (!transport) {
+    res.status(404).json({ error: `No active SSE transport for session ${sessionId}` });
+    return;
+  }
+
+  try {
+    await transport.handlePostMessage(req, res, req.body);
+  } catch (error) {
+    if (!res.headersSent) {
+      res.status(500).json({ error: error.message });
+    }
+  }
+}
+
+// SSE endpoints for legacy and MCP-prefixed clients.
+app.get('/sse', async (req, res) => {
+  await connectTransport('/message', res);
 });
 
-// Basic message endpoint; currently unused but reserved for future expansion
+app.get('/mcp/sse', async (req, res) => {
+  await connectTransport('/mcp/message', res);
+});
+
 app.post('/message', express.json(), async (req, res) => {
-  res.json({ success: true });
+  await forwardTransportMessage(req, res);
+});
+
+app.post('/mcp/message', express.json(), async (req, res) => {
+  await forwardTransportMessage(req, res);
 });
 
 // Health endpoint

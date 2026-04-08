@@ -54,8 +54,8 @@ services:
       GITEA__database__NAME: gitea
       GITEA__database__USER: gitea
       GITEA__database__PASSWD__FILE: /run/nyra-secrets/gitea_db_pass
-      GITEA__server__ROOT_URL: ${GITEA_ROOT_URL:-http://orchestrator.trex-fiordland.ts.net:3100/}
-      GITEA__server__SSH_DOMAIN: ${GITEA_SSH_DOMAIN:-orchestrator.trex-fiordland.ts.net}
+      GITEA__server__ROOT_URL: ${GITEA_ROOT_URL:-http://localhost:3100/}
+      GITEA__server__SSH_DOMAIN: ${GITEA_SSH_DOMAIN:-localhost}
       GITEA__server__SSH_PORT: ${GITEA_SSH_PORT:-2222}
       GITEA__server__SSH_LISTEN_PORT: 22
       GITEA__security__SECRET_KEY__FILE: /run/nyra-secrets/gitea_secret_key

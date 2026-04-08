@@ -20,12 +20,9 @@
     "restore": "node scripts/restore.js"
   },
   "dependencies": {
-    "@twenty-crm/twenty": "^0.20.0",
+    "@apollo/client": "^3.14.0",
     "graphql": "^16.8.1",
-    "graphql-request": "^6.1.0",
-    "apollo-client": "^3.8.8",
-    "apollo-cache-inmemory": "^1.6.6",
-    "apollo-link-http": "^1.5.17"
+    "graphql-request": "^6.1.0"
   },
   "devDependencies": {
     "typescript": "^5.5.4",
