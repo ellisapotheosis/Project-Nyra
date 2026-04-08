@@ -75,7 +75,7 @@ export interface ModelCapabilities {
   id: string;
   name: string;
   aliases: string[];
-  provider: 'local-gpu' | 'anthropic' | 'openrouter' | 'ollama';
+  provider: 'local-gpu' | 'anthropic' | 'openrouter' | 'ollama' | 'openai' | 'google-gemini';
   availability: 'available' | 'unavailable' | 'degraded';
 
   // Performance characteristics
@@ -134,7 +134,7 @@ export * from './security';
 
 // Routing types
 export type RoutingStrategy = 'cost-optimized' | 'latency-optimized' | 'quality-optimized';
-export type RoutingProvider = 'local' | 'anthropic' | 'openrouter';
+export type RoutingProvider = 'local' | 'openai' | 'google-gemini' | 'anthropic' | 'openrouter';
 
 export interface RoutingConfig {
   strategy: RoutingStrategy;
