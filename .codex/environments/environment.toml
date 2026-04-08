@@ -3,7 +3,40 @@ version = 1
 name = "project-nyra"
 
 [setup]
-script = "./scripts/setup/Initialize-CodexEnvironment.sh"
+script = '''
+  #!/usr/bin/env bash
+  set -euo pipefail
+
+  find_repo_root() {
+    if git rev-parse --show-toplevel >/dev/null 2>&1; then
+      git rev-parse --show-toplevel
+      return 0
+    fi
+
+    for candidate in \
+      "$PWD" \
+      "/workspace/Project-Nyra" \
+      "/workspace/project-nyra" \
+      "$HOME/project-nyra"
+    do
+      if [[ -d "$candidate/.git" ]] || [[ -f "$candidate/package.json" ]]; then
+        printf '%s\n' "$candidate"
+        return 0
+      fi
+    done
+
+    return 1
+  }
+
+  REPO_ROOT="$(find_repo_root)"
+  cd "$REPO_ROOT"
+
+  bash scripts/setup/codex-webapp-manual-setup.sh \
+    --env dev \
+    --path /shared \
+    --project-id 8374cea9-e5e8-4050-bda4-b91f25ab30ef \
+    --start-core-stack
+'''
 
 [[actions]]
 name = "Run"
@@ -19,7 +52,7 @@ command = '''
 && sudo apt install gh -y
 
 # 2. Authenticate silently using your token
-echo "YOUR_NEW_TOKEN_HERE" | gh auth login --with-token
+echo "GITHUB_PERSONAL_ACCESS_TOKEN" | gh auth login --with-token
 
 # 3. Tell Git to use this CLI token for all future git push/pull commands
 gh auth setup-git
@@ -27,3 +60,4 @@ gh auth setup-git
 # 4. Verify it actually worked
 gh auth status
 '''
+platform = "linux"

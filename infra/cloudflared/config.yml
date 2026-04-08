@@ -7,18 +7,18 @@ tunnel: 00000000-0000-0000-0000-000000000000
 credentials-file: /etc/cloudflared/credentials.json
 
 ingress:
-  - hostname: n8n.nyra.example.com
-    service: http://localhost:5678
-  - hostname: activepieces.nyra.example.com
-    service: http://localhost:8082
-  - hostname: twentycrm.nyra.example.com
-    service: http://localhost:3000
   - hostname: archon.nyra.example.com
     service: http://localhost:3737
-  - hostname: grafana.nyra.example.com
-    service: http://localhost:3003
-  - hostname: infisical.nyra.example.com
-    service: http://localhost:8086
   - hostname: gitea.nyra.example.com
     service: http://localhost:3100
+  - hostname: infisical.nyra.example.com
+    service: http://localhost:3201
+  - hostname: activepieces.nyra.example.com
+    service: http://localhost:3001
+  - hostname: n8n.nyra.example.com
+    service: http://localhost:5678
+  - hostname: twentycrm.nyra.example.com
+    service: http://localhost:3000
+  - hostname: grafana.nyra.example.com
+    service: http://localhost:3003
   - service: http_status:404

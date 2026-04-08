@@ -1,42 +1,71 @@
-# 14 Infra Target Tree (Post-Move Active Runtime)
+# 14 Infra Target Tree (Post-Move Runtime Truth)
 
-## Canonical execution roots
-This target tree is generated from compose usage in root `Makefile`, `ingest/Makefile`, and infra run scripts.
+## Canonical runtime graph
 
-## Root Makefile runtime map
-| Target group | Primary compose/files |
-|---|---|
-| Core stack (`up/down/logs/ps`) | `infra/docker-compose.yml` |
-| Global config validation (`compose-config-all`) | `infra/docker-compose.yml`, worker compose files, `infra/compose/overrides/*.override.yml` |
-| Oracle stack (`up-oracle` etc.) | `infra/oracle/docker-compose.oracle.yml` |
-| Worker stacks | `infra/workers/worker-rtx3060/docker-compose.worker.yml`, `infra/workers/worker-rtx3090ti/docker-compose.worker.yml`, `infra/workers/worker-rtx5090/docker-compose.worker.yml` |
-| Archon dedicated stack | `docker-compose.archon.yml` |
-| Gitea dedicated stack | `docker-compose.gitea.yml` (+ bootstrap variant) |
-| Infisical dedicated stack | `docker-compose.infisical.yml` (+ bootstrap variant) |
+- Root Make orchestration: `Makefile`.
+- Node bring-up scripts: `infra/scripts/node-up.sh`, `infra/scripts/node-down.sh`.
+- Role/profile bootstrap: `infra/scripts/ultimate-bootstrap.sh`.
 
-## Ingest Makefile runtime map
-| Target group | Primary compose/files |
-|---|---|
-| Main ingest stack | `ingest/infra/compose/docker-compose.main.yml` |
-| Workers | `ingest/infra/compose/docker-compose.workers.yml` |
-| Oracle cloud profile | `ingest/infra/compose/docker-compose.oracle-cloud.yml` |
-| Apotheosis profile | `ingest/infra/compose/docker-compose.apotheosis.yml` |
+## Primary compose files
 
-## Infra script path tree
-- `infra/scripts/node-up.sh`
-  - base compose: `infra/docker-compose.yml`
-  - node env: `infra/env/.env.<node>`
-  - optional override: `infra/compose/overrides/docker-compose.<node>.override.yml`
-- `infra/scripts/node-down.sh`
-  - same compose/env conventions as node-up.
-- `infra/scripts/ultimate-bootstrap.sh`
-  - profile-driven bring-up over `infra/docker-compose.yml`.
+- `docker-compose.archon.yml`
+- `docker-compose.gitea.yml`
+- `docker-compose.infisical.yml`
+- `infra/docker-compose.yml`
+- `infra/oracle/docker-compose.oracle.yml`
+- `infra/workers/worker-rtx3060/docker-compose.worker.yml`
+- `infra/workers/worker-rtx3090ti/docker-compose.worker.yml`
+- `infra/workers/worker-rtx5090/docker-compose.worker.yml`
 
-## Edge/runtime docs ownership
-- Tunnel config canonical path: `infra/cloudflared/config.yml`.
-- Hostname policy map: `infra/cloudflared/hostname-map.md`.
-- Ops handoff summaries: `docs/06_cloudflared_tunnels_dns.md`, `docs/edge/CLOUDFLARED_EXPORT.md`.
+## Additional active compose definitions
 
-## Trust level
-- **Confirmed**: direct targets/scripts in active Makefiles and infra scripts.
-- **Secondary**: compose files only referenced by overlays/examples and moved to appendix documentation.
+- `infra/compose/base.yml`
+- `infra/compose/cloudflared.profile.yml`
+- `infra/compose/monitoring.profile.yml`
+- `infra/compose/openclaw-unmute.overlay.yml`
+- `infra/compose/openclaw.compose.yml`
+- `infra/compose/openclaw.ops.compose.yml`
+- `infra/compose/openclaw.profile.yml`
+- `infra/compose/openclaw.ui.compose.yml`
+- `infra/compose/openclaw.voice.compose.yml`
+- `infra/compose/oracle.override.yml`
+- `infra/compose/orchestrator.override.yml`
+- `infra/compose/voice.profile.yml`
+- `infra/compose/workers.override.yml`
+- `infra/configs/gitea/docker-compose.gitea.yml`
+- `infra/dev-stack/docker-compose.yml`
+- `infra/docker-compose.oracle.yml`
+- `infra/docker-compose/docker-compose.claude-flow.yml`
+- `infra/homeassistant/docker-compose.homeassistant-dashboard.yml`
+- `infra/orchestrator/docker-compose.orchestrator.yml`
+- `infra/orchestrator/portainer-mesh/docker-compose.portainer.edge-agent.yml`
+- `infra/orchestrator/portainer-mesh/docker-compose.portainer.orchestrator.yml`
+- `infra/stacks/nyra-mortgage/docker-compose.addons.yml`
+- `infra/stacks/nyra-mortgage/docker-compose.graphiti.yml`
+- `infra/stacks/nyra-mortgage/docker-compose.local.yml`
+- `infra/stacks/nyra-mortgage/docker-compose.services.yml`
+- `infra/stacks/nyra-mortgage/docker-compose.voice.yml`
+- `infra/stacks/nyra-mortgage/docker-compose.yml`
+- `infra/workers/docker-compose.workers.yml`
+- `infra/workers/worker-3060/docker-compose.worker-3060.yml`
+- `infra/workers/worker-3090/docker-compose.worker-3090.yml`
+- `infra/workers/worker-rtx3060/docker-compose.gpu.yml`
+- `infra/workers/worker-rtx3090ti/docker-compose.gpu.yml`
+- `infra/workers/worker-rtx5090/docker-compose.gpu.yml`
+- `infra/workers/worker-rtx5090/worker-5090/docker-compose.worker-5090.yml`
+
+## Supplemental (appendix only) compose definitions
+
+- `docker-compose.gitea.bootstrap.yml`
+- `docker-compose.infisical.bootstrap.yml`
+- `infra/compose/docker-compose.archon.yml`
+- `infra/compose/docker-compose.cloudflared.yml`
+- `infra/compose/overrides/docker-compose.dev-laptop.override.yml`
+- `infra/compose/overrides/docker-compose.oracle.override.yml`
+- `infra/compose/overrides/docker-compose.orchestrator.override.yml`
+- `infra/compose/overrides/docker-compose.worker-rtx3060.override.yml`
+- `infra/docker-compose.claude-flow-cicd.yml`
+- `infra/docker-compose.dashboard.yml`
+- `infra/docker-compose.orchestrator-cf-tunnel.yml`
+- `infra/docker-compose.twenty.yml`
+- `infra/orchestrator/docker-compose.nexus-one-hop.yml`

@@ -3,8 +3,6 @@ set -euo pipefail
 
 SECRETS_DIR="/run/nyra-secrets"
 INFISICAL_PROJECT_ID="${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}"
-SECRET_UID="${NYRA_SECRETS_UID:-1000}"
-SECRET_GID="${NYRA_SECRETS_GID:-1000}"
 
 log(){ echo "[infisical-agent] $*"; }
 
@@ -13,9 +11,6 @@ write_secret_file(){
   local value="$2"
   printf "%s" "$value" > "$path"
   chmod 600 "$path"
-  if [[ "$(id -u)" -eq 0 ]]; then
-    chown "${SECRET_UID}:${SECRET_GID}" "$path"
-  fi
 }
 
 sync_secret_file(){
@@ -38,17 +33,16 @@ poll_infisical(){
   infisical export \
     --token="${INFISICAL_TOKEN}" \
     --projectId="$INFISICAL_PROJECT_ID" \
-    --env="${INFISICAL_ENV:-dev}" \
-    --path="${INFISICAL_PATH:-/shared}" \
+    --env="${INFISICAL_ENV:-prod}" \
+    --path="${INFISICAL_PATH:-/nyra/gitea}" \
     --format=dotenv \
-    --output-file="$tmp_file" >/dev/null
+    > "$tmp_file"
 
   sync_secret_file "$tmp_file" "GITEA_DB_PASS" "gitea_db_pass"
   sync_secret_file "$tmp_file" "GITEA_ADMIN_PASS" "gitea_admin_pass"
   sync_secret_file "$tmp_file" "WEBHOOK_AUTH_TOKEN" "webhook_auth_token"
   sync_secret_file "$tmp_file" "WEBHOOK_SECRET" "webhook_secret"
   sync_secret_file "$tmp_file" "GITEA_TOKEN" "gitea_pat_token"
-  sync_secret_file "$tmp_file" "GITEA_RUNNER_TOKEN" "gitea_runner_token"
   sync_secret_file "$tmp_file" "OPENAI_API_KEY" "openai_api_key"
   sync_secret_file "$tmp_file" "GITEA_SECRET_KEY" "gitea_secret_key"
   sync_secret_file "$tmp_file" "GITEA_INTERNAL_TOKEN" "gitea_internal_token"
@@ -56,10 +50,7 @@ poll_infisical(){
 
 main(){
   mkdir -p "$SECRETS_DIR"
-  chmod 700 "$SECRETS_DIR" 2>/dev/null || true
-  if [[ "$(id -u)" -eq 0 ]]; then
-    chown "${SECRET_UID}:${SECRET_GID}" "$SECRETS_DIR"
-  fi
+  chmod 700 "$SECRETS_DIR"
 
   if [[ -z "${INFISICAL_TOKEN:-}" ]]; then
     log "INFISICAL_TOKEN is required."
