@@ -63,7 +63,7 @@
       "type": "stdio",
       "command": "/home/ellisapotheosis/.local/mcp-tools/node_modules/.bin/docker-mcp",
       "env": {
-        "DOCKER_HOST": "ssh://edane@orchestrator-win"
+        "DOCKER_HOST": "${ORCHESTRATOR_DOCKER_HOST}"
       }
     },
 
