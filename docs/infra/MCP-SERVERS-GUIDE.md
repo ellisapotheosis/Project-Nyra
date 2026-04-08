@@ -1,5 +1,5 @@
 # Project Nyra - MCP Servers Complete Guide
-**Last Updated**: 2026-01-25  
+**Last Updated**: 2026-01-25
 **Status**: Consolidated & Production Ready
 
 ---
@@ -488,7 +488,7 @@ npx @claude-flow/cli@latest daemon start
 
 ---
 
-**Status**: ✅ **MCP Consolidation 90% Complete**  
+**Status**: ✅ **MCP Consolidation 90% Complete**
 **Remaining**: Nexus Router integration (10%)
 
 **Last Updated**: 2026-01-25
