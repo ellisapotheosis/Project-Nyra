@@ -26,7 +26,7 @@ endif
   archon-config archon-up archon-down archon-logs archon-ps archon-up-infisical \
   node-up-orchestrator node-up-oracle node-up-worker-3060 node-up-worker-3090ti node-up-worker-5090 node-down-orchestrator node-down-oracle node-down-worker-3060 node-down-worker-3090ti node-down-worker-5090 \
   down-workers nexus-up nexus-down health stack-up stack-verify scan-env ports port-check bootstrap-import bootstrap-import-apply bootstrap-ultimate bootstrap-oracle bootstrap-worker-3060 bootstrap-worker-3090ti bootstrap-worker-5090 \
-  archive-guard repo-structure-audit edge-docs \
+  archive-guard repo-structure-audit edge-docs git-remote-health host-layout-validate host-plan install-infra-host-layout \
   gitea-up gitea-up-ai gitea-up-actions gitea-up-actions-large gitea-up-infisical-agent gitea-down gitea-ps gitea-config gitea-bootstrap-orchestrator infisical-up infisical-down infisical-config \
   up-gitea down-gitea logs-gitea health-gitea up-infisical down-infisical logs-infisical health-infisical \
   twenty-crm-config twenty-crm-up twenty-crm-down twenty-crm-restart twenty-crm-logs twenty-crm-ps twenty-crm-health twenty-crm-setup twenty-crm-reset twenty-crm-dev twenty-mcp-up twenty-mcp-down
@@ -66,6 +66,10 @@ help:
 	@echo "make archive-guard      Fail if deprecated root archive paths return"
 	@echo "make repo-structure-audit Generate structure hotspot report in docs/reports/consolidation"
 	@echo "make edge-docs          Regenerate ports + cloudflared docs from canonical compose files"
+	@echo "make git-remote-health  Fail if no git remote is configured"
+	@echo "make host-layout-validate Verify canonical infra host split structure"
+	@echo "make host-plan          Generate full host service inventory and placement plan"
+	@echo "make install-infra-host-layout Run idempotent infra host prep bootstrap"
 	@echo "make ports              Print canonical ports registry path"
 	@echo "make bootstrap-ultimate Bring up orchestrator + oracle + all workers"
 	@echo
@@ -429,3 +433,25 @@ twenty-mcp-up:
 twenty-mcp-down:
 	@echo "Stopping TwentyCRM MCP Server..."
 	$(TWENTY_COMPOSE) stop twenty-mcp-server
+
+
+git-remote-health:
+	bash ./scripts/maintenance/git-remote-health.sh
+
+host-layout-validate:
+	@test -f infra/hosts/host-layout.yaml || (echo "Missing infra/hosts/host-layout.yaml" && exit 1)
+	@test -d infra/hosts/orchestrator || (echo "Missing infra/hosts/orchestrator" && exit 1)
+	@test -d infra/hosts/worker-hosts/worker-rtx5090 || (echo "Missing infra/hosts/worker-hosts/worker-rtx5090" && exit 1)
+	@test -d infra/hosts/worker-hosts/worker-rtx3090ti || (echo "Missing infra/hosts/worker-hosts/worker-rtx3090ti" && exit 1)
+	@test -d infra/hosts/worker-hosts/worker-rtx3060 || (echo "Missing infra/hosts/worker-hosts/worker-rtx3060" && exit 1)
+	@test -d infra/hosts/oracle-vps || (echo "Missing infra/hosts/oracle-vps" && exit 1)
+	@test -f infra/hosts/homeassistant/config/dashboards/nyra-ops-ui-links.yaml || (echo "Missing Home Assistant dashboard links config" && exit 1)
+	@echo "infra host split looks good"
+
+
+host-plan:
+	python3 scripts/maintenance/generate-host-service-plan.py
+
+
+install-infra-host-layout:
+	bash ./scripts/setup/install-infra-host-layout.sh
