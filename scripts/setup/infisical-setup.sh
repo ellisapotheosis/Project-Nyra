@@ -362,7 +362,7 @@ nyra_secret_set() {
 
     require_token
     echo "🔐 Setting secret: $key in $env"
-    infisical secrets set --projectId="$INFISICAL_PROJECT_ID" --env="$env" "$key=$value"
+    infisical secrets set --token="$(nyra_resolve_infisical_token)" --projectId="$INFISICAL_PROJECT_ID" --env="$env" "$key=$value"
 }
 
 # Run command with secrets injected
@@ -372,7 +372,7 @@ nyra_run_with_secrets() {
 
     require_token
     echo "🚀 Running command with secrets from $env environment"
-    infisical run --projectId="$INFISICAL_PROJECT_ID" --env="$env" -- "$@"
+    infisical run --token="$(nyra_resolve_infisical_token)" --projectId="$INFISICAL_PROJECT_ID" --env="$env" -- "$@"
 }
 
 # Generate secure secrets
@@ -384,15 +384,15 @@ nyra_generate_secrets() {
 
     # Generate JWT secret
     local jwt_secret=$(openssl rand -base64 64 | tr -d '\n')
-    infisical secrets set --projectId="$INFISICAL_PROJECT_ID" --env="$env" "JWT_SECRET=$jwt_secret"
+    infisical secrets set --token="$(nyra_resolve_infisical_token)" --projectId="$INFISICAL_PROJECT_ID" --env="$env" "JWT_SECRET=$jwt_secret"
 
     # Generate API encryption key
     local api_key=$(openssl rand -base64 32 | tr -d '\n')
-    infisical secrets set --projectId="$INFISICAL_PROJECT_ID" --env="$env" "API_ENCRYPTION_KEY=$api_key"
+    infisical secrets set --token="$(nyra_resolve_infisical_token)" --projectId="$INFISICAL_PROJECT_ID" --env="$env" "API_ENCRYPTION_KEY=$api_key"
 
     # Generate webhook signing secret
     local webhook_secret=$(openssl rand -base64 32 | tr -d '\n')
-    infisical secrets set --projectId="$INFISICAL_PROJECT_ID" --env="$env" "WEBHOOK_SIGNING_SECRET=$webhook_secret"
+    infisical secrets set --token="$(nyra_resolve_infisical_token)" --projectId="$INFISICAL_PROJECT_ID" --env="$env" "WEBHOOK_SIGNING_SECRET=$webhook_secret"
 
     echo "✅ Generated secure secrets for $env"
 }
@@ -409,7 +409,7 @@ nyra_export_env() {
 
     require_token
     echo "📁 Exporting $env secrets to $output_file"
-    infisical export --projectId="$INFISICAL_PROJECT_ID" --env="$env" --format=dotenv > "$output_file"
+    infisical export --token="$(nyra_resolve_infisical_token)" --projectId="$INFISICAL_PROJECT_ID" --env="$env" --format=dotenv > "$output_file"
     chmod 600 "$output_file"
     echo "✅ Secrets exported to $output_file"
 }
@@ -431,7 +431,7 @@ nyra_import_secrets() {
         if [[ ! -z "$key" && ! "$key" =~ ^# ]]; then
             # Remove quotes and whitespace
             value=$(echo "$value" | sed 's/^["'"'"']//' | sed 's/["'"'"']$//' | xargs)
-            infisical secrets set --projectId="$INFISICAL_PROJECT_ID" --env="$env" "$key=$value"
+            infisical secrets set --token="$(nyra_resolve_infisical_token)" --projectId="$INFISICAL_PROJECT_ID" --env="$env" "$key=$value"
             echo "   ✅ Set: $key"
         fi
     done < "$file"
@@ -539,7 +539,7 @@ setup_environments() {
 
     for env in "${environments[@]}"; do
         echo "📋 Environment: $env"
-        echo "   Use 'infisical secrets set --projectId=$INFISICAL_PROJECT_ID KEY=VALUE --env=$env' to add secrets"
+        echo "   Use 'infisical secrets set --token=\$INFISICAL_TOKEN --projectId=$INFISICAL_PROJECT_ID KEY=VALUE --env=$env' to add secrets"
     done
 
     success "Environments configured"
@@ -575,10 +575,10 @@ EOF
     cat <<EOF
 {
   "scripts": {
-    "dev": "infisical run --projectId=8374cea9-e5e8-4050-bda4-b91f25ab30ef --env=development -- node src/app.js",
-    "start": "infisical run --projectId=8374cea9-e5e8-4050-bda4-b91f25ab30ef --env=production -- node src/app.js",
-    "start:orchestrator": "infisical run --projectId=8374cea9-e5e8-4050-bda4-b91f25ab30ef --env=production -- node src/orchestrator/main.js",
-    "start:worker": "infisical run --projectId=8374cea9-e5e8-4050-bda4-b91f25ab30ef --env=production -- node src/worker/main.js",
+    "dev": "infisical run --token=$INFISICAL_TOKEN --projectId=8374cea9-e5e8-4050-bda4-b91f25ab30ef --env=development -- node src/app.js",
+    "start": "infisical run --token=$INFISICAL_TOKEN --projectId=8374cea9-e5e8-4050-bda4-b91f25ab30ef --env=production -- node src/app.js",
+    "start:orchestrator": "infisical run --token=$INFISICAL_TOKEN --projectId=8374cea9-e5e8-4050-bda4-b91f25ab30ef --env=production -- node src/orchestrator/main.js",
+    "start:worker": "infisical run --token=$INFISICAL_TOKEN --projectId=8374cea9-e5e8-4050-bda4-b91f25ab30ef --env=production -- node src/worker/main.js",
     "secrets:validate": "scripts/secrets/infisical-helpers.sh validate",
     "secrets:generate": "scripts/secrets/infisical-helpers.sh generate development"
   }
@@ -698,16 +698,16 @@ show_setup_summary() {
 📋 Next Steps:
 
 1. Set required Cloudflare secrets:
-   infisical secrets set --projectId=8374cea9-e5e8-4050-bda4-b91f25ab30ef --env=development CLOUDFLARE_API_KEY="your_key"
-   infisical secrets set --projectId=8374cea9-e5e8-4050-bda4-b91f25ab30ef --env=development CLOUDFLARE_EMAIL="your_email"
-   infisical secrets set --projectId=8374cea9-e5e8-4050-bda4-b91f25ab30ef --env=development CLOUDFLARE_ZONE_ID="your_zone_id"
-   infisical secrets set --projectId=8374cea9-e5e8-4050-bda4-b91f25ab30ef --env=development CLOUDFLARE_ACCOUNT_ID="your_account_id"
+   infisical secrets set --token="$INFISICAL_TOKEN" --projectId=8374cea9-e5e8-4050-bda4-b91f25ab30ef --env=development CLOUDFLARE_API_KEY="your_key"
+   infisical secrets set --token="$INFISICAL_TOKEN" --projectId=8374cea9-e5e8-4050-bda4-b91f25ab30ef --env=development CLOUDFLARE_EMAIL="your_email"
+   infisical secrets set --token="$INFISICAL_TOKEN" --projectId=8374cea9-e5e8-4050-bda4-b91f25ab30ef --env=development CLOUDFLARE_ZONE_ID="your_zone_id"
+   infisical secrets set --token="$INFISICAL_TOKEN" --projectId=8374cea9-e5e8-4050-bda4-b91f25ab30ef --env=development CLOUDFLARE_ACCOUNT_ID="your_account_id"
 
 2. Generate security secrets:
    ./scripts/secrets/infisical-helpers.sh generate development
 
 3. Test integration:
-   infisical run --projectId=8374cea9-e5e8-4050-bda4-b91f25ab30ef --env=development -- echo "Secrets loaded!"
+   infisical run --token="$INFISICAL_TOKEN" --projectId=8374cea9-e5e8-4050-bda4-b91f25ab30ef --env=development -- echo "Secrets loaded!"
 
 4. Use in npm scripts:
    npm run dev  # Runs with development secrets

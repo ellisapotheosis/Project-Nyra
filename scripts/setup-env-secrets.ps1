@@ -45,7 +45,7 @@ $claudeCodeWrapper = @"
 . "`$PSScriptRoot\lib\InfisicalToken.ps1"
 `$projectId = Get-NyraInfisicalProjectId
 Assert-NyraInfisicalToken
-& infisical run --projectId=`$projectId --env=$Environment -- claude @args
+Invoke-NyraInfisicalRun -Environment "$Environment" -ProjectId `$projectId -CommandArgs (@("claude") + `$args)
 "@
 
 $wrapperPath = "C:\Dev\Projects\Repos\Project-Nyra\scripts\nyra-claude.ps1"
