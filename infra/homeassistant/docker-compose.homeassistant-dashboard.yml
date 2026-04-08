@@ -15,6 +15,7 @@ services:
       LANDING_URL: ${LANDING_URL}
       GRAFANA_URL: ${GRAFANA_URL}
       NEXUS_URL: ${NEXUS_URL}
+      LINKWARDEN_URL: ${LINKWARDEN_URL}
     volumes:
       - ./homepage/config:/app/config
       - /var/run/docker.sock:/var/run/docker.sock:ro

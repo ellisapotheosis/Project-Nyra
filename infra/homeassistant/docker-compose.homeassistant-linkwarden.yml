@@ -1,0 +1,103 @@
+version: "3.8"
+
+services:
+  linkwarden-postgres:
+    image: postgres:16-alpine
+    container_name: linkwarden-postgres
+    restart: unless-stopped
+    env_file:
+      - .env.homeassistant-linkwarden
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - ${HA_STACK_ROOT}/live-data/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-postgres}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - homeassistant-stack
+
+  linkwarden-meilisearch:
+    image: getmeili/meilisearch:v1.12.8
+    container_name: linkwarden-meilisearch
+    restart: unless-stopped
+    env_file:
+      - .env.homeassistant-linkwarden
+    environment:
+      MEILI_MASTER_KEY: ${MEILI_MASTER_KEY}
+      MEILI_NO_ANALYTICS: "true"
+    volumes:
+      - ${HA_STACK_ROOT}/live-data/meili_data:/meili_data
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:7700/health"]
+      interval: 20s
+      timeout: 5s
+      retries: 10
+    networks:
+      - homeassistant-stack
+
+  linkwarden:
+    image: ghcr.io/linkwarden/linkwarden:v2.14.0
+    container_name: linkwarden
+    restart: unless-stopped
+    env_file:
+      - .env.homeassistant-linkwarden
+    depends_on:
+      linkwarden-postgres:
+        condition: service_healthy
+      linkwarden-meilisearch:
+        condition: service_healthy
+    ports:
+      - "${LINKWARDEN_PORT:-3010}:3000"
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@linkwarden-postgres:5432/${POSTGRES_DB:-postgres}
+      NEXTAUTH_URL: ${NEXTAUTH_URL}
+      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
+      MEILI_HOST: http://linkwarden-meilisearch:7700
+      MEILI_MASTER_KEY: ${MEILI_MASTER_KEY}
+      STORAGE_FOLDER: /data/data
+    volumes:
+      - ${HA_STACK_ROOT}/live-data/linkwarden_data:/data/data
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:3000/api/v1/public/health"]
+      interval: 30s
+      timeout: 8s
+      retries: 10
+    networks:
+      - homeassistant-stack
+
+  starwarden:
+    image: rtuszik/starwarden:v1.4.0
+    container_name: starwarden
+    restart: unless-stopped
+    env_file:
+      - .env.homeassistant-linkwarden
+    environment:
+      LINKWARDEN_URL: ${LINKWARDEN_INTERNAL_URL:-http://linkwarden:3000}
+      LINKWARDEN_TOKEN: ${LINKWARDEN_TOKEN}
+      GITHUB_USERNAME: ${GITHUB_USERNAME}
+      GITHUB_TOKEN: ${GITHUB_TOKEN}
+      COLLECTION_ID: ${COLLECTION_ID:-}
+      CRON_SCHEDULE: ${CRON_SCHEDULE:-0 */6 * * *}
+      APPRISE_URLS: ${APPRISE_URLS:-}
+      OPT_TAG: ${OPT_TAG:-true}
+      OPT_TAG_GITHUB: ${OPT_TAG_GITHUB:-true}
+      OPT_TAG_GITHUBSTARS: ${OPT_TAG_GITHUBSTARS:-true}
+      OPT_TAG_LANGUAGE: ${OPT_TAG_LANGUAGE:-false}
+      OPT_TAG_USERNAME: ${OPT_TAG_USERNAME:-false}
+      OPT_TAG_CUSTOM: ${OPT_TAG_CUSTOM:-}
+    volumes:
+      - ${HA_STACK_ROOT}/logs/starwarden.log:/app/starwarden.log
+    depends_on:
+      linkwarden:
+        condition: service_healthy
+    networks:
+      - homeassistant-stack
+
+networks:
+  homeassistant-stack:
+    name: homeassistant-stack
