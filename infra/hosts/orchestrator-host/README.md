@@ -1,19 +1,5 @@
-# Orchestrator Host
+# Orchestrator Host (Legacy Alias)
 
-## Role
+This folder remains for compatibility with older references.
 
-- Primary control-plane and service orchestration host.
-- Hosts baseline stack profiles and coordination services.
-
-## Current Source Paths To Consolidate
-
-- `infra/orchestrator/`
-- `infra/compose/`
-- `infra/configs/`
-- `infra/scripts/runtime/`
-- `scripts/orchestrator/`
-
-## Guardrails
-
-- All compose defaults should remain profile-driven.
-- Host bootstrap logic should move toward `infra/bootstrap/scripts/orchestrator/`.
+Canonical location: `infra/hosts/orchestrator/`.

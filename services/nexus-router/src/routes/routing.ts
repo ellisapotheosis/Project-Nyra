@@ -20,7 +20,7 @@ const RoutingConfigSchema = z.object({
 
 const CustomRoutingRuleSchema = z.object({
   pattern: z.string().min(1),
-  targetProvider: z.enum(['local', 'anthropic', 'openrouter']),
+  targetProvider: z.enum(['local', 'openai', 'google-gemini', 'anthropic', 'openrouter']),
   targetModel: z.string().optional(),
   priority: z.number().int().default(0),
   enabled: z.boolean().default(true),

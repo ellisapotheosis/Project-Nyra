@@ -30,6 +30,17 @@ jobs:
         with:
           ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.event.inputs.deploy_sha }}
 
+      - name: 🏷️ Resolve registry
+        run: |
+          REGISTRY="${{ vars.GITEA_REGISTRY }}"
+          if [ -z "$REGISTRY" ]; then
+            REGISTRY="${{ secrets.GITEA_REGISTRY }}"
+          fi
+          if [ -z "$REGISTRY" ]; then
+            REGISTRY="gitea.local:3100"
+          fi
+          echo "REGISTRY=$REGISTRY" >> "$GITHUB_ENV"
+
       - name: 🔧 Setup deployment
         env:
           GITHUB_EVENT_WORKFLOW_RUN_HEAD_SHA: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || '' }}
@@ -42,9 +53,22 @@ jobs:
           echo "Environment: ${{ env.ENVIRONMENT }}"
 
       - name: 🔐 Setup SSH
-        uses: webfactory/ssh-agent@v0.9.0
-        with:
-          ssh-private-key: ${{ secrets.DEV_SSH_KEY }}
+        env:
+          PRIMARY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          FALLBACK_SSH_KEY: ${{ secrets.DEV_SSH_KEY }}
+        run: |
+          SSH_KEY="${PRIMARY_SSH_KEY:-}"
+          if [ -z "$SSH_KEY" ]; then
+            SSH_KEY="${FALLBACK_SSH_KEY:-}"
+          fi
+          if [ -z "$SSH_KEY" ]; then
+            echo "❌ Missing SSH deploy key secret (DEPLOY_SSH_KEY or DEV_SSH_KEY)"
+            exit 1
+          fi
+
+          install -d -m 700 ~/.ssh
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
 
       - name: 📋 Prepare deployment files
         env:
@@ -69,10 +93,10 @@ jobs:
           COMPOSE_PROJECT_NAME=nyra-dev
 
           # Image versions (latest develop builds)
-          NEXUS_ROUTER_IMAGE=gitea.local:3100/nyra/nexus-router:${SHORT_SHA}
-          CLAUDE_FLOW_IMAGE=gitea.local:3100/nyra/claude-flow:${SHORT_SHA}
-          QUOTE_ENGINE_IMAGE=gitea.local:3100/nyra/quote-engine:${SHORT_SHA}
-          CAMPAIGN_ENGINE_IMAGE=gitea.local:3100/nyra/campaign-engine:${SHORT_SHA}
+          NEXUS_ROUTER_IMAGE=${REGISTRY}/nyra/nexus-router:${SHORT_SHA}
+          CLAUDE_FLOW_IMAGE=${REGISTRY}/nyra/claude-flow:${SHORT_SHA}
+          QUOTE_ENGINE_IMAGE=${REGISTRY}/nyra/quote-engine:${SHORT_SHA}
+          CAMPAIGN_ENGINE_IMAGE=${REGISTRY}/nyra/campaign-engine:${SHORT_SHA}
 
           # Development secrets
           GRAFANA_ADMIN_PASSWORD=${{ secrets.DEV_GRAFANA_PASSWORD }}
@@ -96,9 +120,9 @@ jobs:
 
       - name: 📤 Deploy to development
         run: |
-          scp -o StrictHostKeyChecking=no -r deploy-development/. deploy@${{ env.DEPLOY_HOST }}:/opt/project-nyra/
+          scp -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no -r deploy-development/. deploy@${{ env.DEPLOY_HOST }}:/opt/project-nyra/
 
-          ssh -o StrictHostKeyChecking=no deploy@${{ env.DEPLOY_HOST }} 'bash -s' << 'EOF'
+          ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no deploy@${{ env.DEPLOY_HOST }} 'bash -s' << 'EOF'
             set -euo pipefail
             cd /opt/project-nyra
             source ./scripts/ci/common.sh
@@ -122,7 +146,7 @@ jobs:
 
       - name: 🧪 Run development smoke tests
         run: |
-          ssh -o StrictHostKeyChecking=no deploy@${{ env.DEPLOY_HOST }} 'bash -s' << 'EOF'
+          ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no deploy@${{ env.DEPLOY_HOST }} 'bash -s' << 'EOF'
             set -euo pipefail
             cd /opt/project-nyra
 

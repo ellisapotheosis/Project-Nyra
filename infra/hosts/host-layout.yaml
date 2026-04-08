@@ -1,0 +1,61 @@
+version: 2
+purpose: Canonical host split for Portainer migration
+
+bootstrap_order:
+  - oracle-vps
+  - orchestrator
+  - worker-hosts
+  - homeassistant
+
+host_constraints:
+  orchestrator:
+    resources:
+      ram_gb: 16
+    policy:
+      - Keep latency-sensitive UI/API routing services local (gateway, router, Archon UI, Open WebUI/OpenClaw UI).
+      - Keep write-heavy orchestration control loops local.
+  oracle-vps:
+    resources:
+      ocpu: 4
+      ram_gb: 24
+      storage_gb: 200
+    policy:
+      - Prefer internet-facing and durable/stateful services (CRM, database replicas, backups, async automations).
+      - Avoid GPU-bound and ultra-low-latency interactive control loops.
+hosts:
+  orchestrator:
+    owner: control-plane
+    compose_files:
+      - infra/docker-compose.yml
+      - infra/compose/overrides/docker-compose.orchestrator.override.yml
+    env_files:
+      - infra/env/.env.orchestrator
+  worker-hosts:
+    owner: gpu-workers
+    nodes:
+      worker-rtx5090:
+        compose_files:
+          - infra/workers/worker-rtx5090/docker-compose.worker.yml
+        env_files:
+          - infra/env/.env.worker-rtx5090
+      worker-rtx3090ti:
+        compose_files:
+          - infra/workers/worker-rtx3090ti/docker-compose.worker.yml
+        env_files:
+          - infra/env/.env.worker-rtx3090ti
+      worker-rtx3060:
+        compose_files:
+          - infra/workers/worker-rtx3060/docker-compose.worker.yml
+          - infra/compose/overrides/docker-compose.worker-rtx3060.override.yml
+        env_files:
+          - infra/env/.env.worker-rtx3060
+  oracle-vps:
+    owner: cloud
+    compose_files:
+      - infra/oracle/docker-compose.oracle.yml
+  homeassistant:
+    owner: home-lab-ops
+    dashboard_files:
+      - infra/hosts/homeassistant/config/dashboards/nyra-ops-ui-links.yaml
+    package_files:
+      - infra/hosts/homeassistant/config/packages/nyra-stack-recommendations.yaml

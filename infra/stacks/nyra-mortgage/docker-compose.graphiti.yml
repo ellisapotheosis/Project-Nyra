@@ -14,7 +14,7 @@ services:
       # Graphiti needs at least one provider key.
       # Try routing via Nexus/LiteLLM by setting OPENAI_BASE_URL, but if it doesn't work, use a direct key.
       - OPENAI_API_KEY=${OPENAI_API_KEY:-}
-      - OPENAI_BASE_URL=http://nexus:6000/llm/openai/v1
+      - OPENAI_BASE_URL=http://nexus:4001/llm/openai/v1
       - SEMAPHORE_LIMIT=5
     ports:
       - "8000:8000"
