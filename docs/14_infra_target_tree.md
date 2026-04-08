@@ -36,7 +36,10 @@
 - `infra/dev-stack/docker-compose.yml`
 - `infra/docker-compose.oracle.yml`
 - `infra/docker-compose/docker-compose.claude-flow.yml`
+- `infra/homeassistant/docker-compose.homeassistant-dashboard.yml`
 - `infra/orchestrator/docker-compose.orchestrator.yml`
+- `infra/orchestrator/portainer-mesh/docker-compose.portainer.edge-agent.yml`
+- `infra/orchestrator/portainer-mesh/docker-compose.portainer.orchestrator.yml`
 - `infra/stacks/nyra-mortgage/docker-compose.addons.yml`
 - `infra/stacks/nyra-mortgage/docker-compose.graphiti.yml`
 - `infra/stacks/nyra-mortgage/docker-compose.local.yml`
@@ -46,6 +49,9 @@
 - `infra/workers/docker-compose.workers.yml`
 - `infra/workers/worker-3060/docker-compose.worker-3060.yml`
 - `infra/workers/worker-3090/docker-compose.worker-3090.yml`
+- `infra/workers/worker-rtx3060/docker-compose.gpu.yml`
+- `infra/workers/worker-rtx3090ti/docker-compose.gpu.yml`
+- `infra/workers/worker-rtx5090/docker-compose.gpu.yml`
 - `infra/workers/worker-rtx5090/worker-5090/docker-compose.worker-5090.yml`
 
 ## Supplemental (appendix only) compose definitions

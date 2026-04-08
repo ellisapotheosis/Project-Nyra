@@ -3,7 +3,8 @@ import crypto from 'crypto';
 import { WorkerManager } from '../services/worker-manager';
 import { RedisClient } from '../services/redis-client';
 import { createLogger } from '../utils/logger';
-import { CompletionRequest, CompletionResponse } from '../types';
+import { CompletionRequest } from '../types';
+import { CloudProvider, formatProviderResponse } from '../services/cloud-provider-adapters';
 
 const logger = createLogger('completion-route');
 const router = Router();
@@ -55,7 +56,7 @@ router.post('/', async (req: Request, res: Response): Promise<void> => {
     const response = await workerManager.sendCompletionRequest(routing, requestBody);
 
     // Transform response to OpenAI format if needed
-    const formattedResponse = formatResponse(response, routing.provider);
+    const formattedResponse = formatProviderResponse(response, routing.provider as CloudProvider);
 
     // Cache the response
     await redis.cacheRequest(requestHash, JSON.stringify(formattedResponse), 3600);
@@ -126,41 +127,6 @@ function inferTaskType(messages: any[]): string {
   }
 
   return 'general';
-}
-
-function formatResponse(response: any, provider: string): CompletionResponse {
-  // If response is already in OpenAI format
-  if (response.choices && response.model) {
-    return response as CompletionResponse;
-  }
-
-  // Transform Anthropic format to OpenAI format
-  if (provider === 'anthropic' && response.content) {
-    return {
-      id: response.id || `chatcmpl-${Date.now()}`,
-      object: 'chat.completion',
-      created: Math.floor(Date.now() / 1000),
-      model: response.model || 'claude-sonnet-4',
-      choices: [
-        {
-          index: 0,
-          message: {
-            role: 'assistant',
-            content: response.content[0]?.text || '',
-          },
-          finish_reason: response.stop_reason === 'end_turn' ? 'stop' : 'length',
-        },
-      ],
-      usage: {
-        prompt_tokens: response.usage?.input_tokens || 0,
-        completion_tokens: response.usage?.output_tokens || 0,
-        total_tokens: (response.usage?.input_tokens || 0) + (response.usage?.output_tokens || 0),
-      },
-    };
-  }
-
-  // Default passthrough
-  return response;
 }
 
 export { router as completionRouter };

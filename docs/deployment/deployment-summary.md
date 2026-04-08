@@ -24,9 +24,9 @@ All automated tasks have been completed successfully. The system is now ready fo
 ## 📁 Files Created
 
 ### Configuration Files
-1. **infra/docker/docker-compose.archon.yml** - Archon services with Nexus Router integration
-2. **infra/docker/archon-integration.env.example** - Complete environment template
-3. **infra/docker/.env** - Updated with Archon configuration section
+1. **docker-compose.archon.yml** - Dedicated Archon profile stack (repo root)
+2. **infra/docker-compose.yml** - Unified stack with `archon` profile and shared services
+3. **tools/archon/archon-ui-main/** - Archon UI placeholder build context used by compose
 
 ### Deployment Scripts
 4. **scripts/deploy-archon.ps1** - Automated PowerShell deployment script
@@ -79,14 +79,14 @@ All automated tasks have been completed successfully. The system is now ready fo
 ### Step 2: Configure Environment
 
 ```powershell
-cd C:\Dev\Projects\Repos\Project-Nyra\infra\docker
+cd C:\Dev\Projects\Repos\Project-Nyra
 notepad .env
 ```
 
 **Find these lines and update:**
 
 ```bash
-# Around line 64-65
+# In the root .env file
 SUPABASE_URL=https://your-project.supabase.co  # Replace with your actual URL
 SUPABASE_SERVICE_KEY=your_service_role_key_here  # Replace with actual key
 ```

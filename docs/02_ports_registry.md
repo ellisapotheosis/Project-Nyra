@@ -34,8 +34,11 @@ _Generated from the canonical compose set used by `Makefile`, `infra/scripts/nod
 - `infra/docker-compose.oracle.yml`
 - `infra/docker-compose.yml`
 - `infra/docker-compose/docker-compose.claude-flow.yml`
+- `infra/homeassistant/docker-compose.homeassistant-dashboard.yml`
 - `infra/oracle/docker-compose.oracle.yml`
 - `infra/orchestrator/docker-compose.orchestrator.yml`
+- `infra/orchestrator/portainer-mesh/docker-compose.portainer.edge-agent.yml`
+- `infra/orchestrator/portainer-mesh/docker-compose.portainer.orchestrator.yml`
 - `infra/stacks/nyra-mortgage/docker-compose.addons.yml`
 - `infra/stacks/nyra-mortgage/docker-compose.graphiti.yml`
 - `infra/stacks/nyra-mortgage/docker-compose.local.yml`
@@ -45,8 +48,11 @@ _Generated from the canonical compose set used by `Makefile`, `infra/scripts/nod
 - `infra/workers/docker-compose.workers.yml`
 - `infra/workers/worker-3060/docker-compose.worker-3060.yml`
 - `infra/workers/worker-3090/docker-compose.worker-3090.yml`
+- `infra/workers/worker-rtx3060/docker-compose.gpu.yml`
 - `infra/workers/worker-rtx3060/docker-compose.worker.yml`
+- `infra/workers/worker-rtx3090ti/docker-compose.gpu.yml`
 - `infra/workers/worker-rtx3090ti/docker-compose.worker.yml`
+- `infra/workers/worker-rtx5090/docker-compose.gpu.yml`
 - `infra/workers/worker-rtx5090/docker-compose.worker.yml`
 - `infra/workers/worker-rtx5090/worker-5090/docker-compose.worker-5090.yml`
 
@@ -112,6 +118,7 @@ _Generated from the canonical compose set used by `Makefile`, `infra/scripts/nod
 | letta_postgres | `infra/stacks/nyra-mortgage/docker-compose.yml` | `letta_postgres` | `—` | `—` | `—` | — | private |   | — |
 | litellm | `docker-compose.archon.yml` | `litellm` | `—` | `—` | `—` | — | private |   | — |
 | lmcache | `infra/workers/worker-3090/docker-compose.worker-3090.yml` | `lmcache` | `8100` | `8100` | `tcp` | — | private |   | — |
+| lmcache-server | `infra/workers/worker-rtx3090ti/docker-compose.gpu.yml` | `lmcache-server` | `8100` | `127.0.0.1:8100` | `tcp` | — | private |   | — |
 | loki | `infra/docker-compose.yml` | `loki` | `3100` | `3100` | `tcp` | — | private |   | — |
 | mem0 | `infra/docker-compose.oracle.yml` | `mem0` | `5000` | `5000` | `tcp` | — | private |   | — |
 | model-preloader | `infra/workers/worker-3060/docker-compose.worker-3060.yml` | `model-preloader` | `—` | `—` | `—` | — | private |   | — |
@@ -125,10 +132,13 @@ _Generated from the canonical compose set used by `Makefile`, `infra/scripts/nod
 | nexus_onehop | `infra/orchestrator/docker-compose.nexus-one-hop.yml` | `nexus_onehop` | `6000, 6011` | `6000, 6011` | `tcp` | — | private |   | — |
 | node-exporter | `infra/workers/worker-3060/docker-compose.worker-3060.yml` | `node-exporter` | `9100` | `9100` | `tcp` | — | private |   | — |
 | nvidia-gpu-exporter | `infra/workers/worker-3090/docker-compose.worker-3090.yml` | `nvidia-gpu-exporter` | `9835` | `9835` | `tcp` | — | private |   | — |
+| nyra-home-dashboard | `infra/homeassistant/docker-compose.homeassistant-dashboard.yml` | `nyra-home-dashboard` | `3000` | `3007` | `tcp` | — | private |   | — |
 | nyra-mcp | `infra/docker-compose.yml` | `nyra-mcp` | `8081` | `3333` | `tcp` | — | private |   | — |
 | nyra-secrets-init | `docker-compose.gitea.yml` | `nyra-secrets-init` | `—` | `—` | `—` | — | private |   | — |
 | nyra_orchestrator | `infra/stacks/nyra-mortgage/docker-compose.local.yml` | `nyra_orchestrator` | `9000` | `9000` | `tcp` | — | private |   | — |
 | ollama | `infra/workers/docker-compose.workers.yml` | `ollama` | `11434` | `11434` | `tcp` | — | private |   | — |
+| ollama-model-loader | `infra/workers/worker-rtx3060/docker-compose.gpu.yml` | `ollama-model-loader` | `—` | `—` | `—` | — | private |   | — |
+| ollama-server | `infra/workers/worker-rtx3060/docker-compose.gpu.yml` | `ollama-server` | `11434, 11434` | `127.0.0.1:11434, 0.0.0.0:11434` | `tcp` | — | private |   | — |
 | onnx-runtime | `infra/workers/worker-3060/docker-compose.worker-3060.yml` | `onnx-runtime` | `8001, 8002` | `8001, 8002` | `tcp` | — | private |   | — |
 | openclaw | `infra/orchestrator/docker-compose.orchestrator.yml` | `openclaw` | `8001` | `8001` | `tcp` | — | private |   | — |
 | openclaw-cli | `infra/compose/openclaw.profile.yml` | `openclaw-cli` | `—` | `—` | `—` | — | private |   | — |
@@ -138,6 +148,9 @@ _Generated from the canonical compose set used by `Makefile`, `infra/scripts/nod
 | openclaw-ui-proxy | `infra/compose/openclaw.ui.compose.yml` | `openclaw-ui-proxy` | `8080` | `127.0.0.1:8099` | `tcp` | — | private |   | — |
 | openmemory_mcp | `infra/stacks/nyra-mortgage/docker-compose.yml` | `openmemory_mcp` | `8081` | `8081` | `tcp` | — | private |   | — |
 | openwebui | `infra/docker-compose.yml` | `openwebui` | `8080` | `8088` | `tcp` | — | private |   | — |
+| portainer | `infra/orchestrator/portainer-mesh/docker-compose.portainer.orchestrator.yml` | `portainer` | `9443, 9000, 9001` | `9443, 9000, 9001` | `tcp` | — | private |   | — |
+| portainer-edge-agent | `infra/orchestrator/portainer-mesh/docker-compose.portainer.edge-agent.yml` | `portainer-edge-agent` | `—` | `—` | `—` | — | private |   | — |
+| portainer-edge-agent-local | `infra/orchestrator/portainer-mesh/docker-compose.portainer.orchestrator.yml` | `portainer-edge-agent-local` | `—` | `—` | `—` | — | private |   | — |
 | postgres | `docker-compose.archon.yml` | `postgres` | `5432` | `5432` | `tcp` | — | private |   | — |
 | postgres-client | `infra/orchestrator/docker-compose.orchestrator.yml` | `postgres-client` | `—` | `—` | `—` | — | private |   | — |
 | prometheus | `infra/compose/monitoring.profile.yml` | `prometheus` | `9090` | `127.0.0.1:9090` | `tcp` | — | private |   | — |
@@ -163,6 +176,7 @@ _Generated from the canonical compose set used by `Makefile`, `infra/scripts/nod
 | twentycrm | `infra/docker-compose.yml` | `twentycrm` | `3000` | `3000` | `tcp` | — | public-via-cloudflare-access | twentycrm.nyra.example.com | - hostname: twentycrm.nyra.example.com<br>  service: http://localhost:3000 |
 | twentycrm-mcp | `infra/docker-compose.yml` | `twentycrm-mcp` | `8082` | `8182` | `tcp` | — | private |   | — |
 | vllm | `infra/workers/docker-compose.workers.yml` | `vllm` | `8000` | `8000` | `tcp` | — | private |   | — |
+| vllm-server | `infra/workers/worker-rtx3090ti/docker-compose.gpu.yml` | `vllm-server` | `8000, 8000` | `127.0.0.1:8000, 0.0.0.0:8000` | `tcp` | — | private |   | — |
 | vllm-worker | `infra/compose/workers.override.yml` | `vllm-worker` | `8000` | `127.0.0.1:8000` | `tcp` | — | private |   | — |
 | worker-3060-ollama | `infra/docker-compose.yml` | `worker-3060-ollama` | `11434` | `11434` | `tcp` | — | private |   | — |
 | worker-3090ti-vllm | `infra/docker-compose.yml` | `worker-3090ti-vllm` | `8000` | `8000` | `tcp` | — | private |   | — |

@@ -86,9 +86,10 @@ These entries are intentionally excluded from the active registry because they a
 | litellm | `infra/compose/orchestrator.override.yml` | `127.0.0.1:4000` | private |
 | litellm | `infra/docker-compose.yml` | `4000` | private |
 | litellm | `infra/orchestrator/docker-compose.orchestrator.yml` | `4000` | private |
-| litellm | `infra/stacks/nyra-mortgage/docker-compose.yml` | `4000` | private |
+| litellm | `infra/stacks/nyra-mortgage/docker-compose.yml` | `—` | private |
 | litellm | `infra/workers/worker-rtx5090/worker-5090/docker-compose.worker-5090.yml` | `4000` | private |
 | lmcache | `infra/workers/worker-rtx5090/worker-5090/docker-compose.worker-5090.yml` | `8100` | private |
+| lmcache-server | `infra/workers/worker-rtx5090/docker-compose.gpu.yml` | `127.0.0.1:8100` | private |
 | loki | `infra/compose/overrides/docker-compose.orchestrator.override.yml` | `0.0.0.0:3100` | private |
 | loki | `infra/compose/overrides/docker-compose.worker-rtx3060.override.yml` | `127.0.0.1:3100` | private |
 | loki | `infra/stacks/nyra-mortgage/docker-compose.yml` | `3100` | private |
@@ -110,7 +111,7 @@ These entries are intentionally excluded from the active registry because they a
 | n8n | `infra/stacks/nyra-mortgage/docker-compose.addons.yml` | `5678` | public-via-cloudflare-access |
 | n8n | `infra/workers/worker-rtx3090ti/docker-compose.worker.yml` | `127.0.0.1:5678` | public-via-cloudflare-access |
 | n8n | `infra/workers/worker-rtx5090/docker-compose.worker.yml` | `127.0.0.1:5678` | public-via-cloudflare-access |
-| nexus | `infra/stacks/nyra-mortgage/docker-compose.yml` | `6000` | private |
+| nexus | `infra/stacks/nyra-mortgage/docker-compose.yml` | `4001` | private |
 | nexus-router | `infra/compose/orchestrator.override.yml` | `127.0.0.1:3010` | private |
 | nexus-router | `infra/docker-compose.yml` | `7000, 8080, 9091` | private |
 | node-exporter | `infra/workers/worker-3090/docker-compose.worker-3090.yml` | `9100` | private |
@@ -148,6 +149,8 @@ These entries are intentionally excluded from the active registry because they a
 | redis | `infra/workers/worker-3060/docker-compose.worker-3060.yml` | `6379` | private |
 | redis | `infra/workers/worker-rtx3090ti/docker-compose.worker.yml` | `127.0.0.1:6379` | private |
 | redis | `infra/workers/worker-rtx5090/docker-compose.worker.yml` | `127.0.0.1:6379` | private |
+| redis-cache | `infra/workers/worker-rtx3090ti/docker-compose.gpu.yml` | `127.0.0.1:6379` | private |
+| redis-cache | `infra/workers/worker-rtx5090/docker-compose.gpu.yml` | `127.0.0.1:6379` | private |
 | ruvector-pgadmin | `infra/compose/overrides/docker-compose.orchestrator.override.yml` | `0.0.0.0:5050` | private |
 | ruvector-postgres | `infra/compose/overrides/docker-compose.orchestrator.override.yml` | `0.0.0.0:5436` | private |
 | ruvector-postgres | `infra/docker-compose.yml` | `5436` | private |
@@ -157,3 +160,4 @@ These entries are intentionally excluded from the active registry because they a
 | twentycrm | `infra/compose/overrides/docker-compose.oracle.override.yml` | `0.0.0.0:3000` | public-via-cloudflare-access |
 | vllm | `infra/workers/worker-3090/docker-compose.worker-3090.yml` | `8000` | private |
 | vllm | `infra/workers/worker-rtx5090/worker-5090/docker-compose.worker-5090.yml` | `8000` | private |
+| vllm-server | `infra/workers/worker-rtx5090/docker-compose.gpu.yml` | `127.0.0.1:8000, 0.0.0.0:8000` | private |
