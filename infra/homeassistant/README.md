@@ -1,161 +1,74 @@
-# HomeAssistant Bootstrap Kit (Linkwarden + StarWarden + Dashboard)
+# HomeAssistant Bootstrap Kit (Linkwarden + StarWarden + Full Dashboard UI)
 
-This folder now contains a full, reproducible setup kit for running:
+This package deploys:
+- Linkwarden stack (Postgres + Meilisearch + Linkwarden)
+- StarWarden sync worker
+- Homepage dashboard UI with links for Nyra apps/UIs (landing, webapp, CRM, Archon OS UI, Nexus Admin, Open WebUI, Dify, n8n, Activepieces, observability, memory services)
 
-- **Linkwarden** (self-hosted bookmark/archive manager)
-- **StarWarden** (GitHub starred repos sync into Linkwarden)
-- **Homepage dashboard** (quick links for your Home Assistant node)
+## File tree
 
-It is designed for a Home Assistant box using a **Samsung T5 1TB USB SSD**, while avoiding common SyncThing database corruption issues.
+```text
+infra/homeassistant/
+├── .env.homeassistant
+├── .env.homeassistant.example
+├── docker-compose.homeassistant-linkwarden.yml
+├── docker-compose.homeassistant-dashboard.yml
+├── homepage/config/
+│   ├── bookmarks.yaml
+│   ├── services.yaml
+│   ├── settings.yaml
+│   └── widgets.yaml
+└── scripts/
+    ├── bootstrap-homeassistant.sh
+    ├── check-homeassistant-stack.sh
+    └── backup-homeassistant-stack.sh
+```
 
-## What this kit solves
+## Secrets vs non-secrets
 
-- Brings up all services with one script.
-- Stores persistent data on the USB SSD.
-- Separates **live DB data** from **sync-safe backup/export data**.
-- Adds health checks and helper scripts for diagnostics and backups.
+### Put in Infisical (secrets)
+- `NEXTAUTH_SECRET`
+- `POSTGRES_PASSWORD`
+- `MEILI_MASTER_KEY`
+- `LINKWARDEN_TOKEN`
+- `GITHUB_TOKEN`
+- `APPRISE_URLS` (if webhook includes credentials)
 
----
-
-## Folder contents
-
-- `.env.homeassistant-dashboard.example`
-- `.env.homeassistant-linkwarden.example`
-- `docker-compose.homeassistant-dashboard.yml`
-- `docker-compose.homeassistant-linkwarden.yml`
-- `homepage/config/bookmarks.yaml`
-- `scripts/bootstrap-homeassistant.sh`
-- `scripts/check-homeassistant-stack.sh`
-- `scripts/backup-homeassistant-stack.sh`
-
----
-
-## Prerequisites
-
-- Docker + Docker Compose plugin installed on Home Assistant host.
-- Samsung T5 mounted (example mount path: `/mnt/samsung_t5`).
-- Ports available:
-  - `3010` Linkwarden
-  - `3007` Homepage dashboard
-
----
+### Keep local/non-secret config
+All other URL/port/hostname and scheduler/tag variables in `.env.homeassistant`.
 
 ## Quick start
 
 ```bash
 cd /workspace/Project-Nyra/infra/homeassistant
+cp .env.homeassistant.example .env.homeassistant
 
-# Creates missing .env files, validates compose, makes SSD dirs, and starts services
+# edit placeholders in .env.homeassistant
 ./scripts/bootstrap-homeassistant.sh
 ```
 
-Then open:
+## Why auto-install failed previously
 
-- Linkwarden: `http://<homeassistant-ip>:3010`
-- Homepage Dashboard: `http://<homeassistant-ip>:3007`
+On first run, `LINKWARDEN_TOKEN` usually does not exist yet. Bootstrap now:
+1. Starts core services first (postgres + meilisearch + linkwarden + dashboard)
+2. Starts StarWarden only when both `GITHUB_TOKEN` and `LINKWARDEN_TOKEN` are set to non-placeholder values
 
----
-
-## 1) Configure environment files
-
-### A) Linkwarden/StarWarden env
+## Operations
 
 ```bash
-cp .env.homeassistant-linkwarden.example .env.homeassistant-linkwarden
-```
-
-Update at minimum:
-
-- `HA_STACK_ROOT`
-- `NEXTAUTH_URL`
-- `NEXTAUTH_SECRET`
-- `POSTGRES_PASSWORD`
-- `MEILI_MASTER_KEY`
-- `GITHUB_USERNAME`
-- `GITHUB_TOKEN`
-
-After Linkwarden first login, create an API token in Linkwarden and set:
-
-- `LINKWARDEN_TOKEN`
-
-### B) Dashboard env
-
-```bash
-cp .env.homeassistant-dashboard.example .env.homeassistant-dashboard
-```
-
-Update URLs as needed, including `LINKWARDEN_URL`.
-
----
-
-## 2) SyncThing guidance (important)
-
-To reduce risk of database corruption:
-
-- **Do sync:** `${HA_STACK_ROOT}/synced`
-- **Do NOT sync:** `${HA_STACK_ROOT}/live-data`
-
-Reason: Postgres + Meilisearch use active database files and locks that should not be bidirectionally synced while containers run.
-
----
-
-## 3) Operations
-
-### Start / restart
-
-```bash
-docker compose --env-file .env.homeassistant-linkwarden -f docker-compose.homeassistant-linkwarden.yml up -d
-docker compose --env-file .env.homeassistant-dashboard -f docker-compose.homeassistant-dashboard.yml up -d
-```
-
-### Stop
-
-```bash
-docker compose --env-file .env.homeassistant-linkwarden -f docker-compose.homeassistant-linkwarden.yml down
-docker compose --env-file .env.homeassistant-dashboard -f docker-compose.homeassistant-dashboard.yml down
-```
-
-### Health/status checks
-
-```bash
+# health/status
 ./scripts/check-homeassistant-stack.sh
-```
 
-### Backups to sync-safe folder
-
-```bash
+# backup to sync-safe path
 ./scripts/backup-homeassistant-stack.sh
+
+# start StarWarden after token setup
+docker compose --env-file .env.homeassistant -f docker-compose.homeassistant-linkwarden.yml up -d starwarden
 ```
 
-Backups are written to `${HA_STACK_ROOT}/synced/backups/<timestamp>`.
+## SyncThing safety
 
----
+- Sync only: `${HA_STACK_ROOT}/synced`
+- Exclude: `${HA_STACK_ROOT}/live-data`
 
-## 4) First-run order for StarWarden
-
-1. Bring up stack.
-2. Create Linkwarden admin user.
-3. Create a Linkwarden API token.
-4. Put token in `.env.homeassistant-linkwarden` as `LINKWARDEN_TOKEN`.
-5. Optionally set `COLLECTION_ID` to pin updates to a specific Linkwarden collection.
-6. Restart `starwarden` container:
-
-```bash
-docker compose --env-file .env.homeassistant-linkwarden -f docker-compose.homeassistant-linkwarden.yml up -d starwarden
-```
-
----
-
-## Troubleshooting quick hits
-
-- **Services fail to start:** run `docker compose ... config` to catch env formatting errors.
-- **Linkwarden can’t connect DB:** verify `POSTGRES_PASSWORD` matches in env and DB container is healthy.
-- **StarWarden doesn’t import stars:** verify GitHub token scopes and valid `LINKWARDEN_TOKEN`.
-- **“Auto-install not working”:** use `./scripts/bootstrap-homeassistant.sh` (idempotent and validation-first).
-
----
-
-## Upstream references
-
-- Linkwarden: `https://github.com/linkwarden/linkwarden`
-- StarWarden: `https://github.com/rtuszik/starwarden`
+Never sync live Postgres/Meilisearch data directories.
