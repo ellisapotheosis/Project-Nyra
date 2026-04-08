@@ -7,6 +7,10 @@ views:
       - type: markdown
         title: Core UIs
         content: |
+          > NOTE: These links assume a non-TLS `.local` environment. Update hostnames and
+          > protocols to match your deployment, especially when services are fronted by TLS
+          > or a reverse proxy.
+
           ### Application UI
           - [Webapp](http://orchestrator.local:5173)
           - [Landing](http://orchestrator.local:3004)
@@ -17,7 +21,7 @@ views:
           - [Archon UI](http://orchestrator.local:3737)
           - [Open WebUI](http://orchestrator.local:3002)
           - [OpenClaw UI](http://orchestrator.local:3003)
-          - [Portainer](http://orchestrator.local:9443)
+          - [Portainer](https://orchestrator.local:9443)
 
           ### Observability + Automation
           - [Grafana](http://orchestrator.local:3005)

@@ -14,7 +14,7 @@ networks:
 volumes:
   archon_data: {}
   archon_server_data: {}
-  archon_ui_node_modules: {}
+  shared_secrets: {}
 
 services:
   postgres:
@@ -44,7 +44,7 @@ services:
     command: ['sh', '-lc', 'redis-server --requirepass "$${REDIS_PASSWORD}"']
     ports: ['${REDIS_PORT:-6379}:6379']
     healthcheck:
-      test: ['CMD-SHELL', "redis-cli -a '$${REDIS_PASSWORD}' ping | grep PONG"]
+      test: ['CMD-SHELL', 'redis-cli -a "$$REDIS_PASSWORD" ping | grep PONG']
       interval: 5s
       timeout: 5s
       retries: 20
@@ -82,10 +82,11 @@ services:
     container_name: nyra-archon-nexus-router
     profiles: ['archon', 'all']
     environment:
-      NEXUS_ROUTER_PORT: ${NEXUS_ROUTER_PORT:-7000}
-      NEXUS_MCP_PORT: ${NEXUS_MCP_PORT:-8080}
+      NEXUS_ROUTER_PORT: ${NEXUS_ROUTER_PORT:-4000}
+      NEXUS_ROUTER_MCP_PORT: ${NEXUS_ROUTER_MCP_PORT:-4001}
+      NEXUS_MCP_PORT: ${NEXUS_MCP_PORT:-4001}
       NEXUS_METRICS_PORT: ${NEXUS_METRICS_PORT:-9091}
-      NEXUS_URL: ${NEXUS_URL:-http://localhost:7000}
+      NEXUS_URL: ${NEXUS_URL:-http://localhost:4000}
       NEXUS_CONFIG_PATH: /app/nexus.toml
       REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
       LITELLM_BASE_URL: http://litellm:4000
@@ -94,9 +95,10 @@ services:
       OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
       GITHUB_TOKEN: ${GITHUB_TOKEN:-}
       BRAVE_API_KEY: ${BRAVE_API_KEY:-}
+      ARCHON_MCP_URL: http://archon-mcp:8051/mcp
     ports:
-      - '${NEXUS_ROUTER_PORT:-7000}:7000'
-      - '${NEXUS_MCP_PORT:-8080}:8080'
+      - '${NEXUS_ROUTER_PORT:-4000}:${NEXUS_ROUTER_PORT:-4000}'
+      - '${NEXUS_ROUTER_MCP_PORT:-4001}:${NEXUS_ROUTER_MCP_PORT:-4001}'
       - '${NEXUS_METRICS_PORT:-9091}:9091'
     volumes:
       - ./infra/configs/nexus/nexus.toml:/app/nexus.toml:ro
@@ -106,7 +108,7 @@ services:
       litellm:
         condition: service_started
     healthcheck:
-      test: ['CMD', 'curl', '-f', 'http://localhost:7000/health']
+      test: ['CMD-SHELL', 'curl -f "http://localhost:$${NEXUS_ROUTER_PORT:-4000}/health"']
       interval: 15s
       timeout: 5s
       retries: 20
@@ -119,21 +121,23 @@ services:
     container_name: nyra-archon-infisical-agent
     profiles: ['archon', 'all']
     entrypoint: ['/bin/sh', '-lc']
-    command: >-
-      test -n "$INFISICAL_TOKEN" &&
-      while true; do
-        infisical export --projectId=${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef} --env=${INFISICAL_ENV:-prod} --path=/archon --format=dotenv > /secrets/archon.env &&
-        infisical export --projectId=${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef} --env=${INFISICAL_ENV:-prod} --path=/claude-flow --format=dotenv > /secrets/claude-flow.env &&
-        sleep ${INFISICAL_POLL_INTERVAL:-60};
-      done
+    command:
+      - >-
+        test -n "$$INFISICAL_TOKEN" &&
+        while true; do
+          infisical export --projectId=$${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef} --env=$${INFISICAL_ENV:-prod} --path=$${INFISICAL_SHARED_PATH:-/shared} --format=dotenv > /secrets/shared.env &&
+          cp /secrets/shared.env /secrets/archon.env &&
+          sleep $${INFISICAL_POLL_INTERVAL:-60};
+        done
     environment:
       INFISICAL_TOKEN: ${INFISICAL_TOKEN:?set INFISICAL_TOKEN}
-      INFISICAL_API_URL: ${INFISICAL_API_URL:-https://app.infisical.com}
+      INFISICAL_API_URL: ${INFISICAL_API_URL:-http://infisical:8080}
       INFISICAL_ENV: ${INFISICAL_ENV:-prod}
       INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
       INFISICAL_POLL_INTERVAL: ${INFISICAL_POLL_INTERVAL:-60}
+      INFISICAL_SHARED_PATH: ${INFISICAL_SHARED_PATH:-/shared}
     volumes:
-      - ./infra/shared/secrets:/secrets
+      - shared_secrets:/secrets
     restart: unless-stopped
     networks: [nyra]
     logging: *default_logging
@@ -143,14 +147,17 @@ services:
     container_name: nyra-archon-infisical-cli
     profiles: ['archon', 'all']
     entrypoint: ['/bin/sh', '-lc']
-    command: >-
-      test -n "$INFISICAL_TOKEN" &&
-      infisical export --projectId=${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef} --env=${INFISICAL_ENV:-prod} --path=/shared --format=dotenv
-      > /workspace/.env.archon.injected && tail -f /dev/null
+    command:
+      - >-
+        test -n "$$INFISICAL_TOKEN" &&
+        infisical export --projectId=$${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef} --env=$${INFISICAL_ENV:-prod} --path=$${INFISICAL_SHARED_PATH:-/shared} --format=dotenv > /workspace/.env.archon.injected &&
+        tail -f /dev/null
     environment:
       INFISICAL_TOKEN: ${INFISICAL_TOKEN:?set INFISICAL_TOKEN}
-      INFISICAL_API_URL: ${INFISICAL_API_URL:-https://app.infisical.com}
+      INFISICAL_API_URL: ${INFISICAL_API_URL:-http://infisical:8080}
       INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
+      INFISICAL_ENV: ${INFISICAL_ENV:-prod}
+      INFISICAL_SHARED_PATH: ${INFISICAL_SHARED_PATH:-/shared}
       INFISICAL_DISABLE_UPDATE_CHECK: 'true'
     volumes:
       - ./:/workspace
@@ -165,7 +172,7 @@ services:
       context: ./services/archon-os
       dockerfile: docker/Dockerfile.archon-os
     container_name: nyra-archon-os
-    profiles: ['archon', 'all']
+    profiles: ['archon-experimental']
     depends_on:
       nexus-router:
         condition: service_healthy
@@ -175,9 +182,9 @@ services:
         condition: service_healthy
     environment:
       ARCHON_ENV: ${ARCHON_ENV:-production}
-      NEXUS_BASE_URL: http://nexus-router:7000
-      NEXUS_MCP_URL: http://nexus-router:8080
-      NEXUS_ROUTER_URL: http://nexus-router:7000
+      NEXUS_BASE_URL: http://nexus-router:${NEXUS_ROUTER_PORT:-4000}
+      NEXUS_MCP_URL: http://nexus-router:${NEXUS_ROUTER_PORT:-4000}/mcp
+      NEXUS_ROUTER_URL: http://nexus-router:${NEXUS_ROUTER_PORT:-4000}
       POSTGRES_URL: postgresql://${POSTGRES_USER:-nyra}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-nyra}
       REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
@@ -186,15 +193,15 @@ services:
     ports: ['${ARCHON_OS_PORT:-9001}:9001']
     volumes:
       - archon_data:/opt/archon/data
-      - ./infra/shared/secrets:/secrets:ro
+      - shared_secrets:/secrets:ro
     restart: unless-stopped
     networks: [nyra]
     logging: *default_logging
 
   archon-server:
     build:
-      context: ./services/archon-os
-      dockerfile: docker/Dockerfile.server
+      context: ./submodules/archon/python
+      dockerfile: Dockerfile.server
       args:
         ARCHON_SERVER_PORT: ${ARCHON_SERVER_PORT:-8181}
     container_name: nyra-archon-server
@@ -205,27 +212,36 @@ services:
       nexus-router:
         condition: service_healthy
     environment:
-      DATABASE_URL: postgresql://${POSTGRES_USER:-nyra}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-nyra}
+      SUPABASE_URL: ${SUPABASE_URL:?set SUPABASE_URL}
+      SUPABASE_SERVICE_KEY: ${SUPABASE_SERVICE_KEY:?set SUPABASE_SERVICE_KEY}
+      OPENAI_API_KEY: ${LITELLM_MASTER_KEY:?set LITELLM_MASTER_KEY}
+      OPENAI_BASE_URL: http://nexus-router:${NEXUS_ROUTER_PORT:-4000}/v1
+      LOGFIRE_TOKEN: ${LOGFIRE_TOKEN:-}
       SERVICE_DISCOVERY_MODE: docker_compose
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
       ARCHON_SERVER_PORT: ${ARCHON_SERVER_PORT:-8181}
-      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
-      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
-      GOOGLE_API_KEY: ${GOOGLE_API_KEY:-}
-      NEXUS_ROUTER_URL: http://nexus-router:7000
-      OPENAI_BASE_URL: http://nexus-router:7000/v1
+      ARCHON_MCP_PORT: ${ARCHON_MCP_PORT:-8051}
+      ARCHON_AGENTS_PORT: ${ARCHON_AGENTS_PORT:-8052}
+      AGENTS_ENABLED: 'true'
+      HOST: ${ARCHON_HOST:-localhost}
     ports:
       - '${ARCHON_SERVER_PORT:-8181}:8181'
     volumes:
-      - archon_server_data:/app/data
-      - ./infra/shared/secrets:/secrets:ro
+      - ./submodules/archon/python/src:/app/src
+      - ./submodules/archon/python/tests:/app/tests
+      - ./submodules/archon/migration:/app/migration
+      - shared_secrets:/secrets:ro
+      - /var/run/docker.sock:/var/run/docker.sock
     restart: unless-stopped
     networks: [nyra]
     logging: *default_logging
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
 
   archon-mcp:
     build:
-      context: ./services/archon-os
-      dockerfile: docker/Dockerfile.mcp
+      context: ./submodules/archon/python
+      dockerfile: Dockerfile.mcp
       args:
         ARCHON_MCP_PORT: ${ARCHON_MCP_PORT:-8051}
     container_name: nyra-archon-mcp
@@ -237,20 +253,28 @@ services:
         condition: service_healthy
     environment:
       SERVICE_DISCOVERY_MODE: docker_compose
+      TRANSPORT: streamable-http
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      SUPABASE_URL: ${SUPABASE_URL:?set SUPABASE_URL}
+      SUPABASE_SERVICE_KEY: ${SUPABASE_SERVICE_KEY:?set SUPABASE_SERVICE_KEY}
       ARCHON_MCP_PORT: ${ARCHON_MCP_PORT:-8051}
       API_SERVICE_URL: http://archon-server:8181
-      NEXUS_ROUTER_URL: http://nexus-router:7000
-      NEXUS_MCP_PROXY_URL: http://nexus-router:8080
+      AGENTS_ENABLED: 'true'
+      AGENTS_SERVICE_URL: http://archon-agents:8052
+      ARCHON_SERVER_PORT: ${ARCHON_SERVER_PORT:-8181}
+      ARCHON_AGENTS_PORT: ${ARCHON_AGENTS_PORT:-8052}
     ports:
       - '${ARCHON_MCP_PORT:-8051}:8051'
     restart: unless-stopped
     networks: [nyra]
     logging: *default_logging
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
 
   archon-agents:
     build:
-      context: ./services/archon-os
-      dockerfile: docker/Dockerfile.agents
+      context: ./submodules/archon/python
+      dockerfile: Dockerfile.agents
       args:
         ARCHON_AGENTS_PORT: ${ARCHON_AGENTS_PORT:-8052}
     container_name: nyra-archon-agents
@@ -261,13 +285,13 @@ services:
       nexus-router:
         condition: service_healthy
     environment:
+      SUPABASE_URL: ${SUPABASE_URL:?set SUPABASE_URL}
+      SUPABASE_SERVICE_KEY: ${SUPABASE_SERVICE_KEY:?set SUPABASE_SERVICE_KEY}
       ARCHON_AGENTS_PORT: ${ARCHON_AGENTS_PORT:-8052}
-      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
-      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
-      GOOGLE_API_KEY: ${GOOGLE_API_KEY:-}
-      OPENAI_BASE_URL: http://nexus-router:7000/v1
-      NEXUS_MCP_PROXY_URL: http://nexus-router:8080
-      ARCHON_SERVER_URL: http://archon-server:8181
+      ARCHON_SERVER_PORT: ${ARCHON_SERVER_PORT:-8181}
+      OPENAI_API_KEY: ${LITELLM_MASTER_KEY:?set LITELLM_MASTER_KEY}
+      OPENAI_BASE_URL: http://nexus-router:${NEXUS_ROUTER_PORT:-4000}/v1
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
     ports:
       - '${ARCHON_AGENTS_PORT:-8052}:8052'
     restart: unless-stopped
@@ -279,7 +303,7 @@ services:
       context: ./services/archon-os
       dockerfile: docker/Dockerfile.server
     container_name: nyra-archon-agent-work-orders
-    profiles: ['archon', 'all']
+    profiles: ['archon-experimental']
     depends_on:
       archon-server:
         condition: service_started
@@ -290,8 +314,8 @@ services:
       SERVICE_DISCOVERY_MODE: docker_compose
       ARCHON_SERVER_URL: http://archon-server:8181
       ARCHON_MCP_URL: http://archon-mcp:8051
-      OPENAI_BASE_URL: http://nexus-router:7000/v1
-      NEXUS_MCP_PROXY_URL: http://nexus-router:8080
+      OPENAI_BASE_URL: http://nexus-router:${NEXUS_ROUTER_PORT:-4000}/v1
+      NEXUS_MCP_PROXY_URL: http://nexus-router:${NEXUS_ROUTER_PORT:-4000}/mcp
       GH_TOKEN: ${GH_TOKEN:-${GITHUB_TOKEN:-}}
     command:
       - sh
@@ -305,7 +329,7 @@ services:
 
   archon-ui:
     build:
-      context: ./tools/archon/archon-ui-main
+      context: ./submodules/archon/archon-ui-main
       dockerfile: Dockerfile
     container_name: nyra-archon-ui
     profiles: ['archon', 'all']
@@ -317,12 +341,16 @@ services:
     environment:
       VITE_API_URL: http://archon-server:8181
       VITE_MCP_URL: http://archon-mcp:8051
-      VITE_NEXUS_ROUTER_URL: http://nexus-router:7000
-      VITE_NEXUS_MCP_PROXY_URL: http://nexus-router:8080
+      VITE_NEXUS_ROUTER_URL: http://nexus-router:${NEXUS_ROUTER_PORT:-4000}
+      VITE_NEXUS_MCP_PROXY_URL: http://nexus-router:${NEXUS_ROUTER_PORT:-4000}/mcp
     ports:
       - '${ARCHON_UI_PORT:-3737}:5173'
-    volumes:
-      - archon_ui_node_modules:/app/node_modules
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -q -O /dev/null http://localhost:5173 || exit 1']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     restart: unless-stopped
     networks: [nyra]
     logging: *default_logging

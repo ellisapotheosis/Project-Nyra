@@ -7,7 +7,7 @@ Home Assistant Green (Raspberry Pi) as a local operations plane for the stack.
 ## Prepared assets
 
 - Dashboard links config: `config/dashboards/nyra-ops-ui-links.yaml`
-- HA package with side-panel links: `config/packages/nyra-stack-recommendations.yaml`
+- Suggested add-on/package ideas: `config/packages/nyra-stack-recommendations.yaml`
 
 ## Apply into Home Assistant
 

@@ -22,7 +22,6 @@ host_constraints:
     policy:
       - Prefer internet-facing and durable/stateful services (CRM, database replicas, backups, async automations).
       - Avoid GPU-bound and ultra-low-latency interactive control loops.
-
 hosts:
   orchestrator:
     owner: control-plane

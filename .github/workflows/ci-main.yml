@@ -33,6 +33,8 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with:
+          fetch-depth: 2
+        with:
           fetch-depth: 0
 
       - uses: dorny/paths-filter@v3
@@ -345,7 +347,7 @@ jobs:
           key: ${{ runner.os }}-node-modules-${{ hashFiles('**/pnpm-lock.yaml') }}
 
       - name: Download build artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           pattern: build-artifacts-*
           merge-multiple: true

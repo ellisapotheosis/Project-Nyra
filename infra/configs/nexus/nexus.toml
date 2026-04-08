@@ -13,6 +13,34 @@ base_url = "http://litellm:4000"
 api_key_env = "LITELLM_MASTER_KEY"
 models = ["*"]
 
+# GPU Workers - Direct connections for fallback routing
+[workers.rtx5090]
+name = "RTX 5090 - Large Models (vLLM)"
+url = "http://100.64.0.10:8000"
+type = "vllm"
+capabilities = ["large_models", "reasoning", "70b+"]
+vram_gb = 48
+models = ["qwen2.5-72b", "llama-3.1-70b", "deepseek-r1", "deepseek-v3"]
+health_check = "/health"
+
+[workers.rtx3060]
+name = "RTX 3060 - Small Models (Ollama)"
+url = "http://100.64.0.11:11434"
+type = "ollama"
+capabilities = ["small_models", "embeddings", "fast_inference"]
+vram_gb = 6
+models = ["qwen2.5:4b", "llama3.2:3b", "phi3:mini", "glm4:9b"]
+health_check = "/api/version"
+
+[workers.rtx3090ti]
+name = "RTX 3090Ti - Medium Models (Ollama)"
+url = "http://100.64.0.12:11434"
+type = "ollama"
+capabilities = ["medium_models", "coding", "32b"]
+vram_gb = 24
+models = ["qwen2.5:32b", "llama3.1:70b-q4", "deepseek-r1:14b", "codellama:34b"]
+health_check = "/api/version"
+
 [logging]
 level = "info"
 format = "json"
