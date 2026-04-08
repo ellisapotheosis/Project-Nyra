@@ -37,7 +37,7 @@ parse_dotenv_and_write(){
   local dotenv="$1"
   getv(){
     local k="$1"
-    awk -v key="$k" -F'=' 'BEGIN{found=0} $1==key && found==0 {sub($1 FS,""); print; found=1}' "$dotenv" | head -n 1
+    grep "^${k}=" "$dotenv" | head -n 1 | cut -d'=' -f2- | sed -e "s/^['\"]*//" -e "s/['\"]*$//"
   }
 
   local v
@@ -63,8 +63,8 @@ try_infisical_export(){
   infisical export \
     --token="${INFISICAL_TOKEN}" \
     --projectId="$INFISICAL_PROJECT_ID" \
-    --env="${INFISICAL_ENV:-dev}" \
-    --path="${INFISICAL_PATH:-/shared}" \
+    --env="${INFISICAL_ENV}" \
+    --path="${INFISICAL_PATH}" \
     --format=dotenv \
     --output-file="/tmp/nyra.infisical.env" >/dev/null
 
