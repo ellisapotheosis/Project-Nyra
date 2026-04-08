@@ -8,7 +8,7 @@
     This includes system configuration, network settings, local paths, and generated secrets.
 
     Variables requiring online accounts (API keys) must be set manually.
-    See bootstrap/docs/USER-ACTION-GUIDE.md for manual setup steps.
+    See infra/bootstrap/docs/USER-ACTION-GUIDE.md for manual setup steps.
 
 .PARAMETER PCType
     Type of PC: orchestrator, worker-1, worker-2, or worker-3
@@ -336,7 +336,7 @@ $content = @"
 # ⚠️ DO NOT COMMIT THIS FILE TO GIT
 #
 # This file contains automatically generated configuration.
-# For manual setup requirements, see: bootstrap/docs/USER-ACTION-GUIDE.md
+# For manual setup requirements, see: infra/bootstrap/docs/USER-ACTION-GUIDE.md
 # ============================================================================
 
 "@
@@ -436,7 +436,7 @@ Write-Host "⚠️  MANUAL SETUP STILL REQUIRED:" -ForegroundColor Yellow
 Write-Host "  • Create online accounts (Anthropic, Google AI, Infisical, Tailscale, Cloudflare)" -ForegroundColor White
 Write-Host "  • Get API keys and credentials" -ForegroundColor White
 Write-Host "  • Update placeholder values in $OutputFile" -ForegroundColor White
-Write-Host "  • See: bootstrap/docs/USER-ACTION-GUIDE.md" -ForegroundColor White
+Write-Host "  • See: infra/bootstrap/docs/USER-ACTION-GUIDE.md" -ForegroundColor White
 Write-Host ""
 Write-Host "Next Steps:" -ForegroundColor Yellow
 Write-Host "  1. Review and edit $OutputFile" -ForegroundColor White
