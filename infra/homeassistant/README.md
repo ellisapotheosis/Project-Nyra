@@ -1,16 +1,28 @@
-# HomeAssistant Bootstrap Kit (Linkwarden + StarWarden + Dashboard)
+# HomeAssistant Bootstrap Kit (Linkwarden + StarWarden + Full Dashboard UI)
 
-This package deploys Linkwarden + StarWarden + Homepage dashboard with one `.env.homeassistant` file.
+This package deploys:
+- Linkwarden stack (Postgres + Meilisearch + Linkwarden)
+- StarWarden sync worker
+- Homepage dashboard UI with links for Nyra apps/UIs (landing, webapp, CRM, Archon OS UI, Nexus Admin, Open WebUI, Dify, n8n, Activepieces, observability, memory services)
 
-## Files
+## File tree
 
-- `.env.homeassistant.example` - template for all required variables
-- `.env.homeassistant` - working local env file (placeholder-safe, commit-safe)
-- `docker-compose.homeassistant-linkwarden.yml`
-- `docker-compose.homeassistant-dashboard.yml`
-- `scripts/bootstrap-homeassistant.sh`
-- `scripts/check-homeassistant-stack.sh`
-- `scripts/backup-homeassistant-stack.sh`
+```text
+infra/homeassistant/
+├── .env.homeassistant
+├── .env.homeassistant.example
+├── docker-compose.homeassistant-linkwarden.yml
+├── docker-compose.homeassistant-dashboard.yml
+├── homepage/config/
+│   ├── bookmarks.yaml
+│   ├── services.yaml
+│   ├── settings.yaml
+│   └── widgets.yaml
+└── scripts/
+    ├── bootstrap-homeassistant.sh
+    ├── check-homeassistant-stack.sh
+    └── backup-homeassistant-stack.sh
+```
 
 ## Secrets vs non-secrets
 
@@ -20,14 +32,10 @@ This package deploys Linkwarden + StarWarden + Homepage dashboard with one `.env
 - `MEILI_MASTER_KEY`
 - `LINKWARDEN_TOKEN`
 - `GITHUB_TOKEN`
-- `APPRISE_URLS` (if it includes secret webhook tokens)
+- `APPRISE_URLS` (if webhook includes credentials)
 
 ### Keep local/non-secret config
-- `HA_STACK_ROOT`, `HOMEASSISTANT_IP`, `HOMEPAGE_PORT`, `LINKWARDEN_PORT`
-- `NEXTAUTH_URL`, `LINKWARDEN_INTERNAL_URL`
-- `POSTGRES_USER`, `POSTGRES_DB`
-- `GITHUB_USERNAME`, `COLLECTION_ID`, `CRON_SCHEDULE`, `OPT_TAG*`
-- `PORTAINER_URL`, `ARCHON_URL`, `WEBAPP_URL`, `LANDING_URL`, `GRAFANA_URL`, `NEXUS_URL`, `LINKWARDEN_URL`
+All other URL/port/hostname and scheduler/tag variables in `.env.homeassistant`.
 
 ## Quick start
 
@@ -35,30 +43,32 @@ This package deploys Linkwarden + StarWarden + Homepage dashboard with one `.env
 cd /workspace/Project-Nyra/infra/homeassistant
 cp .env.homeassistant.example .env.homeassistant
 
-# Edit .env.homeassistant placeholders before first run
+# edit placeholders in .env.homeassistant
 ./scripts/bootstrap-homeassistant.sh
 ```
 
 ## Why auto-install failed previously
 
-Most first-runs do not yet have `LINKWARDEN_TOKEN` (created only after first Linkwarden login). The bootstrap now starts base services first and only starts StarWarden when both `GITHUB_TOKEN` and `LINKWARDEN_TOKEN` are real values.
-
-## SyncThing guidance
-
-- Sync only: `${HA_STACK_ROOT}/synced`
-- Exclude from sync: `${HA_STACK_ROOT}/live-data`
-
-This avoids syncing live Postgres/Meilisearch database files.
+On first run, `LINKWARDEN_TOKEN` usually does not exist yet. Bootstrap now:
+1. Starts core services first (postgres + meilisearch + linkwarden + dashboard)
+2. Starts StarWarden only when both `GITHUB_TOKEN` and `LINKWARDEN_TOKEN` are set to non-placeholder values
 
 ## Operations
 
 ```bash
-# check status
+# health/status
 ./scripts/check-homeassistant-stack.sh
 
-# backup to sync-safe folder
+# backup to sync-safe path
 ./scripts/backup-homeassistant-stack.sh
 
-# manual StarWarden start after token setup
+# start StarWarden after token setup
 docker compose --env-file .env.homeassistant -f docker-compose.homeassistant-linkwarden.yml up -d starwarden
 ```
+
+## SyncThing safety
+
+- Sync only: `${HA_STACK_ROOT}/synced`
+- Exclude: `${HA_STACK_ROOT}/live-data`
+
+Never sync live Postgres/Meilisearch data directories.

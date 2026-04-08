@@ -1,0 +1,83 @@
+- Core Platform:
+    - Landing:
+        href: "${LANDING_URL}"
+        description: Public site
+        icon: mdi-web
+    - Webapp:
+        href: "${WEBAPP_URL}"
+        description: Core borrower webapp
+        icon: mdi-monitor-dashboard
+    - CRM:
+        href: "${CRM_URL}"
+        description: Lead and pipeline management
+        icon: mdi-account-group
+    - Linkwarden:
+        href: "${LINKWARDEN_URL}"
+        description: Saved resources and archives
+        icon: mdi-bookmark-multiple
+
+- Agent Ops:
+    - Archon OS UI:
+        href: "${ARCHON_URL}"
+        description: Orchestration and task control
+        icon: mdi-robot
+    - Nexus Admin:
+        href: "${NEXUS_ADMIN_URL}"
+        description: Gateway and model routing admin
+        icon: mdi-router-network
+    - Open WebUI:
+        href: "${OPEN_WEBUI_URL}"
+        description: LLM chat interface
+        icon: mdi-forum
+    - Dify:
+        href: "${DIFY_URL}"
+        description: Conversational app UI
+        icon: mdi-message-processing
+
+- Automation:
+    - n8n:
+        href: "${N8N_URL}"
+        description: Workflow orchestrations
+        icon: mdi-source-branch
+    - Activepieces:
+        href: "${ACTIVEPIECES_URL}"
+        description: App integrations and automations
+        icon: mdi-puzzle
+    - Portainer:
+        href: "${PORTAINER_URL}"
+        description: Container and stack controls
+        icon: mdi-docker
+    - Home Assistant:
+        href: "${HOMEASSISTANT_URL}"
+        description: Host dashboard
+        icon: mdi-home-assistant
+
+- Observability + Memory:
+    - Grafana:
+        href: "${GRAFANA_URL}"
+        description: Metrics and dashboards
+        icon: mdi-chart-line
+    - Prometheus:
+        href: "${PROMETHEUS_URL}"
+        description: Metrics storage
+        icon: mdi-poll
+    - Loki:
+        href: "${LOKI_URL}"
+        description: Centralized logs
+        icon: mdi-text-box-search
+    - Qdrant:
+        href: "${QDRANT_URL}"
+        description: Vector database
+        icon: mdi-database-search
+    - Letta:
+        href: "${LETTA_URL}"
+        description: Agent memory runtime
+        icon: mdi-brain
+    - Graphiti:
+        href: "${GRAPHITI_URL}"
+        description: Graph memory service
+        icon: mdi-graph
+    - Mem0:
+        href: "${MEM0_URL}"
+        description: Personalization memory service
+        icon: mdi-memory

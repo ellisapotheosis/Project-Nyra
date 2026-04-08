@@ -7,15 +7,30 @@ services:
     restart: unless-stopped
     ports:
       - "${HOMEPAGE_PORT:-3007}:3000"
+    env_file:
+      - .env.homeassistant
     environment:
       HOMEPAGE_ALLOWED_HOSTS: ${HOMEASSISTANT_IP:-100.64.0.20}:3007,localhost:3007
       PORTAINER_URL: ${PORTAINER_URL}
       ARCHON_URL: ${ARCHON_URL}
       WEBAPP_URL: ${WEBAPP_URL}
       LANDING_URL: ${LANDING_URL}
-      GRAFANA_URL: ${GRAFANA_URL}
+      CRM_URL: ${CRM_URL}
       NEXUS_URL: ${NEXUS_URL}
+      NEXUS_ADMIN_URL: ${NEXUS_ADMIN_URL}
+      OPEN_WEBUI_URL: ${OPEN_WEBUI_URL}
+      DIFY_URL: ${DIFY_URL}
+      ACTIVEPIECES_URL: ${ACTIVEPIECES_URL}
+      N8N_URL: ${N8N_URL}
+      GRAFANA_URL: ${GRAFANA_URL}
+      PROMETHEUS_URL: ${PROMETHEUS_URL}
+      LOKI_URL: ${LOKI_URL}
+      QDRANT_URL: ${QDRANT_URL}
+      LETTA_URL: ${LETTA_URL}
+      GRAPHITI_URL: ${GRAPHITI_URL}
+      MEM0_URL: ${MEM0_URL}
       LINKWARDEN_URL: ${LINKWARDEN_URL}
+      HOMEASSISTANT_URL: ${HOMEASSISTANT_URL}
     volumes:
       - ./homepage/config:/app/config
       - /var/run/docker.sock:/var/run/docker.sock:ro
