@@ -35,9 +35,24 @@ trap cleanup EXIT
 cp .env.gitea.template "$tmp_gitea"
 cp .env.infisical.template "$tmp_infisical"
 
-sed -i 's/^INFISICAL_POSTGRES_PASSWORD=.*/INFISICAL_POSTGRES_PASSWORD=dummy-pass/' "$tmp_infisical"
-sed -i 's/^INFISICAL_ENCRYPTION_KEY=.*/INFISICAL_ENCRYPTION_KEY=0123456789abcdef0123456789abcdef/' "$tmp_infisical"
-sed -i 's/^INFISICAL_AUTH_SECRET=.*/INFISICAL_AUTH_SECRET=ZHVtbXktc2VjcmV0LWJhc2U2NC0zMi1jaGFycw==/' "$tmp_infisical"
+if command -v infisical >/dev/null 2>&1 && [[ -n "${INFISICAL_TOKEN:-}" ]] && [[ -n "${INFISICAL_PROJECT_ID:-}" ]]; then
+  echo "Using Infisical secrets for compose validation"
+  infisical export --projectId="$INFISICAL_PROJECT_ID" --env="${INFISICAL_ENV:-prod}" --path=/shared --format=dotenv >> "$tmp_infisical" || true
+  infisical export --projectId="$INFISICAL_PROJECT_ID" --env="${INFISICAL_ENV:-prod}" --path=/infisical --format=dotenv >> "$tmp_infisical" || true
+fi
+
+ensure_env() {
+  local file="$1"
+  local key="$2"
+  local value="$3"
+  if ! grep -q "^${key}=" "$file"; then
+    printf '%s=%s\n' "$key" "$value" >>"$file"
+  fi
+}
+
+ensure_env "$tmp_infisical" INFISICAL_POSTGRES_PASSWORD "$(openssl rand -hex 16)"
+ensure_env "$tmp_infisical" INFISICAL_ENCRYPTION_KEY "$(openssl rand -hex 32)"
+ensure_env "$tmp_infisical" INFISICAL_AUTH_SECRET "$(openssl rand -base64 48 | tr -d '\n')"
 
 bash -n scripts/gitea/bootstrap-orchestrator-gitea.sh
 bash -n scripts/gitea/bootstrap-act-runner.sh
