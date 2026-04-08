@@ -152,7 +152,7 @@ archon-up:
 	docker compose -f docker-compose.archon.yml --profile archon up -d
 
 archon-up-infisical:
-	infisical run --env=prod --path="/shared" -- docker compose -f docker-compose.archon.yml --profile archon up -d
+	infisical run $(INFISICAL_TOKEN_FLAG) --projectId="$(INFISICAL_PROJECT_ID)" --env="$(INFISICAL_ENV)" --path="$(INFISICAL_PATH)" -- docker compose -f docker-compose.archon.yml --profile archon up -d
 
 archon-down:
 	docker compose -f docker-compose.archon.yml down --remove-orphans

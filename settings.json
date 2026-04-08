@@ -246,7 +246,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "infisical run --projectId=\"8374cea9-e5e8-4050-bda4-b91f25ab30ef\" --env=\"dev\" --path=\"/shared\" -- claude mcp start"
+            "command": "infisical run --token=\"$INFISICAL_TOKEN\" --projectId=\"8374cea9-e5e8-4050-bda4-b91f25ab30ef\" --env=\"dev\" --path=\"/shared\" -- claude mcp start"
           }
         ]
       }

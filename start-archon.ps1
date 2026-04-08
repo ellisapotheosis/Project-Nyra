@@ -6,7 +6,7 @@
     Thin wrapper around docker-compose.archon.yml so you can run Archon
     with Infisical providing secrets, e.g.:
 
-        infisical run --projectId="8374cea9-e5e8-4050-bda4-b91f25ab30ef" \
+        infisical run --token="$INFISICAL_TOKEN" --projectId="8374cea9-e5e8-4050-bda4-b91f25ab30ef" \
           --env="dev" --path="/shared" -- .\start-archon.ps1
 
     This will bring up the Archon services defined in infra/docker/docker-compose.archon.yml
@@ -32,7 +32,7 @@ if (-not (Test-Path "infra/docker/docker-compose.archon.yml")) {
 }
 
 Write-Host "Using docker-compose.archon.yml with current environment variables" -ForegroundColor Yellow
-Write-Host "(Tip: run via Infisical: infisical run --projectId=... --env=dev --path=/shared -- .\start-archon.ps1)" -ForegroundColor Yellow
+Write-Host "(Tip: run via Infisical: infisical run --token=`"$env:INFISICAL_TOKEN`" --projectId=... --env=dev --path=/shared -- .\start-archon.ps1)" -ForegroundColor Yellow
 Write-Host ""
 
 # Bring up Archon stack together with base orchestration services (for Postgres, Redis, etc.)

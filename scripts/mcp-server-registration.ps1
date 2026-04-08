@@ -290,7 +290,7 @@ function Show-CompletionSummary {
     Write-Host "  2. Initialize Claude-Flow: npx claude-flow@alpha init --sparc" -ForegroundColor White
     Write-Host "  3. Start UI: ./claude-flow start --ui" -ForegroundColor White
     Write-Host "  4. Check status: ./claude-flow status" -ForegroundColor White
-    Write-Host "  5. Test with secrets: infisical run -- ./claude-flow status" -ForegroundColor White
+    Write-Host "  5. Test with secrets: infisical run --token=`"$env:INFISICAL_TOKEN`" --projectId=$projectId --env=development -- ./claude-flow status" -ForegroundColor White
 
     Write-Host "`n🔗 Service Endpoints:" -ForegroundColor Cyan
     Write-Host "  • MetaMCP Gateway: http://localhost:8080" -ForegroundColor White

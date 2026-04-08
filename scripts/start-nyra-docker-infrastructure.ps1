@@ -21,7 +21,7 @@ $projectId = Get-NyraInfisicalProjectId
 Write-Host "🔐 Loading environment secrets..." -ForegroundColor Yellow
 if (Get-Command infisical -ErrorAction SilentlyContinue) {
     Assert-NyraInfisicalToken
-    & infisical run --projectId=$projectId --env=development -- echo "Secrets loaded" | Out-Null
+    Invoke-NyraInfisicalRun -Environment "development" -ProjectId $projectId -CommandArgs @("echo", "Secrets loaded") | Out-Null
 }
 else {
     Write-Warning "Infisical not found. Install with: winget install infisical.cli"

@@ -35,6 +35,7 @@ INFISICAL_ENV="${INFISICAL_ENV:-dev}"
 INFISICAL_PATH="${INFISICAL_PATH:-/shared}"
 INFISICAL_PROJECT_ID="${INFISICAL_PROJECT_ID:-}"
 INFISICAL_API_URL="${INFISICAL_API_URL:-https://app.infisical.com/api}"
+INFISICAL_TOKEN_ARG=""
 ROOT_ENV_FILE="${ROOT_ENV_FILE:-$REPO_ROOT/.env}"
 PYTHON_VENV_DIR="${PYTHON_VENV_DIR:-$REPO_ROOT/.venv}"
 RUN_GIT_PULL="${RUN_GIT_PULL:-0}"
@@ -64,6 +65,7 @@ Options:
   --env <name>                 Infisical environment (default: dev)
   --path <path>                Infisical path for root env export (default: /shared)
   --project-id <id>            Infisical project id
+  --token <token>              Infisical token to use explicitly for this run
   --root-env-file <path>       Root .env output path
   --python-venv <path>         Python virtualenv path
   --with-pull                  Run git pull --rebase before dependency sync
@@ -86,6 +88,10 @@ while [[ $# -gt 0 ]]; do
       ;;
     --project-id)
       INFISICAL_PROJECT_ID="$2"
+      shift 2
+      ;;
+    --token)
+      INFISICAL_TOKEN_ARG="$2"
       shift 2
       ;;
     --root-env-file)
@@ -123,6 +129,13 @@ while [[ $# -gt 0 ]]; do
       ;;
   esac
 done
+
+if [[ -n "$INFISICAL_TOKEN_ARG" ]]; then
+  INFISICAL_TOKEN="$INFISICAL_TOKEN_ARG"
+  export INFISICAL_TOKEN
+  INFISICAL_SESSION_TOKEN="$INFISICAL_TOKEN_ARG"
+  export INFISICAL_SESSION_TOKEN
+fi
 
 require_cmd() {
   if ! command -v "$1" >/dev/null 2>&1; then

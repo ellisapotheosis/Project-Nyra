@@ -149,7 +149,7 @@ function Deploy-Orchestrator {
     } else {
         Write-Info "Starting orchestrator services..."
         if (Get-Command infisical -ErrorAction SilentlyContinue) {
-            & infisical run --projectId=$ProjectNyraInfisicalProjectId --env=development -- docker-compose -f config/docker-compose.orchestrator.yml up -d
+            & infisical run --token=$env:INFISICAL_TOKEN --projectId=$ProjectNyraInfisicalProjectId --env=development -- docker-compose -f config/docker-compose.orchestrator.yml up -d
         } else {
             docker-compose -f config/docker-compose.orchestrator.yml up -d
         }
@@ -200,7 +200,7 @@ function Deploy-Worker1 {
     } else {
         Write-Info "Starting Worker 1 services..."
         if (Get-Command infisical -ErrorAction SilentlyContinue) {
-            & infisical run --projectId=$ProjectNyraInfisicalProjectId --env=development -- docker-compose -f config/docker-compose.worker1.yml up -d
+            & infisical run --token=$env:INFISICAL_TOKEN --projectId=$ProjectNyraInfisicalProjectId --env=development -- docker-compose -f config/docker-compose.worker1.yml up -d
         } else {
             docker-compose -f config/docker-compose.worker1.yml up -d
         }
@@ -247,7 +247,7 @@ function Deploy-Worker2 {
     } else {
         Write-Info "Starting Worker 2 services..."
         if (Get-Command infisical -ErrorAction SilentlyContinue) {
-            & infisical run --projectId=$ProjectNyraInfisicalProjectId --env=development -- docker-compose -f config/docker-compose.worker2.yml up -d
+            & infisical run --token=$env:INFISICAL_TOKEN --projectId=$ProjectNyraInfisicalProjectId --env=development -- docker-compose -f config/docker-compose.worker2.yml up -d
         } else {
             docker-compose -f config/docker-compose.worker2.yml up -d
         }
@@ -294,7 +294,7 @@ function Deploy-Worker3 {
     } else {
         Write-Info "Starting Worker 3 services..."
         if (Get-Command infisical -ErrorAction SilentlyContinue) {
-            & infisical run --projectId=$ProjectNyraInfisicalProjectId --env=development -- docker-compose -f config/docker-compose.worker3.yml up -d
+            & infisical run --token=$env:INFISICAL_TOKEN --projectId=$ProjectNyraInfisicalProjectId --env=development -- docker-compose -f config/docker-compose.worker3.yml up -d
         } else {
             docker-compose -f config/docker-compose.worker3.yml up -d
         }

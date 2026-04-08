@@ -161,7 +161,7 @@ cat ./security-reports/summary-*.md
 
 # Restart services with new secrets
 cd infra/docker
-infisical run --projectId="8374cea9-e5e8-4050-bda4-b91f25ab30ef" \
+infisical run --token="$INFISICAL_TOKEN" --projectId="8374cea9-e5e8-4050-bda4-b91f25ab30ef" \
   --env="production" \
   --path="/shared" \
   -- docker compose -f docker-compose.orchestration.yml restart

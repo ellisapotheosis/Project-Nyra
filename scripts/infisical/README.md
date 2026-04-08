@@ -98,16 +98,16 @@ infisical access grant admin@ratehunter.net --role admin --path /orchestrator
 3. **Update Docker Compose Files**:
 ```powershell
 # PC1 (Orchestrator)
-infisical run --env=production --path=/shared --path=/orchestrator -- docker-compose -f docker-compose.orchestrator.yml up -d
+infisical run --token="$INFISICAL_TOKEN" --projectId="$INFISICAL_PROJECT_ID" --env=production --path=/shared --path=/orchestrator -- docker-compose -f docker-compose.orchestrator.yml up -d
 
 # PC2 (RTX 3060)
-infisical run --env=production --path=/shared --path=/worker-rtx3060 -- docker-compose -f docker-compose.worker-rtx3060.yml up -d
+infisical run --token="$INFISICAL_TOKEN" --projectId="$INFISICAL_PROJECT_ID" --env=production --path=/shared --path=/worker-rtx3060 -- docker-compose -f docker-compose.worker-rtx3060.yml up -d
 
 # PC3 (RTX 5090)
-infisical run --env=production --path=/shared --path=/worker-rtx5090 -- docker-compose -f docker-compose.worker-rtx5090.yml up -d
+infisical run --token="$INFISICAL_TOKEN" --projectId="$INFISICAL_PROJECT_ID" --env=production --path=/shared --path=/worker-rtx5090 -- docker-compose -f docker-compose.worker-rtx5090.yml up -d
 
 # PC4 (RTX 3090 Ti)
-infisical run --env=production --path=/shared --path=/worker-rtx3090ti -- docker-compose -f docker-compose.worker-rtx3090ti.yml up -d
+infisical run --token="$INFISICAL_TOKEN" --projectId="$INFISICAL_PROJECT_ID" --env=production --path=/shared --path=/worker-rtx3090ti -- docker-compose -f docker-compose.worker-rtx3090ti.yml up -d
 ```
 
 4. **Test Secret Retrieval**:
@@ -116,7 +116,7 @@ infisical run --env=production --path=/shared --path=/worker-rtx3090ti -- docker
 infisical secrets --path /shared --env development
 
 # Get specific secret
-infisical secrets get ANTHROPIC_API_KEY --path /shared --env development
+infisical secrets get ANTHROPIC_API_KEY --token "$INFISICAL_TOKEN" --projectId "$INFISICAL_PROJECT_ID" --path /shared --env development
 
 # Export to .env format
 infisical secrets --path /shared --env development --format dotenv > .env.shared
@@ -133,7 +133,7 @@ infisical login
 ### Error: "Secret already exists"
 ```powershell
 # Update existing secret
-infisical secrets set MY_SECRET "new-value" --path /shared --env development
+infisical secrets set MY_SECRET "new-value" --token "$INFISICAL_TOKEN" --projectId "$INFISICAL_PROJECT_ID" --path /shared --env development
 ```
 
 ### Error: "Permission denied"
