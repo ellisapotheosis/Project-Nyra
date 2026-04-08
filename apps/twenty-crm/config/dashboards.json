@@ -1,0 +1,51 @@
+{
+  "dashboards": [
+    {
+      "id": "executive-pipeline-overview",
+      "name": "Pipeline Overview",
+      "role": "executive",
+      "widgets": [
+        { "type": "metric", "title": "Total Leads This Month", "query": "total_leads_current_month" },
+        { "type": "metric", "title": "Conversion Rate", "query": "conversion_rate_by_stage" },
+        { "type": "metric", "title": "Avg Time in Stage", "query": "avg_time_in_stage" },
+        { "type": "list", "title": "Hot Leads", "query": "leads_tier_hot_requires_attention" }
+      ]
+    },
+    {
+      "id": "lead-grid-view",
+      "name": "Lead Grid",
+      "role": "loan_officer",
+      "widgets": [
+        { "type": "table", "title": "Leads", "columns": ["Name", "Email", "Phone", "Loan Amount", "Score", "Tier", "Status", "Last Contact", "Next Follow-Up"], "sortable": true, "query": "all_active_leads_assigned_to_me" }
+      ]
+    },
+    {
+      "id": "loan-pipeline-kanban",
+      "name": "Loan Pipeline",
+      "role": "loan_officer",
+      "widgets": [
+        { "type": "kanban", "title": "Loan Stages", "columns": ["Application", "Processing", "Underwriting", "Clear to Close", "Closed"], "query": "active_loans_kanban" }
+      ]
+    },
+    {
+      "id": "source-performance",
+      "name": "Lead Source Performance",
+      "role": "marketing",
+      "widgets": [
+        { "type": "chart-bar", "title": "Leads by Source", "query": "leads_by_source" },
+        { "type": "metric", "title": "CPL", "query": "cost_per_lead" },
+        { "type": "chart-funnel", "title": "Conversion by Source", "query": "conversion_funnel_source" }
+      ]
+    },
+    {
+      "id": "agent-performance",
+      "name": "Agent Performance",
+      "role": "manager",
+      "widgets": [
+        { "type": "scorecard", "title": "Assigned vs Contacted", "query": "assigned_vs_contacted" },
+        { "type": "metric", "title": " Avg Response Time", "query": "avg_response_time" },
+        { "type": "metric", "title": "Loans Closed", "query": "loans_closed_this_month" }
+      ]
+    }
+  ]
+}
