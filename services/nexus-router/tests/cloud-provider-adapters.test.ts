@@ -15,8 +15,8 @@ describe('cloud-provider-adapters', () => {
     });
 
     it('preserves explicit model requests', () => {
-      expect(resolveRequestModel('gemini-1.5-pro', getDefaultGeminiModel())).toBe(
-        'gemini-1.5-pro'
+      expect(resolveRequestModel('gemini-2.5-pro', getDefaultGeminiModel())).toBe(
+        'gemini-2.5-pro'
       );
     });
   });
@@ -24,7 +24,7 @@ describe('cloud-provider-adapters', () => {
   describe('buildGeminiRequestBody', () => {
     it('translates OpenAI-style messages into Gemini contents and system instructions', () => {
       const geminiRequest = buildGeminiRequestBody({
-        model: 'gemini-1.5-pro',
+        model: 'gemini-2.5-pro',
         temperature: 0.2,
         max_tokens: 512,
         stop: ['DONE'],
@@ -55,7 +55,7 @@ describe('cloud-provider-adapters', () => {
       const formatted = formatProviderResponse(
         {
           responseId: 'gemini-response-1',
-          modelVersion: 'gemini-1.5-pro',
+          modelVersion: 'gemini-2.5-pro',
           candidates: [
             {
               finishReason: 'STOP',
@@ -73,7 +73,7 @@ describe('cloud-provider-adapters', () => {
         'google-gemini'
       );
 
-      expect(formatted.model).toBe('gemini-1.5-pro');
+      expect(formatted.model).toBe('gemini-2.5-pro');
       expect(formatted.choices[0].message.content).toBe('Grid ready.');
       expect(formatted.choices[0].finish_reason).toBe('stop');
       expect(formatted.usage.total_tokens).toBe(19);

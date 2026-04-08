@@ -22,7 +22,7 @@ models = ["gpt-5.2-codex"]
 [providers.google]
 type = "google"
 api_key_env = "GOOGLE_API_KEY"
-models = ["gemini-1.5-pro"]
+models = ["gemini-2.5-pro"]
 
 # GPU Workers - Direct connections for fallback routing
 [workers.rtx5090]

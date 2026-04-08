@@ -21,6 +21,9 @@ const REMOTE_OPENAI_ALIASES = new Set([
   'remote-codex',
 ]);
 const REMOTE_GEMINI_ALIASES = new Set([
+  'remote/gemini-2.5-pro',
+  'remote-gemini-2.5-pro',
+  'gemini-2.5-pro-expert',
   'remote/gemini-1.5-pro',
   'remote-gemini-1.5-pro',
   'gemini-1.5-pro-expert',
@@ -489,7 +492,7 @@ export class WorkerManager {
     if (isRemoteGeminiAlias(model)) {
       if (!geminiAvailable) {
         throw new Error(
-          'Gemini 1.5 Pro remote expert requested, but GOOGLE_API_KEY/GEMINI_API_KEY is not configured'
+          'Gemini remote expert requested, but GOOGLE_API_KEY/GEMINI_API_KEY is not configured'
         );
       }
       return {
