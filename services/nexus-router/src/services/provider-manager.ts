@@ -35,11 +35,12 @@ export class ProviderManager {
       'amazon.titan-text-express',
     ],
     'google-gemini': [
-      'gemini-2.0-flash-exp',
       'gemini-1.5-pro',
+      'gemini-2.0-flash-exp',
       'gemini-1.5-flash',
     ],
     'openai': [
+      'gpt-5.2-codex',
       'gpt-4o',
       'gpt-4-turbo',
       'gpt-4',

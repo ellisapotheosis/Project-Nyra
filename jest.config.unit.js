@@ -3,7 +3,7 @@
  * Fast, isolated tests for individual functions and components
  */
 
-module.exports = {
+export default {
   displayName: 'unit',
   testEnvironment: 'node',
 
@@ -23,7 +23,7 @@ module.exports = {
   },
 
   // Setup files
-  setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
+  setupFilesAfterEnv: ['<rootDir>/tests/jest.setup.js'],
 
   // Transform settings
   transform: {
