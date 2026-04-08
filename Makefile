@@ -20,7 +20,7 @@ PKG_MGR ?= pnpm
 PKG_RUN ?= pnpm exec
 endif
 
-.PHONY: help install test lint validate compose-config compose-config-all \
+.PHONY: help install test test-all lint validate compose-config compose-config-all \
   up down restart logs ps pull \
   up-core up-orchestrator up-apps up-dev up-workers up-oracle up-worker-3060 up-worker-3090ti up-worker-5090 \
   archon-config archon-up archon-down archon-logs archon-ps archon-up-infisical \
@@ -37,8 +37,9 @@ help:
 	@echo "Project Nyra - common targets"
 	@echo
 	@echo "make install            Install root JS dependencies"
-	@echo "make test               Run tests ($(PKG_MGR) test)"
-	@echo "make lint               Run lint ($(PKG_RUN) eslint .)"
+	@echo "make test               Run smoke tests ($(PKG_MGR) test)"
+	@echo "make test-all           Run full Vitest suite ($(PKG_MGR) run test:all)"
+	@echo "make lint               Run lint ($(PKG_MGR) lint)"
 	@echo "make validate           Validate compose + test + lint"
 	@echo
 	@echo "make up                 Start default stack profiles"
@@ -85,8 +86,11 @@ install:
 test:
 	$(PKG_MGR) test
 
+test-all:
+	$(PKG_MGR) run test:all
+
 lint:
-	$(PKG_RUN) eslint .
+	$(PKG_MGR) lint
 
 compose-config:
 	$(COMPOSE) config >/dev/null
@@ -95,7 +99,7 @@ validate:
 	$(COMPOSE) config >/dev/null
 	@echo "compose config ok"
 	-@$(PKG_MGR) test
-	-@$(PKG_RUN) eslint .
+	-@$(PKG_MGR) lint
 
 compose-config-all:
 	docker compose --env-file infra/env/.env.orchestrator -f infra/docker-compose.yml -f infra/compose/overrides/docker-compose.orchestrator.override.yml config >/dev/null
