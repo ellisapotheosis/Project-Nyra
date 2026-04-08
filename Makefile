@@ -20,13 +20,13 @@ PKG_MGR ?= pnpm
 PKG_RUN ?= pnpm exec
 endif
 
-.PHONY: help install test test-all lint validate compose-config compose-config-all \
+.PHONY: help env-bootstrap install test test-all lint validate compose-config compose-config-all \
   up down restart logs ps pull \
   up-core up-orchestrator up-apps up-dev up-workers up-oracle up-worker-3060 up-worker-3090ti up-worker-5090 \
   archon-config archon-up archon-down archon-logs archon-ps archon-up-infisical \
   node-up-orchestrator node-up-oracle node-up-worker-3060 node-up-worker-3090ti node-up-worker-5090 node-down-orchestrator node-down-oracle node-down-worker-3060 node-down-worker-3090ti node-down-worker-5090 \
-  down-workers nexus-up nexus-down health stack-up stack-verify scan-env ports port-check bootstrap-import bootstrap-import-apply bootstrap-ultimate bootstrap-oracle bootstrap-worker-3060 bootstrap-worker-3090ti bootstrap-worker-5090 \
-  archive-guard repo-structure-audit edge-docs \
+  down-workers logs-workers nexus-up nexus-down health stack-up stack-verify scan-env ports port-check bootstrap-import bootstrap-import-apply bootstrap-ultimate bootstrap-oracle bootstrap-worker-3060 bootstrap-worker-3090ti bootstrap-worker-5090 \
+  archive-guard repo-structure-audit edge-docs cluster-docs \
   gitea-up gitea-up-ai gitea-up-actions gitea-up-actions-large gitea-up-infisical-agent gitea-down gitea-ps gitea-config gitea-bootstrap-orchestrator infisical-up infisical-down infisical-config \
   up-gitea down-gitea logs-gitea health-gitea up-infisical down-infisical logs-infisical health-infisical \
   twenty-crm-config twenty-crm-up twenty-crm-down twenty-crm-restart twenty-crm-logs twenty-crm-ps twenty-crm-health twenty-crm-setup twenty-crm-reset twenty-crm-dev twenty-mcp-up twenty-mcp-down
@@ -37,6 +37,7 @@ help:
 	@echo "Project Nyra - common targets"
 	@echo
 	@echo "make install            Install root JS dependencies"
+	@echo "make env-bootstrap      Seed all core .env files from templates when missing"
 	@echo "make test               Run smoke tests ($(PKG_MGR) test)"
 	@echo "make test-all           Run full Vitest suite ($(PKG_MGR) run test:all)"
 	@echo "make lint               Run lint ($(PKG_MGR) lint)"
@@ -52,6 +53,7 @@ help:
 	@echo "make up-apps            Start apps profile"
 	@echo "make up-dev             Start Claude Flow dev profile"
 	@echo "make up-workers         Start worker profile if defined"
+	@echo "make logs-workers       Tail logs for all canonical worker compose stacks"
 	@echo "make archon-up          Start dedicated Archon stack (docker-compose.archon.yml)"
 	@echo "make archon-up-infisical Start dedicated Archon stack via infisical run"
 	@echo "make archon-down        Stop dedicated Archon stack"
@@ -69,6 +71,7 @@ help:
 	@echo "make edge-docs          Regenerate ports + cloudflared docs from canonical compose files"
 	@echo "make ports              Print canonical ports registry path"
 	@echo "make bootstrap-ultimate Bring up orchestrator + oracle + all workers"
+	@echo "make cluster-docs       Open distributed WSL2 cluster runbook path"
 	@echo
 	@echo "make gitea-up           Start Gitea bootstrap stack"
 	@echo "make gitea-up-ai        Start Gitea stack with AI reviewer profile"
@@ -79,6 +82,17 @@ help:
 	@echo "make gitea-bootstrap-orchestrator Bring up full Gitea + Actions package"
 	@echo "make infisical-up       Start Infisical self-host stack"
 	@echo "make infisical-config   Validate new Infisical compose config"
+
+env-bootstrap:
+	@test -f .env.archon || cp .env.archon.example .env.archon
+	@test -f .env.gitea || cp .env.gitea.example .env.gitea
+	@test -f .env.infisical || cp .env.infisical.template .env.infisical
+	@test -f .env.orchestrator || cp .env.orchestrator.template .env.orchestrator
+	@test -f .env.oracle || cp .env.template .env.oracle
+	@test -f .env.worker-rtx3060 || cp .env.worker-rtx3060.template .env.worker-rtx3060
+	@test -f .env.worker-rtx3090 || echo "Missing .env.worker-rtx3090 (no template available)"
+	@test -f .env.worker-rtx5090 || echo "Missing .env.worker-rtx5090 (no template available)"
+	@echo "env-bootstrap complete"
 
 install:
 	$(PKG_MGR) install
@@ -167,6 +181,11 @@ down-workers:
 	$(COMPOSE) -f infra/workers/worker-rtx3060/docker-compose.worker.yml down --remove-orphans || $(COMPOSE) --profile worker-3060 down --remove-orphans
 	$(COMPOSE) -f infra/workers/worker-rtx3090ti/docker-compose.worker.yml down --remove-orphans || $(COMPOSE) --profile worker-3090ti down --remove-orphans
 	$(COMPOSE) -f infra/workers/worker-rtx5090/docker-compose.worker.yml down --remove-orphans || $(COMPOSE) --profile worker-5090 down --remove-orphans
+
+logs-workers:
+	-$(COMPOSE) -f infra/workers/worker-rtx3060/docker-compose.worker.yml logs -f --tail=200
+	-$(COMPOSE) -f infra/workers/worker-rtx3090ti/docker-compose.worker.yml logs -f --tail=200
+	-$(COMPOSE) -f infra/workers/worker-rtx5090/docker-compose.worker.yml logs -f --tail=200
 
 nexus-up:
 	$(COMPOSE) --profile gateway up -d litellm nexus-router
@@ -433,3 +452,6 @@ twenty-mcp-up:
 twenty-mcp-down:
 	@echo "Stopping TwentyCRM MCP Server..."
 	$(TWENTY_COMPOSE) stop twenty-mcp-server
+
+cluster-docs:
+	@echo "See docs/infra/DISTRIBUTED_WSL2_CLUSTER.md"

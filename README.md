@@ -88,7 +88,7 @@ Project Nyra is an intelligent mortgage automation platform that combines:
 
 ### Deployment Architecture
 
-**Current Setup:** 4-PC Windows Distributed Architecture
+**Current Setup:** Oracle VM + Home Orchestrator + 3 GPU Worker PCs (WSL2)
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -107,7 +107,7 @@ Project Nyra is an intelligent mortgage automation platform that combines:
 ┌───▼────┐           ┌────▼───┐           ┌────▼───┐
 │Worker 1│           │Worker 2│           │Worker 3│
 │GPU PC  │           │GPU PC  │           │GPU PC  │
-│RTX 4090│           │RTX 4090│           │RTX 4090│
+│RTX 5090│           │RTX 3090Ti│         │RTX 3060│
 └────────┘           └────────┘           └────────┘
 ```
 
@@ -117,6 +117,11 @@ Project Nyra is an intelligent mortgage automation platform that combines:
 - Cloudflared tunnels for secure communication
 - Wake-on-LAN for power-efficient worker management
 - Centralized configuration via bootstrap system
+
+
+For the current distributed deployment runbook (Nexus + vLLM + LMCache + Redis + Portainer + Home Assistant), see:
+
+- [`docs/infra/DISTRIBUTED_WSL2_CLUSTER.md`](docs/infra/DISTRIBUTED_WSL2_CLUSTER.md)
 
 ### Monorepo Structure
 
