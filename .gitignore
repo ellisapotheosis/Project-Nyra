@@ -511,6 +511,8 @@ bootstrap/
 # Portainer per-node host configs (may contain PORTAINER_AGENT_SECRET)
 # Commit only TEMPLATE.env.host; fill secrets locally after pull.
 **/.env.host
+# Oracle VPS live env (contains secrets — copy from .env.oracle.template)
+infra/oracle/.env.oracle
 .secrets/
 gitea-setup-summary-*.md
 
