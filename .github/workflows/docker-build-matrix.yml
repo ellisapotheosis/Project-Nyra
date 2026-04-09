@@ -68,7 +68,7 @@ jobs:
               if [[ "$dir" == *"infra-archived"* ]]; then continue; fi
               if [ -f "$dir" ]; then
                 app=$(dirname "$dir" | cut -d'/' -f2)
-                MATRIX="${MATRIX}{\"name\":\"${app}\",\"context\":\"apps/${app}\",\"dockerfile\":\"apps/${app}/Dockerfile\",\"type\":\"app\"},"
+                MATRIX="${MATRIX}{\"name\":\"${app}\",\"context\":\".\",\"dockerfile\":\"apps/${app}/Dockerfile\",\"type\":\"app\"},"
               fi
             done
           fi
@@ -79,7 +79,7 @@ jobs:
               if [[ "$dir" == *"infra-archived"* ]]; then continue; fi
               if [ -f "$dir" ]; then
                 service=$(dirname "$dir" | cut -d'/' -f2)
-                MATRIX="${MATRIX}{\"name\":\"${service}\",\"context\":\"services/${service}\",\"dockerfile\":\"services/${service}/Dockerfile\",\"type\":\"service\"},"
+                MATRIX="${MATRIX}{\"name\":\"${service}\",\"context\":\".\",\"dockerfile\":\"services/${service}/Dockerfile\",\"type\":\"service\"},"
               fi
             done
           fi
