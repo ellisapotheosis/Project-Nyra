@@ -12,6 +12,9 @@ find_repo_root() {
     "/workspace" \
     "/workspace/Project-Nyra" \
     "/workspace/project-nyra" \
+    "/workspaces" \
+    "/workspaces/Project-Nyra" \
+    "/workspaces/project-nyra" \
     "$HOME/project-nyra"
   do
     if [[ -d "$candidate/.git" ]] || [[ -f "$candidate/package.json" ]]; then
@@ -32,19 +35,6 @@ fi
 
 cd "$REPO_ROOT"
 printf '[codex-recovery] Repo root: %s\n' "$REPO_ROOT"
-
-mkdir -p "$REPO_ROOT/Scripts"
-if [[ ! -x "$REPO_ROOT/Scripts/Initialize-CodexEnvironment.sh" && -f "$REPO_ROOT/scripts/setup/Initialize-CodexEnvironment.sh" ]]; then
-  cat >"$REPO_ROOT/Scripts/Initialize-CodexEnvironment.sh" <<'EOF'
-#!/usr/bin/env bash
-set -euo pipefail
-SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"
-REPO_ROOT="$(cd -- "$SCRIPT_DIR/.." && pwd -P)"
-exec "$REPO_ROOT/scripts/setup/Initialize-CodexEnvironment.sh" "$@"
-EOF
-  chmod +x "$REPO_ROOT/Scripts/Initialize-CodexEnvironment.sh"
-  printf '[codex-recovery] Restored Scripts/Initialize-CodexEnvironment.sh compatibility shim.\n'
-fi
 
 export HUSKY=0
 export NYRA_CODEX_SETUP_MODE="${NYRA_CODEX_SETUP_MODE:-minimal}"
