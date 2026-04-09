@@ -15,6 +15,8 @@ resolve_repo_root() {
     "$PWD" \
     "/workspace/Project-Nyra" \
     "/workspace/project-nyra" \
+    "/workspaces/Project-Nyra" \
+    "/workspaces/project-nyra" \
     "$HOME/project-nyra"
   do
     candidate="$(cd "$candidate" 2>/dev/null && pwd -P || true)"
@@ -40,6 +42,7 @@ ROOT_ENV_FILE="${ROOT_ENV_FILE:-$REPO_ROOT/.env}"
 PYTHON_VENV_DIR="${PYTHON_VENV_DIR:-$REPO_ROOT/.venv}"
 RUN_GIT_PULL="${RUN_GIT_PULL:-0}"
 START_CORE_STACK="${START_CORE_STACK:-0}"
+WEBAPP_SAFE=0
 EXTRA_COMPOSE_FILE=""
 EXTRA_INFISICAL_PATH=""
 
@@ -66,6 +69,7 @@ Options:
   --path <path>                Infisical path for root env export (default: /shared)
   --project-id <id>            Infisical project id
   --token <token>              Infisical token to use explicitly for this run
+  --webapp-safe                Skip host-level/bootstrap-heavy steps for Codex Webapp/Desktop
   --root-env-file <path>       Root .env output path
   --python-venv <path>         Python virtualenv path
   --with-pull                  Run git pull --rebase before dependency sync
@@ -93,6 +97,10 @@ while [[ $# -gt 0 ]]; do
     --token)
       INFISICAL_TOKEN_ARG="$2"
       shift 2
+      ;;
+    --webapp-safe)
+      WEBAPP_SAFE=1
+      shift
       ;;
     --root-env-file)
       ROOT_ENV_FILE="$2"
@@ -306,6 +314,11 @@ resolve_github_token() {
 }
 
 configure_github_auth() {
+  if [[ "$WEBAPP_SAFE" -eq 1 ]]; then
+    warn "Webapp-safe mode: skipping GitHub CLI auth"
+    return 0
+  fi
+
   local token=""
 
   ensure_github_cli
@@ -338,20 +351,16 @@ refresh_python_requirements() {
   source "$PYTHON_VENV_DIR/bin/activate"
   python -m pip install --upgrade pip setuptools wheel >/dev/null
 
-  local requirements_files=(
-    "$REPO_ROOT/services/campaign-engine/requirements.txt"
-    "$REPO_ROOT/services/litellm-proxy/requirements.txt"
-    "$REPO_ROOT/services/mem0-mcp/requirements.txt"
-    "$REPO_ROOT/services/mem0-rest-api/requirements.txt"
-    "$REPO_ROOT/services/mem0-rest/requirements.txt"
-    "$REPO_ROOT/services/nyra-orchestrator/requirements.txt"
-    "$REPO_ROOT/services/orchestrator/requirements.txt"
-    "$REPO_ROOT/services/quote-api/requirements.txt"
-    "$REPO_ROOT/services/quote-api/requirements-test.txt"
-    "$REPO_ROOT/services/quote-engine/requirements.txt"
+  local requirements_files=()
+  local req=""
+  while IFS= read -r req; do
+    requirements_files+=("$req")
+  done < <(
+    find "$REPO_ROOT" \
+      \( -path "$REPO_ROOT/.git" -o -path "$REPO_ROOT/node_modules" -o -path "$REPO_ROOT/.venv" -o -path "$REPO_ROOT/submodules" \) -prune -o \
+      \( -name 'requirements.txt' -o -name 'requirements-test.txt' \) -print | sort
   )
 
-  local req
   for req in "${requirements_files[@]}"; do
     if [[ -f "$req" ]]; then
       info "Refreshing Python requirements: ${req#$REPO_ROOT/}"
@@ -359,6 +368,28 @@ refresh_python_requirements() {
     fi
   done
   deactivate || true
+}
+
+refresh_additional_js_dependencies() {
+  require_cmd pnpm
+  export HUSKY=0
+
+  local extra_js_dirs=(
+    "$REPO_ROOT/scripts/ingestion"
+    "$REPO_ROOT/scripts/batch-claude-md"
+  )
+  local dir=""
+  for dir in "${extra_js_dirs[@]}"; do
+    if [[ -f "$dir/package.json" ]]; then
+      info "Refreshing standalone JS dependencies: ${dir#$REPO_ROOT/}"
+      (cd "$dir" && pnpm install --no-frozen-lockfile)
+    fi
+  done
+
+  if [[ "$WEBAPP_SAFE" -eq 0 ]] && [[ -f "$REPO_ROOT/package.json" ]] && grep -q '"@playwright/test"' "$REPO_ROOT/package.json"; then
+    info "Refreshing Playwright browser dependencies"
+    pnpm exec playwright install --with-deps || warn "Playwright install did not complete cleanly"
+  fi
 }
 
 main() {
@@ -391,6 +422,12 @@ main() {
   if [[ -n "$INFISICAL_PROJECT_ID" ]]; then
     setup_args+=(--project-id "$INFISICAL_PROJECT_ID")
   fi
+  if [[ -n "${INFISICAL_TOKEN:-}" ]]; then
+    setup_args+=(--token "$INFISICAL_TOKEN")
+  fi
+  if [[ "$WEBAPP_SAFE" -eq 1 ]]; then
+    setup_args+=(--webapp-safe)
+  fi
   if [[ "$START_CORE_STACK" -eq 1 ]]; then
     setup_args+=(--start-core-stack)
   fi
@@ -408,6 +445,8 @@ main() {
     warn "Falling back to full Python dependency setup"
     bash "$SETUP_SCRIPT" "${setup_args[@]}" --skip-system-deps --skip-js-deps --skip-services --skip-env-export
   fi
+
+  refresh_additional_js_dependencies
 
   info "Final maintenance checks"
   echo "  node:      $(node -v 2>/dev/null || echo missing)"

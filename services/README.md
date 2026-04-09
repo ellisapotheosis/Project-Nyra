@@ -219,26 +219,6 @@ pnpm dev
 - `POST /embed` - Generate embeddings
 - `DELETE /index/:id` - Remove from index
 
-#### graphiti-knowledge
-- **Port:** 3800
-- **Package:** `@nyra/graphiti-knowledge`
-- **Tech:** TypeScript, FalkorDB, Neo4j
-- **Purpose:** Knowledge graph management and relationship mapping
-- **Features:**
-  - Entity relationship mapping
-  - Graph queries
-  - Knowledge extraction
-  - Temporal relationships
-  - Graph visualization data
-  - Pattern matching
-
-**Quick Start:**
-```bash
-cd services/graphiti-knowledge
-pnpm install
-pnpm dev
-```
-
 ---
 
 ### Integrations
@@ -458,7 +438,6 @@ pnpm dev
 - Qdrant (Port: 6333)
 
 **Orchestration:**
-- Claude Flow (Dynamic port)
 - Archon OS (Dynamic port)
 - Letta (Ports: 8283, 8284)
 
@@ -561,7 +540,6 @@ mortgage-assistant-api
 
 doc-management-api
   → ruvector-search
-  → graphiti-knowledge
 
 All services
   → auth-service (authentication)
@@ -572,7 +550,7 @@ All services
 ### External Dependencies
 - **TwentyCRM** - CRM system
 - **Twilio** - SMS/Voice
-- **Anthropic** - Claude AI
+- **Anthropic** - AI Provider
 - **OpenRouter** - LLM routing
 - **n8n** - Workflow automation
 - **Letta** - Agent memory

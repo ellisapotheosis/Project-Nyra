@@ -15,6 +15,8 @@ resolve_repo_root() {
     "$PWD" \
     "/workspace/Project-Nyra" \
     "/workspace/project-nyra" \
+    "/workspaces/Project-Nyra" \
+    "/workspaces/project-nyra" \
     "$HOME/project-nyra"
   do
     candidate="$(cd "$candidate" 2>/dev/null && pwd -P || true)"
@@ -41,6 +43,7 @@ PYTHON_VENV_DIR="${PYTHON_VENV_DIR:-$REPO_ROOT/.venv}"
 NODE_VERSION="${NODE_VERSION:-20}"
 PNPM_VERSION="${PNPM_VERSION:-10.27.0}"
 START_CORE_STACK="${START_CORE_STACK:-0}"
+WEBAPP_SAFE=0
 SKIP_SYSTEM_DEPS=0
 SKIP_JS_DEPS=0
 SKIP_PYTHON_DEPS=0
@@ -76,6 +79,7 @@ Options:
   --python-venv <path>         Python virtualenv path (default: <repo>/.venv)
   --node-version <version>     Node version for nvm (default: 20)
   --pnpm-version <version>     pnpm version for corepack (default: 10.27.0)
+  --webapp-safe                Skip host-level/bootstrap-heavy steps for Codex Webapp/Desktop
   --start-core-stack           Start infra core profile in addition to LiteLLM
   --extra-compose <path>       Optional extra compose file to bring up
   --extra-path <path>          Infisical path for extra compose run (default: same as --path)
@@ -121,6 +125,10 @@ while [[ $# -gt 0 ]]; do
     --pnpm-version)
       PNPM_VERSION="$2"
       shift 2
+      ;;
+    --webapp-safe)
+      WEBAPP_SAFE=1
+      shift
       ;;
     --start-core-stack)
       START_CORE_STACK=1
@@ -171,6 +179,12 @@ if [[ -n "$INFISICAL_TOKEN_ARG" ]]; then
   export INFISICAL_TOKEN
   INFISICAL_SESSION_TOKEN="$INFISICAL_TOKEN_ARG"
   export INFISICAL_SESSION_TOKEN
+fi
+
+if [[ "$WEBAPP_SAFE" -eq 1 ]]; then
+  SKIP_SYSTEM_DEPS=1
+  SKIP_SERVICES=1
+  START_CORE_STACK=0
 fi
 
 require_cmd() {
@@ -633,6 +647,11 @@ resolve_github_token() {
 }
 
 configure_github_auth() {
+  if [[ "$WEBAPP_SAFE" -eq 1 ]]; then
+    warn "Webapp-safe mode: skipping GitHub CLI auth"
+    return 0
+  fi
+
   local token=""
 
   if ! token="$(resolve_github_token)"; then
@@ -742,6 +761,24 @@ install_js_dependencies() {
   export HUSKY=0
   info "Installing workspace JavaScript dependencies"
   pnpm install --no-frozen-lockfile
+
+  local extra_js_dirs=(
+    "$REPO_ROOT/scripts/ingestion"
+    "$REPO_ROOT/scripts/batch-claude-md"
+  )
+  local dir=""
+  for dir in "${extra_js_dirs[@]}"; do
+    if [[ -f "$dir/package.json" ]]; then
+      info "Installing standalone JS dependencies: ${dir#$REPO_ROOT/}"
+      (cd "$dir" && pnpm install --no-frozen-lockfile)
+    fi
+  done
+
+  if [[ "$WEBAPP_SAFE" -eq 0 ]] && [[ -f "$REPO_ROOT/package.json" ]] && grep -q '"@playwright/test"' "$REPO_ROOT/package.json"; then
+    info "Installing Playwright browser dependencies"
+    pnpm exec playwright install --with-deps || warn "Playwright install did not complete cleanly"
+  fi
+
   ok "pnpm install complete"
 }
 
@@ -757,20 +794,16 @@ install_python_dependencies() {
   source "$PYTHON_VENV_DIR/bin/activate"
   python -m pip install --upgrade pip setuptools wheel >/dev/null
 
-  local requirements_files=(
-    "$REPO_ROOT/services/campaign-engine/requirements.txt"
-    "$REPO_ROOT/services/litellm-proxy/requirements.txt"
-    "$REPO_ROOT/services/mem0-mcp/requirements.txt"
-    "$REPO_ROOT/services/mem0-rest-api/requirements.txt"
-    "$REPO_ROOT/services/mem0-rest/requirements.txt"
-    "$REPO_ROOT/services/nyra-orchestrator/requirements.txt"
-    "$REPO_ROOT/services/orchestrator/requirements.txt"
-    "$REPO_ROOT/services/quote-api/requirements.txt"
-    "$REPO_ROOT/services/quote-api/requirements-test.txt"
-    "$REPO_ROOT/services/quote-engine/requirements.txt"
+  local requirements_files=()
+  local req=""
+  while IFS= read -r req; do
+    requirements_files+=("$req")
+  done < <(
+    find "$REPO_ROOT" \
+      \( -path "$REPO_ROOT/.git" -o -path "$REPO_ROOT/node_modules" -o -path "$REPO_ROOT/.venv" -o -path "$REPO_ROOT/submodules" \) -prune -o \
+      \( -name 'requirements.txt' -o -name 'requirements-test.txt' \) -print | sort
   )
 
-  local req
   for req in "${requirements_files[@]}"; do
     if [[ -f "$req" ]]; then
       info "Installing Python requirements: ${req#$REPO_ROOT/}"
