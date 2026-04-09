@@ -20,7 +20,7 @@ PKG_MGR ?= pnpm
 PKG_RUN ?= pnpm exec
 endif
 
-.PHONY: grid grid-kill \
+.PHONY: grid grid-kill claw-build claw-rebuild claw-update \
   help env-bootstrap install test test-all lint validate compose-config compose-config-all \
   up down restart logs ps pull \
   up-core up-orchestrator up-apps up-dev up-workers up-oracle up-worker-3060 up-worker-3090ti up-worker-5090 \
@@ -31,6 +31,7 @@ endif
   gitea-up gitea-up-ai gitea-up-actions gitea-up-actions-large gitea-up-infisical-agent gitea-up-full gitea-down gitea-ps gitea-config gitea-bootstrap-orchestrator gitea-readiness infisical-up infisical-down infisical-config \
   portainer-bootstrap portainer-edge-up portainer-down portainer-deploy-all \
   ha-dashboard-up ha-dashboard-down \
+  oracle-context oracle-stack-up oracle-stack-down oracle-stack-logs oracle-stack-ps \
   up-gitea down-gitea logs-gitea health-gitea up-infisical down-infisical logs-infisical health-infisical \
   twenty-crm-config twenty-crm-up twenty-crm-down twenty-crm-restart twenty-crm-logs twenty-crm-ps twenty-crm-health twenty-crm-setup twenty-crm-reset twenty-crm-dev twenty-mcp-up twenty-mcp-down
 
@@ -89,7 +90,12 @@ help:
 	@echo "make portainer-bootstrap Bootstrap Portainer control-plane mesh package"
 	@echo "make portainer-edge-up  Start edge agent using .env.portainer.edge"
 	@echo "make portainer-down     Stop Portainer control-plane"
-	@echo "make portainer-deploy-all Deploy Portainer CE + agents to all 4 mesh nodes"
+	@echo "make portainer-deploy-all Deploy Portainer CE + agents to all 5 mesh nodes (incl. oracle)"
+	@echo "make oracle-context     Create 'oracle' docker context (SSH to VPS, one-time setup)"
+	@echo "make oracle-stack-up    Deploy latency-insensitive services to Oracle VPS via docker context"
+	@echo "make oracle-stack-down  Tear down Oracle VPS stack"
+	@echo "make oracle-stack-logs  Tail Oracle VPS stack logs"
+	@echo "make oracle-stack-ps    Show Oracle VPS running containers"
 	@echo "make ha-dashboard-up    Start HomeAssistant dashboard landing page"
 	@echo "make ha-dashboard-down  Stop HomeAssistant dashboard landing page"
 	@echo "make infisical-up       Start Infisical self-host stack"
@@ -401,7 +407,7 @@ portainer-down:
 # Deploy Portainer CE server to orch, then agents to all 3 workers (sequential).
 # Each node sources its own infra/{orchestrator,worker-pcs/<node>}/.env.host.
 portainer-deploy-all:
-	@for pair in "orch:server" "worker-rtx5090:agent" "worker-rtx3090ti:agent" "worker-rtx3060:agent"; do \
+	@for pair in "orch:server" "worker-rtx5090:agent" "worker-rtx3090ti:agent" "worker-rtx3060:agent" "oracle:agent"; do \
 		node=$${pair%%:*}; role=$${pair##*:}; \
 		echo ""; \
 		echo "==> [$$node : $$role]"; \
@@ -415,6 +421,53 @@ ha-dashboard-up:
 
 ha-dashboard-down:
 	docker compose --env-file infra/homeassistant/.env.homeassistant-dashboard -f infra/homeassistant/docker-compose.homeassistant-dashboard.yml down --remove-orphans
+
+# ── Oracle VPS — latency-insensitive services ──────────────────────────────
+# These targets run docker compose on the Oracle VPS via SSH docker context.
+# Services: TwentyCRM, n8n, Activepieces, Prometheus, Grafana, Loki, cAdvisor,
+#           OpenWebUI, FalkorDB, Graphiti, Moltbot, Quote API.
+# Prereq: infra/oracle/.env.oracle must exist (copy from .env.oracle.template).
+
+oracle-context:
+	@docker context inspect oracle >/dev/null 2>&1 \
+		&& echo "Oracle docker context already exists." \
+		|| (docker context create oracle \
+			--docker host=ssh://oracle \
+			&& echo "Oracle docker context created.")
+
+# COMPOSE_FILE for oracle stack (standalone — self-contained DB/cache/services)
+ORACLE_COMPOSE_FILE := infra/oracle/docker-compose.oracle.yml
+ORACLE_ENV_FILE     := infra/oracle/.env.oracle
+
+oracle-stack-up: oracle-context
+	@test -f $(ORACLE_ENV_FILE) || { \
+		echo "Missing $(ORACLE_ENV_FILE)"; \
+		echo "Copy infra/oracle/.env.oracle.template → infra/oracle/.env.oracle and fill values."; \
+		exit 1; \
+	}
+	docker --context oracle compose \
+		--env-file $(ORACLE_ENV_FILE) \
+		-f $(ORACLE_COMPOSE_FILE) \
+		up -d
+	@echo "Oracle stack is up. Access via ssh-oracle or Portainer at https://orch:9443"
+
+oracle-stack-down: oracle-context
+	docker --context oracle compose \
+		--env-file $(ORACLE_ENV_FILE) \
+		-f $(ORACLE_COMPOSE_FILE) \
+		down --remove-orphans
+
+oracle-stack-logs: oracle-context
+	docker --context oracle compose \
+		--env-file $(ORACLE_ENV_FILE) \
+		-f $(ORACLE_COMPOSE_FILE) \
+		logs -f --tail=200
+
+oracle-stack-ps: oracle-context
+	docker --context oracle compose \
+		--env-file $(ORACLE_ENV_FILE) \
+		-f $(ORACLE_COMPOSE_FILE) \
+		ps
 
 # Additive bootstrap-safe wrappers (do not replace existing flows)
 up-gitea:
@@ -518,3 +571,18 @@ grid:
 
 grid-kill:
 	tmux kill-session -t "$${NYRA_TMUX_SESSION:-NYRA-GRID}" 2>/dev/null || true
+
+claw-build:
+	cd external/claw-code/rust && cargo build --workspace
+	ln -sf "$(PWD)/external/claw-code/rust/target/debug/claw" "$(HOME)/.local/bin/claw"
+	@echo "claw binary ready: $$(which claw)"
+
+claw-rebuild:
+	cd external/claw-code/rust && cargo clean && cargo build --workspace
+	ln -sf "$(PWD)/external/claw-code/rust/target/debug/claw" "$(HOME)/.local/bin/claw"
+
+claw-update:
+	git -C external/claw-code pull --ff-only
+	cd external/claw-code/rust && cargo build --workspace
+	ln -sf "$(PWD)/external/claw-code/rust/target/debug/claw" "$(HOME)/.local/bin/claw"
+	@echo "claw updated: $$("$(HOME)/.local/bin/claw" --version 2>&1 | head -2)"
