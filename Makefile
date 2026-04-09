@@ -20,14 +20,17 @@ PKG_MGR ?= pnpm
 PKG_RUN ?= pnpm exec
 endif
 
-.PHONY: help env-bootstrap install test test-all lint validate compose-config compose-config-all \
+.PHONY: grid grid-kill \
+  help env-bootstrap install test test-all lint validate compose-config compose-config-all \
   up down restart logs ps pull \
   up-core up-orchestrator up-apps up-dev up-workers up-oracle up-worker-3060 up-worker-3090ti up-worker-5090 \
   archon-config archon-up archon-down archon-logs archon-ps archon-up-infisical \
   node-up-orchestrator node-up-oracle node-up-worker-3060 node-up-worker-3090ti node-up-worker-5090 node-down-orchestrator node-down-oracle node-down-worker-3060 node-down-worker-3090ti node-down-worker-5090 \
   down-workers logs-workers nexus-up nexus-down health stack-up stack-verify scan-env ports port-check bootstrap-import bootstrap-import-apply bootstrap-ultimate bootstrap-oracle bootstrap-worker-3060 bootstrap-worker-3090ti bootstrap-worker-5090 \
   archive-guard repo-structure-audit edge-docs cluster-docs \
-  gitea-up gitea-up-ai gitea-up-actions gitea-up-actions-large gitea-up-infisical-agent gitea-down gitea-ps gitea-config gitea-bootstrap-orchestrator infisical-up infisical-down infisical-config \
+  gitea-up gitea-up-ai gitea-up-actions gitea-up-actions-large gitea-up-infisical-agent gitea-up-full gitea-down gitea-ps gitea-config gitea-bootstrap-orchestrator gitea-readiness infisical-up infisical-down infisical-config \
+  portainer-bootstrap portainer-edge-up portainer-down portainer-deploy-all \
+  ha-dashboard-up ha-dashboard-down \
   up-gitea down-gitea logs-gitea health-gitea up-infisical down-infisical logs-infisical health-infisical \
   twenty-crm-config twenty-crm-up twenty-crm-down twenty-crm-restart twenty-crm-logs twenty-crm-ps twenty-crm-health twenty-crm-setup twenty-crm-reset twenty-crm-dev twenty-mcp-up twenty-mcp-down
 
@@ -73,6 +76,9 @@ help:
 	@echo "make bootstrap-ultimate Bring up orchestrator + oracle + all workers"
 	@echo "make cluster-docs       Open distributed WSL2 cluster runbook path"
 	@echo
+	@echo "make grid               Launch NYRA tmux grid (4-node SSH mesh + Wrangler)"
+	@echo "make grid-kill          Kill the NYRA-GRID tmux session"
+	@echo
 	@echo "make gitea-up           Start Gitea bootstrap stack"
 	@echo "make gitea-up-ai        Start Gitea stack with AI reviewer profile"
 	@echo "make gitea-up-actions   Start Gitea stack with actions runner profile"
@@ -80,6 +86,12 @@ help:
 	@echo "make gitea-up-infisical-agent Start Gitea stack with Infisical agent profile"
 	@echo "make gitea-config       Validate new Gitea compose config"
 	@echo "make gitea-bootstrap-orchestrator Bring up full Gitea + Actions package"
+	@echo "make portainer-bootstrap Bootstrap Portainer control-plane mesh package"
+	@echo "make portainer-edge-up  Start edge agent using .env.portainer.edge"
+	@echo "make portainer-down     Stop Portainer control-plane"
+	@echo "make portainer-deploy-all Deploy Portainer CE + agents to all 4 mesh nodes"
+	@echo "make ha-dashboard-up    Start HomeAssistant dashboard landing page"
+	@echo "make ha-dashboard-down  Stop HomeAssistant dashboard landing page"
 	@echo "make infisical-up       Start Infisical self-host stack"
 	@echo "make infisical-config   Validate new Infisical compose config"
 
@@ -377,6 +389,33 @@ infisical-up:
 infisical-down:
 	docker compose -f docker-compose.infisical.yml --env-file .env.infisical down --remove-orphans
 
+portainer-bootstrap:
+	./infra/orchestrator/portainer-mesh/bootstrap-portainer-mesh.sh
+
+portainer-edge-up:
+	docker compose --env-file infra/orchestrator/portainer-mesh/.env.portainer.edge -f infra/orchestrator/portainer-mesh/docker-compose.portainer.edge-agent.yml up -d
+
+portainer-down:
+	docker compose --env-file infra/orchestrator/portainer-mesh/.env.portainer.orchestrator -f infra/orchestrator/portainer-mesh/docker-compose.portainer.orchestrator.yml down --remove-orphans
+
+# Deploy Portainer CE server to orch, then agents to all 3 workers (sequential).
+# Each node sources its own infra/{orchestrator,worker-pcs/<node>}/.env.host.
+portainer-deploy-all:
+	@for pair in "orch:server" "worker-rtx5090:agent" "worker-rtx3090ti:agent" "worker-rtx3060:agent"; do \
+		node=$${pair%%:*}; role=$${pair##*:}; \
+		echo ""; \
+		echo "==> [$$node : $$role]"; \
+		bash infra/scripts/deploy-portainer.sh --node $$node --role $$role || exit 1; \
+	done
+	@echo ""
+	@echo "Portainer mesh deployment complete."
+
+ha-dashboard-up:
+	docker compose --env-file infra/homeassistant/.env.homeassistant-dashboard -f infra/homeassistant/docker-compose.homeassistant-dashboard.yml up -d
+
+ha-dashboard-down:
+	docker compose --env-file infra/homeassistant/.env.homeassistant-dashboard -f infra/homeassistant/docker-compose.homeassistant-dashboard.yml down --remove-orphans
+
 # Additive bootstrap-safe wrappers (do not replace existing flows)
 up-gitea:
 	docker compose -f docker-compose.gitea.bootstrap.yml --env-file .env.gitea up -d
@@ -461,3 +500,21 @@ twenty-mcp-down:
 
 cluster-docs:
 	@echo "See docs/infra/DISTRIBUTED_WSL2_CLUSTER.md"
+
+git-remote-health:
+	bash ./scripts/maintenance/git-remote-health.sh
+
+host-layout-validate:
+	python3 scripts/maintenance/validate_host_layout.py
+
+host-plan:
+	python3 scripts/maintenance/generate-host-service-plan.py
+
+install-infra-host-layout:
+	bash ./scripts/setup/install-infra-host-layout.sh
+
+grid:
+	bash ./scripts/nyra-grid.sh
+
+grid-kill:
+	tmux kill-session -t "$${NYRA_TMUX_SESSION:-NYRA-GRID}" 2>/dev/null || true
