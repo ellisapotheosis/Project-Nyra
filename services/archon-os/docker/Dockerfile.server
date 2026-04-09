@@ -73,8 +73,8 @@ ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
 RUN playwright install chromium || true
 
 # Copy server code
-COPY src/ src/ 2>/dev/null || mkdir -p src
-COPY tests/ tests/ 2>/dev/null || true
+COPY src/ src/
+COPY tests/ tests/
 
 # Set environment variables
 ENV PYTHONPATH="/app:$PYTHONPATH"

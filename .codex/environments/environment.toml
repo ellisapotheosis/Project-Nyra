@@ -3,40 +3,10 @@ version = 1
 name = "project-nyra"
 
 [setup]
-script = '''
-  #!/usr/bin/env bash
-  set -euo pipefail
+script = "cd /workspace/project-nyra && bash scripts/setup/codex-webapp-manual-setup.sh --token \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZGVudGl0eUlkIjoiZDE5MDE1YTUtOTMzMS00MmNkLTljNTItODkzYTM5OTlkMjM3IiwiaWRlbnRpdHlBY2Nlc3NUb2tlbklkIjoiN2JmYmY1MjEtYTdjMS00MGZlLWFjNGItYTVmODFkMjY0NDNlIiwiYXV0aFRva2VuVHlwZSI6ImlkZW50aXR5QWNjZXNzVG9rZW4iLCJpYXQiOjE3NzM0OTUwODIsImV4cCI6MTc3NjA4NzA4Mn0.uUl6B40yEftlX8v4VF2uo7byLtL59O0Nfqa3ce6x064\" --env dev --path /shared --project-id 8374cea9-e5e8-4050-bda4-b91f25ab30ef --skip-system-deps --start-core-stack"
 
-  find_repo_root() {
-    if git rev-parse --show-toplevel >/dev/null 2>&1; then
-      git rev-parse --show-toplevel
-      return 0
-    fi
-
-    for candidate in \
-      "$PWD" \
-      "/workspace/Project-Nyra" \
-      "/workspace/project-nyra" \
-      "$HOME/project-nyra"
-    do
-      if [[ -d "$candidate/.git" ]] || [[ -f "$candidate/package.json" ]]; then
-        printf '%s\n' "$candidate"
-        return 0
-      fi
-    done
-
-    return 1
-  }
-
-  REPO_ROOT="$(find_repo_root)"
-  cd "$REPO_ROOT"
-
-  bash scripts/setup/codex-webapp-manual-setup.sh \
-    --env dev \
-    --path /shared \
-    --project-id 8374cea9-e5e8-4050-bda4-b91f25ab30ef \
-    --start-core-stack
-'''
+[cleanup]
+script = "cd /workspace/project-nyra && bash scripts/setup/codex-webapp-manual-maintenance.sh --token \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZGVudGl0eUlkIjoiZDE5MDE1YTUtOTMzMS00MmNkLTljNTItODkzYTM5OTlkMjM3IiwiaWRlbnRpdHlBY2Nlc3NUb2tlbklkIjoiN2JmYmY1MjEtYTdjMS00MGZlLWFjNGItYTVmODFkMjY0NDNlIiwiYXV0aFRva2VuVHlwZSI6ImlkZW50aXR5QWNjZXNzVG9rZW4iLCJpYXQiOjE3NzM0OTUwODIsImV4cCI6MTc3NjA4NzA4Mn0.uUl6B40yEftlX8v4VF2uo7byLtL59O0Nfqa3ce6x064\" --env dev --path /shared --project-id 8374cea9-e5e8-4050-bda4-b91f25ab30ef --with-pull --start-core-stack"
 
 [[actions]]
 name = "Run"

@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 set -euo pipefail
 
 SECRETS_DIR="/run/nyra-secrets"
@@ -9,7 +9,6 @@ SECRET_GID="${NYRA_SECRETS_GID:-1000}"
 INFISICAL_PROJECT_ID="${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}"
 
 umask 077
-
 mkdir -p "$SECRETS_DIR"
 chmod 700 "$SECRETS_DIR" 2>/dev/null || true
 
@@ -26,7 +25,8 @@ rand_b64() { openssl rand -base64 "${1:-32}"; }
 write_secret_file(){
   local path="$1"
   local value="$2"
-  printf "%s" "$value" > "$path"
+  # Ensure NO quotes are written to the file
+  echo -n "$value" | tr -d "'\"" > "$path"
   chmod 600 "$path"
   if [[ "$(id -u)" -eq 0 ]]; then
     chown "${SECRET_UID}:${SECRET_GID}" "$path"
@@ -37,7 +37,7 @@ parse_dotenv_and_write(){
   local dotenv="$1"
   getv(){
     local k="$1"
-    grep "^${k}=" "$dotenv" | head -n 1 | cut -d'=' -f2- | sed -e "s/^['\"]*//" -e "s/['\"]*$//"
+    grep "^${k}=" "$dotenv" | head -n 1 | cut -d'=' -f2- | sed "s/^'//" | sed "s/'$//" | sed "s/^'//" | sed "s/'$//" | sed 's/^"//' | sed 's/"$//' | sed 's/^"//' | sed 's/"$//'
   }
 
   local v
@@ -47,9 +47,11 @@ parse_dotenv_and_write(){
   v="$(getv WEBHOOK_SECRET)";       [[ -n "$v" ]] && write_secret_file "$SECRETS_DIR/webhook_secret" "$v"
   v="$(getv GITEA_TOKEN)";          [[ -n "$v" ]] && write_secret_file "$SECRETS_DIR/gitea_pat_token" "$v"
   v="$(getv GITEA_RUNNER_TOKEN)";   [[ -n "$v" ]] && write_secret_file "$SECRETS_DIR/gitea_runner_token" "$v"
-  v="$(getv OPENAI_API_KEY)";   [[ -n "$v" ]] && write_secret_file "$SECRETS_DIR/openai_api_key" "$v"
+  v="$(getv OPENAI_API_KEY)";       [[ -n "$v" ]] && write_secret_file "$SECRETS_DIR/openai_api_key" "$v"
   v="$(getv GITEA_SECRET_KEY)";     [[ -n "$v" ]] && write_secret_file "$SECRETS_DIR/gitea_secret_key" "$v"
   v="$(getv GITEA_INTERNAL_TOKEN)"; [[ -n "$v" ]] && write_secret_file "$SECRETS_DIR/gitea_internal_token" "$v"
+  v="$(getv SUPABASE_URL)";         [[ -n "$v" ]] && write_secret_file "$SECRETS_DIR/supabase_url" "$v"
+  v="$(getv SUPABASE_SERVICE_KEY)"; [[ -n "$v" ]] && write_secret_file "$SECRETS_DIR/supabase_service_key" "$v"
 }
 
 try_infisical_export(){
@@ -60,11 +62,12 @@ try_infisical_export(){
 
   export INFISICAL_API_URL="${INFISICAL_API_URL:-https://app.infisical.com}"
 
+  # CLEANED COMMAND WITH PROVEN SETTINGS
   infisical export \
     --token="${INFISICAL_TOKEN}" \
     --projectId="$INFISICAL_PROJECT_ID" \
-    --env="${INFISICAL_ENV}" \
-    --path="${INFISICAL_PATH}" \
+    --env="prod" \
+    --path="/shared" \
     --format=dotenv \
     --output-file="/tmp/nyra.infisical.env" >/dev/null
 
@@ -80,9 +83,6 @@ generate_missing(){
   [[ -f "$SECRETS_DIR/gitea_admin_pass" ]]     || write_secret_file "$SECRETS_DIR/gitea_admin_pass" "$(rand_b64 24)"
   [[ -f "$SECRETS_DIR/webhook_auth_token" ]]   || write_secret_file "$SECRETS_DIR/webhook_auth_token" "$(rand_b64 24)"
   [[ -f "$SECRETS_DIR/webhook_secret" ]]       || write_secret_file "$SECRETS_DIR/webhook_secret" "$(rand_hex 32)"
-  [[ -f "$SECRETS_DIR/gitea_pat_token" ]]      || write_secret_file "$SECRETS_DIR/gitea_pat_token" ""
-  [[ -f "$SECRETS_DIR/openai_api_key" ]]   || write_secret_file "$SECRETS_DIR/openai_api_key" ""
-  [[ -f "$SECRETS_DIR/gitea_runner_token" ]]   || write_secret_file "$SECRETS_DIR/gitea_runner_token" ""
 }
 
 main(){
