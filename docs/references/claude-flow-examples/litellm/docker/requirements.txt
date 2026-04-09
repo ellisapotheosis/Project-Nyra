@@ -1,6 +1,6 @@
 # LiteLLM Core
-litellm[proxy]==1.83.0
-litellm[extra_proxy_features]==1.83.0
+litellm[proxy]==1.83.4
+litellm[extra_proxy_features]==1.83.4
 
 # Database
 psycopg2-binary==2.9.9
@@ -21,7 +21,7 @@ httpx==0.28.1
 python-jose[cryptography]==3.4.0
 passlib[bcrypt]==1.7.4
 python-dotenv==1.0.1
-cryptography==46.0.6
+cryptography==46.0.7
 
 # Monitoring & Metrics
 prometheus-client==0.21.1
