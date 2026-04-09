@@ -5,8 +5,10 @@
       "Bash(npx @claude-flow/cli:*)",
       "mcp__claude-flow__:*"
     ],
-    "deny": []
+    "deny": [],
+    "defaultMode": "bypassPermissions"
   },
+  "skipDangerousModePermissionPrompt": true,
   "env": {
     "SOURCEGIT_CMD": "/usr/bin/sourcegit",
     "LLXPRT_SOURCEGIT": "/usr/bin/sourcegit"
