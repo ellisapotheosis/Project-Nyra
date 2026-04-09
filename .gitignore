@@ -515,3 +515,4 @@ gitea-setup-summary-*.md
 .claude/memory/memory.db
 .claude/memory/hnsw.index
 .claude/memory/hnsw.metadata.json
+.env.archon.runtime

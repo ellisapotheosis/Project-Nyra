@@ -362,6 +362,12 @@ gitea-ps:
 gitea-bootstrap-orchestrator:
 	ENABLE_ACTIONS=true ENABLE_ACTIONS_LARGE=false ENABLE_INFISICAL_AGENT=true ./scripts/gitea/bootstrap-orchestrator-gitea.sh
 
+supabase-up:
+	docker compose -f infra/compose/docker-compose.supabase.yml up -d
+
+supabase-down:
+	docker compose -f infra/compose/docker-compose.supabase.yml down
+
 infisical-config:
 	docker compose -f docker-compose.infisical.yml --env-file .env.infisical config >/dev/null
 
