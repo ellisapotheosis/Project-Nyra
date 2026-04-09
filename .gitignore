@@ -516,3 +516,6 @@ gitea-setup-summary-*.md
 .claude/memory/hnsw.index
 .claude/memory/hnsw.metadata.json
 .env.archon.runtime
+
+# Local external dependencies (git repos)
+external/

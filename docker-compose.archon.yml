@@ -59,7 +59,7 @@ services:
   # Unified Archon OS App (Server + UI)
   archon:
     build:
-      context: ./submodules/archon
+      context: ./external/archon
       dockerfile: Dockerfile
     container_name: ${COMPOSE_PROJECT_NAME:-nyra}-archon-os
     profiles: ['archon', 'all']
