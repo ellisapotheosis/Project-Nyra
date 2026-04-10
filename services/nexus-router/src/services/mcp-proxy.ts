@@ -219,9 +219,9 @@ export class MCPProxyService {
       {
         id: 'gitea',
         name: 'Gitea MCP',
-        protocol: 'sse',
+        protocol: 'http',
         config: {
-          url: process.env.GITEA_MCP_URL || 'http://gitea-mcp:3100/sse',
+          url: process.env.GITEA_MCP_URL || 'http://gitea-mcp:3100',
         },
         enabled: true,
         priority: 10,

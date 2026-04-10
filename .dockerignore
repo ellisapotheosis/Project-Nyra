@@ -177,3 +177,4 @@ bun.lock
 *.pdf
 *.psd
 *.ai
+services/nexus-router/node_modules

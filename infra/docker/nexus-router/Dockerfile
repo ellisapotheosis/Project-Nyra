@@ -4,7 +4,7 @@ WORKDIR /app
 RUN apk add --no-cache python3 make g++ git
 
 COPY services/nexus-router/package*.json ./
-RUN npm ci
+RUN npm ci --legacy-peer-deps
 
 COPY services/nexus-router/ ./
 
