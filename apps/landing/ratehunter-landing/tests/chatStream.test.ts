@@ -33,4 +33,15 @@ describe('readChatStream', () => {
 
     await expect(readChatStream(response)).resolves.toBe('Hello world');
   });
+
+  it('parses OpenAI-style delta payloads', async () => {
+    const response = {
+      headers: { get: () => 'text/event-stream' },
+      body: streamFromString(
+        'data: {"choices":[{"delta":{"content":"Mortgage "}}]}\n\ndata: {"choices":[{"delta":{"content":"guidance"}}]}\n\ndata: [DONE]\n'
+      ),
+    } as unknown as Response;
+
+    await expect(readChatStream(response)).resolves.toBe('Mortgage guidance');
+  });
 });

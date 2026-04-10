@@ -1,9 +1,19 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
 :root {
-  --font-inter: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-inter: "Avenir Next", "Segoe UI", "Helvetica Neue", sans-serif;
+  --font-display: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif;
+  --bg: #f6f1e8;
+  --bg-accent: #efe2ce;
+  --surface: rgba(255, 252, 247, 0.9);
+  --surface-strong: rgba(255, 248, 240, 0.98);
+  --ink: #112033;
+  --muted: #5c6676;
+  --line: rgba(17, 32, 51, 0.12);
+  --brand: #0d5378;
+  --brand-deep: #0d2d4c;
+  --accent: #c36b3d;
+  --accent-soft: #f4d6c6;
 }
 
 * {
@@ -20,35 +30,53 @@ body {
 }
 
 body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+  min-height: 100vh;
+  color: var(--ink);
+  background:
+    radial-gradient(circle at top left, rgba(195, 107, 61, 0.16), transparent 28%),
+    radial-gradient(circle at top right, rgba(13, 83, 120, 0.16), transparent 30%),
+    linear-gradient(180deg, #fbf7f0 0%, var(--bg) 45%, #efe5d8 100%);
+  font-family: var(--font-inter);
 }
 
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
+a {
+  color: inherit;
+  text-decoration: none;
 }
 
-@layer components {
-  .btn-primary {
-    @apply bg-primary-600 hover:bg-primary-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg;
-  }
+button,
+input,
+textarea {
+  font: inherit;
+}
 
-  .btn-secondary {
-    @apply bg-white hover:bg-gray-50 text-primary-600 font-semibold py-3 px-6 rounded-lg border-2 border-primary-600 transition-all duration-200;
-  }
+::selection {
+  background: rgba(13, 83, 120, 0.18);
+  color: var(--brand-deep);
+}
 
-  .input-field {
-    @apply w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all;
-  }
+.text-balance {
+  text-wrap: balance;
+}
 
-  .card {
-    @apply bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow duration-200;
-  }
+.section-shell {
+  border: 1px solid var(--line);
+  background: var(--surface);
+  box-shadow: 0 28px 80px -48px rgba(17, 32, 51, 0.38);
+  backdrop-filter: blur(14px);
+}
+
+.eyebrow {
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+.display-copy {
+  font-family: var(--font-display);
+}
+
+.fine-print {
+  color: var(--muted);
+  font-size: 0.92rem;
+  line-height: 1.6;
 }

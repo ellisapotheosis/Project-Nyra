@@ -1,0 +1,21 @@
+name: nyra-cloudflared-oracle
+
+services:
+  cloudflared-oracle:
+    image: cloudflare/cloudflared:2026.4.1
+    container_name: nyra-cloudflared-oracle
+    command: tunnel --config /etc/cloudflared/config.yml run
+    restart: unless-stopped
+    env_file:
+      - ./.env.cloudflared
+    volumes:
+      - ./config.oracle.yml:/etc/cloudflared/config.yml:ro
+      - ./credentials:/etc/cloudflared/credentials:ro
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - nyra_net
+
+networks:
+  nyra_net:
+    external: true

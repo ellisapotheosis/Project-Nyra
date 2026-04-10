@@ -25,12 +25,6 @@
       "transport": "http",
       "url_env": "MEM0_MCP_URL",
       "default": "http://openmemory_mcp:8081/mcp"
-    },
-    {
-      "id": "openmemory",
-      "transport": "http",
-      "url_env": "OPENMEMORY_MCP_URL",
-      "default": "http://openmemory_mcp:8081/mcp"
     }
   ],
   "workers": [

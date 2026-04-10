@@ -125,21 +125,21 @@ enabled = true
 [mcp.servers.mem0]
 name = "mem0"
 url = "tailscale://oracle.trex-fiordland.ts.net:5000"
-description = "Borrower memory, facts, conversation history"
-tags = ["memory", "knowledge", "context"]
+description = "Primary memory API backed by Mem0 with FalkorDB graph storage"
+tags = ["memory", "knowledge", "context", "falkordb"]
 enabled = true
 
 # Archon-OS Knowledge Backbone
 [mcp.servers.archon-os]
 name = "archon-os"
 url = "http://localhost:8080"
-description = "Knowledge graph, task management, reasoning"
-tags = ["knowledge", "reasoning", "tasks"]
+description = "Primary knowledge and project-management control plane over memory and tasks"
+tags = ["knowledge", "reasoning", "tasks", "memory-manager"]
 enabled = true
 
-# archon-os integration
-[mcp.servers.archon-os]
-name = "archon-os"
+# Claude-Flow integration
+[mcp.servers.claude-flow]
+name = "claude-flow"
 url = "http://localhost:8000"
 description = "Dev orchestration, code generation, builds"
 tags = ["development", "automation", "ci-cd"]
@@ -162,14 +162,14 @@ similarity_threshold = 0.65
 
 # Tool visibility rules (which tools for which agents)
 [tool_routing.visibility]
-# archon-os gets all tools
-"archon-os" = ["docker-toolkit", "github-toolkit", "oracle-database", "twenty-crm", "quote-engine", "archon-os"]
+# Claude-Flow gets all tools
+"claude-flow" = ["docker-toolkit", "github-toolkit", "oracle-database", "twenty-crm", "quote-engine", "archon-os"]
 
 # OpenClaw gets customer-facing tools only
-"openclaw" = ["quote-engine", "mem0", "twenty-crm", "lead-ingestion"]
+"openclaw" = ["quote-engine", "mem0", "archon-os", "twenty-crm", "lead-ingestion"]
 
 # Archon gets knowledge tools
-"archon-os" = ["oracle-database", "twenty-crm", "mem0", "archon-os"]
+"archon-os" = ["oracle-database", "twenty-crm", "mem0", "quote-engine", "claude-flow"]
 
 # ============================================================================
 # LOGGING & OBSERVABILITY
