@@ -31,7 +31,7 @@
 
 **Before spawning agents, get routing recommendation:**
 ```bash
-npx @claude-flow/cli@latest hooks pre-task --description "[task description]"
+npx @archon-os/cli@latest hooks pre-task --description "[task description]"
 ```
 
 **When you see these recommendations:**
@@ -57,10 +57,10 @@ Task({
 **Use this to prevent agent drift:**
 ```bash
 # Small teams (6-8 agents) - use hierarchical for tight control
-npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 8 --strategy specialized
+npx @archon-os/cli@latest swarm init --topology hierarchical --max-agents 8 --strategy specialized
 
 # Large teams (10-15 agents) - use hierarchical-mesh for V3 queen + peer communication
-npx @claude-flow/cli@latest swarm init --topology hierarchical-mesh --max-agents 15 --strategy specialized
+npx @archon-os/cli@latest swarm init --topology hierarchical-mesh --max-agents 15 --strategy specialized
 ```
 
 **Valid Topologies:**
@@ -85,7 +85,7 @@ When the user requests a complex task, **spawn agents in background and WAIT for
 
 ```javascript
 // STEP 1: Initialize swarm coordination (anti-drift config)
-Bash("npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 8 --strategy specialized")
+Bash("npx @archon-os/cli@latest swarm init --topology hierarchical --max-agents 8 --strategy specialized")
 
 // STEP 2: Spawn ALL agents IN BACKGROUND in a SINGLE message
 // Use run_in_background: true so agents work concurrently
@@ -129,28 +129,28 @@ Task({
 ### Before Starting Any Task
 ```bash
 # 1. Search memory for relevant patterns from past successes
-npx @claude-flow/cli@latest memory search --query '[task keywords]' --namespace patterns
+npx @archon-os/cli@latest memory search --query '[task keywords]' --namespace patterns
 
 # 2. Check if similar task was done before
-npx @claude-flow/cli@latest memory search --query '[task type]' --namespace tasks
+npx @archon-os/cli@latest memory search --query '[task type]' --namespace tasks
 
 # 3. Load learned optimizations
-npx @claude-flow/cli@latest hooks route --task '[task description]'
+npx @archon-os/cli@latest hooks route --task '[task description]'
 ```
 
 ### After Completing Any Task Successfully
 ```bash
 # 1. Store successful pattern for future reference
-npx @claude-flow/cli@latest memory store --namespace patterns --key '[pattern-name]' --value '[what worked]'
+npx @archon-os/cli@latest memory store --namespace patterns --key '[pattern-name]' --value '[what worked]'
 
 # 2. Train neural patterns on the successful approach
-npx @claude-flow/cli@latest hooks post-edit --file '[main-file]' --train-neural true
+npx @archon-os/cli@latest hooks post-edit --file '[main-file]' --train-neural true
 
 # 3. Record task completion with metrics
-npx @claude-flow/cli@latest hooks post-task --task-id '[id]' --success true --store-results true
+npx @archon-os/cli@latest hooks post-task --task-id '[id]' --success true --store-results true
 
 # 4. Trigger optimization worker if performance-related
-npx @claude-flow/cli@latest hooks worker dispatch --trigger optimize
+npx @archon-os/cli@latest hooks worker dispatch --trigger optimize
 ```
 
 ---
@@ -161,22 +161,22 @@ npx @claude-flow/cli@latest hooks worker dispatch --trigger optimize
 
 ```bash
 # Swarm management
-npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 8
+npx @archon-os/cli@latest swarm init --topology hierarchical --max-agents 8
 
 # Memory operations
-npx @claude-flow/cli@latest memory store --key "pattern" --value "content" --namespace patterns
-npx @claude-flow/cli@latest memory search --query "search term"
-npx @claude-flow/cli@latest memory retrieve --key "pattern" --namespace patterns
+npx @archon-os/cli@latest memory store --key "pattern" --value "content" --namespace patterns
+npx @archon-os/cli@latest memory search --query "search term"
+npx @archon-os/cli@latest memory retrieve --key "pattern" --namespace patterns
 
 # Hooks and learning
-npx @claude-flow/cli@latest hooks pre-task --description "[task]"
-npx @claude-flow/cli@latest hooks post-task --task-id "[id]" --success true
-npx @claude-flow/cli@latest hooks post-edit --file "[file]" --train-neural true
+npx @archon-os/cli@latest hooks pre-task --description "[task]"
+npx @archon-os/cli@latest hooks post-task --task-id "[id]" --success true
+npx @archon-os/cli@latest hooks post-edit --file "[file]" --train-neural true
 
 # Status and monitoring
-npx @claude-flow/cli@latest swarm status
-npx @claude-flow/cli@latest agent list
-npx @claude-flow/cli@latest agent status
+npx @archon-os/cli@latest swarm status
+npx @archon-os/cli@latest agent list
+npx @archon-os/cli@latest agent status
 ```
 
 ---
@@ -200,16 +200,16 @@ npx @claude-flow/cli@latest agent status
 
 ```bash
 # Pre-task hook - get optimization recommendations
-npx @claude-flow/cli@latest hooks pre-task --description "CRM lead management feature"
+npx @archon-os/cli@latest hooks pre-task --description "CRM lead management feature"
 
 # Post-edit hook - train neural patterns
-npx @claude-flow/cli@latest hooks post-edit --file "filename.ts" --train-neural true
+npx @archon-os/cli@latest hooks post-edit --file "filename.ts" --train-neural true
 
 # Post-task hook - store completion metadata
-npx @claude-flow/cli@latest hooks post-task --task-id "crm-feat-001" --success true --store-results true
+npx @archon-os/cli@latest hooks post-task --task-id "crm-feat-001" --success true --store-results true
 
 # Route hook - get optimal agent assignment
-npx @claude-flow/cli@latest hooks route --task "task description"
+npx @archon-os/cli@latest hooks route --task "task description"
 ```
 
 ---
@@ -218,7 +218,7 @@ npx @claude-flow/cli@latest hooks route --task "task description"
 
 ### Store Data
 ```bash
-npx @claude-flow/cli@latest memory store \
+npx @archon-os/cli@latest memory store \
   --key "crm-pattern-leads" \
   --value "Lead capture, assignment, tracking workflow" \
   --namespace patterns
@@ -226,14 +226,14 @@ npx @claude-flow/cli@latest memory store \
 
 ### Search Data
 ```bash
-npx @claude-flow/cli@latest memory search \
+npx @archon-os/cli@latest memory search \
   --query "crm lead management" \
   --namespace patterns --limit 5
 ```
 
 ### Retrieve Data
 ```bash
-npx @claude-flow/cli@latest memory retrieve \
+npx @archon-os/cli@latest memory retrieve \
   --key "crm-pattern-leads" \
   --namespace patterns
 ```
@@ -305,7 +305,7 @@ pnpm lint
 
 ```bash
 # Get routing recommendation before work
-npx @claude-flow/cli@latest hooks pre-task \
+npx @archon-os/cli@latest hooks pre-task \
   --description "CRM lead management feature development"
 ```
 
@@ -322,10 +322,10 @@ npx @claude-flow/cli@latest hooks pre-task \
 **1. Lead Management Feature**
 ```bash
 # Initialize swarm for CRM work
-npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 5 --strategy specialized
+npx @archon-os/cli@latest swarm init --topology hierarchical --max-agents 5 --strategy specialized
 
 # Store CRM context
-npx @claude-flow/cli@latest memory store \
+npx @archon-os/cli@latest memory store \
   --namespace crm \
   --key "leads/workflow" \
   --value "Lead capture, assignment, tracking, conversion"
@@ -334,12 +334,12 @@ npx @claude-flow/cli@latest memory store \
 **2. TwentyCRM Integration**
 ```bash
 # Search for integration patterns
-npx @claude-flow/cli@latest memory search \
+npx @archon-os/cli@latest memory search \
   --query "twentycrm integration api patterns" \
   --namespace patterns
 
 # Store successful integration
-npx @claude-flow/cli@latest hooks post-task \
+npx @archon-os/cli@latest hooks post-task \
   --task-id "crm-integration-001" \
   --success true \
   --store-results true
@@ -348,12 +348,12 @@ npx @claude-flow/cli@latest hooks post-task \
 **3. Database Migration**
 ```bash
 # Pre-migration safety check
-npx @claude-flow/cli@latest hooks pre-command \
+npx @archon-os/cli@latest hooks pre-command \
   --command "prisma migrate dev" \
   --validate-safety true
 
 # Post-migration record
-npx @claude-flow/cli@latest hooks post-command \
+npx @archon-os/cli@latest hooks post-command \
   --command "prisma migrate dev" \
   --track-metrics true
 ```
@@ -363,7 +363,7 @@ npx @claude-flow/cli@latest hooks post-command \
 **Before Development**:
 ```bash
 # Search memory for CRM patterns
-npx @claude-flow/cli@latest memory search \
+npx @archon-os/cli@latest memory search \
   --query "crm lead management mortgage" \
   --namespace patterns
 ```
@@ -371,13 +371,13 @@ npx @claude-flow/cli@latest memory search \
 **After Successful Implementation**:
 ```bash
 # Store successful pattern
-npx @claude-flow/cli@latest memory store \
+npx @archon-os/cli@latest memory store \
   --namespace patterns \
   --key "crm-success-$(date +%Y%m%d)" \
   --value "Successfully implemented [feature] in CRM"
 
 # Train neural patterns
-npx @claude-flow/cli@latest neural train \
+npx @archon-os/cli@latest neural train \
   --pattern-type crm-workflows \
   --epochs 10
 ```

@@ -7,7 +7,7 @@ param(
 )
 
 $ProjectRoot = "C:\Dev\Projects\Repos\Project-Nyra"
-$ClaudeFlowPath = "$ProjectRoot\submodules\claude-flow"
+$ClaudeFlowPath = "$ProjectRoot\submodules\archon-os"
 $ArchonPath = "$ProjectRoot\submodules\archon"
 $PassedTests = 0
 $FailedTests = 0
@@ -81,15 +81,15 @@ Write-Host ""
 Write-Host "PHASE 2: Submodule Structure" -ForegroundColor Cyan
 Write-Host "───────────────────────────" -ForegroundColor Cyan
 
-Test-Condition "Claude-Flow Submodule Directory" `
+Test-Condition "archon-os Submodule Directory" `
     (Test-Path $ClaudeFlowPath) `
     "Directory exists at $ClaudeFlowPath" `
     "Missing $ClaudeFlowPath"
 
-Test-Condition "Claude-Flow package.json" `
+Test-Condition "archon-os package.json" `
     (Test-Path "$ClaudeFlowPath\package.json") `
-    "Found package.json in claude-flow" `
-    "Missing package.json in claude-flow"
+    "Found package.json in archon-os" `
+    "Missing package.json in archon-os"
 
 Test-Condition "Archon Submodule Directory" `
     (Test-Path $ArchonPath) `
@@ -112,10 +112,10 @@ Test-Condition "Root node_modules" `
     "Dependencies installed in root" `
     "Root dependencies not installed"
 
-Test-Condition "Claude-Flow node_modules" `
+Test-Condition "archon-os node_modules" `
     (Test-Path "$ClaudeFlowPath\node_modules") -or (Test-Path "$ProjectRoot\node_modules") `
-    "Claude-Flow dependencies resolved" `
-    "Claude-Flow dependencies missing"
+    "archon-os dependencies resolved" `
+    "archon-os dependencies missing"
 
 Test-Condition "pnpm-workspace Configuration" `
     (Test-Path "$ProjectRoot\pnpm-workspace.yaml") `
@@ -146,7 +146,7 @@ if ($devMode -eq 'true') {
         "MCP_HOT_RELOAD = true" `
         "Hot reload disabled"
 
-    Test-Condition "Local Claude-Flow Path" `
+    Test-Condition "Local archon-os Path" `
         ($null -ne [Environment]::GetEnvironmentVariable('LOCAL_CLAUDE_FLOW', 'Process')) `
         "LOCAL_CLAUDE_FLOW configured" `
         "Local path not configured"
@@ -175,16 +175,16 @@ if ($mcpConfig) {
         "$serverCount servers configured" `
         "No servers configured"
 
-    # Check for claude-flow in MCP config
-    $hasClaudeFlow = $mcpConfig.mcpServers.PSObject.Properties | Where-Object { $_.Name -eq 'claude-flow' }
+    # Check for archon-os in MCP config
+    $hasClaudeFlow = $mcpConfig.mcpServers.PSObject.Properties | Where-Object { $_.Name -eq 'archon-os' }
     if ($devMode -eq 'true') {
-        Test-Condition "Claude-Flow Development Config" `
-            ($null -ne $hasClaudeFlow -and $hasClaudeFlow.Value.args -join '' -match 'submodules.*claude-flow') `
-            "Local claude-flow configured" `
+        Test-Condition "archon-os Development Config" `
+            ($null -ne $hasClaudeFlow -and $hasClaudeFlow.Value.args -join '' -match 'submodules.*archon-os') `
+            "Local archon-os configured" `
             "Development path not found in config"
     } else {
-        Test-Condition "Claude-Flow Production Config" `
-            ($null -ne $hasClaudeFlow -and $hasClaudeFlow.Value.args -join '' -match 'claude-flow@') `
+        Test-Condition "archon-os Production Config" `
+            ($null -ne $hasClaudeFlow -and $hasClaudeFlow.Value.args -join '' -match 'archon-os@') `
             "NPM package configured" `
             "NPM package not found in config"
     }
@@ -196,15 +196,15 @@ Write-Host ""
 Write-Host "PHASE 6: pnpm Workspace Integration" -ForegroundColor Cyan
 Write-Host "────────────────────────────────────" -ForegroundColor Cyan
 
-# Check if claude-flow is in workspace
+# Check if archon-os is in workspace
 $workspaceContent = Get-Content "$ProjectRoot\pnpm-workspace.yaml"
-$hasCF = $workspaceContent | Select-String "submodules/claude-flow" -Quiet
+$hasCF = $workspaceContent | Select-String "submodules/archon-os" -Quiet
 $hasArchon = $workspaceContent | Select-String "submodules/archon" -Quiet
 
-Test-Condition "Claude-Flow in Workspace" `
+Test-Condition "archon-os in Workspace" `
     ($hasCF) `
-    "Claude-Flow listed in workspace packages" `
-    "Claude-Flow not in workspace configuration"
+    "archon-os listed in workspace packages" `
+    "archon-os not in workspace configuration"
 
 Test-Condition "Archon in Workspace" `
     ($hasArchon) `
@@ -221,13 +221,13 @@ if ($TestLevel -eq 'full') {
     # Test if packages can be resolved
     Push-Location $ProjectRoot
     try {
-        $pnpmList = pnpm ls claude-flow --depth 0 2>&1
-        $cfLinked = $pnpmList | Select-String "claude-flow" -Quiet
+        $pnpmList = pnpm ls archon-os --depth 0 2>&1
+        $cfLinked = $pnpmList | Select-String "archon-os" -Quiet
 
-        Test-Condition "Claude-Flow Package Resolution" `
+        Test-Condition "archon-os Package Resolution" `
             ($cfLinked) `
-            "Claude-Flow resolved in workspace" `
-            "Claude-Flow not resolvable"
+            "archon-os resolved in workspace" `
+            "archon-os not resolvable"
     } catch {
         Test-Warning "Unable to verify package resolution"
     }
@@ -257,7 +257,7 @@ if ($FailedTests -eq 0) {
     Write-Host "✓ All tests passed! Development environment is ready." -ForegroundColor Green
     Write-Host ""
     Write-Host "You can now:" -ForegroundColor Green
-    Write-Host "  1. Edit code in submodules/claude-flow" -ForegroundColor Gray
+    Write-Host "  1. Edit code in submodules/archon-os" -ForegroundColor Gray
     Write-Host "  2. Edit code in submodules/archon" -ForegroundColor Gray
     Write-Host "  3. Changes will be reflected in MCP servers (with hot reload)" -ForegroundColor Gray
     Write-Host "  4. Run 'pnpm dev' to start development servers" -ForegroundColor Gray

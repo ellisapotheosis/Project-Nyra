@@ -7,7 +7,7 @@ set -e
 
 ENVIRONMENT="${1:-development}"
 PROJECT_ROOT="C:/Dev/Projects/Repos/Project-Nyra"
-CLAUDE_FLOW_PATH="$PROJECT_ROOT/submodules/claude-flow"
+CLAUDE_FLOW_PATH="$PROJECT_ROOT/submodules/archon-os"
 ARCHON_PATH="$PROJECT_ROOT/submodules/archon"
 
 echo ""
@@ -44,12 +44,12 @@ fi
 if [ "$ENVIRONMENT" = "development" ]; then
     echo "[3/6] Setting up pnpm linking for local packages..."
 
-    # Link claude-flow
+    # Link archon-os
     if [ -f "$CLAUDE_FLOW_PATH/package.json" ]; then
         cd "$CLAUDE_FLOW_PATH"
         pnpm link --global || true
         cd - > /dev/null
-        echo "  Linked claude-flow globally"
+        echo "  Linked archon-os globally"
     fi
 
     # Link archon

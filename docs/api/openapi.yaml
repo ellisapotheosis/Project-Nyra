@@ -235,7 +235,7 @@ paths:
                     type: integer
               example:
                 servers:
-                  - id: claude-flow
+                  - id: archon-os
                     name: Claude Flow
                     url: http://localhost:3001/mcp
                     enabled: true

@@ -1,5 +1,5 @@
 # Project-Nyra SQLite Diagnostics and Fix Script
-# Addresses common better-sqlite3 and claude-flow memory initialization issues
+# Addresses common better-sqlite3 and archon-os memory initialization issues
 
 param(
     [switch]$Force,
@@ -125,13 +125,13 @@ if (Test-Path $sqlite3Path) {
     Write-Host "better-sqlite3: NOT INSTALLED" -ForegroundColor Red
 }
 
-# 5. CLAUDE-FLOW MEMORY DIAGNOSTICS
-Write-Host "`n🧠 Claude-Flow Memory System" -ForegroundColor Magenta
+# 5. archon-os MEMORY DIAGNOSTICS
+Write-Host "`n🧠 archon-os Memory System" -ForegroundColor Magenta
 
-# Check if claude-flow is available
-$claudeFlowPath = "$projectRoot\submodules\claude-flow"
+# Check if archon-os is available
+$claudeFlowPath = "$projectRoot\submodules\archon-os"
 if (Test-Path $claudeFlowPath) {
-    Write-Host "claude-flow submodule: FOUND" -ForegroundColor Green
+    Write-Host "archon-os submodule: FOUND" -ForegroundColor Green
 
     Set-Location $claudeFlowPath
 
@@ -164,7 +164,7 @@ if (Test-Path $claudeFlowPath) {
 
     Set-Location $projectRoot
 } else {
-    Write-Host "claude-flow submodule: NOT FOUND" -ForegroundColor Red
+    Write-Host "archon-os submodule: NOT FOUND" -ForegroundColor Red
     Write-Host "   💡 Run: git submodule update --init --recursive" -ForegroundColor Blue
 }
 
@@ -210,11 +210,11 @@ if (!$SkipRebuild) {
     }
 }
 
-# Fix 3: Claude-Flow memory initialization
-Write-Host "`n🧠 Fixing Claude-Flow memory initialization..." -ForegroundColor Yellow
+# Fix 3: archon-os memory initialization
+Write-Host "`n🧠 Fixing archon-os memory initialization..." -ForegroundColor Yellow
 
-if (Test-Path "$projectRoot\submodules\claude-flow") {
-    Set-Location "$projectRoot\submodules\claude-flow"
+if (Test-Path "$projectRoot\submodules\archon-os") {
+    Set-Location "$projectRoot\submodules\archon-os"
 
     # Create memory directories if they don't exist
     $memoryDirs = @("memory", "db", "data")
@@ -226,11 +226,11 @@ if (Test-Path "$projectRoot\submodules\claude-flow") {
     }
 
     # Try to run memory init with error handling
-    Write-Host "`n🔄 Attempting claude-flow memory initialization..." -ForegroundColor Yellow
+    Write-Host "`n🔄 Attempting archon-os memory initialization..." -ForegroundColor Yellow
 
     $memoryInitCommands = @(
-        "npx claude-flow memory init",
-        "npx claude-flow@alpha memory init",
+        "npx archon-os memory init",
+        "npx archon-os@alpha memory init",
         "node -e `"console.log('Memory init test')`"",
         "npm run memory:init",
         "pnpm memory:init"
@@ -270,7 +270,7 @@ Write-Host "   volta install node@20" -ForegroundColor Gray
 Write-Host "3. Clear all caches and reinstall:" -ForegroundColor White
 Write-Host "   pnpm store prune && pnpm install --force" -ForegroundColor Gray
 
-Write-Host "4. Alternative: Use Docker for claude-flow:" -ForegroundColor White
+Write-Host "4. Alternative: Use Docker for archon-os:" -ForegroundColor White
 Write-Host "   docker run -it node:20 /bin/bash" -ForegroundColor Gray
 
 Write-Host "`n📋 Next Steps:" -ForegroundColor Cyan

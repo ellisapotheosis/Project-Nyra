@@ -106,8 +106,8 @@ Installation and configuration of key frameworks and tools.
 
 ```
 docs/setup/
-├── CLAUDE-FLOW-V3-SETUP.md           # Claude Flow V3 installation
-├── CLAUDE-FLOW-ZOD-FIX.md            # Troubleshooting - Claude Flow Zod issues
+├── archon-os-V3-SETUP.md           # Claude Flow V3 installation
+├── archon-os-ZOD-FIX.md            # Troubleshooting - Claude Flow Zod issues
 ├── PNPM_INSTALLATION.md              # pnpm package manager setup
 └── repository-consolidation-quickstart.md  # Repository consolidation
 ```
@@ -190,7 +190,7 @@ Problem resolution and bug fixes.
 ```
 docs/setup/
 ├── TROUBLESHOOTING-FIXES.md         # Main troubleshooting guide
-└── CLAUDE-FLOW-ZOD-FIX.md            # Claude Flow Zod error fixes
+└── archon-os-ZOD-FIX.md            # Claude Flow Zod error fixes
 ```
 
 **Purpose**: Troubleshooting common issues during setup.
@@ -234,9 +234,9 @@ docs/setup/
 - `repository-consolidation-quickstart.md`
 
 #### Framework & Tools
-- `CLAUDE-FLOW-V3-SETUP.md`
+- `archon-os-V3-SETUP.md`
 - `PNPM_INSTALLATION.md`
-- `CLAUDE-FLOW-ZOD-FIX.md`
+- `archon-os-ZOD-FIX.md`
 
 #### Development
 - `QUICK-START-DEVELOPMENT.md`
@@ -372,9 +372,9 @@ docs/setup/
 3. `infisical-deployment-strategy.md`
 
 #### Claude Flow
-1. `CLAUDE-FLOW-V3-SETUP.md`
+1. `archon-os-V3-SETUP.md`
 2. `00-MASTER-SETUP-GUIDE.md` (MCP Servers section)
-3. `CLAUDE-FLOW-ZOD-FIX.md` (if issues)
+3. `archon-os-ZOD-FIX.md` (if issues)
 
 #### Development
 1. `QUICK-START-DEVELOPMENT.md`
@@ -386,7 +386,7 @@ docs/setup/
 3. `VLLM-MIGRATION-GUIDE.md`
 
 #### Troubleshooting
-1. Specific fix guide (e.g., `CLAUDE-FLOW-ZOD-FIX.md`)
+1. Specific fix guide (e.g., `archon-os-ZOD-FIX.md`)
 2. `TROUBLESHOOTING-FIXES.md`
 
 ---
@@ -468,7 +468,7 @@ docs/setup/
 | Short on time? | [ultra-fast-start.md](ultra-fast-start.md) |
 | Dev environment? | [QUICK-START-DEVELOPMENT.md](QUICK-START-DEVELOPMENT.md) |
 | Something broken? | [TROUBLESHOOTING-FIXES.md](TROUBLESHOOTING-FIXES.md) |
-| Claude Flow issue? | [CLAUDE-FLOW-ZOD-FIX.md](CLAUDE-FLOW-ZOD-FIX.md) |
+| Claude Flow issue? | [archon-os-ZOD-FIX.md](archon-os-ZOD-FIX.md) |
 | Setup-specific topics? | Browse files starting with topic name |
 
 ---

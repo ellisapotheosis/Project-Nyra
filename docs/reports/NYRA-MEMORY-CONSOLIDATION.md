@@ -31,7 +31,7 @@ nyra-memory/                           # 689KB
 **Rationale**:
 - ✅ Standalone infrastructure service
 - ✅ Runs multiple Docker containers
-- ✅ Provides memory APIs (Qdrant, Neo4j, Graphiti, OpenMemory, MetaMCP)
+- ✅ Provides memory APIs (Qdrant, Neo4j, letta, OpenMemory, MetaMCP)
 - ✅ Other services connect via network/API
 - ❌ Not a shared code package/library
 
@@ -72,7 +72,7 @@ services/memory/                       # 661KB
 |---------|------|---------|
 | Qdrant | 6333 | Vector database for embeddings |
 | Neo4j | 7474, 7687 | Graph database for knowledge graphs |
-| Graphiti-MCP | 7459 | Graph memory MCP server |
+| letta-MCP | 7459 | Graph memory MCP server |
 | Qdrant-MCP | 8066 | Vector memory MCP server |
 | OpenMemory | 8765, 3000 | Mem0 AI integration |
 | MetaMCP | 12008, 12005 | MCP gateway |
@@ -143,7 +143,7 @@ docker ps | grep nyra-
 # Expected containers:
 # nyra-qdrant
 # nyra-neo4j
-# nyra-graphiti-mcp
+# nyra-letta-mcp
 # nyra-qdrant-mcp
 # nyra-openmemory
 # nyra-metamcp
@@ -176,9 +176,9 @@ environment:
 ### For MCP Clients
 ```json
 {
-  "graphiti-mcp": {
+  "letta-mcp": {
     "command": "docker",
-    "args": ["exec", "-i", "nyra-graphiti-mcp", "mcp"]
+    "args": ["exec", "-i", "nyra-letta-mcp", "mcp"]
   },
   "qdrant-mcp": {
     "command": "npx",
@@ -239,7 +239,7 @@ environment:
 - `services/mem0-mcp/` - Mem0 MCP server
 - `services/mem0-rest/` - Mem0 REST API
 - `services/mem0-rest-api/` - Mem0 REST API v2
-- `services/graphiti-knowledge/` - Graphiti knowledge service
+- `services/letta-knowledge/` - letta knowledge service
 
 ## Documentation
 
@@ -255,4 +255,4 @@ The `nyra-memory` consolidation is complete. The memory infrastructure service i
 **Status**: ✅ Ready for use
 **Location**: `services/memory/`
 **Size**: 661KB
-**Services**: 6 containers (Qdrant, Neo4j, Graphiti-MCP, Qdrant-MCP, OpenMemory, MetaMCP)
+**Services**: 6 containers (Qdrant, Neo4j, letta-MCP, Qdrant-MCP, OpenMemory, MetaMCP)

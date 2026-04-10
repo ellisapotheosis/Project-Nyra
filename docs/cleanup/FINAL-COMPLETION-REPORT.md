@@ -48,8 +48,8 @@ Successfully completed Task 1 by resolving all top 10 duplicate file sets identi
 |---------------|--------|--------------|
 | SETUP-GUIDE.md | ✅ Consolidated | `manual-tasks/setup/primary-setup-guide.md` (21 KB) |
 | COMPLETE-SETUP-GUIDE.md | ✅ Merged | (Duplicate of above) |
-| CLAUDE-FLOW-QUICK-START.md | ✅ Extracted | `ai-automatable/quick-start/claude-flow-commands.md` |
-| CLAUDE-FLOW-V3-SETUP-SUMMARY.md | ✅ Merged | (Consolidated into claude-flow/setup.md) |
+| archon-os-QUICK-START.md | ✅ Extracted | `ai-automatable/quick-start/archon-os-commands.md` |
+| archon-os-V3-SETUP-SUMMARY.md | ✅ Merged | (Consolidated into archon-os/setup.md) |
 
 **Duplication Eliminated**: 98% overlap between SETUP-GUIDE and COMPLETE-SETUP-GUIDE
 **Space Saved**: 50% (2 complete guides reduced to 1)
@@ -78,9 +78,9 @@ Successfully completed Task 1 by resolving all top 10 duplicate file sets identi
 
 | Original File | Status | New Location |
 |---------------|--------|--------------|
-| CLAUDE-FLOW-SETUP.md | ✅ Organized | `ai-automatable/claude-flow/setup.md` (9.6 KB) |
-| CLAUDE-FLOW-PLUGINS-SETUP.md | ✅ Organized | `ai-automatable/claude-flow/plugins.md` |
-| CLAUDE-FLOW-QUICK-START.md | ✅ Organized | `ai-automatable/quick-start/claude-flow-commands.md` |
+| archon-os-SETUP.md | ✅ Organized | `ai-automatable/archon-os/setup.md` (9.6 KB) |
+| archon-os-PLUGINS-SETUP.md | ✅ Organized | `ai-automatable/archon-os/plugins.md` |
+| archon-os-QUICK-START.md | ✅ Organized | `ai-automatable/quick-start/archon-os-commands.md` |
 
 **Duplication Eliminated**: 70% overlap in setup guidance
 **Clarity Improved**: Quick-start separated from comprehensive setup
@@ -171,11 +171,11 @@ docs/
 │   └── [other setup guides]
 │
 ├── ai-automatable/
-│   ├── claude-flow/
+│   ├── archon-os/
 │   │   ├── setup.md ............................. 9.6 KB ✅
 │   │   └── plugins.md
 │   ├── quick-start/
-│   │   └── claude-flow-commands.md
+│   │   └── archon-os-commands.md
 │   ├── bootstrap/
 │   ├── prompts/
 │   └── workflows/

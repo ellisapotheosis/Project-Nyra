@@ -51,7 +51,7 @@ These tasks are 100% automatable with Claude Code. Claude handles start-to-finis
 
 ---
 
-## 2. Claude-Flow Swarm-Automatable Tasks
+## 2. archon-os Swarm-Automatable Tasks
 
 These tasks require multi-agent coordination (swarm). Claude Code spawns specialized agents working in parallel.
 

@@ -65,12 +65,12 @@
   - Advanced configuration
 
 ### Framework & Tool Setup
-- **[CLAUDE-FLOW-V3-SETUP.md](CLAUDE-FLOW-V3-SETUP.md)**
+- **[archon-os-V3-SETUP.md](archon-os-V3-SETUP.md)**
   - Claude Flow V3 installation and configuration
   - MCP server setup
   - Agent coordination
 
-- **[CLAUDE-FLOW-ZOD-FIX.md](CLAUDE-FLOW-ZOD-FIX.md)**
+- **[archon-os-ZOD-FIX.md](archon-os-ZOD-FIX.md)**
   - Troubleshooting Claude Flow Zod validation issues
   - Fix and workarounds
 
@@ -208,7 +208,7 @@
   - Debugging tips
 
 ### Issue-Specific Guides
-- **[CLAUDE-FLOW-ZOD-FIX.md](CLAUDE-FLOW-ZOD-FIX.md)** - Claude Flow Zod validation errors
+- **[archon-os-ZOD-FIX.md](archon-os-ZOD-FIX.md)** - Claude Flow Zod validation errors
 
 ---
 
@@ -233,7 +233,7 @@ Essential infrastructure that must be set up first:
 
 Memory systems and core services:
 1. Letta memory system
-2. AgentDB vector database
+2. ruvector vector database
 3. Claude Flow MCP
 4. Additional MCP servers
 5. Service verification
@@ -259,7 +259,7 @@ User-facing applications:
 
 Advanced and optional features:
 1. 4-PC distributed architecture
-2. Graphiti knowledge graphs
+2. letta knowledge graphs
 3. Mem0 advanced memory
 4. n8n workflow automation
 5. Performance optimization
@@ -281,7 +281,7 @@ Advanced and optional features:
 2. [SETUP-GUIDE.md](SETUP-GUIDE.md) - Backend database setup section
 
 ### "I want to set up Claude Flow MCP"
-1. [CLAUDE-FLOW-V3-SETUP.md](CLAUDE-FLOW-V3-SETUP.md)
+1. [archon-os-V3-SETUP.md](archon-os-V3-SETUP.md)
 2. [Master Setup Guide - MCP Servers](00-MASTER-SETUP-GUIDE.md#mcp-servers)
 
 ### "I need memory system setup"
@@ -303,7 +303,7 @@ Advanced and optional features:
 
 ### "I need help troubleshooting"
 1. [TROUBLESHOOTING-FIXES.md](TROUBLESHOOTING-FIXES.md)
-2. [CLAUDE-FLOW-ZOD-FIX.md](CLAUDE-FLOW-ZOD-FIX.md)
+2. [archon-os-ZOD-FIX.md](archon-os-ZOD-FIX.md)
 
 ---
 
@@ -322,7 +322,7 @@ All files in this directory (`docs/setup/`) are organized as follows:
 ### File Categories
 1. **Master Guides**: 00-MASTER-SETUP-GUIDE.md, SETUP-GUIDE.md
 2. **Quick Starts**: QUICK-START.md, QUICK-START-DEVELOPMENT.md, TONIGHT-QUICK-START.md, ultra-fast-start.md
-3. **Setup Guides**: CLAUDE-FLOW-V3-SETUP.md, CLOUDFLARE-PAGES-SETUP.md, etc.
+3. **Setup Guides**: archon-os-V3-SETUP.md, CLOUDFLARE-PAGES-SETUP.md, etc.
 4. **References**: QUICK-REFERENCE.md, SETUP-INDEX.md
 5. **Integration Guides**: [SERVICE]-INTEGRATION-GUIDE.md, [SERVICE]-[TYPE]-GUIDE.md
 6. **Phase Guides**: PHASE-X-*.md
@@ -382,13 +382,13 @@ infisical init
 ### Claude Flow
 ```bash
 # Install
-npm install -g @claude-flow/cli
+npm install -g @archon-os/cli
 
 # Initialize
-npx @claude-flow/cli@latest init
+npx @archon-os/cli@latest init
 
 # Start daemon
-npx @claude-flow/cli@latest daemon start
+npx @archon-os/cli@latest daemon start
 ```
 
 ---
@@ -442,7 +442,7 @@ npx @claude-flow/cli@latest daemon start
 
 ### Project Resources
 - [Project Nyra CLAUDE.md](../../CLAUDE.md) - Main project configuration
-- [Claude Flow GitHub](https://github.com/ruvnet/claude-flow)
+- [Claude Flow GitHub](https://github.com/ruvnet/archon-os)
 - [Model Context Protocol](https://modelcontextprotocol.io/)
 
 ---

@@ -16,7 +16,7 @@ A **complete, copy-paste-ready infrastructure scaffold** for a hybrid mortgage o
 - ✅ **Quote Engine** - Complete Node.js/TypeScript mortgage pricing microservice
 - ✅ **Nexus Router** - Grafbase MCP aggregator config + routing rules
 - ✅ **LiteLLM** - Model routing config (local GPU → cloud fallback)
-- ✅ **Claude-Flow** - Dev orchestrator agent (Python stub)
+- ✅ **archon-os** - Dev orchestrator agent (Python stub)
 - ✅ **OpenClaw** - Mortgage assistant agent (Python stub)
 - ✅ **Archon OS** - Knowledge base engine (Python stub)
 - ✅ **Configuration** - nexus.toml, litellm-config.yaml, all secrets
@@ -119,7 +119,7 @@ curl http://localhost:6000/health
 
 | Agent | Location | Purpose |
 |-------|----------|---------|
-| **Claude-Flow** | `apps/claude-flow/` | Dev orchestrator (repo edits, PRs) |
+| **archon-os** | `apps/archon-os/` | Dev orchestrator (repo edits, PRs) |
 | **OpenClaw** | `apps/openclaw/` | Borrower mortgage assistant |
 | **Archon OS** | `apps/archon-os/` | Knowledge base + planning |
 
@@ -244,7 +244,7 @@ project-nyra/
 │   └── gitea-webhook-agent/              # Webhook handler (Python)
 │
 ├── apps/                                 # Agent applications
-│   ├── claude-flow/                      # Dev agent (Python)
+│   ├── archon-os/                      # Dev agent (Python)
 │   │   ├── Dockerfile
 │   │   └── requirements.txt
 │   ├── openclaw/                         # Mortgage agent (Python)
@@ -371,7 +371,7 @@ Controls:
 
 6. Test APIs: Call Quote Engine, generate quotes
 7. Edit configs: Adjust Nexus, LiteLLM, Gitea runner
-8. Add agents: Develop Claude-Flow + OpenClaw logic
+8. Add agents: Develop archon-os + OpenClaw logic
 9. Deploy workers: Add GPU PCs to Tailscale mesh
 
 ### Medium Term (Production)
@@ -456,7 +456,7 @@ make health
 
 1. Edit `.env` with your API keys
 2. Run `bash infra/scripts/bootstrap.sh`
-3. Develop Claude-Flow + OpenClaw agent logic (Python)
+3. Develop archon-os + OpenClaw agent logic (Python)
 4. Configure Cloudflare tunnels for public ingress
 5. Test with real SMS data
 6. Scale to production

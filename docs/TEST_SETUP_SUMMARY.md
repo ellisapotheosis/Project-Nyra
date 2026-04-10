@@ -62,11 +62,11 @@ await memory.letta.store('agent-id', { message: 'content' });
 const history = await memory.letta.retrieve('agent-id');
 ```
 
-**Graphiti (Knowledge Graph)**
+**letta (Knowledge Graph)**
 ```typescript
-await memory.graphiti.addNode({ id: 'node-1', type: 'Borrower' });
-await memory.graphiti.addEdge({ from: 'node-1', to: 'node-2', type: 'RECEIVED_QUOTE' });
-const results = await memory.graphiti.query('MATCH (n:Borrower) RETURN n');
+await memory.letta.addNode({ id: 'node-1', type: 'Borrower' });
+await memory.letta.addEdge({ from: 'node-1', to: 'node-2', type: 'RECEIVED_QUOTE' });
+const results = await memory.letta.query('MATCH (n:Borrower) RETURN n');
 ```
 
 **Mem0 (User Preferences)**
@@ -85,7 +85,7 @@ await db.clear();
 #### MCP Server Mocks (`tests/utils/mcp.ts`)
 ```typescript
 const mcpServers = await setupTestMCP();
-const result = await mcpServers['claude-flow'].executeTool('agent_spawn', {
+const result = await mcpServers['archon-os'].executeTool('agent_spawn', {
   type: 'coder'
 });
 ```
@@ -137,7 +137,7 @@ const result = await mcpServers['claude-flow'].executeTool('agent_spawn', {
 **19 tests covering:**
 - RuVector vector search and similarity scoring
 - Letta conversational history management
-- Graphiti knowledge graph operations (nodes, edges, queries)
+- letta knowledge graph operations (nodes, edges, queries)
 - Temporal evolution tracking
 - Mem0 user preference storage
 - Multi-system coordination patterns
@@ -288,7 +288,7 @@ pnpm test:ui
 
 ### 1. Complete Mock Infrastructure
 - ✅ Agent mocks with lifecycle management
-- ✅ Memory system mocks (RuVector, Letta, Graphiti, Mem0)
+- ✅ Memory system mocks (RuVector, Letta, letta, Mem0)
 - ✅ MCP server mocks
 - ✅ Database mocks
 

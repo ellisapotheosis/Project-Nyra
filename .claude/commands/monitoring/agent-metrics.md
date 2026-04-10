@@ -4,7 +4,7 @@ View agent performance metrics.
 
 ## Usage
 ```bash
-npx claude-flow agent metrics [options]
+npx archon-os agent metrics [options]
 ```
 
 ## Options
@@ -15,11 +15,11 @@ npx claude-flow agent metrics [options]
 ## Examples
 ```bash
 # All agents metrics
-npx claude-flow agent metrics
+npx archon-os agent metrics
 
 # Specific agent
-npx claude-flow agent metrics --agent-id agent-001
+npx archon-os agent metrics --agent-id agent-001
 
 # Last hour
-npx claude-flow agent metrics --period 1h
+npx archon-os agent metrics --period 1h
 ```

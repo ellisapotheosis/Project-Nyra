@@ -64,11 +64,11 @@
 
 ### MCP Servers Configured
 ```
-1. claude-flow@alpha      ✅ Active - Main orchestrator
+1. archon-os@alpha      ✅ Active - Main orchestrator
 2. ruv-swarm             ✅ Active - Swarm coordination
 3. flow-nexus            ⚠️  Missing credentials
-4. agentic-flow          ✅ Active - Agent workflows
-5. agentdb               ✅ Active - Vector database
+4. archon-os          ✅ Active - Agent workflows
+5. ruvector               ✅ Active - Vector database
 6. agent-booster         ✅ Active - Performance optimization
 7. epic-sdk              ⚠️  Missing credentials
 ```
@@ -81,7 +81,7 @@
 4. Mem0 (4321)              ✅ Universal memory - BACKUP
 5. OpenMemory MCP (8081)    ✅ Memory interface
 6. Claude Flow (3010)       ✅ Orchestrator - CRITICAL
-7. AgentDB (8080)           ✅ Vector DB - CRITICAL
+7. ruvector (8080)           ✅ Vector DB - CRITICAL
 8. RuVector (8888)          ✅ Neural optimization
 9. Infisical (8082)         ✅ Secrets management
 ```
@@ -89,8 +89,8 @@
 ### Configuration Files Analyzed
 ```
 ✅ .mcp.json (root)                    - Active
-✅ claude-flow.config.json             - Active
-✅ .claude-flow/mcp.json               - Active
+✅ archon-os.config.json             - Active
+✅ .archon-os/mcp.json               - Active
 ✅ infra/docker/base/docker-compose.mcp.yml - Active
 ✅ configs/mcp/nyra-mcp-config.json    - Configured
 ✅ .claude/src/mcp/*                   - Implemented
@@ -140,7 +140,7 @@
 ```
 Claude Code
     ↓
-.mcp.json (claude-flow server definition)
+.mcp.json (archon-os server definition)
     ↓
 Claude Flow stdio transport
     ↓
@@ -155,7 +155,7 @@ LLM Providers (Anthropic → OpenRouter → Gemini)
 ```
 Claude Flow Agents
     ↓
-AgentDB (http://localhost:8080) - Vector search (150x-12,500x faster)
+ruvector (http://localhost:8080) - Vector search (150x-12,500x faster)
     ↓
 Letta (http://localhost:8283) OR Mem0 (http://localhost:4321)
     ↓
@@ -169,7 +169,7 @@ RuVector (http://localhost:8888) - Neural optimization & learning
 │  • Letta (8283)              │
 │  • Mem0 (4321)               │
 │  • Claude Flow (3010)        │
-│  • AgentDB (8080)            │
+│  • ruvector (8080)            │
 │  • RuVector (8888)           │
 │  • Infisical (8082)          │
 └──────────────────────────────┘
@@ -226,7 +226,7 @@ RuVector (http://localhost:8888) - Neural optimization & learning
 2. **Add GitHub MCP Service** (1 hour)
    - Create GitHub MCP Docker container
    - Configure GitHub token
-   - Add to .claude-flow/mcp.json
+   - Add to .archon-os/mcp.json
 
 3. **Document Service Dependencies** (1 hour)
    - Create docs/mcp-service-dependencies.md
@@ -262,7 +262,7 @@ RuVector (http://localhost:8888) - Neural optimization & learning
 | Mem0 | http://localhost:4321 | 4321 | `curl http://localhost:4321/health` |
 | OpenMemory | http://localhost:8081 | 8081 | `curl http://localhost:8081/health` |
 | Claude Flow | http://localhost:3010 | 3010 | `curl http://localhost:3010/health` |
-| AgentDB | http://localhost:8080 | 8080 | `curl http://localhost:8080/health` |
+| ruvector | http://localhost:8080 | 8080 | `curl http://localhost:8080/health` |
 | RuVector | http://localhost:8888 | 8888 | `curl http://localhost:8888/health` |
 | Infisical | http://localhost:8082 | 8082 | `curl http://localhost:8082/health` |
 
@@ -357,8 +357,8 @@ RuVector (http://localhost:8888) - Neural optimization & learning
 
 ### Configuration Files to Study
 1. `.mcp.json` - MCP server definitions
-2. `claude-flow.config.json` - Main configuration
-3. `.claude-flow/mcp.json` - Claude Flow MCP settings
+2. `archon-os.config.json` - Main configuration
+3. `.archon-os/mcp.json` - Claude Flow MCP settings
 4. `docker-compose.mcp.yml` - Docker services
 
 ### Code Files to Review

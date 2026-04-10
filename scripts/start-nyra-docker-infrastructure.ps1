@@ -52,10 +52,10 @@ if ($Profile -eq "orchestrator" -or $Profile -eq "all") {
     # Check orchestrator service health
     $orchestratorServices = @(
         @{ Name = "MetaMCP Router"; Port = 12008; Url = "http://localhost:12008" },
-        @{ Name = "Claude-Flow Dev"; Port = 7403; Url = "http://localhost:7403" },
+        @{ Name = "archon-os Dev"; Port = 7403; Url = "http://localhost:7403" },
         @{ Name = "RuVector MCP"; Port = 7406; Url = "http://localhost:7406" },
-        @{ Name = "AgentDB MCP"; Port = 7407; Url = "http://localhost:7407" },
-        @{ Name = "Graphiti MCP"; Port = 8797; Url = "http://localhost:8797" },
+        @{ Name = "ruvector MCP"; Port = 7407; Url = "http://localhost:7407" },
+        @{ Name = "letta MCP"; Port = 8797; Url = "http://localhost:8797" },
         @{ Name = "Flow Nexus"; Port = 7401; Url = "http://localhost:7401" },
         @{ Name = "Filesystem MCP"; Port = 7400; Url = "http://localhost:7400" },
         @{ Name = "GitHub MCP"; Port = 7402; Url = "http://localhost:7402" }
@@ -113,24 +113,24 @@ if ($Profile -eq "client" -or $Profile -eq "all") {
 if (!$ProductionOnly) {
     Write-Host "`n🛠️ Starting Development Services..." -ForegroundColor Cyan
 
-    # Initialize Claude-Flow memory if development containers are running
+    # Initialize archon-os memory if development containers are running
     $claudeFlowRunning = Test-NetConnection -ComputerName localhost -Port 7403 -InformationLevel Quiet -WarningAction SilentlyContinue
 
     if ($claudeFlowRunning) {
-        Write-Host "   Initializing Claude-Flow memory systems..." -ForegroundColor Green
+        Write-Host "   Initializing archon-os memory systems..." -ForegroundColor Green
 
         try {
-            # Use docker exec to run commands inside the claude-flow container
-            docker exec nyra-claude-flow-dev npx claude-flow@alpha memory init --reasoningbank --agentdb --ruvector
-            docker exec nyra-claude-flow-dev npx claude-flow@alpha agent memory init --reasoningbank
-            Write-Host "   ✅ Claude-Flow memory initialized" -ForegroundColor Green
+            # Use docker exec to run commands inside the archon-os container
+            docker exec nyra-archon-os-dev npx archon-os@alpha memory init --reasoningbank --ruvector --ruvector
+            docker exec nyra-archon-os-dev npx archon-os@alpha agent memory init --reasoningbank
+            Write-Host "   ✅ archon-os memory initialized" -ForegroundColor Green
         }
         catch {
-            Write-Warning "Failed to initialize Claude-Flow memory: $($_.Exception.Message)"
+            Write-Warning "Failed to initialize archon-os memory: $($_.Exception.Message)"
         }
     }
     else {
-        Write-Warning "Claude-Flow container not running - skipping memory initialization"
+        Write-Warning "archon-os container not running - skipping memory initialization"
     }
 }
 
@@ -153,7 +153,7 @@ else {
 Write-Host "`n🎯 Access Points:" -ForegroundColor Yellow
 Write-Host "   • Archon OS UI: http://localhost:8051" -ForegroundColor White
 Write-Host "   • Open WebUI: http://localhost:3000" -ForegroundColor White
-Write-Host "   • Claude-Flow Dev: http://localhost:7403" -ForegroundColor White
+Write-Host "   • archon-os Dev: http://localhost:7403" -ForegroundColor White
 Write-Host "   • MetaMCP Router: http://localhost:12008" -ForegroundColor White
 
 Write-Host "`n🔧 Claude Code Configuration:" -ForegroundColor Yellow
@@ -165,7 +165,7 @@ Write-Host "`n🚀 Next Steps:" -ForegroundColor Magenta
 Write-Host "1. Use: nyra-claude.ps1 flow memory store key value" -ForegroundColor White
 Write-Host "2. Configure Claude Code to use docker endpoints" -ForegroundColor White
 Write-Host "3. Access Archon UI for dual orchestration" -ForegroundColor White
-Write-Host "4. Use /claude-flow commands for automation" -ForegroundColor White
+Write-Host "4. Use /archon-os commands for automation" -ForegroundColor White
 
 Write-Host "`n💡 Troubleshooting:" -ForegroundColor Gray
 Write-Host "• View logs: docker-compose logs [service_name]" -ForegroundColor Gray

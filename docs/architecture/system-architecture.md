@@ -258,7 +258,7 @@ Project-Nyra is an AI-powered mortgage automation platform built on a modern, di
 ┌─────────────────────────────────────────────────────────────┐
 │                    MCP Server Layer                          │
 │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐     │
-│  │ claude-flow  │  │  ruv-swarm   │  │ flow-nexus   │     │
+│  │ archon-os  │  │  ruv-swarm   │  │ flow-nexus   │     │
 │  │    @alpha    │  │   @latest    │  │   @latest    │     │
 │  └──────────────┘  └──────────────┘  └──────────────┘     │
 └─────────────────────────────────────────────────────────────┘
@@ -565,7 +565,7 @@ See detailed configuration: [4PC-DISTRIBUTED-ARCHITECTURE.md](./4PC-DISTRIBUTED-
 │  Windows Orchestrator PC (Mini PC)                          │
 │  ├── Docker Desktop + WSL2 (Ubuntu 24.04)                  │
 │  ├── Orchestration Services (Claude Flow, Archon OS)       │
-│  ├── MCP Servers (claude-flow, ruv-swarm, agentdb, etc.)  │
+│  ├── MCP Servers (archon-os, ruv-swarm, ruvector, etc.)  │
 │  ├── Message Queue (RabbitMQ)                              │
 │  ├── Databases (PostgreSQL, Redis, Qdrant, FalkorDB)      │
 │  └── Magic Packet Wake-on-LAN for worker management        │

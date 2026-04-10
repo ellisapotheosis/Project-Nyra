@@ -245,13 +245,13 @@ make mailhog-up      # Email testing (8025)
 
 ### 6.1 Claude Flow Dashboard Setup
 
-**🗂️ Location**: `/apps/claude-flow-dashboard/`
+**🗂️ Location**: `/apps/archon-os-dashboard/`
 **📋 Features**: Operations monitoring, agent coordination, workflow visualization
 **🆚 Version**: v3.0.0-alpha.1 (recovered from archive)
 
 ```bash
 # Install dependencies
-cd /apps/claude-flow-dashboard/
+cd /apps/archon-os-dashboard/
 npm install  # React 18 + TypeScript + Zustand
 
 # Configure environment
@@ -268,27 +268,27 @@ npm run build && npm run start  # → http://localhost:3010
 **Dashboard Components:**
 - **Agent Grid**: Real-time agent status and metrics
 - **Workflow Canvas**: Visual pipeline builder
-- **Memory Analytics**: RuVector + Graphiti insights
+- **Memory Analytics**: RuVector + letta insights
 - **Performance Metrics**: Latency, cost, success rates
 - **Model Router**: LLM selection and routing logic
 
 ### 6.2 Multi-Agent Orchestration
 
 **🧠 Architecture**: Mesh topology (peer-to-peer) vs Hierarchical (controlled)
-**🔧 Memory**: RuVector (primary) + Letta + Graphiti + Mem0
+**🔧 Memory**: RuVector (primary) + Letta + letta + Mem0
 
 ```bash
 # Initialize agent swarm
-npx @claude-flow/cli@latest swarm init --topology mesh --max-agents 8
+npx @archon-os/cli@latest swarm init --topology mesh --max-agents 8
 
 # Memory system setup
-npx @claude-flow/cli@latest memory init --force --backend hybrid
+npx @archon-os/cli@latest memory init --force --backend hybrid
 
 # Start background agents
-npx @claude-flow/cli@latest daemon start
+npx @archon-os/cli@latest daemon start
 
 # System health check
-npx @claude-flow/cli@latest doctor --fix
+npx @archon-os/cli@latest doctor --fix
 ```
 
 ---
@@ -426,7 +426,7 @@ ls /apps/shared/n8n-shared/
 |-----------|------------------|----------|------|
 | **Gitea** | `ultimate-bootstrap.sh` | `/infra/bootstrap/` | 15 min |
 | **TwentyCRM** | `npm run setup` | `/apps/twenty-crm/` | 10 min |
-| **Claude Flow** | `npm run dev` | `/apps/claude-flow-dashboard/` | 5 min |
+| **Claude Flow** | `npm run dev` | `/apps/archon-os-dashboard/` | 5 min |
 | **OpenClaw** | `python -m openclaw.main` | `/services/openclaw/` | 5 min |
 | **n8n** | `make n8n-up` | Root directory | 5 min |
 | **Nexus Router** | `make nexus-up` | Root directory | 5 min |
@@ -518,7 +518,7 @@ make backup-restore BACKUP_ID=... ENV=production  # Emergency restore
 | **Oracle ARM builds failing** | Check QEMU emulation | `.gitea/workflows/build.yml` |
 | **TwentyCRM database errors** | `make twenty-db-reset` | `/apps/twenty-crm/` |
 | **Memory persistence issues** | Verify mount points | `.claude/memory/` |
-| **Claude Flow dashboard 404** | Check build status | `/apps/claude-flow-dashboard/` |
+| **Claude Flow dashboard 404** | Check build status | `/apps/archon-os-dashboard/` |
 
 ### 13.2 Health Checks
 

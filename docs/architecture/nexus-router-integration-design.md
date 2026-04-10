@@ -56,7 +56,7 @@ This document specifies the integration architecture for connecting consolidated
 │ - Claude Flow │ - n8n         │ - Qdrant     │
 │ - Letta       │ - Dify        │ - Redis      │
 │ - Mem0        │ - Ollama      │ - PostgreSQL │
-│ - AgentDB     │ - Activepieces│ - MongoDB    │
+│ - ruvector     │ - Activepieces│ - MongoDB    │
 │ - RuVector    │ - Composio    │              │
 │ - Infisical   │               │              │
 └───────────────┘ └─────────────┘ └────────────┘
@@ -168,7 +168,7 @@ routing:
 
   # Rule 1: Priority-based routing
   priority_routing:
-    high_priority: ["graphiti", "qdrant", "twentycrm", "claude-flow"]
+    high_priority: ["letta", "qdrant", "twentycrm", "archon-os"]
     medium_priority: ["context7", "exa", "serena", "gemini"]
     low_priority: ["composio", "sequential-thinking", "inception"]
 
@@ -248,7 +248,7 @@ Standardized port ranges for different service types:
 | `6000-6099` | Gateway Services | Nexus Router (6000), API Gateway (6001) |
 | `7000-7099` | Core Infrastructure | Redis (7000), Neo4j (7001) |
 | `7400-7499` | MCP Servers (Filesystem/Git) | Filesystem (7400), Git (7401), GitHub (7402) |
-| `8000-8099` | MCP Servers (Knowledge/Memory) | AgentDB (8000), Graphiti (8001), Qdrant (8002) |
+| `8000-8099` | MCP Servers (Knowledge/Memory) | ruvector (8000), letta (8001), Qdrant (8002) |
 | `8080-8199` | MCP Servers (Integration/Tools) | TwentyCRM (8080), Dify (8081), VSCode (8082) |
 | `9000-9099` | Monitoring & Observability | Prometheus (9000), Grafana (9001), Loki (9002) |
 | `10000-10999` | Worker Services | Ollama (10000), Activepieces (10001), n8n (10002) |
@@ -262,7 +262,7 @@ Standardized port ranges for different service types:
 - Mem0: `4321`
 - Qdrant: `6333`, `6334`
 - Claude Flow: `3010`
-- AgentDB: `8080`
+- ruvector: `8080`
 - RuVector: `8888`
 - Infisical: `8080` (conflict - needs reassignment to `8090`)
 - Redis: `6380`
@@ -280,7 +280,7 @@ Standardized port ranges for different service types:
 - Alertmanager: `9093`
 
 **MCP Servers** (`docker-compose.nexus-mcp.yml`):
-- Graphiti: `7459`
+- letta: `7459`
 - Qdrant MCP: `8066`
 - Context7: `7460`
 - Exa: `7461`
@@ -306,8 +306,8 @@ orchestrator_services:
 mcp_servers:
   filesystem: 7400       # Already assigned
   github: 7402           # Already assigned
-  agentdb: 8000          # Core (from 8080)
-  graphiti: 8001         # Core (from 7459)
+  ruvector: 8000          # Core (from 8080)
+  letta: 8001         # Core (from 7459)
   qdrant: 8002           # Core (from 8066)
   ruvector: 8003         # Core (from 8888)
 
@@ -358,7 +358,7 @@ networks:
 
 volumes:
   nexus-cache:
-  agentdb-data:
+  ruvector-data:
   ruvector-data:
   redis-data:
   letta-data:
@@ -471,10 +471,10 @@ services:
   # ============================================================================
   # CLAUDE FLOW - AI Orchestration
   # ============================================================================
-  claude-flow:
-    image: ghcr.io/ruvnet/claude-flow:3.0.0-alpha.104
-    container_name: nyra-claude-flow
-    hostname: claude-flow
+  archon-os:
+    image: ghcr.io/ruvnet/archon-os:3.0.0-alpha.104
+    container_name: nyra-archon-os
+    hostname: archon-os
     restart: unless-stopped
 
     ports:
@@ -495,7 +495,7 @@ services:
       - CONSENSUS_ALGORITHM=raft
 
       # Memory Integration
-      - AGENTDB_URL=http://agentdb:8000
+      - ruvector_URL=http://ruvector:8000
       - RUVECTOR_URL=http://ruvector:8003
       - REASONINGBANK_ENABLED=true
 
@@ -503,15 +503,15 @@ services:
       - LOG_LEVEL=${LOG_LEVEL:-info}
 
     volumes:
-      - ./claude-flow/config:/app/config:ro
-      - agentdb-data:/app/data
+      - ./archon-os/config:/app/config:ro
+      - ruvector-data:/app/data
 
     networks:
       nyra-network:
         ipv4_address: 172.20.0.30
 
     labels:
-      - "nyra.service.name=claude-flow"
+      - "nyra.service.name=archon-os"
       - "nyra.service.type=mcp-server"
       - "nyra.mcp.enabled=true"
       - "nyra.mcp.transport=http"
@@ -531,16 +531,16 @@ services:
     depends_on:
       nexus-router:
         condition: service_healthy
-      agentdb:
+      ruvector:
         condition: service_healthy
 
   # ============================================================================
-  # AGENTDB - HNSW Vector Database
+  # ruvector - HNSW Vector Database
   # ============================================================================
-  agentdb:
-    image: ghcr.io/ruvnet/agentdb:latest
-    container_name: nyra-agentdb
-    hostname: agentdb
+  ruvector:
+    image: ghcr.io/ruvnet/ruvector:latest
+    container_name: nyra-ruvector
+    hostname: ruvector
     restart: unless-stopped
 
     ports:
@@ -548,29 +548,29 @@ services:
 
     environment:
       # HNSW Configuration
-      - AGENTDB_HNSW_M=16
-      - AGENTDB_HNSW_EF_CONSTRUCTION=200
-      - AGENTDB_HNSW_EF_SEARCH=100
+      - ruvector_HNSW_M=16
+      - ruvector_HNSW_EF_CONSTRUCTION=200
+      - ruvector_HNSW_EF_SEARCH=100
 
       # Quantization
-      - AGENTDB_QUANTIZATION=scalar  # Options: none, scalar, product
+      - ruvector_QUANTIZATION=scalar  # Options: none, scalar, product
 
       # Cache
-      - AGENTDB_CACHE_SIZE=256
-      - AGENTDB_CACHE_TTL=3600
+      - ruvector_CACHE_SIZE=256
+      - ruvector_CACHE_TTL=3600
 
       # Logging
       - LOG_LEVEL=${LOG_LEVEL:-info}
 
     volumes:
-      - agentdb-data:/app/data
+      - ruvector-data:/app/data
 
     networks:
       nyra-network:
         ipv4_address: 172.20.0.40
 
     labels:
-      - "nyra.service.name=agentdb"
+      - "nyra.service.name=ruvector"
       - "nyra.service.type=mcp-server"
       - "nyra.mcp.enabled=true"
       - "nyra.mcp.transport=http"
@@ -1127,7 +1127,7 @@ policies:
   - name: borrower_minimal_tools
     description: "Restricted access for borrower-facing applications"
     allow_tools:
-      - graphiti.*              # Knowledge graph access
+      - letta.*              # Knowledge graph access
       - twentycrm.search_*      # CRM search only
       - twentycrm.create_task   # Task creation only
       - activepieces.send_message  # Message sending
@@ -1151,7 +1151,7 @@ policies:
   - name: orchestrator_tools
     description: "Access for Claude Flow and AI orchestrators"
     allow_tools:
-      - graphiti.*
+      - letta.*
       - qdrant.*
       - context7.*
       - exa.*
@@ -1335,7 +1335,7 @@ curl http://localhost:6000/api/admin/servers \
 
 ```bash
 # Update a single service
-docker compose -f docker-compose.orchestrator.yml up -d --no-deps --build agentdb
+docker compose -f docker-compose.orchestrator.yml up -d --no-deps --build ruvector
 
 # Update all services in a stack
 docker compose -f docker-compose.orchestrator.yml pull
@@ -1356,7 +1356,7 @@ curl http://localhost:6000/api/admin/servers \
   -H "Authorization: Bearer ${NEXUS_ADMIN_TOKEN}" | jq
 
 # Test MCP tool call
-curl http://localhost:6000/api/tools/graphiti.search_graph \
+curl http://localhost:6000/api/tools/letta.search_graph \
   -H "Authorization: Bearer ${NEXUS_ADMIN_TOKEN}" \
   -H "Content-Type: application/json" \
   -d '{"query": "test"}'
@@ -1389,7 +1389,7 @@ docker exec nyra-nexus-router curl -f http://localhost:6000/health
 docker inspect nyra-twentycrm --format '{{json .Config.Labels}}' | jq
 
 # Check network connectivity
-docker exec nyra-claude-flow ping -c 3 nexus-router
+docker exec nyra-archon-os ping -c 3 nexus-router
 
 # View all registered services
 curl http://localhost:6000/api/admin/servers \

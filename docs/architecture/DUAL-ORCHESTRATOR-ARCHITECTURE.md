@@ -267,7 +267,7 @@ All MCP servers are accessible through **Nexus Router's MCP Gateway (Port 4001)*
 
 ### Environment Variables
 
-**Claude Flow** (`services/claude-flow/.env.development`):
+**Claude Flow** (`services/archon-os/.env.development`):
 ```bash
 ORCHESTRATOR_MODE=dual
 ARCHON_OS_URL=http://localhost:9001
@@ -281,7 +281,7 @@ MCP_PROXY_URL=http://localhost:4001
 ```bash
 ORCHESTRATOR_MODE=dual
 CLAUDE_FLOW_URL=http://localhost:9000
-CLAUDE_FLOW_API_KEY=claude-flow-integration-key-2024
+CLAUDE_FLOW_API_KEY=archon-os-integration-key-2024
 ENABLE_CLAUDE_FLOW_SYNC=true
 ENABLE_CROSS_ORCHESTRATOR_AGENTS=true
 ```
@@ -310,7 +310,7 @@ docker compose -f docker-compose.dual-orchestrator.yml up -d nexus-router
 
 # Start dual orchestrators
 docker compose -f docker-compose.dual-orchestrator.yml up -d \
-  claude-flow archon-os
+  archon-os archon-os
 
 # Start MCP servers
 docker compose -f docker-compose.dual-orchestrator.yml up -d \
@@ -385,21 +385,21 @@ curl http://localhost:6333/health  # Qdrant
 
 1. Check both services are running:
    ```bash
-   docker ps | grep -E 'claude-flow|archon-os'
+   docker ps | grep -E 'archon-os|archon-os'
    ```
 
 2. Verify connectivity:
    ```bash
    # From Claude Flow container
-   docker exec nyra-claude-flow wget -O- http://archon-os:9001/health
+   docker exec nyra-archon-os wget -O- http://archon-os:9001/health
 
    # From Archon OS container
-   docker exec nyra-archon-os wget -O- http://claude-flow:9000/health
+   docker exec nyra-archon-os wget -O- http://archon-os:9000/health
    ```
 
 3. Check environment variables:
    ```bash
-   docker exec nyra-claude-flow env | grep ARCHON
+   docker exec nyra-archon-os env | grep ARCHON
    docker exec nyra-archon-os env | grep CLAUDE
    ```
 
@@ -427,14 +427,14 @@ curl http://localhost:6333/health  # Qdrant
 
 1. Check database connectivity:
    ```bash
-   docker exec nyra-claude-flow nc -zv postgres 5432
-   docker exec nyra-claude-flow nc -zv redis 6379
-   docker exec nyra-claude-flow nc -zv qdrant 6333
+   docker exec nyra-archon-os nc -zv postgres 5432
+   docker exec nyra-archon-os nc -zv redis 6379
+   docker exec nyra-archon-os nc -zv qdrant 6333
    ```
 
 2. Verify environment variables:
    ```bash
-   docker exec nyra-claude-flow env | grep -E 'DATABASE_URL|REDIS_URL|QDRANT_URL'
+   docker exec nyra-archon-os env | grep -E 'DATABASE_URL|REDIS_URL|QDRANT_URL'
    ```
 
 ## Best Practices
@@ -479,7 +479,7 @@ curl http://localhost:6333/health  # Qdrant
 
 ## References
 
-- [Claude Flow Documentation](https://github.com/ruvnet/claude-flow)
+- [Claude Flow Documentation](https://github.com/ruvnet/archon-os)
 - [Archon OS Documentation](../services/archon-os/README.md)
 - [Nexus Router Documentation](../services/nexus-router/README.md)
 - [MCP Server Integration Guide](./MCP-INTEGRATION.md)

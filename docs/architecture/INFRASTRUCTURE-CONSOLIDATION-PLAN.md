@@ -29,13 +29,13 @@ infra/
 ├── docker-compose.monitoring.yml   # Observability stack (extend)
 ├── docker-compose.workers.yml      # GPU worker configs (extend)
 ├── Dockerfiles/                    # All custom Dockerfiles
-│   ├── claude-flow.Dockerfile
+│   ├── archon-os.Dockerfile
 │   ├── archon.Dockerfile
 │   ├── quote-api.Dockerfile
 │   └── [other services]
 ├── configs/                        # Service configuration files
 │   ├── infisical/
-│   │   ├── agent-claude-flow.yaml
+│   │   ├── agent-archon-os.yaml
 │   │   └── agent-archon.yaml
 │   ├── nexus/
 │   ├── litellm/
@@ -72,7 +72,7 @@ infra/docker/docker-compose.mcp.yml           # MCP servers
 infra/docker/docker-compose.monitoring.yml    # Prometheus, Grafana, Loki
 infra/docker/docker-compose.services.yml      # Quote API, Campaign Engine
 infra/docker/docker-compose.gitea.yml         # Gitea (duplicate)
-infra/docker/docker-compose.graphiti.yml      # Graphiti (duplicate)
+infra/docker/docker-compose.letta.yml      # letta (duplicate)
 infra/docker-compose.orchestrator.yml         # Orchestrator config
 infra/docker-compose.worker.yml               # GPU worker config
 [+ 12 more compose files]
@@ -117,7 +117,7 @@ Create comprehensive docker-compose.yml that includes:
 2. **AI/MCP Services** (merge bootstrap + infra)
    - Claude Flow MCP (from bootstrap)
    - Archon OS (from bootstrap)
-   - Graphiti MCP (from bootstrap)
+   - letta MCP (from bootstrap)
    - Mem0 MCP (from bootstrap)
    - Letta MCP (from infra - ADD)
    - Twenty CRM (from infra - ADD)
@@ -129,7 +129,7 @@ Create comprehensive docker-compose.yml that includes:
 
 4. **Secrets Management** (from bootstrap + Infisical Agent)
    - Infisical Server (from bootstrap)
-   - Infisical Agent (claude-flow) - NEW
+   - Infisical Agent (archon-os) - NEW
    - Infisical Agent (archon) - NEW
 
 5. **Development Tools** (from bootstrap)
@@ -187,9 +187,9 @@ Add Infisical Agent sidecar pattern for MCP services:
 ```yaml
 # Example for Claude Flow
 services:
-  agent-claude-flow:
+  agent-archon-os:
     image: infisical/agent:latest
-    container_name: nyra-agent-claude-flow
+    container_name: nyra-agent-archon-os
     restart: unless-stopped
     environment:
       - INFISICAL_CLIENT_ID=${INFISICAL_CLIENT_ID_CLAUDE_FLOW}
@@ -197,23 +197,23 @@ services:
       - INFISICAL_HOST_URL=http://nyra-infisical:8080
     volumes:
       - claude_flow_secrets:/secrets
-      - ./configs/infisical/agent-claude-flow.yaml:/config/config.yaml:ro
+      - ./configs/infisical/agent-archon-os.yaml:/config/config.yaml:ro
     networks:
       - nyra-network
     depends_on:
       - infisical
 
-  claude-flow:
+  archon-os:
     # ... existing config ...
     volumes:
       - claude_flow_secrets:/secrets:ro  # Shared volume with agent
     # Update command to source secrets
-    command: sh -c "set -a && . /secrets/claude-flow.env && set +a && node dist/index.js"
+    command: sh -c "set -a && . /secrets/archon-os.env && set +a && node dist/index.js"
     depends_on:
-      - agent-claude-flow
+      - agent-archon-os
 ```
 
-**Agent Config Files** (infra/configs/infisical/agent-claude-flow.yaml):
+**Agent Config Files** (infra/configs/infisical/agent-archon-os.yaml):
 ```yaml
 infisical:
   address: "http://nyra-infisical:8080"
@@ -224,13 +224,13 @@ auth:
 sinks:
   - type: "file"
     config:
-      path: "/secrets/claude-flow.env"
+      path: "/secrets/archon-os.env"
       format: "env"
 
 templates:
   - source-path: "/config/template.env"
-    destination-path: "/secrets/claude-flow.env"
-    secret-path: "/claude-flow"
+    destination-path: "/secrets/archon-os.env"
+    secret-path: "/archon-os"
     project-id: "${INFISICAL_PROJECT_ID}"
     environment: "${INFISICAL_ENV}"
 ```
@@ -265,9 +265,9 @@ templates:
 | postgres | 5432 | Primary database | ✅ Keep |
 | redis | 6379 | Cache/queue | ✅ Keep |
 | mongo | 27017 | Infisical backend | ✅ Keep |
-| claude-flow | 3000 | MCP orchestration | ✅ Keep + Add Agent |
+| archon-os | 3000 | MCP orchestration | ✅ Keep + Add Agent |
 | archon | 8000 | AI OS framework | ✅ Keep + Add Agent |
-| graphiti-mcp | 8001 | Knowledge graph | ✅ Keep |
+| letta-mcp | 8001 | Knowledge graph | ✅ Keep |
 | mem0-mcp | 8002 | Long-term memory | ✅ Keep |
 | infisical | 8080 | Secrets server | ✅ Keep |
 | gitea | 3001 | Git service | ✅ Keep |
@@ -293,8 +293,8 @@ templates:
 
 | Service | Reason | Action |
 |---------|--------|--------|
-| nyra-orchestrator | Replaced by claude-flow | 🗑️ Archive |
-| nyra-memory (falkordb) | Replaced by graphiti/mem0 | 🗑️ Archive |
+| nyra-orchestrator | Replaced by archon-os | 🗑️ Archive |
+| nyra-memory (falkordb) | Replaced by letta/mem0 | 🗑️ Archive |
 | nyra-chromadb | Replaced by letta/mem0 | 🗑️ Archive |
 
 ---
@@ -377,11 +377,11 @@ docker-compose config
 docker-compose up -d postgres redis mongo
 
 # Start MCP services
-docker-compose up -d claude-flow archon graphiti-mcp mem0-mcp
+docker-compose up -d archon-os archon letta-mcp mem0-mcp
 
 # Check health
 docker-compose ps
-docker-compose logs --tail=20 claude-flow
+docker-compose logs --tail=20 archon-os
 ```
 
 ### Step 5: Update References
@@ -420,7 +420,7 @@ rm -rf nyra-infra/
 
 - [ ] Single docker-compose.yml in infra/ contains all services
 - [ ] All unique services from scattered files are preserved
-- [ ] Infisical Agent sidecar pattern implemented for claude-flow and archon
+- [ ] Infisical Agent sidecar pattern implemented for archon-os and archon
 - [ ] All 155+ old compose files archived in _archive/ directory
 - [ ] Root-level compose files removed
 - [ ] Scattered directories cleaned up

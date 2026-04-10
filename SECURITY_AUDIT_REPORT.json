@@ -60,7 +60,7 @@
       "line": 62,
       "type": "Unquoted Command Execution",
       "description": "Hook commands built with string interpolation, potential shell injection via description parameter.",
-      "code": "`npx claude-flow@alpha hooks pre-task --description \"${description}\"`",
+      "code": "`npx archon-os@alpha hooks pre-task --description \"${description}\"`",
       "recommendation": "Use execFile with arguments array instead of execSync with string templates"
     },
     {

@@ -1,13 +1,13 @@
 ccs# NYRA — CLAUDE CODE MASTER PROMPT (Operator Runbook)
 
-You are operating on Windows. You have access to Claude Code tools and the claude-flow plugin.
+You are operating on Windows. You have access to Claude Code tools and the archon-os plugin.
 
 ## 0) Preconditions
 - Verify Node + npm + git + docker.
-- Verify claude-flow:
-  - `npx @claude-flow/cli@latest --version`
+- Verify archon-os:
+  - `npx @archon-os/cli@latest --version`
 - If plugin/server isn't running:
-  - start or reinstall claude-flow plugin per repo instructions, then re-check version.
+  - start or reinstall archon-os plugin per repo instructions, then re-check version.
 
 ## 1) Truth Source
 Read and treat as authoritative:

@@ -200,7 +200,7 @@ Benefits:
 
 Comprehensive context retention across multiple specialized systems:
 - **Letta**: Full conversation history and borrower relationships
-- **Graphiti**: Temporal knowledge graph tracking loan timelines
+- **letta**: Temporal knowledge graph tracking loan timelines
 - **RuVector**: Semantic similarity search for pattern matching
 - **Mem0**: Borrower preferences and personalization
 - **OpenMemory**: Team knowledge sharing and best practices
@@ -304,7 +304,7 @@ Benefits:
 ├─────────────────────────────────────────────────────────────────────────────┤
 │  Memory Systems (Dockerized)        │    Analysis & Tools (Dockerized)      │
 │  ├─ Letta (Port 8283)              │    ├─ Serena MCP (Port 8086)          │
-│  ├─ Graphiti (Port 6379)           │    ├─ Gemini Assistant (Port 8085)    │
+│  ├─ letta (Port 6379)           │    ├─ Gemini Assistant (Port 8085)    │
 │  ├─ RuVector (Port 7000)           │    └─ OpenMemory (Port 8080)          │
 │  ├─ Mem0 (Port 8081)               │                                        │
 │  └─ Qdrant (Port 6333)             │                                        │
@@ -1152,7 +1152,7 @@ ingress:
 **Orchestrator Services** - 17 containerized services:
 - **Core Databases**: PostgreSQL (pgvector), Redis, Neo4j
 - **Orchestration**: Claude Flow, Archon OS, Nexus Router
-- **Memory Systems**: Letta, Qdrant, RuVector, Mem0, OpenMemory, Graphiti
+- **Memory Systems**: Letta, Qdrant, RuVector, Mem0, OpenMemory, letta
 - **Workflow**: n8n, Activepieces, TwentyCRM
 - **Production UI**: Dify (chatbot), Next.js webapp
 - **Development UI**: Open-WebUI, LobeChat
@@ -2870,7 +2870,7 @@ jobs:
 - Relationship context across weeks or months
 - Communication preferences and borrower notes
 
-**Graphiti - Temporal Knowledge Graph (Port 6379):**
+**letta - Temporal Knowledge Graph (Port 6379):**
 - Loan application timeline tracking (applied → qualified → approved → funded)
 - Borrower relationship modeling (referrals, co-borrowers, family connections)
 - Pattern identification in successful vs unsuccessful applications
@@ -3471,7 +3471,7 @@ jobs:
 | Archon OS | 9001 | HTTP | Agent OS | Internal |
 | Nexus Router | 8000 | HTTP | LLM routing | Internal |
 | Letta | 8283 | HTTP | Conversation memory | Internal |
-| Graphiti | 6379 | HTTP | Temporal graph | Internal |
+| letta | 6379 | HTTP | Temporal graph | Internal |
 | RuVector | 7000 | HTTP | Vector search | Internal |
 | Mem0 | 8081 | HTTP | Personalization | Internal |
 | OpenMemory | 8080 | HTTP | Shared knowledge | Internal |
@@ -3515,7 +3515,7 @@ GPU_WORKER_3060_URL=http://localhost:11436
 
 # Memory Systems
 LETTA_URL=http://localhost:8283
-GRAPHITI_URL=http://localhost:6379
+letta_URL=http://localhost:6379
 RUVECTOR_URL=http://localhost:7000
 MEM0_URL=http://localhost:8081
 OPENMEMORY_URL=http://localhost:8080

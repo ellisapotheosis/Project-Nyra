@@ -25,7 +25,7 @@
 **Setup Guides (8+ versions):**
 - `QUICK-START.md`, `guides/QUICK-START.md`, `WINDOWS_QUICK_START.md`
 - `SETUP-GUIDE.md`, `COMPLETE-SETUP-GUIDE.md`, `guides/SETUP-GUIDE.md`
-- `CLAUDE-FLOW-QUICK-START.md`, `CLAUDE-FLOW-SETUP.md`
+- `archon-os-QUICK-START.md`, `archon-os-SETUP.md`
 
 **Deployment Guides (5 versions):**
 - `DEPLOYMENT_SUMMARY.md`, `deployment-guide.md`
@@ -71,7 +71,7 @@
 2. **Quick Start** → Consolidate 3 versions into 1
 3. **Setup Guide** → Merge 3 versions into 1 primary + 1 windows
 4. **Deployment** → Merge 3 guides into 1 comprehensive
-5. **Claude-Flow Setup** → Merge 3 docs into 1
+5. **archon-os Setup** → Merge 3 docs into 1
 6. **Infrastructure Status** → Archive 4 old versions
 7. **Consolidation Reports** → Move 6 files to cleanup/reports/
 8. **Troubleshooting** → Merge scattered guides
@@ -161,7 +161,7 @@ One category per week:
 
 ## Memory Storage
 
-Plan stored in Claude-Flow memory:
+Plan stored in archon-os memory:
 - **Namespace:** `docs-reorganization`
 - **Key:** `folder-structure-plan`
 - **Retrieval:** Use CLI memory search

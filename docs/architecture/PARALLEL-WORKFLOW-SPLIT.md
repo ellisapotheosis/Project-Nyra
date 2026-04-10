@@ -95,7 +95,7 @@ I'll follow the Week 1-12 MVP approach, NOT the 4-PC distributed approach (that 
 - [ ] Create `docker-compose.dev.yml` with:
   - PostgreSQL (shared by Dify, TwentyCRM, Letta, n8n)
   - Redis (for Dify, n8n, Activepieces)
-  - Neo4j (for Graphiti)
+  - Neo4j (for letta)
   - Qdrant (vector database)
   - Dify (AI chat interface)
   - n8n (workflow automation)
@@ -108,7 +108,7 @@ I'll follow the Week 1-12 MVP approach, NOT the 4-PC distributed approach (that 
 - [ ] Configure Nexus with MCP servers:
   - Letta memory MCP server
   - TwentyCRM MCP server
-- [ ] Setup Graphiti with Neo4j backend
+- [ ] Setup letta with Neo4j backend
 - [ ] Install and configure Letta server (port 8283)
 - [ ] Test memory persistence
 
@@ -162,7 +162,7 @@ I'll follow the Week 1-12 MVP approach, NOT the 4-PC distributed approach (that 
 ### Phase 3: Advanced Features (Weeks 13-20) - DEFERRED
 
 This phase includes:
-- Memory system integration (Letta + Graphiti)
+- Memory system integration (Letta + letta)
 - Claude Flow orchestration (multi-agent coordination)
 - Landing page (ratehunter.net)
 - Production deployment
@@ -175,7 +175,7 @@ This phase includes:
 ## 🎯 Critical Rules
 
 ### DO NOT (From BOOTSTRAP-WORKFLOW.md):
-- ❌ Fork claude-flow or archon-mcp (use npm packages)
+- ❌ Fork archon-os or archon-mcp (use npm packages)
 - ❌ Build 4-PC distributed system in Phase 1
 - ❌ Try to integrate every memory system
 - ❌ Create custom orchestration before validating core features

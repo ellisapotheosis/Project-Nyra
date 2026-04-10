@@ -11,7 +11,7 @@ This guide provides a quick-start implementation roadmap for transforming the bo
 **Related Documents:**
 - Full Architecture: [`physical-pc-setup-gui-architecture.md`](./physical-pc-setup-gui-architecture.md)
 - System Diagrams: [`diagrams/physical-pc-setup-system-diagram.mmd`](./diagrams/physical-pc-setup-system-diagram.mmd)
-- Memory: `npx @claude-flow/cli@latest memory retrieve --namespace installer-architecture --key comprehensive-plan`
+- Memory: `npx @archon-os/cli@latest memory retrieve --namespace installer-architecture --key comprehensive-plan`
 
 ---
 
@@ -913,5 +913,5 @@ docker ps --filter "health=healthy"
 
 **Stored in Claude Flow Memory:**
 ```bash
-npx @claude-flow/cli@latest memory retrieve --namespace installer-architecture --key comprehensive-plan
+npx @archon-os/cli@latest memory retrieve --namespace installer-architecture --key comprehensive-plan
 ```

@@ -175,7 +175,7 @@ cost_tracking:
 
 # Sample config for agents
 agents:
-  claude-flow:
+  archon-os:
     default_model: "deep-think"
     max_tokens: 8000
     temperature: 0.7

@@ -1,8 +1,8 @@
-# TwentyCRM-Graphiti Integration Architecture
+# TwentyCRM-letta Integration Architecture
 
 ## Executive Summary
 
-This document details the architecture for integrating TwentyCRM with Graphiti knowledge graph for mortgage-specific lead management in the Nyra platform. The integration enables bidirectional synchronization, regulatory-compliant lead tracking, and contextual memory for mortgage operations.
+This document details the architecture for integrating TwentyCRM with letta knowledge graph for mortgage-specific lead management in the Nyra platform. The integration enables bidirectional synchronization, regulatory-compliant lead tracking, and contextual memory for mortgage operations.
 
 ## System Overview
 
@@ -16,7 +16,7 @@ This document details the architecture for integrating TwentyCRM with Graphiti k
          │ Mortgage Data                        │
          ▼                                      ▼
 ┌─────────────────┐                    ┌──────────────────┐
-│  Twenty         │                    │  Graphiti MCP    │
+│  Twenty         │                    │  letta MCP    │
 │  Postgres       │                    │   (Port 8000)    │
 └─────────────────┘                    └──────────────────┘
                                                │
@@ -32,7 +32,7 @@ This document details the architecture for integrating TwentyCRM with Graphiti k
 
 ### 1. Separation of Concerns
 - **TwentyCRM**: Structured CRM data, mortgage applications, contact management
-- **Graphiti**: Contextual relationships, conversation history, lead intelligence
+- **letta**: Contextual relationships, conversation history, lead intelligence
 - **Twenty-Bridge**: Translation layer, webhook processing, sync orchestration
 
 ### 2. Regulatory Compliance
@@ -238,7 +238,7 @@ This document details the architecture for integrating TwentyCRM with Graphiti k
    - Data enrichment from external sources
 
 3. **Graph Synchronization**
-   - Maintain entity relationships in Graphiti
+   - Maintain entity relationships in letta
    - Track conversation context
    - Build lead intelligence graph
    - Historical data preservation
@@ -249,7 +249,7 @@ This document details the architecture for integrating TwentyCRM with Graphiti k
    - Webhook registration management
    - Health checks and monitoring
 
-### 3. Graphiti Knowledge Graph Schema
+### 3. letta Knowledge Graph Schema
 
 #### Entity Types
 
@@ -386,9 +386,9 @@ This document details the architecture for integrating TwentyCRM with Graphiti k
    ↓
 4. Event processor transforms CRM data
    ↓
-5. Graph Mapper creates/updates Graphiti entities
+5. Graph Mapper creates/updates letta entities
    ↓
-6. Graphiti persists to FalkorDB
+6. letta persists to FalkorDB
    ↓
 7. Success response to TwentyCRM
 ```
@@ -423,7 +423,7 @@ This document details the architecture for integrating TwentyCRM with Graphiti k
    ↓
 5. Resolve conflicts (last-write-wins with audit)
    ↓
-6. Batch update Graphiti
+6. Batch update letta
    ↓
 7. Generate reconciliation report
 ```
@@ -434,7 +434,7 @@ This document details the architecture for integrating TwentyCRM with Graphiti k
 ```
 1. Agent requests lead context
    ↓
-2. Query Graphiti for relationship graph
+2. Query letta for relationship graph
    ↓
 3. Identify related entities (past apps, interactions)
    ↓
@@ -464,15 +464,15 @@ def handle_lead_updated(webhook_payload):
         # ... other fields
     }
 
-    # 3. Update or create in Graphiti
-    graphiti_client.upsert_entity(
+    # 3. Update or create in letta
+    letta_client.upsert_entity(
         group_id="nyra",
         entity=lead_entity
     )
 
     # 4. Update relationships
     if lead_data.loan_officer_id:
-        graphiti_client.create_relationship(
+        letta_client.create_relationship(
             from_entity=lead_entity.id,
             to_entity=f"LoanOfficer:{lead_data.loan_officer_id}",
             relationship_type="ASSIGNED_TO",
@@ -486,8 +486,8 @@ def handle_lead_updated(webhook_payload):
             "summary": lead_data.last_note,
             "timestamp": lead_data.last_activity
         }
-        graphiti_client.upsert_entity(group_id="nyra", entity=interaction)
-        graphiti_client.create_relationship(
+        letta_client.upsert_entity(group_id="nyra", entity=interaction)
+        letta_client.create_relationship(
             from_entity=lead_entity.id,
             to_entity=interaction.id,
             relationship_type="PARTICIPATED_IN"
@@ -499,8 +499,8 @@ def handle_lead_updated(webhook_payload):
 ```python
 # Pseudocode for reverse sync (optional)
 def sync_graph_insights_to_crm(lead_id):
-    # Query Graphiti for enriched context
-    graph_data = graphiti_client.query(
+    # Query letta for enriched context
+    graph_data = letta_client.query(
         f"MATCH (l:MortgageLead {{crmId: '{lead_id}'}})-[*1..3]-(related) RETURN l, related"
     )
 
@@ -619,11 +619,11 @@ Response: 200 OK
 }
 ```
 
-### Graphiti MCP API
+### letta MCP API
 
 #### 1. Add Mortgage Lead Entity
 ```http
-POST http://graphiti-mcp:8000/add_entity
+POST http://letta-mcp:8000/add_entity
 Content-Type: application/json
 
 {
@@ -643,7 +643,7 @@ Content-Type: application/json
 
 #### 2. Query Lead Context
 ```http
-POST http://graphiti-mcp:8000/search
+POST http://letta-mcp:8000/search
 Content-Type: application/json
 
 {
@@ -688,7 +688,7 @@ CREATE TABLE event_queue (
 CREATE TABLE webhook_registrations (
   id SERIAL PRIMARY KEY,
   webhook_id VARCHAR(100) UNIQUE NOT NULL,
-  source VARCHAR(50) NOT NULL, -- 'twentycrm', 'graphiti', 'other'
+  source VARCHAR(50) NOT NULL, -- 'twentycrm', 'letta', 'other'
   url TEXT NOT NULL,
   secret_hash VARCHAR(128) NOT NULL,
   events JSONB NOT NULL, -- array of event types
@@ -817,8 +817,8 @@ CREATE TABLE twenty_graph_sync_meta (
 - twenty_bridge_sync_latency_seconds{direction}
 - twenty_bridge_sync_errors_total{error_type}
 - twenty_bridge_queue_depth{status}
-- graphiti_entities_total{entity_type}
-- graphiti_relationships_total{relationship_type}
+- letta_entities_total{entity_type}
+- letta_relationships_total{relationship_type}
 ```
 
 ### Dashboards
@@ -953,7 +953,7 @@ curl -s http://twenty-bridge:8020/api/v1/sync/reconcile/report/latest | jq
 
 ## Conclusion
 
-This architecture provides a robust, scalable, and compliant integration between TwentyCRM and Graphiti for mortgage lead management. The event-driven design ensures data consistency while maintaining regulatory compliance. The graph-based approach enables rich contextual intelligence for mortgage operations.
+This architecture provides a robust, scalable, and compliant integration between TwentyCRM and letta for mortgage lead management. The event-driven design ensures data consistency while maintaining regulatory compliance. The graph-based approach enables rich contextual intelligence for mortgage operations.
 
 Key benefits:
 - **Real-time synchronization** between structured CRM and contextual graph

@@ -47,13 +47,13 @@
       "priority": "critical",
       "description": "Centralized secret management and environment variable injection"
     },
-    "claude-flow": {
+    "archon-os": {
       "command": "cmd",
       "args": [
         "/c",
         "npx",
         "-y",
-        "claude-flow@alpha",
+        "archon-os@alpha",
         "mcp",
         "start"
       ],
@@ -190,13 +190,13 @@
       "priority": "high",
       "description": "Multi-service orchestration platform"
     },
-    "agentic-flow": {
+    "archon-os": {
       "command": "cmd",
       "args": [
         "/c",
         "npx",
         "-y",
-        "agentic-flow@latest",
+        "archon-os@latest",
         "mcp",
         "start"
       ],
@@ -210,23 +210,23 @@
       "priority": "high",
       "description": "Agent workflow orchestration with mesh topology"
     },
-    "agentdb": {
+    "ruvector": {
       "command": "cmd",
       "args": [
         "/c",
         "npx",
         "-y",
-        "agentdb@latest",
+        "ruvector@latest",
         "mcp",
         "start"
       ],
       "env": {
-        "AGENTDB_STORAGE_PATH": "C:\\Dev\\Projects\\Repos\\Project-Nyra\\data\\agentdb",
-        "AGENTDB_VECTOR_ENABLED": "true",
-        "AGENTDB_QUANTIZATION": "true",
-        "AGENTDB_CACHE_ENABLED": "true",
-        "AGENTDB_HNSW_INDEX": "true",
-        "AGENTDB_PERFORMANCE_MODE": "fast",
+        "ruvector_STORAGE_PATH": "C:\\Dev\\Projects\\Repos\\Project-Nyra\\data\\ruvector",
+        "ruvector_VECTOR_ENABLED": "true",
+        "ruvector_QUANTIZATION": "true",
+        "ruvector_CACHE_ENABLED": "true",
+        "ruvector_HNSW_INDEX": "true",
+        "ruvector_PERFORMANCE_MODE": "fast",
         "NODE_ENV": "development"
       },
       "priority": "high",
@@ -281,7 +281,7 @@
       "priority": "medium",
       "description": "Agent memory system with persistent storage"
     },
-    "graphiti": {
+    "letta": {
       "command": "cmd",
       "args": [
         "/c",
@@ -291,20 +291,20 @@
         "-i",
         "--network=host",
         "-v",
-        "C:\\Dev\\Projects\\Repos\\Project-Nyra\\data\\graphiti:/data",
+        "C:\\Dev\\Projects\\Repos\\Project-Nyra\\data\\letta:/data",
         "-e",
-        "GRAPHITI_STORAGE_PATH=/data",
+        "letta_STORAGE_PATH=/data",
         "-e",
-        "GRAPHITI_NEO4J_ENABLED=true",
-        "ghcr.io/graphiti-ai/graphiti-mcp:latest"
+        "letta_NEO4J_ENABLED=true",
+        "ghcr.io/letta-ai/letta-mcp:latest"
       ],
       "env": {
-        "GRAPHITI_STORAGE_PATH": "/data",
-        "GRAPHITI_NEO4J_URI": "${NEO4J_URI}",
-        "GRAPHITI_NEO4J_USER": "${NEO4J_USER}",
-        "GRAPHITI_NEO4J_PASSWORD": "${NEO4J_PASSWORD}",
-        "GRAPHITI_TEMPORAL_ENABLED": "true",
-        "GRAPHITI_KNOWLEDGE_GRAPH": "true"
+        "letta_STORAGE_PATH": "/data",
+        "letta_NEO4J_URI": "${NEO4J_URI}",
+        "letta_NEO4J_USER": "${NEO4J_USER}",
+        "letta_NEO4J_PASSWORD": "${NEO4J_PASSWORD}",
+        "letta_TEMPORAL_ENABLED": "true",
+        "letta_KNOWLEDGE_GRAPH": "true"
       },
       "priority": "medium",
       "description": "Temporal knowledge graphs with Neo4j"
@@ -539,9 +539,9 @@
         "low_cost": 100
       },
       "preferences": {
-        "high_cost_operations": ["claude-flow", "serenai-mcp"],
+        "high_cost_operations": ["archon-os", "serenai-mcp"],
         "medium_cost_operations": ["gemini-mcp", "archon-mcp"],
-        "low_cost_operations": ["agentdb", "ruvector", "letta"]
+        "low_cost_operations": ["ruvector", "ruvector", "letta"]
       }
     }
   },

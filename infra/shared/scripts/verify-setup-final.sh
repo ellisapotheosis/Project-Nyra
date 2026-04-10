@@ -38,14 +38,14 @@ echo ""
 echo "Checking submodules..."
 echo ""
 
-if [ -d "$PROJECT_ROOT/submodules/claude-flow" ]; then
-    echo "  ✓ submodules/claude-flow exists"
-    if [ -f "$PROJECT_ROOT/submodules/claude-flow/package.json" ]; then
-        NAME=$(grep '"name"' "$PROJECT_ROOT/submodules/claude-flow/package.json" | head -1)
+if [ -d "$PROJECT_ROOT/submodules/archon-os" ]; then
+    echo "  ✓ submodules/archon-os exists"
+    if [ -f "$PROJECT_ROOT/submodules/archon-os/package.json" ]; then
+        NAME=$(grep '"name"' "$PROJECT_ROOT/submodules/archon-os/package.json" | head -1)
         echo "    → $NAME"
     fi
 else
-    echo "  ✗ submodules/claude-flow (MISSING)"
+    echo "  ✗ submodules/archon-os (MISSING)"
     all_exist=false
 fi
 
@@ -63,10 +63,10 @@ echo ""
 echo "Checking workspace configuration..."
 echo ""
 
-if grep -q "submodules/claude-flow" "$PROJECT_ROOT/pnpm-workspace.yaml"; then
-    echo "  ✓ Claude-Flow in workspace packages"
+if grep -q "submodules/archon-os" "$PROJECT_ROOT/pnpm-workspace.yaml"; then
+    echo "  ✓ archon-os in workspace packages"
 else
-    echo "  ✗ Claude-Flow not in workspace"
+    echo "  ✗ archon-os not in workspace"
     all_exist=false
 fi
 
@@ -94,12 +94,12 @@ echo "Checking MCP configuration..."
 echo ""
 
 if [ -f "$PROJECT_ROOT/.mcp.json" ]; then
-    CF_COUNT=$(grep -o '"claude-flow"' "$PROJECT_ROOT/.mcp.json" | wc -l)
-    echo "  ✓ Claude-Flow in MCP config (found $CF_COUNT time(s))"
+    CF_COUNT=$(grep -o '"archon-os"' "$PROJECT_ROOT/.mcp.json" | wc -l)
+    echo "  ✓ archon-os in MCP config (found $CF_COUNT time(s))"
     
-    if grep -q "submodules/claude-flow" "$PROJECT_ROOT/.mcp.json"; then
+    if grep -q "submodules/archon-os" "$PROJECT_ROOT/.mcp.json"; then
         echo "    → Using LOCAL development path"
-    elif grep -q "claude-flow@" "$PROJECT_ROOT/.mcp.json"; then
+    elif grep -q "archon-os@" "$PROJECT_ROOT/.mcp.json"; then
         echo "    → Using NPM package"
     fi
 fi
@@ -113,7 +113,7 @@ if [ "$all_exist" = true ]; then
     echo "NEXT STEPS:"
     echo "───────────"
     echo "1. Environment is ready for development"
-    echo "2. Edit files in: C:/Dev/Projects/Repos/Project-Nyra/submodules/claude-flow"
+    echo "2. Edit files in: C:/Dev/Projects/Repos/Project-Nyra/submodules/archon-os"
     echo "3. Edit files in: C:/Dev/Projects/Repos/Project-Nyra/submodules/archon"
     echo "4. Changes will auto-reload with MCP hot reload enabled"
     echo "5. Run: pnpm dev (to start development servers)"

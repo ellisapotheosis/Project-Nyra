@@ -1513,7 +1513,7 @@ Implementing all four phases will result in:
 | Target | Status |
 |--------|--------|
 | Flash Attention 2.49x-7.47x | ⏳ Not applicable (backend focus) |
-| HNSW 150x-12,500x | ✅ Already achieved in AgentDB |
+| HNSW 150x-12,500x | ✅ Already achieved in ruvector |
 | Memory -50-75% | ✅ Achievable with Phase 3 |
 | MCP <100ms | ✅ Achievable with Phase 1-2 |
 | SONA <0.05ms | ⏳ Not applicable (not implemented) |

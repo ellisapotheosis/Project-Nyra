@@ -71,7 +71,7 @@ nyra.gpu.vram: "<size>"                       # VRAM capacity
 ### MCP Servers (6 services)
 1. **nexus-router** - Intelligent LLM routing (HTTP:4001)
 2. **openmemory-mcp** - Memory management (HTTP:8081)
-3. **graphiti-mcp** - Graph memory (SSE:8000 → 7459)
+3. **letta-mcp** - Graph memory (SSE:8000 → 7459)
 4. **qdrant-mcp** - Vector search (HTTP:8066)
 5. **metamcp** - MCP gateway (HTTP:12008)
 
@@ -131,7 +131,7 @@ curl -X POST http://localhost:8000/v1/chat/completions \
 ### 3. MCP Proxy
 ```bash
 # Access any MCP server through nexus router
-curl -X POST http://localhost:4001/mcp/graphiti-mcp/search \
+curl -X POST http://localhost:4001/mcp/letta-mcp/search \
   -H "Content-Type: application/json" \
   -d '{"query": "authentication patterns"}'
 ```
@@ -237,7 +237,7 @@ These services should be labeled following the same pattern:
    - `services/litellm-proxy/docker-compose.yml`
 
 3. **Claude Flow Production Stack** (4 services)
-   - `orchestration/claude-flow/config/production/docker-compose.yml`
+   - `orchestration/archon-os/config/production/docker-compose.yml`
 
 ### Label Template
 ```yaml
@@ -402,7 +402,7 @@ The remaining 18 services can be labeled following the established pattern and v
   "services_labeled": 26,
   "services_pending": 18,
   "stacks_completed": ["nexus-router", "nyra-mortgage", "memory-deployment"],
-  "stacks_pending": ["monitoring", "litellm-proxy", "claude-flow-production"],
+  "stacks_pending": ["monitoring", "litellm-proxy", "archon-os-production"],
   "features": [
     "auto-discovery",
     "intelligent-routing",

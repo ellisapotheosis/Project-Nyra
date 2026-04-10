@@ -17,7 +17,7 @@ React/TypeScript apps + Node/Python services + PostgreSQL + Docker Compose/Kuber
 
 - LLM Gateway (Nexus Router + LiteLLM)
 - CRM (TwentyCRM)
-- Memory system (Letta + Graphiti + Mem0 + RuVector)
+- Memory system (Letta + letta + Mem0 + RuVector)
 - Workflows (n8n + Activepieces)
 - Chat UI (Dify)
 - Observability (Prometheus + Grafana + Loki)

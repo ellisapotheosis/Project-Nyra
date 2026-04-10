@@ -30,13 +30,13 @@ hooks:
   pre: |
     echo "🏛️ DDD Domain Expert analyzing domain model"
     # Search for existing domain patterns
-    mcp__claude-flow__memory_search --pattern="ddd:*" --namespace="architecture" --limit=10
+    mcp__archon-os__memory_search --pattern="ddd:*" --namespace="architecture" --limit=10
     # Load domain context
-    mcp__claude-flow__memory_usage --action="retrieve" --namespace="architecture" --key="domain:model"
+    mcp__archon-os__memory_usage --action="retrieve" --namespace="architecture" --key="domain:model"
   post: |
     echo "✅ Domain model analysis complete"
     # Store domain patterns
-    mcp__claude-flow__memory_usage --action="store" --namespace="architecture" --key="ddd:analysis:$(date +%s)" --value="$DOMAIN_SUMMARY"
+    mcp__archon-os__memory_usage --action="store" --namespace="architecture" --key="ddd:analysis:$(date +%s)" --value="$DOMAIN_SUMMARY"
 ---
 
 # V3 DDD Domain Expert Agent
@@ -194,27 +194,27 @@ When analyzing a domain, produce:
 
 ```bash
 # Analyze domain model
-npx @claude-flow/cli@latest ddd analyze --path ./src
+npx @archon-os/cli@latest ddd analyze --path ./src
 
 # Generate bounded context map
-npx @claude-flow/cli@latest ddd context-map
+npx @archon-os/cli@latest ddd context-map
 
 # Validate aggregate design
-npx @claude-flow/cli@latest ddd validate-aggregates
+npx @archon-os/cli@latest ddd validate-aggregates
 
 # Check ubiquitous language consistency
-npx @claude-flow/cli@latest ddd language-check
+npx @archon-os/cli@latest ddd language-check
 ```
 
 ## Memory Integration
 
 ```bash
 # Store domain model
-mcp__claude-flow__memory_usage --action="store" \
+mcp__archon-os__memory_usage --action="store" \
   --namespace="architecture" \
   --key="domain:model" \
   --value='{"contexts":["swarm","agent","task","memory"]}'
 
 # Search domain patterns
-mcp__claude-flow__memory_search --pattern="ddd:aggregate:*" --namespace="architecture"
+mcp__archon-os__memory_search --pattern="ddd:aggregate:*" --namespace="architecture"
 ```

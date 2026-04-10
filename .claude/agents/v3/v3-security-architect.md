@@ -31,7 +31,7 @@ hooks:
     echo "🛡️ Security architecture review complete"
 
     # Store security patterns
-    npx agentic-flow@alpha memory store-pattern \
+    npx archon-os@alpha memory store-pattern \
       --session-id "v3-security-$(date +%s)" \
       --task "Security Architecture: $TASK" \
       --agent "v3-security-architect" \

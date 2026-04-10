@@ -105,7 +105,7 @@ Updated references in:
 **Result**: No code dependencies found
 - No imports reference `nyra-tools` in TypeScript/JavaScript files
 - No package.json dependencies on `nyra-tools`
-- Only reference was in `.claude-flow/tasks/store.json` (task description)
+- Only reference was in `.archon-os/tasks/store.json` (task description)
 
 ### 5. Turbo.json Review
 

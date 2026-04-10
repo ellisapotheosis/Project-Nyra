@@ -50,7 +50,7 @@ bash "$SCRIPT_DIR/restore-volumes.sh" "$BACKUP_DIR" || warn "Volume restore had 
 # Restore Claude Flow memory
 if [ -f "$BACKUP_DIR/memory-backup.json" ]; then
     log "Restoring Claude Flow memory..."
-    npx @claude-flow/cli@latest memory import --input "$BACKUP_DIR/memory-backup.json" 2>/dev/null || warn "Memory restore failed"
+    npx @archon-os/cli@latest memory import --input "$BACKUP_DIR/memory-backup.json" 2>/dev/null || warn "Memory restore failed"
 fi
 
 # Restart services

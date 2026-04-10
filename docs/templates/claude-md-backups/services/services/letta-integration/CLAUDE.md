@@ -2,11 +2,11 @@
 
 ## 🎯 SERVICE CONTEXT
 
-**Purpose**: TypeScript service providing persistent agent memory, long-term context management, and conversational reasoning using the Letta (formerly MemGPT) memory architecture integrated with AgentDB vector search.
+**Purpose**: TypeScript service providing persistent agent memory, long-term context management, and conversational reasoning using the Letta (formerly MemGPT) memory architecture integrated with ruvector vector search.
 
 **Port**: 3150
 **Language**: TypeScript + Express.js + Letta SDK
-**Dependencies**: letta-js, @anthropic-sdk, agentdb, axios, redis, @types/node
+**Dependencies**: letta-js, @anthropic-sdk, ruvector, axios, redis, @types/node
 **Template**: CLAUDE-MD-TypeScript.md (hierarchical topology for context management)
 
 ## 🚨 CRITICAL DEVELOPMENT RULES
@@ -29,7 +29,7 @@
   - Write("src/routes/conversation.routes.ts", conversationRoutes)
 
   // Vector search integration
-  - Write("src/integrations/agentdb.integration.ts", vectorSearch)
+  - Write("src/integrations/ruvector.integration.ts", vectorSearch)
   - Write("src/search/semantic-search.ts", semanticQueryEngine)
 
   // Middleware and utilities
@@ -72,7 +72,7 @@
 │ ├─ Facts: Semantic entities extracted from conversations         │
 │ ├─ Rules: Business rules and constraints                         │
 │ ├─ Interactions: Previous conversation summaries                 │
-│ └─ AgentDB Indexes: HNSW vector search (150x faster)             │
+│ └─ ruvector Indexes: HNSW vector search (150x faster)             │
 │                                                                   │
 │ RECALL MEMORY (Short-term, Working Context)                      │
 │ ├─ Message Buffer: Recent conversation history (sliding window)  │
@@ -100,7 +100,7 @@ Query Input
     ↓
 Vector Embedding (same model as archival memories)
     ↓
-HNSW Index Search (AgentDB) - O(log N) complexity
+HNSW Index Search (ruvector) - O(log N) complexity
     ↓
 Semantic Relevance Scoring (cosine similarity)
     ↓
@@ -144,7 +144,7 @@ agents:
 
   vector_search_engineer:
     role: Semantic Search & Indexing
-    focus: [agentdb-integration, hnsw-indexing, embedding-generation]
+    focus: [ruvector-integration, hnsw-indexing, embedding-generation]
     responsibilities:
       - Implement HNSW indexing
       - Create embedding pipeline
@@ -193,7 +193,7 @@ agents:
 ### Letta Client Wrapper
 ```typescript
 import { LettaClient } from 'letta-js';
-import { AgentDB } from 'agentdb';
+import { ruvector } from 'ruvector';
 import { Logger } from '../utils/logger';
 
 interface MemoryConfig {
@@ -214,7 +214,7 @@ interface Memory {
 
 export class LettaMemoryService {
   private lettaClient: LettaClient;
-  private vectorDB: AgentDB;
+  private vectorDB: ruvector;
   private logger: Logger;
   private config: MemoryConfig;
 
@@ -224,7 +224,7 @@ export class LettaMemoryService {
     config: MemoryConfig
   ) {
     this.lettaClient = new LettaClient({ token: lettaToken });
-    this.vectorDB = new AgentDB({ path: vectorDBPath });
+    this.vectorDB = new ruvector({ path: vectorDBPath });
     this.config = config;
     this.logger = new Logger('LettaMemoryService');
   }
@@ -291,7 +291,7 @@ export class LettaMemoryService {
         metadata: metadata
       });
 
-      // Index in AgentDB for faster search
+      // Index in ruvector for faster search
       await this.vectorDB.add({
         id: memory.memory_id,
         text: content,
@@ -325,7 +325,7 @@ export class LettaMemoryService {
       // Generate query embedding
       const queryEmbedding = await this.generateEmbedding(query);
 
-      // Search in AgentDB (HNSW - 150x+ faster)
+      // Search in ruvector (HNSW - 150x+ faster)
       const results = await this.vectorDB.search({
         embedding: queryEmbedding,
         limit: topK,
@@ -669,7 +669,7 @@ Return Result + Update Recall
 - Agent creation: < 1 second
 - Session persistence: < 10ms read/write
 
-### Vector Search Optimization (AgentDB + HNSW)
+### Vector Search Optimization (ruvector + HNSW)
 - Search complexity: O(log N) vs O(N) linear
 - Performance improvement: 150x-12,500x faster
 - Memory overhead: +10-20% for index

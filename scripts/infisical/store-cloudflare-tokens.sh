@@ -39,7 +39,7 @@ declare -A INFISICAL_PATHS=(
     ["worker-rtx5090"]="/machines/worker-rtx5090"
     ["worker-rtx3060"]="/machines/worker-rtx3060"
     ["worker-rtx3090ti"]="/machines/worker-rtx3090ti"
-    ["flow"]="/clients/claude-flow"
+    ["flow"]="/clients/archon-os"
     ["archon"]="/clients/archon"
 )
 
@@ -258,14 +258,14 @@ store_all_tokens_from_env() {
 
     # Claude Flow
     if [ -n "${CLOUDFLARE_TUNNEL_TOKEN_CLAUDE_FLOW:-}" ]; then
-        if store_token "claude-flow" "$CLOUDFLARE_TUNNEL_TOKEN_CLAUDE_FLOW"; then
+        if store_token "archon-os" "$CLOUDFLARE_TUNNEL_TOKEN_CLAUDE_FLOW"; then
             ((stored_count++))
         else
             ((failed_count++))
         fi
 
         if [ -n "${CLOUDFLARE_TUNNEL_NAME_CLAUDE_FLOW:-}" ]; then
-            store_tunnel_name "claude-flow" "$CLOUDFLARE_TUNNEL_NAME_CLAUDE_FLOW"
+            store_tunnel_name "archon-os" "$CLOUDFLARE_TUNNEL_NAME_CLAUDE_FLOW"
         fi
     fi
 

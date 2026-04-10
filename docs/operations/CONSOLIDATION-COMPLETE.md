@@ -98,7 +98,7 @@ By Location:
 - `docker-compose.dev.yml` - Development overrides
 - `docker-compose.prod.yml` - Production overrides
 - `docker-compose.mcp-dev.yml` - MCP server development
-- `docker-compose.graphiti.yml` - Graph memory
+- `docker-compose.letta.yml` - Graph memory
 - `docker-compose.gitea.yml` - Self-hosted Git
 - `docker-compose.voice.yml` - Twilio integration
 - `docker-compose.dual-orchestrator.yml` - Dual orchestrator stack
@@ -134,7 +134,7 @@ By Location:
 10. Dify (3 vars)
 11. TwentyCRM (6 vars)
 12. Letta (4 vars)
-13. Graphiti MCP (3 vars)
+13. letta MCP (3 vars)
 14. Mem0 (6 vars)
 15. Qdrant (1 var)
 16. Quote Engine (4 vars)
@@ -350,7 +350,7 @@ After any rollback:
 
 ```bash
 # Option 1: Search by service name
-find _archived _backup -name "*claude-flow*" -type f
+find _archived _backup -name "*archon-os*" -type f
 
 # Option 2: Search in specific archive
 ls _archived/2026-01-17-consolidation/nyra-orchestration/

@@ -164,17 +164,17 @@ consolidation-work/
 # Local settings and configurations
 .claude/settings.local.json
 .mcp.json
-claude-flow.config.json
+archon-os.config.json
 
 # Runtime directories
 .swarm/
 .hive-mind/
-.claude-flow/
+.archon-os/
 memory/
 coordination/
 
 # Memory and session data
-memory/claude-flow-data.json
+memory/archon-os-data.json
 memory/sessions/*
 !memory/sessions/README.md
 memory/agents/*
@@ -186,7 +186,7 @@ coordination/subtasks/*
 coordination/orchestration/*
 
 # Claude Flow executable
-claude-flow
+archon-os
 
 # Generated prompt files
 hive-mind-prompt-*.txt

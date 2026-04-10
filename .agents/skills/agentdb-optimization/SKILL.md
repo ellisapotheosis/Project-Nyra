@@ -1,21 +1,21 @@
 ---
-name: "AgentDB Performance Optimization"
-description: "Optimize AgentDB performance with quantization (4-32x memory reduction), HNSW indexing (150x faster search), caching, and batch operations. Use when optimizing memory usage, improving search speed, or scaling to millions of vectors."
+name: "ruvector Performance Optimization"
+description: "Optimize ruvector performance with quantization (4-32x memory reduction), HNSW indexing (150x faster search), caching, and batch operations. Use when optimizing memory usage, improving search speed, or scaling to millions of vectors."
 ---
 
-# AgentDB Performance Optimization
+# ruvector Performance Optimization
 
 ## What This Skill Does
 
-Provides comprehensive performance optimization techniques for AgentDB vector databases. Achieve 150x-12,500x performance improvements through quantization, HNSW indexing, caching strategies, and batch operations. Reduce memory usage by 4-32x while maintaining accuracy.
+Provides comprehensive performance optimization techniques for ruvector vector databases. Achieve 150x-12,500x performance improvements through quantization, HNSW indexing, caching strategies, and batch operations. Reduce memory usage by 4-32x while maintaining accuracy.
 
 **Performance**: <100µs vector search, <1ms pattern retrieval, 2ms batch insert for 100 vectors.
 
 ## Prerequisites
 
 - Node.js 18+
-- AgentDB v1.0.7+ (via agentic-flow)
-- Existing AgentDB database or application
+- ruvector v1.0.7+ (via archon-os)
+- Existing ruvector database or application
 
 ---
 
@@ -25,7 +25,7 @@ Provides comprehensive performance optimization techniques for AgentDB vector da
 
 ```bash
 # Comprehensive performance benchmarking
-npx agentdb@latest benchmark
+npx ruvector@latest benchmark
 
 # Results show:
 # ✅ Pattern Search: 150x faster (100µs vs 15ms)
@@ -37,11 +37,11 @@ npx agentdb@latest benchmark
 ### Enable Optimizations
 
 ```typescript
-import { createAgentDBAdapter } from 'agentic-flow/reasoningbank';
+import { createruvectorAdapter } from 'archon-os/reasoningbank';
 
 // Optimized configuration
-const adapter = await createAgentDBAdapter({
-  dbPath: '.agentdb/optimized.db',
+const adapter = await createruvectorAdapter({
+  dbPath: '.ruvector/optimized.db',
   quantizationType: 'binary',   // 32x memory reduction
   cacheSize: 1000,               // In-memory cache
   enableLearning: true,
@@ -59,7 +59,7 @@ const adapter = await createAgentDBAdapter({
 **Trade-off**: ~2-5% accuracy loss, 32x memory reduction, 10x faster
 
 ```typescript
-const adapter = await createAgentDBAdapter({
+const adapter = await createruvectorAdapter({
   quantizationType: 'binary',
   // 768-dim float32 (3072 bytes) → 96 bytes binary
   // 1M vectors: 3GB → 96MB
@@ -82,7 +82,7 @@ const adapter = await createAgentDBAdapter({
 **Trade-off**: ~1-2% accuracy loss, 4x memory reduction, 3x faster
 
 ```typescript
-const adapter = await createAgentDBAdapter({
+const adapter = await createruvectorAdapter({
   quantizationType: 'scalar',
   // 768-dim float32 (3072 bytes) → 768 bytes (uint8)
   // 1M vectors: 3GB → 768MB
@@ -105,7 +105,7 @@ const adapter = await createAgentDBAdapter({
 **Trade-off**: ~3-7% accuracy loss, 8-16x memory reduction, 5x faster
 
 ```typescript
-const adapter = await createAgentDBAdapter({
+const adapter = await createruvectorAdapter({
   quantizationType: 'product',
   // 768-dim float32 (3072 bytes) → 48-96 bytes
   // 1M vectors: 3GB → 192MB
@@ -128,7 +128,7 @@ const adapter = await createAgentDBAdapter({
 **Trade-off**: No accuracy loss, full memory usage
 
 ```typescript
-const adapter = await createAgentDBAdapter({
+const adapter = await createruvectorAdapter({
   quantizationType: 'none',
   // Full float32 precision
 });
@@ -142,11 +142,11 @@ const adapter = await createAgentDBAdapter({
 
 ### Automatic HNSW
 
-AgentDB automatically builds HNSW indices:
+ruvector automatically builds HNSW indices:
 
 ```typescript
-const adapter = await createAgentDBAdapter({
-  dbPath: '.agentdb/vectors.db',
+const adapter = await createruvectorAdapter({
+  dbPath: '.ruvector/vectors.db',
   // HNSW automatically enabled
 });
 
@@ -160,8 +160,8 @@ const results = await adapter.retrieveWithReasoning(queryEmbedding, {
 
 ```typescript
 // Advanced HNSW configuration
-const adapter = await createAgentDBAdapter({
-  dbPath: '.agentdb/vectors.db',
+const adapter = await createruvectorAdapter({
+  dbPath: '.ruvector/vectors.db',
   hnswM: 16,              // Connections per layer (default: 16)
   hnswEfConstruction: 200, // Build quality (default: 200)
   hnswEfSearch: 100,       // Search quality (default: 100)
@@ -189,7 +189,7 @@ const adapter = await createAgentDBAdapter({
 ### In-Memory Pattern Cache
 
 ```typescript
-const adapter = await createAgentDBAdapter({
+const adapter = await createruvectorAdapter({
   cacheSize: 1000,  // Cache 1000 most-used patterns
 });
 
@@ -316,7 +316,7 @@ await adapter.prune({
 
 ```bash
 # Get comprehensive stats
-npx agentdb@latest stats .agentdb/vectors.db
+npx ruvector@latest stats .ruvector/vectors.db
 
 # Output:
 # Total Patterns: 125,430
@@ -348,7 +348,7 @@ console.log('Insert Latency (avg):', stats.avgInsertLatency);
 ### Recipe 1: Maximum Speed (Sacrifice Accuracy)
 
 ```typescript
-const adapter = await createAgentDBAdapter({
+const adapter = await createruvectorAdapter({
   quantizationType: 'binary',  // 32x memory reduction
   cacheSize: 5000,             // Large cache
   hnswM: 8,                    // Fewer connections = faster
@@ -361,7 +361,7 @@ const adapter = await createAgentDBAdapter({
 ### Recipe 2: Balanced Performance
 
 ```typescript
-const adapter = await createAgentDBAdapter({
+const adapter = await createruvectorAdapter({
   quantizationType: 'scalar',  // 4x memory reduction
   cacheSize: 1000,             // Standard cache
   hnswM: 16,                   // Balanced connections
@@ -374,7 +374,7 @@ const adapter = await createAgentDBAdapter({
 ### Recipe 3: Maximum Accuracy
 
 ```typescript
-const adapter = await createAgentDBAdapter({
+const adapter = await createruvectorAdapter({
   quantizationType: 'none',    // No quantization
   cacheSize: 2000,             // Large cache
   hnswM: 32,                   // Many connections
@@ -387,7 +387,7 @@ const adapter = await createAgentDBAdapter({
 ### Recipe 4: Memory-Constrained (Mobile/Edge)
 
 ```typescript
-const adapter = await createAgentDBAdapter({
+const adapter = await createruvectorAdapter({
   quantizationType: 'binary',  // 32x memory reduction
   cacheSize: 100,              // Small cache
   hnswM: 8,                    // Minimal connections
@@ -403,7 +403,7 @@ const adapter = await createAgentDBAdapter({
 ### Small Scale (<10K vectors)
 
 ```typescript
-const adapter = await createAgentDBAdapter({
+const adapter = await createruvectorAdapter({
   quantizationType: 'none',    // Full precision
   cacheSize: 500,
   hnswM: 8,
@@ -413,7 +413,7 @@ const adapter = await createAgentDBAdapter({
 ### Medium Scale (10K-100K vectors)
 
 ```typescript
-const adapter = await createAgentDBAdapter({
+const adapter = await createruvectorAdapter({
   quantizationType: 'scalar',  // 4x reduction
   cacheSize: 1000,
   hnswM: 16,
@@ -423,7 +423,7 @@ const adapter = await createAgentDBAdapter({
 ### Large Scale (100K-1M vectors)
 
 ```typescript
-const adapter = await createAgentDBAdapter({
+const adapter = await createruvectorAdapter({
   quantizationType: 'binary',  // 32x reduction
   cacheSize: 2000,
   hnswM: 32,
@@ -433,7 +433,7 @@ const adapter = await createAgentDBAdapter({
 ### Massive Scale (>1M vectors)
 
 ```typescript
-const adapter = await createAgentDBAdapter({
+const adapter = await createruvectorAdapter({
   quantizationType: 'product',  // 8-16x reduction
   cacheSize: 5000,
   hnswM: 48,
@@ -449,7 +449,7 @@ const adapter = await createAgentDBAdapter({
 
 ```bash
 # Check database size
-npx agentdb@latest stats .agentdb/vectors.db
+npx ruvector@latest stats .ruvector/vectors.db
 
 # Enable quantization
 # Use 'binary' for 32x reduction
@@ -459,7 +459,7 @@ npx agentdb@latest stats .agentdb/vectors.db
 
 ```typescript
 // Increase cache size
-const adapter = await createAgentDBAdapter({
+const adapter = await createruvectorAdapter({
   cacheSize: 2000,  // Increase from 1000
 });
 
@@ -473,7 +473,7 @@ const result = await adapter.retrieveWithReasoning(queryEmbedding, {
 
 ```typescript
 // Disable or use lighter quantization
-const adapter = await createAgentDBAdapter({
+const adapter = await createruvectorAdapter({
   quantizationType: 'scalar',  // Instead of 'binary'
   hnswEfSearch: 200,           // Higher search quality
 });
@@ -499,8 +499,8 @@ const adapter = await createAgentDBAdapter({
 
 - **Quantization Paper**: docs/quantization-techniques.pdf
 - **HNSW Algorithm**: docs/hnsw-index.pdf
-- **GitHub**: https://github.com/ruvnet/agentic-flow/tree/main/packages/agentdb
-- **Website**: https://agentdb.ruv.io
+- **GitHub**: https://github.com/ruvnet/archon-os/tree/main/packages/ruvector
+- **Website**: https://ruvector.ruv.io
 
 ---
 

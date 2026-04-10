@@ -63,8 +63,8 @@ This document defines the complete containerization architecture for Project Nyr
 │    ├─ litellm (4000)                                               │
 │    ├─ letta (8283)                                                 │
 │    ├─ mem0 (4321)                                                  │
-│    ├─ claude-flow (3010)                                           │
-│    ├─ agentdb (8080)                                               │
+│    ├─ archon-os (3010)                                           │
+│    ├─ ruvector (8080)                                               │
 │    ├─ ruvector (8888)                                              │
 │    └─ infisical (8082)                                             │
 │                                                                     │
@@ -116,7 +116,7 @@ graph TD
     LETTA[Letta<br/>8283]
     MEM0[Mem0<br/>4321]
     CLAUDE[Claude Flow<br/>3010]
-    AGENT[AgentDB<br/>8080]
+    AGENT[ruvector<br/>8080]
     RUV[RuVector<br/>8888]
 
     %% Application Layer
@@ -190,7 +190,7 @@ graph TD
 | Letta | PostgreSQL | TCP | 5432 | Conversation storage |
 | Mem0 | Nexus | HTTP | 6000 | Embeddings |
 | Mem0 | Redis | TCP | 6379 | Cache |
-| Claude Flow | AgentDB | HTTP | 8080 | Vector storage |
+| Claude Flow | ruvector | HTTP | 8080 | Vector storage |
 | Claude Flow | RuVector | HTTP | 8888 | Optimization |
 | Claude Flow | PostgreSQL | TCP | 5432 | State persistence |
 | Claude Flow | Redis | TCP | 6379 | Task queue |
@@ -289,8 +289,8 @@ docker-compose -f apps/docker-compose.apps.yml up -d
 | nexus-data | Nexus Router | 1GB | LOW | Router state |
 | letta-data | Letta | 5GB | HIGH | Memory state |
 | mem0-data | Mem0 | 10GB | HIGH | Universal memory |
-| claude-flow-data | Claude Flow | 5GB | MEDIUM | Agent state |
-| agentdb-data | AgentDB | 15GB | HIGH | Vector storage |
+| archon-os-data | Claude Flow | 5GB | MEDIUM | Agent state |
+| ruvector-data | ruvector | 15GB | HIGH | Vector storage |
 | ruvector-data | RuVector | 2GB | LOW | Optimization cache |
 | infisical-data | Infisical | 1GB | CRITICAL | Secrets vault |
 | infisical-mongo-data | Infisical MongoDB | 5GB | CRITICAL | Secrets metadata |
@@ -320,7 +320,7 @@ backup_schedule:
     retention: 7 days
     method: pg_dump, volume snapshot
 
-  high:  # Qdrant, AgentDB, Memory systems
+  high:  # Qdrant, ruvector, Memory systems
     frequency: daily
     retention: 30 days
     method: volume snapshot
@@ -621,7 +621,7 @@ healthcheck:
 | Qdrant | `GET http://qdrant:6333/health` | `{"status":"ok"}` |
 | Letta | `GET http://letta:8283/health` | `{"status":"ok"}` |
 | Mem0 | `GET http://mem0:4321/health` | `{"status":"ok"}` |
-| Claude Flow | `GET http://claude-flow:3010/health` | `{"status":"healthy"}` |
+| Claude Flow | `GET http://archon-os:3010/health` | `{"status":"healthy"}` |
 | TwentyCRM | `GET http://twenty:3000/health` | `{"status":"ok"}` |
 | n8n | `GET http://n8n:5678/healthz` | `{"status":"ok"}` |
 | Dify API | `GET http://dify-api:5001/health` | `{"status":"ok"}` |
@@ -642,9 +642,9 @@ scrape_configs:
     metrics_path: '/metrics'
     scrape_interval: 15s
 
-  - job_name: 'claude-flow'
+  - job_name: 'archon-os'
     static_configs:
-      - targets: ['claude-flow:3010']
+      - targets: ['archon-os:3010']
     metrics_path: '/metrics'
     scrape_interval: 30s
 
@@ -727,7 +727,7 @@ datasources:
 | 5678 | n8n | HTTP | Workflows | Via Tunnel |
 | 8010 | Nyra Orchestrator | HTTP | Coordination | No |
 | 8050 | nginx-mcp | HTTP | MCP proxy | No |
-| 8080 | AgentDB | HTTP | Vector storage | No |
+| 8080 | ruvector | HTTP | Vector storage | No |
 | 8081 | OpenMemory MCP | HTTP | Memory MCP | No |
 | 8082 | Infisical | HTTP | Secrets vault | Via Tunnel |
 | 8080 | OpenWebUI | HTTP | LLM chat UI | Via Tunnel |
@@ -840,7 +840,7 @@ networks:
 | Letta | ❌ | ✅ (API Key) | ✅ |
 | Mem0 | ❌ | ✅ | ✅ |
 | Claude Flow | ❌ | ✅ (MCP) | ✅ |
-| AgentDB | ❌ | ❌ | ✅ Container Only |
+| ruvector | ❌ | ❌ | ✅ Container Only |
 | Workers | ❌ | ✅ LAN IP | ❌ |
 
 ### 9.4 TLS/SSL Configuration
@@ -1264,7 +1264,7 @@ foreach ($vol in $volumes) {
 }
 
 # scripts/test-connectivity.ps1
-docker exec nyra-claude-flow curl -f http://nexus-router:6000/health
+docker exec nyra-archon-os curl -f http://nexus-router:6000/health
 docker exec nyra-orch curl -f http://twenty:3000/health
 docker exec nyra-n8n curl -f http://mem0:4321/health
 ```

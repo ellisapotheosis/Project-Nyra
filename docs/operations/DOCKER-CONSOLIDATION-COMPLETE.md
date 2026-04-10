@@ -20,18 +20,18 @@ Successfully consolidated all scattered docker-compose files across the reposito
 |------|---------|----------|
 | `docker-compose.base.yml` | Core infrastructure | postgres, redis |
 | `docker-compose.databases.yml` | Specialized data stores | qdrant, falkordb, neo4j |
-| `docker-compose.mcp-servers.yml` | MCP protocol servers | graphiti-mcp, qdrant-mcp, metamcp, openmemory-mcp |
+| `docker-compose.mcp-servers.yml` | MCP protocol servers | letta-mcp, qdrant-mcp, metamcp, openmemory-mcp |
 | `docker-compose.ai.yml` | AI/LLM services | nexus, litellm, letta, mem0, openwebui |
 | `docker-compose.crm.yml` | CRM systems | twentycrm |
 | `docker-compose.workflow.yml` | Automation | n8n, dify, activepieces |
 | `docker-compose.observability.yml` | Monitoring | prometheus, grafana, loki, alertmanager |
-| `docker-compose.orchestrator.yml` | Coordination | nyra-orchestrator, claude-flow |
+| `docker-compose.orchestrator.yml` | Coordination | nyra-orchestrator, archon-os |
 | `docker-compose.business.yml` | Business logic | quote-engine, campaign-engine |
 
 ## New Services Added
 
 ### MCP Servers Layer
-1. **Graphiti MCP** - Graph memory server for Neo4j
+1. **letta MCP** - Graph memory server for Neo4j
    - Port: 7459
    - Dependencies: neo4j
    - Resource: 1GB RAM, 0.5 CPU
@@ -55,8 +55,8 @@ Successfully consolidated all scattered docker-compose files across the reposito
 ## Files Consolidated
 
 ### From Active Services
-- ✅ `orchestration/claude-flow/config/production/docker-compose.yml` → orchestrator.yml
-- ✅ `infra/claude-flow/docker-compose.yml` → orchestrator.yml
+- ✅ `orchestration/archon-os/config/production/docker-compose.yml` → orchestrator.yml
+- ✅ `infra/archon-os/docker-compose.yml` → orchestrator.yml
 - ✅ `services/memory/deployment/docker-compose.memory.yml` → mcp-servers.yml
 - ✅ `infra/monitoring/docker-compose.yml` → observability.yml
 - ✅ `infra/stacks/nyra-mortgage/docker-compose.yml` → business.yml
@@ -104,8 +104,8 @@ docker compose -f docker-compose/docker-compose.base.yml \
 
 ### Individual Services
 ```bash
-# Just Neo4j and Graphiti MCP
-docker compose up -d neo4j graphiti-mcp
+# Just Neo4j and letta MCP
+docker compose up -d neo4j letta-mcp
 
 # Just vector search stack
 docker compose up -d qdrant qdrant-mcp
@@ -124,7 +124,7 @@ Level 2: Specialized Databases
   └─ neo4j
 
 Level 2.5: MCP Servers
-  ├─ graphiti-mcp (→ neo4j)
+  ├─ letta-mcp (→ neo4j)
   ├─ qdrant-mcp (→ qdrant)
   └─ metamcp (→ postgres)
 
@@ -148,7 +148,7 @@ Level 5: Observability
   └─ alertmanager
 
 Level 6: Orchestration
-  ├─ claude-flow (→ letta, mem0, nexus)
+  ├─ archon-os (→ letta, mem0, nexus)
   └─ nyra-orchestrator (→ twentycrm, nexus, mem0, letta)
 
 Level 7: Business Logic
@@ -174,7 +174,7 @@ NEO4J_PASSWORD=change_me
 QDRANT_API_KEY=change_me
 
 # MCP Configuration
-GRAPHITI_MODEL=gpt-4o-mini
+letta_MODEL=gpt-4o-mini
 QDRANT_COLLECTION=nyra
 ```
 

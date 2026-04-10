@@ -5,7 +5,7 @@ Status: Documentation Complete - Manual Copy Required
 
 ## What Was Extracted
 
-### Analyzed Components (Source: claude-flow-ui-main)
+### Analyzed Components (Source: archon-os-ui-main)
 1. PerformanceMonitor.tsx - Browser performance monitoring
 2. ErrorBoundary.tsx - React error handling
 3. Terminal.tsx + TerminalControls.tsx - Web terminal
@@ -13,16 +13,16 @@ Status: Documentation Complete - Manual Copy Required
 5. Tab.tsx + TabList.tsx - Tab navigation
 
 ### Created Files in Project Nyra
-- apps/nexus-dashboard/src/lib/claude-flow-utils.ts (NEW utilities)
+- apps/nexus-dashboard/src/lib/archon-os-utils.ts (NEW utilities)
 - apps/nexus-dashboard/src/components/imported/README.md (Component guide)
-- docs/development/CLAUDE-FLOW-UI-EXTRACTION.md (Full documentation)
+- docs/development/archon-os-UI-EXTRACTION.md (Full documentation)
 
 ## Next Steps for Integration
 
 ### 1. Manual Copy Required
-Copy these files from claude-flow-ui-main to Project Nyra:
+Copy these files from archon-os-ui-main to Project Nyra:
 
-FROM: C:/Dev/Projects/Repos/claude-flow-ui-main/src/components/
+FROM: C:/Dev/Projects/Repos/archon-os-ui-main/src/components/
 TO: C:/Dev/Projects/Repos/Project-Nyra/apps/nexus-dashboard/src/components/imported/
 
 Files to copy:
@@ -106,7 +106,7 @@ import { ErrorBoundary } from '@/components/imported/ErrorBoundary';
 
 ## Documentation Locations
 
-1. Full Extraction Guide: docs/development/CLAUDE-FLOW-UI-EXTRACTION.md
+1. Full Extraction Guide: docs/development/archon-os-UI-EXTRACTION.md
 2. Component README: apps/nexus-dashboard/src/components/imported/README.md
 3. This Summary: docs/development/EXTRACTION-SUMMARY.md
 
@@ -160,7 +160,7 @@ Solution: Update @types/react to 19.x
 
 ## Files Created
 
-1. apps/nexus-dashboard/src/lib/claude-flow-utils.ts
+1. apps/nexus-dashboard/src/lib/archon-os-utils.ts
    - generateSessionId()
    - generateId()
    - formatDate()
@@ -171,7 +171,7 @@ Solution: Update @types/react to 19.x
    - Import instructions
    - Basic usage
 
-3. docs/development/CLAUDE-FLOW-UI-EXTRACTION.md
+3. docs/development/archon-os-UI-EXTRACTION.md
    - Full component documentation
    - API reference
    - Integration guide
@@ -179,7 +179,7 @@ Solution: Update @types/react to 19.x
 
 ## Contact & Resources
 
-- Claude Flow UI: https://github.com/liamhelmer/claude-flow-ui
+- Claude Flow UI: https://github.com/liamhelmer/archon-os-ui
 - Project Nyra Docs: docs/
 - Questions: See CLAUDE.md in each workspace
 

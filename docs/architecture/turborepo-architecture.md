@@ -188,7 +188,7 @@ graph TD
 
     subgraph "Integration Services"
         campaign[campaign-engine]
-        graphiti[graphiti-knowledge]
+        letta[letta-knowledge]
         letta[letta-integration]
     end
 
@@ -402,7 +402,7 @@ graph LR
     end
 
     subgraph "Memory & Learning"
-        memory[AgentDB Memory]
+        memory[ruvector Memory]
         patterns[Learned Patterns]
     end
 
@@ -592,7 +592,7 @@ turbo run build --dry-run --verbose
 - **Turborepo Docs**: https://turbo.build/repo/docs
 - **Setup Guide**: [TURBOREPO-SETUP.md](../development/TURBOREPO-SETUP.md)
 - **System Architecture**: [system-architecture.md](./system-architecture.md)
-- **Claude Flow Integration**: [CLAUDE-FLOW-V3-SETUP.md](../guides/CLAUDE-FLOW-V3-SETUP.md)
+- **Claude Flow Integration**: [archon-os-V3-SETUP.md](../guides/archon-os-V3-SETUP.md)
 
 ---
 

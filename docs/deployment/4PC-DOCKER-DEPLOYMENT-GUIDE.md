@@ -10,7 +10,7 @@ Complete Docker Compose deployment for distributed Claude Flow swarm across 4 PC
 │  Intel NUC 12 Pro - i7-1260P, 64GB RAM                         │
 │  ├─ Claude Flow Orchestrator (hierarchical-mesh topology)      │
 │  ├─ Nexus Router (multi-provider LLM gateway)                  │
-│  ├─ Memory Systems (AgentDB, RuVector, Letta, Mem0, Qdrant)   │
+│  ├─ Memory Systems (ruvector, RuVector, Letta, Mem0, Qdrant)   │
 │  ├─ Infrastructure (Infisical, Redis, Traefik)                 │
 │  └─ Monitoring (Prometheus, Grafana, Loki)                     │
 └─────────────────────────────────────────────────────────────────┘
@@ -59,7 +59,7 @@ Complete Docker Compose deployment for distributed Claude Flow swarm across 4 PC
 - 6333, 6334 - Qdrant
 - 6380 - Redis
 - 8003 - Claude Flow MCP
-- 8080 - AgentDB/Infisical/Traefik Dashboard
+- 8080 - ruvector/Infisical/Traefik Dashboard
 - 8081 - cAdvisor
 - 8283 - Letta
 - 8888 - RuVector
@@ -114,7 +114,7 @@ Complete Docker Compose deployment for distributed Claude Flow swarm across 4 PC
 
 The orchestrator MUST be deployed first as it:
 - Creates the `nyra-network` Docker network
-- Provides core memory systems (AgentDB, RuVector)
+- Provides core memory systems (ruvector, RuVector)
 - Sets up monitoring infrastructure
 - Runs the LLM gateway (Nexus Router)
 
@@ -129,7 +129,7 @@ Wait 5 minutes for all services to start, then verify:
 ```bash
 curl http://localhost:3010/health  # Claude Flow
 curl http://localhost:6000/health  # Nexus Router
-curl http://localhost:8080/health  # AgentDB
+curl http://localhost:8080/health  # ruvector
 ```
 
 ### 2. Workers (Any Order)
@@ -161,13 +161,13 @@ docker-compose up -d
 
 Each PC has its own configuration in:
 ```
-config/claude-flow/
+config/archon-os/
 ├── orchestrator/
-│   └── claude-flow.config.json
+│   └── archon-os.config.json
 ├── worker-laptop-1/        # RTX 5090
-│   └── claude-flow.config.json
+│   └── archon-os.config.json
 └── worker-laptop-2/        # RTX 3060
-    └── claude-flow.config.json
+    └── archon-os.config.json
 ```
 
 Worker-rtx3090ti uses the same pattern as existing workers.
@@ -214,11 +214,11 @@ Add to `/etc/hosts` (Linux/Mac) or `C:\Windows\System32\drivers\etc\hosts` (Wind
 ```
 # Orchestrator
 10.0.0.1 traefik.nyra.local
-10.0.0.1 claude-flow.nyra.local
+10.0.0.1 archon-os.nyra.local
 10.0.0.1 grafana.nyra.local
 10.0.0.1 prometheus.nyra.local
 10.0.0.1 portainer.nyra.local
-10.0.0.1 agentdb.nyra.local
+10.0.0.1 ruvector.nyra.local
 10.0.0.1 ruvector.nyra.local
 10.0.0.1 nexus.nyra.local
 10.0.0.1 letta.nyra.local
@@ -268,10 +268,10 @@ docker ps | grep orchestrator
 # Health checks
 curl http://10.0.0.1:3010/health  # Claude Flow
 curl http://10.0.0.1:6000/health  # Nexus Router
-curl http://10.0.0.1:8080/health  # AgentDB
+curl http://10.0.0.1:8080/health  # ruvector
 
 # View logs
-docker logs orchestrator-claude-flow -f
+docker logs orchestrator-archon-os -f
 ```
 
 ### 2. Check Workers
@@ -294,12 +294,12 @@ docker ps | grep rtx3090ti
 
 ```bash
 # From orchestrator to workers
-docker exec orchestrator-claude-flow ping 172.20.0.53  # RTX 3060
-docker exec orchestrator-claude-flow ping 172.20.0.70  # RTX 5090
-docker exec orchestrator-claude-flow ping 172.20.0.90  # RTX 3090 Ti
+docker exec orchestrator-archon-os ping 172.20.0.53  # RTX 3060
+docker exec orchestrator-archon-os ping 172.20.0.70  # RTX 5090
+docker exec orchestrator-archon-os ping 172.20.0.90  # RTX 3090 Ti
 
 # From workers to orchestrator
-docker exec worker-claude-flow-rtx3060 ping 172.20.0.10
+docker exec worker-archon-os-rtx3060 ping 172.20.0.10
 ```
 
 ### 4. Check Swarm Status
@@ -344,7 +344,7 @@ The orchestrator intelligently routes tasks based on:
 Create dashboards for:
 1. **Swarm Overview**: All nodes, task distribution
 2. **GPU Metrics**: Utilization, memory, temperature, power
-3. **Memory Systems**: AgentDB, RuVector, Letta, Mem0 performance
+3. **Memory Systems**: ruvector, RuVector, Letta, Mem0 performance
 4. **LLM Gateway**: Nexus Router throughput and latency
 5. **Container Health**: All services across all nodes
 
@@ -379,7 +379,7 @@ docker-compose up -d
 
 ```bash
 # On orchestrator
-docker run --rm -v claude-flow-data:/data -v $(pwd):/backup alpine tar czf /backup/orchestrator-backup.tar.gz /data
+docker run --rm -v archon-os-data:/data -v $(pwd):/backup alpine tar czf /backup/orchestrator-backup.tar.gz /data
 
 # On workers (models are large, backup selectively)
 docker run --rm -v ollama-models:/data -v $(pwd):/backup alpine tar czf /backup/models-backup.tar.gz /data
@@ -389,7 +389,7 @@ docker run --rm -v ollama-models:/data -v $(pwd):/backup alpine tar czf /backup/
 
 ```bash
 # Single service
-docker-compose restart claude-flow
+docker-compose restart archon-os
 
 # All services
 docker-compose restart
@@ -399,10 +399,10 @@ docker-compose restart
 
 ```bash
 # Follow logs
-docker-compose logs -f claude-flow
+docker-compose logs -f archon-os
 
 # Last 100 lines
-docker-compose logs --tail=100 claude-flow
+docker-compose logs --tail=100 archon-os
 ```
 
 ## Troubleshooting
@@ -462,7 +462,7 @@ docker-compose logs --tail=100 claude-flow
 
 ### Orchestrator
 - Allocate sufficient RAM for memory systems
-- Use SSD for AgentDB and RuVector data
+- Use SSD for ruvector and RuVector data
 - Configure Redis with appropriate maxmemory
 - Tune Prometheus retention based on disk space
 
@@ -506,7 +506,7 @@ docker-compose logs --tail=100 claude-flow
 
 - **Main Documentation**: `/docs` directory
 - **Component READMEs**: Each PC's `/docker/README.md`
-- **Claude Flow Wiki**: https://github.com/ruvnet/claude-flow
+- **Claude Flow Wiki**: https://github.com/ruvnet/archon-os
 - **Grafana Dashboards**: Import from Grafana.com
 - **Prometheus Alerts**: `/orchestrator-mini/monitoring/alert-rules.yml`
 

@@ -35,13 +35,13 @@
 - `infra/configs/gitea/docker-compose.gitea.yml`
 - `infra/dev-stack/docker-compose.yml`
 - `infra/docker-compose.oracle.yml`
-- `infra/docker-compose/docker-compose.claude-flow.yml`
+- `infra/docker-compose/docker-compose.archon-os.yml`
 - `infra/homeassistant/docker-compose.homeassistant-dashboard.yml`
 - `infra/orchestrator/docker-compose.orchestrator.yml`
 - `infra/orchestrator/portainer-mesh/docker-compose.portainer.edge-agent.yml`
 - `infra/orchestrator/portainer-mesh/docker-compose.portainer.orchestrator.yml`
 - `infra/stacks/nyra-mortgage/docker-compose.addons.yml`
-- `infra/stacks/nyra-mortgage/docker-compose.graphiti.yml`
+- `infra/stacks/nyra-mortgage/docker-compose.letta.yml`
 - `infra/stacks/nyra-mortgage/docker-compose.local.yml`
 - `infra/stacks/nyra-mortgage/docker-compose.services.yml`
 - `infra/stacks/nyra-mortgage/docker-compose.voice.yml`
@@ -64,7 +64,7 @@
 - `infra/compose/overrides/docker-compose.oracle.override.yml`
 - `infra/compose/overrides/docker-compose.orchestrator.override.yml`
 - `infra/compose/overrides/docker-compose.worker-rtx3060.override.yml`
-- `infra/docker-compose.claude-flow-cicd.yml`
+- `infra/docker-compose.archon-os-cicd.yml`
 - `infra/docker-compose.dashboard.yml`
 - `infra/docker-compose.orchestrator-cf-tunnel.yml`
 - `infra/docker-compose.twenty.yml`

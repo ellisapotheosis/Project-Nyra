@@ -322,7 +322,7 @@ jobs:
           - apps/crm
           - apps/webapp
           - packages/database
-          - mcp-servers/claude-flow
+          - mcp-servers/archon-os
           - mcp-servers/ruv-swarm
           - services/campaign-engine
     steps:

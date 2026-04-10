@@ -11,7 +11,7 @@ All automated tasks have been completed successfully. The system is now ready fo
 
 ### ✅ Completed Tasks
 
-1. ✅ **Fixed claude-flow.config.json** - File is valid JSON (CLI warnings are non-critical)
+1. ✅ **Fixed archon-os.config.json** - File is valid JSON (CLI warnings are non-critical)
 2. ✅ **Solved Deployment Gap** - Created docker-compose with correct build contexts
 3. ✅ **Integrated with Nexus Router** - All services configured to route through LLM gateway
 4. ✅ **Created docker-compose.archon.yml** - Production-ready Docker orchestration
@@ -37,7 +37,7 @@ All automated tasks have been completed successfully. The system is now ready fo
 7. **ARCHON-COMPLETE-SETUP-GUIDE.md** - User setup guide (from previous task)
 8. **docs/archon-os-technical-analysis.md** - Technical reference (from previous task)
 9. **docs/architecture/ARCHON-OS-ANALYSIS.md** - Deployment gap analysis (from previous task)
-10. **CLAUDE-FLOW-SETUP-COMPLETE.md** - Claude Flow integration (from previous task)
+10. **archon-os-SETUP-COMPLETE.md** - Claude Flow integration (from previous task)
 11. **DEPLOYMENT-COMPLETE-SUMMARY.md** - This file
 
 ---
@@ -203,7 +203,7 @@ Project Nyra Stack
 - **User Setup**: `ARCHON-COMPLETE-SETUP-GUIDE.md`
 - **Technical Analysis**: `docs/archon-os-technical-analysis.md`
 - **Deployment Gap**: `docs/architecture/ARCHON-OS-ANALYSIS.md`
-- **Claude Flow Setup**: `CLAUDE-FLOW-SETUP-COMPLETE.md`
+- **Claude Flow Setup**: `archon-os-SETUP-COMPLETE.md`
 
 ### Repository Links
 - **Archon GitHub**: https://github.com/coleam00/Archon
@@ -289,7 +289,7 @@ You're done when:
 
 ## 📝 Notes
 
-### About claude-flow.config.json Warning
+### About archon-os.config.json Warning
 
 The CLI warning about invalid config is non-critical:
 - The file is valid JSON

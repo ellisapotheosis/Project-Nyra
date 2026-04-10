@@ -19,7 +19,7 @@ Project Nyra now uses a dual-plugin architecture:
    - Migration: **Not required** (coexists with v3)
 
 2. **Claude Flow Plugins (v3)** - NPM-based, locally installed
-   - Location: `./node_modules/@claude-flow/`
+   - Location: `./node_modules/@archon-os/`
    - Status: Ready for installation
    - Management: npm/pnpm + CLI
    - Migration: Fresh installation (no v2 plugins to migrate)
@@ -44,17 +44,17 @@ Project Nyra now uses a dual-plugin architecture:
 
 | Plugin | Purpose | Priority | Installed |
 |--------|---------|----------|-----------|
-| @claude-flow/embeddings | 75x faster vector search | CRITICAL | No |
-| @claude-flow/security | CVE scanning | CRITICAL | No |
-| @claude-flow/neural | Pattern training | HIGH | No |
-| @claude-flow/performance | Benchmarking | HIGH | No |
-| @claude-flow/claims | Authorization | MEDIUM | No |
+| @archon-os/embeddings | 75x faster vector search | CRITICAL | No |
+| @archon-os/security | CVE scanning | CRITICAL | No |
+| @archon-os/neural | Pattern training | HIGH | No |
+| @archon-os/performance | Benchmarking | HIGH | No |
+| @archon-os/claims | Authorization | MEDIUM | No |
 
 **Status**: Configuration complete, awaiting installation.
 
 ## Configuration Changes Made
 
-### 1. Updated claude-flow.config.json
+### 1. Updated archon-os.config.json
 
 Added comprehensive plugins section:
 ```json
@@ -64,7 +64,7 @@ Added comprehensive plugins section:
     "autoLoad": true,
     "autoDiscover": true,
     "paths": ["./plugins", "./node_modules"],
-    "registry": "claude-flow-official",
+    "registry": "archon-os-official",
     "registryCID": "QmXbfEAaR7D2Ujm4GAkbwcGZQMHqAMpwDoje4583uNP834",
     "installed": [...],
     "config": {...}
@@ -74,7 +74,7 @@ Added comprehensive plugins section:
 
 ### 2. Created Installation Script
 
-Location: `/scripts/install-claude-flow-plugins.sh`
+Location: `/scripts/install-archon-os-plugins.sh`
 
 Features:
 - Prerequisites check
@@ -88,7 +88,7 @@ Features:
 
 | Document | Purpose | Location |
 |----------|---------|----------|
-| Setup Guide | Complete installation instructions | `/docs/CLAUDE-FLOW-PLUGINS-SETUP.md` |
+| Setup Guide | Complete installation instructions | `/docs/archon-os-PLUGINS-SETUP.md` |
 | Architecture | System design and patterns | `/docs/PLUGIN-ARCHITECTURE.md` |
 | Quick Reference | Command cheat sheet | `/docs/PLUGIN-QUICK-REFERENCE.md` |
 | Summary | This document | `/docs/PLUGIN-SETUP-SUMMARY.md` |
@@ -106,14 +106,14 @@ Rationale:
 
 Installation will be via:
 ```bash
-pnpm add -D @claude-flow/embeddings@latest
+pnpm add -D @archon-os/embeddings@latest
 ```
 
 Not via global npm install.
 
 ## Plugin Registry Information
 
-**Registry**: claude-flow-official (IPFS-based)
+**Registry**: archon-os-official (IPFS-based)
 
 - **CID**: QmXbfEAaR7D2Ujm4GAkbwcGZQMHqAMpwDoje4583uNP834
 - **Gateway**: https://gateway.pinata.cloud
@@ -127,34 +127,34 @@ Not via global npm install.
 
 1. **Install Essential Plugins**
    ```bash
-   ./scripts/install-claude-flow-plugins.sh
+   ./scripts/install-archon-os-plugins.sh
    # Or manually:
    pnpm add -D \
-     @claude-flow/embeddings@latest \
-     @claude-flow/security@latest \
-     @claude-flow/neural@latest \
-     @claude-flow/performance@latest
+     @archon-os/embeddings@latest \
+     @archon-os/security@latest \
+     @archon-os/neural@latest \
+     @archon-os/performance@latest
    ```
 
 2. **Initialize Embeddings Plugin**
    ```bash
-   npx @claude-flow/cli@latest embeddings init --provider agentic-flow
+   npx @archon-os/cli@latest embeddings init --provider archon-os
    ```
 
 3. **Initialize Neural Training**
    ```bash
-   npx @claude-flow/cli@latest hooks pretrain --model-type moe --epochs 5
+   npx @archon-os/cli@latest hooks pretrain --model-type moe --epochs 5
    ```
 
 4. **Run Security Scan**
    ```bash
-   npx @claude-flow/cli@latest security scan --depth full
+   npx @archon-os/cli@latest security scan --depth full
    ```
 
 5. **Validate Installation**
    ```bash
-   npx @claude-flow/cli@latest plugins list --installed
-   npx @claude-flow/cli@latest doctor
+   npx @archon-os/cli@latest plugins list --installed
+   npx @archon-os/cli@latest doctor
    ```
 
 ### Optional Actions (Recommended)
@@ -162,18 +162,18 @@ Not via global npm install.
 6. **Install Domain-Specific Plugins**
    ```bash
    pnpm add -D \
-     @claude-flow/plugin-code-intelligence@latest \
-     @claude-flow/plugin-test-intelligence@latest
+     @archon-os/plugin-code-intelligence@latest \
+     @archon-os/plugin-test-intelligence@latest
    ```
 
 7. **Enable Auto-Discovery**
    ```bash
-   npx @claude-flow/cli@latest config set plugins.autoDiscover true
+   npx @archon-os/cli@latest config set plugins.autoDiscover true
    ```
 
 8. **Configure Pre-commit Hooks**
    ```bash
-   npx @claude-flow/cli@latest hooks pre-command \
+   npx @archon-os/cli@latest hooks pre-command \
      --command "git commit" \
      --plugin security \
      --scan true
@@ -200,10 +200,10 @@ Not via global npm install.
 Embeddings plugin integrates with RuVector:
 ```bash
 # Initialize
-npx @claude-flow/cli@latest memory init --backend ruvector --hnsw-enabled
+npx @archon-os/cli@latest memory init --backend ruvector --hnsw-enabled
 
 # Index documents
-npx @claude-flow/cli@latest embeddings batch \
+npx @archon-os/cli@latest embeddings batch \
   --input ./services/ruvector-search/data \
   --output ./data/memory/embeddings
 ```
@@ -214,10 +214,10 @@ Pre/post hooks use plugins:
 ```json
 {
   "hooks": {
-    "pre-task": ["@claude-flow/neural", "@claude-flow/security"],
-    "post-task": ["@claude-flow/neural", "@claude-flow/performance"],
-    "pre-edit": ["@claude-flow/security"],
-    "post-edit": ["@claude-flow/neural"]
+    "pre-task": ["@archon-os/neural", "@archon-os/security"],
+    "post-task": ["@archon-os/neural", "@archon-os/performance"],
+    "pre-edit": ["@archon-os/security"],
+    "post-edit": ["@archon-os/neural"]
   }
 }
 ```
@@ -248,7 +248,7 @@ For Nyra's 4-PC cluster, this is acceptable overhead.
 ```bash
 rm -rf node_modules/.cache
 pnpm install --force
-npx @claude-flow/cli@latest plugins discover --rebuild
+npx @archon-os/cli@latest plugins discover --rebuild
 ```
 
 ### Config Warnings
@@ -265,22 +265,22 @@ export CLAUDE_FLOW_PLUGIN_REGISTRY_GATEWAY=https://gateway.pinata.cloud
 Plugin setup is complete when:
 
 - [ ] 5 essential plugins installed via pnpm
-- [ ] Embeddings plugin initialized with agentic-flow
+- [ ] Embeddings plugin initialized with archon-os
 - [ ] Neural plugin pretrained with MoE
 - [ ] Security scan completed successfully
-- [ ] `npx @claude-flow/cli@latest plugins list --installed` shows all plugins
-- [ ] `npx @claude-flow/cli@latest doctor` passes health checks
+- [ ] `npx @archon-os/cli@latest plugins list --installed` shows all plugins
+- [ ] `npx @archon-os/cli@latest doctor` passes health checks
 - [ ] Configuration validated without critical errors
 
 ## Documentation Quick Links
 
 | Document | Purpose | Path |
 |----------|---------|------|
-| **Setup Guide** | Complete installation instructions | `/docs/CLAUDE-FLOW-PLUGINS-SETUP.md` |
+| **Setup Guide** | Complete installation instructions | `/docs/archon-os-PLUGINS-SETUP.md` |
 | **Architecture** | System design and patterns | `/docs/PLUGIN-ARCHITECTURE.md` |
 | **Quick Reference** | Command cheat sheet | `/docs/PLUGIN-QUICK-REFERENCE.md` |
-| **Config File** | Plugin configuration | `/claude-flow.config.json` |
-| **Install Script** | Automated setup | `/scripts/install-claude-flow-plugins.sh` |
+| **Config File** | Plugin configuration | `/archon-os.config.json` |
+| **Install Script** | Automated setup | `/scripts/install-archon-os-plugins.sh` |
 
 ## Key Insights
 
@@ -294,18 +294,18 @@ Installing plugins locally in `node_modules/` ensures version control, reproduci
 Decentralized registry prevents single point of failure and enables community-driven plugin ecosystem.
 
 ### 4. Plugin Auto-Discovery
-Claude Flow v3 automatically discovers plugins in `node_modules/@claude-flow/`, reducing manual configuration.
+Claude Flow v3 automatically discovers plugins in `node_modules/@archon-os/`, reducing manual configuration.
 
 ### 5. Performance Trade-offs
 ~370MB overhead and +700ms startup time are justified by 75x faster search, CVE detection, and pattern learning.
 
 ## Support and Resources
 
-- **Claude Flow Docs**: https://github.com/ruvnet/claude-flow
-- **Issue Tracker**: https://github.com/ruvnet/claude-flow/issues
+- **Claude Flow Docs**: https://github.com/ruvnet/archon-os
+- **Issue Tracker**: https://github.com/ruvnet/archon-os/issues
 - **Plugin Registry**: IPFS QmXbfEAaR7D2Ujm4GAkbwcGZQMHqAMpwDoje4583uNP834
 - **Project Context**: `/CLAUDE.md`
-- **Capabilities**: `.claude-flow/CAPABILITIES.md` (to be generated)
+- **Capabilities**: `.archon-os/CAPABILITIES.md` (to be generated)
 
 ## Conclusion
 
@@ -321,7 +321,7 @@ The Claude Flow v3 plugins system is now configured and ready for installation. 
 
 **Recommendation**: Run the installation script now to complete setup:
 ```bash
-./scripts/install-claude-flow-plugins.sh
+./scripts/install-archon-os-plugins.sh
 ```
 
 ---

@@ -194,7 +194,7 @@ Executed by a **15-agent swarm** using hierarchical coordination:
 **Essential Consolidation Docs:**
 - 🔥 **[Repository Consolidation 2026-01-18](docs/REPOSITORY-CONSOLIDATION-2026-01-18.md)** - Complete consolidation documentation with before/after, migration guide, SPARC workflow
 - 🔥 **[apps/ingestion/](apps/ingestion/README.md)** - NEW systematic content processing workspace
-- 🔥 **[SPARC Workflows](.claude-flow/workflows/README.md)** - Automated multi-agent workflow templates
+- 🔥 **[SPARC Workflows](.archon-os/workflows/README.md)** - Automated multi-agent workflow templates
 - 🔥 **[Consolidation Complete](docs/operations/CONSOLIDATION-COMPLETE.md)** - Infrastructure consolidation summary
 - 🔥 **[Environment Variables Guide](docs/operations/ENV-VARIABLE-GUIDE.md)** - Complete variable reference
 - 🔥 **[Docker Usage Guide](infra/docker/USAGE-GUIDE.md)** - Docker deployment patterns
@@ -214,7 +214,7 @@ Executed by a **15-agent swarm** using hierarchical coordination:
 - [System Architecture](docs/architecture/system-architecture.md) - Detailed architectural specifications
 - **[4-PC Distributed Architecture](docs/architecture/4PC-DISTRIBUTED-ARCHITECTURE.md)** - Multi-PC deployment with GPU workers
 - [Dual Orchestrator Design](docs/architecture/DUAL-ORCHESTRATOR-ARCHITECTURE.md)** - Archon OS + Archon OS integration
-- [Memory Systems](docs/architecture/memory-systems.md) - Agent memory architecture (Letta, Mem0, Graphiti, Qdrant)
+- [Memory Systems](docs/architecture/memory-systems.md) - Agent memory architecture (Letta, Mem0, letta, Qdrant)
 - [API Contracts](docs/architecture/api-contracts.md) - Service interfaces
 - **[Architecture Decisions](docs/architecture/ARCHITECTURE-DECISIONS.md)** - ADRs and technology choices
 
@@ -576,7 +576,7 @@ pnpm db:migrate
 pnpm mcp:health-check
 
 # View MCP logs
-docker logs nyra-claude-flow
+docker logs nyra-archon-os
 ```
 
 ## Support

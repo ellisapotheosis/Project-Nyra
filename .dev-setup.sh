@@ -95,7 +95,7 @@ fi
 log_info "PHASE 3: Creating Development Workspace (.dev)"
 echo ""
 
-mkdir -p .dev/.claude-flow
+mkdir -p .dev/.archon-os
 mkdir -p .dev/.swarm
 mkdir -p .dev/.swarm/memory
 mkdir -p .dev/.swarm/logs
@@ -121,7 +121,7 @@ echo ""
 cat > .dev/.env.local << 'EOF'
 # === DEVELOPMENT ONLY ===
 ENVIRONMENT=development
-DEBUG=claude-flow:*,providers:*
+DEBUG=archon-os:*,providers:*
 
 # === REFERENCE EXISTING INFRA ===
 NEXUS_ROUTER_HOST=localhost
@@ -142,11 +142,11 @@ REDIS_PORT=6379
 FALKORDB_HOST=localhost
 FALKORDB_PORT=6380
 
-GRAPHITI_HOST=localhost
-GRAPHITI_PORT=3002
+letta_HOST=localhost
+letta_PORT=3002
 
 # === CLAUDE FLOW CLI ===
-CLAUDE_FLOW_HOME=./.claude-flow
+CLAUDE_FLOW_HOME=./.archon-os
 CLAUDE_FLOW_DATA_DIR=./.swarm
 
 # === PROVIDERS ===
@@ -160,8 +160,8 @@ LOG_FORMAT=pretty
 EOF
 log_success "Created .dev/.env.local"
 
-# Create .dev/.claude-flow/config.json
-cat > .dev/.claude-flow/config.json << 'EOF'
+# Create .dev/.archon-os/config.json
+cat > .dev/.archon-os/config.json << 'EOF'
 {
   "version": "3.0.0",
   "environment": "development",
@@ -181,7 +181,7 @@ cat > .dev/.claude-flow/config.json << 'EOF'
   "memory": {
     "backend": "hybrid",
     "primary": "ruvector",
-    "secondary": ["graphiti", "falkordb", "redis"],
+    "secondary": ["letta", "falkordb", "redis"],
     "providers": {
       "ruvector": {
         "host": "localhost",
@@ -200,19 +200,19 @@ cat > .dev/.claude-flow/config.json << 'EOF'
   }
 }
 EOF
-log_success "Created .dev/.claude-flow/config.json"
+log_success "Created .dev/.archon-os/config.json"
 
 # Phase 5: Install Claude Flow CLI
 if [ "$SKIP_CLI" = false ]; then
   log_info "PHASE 5: Installing Claude Flow CLI (Global)"
   echo ""
 
-  if bun add -g @claude-flow/cli@latest 2>/dev/null; then
+  if bun add -g @archon-os/cli@latest 2>/dev/null; then
     log_success "Claude Flow CLI installed globally"
-    log_success "CLI version: $(claude-flow --version 2>/dev/null || echo 'unknown')"
+    log_success "CLI version: $(archon-os --version 2>/dev/null || echo 'unknown')"
   else
     log_warn "Could not install Claude Flow CLI globally"
-    log_info "Try manually: bun add -g @claude-flow/cli@latest"
+    log_info "Try manually: bun add -g @archon-os/cli@latest"
   fi
 else
   log_info "PHASE 5: Skipping CLI installation (--skip-cli flag)"
@@ -227,8 +227,8 @@ if [ "$SKIP_PROVIDERS" = false ]; then
     log_warn "Providers directory already exists at .dev/providers"
     log_info "To update: cd .dev/providers && git pull && bun install"
   else
-    log_info "Cloning claude-flow-providers..."
-    if git clone https://github.com/anthropics/claude-flow-providers.git .dev/providers 2>/dev/null; then
+    log_info "Cloning archon-os-providers..."
+    if git clone https://github.com/anthropics/archon-os-providers.git .dev/providers 2>/dev/null; then
       cd .dev/providers
       log_info "Installing provider dependencies..."
       bun install
@@ -236,7 +236,7 @@ if [ "$SKIP_PROVIDERS" = false ]; then
       log_success "Providers installed at .dev/providers"
     else
       log_warn "Could not clone providers repository"
-      log_info "Try manually: git clone https://github.com/anthropics/claude-flow-providers.git .dev/providers"
+      log_info "Try manually: git clone https://github.com/anthropics/archon-os-providers.git .dev/providers"
     fi
   fi
 else
@@ -255,7 +255,7 @@ cat > .dev/package.json << 'EOF'
   "description": "Development environment for Claude Flow V3",
   "type": "module",
   "scripts": {
-    "cf": "bun ./node_modules/@claude-flow/cli/bin/cli.js",
+    "cf": "bun ./node_modules/@archon-os/cli/bin/cli.js",
     "cf:init": "bun run cf init --development",
     "cf:status": "bun run cf status",
     "cf:swarm:init": "bun run cf swarm init --topology mesh --max-agents 8",
@@ -334,7 +334,7 @@ echo "   Start if needed: docker compose -f infra/docker-compose.yml up -d"
 echo ""
 echo "3. 🔌 Initialize Claude Flow (first time only)"
 echo "   From .dev/: bun run cf:init"
-echo "   Or globally: claude-flow init --development"
+echo "   Or globally: archon-os init --development"
 echo ""
 echo "4. 🧠 Initialize memory system"
 echo "   From .dev/: bun run cf:memory:init"

@@ -4,8 +4,8 @@
 
 set -e
 
-METRICS_DIR=".claude-flow/metrics"
-SECURITY_DIR=".claude-flow/security"
+METRICS_DIR=".archon-os/metrics"
+SECURITY_DIR=".archon-os/security"
 
 # Ensure directories exist
 mkdir -p "$METRICS_DIR" "$SECURITY_DIR"

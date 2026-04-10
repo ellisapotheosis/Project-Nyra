@@ -12,4 +12,4 @@
 - pages: /login, /campaigns, /leads, /quotes, /chat (embed Dify)
 
 @infra:
-- keep Nexus + LiteLLM + Dify + Activepieces + n8n + Graphiti + obs
+- keep Nexus + LiteLLM + Dify + Activepieces + n8n + letta + obs

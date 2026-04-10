@@ -26,7 +26,7 @@ After comprehensive evaluation of competing architectures, frameworks, and deplo
 
 ## Core Architecture Decisions
 
-### ADR-001: Dual Orchestrators (Claude-Flow + Archon OS)
+### ADR-001: Dual Orchestrators (archon-os + Archon OS)
 
 **Decision**: Implement dual-orchestrator architecture instead of single orchestrator
 
@@ -281,7 +281,7 @@ After comprehensive evaluation of competing architectures, frameworks, and deplo
 
 ### ADR-007: Multi-Layer Memory Architecture
 
-**Decision**: Implement 5-layer memory system (Letta, Mem0, Graphiti, Qdrant, Redis) instead of single memory store
+**Decision**: Implement 5-layer memory system (Letta, Mem0, letta, Qdrant, Redis) instead of single memory store
 
 **Context**:
 - Single memory system (e.g., Pinecone only) lacks structure and queryability
@@ -291,7 +291,7 @@ After comprehensive evaluation of competing architectures, frameworks, and deplo
 **Evidence**:
 - **Letta**: OS-like agent memory for full conversation context (PostgreSQL backend)
 - **Mem0**: Universal episodic memory for preferences and summaries (SQLite/Redis)
-- **Graphiti + Neo4j/FalkorDB**: Temporal knowledge graphs for relationships
+- **letta + Neo4j/FalkorDB**: Temporal knowledge graphs for relationships
 - **Qdrant + pgvector**: Vector embeddings for semantic search
 - **Redis**: Session cache for real-time state
 
@@ -336,7 +336,7 @@ After comprehensive evaluation of competing architectures, frameworks, and deplo
 **Evidence**:
 - Neo4j is **enterprise-grade** with APOC + Graph Data Science plugins
 - FalkorDB is **Redis-compatible**, lightweight, easier for development
-- Both support Graphiti for temporal knowledge graphs
+- Both support letta for temporal knowledge graphs
 - Can use FalkorDB for dev, Neo4j for production
 
 **Trade-offs**:

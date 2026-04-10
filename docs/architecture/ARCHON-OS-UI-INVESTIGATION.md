@@ -99,7 +99,7 @@ pnpm dev
 ```
 
 **Nexus Dashboard includes:**
-- `/claude-flow` - Claude Flow V3 monitoring (integrates with Archon OS)
+- `/archon-os` - Claude Flow V3 monitoring (integrates with Archon OS)
 - `/servers` - MCP server management
 - `/tools` - Tool discovery and management
 - Real-time WebSocket updates
@@ -174,7 +174,7 @@ curl http://localhost:8093/metrics
 
 ### Claude Flow Integration in Nexus Dashboard
 
-Located in `C:\Dev\Projects\Repos\Project-Nyra\apps\nexus-dashboard\src\app\claude-flow\page.tsx`:
+Located in `C:\Dev\Projects\Repos\Project-Nyra\apps\nexus-dashboard\src\app\archon-os\page.tsx`:
 - Real-time agent status
 - Memory system monitoring
 - Performance metrics
@@ -222,7 +222,7 @@ pnpm dev
 
 #### Step 4: Access UI
 - Nexus Dashboard: `http://localhost:3005`
-- Claude Flow Monitor: `http://localhost:3005/claude-flow`
+- Claude Flow Monitor: `http://localhost:3005/archon-os`
 - RabbitMQ Management: `http://localhost:15672`
 
 ---
@@ -370,7 +370,7 @@ pnpm dev
 
 # 4. Access UIs
 # - Nexus Dashboard: http://localhost:3005
-# - Claude Flow Monitor: http://localhost:3005/claude-flow
+# - Claude Flow Monitor: http://localhost:3005/archon-os
 # - RabbitMQ: http://localhost:15672 (archon / archon_queue_pass)
 ```
 

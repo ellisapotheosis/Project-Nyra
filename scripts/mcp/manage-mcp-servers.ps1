@@ -19,7 +19,7 @@
     .\manage-mcp-servers.ps1 -Action start
     .\manage-mcp-servers.ps1 -Action status
     .\manage-mcp-servers.ps1 -Action stop -Server bitwarden-mcp
-    .\manage-mcp-servers.ps1 -Action logs -Server claude-flow
+    .\manage-mcp-servers.ps1 -Action logs -Server archon-os
 #>
 
 [CmdletBinding()]
@@ -86,10 +86,10 @@ $MCPServers = @{
     }
     
     # NPX-based MCP servers
-    'claude-flow' = @{
+    'archon-os' = @{
         Type = 'npx'
         Command = 'npx'
-        Args = @('@claude-flow/cli@latest', 'mcp', 'start')
+        Args = @('@archon-os/cli@latest', 'mcp', 'start')
         Env = @{
             'CLAUDE_FLOW_MODE' = 'v3'
             'CLAUDE_FLOW_HOOKS_ENABLED' = 'true'
@@ -181,7 +181,7 @@ function Start-MCPServer {
         }
         'npx' {
             Write-ColorOutput "  ℹ️  NPX-based server - managed by .mcp.json" -Color Yellow
-            Write-ColorOutput "  Run: npx @claude-flow/cli@latest mcp start" -Color Gray
+            Write-ColorOutput "  Run: npx @archon-os/cli@latest mcp start" -Color Gray
         }
         'service' {
             Write-ColorOutput "  ℹ️  Service type - documentation only (see $($ServerConfig.Path)\CLAUDE.md)" -Color Yellow
@@ -207,7 +207,7 @@ function Stop-MCPServer {
         }
         'npx' {
             Write-ColorOutput "  ℹ️  NPX-based server - managed by .mcp.json" -Color Yellow
-            Write-ColorOutput "  Run: npx @claude-flow/cli@latest mcp stop" -Color Gray
+            Write-ColorOutput "  Run: npx @archon-os/cli@latest mcp stop" -Color Gray
         }
         'service' {
             Write-ColorOutput "  ℹ️  Service type - no action needed" -Color Yellow
@@ -260,7 +260,7 @@ function Show-MCPServerLogs {
             docker logs --tail 50 $ServerConfig.Container 2>&1
         }
         'npx' {
-            Write-ColorOutput "  ℹ️  Check Claude Flow logs in .claude-flow/" -Color Yellow
+            Write-ColorOutput "  ℹ️  Check Claude Flow logs in .archon-os/" -Color Yellow
         }
         'service' {
             Write-ColorOutput "  ℹ️  No logs available (service type)" -Color Yellow

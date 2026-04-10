@@ -1,8 +1,8 @@
 {
   "mcpServers": {
-    "claude-flow": {
+    "archon-os": {
       "command": "npx",
-      "args": ["-y", "claude-flow@alpha", "mcp", "start"],
+      "args": ["-y", "archon-os@alpha", "mcp", "start"],
       "env": {
         "CLAUDE_FLOW_MEMORY_ENABLED": "true",
         "CLAUDE_FLOW_HOOKS_ENABLED": "true",
@@ -39,9 +39,9 @@
       },
       "description": "Flow Nexus cloud platform integration"
     },
-    "agentic-flow": {
+    "archon-os": {
       "command": "npx",
-      "args": ["-y", "agentic-flow@latest", "mcp", "start"],
+      "args": ["-y", "archon-os@latest", "mcp", "start"],
       "env": {
         "AGENTIC_FLOW_MAX_AGENTS": "15",
         "AGENTIC_FLOW_TOPOLOGY": "mesh",
@@ -49,16 +49,16 @@
       },
       "description": "Agentic Flow agent-based workflow coordination"
     },
-    "agentdb": {
+    "ruvector": {
       "command": "npx",
-      "args": ["-y", "agentdb@latest", "mcp", "start"],
+      "args": ["-y", "ruvector@latest", "mcp", "start"],
       "env": {
-        "AGENTDB_STORAGE_PATH": "./data/agentdb",
-        "AGENTDB_VECTOR_ENABLED": "true",
-        "AGENTDB_QUANTIZATION": "true",
-        "AGENTDB_CACHE_ENABLED": "true"
+        "ruvector_STORAGE_PATH": "./data/ruvector",
+        "ruvector_VECTOR_ENABLED": "true",
+        "ruvector_QUANTIZATION": "true",
+        "ruvector_CACHE_ENABLED": "true"
       },
-      "description": "AgentDB persistent vector database"
+      "description": "ruvector persistent vector database"
     },
     "agent-booster": {
       "command": "npx",

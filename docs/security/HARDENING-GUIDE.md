@@ -164,11 +164,11 @@ trivy image --severity HIGH,CRITICAL redis:7-alpine
 trivy image --severity HIGH,CRITICAL qdrant/qdrant:latest
 
 # 3. Scan local images
-trivy image nyra-claude-flow:latest
+trivy image nyra-archon-os:latest
 trivy image nyra-archon-os:latest
 
 # 4. Generate security reports
-trivy image --format json --output /reports/image-scan.json nyra-claude-flow:latest
+trivy image --format json --output /reports/image-scan.json nyra-archon-os:latest
 ```
 
 ### 1.2 Network Segmentation
@@ -206,7 +206,7 @@ services:
       - backend
 
   # Application services
-  claude-flow:
+  archon-os:
     networks:
       - backend
       - database

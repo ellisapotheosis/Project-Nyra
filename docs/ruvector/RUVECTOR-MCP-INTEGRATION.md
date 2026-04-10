@@ -15,7 +15,7 @@ RuVector integrates with Claude Flow's MCP (Model Context Protocol) tools for me
 
 ```bash
 # Store a pattern with metadata
-mcp__claude-flow__memory_usage \
+mcp__archon-os__memory_usage \
   --action "store" \
   --namespace "reasoningbank" \
   --key "pattern:auth-implementation" \
@@ -31,7 +31,7 @@ mcp__claude-flow__memory_usage \
 
 **Example with TTL:**
 ```bash
-mcp__claude-flow__memory_usage \
+mcp__archon-os__memory_usage \
   --action "store" \
   --namespace "reasoningbank" \
   --key "pattern:temp-optimization" \
@@ -45,7 +45,7 @@ mcp__claude-flow__memory_usage \
 
 ```bash
 # Semantic search with vector similarity
-mcp__claude-flow__memory_search \
+mcp__archon-os__memory_search \
   --pattern "authentication patterns" \
   --namespace "reasoningbank" \
   --limit 10
@@ -59,7 +59,7 @@ mcp__claude-flow__memory_search \
 
 **Advanced Search:**
 ```bash
-mcp__claude-flow__memory_search \
+mcp__archon-os__memory_search \
   --pattern "JWT implementation" \
   --namespace "reasoningbank" \
   --limit 10 \
@@ -72,14 +72,14 @@ mcp__claude-flow__memory_search \
 
 ```bash
 # Get a specific pattern by key
-npx @claude-flow/cli@latest memory retrieve \
+npx @archon-os/cli@latest memory retrieve \
   --key "pattern-auth" \
   --namespace "reasoningbank"
 ```
 
 **Usage in Scripts:**
 ```bash
-PATTERN=$(npx @claude-flow/cli@latest memory retrieve \
+PATTERN=$(npx @archon-os/cli@latest memory retrieve \
   --key "pattern:auth-implementation" \
   --namespace "reasoningbank")
 
@@ -94,7 +94,7 @@ echo "Retrieved pattern: $PATTERN"
 
 ```bash
 # Initialize trajectory for operation tracking
-npx @claude-flow/cli@latest hooks intelligence trajectory-start \
+npx @archon-os/cli@latest hooks intelligence trajectory-start \
   --session-id "task-123" \
   --agent-type "coder" \
   --task "Implement authentication system"
@@ -109,7 +109,7 @@ Agent type: coder
 
 **Capture the Session ID:**
 ```bash
-SESSION_ID=$(npx @claude-flow/cli@latest hooks intelligence trajectory-start \
+SESSION_ID=$(npx @archon-os/cli@latest hooks intelligence trajectory-start \
   --session-id "task-$(date +%s)" \
   --agent-type "coder" \
   --task "$TASK" | grep "Session ID:" | awk '{print $3}')
@@ -123,7 +123,7 @@ echo "Session: $SESSION_ID"
 
 ```bash
 # Record a step in the trajectory
-npx @claude-flow/cli@latest hooks intelligence trajectory-step \
+npx @archon-os/cli@latest hooks intelligence trajectory-step \
   --session-id "task-123" \
   --operation "code-generation" \
   --outcome "success" \
@@ -141,21 +141,21 @@ npx @claude-flow/cli@latest hooks intelligence trajectory-step \
 SESSION_ID="task-123"
 
 # Step 1: Write tests
-npx @claude-flow/cli@latest hooks intelligence trajectory-step \
+npx @archon-os/cli@latest hooks intelligence trajectory-step \
   --session-id "$SESSION_ID" \
   --operation "write-test" \
   --outcome "success" \
   --metadata '{"tests_written": 5}'
 
 # Step 2: Implement feature
-npx @claude-flow/cli@latest hooks intelligence trajectory-step \
+npx @archon-os/cli@latest hooks intelligence trajectory-step \
   --session-id "$SESSION_ID" \
   --operation "implement-feature" \
   --outcome "success" \
   --metadata '{"files_changed": 3, "lines_added": 200}'
 
 # Step 3: Run tests
-npx @claude-flow/cli@latest hooks intelligence trajectory-step \
+npx @archon-os/cli@latest hooks intelligence trajectory-step \
   --session-id "$SESSION_ID" \
   --operation "run-tests" \
   --outcome "success" \
@@ -168,7 +168,7 @@ npx @claude-flow/cli@latest hooks intelligence trajectory-step \
 
 ```bash
 # Finalize trajectory and assign verdict
-npx @claude-flow/cli@latest hooks intelligence trajectory-end \
+npx @archon-os/cli@latest hooks intelligence trajectory-end \
   --session-id "task-123" \
   --verdict "success" \
   --reward 0.92
@@ -194,7 +194,7 @@ npx @claude-flow/cli@latest hooks intelligence trajectory-end \
 
 ```bash
 # Train neural patterns on successful trajectories
-npx @claude-flow/cli@latest neural train \
+npx @archon-os/cli@latest neural train \
   --pattern-type "optimization" \
   --training-data '{"trajectories": [...]}' \
   --epochs 10
@@ -212,7 +212,7 @@ npx @claude-flow/cli@latest neural train \
 
 ```bash
 # Consolidate patterns to prevent catastrophic forgetting
-npx @claude-flow/cli@latest neural consolidate \
+npx @archon-os/cli@latest neural consolidate \
   --namespace "reasoningbank"
 ```
 
@@ -228,7 +228,7 @@ npx @claude-flow/cli@latest neural consolidate \
 
 ```bash
 # Get memory statistics
-npx @claude-flow/cli@latest hooks intelligence stats \
+npx @archon-os/cli@latest hooks intelligence stats \
   --namespace "reasoningbank"
 ```
 
@@ -257,7 +257,7 @@ npx @claude-flow/cli@latest hooks intelligence stats \
 
 ```bash
 # Get top matching patterns with stats
-npx @claude-flow/cli@latest hooks intelligence pattern-stats \
+npx @archon-os/cli@latest hooks intelligence pattern-stats \
   --query "authentication implementation" \
   --k 10 \
   --namespace "reasoningbank"
@@ -283,7 +283,7 @@ npx @claude-flow/cli@latest hooks intelligence pattern-stats \
 
 ```bash
 # Search patterns with filters
-npx @claude-flow/cli@latest hooks intelligence pattern-search \
+npx @archon-os/cli@latest hooks intelligence pattern-search \
   --query "authentication" \
   --min-reward 0.8 \
   --namespace "reasoningbank"
@@ -302,7 +302,7 @@ npx @claude-flow/cli@latest hooks intelligence pattern-search \
 
 ```bash
 # Start a session with auto-configuration
-npx @claude-flow/cli@latest hooks session-start \
+npx @archon-os/cli@latest hooks session-start \
   --session-id "dev-session-001" \
   --auto-configure
 ```
@@ -313,7 +313,7 @@ npx @claude-flow/cli@latest hooks session-start \
 
 ```bash
 # End session and export metrics
-npx @claude-flow/cli@latest hooks session-end \
+npx @archon-os/cli@latest hooks session-end \
   --generate-summary true \
   --export-metrics true
 ```
@@ -335,7 +335,7 @@ npx @claude-flow/cli@latest hooks session-end \
 
 ```bash
 # Restore the most recent session
-npx @claude-flow/cli@latest hooks session-restore \
+npx @archon-os/cli@latest hooks session-restore \
   --latest
 ```
 
@@ -350,18 +350,18 @@ npx @claude-flow/cli@latest hooks session-restore \
 hooks:
   pre: |
     SESSION_ID="agent-$(date +%s)"
-    npx @claude-flow/cli@latest hooks intelligence trajectory-start \
+    npx @archon-os/cli@latest hooks intelligence trajectory-start \
       --session-id "$SESSION_ID" \
       --agent-type "coder" \
       --task "$TASK"
-    mcp__claude-flow__memory_search --pattern="$TASK" --namespace="reasoningbank" --limit=10
+    mcp__archon-os__memory_search --pattern="$TASK" --namespace="reasoningbank" --limit=10
 
   post: |
-    npx @claude-flow/cli@latest hooks intelligence trajectory-end \
+    npx @archon-os/cli@latest hooks intelligence trajectory-end \
       --session-id "$SESSION_ID" \
       --verdict "${VERDICT:-success}" \
       --reward "${REWARD:-0.85}"
-    mcp__claude-flow__memory_usage --action="store" \
+    mcp__archon-os__memory_usage --action="store" \
       --namespace="reasoningbank" \
       --key="pattern:$(date +%s)" \
       --value="$PATTERN_DATA"
@@ -375,7 +375,7 @@ hooks:
 
 ```bash
 # Run performance benchmarks
-mcp__claude-flow__benchmark_run \
+mcp__archon-os__benchmark_run \
   --suite "all"
 ```
 
@@ -385,7 +385,7 @@ mcp__claude-flow__benchmark_run \
 
 ```bash
 # Analyze system bottlenecks
-mcp__claude-flow__bottleneck_analyze \
+mcp__archon-os__bottleneck_analyze \
   --component "memory-search" \
   --metrics '["latency","throughput","memory"]'
 ```
@@ -396,7 +396,7 @@ mcp__claude-flow__bottleneck_analyze \
 
 ```bash
 # Generate performance report
-mcp__claude-flow__performance_report \
+mcp__archon-os__performance_report \
   --format "detailed" \
   --timeframe "24h"
 ```
@@ -422,14 +422,14 @@ TASK="Implement JWT-based authentication"
 
 # 1. Start trajectory
 echo "1️⃣ Starting trajectory tracking..."
-npx @claude-flow/cli@latest hooks intelligence trajectory-start \
+npx @archon-os/cli@latest hooks intelligence trajectory-start \
   --session-id "$SESSION_ID" \
   --agent-type "coder" \
   --task "$TASK"
 
 # 2. Search for similar patterns
 echo "2️⃣ Searching for similar patterns..."
-SIMILAR=$(mcp__claude-flow__memory_search \
+SIMILAR=$(mcp__archon-os__memory_search \
   --pattern "JWT authentication" \
   --namespace "reasoningbank" \
   --limit 5)
@@ -440,21 +440,21 @@ echo "Found similar patterns: $SIMILAR"
 echo "3️⃣ Executing implementation..."
 
 # Step 1: Write tests
-npx @claude-flow/cli@latest hooks intelligence trajectory-step \
+npx @archon-os/cli@latest hooks intelligence trajectory-step \
   --session-id "$SESSION_ID" \
   --operation "write-tests" \
   --outcome "success" \
   --metadata '{"tests_written": 8}'
 
 # Step 2: Implement feature
-npx @claude-flow/cli@latest hooks intelligence trajectory-step \
+npx @archon-os/cli@latest hooks intelligence trajectory-step \
   --session-id "$SESSION_ID" \
   --operation "implement-feature" \
   --outcome "success" \
   --metadata '{"files_changed": 5, "lines_added": 350}'
 
 # Step 3: Run tests
-npx @claude-flow/cli@latest hooks intelligence trajectory-step \
+npx @archon-os/cli@latest hooks intelligence trajectory-step \
   --session-id "$SESSION_ID" \
   --operation "run-tests" \
   --outcome "success" \
@@ -462,14 +462,14 @@ npx @claude-flow/cli@latest hooks intelligence trajectory-step \
 
 # 4. End trajectory
 echo "4️⃣ Completing trajectory..."
-npx @claude-flow/cli@latest hooks intelligence trajectory-end \
+npx @archon-os/cli@latest hooks intelligence trajectory-end \
   --session-id "$SESSION_ID" \
   --verdict "success" \
   --reward 0.96
 
 # 5. Store pattern
 echo "5️⃣ Storing learned pattern..."
-mcp__claude-flow__memory_usage --action="store" \
+mcp__archon-os__memory_usage --action="store" \
   --namespace="reasoningbank" \
   --key="pattern:jwt-auth-$(date +%s)" \
   --value='{
@@ -493,15 +493,15 @@ mcp__claude-flow__memory_usage --action="store" \
 
 # 6. Consolidate memory
 echo "6️⃣ Consolidating memory..."
-npx @claude-flow/cli@latest neural consolidate --namespace reasoningbank
+npx @archon-os/cli@latest neural consolidate --namespace reasoningbank
 
 # 7. Get statistics
 echo "7️⃣ Getting memory statistics..."
-npx @claude-flow/cli@latest hooks intelligence stats --namespace reasoningbank
+npx @archon-os/cli@latest hooks intelligence stats --namespace reasoningbank
 
 # 8. End session
 echo "8️⃣ Ending session..."
-npx @claude-flow/cli@latest hooks session-end \
+npx @archon-os/cli@latest hooks session-end \
   --generate-summary true \
   --export-metrics true
 
@@ -516,7 +516,7 @@ echo "✅ Complete!"
 
 ```bash
 # Check if pattern exists before retrieve
-PATTERN=$(npx @claude-flow/cli@latest memory retrieve \
+PATTERN=$(npx @archon-os/cli@latest memory retrieve \
   --key "pattern:not-found" \
   --namespace "reasoningbank" 2>&1)
 
@@ -536,19 +536,19 @@ fi
 # Record failure in trajectory
 SESSION_ID="task-$(date +%s)"
 
-npx @claude-flow/cli@latest hooks intelligence trajectory-start \
+npx @archon-os/cli@latest hooks intelligence trajectory-start \
   --session-id "$SESSION_ID" \
   --agent-type "coder" \
   --task "Risky operation"
 
 # If operation fails
-if ! npx @claude-flow/cli@latest hooks intelligence trajectory-step \
+if ! npx @archon-os/cli@latest hooks intelligence trajectory-step \
   --session-id "$SESSION_ID" \
   --operation "risky-code" \
   --outcome "failure"; then
 
   # Record failure verdict
-  npx @claude-flow/cli@latest hooks intelligence trajectory-end \
+  npx @archon-os/cli@latest hooks intelligence trajectory-end \
     --session-id "$SESSION_ID" \
     --verdict "failure" \
     --reward 0.0
@@ -592,7 +592,7 @@ SESSION_ID="coder-$(date +%s)"
 ### 4. Memory Cleanup
 ```bash
 # Set TTL for temporary patterns
-mcp__claude-flow__memory_usage --action="store" \
+mcp__archon-os__memory_usage --action="store" \
   --namespace="reasoningbank" \
   --key="pattern:temporary" \
   --value "{...}" \
@@ -602,7 +602,7 @@ mcp__claude-flow__memory_usage --action="store" \
 ### 5. Search Thresholds
 ```bash
 # Use high thresholds for production patterns
-mcp__claude-flow__memory_search \
+mcp__archon-os__memory_search \
   --pattern "auth" \
   --namespace "reasoningbank" \
   --threshold 0.85  # Only very similar patterns

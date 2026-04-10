@@ -80,15 +80,15 @@ for container in redis-orchestrator redis-worker; do
     fi
 done
 
-# 3. Backup AgentDB
-log "INFO" "Backing up AgentDB..."
+# 3. Backup ruvector
+log "INFO" "Backing up ruvector..."
 
-agentdb_backup="$backup_path/agentdb-$timestamp.tar.gz"
-if docker exec agentdb tar czf /tmp/backup.tar.gz /app/data && \
-   docker cp agentdb:/tmp/backup.tar.gz "$agentdb_backup"; then
-    log "SUCCESS" "  ✓ AgentDB backed up"
+ruvector_backup="$backup_path/ruvector-$timestamp.tar.gz"
+if docker exec ruvector tar czf /tmp/backup.tar.gz /app/data && \
+   docker cp ruvector:/tmp/backup.tar.gz "$ruvector_backup"; then
+    log "SUCCESS" "  ✓ ruvector backed up"
 else
-    log "WARNING" "  ✗ Failed to backup AgentDB"
+    log "WARNING" "  ✗ Failed to backup ruvector"
 fi
 
 # 4. Backup Environment Configuration

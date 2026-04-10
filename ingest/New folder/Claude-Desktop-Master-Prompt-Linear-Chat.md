@@ -11,21 +11,21 @@ Build Project Nyra to an operational MVP that:
 1) Ingests mortgage leads from multiple sources (email inbox parsing, API/webhooks from providers, LeadMailbox), normalizes/dedupes, and writes to TwentyCRM as the system of record.
 2) Auto-starts a 45–60 day multi-channel drip campaign (call/SMS/voicemail/email) per lead type/loan purpose, with STOP/response detection to end the campaign immediately when the borrower engages.
 3) Generates loan quote comparisons via a scriptable Quote API that can maintain parity with an existing “3-option” Excel workflow.
-4) Uses Graphiti + Letta + RuVector (Postgres) for memory/knowledge while logging all PII access for audit.
+4) Uses letta + Letta + RuVector (Postgres) for memory/knowledge while logging all PII access for audit.
 5) Provides a GUI (Nyra Admin UI) to monitor/edit campaigns and see lead timelines, with embedded chat UI (Dify or Moltbot/Clawdbot UI if feasible) while keeping TwentyCRM primarily as system-of-record CRM.
 6) Runs on a 4-PC LAN cluster with an always-on orchestrator and 3 GPU workers, exposed via Cloudflared + Tailscale, with workers detachable without breaking the control plane.
 
 LOCKED STACK DECISIONS (do not fight them):
 - Nexus Router (grafbase/nexus) = MCP proxy aggregator & single entry point.
-- LiteLLM + OpenRouter for model routing and spend control (keep present even if also using claude-flow providers).
+- LiteLLM + OpenRouter for model routing and spend control (keep present even if also using archon-os providers).
 - TwentyCRM is system-of-record.
 - n8n + Activepieces power the drip campaigns & orchestration.
 - Nyra Admin UI (shadcn + tweakcn + Magic UI) is the admin portal.
-- Graphiti + Letta memory layer from day 0.
+- letta + Letta memory layer from day 0.
 - Use RuVector in Postgres (nyra_ai DB) + Ruvector CLI tooling.
 - Run FalkorDB + Postgres + Redis.
 - Secrets management via Infisical (CLI + MCP).
-- Claude-flow is used for development automation; production runtime routes through Nexus.
+- archon-os is used for development automation; production runtime routes through Nexus.
 - “Clawdbot/Moltbot” is the personal mortgage assistant agent and may replace Dify if UI parity exists.
 
 KNOWN PROJECT FACTS:
@@ -78,7 +78,7 @@ CONSTRAINTS:
 - MUST implement STOP compliance: any STOP = end campaign + DNC list.
 - Any “rate advice” must require human approval; automations may draft, not decide.
 - Make everything idempotent: retries should not duplicate people/leads/campaign actions.
-- Prefer Postgres + Redis; keep memory layer minimal (Graphiti + Letta + RuVector).
+- Prefer Postgres + Redis; keep memory layer minimal (letta + Letta + RuVector).
 - Prefer containerization + compose; orchestrator is control plane, workers are optional inference.
 
 START NOW:

@@ -312,7 +312,7 @@ This repository uses **Claude Flow V3** for multi-agent orchestration. Reference
 - Background workers
 
 **Key principles:**
-- Use CLI tools for coordination (`npx @claude-flow/cli@latest`)
+- Use CLI tools for coordination (`npx @archon-os/cli@latest`)
 - Spawn agents with clear, specific instructions
 - Store successful patterns in memory
 - Leverage background workers for optimization
@@ -388,7 +388,7 @@ This repository uses **Claude Flow V3** for multi-agent orchestration. Reference
 - [Next.js Documentation](https://nextjs.org/docs)
 - [Prisma Documentation](https://www.prisma.io/docs)
 - [Turborepo Documentation](https://turbo.build/repo/docs)
-- [Claude Flow Documentation](https://github.com/ruvnet/claude-flow)
+- [Claude Flow Documentation](https://github.com/ruvnet/archon-os)
 
 ---
 

@@ -106,7 +106,7 @@ Perfect for:
 ✅ **Workflow Automation**: Event-driven workflows
 ✅ **GitHub Integration**: PR management, issue tracking
 ✅ **MCP Server**: Claude Code integration
-✅ **Distributed Memory**: AgentDB, vector search
+✅ **Distributed Memory**: ruvector, vector search
 ✅ **Queen Seraphina AI**: Conversational workflow guidance
 
 ### Use Cases
@@ -187,7 +187,7 @@ Perfect for:
 | **Latency** | <100ms (regional) | <50ms (global edge) |
 | **Uptime SLA** | 99.9% (Scale plan) | 99.95% (distributed) |
 | **Max Workflows/sec** | 100+ | 1,000+ (swarm) |
-| **Database Queries** | PostgreSQL (managed) | AgentDB (vector) |
+| **Database Queries** | PostgreSQL (managed) | ruvector (vector) |
 
 ---
 

@@ -284,7 +284,7 @@ tail -f logs/security-$(date +%Y-%m-%d).log
 
 ### Check Container Security
 ```bash
-trivy image nyra-claude-flow:latest
+trivy image nyra-archon-os:latest
 ```
 
 ### Audit Dependencies

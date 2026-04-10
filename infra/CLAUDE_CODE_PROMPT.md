@@ -55,7 +55,7 @@ ProjectNyra/
 │       ├── bootstrap-secrets.sh
 │       └── migrate-db.sh
 ├── src/
-│   ├── claude-flow/
+│   ├── archon-os/
 │   ├── openclaw/
 │   └── archon-os/
 ├── services/
@@ -211,7 +211,7 @@ Create INTEGRATION.md with:
    \`\`\`
 2. Verify Nexus Router can start
 3. Verify LiteLLM can connect to workers
-4. Verify Claude-Flow can find Docker socket
+4. Verify archon-os can find Docker socket
 5. All logs should show no errors
 
 ## Output Format

@@ -67,8 +67,8 @@ Successfully completed comprehensive repository consolidation for Project Nyra, 
 - `.consolidation-status.json`
 - `.docker-consolidation-phase1.json`
 - `.validation-metadata.json`
-- `claude-flow.config.json.backup`
-- `claude-flow.config.json.backup.20260121-043718`
+- `archon-os.config.json.backup`
+- `archon-os.config.json.backup.20260121-043718`
 - `CLAUDE.md.backup-20260122-102535`
 - `jest.config.js.backup`
 - `jest.setup.js.backup`
@@ -86,7 +86,7 @@ Successfully completed comprehensive repository consolidation for Project Nyra, 
 **Status reports moved to docs/reports/ by component:**
 - Archon: 3 files → `docs/reports/archon/`
 - Bootstrap: 2 files → `docs/reports/bootstrap/`
-- Claude Flow: 2 files → `docs/reports/claude-flow/`
+- Claude Flow: 2 files → `docs/reports/archon-os/`
 - Consolidation: 2 files → `docs/reports/consolidation/`
 - Docker: 1 file → `docs/reports/docker/`
 - Deployment: 1 file → `docs/reports/deployment/`
@@ -112,10 +112,10 @@ Successfully completed comprehensive repository consolidation for Project Nyra, 
 - `.env.production` & `.env.production.optimal`
 - `.env.master`
 
-**Claude Flow** (3 files) → `infra/configs/claude-flow/`:
-- `.env.claude-flow`
-- `.env.dev.claude-flow`
-- `.env.prod.claude-flow`
+**Claude Flow** (3 files) → `infra/configs/archon-os/`:
+- `.env.archon-os`
+- `.env.dev.archon-os`
+- `.env.prod.archon-os`
 
 **Orchestrator** (2 files) → `infra/configs/orchestrator/`:
 - `.env.orchestration.template`
@@ -140,7 +140,7 @@ Successfully completed comprehensive repository consolidation for Project Nyra, 
 - `.syncpackrc.json` → `infra/configs/syncpack/`
 - `agent-config.yaml` → `infra/configs/agents/`
 - `batch-config.json` → `infra/configs/batch/`
-- `claude-flow.config.json`, `claude-flow.config.minimal.json` → `infra/configs/claude-flow/`
+- `archon-os.config.json`, `archon-os.config.minimal.json` → `infra/configs/archon-os/`
 
 #### Moved Scripts (12 files)
 **Organized by function:**
@@ -202,7 +202,7 @@ Successfully completed comprehensive repository consolidation for Project Nyra, 
    - Created `docs/ai/` with subdirectories:
      - `docs/ai/context/` (from `docs/ai-context/`)
      - `docs/ai/claude-configs/` (from `docs/claude-configs/`)
-     - `docs/ai/claude-flow/` (from `docs/claude-flow/`)
+     - `docs/ai/archon-os/` (from `docs/archon-os/`)
    - Deleted 3 original folders
 
 7. **decisions vs adr**
@@ -277,11 +277,11 @@ Successfully completed comprehensive repository consolidation for Project Nyra, 
 
 **Memory & Knowledge (3)**:
 - qdrant: Vector database for semantic memory
-- graphiti: Temporal knowledge graph (Neo4j)
+- letta: Temporal knowledge graph (Neo4j)
 - mem0: Memory management system
 
 **AI Orchestration (2)**:
-- claude-flow: Multi-agent orchestration (v3 alpha)
+- archon-os: Multi-agent orchestration (v3 alpha)
 - archon: Archon OS platform (Port 8051)
 
 **Development Tools (3)**:
@@ -376,7 +376,7 @@ Successfully completed comprehensive repository consolidation for Project Nyra, 
 5. **RBAC (Role-Based Access Control)**:
    - Admin: Full access to all servers
    - Developers: Dev tools (filesystem, git, docker, codanna, serena)
-   - Agents: Orchestration tools (infisical, memory, claude-flow, archon)
+   - Agents: Orchestration tools (infisical, memory, archon-os, archon)
 
 6. **Rate Limiting**:
    - Global: 10,000 requests/minute
@@ -438,7 +438,7 @@ Successfully completed comprehensive repository consolidation for Project Nyra, 
 
 **Fixed broken reference**:
 - `infra/docker/apps/docker-compose.apps.yml` line 309
-- Updated claude-flow config path: `../../infra/configs/claude-flow/claude-flow.config.json`
+- Updated archon-os config path: `../../infra/configs/archon-os/archon-os.config.json`
 - Verified no other broken references from moved configs
 
 ---
@@ -495,10 +495,10 @@ infra/configs/
 │   └── agent-config.yaml
 ├── batch/                         # Batch processing configs
 │   └── batch-config.json
-├── claude-flow/                   # Claude Flow configurations ✨ NEW
-│   ├── claude-flow.config.json
-│   ├── claude-flow.config.minimal.json
-│   ├── .env.claude-flow
+├── archon-os/                   # Claude Flow configurations ✨ NEW
+│   ├── archon-os.config.json
+│   ├── archon-os.config.minimal.json
+│   ├── .env.archon-os
 │   ├── .env.dev
 │   └── .env.prod
 ├── cloudflare/                    # Cloudflare configs ✨ NEW
@@ -567,7 +567,7 @@ docs/
 ├── ai/                            # AI assistant documentation ✨ UNIFIED
 │   ├── context/                   # (merged from ai-context/)
 │   ├── claude-configs/            # (merged from claude-configs/)
-│   └── claude-flow/               # (merged from claude-flow/)
+│   └── archon-os/               # (merged from archon-os/)
 ├── archive/                       # Main archive (merged _archive/)
 ├── configuration/                 # All config docs (merged configs/)
 ├── development/                   # Development processes (merged developer/)
@@ -585,7 +585,7 @@ docs/
 ├── reports/                       # Status reports ✨ NEW (organized by component)
 │   ├── archon/ (3 files)
 │   ├── bootstrap/ (2 files)
-│   ├── claude-flow/ (2 files)
+│   ├── archon-os/ (2 files)
 │   ├── consolidation/ (3 files)  # ✨ THIS DOCUMENT
 │   ├── docker/ (1 file)
 │   ├── deployment/ (1 file)
@@ -699,7 +699,7 @@ infra/docker/services/nexus-router/
 
 ### Updated References
 - ✅ `jest.config.js` → points to `tests/jest.setup.js`
-- ✅ `docker-compose.apps.yml` → points to `infra/configs/claude-flow/...`
+- ✅ `docker-compose.apps.yml` → points to `infra/configs/archon-os/...`
 - ✅ All moved scripts maintain functionality
 - ✅ Environment configs properly organized
 - ✅ MCP management script uses absolute paths
@@ -724,7 +724,7 @@ infra/docker/services/nexus-router/
 - **By tool/purpose** - Each config in appropriate subdirectory
 - **Environment separation** - Separate folders for orchestrator, workers, environments
 - **No duplication** - Single source of truth for each config
-- **Clear naming** - Intuitive folder names (mcp/, nexus/, claude-flow/)
+- **Clear naming** - Intuitive folder names (mcp/, nexus/, archon-os/)
 
 ### Documentation Organization
 - **Hierarchical by topic** - Clear categorization
@@ -768,7 +768,7 @@ infra/docker/services/nexus-router/
 4. **File-Cleaning Package**:
    - Document cleaning workflow
    - LlamaIndex ingestion setup
-   - Chunking for memory systems (Qdrant, Graphiti, FalkorDB)
+   - Chunking for memory systems (Qdrant, letta, FalkorDB)
 
 5. **Final Verification**:
    - Run all tests (jest, playwright)
@@ -802,7 +802,7 @@ infra/docker/services/nexus-router/
 2. Bootstrap script consolidation
 3. File-Cleaning package creation
 4. Physical PC setup (Ubuntu, Tailscale, Cloudflare)
-5. Memory system configuration (Qdrant, Graphiti, FalkorDB)
+5. Memory system configuration (Qdrant, letta, FalkorDB)
 6. Deploy to 4-PC cluster
 7. Drip campaign workflow implementation
 

@@ -12,7 +12,7 @@ Successfully implemented a complete SPARC (Specification, Pseudocode, Architectu
 
 ### 1. Workflow Definition
 
-**File**: `.claude-flow/workflows/ingestion-sparc.json`
+**File**: `.archon-os/workflows/ingestion-sparc.json`
 
 - Comprehensive 5-phase SPARC workflow
 - Hierarchical topology with specialized agents
@@ -146,7 +146,7 @@ Created organized structure:
 
 ```
 Project-Nyra/
-├── .claude-flow/
+├── .archon-os/
 │   └── workflows/
 │       ├── ingestion-sparc.json (252 lines)
 │       └── results/ (generated)
@@ -254,7 +254,7 @@ ingestion-sparc/
 
 **Expected Outcome**:
 - Multiple directories processed in parallel
-- Per-item logs in `.claude-flow/workflows/results/`
+- Per-item logs in `.archon-os/workflows/results/`
 - JSON result files for each item
 - Summary statistics (total, success, failed)
 
@@ -314,7 +314,7 @@ Integration with Claude Flow hooks:
 
 ```bash
 # View metrics
-npx @claude-flow/cli@latest memory search \
+npx @archon-os/cli@latest memory search \
   --query "metrics/ingestion" \
   --namespace ingestion-sparc
 
@@ -419,7 +419,7 @@ npx @claude-flow/cli@latest memory search \
 
 ### Required
 
-- **Claude Flow CLI** (`@claude-flow/cli@latest`)
+- **Claude Flow CLI** (`@archon-os/cli@latest`)
 - **Bash** 4.0+
 - **Node.js** 20+
 - **jq** (JSON processor)
@@ -433,7 +433,7 @@ npx @claude-flow/cli@latest memory search \
 
 ```bash
 # Install CLI
-npm install -g @claude-flow/cli@latest
+npm install -g @archon-os/cli@latest
 
 # Install jq (Linux)
 sudo apt-get install jq
@@ -454,9 +454,9 @@ brew install parallel
 
 | Issue | Solution |
 |-------|----------|
-| CLI not found | `npm install -g @claude-flow/cli@latest` |
-| Daemon not running | `npx @claude-flow/cli@latest daemon start` |
-| Memory not initialized | `npx @claude-flow/cli@latest memory init --force` |
+| CLI not found | `npm install -g @archon-os/cli@latest` |
+| Daemon not running | `npx @archon-os/cli@latest daemon start` |
+| Memory not initialized | `npx @archon-os/cli@latest memory init --force` |
 | Scripts not executable | `chmod +x scripts/ingestion/*.sh` |
 | Phase timeout | Increase timeout in workflow JSON |
 | Memory retrieval fails | Check namespace and key spelling |
@@ -465,19 +465,19 @@ brew install parallel
 
 ```bash
 # Check system health
-npx @claude-flow/cli@latest doctor
+npx @archon-os/cli@latest doctor
 
 # View daemon logs
-tail -f .claude-flow/logs/daemon.log
+tail -f .archon-os/logs/daemon.log
 
 # Check memory stats
-npx @claude-flow/cli@latest memory stats
+npx @archon-os/cli@latest memory stats
 
 # List all workflow results
-ls -la .claude-flow/workflows/results/
+ls -la .archon-os/workflows/results/
 
 # Search memory for item
-npx @claude-flow/cli@latest memory search \
+npx @archon-os/cli@latest memory search \
   --query "abc123" \
   --namespace ingestion-sparc
 ```

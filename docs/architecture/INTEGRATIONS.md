@@ -35,8 +35,8 @@ graph TD
     NEXUS --> SERENA[Serena MCP :8086]
     NEXUS --> GEMINI[Gemini Assistant :8085]
     NEXUS --> MEM0[Mem0 MCP :4321]
-    NEXUS --> GRAPHITI[Graphiti MCP]
-    NEXUS --> AGENTDB[AgentDB :8080]
+    NEXUS --> letta[letta MCP]
+    NEXUS --> ruvector[ruvector :8080]
     NEXUS --> RUV[RuVector :8888]
     NEXUS --> COMPOSIO[Composio MCP]
     NEXUS --> GITHUB[GitHub MCP]
@@ -46,8 +46,8 @@ graph TD
     CF --> POSTGRES[(PostgreSQL)]
     CF --> REDIS[(Redis)]
     MEM0 --> REDIS
-    GRAPHITI --> NEO4J[(Neo4j)]
-    AGENTDB --> QDRANT[(Qdrant)]
+    letta --> NEO4J[(Neo4j)]
+    ruvector --> QDRANT[(Qdrant)]
 ```
 
 ---
@@ -115,7 +115,7 @@ graph TD
 **Integration Example**:
 ```bash
 # Via Nexus Router
-curl -X POST http://localhost:6000/mcp/claude-flow/swarm_init \
+curl -X POST http://localhost:6000/mcp/archon-os/swarm_init \
   -H "Content-Type: application/json" \
   -d '{
     "topology": "hierarchical",
@@ -309,7 +309,7 @@ curl -X POST http://localhost:6000/mcp/claude-flow/swarm_init \
 
 ---
 
-#### 6. Graphiti MCP
+#### 6. letta MCP
 
 **Purpose**: Temporal knowledge graphs for relationship tracking
 
@@ -357,7 +357,7 @@ curl -X POST http://localhost:6000/mcp/claude-flow/swarm_init \
 
 ---
 
-#### 7. AgentDB MCP (Port 8080)
+#### 7. ruvector MCP (Port 8080)
 
 **Purpose**: Vector storage for agent memory and embeddings
 

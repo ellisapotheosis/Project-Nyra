@@ -21,7 +21,7 @@ infra-archived/infra-20260206-1551/archive/nyra-infra-old/legacy-infra/.env.exam
 infra-archived/infra-20260206-1551/archive/nyra-infra-old/nyra-stack-v6_2/env/.env.example
 infra-archived/infra-20260206-1551/bitwarden-mcp/.env.example
 infra-archived/infra-20260206-1551/bitwarden-mcp/test/.env.example
-infra-archived/infra-20260206-1551/configs/claude-flow-cicd/.env.cicd.example
+infra-archived/infra-20260206-1551/configs/archon-os-cicd/.env.cicd.example
 infra-archived/infra-20260206-1551/configs/cloudflare/.env.cloudflare.example
 infra-archived/infra-20260206-1551/configs/orchestrator/.env.template
 infra-archived/infra-20260206-1551/docker-compose/.env.example
@@ -29,7 +29,7 @@ infra-archived/infra-20260206-1551/docker-mcp/.env.example
 infra-archived/infra-20260206-1551/docker/.env.mcp.template
 infra-archived/infra-20260206-1551/docker/archon-integration.env.example
 infra-archived/infra-20260206-1551/docker/services/.env.embeddings.example
-infra-archived/infra-20260206-1551/docker/services/agentic-flow/.env.example
+infra-archived/infra-20260206-1551/docker/services/archon-os/.env.example
 infra-archived/infra-20260206-1551/docker/services/ruvector/.env.example
 infra-archived/infra-20260206-1551/dockerhub-mcp/.env.example
 infra-archived/infra-20260206-1551/environments/pc1-orchestrator.env.template
@@ -50,15 +50,15 @@ infra-archived/infra-20260206-1551/stacks/nyra-mortgage/.env.example
 infra-archived/infra-20260206-1551/worker-machines/worker-3060/.env.example
 infra-archived/infra-20260206-1551/worker-machines/worker-3090/.env.example
 infra-archived/infra-20260206-1551/worker-machines/worker-5090/.env.worker-5090.template
-infra/configs/claude-flow-cicd/.env.cicd.example
+infra/configs/archon-os-cicd/.env.cicd.example
 infra/stacks/nyra-mortgage/.env.example
 infra/workers/worker-3060/.env.example
 infra/workers/worker-3090/.env.example
 infra/workers/worker-5090/.env.worker-5090.template
 services/auth-service/.env.example
 services/campaign-engine/.env.example
-services/claude-flow-event-server/.env.example
-services/claude-flow/.env.example
+services/archon-os-event-server/.env.example
+services/archon-os/.env.example
 services/doc-management-api/.env.example
 services/lead-capture-api/.env.example
 services/litellm-proxy/.env.example

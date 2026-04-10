@@ -3,9 +3,9 @@
  * Intelligence Layer (ADR-050)
  *
  * Closes the intelligence loop by wiring PageRank-ranked memory into
- * the hook system. Pure CJS — no ESM imports of @claude-flow/memory.
+ * the hook system. Pure CJS — no ESM imports of @archon-os/memory.
  *
- * Data files (all under .claude-flow/data/):
+ * Data files (all under .archon-os/data/):
  *   auto-memory-store.json  — written by auto-memory-hook.mjs
  *   graph-state.json        — serialized graph (nodes + edges + pageRanks)
  *   ranked-context.json     — pre-computed ranked entries for fast lookup
@@ -17,12 +17,12 @@
 const fs = require('fs');
 const path = require('path');
 
-const DATA_DIR = path.join(process.cwd(), '.claude-flow', 'data');
+const DATA_DIR = path.join(process.cwd(), '.archon-os', 'data');
 const STORE_PATH = path.join(DATA_DIR, 'auto-memory-store.json');
 const GRAPH_PATH = path.join(DATA_DIR, 'graph-state.json');
 const RANKED_PATH = path.join(DATA_DIR, 'ranked-context.json');
 const PENDING_PATH = path.join(DATA_DIR, 'pending-insights.jsonl');
-const SESSION_DIR = path.join(process.cwd(), '.claude-flow', 'sessions');
+const SESSION_DIR = path.join(process.cwd(), '.archon-os', 'sessions');
 const SESSION_FILE = path.join(SESSION_DIR, 'current.json');
 
 // ── Stop words for trigram matching ──────────────────────────────────────────
@@ -217,7 +217,7 @@ function buildEdges(entries) {
 /**
  * If auto-memory-store.json is empty, bootstrap by parsing MEMORY.md and
  * topic files from the auto-memory directory. This removes the dependency
- * on @claude-flow/memory for the initial seed.
+ * on @archon-os/memory for the initial seed.
  */
 function bootstrapFromMemoryFiles() {
   const entries = [];
@@ -228,7 +228,7 @@ function bootstrapFromMemoryFiles() {
     // Claude Code auto-memory (project-scoped)
     path.join(require('os').homedir(), '.claude', 'projects'),
     // Local project memory
-    path.join(cwd, '.claude-flow', 'memory'),
+    path.join(cwd, '.archon-os', 'memory'),
     path.join(cwd, '.claude', 'memory'),
   ];
 

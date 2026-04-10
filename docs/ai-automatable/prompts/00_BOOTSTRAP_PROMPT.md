@@ -1,4 +1,4 @@
-# claude-flow bootstrap prompt
+# archon-os bootstrap prompt
 
 Use SPARC methodology.
 

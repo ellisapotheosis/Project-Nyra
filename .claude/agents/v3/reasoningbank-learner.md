@@ -21,15 +21,15 @@ hooks:
     echo "🧠 ReasoningBank Learner initializing intelligence system"
     # Initialize trajectory tracking
     SESSION_ID="rb-$(date +%s)"
-    npx @claude-flow/cli@latest hooks intelligence trajectory-start --session-id "$SESSION_ID" --agent-type "reasoningbank-learner" --task "$TASK"
+    npx @archon-os/cli@latest hooks intelligence trajectory-start --session-id "$SESSION_ID" --agent-type "reasoningbank-learner" --task "$TASK"
     # Search for similar patterns
-    mcp__claude-flow__memory_search --pattern="pattern:*" --namespace="reasoningbank" --limit=10
+    mcp__archon-os__memory_search --pattern="pattern:*" --namespace="reasoningbank" --limit=10
   post: |
     echo "✅ Learning cycle complete"
     # End trajectory with verdict
-    npx @claude-flow/cli@latest hooks intelligence trajectory-end --session-id "$SESSION_ID" --verdict "${VERDICT:-success}"
+    npx @archon-os/cli@latest hooks intelligence trajectory-end --session-id "$SESSION_ID" --verdict "${VERDICT:-success}"
     # Store learned pattern
-    mcp__claude-flow__memory_usage --action="store" --namespace="reasoningbank" --key="pattern:$(date +%s)" --value="$PATTERN_SUMMARY"
+    mcp__archon-os__memory_usage --action="store" --namespace="reasoningbank" --key="pattern:$(date +%s)" --value="$PATTERN_SUMMARY"
 ---
 
 # V3 ReasoningBank Learner Agent
@@ -54,7 +54,7 @@ You are a **ReasoningBank Learner** responsible for implementing the 4-step inte
 │        ▼               ▼               ▼               ▼           │
 │   ┌─────────────────────────────────────────────────────────────┐ │
 │   │                    PATTERN MEMORY                           │ │
-│   │  AgentDB + HNSW Index + SQLite Persistence                  │ │
+│   │  ruvector + HNSW Index + SQLite Persistence                  │ │
 │   └─────────────────────────────────────────────────────────────┘ │
 │                                                                     │
 └─────────────────────────────────────────────────────────────────────┘
@@ -68,10 +68,10 @@ Search for similar patterns 150x-12,500x faster:
 
 ```bash
 # Search patterns via HNSW
-mcp__claude-flow__memory_search --pattern="$TASK" --namespace="reasoningbank" --limit=10
+mcp__archon-os__memory_search --pattern="$TASK" --namespace="reasoningbank" --limit=10
 
 # Get pattern statistics
-npx @claude-flow/cli@latest hooks intelligence pattern-stats --query "$TASK" --k 10 --namespace reasoningbank
+npx @archon-os/cli@latest hooks intelligence pattern-stats --query "$TASK" --k 10 --namespace reasoningbank
 ```
 
 ### 2. JUDGE (Verdict Assignment)
@@ -80,14 +80,14 @@ Assign success/failure verdicts to trajectories:
 
 ```bash
 # Record trajectory step with outcome
-npx @claude-flow/cli@latest hooks intelligence trajectory-step \
+npx @archon-os/cli@latest hooks intelligence trajectory-step \
   --session-id "$SESSION_ID" \
   --operation "code-generation" \
   --outcome "success" \
   --metadata '{"files_changed": 3, "tests_passed": true}'
 
 # End trajectory with final verdict
-npx @claude-flow/cli@latest hooks intelligence trajectory-end \
+npx @archon-os/cli@latest hooks intelligence trajectory-end \
   --session-id "$SESSION_ID" \
   --verdict "success" \
   --reward 0.95
@@ -99,13 +99,13 @@ Extract key learnings using LoRA adaptation:
 
 ```bash
 # Store successful pattern
-mcp__claude-flow__memory_usage --action="store" \
+mcp__archon-os__memory_usage --action="store" \
   --namespace="reasoningbank" \
   --key="pattern:auth-implementation" \
   --value='{"task":"implement auth","approach":"JWT with refresh","outcome":"success","reward":0.95}'
 
 # Search for patterns to distill
-npx @claude-flow/cli@latest hooks intelligence pattern-search \
+npx @archon-os/cli@latest hooks intelligence pattern-search \
   --query "authentication" \
   --min-reward 0.8 \
   --namespace reasoningbank
@@ -117,10 +117,10 @@ Prevent catastrophic forgetting:
 
 ```bash
 # Consolidate patterns (prevents forgetting old learnings)
-npx @claude-flow/cli@latest neural consolidate --namespace reasoningbank
+npx @archon-os/cli@latest neural consolidate --namespace reasoningbank
 
 # Check consolidation status
-npx @claude-flow/cli@latest hooks intelligence stats --namespace reasoningbank
+npx @archon-os/cli@latest hooks intelligence stats --namespace reasoningbank
 ```
 
 ## Trajectory Tracking
@@ -129,29 +129,29 @@ Every agent operation should be tracked:
 
 ```bash
 # Start tracking
-npx @claude-flow/cli@latest hooks intelligence trajectory-start \
+npx @archon-os/cli@latest hooks intelligence trajectory-start \
   --session-id "task-123" \
   --agent-type "coder" \
   --task "Implement user authentication"
 
 # Track each step
-npx @claude-flow/cli@latest hooks intelligence trajectory-step \
+npx @archon-os/cli@latest hooks intelligence trajectory-step \
   --session-id "task-123" \
   --operation "write-test" \
   --outcome "success"
 
-npx @claude-flow/cli@latest hooks intelligence trajectory-step \
+npx @archon-os/cli@latest hooks intelligence trajectory-step \
   --session-id "task-123" \
   --operation "implement-feature" \
   --outcome "success"
 
-npx @claude-flow/cli@latest hooks intelligence trajectory-step \
+npx @archon-os/cli@latest hooks intelligence trajectory-step \
   --session-id "task-123" \
   --operation "run-tests" \
   --outcome "success"
 
 # End with verdict
-npx @claude-flow/cli@latest hooks intelligence trajectory-end \
+npx @archon-os/cli@latest hooks intelligence trajectory-end \
   --session-id "task-123" \
   --verdict "success" \
   --reward 0.92
@@ -197,7 +197,7 @@ The ReasoningBank integrates with V3 hooks:
     "matcher": "^(Write|Edit|Task)$",
     "hooks": [{
       "type": "command",
-      "command": "npx @claude-flow/cli@latest hooks intelligence trajectory-step --operation $TOOL_NAME --outcome $TOOL_SUCCESS"
+      "command": "npx @archon-os/cli@latest hooks intelligence trajectory-step --operation $TOOL_NAME --outcome $TOOL_SUCCESS"
     }]
   }]
 }

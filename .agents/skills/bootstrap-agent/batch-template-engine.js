@@ -7,8 +7,8 @@ const __dirname = dirname(__filename);
 
 // Configuration
 const TEMPLATES_DIR = join(__dirname, '../../../docs/references/templates-library');
-const WIKI_TEMPLATES_DIR = join(__dirname, '../../../docs/references/claude-flow-wiki');
-const EXAMPLES_DIR = join(__dirname, '../../../docs/references/claude-flow-examples');
+const WIKI_TEMPLATES_DIR = join(__dirname, '../../../docs/references/archon-os-wiki');
+const EXAMPLES_DIR = join(__dirname, '../../../docs/references/archon-os-examples');
 
 /**
  * Load tech stack specific rules from multiple sources
@@ -46,7 +46,7 @@ async function getStackRules(profile) {
 }
 
 /**
- * Load workflow examples from claude-flow examples
+ * Load workflow examples from archon-os examples
  */
 async function getWorkflowExamples(profile) {
   try {
@@ -76,7 +76,7 @@ async function getWorkflowExamples(profile) {
 }
 
 /**
- * Load configuration examples from claude-flow examples
+ * Load configuration examples from archon-os examples
  */
 async function getConfigExamples(profile) {
   try {

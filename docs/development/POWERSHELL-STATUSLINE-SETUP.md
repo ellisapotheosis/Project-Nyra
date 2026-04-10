@@ -23,7 +23,7 @@ The Claude Flow V3 statusline provides real-time visibility into your multi-agen
 │  statusline.js (Node.js)                                        │
 │    ↓                                                            │
 │  Local Repo Data                    OR      SSH Connection      │
-│    • .claude-flow.config.json              ↓                   │
+│    • .archon-os.config.json              ↓                   │
 │    • .claude/memory.db                  Orchestrator PC         │
 │    • .swarm/memory.db                   (WSL/Linux)            │
 │    • Git info                             • Authoritative data  │
@@ -163,7 +163,7 @@ $USE_REMOTE_DATA = $false  # Set to $true for remote
 ─────────────────────────────────────────────────────
 🏗️  DDD Domains    [●●●○○]  3/5    ⚡ 1.0x → 2.49x-7.47x
 🤖 Swarm  ○ [ 0/35]  👥 0    🔴 CVE 0/3    💾 12MB    📂  60%    🧠  12%
-🔧 Architecture    DDD ●60%  │  Security ●PENDING  │  Memory ●AgentDB  │  Integration ●
+🔧 Architecture    DDD ●60%  │  Security ●PENDING  │  Memory ●ruvector  │  Integration ●
 ```
 
 ### Symbols & Colors
@@ -300,7 +300,7 @@ Ensure at least one exists:
 
 ```powershell
 # Initialize memory database
-npx @claude-flow/cli@latest memory init --force
+npx @archon-os/cli@latest memory init --force
 ```
 
 ### Config validation warnings
@@ -308,7 +308,7 @@ npx @claude-flow/cli@latest memory init --force
 These are non-critical warnings that don't affect statusline functionality:
 
 ```
-[WARN] Invalid config at C:\Dev\Projects\Repos\Project-Nyra\claude-flow.config.json: Required, Expected object, received boolean
+[WARN] Invalid config at C:\Dev\Projects\Repos\Project-Nyra\archon-os.config.json: Required, Expected object, received boolean
 ```
 
 The system works fine despite these warnings.
@@ -388,9 +388,9 @@ function global:prompt {
 ## Support
 
 For issues or questions:
-- Documentation: `docs/CLAUDE-FLOW-V3-SETUP-SUMMARY.md`
+- Documentation: `docs/archon-os-V3-SETUP-SUMMARY.md`
 - Repository: `C:\Dev\Projects\Repos\Project-Nyra`
-- Config: `claude-flow.config.json`
+- Config: `archon-os.config.json`
 
 ---
 

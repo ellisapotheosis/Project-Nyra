@@ -13,7 +13,7 @@ This directory contains backup copies of all `.env` files and templates from acr
   - `.env`, `.env.example`, `.env.template`, `.env.master`
   - Machine-specific configs: `.env.orchestrator`, `.env.worker-3060`, `.env.worker-5090`, `.env.worker-3090ti`
   - Environment-specific: `.env.development`, `.env.production`, `.env.ci`
-  - Claude-Flow configs: `.env.claude-flow`, `.env.dev.claude-flow`, `.env.prod.claude-flow`
+  - archon-os configs: `.env.archon-os`, `.env.dev.archon-os`, `.env.prod.archon-os`
 
 - **`/env-backups/infra/`** - 15 .env files from infra folder (preserves directory structure)
   - `infra/.env`, `infra/.env.example`

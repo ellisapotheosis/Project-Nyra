@@ -235,7 +235,7 @@ $services = @()
 switch ($NodeType) {
     "orchestrator" {
         $services = @(
-            @{ Name = "Claude-Flow"; Url = "http://localhost:3000/health" },
+            @{ Name = "archon-os"; Url = "http://localhost:3000/health" },
             @{ Name = "Task API"; Url = "http://localhost:8080/health" },
             @{ Name = "Health Dashboard"; Url = "http://localhost:9090/health" },
             @{ Name = "GPU Metrics"; Url = "http://localhost:8081/metrics" }

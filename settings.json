@@ -1,9 +1,9 @@
 {
   "_documentation": {
     "description": "Project Nyra - Ultimate Enhanced Settings Configuration",
-    "purpose": "Orchestrates Claude-Flow with complete memory system integration (RuVector, Letta, Graphiti, FalkorDB, Mem0) and mortgage workflow support. Designed for 4-PC distributed GPU topology.",
+    "purpose": "Orchestrates archon-os with complete memory system integration (RuVector, Letta, letta, FalkorDB, Mem0) and mortgage workflow support. Designed for 4-PC distributed GPU topology.",
     "architecture": "Hybrid local GPU + cloud API routing with intelligent fallback",
-    "memory_hierarchy": "RuVector (Fast Retrieval) → Letta (Agent State) → Graphiti (Temporal Graph) → Mem0 (User Profiles)",
+    "memory_hierarchy": "RuVector (Fast Retrieval) → Letta (Agent State) → letta (Temporal Graph) → Mem0 (User Profiles)",
     "last_updated": "2025-01-08"
   },
 
@@ -32,8 +32,8 @@
     "RUVECTOR_MODE": "distributed",
     "LETTA_ENABLED": "true",
     "LETTA_MCP_ENABLED": "true",
-    "GRAPHITI_ENABLED": "true",
-    "GRAPHITI_BACKEND": "falkordb",
+    "letta_ENABLED": "true",
+    "letta_BACKEND": "falkordb",
     "FALKORDB_ENABLED": "true",
     "MEM0_ENABLED": "true",
     "OPENMEMORY_ENABLED": "true",
@@ -49,7 +49,7 @@
       "memory": { "enabled": true, "ttl": 120000, "maxSize": 2000 },
       "ruvector": { "enabled": true, "ttl": 600000, "maxSize": 10000, "indexCache": true },
       "letta": { "enabled": true, "ttl": 180000, "maxSize": 5000, "agentStateCache": true },
-      "graphiti": { "enabled": true, "ttl": 300000, "maxSize": 5000, "queryCache": true }
+      "letta": { "enabled": true, "ttl": 300000, "maxSize": 5000, "queryCache": true }
     },
     "parallelization": {
       "enabled": true,
@@ -147,12 +147,12 @@
         "namespace": "nyra.letta",
         "agentTypes": ["mortgage-assistant", "loan-officer-agent", "compliance-agent", "document-processor-agent"]
       },
-      "graphiti": {
+      "letta": {
         "enabled": true,
         "priority": 3,
         "backend": "falkordb",
         "temporalTracking": true,
-        "namespace": "nyra.graphiti",
+        "namespace": "nyra.letta",
         "graphName": "nyra_knowledge_graph",
         "entityTypes": ["borrower", "loan-application", "property", "lender", "document", "conversation", "campaign"],
         "relationshipTypes": ["applied-for", "owns", "submitted", "approved", "denied", "contacted-via", "responded-to"]
@@ -175,7 +175,7 @@
         "piiProtection": "enabled",
         "namespace": "nyra.mem0",
         "syncWithLetta": true,
-        "syncWithGraphiti": true
+        "syncWithletta": true
       },
       "openmemory": {
         "enabled": true,
@@ -198,8 +198,8 @@
 
   "permissions": {
     "allow": [
-      "Bash(npx claude-flow *)",
-      "Bash(npx claude-flow@alpha *)",
+      "Bash(npx archon-os *)",
+      "Bash(npx archon-os@alpha *)",
       "Bash(npm run lint)",
       "Bash(npm run test:*)",
       "Bash(npm test *)",
@@ -213,7 +213,7 @@
       "Bash(jq *)",
       "Bash(node *)",
       "Bash(curl *)",
-      "Bash(./claude-flow *)",
+      "Bash(./archon-os *)",
       "Bash(./.claude/helpers/*)",
       "mcp__*",
       "WebFetch"
@@ -226,7 +226,7 @@
     ],
     "autoApprove": {
       "mcp__ruv-swarm": ["*"],
-      "mcp__claude-flow": ["*"],
+      "mcp__archon-os": ["*"],
       "mcp__letta": ["*"],
       "mcp__openmemory": ["*"],
       "mcp__ruvector": ["*"]
@@ -259,15 +259,15 @@
         "hooks": [
           {
             "type": "command",
-            "command": "npx claude-flow@alpha hooks pre-command --command \"$CLAUDE_COMMAND\" --validate-safety true --prepare-resources true --predict-outcome true --check-patterns true --batch true --cache true"
+            "command": "npx archon-os@alpha hooks pre-command --command \"$CLAUDE_COMMAND\" --validate-safety true --prepare-resources true --predict-outcome true --check-patterns true --batch true --cache true"
           },
           {
             "type": "command",
-            "command": "npx claude-flow@alpha memory store --key \"command/pre/$CLAUDE_TIMESTAMP\" --value \"$CLAUDE_COMMAND\" --namespace \"commands\" --batch true"
+            "command": "npx archon-os@alpha memory store --key \"command/pre/$CLAUDE_TIMESTAMP\" --value \"$CLAUDE_COMMAND\" --namespace \"commands\" --batch true"
           },
           {
             "type": "command",
-            "command": "npx claude-flow@alpha neural predict --model \"error_preventer\" --input \"$CLAUDE_COMMAND\" --block-if-risky true --cache true"
+            "command": "npx archon-os@alpha neural predict --model \"error_preventer\" --input \"$CLAUDE_COMMAND\" --block-if-risky true --cache true"
           }
         ]
       },
@@ -278,15 +278,15 @@
         "hooks": [
           {
             "type": "command",
-            "command": "npx claude-flow@alpha hooks pre-edit --file \"$CLAUDE_EDITED_FILE\" --auto-assign-agents true --load-context true --analyze-impact true --batch true --cache true"
+            "command": "npx archon-os@alpha hooks pre-edit --file \"$CLAUDE_EDITED_FILE\" --auto-assign-agents true --load-context true --analyze-impact true --batch true --cache true"
           },
           {
             "type": "command",
-            "command": "npx claude-flow@alpha memory store --key \"edit/pre/$CLAUDE_EDITED_FILE\" --value \"$CLAUDE_OPERATION_CONTEXT\" --namespace \"edits\" --batch true"
+            "command": "npx archon-os@alpha memory store --key \"edit/pre/$CLAUDE_EDITED_FILE\" --value \"$CLAUDE_OPERATION_CONTEXT\" --namespace \"edits\" --batch true"
           },
           {
             "type": "command",
-            "command": "npx claude-flow@alpha neural optimize --operation \"file-edit\" --target \"$CLAUDE_EDITED_FILE\" --suggest-improvements true --cache true"
+            "command": "npx archon-os@alpha neural optimize --operation \"file-edit\" --target \"$CLAUDE_EDITED_FILE\" --suggest-improvements true --cache true"
           },
           {
             "type": "command",
@@ -303,15 +303,15 @@
         "hooks": [
           {
             "type": "command",
-            "command": "npx claude-flow@alpha hooks post-command --command \"$CLAUDE_COMMAND\" --track-metrics true --store-results true --analyze-performance true --batch true"
+            "command": "npx archon-os@alpha hooks post-command --command \"$CLAUDE_COMMAND\" --track-metrics true --store-results true --analyze-performance true --batch true"
           },
           {
             "type": "command",
-            "command": "npx claude-flow@alpha memory store --key \"command/post/$CLAUDE_TIMESTAMP\" --value \"{\\\"command\\\": \\\"$CLAUDE_COMMAND\\\", \\\"result\\\": \\\"$CLAUDE_RESULT\\\", \\\"duration\\\": $CLAUDE_DURATION}\" --namespace \"commands\" --batch true"
+            "command": "npx archon-os@alpha memory store --key \"command/post/$CLAUDE_TIMESTAMP\" --value \"{\\\"command\\\": \\\"$CLAUDE_COMMAND\\\", \\\"result\\\": \\\"$CLAUDE_RESULT\\\", \\\"duration\\\": $CLAUDE_DURATION}\" --namespace \"commands\" --batch true"
           },
           {
             "type": "command",
-            "command": "npx claude-flow@alpha neural train --model \"performance_optimizer\" --data \"{\\\"operation\\\": \\\"bash\\\", \\\"duration\\\": $CLAUDE_DURATION, \\\"success\\\": $CLAUDE_SUCCESS}\" --batch true"
+            "command": "npx archon-os@alpha neural train --model \"performance_optimizer\" --data \"{\\\"operation\\\": \\\"bash\\\", \\\"duration\\\": $CLAUDE_DURATION, \\\"success\\\": $CLAUDE_SUCCESS}\" --batch true"
           }
         ]
       },
@@ -322,15 +322,15 @@
         "hooks": [
           {
             "type": "command",
-            "command": "npx claude-flow@alpha hooks post-edit --file \"$CLAUDE_EDITED_FILE\" --format true --update-memory true --train-neural true --analyze-quality true"
+            "command": "npx archon-os@alpha hooks post-edit --file \"$CLAUDE_EDITED_FILE\" --format true --update-memory true --train-neural true --analyze-quality true"
           },
           {
             "type": "command",
-            "command": "npx claude-flow@alpha memory store --key \"edit/post/{}\" --value '{\"changes\": $CLAUDE_CHANGES, \"quality_score\": $CLAUDE_QUALITY_SCORE}' --namespace \"edits\" --batch true"
+            "command": "npx archon-os@alpha memory store --key \"edit/post/{}\" --value '{\"changes\": $CLAUDE_CHANGES, \"quality_score\": $CLAUDE_QUALITY_SCORE}' --namespace \"edits\" --batch true"
           },
           {
             "type": "command",
-            "command": "npx claude-flow@alpha neural train --model \"task_predictor\" --data '{\"file_type\": \"$CLAUDE_FILE_TYPE\", \"operation\": \"$CLAUDE_OPERATION\", \"success\": true}' --batch true"
+            "command": "npx archon-os@alpha neural train --model \"task_predictor\" --data '{\"file_type\": \"$CLAUDE_FILE_TYPE\", \"operation\": \"$CLAUDE_OPERATION\", \"success\": true}' --batch true"
           },
           {
             "type": "command",
@@ -344,7 +344,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "npx claude-flow@alpha hooks session-end --generate-summary true --persist-state true --export-metrics true --backup-memory true --optimize-models true"
+            "command": "npx archon-os@alpha hooks session-end --generate-summary true --persist-state true --export-metrics true --backup-memory true --optimize-models true"
           },
           {
             "type": "command",
@@ -352,7 +352,7 @@
           },
           {
             "type": "command",
-            "command": "npx claude-flow@alpha memory backup --namespace \"all\" --destination \".claude/memory-backup-$CLAUDE_SESSION_ID.json\""
+            "command": "npx archon-os@alpha memory backup --namespace \"all\" --destination \".claude/memory-backup-$CLAUDE_SESSION_ID.json\""
           }
         ]
       }
@@ -378,17 +378,17 @@
   "includeCoAuthoredBy": true,
 
   "enabledPlugins": {
-    "claude-flow@claude-flow-marketplace": true
+    "archon-os@archon-os-marketplace": true
   },
 
   "enabledMcpjsonServers": [
-    "claude-flow", "ruv-swarm", "letta", "openmemory", "ruvector"
+    "archon-os", "ruv-swarm", "letta", "openmemory", "ruvector"
   ],
 
   "mcpServers": {
-    "claude-flow": {
+    "archon-os": {
       "command": "npx",
-      "args": ["claude-flow@alpha", "mcp", "start"],
+      "args": ["archon-os@alpha", "mcp", "start"],
       "type": "stdio"
     },
     "ruv-swarm": {
@@ -412,11 +412,11 @@
       "args": ["mcp", "start", "--mode", "distributed"],
       "type": "stdio"
     },
-    "graphiti": {
+    "letta": {
       "command": "python",
-      "args": ["-m", "graphiti.mcp_server"],
+      "args": ["-m", "letta.mcp_server"],
       "type": "stdio",
-      "env": { "GRAPHITI_BACKEND": "falkordb", "FALKORDB_URL": "redis://localhost:6380" }
+      "env": { "letta_BACKEND": "falkordb", "FALKORDB_URL": "redis://localhost:6380" }
     }
   },
 

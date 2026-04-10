@@ -19,7 +19,7 @@ infra-archived/infra-20260206-1551/archive/nyra-infra-old/legacy-infra/unblock_m
 infra-archived/infra-20260206-1551/archive/nyra-infra-old/metamcp-gateway/README.md
 infra-archived/infra-20260206-1551/archive/nyra-infra-old/metamcp-gateway/channels/agents/archgw.json
 infra-archived/infra-20260206-1551/archive/nyra-infra-old/metamcp-gateway/channels/agents/archon.json
-infra-archived/infra-20260206-1551/archive/nyra-infra-old/metamcp-gateway/channels/agents/claude-flow.json
+infra-archived/infra-20260206-1551/archive/nyra-infra-old/metamcp-gateway/channels/agents/archon-os.json
 infra-archived/infra-20260206-1551/archive/nyra-infra-old/metamcp-gateway/channels/agents/codanna.json
 infra-archived/infra-20260206-1551/archive/nyra-infra-old/metamcp-gateway/channels/agents/flow-nexus.json
 infra-archived/infra-20260206-1551/archive/nyra-infra-old/metamcp-gateway/channels/agents/hive-mind.json
@@ -64,7 +64,7 @@ infra-archived/infra-20260206-1551/docker/scripts/start-mcp-prod.cmd
 infra-archived/infra-20260206-1551/docker/scripts/start-mcp-prod.sh
 infra-archived/infra-20260206-1551/docker/scripts/stop-mcp.cmd
 infra-archived/infra-20260206-1551/docker/scripts/stop-mcp.sh
-infra-archived/infra-20260206-1551/docker/services/agentic-flow/src/mcp-server.ts
+infra-archived/infra-20260206-1551/docker/services/archon-os/src/mcp-server.ts
 infra-archived/infra-20260206-1551/docker/start-mcp.ps1
 infra-archived/infra-20260206-1551/dockerhub-mcp/CLAUDE.md
 infra-archived/infra-20260206-1551/dockerhub-mcp/QUICKSTART.md

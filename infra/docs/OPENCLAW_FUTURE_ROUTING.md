@@ -62,7 +62,7 @@ Current:
 Later:
 
 - keep Mem0 cloud for conversational/operator memory,
-- layer in Nyra-native memory systems such as Graphiti, Letta, or related tools through Nexus/MCP rather than hardwiring them into the first-pass OpenClaw client.
+- layer in Nyra-native memory systems such as letta, Letta, or related tools through Nexus/MCP rather than hardwiring them into the first-pass OpenClaw client.
 
 ### 4. Internal chat now -> richer operator console later
 

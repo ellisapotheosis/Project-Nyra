@@ -26,7 +26,7 @@
 This guide provides step-by-step instructions for manually configuring Project Nyra's infrastructure without relying on automated deployment scripts. It covers:
 
 - **Backend Databases**: PostgreSQL, Redis, FalkorDB, Qdrant, Neo4j
-- **Memory Systems**: Letta, Mem0, Graphiti, AgentDB
+- **Memory Systems**: Letta, Mem0, letta, ruvector
 - **MCP Servers**: Claude Flow, Archon OS, Infisical, Bitwarden
 - **Nexus Router**: Intelligent LLM routing gateway
 - **Network Configuration**: Docker networking, port assignments, firewall rules
@@ -66,7 +66,7 @@ This guide provides step-by-step instructions for manually configuring Project N
     ├─────────────────────────────┤
     │ PostgreSQL │ Redis          │
     │ FalkorDB   │ Qdrant         │
-    │ Neo4j      │ AgentDB        │
+    │ Neo4j      │ ruvector        │
     └─────────────────────────────┘
 ```
 
@@ -156,7 +156,7 @@ BW_SESSION=your_bitwarden_session
 # Memory Systems
 LETTA_DB_NAME=letta
 MEM0_API_KEY=optional_mem0_api_key
-GRAPHITI_GROUP_ID=nyra
+letta_GROUP_ID=nyra
 
 # Node Environment
 NODE_ENV=production
@@ -616,18 +616,18 @@ curl -X POST http://localhost:8081/memories/search \
 curl http://localhost:8081/memories/get/user_123
 ```
 
-### 3. Graphiti Knowledge Graph
+### 3. letta Knowledge Graph
 
-Graphiti provides temporal knowledge graphs for entity relationships.
+letta provides temporal knowledge graphs for entity relationships.
 
 #### Installation & Configuration
 
 ```bash
 # Add to docker-compose.dev.yml
 services:
-  graphiti:
+  letta:
     image: zepai/knowledge-graph-mcp:standalone
-    container_name: nyra-graphiti
+    container_name: nyra-letta
     restart: unless-stopped
     environment:
       # FalkorDB Configuration
@@ -635,8 +635,8 @@ services:
       FALKORDB_PASSWORD: ${FALKORDB_PASSWORD:-}
       FALKORDB_DATABASE: default_db
 
-      # Graphiti Settings
-      GRAPHITI_GROUP_ID: ${GRAPHITI_GROUP_ID:-nyra}
+      # letta Settings
+      letta_GROUP_ID: ${letta_GROUP_ID:-nyra}
       SEMAPHORE_LIMIT: 5
 
       # OpenAI Configuration (for embeddings)
@@ -676,21 +676,21 @@ curl -X POST http://localhost:9100/api/graph/build \
 curl http://localhost:9100/api/temporal/snapshot?user_id=user_123
 ```
 
-### 4. AgentDB - Advanced Memory System
+### 4. ruvector - Advanced Memory System
 
-AgentDB provides HNSW-indexed vector search with 150x-12,500x faster performance.
+ruvector provides HNSW-indexed vector search with 150x-12,500x faster performance.
 
 #### Installation & Configuration
 
 ```bash
 # Add to docker-compose.dev.yml
 services:
-  agentdb:
-    image: agentdb/agentdb:latest
-    container_name: nyra-agentdb
+  ruvector:
+    image: ruvector/ruvector:latest
+    container_name: nyra-ruvector
     restart: unless-stopped
     environment:
-      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/agentdb
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/ruvector
       VECTOR_DB_HOST: qdrant
       VECTOR_DB_PORT: 6333
       HNSW_ENABLED: "true"
@@ -704,15 +704,15 @@ services:
       - nyra-network
 
 volumes:
-  agentdb-data:
+  ruvector-data:
     driver: local
 ```
 
 #### Initialization
 
 ```bash
-# Create AgentDB database
-psql -h localhost -U nyra -d postgres -c "CREATE DATABASE agentdb WITH OWNER nyra;"
+# Create ruvector database
+psql -h localhost -U nyra -d postgres -c "CREATE DATABASE ruvector WITH OWNER nyra;"
 
 # Verify connection
 curl http://localhost:8092/health
@@ -730,17 +730,17 @@ Claude Flow provides swarm orchestration and agent coordination.
 
 ```bash
 # Option A: Using npx (Recommended)
-npx @claude-flow/cli@latest mcp start
+npx @archon-os/cli@latest mcp start
 
 # Option B: Global installation
-npm install -g claude-flow@alpha
-claude-flow mcp start
+npm install -g archon-os@alpha
+archon-os mcp start
 
 # Option C: Docker Compose
 services:
-  claude-flow-mcp:
-    image: claude-flow:alpha
-    container_name: nyra-claude-flow-mcp
+  archon-os-mcp:
+    image: archon-os:alpha
+    container_name: nyra-archon-os-mcp
     restart: unless-stopped
     ports:
       - "3100:3100"
@@ -981,7 +981,7 @@ Register MCP servers with Nexus Router:
 module.exports = {
   servers: [
     {
-      name: 'claude-flow',
+      name: 'archon-os',
       url: 'http://localhost:3100',
       enabled: true,
       priority: 1,
@@ -1082,8 +1082,8 @@ services:
 | Neo4j HTTP | 7474 | Graph database (HTTP) |
 | Letta | 8091 | Memory system API |
 | Mem0 | 8081 | Memory system |
-| Graphiti | 9100 | Knowledge graph |
-| AgentDB | 8092 | Advanced memory |
+| letta | 9100 | Knowledge graph |
+| ruvector | 8092 | Advanced memory |
 
 ### 4-PC Distributed Network Setup
 
@@ -1165,10 +1165,10 @@ curl http://localhost:8091/agents
 # Mem0
 curl http://localhost:8081/health
 
-# Graphiti
+# letta
 curl http://localhost:9100/health
 
-# AgentDB
+# ruvector
 curl http://localhost:8092/health
 ```
 
@@ -1239,8 +1239,8 @@ echo
 echo "Memory Systems:"
 curl -s http://localhost:8091/agents > /dev/null && echo "✅ Letta" || echo "❌ Letta"
 curl -s http://localhost:8081/health > /dev/null && echo "✅ Mem0" || echo "❌ Mem0"
-curl -s http://localhost:9100/health > /dev/null && echo "✅ Graphiti" || echo "❌ Graphiti"
-curl -s http://localhost:8092/health > /dev/null && echo "✅ AgentDB" || echo "❌ AgentDB"
+curl -s http://localhost:9100/health > /dev/null && echo "✅ letta" || echo "❌ letta"
+curl -s http://localhost:8092/health > /dev/null && echo "✅ ruvector" || echo "❌ ruvector"
 
 echo
 echo "MCP Servers:"
@@ -1303,7 +1303,7 @@ psql -h postgres -U nyra -d nyra_production -c "SELECT 1;"
 **Solutions**:
 ```bash
 # Check logs
-docker logs nyra-claude-flow-mcp
+docker logs nyra-archon-os-mcp
 
 # Verify port is not in use
 netstat -ano | findstr :3100  # Windows
@@ -1313,8 +1313,8 @@ lsof -i :3100                 # Linux/Mac
 kill -9 $(lsof -t -i:3100)    # Linux/Mac
 
 # Restart service
-docker-compose down claude-flow-mcp
-docker-compose up -d claude-flow-mcp
+docker-compose down archon-os-mcp
+docker-compose up -d archon-os-mcp
 ```
 
 #### 3. Nexus Router Health Check Fails
@@ -1447,9 +1447,9 @@ services:
       - LOG_LEVEL=debug
       - DEBUG=nexus:*
 
-  claude-flow-mcp:
+  archon-os-mcp:
     environment:
-      - DEBUG=claude-flow:*
+      - DEBUG=archon-os:*
 
 # Bash - Enable debug output
 DEBUG=* npm start
@@ -1457,7 +1457,7 @@ DEBUG=nexus:* docker-compose up nexus-router
 
 # Monitor logs in real-time
 docker logs -f nyra-nexus-router
-docker logs -f nyra-claude-flow-mcp --tail 100
+docker logs -f nyra-archon-os-mcp --tail 100
 ```
 
 ---
@@ -1503,7 +1503,7 @@ No special network configuration needed beyond Docker networking.
 - Models: llama-3.1-70b, qwen-2.5-32b, mixtral-8x22b
 
 #### PC4 (GPU Worker 3)
-- Hosts: Graphiti, workflow engines (n8n, Dify)
+- Hosts: letta, workflow engines (n8n, Dify)
 - IP: 10.0.0.4
 - Models: llama-3.1-8b, qwen-2.5-7b, deepseek-coder-6.7b
 

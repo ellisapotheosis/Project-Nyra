@@ -134,7 +134,7 @@ Creating nyra-postgres ... done
 Creating nyra-falkordb ... done
 Creating nyra-qdrant ... done
 Creating nyra-nexus-router ... done
-Creating nyra-claude-flow ... done
+Creating nyra-archon-os ... done
 Creating nyra-archon-os ... done
 Creating nyra-letta ... done
 ```

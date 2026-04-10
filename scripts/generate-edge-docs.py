@@ -24,7 +24,7 @@ PRIMARY_COMPOSE_FILES = [
 
 SUPPLEMENTAL_COMPOSE_FILES = [
     Path("infra/docker-compose.twenty.yml"),
-    Path("infra/docker-compose.claude-flow-cicd.yml"),
+    Path("infra/docker-compose.archon-os-cicd.yml"),
     Path("infra/docker-compose.orchestrator-cf-tunnel.yml"),
     Path("infra/docker-compose.dashboard.yml"),
     Path("infra/orchestrator/docker-compose.nexus-one-hop.yml"),
@@ -83,14 +83,14 @@ PUBLIC_SERVICES = {
 }
 
 PRIVATE_ONLY = {
-    "agentic-flow",
+    "archon-os",
     "archon-agents",
     "archon-mcp",
     "archon-os",
     "archon-server",
     "bitwarden-mcp",
     "cadvisor",
-    "claude-flow",
+    "archon-os",
     "docker-mcp-toolkit",
     "git-mcp",
     "github-mcp",
@@ -418,7 +418,7 @@ def write_cloudflared_docs(canonical: list[ServiceRow]) -> None:
             handle.write(f"| `{row.proposed_hostname}` | `{row.localhost_target}` | proxied CNAME | {note} |\n")
         handle.write("\nEach CNAME points to `<TUNNEL_UUID>.cfargotunnel.com`.\n\n")
         handle.write("## Explicitly excluded from tunnel\n\n")
-        handle.write("- Datastores: `postgres`, `redis`, `mongo`, `agentdb`, `ruvector-postgres`, `gitea-db`, `infisical-db`, `infisical-redis`\n")
+        handle.write("- Datastores: `postgres`, `redis`, `mongo`, `ruvector`, `ruvector-postgres`, `gitea-db`, `infisical-db`, `infisical-redis`\n")
         handle.write("- Worker inference backends: `worker-3060-ollama`, `worker-3090ti-vllm`, `worker-5090-vllm`\n")
         handle.write("- SSH and raw TCP endpoints, including `gitea` SSH on port `22`\n")
 
@@ -455,7 +455,7 @@ def write_cloudflared_docs(canonical: list[ServiceRow]) -> None:
                 note = PUBLIC_SERVICES[row.service]["note"]
                 handle.write(f"| `{row.proposed_hostname}` | `{row.localhost_target}` | required | {note} |\n")
             handle.write("\n## Explicitly non-exposed services\n\n")
-            handle.write("- `postgres`, `redis`, `mongo`, `agentdb`, `ruvector-postgres`, `gitea-db`, `infisical-db`, `infisical-redis`\n")
+            handle.write("- `postgres`, `redis`, `mongo`, `ruvector`, `ruvector-postgres`, `gitea-db`, `infisical-db`, `infisical-redis`\n")
             handle.write("- `worker-3060-ollama`, `worker-3090ti-vllm`, `worker-5090-vllm`\n")
             handle.write("- `gitea` SSH on port `22`\n")
 

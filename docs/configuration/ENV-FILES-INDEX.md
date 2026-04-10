@@ -25,9 +25,9 @@
 - `infra/environments/pc4-rtx3090.env.template`
 - `infra/docker-compose/.env.example`
 - `infra/docker/.env.mcp.template`
-- `infra/docker/build/.env.claude-flow.example`
+- `infra/docker/build/.env.archon-os.example`
 - `infra/docker/services/.env.embeddings.example`
-- `infra/docker/services/agentic-flow/.env.example`
+- `infra/docker/services/archon-os/.env.example`
 - `infra/docker/services/ruvector/.env.example`
 - `infra/bitwarden-mcp/.env.example`
 - `infra/bitwarden-mcp/test/.env.example`
@@ -53,9 +53,9 @@
 ## 3. Docs: Configuration & Env Backups
 - `docs/ai-automatable/bootstrap/MASTER-.env`
 - `docs/configuration/env-backups/root/.env.ci`
-- `docs/configuration/env-backups/root/.env.claude-flow`
+- `docs/configuration/env-backups/root/.env.archon-os`
 - `docs/configuration/env-backups/root/.env.cloudflare.example`
-- `docs/configuration/env-backups/root/.env.dev.claude-flow`
+- `docs/configuration/env-backups/root/.env.dev.archon-os`
 - `docs/configuration/env-backups/root/.env.development`
 - `docs/configuration/env-backups/root/.env.development.optimal`
 - `docs/configuration/env-backups/root/.env.example`
@@ -63,7 +63,7 @@
 - `docs/configuration/env-backups/root/.env.master`
 - `docs/configuration/env-backups/root/.env.orchestration.template`
 - `docs/configuration/env-backups/root/.env.orchestrator`
-- `docs/configuration/env-backups/root/.env.prod.claude-flow`
+- `docs/configuration/env-backups/root/.env.prod.archon-os`
 - `docs/configuration/env-backups/root/.env.production`
 - `docs/configuration/env-backups/root/.env.production.optimal`
 - `docs/configuration/env-backups/root/.env.template`
@@ -135,8 +135,8 @@
 - `ToDo/whitepaper-workflow/11111files/dev.env.template`
 - `ToDo/whitepaper-workflow/nyra-mcp-infisical-patchkit-v1/infra/.env.example`
 - `ToDo/whitepaper-workflow/nyra-mcp-infisical-patchkit-v1/nyra-stack/.env.example`
-- `ToDo/whitepaper-workflow/nyra-claude-flow-v3-stack-blueprint/.env.example`
-- `ToDo/whitepaper-workflow/nyra-claude-flow-v3-stack-blueprint/third_party/claude_flow_v3/nyra-claude-flow-v3-stack-blueprint/.env.example`
+- `ToDo/whitepaper-workflow/nyra-archon-os-v3-stack-blueprint/.env.example`
+- `ToDo/whitepaper-workflow/nyra-archon-os-v3-stack-blueprint/third_party/claude_flow_v3/nyra-archon-os-v3-stack-blueprint/.env.example`
 - `ToDo/whitepaper-workflow/nyra-mcp-infisical-patchkit-v1/infra/.env.example`
 - `ToDo/whitepaper-workflow/nyra-mcp-infisical-patchkit-v1/nyra-stack/.env.example`
 

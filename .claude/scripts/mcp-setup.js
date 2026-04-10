@@ -41,7 +41,7 @@ class MCPSetup {
       { name: 'desktop-commander', command: 'claude mcp list | findstr desktop-commander' },
       { name: 'ruv-swarm', command: 'claude mcp list | findstr ruv-swarm' },
       { name: 'flow-nexus', command: 'claude mcp list | findstr flow-nexus' },
-      { name: 'claude-flow', command: 'claude mcp list | findstr claude-flow' }
+      { name: 'archon-os', command: 'claude mcp list | findstr archon-os' }
     ];
 
     const results = {};
@@ -77,7 +77,7 @@ class MCPSetup {
       'claude mcp add desktop-commander npx -y @wonderwhy-er/desktop-commander@latest',
       'claude mcp add ruv-swarm npx ruv-swarm@latest mcp start',
       'claude mcp add flow-nexus npx flow-nexus@latest mcp start',
-      'claude mcp add claude-flow npx claude-flow@alpha mcp start'
+      'claude mcp add archon-os npx archon-os@alpha mcp start'
     ];
 
     for (const command of installCommands) {
@@ -92,15 +92,15 @@ class MCPSetup {
   }
 
   /**
-   * Fix claude-flow connection issues
+   * Fix archon-os connection issues
    */
   async fixClaudeFlowConnection() {
-    this.log('Attempting to fix claude-flow connection...');
+    this.log('Attempting to fix archon-os connection...');
 
     const fixCommands = [
-      'npm install claude-flow@alpha --save',
-      'claude mcp remove claude-flow',
-      'claude mcp add claude-flow npx claude-flow@alpha mcp start'
+      'npm install archon-os@alpha --save',
+      'claude mcp remove archon-os',
+      'claude mcp add archon-os npx archon-os@alpha mcp start'
     ];
 
     for (const command of fixCommands) {
@@ -115,12 +115,12 @@ class MCPSetup {
 
     // Test the connection
     const testResult = await this.testServerConnectivity();
-    const claudeFlowStatus = testResult['claude-flow'];
+    const claudeFlowStatus = testResult['archon-os'];
     
     if (claudeFlowStatus?.connected) {
-      this.log('claude-flow connection fixed successfully!');
+      this.log('archon-os connection fixed successfully!');
     } else {
-      this.log('claude-flow connection still has issues', 'ERROR');
+      this.log('archon-os connection still has issues', 'ERROR');
       this.log('Manual intervention may be required', 'WARN');
     }
   }
@@ -163,7 +163,7 @@ class MCPSetup {
           server,
           issue: 'Server not connected',
           action: `Run: claude mcp add ${server} <command>`,
-          priority: server === 'claude-flow' ? 'high' : 'medium'
+          priority: server === 'archon-os' ? 'high' : 'medium'
         });
       }
     });
@@ -241,8 +241,8 @@ class MCPSetup {
       // Test current connectivity
       const connectivity = await this.testServerConnectivity();
       
-      // Fix claude-flow if needed
-      if (!connectivity['claude-flow']?.connected) {
+      // Fix archon-os if needed
+      if (!connectivity['archon-os']?.connected) {
         await this.fixClaudeFlowConnection();
       }
 

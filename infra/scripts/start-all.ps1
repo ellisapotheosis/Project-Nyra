@@ -6,7 +6,7 @@
 # This script starts the complete Project Nyra infrastructure stack:
 #   - Phase 1: Infisical Agent (Secrets Management)
 #   - Phase 2: Core Infrastructure (PostgreSQL, Redis, Neo4j, Qdrant, FalkorDB)
-#   - Phase 3: MCP Servers (Nexus Router, AgentDB, RuVector, Letta, Mem0)
+#   - Phase 3: MCP Servers (Nexus Router, ruvector, RuVector, Letta, Mem0)
 #   - Phase 4: Claude Flow @alpha (Multi-Agent Orchestration)
 #   - Phase 5: Open-WebUI (Port 8088)
 #   - Phase 6: Orchestrator (Prometheus, Grafana, Loki)
@@ -100,11 +100,11 @@ $Services = @{
     }
     MCP = @{
         ComposeFile = "base/docker-compose.mcp.yml"
-        Description = "MCP Servers (Nexus, LiteLLM, AgentDB, RuVector, Letta, Mem0, Infisical)"
+        Description = "MCP Servers (Nexus, LiteLLM, ruvector, RuVector, Letta, Mem0, Infisical)"
         HealthChecks = @(
             @{ Name = "Nexus Router"; URL = "http://localhost:6000/health"; Port = 6000; Type = "http" }
             @{ Name = "LiteLLM"; URL = "http://localhost:4000/health"; Port = 4000; Type = "http" }
-            @{ Name = "AgentDB"; URL = "http://localhost:8080/health"; Port = 8080; Type = "http" }
+            @{ Name = "ruvector"; URL = "http://localhost:8080/health"; Port = 8080; Type = "http" }
             @{ Name = "RuVector"; URL = "http://localhost:8888/health"; Port = 8888; Type = "http" }
             @{ Name = "Letta"; URL = "http://localhost:8283/health"; Port = 8283; Type = "http" }
             @{ Name = "Mem0"; URL = "http://localhost:4321/health"; Port = 4321; Type = "http" }
@@ -364,9 +364,9 @@ else {
 }
 
 # ============================================================================
-# PHASE 3: MCP Servers (Nexus, AgentDB, RuVector, Letta, Mem0)
+# PHASE 3: MCP Servers (Nexus, ruvector, RuVector, Letta, Mem0)
 # ============================================================================
-Write-Phase "PHASE 3: MCP Servers (Nexus Router, AgentDB, RuVector, Letta, Mem0)"
+Write-Phase "PHASE 3: MCP Servers (Nexus Router, ruvector, RuVector, Letta, Mem0)"
 
 $mcpCompose = Join-Path $DockerDir "base/docker-compose.mcp.yml"
 if (Test-Path $mcpCompose) {
@@ -384,10 +384,10 @@ if (Test-Path $mcpCompose) {
         Start-Sleep -Seconds 2
     }
 
-    Write-Step "Waiting for AgentDB..."
+    Write-Step "Waiting for ruvector..."
     for ($i = 0; $i -lt 20; $i++) {
-        if (Test-ServiceHealth -Name "AgentDB" -URL "http://localhost:8080/health" -Port 8080 -MaxRetries 1) {
-            Write-Success "AgentDB ready"
+        if (Test-ServiceHealth -Name "ruvector" -URL "http://localhost:8080/health" -Port 8080 -MaxRetries 1) {
+            Write-Success "ruvector ready"
             break
         }
         Start-Sleep -Seconds 2
@@ -417,7 +417,7 @@ if (Test-Path $appsCompose) {
 
     # First initialize Claude Flow if needed
     Write-Step "Initializing Claude Flow configuration..."
-    docker compose -f $appsCompose run --rm claude-flow-alpha sh -c "npx @claude-flow/cli@latest init --docker --force 2>/dev/null || true" 2>&1 | Out-Null
+    docker compose -f $appsCompose run --rm archon-os-alpha sh -c "npx @archon-os/cli@latest init --docker --force 2>/dev/null || true" 2>&1 | Out-Null
 
     Write-Step "Starting application services..."
     $buildFlag = if ($Build) { "--build" } else { "" }
@@ -568,7 +568,7 @@ Write-Host @"
   AI/ML Stack:
     Nexus Router:     http://localhost:6000  (LLM Gateway)
     LiteLLM:          http://localhost:4000  (Model Proxy)
-    AgentDB:          http://localhost:8080  (HNSW Vector DB)
+    ruvector:          http://localhost:8080  (HNSW Vector DB)
     RuVector:         http://localhost:8888  (Memory Optimization)
 
   Memory Services:

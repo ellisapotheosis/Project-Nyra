@@ -138,7 +138,7 @@ Execute the following phases sequentially. Complete each phase fully before movi
 
 ## PHASE 4: START MEMORY SYSTEM INFRASTRUCTURE (60 minutes)
 
-**Objective:** Initialize all 6 memory systems (RuVector, Letta, Graphiti, FalkorDB, Mem0, OpenMemory).
+**Objective:** Initialize all 6 memory systems (RuVector, Letta, letta, FalkorDB, Mem0, OpenMemory).
 
 **Steps:**
 
@@ -175,13 +175,13 @@ Execute the following phases sequentially. Complete each phase fully before movi
    letta server --port 8283
    ```
 
-5. Initialize Graphiti with FalkorDB backend:
+5. Initialize letta with FalkorDB backend:
    ```powershell
-   # Install Graphiti
-   pip install graphiti-core --break-system-packages
+   # Install letta
+   pip install letta-core --break-system-packages
    
    # Initialize graph database
-   python -c "from graphiti import Graphiti; g = Graphiti(backend='falkordb', url='redis://localhost:6379'); g.initialize()"
+   python -c "from letta import letta; g = letta(backend='falkordb', url='redis://localhost:6379'); g.initialize()"
    ```
 
 6. Initialize Mem0:
@@ -229,7 +229,7 @@ Execute the following phases sequentially. Complete each phase fully before movi
 
 1. Execute Claude Flow batch initialization:
    ```powershell
-   npx @claude-flow/cli@latest init --config bootstrap\consolidation-kit\configs\batch-config-complete.json
+   npx @archon-os/cli@latest init --config bootstrap\consolidation-kit\configs\batch-config-complete.json
    ```
 
 2. Monitor the initialization progress and report after each module is created
@@ -298,8 +298,8 @@ Execute the following phases sequentially. Complete each phase fully before movi
    pip install -r requirements.txt --break-system-packages
    cd ..\..
    
-   # Graphiti server
-   cd mcp-servers\graphiti
+   # letta server
+   cd mcp-servers\letta
    pip install -r requirements.txt --break-system-packages
    cd ..\..
    
@@ -397,31 +397,31 @@ Execute the following phases sequentially. Complete each phase fully before movi
 1. Test memory system integration:
    ```powershell
    # Test RuVector search
-   npx claude-flow memory search --system ruvector --query "test query"
+   npx archon-os memory search --system ruvector --query "test query"
    
    # Test Letta agent
-   npx claude-flow memory recall --system letta --agent-id test-agent
+   npx archon-os memory recall --system letta --agent-id test-agent
    
-   # Test Graphiti temporal tracking
-   npx claude-flow memory evolution --system graphiti --entity-id test-entity
+   # Test letta temporal tracking
+   npx archon-os memory evolution --system letta --entity-id test-entity
    ```
 
 2. Test agent execution:
    ```powershell
    # Test single agent
-   npx claude-flow agent execute --agent mortgage-quote-agent --task "Calculate DTI for $95k income, $2k monthly debt"
+   npx archon-os agent execute --agent mortgage-quote-agent --task "Calculate DTI for $95k income, $2k monthly debt"
    
    # Test swarm coordination
-   npx claude-flow swarm execute-batch --tasks "task1,task2" --agents "agent1,agent2" --parallel true
+   npx archon-os swarm execute-batch --tasks "task1,task2" --agents "agent1,agent2" --parallel true
    ```
 
 3. Test mortgage workflows:
    ```powershell
    # Test quote generation
-   npx claude-flow mortgage quote --borrower-id test-123 --loan-amount 400000 --credit-score 740
+   npx archon-os mortgage quote --borrower-id test-123 --loan-amount 400000 --credit-score 740
    
    # Test document processing
-   npx claude-flow documents process --file test-paystub.pdf
+   npx archon-os documents process --file test-paystub.pdf
    ```
 
 4. Run automated tests:

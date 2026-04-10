@@ -399,7 +399,7 @@ redis-cli -h localhost -p 6379 ping
 
 ```bash
 # Claude Flow (required)
-npx @claude-flow/cli@latest --version
+npx @archon-os/cli@latest --version
 
 # Ruv Swarm (optional)
 npx ruv-swarm@latest --version
@@ -415,9 +415,9 @@ Edit `.mcp.json` (already configured in the repo):
 ```json
 {
   "mcpServers": {
-    "claude-flow@alpha": {
+    "archon-os@alpha": {
       "command": "npx",
-      "args": ["claude-flow@alpha", "mcp", "start"],
+      "args": ["archon-os@alpha", "mcp", "start"],
       "type": "stdio"
     },
     "ruv-swarm": {

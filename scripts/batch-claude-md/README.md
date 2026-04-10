@@ -151,7 +151,7 @@ Available placeholders in templates:
    - Directories: docs
 
 7. **nodejs-mcp** - MCP server development
-   - Servers: claude-flow, ruv-swarm
+   - Servers: archon-os, ruv-swarm
 
 8. **nodejs-python** - Hybrid Node.js + Python
    - Tools: archon-os
@@ -262,7 +262,7 @@ Project-Nyra/
 ├── tools/
 │   └── archon-os/CLAUDE.md
 ├── mcp-servers/
-│   ├── claude-flow/CLAUDE.md
+│   ├── archon-os/CLAUDE.md
 │   └── ruv-swarm/CLAUDE.md
 └── scripts/CLAUDE.md
 ```

@@ -19,7 +19,7 @@
 ## 🛡️ ANTI-DRIFT CONFIG
 
 ```bash
-npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 6 --strategy specialized
+npx @archon-os/cli@latest swarm init --topology hierarchical --max-agents 6 --strategy specialized
 ```
 
 ---
@@ -36,9 +36,9 @@ npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 6 --
 ## 🧠 AUTO-LEARNING PROTOCOL
 
 ```bash
-npx @claude-flow/cli@latest memory search --query '[keywords]' --namespace patterns
-npx @claude-flow/cli@latest memory store --namespace patterns --key '[pattern]' --value '[result]'
-npx @claude-flow/cli@latest hooks post-task --task-id '[id]' --success true --store-results true
+npx @archon-os/cli@latest memory search --query '[keywords]' --namespace patterns
+npx @archon-os/cli@latest memory store --namespace patterns --key '[pattern]' --value '[result]'
+npx @archon-os/cli@latest hooks post-task --task-id '[id]' --success true --store-results true
 ```
 
 ---
@@ -46,9 +46,9 @@ npx @claude-flow/cli@latest hooks post-task --task-id '[id]' --success true --st
 ## 🚀 V3 CLI COMMANDS & 🚀 AVAILABLE AGENTS & 🪝 V3 HOOKS SYSTEM
 
 ```bash
-npx @claude-flow/cli@latest swarm init/status
-npx @claude-flow/cli@latest memory store/search/retrieve
-npx @claude-flow/cli@latest hooks pre-task/post-task/post-edit
+npx @archon-os/cli@latest swarm init/status
+npx @archon-os/cli@latest memory store/search/retrieve
+npx @archon-os/cli@latest hooks pre-task/post-task/post-edit
 ```
 
 Agents: `coder`, `reviewer`, `frontend-specialist`, `performance-engineer`
@@ -58,8 +58,8 @@ Agents: `coder`, `reviewer`, `frontend-specialist`, `performance-engineer`
 ## 📝 MEMORY COMMANDS REFERENCE
 
 ```bash
-npx @claude-flow/cli@latest memory store --key "nexus-pattern" --value "content" --namespace patterns
-npx @claude-flow/cli@latest memory search --query "orchestration dashboard" --namespace patterns
+npx @archon-os/cli@latest memory store --key "nexus-pattern" --value "content" --namespace patterns
+npx @archon-os/cli@latest memory search --query "orchestration dashboard" --namespace patterns
 ```
 
 ---
@@ -108,7 +108,7 @@ pnpm lint
 
 Before spawning agents, get routing recommendation:
 ```bash
-npx @claude-flow/cli@latest hooks pre-task \
+npx @archon-os/cli@latest hooks pre-task \
   --description "Dashboard component development task"
 ```
 
@@ -129,10 +129,10 @@ Use recommended model in development:
 **1. New Dashboard Feature**
 ```bash
 # Initialize hierarchical swarm
-npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 4 --strategy specialized
+npx @archon-os/cli@latest swarm init --topology hierarchical --max-agents 4 --strategy specialized
 
 # Store context
-npx @claude-flow/cli@latest memory store \
+npx @archon-os/cli@latest memory store \
   --namespace dashboard \
   --key "feature/[name]" \
   --value "Dashboard feature requirements and design"
@@ -141,10 +141,10 @@ npx @claude-flow/cli@latest memory store \
 **2. Performance Optimization**
 ```bash
 # Run performance benchmark
-npx @claude-flow/cli@latest performance benchmark --suite dashboard
+npx @archon-os/cli@latest performance benchmark --suite dashboard
 
 # Store optimization results
-npx @claude-flow/cli@latest hooks post-task \
+npx @archon-os/cli@latest hooks post-task \
   --task-id "perf-opt-001" \
   --success true \
   --store-results true
@@ -153,7 +153,7 @@ npx @claude-flow/cli@latest hooks post-task \
 **3. Real-Time Data Integration**
 ```bash
 # Search for WebSocket patterns
-npx @claude-flow/cli@latest memory search \
+npx @archon-os/cli@latest memory search \
   --query "websocket real-time dashboard" \
   --namespace patterns
 ```
@@ -163,7 +163,7 @@ npx @claude-flow/cli@latest memory search \
 **Before Development**:
 ```bash
 # Search memory for relevant patterns
-npx @claude-flow/cli@latest memory search \
+npx @archon-os/cli@latest memory search \
   --query "dashboard component [feature]" \
   --namespace patterns
 ```
@@ -171,13 +171,13 @@ npx @claude-flow/cli@latest memory search \
 **After Successful Implementation**:
 ```bash
 # Store successful pattern
-npx @claude-flow/cli@latest memory store \
+npx @archon-os/cli@latest memory store \
   --namespace patterns \
   --key "dashboard-success-$(date +%Y%m%d)" \
   --value "Successfully implemented [feature] in Nexus Dashboard"
 
 # Train neural patterns
-npx @claude-flow/cli@latest hooks post-edit \
+npx @archon-os/cli@latest hooks post-edit \
   --file "src/components/[component].tsx" \
   --train-neural true
 ```

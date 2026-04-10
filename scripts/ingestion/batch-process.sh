@@ -15,7 +15,7 @@ NC='\033[0m'
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 WORKFLOW_SCRIPT="$SCRIPT_DIR/sparc-workflow.sh"
 MAX_PARALLEL=4
-RESULTS_DIR=".claude-flow/workflows/results"
+RESULTS_DIR=".archon-os/workflows/results"
 
 # Usage
 usage() {
@@ -25,7 +25,7 @@ usage() {
     echo "  -p, --parallel N      Maximum parallel processes (default: 4)"
     echo "  -t, --type TYPE       Item type (docs, code, config)"
     echo "  -o, --output DIR      Base output directory"
-    echo "  -r, --results DIR     Results directory (default: .claude-flow/workflows/results)"
+    echo "  -r, --results DIR     Results directory (default: .archon-os/workflows/results)"
     echo "  -d, --dry-run         Show what would be done"
     echo "  -h, --help            Show this help"
     echo ""

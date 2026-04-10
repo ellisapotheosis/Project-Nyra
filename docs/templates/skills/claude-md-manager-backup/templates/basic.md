@@ -13,7 +13,7 @@
 npm install
 
 # Run with Claude Flow
-npx @claude-flow/cli@latest agent spawn -t coder --name {{PROJECT_NAME}}-dev
+npx @archon-os/cli@latest agent spawn -t coder --name {{PROJECT_NAME}}-dev
 ```
 
 ## 🚨 AUTOMATIC SWARM ORCHESTRATION
@@ -28,7 +28,7 @@ When starting work on complex tasks, Claude Code MUST automatically:
 
 **Before spawning agents, get routing recommendation:**
 ```bash
-npx @claude-flow/cli@latest hooks pre-task --description "[task description]"
+npx @archon-os/cli@latest hooks pre-task --description "[task description]"
 ```
 
 **When you see routing recommendations:**
@@ -66,10 +66,10 @@ npx @claude-flow/cli@latest hooks pre-task --description "[task description]"
 ### 1. Before Starting a Task
 ```bash
 # Search memory for relevant patterns
-npx @claude-flow/cli@latest memory search --query "{{PROJECT_NAME}} patterns"
+npx @archon-os/cli@latest memory search --query "{{PROJECT_NAME}} patterns"
 
 # Check if similar task was done before
-npx @claude-flow/cli@latest memory search --query "[task type]" --namespace tasks
+npx @archon-os/cli@latest memory search --query "[task type]" --namespace tasks
 ```
 
 ### 2. During Implementation
@@ -81,11 +81,11 @@ npx @claude-flow/cli@latest memory search --query "[task type]" --namespace task
 ### 3. After Completing Tasks
 ```bash
 # Store successful pattern
-npx @claude-flow/cli@latest memory store --namespace patterns \
+npx @archon-os/cli@latest memory store --namespace patterns \
   --key "{{PROJECT_NAME}}-pattern" --value "What worked"
 
 # Record task completion
-npx @claude-flow/cli@latest hooks post-task --task-id "[id]" --success true
+npx @archon-os/cli@latest hooks post-task --task-id "[id]" --success true
 ```
 
 ## 🧠 Memory System
@@ -94,13 +94,13 @@ Use Project Nyra's memory systems for persistence:
 
 ```bash
 # Store patterns
-npx @claude-flow/cli@latest memory store \
+npx @archon-os/cli@latest memory store \
   --key "{{PROJECT_NAME}}-solution" \
   --value "Solution approach" \
   --namespace patterns
 
 # Search patterns
-npx @claude-flow/cli@latest memory search \
+npx @archon-os/cli@latest memory search \
   --query "{{PROJECT_NAME}} related"
 ```
 
@@ -131,13 +131,13 @@ npm test -- test-name
 After major changes:
 ```bash
 # Run performance benchmark
-npx @claude-flow/cli@latest performance benchmark --suite unit
+npx @archon-os/cli@latest performance benchmark --suite unit
 
 # Check test coverage
 npm run test:coverage
 
 # Analyze code quality
-npx @claude-flow/cli@latest hooks worker dispatch --trigger refactor
+npx @archon-os/cli@latest hooks worker dispatch --trigger refactor
 ```
 
 ## Troubleshooting
@@ -158,7 +158,7 @@ npx @claude-flow/cli@latest hooks worker dispatch --trigger refactor
 
 3. **Performance degradation**
    ```bash
-   npx @claude-flow/cli@latest performance profile
+   npx @archon-os/cli@latest performance profile
    ```
 
 ## Integration Points
@@ -179,9 +179,9 @@ npx @claude-flow/cli@latest hooks worker dispatch --trigger refactor
 
 ```bash
 # CLI shortcuts
-npx @claude-flow/cli@latest memory search --query "[query]"
-npx @claude-flow/cli@latest hooks post-edit --file "[file]" --train-neural true
-npx @claude-flow/cli@latest agent spawn -t coder --name dev
+npx @archon-os/cli@latest memory search --query "[query]"
+npx @archon-os/cli@latest hooks post-edit --file "[file]" --train-neural true
+npx @archon-os/cli@latest agent spawn -t coder --name dev
 
 # Development
 npm install

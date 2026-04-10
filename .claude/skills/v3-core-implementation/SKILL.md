@@ -1,13 +1,13 @@
 ---
 name: "V3 Core Implementation"
-description: "Core module implementation for claude-flow v3. Implements DDD domains, clean architecture patterns, dependency injection, and modular TypeScript codebase with comprehensive testing."
+description: "Core module implementation for archon-os v3. Implements DDD domains, clean architecture patterns, dependency injection, and modular TypeScript codebase with comprehensive testing."
 ---
 
 # V3 Core Implementation
 
 ## What This Skill Does
 
-Implements the core TypeScript modules for claude-flow v3 following Domain-Driven Design principles, clean architecture patterns, and modern TypeScript best practices with comprehensive test coverage.
+Implements the core TypeScript modules for archon-os v3 following Domain-Driven Design principles, clean architecture patterns, and modern TypeScript best practices with comprehensive test coverage.
 
 ## Quick Start
 
@@ -28,7 +28,7 @@ Task("Health domain", "Implement health monitoring domain", "core-implementer")
 src/
 ├── core/
 │   ├── kernel/                     # Microkernel pattern
-│   │   ├── claude-flow-kernel.ts
+│   │   ├── archon-os-kernel.ts
 │   │   ├── domain-registry.ts
 │   │   └── plugin-loader.ts
 │   │
@@ -775,7 +775,7 @@ export class EntityCache<T extends Entity<any>> {
 
 - `v3-ddd-architecture` - DDD architectural design
 - `v3-mcp-optimization` - MCP server integration
-- `v3-memory-unification` - AgentDB repository integration
+- `v3-memory-unification` - ruvector repository integration
 - `v3-swarm-coordination` - Swarm domain implementation
 
 ## Usage Examples

@@ -133,10 +133,10 @@ Mem0 AI memory service
 - `MEM0_ORGANIZATION_ID`
 - `MEM0_ORGANIZATION_NAME`
 
-### 17. `/databases/graphiti` (5 variables)
-Graphiti + Neo4j graph database
+### 17. `/databases/letta` (5 variables)
+letta + Neo4j graph database
 
-- `GRAPHITI_PORT`
+- `letta_PORT`
 - `NEO4J_BOLT_PORT`
 - `NEO4J_HTTP_PORT`
 - `NEO4J_PASSWORD`
@@ -186,7 +186,7 @@ Dify AI application database
 - `DIFY_SECRET_KEY`
 - `DIFY_SANDBOX_API_KEY`
 
-### 23. `/clients/claude-flow` (68 variables)
+### 23. `/clients/archon-os` (68 variables)
 Claude Flow orchestration system
 
 All variables starting with `CLAUDE_FLOW_*`:
@@ -204,7 +204,7 @@ All variables starting with `CLAUDE_CODE_*` and `CLAUDE_*`:
 - Model settings, output tokens
 - Git bash path
 
-### 25. `/clients/agentic-flow` (1 variable)
+### 25. `/clients/archon-os` (1 variable)
 Agentic Flow training system
 
 - `AGENTIC_FLOW_TRAINING`
@@ -250,10 +250,10 @@ All variables starting with `ARCHON_*`:
 - Redis URL, metrics
 - UI and docs ports
 
-### 32. `/services/agentdb` (25 variables)
-AgentDB vector database
+### 32. `/services/ruvector` (25 variables)
+ruvector vector database
 
-All variables starting with `AGENTDB_*`:
+All variables starting with `ruvector_*`:
 - API key, port configuration
 - Vector dimensions, distance metrics
 - HNSW indexing parameters

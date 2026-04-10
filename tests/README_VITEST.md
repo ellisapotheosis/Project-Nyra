@@ -36,7 +36,7 @@ pnpm test:ui
 `tests/unit/memory/memory-coordination.test.ts`
 - RuVector vector search
 - Letta conversational memory
-- Graphiti knowledge graphs
+- letta knowledge graphs
 - Mem0 user preferences
 - Multi-system coordination
 
@@ -88,8 +88,8 @@ const results = await memory.ruvector.search('query', 5);
 // Letta
 await memory.letta.store('agent-id', { message: 'content' });
 
-// Graphiti
-await memory.graphiti.addNode({ id: 'node-1', type: 'Borrower' });
+// letta
+await memory.letta.addNode({ id: 'node-1', type: 'Borrower' });
 
 // Mem0
 await memory.mem0.store('user-id', { preferences: {} });

@@ -12,9 +12,9 @@ if [ -z "$PROJECT_DIR" ] || [ "$PROJECT_DIR" = "null" ]; then
 fi
 
 # File paths relative to project directory
-V3_METRICS="${PROJECT_DIR}/.claude-flow/metrics/v3-progress.json"
-SECURITY_AUDIT="${PROJECT_DIR}/.claude-flow/security/audit-status.json"
-PERFORMANCE_METRICS="${PROJECT_DIR}/.claude-flow/metrics/performance.json"
+V3_METRICS="${PROJECT_DIR}/.archon-os/metrics/v3-progress.json"
+SECURITY_AUDIT="${PROJECT_DIR}/.archon-os/security/audit-status.json"
+PERFORMANCE_METRICS="${PROJECT_DIR}/.archon-os/metrics/performance.json"
 
 # ANSI Color Codes
 RED='\033[0;31m'
@@ -109,20 +109,20 @@ else
   fi
 fi
 
-# Check agentic-flow@alpha integration status
+# Check archon-os@alpha integration status
 INTEGRATION_STATUS="○"
 if [ -f "package.json" ]; then
-  if grep -q "agentic-flow.*alpha" package.json 2>/dev/null; then
+  if grep -q "archon-os.*alpha" package.json 2>/dev/null; then
     INTEGRATION_STATUS="●"
   fi
 fi
 
 # REAL-TIME SWARM DETECTION
-# Count active agentic-flow processes
-ACTIVE_PROCESSES=$(ps aux 2>/dev/null | grep -E "(agentic-flow|claude-flow)" | grep -v grep | wc -l)
+# Count active archon-os processes
+ACTIVE_PROCESSES=$(ps aux 2>/dev/null | grep -E "(archon-os|archon-os)" | grep -v grep | wc -l)
 
 # Check for real-time activity data from swarm monitor
-SWARM_ACTIVITY=".claude-flow/metrics/swarm-activity.json"
+SWARM_ACTIVITY=".archon-os/metrics/swarm-activity.json"
 if [ -f "$SWARM_ACTIVITY" ]; then
   # Use accurate data from swarm monitor if available
   DYNAMIC_AGENTS=$(jq -r '.swarm.agent_count // 0' "$SWARM_ACTIVITY" 2>/dev/null || echo "0")
@@ -135,9 +135,9 @@ if [ -f "$SWARM_ACTIVITY" ]; then
   fi
 elif [ "$ACTIVE_PROCESSES" -gt 0 ]; then
   # Fallback to heuristic if no swarm monitor data
-  DYNAMIC_AGENTS=$(ps aux 2>/dev/null | grep -E "agentic-flow.*agent" | grep -v grep | wc -l)
+  DYNAMIC_AGENTS=$(ps aux 2>/dev/null | grep -E "archon-os.*agent" | grep -v grep | wc -l)
 
-  # If we have agentic-flow processes but no specific agents, use a heuristic
+  # If we have archon-os processes but no specific agents, use a heuristic
   if [ "$DYNAMIC_AGENTS" -eq 0 ] && [ "$ACTIVE_PROCESSES" -gt 0 ]; then
     DYNAMIC_AGENTS=$((ACTIVE_PROCESSES / 2))
     if [ "$DYNAMIC_AGENTS" -eq 0 ] && [ "$ACTIVE_PROCESSES" -gt 0 ]; then
@@ -207,8 +207,8 @@ fi
 # Calculate Intelligence Score based on learning patterns and training
 INTEL_SCORE=0
 INTEL_COLOR="${DIM}"
-PATTERNS_DB="${PROJECT_DIR}/.claude-flow/learning/patterns.db"
-LEARNING_METRICS="${PROJECT_DIR}/.claude-flow/metrics/learning.json"
+PATTERNS_DB="${PROJECT_DIR}/.archon-os/learning/patterns.db"
+LEARNING_METRICS="${PROJECT_DIR}/.archon-os/metrics/learning.json"
 
 # Base intelligence from pattern count
 if [ -f "$PATTERNS_DB" ] && command -v sqlite3 &>/dev/null; then
@@ -276,7 +276,7 @@ if [ "$CLAUDE_INPUT" != "{}" ]; then
 fi
 
 # Get current directory
-CURRENT_DIR=$(basename "$PROJECT_DIR" 2>/dev/null || echo "claude-flow")
+CURRENT_DIR=$(basename "$PROJECT_DIR" 2>/dev/null || echo "archon-os")
 
 # Build colorful output with better formatting
 OUTPUT=""
@@ -367,7 +367,7 @@ fi
 DDD_DISPLAY=$(printf "%3d" "$DDD_PROGRESS")
 
 OUTPUT="${OUTPUT}\n${BRIGHT_PURPLE}🔧 Architecture${RESET}    ${CYAN}DDD${RESET} ${DDD_COLOR}●${DDD_DISPLAY}%${RESET}  ${DIM}│${RESET}  ${CYAN}Security${RESET} ${SECURITY_COLOR}●${SECURITY_STATUS}${RESET}"
-OUTPUT="${OUTPUT}  ${DIM}│${RESET}  ${CYAN}Memory${RESET} ${BRIGHT_GREEN}●AgentDB${RESET}  ${DIM}│${RESET}  ${CYAN}Integration${RESET} ${INTEGRATION_COLOR}●${RESET}"
+OUTPUT="${OUTPUT}  ${DIM}│${RESET}  ${CYAN}Memory${RESET} ${BRIGHT_GREEN}●ruvector${RESET}  ${DIM}│${RESET}  ${CYAN}Integration${RESET} ${INTEGRATION_COLOR}●${RESET}"
 
 # Footer separator
 OUTPUT="${OUTPUT}\n${DIM}─────────────────────────────────────────────────────${RESET}"

@@ -159,13 +159,13 @@ After creating a CLAUDE.md file, initialize a swarm for that component:
   --project_name "New API" --tech_stack "FastAPI,Python" --port 8003
 
 # Store in memory
-npx @claude-flow/cli@latest memory store \
+npx @archon-os/cli@latest memory store \
   --key "claude-md-new-api" \
   --value "Created CLAUDE.md for New API service" \
   --namespace templates
 
 # Initialize swarm for development
-npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 8
+npx @archon-os/cli@latest swarm init --topology hierarchical --max-agents 8
 ```
 
 #### Best Practices
@@ -190,7 +190,7 @@ npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 8
 - **Skill Prompt**: `.claude/skills/claude-md-manager/prompt.md` - Comprehensive usage guide
 - **Skill README**: `.claude/skills/claude-md-manager/README.md` - Quick reference
 - **Project CLAUDE.md**: `CLAUDE.md` (root) - Overall system architecture
-- **Claude Flow V3**: `.claude-flow/CAPABILITIES.md` - V3 documentation
+- **Claude Flow V3**: `.archon-os/CAPABILITIES.md` - V3 documentation
 
 #### Support
 
@@ -254,7 +254,7 @@ Skills are automatically available in Claude Code when placed in `.claude/skills
 /skill-name <action> [options]
 
 # Or via CLI
-npx @claude-flow/cli@latest skill run skill-name --action <action>
+npx @archon-os/cli@latest skill run skill-name --action <action>
 ```
 
 ### Testing Skills
@@ -279,9 +279,9 @@ Skills are part of the Project Nyra development workflow:
 ## Support & Resources
 
 - **Claude Code Skills**: `.claude/skills/` directory
-- **Claude Flow V3**: `.claude-flow/CAPABILITIES.md`
+- **Claude Flow V3**: `.archon-os/CAPABILITIES.md`
 - **Project Documentation**: `CLAUDE.md` (root)
-- **Memory System**: `npx @claude-flow/cli@latest memory search --query "skill patterns"`
+- **Memory System**: `npx @archon-os/cli@latest memory search --query "skill patterns"`
 
 ## License
 

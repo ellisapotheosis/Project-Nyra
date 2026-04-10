@@ -178,7 +178,7 @@ Starting bootstrap process...
 
     // Create directories
     const dirs = [
-      ".claude-flow",
+      ".archon-os",
       ".swarm",
       ".swarm/memory",
       ".swarm/logs",
@@ -217,13 +217,13 @@ Starting bootstrap process...
 
     // Add Claude Flow packages
     await this.exec(
-      "bun add -D @claude-flow/cli @claude-flow/core @claude-flow/providers @claude-flow/memory @claude-flow/agents @claude-flow/mcp-sdk",
+      "bun add -D @archon-os/cli @archon-os/core @archon-os/providers @archon-os/memory @archon-os/agents @archon-os/mcp-sdk",
       "Adding Claude Flow V3 packages"
     );
 
     // Add memory backends
     await this.exec(
-      "bun add @ruvector/sdk @ruvector/hnsw falkordb @graphiti/sdk redis pg ioredis",
+      "bun add @ruvector/sdk @ruvector/hnsw falkordb @letta/sdk redis pg ioredis",
       "Adding memory system packages"
     );
 
@@ -246,7 +246,7 @@ Starting bootstrap process...
     // .env.local
     const envLocal = `# === LOCAL DEVELOPMENT ===
 ENVIRONMENT=development
-DEBUG=claude-flow:*
+DEBUG=archon-os:*
 
 # === CLAUDE FLOW CONFIG ===
 CLAUDE_FLOW_MCP_HOST=localhost
@@ -266,7 +266,7 @@ RUVECTOR_MAX_ELEMENTS=100000
 # === MEMORY BACKENDS ===
 MEMORY_BACKEND=hybrid
 MEMORY_PRIMARY=ruvector
-MEMORY_SECONDARY=graphiti,falkordb,redis
+MEMORY_SECONDARY=letta,falkordb,redis
 
 # === DATA SERVICES ===
 POSTGRES_HOST=localhost
@@ -293,7 +293,7 @@ LOG_FORMAT=pretty
 
     await this.createFile(".env.local", envLocal);
 
-    // .claude-flow/config.json
+    // .archon-os/config.json
     const claudeFlowConfig = {
       version: "3.0.0",
       environment: "development",
@@ -316,7 +316,7 @@ LOG_FORMAT=pretty
       memory: {
         backend: "hybrid",
         primary: "ruvector",
-        secondary: ["graphiti", "falkordb", "redis"],
+        secondary: ["letta", "falkordb", "redis"],
         providers: {
           ruvector: {
             host: "localhost",
@@ -336,7 +336,7 @@ LOG_FORMAT=pretty
     };
 
     await this.createFile(
-      ".claude-flow/config.json",
+      ".archon-os/config.json",
       JSON.stringify(claudeFlowConfig, null, 2)
     );
 
@@ -367,13 +367,13 @@ services:
     environment:
       LOG_LEVEL: debug
     networks:
-      - claude-flow-net
+      - archon-os-net
     depends_on:
-      - claude-flow-mcp
+      - archon-os-mcp
 
-  claude-flow-mcp:
+  archon-os-mcp:
     image: node:20-alpine
-    container_name: claude-flow-mcp
+    container_name: archon-os-mcp
     ports:
       - "3001:3001"
     command: npm start
@@ -384,22 +384,22 @@ services:
     volumes:
       - ./src:/app/src
     networks:
-      - claude-flow-net
+      - archon-os-net
     depends_on:
       - postgres
       - redis
       - ruvector
 
-  graphiti-mcp:
+  letta-mcp:
     image: node:20-alpine
-    container_name: graphiti-mcp
+    container_name: letta-mcp
     ports:
       - "3002:3002"
-    command: npx @graphiti/mcp
+    command: npx @letta/mcp
     environment:
       FALKORDB_HOST: falkordb
     networks:
-      - claude-flow-net
+      - archon-os-net
     depends_on:
       - falkordb
 
@@ -415,7 +415,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
-      - claude-flow-net
+      - archon-os-net
 
   redis:
     image: redis:7-alpine
@@ -425,7 +425,7 @@ services:
     volumes:
       - redis_data:/data
     networks:
-      - claude-flow-net
+      - archon-os-net
 
   ruvector:
     image: ruvector:latest
@@ -437,7 +437,7 @@ services:
     volumes:
       - ruvector_data:/data
     networks:
-      - claude-flow-net
+      - archon-os-net
     depends_on:
       - postgres
 
@@ -449,10 +449,10 @@ services:
     volumes:
       - falkordb_data:/data
     networks:
-      - claude-flow-net
+      - archon-os-net
 
 networks:
-  claude-flow-net:
+  archon-os-net:
     driver: bridge
 
 volumes:
@@ -477,12 +477,12 @@ volumes:
     console.log("\n─ PHASE 5: Claude Flow Initialization\n");
 
     await this.exec(
-      "bun run claude-flow init --development 2>/dev/null || true",
+      "bun run archon-os init --development 2>/dev/null || true",
       "Initializing Claude Flow CLI"
     );
 
     await this.exec(
-      "bun run claude-flow:mcp:list || true",
+      "bun run archon-os:mcp:list || true",
       "Listing MCP servers"
     );
   }
@@ -508,18 +508,18 @@ volumes:
         "test:watch": "vitest watch",
         lint: "eslint src --ext .ts,.tsx",
         format: "prettier --write src",
-        "claude-flow": "bun ./node_modules/@claude-flow/cli/bin/cli.js",
-        "claude-flow:init": "bun run claude-flow init --development",
-        "claude-flow:status": "bun run claude-flow status",
-        "claude-flow:swarm:init": "bun run claude-flow swarm init --topology mesh --max-agents 8",
-        "claude-flow:memory:init": "bun run claude-flow memory init --force",
-        "claude-flow:mcp:list": "bun run claude-flow mcp list",
+        "archon-os": "bun ./node_modules/@archon-os/cli/bin/cli.js",
+        "archon-os:init": "bun run archon-os init --development",
+        "archon-os:status": "bun run archon-os status",
+        "archon-os:swarm:init": "bun run archon-os swarm init --topology mesh --max-agents 8",
+        "archon-os:memory:init": "bun run archon-os memory init --force",
+        "archon-os:mcp:list": "bun run archon-os mcp list",
         "docker:up": "docker compose -f docker-compose.dev.yml up -d",
         "docker:down": "docker compose -f docker-compose.dev.yml down",
         "docker:logs": "docker compose -f docker-compose.dev.yml logs -f",
         verify: "bun verify.ts || true",
         health: "bun health-check.ts || true",
-        setup: "bun install && bun run docker:up && bun run claude-flow:init",
+        setup: "bun install && bun run docker:up && bun run archon-os:init",
       });
 
       if (!this.options.dryRun) {
@@ -542,7 +542,7 @@ volumes:
     // Check critical files
     const files = [
       ".env.local",
-      ".claude-flow/config.json",
+      ".archon-os/config.json",
       "docker-compose.dev.yml",
       "bun.lock",
     ];
@@ -556,7 +556,7 @@ volumes:
       }
     }
 
-    await this.exec("bun run claude-flow:status || true", "Verifying Claude Flow");
+    await this.exec("bun run archon-os:status || true", "Verifying Claude Flow");
   }
 
   printSummary() {
@@ -574,7 +574,7 @@ Next Steps:
   1. Fill in API keys in .env.local
   2. Start development: bun run docker:up
   3. Run: bun run dev
-  4. Initialize memory: bun run claude-flow:memory:init
+  4. Initialize memory: bun run archon-os:memory:init
 
 Commands:
   bun run dev              # Start development
@@ -582,8 +582,8 @@ Commands:
   bun run docker:up        # Start services
   bun run docker:down      # Stop services
   bun run health           # Check health
-  bun run claude-flow:swarm:init  # Initialize swarm
-  bun run claude-flow:memory:init # Initialize memory
+  bun run archon-os:swarm:init  # Initialize swarm
+  bun run archon-os:memory:init # Initialize memory
 
 📚 Read ARCHITECTURE_DESIGN.md for detailed setup explanation
     `);

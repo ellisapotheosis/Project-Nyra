@@ -13,9 +13,9 @@ Project Nyra is a **distributed, AI-powered mortgage lead automation platform** 
 2. **Deduplicate & enrich** lead data and store in TwentyCRM (system of record)
 3. **Execute intelligent drip campaigns** (45–60 day multi-channel sequences with STOP compliance)
 4. **Generate accurate loan quotes** via a stateless Quote API (mathematical parity with Excel)
-5. **Maintain memory without PII exposure** using Graphiti + Mem0 + RuVector
+5. **Maintain memory without PII exposure** using letta + Mem0 + RuVector
 6. **Route AI workloads intelligently** across local GPU workers (5090, 3090Ti, 3060) and cloud
-7. **Expose all capabilities** via Nexus Router (MCP aggregator) to agents (Claude-Flow, OpenClaw, Archon-OS)
+7. **Expose all capabilities** via Nexus Router (MCP aggregator) to agents (archon-os, OpenClaw, Archon-OS)
 
 The system is **bifurcated** into:
 - **Cloud Plane (Oracle Always Free)**: TwentyCRM, Postgres, Redis, Activepieces, Mem0, Infisical
@@ -90,7 +90,7 @@ All nodes communicate via **Tailscale mesh VPN** (private, no port forwarding ne
 │                              ↓                                   │
 │  ┌─────────────────────────────────────────────────────────┐   │
 │  │ AGENTS & ORCHESTRATORS                                  │   │
-│  │  • Claude-Flow (dev/build orchestrator)                 │   │
+│  │  • archon-os (dev/build orchestrator)                 │   │
 │  │  • OpenClaw (borrower-facing mortgage assistant)        │   │
 │  │  • Archon-OS (knowledge/task management)                │   │
 │  │  All agents talk ONLY to Nexus Router (single point)    │   │
@@ -169,7 +169,7 @@ All nodes communicate via **Tailscale mesh VPN** (private, no port forwarding ne
 **What it is**: Single entry point for all agent-to-tool communication.
 
 **Why it matters**:
-- Agents (Claude-Flow, OpenClaw, Archon) use ONE endpoint
+- Agents (archon-os, OpenClaw, Archon) use ONE endpoint
 - No scattered tool definitions across codebase
 - Context-aware: hides irrelevant tools to save tokens
 - Audit trail: logs every tool invocation
@@ -398,7 +398,7 @@ await mem0.add({
 });
 ```
 
-### 2.7 Claude-Flow (Dev Orchestrator)
+### 2.7 archon-os (Dev Orchestrator)
 
 **What it is**: Autonomous coding + build orchestrator.
 
@@ -441,7 +441,7 @@ await mem0.add({
 
 **Our approach**:
 1. **Minimal extraction**: Only ingest PII needed (phone, email, property value)
-2. **No PII in logs**: Claude-Flow, OpenClaw strip PII before logging
+2. **No PII in logs**: archon-os, OpenClaw strip PII before logging
 3. **Encryption at rest**: Postgres encrypted, Redis has no PII (only IDs)
 4. **Memory audit**: Mem0 logs all PII access with timestamp + user
 5. **TCPA compliance**: STOP detection, DNC list enforcement
@@ -492,7 +492,7 @@ make orchestrator-up
 2. Postgres client library initializes (connects to Oracle)
 3. Nexus Router starts (waits for secrets, validates tool registry)
 4. LiteLLM starts (validates all worker endpoints reachable)
-5. Claude-Flow starts (registers MCP capabilities with Nexus)
+5. archon-os starts (registers MCP capabilities with Nexus)
 6. OpenClaw starts (loads Mem0 context)
 7. Archon-OS starts (initializes knowledge graph)
 8. Health check: `bash infra/scripts/health-check.sh`

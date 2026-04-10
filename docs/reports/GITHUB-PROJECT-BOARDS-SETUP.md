@@ -2,7 +2,7 @@
 
 **Date**: 2026-01-17
 **Status**: ✅ COMPLETE
-**Authentication**: Classic token from Infisical `/clients/claude-flow/`
+**Authentication**: Classic token from Infisical `/clients/archon-os/`
 
 ---
 
@@ -37,19 +37,19 @@
 ## 🔧 Authentication Configuration
 
 **Token Storage**: Infisical secret manager
-**Path**: `/clients/claude-flow/`
+**Path**: `/clients/archon-os/`
 **Secret Name**: `GITHUB_TOKEN`
 **Token Type**: Classic (prefix: `ghp_`)
 **Scopes**: `repo`, `project`, `read:org`
 
 **Retrieval Command**:
 ```bash
-powershell.exe -Command "infisical secrets get GITHUB_TOKEN --projectId 8374cea9-e5e8-4050-bda4-b91f25ab30ef --env dev --path /clients/claude-flow --plain"
+powershell.exe -Command "infisical secrets get GITHUB_TOKEN --projectId 8374cea9-e5e8-4050-bda4-b91f25ab30ef --env dev --path /clients/archon-os --plain"
 ```
 
 **Set Token for gh CLI**:
 ```bash
-export GH_TOKEN="$(powershell.exe -Command "infisical secrets get GITHUB_TOKEN --projectId 8374cea9-e5e8-4050-bda4-b91f25ab30ef --env dev --path /clients/claude-flow --plain")"
+export GH_TOKEN="$(powershell.exe -Command "infisical secrets get GITHUB_TOKEN --projectId 8374cea9-e5e8-4050-bda4-b91f25ab30ef --env dev --path /clients/archon-os --plain")"
 ```
 
 ---
@@ -93,7 +93,7 @@ export GH_TOKEN="$(powershell.exe -Command "infisical secrets get GITHUB_TOKEN -
 
 ### View Board Contents
 ```bash
-export GH_TOKEN="$(powershell.exe -Command "infisical secrets get GITHUB_TOKEN --projectId 8374cea9-e5e8-4050-bda4-b91f25ab30ef --env dev --path /clients/claude-flow --plain")"
+export GH_TOKEN="$(powershell.exe -Command "infisical secrets get GITHUB_TOKEN --projectId 8374cea9-e5e8-4050-bda4-b91f25ab30ef --env dev --path /clients/archon-os --plain")"
 
 # View consolidation board (#4)
 gh project item-list 4 --owner @me --format json --limit 20
@@ -164,7 +164,7 @@ gh project list --owner @me --limit 10
 ### Token Management
 - **Classic tokens** work reliably with GitHub Projects via gh CLI
 - **Fine-grained tokens** may lack proper scope support for Projects
-- Store tokens in Infisical at `/clients/claude-flow/` path
+- Store tokens in Infisical at `/clients/archon-os/` path
 - Use PowerShell to retrieve tokens (avoids Git Bash path conversion)
 
 ### Board Strategy

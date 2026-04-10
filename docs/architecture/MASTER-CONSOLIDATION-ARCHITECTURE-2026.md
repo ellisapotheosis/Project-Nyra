@@ -228,13 +228,13 @@ Project-Nyra/
 │   ├── lead-capture-api/         # Lead management
 │   ├── rate-comparison-engine/   # Rate tracking
 │   ├── mortgage-assistant-api/   # AI assistant backend
-│   ├── claude-flow/              # Claude Flow service
+│   ├── archon-os/              # Claude Flow service
 │   ├── archon-os/                # Archon OS service
 │   ├── litellm-proxy/            # LLM routing proxy
 │   ├── n8n-workflows/            # Workflow automation
 │   ├── nexus-router/             # Smart routing
 │   ├── ruvector-search/          # Vector search
-│   ├── graphiti-knowledge/       # Knowledge graph
+│   ├── letta-knowledge/       # Knowledge graph
 │   ├── mem0/                     # Memory layer
 │   ├── mem0-mcp/                 # Memory MCP server
 │   ├── letta-integration/        # Letta AI framework
@@ -267,7 +267,7 @@ Project-Nyra/
 │   │
 │   ├── orchestration/            # Orchestration SDK
 │   │   ├── src/
-│   │   │   ├── claude-flow/      # Claude Flow integration
+│   │   │   ├── archon-os/      # Claude Flow integration
 │   │   │   ├── archon/           # Archon OS integration
 │   │   │   └── serena/           # Serena integration
 │   │   └── package.json
@@ -316,7 +316,7 @@ Project-Nyra/
 │   └── nyra-api/                 # API client
 │
 ├── mcp-servers/                   # 🔌 MCP (Model Context Protocol) servers
-│   ├── claude-flow/              # Claude Flow MCP
+│   ├── archon-os/              # Claude Flow MCP
 │   ├── ruv-swarm/                # RUV Swarm MCP
 │   ├── bitwarden-mcp/            # Bitwarden secrets
 │   ├── dockerhub-mcp/            # DockerHub integration
@@ -324,7 +324,7 @@ Project-Nyra/
 │   ├── git-mcp/                  # Git operations
 │   ├── infisical-mcp/            # Infisical secrets
 │   ├── sequential-thinking/      # Sequential thinking
-│   ├── graphiti-mcp/             # Knowledge graph
+│   ├── letta-mcp/             # Knowledge graph
 │   ├── mem0-mcp/                 # Memory layer
 │   ├── filesystem-mcp/           # File operations
 │   └── serena-mcp/               # Serena integration
@@ -445,7 +445,7 @@ Project-Nyra/
 │   └── prettier/                 # Prettier configs
 │
 ├── submodules/                    # 🔗 Git submodules
-│   ├── claude-flow/              # Claude Flow framework
+│   ├── archon-os/              # Claude Flow framework
 │   └── archon/                   # Archon OS framework
 │
 ├── tests/                         # 🧪 Integration & E2E tests
@@ -538,7 +538,7 @@ git mv coordination/subtasks packages/coordination/src/subtasks
 
 **Contents:**
 - `archon-os/` → `services/archon-os/` (already exists, merge if needed)
-- `claude-flow/` → `services/claude-flow/` (already exists, merge if needed)
+- `archon-os/` → `services/archon-os/` (already exists, merge if needed)
 - `serena/` → `packages/orchestration/serena/` or `services/serena/`
 
 **Rationale:** Running services go to `services/`, SDK/libraries go to `packages/`.
@@ -547,7 +547,7 @@ git mv coordination/subtasks packages/coordination/src/subtasks
 ```bash
 # Merge orchestration code with existing services
 git mv orchestration/archon-os/* services/archon-os/ # merge
-git mv orchestration/claude-flow/* services/claude-flow/ # merge
+git mv orchestration/archon-os/* services/archon-os/ # merge
 git mv orchestration/serena packages/orchestration/serena/
 ```
 
@@ -713,7 +713,7 @@ git mv tools/*.py scripts/tools/
 
 | MCP Server | Status | Location | Container |
 |------------|--------|----------|-----------|
-| `claude-flow` | ✅ Active | `mcp-servers/claude-flow/` | Yes |
+| `archon-os` | ✅ Active | `mcp-servers/archon-os/` | Yes |
 | `ruv-swarm` | ✅ Active | `mcp-servers/ruv-swarm/` | Yes |
 | `bitwarden-mcp` | ✅ Active | `mcp-servers/bitwarden-mcp/` | Yes |
 | `dockerhub-mcp` | ✅ Active | `mcp-servers/dockerhub-mcp/` | Yes |
@@ -726,7 +726,7 @@ git mv tools/*.py scripts/tools/
 | MCP Server | Purpose | Priority | Technology |
 |------------|---------|----------|------------|
 | `sequential-thinking-mcp` | Sequential reasoning | High | TypeScript |
-| `graphiti-mcp` | Knowledge graph | High | Python |
+| `letta-mcp` | Knowledge graph | High | Python |
 | `mem0-mcp` | Memory layer | High | Python |
 | `filesystem-mcp` | File operations | Medium | TypeScript |
 | `serena-mcp` | Serena integration | Medium | Python |
@@ -747,7 +747,7 @@ graph TB
         git[Git MCP]
         infisical[Infisical MCP]
         seq[Sequential Thinking]
-        graphiti[Graphiti MCP]
+        letta[letta MCP]
         mem0[Mem0 MCP]
         fs[Filesystem MCP]
         serena[Serena MCP]
@@ -761,7 +761,7 @@ graph TB
     cf --> claude
     cf --> ruv
     cf --> seq
-    archon --> graphiti
+    archon --> letta
     archon --> mem0
 
     claude --> bw
@@ -784,7 +784,7 @@ infra/compose/mcp-servers/
 ├── git-mcp.yml
 ├── infisical-mcp.yml
 ├── sequential-thinking-mcp.yml
-├── memory-mcp.yml          # Mem0 + Graphiti
+├── memory-mcp.yml          # Mem0 + letta
 ├── filesystem-mcp.yml
 └── serena-mcp.yml
 ```
@@ -840,7 +840,7 @@ services:
   postgres:         # Main database
   redis:            # Cache & session store
   rabbitmq:         # Message queue
-  claude-flow:      # Multi-agent orchestration
+  archon-os:      # Multi-agent orchestration
   archon-os:        # AI agent framework
   litellm-proxy:    # LLM routing proxy
   n8n:              # Workflow automation
@@ -849,7 +849,7 @@ services:
   grafana:          # Monitoring dashboards
 
   # All 12 MCP servers
-  mcp-claude-flow:
+  mcp-archon-os:
   mcp-ruv-swarm:
   mcp-bitwarden:
   mcp-docker:
@@ -857,7 +857,7 @@ services:
   mcp-git:
   mcp-infisical:
   mcp-sequential-thinking:
-  mcp-graphiti:
+  mcp-letta:
   mcp-mem0:
   mcp-filesystem:
   mcp-serena:
@@ -941,7 +941,7 @@ services:
   doc-management:        # Heavy OCR workloads (Tesseract, DocTR)
   ingestion:             # Data ingestion pipelines
   mortgage-assistant:    # AI assistant backend
-  graphiti-knowledge:    # Knowledge graph processing
+  letta-knowledge:    # Knowledge graph processing
   ruvector-search:       # Vector search (heavy queries)
 ```
 
@@ -1094,7 +1094,7 @@ git mv docker-compose.cloudflare.yml infra/compose/cloudflare/
 
 **Markdown Files (Move to `docs/`):**
 ```bash
-git mv STATUS-CLAUDE-FLOW-DOCKER.md docs/reports/
+git mv STATUS-archon-os-DOCKER.md docs/reports/
 git mv STATUS-DOCKERHUB-MCP.md docs/reports/
 git mv STATUS-SEQUENTIAL-THINKING-MCP.md docs/reports/
 ```
@@ -1104,7 +1104,7 @@ git mv STATUS-SEQUENTIAL-THINKING-MCP.md docs/reports/
 # Move to config/ if not needed in root
 git mv batch-config.json config/batch/
 git mv PROJECT-NYRA-ULTIMATE-BATCH-CONFIG.json config/batch/
-git mv claude-flow.config.json config/claude-flow/
+git mv archon-os.config.json config/archon-os/
 git mv nextjs.yml config/nextjs/
 ```
 
@@ -1184,7 +1184,7 @@ git mv prompts/* packages/prompts/src/
 ```bash
 # Merge orchestration code
 git mv orchestration/archon-os/* services/archon-os/
-git mv orchestration/claude-flow/* services/claude-flow/
+git mv orchestration/archon-os/* services/archon-os/
 git mv orchestration/serena packages/orchestration/serena/
 ```
 
@@ -1235,7 +1235,7 @@ git mv STATUS-*.md docs/reports/
 
 # Move config files
 git mv batch-config.json config/batch/
-git mv claude-flow.config.json config/claude-flow/
+git mv archon-os.config.json config/archon-os/
 
 # Verify root cleanliness
 ls -la | grep -v "^d" | wc -l  # Should be ~30 files

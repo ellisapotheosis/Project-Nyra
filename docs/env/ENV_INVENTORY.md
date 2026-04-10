@@ -42,17 +42,17 @@ Total discovered keys: **516**
 ## `ADMIN_EMAIL`
 - `infra/project-nyra-scaffold/infra/config/litellm-config.yaml`
 
-## `AGENTDB_DB`
+## `ruvector_DB`
 - `infra/docker-compose.yml`
 
-## `AGENTDB_PASSWORD`
-- `apps/ingestion/docs/CLAUDE-FLOW-FULL-FEATURES-CONTAINERIZATION.md`
+## `ruvector_PASSWORD`
+- `apps/ingestion/docs/archon-os-FULL-FEATURES-CONTAINERIZATION.md`
 - `infra/docker-compose.yml`
 
-## `AGENTDB_PORT`
+## `ruvector_PORT`
 - `infra/docker-compose.yml`
 
-## `AGENTDB_USER`
+## `ruvector_USER`
 - `infra/docker-compose.yml`
 
 ## `AGENTIC_FLOW_IMAGE`
@@ -70,15 +70,15 @@ Total discovered keys: **516**
 - `services/websocket-hub/src/config/index.ts`
 
 ## `ANTHROPIC_API_KEY`
-- `apps/ingestion/docs/CLAUDE-FLOW-FULL-FEATURES-CONTAINERIZATION.md`
+- `apps/ingestion/docs/archon-os-FULL-FEATURES-CONTAINERIZATION.md`
 - `apps/ingestion/files/nyra-stack/docker-compose.yml`
 - `infra/ARCHITECTURE.md`
 - `infra/compose/docker-compose.archon.yml`
 - `infra/config.yaml`
-- `infra/docker-compose.claude-flow-cicd.yml`
+- `infra/docker-compose.archon-os-cicd.yml`
 - `infra/docker-compose.oracle.yml`
 - `infra/docker-compose.yml`
-- `infra/docker-compose/docker-compose.claude-flow.yml`
+- `infra/docker-compose/docker-compose.archon-os.yml`
 - `infra/nexus-complete.toml`
 - `infra/nexus.toml`
 - `infra/nyra-complete/ARCHITECTURE.md`
@@ -214,7 +214,7 @@ Total discovered keys: **516**
 - `infra/project-nyra-scaffold/infra/scripts/bootstrap.sh`
 - `infra/project-nyra-scaffold/infra/scripts/health-check.sh`
 - `infra/scripts/bootstrap.sh`
-- `infra/scripts/claude-flow-cicd-setup.sh`
+- `infra/scripts/archon-os-cicd-setup.sh`
 - `infra/scripts/import-n8n-workflows.sh`
 - `infra/scripts/node-down.sh`
 - `infra/scripts/node-ps.sh`
@@ -226,7 +226,7 @@ Total discovered keys: **516**
 - `infra/scripts/runtime/nyra-maintenance.sh`
 - `infra/scripts/start-with-infisical.sh`
 - `infra/scripts/ultimate-bootstrap.sh`
-- `infra/scripts/validate-claude-flow-cicd.sh`
+- `infra/scripts/validate-archon-os-cicd.sh`
 - ... 2 more
 
 ## `BATCH_SIZE`
@@ -252,7 +252,7 @@ Total discovered keys: **516**
 - `infra/scripts/consolidate-docker-configs.sh`
 - `infra/scripts/rollback-consolidation.sh`
 - `infra/scripts/test-rollback.sh`
-- `infra/scripts/validate-claude-flow-cicd.sh`
+- `infra/scripts/validate-archon-os-cicd.sh`
 - `infra/scripts/validate-consolidation.sh`
 - `infra/verify-connectivity.sh`
 - `services/litellm-proxy/scripts/deploy.sh`
@@ -268,7 +268,7 @@ Total discovered keys: **516**
 - `infra/docker-compose.yml`
 
 ## `BUILD_ID`
-- `infra/configs/claude-flow-cicd/.env.cicd.example`
+- `infra/configs/archon-os-cicd/.env.cicd.example`
 
 ## `CADVISOR_PORT`
 - `infra/compose/overrides/docker-compose.orchestrator.override.yml`
@@ -304,43 +304,43 @@ Total discovered keys: **516**
 
 ## `CLAUDE_FLOW_DASHBOARD_PORT`
 - `infra/docker-compose.dashboard.yml`
-- `infra/docker-compose/docker-compose.claude-flow.yml`
+- `infra/docker-compose/docker-compose.archon-os.yml`
 
 ## `CLAUDE_FLOW_DB`
-- `infra/docker-compose.claude-flow-cicd.yml`
+- `infra/docker-compose.archon-os-cicd.yml`
 
 ## `CLAUDE_FLOW_ENABLE_AGENT_DB`
-- `services/claude-flow/docker-compose.yml`
-- `services/claude-flow/src/config/index.ts`
+- `services/archon-os/docker-compose.yml`
+- `services/archon-os/src/config/index.ts`
 
 ## `CLAUDE_FLOW_ENABLE_REASONING_BANK`
-- `services/claude-flow/docker-compose.yml`
-- `services/claude-flow/src/config/index.ts`
+- `services/archon-os/docker-compose.yml`
+- `services/archon-os/src/config/index.ts`
 
 ## `CLAUDE_FLOW_ENABLE_RUVECTOR`
-- `services/claude-flow/docker-compose.yml`
-- `services/claude-flow/src/config/index.ts`
+- `services/archon-os/docker-compose.yml`
+- `services/archon-os/src/config/index.ts`
 
 ## `CLAUDE_FLOW_EVENT_PORT`
-- `services/claude-flow-event-server/src/event-emitter.ts`
+- `services/archon-os-event-server/src/event-emitter.ts`
 
 ## `CLAUDE_FLOW_HOST`
-- `services/claude-flow/src/config/index.ts`
+- `services/archon-os/src/config/index.ts`
 
 ## `CLAUDE_FLOW_MCP_PORT`
-- `infra/docker-compose/docker-compose.claude-flow.yml`
-- `services/claude-flow/docker-compose.yml`
+- `infra/docker-compose/docker-compose.archon-os.yml`
+- `services/archon-os/docker-compose.yml`
 
 ## `CLAUDE_FLOW_MCP_URL`
 - `services/nexus-router/src/services/mcp-proxy.ts`
 
 ## `CLAUDE_FLOW_METRICS_PORT`
-- `services/claude-flow/docker-compose.yml`
+- `services/archon-os/docker-compose.yml`
 
 ## `CLAUDE_FLOW_PORT`
 - `infra/docker-compose.yml`
 - `infra/docs/STACK-ASSET-INVENTORY.md`
-- `services/claude-flow/src/config/index.ts`
+- `services/archon-os/src/config/index.ts`
 
 ## `CLAUDE_FLOW_URL`
 - `infra/compose/docker-compose.archon.yml`
@@ -443,7 +443,7 @@ Total discovered keys: **516**
 ## `DEBUG`
 - `infra/docker-compose.dashboard.yml`
 - `infra/project-nyra-scaffold/infra/docker-compose.orchestrator.yml`
-- `services/claude-flow-event-server/src/server.ts`
+- `services/archon-os-event-server/src/server.ts`
 
 ## `DEVELOPMENT_MODE`
 - `infra/shared/scripts/setup-dev-environment.sh`
@@ -504,7 +504,7 @@ Total discovered keys: **516**
 - `services/campaign-engine/src/config/index.js`
 
 ## `ENCRYPTION_KEY`
-- `infra/docker-compose.claude-flow-cicd.yml`
+- `infra/docker-compose.archon-os-cicd.yml`
 - `infra/docker-compose.oracle.yml`
 - `infra/nyra-complete/infra/docker-compose.oracle.yml`
 - `services/activepieces-flows/CLAUDE.md`
@@ -516,7 +516,7 @@ Total discovered keys: **516**
 - `infra/docker-compose.dashboard.yml`
 
 ## `EVENT_SERVER_HOST`
-- `services/claude-flow-event-server/src/server.ts`
+- `services/archon-os-event-server/src/server.ts`
 
 ## `EVENT_SERVER_HTTP_PORT`
 - `infra/docker-compose.dashboard.yml`
@@ -525,11 +525,11 @@ Total discovered keys: **516**
 - `infra/docker-compose.dashboard.yml`
 
 ## `EVENT_SERVER_PORT`
-- `services/claude-flow-event-server/src/server.ts`
+- `services/archon-os-event-server/src/server.ts`
 
 ## `EVENT_SERVER_REPLAY_BUFFER`
 - `infra/docker-compose.dashboard.yml`
-- `services/claude-flow-event-server/src/server.ts`
+- `services/archon-os-event-server/src/server.ts`
 
 ## `EVENT_SERVER_WS_PORT`
 - `infra/docker-compose.dashboard.yml`
@@ -544,10 +544,10 @@ Total discovered keys: **516**
 - `infra/oracle/docker-compose.oracle.yml`
 
 ## `FALKOR_HOST`
-- `services/graphiti-knowledge/src/index.js`
+- `services/letta-knowledge/src/index.js`
 
 ## `FALKOR_PORT`
-- `services/graphiti-knowledge/src/index.js`
+- `services/letta-knowledge/src/index.js`
 
 ## `FILES_ARRAY`
 - `infra/scripts/rollback-consolidation.sh`
@@ -640,16 +640,16 @@ Total discovered keys: **516**
 - `services/github-mcp/CLAUDE.md`
 
 ## `GIT_AUTHOR_EMAIL`
-- `infra/docker-compose.claude-flow-cicd.yml`
+- `infra/docker-compose.archon-os-cicd.yml`
 
 ## `GIT_AUTHOR_NAME`
-- `infra/docker-compose.claude-flow-cicd.yml`
+- `infra/docker-compose.archon-os-cicd.yml`
 
 ## `GIT_COMMITTER_EMAIL`
-- `infra/docker-compose.claude-flow-cicd.yml`
+- `infra/docker-compose.archon-os-cicd.yml`
 
 ## `GIT_COMMITTER_NAME`
-- `infra/docker-compose.claude-flow-cicd.yml`
+- `infra/docker-compose.archon-os-cicd.yml`
 
 ## `GIT_MCP_IMAGE`
 - `infra/docker-compose.yml`
@@ -658,9 +658,9 @@ Total discovered keys: **516**
 - `infra/docker-compose.yml`
 
 ## `GOOGLE_API_KEY`
-- `apps/ingestion/docs/CLAUDE-FLOW-FULL-FEATURES-CONTAINERIZATION.md`
+- `apps/ingestion/docs/archon-os-FULL-FEATURES-CONTAINERIZATION.md`
 - `infra/compose/docker-compose.archon.yml`
-- `infra/docker-compose.claude-flow-cicd.yml`
+- `infra/docker-compose.archon-os-cicd.yml`
 - `infra/docker-compose.yml`
 - `infra/nexus-complete.toml`
 - `services/nexus-router/QUICK-REDIS-SETUP.md`
@@ -697,7 +697,7 @@ Total discovered keys: **516**
 - `infra/docker-compose.yml`
 
 ## `GRAFANA_PASSWORD`
-- `apps/ingestion/docs/CLAUDE-FLOW-FULL-FEATURES-CONTAINERIZATION.md`
+- `apps/ingestion/docs/archon-os-FULL-FEATURES-CONTAINERIZATION.md`
 - `infra/RateHunter/docker-compose.ratehunter.yml`
 - `services/litellm-proxy/docker-compose.yml`
 
@@ -710,11 +710,11 @@ Total discovered keys: **516**
 - `infra/workers/worker-rtx3090ti/docker-compose.worker.yml`
 - `infra/workers/worker-rtx5090/docker-compose.worker.yml`
 
-## `GRAPHITI_GROUP_ID`
-- `apps/ingestion/files/nyra-stack/docker-compose.graphiti.yml`
-- `infra/stacks/nyra-mortgage/docker-compose.graphiti.yml`
+## `letta_GROUP_ID`
+- `apps/ingestion/files/nyra-stack/docker-compose.letta.yml`
+- `infra/stacks/nyra-mortgage/docker-compose.letta.yml`
 
-## `GRAPHITI_TELEMETRY_ENABLED`
+## `letta_TELEMETRY_ENABLED`
 - `infra/oracle/docker-compose.oracle.yml`
 
 ## `GREEN`
@@ -728,7 +728,7 @@ Total discovered keys: **516**
 - `infra/scripts/rollback-consolidation.sh`
 - `infra/scripts/runtime/nyra-doctor.sh`
 - `infra/scripts/test-rollback.sh`
-- `infra/scripts/validate-claude-flow-cicd.sh`
+- `infra/scripts/validate-archon-os-cicd.sh`
 - `infra/scripts/validate-consolidation.sh`
 - `infra/shared/scripts/setup-autonomous.sh`
 - `infra/tunnel-setup.sh`
@@ -808,7 +808,7 @@ Total discovered keys: **516**
 
 ## `INFISICAL_ENV`
 - `infra/configs/infisical/agent-archon.yaml`
-- `infra/configs/infisical/agent-claude-flow.yaml`
+- `infra/configs/infisical/agent-archon-os.yaml`
 - `infra/workers/worker-3090/promtail-config.yml`
 
 ## `INFISICAL_HUBSPOT_API_KEY`
@@ -942,7 +942,7 @@ Total discovered keys: **516**
 
 ## `JWT_SECRET`
 - `infra/RateHunter/docker-compose.ratehunter.yml`
-- `infra/docker-compose.claude-flow-cicd.yml`
+- `infra/docker-compose.archon-os-cicd.yml`
 - `infra/docker-compose.oracle.yml`
 - `infra/nyra-complete/infra/docker-compose.oracle.yml`
 - `services/auth-service/CLAUDE.md`
@@ -1021,10 +1021,10 @@ Total discovered keys: **516**
 - `services/mortgage-assistant-api/src/utils/logger.ts`
 
 ## `LOG_LEVEL`
-- `apps/ingestion/docs/CLAUDE-FLOW-FULL-FEATURES-CONTAINERIZATION.md`
+- `apps/ingestion/docs/archon-os-FULL-FEATURES-CONTAINERIZATION.md`
 - `infra/compose/docker-compose.archon.yml`
 - `services/campaign-engine/src/config/index.js`
-- `services/claude-flow/src/config/index.ts`
+- `services/archon-os/src/config/index.ts`
 - `services/lead-capture-api/src/config/logger.js`
 - `services/mortgage-assistant-api/src/utils/logger.ts`
 - `services/nexus-router/src/utils/logger.ts`
@@ -1267,7 +1267,7 @@ Total discovered keys: **516**
 - `infra/scripts/rollback-consolidation.sh`
 - `infra/scripts/runtime/nyra-doctor.sh`
 - `infra/scripts/test-rollback.sh`
-- `infra/scripts/validate-claude-flow-cicd.sh`
+- `infra/scripts/validate-archon-os-cicd.sh`
 - `infra/scripts/validate-consolidation.sh`
 - `infra/shared/scripts/setup-autonomous.sh`
 - `infra/tunnel-setup.sh`
@@ -1277,7 +1277,7 @@ Total discovered keys: **516**
 - `services/nexus-router/scripts/verify-security-integration.sh`
 
 ## `NEO4J_PASSWORD`
-- `services/graphiti-knowledge/CLAUDE.md`
+- `services/letta-knowledge/CLAUDE.md`
 - `services/memory/deployment/docker-compose.memory.yml`
 - `services/memory/infra/docker-compose.master.yml`
 
@@ -1339,18 +1339,18 @@ Total discovered keys: **516**
 - `infra/docker-compose.yml`
 
 ## `NODE_ENV`
-- `apps/ingestion/docs/CLAUDE-FLOW-FULL-FEATURES-CONTAINERIZATION.md`
+- `apps/ingestion/docs/archon-os-FULL-FEATURES-CONTAINERIZATION.md`
 - `infra/compose/docker-compose.archon.yml`
-- `infra/docker-compose.claude-flow-cicd.yml`
+- `infra/docker-compose.archon-os-cicd.yml`
 - `infra/docker-compose.dashboard.yml`
 - `infra/docker-compose.yml`
 - `infra/shared/scripts/setup-dev-environment.sh`
 - `services/campaign-engine/src/config/index.js`
-- `services/claude-flow-event-server/src/event-server.ts`
-- `services/claude-flow/docker-compose.yml`
-- `services/claude-flow/src/config/index.ts`
+- `services/archon-os-event-server/src/event-server.ts`
+- `services/archon-os/docker-compose.yml`
+- `services/archon-os/src/config/index.ts`
 - `services/doc-management-api/src/config/database.ts`
-- `services/graphiti-knowledge/src/index.js`
+- `services/letta-knowledge/src/index.js`
 - `services/lead-capture-api/src/config/logger.js`
 - `services/mortgage-assistant-api/src/config/database.ts`
 - `services/mortgage-assistant-api/src/config/jwt.ts`
@@ -1391,18 +1391,18 @@ Total discovered keys: **516**
 - `infra/workers/worker-3060/health-monitor/monitor.js`
 
 ## `OPENAI_API_KEY`
-- `apps/ingestion/docs/CLAUDE-FLOW-FULL-FEATURES-CONTAINERIZATION.md`
-- `apps/ingestion/files/nyra-stack/docker-compose.graphiti.yml`
+- `apps/ingestion/docs/archon-os-FULL-FEATURES-CONTAINERIZATION.md`
+- `apps/ingestion/files/nyra-stack/docker-compose.letta.yml`
 - `apps/ingestion/files/nyra-stack/docker-compose.yml`
 - `infra/compose/docker-compose.archon.yml`
-- `infra/docker-compose.claude-flow-cicd.yml`
+- `infra/docker-compose.archon-os-cicd.yml`
 - `infra/docker-compose.yml`
-- `infra/docker-compose/docker-compose.claude-flow.yml`
+- `infra/docker-compose/docker-compose.archon-os.yml`
 - `infra/oracle/docker-compose.oracle.yml`
-- `infra/stacks/nyra-mortgage/docker-compose.graphiti.yml`
+- `infra/stacks/nyra-mortgage/docker-compose.letta.yml`
 - `infra/stacks/nyra-mortgage/docker-compose.yml`
-- `services/claude-flow/docker-compose.yml`
-- `services/claude-flow/src/config/index.ts`
+- `services/archon-os/docker-compose.yml`
+- `services/archon-os/src/config/index.ts`
 - `services/litellm-proxy/CLAUDE.md`
 - `services/memory/deployment/docker-compose.memory.yml`
 - `services/memory/infra/docker-compose.master.yml`
@@ -1422,7 +1422,7 @@ Total discovered keys: **516**
 - `apps/ingestion/files/nyra-stack/docker-compose.addons.yml`
 - `apps/ingestion/files/nyra-stack/docker-compose.yml`
 - `infra/config.yaml`
-- `infra/docker-compose.claude-flow-cicd.yml`
+- `infra/docker-compose.archon-os-cicd.yml`
 - `infra/docker-compose.yml`
 - `infra/nexus-complete.toml`
 - `infra/nyra-complete/infra/docker-compose.orchestrator.yml`
@@ -1481,7 +1481,7 @@ Total discovered keys: **516**
 - `infra/workers/worker-3060/health-monitor/monitor.js`
 - `services/campaign-engine/src/config/index.js`
 - `services/gitea-mcp/server.js`
-- `services/graphiti-knowledge/src/index.js`
+- `services/letta-knowledge/src/index.js`
 - `services/nexus-router/src/index.ts`
 - `services/twentycrm-integration/src/config/index.ts`
 - `services/twilio-integration/src/config/twilio.config.ts`
@@ -1496,24 +1496,24 @@ Total discovered keys: **516**
 ## `POSTGRES_DB`
 - `infra/compose/base.yml`
 - `infra/compose/docker-compose.archon.yml`
-- `infra/configs/claude-flow-cicd/.env.cicd.example`
+- `infra/configs/archon-os-cicd/.env.cicd.example`
 - `infra/docker-compose.yml`
 - `infra/oracle/docker-compose.oracle.yml`
 
 ## `POSTGRES_HOST`
-- `infra/configs/claude-flow-cicd/.env.cicd.example`
-- `infra/docker-compose.claude-flow-cicd.yml`
+- `infra/configs/archon-os-cicd/.env.cicd.example`
+- `infra/docker-compose.archon-os-cicd.yml`
 - `infra/oracle/docker-compose.oracle.yml`
 
 ## `POSTGRES_HOST_PORT`
 - `infra/compose/base.yml`
 
 ## `POSTGRES_PASSWORD`
-- `apps/ingestion/docs/CLAUDE-FLOW-FULL-FEATURES-CONTAINERIZATION.md`
+- `apps/ingestion/docs/archon-os-FULL-FEATURES-CONTAINERIZATION.md`
 - `infra/compose/base.yml`
 - `infra/compose/docker-compose.archon.yml`
-- `infra/configs/claude-flow-cicd/.env.cicd.example`
-- `infra/docker-compose.claude-flow-cicd.yml`
+- `infra/configs/archon-os-cicd/.env.cicd.example`
+- `infra/docker-compose.archon-os-cicd.yml`
 - `infra/docker-compose.oracle.yml`
 - `infra/docker-compose.yml`
 - `infra/nyra-complete/infra/docker-compose.oracle.yml`
@@ -1527,8 +1527,8 @@ Total discovered keys: **516**
 - `infra/compose/overrides/docker-compose.oracle.override.yml`
 - `infra/compose/overrides/docker-compose.orchestrator.override.yml`
 - `infra/compose/overrides/docker-compose.worker-rtx3060.override.yml`
-- `infra/configs/claude-flow-cicd/.env.cicd.example`
-- `infra/docker-compose.claude-flow-cicd.yml`
+- `infra/configs/archon-os-cicd/.env.cicd.example`
+- `infra/docker-compose.archon-os-cicd.yml`
 - `infra/docker-compose.yml`
 - `infra/docs/STACK-ASSET-INVENTORY.md`
 - `infra/oracle/docker-compose.oracle.yml`
@@ -1538,8 +1538,8 @@ Total discovered keys: **516**
 ## `POSTGRES_USER`
 - `infra/compose/base.yml`
 - `infra/compose/docker-compose.archon.yml`
-- `infra/configs/claude-flow-cicd/.env.cicd.example`
-- `infra/docker-compose.claude-flow-cicd.yml`
+- `infra/configs/archon-os-cicd/.env.cicd.example`
+- `infra/docker-compose.archon-os-cicd.yml`
 - `infra/docker-compose.yml`
 - `infra/oracle/docker-compose.oracle.yml`
 
@@ -1607,7 +1607,7 @@ Total discovered keys: **516**
 - `infra/scripts/rollback-consolidation.sh`
 - `infra/scripts/runtime/nyra-doctor.sh`
 - `infra/scripts/test-rollback.sh`
-- `infra/scripts/validate-claude-flow-cicd.sh`
+- `infra/scripts/validate-archon-os-cicd.sh`
 - `infra/scripts/validate-consolidation.sh`
 - `infra/shared/scripts/setup-autonomous.sh`
 - `infra/tunnel-setup.sh`
@@ -1627,8 +1627,8 @@ Total discovered keys: **516**
 - `services/websocket-hub/src/config/index.ts`
 
 ## `REDIS_HOST`
-- `infra/configs/claude-flow-cicd/.env.cicd.example`
-- `infra/docker-compose.claude-flow-cicd.yml`
+- `infra/configs/archon-os-cicd/.env.cicd.example`
+- `infra/docker-compose.archon-os-cicd.yml`
 - `services/lead-capture-api/CLAUDE.md`
 - `services/lead-capture-api/src/config/redis.js`
 - `services/letta-integration/src/sync/sync-service.ts`
@@ -1650,14 +1650,14 @@ Total discovered keys: **516**
 - `infra/docker-compose.yml`
 
 ## `REDIS_PASSWORD`
-- `apps/ingestion/docs/CLAUDE-FLOW-FULL-FEATURES-CONTAINERIZATION.md`
+- `apps/ingestion/docs/archon-os-FULL-FEATURES-CONTAINERIZATION.md`
 - `infra/compose/docker-compose.archon.yml`
-- `infra/configs/claude-flow-cicd/.env.cicd.example`
-- `infra/docker-compose.claude-flow-cicd.yml`
+- `infra/configs/archon-os-cicd/.env.cicd.example`
+- `infra/docker-compose.archon-os-cicd.yml`
 - `infra/docker-compose.yml`
-- `infra/docker-compose/docker-compose.claude-flow.yml`
-- `services/claude-flow/docker-compose.yml`
-- `services/claude-flow/src/config/index.ts`
+- `infra/docker-compose/docker-compose.archon-os.yml`
+- `services/archon-os/docker-compose.yml`
+- `services/archon-os/src/config/index.ts`
 - `services/lead-capture-api/src/config/redis.js`
 - `services/litellm-proxy/config/config.yaml`
 - `services/mortgage-assistant-api/src/config/redis.ts`
@@ -1671,8 +1671,8 @@ Total discovered keys: **516**
 - `infra/compose/overrides/docker-compose.oracle.override.yml`
 - `infra/compose/overrides/docker-compose.orchestrator.override.yml`
 - `infra/compose/overrides/docker-compose.worker-rtx3060.override.yml`
-- `infra/configs/claude-flow-cicd/.env.cicd.example`
-- `infra/docker-compose.claude-flow-cicd.yml`
+- `infra/configs/archon-os-cicd/.env.cicd.example`
+- `infra/docker-compose.archon-os-cicd.yml`
 - `infra/docker-compose.yml`
 - `infra/docs/STACK-ASSET-INVENTORY.md`
 - `infra/workers/worker-rtx3090ti/docker-compose.worker.yml`
@@ -1690,7 +1690,7 @@ Total discovered keys: **516**
 
 ## `REDIS_URL`
 - `services/auth-service/src/config/database.config.ts`
-- `services/claude-flow/src/config/index.ts`
+- `services/archon-os/src/config/index.ts`
 - `services/nexus-router/src/config.ts`
 - `services/websocket-hub/src/config/index.ts`
 
@@ -1706,13 +1706,13 @@ Total discovered keys: **516**
 - `services/github-mcp/CLAUDE.md`
 
 ## `RUVECTOR_DATABASE`
-- `services/claude-flow/src/config/index.ts`
+- `services/archon-os/src/config/index.ts`
 
 ## `RUVECTOR_HOST`
-- `services/claude-flow/src/config/index.ts`
+- `services/archon-os/src/config/index.ts`
 
 ## `RUVECTOR_PASSWORD`
-- `services/claude-flow/src/config/index.ts`
+- `services/archon-os/src/config/index.ts`
 
 ## `RUVECTOR_PGADMIN_EMAIL`
 - `infra/docker-compose.yml`
@@ -1725,17 +1725,17 @@ Total discovered keys: **516**
 - `infra/docker-compose.yml`
 
 ## `RUVECTOR_PORT`
-- `services/claude-flow/src/config/index.ts`
+- `services/archon-os/src/config/index.ts`
 
 ## `RUVECTOR_POSTGRES_DB`
 - `infra/docker-compose.yml`
-- `infra/docker-compose/docker-compose.claude-flow.yml`
-- `services/claude-flow/docker-compose.yml`
+- `infra/docker-compose/docker-compose.archon-os.yml`
+- `services/archon-os/docker-compose.yml`
 
 ## `RUVECTOR_POSTGRES_PASSWORD`
 - `infra/docker-compose.yml`
-- `infra/docker-compose/docker-compose.claude-flow.yml`
-- `services/claude-flow/docker-compose.yml`
+- `infra/docker-compose/docker-compose.archon-os.yml`
+- `services/archon-os/docker-compose.yml`
 
 ## `RUVECTOR_POSTGRES_PORT`
 - `infra/compose/overrides/docker-compose.orchestrator.override.yml`
@@ -1744,11 +1744,11 @@ Total discovered keys: **516**
 
 ## `RUVECTOR_POSTGRES_USER`
 - `infra/docker-compose.yml`
-- `infra/docker-compose/docker-compose.claude-flow.yml`
-- `services/claude-flow/docker-compose.yml`
+- `infra/docker-compose/docker-compose.archon-os.yml`
+- `services/archon-os/docker-compose.yml`
 
 ## `RUVECTOR_USER`
-- `services/claude-flow/src/config/index.ts`
+- `services/archon-os/src/config/index.ts`
 
 ## `S3_BUCKET`
 - `services/doc-management-api/src/config/s3.ts`
@@ -1797,10 +1797,10 @@ Total discovered keys: **516**
 - `services/sendgrid-integration/CLAUDE.md`
 
 ## `SWARM_MAX_AGENTS`
-- `infra/docker-compose.claude-flow-cicd.yml`
+- `infra/docker-compose.archon-os-cicd.yml`
 
 ## `SWARM_TOPOLOGY`
-- `infra/docker-compose.claude-flow-cicd.yml`
+- `infra/docker-compose.archon-os-cicd.yml`
 
 ## `SYNC_BATCH_SIZE`
 - `services/twentycrm-integration/src/config/index.ts`
@@ -2103,7 +2103,7 @@ Total discovered keys: **516**
 - `infra/scripts/rollback-consolidation.sh`
 - `infra/scripts/runtime/nyra-doctor.sh`
 - `infra/scripts/test-rollback.sh`
-- `infra/scripts/validate-claude-flow-cicd.sh`
+- `infra/scripts/validate-archon-os-cicd.sh`
 - `infra/scripts/validate-consolidation.sh`
 - `infra/shared/scripts/setup-autonomous.sh`
 - `infra/tunnel-setup.sh`

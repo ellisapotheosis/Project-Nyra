@@ -48,12 +48,12 @@ switch ($Environment) {
 
         Write-Host "`n✅ Development environment active!" -ForegroundColor Green
         Write-Host "`n🎯 Development Features:" -ForegroundColor Yellow
-        Write-Host "   • Live Code Editing: Edit submodules/claude-flow or submodules/archon" -ForegroundColor White
+        Write-Host "   • Live Code Editing: Edit submodules/archon-os or submodules/archon" -ForegroundColor White
         Write-Host "   • Hot Reloading: Changes reflect immediately" -ForegroundColor White
         Write-Host "   • Local MCP Servers: Using your forked code directly" -ForegroundColor White
         Write-Host "`n💡 Folder Structure:" -ForegroundColor Cyan
         Write-Host "   • Development Code: $projectRoot\submodules\" -ForegroundColor Gray
-        Write-Host "   • Live claude-flow: submodules\claude-flow\" -ForegroundColor Gray
+        Write-Host "   • Live archon-os: submodules\archon-os\" -ForegroundColor Gray
         Write-Host "   • Live archon: submodules\archon\" -ForegroundColor Gray
     }
 
@@ -81,9 +81,9 @@ switch ($Environment) {
         Write-Host "`n🎯 Production Features:" -ForegroundColor Yellow
         Write-Host "   • Stable Packages: Using published npm packages" -ForegroundColor White
         Write-Host "   • Docker Containers: Containerized services" -ForegroundColor White
-        Write-Host "   • Production MCP: Using claude-flow@alpha from npm" -ForegroundColor White
+        Write-Host "   • Production MCP: Using archon-os@alpha from npm" -ForegroundColor White
         Write-Host "`n💡 Production Structure:" -ForegroundColor Cyan
-        Write-Host "   • npm packages: claude-flow@alpha, ruv-swarm@latest" -ForegroundColor Gray
+        Write-Host "   • npm packages: archon-os@alpha, ruv-swarm@latest" -ForegroundColor Gray
         Write-Host "   • Docker services: Via docker-compose files" -ForegroundColor Gray
         Write-Host "   • Stable deployment: No development dependencies" -ForegroundColor Gray
     }
@@ -110,7 +110,7 @@ Write-Host "   Project: Project-Nyra" -ForegroundColor White
 # Environment-specific next steps
 Write-Host "`n🚀 What's Next:" -ForegroundColor Magenta
 if ($Environment -eq "development") {
-    Write-Host "1. Edit code in: .\submodules\claude-flow\ or .\submodules\archon\" -ForegroundColor White
+    Write-Host "1. Edit code in: .\submodules\archon-os\ or .\submodules\archon\" -ForegroundColor White
     Write-Host "2. Changes appear instantly in running MCP servers" -ForegroundColor White
     Write-Host "3. Test: nyra-claude.ps1 flow --version (uses your local code)" -ForegroundColor White
     Write-Host "4. Commit/push changes to your forks when ready" -ForegroundColor White

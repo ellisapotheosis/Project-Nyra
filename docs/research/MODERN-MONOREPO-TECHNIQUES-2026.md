@@ -90,7 +90,7 @@ project-nyra/
 │   └── (to be expanded)
 ├── mcp-servers/             # MCP server wrappers
 └── submodules/              # External dependencies
-    ├── claude-flow/
+    ├── archon-os/
     └── archon/
 ```
 
@@ -806,7 +806,7 @@ packages:
   - services/*
   - mcp-servers/*
   - packages/*
-  - submodules/claude-flow
+  - submodules/archon-os
   - submodules/archon
 ```
 

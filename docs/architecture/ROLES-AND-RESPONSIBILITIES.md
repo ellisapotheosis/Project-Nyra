@@ -198,11 +198,11 @@ hyperbolic_embeddings -- Poincaré ball projections
 ❌ **Qdrant** - Replaced by RuVector
 ❌ **OpenMemory** - Replaced by unified stack
 ❌ **Neo4j** - Replaced by FalkorDB
-❌ **Graphiti** - Integrated into Zep + FalkorDB
+❌ **letta** - Integrated into Zep + FalkorDB
 
 ---
 
-## 4. Configuration in claude-flow.config.yaml
+## 4. Configuration in archon-os.config.yaml
 
 ```yaml
 # Memory backend priority
@@ -298,14 +298,14 @@ graph TD
 
 ### Check Claude Flow Status
 ```bash
-npx @claude-flow/cli@latest status
-npx @claude-flow/cli@latest memory stats
+npx @archon-os/cli@latest status
+npx @archon-os/cli@latest memory stats
 ```
 
 ### Check Archon MCP Connection
 ```bash
 # Should show Archon as connected MCP server
-npx @claude-flow/cli@latest mcp status
+npx @archon-os/cli@latest mcp status
 ```
 
 ### Check Memory Services
@@ -323,13 +323,13 @@ docker exec nyra-falkordb-golden redis-cli -a falkordb-secure PING
 ### Test Memory Storage
 ```bash
 # Store in RuVector via Claude Flow
-npx @claude-flow/cli@latest memory store \
+npx @archon-os/cli@latest memory store \
   --key "test-pattern" \
   --value "test data" \
   --namespace patterns
 
 # Retrieve
-npx @claude-flow/cli@latest memory retrieve \
+npx @archon-os/cli@latest memory retrieve \
   --key "test-pattern" \
   --namespace patterns
 ```
@@ -359,7 +359,7 @@ npx @claude-flow/cli@latest memory retrieve \
 ### If agents wait for Archon to act:
 ```bash
 # Check system prompt in config
-grep -A 10 "systemPrompt" .claude-flow/config.yaml
+grep -A 10 "systemPrompt" .archon-os/config.yaml
 
 # Should emphasize: "YOU control the execution loop"
 ```
@@ -387,7 +387,7 @@ docker exec nyra-ruvector psql -U claude -d claude_flow -c "SELECT 1;"
 
 - **Golden Stack Deployment**: `/GOLDEN-STACK-DEPLOYED.md`
 - **Startup Guide**: `/STARTUP-GUIDE.md`
-- **Claude Flow Config**: `/.claude-flow/config.yaml`
+- **Claude Flow Config**: `/.archon-os/config.yaml`
 - **Memory Architecture**: Stored in memory namespace `architecture`
 
 ---

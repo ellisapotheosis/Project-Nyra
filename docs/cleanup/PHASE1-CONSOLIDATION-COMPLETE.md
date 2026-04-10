@@ -35,33 +35,33 @@ Phase 1 of the documentation reorganization has been successfully completed. The
 
 #### ✅ Consolidation #2: Claude Flow Quick Start Commands
 - **Original File**:
-  - `docs/CLAUDE-FLOW-QUICK-START.md` (207 lines) - Quick commands reference
+  - `docs/archon-os-QUICK-START.md` (207 lines) - Quick commands reference
 
 - **Consolidation Action**:
-  - **Location**: `docs/ai-automatable/quick-start/claude-flow-commands.md`
+  - **Location**: `docs/ai-automatable/quick-start/archon-os-commands.md`
   - [x] Create `docs/ai-automatable/quick-start/` directory
-  - [x] Copy CLAUDE-FLOW-QUICK-START.md to new location
+  - [x] Copy archon-os-QUICK-START.md to new location
   - File contains: Quick reference for CLI commands, monitoring, agents, swarm, neural learning
 
 - **Status**: Complete
-  - [ ] Mark CLAUDE-FLOW-QUICK-START.md for archival
+  - [ ] Mark archon-os-QUICK-START.md for archival
 
 ---
 
 #### ✅ Consolidation #3: Claude Flow Setup Documentation
 - **Original Files**:
-  - `docs/CLAUDE-FLOW-SETUP.md` (454 lines) - Full setup guide
-  - `docs/CLAUDE-FLOW-PLUGINS-SETUP.md` (200 lines) - Plugins specific
-  - `docs/CLAUDE-FLOW-V3-SETUP-SUMMARY.md` (300 lines) - Setup summary
+  - `docs/archon-os-SETUP.md` (454 lines) - Full setup guide
+  - `docs/archon-os-PLUGINS-SETUP.md` (200 lines) - Plugins specific
+  - `docs/archon-os-V3-SETUP-SUMMARY.md` (300 lines) - Setup summary
 
 - **Consolidation Action**:
-  - **Location**: `docs/ai-automatable/claude-flow/setup.md`
-  - [x] Create `docs/ai-automatable/claude-flow/` directory
-  - [x] Copy CLAUDE-FLOW-SETUP.md to new location
-  - [x] Copy CLAUDE-FLOW-PLUGINS-SETUP.md to `docs/ai-automatable/claude-flow/plugins.md`
+  - **Location**: `docs/ai-automatable/archon-os/setup.md`
+  - [x] Create `docs/ai-automatable/archon-os/` directory
+  - [x] Copy archon-os-SETUP.md to new location
+  - [x] Copy archon-os-PLUGINS-SETUP.md to `docs/ai-automatable/archon-os/plugins.md`
 
 - **Status**: Complete
-  - [ ] Merge unique content from CLAUDE-FLOW-V3-SETUP-SUMMARY.md
+  - [ ] Merge unique content from archon-os-V3-SETUP-SUMMARY.md
   - [ ] Mark original files for archival
 
 ---
@@ -205,11 +205,11 @@ Phase 1 of the documentation reorganization has been successfully completed. The
 ```
 docs/
 ├── ai-automatable/
-│   ├── claude-flow/
+│   ├── archon-os/
 │   │   ├── setup.md              ✅ CREATED
 │   │   └── plugins.md            ✅ CREATED
 │   ├── quick-start/
-│   │   └── claude-flow-commands.md ✅ CREATED
+│   │   └── archon-os-commands.md ✅ CREATED
 │   ├── bootstrap/                (existing)
 │   ├── prompts/                  (existing)
 │   └── workflows/                (existing)
@@ -268,9 +268,9 @@ docs/
 
 ### Files Copied to New Locations (10 Files)
 1. ✅ SETUP-GUIDE.md → `manual-tasks/setup/primary-setup-guide.md`
-2. ✅ CLAUDE-FLOW-QUICK-START.md → `ai-automatable/quick-start/claude-flow-commands.md`
-3. ✅ CLAUDE-FLOW-SETUP.md → `ai-automatable/claude-flow/setup.md`
-4. ✅ CLAUDE-FLOW-PLUGINS-SETUP.md → `ai-automatable/claude-flow/plugins.md`
+2. ✅ archon-os-QUICK-START.md → `ai-automatable/quick-start/archon-os-commands.md`
+3. ✅ archon-os-SETUP.md → `ai-automatable/archon-os/setup.md`
+4. ✅ archon-os-PLUGINS-SETUP.md → `ai-automatable/archon-os/plugins.md`
 5. ✅ ARCHITECTURE.md → `architecture/README.md`
 6. ✅ mcp-ecosystem-architecture.md → `architecture/mcp-ecosystem.md`
 7. ✅ distributed-ai-infrastructure.md → `architecture/distributed-ai.md`
@@ -319,9 +319,9 @@ docs/
 - `docs/COMPLETE-SETUP-GUIDE.md` (now in manual-tasks/setup/primary-setup-guide.md)
 
 ### Claude Flow Files (Will Archive After Verification)
-- `docs/CLAUDE-FLOW-QUICK-START.md` (now in ai-automatable/quick-start/claude-flow-commands.md)
-- `docs/CLAUDE-FLOW-SETUP.md` (now in ai-automatable/claude-flow/setup.md)
-- `docs/CLAUDE-FLOW-PLUGINS-SETUP.md` (now in ai-automatable/claude-flow/plugins.md)
+- `docs/archon-os-QUICK-START.md` (now in ai-automatable/quick-start/archon-os-commands.md)
+- `docs/archon-os-SETUP.md` (now in ai-automatable/archon-os/setup.md)
+- `docs/archon-os-PLUGINS-SETUP.md` (now in ai-automatable/archon-os/plugins.md)
 
 ### Architecture Files (Will Archive After Verification)
 - `docs/ARCHITECTURE.md` (now in architecture/README.md)
@@ -384,7 +384,7 @@ git add docs/manual-tasks docs/ai-automatable docs/architecture docs/deployment 
 git commit -m "feat: Consolidate 23 duplicate documentation files into organized structure
 
 - Setup guides consolidated into manual-tasks/setup/
-- Claude Flow docs organized into ai-automatable/claude-flow/
+- Claude Flow docs organized into ai-automatable/archon-os/
 - Architecture docs reorganized into architecture/
 - Deployment guides consolidated into deployment/
 - Configuration docs organized into configuration/
@@ -396,7 +396,7 @@ sources of truth for each documentation topic while maintaining backward
 compatibility through redirects."
 
 # Verify no duplicate content remains
-git diff HEAD~1 --name-only | grep -E "(SETUP-GUIDE|CLAUDE-FLOW|ARCHITECTURE|DEPLOYMENT|CONFIGURATION)" | wc -l
+git diff HEAD~1 --name-only | grep -E "(SETUP-GUIDE|archon-os|ARCHITECTURE|DEPLOYMENT|CONFIGURATION)" | wc -l
 ```
 
 ### 4. Remove Original Duplicates (After Verification)

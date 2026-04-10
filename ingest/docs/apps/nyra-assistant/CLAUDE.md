@@ -26,7 +26,7 @@
 
 **Primary Purpose:**
 - AI-driven lead qualification and scoring
-- Multi-agent orchestration (Claude-Flow + Archon)
+- Multi-agent orchestration (archon-os + Archon)
 - Real-time chat interface with borrowers
 - Document OCR and intelligent extraction
 - Compliance checking (RESPA, TRID, TILA)
@@ -60,7 +60,7 @@
 - **Bull** (job queues for async tasks)
 
 **AI & Orchestration:**
-- **Claude-Flow** (multi-agent orchestration)
+- **archon-os** (multi-agent orchestration)
 - **Archon** (agent coordination framework)
 - **Anthropic Claude API** (Claude Sonnet 4.5)
 - **OpenAI API** (GPT-4o for embeddings)
@@ -108,7 +108,7 @@
 ┌────▼──────┐  ┌────▼──────┐              ┌─────▼──────┐
 │Multi-Agent│  │PostgreSQL │              │   Redis    │
 │Orchestrator│  │ Database  │              │   Cache    │
-│(Claude-Flow│  └───────────┘              └────────────┘
+│(archon-os│  └───────────┘              └────────────┘
 │ + Archon) │
 └────┬──────┘
      │
@@ -203,7 +203,7 @@ apps/nyra-assistant/
 │   │   │   ├── compliance-agent.ts
 │   │   │   └── routing-agent.ts
 │   │   ├── orchestration/      # Multi-agent orchestration
-│   │   │   ├── claude-flow-client.ts
+│   │   │   ├── archon-os-client.ts
 │   │   │   ├── archon-coordinator.ts
 │   │   │   ├── swarm-manager.ts
 │   │   │   └── task-orchestrator.ts
@@ -268,12 +268,12 @@ apps/nyra-assistant/
 
 ## 🔧 DEVELOPMENT PATTERNS
 
-### Multi-Agent Orchestration with Claude-Flow
+### Multi-Agent Orchestration with archon-os
 
 **Initialize Agent Swarm:**
 ```typescript
 // backend/src/orchestration/swarm-manager.ts
-import { ClaudeFlowClient } from './claude-flow-client';
+import { ClaudeFlowClient } from './archon-os-client';
 import { ArchonCoordinator } from './archon-coordinator';
 
 export class SwarmManager {
@@ -286,7 +286,7 @@ export class SwarmManager {
   }
 
   async initializeSwarm(topology: 'mesh' | 'hierarchical' = 'hierarchical') {
-    // Initialize Claude-Flow swarm
+    // Initialize archon-os swarm
     await this.claudeFlow.initSwarm({
       topology,
       maxAgents: 6,
@@ -759,21 +759,21 @@ Output a structured JSON report with compliance status and any violations.`,
 **Hierarchical Coordinator Setup:**
 ```bash
 # Initialize hierarchical swarm (queen coordinates workers)
-npx claude-flow@alpha swarm init --topology hierarchical --agents 6
+npx archon-os@alpha swarm init --topology hierarchical --agents 6
 
 # Spawn agents
-npx claude-flow@alpha agent spawn --type qualifying-agent
-npx claude-flow@alpha agent spawn --type document-extractor
-npx claude-flow@alpha agent spawn --type compliance-checker
-npx claude-flow@alpha agent spawn --type routing-agent
-npx claude-flow@alpha agent spawn --type chat-agent
-npx claude-flow@alpha agent spawn --type database-agent
+npx archon-os@alpha agent spawn --type qualifying-agent
+npx archon-os@alpha agent spawn --type document-extractor
+npx archon-os@alpha agent spawn --type compliance-checker
+npx archon-os@alpha agent spawn --type routing-agent
+npx archon-os@alpha agent spawn --type chat-agent
+npx archon-os@alpha agent spawn --type database-agent
 ```
 
 **Task Orchestration:**
 ```bash
 # Orchestrate lead qualification workflow
-npx claude-flow@alpha task orchestrate \
+npx archon-os@alpha task orchestrate \
   --task "Qualify lead and route to loan officer" \
   --priority critical \
   --strategy adaptive \
@@ -788,7 +788,7 @@ npx claude-flow@alpha task orchestrate \
 
 **Store Qualification Results:**
 ```bash
-npx claude-flow@alpha memory store \
+npx archon-os@alpha memory store \
   --key "nyra/leads/{leadId}/qualification" \
   --namespace "coordination" \
   --value '{
@@ -801,7 +801,7 @@ npx claude-flow@alpha memory store \
 
 **Store Document Data:**
 ```bash
-npx claude-flow@alpha memory store \
+npx archon-os@alpha memory store \
   --key "nyra/leads/{leadId}/documents/paystub" \
   --namespace "document-data" \
   --value '{
@@ -815,7 +815,7 @@ npx claude-flow@alpha memory store \
 
 **Store Compliance Status:**
 ```bash
-npx claude-flow@alpha memory store \
+npx archon-os@alpha memory store \
   --key "nyra/leads/{leadId}/compliance" \
   --namespace "compliance" \
   --value '{

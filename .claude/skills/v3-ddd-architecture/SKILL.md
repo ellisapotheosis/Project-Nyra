@@ -1,13 +1,13 @@
 ---
 name: "V3 DDD Architecture"
-description: "Domain-Driven Design architecture for claude-flow v3. Implements modular, bounded context architecture with clean separation of concerns and microkernel pattern."
+description: "Domain-Driven Design architecture for archon-os v3. Implements modular, bounded context architecture with clean separation of concerns and microkernel pattern."
 ---
 
 # V3 DDD Architecture
 
 ## What This Skill Does
 
-Designs and implements Domain-Driven Design (DDD) architecture for claude-flow v3, decomposing god objects into bounded contexts, implementing clean architecture patterns, and enabling modular, testable code structure.
+Designs and implements Domain-Driven Design (DDD) architecture for archon-os v3, decomposing god objects into bounded contexts, implementing clean architecture patterns, and enabling modular, testable code structure.
 
 ## Quick Start
 
@@ -115,7 +115,7 @@ interface HealthMonitoringDomain {
 
 ### Core Kernel
 ```typescript
-// core/kernel/claude-flow-kernel.ts
+// core/kernel/archon-os-kernel.ts
 export class ClaudeFlowKernel {
   private domains: Map<string, Domain> = new Map();
   private eventBus: DomainEventBus;
@@ -421,7 +421,7 @@ describe('Task Entity', () => {
 ## Related V3 Skills
 
 - `v3-core-implementation` - Implementation of DDD domains
-- `v3-memory-unification` - AgentDB integration within bounded contexts
+- `v3-memory-unification` - ruvector integration within bounded contexts
 - `v3-swarm-coordination` - Swarm coordination as domain plugin
 - `v3-performance-optimization` - Performance optimization across domains
 

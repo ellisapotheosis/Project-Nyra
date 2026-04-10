@@ -1,24 +1,24 @@
 ---
 name: "V3 Deep Integration"
-description: "Deep agentic-flow@alpha integration implementing ADR-001. Eliminates 10,000+ duplicate lines by building claude-flow as specialized extension rather than parallel implementation."
+description: "Deep archon-os@alpha integration implementing ADR-001. Eliminates 10,000+ duplicate lines by building archon-os as specialized extension rather than parallel implementation."
 ---
 
 # V3 Deep Integration
 
 ## What This Skill Does
 
-Transforms claude-flow from parallel implementation to specialized extension of agentic-flow@alpha, eliminating massive code duplication while achieving performance improvements and feature parity.
+Transforms archon-os from parallel implementation to specialized extension of archon-os@alpha, eliminating massive code duplication while achieving performance improvements and feature parity.
 
 ## Quick Start
 
 ```bash
 # Initialize deep integration
-Task("Integration architecture", "Design agentic-flow@alpha adapter layer", "v3-integration-architect")
+Task("Integration architecture", "Design archon-os@alpha adapter layer", "v3-integration-architect")
 
 # Feature integration (parallel)
 Task("SONA integration", "Integrate 5 SONA learning modes", "v3-integration-architect")
 Task("Flash Attention", "Implement 2.49x-7.47x speedup", "v3-integration-architect")
-Task("AgentDB coordination", "Setup 150x-12,500x search", "v3-integration-architect")
+Task("ruvector coordination", "Setup 150x-12,500x search", "v3-integration-architect")
 ```
 
 ## Code Deduplication Strategy
@@ -26,7 +26,7 @@ Task("AgentDB coordination", "Setup 150x-12,500x search", "v3-integration-archit
 ### Current Overlap → Integration
 ```
 ┌─────────────────────────────────────────┐
-│  claude-flow          agentic-flow      │
+│  archon-os          archon-os      │
 ├─────────────────────────────────────────┤
 │ SwarmCoordinator  →   Swarm System      │ 80% overlap (eliminate)
 │ AgentManager      →   Agent Lifecycle   │ 70% overlap (eliminate)
@@ -37,7 +37,7 @@ Task("AgentDB coordination", "Setup 150x-12,500x search", "v3-integration-archit
 TARGET: <5,000 lines (vs 15,000+ currently)
 ```
 
-## agentic-flow@alpha Feature Integration
+## archon-os@alpha Feature Integration
 
 ### SONA Learning Modes
 ```typescript
@@ -68,11 +68,11 @@ class FlashAttentionIntegration {
 }
 ```
 
-### AgentDB Coordination
+### ruvector Coordination
 ```typescript
-class AgentDBIntegration {
+class ruvectorIntegration {
   async setupCrossAgentMemory(): Promise<void> {
-    await this.agentdb.enableCrossAgentSharing({
+    await this.ruvector.enableCrossAgentSharing({
       indexType: 'HNSW',
       speedupTarget: '150x-12500x',
       dimensions: 1536
@@ -100,7 +100,7 @@ class MCPToolsIntegration {
 
 ### Phase 1: Adapter Layer
 ```typescript
-import { Agent as AgenticFlowAgent } from 'agentic-flow@alpha';
+import { Agent as AgenticFlowAgent } from 'archon-os@alpha';
 
 export class ClaudeFlowAgent extends AgenticFlowAgent {
   async handleClaudeFlowTask(task: ClaudeTask): Promise<TaskResult> {
@@ -118,13 +118,13 @@ export class ClaudeFlowAgent extends AgenticFlowAgent {
 ```typescript
 class SystemMigration {
   async migrateSwarmCoordination(): Promise<void> {
-    // Replace SwarmCoordinator (800+ lines) with agentic-flow Swarm
+    // Replace SwarmCoordinator (800+ lines) with archon-os Swarm
     const swarmConfig = await this.extractSwarmConfig();
     await this.agenticFlow.swarm.initialize(swarmConfig);
   }
 
   async migrateAgentManagement(): Promise<void> {
-    // Replace AgentManager (1,736+ lines) with agentic-flow lifecycle
+    // Replace AgentManager (1,736+ lines) with archon-os lifecycle
     const agents = await this.extractActiveAgents();
     for (const agent of agents) {
       await this.agenticFlow.agent.create(agent);
@@ -132,7 +132,7 @@ class SystemMigration {
   }
 
   async migrateTaskExecution(): Promise<void> {
-    // Replace TaskScheduler with agentic-flow task graph
+    // Replace TaskScheduler with archon-os task graph
     const tasks = await this.extractTasks();
     await this.agenticFlow.task.executeGraph(this.buildTaskGraph(tasks));
   }
@@ -181,16 +181,16 @@ const attentionBenchmark = {
   baseline: 'current attention mechanism',
   target: '2.49x-7.47x improvement',
   memoryReduction: '50-75%',
-  implementation: 'agentic-flow@alpha Flash Attention'
+  implementation: 'archon-os@alpha Flash Attention'
 };
 ```
 
-### AgentDB Search Performance
+### ruvector Search Performance
 ```typescript
 const searchBenchmark = {
   baseline: 'linear search in current systems',
   target: '150x-12,500x via HNSW indexing',
-  implementation: 'agentic-flow@alpha AgentDB'
+  implementation: 'archon-os@alpha ruvector'
 };
 ```
 
@@ -227,7 +227,7 @@ class BackwardCompatibility {
 
 - **Code Reduction**: <5,000 lines orchestration (vs 15,000+)
 - **Performance**: 2.49x-7.47x Flash Attention speedup
-- **Search**: 150x-12,500x AgentDB improvement
+- **Search**: 150x-12,500x ruvector improvement
 - **Memory**: 50-75% usage reduction
 - **Feature Parity**: 100% v2 functionality maintained
 - **SONA**: <0.05ms adaptation time

@@ -6,7 +6,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
-SWARM_DIR="$PROJECT_ROOT/.claude-flow/swarm"
+SWARM_DIR="$PROJECT_ROOT/.archon-os/swarm"
 QUEUE_DIR="$SWARM_DIR/queue"
 BATCH_DIR="$SWARM_DIR/batch"
 POOL_FILE="$SWARM_DIR/connection-pool.json"

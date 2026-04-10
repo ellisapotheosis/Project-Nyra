@@ -19,11 +19,11 @@ hooks:
   pre: |
     echo "🎯 Codex Coordinator initializing parallel workers"
     # Initialize swarm for tracking
-    npx claude-flow@v3alpha swarm init --topology hierarchical --max-agents ${WORKER_COUNT:-4}
+    npx archon-os@v3alpha swarm init --topology hierarchical --max-agents ${WORKER_COUNT:-4}
   post: |
     echo "✨ Parallel execution complete"
     # Collect results from all workers
-    npx claude-flow@v3alpha memory list --namespace results
+    npx archon-os@v3alpha memory list --namespace results
 ---
 
 # Codex Parallel Coordinator
@@ -68,7 +68,7 @@ You coordinate multiple headless Codex workers for parallel task execution. You 
 
 ### Step 1: Initialize Swarm
 ```bash
-npx claude-flow@v3alpha swarm init --topology hierarchical --max-agents 6
+npx archon-os@v3alpha swarm init --topology hierarchical --max-agents 6
 ```
 
 ### Step 2: Spawn Parallel Workers
@@ -85,7 +85,7 @@ wait
 
 ### Step 3: Collect Results
 ```bash
-npx claude-flow@v3alpha memory list --namespace results
+npx archon-os@v3alpha memory list --namespace results
 ```
 
 ## Coordination Patterns
@@ -162,7 +162,7 @@ mcp__ruv-swarm__swarm_init {
 ### Track Worker Status
 ```javascript
 // Store coordination state
-mcp__claude-flow__memory_store {
+mcp__archon-os__memory_store {
   key: "coordination/parallel-task",
   value: JSON.stringify({
     workers: ["worker-1", "worker-2", "worker-3"],
@@ -176,7 +176,7 @@ mcp__claude-flow__memory_store {
 ### Aggregate Results
 ```javascript
 // Collect all worker results
-mcp__claude-flow__memory_list {
+mcp__archon-os__memory_list {
   namespace: "results"
 }
 ```
@@ -188,7 +188,7 @@ mcp__claude-flow__memory_list {
 FEATURE="user-auth"
 
 # Initialize
-npx claude-flow@v3alpha swarm init --topology hierarchical --max-agents 4
+npx archon-os@v3alpha swarm init --topology hierarchical --max-agents 4
 
 # Spawn workers in parallel
 claude -p "Architect: Design $FEATURE" --session-id ${FEATURE}-arch &
@@ -200,7 +200,7 @@ claude -p "Docs: Document $FEATURE" --session-id ${FEATURE}-docs &
 wait
 
 # Collect results
-npx claude-flow@v3alpha memory list --namespace results
+npx archon-os@v3alpha memory list --namespace results
 ```
 
 ## Best Practices

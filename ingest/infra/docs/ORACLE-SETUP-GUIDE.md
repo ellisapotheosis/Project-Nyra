@@ -11,7 +11,7 @@ benefit from large memory and can tolerate higher network latency are good
 candidates.  Recommended to host on Oracle:
 
 * **Databases**: `postgres-twenty`, `postgres-nyra_ai`, `postgres-letta`, `postgres-activepieces`, `postgres-dify`.
-* **Graphiti / FalkorDB**: moves graph workload out of the orchestrator.
+* **letta / FalkorDB**: moves graph workload out of the orchestrator.
 * **Memory services**: `letta`, `ruvector-postgres`.
 * **Workflow engines**: `n8n`, `activepieces` – these are stateful but not latency critical.
 * **Twenty CRM** and **Quote API**: heavy query loads, good to offload.

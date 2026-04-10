@@ -208,7 +208,7 @@ Excludes:
 ### Example Output
 
 ```
-✅ claude-flow - Started successfully
+✅ archon-os - Started successfully
 ✅ ruv-swarm - Started successfully
 ⚠️ custom-mcp - No start script found
 ```
@@ -227,7 +227,7 @@ Excludes:
 |----|------|----------|
 | **PC1** | Core | nexus-router, auth-service, nyra-orchestrator |
 | **PC2** | Business Logic | quote-api, campaign-engine, lead-capture-api |
-| **PC3** | AI/ML | litellm-proxy, mem0-mcp, graphiti-knowledge |
+| **PC3** | AI/ML | litellm-proxy, mem0-mcp, letta-knowledge |
 | **PC4** | Frontend | ratehunter, nyra-admin, nexus-dashboard |
 
 ### Deployment Flow
@@ -347,7 +347,7 @@ Before pushing:
 
 ```bash
 # Test MCP server
-cd mcp-servers/claude-flow
+cd mcp-servers/archon-os
 pnpm test
 pnpm build
 pnpm start

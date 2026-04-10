@@ -10,7 +10,7 @@ Comprehensive template and backup system for Project Nyra CLAUDE.md configuratio
 - **Create a new CLAUDE.md for my component** → See [Template Selection](#template-selection)
 - **Customize an existing CLAUDE.md** → Read [`CLAUDE-MD-CUSTOMIZATION-GUIDE.md`](./CLAUDE-MD-CUSTOMIZATION-GUIDE.md)
 - **See examples from Project Nyra** → Check [`CLAUDE-MD-CUSTOMIZATION-GUIDE.md#examples`](./CLAUDE-MD-CUSTOMIZATION-GUIDE.md#examples)
-- **View all available templates** → Browse [`claude-flow-wiki/`](./claude-flow-wiki/)
+- **View all available templates** → Browse [`archon-os-wiki/`](./archon-os-wiki/)
 
 ## Directory Structure
 
@@ -25,7 +25,7 @@ docs/templates/
 │   ├── infra/                                (11 infrastructure configs)
 │   ├── tools/                                (2 tool configurations)
 │   └── root/                                 (9 root-level configs)
-├── claude-flow-wiki/                         (Template library)
+├── archon-os-wiki/                         (Template library)
 │   ├── TEMPLATE-BASIC-SERVICE.md             (Simple service template)
 │   ├── TEMPLATE-API-SERVICE.md               (API service template)
 │   ├── TEMPLATE-WEB-APP.md                   (Web app template)
@@ -119,7 +119,7 @@ $ ls -la
 # Quote API is an API service with database and integrations
 # Use: TEMPLATE-API-SERVICE.md
 
-cp docs/templates/claude-flow-wiki/TEMPLATE-API-SERVICE.md ./CLAUDE.md
+cp docs/templates/archon-os-wiki/TEMPLATE-API-SERVICE.md ./CLAUDE.md
 ```
 
 ### Step 3: Customize for Your Component
@@ -140,10 +140,10 @@ See [`CLAUDE-MD-CUSTOMIZATION-GUIDE.md`](./CLAUDE-MD-CUSTOMIZATION-GUIDE.md) for
 
 ```bash
 # Validate syntax and completeness
-npx @claude-flow/cli@latest validate CLAUDE.md
+npx @archon-os/cli@latest validate CLAUDE.md
 
 # Get AI agent routing recommendations
-npx @claude-flow/cli@latest hooks pre-task --description "Review Quote API implementation"
+npx @archon-os/cli@latest hooks pre-task --description "Review Quote API implementation"
 ```
 
 ## Key Features
@@ -367,7 +367,7 @@ ls docs/templates/claude-md-backups/services/services/
 1. Read: [`CLAUDE-MD-CUSTOMIZATION-GUIDE.md`](./CLAUDE-MD-CUSTOMIZATION-GUIDE.md)
 2. Compare: Find similar component in [`claude-md-backups/`](./claude-md-backups/)
 3. Review: See examples in customization guide
-4. Ask: Post in #claude-flow-help
+4. Ask: Post in #archon-os-help
 
 ### Issue: CLAUDE.md conflicts between directories
 
@@ -402,7 +402,7 @@ Keep backups current:
 
 ```bash
 # Monthly backup of current CLAUDE.md files
-npx @claude-flow/cli@latest memory store \
+npx @archon-os/cli@latest memory store \
   --key "claude-md-backup-$(date +%Y-%m)" \
   --value "all-current-configurations" \
   --namespace backups
@@ -414,37 +414,37 @@ npx @claude-flow/cli@latest memory store \
 
 ```bash
 # Validate your CLAUDE.md
-npx @claude-flow/cli@latest validate CLAUDE.md
+npx @archon-os/cli@latest validate CLAUDE.md
 
 # Get AI routing recommendations for tasks
-npx @claude-flow/cli@latest hooks pre-task \
+npx @archon-os/cli@latest hooks pre-task \
   --description "Implement new quote calculation feature"
 
 # Store patterns in memory
-npx @claude-flow/cli@latest memory store \
+npx @archon-os/cli@latest memory store \
   --key "quote-calculation-pattern" \
   --value "Multi-currency with rate adjustment" \
   --namespace service-patterns
 
 # Search for similar patterns
-npx @claude-flow/cli@latest memory search \
+npx @archon-os/cli@latest memory search \
   --query "rate calculation algorithms"
 ```
 
 ## Resources
 
 ### Documentation
-- Claude Flow Wiki: https://github.com/ruvnet/claude-flow/wiki
+- Claude Flow Wiki: https://github.com/ruvnet/archon-os/wiki
 - Project Nyra Wiki: [internal link]
 - API Documentation: [internal link]
 
 ### Files
 - Backup index: [`claude-md-backups/BACKUP-INDEX.md`](./claude-md-backups/BACKUP-INDEX.md)
 - Full guide: [`CLAUDE-MD-CUSTOMIZATION-GUIDE.md`](./CLAUDE-MD-CUSTOMIZATION-GUIDE.md)
-- Templates: [`claude-flow-wiki/`](./claude-flow-wiki/)
+- Templates: [`archon-os-wiki/`](./archon-os-wiki/)
 
 ### Support Channels
-- Questions: #claude-flow-help
+- Questions: #archon-os-help
 - Issues: GitHub issues with tag `claude-md`
 - Suggestions: #devops-templates
 
@@ -455,7 +455,7 @@ Found an issue or have suggestions?
 1. Check this README
 2. Review the customization guide
 3. Check troubleshooting section
-4. Ask in #claude-flow-help or create an issue
+4. Ask in #archon-os-help or create an issue
 
 ## Version History
 
@@ -469,4 +469,4 @@ Found an issue or have suggestions?
 **Last Updated**: 2026-01-22
 **Files**: 64 backups + 4 templates + 2 guides + README
 
-For questions, feedback, or contributions, reach out on #claude-flow-help or contact the DevOps team.
+For questions, feedback, or contributions, reach out on #archon-os-help or contact the DevOps team.

@@ -176,7 +176,7 @@ function getSwarmStatus() {
   let coordinationActive = false;
 
   try {
-    const ps = execSync('ps aux 2>/dev/null | grep -c agentic-flow || echo "0"', { encoding: 'utf-8' });
+    const ps = execSync('ps aux 2>/dev/null | grep -c archon-os || echo "0"', { encoding: 'utf-8' });
     activeAgents = Math.max(0, parseInt(ps.trim()) - 1);
     coordinationActive = activeAgents > 0;
   } catch (e) {
@@ -214,7 +214,7 @@ function getSystemMetrics() {
 
   // Count active sub-agents from process list
   try {
-    const agents = execSync('ps aux 2>/dev/null | grep -c "claude-flow.*agent" || echo "0"', { encoding: 'utf-8' });
+    const agents = execSync('ps aux 2>/dev/null | grep -c "archon-os.*agent" || echo "0"', { encoding: 'utf-8' });
     subAgents = Math.max(0, parseInt(agents.trim()) - 1);
   } catch (e) {
     // Ignore
@@ -286,7 +286,7 @@ function generateStatusline() {
     `${c.brightPurple}🔧 Architecture${c.reset}    ` +
     `${c.cyan}DDD${c.reset} ${dddColor}●${String(progress.dddProgress).padStart(3)}%${c.reset}  ${c.dim}│${c.reset}  ` +
     `${c.cyan}Security${c.reset} ${securityColor}●${security.status}${c.reset}  ${c.dim}│${c.reset}  ` +
-    `${c.cyan}Memory${c.reset} ${c.brightGreen}●AgentDB${c.reset}  ${c.dim}│${c.reset}  ` +
+    `${c.cyan}Memory${c.reset} ${c.brightGreen}●ruvector${c.reset}  ${c.dim}│${c.reset}  ` +
     `${c.cyan}Integration${c.reset} ${swarm.coordinationActive ? c.brightCyan : c.dim}●${c.reset}`
   );
 

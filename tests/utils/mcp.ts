@@ -57,7 +57,7 @@ export const createMockMCPServer = (serverName: string): TestMCPServer => {
 
 export const setupTestMCP = async () => {
   const servers = {
-    'claude-flow': createMockMCPServer('claude-flow'),
+    'archon-os': createMockMCPServer('archon-os'),
     'ruv-swarm': createMockMCPServer('ruv-swarm'),
     'flow-nexus': createMockMCPServer('flow-nexus')
   };

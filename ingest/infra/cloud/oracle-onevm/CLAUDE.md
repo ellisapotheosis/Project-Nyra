@@ -12,7 +12,7 @@
 - **System of record:** TwentyCRM.
 - **Workflows:** n8n + Activepieces.
 - **Assistant runtime:** OpenClaw/Moltbot (containerized), with Mem0 plugin for persistent memory.
-- **Memory:** Graphiti (graph) + RuVector (vector) + Postgres; Letta optional dev-time “subconscious coworker.”
+- **Memory:** letta (graph) + RuVector (vector) + Postgres; Letta optional dev-time “subconscious coworker.”
 - **Security:** STOP compliance absolute; Cloudflare Access for auth; no public DB ports.
 
 ---
@@ -25,7 +25,7 @@ Oracle Always Free A1 Flex includes 3,000 OCPU‑hrs/month and 18,000 GB‑hrs/m
 Services (Oracle):
 - Postgres (dbs: twenty, nyra_ai, n8n, activepieces)
 - Redis (+ optional FalkorDB module)
-- Graphiti + graph backend (FalkorDB or Neo4j)
+- letta + graph backend (FalkorDB or Neo4j)
 - RuVector (vector memory service)
 - TwentyCRM
 - n8n + Activepieces
@@ -38,7 +38,7 @@ Services (Oracle):
 - LiteLLM/OpenRouter routing
 - Infisical/Vaultwarden
 - Archon OS UI (admin shell)
-- Claude-flow dashboard/dev tools
+- archon-os dashboard/dev tools
 - Optional Gitea (move to Oracle if RAM tight)
 
 ### Zone C — GPU workers (Compute)

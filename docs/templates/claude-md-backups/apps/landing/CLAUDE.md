@@ -19,7 +19,7 @@
 ## 🛡️ ANTI-DRIFT CONFIG (PREFERRED)
 
 ```bash
-npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 6 --strategy specialized
+npx @archon-os/cli@latest swarm init --topology hierarchical --max-agents 6 --strategy specialized
 ```
 
 ---
@@ -37,11 +37,11 @@ npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 6 --
 
 ```bash
 # Before: Search memory
-npx @claude-flow/cli@latest memory search --query '[keywords]' --namespace patterns
+npx @archon-os/cli@latest memory search --query '[keywords]' --namespace patterns
 
 # After: Store results
-npx @claude-flow/cli@latest memory store --namespace patterns --key '[pattern]' --value '[result]'
-npx @claude-flow/cli@latest hooks post-task --task-id '[id]' --success true --store-results true
+npx @archon-os/cli@latest memory store --namespace patterns --key '[pattern]' --value '[result]'
+npx @archon-os/cli@latest hooks post-task --task-id '[id]' --success true --store-results true
 ```
 
 ---
@@ -49,9 +49,9 @@ npx @claude-flow/cli@latest hooks post-task --task-id '[id]' --success true --st
 ## 🚀 V3 CLI Commands & 🚀 Available Agents & 🪝 V3 Hooks System
 
 ```bash
-npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 6
-npx @claude-flow/cli@latest memory store/search/retrieve --key/query/--key
-npx @claude-flow/cli@latest hooks pre-task/post-task/post-edit [options]
+npx @archon-os/cli@latest swarm init --topology hierarchical --max-agents 6
+npx @archon-os/cli@latest memory store/search/retrieve --key/query/--key
+npx @archon-os/cli@latest hooks pre-task/post-task/post-edit [options]
 ```
 
 Available Agents: `coder`, `seo-specialist`, `performance-engineer`, `reviewer`, `tester`
@@ -61,8 +61,8 @@ Available Agents: `coder`, `seo-specialist`, `performance-engineer`, `reviewer`,
 ## 📝 Memory Commands Reference
 
 ```bash
-npx @claude-flow/cli@latest memory store --key "landing-pattern" --value "content" --namespace patterns
-npx @claude-flow/cli@latest memory search --query "landing page seo" --namespace patterns
+npx @archon-os/cli@latest memory store --key "landing-pattern" --value "content" --namespace patterns
+npx @archon-os/cli@latest memory search --query "landing page seo" --namespace patterns
 ```
 
 ---
@@ -217,11 +217,11 @@ agents:
 **1. New Landing Page**
 ```bash
 # Get routing recommendation
-npx @claude-flow/cli@latest hooks pre-task \
+npx @archon-os/cli@latest hooks pre-task \
   --description "Create new landing page with SEO and performance optimization"
 
 # Initialize swarm for parallel development
-npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 4 --strategy specialized
+npx @archon-os/cli@latest swarm init --topology hierarchical --max-agents 4 --strategy specialized
 
 # Spawn agents: landing_page_optimizer, seo_specialist, performance_engineer, cloudflare_specialist
 ```
@@ -229,13 +229,13 @@ npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 4 --
 **2. Performance Optimization**
 ```bash
 # Run performance benchmark
-npx @claude-flow/cli@latest performance benchmark --suite all
+npx @archon-os/cli@latest performance benchmark --suite all
 
 # Analyze bottlenecks
-npx @claude-flow/cli@latest performance profile --target "landing-pages"
+npx @archon-os/cli@latest performance profile --target "landing-pages"
 
 # Store optimization learnings
-npx @claude-flow/cli@latest hooks post-task \
+npx @archon-os/cli@latest hooks post-task \
   --task-id "perf-opt-001" \
   --success true \
   --store-results true
@@ -244,12 +244,12 @@ npx @claude-flow/cli@latest hooks post-task \
 **3. SEO Enhancement**
 ```bash
 # Search for successful SEO patterns
-npx @claude-flow/cli@latest memory search \
+npx @archon-os/cli@latest memory search \
   --query "landing page SEO mortgage keywords" \
   --namespace patterns
 
 # Store new SEO strategy
-npx @claude-flow/cli@latest memory store \
+npx @archon-os/cli@latest memory store \
   --namespace patterns \
   --key "seo-mortgage-landing" \
   --value "Successful keywords and meta strategies"
@@ -374,25 +374,25 @@ curl https://localhost:3000/robots.txt
 ### Before Landing Page Development
 ```bash
 # Search for successful landing page patterns
-npx @claude-flow/cli@latest memory search \
+npx @archon-os/cli@latest memory search \
   --query "high converting mortgage landing pages" \
   --namespace patterns
 
 # Load learned optimizations
-npx @claude-flow/cli@latest hooks route \
+npx @archon-os/cli@latest hooks route \
   --task "Create conversion-optimized landing page"
 ```
 
 ### After Successful Launch
 ```bash
 # Store successful pattern
-npx @claude-flow/cli@latest memory store \
+npx @archon-os/cli@latest memory store \
   --namespace patterns \
   --key "landing-success-$(date +%Y%m%d)" \
   --value "Achieved 95+ Lighthouse, <2.5s LCP, conversion rate X%"
 
 # Train neural patterns
-npx @claude-flow/cli@latest neural train \
+npx @archon-os/cli@latest neural train \
   --pattern-type landing-optimization \
   --epochs 10
 ```

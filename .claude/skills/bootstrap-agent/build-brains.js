@@ -17,7 +17,7 @@ import { fileURLToPath } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const MODULES_DIR = join(__dirname, 'templates/modules');
-const WIKI_DIR = join(__dirname, '../../../docs/references/claude-flow-wiki');
+const WIKI_DIR = join(__dirname, '../../../docs/references/archon-os-wiki');
 
 // ========================================
 // CONFIGURATION

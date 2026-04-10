@@ -7,10 +7,10 @@ This directory contains scripts used across all 4 PCs in the Nyra distributed cl
 ```
 shared/scripts/
 ├── cli-wrappers/          # Claude Flow CLI launcher scripts
-│   ├── claude-flow.bat    # Windows batch wrapper
-│   ├── claude-flow.cmd    # Windows command wrapper
-│   ├── claude-flow.ps1    # PowerShell wrapper
-│   └── start-claude-flow.ps1
+│   ├── archon-os.bat    # Windows batch wrapper
+│   ├── archon-os.cmd    # Windows command wrapper
+│   ├── archon-os.ps1    # PowerShell wrapper
+│   └── start-archon-os.ps1
 ├── deploy-nyra-cluster.ps1      # Master deployment orchestrator
 ├── setup-autonomous.ps1          # Main overnight setup (4-8 hours)
 ├── setup-dev.ps1                 # Quick dev environment setup
@@ -44,7 +44,7 @@ shared/scripts/
 ### CLI Wrappers (`cli-wrappers/`)
 - Provides convenient launchers for Claude Flow CLI
 - Supports Windows (batch, cmd, PowerShell) environments
-- Used by PATH configuration for easy `claude-flow` command access
+- Used by PATH configuration for easy `archon-os` command access
 
 ## Usage Examples
 
@@ -87,13 +87,13 @@ shared/scripts/
 ### Claude Flow CLI
 ```powershell
 # Using wrapper (if in PATH)
-claude-flow agent spawn -t coder
+archon-os agent spawn -t coder
 
 # Direct PowerShell wrapper
-.\cli-wrappers\claude-flow.ps1 swarm init
+.\cli-wrappers\archon-os.ps1 swarm init
 
 # Start Claude Flow daemon
-.\cli-wrappers\start-claude-flow.ps1
+.\cli-wrappers\start-archon-os.ps1
 ```
 
 ## Platform Support

@@ -20,10 +20,10 @@ check() {
   fi
 }
 
-if docker compose ps --status running --services | grep -qx "claude-flow-brain"; then
-  echo "  OK   claude-flow-brain container is running"
+if docker compose ps --status running --services | grep -qx "archon-os-brain"; then
+  echo "  OK   archon-os-brain container is running"
 else
-  echo "  FAIL claude-flow-brain container is not running"
+  echo "  FAIL archon-os-brain container is not running"
 fi
 
 check "event-server" "http://localhost:${EVENT_SERVER_HTTP_PORT:-3005}/health"

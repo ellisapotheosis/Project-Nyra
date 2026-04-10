@@ -1,5 +1,5 @@
 # Project-Nyra Development Package Linking
-# Sets up pnpm/npm links for local development of claude-flow and archon
+# Sets up pnpm/npm links for local development of archon-os and archon
 # Allows live code editing while running the packages
 
 param(
@@ -31,15 +31,15 @@ Write-Host "🌍 Environment: $Environment" -ForegroundColor Cyan
 # Development packages to link
 $devPackages = @(
     @{
-        Name = "claude-flow"
-        Path = "$submodulesDir\claude-flow"
-        GlobalName = "@ellisapotheosis/claude-flow"
+        Name = "archon-os"
+        Path = "$submodulesDir\archon-os"
+        GlobalName = "@ellisapotheosis/archon-os"
         MCP = $true
         Ports = @{ dev = 7403; mcp = 7404 }
     },
     @{
         Name = "ruv-swarm"
-        Path = "$submodulesDir\claude-flow" # ruv-swarm is part of claude-flow
+        Path = "$submodulesDir\archon-os" # ruv-swarm is part of archon-os
         GlobalName = "ruv-swarm"
         MCP = $true
         Ports = @{ dev = 7405; mcp = 7406 }
@@ -167,12 +167,12 @@ Copy-Item "$projectRoot\.mcp.json" "$projectRoot\.mcp.json.backup" -Force
 # Create environment-aware MCP configuration
 $mcpConfig = Get-Content "$projectRoot\.mcp.json" | ConvertFrom-Json
 
-# Update claude-flow to use conditional logic
-$mcpConfig.mcpServers."claude-flow" = @{
+# Update archon-os to use conditional logic
+$mcpConfig.mcpServers."archon-os" = @{
     "command" = "node"
     "args" = @(
         "-e",
-        "const env = process.env.NODE_ENV || 'production'; if (env === 'development' && require('fs').existsSync('$($submodulesDir.Replace('\','\\')\\claude-flow)')) { require('child_process').spawn('node', ['$($submodulesDir.Replace('\','\\')\\claude-flow\\src\\mcp\\server.js)'], {stdio: 'inherit'}); } else { require('child_process').spawn('npx', ['claude-flow@alpha', 'mcp', 'start'], {stdio: 'inherit'}); }"
+        "const env = process.env.NODE_ENV || 'production'; if (env === 'development' && require('fs').existsSync('$($submodulesDir.Replace('\','\\')\\archon-os)')) { require('child_process').spawn('node', ['$($submodulesDir.Replace('\','\\')\\archon-os\\src\\mcp\\server.js)'], {stdio: 'inherit'}); } else { require('child_process').spawn('npx', ['archon-os@alpha', 'mcp', 'start'], {stdio: 'inherit'}); }"
     )
     "type" = "stdio"
     "env" = @{
@@ -186,7 +186,7 @@ $mcpConfig.mcpServers."ruv-swarm" = @{
     "command" = "node"
     "args" = @(
         "-e",
-        "const env = process.env.NODE_ENV || 'production'; if (env === 'development' && require('fs').existsSync('$($submodulesDir.Replace('\','\\')\\claude-flow)')) { require('child_process').spawn('node', ['$($submodulesDir.Replace('\','\\')\\claude-flow\\packages\\ruv-swarm\\src\\mcp\\server.js)'], {stdio: 'inherit'}); } else { require('child_process').spawn('npx', ['ruv-swarm@latest', 'mcp', 'start'], {stdio: 'inherit'}); }"
+        "const env = process.env.NODE_ENV || 'production'; if (env === 'development' && require('fs').existsSync('$($submodulesDir.Replace('\','\\')\\archon-os)')) { require('child_process').spawn('node', ['$($submodulesDir.Replace('\','\\')\\archon-os\\packages\\ruv-swarm\\src\\mcp\\server.js)'], {stdio: 'inherit'}); } else { require('child_process').spawn('npx', ['ruv-swarm@latest', 'mcp', 'start'], {stdio: 'inherit'}); }"
     )
     "type" = "stdio"
     "env" = @{

@@ -124,7 +124,7 @@ Week 2 infrastructure deployment is **95% complete**. Core services are running 
 - **Database**: PostgreSQL with pgvector (letta database)
 - **Purpose**: Conversational memory and context management
 
-### Graphiti MCP
+### letta MCP
 - **Status**: ❌ Not Configured
 - **Planned**: Week 3 setup
 - **Backend**: FalkorDB (already running)
@@ -161,40 +161,40 @@ Week 2 infrastructure deployment is **95% complete**. Core services are running 
 
 ---
 
-## 🔧 Claude-Flow & MCP Servers
+## 🔧 archon-os & MCP Servers
 
-### Claude-Flow Status
-- **Installed**: ✅ Yes (`claude-flow@3.0.0-alpha.42`)
-- **Location**: Symlink to `submodules/claude-flow`
-- **Initialized**: ❌ No (requires `npx claude-flow init`)
-- **Config File**: `claude-flow.config.json` exists but has validation errors
+### archon-os Status
+- **Installed**: ✅ Yes (`archon-os@3.0.0-alpha.42`)
+- **Location**: Symlink to `submodules/archon-os`
+- **Initialized**: ❌ No (requires `npx archon-os init`)
+- **Config File**: `archon-os.config.json` exists but has validation errors
 - **MCP Server**: ✅ Running (accessible via MCP protocol)
 
-### Claude-Flow Configuration Issues
+### archon-os Configuration Issues
 ```
-[WARN] Invalid config at claude-flow.config.json:
+[WARN] Invalid config at archon-os.config.json:
   - Multiple required fields missing
   - Type mismatches in memory configuration
 ```
 
-**Resolution**: Run `npx claude-flow init` to regenerate configuration
+**Resolution**: Run `npx archon-os init` to regenerate configuration
 
 ### Configured MCP Servers (in .claude/settings.json)
-1. ✅ **claude-flow** - Core orchestration and agent management
+1. ✅ **archon-os** - Core orchestration and agent management
 2. ✅ **ruv-swarm** - Swarm coordination (has runtime errors)
-3. ✅ **agentdb** - Agent database and patterns
-4. ✅ **ruvector** - Vector database (part of claude-flow)
+3. ✅ **ruvector** - Agent database and patterns
+4. ✅ **ruvector** - Vector database (part of archon-os)
 5. ✅ **letta** - Memory server integration
 6. ✅ **flow-nexus** - Flow coordination (pending setup)
 
 ### MCP Server Status
-- **claude-flow MCP**: Running, returns status `{"status":"running","agentCount":0,"taskCount":0}`
+- **archon-os MCP**: Running, returns status `{"status":"running","agentCount":0,"taskCount":0}`
 - **ruv-swarm MCP**: Running but has error: `Cannot read properties of null (reading 'getGlobalMetrics')`
 - **Other MCP Servers**: Configured but not verified
 
 ### RuVector Status
-- **Location**: Built into `claude-flow/v3/@claude-flow/cli/src/ruvector`
-- **Status**: Available as part of claude-flow, not standalone package
+- **Location**: Built into `archon-os/v3/@archon-os/cli/src/ruvector`
+- **Status**: Available as part of archon-os, not standalone package
 - **Features**: HNSW indexing, quantization, 150x faster vector search
 - **Configuration**: Defined in `.claude/settings.json` memory hierarchy (L1)
 
@@ -209,7 +209,7 @@ Week 2 infrastructure deployment is **95% complete**. Core services are running 
 
 ### Week 3 Tasks (Pending)
 1. **Nexus Router** - Install as npm package in `services/routing/`
-2. **Graphiti MCP** - Configure with FalkorDB backend
+2. **letta MCP** - Configure with FalkorDB backend
 3. **Mem0 MCP** - Build and deploy custom MCP server
 4. **MCP Filesystem** - File access MCP server
 5. **MCP GitHub** - GitHub integration MCP server
@@ -285,9 +285,9 @@ Week 2 infrastructure deployment is **95% complete**. Core services are running 
 - **Solution**: Need to add storage environment variables to dify-api service
 - **Status**: Under investigation
 
-### Issue 8: Claude-Flow Not Initialized ⚠️ PENDING
-- **Problem**: `claude-flow.config.json` has validation errors
-- **Solution**: Run `npx claude-flow init` in project root
+### Issue 8: archon-os Not Initialized ⚠️ PENDING
+- **Problem**: `archon-os.config.json` has validation errors
+- **Solution**: Run `npx archon-os init` in project root
 - **Status**: Pending action
 
 ---
@@ -313,12 +313,12 @@ Week 2 infrastructure deployment is **95% complete**. Core services are running 
 ### Immediate Actions Required
 1. ✅ COMPLETE: Fix activepieces database issue
 2. ⚠️ IN PROGRESS: Fix Dify OpenDAL storage configuration
-3. ⏳ PENDING: Initialize claude-flow with `npx claude-flow init`
+3. ⏳ PENDING: Initialize archon-os with `npx archon-os init`
 4. ⏳ PENDING: Investigate TwentyCRM Unix socket issue
 
 ### Week 3 Tasks (Per BOOTSTRAP-WORKFLOW.md)
 1. Install and configure Nexus Router npm package
-2. Setup Graphiti MCP with FalkorDB backend
+2. Setup letta MCP with FalkorDB backend
 3. Setup Mem0 MCP server
 4. Test memory persistence and retrieval
 5. Configure MCP server routing through Nexus
@@ -336,7 +336,7 @@ Week 2 infrastructure deployment is **95% complete**. Core services are running 
    - Verify Dify, Activepieces, n8n UI access
 
 3. **Development Environment**
-   - Claude-flow submodule for local development (✅ Already present)
+   - archon-os submodule for local development (✅ Already present)
    - Archon OS submodule (needs setup)
 
 4. **Docker Image Inventory**
@@ -345,20 +345,20 @@ Week 2 infrastructure deployment is **95% complete**. Core services are running 
 
 5. **Extended Memory Systems**
    - RuVector distributed memory
-   - AgentDB integration
-   - Agentic-flow setup
+   - ruvector integration
+   - archon-os setup
    - Epic SDK integration
    - Agent-Booster setup
    - Maestro setup
 
-6. **Claude-Flow Production**
-   - Containerize claude-flow for production
+6. **archon-os Production**
+   - Containerize archon-os for production
    - PowerShell integration for calling Docker image
    - All services dockerized
 
 7. **Deploy Agents**
    - Task 20 agents via claude-code task tool
-   - Utilize claude-flow plugin for task execution
+   - Utilize archon-os plugin for task execution
    - Verify all systems operational before agent deployment
 
 ---
@@ -387,11 +387,11 @@ Week 2 infrastructure deployment is **95% complete**. Core services are running 
 | Service | Type | Alternative | Status |
 |---------|------|-------------|--------|
 | Nexus Router | npm package | Install via npm | Week 3 |
-| Graphiti MCP | MCP server | Build custom | Week 3 |
+| letta MCP | MCP server | Build custom | Week 3 |
 | Mem0 MCP | MCP server | Build custom | Week 3 |
 | MCP Filesystem | MCP server | Official server | Week 3 |
 | MCP GitHub | MCP server | Official server | Week 3 |
-| Claude-Flow | npm package | Containerize custom | Future |
+| archon-os | npm package | Containerize custom | Future |
 | Archon OS | Submodule | Development env | Future |
 | Open-WebUI | Docker | Find image | Future |
 | LobeChat | Docker | Find image | Future |

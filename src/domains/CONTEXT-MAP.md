@@ -377,5 +377,5 @@ describe('Swarm-Memory Integration', () => {
 - **DDD Book**: Eric Evans - Domain-Driven Design
 - **Context Mapping**: Vernon - Implementing Domain-Driven Design
 - **ADR-007**: Event Sourcing Architecture
-- **ADR-001**: Deep agentic-flow Integration
-- **Domain Event Specification**: `@claude-flow/shared/events/domain-events.ts`
+- **ADR-001**: Deep archon-os Integration
+- **Domain Event Specification**: `@archon-os/shared/events/domain-events.ts`

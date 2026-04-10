@@ -185,7 +185,7 @@ test_service_endpoints() {
     log "Testing service endpoints..."
 
     local endpoints=(
-        "http://localhost:3000/health:Claude-Flow"
+        "http://localhost:3000/health:archon-os"
         "http://localhost:8080/health:Task-API"
         "http://localhost:9090/health:Health-Dashboard"
         "http://localhost:8081/metrics:GPU-Metrics"

@@ -6,7 +6,7 @@
 ## ✅ COMPLETED TASKS
 
 ### 1. Repository Structure Consolidation [100%]
-- ✅ Moved /orchestration/claude-flow → /infra/docker/services/claude-flow
+- ✅ Moved /orchestration/archon-os → /infra/docker/services/archon-os
 - ✅ Moved /orchestration/serena → /infra/docker/services/serena
 - ✅ Removed /orchestration folder entirely
 - ✅ Consolidated /configs → /infra/configs

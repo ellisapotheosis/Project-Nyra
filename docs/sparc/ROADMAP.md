@@ -13,11 +13,11 @@ This roadmap outlines the systematic implementation of Project Nyra features usi
 - Dify apps (borrower + ops interfaces)
 - Observability stack (monitoring, alerting, logging)
 - Docker Compose orchestration
-- Claude-Flow integration
+- archon-os integration
 
 **Architecture Patterns:**
 - All LLM/MCP traffic routes through Nexus
-- Borrower Dify app: minimal tools (Graphiti read + scheduling)
+- Borrower Dify app: minimal tools (letta read + scheduling)
 - Internal ops Dify app: Activepieces tools + CRM writeback (approval-gated)
 - Campaign execution delegates to n8n for SMS/email
 
@@ -45,7 +45,7 @@ This roadmap outlines the systematic implementation of Project Nyra features usi
 
 **Architecture Phase (Week 1, Day 5)**
 - Component design: WebhookReceiver, EventValidator, Transformer, Publisher
-- Integration points: TwentyCRM, n8n, Graphiti
+- Integration points: TwentyCRM, n8n, letta
 - Data flow diagrams
 - Security model (authentication, rate limiting)
 
@@ -133,7 +133,7 @@ This roadmap outlines the systematic implementation of Project Nyra features usi
 - Specify real-time vs historical data needs
 - Document user roles and permissions
 - Define alerting rules
-- Identify integration points (Campaign Engine, n8n, Graphiti)
+- Identify integration points (Campaign Engine, n8n, letta)
 
 **Pseudocode Phase (Week 5, Days 3-4)**
 - Design data aggregation algorithm
@@ -163,7 +163,7 @@ This roadmap outlines the systematic implementation of Project Nyra features usi
 **Dependencies:**
 - Campaign Engine
 - n8n integration
-- Graphiti for historical data
+- letta for historical data
 
 **Quality Gates:**
 - Real-time updates < 2s latency
@@ -181,7 +181,7 @@ This roadmap outlines the systematic implementation of Project Nyra features usi
 **Complexity:** High
 **Status:** Reserved (not implemented in bootstrap)
 
-### 5. Graphiti Knowledge Graph Enhancement
+### 5. letta Knowledge Graph Enhancement
 **Timeline:** Sprint 5 (Weeks 9-10)
 **Complexity:** Medium
 **Status:** Basic integration exists
@@ -265,23 +265,23 @@ This roadmap outlines the systematic implementation of Project Nyra features usi
 
 ## Workflow Coordination
 
-### Claude-Flow Hooks Integration
+### archon-os Hooks Integration
 
 **Pre-Task Hooks:**
 ```bash
-npx @claude-flow/cli@latest hooks pre-task --description "[phase]-[feature]"
+npx @archon-os/cli@latest hooks pre-task --description "[phase]-[feature]"
 ```
 
 **During Development:**
 ```bash
-npx @claude-flow/cli@latest hooks post-edit --file "[file]" --memory-key "sparc/[feature]/[phase]"
-npx @claude-flow/cli@latest hooks notify --message "[progress update]"
+npx @archon-os/cli@latest hooks post-edit --file "[file]" --memory-key "sparc/[feature]/[phase]"
+npx @archon-os/cli@latest hooks notify --message "[progress update]"
 ```
 
 **Post-Task Hooks:**
 ```bash
-npx @claude-flow/cli@latest hooks post-task --task-id "[task-id]"
-npx @claude-flow/cli@latest hooks session-end --export-metrics true
+npx @archon-os/cli@latest hooks post-task --task-id "[task-id]"
+npx @archon-os/cli@latest hooks session-end --export-metrics true
 ```
 
 ### Memory Coordination
@@ -294,7 +294,7 @@ npx @claude-flow/cli@latest hooks session-end --export-metrics true
 
 **Retrieve Context:**
 ```bash
-npx @claude-flow/cli@latest hooks session-restore --session-id "sparc-[feature]"
+npx @archon-os/cli@latest hooks session-restore --session-id "sparc-[feature]"
 ```
 
 ---

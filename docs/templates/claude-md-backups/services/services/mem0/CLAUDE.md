@@ -6,7 +6,7 @@
 
 **Port**: 3160
 **Language**: TypeScript + Express.js + Mem0 SDK
-**Dependencies**: mem0-js, agentdb, vector-store, express, redis, @types/node
+**Dependencies**: mem0-js, ruvector, vector-store, express, redis, @types/node
 **Template**: CLAUDE-MD-TypeScript.md (mesh topology for memory distribution)
 
 ## 🚨 CRITICAL DEVELOPMENT RULES
@@ -29,7 +29,7 @@
   - Write("src/routes/user-profiles.routes.ts", userProfileRoutes)
 
   // Integration and storage
-  - Write("src/integrations/agentdb.integration.ts", vectorIndexing)
+  - Write("src/integrations/ruvector.integration.ts", vectorIndexing)
   - Write("src/storage/memory-db.ts", persistenceLayer)
   - Write("src/storage/cache.ts", redisCache)
 
@@ -89,7 +89,7 @@ Generate Embedding (semantic vector)
     ↓
 Store in Primary DB
     ↓
-Index in Vector Store (AgentDB)
+Index in Vector Store (ruvector)
     ↓
 Update Full-Text Index
     ↓
@@ -104,7 +104,7 @@ Search Query (text or embedding)
     ↓
 If text query: Generate embedding
     ↓
-Vector search in HNSW index (AgentDB)
+Vector search in HNSW index (ruvector)
     ↓
 Hybrid search: Combine vector + full-text results
     ↓
@@ -146,7 +146,7 @@ agents:
 
   vector_indexing_engineer:
     role: Vector Index Optimization
-    focus: [hnsw-indexing, agentdb-integration, index-maintenance]
+    focus: [hnsw-indexing, ruvector-integration, index-maintenance]
     responsibilities:
       - Build and maintain HNSW indexes
       - Optimize search performance
@@ -195,7 +195,7 @@ agents:
 ### Mem0 Core Service
 ```typescript
 import { v4 as uuidv4 } from 'uuid';
-import { AgentDB } from 'agentdb';
+import { ruvector } from 'ruvector';
 import { Logger } from '../utils/logger';
 
 export interface Memory {
@@ -218,7 +218,7 @@ export interface Memory {
 }
 
 export class Mem0CoreService {
-  private vectorDB: AgentDB;
+  private vectorDB: ruvector;
   private logger: Logger;
   private memoryCache: Map<string, Memory> = new Map();
 
@@ -226,7 +226,7 @@ export class Mem0CoreService {
     vectorDBPath: string,
     private embeddingService: EmbeddingService
   ) {
-    this.vectorDB = new AgentDB({
+    this.vectorDB = new ruvector({
       path: vectorDBPath,
       indexType: 'hnsw'
     });
@@ -448,7 +448,7 @@ export class Mem0CoreService {
       // Generate query embedding
       const queryEmbedding = await this.embeddingService.embed(query);
 
-      // Search in HNSW index (AgentDB) - O(log N) complexity
+      // Search in HNSW index (ruvector) - O(log N) complexity
       const results = await this.vectorDB.search({
         embedding: queryEmbedding,
         limit: topK * 2, // Get more to filter

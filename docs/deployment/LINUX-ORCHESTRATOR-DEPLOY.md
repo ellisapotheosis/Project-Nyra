@@ -213,7 +213,7 @@ docker ps
 # - falkordb
 # - qdrant
 # - letta
-# - claude-flow
+# - archon-os
 # - archon-os
 # - nexus-router
 # - infisical-mcp
@@ -254,7 +254,7 @@ docker compose -f docker-compose.orchestration.yml logs -f
 
 # Specific service
 docker compose -f docker-compose.orchestration.yml logs -f nexus-router
-docker compose -f docker-compose.orchestration.yml logs -f claude-flow
+docker compose -f docker-compose.orchestration.yml logs -f archon-os
 docker compose -f docker-compose.orchestration.yml logs -f postgresql
 ```
 
@@ -331,7 +331,7 @@ docker system df
 
 # Individual container logs
 docker logs nexus-router --tail 100 -f
-docker logs claude-flow --tail 100 -f
+docker logs archon-os --tail 100 -f
 docker logs postgresql --tail 100 -f
 ```
 

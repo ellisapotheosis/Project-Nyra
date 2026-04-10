@@ -49,7 +49,7 @@ class MCPConfig {
     const possiblePaths = [
       './mcp.json',
       './config/mcp.json',
-      './claude-flow.config.json',
+      './archon-os.config.json',
       process.env.MCP_CONFIG_PATH
     ].filter(Boolean);
     

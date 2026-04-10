@@ -27,19 +27,19 @@ CONSOLIDATE (EWC++ Memory)
 ```bash
 # Start
 SESSION="task-$(date +%s)"
-npx @claude-flow/cli@latest hooks intelligence trajectory-start \
+npx @archon-os/cli@latest hooks intelligence trajectory-start \
   --session-id "$SESSION" --agent-type "coder" --task "Your task"
 
 # Track steps (repeat for each step)
-npx @claude-flow/cli@latest hooks intelligence trajectory-step \
+npx @archon-os/cli@latest hooks intelligence trajectory-step \
   --session-id "$SESSION" --operation "step-name" --outcome "success"
 
 # End
-npx @claude-flow/cli@latest hooks intelligence trajectory-end \
+npx @archon-os/cli@latest hooks intelligence trajectory-end \
   --session-id "$SESSION" --verdict "success" --reward 0.92
 
 # Store
-mcp__claude-flow__memory_usage --action="store" \
+mcp__archon-os__memory_usage --action="store" \
   --namespace="reasoningbank" --key="pattern:name" \
   --value='{"task":"...","approach":"...","reward":0.92}'
 ```
@@ -50,10 +50,10 @@ mcp__claude-flow__memory_usage --action="store" \
 
 | Operation | Command | Purpose |
 |-----------|---------|---------|
-| **Retrieve** | `mcp__claude-flow__memory_search --pattern "query" --namespace reasoningbank` | Find similar patterns (150x faster) |
-| **Judge** | `npx claude-flow hooks intelligence trajectory-step` | Record operation outcomes |
-| **Distill** | `mcp__claude-flow__memory_usage --action store` | Save successful patterns |
-| **Consolidate** | `npx claude-flow neural consolidate` | Prevent forgetting old knowledge |
+| **Retrieve** | `mcp__archon-os__memory_search --pattern "query" --namespace reasoningbank` | Find similar patterns (150x faster) |
+| **Judge** | `npx archon-os hooks intelligence trajectory-step` | Record operation outcomes |
+| **Distill** | `mcp__archon-os__memory_usage --action store` | Save successful patterns |
+| **Consolidate** | `npx archon-os neural consolidate` | Prevent forgetting old knowledge |
 
 ---
 
@@ -77,7 +77,7 @@ mcp__claude-flow__memory_usage --action="store" \
 
 ```bash
 # Find patterns similar to your task
-mcp__claude-flow__memory_search \
+mcp__archon-os__memory_search \
   --pattern "user authentication" \
   --namespace reasoningbank \
   --limit 10 \
@@ -102,22 +102,22 @@ mcp__claude-flow__memory_search \
 
 ```bash
 # Store pattern
-mcp__claude-flow__memory_usage --action="store" \
+mcp__archon-os__memory_usage --action="store" \
   --namespace="reasoningbank" \
   --key="pattern:name" \
   --value='{...}'
 
 # Search patterns
-mcp__claude-flow__memory_search \
+mcp__archon-os__memory_search \
   --pattern="query" \
   --namespace="reasoningbank" \
   --limit=10
 
 # Benchmark
-mcp__claude-flow__benchmark_run --suite "all"
+mcp__archon-os__benchmark_run --suite "all"
 
 # Analyze bottlenecks
-mcp__claude-flow__bottleneck_analyze --component "memory-search"
+mcp__archon-os__bottleneck_analyze --component "memory-search"
 ```
 
 ---
@@ -141,19 +141,19 @@ mcp__claude-flow__bottleneck_analyze --component "memory-search"
 ```bash
 SESSION="auth-$(date +%s)"
 
-npx @claude-flow/cli@latest hooks intelligence trajectory-start \
+npx @archon-os/cli@latest hooks intelligence trajectory-start \
   --session-id "$SESSION" --agent-type "coder" --task "JWT auth"
 
 # Implementation steps...
-npx @claude-flow/cli@latest hooks intelligence trajectory-step \
+npx @archon-os/cli@latest hooks intelligence trajectory-step \
   --session-id "$SESSION" --operation "write-tests" --outcome "success"
-npx @claude-flow/cli@latest hooks intelligence trajectory-step \
+npx @archon-os/cli@latest hooks intelligence trajectory-step \
   --session-id "$SESSION" --operation "implement" --outcome "success"
 
-npx @claude-flow/cli@latest hooks intelligence trajectory-end \
+npx @archon-os/cli@latest hooks intelligence trajectory-end \
   --session-id "$SESSION" --verdict "success" --reward 0.95
 
-mcp__claude-flow__memory_usage --action="store" \
+mcp__archon-os__memory_usage --action="store" \
   --namespace="reasoningbank" \
   --key="pattern:auth-jwt" \
   --value='{"task":"JWT auth","approach":"refresh+access tokens","reward":0.95}'
@@ -164,18 +164,18 @@ mcp__claude-flow__memory_usage --action="store" \
 ```bash
 SESSION="perf-$(date +%s)"
 
-npx @claude-flow/cli@latest hooks intelligence trajectory-start \
+npx @archon-os/cli@latest hooks intelligence trajectory-start \
   --session-id "$SESSION" --agent-type "perf-engineer" \
   --task "Flash Attention optimization"
 
 # Measure baseline
 # Apply optimization
-npx @claude-flow/cli@latest hooks intelligence trajectory-step \
+npx @archon-os/cli@latest hooks intelligence trajectory-step \
   --session-id "$SESSION" --operation "flash-attention" \
   --outcome "success" \
   --metadata '{"speedup":3.2}'
 
-npx @claude-flow/cli@latest hooks intelligence trajectory-end \
+npx @archon-os/cli@latest hooks intelligence trajectory-end \
   --session-id "$SESSION" --verdict "success" --reward 0.92
 ```
 
@@ -184,22 +184,22 @@ npx @claude-flow/cli@latest hooks intelligence trajectory-end \
 ```bash
 SESSION="error-$(date +%s)"
 
-npx @claude-flow/cli@latest hooks intelligence trajectory-start \
+npx @archon-os/cli@latest hooks intelligence trajectory-start \
   --session-id "$SESSION" --agent-type "debugger"
   --task "Fix null pointer"
 
 # Try fix
-if npx @claude-flow/cli@latest hooks intelligence trajectory-step \
+if npx @archon-os/cli@latest hooks intelligence trajectory-step \
   --session-id "$SESSION" --operation "apply-fix" \
   --outcome "success"; then
   # Test fix
-  npx @claude-flow/cli@latest hooks intelligence trajectory-step \
+  npx @archon-os/cli@latest hooks intelligence trajectory-step \
     --session-id "$SESSION" --operation "verify" --outcome "success"
 
-  npx @claude-flow/cli@latest hooks intelligence trajectory-end \
+  npx @archon-os/cli@latest hooks intelligence trajectory-end \
     --session-id "$SESSION" --verdict "success" --reward 0.88
 else
-  npx @claude-flow/cli@latest hooks intelligence trajectory-end \
+  npx @archon-os/cli@latest hooks intelligence trajectory-end \
     --session-id "$SESSION" --verdict "failure" --reward 0.0
 fi
 ```
@@ -213,17 +213,17 @@ fi
 hooks:
   pre: |
     SESSION="agent-$(date +%s)"
-    npx @claude-flow/cli@latest hooks intelligence trajectory-start \
+    npx @archon-os/cli@latest hooks intelligence trajectory-start \
       --session-id "$SESSION" --agent-type "coder" --task "$TASK"
-    mcp__claude-flow__memory_search --pattern="$TASK" --namespace="reasoningbank" --limit=10
+    mcp__archon-os__memory_search --pattern="$TASK" --namespace="reasoningbank" --limit=10
 
   post: |
-    npx @claude-flow/cli@latest hooks intelligence trajectory-end \
+    npx @archon-os/cli@latest hooks intelligence trajectory-end \
       --session-id "$SESSION" --verdict "success" --reward 0.85
-    mcp__claude-flow__memory_usage --action="store" \
+    mcp__archon-os__memory_usage --action="store" \
       --namespace="reasoningbank" --key="pattern:$(date +%s)" \
       --value="{...PATTERN_DATA...}"
-    npx @claude-flow/cli@latest neural consolidate --namespace reasoningbank
+    npx @archon-os/cli@latest neural consolidate --namespace reasoningbank
 ```
 
 ---
@@ -298,7 +298,7 @@ class RuVectorLearner {
 ## Memory Stats Command
 
 ```bash
-npx @claude-flow/cli@latest hooks intelligence stats --namespace reasoningbank
+npx @archon-os/cli@latest hooks intelligence stats --namespace reasoningbank
 ```
 
 **Output:**

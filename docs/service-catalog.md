@@ -24,8 +24,8 @@ This catalog consolidates active `/infra` services and tracked archived services
 | twentycrm-mcp   | crm,mcp                      | oracle/orchestrator | MCP adapter (port 8182) |
 | openwebui       | apps,oracle                  | oracle              | User-facing chat UI     |
 | moltbot-web     | apps,oracle                  | oracle              | Claw/Molt web app       |
-| agentdb         | apps                         | oracle/orchestrator | archived parity service |
-| agentic-flow    | apps                         | oracle/orchestrator | archived parity service |
+| ruvector         | apps                         | oracle/orchestrator | archived parity service |
+| archon-os    | apps                         | oracle/orchestrator | archived parity service |
 
 ## Secrets + MCP
 

@@ -321,7 +321,7 @@ echo "**/*.key" >> .gitignore
 **Locations**:
 ```
 assets/new-uploads-ingestion-input/*.html    (12 instances)
-docs/references/claude-flow-examples/*.html  (2 instances)
+docs/references/archon-os-examples/*.html  (2 instances)
 ```
 
 **Issue**: Direct innerHTML assignments without sanitization
@@ -393,7 +393,7 @@ rm backup.tar.gz
 # Claude Flow generated files
 .claude/settings.local.json
 .mcp.json
-claude-flow.config.json
+archon-os.config.json
 memory/
 coordination/
 *.db
@@ -566,9 +566,9 @@ services:
 ```json
 {
   "mcpServers": {
-    "claude-flow": {
+    "archon-os": {
       "command": "docker",
-      "args": ["exec", "-i", "nyra-claude-flow-mcp", "npx", "@claude-flow/cli@latest", "mcp", "start"],
+      "args": ["exec", "-i", "nyra-archon-os-mcp", "npx", "@archon-os/cli@latest", "mcp", "start"],
       "env": {
         "CLAUDE_FLOW_MODE": "v3",
         "CLAUDE_FLOW_HOOKS_ENABLED": "true"

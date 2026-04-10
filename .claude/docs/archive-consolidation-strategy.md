@@ -10,7 +10,7 @@
 **Rationale**:
 - Archive contains 7,553 files totaling 291MB
 - Archive date: October 13, 2025 (8 days old)
-- Current active structure in `nyra-orchestration/Claude/claude-flow/.claude` contains 222 agent/command files (supersedes archived versions)
+- Current active structure in `nyra-orchestration/Claude/archon-os/.claude` contains 222 agent/command files (supersedes archived versions)
 - Archive is primarily duplicates, deprecated configs, and build artifacts
 - Current CLAUDE.md (root) supersedes archived version
 
@@ -20,7 +20,7 @@
 
 ```
 archive/2025-10-13-original-structure/
-├── nyra-core/              [Deprecated Claude-Flow configs]
+├── nyra-core/              [Deprecated archon-os configs]
 ├── nyra-docs-data/         [4 files: guides, memory docs, prompts]
 ├── nyra-mcp-servers/       [MCP configs + Python .venv (bulk of size)]
 └── nyra-scripts/           [Miscellaneous scripts and docs]
@@ -29,8 +29,8 @@ archive/2025-10-13-original-structure/
 ### Content Breakdown
 
 #### 1. nyra-core (DEPRECATED)
-- **Content**: Old Claude-Flow Development Kit structure
-- **Status**: Superseded by current `nyra-orchestration/Claude/claude-flow/.claude/`
+- **Content**: Old archon-os Development Kit structure
+- **Status**: Superseded by current `nyra-orchestration/Claude/archon-os/.claude/`
 - **Action**: DELETE - redundant agent definitions
 
 #### 2. nyra-docs-data (SELECTIVE RESTORE)
@@ -79,7 +79,7 @@ archive/2025-10-13-original-structure/
 | Location | Count | Status |
 |----------|-------|--------|
 | **Archived**: `archive/.../nyra-core/Claude/` | 0 files | Moved/deleted |
-| **Current**: `nyra-orchestration/Claude/claude-flow/.claude/` | 222 .md files | Active, authoritative |
+| **Current**: `nyra-orchestration/Claude/archon-os/.claude/` | 222 .md files | Active, authoritative |
 
 ### CLAUDE.md Configuration
 

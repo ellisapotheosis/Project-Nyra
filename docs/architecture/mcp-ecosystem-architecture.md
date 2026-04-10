@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Nyra MCP (Model Context Protocol) ecosystem is a comprehensive multi-agent orchestration platform that combines MetaMCP Gateway, Archon MCP, Claude-Flow MCP, and specialized Nyra components into a unified service mesh architecture.
+The Nyra MCP (Model Context Protocol) ecosystem is a comprehensive multi-agent orchestration platform that combines MetaMCP Gateway, Archon MCP, archon-os MCP, and specialized Nyra components into a unified service mesh architecture.
 
 ## Architecture Components
 
@@ -21,9 +21,9 @@ The Nyra MCP (Model Context Protocol) ecosystem is a comprehensive multi-agent o
 - **Distributed Memory**: 3-replica distributed storage with eventual consistency
 - **Task Orchestration**: SPARC, mortgage, and GPU compute workflows
 - **Performance Optimization**: Neural networks and predictive scaling
-- **Integration**: Seamless connection with Claude-Flow and Nyra components
+- **Integration**: Seamless connection with archon-os and Nyra components
 
-### 3. Claude-Flow MCP (Port 8082)
+### 3. archon-os MCP (Port 8082)
 **Role**: SPARC methodology and swarm management
 - **SPARC Workflows**: Complete specification to completion pipeline
 - **Swarm Topologies**: Mesh, hierarchical, ring, and star patterns
@@ -133,7 +133,7 @@ The Nyra MCP (Model Context Protocol) ecosystem is a comprehensive multi-agent o
 - `POST /api/v1/memory/store` - Memory persistence
 - `GET /api/v1/memory/query` - Memory retrieval
 
-### Claude-Flow MCP
+### archon-os MCP
 - `POST /api/v1/sparc/run` - SPARC execution
 - `POST /api/v1/swarm/init` - Swarm initialization
 - `GET /api/v1/swarm/monitor` - Real-time monitoring
@@ -166,9 +166,9 @@ npm install -g @anthropic-ai/claude-cli
 # Start infrastructure services
 docker-compose -f docker-compose.servicemesh.yml up -d
 
-# Initialize Claude-Flow
-npx @claude-flow/cli@latest init --sparc
-./claude-flow start --ui
+# Initialize archon-os
+npx @archon-os/cli@latest init --sparc
+./archon-os start --ui
 ```
 
 ### 4. Integration Testing

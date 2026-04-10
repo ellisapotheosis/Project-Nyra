@@ -150,25 +150,25 @@ Phase 2 would benefit from multi-agent coordination because:
 ### Memory Operations Performed
 ```bash
 # Task 1 completion
-npx @claude-flow/cli@latest memory store \
+npx @archon-os/cli@latest memory store \
   --key "optionA-task1-duplicates" \
   --namespace tasks \
   --value "Top duplicates found: README.md (166), CLAUDE.md (2), ..."
 
 # Task 2 completion
-npx @claude-flow/cli@latest memory store \
+npx @archon-os/cli@latest memory store \
   --key "optionA-task2-structure" \
   --namespace tasks \
   --value "Target structure designed: 11 major dirs, ~25 READMEs, ..."
 
 # Task 3 completion
-npx @claude-flow/cli@latest memory store \
+npx @archon-os/cli@latest memory store \
   --key "optionA-task3-migration" \
   --namespace tasks \
   --value "Migrated 46 files: 31 archived, 12 moved, 3 duplicates removed..."
 
 # Phase 1 completion
-npx @claude-flow/cli@latest memory store \
+npx @archon-os/cli@latest memory store \
   --key "optionA-complete" \
   --namespace tasks \
   --value "Phase 1 complete. 46 files reorganized..."
@@ -221,7 +221,7 @@ Phase 2 Required:
 - Link validation and fixing
 - Directory index creation
 
-Co-Authored-By: Hierarchical Swarm Coordinator <coordinator@claude-flow>
+Co-Authored-By: Hierarchical Swarm Coordinator <coordinator@archon-os>
 Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>"
 ```
 
@@ -272,7 +272,7 @@ The following items are prepared for Phase 2 execution:
 #### Recommended Approach: Multi-Agent Swarm
 ```bash
 # Initialize anti-drift swarm
-npx @claude-flow/cli@latest swarm init \
+npx @archon-os/cli@latest swarm init \
   --topology hierarchical \
   --max-agents 6 \
   --strategy specialized
@@ -294,7 +294,7 @@ npx @claude-flow/cli@latest swarm init \
 
 2. **Root directory cleanup** (59 → 2 files)
    - Move all RUVECTOR-* files
-   - Move all CLAUDE-FLOW-* files
+   - Move all archon-os-* files
    - Move architecture/deployment docs
    - Keep only CLAUDE.md and README.md
 

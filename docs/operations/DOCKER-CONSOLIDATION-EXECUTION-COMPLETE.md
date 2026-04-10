@@ -115,7 +115,7 @@ Organized by category:
 │   ├── mortgage-services/Dockerfile
 │   └── Dockerfile.webui
 ├── orchestration/ (2 orchestrators)
-│   ├── claude-flow/Dockerfile
+│   ├── archon-os/Dockerfile
 │   └── serena/Dockerfile
 └── mcp-servers/ (11 MCP servers)
     ├── bitwarden/Dockerfile

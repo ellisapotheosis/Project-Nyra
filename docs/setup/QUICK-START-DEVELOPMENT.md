@@ -27,7 +27,7 @@ pnpm dev
 ## Edit Code
 
 Changes in these directories auto-reload:
-- `C:\Dev\Projects\Repos\Project-Nyra\submodules\claude-flow`
+- `C:\Dev\Projects\Repos\Project-Nyra\submodules\archon-os`
 - `C:\Dev\Projects\Repos\Project-Nyra\submodules\archon`
 
 ## Switch to Production
@@ -66,7 +66,7 @@ Project-Nyra/
 
 ## Package Locations
 
-- **Claude-Flow**: `submodules/claude-flow`
+- **archon-os**: `submodules/archon-os`
 - **Archon**: `submodules/archon`
 
 Both are registered in `pnpm-workspace.yaml` for automatic resolution.

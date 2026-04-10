@@ -11,7 +11,7 @@ SPARC (Specification, Pseudocode, Architecture, Refinement, Completion) is our s
 ### 1. **Specification (S)**
 **Purpose:** Define requirements and user stories
 **Output:** Detailed specifications document
-**Command:** `npx claude-flow sparc run spec "<feature>"`
+**Command:** `npx archon-os sparc run spec "<feature>"`
 
 **What to Define:**
 - User stories and acceptance criteria
@@ -24,7 +24,7 @@ SPARC (Specification, Pseudocode, Architecture, Refinement, Completion) is our s
 ### 2. **Pseudocode (P)**
 **Purpose:** Design algorithm and logic flow
 **Output:** High-level pseudocode
-**Command:** `npx claude-flow sparc run pseudocode "<feature>"`
+**Command:** `npx archon-os sparc run pseudocode "<feature>"`
 
 **What to Create:**
 - Algorithm descriptions
@@ -36,7 +36,7 @@ SPARC (Specification, Pseudocode, Architecture, Refinement, Completion) is our s
 ### 3. **Architecture (A)**
 **Purpose:** Design system architecture
 **Output:** Architecture diagrams and decisions
-**Command:** `npx claude-flow sparc run architect "<feature>"`
+**Command:** `npx archon-os sparc run architect "<feature>"`
 
 **What to Design:**
 - Component architecture
@@ -49,7 +49,7 @@ SPARC (Specification, Pseudocode, Architecture, Refinement, Completion) is our s
 ### 4. **Refinement (R)**
 **Purpose:** TDD implementation with iterative refinement
 **Output:** Working code with tests
-**Command:** `npx claude-flow sparc tdd "<feature>"`
+**Command:** `npx archon-os sparc tdd "<feature>"`
 
 **What to Build:**
 - Red: Write failing tests
@@ -60,7 +60,7 @@ SPARC (Specification, Pseudocode, Architecture, Refinement, Completion) is our s
 ### 5. **Completion (C)**
 **Purpose:** Integration, documentation, and deployment
 **Output:** Production-ready feature
-**Command:** `npx claude-flow sparc run completion "<feature>"`
+**Command:** `npx archon-os sparc run completion "<feature>"`
 
 **What to Finalize:**
 - Integration with existing systems
@@ -76,37 +76,37 @@ SPARC (Specification, Pseudocode, Architecture, Refinement, Completion) is our s
 ### Full SPARC Pipeline
 Run complete SPARC workflow from start to finish:
 ```bash
-npx claude-flow sparc pipeline "<feature-description>"
+npx archon-os sparc pipeline "<feature-description>"
 ```
 
 ### Batch Execution
 Run multiple SPARC phases in parallel:
 ```bash
-npx claude-flow sparc batch "spec,pseudocode,architect" "<feature>"
+npx archon-os sparc batch "spec,pseudocode,architect" "<feature>"
 ```
 
 ### Individual Phase
 Execute a specific SPARC phase:
 ```bash
-npx claude-flow sparc run spec "<feature>"
-npx claude-flow sparc run pseudocode "<feature>"
-npx claude-flow sparc run architect "<feature>"
-npx claude-flow sparc run refinement "<feature>"
-npx claude-flow sparc run completion "<feature>"
+npx archon-os sparc run spec "<feature>"
+npx archon-os sparc run pseudocode "<feature>"
+npx archon-os sparc run architect "<feature>"
+npx archon-os sparc run refinement "<feature>"
+npx archon-os sparc run completion "<feature>"
 ```
 
 ### TDD Workflow
 Run Test-Driven Development workflow:
 ```bash
-npx claude-flow sparc tdd "<feature>"
+npx archon-os sparc tdd "<feature>"
 ```
 
 ### Get Phase Info
 Get detailed information about a SPARC phase:
 ```bash
-npx claude-flow sparc info spec
-npx claude-flow sparc info architect
-npx claude-flow sparc info refinement
+npx archon-os sparc info spec
+npx archon-os sparc info architect
+npx archon-os sparc info refinement
 ```
 
 ---
@@ -120,14 +120,14 @@ npx claude-flow sparc info refinement
 **Workflow:**
 ```bash
 # Full pipeline approach
-npx claude-flow sparc pipeline "Implement twenty-bridge webhook service for TwentyCRM lead sync with Graphiti"
+npx archon-os sparc pipeline "Implement twenty-bridge webhook service for TwentyCRM lead sync with letta"
 
 # Or step-by-step approach
-npx claude-flow sparc run spec "Twenty-bridge webhook receiver"
-npx claude-flow sparc run pseudocode "Twenty-bridge webhook receiver"
-npx claude-flow sparc run architect "Twenty-bridge webhook receiver"
-npx claude-flow sparc tdd "Twenty-bridge webhook receiver"
-npx claude-flow sparc run completion "Twenty-bridge webhook receiver"
+npx archon-os sparc run spec "Twenty-bridge webhook receiver"
+npx archon-os sparc run pseudocode "Twenty-bridge webhook receiver"
+npx archon-os sparc run architect "Twenty-bridge webhook receiver"
+npx archon-os sparc tdd "Twenty-bridge webhook receiver"
+npx archon-os sparc run completion "Twenty-bridge webhook receiver"
 ```
 
 ### Example 2: Quote Engine Excel Formula Migration
@@ -137,13 +137,13 @@ npx claude-flow sparc run completion "Twenty-bridge webhook receiver"
 **Workflow:**
 ```bash
 # Batch spec + pseudocode + architect phases
-npx claude-flow sparc batch "spec,pseudocode,architect" "Migrate Excel USDA loan formulas to Quote Engine API"
+npx archon-os sparc batch "spec,pseudocode,architect" "Migrate Excel USDA loan formulas to Quote Engine API"
 
 # Then TDD implementation
-npx claude-flow sparc tdd "USDA loan calculation endpoint"
+npx archon-os sparc tdd "USDA loan calculation endpoint"
 
 # Finally completion
-npx claude-flow sparc run completion "USDA loan endpoint integration"
+npx archon-os sparc run completion "USDA loan endpoint integration"
 ```
 
 ### Example 3: Campaign Execution Monitoring
@@ -153,7 +153,7 @@ npx claude-flow sparc run completion "USDA loan endpoint integration"
 **Workflow:**
 ```bash
 # Full pipeline
-npx claude-flow sparc pipeline "Add real-time campaign execution monitoring dashboard to Admin UI with WebSocket updates"
+npx archon-os sparc pipeline "Add real-time campaign execution monitoring dashboard to Admin UI with WebSocket updates"
 ```
 
 ---
@@ -192,23 +192,23 @@ npx claude-flow sparc pipeline "Add real-time campaign execution monitoring dash
 
 ---
 
-## Integration with Claude-Flow Hooks
+## Integration with archon-os Hooks
 
-SPARC automatically integrates with claude-flow hooks:
+SPARC automatically integrates with archon-os hooks:
 
 **Pre-Task Hooks:**
 ```bash
-npx @claude-flow/cli@latest hooks pre-task --description "<feature>"
+npx @archon-os/cli@latest hooks pre-task --description "<feature>"
 ```
 
 **Post-Edit Hooks:**
 ```bash
-npx @claude-flow/cli@latest hooks post-edit --file "<file>" --memory-key "sparc/<phase>/<feature>"
+npx @archon-os/cli@latest hooks post-edit --file "<file>" --memory-key "sparc/<phase>/<feature>"
 ```
 
 **Post-Task Hooks:**
 ```bash
-npx @claude-flow/cli@latest hooks post-task --task-id "<task-id>"
+npx @archon-os/cli@latest hooks post-task --task-id "<task-id>"
 ```
 
 **Memory Coordination:**
@@ -221,7 +221,7 @@ All SPARC phases store decisions in swarm memory for cross-phase coordination.
 ### High Priority (Week 1-2)
 
 1. **Twenty-Bridge Webhook Service**
-   - CRM → Graphiti real-time sync
+   - CRM → letta real-time sync
    - Webhook signature verification
    - Event processing pipeline
    - Status: Architecture complete, needs implementation
@@ -356,17 +356,17 @@ describe('[Feature Name]', () => {
 
 ### View Active SPARC Tasks
 ```bash
-npx claude-flow sparc status
+npx archon-os sparc status
 ```
 
 ### View Phase Completion
 ```bash
-npx claude-flow sparc report
+npx archon-os sparc report
 ```
 
 ### Export SPARC Documentation
 ```bash
-npx claude-flow sparc export --format markdown --output docs/sparc/
+npx archon-os sparc export --format markdown --output docs/sparc/
 ```
 
 ---
@@ -404,28 +404,28 @@ npx claude-flow sparc export --format markdown --output docs/sparc/
 ## Getting Help
 
 ### SPARC Documentation
-- Official Guide: https://github.com/ruvnet/claude-flow/docs/sparc
+- Official Guide: https://github.com/ruvnet/archon-os/docs/sparc
 - Examples: `examples/sparc/` directory
 - Templates: `docs/sparc/templates/`
 
 ### Common Issues
 
 **Issue:** SPARC command not found
-**Solution:** Ensure claude-flow@alpha is installed:
+**Solution:** Ensure archon-os@alpha is installed:
 ```bash
-npm install -g claude-flow@alpha
+npm install -g archon-os@alpha
 ```
 
 **Issue:** Phase fails to complete
 **Solution:** Check logs and rerun with --verbose:
 ```bash
-npx claude-flow sparc run architect "feature" --verbose
+npx archon-os sparc run architect "feature" --verbose
 ```
 
 **Issue:** Need to resume a phase
 **Solution:** SPARC phases are resumable:
 ```bash
-npx claude-flow sparc resume <phase-id>
+npx archon-os sparc resume <phase-id>
 ```
 
 ---
@@ -434,7 +434,7 @@ npx claude-flow sparc resume <phase-id>
 
 1. **Review Priority Features** - Choose next feature to implement
 2. **Run SPARC Pipeline** - Execute full workflow for selected feature
-3. **Coordinate with Agents** - Use claude-flow hooks for multi-agent coordination
+3. **Coordinate with Agents** - Use archon-os hooks for multi-agent coordination
 4. **Monitor Progress** - Track completion via SPARC status commands
 5. **Iterate** - Refine based on feedback and testing
 
@@ -449,10 +449,10 @@ npx claude-flow sparc resume <phase-id>
 cd C:\Dev\Projects\Repos\Project-Nyra
 
 # Step 2: Run full SPARC pipeline
-npx claude-flow sparc pipeline "Implement twenty-bridge webhook service with TwentyCRM integration, signature verification, and Graphiti sync"
+npx archon-os sparc pipeline "Implement twenty-bridge webhook service with TwentyCRM integration, signature verification, and letta sync"
 
 # Step 3: Monitor progress
-npx claude-flow sparc status
+npx archon-os sparc status
 
 # Step 4: Review deliverables
 # - docs/sparc/specifications/twenty-bridge-webhook.md

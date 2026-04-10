@@ -11,8 +11,8 @@
 Project-Nyra features a sophisticated multi-service infrastructure designed for AI-powered mortgage automation with distributed orchestration capabilities. The stack integrates:
 
 - **15+ containerized services** across memory systems, AI platforms, and observability
-- **Multi-tier memory architecture** (RuVector, Letta, Graphiti/FalkorDB, Mem0)
-- **Distributed orchestration** (Claude-Flow, Archon, Ruv-Swarm)
+- **Multi-tier memory architecture** (RuVector, Letta, letta/FalkorDB, Mem0)
+- **Distributed orchestration** (archon-os, Archon, Ruv-Swarm)
 - **Complete observability stack** (Prometheus, Loki, Grafana, Alertmanager)
 - **Multi-database backend** (PostgreSQL, Redis, FalkorDB, Qdrant)
 
@@ -35,7 +35,7 @@ Core Services:
   ✓ Dify (No-code AI) - Port 3001
   ✓ Activepieces (Workflows) - Port 3002
   ✓ n8n (Automation) - Port 5678
-  ✓ Graphiti MCP + FalkorDB - Ports 9100, 6379
+  ✓ letta MCP + FalkorDB - Ports 9100, 6379
   ✓ Letta (Agent Memory) - Port 8283
 
 Observability:
@@ -272,7 +272,7 @@ CLAUDE_FLOW_MODE: orchestrator
 ```
 ✓ RuVector: Distributed mode with 3 worker nodes
 ✓ Letta: Enabled with PostgreSQL backend
-✓ Graphiti: FalkorDB backend with temporal tracking
+✓ letta: FalkorDB backend with temporal tracking
 ✓ Mem0: Cloud + local with PII protection
 ```
 

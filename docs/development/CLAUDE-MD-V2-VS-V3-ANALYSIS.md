@@ -43,7 +43,7 @@ Tier 3: Sonnet/Opus (2-5s, $0.003-$0.015)
 **Usage:**
 ```bash
 # V3: Get routing recommendation before spawning
-npx @claude-flow/cli@latest hooks pre-task --description "task"
+npx @archon-os/cli@latest hooks pre-task --description "task"
 # Returns: [AGENT_BOOSTER_AVAILABLE] or [TASK_MODEL_RECOMMENDATION] haiku/sonnet/opus
 
 # V2: No routing system - always used most expensive model
@@ -114,10 +114,10 @@ npx @claude-flow/cli@latest hooks pre-task --description "task"
 
 ```bash
 # Small teams (6-8 agents) - hierarchical for tight control
-npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 8 --strategy specialized
+npx @archon-os/cli@latest swarm init --topology hierarchical --max-agents 8 --strategy specialized
 
 # Large teams (10-15 agents) - hierarchical-mesh for V3 queen + peer communication
-npx @claude-flow/cli@latest swarm init --topology hierarchical-mesh --max-agents 15 --strategy specialized
+npx @archon-os/cli@latest swarm init --topology hierarchical-mesh --max-agents 15 --strategy specialized
 ```
 
 **Valid Topologies:**
@@ -143,28 +143,28 @@ npx @claude-flow/cli@latest swarm init --topology hierarchical-mesh --max-agents
 **Before Starting Any Task:**
 ```bash
 # Search memory for relevant patterns
-npx @claude-flow/cli@latest memory search --query '[task keywords]' --namespace patterns
+npx @archon-os/cli@latest memory search --query '[task keywords]' --namespace patterns
 
 # Check if similar task was done before
-npx @claude-flow/cli@latest memory search --query '[task type]' --namespace tasks
+npx @archon-os/cli@latest memory search --query '[task type]' --namespace tasks
 
 # Load learned optimizations
-npx @claude-flow/cli@latest hooks route --task '[task description]'
+npx @archon-os/cli@latest hooks route --task '[task description]'
 ```
 
 **After Completing Any Task:**
 ```bash
 # Store successful pattern
-npx @claude-flow/cli@latest memory store --namespace patterns --key '[pattern-name]' --value '[what worked]'
+npx @archon-os/cli@latest memory store --namespace patterns --key '[pattern-name]' --value '[what worked]'
 
 # Train neural patterns
-npx @claude-flow/cli@latest hooks post-edit --file '[main-file]' --train-neural true
+npx @archon-os/cli@latest hooks post-edit --file '[main-file]' --train-neural true
 
 # Record task completion with metrics
-npx @claude-flow/cli@latest hooks post-task --task-id '[id]' --success true --store-results true
+npx @archon-os/cli@latest hooks post-task --task-id '[id]' --success true --store-results true
 
 # Trigger optimization worker
-npx @claude-flow/cli@latest hooks worker dispatch --trigger optimize
+npx @archon-os/cli@latest hooks worker dispatch --trigger optimize
 ```
 
 **Continuous Improvement Triggers:**
@@ -185,10 +185,10 @@ npx @claude-flow/cli@latest hooks worker dispatch --trigger optimize
 
 ```bash
 # At session start - restore previous context
-npx @claude-flow/cli@latest session restore --latest
+npx @archon-os/cli@latest session restore --latest
 
 # At session end - persist learned patterns
-npx @claude-flow/cli@latest hooks session-end --generate-summary true --persist-state true --export-metrics true
+npx @archon-os/cli@latest hooks session-end --generate-summary true --persist-state true --export-metrics true
 ```
 
 **Benefits:**
@@ -205,13 +205,13 @@ npx @claude-flow/cli@latest hooks session-end --generate-summary true --persist-
 
 ```bash
 # After any significant operation
-npx @claude-flow/cli@latest hooks post-command --command '[operation]' --track-metrics true
+npx @archon-os/cli@latest hooks post-command --command '[operation]' --track-metrics true
 
 # Periodically run benchmarks
-npx @claude-flow/cli@latest performance benchmark --suite all
+npx @archon-os/cli@latest performance benchmark --suite all
 
 # Analyze bottlenecks
-npx @claude-flow/cli@latest performance profile --target '[component]'
+npx @archon-os/cli@latest performance profile --target '[component]'
 ```
 
 **V2:** Manual performance tracking only
@@ -240,19 +240,19 @@ npx @claude-flow/cli@latest performance profile --target '[component]'
 
 ```bash
 # Store data with full options
-npx @claude-flow/cli@latest memory store --key "pattern-auth" --value "JWT with refresh tokens" --namespace patterns --ttl 86400 --tags "auth,security"
+npx @archon-os/cli@latest memory store --key "pattern-auth" --value "JWT with refresh tokens" --namespace patterns --ttl 86400 --tags "auth,security"
 
 # Semantic vector search
-npx @claude-flow/cli@latest memory search --query "authentication patterns" --namespace patterns --limit 5 --threshold 0.8
+npx @archon-os/cli@latest memory search --query "authentication patterns" --namespace patterns --limit 5 --threshold 0.8
 
 # List entries
-npx @claude-flow/cli@latest memory list --namespace patterns --limit 10
+npx @archon-os/cli@latest memory list --namespace patterns --limit 10
 
 # Retrieve specific entry
-npx @claude-flow/cli@latest memory retrieve --key "pattern-auth" --namespace patterns
+npx @archon-os/cli@latest memory retrieve --key "pattern-auth" --namespace patterns
 
 # Initialize database
-npx @claude-flow/cli@latest memory init --force --verbose
+npx @archon-os/cli@latest memory init --force --verbose
 ```
 
 **V2:** Basic memory usage patterns, no CLI commands
@@ -263,7 +263,7 @@ npx @claude-flow/cli@latest memory init --force --verbose
 
 ```javascript
 // STEP 1: Initialize swarm
-Bash("npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 8")
+Bash("npx @archon-os/cli@latest swarm init --topology hierarchical --max-agents 8")
 
 // STEP 2: Spawn ALL agents IN BACKGROUND in ONE message
 Task({
@@ -297,7 +297,7 @@ Task({
 - `init` (4 subcommands) - Project initialization
 - `agent` (8 subcommands) - Agent lifecycle
 - `swarm` (6 subcommands) - Swarm orchestration
-- `memory` (11 subcommands) - AgentDB memory
+- `memory` (11 subcommands) - ruvector memory
 - `mcp` (9 subcommands) - MCP server management
 - `task` (6 subcommands) - Task lifecycle
 - `session` (7 subcommands) - Session persistence
@@ -331,7 +331,7 @@ Task({
 - **Document chunking**: Configurable overlap and size
 - **Normalization**: L2, L1, min-max, z-score
 - **Hyperbolic embeddings**: Poincaré ball model for hierarchical data
-- **75x faster**: With agentic-flow ONNX integration
+- **75x faster**: With archon-os ONNX integration
 - **Neural substrate**: Integration with RuVector
 
 **V2:** No embeddings package
@@ -361,8 +361,8 @@ Task({
 ```javascript
 // All operations in ONE message
 [Single Message]:
-  - mcp__claude-flow__swarm_init
-  - mcp__claude-flow__agent_spawn (researcher)
+  - mcp__archon-os__swarm_init
+  - mcp__archon-os__agent_spawn (researcher)
   - Task("researcher agent")
   - TodoWrite { todos: [5-10 todos] }
   - Read/Write/Bash operations
@@ -440,16 +440,16 @@ Task("You are coder agent. MANDATORY: Run hooks pre-task, post-edit, post-task. 
 
 ```bash
 # Check migration status
-npx @claude-flow/cli@latest migrate status
+npx @archon-os/cli@latest migrate status
 
 # Run migration with backup
-npx @claude-flow/cli@latest migrate run --backup
+npx @archon-os/cli@latest migrate run --backup
 
 # Rollback if needed
-npx @claude-flow/cli@latest migrate rollback
+npx @archon-os/cli@latest migrate rollback
 
 # Validate migration
-npx @claude-flow/cli@latest migrate validate
+npx @archon-os/cli@latest migrate validate
 ```
 
 **Key Migration Changes:**
@@ -482,10 +482,10 @@ npx @claude-flow/cli@latest migrate validate
 ## 🎯 When to Use Which Version
 
 **Use V2 Legacy Templates:**
-- Migrating from old claude-flow projects
+- Migrating from old archon-os projects
 - Need basic coordination without advanced features
 - Simpler projects (<5 agents)
-- Learning claude-flow basics
+- Learning archon-os basics
 
 **Use V3 Current Format:**
 - **All new projects (RECOMMENDED)**
@@ -696,7 +696,7 @@ npx @claude-flow/cli@latest migrate validate
 - Performance targets (specific, measurable)
 - Migration support (smooth transition)
 
-**Bottom Line:** V3 transforms claude-flow from a coordination framework into an autonomous AI development orchestration system with industrial-grade reliability, cost optimization, and continuous improvement capabilities.
+**Bottom Line:** V3 transforms archon-os from a coordination framework into an autonomous AI development orchestration system with industrial-grade reliability, cost optimization, and continuous improvement capabilities.
 
 **Recommendation:** Use V3 for all new projects. Migrate existing V2 projects within 2-4 weeks to capture 75% cost savings and 150x-12,500x performance improvements.
 

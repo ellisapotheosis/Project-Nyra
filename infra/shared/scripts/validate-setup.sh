@@ -3,7 +3,7 @@
 # Validation Script for Project-Nyra Development Setup
 
 PROJECT_ROOT="C:/Dev/Projects/Repos/Project-Nyra"
-CLAUDE_FLOW_PATH="$PROJECT_ROOT/submodules/claude-flow"
+CLAUDE_FLOW_PATH="$PROJECT_ROOT/submodules/archon-os"
 ARCHON_PATH="$PROJECT_ROOT/submodules/archon"
 
 PASSED=0
@@ -53,8 +53,8 @@ echo ""
 
 echo "PHASE 2: Submodule Structure"
 echo "───────────────────────────"
-test_dir "Claude-Flow Submodule" "$CLAUDE_FLOW_PATH"
-test_file "Claude-Flow package.json" "$CLAUDE_FLOW_PATH/package.json"
+test_dir "archon-os Submodule" "$CLAUDE_FLOW_PATH"
+test_file "archon-os package.json" "$CLAUDE_FLOW_PATH/package.json"
 test_dir "Archon Submodule" "$ARCHON_PATH"
 test_dir "Archon Git Repository" "$ARCHON_PATH/.git"
 echo ""
@@ -88,11 +88,11 @@ echo ""
 
 echo "PHASE 5: pnpm Workspace Integration"
 echo "───────────────────────────────────"
-if grep -q "submodules/claude-flow" "$PROJECT_ROOT/pnpm-workspace.yaml"; then
-    echo "  [PASS] Claude-Flow in workspace"
+if grep -q "submodules/archon-os" "$PROJECT_ROOT/pnpm-workspace.yaml"; then
+    echo "  [PASS] archon-os in workspace"
     ((PASSED++))
 else
-    echo "  [FAIL] Claude-Flow not in workspace"
+    echo "  [FAIL] archon-os not in workspace"
     ((FAILED++))
 fi
 

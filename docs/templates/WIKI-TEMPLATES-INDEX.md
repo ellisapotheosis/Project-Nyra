@@ -1,7 +1,7 @@
 # CLAUDE.md Templates - Complete Index
 
 **Total Templates**: 33
-**Source**: claude-flow GitHub Wiki
+**Source**: archon-os GitHub Wiki
 **Purpose**: Comprehensive CLAUDE.md templates for Project Nyra and beyond
 **Last Updated**: 2026-01-22
 
@@ -153,7 +153,7 @@ Modern asynchronous architecture patterns.
 Choose the template(s) that best match your project needs from the categories above.
 
 ### 2. Create CLAUDE.md
-Copy the template to your project root as `.claude-flow/CLAUDE.md` or `CLAUDE.md`.
+Copy the template to your project root as `.archon-os/CLAUDE.md` or `CLAUDE.md`.
 
 ### 3. Customize Variables
 Replace placeholders like:
@@ -174,7 +174,7 @@ Follow the sections in order:
 
 ### 5. Store in Memory
 ```bash
-npx @claude-flow/cli@latest memory store \
+npx @archon-os/cli@latest memory store \
   --key "template-selected-{{PROJECT_NAME}}" \
   --value "Template: {{TEMPLATE_NAME}}, Customization complete" \
   --namespace projects
@@ -240,19 +240,19 @@ Add: 32-event-driven-architecture.md (async processing)
 cd /path/to/project
 
 # 2. Create templates directory
-mkdir -p docs/templates/claude-flow-wiki
+mkdir -p docs/templates/archon-os-wiki
 
 # 3. Copy relevant templates
-cp docs/templates/claude-flow-wiki/*.md .claude-flow/
+cp docs/templates/archon-os-wiki/*.md .archon-os/
 
 # 4. Initialize with template
-npx @claude-flow/cli@latest init --wizard
+npx @archon-os/cli@latest init --wizard
 
 # 5. Customize for your project
-# Edit .claude-flow/CLAUDE.md with your specifics
+# Edit .archon-os/CLAUDE.md with your specifics
 
 # 6. Store in memory
-npx @claude-flow/cli@latest memory store \
+npx @archon-os/cli@latest memory store \
   --key "project-initialized" \
   --value "Using template X, configured for Y" \
   --namespace projects
@@ -262,10 +262,10 @@ npx @claude-flow/cli@latest memory store \
 
 ## 🔗 Resources
 
-- **Template Location**: `docs/templates/claude-flow-wiki/`
+- **Template Location**: `docs/templates/archon-os-wiki/`
 - **Main Documentation**: See individual template files
-- **Claude Flow CLI**: https://github.com/ruvnet/claude-flow
-- **Wiki**: https://github.com/ruvnet/claude-flow/wiki
+- **Claude Flow CLI**: https://github.com/ruvnet/archon-os
+- **Wiki**: https://github.com/ruvnet/archon-os/wiki
 
 ---
 
@@ -304,4 +304,4 @@ After selecting and customizing a template:
 **Templates**: 33
 **Status**: Complete
 
-For updates and new templates, visit: https://github.com/ruvnet/claude-flow/wiki/CLAUDE-MD-Templates
+For updates and new templates, visit: https://github.com/ruvnet/archon-os/wiki/CLAUDE-MD-Templates

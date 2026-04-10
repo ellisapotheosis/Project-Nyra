@@ -794,7 +794,7 @@ Each `bootstrap-kit-pcN/` contains:
 
 ### External Links
 - **Ruvector**: https://github.com/ruvnet/ruvector
-- **Claude Flow**: https://github.com/ruvnet/claude-flow
+- **Claude Flow**: https://github.com/ruvnet/archon-os
 - **Archon OS**: https://github.com/coleam00/Archon
 - **TwentyCRM**: https://twenty.com
 - **n8n**: https://n8n.io

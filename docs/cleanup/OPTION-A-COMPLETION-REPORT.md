@@ -96,7 +96,7 @@ Successfully completed Phase 1 of the "Quick Wins" documentation reorganization 
 
 1. CICD_ANALYSIS_REPORT.md
 2. CLAUDE_CODE_FIX_SUMMARY.md
-3. CLAUDE-FLOW-V3-SETUP-SUMMARY.md
+3. archon-os-V3-SETUP-SUMMARY.md
 4. COMPLETE_SYSTEM_STATUS.md
 5. config-fix-summary.md
 6. CONTAINERIZATION-RESEARCH-REPORT.md
@@ -115,9 +115,9 @@ Successfully completed Phase 1 of the "Quick Wins" documentation reorganization 
 
 1. AGENTIC-JUJUTSU-SETUP.md
 2. BENEFICIAL-SETUPS.md
-3. CLAUDE-FLOW-PLUGINS-SETUP.md
-4. CLAUDE-FLOW-QUICK-START.md
-5. CLAUDE-FLOW-SETUP.md
+3. archon-os-PLUGINS-SETUP.md
+4. archon-os-QUICK-START.md
+5. archon-os-SETUP.md
 6. COMPLETE-SETUP-GUIDE.md
 7. ENV-SETUP-GUIDE.md
 
@@ -211,7 +211,7 @@ docs/_archive/
 ### Critical Next Steps
 1. **Further root cleanup**: 59 → 2 files
    - Move RUVECTOR-* files to dedicated directory
-   - Move CLAUDE-FLOW-* files to guides/
+   - Move archon-os-* files to guides/
    - Move architecture docs to architecture/
    - Move deployment docs to deployment/
 

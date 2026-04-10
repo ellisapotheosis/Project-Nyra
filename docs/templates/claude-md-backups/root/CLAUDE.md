@@ -21,7 +21,7 @@
 |-----------|-----------|------|---------|
 | **LLM Gateway** | Nexus Router + LiteLLM | 6000 | Model routing, OpenRouter integration |
 | **CRM** | TwentyCRM | 3000 | System of record for leads/pipeline |
-| **Memory** | Letta + Graphiti + Mem0 + RuVector | Multiple | Multi-system memory architecture |
+| **Memory** | Letta + letta + Mem0 + RuVector | Multiple | Multi-system memory architecture |
 | **Workflows** | n8n + Activepieces | 5678 | Campaign automation, integrations |
 | **Chat UI** | Dify | 3001 | Borrower-facing chat interface |
 | **Observability** | Prometheus + Grafana + Loki | 9090/3005/3100 | Monitoring stack |
@@ -31,7 +31,7 @@
 - **Whitepaper**: `ToDo/whitepaper-workflow/nyra-mcp-infisical-patchkit-v1/docs/whitepaper/WHITEPAPER.md`
 - **Architecture**: `ToDo/whitepaper-workflow/nyra-mcp-infisical-patchkit-v1/docs/whitepaper/ARCHITECTURE.md`
 - **SPARC Workflows**: `ToDo/whitepaper-workflow/Nyra-Truth-and-Standards/MORTGAGE-SPARC-WORKFLOWS.md`
-- **Capabilities**: `.claude-flow/CAPABILITIES.md`
+- **Capabilities**: `.archon-os/CAPABILITIES.md`
 
 ### 🎯 Mortgage-Specific Requirements
 
@@ -80,7 +80,7 @@
 
 **Before spawning agents, get routing recommendation:**
 ```bash
-npx @claude-flow/cli@latest hooks pre-task --description "[task description]"
+npx @archon-os/cli@latest hooks pre-task --description "[task description]"
 ```
 
 **When you see these recommendations:**
@@ -106,10 +106,10 @@ Task({
 **Use this to prevent agent drift:**
 ```bash
 # Small teams (6-8 agents) - use hierarchical for tight control
-npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 8 --strategy specialized
+npx @archon-os/cli@latest swarm init --topology hierarchical --max-agents 8 --strategy specialized
 
 # Large teams (10-15 agents) - use hierarchical-mesh for V3 queen + peer communication
-npx @claude-flow/cli@latest swarm init --topology hierarchical-mesh --max-agents 15 --strategy specialized
+npx @archon-os/cli@latest swarm init --topology hierarchical-mesh --max-agents 15 --strategy specialized
 ```
 
 **Valid Topologies:**
@@ -134,7 +134,7 @@ When the user requests a complex task, **spawn agents in background and WAIT for
 
 ```javascript
 // STEP 1: Initialize swarm coordination (anti-drift config)
-Bash("npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 8 --strategy specialized")
+Bash("npx @archon-os/cli@latest swarm init --topology hierarchical --max-agents 8 --strategy specialized")
 
 // STEP 2: Spawn ALL agents IN BACKGROUND in a SINGLE message
 // Use run_in_background: true so agents work concurrently
@@ -212,28 +212,28 @@ They're working in parallel. I'll synthesize their results when they complete.
 ### Before Starting Any Task
 ```bash
 # 1. Search memory for relevant patterns from past successes
-Bash("npx @claude-flow/cli@latest memory search --query '[task keywords]' --namespace patterns")
+Bash("npx @archon-os/cli@latest memory search --query '[task keywords]' --namespace patterns")
 
 # 2. Check if similar task was done before
-Bash("npx @claude-flow/cli@latest memory search --query '[task type]' --namespace tasks")
+Bash("npx @archon-os/cli@latest memory search --query '[task type]' --namespace tasks")
 
 # 3. Load learned optimizations
-Bash("npx @claude-flow/cli@latest hooks route --task '[task description]'")
+Bash("npx @archon-os/cli@latest hooks route --task '[task description]'")
 ```
 
 ### After Completing Any Task Successfully
 ```bash
 # 1. Store successful pattern for future reference
-Bash("npx @claude-flow/cli@latest memory store --namespace patterns --key '[pattern-name]' --value '[what worked]'")
+Bash("npx @archon-os/cli@latest memory store --namespace patterns --key '[pattern-name]' --value '[what worked]'")
 
 # 2. Train neural patterns on the successful approach
-Bash("npx @claude-flow/cli@latest hooks post-edit --file '[main-file]' --train-neural true")
+Bash("npx @archon-os/cli@latest hooks post-edit --file '[main-file]' --train-neural true")
 
 # 3. Record task completion with metrics
-Bash("npx @claude-flow/cli@latest hooks post-task --task-id '[id]' --success true --store-results true")
+Bash("npx @archon-os/cli@latest hooks post-task --task-id '[id]' --success true --store-results true")
 
 # 4. Trigger optimization worker if performance-related
-Bash("npx @claude-flow/cli@latest hooks worker dispatch --trigger optimize")
+Bash("npx @archon-os/cli@latest hooks worker dispatch --trigger optimize")
 ```
 
 ### Continuous Improvement Triggers
@@ -361,7 +361,7 @@ Project Nyra uses **5 memory systems** with specific use cases:
 #### Memory Priority Order
 1. **RuVector** (Primary) - Fast vector search, code retrieval, document similarity
 2. **Letta** - Conversational memory, agent state, task context
-3. **Graphiti** - Temporal knowledge graphs, relationship tracking, loan evolution
+3. **letta** - Temporal knowledge graphs, relationship tracking, loan evolution
 4. **Mem0** - User personalization, borrower preferences across apps
 5. **OpenMemory** - Shared collaborative memory, team knowledge
 
@@ -371,20 +371,20 @@ Project Nyra uses **5 memory systems** with specific use cases:
 |----------|--------|---------|
 | Find similar mortgage quotes | RuVector | `ruvector_search(query, k=5)` |
 | Remember borrower conversation | Letta | `letta_update_memory(agent_id, content)` |
-| Track loan status changes | Graphiti | `graphiti_get_evolution(loan_id, timerange)` |
+| Track loan status changes | letta | `letta_get_evolution(loan_id, timerange)` |
 | Store borrower preferences | Mem0 | `mem0_update_profile(borrower_id, prefs)` |
 | Share compliance patterns | OpenMemory | `openmemory_share(pattern, agents)` |
 | Search mortgage documents | RuVector | `ruvector_index(doc, metadata)` |
-| Query relationship history | Graphiti | `graphiti_query(cypher_query)` |
+| Query relationship history | letta | `letta_query(cypher_query)` |
 
 #### Memory Coordination Pattern
 
 ```bash
 # Before any mortgage task, check relevant memory
-npx @claude-flow/cli@latest memory search --query "conventional loan qualification" --namespace mortgage-patterns
+npx @archon-os/cli@latest memory search --query "conventional loan qualification" --namespace mortgage-patterns
 
 # After successful task, store pattern
-npx @claude-flow/cli@latest memory store --key "pattern-dti-calculation" --value "Verified DTI formula with CFPB guidelines" --namespace mortgage-patterns
+npx @archon-os/cli@latest memory store --key "pattern-dti-calculation" --value "Verified DTI formula with CFPB guidelines" --namespace mortgage-patterns
 
 # Update agent memory
 letta_update_memory(borrower_agent_id, {
@@ -394,7 +394,7 @@ letta_update_memory(borrower_agent_id, {
 })
 
 # Track in knowledge graph
-graphiti_add_node({
+letta_add_node({
   type: "MortgageQuote",
   properties: { amount, rate, lender },
   relationships: [{ type: "QUOTED_FOR", targetId: borrower_id }]
@@ -420,7 +420,7 @@ graphiti_add_node({
 | `init` | 4 | Project initialization with wizard, presets, skills, hooks |
 | `agent` | 8 | Agent lifecycle (spawn, list, status, stop, metrics, pool, health, logs) |
 | `swarm` | 6 | Multi-agent swarm coordination and orchestration |
-| `memory` | 11 | AgentDB memory with vector search (150x-12,500x faster) |
+| `memory` | 11 | ruvector memory with vector search (150x-12,500x faster) |
 | `mcp` | 9 | MCP server management and tool execution |
 | `task` | 6 | Task creation, assignment, and lifecycle |
 | `session` | 7 | Session state management and persistence |
@@ -441,7 +441,7 @@ graphiti_add_node({
 | `providers` | 5 | AI providers (list, add, remove, test, configure) |
 | `plugins` | 5 | Plugin management (list, install, uninstall, enable, disable) |
 | `deployment` | 5 | Deployment management (deploy, rollback, status, environments, release) |
-| `embeddings` | 4 | Vector embeddings (embed, batch, search, init) - 75x faster with agentic-flow |
+| `embeddings` | 4 | Vector embeddings (embed, batch, search, init) - 75x faster with archon-os |
 | `claims` | 4 | Claims-based authorization (check, grant, revoke, list) |
 | `migrate` | 5 | V2 to V3 migration with rollback support |
 | `doctor` | 1 | System diagnostics with health checks |
@@ -451,28 +451,28 @@ graphiti_add_node({
 
 ```bash
 # Initialize project
-npx @claude-flow/cli@latest init --wizard
+npx @archon-os/cli@latest init --wizard
 
 # Start daemon with background workers
-npx @claude-flow/cli@latest daemon start
+npx @archon-os/cli@latest daemon start
 
 # Spawn an agent
-npx @claude-flow/cli@latest agent spawn -t coder --name my-coder
+npx @archon-os/cli@latest agent spawn -t coder --name my-coder
 
 # Initialize swarm
-npx @claude-flow/cli@latest swarm init --v3-mode
+npx @archon-os/cli@latest swarm init --v3-mode
 
 # Search memory (HNSW-indexed)
-npx @claude-flow/cli@latest memory search --query "authentication patterns"
+npx @archon-os/cli@latest memory search --query "authentication patterns"
 
 # System diagnostics
-npx @claude-flow/cli@latest doctor --fix
+npx @archon-os/cli@latest doctor --fix
 
 # Security scan
-npx @claude-flow/cli@latest security scan --depth full
+npx @archon-os/cli@latest security scan --depth full
 
 # Performance benchmark
-npx @claude-flow/cli@latest performance benchmark --suite all
+npx @archon-os/cli@latest performance benchmark --suite all
 ```
 
 ## 🚀 Available Agents (60+ Types)
@@ -483,7 +483,7 @@ npx @claude-flow/cli@latest performance benchmark --suite all
 ### V3 Specialized Agents
 `security-architect`, `security-auditor`, `memory-specialist`, `performance-engineer`
 
-### 🔐 @claude-flow/security
+### 🔐 @archon-os/security
 CVE remediation, input validation, path security:
 - `InputValidator` - Zod validation
 - `PathValidator` - Traversal prevention
@@ -564,51 +564,51 @@ CVE remediation, input validation, path security:
 
 ```bash
 # Core hooks
-npx @claude-flow/cli@latest hooks pre-task --description "[task]"
-npx @claude-flow/cli@latest hooks post-task --task-id "[id]" --success true
-npx @claude-flow/cli@latest hooks post-edit --file "[file]" --train-neural true
+npx @archon-os/cli@latest hooks pre-task --description "[task]"
+npx @archon-os/cli@latest hooks post-task --task-id "[id]" --success true
+npx @archon-os/cli@latest hooks post-edit --file "[file]" --train-neural true
 
 # Session management
-npx @claude-flow/cli@latest hooks session-start --session-id "[id]"
-npx @claude-flow/cli@latest hooks session-end --export-metrics true
-npx @claude-flow/cli@latest hooks session-restore --session-id "[id]"
+npx @archon-os/cli@latest hooks session-start --session-id "[id]"
+npx @archon-os/cli@latest hooks session-end --export-metrics true
+npx @archon-os/cli@latest hooks session-restore --session-id "[id]"
 
 # Intelligence routing
-npx @claude-flow/cli@latest hooks route --task "[task]"
-npx @claude-flow/cli@latest hooks explain --topic "[topic]"
+npx @archon-os/cli@latest hooks route --task "[task]"
+npx @archon-os/cli@latest hooks explain --topic "[topic]"
 
 # Neural learning
-npx @claude-flow/cli@latest hooks pretrain --model-type moe --epochs 10
-npx @claude-flow/cli@latest hooks build-agents --agent-types coder,tester
+npx @archon-os/cli@latest hooks pretrain --model-type moe --epochs 10
+npx @archon-os/cli@latest hooks build-agents --agent-types coder,tester
 
 # Background workers
-npx @claude-flow/cli@latest hooks worker list
-npx @claude-flow/cli@latest hooks worker dispatch --trigger audit
-npx @claude-flow/cli@latest hooks worker status
+npx @archon-os/cli@latest hooks worker list
+npx @archon-os/cli@latest hooks worker dispatch --trigger audit
+npx @archon-os/cli@latest hooks worker status
 
 # Coverage-aware routing
-npx @claude-flow/cli@latest hooks coverage-gaps --format table
-npx @claude-flow/cli@latest hooks coverage-route --task "[task]"
+npx @archon-os/cli@latest hooks coverage-gaps --format table
+npx @archon-os/cli@latest hooks coverage-route --task "[task]"
 
 # Statusline (for Claude Code integration)
-npx @claude-flow/cli@latest hooks statusline
-npx @claude-flow/cli@latest hooks statusline --json
+npx @archon-os/cli@latest hooks statusline
+npx @archon-os/cli@latest hooks statusline --json
 ```
 
 ## 🔄 Migration (V2 to V3)
 
 ```bash
 # Check migration status
-npx @claude-flow/cli@latest migrate status
+npx @archon-os/cli@latest migrate status
 
 # Run migration with backup
-npx @claude-flow/cli@latest migrate run --backup
+npx @archon-os/cli@latest migrate run --backup
 
 # Rollback if needed
-npx @claude-flow/cli@latest migrate rollback
+npx @archon-os/cli@latest migrate rollback
 
 # Validate migration
-npx @claude-flow/cli@latest migrate validate
+npx @archon-os/cli@latest migrate validate
 ```
 
 ## 🧠 Intelligence System (RuVector)
@@ -633,7 +633,7 @@ Features:
 - **Document chunking**: Configurable overlap and size
 - **Normalization**: L2, L1, min-max, z-score
 - **Hyperbolic embeddings**: Poincaré ball model for hierarchical data
-- **75x faster**: With agentic-flow ONNX integration
+- **75x faster**: With archon-os ONNX integration
 - **Neural substrate**: Integration with RuVector
 
 ## 🐝 Hive-Mind Consensus
@@ -667,41 +667,41 @@ Features:
 ### Automatic Performance Tracking
 ```bash
 # After any significant operation, track metrics
-Bash("npx @claude-flow/cli@latest hooks post-command --command '[operation]' --track-metrics true")
+Bash("npx @archon-os/cli@latest hooks post-command --command '[operation]' --track-metrics true")
 
 # Periodically run benchmarks (every major feature)
-Bash("npx @claude-flow/cli@latest performance benchmark --suite all")
+Bash("npx @archon-os/cli@latest performance benchmark --suite all")
 
 # Analyze bottlenecks when performance degrades
-Bash("npx @claude-flow/cli@latest performance profile --target '[component]'")
+Bash("npx @archon-os/cli@latest performance profile --target '[component]'")
 ```
 
 ### Session Persistence (Cross-Conversation Learning)
 ```bash
 # At session start - restore previous context
-Bash("npx @claude-flow/cli@latest session restore --latest")
+Bash("npx @archon-os/cli@latest session restore --latest")
 
 # At session end - persist learned patterns
-Bash("npx @claude-flow/cli@latest hooks session-end --generate-summary true --persist-state true --export-metrics true")
+Bash("npx @archon-os/cli@latest hooks session-end --generate-summary true --persist-state true --export-metrics true")
 ```
 
 ### Neural Pattern Training
 ```bash
 # Train on successful code patterns
-Bash("npx @claude-flow/cli@latest neural train --pattern-type coordination --epochs 10")
+Bash("npx @archon-os/cli@latest neural train --pattern-type coordination --epochs 10")
 
 # Predict optimal approach for new tasks
-Bash("npx @claude-flow/cli@latest neural predict --input '[task description]'")
+Bash("npx @archon-os/cli@latest neural predict --input '[task description]'")
 
 # View learned patterns
-Bash("npx @claude-flow/cli@latest neural patterns --list")
+Bash("npx @archon-os/cli@latest neural patterns --list")
 ```
 
 ## 🔧 Environment Variables
 
 ```bash
 # Configuration
-CLAUDE_FLOW_CONFIG=./claude-flow.config.json
+CLAUDE_FLOW_CONFIG=./archon-os.config.json
 CLAUDE_FLOW_LOG_LEVEL=info
 
 # Provider API Keys
@@ -721,7 +721,7 @@ CLAUDE_FLOW_MEMORY_PATH=./data/memory
 
 ## 🔍 Doctor Health Checks
 
-Run `npx @claude-flow/cli@latest doctor` to check:
+Run `npx @archon-os/cli@latest doctor` to check:
 - Node.js version (20+)
 - npm version (9+)
 - Git installation
@@ -737,15 +737,15 @@ Run `npx @claude-flow/cli@latest doctor` to check:
 
 ```bash
 # Add MCP servers (auto-detects MCP mode when stdin is piped)
-claude mcp add claude-flow -- npx -y @claude-flow/cli@latest
+claude mcp add archon-os -- npx -y @archon-os/cli@latest
 claude mcp add ruv-swarm -- npx -y ruv-swarm mcp start  # Optional
 claude mcp add flow-nexus -- npx -y flow-nexus@latest mcp start  # Optional
 
 # Start daemon
-npx @claude-flow/cli@latest daemon start
+npx @archon-os/cli@latest daemon start
 
 # Run doctor
-npx @claude-flow/cli@latest doctor --fix
+npx @archon-os/cli@latest doctor --fix
 ```
 
 ## 🎯 Claude Code vs CLI Tools
@@ -759,14 +759,14 @@ npx @claude-flow/cli@latest doctor --fix
 - Git operations
 
 ### CLI Tools Handle Coordination (via Bash):
-- **Swarm init**: `npx @claude-flow/cli@latest swarm init --topology <type>`
-- **Swarm status**: `npx @claude-flow/cli@latest swarm status`
-- **Agent spawn**: `npx @claude-flow/cli@latest agent spawn -t <type> --name <name>`
-- **Memory store**: `npx @claude-flow/cli@latest memory store --key "mykey" --value "myvalue" --namespace patterns`
-- **Memory search**: `npx @claude-flow/cli@latest memory search --query "search terms"`
-- **Memory list**: `npx @claude-flow/cli@latest memory list --namespace patterns`
-- **Memory retrieve**: `npx @claude-flow/cli@latest memory retrieve --key "mykey" --namespace patterns`
-- **Hooks**: `npx @claude-flow/cli@latest hooks <hook-name> [options]`
+- **Swarm init**: `npx @archon-os/cli@latest swarm init --topology <type>`
+- **Swarm status**: `npx @archon-os/cli@latest swarm status`
+- **Agent spawn**: `npx @archon-os/cli@latest agent spawn -t <type> --name <name>`
+- **Memory store**: `npx @archon-os/cli@latest memory store --key "mykey" --value "myvalue" --namespace patterns`
+- **Memory search**: `npx @archon-os/cli@latest memory search --query "search terms"`
+- **Memory list**: `npx @archon-os/cli@latest memory list --namespace patterns`
+- **Memory retrieve**: `npx @archon-os/cli@latest memory retrieve --key "mykey" --namespace patterns`
+- **Hooks**: `npx @archon-os/cli@latest hooks <hook-name> [options]`
 
 ## 📝 Memory Commands Reference (IMPORTANT)
 
@@ -774,36 +774,36 @@ npx @claude-flow/cli@latest doctor --fix
 ```bash
 # REQUIRED: --key and --value
 # OPTIONAL: --namespace (default: "default"), --ttl, --tags
-npx @claude-flow/cli@latest memory store --key "pattern-auth" --value "JWT with refresh tokens" --namespace patterns
-npx @claude-flow/cli@latest memory store --key "bug-fix-123" --value "Fixed null check" --namespace solutions --tags "bugfix,auth"
+npx @archon-os/cli@latest memory store --key "pattern-auth" --value "JWT with refresh tokens" --namespace patterns
+npx @archon-os/cli@latest memory store --key "bug-fix-123" --value "Fixed null check" --namespace solutions --tags "bugfix,auth"
 ```
 
 ### Search Data (semantic vector search)
 ```bash
 # REQUIRED: --query (full flag, not -q)
 # OPTIONAL: --namespace, --limit, --threshold
-npx @claude-flow/cli@latest memory search --query "authentication patterns"
-npx @claude-flow/cli@latest memory search --query "error handling" --namespace patterns --limit 5
+npx @archon-os/cli@latest memory search --query "authentication patterns"
+npx @archon-os/cli@latest memory search --query "error handling" --namespace patterns --limit 5
 ```
 
 ### List Entries
 ```bash
 # OPTIONAL: --namespace, --limit
-npx @claude-flow/cli@latest memory list
-npx @claude-flow/cli@latest memory list --namespace patterns --limit 10
+npx @archon-os/cli@latest memory list
+npx @archon-os/cli@latest memory list --namespace patterns --limit 10
 ```
 
 ### Retrieve Specific Entry
 ```bash
 # REQUIRED: --key
 # OPTIONAL: --namespace (default: "default")
-npx @claude-flow/cli@latest memory retrieve --key "pattern-auth"
-npx @claude-flow/cli@latest memory retrieve --key "pattern-auth" --namespace patterns
+npx @archon-os/cli@latest memory retrieve --key "pattern-auth"
+npx @archon-os/cli@latest memory retrieve --key "pattern-auth" --namespace patterns
 ```
 
 ### Initialize Memory Database
 ```bash
-npx @claude-flow/cli@latest memory init --force --verbose
+npx @archon-os/cli@latest memory init --force --verbose
 ```
 
 **KEY**: CLI coordinates the strategy via Bash, Claude Code's Task tool executes with real agents.
@@ -863,7 +863,7 @@ curl -X POST http://localhost:6000/v1/chat/completions \
 |--------|--------|------|
 | API response time (p95) | <200ms | Prometheus |
 | LLM routing local vs cloud | >80% local | Nexus logs |
-| Memory system read latency | <50ms | AgentDB metrics |
+| Memory system read latency | <50ms | ruvector metrics |
 | Agent task completion rate | >95% | Claude Flow dashboard |
 | System uptime | >99.9% | Grafana alerts |
 
@@ -880,7 +880,7 @@ curl -X POST http://localhost:6000/v1/chat/completions \
 ### Lead-to-Quote Workflow
 ```bash
 # 1. Initialize swarm for new lead
-npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 6 --strategy specialized
+npx @archon-os/cli@latest swarm init --topology hierarchical --max-agents 6 --strategy specialized
 
 # 2. Spawn mortgage workflow agents (in ONE message)
 Task({
@@ -902,7 +902,7 @@ Task({
   run_in_background: true
 })
 Task({
-  prompt: "Create Graphiti knowledge graph relationships: Lead → Borrower → Quote",
+  prompt: "Create letta knowledge graph relationships: Lead → Borrower → Quote",
   subagent_type: "memory-specialist",
   description: "Memory coordination",
   run_in_background: true
@@ -914,7 +914,7 @@ Task({
 ### Document Processing Workflow
 ```bash
 # Process borrower documents with OCR and validation
-npx @claude-flow/cli@latest workflow run document-processing \
+npx @archon-os/cli@latest workflow run document-processing \
   --borrower-id 12345 \
   --files "paystub.pdf,w2.pdf,bank_statement.pdf" \
   --agents "document-processor-agent,compliance-agent" \
@@ -924,7 +924,7 @@ npx @claude-flow/cli@latest workflow run document-processing \
 ### Drip Campaign Workflow
 ```bash
 # Start automated drip sequence
-npx @claude-flow/cli@latest workflow run drip-campaign \
+npx @archon-os/cli@latest workflow run drip-campaign \
   --borrower-id 12345 \
   --sequence "pre-approval-nurture" \
   --channels "email,sms" \
@@ -935,7 +935,7 @@ npx @claude-flow/cli@latest workflow run drip-campaign \
 
 For a comprehensive overview of all Claude Flow V3 features, agents, commands, and integrations, see:
 
-**`.claude-flow/CAPABILITIES.md`** - Complete reference generated during init
+**`.archon-os/CAPABILITIES.md`** - Complete reference generated during init
 
 This includes:
 - All 60+ agent types with routing recommendations
@@ -943,7 +943,7 @@ This includes:
 - All 27 hooks + 12 background workers
 - RuVector intelligence system details
 - Hive-Mind consensus mechanisms
-- Integration ecosystem (agentic-flow, agentdb, ruv-swarm, flow-nexus, agentic-jujutsu)
+- Integration ecosystem (archon-os, ruvector, ruv-swarm, flow-nexus, agentic-jujutsu)
 - Performance targets and status
 
 ### Component-Specific Documentation
@@ -956,7 +956,7 @@ Each service and application has its own CLAUDE.md:
 - `services/mem0/CLAUDE.md` - Memory system implementation
 - `services/mem0-mcp/CLAUDE.md` - Memory MCP server
 - `services/letta-integration/CLAUDE.md` - Letta memory integration
-- `services/graphiti-knowledge/CLAUDE.md` - Temporal knowledge graphs
+- `services/letta-knowledge/CLAUDE.md` - Temporal knowledge graphs
 - `services/auth-service/CLAUDE.md` - Authentication service
 
 **Frontend Applications**:
@@ -1001,9 +1001,9 @@ Each service and application has its own CLAUDE.md:
 ## 📚 Support & Resources
 
 ### Claude Flow V3
-- **Documentation**: https://github.com/ruvnet/claude-flow
-- **Issues**: https://github.com/ruvnet/claude-flow/issues
-- **Capabilities**: `.claude-flow/CAPABILITIES.md`
+- **Documentation**: https://github.com/ruvnet/archon-os
+- **Issues**: https://github.com/ruvnet/archon-os/issues
+- **Capabilities**: `.archon-os/CAPABILITIES.md`
 
 ### Project Nyra
 - **Whitepaper**: `ToDo/whitepaper-workflow/nyra-mcp-infisical-patchkit-v1/docs/whitepaper/WHITEPAPER.md`
@@ -1016,32 +1016,32 @@ Each service and application has its own CLAUDE.md:
 - **Nexus Router**: https://nexusrouter.com/docs
 - **Dify**: https://docs.dify.ai/en/use-dify/build/mcp
 - **Activepieces**: https://www.activepieces.com/blog/model-context-protocol-mcp
-- **Graphiti**: https://help.getzep.com/graphiti/getting-started/mcp-server
+- **letta**: https://help.getzep.com/letta/getting-started/mcp-server
 - **Letta**: https://docs.letta.com/advanced/memory-management/
 
 ### Quick Reference Commands
 
 ```bash
 # System health check
-npx @claude-flow/cli@latest doctor --fix
+npx @archon-os/cli@latest doctor --fix
 
 # Initialize memory systems
-npx @claude-flow/cli@latest memory init --all-systems
+npx @archon-os/cli@latest memory init --all-systems
 
 # Start daemon with background workers
-npx @claude-flow/cli@latest daemon start
+npx @archon-os/cli@latest daemon start
 
 # Spawn swarm for mortgage workflow
-npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 8
+npx @archon-os/cli@latest swarm init --topology hierarchical --max-agents 8
 
 # Check GPU workers
 curl http://worker-5090.tail-net.ts.net:11434/v1/models
 
 # View system status
-npx @claude-flow/cli@latest status --watch
+npx @archon-os/cli@latest status --watch
 
 # Search memory for patterns
-npx @claude-flow/cli@latest memory search --query "mortgage patterns" --namespace patterns
+npx @archon-os/cli@latest memory search --query "mortgage patterns" --namespace patterns
 ```
 
 ---
@@ -1061,7 +1061,7 @@ npx @claude-flow/cli@latest memory search --query "mortgage patterns" --namespac
 
 ## Mortgage Domain Rules
 6. **Every mortgage feature MUST include compliance validation** (TILA, RESPA, TRID, state regulations).
-7. **DO NOT MODIFY locked architecture components** without explicit approval (Nexus, TwentyCRM, Dify, n8n, Letta, Graphiti).
+7. **DO NOT MODIFY locked architecture components** without explicit approval (Nexus, TwentyCRM, Dify, n8n, Letta, letta).
 8. **Use local LLMs first** (80%+ on GPU workers), fallback to cloud only when necessary.
 9. **Store all sensitive borrower data encrypted** (SSN, income, credit scores, financial documents).
 10. **Maintain complete audit trails** for all mortgage operations (quotes, disclosures, communications).

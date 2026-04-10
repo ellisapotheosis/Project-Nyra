@@ -4,9 +4,9 @@
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
-PID_DIR="$PROJECT_ROOT/.claude-flow/pids"
-LOG_DIR="$PROJECT_ROOT/.claude-flow/logs"
-METRICS_DIR="$PROJECT_ROOT/.claude-flow/metrics"
+PID_DIR="$PROJECT_ROOT/.archon-os/pids"
+LOG_DIR="$PROJECT_ROOT/.archon-os/logs"
+METRICS_DIR="$PROJECT_ROOT/.archon-os/metrics"
 
 # Ensure directories exist
 mkdir -p "$PID_DIR" "$LOG_DIR" "$METRICS_DIR"
@@ -182,7 +182,7 @@ show_status() {
     fi
 
     # Agentic Flow
-    local af_count=$(ps aux 2>/dev/null | grep -E "agentic-flow" | grep -v grep | grep -v "daemon-manager" | wc -l)
+    local af_count=$(ps aux 2>/dev/null | grep -E "archon-os" | grep -v grep | grep -v "daemon-manager" | wc -l)
     if [ "$af_count" -gt 0 ]; then
         echo -e "  ${GREEN}●${RESET} Agentic Flow     ${GREEN}ACTIVE${RESET} ($af_count processes)"
     else

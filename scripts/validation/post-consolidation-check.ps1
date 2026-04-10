@@ -146,7 +146,7 @@ if (Test-Path ".mcp.json") {
         Log-Info "Found $serverCount MCP server configurations"
 
         # Check required servers
-        $requiredServers = @("claude-flow", "sequential-thinking")
+        $requiredServers = @("archon-os", "sequential-thinking")
         foreach ($server in $requiredServers) {
             if ($mcpConfig.mcpServers.PSObject.Properties.Name -contains $server) {
                 Log-Pass "MCP server configured: $server"
@@ -256,7 +256,7 @@ Section-Header "10. Verifying root directory cleanliness"
 Log-Info "Checking root directory structure..."
 
 $expectedRootItems = @(
-    ".git", ".github", ".claude", ".claude-flow", ".mcp.json",
+    ".git", ".github", ".claude", ".archon-os", ".mcp.json",
     "apps", "services", "packages", "infra", "mcp-servers", "tools",
     "scripts", "bootstrap", "docs", "config", "submodules", "tests", "examples",
     "package.json", "pnpm-workspace.yaml", "pnpm-lock.yaml",

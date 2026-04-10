@@ -455,7 +455,7 @@ docker ps --filter "health=healthy"
 
 **Memory Storage:**
 ```bash
-npx @claude-flow/cli@latest memory retrieve --namespace installer-architecture --key comprehensive-plan
+npx @archon-os/cli@latest memory retrieve --namespace installer-architecture --key comprehensive-plan
 ```
 
 ---

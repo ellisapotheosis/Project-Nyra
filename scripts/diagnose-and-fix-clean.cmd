@@ -68,14 +68,14 @@ if !errorlevel! neq 0 (
 )
 echo.
 
-REM 4. CHECK CLAUDE-FLOW
-echo [STEP 4] Claude-Flow Submodule
+REM 4. CHECK archon-os
+echo [STEP 4] archon-os Submodule
 echo ======================================================
 echo.
-if exist "submodules\claude-flow" (
-    echo [OK] claude-flow submodule exists
+if exist "submodules\archon-os" (
+    echo [OK] archon-os submodule exists
 ) else (
-    echo [WARN] claude-flow submodule not found
+    echo [WARN] archon-os submodule not found
     echo Initializing submodules...
     call git submodule update --init --recursive
 )

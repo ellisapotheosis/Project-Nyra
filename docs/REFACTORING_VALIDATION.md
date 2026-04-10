@@ -76,7 +76,7 @@ Example spawn message - ✓ Lines 48-57
 **Moved to MORTGAGE_DOMAIN.md:**
 - Memory usage table (mortgage-specific)
 - Memory coordination pattern (mortgage-specific)
-- Letta, Graphiti, Mem0, OpenMemory patterns
+- Letta, letta, Mem0, OpenMemory patterns
 
 **Rationale**: Mortgage-specific memory patterns don't apply to all services.
 
@@ -99,7 +99,7 @@ Example spawn message - ✓ Lines 48-57
 - Advanced Commands list - ✓ Lines 321
 - Quick Examples - ✓ Lines 323-345
 
-**Removed**: Verbose subcommand descriptions (full reference in `.claude-flow/CAPABILITIES.md`)
+**Removed**: Verbose subcommand descriptions (full reference in `.archon-os/CAPABILITIES.md`)
 
 ### 9. Hooks System ✓
 
@@ -109,7 +109,7 @@ Example spawn message - ✓ Lines 48-57
 - Essential Hooks reference - ✓ Lines 351-371
 - 12 Background Workers list - ✓ Line 373
 
-**Removed**: Verbose hook descriptions (full reference in `.claude-flow/CAPABILITIES.md`)
+**Removed**: Verbose hook descriptions (full reference in `.archon-os/CAPABILITIES.md`)
 
 ### 10. Intelligence System ✓
 
@@ -196,7 +196,7 @@ Example spawn message - ✓ Lines 48-57
 - Line 427: "- See: `/docs/MORTGAGE_DOMAIN.md` (compliance, agents, workflows, metrics)"
 
 **All Other References Preserved:**
-- `.claude-flow/CAPABILITIES.md` - ✓
+- `.archon-os/CAPABILITIES.md` - ✓
 - Whitepaper links - ✓
 - Architecture docs - ✓
 - SPARC Workflows - ✓

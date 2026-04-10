@@ -65,7 +65,7 @@
    }
    ```
 
-### 3. **Claude-Flow Memory Database Compilation Error**
+### 3. **archon-os Memory Database Compilation Error**
 **Severity**: HIGH
 **Impact**: Pre-task hooks fail, coordination features unavailable
 
@@ -79,15 +79,15 @@ NODE_MODULE_VERSION 137. This version of Node.js requires NODE_MODULE_VERSION 12
 **Recommended Actions**:
 1. Rebuild native modules:
    ```bash
-   npx @claude-flow/cli@latest rebuild
+   npx @archon-os/cli@latest rebuild
    # OR
-   cd ~/.cache/npm-cache/_npx/<claude-flow-dir>
+   cd ~/.cache/npm-cache/_npx/<archon-os-dir>
    npm rebuild better-sqlite3
    ```
 2. Consider upgrading to Node.js v24.x (matches compiled modules)
 3. Add to project scripts:
    ```json
-   "postinstall": "npx @claude-flow/cli@latest rebuild || true"
+   "postinstall": "npx @archon-os/cli@latest rebuild || true"
    ```
 
 ### 4. **Duplicate .gitignore Entries**
@@ -135,10 +135,10 @@ desktop.ini
 # Claude Flow & MCP
 .claude/settings.local.json
 .mcp.json
-claude-flow.config.json
+archon-os.config.json
 .swarm/
 .hive-mind/
-.claude-flow/
+.archon-os/
 memory/
 coordination/
 *.db*
@@ -168,9 +168,9 @@ hive-mind-prompt-*.txt
 ```json
 {
   "mcpServers": {
-    "claude-flow": {
+    "archon-os": {
       "command": "npx",
-      "args": ["claude-flow@2.0.0", "mcp", "start"],
+      "args": ["archon-os@2.0.0", "mcp", "start"],
       "type": "stdio",
       "env": {
         "NODE_OPTIONS": "--max-old-space-size=4096"
@@ -216,7 +216,7 @@ hive-mind-prompt-*.txt
 - Root: No package.json
 - `nyra-orchestration/package.json`: No dependencies, only scripts
 - `mcp-ecosystem/GeminiCLI/package.json`: 4 dependencies (Google Vertex AI, Gemini)
-- `nyra-orchestration/Claude/claude-flow/package.json`: 1 dependency (`@clduab11/gemini-flow`)
+- `nyra-orchestration/Claude/archon-os/package.json`: 1 dependency (`@clduab11/gemini-flow`)
 
 **Strengths**:
 - Minimal dependency footprint
@@ -460,7 +460,7 @@ npx npm-check
 
 ### Immediate (Critical - Fix Today)
 1. **Remove .env from git tracking and rotate all 181+ secrets**
-2. **Fix Claude-Flow native module compilation**
+2. **Fix archon-os native module compilation**
 3. **Create root package.json with workspaces**
 
 ### High Priority (Fix This Week)
@@ -489,7 +489,7 @@ npx npm-check
 ### Active Package.json Files
 - `nyra-orchestration/package.json` - Main orchestration config
 - `mcp-ecosystem/GeminiCLI/package.json` - Gemini MCP server
-- `nyra-orchestration/Claude/claude-flow/package.json` - Claude Flow dependency
+- `nyra-orchestration/Claude/archon-os/package.json` - Claude Flow dependency
 - **Missing**: Root-level package.json
 
 ### Active Configuration Files
@@ -549,7 +549,7 @@ npx npm-check
 - [npm Workspaces](https://docs.npmjs.com/cli/v7/using-npm/workspaces)
 - [Docker Compose Profiles](https://docs.docker.com/compose/profiles/)
 - [TypeScript Project References](https://www.typescriptlang.org/docs/handbook/project-references.html)
-- [Claude-Flow Documentation](https://github.com/ruvnet/claude-flow)
+- [archon-os Documentation](https://github.com/ruvnet/archon-os)
 
 ---
 

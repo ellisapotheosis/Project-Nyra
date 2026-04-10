@@ -184,7 +184,7 @@ fi
 print_progress "Creating project directory structure..."
 
 DIRECTORIES=(
-    "orchestration/claude-flow"
+    "orchestration/archon-os"
     "orchestration/archon-os"
     "mcp-servers/nexus"
     "mcp-servers/letta"
@@ -209,10 +209,10 @@ DIRECTORIES=(
     "docs/deployment"
     "scripts/setup"
     "scripts/dev"
-    "prompts/claude-flow"
+    "prompts/archon-os"
     "prompts/agents"
     "data/campaigns"
-    ".claude-flow"
+    ".archon-os"
 )
 
 for dir in "${DIRECTORIES[@]}"; do
@@ -297,7 +297,7 @@ echo -e "${MAGENTA}║  You can safely close this terminal and go to sleep. ║$
 echo -e "${MAGENTA}╚════════════════════════════════════════════════════════╝${NC}\n"
 
 print_progress "Initializing Claude Flow..."
-npx --yes claude-flow@alpha init --enhanced --pair --verify --sparc --roo --flow-nexus --neural --truth --batch --parallel --force
+npx --yes archon-os@alpha init --enhanced --pair --verify --sparc --roo --flow-nexus --neural --truth --batch --parallel --force
 
 print_success "Claude Flow initialized"
 
@@ -311,7 +311,7 @@ echo -e "${GREEN}╚════════════════════
 echo -e "${YELLOW}NEXT STEPS:${NC}"
 echo -e "1. In VS Code, open Claude Code (Cmd/Ctrl+Shift+P > 'Claude Code: Open')"
 echo -e "2. Paste this command:\n"
-echo -e "${CYAN}   Read .claude-flow/MASTER-BUILD-PROMPT.md and execute all phases autonomously.${NC}\n"
+echo -e "${CYAN}   Read .archon-os/MASTER-BUILD-PROMPT.md and execute all phases autonomously.${NC}\n"
 echo -e "3. Press Enter and go to sleep! 😴\n"
 
 # ============================================

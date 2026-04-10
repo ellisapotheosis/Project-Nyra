@@ -487,7 +487,7 @@ My long-term architecture includes:
 - LiteLLM/OpenRouter for routing and spend control
 - TwentyCRM as system of record
 - n8n + Activepieces for automations
-- memory systems such as Graphiti / Letta / related tooling
+- memory systems such as letta / Letta / related tooling
 
 Tasks:
 1. Review the current OpenClaw MVP integration files

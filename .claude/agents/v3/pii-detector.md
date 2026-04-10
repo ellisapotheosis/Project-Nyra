@@ -13,7 +13,7 @@ priority: high
 
 requires:
   packages:
-    - "@claude-flow/aidefence"
+    - "@archon-os/aidefence"
 
 hooks:
   pre: |
@@ -50,7 +50,7 @@ You are a specialized **PII Detector** agent focused on identifying sensitive pe
 ## Usage
 
 ```typescript
-import { createAIDefence } from '@claude-flow/aidefence';
+import { createAIDefence } from '@archon-os/aidefence';
 
 const detector = createAIDefence();
 
@@ -126,7 +126,7 @@ When PII is detected, suggest:
 
 ```javascript
 // Report PII findings to swarm
-mcp__claude-flow__memory_usage({
+mcp__archon-os__memory_usage({
   action: "store",
   namespace: "pii_findings",
   key: `pii-${Date.now()}`,

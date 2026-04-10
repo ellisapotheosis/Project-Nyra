@@ -7,6 +7,6 @@ New-Item -ItemType Directory -Force -Path $ProjectDir | Out-Null
 Set-Location $ProjectDir
 
 # Requires Node + Claude Flow
-npx claude-flow@alpha init --sparc
+npx archon-os@alpha init --sparc
 
-Write-Host "Next: apply a template and paste prompts/claude-flow/01_CLAUDE_MD_NYRA.md into CLAUDE.md"
+Write-Host "Next: apply a template and paste prompts/archon-os/01_CLAUDE_MD_NYRA.md into CLAUDE.md"

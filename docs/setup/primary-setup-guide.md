@@ -506,13 +506,13 @@ echo "REDIS_PASSWORD=$(openssl rand -base64 32)"
 
 ```bash
 # Install globally
-npm install -g @claude-flow/cli@latest
+npm install -g @archon-os/cli@latest
 
 # Or use with npx (no install needed)
-npx @claude-flow/cli@latest --version
+npx @archon-os/cli@latest --version
 
 # Verify installation
-npx @claude-flow/cli@latest doctor
+npx @archon-os/cli@latest doctor
 ```
 
 #### Step 4.2: Initialize Claude Flow
@@ -520,16 +520,16 @@ npx @claude-flow/cli@latest doctor
 **PC1 (Orchestrator)**:
 ```bash
 # Initialize with wizard
-npx @claude-flow/cli@latest init --wizard
+npx @archon-os/cli@latest init --wizard
 
 # Or use preset configuration
-npx @claude-flow/cli@latest init --preset orchestrator
+npx @archon-os/cli@latest init --preset orchestrator
 
 # Start daemon
-npx @claude-flow/cli@latest daemon start
+npx @archon-os/cli@latest daemon start
 
 # Initialize swarm
-npx @claude-flow/cli@latest swarm init \
+npx @archon-os/cli@latest swarm init \
   --topology hierarchical-mesh \
   --max-agents 35 \
   --strategy specialized
@@ -538,13 +538,13 @@ npx @claude-flow/cli@latest swarm init \
 **PC2, PC3, PC4 (Workers)**:
 ```bash
 # Initialize worker
-npx @claude-flow/cli@latest init --preset worker
+npx @archon-os/cli@latest init --preset worker
 
 # Start daemon
-npx @claude-flow/cli@latest daemon start
+npx @archon-os/cli@latest daemon start
 
 # Join orchestrator swarm
-npx @claude-flow/cli@latest swarm join \
+npx @archon-os/cli@latest swarm join \
   --coordinator http://10.0.0.1:7000  # or Tailscale IP
 ```
 
@@ -552,16 +552,16 @@ npx @claude-flow/cli@latest swarm join \
 
 ```bash
 # Check system status
-npx @claude-flow/cli@latest status
+npx @archon-os/cli@latest status
 
 # Check swarm status
-npx @claude-flow/cli@latest swarm status
+npx @archon-os/cli@latest swarm status
 
 # Check memory system
-npx @claude-flow/cli@latest memory stats
+npx @archon-os/cli@latest memory stats
 
 # View available agents
-npx @claude-flow/cli@latest agent list
+npx @archon-os/cli@latest agent list
 ```
 
 ---
@@ -590,11 +590,11 @@ docker compose -f docker-compose.orchestrator.yml ps
 - `nexus-router` (port 6000) - LLM Gateway
 - `letta` (port 8283) - Long-term memory
 - `mem0` (port 4321) - Memory API
-- `claude-flow` (port 6100) - Orchestration
+- `archon-os` (port 6100) - Orchestration
 - `archon-os` (port 6200) - Orchestration
 - `redis` (port 6380) - Cache
 - `postgres` (port 5432) - Database
-- `agentdb` (port 8080) - Vector DB
+- `ruvector` (port 8080) - Vector DB
 - `infisical` (port 8080) - Secrets manager
 
 #### Step 5.2: Deploy Worker 2 Services (PC2)
@@ -722,7 +722,7 @@ curl http://10.0.0.3:11434/api/generate \
   -d '{"model": "llama3.1:8b", "prompt": "What is 2+2?", "stream": false}'
 
 # Test Claude Flow
-npx @claude-flow/cli@latest status
+npx @archon-os/cli@latest status
 
 # Test Prometheus
 curl http://10.0.0.4:9090/api/v1/query?query=up
@@ -825,20 +825,20 @@ sudo iptables -L -n
 
 **Check configuration**:
 ```bash
-npx @claude-flow/cli@latest config list
-npx @claude-flow/cli@latest doctor --fix
+npx @archon-os/cli@latest config list
+npx @archon-os/cli@latest doctor --fix
 ```
 
 **Check logs**:
 ```bash
 # View daemon logs
-npx @claude-flow/cli@latest daemon logs
+npx @archon-os/cli@latest daemon logs
 
 # Check memory database
 ls -lh .swarm/memory.db
 ```
 
-For more troubleshooting, see `docs/troubleshooting/CLAUDE-FLOW-ZOD-FIX.md`
+For more troubleshooting, see `docs/troubleshooting/archon-os-ZOD-FIX.md`
 
 ---
 
@@ -880,7 +880,7 @@ After successful setup:
 - **Configuration**: `docs/CONFIGURATION.md`
 - **Deployment**: `docs/DEPLOYMENT.md`
 - **API Reference**: `docs/api/API-REFERENCE.md`
-- **Troubleshooting**: `docs/troubleshooting/CLAUDE-FLOW-ZOD-FIX.md`
+- **Troubleshooting**: `docs/troubleshooting/archon-os-ZOD-FIX.md`
 
 ### Useful Commands
 ```bash
@@ -894,7 +894,7 @@ docker compose down && docker compose up -d
 docker stats
 
 # View Claude Flow status
-npx @claude-flow/cli@latest status --verbose
+npx @archon-os/cli@latest status --verbose
 ```
 
 ### Service URLs

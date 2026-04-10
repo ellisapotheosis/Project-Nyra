@@ -373,7 +373,7 @@ class MCPStdioConnection extends EventEmitter {
         resources: {}
       },
       clientInfo: {
-        name: 'claude-flow-mcp',
+        name: 'archon-os-mcp',
         version: '1.0.0'
       }
     });

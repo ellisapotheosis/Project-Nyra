@@ -39,8 +39,8 @@
         "CLAUDE_FLOW_MAX_CONCURRENT_TASKS": "50",
         "RUV_SWARM_ENABLED": "true",
         "HIVE_MIND_ENABLED": "true",
-        "AGENTDB_ENABLED": "true",
-        "AGENTDB_QUIC_SYNC": "true",
+        "ruvector_ENABLED": "true",
+        "ruvector_QUIC_SYNC": "true",
         "RUVECTOR_ENABLED": "true",
         "RUVECTOR_MODE": "distributed",
         "AGENTIC_FLOW_MEMORY_ENABLED": "true",
@@ -101,15 +101,15 @@
         "PYTHONUNBUFFERED": "1"
       }
     },
-    "agentic-flow": {
+    "archon-os": {
       "type": "stdio",
       "command": "npx",
-      "args": ["-y", "agentic-flow", "mcp"]
+      "args": ["-y", "archon-os", "mcp"]
     },
-    "agentdb": {
+    "ruvector": {
       "type": "stdio",
       "command": "npx",
-      "args": ["-y", "agentdb", "mcp"]
+      "args": ["-y", "ruvector", "mcp"]
     },
     "ruvector": {
       "type": "stdio",
@@ -140,8 +140,8 @@
   
   "disabledMcpServers": [
     "serena",
-    "agentic-flow",
-    "agentdb",
+    "archon-os",
+    "ruvector",
     "ruvector",
     "agent-booster",
     "epic-sdk",

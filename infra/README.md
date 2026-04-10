@@ -17,7 +17,7 @@ A **distributed, privacy-first mortgage automation platform** that:
 - Normalizes & deduplicates leads → TwentyCRM (system of record)
 - Executes 45–60 day multi-channel drip campaigns (SMS, email, call voicemails)
 - Generates loan quotes via scriptable Quote API (parity with Excel workflow)
-- Uses Graphiti + Mem0 for memory/knowledge without PII exposure
+- Uses letta + Mem0 for memory/knowledge without PII exposure
 - Runs on a 4-PC Tailscale mesh: 1 orchestrator + 3 GPU workers
 - Always-on cloud sync via Oracle Cloud (24GB RAM, 200GB storage)
 
@@ -32,7 +32,7 @@ A **distributed, privacy-first mortgage automation platform** that:
 ┌─ ORCHESTRATOR (Minisforum 16GB) ─────────────────┐
 │  Nexus Router (MCP Hub)                           │
 │  LiteLLM (Model Router)                           │
-│  Claude-Flow | OpenClaw | Archon-OS              │
+│  archon-os | OpenClaw | Archon-OS              │
 │  Docker MCP Toolkit | Infisical Sidecar          │
 └────────────────────────────────────────────────────┘
       ↓
@@ -67,7 +67,7 @@ make orchestrator-up
 This brings up:
 - Nexus Router (port 6000)
 - LiteLLM (port 4000)
-- Claude-Flow (port 8000)
+- archon-os (port 8000)
 - OpenClaw (port 8001)
 
 ```bash
@@ -148,7 +148,7 @@ ProjectNyra/
 │   ├── litellm/                # Model routing layer
 │   └── scripts/                # Bootstrap, health checks
 ├── src/                        # Application code
-│   ├── claude-flow/            # Dev orchestrator
+│   ├── archon-os/            # Dev orchestrator
 │   ├── openclaw/               # Borrower-facing agent
 │   └── archon-os/              # Knowledge backbone
 ├── services/                   # Microservices
@@ -195,9 +195,9 @@ make health-check         # Verify all services
 make clean                # Stop all services
 ```
 
-### Running Claude-Flow
+### Running archon-os
 ```bash
-cd src/claude-flow
+cd src/archon-os
 npm install
 npm run dev
 ```
@@ -266,7 +266,7 @@ bash infra/scripts/health-check.sh
 # View logs
 docker-compose logs -f nexus
 docker-compose logs -f litellm
-docker-compose logs -f claude-flow
+docker-compose logs -f archon-os
 
 # Access Nexus dashboard
 # http://orchestrator:6000

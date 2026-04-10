@@ -21,7 +21,7 @@ $TEST_CONFIG = @{
     "endpoints" = @{
         "metamcp-gateway" = "http://localhost:8080"
         "archon-mcp" = "http://localhost:8081"
-        "claude-flow-mcp" = "http://localhost:8082"
+        "archon-os-mcp" = "http://localhost:8082"
         "nyra-orchestrator" = "http://localhost:8083"
         "infisical-mcp" = "http://localhost:8084"
         "consul" = "http://localhost:8500"
@@ -66,7 +66,7 @@ function Test-MCPServerRegistration {
         Write-Host $mcpList -ForegroundColor White
 
         # Check for specific servers
-        $requiredServers = @("claude-flow", "kg-local", "ruv-swarm")
+        $requiredServers = @("archon-os", "kg-local", "ruv-swarm")
         $registeredServers = @()
 
         foreach ($server in $requiredServers) {

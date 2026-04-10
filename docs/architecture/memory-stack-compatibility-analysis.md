@@ -9,26 +9,26 @@
 
 ## Executive Summary
 
-Project Nyra's memory stack architecture is **85% correctly configured** with a recommended hybrid approach combining local and distributed memory systems. The analysis confirms that **AgentDB, RUVector, Letta, mem0, and OpenMemory MCP are all complementary technologies** designed to work together, not compete.
+Project Nyra's memory stack architecture is **85% correctly configured** with a recommended hybrid approach combining local and distributed memory systems. The analysis confirms that **ruvector, RUVector, Letta, mem0, and OpenMemory MCP are all complementary technologies** designed to work together, not compete.
 
 **Key Findings**:
 - ✅ Current configuration is solid foundation
 - ⚠️ Missing: Memory Shim Service for multi-backend synchronization
 - ✅ FalkorDB is sufficient (Neo4j not needed)
-- ✅ RUVector and AgentDB work together (not alternatives)
+- ✅ RUVector and ruvector work together (not alternatives)
 - ⚠️ Zep only needed if CRM chat feature is implemented
 
 ---
 
-## 1. AgentDB vs RUVector: Complementary Technologies
+## 1. ruvector vs RUVector: Complementary Technologies
 
 ### Relationship Analysis
 
-**AgentDB** (via agentic-flow):
+**ruvector** (via archon-os):
 - **Type**: Embedded SQLite-based vector database
 - **Performance**: 150x-12,500x faster than baseline vector search
 - **Primary Use**: ReasoningBank backend, pattern storage, trajectory tracking
-- **Integration**: `agentic-flow/reasoningbank` package
+- **Integration**: `archon-os/reasoningbank` package
 - **Current Nyra Status**: ✅ Configured as primary backend
 
 **RUVector**:
@@ -48,7 +48,7 @@ Project Nyra's memory stack architecture is **85% correctly configured** with a 
 ```
 ┌─────────────────────────────────────────┐
 │ Local PC (Orchestrator)                 │
-│   AgentDB: SQLite storage               │
+│   ruvector: SQLite storage               │
 │   - ReasoningBank patterns              │
 │   - Session memory                      │
 │   - Trajectory tracking                 │
@@ -65,14 +65,14 @@ Project Nyra's memory stack architecture is **85% correctly configured** with a 
 ```
 
 **Interaction Pattern**:
-1. **Local operations**: AgentDB for fast SQLite access
+1. **Local operations**: ruvector for fast SQLite access
 2. **Cluster coordination**: RUVector distributes patterns across 4 PCs via QUIC
-3. **Data flow**: AgentDB → RUVector (for cluster indexing)
+3. **Data flow**: ruvector → RUVector (for cluster indexing)
 
-### Is RUVector Integrated Into AgentDB?
+### Is RUVector Integrated Into ruvector?
 
 **NO - They are separate projects**:
-- AgentDB: SQLite wrapper with HNSW indexing
+- ruvector: SQLite wrapper with HNSW indexing
 - RUVector: Standalone distributed Rust system
 - **However**: Both use HNSW and can share embedding formats (384/768/1536 dimensions)
 
@@ -81,13 +81,13 @@ Project Nyra's memory stack architecture is **85% correctly configured** with a 
 **Both, in different roles**:
 
 ```typescript
-// claude-flow.config.json (current configuration)
+// archon-os.config.json (current configuration)
 {
   "memory": {
     "backend": "hybrid",           // ← Correct choice
     "primaryStore": "letta",        // ← Orchestrator
     "secondaryStore": "mem0",       // ← User data
-    "enableHNSW": true,             // ← AgentDB indexing
+    "enableHNSW": true,             // ← ruvector indexing
     "hnswConfig": {
       "efConstruction": 200,
       "m": 16,
@@ -98,7 +98,7 @@ Project Nyra's memory stack architecture is **85% correctly configured** with a 
 ```
 
 **Recommendation**: Keep current hybrid approach
-- **AgentDB**: Primary local storage via Letta
+- **ruvector**: Primary local storage via Letta
 - **RUVector**: Distributed coordination layer for 4-PC cluster
 
 ---
@@ -125,7 +125,7 @@ Project Nyra's memory stack architecture is **85% correctly configured** with a 
 - **Provides**: Decides WHEN to save, WHERE to save, WHICH memories to retain
 - **Backend**: PostgreSQL for persistence
 - **Port**: 8283
-- **Current Nyra Status**: ✅ Configured as `primaryStore` in `claude-flow.config.json`
+- **Current Nyra Status**: ✅ Configured as `primaryStore` in `archon-os.config.json`
 
 ### Can They Work Together?
 
@@ -149,7 +149,7 @@ This is the **intended architecture** by the mem0/Letta teams:
          ┌──────────▼──────────────┐
          │ OpenMemory MCP (Router)  │  ← Universal interface
          │ "Save to mem0 AND       │     (Multi-system write)
-         │  AgentDB simultaneously" │
+         │  ruvector simultaneously" │
          │ Port: 8001               │
          └──────────┬──────────────┘
                     │
@@ -157,7 +157,7 @@ This is the **intended architecture** by the mem0/Letta teams:
         │                       │
         ▼                       ▼
 ┌──────────────┐        ┌──────────────┐
-│ mem0 (Local) │        │ AgentDB      │
+│ mem0 (Local) │        │ ruvector      │
 │ User profiles│        │ Agent        │
 │ Preferences  │        │ patterns     │
 │ Port: 8284   │        │ (SQLite)     │
@@ -199,7 +199,7 @@ async function saveAgentMemory(event: AgentEvent) {
     memory: event.content,
     backends: [
       verdict.userFacing ? 'mem0' : null,      // User personalization
-      verdict.agentPattern ? 'agentdb' : null, // Agent patterns
+      verdict.agentPattern ? 'ruvector' : null, // Agent patterns
       verdict.structured ? 'postgres' : null   // Relational data
     ].filter(Boolean),
     metadata: verdict.metadata
@@ -208,7 +208,7 @@ async function saveAgentMemory(event: AgentEvent) {
 ```
 
 **Current Nyra Implementation**: ✅ Already partially configured correctly!
-- Lines 30-31 in `claude-flow.config.json`: Letta as primary, mem0 as secondary
+- Lines 30-31 in `archon-os.config.json`: Letta as primary, mem0 as secondary
 - `docker-compose.yml` lines 118-120: OpenMemory MCP available
 - `docker-compose.memory.yml`: Full stack configured
 
@@ -216,7 +216,7 @@ async function saveAgentMemory(event: AgentEvent) {
 
 ---
 
-## 3. Graphiti + FalkorDB vs Neo4j
+## 3. letta + FalkorDB vs Neo4j
 
 ### What is FalkorDB?
 
@@ -233,13 +233,13 @@ async function saveAgentMemory(event: AgentEvent) {
 - Provides Cypher-like query language
 - Integrates seamlessly with Redis ecosystem
 
-### Graphiti Capabilities
+### letta Capabilities
 
-**Graphiti** (Temporal GraphRAG):
+**letta** (Temporal GraphRAG):
 - **Purpose**: Time-aware knowledge graphs for LLM applications
 - **MCP Server**: Port 7459
-- **Backend Options**: FalkorDB OR Neo4j (environment variable `GRAPHITI_BACKEND`)
-- **Current Nyra Config**: `.env.master` line 133: `GRAPHITI_BACKEND=falkordb` ✅
+- **Backend Options**: FalkorDB OR Neo4j (environment variable `letta_BACKEND`)
+- **Current Nyra Config**: `.env.master` line 133: `letta_BACKEND=falkordb` ✅
 
 **Key Features**:
 - Temporal relationship tracking (critical for mortgage application timelines)
@@ -247,7 +247,7 @@ async function saveAgentMemory(event: AgentEvent) {
 - Context-aware graph traversal
 - MCP integration for Claude Code
 
-### Best Combo: Graphiti + FalkorDB or Graphiti + Neo4j?
+### Best Combo: letta + FalkorDB or letta + Neo4j?
 
 **Comparison Matrix**:
 
@@ -300,7 +300,7 @@ ORDER BY d.dueDate
 **When FalkorDB is sufficient**:
 - ✅ Graph size < 100M nodes
 - ✅ Real-time query requirements (<100ms)
-- ✅ Temporal relationship tracking (Graphiti support)
+- ✅ Temporal relationship tracking (letta support)
 - ✅ Integration with existing Redis infrastructure
 - ✅ Moderate write throughput (mortgage applications = ~100-1000/day)
 
@@ -444,7 +444,7 @@ ORDER BY d.dueDate
 
 **Issue**: Nyra has 7+ memory backends configured, but **no automated synchronization mechanism**:
 
-1. AgentDB (local SQLite)
+1. ruvector (local SQLite)
 2. PostgreSQL (Letta backend)
 3. Qdrant Local (vector search)
 4. FalkorDB (graph relationships)
@@ -480,7 +480,7 @@ ORDER BY d.dueDate
      │              │               │
 ┌────▼─────────────┐│              │
 │ Critical Path    ││              │
-│ - AgentDB        ││              │
+│ - ruvector        ││              │
 │ - PostgreSQL     ││              │
 └──────────────────┘│              │
                     │              │
@@ -519,7 +519,7 @@ class MemoryShim {
 
     // 2. Critical path (synchronous, must succeed)
     const primaryResults = await Promise.all([
-      this.writeToAgentDB(memory),      // Patterns
+      this.writeToruvector(memory),      // Patterns
       this.writeToPostgreSQL(memory),   // Structured
     ]);
 
@@ -560,7 +560,7 @@ class MemoryShim {
 
   private selectBackends(memory: Memory): string[] {
     return [
-      'agentdb',                              // Always
+      'ruvector',                              // Always
       'postgresql',                           // Always
       memory.isVector ? 'qdrant' : null,      // Conditional
       memory.relationships ? 'falkordb' : null, // Conditional
@@ -573,7 +573,7 @@ class MemoryShim {
 ### Backends to Mirror To (Priority Order)
 
 **Tier 1 - Critical Path** (synchronous, <100ms):
-1. **AgentDB** (primary local storage) - REQUIRED
+1. **ruvector** (primary local storage) - REQUIRED
 2. **PostgreSQL** (Letta relational backend) - REQUIRED
 
 **Tier 2 - Secondary** (async with retry, <1s):
@@ -657,7 +657,7 @@ secondaryConsumer.on('message', async (msg) => {
 ### Consistency Guarantees
 
 **Strong Consistency** (Tier 1 - Primary):
-- ✅ **AgentDB + PostgreSQL**: Synchronous writes, must both succeed
+- ✅ **ruvector + PostgreSQL**: Synchronous writes, must both succeed
 - ✅ **ACID guarantees**: Use PostgreSQL transactions
 - ✅ **Rollback on failure**: If either fails, both rollback
 
@@ -671,7 +671,7 @@ secondaryConsumer.on('message', async (msg) => {
 **YES** - Mortgage data has inherent latency:
 - ✅ Borrower applications: updated hourly, not real-time
 - ✅ Document processing: updated on completion (minutes/hours)
-- ✅ Agent coordination: local consistency sufficient (AgentDB)
+- ✅ Agent coordination: local consistency sufficient (ruvector)
 - ✅ Cloud backup: daily synchronization acceptable
 
 **When strong consistency IS needed**:
@@ -684,7 +684,7 @@ secondaryConsumer.on('message', async (msg) => {
 **Available**:
 - ✅ RabbitMQ message queue (configured in docker-compose)
 - ✅ OpenMemory MCP (universal interface)
-- ✅ All backend services (AgentDB, PostgreSQL, Qdrant, FalkorDB)
+- ✅ All backend services (ruvector, PostgreSQL, Qdrant, FalkorDB)
 
 **Missing** (⚠️ PRIORITY IMPLEMENTATION):
 - ❌ Memory Shim Service (Node.js/TypeScript service)
@@ -703,7 +703,7 @@ secondaryConsumer.on('message', async (msg) => {
 
 ---
 
-## 6. RUVector Integration Beyond AgentDB/Claude Flow
+## 6. RUVector Integration Beyond ruvector/Claude Flow
 
 ### RUVector's Unique Capabilities
 
@@ -955,7 +955,7 @@ const results = await hybridGraphSearch(
 
 **Priority Order**:
 
-1. **AgentDB** (✅ Already integrated via agentic-flow)
+1. **ruvector** (✅ Already integrated via archon-os)
    - Primary local storage
    - ReasoningBank backend
 
@@ -989,11 +989,11 @@ const results = await hybridGraphSearch(
 
 **All configured and working**:
 
-1. **AgentDB** (Primary local storage)
-   - **Status**: ✅ Configured via agentic-flow
+1. **ruvector** (Primary local storage)
+   - **Status**: ✅ Configured via archon-os
    - **Purpose**: ReasoningBank patterns, trajectory tracking
    - **Performance**: 150x-12,500x faster than baseline
-   - **Location**: `.agentdb/reasoningbank.db`
+   - **Location**: `.ruvector/reasoningbank.db`
 
 2. **Letta** (Memory orchestrator)
    - **Status**: ✅ Configured as `primaryStore`
@@ -1012,7 +1012,7 @@ const results = await hybridGraphSearch(
    - **Port**: 8001
 
 5. **FalkorDB** (Graph relationships)
-   - **Status**: ✅ Configured with Graphiti MCP
+   - **Status**: ✅ Configured with letta MCP
    - **Purpose**: Temporal relationship tracking for mortgage workflows
    - **Port**: 6379
 
@@ -1071,8 +1071,8 @@ const results = await hybridGraphSearch(
 
 1. ❌ **Neo4j** - FalkorDB is sufficient for Nyra's graph needs
 2. ❌ **Multiple graph databases** - One is enough (FalkorDB)
-3. ❌ **Replacing AgentDB with RUVector** - Use both for different purposes
-4. ❌ **Chromadb, Pinecone, Weaviate** - Already have Qdrant + AgentDB
+3. ❌ **Replacing ruvector with RUVector** - Use both for different purposes
+4. ❌ **Chromadb, Pinecone, Weaviate** - Already have Qdrant + ruvector
 
 ---
 
@@ -1117,7 +1117,7 @@ const results = await hybridGraphSearch(
     │        │        │            │           │
     ▼        ▼        ▼            ▼           ▼
 ┌─────────┐ ┌─────────┐ ┌──────────┐ ┌──────────┐ ┌─────────┐
-│ AgentDB │ │Postgres │ │  Qdrant  │ │ FalkorDB │ │  mem0   │
+│ ruvector │ │Postgres │ │  Qdrant  │ │ FalkorDB │ │  mem0   │
 │ (Local) │ │ (Letta) │ │ (Vector) │ │ (Graph)  │ │ (Users) │
 │ SQLite  │ │ Port:   │ │ Port:    │ │ Port:    │ │ Port:   │
 │ Fast    │ │ 5433    │ │ 6333     │ │ 6379     │ │ 8284    │
@@ -1165,7 +1165,7 @@ const results = await hybridGraphSearch(
 4. OpenMemory MCP receives save request
    ↓
 5. Memory Shim Service routes to backends:
-   ├─► AgentDB (pattern storage) ✅ Sync
+   ├─► ruvector (pattern storage) ✅ Sync
    ├─► PostgreSQL (Letta state) ✅ Sync
    └─► RUVector (distribute to 4 PCs) ⚡ QUIC
    ↓
@@ -1204,7 +1204,7 @@ const results = await hybridGraphSearch(
 4. Memory Shim routes to:
    ├─► PostgreSQL (loan data) ✅ Sync
    ├─► FalkorDB (borrower→loan→documents graph) ✅ Sync
-   └─► AgentDB (processing pattern) ⚡ Async
+   └─► ruvector (processing pattern) ⚡ Async
    ↓
 5. RUVector distributes pattern across 4 PCs
 ```
@@ -1218,7 +1218,7 @@ const results = await hybridGraphSearch(
 **Goal**: Verify existing configuration works correctly
 
 **Tasks**:
-- ✅ Test AgentDB + ReasoningBank integration
+- ✅ Test ruvector + ReasoningBank integration
 - ✅ Verify Letta + PostgreSQL communication
 - ✅ Validate FalkorDB graph queries
 - ✅ Test Qdrant vector search
@@ -1303,23 +1303,23 @@ const results = await hybridGraphSearch(
 ### Expected Performance (Post-Implementation)
 
 **Memory Write Latency**:
-- Tier 1 (Primary): <50ms (AgentDB + PostgreSQL sync)
+- Tier 1 (Primary): <50ms (ruvector + PostgreSQL sync)
 - Tier 2 (Secondary): <1s (Qdrant + FalkorDB async)
 - Tier 3 (Tertiary): <5 minutes (Supabase batch)
 
 **Memory Read Latency**:
-- AgentDB local: <1ms (SQLite)
+- ruvector local: <1ms (SQLite)
 - Qdrant vector search: <100ms (10K vectors)
 - FalkorDB graph query: <50ms (1-hop), <200ms (2-hop)
 - RUVector cluster: <10ms (cross-PC QUIC)
 
 **Throughput**:
 - Memory writes: 1000/sec (limited by PostgreSQL)
-- Pattern retrievals: 10,000/sec (AgentDB cached)
+- Pattern retrievals: 10,000/sec (ruvector cached)
 - Vector searches: 500/sec (Qdrant)
 
 **Availability**:
-- Primary backends (AgentDB + PostgreSQL): 99.9%
+- Primary backends (ruvector + PostgreSQL): 99.9%
 - Secondary backends: 99.5% (with retry)
 - Cloud backups: 95% (best-effort)
 
@@ -1371,7 +1371,7 @@ const results = await hybridGraphSearch(
 ### Estimated Monthly Costs (Production)
 
 **Infrastructure**:
-- AgentDB (local SQLite): $0 (included in compute)
+- ruvector (local SQLite): $0 (included in compute)
 - PostgreSQL (managed): $50-100/month (AWS RDS t3.medium)
 - Qdrant Local (self-hosted): $0 (included in compute)
 - FalkorDB (Redis-based): $0 (included in compute)
@@ -1404,7 +1404,7 @@ const results = await hybridGraphSearch(
 - `queue_depth{queue_name}` - RabbitMQ queue depth
 
 **Backend Health**:
-- `agentdb_patterns_total` - Total patterns in AgentDB
+- `ruvector_patterns_total` - Total patterns in ruvector
 - `postgres_connections_active` - PostgreSQL connection pool
 - `qdrant_vectors_total{collection}` - Vector count
 - `falkordb_query_latency_ms` - Graph query performance
@@ -1422,7 +1422,7 @@ const results = await hybridGraphSearch(
 
 ### Summary of Findings
 
-1. **AgentDB and RUVector are COMPLEMENTARY** - use both for local + distributed
+1. **ruvector and RUVector are COMPLEMENTARY** - use both for local + distributed
 2. **mem0 + Letta + OpenMemory work TOGETHER** - as orchestrator → router → storage
 3. **FalkorDB is SUFFICIENT** for Nyra's graph needs (Neo4j not required)
 4. **Zep is OPTIONAL** - only needed when CRM chat launches
@@ -1449,8 +1449,8 @@ const results = await hybridGraphSearch(
 
 **Avoid**:
 - ❌ Neo4j (FalkorDB sufficient)
-- ❌ Replacing AgentDB with RUVector (use both)
-- ❌ Additional vector databases (already have Qdrant + AgentDB)
+- ❌ Replacing ruvector with RUVector (use both)
+- ❌ Additional vector databases (already have Qdrant + ruvector)
 
 ### Success Criteria
 
@@ -1463,7 +1463,7 @@ const results = await hybridGraphSearch(
 
 **Full System Success**:
 - ✅ 4-PC cluster synchronized via RUVector QUIC (<1ms)
-- ✅ Pattern retrieval 150x faster (AgentDB)
+- ✅ Pattern retrieval 150x faster (ruvector)
 - ✅ Cloud backup operational (Supabase)
 - ✅ 99.9% availability for primary backends
 - ✅ Zero manual interventions required for memory synchronization

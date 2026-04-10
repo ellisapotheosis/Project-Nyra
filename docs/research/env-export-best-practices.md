@@ -369,7 +369,7 @@ tree -J > structure.json
 .
 ├── config/
 │   ├── infisical/
-│   ├── claude-flow/
+│   ├── archon-os/
 │   └── metamcp/
 ├── logs/
 └── secrets/
@@ -390,7 +390,7 @@ tree -J > structure.json
   - `infisical/` - Infisical configs per PC
     - `orchestrator/` - Orchestrator PC configs
     - `worker-1/` - Worker 1 configs
-  - `claude-flow/` - Claude Flow configs
+  - `archon-os/` - Claude Flow configs
 - `logs/` - Application logs
 - `secrets/` - Mounted secrets (never committed)
 ```
@@ -406,7 +406,7 @@ tree -J > structure.json
 {
   "config": {
     "description": "Configuration directory",
-    "contains": ["infisical", "claude-flow"],
+    "contains": ["infisical", "archon-os"],
     "required": true,
     "gitignore": false
   },

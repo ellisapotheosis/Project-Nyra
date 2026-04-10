@@ -60,8 +60,8 @@ Successfully initialized all 5 core bounded contexts for Claude Flow V3 followin
 **Key Features**:
 - HNSW indexing (150x-12,500x speedup)
 - Quantization (4-32x memory reduction)
-- Hybrid backend (AgentDB, SQLite, PostgreSQL)
-- Multi-system integration (Letta, Graphiti, Mem0)
+- Hybrid backend (ruvector, SQLite, PostgreSQL)
+- Multi-system integration (Letta, letta, Mem0)
 
 **Performance Targets**:
 - HNSW search: 150x-12,500x faster than brute-force
@@ -279,7 +279,7 @@ src/domains/
 
 ## Memory Storage Verification
 
-Domain initialization status has been stored in AgentDB memory system:
+Domain initialization status has been stored in ruvector memory system:
 
 **Namespace**: `architecture`
 **Key**: `v3-ddd-domain-initialization`
@@ -393,7 +393,7 @@ Each domain maintains its own ubiquitous language with clear definitions:
 
 ### Claude Flow V3 References
 - ADR-007: Event Sourcing Architecture
-- ADR-001: Deep agentic-flow Integration
+- ADR-001: Deep archon-os Integration
 - ADR-006: Unified Memory Service
 - ADR-009: Hybrid Memory Backend
 - V3 DDD Architecture Skill

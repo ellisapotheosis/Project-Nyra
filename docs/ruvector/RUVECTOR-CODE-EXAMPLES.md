@@ -23,7 +23,7 @@ TASK="Implement user authentication system"
 echo "🔍 Retrieving similar authentication patterns..."
 
 # Search for patterns with minimum reward threshold
-SIMILAR_PATTERNS=$(npx @claude-flow/cli@latest hooks intelligence pattern-stats \
+SIMILAR_PATTERNS=$(npx @archon-os/cli@latest hooks intelligence pattern-stats \
   --query "authentication implementation" \
   --k 10 \
   --namespace reasoningbank \
@@ -37,13 +37,13 @@ echo "Found patterns: $SIMILAR_PATTERNS"
 
 echo "📊 Starting trajectory tracking..."
 
-npx @claude-flow/cli@latest hooks intelligence trajectory-start \
+npx @archon-os/cli@latest hooks intelligence trajectory-start \
   --session-id "$SESSION_ID" \
   --agent-type "reasoningbank-learner" \
   --task "$TASK"
 
 # Search for initial context
-mcp__claude-flow__memory_search \
+mcp__archon-os__memory_search \
   --pattern="pattern:*" \
   --namespace="reasoningbank" \
   --limit=10
@@ -55,21 +55,21 @@ mcp__claude-flow__memory_search \
 echo "💻 Tracking implementation steps..."
 
 # Track test writing
-npx @claude-flow/cli@latest hooks intelligence trajectory-step \
+npx @archon-os/cli@latest hooks intelligence trajectory-step \
   --session-id "$SESSION_ID" \
   --operation "code-generation" \
   --outcome "success" \
   --metadata '{"files_changed": 3, "tests_passed": true}'
 
 # Track feature implementation
-npx @claude-flow/cli@latest hooks intelligence trajectory-step \
+npx @archon-os/cli@latest hooks intelligence trajectory-step \
   --session-id "$SESSION_ID" \
   --operation "implement-feature" \
   --outcome "success" \
   --metadata '{"files_changed": 2, "lines_added": 150}'
 
 # Track testing
-npx @claude-flow/cli@latest hooks intelligence trajectory-step \
+npx @archon-os/cli@latest hooks intelligence trajectory-step \
   --session-id "$SESSION_ID" \
   --operation "run-tests" \
   --outcome "success" \
@@ -82,13 +82,13 @@ npx @claude-flow/cli@latest hooks intelligence trajectory-step \
 echo "🎓 Ending trajectory and storing pattern..."
 
 # End trajectory with verdict
-npx @claude-flow/cli@latest hooks intelligence trajectory-end \
+npx @archon-os/cli@latest hooks intelligence trajectory-end \
   --session-id "$SESSION_ID" \
   --verdict "success" \
   --reward 0.95
 
 # Store the successful pattern
-mcp__claude-flow__memory_usage --action="store" \
+mcp__archon-os__memory_usage --action="store" \
   --namespace="reasoningbank" \
   --key="pattern:auth-implementation-$(date +%s)" \
   --value='{
@@ -117,10 +117,10 @@ mcp__claude-flow__memory_usage --action="store" \
 echo "🧠 Consolidating memory..."
 
 # Consolidate patterns to prevent catastrophic forgetting
-npx @claude-flow/cli@latest neural consolidate --namespace reasoningbank
+npx @archon-os/cli@latest neural consolidate --namespace reasoningbank
 
 # Check consolidation status
-npx @claude-flow/cli@latest hooks intelligence stats --namespace reasoningbank
+npx @archon-os/cli@latest hooks intelligence stats --namespace reasoningbank
 
 echo "✅ Learning cycle complete!"
 ```
@@ -212,12 +212,12 @@ class PerformanceOptimizer {
   }
 
   private async recordTrajectoryStep(sessionId, step) {
-    // Would execute: npx claude-flow hooks intelligence trajectory-step
+    // Would execute: npx archon-os hooks intelligence trajectory-step
     console.log(`[${sessionId}] Step: ${step.operation} -> ${step.outcome}`);
   }
 
   private async endTrajectory(sessionId, result) {
-    // Would execute: npx claude-flow hooks intelligence trajectory-end
+    // Would execute: npx archon-os hooks intelligence trajectory-end
     console.log(`[${sessionId}] Verdict: ${result.verdict}, Reward: ${result.reward}`);
   }
 
@@ -250,10 +250,10 @@ From `.claude/agents/v3/v3-memory-specialist.md`:
 
 ```typescript
 // memory-service.ts
-import { HNSW } from 'agentdb';
+import { HNSW } from 'ruvector';
 
 class UnifiedMemoryService {
-  private agentdb: AgentDBAdapter;
+  private ruvector: ruvectorAdapter;
   private cache: MemoryCache;
   private indexer: HNSWIndexer;
 
@@ -273,14 +273,14 @@ class UnifiedMemoryService {
     // Generate embedding for entry
     const embedding = await this.generateEmbedding(entry.content);
 
-    // Store in AgentDB
+    // Store in ruvector
     const storedEntry = {
       ...entry,
       embedding,
       createdAt: new Date()
     };
 
-    await this.agentdb.store(storedEntry);
+    await this.ruvector.store(storedEntry);
 
     // Index with HNSW (for 150x-12,500x faster search)
     await this.indexer.addPoint(entry.id, embedding);
@@ -297,7 +297,7 @@ class UnifiedMemoryService {
       // Semantic search using HNSW vectors
       return this.semanticSearch(query);
     } else {
-      // Structured query on AgentDB
+      // Structured query on ruvector
       return this.structuredQuery(query);
     }
   }
@@ -322,7 +322,7 @@ class UnifiedMemoryService {
 
     // Retrieve full entries
     const entries = await Promise.all(
-      results.map(r => this.agentdb.get(r.id))
+      results.map(r => this.ruvector.get(r.id))
     );
 
     return entries.filter(e => e !== null);
@@ -332,7 +332,7 @@ class UnifiedMemoryService {
    * Structured query for filtering
    */
   private async structuredQuery(query: MemoryQuery): Promise<MemoryEntry[]> {
-    return this.agentdb.query({
+    return this.ruvector.query({
       filters: query.filters,
       orderBy: query.orderBy || 'createdAt'
     });
@@ -402,7 +402,7 @@ class WorkflowCoordinator {
     const workflowId = `workflow-${Date.now()}`;
 
     // Pre-execution hook
-    const preHook = `npx @claude-flow/cli@latest hooks pre-task \
+    const preHook = `npx @archon-os/cli@latest hooks pre-task \
       --description "${phase.name}: ${agentType}"`;
 
     try {
@@ -413,7 +413,7 @@ class WorkflowCoordinator {
       const result = await this.executeWork(phase, agentType);
 
       // Post-execution hook
-      const postHook = `npx @claude-flow/cli@latest hooks post-task \
+      const postHook = `npx @archon-os/cli@latest hooks post-task \
         --task-id "${workflowId}-${phase.name}"`;
 
       console.log(`[${phase.name}] Post-hook: ${postHook}`);
@@ -697,37 +697,37 @@ class ReasoningBankLearner {
 
 ```bash
 # Initialize trajectory
-npx @claude-flow/cli@latest hooks intelligence trajectory-start \
+npx @archon-os/cli@latest hooks intelligence trajectory-start \
   --session-id "session-123" \
   --agent-type "coder" \
   --task "Implement feature"
 
 # Track step
-npx @claude-flow/cli@latest hooks intelligence trajectory-step \
+npx @archon-os/cli@latest hooks intelligence trajectory-step \
   --session-id "session-123" \
   --operation "write-code" \
   --outcome "success"
 
 # End trajectory
-npx @claude-flow/cli@latest hooks intelligence trajectory-end \
+npx @archon-os/cli@latest hooks intelligence trajectory-end \
   --session-id "session-123" \
   --verdict "success" \
   --reward 0.92
 
 # Store pattern
-mcp__claude-flow__memory_usage --action="store" \
+mcp__archon-os__memory_usage --action="store" \
   --namespace="reasoningbank" \
   --key="pattern:feature-impl" \
   --value='{...}'
 
 # Search patterns
-mcp__claude-flow__memory_search \
+mcp__archon-os__memory_search \
   --pattern="feature implementation" \
   --namespace="reasoningbank" \
   --limit=10
 
 # Consolidate
-npx @claude-flow/cli@latest neural consolidate --namespace reasoningbank
+npx @archon-os/cli@latest neural consolidate --namespace reasoningbank
 ```
 
 ---

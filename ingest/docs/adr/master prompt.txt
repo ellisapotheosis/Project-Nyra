@@ -12,7 +12,7 @@ The .md documentation within the ZIP must include:
 
 1. The Complete Master Topology: > A detailed architectural map of the Orchestrator PC, the 3 GPU Worker PCs (RTX 5090, 3090 Ti, 3060), and the Oracle VPS. Explain how they communicate via Tailscale and Cloudflare tunnels.
 
-2. The Exact Software Stack & Port Mappings: > A granular breakdown of every service, database, MCP server, and their assigned ports (e.g., Nexus, LiteLLM, Gitea, Postgres, Redis, LMCache, Ollama, vLLM, Archon, Claude-Flow, TwentyCRM, etc.).
+2. The Exact Software Stack & Port Mappings: > A granular breakdown of every service, database, MCP server, and their assigned ports (e.g., Nexus, LiteLLM, Gitea, Postgres, Redis, LMCache, Ollama, vLLM, Archon, archon-os, TwentyCRM, etc.).
 
 3. Project Goals & Competitive Context: > Explain the end-goal of this system, including how it compares to, and intends to outcompete, products like Bonzo (getbonzo.com) and Agent Legend (agentlegend.com).
 

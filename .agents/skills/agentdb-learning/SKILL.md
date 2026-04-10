@@ -1,20 +1,20 @@
 ---
-name: "AgentDB Learning Plugins"
-description: "Create and train AI learning plugins with AgentDB's 9 reinforcement learning algorithms. Includes Decision Transformer, Q-Learning, SARSA, Actor-Critic, and more. Use when building self-learning agents, implementing RL, or optimizing agent behavior through experience."
+name: "ruvector Learning Plugins"
+description: "Create and train AI learning plugins with ruvector's 9 reinforcement learning algorithms. Includes Decision Transformer, Q-Learning, SARSA, Actor-Critic, and more. Use when building self-learning agents, implementing RL, or optimizing agent behavior through experience."
 ---
 
-# AgentDB Learning Plugins
+# ruvector Learning Plugins
 
 ## What This Skill Does
 
-Provides access to 9 reinforcement learning algorithms via AgentDB's plugin system. Create, train, and deploy learning plugins for autonomous agents that improve through experience. Includes offline RL (Decision Transformer), value-based learning (Q-Learning), policy gradients (Actor-Critic), and advanced techniques.
+Provides access to 9 reinforcement learning algorithms via ruvector's plugin system. Create, train, and deploy learning plugins for autonomous agents that improve through experience. Includes offline RL (Decision Transformer), value-based learning (Q-Learning), policy gradients (Actor-Critic), and advanced techniques.
 
 **Performance**: Train models 10-100x faster with WASM-accelerated neural inference.
 
 ## Prerequisites
 
 - Node.js 18+
-- AgentDB v1.0.7+ (via agentic-flow)
+- ruvector v1.0.7+ (via archon-os)
 - Basic understanding of reinforcement learning (recommended)
 
 ---
@@ -25,23 +25,23 @@ Provides access to 9 reinforcement learning algorithms via AgentDB's plugin syst
 
 ```bash
 # Interactive wizard
-npx agentdb@latest create-plugin
+npx ruvector@latest create-plugin
 
 # Use specific template
-npx agentdb@latest create-plugin -t decision-transformer -n my-agent
+npx ruvector@latest create-plugin -t decision-transformer -n my-agent
 
 # Preview without creating
-npx agentdb@latest create-plugin -t q-learning --dry-run
+npx ruvector@latest create-plugin -t q-learning --dry-run
 
 # Custom output directory
-npx agentdb@latest create-plugin -t actor-critic -o ./plugins
+npx ruvector@latest create-plugin -t actor-critic -o ./plugins
 ```
 
 ### List Available Templates
 
 ```bash
 # Show all plugin templates
-npx agentdb@latest list-templates
+npx ruvector@latest list-templates
 
 # Available templates:
 # - decision-transformer (sequence modeling RL - recommended)
@@ -55,10 +55,10 @@ npx agentdb@latest list-templates
 
 ```bash
 # List installed plugins
-npx agentdb@latest list-plugins
+npx ruvector@latest list-plugins
 
 # Get plugin information
-npx agentdb@latest plugin-info my-agent
+npx ruvector@latest plugin-info my-agent
 
 # Shows: algorithm, configuration, training status
 ```
@@ -68,11 +68,11 @@ npx agentdb@latest plugin-info my-agent
 ## Quick Start with API
 
 ```typescript
-import { createAgentDBAdapter } from 'agentic-flow/reasoningbank';
+import { createruvectorAdapter } from 'archon-os/reasoningbank';
 
 // Initialize with learning enabled
-const adapter = await createAgentDBAdapter({
-  dbPath: '.agentdb/learning.db',
+const adapter = await createruvectorAdapter({
+  dbPath: '.ruvector/learning.db',
   enableLearning: true,       // Enable learning plugins
   enableReasoning: true,
   cacheSize: 1000,
@@ -121,7 +121,7 @@ console.log('Duration:', metrics.duration, 'ms');
 **Strengths**: No online interaction needed, stable training
 
 ```bash
-npx agentdb@latest create-plugin -t decision-transformer -n dt-agent
+npx ruvector@latest create-plugin -t decision-transformer -n dt-agent
 ```
 
 **Use Cases**:
@@ -149,7 +149,7 @@ npx agentdb@latest create-plugin -t decision-transformer -n dt-agent
 **Strengths**: Proven, simple, works well for small/medium problems
 
 ```bash
-npx agentdb@latest create-plugin -t q-learning -n q-agent
+npx ruvector@latest create-plugin -t q-learning -n q-agent
 ```
 
 **Use Cases**:
@@ -176,7 +176,7 @@ npx agentdb@latest create-plugin -t q-learning -n q-agent
 **Strengths**: More conservative than Q-Learning, better for safety
 
 ```bash
-npx agentdb@latest create-plugin -t sarsa -n sarsa-agent
+npx ruvector@latest create-plugin -t sarsa -n sarsa-agent
 ```
 
 **Use Cases**:
@@ -201,7 +201,7 @@ npx agentdb@latest create-plugin -t sarsa -n sarsa-agent
 **Strengths**: Stable, works for continuous/discrete actions
 
 ```bash
-npx agentdb@latest create-plugin -t actor-critic -n ac-agent
+npx ruvector@latest create-plugin -t actor-critic -n ac-agent
 ```
 
 **Use Cases**:
@@ -482,16 +482,16 @@ const confidence = result.memories[0].similarity;
 
 ```bash
 # Create plugin
-npx agentdb@latest create-plugin -t decision-transformer -n my-plugin
+npx ruvector@latest create-plugin -t decision-transformer -n my-plugin
 
 # List plugins
-npx agentdb@latest list-plugins
+npx ruvector@latest list-plugins
 
 # Get plugin info
-npx agentdb@latest plugin-info my-plugin
+npx ruvector@latest plugin-info my-plugin
 
 # List templates
-npx agentdb@latest list-templates
+npx ruvector@latest list-templates
 ```
 
 ---
@@ -534,9 +534,9 @@ await adapter.retrieveWithReasoning(queryEmbedding, {
 ## Learn More
 
 - **Algorithm Papers**: See docs/algorithms/ for detailed papers
-- **GitHub**: https://github.com/ruvnet/agentic-flow/tree/main/packages/agentdb
-- **MCP Integration**: `npx agentdb@latest mcp`
-- **Website**: https://agentdb.ruv.io
+- **GitHub**: https://github.com/ruvnet/archon-os/tree/main/packages/ruvector
+- **MCP Integration**: `npx ruvector@latest mcp`
+- **Website**: https://ruvector.ruv.io
 
 ---
 

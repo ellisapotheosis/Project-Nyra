@@ -19,7 +19,7 @@ help:
 	@echo "$(BLUE)Project Nyra - Master Makefile$(NC)"
 	@echo ""
 	@echo "$(GREEN)Orchestrator (Minisforum):$(NC)"
-	@echo "  make orchestrator-up       Start Nexus, LiteLLM, Claude-Flow, OpenClaw"
+	@echo "  make orchestrator-up       Start Nexus, LiteLLM, archon-os, OpenClaw"
 	@echo "  make orchestrator-down     Stop orchestrator stack"
 	@echo "  make orchestrator-logs     Tail orchestrator logs"
 	@echo "  make orchestrator-ps       Show running orchestrator containers"
@@ -56,7 +56,7 @@ orchestrator-up:
 	@echo "$(GREEN)✓ Orchestrator started$(NC)"
 	@echo "  Nexus Router: http://localhost:6000"
 	@echo "  LiteLLM: http://localhost:4000"
-	@echo "  Claude-Flow: http://localhost:8000"
+	@echo "  archon-os: http://localhost:8000"
 	@echo "  OpenClaw: http://localhost:8001"
 
 orchestrator-down:

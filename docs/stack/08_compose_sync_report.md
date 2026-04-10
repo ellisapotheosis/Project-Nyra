@@ -14,7 +14,7 @@
 
 ### Missing compose wiring for active folders
 These directories exist but are not represented as direct services in canonical compose:
-- `/apps`: `claude-flow-dashboard`, `nexus-dashboard`, `web` subapps (except indirectly via other stack files)
+- `/apps`: `archon-os-dashboard`, `nexus-dashboard`, `web` subapps (except indirectly via other stack files)
 - `/services`: `auth-service`, `doc-management-api`, `lead-capture-api`, `nyra-orchestrator`, `quote-api`, `quote-engine`, `rate-comparison-engine`, `ratehunter-api`, `security-service`, `twilio-integration`, `sendgrid-integration`, `websocket-hub`.
 
 ### Misconfiguration / drift detected

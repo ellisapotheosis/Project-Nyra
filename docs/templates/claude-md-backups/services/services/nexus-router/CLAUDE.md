@@ -19,7 +19,7 @@
 2. **Request Routing**
    - Routes AI requests to LiteLLM Proxy for provider selection
    - Routes vector queries to RuVector Search for semantic matching
-   - Routes knowledge queries to Graphiti Knowledge Graph
+   - Routes knowledge queries to letta Knowledge Graph
    - Implements intelligent failover and circuit breaking
 
 3. **Service Discovery**
@@ -58,7 +58,7 @@ NEXUS_ENABLE_WEBSOCKET=true
 # Service Endpoints
 LITELLM_PROXY_URL=http://litellm-proxy:8000
 RUVECTOR_SEARCH_URL=http://ruvector-search:6379
-GRAPHITI_KNOWLEDGE_URL=http://graphiti-knowledge:7000
+letta_KNOWLEDGE_URL=http://letta-knowledge:7000
 
 # Authentication
 NEXUS_API_KEY_SECRET=your-secret-key
@@ -101,7 +101,7 @@ NEXUS_LOG_FORMAT=json
       "protocol": "grpc",
       "healthcheck": "/health"
     },
-    "graphiti-knowledge": {
+    "letta-knowledge": {
       "type": "knowledge-graph",
       "priority": "high",
       "protocol": "http",
@@ -169,7 +169,7 @@ wss://nexus:6000/ws
 {
   "type": "request|stream|complete|error",
   "requestId": "uuid",
-  "service": "litellm|ruvector|graphiti",
+  "service": "litellm|ruvector|letta",
   "payload": { ... },
   "timestamp": "ISO8601"
 }
@@ -191,7 +191,7 @@ Client Request
 [Router] - Determine target service
     ├→ LiteLLM Proxy (AI requests)
     ├→ RuVector Search (semantic queries)
-    └→ Graphiti Knowledge (graph queries)
+    └→ letta Knowledge (graph queries)
     ↓
 [Circuit Breaker] - Check service health
     ↓
@@ -218,7 +218,7 @@ Client Response
 - Manages vector index updates
 - Caches embedding results
 
-**To Graphiti Knowledge:**
+**To letta Knowledge:**
 - Routes knowledge queries
 - Manages entity/relationship lookups
 - Updates knowledge graph
@@ -237,12 +237,12 @@ nexus-router:
     - NEXUS_PORT=6000
     - LITELLM_PROXY_URL=http://litellm-proxy:8000
     - RUVECTOR_SEARCH_URL=http://ruvector-search:6379
-    - GRAPHITI_KNOWLEDGE_URL=http://graphiti-knowledge:7000
+    - letta_KNOWLEDGE_URL=http://letta-knowledge:7000
     - REDIS_URL=redis://redis:6379
   depends_on:
     - litellm-proxy
     - ruvector-search
-    - graphiti-knowledge
+    - letta-knowledge
     - redis
   healthcheck:
     test: ["CMD", "curl", "-f", "http://localhost:6000/health"]
@@ -436,7 +436,7 @@ NEXUS_TLS_KEY_PATH=/etc/nexus/certs/tls.key
 
 - **LiteLLM Proxy** - Multi-provider LLM routing
 - **RuVector Search** - High-performance vector search
-- **Graphiti Knowledge** - Knowledge graph memory
+- **letta Knowledge** - Knowledge graph memory
 - **Redis** - Caching layer
 - **Prometheus** - Metrics collection
 

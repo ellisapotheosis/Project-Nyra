@@ -27,7 +27,7 @@
 ## 🛡️ ANTI-DRIFT CONFIG (PREFERRED)
 
 ```bash
-npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 6 --strategy specialized
+npx @archon-os/cli@latest swarm init --topology hierarchical --max-agents 6 --strategy specialized
 ```
 
 ---
@@ -51,13 +51,13 @@ Spawn agents in background and WAIT for completion.
 
 ### Before Task
 ```bash
-npx @claude-flow/cli@latest memory search --query '[keywords]' --namespace patterns
+npx @archon-os/cli@latest memory search --query '[keywords]' --namespace patterns
 ```
 
 ### After Task Success
 ```bash
-npx @claude-flow/cli@latest memory store --namespace patterns --key '[pattern]' --value '[result]'
-npx @claude-flow/cli@latest hooks post-task --task-id '[id]' --success true --store-results true
+npx @archon-os/cli@latest memory store --namespace patterns --key '[pattern]' --value '[result]'
+npx @archon-os/cli@latest hooks post-task --task-id '[id]' --success true --store-results true
 ```
 
 ---
@@ -65,11 +65,11 @@ npx @claude-flow/cli@latest hooks post-task --task-id '[id]' --success true --st
 ## 🚀 V3 CLI Commands (26 Commands, 140+ Subcommands)
 
 ```bash
-npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 6
-npx @claude-flow/cli@latest memory store --key "pattern" --value "content"
-npx @claude-flow/cli@latest memory search --query "search term"
-npx @claude-flow/cli@latest hooks pre-task --description "[task]"
-npx @claude-flow/cli@latest hooks post-task --task-id "[id]" --success true
+npx @archon-os/cli@latest swarm init --topology hierarchical --max-agents 6
+npx @archon-os/cli@latest memory store --key "pattern" --value "content"
+npx @archon-os/cli@latest memory search --query "search term"
+npx @archon-os/cli@latest hooks pre-task --description "[task]"
+npx @archon-os/cli@latest hooks post-task --task-id "[id]" --success true
 ```
 
 ---
@@ -88,8 +88,8 @@ npx @claude-flow/cli@latest hooks post-task --task-id "[id]" --success true
 ## 🪝 V3 Hooks System (27 Hooks + 12 Workers)
 
 ```bash
-npx @claude-flow/cli@latest hooks pre-task --description "loan officer feature"
-npx @claude-flow/cli@latest hooks post-edit --file "page.tsx" --train-neural true
+npx @archon-os/cli@latest hooks pre-task --description "loan officer feature"
+npx @archon-os/cli@latest hooks post-edit --file "page.tsx" --train-neural true
 ```
 
 ---
@@ -97,9 +97,9 @@ npx @claude-flow/cli@latest hooks post-edit --file "page.tsx" --train-neural tru
 ## 📝 Memory Commands Reference
 
 ```bash
-npx @claude-flow/cli@latest memory store --key "mortgage-pattern" --value "content" --namespace patterns
-npx @claude-flow/cli@latest memory search --query "loan officer workflow" --namespace patterns
-npx @claude-flow/cli@latest memory retrieve --key "pattern" --namespace patterns
+npx @archon-os/cli@latest memory store --key "mortgage-pattern" --value "content" --namespace patterns
+npx @archon-os/cli@latest memory search --query "loan officer workflow" --namespace patterns
+npx @archon-os/cli@latest memory retrieve --key "pattern" --namespace patterns
 ```
 
 ---

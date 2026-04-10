@@ -38,12 +38,12 @@ pnpm install
 pnpm dev -- --port 3002
 ```
 
-## Step 5 — Spawn build swarms (claude-flow)
+## Step 5 — Spawn build swarms (archon-os)
 From repo root:
 
 ```powershell
-npx @claude-flow/cli@latest init --sparc
-npx claude-flow sparc batch "prompts/claude-flow/NYRA_MASTER_SWARM.md"
+npx @archon-os/cli@latest init --sparc
+npx archon-os sparc batch "prompts/archon-os/NYRA_MASTER_SWARM.md"
 ```
 
 ## Optional: clone forks for deeper integration work

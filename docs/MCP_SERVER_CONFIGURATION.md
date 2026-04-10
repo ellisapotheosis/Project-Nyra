@@ -24,7 +24,7 @@ This document provides the MCP (Model Context Protocol) server configuration for
 ```json
 {
   "command": "npx",
-  "args": ["-y", "@claude-flow/cli@latest", "mcp", "start"],
+  "args": ["-y", "@archon-os/cli@latest", "mcp", "start"],
   "transport": "stdio"
 }
 ```
@@ -111,17 +111,17 @@ All three MCP servers use **stdio transport**, which means:
 
 ## Current Status
 
-### System Health (from `npx @claude-flow/cli@latest doctor`)
+### System Health (from `npx @archon-os/cli@latest doctor`)
 
 ```
 ✓ Node.js Version: v24.13.0 (>= 20 required)
 ✓ npm Version: v11.6.2
 ✓ Claude Code CLI: v2.1.15
 ✓ Git: v2.43.0
-✓ Config File: claude-flow.config.json
+✓ Config File: archon-os.config.json
 ✓ Daemon Status: Running (PID: 7692)
 ✓ Memory Database: .swarm/memory.db (0.15 MB)
-✓ MCP Servers: 1 server (claude-flow configured)
+✓ MCP Servers: 1 server (archon-os configured)
 ✓ TypeScript: v5.9.3
 ⚠ Version Freshness: v3.0.0-alpha.179 (latest: v3.0.0-alpha.184)
 ⚠ API Keys: No API keys found
@@ -151,13 +151,13 @@ cat ~/.config/claude/claude_desktop_config.json
 
 ```bash
 # Check MCP status
-npx @claude-flow/cli@latest mcp status
+npx @archon-os/cli@latest mcp status
 
 # List available tools
-npx @claude-flow/cli@latest mcp tools
+npx @archon-os/cli@latest mcp tools
 
 # Check health
-npx @claude-flow/cli@latest mcp health
+npx @archon-os/cli@latest mcp health
 ```
 
 ### 3. Test Ruv-Swarm MCP
@@ -189,7 +189,7 @@ After configuration changes, restart Claude Desktop to:
 
 ## Claude Flow Configuration
 
-The project's `claude-flow.config.json` includes MCP settings:
+The project's `archon-os.config.json` includes MCP settings:
 
 ```json
 {
@@ -251,16 +251,16 @@ The project's `claude-flow.config.json` includes MCP settings:
 
 ```bash
 # Initialize mesh swarm for parallel TDD workflow
-npx @claude-flow/cli@latest swarm init --topology mesh --max-agents 8 --strategy balanced
+npx @archon-os/cli@latest swarm init --topology mesh --max-agents 8 --strategy balanced
 
 # Store mortgage patterns
-npx @claude-flow/cli@latest memory store \
+npx @archon-os/cli@latest memory store \
   --key "pattern-dti-calculation" \
   --value "DTI = (Monthly Debt / Monthly Income) * 100" \
   --namespace mortgage-patterns
 
 # Search for compliance patterns
-npx @claude-flow/cli@latest memory search \
+npx @archon-os/cli@latest memory search \
   --query "TILA disclosure requirements" \
   --namespace compliance
 ```
@@ -279,8 +279,8 @@ Claude Code's Task tool spawns agents that coordinate via:
 **Solution**:
 1. Check Node.js version (requires 20+)
 2. Clear npx cache: `npx clear-npx-cache`
-3. Test manual start: `npx @claude-flow/cli@latest mcp start`
-4. Check logs: `tail -f ./logs/claude-flow.log`
+3. Test manual start: `npx @archon-os/cli@latest mcp start`
+4. Check logs: `tail -f ./logs/archon-os.log`
 
 ### Issue: Tools Not Available
 
@@ -288,7 +288,7 @@ Claude Code's Task tool spawns agents that coordinate via:
 1. Verify config file syntax
 2. Restart Claude Desktop
 3. Check MCP transport is "stdio"
-4. Run `npx @claude-flow/cli@latest doctor --fix`
+4. Run `npx @archon-os/cli@latest doctor --fix`
 
 ### Issue: stdio Communication Failure
 
@@ -309,16 +309,16 @@ Claude Code's Task tool spawns agents that coordinate via:
 
 ## References
 
-- **Claude Flow V3 Docs**: https://github.com/ruvnet/claude-flow
+- **Claude Flow V3 Docs**: https://github.com/ruvnet/archon-os
 - **MCP Specification**: https://modelcontextprotocol.io/
 - **Project Nyra CLAUDE.md**: `/home/ellisapotheosis/projects/project-nyra/CLAUDE.md`
-- **Capabilities Reference**: `.claude-flow/CAPABILITIES.md`
+- **Capabilities Reference**: `.archon-os/CAPABILITIES.md`
 
 ## Configuration Summary
 
 | MCP Server | Package | Transport | Status | Tools |
 |------------|---------|-----------|--------|-------|
-| Claude Flow | @claude-flow/cli@latest | stdio | Configured | 60+ |
+| Claude Flow | @archon-os/cli@latest | stdio | Configured | 60+ |
 | Ruv-Swarm | ruv-swarm | stdio | Configured | TBD |
 | Flow Nexus | flow-nexus@latest | stdio | Configured | TBD |
 

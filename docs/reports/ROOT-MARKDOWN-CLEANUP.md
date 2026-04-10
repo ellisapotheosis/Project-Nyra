@@ -33,7 +33,7 @@ The following essential files remain in the root directory:
 | STATUS-DOCKERHUB-MCP.md | Root | docs/status/STATUS-DOCKERHUB-MCP.md | ✅ Moved |
 | STATUS-SEQUENTIAL-THINKING-MCP.md | Root | docs/status/STATUS-SEQUENTIAL-THINKING-MCP.md | ✅ Moved |
 
-**Note**: STATUS-CLAUDE-FLOW-DOCKER.md was already in docs/status/ from a previous organization effort.
+**Note**: STATUS-archon-os-DOCKER.md was already in docs/status/ from a previous organization effort.
 
 ---
 
@@ -51,7 +51,7 @@ The following essential files remain in the root directory:
 ### docs/status/ Before Cleanup
 ```
 docs/status/
-├── STATUS-CLAUDE-FLOW-DOCKER.md
+├── STATUS-archon-os-DOCKER.md
 └── STATUS-TAILSCALE-INTEGRATION.md
 ```
 
@@ -69,7 +69,7 @@ docs/status/
 ### docs/status/ After Cleanup
 ```
 docs/status/
-├── STATUS-CLAUDE-FLOW-DOCKER.md
+├── STATUS-archon-os-DOCKER.md
 ├── STATUS-DOCKERHUB-MCP.md ✅ NEW
 ├── STATUS-SEQUENTIAL-THINKING-MCP.md ✅ NEW
 └── STATUS-TAILSCALE-INTEGRATION.md
@@ -227,7 +227,7 @@ ls -la *.md
 ls -la docs/status/
 
 # Expected to see:
-# STATUS-CLAUDE-FLOW-DOCKER.md
+# STATUS-archon-os-DOCKER.md
 # STATUS-DOCKERHUB-MCP.md
 # STATUS-SEQUENTIAL-THINKING-MCP.md
 # STATUS-TAILSCALE-INTEGRATION.md
@@ -276,9 +276,9 @@ After initial cleanup, a third markdown file was discovered in the root director
 
 | File | Source | Destination | Status |
 |------|--------|-------------|--------|
-| STATUS-CLAUDE-FLOW-DOCKER.md | Root | docs/reports/INFISICAL-MCP-IMPLEMENTATION-COMPLETE.md | ✅ Moved & Renamed |
+| STATUS-archon-os-DOCKER.md | Root | docs/reports/INFISICAL-MCP-IMPLEMENTATION-COMPLETE.md | ✅ Moved & Renamed |
 
-**Details**: The STATUS-CLAUDE-FLOW-DOCKER.md file (created Jan 17, 2026) was identified as an implementation completion report for the Infisical MCP Server, not a status report. It was moved to docs/reports/ and renamed to INFISICAL-MCP-IMPLEMENTATION-COMPLETE.md to better reflect its content.
+**Details**: The STATUS-archon-os-DOCKER.md file (created Jan 17, 2026) was identified as an implementation completion report for the Infisical MCP Server, not a status report. It was moved to docs/reports/ and renamed to INFISICAL-MCP-IMPLEMENTATION-COMPLETE.md to better reflect its content.
 
 **Updated File Count**:
 - Files moved: 3 (not 2)

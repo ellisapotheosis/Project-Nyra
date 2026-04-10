@@ -528,11 +528,11 @@ archon-os:
   environment:
     - DATABASE_URL=postgresql://user:pass@postgres:5432/nyra
     - REDIS_URL=redis://redis:6379
-    - CLAUDE_FLOW_URL=http://claude-flow:9000
+    - CLAUDE_FLOW_URL=http://archon-os:9000
   depends_on:
     - postgres
     - redis
-    - claude-flow
+    - archon-os
   healthcheck:
     test: ["CMD", "curl", "-f", "http://localhost:9001/health"]
     interval: 30s

@@ -27,7 +27,7 @@ I have completed comprehensive oversight of both consolidation swarms and synthe
 
 ### 2. Repository Organization
 - ✅ `apps/ingestion/` workspace created
-- ✅ `.claude-flow/workflows/` with SPARC pipeline
+- ✅ `.archon-os/workflows/` with SPARC pipeline
 - ✅ Bootstrap system unified
 - ✅ Historical materials safely archived
 - ✅ 1000+ files reorganized

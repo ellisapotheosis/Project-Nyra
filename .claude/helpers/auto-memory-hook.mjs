@@ -18,7 +18,7 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const PROJECT_ROOT = join(__dirname, '../..');
-const DATA_DIR = join(PROJECT_ROOT, '.claude-flow', 'data');
+const DATA_DIR = join(PROJECT_ROOT, '.archon-os', 'data');
 const STORE_PATH = join(DATA_DIR, 'auto-memory-store.json');
 
 // Colors
@@ -132,7 +132,7 @@ class JsonFileBackend {
 
 async function loadMemoryPackage() {
   // Strategy 1: Local dev (built dist)
-  const localDist = join(PROJECT_ROOT, 'v3/@claude-flow/memory/dist/index.js');
+  const localDist = join(PROJECT_ROOT, 'v3/@archon-os/memory/dist/index.js');
   if (existsSync(localDist)) {
     try {
       return await import(`file://${localDist}`);
@@ -140,23 +140,23 @@ async function loadMemoryPackage() {
   }
 
   // Strategy 2: Use createRequire for CJS-style resolution (handles nested node_modules
-  // when installed as a transitive dependency via npx ruflo / npx claude-flow)
+  // when installed as a transitive dependency via npx ruflo / npx archon-os)
   try {
     const { createRequire } = await import('module');
     const require = createRequire(join(PROJECT_ROOT, 'package.json'));
-    return require('@claude-flow/memory');
+    return require('@archon-os/memory');
   } catch { /* fall through */ }
 
-  // Strategy 3: ESM import (works when @claude-flow/memory is a direct dependency)
+  // Strategy 3: ESM import (works when @archon-os/memory is a direct dependency)
   try {
-    return await import('@claude-flow/memory');
+    return await import('@archon-os/memory');
   } catch { /* fall through */ }
 
-  // Strategy 4: Walk up from PROJECT_ROOT looking for @claude-flow/memory in any node_modules
+  // Strategy 4: Walk up from PROJECT_ROOT looking for @archon-os/memory in any node_modules
   let searchDir = PROJECT_ROOT;
   const { parse } = await import('path');
   while (searchDir !== parse(searchDir).root) {
-    const candidate = join(searchDir, 'node_modules', '@claude-flow', 'memory', 'dist', 'index.js');
+    const candidate = join(searchDir, 'node_modules', '@archon-os', 'memory', 'dist', 'index.js');
     if (existsSync(candidate)) {
       try {
         return await import(`file://${candidate}`);
@@ -169,11 +169,11 @@ async function loadMemoryPackage() {
 }
 
 // ============================================================================
-// Read config from .claude-flow/config.yaml
+// Read config from .archon-os/config.yaml
 // ============================================================================
 
 function readConfig() {
-  const configPath = join(PROJECT_ROOT, '.claude-flow', 'config.yaml');
+  const configPath = join(PROJECT_ROOT, '.archon-os', 'config.yaml');
   const defaults = {
     learningBridge: { enabled: true, sonaMode: 'balanced', confidenceDecayRate: 0.005, accessBoostAmount: 0.03, consolidationThreshold: 10 },
     memoryGraph: { enabled: true, pageRankDamping: 0.85, maxNodes: 5000, similarityThreshold: 0.8 },

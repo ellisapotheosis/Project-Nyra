@@ -98,7 +98,7 @@ grep -r "from nyra-mortgage-campaign-agents" --include="*.py"
 
 **String References Found** (NOT imports):
 - `.claude/settings-integrated.json` - Contains absolute paths (e.g., `C:\Dev\Projects\Repos\Project-Nyra\`)
-- `.claude-flow/` config files - Project name references only
+- `.archon-os/` config files - Project name references only
 - `.devcontainer/devcontainer.json` - Workspace path references
 - `.swarm/dependency-graph.json` - Project name field
 

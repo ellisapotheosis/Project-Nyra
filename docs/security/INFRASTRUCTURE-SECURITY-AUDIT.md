@@ -578,7 +578,7 @@ services:
 - `infra/.env` - Environment configuration (SENSITIVE)
 - `infra/docker-compose.dev.yml` - Service definitions
 - `4PC-DISTRIBUTED-ARCHITECTURE.md` - Multi-PC deployment architecture
-- `CLAUDE-FLOW-PRODUCTION-CONTAINERIZATION.md` - Containerization security
+- `archon-os-PRODUCTION-CONTAINERIZATION.md` - Containerization security
 
 ---
 

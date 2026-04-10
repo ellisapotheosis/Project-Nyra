@@ -13,7 +13,7 @@
 5. [Phase 3: Architecture](#phase-3-architecture-a)
 6. [Phase 4: Refinement](#phase-4-refinement-r)
 7. [Phase 5: Completion](#phase-5-completion-c)
-8. [Claude-Flow V3 Integration](#claude-flow-v3-integration)
+8. [archon-os V3 Integration](#archon-os-v3-integration)
 9. [Project Nyra Implementation Guide](#project-nyra-implementation-guide)
 10. [Best Practices and Patterns](#best-practices-and-patterns)
 11. [Quality Gates and Metrics](#quality-gates-and-metrics)
@@ -267,7 +267,7 @@ Define clear, testable requirements before any implementation. Capture all funct
 
 **Command to Validate:**
 ```bash
-npx @claude-flow/cli@latest sparc validate specification \
+npx @archon-os/cli@latest sparc validate specification \
   --doc "docs/sparc/specifications/[feature-name].md"
 ```
 
@@ -561,7 +561,7 @@ END FUNCTION
 
 **Command to Validate:**
 ```bash
-npx @claude-flow/cli@latest sparc validate pseudocode \
+npx @archon-os/cli@latest sparc validate pseudocode \
   --doc "docs/sparc/pseudocode/[feature-name].md"
 ```
 
@@ -1172,7 +1172,7 @@ alerts:
 
 **Command to Validate:**
 ```bash
-npx @claude-flow/cli@latest sparc validate architecture \
+npx @archon-os/cli@latest sparc validate architecture \
   --doc "docs/sparc/architecture/[feature-name].md"
 ```
 
@@ -1683,7 +1683,7 @@ npm audit
 npm run test:performance
 
 # Validate with CLI
-npx @claude-flow/cli@latest sparc validate refinement \
+npx @archon-os/cli@latest sparc validate refinement \
   --coverage-threshold 80 \
   --performance-check true
 ```
@@ -2304,7 +2304,7 @@ kubectl top pods -l app=app
 
 **Command to Validate:**
 ```bash
-npx @claude-flow/cli@latest sparc validate completion \
+npx @archon-os/cli@latest sparc validate completion \
   --check-integration true \
   --check-performance true \
   --check-security true \
@@ -2313,11 +2313,11 @@ npx @claude-flow/cli@latest sparc validate completion \
 
 ---
 
-## Claude-Flow V3 Integration
+## archon-os V3 Integration
 
-### SPARC Orchestration with Claude-Flow
+### SPARC Orchestration with archon-os
 
-Claude-Flow V3 provides comprehensive support for SPARC methodology through:
+archon-os V3 provides comprehensive support for SPARC methodology through:
 
 1. **Specialized Agents** - Phase-specific agent templates
 2. **Memory Integration** - ReasoningBank pattern learning
@@ -2342,45 +2342,45 @@ Claude-Flow V3 provides comprehensive support for SPARC methodology through:
 
 ```bash
 # Run complete SPARC workflow
-npx @claude-flow/cli@latest sparc run full "$TASK"
+npx @archon-os/cli@latest sparc run full "$TASK"
 
 # Run specific phase
-npx @claude-flow/cli@latest sparc run specification "$TASK"
-npx @claude-flow/cli@latest sparc run pseudocode "$TASK"
-npx @claude-flow/cli@latest sparc run architecture "$TASK"
-npx @claude-flow/cli@latest sparc run refinement "$TASK"
-npx @claude-flow/cli@latest sparc run completion "$TASK"
+npx @archon-os/cli@latest sparc run specification "$TASK"
+npx @archon-os/cli@latest sparc run pseudocode "$TASK"
+npx @archon-os/cli@latest sparc run architecture "$TASK"
+npx @archon-os/cli@latest sparc run refinement "$TASK"
+npx @archon-os/cli@latest sparc run completion "$TASK"
 
 # TDD workflow
-npx @claude-flow/cli@latest sparc tdd "$FEATURE"
+npx @archon-os/cli@latest sparc tdd "$FEATURE"
 
 # Check phase status
-npx @claude-flow/cli@latest sparc status
+npx @archon-os/cli@latest sparc status
 
 # Validate phase completion
-npx @claude-flow/cli@latest sparc validate <phase> \
+npx @archon-os/cli@latest sparc validate <phase> \
   --doc "docs/sparc/<phase>/<feature>.md"
 ```
 
 ### Memory Integration
 
-SPARC phases store all artifacts in AgentDB memory with HNSW indexing for fast retrieval:
+SPARC phases store all artifacts in ruvector memory with HNSW indexing for fast retrieval:
 
 ```bash
 # Store SPARC phase output
-npx @claude-flow/cli@latest memory store \
+npx @archon-os/cli@latest memory store \
   --namespace "sparc" \
   --key "spec/$PROJECT_NAME/$FEATURE_NAME" \
   --value "$(cat specification.md)"
 
 # Search for similar patterns
-npx @claude-flow/cli@latest memory search \
+npx @archon-os/cli@latest memory search \
   --query "authentication patterns" \
   --namespace "sparc" \
   --limit 5
 
 # Retrieve phase output
-npx @claude-flow/cli@latest memory retrieve \
+npx @archon-os/cli@latest memory retrieve \
   --namespace "sparc" \
   --key "arch/$PROJECT_NAME/$FEATURE_NAME"
 ```
@@ -2391,19 +2391,19 @@ SPARC orchestrator learns from each workflow execution:
 
 ```bash
 # Start trajectory tracking
-npx @claude-flow/cli@latest hooks intelligence trajectory-start \
+npx @archon-os/cli@latest hooks intelligence trajectory-start \
   --session-id "sparc-session-$TIMESTAMP" \
   --agent-type "sparc-orchestrator" \
   --task "$TASK"
 
 # Store successful pattern
-npx @claude-flow/cli@latest memory store \
+npx @archon-os/cli@latest memory store \
   --namespace "patterns" \
   --key "sparc:success:$TIMESTAMP" \
   --value "$WORKFLOW_SUMMARY"
 
 # End trajectory with verdict
-npx @claude-flow/cli@latest hooks intelligence trajectory-end \
+npx @archon-os/cli@latest hooks intelligence trajectory-end \
   --session-id "sparc-session-$TIMESTAMP" \
   --verdict "success"
 ```
@@ -2412,42 +2412,42 @@ npx @claude-flow/cli@latest hooks intelligence trajectory-end \
 
 ```bash
 # Initialize SPARC swarm
-npx @claude-flow/cli@latest swarm init \
+npx @archon-os/cli@latest swarm init \
   --topology hierarchical-mesh \
   --max-agents 10 \
   --strategy specialized
 
 # Spawn phase-specific agents
-npx @claude-flow/cli@latest agent spawn \
+npx @archon-os/cli@latest agent spawn \
   -t specification \
   --name "spec-agent-$FEATURE"
 
-npx @claude-flow/cli@latest agent spawn \
+npx @archon-os/cli@latest agent spawn \
   -t architecture \
   --name "arch-agent-$FEATURE"
 
 # Monitor swarm status
-npx @claude-flow/cli@latest swarm status
+npx @archon-os/cli@latest swarm status
 ```
 
 ### Hooks Integration
 
-SPARC automatically uses claude-flow hooks:
+SPARC automatically uses archon-os hooks:
 
 ```bash
 # Pre-task hook (automatic)
-npx @claude-flow/cli@latest hooks pre-task \
+npx @archon-os/cli@latest hooks pre-task \
   --description "$TASK" \
   --auto-spawn-agents false
 
 # Post-edit hook (automatic)
-npx @claude-flow/cli@latest hooks post-edit \
+npx @archon-os/cli@latest hooks post-edit \
   --file "$FILE" \
   --memory-key "sparc/agent/$STEP" \
   --train-neural true
 
 # Post-task hook (automatic)
-npx @claude-flow/cli@latest hooks post-task \
+npx @archon-os/cli@latest hooks post-task \
   --task-id "$TASK_ID" \
   --analyze-performance true \
   --export-metrics true
@@ -2479,7 +2479,7 @@ Build a self-hosted, AI-augmented mortgage CRM on a four-PC LAN with complete le
 │  - Nexus Router (MCP routing)   │
 │  - LiteLLM / OpenRouter proxy   │
 │  - Dify (borrower chat)         │
-│  - Claude-Flow (agent swarms)   │
+│  - archon-os (agent swarms)   │
 │  - Quote API & embeddings       │
 └─────────────────────────────────┘
           │ Tailscale VPN
@@ -2498,11 +2498,11 @@ Build a self-hosted, AI-augmented mortgage CRM on a four-PC LAN with complete le
 
 ```bash
 # Specification
-npx @claude-flow/cli@latest sparc run specification \
+npx @archon-os/cli@latest sparc run specification \
   "Setup orchestrator environment with Docker, Node, Tailscale, and CloudFlare tunnel"
 
 # Pseudocode
-npx @claude-flow/cli@latest sparc run pseudocode \
+npx @archon-os/cli@latest sparc run pseudocode \
   "Design initialization scripts for RuVector, n8n, and service startup"
 ```
 
@@ -2518,11 +2518,11 @@ npx @claude-flow/cli@latest sparc run pseudocode \
 
 ```bash
 # Architecture
-npx @claude-flow/cli@latest sparc run architecture \
+npx @archon-os/cli@latest sparc run architecture \
   "Design TwentyCRM integration with custom MCP tools and n8n nodes"
 
 # Refinement (TDD)
-npx @claude-flow/cli@latest sparc tdd \
+npx @archon-os/cli@latest sparc tdd \
   "Implement MCP extensions for TwentyCRM: create_mortgage_lead, get_similar_patterns, generate_quote"
 ```
 
@@ -2538,7 +2538,7 @@ npx @claude-flow/cli@latest sparc tdd \
 
 ```bash
 # Full SPARC pipeline
-npx @claude-flow/cli@latest sparc run full \
+npx @archon-os/cli@latest sparc run full \
   "Implement multi-channel drip campaign engine with Twilio, SendGrid, and Slybroadcast integration"
 ```
 
@@ -2554,7 +2554,7 @@ npx @claude-flow/cli@latest sparc run full \
 **SPARC Phases**: Full cycle
 
 ```bash
-npx @claude-flow/cli@latest sparc run full \
+npx @archon-os/cli@latest sparc run full \
   "Build Quote API with Excel formula migration and pricing adapter integration"
 ```
 
@@ -2569,8 +2569,8 @@ npx @claude-flow/cli@latest sparc run full \
 **SPARC Phases**: Full cycle
 
 ```bash
-npx @claude-flow/cli@latest sparc run full \
-  "Integrate Claude-Flow agents with RuVector memory for lead scoring and quote recommendations"
+npx @archon-os/cli@latest sparc run full \
+  "Integrate archon-os agents with RuVector memory for lead scoring and quote recommendations"
 ```
 
 **Deliverables**:
@@ -2584,7 +2584,7 @@ npx @claude-flow/cli@latest sparc run full \
 **SPARC Phases**: Full cycle
 
 ```bash
-npx @claude-flow/cli@latest sparc run full \
+npx @archon-os/cli@latest sparc run full \
   "Build Nyra Admin UI with Shadcn components and Dify chat widget integration"
 ```
 
@@ -2601,11 +2601,11 @@ npx @claude-flow/cli@latest sparc run full \
 
 ```bash
 # Refinement
-npx @claude-flow/cli@latest sparc run refinement \
+npx @archon-os/cli@latest sparc run refinement \
   "Implement TCPA compliance, encryption, and rate limiting"
 
 # Completion
-npx @claude-flow/cli@latest sparc run completion \
+npx @archon-os/cli@latest sparc run completion \
   "Prepare production deployment with monitoring and documentation"
 ```
 
@@ -2621,7 +2621,7 @@ npx @claude-flow/cli@latest sparc run completion \
 **SPARC Phase**: Completion
 
 ```bash
-npx @claude-flow/cli@latest sparc run completion \
+npx @archon-os/cli@latest sparc run completion \
   "Execute end-to-end testing, staff training, and production launch"
 ```
 
@@ -2638,19 +2638,19 @@ npx @claude-flow/cli@latest sparc run completion \
 
 1. **Twenty-Bridge Webhook Service**
 ```bash
-npx @claude-flow/cli@latest sparc run full \
-  "Implement webhook receiver for TwentyCRM with Graphiti real-time sync and signature verification"
+npx @archon-os/cli@latest sparc run full \
+  "Implement webhook receiver for TwentyCRM with letta real-time sync and signature verification"
 ```
 
 2. **Quote Engine Excel Migration**
 ```bash
-npx @claude-flow/cli@latest sparc run full \
+npx @archon-os/cli@latest sparc run full \
   "Migrate remaining USDA and Jumbo loan formulas from Excel to Quote Engine API"
 ```
 
 3. **Campaign Execution Monitoring**
 ```bash
-npx @claude-flow/cli@latest sparc run full \
+npx @archon-os/cli@latest sparc run full \
   "Add real-time campaign monitoring dashboard with WebSocket updates"
 ```
 
@@ -2676,7 +2676,7 @@ npx @claude-flow/cli@latest sparc run full \
 Use full SPARC cycle for new features:
 
 ```bash
-npx @claude-flow/cli@latest sparc run full \
+npx @archon-os/cli@latest sparc run full \
   "Implement user authentication with OAuth2 support"
 ```
 
@@ -2688,12 +2688,12 @@ Light specification, focus on refinement:
 
 ```bash
 # Quick spec
-npx @claude-flow/cli@latest sparc run specification \
+npx @archon-os/cli@latest sparc run specification \
   "Fix race condition in payment processing" \
   --fast-track
 
 # Focused refinement
-npx @claude-flow/cli@latest sparc tdd \
+npx @archon-os/cli@latest sparc tdd \
   "Fix payment processing race condition"
 ```
 
@@ -2702,7 +2702,7 @@ npx @claude-flow/cli@latest sparc tdd \
 Architecture emphasis with preservation testing:
 
 ```bash
-npx @claude-flow/cli@latest sparc run architecture \
+npx @archon-os/cli@latest sparc run architecture \
   "Refactor monolith user service to microservices" \
   --include-migration-plan
 ```
@@ -3053,13 +3053,13 @@ MIT
 
 ```bash
 # Check SPARC progress
-npx @claude-flow/cli@latest sparc status
+npx @archon-os/cli@latest sparc status
 
 # Generate SPARC report
-npx @claude-flow/cli@latest sparc report --format markdown
+npx @archon-os/cli@latest sparc report --format markdown
 
 # Export metrics
-npx @claude-flow/cli@latest sparc metrics export --output metrics.json
+npx @archon-os/cli@latest sparc metrics export --output metrics.json
 ```
 
 ---
@@ -3074,14 +3074,14 @@ npx @claude-flow/cli@latest sparc metrics export --output metrics.json
 
 **Solution**:
 ```bash
-# Install or update claude-flow
-npm install -g @claude-flow/cli@latest
+# Install or update archon-os
+npm install -g @archon-os/cli@latest
 
 # Verify installation
-npx @claude-flow/cli@latest --version
+npx @archon-os/cli@latest --version
 
 # Check SPARC availability
-npx @claude-flow/cli@latest sparc --help
+npx @archon-os/cli@latest sparc --help
 ```
 
 #### Issue: Phase fails to complete
@@ -3091,29 +3091,29 @@ npx @claude-flow/cli@latest sparc --help
 **Diagnosis**:
 ```bash
 # Check logs
-npx @claude-flow/cli@latest sparc logs --phase <phase-name>
+npx @archon-os/cli@latest sparc logs --phase <phase-name>
 
 # Check swarm status
-npx @claude-flow/cli@latest swarm status
+npx @archon-os/cli@latest swarm status
 
 # Check memory
-npx @claude-flow/cli@latest memory stats
+npx @archon-os/cli@latest memory stats
 ```
 
 **Solutions**:
 1. **Restart with verbose logging**
 ```bash
-npx @claude-flow/cli@latest sparc run <phase> "<task>" --verbose
+npx @archon-os/cli@latest sparc run <phase> "<task>" --verbose
 ```
 
 2. **Check agent health**
 ```bash
-npx @claude-flow/cli@latest agent health
+npx @archon-os/cli@latest agent health
 ```
 
 3. **Reinitialize memory**
 ```bash
-npx @claude-flow/cli@latest memory init --force
+npx @archon-os/cli@latest memory init --force
 ```
 
 #### Issue: Quality gate not passing
@@ -3123,7 +3123,7 @@ npx @claude-flow/cli@latest memory init --force
 **Diagnosis**:
 ```bash
 # Validate specific phase
-npx @claude-flow/cli@latest sparc validate <phase> \
+npx @archon-os/cli@latest sparc validate <phase> \
   --doc "docs/sparc/<phase>/<feature>.md"
 ```
 
@@ -3140,13 +3140,13 @@ npx @claude-flow/cli@latest sparc validate <phase> \
 **Diagnosis**:
 ```bash
 # Check memory stats
-npx @claude-flow/cli@latest memory stats
+npx @archon-os/cli@latest memory stats
 
 # List entries
-npx @claude-flow/cli@latest memory list --namespace sparc
+npx @archon-os/cli@latest memory list --namespace sparc
 
 # Search for entries
-npx @claude-flow/cli@latest memory search \
+npx @archon-os/cli@latest memory search \
   --query "<feature-name>" \
   --namespace sparc
 ```
@@ -3162,20 +3162,20 @@ Enable debug logging for detailed troubleshooting:
 
 ```bash
 # Set debug mode
-export DEBUG=claude-flow:*
+export DEBUG=archon-os:*
 
 # Run command with debug output
-npx @claude-flow/cli@latest sparc run <phase> "<task>"
+npx @archon-os/cli@latest sparc run <phase> "<task>"
 
 # Save debug log
-npx @claude-flow/cli@latest sparc run <phase> "<task>" 2>&1 | tee debug.log
+npx @archon-os/cli@latest sparc run <phase> "<task>" 2>&1 | tee debug.log
 ```
 
 ### Getting Help
 
-- **Documentation**: https://github.com/ruvnet/claude-flow/docs/sparc
-- **GitHub Issues**: https://github.com/ruvnet/claude-flow/issues
-- **Examples**: `docs/references/claude-flow-examples/`
+- **Documentation**: https://github.com/ruvnet/archon-os/docs/sparc
+- **GitHub Issues**: https://github.com/ruvnet/archon-os/issues
+- **Examples**: `docs/references/archon-os-examples/`
 - **Community**: Discord/Slack (see main README)
 
 ---
@@ -3186,34 +3186,34 @@ npx @claude-flow/cli@latest sparc run <phase> "<task>" 2>&1 | tee debug.log
 
 ```bash
 # Full SPARC workflow
-npx @claude-flow/cli@latest sparc run full "<feature>"
+npx @archon-os/cli@latest sparc run full "<feature>"
 
 # Individual phases
-npx @claude-flow/cli@latest sparc run specification "<feature>"
-npx @claude-flow/cli@latest sparc run pseudocode "<feature>"
-npx @claude-flow/cli@latest sparc run architecture "<feature>"
-npx @claude-flow/cli@latest sparc run refinement "<feature>"
-npx @claude-flow/cli@latest sparc run completion "<feature>"
+npx @archon-os/cli@latest sparc run specification "<feature>"
+npx @archon-os/cli@latest sparc run pseudocode "<feature>"
+npx @archon-os/cli@latest sparc run architecture "<feature>"
+npx @archon-os/cli@latest sparc run refinement "<feature>"
+npx @archon-os/cli@latest sparc run completion "<feature>"
 
 # TDD workflow
-npx @claude-flow/cli@latest sparc tdd "<feature>"
+npx @archon-os/cli@latest sparc tdd "<feature>"
 
 # Status and validation
-npx @claude-flow/cli@latest sparc status
-npx @claude-flow/cli@latest sparc validate <phase>
-npx @claude-flow/cli@latest sparc report
+npx @archon-os/cli@latest sparc status
+npx @archon-os/cli@latest sparc validate <phase>
+npx @archon-os/cli@latest sparc report
 
 # Memory operations
-npx @claude-flow/cli@latest memory store --namespace sparc --key "<key>" --value "<value>"
-npx @claude-flow/cli@latest memory search --query "<query>" --namespace sparc
-npx @claude-flow/cli@latest memory retrieve --namespace sparc --key "<key>"
+npx @archon-os/cli@latest memory store --namespace sparc --key "<key>" --value "<value>"
+npx @archon-os/cli@latest memory search --query "<query>" --namespace sparc
+npx @archon-os/cli@latest memory retrieve --namespace sparc --key "<key>"
 ```
 
 ### File Templates
 
 All templates are available in:
 - `docs/sparc/templates/`
-- Examples: `docs/references/claude-flow-examples/`
+- Examples: `docs/references/archon-os-examples/`
 
 ### Phase Duration Guidelines
 
@@ -3233,4 +3233,4 @@ All templates are available in:
 **Maintained By**: Project Nyra Architecture Team
 **License**: MIT
 
-For the latest updates and comprehensive examples, visit the [Claude Flow Documentation](https://github.com/ruvnet/claude-flow).
+For the latest updates and comprehensive examples, visit the [Claude Flow Documentation](https://github.com/ruvnet/archon-os).

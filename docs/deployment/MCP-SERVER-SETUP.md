@@ -75,7 +75,7 @@
 
 ```bash
 # 1. Start Claude Flow MCP Server
-npx @claude-flow/cli@latest mcp start
+npx @archon-os/cli@latest mcp start
 
 # 2. Start Nexus Router (includes MCP proxy)
 cd services/nexus-router
@@ -105,7 +105,7 @@ class NexusRouter {
       fuzzySearch: true,        // Built-in!
       healthChecks: true,
       serverRegistry: [
-        { name: 'claude-flow', url: 'http://localhost:3100' },
+        { name: 'archon-os', url: 'http://localhost:3100' },
         { name: 'archon-os', url: 'http://localhost:3200' },
         { name: 'infisical', url: 'http://localhost:3300' },
         { name: 'bitwarden', url: 'http://localhost:3400' }
@@ -153,17 +153,17 @@ MCP Proxy (Built-in Component)
 
 ```bash
 # Option A: Using npx (recommended for latest)
-npx @claude-flow/cli@latest mcp start
+npx @archon-os/cli@latest mcp start
 
 # Option B: Using global installation
-npm install -g claude-flow@alpha
-claude-flow mcp start
+npm install -g archon-os@alpha
+archon-os mcp start
 
 # Option C: Custom port
-npx @claude-flow/cli@latest mcp start --port 3100
+npx @archon-os/cli@latest mcp start --port 3100
 
 # Option D: With custom config
-npx @claude-flow/cli@latest mcp start --config ./config/claude-flow-mcp.json
+npx @archon-os/cli@latest mcp start --config ./config/archon-os-mcp.json
 ```
 
 **Default Port**: 3100
@@ -239,7 +239,7 @@ Create a startup script:
 echo "🚀 Starting all MCP servers..."
 
 # Start Claude Flow
-npx @claude-flow/cli@latest mcp start &
+npx @archon-os/cli@latest mcp start &
 CLAUDE_FLOW_PID=$!
 
 # Start Archon OS
@@ -277,8 +277,8 @@ chmod +x scripts/start-mcp-servers.sh
 version: '3.8'
 
 services:
-  claude-flow-mcp:
-    image: claude-flow:alpha
+  archon-os-mcp:
+    image: archon-os:alpha
     ports:
       - "3100:3100"
     environment:
@@ -361,7 +361,7 @@ Expected response:
 {
   "status": "healthy",
   "servers": {
-    "claude-flow": { "status": "connected", "latency": "12ms" },
+    "archon-os": { "status": "connected", "latency": "12ms" },
     "archon-os": { "status": "connected", "latency": "8ms" },
     "infisical": { "status": "connected", "latency": "15ms" },
     "bitwarden": { "status": "connected", "latency": "10ms" }
@@ -387,13 +387,13 @@ Expected response:
   "tools": [
     {
       "name": "swarm_init",
-      "server": "claude-flow",
+      "server": "archon-os",
       "description": "Initialize a multi-agent swarm",
       "parameters": { ... }
     },
     {
       "name": "agent_spawn",
-      "server": "claude-flow",
+      "server": "archon-os",
       "description": "Create a new agent",
       "parameters": { ... }
     }
@@ -421,12 +421,12 @@ Response:
     {
       "tool": "swarm_init",
       "score": 0.92,
-      "server": "claude-flow"
+      "server": "archon-os"
     },
     {
       "tool": "swarm_status",
       "score": 0.88,
-      "server": "claude-flow"
+      "server": "archon-os"
     }
   ]
 }
@@ -592,7 +592,7 @@ Update Nexus Router configuration:
 module.exports = {
   servers: [
     {
-      name: 'claude-flow',
+      name: 'archon-os',
       url: 'http://localhost:3100',
       enabled: true
     },
@@ -660,7 +660,7 @@ services:
 
 ```javascript
 // services/nexus-router/.env
-MCP_SERVERS=claude-flow:http://localhost:3100,archon-os:http://localhost:3200,custom:http://localhost:3500
+MCP_SERVERS=archon-os:http://localhost:3100,archon-os:http://localhost:3200,custom:http://localhost:3500
 ```
 
 #### JSON Configuration File
@@ -670,7 +670,7 @@ MCP_SERVERS=claude-flow:http://localhost:3100,archon-os:http://localhost:3200,cu
 {
   "servers": [
     {
-      "name": "claude-flow",
+      "name": "archon-os",
       "url": "http://localhost:3100",
       "enabled": true,
       "priority": 1,
@@ -696,7 +696,7 @@ MCP_SERVERS=claude-flow:http://localhost:3100,archon-os:http://localhost:3200,cu
 ```yaml
 # config/mcp-servers.yml
 servers:
-  - name: claude-flow
+  - name: archon-os
     url: http://localhost:3100
     enabled: true
     health_check_interval: 30s
@@ -733,7 +733,7 @@ netstat -ano | findstr :3100  # Windows
 lsof -i :3100                 # Linux/Mac
 
 # Restart the server
-npx @claude-flow/cli@latest mcp start
+npx @archon-os/cli@latest mcp start
 ```
 
 #### 2. Tools Not Appearing
@@ -809,7 +809,7 @@ Enable debug logging:
 
 ```bash
 # For Claude Flow
-DEBUG=claude-flow:* npx @claude-flow/cli@latest mcp start
+DEBUG=archon-os:* npx @archon-os/cli@latest mcp start
 
 # For Nexus Router
 DEBUG=nexus:mcp:* pnpm dev
@@ -955,7 +955,7 @@ const logger = require('winston');
 
 logger.info('MCP tool executed', {
   tool: 'swarm_init',
-  server: 'claude-flow',
+  server: 'archon-os',
   duration: 123,
   success: true,
   userId: 'user_123'
@@ -1008,7 +1008,7 @@ Document all custom tools:
 ### Official Documentation
 
 - **MCP Specification**: https://modelcontextprotocol.io
-- **Claude Flow**: https://github.com/ruv-inc/claude-flow
+- **Claude Flow**: https://github.com/ruv-inc/archon-os
 - **Archon OS**: (internal documentation)
 
 ### Related Guides
@@ -1031,7 +1031,7 @@ Document all custom tools:
 
 ```bash
 # Start Claude Flow MCP
-npx @claude-flow/cli@latest mcp start
+npx @archon-os/cli@latest mcp start
 
 # Check MCP health
 curl http://localhost:3000/mcp/health

@@ -63,7 +63,7 @@ Updated project architecture documentation to clarify roles and responsibilities
 - MCP server only, no agent spawning
 - Source of Truth for tasks/knowledge/rules
 
-✅ **claude-flow-role-clarification** (315 bytes)
+✅ **archon-os-role-clarification** (315 bytes)
 - Claude Flow as ACTIVE ORCHESTRATOR
 - Sole authority for execution, code, commands
 - Controls execution loop
@@ -102,7 +102,7 @@ Updated project architecture documentation to clarify roles and responsibilities
 
 ### Test Query: "archon passive manager claude flow active orchestrator roles"
 **Results**: 2 matches found
-1. **claude-flow-role-clarification** (Score: 0.76)
+1. **archon-os-role-clarification** (Score: 0.76)
 2. **archon-role-clarification** (Score: 0.61)
 
 **Search Time**: 617ms
@@ -158,7 +158,7 @@ CACHE: Redis (fast access, 6380)
 FALLBACK: sql.js (local, embedded)
 
 DEPRECATED (REMOVED):
-- Letta, Mem0, Qdrant, OpenMemory, Neo4j, Graphiti
+- Letta, Mem0, Qdrant, OpenMemory, Neo4j, letta
 ```
 
 ### 4. System Prompt Directive
@@ -191,7 +191,7 @@ Incorrect Flow (BLOCKED):
 
 ## 📋 Configuration Updates Required
 
-### In claude-flow.config.yaml
+### In archon-os.config.yaml
 ```yaml
 memory:
   backend: ruvector  # ✅ Already configured
@@ -230,13 +230,13 @@ mcp_server:
 ### Check Memory Storage
 ```bash
 # List all architecture entries
-npx @claude-flow/cli@latest memory list --namespace architecture
+npx @archon-os/cli@latest memory list --namespace architecture
 
 # Search for specific pattern
-npx @claude-flow/cli@latest memory search --query "archon roles" --namespace architecture
+npx @archon-os/cli@latest memory search --query "archon roles" --namespace architecture
 
 # Retrieve specific entry
-npx @claude-flow/cli@latest memory retrieve --key "archon-role-clarification" --namespace architecture
+npx @archon-os/cli@latest memory retrieve --key "archon-role-clarification" --namespace architecture
 ```
 
 ### Check Documentation
@@ -260,7 +260,7 @@ docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
 docker exec nyra-ruvector psql -U claude -d claude_flow -c "SELECT COUNT(*) FROM claude_flow.embeddings;"
 
 # Check memory stats
-npx @claude-flow/cli@latest memory stats
+npx @archon-os/cli@latest memory stats
 ```
 
 ---
@@ -283,7 +283,7 @@ npx @claude-flow/cli@latest memory stats
    - Agent reports completion
    - Verify memory storage in RuVector
 
-4. **Update .claude-flow/config.yaml**
+4. **Update .archon-os/config.yaml**
    - Add Archon MCP server config
    - Include system prompt directive
    - Configure restrictions
@@ -295,7 +295,7 @@ npx @claude-flow/cli@latest memory stats
 - **Golden Stack Deployment**: `/GOLDEN-STACK-DEPLOYED.md`
 - **Startup Guide**: `/STARTUP-GUIDE.md`
 - **WSL Troubleshooting**: `/WSL-RESTART-REQUIRED.md`
-- **Claude Flow Config**: `/.claude-flow/config.yaml`
+- **Claude Flow Config**: `/.archon-os/config.yaml`
 - **Docker Compose**: `/infra/docker-compose/docker-compose.golden-core.yml`
 
 ---

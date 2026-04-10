@@ -7,7 +7,7 @@ param(
 )
 
 $ProjectRoot = "C:\Dev\Projects\Repos\Project-Nyra"
-$ClaudeFlowPath = "$ProjectRoot\submodules\claude-flow"
+$ClaudeFlowPath = "$ProjectRoot\submodules\archon-os"
 $ArchonPath = "$ProjectRoot\submodules\archon"
 
 Write-Host "======================================" -ForegroundColor Cyan
@@ -53,12 +53,12 @@ if ($Environment -eq 'development') {
 if ($Environment -eq 'development') {
     Write-Host "[3/6] Setting up pnpm linking for local packages..." -ForegroundColor Yellow
 
-    # Link claude-flow
+    # Link archon-os
     if (Test-Path $ClaudeFlowPath\package.json) {
         Push-Location $ClaudeFlowPath
         pnpm link --global | Out-Null
         Pop-Location
-        Write-Host "  Linked claude-flow globally" -ForegroundColor Green
+        Write-Host "  Linked archon-os globally" -ForegroundColor Green
     }
 
     # Link archon
@@ -125,7 +125,7 @@ Write-Host ""
 if ($Environment -eq 'development') {
     Write-Host "Next Steps for Development:" -ForegroundColor Yellow
     Write-Host "  1. Make changes to local code:" -ForegroundColor White
-    Write-Host "     - C:\Dev\Projects\Repos\Project-Nyra\submodules\claude-flow" -ForegroundColor Gray
+    Write-Host "     - C:\Dev\Projects\Repos\Project-Nyra\submodules\archon-os" -ForegroundColor Gray
     Write-Host "     - C:\Dev\Projects\Repos\Project-Nyra\submodules\archon" -ForegroundColor Gray
     Write-Host "  2. Changes will automatically reflect in MCP servers (with hot reload)" -ForegroundColor White
     Write-Host "  3. Use 'npm run dev' or 'pnpm dev' to start development servers" -ForegroundColor White

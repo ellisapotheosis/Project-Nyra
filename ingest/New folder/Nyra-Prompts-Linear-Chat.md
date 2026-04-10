@@ -14,7 +14,7 @@ Wire mortgage lead ingestion
 
 Build campaign automation
 
-Integrate memory (Graphiti + Letta + Ruvector)
+Integrate memory (letta + Letta + Ruvector)
 
 Produce dockerized infrastructure
 
@@ -46,7 +46,7 @@ LiteLLM + OpenRouter
 
 Moltbot / Clawdbot (production AI)
 
-Claude-Flow (development)
+archon-os (development)
 
 Archon OS (task + memory UI only)
 
@@ -58,7 +58,7 @@ Nyra Admin UI (shadcn + Magic UI)
 
 Memory Layer
 
-Graphiti MCP (graph)
+letta MCP (graph)
 
 FalkorDB (Redis module)
 
@@ -152,7 +152,7 @@ Phase 2 — Memory
 
 FalkorDB on Redis
 
-Graphiti API
+letta API
 
 Ruvector Postgres
 
@@ -293,7 +293,7 @@ Nexus Router (single MCP ingress)
 
 Moltbot (production AI)
 
-Claude-Flow (dev)
+archon-os (dev)
 
 Archon OS (tasks/memory UI)
 
@@ -305,7 +305,7 @@ Nyra Admin UI (shadcn + Magic UI)
 
 Memory
 
-Graphiti MCP
+letta MCP
 
 FalkorDB (Redis)
 
@@ -355,7 +355,7 @@ Dockerize TwentyCRM + MCP
 
 Wire Nexus Router
 
-Build Graphiti + FalkorDB
+Build letta + FalkorDB
 
 Implement Ruvector
 
@@ -470,7 +470,7 @@ MEMORY
 
 Assume backend:
 
-Graphiti
+letta
 
 FalkorDB (Redis)
 

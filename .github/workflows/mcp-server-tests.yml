@@ -173,7 +173,7 @@ jobs:
           version: ${{ env.PNPM_VERSION }}
 
       - name: Install Claude Flow CLI
-        run: npm install -g @claude-flow/cli@latest
+        run: npm install -g @archon-os/cli@latest
 
       - name: Install root dependencies
         run: pnpm install --no-frozen-lockfile
@@ -181,7 +181,7 @@ jobs:
       - name: Run MCP health check
         run: |
           # Check if MCP servers can be initialized
-          npx @claude-flow/cli@latest mcp list || echo "MCP servers not configured yet"
+          npx @archon-os/cli@latest mcp list || echo "MCP servers not configured yet"
 
       - name: Test MCP server discovery
         run: |

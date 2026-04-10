@@ -64,11 +64,11 @@
 ### Claude Flow Documentation (5 files)
 | Source | Destination |
 |--------|-------------|
-| CLAUDE-FLOW-OPTIMIZATION-QUICK-REF.md | docs/claude-flow/ |
-| CLAUDE-FLOW-V3-OPTIMIZATIONS.md | docs/claude-flow/ |
-| CLAUDE-FLOW-VERSION-COMPARISON.md | docs/claude-flow/ |
-| CLAUDE_FLOW_EXAMPLES_NOTES.md | docs/claude-flow/ |
-| CLAUDE_FLOW_PLAYBOOK.md | docs/claude-flow/ |
+| archon-os-OPTIMIZATION-QUICK-REF.md | docs/archon-os/ |
+| archon-os-V3-OPTIMIZATIONS.md | docs/archon-os/ |
+| archon-os-VERSION-COMPARISON.md | docs/archon-os/ |
+| CLAUDE_FLOW_EXAMPLES_NOTES.md | docs/archon-os/ |
+| CLAUDE_FLOW_PLAYBOOK.md | docs/archon-os/ |
 
 ### RuVector Documentation (11 files)
 | Source | Destination |
@@ -153,7 +153,7 @@ All moved files are self-contained or properly reference other docs via relative
 ## 📁 New Directory Structure Impact
 
 ### Newly Created Directories
-- `docs/claude-flow/` - Claude Flow specific documentation (created)
+- `docs/archon-os/` - Claude Flow specific documentation (created)
 - `docs/ruvector/` - RuVector documentation (created)
 - `docs/templates/` - Templates and examples (created)
 
@@ -196,14 +196,14 @@ docs/WHITEPAPER.md      (122.5 KB)
 ## 📋 Completion Checklist
 
 - [x] Identified all misplaced files in docs root
-- [x] Created missing subdirectories (claude-flow, ruvector, templates)
+- [x] Created missing subdirectories (archon-os, ruvector, templates)
 - [x] Moved architecture-related files to `docs/architecture/`
 - [x] Moved API documentation to `docs/api/`
 - [x] Moved deployment files to `docs/deployment/`
 - [x] Moved setup guides to `docs/setup-guides/`
 - [x] Moved configuration files to `docs/configuration/`
 - [x] Moved development guides to `docs/development/`
-- [x] Moved Claude Flow docs to `docs/claude-flow/`
+- [x] Moved Claude Flow docs to `docs/archon-os/`
 - [x] Moved RuVector docs to `docs/ruvector/`
 - [x] Moved SPARC specs to `docs/sparc/`
 - [x] Moved guides to `docs/guides/`

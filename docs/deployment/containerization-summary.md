@@ -28,7 +28,7 @@ Complete RuVector environment configuration with **200+ variables** covering:
 - ✅ EWC++ settings
 - ✅ Flash Attention optimization
 
-### 2. `CLAUDE-FLOW-FULL-FEATURES-CONTAINERIZATION.md` (30KB)
+### 2. `archon-os-FULL-FEATURES-CONTAINERIZATION.md` (30KB)
 Complete containerization guide covering:
 
 - ✅ **15 core containers** for full features
@@ -51,11 +51,11 @@ Complete containerization guide covering:
 
 ### "What Needs to be Containerized?"
 
-When running claude-flow in Docker, you need **15 containers** for full features:
+When running archon-os in Docker, you need **15 containers** for full features:
 
 #### Core Stack (8 Required)
-1. **claude-flow** - Main orchestrator + CLI + MCP server
-2. **agentdb** - Vector memory backend (PostgreSQL + pgvector)
+1. **archon-os** - Main orchestrator + CLI + MCP server
+2. **ruvector** - Vector memory backend (PostgreSQL + pgvector)
 3. **ruvector** - Distributed vector search service
 4. **onnx-runtime** - ONNX embedding service
 5. **transformers.js** - Local embeddings (Xenova models)
@@ -65,7 +65,7 @@ When running claude-flow in Docker, you need **15 containers** for full features
 
 #### MCP Servers (4 for Full Features)
 9. **ruv-swarm** - Swarm coordination & distributed intelligence
-10. **agentic-flow** - Core intelligence & ONNX integration
+10. **archon-os** - Core intelligence & ONNX integration
 11. **epic-sdk** - Event processing
 12. **agentic-jujutsu** - Self-learning version control
 
@@ -95,9 +95,9 @@ infisical secrets list --path /ruvector
 docker-compose build
 
 # Or build individually
-docker-compose build claude-flow
+docker-compose build archon-os
 docker-compose build ruvector
-docker-compose build agentdb
+docker-compose build ruvector
 # ... etc
 ```
 
@@ -111,7 +111,7 @@ docker-compose up -d
 docker-compose ps
 
 # View logs
-docker-compose logs -f claude-flow
+docker-compose logs -f archon-os
 ```
 
 ---
@@ -120,14 +120,14 @@ docker-compose logs -f claude-flow
 
 | Container | Image | Ports | Purpose |
 |-----------|-------|-------|---------|
-| claude-flow | node:20-alpine | 3000, 9090 | Main orchestrator |
-| agentdb | postgres:16 + pgvector | 5433 | Vector memory |
+| archon-os | node:20-alpine | 3000, 9090 | Main orchestrator |
+| ruvector | postgres:16 + pgvector | 5433 | Vector memory |
 | ruvector | custom | 6380, 8380 | Vector search |
 | onnx-runtime | onnxruntime/server | 8001 | Embeddings |
 | transformers-js | node:20-alpine | 8002 | Local embeddings |
 | agent-booster | rust:1.75-alpine | 8000 | Transforms |
 | ruv-swarm | node:20-alpine | 8092 | MCP: Swarm |
-| agentic-flow | node:20-alpine | 8093 | MCP: Intelligence |
+| archon-os | node:20-alpine | 8093 | MCP: Intelligence |
 | epic-sdk | node:20-alpine | 8094 | MCP: Events |
 | agentic-jujutsu | node:20-alpine | 8095 | MCP: Version Control |
 | postgres | postgres:16-alpine | 5432 | Database |
@@ -149,7 +149,7 @@ docker-compose logs -f claude-flow
 - Handles semantic pattern matching
 - Needs containerization for distributed mode across GPU workers
 
-**AgentDB Container** (Required)
+**ruvector Container** (Required)
 - PostgreSQL with pgvector extension
 - Persistent vector storage
 - HNSW indexing for sub-millisecond search
@@ -175,7 +175,7 @@ docker-compose logs -f claude-flow
 
 **MCP Server Containers** (Required for Full Features)
 - **ruv-swarm**: Multi-agent coordination
-- **agentic-flow**: Core intelligence & neural
+- **archon-os**: Core intelligence & neural
 - **epic-sdk**: Event-driven workflows
 - **agentic-jujutsu**: Learning version control
 
@@ -186,7 +186,7 @@ docker-compose logs -f claude-flow
 ```
 Project-Nyra/
 ├── ruvector.env                                    (9.2KB)
-├── CLAUDE-FLOW-FULL-FEATURES-CONTAINERIZATION.md  (30KB)
+├── archon-os-FULL-FEATURES-CONTAINERIZATION.md  (30KB)
 ├── CONTAINERIZATION-SUMMARY.md                     (this file)
 └── docker-compose.yml                              (in guide)
 ```
@@ -197,7 +197,7 @@ Project-Nyra/
 
 1. **Review Files**
    - `ruvector.env` - Configure for your environment
-   - `CLAUDE-FLOW-FULL-FEATURES-CONTAINERIZATION.md` - Full guide
+   - `archon-os-FULL-FEATURES-CONTAINERIZATION.md` - Full guide
 
 2. **Customize**
    - Update `.env` with your API keys
@@ -334,7 +334,7 @@ docker-compose logs onnx-runtime | grep "GPU"
 
 ## 📞 Support
 
-- **Full Guide:** `CLAUDE-FLOW-FULL-FEATURES-CONTAINERIZATION.md`
+- **Full Guide:** `archon-os-FULL-FEATURES-CONTAINERIZATION.md`
 - **Environment:** `ruvector.env`
 - **RuVector Docs:** `docs/RUVECTOR-*.md`
 

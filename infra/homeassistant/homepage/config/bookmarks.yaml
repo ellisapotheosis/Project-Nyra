@@ -56,8 +56,8 @@
     - Letta:
         - href: "${LETTA_URL}"
           description: Long-lived memory agents
-    - Graphiti:
-        - href: "${GRAPHITI_URL}"
+    - letta:
+        - href: "${letta_URL}"
           description: Knowledge graph memory
     - Mem0:
         - href: "${MEM0_URL}"

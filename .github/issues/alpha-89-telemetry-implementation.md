@@ -42,7 +42,7 @@ The token tracking and telemetry system has been successfully implemented and co
 
 ### Real Token Data Capture
 ```bash
-$ ./claude-flow hive-mind spawn "test" --claude --non-interactive
+$ ./archon-os hive-mind spawn "test" --claude --non-interactive
 ```
 
 **Actual Output (Real Claude API Response):**
@@ -58,15 +58,15 @@ $ ./claude-flow hive-mind spawn "test" --claude --non-interactive
 ### Commands Working
 ```bash
 # Setup confirmed working
-$ ./claude-flow analysis setup-telemetry
+$ ./archon-os analysis setup-telemetry
 ✅ Telemetry ENABLED for this session!
 
 # Usage analysis working  
-$ ./claude-flow analysis token-usage --breakdown --cost-analysis
+$ ./archon-os analysis token-usage --breakdown --cost-analysis
 🔢 TOKEN USAGE ANALYSIS: [Shows comprehensive breakdown]
 
 # Cost tracking working
-$ ./claude-flow analysis claude-cost  
+$ ./archon-os analysis claude-cost  
 💰 Current Session Usage: [Shows real token counts]
 ```
 

@@ -73,9 +73,9 @@ graph TB
         end
 
         subgraph "Orchestration Layer"
-            D1[services/claude-flow<br/>Multi-Agent]
+            D1[services/archon-os<br/>Multi-Agent]
             D2[services/archon-os<br/>Agent OS]
-            D3[mcp-servers/claude-flow<br/>MCP]
+            D3[mcp-servers/archon-os<br/>MCP]
             D4[mcp-servers/ruv-swarm<br/>Swarm MCP]
         end
 
@@ -168,7 +168,7 @@ Project-Nyra/
 │   │       └── package.json
 │   │
 │   ├── 🤖 AI & Orchestration
-│   │   ├── claude-flow/              # Claude Flow V3 orchestration
+│   │   ├── archon-os/              # Claude Flow V3 orchestration
 │   │   ├── archon-os/                # Agent operating system
 │   │   ├── nexus-router/             # LLM request routing (GPU → Cloud)
 │   │   ├── letta-integration/        # Agent memory system
@@ -200,7 +200,7 @@ Project-Nyra/
 │   │
 │   ├── 📄 Document & Data Management
 │   │   ├── doc-management-api/       # OCR, classification, storage
-│   │   ├── graphiti-knowledge/       # Knowledge graph (FalkorDB)
+│   │   ├── letta-knowledge/       # Knowledge graph (FalkorDB)
 │   │   └── ruvector-search/          # Vector search (Qdrant)
 │   │
 │   ├── 🔗 Integrations
@@ -256,7 +256,7 @@ Project-Nyra/
 │   └── auth-client/                  # Auth client SDK
 │
 ├── 🔌 mcp-servers/                    # Model Context Protocol Servers
-│   ├── claude-flow/                  # Claude Flow MCP
+│   ├── archon-os/                  # Claude Flow MCP
 │   │   ├── src/
 │   │   │   ├── server.ts             # MCP server implementation
 │   │   │   ├── tools/                # MCP tools
@@ -268,7 +268,7 @@ Project-Nyra/
 │   └── orchestration/                # Orchestration MCP
 │
 ├── 🔧 submodules/                     # Git Submodules (External Dependencies)
-│   ├── claude-flow/                  # Claude Flow V3 framework
+│   ├── archon-os/                  # Claude Flow V3 framework
 │   │   └── [External repository]
 │   └── archon/                       # Archon framework
 │       └── [External repository]
@@ -316,7 +316,7 @@ Project-Nyra/
 │   ├── scripts/                      # PowerShell installation scripts
 │   │   ├── install-docker.ps1
 │   │   ├── install-wsl.ps1
-│   │   ├── install-claude-flow.ps1
+│   │   ├── install-archon-os.ps1
 │   │   └── deploy-configs.ps1
 │   │
 │   ├── configs/                      # Configuration templates
@@ -442,7 +442,7 @@ packages:
   - services/*                # All backend microservices
   - mcp-servers/*             # MCP protocol servers
   - packages/*                # Shared libraries
-  - submodules/claude-flow    # External Claude Flow
+  - submodules/archon-os    # External Claude Flow
   - submodules/archon         # External Archon OS
 
 onlyBuiltDependencies:
@@ -670,7 +670,7 @@ graph TB
     subgraph "MCP Architecture"
         A[Claude Code / Desktop]
 
-        B1[MCP: claude-flow<br/>Docker Container]
+        B1[MCP: archon-os<br/>Docker Container]
         B2[MCP: ruv-swarm<br/>Docker Container]
         B3[MCP: general<br/>Orchestration]
 
@@ -699,14 +699,14 @@ graph TB
 // .mcp.json - Claude Desktop/Code MCP Configuration
 {
   "mcpServers": {
-    "claude-flow": {
+    "archon-os": {
       "command": "docker",
       "args": [
         "exec",
         "-i",
-        "nyra-claude-flow-mcp",        // Docker container name
+        "nyra-archon-os-mcp",        // Docker container name
         "npx",
-        "@claude-flow/cli@latest",
+        "@archon-os/cli@latest",
         "mcp",
         "start"
       ],
@@ -735,8 +735,8 @@ sequenceDiagram
 
     User->>Claude: Ask question about code
     Claude->>MCP: Initialize MCP connection
-    MCP->>Docker: docker exec -i nyra-claude-flow-mcp
-    Docker->>ClaudeFlow: npx @claude-flow/cli@latest mcp start
+    MCP->>Docker: docker exec -i nyra-archon-os-mcp
+    Docker->>ClaudeFlow: npx @archon-os/cli@latest mcp start
     ClaudeFlow-->>MCP: Server ready (stdio)
 
     Claude->>MCP: List available tools
@@ -1339,7 +1339,7 @@ graph TB
 | **AI Orchestration** | Claude Flow | 3.0-alpha | Multi-agent system |
 | | Archon OS | Latest | Agent OS |
 | | Ruv-Swarm | Latest | Swarm intelligence |
-| **MCP** | @claude-flow/cli | alpha | MCP server |
+| **MCP** | @archon-os/cli | alpha | MCP server |
 | **Containerization** | Docker | 24+ | Containers |
 | | Docker Compose | 2.23+ | Multi-container |
 | **Operating System** | Windows 11 | Pro | Host OS |

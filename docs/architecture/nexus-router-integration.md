@@ -114,7 +114,7 @@ aggregation = true
 ```
 
 **Use Cases**:
-- MCP server aggregation (Letta, Mem0, Graphiti)
+- MCP server aggregation (Letta, Mem0, letta)
 - Policy-controlled tool access
 - Basic LLM provider selection
 - Centralized authentication

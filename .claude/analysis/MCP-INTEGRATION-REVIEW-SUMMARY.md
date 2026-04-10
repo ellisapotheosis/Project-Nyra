@@ -14,11 +14,11 @@ The Claude Flow integration with MCP (Model Context Protocol) servers in Project
 
 | Server | Status | Key Features | Port/Transport |
 |--------|--------|-------------|-----------------|
-| claude-flow@alpha | Active | Orchestration, Hooks, Neural, GitHub | stdio |
+| archon-os@alpha | Active | Orchestration, Hooks, Neural, GitHub | stdio |
 | ruv-swarm | Active | Swarm Coordination, WASM, DAA | stdio |
 | flow-nexus | Active | Cloud Execution, Sandboxes | stdio (requires credentials) |
-| agentic-flow | Active | Agent Workflows | stdio |
-| agentdb | Active | Vector DB, HNSW Search | stdio |
+| archon-os | Active | Agent Workflows | stdio |
+| ruvector | Active | Vector DB, HNSW Search | stdio |
 | agent-booster | Active | Performance Optimization | stdio |
 | epic-sdk | Active | Development Toolkit | stdio (requires credentials) |
 
@@ -31,8 +31,8 @@ The Claude Flow integration with MCP (Model Context Protocol) servers in Project
 | Letta | nyra-letta | 8283 | Stateful conversation memory |
 | Mem0 | nyra-mem0 | 4321 | Universal memory layer |
 | OpenMemory MCP | nyra-openmemory-mcp | 8081 | Memory MCP server |
-| Claude Flow | nyra-claude-flow | 3010 | Multi-agent orchestrator |
-| AgentDB | nyra-agentdb | 8080 | HNSW vector database |
+| Claude Flow | nyra-archon-os | 3010 | Multi-agent orchestrator |
+| ruvector | nyra-ruvector | 8080 | HNSW vector database |
 | RuVector | nyra-ruvector | 8888 | Neural optimization |
 | Infisical | nyra-infisical | 8082 | Secrets management |
 
@@ -49,7 +49,7 @@ The Claude Flow integration with MCP (Model Context Protocol) servers in Project
   - CLAUDE_FLOW_MAX_AGENTS: 15
   - CLAUDE_FLOW_MEMORY_BACKEND: hybrid
 
-### 2. Claude Flow Main Config (`claude-flow.config.json`)
+### 2. Claude Flow Main Config (`archon-os.config.json`)
 - **Version**: 3.0.0
 - **Max Concurrent Agents**: 35
 - **Agent Types Configured**: 11
@@ -60,7 +60,7 @@ The Claude Flow integration with MCP (Model Context Protocol) servers in Project
   - N8N Workflows: `http://localhost:5678`
   - TwentyCRM: `http://localhost:3000`
 
-### 3. Claude Flow MCP Config (`.claude-flow/mcp.json`)
+### 3. Claude Flow MCP Config (`.archon-os/mcp.json`)
 - **Total MCP Servers**: 7
 - **All servers using stdio transport**
 - **Key features enabled**:
@@ -85,7 +85,7 @@ The Claude Flow integration with MCP (Model Context Protocol) servers in Project
 ```
 Claude Code
     ↓
-.mcp.json (claude-flow server definition)
+.mcp.json (archon-os server definition)
     ↓
 Claude Flow stdio transport
     ↓
@@ -100,7 +100,7 @@ LLM Providers (Anthropic, OpenRouter, Gemini)
 ```
 Claude Flow Agents
     ↓
-AgentDB (http://localhost:8080) - Vector storage
+ruvector (http://localhost:8080) - Vector storage
     ↓
 Letta (http://localhost:8283) - Conversation memory
     ↓
@@ -132,7 +132,7 @@ GitHub integration and workflow automation
 
 3. **Redundant Memory Systems**: Dual memory backends (Letta for stateful, Mem0 for universal) ensure no single point of failure
 
-4. **Vector Search Performance**: AgentDB with HNSW configuration provides 150x-12,500x faster semantic search
+4. **Vector Search Performance**: ruvector with HNSW configuration provides 150x-12,500x faster semantic search
 
 5. **Neural Optimization**: RuVector enables SONA (Self-Optimizing Neural Architecture), MoE routing, Flash Attention, and EWC++
 
@@ -151,7 +151,7 @@ GitHub integration and workflow automation
 ## Identified Gaps & Missing Connections
 
 ### 1. Flow-Nexus Cloud Integration
-**Issue**: Flow-Nexus MCP server configured in `.claude-flow/mcp.json` but requires credentials (FLOW_NEXUS_API_KEY, FLOW_NEXUS_USER_ID) not visible in docker-compose setup
+**Issue**: Flow-Nexus MCP server configured in `.archon-os/mcp.json` but requires credentials (FLOW_NEXUS_API_KEY, FLOW_NEXUS_USER_ID) not visible in docker-compose setup
 **Status**: Configuration incomplete
 **Recommendation**:
 - Add Flow-Nexus credentials to environment variables
@@ -208,7 +208,7 @@ All MCP services are connected to this bridge network for internal communication
 - Letta (8283) + postgres-letta
 - Mem0 (4321)
 - Claude Flow (3010)
-- AgentDB (8080)
+- ruvector (8080)
 - RuVector (8888)
 - Infisical (8082) + infisical-mongo
 
@@ -216,7 +216,7 @@ All MCP services are connected to this bridge network for internal communication
 Core services connect to this network for cross-service communication with the MCP layer
 
 ### Communication Paths
-1. **Internal Discovery**: Services communicate via DNS hostnames (e.g., http://agentdb:8080)
+1. **Internal Discovery**: Services communicate via DNS hostnames (e.g., http://ruvector:8080)
 2. **Health Checks**: Each service has health endpoint checks
 3. **Dependency Management**: Explicit `depends_on` clauses ensure startup order
 
@@ -309,8 +309,8 @@ Core services connect to this network for cross-service communication with the M
 
 ## Files Analyzed
 - .mcp.json (root)
-- claude-flow.config.json
-- .claude-flow/mcp.json
+- archon-os.config.json
+- .archon-os/mcp.json
 - infra/docker/base/docker-compose.mcp.yml
 - .claude/src/mcp/config/mcp-config.js
 - .claude/src/mcp/connection-manager.js

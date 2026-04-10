@@ -12,8 +12,8 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 # Configuration
-WORKFLOW_FILE=".claude-flow/workflows/ingestion-sparc.json"
-CLI="npx @claude-flow/cli@latest"
+WORKFLOW_FILE=".archon-os/workflows/ingestion-sparc.json"
+CLI="npx @archon-os/cli@latest"
 
 # Usage function
 usage() {

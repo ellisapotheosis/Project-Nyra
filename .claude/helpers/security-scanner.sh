@@ -6,7 +6,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
-SECURITY_DIR="$PROJECT_ROOT/.claude-flow/security"
+SECURITY_DIR="$PROJECT_ROOT/.archon-os/security"
 SCAN_FILE="$SECURITY_DIR/scan-results.json"
 LAST_RUN_FILE="$SECURITY_DIR/.scanner-last-run"
 

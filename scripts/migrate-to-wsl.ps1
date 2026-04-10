@@ -168,12 +168,12 @@ function Update-ProjectStructure {
     $dirs = @(
         "infra/docker/dev",
         "infra/docker/metamcp",
-        "infra/docker/claude-flow",
+        "infra/docker/archon-os",
         "infra/docker/archon",
         "infra/docker/infisical",
         "infra/docker/nyra",
         "infra/sql/init",
-        "configs/claude-flow",
+        "configs/archon-os",
         "configs/archon",
         "configs/infisical",
         "configs/falkordb",
@@ -190,7 +190,7 @@ function Update-ProjectStructure {
     # Create placeholder Dockerfiles
     $dockerfiles = @(
         "infra/docker/metamcp/Dockerfile.gateway",
-        "infra/docker/claude-flow/Dockerfile.claude-flow",
+        "infra/docker/archon-os/Dockerfile.archon-os",
         "infra/docker/archon/Dockerfile.archon",
         "infra/docker/infisical/Dockerfile.sync",
         "infra/docker/nyra/Dockerfile.orchestrator",

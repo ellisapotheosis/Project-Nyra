@@ -88,7 +88,7 @@
 **Infrastructure:**
 - `secrets.nyra.yourdomain.com` (8080) - Infisical
 - `nexus.nyra.yourdomain.com` (8888) - Nexus Router
-- `claude-flow.nyra.yourdomain.com` (8081)
+- `archon-os.nyra.yourdomain.com` (8081)
 
 **Database Admin:**
 - `pgadmin.nyra.yourdomain.com` (5050)
@@ -413,7 +413,7 @@ sudo systemctl status cloudflared-orchestrator
 
 ```bash
 # Retrieve design from memory
-npx @claude-flow/cli@latest memory retrieve \
+npx @archon-os/cli@latest memory retrieve \
   --namespace cloudflare-architecture \
   --key tunnel-design
 ```

@@ -9,7 +9,7 @@ Current state: 578 markdown files across 100+ subdirectories with heavy duplicat
 1. **Duplicates Identified:**
    - 5+ architecture documents covering similar ground
    - 8+ setup/deployment guides with overlapping content
-   - Multiple Claude-Flow configuration docs
+   - Multiple archon-os configuration docs
    - Scattered infrastructure documentation
    - Redundant troubleshooting guides
 
@@ -48,13 +48,13 @@ Current state: 578 markdown files across 100+ subdirectories with heavy duplicat
 **Purpose:** Documentation for tasks that Claude Code/AI can fully automate
 
 **Content to Migrate:**
-- docs/prompts/claude-flow/ → ai-automatable/prompts/
-- docs/bootstrap/claude-flow/ → ai-automatable/bootstrap/
+- docs/prompts/archon-os/ → ai-automatable/prompts/
+- docs/bootstrap/archon-os/ → ai-automatable/bootstrap/
 - docs/workflows/examples/ → ai-automatable/workflows/
 - Root automation guides:
-  * CLAUDE-FLOW-QUICK-START.md → ai-automatable/quick-start.md
-  * CLAUDE-FLOW-OPTIMIZATION-QUICK-REF.md → ai-automatable/optimization-reference.md
-  * CLAUDE-FLOW-V3-OPTIMIZATIONS.md → ai-automatable/v3-optimizations.md
+  * archon-os-QUICK-START.md → ai-automatable/quick-start.md
+  * archon-os-OPTIMIZATION-QUICK-REF.md → ai-automatable/optimization-reference.md
+  * archon-os-V3-OPTIMIZATIONS.md → ai-automatable/v3-optimizations.md
 
 **New Structure:**
 ```
@@ -152,9 +152,9 @@ api/
 - deployment-guide.md → deployment/primary-guide.md
 - PRODUCTION-DEPLOYMENT-GUIDE.md → deployment/production.md
 - deployment/4PC-DEPLOYMENT-GUIDE.md (keep)
-- deployment/CLAUDE-FLOW-PRODUCTION-CONTAINERIZATION.md (keep)
+- deployment/archon-os-PRODUCTION-CONTAINERIZATION.md (keep)
 - deployment/LOBECHAT-DEPLOYMENT.md (keep)
-- deployment/GRAPHITI-MCP-DEPLOYMENT-PLAN.md (keep)
+- deployment/letta-MCP-DEPLOYMENT-PLAN.md (keep)
 - deployment/MEM0-MCP-DEPLOYMENT-PLAN.md (keep)
 - deployment/OPEN-WEBUI-DEPLOYMENT-PLAN.md (keep)
 - CONTAINERIZATION-GUIDE.md → deployment/containerization.md
@@ -174,10 +174,10 @@ deployment/
 ├── migration.md          # Migration procedures
 ├── security.md           # Security deployment
 ├── 4pc-distributed.md    # 4-PC setup
-├── claude-flow-prod.md   # Claude-Flow production
+├── archon-os-prod.md   # archon-os production
 └── services/             # Individual service deployments
     ├── lobechat.md
-    ├── graphiti-mcp.md
+    ├── letta-mcp.md
     ├── mem0-mcp.md
     └── open-webui.md
 ```
@@ -191,7 +191,7 @@ deployment/
 - claude-configs/ → configuration/claude/
 - configs/ → configuration/examples/
 - BEST-PRACTICES-GUIDE.md → configuration/best-practices.md
-- CLAUDE-FLOW-VERSION-COMPARISON.md → configuration/version-comparison.md
+- archon-os-VERSION-COMPARISON.md → configuration/version-comparison.md
 
 **New Structure:**
 ```
@@ -250,8 +250,8 @@ cleanup/
 
 ### 9. Folders to Keep As-Is
 - /references/            # External examples and templates
-  - claude-flow-examples/
-  - claude-flow-wiki/
+  - archon-os-examples/
+  - archon-os-wiki/
   - templates-library/
 
 ### 10. Content to Archive
@@ -314,14 +314,14 @@ cleanup/
 - deployment-guide.md
 - DEPLOYMENT_SUMMARY.md (as overview section)
 
-### Claude-Flow Duplicates
+### archon-os Duplicates
 **Primary:** ai-automatable/quick-start.md
 **Merge from:**
-- CLAUDE-FLOW-QUICK-START.md
-- CLAUDE-FLOW-SETUP.md
-- CLAUDE-FLOW-PLUGINS-SETUP.md
+- archon-os-QUICK-START.md
+- archon-os-SETUP.md
+- archon-os-PLUGINS-SETUP.md
 **Archive:**
-- CLAUDE-FLOW-VERSION-COMPARISON.md → configuration/version-comparison.md
+- archon-os-VERSION-COMPARISON.md → configuration/version-comparison.md
 
 ## Migration Execution Plan
 

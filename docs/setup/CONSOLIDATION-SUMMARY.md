@@ -84,13 +84,13 @@ Covers setup for:
 **Primary Section**:
 - [Manual Setup Guide - Memory Systems](../operations/MANUAL-SETUP-GUIDE.md#memory-systems-configuration)
   - Letta installation and configuration
-  - AgentDB integration
+  - ruvector integration
   - Vector database setup
 
 **Advanced Memory Systems**:
 - [Mem0 MCP Deployment Plan](../deployment/MEM0-MCP-DEPLOYMENT-PLAN.md) (24KB)
-- [Graphiti MCP Deployment Plan](../deployment/GRAPHITI-MCP-DEPLOYMENT-PLAN.md) (20KB)
-- [AgentDB Integration Guide](../integration/AGENTDB-INTEGRATION-GUIDE.md) (15KB)
+- [letta MCP Deployment Plan](../deployment/letta-MCP-DEPLOYMENT-PLAN.md) (20KB)
+- [ruvector Integration Guide](../integration/ruvector-INTEGRATION-GUIDE.md) (15KB)
 
 ---
 
@@ -207,14 +207,14 @@ docs/
 │   ├── DOCKER-MCP-SETUP.md
 │   ├── INFISICAL-MCP-SETUP.md
 │   ├── BITWARDEN-MCP-SETUP.md
-│   ├── GRAPHITI-MCP-DEPLOYMENT-PLAN.md
+│   ├── letta-MCP-DEPLOYMENT-PLAN.md
 │   ├── MEM0-MCP-DEPLOYMENT-PLAN.md
 │   └── [30+ other deployment guides]
 │
 ├── guides/                          ← Quick start and specific guides
 │   ├── QUICK-START.md
 │   ├── SETUP-INDEX.md               ← Original setup index
-│   ├── CLAUDE-FLOW-V3-SETUP.md
+│   ├── archon-os-V3-SETUP.md
 │   └── [15+ other guides]
 │
 ├── architecture/                    ← Architecture documentation
@@ -224,7 +224,7 @@ docs/
 │   └── [architecture specs]
 │
 └── integration/                     ← Integration guides
-    └── AGENTDB-INTEGRATION-GUIDE.md
+    └── ruvector-INTEGRATION-GUIDE.md
 ```
 
 ---
@@ -393,7 +393,7 @@ docs/
 
 ### Documentation Status
 - ✅ **Complete**: Core infrastructure, databases, MCP servers, Open WebUI
-- ⚠️ **Needs Updates**: Mem0 MCP, Graphiti MCP (plans ready, activation pending)
+- ⚠️ **Needs Updates**: Mem0 MCP, letta MCP (plans ready, activation pending)
 - ⏳ **Planned**: Advanced monitoring, backup automation
 
 ### Regular Updates Required

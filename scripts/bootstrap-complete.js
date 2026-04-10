@@ -178,14 +178,14 @@ Starting bootstrap process...
     // Core dependencies
     await this.exec(
       'npm install --save ' +
-      '@anthropic-ai/claude-code @claude-flow/cli dotenv pino pino-pretty',
+      '@anthropic-ai/claude-code @archon-os/cli dotenv pino pino-pretty',
       'Installing core dependencies'
     );
 
     // Memory system
     await this.exec(
       'npm install --save ' +
-      '@ruvector/core @ruvector/hnsw @letta/core graphiti-core @mem0/sdk @agentdb/core',
+      '@ruvector/core @ruvector/hnsw @letta/core letta-core @mem0/sdk @ruvector/core',
       'Installing memory systems'
     );
 
@@ -222,7 +222,7 @@ Starting bootstrap process...
       "memory": {
         "backend": "hybrid",
         "primary": "ruvector",
-        "secondary": ["letta", "graphiti", "mem0"]
+        "secondary": ["letta", "letta", "mem0"]
       },
       "security": {
         "encryption": { "enabled": true },
@@ -231,7 +231,7 @@ Starting bootstrap process...
     };
 
     await this.createFile(
-      path.join(this.baseDir, 'claude-flow.config.json'),
+      path.join(this.baseDir, 'archon-os.config.json'),
       JSON.stringify(claudeFlowConfig, null, 2)
     );
 
@@ -331,13 +331,13 @@ module.exports = { SecurityValidator };
     console.log('\n─ PHASE 5: MCP Server Integration\n');
 
     await this.exec(
-      'npx @claude-flow/cli@latest daemon status || npx @claude-flow/cli@latest daemon start',
+      'npx @archon-os/cli@latest daemon status || npx @archon-os/cli@latest daemon start',
       'Starting Claude Flow daemon'
     );
 
     await this.exec(
-      'claude mcp add claude-flow npx @claude-flow/cli@latest mcp start || true',
-      'Adding claude-flow MCP server'
+      'claude mcp add archon-os npx @archon-os/cli@latest mcp start || true',
+      'Adding archon-os MCP server'
     );
 
     await this.exec(
@@ -361,7 +361,7 @@ async function initMemory() {
     systems: {
       ruvector: { status: 'ready', dimension: 1536 },
       letta: { status: 'ready' },
-      graphiti: { status: 'ready' }
+      letta: { status: 'ready' }
     }
   };
 
@@ -403,7 +403,7 @@ initMemory().catch(e => {
     console.log('\n─ PHASE 8: Final Verification\n');
 
     await this.exec(
-      'npx @claude-flow/cli@latest status',
+      'npx @archon-os/cli@latest status',
       'Verifying Claude Flow status'
     );
 
@@ -429,10 +429,10 @@ ${this.failed.length > 0 ? `\nFailed Steps: ${this.failed.length}\n${this.failed
 Next Steps:
   1. Copy .env.example → .env
   2. Fill in ANTHROPIC_API_KEY and other secrets
-  3. Run: npx @claude-flow/cli@latest swarm init
+  3. Run: npx @archon-os/cli@latest swarm init
   4. Run: npm run dev
 
-For help: npx @claude-flow/cli@latest doctor --fix
+For help: npx @archon-os/cli@latest doctor --fix
 `);
   }
 }

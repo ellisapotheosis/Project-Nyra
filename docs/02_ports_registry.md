@@ -33,14 +33,14 @@ _Generated from the canonical compose set used by `Makefile`, `infra/scripts/nod
 - `infra/dev-stack/docker-compose.yml`
 - `infra/docker-compose.oracle.yml`
 - `infra/docker-compose.yml`
-- `infra/docker-compose/docker-compose.claude-flow.yml`
+- `infra/docker-compose/docker-compose.archon-os.yml`
 - `infra/homeassistant/docker-compose.homeassistant-dashboard.yml`
 - `infra/oracle/docker-compose.oracle.yml`
 - `infra/orchestrator/docker-compose.orchestrator.yml`
 - `infra/orchestrator/portainer-mesh/docker-compose.portainer.edge-agent.yml`
 - `infra/orchestrator/portainer-mesh/docker-compose.portainer.orchestrator.yml`
 - `infra/stacks/nyra-mortgage/docker-compose.addons.yml`
-- `infra/stacks/nyra-mortgage/docker-compose.graphiti.yml`
+- `infra/stacks/nyra-mortgage/docker-compose.letta.yml`
 - `infra/stacks/nyra-mortgage/docker-compose.local.yml`
 - `infra/stacks/nyra-mortgage/docker-compose.services.yml`
 - `infra/stacks/nyra-mortgage/docker-compose.voice.yml`
@@ -68,8 +68,8 @@ _Generated from the canonical compose set used by `Makefile`, `infra/scripts/nod
 |---|---|---|---|---|---|---|---|---|---|
 | activepieces | `infra/docker-compose.oracle.yml` | `activepieces` | `80` | `3001` | `tcp` | — | public-via-cloudflare-access | activepieces.nyra.example.com | - hostname: activepieces.nyra.example.com<br>  service: http://localhost:3001 |
 | adminer | `infra/docker-compose.oracle.yml` | `adminer` | `8080` | `8080` | `tcp` | — | private |   | — |
-| agentdb | `infra/dev-stack/docker-compose.yml` | `agentdb` | `5432` | `5440` | `tcp` | — | private |   | — |
-| agentic-flow | `infra/dev-stack/docker-compose.yml` | `agentic-flow` | `8095` | `8095` | `tcp` | — | private |   | — |
+| ruvector | `infra/dev-stack/docker-compose.yml` | `ruvector` | `5432` | `5440` | `tcp` | — | private |   | — |
+| archon-os | `infra/dev-stack/docker-compose.yml` | `archon-os` | `8095` | `8095` | `tcp` | — | private |   | — |
 | alertmanager | `infra/stacks/nyra-mortgage/docker-compose.yml` | `alertmanager` | `9093` | `9093` | `tcp` | — | private |   | — |
 | archon-agent-work-orders | `docker-compose.archon.yml` | `archon-agent-work-orders` | `8053` | `8053` | `tcp` | — | private |   | — |
 | archon-agents | `docker-compose.archon.yml` | `archon-agents` | `8052` | `8052` | `tcp` | — | private |   | — |
@@ -80,11 +80,11 @@ _Generated from the canonical compose set used by `Makefile`, `infra/scripts/nod
 | bitwarden-mcp | `infra/docker-compose.yml` | `bitwarden-mcp` | `8814` | `8814` | `tcp` | — | private |   | — |
 | cadvisor | `infra/docker-compose.yml` | `cadvisor` | `8080` | `8081` | `tcp` | — | private |   | — |
 | campaign_engine | `infra/stacks/nyra-mortgage/docker-compose.services.yml` | `campaign_engine` | `9020` | `9020` | `tcp` | — | private |   | — |
-| claude-flow | `infra/docker-compose.yml` | `claude-flow` | `8080` | `8085` | `tcp` | — | private |   | — |
-| claude-flow-brain | `infra/dev-stack/docker-compose.yml` | `claude-flow-brain` | `8080` | `8085` | `tcp` | — | private |   | — |
-| claude-flow-cicd | `infra/docker-compose/docker-compose.claude-flow.yml` | `claude-flow-cicd` | `—` | `—` | `—` | — | private |   | — |
-| claude-flow-dashboard | `infra/dev-stack/docker-compose.yml` | `claude-flow-dashboard` | `3003` | `3003` | `tcp` | — | private |   | — |
-| claude-flow-event-server | `infra/dev-stack/docker-compose.yml` | `claude-flow-event-server` | `3004, 3005` | `3004, 3005` | `tcp` | — | private |   | — |
+| archon-os | `infra/docker-compose.yml` | `archon-os` | `8080` | `8085` | `tcp` | — | private |   | — |
+| archon-os-brain | `infra/dev-stack/docker-compose.yml` | `archon-os-brain` | `8080` | `8085` | `tcp` | — | private |   | — |
+| archon-os-cicd | `infra/docker-compose/docker-compose.archon-os.yml` | `archon-os-cicd` | `—` | `—` | `—` | — | private |   | — |
+| archon-os-dashboard | `infra/dev-stack/docker-compose.yml` | `archon-os-dashboard` | `3003` | `3003` | `tcp` | — | private |   | — |
+| archon-os-event-server | `infra/dev-stack/docker-compose.yml` | `archon-os-event-server` | `3004, 3005` | `3004, 3005` | `tcp` | — | private |   | — |
 | cloudflared | `infra/compose/cloudflared.profile.yml` | `cloudflared` | `—` | `—` | `—` | — | private |   | — |
 | docker-mcp-toolkit | `infra/docker-compose.yml` | `docker-mcp-toolkit` | `8811` | `8811` | `tcp` | — | private |   | — |
 | embedding-service | `infra/workers/worker-3060/docker-compose.worker-3060.yml` | `embedding-service` | `8080` | `8080` | `tcp` | — | private |   | — |
@@ -100,8 +100,8 @@ _Generated from the canonical compose set used by `Makefile`, `infra/scripts/nod
 | github-mirror-sync | `infra/configs/gitea/docker-compose.gitea.yml` | `github-mirror-sync` | `—` | `—` | `—` | — | private |   | — |
 | gpu-exporter | `infra/workers/worker-3060/docker-compose.worker-3060.yml` | `gpu-exporter` | `9445` | `9445` | `tcp` | — | private |   | — |
 | grafana | `infra/docker-compose.yml` | `grafana` | `3000` | `3003` | `tcp` | /api/health | public-via-cloudflare-access | grafana.nyra.example.com | - hostname: grafana.nyra.example.com<br>  service: http://localhost:3003 |
-| graphiti-mcp | `infra/oracle/docker-compose.oracle.yml` | `graphiti-mcp` | `—` | `—` | `—` | — | private |   | — |
-| graphiti_mcp | `infra/stacks/nyra-mortgage/docker-compose.graphiti.yml` | `graphiti_mcp` | `8000` | `8000` | `tcp` | — | private |   | — |
+| letta-mcp | `infra/oracle/docker-compose.oracle.yml` | `letta-mcp` | `—` | `—` | `—` | — | private |   | — |
+| letta_mcp | `infra/stacks/nyra-mortgage/docker-compose.letta.yml` | `letta_mcp` | `8000` | `8000` | `tcp` | — | private |   | — |
 | health-checker | `infra/workers/docker-compose.workers.yml` | `health-checker` | `—` | `—` | `—` | — | private |   | — |
 | health-monitor | `infra/workers/worker-3060/docker-compose.worker-3060.yml` | `health-monitor` | `9090` | `9090` | `tcp` | — | private |   | — |
 | infisical | `docker-compose.infisical.yml` | `infisical` | `8080` | `3201` | `tcp` | — | public-via-cloudflare-access | infisical.nyra.example.com | - hostname: infisical.nyra.example.com<br>  service: http://localhost:3201 |

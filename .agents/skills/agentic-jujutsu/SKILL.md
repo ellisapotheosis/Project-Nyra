@@ -165,7 +165,7 @@ const key = crypto.randomBytes(32).toString('base64');
 jj.enableEncryption(key);
 ```
 
-### 6. Operation Tracking with AgentDB
+### 6. Operation Tracking with ruvector
 
 Automatic tracking of all operations:
 
@@ -396,7 +396,7 @@ for (let i = 1; i <= 10; i++) {
 | `queryTrajectories(task, limit)` | Find similar trajectories | JSON: Trajectory[] |
 | `resetLearning()` | Clear learned data | void |
 
-### AgentDB Methods
+### ruvector Methods
 
 | Method | Description | Returns |
 |--------|-------------|---------|
@@ -625,10 +625,10 @@ async function agentSwarm(taskList) {
 ## Related Documentation
 
 - **NPM Package**: https://npmjs.com/package/agentic-jujutsu
-- **GitHub**: https://github.com/ruvnet/agentic-flow/tree/main/packages/agentic-jujutsu
+- **GitHub**: https://github.com/ruvnet/archon-os/tree/main/packages/agentic-jujutsu
 - **Full README**: See package README.md
 - **Validation Guide**: docs/VALIDATION_FIXES_v2.3.1.md
-- **AgentDB Guide**: docs/AGENTDB_GUIDE.md
+- **ruvector Guide**: docs/ruvector_GUIDE.md
 
 ## Version History
 

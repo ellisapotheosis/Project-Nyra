@@ -25,7 +25,7 @@
 - **IP**: 192.168.1.100
 - **Domain**: orchestrator.ratehunter.net
 - **Services**:
-  - Claude-Flow (3000)
+  - archon-os (3000)
   - Task API (8080)
   - Health Dashboard (9090)
   - GPU Metrics (8081)
@@ -272,7 +272,7 @@ node src/infrastructure/cloudflared/service-discovery.js status
 **Solution**: Created PowerShell alternative (complete-setup.ps1)
 **Status**: ✅ Resolved
 
-### Issue: Claude-Flow Initialization
+### Issue: archon-os Initialization
 **Problem**: NPX execution issues in Git Bash
 **Solution**: Use npm scripts or direct node execution
 **Status**: ⚠️ Alternative approach provided
@@ -301,7 +301,7 @@ Based on GPU performance benchmarks:
 ## 🔄 Integration with Existing Nyra Components
 
 ### MCP Server Compatibility
-- **claude-flow**: ✅ Coordination layer ready
+- **archon-os**: ✅ Coordination layer ready
 - **ruv-swarm**: ✅ Enhanced orchestration compatible
 - **infisical**: ✅ Secrets management integrated
 - **bitwarden**: ✅ Credential storage ready

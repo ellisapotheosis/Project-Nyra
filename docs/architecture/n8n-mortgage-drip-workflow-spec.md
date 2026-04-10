@@ -883,7 +883,7 @@ curl -X POST http://localhost:3010/api/rest/activities \
 └──────────────────────────────────────────────────────────────┘
 
   ┌─────────────┐         ┌──────────────┐         ┌──────────┐
-  │   n8n       │  logs   │  Twenty-     │  syncs  │ Graphiti │
+  │   n8n       │  logs   │  Twenty-     │  syncs  │ letta │
   │  Workflow   │────────>│  Bridge      │────────>│   MCP    │
   └─────────────┘         │  Service     │         │ (FalkorDB)
                           │  (Port 8020) │         └──────────┘
@@ -915,10 +915,10 @@ curl -X POST http://localhost:3010/api/rest/activities \
 
 ### Twenty-Bridge Service
 
-**Purpose**: Bidirectional synchronization between TwentyCRM and Graphiti knowledge graph
+**Purpose**: Bidirectional synchronization between TwentyCRM and letta knowledge graph
 
 **Key Features**:
-- Webhook-based real-time sync (TwentyCRM → Graphiti)
+- Webhook-based real-time sync (TwentyCRM → letta)
 - Scheduled batch reconciliation (nightly full sync)
 - Event queue with retry logic
 - HMAC signature verification
@@ -946,11 +946,11 @@ curl -X POST http://localhost:3010/api/rest/activities \
    ↓
 6. **Transform to Graph Entities** (Graph Mapper)
    ↓
-7. **Upsert in Graphiti** (CustomerInteraction entity + relationships)
+7. **Upsert in letta** (CustomerInteraction entity + relationships)
    ↓
 8. **Update Sync State** (checksum, timestamp)
 
-### Graphiti Entity Types
+### letta Entity Types
 
 **MortgageLead**:
 - Attributes: crmId, name, email, phone, stage, creditScore, income
@@ -1136,7 +1136,7 @@ if (!crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expectedSignatur
 ### Phase 2: Advanced Personalization (Q2 2026)
 - [ ] Dynamic content based on lead attributes
 - [ ] Sentiment analysis of replies
-- [ ] Predictive lead scoring (integration with Graphiti)
+- [ ] Predictive lead scoring (integration with letta)
 - [ ] Intelligent channel selection per lead
 
 ### Phase 3: Multi-Campaign Orchestration (Q3 2026)

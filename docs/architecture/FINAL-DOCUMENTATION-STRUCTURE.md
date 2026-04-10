@@ -121,7 +121,7 @@ docs/
 │   │   └── twentycrm-graphql.md
 │   ├── mcp/
 │   │   ├── mcp-overview.md
-│   │   ├── claude-flow-mcp.md
+│   │   ├── archon-os-mcp.md
 │   │   ├── archon-os-mcp.md
 │   │   ├── twentycrm-mcp.md
 │   │   └── custom-tools.md
@@ -298,7 +298,7 @@ docs/
   - Database and memory systems
   - Observability setup
 - **Phase 2:** Memory Systems (Weeks 2-3)
-  - Letta, Mem0, Graphiti integration
+  - Letta, Mem0, letta integration
   - Pattern learning initialization
 - **Phase 3:** Business Services (Weeks 3-4)
   - Quote Engine, Campaign Engine
@@ -476,10 +476,10 @@ docs/whitepaper/
 
 **Key ADRs to Document:**
 
-1. **ADR-001:** Dual Orchestrator Pattern (Claude-Flow + Archon OS)
+1. **ADR-001:** Dual Orchestrator Pattern (archon-os + Archon OS)
 2. **ADR-002:** Nexus Router as Unified Gateway (replacing MetaMCP + LiteLLM)
 3. **ADR-003:** TwentyCRM Selection (vs Zoho/Bonzo/Salesforce)
-4. **ADR-004:** Memory Architecture (Letta + Mem0 + Graphiti + Qdrant)
+4. **ADR-004:** Memory Architecture (Letta + Mem0 + letta + Qdrant)
 5. **ADR-005:** Cost Optimization Strategy (Gemini Flash default, Claude fallback)
 6. **ADR-006:** n8n as Automation Backbone (vs Zapier/Make)
 7. **ADR-007:** Dify for Chat UI (vs Open-WebUI/custom)
@@ -634,7 +634,7 @@ docs/whitepaper/
 
 4. **Graph Knowledge** (`graph-knowledge.md`)
    - Neo4j schema design
-   - Graphiti temporal graph patterns
+   - letta temporal graph patterns
    - Entity extraction and linking
    - Relationship inference
    - Query optimization
@@ -881,7 +881,7 @@ docs/whitepaper/
 
 **MCP Documentation:**
 - MCP Overview (`mcp/mcp-overview.md`)
-- Claude-Flow MCP (`mcp/claude-flow-mcp.md`)
+- archon-os MCP (`mcp/archon-os-mcp.md`)
 - Archon OS MCP (`mcp/archon-os-mcp.md`)
 - TwentyCRM MCP (`mcp/twentycrm-mcp.md`)
 - Custom Tools (`mcp/custom-tools.md`)
@@ -912,11 +912,11 @@ docs/whitepaper/
 
 **Service Deployment Guides:**
 - Core Infrastructure (PostgreSQL, Redis, Neo4j, Qdrant)
-- Memory Systems (Letta, Mem0, Graphiti)
+- Memory Systems (Letta, Mem0, letta)
 - Business Services (Quote, Campaign, Orchestrator)
 - CRM & Workflows (TwentyCRM, n8n, Activepieces)
 - Frontend Apps (Admin, RateHunter, Dify)
-- Orchestrators (Claude-Flow, Archon OS)
+- Orchestrators (archon-os, Archon OS)
 
 **Configuration Guides:**
 - Environment Variables Reference
@@ -1032,7 +1032,7 @@ This section defines **what content goes where** and **why**, eliminating duplic
 
 Project Nyra uses a modern, self-hosted technology stack optimized for cost
 efficiency and data sovereignty. The platform combines dual orchestrators
-(Claude-Flow for planning, Archon OS for execution), a unified AI gateway
+(archon-os for planning, Archon OS for execution), a unified AI gateway
 (Nexus Router), and self-hosted CRM (TwentyCRM).
 
 For complete technical details, see:
@@ -1048,7 +1048,7 @@ For complete technical details, see:
 Services must be deployed in the following order due to dependencies:
 
 1. Core Infrastructure (PostgreSQL, Redis, Neo4j, Qdrant)
-2. Memory Systems (Letta, Mem0, Graphiti)
+2. Memory Systems (Letta, Mem0, letta)
 3. [...]
 
 For detailed deployment instructions for each service, see:

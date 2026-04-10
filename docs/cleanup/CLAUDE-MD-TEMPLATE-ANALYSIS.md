@@ -188,12 +188,12 @@ Files that deviate from recommended order:
 ### Pattern 2: Anti-Drift Architecture
 All production CLAUDE.md files should specify:
 ```bash
-npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 8 --strategy specialized
+npx @archon-os/cli@latest swarm init --topology hierarchical --max-agents 8 --strategy specialized
 ```
 
 For larger teams:
 ```bash
-npx @claude-flow/cli@latest swarm init --topology hierarchical-mesh --max-agents 15 --strategy specialized
+npx @archon-os/cli@latest swarm init --topology hierarchical-mesh --max-agents 15 --strategy specialized
 ```
 
 ### Pattern 3: File Organization Rules
@@ -217,7 +217,7 @@ Critical rule repeated in every CLAUDE.md:
 ### Pattern 5: Swarm Execution Pattern
 ```javascript
 // STEP 1: Initialize swarm coordination
-Bash("npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 8 --strategy specialized")
+Bash("npx @archon-os/cli@latest swarm init --topology hierarchical --max-agents 8 --strategy specialized")
 
 // STEP 2: Spawn ALL agents IN BACKGROUND in ONE message
 Task({ prompt: "...", run_in_background: true })
@@ -292,12 +292,12 @@ Documentation CLAUDE.md should be **simplified** compared to service CLAUDE.md:
 
 ### Before Writing
 ```bash
-npx @claude-flow/cli@latest memory search --query "similar documentation patterns"
+npx @archon-os/cli@latest memory search --query "similar documentation patterns"
 ```
 
 ### After Publishing
 ```bash
-npx @claude-flow/cli@latest memory store --key "doc-pattern-api-reference" --value "Approach used for API docs" --namespace docs
+npx @archon-os/cli@latest memory store --key "doc-pattern-api-reference" --value "Approach used for API docs" --namespace docs
 ```
 
 ## 🚀 Available Documentation Agents
@@ -310,7 +310,7 @@ npx @claude-flow/cli@latest memory store --key "doc-pattern-api-reference" --val
 
 ### Store Documentation Patterns
 ```bash
-npx @claude-flow/cli@latest memory store \
+npx @archon-os/cli@latest memory store \
   --key "pattern-api-docs" \
   --value "Structure: Overview, Endpoints, Examples, Troubleshooting" \
   --namespace docs-patterns
@@ -318,7 +318,7 @@ npx @claude-flow/cli@latest memory store \
 
 ### Find Similar Approaches
 ```bash
-npx @claude-flow/cli@latest memory search \
+npx @archon-os/cli@latest memory search \
   --query "API documentation structure" \
   --namespace docs-patterns
 ```
@@ -382,19 +382,19 @@ All CLAUDE.md files include identical memory command reference:
 
 ```bash
 # REQUIRED: --key and --value
-npx @claude-flow/cli@latest memory store --key "pattern-auth" --value "JWT with refresh tokens" --namespace patterns
+npx @archon-os/cli@latest memory store --key "pattern-auth" --value "JWT with refresh tokens" --namespace patterns
 
 # REQUIRED: --query (full flag, not -q)
-npx @claude-flow/cli@latest memory search --query "authentication patterns" --namespace patterns
+npx @archon-os/cli@latest memory search --query "authentication patterns" --namespace patterns
 
 # OPTIONAL: --namespace, --limit
-npx @claude-flow/cli@latest memory list --namespace patterns --limit 10
+npx @archon-os/cli@latest memory list --namespace patterns --limit 10
 
 # REQUIRED: --key
-npx @claude-flow/cli@latest memory retrieve --key "pattern-auth" --namespace patterns
+npx @archon-os/cli@latest memory retrieve --key "pattern-auth" --namespace patterns
 
 # Initialize if needed
-npx @claude-flow/cli@latest memory init --force --verbose
+npx @archon-os/cli@latest memory init --force --verbose
 ```
 
 ---
@@ -493,9 +493,9 @@ For projects migrating CLAUDE.md from V2 to V3:
    - Replace old memory patterns with CLI commands
 
 4. **Validate:**
-   - Run `npx @claude-flow/cli@latest doctor --fix`
-   - Test swarm init: `npx @claude-flow/cli@latest swarm init --topology hierarchical`
-   - Test memory: `npx @claude-flow/cli@latest memory init --force`
+   - Run `npx @archon-os/cli@latest doctor --fix`
+   - Test swarm init: `npx @archon-os/cli@latest swarm init --topology hierarchical`
+   - Test memory: `npx @archon-os/cli@latest memory init --force`
 
 ---
 
@@ -537,10 +537,10 @@ Distribution:
 ### Validation
 ```bash
 # Check syntax
-npx @claude-flow/cli@latest config validate
+npx @archon-os/cli@latest config validate
 
 # Health check
-npx @claude-flow/cli@latest doctor --fix
+npx @archon-os/cli@latest doctor --fix
 ```
 
 ### Auto-Generation
@@ -552,7 +552,7 @@ node scripts/batch-claude-md/batch-template-engine.js
 ### Updates
 Keep templates current:
 ```bash
-npx @claude-flow/cli@latest init --update-capabilities
+npx @archon-os/cli@latest init --update-capabilities
 ```
 
 ---
@@ -600,7 +600,7 @@ npx @claude-flow/cli@latest init --update-capabilities
 ## Resources
 - [Root CLAUDE.md](../../CLAUDE.md)
 - [V3 Template Guide](../development/CLAUDE-MD-V3-TEMPLATE-GUIDE.md)
-- [Capabilities](../.claude-flow/CAPABILITIES.md)
+- [Capabilities](../.archon-os/CAPABILITIES.md)
 ```
 
 ---

@@ -5,40 +5,40 @@
 The persistent error was:
 ```
 Config loading failed: Cannot find package 'zod' imported from
-C:\Users\edane\AppData\Local\npm-cache\_npx\85fb20e3e7e3a233\node_modules\@claude-flow\shared\dist\core\config\schema.js
+C:\Users\edane\AppData\Local\npm-cache\_npx\85fb20e3e7e3a233\node_modules\@archon-os\shared\dist\core\config\schema.js
 ```
 
-**Root Cause**: The hooks were using `npx @claude-flow/cli@latest` which cached an old version without zod in its dependency tree. Even after installing zod globally, npx kept using its corrupted cache.
+**Root Cause**: The hooks were using `npx @archon-os/cli@latest` which cached an old version without zod in its dependency tree. Even after installing zod globally, npx kept using its corrupted cache.
 
 ## Solution Implemented ✅
 
 ### 1. Created Hook Runner Scripts
 **Files Created:**
-- `.claude/helpers/claude-flow-hook.sh` (Bash)
-- `.claude/helpers/claude-flow-hook.ps1` (PowerShell)
+- `.claude/helpers/archon-os-hook.sh` (Bash)
+- `.claude/helpers/archon-os-hook.ps1` (PowerShell)
 
 **Fallback Chain:**
-1. Try direct `claude-flow` command (if globally installed)
-2. Try local `node_modules/.bin/claude-flow` (if installed locally)
-3. Try `pnpm exec claude-flow@alpha` (using pnpm)
-4. Fallback to `npx --yes claude-flow@alpha` (as last resort)
+1. Try direct `archon-os` command (if globally installed)
+2. Try local `node_modules/.bin/archon-os` (if installed locally)
+3. Try `pnpm exec archon-os@alpha` (using pnpm)
+4. Fallback to `npx --yes archon-os@alpha` (as last resort)
 
 ### 2. Updated All Hooks
 All 12 hooks in `.claude/settings.json` now use:
 ```bash
-bash .claude/helpers/claude-flow-hook.sh [command]
+bash .claude/helpers/archon-os-hook.sh [command]
 ```
 
 Instead of:
 ```bash
-npx @claude-flow/cli@latest [command]
+npx @archon-os/cli@latest [command]
 ```
 
 ### 3. Benefits
 ✅ **Bypasses npx cache issues** - Uses direct execution paths first
 ✅ **Faster execution** - No npx download delays
 ✅ **More reliable** - Multiple fallback options
-✅ **Silent failures** - Hooks won't block operations if claude-flow isn't available
+✅ **Silent failures** - Hooks won't block operations if archon-os isn't available
 
 ## Verification Steps
 
@@ -51,9 +51,9 @@ npx @claude-flow/cli@latest [command]
 cd C:\Dev\Projects\Repos\Project-Nyra
 
 # 3. Test the hook runner directly
-bash .claude/helpers/claude-flow-hook.sh --version
+bash .claude/helpers/archon-os-hook.sh --version
 
-# Should show: claude-flow v3.0.0-alpha.XX (no errors)
+# Should show: archon-os v3.0.0-alpha.XX (no errors)
 ```
 
 ### Test Hooks Are Working
@@ -72,7 +72,7 @@ If you see zod errors in a **new terminal**, run:
 
 ```bash
 # Option 1: Quick fix with wrapper script
-bash scripts/claude-flow-wrapper.sh status
+bash scripts/archon-os-wrapper.sh status
 
 # Option 2: Manual fix
 npm install -g zod
@@ -84,13 +84,13 @@ pnpm install
 | File | Changes |
 |------|---------|
 | `.claude/settings.json` | All 12 hooks updated to use hook runner |
-| `.claude/helpers/claude-flow-hook.sh` | New hook runner with fallback chain |
-| `.claude/helpers/claude-flow-hook.ps1` | PowerShell version of hook runner |
+| `.claude/helpers/archon-os-hook.sh` | New hook runner with fallback chain |
+| `.claude/helpers/archon-os-hook.ps1` | PowerShell version of hook runner |
 
 ## Additional Notes
 
 ### NPX Cache Issue
-The NPX cache at `C:\Users\edane\AppData\Local\npm-cache\_npx\` was storing an incomplete version of claude-flow. We've:
+The NPX cache at `C:\Users\edane\AppData\Local\npm-cache\_npx\` was storing an incomplete version of archon-os. We've:
 1. Deleted the corrupt cache directory
 2. Bypassed npx entirely for hooks (using direct execution)
 3. Installed zod globally as a safety net
@@ -101,7 +101,7 @@ Your system uses Volta for Node.js management. The global installation path is:
 C:\Users\edane\AppData\Local\Volta\tools\image\packages\
 ```
 
-We've installed zod there and in the claude-flow shared package to ensure availability.
+We've installed zod there and in the archon-os shared package to ensure availability.
 
 ### Infisical Integration
 The "Injecting 232 Infisical secrets" message is normal and indicates your secrets management is working correctly for Project Nyra.
@@ -117,7 +117,7 @@ The "Injecting 232 Infisical secrets" message is normal and indicates your secre
 **Next Steps**:
 1. Restart your Claude Code session (close and reopen terminal)
 2. The hooks should now work silently without zod errors
-3. Run initialization: `bash scripts/init-claude-flow.sh`
+3. Run initialization: `bash scripts/init-archon-os.sh`
 
 **Last Updated**: 2026-01-13
 **Status**: ✅ Fixed and Deployed

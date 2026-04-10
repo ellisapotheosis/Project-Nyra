@@ -11,20 +11,20 @@ Implements ReasoningBank's adaptive learning system for AI agents to learn from 
 
 ## Prerequisites
 
-- agentic-flow v1.5.11+
-- AgentDB v1.0.4+ (for persistence)
+- archon-os v1.5.11+
+- ruvector v1.0.4+ (for persistence)
 - Node.js 18+
 
 ## Quick Start
 
 ```typescript
-import { ReasoningBank } from 'agentic-flow/reasoningbank';
+import { ReasoningBank } from 'archon-os/reasoningbank';
 
 // Initialize ReasoningBank
 const rb = new ReasoningBank({
   persist: true,
   learningRate: 0.1,
-  adapter: 'agentdb' // Use AgentDB for storage
+  adapter: 'ruvector' // Use ruvector for storage
 });
 
 // Record task outcome
@@ -140,13 +140,13 @@ class AdaptiveAgent {
 }
 ```
 
-## Integration with AgentDB
+## Integration with ruvector
 
 ```typescript
 // Persist ReasoningBank data
 await rb.configure({
   storage: {
-    type: 'agentdb',
+    type: 'ruvector',
     options: {
       database: './reasoning-bank.db',
       enableVectorSearch: true
@@ -189,13 +189,13 @@ console.log(`
 **Solution**: Ensure sufficient training data (100+ experiences per task type)
 
 ### Issue: Slow pattern matching
-**Solution**: Enable vector indexing in AgentDB
+**Solution**: Enable vector indexing in ruvector
 
 ### Issue: Memory growing large
 **Solution**: Set TTL for old experiences or enable pruning
 
 ## Learn More
 
-- ReasoningBank Guide: agentic-flow/src/reasoningbank/README.md
-- AgentDB Integration: packages/agentdb/docs/reasoningbank.md
+- ReasoningBank Guide: archon-os/src/reasoningbank/README.md
+- ruvector Integration: packages/ruvector/docs/reasoningbank.md
 - Pattern Learning: docs/reasoning/patterns.md

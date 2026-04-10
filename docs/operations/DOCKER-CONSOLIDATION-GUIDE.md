@@ -37,7 +37,7 @@ infra/docker/
 ├── docker-compose.dev.yml                # Development overrides
 ├── docker-compose.prod.yml               # Production overrides
 ├── docker-compose.full.yml               # Complete stack (all-in-one)
-├── docker-compose.graphiti.yml           # Graph memory service
+├── docker-compose.letta.yml           # Graph memory service
 ├── docker-compose.gitea.yml              # Self-hosted Git
 ├── docker-compose.voice.yml              # Twilio voice integration
 ├── docker-compose.dual-orchestrator.yml  # Dual orchestrator mode
@@ -129,7 +129,7 @@ docker compose -f infra/docker/docker-compose.yml \
 1. auth-service - Authentication & authorization
 2. campaign-engine - Drip campaign orchestration
 3. doc-management-api - Document processing
-4. graphiti-knowledge - Knowledge graph
+4. letta-knowledge - Knowledge graph
 5. lead-capture-api - Lead management
 6. letta-integration - Memory system integration
 7. mortgage-assistant-api - Mortgage operations
@@ -445,7 +445,7 @@ MCP clients connect through Nexus Router MCP proxy:
 
 ```yaml
 services:
-  claude-flow:
+  archon-os:
     environment:
       # Connect to Nexus Router MCP gateway
       MCP_GATEWAY_URL: http://nexus-router:4001/mcp
@@ -509,7 +509,7 @@ services:
 **Old:**
 ```bash
 # Scattered everywhere
-orchestration/claude-flow/docker-compose.yml
+orchestration/archon-os/docker-compose.yml
 services/memory/deployment/docker-compose.yml
 configs/docker-compose.orchestrator.yml
 ```
@@ -526,15 +526,15 @@ configs/docker-compose.orchestrator.yml  # PC-specific only
 
 **Old container names:**
 ```
-nyra-claude-flow
+nyra-archon-os
 nyra-postgres
 various-inconsistent-names
 ```
 
 **New container names:**
 ```
-nyra-claude-flow-prod      # Production
-nyra-claude-flow-dev       # Development
+nyra-archon-os-prod      # Production
+nyra-archon-os-dev       # Development
 nyra-postgres-prod         # Production
 nyra-postgres-dev          # Development
 ```
@@ -613,7 +613,7 @@ Key changes:
 
 **Old:**
 ```bash
-docker compose -f orchestration/claude-flow/docker-compose.yml up -d
+docker compose -f orchestration/archon-os/docker-compose.yml up -d
 docker compose -f services/memory/deployment/docker-compose.memory.yml up -d
 ```
 

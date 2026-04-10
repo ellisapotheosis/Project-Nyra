@@ -267,7 +267,7 @@ git commit -m "checkpoint: $(date)"
    - Share `ARCHITECTURE.md` overview
 
 3. **Continue Development**
-   - Implement `src/claude-flow/`
+   - Implement `src/archon-os/`
    - Implement `src/openclaw/`
    - Implement `services/quote-engine/`
    - Build `apps/nyra-admin-ui/`

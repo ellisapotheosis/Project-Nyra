@@ -42,8 +42,8 @@ echo "📁 Checking Directory Structure..."
 required_dirs=(
   ".claude"
   ".claude/helpers"
-  ".claude-flow/metrics"
-  ".claude-flow/security"
+  ".archon-os/metrics"
+  ".archon-os/security"
   "src"
   "src/domains"
 )
@@ -63,9 +63,9 @@ required_files=(
   ".claude/settings.json"
   ".claude/statusline.sh"
   ".claude/helpers/update-v3-progress.sh"
-  ".claude-flow/metrics/v3-progress.json"
-  ".claude-flow/metrics/performance.json"
-  ".claude-flow/security/audit-status.json"
+  ".archon-os/metrics/v3-progress.json"
+  ".archon-os/metrics/performance.json"
+  ".archon-os/security/audit-status.json"
   "package.json"
 )
 
@@ -76,10 +76,10 @@ for file in "${required_files[@]}"; do
     # Additional checks for specific files
     case "$file" in
       "package.json")
-        if grep -q "agentic-flow.*alpha" "$file" 2>/dev/null; then
-          log_success "agentic-flow@alpha dependency found"
+        if grep -q "archon-os.*alpha" "$file" 2>/dev/null; then
+          log_success "archon-os@alpha dependency found"
         else
-          log_warning "agentic-flow@alpha dependency not found in package.json"
+          log_warning "archon-os@alpha dependency not found in package.json"
         fi
         ;;
       ".claude/helpers/update-v3-progress.sh")
@@ -89,7 +89,7 @@ for file in "${required_files[@]}"; do
           log_error "Helper script is not executable: $file"
         fi
         ;;
-      ".claude-flow/metrics/v3-progress.json")
+      ".archon-os/metrics/v3-progress.json")
         if jq empty "$file" 2>/dev/null; then
           log_success "V3 progress JSON is valid"
           domains=$(jq -r '.domains.total // "unknown"' "$file" 2>/dev/null)

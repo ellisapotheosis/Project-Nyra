@@ -16,7 +16,7 @@
 **Default Swarm**: mesh topology, 8 agents max, balanced strategy, parallel coordination
 **Testing**: TDD (Red-Green-Refactor) | 90%+ test coverage mandatory
 **Architecture**: Microservices with clear service boundaries
-**Memory**: Hybrid (RuVector primary, Letta, Graphiti, Mem0, OpenMemory)
+**Memory**: Hybrid (RuVector primary, Letta, letta, Mem0, OpenMemory)
 
 ## 🔒 Locked Architecture Components
 
@@ -26,7 +26,7 @@ DO NOT MODIFY without explicit approval:
 |-----------|-----------|------|---------|
 | **LLM Gateway** | Nexus Router + LiteLLM | 6000 | Model routing, OpenRouter integration |
 | **CRM** | TwentyCRM | 3000 | System of record for leads/pipeline |
-| **Memory** | Letta + Graphiti + Mem0 + RuVector | Multiple | Multi-system memory architecture |
+| **Memory** | Letta + letta + Mem0 + RuVector | Multiple | Multi-system memory architecture |
 | **Workflows** | n8n + Activepieces | 5678 | Campaign automation, integrations |
 | **Chat UI** | Dify | 3001 | Borrower-facing chat interface |
 | **Observability** | Prometheus + Grafana + Loki | 9090/3005/3100 | Monitoring stack |
@@ -288,7 +288,7 @@ Task({
 **Priority Order:**
 1. **RuVector** (Primary) - Fast vector search, code retrieval, document similarity
 2. **Letta** - Conversational memory, agent state, task context
-3. **Graphiti** - Temporal knowledge graphs, relationship tracking
+3. **letta** - Temporal knowledge graphs, relationship tracking
 4. **Mem0** - User personalization, borrower preferences
 5. **OpenMemory** - Shared collaborative memory
 
@@ -430,7 +430,7 @@ V3 includes RuVector with:
 - Nexus Router: https://nexusrouter.com/docs
 - Dify: https://docs.dify.ai/en/use-dify/build/mcp
 - Activepieces: https://www.activepieces.com/blog/model-context-protocol-mcp
-- Graphiti: https://help.getzep.com/graphiti/getting-started/mcp-server
+- letta: https://help.getzep.com/letta/getting-started/mcp-server
 - Letta: https://docs.letta.com/advanced/memory-management/
 
 ---

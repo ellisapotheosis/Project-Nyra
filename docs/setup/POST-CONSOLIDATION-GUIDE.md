@@ -284,7 +284,7 @@ Create: `C:\Dev\Projects\Repos\Project-Nyra\config\mcp\bitwarden.json`
 cd C:\Dev\Projects\Repos\Project-Nyra
 
 # Initialize with wizard
-npx @claude-flow/cli@latest init --wizard
+npx @archon-os/cli@latest init --wizard
 ```
 
 **Wizard Prompts & Answers:**
@@ -308,9 +308,9 @@ cat .mcp.json
 # Should show:
 # {
 #   "mcpServers": {
-#     "claude-flow": {
+#     "archon-os": {
 #       "command": "docker",
-#       "args": ["exec", "-i", "nyra-claude-flow-mcp", ...],
+#       "args": ["exec", "-i", "nyra-archon-os-mcp", ...],
 #       ...
 #     }
 #   }
@@ -321,10 +321,10 @@ cat .mcp.json
 
 ```bash
 # Start Claude Flow MCP container (if not running)
-docker-compose -f docker-compose.infisical.yml up -d claude-flow-mcp
+docker-compose -f docker-compose.infisical.yml up -d archon-os-mcp
 
 # Test connection
-docker exec -it nyra-claude-flow-mcp npx @claude-flow/cli@latest status
+docker exec -it nyra-archon-os-mcp npx @archon-os/cli@latest status
 ```
 
 **Expected Output:**
@@ -708,7 +708,7 @@ pnpm health:infra
 
 ```bash
 # Register Claude Flow MCP
-claude mcp add claude-flow -- docker exec -i nyra-claude-flow-mcp npx @claude-flow/cli@latest mcp start
+claude mcp add archon-os -- docker exec -i nyra-archon-os-mcp npx @archon-os/cli@latest mcp start
 
 # Register Infisical MCP
 claude mcp add infisical-mcp -- docker exec -i nyra-infisical-mcp node src/index.js

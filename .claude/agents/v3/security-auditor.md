@@ -21,26 +21,26 @@ hooks:
     echo "Security Auditor initiating scan: $TASK"
 
     # 1. Learn from past security audits (ReasoningBank)
-    SIMILAR_VULNS=$(npx @claude-flow/cli@latest memory search-patterns "$TASK" --k=10 --min-reward=0.8 --namespace=security)
+    SIMILAR_VULNS=$(npx @archon-os/cli@latest memory search-patterns "$TASK" --k=10 --min-reward=0.8 --namespace=security)
     if [ -n "$SIMILAR_VULNS" ]; then
       echo "Found similar vulnerability patterns from past audits"
-      npx @claude-flow/cli@latest memory get-pattern-stats "$TASK" --k=10 --namespace=security
+      npx @archon-os/cli@latest memory get-pattern-stats "$TASK" --k=10 --namespace=security
     fi
 
     # 2. Search for known CVEs using HNSW-indexed database
-    CVE_MATCHES=$(npx @claude-flow/cli@latest security cve --search "$TASK" --hnsw-enabled)
+    CVE_MATCHES=$(npx @archon-os/cli@latest security cve --search "$TASK" --hnsw-enabled)
     if [ -n "$CVE_MATCHES" ]; then
       echo "Found potentially related CVEs in database"
     fi
 
     # 3. Load OWASP Top 10 patterns
-    npx @claude-flow/cli@latest memory retrieve --key "owasp_top_10_2024" --namespace=security-patterns
+    npx @archon-os/cli@latest memory retrieve --key "owasp_top_10_2024" --namespace=security-patterns
 
     # 4. Initialize audit session
-    npx @claude-flow/cli@latest hooks session-start --session-id "audit-$(date +%s)"
+    npx @archon-os/cli@latest hooks session-start --session-id "audit-$(date +%s)"
 
     # 5. Store audit start in memory
-    npx @claude-flow/cli@latest memory store-pattern \
+    npx @archon-os/cli@latest memory store-pattern \
       --session-id "audit-$(date +%s)" \
       --task "$TASK" \
       --status "started" \
@@ -63,7 +63,7 @@ hooks:
     fi
 
     # 2. Store learning pattern for future improvement
-    npx @claude-flow/cli@latest memory store-pattern \
+    npx @archon-os/cli@latest memory store-pattern \
       --session-id "audit-$(date +%s)" \
       --task "$TASK" \
       --output "Vulnerabilities found: $VULNS_FOUND, Critical: $CRITICAL_VULNS" \
@@ -75,17 +75,17 @@ hooks:
     # 3. Train neural patterns on successful high-accuracy audits
     if [ "$SUCCESS" = "true" ] && [ "$VULNS_FOUND" -gt 0 ]; then
       echo "Training neural pattern from successful audit"
-      npx @claude-flow/cli@latest neural train \
+      npx @archon-os/cli@latest neural train \
         --pattern-type "prediction" \
         --training-data "security-audit" \
         --epochs 50
     fi
 
     # 4. Generate security report
-    npx @claude-flow/cli@latest security report --format detailed --output /tmp/security_report_$(date +%s).json
+    npx @archon-os/cli@latest security report --format detailed --output /tmp/security_report_$(date +%s).json
 
     # 5. End audit session with metrics
-    npx @claude-flow/cli@latest hooks session-end --export-metrics true
+    npx @archon-os/cli@latest hooks session-end --export-metrics true
 ---
 
 # Security Auditor Agent (V3)
@@ -149,7 +149,7 @@ Rapid vulnerability lookup using HNSW indexing:
 
 ```typescript
 // Search CVE database with HNSW acceleration
-const cveMatches = await agentDB.hnswSearch({
+const cveMatches = await ruvector.hnswSearch({
   query: 'buffer overflow in image processing library',
   index: 'cve_database',
   k: 20,
@@ -174,7 +174,7 @@ Scan large codebases efficiently:
 ```typescript
 // Process large codebases with Flash Attention (2.49x-7.47x speedup)
 if (codebaseSize > 5000) {
-  const scanResult = await agentDB.flashAttention(
+  const scanResult = await ruvector.flashAttention(
     securityPatternEmbeddings,  // Query: security vulnerability patterns
     codeEmbeddings,              // Keys: code file embeddings
     codeEmbeddings               // Values: code content
@@ -441,7 +441,7 @@ class DependencyAuditor {
 
     for (const [name, advisory] of Object.entries(auditData.vulnerabilities)) {
       // Search HNSW-indexed CVE database for additional context
-      const cveContext = await agentDB.hnswSearch({
+      const cveContext = await ruvector.hnswSearch({
         query: `${name} ${advisory.title}`,
         index: 'cve_database',
         k: 5

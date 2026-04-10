@@ -57,7 +57,7 @@ graph TD
   name: 'Nyra Core',
   description: 'Core orchestration and multi-agent development stack',
   components: {
-    'claude-flow': 'Claude Flow orchestration layer',
+    'archon-os': 'Claude Flow orchestration layer',
     'nyra-orchestration/archon': 'Archon MCP orchestration system',
     'repo-agent': 'Repository management agent'
   },

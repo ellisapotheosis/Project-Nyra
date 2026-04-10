@@ -15,7 +15,7 @@ This master guide orchestrates the complete setup of Project Nyra's infrastructu
 
 ✅ **Core Infrastructure**: Docker, networking, secrets management
 ✅ **Backend Databases**: PostgreSQL, Redis, FalkorDB, Qdrant
-✅ **Memory Systems**: Letta, AgentDB, Graphiti, Mem0
+✅ **Memory Systems**: Letta, ruvector, letta, Mem0
 ✅ **MCP Servers**: 8+ servers for AI agent tools
 ✅ **Applications**: Open WebUI, LobeChat, Nexus Router
 ✅ **Cloud Services**: Cloudflare tunnels, external access
@@ -145,15 +145,15 @@ This master guide orchestrates the complete setup of Project Nyra's infrastructu
    letta server --port 8283
    ```
 
-2. **AgentDB Integration** [30 minutes]
-   - Read: [AgentDB Integration Guide](../integration/AGENTDB-INTEGRATION-GUIDE.md)
-   - Verify AgentDB is included in Claude Flow
+2. **ruvector Integration** [30 minutes]
+   - Read: [ruvector Integration Guide](../integration/ruvector-INTEGRATION-GUIDE.md)
+   - Verify ruvector is included in Claude Flow
    - Configure vector storage
    - Test pattern storage
 
    ```bash
-   # AgentDB is integrated in Claude Flow - verify
-   npx @claude-flow/cli@latest hooks intelligence --showStatus true
+   # ruvector is integrated in Claude Flow - verify
+   npx @archon-os/cli@latest hooks intelligence --showStatus true
    ```
 
 3. **Qdrant Vector Database** [30 minutes] (Optional but recommended)
@@ -177,7 +177,7 @@ This master guide orchestrates the complete setup of Project Nyra's infrastructu
 
 4. **FalkorDB Graph Database** [30 minutes] (Optional)
    - Deploy FalkorDB
-   - Configure for Graphiti MCP
+   - Configure for letta MCP
 
    ```bash
    # Start FalkorDB
@@ -189,10 +189,10 @@ This master guide orchestrates the complete setup of Project Nyra's infrastructu
      falkordb/falkordb:latest
    ```
 
-5. **Graphiti MCP** [45 minutes] (Optional - Advanced)
-   - Read: [Graphiti MCP Deployment](../deployment/GRAPHITI-MCP-DEPLOYMENT-PLAN.md)
+5. **letta MCP** [45 minutes] (Optional - Advanced)
+   - Read: [letta MCP Deployment](../deployment/letta-MCP-DEPLOYMENT-PLAN.md)
    - Configure FalkorDB backend
-   - Deploy Graphiti container
+   - Deploy letta container
    - Test knowledge graph
 
 6. **Mem0 MCP** [30 minutes] (Optional - Advanced)
@@ -202,7 +202,7 @@ This master guide orchestrates the complete setup of Project Nyra's infrastructu
 
 **Phase 2 Verification Checklist**:
 - ☐ Letta server responding (port 8283)
-- ☐ AgentDB integrated in Claude Flow
+- ☐ ruvector integrated in Claude Flow
 - ☐ Qdrant accepting connections (port 6333)
 - ☐ FalkorDB operational (port 6380)
 - ☐ Memory systems tested
@@ -221,7 +221,7 @@ This master guide orchestrates the complete setup of Project Nyra's infrastructu
 
    ```bash
    # Start Claude Flow MCP
-   npx @claude-flow/cli@latest mcp start
+   npx @archon-os/cli@latest mcp start
 
    # Verify
    curl http://localhost:3100/health
@@ -580,7 +580,7 @@ Track your progress:
 
 ### Phase 2: Memory & Intelligence
 - ☐ Letta configured
-- ☐ AgentDB integrated
+- ☐ ruvector integrated
 - ☐ Vector databases operational
 - ☐ Memory systems tested
 

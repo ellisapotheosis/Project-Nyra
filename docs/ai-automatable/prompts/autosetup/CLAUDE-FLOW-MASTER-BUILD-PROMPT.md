@@ -20,7 +20,7 @@ You are the master architect and implementation lead for Project Nyra, an AI-pow
 - **LLM Gateway**: Grafbase Nexus (unified MCP + LLM routing)
 - **CRM**: TwentyCRM (self-hosted, PostgreSQL backend)
 - **Memory**: Letta (conversation context), Mem0 (universal memory)
-- **Graph DB**: Neo4j with Graphiti (temporal knowledge graphs)
+- **Graph DB**: Neo4j with letta (temporal knowledge graphs)
 - **Vector Store**: PostgreSQL with pgvector extension
 - **Workflows**: n8n (self-hosted automation engine)
 - **Chat UI**: Dify (production borrower interface)
@@ -65,7 +65,7 @@ You are the master architect and implementation lead for Project Nyra, an AI-pow
 ```
 Project-Nyra/
 ├── orchestration/
-│   ├── claude-flow/          # Primary orchestrator
+│   ├── archon-os/          # Primary orchestrator
 │   └── archon-os/            # Secondary orchestrator
 ├── mcp-servers/
 │   ├── nexus/                # LLM router
@@ -104,13 +104,13 @@ Project-Nyra/
 │   ├── dev/                  # Development helpers
 │   └── repo/                 # Repository utilities
 ├── prompts/
-│   ├── claude-flow/          # Workflow orchestration prompts
+│   ├── archon-os/          # Workflow orchestration prompts
 │   └── agents/               # Specialized agent prompts
 ├── data/
 │   ├── campaigns/            # Drip campaign templates
 │   ├── quotes/               # Quote templates
 │   └── n8n/                  # n8n workflow exports
-└── .claude-flow/             # Claude Flow configuration
+└── .archon-os/             # Claude Flow configuration
 ```
 
 2. Initialize git repository
@@ -520,10 +520,10 @@ services:
 version: '3.8'
 
 services:
-  # Optional Graphiti for temporal knowledge graphs
-  graphiti:
-    image: zep-ai/graphiti:latest
-    container_name: nyra-graphiti
+  # Optional letta for temporal knowledge graphs
+  letta:
+    image: zep-ai/letta:latest
+    container_name: nyra-letta
     ports:
       - "8082:8082"
     environment:
@@ -849,7 +849,7 @@ async def health_check():
 
 **Initialize Claude Flow**:
 ```bash
-npx @claude-flow/cli@latest init --enhanced --pair --verify --sparc --roo --flow-nexus --neural --truth --batch --parallel --force
+npx @archon-os/cli@latest init --enhanced --pair --verify --sparc --roo --flow-nexus --neural --truth --batch --parallel --force
 ```
 
 **Create CLAUDE.md** workflow configuration

@@ -94,7 +94,7 @@ bootstrap/
 │   │   │   └── docker-compose.yml
 │   │   ├── nvidia/
 │   │   │   └── nvidia-container-runtime.json
-│   │   └── claude-flow/
+│   │   └── archon-os/
 │   │       └── .env.pc-specific
 │   ├── tests/
 │   │   ├── smoke-tests.ps1      # Post-install validation
@@ -117,7 +117,7 @@ bootstrap/
 │   ├── configs/
 │   │   ├── docker/
 │   │   ├── nvidia/
-│   │   └── claude-flow/
+│   │   └── archon-os/
 │   ├── tests/
 │   │   ├── smoke-tests.ps1
 │   │   └── gpu-tests.ps1
@@ -139,7 +139,7 @@ bootstrap/
 │   ├── configs/
 │   │   ├── docker/
 │   │   ├── nvidia/
-│   │   └── claude-flow/
+│   │   └── archon-os/
 │   ├── tests/
 │   │   ├── smoke-tests.ps1
 │   │   └── gpu-tests.ps1
@@ -164,7 +164,7 @@ bootstrap/
 │   │   ├── gitea/
 │   │   ├── infisical/
 │   │   ├── claude-desktop/
-│   │   └── claude-flow/
+│   │   └── archon-os/
 │   ├── tests/
 │   │   ├── smoke-tests.ps1
 │   │   └── orchestration-tests.ps1
@@ -178,7 +178,7 @@ bootstrap/
 │   ├── claude-desktop/
 │   │   ├── config.json          # Claude Desktop MCP config
 │   │   └── claude_desktop_config.json
-│   ├── claude-flow/
+│   ├── archon-os/
 │   │   ├── .env.template        # Environment variables
 │   │   ├── .claude/
 │   │   │   └── settings.json
@@ -221,7 +221,7 @@ bootstrap/
 │   │   ├── windows/
 │   │   │   ├── claude-code.ps1
 │   │   │   ├── claude-desktop.ps1
-│   │   │   ├── claude-flow.ps1
+│   │   │   ├── archon-os.ps1
 │   │   │   ├── docker.ps1
 │   │   │   ├── wsl-setup.ps1
 │   │   │   ├── gitea.ps1
@@ -359,7 +359,7 @@ await deployConfigs('worker-rtx3060/configs/docker/daemon.json', 'C:\\ProgramDat
 
 ```typescript
 // Read template
-const template = await readConfig('configs/claude-flow/.env.template');
+const template = await readConfig('configs/archon-os/.env.template');
 
 // Inject PC-specific variables
 const config = injectVariables(template, {
@@ -369,7 +369,7 @@ const config = injectVariables(template, {
 });
 
 // Deploy to PC
-await deployConfig(config, 'worker-rtx3060/.env.claude-flow');
+await deployConfig(config, 'worker-rtx3060/.env.archon-os');
 ```
 
 ### 3.3 GUI Installer → Scripts/
@@ -533,7 +533,7 @@ Copy-Item $sharedDockerConfig -Destination "C:\ProgramData\Docker\config\daemon.
 |-----------|---------|---------|
 | Bootstrap script | `bootstrap.{ps1\|sh}` | `worker-rtx3060/scripts/windows/bootstrap.ps1` |
 | Component script | `{component-name}.{ps1\|sh}` | `scripts/components/windows/docker.ps1` |
-| Config template | `{component}.{ext}.template` | `configs/claude-flow/.env.template` |
+| Config template | `{component}.{ext}.template` | `configs/archon-os/.env.template` |
 | Manifest | `{type}.yaml` | `worker-rtx3060/manifests/hardware.yaml` |
 | Test script | `{type}-tests.{ps1\|sh}` | `worker-rtx3060/tests/smoke-tests.ps1` |
 | Utility script | `{action}-{noun}.{ps1\|sh}` | `scripts/utilities/wol-wake.ps1` |
@@ -648,7 +648,7 @@ features:
 ```yaml
 enabled_components:
   - claude-code
-  - claude-flow
+  - archon-os
   - docker
   - nvidia
 disabled_components:
@@ -668,7 +668,7 @@ deployment_settings:
     - claude-code
     - docker
     - nvidia
-    - claude-flow
+    - archon-os
   post_install_tests:
     - smoke-tests
     - gpu-tests

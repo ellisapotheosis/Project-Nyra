@@ -177,7 +177,7 @@ This skill uses a priority-based template loading system:
    - Project-specific customizations
    - Highest priority
 
-2. **Claude Flow Wiki Templates** (`docs/references/claude-flow-wiki/`)
+2. **Claude Flow Wiki Templates** (`docs/references/archon-os-wiki/`)
    - Official CLAUDE-MD-*.md templates
    - 50+ templates for different tech stacks
    - Medium priority
@@ -205,7 +205,7 @@ bootstrap-agent/
 2. For each directory:
    - Load base template
    - Load tech stack template (Custom → Wiki → Default)
-   - Load workflow examples from claude-flow-clone
+   - Load workflow examples from archon-os-clone
    - Load config examples
    - Inject context variables
    - Generate CLAUDE.md
@@ -258,7 +258,7 @@ Edit `templates/CLAUDE.md` to change the base structure.
 
 ### Adding Custom Workflows
 
-Add workflow examples to `docs/references/claude-flow-examples/02-workflows/`
+Add workflow examples to `docs/references/archon-os-examples/02-workflows/`
 
 ## Troubleshooting
 
@@ -266,7 +266,7 @@ Add workflow examples to `docs/references/claude-flow-examples/02-workflows/`
 
 ```bash
 # List available profiles (check wiki and custom directories)
-ls docs/references/claude-flow-wiki/CLAUDE-MD-*.md
+ls docs/references/archon-os-wiki/CLAUDE-MD-*.md
 ls docs/references/templates-library/stacks/*.md
 
 # Use closest match or create custom template
@@ -306,7 +306,7 @@ To add new profiles:
 
 - **Issues**: Create issue in Project-Nyra repository
 - **Documentation**: See `skill.md` for detailed usage
-- **Examples**: See `docs/references/claude-flow-examples/`
+- **Examples**: See `docs/references/archon-os-examples/`
 
 ## License
 

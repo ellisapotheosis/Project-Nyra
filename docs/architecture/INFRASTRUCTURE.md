@@ -56,8 +56,8 @@
 - litellm (Model proxy)
 - letta (Memory server)
 - mem0 (Universal memory)
-- claude-flow (Orchestrator)
-- agentdb (Vector storage)
+- archon-os (Orchestrator)
+- ruvector (Vector storage)
 - ruvector (Search optimization)
 - infisical (Secrets vault)
 - infisical-mongo (Secrets metadata)
@@ -172,7 +172,7 @@
 - perf-monitor
 - doc-management (OCR)
 - ingestion (Data pipelines)
-- graphiti-knowledge (Graph processing)
+- letta-knowledge (Graph processing)
 ```
 
 **GPU Models**:
@@ -220,8 +220,8 @@
 │    ├─ litellm (4000)                                               │
 │    ├─ letta (8283)                                                 │
 │    ├─ mem0 (4321)                                                  │
-│    ├─ claude-flow (3010)                                           │
-│    ├─ agentdb (8080)                                               │
+│    ├─ archon-os (3010)                                           │
+│    ├─ ruvector (8080)                                               │
 │    ├─ ruvector (8888)                                              │
 │    └─ infisical (8082)                                             │
 │                                                                     │
@@ -482,7 +482,7 @@ graph TD
 | 7474 | Neo4j Browser | HTTP | Graph UI | Via Tunnel |
 | 7687 | Neo4j Bolt | Bolt | Graph queries | No |
 | 8010 | Nyra Orchestrator | HTTP | Coordination | No |
-| 8080 | AgentDB | HTTP | Vector storage | No |
+| 8080 | ruvector | HTTP | Vector storage | No |
 | 8080 | OpenWebUI | HTTP | LLM chat UI | Via Tunnel |
 | 8082 | Infisical | HTTP | Secrets vault | Via Tunnel |
 | 8283 | Letta | HTTP | Memory server | No |
@@ -548,7 +548,7 @@ backup_schedule:
     retention: 7 days
     method: pg_dump, volume snapshot
 
-  high:  # Qdrant, AgentDB, Memory systems
+  high:  # Qdrant, ruvector, Memory systems
     frequency: daily
     retention: 30 days
     method: volume snapshot
@@ -838,9 +838,9 @@ scrape_configs:
       - targets: ['nexus-router:6000']
     scrape_interval: 15s
 
-  - job_name: 'claude-flow'
+  - job_name: 'archon-os'
     static_configs:
-      - targets: ['claude-flow:3010']
+      - targets: ['archon-os:3010']
     scrape_interval: 30s
 
   - job_name: 'workers'

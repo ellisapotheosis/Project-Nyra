@@ -41,7 +41,7 @@ The ReasoningBank pipeline enables agents to learn from experience and improve o
 │        ▼               ▼               ▼               ▼           │
 │   ┌─────────────────────────────────────────────────────────────┐ │
 │   │                    PATTERN MEMORY                           │ │
-│   │  AgentDB + HNSW Index + SQLite Persistence                  │ │
+│   │  ruvector + HNSW Index + SQLite Persistence                  │ │
 │   └─────────────────────────────────────────────────────────────┘ │
 │                                                                     │
 └─────────────────────────────────────────────────────────────────────┘
@@ -80,7 +80,7 @@ The ReasoningBank pipeline enables agents to learn from experience and improve o
 
 **CLI Usage**:
 ```bash
-npx @claude-flow/cli@latest memory search \
+npx @archon-os/cli@latest memory search \
   --query "authentication patterns" \
   --namespace patterns \
   --limit 10
@@ -97,17 +97,17 @@ npx @claude-flow/cli@latest memory search \
 **Trajectory Tracking**:
 ```bash
 # Start tracking
-npx @claude-flow/cli@latest hooks intelligence trajectory-start \
+npx @archon-os/cli@latest hooks intelligence trajectory-start \
   --task "performance-analysis" \
   --context "performance-engineer"
 
 # Record each step
-npx @claude-flow/cli@latest hooks intelligence trajectory-step \
+npx @archon-os/cli@latest hooks intelligence trajectory-step \
   --operation "write-test" \
   --outcome "success"
 
 # End with verdict
-npx @claude-flow/cli@latest hooks intelligence trajectory-end \
+npx @archon-os/cli@latest hooks intelligence trajectory-end \
   --session-id "$SESSION_ID" \
   --verdict "success" \
   --reward 0.95
@@ -356,10 +356,10 @@ calculateEWCPenalty(currentWeights, taskId) {
 **Hooks**:
 ```bash
 # Pre-task: Initialize trajectory
-npx @claude-flow/cli@latest hooks pre-task --description "$TASK"
+npx @archon-os/cli@latest hooks pre-task --description "$TASK"
 
 # Post-task: Record outcome
-npx @claude-flow/cli@latest hooks post-task --task-id "$ID" --success true
+npx @archon-os/cli@latest hooks post-task --task-id "$ID" --success true
 ```
 
 **Agent**: `.claude/agents/sona/sona-learning-optimizer.md`
@@ -431,37 +431,37 @@ class FlashAttentionOptimizer {
 **Memory Commands**:
 ```bash
 # Search patterns
-npx @claude-flow/cli@latest memory search \
+npx @archon-os/cli@latest memory search \
   --query "authentication patterns" \
   --namespace patterns
 
 # Store patterns
-npx @claude-flow/cli@latest memory store \
+npx @archon-os/cli@latest memory store \
   --namespace patterns \
   --key "auth-jwt-strategy" \
   --value '{"pattern": "jwt-auth", "embedding": [...]}'
 
 # Initialize database
-npx @claude-flow/cli@latest memory init --force --verbose
+npx @archon-os/cli@latest memory init --force --verbose
 ```
 
 **Hooks System**:
 ```bash
 # Start trajectory
-npx @claude-flow/cli@latest hooks intelligence trajectory-start
+npx @archon-os/cli@latest hooks intelligence trajectory-start
 
 # Record step
-npx @claude-flow/cli@latest hooks intelligence trajectory-step \
+npx @archon-os/cli@latest hooks intelligence trajectory-step \
   --operation "$OPERATION" \
   --outcome "$OUTCOME"
 
 # End trajectory
-npx @claude-flow/cli@latest hooks intelligence trajectory-end \
+npx @archon-os/cli@latest hooks intelligence trajectory-end \
   --session-id "$SESSION_ID" \
   --verdict "$VERDICT"
 
 # Search patterns
-npx @claude-flow/cli@latest hooks intelligence pattern-search \
+npx @archon-os/cli@latest hooks intelligence pattern-search \
   --query "$QUERY" \
   --min-reward 0.8
 ```
@@ -469,13 +469,13 @@ npx @claude-flow/cli@latest hooks intelligence pattern-search \
 **Neural Commands**:
 ```bash
 # Train neural patterns
-npx @claude-flow/cli@latest neural train --pattern-type coordination
+npx @archon-os/cli@latest neural train --pattern-type coordination
 
 # Predict optimal approach
-npx @claude-flow/cli@latest neural predict --input "[task]"
+npx @archon-os/cli@latest neural predict --input "[task]"
 
 # Consolidate patterns
-npx @claude-flow/cli@latest neural consolidate --namespace reasoningbank
+npx @archon-os/cli@latest neural consolidate --namespace reasoningbank
 ```
 
 ### MCP Tools
@@ -520,7 +520,7 @@ npx @claude-flow/cli@latest neural consolidate --namespace reasoningbank
 - **Features**: WAL mode, 10,000 cache pages, mmap enabled
 - **Use Cases**: Relational queries, transactions, metadata
 
-**AgentDB Backend**:
+**ruvector Backend**:
 - **Purpose**: Vector embeddings, semantic search
 - **Features**: HNSW indexing, quantization, 1536 dimensions
 - **Use Cases**: Pattern retrieval, similarity search
@@ -583,7 +583,7 @@ npx @claude-flow/cli@latest neural consolidate --namespace reasoningbank
 ```
 User Request (Task)
        ↓
-[1] RETRIEVE: Embed task → HNSW search → AgentDB → Top-k patterns
+[1] RETRIEVE: Embed task → HNSW search → ruvector → Top-k patterns
    Input: "Implement JWT authentication"
    Process: Create embedding → Search HNSW index
    Output: 5 similar patterns (k=5)
@@ -619,7 +619,7 @@ Enhanced Agent (Improved decision-making)
 **PC1 - Orchestrator (192.168.1.1)**:
 - Role: Coordination and intelligence
 - Components:
-  - AgentDB Primary
+  - ruvector Primary
   - ReasoningBank API
   - HNSW Index
   - Swarm Memory Manager
@@ -655,9 +655,9 @@ Enhanced Agent (Improved decision-making)
 
 **Configuration**:
 ```bash
-AGENTDB_QUIC_SYNC=true
-AGENTDB_QUIC_PORT=4433
-AGENTDB_QUIC_PEERS=192.168.1.10:4433,192.168.1.11:4433,192.168.1.12:4433
+ruvector_QUIC_SYNC=true
+ruvector_QUIC_PORT=4433
+ruvector_QUIC_PEERS=192.168.1.10:4433,192.168.1.11:4433,192.168.1.12:4433
 ```
 
 ---
@@ -671,7 +671,7 @@ AGENTDB_QUIC_PEERS=192.168.1.10:4433,192.168.1.11:4433,192.168.1.12:4433
 | `swarm` | 24h | Swarm coordination data | SQLite |
 | `agents` | 1h | Agent state | SQLite |
 | `tasks` | 4h | Task progress | SQLite |
-| `patterns` | 7d | Learned patterns | AgentDB + HNSW |
+| `patterns` | 7d | Learned patterns | ruvector + HNSW |
 | `decisions` | 30d | Architecture decisions | SQLite |
 | `notifications` | 5m | Cross-agent messages | SQLite |
 
@@ -679,12 +679,12 @@ AGENTDB_QUIC_PEERS=192.168.1.10:4433,192.168.1.11:4433,192.168.1.12:4433
 
 ```bash
 # Create namespace
-npx @claude-flow/cli@latest memory namespace \
+npx @archon-os/cli@latest memory namespace \
   --namespace "project:myapp" \
   --action "create"
 
 # Initialize with configuration
-npx @claude-flow/cli@latest memory init \
+npx @archon-os/cli@latest memory init \
   --namespace "patterns" \
   --hnsw-enabled \
   --quantization int8
@@ -738,8 +738,8 @@ npx @claude-flow/cli@latest memory init \
 
 ### Documentation
 
-1. **AgentDB Integration Guide**
-   - Path: `C:/Dev/Projects/Repos/Project-Nyra/docs/integration/AGENTDB-INTEGRATION-GUIDE.md`
+1. **ruvector Integration Guide**
+   - Path: `C:/Dev/Projects/Repos/Project-Nyra/docs/integration/ruvector-INTEGRATION-GUIDE.md`
    - 1356 lines of comprehensive setup and usage documentation
 
 2. **Project CLAUDE.md**
@@ -749,7 +749,7 @@ npx @claude-flow/cli@latest memory init \
 ### Configuration
 
 1. **Claude Flow Configuration**
-   - Path: `C:/Dev/Projects/Repos/Project-Nyra/claude-flow.config.json`
+   - Path: `C:/Dev/Projects/Repos/Project-Nyra/archon-os.config.json`
    - Settings: Model preferences, swarm topology, memory backend
 
 ---

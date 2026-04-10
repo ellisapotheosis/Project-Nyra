@@ -2,12 +2,12 @@
 /**
  * Claude Flow V3 - Persistent Learning Service
  *
- * Connects ReasoningBank to AgentDB with HNSW indexing and ONNX embeddings.
+ * Connects ReasoningBank to ruvector with HNSW indexing and ONNX embeddings.
  *
  * Features:
- * - Persistent pattern storage via AgentDB
+ * - Persistent pattern storage via ruvector
  * - HNSW indexing for 150x-12,500x faster search
- * - ONNX embeddings via agentic-flow@alpha
+ * - ONNX embeddings via archon-os@alpha
  * - Session-level pattern loading and consolidation
  * - Short-term → Long-term pattern promotion
  *
@@ -27,7 +27,7 @@ import Database from 'better-sqlite3';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const PROJECT_ROOT = join(__dirname, '../..');
-const DATA_DIR = join(PROJECT_ROOT, '.claude-flow/learning');
+const DATA_DIR = join(PROJECT_ROOT, '.archon-os/learning');
 const DB_PATH = join(DATA_DIR, 'patterns.db');
 const METRICS_PATH = join(DATA_DIR, 'learning-metrics.json');
 
@@ -444,7 +444,7 @@ class HNSWIndex {
 }
 
 // =============================================================================
-// Embedding Service (ONNX via agentic-flow@alpha OptimizedEmbedder)
+// Embedding Service (ONNX via archon-os@alpha OptimizedEmbedder)
 // =============================================================================
 
 class EmbeddingService {
@@ -460,8 +460,8 @@ class EmbeddingService {
     if (this.initialized) return;
 
     try {
-      // Dynamically import agentic-flow OptimizedEmbedder
-      const agenticFlowPath = join(PROJECT_ROOT, 'node_modules/agentic-flow/dist/embeddings/optimized-embedder.js');
+      // Dynamically import archon-os OptimizedEmbedder
+      const agenticFlowPath = join(PROJECT_ROOT, 'node_modules/archon-os/dist/embeddings/optimized-embedder.js');
 
       if (existsSync(agenticFlowPath)) {
         const { getOptimizedEmbedder } = await import(agenticFlowPath);
@@ -474,10 +474,10 @@ class EmbeddingService {
 
         await this.embedder.init();
         this.useAgenticFlow = true;
-        console.log('[Embedding] Initialized: agentic-flow OptimizedEmbedder (ONNX)');
+        console.log('[Embedding] Initialized: archon-os OptimizedEmbedder (ONNX)');
       } else {
         this.useAgenticFlow = false;
-        console.log('[Embedding] agentic-flow not found, using fallback hash embeddings');
+        console.log('[Embedding] archon-os not found, using fallback hash embeddings');
       }
 
       this.initialized = true;
@@ -501,7 +501,7 @@ class EmbeddingService {
 
     if (this.useAgenticFlow && this.embedder) {
       try {
-        // Use agentic-flow OptimizedEmbedder
+        // Use archon-os OptimizedEmbedder
         embedding = await this.embedder.embed(text.slice(0, 500));
       } catch (e) {
         console.log(`[Embedding] ONNX failed, using fallback: ${e.message}`);

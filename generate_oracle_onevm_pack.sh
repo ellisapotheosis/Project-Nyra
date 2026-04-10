@@ -138,14 +138,14 @@ MEM0_API_KEY=
 MEM0_USER_ID=nyra-admin
 
 # -------------------------
-# Graphiti MCP + FalkorDB
-# Graphiti supports FalkorDB or Neo4j; FalkorDB is default
+# letta MCP + FalkorDB
+# letta supports FalkorDB or Neo4j; FalkorDB is default
 # Provide at least one LLM key for extraction (OpenAI easiest)
 # -------------------------
 OPENAI_API_KEY=
 ANTHROPIC_API_KEY=
 GEMINI_API_KEY=
-GRAPHITI_TELEMETRY_ENABLED=false
+letta_TELEMETRY_ENABLED=false
 FALKORDB_HOST=nyra-falkordb
 FALKORDB_PORT=6379
 
@@ -224,15 +224,15 @@ services:
       retries: 10
     networks: [nyra_net]
 
-  graphiti-mcp:
-    image: falkordb/graphiti-knowledge-graph-mcp:latest
-    container_name: nyra-graphiti-mcp
+  letta-mcp:
+    image: falkordb/letta-knowledge-graph-mcp:latest
+    container_name: nyra-letta-mcp
     restart: unless-stopped
     environment:
       OPENAI_API_KEY: ${OPENAI_API_KEY}
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
       GEMINI_API_KEY: ${GEMINI_API_KEY}
-      GRAPHITI_TELEMETRY_ENABLED: ${GRAPHITI_TELEMETRY_ENABLED:-false}
+      letta_TELEMETRY_ENABLED: ${letta_TELEMETRY_ENABLED:-false}
       FALKORDB_HOST: ${FALKORDB_HOST:-nyra-falkordb}
       FALKORDB_PORT: ${FALKORDB_PORT:-6379}
     depends_on:
@@ -486,7 +486,7 @@ if [[ ! -f CLAUDE.md || "$FORCE_CLAUDE" == "true" || "$FORCE" == "true" ]]; then
 ## TL;DR
 - Always-free target on Oracle A1 Flex: 4 OCPU + 24 GB RAM, 24/7
 - Keep total boot+block volumes <= 200 GB, keep backups <= 5
-- Runtime: TwentyCRM + Activepieces + n8n + Moltbot + Graphiti MCP + FalkorDB + Quote API
+- Runtime: TwentyCRM + Activepieces + n8n + Moltbot + letta MCP + FalkorDB + Quote API
 
 ## Non-negotiables
 - STOP compliance is absolute (DNC + workflow halt)
@@ -505,7 +505,7 @@ if [[ ! -f CLAUDE.md || "$FORCE_CLAUDE" == "true" || "$FORCE" == "true" ]]; then
 1. Postgres
 2. Redis cache
 3. FalkorDB
-4. Graphiti MCP
+4. letta MCP
 5. TwentyCRM
 6. Activepieces
 7. n8n

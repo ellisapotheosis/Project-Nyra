@@ -41,10 +41,10 @@ services:
       PORT: 3004
       NEXUS_BASE_URL: http://nexus:6000
       ARCHON_API_URL: http://archon-api:4000
-      CLAUDE_FLOW_URL: http://claude-flow-brain:8080
+      CLAUDE_FLOW_URL: http://archon-os-brain:8080
     ports: ["3004:3004"]
     networks: [nyra-network]
-    depends_on: [nexus, archon-api, claude-flow-brain]
+    depends_on: [nexus, archon-api, archon-os-brain]
 
 networks:
   nyra-network:

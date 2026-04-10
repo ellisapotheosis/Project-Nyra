@@ -40,7 +40,7 @@
 **Before:** 5 different guides
 **After:** `deployment/primary-guide.md` (comprehensive)
 
-### Looking for Claude-Flow Setup?
+### Looking for archon-os Setup?
 **Before:** 3+ scattered docs
 **After:** `ai-automatable/quick-start.md`
 
@@ -60,7 +60,7 @@
 | 3 quick-start guides | → | `manual-tasks/setup/quick-start.md` |
 | 3 setup guides | → | `manual-tasks/setup/primary-setup-guide.md` |
 | 3 deployment guides | → | `deployment/primary-guide.md` |
-| 3 Claude-Flow docs | → | `ai-automatable/quick-start.md` |
+| 3 archon-os docs | → | `ai-automatable/quick-start.md` |
 | 4 infrastructure status | → | Archive in `_deprecated/` |
 | 6 consolidation reports | → | `cleanup/reports/` |
 | 3 config docs | → | `configuration/overview.md` |
@@ -149,10 +149,10 @@ Phase 8 → Cleanup + verify (1h)
 
 ```bash
 # Retrieve plan from memory
-npx @claude-flow/cli@latest memory search --query "docs reorganization" --namespace "docs-reorganization"
+npx @archon-os/cli@latest memory search --query "docs reorganization" --namespace "docs-reorganization"
 
 # Or retrieve specific key
-npx @claude-flow/cli@latest memory retrieve --key "folder-structure-plan" --namespace "docs-reorganization"
+npx @archon-os/cli@latest memory retrieve --key "folder-structure-plan" --namespace "docs-reorganization"
 ```
 
 ## First Steps

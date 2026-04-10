@@ -9,7 +9,7 @@
 ## Executive Summary
 
 Successfully integrated comprehensive memory systems for Project-Nyra with **three-tier architecture**:
-1. GraphRAG (Graphiti + FalkorDB) for knowledge graphs
+1. GraphRAG (letta + FalkorDB) for knowledge graphs
 2. Episodic memory (Mem0) for chat history and preferences
 3. Stateful management (Letta Archivist) for agent coordination
 
@@ -39,9 +39,9 @@ All components have been implemented, tested, documented, and deployed via Docke
 
 ---
 
-### ✅ 2. Graphiti MCP Client Implementation
+### ✅ 2. letta MCP Client Implementation
 
-**File:** `src/services/memory/graphiti-service.ts`
+**File:** `src/services/memory/letta-service.ts`
 
 **Features:**
 - ✅ Full MCP protocol integration
@@ -120,7 +120,7 @@ All components have been implemented, tested, documented, and deployed via Docke
 - ✅ Automatic routing by key prefix
 - ✅ Built-in caching with TTL
 - ✅ Type-safe operations
-- ✅ Fallback chain (Letta → Graphiti → Mem0 → Local)
+- ✅ Fallback chain (Letta → letta → Mem0 → Local)
 - ✅ Health monitoring for all backends
 - ✅ Automatic cache cleanup
 
@@ -138,9 +138,9 @@ All components have been implemented, tested, documented, and deployed via Docke
 **Routing Rules:**
 | Prefix | Backend | Example |
 |--------|---------|---------|
-| `graph:` | Graphiti | `graph:entity:lead-123` |
-| `entity:` | Graphiti | `entity:opportunity:456` |
-| `crm:` | Graphiti | `crm:activity:789` |
+| `graph:` | letta | `graph:entity:lead-123` |
+| `entity:` | letta | `entity:opportunity:456` |
+| `crm:` | letta | `crm:activity:789` |
 | `chat:` | Mem0 | `chat:message:msg-1` |
 | `pref:` | Mem0 | `pref:user:theme` |
 | `session:` | Letta | `session:agent:archivist-1` |
@@ -156,7 +156,7 @@ All components have been implemented, tested, documented, and deployed via Docke
 - ✅ Webhook receiver with signature verification
 - ✅ Optional polling for systems without webhooks
 - ✅ Event processing for all CRM event types
-- ✅ Automatic entity creation in Graphiti
+- ✅ Automatic entity creation in letta
 - ✅ Relationship building (Lead → Opportunity → Activity)
 
 **Supported Events:**
@@ -168,7 +168,7 @@ All components have been implemented, tested, documented, and deployed via Docke
 
 **Event Flow:**
 ```
-TwentyCRM → Webhook → Pipeline → Graphiti → Knowledge Graph
+TwentyCRM → Webhook → Pipeline → letta → Knowledge Graph
                 ↓
            Verification
                 ↓
@@ -188,7 +188,7 @@ TwentyCRM → Webhook → Pipeline → Graphiti → Knowledge Graph
 **File:** `tests/integration/memory/memory-integration.test.ts`
 
 **Test Suites:**
-- ✅ Graphiti Service Integration (6 tests)
+- ✅ letta Service Integration (6 tests)
 - ✅ Mem0 Service Integration (6 tests)
 - ✅ Letta Service Integration (6 tests)
 - ✅ Unified Memory Gateway Integration (8 tests)
@@ -208,7 +208,7 @@ TwentyCRM → Webhook → Pipeline → Graphiti → Knowledge Graph
 
 **Services Deployed:**
 1. **FalkorDB** - Graph database (port 6379)
-2. **Graphiti** - MCP server (port 7459)
+2. **letta** - MCP server (port 7459)
 3. **Qdrant** - Vector database (ports 6333, 6334)
 4. **Redis** - Cache + Mem0 local (ports 6379, 8001)
 5. **Letta** - Agent server (port 8283)
@@ -248,7 +248,7 @@ docker-compose -f docker-compose.memory.yml logs -f
 
 **Documentation Sections:**
 1. Overview & Architecture Diagram
-2. Component Descriptions (Graphiti, Mem0, Letta, Gateway, Pipeline)
+2. Component Descriptions (letta, Mem0, Letta, Gateway, Pipeline)
 3. API Examples & Usage Patterns
 4. Deployment Instructions
 5. Monitoring & Metrics
@@ -268,7 +268,7 @@ docker-compose -f docker-compose.memory.yml logs -f
 **Configuration Options:**
 ```typescript
 {
-  graphiti: { endpoint, apiKey, timeout },
+  letta: { endpoint, apiKey, timeout },
   falkordb: { host, port, password, database },
   mem0: { apiKey, endpoint, useLocal },
   letta: { endpoint, apiKey, agentType },
@@ -280,7 +280,7 @@ docker-compose -f docker-compose.memory.yml logs -f
 
 **Environment Variables:**
 ```env
-GRAPHITI_ENDPOINT, GRAPHITI_API_KEY
+letta_ENDPOINT, letta_API_KEY
 FALKORDB_HOST, FALKORDB_PORT, FALKORDB_PASSWORD
 MEM0_API_KEY, MEM0_USE_LOCAL
 LETTA_ENDPOINT, LETTA_API_KEY
@@ -310,7 +310,7 @@ MEMORY_DEFAULT_TTL, MEMORY_ENABLE_CACHING
 |-----------|-------------|--------------|--------|
 | Gateway.set() | <100ms | 45ms | ✅ |
 | Gateway.get() | <50ms | 12ms | ✅ |
-| Graphiti.query() | <200ms | 150ms | ✅ |
+| letta.query() | <200ms | 150ms | ✅ |
 | Mem0.search() | <100ms | 80ms | ✅ |
 | Letta.sendMessage() | <300ms | 200ms | ✅ |
 
@@ -328,8 +328,8 @@ POST /webhooks/twentycrm
 // 2. Pipeline processes event
 await pipeline.handleWebhook(payload, signature)
     ↓
-// 3. Graphiti creates entities
-leadId = await graphiti.addEntity('Lead', leadData)
+// 3. letta creates entities
+leadId = await letta.addEntity('Lead', leadData)
     ↓
 // 4. Query via gateway
 lead = await gateway.get('entity:lead:lead-123')
@@ -366,7 +366,7 @@ await letta.sendMessage(sessionId,
 )
     ↓
 // 3. Archivist writes to both backends
-Archivist → Graphiti (entity + relationships)
+Archivist → letta (entity + relationships)
 Archivist → Mem0 (summary + context)
     ↓
 // 4. Query unified memory
@@ -397,7 +397,7 @@ interface IMemoryService {
 }
 
 class UnifiedMemoryGateway implements IMemoryService {
-  // Backed by Graphiti + Mem0 + Letta + Local cache
+  // Backed by letta + Mem0 + Letta + Local cache
 }
 ```
 
@@ -413,10 +413,10 @@ def add_entity(self, label: str, properties: Dict[str, Any]):
 ```typescript
 // ✅ Full MCP integration
 async addEntity(label: string, properties: Record<string, any>): Promise<string> {
-  const response = await this.callMCP('graphiti.add_entity', {
+  const response = await this.callMCP('letta.add_entity', {
     label, properties
   });
-  logger.info('[Graphiti] Entity added', { entityId: response.id });
+  logger.info('[letta] Entity added', { entityId: response.id });
   return response.id;
 }
 ```
@@ -431,7 +431,7 @@ async addEntity(label: string, properties: Record<string, any>): Promise<string>
 $ npm run test:integration -- tests/integration/memory
 
 PASS tests/integration/memory/memory-integration.test.ts
-  Graphiti Service Integration
+  letta Service Integration
     ✓ should add entity to knowledge graph (45ms)
     ✓ should add relationship between entities (32ms)
     ✓ should query entities using Cypher (28ms)
@@ -518,7 +518,7 @@ Time:        8.234s
 
 ### Services (4 files)
 1. `src/services/memory/memory-service.interface.ts`
-2. `src/services/memory/graphiti-service.ts`
+2. `src/services/memory/letta-service.ts`
 3. `src/services/memory/mem0-service.ts`
 4. `src/services/memory/letta-service.ts`
 5. `src/services/memory/unified-memory-gateway.ts`
@@ -546,23 +546,23 @@ Time:        8.234s
 
 ### Pre-Task
 ```bash
-✅ npx @claude-flow/cli@latest hooks pre-task
+✅ npx @archon-os/cli@latest hooks pre-task
    --description "Memory systems integration - Phase 5"
 ```
 
 ### During Task
 ```bash
-✅ npx @claude-flow/cli@latest hooks post-edit
+✅ npx @archon-os/cli@latest hooks post-edit
    --file "src/services/memory/*.ts"
    --memory-key "swarm/integration/memory/services"
 
-✅ npx @claude-flow/cli@latest hooks notify
+✅ npx @archon-os/cli@latest hooks notify
    --message "Memory services implemented"
 ```
 
 ### Post-Task
 ```bash
-✅ npx @claude-flow/cli@latest hooks post-task
+✅ npx @archon-os/cli@latest hooks post-task
    --task-id "memory-systems-integration"
 ```
 
@@ -589,7 +589,7 @@ Time:        8.234s
 Phase 5 memory systems integration is **100% complete** with all deliverables met:
 
 ✅ Code quality analysis performed
-✅ Graphiti MCP client implemented
+✅ letta MCP client implemented
 ✅ TwentyCRM event pipeline created
 ✅ Mem0 integration for chat summaries
 ✅ Letta Archivist agent configured

@@ -65,7 +65,7 @@
 ```
 C:\Dev\Projects\Repos\Project-Nyra\
 ├── submodules/
-│   ├── claude-flow/          <- Edit here for live reload
+│   ├── archon-os/          <- Edit here for live reload
 │   │   ├── src/
 │   │   ├── cli.mjs
 │   │   └── package.json
@@ -135,7 +135,7 @@ pnpm dev
 
 ### 3. Edit Local Code
 Edit these directories and changes appear instantly:
-- C:\Dev\Projects\Repos\Project-Nyra\submodules\claude-flow\src
+- C:\Dev\Projects\Repos\Project-Nyra\submodules\archon-os\src
 - C:\Dev\Projects\Repos\Project-Nyra\submodules\archon\archon-ui-main\src
 
 ### 4. Hot Reload
@@ -195,7 +195,7 @@ Ready for Development:  YES
 1. Read: QUICK-START-DEVELOPMENT.md
 2. Run: .\setup-dev-environment.ps1 -Environment development
 3. Start: pnpm dev
-4. Edit: Code in submodules/claude-flow or submodules/archon
+4. Edit: Code in submodules/archon-os or submodules/archon
 5. Verify: Changes appear immediately via hot reload
 
 ---

@@ -64,7 +64,7 @@
 │  │  │ :6000  │  │ :4000  │  │ :8283 │  │:4321 │  │    :3010     │   │   │
 │  │  └────────┘  └────────┘  └───────┘  └──────┘  └──────────────┘   │   │
 │  │  ┌────────┐  ┌─────────┐  ┌──────────┐                            │   │
-│  │  │AgentDB │  │RuVector │  │Infisical │                            │   │
+│  │  │ruvector │  │RuVector │  │Infisical │                            │   │
 │  │  │ :8080  │  │  :8888  │  │  :8082   │                            │   │
 │  │  └────────┘  └─────────┘  └──────────┘                            │   │
 │  └──────────────────────────────────────────────────────────────────────┘   │
@@ -147,7 +147,7 @@ USER REQUEST (Web/API/CLI)
 │         │             │             │             │             │         │
 │         ▼             ▼             ▼             ▼             ▼         │
 │   ┌─────────┐   ┌─────────┐   ┌─────────┐   ┌─────────┐   ┌─────────┐  │
-│   │LiteLLM  │   │  Letta  │   │  Mem0   │   │ Claude  │   │AgentDB  │  │
+│   │LiteLLM  │   │  Letta  │   │  Mem0   │   │ Claude  │   │ruvector  │  │
 │   │ :4000   │   │  :8283  │   │  :4321  │   │  Flow   │   │ :8080   │  │
 │   └────┬────┘   └────┬────┘   └────┬────┘   │  :3010  │   └─────────┘  │
 │        │             │             │         └─────────┘                   │
@@ -246,12 +246,12 @@ EXTERNAL APIs (Cloud Fallback)
 │  └────────────────────────────────────────────────────────────┘    │
 │                                                                      │
 │  ┌────────────────────────────────────────────────────────────┐    │
-│  │         AGENTDB - :8080                                    │    │
+│  │         ruvector - :8080                                    │    │
 │  │  • HNSW vector search (150x faster)                        │    │
 │  │  • Quantization support                                    │    │
 │  │  • Claude Flow agent memory                                │    │
 │  │                                                            │    │
-│  │  Volume: agentdb-data (15GB)                               │    │
+│  │  Volume: ruvector-data (15GB)                               │    │
 │  │  Backup: Daily, 30-day retention                           │    │
 │  └────────────────────────────────────────────────────────────┘    │
 └──────────────────────────────────────────────────────────────────────┘
@@ -332,7 +332,7 @@ PC1: UH680 Mini PC (Orchestrator)                    192.168.1.100
 ├─────────────────────────────────────────────────────────────────────────────┤
 │  Services (23):                                                             │
 │    Infrastructure: postgres, redis, qdrant, falkordb, neo4j                │
-│    MCP: nexus, litellm, letta, mem0, claude-flow, agentdb, ruvector, ...   │
+│    MCP: nexus, litellm, letta, mem0, archon-os, ruvector, ruvector, ...   │
 │    Apps: twenty, n8n, dify, openwebui, nyra-orchestrator                   │
 │    Monitoring: prometheus, grafana, loki, alertmanager                     │
 │  Storage: ~400GB                                                            │

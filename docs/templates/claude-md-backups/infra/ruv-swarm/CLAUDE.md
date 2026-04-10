@@ -19,7 +19,7 @@
 ## 🛡️ ANTI-DRIFT CONFIG
 
 ```bash
-npx @claude-flow/cli@latest swarm init --topology hierarchical-mesh --max-agents 8 --strategy specialized
+npx @archon-os/cli@latest swarm init --topology hierarchical-mesh --max-agents 8 --strategy specialized
 ```
 
 ---
@@ -36,9 +36,9 @@ npx @claude-flow/cli@latest swarm init --topology hierarchical-mesh --max-agents
 ## 🧠 AUTO-LEARNING PROTOCOL
 
 ```bash
-npx @claude-flow/cli@latest memory search --query '[keywords]' --namespace patterns
-npx @claude-flow/cli@latest memory store --namespace patterns --key '[pattern]' --value '[result]'
-npx @claude-flow/cli@latest hooks post-task --task-id '[id]' --success true --store-results true
+npx @archon-os/cli@latest memory search --query '[keywords]' --namespace patterns
+npx @archon-os/cli@latest memory store --namespace patterns --key '[pattern]' --value '[result]'
+npx @archon-os/cli@latest hooks post-task --task-id '[id]' --success true --store-results true
 ```
 
 ---
@@ -52,8 +52,8 @@ Agents: `backend-dev`, `api-docs`, `reviewer`, `swarm-coordinator`
 ## 📝 MEMORY COMMANDS REFERENCE
 
 ```bash
-npx @claude-flow/cli@latest memory store --key "ruv-swarm-mcp" --value "content" --namespace patterns
-npx @claude-flow/cli@latest memory search --query "swarm coordination" --namespace patterns
+npx @archon-os/cli@latest memory store --key "ruv-swarm-mcp" --value "content" --namespace patterns
+npx @archon-os/cli@latest memory search --query "swarm coordination" --namespace patterns
 ```
 
 ---

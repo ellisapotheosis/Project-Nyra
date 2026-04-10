@@ -35,8 +35,8 @@ This guide provides comprehensive containerization strategies, Docker Compose op
 │  • nexus-router (6000)      - Multi-provider LLM gateway        │
 │  • letta (8283)             - Conversation memory               │
 │  • mem0 (4321)              - Universal memory layer            │
-│  • claude-flow (3010)       - Multi-agent orchestration         │
-│  • agentdb (8080)           - Vector database (HNSW)            │
+│  • archon-os (3010)       - Multi-agent orchestration         │
+│  • ruvector (8080)           - Vector database (HNSW)            │
 │  • ruvector (8081)          - Neural substrate                  │
 │  • redis (6379)             - Cache & message queue             │
 │  • qdrant (6333)            - Vector search engine              │
@@ -401,7 +401,7 @@ services:
     environment:
       - NEXUS_URL=http://10.0.0.1:6000
       - CLAUDE_FLOW_URL=http://10.0.0.1:3010
-      - AGENTDB_URL=http://10.0.0.1:8080
+      - ruvector_URL=http://10.0.0.1:8080
 ```
 
 **Pros**:
@@ -743,8 +743,8 @@ scrape_configs:
         - '10.0.0.1:6000'  # nexus-router
         - '10.0.0.1:8283'  # letta
         - '10.0.0.1:4321'  # mem0
-        - '10.0.0.1:3010'  # claude-flow
-        - '10.0.0.1:8080'  # agentdb
+        - '10.0.0.1:3010'  # archon-os
+        - '10.0.0.1:8080'  # ruvector
 
   # Scrape PC2 services
   - job_name: 'worker-2'
@@ -933,7 +933,7 @@ services:
 1. **Databases**:
    - PostgreSQL (TwentyCRM, n8n, Dify)
    - Redis snapshots
-   - AgentDB vector data
+   - ruvector vector data
    - Neo4j graph data
 
 2. **Configuration**:
@@ -978,11 +978,11 @@ docker exec redis redis-cli SAVE
 docker cp redis:/data/dump.rdb "$BACKUP_DIR/redis-dump.rdb"
 
 # ====================================
-# AgentDB Vector Data
+# ruvector Vector Data
 # ====================================
-echo "Backing up AgentDB..."
-docker exec agentdb tar czf /tmp/agentdb-backup.tar.gz /data
-docker cp agentdb:/tmp/agentdb-backup.tar.gz "$BACKUP_DIR/agentdb.tar.gz"
+echo "Backing up ruvector..."
+docker exec ruvector tar czf /tmp/ruvector-backup.tar.gz /data
+docker cp ruvector:/tmp/ruvector-backup.tar.gz "$BACKUP_DIR/ruvector.tar.gz"
 
 # ====================================
 # Neo4j Graph Data
@@ -1147,8 +1147,8 @@ sudo systemctl restart docker
 | nexus-router | 1.0 | 1G | LLM gateway |
 | letta | 1.0 | 2G | Memory-intensive |
 | mem0 | 0.5 | 1G | REST API |
-| claude-flow | 1.5 | 3G | Orchestration |
-| agentdb | 1.0 | 2G | Vector DB |
+| archon-os | 1.5 | 3G | Orchestration |
+| ruvector | 1.0 | 2G | Vector DB |
 | ruvector | 0.5 | 1G | Neural substrate |
 | redis | 0.5 | 512M | Cache |
 | qdrant | 1.0 | 2G | Vector search |
@@ -1312,4 +1312,4 @@ services:
 **Related Docs**:
 - [Complete Setup Guide](../setup-guides/00-MASTER-SETUP-GUIDE.md)
 - [Best Practices Guide](../BEST-PRACTICES-GUIDE.md)
-- [Troubleshooting Guide](../troubleshooting/CLAUDE-FLOW-ZOD-FIX.md)
+- [Troubleshooting Guide](../troubleshooting/archon-os-ZOD-FIX.md)

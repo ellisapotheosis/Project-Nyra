@@ -25,7 +25,7 @@
 ## 🛡️ ANTI-DRIFT CONFIG (PREFERRED)
 
 ```bash
-npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 8 --strategy specialized
+npx @archon-os/cli@latest swarm init --topology hierarchical --max-agents 8 --strategy specialized
 ```
 
 ---
@@ -49,13 +49,13 @@ Spawn agents in background and WAIT.
 
 ### Before Task
 ```bash
-npx @claude-flow/cli@latest memory search --query '[keywords]' --namespace patterns
+npx @archon-os/cli@latest memory search --query '[keywords]' --namespace patterns
 ```
 
 ### After Task
 ```bash
-npx @claude-flow/cli@latest memory store --namespace patterns --key '[pattern]' --value '[result]'
-npx @claude-flow/cli@latest hooks post-task --task-id '[id]' --success true --store-results true
+npx @archon-os/cli@latest memory store --namespace patterns --key '[pattern]' --value '[result]'
+npx @archon-os/cli@latest hooks post-task --task-id '[id]' --success true --store-results true
 ```
 
 ---
@@ -63,12 +63,12 @@ npx @claude-flow/cli@latest hooks post-task --task-id '[id]' --success true --st
 ## 🚀 V3 CLI Commands (26 Commands, 140+ Subcommands)
 
 ```bash
-npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 8
-npx @claude-flow/cli@latest memory store --key "pattern" --value "content"
-npx @claude-flow/cli@latest memory search --query "search term"
-npx @claude-flow/cli@latest hooks pre-task --description "[task]"
-npx @claude-flow/cli@latest hooks post-task --task-id "[id]" --success true
-npx @claude-flow/cli@latest hooks worker dispatch --trigger audit
+npx @archon-os/cli@latest swarm init --topology hierarchical --max-agents 8
+npx @archon-os/cli@latest memory store --key "pattern" --value "content"
+npx @archon-os/cli@latest memory search --query "search term"
+npx @archon-os/cli@latest hooks pre-task --description "[task]"
+npx @archon-os/cli@latest hooks post-task --task-id "[id]" --success true
+npx @archon-os/cli@latest hooks worker dispatch --trigger audit
 ```
 
 ---
@@ -87,9 +87,9 @@ npx @claude-flow/cli@latest hooks worker dispatch --trigger audit
 ## 🪝 V3 Hooks System (27 Hooks + 12 Workers)
 
 ```bash
-npx @claude-flow/cli@latest hooks pre-task --description "admin dashboard feature"
-npx @claude-flow/cli@latest hooks post-edit --file "admin.tsx" --train-neural true
-npx @claude-flow/cli@latest hooks worker dispatch --trigger audit
+npx @archon-os/cli@latest hooks pre-task --description "admin dashboard feature"
+npx @archon-os/cli@latest hooks post-edit --file "admin.tsx" --train-neural true
+npx @archon-os/cli@latest hooks worker dispatch --trigger audit
 ```
 
 ---
@@ -97,9 +97,9 @@ npx @claude-flow/cli@latest hooks worker dispatch --trigger audit
 ## 📝 Memory Commands Reference
 
 ```bash
-npx @claude-flow/cli@latest memory store --key "admin-pattern" --value "content" --namespace patterns
-npx @claude-flow/cli@latest memory search --query "admin security patterns" --namespace patterns
-npx @claude-flow/cli@latest memory retrieve --key "admin-pattern" --namespace patterns
+npx @archon-os/cli@latest memory store --key "admin-pattern" --value "content" --namespace patterns
+npx @archon-os/cli@latest memory search --query "admin security patterns" --namespace patterns
+npx @archon-os/cli@latest memory retrieve --key "admin-pattern" --namespace patterns
 ```
 
 ---
@@ -146,7 +146,7 @@ pnpm lint
 ### 3-Tier Model Routing
 
 ```bash
-npx @claude-flow/cli@latest hooks pre-task \
+npx @archon-os/cli@latest hooks pre-task \
   --description "Admin dashboard feature development"
 ```
 
@@ -163,10 +163,10 @@ npx @claude-flow/cli@latest hooks pre-task \
 **1. Admin Feature Development (SPARC)**
 ```bash
 # Initialize SPARC workflow
-npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 6 --strategy specialized
+npx @archon-os/cli@latest swarm init --topology hierarchical --max-agents 6 --strategy specialized
 
 # Store admin context
-npx @claude-flow/cli@latest memory store \
+npx @archon-os/cli@latest memory store \
   --namespace admin \
   --key "features/[name]" \
   --value "Admin feature requirements and access controls"
@@ -175,7 +175,7 @@ npx @claude-flow/cli@latest memory store \
 **2. User Management**
 ```bash
 # Search for RBAC patterns
-npx @claude-flow/cli@latest memory search \
+npx @archon-os/cli@latest memory search \
   --query "role-based access control admin" \
   --namespace patterns
 ```
@@ -183,7 +183,7 @@ npx @claude-flow/cli@latest memory search \
 **3. System Configuration**
 ```bash
 # Pre-config change safety
-npx @claude-flow/cli@latest hooks pre-task \
+npx @archon-os/cli@latest hooks pre-task \
   --description "System configuration change" \
   --coordinate-swarm true
 ```
@@ -192,19 +192,19 @@ npx @claude-flow/cli@latest hooks pre-task \
 
 **Before Development**:
 ```bash
-npx @claude-flow/cli@latest memory search \
+npx @archon-os/cli@latest memory search \
   --query "admin dashboard security patterns" \
   --namespace patterns
 ```
 
 **After Successful Implementation**:
 ```bash
-npx @claude-flow/cli@latest memory store \
+npx @archon-os/cli@latest memory store \
   --namespace patterns \
   --key "admin-success-$(date +%Y%m%d)" \
   --value "Implemented secure [feature] in admin panel"
 
-npx @claude-flow/cli@latest neural train \
+npx @archon-os/cli@latest neural train \
   --pattern-type admin-security \
   --epochs 10
 ```

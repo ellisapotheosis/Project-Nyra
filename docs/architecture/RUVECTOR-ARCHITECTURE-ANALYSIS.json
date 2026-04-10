@@ -39,9 +39,9 @@
         "purpose": "Assign quality scores to agent operations",
         "implementation": ".claude/agents/v3/reasoningbank-learner.md",
         "trajectory_tracking": {
-          "start": "npx claude-flow@v3alpha hooks intelligence trajectory-start",
-          "step": "npx claude-flow@v3alpha hooks intelligence trajectory-step",
-          "end": "npx claude-flow@v3alpha hooks intelligence trajectory-end"
+          "start": "npx archon-os@v3alpha hooks intelligence trajectory-start",
+          "step": "npx archon-os@v3alpha hooks intelligence trajectory-step",
+          "end": "npx archon-os@v3alpha hooks intelligence trajectory-end"
         },
         "verdict_types": ["success", "failure"],
         "reward_range": "0.0-1.0",
@@ -161,8 +161,8 @@
     "integration": {
       "package": "@ruvector/sona@0.1.1",
       "hooks": {
-        "pre_task": "npx claude-flow@alpha hooks pre-task",
-        "post_task": "npx claude-flow@alpha hooks post-task"
+        "pre_task": "npx archon-os@alpha hooks pre-task",
+        "post_task": "npx archon-os@alpha hooks post-task"
       },
       "agent": ".claude/agents/sona/sona-learning-optimizer.md",
       "mcp_tools": ["neural_train", "neural_patterns", "neural_predict"]
@@ -203,20 +203,20 @@
   "integration_points": {
     "claude_flow_cli": {
       "memory_commands": [
-        "npx @claude-flow/cli@latest memory search --query [pattern] --namespace patterns",
-        "npx @claude-flow/cli@latest memory store --namespace patterns --key [key] --value [value]",
-        "npx @claude-flow/cli@latest memory init --force --verbose"
+        "npx @archon-os/cli@latest memory search --query [pattern] --namespace patterns",
+        "npx @archon-os/cli@latest memory store --namespace patterns --key [key] --value [value]",
+        "npx @archon-os/cli@latest memory init --force --verbose"
       ],
       "hooks_system": [
-        "npx claude-flow@v3alpha hooks intelligence trajectory-start",
-        "npx claude-flow@v3alpha hooks intelligence trajectory-step",
-        "npx claude-flow@v3alpha hooks intelligence trajectory-end",
-        "npx claude-flow@v3alpha hooks intelligence pattern-search"
+        "npx archon-os@v3alpha hooks intelligence trajectory-start",
+        "npx archon-os@v3alpha hooks intelligence trajectory-step",
+        "npx archon-os@v3alpha hooks intelligence trajectory-end",
+        "npx archon-os@v3alpha hooks intelligence pattern-search"
       ],
       "neural_commands": [
-        "npx claude-flow@v3alpha neural train --pattern-type coordination",
-        "npx claude-flow@v3alpha neural predict --input [task]",
-        "npx claude-flow@v3alpha neural consolidate --namespace reasoningbank"
+        "npx archon-os@v3alpha neural train --pattern-type coordination",
+        "npx archon-os@v3alpha neural predict --input [task]",
+        "npx archon-os@v3alpha neural consolidate --namespace reasoningbank"
       ]
     },
     "mcp_tools": {
@@ -254,7 +254,7 @@
         "purpose": "Structured data, metadata, sessions",
         "features": ["WAL mode", "10000 cache pages", "mmap enabled"]
       },
-      "agentdb": {
+      "ruvector": {
         "purpose": "Vector embeddings, semantic search",
         "features": ["HNSW indexing", "quantization", "1536 dimensions"]
       },
@@ -302,7 +302,7 @@
     "user_request": "Task execution request",
     "step_1_retrieve": {
       "input": "Task description (text)",
-      "process": "Embed → HNSW search → AgentDB",
+      "process": "Embed → HNSW search → ruvector",
       "output": "Top-k similar patterns (k=3-10)",
       "latency": "<5ms"
     },
@@ -343,11 +343,11 @@
       "C:/Dev/Projects/Repos/Project-Nyra/.claude/agents/v3/performance-engineer.md"
     ],
     "documentation": [
-      "C:/Dev/Projects/Repos/Project-Nyra/docs/integration/AGENTDB-INTEGRATION-GUIDE.md",
+      "C:/Dev/Projects/Repos/Project-Nyra/docs/integration/ruvector-INTEGRATION-GUIDE.md",
       "C:/Dev/Projects/Repos/Project-Nyra/CLAUDE.md"
     ],
     "configuration": [
-      "C:/Dev/Projects/Repos/Project-Nyra/claude-flow.config.json"
+      "C:/Dev/Projects/Repos/Project-Nyra/archon-os.config.json"
     ]
   },
   "distributed_architecture": {
@@ -355,7 +355,7 @@
     "nodes": {
       "pc1_orchestrator": {
         "role": "Coordination and intelligence",
-        "components": ["AgentDB Primary", "ReasoningBank API", "HNSW Index", "Swarm Memory Manager"],
+        "components": ["ruvector Primary", "ReasoningBank API", "HNSW Index", "Swarm Memory Manager"],
         "ip": "192.168.1.1"
       },
       "pc2_worker": {

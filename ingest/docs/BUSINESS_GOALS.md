@@ -1,7 +1,7 @@
 # Project-Nyra Business Goals & Strategic Objectives
 
 ## Vision Statement
-Establish Ellis D Andersen LLC and West Capital Lending as the leading technology-enabled mortgage brokerage in Southern California, leveraging AI automation (Nyra assistant), multi-agent orchestration (Claude-Flow + Archon), and data-driven operations to deliver exceptional customer experiences while scaling efficiently.
+Establish Ellis D Andersen LLC and West Capital Lending as the leading technology-enabled mortgage brokerage in Southern California, leveraging AI automation (Nyra assistant), multi-agent orchestration (archon-os + Archon), and data-driven operations to deliver exceptional customer experiences while scaling efficiently.
 
 ---
 
@@ -32,7 +32,7 @@ Empower homebuyers and real estate investors with transparent, fast, and persona
 ---
 
 ### Goal 2: AI Automation & Efficiency
-**Objective**: Automate 80% of repetitive mortgage tasks via Nyra AI and Claude-Flow orchestration
+**Objective**: Automate 80% of repetitive mortgage tasks via Nyra AI and archon-os orchestration
 
 **Key Results**:
 - Deploy Nyra AI assistant across web chat, SMS, email, and voice channels
@@ -125,7 +125,7 @@ Empower homebuyers and real estate investors with transparent, fast, and persona
 ---
 
 ### Phase 2: Intelligence (Q2-Q3 2025)
-- [ ] Multi-agent swarm orchestration (Claude-Flow + Archon)
+- [ ] Multi-agent swarm orchestration (archon-os + Archon)
 - [ ] Voice agent (Voicemod + Kyutai Unmute)
 - [ ] Predictive lead scoring (machine learning)
 - [ ] A/B testing framework
@@ -326,7 +326,7 @@ Empower homebuyers and real estate investors with transparent, fast, and persona
 
 ## Conclusion
 
-Project-Nyra represents the future of mortgage brokerage: AI-first, data-driven, customer-centric, and highly profitable. By leveraging cutting-edge technology (Claude-Flow, Archon, Nyra AI) with deep domain expertise and a commitment to exceptional service, Ellis D Andersen LLC / West Capital Lending is positioned to dominate the Southern California mortgage market and scale nationally.
+Project-Nyra represents the future of mortgage brokerage: AI-first, data-driven, customer-centric, and highly profitable. By leveraging cutting-edge technology (archon-os, Archon, Nyra AI) with deep domain expertise and a commitment to exceptional service, Ellis D Andersen LLC / West Capital Lending is positioned to dominate the Southern California mortgage market and scale nationally.
 
 **Next Steps**:
 1. Complete Phase 1 technology buildout (Q1 2025)

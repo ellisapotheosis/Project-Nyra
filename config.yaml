@@ -24,12 +24,12 @@ swarm:
   gpuWorkers: 3
 
 # ==============================================================================
-# 2. MEMORY SYSTEM (RuVector + Letta + Graphiti)
+# 2. MEMORY SYSTEM (RuVector + Letta + letta)
 # ==============================================================================
 memory:
   type: hybrid
   enableHNSW: true
-  persistPath: .claude-flow/data
+  persistPath: .archon-os/data
   cacheSize: 2048 # Increased to 2GB based on previous maximal config
   maxEntries: 50000
   ttl: 604800 # 7 days
@@ -68,7 +68,7 @@ memory:
       enabled: true
       priority: 2
       archivalMemory: enabled
-    graphiti:
+    letta:
       enabled: true
       priority: 3
       backend: falkordb
@@ -78,7 +78,7 @@ memory:
 # ==============================================================================
 neural:
   enabled: true
-  modelPath: .claude-flow/neural
+  modelPath: .archon-os/neural
   autoOptimize: true
   optimizationTriggers: ["error", "success", "pattern", "performance"]
   sona:
@@ -167,9 +167,9 @@ mcp:
       args: ["exec", "-i", "nyra-nexus-router", "/usr/bin/nexus-router-mcp-start"]
       env:
         NEXUS_ROUTER_STRATEGY: "intelligent"
-    claude-flow:
+    archon-os:
       command: npx
-      args: ["-y", "claude-flow@alpha", "mcp", "start"]
+      args: ["-y", "archon-os@alpha", "mcp", "start"]
     ruv-swarm:
       command: npx
       args: ["-y", "ruv-swarm@latest", "mcp", "start"]
@@ -214,7 +214,7 @@ logging:
   level: info
   format: json
   destination: file
-  filePath: ./logs/claude-flow.log
+  filePath: ./logs/archon-os.log
   maxFileSize: 500MB
   maxFiles: 5
   compress: true
@@ -243,7 +243,7 @@ security:
     maxRequests: 5000
     windowMs: 60000
   allow:
-    - "Bash(npx claude-flow:*)"
+    - "Bash(npx archon-os:*)"
     - "Bash(git *)"
     - "Bash(npm run *)"
     - "mcp__*"

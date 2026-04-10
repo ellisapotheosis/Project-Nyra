@@ -2,7 +2,7 @@
 
 This repo is a **batteries-included** Docker Compose stack for Project Nyra:
 - Twenty CRM (self-hosted)
-- Graph memory: FalkorDB + Graphiti (GraphRAG-friendly)
+- Graph memory: FalkorDB + letta (GraphRAG-friendly)
 - Agent state manager: Letta
 - Universal memory: Mem0 (REST) + optional OpenMemory MCP server
 - AI routing + MCP aggregation: Grafbase Nexus

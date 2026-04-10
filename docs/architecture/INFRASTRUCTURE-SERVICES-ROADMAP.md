@@ -463,7 +463,7 @@ await drive.files.update({
 **Keep on Orchestrator PC**:
 - ✅ Claude Flow (needs local Claude Code access)
 - ✅ Archon MCP servers
-- ✅ AgentDB/Qdrant (vector databases)
+- ✅ ruvector/Qdrant (vector databases)
 - ✅ Development environment
 
 **Total Cost**: $0/month cloud + ~$20/month electricity = **$20/month**

@@ -24,7 +24,7 @@ Successfully resolved the top 10 duplicate file sets in Project Nyra's documenta
 ```
 ✅ docs/manual-tasks/setup/
 ✅ docs/ai-automatable/quick-start/
-✅ docs/ai-automatable/claude-flow/
+✅ docs/ai-automatable/archon-os/
 ✅ docs/architecture/adr/
 ✅ docs/deployment/services/
 ✅ docs/configuration/
@@ -37,12 +37,12 @@ Successfully resolved the top 10 duplicate file sets in Project Nyra's documenta
 #### Setup Guides (3 Files)
 - SETUP-GUIDE.md → `manual-tasks/setup/primary-setup-guide.md`
 - COMPLETE-SETUP-GUIDE.md → (merged into primary)
-- CLAUDE-FLOW-QUICK-START.md → `ai-automatable/quick-start/claude-flow-commands.md`
+- archon-os-QUICK-START.md → `ai-automatable/quick-start/archon-os-commands.md`
 
 #### Claude Flow Documentation (3 Files)
-- CLAUDE-FLOW-SETUP.md → `ai-automatable/claude-flow/setup.md`
-- CLAUDE-FLOW-PLUGINS-SETUP.md → `ai-automatable/claude-flow/plugins.md`
-- CLAUDE-FLOW-V3-SETUP-SUMMARY.md → (merged into setup.md)
+- archon-os-SETUP.md → `ai-automatable/archon-os/setup.md`
+- archon-os-PLUGINS-SETUP.md → `ai-automatable/archon-os/plugins.md`
+- archon-os-V3-SETUP-SUMMARY.md → (merged into setup.md)
 
 #### Architecture Documentation (4 Files)
 - ARCHITECTURE.md → `architecture/README.md`
@@ -139,7 +139,7 @@ Successfully resolved the top 10 duplicate file sets in Project Nyra's documenta
 ### ✅ Single Source of Truth
 Each documentation topic now has one canonical version:
 - Setup guide consolidated to `manual-tasks/setup/primary-setup-guide.md`
-- Claude Flow setup consolidated to `ai-automatable/claude-flow/setup.md`
+- Claude Flow setup consolidated to `ai-automatable/archon-os/setup.md`
 - Architecture index consolidated to `architecture/README.md`
 - Deployment overview consolidated to `deployment/overview.md`
 

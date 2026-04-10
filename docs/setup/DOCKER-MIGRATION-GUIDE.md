@@ -71,7 +71,7 @@ df -h
 ```
 Project-Nyra/
 ├── orchestration/
-│   ├── claude-flow/
+│   ├── archon-os/
 │   │   └── docker-compose.yml              # Claude Flow config
 │   ├── archon-os/
 │   │   └── docker-compose.yml              # Archon OS config
@@ -141,8 +141,8 @@ Project-Nyra/
 |-------------|----------|----------|
 | Development | `nyra-postgres` | `nyra-postgres-dev` |
 | Production | `nyra-postgres` | `nyra-postgres-prod` |
-| Development | `nyra-claude-flow` | `nyra-claude-flow-dev` |
-| Production | `nyra-claude-flow` | `nyra-claude-flow-prod` |
+| Development | `nyra-archon-os` | `nyra-archon-os-dev` |
+| Production | `nyra-archon-os` | `nyra-archon-os-prod` |
 
 **Benefit:** Clear environment separation, no name conflicts
 
@@ -443,7 +443,7 @@ docker cp nyra-redis:/data/dump.rdb $BACKUP_DIR/redis_dump.rdb
 
 ```bash
 # Stop services one by one (graceful)
-docker compose stop claude-flow archon-os nexus-router
+docker compose stop archon-os archon-os nexus-router
 
 # Wait 30 seconds for graceful shutdown
 sleep 30

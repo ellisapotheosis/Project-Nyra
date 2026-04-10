@@ -7,7 +7,7 @@ This guide shows you how to use the SPARC (Specification, Pseudocode, Architectu
 ## Prerequisites
 
 - Claude Code environment configured
-- Claude-Flow installed: `npm install -g claude-flow@alpha`
+- archon-os installed: `npm install -g archon-os@alpha`
 - Git repository initialized
 - Project dependencies installed
 
@@ -19,55 +19,55 @@ This guide shows you how to use the SPARC (Specification, Pseudocode, Architectu
 
 ```bash
 # Start SPARC coordination
-npx @claude-flow/cli@latest hooks pre-task --description "Twenty-Bridge webhook service"
+npx @archon-os/cli@latest hooks pre-task --description "Twenty-Bridge webhook service"
 
 # Initialize swarm (optional, for complex features)
-npx @claude-flow/cli@latest swarm init --topology mesh --agents 5
+npx @archon-os/cli@latest swarm init --topology mesh --agents 5
 ```
 
 ### 2. Execute Full SPARC Pipeline
 
 **Option A: Full Pipeline (Recommended)**
 ```bash
-npx claude-flow sparc pipeline "Twenty-Bridge webhook service"
+npx archon-os sparc pipeline "Twenty-Bridge webhook service"
 ```
 
 **Option B: Phase-by-Phase Execution**
 ```bash
 # Phase 1: Specification
-npx claude-flow sparc run spec-pseudocode "Twenty-Bridge webhook service"
+npx archon-os sparc run spec-pseudocode "Twenty-Bridge webhook service"
 
 # Phase 2: Architecture
-npx claude-flow sparc run architect "Twenty-Bridge webhook service"
+npx archon-os sparc run architect "Twenty-Bridge webhook service"
 
 # Phase 3: Refinement (TDD)
-npx claude-flow sparc tdd "Twenty-Bridge webhook service"
+npx archon-os sparc tdd "Twenty-Bridge webhook service"
 
 # Phase 4: Completion
-npx claude-flow sparc run integration "Twenty-Bridge webhook service"
+npx archon-os sparc run integration "Twenty-Bridge webhook service"
 ```
 
 ### 3. Monitor Progress
 
 ```bash
 # Check swarm status
-npx claude-flow swarm status
+npx archon-os swarm status
 
 # View task results
-npx claude-flow task results [task-id]
+npx archon-os task results [task-id]
 
 # Check memory
-npx claude-flow memory search --query "twenty-bridge"
+npx archon-os memory search --query "twenty-bridge"
 ```
 
 ### 4. Finalize Session
 
 ```bash
 # Export metrics and end session
-npx @claude-flow/cli@latest hooks session-end --export-metrics true
+npx @archon-os/cli@latest hooks session-end --export-metrics true
 
 # Create PR (if ready)
-npx claude-flow github pr create --title "Add Twenty-Bridge webhook service"
+npx archon-os github pr create --title "Add Twenty-Bridge webhook service"
 ```
 
 ---
@@ -79,7 +79,7 @@ npx claude-flow github pr create --title "Add Twenty-Bridge webhook service"
 **Step 1: Specification Phase**
 ```bash
 # Spawn specification agent
-npx claude-flow sparc run spec-pseudocode "Twenty-Bridge webhook service"
+npx archon-os sparc run spec-pseudocode "Twenty-Bridge webhook service"
 ```
 
 **What happens:**
@@ -92,7 +92,7 @@ npx claude-flow sparc run spec-pseudocode "Twenty-Bridge webhook service"
 **Step 2: Architecture Phase**
 ```bash
 # Spawn architecture agent
-npx claude-flow sparc run architect "Twenty-Bridge webhook service"
+npx archon-os sparc run architect "Twenty-Bridge webhook service"
 ```
 
 **What happens:**
@@ -105,7 +105,7 @@ npx claude-flow sparc run architect "Twenty-Bridge webhook service"
 **Step 3: Refinement Phase (TDD)**
 ```bash
 # Spawn TDD agents (coder + tester in parallel)
-npx claude-flow sparc tdd "Twenty-Bridge webhook service"
+npx archon-os sparc tdd "Twenty-Bridge webhook service"
 ```
 
 **What happens:**
@@ -118,7 +118,7 @@ npx claude-flow sparc tdd "Twenty-Bridge webhook service"
 **Step 4: Completion Phase**
 ```bash
 # Spawn integration agents
-npx claude-flow sparc run integration "Twenty-Bridge webhook service"
+npx archon-os sparc run integration "Twenty-Bridge webhook service"
 ```
 
 **What happens:**
@@ -135,7 +135,7 @@ npx claude-flow sparc run integration "Twenty-Bridge webhook service"
 
 **Single Command:**
 ```bash
-npx claude-flow sparc pipeline "Quote Engine dynamic formula evaluation"
+npx archon-os sparc pipeline "Quote Engine dynamic formula evaluation"
 ```
 
 **Phases executed automatically:**
@@ -149,10 +149,10 @@ npx claude-flow sparc pipeline "Quote Engine dynamic formula evaluation"
 **Custom phase execution:**
 ```bash
 # Only run specification to understand scope
-npx claude-flow sparc run spec-pseudocode "Quote Engine formulas" --phase-only spec
+npx archon-os sparc run spec-pseudocode "Quote Engine formulas" --phase-only spec
 
 # Review output, then continue
-npx claude-flow sparc run architect "Quote Engine formulas"
+npx archon-os sparc run architect "Quote Engine formulas"
 ```
 
 ---
@@ -163,13 +163,13 @@ npx claude-flow sparc run architect "Quote Engine formulas"
 
 ```bash
 # Quick specification (light)
-npx claude-flow sparc run spec-pseudocode "Fix quote calculation edge case" --mode bugfix
+npx archon-os sparc run spec-pseudocode "Fix quote calculation edge case" --mode bugfix
 
 # Skip architecture if design is unchanged
-npx claude-flow sparc tdd "Fix quote calculation edge case"
+npx archon-os sparc tdd "Fix quote calculation edge case"
 
 # Integration testing
-npx claude-flow sparc run integration "Fix quote calculation edge case"
+npx archon-os sparc run integration "Fix quote calculation edge case"
 ```
 
 **For simple fixes:**
@@ -336,67 +336,67 @@ bootstrap/services/
 
 ```bash
 # List available modes
-npx claude-flow sparc modes
+npx archon-os sparc modes
 
 # Get mode details
-npx claude-flow sparc info architect
+npx archon-os sparc info architect
 
 # Run specific mode
-npx claude-flow sparc run <mode> "<task>"
+npx archon-os sparc run <mode> "<task>"
 
 # Run TDD workflow
-npx claude-flow sparc tdd "<feature>"
+npx archon-os sparc tdd "<feature>"
 
 # Run full pipeline
-npx claude-flow sparc pipeline "<task>"
+npx archon-os sparc pipeline "<task>"
 
 # Parallel execution
-npx claude-flow sparc batch spec-pseudocode,architect "<task>"
+npx archon-os sparc batch spec-pseudocode,architect "<task>"
 ```
 
 ### Swarm Commands
 
 ```bash
 # Initialize swarm
-npx claude-flow swarm init --topology mesh --agents 5
+npx archon-os swarm init --topology mesh --agents 5
 
 # Check status
-npx claude-flow swarm status
+npx archon-os swarm status
 
 # Scale agents
-npx claude-flow swarm scale --agents 8
+npx archon-os swarm scale --agents 8
 
 # List agents
-npx claude-flow agent list
+npx archon-os agent list
 ```
 
 ### Memory Commands
 
 ```bash
 # Store context
-npx claude-flow memory store --key "sparc/feature/spec" --value "{...}"
+npx archon-os memory store --key "sparc/feature/spec" --value "{...}"
 
 # Retrieve context
-npx claude-flow memory retrieve --key "sparc/feature/spec"
+npx archon-os memory retrieve --key "sparc/feature/spec"
 
 # Search memory
-npx claude-flow memory search --query "webhook"
+npx archon-os memory search --query "webhook"
 
 # List all keys
-npx claude-flow memory list --pattern "sparc/*"
+npx archon-os memory list --pattern "sparc/*"
 ```
 
 ### GitHub Commands
 
 ```bash
 # Create PR
-npx claude-flow github pr create --title "Add feature" --body "Description"
+npx archon-os github pr create --title "Add feature" --body "Description"
 
 # Review PR
-npx claude-flow github pr review --pr 123
+npx archon-os github pr review --pr 123
 
 # Create issue
-npx claude-flow github issue create --title "Bug" --body "Details"
+npx archon-os github issue create --title "Bug" --body "Details"
 ```
 
 ---
@@ -410,16 +410,16 @@ npx claude-flow github issue create --title "Bug" --body "Details"
 **Solution:**
 ```bash
 # Check swarm status
-npx claude-flow swarm status
+npx archon-os swarm status
 
 # Check agent metrics
-npx claude-flow agent metrics
+npx archon-os agent metrics
 
 # Force terminate if needed
-npx claude-flow swarm destroy
+npx archon-os swarm destroy
 
 # Restart phase
-npx claude-flow sparc run <mode> "<task>"
+npx archon-os sparc run <mode> "<task>"
 ```
 
 ### Issue: Quality Gate Failure
@@ -438,7 +438,7 @@ npm run coverage
 npm test -- tests/webhook.test.js
 
 # Fix issues, then re-run refinement
-npx claude-flow sparc tdd "Feature name"
+npx archon-os sparc tdd "Feature name"
 ```
 
 ### Issue: Integration Failure
@@ -457,7 +457,7 @@ curl -X POST http://localhost:8080/webhook -d '{...}'
 cat docs/sparc/architecture/[feature].md
 
 # Re-run integration phase
-npx claude-flow sparc run integration "Feature name"
+npx archon-os sparc run integration "Feature name"
 ```
 
 ### Issue: Memory Not Persisting
@@ -467,16 +467,16 @@ npx claude-flow sparc run integration "Feature name"
 **Solution:**
 ```bash
 # Verify memory store
-npx claude-flow memory list
+npx archon-os memory list
 
 # Check hooks configuration
-cat .claude-flow/config.json
+cat .archon-os/config.json
 
 # Manually store context
-npx @claude-flow/cli@latest hooks post-edit --memory-key "sparc/feature/context"
+npx @archon-os/cli@latest hooks post-edit --memory-key "sparc/feature/context"
 
 # Restore session
-npx @claude-flow/cli@latest hooks session-restore --session-id "sparc-[feature]"
+npx @archon-os/cli@latest hooks session-restore --session-id "sparc-[feature]"
 ```
 
 ---
@@ -511,36 +511,36 @@ npx @claude-flow/cli@latest hooks session-restore --session-id "sparc-[feature]"
 
 ```bash
 # 1. Initialize
-npx @claude-flow/cli@latest hooks pre-task --description "Twenty-Bridge webhook"
-npx claude-flow swarm init --topology mesh --agents 5
+npx @archon-os/cli@latest hooks pre-task --description "Twenty-Bridge webhook"
+npx archon-os swarm init --topology mesh --agents 5
 
 # 2. Specification
-npx claude-flow sparc run spec-pseudocode "Twenty-Bridge webhook"
+npx archon-os sparc run spec-pseudocode "Twenty-Bridge webhook"
 # Review: docs/sparc/specifications/twenty-bridge-webhook.md
 # Quality gate: ✅ All requirements documented
 
 # 3. Architecture
-npx claude-flow sparc run architect "Twenty-Bridge webhook"
+npx archon-os sparc run architect "Twenty-Bridge webhook"
 # Review: docs/sparc/architecture/twenty-bridge-webhook.md
 # Quality gate: ✅ Design approved
 
 # 4. Refinement (TDD)
-npx claude-flow sparc tdd "Twenty-Bridge webhook"
+npx archon-os sparc tdd "Twenty-Bridge webhook"
 # Review: bootstrap/services/twenty-bridge/
 # Quality gate: ✅ Tests passing, coverage 90%
 
 # 5. Completion
-npx claude-flow sparc run integration "Twenty-Bridge webhook"
+npx archon-os sparc run integration "Twenty-Bridge webhook"
 # Review: Docker running, integrated with Nexus
 # Quality gate: ✅ Integration tests passing
 
 # 6. Create PR
-npx claude-flow github pr create \
+npx archon-os github pr create \
   --title "Add Twenty-Bridge webhook service" \
   --body "Implements webhook receiver for TwentyCRM events"
 
 # 7. Finalize
-npx @claude-flow/cli@latest hooks session-end --export-metrics true
+npx @archon-os/cli@latest hooks session-end --export-metrics true
 ```
 
 **Time:** ~2 days (16 hours)
@@ -564,7 +564,7 @@ npx @claude-flow/cli@latest hooks session-end --export-metrics true
 - [Phase Templates](./templates/)
 - [Hooks Integration Guide](./HOOKS_INTEGRATION.md)
 - [Quality Gates Detailed](./QUALITY_GATES.md)
-- [Claude-Flow Documentation](https://github.com/ruvnet/claude-flow)
+- [archon-os Documentation](https://github.com/ruvnet/archon-os)
 
 ---
 

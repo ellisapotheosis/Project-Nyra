@@ -102,10 +102,10 @@ Archon OS integrates with Claude Flow V3 through:
 **Initialization** (`entrypoint.sh`):
 ```bash
 # Restore session state from Claude Flow
-npx @claude-flow/cli@latest hooks session-restore --session-id "archon-os-main"
+npx @archon-os/cli@latest hooks session-restore --session-id "archon-os-main"
 
 # Register task start with coordination
-npx @claude-flow/cli@latest hooks pre-task --description "Starting Archon OS orchestrator"
+npx @archon-os/cli@latest hooks pre-task --description "Starting Archon OS orchestrator"
 ```
 
 **Configuration** (`archon-config.yml`):
@@ -200,9 +200,9 @@ mcp:
     - name: "archon-core"
       command: "python"
       args: ["-m", "src.mcp.server"]
-    - name: "claude-flow"
+    - name: "archon-os"
       command: "npx"
-      args: ["claude-flow@alpha", "mcp", "start"]
+      args: ["archon-os@alpha", "mcp", "start"]
   tools:
     enabled: true
     namespace: "archon"

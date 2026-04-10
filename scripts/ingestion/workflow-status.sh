@@ -12,7 +12,7 @@ BLUE='\033[0;34m'
 CYAN='\033[0;36m'
 NC='\033[0m'
 
-CLI="npx @claude-flow/cli@latest"
+CLI="npx @archon-os/cli@latest"
 
 # Usage
 usage() {

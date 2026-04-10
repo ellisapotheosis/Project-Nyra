@@ -51,8 +51,8 @@ $Script:Components = @{
     }
     ClaudeFlow = @{
         Name = "Claude Flow (Orchestration)"
-        GitUrl = "https://github.com/ruvnet/claude-flow.git"
-        InstallPath = "orchestration/claude-flow"
+        GitUrl = "https://github.com/ruvnet/archon-os.git"
+        InstallPath = "orchestration/archon-os"
         Required = $true
     }
     ArchonOS = @{
@@ -353,9 +353,9 @@ function New-DockerComposeFiles {
 version: '3.8'
 
 services:
-  claude-flow:
-    build: ../../orchestration/claude-flow
-    container_name: nyra-claude-flow
+  archon-os:
+    build: ../../orchestration/archon-os
+    container_name: nyra-archon-os
     ports:
       - "9000:9000"
     environment:
@@ -364,8 +364,8 @@ services:
       - DATABASE_URL=$\{DATABASE_URL\}
       - REDIS_URL=$\{REDIS_URL\}
     volumes:
-      - ../../orchestration/claude-flow/agents:/app/agents
-      - ../../orchestration/claude-flow/workflows:/app/workflows
+      - ../../orchestration/archon-os/agents:/app/agents
+      - ../../orchestration/archon-os/workflows:/app/workflows
     networks:
       - nyra-network
     depends_on:
@@ -381,7 +381,7 @@ services:
       - "9001:9001"
     environment:
       - ARCHON_PORT=9001
-      - CLAUDE_FLOW_URL=http://claude-flow:9000
+      - CLAUDE_FLOW_URL=http://archon-os:9000
       - REDIS_URL=$\{REDIS_URL\}
       - GPU_WORKER_5090_URL=$\{GPU_WORKER_5090_URL\}
       - GPU_WORKER_3090_URL=$\{GPU_WORKER_3090_URL\}
@@ -504,7 +504,7 @@ function New-OrchestrationConfig {
 {
   "orchestration": {
     "mode": "dual",
-    "primary": "claude-flow",
+    "primary": "archon-os",
     "secondary": "archon-os",
     "integration": {
       "enabled": true,
@@ -554,7 +554,7 @@ function New-OrchestrationConfig {
   
   "workflow": {
     "submission": {
-      "endpoint": "claude-flow",
+      "endpoint": "archon-os",
       "validates": true,
       "creates_plan": true
     },
@@ -566,11 +566,11 @@ function New-OrchestrationConfig {
     },
     "monitoring": {
       "primary": "archon-os",
-      "reports_to": "claude-flow",
-      "aggregates_results": "claude-flow"
+      "reports_to": "archon-os",
+      "aggregates_results": "archon-os"
     },
     "completion": {
-      "coordinator": "claude-flow",
+      "coordinator": "archon-os",
       "stores_results": true,
       "updates_memory": true
     }

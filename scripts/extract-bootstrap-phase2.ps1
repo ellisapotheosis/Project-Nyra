@@ -112,9 +112,9 @@ if (Test-Path "$BootstrapRoot\applications\apps\ratehunter") {
 Write-Host ""
 Write-Host "Phase 2: Extracting MCP Servers..." -ForegroundColor Cyan
 
-# Extract claude-flow MCP
-if (Test-Path "$BootstrapRoot\mcp-ecosystem\mcp-servers\claude-flow") {
-    Extract-Directory -Source "$BootstrapRoot\mcp-ecosystem\mcp-servers\claude-flow" -Destination "$ProjectRoot\mcp-servers\claude-flow" -Category "MCPServers"
+# Extract archon-os MCP
+if (Test-Path "$BootstrapRoot\mcp-ecosystem\mcp-servers\archon-os") {
+    Extract-Directory -Source "$BootstrapRoot\mcp-ecosystem\mcp-servers\archon-os" -Destination "$ProjectRoot\mcp-servers\archon-os" -Category "MCPServers"
 }
 
 # Extract ruv-swarm MCP

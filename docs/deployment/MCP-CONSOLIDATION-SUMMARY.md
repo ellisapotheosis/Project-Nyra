@@ -27,7 +27,7 @@ mcp-servers/
   ├── configs/              (NEW) - All 3 configuration files
   ├── scripts/              (NEW) - All 6 scripts + setup-infrastructure.sh
   ├── channels/             (NEW) - All 2 channel definitions
-  ├── claude-flow/          (PRESERVED) - Existing Docker setup
+  ├── archon-os/          (PRESERVED) - Existing Docker setup
   ├── general/              (PRESERVED) - Existing operations
   ├── orchestration/        (PRESERVED) - Existing configs
   └── ruv-swarm/            (PRESERVED) - Existing swarm
@@ -115,7 +115,7 @@ mcp-servers/
 ## .mcp.json Status
 
 ### Current Active Servers
-- `claude-flow` - AI orchestration (Docker, v3 mode) ✅
+- `archon-os` - AI orchestration (Docker, v3 mode) ✅
 - `sequential-thinking` - Reasoning (Docker) ✅
 - `dockerhub` - Docker Hub operations (Docker) ✅
 - `bitwarden` - Password management (Docker) ✅

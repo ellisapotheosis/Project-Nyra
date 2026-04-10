@@ -74,11 +74,11 @@ jobs:
           node-version: '20'
 
       - name: Install Claude Flow
-        run: npm install -g claude-flow@alpha
+        run: npm install -g archon-os@alpha
 
       - name: Run SPARC Specification
         run: |
-          npx claude-flow@alpha sparc run spec-pseudocode \
+          npx archon-os@alpha sparc run spec-pseudocode \
             "Create detailed specification for ${{ matrix.app }} application"
 
       - name: Upload specification
@@ -109,7 +109,7 @@ jobs:
 
       - name: Run SPARC Architecture
         run: |
-          npx claude-flow@alpha sparc run architect \
+          npx archon-os@alpha sparc run architect \
             "Design architecture for ${{ matrix.app }} based on specification"
 
       - name: Upload architecture
@@ -137,7 +137,7 @@ jobs:
       - name: Install Dependencies
         run: |
           npm install -g pnpm@8
-          npm install -g claude-flow@alpha
+          npm install -g archon-os@alpha
           pnpm install
 
       - name: Agent Development Task
@@ -155,52 +155,52 @@ jobs:
           case ${AGENT_TYPE} in
             backend-dev)
               echo "Building backend services..."
-              npx claude-flow@alpha agent spawn --type coder \
+              npx archon-os@alpha agent spawn --type coder \
                 --task "Implement backend API endpoints for assigned service"
               ;;
             frontend-dev)
               echo "Building frontend components..."
-              npx claude-flow@alpha agent spawn --type coder \
+              npx archon-os@alpha agent spawn --type coder \
                 --task "Implement frontend UI components for assigned app"
               ;;
             database-architect)
               echo "Designing database schemas..."
-              npx claude-flow@alpha agent spawn --type system-architect \
+              npx archon-os@alpha agent spawn --type system-architect \
                 --task "Design and implement database schema"
               ;;
             api-designer)
               echo "Designing APIs..."
-              npx claude-flow@alpha agent spawn --type api-docs \
+              npx archon-os@alpha agent spawn --type api-docs \
                 --task "Design and document RESTful APIs"
               ;;
             security-specialist)
               echo "Implementing security measures..."
-              npx claude-flow@alpha agent spawn --type reviewer \
+              npx archon-os@alpha agent spawn --type reviewer \
                 --task "Implement authentication, authorization, and security hardening"
               ;;
             performance-optimizer)
               echo "Optimizing performance..."
-              npx claude-flow@alpha agent spawn --type perf-analyzer \
+              npx archon-os@alpha agent spawn --type perf-analyzer \
                 --task "Analyze and optimize application performance"
               ;;
             test-engineer)
               echo "Writing tests..."
-              npx claude-flow@alpha agent spawn --type tester \
+              npx archon-os@alpha agent spawn --type tester \
                 --task "Create comprehensive test suites with 90% coverage"
               ;;
             devops-engineer)
               echo "Setting up CI/CD..."
-              npx claude-flow@alpha agent spawn --type cicd-engineer \
+              npx archon-os@alpha agent spawn --type cicd-engineer \
                 --task "Configure deployment pipelines and infrastructure"
               ;;
             documentation-writer)
               echo "Writing documentation..."
-              npx claude-flow@alpha agent spawn --type researcher \
+              npx archon-os@alpha agent spawn --type researcher \
                 --task "Create comprehensive documentation and guides"
               ;;
             code-reviewer)
               echo "Reviewing code..."
-              npx claude-flow@alpha agent spawn --type reviewer \
+              npx archon-os@alpha agent spawn --type reviewer \
                 --task "Review code quality, security, and best practices"
               ;;
           esac

@@ -8,7 +8,7 @@ These scripts configure:
 - **Orchestrator PC**: Gitea server, Cloudflared tunnel, coordination services
 - **3 Worker PCs**: GPU-powered Claude Code agents with local LLM support
 - **Mesh Network**: Tailscale secure communication
-- **Orchestration**: Claude-Flow multi-agent coordination
+- **Orchestration**: archon-os multi-agent coordination
 
 ## 📋 Prerequisites
 
@@ -124,11 +124,11 @@ sudo ./01-gitea-setup.sh
 
 ---
 
-### Step 4: Orchestrator - Configure Claude-Flow
+### Step 4: Orchestrator - Configure archon-os
 
 ```bash
 # On orchestrator PC only
-./04-claude-flow-distributed.sh
+./04-archon-os-distributed.sh
 
 # Script will ask for worker Tailscale IPs:
 # - Worker 1 IP: (e.g., 100.64.x.2)
@@ -137,7 +137,7 @@ sudo ./01-gitea-setup.sh
 ```
 
 **What it does:**
-- Installs Claude-Flow
+- Installs archon-os
 - Creates distributed cluster configuration
 - Generates orchestration scripts
 - Creates worker setup packages
@@ -165,7 +165,7 @@ sudo ./01-gitea-setup.sh
 
 ```bash
 # On orchestrator PC
-~/.claude-flow/distributed/orchestrate.sh "Create a simple REST API"
+~/.archon-os/distributed/orchestrate.sh "Create a simple REST API"
 ```
 
 **What happens:**
@@ -176,7 +176,7 @@ sudo ./01-gitea-setup.sh
 
 **Monitor:**
 ```bash
-npx @claude-flow/cli@latest swarm status
+npx @archon-os/cli@latest swarm status
 tailscale status
 systemctl status gitea cloudflared
 ```
@@ -200,7 +200,7 @@ systemctl status gitea cloudflared
   ├── config.yml         # Tunnel config
   └── TUNNEL_ID.json     # Credentials
 
-~/.claude-flow/distributed/
+~/.archon-os/distributed/
   ├── cluster-config.json    # Cluster topology
   └── orchestrate.sh         # Orchestration script
 
@@ -241,7 +241,7 @@ ingress:
   - service: http_status:404
 ```
 
-### Claude-Flow (`~/.claude-flow/distributed/cluster-config.json`)
+### archon-os (`~/.archon-os/distributed/cluster-config.json`)
 ```json
 {
   "cluster": {
@@ -336,14 +336,14 @@ tailscale status
 
 ### Monitor Distributed Tasks
 ```bash
-# Claude-Flow status
-npx @claude-flow/cli@latest swarm status
+# archon-os status
+npx @archon-os/cli@latest swarm status
 
 # Agent list
-npx @claude-flow/cli@latest agent list
+npx @archon-os/cli@latest agent list
 
 # Task status
-npx @claude-flow/cli@latest task list
+npx @archon-os/cli@latest task list
 ```
 
 ### Network Status
@@ -386,24 +386,24 @@ curl http://localhost:3000/api/healthz
 - **Gitea Docs**: https://docs.gitea.io
 - **Cloudflared Docs**: https://developers.cloudflare.com/cloudflare-one/connections/connect-apps
 - **Tailscale Docs**: https://tailscale.com/kb
-- **Claude-Flow**: https://github.com/ruvnet/claude-flow
+- **archon-os**: https://github.com/ruvnet/archon-os
 
 ## 🎯 Usage Examples
 
 ### Create a Feature
 ```bash
 # On orchestrator
-~/.claude-flow/distributed/orchestrate.sh "Build user authentication system with JWT"
+~/.archon-os/distributed/orchestrate.sh "Build user authentication system with JWT"
 ```
 
 ### Review Code
 ```bash
-npx @claude-flow/cli@latest github code-review owner/repo --pr 123
+npx @archon-os/cli@latest github code-review owner/repo --pr 123
 ```
 
 ### Run Tests
 ```bash
-npx @claude-flow/cli@latest task create tester "Run full test suite"
+npx @archon-os/cli@latest task create tester "Run full test suite"
 ```
 
 ## 🤝 Support

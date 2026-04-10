@@ -81,8 +81,8 @@ $globalServers = @{
         "command" = "notion"
         "description" = "Global Notion MCP"
     }
-    "claude-flow" = @{
-        "command" = "claude-flow"
+    "archon-os" = @{
+        "command" = "archon-os"
         "description" = "Global Claude Flow MCP"
     }
     "flow-nexus" = @{

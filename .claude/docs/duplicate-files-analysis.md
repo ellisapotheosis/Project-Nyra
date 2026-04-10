@@ -27,8 +27,8 @@ All CLAUDE.md files contain **exactly the same 353 lines** of SPARC development 
 C:\Dev\DevProjects\Personal-Projects\Project-Nyra\CLAUDE.md
 
 ❌ DUPLICATES (Remove):
-├── nyra-orchestration\Claude\claude-flow\CLAUDE.md
-├── nyra-orchestration\claude-flow\CLAUDE.md
+├── nyra-orchestration\Claude\archon-os\CLAUDE.md
+├── nyra-orchestration\archon-os\CLAUDE.md
 ├── nyra-orchestration\node_modules\@clduab11\gemini-flow\CLAUDE.md
 ├── DEPLOYMENT-PACKAGE\CLAUDE.md
 ├── nyra-orchestration\Claude-Code-Development-Kit\Claude-Code-Development-Kit\docs\CLAUDE.md
@@ -38,7 +38,7 @@ C:\Dev\DevProjects\Personal-Projects\Project-Nyra\CLAUDE.md
 ├── archive\2025-10-13-original-structure\nyra-scripts\repo-misc-files\CLAUDE.md
 ├── mcp-ecosystem\BitwardenMCP\CLAUDE.md
 ├── mcp-ecosystem\ClaudeFlowMCP\CLAUDE.md
-├── Project-Nyra\nyra-orchestration\claude-flow\CLAUDE.md
+├── Project-Nyra\nyra-orchestration\archon-os\CLAUDE.md
 ├── nyra-agents-starter-v2\CLAUDE.md
 ├── Project-Nyra\nyra-orchestration\anthropic-agents-sdk\CLAUDE.md
 └── [Additional copies in nested subdirectories]
@@ -58,8 +58,8 @@ Multiple .gitignore files with varying content across the project. Many contain 
 Project-Nyra\.gitignore (root)
 
 ⚠️ REVIEW NEEDED:
-├── nyra-orchestration\Claude\claude-flow\.gitignore
-├── nyra-orchestration\claude-flow\.gitignore
+├── nyra-orchestration\Claude\archon-os\.gitignore
+├── nyra-orchestration\archon-os\.gitignore
 ├── mcp-ecosystem\*\gitignore (each MCP server)
 ├── nyra-voice\.gitignore
 ├── nyra-webapp\*\.gitignore
@@ -300,8 +300,8 @@ Multiple `eslint.config.*` files:
 
 ```bash
 # 1. Delete CLAUDE.md duplicates (keep root)
-rm nyra-orchestration/Claude/claude-flow/CLAUDE.md
-rm nyra-orchestration/claude-flow/CLAUDE.md
+rm nyra-orchestration/Claude/archon-os/CLAUDE.md
+rm nyra-orchestration/archon-os/CLAUDE.md
 rm mcp-ecosystem/*/CLAUDE.md
 # ... (delete all except root)
 

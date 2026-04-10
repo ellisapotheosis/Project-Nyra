@@ -9,14 +9,14 @@ Environment:
 - Windows + WSL2 + Docker on the orchestrator.
 - 3 worker PCs with GPUs for vLLM/Ollama.
 - Networking via Tailscale + Cloudflared (public subdomains + private LAN routing).
-- I want TwentyCRM as system-of-record CRM, n8n + Activepieces for workflows, Nexus Router as single MCP gateway, and a memory layer using Graphiti + Letta + RuVector in Postgres + Redis (+ FalkorDB / Neo4j as required by Graphiti).
+- I want TwentyCRM as system-of-record CRM, n8n + Activepieces for workflows, Nexus Router as single MCP gateway, and a memory layer using letta + Letta + RuVector in Postgres + Redis (+ FalkorDB / Neo4j as required by letta).
 
 My priorities:
 1) Mortgage lead ingestion (email parsing + APIs + LeadMailbox) into TwentyCRM.
 2) 45–60 day drip campaigns (call/SMS/voicemail/email) that stop instantly on reply or STOP.
 3) Quote API that generates 3-option comparisons (Excel parity).
 4) Admin portal UI (shadcn + tweakcn + Magic UI) to manage leads/campaigns/quotes.
-5) Agent-driven development (Claude-flow + other agents), with production routing via Nexus Router.
+5) Agent-driven development (archon-os + other agents), with production routing via Nexus Router.
 B) “How would you like ChatGPT to respond?”
 Formatting rules:
 - Start every response with TL;DR (3–8 bullets).
@@ -59,9 +59,9 @@ PROJECT NYRA (locked stack, do not debate):
 - TwentyCRM = system-of-record CRM
 - n8n + Activepieces = workflow automation (drip campaigns)
 - Nyra Admin UI = shadcn + tweakcn + Magic UI
-- Memory day 0: Graphiti + Letta + RuVector in Postgres (+ Redis) and the graph backend required by Graphiti (FalkorDB/Neo4j as needed)
+- Memory day 0: letta + Letta + RuVector in Postgres (+ Redis) and the graph backend required by letta (FalkorDB/Neo4j as needed)
 - Secrets: Infisical (or Bitwarden acceptable)
-- Claude-flow remains for development; production runtime calls go through Nexus
+- archon-os remains for development; production runtime calls go through Nexus
 
 INFRA REALITY:
 - 4-PC LAN: orchestrator always-on (WSL2 + Docker), 3 detachable GPU workers (vLLM/Ollama) reachable via Tailscale.
@@ -107,7 +107,7 @@ RULES:
 Start now.
 3) Action plan with prompting for your agents (ready-to-run)
 
-Below is the agent swarm plan (works for Claude-Flow swarms, human agents, or “one agent at a time”).
+Below is the agent swarm plan (works for archon-os swarms, human agents, or “one agent at a time”).
 Each prompt is built so an agent can operate independently and produce PR-ready outputs.
 
 Phase 0 — Control Plane (Orchestrator)
@@ -119,7 +119,7 @@ Goal: Ensure orchestrator boots the entire stack cleanly via Docker Compose and 
 Deliver:
 - One README runbook: boot order, health checks, ports, cloudflared + tailscale notes.
 - One .env.example with all required vars grouped by service.
-- One docker-compose.mega.yml that includes: nexus, litellm, postgres (twenty + nyra_ai), redis, graphiti, letta, ruvector, n8n, activepieces, observability stubs.
+- One docker-compose.mega.yml that includes: nexus, litellm, postgres (twenty + nyra_ai), redis, letta, letta, ruvector, n8n, activepieces, observability stubs.
 DoD: I can run `docker compose up -d` and `curl` health endpoints successfully.
 Phase 1 — CRM
 
@@ -179,7 +179,7 @@ Phase 6 — Memory Layer
 
 Agent: Memory/Compliance
 
-Goal: Wire Graphiti + Letta + RuVector with audit logging of PII access.
+Goal: Wire letta + Letta + RuVector with audit logging of PII access.
 
 Deliver:
 - Compose + env configs + initialization steps.
@@ -217,9 +217,9 @@ Stack decisions (locked):
 - TwentyCRM as system-of-record CRM.
 - n8n + Activepieces for campaign automation.
 - Nyra Admin UI using shadcn + tweakcn + Magic UI.
-- Memory day 0: Graphiti + Letta + RuVector in Postgres + Redis, with the graph backend required by Graphiti (FalkorDB/Neo4j as needed).
+- Memory day 0: letta + Letta + RuVector in Postgres + Redis, with the graph backend required by letta (FalkorDB/Neo4j as needed).
 - Secrets via Infisical (or Bitwarden acceptable).
-- Claude-flow remains for development automation; production runtime routes through Nexus.
+- archon-os remains for development automation; production runtime routes through Nexus.
 
 My priorities:
 1) Mortgage lead ingestion (email parsing + APIs + LeadMailbox) into TwentyCRM.
@@ -351,11 +351,11 @@ LOCKED PRODUCT GOALS (MVP):
 3) Stop immediately on ANY reply or STOP; STOP adds to DNC list.
 4) Quote API generates 3-option comparisons (Excel parity later); campaigns inject quote drafts.
 5) Nyra Admin UI (shadcn + tweakcn + Magic UI) provides campaign builder + lead timeline + quote approvals.
-6) Memory day 0: Graphiti + Letta + RuVector(Postgres) + Redis + graph backend required by Graphiti (prefer FalkorDB on Redis unless Graphiti mandates Neo4j).
+6) Memory day 0: letta + Letta + RuVector(Postgres) + Redis + graph backend required by letta (prefer FalkorDB on Redis unless letta mandates Neo4j).
 
 DEPLOYMENT TARGETS (DECIDE & DOCUMENT):
-- Oracle should host: TwentyCRM + its Postgres, nyra_ai Postgres (pgvector for RuVector), Redis (+ FalkorDB module if used), Graphiti, Letta, n8n, Activepieces, Twilio webhooks endpoints, Quote API, & optionally Nyra Admin UI.
-- Orchestrator should host: Nexus Router (prod), model routing (LiteLLM/OpenRouter OR claude-flow providers if already integrated), internal MCP/dev tools, & optional UI mirrors.
+- Oracle should host: TwentyCRM + its Postgres, nyra_ai Postgres (pgvector for RuVector), Redis (+ FalkorDB module if used), letta, Letta, n8n, Activepieces, Twilio webhooks endpoints, Quote API, & optionally Nyra Admin UI.
+- Orchestrator should host: Nexus Router (prod), model routing (LiteLLM/OpenRouter OR archon-os providers if already integrated), internal MCP/dev tools, & optional UI mirrors.
 - Workers host: GPU inference only; can disconnect without breaking core workflows.
 
 SECURITY PRINCIPLES:
@@ -376,7 +376,7 @@ B) Oracle provisioning runbook (agent-executable after user creates account):
    - Optional: install cloudflared on Oracle for crm/admin/n8n if chosen
 
 C) Compose stacks:
-   1) oracle-core docker-compose.yml: postgres (twenty + nyra_ai), redis (+ falkordb if used), graphiti, letta, ruvector services, backups
+   1) oracle-core docker-compose.yml: postgres (twenty + nyra_ai), redis (+ falkordb if used), letta, letta, ruvector services, backups
    2) oracle-apps docker-compose.yml: twentycrm, n8n, activepieces, quote-api, admin-ui
    3) orchestrator-edge docker-compose.yml: nexus router, model routing, mcp registry, observability
 

@@ -263,9 +263,9 @@ MODEL_ROUTING_STRATEGY=cost-optimized
 # Memory Systems (5 total)
 RUVECTOR_ENABLED=true
 LETTA_ENABLED=true
-GRAPHITI_ENABLED=true
+letta_ENABLED=true
 MEM0_ENABLED=true
-AGENTDB_ENABLED=true
+ruvector_ENABLED=true
 
 # And 200+ more optimized variables...
 ```
@@ -398,7 +398,7 @@ ARCHON_DATABASE_PASSWORD=GENERATE_WITH_openssl_rand_-hex_32
 
 # Additional databases (if using)
 LETTA_DATABASE_PASSWORD=GENERATE_WITH_openssl_rand_-hex_32
-GRAPHITI_DATABASE_PASSWORD=GENERATE_WITH_openssl_rand_-hex_32
+letta_DATABASE_PASSWORD=GENERATE_WITH_openssl_rand_-hex_32
 MEM0_DATABASE_PASSWORD=GENERATE_WITH_openssl_rand_-hex_32
 ```
 
@@ -472,7 +472,7 @@ You can ask Claude:
 - [ ] Copy `configs/env/.env.optimal` to `.env`
 - [ ] Set `ANTHROPIC_API_KEY` (if you have one)
 - [ ] Set `GOOGLE_API_KEY` (if you have one)
-- [ ] Test: `npx @claude-flow/cli@3.0.0-alpha.104 doctor`
+- [ ] Test: `npx @archon-os/cli@3.0.0-alpha.104 doctor`
 
 ### **Today (2-4 hours):**
 - [ ] Generate 7 database passwords
@@ -544,7 +544,7 @@ cp configs/env/.env.optimal .env
 nano .env  # or your preferred editor
 
 # 3. Test configuration
-npx @claude-flow/cli@3.0.0-alpha.104 doctor
+npx @archon-os/cli@3.0.0-alpha.104 doctor
 ```
 
 **Short-term (This Week):**

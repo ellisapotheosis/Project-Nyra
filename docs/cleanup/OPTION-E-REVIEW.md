@@ -173,7 +173,7 @@
 
 ---
 
-#### 8. orchestration/claude-flow/CLAUDE.md ⭐⭐⭐
+#### 8. orchestration/archon-os/CLAUDE.md ⭐⭐⭐
 **Status**: ⚠️ General SPARC-Focused (Not Service-Specific)
 
 **Strengths:**
@@ -372,13 +372,13 @@
 | landing | 27/31 | 87% | A- |
 | ratehunter | 26/31 | 84% | B+ |
 | nexus-dashboard | 18/31 | 58% | C+ |
-| claude-flow | N/A | N/A | - |
+| archon-os | N/A | N/A | - |
 | **quote-api** | **12/31** | **39%** | **F** |
 | **nyra-admin** | **14/31** | **45%** | **F** |
 | **crm-dashboard** | **13/31** | **42%** | **F** |
 | **infra** | **10/31** | **32%** | **F** |
 
-**Average Compliance**: 65% (excluding claude-flow)
+**Average Compliance**: 65% (excluding archon-os)
 
 ---
 
@@ -463,8 +463,8 @@
 **Status**: ✅ No MetaMCP references found in any file
 
 All files correctly reference:
-- `@claude-flow/cli@latest` (correct)
-- `npx @claude-flow/cli@latest` (correct)
+- `@archon-os/cli@latest` (correct)
+- `npx @archon-os/cli@latest` (correct)
 - No legacy MetaMCP tools
 
 ---
@@ -488,7 +488,7 @@ All files correctly reference:
 - Infra: Docker Compose stacks, service networking, Nyra-specific topology
 
 # Step 3: Validate against V3 template (31 sections)
-npx @claude-flow/cli@latest memory store \
+npx @archon-os/cli@latest memory store \
   --namespace validation \
   --key "claude-md-rewrite-$(date +%Y%m%d)" \
   --value "Rewrote 4 services to V3 standard"
@@ -737,7 +737,7 @@ sequenceDiagram
 
 ```bash
 # Store review completion
-npx @claude-flow/cli@latest memory store \
+npx @archon-os/cli@latest memory store \
   --key "optionE-task7-complete" \
   --value "services-claude-md-reviewed" \
   --namespace tasks

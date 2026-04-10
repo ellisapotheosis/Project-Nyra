@@ -21,7 +21,7 @@ GIT_LAST_COMMIT=$(git log -1 --format="%H" 2>/dev/null || echo "none")
 
 # Save session via CLI
 echo "  ├─ Saving session state..."
-npx @claude-flow/cli@latest session save \
+npx @archon-os/cli@latest session save \
   --name "$SESSION_NAME" \
   --include-memory true \
   --include-tasks true \
@@ -32,7 +32,7 @@ npx @claude-flow/cli@latest session save \
 
 # Store checkpoint metadata in memory
 echo "  ├─ Storing checkpoint metadata..."
-npx @claude-flow/cli@latest memory store \
+npx @archon-os/cli@latest memory store \
   --namespace checkpoints \
   --key "$SESSION_NAME" \
   --value "{
@@ -65,7 +65,7 @@ fi
 # List recent checkpoints
 echo ""
 echo "📋 Recent checkpoints:"
-npx @claude-flow/cli@latest memory list \
+npx @archon-os/cli@latest memory list \
   --namespace checkpoints \
   --limit 5 \
   2>/dev/null | grep -E "^  " | tail -5 || echo "  (none)"
@@ -74,5 +74,5 @@ echo ""
 echo "✅ Checkpoint created: $SESSION_NAME"
 echo ""
 echo "To restore this checkpoint:"
-echo "  npx @claude-flow/cli@latest session restore --name \"$SESSION_NAME\""
+echo "  npx @archon-os/cli@latest session restore --name \"$SESSION_NAME\""
 echo ""

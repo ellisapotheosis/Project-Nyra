@@ -3,7 +3,7 @@ name: bootstrap-agent
 description: Bootstrap and initialize any app/module with custom CLAUDE.md, configs, environments, and workflows using Claude Flow wiki templates and examples
 version: 1.0.0
 author: Project Nyra
-tags: [bootstrap, init, templates, claude-flow, automation]
+tags: [bootstrap, init, templates, archon-os, automation]
 ---
 
 # Bootstrap Agent Skill

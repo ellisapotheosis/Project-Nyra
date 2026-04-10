@@ -1,5 +1,5 @@
 apps/ingestion/files/nyra-stack/docker-compose.addons.yml
-apps/ingestion/files/nyra-stack/docker-compose.graphiti.yml
+apps/ingestion/files/nyra-stack/docker-compose.letta.yml
 apps/ingestion/files/nyra-stack/docker-compose.local.yml
 apps/ingestion/files/nyra-stack/docker-compose.services.yml
 apps/ingestion/files/nyra-stack/docker-compose.voice.yml
@@ -14,7 +14,7 @@ assets/new-uploads-ingestion-input/project-nyra/docker-compose.yml
 infra-archived/infra-20260206-1551/archive/legacy-infra-2026-01-19/dual-orchestrator/archon-os/docker-compose.yml
 infra-archived/infra-20260206-1551/archive/legacy-infra-2026-01-19/services/monitoring/docker-compose.yml
 infra-archived/infra-20260206-1551/archive/nyra-infra-old/compose/compose.casistack.yml
-infra-archived/infra-20260206-1551/archive/nyra-infra-old/compose/compose.claude-flow.yml
+infra-archived/infra-20260206-1551/archive/nyra-infra-old/compose/compose.archon-os.yml
 infra-archived/infra-20260206-1551/archive/nyra-infra-old/compose/compose.ingestion.yml
 infra-archived/infra-20260206-1551/archive/nyra-infra-old/compose/compose.management.yml
 infra-archived/infra-20260206-1551/archive/nyra-infra-old/compose/compose.mcp.services.yml
@@ -30,7 +30,7 @@ infra-archived/infra-20260206-1551/archive/nyra-infra-old/compose/orchestration.
 infra-archived/infra-20260206-1551/archive/nyra-infra-old/compose/security.compose.yml
 infra-archived/infra-20260206-1551/archive/nyra-infra-old/compose/ui.compose.yml
 infra-archived/infra-20260206-1551/archive/nyra-infra-old/docker/docker-compose.yml
-infra-archived/infra-20260206-1551/archive/nyra-infra-old/legacy-infra/compose/compose.claude-flow.yml
+infra-archived/infra-20260206-1551/archive/nyra-infra-old/legacy-infra/compose/compose.archon-os.yml
 infra-archived/infra-20260206-1551/archive/nyra-infra-old/legacy-infra/compose/compose.mcp.yml
 infra-archived/infra-20260206-1551/archive/nyra-infra-old/legacy-infra/compose/compose.memory.yml
 infra-archived/infra-20260206-1551/archive/nyra-infra-old/legacy-infra/compose/compose.metamcp.yml
@@ -40,13 +40,13 @@ infra-archived/infra-20260206-1551/archive/nyra-infra-old/legacy-infra/docker/do
 infra-archived/infra-20260206-1551/archive/nyra-infra-old/nyra-stack-v6_2/orchestrator/docker-compose.yml
 infra-archived/infra-20260206-1551/archive/nyra-infra-old/nyra-stack-v6_2/worker/docker-compose.yml
 infra-archived/infra-20260206-1551/archive/open-webui/open-webui-compose.yml
-infra-archived/infra-20260206-1551/docker-compose.claude-flow-cicd.yml
+infra-archived/infra-20260206-1551/docker-compose.archon-os-cicd.yml
 infra-archived/infra-20260206-1551/docker-compose.yml
 infra-archived/infra-20260206-1551/docker-compose/docker-compose.ai.yml
 infra-archived/infra-20260206-1551/docker-compose/docker-compose.base.yml
 infra-archived/infra-20260206-1551/docker-compose/docker-compose.business.yml
-infra-archived/infra-20260206-1551/docker-compose/docker-compose.claude-flow-dashboard.yml
-infra-archived/infra-20260206-1551/docker-compose/docker-compose.claude-flow.yml
+infra-archived/infra-20260206-1551/docker-compose/docker-compose.archon-os-dashboard.yml
+infra-archived/infra-20260206-1551/docker-compose/docker-compose.archon-os.yml
 infra-archived/infra-20260206-1551/docker-compose/docker-compose.crm.yml
 infra-archived/infra-20260206-1551/docker-compose/docker-compose.databases.yml
 infra-archived/infra-20260206-1551/docker-compose/docker-compose.event-server.yml
@@ -72,7 +72,7 @@ infra-archived/infra-20260206-1551/docker/docker-compose.yml
 infra-archived/infra-20260206-1551/docker/orchestrator/docker-compose.legacy.yml
 infra-archived/infra-20260206-1551/docker/orchestrator/docker-compose.orchestrator.yml
 infra-archived/infra-20260206-1551/docker/services/agent-booster/docker-compose.yml
-infra-archived/infra-20260206-1551/docker/services/agentic-flow/docker-compose.agentic-flow.yml
+infra-archived/infra-20260206-1551/docker/services/archon-os/docker-compose.archon-os.yml
 infra-archived/infra-20260206-1551/docker/services/docker-compose.embeddings.yml
 infra-archived/infra-20260206-1551/docker/services/docker-compose.routing.yml
 infra-archived/infra-20260206-1551/docker/services/epic-sdk/docker-compose.yml
@@ -89,7 +89,7 @@ infra-archived/infra-20260206-1551/pc-orchestrator/docker-compose.yml
 infra-archived/infra-20260206-1551/ruvector/docker-compose.yml
 infra-archived/infra-20260206-1551/shared-tools/archon/docker-compose.yml
 infra-archived/infra-20260206-1551/stacks/nyra-mortgage/docker-compose.addons.yml
-infra-archived/infra-20260206-1551/stacks/nyra-mortgage/docker-compose.graphiti.yml
+infra-archived/infra-20260206-1551/stacks/nyra-mortgage/docker-compose.letta.yml
 infra-archived/infra-20260206-1551/stacks/nyra-mortgage/docker-compose.local.yml
 infra-archived/infra-20260206-1551/stacks/nyra-mortgage/docker-compose.services.yml
 infra-archived/infra-20260206-1551/stacks/nyra-mortgage/docker-compose.voice.yml
@@ -108,14 +108,14 @@ infra/compose/overrides/docker-compose.worker-rtx3060.override.yml
 infra/compose/overrides/docker-compose.worker-rtx3090ti.override.yml
 infra/compose/overrides/docker-compose.worker-rtx5090.override.yml
 infra/configs/gitea/docker-compose.gitea.yml
-infra/docker-compose.claude-flow-cicd.yml
+infra/docker-compose.archon-os-cicd.yml
 infra/docker-compose.dashboard.yml
 infra/docker-compose.oracle.yml
 infra/docker-compose.orchestrator-cf-tunnel.yml
 infra/docker-compose.orchestrator.yml
 infra/docker-compose.workers.yml
 infra/docker-compose.yml
-infra/docker-compose/docker-compose.claude-flow.yml
+infra/docker-compose/docker-compose.archon-os.yml
 infra/nyra-complete/infra/docker-compose.oracle.yml
 infra/nyra-complete/infra/docker-compose.orchestrator.yml
 infra/nyra-complete/infra/docker-compose.workers.yml
@@ -123,7 +123,7 @@ infra/project-nyra-scaffold/infra/docker-compose.oracle.yml
 infra/project-nyra-scaffold/infra/docker-compose.orchestrator.yml
 infra/project-nyra-scaffold/infra/docker-compose.workers.yml
 infra/stacks/nyra-mortgage/docker-compose.addons.yml
-infra/stacks/nyra-mortgage/docker-compose.graphiti.yml
+infra/stacks/nyra-mortgage/docker-compose.letta.yml
 infra/stacks/nyra-mortgage/docker-compose.local.yml
 infra/stacks/nyra-mortgage/docker-compose.services.yml
 infra/stacks/nyra-mortgage/docker-compose.voice.yml
@@ -132,7 +132,7 @@ infra/workers/worker-3060/docker-compose.worker-3060.yml
 infra/workers/worker-3090/docker-compose.worker-3090.yml
 infra/workers/worker-5090/docker-compose.worker-5090.yml
 services/campaign-engine/docker-compose.yml
-services/claude-flow/docker-compose.yml
+services/archon-os/docker-compose.yml
 services/litellm-proxy/docker-compose.dev.yml
 services/litellm-proxy/docker-compose.yml
 services/memory/deployment/docker-compose.memory.yml

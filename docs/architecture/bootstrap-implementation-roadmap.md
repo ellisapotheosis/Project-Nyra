@@ -28,15 +28,15 @@ This roadmap provides a phased approach to implementing the unified bootstrap ar
 - [ ] Organize Dockerfiles by service category
 
 **1.2 Build Claude Flow Images**
-- [ ] Create `bootstrap/docker/images/claude-flow/Dockerfile.dev`
+- [ ] Create `bootstrap/docker/images/archon-os/Dockerfile.dev`
   - Hot-reload with volume mounts
   - Development dependencies included
   - Debugger support
-- [ ] Create `bootstrap/docker/images/claude-flow/Dockerfile.prod`
+- [ ] Create `bootstrap/docker/images/archon-os/Dockerfile.prod`
   - Multi-stage build for smaller size
   - Production optimizations
   - Health check endpoint
-- [ ] Create `bootstrap/docker/images/claude-flow/entrypoint.sh`
+- [ ] Create `bootstrap/docker/images/archon-os/entrypoint.sh`
   - Environment variable validation
   - Infisical secret loading
   - Claude Flow daemon startup
@@ -59,9 +59,9 @@ This roadmap provides a phased approach to implementing the unified bootstrap ar
   - Gateway aggregation logic
   - Routing to downstream MCP servers
   - Health check aggregation
-- [ ] Create `Dockerfile.graphiti` (port 8007)
+- [ ] Create `Dockerfile.letta` (port 8007)
 - [ ] Create `Dockerfile.mem0` (port 8008)
-- [ ] Create `Dockerfile.agentdb` (port 8009)
+- [ ] Create `Dockerfile.ruvector` (port 8009)
 - [ ] Create `Dockerfile.flow-nexus` (port 8010)
 
 **1.5 Build Nyra Service Images**
@@ -81,9 +81,9 @@ This roadmap provides a phased approach to implementing the unified bootstrap ar
   - Network definition (nyra-network)
   - Volume definitions (infisical_secrets)
 - [ ] Create `docker-compose.mcp.yml`
-  - All MCP servers (Graphiti, Mem0, AgentDB, Flow Nexus)
+  - All MCP servers (letta, Mem0, ruvector, Flow Nexus)
   - Dependencies on base services
-- [ ] Create `docker-compose.claude-flow.yml`
+- [ ] Create `docker-compose.archon-os.yml`
   - Claude Flow MCP service
   - Config volume mounts
   - MCP mode flag
@@ -132,13 +132,13 @@ This roadmap provides a phased approach to implementing the unified bootstrap ar
 #### Tasks
 
 **2.1 Create Shim Templates**
-- [ ] Create `bootstrap/shims/templates/claude-flow.cmd.template`
+- [ ] Create `bootstrap/shims/templates/archon-os.cmd.template`
   - Docker daemon check
   - Container existence check
   - Docker exec with argument forwarding
   - Error handling
 - [ ] Create `bootstrap/shims/templates/archon.cmd.template`
-  - Similar to claude-flow template
+  - Similar to archon-os template
   - Archon-specific commands
 - [ ] Create `bootstrap/shims/templates/mcp-tool.cmd.template`
   - Generic MCP tool shim
@@ -169,8 +169,8 @@ This roadmap provides a phased approach to implementing the unified bootstrap ar
 
 **2.4 Test Shim Execution**
 - [ ] Generate test shims manually
-- [ ] Test `claude-flow.cmd --version`
-- [ ] Test `claude-flow.cmd swarm status`
+- [ ] Test `archon-os.cmd --version`
+- [ ] Test `archon-os.cmd swarm status`
 - [ ] Test `archon.cmd status`
 - [ ] Verify PATH registration
 
@@ -330,7 +330,7 @@ This roadmap provides a phased approach to implementing the unified bootstrap ar
   CLAUDE_FLOW_MODE={{CLAUDE_FLOW_MODE}}
   ...
   ```
-- [ ] Create `bootstrap/configs/templates/claude-flow.config.template.json`
+- [ ] Create `bootstrap/configs/templates/archon-os.config.template.json`
   ```json
   {
     "pc": {

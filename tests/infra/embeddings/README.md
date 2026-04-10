@@ -141,9 +141,9 @@ sleep 120
 docker exec nyra-xenova-embeddings ls -la /app/models
 ```
 
-## Integration with AgentDB
+## Integration with ruvector
 
-Embedding services integrate with AgentDB for vector storage:
+Embedding services integrate with ruvector for vector storage:
 
 ```python
 # Example: Generate embeddings with Xenova
@@ -156,8 +156,8 @@ response = requests.post('http://localhost:8002/embed', json={
 
 embeddings = response.json()['embeddings']
 
-# Store in AgentDB
-agentdb.store_vector(
+# Store in ruvector
+ruvector.store_vector(
     collection='documents',
     vector=embeddings[0],
     metadata={'source': 'test'}

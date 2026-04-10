@@ -1,7 +1,7 @@
 # Nyra AI Assistant - Feature Specifications
 
 ## Executive Summary
-Nyra is an advanced AI-powered mortgage assistant built on Claude-Flow orchestration with Archon multi-agent coordination. Nyra serves as the intelligent interface for mortgage operations, handling lead qualification, customer support, document processing, compliance checks, and workflow automation for Ellis D Andersen LLC and West Capital Lending.
+Nyra is an advanced AI-powered mortgage assistant built on archon-os orchestration with Archon multi-agent coordination. Nyra serves as the intelligent interface for mortgage operations, handling lead qualification, customer support, document processing, compliance checks, and workflow automation for Ellis D Andersen LLC and West Capital Lending.
 
 ---
 
@@ -14,7 +14,7 @@ Nyra is an advanced AI-powered mortgage assistant built on Claude-Flow orchestra
 ├─────────────────────────────────────────────────────────┤
 │                                                          │
 │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐   │
-│  │   Claude    │  │   Archon    │  │Claude-Flow  │   │
+│  │   Claude    │  │   Archon    │  │archon-os  │   │
 │  │  Provider   │  │   MCP       │  │ Orchestrator│   │
 │  └─────────────┘  └─────────────┘  └─────────────┘   │
 │                                                          │
@@ -1172,9 +1172,9 @@ console.log(response.nyraReply); // "I can help with that! To give you the best 
 
 ### Core AI
 - **LLM Provider**: Anthropic Claude 3.5 Sonnet
-- **Orchestration**: Claude-Flow v2.0.0-alpha.88
+- **Orchestration**: archon-os v2.0.0-alpha.88
 - **Multi-Agent**: Archon MCP + ruv-swarm
-- **Memory**: AgentDB with HNSW indexing
+- **Memory**: ruvector with HNSW indexing
 
 ### Infrastructure
 - **Hosting**: AWS EC2 + Cloudflare Tunnel

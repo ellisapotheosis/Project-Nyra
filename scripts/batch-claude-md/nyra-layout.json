@@ -174,7 +174,7 @@
       }
     },
     {
-      "path": "./mcp-servers/claude-flow",
+      "path": "./mcp-servers/archon-os",
       "profile": "nodejs-mcp",
       "context": {
         "appName": "Claude Flow MCP",

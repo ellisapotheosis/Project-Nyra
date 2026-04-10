@@ -79,7 +79,7 @@ foreach ($s in $secrets) {
 $projected = $projected | Sort-Object Path, Key
 
 # Optionally emit per-path .env files so each Infisical folder becomes a physical .env file.
-# Example: /clients/claude-flow  ->  <EnvExportRoot>/dev/clients/claude-flow.env
+# Example: /clients/archon-os  ->  <EnvExportRoot>/dev/clients/archon-os.env
 if ($EmitEnvPerPath -and $secrets.Count -gt 0) {
     Write-Host "`n🧾 Writing per-path .env exports to '$EnvExportRoot'..." -ForegroundColor Cyan
 

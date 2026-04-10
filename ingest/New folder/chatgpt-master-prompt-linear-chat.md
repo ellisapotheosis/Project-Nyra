@@ -12,8 +12,8 @@ Project Nyra goal (MVP):
 - End campaign immediately when borrower responds on any channel or sends STOP (opt-out + DNC).
 - Generate “3-option” rate quote comparisons via a scriptable Quote API that can match an Excel-based workflow.
 - Admin GUI to monitor/edit campaigns, view lead timelines, and review/send quote drafts.
-- Memory layer day 0: Graphiti + Letta + RuVector (Postgres) + FalkorDB + Redis.
-- Routing: Nexus Router (grafbase/nexus) as MCP/LLM gateway; LiteLLM + OpenRouter present for routing/spend; Infisical for secrets; claude-flow used for development automation.
+- Memory layer day 0: letta + Letta + RuVector (Postgres) + FalkorDB + Redis.
+- Routing: Nexus Router (grafbase/nexus) as MCP/LLM gateway; LiteLLM + OpenRouter present for routing/spend; Infisical for secrets; archon-os used for development automation.
 
 Key known architecture choices:
 - Deploy standard TwentyCRM upstream (avoid forking). Use custom objects for MortgageLead/Quote/Campaign.
@@ -35,7 +35,7 @@ Your task:
    - Twilio/SendGrid integration (webhooks, STOP, DNC)
    - Quote API + Excel parity test strategy
    - Nyra Admin UI pages/components (shadcn+tweakcn theme)
-   - Graphiti+Letta+RuVector memory integration
+   - letta+Letta+RuVector memory integration
    - Nexus Router config (MCP registration + auth boundaries)
 4) Produce role-based agent prompts (infra/crm/workflows/ui/memory/compliance) with Definition of Done.
 
@@ -68,8 +68,8 @@ Project Nyra MVP:
 - Terminate campaign on ANY response or STOP; add STOP to DNC.
 - Quote API generates 3-option comparison matching an existing Excel method; human approval required for rate advice.
 - Admin portal: Nyra Admin UI (shadcn + tweakcn + Magic UI) to manage campaigns, lead timelines, quotes; embedded chat UI (Dify OR Moltbot/Clawdbot UI if viable).
-- Memory day 0: Graphiti + Letta + RuVector in Postgres (nyra_ai DB), plus FalkorDB + Redis.
-- Nexus Router (grafbase/nexus) is MCP/LLM gateway; LiteLLM + OpenRouter present; Infisical for secrets; claude-flow used for dev automation, not as runtime gateway.
+- Memory day 0: letta + Letta + RuVector in Postgres (nyra_ai DB), plus FalkorDB + Redis.
+- Nexus Router (grafbase/nexus) is MCP/LLM gateway; LiteLLM + OpenRouter present; Infisical for secrets; archon-os used for dev automation, not as runtime gateway.
 
 Infra:
 - 4-PC cluster: orchestrator always on in WSL/Docker; 3 GPU workers run vLLM/Ollama and can disconnect; Tailscale routes.
@@ -114,8 +114,8 @@ Project Nyra MVP:
 - Terminate campaign on ANY response or STOP; add STOP to DNC.
 - Quote API generates 3-option comparison matching an existing Excel method; human approval required for rate advice.
 - Admin portal: Nyra Admin UI (shadcn + tweakcn + Magic UI) to manage campaigns, lead timelines, quotes; embedded chat UI (Dify OR Moltbot/Clawdbot UI if viable).
-- Memory day 0: Graphiti + Letta + RuVector in Postgres (nyra_ai DB), plus FalkorDB + Redis.
-- Nexus Router (grafbase/nexus) is MCP/LLM gateway; LiteLLM + OpenRouter present; Infisical for secrets; claude-flow used for dev automation, not as runtime gateway.
+- Memory day 0: letta + Letta + RuVector in Postgres (nyra_ai DB), plus FalkorDB + Redis.
+- Nexus Router (grafbase/nexus) is MCP/LLM gateway; LiteLLM + OpenRouter present; Infisical for secrets; archon-os used for dev automation, not as runtime gateway.
 
 Infra:
 - 4-PC cluster: orchestrator always on in WSL/Docker; 3 GPU workers run vLLM/Ollama and can disconnect; Tailscale routes.
@@ -145,7 +145,7 @@ Zero-memory Project Nyra MVP. Output TL;DR bullets first. Use bullets for long p
 
 Goal: ingest mortgage leads (email parsing + webhooks + LeadMailbox) → normalize/dedupe → store in TwentyCRM → auto-start 45–60 day multi-channel drip campaigns (call/SMS/voicemail/email) by loan purpose → stop immediately on ANY response or STOP (DNC) → generate 3-option quote via Quote API (Excel parity, human approval) → manage via Nyra Admin UI (shadcn+tweakcn+Magic UI) with embedded chat UI (Dify or Moltbot UI).
 
-Infra: Nexus Router gateway, LiteLLM+OpenRouter routing, Graphiti+Letta memory, RuVector in Postgres (nyra_ai), FalkorDB+Redis. 4-PC cluster w/ orchestrator + detachable GPU workers; Cloudflared subdomains for app/chat/crm/nexus/admin/grafana.
+Infra: Nexus Router gateway, LiteLLM+OpenRouter routing, letta+Letta memory, RuVector in Postgres (nyra_ai), FalkorDB+Redis. 4-PC cluster w/ orchestrator + detachable GPU workers; Cloudflared subdomains for app/chat/crm/nexus/admin/grafana.
 
 Deliver: architecture+boot order, schema+mappings, n8n workflow skeletons, UI route map, role-based agent prompts.
 
@@ -154,7 +154,7 @@ Deliver: architecture+boot order, schema+mappings, n8n workflow skeletons, UI ro
 
 
 
-4) Action plan + “agent prompts” you can hand to claude-flow swarms / your agents
+4) Action plan + “agent prompts” you can hand to archon-os swarms / your agents
 4.1 Master execution plan (what to do first, no philosophizing)
 
 Boot infra & confirm gateway health
@@ -215,7 +215,7 @@ SPARC-DRIP-CAMPAIGN
 
 Memory layer MVP
 
-Graphiti + Letta + RuVector with graph backend (FalkorDB or Neo4j) + PII access logging. 
+letta + Letta + RuVector with graph backend (FalkorDB or Neo4j) + PII access logging. 
 
 PROJECT-NYRA-MASTER-ARCHITECTURE
 
@@ -228,7 +228,7 @@ Goal: ensure Project Nyra infra boots cleanly on orchestrator and exposes servic
 Tasks:
 - Validate infra make targets (init/up/health/urls) and document exact commands + expected outputs.
 - Confirm Nexus Router is reachable (port 6000) and can route to MCP backends.
-- Produce a boot order and readiness checklist for: Postgres, Redis, FalkorDB, Graphiti, Letta, n8n, Activepieces, TwentyCRM, Nyra Admin UI, Dify/Moltbot.
+- Produce a boot order and readiness checklist for: Postgres, Redis, FalkorDB, letta, Letta, n8n, Activepieces, TwentyCRM, Nyra Admin UI, Dify/Moltbot.
 - Produce a Cloudflared + Tailscale runbook for the known subdomains (ratehunter.net, app/chat/crm/nexus/orchestrator/grafana/admin).
 - Add health endpoints + dashboards list (Grafana) and log locations.
 
@@ -311,13 +311,13 @@ Tasks:
 
 Definition of Done:
 - UI skeleton + theme config + API contracts needed from backend/workflows.
-Agent 7 — Memory Layer (Graphiti + Letta + RuVector + graph backend)
+Agent 7 — Memory Layer (letta + Letta + RuVector + graph backend)
 You are the Memory Agent. Start with TL;DR bullets.
 
-Goal: integrate Graphiti + Letta as the durable memory layer, backed by a graph DB (prefer FalkorDB if compatible; fallback Neo4j), with RuVector in Postgres for embeddings.
+Goal: integrate letta + Letta as the durable memory layer, backed by a graph DB (prefer FalkorDB if compatible; fallback Neo4j), with RuVector in Postgres for embeddings.
 
 Tasks:
-- Confirm Graphiti backend config (FalkorDB vs Neo4j) and provide docker compose/env config.
+- Confirm letta backend config (FalkorDB vs Neo4j) and provide docker compose/env config.
 - Implement nyra_ai tables for lead_chunks, patterns, campaign_performance.
 - Add PII access logging hooks for any memory reads/writes.
 - Provide an API surface for “retrieve similar past lead/campaign patterns” used by the assistant.

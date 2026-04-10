@@ -267,7 +267,7 @@ $(cat "$ANALYSIS_DIR/missing-from-bootstrap.txt" 2>/dev/null || echo "No missing
 
 1. **Review Missing Services**: Check if services in "missing-from-bootstrap.txt" should be added
 2. **Consolidate to infra/**: Move all unique services to infra/docker-compose.yml
-3. **Add Infisical Agent**: Implement sidecar pattern for claude-flow and archon
+3. **Add Infisical Agent**: Implement sidecar pattern for archon-os and archon
 4. **Remove Duplicates**: After consolidation, remove archived files from main repo
 5. **Update Scripts**: Update all scripts to reference infra/docker-compose.yml
 

@@ -4,7 +4,7 @@
  * Mock implementations for:
  * - RuVector (vector search)
  * - Letta (conversational memory)
- * - Graphiti (knowledge graphs)
+ * - letta (knowledge graphs)
  * - Mem0 (user preferences)
  * - OpenMemory (collaborative memory)
  */
@@ -79,7 +79,7 @@ export const createMockLetta = (): TestMemorySystem => {
   };
 };
 
-export const createMockGraphiti = () => {
+export const createMockletta = () => {
   const nodes = new Map<string, any>();
   const edges: any[] = [];
 
@@ -135,7 +135,7 @@ export const setupTestMemory = async () => {
   return {
     ruvector: createMockRuVector(),
     letta: createMockLetta(),
-    graphiti: createMockGraphiti(),
+    letta: createMockletta(),
     mem0: createMockMem0()
   };
 };
@@ -143,6 +143,6 @@ export const setupTestMemory = async () => {
 export const teardownTestMemory = async (memory: any) => {
   await memory.ruvector.clear();
   await memory.letta.clear();
-  await memory.graphiti.clear();
+  await memory.letta.clear();
   await memory.mem0.clear();
 };

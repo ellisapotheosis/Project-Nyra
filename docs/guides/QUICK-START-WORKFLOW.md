@@ -61,7 +61,7 @@ Creating nyra-postgres ... done
 Creating nyra-falkordb ... done
 Creating nyra-qdrant ... done
 Creating nyra-nexus-router ... done
-Creating nyra-claude-flow ... done
+Creating nyra-archon-os ... done
 Creating nyra-archon-os ... done
 Creating nyra-letta ... done
 
@@ -277,7 +277,7 @@ Total time: ~2 minutes
 - **Redis**: Database isolation (DB 0: Nexus, DB 1: Claude Flow, DB 2: Archon OS)
 - **GPU Workers**: 3 workers via Tailscale (RTX 5090, 3090, 3060)
 - **Routing**: Intelligent cost-optimized routing with local-first, cloud fallback
-- **MCP Servers**: 15 integrated (Filesystem, GitHub, Git, Graphiti, Qdrant, and more)
+- **MCP Servers**: 15 integrated (Filesystem, GitHub, Git, letta, Qdrant, and more)
 - **Security**: OAuth2, JWT, rate limiting (4 levels), CORS
 - **Observability**: Prometheus, OpenTelemetry, WebSocket metrics streaming
 

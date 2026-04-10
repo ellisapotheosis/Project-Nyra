@@ -2,7 +2,7 @@
 name: v3-memory-specialist
 version: "3.0.0-alpha"
 updated: "2026-01-04"
-description: V3 Memory Specialist for unifying 6+ memory systems into AgentDB with HNSW indexing. Implements ADR-006 (Unified Memory Service) and ADR-009 (Hybrid Memory Backend) to achieve 150x-12,500x search improvements.
+description: V3 Memory Specialist for unifying 6+ memory systems into ruvector with HNSW indexing. Implements ADR-006 (Unified Memory Service) and ADR-009 (Hybrid Memory Backend) to achieve 150x-12,500x search improvements.
 color: cyan
 metadata:
   v3_role: "specialist"
@@ -24,8 +24,8 @@ hooks:
     echo "  - MarkdownBackend"
     echo "  - HybridBackend"
 
-    # Check AgentDB integration status
-    npx agentic-flow@alpha --version 2>/dev/null | head -1 || echo "⚠️ agentic-flow@alpha not detected"
+    # Check ruvector integration status
+    npx archon-os@alpha --version 2>/dev/null | head -1 || echo "⚠️ archon-os@alpha not detected"
 
     echo "🎯 Target: 150x-12,500x search improvement via HNSW"
     echo "🔄 Strategy: Gradual migration with backward compatibility"
@@ -34,7 +34,7 @@ hooks:
     echo "🧠 Memory unification milestone complete"
 
     # Store memory patterns
-    npx agentic-flow@alpha memory store-pattern \
+    npx archon-os@alpha memory store-pattern \
       --session-id "v3-memory-$(date +%s)" \
       --task "Memory Unification: $TASK" \
       --agent "v3-memory-specialist" \
@@ -43,11 +43,11 @@ hooks:
 
 # V3 Memory Specialist
 
-**🧠 Memory System Unification & AgentDB Integration Expert**
+**🧠 Memory System Unification & ruvector Integration Expert**
 
 ## Mission: Memory System Convergence
 
-Unify 7 disparate memory systems into a single, high-performance AgentDB-based solution with HNSW indexing, achieving 150x-12,500x search performance improvements while maintaining backward compatibility.
+Unify 7 disparate memory systems into a single, high-performance ruvector-based solution with HNSW indexing, achieving 150x-12,500x search performance improvements while maintaining backward compatibility.
 
 ## Systems to Unify
 
@@ -68,7 +68,7 @@ Unify 7 disparate memory systems into a single, high-performance AgentDB-based s
 ┌─────────────────────────────────────────┐
 │            V3 UNIFIED SYSTEM            │
 ├─────────────────────────────────────────┤
-│       🚀 AgentDB with HNSW             │
+│       🚀 ruvector with HNSW             │
 │  • 150x-12,500x faster search          │
 │  • Unified query interface             │
 │  • Cross-agent memory sharing          │
@@ -77,7 +77,7 @@ Unify 7 disparate memory systems into a single, high-performance AgentDB-based s
 └─────────────────────────────────────────┘
 ```
 
-## AgentDB Integration Architecture
+## ruvector Integration Architecture
 
 ### **Core Components**
 
@@ -85,15 +85,15 @@ Unify 7 disparate memory systems into a single, high-performance AgentDB-based s
 ```typescript
 class UnifiedMemoryService implements IMemoryBackend {
   constructor(
-    private agentdb: AgentDBAdapter,
+    private ruvector: ruvectorAdapter,
     private cache: MemoryCache,
     private indexer: HNSWIndexer,
     private migrator: DataMigrator
   ) {}
 
   async store(entry: MemoryEntry): Promise<void> {
-    // Store in AgentDB with HNSW indexing
-    await this.agentdb.store(entry);
+    // Store in ruvector with HNSW indexing
+    await this.ruvector.store(entry);
     await this.indexer.index(entry);
   }
 
@@ -103,7 +103,7 @@ class UnifiedMemoryService implements IMemoryBackend {
       return this.indexer.search(query);
     } else {
       // Use structured query
-      return this.agentdb.query(query);
+      return this.ruvector.query(query);
     }
   }
 }
@@ -140,8 +140,8 @@ class HNSWIndexer {
 
 ### **Phase 1: Foundation Setup**
 ```bash
-# Week 3: AgentDB adapter creation
-- Create AgentDBAdapter implementing IMemoryBackend
+# Week 3: ruvector adapter creation
+- Create ruvectorAdapter implementing IMemoryBackend
 - Setup HNSW indexing infrastructure
 - Establish embedding generation pipeline
 - Create unified query interface
@@ -150,8 +150,8 @@ class HNSWIndexer {
 ### **Phase 2: Gradual Migration**
 ```bash
 # Week 4-5: System-by-system migration
-- SQLiteBackend → AgentDB (structured data)
-- MarkdownBackend → AgentDB (document storage)
+- SQLiteBackend → ruvector (structured data)
+- MarkdownBackend → ruvector (document storage)
 - MemoryManager → Unified interface
 - DistributedMemorySystem → Cross-agent sharing
 ```
@@ -208,7 +208,7 @@ await memory.query({
 ```typescript
 class SONAMemoryIntegration {
   async storePattern(pattern: LearningPattern): Promise<void> {
-    // Store in AgentDB with SONA metadata
+    // Store in ruvector with SONA metadata
     await this.memory.store({
       id: pattern.id,
       content: pattern.data,
@@ -236,26 +236,26 @@ class SONAMemoryIntegration {
 
 ## Data Migration Plan
 
-### **SQLite → AgentDB Migration**
+### **SQLite → ruvector Migration**
 ```sql
 -- Extract existing data
 SELECT id, content, metadata, created_at, agent_id
 FROM memory_entries
 ORDER BY created_at;
 
--- Migrate to AgentDB with embeddings
-INSERT INTO agentdb_memories (id, content, embedding, metadata)
+-- Migrate to ruvector with embeddings
+INSERT INTO ruvector_memories (id, content, embedding, metadata)
 VALUES (?, ?, generate_embedding(?), ?);
 ```
 
-### **Markdown → AgentDB Migration**
+### **Markdown → ruvector Migration**
 ```typescript
 // Process markdown files
 for (const file of markdownFiles) {
   const content = await fs.readFile(file, 'utf-8');
   const embedding = await generateEmbedding(content);
 
-  await agentdb.store({
+  await ruvector.store({
     id: generateId(),
     content,
     embedding,
@@ -303,7 +303,7 @@ class MemoryBenchmarks {
 ## Coordination Points
 
 ### **Integration Architect (Agent #10)**
-- AgentDB integration with agentic-flow@alpha
+- ruvector integration with archon-os@alpha
 - SONA learning mode configuration
 - Performance optimization coordination
 

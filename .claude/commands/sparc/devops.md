@@ -48,7 +48,7 @@ Return `attempt_completion` with:
 
 ### Option 1: Using MCP Tools (Preferred in Claude Code)
 ```javascript
-mcp__claude-flow__sparc_mode {
+mcp__archon-os__sparc_mode {
   mode: "devops",
   task_description: "deploy to AWS Lambda",
   options: {
@@ -61,22 +61,22 @@ mcp__claude-flow__sparc_mode {
 ### Option 2: Using NPX CLI (Fallback when MCP not available)
 ```bash
 # Use when running from terminal or MCP tools unavailable
-npx claude-flow sparc run devops "deploy to AWS Lambda"
+npx archon-os sparc run devops "deploy to AWS Lambda"
 
 # For alpha features
-npx @claude-flow/cli@latest sparc run devops "deploy to AWS Lambda"
+npx @archon-os/cli@latest sparc run devops "deploy to AWS Lambda"
 
 # With namespace
-npx claude-flow sparc run devops "your task" --namespace devops
+npx archon-os sparc run devops "your task" --namespace devops
 
 # Non-interactive mode
-npx claude-flow sparc run devops "your task" --non-interactive
+npx archon-os sparc run devops "your task" --non-interactive
 ```
 
 ### Option 3: Local Installation
 ```bash
-# If claude-flow is installed locally
-./claude-flow sparc run devops "deploy to AWS Lambda"
+# If archon-os is installed locally
+./archon-os sparc run devops "deploy to AWS Lambda"
 ```
 
 ## Memory Integration
@@ -84,7 +84,7 @@ npx claude-flow sparc run devops "your task" --non-interactive
 ### Using MCP Tools (Preferred)
 ```javascript
 // Store mode-specific context
-mcp__claude-flow__memory_usage {
+mcp__archon-os__memory_usage {
   action: "store",
   key: "devops_context",
   value: "important decisions",
@@ -92,7 +92,7 @@ mcp__claude-flow__memory_usage {
 }
 
 // Query previous work
-mcp__claude-flow__memory_search {
+mcp__archon-os__memory_search {
   pattern: "devops",
   namespace: "devops",
   limit: 5
@@ -102,8 +102,8 @@ mcp__claude-flow__memory_search {
 ### Using NPX CLI (Fallback)
 ```bash
 # Store mode-specific context
-npx claude-flow memory store "devops_context" "important decisions" --namespace devops
+npx archon-os memory store "devops_context" "important decisions" --namespace devops
 
 # Query previous work
-npx claude-flow memory query "devops" --limit 5
+npx archon-os memory query "devops" --limit 5
 ```

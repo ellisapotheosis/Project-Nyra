@@ -276,13 +276,13 @@ infisical run --env=production --path=/nyra/orchestrator -- echo $POSTGRES_PASSW
 
 ```bash
 # Initialize Claude Flow with SPARC
-npx @claude-flow/cli@latest init --sparc
+npx @archon-os/cli@latest init --sparc
 
 # Start UI
-./claude-flow start --ui
+./archon-os start --ui
 
 # Check status
-./claude-flow status
+./archon-os status
 ```
 
 ### Run Self-Bootstrap
@@ -290,7 +290,7 @@ npx @claude-flow/cli@latest init --sparc
 ```bash
 # Self-bootstrap with 5 agents in parallel
 infisical run --env=production -- \
-    ./claude-flow swarm "RUN ./SELF_BOOTSTRAP_MISSION.md" --max-agents 5 --parallel
+    ./archon-os swarm "RUN ./SELF_BOOTSTRAP_MISSION.md" --max-agents 5 --parallel
 ```
 
 ## Configuration Files

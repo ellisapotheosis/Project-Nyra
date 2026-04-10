@@ -102,10 +102,10 @@ nano .env
 docker-compose up -d postgres redis letta qdrant
 
 # Start daemon
-npx @claude-flow/cli@latest daemon start
+npx @archon-os/cli@latest daemon start
 
 # Initialize swarm
-npx @claude-flow/cli@latest swarm init --topology hierarchical-mesh --max-agents 35
+npx @archon-os/cli@latest swarm init --topology hierarchical-mesh --max-agents 35
 ```
 
 #### Development Setup
@@ -118,7 +118,7 @@ cp .env.development .env
 docker-compose up -d redis
 
 # Start daemon
-npx @claude-flow/cli@latest daemon start
+npx @archon-os/cli@latest daemon start
 ```
 
 ### 2. Worker PCs (PC2, PC3, PC4)
@@ -150,10 +150,10 @@ ollama serve
 # PC4: ollama pull llama3.1:70b-q4
 
 # Start worker daemon
-npx @claude-flow/cli@latest daemon start
+npx @archon-os/cli@latest daemon start
 
 # Connect to orchestrator
-npx @claude-flow/cli@latest swarm join --coordinator http://orchestrator.tail-net.ts.net:7000
+npx @archon-os/cli@latest swarm join --coordinator http://orchestrator.tail-net.ts.net:7000
 ```
 
 ### 3. CI/CD Setup (GitHub Actions)
@@ -192,7 +192,7 @@ npm install -g @infisical/cli
 infisical login
 
 # Fetch and run
-infisical run -- npx @claude-flow/cli@latest daemon start
+infisical run -- npx @archon-os/cli@latest daemon start
 ```
 
 ### Generate Secrets
@@ -246,14 +246,14 @@ REDIS_PASSWORD=$(openssl rand -hex 32)
 ### Verify Orchestrator
 ```bash
 # Check config loaded
-npx @claude-flow/cli@latest config get swarm.maxAgents
+npx @archon-os/cli@latest config get swarm.maxAgents
 # Should return: 35
 
 # Check memory
-npx @claude-flow/cli@latest memory stats
+npx @archon-os/cli@latest memory stats
 
 # Check daemon
-npx @claude-flow/cli@latest daemon status
+npx @archon-os/cli@latest daemon status
 ```
 
 ### Verify Workers
@@ -271,9 +271,9 @@ curl http://localhost:7890/health
 ### Test Full Stack
 ```bash
 # On orchestrator, spawn test agents across workers
-npx @claude-flow/cli@latest agent spawn -t coder --target worker-3060
-npx @claude-flow/cli@latest agent spawn -t researcher --target worker-5090
-npx @claude-flow/cli@latest agent list
+npx @archon-os/cli@latest agent spawn -t coder --target worker-3060
+npx @archon-os/cli@latest agent spawn -t researcher --target worker-5090
+npx @archon-os/cli@latest agent list
 ```
 
 ---
@@ -299,16 +299,16 @@ ls -la .env
 cat .env | grep -v '^#' | grep -v '^$'
 
 # Check loaded values
-npx @claude-flow/cli@latest config list
+npx @archon-os/cli@latest config list
 ```
 
 ### Issue: Memory system not syncing
 ```bash
 # On orchestrator
-npx @claude-flow/cli@latest memory stats
+npx @archon-os/cli@latest memory stats
 
 # On worker
-npx @claude-flow/cli@latest config get agentdb.syncFrom
+npx @archon-os/cli@latest config get ruvector.syncFrom
 # Should return: orchestrator.tail-net.ts.net:7000
 ```
 
@@ -354,9 +354,9 @@ curl http://orchestrator:3002  # Grafana
 
 ## 📚 Additional Resources
 
-- **Main Config**: `claude-flow.config.json` (shared across all PCs)
-- **Comprehensive Env Reference**: `.env.claude-flow` (all 150+ variables)
-- **Setup Summary**: `docs/CLAUDE-FLOW-V3-SETUP-SUMMARY.md`
+- **Main Config**: `archon-os.config.json` (shared across all PCs)
+- **Comprehensive Env Reference**: `.env.archon-os` (all 150+ variables)
+- **Setup Summary**: `docs/archon-os-V3-SETUP-SUMMARY.md`
 - **Variable Reference**: `docs/environment/ENVIRONMENT_VARIABLES.md`
 
 ---

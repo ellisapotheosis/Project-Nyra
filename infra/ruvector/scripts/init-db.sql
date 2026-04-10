@@ -1,4 +1,4 @@
--- Nyra / Claude-Flow RuVector bootstrap
+-- Nyra / archon-os RuVector bootstrap
 -- IMPORTANT: RuVector requires explicit version when creating extension.
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
 

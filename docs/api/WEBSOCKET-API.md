@@ -334,10 +334,10 @@ Broadcasted events from subscribed channels.
   "type": "event",
   "payload": {
     "type": "mcp_status",
-    "source": "claude-flow",
+    "source": "archon-os",
     "timestamp": "2026-01-10T00:00:00Z",
     "data": {
-      "serverId": "claude-flow",
+      "serverId": "archon-os",
       "status": "online",
       "toolCount": 25,
       "latency": 45

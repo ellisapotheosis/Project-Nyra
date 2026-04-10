@@ -44,7 +44,7 @@ Successfully completed comprehensive repository consolidation and infrastructure
   3. `infra/` → `infrastructure/`
   4. `integrations/` → `integration/`
   5. `developer/` → `development/`
-  6. `ai-context/`, `claude-configs/`, `claude-flow/` → `ai/` (3→1)
+  6. `ai-context/`, `claude-configs/`, `archon-os/` → `ai/` (3→1)
   7. `decisions/` → `adr/`
   8. `implementation-ideas/` → `implementation/ideas/`
 
@@ -53,7 +53,7 @@ Successfully completed comprehensive repository consolidation and infrastructure
 - Enhanced `.dockerignore` with 50+ patterns
 - Verified package.json (pnpm@10.27.0 + Volta)
 - Fixed `jest.config.js` path reference
-- Fixed `docker-compose.apps.yml` claude-flow config path
+- Fixed `docker-compose.apps.yml` archon-os config path
 
 ---
 
@@ -63,8 +63,8 @@ Successfully completed comprehensive repository consolidation and infrastructure
 - Infrastructure: filesystem-nyra, filesystem-bootstrap, git-nyra, github
 - Docker: docker, dockerhub
 - Secrets: infisical, bitwarden
-- Memory: qdrant, graphiti, mem0
-- AI Orchestration: claude-flow, archon
+- Memory: qdrant, letta, mem0
+- AI Orchestration: archon-os, archon
 - Development: sequential-thinking, codanna, serena
 - Search: tavily, perplexity, firecrawl
 - Integrations: notion, twenty
@@ -381,8 +381,8 @@ Claude/Warp → Nexus Router (6000)
                 └─ MCP Tools (18 servers)
                     ├─ Infrastructure (filesystem, git, github)
                     ├─ Secrets (infisical, bitwarden)
-                    ├─ Memory (qdrant, graphiti, mem0)
-                    ├─ AI (claude-flow, archon)
+                    ├─ Memory (qdrant, letta, mem0)
+                    ├─ AI (archon-os, archon)
                     └─ Search (tavily, perplexity, firecrawl)
 ```
 

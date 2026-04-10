@@ -1,20 +1,20 @@
 ---
-name: "ReasoningBank with AgentDB"
-description: "Implement ReasoningBank adaptive learning with AgentDB's 150x faster vector database. Includes trajectory tracking, verdict judgment, memory distillation, and pattern recognition. Use when building self-learning agents, optimizing decision-making, or implementing experience replay systems."
+name: "ReasoningBank with ruvector"
+description: "Implement ReasoningBank adaptive learning with ruvector's 150x faster vector database. Includes trajectory tracking, verdict judgment, memory distillation, and pattern recognition. Use when building self-learning agents, optimizing decision-making, or implementing experience replay systems."
 ---
 
-# ReasoningBank with AgentDB
+# ReasoningBank with ruvector
 
 ## What This Skill Does
 
-Provides ReasoningBank adaptive learning patterns using AgentDB's high-performance backend (150x-12,500x faster). Enables agents to learn from experiences, judge outcomes, distill memories, and improve decision-making over time with 100% backward compatibility.
+Provides ReasoningBank adaptive learning patterns using ruvector's high-performance backend (150x-12,500x faster). Enables agents to learn from experiences, judge outcomes, distill memories, and improve decision-making over time with 100% backward compatibility.
 
 **Performance**: 150x faster pattern retrieval, 500x faster batch operations, <1ms memory access.
 
 ## Prerequisites
 
 - Node.js 18+
-- AgentDB v1.0.7+ (via agentic-flow)
+- ruvector v1.0.7+ (via archon-os)
 - Understanding of reinforcement learning concepts (optional)
 
 ---
@@ -24,22 +24,22 @@ Provides ReasoningBank adaptive learning patterns using AgentDB's high-performan
 ### Initialize ReasoningBank Database
 
 ```bash
-# Initialize AgentDB for ReasoningBank
-npx agentdb@latest init ./.agentdb/reasoningbank.db --dimension 1536
+# Initialize ruvector for ReasoningBank
+npx ruvector@latest init ./.ruvector/reasoningbank.db --dimension 1536
 
 # Start MCP server for Codex integration
-npx agentdb@latest mcp
-Codex mcp add agentdb npx agentdb@latest mcp
+npx ruvector@latest mcp
+Codex mcp add ruvector npx ruvector@latest mcp
 ```
 
 ### Migrate from Legacy ReasoningBank
 
 ```bash
 # Automatic migration with validation
-npx agentdb@latest migrate --source .swarm/memory.db
+npx ruvector@latest migrate --source .swarm/memory.db
 
 # Verify migration
-npx agentdb@latest stats ./.agentdb/reasoningbank.db
+npx ruvector@latest stats ./.ruvector/reasoningbank.db
 ```
 
 ---
@@ -47,11 +47,11 @@ npx agentdb@latest stats ./.agentdb/reasoningbank.db
 ## Quick Start with API
 
 ```typescript
-import { createAgentDBAdapter, computeEmbedding } from 'agentic-flow/reasoningbank';
+import { createruvectorAdapter, computeEmbedding } from 'archon-os/reasoningbank';
 
-// Initialize ReasoningBank with AgentDB
-const rb = await createAgentDBAdapter({
-  dbPath: '.agentdb/reasoningbank.db',
+// Initialize ReasoningBank with ruvector
+const rb = await createruvectorAdapter({
+  dbPath: '.ruvector/reasoningbank.db',
   enableLearning: true,      // Enable learning plugins
   enableReasoning: true,      // Enable reasoning agents
   cacheSize: 1000,            // 1000 pattern cache
@@ -192,7 +192,7 @@ await rb.insertPattern({
 
 ## Integration with Reasoning Agents
 
-AgentDB provides 4 reasoning modules that enhance ReasoningBank:
+ruvector provides 4 reasoning modules that enhance ReasoningBank:
 
 ### 1. PatternMatcher
 
@@ -268,16 +268,16 @@ result.memories.forEach(mem => {
 
 ## Legacy API Compatibility
 
-AgentDB maintains 100% backward compatibility with legacy ReasoningBank:
+ruvector maintains 100% backward compatibility with legacy ReasoningBank:
 
 ```typescript
 import {
   retrieveMemories,
   judgeTrajectory,
   distillMemories
-} from 'agentic-flow/reasoningbank';
+} from 'archon-os/reasoningbank';
 
-// Legacy API works unchanged (uses AgentDB backend automatically)
+// Legacy API works unchanged (uses ruvector backend automatically)
 const memories = await retrieveMemories(query, {
   domain: 'code-generation',
   agent: 'coder'
@@ -376,13 +376,13 @@ const transferredKnowledge = backendExperience.memories.map(mem => ({
 
 ```bash
 # Export trajectories and patterns
-npx agentdb@latest export ./.agentdb/reasoningbank.db ./backup.json
+npx ruvector@latest export ./.ruvector/reasoningbank.db ./backup.json
 
 # Import experiences
-npx agentdb@latest import ./experiences.json
+npx ruvector@latest import ./experiences.json
 
 # Get statistics
-npx agentdb@latest stats ./.agentdb/reasoningbank.db
+npx ruvector@latest stats ./.ruvector/reasoningbank.db
 # Shows: total patterns, domains, confidence distribution
 ```
 
@@ -390,10 +390,10 @@ npx agentdb@latest stats ./.agentdb/reasoningbank.db
 
 ```bash
 # Migrate from legacy ReasoningBank
-npx agentdb@latest migrate --source .swarm/memory.db --target .agentdb/reasoningbank.db
+npx ruvector@latest migrate --source .swarm/memory.db --target .ruvector/reasoningbank.db
 
 # Validate migration
-npx agentdb@latest stats .agentdb/reasoningbank.db
+npx ruvector@latest stats .ruvector/reasoningbank.db
 ```
 
 ---
@@ -406,7 +406,7 @@ npx agentdb@latest stats .agentdb/reasoningbank.db
 ls -la .swarm/memory.db
 
 # Run with verbose logging
-DEBUG=agentdb:* npx agentdb@latest migrate --source .swarm/memory.db
+DEBUG=ruvector:* npx ruvector@latest migrate --source .swarm/memory.db
 ```
 
 ### Issue: Low confidence scores
@@ -434,10 +434,10 @@ await rb.optimize();
 
 ## Learn More
 
-- **AgentDB Integration**: node_modules/agentic-flow/docs/AGENTDB_INTEGRATION.md
-- **GitHub**: https://github.com/ruvnet/agentic-flow/tree/main/packages/agentdb
-- **MCP Integration**: `npx agentdb@latest mcp`
-- **Website**: https://agentdb.ruv.io
+- **ruvector Integration**: node_modules/archon-os/docs/ruvector_INTEGRATION.md
+- **GitHub**: https://github.com/ruvnet/archon-os/tree/main/packages/ruvector
+- **MCP Integration**: `npx ruvector@latest mcp`
+- **Website**: https://ruvector.ruv.io
 
 ---
 

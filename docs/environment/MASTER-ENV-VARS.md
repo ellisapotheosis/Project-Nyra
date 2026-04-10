@@ -12,8 +12,8 @@
 4. [Core System Variables](#1-core-system-variables)
 5. [LLM Providers & AI Services](#2-llm-providers--ai-services)
 6. [Database Services](#3-database-services)
-7. [Claude-Flow Orchestration](#4-claude-flow-orchestration)
-8. [AgentDB Configuration](#5-agentdb-configuration)
+7. [archon-os Orchestration](#4-archon-os-orchestration)
+8. [ruvector Configuration](#5-ruvector-configuration)
 9. [ReasoningBank & Memory Systems](#6-reasoningbank--memory-systems)
 10. [Security & Authentication](#7-security--authentication)
 11. [Networking & Infrastructure](#8-networking--infrastructure)
@@ -30,7 +30,7 @@
 
 ## Overview
 
-This document provides a comprehensive catalog of all environment variables used across the Project Nyra platform, including the 4-PC distributed GPU setup with dual orchestrators (claude-flow and Archon OS).
+This document provides a comprehensive catalog of all environment variables used across the Project Nyra platform, including the 4-PC distributed GPU setup with dual orchestrators (archon-os and Archon OS).
 
 ### Key Principles
 
@@ -92,8 +92,8 @@ openssl rand -hex 32
 | Core System | 15 | Critical | NODE_ENV, LOG_LEVEL, PORT |
 | LLM Providers | 12 | Critical | ANTHROPIC_API_KEY, OPENROUTER_API_KEY |
 | Databases | 18 | Critical | DATABASE_URL, REDIS_URL, POSTGRES_* |
-| Claude-Flow | 35 | High | CLAUDE_FLOW_MODE, CLAUDE_FLOW_WORKERS |
-| AgentDB | 22 | High | AGENTDB_ENABLED, AGENTDB_HNSW_M |
+| archon-os | 35 | High | CLAUDE_FLOW_MODE, CLAUDE_FLOW_WORKERS |
+| ruvector | 22 | High | ruvector_ENABLED, ruvector_HNSW_M |
 | Security | 14 | Critical | JWT_SECRET, ENCRYPTION_KEY |
 | Networking | 16 | High | TAILSCALE_AUTH_KEY, CLOUDFLARE_TUNNEL_TOKEN |
 | Monitoring | 12 | Medium | PROMETHEUS_PORT, GRAFANA_ADMIN_PASSWORD |
@@ -169,7 +169,7 @@ openssl rand -hex 32
 
 **Note**: At least ONE LLM provider API key is required (* = conditionally required)
 
-**Used By**: claude-flow, archon-os, dify, n8n workflows, custom agents
+**Used By**: archon-os, archon-os, dify, n8n workflows, custom agents
 
 ---
 
@@ -224,7 +224,7 @@ openssl rand -hex 32
 
 ---
 
-## 4. Claude-Flow Orchestration
+## 4. archon-os Orchestration
 
 ### Core Configuration
 
@@ -232,7 +232,7 @@ openssl rand -hex 32
 |----------|----------|------|---------|-------------|---------|----------|
 | `CLAUDE_FLOW_MODE` | Yes | String | orchestrator | Operation mode | `orchestrator\|worker\|hybrid` | 🟢 Config |
 | `CLAUDE_FLOW_WORKERS` | No | Number | 4 | Number of worker processes | `8` | 🟢 Config |
-| `CLAUDE_FLOW_MEMORY_BACKEND` | No | String | sqlite | Memory backend type | `sqlite\|postgresql\|agentdb` | 🟢 Config |
+| `CLAUDE_FLOW_MEMORY_BACKEND` | No | String | sqlite | Memory backend type | `sqlite\|postgresql\|ruvector` | 🟢 Config |
 | `CLAUDE_FLOW_DEBUG` | No | Boolean | false | Enable debug mode | `true` | 🟢 Config |
 | `CLAUDE_FLOW_LOG_LEVEL` | No | String | info | Logging level | `debug\|info\|warn\|error` | 🟢 Config |
 | `CLAUDE_FLOW_MAX_AGENTS` | No | Number | 100 | Max concurrent agents | `100` | 🟢 Config |
@@ -253,7 +253,7 @@ openssl rand -hex 32
 |----------|----------|------|---------|-------------|---------|----------|
 | `SESSION_ID` | No | String | auto | Current session identifier | `session-${timestamp}` | 🟢 Config |
 | `SESSION_RESTORE` | No | Boolean | false | Auto-restore previous session | `true` | 🟢 Config |
-| `SESSION_SAVE_PATH` | No | String | .claude-flow/sessions | Session storage directory | `.claude-flow/sessions` | 🟢 Config |
+| `SESSION_SAVE_PATH` | No | String | .archon-os/sessions | Session storage directory | `.archon-os/sessions` | 🟢 Config |
 
 ### MCP Server Configuration
 
@@ -262,52 +262,52 @@ openssl rand -hex 32
 | `MCP_SERVERS` | No | JSON | {} | MCP server configurations | `{"filesystem":{...}}` | 🟢 Config |
 | `MCP_TIMEOUT` | No | Number | 30000 | MCP operation timeout (ms) | `30000` | 🟢 Config |
 
-**Used By**: claude-flow@alpha, claude-flow@alphav3, @claude-flow/cli, all swarm agents
+**Used By**: archon-os@alpha, archon-os@alphav3, @archon-os/cli, all swarm agents
 
 ---
 
-## 5. AgentDB Configuration
+## 5. ruvector Configuration
 
 ### Core Settings
 
 | Variable | Required | Type | Default | Description | Example | Security |
 |----------|----------|------|---------|-------------|---------|----------|
-| `AGENTDB_ENABLED` | No | Boolean | false | Enable AgentDB integration | `true` | 🟢 Config |
-| `AGENTDB_URL` | Yes* | String | - | AgentDB connection URL | `postgresql://localhost:5432/agentdb` | 🟡 Medium |
-| `AGENTDB_PATH` | No | String | .agentdb/claude-flow.db | SQLite database path | `.agentdb/claude-flow.db` | 🟢 Config |
+| `ruvector_ENABLED` | No | Boolean | false | Enable ruvector integration | `true` | 🟢 Config |
+| `ruvector_URL` | Yes* | String | - | ruvector connection URL | `postgresql://localhost:5432/ruvector` | 🟡 Medium |
+| `ruvector_PATH` | No | String | .ruvector/archon-os.db | SQLite database path | `.ruvector/archon-os.db` | 🟢 Config |
 
 ### Vector Configuration
 
 | Variable | Required | Type | Default | Description | Example | Security |
 |----------|----------|------|---------|-------------|---------|----------|
-| `AGENTDB_QUANTIZATION` | No | String | scalar | Vector quantization method | `binary\|scalar\|product\|none` | 🟢 Config |
-| `AGENTDB_CACHE_SIZE` | No | Number | 1000 | LRU cache size | `1000` | 🟢 Config |
-| `AGENTDB_HNSW_M` | No | Number | 16 | HNSW index M parameter | `16` (4-64 range) | 🟢 Config |
-| `AGENTDB_HNSW_EF` | No | Number | 100 | HNSW index EF parameter | `100` | 🟢 Config |
-| `AGENTDB_HNSW_EF_CONSTRUCTION` | No | Number | 200 | HNSW construction EF | `200` | 🟢 Config |
+| `ruvector_QUANTIZATION` | No | String | scalar | Vector quantization method | `binary\|scalar\|product\|none` | 🟢 Config |
+| `ruvector_CACHE_SIZE` | No | Number | 1000 | LRU cache size | `1000` | 🟢 Config |
+| `ruvector_HNSW_M` | No | Number | 16 | HNSW index M parameter | `16` (4-64 range) | 🟢 Config |
+| `ruvector_HNSW_EF` | No | Number | 100 | HNSW index EF parameter | `100` | 🟢 Config |
+| `ruvector_HNSW_EF_CONSTRUCTION` | No | Number | 200 | HNSW construction EF | `200` | 🟢 Config |
 
 ### Learning Plugins
 
 | Variable | Required | Type | Default | Description | Example | Security |
 |----------|----------|------|---------|-------------|---------|----------|
-| `AGENTDB_LEARNING` | No | Boolean | false | Enable learning plugins | `true` | 🟢 Config |
-| `AGENTDB_LEARNING_ALGORITHM` | No | String | decision-transformer | Learning algorithm | `decision-transformer\|q-learning\|sarsa` | 🟢 Config |
-| `AGENTDB_REASONING` | No | Boolean | false | Enable reasoning agents | `true` | 🟢 Config |
+| `ruvector_LEARNING` | No | Boolean | false | Enable learning plugins | `true` | 🟢 Config |
+| `ruvector_LEARNING_ALGORITHM` | No | String | decision-transformer | Learning algorithm | `decision-transformer\|q-learning\|sarsa` | 🟢 Config |
+| `ruvector_REASONING` | No | Boolean | false | Enable reasoning agents | `true` | 🟢 Config |
 
 ### QUIC Synchronization
 
 | Variable | Required | Type | Default | Description | Example | Security |
 |----------|----------|------|---------|-------------|---------|----------|
-| `AGENTDB_QUIC_SYNC` | No | Boolean | false | Enable QUIC sync | `true` | 🟢 Config |
-| `AGENTDB_QUIC_PORT` | No | Number | 4433 | QUIC server port | `4433` | 🟢 Config |
-| `AGENTDB_QUIC_PEERS` | No | String | - | Comma-separated peer addresses | `10.0.0.2:4433,10.0.0.3:4433` | 🟢 Config |
+| `ruvector_QUIC_SYNC` | No | Boolean | false | Enable QUIC sync | `true` | 🟢 Config |
+| `ruvector_QUIC_PORT` | No | Number | 4433 | QUIC server port | `4433` | 🟢 Config |
+| `ruvector_QUIC_PEERS` | No | String | - | Comma-separated peer addresses | `10.0.0.2:4433,10.0.0.3:4433` | 🟢 Config |
 
 **Performance Notes**:
 - **HNSW Indexing**: 150x-12,500x faster than linear search
 - **Quantization**: `binary` = 32x memory reduction, `scalar` = 4x, `product` = 8x
 - **Cache Size**: Increase for large datasets (1000-10000 range)
 
-**Used By**: claude-flow with AgentDB backend, distributed memory systems
+**Used By**: archon-os with ruvector backend, distributed memory systems
 
 ---
 
@@ -322,7 +322,7 @@ openssl rand -hex 32
 | `REASONINGBANK_K` | No | Number | 3 | Top-K memories to retrieve | `3` (1-10 range) | 🟢 Config |
 | `REASONINGBANK_MIN_CONFIDENCE` | No | Number | 0.5 | Minimum confidence threshold | `0.5` (0-1 range) | 🟢 Config |
 
-### Agentic-Flow Training
+### archon-os Training
 
 | Variable | Required | Type | Default | Description | Example | Security |
 |----------|----------|------|---------|-------------|---------|----------|
@@ -358,7 +358,7 @@ openssl rand -hex 32
 
 **Memory Architecture**:
 - **ReasoningBank**: Adaptive learning with trajectory tracking
-- **AgentDB**: Fast vector search with HNSW indexing
+- **ruvector**: Fast vector search with HNSW indexing
 - **Letta**: Long-term conversation memory (stateful)
 - **Mem0**: Persistent agent memory
 - **Zep**: Temporal context management
@@ -746,10 +746,10 @@ POSTGRES_DB=nyra
 REDIS_HOST=localhost
 REDIS_PORT=6380
 
-# Claude-Flow
+# archon-os
 CLAUDE_FLOW_MODE=orchestrator
 CLAUDE_FLOW_DEBUG=true
-AGENTDB_ENABLED=true
+ruvector_ENABLED=true
 
 # Security (Generate with openssl)
 JWT_SECRET=${openssl rand -base64 32}
@@ -765,7 +765,7 @@ PC_NAME=orchestrator-mini
 PC_ROLE=orchestrator
 LAN_IP=10.0.0.1
 CLAUDE_FLOW_MODE=orchestrator
-AGENTDB_ENABLED=true
+ruvector_ENABLED=true
 REASONINGBANK_ENABLED=true
 
 # PC2 (Worker)
@@ -908,20 +908,20 @@ curl https://api.anthropic.com/v1/messages \
 printf "%q\n" "$ANTHROPIC_API_KEY"
 ```
 
-#### 3. AgentDB HNSW Index Issues
+#### 3. ruvector HNSW Index Issues
 
 **Symptom**: Slow vector search or `Index not found`
 
 **Solutions**:
 ```bash
 # Rebuild HNSW index
-AGENTDB_HNSW_EF_CONSTRUCTION=200 npm run agentdb:rebuild
+ruvector_HNSW_EF_CONSTRUCTION=200 npm run ruvector:rebuild
 
 # Increase cache size
-AGENTDB_CACHE_SIZE=5000
+ruvector_CACHE_SIZE=5000
 
 # Optimize M parameter (higher = more memory, faster search)
-AGENTDB_HNSW_M=32  # Default is 16
+ruvector_HNSW_M=32  # Default is 16
 ```
 
 #### 4. GPU Worker Not Accessible
@@ -951,11 +951,11 @@ tailscale ping worker-rtx3060
 
 **Solutions**:
 ```bash
-# Reduce AgentDB cache
-AGENTDB_CACHE_SIZE=500
+# Reduce ruvector cache
+ruvector_CACHE_SIZE=500
 
 # Enable quantization
-AGENTDB_QUANTIZATION=binary  # 32x memory reduction
+ruvector_QUANTIZATION=binary  # 32x memory reduction
 
 # Reduce concurrent agents
 CLAUDE_FLOW_MAX_AGENTS=50
@@ -971,7 +971,7 @@ NODE_OPTIONS="--max-old-space-size=8192"
 
 - **Main Documentation**: `C:/Dev/Projects/Repos/Project-Nyra/docs/`
 - **Bootstrap Guides**: `C:/Dev/NYRA-AIO-Bootstrap/`
-- **Workflow Templates**: `C:/Dev/Projects/Repos/Project-Nyra/.claude-flow/workflows/`
+- **Workflow Templates**: `C:/Dev/Projects/Repos/Project-Nyra/.archon-os/workflows/`
 - **Troubleshooting**: `C:/Dev/NyraDocs/CF-Troubleshooting-Guide-and-Optimization.md`
 - **Docker Compose**: `C:/Dev/Projects/Repos/Project-Nyra/infra/docker-compose.dev.yml`
 

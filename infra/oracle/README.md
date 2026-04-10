@@ -118,7 +118,7 @@ If OCI returns `Out of host capacity`:
 This stack includes:
 - RuVector Postgres
 - Redis cache
-- FalkorDB + Graphiti MCP
+- FalkorDB + letta MCP
 - TwentyCRM
 - Activepieces
 - n8n

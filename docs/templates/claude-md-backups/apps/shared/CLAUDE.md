@@ -19,7 +19,7 @@
 ## 🛡️ ANTI-DRIFT CONFIG
 
 ```bash
-npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 6 --strategy specialized
+npx @archon-os/cli@latest swarm init --topology hierarchical --max-agents 6 --strategy specialized
 ```
 
 ---
@@ -36,9 +36,9 @@ npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 6 --
 ## 🧠 AUTO-LEARNING PROTOCOL
 
 ```bash
-npx @claude-flow/cli@latest memory search --query '[keywords]' --namespace patterns
-npx @claude-flow/cli@latest memory store --namespace patterns --key '[pattern]' --value '[result]'
-npx @claude-flow/cli@latest hooks post-task --task-id '[id]' --success true --store-results true
+npx @archon-os/cli@latest memory search --query '[keywords]' --namespace patterns
+npx @archon-os/cli@latest memory store --namespace patterns --key '[pattern]' --value '[result]'
+npx @archon-os/cli@latest hooks post-task --task-id '[id]' --success true --store-results true
 ```
 
 ---
@@ -46,9 +46,9 @@ npx @claude-flow/cli@latest hooks post-task --task-id '[id]' --success true --st
 ## 🚀 V3 CLI COMMANDS & 🚀 AVAILABLE AGENTS & 🪝 V3 HOOKS SYSTEM
 
 ```bash
-npx @claude-flow/cli@latest swarm init/status
-npx @claude-flow/cli@latest memory store/search/retrieve
-npx @claude-flow/cli@latest hooks pre-task/post-task/post-edit
+npx @archon-os/cli@latest swarm init/status
+npx @archon-os/cli@latest memory store/search/retrieve
+npx @archon-os/cli@latest hooks pre-task/post-task/post-edit
 ```
 
 Agents: `researcher`, `coder`, `reviewer`, `architect`
@@ -58,8 +58,8 @@ Agents: `researcher`, `coder`, `reviewer`, `architect`
 ## 📝 MEMORY COMMANDS REFERENCE
 
 ```bash
-npx @claude-flow/cli@latest memory store --key "shared-pattern" --value "content" --namespace patterns
-npx @claude-flow/cli@latest memory search --query "shared resources" --namespace patterns
+npx @archon-os/cli@latest memory store --key "shared-pattern" --value "content" --namespace patterns
+npx @archon-os/cli@latest memory search --query "shared resources" --namespace patterns
 ```
 
 ---
@@ -217,18 +217,18 @@ agents:
 **1. Add New Shared Asset**
 ```bash
 # Pre-task: Check for duplicates
-npx @claude-flow/cli@latest memory search \
+npx @archon-os/cli@latest memory search \
   --query "asset similar to [description]" \
   --namespace shared
 
 # Add asset with metadata
-npx @claude-flow/cli@latest memory store \
+npx @archon-os/cli@latest memory store \
   --namespace shared \
   --key "asset/[name]" \
   --value '{"type": "image", "used_by": ["ratehunter", "webapp"]}'
 
 # Post-task: Update usage tracking
-npx @claude-flow/cli@latest hooks post-task \
+npx @archon-os/cli@latest hooks post-task \
   --task-id "add-asset-001" \
   --success true \
   --store-results true
@@ -237,7 +237,7 @@ npx @claude-flow/cli@latest hooks post-task \
 **2. Update Shared Data Schema**
 ```bash
 # Check dependents before updating
-npx @claude-flow/cli@latest memory retrieve \
+npx @archon-os/cli@latest memory retrieve \
   --namespace shared \
   --key "schema/[name]/dependents"
 
@@ -245,7 +245,7 @@ npx @claude-flow/cli@latest memory retrieve \
 # (Coordinate updates to all dependent apps)
 
 # Document changes
-npx @claude-flow/cli@latest memory store \
+npx @archon-os/cli@latest memory store \
   --namespace shared \
   --key "schema/[name]/changelog" \
   --value "$(date -I): Updated [field] - migration required"
@@ -254,10 +254,10 @@ npx @claude-flow/cli@latest memory store \
 **3. Optimize Shared Assets**
 ```bash
 # Run optimization worker
-npx @claude-flow/cli@latest hooks worker dispatch --trigger optimize
+npx @archon-os/cli@latest hooks worker dispatch --trigger optimize
 
 # Benchmark before/after
-npx @claude-flow/cli@latest performance benchmark --suite assets
+npx @archon-os/cli@latest performance benchmark --suite assets
 ```
 
 ## 🔧 USAGE EXAMPLES
@@ -358,12 +358,12 @@ export const loanTypes: LoanType[] = [
 ### Before Adding New Shared Resource
 ```bash
 # Search for similar existing resources
-npx @claude-flow/cli@latest memory search \
+npx @archon-os/cli@latest memory search \
   --query "shared asset [type] [description]" \
   --namespace shared
 
 # Check usage patterns
-npx @claude-flow/cli@latest memory search \
+npx @archon-os/cli@latest memory search \
   --query "asset usage patterns" \
   --namespace patterns
 ```
@@ -371,13 +371,13 @@ npx @claude-flow/cli@latest memory search \
 ### After Successful Update
 ```bash
 # Store successful pattern
-npx @claude-flow/cli@latest memory store \
+npx @archon-os/cli@latest memory store \
   --namespace patterns \
   --key "shared-update-$(date +%Y%m%d)" \
   --value "Updated [resource] used by [apps] successfully"
 
 # Track usage
-npx @claude-flow/cli@latest memory store \
+npx @archon-os/cli@latest memory store \
   --namespace shared \
   --key "usage/[resource]" \
   --value '{"apps": ["ratehunter", "webapp"], "updated": "$(date -I)"}'

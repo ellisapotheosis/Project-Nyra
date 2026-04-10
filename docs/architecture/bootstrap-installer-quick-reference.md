@@ -24,7 +24,7 @@
 Deploy TO individual PC locations:
 - `%APPDATA%\Claude\settings.json` (Claude Code)
 - `%APPDATA%\Claude\.mcp.json` (Claude Desktop MCP client)
-- `%USERPROFILE%\.claude-flow\` (Claude Flow configs)
+- `%USERPROFILE%\.archon-os\` (Claude Flow configs)
 - `%USERPROFILE%\.wslconfig` (WSL kernel)
 - `%APPDATA%\Docker\daemon.json` (Docker Desktop daemon)
 
@@ -57,7 +57,7 @@ Move to `/infra/` or root:
 These run IN Docker, not PC-level:
 - Claude Flow MCP server
 - Archon OS
-- Graphiti MCP
+- letta MCP
 - Mem0 MCP
 - Gitea
 - n8n
@@ -101,7 +101,7 @@ bootstrap/installer/
 ├── configs/                # Templates deployed TO PCs
 │   ├── claude-code/
 │   ├── claude-desktop/
-│   ├── claude-flow/
+│   ├── archon-os/
 │   ├── wsl/
 │   ├── docker/
 │   └── [pc-specific]/

@@ -20,8 +20,8 @@ Environment variables are configuration values that control how your application
 ### Why Project Nyra Uses Them
 
 Project Nyra is a distributed AI mortgage assistant platform that coordinates:
-- **Multiple memory systems** (RuVector, Letta, Graphiti, FalkorDB, Mem0, OpenMemory)
-- **AI orchestrators** (Claude-Flow, Archon, Ruv-Swarm)
+- **Multiple memory systems** (RuVector, Letta, letta, FalkorDB, Mem0, OpenMemory)
+- **AI orchestrators** (archon-os, Archon, Ruv-Swarm)
 - **4-PC GPU architecture** (1 orchestrator + 3 GPU workers)
 - **15+ services** (Dify, TwentyCRM, n8n, Nexus Router, databases, MCP servers)
 
@@ -136,7 +136,7 @@ REDIS_URL=redis://localhost:6379
 docker-compose -f infra/docker/docker-compose.yml up -d
 
 # Step 7: Verify configuration
-npx @claude-flow/cli@latest doctor --fix
+npx @archon-os/cli@latest doctor --fix
 ```
 
 **Minimal Required Variables for Development:**
@@ -204,8 +204,8 @@ CLAUDE_FLOW_MODE=orchestrator
 docker-compose -f infra/docker/docker-compose.orchestration.yml up -d
 
 # Step 7: Verify
-npx @claude-flow/cli@latest doctor
-npx @claude-flow/cli@latest swarm status
+npx @archon-os/cli@latest doctor
+npx @archon-os/cli@latest swarm status
 ```
 
 **On PC2, PC3, PC4 (Workers):**
@@ -287,7 +287,7 @@ JWT_SECRET=<32-byte-hex>              # JWT token signing
 ```bash
 # Memory Systems
 LETTA_DB_PASSWORD=<password>          # If using Letta
-FALKORDB_PASSWORD=<password>          # If using Graphiti/FalkorDB
+FALKORDB_PASSWORD=<password>          # If using letta/FalkorDB
 QDRANT_API_KEY=<api-key>              # If using Qdrant
 
 # Orchestrators
@@ -334,8 +334,8 @@ The master template organizes variables into **25 sections:**
 4. **GPU Workers** - Local LLM inference
 5. **Nexus Router** - Unified gateway
 6. **LiteLLM** - Legacy proxy
-7. **Memory Systems** - RuVector, Letta, Graphiti, Mem0, Qdrant
-8. **AI Orchestrators** - Claude-Flow, Archon, Ruv-Swarm
+7. **Memory Systems** - RuVector, Letta, letta, Mem0, Qdrant
+8. **AI Orchestrators** - archon-os, Archon, Ruv-Swarm
 9. **Databases** - PostgreSQL, Redis, MongoDB
 10. **AI Platforms** - Dify, n8n, Activepieces, TwentyCRM
 11. **Mortgage Integrations** - Lead sources, pricing APIs
@@ -472,7 +472,7 @@ echo "$(date): Rotated POSTGRES_PASSWORD" >> /var/log/nyra/secret-rotation.log
 - MCP servers (20+ servers)
 - TwentyCRM, n8n, Dify
 - Prometheus, Grafana, Loki (monitoring)
-- Claude-Flow orchestrator
+- archon-os orchestrator
 
 **Configuration:**
 
@@ -887,8 +887,8 @@ Error: nvidia-smi: command not found in container
 **Automated validation:**
 
 ```bash
-# Use Claude-Flow doctor command
-npx @claude-flow/cli@latest doctor --fix
+# Use archon-os doctor command
+npx @archon-os/cli@latest doctor --fix
 
 # Manual validation script
 #!/bin/bash
@@ -1198,7 +1198,7 @@ git push origin main
 - **Tailscale:** https://tailscale.com/kb
 - **Cloudflare Tunnel:** https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/
 - **Docker Compose:** https://docs.docker.com/compose/
-- **Claude-Flow:** https://github.com/ruvnet/claude-flow
+- **archon-os:** https://github.com/ruvnet/archon-os
 
 ### Internal Documentation
 
@@ -1255,7 +1255,7 @@ npm run db:migrate
 npm run dev
 
 # 10. Verify setup
-npx @claude-flow/cli@latest doctor
+npx @archon-os/cli@latest doctor
 ```
 
 ### Workflow 2: Deploying to Production (4-PC Stack)
@@ -1281,7 +1281,7 @@ nano .env
 infisical run --env="production" -- docker-compose -f infra/docker/docker-compose.orchestration.yml up -d
 
 # 6. Verify orchestrator
-npx @claude-flow/cli@latest swarm status
+npx @archon-os/cli@latest swarm status
 
 # On PC2, PC3, PC4 (Workers):
 
@@ -1331,7 +1331,7 @@ docker-compose -f infra/docker/docker-compose.orchestration.yml up -d --no-deps 
 
 # 5. Verify services are healthy
 sleep 10
-npx @claude-flow/cli@latest doctor
+npx @archon-os/cli@latest doctor
 
 # 6. Log rotation
 echo "$(date): Rotated POSTGRES_PASSWORD, REDIS_PASSWORD, JWT_SECRET" >> /var/log/nyra/secret-rotation.log

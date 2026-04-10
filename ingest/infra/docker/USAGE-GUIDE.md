@@ -20,7 +20,7 @@ Use them if you prefer an `infra/docker/*` command surface.
 
 ## Profiles
 - `openclaw` — ClawHub/OpenClaw wrappers + adapter
-- `claude-flow-dev` — maximal Claude Flow module containers
+- `archon-os-dev` — maximal Claude Flow module containers
 - `admin` — pgAdmin + Infisical
 - `gitea` — Gitea
 - `composio` — Composio MCP

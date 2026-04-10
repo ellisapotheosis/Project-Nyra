@@ -15,8 +15,8 @@ Write-Host "=================================================" -ForegroundColor 
 # Configuration
 $CONFIG_DIR = "$PSScriptRoot\..\config"
 $MCP_SERVERS = @{
-    "claude-flow" = @{
-        "command" = "npx claude-flow@alpha mcp start"
+    "archon-os" = @{
+        "command" = "npx archon-os@alpha mcp start"
         "description" = "SPARC methodology and swarm management"
         "required" = $true
         "healthEndpoint" = "/health"
@@ -117,8 +117,8 @@ function Install-MCPServers {
         Write-Host "Installing $serverName..." -ForegroundColor Cyan
 
         try {
-            if ($server.command -like "*claude-flow*") {
-                npm install -g claude-flow@alpha
+            if ($server.command -like "*archon-os*") {
+                npm install -g archon-os@alpha
             }
             elseif ($server.command -like "*archon-mcp*") {
                 npm install -g archon-mcp@latest
@@ -287,15 +287,15 @@ function Show-CompletionSummary {
 
     Write-Host "`n🚀 Next Steps:" -ForegroundColor Cyan
     Write-Host "  1. Start service mesh: docker-compose -f docker-compose.servicemesh.yml up -d" -ForegroundColor White
-    Write-Host "  2. Initialize Claude-Flow: npx claude-flow@alpha init --sparc" -ForegroundColor White
-    Write-Host "  3. Start UI: ./claude-flow start --ui" -ForegroundColor White
-    Write-Host "  4. Check status: ./claude-flow status" -ForegroundColor White
-    Write-Host "  5. Test with secrets: infisical run --token=`"$env:INFISICAL_TOKEN`" --projectId=$projectId --env=development -- ./claude-flow status" -ForegroundColor White
+    Write-Host "  2. Initialize archon-os: npx archon-os@alpha init --sparc" -ForegroundColor White
+    Write-Host "  3. Start UI: ./archon-os start --ui" -ForegroundColor White
+    Write-Host "  4. Check status: ./archon-os status" -ForegroundColor White
+    Write-Host "  5. Test with secrets: infisical run --token=`"$env:INFISICAL_TOKEN`" --projectId=$projectId --env=development -- ./archon-os status" -ForegroundColor White
 
     Write-Host "`n🔗 Service Endpoints:" -ForegroundColor Cyan
     Write-Host "  • MetaMCP Gateway: http://localhost:8080" -ForegroundColor White
     Write-Host "  • Archon MCP: http://localhost:8081" -ForegroundColor White
-    Write-Host "  • Claude-Flow MCP: http://localhost:8082" -ForegroundColor White
+    Write-Host "  • archon-os MCP: http://localhost:8082" -ForegroundColor White
     Write-Host "  • Consul UI: http://localhost:8500" -ForegroundColor White
     Write-Host "  • Grafana: http://localhost:3000 (admin/admin)" -ForegroundColor White
     Write-Host "  • Prometheus: http://localhost:9090" -ForegroundColor White

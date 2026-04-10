@@ -53,7 +53,7 @@ Machine-specific overrides:
 
 #### /clients/<tool-or-service>
 Integrations you treat like “clients”/“tools”:
-- /clients/claude-flow, /clients/archon, /clients/ngrok, etc.
+- /clients/archon-os, /clients/archon, /clients/ngrok, etc.
 
 #### /github-actions
 Only values needed by CI runners (tokens, models, automation knobs)

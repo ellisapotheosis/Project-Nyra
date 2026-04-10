@@ -12,7 +12,7 @@
     "_comment_claude_flow": "=== Claude Flow Core ===",
     "CLAUDE_FLOW_DEBUG": "true",
     "CLAUDE_FLOW_LOG_LEVEL": "info",
-    "CLAUDE_FLOW_DATA_DIR": "./data/claude-flow",
+    "CLAUDE_FLOW_DATA_DIR": "./data/archon-os",
     "CLAUDE_FLOW_MAX_AGENTS": "50",
     "CLAUDE_FLOW_MEMORY_LIMIT": "2048",
     "CLAUDE_FLOW_TIMEOUT": "300000",
@@ -34,7 +34,7 @@
     "MEMORY_CACHE_PORT": "6379",
     "MEMORY_CACHE_TTL": "3600",
     "MEMORY_BACKUP_TYPE": "s3",
-    "MEMORY_BACKUP_BUCKET": "claude-flow-backup",
+    "MEMORY_BACKUP_BUCKET": "archon-os-backup",
     "MEMORY_BACKUP_REGION": "us-east-1",
 
     "_comment_terminal": "=== Terminal Pooling ===",
@@ -160,7 +160,7 @@
     },
     "backup": {
       "type": "s3",
-      "bucket": "claude-flow-backup",
+      "bucket": "archon-os-backup",
       "region": "us-east-1",
       "enabled": false
     },
@@ -247,7 +247,7 @@
     "level": "info",
     "format": "json",
     "destination": "file",
-    "path": "./logs/claude-flow.log",
+    "path": "./logs/archon-os.log",
     "maxSizeMB": 100,
     "maxFiles": 10
   },

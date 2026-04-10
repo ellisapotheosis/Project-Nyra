@@ -6,9 +6,9 @@ color: indigo
 priority: high
 hooks:
   pre: |
-    npx @claude-flow/cli@latest hooks pre-task --description "Code analysis agent starting: ${description}" --auto-spawn-agents false
+    npx @archon-os/cli@latest hooks pre-task --description "Code analysis agent starting: ${description}" --auto-spawn-agents false
   post: |
-    npx @claude-flow/cli@latest hooks post-task --task-id "analysis-${timestamp}" --analyze-performance true
+    npx @archon-os/cli@latest hooks post-task --task-id "analysis-${timestamp}" --analyze-performance true
 metadata:
   specialization: "Code quality assessment and security analysis"
   capabilities:
@@ -70,11 +70,11 @@ An advanced code quality analysis specialist that performs comprehensive code re
 ### Phase 1: Initial Scan
 ```bash
 # Comprehensive code scan
-npx @claude-flow/cli@latest hooks pre-search --query "code quality metrics" --cache-results true
+npx @archon-os/cli@latest hooks pre-search --query "code quality metrics" --cache-results true
 
 # Load project context
-npx @claude-flow/cli@latest memory retrieve --key "project/architecture"
-npx @claude-flow/cli@latest memory retrieve --key "project/standards"
+npx @archon-os/cli@latest memory retrieve --key "project/architecture"
+npx @archon-os/cli@latest memory retrieve --key "project/standards"
 ```
 
 ### Phase 2: Deep Analysis
@@ -99,10 +99,10 @@ npx @claude-flow/cli@latest memory retrieve --key "project/standards"
 ### Phase 3: Report Generation
 ```bash
 # Store analysis results
-npx @claude-flow/cli@latest memory store --key "analysis/code-quality" --value "${results}"
+npx @archon-os/cli@latest memory store --key "analysis/code-quality" --value "${results}"
 
 # Generate recommendations
-npx @claude-flow/cli@latest hooks notify --message "Code analysis complete: ${summary}"
+npx @archon-os/cli@latest hooks notify --message "Code analysis complete: ${summary}"
 ```
 
 ## Integration Points

@@ -1,8 +1,8 @@
-# Claude Code Configuration - Graphiti Knowledge Service
+# Claude Code Configuration - letta Knowledge Service
 
 ## Service Overview
 
-**Graphiti Knowledge** is a knowledge graph and memory system that manages entity relationships, context enrichment, and intelligent memory hierarchies. It enables the Project Nyra ecosystem to understand and recall complex relationships between concepts, users, and past interactions with semantic meaning.
+**letta Knowledge** is a knowledge graph and memory system that manages entity relationships, context enrichment, and intelligent memory hierarchies. It enables the Project Nyra ecosystem to understand and recall complex relationships between concepts, users, and past interactions with semantic meaning.
 
 **Role**: Knowledge graph and entity relationship engine
 **Port**: 7000
@@ -47,9 +47,9 @@
 
 ```bash
 # Core Service
-GRAPHITI_PORT=7000
-GRAPHITI_HOST=0.0.0.0
-GRAPHITI_ENV=production
+letta_PORT=7000
+letta_HOST=0.0.0.0
+letta_ENV=production
 
 # Neo4j Configuration
 NEO4J_URI=bolt://neo4j:7687
@@ -58,25 +58,25 @@ NEO4J_PASSWORD=${NEO4J_PASSWORD}
 NEO4J_AUTH_BASIC=true
 
 # Graph Configuration
-GRAPHITI_MAX_ENTITIES=1000000
-GRAPHITI_MAX_RELATIONSHIPS=10000000
-GRAPHITI_ENTITY_EMBEDDING_DIM=768
+letta_MAX_ENTITIES=1000000
+letta_MAX_RELATIONSHIPS=10000000
+letta_ENTITY_EMBEDDING_DIM=768
 
 # Memory Management
-GRAPHITI_MEMORY_TYPE=hierarchical      # short_term, long_term, hierarchical
-GRAPHITI_SHORT_TERM_TTL=86400         # 24 hours
-GRAPHITI_CONSOLIDATION_INTERVAL=3600  # 1 hour
-GRAPHITI_MEMORY_DECAY_FACTOR=0.95
+letta_MEMORY_TYPE=hierarchical      # short_term, long_term, hierarchical
+letta_SHORT_TERM_TTL=86400         # 24 hours
+letta_CONSOLIDATION_INTERVAL=3600  # 1 hour
+letta_MEMORY_DECAY_FACTOR=0.95
 
 # Entity Linking
-GRAPHITI_AUTO_ENTITY_LINKING=true
-GRAPHITI_ENTITY_LINK_THRESHOLD=0.7
-GRAPHITI_ENTITY_LINK_BATCH_SIZE=100
+letta_AUTO_ENTITY_LINKING=true
+letta_ENTITY_LINK_THRESHOLD=0.7
+letta_ENTITY_LINK_BATCH_SIZE=100
 
 # Caching
-GRAPHITI_ENABLE_CACHE=true
-GRAPHITI_CACHE_TYPE=redis
-GRAPHITI_CACHE_TTL=3600
+letta_ENABLE_CACHE=true
+letta_CACHE_TYPE=redis
+letta_CACHE_TTL=3600
 REDIS_URL=redis://redis:6379
 
 # Vector Search Integration
@@ -84,18 +84,18 @@ RUVECTOR_URL=http://ruvector-search:9200
 RUVECTOR_INDEX_ENTITIES=knowledge_graph
 
 # Performance
-GRAPHITI_NUM_THREADS=8
-GRAPHITI_BATCH_SIZE=500
-GRAPHITI_QUERY_TIMEOUT=30000
+letta_NUM_THREADS=8
+letta_BATCH_SIZE=500
+letta_QUERY_TIMEOUT=30000
 
 # Persistence
-GRAPHITI_BACKUP_ENABLED=true
-GRAPHITI_BACKUP_INTERVAL=86400
-GRAPHITI_BACKUP_PATH=/data/graphiti/backups
+letta_BACKUP_ENABLED=true
+letta_BACKUP_INTERVAL=86400
+letta_BACKUP_PATH=/data/letta/backups
 
 # Monitoring
-GRAPHITI_LOG_LEVEL=info
-GRAPHITI_METRICS_ENABLED=true
+letta_LOG_LEVEL=info
+letta_METRICS_ENABLED=true
 ```
 
 ### Entity Schema
@@ -416,12 +416,12 @@ Consolidation Process:
 ### Docker Compose
 
 ```yaml
-graphiti-knowledge:
-  image: project-nyra/graphiti-knowledge:latest
+letta-knowledge:
+  image: project-nyra/letta-knowledge:latest
   ports:
     - "7000:7000"
   environment:
-    - GRAPHITI_PORT=7000
+    - letta_PORT=7000
     - NEO4J_URI=bolt://neo4j:7687
     - NEO4J_USER=neo4j
     - NEO4J_PASSWORD=${NEO4J_PASSWORD}
@@ -462,24 +462,24 @@ volumes:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: graphiti-knowledge
+  name: letta-knowledge
 spec:
   replicas: 3
   selector:
     matchLabels:
-      app: graphiti-knowledge
+      app: letta-knowledge
   template:
     metadata:
       labels:
-        app: graphiti-knowledge
+        app: letta-knowledge
     spec:
       containers:
-        - name: graphiti
-          image: project-nyra/graphiti-knowledge:latest
+        - name: letta
+          image: project-nyra/letta-knowledge:latest
           ports:
             - containerPort: 7000
           env:
-            - name: GRAPHITI_PORT
+            - name: letta_PORT
               value: "7000"
             - name: NEO4J_URI
               value: "bolt://neo4j:7687"
@@ -549,13 +549,13 @@ spec:
 ### Key Metrics
 
 ```
-graphiti_entities_total                 # Total entities in graph
-graphiti_relationships_total            # Total relationships
-graphiti_query_latency_seconds          # Query execution time
-graphiti_entity_linking_accuracy        # Entity linking F1 score
-graphiti_memory_consolidations_total    # Memory consolidations
-graphiti_cache_hit_ratio                # Cache hit %
-graphiti_neo4j_connections              # Active DB connections
+letta_entities_total                 # Total entities in graph
+letta_relationships_total            # Total relationships
+letta_query_latency_seconds          # Query execution time
+letta_entity_linking_accuracy        # Entity linking F1 score
+letta_memory_consolidations_total    # Memory consolidations
+letta_cache_hit_ratio                # Cache hit %
+letta_neo4j_connections              # Active DB connections
 ```
 
 ### Health Checks

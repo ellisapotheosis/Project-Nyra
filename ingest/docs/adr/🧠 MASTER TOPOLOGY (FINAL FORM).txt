@@ -25,13 +25,13 @@ RuVector + Postgres
 
 Letta
 
-Graphiti + FalkorDB
+letta + FalkorDB
 
 Redis (LMCache + workflow cache)
 
-AgentDB
+ruvector
 
-Claude-flow orchestration
+archon-os orchestration
 
 Nexus profiles
 
@@ -54,7 +54,7 @@ LMCache (Redis-backed)
 
 CUDA-enabled Docker
 
-Claude-flow executor
+archon-os executor
 
 Embedding generation
 
@@ -160,7 +160,7 @@ runs-on: [self-hosted, gpu]
 
 This lets you route compute intelligently.
 
-🧠 CLAUDE-FLOW + LITELLM ROUTING
+🧠 archon-os + LITELLM ROUTING
 
 Workers call:
 

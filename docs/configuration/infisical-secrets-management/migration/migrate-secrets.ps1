@@ -39,7 +39,7 @@ $PathRules = @{
     '/databases/qdrant'     = @('QDRANT_')
     '/databases/supabase'   = @('SUPABASE_')
     '/databases/mem0'       = @('MEM0_')
-    '/databases/graphiti'   = @('GRAPHITI_', 'NEO4J_')
+    '/databases/letta'   = @('letta_', 'NEO4J_')
     '/databases/letta'      = @('LETTA_')
     '/databases/twentycrm'  = @('TWENTY_')
     '/databases/mongodb'    = @('MONGO_')
@@ -47,9 +47,9 @@ $PathRules = @{
     '/databases/dify'       = @('DIFY_DB_', 'DIFY_POSTGRES_', 'DIFY_ENCRYPTION_', 'DIFY_SECRET_', 'DIFY_SANDBOX_')
 
     # Clients & integrations
-    '/clients/claude-flow'   = @('CLAUDE_FLOW_')
+    '/clients/archon-os'   = @('CLAUDE_FLOW_')
     '/clients/claude-code'   = @('CLAUDE_CODE_', 'CLAUDE_AUTO_', 'CLAUDE_BASH_', 'CLAUDE_ESCALATE_', 'CLAUDE_METRICS_')
-    '/clients/agentic-flow'  = @('AGENTIC_FLOW_')
+    '/clients/archon-os'  = @('AGENTIC_FLOW_')
     '/clients/agent-booster' = @('AGENT_BOOSTER_')
     '/clients/bitwarden'     = @('BITWARDEN_', 'BW_')
     '/clients/infisical'     = @('INFISICAL_')
@@ -58,7 +58,7 @@ $PathRules = @{
 
     # Former /services -> /clients
     '/clients/archon'        = @('ARCHON_')
-    '/clients/agentdb'       = @('AGENTDB_')
+    '/clients/ruvector'       = @('ruvector_')
     '/clients/docker'        = @('DOCKER_', 'COMPOSE_', 'HUB_', 'DOCKHERHUB_')
     '/clients/cloudflare'    = @('CF_', 'CLOUDFLARE_')
     '/clients/github'        = @('GH_', 'GITHUB_', 'GIT_AUTHOR_')

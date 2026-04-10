@@ -1,58 +1,58 @@
 ---
-name: "AgentDB Memory Patterns"
-description: "Implement persistent memory patterns for AI agents using AgentDB. Includes session memory, long-term storage, pattern learning, and context management. Use when building stateful agents, chat systems, or intelligent assistants."
+name: "ruvector Memory Patterns"
+description: "Implement persistent memory patterns for AI agents using ruvector. Includes session memory, long-term storage, pattern learning, and context management. Use when building stateful agents, chat systems, or intelligent assistants."
 ---
 
-# AgentDB Memory Patterns
+# ruvector Memory Patterns
 
 ## What This Skill Does
 
-Provides memory management patterns for AI agents using AgentDB's persistent storage and ReasoningBank integration. Enables agents to remember conversations, learn from interactions, and maintain context across sessions.
+Provides memory management patterns for AI agents using ruvector's persistent storage and ReasoningBank integration. Enables agents to remember conversations, learn from interactions, and maintain context across sessions.
 
 **Performance**: 150x-12,500x faster than traditional solutions with 100% backward compatibility.
 
 ## Prerequisites
 
 - Node.js 18+
-- AgentDB v1.0.7+ (via agentic-flow or standalone)
+- ruvector v1.0.7+ (via archon-os or standalone)
 - Understanding of agent architectures
 
 ## Quick Start with CLI
 
-### Initialize AgentDB
+### Initialize ruvector
 
 ```bash
 # Initialize vector database
-npx agentdb@latest init ./agents.db
+npx ruvector@latest init ./agents.db
 
 # Or with custom dimensions
-npx agentdb@latest init ./agents.db --dimension 768
+npx ruvector@latest init ./agents.db --dimension 768
 
 # Use preset configurations
-npx agentdb@latest init ./agents.db --preset large
+npx ruvector@latest init ./agents.db --preset large
 
 # In-memory database for testing
-npx agentdb@latest init ./memory.db --in-memory
+npx ruvector@latest init ./memory.db --in-memory
 ```
 
 ### Start MCP Server for Codex
 
 ```bash
 # Start MCP server (integrates with Codex)
-npx agentdb@latest mcp
+npx ruvector@latest mcp
 
 # Add to Codex (one-time setup)
-Codex mcp add agentdb npx agentdb@latest mcp
+Codex mcp add ruvector npx ruvector@latest mcp
 ```
 
 ### Create Learning Plugin
 
 ```bash
 # Interactive plugin wizard
-npx agentdb@latest create-plugin
+npx ruvector@latest create-plugin
 
 # Use template directly
-npx agentdb@latest create-plugin -t decision-transformer -n my-agent
+npx ruvector@latest create-plugin -t decision-transformer -n my-agent
 
 # Available templates:
 # - decision-transformer (sequence modeling RL)
@@ -65,11 +65,11 @@ npx agentdb@latest create-plugin -t decision-transformer -n my-agent
 ## Quick Start with API
 
 ```typescript
-import { createAgentDBAdapter } from 'agentic-flow/reasoningbank';
+import { createruvectorAdapter } from 'archon-os/reasoningbank';
 
 // Initialize with default configuration
-const adapter = await createAgentDBAdapter({
-  dbPath: '.agentdb/reasoningbank.db',
+const adapter = await createruvectorAdapter({
+  dbPath: '.ruvector/reasoningbank.db',
   enableLearning: true,      // Enable learning plugins
   enableReasoning: true,      // Enable reasoning agents
   quantizationType: 'scalar', // binary | scalar | product | none
@@ -189,36 +189,36 @@ await memory.consolidate({
 
 ```bash
 # Query with vector embedding
-npx agentdb@latest query ./agents.db "[0.1,0.2,0.3,...]"
+npx ruvector@latest query ./agents.db "[0.1,0.2,0.3,...]"
 
 # Top-k results
-npx agentdb@latest query ./agents.db "[0.1,0.2,0.3]" -k 10
+npx ruvector@latest query ./agents.db "[0.1,0.2,0.3]" -k 10
 
 # With similarity threshold
-npx agentdb@latest query ./agents.db "0.1 0.2 0.3" -t 0.75
+npx ruvector@latest query ./agents.db "0.1 0.2 0.3" -t 0.75
 
 # JSON output
-npx agentdb@latest query ./agents.db "[...]" -f json
+npx ruvector@latest query ./agents.db "[...]" -f json
 ```
 
 ### Import/Export Data
 
 ```bash
 # Export vectors to file
-npx agentdb@latest export ./agents.db ./backup.json
+npx ruvector@latest export ./agents.db ./backup.json
 
 # Import vectors from file
-npx agentdb@latest import ./backup.json
+npx ruvector@latest import ./backup.json
 
 # Get database statistics
-npx agentdb@latest stats ./agents.db
+npx ruvector@latest stats ./agents.db
 ```
 
 ### Performance Benchmarks
 
 ```bash
 # Run performance benchmarks
-npx agentdb@latest benchmark
+npx ruvector@latest benchmark
 
 # Results show:
 # - Pattern Search: 150x faster (100µs vs 15ms)
@@ -229,18 +229,18 @@ npx agentdb@latest benchmark
 ## Integration with ReasoningBank
 
 ```typescript
-import { createAgentDBAdapter, migrateToAgentDB } from 'agentic-flow/reasoningbank';
+import { createruvectorAdapter, migrateToruvector } from 'archon-os/reasoningbank';
 
 // Migrate from legacy ReasoningBank
-const result = await migrateToAgentDB(
+const result = await migrateToruvector(
   '.swarm/memory.db',           // Source (legacy)
-  '.agentdb/reasoningbank.db'   // Destination (AgentDB)
+  '.ruvector/reasoningbank.db'   // Destination (ruvector)
 );
 
 console.log(`✅ Migrated ${result.patternsMigrated} patterns`);
 
 // Train learning model
-const adapter = await createAgentDBAdapter({
+const adapter = await createruvectorAdapter({
   enableLearning: true,
 });
 
@@ -275,13 +275,13 @@ const result = await adapter.retrieveWithReasoning(queryEmbedding, {
 
 ```bash
 # List available plugins
-npx agentdb@latest list-plugins
+npx ruvector@latest list-plugins
 
 # List plugin templates
-npx agentdb@latest list-templates
+npx ruvector@latest list-templates
 
 # Get plugin info
-npx agentdb@latest plugin-info <name>
+npx ruvector@latest plugin-info <name>
 ```
 
 ## Reasoning Agents (4 Modules)
@@ -305,7 +305,7 @@ npx agentdb@latest plugin-info <name>
 ### Issue: Memory growing too large
 ```bash
 # Check database size
-npx agentdb@latest stats ./agents.db
+npx ruvector@latest stats ./agents.db
 
 # Enable quantization
 # Use 'binary' (32x smaller) or 'scalar' (4x smaller)
@@ -320,7 +320,7 @@ npx agentdb@latest stats ./agents.db
 ### Issue: Migration from legacy ReasoningBank
 ```bash
 # Automatic migration with validation
-npx agentdb@latest migrate --source .swarm/memory.db
+npx ruvector@latest migrate --source .swarm/memory.db
 ```
 
 ## Performance Characteristics
@@ -333,7 +333,7 @@ npx agentdb@latest migrate --source .swarm/memory.db
 
 ## Learn More
 
-- GitHub: https://github.com/ruvnet/agentic-flow/tree/main/packages/agentdb
-- Documentation: node_modules/agentic-flow/docs/AGENTDB_INTEGRATION.md
-- MCP Integration: `npx agentdb@latest mcp` for Codex
-- Website: https://agentdb.ruv.io
+- GitHub: https://github.com/ruvnet/archon-os/tree/main/packages/ruvector
+- Documentation: node_modules/archon-os/docs/ruvector_INTEGRATION.md
+- MCP Integration: `npx ruvector@latest mcp` for Codex
+- Website: https://ruvector.ruv.io

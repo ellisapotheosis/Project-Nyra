@@ -22,6 +22,6 @@ Each CNAME points to `<TUNNEL_UUID>.cfargotunnel.com`.
 
 ## Explicitly excluded from tunnel
 
-- Datastores: `postgres`, `redis`, `mongo`, `agentdb`, `ruvector-postgres`, `gitea-db`, `infisical-db`, `infisical-redis`
+- Datastores: `postgres`, `redis`, `mongo`, `ruvector`, `ruvector-postgres`, `gitea-db`, `infisical-db`, `infisical-redis`
 - Worker inference backends: `worker-3060-ollama`, `worker-3090ti-vllm`, `worker-5090-vllm`
 - SSH and raw TCP endpoints, including `gitea` SSH on port `22`

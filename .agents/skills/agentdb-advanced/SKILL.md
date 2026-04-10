@@ -1,20 +1,20 @@
 ---
-name: "AgentDB Advanced Features"
-description: "Master advanced AgentDB features including QUIC synchronization, multi-database management, custom distance metrics, hybrid search, and distributed systems integration. Use when building distributed AI systems, multi-agent coordination, or advanced vector search applications."
+name: "ruvector Advanced Features"
+description: "Master advanced ruvector features including QUIC synchronization, multi-database management, custom distance metrics, hybrid search, and distributed systems integration. Use when building distributed AI systems, multi-agent coordination, or advanced vector search applications."
 ---
 
-# AgentDB Advanced Features
+# ruvector Advanced Features
 
 ## What This Skill Does
 
-Covers advanced AgentDB capabilities for distributed systems, multi-database coordination, custom distance metrics, hybrid search (vector + metadata), QUIC synchronization, and production deployment patterns. Enables building sophisticated AI systems with sub-millisecond cross-node communication and advanced search capabilities.
+Covers advanced ruvector capabilities for distributed systems, multi-database coordination, custom distance metrics, hybrid search (vector + metadata), QUIC synchronization, and production deployment patterns. Enables building sophisticated AI systems with sub-millisecond cross-node communication and advanced search capabilities.
 
 **Performance**: <1ms QUIC sync, hybrid search with filters, custom distance metrics.
 
 ## Prerequisites
 
 - Node.js 18+
-- AgentDB v1.0.7+ (via agentic-flow)
+- ruvector v1.0.7+ (via archon-os)
 - Understanding of distributed systems (for QUIC sync)
 - Vector search fundamentals
 
@@ -24,7 +24,7 @@ Covers advanced AgentDB capabilities for distributed systems, multi-database coo
 
 ### What is QUIC Sync?
 
-QUIC (Quick UDP Internet Connections) enables sub-millisecond latency synchronization between AgentDB instances across network boundaries with automatic retry, multiplexing, and encryption.
+QUIC (Quick UDP Internet Connections) enables sub-millisecond latency synchronization between ruvector instances across network boundaries with automatic retry, multiplexing, and encryption.
 
 **Benefits**:
 - <1ms latency between nodes
@@ -36,11 +36,11 @@ QUIC (Quick UDP Internet Connections) enables sub-millisecond latency synchroniz
 ### Enable QUIC Sync
 
 ```typescript
-import { createAgentDBAdapter } from 'agentic-flow/reasoningbank';
+import { createruvectorAdapter } from 'archon-os/reasoningbank';
 
 // Initialize with QUIC synchronization
-const adapter = await createAgentDBAdapter({
-  dbPath: '.agentdb/distributed.db',
+const adapter = await createruvectorAdapter({
+  dbPath: '.ruvector/distributed.db',
   enableQUICSync: true,
   syncPort: 4433,
   syncPeers: [
@@ -61,7 +61,7 @@ await adapter.insertPattern({
 ### QUIC Configuration
 
 ```typescript
-const adapter = await createAgentDBAdapter({
+const adapter = await createruvectorAdapter({
   enableQUICSync: true,
   syncPort: 4433,              // QUIC server port
   syncPeers: ['host1:4433'],   // Peer addresses
@@ -76,21 +76,21 @@ const adapter = await createAgentDBAdapter({
 
 ```bash
 # Node 1 (192.168.1.10)
-AGENTDB_QUIC_SYNC=true \
-AGENTDB_QUIC_PORT=4433 \
-AGENTDB_QUIC_PEERS=192.168.1.11:4433,192.168.1.12:4433 \
+ruvector_QUIC_SYNC=true \
+ruvector_QUIC_PORT=4433 \
+ruvector_QUIC_PEERS=192.168.1.11:4433,192.168.1.12:4433 \
 node server.js
 
 # Node 2 (192.168.1.11)
-AGENTDB_QUIC_SYNC=true \
-AGENTDB_QUIC_PORT=4433 \
-AGENTDB_QUIC_PEERS=192.168.1.10:4433,192.168.1.12:4433 \
+ruvector_QUIC_SYNC=true \
+ruvector_QUIC_PORT=4433 \
+ruvector_QUIC_PEERS=192.168.1.10:4433,192.168.1.12:4433 \
 node server.js
 
 # Node 3 (192.168.1.12)
-AGENTDB_QUIC_SYNC=true \
-AGENTDB_QUIC_PORT=4433 \
-AGENTDB_QUIC_PEERS=192.168.1.10:4433,192.168.1.11:4433 \
+ruvector_QUIC_SYNC=true \
+ruvector_QUIC_PORT=4433 \
+ruvector_QUIC_PEERS=192.168.1.10:4433,192.168.1.11:4433 \
 node server.js
 ```
 
@@ -104,7 +104,7 @@ Best for normalized vectors, semantic similarity:
 
 ```bash
 # CLI
-npx agentdb@latest query ./vectors.db "[0.1,0.2,...]" -m cosine
+npx ruvector@latest query ./vectors.db "[0.1,0.2,...]" -m cosine
 
 # API
 const result = await adapter.retrieveWithReasoning(queryEmbedding, {
@@ -128,7 +128,7 @@ Best for spatial data, geometric similarity:
 
 ```bash
 # CLI
-npx agentdb@latest query ./vectors.db "[0.1,0.2,...]" -m euclidean
+npx ruvector@latest query ./vectors.db "[0.1,0.2,...]" -m euclidean
 
 # API
 const result = await adapter.retrieveWithReasoning(queryEmbedding, {
@@ -152,7 +152,7 @@ Best for pre-normalized vectors, fast computation:
 
 ```bash
 # CLI
-npx agentdb@latest query ./vectors.db "[0.1,0.2,...]" -m dot
+npx ruvector@latest query ./vectors.db "[0.1,0.2,...]" -m dot
 
 # API
 const result = await adapter.retrieveWithReasoning(queryEmbedding, {
@@ -273,16 +273,16 @@ const result = await adapter.retrieveWithReasoning(queryEmbedding, {
 
 ```typescript
 // Separate databases for different domains
-const knowledgeDB = await createAgentDBAdapter({
-  dbPath: '.agentdb/knowledge.db',
+const knowledgeDB = await createruvectorAdapter({
+  dbPath: '.ruvector/knowledge.db',
 });
 
-const conversationDB = await createAgentDBAdapter({
-  dbPath: '.agentdb/conversations.db',
+const conversationDB = await createruvectorAdapter({
+  dbPath: '.ruvector/conversations.db',
 });
 
-const codeDB = await createAgentDBAdapter({
-  dbPath: '.agentdb/code.db',
+const codeDB = await createruvectorAdapter({
+  dbPath: '.ruvector/code.db',
 });
 
 // Use appropriate database for each task
@@ -296,9 +296,9 @@ await codeDB.insertPattern({ /* code */ });
 ```typescript
 // Shard by domain for horizontal scaling
 const shards = {
-  'domain-a': await createAgentDBAdapter({ dbPath: '.agentdb/shard-a.db' }),
-  'domain-b': await createAgentDBAdapter({ dbPath: '.agentdb/shard-b.db' }),
-  'domain-c': await createAgentDBAdapter({ dbPath: '.agentdb/shard-c.db' }),
+  'domain-a': await createruvectorAdapter({ dbPath: '.ruvector/shard-a.db' }),
+  'domain-b': await createruvectorAdapter({ dbPath: '.ruvector/shard-b.db' }),
+  'domain-c': await createruvectorAdapter({ dbPath: '.ruvector/shard-c.db' }),
 };
 
 // Route queries to appropriate shard
@@ -375,13 +375,13 @@ console.log('Patterns:', result.patterns);
 
 ```typescript
 // Singleton pattern for shared adapter
-class AgentDBPool {
-  private static instance: AgentDBAdapter;
+class ruvectorPool {
+  private static instance: ruvectorAdapter;
 
   static async getInstance() {
     if (!this.instance) {
-      this.instance = await createAgentDBAdapter({
-        dbPath: '.agentdb/production.db',
+      this.instance = await createruvectorAdapter({
+        dbPath: '.ruvector/production.db',
         quantizationType: 'scalar',
         cacheSize: 2000,
       });
@@ -391,7 +391,7 @@ class AgentDBPool {
 }
 
 // Use in application
-const db = await AgentDBPool.getInstance();
+const db = await ruvectorPool.getInstance();
 const results = await db.retrieveWithReasoning(queryEmbedding, { k: 10 });
 ```
 
@@ -446,26 +446,26 @@ console.log('Database Stats:', {
 
 ```bash
 # Export with compression
-npx agentdb@latest export ./vectors.db ./backup.json.gz --compress
+npx ruvector@latest export ./vectors.db ./backup.json.gz --compress
 
 # Import from backup
-npx agentdb@latest import ./backup.json.gz --decompress
+npx ruvector@latest import ./backup.json.gz --decompress
 
 # Merge databases
-npx agentdb@latest merge ./db1.sqlite ./db2.sqlite ./merged.sqlite
+npx ruvector@latest merge ./db1.sqlite ./db2.sqlite ./merged.sqlite
 ```
 
 ### Database Optimization
 
 ```bash
 # Vacuum database (reclaim space)
-sqlite3 .agentdb/vectors.db "VACUUM;"
+sqlite3 .ruvector/vectors.db "VACUUM;"
 
 # Analyze for query optimization
-sqlite3 .agentdb/vectors.db "ANALYZE;"
+sqlite3 .ruvector/vectors.db "ANALYZE;"
 
 # Rebuild indices
-npx agentdb@latest reindex ./vectors.db
+npx ruvector@latest reindex ./vectors.db
 ```
 
 ---
@@ -473,26 +473,26 @@ npx agentdb@latest reindex ./vectors.db
 ## Environment Variables
 
 ```bash
-# AgentDB configuration
-AGENTDB_PATH=.agentdb/reasoningbank.db
-AGENTDB_ENABLED=true
+# ruvector configuration
+ruvector_PATH=.ruvector/reasoningbank.db
+ruvector_ENABLED=true
 
 # Performance tuning
-AGENTDB_QUANTIZATION=binary     # binary|scalar|product|none
-AGENTDB_CACHE_SIZE=2000
-AGENTDB_HNSW_M=16
-AGENTDB_HNSW_EF=100
+ruvector_QUANTIZATION=binary     # binary|scalar|product|none
+ruvector_CACHE_SIZE=2000
+ruvector_HNSW_M=16
+ruvector_HNSW_EF=100
 
 # Learning plugins
-AGENTDB_LEARNING=true
+ruvector_LEARNING=true
 
 # Reasoning agents
-AGENTDB_REASONING=true
+ruvector_REASONING=true
 
 # QUIC synchronization
-AGENTDB_QUIC_SYNC=true
-AGENTDB_QUIC_PORT=4433
-AGENTDB_QUIC_PEERS=host1:4433,host2:4433
+ruvector_QUIC_SYNC=true
+ruvector_QUIC_PORT=4433
+ruvector_QUIC_PEERS=host1:4433,host2:4433
 ```
 
 ---
@@ -509,7 +509,7 @@ sudo ufw allow 4433/udp
 ping host1
 
 # Check QUIC logs
-DEBUG=agentdb:quic node server.js
+DEBUG=ruvector:quic node server.js
 ```
 
 ### Issue: Hybrid search returns no results
@@ -540,8 +540,8 @@ const result = await adapter.retrieveWithReasoning(queryEmbedding, {
 
 - **QUIC Protocol**: docs/quic-synchronization.pdf
 - **Hybrid Search**: docs/hybrid-search-guide.md
-- **GitHub**: https://github.com/ruvnet/agentic-flow/tree/main/packages/agentdb
-- **Website**: https://agentdb.ruv.io
+- **GitHub**: https://github.com/ruvnet/archon-os/tree/main/packages/ruvector
+- **Website**: https://ruvector.ruv.io
 
 ---
 

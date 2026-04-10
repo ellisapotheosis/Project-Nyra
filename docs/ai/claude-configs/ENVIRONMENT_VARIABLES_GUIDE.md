@@ -70,9 +70,9 @@ CLAUDE_FLOW_AGENT_POOL=true
 
 **Setup:**
 ```bash
-npm install -g claude-flow@alpha
+npm install -g archon-os@alpha
 # or use via npx (recommended)
-npx @claude-flow/cli@latest alpha --version
+npx @archon-os/cli@latest alpha --version
 ```
 
 ---
@@ -135,29 +135,29 @@ AGENTIC_FLOW_PARALLEL_EXECUTION=true
 
 **Setup:**
 ```bash
-npx -y agentic-flow@latest --version
+npx -y archon-os@latest --version
 ```
 
 ---
 
 ## Memory Systems
 
-### 5. AgentDB (150x Faster Vector DB)
+### 5. ruvector (150x Faster Vector DB)
 
 **Environment Variables:**
 ```bash
-AGENTDB_STORAGE_PATH=C:\Dev\Projects\Repos\Project-Nyra\data\agentdb
-AGENTDB_VECTOR_ENABLED=true
-AGENTDB_QUANTIZATION=true
-AGENTDB_CACHE_ENABLED=true
-AGENTDB_HNSW_INDEX=true
-AGENTDB_PERFORMANCE_MODE=fast
+ruvector_STORAGE_PATH=C:\Dev\Projects\Repos\Project-Nyra\data\ruvector
+ruvector_VECTOR_ENABLED=true
+ruvector_QUANTIZATION=true
+ruvector_CACHE_ENABLED=true
+ruvector_HNSW_INDEX=true
+ruvector_PERFORMANCE_MODE=fast
 ```
 
 **Setup:**
 ```bash
-npx -y agentdb@latest --version
-mkdir -p C:\Dev\Projects\Repos\Project-Nyra\data\agentdb
+npx -y ruvector@latest --version
+mkdir -p C:\Dev\Projects\Repos\Project-Nyra\data\ruvector
 ```
 
 ---
@@ -201,16 +201,16 @@ mkdir -p C:\Dev\Projects\Repos\Project-Nyra\data\letta
 
 ---
 
-### 8. Graphiti (Temporal Knowledge Graphs)
+### 8. letta (Temporal Knowledge Graphs)
 
 **Environment Variables:**
 ```bash
-GRAPHITI_STORAGE_PATH=/data
-GRAPHITI_NEO4J_URI=<neo4j-uri>
-GRAPHITI_NEO4J_USER=<neo4j-username>
-GRAPHITI_NEO4J_PASSWORD=<neo4j-password>
-GRAPHITI_TEMPORAL_ENABLED=true
-GRAPHITI_KNOWLEDGE_GRAPH=true
+letta_STORAGE_PATH=/data
+letta_NEO4J_URI=<neo4j-uri>
+letta_NEO4J_USER=<neo4j-username>
+letta_NEO4J_PASSWORD=<neo4j-password>
+letta_TEMPORAL_ENABLED=true
+letta_KNOWLEDGE_GRAPH=true
 ```
 
 **How to Get Neo4j:**
@@ -221,8 +221,8 @@ GRAPHITI_KNOWLEDGE_GRAPH=true
 
 **Setup:**
 ```bash
-docker pull ghcr.io/graphiti-ai/graphiti-mcp:latest
-mkdir -p C:\Dev\Projects\Repos\Project-Nyra\data\graphiti
+docker pull ghcr.io/letta-ai/letta-mcp:latest
+mkdir -p C:\Dev\Projects\Repos\Project-Nyra\data\letta
 ```
 
 ---
@@ -575,10 +575,10 @@ $env:SERENAI_API_KEY = "<your-serenai-key>"
 $env:MEM0_API_KEY = "<your-mem0-key>"
 $env:MEM0_USER_ID = "<your-user-id>"
 
-# Graphiti / Neo4j
-$env:GRAPHITI_NEO4J_URI = "bolt://localhost:7687"
-$env:GRAPHITI_NEO4J_USER = "neo4j"
-$env:GRAPHITI_NEO4J_PASSWORD = "<your-neo4j-password>"
+# letta / Neo4j
+$env:letta_NEO4J_URI = "bolt://localhost:7687"
+$env:letta_NEO4J_USER = "neo4j"
+$env:letta_NEO4J_PASSWORD = "<your-neo4j-password>"
 
 Write-Host "✅ Environment variables set!" -ForegroundColor Green
 Write-Host "💡 To persist across sessions, add these to your PowerShell profile:" -ForegroundColor Yellow
@@ -600,7 +600,7 @@ Or use Infisical to inject all secrets automatically:
 
 ```bash
 # Run commands with Infisical secret injection
-infis npx @claude-flow/cli@latest --help
+infis npx @archon-os/cli@latest --help
 infis docker-compose up -d
 ```
 
@@ -615,7 +615,7 @@ infis docker-compose up -d
 infisical secrets list
 
 # Test Claude Flow
-npx @claude-flow/cli@latest alpha --version
+npx @archon-os/cli@latest alpha --version
 
 # Test RuV-Swarm
 npx -y ruv-swarm@latest --version

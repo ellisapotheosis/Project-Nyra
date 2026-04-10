@@ -94,7 +94,7 @@ pnpm turbo run build --filter="...[HEAD^]"
 - **Scheduled runs**: Daily at 6 AM UTC
 
 **Tested Servers**:
-- `claude-flow`
+- `archon-os`
 - `ruv-swarm`
 - `bitwarden-mcp`
 - `dockerhub-mcp`
@@ -115,7 +115,7 @@ pnpm turbo run build --filter="...[HEAD^]"
 ```
 PC1 (Core):        nexus-router, auth-service, nyra-orchestrator
 PC2 (Business):    quote-api, campaign-engine, lead-capture-api
-PC3 (AI/ML):       litellm-proxy, mem0-mcp, graphiti-knowledge
+PC3 (AI/ML):       litellm-proxy, mem0-mcp, letta-knowledge
 PC4 (Frontend):    ratehunter, nyra-admin, nexus-dashboard
 ```
 
@@ -285,7 +285,7 @@ docker run -p 8080:8080 test
 
 **3. Test MCP servers**:
 ```bash
-cd mcp-servers/claude-flow
+cd mcp-servers/archon-os
 pnpm install
 pnpm build
 pnpm test

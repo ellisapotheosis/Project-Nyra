@@ -13,7 +13,7 @@
 - Complete Archon OS installation and configuration
 - Integration with Supabase (local and cloud)
 - Task orchestration patterns
-- Memory system setup (Letta, Graphiti, Mem0)
+- Memory system setup (Letta, letta, Mem0)
 - Agent coordination workflows
 
 **Why moved**: Completion report for Archon setup phase
@@ -76,7 +76,7 @@
 
 ---
 
-### 7. CLAUDE-FLOW-FULL-FEATURES-CONTAINERIZATION.md (30K) ⚠️ LARGEST
+### 7. archon-os-FULL-FEATURES-CONTAINERIZATION.md (30K) ⚠️ LARGEST
 **What it contained:**
 - **CRITICAL**: Complete Docker Compose orchestration guide
 - All service definitions and configurations
@@ -91,7 +91,7 @@
 
 ---
 
-### 8. CLAUDE-FLOW-SETUP-COMPLETE.md (12K)
+### 8. archon-os-SETUP-COMPLETE.md (12K)
 **What it contained:**
 - Claude Flow V3 installation verification
 - CLI command examples
@@ -246,7 +246,7 @@
 - HNSW indexing configuration
 - Vector embedding setup
 - Performance optimization results
-- Integration with AgentDB
+- Integration with ruvector
 
 **Why moved**: Implementation completion report
 
@@ -310,7 +310,7 @@
 3. **DOCKER-TROUBLESHOOTING.md** (7.0K) - Essential troubleshooting
 
 ### Priority 2: Must Review & Extract
-4. **CLAUDE-FLOW-FULL-FEATURES-CONTAINERIZATION.md** (30K) - Docker configs
+4. **archon-os-FULL-FEATURES-CONTAINERIZATION.md** (30K) - Docker configs
 5. **CONTAINERIZATION-SUMMARY.md** (8.4K) - Architecture decisions
 
 ---
@@ -321,7 +321,7 @@ Create a new **master README.md** or **STARTUP-GUIDE.md** that consolidates:
 - Core startup procedures from STARTUP.md
 - Quick commands from QUICK-START-WORKFLOW.md
 - Docker architecture from CONTAINERIZATION-SUMMARY.md
-- Critical sections from CLAUDE-FLOW-FULL-FEATURES-CONTAINERIZATION.md
+- Critical sections from archon-os-FULL-FEATURES-CONTAINERIZATION.md
 - Troubleshooting from DOCKER-TROUBLESHOOTING.md
 
 Keep in repo root for GitHub visibility and developer onboarding.

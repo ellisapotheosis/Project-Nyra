@@ -13,15 +13,15 @@
   },
   "files": {
     "claude_flow_config": {
-      "path": ".claude-flow/mcp.json",
+      "path": ".archon-os/mcp.json",
       "status": "valid",
       "server_count": 7,
       "servers": [
-        "claude-flow",
+        "archon-os",
         "ruv-swarm",
         "flow-nexus",
-        "agentic-flow",
-        "agentdb",
+        "archon-os",
+        "ruvector",
         "agent-booster",
         "epic-sdk"
       ],

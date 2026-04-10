@@ -17,11 +17,11 @@ tools:
   - mcp__github__create_branch
   - mcp__github__push_files
   - mcp__github__create_issue
-  - mcp__claude-flow__swarm_init
-  - mcp__claude-flow__agent_spawn
-  - mcp__claude-flow__task_orchestrate
-  - mcp__claude-flow__parallel_execute
-  - mcp__claude-flow__load_balance
+  - mcp__archon-os__swarm_init
+  - mcp__archon-os__agent_spawn
+  - mcp__archon-os__task_orchestrate
+  - mcp__archon-os__parallel_execute
+  - mcp__archon-os__load_balance
 hooks:
   pre_task: |
     echo "🐝 Initializing release swarm coordination..."

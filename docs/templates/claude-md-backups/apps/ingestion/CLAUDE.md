@@ -19,7 +19,7 @@
 ## 🛡️ ANTI-DRIFT CONFIG
 
 ```bash
-npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 6 --strategy specialized
+npx @archon-os/cli@latest swarm init --topology hierarchical --max-agents 6 --strategy specialized
 ```
 
 ---
@@ -36,9 +36,9 @@ npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 6 --
 ## 🧠 AUTO-LEARNING PROTOCOL
 
 ```bash
-npx @claude-flow/cli@latest memory search --query '[keywords]' --namespace patterns
-npx @claude-flow/cli@latest memory store --namespace patterns --key '[pattern]' --value '[result]'
-npx @claude-flow/cli@latest hooks post-task --task-id '[id]' --success true --store-results true
+npx @archon-os/cli@latest memory search --query '[keywords]' --namespace patterns
+npx @archon-os/cli@latest memory store --namespace patterns --key '[pattern]' --value '[result]'
+npx @archon-os/cli@latest hooks post-task --task-id '[id]' --success true --store-results true
 ```
 
 ---
@@ -46,9 +46,9 @@ npx @claude-flow/cli@latest hooks post-task --task-id '[id]' --success true --st
 ## 🚀 V3 CLI COMMANDS & 🚀 AVAILABLE AGENTS & 🪝 V3 HOOKS SYSTEM
 
 ```bash
-npx @claude-flow/cli@latest swarm init/status
-npx @claude-flow/cli@latest memory store/search/retrieve
-npx @claude-flow/cli@latest hooks pre-task/post-task/post-edit
+npx @archon-os/cli@latest swarm init/status
+npx @archon-os/cli@latest memory store/search/retrieve
+npx @archon-os/cli@latest hooks pre-task/post-task/post-edit
 ```
 
 Agents: `content_classifier`, `documentation_integrator`, `config_analyzer`, `research_synthesizer`
@@ -58,8 +58,8 @@ Agents: `content_classifier`, `documentation_integrator`, `config_analyzer`, `re
 ## 📝 MEMORY COMMANDS REFERENCE
 
 ```bash
-npx @claude-flow/cli@latest memory store --key "ingestion-pattern" --value "content" --namespace patterns
-npx @claude-flow/cli@latest memory search --query "ingestion processing" --namespace patterns
+npx @archon-os/cli@latest memory store --key "ingestion-pattern" --value "content" --namespace patterns
+npx @archon-os/cli@latest memory search --query "ingestion processing" --namespace patterns
 ```
 
 ---
@@ -87,7 +87,7 @@ npx @claude-flow/cli@latest memory search --query "ingestion processing" --names
 
 ```bash
 # Execute SPARC ingestion workflow
-npx @claude-flow/cli@latest workflow execute \
+npx @archon-os/cli@latest workflow execute \
   --workflow-id ingestion-sparc-processor \
   --variables '{
     "ingestion_path": "apps/ingestion/temp/[content-name]",
@@ -111,8 +111,8 @@ npx @claude-flow/cli@latest workflow execute \
 // ✅ CORRECT: Batch ingestion processing in ONE message
 [Single Message]:
   // Classify items by type
-  - Bash("npx @claude-flow/cli@latest memory store --key 'ingestion/doc-123' --value '{type: docs, priority: high}' --namespace ingestion")
-  - Bash("npx @claude-flow/cli@latest memory store --key 'ingestion/config-456' --value '{type: config, priority: medium}' --namespace ingestion")
+  - Bash("npx @archon-os/cli@latest memory store --key 'ingestion/doc-123' --value '{type: docs, priority: high}' --namespace ingestion")
+  - Bash("npx @archon-os/cli@latest memory store --key 'ingestion/config-456' --value '{type: config, priority: medium}' --namespace ingestion")
 
   // Process with appropriate agents
   - Task: Researcher analyzes docs/ items
@@ -206,20 +206,20 @@ agents:
 **1. Single Item Ingestion**
 ```bash
 # Store metadata
-npx @claude-flow/cli@latest memory store \
+npx @archon-os/cli@latest memory store \
   --key "ingestion/item-$(date +%s)" \
   --value '{"type": "docs", "source": "external", "priority": "high"}' \
   --namespace ingestion
 
 # Get routing recommendation
-npx @claude-flow/cli@latest hooks route \
+npx @archon-os/cli@latest hooks route \
   --task "Process technical documentation from external source"
 ```
 
 **2. Bulk Ingestion Processing**
 ```bash
 # Initialize SPARC workflow for multiple items
-npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 6 --strategy specialized
+npx @archon-os/cli@latest swarm init --topology hierarchical --max-agents 6 --strategy specialized
 
 # Spawn specialized agents for parallel processing
 # (Use Claude Code Task tool for actual agent spawning)
@@ -228,12 +228,12 @@ npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 6 --
 **3. Research Output Integration**
 ```bash
 # Pre-task hook for research processing
-npx @claude-flow/cli@latest hooks pre-task \
+npx @archon-os/cli@latest hooks pre-task \
   --description "Integrate research findings into architecture docs" \
   --coordinate-swarm true
 
 # Post-task learning capture
-npx @claude-flow/cli@latest hooks post-task \
+npx @archon-os/cli@latest hooks post-task \
   --task-id "research-integration-001" \
   --success true \
   --store-results true
@@ -244,12 +244,12 @@ npx @claude-flow/cli@latest hooks post-task \
 ### Before Processing
 ```bash
 # Search for similar ingestion patterns
-npx @claude-flow/cli@latest memory search \
+npx @archon-os/cli@latest memory search \
   --query "ingestion processing patterns" \
   --namespace patterns
 
 # Check past successful integrations
-npx @claude-flow/cli@latest memory search \
+npx @archon-os/cli@latest memory search \
   --query "docs integration successful" \
   --namespace tasks
 ```
@@ -257,13 +257,13 @@ npx @claude-flow/cli@latest memory search \
 ### After Processing
 ```bash
 # Store successful pattern
-npx @claude-flow/cli@latest memory store \
+npx @archon-os/cli@latest memory store \
   --namespace patterns \
   --key "ingestion-success-$(date +%Y%m%d)" \
   --value "Successfully processed [type] using [approach]"
 
 # Train neural patterns
-npx @claude-flow/cli@latest hooks post-edit \
+npx @archon-os/cli@latest hooks post-edit \
   --file "MANIFEST.md" \
   --train-neural true
 ```
@@ -317,7 +317,7 @@ npx @claude-flow/cli@latest hooks post-edit \
 - **MANIFEST.md**: Complete ingestion inventory
 - **../_archive/**: Historical processed items
 - **../docs/**: Primary documentation location
-- **.claude-flow/workflows/**: SPARC workflow definitions
+- **.archon-os/workflows/**: SPARC workflow definitions
 
 ## 🛠️ COMMON OPERATIONS
 
@@ -327,7 +327,7 @@ npx @claude-flow/cli@latest hooks post-edit \
 cp -r [source] apps/ingestion/temp/[name]
 
 # Classify and add metadata
-npx @claude-flow/cli@latest memory store \
+npx @archon-os/cli@latest memory store \
   --key "ingestion/temp-[name]" \
   --value '{"added": "$(date -I)", "source": "[origin]"}' \
   --namespace ingestion
@@ -336,7 +336,7 @@ npx @claude-flow/cli@latest memory store \
 ### Process with SPARC
 ```bash
 # Execute full SPARC workflow
-npx @claude-flow/cli@latest workflow execute \
+npx @archon-os/cli@latest workflow execute \
   --workflow-id ingestion-sparc-processor \
   --variables '{"ingestion_path": "apps/ingestion/temp/[name]"}'
 ```
@@ -346,7 +346,7 @@ npx @claude-flow/cli@latest workflow execute \
 # Update MANIFEST.md
 # Move from temp/ to appropriate category
 # Store completion in memory
-npx @claude-flow/cli@latest memory store \
+npx @archon-os/cli@latest memory store \
   --key "ingestion/completed-[name]" \
   --value '{"completed": "$(date -I)", "target": "[destination]"}' \
   --namespace ingestion

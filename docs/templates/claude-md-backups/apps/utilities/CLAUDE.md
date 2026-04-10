@@ -19,7 +19,7 @@
 ## 🛡️ ANTI-DRIFT CONFIG
 
 ```bash
-npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 4 --strategy specialized
+npx @archon-os/cli@latest swarm init --topology hierarchical --max-agents 4 --strategy specialized
 ```
 
 ---
@@ -36,9 +36,9 @@ npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 4 --
 ## 🧠 AUTO-LEARNING PROTOCOL
 
 ```bash
-npx @claude-flow/cli@latest memory search --query '[keywords]' --namespace patterns
-npx @claude-flow/cli@latest memory store --namespace patterns --key '[pattern]' --value '[result]'
-npx @claude-flow/cli@latest hooks post-task --task-id '[id]' --success true --store-results true
+npx @archon-os/cli@latest memory search --query '[keywords]' --namespace patterns
+npx @archon-os/cli@latest memory store --namespace patterns --key '[pattern]' --value '[result]'
+npx @archon-os/cli@latest hooks post-task --task-id '[id]' --success true --store-results true
 ```
 
 ---
@@ -46,9 +46,9 @@ npx @claude-flow/cli@latest hooks post-task --task-id '[id]' --success true --st
 ## 🚀 V3 CLI COMMANDS & 🚀 AVAILABLE AGENTS & 🪝 V3 HOOKS SYSTEM
 
 ```bash
-npx @claude-flow/cli@latest swarm init/status
-npx @claude-flow/cli@latest memory store/search/retrieve
-npx @claude-flow/cli@latest hooks pre-task/post-task/post-edit
+npx @archon-os/cli@latest swarm init/status
+npx @archon-os/cli@latest memory store/search/retrieve
+npx @archon-os/cli@latest hooks pre-task/post-task/post-edit
 ```
 
 Agents: `coder`, `reviewer`, `backend-dev`, `tool-integrator`
@@ -58,8 +58,8 @@ Agents: `coder`, `reviewer`, `backend-dev`, `tool-integrator`
 ## 📝 MEMORY COMMANDS REFERENCE
 
 ```bash
-npx @claude-flow/cli@latest memory store --key "utilities-pattern" --value "content" --namespace patterns
-npx @claude-flow/cli@latest memory search --query "development tools" --namespace patterns
+npx @archon-os/cli@latest memory store --key "utilities-pattern" --value "content" --namespace patterns
+npx @archon-os/cli@latest memory search --query "development tools" --namespace patterns
 ```
 
 ---
@@ -89,16 +89,16 @@ npx @claude-flow/cli@latest memory search --query "development tools" --namespac
 # ✅ CORRECT: Use utilities with hooks and memory
 [Single Message]:
   // Run utility with pre-task hook
-  - Bash("npx @claude-flow/cli@latest hooks pre-task --description 'Use shadcn-tweakcn to customize button component'")
+  - Bash("npx @archon-os/cli@latest hooks pre-task --description 'Use shadcn-tweakcn to customize button component'")
 
   // Execute utility
   - Bash("cd apps/utilities/shadcn-tweakcn && npm run customize button")
 
   // Store result in memory
-  - Bash("npx @claude-flow/cli@latest memory store --namespace utilities --key 'shadcn-customization' --value 'Successfully customized button component'")
+  - Bash("npx @archon-os/cli@latest memory store --namespace utilities --key 'shadcn-customization' --value 'Successfully customized button component'")
 
   // Train on success
-  - Bash("npx @claude-flow/cli@latest hooks post-task --task-id 'util-001' --success true --store-results true")
+  - Bash("npx @archon-os/cli@latest hooks post-task --task-id 'util-001' --success true --store-results true")
 
 // ❌ WRONG: Run utilities in isolation without learning
 [Message 1]: Run tool
@@ -196,19 +196,19 @@ agents:
 **1. Using Existing Utility**
 ```bash
 # Pre-task: Check for relevant utility
-npx @claude-flow/cli@latest memory search \
+npx @archon-os/cli@latest memory search \
   --query "utility for [task description]" \
   --namespace utilities
 
 # Execute with hooks
-npx @claude-flow/cli@latest hooks pre-task \
+npx @archon-os/cli@latest hooks pre-task \
   --description "Use [utility] to [accomplish task]"
 
 # Run utility
 cd apps/utilities/[utility-name] && [command]
 
 # Post-task: Store success pattern
-npx @claude-flow/cli@latest hooks post-task \
+npx @archon-os/cli@latest hooks post-task \
   --task-id "[util-task-id]" \
   --success true \
   --store-results true
@@ -217,13 +217,13 @@ npx @claude-flow/cli@latest hooks post-task \
 **2. Creating New Utility**
 ```bash
 # Initialize swarm for utility development
-npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 4 --strategy specialized
+npx @archon-os/cli@latest swarm init --topology hierarchical --max-agents 4 --strategy specialized
 
 # Spawn agents: utility_developer, tool_integrator, documentation_specialist
 # (Use Claude Code for actual development)
 
 # After creation: Register in memory
-npx @claude-flow/cli@latest memory store \
+npx @archon-os/cli@latest memory store \
   --namespace utilities \
   --key "tool/[name]" \
   --value '{"purpose": "[description]", "created": "$(date -I)"}'
@@ -232,7 +232,7 @@ npx @claude-flow/cli@latest memory store \
 **3. Utility Recommendation**
 ```bash
 # Get routing recommendation based on task
-npx @claude-flow/cli@latest hooks route \
+npx @archon-os/cli@latest hooks route \
   --task "Customize shadcn/ui button for mortgage application"
 
 # Output may include:
@@ -326,7 +326,7 @@ async function storeUtilityUsage(utilityName: string, task: string, success: boo
   })
 
   execSync(
-    `npx @claude-flow/cli@latest memory store --namespace utilities --key "${utilityName}-${Date.now()}" --value '${metadata}'`
+    `npx @archon-os/cli@latest memory store --namespace utilities --key "${utilityName}-${Date.now()}" --value '${metadata}'`
   )
 }
 ```
@@ -336,30 +336,30 @@ async function storeUtilityUsage(utilityName: string, task: string, success: boo
 ### Before Using Utility
 ```bash
 # Search for previous successful uses
-npx @claude-flow/cli@latest memory search \
+npx @archon-os/cli@latest memory search \
   --query "shadcn-tweakcn successful customization" \
   --namespace utilities
 
 # Check learned patterns
-npx @claude-flow/cli@latest neural patterns --list \
+npx @archon-os/cli@latest neural patterns --list \
   | grep utility
 ```
 
 ### After Successful Use
 ```bash
 # Store successful pattern
-npx @claude-flow/cli@latest memory store \
+npx @archon-os/cli@latest memory store \
   --namespace patterns \
   --key "utility-success-$(date +%Y%m%d)" \
   --value "shadcn-tweakcn customized [component] for [purpose]"
 
 # Train neural pattern
-npx @claude-flow/cli@latest neural train \
+npx @archon-os/cli@latest neural train \
   --pattern-type utility-usage \
   --epochs 5
 
 # Update utility recommendation model
-npx @claude-flow/cli@latest hooks worker dispatch --trigger optimize
+npx @archon-os/cli@latest hooks worker dispatch --trigger optimize
 ```
 
 ## 🎨 FUTURE UTILITIES ROADMAP

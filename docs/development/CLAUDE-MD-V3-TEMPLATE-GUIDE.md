@@ -156,7 +156,7 @@ This guide provides the recommended structure and content for creating CLAUDE.md
 
 **Before spawning agents, get routing recommendation:**
 ```bash
-npx @claude-flow/cli@latest hooks pre-task --description "[task description]"
+npx @archon-os/cli@latest hooks pre-task --description "[task description]"
 ```
 
 **When you see these recommendations:**
@@ -184,10 +184,10 @@ Task({
 **Use this to prevent agent drift:**
 ```bash
 # Small teams (6-8 agents) - use hierarchical for tight control
-npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 8 --strategy specialized
+npx @archon-os/cli@latest swarm init --topology hierarchical --max-agents 8 --strategy specialized
 
 # Large teams (10-15 agents) - use hierarchical-mesh for V3 queen + peer communication
-npx @claude-flow/cli@latest swarm init --topology hierarchical-mesh --max-agents 15 --strategy specialized
+npx @archon-os/cli@latest swarm init --topology hierarchical-mesh --max-agents 15 --strategy specialized
 ```
 
 **Valid Topologies:**
@@ -213,28 +213,28 @@ npx @claude-flow/cli@latest swarm init --topology hierarchical-mesh --max-agents
 ### Before Starting Any Task
 ```bash
 # 1. Search memory for relevant patterns from past successes
-npx @claude-flow/cli@latest memory search --query '[task keywords]' --namespace patterns
+npx @archon-os/cli@latest memory search --query '[task keywords]' --namespace patterns
 
 # 2. Check if similar task was done before
-npx @claude-flow/cli@latest memory search --query '[task type]' --namespace tasks
+npx @archon-os/cli@latest memory search --query '[task type]' --namespace tasks
 
 # 3. Load learned optimizations
-npx @claude-flow/cli@latest hooks route --task '[task description]'
+npx @archon-os/cli@latest hooks route --task '[task description]'
 ```
 
 ### After Completing Any Task Successfully
 ```bash
 # 1. Store successful pattern for future reference
-npx @claude-flow/cli@latest memory store --namespace patterns --key '[pattern-name]' --value '[what worked]'
+npx @archon-os/cli@latest memory store --namespace patterns --key '[pattern-name]' --value '[what worked]'
 
 # 2. Train neural patterns on the successful approach
-npx @claude-flow/cli@latest hooks post-edit --file '[main-file]' --train-neural true
+npx @archon-os/cli@latest hooks post-edit --file '[main-file]' --train-neural true
 
 # 3. Record task completion with metrics
-npx @claude-flow/cli@latest hooks post-task --task-id '[id]' --success true --store-results true
+npx @archon-os/cli@latest hooks post-task --task-id '[id]' --success true --store-results true
 
 # 4. Trigger optimization worker if performance-related
-npx @claude-flow/cli@latest hooks worker dispatch --trigger optimize
+npx @archon-os/cli@latest hooks worker dispatch --trigger optimize
 ```
 
 ### Continuous Improvement Triggers
@@ -298,7 +298,7 @@ They're working in parallel. I'll synthesize their results when they complete.
 | `init` | 4 | Project initialization with wizard, presets, skills, hooks |
 | `agent` | 8 | Agent lifecycle (spawn, list, status, stop, metrics, pool, health, logs) |
 | `swarm` | 6 | Multi-agent swarm coordination and orchestration |
-| `memory` | 11 | AgentDB memory with vector search (150x-12,500x faster) |
+| `memory` | 11 | ruvector memory with vector search (150x-12,500x faster) |
 | `mcp` | 9 | MCP server management and tool execution |
 | `task` | 6 | Task creation, assignment, and lifecycle |
 | `session` | 7 | Session state management and persistence |
@@ -319,7 +319,7 @@ They're working in parallel. I'll synthesize their results when they complete.
 | `providers` | 5 | AI providers (list, add, remove, test, configure) |
 | `plugins` | 5 | Plugin management (list, install, uninstall, enable, disable) |
 | `deployment` | 5 | Deployment management (deploy, rollback, status, environments, release) |
-| `embeddings` | 4 | Vector embeddings (embed, batch, search, init) - 75x faster with agentic-flow |
+| `embeddings` | 4 | Vector embeddings (embed, batch, search, init) - 75x faster with archon-os |
 | `claims` | 4 | Claims-based authorization (check, grant, revoke, list) |
 | `migrate` | 5 | V2 to V3 migration with rollback support |
 | `doctor` | 1 | System diagnostics with health checks |
@@ -329,27 +329,27 @@ They're working in parallel. I'll synthesize their results when they complete.
 
 ```bash
 # Core hooks
-npx @claude-flow/cli@latest hooks pre-task --description "[task]"
-npx @claude-flow/cli@latest hooks post-task --task-id "[id]" --success true
-npx @claude-flow/cli@latest hooks post-edit --file "[file]" --train-neural true
+npx @archon-os/cli@latest hooks pre-task --description "[task]"
+npx @archon-os/cli@latest hooks post-task --task-id "[id]" --success true
+npx @archon-os/cli@latest hooks post-edit --file "[file]" --train-neural true
 
 # Session management
-npx @claude-flow/cli@latest hooks session-start --session-id "[id]"
-npx @claude-flow/cli@latest hooks session-end --export-metrics true
-npx @claude-flow/cli@latest hooks session-restore --session-id "[id]"
+npx @archon-os/cli@latest hooks session-start --session-id "[id]"
+npx @archon-os/cli@latest hooks session-end --export-metrics true
+npx @archon-os/cli@latest hooks session-restore --session-id "[id]"
 
 # Intelligence routing
-npx @claude-flow/cli@latest hooks route --task "[task]"
-npx @claude-flow/cli@latest hooks explain --topic "[topic]"
+npx @archon-os/cli@latest hooks route --task "[task]"
+npx @archon-os/cli@latest hooks explain --topic "[topic]"
 
 # Neural learning
-npx @claude-flow/cli@latest hooks pretrain --model-type moe --epochs 10
-npx @claude-flow/cli@latest hooks build-agents --agent-types coder,tester
+npx @archon-os/cli@latest hooks pretrain --model-type moe --epochs 10
+npx @archon-os/cli@latest hooks build-agents --agent-types coder,tester
 
 # Background workers
-npx @claude-flow/cli@latest hooks worker list
-npx @claude-flow/cli@latest hooks worker dispatch --trigger audit
-npx @claude-flow/cli@latest hooks worker status
+npx @archon-os/cli@latest hooks worker list
+npx @archon-os/cli@latest hooks worker dispatch --trigger audit
+npx @archon-os/cli@latest hooks worker status
 ```
 ```
 
@@ -362,36 +362,36 @@ npx @claude-flow/cli@latest hooks worker status
 ```bash
 # REQUIRED: --key and --value
 # OPTIONAL: --namespace (default: "default"), --ttl, --tags
-npx @claude-flow/cli@latest memory store --key "pattern-auth" --value "JWT with refresh tokens" --namespace patterns
-npx @claude-flow/cli@latest memory store --key "bug-fix-123" --value "Fixed null check" --namespace solutions --tags "bugfix,auth"
+npx @archon-os/cli@latest memory store --key "pattern-auth" --value "JWT with refresh tokens" --namespace patterns
+npx @archon-os/cli@latest memory store --key "bug-fix-123" --value "Fixed null check" --namespace solutions --tags "bugfix,auth"
 ```
 
 ### Search Data (semantic vector search)
 ```bash
 # REQUIRED: --query (full flag, not -q)
 # OPTIONAL: --namespace, --limit, --threshold
-npx @claude-flow/cli@latest memory search --query "authentication patterns"
-npx @claude-flow/cli@latest memory search --query "error handling" --namespace patterns --limit 5
+npx @archon-os/cli@latest memory search --query "authentication patterns"
+npx @archon-os/cli@latest memory search --query "error handling" --namespace patterns --limit 5
 ```
 
 ### List Entries
 ```bash
 # OPTIONAL: --namespace, --limit
-npx @claude-flow/cli@latest memory list
-npx @claude-flow/cli@latest memory list --namespace patterns --limit 10
+npx @archon-os/cli@latest memory list
+npx @archon-os/cli@latest memory list --namespace patterns --limit 10
 ```
 
 ### Retrieve Specific Entry
 ```bash
 # REQUIRED: --key
 # OPTIONAL: --namespace (default: "default")
-npx @claude-flow/cli@latest memory retrieve --key "pattern-auth"
-npx @claude-flow/cli@latest memory retrieve --key "pattern-auth" --namespace patterns
+npx @archon-os/cli@latest memory retrieve --key "pattern-auth"
+npx @archon-os/cli@latest memory retrieve --key "pattern-auth" --namespace patterns
 ```
 
 ### Initialize Memory Database
 ```bash
-npx @claude-flow/cli@latest memory init --force --verbose
+npx @archon-os/cli@latest memory init --force --verbose
 ```
 ```
 
@@ -417,7 +417,7 @@ npx @claude-flow/cli@latest memory init --force --verbose
 
 ```bash
 # Configuration
-CLAUDE_FLOW_CONFIG=./claude-flow.config.json
+CLAUDE_FLOW_CONFIG=./archon-os.config.json
 CLAUDE_FLOW_LOG_LEVEL=info
 
 # Provider API Keys
@@ -458,7 +458,7 @@ When user requests complex development:
 
 **For this full-stack project, use hierarchical-mesh:**
 ```bash
-npx @claude-flow/cli@latest swarm init --topology hierarchical-mesh --max-agents 12 --strategy specialized
+npx @archon-os/cli@latest swarm init --topology hierarchical-mesh --max-agents 12 --strategy specialized
 ```
 
 ## 🎯 PROJECT CONTEXT
@@ -578,8 +578,8 @@ If migrating from V2 CLAUDE.md:
 
 - **Full V2 vs V3 Analysis**: `C:\Dev\Projects\Repos\Project-Nyra\docs\development\CLAUDE-MD-V2-VS-V3-ANALYSIS.md`
 - **Root CLAUDE.md (V3 Example)**: `C:\Dev\Projects\Repos\Project-Nyra\CLAUDE.md`
-- **Wiki Templates**: `C:\Dev\Projects\Repos\Project-Nyra\docs\references\claude-flow-wiki\CLAUDE-MD-Templates.md`
-- **Version Comparison**: `C:\Dev\Projects\Repos\Project-Nyra\docs\CLAUDE-FLOW-VERSION-COMPARISON.md`
+- **Wiki Templates**: `C:\Dev\Projects\Repos\Project-Nyra\docs\references\archon-os-wiki\CLAUDE-MD-Templates.md`
+- **Version Comparison**: `C:\Dev\Projects\Repos\Project-Nyra\docs\archon-os-VERSION-COMPARISON.md`
 
 ---
 

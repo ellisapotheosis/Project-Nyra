@@ -41,9 +41,9 @@ The SPARC Ingestion Workflow is a systematic approach to processing ingestion pi
 
 ### Components
 
-- **Workflow Definition**: JSON configuration (`.claude-flow/workflows/ingestion-sparc.json`)
+- **Workflow Definition**: JSON configuration (`.archon-os/workflows/ingestion-sparc.json`)
 - **CLI Integration**: Claude Flow CLI for coordination
-- **Memory Backend**: AgentDB with HNSW indexing
+- **Memory Backend**: ruvector with HNSW indexing
 - **Agent Coordination**: Hierarchical topology with specialized agents
 - **Scripts**: Shell scripts for execution and monitoring
 
@@ -178,17 +178,17 @@ The SPARC Ingestion Workflow is a systematic approach to processing ingestion pi
 
 1. **Claude Flow CLI installed**:
    ```bash
-   npm install -g @claude-flow/cli@latest
+   npm install -g @archon-os/cli@latest
    ```
 
 2. **Claude Flow daemon running**:
    ```bash
-   npx @claude-flow/cli@latest daemon start
+   npx @archon-os/cli@latest daemon start
    ```
 
 3. **Memory system initialized**:
    ```bash
-   npx @claude-flow/cli@latest memory init
+   npx @archon-os/cli@latest memory init
    ```
 
 ### Single Item Processing
@@ -235,7 +235,7 @@ The SPARC Ingestion Workflow is a systematic approach to processing ingestion pi
 # Custom output directory
 ./scripts/ingestion/batch-process.sh \
   --output "docs/processed" \
-  --results ".claude-flow/batch-results" \
+  --results ".archon-os/batch-results" \
   _archive/ingestion-historical-2026-01-18/ingest/*
 ```
 
@@ -338,17 +338,17 @@ ingestion-sparc/
 
 ```bash
 # Search all SPARC entries
-npx @claude-flow/cli@latest memory search \
+npx @archon-os/cli@latest memory search \
   --query "sparc" \
   --namespace ingestion-sparc
 
 # Retrieve specific phase output
-npx @claude-flow/cli@latest memory retrieve \
+npx @archon-os/cli@latest memory retrieve \
   --key "sparc/specification/abc123-output" \
   --namespace ingestion-sparc
 
 # List all entries
-npx @claude-flow/cli@latest memory list \
+npx @archon-os/cli@latest memory list \
   --namespace ingestion-sparc \
   --limit 50
 ```
@@ -359,15 +359,15 @@ npx @claude-flow/cli@latest memory list \
 
 #### 1. CLI Not Found
 
-**Problem**: `@claude-flow/cli: command not found`
+**Problem**: `@archon-os/cli: command not found`
 
 **Solution**:
 ```bash
 # Install CLI globally
-npm install -g @claude-flow/cli@latest
+npm install -g @archon-os/cli@latest
 
 # Or use npx
-npx @claude-flow/cli@latest <command>
+npx @archon-os/cli@latest <command>
 ```
 
 #### 2. Memory Not Initialized
@@ -376,7 +376,7 @@ npx @claude-flow/cli@latest <command>
 
 **Solution**:
 ```bash
-npx @claude-flow/cli@latest memory init --force
+npx @archon-os/cli@latest memory init --force
 ```
 
 #### 3. Daemon Not Running
@@ -386,10 +386,10 @@ npx @claude-flow/cli@latest memory init --force
 **Solution**:
 ```bash
 # Start daemon
-npx @claude-flow/cli@latest daemon start
+npx @archon-os/cli@latest daemon start
 
 # Check status
-npx @claude-flow/cli@latest daemon status
+npx @archon-os/cli@latest daemon status
 ```
 
 #### 4. Phase Fails
@@ -399,7 +399,7 @@ npx @claude-flow/cli@latest daemon status
 **Solution**:
 ```bash
 # Check logs
-cat .claude-flow/logs/daemon.log
+cat .archon-os/logs/daemon.log
 
 # Re-run specific phase
 ./scripts/ingestion/sparc-workflow.sh \
@@ -415,12 +415,12 @@ cat .claude-flow/logs/daemon.log
 **Solution**:
 ```bash
 # Verify memory entry exists
-npx @claude-flow/cli@latest memory search \
+npx @archon-os/cli@latest memory search \
   --query "{itemId}" \
   --namespace ingestion-sparc
 
 # Check memory stats
-npx @claude-flow/cli@latest memory stats
+npx @archon-os/cli@latest memory stats
 ```
 
 ### Debug Mode
@@ -510,17 +510,17 @@ export CLAUDE_FLOW_LOG_LEVEL=debug
 
 ```bash
 # Create workflow from template
-npx @claude-flow/cli@latest workflow create \
+npx @archon-os/cli@latest workflow create \
   --name "ingestion-processor" \
-  --file ".claude-flow/workflows/ingestion-sparc.json"
+  --file ".archon-os/workflows/ingestion-sparc.json"
 
 # Execute workflow
-npx @claude-flow/cli@latest workflow execute \
+npx @archon-os/cli@latest workflow execute \
   --workflow-id "ingestion-processor" \
   --variables '{"itemPath":"./data","itemType":"docs"}'
 
 # Check workflow status
-npx @claude-flow/cli@latest workflow status \
+npx @archon-os/cli@latest workflow status \
   --workflow-id "ingestion-processor"
 ```
 
@@ -530,13 +530,13 @@ From Claude Code, you can invoke the workflow using MCP tools:
 
 ```javascript
 // Initialize workflow
-mcp__claude-flow__workflow_create({
+mcp__archon-os__workflow_create({
   name: "ingestion-processor",
   steps: [/* workflow steps */]
 })
 
 // Execute workflow
-mcp__claude-flow__workflow_execute({
+mcp__archon-os__workflow_execute({
   workflowId: "ingestion-processor",
   variables: {
     itemPath: "_archive/ingestion/.../docs",
@@ -545,7 +545,7 @@ mcp__claude-flow__workflow_execute({
 })
 
 // Check status
-mcp__claude-flow__workflow_status({
+mcp__archon-os__workflow_status({
   workflowId: "ingestion-processor",
   verbose: true
 })
@@ -577,7 +577,7 @@ mcp__claude-flow__workflow_status({
 
 ```bash
 # Enable HNSW indexing for faster search
-npx @claude-flow/cli@latest memory init \
+npx @archon-os/cli@latest memory init \
   --enable-hnsw \
   --hnsw-m 16 \
   --hnsw-ef-construction 200
@@ -589,7 +589,7 @@ Results are automatically cached in memory. To clear cache:
 
 ```bash
 # Clear specific namespace
-npx @claude-flow/cli@latest memory delete \
+npx @archon-os/cli@latest memory delete \
   --namespace ingestion-sparc \
   --pattern "sparc/*"
 ```
@@ -597,10 +597,10 @@ npx @claude-flow/cli@latest memory delete \
 ## Support
 
 For issues or questions:
-- Check logs: `.claude-flow/logs/daemon.log`
-- Run diagnostics: `npx @claude-flow/cli@latest doctor`
-- View memory stats: `npx @claude-flow/cli@latest memory stats`
-- GitHub Issues: https://github.com/ruvnet/claude-flow/issues
+- Check logs: `.archon-os/logs/daemon.log`
+- Run diagnostics: `npx @archon-os/cli@latest doctor`
+- View memory stats: `npx @archon-os/cli@latest memory stats`
+- GitHub Issues: https://github.com/ruvnet/archon-os/issues
 
 ## License
 

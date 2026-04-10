@@ -33,8 +33,8 @@ jobs:
           REG="${{ secrets.GITEA_REGISTRY }}"
           OWNER_LOWER="$(echo "${GITHUB_REPOSITORY_OWNER}" | tr '[:upper:]' '[:lower:]')"
 
-          docker build -t "$REG/$OWNER_LOWER/nyra-claude-flow:$TAG" -f services/claude-flow/Dockerfile .
-          docker push "$REG/$OWNER_LOWER/nyra-claude-flow:$TAG"
+          docker build -t "$REG/$OWNER_LOWER/nyra-archon-os:$TAG" -f services/archon-os/Dockerfile .
+          docker push "$REG/$OWNER_LOWER/nyra-archon-os:$TAG"
 
-          docker build -t "$REG/$OWNER_LOWER/nyra-claude-flow-event-server:$TAG" -f services/claude-flow-event-server/Dockerfile services/claude-flow-event-server
-          docker push "$REG/$OWNER_LOWER/nyra-claude-flow-event-server:$TAG"
+          docker build -t "$REG/$OWNER_LOWER/nyra-archon-os-event-server:$TAG" -f services/archon-os-event-server/Dockerfile services/archon-os-event-server
+          docker push "$REG/$OWNER_LOWER/nyra-archon-os-event-server:$TAG"

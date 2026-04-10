@@ -7,7 +7,7 @@
 **Port**: 3180
 **Language**: Python 3.10+ with FastAPI
 **Framework**: FastAPI + Uvicorn + Embedchain
-**Dependencies**: fastapi, uvicorn, mem0, embedchain, agentdb, pydantic, httpx, python-dotenv
+**Dependencies**: fastapi, uvicorn, mem0, embedchain, ruvector, pydantic, httpx, python-dotenv
 **Template**: CLAUDE-MD-Python.md (ring topology for distributed memory coordination)
 
 ## 🚨 CRITICAL DEVELOPMENT RULES
@@ -35,7 +35,7 @@
 
   # Integration
   - Write("src/integrations/mem0.py", mem0Client)
-  - Write("src/integrations/agentdb.py", vectorSearch)
+  - Write("src/integrations/ruvector.py", vectorSearch)
 
   # Middleware and utilities
   - Write("src/middleware/auth.py", authentication)
@@ -105,7 +105,7 @@ Normalization (clean text)
     ↓
 Embedding Generation (semantic vectors)
     ↓
-Vector Storage (AgentDB + HNSW)
+Vector Storage (ruvector + HNSW)
     ↓
 Retrieval Chain Setup
     ↓
@@ -791,7 +791,7 @@ class EmbedchainService:
 - API response time: < 300ms p95
 - Throughput: 1000+ requests/second
 
-### Vector Search Optimization (HNSW + AgentDB)
+### Vector Search Optimization (HNSW + ruvector)
 - Search complexity: O(log N)
 - 150x-12,500x faster than linear search
 - Index building time: <100ms per 1000 embeddings

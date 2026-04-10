@@ -35,7 +35,7 @@ jobs:
         run: |
           if [ "${{ github.event.inputs.services }}" == "all" ] || [ -z "${{ github.event.inputs.services }}" ]; then
             # Deploy all services with Dockerfiles
-            SERVICES='["nyra-admin","ratehunter","crm","webapp","campaign-engine","claude-flow","ruv-swarm"]'
+            SERVICES='["nyra-admin","ratehunter","crm","webapp","campaign-engine","archon-os","ruv-swarm"]'
           else
             # Parse comma-separated list
             SERVICES=$(echo '${{ github.event.inputs.services }}' | jq -R -c 'split(",") | map(gsub(" "; ""))')
@@ -196,7 +196,7 @@ jobs:
               echo "port=4000" >> $GITHUB_OUTPUT
               echo "health-path=/health" >> $GITHUB_OUTPUT
               ;;
-            claude-flow)
+            archon-os)
               echo "port=5000" >> $GITHUB_OUTPUT
               echo "health-path=/health" >> $GITHUB_OUTPUT
               ;;

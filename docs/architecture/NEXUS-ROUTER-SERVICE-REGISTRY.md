@@ -53,7 +53,7 @@ nyra.monitoring.enabled: "true"
 ### 1. MCP Servers (nyra.service.type: "mcp-server")
 - **routing**: Nexus Router - Intelligent LLM routing
 - **memory**: OpenMemory MCP - Memory management
-- **graph-memory**: Graphiti MCP - Graph-based memory
+- **graph-memory**: letta MCP - Graph-based memory
 - **vector-memory**: Qdrant MCP - Vector search
 - **gateway**: MetaMCP - MCP gateway
 
@@ -117,7 +117,7 @@ nyra.monitoring.enabled: "true"
 |---------|-----------|------|----------|-------|-----|-----|
 | qdrant | nyra-qdrant | database | vector | 6333 | ❌ | ✅ REST:6333 |
 | neo4j | nyra-neo4j | database | graph | 7474, 7687 | ❌ | ✅ Bolt:7687 |
-| graphiti-mcp | nyra-graphiti-mcp | mcp-server | graph-memory | 7459 | ✅ SSE:8000 | ❌ |
+| letta-mcp | nyra-letta-mcp | mcp-server | graph-memory | 7459 | ✅ SSE:8000 | ❌ |
 | qdrant-mcp | nyra-qdrant-mcp | mcp-server | vector-memory | 8066 | ✅ HTTP:8066 | ❌ |
 | openmemory | nyra-openmemory | api | memory | 8765, 3000 | ❌ | ✅ REST:8765 |
 | metamcp | nyra-metamcp | mcp-server | gateway | 12008, 12005 | ✅ HTTP:12008 | ✅ REST:12005 |
@@ -146,14 +146,14 @@ nyra.monitoring.enabled: "true"
 | loki | litellm-loki | monitoring | logs | 3100 | ⏳ Pending |
 | promtail | litellm-promtail | monitoring | log-shipper | - | ⏳ Pending |
 
-### Claude Flow Production Stack (`orchestration/claude-flow/config/production/docker-compose.yml`)
+### Claude Flow Production Stack (`orchestration/archon-os/config/production/docker-compose.yml`)
 
 | Service | Container | Type | Category | Ports | Labels Status |
 |---------|-----------|------|----------|-------|---------------|
-| claude-flow | claude-flow-prod | api | orchestration | 3000 | ⏳ Pending |
-| postgres | claude-flow-postgres-prod | database | relational | 5432 | ⏳ Pending |
-| redis | claude-flow-redis-prod | database | cache | 6379 | ⏳ Pending |
-| nginx | claude-flow-nginx | api | load-balancer | 80, 443 | ⏳ Pending |
+| archon-os | archon-os-prod | api | orchestration | 3000 | ⏳ Pending |
+| postgres | archon-os-postgres-prod | database | relational | 5432 | ⏳ Pending |
+| redis | archon-os-redis-prod | database | cache | 6379 | ⏳ Pending |
+| nginx | archon-os-nginx | api | load-balancer | 80, 443 | ⏳ Pending |
 
 ## Nexus Router Auto-Discovery Configuration
 
@@ -273,7 +273,7 @@ curl -X POST http://localhost:8000/v1/chat/completions \
   }'
 
 # MCP proxy request
-curl -X POST http://localhost:4001/mcp/graphiti-mcp/search \
+curl -X POST http://localhost:4001/mcp/letta-mcp/search \
   -H "Content-Type: application/json" \
   -d '{"query": "authentication patterns"}'
 ```
@@ -316,7 +316,7 @@ graph TD
     Qdrant[(Qdrant)]
     Neo4j[(Neo4j)]
     FalkorDB[(FalkorDB)]
-    GraphitiMCP[Graphiti MCP]
+    lettaMCP[letta MCP]
     QdrantMCP[Qdrant MCP]
     OpenMem[OpenMemory]
     MetaMCP[MetaMCP]
@@ -346,7 +346,7 @@ graph TD
     Orchestrator --> FalkorDB
     Orchestrator --> Letta
 
-    GraphitiMCP --> Neo4j
+    lettaMCP --> Neo4j
     QdrantMCP --> Qdrant
     OpenMem --> Qdrant
 

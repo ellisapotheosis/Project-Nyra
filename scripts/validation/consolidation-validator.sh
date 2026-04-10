@@ -94,7 +94,7 @@ check_scripts() {
     local key_scripts=(
         "scripts/bootstrap-orchestrator.sh"
         "scripts/health-check-all.sh"
-        "scripts/init-claude-flow.sh"
+        "scripts/init-archon-os.sh"
         "scripts/validate-env.sh"
     )
 
@@ -162,8 +162,8 @@ check_mcp() {
     fi
 
     # Check MCP server directories
-    if [ -d "mcp-servers/claude-flow" ]; then
-        log_pass "MCP server directory: mcp-servers/claude-flow"
+    if [ -d "mcp-servers/archon-os" ]; then
+        log_pass "MCP server directory: mcp-servers/archon-os"
     fi
 
     if [ -d "mcp-servers/ruv-swarm" ]; then

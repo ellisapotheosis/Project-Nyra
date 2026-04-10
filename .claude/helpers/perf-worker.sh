@@ -1,12 +1,12 @@
 #!/bin/bash
 # Claude Flow V3 - Performance Benchmark Worker
-# Runs periodic benchmarks and updates metrics using agentic-flow agents
+# Runs periodic benchmarks and updates metrics using archon-os agents
 
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
-METRICS_DIR="$PROJECT_ROOT/.claude-flow/metrics"
+METRICS_DIR="$PROJECT_ROOT/.archon-os/metrics"
 PERF_FILE="$METRICS_DIR/performance.json"
 LAST_RUN_FILE="$METRICS_DIR/.perf-last-run"
 
@@ -66,8 +66,8 @@ benchmark_memory() {
 benchmark_startup() {
   local start=$(date +%s%3N)
 
-  # Quick check of agentic-flow responsiveness
-  timeout 5 npx agentic-flow@alpha --version >/dev/null 2>&1 || true
+  # Quick check of archon-os responsiveness
+  timeout 5 npx archon-os@alpha --version >/dev/null 2>&1 || true
 
   local end=$(date +%s%3N)
   local duration=$((end - start))
@@ -112,11 +112,11 @@ run_benchmarks() {
   date +%s > "$LAST_RUN_FILE"
 }
 
-# Spawn agentic-flow performance agent for deep analysis
+# Spawn archon-os performance agent for deep analysis
 run_deep_benchmark() {
   echo "[$(date +%H:%M:%S)] Spawning performance-benchmarker agent..."
 
-  npx agentic-flow@alpha --agent perf-analyzer --task "Analyze current system performance and update metrics" 2>/dev/null &
+  npx archon-os@alpha --agent perf-analyzer --task "Analyze current system performance and update metrics" 2>/dev/null &
   local pid=$!
 
   # Don't wait, let it run in background
@@ -152,7 +152,7 @@ case "${1:-check}" in
   *)
     echo "Usage: perf-worker.sh [run|deep|check|force|status]"
     echo "  run    - Run quick benchmarks"
-    echo "  deep   - Spawn agentic-flow agent for deep analysis"
+    echo "  deep   - Spawn archon-os agent for deep analysis"
     echo "  check  - Run if throttle allows (default)"
     echo "  force  - Force run ignoring throttle"
     echo "  status - Show current metrics"

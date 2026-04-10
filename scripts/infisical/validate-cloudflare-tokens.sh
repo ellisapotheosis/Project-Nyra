@@ -58,7 +58,7 @@ declare -A INFISICAL_PATHS=(
     ["worker-rtx5090"]="/nyra/worker-rtx5090"
     ["worker-rtx3060"]="/nyra/worker-rtx3060"
     ["worker-rtx3090ti"]="/nyra/worker-rtx3090ti"
-    ["claude-flow"]="/nyra/claude-flow"
+    ["archon-os"]="/nyra/archon-os"
     ["archon"]="/nyra/archon"
 )
 

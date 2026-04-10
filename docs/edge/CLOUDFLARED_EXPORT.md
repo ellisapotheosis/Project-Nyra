@@ -46,6 +46,6 @@ cloudflared tunnel route dns <NAME_OR_UUID> grafana.nyra.example.com
 
 ## Explicitly non-exposed services
 
-- `postgres`, `redis`, `mongo`, `agentdb`, `ruvector-postgres`, `gitea-db`, `infisical-db`, `infisical-redis`
+- `postgres`, `redis`, `mongo`, `ruvector`, `ruvector-postgres`, `gitea-db`, `infisical-db`, `infisical-redis`
 - `worker-3060-ollama`, `worker-3090ti-vllm`, `worker-5090-vllm`
 - `gitea` SSH on port `22`

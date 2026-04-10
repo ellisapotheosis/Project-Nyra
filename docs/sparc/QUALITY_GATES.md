@@ -49,7 +49,7 @@ Quality gates are checkpoints between SPARC phases that ensure systematic progre
 
 ```bash
 # Run specification validation
-npx claude-flow sparc validate --phase spec --feature [feature-id]
+npx archon-os sparc validate --phase spec --feature [feature-id]
 
 # Checks performed:
 # - All required sections present
@@ -109,7 +109,7 @@ npx claude-flow sparc validate --phase spec --feature [feature-id]
 
 ```bash
 # Run pseudocode validation
-npx claude-flow sparc validate --phase pseudocode --feature [feature-id]
+npx archon-os sparc validate --phase pseudocode --feature [feature-id]
 
 # Checks performed:
 # - Pseudocode follows standard format
@@ -178,7 +178,7 @@ npx claude-flow sparc validate --phase pseudocode --feature [feature-id]
 
 ```bash
 # Run architecture validation
-npx claude-flow sparc validate --phase architecture --feature [feature-id]
+npx archon-os sparc validate --phase architecture --feature [feature-id]
 
 # Checks performed:
 # - All required diagrams present
@@ -249,7 +249,7 @@ npx claude-flow sparc validate --phase architecture --feature [feature-id]
 
 ```bash
 # Run refinement validation
-npx claude-flow sparc validate --phase refinement --feature [feature-id]
+npx archon-os sparc validate --phase refinement --feature [feature-id]
 
 # Checks performed:
 # - Linting passed
@@ -375,7 +375,7 @@ $ bandit -r app/
 
 ```bash
 # Run completion validation
-npx claude-flow sparc validate --phase completion --feature [feature-id]
+npx archon-os sparc validate --phase completion --feature [feature-id]
 
 # Checks performed:
 # - Integration tests passing
@@ -497,7 +497,7 @@ Defect Escape Rate = (Defects Found in Phase N+2) / (Total Defects) * 100
 
 **CLI Command:**
 ```bash
-npx claude-flow sparc gate-check \
+npx archon-os sparc gate-check \
   --current-phase "specification" \
   --feature [feature-id] \
   --strict true
@@ -543,11 +543,11 @@ jobs:
       - name: Detect SPARC Phase
         id: phase
         run: |
-          echo "::set-output name=phase::$(npx claude-flow sparc detect-phase)"
+          echo "::set-output name=phase::$(npx archon-os sparc detect-phase)"
 
       - name: Run Quality Gate Checks
         run: |
-          npx claude-flow sparc gate-check \
+          npx archon-os sparc gate-check \
             --phase ${{ steps.phase.outputs.phase }} \
             --feature ${{ github.event.pull_request.number }} \
             --strict true
@@ -577,7 +577,7 @@ jobs:
 
 1. **Request Approval:**
    ```bash
-   npx claude-flow sparc gate-bypass-request \
+   npx archon-os sparc gate-bypass-request \
      --gate "[gate-name]" \
      --reason "[detailed-reason]" \
      --risk-assessment "[risks]" \

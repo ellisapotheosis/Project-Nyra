@@ -6,13 +6,13 @@ This directory contains documentation for tasks that Claude Code and AI agents c
 
 ### `/prompts/`
 AI agent prompts and system instructions for autonomous task execution
-- Claude-Flow master prompts
+- archon-os master prompts
 - Batch workflow prompts
 - Campaign runner prompts
 - Auto-setup prompts
 
 ### `/bootstrap/`
-Automatic bootstrap scripts and configuration for Claude-Flow initialization
+Automatic bootstrap scripts and configuration for archon-os initialization
 - Master build prompts
 - Autonomous setup scripts
 - Quick-start configurations
@@ -28,7 +28,7 @@ Automated workflow definitions and examples
 
 These documents are intended for AI agents and Claude Code to:
 1. Understand autonomous task execution patterns
-2. Bootstrap Claude-Flow environments
+2. Bootstrap archon-os environments
 3. Execute complex workflows without human intervention
 4. Manage configurations and settings
 
@@ -42,4 +42,4 @@ These documents are intended for AI agents and Claude Code to:
 ---
 
 **Last Updated**: 2026-01-22
-**Status**: Active - Used for autonomous Claude-Flow execution
+**Status**: Active - Used for autonomous archon-os execution

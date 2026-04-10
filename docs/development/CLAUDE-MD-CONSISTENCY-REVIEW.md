@@ -38,9 +38,9 @@ Reviewed all CLAUDE.md files across Project Nyra repository for v3 consistency, 
 
 ### 🔴 ISSUES
 
-**orchestration/claude-flow/CLAUDE.md**:
+**orchestration/archon-os/CLAUDE.md**:
 - ❌ Older v2 style mixed with some v3 patterns
-- ❌ References "claude-flow@alpha" but root uses "@latest"
+- ❌ References "archon-os@alpha" but root uses "@latest"
 - ❌ Has coordination-only approach but less comprehensive than root
 - ❌ Missing v3 CLI commands documentation
 - ❌ No mention of 3-tier model routing
@@ -52,9 +52,9 @@ Reviewed all CLAUDE.md files across Project Nyra repository for v3 consistency, 
 - ❌ Own command structure (uv run poe format, etc.)
 - ❌ No Claude Flow CLI references
 
-**docs/references/claude-flow-wiki/CLAUDE.md**:
+**docs/references/archon-os-wiki/CLAUDE.md**:
 - ❌ Heavy v2 patterns throughout
-- ❌ Uses "npx @claude-flow/cli@latest" inconsistently
+- ❌ Uses "npx @archon-os/cli@latest" inconsistently
 - ❌ References Socket.IO and WebSockets (deprecated in favor of HTTP polling)
 - ❌ No HNSW memory search references
 - ❌ Missing neural training, hooks automation
@@ -85,7 +85,7 @@ Reviewed all CLAUDE.md files across Project Nyra repository for v3 consistency, 
 ### 🔴 HIERARCHY VIOLATIONS
 
 **orchestration/** Subdirectory**:
-- ❌ orchestration/claude-flow/CLAUDE.md does NOT properly extend root
+- ❌ orchestration/archon-os/CLAUDE.md does NOT properly extend root
 - ❌ Should inherit v3 patterns but uses older coordination-only approach
 - ❌ Should reference root as source of truth
 
@@ -96,7 +96,7 @@ Reviewed all CLAUDE.md files across Project Nyra repository for v3 consistency, 
 - Needs clear boundary documentation
 
 **Recommended Fix**:
-- orchestration/claude-flow/ should have lightweight CLAUDE.md that says:
+- orchestration/archon-os/ should have lightweight CLAUDE.md that says:
   "See root CLAUDE.md for v3 standards. This directory contains implementation details."
 - tools/archon/ should maintain separate documentation but add disclaimer about being independent system
 
@@ -113,17 +113,17 @@ Reviewed all CLAUDE.md files across Project Nyra repository for v3 consistency, 
 - **Resolution**: Add clear scope boundaries - TodoWrite for Claude Flow projects, Archon tasks for Archon projects
 
 **Package Manager References**:
-- Root and most files: "npx @claude-flow/cli@latest"
-- orchestration/claude-flow: "npx @claude-flow/cli@latest"
+- Root and most files: "npx @archon-os/cli@latest"
+- orchestration/archon-os: "npx @archon-os/cli@latest"
 - **Resolution**: Standardize on @latest everywhere
 
 **Coordination Philosophy**:
 - Root: "CLI coordinates, Claude Code executes"
-- orchestration/claude-flow: "Claude Flow coordinates, Claude Code creates"
+- orchestration/archon-os: "Claude Flow coordinates, Claude Code creates"
 - Same concept, different wording - should be consistent
 
 **WebSocket References**:
-- docs/references/claude-flow-wiki: Mentions Socket.IO integration
+- docs/references/archon-os-wiki: Mentions Socket.IO integration
 - Root and apps: HTTP polling with ETags only
 - **Resolution**: Remove WebSocket references or mark as deprecated
 
@@ -162,10 +162,10 @@ Reviewed all CLAUDE.md files across Project Nyra repository for v3 consistency, 
 
 **Root CLAUDE.md**:
 - ❌ No reference to whitepaper or consolidated architecture docs
-- ❌ Should reference .claude-flow/CAPABILITIES.md (mentioned but not linked)
+- ❌ Should reference .archon-os/CAPABILITIES.md (mentioned but not linked)
 - ❌ No reference to ADRs (mentions ADR-026 but no link to ADR index)
 
-**orchestration/claude-flow/CLAUDE.md**:
+**orchestration/archon-os/CLAUDE.md**:
 - ❌ No references to consolidated v3 documentation
 - ❌ Should point to root CLAUDE.md as canonical source
 
@@ -178,10 +178,10 @@ Reviewed all CLAUDE.md files across Project Nyra repository for v3 consistency, 
 Add to root CLAUDE.md:
 ```markdown
 ## 📚 Consolidated Documentation
-- [V3 Capabilities Reference](.claude-flow/CAPABILITIES.md)
+- [V3 Capabilities Reference](.archon-os/CAPABILITIES.md)
 - [Architecture Decision Records](docs/architecture/ADRs/)
 - [Whitepaper Workflow](ToDo/whitepaper-workflow/)
-- [SPARC Methodology](orchestration/claude-flow/)
+- [SPARC Methodology](orchestration/archon-os/)
 ```
 
 ---
@@ -206,12 +206,12 @@ Add to root CLAUDE.md:
 
 ### 🟡 DETAIL LEVEL ISSUES
 
-**orchestration/claude-flow/CLAUDE.md**:
+**orchestration/archon-os/CLAUDE.md**:
 - ⚠️ Too much overlap with root (353 lines)
 - Should be 50-100 lines with "See root CLAUDE.md for v3 standards"
 - Keep only orchestration-specific implementation details
 
-**docs/references/claude-flow-wiki/CLAUDE.md**:
+**docs/references/archon-os-wiki/CLAUDE.md**:
 - ⚠️ 878 lines, nearly duplicate of root
 - Should be lightweight: "See root CLAUDE.md - this is implementation archive"
 - Or: Update to match root v3 patterns if it's meant to be canonical
@@ -242,7 +242,7 @@ Add to root CLAUDE.md:
 
 ### 🔴 MISSING/INCORRECT V3 FEATURES
 
-**orchestration/claude-flow/CLAUDE.md**:
+**orchestration/archon-os/CLAUDE.md**:
 - ❌ No model routing documentation
 - ❌ Missing hooks automation details
 - ❌ No neural pattern training references
@@ -250,7 +250,7 @@ Add to root CLAUDE.md:
 - ❌ No session persistence patterns
 - ❌ References "Socket.IO" (should be HTTP polling + ETags)
 
-**docs/references/claude-flow-wiki/CLAUDE.md**:
+**docs/references/archon-os-wiki/CLAUDE.md**:
 - ❌ Still uses v2 patterns heavily
 - ❌ Missing HNSW references
 - ❌ No Agent Booster
@@ -276,7 +276,7 @@ This app can use Claude Flow hooks for:
 See root CLAUDE.md for full hooks documentation.
 ```
 
-**For orchestration/claude-flow**: Align with root v3 patterns or clearly state it's v2 archive
+**For orchestration/archon-os**: Align with root v3 patterns or clearly state it's v2 archive
 
 ---
 
@@ -285,9 +285,9 @@ See root CLAUDE.md for full hooks documentation.
 ### ✅ VALID CROSS-REFERENCES
 
 **Root CLAUDE.md**:
-- ✅ References .claude-flow/CAPABILITIES.md (file exists, mentioned in text)
+- ✅ References .archon-os/CAPABILITIES.md (file exists, mentioned in text)
 - ✅ References hooks via CLI commands (validated commands exist)
-- ✅ References GitHub: github.com/ruvnet/claude-flow (valid)
+- ✅ References GitHub: github.com/ruvnet/archon-os (valid)
 
 **tools/archon/CLAUDE.md**:
 - ✅ All PRPs/ai_docs/* references valid (verified files exist)
@@ -308,14 +308,14 @@ See root CLAUDE.md for full hooks documentation.
 - ❌ ADR-026 mentioned but no link to ADR documents
 - ❌ "Token-Tracking-Telemetry.md" referenced but not found
 
-**orchestration/claude-flow/CLAUDE.md**:
+**orchestration/archon-os/CLAUDE.md**:
 - ❌ References ".claude/commands/" - directory not found
 - ❌ References ".claude/settings.json" - file not found
 - ❌ "examples/" directory mentioned - not found
 
 **ToDo/whitepaper-workflow/CLAUDE-MD-Templates/CLAUDE.md**:
-- ❌ References "../../../docs/references/claude-flow-wiki/" (exists but 3 levels up incorrect)
-- ❌ References "../../../docs/references/claude-flow-examples/" (not found)
+- ❌ References "../../../docs/references/archon-os-wiki/" (exists but 3 levels up incorrect)
+- ❌ References "../../../docs/references/archon-os-examples/" (not found)
 
 **Auto-generated App CLAUDE.md Files**:
 - ⚠️ All reference: "To regenerate, run: `node scripts/batch-claude-md/batch-template-engine.js`"
@@ -326,7 +326,7 @@ See root CLAUDE.md for full hooks documentation.
 1. **Create missing directories**:
    - .claude/commands/
    - .workflows/
-   - docs/references/claude-flow-examples/
+   - docs/references/archon-os-examples/
 
 2. **Update broken references**:
    - Add ADR index document
@@ -336,7 +336,7 @@ See root CLAUDE.md for full hooks documentation.
 3. **Add validation script**:
    ```bash
    # Validate all CLAUDE.md cross-references
-   npx @claude-flow/cli@latest hooks worker dispatch --trigger validate-docs
+   npx @archon-os/cli@latest hooks worker dispatch --trigger validate-docs
    ```
 
 ---
@@ -345,12 +345,12 @@ See root CLAUDE.md for full hooks documentation.
 
 ### Critical Files (Require Updates)
 
-**C:\Dev\Projects\Repos\Project-Nyra\orchestration\claude-flow\CLAUDE.md**:
+**C:\Dev\Projects\Repos\Project-Nyra\orchestration\archon-os\CLAUDE.md**:
 - Status: 🔴 NEEDS MAJOR UPDATE
 - Issues: v2 patterns, missing v3 features, overlaps with root
 - Recommendation: Reduce to 50-100 lines pointing to root, or fully update to v3
 
-**C:\Dev\Projects\Repos\Project-Nyra\docs\references\claude-flow-wiki\CLAUDE.md**:
+**C:\Dev\Projects\Repos\Project-Nyra\docs\references\archon-os-wiki\CLAUDE.md**:
 - Status: 🔴 NEEDS MAJOR UPDATE OR ARCHIVAL
 - Issues: Nearly duplicate of root but with v2 patterns
 - Recommendation: Either archive as "v2-reference" or update to match root exactly
@@ -391,24 +391,24 @@ See root CLAUDE.md for full hooks documentation.
    - Add to Archon: "SCOPE: This rule applies ONLY within tools/archon/ directory"
 
 2. **Standardize Package References**:
-   - Replace all "claude-flow@alpha" with "@claude-flow/cli@latest"
-   - Update orchestration/claude-flow/CLAUDE.md
+   - Replace all "archon-os@alpha" with "@archon-os/cli@latest"
+   - Update orchestration/archon-os/CLAUDE.md
 
 3. **Fix Root Cross-References**:
-   - Create .claude-flow/CAPABILITIES.md or remove reference
+   - Create .archon-os/CAPABILITIES.md or remove reference
    - Add docs/architecture/ADRs/ directory with index
    - Fix all broken file references
 
 ### 🟡 HIGH PRIORITY (Do This Week)
 
-4. **Update orchestration/claude-flow/CLAUDE.md**:
+4. **Update orchestration/archon-os/CLAUDE.md**:
    - Reduce to lightweight file pointing to root
    - Or: Fully update to v3 patterns matching root
    - Remove v2 references (Socket.IO, etc.)
 
-5. **Archive or Update claude-flow-wiki**:
+5. **Archive or Update archon-os-wiki**:
    - Decision needed: Is this v2 archive or should match root?
-   - If archive: Rename directory to "claude-flow-v2-reference"
+   - If archive: Rename directory to "archon-os-v2-reference"
    - If update: Align with root v3 patterns completely
 
 6. **Add Hooks Section to App CLAUDE.md Files**:
@@ -421,7 +421,7 @@ See root CLAUDE.md for full hooks documentation.
 7. **Create Missing Directories**:
    - .claude/commands/ with command documentation
    - .workflows/ with example workflows
-   - docs/references/claude-flow-examples/
+   - docs/references/archon-os-examples/
 
 8. **Standardize CLI Flag Format**:
    - Document canonical flag format in root
@@ -497,11 +497,11 @@ Status: ✅ Consistent and maintainable
 
 **Manual/Custom Files** (Mixed):
 - Root CLAUDE.md → ✅ Excellent
-- orchestration/claude-flow/CLAUDE.md → 🔴 Needs v3 update
+- orchestration/archon-os/CLAUDE.md → 🔴 Needs v3 update
 - orchestration/serena/CLAUDE.md → ✅ Appropriate (separate system)
 - tools/archon/CLAUDE.md → ✅ Excellent (separate system)
 - tools/archon/archon-example-workflow/CLAUDE.md → 🟡 Needs scope clarification
-- docs/references/claude-flow-wiki/CLAUDE.md → 🔴 Archive or update decision needed
+- docs/references/archon-os-wiki/CLAUDE.md → 🔴 Archive or update decision needed
 
 **Template Files**:
 - ToDo/whitepaper-workflow/CLAUDE-MD-Templates/CLAUDE.md → 🟡 Needs examples
@@ -514,13 +514,13 @@ Status: ✅ Consistent and maintainable
 
 ### Week 1: Critical Fixes
 - [ ] Add scope disclaimers to resolve TodoWrite vs Archon conflict
-- [ ] Standardize all package references to @claude-flow/cli@latest
+- [ ] Standardize all package references to @archon-os/cli@latest
 - [ ] Fix root CLAUDE.md broken cross-references
-- [ ] Create .claude-flow/CAPABILITIES.md or remove reference
+- [ ] Create .archon-os/CAPABILITIES.md or remove reference
 
 ### Week 2: High Priority Updates
-- [ ] Decide on claude-flow-wiki: archive or update
-- [ ] Update orchestration/claude-flow/CLAUDE.md to v3 or make lightweight
+- [ ] Decide on archon-os-wiki: archive or update
+- [ ] Update orchestration/archon-os/CLAUDE.md to v3 or make lightweight
 - [ ] Add hooks integration sections to app CLAUDE.md files
 - [ ] Remove all WebSocket/Socket.IO references
 

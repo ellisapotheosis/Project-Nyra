@@ -9,7 +9,7 @@ Generated from files containing `.env` in their filename across repo root, `infr
 - Files scanned: 18
 - Key/value entries parsed: 1009
 
-### `.env.claude-flow`
+### `.env.archon-os`
 
 | Variable                            | Value                     | Classification     | Line |
 | ----------------------------------- | ------------------------- | ------------------ | ---- |
@@ -18,9 +18,9 @@ Generated from files containing `.env` in their filename across repo root, `infr
 | `CLAUDE_FLOW_VERSION`               | `3.0.0-alpha.104`         | non-secret-literal | 12   |
 | `CLAUDE_FLOW_DEBUG`                 | `true`                    | non-secret-literal | 13   |
 | `CLAUDE_FLOW_LOG_LEVEL`             | `info`                    | non-secret-literal | 14   |
-| `CLAUDE_FLOW_DATA_DIR`              | `./.claude-flow/data`     | non-secret-literal | 15   |
+| `CLAUDE_FLOW_DATA_DIR`              | `./.archon-os/data`     | non-secret-literal | 15   |
 | `CLAUDE_FLOW_MEMORY_DIR`            | `./.claude/memory`        | non-secret-literal | 16   |
-| `CLAUDE_FLOW_CONFIG_DIR`            | `./.claude-flow/config`   | non-secret-literal | 17   |
+| `CLAUDE_FLOW_CONFIG_DIR`            | `./.archon-os/config`   | non-secret-literal | 17   |
 | `CLAUDE_FLOW_ENABLED`               | `true`                    | non-secret-literal | 22   |
 | `CLAUDE_FLOW_AUTO_COMMIT`           | `true`                    | non-secret-literal | 23   |
 | `CLAUDE_FLOW_AUTO_PUSH`             | `false`                   | non-secret-literal | 24   |
@@ -58,20 +58,20 @@ Generated from files containing `.env` in their filename across repo root, `infr
 | `SWARM_NEURAL_SYNC`                 | `true`                    | non-secret-literal | 77   |
 | `SWARM_MAX_AGENTS`                  | `35`                      | non-secret-literal | 78   |
 | `SWARM_AUTO_SCALE`                  | `true`                    | non-secret-literal | 79   |
-| `AGENTDB_ENABLED`                   | `true`                    | non-secret-literal | 84   |
-| `AGENTDB_PATH`                      | `.agentdb/claude-flow.db` | non-secret-literal | 85   |
-| `AGENTDB_QUANTIZATION`              | `scalar`                  | non-secret-literal | 86   |
-| `AGENTDB_CACHE_SIZE`                | `2000`                    | non-secret-literal | 87   |
-| `AGENTDB_HNSW_M`                    | `16`                      | non-secret-literal | 88   |
-| `AGENTDB_HNSW_EF`                   | `200`                     | non-secret-literal | 89   |
-| `AGENTDB_HNSW_EF_SEARCH`            | `100`                     | non-secret-literal | 90   |
-| `AGENTDB_LEARNING`                  | `true`                    | non-secret-literal | 91   |
-| `AGENTDB_LEARNING_ALGORITHM`        | `decision-transformer`    | non-secret-literal | 92   |
-| `AGENTDB_REASONING`                 | `true`                    | non-secret-literal | 93   |
-| `AGENTDB_QUIC_SYNC`                 | `false`                   | non-secret-literal | 94   |
-| `AGENTDB_QUIC_PORT`                 | `4433`                    | non-secret-literal | 95   |
-| `AGENTDB_AUTO_MIGRATE`              | `true`                    | non-secret-literal | 96   |
-| `AGENTDB_FALLBACK_LEGACY`           | `true`                    | non-secret-literal | 97   |
+| `ruvector_ENABLED`                   | `true`                    | non-secret-literal | 84   |
+| `ruvector_PATH`                      | `.ruvector/archon-os.db` | non-secret-literal | 85   |
+| `ruvector_QUANTIZATION`              | `scalar`                  | non-secret-literal | 86   |
+| `ruvector_CACHE_SIZE`                | `2000`                    | non-secret-literal | 87   |
+| `ruvector_HNSW_M`                    | `16`                      | non-secret-literal | 88   |
+| `ruvector_HNSW_EF`                   | `200`                     | non-secret-literal | 89   |
+| `ruvector_HNSW_EF_SEARCH`            | `100`                     | non-secret-literal | 90   |
+| `ruvector_LEARNING`                  | `true`                    | non-secret-literal | 91   |
+| `ruvector_LEARNING_ALGORITHM`        | `decision-transformer`    | non-secret-literal | 92   |
+| `ruvector_REASONING`                 | `true`                    | non-secret-literal | 93   |
+| `ruvector_QUIC_SYNC`                 | `false`                   | non-secret-literal | 94   |
+| `ruvector_QUIC_PORT`                 | `4433`                    | non-secret-literal | 95   |
+| `ruvector_AUTO_MIGRATE`              | `true`                    | non-secret-literal | 96   |
+| `ruvector_FALLBACK_LEGACY`           | `true`                    | non-secret-literal | 97   |
 | `REASONINGBANK_ENABLED`             | `true`                    | non-secret-literal | 102  |
 | `REASONINGBANK_DB_PATH`             | `[REDACTED]`              | possible-secret    | 103  |
 | `REASONINGBANK_K`                   | `10`                      | non-secret-literal | 104  |
@@ -131,7 +131,7 @@ Generated from files containing `.env` in their filename across repo root, `infr
 | `TURBO_TELEMETRY_DISABLED`          | `1`                       | non-secret-literal | 196  |
 | `DEBUG`                             | `false`                   | non-secret-literal | 197  |
 
-### `.env.dev.claude-flow`
+### `.env.dev.archon-os`
 
 | Variable                           | Value                      | Classification     | Line |
 | ---------------------------------- | -------------------------- | ------------------ | ---- |
@@ -239,9 +239,9 @@ Generated from files containing `.env` in their filename across repo root, `infr
 | `TWENTY_LOGIN_TOKEN_SECRET`              | `[REDACTED]`            | possible-secret    | 143  |
 | `TWENTY_REFRESH_TOKEN_SECRET`            | `[REDACTED]`            | possible-secret    | 144  |
 | `TWENTY_FILE_TOKEN_SECRET`               | `[REDACTED]`            | possible-secret    | 145  |
-| `GRAPHITI_API_KEY`                       | `[REDACTED]`            | possible-secret    | 153  |
-| `GRAPHITI_TEMPORAL_TRACKING`             | `true`                  | non-secret-literal | 154  |
-| `GRAPHITI_RELATIONSHIP_INFERENCE`        | `true`                  | non-secret-literal | 155  |
+| `letta_API_KEY`                       | `[REDACTED]`            | possible-secret    | 153  |
+| `letta_TEMPORAL_TRACKING`             | `true`                  | non-secret-literal | 154  |
+| `letta_RELATIONSHIP_INFERENCE`        | `true`                  | non-secret-literal | 155  |
 | `QUOTE_ENGINE_PORT`                      | `8001`                  | non-secret-literal | 162  |
 | `QUOTE_ENGINE_URL`                       | `http://localhost:8001` | non-secret-literal | 163  |
 | `QUOTE_ENGINE_HOST`                      | `0.0.0.0`               | non-secret-literal | 164  |
@@ -630,7 +630,7 @@ Generated from files containing `.env` in their filename across repo root, `infr
 | `DEBUG_MODE`            | `false`           | non-secret-literal | 42   |
 | `PROFILING_ENABLED`     | `false`           | non-secret-literal | 43   |
 
-### `.env.prod.claude-flow`
+### `.env.prod.archon-os`
 
 | Variable                           | Value                                                                          | Classification     | Line |
 | ---------------------------------- | ------------------------------------------------------------------------------ | ------------------ | ---- |
@@ -802,10 +802,10 @@ Generated from files containing `.env` in their filename across repo root, `infr
 | `LETTA_PG_URI`                    | `[REDACTED]`                                    | possible-secret    | 95   |
 | `MEM0_PORT`                       | `4321`                                          | non-secret-literal | 98   |
 | `MEM0_HOST`                       | `0.0.0.0`                                       | non-secret-literal | 99   |
-| `AGENTDB_PORT`                    | `8080`                                          | non-secret-literal | 102  |
-| `AGENTDB_HOST`                    | `0.0.0.0`                                       | non-secret-literal | 103  |
-| `GRAPHITI_PORT`                   | `8007`                                          | non-secret-literal | 106  |
-| `GRAPHITI_HOST`                   | `0.0.0.0`                                       | non-secret-literal | 107  |
+| `ruvector_PORT`                    | `8080`                                          | non-secret-literal | 102  |
+| `ruvector_HOST`                    | `0.0.0.0`                                       | non-secret-literal | 103  |
+| `letta_PORT`                   | `8007`                                          | non-secret-literal | 106  |
+| `letta_HOST`                   | `0.0.0.0`                                       | non-secret-literal | 107  |
 | `RUVECTOR_PORT`                   | `6333`                                          | non-secret-literal | 110  |
 | `RUVECTOR_HOST`                   | `0.0.0.0`                                       | non-secret-literal | 111  |
 | `N8N_PORT`                        | `5678`                                          | non-secret-literal | 118  |
@@ -1177,7 +1177,7 @@ Generated from files containing `.env` in their filename across repo root, `infr
 | `POSTGRES_PORT`      | `5432`                  | non-secret-literal | 6    |
 | `POSTGRES_DB`        | `claude_flow`           | non-secret-literal | 7    |
 | `POSTGRES_USER`      | `claude`                | non-secret-literal | 8    |
-| `POSTGRES_PASSWORD`  | `claude-flow-test`      | non-secret-literal | 9    |
+| `POSTGRES_PASSWORD`  | `archon-os-test`      | non-secret-literal | 9    |
 | `REDIS_URL`          | `redis://redis:6379`    | non-secret-literal | 12   |
 | `LITELLM_MASTER_KEY` | `[REDACTED]`            | possible-secret    | 15   |
 | `LITELLM_PORT`       | `4000`                  | non-secret-literal | 16   |
@@ -1244,7 +1244,7 @@ Generated from files containing `.env` in their filename across repo root, `infr
 | `GRAFANA_PORT`               | `3003`                     | non-secret-literal | 68   |
 | `LOKI_PORT`                  | `3100`                     | non-secret-literal | 69   |
 
-### `infra/configs/claude-flow-cicd/.env.cicd.example`
+### `infra/configs/archon-os-cicd/.env.cicd.example`
 
 | Variable                            | Value                    | Classification     | Line |
 | ----------------------------------- | ------------------------ | ------------------ | ---- |
@@ -1284,26 +1284,26 @@ Generated from files containing `.env` in their filename across repo root, `infr
 | `SWARM_NEURAL_SYNC`                 | `true`                   | non-secret-literal | 61   |
 | `SWARM_MAX_AGENTS`                  | `35`                     | non-secret-literal | 62   |
 | `SWARM_AUTO_SCALE`                  | `true`                   | non-secret-literal | 63   |
-| `AGENTDB_ENABLED`                   | `true`                   | non-secret-literal | 68   |
-| `AGENTDB_PATH`                      | `[REDACTED]`             | possible-secret    | 69   |
-| `AGENTDB_QUANTIZATION`              | `scalar`                 | non-secret-literal | 70   |
-| `AGENTDB_CACHE_SIZE`                | `2000`                   | non-secret-literal | 71   |
-| `AGENTDB_HNSW_M`                    | `16`                     | non-secret-literal | 72   |
-| `AGENTDB_HNSW_EF`                   | `200`                    | non-secret-literal | 73   |
-| `AGENTDB_HNSW_EF_SEARCH`            | `100`                    | non-secret-literal | 74   |
-| `AGENTDB_LEARNING`                  | `true`                   | non-secret-literal | 75   |
-| `AGENTDB_LEARNING_ALGORITHM`        | `decision-transformer`   | non-secret-literal | 76   |
-| `AGENTDB_REASONING`                 | `true`                   | non-secret-literal | 77   |
-| `AGENTDB_QUIC_SYNC`                 | `false`                  | non-secret-literal | 78   |
-| `AGENTDB_AUTO_MIGRATE`              | `true`                   | non-secret-literal | 79   |
-| `AGENTDB_FALLBACK_LEGACY`           | `true`                   | non-secret-literal | 80   |
+| `ruvector_ENABLED`                   | `true`                   | non-secret-literal | 68   |
+| `ruvector_PATH`                      | `[REDACTED]`             | possible-secret    | 69   |
+| `ruvector_QUANTIZATION`              | `scalar`                 | non-secret-literal | 70   |
+| `ruvector_CACHE_SIZE`                | `2000`                   | non-secret-literal | 71   |
+| `ruvector_HNSW_M`                    | `16`                     | non-secret-literal | 72   |
+| `ruvector_HNSW_EF`                   | `200`                    | non-secret-literal | 73   |
+| `ruvector_HNSW_EF_SEARCH`            | `100`                    | non-secret-literal | 74   |
+| `ruvector_LEARNING`                  | `true`                   | non-secret-literal | 75   |
+| `ruvector_LEARNING_ALGORITHM`        | `decision-transformer`   | non-secret-literal | 76   |
+| `ruvector_REASONING`                 | `true`                   | non-secret-literal | 77   |
+| `ruvector_QUIC_SYNC`                 | `false`                  | non-secret-literal | 78   |
+| `ruvector_AUTO_MIGRATE`              | `true`                   | non-secret-literal | 79   |
+| `ruvector_FALLBACK_LEGACY`           | `true`                   | non-secret-literal | 80   |
 | `REASONINGBANK_ENABLED`             | `true`                   | non-secret-literal | 85   |
 | `REASONINGBANK_DB_PATH`             | `[REDACTED]`             | possible-secret    | 86   |
 | `REASONINGBANK_K`                   | `10`                     | non-secret-literal | 87   |
 | `REASONINGBANK_MIN_CONFIDENCE`      | `0.5`                    | non-secret-literal | 88   |
 | `AGENTIC_FLOW_TRAINING`             | `true`                   | non-secret-literal | 89   |
 | `MEMORY_BACKEND`                    | `hybrid`                 | non-secret-literal | 94   |
-| `MEMORY_PRIMARY_STORE`              | `agentdb`                | non-secret-literal | 95   |
+| `MEMORY_PRIMARY_STORE`              | `ruvector`                | non-secret-literal | 95   |
 | `MEMORY_SECONDARY_STORE`            | `sqlite`                 | non-secret-literal | 96   |
 | `MEMORY_AUTO_PERSIST`               | `true`                   | non-secret-literal | 97   |
 | `MEMORY_COMPRESSION`                | `true`                   | non-secret-literal | 98   |
@@ -1386,7 +1386,7 @@ Generated from files containing `.env` in their filename across repo root, `infr
 | Variable                     | Value                          | Classification     | Line |
 | ---------------------------- | ------------------------------ | ------------------ | ---- |
 | `REDIS_PORT`                 | `6379`                         | non-secret-literal | 2    |
-| `AGENTDB_PORT`               | `5440`                         | non-secret-literal | 3    |
+| `ruvector_PORT`               | `5440`                         | non-secret-literal | 3    |
 | `RUVECTOR_POSTGRES_PORT`     | `5436`                         | non-secret-literal | 4    |
 | `AGENTIC_FLOW_PORT`          | `8095`                         | non-secret-literal | 5    |
 | `AGENTIC_FLOW_PROVIDER`      | `anthropic`                    | non-secret-literal | 6    |
@@ -1395,9 +1395,9 @@ Generated from files containing `.env` in their filename across repo root, `infr
 | `CLAUDE_FLOW_DASHBOARD_PORT` | `3003`                         | non-secret-literal | 9    |
 | `EVENT_SERVER_WS_PORT`       | `3004`                         | non-secret-literal | 10   |
 | `EVENT_SERVER_HTTP_PORT`     | `3005`                         | non-secret-literal | 11   |
-| `AGENTDB_DB`                 | `agentdb`                      | non-secret-literal | 14   |
-| `AGENTDB_USER`               | `agentdb`                      | non-secret-literal | 15   |
-| `AGENTDB_PASSWORD`           | `REPLACE_ME_AGENTDB_PASSWORD`  | placeholder        | 16   |
+| `ruvector_DB`                 | `ruvector`                      | non-secret-literal | 14   |
+| `ruvector_USER`               | `ruvector`                      | non-secret-literal | 15   |
+| `ruvector_PASSWORD`           | `REPLACE_ME_ruvector_PASSWORD`  | placeholder        | 16   |
 | `RUVECTOR_POSTGRES_DB`       | `claude_flow`                  | non-secret-literal | 18   |
 | `RUVECTOR_POSTGRES_USER`     | `claude`                       | non-secret-literal | 19   |
 | `RUVECTOR_POSTGRES_PASSWORD` | `REPLACE_ME_RUVECTOR_PASSWORD` | placeholder        | 20   |
@@ -1408,7 +1408,7 @@ Generated from files containing `.env` in their filename across repo root, `infr
 | `RUFLO_VERSION`              | `3.5.15`                       | non-secret-literal | 29   |
 | `CLAUDE_FLOW_VERSION`        | `3.5.15`                       | non-secret-literal | 30   |
 | `AGENTIC_FLOW_VERSION`       | `2.0.7`                        | non-secret-literal | 31   |
-| `AGENTDB_VERSION`            | `3.0.0-alpha.10`               | non-secret-literal | 32   |
+| `ruvector_VERSION`            | `3.0.0-alpha.10`               | non-secret-literal | 32   |
 | `RUVECTOR_VERSION`           | `0.2.12`                       | non-secret-literal | 33   |
 | `AGENT_BOOSTER_VERSION`      | `0.2.2`                        | non-secret-literal | 34   |
 | `CLAUDE_FLOW_MEMORY_VERSION` | `3.0.0-alpha.11`               | non-secret-literal | 35   |
@@ -2108,7 +2108,7 @@ Generated from files containing `.env` in their filename across repo root, `infr
 | `DIFY_POSTGRES_USER`       | `dify`                      | non-secret-literal | 32   |
 | `DIFY_POSTGRES_PASSWORD`   | `dify`                      | non-secret-literal | 33   |
 | `DIFY_POSTGRES_DB`         | `dify`                      | non-secret-literal | 34   |
-| `GRAPHITI_GROUP_ID`        | `nyra`                      | non-secret-literal | 37   |
+| `letta_GROUP_ID`        | `nyra`                      | non-secret-literal | 37   |
 
 ### `infra/workers/worker-3060/.env.example`
 
@@ -2215,8 +2215,8 @@ Generated from files containing `.env` in their filename across repo root, `infr
 | `N8N_API_KEY`                    | `your-n8n-api-key-here`                          | non-secret-literal | 213  |
 | `LETTA_URL`                      | `http://letta.tail-net.ts.net:8283`              | non-secret-literal | 216  |
 | `LETTA_API_KEY`                  | `your-letta-api-key-here`                        | non-secret-literal | 217  |
-| `GRAPHITI_URL`                   | `http://graphiti.tail-net.ts.net:8080`           | non-secret-literal | 220  |
-| `GRAPHITI_API_KEY`               | `[REDACTED]`                                     | possible-secret    | 221  |
+| `letta_URL`                   | `http://letta.tail-net.ts.net:8080`           | non-secret-literal | 220  |
+| `letta_API_KEY`               | `[REDACTED]`                                     | possible-secret    | 221  |
 | `RUVECTOR_URL`                   | `http://ruvector.tail-net.ts.net:6333`           | non-secret-literal | 224  |
 | `RUVECTOR_API_KEY`               | `[REDACTED]`                                     | possible-secret    | 225  |
 | `ENABLE_GPU`                     | `true`                                           | non-secret-literal | 231  |
@@ -2420,9 +2420,9 @@ Generated from files containing `.env` in their filename across repo root, `infr
 | `NODE_ENV`                          | `development`                                                 | non-secret-literal | 7    |
 | `CLAUDE_FLOW_DEBUG`                 | `true`                                                        | non-secret-literal | 8    |
 | `CLAUDE_FLOW_LOG_LEVEL`             | `info`                                                        | non-secret-literal | 9    |
-| `CLAUDE_FLOW_DATA_DIR`              | `./.claude-flow/data`                                         | non-secret-literal | 10   |
-| `CLAUDE_FLOW_MEMORY_DIR`            | `./.claude-flow/memory`                                       | non-secret-literal | 11   |
-| `CLAUDE_FLOW_CONFIG_DIR`            | `./.claude-flow/config`                                       | non-secret-literal | 12   |
+| `CLAUDE_FLOW_DATA_DIR`              | `./.archon-os/data`                                         | non-secret-literal | 10   |
+| `CLAUDE_FLOW_MEMORY_DIR`            | `./.archon-os/memory`                                       | non-secret-literal | 11   |
+| `CLAUDE_FLOW_CONFIG_DIR`            | `./.archon-os/config`                                       | non-secret-literal | 12   |
 | `CLAUDE_FLOW_ENABLED`               | `true`                                                        | non-secret-literal | 15   |
 | `CLAUDE_FLOW_AUTO_COMMIT`           | `true`                                                        | non-secret-literal | 16   |
 | `CLAUDE_FLOW_AUTO_PUSH`             | `false`                                                       | non-secret-literal | 17   |
@@ -2450,20 +2450,20 @@ Generated from files containing `.env` in their filename across repo root, `infr
 | `SWARM_COORDINATION_PROTOCOL`       | `mesh`                                                        | non-secret-literal | 45   |
 | `SWARM_MEMORY_SHARED`               | `true`                                                        | non-secret-literal | 46   |
 | `SWARM_NEURAL_SYNC`                 | `true`                                                        | non-secret-literal | 47   |
-| `AGENTDB_ENABLED`                   | `true`                                                        | non-secret-literal | 50   |
-| `AGENTDB_PATH`                      | `.agentdb/claude-flow.db`                                     | non-secret-literal | 51   |
-| `AGENTDB_QUANTIZATION`              | `scalar`                                                      | non-secret-literal | 52   |
-| `AGENTDB_CACHE_SIZE`                | `1000`                                                        | non-secret-literal | 53   |
-| `AGENTDB_HNSW_M`                    | `16`                                                          | non-secret-literal | 54   |
-| `AGENTDB_HNSW_EF`                   | `100`                                                         | non-secret-literal | 55   |
-| `AGENTDB_LEARNING`                  | `true`                                                        | non-secret-literal | 56   |
-| `AGENTDB_LEARNING_ALGORITHM`        | `decision-transformer`                                        | non-secret-literal | 57   |
-| `AGENTDB_REASONING`                 | `true`                                                        | non-secret-literal | 58   |
-| `AGENTDB_QUIC_SYNC`                 | `false`                                                       | non-secret-literal | 59   |
-| `AGENTDB_QUIC_PORT`                 | `4433`                                                        | non-secret-literal | 60   |
-| `AGENTDB_QUIC_PEERS`                | ``                                                            | empty              | 61   |
-| `AGENTDB_AUTO_MIGRATE`              | `true`                                                        | non-secret-literal | 62   |
-| `AGENTDB_FALLBACK_LEGACY`           | `true`                                                        | non-secret-literal | 63   |
+| `ruvector_ENABLED`                   | `true`                                                        | non-secret-literal | 50   |
+| `ruvector_PATH`                      | `.ruvector/archon-os.db`                                     | non-secret-literal | 51   |
+| `ruvector_QUANTIZATION`              | `scalar`                                                      | non-secret-literal | 52   |
+| `ruvector_CACHE_SIZE`                | `1000`                                                        | non-secret-literal | 53   |
+| `ruvector_HNSW_M`                    | `16`                                                          | non-secret-literal | 54   |
+| `ruvector_HNSW_EF`                   | `100`                                                         | non-secret-literal | 55   |
+| `ruvector_LEARNING`                  | `true`                                                        | non-secret-literal | 56   |
+| `ruvector_LEARNING_ALGORITHM`        | `decision-transformer`                                        | non-secret-literal | 57   |
+| `ruvector_REASONING`                 | `true`                                                        | non-secret-literal | 58   |
+| `ruvector_QUIC_SYNC`                 | `false`                                                       | non-secret-literal | 59   |
+| `ruvector_QUIC_PORT`                 | `4433`                                                        | non-secret-literal | 60   |
+| `ruvector_QUIC_PEERS`                | ``                                                            | empty              | 61   |
+| `ruvector_AUTO_MIGRATE`              | `true`                                                        | non-secret-literal | 62   |
+| `ruvector_FALLBACK_LEGACY`           | `true`                                                        | non-secret-literal | 63   |
 | `REASONINGBANK_ENABLED`             | `true`                                                        | non-secret-literal | 66   |
 | `REASONINGBANK_DB_PATH`             | `.swarm/memory.db`                                            | non-secret-literal | 67   |
 | `REASONINGBANK_K`                   | `5`                                                           | non-secret-literal | 68   |
@@ -2506,7 +2506,7 @@ Generated from files containing `.env` in their filename across repo root, `infr
 | `GITHUB_AUTO_ISSUE_ON_ERROR`        | `false`                                                       | non-secret-literal | 117  |
 | `GITHUB_PR_ON_MAJOR_IMPROVEMENT`    | `false`                                                       | non-secret-literal | 118  |
 | `GITHUB_SYNC_LEARNINGS`             | `true`                                                        | non-secret-literal | 119  |
-| `DATABASE_URL`                      | `${DATABASE_URL:-sqlite:///.claude-flow/data/claude-flow.db}` | interpolated       | 122  |
+| `DATABASE_URL`                      | `${DATABASE_URL:-sqlite:///.archon-os/data/archon-os.db}` | interpolated       | 122  |
 | `REDIS_URL`                         | `${REDIS_URL:-redis://localhost:6379/0}`                      | interpolated       | 123  |
 | `CACHE_TTL`                         | `3600`                                                        | non-secret-literal | 124  |
 | `CONNECTION_POOL_SIZE`              | `20`                                                          | non-secret-literal | 125  |
@@ -2527,8 +2527,8 @@ Generated from files containing `.env` in their filename across repo root, `infr
 | `AWS_REGION`                        | `${AWS_REGION:-us-west-2}`                                    | interpolated       | 149  |
 | `AWS_ACCESS_KEY_ID`                 | `${AWS_ACCESS_KEY_ID}`                                        | interpolated       | 150  |
 | `AWS_SECRET_ACCESS_KEY`             | `${AWS_SECRET_ACCESS_KEY}`                                    | interpolated       | 151  |
-| `S3_BUCKET`                         | `${S3_BUCKET:-claude-flow-backups}`                           | interpolated       | 152  |
-| `AGENTS_DIR`                        | `./.claude-flow/agents`                                       | non-secret-literal | 160  |
+| `S3_BUCKET`                         | `${S3_BUCKET:-archon-os-backups}`                           | interpolated       | 152  |
+| `AGENTS_DIR`                        | `./.archon-os/agents`                                       | non-secret-literal | 160  |
 | `PROXY_PORT`                        | `8080`                                                        | non-secret-literal | 161  |
 | `AGENTS_CUSTOM_PATHS`               | `[REDACTED]`                                                  | possible-secret    | 164  |
 | `HOOKS_CUSTOM_PATHS`                | `[REDACTED]`                                                  | possible-secret    | 165  |
@@ -2541,7 +2541,7 @@ Generated from files containing `.env` in their filename across repo root, `infr
 | `PERF_TARGET_MEMORY_OPERATIONS`     | `100`                                                         | non-secret-literal | 176  |
 | `PERF_TARGET_NEURAL_PREDICTIONS`    | `50`                                                          | non-secret-literal | 177  |
 
-### `docs/archive/repo-history/archive-root/20260306/apps-claude-flow-dashboard/.env.example`
+### `docs/archive/repo-history/archive-root/20260306/apps-archon-os-dashboard/.env.example`
 
 | Variable                     | Value                   | Classification     | Line |
 | ---------------------------- | ----------------------- | ------------------ | ---- |
@@ -2674,7 +2674,7 @@ Generated from files containing `.env` in their filename across repo root, `infr
 | `DIFY_POSTGRES_USER`       | `dify`                      | non-secret-literal | 32   |
 | `DIFY_POSTGRES_PASSWORD`   | `dify`                      | non-secret-literal | 33   |
 | `DIFY_POSTGRES_DB`         | `dify`                      | non-secret-literal | 34   |
-| `GRAPHITI_GROUP_ID`        | `nyra`                      | non-secret-literal | 37   |
+| `letta_GROUP_ID`        | `nyra`                      | non-secret-literal | 37   |
 
 ### `docs/archive/repo-history/archived-root/20260306/ToDo/docs/PROJECT-NYRA-ULTIMATE.env`
 
@@ -2753,31 +2753,31 @@ Generated from files containing `.env` in their filename across repo root, `infr
 | `LETTA_EMBEDDING_PROVIDER`            | `openai`                                                 | non-secret-literal | 93   |
 | `LETTA_LLM_PROVIDER`                  | `anthropic`                                              | non-secret-literal | 94   |
 | `LETTA_LLM_MODEL`                     | `[REDACTED]`                                             | possible-secret    | 95   |
-| `GRAPHITI_ENABLED`                    | `true`                                                   | non-secret-literal | 100  |
-| `GRAPHITI_BACKEND`                    | `falkordb`                                               | non-secret-literal | 101  |
-| `GRAPHITI_NEO4J_URI`                  | `bolt://localhost:7687`                                  | non-secret-literal | 102  |
-| `GRAPHITI_NEO4J_USER`                 | `neo4j`                                                  | non-secret-literal | 103  |
-| `GRAPHITI_NEO4J_PASSWORD`             | `neo4j_password`                                         | non-secret-literal | 104  |
-| `GRAPHITI_FALKORDB_URL`               | `redis://localhost:6379`                                 | non-secret-literal | 105  |
-| `GRAPHITI_FALKORDB_HOST`              | `localhost`                                              | non-secret-literal | 106  |
-| `GRAPHITI_FALKORDB_PORT`              | `6379`                                                   | non-secret-literal | 107  |
-| `GRAPHITI_FALKORDB_PASSWORD`          | ``                                                       | empty              | 108  |
-| `GRAPHITI_GRAPH_NAME`                 | `nyra_knowledge`                                         | non-secret-literal | 109  |
-| `GRAPHITI_TEMPORAL_TRACKING`          | `true`                                                   | non-secret-literal | 110  |
-| `GRAPHITI_RELATIONSHIP_INFERENCE`     | `true`                                                   | non-secret-literal | 111  |
-| `GRAPHITI_AUTO_INDEX`                 | `true`                                                   | non-secret-literal | 112  |
-| `GRAPHITI_EMBEDDING_MODEL`            | `text-embedding-3-small`                                 | non-secret-literal | 113  |
-| `GRAPHITI_EMBEDDING_PROVIDER`         | `openai`                                                 | non-secret-literal | 114  |
-| `GRAPHITI_EMBEDDING_DIMENSIONS`       | `1536`                                                   | non-secret-literal | 115  |
-| `GRAPHITI_MAX_NODES`                  | `1000000`                                                | non-secret-literal | 116  |
-| `GRAPHITI_MAX_RELATIONSHIPS`          | `5000000`                                                | non-secret-literal | 117  |
-| `GRAPHITI_INDEX_PROPERTIES`           | `true`                                                   | non-secret-literal | 118  |
-| `GRAPHITI_SNAPSHOT_ENABLED`           | `true`                                                   | non-secret-literal | 119  |
-| `GRAPHITI_SNAPSHOT_INTERVAL`          | `1800`                                                   | non-secret-literal | 120  |
-| `GRAPHITI_BACKUP_ENABLED`             | `true`                                                   | non-secret-literal | 121  |
-| `GRAPHITI_BACKUP_DIR`                 | `./backups/graphiti`                                     | non-secret-literal | 122  |
-| `GRAPHITI_QUERY_TIMEOUT`              | `30000`                                                  | non-secret-literal | 123  |
-| `GRAPHITI_BATCH_SIZE`                 | `1000`                                                   | non-secret-literal | 124  |
+| `letta_ENABLED`                    | `true`                                                   | non-secret-literal | 100  |
+| `letta_BACKEND`                    | `falkordb`                                               | non-secret-literal | 101  |
+| `letta_NEO4J_URI`                  | `bolt://localhost:7687`                                  | non-secret-literal | 102  |
+| `letta_NEO4J_USER`                 | `neo4j`                                                  | non-secret-literal | 103  |
+| `letta_NEO4J_PASSWORD`             | `neo4j_password`                                         | non-secret-literal | 104  |
+| `letta_FALKORDB_URL`               | `redis://localhost:6379`                                 | non-secret-literal | 105  |
+| `letta_FALKORDB_HOST`              | `localhost`                                              | non-secret-literal | 106  |
+| `letta_FALKORDB_PORT`              | `6379`                                                   | non-secret-literal | 107  |
+| `letta_FALKORDB_PASSWORD`          | ``                                                       | empty              | 108  |
+| `letta_GRAPH_NAME`                 | `nyra_knowledge`                                         | non-secret-literal | 109  |
+| `letta_TEMPORAL_TRACKING`          | `true`                                                   | non-secret-literal | 110  |
+| `letta_RELATIONSHIP_INFERENCE`     | `true`                                                   | non-secret-literal | 111  |
+| `letta_AUTO_INDEX`                 | `true`                                                   | non-secret-literal | 112  |
+| `letta_EMBEDDING_MODEL`            | `text-embedding-3-small`                                 | non-secret-literal | 113  |
+| `letta_EMBEDDING_PROVIDER`         | `openai`                                                 | non-secret-literal | 114  |
+| `letta_EMBEDDING_DIMENSIONS`       | `1536`                                                   | non-secret-literal | 115  |
+| `letta_MAX_NODES`                  | `1000000`                                                | non-secret-literal | 116  |
+| `letta_MAX_RELATIONSHIPS`          | `5000000`                                                | non-secret-literal | 117  |
+| `letta_INDEX_PROPERTIES`           | `true`                                                   | non-secret-literal | 118  |
+| `letta_SNAPSHOT_ENABLED`           | `true`                                                   | non-secret-literal | 119  |
+| `letta_SNAPSHOT_INTERVAL`          | `1800`                                                   | non-secret-literal | 120  |
+| `letta_BACKUP_ENABLED`             | `true`                                                   | non-secret-literal | 121  |
+| `letta_BACKUP_DIR`                 | `./backups/letta`                                     | non-secret-literal | 122  |
+| `letta_QUERY_TIMEOUT`              | `30000`                                                  | non-secret-literal | 123  |
+| `letta_BATCH_SIZE`                 | `1000`                                                   | non-secret-literal | 124  |
 | `FALKORDB_ENABLED`                    | `true`                                                   | non-secret-literal | 129  |
 | `FALKORDB_URL`                        | `redis://localhost:6379`                                 | non-secret-literal | 130  |
 | `FALKORDB_HOST`                       | `localhost`                                              | non-secret-literal | 131  |
@@ -3115,13 +3115,13 @@ Generated from files containing `.env` in their filename across repo root, `infr
 | `LETTA_ARCHIVAL_MEMORY`               | `true`                                                                        | non-secret-literal | 117  |
 | `LETTA_AUTO_SAVE`                     | `true`                                                                        | non-secret-literal | 118  |
 | `LETTA_SAVE_INTERVAL`                 | `300`                                                                         | non-secret-literal | 119  |
-| `GRAPHITI_ENABLED`                    | `true`                                                                        | non-secret-literal | 124  |
-| `GRAPHITI_BACKEND`                    | `falkordb`                                                                    | non-secret-literal | 125  |
-| `GRAPHITI_TEMPORAL_TRACKING`          | `true`                                                                        | non-secret-literal | 126  |
-| `GRAPHITI_RELATIONSHIP_INFERENCE`     | `true`                                                                        | non-secret-literal | 127  |
-| `GRAPHITI_AUTO_SNAPSHOT`              | `true`                                                                        | non-secret-literal | 128  |
-| `GRAPHITI_SNAPSHOT_INTERVAL`          | `3600`                                                                        | non-secret-literal | 129  |
-| `GRAPHITI_MAX_NODES`                  | `1000000`                                                                     | non-secret-literal | 130  |
+| `letta_ENABLED`                    | `true`                                                                        | non-secret-literal | 124  |
+| `letta_BACKEND`                    | `falkordb`                                                                    | non-secret-literal | 125  |
+| `letta_TEMPORAL_TRACKING`          | `true`                                                                        | non-secret-literal | 126  |
+| `letta_RELATIONSHIP_INFERENCE`     | `true`                                                                        | non-secret-literal | 127  |
+| `letta_AUTO_SNAPSHOT`              | `true`                                                                        | non-secret-literal | 128  |
+| `letta_SNAPSHOT_INTERVAL`          | `3600`                                                                        | non-secret-literal | 129  |
+| `letta_MAX_NODES`                  | `1000000`                                                                     | non-secret-literal | 130  |
 | `FALKORDB_URL`                        | `redis://localhost:6379`                                                      | non-secret-literal | 135  |
 | `FALKORDB_PASSWORD`                   | ``                                                                            | empty              | 136  |
 | `FALKORDB_DB_INDEX`                   | `0`                                                                           | non-secret-literal | 137  |
@@ -3397,31 +3397,31 @@ Generated from files containing `.env` in their filename across repo root, `infr
 | `LETTA_EMBEDDING_PROVIDER`            | `openai`                                                 | non-secret-literal | 93   |
 | `LETTA_LLM_PROVIDER`                  | `anthropic`                                              | non-secret-literal | 94   |
 | `LETTA_LLM_MODEL`                     | `[REDACTED]`                                             | possible-secret    | 95   |
-| `GRAPHITI_ENABLED`                    | `true`                                                   | non-secret-literal | 100  |
-| `GRAPHITI_BACKEND`                    | `falkordb`                                               | non-secret-literal | 101  |
-| `GRAPHITI_NEO4J_URI`                  | `bolt://localhost:7687`                                  | non-secret-literal | 102  |
-| `GRAPHITI_NEO4J_USER`                 | `neo4j`                                                  | non-secret-literal | 103  |
-| `GRAPHITI_NEO4J_PASSWORD`             | `neo4j_password`                                         | non-secret-literal | 104  |
-| `GRAPHITI_FALKORDB_URL`               | `redis://localhost:6379`                                 | non-secret-literal | 105  |
-| `GRAPHITI_FALKORDB_HOST`              | `localhost`                                              | non-secret-literal | 106  |
-| `GRAPHITI_FALKORDB_PORT`              | `6379`                                                   | non-secret-literal | 107  |
-| `GRAPHITI_FALKORDB_PASSWORD`          | ``                                                       | empty              | 108  |
-| `GRAPHITI_GRAPH_NAME`                 | `nyra_knowledge`                                         | non-secret-literal | 109  |
-| `GRAPHITI_TEMPORAL_TRACKING`          | `true`                                                   | non-secret-literal | 110  |
-| `GRAPHITI_RELATIONSHIP_INFERENCE`     | `true`                                                   | non-secret-literal | 111  |
-| `GRAPHITI_AUTO_INDEX`                 | `true`                                                   | non-secret-literal | 112  |
-| `GRAPHITI_EMBEDDING_MODEL`            | `text-embedding-3-small`                                 | non-secret-literal | 113  |
-| `GRAPHITI_EMBEDDING_PROVIDER`         | `openai`                                                 | non-secret-literal | 114  |
-| `GRAPHITI_EMBEDDING_DIMENSIONS`       | `1536`                                                   | non-secret-literal | 115  |
-| `GRAPHITI_MAX_NODES`                  | `1000000`                                                | non-secret-literal | 116  |
-| `GRAPHITI_MAX_RELATIONSHIPS`          | `5000000`                                                | non-secret-literal | 117  |
-| `GRAPHITI_INDEX_PROPERTIES`           | `true`                                                   | non-secret-literal | 118  |
-| `GRAPHITI_SNAPSHOT_ENABLED`           | `true`                                                   | non-secret-literal | 119  |
-| `GRAPHITI_SNAPSHOT_INTERVAL`          | `1800`                                                   | non-secret-literal | 120  |
-| `GRAPHITI_BACKUP_ENABLED`             | `true`                                                   | non-secret-literal | 121  |
-| `GRAPHITI_BACKUP_DIR`                 | `./backups/graphiti`                                     | non-secret-literal | 122  |
-| `GRAPHITI_QUERY_TIMEOUT`              | `30000`                                                  | non-secret-literal | 123  |
-| `GRAPHITI_BATCH_SIZE`                 | `1000`                                                   | non-secret-literal | 124  |
+| `letta_ENABLED`                    | `true`                                                   | non-secret-literal | 100  |
+| `letta_BACKEND`                    | `falkordb`                                               | non-secret-literal | 101  |
+| `letta_NEO4J_URI`                  | `bolt://localhost:7687`                                  | non-secret-literal | 102  |
+| `letta_NEO4J_USER`                 | `neo4j`                                                  | non-secret-literal | 103  |
+| `letta_NEO4J_PASSWORD`             | `neo4j_password`                                         | non-secret-literal | 104  |
+| `letta_FALKORDB_URL`               | `redis://localhost:6379`                                 | non-secret-literal | 105  |
+| `letta_FALKORDB_HOST`              | `localhost`                                              | non-secret-literal | 106  |
+| `letta_FALKORDB_PORT`              | `6379`                                                   | non-secret-literal | 107  |
+| `letta_FALKORDB_PASSWORD`          | ``                                                       | empty              | 108  |
+| `letta_GRAPH_NAME`                 | `nyra_knowledge`                                         | non-secret-literal | 109  |
+| `letta_TEMPORAL_TRACKING`          | `true`                                                   | non-secret-literal | 110  |
+| `letta_RELATIONSHIP_INFERENCE`     | `true`                                                   | non-secret-literal | 111  |
+| `letta_AUTO_INDEX`                 | `true`                                                   | non-secret-literal | 112  |
+| `letta_EMBEDDING_MODEL`            | `text-embedding-3-small`                                 | non-secret-literal | 113  |
+| `letta_EMBEDDING_PROVIDER`         | `openai`                                                 | non-secret-literal | 114  |
+| `letta_EMBEDDING_DIMENSIONS`       | `1536`                                                   | non-secret-literal | 115  |
+| `letta_MAX_NODES`                  | `1000000`                                                | non-secret-literal | 116  |
+| `letta_MAX_RELATIONSHIPS`          | `5000000`                                                | non-secret-literal | 117  |
+| `letta_INDEX_PROPERTIES`           | `true`                                                   | non-secret-literal | 118  |
+| `letta_SNAPSHOT_ENABLED`           | `true`                                                   | non-secret-literal | 119  |
+| `letta_SNAPSHOT_INTERVAL`          | `1800`                                                   | non-secret-literal | 120  |
+| `letta_BACKUP_ENABLED`             | `true`                                                   | non-secret-literal | 121  |
+| `letta_BACKUP_DIR`                 | `./backups/letta`                                     | non-secret-literal | 122  |
+| `letta_QUERY_TIMEOUT`              | `30000`                                                  | non-secret-literal | 123  |
+| `letta_BATCH_SIZE`                 | `1000`                                                   | non-secret-literal | 124  |
 | `FALKORDB_ENABLED`                    | `true`                                                   | non-secret-literal | 129  |
 | `FALKORDB_URL`                        | `redis://localhost:6379`                                 | non-secret-literal | 130  |
 | `FALKORDB_HOST`                       | `localhost`                                              | non-secret-literal | 131  |
@@ -3697,18 +3697,18 @@ Generated from files containing `.env` in their filename across repo root, `infr
 | `GEMINI_API_KEY`              | ``                        | empty              | 23   |
 | `ANTHROPIC_BASE_URL`          | ``                        | empty              | 26   |
 | `COMPLETION_MODEL`            | `[REDACTED]`              | possible-secret    | 28   |
-| `AGENTDB_ENABLED`             | `true`                    | non-secret-literal | 31   |
-| `AGENTDB_PATH`                | `.agentdb/claude-code.db` | non-secret-literal | 32   |
+| `ruvector_ENABLED`             | `true`                    | non-secret-literal | 31   |
+| `ruvector_PATH`                | `.ruvector/claude-code.db` | non-secret-literal | 32   |
 | `RUVECTOR_ENABLED`            | `false`                   | non-secret-literal | 33   |
 | `LETTA_ENABLED`               | `false`                   | non-secret-literal | 34   |
 | `OPENMEMORY_ENABLED`          | `false`                   | non-secret-literal | 35   |
 | `MEM0_ENABLED`                | `false`                   | non-secret-literal | 36   |
-| `GRAPHITI_ENABLED`            | `false`                   | non-secret-literal | 37   |
+| `letta_ENABLED`            | `false`                   | non-secret-literal | 37   |
 | `QDRANT_ENABLED`              | `false`                   | non-secret-literal | 38   |
 | `RUVECTOR_URL`                | ``                        | empty              | 41   |
 | `LETTA_API_URL`               | ``                        | empty              | 42   |
 | `OPENMEMORY_API_URL`          | ``                        | empty              | 43   |
-| `GRAPHITI_URI`                | ``                        | empty              | 44   |
+| `letta_URI`                | ``                        | empty              | 44   |
 | `QDRANT_URL`                  | ``                        | empty              | 45   |
 | `AGENTIC_FLOW_MEMORY_ENABLED` | `true`                    | non-secret-literal | 50   |
 | `CLAUDE_FLOW_DATA_DIR`        | `./.claude/data`          | non-secret-literal | 52   |
@@ -3742,8 +3742,8 @@ Generated from files containing `.env` in their filename across repo root, `infr
 | `GPU_WORKER_3060_MODEL`         | `codellama-34b`                                                     | non-secret-literal | 53   |
 | `LETTA_PORT`                    | `8283`                                                              | non-secret-literal | 60   |
 | `LETTA_URL`                     | `http://localhost:8283`                                             | non-secret-literal | 61   |
-| `GRAPHITI_PORT`                 | `6379`                                                              | non-secret-literal | 64   |
-| `GRAPHITI_URL`                  | `http://localhost:6379`                                             | non-secret-literal | 65   |
+| `letta_PORT`                 | `6379`                                                              | non-secret-literal | 64   |
+| `letta_URL`                  | `http://localhost:6379`                                             | non-secret-literal | 65   |
 | `RUVECTOR_PORT`                 | `7000`                                                              | non-secret-literal | 68   |
 | `RUVECTOR_URL`                  | `http://localhost:7000`                                             | non-secret-literal | 69   |
 | `MEM0_PORT`                     | `8081`                                                              | non-secret-literal | 72   |
@@ -3876,7 +3876,7 @@ Generated from files containing `.env` in their filename across repo root, `infr
 | `HOST`                            | `0.0.0.0`                   | non-secret-literal | 71   |
 | `PROXY_PORT`                      | `8080`                      | non-secret-literal | 73   |
 | `NEXUS_PORT`                      | ``                          | empty              | 75   |
-| `AGENTDB_PORT`                    | ``                          | empty              | 77   |
+| `ruvector_PORT`                    | ``                          | empty              | 77   |
 | `QUIC_SYNC_PORT`                  | ``                          | empty              | 79   |
 | `SWARM_TOPOLOGY`                  | `mesh`                      | non-secret-literal | 86   |
 | `MAX_AGENTS`                      | ``                          | empty              | 88   |
@@ -3894,22 +3894,22 @@ Generated from files containing `.env` in their filename across repo root, `infr
 | `AGENTIC_FLOW_MAX_AGENTS`         | ``                          | empty              | 103  |
 | `AGENTIC_FLOW_TOPOLOGY`           | ``                          | empty              | 104  |
 | `AGENTIC_FLOW_MEMORY_ENABLED`     | ``                          | empty              | 105  |
-| `AGENTDB_ENABLED`                 | ``                          | empty              | 112  |
-| `AGENTDB_PATH`                    | `.agentdb/claude-flow.db`   | non-secret-literal | 113  |
-| `AGENTDB_VECTOR_ENABLED`          | ``                          | empty              | 114  |
-| `AGENTDB_QUANTIZATION`            | `scalar`                    | non-secret-literal | 115  |
-| `AGENTDB_CACHE_ENABLED`           | ``                          | empty              | 116  |
-| `AGENTDB_CACHE_SIZE`              | ``                          | empty              | 117  |
-| `AGENTDB_HNSW_M`                  | ``                          | empty              | 118  |
-| `AGENTDB_HNSW_EF`                 | ``                          | empty              | 119  |
-| `AGENTDB_LEARNING`                | ``                          | empty              | 120  |
-| `AGENTDB_LEARNING_ALGORITHM`      | ``                          | empty              | 121  |
-| `AGENTDB_REASONING`               | ``                          | empty              | 122  |
-| `AGENTDB_QUIC_SYNC`               | ``                          | empty              | 123  |
-| `AGENTDB_QUIC_PORT`               | ``                          | empty              | 124  |
-| `AGENTDB_QUIC_PEERS`              | ``                          | empty              | 125  |
-| `AGENTDB_AUTO_MIGRATE`            | ``                          | empty              | 126  |
-| `AGENTDB_FALLBACK_LEGACY`         | ``                          | empty              | 127  |
+| `ruvector_ENABLED`                 | ``                          | empty              | 112  |
+| `ruvector_PATH`                    | `.ruvector/archon-os.db`   | non-secret-literal | 113  |
+| `ruvector_VECTOR_ENABLED`          | ``                          | empty              | 114  |
+| `ruvector_QUANTIZATION`            | `scalar`                    | non-secret-literal | 115  |
+| `ruvector_CACHE_ENABLED`           | ``                          | empty              | 116  |
+| `ruvector_CACHE_SIZE`              | ``                          | empty              | 117  |
+| `ruvector_HNSW_M`                  | ``                          | empty              | 118  |
+| `ruvector_HNSW_EF`                 | ``                          | empty              | 119  |
+| `ruvector_LEARNING`                | ``                          | empty              | 120  |
+| `ruvector_LEARNING_ALGORITHM`      | ``                          | empty              | 121  |
+| `ruvector_REASONING`               | ``                          | empty              | 122  |
+| `ruvector_QUIC_SYNC`               | ``                          | empty              | 123  |
+| `ruvector_QUIC_PORT`               | ``                          | empty              | 124  |
+| `ruvector_QUIC_PEERS`              | ``                          | empty              | 125  |
+| `ruvector_AUTO_MIGRATE`            | ``                          | empty              | 126  |
+| `ruvector_FALLBACK_LEGACY`         | ``                          | empty              | 127  |
 | `REASONINGBANK_ENABLED`           | ``                          | empty              | 130  |
 | `REASONINGBANK_DB_PATH`           | `.swarm/memory.db`          | non-secret-literal | 131  |
 | `REASONINGBANK_K`                 | ``                          | empty              | 132  |
@@ -3933,11 +3933,11 @@ Generated from files containing `.env` in their filename across repo root, `infr
 | `LETTA_API_URL`                   | ``                          | empty              | 158  |
 | `LETTA_API_KEY`                   | ``                          | empty              | 159  |
 | `LETTA_MEMORY_MANAGER`            | ``                          | empty              | 160  |
-| `GRAPHITI_ENABLED`                | ``                          | empty              | 163  |
-| `GRAPHITI_BACKEND`                | ``                          | empty              | 164  |
-| `GRAPHITI_URI`                    | ``                          | empty              | 165  |
-| `GRAPHITI_USER`                   | ``                          | empty              | 166  |
-| `GRAPHITI_PASSWORD`               | ``                          | empty              | 167  |
+| `letta_ENABLED`                | ``                          | empty              | 163  |
+| `letta_BACKEND`                | ``                          | empty              | 164  |
+| `letta_URI`                    | ``                          | empty              | 165  |
+| `letta_USER`                   | ``                          | empty              | 166  |
+| `letta_PASSWORD`               | ``                          | empty              | 167  |
 | `FALKORDB_URL`                    | ``                          | empty              | 169  |
 | `FALKORDB_GRAPH_KEY`              | ``                          | empty              | 170  |
 | `OPENMEMORY_ENABLED`              | ``                          | empty              | 173  |
@@ -4268,7 +4268,7 @@ Generated from files containing `.env` in their filename across repo root, `infr
 | `ARCHON_API_WORKERS`                   | `4`                              | non-secret-literal | 104  |
 | `ARCHON_METRICS_PORT`                  | `9091`                           | non-secret-literal | 105  |
 | `ARCHON_LOG_LEVEL`                     | `INFO`                           | non-secret-literal | 106  |
-| `GRAPHITI_PORT`                        | `8001`                           | non-secret-literal | 112  |
+| `letta_PORT`                        | `8001`                           | non-secret-literal | 112  |
 | `MEM0_PORT`                            | `8002`                           | non-secret-literal | 113  |
 | `LETTA_PORT`                           | `8283`                           | non-secret-literal | 114  |
 | `NEXUS_PORT`                           | `6000`                           | non-secret-literal | 120  |
@@ -4626,7 +4626,7 @@ Generated from files containing `.env` in their filename across repo root, `infr
 | `TEST_PROJECT_ID`     | `[REDACTED]`                                                              | possible-secret    | 15   |
 | `LOG_LEVEL`           | `debug`                                                                   | non-secret-literal | 18   |
 
-### `docs/archive/repo-history/archived-root/infra-20260206-1551/configs/claude-flow-cicd/.env.cicd.example`
+### `docs/archive/repo-history/archived-root/infra-20260206-1551/configs/archon-os-cicd/.env.cicd.example`
 
 | Variable                            | Value                    | Classification     | Line |
 | ----------------------------------- | ------------------------ | ------------------ | ---- |
@@ -4666,26 +4666,26 @@ Generated from files containing `.env` in their filename across repo root, `infr
 | `SWARM_NEURAL_SYNC`                 | `true`                   | non-secret-literal | 61   |
 | `SWARM_MAX_AGENTS`                  | `35`                     | non-secret-literal | 62   |
 | `SWARM_AUTO_SCALE`                  | `true`                   | non-secret-literal | 63   |
-| `AGENTDB_ENABLED`                   | `true`                   | non-secret-literal | 68   |
-| `AGENTDB_PATH`                      | `[REDACTED]`             | possible-secret    | 69   |
-| `AGENTDB_QUANTIZATION`              | `scalar`                 | non-secret-literal | 70   |
-| `AGENTDB_CACHE_SIZE`                | `2000`                   | non-secret-literal | 71   |
-| `AGENTDB_HNSW_M`                    | `16`                     | non-secret-literal | 72   |
-| `AGENTDB_HNSW_EF`                   | `200`                    | non-secret-literal | 73   |
-| `AGENTDB_HNSW_EF_SEARCH`            | `100`                    | non-secret-literal | 74   |
-| `AGENTDB_LEARNING`                  | `true`                   | non-secret-literal | 75   |
-| `AGENTDB_LEARNING_ALGORITHM`        | `decision-transformer`   | non-secret-literal | 76   |
-| `AGENTDB_REASONING`                 | `true`                   | non-secret-literal | 77   |
-| `AGENTDB_QUIC_SYNC`                 | `false`                  | non-secret-literal | 78   |
-| `AGENTDB_AUTO_MIGRATE`              | `true`                   | non-secret-literal | 79   |
-| `AGENTDB_FALLBACK_LEGACY`           | `true`                   | non-secret-literal | 80   |
+| `ruvector_ENABLED`                   | `true`                   | non-secret-literal | 68   |
+| `ruvector_PATH`                      | `[REDACTED]`             | possible-secret    | 69   |
+| `ruvector_QUANTIZATION`              | `scalar`                 | non-secret-literal | 70   |
+| `ruvector_CACHE_SIZE`                | `2000`                   | non-secret-literal | 71   |
+| `ruvector_HNSW_M`                    | `16`                     | non-secret-literal | 72   |
+| `ruvector_HNSW_EF`                   | `200`                    | non-secret-literal | 73   |
+| `ruvector_HNSW_EF_SEARCH`            | `100`                    | non-secret-literal | 74   |
+| `ruvector_LEARNING`                  | `true`                   | non-secret-literal | 75   |
+| `ruvector_LEARNING_ALGORITHM`        | `decision-transformer`   | non-secret-literal | 76   |
+| `ruvector_REASONING`                 | `true`                   | non-secret-literal | 77   |
+| `ruvector_QUIC_SYNC`                 | `false`                  | non-secret-literal | 78   |
+| `ruvector_AUTO_MIGRATE`              | `true`                   | non-secret-literal | 79   |
+| `ruvector_FALLBACK_LEGACY`           | `true`                   | non-secret-literal | 80   |
 | `REASONINGBANK_ENABLED`             | `true`                   | non-secret-literal | 85   |
 | `REASONINGBANK_DB_PATH`             | `[REDACTED]`             | possible-secret    | 86   |
 | `REASONINGBANK_K`                   | `10`                     | non-secret-literal | 87   |
 | `REASONINGBANK_MIN_CONFIDENCE`      | `0.5`                    | non-secret-literal | 88   |
 | `AGENTIC_FLOW_TRAINING`             | `true`                   | non-secret-literal | 89   |
 | `MEMORY_BACKEND`                    | `hybrid`                 | non-secret-literal | 94   |
-| `MEMORY_PRIMARY_STORE`              | `agentdb`                | non-secret-literal | 95   |
+| `MEMORY_PRIMARY_STORE`              | `ruvector`                | non-secret-literal | 95   |
 | `MEMORY_SECONDARY_STORE`            | `sqlite`                 | non-secret-literal | 96   |
 | `MEMORY_AUTO_PERSIST`               | `true`                   | non-secret-literal | 97   |
 | `MEMORY_COMPRESSION`                | `true`                   | non-secret-literal | 98   |
@@ -5053,22 +5053,22 @@ Generated from files containing `.env` in their filename across repo root, `infr
 | `LETTA_AGENT_DEFAULT_EMBEDDING`          | `[REDACTED]`                                                                   | possible-secret    | 117  |
 | `LETTA_MCP_ENABLED`                      | `true`                                                                         | non-secret-literal | 121  |
 | `LETTA_MCP_PORT`                         | `8284`                                                                         | non-secret-literal | 122  |
-| `GRAPHITI_ENABLED`                       | `true`                                                                         | non-secret-literal | 133  |
-| `GRAPHITI_BACKEND`                       | `falkordb`                                                                     | non-secret-literal | 134  |
+| `letta_ENABLED`                       | `true`                                                                         | non-secret-literal | 133  |
+| `letta_BACKEND`                       | `falkordb`                                                                     | non-secret-literal | 134  |
 | `FALKORDB_ENABLED`                       | `true`                                                                         | non-secret-literal | 138  |
 | `FALKORDB_URL`                           | `redis://localhost:6379`                                                       | non-secret-literal | 139  |
 | `FALKORDB_PASSWORD`                      | `${INFISICAL_FALKORDB_PASSWORD}`                                               | interpolated       | 140  |
 | `FALKORDB_GRAPH_NAME`                    | `nyra_knowledge_graph`                                                         | non-secret-literal | 144  |
 | `FALKORDB_PERSISTENCE`                   | `aof`                                                                          | non-secret-literal | 145  |
 | `FALKORDB_AOF_SYNC`                      | `everysec`                                                                     | non-secret-literal | 146  |
-| `GRAPHITI_TEMPORAL_TRACKING`             | `true`                                                                         | non-secret-literal | 150  |
-| `GRAPHITI_SNAPSHOT_INTERVAL`             | `300`                                                                          | non-secret-literal | 151  |
-| `GRAPHITI_SNAPSHOT_RETENTION_DAYS`       | `90`                                                                           | non-secret-literal | 152  |
-| `GRAPHITI_COMPRESSION_ENABLED`           | `true`                                                                         | non-secret-literal | 156  |
-| `GRAPHITI_COMPRESSION_ALGORITHM`         | `zstd`                                                                         | non-secret-literal | 157  |
-| `GRAPHITI_AUTO_EXTRACTION`               | `true`                                                                         | non-secret-literal | 161  |
-| `GRAPHITI_EXTRACTION_MODEL`              | `[REDACTED]`                                                                   | possible-secret    | 162  |
-| `GRAPHITI_EXTRACTION_BATCH_SIZE`         | `100`                                                                          | non-secret-literal | 163  |
+| `letta_TEMPORAL_TRACKING`             | `true`                                                                         | non-secret-literal | 150  |
+| `letta_SNAPSHOT_INTERVAL`             | `300`                                                                          | non-secret-literal | 151  |
+| `letta_SNAPSHOT_RETENTION_DAYS`       | `90`                                                                           | non-secret-literal | 152  |
+| `letta_COMPRESSION_ENABLED`           | `true`                                                                         | non-secret-literal | 156  |
+| `letta_COMPRESSION_ALGORITHM`         | `zstd`                                                                         | non-secret-literal | 157  |
+| `letta_AUTO_EXTRACTION`               | `true`                                                                         | non-secret-literal | 161  |
+| `letta_EXTRACTION_MODEL`              | `[REDACTED]`                                                                   | possible-secret    | 162  |
+| `letta_EXTRACTION_BATCH_SIZE`         | `100`                                                                          | non-secret-literal | 163  |
 | `FALKORDB_MAX_MEMORY`                    | `2GB`                                                                          | non-secret-literal | 167  |
 | `FALKORDB_EVICTION_POLICY`               | `allkeys-lru`                                                                  | non-secret-literal | 168  |
 | `MEM0_ENABLED`                           | `false`                                                                        | non-secret-literal | 180  |
@@ -5549,7 +5549,7 @@ Generated from files containing `.env` in their filename across repo root, `infr
 | `SESSION_SECRET`            | `[REDACTED]`             | possible-secret                     | 61                 |
 | `CORS_ORIGIN`               | `[REDACTED]`             | possible-secret                     | 62                 |
 | `ORCHESTRATION_MODE`        | `"dual"`                 | non-secret-literal                  | 65                 |
-| `PRIMARY_ORCHESTRATOR`      | `"claude-flow"`          | non-secret-literal                  | 66                 |
+| `PRIMARY_ORCHESTRATOR`      | `"archon-os"`          | non-secret-literal                  | 66                 |
 | `ENABLE_SWARM_COORDINATION` | `true`                   | non-secret-literal                  | 67                 |
 
 ### `docs/archive/repo-history/archived-root/infra-20260206-1551/configs/ruvector/.env.ruvector`
@@ -5688,10 +5688,10 @@ Generated from files containing `.env` in their filename across repo root, `infr
 | `RUVECTOR_MODE`                    | `worker`                                   | non-secret-literal | 58   |
 | `RUVECTOR_PORT`                    | `7890`                                     | non-secret-literal | 59   |
 | `RUVECTOR_COORDINATOR`             | `[REDACTED]`                               | possible-secret    | 60   |
-| `AGENTDB_ENABLED`                  | `true`                                     | non-secret-literal | 63   |
-| `AGENTDB_PATH`                     | `.agentdb/worker-3060.db`                  | non-secret-literal | 64   |
-| `AGENTDB_SYNC_FROM`                | `[REDACTED]`                               | possible-secret    | 65   |
-| `AGENTDB_READ_ONLY`                | `false`                                    | non-secret-literal | 66   |
+| `ruvector_ENABLED`                  | `true`                                     | non-secret-literal | 63   |
+| `ruvector_PATH`                     | `.ruvector/worker-3060.db`                  | non-secret-literal | 64   |
+| `ruvector_SYNC_FROM`                | `[REDACTED]`                               | possible-secret    | 65   |
+| `ruvector_READ_ONLY`                | `false`                                    | non-secret-literal | 66   |
 | `PC_NAME`                          | `worker-rtx3060`                           | non-secret-literal | 71   |
 | `PC_ROLE`                          | `worker`                                   | non-secret-literal | 72   |
 | `LAN_IP`                           | `192.168.1.221`                            | non-secret-literal | 73   |
@@ -5754,10 +5754,10 @@ Generated from files containing `.env` in their filename across repo root, `infr
 | `RUVECTOR_MODE`                    | `worker`                                   | non-secret-literal | 58   |
 | `RUVECTOR_PORT`                    | `7890`                                     | non-secret-literal | 59   |
 | `RUVECTOR_COORDINATOR`             | `[REDACTED]`                               | possible-secret    | 60   |
-| `AGENTDB_ENABLED`                  | `true`                                     | non-secret-literal | 63   |
-| `AGENTDB_PATH`                     | `[REDACTED]`                               | possible-secret    | 64   |
-| `AGENTDB_SYNC_FROM`                | `[REDACTED]`                               | possible-secret    | 65   |
-| `AGENTDB_READ_ONLY`                | `false`                                    | non-secret-literal | 66   |
+| `ruvector_ENABLED`                  | `true`                                     | non-secret-literal | 63   |
+| `ruvector_PATH`                     | `[REDACTED]`                               | possible-secret    | 64   |
+| `ruvector_SYNC_FROM`                | `[REDACTED]`                               | possible-secret    | 65   |
+| `ruvector_READ_ONLY`                | `false`                                    | non-secret-literal | 66   |
 | `PC_NAME`                          | `worker-rtx3090ti`                         | non-secret-literal | 71   |
 | `PC_ROLE`                          | `worker`                                   | non-secret-literal | 72   |
 | `LAN_IP`                           | `TO_BE_COLLECTED`                          | non-secret-literal | 73   |
@@ -5820,10 +5820,10 @@ Generated from files containing `.env` in their filename across repo root, `infr
 | `RUVECTOR_MODE`                    | `worker`                                   | non-secret-literal | 58   |
 | `RUVECTOR_PORT`                    | `7890`                                     | non-secret-literal | 59   |
 | `RUVECTOR_COORDINATOR`             | `[REDACTED]`                               | possible-secret    | 60   |
-| `AGENTDB_ENABLED`                  | `true`                                     | non-secret-literal | 63   |
-| `AGENTDB_PATH`                     | `.agentdb/worker-5090.db`                  | non-secret-literal | 64   |
-| `AGENTDB_SYNC_FROM`                | `[REDACTED]`                               | possible-secret    | 65   |
-| `AGENTDB_READ_ONLY`                | `false`                                    | non-secret-literal | 66   |
+| `ruvector_ENABLED`                  | `true`                                     | non-secret-literal | 63   |
+| `ruvector_PATH`                     | `.ruvector/worker-5090.db`                  | non-secret-literal | 64   |
+| `ruvector_SYNC_FROM`                | `[REDACTED]`                               | possible-secret    | 65   |
+| `ruvector_READ_ONLY`                | `false`                                    | non-secret-literal | 66   |
 | `PC_NAME`                          | `worker-rtx5090`                           | non-secret-literal | 71   |
 | `PC_ROLE`                          | `worker`                                   | non-secret-literal | 72   |
 | `LAN_IP`                           | `TO_BE_COLLECTED`                          | non-secret-literal | 73   |
@@ -6110,7 +6110,7 @@ Generated from files containing `.env` in their filename across repo root, `infr
 | `LOGFIRE_TOKEN`             | `[REDACTED]`                           | possible-secret    | 70   |
 | `VITE_ALLOWED_HOSTS`        | `localhost,127.0.0.1,archon.localhost` | non-secret-literal | 76   |
 
-### `docs/archive/repo-history/archived-root/infra-20260206-1551/docker/build/.env.claude-flow.example`
+### `docs/archive/repo-history/archived-root/infra-20260206-1551/docker/build/.env.archon-os.example`
 
 | Variable                  | Value                      | Classification     | Line |
 | ------------------------- | -------------------------- | ------------------ | ---- |
@@ -6130,7 +6130,7 @@ Generated from files containing `.env` in their filename across repo root, `infr
 | `NEXUS_ROUTER_URL`        | `http://nexus-router:6000` | non-secret-literal | 48   |
 | `DEFAULT_PROVIDER`        | `anthropic`                | non-secret-literal | 51   |
 | `FALLBACK_PROVIDERS`      | `[REDACTED]`               | possible-secret    | 54   |
-| `AGENTDB_URL`             | `http://agentdb:8080`      | non-secret-literal | 60   |
+| `ruvector_URL`             | `http://ruvector:8080`      | non-secret-literal | 60   |
 | `RUVECTOR_URL`            | `http://ruvector:8888`     | non-secret-literal | 63   |
 | `MEM0_REST_URL`           | `http://mem0:4321`         | non-secret-literal | 66   |
 | `LETTA_BASE_URL`          | `http://letta:8283`        | non-secret-literal | 69   |
@@ -6185,7 +6185,7 @@ Generated from files containing `.env` in their filename across repo root, `infr
 | `ONNX_API_URL`         | `http://onnx-runtime:8001`      | non-secret-literal | 97   |
 | `XENOVA_API_URL`       | `http://xenova-embeddings:8002` | non-secret-literal | 100  |
 
-### `docs/archive/repo-history/archived-root/infra-20260206-1551/docker/services/agentic-flow/.env.example`
+### `docs/archive/repo-history/archived-root/infra-20260206-1551/docker/services/archon-os/.env.example`
 
 | Variable                       | Value                       | Classification     | Line |
 | ------------------------------ | --------------------------- | ------------------ | ---- |
@@ -6197,18 +6197,18 @@ Generated from files containing `.env` in their filename across repo root, `infr
 | `POSTGRES_DB`                  | `nyra_db`                   | non-secret-literal | 16   |
 | `REDIS_PASSWORD`               | `your_redis_password`       | placeholder        | 19   |
 | `AGENTIC_FLOW_CACHE_TTL`       | `3600`                      | non-secret-literal | 20   |
-| `AGENTDB_QUANTIZATION`         | `binary`                    | non-secret-literal | 23   |
-| `AGENTDB_CACHE_SIZE`           | `2000`                      | non-secret-literal | 24   |
-| `AGENTDB_HNSW_M`               | `16`                        | non-secret-literal | 25   |
-| `AGENTDB_HNSW_EF`              | `100`                       | non-secret-literal | 26   |
-| `AGENTDB_QUIC_SYNC`            | `true`                      | non-secret-literal | 29   |
-| `AGENTDB_QUIC_PORT`            | `4433`                      | non-secret-literal | 30   |
-| `AGENTDB_QUIC_PEERS`           | `[REDACTED]`                | possible-secret    | 31   |
+| `ruvector_QUANTIZATION`         | `binary`                    | non-secret-literal | 23   |
+| `ruvector_CACHE_SIZE`           | `2000`                      | non-secret-literal | 24   |
+| `ruvector_HNSW_M`               | `16`                        | non-secret-literal | 25   |
+| `ruvector_HNSW_EF`              | `100`                       | non-secret-literal | 26   |
+| `ruvector_QUIC_SYNC`            | `true`                      | non-secret-literal | 29   |
+| `ruvector_QUIC_PORT`            | `4433`                      | non-secret-literal | 30   |
+| `ruvector_QUIC_PEERS`           | `[REDACTED]`                | possible-secret    | 31   |
 | `ANTHROPIC_API_KEY`            | `sk-ant-...`                | non-secret-literal | 34   |
 | `OPENAI_API_KEY`               | `sk-...`                    | non-secret-literal | 35   |
 | `OPENROUTER_API_KEY`           | `sk-or-...`                 | non-secret-literal | 36   |
 | `NEXUS_ROUTER_URL`             | `http://nexus-router:7000`  | non-secret-literal | 39   |
-| `CLAUDE_FLOW_URL`              | `http://claude-flow:3001`   | non-secret-literal | 40   |
+| `CLAUDE_FLOW_URL`              | `http://archon-os:3001`   | non-secret-literal | 40   |
 | `MAX_CONCURRENT_AGENTS`        | `35`                        | non-secret-literal | 43   |
 | `AGENT_TIMEOUT`                | `300000`                    | non-secret-literal | 44   |
 | `WORKER_THREADS`               | `4`                         | non-secret-literal | 45   |
@@ -6227,7 +6227,7 @@ Generated from files containing `.env` in their filename across repo root, `infr
 | `RUVECTOR_PORT`                  | `7000`          | non-secret-literal | 7    |
 | `VERSION`                        | `1.0.0`         | non-secret-literal | 8    |
 | `NEURAL_DATA_PATH`               | `/data/neural`  | non-secret-literal | 11   |
-| `AGENTDB_PATH`                   | `/data/agentdb` | non-secret-literal | 12   |
+| `ruvector_PATH`                   | `/data/ruvector` | non-secret-literal | 12   |
 | `CACHE_PATH`                     | `/data/cache`   | non-secret-literal | 13   |
 | `SONA_ENABLED`                   | `true`          | non-secret-literal | 16   |
 | `SONA_ADAPTATION_TIME`           | `0.05`          | non-secret-literal | 17   |
@@ -7114,7 +7114,7 @@ Generated from files containing `.env` in their filename across repo root, `infr
 | `ARCHON_ENABLED`                  | `true`                             | non-secret-literal | 92   |
 | `USE_NEXUS_ROUTER`                | `true`                             | non-secret-literal | 95   |
 | `NEXUS_ROUTER_URL`                | `http://nexus-router:6000`         | non-secret-literal | 96   |
-| `CLAUDE_FLOW_MCP_URL`             | `http://nyra-claude-flow:3010/mcp` | non-secret-literal | 97   |
+| `CLAUDE_FLOW_MCP_URL`             | `http://nyra-archon-os:3010/mcp` | non-secret-literal | 97   |
 | `ARCHON_BASE_URL`                 | `http://archon-os:8092`            | non-secret-literal | 98   |
 | `ARCHON_MCP_URL`                  | `http://archon-os:8092/mcp`        | non-secret-literal | 99   |
 | `ARCHON_METRICS_URL`              | `http://archon-os:8093/metrics`    | non-secret-literal | 100  |
@@ -7203,7 +7203,7 @@ Generated from files containing `.env` in their filename across repo root, `infr
 | `DIFY_POSTGRES_USER`       | `dify`                      | non-secret-literal | 32   |
 | `DIFY_POSTGRES_PASSWORD`   | `dify`                      | non-secret-literal | 33   |
 | `DIFY_POSTGRES_DB`         | `dify`                      | non-secret-literal | 34   |
-| `GRAPHITI_GROUP_ID`        | `nyra`                      | non-secret-literal | 37   |
+| `letta_GROUP_ID`        | `nyra`                      | non-secret-literal | 37   |
 
 ### `docs/archive/repo-history/archived-root/infra-20260206-1551/worker-machines/worker-3060/.env.example`
 
@@ -7310,8 +7310,8 @@ Generated from files containing `.env` in their filename across repo root, `infr
 | `N8N_API_KEY`                    | `your-n8n-api-key-here`                          | non-secret-literal | 213  |
 | `LETTA_URL`                      | `http://letta.tail-net.ts.net:8283`              | non-secret-literal | 216  |
 | `LETTA_API_KEY`                  | `your-letta-api-key-here`                        | non-secret-literal | 217  |
-| `GRAPHITI_URL`                   | `http://graphiti.tail-net.ts.net:8080`           | non-secret-literal | 220  |
-| `GRAPHITI_API_KEY`               | `[REDACTED]`                                     | possible-secret    | 221  |
+| `letta_URL`                   | `http://letta.tail-net.ts.net:8080`           | non-secret-literal | 220  |
+| `letta_API_KEY`               | `[REDACTED]`                                     | possible-secret    | 221  |
 | `RUVECTOR_URL`                   | `http://ruvector.tail-net.ts.net:6333`           | non-secret-literal | 224  |
 | `RUVECTOR_API_KEY`               | `[REDACTED]`                                     | possible-secret    | 225  |
 | `ENABLE_GPU`                     | `true`                                           | non-secret-literal | 231  |
@@ -7531,7 +7531,7 @@ Generated from files containing `.env` in their filename across repo root, `infr
 | `ARCHON_API_WORKERS`                   | `4`                              | non-secret-literal | 104  |
 | `ARCHON_METRICS_PORT`                  | `9091`                           | non-secret-literal | 105  |
 | `ARCHON_LOG_LEVEL`                     | `INFO`                           | non-secret-literal | 106  |
-| `GRAPHITI_PORT`                        | `8001`                           | non-secret-literal | 112  |
+| `letta_PORT`                        | `8001`                           | non-secret-literal | 112  |
 | `MEM0_PORT`                            | `8002`                           | non-secret-literal | 113  |
 | `LETTA_PORT`                           | `8283`                           | non-secret-literal | 114  |
 | `NEXUS_PORT`                           | `6000`                           | non-secret-literal | 120  |
@@ -7857,7 +7857,7 @@ Generated from files containing `.env` in their filename across repo root, `infr
 | `ARCHON_ENABLED`                  | `true`                             | non-secret-literal | 92   |
 | `USE_NEXUS_ROUTER`                | `true`                             | non-secret-literal | 95   |
 | `NEXUS_ROUTER_URL`                | `http://nexus-router:6000`         | non-secret-literal | 96   |
-| `CLAUDE_FLOW_MCP_URL`             | `http://nyra-claude-flow:3010/mcp` | non-secret-literal | 97   |
+| `CLAUDE_FLOW_MCP_URL`             | `http://nyra-archon-os:3010/mcp` | non-secret-literal | 97   |
 | `ARCHON_BASE_URL`                 | `http://archon-os:8092`            | non-secret-literal | 98   |
 | `ARCHON_MCP_URL`                  | `http://archon-os:8092/mcp`        | non-secret-literal | 99   |
 | `ARCHON_METRICS_URL`              | `http://archon-os:8093/metrics`    | non-secret-literal | 100  |
@@ -7932,7 +7932,7 @@ Generated from files containing `.env` in their filename across repo root, `infr
 | `DIFY_POSTGRES_USER`       | `dify`                      | non-secret-literal | 32   |
 | `DIFY_POSTGRES_PASSWORD`   | `dify`                      | non-secret-literal | 33   |
 | `DIFY_POSTGRES_DB`         | `dify`                      | non-secret-literal | 34   |
-| `GRAPHITI_GROUP_ID`        | `nyra`                      | non-secret-literal | 37   |
+| `letta_GROUP_ID`        | `nyra`                      | non-secret-literal | 37   |
 
 ### `docs/configuration/env-backups/root/.env.ci`
 
@@ -8002,7 +8002,7 @@ Generated from files containing `.env` in their filename across repo root, `infr
 | `JEST_MAX_WORKERS`                 | `2`                         | non-secret-literal | 135  |
 | `TEST_TIMEOUT`                     | `10000`                     | non-secret-literal | 136  |
 
-### `docs/configuration/env-backups/root/.env.claude-flow`
+### `docs/configuration/env-backups/root/.env.archon-os`
 
 | Variable                            | Value                     | Classification     | Line |
 | ----------------------------------- | ------------------------- | ------------------ | ---- |
@@ -8011,9 +8011,9 @@ Generated from files containing `.env` in their filename across repo root, `infr
 | `CLAUDE_FLOW_VERSION`               | `3.0.0-alpha.104`         | non-secret-literal | 12   |
 | `CLAUDE_FLOW_DEBUG`                 | `true`                    | non-secret-literal | 13   |
 | `CLAUDE_FLOW_LOG_LEVEL`             | `info`                    | non-secret-literal | 14   |
-| `CLAUDE_FLOW_DATA_DIR`              | `./.claude-flow/data`     | non-secret-literal | 15   |
-| `CLAUDE_FLOW_MEMORY_DIR`            | `./.claude-flow/memory`   | non-secret-literal | 16   |
-| `CLAUDE_FLOW_CONFIG_DIR`            | `./.claude-flow/config`   | non-secret-literal | 17   |
+| `CLAUDE_FLOW_DATA_DIR`              | `./.archon-os/data`     | non-secret-literal | 15   |
+| `CLAUDE_FLOW_MEMORY_DIR`            | `./.archon-os/memory`   | non-secret-literal | 16   |
+| `CLAUDE_FLOW_CONFIG_DIR`            | `./.archon-os/config`   | non-secret-literal | 17   |
 | `CLAUDE_FLOW_ENABLED`               | `true`                    | non-secret-literal | 22   |
 | `CLAUDE_FLOW_AUTO_COMMIT`           | `true`                    | non-secret-literal | 23   |
 | `CLAUDE_FLOW_AUTO_PUSH`             | `false`                   | non-secret-literal | 24   |
@@ -8045,20 +8045,20 @@ Generated from files containing `.env` in their filename across repo root, `infr
 | `SWARM_NEURAL_SYNC`                 | `true`                    | non-secret-literal | 62   |
 | `SWARM_MAX_AGENTS`                  | `35`                      | non-secret-literal | 63   |
 | `SWARM_AUTO_SCALE`                  | `true`                    | non-secret-literal | 64   |
-| `AGENTDB_ENABLED`                   | `true`                    | non-secret-literal | 69   |
-| `AGENTDB_PATH`                      | `.agentdb/claude-flow.db` | non-secret-literal | 70   |
-| `AGENTDB_QUANTIZATION`              | `scalar`                  | non-secret-literal | 71   |
-| `AGENTDB_CACHE_SIZE`                | `2000`                    | non-secret-literal | 72   |
-| `AGENTDB_HNSW_M`                    | `16`                      | non-secret-literal | 73   |
-| `AGENTDB_HNSW_EF`                   | `200`                     | non-secret-literal | 74   |
-| `AGENTDB_HNSW_EF_SEARCH`            | `100`                     | non-secret-literal | 75   |
-| `AGENTDB_LEARNING`                  | `true`                    | non-secret-literal | 76   |
-| `AGENTDB_LEARNING_ALGORITHM`        | `decision-transformer`    | non-secret-literal | 77   |
-| `AGENTDB_REASONING`                 | `true`                    | non-secret-literal | 78   |
-| `AGENTDB_QUIC_SYNC`                 | `false`                   | non-secret-literal | 79   |
-| `AGENTDB_QUIC_PORT`                 | `4433`                    | non-secret-literal | 80   |
-| `AGENTDB_AUTO_MIGRATE`              | `true`                    | non-secret-literal | 81   |
-| `AGENTDB_FALLBACK_LEGACY`           | `true`                    | non-secret-literal | 82   |
+| `ruvector_ENABLED`                   | `true`                    | non-secret-literal | 69   |
+| `ruvector_PATH`                      | `.ruvector/archon-os.db` | non-secret-literal | 70   |
+| `ruvector_QUANTIZATION`              | `scalar`                  | non-secret-literal | 71   |
+| `ruvector_CACHE_SIZE`                | `2000`                    | non-secret-literal | 72   |
+| `ruvector_HNSW_M`                    | `16`                      | non-secret-literal | 73   |
+| `ruvector_HNSW_EF`                   | `200`                     | non-secret-literal | 74   |
+| `ruvector_HNSW_EF_SEARCH`            | `100`                     | non-secret-literal | 75   |
+| `ruvector_LEARNING`                  | `true`                    | non-secret-literal | 76   |
+| `ruvector_LEARNING_ALGORITHM`        | `decision-transformer`    | non-secret-literal | 77   |
+| `ruvector_REASONING`                 | `true`                    | non-secret-literal | 78   |
+| `ruvector_QUIC_SYNC`                 | `false`                   | non-secret-literal | 79   |
+| `ruvector_QUIC_PORT`                 | `4433`                    | non-secret-literal | 80   |
+| `ruvector_AUTO_MIGRATE`              | `true`                    | non-secret-literal | 81   |
+| `ruvector_FALLBACK_LEGACY`           | `true`                    | non-secret-literal | 82   |
 | `REASONINGBANK_ENABLED`             | `true`                    | non-secret-literal | 87   |
 | `REASONINGBANK_DB_PATH`             | `.swarm/memory.db`        | non-secret-literal | 88   |
 | `REASONINGBANK_K`                   | `10`                      | non-secret-literal | 89   |
@@ -8137,7 +8137,7 @@ Generated from files containing `.env` in their filename across repo root, `infr
 | `CLOUDFLARE_ACCOUNT_ID`                    | `your_account_id_here`  | placeholder        | 35   |
 | `CLOUDFLARE_ZONE_ID`                       | `your_zone_id_here`     | placeholder        | 36   |
 
-### `docs/configuration/env-backups/root/.env.dev.claude-flow`
+### `docs/configuration/env-backups/root/.env.dev.archon-os`
 
 | Variable                           | Value                      | Classification     | Line |
 | ---------------------------------- | -------------------------- | ------------------ | ---- |
@@ -8410,9 +8410,9 @@ Generated from files containing `.env` in their filename across repo root, `infr
 | `LETTA_URL`                              | `http://localhost:8283` | non-secret-literal | 153  |
 | `LETTA_API_KEY`                          | `[REDACTED]`            | possible-secret    | 154  |
 | `LETTA_SERVER_PASS`                      | `[REDACTED]`            | possible-secret    | 155  |
-| `GRAPHITI_API_KEY`                       | `[REDACTED]`            | possible-secret    | 162  |
-| `GRAPHITI_TEMPORAL_TRACKING`             | `true`                  | non-secret-literal | 163  |
-| `GRAPHITI_RELATIONSHIP_INFERENCE`        | `true`                  | non-secret-literal | 164  |
+| `letta_API_KEY`                       | `[REDACTED]`            | possible-secret    | 162  |
+| `letta_TEMPORAL_TRACKING`             | `true`                  | non-secret-literal | 163  |
+| `letta_RELATIONSHIP_INFERENCE`        | `true`                  | non-secret-literal | 164  |
 | `MEM0_API_KEY`                           | `[REDACTED]`            | possible-secret    | 171  |
 | `MEM0_PORT`                              | `8081`                  | non-secret-literal | 172  |
 | `MEM0_URL`                               | `http://localhost:4321` | non-secret-literal | 173  |
@@ -8545,39 +8545,39 @@ Generated from files containing `.env` in their filename across repo root, `infr
 | `NEO4J_PASSWORD`                           | `your_neo4j_password_here`                           | placeholder        | 247  |
 | `NEO4J_BOLT_PORT`                          | `7687`                                               | non-secret-literal | 250  |
 | `NEO4J_HTTP_PORT`                          | `7474`                                               | non-secret-literal | 253  |
-| `AGENTDB_ENABLED`                          | `true`                                               | non-secret-literal | 260  |
-| `AGENTDB_API_KEY`                          | `agentdb_your_key_here`                              | placeholder        | 263  |
-| `AGENTDB_PATH`                             | `.agentdb/claude-flow.db`                            | non-secret-literal | 266  |
-| `AGENTDB_DATA_DIR`                         | `/var/lib/agentdb`                                   | non-secret-literal | 269  |
-| `AGENTDB_PORT`                             | `7700`                                               | non-secret-literal | 272  |
-| `AGENTDB_QUIC_PORT`                        | `4433`                                               | non-secret-literal | 275  |
-| `AGENTDB_QUIC_SYNC`                        | `false`                                              | non-secret-literal | 278  |
-| `AGENTDB_VECTOR_DIMENSIONS`                | `1536`                                               | non-secret-literal | 281  |
-| `AGENTDB_DISTANCE_METRIC`                  | `cosine`                                             | non-secret-literal | 284  |
-| `AGENTDB_EMBEDDING_MODEL`                  | `text-embedding-3-small`                             | non-secret-literal | 287  |
-| `AGENTDB_HNSW_M`                           | `16`                                                 | non-secret-literal | 290  |
-| `AGENTDB_HNSW_EF`                          | `100`                                                | non-secret-literal | 293  |
-| `AGENTDB_HNSW_EF_CONSTRUCTION`             | `200`                                                | non-secret-literal | 296  |
-| `AGENTDB_HNSW_EF_SEARCH`                   | `100`                                                | non-secret-literal | 299  |
-| `AGENTDB_QUANTIZATION`                     | `scalar`                                             | non-secret-literal | 302  |
-| `AGENTDB_CACHE_SIZE`                       | `1000`                                               | non-secret-literal | 305  |
-| `AGENTDB_COMPRESSION`                      | `zstd`                                               | non-secret-literal | 308  |
-| `AGENTDB_WAL_ENABLED`                      | `true`                                               | non-secret-literal | 311  |
-| `AGENTDB_SNAPSHOT_INTERVAL`                | `3600`                                               | non-secret-literal | 314  |
-| `AGENTDB_BACKUP_ENABLED`                   | `true`                                               | non-secret-literal | 317  |
-| `AGENTDB_AUTO_MIGRATE`                     | `false`                                              | non-secret-literal | 320  |
-| `AGENTDB_FALLBACK_LEGACY`                  | `true`                                               | non-secret-literal | 323  |
-| `AGENTDB_LEARNING`                         | `true`                                               | non-secret-literal | 326  |
-| `AGENTDB_LEARNING_ALGORITHM`               | `decision-transformer`                               | non-secret-literal | 329  |
-| `AGENTDB_REASONING`                        | `true`                                               | non-secret-literal | 332  |
+| `ruvector_ENABLED`                          | `true`                                               | non-secret-literal | 260  |
+| `ruvector_API_KEY`                          | `ruvector_your_key_here`                              | placeholder        | 263  |
+| `ruvector_PATH`                             | `.ruvector/archon-os.db`                            | non-secret-literal | 266  |
+| `ruvector_DATA_DIR`                         | `/var/lib/ruvector`                                   | non-secret-literal | 269  |
+| `ruvector_PORT`                             | `7700`                                               | non-secret-literal | 272  |
+| `ruvector_QUIC_PORT`                        | `4433`                                               | non-secret-literal | 275  |
+| `ruvector_QUIC_SYNC`                        | `false`                                              | non-secret-literal | 278  |
+| `ruvector_VECTOR_DIMENSIONS`                | `1536`                                               | non-secret-literal | 281  |
+| `ruvector_DISTANCE_METRIC`                  | `cosine`                                             | non-secret-literal | 284  |
+| `ruvector_EMBEDDING_MODEL`                  | `text-embedding-3-small`                             | non-secret-literal | 287  |
+| `ruvector_HNSW_M`                           | `16`                                                 | non-secret-literal | 290  |
+| `ruvector_HNSW_EF`                          | `100`                                                | non-secret-literal | 293  |
+| `ruvector_HNSW_EF_CONSTRUCTION`             | `200`                                                | non-secret-literal | 296  |
+| `ruvector_HNSW_EF_SEARCH`                   | `100`                                                | non-secret-literal | 299  |
+| `ruvector_QUANTIZATION`                     | `scalar`                                             | non-secret-literal | 302  |
+| `ruvector_CACHE_SIZE`                       | `1000`                                               | non-secret-literal | 305  |
+| `ruvector_COMPRESSION`                      | `zstd`                                               | non-secret-literal | 308  |
+| `ruvector_WAL_ENABLED`                      | `true`                                               | non-secret-literal | 311  |
+| `ruvector_SNAPSHOT_INTERVAL`                | `3600`                                               | non-secret-literal | 314  |
+| `ruvector_BACKUP_ENABLED`                   | `true`                                               | non-secret-literal | 317  |
+| `ruvector_AUTO_MIGRATE`                     | `false`                                              | non-secret-literal | 320  |
+| `ruvector_FALLBACK_LEGACY`                  | `true`                                               | non-secret-literal | 323  |
+| `ruvector_LEARNING`                         | `true`                                               | non-secret-literal | 326  |
+| `ruvector_LEARNING_ALGORITHM`               | `decision-transformer`                               | non-secret-literal | 329  |
+| `ruvector_REASONING`                        | `true`                                               | non-secret-literal | 332  |
 | `CLAUDE_FLOW_MODE`                         | `orchestrator`                                       | non-secret-literal | 340  |
 | `CLAUDE_FLOW_PROFILE`                      | `development`                                        | non-secret-literal | 343  |
 | `CLAUDE_FLOW_PERFORMANCE_MODE`             | `optimized`                                          | non-secret-literal | 346  |
 | `CLAUDE_FLOW_ALPHA`                        | `true`                                               | non-secret-literal | 349  |
 | `CLAUDE_FLOW_PORT`                         | `9000`                                               | non-secret-literal | 353  |
 | `CLAUDE_FLOW_MCP_PORT`                     | `3000`                                               | non-secret-literal | 356  |
-| `CLAUDE_FLOW_MCP_URL`                      | `http://claude-flow:9000/mcp`                        | non-secret-literal | 359  |
-| `CLAUDE_FLOW_BASE_URL`                     | `http://claude-flow:8787`                            | non-secret-literal | 362  |
+| `CLAUDE_FLOW_MCP_URL`                      | `http://archon-os:9000/mcp`                        | non-secret-literal | 359  |
+| `CLAUDE_FLOW_BASE_URL`                     | `http://archon-os:8787`                            | non-secret-literal | 362  |
 | `CLAUDE_FLOW_REDIS_URL`                    | `redis://localhost:6379/1`                           | non-secret-literal | 365  |
 | `CLAUDE_FLOW_MIN_AGENTS`                   | `1`                                                  | non-secret-literal | 369  |
 | `CLAUDE_FLOW_MAX_AGENTS`                   | `100`                                                | non-secret-literal | 372  |
@@ -8823,7 +8823,7 @@ Generated from files containing `.env` in their filename across repo root, `infr
 | `LANGFUSE_PORT`                            | `3004`                                               | non-secret-literal | 1179 |
 | `LANGFUSE_NEXTAUTH_SECRET`                 | `your_langfuse_nextauth_secret_here`                 | placeholder        | 1182 |
 | `LANGFUSE_SALT`                            | `your_langfuse_salt_here`                            | placeholder        | 1185 |
-| `GRAPHITI_PORT`                            | `8001`                                               | non-secret-literal | 1189 |
+| `letta_PORT`                            | `8001`                                               | non-secret-literal | 1189 |
 | `CAMPAIGN_ENGINE_PORT`                     | `8020`                                               | non-secret-literal | 1193 |
 | `QUOTE_API_PORT`                           | `8089`                                               | non-secret-literal | 1197 |
 | `MINIO_API_PORT`                           | `9000`                                               | non-secret-literal | 1201 |
@@ -8930,22 +8930,22 @@ Generated from files containing `.env` in their filename across repo root, `infr
 | `LETTA_AGENT_DEFAULT_EMBEDDING`    | `[REDACTED]`                                                                   | possible-secret    | 116  |
 | `LETTA_MCP_ENABLED`                | `true`                                                                         | non-secret-literal | 120  |
 | `LETTA_MCP_PORT`                   | `8284`                                                                         | non-secret-literal | 121  |
-| `GRAPHITI_ENABLED`                 | `true`                                                                         | non-secret-literal | 132  |
-| `GRAPHITI_BACKEND`                 | `falkordb`                                                                     | non-secret-literal | 133  |
+| `letta_ENABLED`                 | `true`                                                                         | non-secret-literal | 132  |
+| `letta_BACKEND`                 | `falkordb`                                                                     | non-secret-literal | 133  |
 | `FALKORDB_ENABLED`                 | `true`                                                                         | non-secret-literal | 137  |
 | `FALKORDB_URL`                     | `redis://localhost:6379`                                                       | non-secret-literal | 138  |
 | `FALKORDB_PASSWORD`                | `${INFISICAL_FALKORDB_PASSWORD}`                                               | interpolated       | 139  |
 | `FALKORDB_GRAPH_NAME`              | `nyra_knowledge_graph`                                                         | non-secret-literal | 143  |
 | `FALKORDB_PERSISTENCE`             | `aof`                                                                          | non-secret-literal | 144  |
 | `FALKORDB_AOF_SYNC`                | `everysec`                                                                     | non-secret-literal | 145  |
-| `GRAPHITI_TEMPORAL_TRACKING`       | `true`                                                                         | non-secret-literal | 149  |
-| `GRAPHITI_SNAPSHOT_INTERVAL`       | `300`                                                                          | non-secret-literal | 150  |
-| `GRAPHITI_SNAPSHOT_RETENTION_DAYS` | `90`                                                                           | non-secret-literal | 151  |
-| `GRAPHITI_COMPRESSION_ENABLED`     | `true`                                                                         | non-secret-literal | 155  |
-| `GRAPHITI_COMPRESSION_ALGORITHM`   | `zstd`                                                                         | non-secret-literal | 156  |
-| `GRAPHITI_AUTO_EXTRACTION`         | `true`                                                                         | non-secret-literal | 160  |
-| `GRAPHITI_EXTRACTION_MODEL`        | `[REDACTED]`                                                                   | possible-secret    | 161  |
-| `GRAPHITI_EXTRACTION_BATCH_SIZE`   | `100`                                                                          | non-secret-literal | 162  |
+| `letta_TEMPORAL_TRACKING`       | `true`                                                                         | non-secret-literal | 149  |
+| `letta_SNAPSHOT_INTERVAL`       | `300`                                                                          | non-secret-literal | 150  |
+| `letta_SNAPSHOT_RETENTION_DAYS` | `90`                                                                           | non-secret-literal | 151  |
+| `letta_COMPRESSION_ENABLED`     | `true`                                                                         | non-secret-literal | 155  |
+| `letta_COMPRESSION_ALGORITHM`   | `zstd`                                                                         | non-secret-literal | 156  |
+| `letta_AUTO_EXTRACTION`         | `true`                                                                         | non-secret-literal | 160  |
+| `letta_EXTRACTION_MODEL`        | `[REDACTED]`                                                                   | possible-secret    | 161  |
+| `letta_EXTRACTION_BATCH_SIZE`   | `100`                                                                          | non-secret-literal | 162  |
 | `FALKORDB_MAX_MEMORY`              | `2GB`                                                                          | non-secret-literal | 166  |
 | `FALKORDB_EVICTION_POLICY`         | `allkeys-lru`                                                                  | non-secret-literal | 167  |
 | `MEM0_ENABLED`                     | `true`                                                                         | non-secret-literal | 178  |
@@ -9235,7 +9235,7 @@ Generated from files containing `.env` in their filename across repo root, `infr
 | `DOCKER_NETWORK`                 | `nyra-network`                                                      | non-secret-literal | 177  |
 | `COMPOSE_PROJECT_NAME`           | `nyra`                                                              | non-secret-literal | 178  |
 | `ORCHESTRATION_MODE`             | `dual`                                                              | non-secret-literal | 185  |
-| `PRIMARY_ORCHESTRATOR`           | `claude-flow`                                                       | non-secret-literal | 188  |
+| `PRIMARY_ORCHESTRATOR`           | `archon-os`                                                       | non-secret-literal | 188  |
 | `SECONDARY_ORCHESTRATOR`         | `archon-os`                                                         | non-secret-literal | 191  |
 | `INTEGRATION_PROTOCOL`           | `http`                                                              | non-secret-literal | 194  |
 | `INTEGRATION_TIMEOUT`            | `60000`                                                             | non-secret-literal | 195  |
@@ -9309,10 +9309,10 @@ Generated from files containing `.env` in their filename across repo root, `infr
 | `MEMORY_BACKEND`                   | `hybrid`                                                     | non-secret-literal | 63   |
 | `MEMORY_PRIMARY_STORE`             | `letta`                                                      | non-secret-literal | 64   |
 | `MEMORY_ENABLE_HNSW`               | `true`                                                       | non-secret-literal | 65   |
-| `AGENTDB_ENABLED`                  | `true`                                                       | non-secret-literal | 68   |
-| `AGENTDB_PATH`                     | `.agentdb/claude-flow.db`                                    | non-secret-literal | 69   |
-| `AGENTDB_HNSW_M`                   | `16`                                                         | non-secret-literal | 70   |
-| `AGENTDB_HNSW_EF`                  | `200`                                                        | non-secret-literal | 71   |
+| `ruvector_ENABLED`                  | `true`                                                       | non-secret-literal | 68   |
+| `ruvector_PATH`                     | `.ruvector/archon-os.db`                                    | non-secret-literal | 69   |
+| `ruvector_HNSW_M`                   | `16`                                                         | non-secret-literal | 70   |
+| `ruvector_HNSW_EF`                  | `200`                                                        | non-secret-literal | 71   |
 | `RUVECTOR_ENABLED`                 | `true`                                                       | non-secret-literal | 74   |
 | `RUVECTOR_MODE`                    | `distributed`                                                | non-secret-literal | 75   |
 | `RUVECTOR_PORT`                    | `7000`                                                       | non-secret-literal | 76   |
@@ -9356,7 +9356,7 @@ Generated from files containing `.env` in their filename across repo root, `infr
 | `INFISICAL_ENVIRONMENT`            | `production`                                                 | non-secret-literal | 152  |
 | `INFISICAL_PATH`                   | `/shared`                                                    | non-secret-literal | 153  |
 
-### `docs/configuration/env-backups/root/.env.prod.claude-flow`
+### `docs/configuration/env-backups/root/.env.prod.archon-os`
 
 | Variable                           | Value                                                                          | Classification     | Line |
 | ---------------------------------- | ------------------------------------------------------------------------------ | ------------------ | ---- |
@@ -9765,10 +9765,10 @@ Generated from files containing `.env` in their filename across repo root, `infr
 | `RUVECTOR_MODE`                    | `worker`                                   | non-secret-literal | 58   |
 | `RUVECTOR_PORT`                    | `7890`                                     | non-secret-literal | 59   |
 | `RUVECTOR_COORDINATOR`             | `[REDACTED]`                               | possible-secret    | 60   |
-| `AGENTDB_ENABLED`                  | `true`                                     | non-secret-literal | 63   |
-| `AGENTDB_PATH`                     | `.agentdb/worker-3060.db`                  | non-secret-literal | 64   |
-| `AGENTDB_SYNC_FROM`                | `[REDACTED]`                               | possible-secret    | 65   |
-| `AGENTDB_READ_ONLY`                | `false`                                    | non-secret-literal | 66   |
+| `ruvector_ENABLED`                  | `true`                                     | non-secret-literal | 63   |
+| `ruvector_PATH`                     | `.ruvector/worker-3060.db`                  | non-secret-literal | 64   |
+| `ruvector_SYNC_FROM`                | `[REDACTED]`                               | possible-secret    | 65   |
+| `ruvector_READ_ONLY`                | `false`                                    | non-secret-literal | 66   |
 | `PC_NAME`                          | `worker-rtx3060`                           | non-secret-literal | 71   |
 | `PC_ROLE`                          | `worker`                                   | non-secret-literal | 72   |
 | `LAN_IP`                           | `192.168.1.221`                            | non-secret-literal | 73   |
@@ -9831,10 +9831,10 @@ Generated from files containing `.env` in their filename across repo root, `infr
 | `RUVECTOR_MODE`                    | `worker`                                   | non-secret-literal | 58   |
 | `RUVECTOR_PORT`                    | `7890`                                     | non-secret-literal | 59   |
 | `RUVECTOR_COORDINATOR`             | `[REDACTED]`                               | possible-secret    | 60   |
-| `AGENTDB_ENABLED`                  | `true`                                     | non-secret-literal | 63   |
-| `AGENTDB_PATH`                     | `[REDACTED]`                               | possible-secret    | 64   |
-| `AGENTDB_SYNC_FROM`                | `[REDACTED]`                               | possible-secret    | 65   |
-| `AGENTDB_READ_ONLY`                | `false`                                    | non-secret-literal | 66   |
+| `ruvector_ENABLED`                  | `true`                                     | non-secret-literal | 63   |
+| `ruvector_PATH`                     | `[REDACTED]`                               | possible-secret    | 64   |
+| `ruvector_SYNC_FROM`                | `[REDACTED]`                               | possible-secret    | 65   |
+| `ruvector_READ_ONLY`                | `false`                                    | non-secret-literal | 66   |
 | `PC_NAME`                          | `worker-rtx3090ti`                         | non-secret-literal | 71   |
 | `PC_ROLE`                          | `worker`                                   | non-secret-literal | 72   |
 | `LAN_IP`                           | `TO_BE_COLLECTED`                          | non-secret-literal | 73   |
@@ -9897,10 +9897,10 @@ Generated from files containing `.env` in their filename across repo root, `infr
 | `RUVECTOR_MODE`                    | `worker`                                   | non-secret-literal | 58   |
 | `RUVECTOR_PORT`                    | `7890`                                     | non-secret-literal | 59   |
 | `RUVECTOR_COORDINATOR`             | `[REDACTED]`                               | possible-secret    | 60   |
-| `AGENTDB_ENABLED`                  | `true`                                     | non-secret-literal | 63   |
-| `AGENTDB_PATH`                     | `.agentdb/worker-5090.db`                  | non-secret-literal | 64   |
-| `AGENTDB_SYNC_FROM`                | `[REDACTED]`                               | possible-secret    | 65   |
-| `AGENTDB_READ_ONLY`                | `false`                                    | non-secret-literal | 66   |
+| `ruvector_ENABLED`                  | `true`                                     | non-secret-literal | 63   |
+| `ruvector_PATH`                     | `.ruvector/worker-5090.db`                  | non-secret-literal | 64   |
+| `ruvector_SYNC_FROM`                | `[REDACTED]`                               | possible-secret    | 65   |
+| `ruvector_READ_ONLY`                | `false`                                    | non-secret-literal | 66   |
 | `PC_NAME`                          | `worker-rtx5090`                           | non-secret-literal | 71   |
 | `PC_ROLE`                          | `worker`                                   | non-secret-literal | 72   |
 | `LAN_IP`                           | `TO_BE_COLLECTED`                          | non-secret-literal | 73   |
@@ -9990,7 +9990,7 @@ Generated from files containing `.env` in their filename across repo root, `infr
 | `DEFAULT_TIMEOUT_S`           | `60`               | non-secret-literal | 2    |
 | `LOG_LEVEL`                   | `info`             | non-secret-literal | 3    |
 | `NYRA_STACK_NAME`             | `project-nyra`     | non-secret-literal | 4    |
-| `NAMESPACE_CLAUDE_FLOW`       | `claude-flow`      | non-secret-literal | 5    |
+| `NAMESPACE_CLAUDE_FLOW`       | `archon-os`      | non-secret-literal | 5    |
 | `NAMESPACE_DESKTOP_COMMANDER` | `desktopcommander` | non-secret-literal | 6    |
 | `NAMESPACE_FLOW_NEXUS`        | `flow-nexus`       | non-secret-literal | 7    |
 | `NAMESPACE_RUV_SWARM`         | `ruv-swarm`        | non-secret-literal | 8    |
@@ -10311,7 +10311,7 @@ Generated from files containing `.env` in their filename across repo root, `infr
 | `INFISICAL_UNIVERSAL_AUTH_CLIENT_ID`     | ``    | empty          | 1    |
 | `INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET` | ``    | empty          | 2    |
 
-### `docs/references/claude-flow-examples/05-swarm-apps/rest-api-advanced/.env.example`
+### `docs/references/archon-os-examples/05-swarm-apps/rest-api-advanced/.env.example`
 
 | Variable                    | Value                                              | Classification     | Line |
 | --------------------------- | -------------------------------------------------- | ------------------ | ---- |
@@ -10354,7 +10354,7 @@ Generated from files containing `.env` in their filename across repo root, `infr
 | `DEFAULT_PAGE_SIZE`         | `20`                                               | non-secret-literal | 66   |
 | `MAX_PAGE_SIZE`             | `100`                                              | non-secret-literal | 67   |
 
-### `docs/references/claude-flow-examples/05-swarm-apps/rest-api/.env.example`
+### `docs/references/archon-os-examples/05-swarm-apps/rest-api/.env.example`
 
 | Variable         | Value         | Classification     | Line |
 | ---------------- | ------------- | ------------------ | ---- |
@@ -10363,14 +10363,14 @@ Generated from files containing `.env` in their filename across repo root, `infr
 | `API_PREFIX`     | `/api/v1`     | non-secret-literal | 6    |
 | `API_RATE_LIMIT` | `100`         | non-secret-literal | 7    |
 
-### `docs/references/claude-flow-examples/blog-api/.env.example`
+### `docs/references/archon-os-examples/blog-api/.env.example`
 
 | Variable       | Value  | Classification     | Line |
 | -------------- | ------ | ------------------ | ---- |
 | `PORT`         | `3000` | non-secret-literal | 1    |
 | `DATABASE_URL` | ``     | empty              | 2    |
 
-### `docs/references/claude-flow-examples/litellm/.env.example`
+### `docs/references/archon-os-examples/litellm/.env.example`
 
 | Variable                    | Value                                                  | Classification     | Line |
 | --------------------------- | ------------------------------------------------------ | ------------------ | ---- |
@@ -10422,13 +10422,13 @@ Generated from files containing `.env` in their filename across repo root, `infr
 | `RELOAD`                    | `false`                                                | non-secret-literal | 80   |
 | `LOG_LEVEL`                 | `INFO`                                                 | non-secret-literal | 81   |
 
-### `docs/references/claude-flow-examples/rest-api-simple/.env.example`
+### `docs/references/archon-os-examples/rest-api-simple/.env.example`
 
 | Variable | Value  | Classification     | Line |
 | -------- | ------ | ------------------ | ---- |
 | `PORT`   | `3000` | non-secret-literal | 1    |
 
-### `docs/references/claude-flow-examples/user-api/.env.example`
+### `docs/references/archon-os-examples/user-api/.env.example`
 
 | Variable   | Value         | Classification     | Line |
 | ---------- | ------------- | ------------------ | ---- |
@@ -10440,7 +10440,7 @@ Generated from files containing `.env` in their filename across repo root, `infr
 - Files scanned: 12
 - Key/value entries parsed: 350
 
-### `apps/apps-claude-flow-dashboard/.env.example`
+### `apps/apps-archon-os-dashboard/.env.example`
 
 | Variable                     | Value                   | Classification     | Line |
 | ---------------------------- | ----------------------- | ------------------ | ---- |
@@ -10476,7 +10476,7 @@ Generated from files containing `.env` in their filename across repo root, `infr
 | `DIFY_POSTGRES_USER`       | `dify`                      | non-secret-literal | 32   |
 | `DIFY_POSTGRES_PASSWORD`   | `dify`                      | non-secret-literal | 33   |
 | `DIFY_POSTGRES_DB`         | `dify`                      | non-secret-literal | 34   |
-| `GRAPHITI_GROUP_ID`        | `nyra`                      | non-secret-literal | 37   |
+| `letta_GROUP_ID`        | `nyra`                      | non-secret-literal | 37   |
 
 ### `apps/ingestion/ratehunter-export/ingest-consolidated-old-nyra/ratehunter-api/.env.example`
 
@@ -10971,7 +10971,7 @@ Generated from files containing `.env` in their filename across repo root, `infr
 | `DNC_CHECK_ENABLED`            | `true`                                             | non-secret-literal | 28   |
 | `CONSENT_REQUIRED`             | `true`                                             | non-secret-literal | 29   |
 
-### `services/claude-flow-event-server/.env.example`
+### `services/archon-os-event-server/.env.example`
 
 | Variable                       | Value                            | Classification     | Line |
 | ------------------------------ | -------------------------------- | ------------------ | ---- |
@@ -10986,7 +10986,7 @@ Generated from files containing `.env` in their filename across repo root, `infr
 | `LOGGING_LEVEL`                | `info`                           | non-secret-literal | 18   |
 | `METRICS_ENDPOINT`             | `http://prometheus:9090/metrics` | non-secret-literal | 19   |
 
-### `services/claude-flow/.env.example`
+### `services/archon-os/.env.example`
 
 | Variable                            | Value                    | Classification     | Line |
 | ----------------------------------- | ------------------------ | ------------------ | ---- |

@@ -24,12 +24,12 @@
 │  │  │ Embeddings │  │ Security │  │ Neural │  │Performance │   │  │
 │  │  │  (RuVec)   │  │  (CVE)   │  │ (MoE)  │  │(Benchmark) │   │  │
 │  │  └────────────┘  └──────────┘  └────────┘  └────────────┘   │  │
-│  │          ./node_modules/@claude-flow/                         │  │
+│  │          ./node_modules/@archon-os/                         │  │
 │  └───────────────────────────────────────────────────────────────┘  │
 │                                                                      │
 │  ┌───────────────────────────────────────────────────────────────┐  │
 │  │                    Plugin Discovery                           │  │
-│  │  - IPFS Registry (claude-flow-official)                       │  │
+│  │  - IPFS Registry (archon-os-official)                       │  │
 │  │  - Auto-discovery in node_modules                             │  │
 │  │  - Manual plugin paths                                        │  │
 │  └───────────────────────────────────────────────────────────────┘  │
@@ -80,7 +80,7 @@ superpowers@4.1.1          - Enhanced capabilities
 
 **Purpose**: Orchestration, intelligence, performance, security
 
-**Installation Location**: `./node_modules/@claude-flow/`
+**Installation Location**: `./node_modules/@archon-os/`
 
 **Characteristics**:
 - Local installation (npm/pnpm)
@@ -90,15 +90,15 @@ superpowers@4.1.1          - Enhanced capabilities
 
 **Essential Plugins**:
 ```
-@claude-flow/embeddings@3.0.0-alpha.1   - 75x faster vector search
-@claude-flow/security@3.0.0-alpha.1     - CVE scanning, validation
-@claude-flow/neural@3.0.0-alpha.7       - Pattern training
-@claude-flow/performance@3.0.0-alpha.1  - Benchmarking
-@claude-flow/claims@3.0.0-alpha.8       - Authorization
+@archon-os/embeddings@3.0.0-alpha.1   - 75x faster vector search
+@archon-os/security@3.0.0-alpha.1     - CVE scanning, validation
+@archon-os/neural@3.0.0-alpha.7       - Pattern training
+@archon-os/performance@3.0.0-alpha.1  - Benchmarking
+@archon-os/claims@3.0.0-alpha.8       - Authorization
 ```
 
 **Discovery Mechanism**:
-1. IPFS Registry (primary) - `claude-flow-official`
+1. IPFS Registry (primary) - `archon-os-official`
 2. Auto-discovery in `node_modules/`
 3. Manual paths in config
 
@@ -114,7 +114,7 @@ superpowers@4.1.1          - Enhanced capabilities
        │
        ▼
 ┌─────────────┐
-│   Plugin    │  npx @claude-flow/cli@latest plugins list
+│   Plugin    │  npx @archon-os/cli@latest plugins list
 │  Discovery  │  Scans: IPFS → node_modules → manual paths
 └──────┬──────┘
        │
@@ -125,7 +125,7 @@ superpowers@4.1.1          - Enhanced capabilities
        │
        ▼
 ┌─────────────┐
-│Installation │  npm/pnpm add @claude-flow/embeddings
+│Installation │  npm/pnpm add @archon-os/embeddings
 └─────────────┘
 ```
 
@@ -133,7 +133,7 @@ superpowers@4.1.1          - Enhanced capabilities
 
 ```
 ┌─────────────┐
-│   Config    │  claude-flow.config.json
+│   Config    │  archon-os.config.json
 │   Loading   │  "plugins.installed": [...]
 └──────┬──────┘
        │
@@ -159,14 +159,14 @@ superpowers@4.1.1          - Enhanced capabilities
 
 ```
 ┌─────────────┐
-│   Command   │  npx @claude-flow/cli@latest embeddings search
+│   Command   │  npx @archon-os/cli@latest embeddings search
 │  Invocation │
 └──────┬──────┘
        │
        ▼
 ┌─────────────┐
 │   Plugin    │  Embeddings plugin handles search
-│  Execution  │  Uses HNSW index, agentic-flow ONNX
+│  Execution  │  Uses HNSW index, archon-os ONNX
 └──────┬──────┘
        │
        ▼
@@ -190,11 +190,11 @@ superpowers@4.1.1          - Enhanced capabilities
 
 | Plugin | Function | Integration |
 |--------|----------|-------------|
-| `@claude-flow/embeddings` | Vector search, HNSW indexing | RuVector, Memory |
-| `@claude-flow/security` | CVE scanning, validation | Pre-commit hooks |
-| `@claude-flow/neural` | Pattern training, MoE | Hooks, Memory |
-| `@claude-flow/claims` | Authorization | Security layer |
-| `@claude-flow/plugins` | Plugin management | CLI |
+| `@archon-os/embeddings` | Vector search, HNSW indexing | RuVector, Memory |
+| `@archon-os/security` | CVE scanning, validation | Pre-commit hooks |
+| `@archon-os/neural` | Pattern training, MoE | Hooks, Memory |
+| `@archon-os/claims` | Authorization | Security layer |
+| `@archon-os/plugins` | Plugin management | CLI |
 
 ### Command Plugins
 
@@ -202,7 +202,7 @@ superpowers@4.1.1          - Enhanced capabilities
 
 | Plugin | Function | Commands |
 |--------|----------|----------|
-| `@claude-flow/performance` | Performance analysis | `benchmark`, `profile`, `optimize` |
+| `@archon-os/performance` | Performance analysis | `benchmark`, `profile`, `optimize` |
 
 ### Integration Plugins
 
@@ -210,9 +210,9 @@ superpowers@4.1.1          - Enhanced capabilities
 
 | Plugin | Function | Integration |
 |--------|----------|-------------|
-| `@claude-flow/plugin-agentic-qe` | Quantum entanglement | agentic-flow |
-| `@claude-flow/plugin-prime-radiant` | Psychohistory patterns | Memory systems |
-| `@claude-flow/plugin-gastown-bridge` | Cross-system bridge | MCP servers |
+| `@archon-os/plugin-agentic-qe` | Quantum entanglement | archon-os |
+| `@archon-os/plugin-prime-radiant` | Psychohistory patterns | Memory systems |
+| `@archon-os/plugin-gastown-bridge` | Cross-system bridge | MCP servers |
 
 ### Domain Plugins
 
@@ -220,9 +220,9 @@ superpowers@4.1.1          - Enhanced capabilities
 
 | Plugin | Function | Domain |
 |--------|----------|--------|
-| `@claude-flow/plugin-financial-risk` | Risk analysis | Mortgage, Finance |
-| `@claude-flow/plugin-healthcare-clin...` | Clinical workflows | Healthcare |
-| `@claude-flow/plugin-legal-contracts` | Contract processing | Legal, Mortgage |
+| `@archon-os/plugin-financial-risk` | Risk analysis | Mortgage, Finance |
+| `@archon-os/plugin-healthcare-clin...` | Clinical workflows | Healthcare |
+| `@archon-os/plugin-legal-contracts` | Contract processing | Legal, Mortgage |
 
 ### Intelligence Plugins
 
@@ -230,11 +230,11 @@ superpowers@4.1.1          - Enhanced capabilities
 
 | Plugin | Function | Technology |
 |--------|----------|------------|
-| `@claude-flow/plugin-code-intelligence` | Code analysis | AST, patterns |
-| `@claude-flow/plugin-test-intelligence` | Test optimization | Coverage analysis |
-| `@claude-flow/plugin-neural-coordinator` | Multi-agent coordination | Neural nets |
-| `@claude-flow/plugin-quantum-optimizer` | Quantum algorithms | Optimization |
-| `@claude-flow/plugin-cognitive-kernel` | Cognitive architecture | Kernel design |
+| `@archon-os/plugin-code-intelligence` | Code analysis | AST, patterns |
+| `@archon-os/plugin-test-intelligence` | Test optimization | Coverage analysis |
+| `@archon-os/plugin-neural-coordinator` | Multi-agent coordination | Neural nets |
+| `@archon-os/plugin-quantum-optimizer` | Quantum algorithms | Optimization |
+| `@archon-os/plugin-cognitive-kernel` | Cognitive architecture | Kernel design |
 
 ## Plugin Communication
 
@@ -283,7 +283,7 @@ superpowers@4.1.1          - Enhanced capabilities
 
 ### Global Configuration
 
-Location: `claude-flow.config.json`
+Location: `archon-os.config.json`
 
 ```json
 {
@@ -292,7 +292,7 @@ Location: `claude-flow.config.json`
     "autoLoad": true,
     "autoDiscover": true,
     "paths": ["./plugins", "./node_modules"],
-    "registry": "claude-flow-official",
+    "registry": "archon-os-official",
     "registryCID": "QmXbfEAaR7D2Ujm4GAkbwcGZQMHqAMpwDoje4583uNP834",
     "installed": [...],
     "config": {...}
@@ -306,8 +306,8 @@ Location: `claude-flow.config.json`
 {
   "plugins": {
     "config": {
-      "@claude-flow/embeddings": {
-        "provider": "agentic-flow",
+      "@archon-os/embeddings": {
+        "provider": "archon-os",
         "model": "all-minilm-l6-v2",
         "dimensions": 384,
         "onnxOptimization": true
@@ -321,7 +321,7 @@ Location: `claude-flow.config.json`
 
 ```bash
 # Registry
-export CLAUDE_FLOW_PLUGIN_REGISTRY=claude-flow-official
+export CLAUDE_FLOW_PLUGIN_REGISTRY=archon-os-official
 export CLAUDE_FLOW_PLUGIN_REGISTRY_CID=QmXbfEAaR...
 
 # Paths
@@ -332,7 +332,7 @@ export CLAUDE_CODE_PLUGIN_PATH=~/.claude/plugins
 export CLAUDE_FLOW_PLUGIN_AUTO_DISCOVER=true
 
 # Per-plugin settings
-export CLAUDE_FLOW_EMBEDDINGS_PROVIDER=agentic-flow
+export CLAUDE_FLOW_EMBEDDINGS_PROVIDER=archon-os
 export CLAUDE_FLOW_SECURITY_SCAN_ON_COMMIT=true
 ```
 
@@ -341,32 +341,32 @@ export CLAUDE_FLOW_SECURITY_SCAN_ON_COMMIT=true
 ### Embeddings Plugin Dependencies
 
 ```
-@claude-flow/embeddings
-├── agentic-flow (ONNX runtime, 75x faster)
-├── @claude-flow/memory (storage backend)
-├── @claude-flow/hnsw (indexing)
+@archon-os/embeddings
+├── archon-os (ONNX runtime, 75x faster)
+├── @archon-os/memory (storage backend)
+├── @archon-os/hnsw (indexing)
 └── Node.js native modules (optional CUDA)
 ```
 
 ### Security Plugin Dependencies
 
 ```
-@claude-flow/security
+@archon-os/security
 ├── nvd (National Vulnerability Database)
-├── @claude-flow/cli (scanning commands)
+├── @archon-os/cli (scanning commands)
 ├── zod (input validation)
-└── @claude-flow/hooks (pre-commit integration)
+└── @archon-os/hooks (pre-commit integration)
 ```
 
 ### Neural Plugin Dependencies
 
 ```
-@claude-flow/neural
-├── @claude-flow/moe (Mixture of Experts)
-├── @claude-flow/ewc (Elastic Weight Consolidation)
-├── @claude-flow/lora (Low-Rank Adaptation)
-├── @claude-flow/flash-attention (optimization)
-└── @claude-flow/memory (pattern storage)
+@archon-os/neural
+├── @archon-os/moe (Mixture of Experts)
+├── @archon-os/ewc (Elastic Weight Consolidation)
+├── @archon-os/lora (Low-Rank Adaptation)
+├── @archon-os/flash-attention (optimization)
+└── @archon-os/memory (pattern storage)
 ```
 
 ## Plugin Trust Model
@@ -375,7 +375,7 @@ export CLAUDE_FLOW_SECURITY_SCAN_ON_COMMIT=true
 
 | Level | Source | Verification |
 |-------|--------|--------------|
-| **Official** | @claude-flow/* | Anthropic-signed, IPFS-pinned |
+| **Official** | @archon-os/* | Anthropic-signed, IPFS-pinned |
 | **Verified** | Known publishers | Community-verified, audited |
 | **Community** | Third-party | User-installed, no verification |
 | **Local** | Project-specific | Developer responsibility |
@@ -433,7 +433,7 @@ export CLAUDE_FLOW_SECURITY_SCAN_ON_COMMIT=true
 
 ```typescript
 // plugins/custom-plugin/index.ts
-import { Plugin, PluginContext, PluginMetadata } from '@claude-flow/plugins';
+import { Plugin, PluginContext, PluginMetadata } from '@archon-os/plugins';
 
 export const metadata: PluginMetadata = {
   name: 'custom-plugin',
@@ -442,8 +442,8 @@ export const metadata: PluginMetadata = {
   author: 'Your Name',
   description: 'Custom plugin for specific functionality',
   dependencies: {
-    'claude-flow': '^3.0.0',
-    '@claude-flow/memory': '^3.0.0'
+    'archon-os': '^3.0.0',
+    '@archon-os/memory': '^3.0.0'
   }
 };
 
@@ -499,7 +499,7 @@ export class CustomPlugin implements Plugin {
     }
   },
   "dependencies": {
-    "@claude-flow/plugins": "^3.0.0"
+    "@archon-os/plugins": "^3.0.0"
   }
 }
 ```
@@ -517,32 +517,32 @@ export class CustomPlugin implements Plugin {
 
 **Option 1: Use Existing Plugin**
 ```bash
-npx @claude-flow/cli@latest plugins install @claude-flow/embeddings
+npx @archon-os/cli@latest plugins install @archon-os/embeddings
 ```
 
 **Option 2: Create Custom Plugin**
 ```bash
-npx @claude-flow/cli@latest plugins create @nyra/mortgage-plugin
+npx @archon-os/cli@latest plugins create @nyra/mortgage-plugin
 ```
 
 ## Troubleshooting Architecture
 
 ### Plugin Not Loading
 
-1. Check installation: `npx @claude-flow/cli@latest plugins list --installed`
-2. Verify config: `claude-flow.config.json` → `plugins.installed`
+1. Check installation: `npx @archon-os/cli@latest plugins list --installed`
+2. Verify config: `archon-os.config.json` → `plugins.installed`
 3. Check paths: `plugins.paths` includes `./node_modules`
-4. Scan for plugins: `npx @claude-flow/cli@latest plugins discover`
+4. Scan for plugins: `npx @archon-os/cli@latest plugins discover`
 
 ### Plugin Conflicts
 
-1. Check versions: `npm list @claude-flow/embeddings`
+1. Check versions: `npm list @archon-os/embeddings`
 2. Clear cache: `rm -rf node_modules/.cache`
 3. Reinstall: `npm install --force`
 
 ### Performance Issues
 
-1. Profile: `npx @claude-flow/cli@latest performance profile --target plugin-name`
+1. Profile: `npx @archon-os/cli@latest performance profile --target plugin-name`
 2. Disable heavy plugins temporarily
 3. Use lazy loading: `plugins.autoLoad: false`
 

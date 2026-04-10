@@ -409,7 +409,7 @@ docker network ls
 docker network inspect nyra-network
 
 # Test connectivity
-docker exec nyra-claude-flow-dev ping postgres
+docker exec nyra-archon-os-dev ping postgres
 
 # Recreate network
 docker network rm nyra-network
@@ -621,7 +621,7 @@ docker compose pull
 # 2. Update services one by one
 docker compose up -d --no-deps nexus-router
 sleep 30
-docker compose up -d --no-deps claude-flow
+docker compose up -d --no-deps archon-os
 sleep 30
 
 # 3. Verify health after each

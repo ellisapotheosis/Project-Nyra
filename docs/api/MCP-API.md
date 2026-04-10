@@ -102,7 +102,7 @@ curl -X GET https://api.project-nyra.io/mcp/servers \
 {
   "servers": [
     {
-      "id": "claude-flow",
+      "id": "archon-os",
       "name": "Claude Flow",
       "url": "http://localhost:3001/mcp",
       "enabled": true,
@@ -786,7 +786,7 @@ curl -X POST "${BASE_URL}/mcp/tools/call" \
 
 ### Claude Flow
 
-**Server ID:** `claude-flow`
+**Server ID:** `archon-os`
 **Tools:** 25
 **Description:** Multi-agent orchestration and swarm coordination
 

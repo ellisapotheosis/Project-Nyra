@@ -9,7 +9,7 @@ This directory contains reusable workflow definitions for systematic processing 
 
 **Location**:
 - Full Documentation: [`ingestion-sparc-workflow.md`](./ingestion-sparc-workflow.md)
-- Workflow Definition: [`../.claude-flow/workflows/ingestion-sparc.json`](../.claude-flow/workflows/ingestion-sparc.json)
+- Workflow Definition: [`../.archon-os/workflows/ingestion-sparc.json`](../.archon-os/workflows/ingestion-sparc.json)
 - Quick Reference: [`SPARC-QUICK-REFERENCE.md`](./SPARC-QUICK-REFERENCE.md)
 - Visual Diagrams: [`sparc-workflow-diagram.md`](./sparc-workflow-diagram.md)
 - Example Usage: [`examples/ingestion-processing-example.md`](./examples/ingestion-processing-example.md)
@@ -18,7 +18,7 @@ This directory contains reusable workflow definitions for systematic processing 
 
 **Quick Start**:
 ```bash
-npx @claude-flow/cli@latest workflow execute \
+npx @archon-os/cli@latest workflow execute \
   --workflow-id ingestion-sparc-processor \
   --variables '{"ingestion_path": "/path/to/content"}'
 ```
@@ -84,7 +84,7 @@ Create a new markdown file with the workflow specification:
 
 ### Step 2: Create JSON Definition
 
-Create a JSON file in `.claude-flow/workflows/`:
+Create a JSON file in `.archon-os/workflows/`:
 
 ```json
 {
@@ -101,7 +101,7 @@ Create a JSON file in `.claude-flow/workflows/`:
 ### Step 3: Store in Memory
 
 ```bash
-npx @claude-flow/cli@latest memory store \
+npx @archon-os/cli@latest memory store \
   --key "workflow-name" \
   --value "Workflow description and key details" \
   --namespace workflows
@@ -110,9 +110,9 @@ npx @claude-flow/cli@latest memory store \
 ### Step 4: Create Workflow
 
 ```bash
-npx @claude-flow/cli@latest workflow create \
+npx @archon-os/cli@latest workflow create \
   --name "workflow-id" \
-  --from-file ".claude-flow/workflows/workflow-id.json"
+  --from-file ".archon-os/workflows/workflow-id.json"
 ```
 
 ---
@@ -196,7 +196,7 @@ steps:
 **Best for**: Small teams (6-8 agents), tight control
 
 ```bash
-npx @claude-flow/cli@latest swarm init \
+npx @archon-os/cli@latest swarm init \
   --topology hierarchical \
   --max-agents 8 \
   --strategy specialized
@@ -206,7 +206,7 @@ npx @claude-flow/cli@latest swarm init \
 **Best for**: Large teams (10-15 agents), V3 queen + peer communication
 
 ```bash
-npx @claude-flow/cli@latest swarm init \
+npx @archon-os/cli@latest swarm init \
   --topology hierarchical-mesh \
   --max-agents 15 \
   --strategy specialized
@@ -216,7 +216,7 @@ npx @claude-flow/cli@latest swarm init \
 **Best for**: Distributed tasks, peer-to-peer coordination
 
 ```bash
-npx @claude-flow/cli@latest swarm init \
+npx @archon-os/cli@latest swarm init \
   --topology mesh \
   --max-agents 12 \
   --strategy balanced
@@ -231,7 +231,7 @@ All workflows should integrate with the memory system:
 ### Before Execution
 ```bash
 # Search for similar patterns
-npx @claude-flow/cli@latest memory search \
+npx @archon-os/cli@latest memory search \
   --query "[workflow context]" \
   --namespace workflow_patterns
 ```
@@ -244,13 +244,13 @@ npx @claude-flow/cli@latest memory search \
 ### After Execution
 ```bash
 # Store successful patterns
-npx @claude-flow/cli@latest memory store \
+npx @archon-os/cli@latest memory store \
   --key "workflow-pattern-$(date +%s)" \
   --value "$(cat completion_report.json)" \
   --namespace workflow_patterns
 
 # Train neural models
-npx @claude-flow/cli@latest neural train \
+npx @archon-os/cli@latest neural train \
   --pattern-type workflow \
   --data completion_report.json
 ```
@@ -276,33 +276,33 @@ Track these metrics for all workflows:
 
 ```bash
 # List all workflows
-npx @claude-flow/cli@latest workflow list
+npx @archon-os/cli@latest workflow list
 
 # Get workflow details
-npx @claude-flow/cli@latest workflow status --workflow-id [id]
+npx @archon-os/cli@latest workflow status --workflow-id [id]
 
 # Execute workflow
-npx @claude-flow/cli@latest workflow execute --workflow-id [id]
+npx @archon-os/cli@latest workflow execute --workflow-id [id]
 
 # Pause workflow
-npx @claude-flow/cli@latest workflow pause --workflow-id [id]
+npx @archon-os/cli@latest workflow pause --workflow-id [id]
 
 # Resume workflow
-npx @claude-flow/cli@latest workflow resume --workflow-id [id]
+npx @archon-os/cli@latest workflow resume --workflow-id [id]
 
 # Cancel workflow
-npx @claude-flow/cli@latest workflow cancel --workflow-id [id]
+npx @archon-os/cli@latest workflow cancel --workflow-id [id]
 
 # View workflow metrics
-npx @claude-flow/cli@latest workflow metrics --workflow-id [id]
+npx @archon-os/cli@latest workflow metrics --workflow-id [id]
 
 # Save as template
-npx @claude-flow/cli@latest workflow template save \
+npx @archon-os/cli@latest workflow template save \
   --workflow-id [id] \
   --template-name [name]
 
 # Create from template
-npx @claude-flow/cli@latest workflow template create \
+npx @archon-os/cli@latest workflow template create \
   --template-id [id] \
   --new-name [name]
 ```
@@ -347,37 +347,37 @@ npx @claude-flow/cli@latest workflow template create \
 ### Workflow Not Starting
 ```bash
 # Check daemon status
-npx @claude-flow/cli@latest daemon status
+npx @archon-os/cli@latest daemon status
 
 # Start daemon if needed
-npx @claude-flow/cli@latest daemon start
+npx @archon-os/cli@latest daemon start
 
 # Check swarm health
-npx @claude-flow/cli@latest swarm health
+npx @archon-os/cli@latest swarm health
 ```
 
 ### Workflow Hanging
 ```bash
 # Check agent health
-npx @claude-flow/cli@latest agent health
+npx @archon-os/cli@latest agent health
 
 # View workflow logs
-npx @claude-flow/cli@latest workflow logs --workflow-id [id]
+npx @archon-os/cli@latest workflow logs --workflow-id [id]
 
 # Pause and inspect
-npx @claude-flow/cli@latest workflow pause --workflow-id [id]
+npx @archon-os/cli@latest workflow pause --workflow-id [id]
 ```
 
 ### Memory Issues
 ```bash
 # Check memory stats
-npx @claude-flow/cli@latest memory stats
+npx @archon-os/cli@latest memory stats
 
 # Clear old entries
-npx @claude-flow/cli@latest memory cleanup --older-than 30d
+npx @archon-os/cli@latest memory cleanup --older-than 30d
 
 # Reinitialize if needed
-npx @claude-flow/cli@latest memory init --force
+npx @archon-os/cli@latest memory init --force
 ```
 
 ---
@@ -413,8 +413,8 @@ To add a new workflow:
 
 ## Resources
 
-- Claude Flow Documentation: https://github.com/ruvnet/claude-flow
-- SPARC Methodology: `.claude-flow/CAPABILITIES.md`
+- Claude Flow Documentation: https://github.com/ruvnet/archon-os
+- SPARC Methodology: `.archon-os/CAPABILITIES.md`
 - Agent Types: `CLAUDE.md` (Available Agents section)
 - CLI Commands: `CLAUDE.md` (V3 CLI Commands section)
 - Memory System: `docs/architecture/memory-system.md`
@@ -424,9 +424,9 @@ To add a new workflow:
 ## Support
 
 For issues or questions:
-- GitHub Issues: https://github.com/ruvnet/claude-flow/issues
-- Memory Search: `npx @claude-flow/cli@latest memory search --query "workflow"`
-- Doctor Diagnostics: `npx @claude-flow/cli@latest doctor --fix`
+- GitHub Issues: https://github.com/ruvnet/archon-os/issues
+- Memory Search: `npx @archon-os/cli@latest memory search --query "workflow"`
+- Doctor Diagnostics: `npx @archon-os/cli@latest doctor --fix`
 
 ---
 

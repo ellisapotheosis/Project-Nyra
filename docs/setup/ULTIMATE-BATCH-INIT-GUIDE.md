@@ -12,9 +12,9 @@ Before diving into the technical steps, it helps to understand what we are build
 
 Your Project Nyra setup integrates three major systems that form the foundation of everything else. Understanding how these systems interact will help you make better decisions about configuration and troubleshooting.
 
-**First, the Memory Systems create persistent intelligence.** Imagine traditional software where every time you start a new session, the system has completely forgotten what happened before. You would need to re-explain context, re-configure preferences, and re-teach patterns every single time. This is frustrating and inefficient. Your memory systems solve this by maintaining five different types of memory that serve different purposes. RuVector provides lightning-fast semantic search across your entire codebase, helping agents find relevant code patterns in milliseconds. Letta maintains agent state and personas, so your mortgage assistant agent remembers borrower preferences across conversations. Graphiti tracks temporal changes, allowing you to query "What was the loan application status three days ago?" FalkorDB stores the graph database backing Graphiti. Finally, Mem0 and OpenMemory handle user personalization that follows borrowers across different applications.
+**First, the Memory Systems create persistent intelligence.** Imagine traditional software where every time you start a new session, the system has completely forgotten what happened before. You would need to re-explain context, re-configure preferences, and re-teach patterns every single time. This is frustrating and inefficient. Your memory systems solve this by maintaining five different types of memory that serve different purposes. RuVector provides lightning-fast semantic search across your entire codebase, helping agents find relevant code patterns in milliseconds. Letta maintains agent state and personas, so your mortgage assistant agent remembers borrower preferences across conversations. letta tracks temporal changes, allowing you to query "What was the loan application status three days ago?" FalkorDB stores the graph database backing letta. Finally, Mem0 and OpenMemory handle user personalization that follows borrowers across different applications.
 
-**Second, the Orchestration Systems coordinate work distribution.** When you ask for something complex like "analyze this loan application, check compliance, generate required documents, and create a follow-up campaign," a single agent cannot handle all of that efficiently. Instead, the orchestration systems (Claude-Flow, Archon, and Ruv-Swarm) break the request into smaller tasks, assign each task to the most appropriate specialist agent, coordinate parallel execution where possible, and aggregate results into a coherent response. This is similar to how a well-run mortgage brokerage operates - the loan officer does not personally handle every single piece of paperwork. Instead, they coordinate with processors, underwriters, compliance specialists, and other team members who each excel in their specific domain.
+**Second, the Orchestration Systems coordinate work distribution.** When you ask for something complex like "analyze this loan application, check compliance, generate required documents, and create a follow-up campaign," a single agent cannot handle all of that efficiently. Instead, the orchestration systems (archon-os, Archon, and Ruv-Swarm) break the request into smaller tasks, assign each task to the most appropriate specialist agent, coordinate parallel execution where possible, and aggregate results into a coherent response. This is similar to how a well-run mortgage brokerage operates - the loan officer does not personally handle every single piece of paperwork. Instead, they coordinate with processors, underwriters, compliance specialists, and other team members who each excel in their specific domain.
 
 **Third, the Infrastructure Layer provides the foundation.** All the sophisticated AI and memory systems need somewhere to run, and they need fast, reliable communication between components. Your infrastructure includes Docker containers running databases and services, Tailscale creating a secure mesh network connecting all four of your PCs, and WSL2 providing a Linux environment on Windows for optimal performance. The infrastructure also includes your three GPU workers that run local AI models, dramatically reducing your API costs while maintaining excellent response quality.
 
@@ -34,7 +34,7 @@ Your Project Nyra repository contains multiple directories, and each one serves 
 
 The `apps/` directory contains the frontend applications that borrowers and your team interact with directly. Each application is a Next.js project with its own specific focus and technology stack.
 
-`apps/mortgage-assistant` is your primary borrower-facing application. This is where borrowers chat with the AI assistant, upload documents, request quotes, and track their loan application progress. The application integrates with Dify for the conversational AI interface, Supabase for document storage, and your quote API for real-time rate information. The memory systems (Letta for conversation context, Graphiti for temporal tracking, Mem0 for preferences) work together to provide personalized experiences that remember past interactions and adapt to borrower needs.
+`apps/mortgage-assistant` is your primary borrower-facing application. This is where borrowers chat with the AI assistant, upload documents, request quotes, and track their loan application progress. The application integrates with Dify for the conversational AI interface, Supabase for document storage, and your quote API for real-time rate information. The memory systems (Letta for conversation context, letta for temporal tracking, Mem0 for preferences) work together to provide personalized experiences that remember past interactions and adapt to borrower needs.
 
 `apps/ratehunter-landing` is your public-facing marketing site. This is optimized for search engines, loads quickly to maintain high Lighthouse scores, and focuses on lead capture and education. The landing page includes a quote calculator widget that connects to your quote API, educational content about different loan products, and lead capture forms that feed into your CRM and campaign engine.
 
@@ -98,7 +98,7 @@ infisical secrets set ANTHROPIC_API_KEY "sk-ant-your-key-here" --env=dev --path=
 infisical secrets set TWILIO_AUTH_TOKEN "your-twilio-token" --env=dev --path=/shared
 ```
 
-The `--env=dev` flag specifies the environment (development, staging, production), and `--path=/shared` groups related secrets together. Your settings.json already configures Claude-Flow to automatically load secrets from Infisical at session start, so once secrets are populated, everything will work seamlessly.
+The `--env=dev` flag specifies the environment (development, staging, production), and `--path=/shared` groups related secrets together. Your settings.json already configures archon-os to automatically load secrets from Infisical at session start, so once secrets are populated, everything will work seamlessly.
 
 ## Step Three: Memory Systems Initialization
 
@@ -201,13 +201,13 @@ curl -X POST http://localhost:8283/agents \
 
 This creates an agent with core memory containing the persona and human descriptions. Letta automatically manages memory allocation, ensuring the agent remembers important facts in core memory while archiving historical conversations to archival memory when core memory fills up.
 
-The MCP server integration for Letta enables Claude-Flow agents to directly manage Letta memory. Verify the MCP server is configured in your `settings-ultimate-enhanced.json` under the `mcpServers` section. When Claude-Flow starts, it will automatically connect to the Letta MCP server and expose memory management tools.
+The MCP server integration for Letta enables archon-os agents to directly manage Letta memory. Verify the MCP server is configured in your `settings-ultimate-enhanced.json` under the `mcpServers` section. When archon-os starts, it will automatically connect to the Letta MCP server and expose memory management tools.
 
-### Initializing Graphiti Temporal Knowledge Graph
+### Initializing letta Temporal Knowledge Graph
 
-Graphiti builds temporal knowledge graphs that track how entities and relationships evolve over time. This is particularly valuable for mortgage operations where you need historical context about borrower financial situations, property values, and loan terms.
+letta builds temporal knowledge graphs that track how entities and relationships evolve over time. This is particularly valuable for mortgage operations where you need historical context about borrower financial situations, property values, and loan terms.
 
-Graphiti uses FalkorDB as its graph database backend. Verify FalkorDB is running:
+letta uses FalkorDB as its graph database backend. Verify FalkorDB is running:
 
 ```bash
 docker-compose ps falkordb
@@ -224,8 +224,8 @@ GRAPH.LIST
 You should see an empty list initially since no graphs have been created yet. Now initialize your Nyra knowledge graph:
 
 ```bash
-# Using the Graphiti CLI or API
-graphiti graph create nyra_knowledge_graph \
+# Using the letta CLI or API
+letta graph create nyra_knowledge_graph \
   --backend falkordb \
   --url redis://localhost:6379 \
   --temporal-tracking true \
@@ -233,12 +233,12 @@ graphiti graph create nyra_knowledge_graph \
   --extraction-model claude-sonnet-4-20250514
 ```
 
-This creates the graph schema and enables automatic entity extraction from unstructured text. When borrowers send messages or documents, Graphiti automatically identifies entities (people, properties, loan amounts) and creates timestamped nodes and relationships in the knowledge graph.
+This creates the graph schema and enables automatic entity extraction from unstructured text. When borrowers send messages or documents, letta automatically identifies entities (people, properties, loan amounts) and creates timestamped nodes and relationships in the knowledge graph.
 
 Test the graph with a simple query:
 
 ```bash
-graphiti query nyra_knowledge_graph \
+letta query nyra_knowledge_graph \
   --cypher "CREATE (b:Borrower {name: 'Test User', timestamp: timestamp()}) RETURN b"
 ```
 
@@ -246,7 +246,7 @@ You should see a response confirming the borrower node was created with a timest
 
 ### Initializing Mem0 and OpenMemory User Profiles
 
-Mem0 and OpenMemory work together to provide cross-application user personalization. While Letta focuses on agent memory and Graphiti tracks entity relationships, Mem0/OpenMemory maintain user preference profiles that follow borrowers across your mortgage assistant, CRM, and landing pages.
+Mem0 and OpenMemory work together to provide cross-application user personalization. While Letta focuses on agent memory and letta tracks entity relationships, Mem0/OpenMemory maintain user preference profiles that follow borrowers across your mortgage assistant, CRM, and landing pages.
 
 Start the Mem0 server:
 
@@ -260,13 +260,13 @@ Verify it is running:
 curl http://localhost:8080/health
 ```
 
-Initialize the OpenMemory MCP server to bridge Mem0 with Claude-Flow:
+Initialize the OpenMemory MCP server to bridge Mem0 with archon-os:
 
 ```bash
 npx @openmemory/mcp-server@latest
 ```
 
-The MCP server starts automatically when Claude-Flow initializes (configured in your `settings-ultimate-enhanced.json`), but you can test it manually to verify connectivity.
+The MCP server starts automatically when archon-os initializes (configured in your `settings-ultimate-enhanced.json`), but you can test it manually to verify connectivity.
 
 Create a test user profile:
 
@@ -301,7 +301,7 @@ The `baseOptions` section defines defaults that apply to all projects unless spe
 
 The `globalMemoryConfig` section configures memory systems that apply across all projects. This is where you specify which memory systems are enabled, how they connect to each other, and what their capacity limits are. Having global configuration prevents inconsistencies where different projects might try to use conflicting memory settings.
 
-The `projectConfigs` section is the heart of the configuration. Each entry defines a specific project (an app or service), its technology stack, its memory requirements, the types of agents that work with it, and its integration points with other systems. For example, the `apps-mortgage-assistant` configuration specifies that it uses Next.js 14, integrates with Dify for AI, stores data in Supabase, and uses Letta, Graphiti, and Mem0 for memory systems.
+The `projectConfigs` section is the heart of the configuration. Each entry defines a specific project (an app or service), its technology stack, its memory requirements, the types of agents that work with it, and its integration points with other systems. For example, the `apps-mortgage-assistant` configuration specifies that it uses Next.js 14, integrates with Dify for AI, stores data in Supabase, and uses Letta, letta, and Mem0 for memory systems.
 
 The `executionPlan` section defines the order in which projects are initialized. This matters because some projects depend on others - for example, your frontend applications cannot connect to backend services until those services exist and are running. The execution plan groups projects into phases, with each phase completing before the next begins.
 
@@ -311,7 +311,7 @@ With your configuration file ready, run the batch initialization:
 
 ```bash
 cd C:\Dev\Projects\Repos\Project-Nyra
-npx @claude-flow/cli@latest init --config PROJECT-NYRA-ULTIMATE-BATCH-CONFIG.json
+npx @archon-os/cli@latest init --config PROJECT-NYRA-ULTIMATE-BATCH-CONFIG.json
 ```
 
 The batch initializer processes your configuration and executes in phases. Watch the output carefully for any errors or warnings.
@@ -344,7 +344,7 @@ For a frontend application like `apps/mortgage-assistant`, your CLAUDE.md should
 - State management patterns (Zustand in this case) and when to use global vs local state
 - UI conventions like your design system (shadcn-ui + magic-ui) and spacing/color standards
 - API integration patterns and how to handle loading/error states
-- Memory system usage - when to store conversation context in Letta, when to update the Graphiti knowledge graph, and when to modify user preferences in Mem0
+- Memory system usage - when to store conversation context in Letta, when to update the letta knowledge graph, and when to modify user preferences in Mem0
 - Testing expectations - what constitutes good test coverage, whether to favor unit or integration tests, and how to mock external dependencies
 - Compliance considerations specific to mortgage applications - PII handling, audit logging, required disclosures
 
@@ -398,24 +398,24 @@ curl http://localhost:8283/agents/$AGENT_ID/memory/core
 
 You should see your test fact in the core memory response. This confirms Letta persists agent memory and retrieves it correctly.
 
-For Graphiti, test temporal queries:
+For letta, test temporal queries:
 
 ```bash
 # Create borrower node
-graphiti query nyra_knowledge_graph \
+letta query nyra_knowledge_graph \
   --cypher "CREATE (b:Borrower {name: 'Alice Smith', income: 75000, timestamp: timestamp()}) RETURN b"
 
 # Wait a few seconds, then update income
 sleep 5
-graphiti query nyra_knowledge_graph \
+letta query nyra_knowledge_graph \
   --cypher "MATCH (b:Borrower {name: 'Alice Smith'}) SET b.income = 80000, b.timestamp = timestamp() RETURN b"
 
 # Query temporal history
-graphiti query nyra_knowledge_graph \
+letta query nyra_knowledge_graph \
   --cypher "MATCH (b:Borrower {name: 'Alice Smith'}) RETURN b.income, b.timestamp ORDER BY b.timestamp"
 ```
 
-You should see both income values (75000 and 80000) with different timestamps, demonstrating Graphiti tracks changes over time.
+You should see both income values (75000 and 80000) with different timestamps, demonstrating letta tracks changes over time.
 
 For Mem0/OpenMemory, test user profile synchronization:
 
@@ -440,14 +440,14 @@ The retrieved profile should show `theme: "light"`, confirming updates propagate
 
 Verify your orchestration systems can coordinate multiple agents working together on complex tasks.
 
-Start by testing Claude-Flow basic orchestration:
+Start by testing archon-os basic orchestration:
 
 ```bash
-npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 5
-npx @claude-flow/cli@latest task orchestrate --task "Analyze this code snippet for security vulnerabilities"
+npx @archon-os/cli@latest swarm init --topology hierarchical --max-agents 5
+npx @archon-os/cli@latest task orchestrate --task "Analyze this code snippet for security vulnerabilities"
 ```
 
-Watch the output to see task decomposition, agent assignment, and result aggregation working together. You should see Claude-Flow breaking the task into subtasks (static analysis, dependency checking, pattern matching), assigning each to appropriate agents, and combining results into a cohesive security analysis.
+Watch the output to see task decomposition, agent assignment, and result aggregation working together. You should see archon-os breaking the task into subtasks (static analysis, dependency checking, pattern matching), assigning each to appropriate agents, and combining results into a cohesive security analysis.
 
 Test Ruv-Swarm WASM-powered performance:
 
@@ -461,11 +461,11 @@ Ruv-Swarm should spawn multiple agents and process documents concurrently, demon
 Test cross-memory-system coordination:
 
 ```bash
-# This test verifies agents can query RuVector, update Letta memory, and create Graphiti relationships all in one operation
-npx @claude-flow/cli@latest task orchestrate --task "Find code examples for mortgage calculations, remember the patterns, and create a knowledge graph node linking the borrower to these patterns" --memory-systems ruvector,letta,graphiti
+# This test verifies agents can query RuVector, update Letta memory, and create letta relationships all in one operation
+npx @archon-os/cli@latest task orchestrate --task "Find code examples for mortgage calculations, remember the patterns, and create a knowledge graph node linking the borrower to these patterns" --memory-systems ruvector,letta,letta
 ```
 
-The output should show the agent successfully queried RuVector for code patterns, stored relevant patterns in Letta memory, and created knowledge graph nodes in Graphiti. This demonstrates the memory systems working together harmoniously.
+The output should show the agent successfully queried RuVector for code patterns, stored relevant patterns in Letta memory, and created knowledge graph nodes in letta. This demonstrates the memory systems working together harmoniously.
 
 ### Testing GPU Worker Integration
 
@@ -537,10 +537,10 @@ curl -X POST http://localhost:8283/admin/compact \
 
 This moves conversations older than 90 days to compressed archival storage, freeing up space in the primary database while maintaining the ability to recall old information when needed.
 
-**Graphiti Snapshot Management**: Graphiti creates periodic snapshots for temporal queries. Manage snapshot retention to balance query capabilities with storage costs:
+**letta Snapshot Management**: letta creates periodic snapshots for temporal queries. Manage snapshot retention to balance query capabilities with storage costs:
 
 ```bash
-graphiti snapshots prune nyra_knowledge_graph \
+letta snapshots prune nyra_knowledge_graph \
   --older-than 90d \
   --keep-interval 7d
 ```
@@ -564,7 +564,7 @@ Your system continuously trains neural models to improve performance. Monitor th
 Check neural model performance metrics:
 
 ```bash
-npx @claude-flow/cli@latest neural metrics --model error_preventer
+npx @archon-os/cli@latest neural metrics --model error_preventer
 ```
 
 This shows how many errors the model has prevented, what the current accuracy is, and which types of errors it struggles with. If you notice the error prevention accuracy dropping, the model may need retraining with fresh data or the error patterns may have shifted.
@@ -572,7 +572,7 @@ This shows how many errors the model has prevented, what the current accuracy is
 Review task prediction accuracy:
 
 ```bash
-npx @claude-flow/cli@latest neural metrics --model task_predictor
+npx @archon-os/cli@latest neural metrics --model task_predictor
 ```
 
 This shows how accurately the system predicts task completion time, optimal agent assignment, and resource requirements. High accuracy (>85%) means the system has learned your task patterns well. Lower accuracy suggests you may need more diverse training data or the patterns are too unpredictable for the current model.
@@ -580,7 +580,7 @@ This shows how accurately the system predicts task completion time, optimal agen
 Analyze performance optimization results:
 
 ```bash
-npx @claude-flow/cli@latest neural metrics --model performance_optimizer
+npx @archon-os/cli@latest neural metrics --model performance_optimizer
 ```
 
 This shows concrete improvements from neural optimization - for example, "Command execution 15% faster than baseline" or "API calls reduced by 23% through intelligent caching". These metrics quantify the value of the neural optimization system.
@@ -678,8 +678,8 @@ Be careful not to set this too high - excessive parallelization can overwhelm yo
 
 This guide walked you through transforming Project Nyra from a collection of directories into a fully integrated, memory-enhanced, multi-agent development environment. You now understand:
 
-- How the five memory systems (RuVector, Letta, Graphiti, FalkorDB, Mem0/OpenMemory) work together to provide different types of intelligence and persistence
-- How the orchestration systems (Claude-Flow, Archon, Ruv-Swarm) coordinate agents to handle complex tasks through decomposition and parallel execution
+- How the five memory systems (RuVector, Letta, letta, FalkorDB, Mem0/OpenMemory) work together to provide different types of intelligence and persistence
+- How the orchestration systems (archon-os, Archon, Ruv-Swarm) coordinate agents to handle complex tasks through decomposition and parallel execution
 - How your 4-PC infrastructure with three GPU workers dramatically reduces API costs while maintaining excellent AI performance
 - How batch initialization configures multiple projects simultaneously with appropriate memory integration and agent configurations
 - How the hooks system creates continuous learning loops that make the system progressively smarter
