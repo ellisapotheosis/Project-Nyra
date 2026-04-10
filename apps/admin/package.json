@@ -7,7 +7,7 @@
     "lint": "eslint --no-error-on-unmatched-pattern \"**/*.{js,jsx,ts,tsx}\""
   },
   "dependencies": {
-    "next": "16.1.7",
+    "next": "16.2.3",
     "react": "19.2.0",
     "react-dom": "19.2.0"
   }
