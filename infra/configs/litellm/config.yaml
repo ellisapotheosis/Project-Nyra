@@ -1,58 +1,64 @@
 model_list:
-  # Load Balanced Pool: RTX 5090 (100.64.0.10) & RTX 3090 Ti (100.64.0.12)
-  # Both machines have 24GB VRAM and run vLLM + LMCache
-
+  # === RTX 5090 (vLLM) - Personal Assistant / Reasoning ===
+  # Tailscale: worker-rtx5090.trex-fiordland.ts.net (IP TBD - SSH currently down)
   - model_name: local/gemma-4
     litellm_params:
-      model: openai/google/gemma-3-27b-it
-      api_base: http://100.64.0.10:8000/v1
+      model: openai/google/gemma-4-26B-A4B-it
+      api_base: http://worker-rtx5090.trex-fiordland.ts.net:8000/v1
       api_key: "not-needed"
-  - model_name: local/gemma-4
-    litellm_params:
-      model: openai/google/gemma-3-27b-it
-      api_base: http://100.64.0.12:8000/v1
-      api_key: "not-needed"
+      timeout: 120
 
+  # === RTX 3090Ti (vLLM) - Coding @ 100.64.0.13 ===
+  - model_name: local/qwen-coder-32b
+    litellm_params:
+      model: openai/Qwen/Qwen2.5-Coder-32B-Instruct
+      api_base: http://100.64.0.13:8000/v1
+      api_key: "not-needed"
+      timeout: 120
   - model_name: local/qwen3.5-35b-a3b
     litellm_params:
       model: openai/Qwen/Qwen2.5-Coder-32B-Instruct
-      api_base: http://100.64.0.10:8000/v1
+      api_base: http://100.64.0.13:8000/v1
       api_key: "not-needed"
-  - model_name: local/qwen3.5-35b-a3b
-    litellm_params:
-      model: openai/Qwen/Qwen2.5-Coder-32B-Instruct
-      api_base: http://100.64.0.12:8000/v1
-      api_key: "not-needed"
+      timeout: 120
 
-  # Vybestack Aliases
+  # === RTX 3060 (Ollama) - Small/Fast @ 100.64.0.12 ===
+  - model_name: local/qwen2.5-4b
+    litellm_params:
+      model: ollama/qwen2.5:4b
+      api_base: http://100.64.0.12:11434
+  - model_name: local/llama3.2-3b
+    litellm_params:
+      model: ollama/llama3.2:3b
+      api_base: http://100.64.0.12:11434
+  - model_name: local/embeddings
+    litellm_params:
+      model: ollama/nomic-embed-text
+      api_base: http://100.64.0.12:11434
+
+  # === Vybestack / Claude Code aliases ===
   - model_name: local/vybestack-jefe
     litellm_params:
       model: local/gemma-4
   - model_name: local/vybestack-coder
     litellm_params:
-      model: local/qwen3.5-35b-a3b
+      model: local/qwen-coder-32b
 
-  # RTX 3060 - Ollama (6GB VRAM constraint)
-  - model_name: local/qwen2.5-3b
-    litellm_params:
-      model: ollama/qwen2.5:3b
-      api_base: http://100.64.0.11:11434
-  - model_name: local/embeddings
-    litellm_params:
-      model: ollama/nomic-embed-text
-      api_base: http://100.64.0.11:11434
-
-  # Cloud Providers
+  # === Cloud Fallbacks ===
   - model_name: openrouter/auto
     litellm_params:
       model: openrouter/auto
       api_key: os.environ/OPENROUTER_API_KEY
       api_base: https://openrouter.ai/api/v1
+  - model_name: claude-sonnet
+    litellm_params:
+      model: anthropic/claude-sonnet-4-5-20251022
+      api_key: os.environ/ANTHROPIC_API_KEY
 
 litellm_settings:
   cache: true
   set_verbose: false
-  strategy: latency_based_routing # Automatically picks the fastest/available worker
+  strategy: latency_based_routing
 
 general_settings:
   master_key: os.environ/LITELLM_MASTER_KEY

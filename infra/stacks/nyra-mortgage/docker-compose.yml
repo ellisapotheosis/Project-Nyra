@@ -9,15 +9,13 @@ services:
       - ./configs/nexus/nexus.toml:/etc/nexus.toml:ro
     environment:
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
       - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
-      - RUFLO_MCP_URL=${RUFLO_MCP_URL:-http://ruflo.tailnet.ts.net:8001/mcp/sse}
-      - SERENA_MCP_URL=${SERENA_MCP_URL:-http://serena.tailnet.ts.net:8002/mcp/sse}
-      - GITEA_MCP_URL=${GITEA_MCP_URL:-http://gitea-vps.tailnet.ts.net:3100/mcp/sse}
-      - MEM0_MCP_URL=${MEM0_MCP_URL:-http://openmemory_mcp:8081/mcp}
-      - OPENMEMORY_MCP_URL=${OPENMEMORY_MCP_URL:-http://openmemory_mcp:8081/mcp}
-      - WORKER_3060_URL=${WORKER_3060_URL:-http://worker-3060.tailnet.ts.net:11434}
-      - WORKER_3090_URL=${WORKER_3090_URL:-http://worker-3090.tailnet.ts.net:8000}
-      - WORKER_5090_URL=${WORKER_5090_URL:-http://worker-5090.tailnet.ts.net:8000}
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+      - LITELLM_MASTER_KEY=${LITELLM_MASTER_KEY}
+      - WORKER_3060_URL=${WORKER_3060_URL:-http://worker-rtx3060.trex-fiordland.ts.net:11434}
+      - WORKER_3090_URL=${WORKER_3090_URL:-http://worker-rtx3090ti.trex-fiordland.ts.net:8001}
+      - WORKER_5090_URL=${WORKER_5090_URL:-http://worker-rtx5090.trex-fiordland.ts.net:8000}
     labels:
       nyra.service.name: 'nexus-grafbase'
       nyra.service.type: 'api'
@@ -33,7 +31,6 @@ services:
       retries: 10
     depends_on:
       - litellm
-      - openmemory_mcp
     networks: [nyra]
 
   litellm:
@@ -48,8 +45,6 @@ services:
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - LLXPERT_CODER_BASE_URL=${LLXPERT_CODER_BASE_URL}
       - LLXPERT_CODER_API_KEY=${LLXPERT_CODER_API_KEY:-dummy}
-      - LLXPERT_JEFE_BASE_URL=${LLXPERT_JEFE_BASE_URL}
-      - LLXPERT_JEFE_API_KEY=${LLXPERT_JEFE_API_KEY:-dummy}
     labels:
       nyra.service.name: 'litellm'
       nyra.service.type: 'api'
@@ -105,22 +100,6 @@ services:
       nyra.api.enabled: 'false'
     networks: [nyra]
 
-  # ---------- Graph memory ----------
-  falkordb:
-    image: falkordb/falkordb:latest
-    container_name: nyra-falkordb
-    ports:
-      - '6379:6379'
-    volumes:
-      - falkor_data:/data
-    labels:
-      nyra.service.name: 'falkordb'
-      nyra.service.type: 'database'
-      nyra.service.category: 'graph'
-      nyra.mcp.enabled: 'false'
-      nyra.api.enabled: 'false'
-    networks: [nyra]
-
   # ---------- Agent state manager ----------
   letta_postgres:
     image: postgres:16
@@ -148,8 +127,7 @@ services:
       - letta_postgres
     environment:
       - DATABASE_URL=postgresql://letta:letta@letta_postgres:5432/letta
-      # Letta supports multiple model providers; we point it at Nexus so routing is centralized.
-      - OPENAI_BASE_URL=http://nexus:4001/llm/openai/v1
+      - OPENAI_BASE_URL=http://nexus:4001/v1
       - OPENAI_API_KEY=dummy
     labels:
       nyra.service.name: 'letta'
@@ -159,47 +137,6 @@ services:
       nyra.api.enabled: 'true'
       nyra.api.port: '8283'
       nyra.api.protocol: 'rest'
-    networks: [nyra]
-
-  # ---------- Universal memory ----------
-  mem0:
-    build:
-      context: ./services/mem0-rest
-      dockerfile: Dockerfile
-    container_name: nyra-mem0
-    ports:
-      - '4321:4321'
-    environment:
-      - MEM0_STORE_PATH=/data/mem0.sqlite
-      - NEXUS_OPENAI_BASE_URL=http://nexus:4001/llm/openai/v1
-      - OPENAI_API_KEY=dummy
-    volumes:
-      - mem0_data:/data
-    labels:
-      nyra.service.name: 'mem0'
-      nyra.service.type: 'api'
-      nyra.service.category: 'memory'
-      nyra.mcp.enabled: 'false'
-      nyra.api.enabled: 'true'
-      nyra.api.port: '4321'
-      nyra.api.protocol: 'rest'
-    networks: [nyra]
-
-  openmemory_mcp:
-    image: mem0/openmemory-mcp:latest
-    container_name: nyra-openmemory-mcp
-    ports:
-      - '8081:8081'
-    environment:
-      - MEM0_REST_URL=http://mem0:4321
-    labels:
-      nyra.service.name: 'openmemory-mcp'
-      nyra.service.type: 'mcp-server'
-      nyra.service.category: 'memory'
-      nyra.mcp.enabled: 'true'
-      nyra.mcp.transport: 'http'
-      nyra.mcp.port: '8081'
-      nyra.api.enabled: 'false'
     networks: [nyra]
 
   # ---------- Nyra Orchestrator ----------
@@ -216,8 +153,6 @@ services:
       - NYRA_ESCALATION_EMAIL=${NYRA_ESCALATION_EMAIL:-ops@example.com}
       - TWENTY_BASE_URL=http://twenty:3000
       - NEXUS_BASE_URL=http://nexus:4001
-      - MEM0_REST_URL=http://mem0:4321
-      - FALKOR_URL=redis://falkordb:6379
       - LETTA_BASE_URL=http://letta:8283
     labels:
       nyra.service.name: 'orchestrator'
@@ -230,8 +165,6 @@ services:
     depends_on:
       - litellm
       - twenty
-      - mem0
-      - falkordb
       - letta
     networks: [nyra]
 
@@ -292,37 +225,19 @@ services:
       nyra.api.protocol: 'http'
     networks: [nyra]
 
-  alertmanager:
-    image: prom/alertmanager:latest
-    container_name: nyra-alertmanager
-    ports:
-      - '9093:9093'
-    volumes:
-      - ./configs/observability/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
-    labels:
-      nyra.service.name: 'alertmanager'
-      nyra.service.type: 'monitoring'
-      nyra.service.category: 'alerting'
-      nyra.mcp.enabled: 'false'
-      nyra.api.enabled: 'true'
-      nyra.api.port: '9093'
-      nyra.api.protocol: 'http'
-    networks: [nyra]
-
   # ---------- Optional UI ----------
   openwebui:
-    image: ghcr.io/open-webui/open-webui@sha256:b8095f79a6a8ffad8f830bdacc9b5b0aef805689b31bca0b065cc2424d3cfaeb
+    image: ghcr.io/open-webui/open-webui:main
     container_name: nyra-openwebui
     ports:
       - '8080:8080'
     environment:
-      # Route WebUI strictly through Nexus so all model access flows via the router.
-      - OPENAI_API_BASE_URL=http://nexus:4001/llm/openai/v1
-      - OPENAI_API_BASE_URLS=http://nexus:4001/llm/openai/v1
+      - OPENAI_API_BASE_URL=http://nexus:4001/v1
+      - OPENAI_API_BASE_URLS=http://nexus:4001/v1
       - OPENAI_API_KEY=${OPENWEBUI_OPENAI_API_KEY:-dummy}
       - WEBUI_AUTH=True
       - NEXUS_MCP_URL=http://nexus:4001/mcp/sse
-      - ARCHON_UI_URL=http://archon-os:8051
+      - ARCHON_UI_URL=http://nyra-archon-os:3000
       - ENABLE_OLLAMA_API=false
     volumes:
       - openwebui_data:/app/backend/data
@@ -344,8 +259,6 @@ networks:
 
 volumes:
   twenty_pg: {}
-  falkor_data: {}
   letta_pg: {}
-  mem0_data: {}
   grafana_data: {}
   openwebui_data: {}

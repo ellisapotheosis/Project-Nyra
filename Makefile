@@ -55,10 +55,10 @@ help:
 	@echo "make up-core            Start core data services only"
 	@echo "make up-orchestrator    Start orchestrator profile set"
 	@echo "make up-apps            Start apps profile"
-	@echo "make up-dev             Start Claude Flow dev profile"
+	@echo "make up-dev             Start Archon OS dev profile"
 	@echo "make up-workers         Start worker profile if defined"
 	@echo "make logs-workers       Tail logs for all canonical worker compose stacks"
-	@echo "make archon-up          Start dedicated Archon stack (docker-compose.archon.yml)"
+	@echo "make archon-up          Start dedicated Archon stack (infra/compose/docker-compose.archon.yml)"
 	@echo "make archon-up-infisical Start dedicated Archon stack via infisical run"
 	@echo "make archon-down        Stop dedicated Archon stack"
 	@echo "make archon-logs        Tail dedicated Archon stack logs"
@@ -178,22 +178,22 @@ up-workers:
 	$(COMPOSE) -f infra/workers/worker-rtx5090/docker-compose.worker.yml --profile worker-5090 up -d || $(COMPOSE) --profile worker-5090 up -d
 
 archon-config:
-	docker compose -f docker-compose.archon.yml config >/dev/null
+	docker compose -f infra/compose/docker-compose.archon.yml config >/dev/null
 
 archon-up:
-	docker compose -f docker-compose.archon.yml --profile archon up -d
+	docker compose -f infra/compose/docker-compose.archon.yml --profile archon up -d
 
 archon-up-infisical:
-	infisical run $(INFISICAL_TOKEN_FLAG) --projectId="$(INFISICAL_PROJECT_ID)" --env="$(INFISICAL_ENV)" --path="$(INFISICAL_PATH)" -- docker compose -f docker-compose.archon.yml --profile archon up -d
+	infisical run $(INFISICAL_TOKEN_FLAG) --projectId="$(INFISICAL_PROJECT_ID)" --env="$(INFISICAL_ENV)" --path="$(INFISICAL_PATH)" -- docker compose -f infra/compose/docker-compose.archon.yml --profile archon up -d
 
 archon-down:
-	docker compose -f docker-compose.archon.yml down --remove-orphans
+	docker compose -f infra/compose/docker-compose.archon.yml down --remove-orphans
 
 archon-logs:
-	docker compose -f docker-compose.archon.yml logs -f --tail=200
+	docker compose -f infra/compose/docker-compose.archon.yml logs -f --tail=200
 
 archon-ps:
-	docker compose -f docker-compose.archon.yml ps
+	docker compose -f infra/compose/docker-compose.archon.yml ps
 
 down-workers:
 	$(COMPOSE) -f infra/workers/worker-rtx3060/docker-compose.worker.yml down --remove-orphans || $(COMPOSE) --profile worker-3060 down --remove-orphans
@@ -425,7 +425,7 @@ ha-dashboard-down:
 # ── Oracle VPS — latency-insensitive services ──────────────────────────────
 # These targets run docker compose on the Oracle VPS via SSH docker context.
 # Services: TwentyCRM, n8n, Activepieces, Prometheus, Grafana, Loki, cAdvisor,
-#           OpenWebUI, FalkorDB, Graphiti, Moltbot, Quote API.
+#           OpenWebUI, FalkorDB, Letta, Moltbot, Quote API.
 # Prereq: infra/oracle/.env.oracle must exist (copy from .env.oracle.template).
 
 oracle-context:

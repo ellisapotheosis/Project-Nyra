@@ -20,7 +20,7 @@ services:
   # Local Supabase-compatible DB (Postgres + pgvector)
   db:
     image: supabase/postgres:15.6.1.113
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-archon-db
+    container_name: nyra-archon-db
     profiles: ['archon', 'all']
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-nyra}
@@ -34,14 +34,14 @@ services:
       retries: 20
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./submodules/archon/migrations:/docker-entrypoint-initdb.d/migrations:ro
+      - ./external/archon/migrations:/docker-entrypoint-initdb.d/migrations:ro
     restart: unless-stopped
     networks: [nyra]
     logging: *default_logging
 
   redis:
     image: redis:7-alpine
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-archon-redis
+    container_name: nyra-archon-redis
     profiles: ['archon', 'all']
     environment:
       REDIS_PASSWORD: ${REDIS_PASSWORD:?set REDIS_PASSWORD}
@@ -61,7 +61,7 @@ services:
     build:
       context: ./external/archon
       dockerfile: Dockerfile
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-archon-os
+    container_name: nyra-archon-os
     profiles: ['archon', 'all']
     depends_on:
       db:
@@ -89,14 +89,13 @@ services:
     volumes:
       - archon_data:/.archon
       - /var/run/docker.sock:/var/run/docker.sock
-      - ./.env.archon.runtime:/app/.env:ro
     restart: unless-stopped
     networks: [nyra]
     logging: *default_logging
 
   litellm:
     image: ghcr.io/berriai/litellm:main-stable
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-archon-litellm
+    container_name: nyra-archon-litellm
     profiles: ['archon', 'all']
     command: ['--config', '/app/config.yaml', '--port', '4000']
     environment:
@@ -116,31 +115,21 @@ services:
     logging: *default_logging
 
   nexus-router:
-    build:
-      context: .
-      dockerfile: infra/docker/nexus-router/Dockerfile
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-archon-nexus-router
+    image: ghcr.io/grafbase/nexus:latest
+    container_name: nyra-archon-nexus-router
     profiles: ['archon', 'all']
-    env_file:
-      - .env.archon.runtime
-    environment:
-      NEXUS_ROUTER_PORT: 7000
-      NEXUS_MCP_PORT: 8081
-      NEXUS_METRICS_PORT: 9091
-      NEXUS_URL: http://localhost:7000
-      NEXUS_CONFIG_PATH: /app/nexus.toml
-      LITELLM_BASE_URL: http://litellm:4000
-      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
-      GOOGLE_API_KEY: ${GOOGLE_API_KEY:-}
-      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
-      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
-      GITHUB_TOKEN: ${GITHUB_TOKEN:-}
-      BRAVE_API_KEY: ${BRAVE_API_KEY:-}
     ports:
       - '7000:7000'
       - '8081:8081'
     volumes:
-      - ./infra/configs/nexus/nexus.toml:/app/nexus.toml:ro
+      - ./infra/configs/nexus/nexus.toml:/etc/nexus.toml:ro
+    environment:
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+      - LITELLM_MASTER_KEY=${LITELLM_MASTER_KEY}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
     depends_on:
       redis:
         condition: service_healthy
