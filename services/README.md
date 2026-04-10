@@ -418,7 +418,6 @@ pnpm dev
 | rate-comparison-engine | 3500 | - | @nyra/rate-comparison-engine |
 | ratehunter-api | 3600 | - | @nyra/ratehunter-api |
 | ruvector-search | 3700 | - | @nyra/ruvector-search |
-| graphiti-knowledge | 3800 | - | @nyra/graphiti-knowledge |
 | twentycrm-integration | 3900 | - | @nyra/twentycrm-integration |
 | twilio-integration | 4000 | - | @nyra/twilio-integration |
 | letta-integration | 4100 | - | @nyra/letta-integration |

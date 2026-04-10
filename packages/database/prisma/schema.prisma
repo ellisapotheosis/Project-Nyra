@@ -371,9 +371,6 @@ model MemoryStore {
 enum MemorySystem {
   RUVECTOR
   LETTA
-  GRAPHITI
-  MEM0
-  OPENMEMORY
 }
 
 // ============================================================================
