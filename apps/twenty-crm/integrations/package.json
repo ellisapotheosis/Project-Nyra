@@ -1,5 +1,5 @@
 {
-  "name": "@nyra/twentycrm-integration",
+  "name": "@nyra/twentycrm-integration-legacy",
   "version": "1.0.0",
   "description": "TwentyCRM Integration Service with bidirectional sync, conflict resolution, and health monitoring",
   "main": "dist/index.js",
