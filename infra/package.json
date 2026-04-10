@@ -22,7 +22,7 @@
     "lint": "eslint . --ext .ts,.tsx",
     "format": "prettier --write .",
     "clean": "npm run clean --workspaces && rm -rf dist node_modules",
-    "orchestrator-up": "docker-compose up -d nexus-router claude-flow-orchestrator postgres redis qdrant prometheus grafana",
+    "orchestrator-up": "docker-compose up -d nexus-router postgres redis qdrant prometheus grafana",
     "orchestrator-down": "docker-compose down",
     "workers-up": "docker-compose --profile workers up -d",
     "workers-down": "docker-compose --profile workers down",

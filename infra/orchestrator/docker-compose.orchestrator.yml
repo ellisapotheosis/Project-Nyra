@@ -119,37 +119,6 @@ services:
   # AGENTS & ORCHESTRATORS
   # ============================================================================
 
-  claude-flow:
-    build:
-      context: ../src/claude-flow
-      dockerfile: Dockerfile
-    container_name: nyra-claude-flow
-    ports:
-      - "8000:8000"
-    environment:
-      NODE_ENV: production
-      NEXUS_API_URL: "http://nexus:6000"
-      LITELLM_API_URL: "http://litellm:4000"
-      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
-      GITHUB_TOKEN: ${GITHUB_TOKEN}
-      DATABASE_URL: ${DATABASE_URL}
-    volumes:
-      - secrets_volume:/secrets:ro
-      - /var/run/docker.sock:/var/run/docker.sock
-    depends_on:
-      nexus:
-        condition: service_healthy
-      litellm:
-        condition: service_healthy
-    restart: unless-stopped
-    networks:
-      - nyra-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
-      interval: 15s
-      timeout: 5s
-      retries: 3
-
   openclaw:
     build:
       context: ../src/openclaw

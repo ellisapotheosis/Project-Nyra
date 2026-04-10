@@ -33,35 +33,6 @@ services:
       retries: 10
     networks: [nyra_net]
 
-  falkordb:
-    image: falkordb/falkordb:latest
-    container_name: nyra-falkordb
-    restart: unless-stopped
-    volumes:
-      - falkordb_data:/data
-    healthcheck:
-      test: ["CMD", "redis-cli", "-p", "6379", "ping"]
-      interval: 10s
-      timeout: 3s
-      retries: 10
-    networks: [nyra_net]
-
-  graphiti-mcp:
-    image: falkordb/graphiti-knowledge-graph-mcp:latest
-    container_name: nyra-graphiti-mcp
-    restart: unless-stopped
-    environment:
-      OPENAI_API_KEY: ${OPENAI_API_KEY}
-      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
-      GEMINI_API_KEY: ${GEMINI_API_KEY}
-      GRAPHITI_TELEMETRY_ENABLED: ${GRAPHITI_TELEMETRY_ENABLED:-false}
-      FALKORDB_HOST: ${FALKORDB_HOST:-nyra-falkordb}
-      FALKORDB_PORT: ${FALKORDB_PORT:-6379}
-    depends_on:
-      falkordb:
-        condition: service_healthy
-    networks: [nyra_net]
-
   twenty:
     image: twentycrm/twenty:latest
     container_name: nyra-twenty
@@ -262,7 +233,6 @@ networks:
 volumes:
   postgres_data:
   redis_cache_data:
-  falkordb_data:
   twenty_local_storage:
   twenty_docker_data:
   n8n_data:
