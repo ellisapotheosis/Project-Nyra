@@ -23,8 +23,8 @@ class Tools:
                 "url": "http://nexus:4001/mcp/metrics",
                 "embed": "http://nexus:4001/",
             },
-            "openmemory": {
-                "label": "OpenMemory",
-                "url": "http://openmemory_mcp:8081",
+            "mem0": {
+                "label": "Mem0",
+                "url": "http://oracle.trex-fiordland.ts.net:5000",
             },
         }
