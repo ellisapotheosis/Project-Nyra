@@ -3,7 +3,7 @@
 ##############################################################################
 
 [server]
-listen_address = "0.0.0.0:7000"
+listen_address = "0.0.0.0:4000"
 
 [server.health]
 enabled = true
@@ -35,7 +35,7 @@ path = "/anthropic"
 [llm.providers.litellm]
 type = "openai"
 api_key = "{{ env.LITELLM_MASTER_KEY }}"
-base_url = "http://nyra-archon-litellm:4000/v1"
+base_url = "http://litellm:4000/v1"
 forward_token = false
 
 [llm.providers.litellm.models."*"]
@@ -63,13 +63,13 @@ path = "/mcp"
 
 # Remote/self-hosted MCP servers (HTTP/SSE)
 [mcp.servers.archon]
-url = "http://nyra-archon-os:3000/mcp/sse"
+url = "http://archon:3000/mcp/sse"
 
 [mcp.servers.n8n]
-url = "http://nyra-n8n:5678/mcp"
+url = "http://n8n:5678/mcp"
 
 [mcp.servers.twenty]
-url = "http://nyra-twenty-crm:3000/mcp"
+url = "http://twentycrm:3000/mcp"
 
 # Docker-launched MCP servers (via docker socket) for local tool access
 [mcp.servers.github]
@@ -101,11 +101,11 @@ enabled = true
 
 [rate_limits.backend]
 type = "redis"
-url = "redis://nyra-archon-redis:6379"
+url = "redis://redis:6379"
 
 [cache]
 enabled = true
 type = "redis"
-url = "redis://nyra-archon-redis:6379"
+url = "redis://redis:6379"
 ttl = 900
 prefix = "nexus:"
