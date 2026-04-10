@@ -34,5 +34,5 @@ The YAML is a neutral “source of truth” for campaigns:
 - Some long paragraphs were truncated as `...` during export. Replace with full text from the DOCX.
 - Voicemail scripts may not be present in the extracted text; add them manually.
 
-## Prompt to finish the migration (paste into claude-flow)
-See `prompts/claude-flow/02_CAMPAIGN_RUNNER_PROMPT.md`.
+## Prompt to finish the migration (paste into Archon OS)
+See `external/archon/nyra-configs/prompts/02_CAMPAIGN_RUNNER_PROMPT.md`.

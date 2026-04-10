@@ -293,197 +293,6 @@ services:
     networks: [nyra]
     logging: *default_logging
 
-  claude-flow:
-    build:
-      context: ../services/claude-flow
-      dockerfile: Dockerfile
-    container_name: nyra-claude-flow
-    profiles: ['dev', 'all']
-    depends_on:
-      redis:
-        condition: service_healthy
-      nexus-router:
-        condition: service_healthy
-    environment:
-      NODE_ENV: ${NODE_ENV:-development}
-      CLAUDE_FLOW_MODE: server
-      CLAUDE_FLOW_PORT: '8080'
-      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
-      MCP_SERVER_URL: http://nexus-router:8080
-      NEXUS_BASE_URL: http://nexus-router:7000
-    ports: ['${CLAUDE_FLOW_PORT:-8085}:8080']
-    restart: unless-stopped
-    networks: [nyra]
-    logging: *default_logging
-
-  archon-os:
-    build:
-      context: ../services/archon-os
-      dockerfile: docker/Dockerfile.archon-os
-    container_name: nyra-archon-os
-    profiles: ['archon', 'all']
-    depends_on:
-      nexus-router:
-        condition: service_healthy
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-      infisical-agent:
-        condition: service_started
-    environment:
-      ARCHON_ENV: ${ARCHON_ENV:-development}
-      NEXUS_BASE_URL: http://nexus-router:7000
-      NEXUS_MCP_URL: http://nexus-router:8080
-      NEXUS_ROUTER_URL: http://nexus-router:7000
-      POSTGRES_URL: postgresql://${POSTGRES_USER:-nyra}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-nyra}
-      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
-      OPENAI_BASE_URL: http://nexus-router:7000/v1
-    ports: ['${ARCHON_OS_PORT:-9001}:9001']
-    volumes:
-      - ./shared/secrets:/secrets:ro
-    restart: unless-stopped
-    networks: [nyra]
-    logging: *default_logging
-
-  archon-server:
-    build:
-      context: ../services/archon-os
-      dockerfile: docker/Dockerfile.server
-      args:
-        ARCHON_SERVER_PORT: ${ARCHON_SERVER_PORT:-8181}
-    container_name: nyra-archon-server
-    profiles: ['archon', 'all']
-    depends_on:
-      postgres:
-        condition: service_healthy
-      nexus-router:
-        condition: service_healthy
-      infisical-agent:
-        condition: service_started
-    environment:
-      DATABASE_URL: postgresql://${POSTGRES_USER:-nyra}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-nyra}
-      SERVICE_DISCOVERY_MODE: docker_compose
-      LOG_LEVEL: ${LOG_LEVEL:-INFO}
-      ARCHON_SERVER_PORT: ${ARCHON_SERVER_PORT:-8181}
-      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
-      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
-      GOOGLE_API_KEY: ${GOOGLE_API_KEY:-}
-      NEXUS_ROUTER_URL: http://nexus-router:7000
-      OPENAI_BASE_URL: http://nexus-router:7000/v1
-    ports:
-      - '${ARCHON_SERVER_PORT:-8181}:8181'
-    volumes:
-      - ./shared/secrets:/secrets:ro
-    restart: unless-stopped
-    networks: [nyra]
-    logging: *default_logging
-
-  archon-mcp:
-    build:
-      context: ../services/archon-os
-      dockerfile: docker/Dockerfile.mcp
-      args:
-        ARCHON_MCP_PORT: ${ARCHON_MCP_PORT:-8051}
-    container_name: nyra-archon-mcp
-    profiles: ['archon', 'all']
-    depends_on:
-      archon-server:
-        condition: service_started
-      nexus-router:
-        condition: service_healthy
-    environment:
-      SERVICE_DISCOVERY_MODE: docker_compose
-      ARCHON_MCP_PORT: ${ARCHON_MCP_PORT:-8051}
-      API_SERVICE_URL: http://archon-server:8181
-      NEXUS_ROUTER_URL: http://nexus-router:7000
-      NEXUS_MCP_PROXY_URL: http://nexus-router:8080
-    ports:
-      - '${ARCHON_MCP_PORT:-8051}:8051'
-    restart: unless-stopped
-    networks: [nyra]
-    logging: *default_logging
-
-  archon-agents:
-    build:
-      context: ../services/archon-os
-      dockerfile: docker/Dockerfile.agents
-      args:
-        ARCHON_AGENTS_PORT: ${ARCHON_AGENTS_PORT:-8052}
-    container_name: nyra-archon-agents
-    profiles: ['archon', 'all']
-    depends_on:
-      archon-server:
-        condition: service_started
-      nexus-router:
-        condition: service_healthy
-    environment:
-      ARCHON_AGENTS_PORT: ${ARCHON_AGENTS_PORT:-8052}
-      ARCHON_SERVER_URL: http://archon-server:8181
-      OPENAI_BASE_URL: http://nexus-router:7000/v1
-      NEXUS_MCP_PROXY_URL: http://nexus-router:8080
-      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
-      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
-      GOOGLE_API_KEY: ${GOOGLE_API_KEY:-}
-    ports:
-      - '${ARCHON_AGENTS_PORT:-8052}:8052'
-    restart: unless-stopped
-    networks: [nyra]
-    logging: *default_logging
-
-  archon-agent-work-orders:
-    build:
-      context: ../services/archon-os
-      dockerfile: docker/Dockerfile.server
-    container_name: nyra-archon-agent-work-orders
-    profiles: ['archon', 'all']
-    depends_on:
-      archon-server:
-        condition: service_started
-      archon-mcp:
-        condition: service_started
-      nexus-router:
-        condition: service_healthy
-    environment:
-      AGENT_WORK_ORDERS_PORT: ${AGENT_WORK_ORDERS_PORT:-8053}
-      SERVICE_DISCOVERY_MODE: docker_compose
-      ARCHON_SERVER_URL: http://archon-server:8181
-      ARCHON_MCP_URL: http://archon-mcp:8051
-      OPENAI_BASE_URL: http://nexus-router:7000/v1
-      NEXUS_MCP_PROXY_URL: http://nexus-router:8080
-      GH_TOKEN: ${GH_TOKEN:-${GITHUB_TOKEN:-}}
-    command:
-      - sh
-      - -lc
-      - python -m uvicorn src.agent_work_orders.server:app --host 0.0.0.0 --port ${AGENT_WORK_ORDERS_PORT:-8053}
-    ports:
-      - '${AGENT_WORK_ORDERS_PORT:-8053}:8053'
-    restart: unless-stopped
-    networks: [nyra]
-    logging: *default_logging
-
-  archon-ui:
-    build:
-      context: ../tools/archon/archon-ui-main
-      dockerfile: Dockerfile
-    container_name: nyra-archon-ui
-    profiles: ['archon', 'all']
-    depends_on:
-      archon-server:
-        condition: service_started
-      archon-mcp:
-        condition: service_started
-    environment:
-      VITE_API_URL: http://archon-server:8181
-      VITE_MCP_URL: http://archon-mcp:8051
-      VITE_NEXUS_ROUTER_URL: http://nexus-router:7000
-      VITE_NEXUS_MCP_PROXY_URL: http://nexus-router:8080
-    ports:
-      - '${ARCHON_UI_PORT:-3737}:5173'
-    restart: unless-stopped
-    networks: [nyra]
-    logging: *default_logging
-
   moltbot-web:
     image: ${MOLTBOT_WEB_IMAGE:-ghcr.io/openclaw/moltbot-web:latest}
     container_name: nyra-moltbot-web
@@ -572,13 +381,14 @@ services:
   infisical-agent:
     image: infisical/cli:latest
     container_name: nyra-infisical-agent
-    profiles: ['archon', 'secrets', 'oracle', 'all']
+    profiles: ['secrets', 'oracle', 'all']
+    depends_on:
+      - infisical
     entrypoint: ['/bin/sh', '-lc']
     command: >-
       test -n "$INFISICAL_TOKEN" &&
       while true; do
         infisical export --projectId=${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef} --env=${INFISICAL_ENV:-prod} --path=/archon --format=dotenv > /secrets/archon.env &&
-        infisical export --projectId=${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef} --env=${INFISICAL_ENV:-prod} --path=/claude-flow --format=dotenv > /secrets/claude-flow.env &&
         sleep ${INFISICAL_POLL_INTERVAL:-60};
       done
     environment:
@@ -589,28 +399,6 @@ services:
       INFISICAL_POLL_INTERVAL: ${INFISICAL_POLL_INTERVAL:-60}
     volumes:
       - ./shared/secrets:/secrets
-    restart: unless-stopped
-    networks: [nyra]
-    logging: *default_logging
-
-  infisical-cli:
-    image: infisical/cli:latest
-    container_name: nyra-infisical-cli
-    profiles: ['archon', 'secrets', 'all']
-    entrypoint: ['/bin/sh', '-lc']
-    command: >-
-      test -n "$INFISICAL_TOKEN" &&
-      infisical export --projectId=${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef} --env=${INFISICAL_ENV:-prod} --path=/shared --format=dotenv
-      > /workspace/.env.archon.injected && tail -f /dev/null
-    environment:
-      INFISICAL_TOKEN: ${INFISICAL_TOKEN:?set INFISICAL_TOKEN}
-      INFISICAL_API_URL: ${INFISICAL_API_URL:-https://app.infisical.com}
-      INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
-      INFISICAL_DISABLE_UPDATE_CHECK: 'true'
-    volumes:
-      - ../:/workspace
-    depends_on:
-      - infisical-agent
     restart: unless-stopped
     networks: [nyra]
     logging: *default_logging
@@ -721,41 +509,6 @@ services:
     networks: [nyra]
     logging: *default_logging
 
-  agentdb:
-    image: postgres:16-alpine
-    container_name: nyra-agentdb
-    profiles: ['apps', 'all']
-    environment:
-      POSTGRES_DB: ${AGENTDB_DB:-agentdb}
-      POSTGRES_USER: ${AGENTDB_USER:-agentdb}
-      POSTGRES_PASSWORD: ${AGENTDB_PASSWORD:-agentdb-change-me}
-    ports:
-      - '${AGENTDB_PORT:-5440}:5432'
-    volumes:
-      - ./data/agentdb:/var/lib/postgresql/data
-    restart: unless-stopped
-    networks: [nyra]
-    logging: *default_logging
-
-  agentic-flow:
-    image: ${AGENTIC_FLOW_IMAGE:-ghcr.io/ruvnet/agentic-flow:latest}
-    container_name: nyra-agentic-flow
-    profiles: ['apps', 'all']
-    environment:
-      AGENTDB_URL: postgresql://${AGENTDB_USER:-agentdb}:${AGENTDB_PASSWORD:-agentdb-change-me}@agentdb:5432/${AGENTDB_DB:-agentdb}
-      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
-      NEXUS_BASE_URL: http://nexus-router:7000
-      LITELLM_BASE_URL: http://litellm:4000
-    ports:
-      - '${AGENTIC_FLOW_PORT:-8095}:8095'
-    depends_on:
-      - agentdb
-      - redis
-      - nexus-router
-    restart: unless-stopped
-    networks: [nyra]
-    logging: *default_logging
-
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:latest
     container_name: nyra-cadvisor
@@ -830,31 +583,6 @@ services:
         '${WORKER_5090_MODEL:-Qwen/Qwen2.5-72B-Instruct-AWQ}',
       ]
     ports: ['${WORKER_5090_VLLM_PORT:-8001}:8000']
-    restart: unless-stopped
-    networks: [nyra]
-    logging: *default_logging
-
-  ruvector-postgres:
-    image: ruvnet/ruvector-postgres:latest
-    container_name: ruvector-postgres
-    profiles: ['vector', 'all']
-    environment:
-      POSTGRES_USER: ${RUVECTOR_POSTGRES_USER:-claude}
-      POSTGRES_PASSWORD: ${RUVECTOR_POSTGRES_PASSWORD:?set RUVECTOR_POSTGRES_PASSWORD}
-      POSTGRES_DB: ${RUVECTOR_POSTGRES_DB:-claude_flow}
-    ports: ['${RUVECTOR_POSTGRES_PORT:-5436}:5432']
-    volumes:
-      - ruvector_data:/var/lib/postgresql/data
-      - ./ruvector/scripts/init-db.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
-    healthcheck:
-      test:
-        [
-          'CMD-SHELL',
-          'pg_isready -U ${RUVECTOR_POSTGRES_USER:-claude} -d ${RUVECTOR_POSTGRES_DB:-claude_flow}',
-        ]
-      interval: 5s
-      timeout: 5s
-      retries: 20
     restart: unless-stopped
     networks: [nyra]
     logging: *default_logging

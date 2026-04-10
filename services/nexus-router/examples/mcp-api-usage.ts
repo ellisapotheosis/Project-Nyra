@@ -318,7 +318,7 @@ async function main() {
   await addSseMCPServer();
 
   // Test connections
-  await testMCPConnection('claude-flow');
+  await testMCPConnection('github');
   await testMCPConnection('weather-mcp');
 
   // Update server
@@ -326,13 +326,13 @@ async function main() {
 
   // List and search tools
   await listAllTools();
-  await searchTools('memory');
+  await searchTools('github');
 
   // Call a tool
-  await callMCPTool();
+  // await callMCPTool();
 
   // Proxy request
-  await proxyRawRequest('claude-flow');
+  await proxyRawRequest('github');
 
   // Get metrics
   await getMCPMetrics();
