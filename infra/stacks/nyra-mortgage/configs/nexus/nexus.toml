@@ -71,6 +71,9 @@ url = "http://nyra-n8n:5678/mcp"
 [mcp.servers.twenty]
 url = "http://nyra-twenty-crm:3000/mcp"
 
+[mcp.servers.mem0]
+url = "{{ env.MEM0_MCP_URL }}"
+
 # Docker-launched MCP servers (via docker socket) for local tool access
 [mcp.servers.github]
 type = "docker"

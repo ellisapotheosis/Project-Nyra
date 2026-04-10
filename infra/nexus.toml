@@ -136,16 +136,6 @@ url = "http://localhost:8080"
 description = "Knowledge graph, task management, reasoning"
 tags = ["knowledge", "reasoning", "tasks"]
 enabled = true
-
-# archon-os integration
-[mcp.servers.archon-os]
-name = "archon-os"
-url = "http://localhost:8000"
-description = "Dev orchestration, code generation, builds"
-tags = ["development", "automation", "ci-cd"]
-enabled = true
-internal_only = true
-
 # ============================================================================
 # TOOL ROUTING CONFIGURATION
 # ============================================================================
@@ -162,14 +152,11 @@ similarity_threshold = 0.65
 
 # Tool visibility rules (which tools for which agents)
 [tool_routing.visibility]
-# archon-os gets all tools
-"archon-os" = ["docker-toolkit", "github-toolkit", "oracle-database", "twenty-crm", "quote-engine", "archon-os"]
-
 # OpenClaw gets customer-facing tools only
 "openclaw" = ["quote-engine", "mem0", "twenty-crm", "lead-ingestion"]
 
 # Archon gets knowledge tools
-"archon-os" = ["oracle-database", "twenty-crm", "mem0", "archon-os"]
+"archon-os" = ["oracle-database", "twenty-crm", "mem0", "quote-engine"]
 
 # ============================================================================
 # LOGGING & OBSERVABILITY
