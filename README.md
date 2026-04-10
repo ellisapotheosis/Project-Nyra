@@ -31,7 +31,7 @@ pnpm start
 
 # Follow the GUI to select:
 # - PC configuration (orchestrator, worker, or standalone)
-# - Components to install (Docker, WSL, Claude Flow, etc.)
+# - Components to install (Docker, WSL, Archon OS, etc.)
 # - Configuration templates to deploy
 ```
 
@@ -57,7 +57,7 @@ pnpm test
 
 Project Nyra is an intelligent mortgage automation platform that combines:
 
-- **Multi-Agent AI Orchestration** - Claude Flow, Ruv-Swarm, and Flow-Nexus working together
+- **Multi-Agent AI Orchestration** - Archon OS, Ruv-Swarm, and Flow-Nexus working together
 - **Microservices Architecture** - 14 specialized backend services
 - **Modern Frontend Apps** - 5 user-facing applications
 - **Real-Time Processing** - WebSocket connections and event-driven workflows
@@ -74,7 +74,7 @@ Project Nyra is an intelligent mortgage automation platform that combines:
 
 ## Project Status
 
-**Current Phase:** Phase 3 - Dual Orchestration Integration (Claude Flow + Archon OS)
+**Current Phase:** Phase 3 - Orchestration Integration (Archon OS)
 
 **Last Updated:** January 21, 2026
 
@@ -94,7 +94,7 @@ Project Nyra is an intelligent mortgage automation platform that combines:
 ┌─────────────────────────────────────────────────────────────┐
 │  Windows Orchestrator PC (Mini PC)                          │
 │  ├── Docker Desktop + WSL2                                  │
-│  ├── Orchestration Services (Claude Flow, Archon OS)       │
+│  ├── Orchestration Services (Archon OS)                     │
 │  ├── Message Queue (RabbitMQ)                              │
 │  ├── Coordination Layer                                     │
 │  └── Magic Packet Wake-on-LAN for workers                  │
@@ -144,7 +144,6 @@ Project-Nyra/
 │   ├── auth-service/        # Authentication & authorization
 │   ├── campaign-engine/     # Marketing automation
 │   ├── doc-management-api/  # Document processing
-│   ├── graphiti-knowledge/  # Knowledge graph management
 │   ├── lead-capture-api/    # Lead management
 │   ├── letta-integration/   # Agent memory system
 │   ├── mortgage-assistant-api/  # Mortgage operations API
@@ -163,9 +162,8 @@ Project-Nyra/
 │   ├── types/               # TypeScript type definitions
 │   └── utils/               # Shared utilities
 │
-├── orchestration/           # Multi-agent orchestration
-│   ├── archon-os/           # Agent operating system
-│   └── claude-flow/         # Workflow orchestration
+├── external/                # External tools and submodules
+│   └── archon/              # Agent operating system
 │
 ├── infra/                   # Infrastructure as code
 │   ├── docker/              # Docker Compose files
@@ -215,7 +213,7 @@ Executed by a **15-agent swarm** using hierarchical coordination:
 - **[Architecture Overview](docs/architecture/ARCHITECTURE-OVERVIEW.md)** - Complete system design (Level 1 & 2 diagrams)
 - [System Architecture](docs/architecture/system-architecture.md) - Detailed architectural specifications
 - **[4-PC Distributed Architecture](docs/architecture/4PC-DISTRIBUTED-ARCHITECTURE.md)** - Multi-PC deployment with GPU workers
-- [Dual Orchestrator Design](docs/architecture/DUAL-ORCHESTRATOR-ARCHITECTURE.md)** - Claude Flow + Archon OS integration
+- [Dual Orchestrator Design](docs/architecture/DUAL-ORCHESTRATOR-ARCHITECTURE.md)** - Archon OS + Archon OS integration
 - [Memory Systems](docs/architecture/memory-systems.md) - Agent memory architecture (Letta, Mem0, Graphiti, Qdrant)
 - [API Contracts](docs/architecture/api-contracts.md) - Service interfaces
 - **[Architecture Decisions](docs/architecture/ARCHITECTURE-DECISIONS.md)** - ADRs and technology choices
@@ -258,11 +256,11 @@ Executed by a **15-agent swarm** using hierarchical coordination:
 - **UI Components:** Custom + Shadcn/ui
 
 ### AI & Orchestration
-- **Agent Framework:** Claude Flow (Alpha)
+- **Agent Framework:** Archon OS
 - **Swarm Intelligence:** Ruv-Swarm (Latest)
 - **Cloud Orchestration:** Flow-Nexus (Latest)
 - **MCP Protocol:** Model Context Protocol
-- **Memory System:** Letta + AgentDB
+- **Memory System:** Letta
 
 ### DevOps & Infrastructure
 - **OS:** Windows 11 (Orchestrator) + WSL2 (Ubuntu 24.04)
@@ -364,7 +362,7 @@ Project Nyra includes a comprehensive bootstrap system for setting up the 4-PC d
 - **PowerShell Scripts** - Automated component installation
 - **Configuration Templates** - Pre-configured settings for:
   - Claude Code / Claude Desktop
-  - Claude Flow V3
+  - Archon OS V3
   - Docker Desktop
   - WSL2 (.wslconfig)
   - Infisical (secrets management)
@@ -381,7 +379,7 @@ pnpm install && pnpm start
 # 3. Choose components to install:
 #    - Docker Desktop
 #    - WSL2 + Ubuntu
-#    - Claude Flow
+#    - Archon OS
 #    - Development tools
 #    - Configuration templates
 
@@ -402,7 +400,6 @@ See [bootstrap/configs/README.md](bootstrap/configs/README.md) for details on al
 - Redis (Port: 6379) - Cache layer
 - FalkorDB (Port: 6380) - Graph database
 - Qdrant (Port: 6333) - Vector database
-- Claude Flow - Multi-agent orchestration
 - Archon OS - Agent operating system
 - Nexus Router - LLM routing
 - Letta (Ports: 8283, 8284) - Agent memory
@@ -476,17 +473,14 @@ Strategy: balanced | specialized | adaptive
 ### Using the Agent System
 
 ```bash
-# Initialize a swarm
-npx claude-flow swarm:init --topology=mesh
+# Initialize a workflow
+archon workflow list
 
-# Spawn an agent
-npx claude-flow agent:spawn --type=coder
+# Run a task
+archon workflow run assist "What workflows are available?"
 
-# Orchestrate a task
-npx claude-flow task:orchestrate --task="Implement user authentication"
-
-# Check swarm status
-npx claude-flow swarm:status
+# Check workflow status
+archon workflow status
 ```
 
 ## Contributing

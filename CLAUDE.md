@@ -1,4 +1,4 @@
-# Project Nyra - Claude Code Configuration (Claude Flow V3)
+# Project Nyra - Claude Code Configuration (Archon OS)
 
 > **AI-Powered Mortgage Automation Platform**
 > Multi-agent orchestration for mortgage operations with strict compliance requirements
@@ -7,16 +7,16 @@
 
 **Mission**: AI-powered mortgage brokerage automation handling lead-to-close workflows with 80% reduction in manual work.
 
-**Architecture**: Dual-orchestrator system combining Claude Flow (planning/SPARC) with Archon OS (task execution) serving ~100-500 monthly leads.
+**Architecture**: Orchestration system powered by Archon OS (planning/SPARC/task execution) serving ~100-500 monthly leads.
 
 **Stack**: React + TypeScript + Node.js + PostgreSQL | TDD + Microservices | Containerized (Docker/K8s)
 
 ## 🎯 CORE CONFIGURATION
 
-**Default Swarm**: mesh topology, 8 agents max, balanced strategy, parallel coordination
+**Orchestration**: Archon OS workflows and task management
 **Testing**: TDD (Red-Green-Refactor) | 90%+ test coverage mandatory
 **Architecture**: Microservices with clear service boundaries
-**Memory**: Hybrid (RuVector primary, Letta, Graphiti, Mem0, OpenMemory)
+**Memory**: Hybrid (RuVector primary, Letta)
 
 ## 🔒 Locked Architecture Components
 
@@ -24,12 +24,11 @@ DO NOT MODIFY without explicit approval:
 
 | Component | Technology | Port | Purpose |
 |-----------|-----------|------|---------|
-| **LLM Gateway** | Nexus Router + LiteLLM | 6000 | Model routing, OpenRouter integration |
+| **LLM Gateway** | Nexus Router + LiteLLM | 7000 | Model routing, OpenRouter integration |
 | **CRM** | TwentyCRM | 3000 | System of record for leads/pipeline |
-| **Memory** | Letta + Graphiti + Mem0 + RuVector | Multiple | Multi-system memory architecture |
+| **Memory** | Letta + RuVector | Multiple | Multi-system memory architecture |
 | **Workflows** | n8n + Activepieces | 5678 | Campaign automation, integrations |
-| **Chat UI** | Dify | 3001 | Borrower-facing chat interface |
-| **Observability** | Prometheus + Grafana + Loki | 9090/3005/3100 | Monitoring stack |
+| **Observability** | Prometheus + Grafana + Loki | 9090/3003/3100 | Monitoring stack |
 
 ---
 
@@ -56,86 +55,35 @@ I've launched 5 agents in mesh topology:
 Working with peer-to-peer coordination - I'll synthesize when they complete.
 ```
 
-## 🚨 AUTOMATIC SWARM ORCHESTRATION
+## 🚨 AUTOMATIC ORCHESTRATION
 
-**When user says "spawn swarm" or requests complex work:**
+**When user requests complex work:**
 
-1. Initialize swarm via CLI: `npx @claude-flow/cli@latest swarm init --topology mesh --max-agents 8 --strategy balanced`
-2. **IMMEDIATELY** spawn agents via Task tool in SAME message
-3. Both CLI and Task calls must be in same response
-
-**CLI coordinates strategy, Task tool agents execute!**
+1. Use Archon workflows: `archon workflow list` to see available patterns.
+2. Run relevant workflow: `archon workflow run [name] "[task]"`
+3. Monitor progress via CLI or UI (http://localhost:3737)
 
 ### 🤖 3-Tier Model Routing (ADR-026)
 
 | Tier | Handler | Latency | Cost | Use Cases |
 |------|---------|---------|------|-----------|
-| **1** | Agent Booster | <1ms | $0 | Simple transforms (var→const, add-types) |
-| **2** | Haiku | ~500ms | $0.0002 | Simple tasks, bug fixes |
+| **1** | Local Small (Qwen 32B) | <1ms | $0 | Simple transforms (var→const, add-types) |
+| **2** | Local Large (DeepSeek R1) | ~500ms | $0 | Simple tasks, bug fixes |
 | **3** | Sonnet/Opus | 2-5s | $0.003-$0.015 | Architecture, security, complex reasoning |
 
-**Before spawning, check routing:**
-```bash
-npx @claude-flow/cli@latest hooks pre-task --description "[task description]"
-```
-
-**Apply recommendations in Task tool `model` parameter.**
-
----
-
-## 🛡️ SWARM TOPOLOGY SELECTION
-
-**Mesh (DEFAULT for TDD/microservices):**
-```bash
-npx @claude-flow/cli@latest swarm init --topology mesh --max-agents 8 --strategy balanced
-```
-- Peer-to-peer, resilient, parallel workflows
-- Use for: TDD feature development, microservices, quote generation, document processing
-
-**Hierarchical (compliance-critical workflows):**
-```bash
-npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 8 --strategy specialized
-```
-- Queen controls workers directly, sequential validation
-- Use for: compliance validation, document processing with audit trails
-
-**Hierarchical-Mesh (hybrid, 10+ agents):**
-```bash
-npx @claude-flow/cli@latest swarm init --topology hierarchical-mesh --max-agents 15 --strategy specialized
-```
-- V3 queen + peer communication for scaled operations
-- Use for: campaign orchestration, large-scale workflows
+**Before starting, check routing via Nexus Router.**
 
 ---
 
 ## 🧠 AUTO-LEARNING PROTOCOL
 
 ### Before Starting Any Task
-```bash
-# Search memory for relevant patterns
-npx @claude-flow/cli@latest memory search --query '[task keywords]' --namespace patterns
-
-# Check similar past tasks
-npx @claude-flow/cli@latest memory search --query '[task type]' --namespace tasks
-
-# Load learned optimizations
-npx @claude-flow/cli@latest hooks route --task '[task description]'
-```
+- Search memory for relevant patterns using Letta or RuVector.
+- Check past conversations in Archon UI.
 
 ### After Completing Any Task Successfully
-```bash
-# Store successful pattern
-npx @claude-flow/cli@latest memory store --namespace patterns --key '[pattern-name]' --value '[what worked]'
-
-# Train neural patterns
-npx @claude-flow/cli@latest hooks post-edit --file '[main-file]' --train-neural true
-
-# Record completion metrics
-npx @claude-flow/cli@latest hooks post-task --task-id '[id]' --success true --store-results true
-
-# Trigger optimization worker if needed
-npx @claude-flow/cli@latest hooks worker dispatch --trigger optimize
-```
+- Record completion metrics in Archon.
+- Store successful patterns in Letta.
 
 ### Continuous Improvement Triggers
 
@@ -195,33 +143,9 @@ npx @claude-flow/cli@latest hooks worker dispatch --trigger optimize
 
 **MANDATORY TDD Workflow for ALL Features:**
 
-```bash
-npx @claude-flow/cli@latest swarm init --topology mesh --max-agents 6
-
-# RED: Write failing tests FIRST
-Task({
-  prompt: "Write comprehensive unit tests defining expected behavior. Tests should FAIL.",
-  subagent_type: "tester",
-  description: "TDD Red - Write failing tests",
-  run_in_background: true
-})
-
-# GREEN: Minimal implementation
-Task({
-  prompt: "Write minimal implementation to make tests pass. No over-engineering.",
-  subagent_type: "coder",
-  description: "TDD Green - Minimal implementation",
-  run_in_background: true
-})
-
-# REFACTOR: Quality improvements
-Task({
-  prompt: "Refactor for readability, performance, maintainability. Keep tests green.",
-  subagent_type: "reviewer",
-  description: "TDD Refactor - Code quality",
-  run_in_background: true
-})
-```
+1. **RED**: Create failing tests using Jest/Vitest.
+2. **GREEN**: Implement minimal code to pass tests.
+3. **REFACTOR**: Improve code quality while keeping tests green.
 
 **Test Coverage Requirements:**
 - **Unit Tests**: 90%+ coverage for business logic
@@ -288,89 +212,28 @@ Task({
 **Priority Order:**
 1. **RuVector** (Primary) - Fast vector search, code retrieval, document similarity
 2. **Letta** - Conversational memory, agent state, task context
-3. **Graphiti** - Temporal knowledge graphs, relationship tracking
-4. **Mem0** - User personalization, borrower preferences
-5. **OpenMemory** - Shared collaborative memory
 
-**Memory Commands:**
-```bash
-# Search (semantic vector search)
-npx @claude-flow/cli@latest memory search --query "authentication patterns"
-
-# Store
-npx @claude-flow/cli@latest memory store --key "pattern-auth" --value "JWT with refresh tokens" --namespace patterns
-
-# Retrieve
-npx @claude-flow/cli@latest memory retrieve --key "pattern-auth" --namespace patterns
-
-# List
-npx @claude-flow/cli@latest memory list --namespace patterns --limit 10
-
-# Initialize
-npx @claude-flow/cli@latest memory init --force --verbose
-```
+**Search (RuVector):**
+Check `services/ruvector-search` for integration patterns.
 
 ---
 
-## 🚀 V3 CLI Commands (26 Commands, 140+ Subcommands)
+## 🚀 Archon OS CLI Commands
 
 **Core Commands:**
-`init`, `agent`, `swarm`, `memory`, `mcp`, `task`, `session`, `config`, `status`, `workflow`, `hooks`, `hive-mind`
-
-**Advanced Commands:**
-`daemon`, `neural`, `security`, `performance`, `providers`, `plugins`, `deployment`, `embeddings`, `claims`, `migrate`, `doctor`, `completions`
+`archon workflow`, `archon agent`, `archon config`, `archon status`
 
 **Quick Examples:**
 ```bash
-# Initialize project
-npx @claude-flow/cli@latest init --wizard
+# List workflows
+archon workflow list
 
-# Start daemon
-npx @claude-flow/cli@latest daemon start
+# Run a specific workflow
+archon workflow run assist "task description"
 
-# Initialize swarm (MESH)
-npx @claude-flow/cli@latest swarm init --topology mesh --max-agents 8 --strategy balanced
-
-# Search memory
-npx @claude-flow/cli@latest memory search --query "authentication patterns"
-
-# System health
-npx @claude-flow/cli@latest doctor --fix
-
-# Security scan
-npx @claude-flow/cli@latest security scan --depth full
-
-# Performance benchmark
-npx @claude-flow/cli@latest performance benchmark --suite all
+# Check system health
+make health-orchestrator
 ```
-
----
-
-## 🪝 V3 Hooks System (27 Hooks + 12 Workers)
-
-**Essential Hooks:**
-```bash
-# Core hooks
-npx @claude-flow/cli@latest hooks pre-task --description "[task]"
-npx @claude-flow/cli@latest hooks post-task --task-id "[id]" --success true
-npx @claude-flow/cli@latest hooks post-edit --file "[file]" --train-neural true
-
-# Session management
-npx @claude-flow/cli@latest hooks session-start --session-id "[id]"
-npx @claude-flow/cli@latest hooks session-end --export-metrics true
-
-# Intelligence routing
-npx @claude-flow/cli@latest hooks route --task "[task]"
-
-# Background workers
-npx @claude-flow/cli@latest hooks worker dispatch --trigger audit
-npx @claude-flow/cli@latest hooks worker status
-
-# Coverage-aware routing (TDD)
-npx @claude-flow/cli@latest hooks coverage-gaps --format table
-```
-
-**12 Background Workers:** ultralearn, optimize, consolidate, predict, audit, map, preload, deepdive, document, refactor, benchmark, testgaps
 
 ---
 
@@ -495,7 +358,7 @@ npx @claude-flow/cli@latest doctor --fix
 
 ## 📋 Scope Note: TodoWrite vs Archon
 
-**In Claude Flow context (this file):**
+**In Archon OS context (this file):**
 - **TodoWrite**: In-session task tracking within Claude Code. Use for immediate work organization.
 - **Archon**: Cross-session project management. Refer to `tools/archon/CLAUDE.md` for workflows.
 
@@ -529,4 +392,4 @@ npx @claude-flow/cli@latest doctor --fix
 
 ---
 
-**Remember: Claude Flow CLI coordinates, Claude Code Task tool creates!**
+**Remember: Archon OS CLI coordinates, Claude Code Task tool creates!**
