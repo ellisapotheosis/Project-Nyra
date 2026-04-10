@@ -8,14 +8,12 @@ networks:
 volumes:
   redis_data: {}
   ruvector_data: {}
-  agentdb_data: {}
-  ruflo_state: {}
 
 services:
   redis:
     image: redis:7-alpine
     container_name: nyra-dev-redis
-    profiles: ["core", "orchestrator", "dashboard", "all"]
+    profiles: ["core", "orchestrator", "all"]
     command: ["redis-server", "--appendonly", "yes"]
     ports:
       - "${REDIS_PORT:-6379}:6379"
@@ -32,7 +30,7 @@ services:
   ruvector-postgres:
     image: ruvnet/ruvector-postgres:latest
     container_name: nyra-dev-ruvector-postgres
-    profiles: ["core", "orchestrator", "dashboard", "all"]
+    profiles: ["core", "orchestrator", "all"]
     environment:
       POSTGRES_DB: ${RUVECTOR_POSTGRES_DB:-claude_flow}
       POSTGRES_USER: ${RUVECTOR_POSTGRES_USER:-claude}
@@ -47,200 +45,4 @@ services:
       timeout: 5s
       retries: 10
     restart: unless-stopped
-    networks: [dev-stack]
-
-  agentdb:
-    image: postgres:16-alpine
-    container_name: nyra-dev-agentdb
-    profiles: ["core", "orchestrator", "dashboard", "all"]
-    environment:
-      POSTGRES_DB: ${AGENTDB_DB:-agentdb}
-      POSTGRES_USER: ${AGENTDB_USER:-agentdb}
-      POSTGRES_PASSWORD: ${AGENTDB_PASSWORD:-agentdb-change-me}
-    ports:
-      - "${AGENTDB_PORT:-5440}:5432"
-    volumes:
-      - agentdb_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${AGENTDB_USER:-agentdb} -d ${AGENTDB_DB:-agentdb}"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-    restart: unless-stopped
-    networks: [dev-stack]
-
-  agentic-flow:
-    build:
-      context: ./agentic-flow-runtime
-      dockerfile: Dockerfile
-      args:
-        AGENTIC_FLOW_VERSION: ${AGENTIC_FLOW_VERSION:-2.0.7}
-    container_name: nyra-dev-agentic-flow
-    profiles: ["modules", "orchestrator", "all"]
-    environment:
-      AGENTDB_URL: postgresql://${AGENTDB_USER:-agentdb}:${AGENTDB_PASSWORD:-agentdb-change-me}@agentdb:5432/${AGENTDB_DB:-agentdb}
-      REDIS_URL: redis://redis:6379
-      AGENTIC_FLOW_PORT: ${AGENTIC_FLOW_PORT:-8095}
-      AGENTIC_FLOW_PROVIDER: ${AGENTIC_FLOW_PROVIDER:-anthropic}
-      AGENTIC_FLOW_BOOTSTRAP: ${AGENTIC_FLOW_BOOTSTRAP:-1}
-      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
-      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
-      GOOGLE_GEMINI_API_KEY: ${GOOGLE_GEMINI_API_KEY:-}
-    ports:
-      - "${AGENTIC_FLOW_PORT:-8095}:8095"
-    depends_on:
-      agentdb:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    restart: unless-stopped
-    networks: [dev-stack]
-
-  claude-flow-brain:
-    build:
-      context: ./ruflo-barebones
-      dockerfile: Dockerfile
-      args:
-        RUFLO_VERSION: ${RUFLO_VERSION:-3.5.15}
-        CLAUDE_FLOW_VERSION: ${CLAUDE_FLOW_VERSION:-3.5.15}
-        AGENTIC_FLOW_VERSION: ${AGENTIC_FLOW_VERSION:-2.0.7}
-        AGENTDB_VERSION: ${AGENTDB_VERSION:-3.0.0-alpha.10}
-        RUVECTOR_VERSION: ${RUVECTOR_VERSION:-0.2.12}
-        AGENT_BOOSTER_VERSION: ${AGENT_BOOSTER_VERSION:-0.2.2}
-        CLAUDE_FLOW_MEMORY_VERSION: ${CLAUDE_FLOW_MEMORY_VERSION:-3.0.0-alpha.11}
-        CLAUDE_FLOW_MCP_VERSION: ${CLAUDE_FLOW_MCP_VERSION:-3.0.0-alpha.8}
-        CLAUDE_FLOW_NEURAL_VERSION: ${CLAUDE_FLOW_NEURAL_VERSION:-3.0.0-alpha.7}
-        CLAUDE_FLOW_CODEX_VERSION: ${CLAUDE_FLOW_CODEX_VERSION:-3.0.0-alpha.9}
-        EPIC_SDK_SPEC: ${EPIC_SDK_SPEC:-}
-    container_name: nyra-dev-claude-flow-brain
-    profiles: ["orchestrator", "dashboard", "all"]
-    environment:
-      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
-      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
-      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
-      GOOGLE_GEMINI_API_KEY: ${GOOGLE_GEMINI_API_KEY:-}
-      REDIS_URL: redis://redis:6379
-      AGENTDB_URL: postgresql://${AGENTDB_USER:-agentdb}:${AGENTDB_PASSWORD:-agentdb-change-me}@agentdb:5432/${AGENTDB_DB:-agentdb}
-      RUVECTOR_URL: postgresql://${RUVECTOR_POSTGRES_USER:-claude}:${RUVECTOR_POSTGRES_PASSWORD:-claude-flow-secure}@ruvector-postgres:5432/${RUVECTOR_POSTGRES_DB:-claude_flow}
-      RUFLO_BOOTSTRAP: ${RUFLO_BOOTSTRAP:-1}
-      RUFLO_START_SYSTEM: "1"
-      RUFLO_START_BACKGROUND: "1"
-      RUFLO_MCP_PORT: "8080"
-      RUFLO_TOPOLOGY: ${RUFLO_TOPOLOGY:-hierarchical-mesh}
-      TRANSFORMERS_CACHE: /tmp/transformers-cache
-      HF_HOME: /tmp/hf-home
-    ports:
-      - "${CLAUDE_FLOW_PORT:-8085}:8080"
-    volumes:
-      - ruflo_state:/home/node/.ruflo
-    depends_on:
-      redis:
-        condition: service_healthy
-      agentdb:
-        condition: service_healthy
-      ruvector-postgres:
-        condition: service_healthy
-    restart: unless-stopped
-    user: "0:0"
-    working_dir: /home/node/.ruflo
-    networks: [dev-stack]
-
-  claude-flow-event-server:
-    build:
-      context: ../../services/claude-flow-event-server
-      dockerfile: Dockerfile
-    container_name: nyra-dev-claude-flow-event-server
-    profiles: ["dashboard", "all"]
-    environment:
-      EVENT_SERVER_HOST: 0.0.0.0
-      EVENT_SERVER_PORT: 3004
-      EVENT_SERVER_MAX_CONNECTIONS: ${EVENT_SERVER_MAX_CONNECTIONS:-200}
-      EVENT_SERVER_REPLAY_BUFFER: ${EVENT_SERVER_REPLAY_BUFFER:-2000}
-      DEBUG: ${DEBUG:-false}
-    ports:
-      - "${EVENT_SERVER_WS_PORT:-3004}:3004"
-      - "${EVENT_SERVER_HTTP_PORT:-3005}:3005"
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3005/health"]
-      interval: 15s
-      timeout: 5s
-      retries: 10
-    restart: unless-stopped
-    networks: [dev-stack]
-
-  claude-flow-dashboard:
-    build:
-      context: ../../apps/apps-claude-flow-dashboard
-      dockerfile: Dockerfile
-    container_name: nyra-dev-claude-flow-dashboard
-    profiles: ["dashboard", "all"]
-    environment:
-      VITE_CLAUDE_FLOW_URL: ${VITE_CLAUDE_FLOW_URL:-http://localhost:8085}
-      VITE_EVENT_SERVER_URL: ${VITE_EVENT_SERVER_URL:-ws://localhost:3004}
-      VITE_EVENT_SERVER_HTTP_URL: ${VITE_EVENT_SERVER_HTTP_URL:-http://localhost:3005}
-      VITE_ENABLE_AGENT_MONITOR: "true"
-      VITE_ENABLE_TASK_TIMELINE: "true"
-      VITE_ENABLE_MEMORY_OPS: "true"
-      VITE_ENABLE_TOPOLOGY: "true"
-      VITE_ENABLE_METRICS: "true"
-    ports:
-      - "${CLAUDE_FLOW_DASHBOARD_PORT:-3003}:3003"
-    depends_on:
-      claude-flow-event-server:
-        condition: service_healthy
-      claude-flow-brain:
-        condition: service_started
-    healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3003"]
-      interval: 20s
-      timeout: 5s
-      retries: 10
-    restart: unless-stopped
-    networks: [dev-stack]
-
-  ruflo-runtime:
-    build:
-      context: ./ruflo-barebones
-      dockerfile: Dockerfile
-      args:
-        RUFLO_VERSION: ${RUFLO_VERSION:-3.5.15}
-        CLAUDE_FLOW_VERSION: ${CLAUDE_FLOW_VERSION:-3.5.15}
-        AGENTIC_FLOW_VERSION: ${AGENTIC_FLOW_VERSION:-2.0.7}
-        AGENTDB_VERSION: ${AGENTDB_VERSION:-3.0.0-alpha.10}
-        RUVECTOR_VERSION: ${RUVECTOR_VERSION:-0.2.12}
-        AGENT_BOOSTER_VERSION: ${AGENT_BOOSTER_VERSION:-0.2.2}
-        CLAUDE_FLOW_MEMORY_VERSION: ${CLAUDE_FLOW_MEMORY_VERSION:-3.0.0-alpha.11}
-        CLAUDE_FLOW_MCP_VERSION: ${CLAUDE_FLOW_MCP_VERSION:-3.0.0-alpha.8}
-        CLAUDE_FLOW_NEURAL_VERSION: ${CLAUDE_FLOW_NEURAL_VERSION:-3.0.0-alpha.7}
-        CLAUDE_FLOW_CODEX_VERSION: ${CLAUDE_FLOW_CODEX_VERSION:-3.0.0-alpha.9}
-        EPIC_SDK_SPEC: ${EPIC_SDK_SPEC:-}
-    container_name: nyra-dev-ruflo-runtime
-    profiles: ["orchestrator", "all"]
-    environment:
-      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
-      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
-      AGENTDB_URL: postgresql://${AGENTDB_USER:-agentdb}:${AGENTDB_PASSWORD:-agentdb-change-me}@agentdb:5432/${AGENTDB_DB:-agentdb}
-      RUVECTOR_URL: postgresql://${RUVECTOR_POSTGRES_USER:-claude}:${RUVECTOR_POSTGRES_PASSWORD:-claude-flow-secure}@ruvector-postgres:5432/${RUVECTOR_POSTGRES_DB:-claude_flow}
-      CLAUDE_FLOW_API_URL: http://claude-flow-brain:8080
-      AGENTIC_FLOW_URL: http://agentic-flow:8095
-      RUFLO_BOOTSTRAP: ${RUFLO_BOOTSTRAP:-1}
-      RUFLO_START_SYSTEM: ${RUFLO_START_SYSTEM:-0}
-      RUFLO_START_BACKGROUND: ${RUFLO_START_BACKGROUND:-1}
-      TRANSFORMERS_CACHE: /workspace/.cache/transformers
-      HF_HOME: /workspace/.cache/huggingface
-    volumes:
-      - ruflo_state:/home/node/.ruflo
-      - ../../:/workspace:rw
-    working_dir: /workspace
-    depends_on:
-      claude-flow-brain:
-        condition: service_started
-      agentdb:
-        condition: service_healthy
-      ruvector-postgres:
-        condition: service_healthy
-      agentic-flow:
-        condition: service_started
-    restart: unless-stopped
-    user: "0:0"
     networks: [dev-stack]
