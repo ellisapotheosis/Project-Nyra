@@ -1,13 +1,13 @@
 ---
 name: "V3 CLI Modernization"
-description: "CLI modernization and hooks system enhancement for claude-flow v3. Implements interactive prompts, command decomposition, enhanced hooks integration, and intelligent workflow automation."
+description: "CLI modernization and hooks system enhancement for archon-os v3. Implements interactive prompts, command decomposition, enhanced hooks integration, and intelligent workflow automation."
 ---
 
 # V3 CLI Modernization
 
 ## What This Skill Does
 
-Modernizes claude-flow v3 CLI with interactive prompts, intelligent command decomposition, enhanced hooks integration, performance optimization, and comprehensive workflow automation capabilities.
+Modernizes archon-os v3 CLI with interactive prompts, intelligent command decomposition, enhanced hooks integration, performance optimization, and comprehensive workflow automation capabilities.
 
 ## Quick Start
 
@@ -457,7 +457,7 @@ export class CLIHooksManager {
 export class LearningHooksIntegration {
   constructor(
     private agenticFlowHooks: AgenticFlowHooksClient,
-    private agentDBLearning: AgentDBLearningClient
+    private ruvectorLearning: ruvectorLearningClient
   ) {}
 
   async recordCommandStart(event: CLIHookEvent): Promise<void> {
@@ -469,8 +469,8 @@ export class LearningHooksIntegration {
       context: event.context
     });
 
-    // Record experience in AgentDB
-    await this.agentDBLearning.recordExperience({
+    // Record experience in ruvector
+    await this.ruvectorLearning.recordExperience({
       type: 'command_execution',
       state: this.encodeCommandState(event),
       action: event.command,
@@ -491,7 +491,7 @@ export class LearningHooksIntegration {
     });
 
     // Submit feedback to learning system
-    await this.agentDBLearning.submitFeedback({
+    await this.ruvectorLearning.submitFeedback({
       sessionId: event.context.learningSessionId,
       reward,
       success: true,
@@ -522,7 +522,7 @@ export class LearningHooksIntegration {
     });
 
     // Learn from failure
-    await this.agentDBLearning.submitFeedback({
+    await this.ruvectorLearning.submitFeedback({
       sessionId: event.context.learningSessionId,
       reward,
       success: false,
@@ -866,7 +866,7 @@ Task("CLI modernization implementation",
 ### Interactive Command Enhancement
 ```bash
 # Enhanced interactive commands
-claude-flow swarm init --interactive
-claude-flow learning start --guided
-claude-flow workflow create --from-intent "setup new project"
+archon-os swarm init --interactive
+archon-os learning start --guided
+archon-os workflow create --from-intent "setup new project"
 ```

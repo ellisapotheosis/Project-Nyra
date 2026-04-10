@@ -70,12 +70,12 @@ This document outlines a comprehensive strategy to consolidate Project Nyra's re
 
 | Category | Files | Destination |
 |----------|-------|-------------|
-| **Claude Flow** | claude-flow.bat, claude-flow.ps1, claude-flow.cmd, start-claude-flow.ps1 | infra/scripts/orchestrator/ |
+| **Claude Flow** | archon-os.bat, archon-os.ps1, archon-os.cmd, start-archon-os.ps1 | infra/scripts/orchestrator/ |
 | **Setup Scripts** | setup-autonomous.sh, setup-memory-stack.ps1, START-AUTONOMOUS-SETUP.bat | infra/scripts/setup/ |
 | **Deployment** | deploy-nyra-cluster.ps1 | infra/scripts/deployment/ |
 
 **Additional Root Files to Relocate:**
-- `STATUS-CLAUDE-FLOW-DOCKER.md` → `docs/reports/`
+- `STATUS-archon-os-DOCKER.md` → `docs/reports/`
 - `batch-config.json` → `config/`
 - `claude-dump.txt` → `_archive/`
 - `EXTRACTION-STATUS.txt` → `_archive/`
@@ -108,7 +108,7 @@ packages:
   - services/*
   - mcp-servers/*
   - packages/*
-  - submodules/claude-flow
+  - submodules/archon-os
   - submodules/archon
 ```
 
@@ -123,7 +123,7 @@ packages:
 **Branch:** main
 **Staged Changes:** Multiple file relocations (docs/* reorganization)
 **Untracked Files:**
-- `STATUS-CLAUDE-FLOW-DOCKER.md`
+- `STATUS-archon-os-DOCKER.md`
 - `bootstrap/configs/`, `bootstrap/windows/`, `bootstrap/wsl/`
 - `docs/deployment/DOCKER-STATUS-REPORT.md`, `docs/deployment/MCP-STATUS-REPORT.md`
 
@@ -162,7 +162,7 @@ packages:
 ```
 Project-Nyra/
 ├── .github/                    # GitHub Actions workflows, templates
-├── .claude-flow/               # Claude Flow training data, sessions
+├── .archon-os/               # Claude Flow training data, sessions
 ├── apps/                       # 🎯 USER-FACING APPLICATIONS (8+ apps)
 │   ├── ratehunter/            # Rate comparison landing page
 │   ├── nyra-admin/            # Admin dashboard
@@ -189,13 +189,13 @@ Project-Nyra/
 │   └── [other packages]/
 │
 ├── mcp-servers/               # 🎯 MCP SERVER IMPLEMENTATIONS
-│   ├── claude-flow/           # Claude Flow MCP server
+│   ├── archon-os/           # Claude Flow MCP server
 │   ├── ruv-swarm/             # Swarm coordination MCP
 │   ├── [consolidated from nyra-mcp/]
 │   └── [other MCP servers]/
 │
 ├── orchestration/             # 🎯 MULTI-AGENT ORCHESTRATION
-│   ├── claude-flow/           # Claude Flow framework
+│   ├── archon-os/           # Claude Flow framework
 │   ├── archon/                # Archon OS framework
 │   ├── a2a/                   # 🆕 Agent-to-agent (from nyra-orchestration)
 │   ├── autogen2/              # 🆕 AutoGen v2 (from nyra-orchestration)
@@ -209,7 +209,7 @@ Project-Nyra/
 │   └── [other core libs]/
 │
 ├── memory/                    # 🎯 MEMORY SYSTEMS
-│   ├── agentdb/               # AgentDB integration
+│   ├── ruvector/               # ruvector integration
 │   ├── letta/                 # Letta memory system
 │   ├── clients/               # 🆕 Memory clients (from nyra-memory)
 │   ├── deployment/            # 🆕 Deployment configs (from nyra-memory)
@@ -225,8 +225,8 @@ Project-Nyra/
 │   ├── terraform/             # Terraform IaC (future)
 │   ├── scripts/               # 🎯 ORGANIZED BY PC TYPE
 │   │   ├── orchestrator/      # Scripts for orchestrator PC
-│   │   │   ├── claude-flow.ps1
-│   │   │   ├── start-claude-flow.ps1
+│   │   │   ├── archon-os.ps1
+│   │   │   ├── start-archon-os.ps1
 │   │   │   └── [other orchestrator scripts]
 │   │   ├── worker/            # Scripts for worker PCs
 │   │   │   └── [worker-specific scripts]
@@ -256,7 +256,7 @@ Project-Nyra/
 │   ├── deployment/            # Deployment guides
 │   ├── guides/                # User guides
 │   ├── reports/               # Status reports
-│   │   └── STATUS-CLAUDE-FLOW-DOCKER.md (from root)
+│   │   └── STATUS-archon-os-DOCKER.md (from root)
 │   ├── [from nyra-docs/]
 │   └── [consolidated docs]/
 │
@@ -272,7 +272,7 @@ Project-Nyra/
 │   └── utilities/             # Developer utilities
 │
 ├── submodules/                # Git submodules
-│   ├── claude-flow/           # Claude Flow v3 (external)
+│   ├── archon-os/           # Claude Flow v3 (external)
 │   └── archon/                # Archon framework (external)
 │
 ├── _archive/                  # Archived files
@@ -307,7 +307,7 @@ packages:
   - memory/*
   - tools/*
   # Submodules (if needed as workspaces)
-  - submodules/claude-flow
+  - submodules/archon-os
   - submodules/archon
 ```
 
@@ -359,10 +359,10 @@ packages:
 **Root Scripts:**
 | Source | Destination | Action |
 |--------|-------------|--------|
-| `claude-flow.bat` | `infra/scripts/orchestrator/claude-flow.bat` | `git mv` |
-| `claude-flow.ps1` | `infra/scripts/orchestrator/claude-flow.ps1` | `git mv` |
-| `claude-flow.cmd` | `infra/scripts/orchestrator/claude-flow.cmd` | `git mv` |
-| `start-claude-flow.ps1` | `infra/scripts/orchestrator/start-claude-flow.ps1` | `git mv` |
+| `archon-os.bat` | `infra/scripts/orchestrator/archon-os.bat` | `git mv` |
+| `archon-os.ps1` | `infra/scripts/orchestrator/archon-os.ps1` | `git mv` |
+| `archon-os.cmd` | `infra/scripts/orchestrator/archon-os.cmd` | `git mv` |
+| `start-archon-os.ps1` | `infra/scripts/orchestrator/start-archon-os.ps1` | `git mv` |
 | `setup-autonomous.sh` | `infra/scripts/setup/setup-autonomous.sh` | `git mv` |
 | `setup-memory-stack.ps1` | `infra/scripts/setup/setup-memory-stack.ps1` | `git mv` |
 | `START-AUTONOMOUS-SETUP.bat` | `infra/scripts/setup/START-AUTONOMOUS-SETUP.bat` | `git mv` |
@@ -407,7 +407,7 @@ packages:
 |--------|-------------|--------|----------|-------|
 | `nyra-docs/**` | `docs/legacy/` or merge | `git mv` | 🟢 Low | Review for duplicates |
 | `nyra-src/**` | `src/` or `_archive/nyra-src/` | `git mv` | 🟢 Low | Archive if obsolete |
-| `STATUS-CLAUDE-FLOW-DOCKER.md` | `docs/reports/STATUS-CLAUDE-FLOW-DOCKER.md` | `git mv` | 🟢 Low | Relocate report |
+| `STATUS-archon-os-DOCKER.md` | `docs/reports/STATUS-archon-os-DOCKER.md` | `git mv` | 🟢 Low | Relocate report |
 | `claude-dump.txt` | `_archive/claude-dump.txt` | `git mv` | 🟢 Low | Archive dump |
 | `EXTRACTION-STATUS.txt` | `_archive/EXTRACTION-STATUS.txt` | `git mv` | 🟢 Low | Archive status |
 
@@ -513,10 +513,10 @@ if [ -d "nyra-stack" ]; then
 fi
 
 # Move root scripts
-git mv claude-flow.bat infra/scripts/orchestrator/ || true
-git mv claude-flow.ps1 infra/scripts/orchestrator/ || true
-git mv claude-flow.cmd infra/scripts/orchestrator/ || true
-git mv start-claude-flow.ps1 infra/scripts/orchestrator/ || true
+git mv archon-os.bat infra/scripts/orchestrator/ || true
+git mv archon-os.ps1 infra/scripts/orchestrator/ || true
+git mv archon-os.cmd infra/scripts/orchestrator/ || true
+git mv start-archon-os.ps1 infra/scripts/orchestrator/ || true
 git mv setup-autonomous.sh infra/scripts/setup/ || true
 git mv setup-memory-stack.ps1 infra/scripts/setup/ || true
 git mv START-AUTONOMOUS-SETUP.bat infra/scripts/setup/ || true
@@ -1040,7 +1040,7 @@ pnpm build  # Second build (should be >80% cached)
 - [ ] Commit created: "consolidate: Merge tools and config"
 
 #### Phase 6 Validation (Docs/Archive)
-- [ ] `docs/reports/STATUS-CLAUDE-FLOW-DOCKER.md` exists
+- [ ] `docs/reports/STATUS-archon-os-DOCKER.md` exists
 - [ ] `_archive/claude-dump.txt`, `_archive/EXTRACTION-STATUS.txt` exist
 - [ ] `nyra-docs/` merged into `docs/` or `docs/legacy/`
 - [ ] Documentation links updated

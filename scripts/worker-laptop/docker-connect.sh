@@ -101,7 +101,7 @@ if docker version > /dev/null 2>&1; then
 
     # Show critical services status
     echo -e "${BLUE}🏥 Critical Services:${NC}"
-    for service in postgres redis mongo infisical claude-flow nexus; do
+    for service in postgres redis mongo infisical archon-os nexus; do
         if docker ps --format '{{.Names}}' | grep -q "$service"; then
             echo -e "  ${GREEN}✅${NC} $service"
         else

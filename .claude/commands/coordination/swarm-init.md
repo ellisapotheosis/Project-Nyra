@@ -5,7 +5,7 @@ Initialize a Claude Flow swarm with specified topology and configuration.
 ## Usage
 
 ```bash
-npx claude-flow swarm init [options]
+npx archon-os swarm init [options]
 ```
 
 ## Options
@@ -22,25 +22,25 @@ npx claude-flow swarm init [options]
 ### Basic initialization
 
 ```bash
-npx claude-flow swarm init
+npx archon-os swarm init
 ```
 
 ### Mesh topology for research
 
 ```bash
-npx claude-flow swarm init --topology mesh --max-agents 5 --strategy balanced
+npx archon-os swarm init --topology mesh --max-agents 5 --strategy balanced
 ```
 
 ### Hierarchical for development
 
 ```bash
-npx claude-flow swarm init --topology hierarchical --max-agents 10 --strategy parallel --auto-spawn
+npx archon-os swarm init --topology hierarchical --max-agents 10 --strategy parallel --auto-spawn
 ```
 
 ### GitHub-focused swarm
 
 ```bash
-npx claude-flow swarm init --topology star --github --memory
+npx archon-os swarm init --topology star --github --memory
 ```
 
 ## Topologies
@@ -74,7 +74,7 @@ npx claude-flow swarm init --topology star --github --memory
 Once initialized, use MCP tools in Claude Code:
 
 ```javascript
-mcp__claude-flow__swarm_init { topology: "hierarchical", maxAgents: 8 }
+mcp__archon-os__swarm_init { topology: "hierarchical", maxAgents: 8 }
 ```
 
 ## See Also

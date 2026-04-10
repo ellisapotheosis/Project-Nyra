@@ -28,13 +28,13 @@ This guide covers the comprehensive Model Context Protocol (MCP) integration for
 - **Purpose**: Core SPARC methodology and agent coordination
 - **Status**: ⚠️ Connection Issues (Being Fixed)
 - **Capabilities**: SPARC workflows, agent coordination, hooks system, memory persistence, GitHub tools
-- **Command**: `npx @claude-flow/cli@latest mcp start`
+- **Command**: `npx @archon-os/cli@latest mcp start`
 
 ## Integration Architecture
 
 ### Hierarchical Fallback System
 ```
-claude-flow (Critical) → desktop-commander (High) → ruv-swarm (Medium) → flow-nexus (Low)
+archon-os (Critical) → desktop-commander (High) → ruv-swarm (Medium) → flow-nexus (Low)
 ```
 
 ### Capability Routing

@@ -1,6 +1,6 @@
 # Wiki Templates Consolidation - Completion Report
 
-**Task**: Fetch all 33 CLAUDE.md template categories from the claude-flow wiki and organize for Project Nyra
+**Task**: Fetch all 33 CLAUDE.md template categories from the archon-os wiki and organize for Project Nyra
 **Status**: ✅ COMPLETE
 **Date**: 2026-01-22
 **Completion Time**: ~1 hour
@@ -9,7 +9,7 @@
 
 ## Summary
 
-Successfully retrieved, organized, and integrated all 33 CLAUDE.md template categories from the claude-flow GitHub wiki into Project Nyra. The templates provide comprehensive coverage for different project types, architectures, methodologies, languages, team sizes, security models, performance requirements, and learning approaches.
+Successfully retrieved, organized, and integrated all 33 CLAUDE.md template categories from the archon-os GitHub wiki into Project Nyra. The templates provide comprehensive coverage for different project types, architectures, methodologies, languages, team sizes, security models, performance requirements, and learning approaches.
 
 ---
 
@@ -17,7 +17,7 @@ Successfully retrieved, organized, and integrated all 33 CLAUDE.md template cate
 
 ### 1. Template Library (33 Files)
 Complete set of ready-to-use CLAUDE.md templates created in:
-`C:\Dev\Projects\Repos\Project-Nyra\docs\templates\claude-flow-wiki\`
+`C:\Dev\Projects\Repos\Project-Nyra\docs\templates\archon-os-wiki\`
 
 | Category | Count | Templates |
 |----------|-------|-----------|
@@ -58,7 +58,7 @@ Enhanced with:
 ### Directory Structure
 ```
 docs/templates/
-├── claude-flow-wiki/
+├── archon-os-wiki/
 │   ├── 01-web-development.md
 │   ├── 02-mobile-development.md
 │   ├── 03-api-development.md
@@ -161,7 +161,7 @@ docs/templates/
 
 2. **Copy to your component**
    ```bash
-   cp docs/templates/claude-flow-wiki/01-web-development.md ./CLAUDE.md
+   cp docs/templates/archon-os-wiki/01-web-development.md ./CLAUDE.md
    ```
 
 3. **Customize variables**
@@ -169,7 +169,7 @@ docs/templates/
 
 4. **Store in memory**
    ```bash
-   npx @claude-flow/cli@latest memory store \
+   npx @archon-os/cli@latest memory store \
      --key "template-selected-myproject" \
      --value "Template: Web Development + Small Team" \
      --namespace projects
@@ -198,19 +198,19 @@ Base: 01-web-development.md
 Namespace: docs-consolidation
 Key: wiki-templates-consolidation-complete
 Value: Successfully fetched and organized all 33 CLAUDE.md template categories
-        from claude-flow wiki. Created 33 template files + comprehensive
+        from archon-os wiki. Created 33 template files + comprehensive
         index + updated customization guide.
 ```
 
 ### Query Past Work
 ```bash
 # Find template patterns
-npx @claude-flow/cli@latest memory search \
+npx @archon-os/cli@latest memory search \
   --query "CLAUDE.md template organization" \
   --namespace docs-consolidation
 
 # Retrieve completion status
-npx @claude-flow/cli@latest memory retrieve \
+npx @archon-os/cli@latest memory retrieve \
   --key "wiki-templates-consolidation-complete" \
   --namespace docs-consolidation
 ```
@@ -300,8 +300,8 @@ Templates integrate with:
 
 - **Index**: `/docs/templates/WIKI-TEMPLATES-INDEX.md`
 - **Customization Guide**: `/docs/templates/CLAUDE-MD-CUSTOMIZATION-GUIDE.md`
-- **Template Directory**: `/docs/templates/claude-flow-wiki/`
-- **Claude Flow Wiki**: https://github.com/ruvnet/claude-flow/wiki/CLAUDE-MD-Templates
+- **Template Directory**: `/docs/templates/archon-os-wiki/`
+- **Claude Flow Wiki**: https://github.com/ruvnet/archon-os/wiki/CLAUDE-MD-Templates
 - **Project Nyra Root CLAUDE.md**: `/CLAUDE.md`
 
 ---

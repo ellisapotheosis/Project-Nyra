@@ -85,7 +85,7 @@ CONTEXT_PATTERNS = (
     ("landing", ("landing",)),
     ("ratehunter", ("ratehunter",)),
     ("twenty", ("twenty",)),
-    ("claude-flow", ("claude-flow",)),
+    ("archon-os", ("archon-os",)),
     ("nexus-router", ("nexus-router", "nexus")),
     ("worker-3060", ("worker-3060", "worker-rtx3060", "rtx-3060", "rtx3060")),
     ("worker-3090ti", ("worker-3090", "worker-rtx3090", "worker-rtx3090ti", "rtx-3090", "rtx3090", "rtx3090ti")),

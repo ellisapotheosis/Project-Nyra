@@ -24,9 +24,9 @@ Set-Location $repoRoot
 # Development repositories to clone
 $devRepos = @(
     @{
-        Name = "claude-flow"
-        Url = "https://github.com/ellisapotheosis/claude-flow.git"
-        Path = "$submodulesDir\claude-flow"
+        Name = "archon-os"
+        Url = "https://github.com/ellisapotheosis/archon-os.git"
+        Path = "$submodulesDir\archon-os"
         Branch = "main"
         Development = $true
     },
@@ -101,20 +101,20 @@ git submodule update --remote
 if (!$ProductionOnly) {
     Write-Host "`n📦 Installing development dependencies..." -ForegroundColor Cyan
 
-    # Claude-Flow development setup
-    if (Test-Path "$submodulesDir\claude-flow") {
-        Write-Host "   Setting up Claude-Flow development environment..." -ForegroundColor Green
-        Set-Location "$submodulesDir\claude-flow"
+    # archon-os development setup
+    if (Test-Path "$submodulesDir\archon-os") {
+        Write-Host "   Setting up archon-os development environment..." -ForegroundColor Green
+        Set-Location "$submodulesDir\archon-os"
 
         if (Test-Path "package.json") {
             npm install
             npm run build
         }
 
-        # Initialize claude-flow memory and databases
-        Write-Host "   Initializing Claude-Flow memory systems..." -ForegroundColor Cyan
-        npx claude-flow@alpha memory init --reasoningbank --agentdb --ruvector
-        npx claude-flow@alpha agent memory init --reasoningbank
+        # Initialize archon-os memory and databases
+        Write-Host "   Initializing archon-os memory systems..." -ForegroundColor Cyan
+        npx archon-os@alpha memory init --reasoningbank --ruvector --ruvector
+        npx archon-os@alpha agent memory init --reasoningbank
     }
 
     # Archon development setup
@@ -152,7 +152,7 @@ $devConfig = @{
     "development_mode" = $true
     "repositories" = @{
         "claude_flow" = @{
-            "path" = "./submodules/claude-flow"
+            "path" = "./submodules/archon-os"
             "mode" = "development"
             "branch" = "nyra-development"
             "mcp_port" = 7403
@@ -184,4 +184,4 @@ Write-Host "1. Run: docker-compose -f docker/orchestrator/docker-compose.yml up 
 Write-Host "2. Run: docker-compose -f docker/client/docker-compose.yml up -d" -ForegroundColor White
 Write-Host "3. Use: nyra-claude.ps1 flow memory store key value" -ForegroundColor White
 Write-Host "4. Access Archon UI: http://localhost:8051" -ForegroundColor White
-Write-Host "5. Access Claude-Flow: http://localhost:7403" -ForegroundColor White
+Write-Host "5. Access archon-os: http://localhost:7403" -ForegroundColor White

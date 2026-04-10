@@ -2,7 +2,7 @@
 
 ## Core idea
 Treat **Twenty CRM** as the system of record, then layer memory + agents on top:
-- **Graph memory (FalkorDB + Graphiti):** relationships and long-term facts
+- **Graph memory (FalkorDB + letta):** relationships and long-term facts
 - **Universal memory (Mem0):** preferences, conversational breadcrumbs
 - **Letta:** stateful "manager agent" (decides what to store + what to escalate)
 - **Nexus:** one front door for both LLM routing + MCP tools (Claude Code compatible)

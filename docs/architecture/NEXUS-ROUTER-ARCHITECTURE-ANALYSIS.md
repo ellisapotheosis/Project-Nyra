@@ -43,7 +43,7 @@ services:
       - ./nexus:/etc/nexus:ro
       - nexus-cache:/var/lib/nexus
     depends_on:
-      - neo4j (Graphiti backend)
+      - neo4j (letta backend)
       - qdrant (Vector search)
     networks: nyra-network
 ```
@@ -79,10 +79,10 @@ services:
 #### **AI Orchestration** (6 servers)
 | Server | Transport | Endpoint/Command | Tags |
 |--------|-----------|------------------|------|
-| claude-flow | stdio | `npx @claude-flow/cli@latest mcp start` | ai, orchestration, swarm |
+| archon-os | stdio | `npx @archon-os/cli@latest mcp start` | ai, orchestration, swarm |
 | ruv-swarm | stdio | `npx ruv-swarm@latest mcp start` | swarm, coordination |
 | flow-nexus | HTTP | http://localhost:7401/mcp | nexus, cloud, workflows |
-| claude-flow-dev | HTTP | http://localhost:7403/mcp | claude-flow, development |
+| archon-os-dev | HTTP | http://localhost:7403/mcp | archon-os, development |
 | gemini | stdio | `npx @mgabr/gemini-mcp-server` | ai, gemini, google |
 | roo | HTTP | http://localhost:7402 | meta, orchestration |
 
@@ -96,8 +96,8 @@ services:
 | Server | Transport | Endpoint | Tags |
 |--------|-----------|----------|------|
 | ruvector | HTTP | http://localhost:7406/mcp | vector, ruvector, memory |
-| agentdb | HTTP | http://localhost:7407/mcp | agent, database, memory |
-| graphiti | HTTP | http://localhost:8797/mcp | knowledge, graph, temporal |
+| ruvector | HTTP | http://localhost:7407/mcp | agent, database, memory |
+| letta | HTTP | http://localhost:8797/mcp | knowledge, graph, temporal |
 | mem0 | stdio | `npx @mem0ai/mem0-mcp` | memory, personalization |
 
 #### **Web Automation** (3 servers)
@@ -176,7 +176,7 @@ services:
     },
     "failover": {
       "enabled": true,
-      "backup_servers": ["metamcp", "claude-flow"],
+      "backup_servers": ["metamcp", "archon-os"],
       "circuit_breaker": true
     }
   }
@@ -213,8 +213,8 @@ services:
 **Example Queries:**
 - `"git"` → Returns: git, github, repositories
 - `"docker"` → Returns: docker, containers, docker-hub
-- `"memory"` → Returns: qdrant, graphiti, mem0, zep, ruvector
-- `"ai"` → Returns: claude-flow, gemini, sparc, orchestration
+- `"memory"` → Returns: qdrant, letta, mem0, zep, ruvector
+- `"ai"` → Returns: archon-os, gemini, sparc, orchestration
 
 ---
 
@@ -329,7 +329,7 @@ routing_rules:
 │         ├──────────┬────────────┬────────────┬────────────┐     │
 │         ▼          ▼            ▼            ▼            ▼     │
 │  ┌──────────┐ ┌────────┐ ┌──────────┐ ┌──────────┐ ┌────────┐│
-│  │ neo4j    │ │ qdrant │ │ graphiti │ │ context7 │ │  exa   ││
+│  │ neo4j    │ │ qdrant │ │ letta │ │ context7 │ │  exa   ││
 │  │ (Graph)  │ │(Vector)│ │  (MCP)   │ │  (MCP)   │ │ (MCP)  ││
 │  └──────────┘ └────────┘ └──────────┘ └──────────┘ └────────┘│
 │                                                                   │
@@ -358,7 +358,7 @@ routing_rules:
    ```
 
 3. **MCP Servers** (depend on Nexus):
-   - graphiti-mcp → neo4j
+   - letta-mcp → neo4j
    - qdrant-mcp → qdrant
    - twentycrm-mcp → twentycrm
    - dify-mcp-proxy → dify-api
@@ -408,9 +408,9 @@ The Unified Memory Gateway routes memory operations to different backends based 
 
 | Key Prefix | Backend | Use Case | Example |
 |------------|---------|----------|---------|
-| `graph:*` | Graphiti | Entities, relationships | `graph:entity:borrower-123` |
-| `entity:*` | Graphiti | CRM entities | `entity:lead:456` |
-| `crm:*` | Graphiti | Customer data | `crm:deal:789` |
+| `graph:*` | letta | Entities, relationships | `graph:entity:borrower-123` |
+| `entity:*` | letta | CRM entities | `entity:lead:456` |
+| `crm:*` | letta | Customer data | `crm:deal:789` |
 | `chat:*` | Mem0 | Conversation history | `chat:session-abc` |
 | `message:*` | Mem0 | Message storage | `message:user-123` |
 | `pref:*` | Mem0 | User preferences | `pref:user-123:theme` |
@@ -422,13 +422,13 @@ The Unified Memory Gateway routes memory operations to different backends based 
 
 ```typescript
 class UnifiedMemoryGateway {
-  private graphiti: GraphitiService;  // → neo4j via Graphiti MCP
+  private letta: lettaService;  // → neo4j via letta MCP
   private mem0: Mem0Service;          // → Mem0 MCP (HTTP 8080)
   private letta: LettaService;        // → Letta (HTTP 8283)
 
   constructor(config: UnifiedMemoryConfig) {
-    this.graphiti = new GraphitiService({
-      endpoint: "http://graphiti-mcp:8000"
+    this.letta = new lettaService({
+      endpoint: "http://letta-mcp:8000"
     });
     this.mem0 = new Mem0Service({
       endpoint: "http://mem0-mcp:8081"
@@ -445,7 +445,7 @@ class UnifiedMemoryGateway {
 When retrieving data:
 1. **Check local cache** (fastest, 5-10ms)
 2. **Try Letta** (session state, 20-50ms)
-3. **Try Graphiti** (graph queries, 50-200ms)
+3. **Try letta** (graph queries, 50-200ms)
 4. **Try Mem0** (semantic search, 100-300ms)
 5. **Return null** if not found
 
@@ -537,7 +537,7 @@ curl -X POST http://localhost:6000/v1/chat/completions \
     "mcp_servers": {
       "healthy": 20,
       "total": 22,
-      "unhealthy": ["mem0", "graphiti"]
+      "unhealthy": ["mem0", "letta"]
     }
   },
   "metrics": {
@@ -589,7 +589,7 @@ Panels:
 policies:
   - name: borrower_minimal_tools
     allow_tools:
-      - graphiti.*
+      - letta.*
       - twentycrm.search_*
       - twentycrm.create_task
       - activepieces.send_message
@@ -616,7 +616,7 @@ policies:
 ```yaml
   - name: orchestrator_tools
     allow_tools:
-      - graphiti.*
+      - letta.*
       - qdrant.*
       - context7.*
       - exa.*
@@ -630,7 +630,7 @@ policies:
       - filesystem.delete
 ```
 
-**Use Case**: Claude-Flow, Archon OS, AI agents
+**Use Case**: archon-os, Archon OS, AI agents
 
 ### Rate Limiting
 
@@ -943,7 +943,7 @@ curl http://localhost:6000/health | jq '.metrics.cacheHitRate'
 
 1. **MCP Server Consolidation**:
    - Evaluate 22 servers for redundancy
-   - Consider merging similar services (e.g., mem0 + graphiti)
+   - Consider merging similar services (e.g., mem0 + letta)
    - Implement lazy loading (start servers on-demand)
 
 2. **Enhanced Monitoring**:
@@ -975,7 +975,7 @@ curl http://localhost:6000/health | jq '.metrics.cacheHitRate'
 | Path | Purpose |
 |------|---------|
 | `src/services/memory/unified-memory-gateway.ts` | Memory routing logic |
-| `src/services/memory/graphiti-service.ts` | Graphiti client |
+| `src/services/memory/letta-service.ts` | letta client |
 | `src/services/memory/mem0-service.ts` | Mem0 client |
 | `src/services/memory/letta-service.ts` | Letta client |
 
@@ -1026,16 +1026,16 @@ curl http://localhost:6000/health | jq '.metrics.cacheHitRate'
 | 3 | github | HTTP | http://localhost:7402/mcp | 7402 | mcp-github | `curl -f /health` |
 | 4 | docker | stdio | `uvx mcp-server-docker` | - | - | - |
 | 5 | shell | stdio | `uvx mcp-server-shell` | - | - | - |
-| 6 | claude-flow | stdio | `npx @claude-flow/cli@latest mcp start` | - | - | - |
+| 6 | archon-os | stdio | `npx @archon-os/cli@latest mcp start` | - | - | - |
 | 7 | ruv-swarm | stdio | `npx ruv-swarm@latest mcp start` | - | - | - |
 | 8 | flow-nexus | HTTP | http://localhost:7401/mcp | 7401 | flow-nexus | `curl -f /health` |
-| 9 | claude-flow-dev | HTTP | http://localhost:7403/mcp | 7403 | claude-flow-dev | `curl -f /health` |
+| 9 | archon-os-dev | HTTP | http://localhost:7403/mcp | 7403 | archon-os-dev | `curl -f /health` |
 | 10 | gemini | stdio | `npx @mgabr/gemini-mcp-server` | - | - | - |
 | 11 | bitwarden | HTTP | http://localhost:7405/mcp | 7405 | bitwarden-mcp | `curl -f /health` |
 | 12 | infisical | HTTP | http://localhost:7404/mcp | 7404 | infisical-mcp | `curl -f /health` |
 | 13 | ruvector | HTTP | http://localhost:7406/mcp | 7406 | ruvector-mcp | `curl -f /health` |
-| 14 | agentdb | HTTP | http://localhost:7407/mcp | 7407 | agentdb-mcp | `curl -f /health` |
-| 15 | graphiti | HTTP | http://localhost:8797/mcp | 8797 | graphiti-mcp | `curl -f /health` |
+| 14 | ruvector | HTTP | http://localhost:7407/mcp | 7407 | ruvector-mcp | `curl -f /health` |
+| 15 | letta | HTTP | http://localhost:8797/mcp | 8797 | letta-mcp | `curl -f /health` |
 | 16 | mem0 | stdio | `npx @mem0ai/mem0-mcp` | - | - | - |
 | 17 | browser-use | stdio | `uvx browser-use --mcp` | - | - | - |
 | 18 | puppeteer | stdio | `npx @modelcontextprotocol/server-puppeteer` | - | - | - |
@@ -1077,4 +1077,4 @@ The Nexus Router is a sophisticated MCP aggregation and LLM routing gateway that
 
 **Document Generated**: 2026-01-18
 **Research Agent**: Claude Sonnet 4.5
-**Storage**: `claude-flow memory` (namespace: `consolidation`, key: `nexus-router-analysis`)
+**Storage**: `archon-os memory` (namespace: `consolidation`, key: `nexus-router-analysis`)

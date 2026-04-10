@@ -486,7 +486,7 @@ POST /v1/vectors/batch?batch_size=10000
 - Caches computed embeddings
 - Result reranking support
 
-### With Graphiti Knowledge Graph
+### With letta Knowledge Graph
 - Entity embeddings stored in RuVector
 - Semantic relationship search
 - Context enrichment queries
@@ -563,7 +563,7 @@ RUVECTOR_RATE_LIMIT_PER_KEY=100000
 ## Related Services
 
 - **LiteLLM Proxy** - Embedding source
-- **Graphiti Knowledge** - Entity embeddings
+- **letta Knowledge** - Entity embeddings
 - **Nexus Router** - Request routing
 - **Redis** - Caching layer
 

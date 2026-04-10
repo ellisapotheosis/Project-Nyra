@@ -56,7 +56,7 @@
 
 **Before spawning agents, get routing recommendation:**
 ```bash
-npx @claude-flow/cli@latest hooks pre-task --description "[task description]"
+npx @archon-os/cli@latest hooks pre-task --description "[task description]"
 ```
 
 **When you see recommendations:**
@@ -71,7 +71,7 @@ npx @claude-flow/cli@latest hooks pre-task --description "[task description]"
 
 **Use this configuration to prevent agent drift:**
 ```bash
-npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 8 --strategy specialized
+npx @archon-os/cli@latest swarm init --topology hierarchical --max-agents 8 --strategy specialized
 ```
 
 **Valid Topologies:**
@@ -95,7 +95,7 @@ When implementing mortgage processing features:
 
 ```javascript
 // STEP 1: Initialize swarm with anti-drift config
-Bash("npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 8 --strategy specialized")
+Bash("npx @archon-os/cli@latest swarm init --topology hierarchical --max-agents 8 --strategy specialized")
 
 // STEP 2: Spawn ALL agents IN BACKGROUND in ONE message
 Task({
@@ -174,28 +174,28 @@ They're working in parallel. I'll synthesize their results when they complete.
 ### Before Starting Any Task
 ```bash
 # 1. Search memory for mortgage calculation patterns
-npx @claude-flow/cli@latest memory search --query "loan calculation DTI APR algorithms" --namespace patterns
+npx @archon-os/cli@latest memory search --query "loan calculation DTI APR algorithms" --namespace patterns
 
 # 2. Check if similar feature was done
-npx @claude-flow/cli@latest memory search --query "lead qualification workflow" --namespace tasks
+npx @archon-os/cli@latest memory search --query "lead qualification workflow" --namespace tasks
 
 # 3. Load learned optimizations
-npx @claude-flow/cli@latest hooks route --task "mortgage calculation"
+npx @archon-os/cli@latest hooks route --task "mortgage calculation"
 ```
 
 ### After Completing Any Task Successfully
 ```bash
 # 1. Store successful pattern
-npx @claude-flow/cli@latest memory store --namespace patterns --key "dti-calculation" --value "Gross monthly income / total monthly debt obligations, compliance with Fannie Mae guidelines"
+npx @archon-os/cli@latest memory store --namespace patterns --key "dti-calculation" --value "Gross monthly income / total monthly debt obligations, compliance with Fannie Mae guidelines"
 
 # 2. Train neural patterns
-npx @claude-flow/cli@latest hooks post-edit --file "src/services/LoanCalculationService.ts" --train-neural true
+npx @archon-os/cli@latest hooks post-edit --file "src/services/LoanCalculationService.ts" --train-neural true
 
 # 3. Record task completion
-npx @claude-flow/cli@latest hooks post-task --task-id "[task-id]" --success true --store-results true
+npx @archon-os/cli@latest hooks post-task --task-id "[task-id]" --success true --store-results true
 
 # 4. Trigger optimization for lending logic
-npx @claude-flow/cli@latest hooks worker dispatch --trigger optimize
+npx @archon-os/cli@latest hooks worker dispatch --trigger optimize
 ```
 
 ### Continuous Improvement Triggers
@@ -318,7 +318,7 @@ services/mortgage-assistant-api/
 - **Max Agents**: 8 (mortgage core team)
 - **Strategy**: specialized (clear roles)
 - **Consensus**: raft
-- **Memory**: hybrid (AgentDB + HNSW)
+- **Memory**: hybrid (ruvector + HNSW)
 - **Neural**: Enabled for pattern learning
 
 ---
@@ -329,24 +329,24 @@ services/mortgage-assistant-api/
 
 ```bash
 # Swarm management
-npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 8 --strategy specialized
-npx @claude-flow/cli@latest swarm status
+npx @archon-os/cli@latest swarm init --topology hierarchical --max-agents 8 --strategy specialized
+npx @archon-os/cli@latest swarm status
 
 # Memory operations (vector search with 150x-12,500x speedup)
-npx @claude-flow/cli@latest memory search --query "loan calculation algorithms"
-npx @claude-flow/cli@latest memory store --key "dti-calculation" --value "Monthly debt / gross monthly income"
+npx @archon-os/cli@latest memory search --query "loan calculation algorithms"
+npx @archon-os/cli@latest memory store --key "dti-calculation" --value "Monthly debt / gross monthly income"
 
 # Agent management
-npx @claude-flow/cli@latest agent spawn -t coder --name loan-calculator
-npx @claude-flow/cli@latest agent list
+npx @archon-os/cli@latest agent spawn -t coder --name loan-calculator
+npx @archon-os/cli@latest agent list
 
 # Task execution
-npx @claude-flow/cli@latest task create --description "Add FHA loan support"
-npx @claude-flow/cli@latest task assign --task-id [id] --agent-id [agent-id]
+npx @archon-os/cli@latest task create --description "Add FHA loan support"
+npx @archon-os/cli@latest task assign --task-id [id] --agent-id [agent-id]
 
 # Hooks for learning
-npx @claude-flow/cli@latest hooks pre-task --description "Implement APR calculation"
-npx @claude-flow/cli@latest hooks post-task --task-id "[id]" --success true
+npx @archon-os/cli@latest hooks pre-task --description "Implement APR calculation"
+npx @archon-os/cli@latest hooks post-task --task-id "[id]" --success true
 ```
 
 ---
@@ -380,23 +380,23 @@ npx @claude-flow/cli@latest hooks post-task --task-id "[id]" --success true
 
 ```bash
 # Pre-task hooks (get routing recommendation)
-npx @claude-flow/cli@latest hooks pre-task --description "Implement VA loan support"
+npx @archon-os/cli@latest hooks pre-task --description "Implement VA loan support"
 
 # Post-edit hooks (learn from successful edits)
-npx @claude-flow/cli@latest hooks post-edit --file "src/services/LoanCalculationService.ts" --train-neural true
+npx @archon-os/cli@latest hooks post-edit --file "src/services/LoanCalculationService.ts" --train-neural true
 
 # Post-task hooks (record completion)
-npx @claude-flow/cli@latest hooks post-task --task-id "[id]" --success true --store-results true
+npx @archon-os/cli@latest hooks post-task --task-id "[id]" --success true --store-results true
 
 # Background workers for continuous improvement
-npx @claude-flow/cli@latest hooks worker dispatch --trigger optimize    # Performance optimization
-npx @claude-flow/cli@latest hooks worker dispatch --trigger audit       # Compliance review
-npx @claude-flow/cli@latest hooks worker dispatch --trigger testgaps    # Test coverage
-npx @claude-flow/cli@latest hooks worker dispatch --trigger map         # Codebase mapping
+npx @archon-os/cli@latest hooks worker dispatch --trigger optimize    # Performance optimization
+npx @archon-os/cli@latest hooks worker dispatch --trigger audit       # Compliance review
+npx @archon-os/cli@latest hooks worker dispatch --trigger testgaps    # Test coverage
+npx @archon-os/cli@latest hooks worker dispatch --trigger map         # Codebase mapping
 
 # Session management
-npx @claude-flow/cli@latest hooks session-start --session-id "mortgage-api-session"
-npx @claude-flow/cli@latest hooks session-end --export-metrics true
+npx @archon-os/cli@latest hooks session-start --session-id "mortgage-api-session"
+npx @archon-os/cli@latest hooks session-end --export-metrics true
 ```
 
 ---
@@ -405,12 +405,12 @@ npx @claude-flow/cli@latest hooks session-end --export-metrics true
 
 **At session start - restore previous context:**
 ```bash
-npx @claude-flow/cli@latest session restore --latest
+npx @archon-os/cli@latest session restore --latest
 ```
 
 **At session end - persist learned patterns:**
 ```bash
-npx @claude-flow/cli@latest hooks session-end --generate-summary true --persist-state true --export-metrics true
+npx @archon-os/cli@latest hooks session-end --generate-summary true --persist-state true --export-metrics true
 ```
 
 ---
@@ -419,15 +419,15 @@ npx @claude-flow/cli@latest hooks session-end --generate-summary true --persist-
 
 **Train on successful mortgage processing patterns:**
 ```bash
-npx @claude-flow/cli@latest neural train --pattern-type loan-calculation --epochs 10
-npx @claude-flow/cli@latest neural train --pattern-type lead-qualification --epochs 10
-npx @claude-flow/cli@latest neural train --pattern-type compliance-checking --epochs 10
+npx @archon-os/cli@latest neural train --pattern-type loan-calculation --epochs 10
+npx @archon-os/cli@latest neural train --pattern-type lead-qualification --epochs 10
+npx @archon-os/cli@latest neural train --pattern-type compliance-checking --epochs 10
 
 # Predict optimal approach for new features
-npx @claude-flow/cli@latest neural predict --input "Add USDA loan support"
+npx @archon-os/cli@latest neural predict --input "Add USDA loan support"
 
 # View learned patterns
-npx @claude-flow/cli@latest neural patterns --list
+npx @archon-os/cli@latest neural patterns --list
 ```
 
 ---
@@ -647,7 +647,7 @@ RATE_HUNTER_API_URL=http://localhost:3004
 
 ## 🩺 Doctor Health Checks
 
-Run `npx @claude-flow/cli@latest doctor` to check:
+Run `npx @archon-os/cli@latest doctor` to check:
 ```bash
 ✓ Node.js version (18+)
 ✓ npm version (9+)
@@ -717,12 +717,12 @@ npm start
 ### Store Data
 ```bash
 # Store DTI calculation pattern
-npx @claude-flow/cli@latest memory store --key "dti-calculation" \
+npx @archon-os/cli@latest memory store --key "dti-calculation" \
   --value "Gross monthly income / total monthly debt obligations, Fannie Mae guidelines" \
   --namespace patterns
 
 # Store loan product support
-npx @claude-flow/cli@latest memory store --key "loan-products-supported" \
+npx @archon-os/cli@latest memory store --key "loan-products-supported" \
   --value "FHA (min credit 580), VA (no min credit), Conventional (min 620), USDA (no down payment)" \
   --namespace patterns --tags "loans,products"
 ```
@@ -730,20 +730,20 @@ npx @claude-flow/cli@latest memory store --key "loan-products-supported" \
 ### Search Data (semantic vector search)
 ```bash
 # Find calculation patterns
-npx @claude-flow/cli@latest memory search --query "loan calculation algorithms" --namespace patterns
+npx @archon-os/cli@latest memory search --query "loan calculation algorithms" --namespace patterns
 
 # Find compliance patterns
-npx @claude-flow/cli@latest memory search --query "TILA RESPA TRID disclosure" --limit 5
+npx @archon-os/cli@latest memory search --query "TILA RESPA TRID disclosure" --limit 5
 ```
 
 ### List Entries
 ```bash
-npx @claude-flow/cli@latest memory list --namespace patterns --limit 10
+npx @archon-os/cli@latest memory list --namespace patterns --limit 10
 ```
 
 ### Retrieve Specific Entry
 ```bash
-npx @claude-flow/cli@latest memory retrieve --key "dti-calculation" --namespace patterns
+npx @archon-os/cli@latest memory retrieve --key "dti-calculation" --namespace patterns
 ```
 
 ---
@@ -777,7 +777,7 @@ npx @claude-flow/cli@latest memory retrieve --key "dti-calculation" --namespace 
 
 - **Project Nyra**: `C:\Dev\Projects\Repos\Project-Nyra\CLAUDE.md`
 - **V3 Template**: `C:\Dev\Projects\Repos\Project-Nyra\docs\development\CLAUDE-MD-V3-TEMPLATE-GUIDE.md`
-- **Capabilities**: `.claude-flow/CAPABILITIES.md`
+- **Capabilities**: `.archon-os/CAPABILITIES.md`
 - **Architecture**: `ToDo/whitepaper-workflow/nyra-mcp-infisical-patchkit-v1/docs/whitepaper/ARCHITECTURE.md`
 
 ---

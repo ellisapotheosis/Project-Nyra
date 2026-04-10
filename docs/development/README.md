@@ -6,7 +6,7 @@ Development guides, patterns, best practices, and setup documentation for Projec
 
 - **[Getting Started](#getting-started)** - Developer setup
 - **[Development Patterns](#development-patterns)** - Best practices and patterns
-- **[Claude Flow Integration](#claude-flow-integration)** - Multi-agent development
+- **[Claude Flow Integration](#archon-os-integration)** - Multi-agent development
 - **[Tooling & Setup](#tooling--setup)** - Development tools and configuration
 - **[References](#references)** - Additional resources
 
@@ -51,14 +51,14 @@ Development guides, patterns, best practices, and setup documentation for Projec
 ### Claude Flow Setup & Configuration
 | Document | Purpose | Audience |
 |----------|---------|----------|
-| [CLAUDE-FLOW-MASTER-BUILD-ENHANCED.md](./CLAUDE-FLOW-MASTER-BUILD-ENHANCED.md) | Master Claude Flow build configuration | Backend Devs |
+| [archon-os-MASTER-BUILD-ENHANCED.md](./archon-os-MASTER-BUILD-ENHANCED.md) | Master Claude Flow build configuration | Backend Devs |
 | [CLAUDE-MD-V3-TEMPLATE-GUIDE.md](./CLAUDE-MD-V3-TEMPLATE-GUIDE.md) | CLAUDE.md V3 template configuration | DevOps/Maintainers |
 | [CLAUDE-MD-V2-VS-V3-ANALYSIS.md](./CLAUDE-MD-V2-VS-V3-ANALYSIS.md) | V2 to V3 migration and comparison | Architects |
 
 ### Claude Flow UI & Extraction
 | Document | Purpose |
 |----------|---------|
-| [CLAUDE-FLOW-UI-EXTRACTION.md](./CLAUDE-FLOW-UI-EXTRACTION.md) | Claude Flow UI component extraction |
+| [archon-os-UI-EXTRACTION.md](./archon-os-UI-EXTRACTION.md) | Claude Flow UI component extraction |
 
 ---
 
@@ -142,7 +142,7 @@ Best practices for maintainability and performance:
 
 ### Architect/Tech Lead
 1. Review [CLAUDE-MD-V2-VS-V3-ANALYSIS.md](./CLAUDE-MD-V2-VS-V3-ANALYSIS.md)
-2. Check [CLAUDE-FLOW-MASTER-BUILD-ENHANCED.md](./CLAUDE-FLOW-MASTER-BUILD-ENHANCED.md)
+2. Check [archon-os-MASTER-BUILD-ENHANCED.md](./archon-os-MASTER-BUILD-ENHANCED.md)
 3. Reference architecture in [/docs/architecture](../architecture/)
 
 ---
@@ -271,7 +271,7 @@ When adding development documentation:
 
 - **Main CLAUDE.md**: [../CLAUDE.md](../CLAUDE.md)
 - **Project Repository**: https://github.com/ruvnet/project-nyra
-- **Claude Flow Docs**: https://github.com/ruvnet/claude-flow
+- **Claude Flow Docs**: https://github.com/ruvnet/archon-os
 - **Turborepo Docs**: https://turbo.build
 - **Node.js Docs**: https://nodejs.org/docs
 

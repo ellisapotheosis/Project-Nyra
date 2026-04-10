@@ -727,7 +727,7 @@ export class TaskService {
 
 **Store Lead Assignment:**
 ```bash
-npx claude-flow@alpha memory store \
+npx archon-os@alpha memory store \
   --key "crm/leads/{leadId}/assignment" \
   --namespace "coordination" \
   --value '{
@@ -739,7 +739,7 @@ npx claude-flow@alpha memory store \
 
 **Store Loan Stage:**
 ```bash
-npx claude-flow@alpha memory store \
+npx archon-os@alpha memory store \
   --key "crm/loans/{loanId}/stage" \
   --namespace "pipeline" \
   --value '{

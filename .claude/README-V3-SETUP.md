@@ -23,37 +23,37 @@
 
 ```bash
 # Status & Info
-npx @claude-flow/cli@latest status              # Overall system status
-npx @claude-flow/cli@latest agents list         # List all agents
-npx @claude-flow/cli@latest tasks list          # Active tasks
-npx @claude-flow/cli@latest memory stats        # Memory usage
+npx @archon-os/cli@latest status              # Overall system status
+npx @archon-os/cli@latest agents list         # List all agents
+npx @archon-os/cli@latest tasks list          # Active tasks
+npx @archon-os/cli@latest memory stats        # Memory usage
 
 # Daemon Control
-npx @claude-flow/cli@latest daemon start        # Start daemon
-npx @claude-flow/cli@latest daemon stop         # Stop daemon
-npx @claude-flow/cli@latest daemon restart      # Restart daemon
+npx @archon-os/cli@latest daemon start        # Start daemon
+npx @archon-os/cli@latest daemon stop         # Stop daemon
+npx @archon-os/cli@latest daemon restart      # Restart daemon
 
 # Swarm Operations
-npx @claude-flow/cli@latest swarm init --topology hierarchical-mesh
-npx @claude-flow/cli@latest swarm status
-npx @claude-flow/cli@latest swarm scale --agents 15
+npx @archon-os/cli@latest swarm init --topology hierarchical-mesh
+npx @archon-os/cli@latest swarm status
+npx @archon-os/cli@latest swarm scale --agents 15
 
 # Memory Operations
-npx @claude-flow/cli@latest memory store --namespace [ns] --key [k] --value [v]
-npx @claude-flow/cli@latest memory get --namespace [ns] --key [k]
-npx @claude-flow/cli@latest memory search --query [q]
+npx @archon-os/cli@latest memory store --namespace [ns] --key [k] --value [v]
+npx @archon-os/cli@latest memory get --namespace [ns] --key [k]
+npx @archon-os/cli@latest memory search --query [q]
 
 # MCP Server
-npx @claude-flow/cli@latest mcp start
-npx @claude-flow/cli@latest mcp status
-npx @claude-flow/cli@latest mcp stop
+npx @archon-os/cli@latest mcp start
+npx @archon-os/cli@latest mcp status
+npx @archon-os/cli@latest mcp stop
 ```
 
 ## Configuration Files
 
 | File | Purpose |
 |------|---------|
-| `.claude/settings.json` | Hooks, permissions, claude-flow config |
+| `.claude/settings.json` | Hooks, permissions, archon-os config |
 | `.claude/agent-registry.json` | Agent definitions and capabilities |
 | `.mcp.json` | MCP server configuration |
 | `.claude/agents/custom/*.md` | Project Nyra specialized agents |
@@ -96,10 +96,10 @@ Every mortgage feature MUST:
 
 ## Emergency Contacts
 
-- Claude Flow Issues: Check `CLAUDE-FLOW-V3-SETUP.md`
+- Claude Flow Issues: Check `archon-os-V3-SETUP.md`
 - Zod Package Errors: See troubleshooting section
 - Agent Not Loading: Verify `.claude/agent-registry.json`
-- Docker Issues: Check `infra/claude-flow/docker-compose.yml`
+- Docker Issues: Check `infra/archon-os/docker-compose.yml`
 
 ## Performance Targets
 
@@ -115,4 +115,4 @@ Every mortgage feature MUST:
 
 ---
 
-**For full setup instructions, see**: `CLAUDE-FLOW-V3-SETUP.md`
+**For full setup instructions, see**: `archon-os-V3-SETUP.md`

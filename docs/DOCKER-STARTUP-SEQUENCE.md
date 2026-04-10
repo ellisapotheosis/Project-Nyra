@@ -8,7 +8,7 @@
 
 ## Executive Summary
 
-Project Nyra uses a **modular microservices architecture** with 11 Docker Compose files managing 20+ services. The infrastructure is organized in a **mesh network topology** with clear dependency chains. This analysis provides the optimal startup sequence prioritizing Nexus Router connectivity for claude-flow MCP integration.
+Project Nyra uses a **modular microservices architecture** with 11 Docker Compose files managing 20+ services. The infrastructure is organized in a **mesh network topology** with clear dependency chains. This analysis provides the optimal startup sequence prioritizing Nexus Router connectivity for archon-os MCP integration.
 
 ---
 
@@ -53,7 +53,7 @@ Project Nyra uses a **modular microservices architecture** with 11 Docker Compos
 │                          ↓                                      │
 │  ┌───────────────────────────────────────────────────────────┐ │
 │  │ TIER 3: MCP SERVERS                                       │ │
-│  │ - Graphiti MCP (Neo4j graph)        Port: 7459           │ │
+│  │ - letta MCP (Neo4j graph)        Port: 7459           │ │
 │  │ - Qdrant MCP (vector search)        Port: 8066           │ │
 │  └───────────────────────────────────────────────────────────┘ │
 │                          ↓                                      │
@@ -167,25 +167,25 @@ curl http://localhost:4321/health  # Mem0
 
 ---
 
-### Phase 4: MCP Servers (CRITICAL FOR CLAUDE-FLOW)
-**Purpose**: Enable Model Context Protocol servers for claude-flow integration
+### Phase 4: MCP Servers (CRITICAL FOR archon-os)
+**Purpose**: Enable Model Context Protocol servers for archon-os integration
 
 ```bash
-# Start MCP servers: Graphiti MCP, Qdrant MCP
+# Start MCP servers: letta MCP, Qdrant MCP
 docker compose -f infra/docker-compose/docker-compose.base.yml \
                -f infra/docker-compose/docker-compose.databases.yml \
                -f infra/docker-compose/docker-compose.ai.yml \
                -f infra/docker-compose/docker-compose.mcp-servers.yml up -d
 
 # Verify MCP servers
-curl http://localhost:7459/health  # Graphiti MCP (Neo4j)
+curl http://localhost:7459/health  # letta MCP (Neo4j)
 curl http://localhost:8066/health  # Qdrant MCP (vector search)
-docker logs nyra-graphiti-mcp
+docker logs nyra-letta-mcp
 docker logs nyra-qdrant-mcp
 ```
 
 **Expected Outcome**:
-- ✅ Graphiti MCP healthy on port 7459 (SSE transport)
+- ✅ letta MCP healthy on port 7459 (SSE transport)
 - ✅ Qdrant MCP healthy on port 8066 (HTTP transport)
 - ✅ MCP servers registered with labels for auto-discovery
 - ⏱️ Startup time: ~20 seconds
@@ -265,8 +265,8 @@ open http://localhost:3005  # Grafana
 
 ## 🚀 QUICK START COMMANDS
 
-### Minimal Stack (Nexus + MCP for claude-flow)
-**Best for**: claude-flow MCP server development
+### Minimal Stack (Nexus + MCP for archon-os)
+**Best for**: archon-os MCP server development
 
 ```bash
 cd /home/ellisapotheosis/projects/project-nyra
@@ -279,7 +279,7 @@ docker compose -f infra/docker-compose/docker-compose.base.yml \
                up -d
 
 # Total startup time: ~2.5 minutes
-# Services: 11 containers (postgres, redis, falkordb, qdrant, neo4j, litellm, nexus, letta, mem0, graphiti-mcp, qdrant-mcp)
+# Services: 11 containers (postgres, redis, falkordb, qdrant, neo4j, litellm, nexus, letta, mem0, letta-mcp, qdrant-mcp)
 ```
 
 ### Full Stack (All Services)
@@ -525,14 +525,14 @@ deploy:
 | **redis** | None | 1 | ✅ Yes (Mem0 cache) |
 | **falkordb** | None | 2 | ⚠️ Optional (graph) |
 | **qdrant** | None | 2 | ✅ Yes (Mem0 vectors) |
-| **neo4j** | None | 2 | ✅ Yes (Graphiti MCP) |
+| **neo4j** | None | 2 | ✅ Yes (letta MCP) |
 | **litellm** | postgres | 3 | ✅ Yes (LLM proxy) |
 | **nexus** | litellm | 3 | ✅ YES (GATEWAY) |
 | **letta** | postgres, nexus | 3 | ⚠️ Optional (memory) |
 | **mem0** | redis, qdrant, nexus | 3 | ⚠️ Optional (memory) |
 | **openmemory_mcp** | mem0 | 3 | ⚠️ Optional (MCP) |
 | **openwebui** | postgres, nexus | 3 | ❌ No (UI only) |
-| **graphiti-mcp** | neo4j | 4 | ✅ Yes (Graph MCP) |
+| **letta-mcp** | neo4j | 4 | ✅ Yes (Graph MCP) |
 | **qdrant-mcp** | qdrant | 4 | ✅ Yes (Vector MCP) |
 | **nyra_orchestrator** | All AI services | 5 | ❌ No (business logic) |
 | **twentycrm** | postgres | 6 | ❌ No (CRM) |
@@ -600,7 +600,7 @@ deploy:
 | LiteLLM | http://localhost:4000/health | 200 OK |
 | Letta | http://localhost:8283/health | 200 OK |
 | Mem0 | http://localhost:4321/health | 200 OK |
-| Graphiti MCP | http://localhost:7459/health | 200 OK |
+| letta MCP | http://localhost:7459/health | 200 OK |
 | Qdrant MCP | http://localhost:8066/health | 200 OK |
 | Nyra Orchestrator | http://localhost:8010/health | 200 OK |
 | TwentyCRM | http://localhost:3000 | HTML response |
@@ -646,9 +646,9 @@ deploy:
 ### Phase 1 Validation (After Minimal Stack)
 1. ✅ Test Nexus health: `curl http://localhost:6000/health`
 2. ✅ Test LiteLLM: `curl http://localhost:4000/v1/models`
-3. ✅ Test Graphiti MCP: `curl http://localhost:7459/health`
+3. ✅ Test letta MCP: `curl http://localhost:7459/health`
 4. ✅ Test Qdrant MCP: `curl http://localhost:8066/health`
-5. ✅ Configure claude-flow MCP client to use Nexus
+5. ✅ Configure archon-os MCP client to use Nexus
 
 ### Phase 2 Integration (After Full Stack)
 1. ✅ Import test data into TwentyCRM
@@ -664,7 +664,7 @@ deploy:
 - **Nexus Router**: https://github.com/grafbase/nexus
 - **LiteLLM**: https://docs.litellm.ai/
 - **Letta**: https://docs.letta.com/
-- **Graphiti MCP**: https://help.getzep.com/graphiti/
+- **letta MCP**: https://help.getzep.com/letta/
 - **Project Nyra Architecture**: `/home/ellisapotheosis/projects/project-nyra/ToDo/whitepaper-workflow/nyra-mcp-infisical-patchkit-v1/docs/whitepaper/ARCHITECTURE.md`
 
 ---

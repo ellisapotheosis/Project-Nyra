@@ -46,7 +46,7 @@
 
 **Services to Run on Orchestrator-Mini:**
 - Core: PostgreSQL, Redis, Qdrant, FalkorDB, Neo4j
-- MCP: Nexus Router, LiteLLM, Letta, Mem0, Claude Flow, AgentDB, RuVector
+- MCP: Nexus Router, LiteLLM, Letta, Mem0, Claude Flow, ruvector, RuVector
 - Apps: TwentyCRM, n8n, Dify, Activepieces, Open-WebUI
 - Orchestration: Nyra Orchestrator, Quote Engine, Campaign Engine
 - Observability: Prometheus, Grafana, Loki

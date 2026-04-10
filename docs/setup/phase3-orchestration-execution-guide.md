@@ -74,8 +74,8 @@ Gather these API keys before starting:
 - **Required**: Yes
 
 ### 4. Claude Flow (Workflow Orchestration)
-- **Location**: `orchestration/claude-flow/`
-- **Source**: https://github.com/ruvnet/claude-flow.git
+- **Location**: `orchestration/archon-os/`
+- **Source**: https://github.com/ruvnet/archon-os.git
 - **Purpose**: Multi-agent workflow orchestration
 - **Port**: 9000
 - **Required**: Yes
@@ -253,7 +253,7 @@ docker ps
 **Expected Output**:
 ```
 CONTAINER ID   IMAGE                    STATUS         PORTS                    NAMES
-xxxxxxxxx      nyra-claude-flow         Up 10 seconds  0.0.0.0:9000->9000/tcp   nyra-claude-flow
+xxxxxxxxx      nyra-archon-os         Up 10 seconds  0.0.0.0:9000->9000/tcp   nyra-archon-os
 xxxxxxxxx      nyra-archon-os           Up 10 seconds  0.0.0.0:9001->9001/tcp   nyra-archon-os
 xxxxxxxxx      nyra-mcp-gemini          Up 10 seconds  0.0.0.0:8085->8085/tcp   nyra-mcp-gemini
 xxxxxxxxx      nyra-mcp-serena          Up 10 seconds  0.0.0.0:8086->8086/tcp   nyra-mcp-serena
@@ -329,7 +329,7 @@ curl -X POST http://localhost:8000/v1/chat/completions `
 Project-Nyra/
 ├── .ccdk/                          # Claude Code Dev Kit
 ├── orchestration/
-│   ├── claude-flow/               # Workflow orchestrator (Port 9000)
+│   ├── archon-os/               # Workflow orchestrator (Port 9000)
 │   ├── archon-os/                 # Agent OS (Port 9001)
 │   └── integration/
 │       └── dual-orchestrator.json # Integration config
@@ -413,11 +413,11 @@ docker network create nyra-network
 
 ```powershell
 # Check container logs
-docker logs nyra-claude-flow
+docker logs nyra-archon-os
 docker logs nyra-archon-os
 
 # Restart specific container
-docker-compose -f infra/docker/docker-compose.orchestration.yml restart claude-flow
+docker-compose -f infra/docker/docker-compose.orchestration.yml restart archon-os
 
 # Rebuild and restart
 docker-compose -f infra/docker/docker-compose.orchestration.yml up -d --build
@@ -504,7 +504,7 @@ Phase 3 is complete when:
 
 ## 📚 Additional Resources
 
-- **Claude Flow Documentation**: `orchestration/claude-flow/README.md`
+- **Claude Flow Documentation**: `orchestration/archon-os/README.md`
 - **Archon OS Documentation**: `orchestration/archon-os/README.md`
 - **Nexus Router API**: `services/nexus-router/README.md`
 - **Docker Compose Reference**: `infra/docker/README.md`

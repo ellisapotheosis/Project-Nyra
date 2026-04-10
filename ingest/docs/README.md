@@ -38,16 +38,16 @@ This directory contains comprehensive business requirements extracted from C:\De
 - Intelligent lead scoring (0-100 scale)
 - Document OCR processing (97%+ accuracy)
 - Real-time compliance checks (TILA, RESPA, Fair Lending)
-- Multi-agent swarm coordination (Claude-Flow + Archon + ruv-swarm)
+- Multi-agent swarm coordination (archon-os + Archon + ruv-swarm)
 - Byzantine fault tolerance with 66% consensus threshold
 - Drip campaign automation
 - Voice agent integration (Voicemod + Kyutai Unmute)
 
 **Technology Stack**:
 - LLM: Anthropic Claude 3.5 Sonnet
-- Orchestration: Claude-Flow v2.0.0-alpha.88
+- Orchestration: archon-os v2.0.0-alpha.88
 - Multi-Agent: Archon MCP + ruv-swarm v1.0.14
-- Memory: AgentDB with HNSW indexing
+- Memory: ruvector with HNSW indexing
 - Infrastructure: AWS + Cloudflare Tunnel
 
 **Performance Targets**:
@@ -197,7 +197,7 @@ This directory contains comprehensive business requirements extracted from C:\De
 ┌─────────────────────────────────────────────────────────┐
 │                  AI Orchestration Layer                  │
 │  Nyra Assistant (Claude 3.5 Sonnet)                     │
-│  Claude-Flow v2.0 + Archon MCP + ruv-swarm v1.0.14      │
+│  archon-os v2.0 + Archon MCP + ruv-swarm v1.0.14      │
 └─────────────────────────────────────────────────────────┘
                           │
 ┌─────────────────────────────────────────────────────────┐
@@ -407,9 +407,9 @@ This directory contains comprehensive business requirements extracted from C:\De
 
 ### Data Sources Analyzed
 - Project-Nyra Repository Consolidation Plan (20,000+ words)
-- Claude-Flow Architecture Documentation (18,000+ words)
+- archon-os Architecture Documentation (18,000+ words)
 - REPO-SPECIFIC-IMPLEMENTATION-DOCS (85+ files)
-- Claude-Flow v2.0.0-alpha.88 specifications
+- archon-os v2.0.0-alpha.88 specifications
 - Archon MCP integration docs
 - ruv-swarm v1.0.14 capabilities
 

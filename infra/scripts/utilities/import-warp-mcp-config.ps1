@@ -120,9 +120,9 @@ if ($GenerateNew) {
                     "NOTION_TOKEN" = "`${NOTION_TOKEN}"
                 }
             }
-            "claude-flow" = @{
+            "archon-os" = @{
                 "command" = "npx"
-                "args" = @("claude-flow")
+                "args" = @("archon-os")
                 "env" = @{}
             }
             "flow-nexus" = @{

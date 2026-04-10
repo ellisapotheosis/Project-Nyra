@@ -38,7 +38,7 @@ case "$SERVICE_GROUP" in
         ;;
     mcp)
         COMPOSE_FILES="-f docker-compose.base.yml -f docker-compose.databases.yml -f docker-compose.mcp-servers.yml"
-        echo "📦 Starting MCP servers (Graphiti, Qdrant MCP, OpenMemory)"
+        echo "📦 Starting MCP servers (letta, Qdrant MCP, OpenMemory)"
         ;;
     all)
         COMPOSE_FILES="-f docker-compose.base.yml -f docker-compose.databases.yml -f docker-compose.ai.yml -f docker-compose.mcp-servers.yml"

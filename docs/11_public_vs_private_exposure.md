@@ -16,7 +16,7 @@
 - postgres
 - redis
 - mongo
-- agentdb
+- ruvector
 - ruvector-postgres
 - gitea-db
 - infisical-db

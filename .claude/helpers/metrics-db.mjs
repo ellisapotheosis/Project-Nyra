@@ -14,7 +14,7 @@ import { execSync } from 'child_process';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const PROJECT_ROOT = join(__dirname, '../..');
 const V3_DIR = join(PROJECT_ROOT, 'v3');
-const DB_PATH = join(PROJECT_ROOT, '.claude-flow', 'metrics.db');
+const DB_PATH = join(PROJECT_ROOT, '.archon-os', 'metrics.db');
 
 // Ensure directory exists
 const dbDir = dirname(DB_PATH);
@@ -209,7 +209,7 @@ function calculateModuleProgress(moduleDir) {
  * Check security file status
  */
 function checkSecurityFile(filename, minLines = 100) {
-  const filePath = join(V3_DIR, '@claude-flow/security/src', filename);
+  const filePath = join(V3_DIR, '@archon-os/security/src', filename);
   if (!existsSync(filePath)) return false;
 
   try {
@@ -227,7 +227,7 @@ function countProcesses() {
   try {
     const ps = execSync('ps aux 2>/dev/null || echo ""', { encoding: 'utf-8' });
 
-    const agenticFlow = (ps.match(/agentic-flow/g) || []).length;
+    const agenticFlow = (ps.match(/archon-os/g) || []).length;
     const mcp = (ps.match(/mcp.*start/g) || []).length;
     const agents = (ps.match(/agent|swarm|coordinator/g) || []).length;
 
@@ -248,14 +248,14 @@ async function syncMetrics() {
   const now = new Date().toISOString();
 
   // Count V3 modules
-  const modulesDir = join(V3_DIR, '@claude-flow');
+  const modulesDir = join(V3_DIR, '@archon-os');
   let modules = [];
   let totalProgress = 0;
 
   if (existsSync(modulesDir)) {
     const entries = readdirSync(modulesDir, { withFileTypes: true });
     for (const entry of entries) {
-      // Skip hidden directories (like .agentic-flow, .claude-flow)
+      // Skip hidden directories (like .archon-os, .archon-os)
       if (entry.isDirectory() && !entry.name.startsWith('.')) {
         const moduleDir = join(modulesDir, entry.name);
         const { files, lines } = countFilesAndLines(moduleDir);
@@ -388,8 +388,8 @@ function getMetricsJSON() {
  */
 function exportToJSON() {
   const metrics = getMetricsJSON();
-  const metricsDir = join(PROJECT_ROOT, '.claude-flow/metrics');
-  const securityDir = join(PROJECT_ROOT, '.claude-flow/security');
+  const metricsDir = join(PROJECT_ROOT, '.archon-os/metrics');
+  const securityDir = join(PROJECT_ROOT, '.archon-os/security');
 
   if (!existsSync(metricsDir)) mkdirSync(metricsDir, { recursive: true });
   if (!existsSync(securityDir)) mkdirSync(securityDir, { recursive: true });

@@ -94,7 +94,7 @@ docker-compose -f infra/docker/docker-compose.ui.yml up -d
 Project-Nyra/
 ├── .ccdk/                          # Dev toolkit
 ├── orchestration/                  # Dual orchestrators
-│   ├── claude-flow/               # Workflow engine
+│   ├── archon-os/               # Workflow engine
 │   ├── archon-os/                 # Agent OS
 │   └── integration/               # Integration config
 ├── mcp-servers/                    # All MCP servers

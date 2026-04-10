@@ -9,7 +9,7 @@ Comprehensive guide to customizing CLAUDE.md files for Project Nyra components u
 3. [Customization Process](#customization-process)
 4. [Variable Substitution](#variable-substitution)
 5. [Project Nyra Integration](#project-nyra-integration)
-6. [Claude Flow V3 Features](#claude-flow-v3-features)
+6. [Claude Flow V3 Features](#archon-os-v3-features)
 7. [Best Practices](#best-practices)
 8. [Examples](#examples)
 9. [Troubleshooting](#troubleshooting)
@@ -57,7 +57,7 @@ Project Nyra CLAUDE.md Files:
 │   └── [11 total]                    - Infrastructure components
 └── docs/templates/                    - This directory
     ├── claude-md-backups/            - 64 file backups
-    ├── claude-flow-wiki/             - Template library
+    ├── archon-os-wiki/             - Template library
     └── examples/                      - Customization examples
 ```
 
@@ -155,7 +155,7 @@ Choose the appropriate template from the decision tree above.
 
 ```bash
 # Copy template to your component
-cp docs/templates/claude-flow-wiki/TEMPLATE-WEB-APP.md ./CLAUDE.md
+cp docs/templates/archon-os-wiki/TEMPLATE-WEB-APP.md ./CLAUDE.md
 ```
 
 ### Step 2: Replace Placeholders
@@ -232,13 +232,13 @@ Validate your CLAUDE.md file:
 
 ```bash
 # Validate syntax
-npx @claude-flow/cli@latest validate CLAUDE.md
+npx @archon-os/cli@latest validate CLAUDE.md
 
 # Check for common issues
-npx @claude-flow/cli@latest doctor --fix
+npx @archon-os/cli@latest doctor --fix
 
 # Test with agents
-npx @claude-flow/cli@latest hooks pre-task --description "Review CLAUDE.md"
+npx @archon-os/cli@latest hooks pre-task --description "Review CLAUDE.md"
 ```
 
 ## Variable Substitution
@@ -440,12 +440,12 @@ patterns:
 
 ```bash
 # Train on successful patterns
-npx @claude-flow/cli@latest neural train \
+npx @archon-os/cli@latest neural train \
   --pattern-type service-integration \
   --epochs 10
 
 # Predict optimal approach
-npx @claude-flow/cli@latest neural predict \
+npx @archon-os/cli@latest neural predict \
   --input "Implement new rate calculation"
 ```
 
@@ -732,7 +732,7 @@ Location: `infra/CLAUDE.md`
 - Authentication: auth-service
 - APIs: quote-api, rate-comparison, lead-capture, doc-management
 - Integrations: github-mcp, gemini-mcp, mem0-mcp, n8n, sendgrid, twilio
-- Orchestration: claude-flow, serena, nyra-orchestrator
+- Orchestration: archon-os, serena, nyra-orchestrator
 - Observability: prometheus, loki, jaeger
 - Databases: PostgreSQL, MongoDB, Redis
 - Message queue: RabbitMQ
@@ -813,7 +813,7 @@ See TEMPLATE-BASIC-SERVICE.md for full version
 **Solution**:
 1. Review example for similar component type
 2. Check root CLAUDE.md for format inspiration
-3. Ask on Slack: #claude-flow-help
+3. Ask on Slack: #archon-os-help
 4. Review Claude Flow documentation
 
 ### Issue: CLAUDE.md Conflicts Between Root and Component
@@ -844,28 +844,28 @@ Use specific CLAUDE.md to override parent patterns
 
 ```bash
 # Validate CLAUDE.md
-npx @claude-flow/cli@latest validate CLAUDE.md
+npx @archon-os/cli@latest validate CLAUDE.md
 
 # Get routing recommendations
-npx @claude-flow/cli@latest hooks pre-task --description "[task]"
+npx @archon-os/cli@latest hooks pre-task --description "[task]"
 
 # Store patterns in memory
-npx @claude-flow/cli@latest memory store --key "pattern-name" --value "description"
+npx @archon-os/cli@latest memory store --key "pattern-name" --value "description"
 
 # Search for similar configurations
-npx @claude-flow/cli@latest memory search --query "authentication patterns"
+npx @archon-os/cli@latest memory search --query "authentication patterns"
 ```
 
 ### Useful Links
 
 - Template backups: `/docs/templates/claude-md-backups/`
-- CLI reference: `npx @claude-flow/cli@latest --help`
-- V3 documentation: https://github.com/ruvnet/claude-flow/wiki
+- CLI reference: `npx @archon-os/cli@latest --help`
+- V3 documentation: https://github.com/ruvnet/archon-os/wiki
 - Project root CLAUDE.md: `/CLAUDE.md`
 
 ### Team Contacts
 
-- Claude Flow issues: #claude-flow-help
+- Claude Flow issues: #archon-os-help
 - Template questions: #devops-templates
 - General questions: #engineering
 
@@ -877,5 +877,5 @@ npx @claude-flow/cli@latest memory search --query "authentication patterns"
 
 For more information, see:
 - Original CLAUDE.md backup collection: `docs/templates/claude-md-backups/BACKUP-INDEX.md`
-- Template examples: `docs/templates/claude-flow-wiki/`
+- Template examples: `docs/templates/archon-os-wiki/`
 - Project Nyra wiki: [internal wiki link]

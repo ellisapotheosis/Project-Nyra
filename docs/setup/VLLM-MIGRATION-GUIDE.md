@@ -333,11 +333,11 @@ server {
 
 ```bash
 # Add vLLM cluster to Claude Flow config
-npx @claude-flow/cli@latest config set \
+npx @archon-os/cli@latest config set \
   --key "providers.vllm.endpoints" \
   --value '["http://pc3:8000", "http://pc4:8000"]'
 
-npx @claude-flow/cli@latest config set \
+npx @archon-os/cli@latest config set \
   --key "providers.vllm.load_balancing" \
   --value "least-connections"
 ```

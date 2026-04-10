@@ -213,7 +213,7 @@ All learnings stored in Claude Flow memory:
 
 Future projects can retrieve these patterns:
 ```bash
-npx @claude-flow/cli@latest memory search --query "MCP containerization" --namespace patterns
+npx @archon-os/cli@latest memory search --query "MCP containerization" --namespace patterns
 ```
 
 ## 🎯 Use Cases

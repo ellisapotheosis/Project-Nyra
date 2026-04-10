@@ -152,7 +152,7 @@ $services = @(
     @{Name="Letta"; URL="http://localhost:8283/health"},
     @{Name="Mem0"; URL="http://localhost:4321/health"},
     @{Name="Claude Flow"; URL="http://localhost:3010/health"},
-    @{Name="AgentDB"; URL="http://localhost:8080/health"},
+    @{Name="ruvector"; URL="http://localhost:8080/health"},
     @{Name="Redis"; URL="http://localhost:6380"}
 )
 

@@ -55,7 +55,7 @@ This directory contains **all setup and configuration documentation** for Projec
 - [infisical-deployment-strategy.md](infisical-deployment-strategy.md)
 
 **Frameworks & Tools**
-- [CLAUDE-FLOW-V3-SETUP.md](CLAUDE-FLOW-V3-SETUP.md)
+- [archon-os-V3-SETUP.md](archon-os-V3-SETUP.md)
 - [PNPM_INSTALLATION.md](PNPM_INSTALLATION.md)
 - [CODEX-SKILLS-FOR-NYRA-INFRA.md](CODEX-SKILLS-FOR-NYRA-INFRA.md)
 
@@ -83,7 +83,7 @@ This directory contains **all setup and configuration documentation** for Projec
 
 ### Troubleshooting & Issues
 - **[TROUBLESHOOTING-FIXES.md](TROUBLESHOOTING-FIXES.md)** - Main troubleshooting guide
-- **[CLAUDE-FLOW-ZOD-FIX.md](CLAUDE-FLOW-ZOD-FIX.md)** - Claude Flow specific issues
+- **[archon-os-ZOD-FIX.md](archon-os-ZOD-FIX.md)** - Claude Flow specific issues
 - **[POST-CONSOLIDATION-GUIDE.md](POST-CONSOLIDATION-GUIDE.md)** - Post-setup verification
 
 ### Advanced & Reference
@@ -101,7 +101,7 @@ Project Nyra is an **AI-powered mortgage automation platform** that combines:
 
 - **Multi-PC GPU cluster** for distributed AI inference
 - **Claude Flow** for agent orchestration and automation
-- **Multiple memory systems** (Letta, AgentDB, Graphiti, Mem0)
+- **Multiple memory systems** (Letta, ruvector, letta, Mem0)
 - **Rich backend databases** (PostgreSQL, Redis, FalkorDB, Qdrant)
 - **Web interfaces** (Open WebUI, LobeChat, Nexus Router)
 - **MCP servers** for tool integration and automation
@@ -130,7 +130,7 @@ See: [Master Setup Guide - Phase 1](00-MASTER-SETUP-GUIDE.md#phase-1-foundation-
 
 Memory systems and core services:
 1. Letta memory system
-2. AgentDB vector database
+2. ruvector vector database
 3. Claude Flow MCP
 4. Additional MCP servers
 5. Service verification
@@ -153,7 +153,7 @@ See: [Master Setup Guide - Phase 3](00-MASTER-SETUP-GUIDE.md#phase-3-application
 
 Advanced and optional features:
 1. 4-PC distributed architecture
-2. Graphiti knowledge graphs
+2. letta knowledge graphs
 3. Mem0 advanced memory
 4. n8n workflow automation
 5. Performance optimization
@@ -238,7 +238,7 @@ See: [Prerequisites Checklist](01-PREREQUISITES-CHECKLIST.md) for detailed requi
 ### Developers
 1. [QUICK-START-DEVELOPMENT.md](QUICK-START-DEVELOPMENT.md)
 2. [TESTING-QUICKSTART.md](TESTING-QUICKSTART.md)
-3. [CLAUDE-FLOW-V3-SETUP.md](CLAUDE-FLOW-V3-SETUP.md)
+3. [archon-os-V3-SETUP.md](archon-os-V3-SETUP.md)
 4. Component-specific guides
 
 ### DevOps/Infrastructure
@@ -258,7 +258,7 @@ See: [Prerequisites Checklist](01-PREREQUISITES-CHECKLIST.md) for detailed requi
 → [SETUP-GUIDE.md](SETUP-GUIDE.md) - Backend Database Setup section
 
 ### "I want to configure Claude Flow MCP"
-→ [CLAUDE-FLOW-V3-SETUP.md](CLAUDE-FLOW-V3-SETUP.md)
+→ [archon-os-V3-SETUP.md](archon-os-V3-SETUP.md)
 
 ### "I need memory system setup"
 → [SETUP-GUIDE.md](SETUP-GUIDE.md) - Memory Systems section
@@ -289,7 +289,7 @@ All services communicate through the `nyra-network` Docker network. See: [SETUP-
 All sensitive data is managed through Infisical. See: [INFISICAL_DEPLOYMENT_GUIDE.md](INFISICAL_DEPLOYMENT_GUIDE.md)
 
 ### MCP (Model Context Protocol)
-MCP servers provide tools to Claude for automated tasks. See: [CLAUDE-FLOW-V3-SETUP.md](CLAUDE-FLOW-V3-SETUP.md)
+MCP servers provide tools to Claude for automated tasks. See: [archon-os-V3-SETUP.md](archon-os-V3-SETUP.md)
 
 ### Multi-Phase Deployment
 Setup progresses through 4 phases to ensure dependencies are met. See: [Master Setup Guide](00-MASTER-SETUP-GUIDE.md)
@@ -314,7 +314,7 @@ Optional distributed GPU setup across 4 PCs. Covered in Phase 4 advanced feature
 → [TROUBLESHOOTING-FIXES.md](TROUBLESHOOTING-FIXES.md#mcp-server-issues)
 
 ### Error: "Claude Flow Zod validation failed"
-→ [CLAUDE-FLOW-ZOD-FIX.md](CLAUDE-FLOW-ZOD-FIX.md)
+→ [archon-os-ZOD-FIX.md](archon-os-ZOD-FIX.md)
 
 ### General Questions
 → Search [INDEX.md](INDEX.md) for relevant topic, then refer to appropriate guide
@@ -376,7 +376,7 @@ Previously, setup documentation was scattered across 7 different folders:
 
 ### Project Resources
 - [Project Nyra - Main Documentation](../../CLAUDE.md)
-- [Claude Flow GitHub](https://github.com/ruvnet/claude-flow)
+- [Claude Flow GitHub](https://github.com/ruvnet/archon-os)
 - [Model Context Protocol](https://modelcontextprotocol.io/)
 
 ---
@@ -413,7 +413,7 @@ Before deploying to production:
 
 ### Memory Systems
 - ☐ Letta installed
-- ☐ AgentDB integrated
+- ☐ ruvector integrated
 - ☐ Memory persistence verified
 
 ### Applications

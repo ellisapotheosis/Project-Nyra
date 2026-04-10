@@ -6,7 +6,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
-METRICS_DIR="$PROJECT_ROOT/.claude-flow/metrics"
+METRICS_DIR="$PROJECT_ROOT/.archon-os/metrics"
 HEALTH_FILE="$METRICS_DIR/health.json"
 LAST_RUN_FILE="$METRICS_DIR/.health-last-run"
 
@@ -33,7 +33,7 @@ check_health() {
 
   # Process counts
   local node_procs=$(pgrep -c node 2>/dev/null || echo "0")
-  local agentic_procs=$(ps aux 2>/dev/null | grep -c "agentic-flow" | grep -v grep || echo "0")
+  local agentic_procs=$(ps aux 2>/dev/null | grep -c "archon-os" | grep -v grep || echo "0")
 
   # CPU load
   local load_avg=$(cat /proc/loadavg 2>/dev/null | awk '{print $1}' || echo "0")

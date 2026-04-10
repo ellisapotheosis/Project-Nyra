@@ -593,9 +593,9 @@ infisical run --env=production --project-id=<project-id> -- docker compose up -d
         "INFISICAL_HOST_URL": "http://localhost:8080"
       }
     },
-    "claude-flow": {
+    "archon-os": {
       "command": "npx",
-      "args": ["-y", "@claude-flow/cli@latest"],
+      "args": ["-y", "@archon-os/cli@latest"],
       "env": {
         "ANTHROPIC_API_KEY": "${ANTHROPIC_API_KEY}",
         "OPENAI_API_KEY": "${OPENAI_API_KEY}"
@@ -848,9 +848,9 @@ version: '3.8'
 
 services:
   # Infisical Agent for Claude Flow MCP
-  agent-claude-flow:
+  agent-archon-os:
     image: infisical/agent:latest
-    container_name: agent-claude-flow
+    container_name: agent-archon-os
     environment:
       - INFISICAL_CLIENT_ID=${INFISICAL_CLIENT_ID_CLAUDE_FLOW}
       - INFISICAL_CLIENT_SECRET=${INFISICAL_CLIENT_SECRET_CLAUDE_FLOW}
@@ -858,7 +858,7 @@ services:
       - INFISICAL_PROJECT_ID=${INFISICAL_PROJECT_ID}
       - INFISICAL_ENVIRONMENT=production
     volumes:
-      - claude-flow-secrets:/secrets
+      - archon-os-secrets:/secrets
       - ./agent-config.yaml:/config/config.yaml:ro
     networks:
       - infisical-net
@@ -867,18 +867,18 @@ services:
     restart: unless-stopped
 
   # Claude Flow MCP Server
-  claude-flow-mcp:
-    image: ghcr.io/ruvnet/claude-flow:latest
-    container_name: claude-flow-mcp
+  archon-os-mcp:
+    image: ghcr.io/ruvnet/archon-os:latest
+    container_name: archon-os-mcp
     volumes:
-      - claude-flow-secrets:/secrets:ro
+      - archon-os-secrets:/secrets:ro
       - ./data/memory:/app/data/memory
     environment:
-      - SECRET_FILE=/secrets/claude-flow.env
+      - SECRET_FILE=/secrets/archon-os.env
       - NODE_ENV=production
-    command: sh -c "set -a; . /secrets/claude-flow.env; set +a; npx @claude-flow/cli@latest"
+    command: sh -c "set -a; . /secrets/archon-os.env; set +a; npx @archon-os/cli@latest"
     depends_on:
-      - agent-claude-flow
+      - agent-archon-os
     networks:
       - infisical-net
       - mcp-net
@@ -923,7 +923,7 @@ services:
     restart: unless-stopped
 
 volumes:
-  claude-flow-secrets:
+  archon-os-secrets:
   ruv-swarm-secrets:
 
 networks:
@@ -952,7 +952,7 @@ auth:
 sinks:
   - type: "file"
     config:
-      path: "/secrets/claude-flow.env"
+      path: "/secrets/archon-os.env"
       format: "dotenv"
       template: |
         {{- range .Secrets }}

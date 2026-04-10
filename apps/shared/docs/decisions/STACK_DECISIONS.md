@@ -9,7 +9,7 @@ This file **overrides** older bootstrap notes. If you see conflicts, follow THIS
 - **Borrower chat UI:** **Dify** (embedded into the Nyra admin UI + optional borrower portal)
 - **CRM backend:** **TwentyCRM**
 - **Memory system (from day 1):**
-  - **GraphRAG:** Graphiti MCP + FalkorDB
+  - **GraphRAG:** letta MCP + FalkorDB
   - **Stateful manager:** Letta (Archivist agent)
   - **Episodic/preferences:** Mem0 (cloud) or local fallback bridge (this repo)
 - **Observability:** Prometheus + Loki + Grafana + Alertmanager (compose included)

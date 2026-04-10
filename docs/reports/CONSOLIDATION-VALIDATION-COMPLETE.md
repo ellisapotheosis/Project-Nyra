@@ -143,8 +143,8 @@ find . -maxdepth 1 -type d -name "nyra-*"
 
 **Configured Servers:** 6 total
 
-1. ✅ **claude-flow** - V3 orchestration with hooks
-   - Command: Docker exec via `nyra-claude-flow-mcp`
+1. ✅ **archon-os** - V3 orchestration with hooks
+   - Command: Docker exec via `nyra-archon-os-mcp`
    - Mode: V3 with hierarchical-mesh topology
    - Max Agents: 15
    - Memory: Hybrid backend
@@ -176,7 +176,7 @@ find . -maxdepth 1 -type d -name "nyra-*"
 - ✅ Auto-start disabled (manual control)
 - ✅ Docker-based execution for isolation
 
-**Conclusion:** MCP server configuration is complete and valid. All critical servers (claude-flow, sequential-thinking) are properly configured.
+**Conclusion:** MCP server configuration is complete and valid. All critical servers (archon-os, sequential-thinking) are properly configured.
 
 ---
 
@@ -340,7 +340,7 @@ Note: Executability on Windows is less relevant than on Unix systems. Scripts ar
 - ✅ `.git` - Git repository
 - ✅ `.github` - GitHub workflows and templates
 - ✅ `.claude` - Claude Code configuration
-- ✅ `.claude-flow` - Claude Flow V3 data
+- ✅ `.archon-os` - Claude Flow V3 data
 - ✅ `.mcp.json` - MCP server configuration
 - ✅ Workspace directories: `apps/`, `services/`, `packages/`, `infra/`
 - ✅ `scripts/`, `bootstrap/`, `docs/`, `config/`
@@ -384,10 +384,10 @@ Note: Executability on Windows is less relevant than on Unix systems. Scripts ar
 - `tsconfig.base.json` - Base TypeScript config
 
 **Project-Specific:**
-- `.claude-flow@alpha/` - Alpha version testing
+- `.archon-os@alpha/` - Alpha version testing
 - `.hive-mind/` - Multi-agent coordination
 - `.swarm/` - Swarm orchestration data
-- `claude-flow.config.json` - Flow configuration
+- `archon-os.config.json` - Flow configuration
 - `batch-config.json` - Batch processing
 
 **Utility Directories:**

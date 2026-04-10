@@ -10,16 +10,16 @@
 .circleci
 .circleci/config.yml
 .claude
-.claude-flow
-.claude-flow/mcp.json
-.claude-flow/metrics
-.claude-flow/settings.json
-.claude-flow@alpha
-.claude-flow@alpha/env-setup.sh
-.claude-flow@alpha/monitoring.config.json
-.claude-flow@alpha/token-usage.json
+.archon-os
+.archon-os/mcp.json
+.archon-os/metrics
+.archon-os/settings.json
+.archon-os@alpha
+.archon-os@alpha/env-setup.sh
+.archon-os@alpha/monitoring.config.json
+.archon-os@alpha/token-usage.json
 .claude-plugin
-.claude-plugin/claude-flow
+.claude-plugin/archon-os
 .claude/.roo
 .claude/README-V3-SETUP.md
 .claude/agent-registry.json
@@ -61,13 +61,13 @@
 .devcontainer/post-start.sh
 .dockerignore
 .editorconfig
-.env.claude-flow
-.env.dev.claude-flow
+.env.archon-os
+.env.dev.archon-os
 .env.example
 .env.example1
 .env.master-infisical
 .env.orchestrator
-.env.prod.claude-flow
+.env.prod.archon-os
 .env.stack.example
 .env.worker-rtx3060
 .env.worker-rtx3090
@@ -161,7 +161,7 @@ AUTONOMOUS-SESSION-LOG.md
 BOOTSTRAP_DEV_ONLY.md
 BOOTSTRAP_GUIDE.md
 BOOTSTRAP_GUIDE_BUN.md
-CLAUDE-FLOW-CICD-SETUP-COMPLETE.md
+archon-os-CICD-SETUP-COMPLETE.md
 CLAUDE-PLAN.md
 CLAUDE.md
 CLAUDE_FLOW_DASHBOARD_README.md
@@ -209,7 +209,7 @@ ToDo/nexus-complete.toml
 ToDo/node_modules
 ToDo/nyra-fleet-bootstrap
 ToDo/nyra-infra-bootstrap
-ToDo/optimize-claude-flow
+ToDo/optimize-archon-os
 ToDo/package.json
 ToDo/scripts
 ToDo/settings
@@ -228,7 +228,7 @@ agents/tester.yaml
 apps
 apps/CLAUDE.md
 apps/README.md
-apps/claude-flow-dashboard
+apps/archon-os-dashboard
 apps/ingestion
 apps/landing
 apps/nexus-dashboard
@@ -271,9 +271,9 @@ docs/12_oracle_deployment.md
 docs/BOOTSTRAP-UPLOAD-GUIDE.md
 docs/BOOTSTRAP_RUNBOOK.md
 docs/CHECKPOINT-QUICKSTART.md
-docs/CLAUDE-FLOW-CICD-QUICKSTART.md
-docs/CLAUDE-FLOW-PLUGINS-SETUP.md
-docs/CLAUDE-FLOW-V3-INSTALLATION-REPORT.md
+docs/archon-os-CICD-QUICKSTART.md
+docs/archon-os-PLUGINS-SETUP.md
+docs/archon-os-V3-INSTALLATION-REPORT.md
 docs/CLAUDE.md
 docs/CLAUDE_REFACTORING_SUMMARY.md
 docs/DOCKER-STARTUP-SEQUENCE.md
@@ -312,8 +312,8 @@ docs/api
 docs/architecture
 docs/archive
 docs/bootstrap
-docs/claude-flow-v3-config-summary.md
-docs/claude-flow-v3-quick-reference.md
+docs/archon-os-v3-config-summary.md
+docs/archon-os-v3-quick-reference.md
 docs/cleanup
 docs/compliance
 docs/configuration
@@ -383,7 +383,7 @@ infra/config.yaml
 infra/configs
 infra/docker
 infra/docker-compose
-infra/docker-compose.claude-flow-cicd.yml
+infra/docker-compose.archon-os-cicd.yml
 infra/docker-compose.dashboard.yml
 infra/docker-compose.oracle.yml
 infra/docker-compose.orchestrator-cf-tunnel.yml
@@ -421,7 +421,7 @@ jest.config.js
 jest.config.unit.js
 memory
 memory/agents
-memory/claude-flow@alpha-data.json
+memory/archon-os@alpha-data.json
 memory/sessions
 my-ruvector
 my-ruvector/README.md
@@ -432,7 +432,7 @@ node_modules/.bin
 node_modules/.modules.yaml
 node_modules/.pnpm
 node_modules/.pnpm-workspace-state-v1.json
-node_modules/agentic-flow
+node_modules/archon-os
 node_modules/agentic-jujutsu
 node_modules/eslint
 node_modules/prettier
@@ -470,9 +470,9 @@ scripts/bootstrap-orchestrator.ps1
 scripts/bootstrap-orchestrator.sh
 scripts/bootstrap-worker.ps1
 scripts/bootstrap-worker.sh
-scripts/claude-flow-dashboard.html
-scripts/claude-flow-wrapper.ps1
-scripts/claude-flow-wrapper.sh
+scripts/archon-os-dashboard.html
+scripts/archon-os-wrapper.ps1
+scripts/archon-os-wrapper.sh
 scripts/clean-diagnostics.ps1
 scripts/cloudflared
 scripts/configure-static-ip.ps1
@@ -502,9 +502,9 @@ scripts/infisical
 scripts/infisical-export.sh
 scripts/infisical-migration
 scripts/ingestion
-scripts/init-claude-flow.ps1
-scripts/init-claude-flow.sh
-scripts/install-claude-flow-plugins.sh
+scripts/init-archon-os.ps1
+scripts/init-archon-os.sh
+scripts/install-archon-os-plugins.sh
 scripts/install-orchestrator-services.sh
 scripts/integration-testing.ps1
 scripts/link-dev-packages.ps1
@@ -512,8 +512,8 @@ scripts/maintenance
 scripts/mcp
 scripts/mcp-server-registration.ps1
 scripts/migrate-to-wsl.ps1
-scripts/monitor-claude-flow.ps1
-scripts/monitor-claude-flow.sh
+scripts/monitor-archon-os.ps1
+scripts/monitor-archon-os.sh
 scripts/networking
 scripts/nyra-claude.ps1
 scripts/operations
@@ -563,7 +563,7 @@ scripts/
 - `ToDo/apps-consolidate-input/gitea/docker-compose.gitea.yml`
 - `ToDo/apps-consolidate-input/infra/docker-compose.dev.yml`
 - `ToDo/apps-consolidate-input/nyra-stack/docker-compose.addons.yml`
-- `ToDo/apps-consolidate-input/nyra-stack/docker-compose.graphiti.yml`
+- `ToDo/apps-consolidate-input/nyra-stack/docker-compose.letta.yml`
 - `ToDo/apps-consolidate-input/nyra-stack/docker-compose.local.yml`
 - `ToDo/apps-consolidate-input/nyra-stack/docker-compose.services.yml`
 - `ToDo/apps-consolidate-input/nyra-stack/docker-compose.voice.yml`
@@ -594,8 +594,8 @@ scripts/
 - `ToDo/master_nyra_package/infra/worker-rtx5090/docker-compose.yml`
 - `ToDo/master_nyra_package_maximalist/infra/orchestrator/compose/docker-compose.archon.yml`
 - `ToDo/master_nyra_package_maximalist/infra/orchestrator/compose/docker-compose.base.yml`
-- `ToDo/master_nyra_package_maximalist/infra/orchestrator/compose/docker-compose.claude-flow-cicd.yml`
-- `ToDo/master_nyra_package_maximalist/infra/orchestrator/compose/docker-compose.claude-flow.yml`
+- `ToDo/master_nyra_package_maximalist/infra/orchestrator/compose/docker-compose.archon-os-cicd.yml`
+- `ToDo/master_nyra_package_maximalist/infra/orchestrator/compose/docker-compose.archon-os.yml`
 - `ToDo/master_nyra_package_maximalist/infra/orchestrator/compose/docker-compose.dashboard.yml`
 - `ToDo/master_nyra_package_maximalist/infra/orchestrator/compose/docker-compose.gitea.yml`
 - `ToDo/master_nyra_package_maximalist/infra/orchestrator/compose/docker-compose.orchestrator-cf-tunnel.yml`
@@ -606,7 +606,7 @@ scripts/
 - `ToDo/nyra-fleet-bootstrap/orchestrator/gitea/docker-compose.yml`
 - `ToDo/nyra-infra-bootstrap/infra/compose/nyra.compose.yaml`
 - `apps/ingestion/files/nyra-stack/docker-compose.addons.yml`
-- `apps/ingestion/files/nyra-stack/docker-compose.graphiti.yml`
+- `apps/ingestion/files/nyra-stack/docker-compose.letta.yml`
 - `apps/ingestion/files/nyra-stack/docker-compose.local.yml`
 - `apps/ingestion/files/nyra-stack/docker-compose.services.yml`
 - `apps/ingestion/files/nyra-stack/docker-compose.voice.yml`
@@ -618,14 +618,14 @@ scripts/
 - `assets/new-uploads-ingestion-input/docker/worker/docker-compose.yml`
 - `assets/new-uploads-ingestion-input/docker/wsl/docker-compose.gitea.yml`
 - `assets/new-uploads-ingestion-input/project-nyra/docker-compose.yml`
-- `docs/references/claude-flow-examples/05-swarm-apps/rest-api-advanced/docker-compose.yml`
-- `docs/references/claude-flow-examples/flask-api-sparc/docker-compose.yml`
-- `docs/references/claude-flow-examples/litellm/docker-compose.basic.yml`
-- `docs/references/claude-flow-examples/litellm/docker-compose.yml`
+- `docs/references/archon-os-examples/05-swarm-apps/rest-api-advanced/docker-compose.yml`
+- `docs/references/archon-os-examples/flask-api-sparc/docker-compose.yml`
+- `docs/references/archon-os-examples/litellm/docker-compose.basic.yml`
+- `docs/references/archon-os-examples/litellm/docker-compose.yml`
 - `infra-archived/infra-20260206-1551/archive/legacy-infra-2026-01-19/dual-orchestrator/archon-os/docker-compose.yml`
 - `infra-archived/infra-20260206-1551/archive/legacy-infra-2026-01-19/services/monitoring/docker-compose.yml`
 - `infra-archived/infra-20260206-1551/archive/nyra-infra-old/compose/compose.casistack.yml`
-- `infra-archived/infra-20260206-1551/archive/nyra-infra-old/compose/compose.claude-flow.yml`
+- `infra-archived/infra-20260206-1551/archive/nyra-infra-old/compose/compose.archon-os.yml`
 - `infra-archived/infra-20260206-1551/archive/nyra-infra-old/compose/compose.ingestion.yml`
 - `infra-archived/infra-20260206-1551/archive/nyra-infra-old/compose/compose.management.yml`
 - `infra-archived/infra-20260206-1551/archive/nyra-infra-old/compose/compose.mcp.services.yml`
@@ -641,7 +641,7 @@ scripts/
 - `infra-archived/infra-20260206-1551/archive/nyra-infra-old/compose/security.compose.yml`
 - `infra-archived/infra-20260206-1551/archive/nyra-infra-old/compose/ui.compose.yml`
 - `infra-archived/infra-20260206-1551/archive/nyra-infra-old/docker/docker-compose.yml`
-- `infra-archived/infra-20260206-1551/archive/nyra-infra-old/legacy-infra/compose/compose.claude-flow.yml`
+- `infra-archived/infra-20260206-1551/archive/nyra-infra-old/legacy-infra/compose/compose.archon-os.yml`
 - `infra-archived/infra-20260206-1551/archive/nyra-infra-old/legacy-infra/compose/compose.mcp.yml`
 - `infra-archived/infra-20260206-1551/archive/nyra-infra-old/legacy-infra/compose/compose.memory.yml`
 - `infra-archived/infra-20260206-1551/archive/nyra-infra-old/legacy-infra/compose/compose.metamcp.yml`
@@ -651,13 +651,13 @@ scripts/
 - `infra-archived/infra-20260206-1551/archive/nyra-infra-old/nyra-stack-v6_2/orchestrator/docker-compose.yml`
 - `infra-archived/infra-20260206-1551/archive/nyra-infra-old/nyra-stack-v6_2/worker/docker-compose.yml`
 - `infra-archived/infra-20260206-1551/archive/open-webui/open-webui-compose.yml`
-- `infra-archived/infra-20260206-1551/docker-compose.claude-flow-cicd.yml`
+- `infra-archived/infra-20260206-1551/docker-compose.archon-os-cicd.yml`
 - `infra-archived/infra-20260206-1551/docker-compose.yml`
 - `infra-archived/infra-20260206-1551/docker-compose/docker-compose.ai.yml`
 - `infra-archived/infra-20260206-1551/docker-compose/docker-compose.base.yml`
 - `infra-archived/infra-20260206-1551/docker-compose/docker-compose.business.yml`
-- `infra-archived/infra-20260206-1551/docker-compose/docker-compose.claude-flow-dashboard.yml`
-- `infra-archived/infra-20260206-1551/docker-compose/docker-compose.claude-flow.yml`
+- `infra-archived/infra-20260206-1551/docker-compose/docker-compose.archon-os-dashboard.yml`
+- `infra-archived/infra-20260206-1551/docker-compose/docker-compose.archon-os.yml`
 - `infra-archived/infra-20260206-1551/docker-compose/docker-compose.crm.yml`
 - `infra-archived/infra-20260206-1551/docker-compose/docker-compose.databases.yml`
 - `infra-archived/infra-20260206-1551/docker-compose/docker-compose.event-server.yml`
@@ -683,7 +683,7 @@ scripts/
 - `infra-archived/infra-20260206-1551/docker/orchestrator/docker-compose.legacy.yml`
 - `infra-archived/infra-20260206-1551/docker/orchestrator/docker-compose.orchestrator.yml`
 - `infra-archived/infra-20260206-1551/docker/services/agent-booster/docker-compose.yml`
-- `infra-archived/infra-20260206-1551/docker/services/agentic-flow/docker-compose.agentic-flow.yml`
+- `infra-archived/infra-20260206-1551/docker/services/archon-os/docker-compose.archon-os.yml`
 - `infra-archived/infra-20260206-1551/docker/services/docker-compose.embeddings.yml`
 - `infra-archived/infra-20260206-1551/docker/services/docker-compose.routing.yml`
 - `infra-archived/infra-20260206-1551/docker/services/epic-sdk/docker-compose.yml`
@@ -700,7 +700,7 @@ scripts/
 - `infra-archived/infra-20260206-1551/ruvector/docker-compose.yml`
 - `infra-archived/infra-20260206-1551/shared-tools/archon/docker-compose.yml`
 - `infra-archived/infra-20260206-1551/stacks/nyra-mortgage/docker-compose.addons.yml`
-- `infra-archived/infra-20260206-1551/stacks/nyra-mortgage/docker-compose.graphiti.yml`
+- `infra-archived/infra-20260206-1551/stacks/nyra-mortgage/docker-compose.letta.yml`
 - `infra-archived/infra-20260206-1551/stacks/nyra-mortgage/docker-compose.local.yml`
 - `infra-archived/infra-20260206-1551/stacks/nyra-mortgage/docker-compose.services.yml`
 - `infra-archived/infra-20260206-1551/stacks/nyra-mortgage/docker-compose.voice.yml`
@@ -721,14 +721,14 @@ scripts/
 - `infra/compose/overrides/docker-compose.worker-rtx3090ti.override.yml`
 - `infra/compose/overrides/docker-compose.worker-rtx5090.override.yml`
 - `infra/configs/gitea/docker-compose.gitea.yml`
-- `infra/docker-compose.claude-flow-cicd.yml`
+- `infra/docker-compose.archon-os-cicd.yml`
 - `infra/docker-compose.dashboard.yml`
 - `infra/docker-compose.oracle.yml`
 - `infra/docker-compose.orchestrator-cf-tunnel.yml`
 - `infra/docker-compose.orchestrator.yml`
 - `infra/docker-compose.workers.yml`
 - `infra/docker-compose.yml`
-- `infra/docker-compose/docker-compose.claude-flow.yml`
+- `infra/docker-compose/docker-compose.archon-os.yml`
 - `infra/nyra-complete/infra/docker-compose.oracle.yml`
 - `infra/nyra-complete/infra/docker-compose.orchestrator.yml`
 - `infra/nyra-complete/infra/docker-compose.workers.yml`
@@ -738,7 +738,7 @@ scripts/
 - `infra/project-nyra-scaffold/infra/docker-compose.orchestrator.yml`
 - `infra/project-nyra-scaffold/infra/docker-compose.workers.yml`
 - `infra/stacks/nyra-mortgage/docker-compose.addons.yml`
-- `infra/stacks/nyra-mortgage/docker-compose.graphiti.yml`
+- `infra/stacks/nyra-mortgage/docker-compose.letta.yml`
 - `infra/stacks/nyra-mortgage/docker-compose.local.yml`
 - `infra/stacks/nyra-mortgage/docker-compose.services.yml`
 - `infra/stacks/nyra-mortgage/docker-compose.voice.yml`
@@ -747,10 +747,10 @@ scripts/
 - `infra/workers/worker-3090/docker-compose.worker-3090.yml`
 - `infra/workers/worker-5090/docker-compose.worker-5090.yml`
 - `my-ruvector/docker-compose.yml`
-- `node_modules/agentic-flow/validation/docker/docker-compose.yml`
+- `node_modules/archon-os/validation/docker/docker-compose.yml`
 - `services/campaign-engine/docker-compose.yml`
-- `services/claude-flow/docker-compose.yml`
-- `services/graphiti-knowledge/node_modules/natural/lib/natural/util/storage/docker-compose.yml`
+- `services/archon-os/docker-compose.yml`
+- `services/letta-knowledge/node_modules/natural/lib/natural/util/storage/docker-compose.yml`
 - `services/litellm-proxy/docker-compose.dev.yml`
 - `services/litellm-proxy/docker-compose.yml`
 - `services/memory/deployment/docker-compose.memory.yml`
@@ -775,7 +775,7 @@ scripts/
 - `ToDo/master_nyra_package_maximalist/infra/worker-rtx3090ti/Dockerfile`
 - `ToDo/master_nyra_package_maximalist/infra/worker-rtx5090/Dockerfile`
 - `ToDo/nyra-infra-bootstrap/infra/mcp/nyra_mcp/Dockerfile`
-- `apps/claude-flow-dashboard/Dockerfile`
+- `apps/archon-os-dashboard/Dockerfile`
 - `apps/ingestion/files/nyra-stack/services/mem0-rest/Dockerfile`
 - `apps/ingestion/files/nyra-stack/services/nyra-orchestrator/Dockerfile`
 - `apps/ingestion/files/services/campaign-engine/Dockerfile`
@@ -790,9 +790,9 @@ scripts/
 - `assets/new-uploads-ingestion-input/project-nyra/docker/Dockerfile.api`
 - `assets/new-uploads-ingestion-input/project-nyra/docker/Dockerfile.web`
 - `ci/Dockerfile.old`
-- `docs/references/claude-flow-examples/05-swarm-apps/rest-api-advanced/Dockerfile`
-- `docs/references/claude-flow-examples/flask-api-sparc/Dockerfile`
-- `docs/references/claude-flow-examples/litellm/docker/Dockerfile`
+- `docs/references/archon-os-examples/05-swarm-apps/rest-api-advanced/Dockerfile`
+- `docs/references/archon-os-examples/flask-api-sparc/Dockerfile`
+- `docs/references/archon-os-examples/litellm/docker/Dockerfile`
 - `infra-archived/infra-20260206-1551/archive/legacy-infra-2026-01-19/Dockerfiles`
 - `infra-archived/infra-20260206-1551/archive/legacy-infra-2026-01-19/dual-orchestrator/archon-os/Dockerfile`
 - `infra-archived/infra-20260206-1551/archive/nyra-infra-old/casistack-orchestrator/Dockerfile`
@@ -818,8 +818,8 @@ scripts/
 - `infra-archived/infra-20260206-1551/docker/build/base/Dockerfile.orchestrator`
 - `infra-archived/infra-20260206-1551/docker/build/base/ci/Dockerfile`
 - `infra-archived/infra-20260206-1551/docker/build/base/devcontainer/Dockerfile`
-- `infra-archived/infra-20260206-1551/docker/build/claude-flow/Dockerfile`
-- `infra-archived/infra-20260206-1551/docker/build/claude-flow/Dockerfile.claude-flow`
+- `infra-archived/infra-20260206-1551/docker/build/archon-os/Dockerfile`
+- `infra-archived/infra-20260206-1551/docker/build/archon-os/Dockerfile.archon-os`
 - `infra-archived/infra-20260206-1551/docker/build/infisical/Dockerfile.mcp`
 - `infra-archived/infra-20260206-1551/docker/build/infisical/Dockerfile.sync`
 - `infra-archived/infra-20260206-1551/docker/build/mcp-servers/bitwarden/Dockerfile`
@@ -855,7 +855,7 @@ scripts/
 - `infra-archived/infra-20260206-1551/docker/build/tools/archon/Dockerfile.server`
 - `infra-archived/infra-20260206-1551/docker/build/tools/archon/Dockerfile.ui`
 - `infra-archived/infra-20260206-1551/docker/services/agent-booster/Dockerfile`
-- `infra-archived/infra-20260206-1551/docker/services/agentic-flow/Dockerfile`
+- `infra-archived/infra-20260206-1551/docker/services/archon-os/Dockerfile`
 - `infra-archived/infra-20260206-1551/docker/services/epic-sdk/Dockerfile`
 - `infra-archived/infra-20260206-1551/docker/services/onnx-runtime/Dockerfile`
 - `infra-archived/infra-20260206-1551/docker/services/ruvector/Dockerfile`
@@ -870,7 +870,7 @@ scripts/
 - `infra/mcp/nyra_mcp/Dockerfile`
 - `infra/nyra-complete/infra/nexus/Dockerfile`
 - `infra/project-nyra-scaffold/apps/archon-os/Dockerfile`
-- `infra/project-nyra-scaffold/apps/claude-flow/Dockerfile`
+- `infra/project-nyra-scaffold/apps/archon-os/Dockerfile`
 - `infra/project-nyra-scaffold/apps/openclaw/Dockerfile`
 - `infra/project-nyra-scaffold/services/nexus-router/Dockerfile`
 - `infra/project-nyra-scaffold/services/quote-engine/Dockerfile`
@@ -878,14 +878,14 @@ scripts/
 - `infra/stacks/nyra-mortgage/services/nyra-orchestrator/Dockerfile`
 - `infra/workers/worker-3060/embedding-service/Dockerfile`
 - `infra/workers/worker-3060/health-monitor/Dockerfile`
-- `node_modules/agentic-flow/validation/docker/Dockerfile.reasoningbank-local`
-- `node_modules/agentic-flow/validation/docker/Dockerfile.reasoningbank-test`
+- `node_modules/archon-os/validation/docker/Dockerfile.reasoningbank-local`
+- `node_modules/archon-os/validation/docker/Dockerfile.reasoningbank-test`
 - `services/archon-os/docker/Dockerfile.agents`
 - `services/archon-os/docker/Dockerfile.archon-os`
 - `services/archon-os/docker/Dockerfile.mcp`
 - `services/archon-os/docker/Dockerfile.server`
-- `services/claude-flow-event-server/Dockerfile`
-- `services/claude-flow/Dockerfile`
+- `services/archon-os-event-server/Dockerfile`
+- `services/archon-os/Dockerfile`
 - `services/gitea-mcp/Dockerfile`
 - `services/quote-api/Dockerfile`
 
@@ -896,21 +896,21 @@ scripts/
 ```
 apps/CLAUDE.md
 apps/README.md
-apps/claude-flow-dashboard
-apps/claude-flow-dashboard/.dockerignore
-apps/claude-flow-dashboard/.env.example
-apps/claude-flow-dashboard/Dockerfile
-apps/claude-flow-dashboard/__tests__
-apps/claude-flow-dashboard/index.html
-apps/claude-flow-dashboard/node_modules
-apps/claude-flow-dashboard/package.json
-apps/claude-flow-dashboard/postcss.config.js
-apps/claude-flow-dashboard/src
-apps/claude-flow-dashboard/tailwind.config.js
-apps/claude-flow-dashboard/tsconfig.json
-apps/claude-flow-dashboard/tsconfig.node.json
-apps/claude-flow-dashboard/vite.config.ts
-apps/claude-flow-dashboard/vitest.config.ts
+apps/archon-os-dashboard
+apps/archon-os-dashboard/.dockerignore
+apps/archon-os-dashboard/.env.example
+apps/archon-os-dashboard/Dockerfile
+apps/archon-os-dashboard/__tests__
+apps/archon-os-dashboard/index.html
+apps/archon-os-dashboard/node_modules
+apps/archon-os-dashboard/package.json
+apps/archon-os-dashboard/postcss.config.js
+apps/archon-os-dashboard/src
+apps/archon-os-dashboard/tailwind.config.js
+apps/archon-os-dashboard/tsconfig.json
+apps/archon-os-dashboard/tsconfig.node.json
+apps/archon-os-dashboard/vite.config.ts
+apps/archon-os-dashboard/vitest.config.ts
 apps/ingestion
 apps/ingestion/CLAUDE.md
 apps/ingestion/INGESTION-COMPLETE.md
@@ -927,7 +927,7 @@ apps/nexus-dashboard
 apps/nexus-dashboard/.env.example
 apps/nexus-dashboard/.eslintrc.json
 apps/nexus-dashboard/.gitignore
-apps/nexus-dashboard/CLAUDE-FLOW-INTEGRATION.md
+apps/nexus-dashboard/archon-os-INTEGRATION.md
 apps/nexus-dashboard/CLAUDE.md
 apps/nexus-dashboard/CLOUDFLARE-PAGES.md
 apps/nexus-dashboard/COMPONENT-ARCHITECTURE.md
@@ -1010,26 +1010,26 @@ services/campaign-engine/package.json
 services/campaign-engine/requirements.txt
 services/campaign-engine/src
 services/campaign-engine/tests
-services/claude-flow
-services/claude-flow-event-server
-services/claude-flow-event-server/.dockerignore
-services/claude-flow-event-server/.env.example
-services/claude-flow-event-server/Dockerfile
-services/claude-flow-event-server/README.md
-services/claude-flow-event-server/__tests__
-services/claude-flow-event-server/node_modules
-services/claude-flow-event-server/package.json
-services/claude-flow-event-server/src
-services/claude-flow-event-server/tsconfig.json
-services/claude-flow/.dockerignore
-services/claude-flow/.env.example
-services/claude-flow/Dockerfile
-services/claude-flow/README.md
-services/claude-flow/docker-compose.yml
-services/claude-flow/node_modules
-services/claude-flow/package.json
-services/claude-flow/src
-services/claude-flow/tsconfig.json
+services/archon-os
+services/archon-os-event-server
+services/archon-os-event-server/.dockerignore
+services/archon-os-event-server/.env.example
+services/archon-os-event-server/Dockerfile
+services/archon-os-event-server/README.md
+services/archon-os-event-server/__tests__
+services/archon-os-event-server/node_modules
+services/archon-os-event-server/package.json
+services/archon-os-event-server/src
+services/archon-os-event-server/tsconfig.json
+services/archon-os/.dockerignore
+services/archon-os/.env.example
+services/archon-os/Dockerfile
+services/archon-os/README.md
+services/archon-os/docker-compose.yml
+services/archon-os/node_modules
+services/archon-os/package.json
+services/archon-os/src
+services/archon-os/tsconfig.json
 services/doc-management-api
 services/doc-management-api/.env.example
 services/doc-management-api/.eslintrc.json
@@ -1049,11 +1049,11 @@ services/gitea-mcp/package.json
 services/gitea-mcp/server.js
 services/github-mcp
 services/github-mcp/CLAUDE.md
-services/graphiti-knowledge
-services/graphiti-knowledge/CLAUDE.md
-services/graphiti-knowledge/node_modules
-services/graphiti-knowledge/package.json
-services/graphiti-knowledge/src
+services/letta-knowledge
+services/letta-knowledge/CLAUDE.md
+services/letta-knowledge/node_modules
+services/letta-knowledge/package.json
+services/letta-knowledge/src
 services/lead-capture-api
 services/lead-capture-api/.env.example
 services/lead-capture-api/CLAUDE.md
@@ -1168,7 +1168,7 @@ packages/CLAUDE.md
 packages/agents
 packages/agents/campaign
 packages/database
-packages/database/.claude-flow
+packages/database/.archon-os
 packages/database/.gitignore
 packages/database/node_modules
 packages/database/package.json
@@ -1176,7 +1176,7 @@ packages/database/prisma
 packages/database/tsconfig.json
 packages/nyra-api
 packages/nyra-api/.claude
-packages/nyra-api/.claude-flow
+packages/nyra-api/.archon-os
 packages/nyra-api/.hive-mind
 packages/nyra-api/.mcp.json
 packages/nyra-api/memory
@@ -1214,7 +1214,7 @@ infra/RateHunter
 infra/RateHunter/QUICK-START.md
 infra/RateHunter/Start-RateHunter-Bootstrap.ps1
 infra/RateHunter/_
-infra/RateHunter/claude-flow-bootstrap
+infra/RateHunter/archon-os-bootstrap
 infra/RateHunter/docker-compose.ratehunter.yml
 infra/SCAFFOLD_SUMMARY.md
 infra/cloudflared
@@ -1241,7 +1241,7 @@ infra/compose/nyra.compose.yaml
 infra/compose/overrides
 infra/config.yaml
 infra/configs
-infra/configs/claude-flow-cicd
+infra/configs/archon-os-cicd
 infra/configs/gitea
 infra/configs/grafana
 infra/configs/infisical
@@ -1252,14 +1252,14 @@ infra/configs/postgres
 infra/configs/prometheus
 infra/docker
 infra/docker-compose
-infra/docker-compose.claude-flow-cicd.yml
+infra/docker-compose.archon-os-cicd.yml
 infra/docker-compose.dashboard.yml
 infra/docker-compose.oracle.yml
 infra/docker-compose.orchestrator-cf-tunnel.yml
 infra/docker-compose.orchestrator.yml
 infra/docker-compose.workers.yml
 infra/docker-compose.yml
-infra/docker-compose/docker-compose.claude-flow.yml
+infra/docker-compose/docker-compose.archon-os.yml
 infra/docker/n8n
 infra/docker/nexus-router
 infra/docs
@@ -1430,7 +1430,7 @@ infra-archived/infra-20260206-1551/configs
 infra-archived/infra-20260206-1551/database
 infra-archived/infra-20260206-1551/docker
 infra-archived/infra-20260206-1551/docker-compose
-infra-archived/infra-20260206-1551/docker-compose.claude-flow-cicd.yml
+infra-archived/infra-20260206-1551/docker-compose.archon-os-cicd.yml
 infra-archived/infra-20260206-1551/docker-compose.yml
 infra-archived/infra-20260206-1551/docker-mcp
 infra-archived/infra-20260206-1551/dockerhub-mcp
@@ -1466,8 +1466,8 @@ infra-archived/infra-20260206-1551/worker-machines
 ```
 ToDo/0-INTEGRATION-MANIFEST.md
 ToDo/CLAUDE-MD-Templates
-ToDo/CLAUDE-MD-Templates/CLAUDE MD Templates · ruvnet_claude-flow Wiki.pdf
-ToDo/CLAUDE-MD-Templates/CLAUDE-FLOW-MASTER-BUILD-ENHANCED.md
+ToDo/CLAUDE-MD-Templates/CLAUDE MD Templates · ruvnet_archon-os Wiki.pdf
+ToDo/CLAUDE-MD-Templates/archon-os-MASTER-BUILD-ENHANCED.md
 ToDo/CLAUDE-MD-Templates/CLAUDE.md
 ToDo/CLAUDE-MD-Templates/CLAUDE_1.md
 ToDo/CLAUDE-MD-Templates/LANGUAGE-TEMPLATE-MAPPING-GUIDE.md
@@ -1569,7 +1569,7 @@ ToDo/docs/TECHNICAL-DECISIONS.md
 ToDo/docs/TOOL_DISCOVERY_IMPLEMENTATION_SUMMARY.md
 ToDo/docs/TOOL_DISCOVERY_QUICK_START.md
 ToDo/docs/WHITEPAPER-REVIEW.md
-ToDo/docs/claude-flow-v3alpha-review.md
+ToDo/docs/archon-os-v3alpha-review.md
 ToDo/docs/complete.env
 ToDo/docs/nyra-memory-stack.md
 ToDo/docs/refined-sparc-workflow.md
@@ -1734,9 +1734,9 @@ docs/12_oracle_deployment.md
 docs/BOOTSTRAP-UPLOAD-GUIDE.md
 docs/BOOTSTRAP_RUNBOOK.md
 docs/CHECKPOINT-QUICKSTART.md
-docs/CLAUDE-FLOW-CICD-QUICKSTART.md
-docs/CLAUDE-FLOW-PLUGINS-SETUP.md
-docs/CLAUDE-FLOW-V3-INSTALLATION-REPORT.md
+docs/archon-os-CICD-QUICKSTART.md
+docs/archon-os-PLUGINS-SETUP.md
+docs/archon-os-V3-INSTALLATION-REPORT.md
 docs/CLAUDE.md
 docs/CLAUDE_REFACTORING_SUMMARY.md
 docs/DOCKER-STARTUP-SEQUENCE.md
@@ -1816,7 +1816,7 @@ docs/architecture/BOOTSTRAP-INTEGRATION-INDEX.md
 docs/architecture/BOOTSTRAP-INTEGRATION-PLAN.md
 docs/architecture/BOOTSTRAP-INTEGRATION-SUMMARY.md
 docs/architecture/BOOTSTRAP-INTEGRATION-VISUAL.md
-docs/architecture/CLAUDE-FLOW-NEXUS-INTEGRATION-ANALYSIS.md
+docs/architecture/archon-os-NEXUS-INTEGRATION-ANALYSIS.md
 docs/architecture/CLEANUP-AND-INGESTION-STRATEGY.md
 docs/architecture/CONSOLIDATION-ARCHITECTURE-REVIEW.md
 docs/architecture/CONTAINERIZATION-ARCHITECTURE.md
@@ -1874,7 +1874,7 @@ docs/architecture/bootstrap-implementation-roadmap.md
 docs/architecture/bootstrap-installer-audit-summary.md
 docs/architecture/bootstrap-installer-quick-reference.md
 docs/architecture/bootstrap-unified-architecture.md
-docs/architecture/claude-flow-llm-integrations.md
+docs/architecture/archon-os-llm-integrations.md
 docs/architecture/cloudflare-tunnel-architecture.md
 docs/architecture/cloudflare-tunnel-diagram.md
 docs/architectur
@@ -1903,20 +1903,20 @@ workflows/n8n/templates
 
 ### Compose files in final structure (146)
 - `apps/ingestion/files/nyra-stack/docker-compose.addons.yml`
-- `apps/ingestion/files/nyra-stack/docker-compose.graphiti.yml`
+- `apps/ingestion/files/nyra-stack/docker-compose.letta.yml`
 - `apps/ingestion/files/nyra-stack/docker-compose.local.yml`
 - `apps/ingestion/files/nyra-stack/docker-compose.services.yml`
 - `apps/ingestion/files/nyra-stack/docker-compose.voice.yml`
 - `apps/ingestion/files/nyra-stack/docker-compose.yml`
 - `apps/web/webapp/mortgage-services/docker-compose.yml`
-- `docs/references/claude-flow-examples/05-swarm-apps/rest-api-advanced/docker-compose.yml`
-- `docs/references/claude-flow-examples/flask-api-sparc/docker-compose.yml`
-- `docs/references/claude-flow-examples/litellm/docker-compose.basic.yml`
-- `docs/references/claude-flow-examples/litellm/docker-compose.yml`
+- `docs/references/archon-os-examples/05-swarm-apps/rest-api-advanced/docker-compose.yml`
+- `docs/references/archon-os-examples/flask-api-sparc/docker-compose.yml`
+- `docs/references/archon-os-examples/litellm/docker-compose.basic.yml`
+- `docs/references/archon-os-examples/litellm/docker-compose.yml`
 - `infra-archived/infra-20260206-1551/archive/legacy-infra-2026-01-19/dual-orchestrator/archon-os/docker-compose.yml`
 - `infra-archived/infra-20260206-1551/archive/legacy-infra-2026-01-19/services/monitoring/docker-compose.yml`
 - `infra-archived/infra-20260206-1551/archive/nyra-infra-old/compose/compose.casistack.yml`
-- `infra-archived/infra-20260206-1551/archive/nyra-infra-old/compose/compose.claude-flow.yml`
+- `infra-archived/infra-20260206-1551/archive/nyra-infra-old/compose/compose.archon-os.yml`
 - `infra-archived/infra-20260206-1551/archive/nyra-infra-old/compose/compose.ingestion.yml`
 - `infra-archived/infra-20260206-1551/archive/nyra-infra-old/compose/compose.management.yml`
 - `infra-archived/infra-20260206-1551/archive/nyra-infra-old/compose/compose.mcp.services.yml`
@@ -1932,7 +1932,7 @@ workflows/n8n/templates
 - `infra-archived/infra-20260206-1551/archive/nyra-infra-old/compose/security.compose.yml`
 - `infra-archived/infra-20260206-1551/archive/nyra-infra-old/compose/ui.compose.yml`
 - `infra-archived/infra-20260206-1551/archive/nyra-infra-old/docker/docker-compose.yml`
-- `infra-archived/infra-20260206-1551/archive/nyra-infra-old/legacy-infra/compose/compose.claude-flow.yml`
+- `infra-archived/infra-20260206-1551/archive/nyra-infra-old/legacy-infra/compose/compose.archon-os.yml`
 - `infra-archived/infra-20260206-1551/archive/nyra-infra-old/legacy-infra/compose/compose.mcp.yml`
 - `infra-archived/infra-20260206-1551/archive/nyra-infra-old/legacy-infra/compose/compose.memory.yml`
 - `infra-archived/infra-20260206-1551/archive/nyra-infra-old/legacy-infra/compose/compose.metamcp.yml`
@@ -1942,13 +1942,13 @@ workflows/n8n/templates
 - `infra-archived/infra-20260206-1551/archive/nyra-infra-old/nyra-stack-v6_2/orchestrator/docker-compose.yml`
 - `infra-archived/infra-20260206-1551/archive/nyra-infra-old/nyra-stack-v6_2/worker/docker-compose.yml`
 - `infra-archived/infra-20260206-1551/archive/open-webui/open-webui-compose.yml`
-- `infra-archived/infra-20260206-1551/docker-compose.claude-flow-cicd.yml`
+- `infra-archived/infra-20260206-1551/docker-compose.archon-os-cicd.yml`
 - `infra-archived/infra-20260206-1551/docker-compose.yml`
 - `infra-archived/infra-20260206-1551/docker-compose/docker-compose.ai.yml`
 - `infra-archived/infra-20260206-1551/docker-compose/docker-compose.base.yml`
 - `infra-archived/infra-20260206-1551/docker-compose/docker-compose.business.yml`
-- `infra-archived/infra-20260206-1551/docker-compose/docker-compose.claude-flow-dashboard.yml`
-- `infra-archived/infra-20260206-1551/docker-compose/docker-compose.claude-flow.yml`
+- `infra-archived/infra-20260206-1551/docker-compose/docker-compose.archon-os-dashboard.yml`
+- `infra-archived/infra-20260206-1551/docker-compose/docker-compose.archon-os.yml`
 - `infra-archived/infra-20260206-1551/docker-compose/docker-compose.crm.yml`
 - `infra-archived/infra-20260206-1551/docker-compose/docker-compose.databases.yml`
 - `infra-archived/infra-20260206-1551/docker-compose/docker-compose.event-server.yml`
@@ -1974,7 +1974,7 @@ workflows/n8n/templates
 - `infra-archived/infra-20260206-1551/docker/orchestrator/docker-compose.legacy.yml`
 - `infra-archived/infra-20260206-1551/docker/orchestrator/docker-compose.orchestrator.yml`
 - `infra-archived/infra-20260206-1551/docker/services/agent-booster/docker-compose.yml`
-- `infra-archived/infra-20260206-1551/docker/services/agentic-flow/docker-compose.agentic-flow.yml`
+- `infra-archived/infra-20260206-1551/docker/services/archon-os/docker-compose.archon-os.yml`
 - `infra-archived/infra-20260206-1551/docker/services/docker-compose.embeddings.yml`
 - `infra-archived/infra-20260206-1551/docker/services/docker-compose.routing.yml`
 - `infra-archived/infra-20260206-1551/docker/services/epic-sdk/docker-compose.yml`
@@ -1991,7 +1991,7 @@ workflows/n8n/templates
 - `infra-archived/infra-20260206-1551/ruvector/docker-compose.yml`
 - `infra-archived/infra-20260206-1551/shared-tools/archon/docker-compose.yml`
 - `infra-archived/infra-20260206-1551/stacks/nyra-mortgage/docker-compose.addons.yml`
-- `infra-archived/infra-20260206-1551/stacks/nyra-mortgage/docker-compose.graphiti.yml`
+- `infra-archived/infra-20260206-1551/stacks/nyra-mortgage/docker-compose.letta.yml`
 - `infra-archived/infra-20260206-1551/stacks/nyra-mortgage/docker-compose.local.yml`
 - `infra-archived/infra-20260206-1551/stacks/nyra-mortgage/docker-compose.services.yml`
 - `infra-archived/infra-20260206-1551/stacks/nyra-mortgage/docker-compose.voice.yml`
@@ -2010,14 +2010,14 @@ workflows/n8n/templates
 - `infra/compose/overrides/docker-compose.orchestrator.override.yml`
 - `infra/compose/overrides/docker-compose.worker-rtx3060.override.yml`
 - `infra/configs/gitea/docker-compose.gitea.yml`
-- `infra/docker-compose.claude-flow-cicd.yml`
+- `infra/docker-compose.archon-os-cicd.yml`
 - `infra/docker-compose.dashboard.yml`
 - `infra/docker-compose.oracle.yml`
 - `infra/docker-compose.orchestrator-cf-tunnel.yml`
 - `infra/docker-compose.orchestrator.yml`
 - `infra/docker-compose.workers.yml`
 - `infra/docker-compose.yml`
-- `infra/docker-compose/docker-compose.claude-flow.yml`
+- `infra/docker-compose/docker-compose.archon-os.yml`
 - `infra/nyra-complete/infra/docker-compose.oracle.yml`
 - `infra/nyra-complete/infra/docker-compose.orchestrator.yml`
 - `infra/nyra-complete/infra/docker-compose.workers.yml`
@@ -2028,7 +2028,7 @@ workflows/n8n/templates
 - `infra/project-nyra-scaffold/infra/docker-compose.orchestrator.yml`
 - `infra/project-nyra-scaffold/infra/docker-compose.workers.yml`
 - `infra/stacks/nyra-mortgage/docker-compose.addons.yml`
-- `infra/stacks/nyra-mortgage/docker-compose.graphiti.yml`
+- `infra/stacks/nyra-mortgage/docker-compose.letta.yml`
 - `infra/stacks/nyra-mortgage/docker-compose.local.yml`
 - `infra/stacks/nyra-mortgage/docker-compose.services.yml`
 - `infra/stacks/nyra-mortgage/docker-compose.voice.yml`
@@ -2039,10 +2039,10 @@ workflows/n8n/templates
 - `infra/workers/worker-rtx5090/docker-compose.worker.yml`
 - `infra/workers/worker-rtx5090/worker-5090/docker-compose.worker-5090.yml`
 - `my-ruvector/docker-compose.yml`
-- `node_modules/agentic-flow/validation/docker/docker-compose.yml`
+- `node_modules/archon-os/validation/docker/docker-compose.yml`
 - `services/campaign-engine/docker-compose.yml`
-- `services/claude-flow/docker-compose.yml`
-- `services/graphiti-knowledge/node_modules/natural/lib/natural/util/storage/docker-compose.yml`
+- `services/archon-os/docker-compose.yml`
+- `services/letta-knowledge/node_modules/natural/lib/natural/util/storage/docker-compose.yml`
 - `services/litellm-proxy/docker-compose.dev.yml`
 - `services/litellm-proxy/docker-compose.yml`
 - `services/memory/deployment/docker-compose.memory.yml`
@@ -2054,7 +2054,7 @@ workflows/n8n/templates
 - `_archived/20260306/ToDo/apps-consolidate-input/gitea/docker-compose.gitea.yml`
 - `_archived/20260306/ToDo/apps-consolidate-input/infra/docker-compose.dev.yml`
 - `_archived/20260306/ToDo/apps-consolidate-input/nyra-stack/docker-compose.addons.yml`
-- `_archived/20260306/ToDo/apps-consolidate-input/nyra-stack/docker-compose.graphiti.yml`
+- `_archived/20260306/ToDo/apps-consolidate-input/nyra-stack/docker-compose.letta.yml`
 - `_archived/20260306/ToDo/apps-consolidate-input/nyra-stack/docker-compose.local.yml`
 - `_archived/20260306/ToDo/apps-consolidate-input/nyra-stack/docker-compose.services.yml`
 - `_archived/20260306/ToDo/apps-consolidate-input/nyra-stack/docker-compose.voice.yml`
@@ -2084,8 +2084,8 @@ workflows/n8n/templates
 - `_archived/20260306/ToDo/master_nyra_package/infra/worker-rtx5090/docker-compose.yml`
 - `_archived/20260306/ToDo/master_nyra_package_maximalist/infra/orchestrator/compose/docker-compose.archon.yml`
 - `_archived/20260306/ToDo/master_nyra_package_maximalist/infra/orchestrator/compose/docker-compose.base.yml`
-- `_archived/20260306/ToDo/master_nyra_package_maximalist/infra/orchestrator/compose/docker-compose.claude-flow-cicd.yml`
-- `_archived/20260306/ToDo/master_nyra_package_maximalist/infra/orchestrator/compose/docker-compose.claude-flow.yml`
+- `_archived/20260306/ToDo/master_nyra_package_maximalist/infra/orchestrator/compose/docker-compose.archon-os-cicd.yml`
+- `_archived/20260306/ToDo/master_nyra_package_maximalist/infra/orchestrator/compose/docker-compose.archon-os.yml`
 - `_archived/20260306/ToDo/master_nyra_package_maximalist/infra/orchestrator/compose/docker-compose.dashboard.yml`
 - `_archived/20260306/ToDo/master_nyra_package_maximalist/infra/orchestrator/compose/docker-compose.gitea.yml`
 - `_archived/20260306/ToDo/master_nyra_package_maximalist/infra/orchestrator/compose/docker-compose.orchestrator-cf-tunnel.yml`

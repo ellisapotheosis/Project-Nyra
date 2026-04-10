@@ -5,6 +5,6 @@ include:
   - ./docker-compose.apps.yml
   - ./docker-compose.mcp.yml
   - ./docker-compose.archon.yml
-  - ./docker-compose.claude-flow.yml
+  - ./docker-compose.archon-os.yml
   - ./docker-compose.observability.yml
   - ./docker-compose.monitoring.yml

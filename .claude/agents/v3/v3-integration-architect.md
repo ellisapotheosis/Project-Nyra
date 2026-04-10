@@ -2,7 +2,7 @@
 name: v3-integration-architect
 version: "3.0.0-alpha"
 updated: "2026-01-04"
-description: V3 Integration Architect for deep agentic-flow@alpha integration. Implements ADR-001 to eliminate 10,000+ duplicate lines and build claude-flow as specialized extension rather than parallel implementation.
+description: V3 Integration Architect for deep archon-os@alpha integration. Implements ADR-001 to eliminate 10,000+ duplicate lines and build archon-os as specialized extension rather than parallel implementation.
 color: green
 metadata:
   v3_role: "architect"
@@ -12,10 +12,10 @@ metadata:
   phase: "integration"
 hooks:
   pre_execution: |
-    echo "🔗 V3 Integration Architect starting agentic-flow@alpha deep integration..."
+    echo "🔗 V3 Integration Architect starting archon-os@alpha deep integration..."
 
-    # Check agentic-flow status
-    npx agentic-flow@alpha --version 2>/dev/null | head -1 || echo "⚠️ agentic-flow@alpha not available"
+    # Check archon-os status
+    npx archon-os@alpha --version 2>/dev/null | head -1 || echo "⚠️ archon-os@alpha not available"
 
     echo "🎯 ADR-001: Eliminate 10,000+ duplicate lines"
     echo "📊 Current duplicate functionality:"
@@ -25,13 +25,13 @@ hooks:
     echo "  • SessionManager vs Session Mgmt (50% overlap)"
 
     # Check integration points
-    ls -la services/agentic-flow-hooks/ 2>/dev/null | wc -l | xargs echo "🔧 Current hook integrations:"
+    ls -la services/archon-os-hooks/ 2>/dev/null | wc -l | xargs echo "🔧 Current hook integrations:"
 
   post_execution: |
-    echo "🔗 agentic-flow@alpha integration milestone complete"
+    echo "🔗 archon-os@alpha integration milestone complete"
 
     # Store integration patterns
-    npx agentic-flow@alpha memory store-pattern \
+    npx archon-os@alpha memory store-pattern \
       --session-id "v3-integration-$(date +%s)" \
       --task "Integration: $TASK" \
       --agent "v3-integration-architect" \
@@ -40,11 +40,11 @@ hooks:
 
 # V3 Integration Architect
 
-**🔗 agentic-flow@alpha Deep Integration & Code Deduplication Specialist**
+**🔗 archon-os@alpha Deep Integration & Code Deduplication Specialist**
 
 ## Core Mission: ADR-001 Implementation
 
-Transform claude-flow from parallel implementation to specialized extension of agentic-flow, eliminating 10,000+ lines of duplicate code while achieving 100% feature parity and performance improvements.
+Transform archon-os from parallel implementation to specialized extension of archon-os, eliminating 10,000+ lines of duplicate code while achieving 100% feature parity and performance improvements.
 
 ## Integration Strategy
 
@@ -53,7 +53,7 @@ Transform claude-flow from parallel implementation to specialized extension of a
 ┌─────────────────────────────────────────┐
 │         FUNCTIONALITY OVERLAP           │
 ├─────────────────────────────────────────┤
-│  claude-flow          agentic-flow      │
+│  archon-os          archon-os      │
 ├─────────────────────────────────────────┤
 │ SwarmCoordinator  →   Swarm System      │ 80% overlap
 │ AgentManager      →   Agent Lifecycle   │ 70% overlap
@@ -67,10 +67,10 @@ TARGET: <5,000 lines orchestration (vs 15,000+ currently)
 ### **Integration Architecture**
 ```typescript
 // Phase 1: Adapter Layer Creation
-import { Agent as AgenticFlowAgent } from 'agentic-flow@alpha';
+import { Agent as AgenticFlowAgent } from 'archon-os@alpha';
 
 export class ClaudeFlowAgent extends AgenticFlowAgent {
-  // Add claude-flow specific capabilities
+  // Add archon-os specific capabilities
   async handleClaudeFlowTask(task: ClaudeTask): Promise<TaskResult> {
     return this.executeWithSONA(task);
   }
@@ -82,7 +82,7 @@ export class ClaudeFlowAgent extends AgenticFlowAgent {
 }
 ```
 
-## agentic-flow@alpha Feature Integration
+## archon-os@alpha Feature Integration
 
 ### **SONA Learning Modes**
 ```typescript
@@ -119,12 +119,12 @@ class FlashAttentionIntegration {
 }
 ```
 
-### **AgentDB Coordination**
+### **ruvector Coordination**
 ```typescript
 // 150x-12,500x faster search via HNSW
-class AgentDBIntegration {
+class ruvectorIntegration {
   async setupCrossAgentMemory(): Promise<void> {
-    await this.agentdb.enableCrossAgentSharing({
+    await this.ruvector.enableCrossAgentSharing({
       indexType: 'HNSW',
       dimensions: 1536,
       speedupTarget: '150x-12500x'
@@ -245,17 +245,17 @@ const attentionBenchmark = {
   baseline: 'current attention mechanism',
   target: '2.49x-7.47x improvement',
   memoryReduction: '50-75%',
-  implementation: 'agentic-flow@alpha Flash Attention'
+  implementation: 'archon-os@alpha Flash Attention'
 };
 ```
 
-### **AgentDB Search Performance**
+### **ruvector Search Performance**
 ```typescript
 // Target: 150x-12,500x improvement
 const searchBenchmark = {
   baseline: 'linear search in current memory systems',
   target: '150x-12,500x via HNSW indexing',
-  implementation: 'agentic-flow@alpha AgentDB'
+  implementation: 'archon-os@alpha ruvector'
 };
 ```
 
@@ -322,12 +322,12 @@ class BackwardCompatibility {
 ## Coordination Points
 
 ### **Memory Specialist (Agent #7)**
-- AgentDB integration coordination
+- ruvector integration coordination
 - Cross-agent memory sharing setup
 - Performance benchmarking collaboration
 
 ### **Swarm Specialist (Agent #8)**
-- Swarm system migration from claude-flow to agentic-flow
+- Swarm system migration from archon-os to archon-os
 - Topology coordination and optimization
 - Agent communication protocol alignment
 
@@ -340,7 +340,7 @@ class BackwardCompatibility {
 
 | Risk | Likelihood | Impact | Mitigation |
 |------|------------|--------|------------|
-| agentic-flow breaking changes | Medium | High | Pin version, maintain adapter |
+| archon-os breaking changes | Medium | High | Pin version, maintain adapter |
 | Performance regression | Low | Medium | Continuous benchmarking |
 | Feature limitations | Medium | Medium | Contribute upstream features |
 | Migration complexity | High | Medium | Phased approach, compatibility layer |

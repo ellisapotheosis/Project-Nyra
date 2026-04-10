@@ -28,7 +28,7 @@ For infrastructure changes, Claude Code MUST:
 ### Infrastructure Changes Routing
 ```bash
 # Get optimal routing for infrastructure modifications
-npx @claude-flow/cli@latest hooks pre-task --description "{{PROJECT_NAME}} infrastructure change"
+npx @archon-os/cli@latest hooks pre-task --description "{{PROJECT_NAME}} infrastructure change"
 ```
 
 ## 🏗️ Infrastructure Architecture
@@ -525,13 +525,13 @@ Store infrastructure patterns:
 
 ```bash
 # Store deployment pattern
-npx @claude-flow/cli@latest memory store \
+npx @archon-os/cli@latest memory store \
   --key "{{PROJECT_NAME}}-deployment" \
   --value "Deployment configuration and gotchas" \
   --namespace infrastructure-patterns
 
 # Search for scaling patterns
-npx @claude-flow/cli@latest memory search \
+npx @archon-os/cli@latest memory search \
   --query "Kubernetes scaling best practices"
 ```
 
@@ -554,7 +554,7 @@ For infrastructure changes:
 
 ```bash
 # Initialize swarm
-npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 4
+npx @archon-os/cli@latest swarm init --topology hierarchical --max-agents 4
 
 # Architecture phase
 Task({

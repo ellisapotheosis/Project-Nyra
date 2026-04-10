@@ -194,7 +194,7 @@ Choose your deployment scenario:
 | rate-comparison-engine | 3500 | Internal |
 | ratehunter-api | 3600 | Public |
 | ruvector-search | 3700 | Internal |
-| graphiti-knowledge | 3800 | Internal |
+| letta-knowledge | 3800 | Internal |
 | twentycrm-integration | 3900 | Internal |
 | twilio-integration | 4000 | Internal |
 | letta-integration | 4100 | Internal |

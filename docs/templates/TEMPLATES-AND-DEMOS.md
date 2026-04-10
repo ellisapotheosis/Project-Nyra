@@ -663,7 +663,7 @@ performance_targets:
 
 example_usage: |
   # Task agent with researcher
-  npx claude-flow task "Research current mortgage rate trends for Q1 2024" \
+  npx archon-os task "Research current mortgage rate trends for Q1 2024" \
     --agent market-analyst \
     --output reports/q1-2024-trends.md
 ```
@@ -733,7 +733,7 @@ performance_targets:
 
 example_usage: |
   # SPARC workflow with backend engineer
-  npx claude-flow sparc run all \
+  npx archon-os sparc run all \
     "Implement Quote Engine /api/quotes/generate endpoint" \
     --agent fastapi-backend-engineer \
     --tdd \
@@ -748,7 +748,7 @@ example_usage: |
 
 ```bash
 # Build a complete feature from specification to deployment
-npx claude-flow sparc run all \
+npx archon-os sparc run all \
   "Add mortgage rate lock feature to Quote Engine" \
   --output docs/rate-lock-implementation.md
 
@@ -795,7 +795,7 @@ Output: docs/rate-lock-implementation.md
 
 ```bash
 # Build 3 features in parallel using batch mode
-npx claude-flow sparc batch specification,architecture,completion \
+npx archon-os sparc batch specification,architecture,completion \
   "Quote Engine rate calculator, \
    Campaign Engine n8n integration, \
    Nyra Orchestrator compliance validator" \

@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-Claude-flow Startup Script for NYRA Development Environment
+archon-os Startup Script for NYRA Development Environment
 #>
 
 # Import the Apotheosis.Claude module
@@ -12,13 +12,13 @@ try {
     exit 1
 }
 
-# Start all claude-flow MCP servers
-Write-Host "🚀 Starting NYRA claude-flow ecosystem..." -ForegroundColor Cyan
+# Start all archon-os MCP servers
+Write-Host "🚀 Starting NYRA archon-os ecosystem..." -ForegroundColor Cyan
 Start-ClaudeFlow -ServerName 'all' -UseWrappers
 
 # Show status
 Start-Sleep -Seconds 5
 Get-ClaudeStatus
 
-Write-Host "✅ Claude-flow startup complete!" -ForegroundColor Green
+Write-Host "✅ archon-os startup complete!" -ForegroundColor Green
 Write-Host "Use 'claude-status' to check server health" -ForegroundColor Gray

@@ -15,7 +15,7 @@
 ✓ Nexus Router configuration and logs
 ✓ Letta PostgreSQL database (conversations)
 ✓ Mem0 PostgreSQL database (universal memory)
-✓ AgentDB vector database (agent memory)
+✓ ruvector vector database (agent memory)
 ✓ RuVector neural models and weights
 ✓ Claude Flow configuration and state
 ✓ Archon OS configuration and task history
@@ -52,9 +52,9 @@
 ### Repository Backups (All PCs)
 ```
 ✓ Project-Nyra git repository
-✓ claude-flow repository
 ✓ archon-os repository
-✓ agentdb repository
+✓ archon-os repository
+✓ ruvector repository
 ✓ ruvector-sdk repository
 ✓ Git commit history and branches
 ```
@@ -67,7 +67,7 @@
 
 | Time | PC | Services Backed Up |
 |------|----|--------------------|
-| 02:00 | PC1 | Orchestrator stack (Nexus, Letta, Mem0, AgentDB) |
+| 02:00 | PC1 | Orchestrator stack (Nexus, Letta, Mem0, ruvector) |
 | 02:15 | PC2 | CRM stack (TwentyCRM, n8n, Dify, Redis) |
 | 02:30 | PC3 | LLM stack (Ollama models, Neo4j, FalkorDB) |
 | 02:45 | PC4 | Observability stack (Prometheus, Grafana, Loki) |
@@ -126,10 +126,10 @@ function Backup-Orchestrator {
     Write-Host "  [+] Mem0 database..."
     docker exec postgres-mem0 pg_dump -U mem0 mem0 > "$backupDir\mem0.sql"
 
-    # AgentDB
-    Write-Host "  [+] AgentDB vector database..."
-    docker exec agentdb agentdb-cli export --output /tmp/agentdb-export.json
-    docker cp agentdb:/tmp/agentdb-export.json "$backupDir\agentdb-export.json"
+    # ruvector
+    Write-Host "  [+] ruvector vector database..."
+    docker exec ruvector ruvector-cli export --output /tmp/ruvector-export.json
+    docker cp ruvector:/tmp/ruvector-export.json "$backupDir\ruvector-export.json"
 
     # RuVector Models
     Write-Host "  [+] RuVector neural models..."
@@ -138,7 +138,7 @@ function Backup-Orchestrator {
 
     # Claude Flow State
     Write-Host "  [+] Claude Flow state..."
-    Copy-Item -Path "$env:NYRA_ROOT\.claude-flow\*" -Destination "$backupDir\claude-flow-state" -Recurse -Force
+    Copy-Item -Path "$env:NYRA_ROOT\.archon-os\*" -Destination "$backupDir\archon-os-state" -Recurse -Force
 
     # Archon OS State
     Write-Host "  [+] Archon OS state..."
@@ -226,9 +226,9 @@ function Backup-GitRepositories {
 
     $repos = @(
         "$env:NYRA_ROOT",
-        "C:\Dev\Projects\claude-flow",
         "C:\Dev\Projects\archon-os",
-        "C:\Dev\Projects\agentdb",
+        "C:\Dev\Projects\archon-os",
+        "C:\Dev\Projects\ruvector",
         "C:\Dev\Projects\ruvector-sdk"
     )
 
@@ -331,7 +331,7 @@ Write-Host ""
 Write-Host "Backup includes:" -ForegroundColor Cyan
 switch ($pcRole) {
     {$_ -in "ORCHESTRATOR", "PC1"} {
-        Write-Host "  ✓ Nexus Router, Letta, Mem0, AgentDB, RuVector"
+        Write-Host "  ✓ Nexus Router, Letta, Mem0, ruvector, RuVector"
     }
     {$_ -in "WORKER-2", "PC2"} {
         Write-Host "  ✓ TwentyCRM, n8n, Dify, Redis"
@@ -469,9 +469,9 @@ docker-compose --profile worker-2 up -d
 # On each PC, restore from git bundles
 $repos = @(
     @{Name="Project-Nyra"; Path="C:\Dev\Projects\Repos\Project-Nyra"},
-    @{Name="claude-flow"; Path="C:\Dev\Projects\claude-flow"},
     @{Name="archon-os"; Path="C:\Dev\Projects\archon-os"},
-    @{Name="agentdb"; Path="C:\Dev\Projects\agentdb"},
+    @{Name="archon-os"; Path="C:\Dev\Projects\archon-os"},
+    @{Name="ruvector"; Path="C:\Dev\Projects\ruvector"},
     @{Name="ruvector-sdk"; Path="C:\Dev\Projects\ruvector-sdk"}
 )
 

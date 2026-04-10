@@ -12,11 +12,11 @@
 - ✅ **Nexus Router**: Built with fuzzy tool search + MCP proxy aggregator
 - ✅ **Secrets Management**: 7 critical secrets in Infisical cloud
 - ✅ **Development Ready**: Can develop on Windows, deploy to Linux later
-- ✅ **Claude Flow Plugin**: Installed at `.claude-plugin/claude-flow`
+- ✅ **Claude Flow Plugin**: Installed at `.claude-plugin/archon-os`
 - ⚠️ **MCP Server**: Not currently running (needs initialization)
 
 ### Questions Answered
-1. **MCP Access**: Claude-flow@alpha plugin is installed but MCP server needs to be started
+1. **MCP Access**: archon-os@alpha plugin is installed but MCP server needs to be started
 2. **Dashboard**: YES - shadcn + MagicUI dashboard is highly recommended
 3. **Integration**: MetaMCP, Open-WebUI, Dify integration all feasible
 4. **Color Scheme**: OKLCH purple accent theme extracted from tweakcn
@@ -28,10 +28,10 @@
 
 ### Current Configuration
 
-**Plugin Location**: `.claude-plugin/claude-flow/`
+**Plugin Location**: `.claude-plugin/archon-os/`
 **Plugin Version**: 2.5.0
 **MCP Servers Defined**:
-- `claude-flow@alpha` - Core orchestration (40+ tools)
+- `archon-os@alpha` - Core orchestration (40+ tools)
 - `ruv-swarm` - WASM acceleration (optional)
 - `flow-nexus` - Cloud platform (optional, requires auth)
 
@@ -44,13 +44,13 @@
 **How to Start**:
 ```bash
 # Option 1: Via npx (recommended)
-npx @claude-flow/cli@latest mcp start
+npx @archon-os/cli@latest mcp start
 
 # Option 2: Via claude-code CLI
 # The plugin should auto-start when claude-code loads it
 
 # Option 3: Manual initialization
-cd .claude-plugin/claude-flow
+cd .claude-plugin/archon-os
 npm install
 npm run mcp:start
 ```
@@ -374,7 +374,7 @@ export default config;
 
 ### Claude Flow UI Repo Analysis
 
-**Location**: `C:\Dev\Projects\Repos\claude-flow-ui-main\`
+**Location**: `C:\Dev\Projects\Repos\archon-os-ui-main\`
 
 **Useful Components**:
 1. **PerformanceMonitor.tsx** - Real-time metrics dashboard
@@ -392,12 +392,12 @@ export default config;
 
 ### Claude Flow Examples
 
-**Location**: `C:\Dev\Projects\Repos\claude-flow-clone\examples\`
+**Location**: `C:\Dev\Projects\Repos\archon-os-clone\examples\`
 
 **Review Priority**:
 ```bash
 # High priority examples
-cd C:/Dev/Projects/Repos/claude-flow-clone/examples/
+cd C:/Dev/Projects/Repos/archon-os-clone/examples/
 ls -la
 
 # Look for:
@@ -409,7 +409,7 @@ ls -la
 
 ### Claude Flow Wiki
 
-**Location**: `C:\Dev\Projects\Repos\claude-flow.wiki\`
+**Location**: `C:\Dev\Projects\Repos\archon-os.wiki\`
 
 **Key Topics to Extract**:
 - Architecture patterns
@@ -425,7 +425,7 @@ ls -la
 ### Phase 1: Foundation (Week 1)
 1. ✅ **Nexus Router** - Complete (already built!)
 2. ✅ **Secrets Management** - Complete (Infisical configured!)
-3. ⏳ **MCP Server Startup** - Start claude-flow@alpha MCP
+3. ⏳ **MCP Server Startup** - Start archon-os@alpha MCP
 4. ⏳ **Basic Dashboard** - Shadcn + MagicUI skeleton
 
 ### Phase 2: Core Features (Week 2)
@@ -513,7 +513,7 @@ ls -la
 ### ❌ DON'T Do:
 
 1. **Don't use Dify for admin** - Use Open-WebUI instead
-2. **Don't rebuild wheels** - Extract from claude-flow UI
+2. **Don't rebuild wheels** - Extract from archon-os UI
 3. **Don't mix concerns** - Keep admin separate from customer UIs
 4. **Don't over-engineer** - Start simple, add features iteratively
 
@@ -522,9 +522,9 @@ ls -la
 ## 📋 Next Steps
 
 **Immediate** (Today):
-1. Start claude-flow@alpha MCP server
+1. Start archon-os@alpha MCP server
 2. Test MCP tool discovery
-3. Review claude-flow UI components
+3. Review archon-os UI components
 4. Extract color scheme to theme file
 
 **Short-term** (This Week):

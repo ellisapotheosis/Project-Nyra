@@ -375,10 +375,10 @@ This skill integrates with Claude Flow V3:
 
 ```bash
 # After creating CLAUDE.md, initialize swarm for that service
-npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 8
+npx @archon-os/cli@latest swarm init --topology hierarchical --max-agents 8
 
 # Store pattern in memory
-npx @claude-flow/cli@latest memory store \
+npx @archon-os/cli@latest memory store \
   --key "claude-md-service-api" \
   --value "[content of created CLAUDE.md]" \
   --namespace templates

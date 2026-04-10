@@ -85,9 +85,9 @@ C:\Dev\Projects\Repos\Project-Nyra\
 - `docker-compose.yml` (each worker) - [🚫 DUPLICATE?]
 
 #### Orchestration (TO BE RELOCATED)
-**`/orchestration/claude-flow/`** [🔄 MOVING]
+**`/orchestration/archon-os/`** [🔄 MOVING]
 - `Dockerfile` - [⏳ REVIEW] Claude Flow container
-- Destination: `/infra/docker/services/claude-flow/`
+- Destination: `/infra/docker/services/archon-os/`
 
 **`/orchestration/serena/serena/`** [🔄 MOVING]
 - `compose.yaml` - [⏳ REVIEW] Serena MCP server
@@ -100,7 +100,7 @@ C:\Dev\Projects\Repos\Project-Nyra\
 │   ├── Dockerfile.base           # Base image for all services
 │   └── docker-compose.core.yml   # Core infrastructure (PostgreSQL, Redis, Neo4j)
 ├── services/                     # One folder per service
-│   ├── claude-flow/
+│   ├── archon-os/
 │   │   ├── Dockerfile
 │   │   └── config/
 │   ├── serena/
@@ -180,13 +180,13 @@ C:\Dev\Projects\Repos\Project-Nyra\
 ### Claude Flow Configurations
 
 **Current Location:**
-- `/orchestration/claude-flow/` - [🔄 MOVING]
+- `/orchestration/archon-os/` - [🔄 MOVING]
   - `.claude/settings.json`
   - `.mcp.json`
-  - `claude-flow.cmd`
+  - `archon-os.cmd`
 
 **Target Location:**
-- `/infra/docker/services/claude-flow/config/`
+- `/infra/docker/services/archon-os/config/`
 
 ### Other Configurations
 - Environment variables: [🔄 CONSOLIDATING] See Environment Variables section
@@ -301,8 +301,8 @@ LETTA_URL=http://localhost:8283             # [✅ SET]
 # Mem0
 MEM0_URL=http://localhost:4321              # [✅ SET]
 
-# AgentDB
-AGENTDB_URL=http://localhost:8080           # [✅ SET]
+# ruvector
+ruvector_URL=http://localhost:8080           # [✅ SET]
 
 # RuVector
 RUVECTOR_URL=http://localhost:8888          # [✅ SET]
@@ -350,8 +350,8 @@ SENTRY_DSN=...                              # [⚠️ NEEDS INFISICAL]
 | Mem0 | 4321 | ✅ | ✅ | [⏳ VERIFY] |
 | OpenMemory | 8081 | ✅ | ✅ | [⏳ VERIFY] |
 | Qdrant | 6333 | ✅ | ❌ | [🔄 ADD TO NEXUS] |
-| Graphiti | 6379 | ✅ | ❌ | [🔄 ADD TO NEXUS] |
-| AgentDB | 8080 | ✅ | ✅ | [⏳ VERIFY] |
+| letta | 6379 | ✅ | ❌ | [🔄 ADD TO NEXUS] |
+| ruvector | 8080 | ✅ | ✅ | [⏳ VERIFY] |
 | RuVector | 8888 | ✅ | ✅ | [⏳ VERIFY] |
 
 #### Orchestration
@@ -393,13 +393,13 @@ SENTRY_DSN=...                              # [⚠️ NEEDS INFISICAL]
 ├── openmemory/
 │   ├── Dockerfile
 │   └── docker-compose.yml
-├── agentdb/
+├── ruvector/
 │   ├── Dockerfile
 │   └── docker-compose.yml
 ├── ruvector/
 │   ├── Dockerfile
 │   └── docker-compose.yml
-├── claude-flow/
+├── archon-os/
 │   ├── Dockerfile
 │   └── config/
 ├── archon/

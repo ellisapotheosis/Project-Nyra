@@ -119,7 +119,7 @@ MCP_GITHUB_PORT=8085
 # === ORCHESTRATION (Orchestrator Only) ===
 LETTA_API_KEY=<generate-with-openssl>
 LETTA_SERVER_PASS=<strong-password>
-GRAPHITI_API_KEY=<optional-for-cloud>
+letta_API_KEY=<optional-for-cloud>
 MEM0_API_KEY=<optional-for-cloud>
 
 # === MONITORING (Orchestrator Only) ===
@@ -565,13 +565,13 @@ echo "INFISICAL_TOKEN=<token>" > .env.infisical
 | `LETTA_API_KEY` | Yes | Orch | - | Letta API key (generate) |
 | `LETTA_SERVER_PASS` | Yes | Orch | - | Letta admin password |
 
-### Category 12: Graphiti MCP
+### Category 12: letta MCP
 
 | Variable | Required | PC | Default | Description |
 |----------|----------|----|---------| ------------|
-| `GRAPHITI_API_KEY` | No | Orch | - | Graphiti cloud API key (optional) |
-| `GRAPHITI_TEMPORAL_TRACKING` | No | Orch | true | Enable temporal tracking |
-| `GRAPHITI_RELATIONSHIP_INFERENCE` | No | Orch | true | Enable relationship inference |
+| `letta_API_KEY` | No | Orch | - | letta cloud API key (optional) |
+| `letta_TEMPORAL_TRACKING` | No | Orch | true | Enable temporal tracking |
+| `letta_RELATIONSHIP_INFERENCE` | No | Orch | true | Enable relationship inference |
 
 ### Category 13: Mem0
 
@@ -660,7 +660,7 @@ echo "INFISICAL_TOKEN=<token>" > .env.infisical
 |----------|----------|----|---------| ------------|
 | `NODE_ENV` | No | All | development | Node environment (development/staging/production) |
 | `ENVIRONMENT` | No | All | development | Application environment |
-| `DEBUG` | No | All | claude-flow:*,archon:* | Debug namespaces |
+| `DEBUG` | No | All | archon-os:*,archon:* | Debug namespaces |
 | `LOG_LEVEL` | No | All | INFO | Logging level (DEBUG/INFO/WARN/ERROR) |
 
 ---

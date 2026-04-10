@@ -9,7 +9,7 @@
 
 ## Executive Summary
 
-This document defines a unified, Docker-first bootstrap architecture for Project Nyra's 4-PC distributed Windows 11 cluster. The architecture centralizes all bootstrap materials in a single `bootstrap/` directory, containerizes all services (claude-flow, Archon OS, MCP servers), provides Windows command shims, and includes a React-based GUI installer for simplified deployment.
+This document defines a unified, Docker-first bootstrap architecture for Project Nyra's 4-PC distributed Windows 11 cluster. The architecture centralizes all bootstrap materials in a single `bootstrap/` directory, containerizes all services (archon-os, Archon OS, MCP servers), provides Windows command shims, and includes a React-based GUI installer for simplified deployment.
 
 ### Key Design Principles
 
@@ -57,13 +57,13 @@ bootstrap/
 │   ├── compose/
 │   │   ├── docker-compose.base.yml         # Base services (Infisical, MetaMCP)
 │   │   ├── docker-compose.mcp.yml          # All MCP servers
-│   │   ├── docker-compose.claude-flow.yml  # Claude Flow V3
+│   │   ├── docker-compose.archon-os.yml  # Claude Flow V3
 │   │   ├── docker-compose.archon.yml       # Archon OS
 │   │   ├── docker-compose.orchestrator.yml # Orchestrator + DBs
 │   │   ├── docker-compose.worker.yml       # GPU worker template
 │   │   └── docker-compose.full.yml         # Complete stack (imports all)
 │   ├── images/
-│   │   ├── claude-flow/
+│   │   ├── archon-os/
 │   │   │   ├── Dockerfile.dev              # Dev mode (hot-reload)
 │   │   │   ├── Dockerfile.prod             # Production mode
 │   │   │   └── entrypoint.sh
@@ -72,9 +72,9 @@ bootstrap/
 │   │   │   └── entrypoint.sh
 │   │   ├── mcp-servers/
 │   │   │   ├── Dockerfile.infisical
-│   │   │   ├── Dockerfile.graphiti
+│   │   │   ├── Dockerfile.letta
 │   │   │   ├── Dockerfile.mem0
-│   │   │   ├── Dockerfile.agentdb
+│   │   │   ├── Dockerfile.ruvector
 │   │   │   ├── Dockerfile.flow-nexus
 │   │   │   └── Dockerfile.metamcp-gateway
 │   │   └── nyra/
@@ -87,7 +87,7 @@ bootstrap/
 │
 ├── shims/                          # Windows Command Shims
 │   ├── templates/
-│   │   ├── claude-flow.cmd.template        # Template for shim generation
+│   │   ├── archon-os.cmd.template        # Template for shim generation
 │   │   ├── archon.cmd.template
 │   │   └── mcp-tool.cmd.template
 │   ├── generated/                          # Generated shims (per-PC)
@@ -102,28 +102,28 @@ bootstrap/
 ├── configs/                        # PC-Specific Configurations
 │   ├── orchestrator/
 │   │   ├── .env                            # Orchestrator environment
-│   │   ├── claude-flow.config.json
+│   │   ├── archon-os.config.json
 │   │   ├── archon.config.json
 │   │   ├── infisical.json
 │   │   └── docker-compose.override.yml     # PC-specific overrides
 │   ├── worker-1/                           # RTX 3060 (mobile)
 │   │   ├── .env
-│   │   ├── claude-flow.config.json
+│   │   ├── archon-os.config.json
 │   │   ├── gpu.config.json                 # GPU-specific config
 │   │   └── docker-compose.override.yml
 │   ├── worker-2/                           # RTX 5090 (mobile)
 │   │   ├── .env
-│   │   ├── claude-flow.config.json
+│   │   ├── archon-os.config.json
 │   │   ├── gpu.config.json
 │   │   └── docker-compose.override.yml
 │   ├── worker-3/                           # RTX 3090Ti (always-on)
 │   │   ├── .env
-│   │   ├── claude-flow.config.json
+│   │   ├── archon-os.config.json
 │   │   ├── gpu.config.json
 │   │   └── docker-compose.override.yml
 │   └── templates/                          # Config templates for generation
 │       ├── .env.template
-│       ├── claude-flow.config.template.json
+│       ├── archon-os.config.template.json
 │       └── archon.config.template.json
 │
 ├── scripts/                        # Platform-Specific Bootstrap Scripts
@@ -155,7 +155,7 @@ bootstrap/
 │   ├── docker/
 │   │   └── .env.template
 │   ├── configs/
-│   │   ├── claude-flow.template.json
+│   │   ├── archon-os.template.json
 │   │   ├── archon.template.json
 │   │   └── mcp-server.template.json
 │   └── shims/
@@ -208,7 +208,7 @@ services:
     environment:
       - NYRA_PC_ID=${NYRA_PC_ID}
       - INFISICAL_MCP_ENDPOINT=http://infisical-mcp:8006
-      - CLAUDE_FLOW_MCP_ENDPOINT=http://claude-flow-mcp:8003
+      - CLAUDE_FLOW_MCP_ENDPOINT=http://archon-os-mcp:8003
       - ARCHON_MCP_ENDPOINT=http://archon-mcp:8004
     ports:
       - "8005:8005"
@@ -223,11 +223,11 @@ services:
   # CLAUDE FLOW V3
   # ============================================================================
 
-  claude-flow-mcp:
+  archon-os-mcp:
     build:
-      context: ./docker/images/claude-flow
+      context: ./docker/images/archon-os
       dockerfile: Dockerfile.${CLAUDE_FLOW_MODE:-prod}  # dev or prod
-    container_name: nyra-claude-flow-mcp
+    container_name: nyra-archon-os-mcp
     environment:
       - NYRA_PC_ID=${NYRA_PC_ID}
       - CLAUDE_FLOW_MODE=v3
@@ -245,7 +245,7 @@ services:
       - infisical-mcp
     networks:
       - nyra-network
-    command: npx @claude-flow/cli@latest daemon start --mcp-mode
+    command: npx @archon-os/cli@latest daemon start --mcp-mode
 
   # ============================================================================
   # ARCHON OS
@@ -273,15 +273,15 @@ services:
   # ADDITIONAL MCP SERVERS
   # ============================================================================
 
-  graphiti-mcp:
-    build: ./docker/images/mcp-servers/Dockerfile.graphiti
-    container_name: nyra-graphiti-mcp
+  letta-mcp:
+    build: ./docker/images/mcp-servers/Dockerfile.letta
+    container_name: nyra-letta-mcp
     environment:
       - NYRA_PC_ID=${NYRA_PC_ID}
     ports:
       - "8007:8007"
     volumes:
-      - graphiti_data:/app/data
+      - letta_data:/app/data
       - infisical_secrets:/app/secrets:ro
     networks:
       - nyra-network
@@ -299,15 +299,15 @@ services:
     networks:
       - nyra-network
 
-  agentdb-mcp:
-    build: ./docker/images/mcp-servers/Dockerfile.agentdb
-    container_name: nyra-agentdb-mcp
+  ruvector-mcp:
+    build: ./docker/images/mcp-servers/Dockerfile.ruvector
+    container_name: nyra-ruvector-mcp
     environment:
       - NYRA_PC_ID=${NYRA_PC_ID}
     ports:
       - "8009:8009"
     volumes:
-      - agentdb_data:/app/data
+      - ruvector_data:/app/data
       - infisical_secrets:/app/secrets:ro
     networks:
       - nyra-network
@@ -429,9 +429,9 @@ volumes:
   infisical_secrets:
   claude_flow_data:
   archon_data:
-  graphiti_data:
+  letta_data:
   mem0_data:
-  agentdb_data:
+  ruvector_data:
   flow_nexus_data:
   postgres_data:
   falkordb_data:
@@ -490,7 +490,7 @@ services:
 
 Windows `.cmd` shims provide transparent Docker execution:
 
-**Template (`bootstrap/shims/templates/claude-flow.cmd.template`)**:
+**Template (`bootstrap/shims/templates/archon-os.cmd.template`)**:
 ```batch
 @echo off
 REM Claude Flow Docker Shim
@@ -511,13 +511,13 @@ if not exist "\\wsl$\docker-desktop\mnt\host\wsl\docker-desktop-bind-mounts\Ubun
     echo [WARN] Infisical secrets volume not mounted. Some features may not work.
 )
 
-REM Execute claude-flow command inside container
-docker exec -it nyra-claude-flow-mcp npx @claude-flow/cli@latest %*
+REM Execute archon-os command inside container
+docker exec -it nyra-archon-os-mcp npx @archon-os/cli@latest %*
 
 endlocal
 ```
 
-**Generated Shim (`bootstrap/shims/generated/orchestrator/claude-flow.cmd`)**:
+**Generated Shim (`bootstrap/shims/generated/orchestrator/archon-os.cmd`)**:
 ```batch
 @echo off
 REM Claude Flow Docker Shim
@@ -533,8 +533,8 @@ if %ERRORLEVEL% neq 0 (
     exit /b 1
 )
 
-REM Execute claude-flow command inside container
-docker exec -it nyra-claude-flow-mcp npx @claude-flow/cli@latest %*
+REM Execute archon-os command inside container
+docker exec -it nyra-archon-os-mcp npx @archon-os/cli@latest %*
 
 endlocal
 ```
@@ -602,9 +602,9 @@ export class ShimGenerator {
   async generateAllShims(pcId: string): Promise<string[]> {
     const shims: ShimConfig[] = [
       {
-        commandName: 'claude-flow',
-        containerName: 'nyra-claude-flow-mcp',
-        execCommand: 'npx @claude-flow/cli@latest',
+        commandName: 'archon-os',
+        containerName: 'nyra-archon-os-mcp',
+        execCommand: 'npx @archon-os/cli@latest',
         pcId,
         installPath: path.join(this.outputDir, pcId),
       },
@@ -953,7 +953,7 @@ INFISICAL_PROJECT_ID=***
 INFISICAL_TOKEN=***
 ```
 
-**Claude Flow Config (`bootstrap/configs/orchestrator/claude-flow.config.json`)**:
+**Claude Flow Config (`bootstrap/configs/orchestrator/archon-os.config.json`)**:
 ```json
 {
   "version": "3.0.0",
@@ -970,7 +970,7 @@ INFISICAL_TOKEN=***
   },
   "memory": {
     "backend": "hybrid",
-    "agentdb": {
+    "ruvector": {
       "hnsw": true,
       "quantization": true
     }
@@ -1078,9 +1078,9 @@ INFISICAL_TOKEN=***
       }
     },
     "orchestration": {
-      "claude-flow-mcp": {
+      "archon-os-mcp": {
         "required": true,
-        "dockerImage": "bootstrap/docker/images/claude-flow/Dockerfile.prod",
+        "dockerImage": "bootstrap/docker/images/archon-os/Dockerfile.prod",
         "port": 8003,
         "dependencies": ["infisical-mcp"]
       },
@@ -1092,9 +1092,9 @@ INFISICAL_TOKEN=***
       }
     },
     "memory": {
-      "graphiti-mcp": {
+      "letta-mcp": {
         "required": false,
-        "dockerImage": "bootstrap/docker/images/mcp-servers/Dockerfile.graphiti",
+        "dockerImage": "bootstrap/docker/images/mcp-servers/Dockerfile.letta",
         "port": 8007
       },
       "mem0-mcp": {
@@ -1102,9 +1102,9 @@ INFISICAL_TOKEN=***
         "dockerImage": "bootstrap/docker/images/mcp-servers/Dockerfile.mem0",
         "port": 8008
       },
-      "agentdb-mcp": {
+      "ruvector-mcp": {
         "required": false,
-        "dockerImage": "bootstrap/docker/images/mcp-servers/Dockerfile.agentdb",
+        "dockerImage": "bootstrap/docker/images/mcp-servers/Dockerfile.ruvector",
         "port": 8009
       }
     },
@@ -1136,11 +1136,11 @@ INFISICAL_TOKEN=***
         "claude-code": { "enabled": true },
         "infisical-mcp": { "enabled": true },
         "metamcp-gateway": { "enabled": true },
-        "claude-flow-mcp": { "enabled": true },
+        "archon-os-mcp": { "enabled": true },
         "archon-mcp": { "enabled": true },
-        "graphiti-mcp": { "enabled": true },
+        "letta-mcp": { "enabled": true },
         "mem0-mcp": { "enabled": false },
-        "agentdb-mcp": { "enabled": true },
+        "ruvector-mcp": { "enabled": true },
         "postgres": { "enabled": true },
         "falkordb": { "enabled": true },
         "chromadb": { "enabled": true }
@@ -1152,7 +1152,7 @@ INFISICAL_TOKEN=***
         "claude-code": { "enabled": true },
         "infisical-mcp": { "enabled": true },
         "metamcp-gateway": { "enabled": true },
-        "claude-flow-mcp": { "enabled": true },
+        "archon-os-mcp": { "enabled": true },
         "archon-mcp": { "enabled": false }
       }
     },
@@ -1162,7 +1162,7 @@ INFISICAL_TOKEN=***
         "claude-code": { "enabled": true },
         "infisical-mcp": { "enabled": true },
         "metamcp-gateway": { "enabled": true },
-        "claude-flow-mcp": { "enabled": true },
+        "archon-os-mcp": { "enabled": true },
         "archon-mcp": { "enabled": false }
       }
     },
@@ -1172,7 +1172,7 @@ INFISICAL_TOKEN=***
         "claude-code": { "enabled": true },
         "infisical-mcp": { "enabled": true },
         "metamcp-gateway": { "enabled": true },
-        "claude-flow-mcp": { "enabled": true },
+        "archon-os-mcp": { "enabled": true },
         "archon-mcp": { "enabled": false }
       }
     }
@@ -1190,7 +1190,7 @@ INFISICAL_TOKEN=***
 graph TB
     subgraph "Windows Host"
         CLI[Windows CLI]
-        Shims[Command Shims<br/>claude-flow.cmd<br/>archon.cmd]
+        Shims[Command Shims<br/>archon-os.cmd<br/>archon.cmd]
         Docker[Docker Desktop]
     end
 
@@ -1206,9 +1206,9 @@ graph TB
         end
 
         subgraph "Memory Systems"
-            Graphiti[Graphiti MCP<br/>:8007]
+            letta[letta MCP<br/>:8007]
             Mem0[Mem0 MCP<br/>:8008]
-            AgentDB[AgentDB MCP<br/>:8009]
+            ruvector[ruvector MCP<br/>:8009]
         end
 
         subgraph "Orchestrator Services"
@@ -1228,9 +1228,9 @@ graph TB
     Archon --> MetaMCP
     MetaMCP --> Infisical
 
-    MetaMCP --> Graphiti
+    MetaMCP --> letta
     MetaMCP --> Mem0
-    MetaMCP --> AgentDB
+    MetaMCP --> ruvector
 
     Orchestrator --> Postgres
     Orchestrator --> FalkorDB
@@ -1404,7 +1404,7 @@ export class Validator {
     const checks = [
       this.checkContainersRunning(components),
       this.checkHealthEndpoints(components),
-      this.checkShimsWorking(['claude-flow', 'archon']),
+      this.checkShimsWorking(['archon-os', 'archon']),
       this.checkConfigsDeployed(),
       this.checkInfisicalSecrets(),
     ];
@@ -1444,7 +1444,7 @@ export class Validator {
     const endpoints = [
       { name: 'infisical-mcp', url: 'http://localhost:8006/health' },
       { name: 'metamcp-gateway', url: 'http://localhost:8005/health' },
-      { name: 'claude-flow-mcp', url: 'http://localhost:8003/health' },
+      { name: 'archon-os-mcp', url: 'http://localhost:8003/health' },
     ].filter(e => components.includes(e.name));
 
     const results = await Promise.all(
@@ -1478,7 +1478,7 @@ $containers = docker ps --format "{{.Names}}"
 $expected = @(
     "nyra-infisical-mcp",
     "nyra-metamcp-gateway",
-    "nyra-claude-flow-mcp"
+    "nyra-archon-os-mcp"
 )
 
 foreach ($container in $expected) {
@@ -1515,7 +1515,7 @@ foreach ($endpoint in $endpoints.GetEnumerator()) {
 
 # Test 3: Command shims
 Write-Host "[3/5] Testing command shims..." -ForegroundColor Yellow
-$shims = @("claude-flow", "archon")
+$shims = @("archon-os", "archon")
 
 foreach ($shim in $shims) {
     $shimPath = "$env:USERPROFILE\.nyra\shims\$shim.cmd"
@@ -1552,7 +1552,7 @@ $configPath = "C:\Dev\Projects\Repos\Project-Nyra\bootstrap\configs\$env:NYRA_PC
 if (Test-Path $configPath) {
     Write-Host "  ✓ PC-specific config directory exists" -ForegroundColor Green
 
-    $requiredFiles = @(".env", "claude-flow.config.json", "docker-compose.override.yml")
+    $requiredFiles = @(".env", "archon-os.config.json", "docker-compose.override.yml")
     foreach ($file in $requiredFiles) {
         if (Test-Path "$configPath\$file") {
             Write-Host "  ✓ $file exists" -ForegroundColor Green
@@ -1689,7 +1689,7 @@ export class RollbackManager {
 | **AI OS** | Archon OS | Distributed AI framework |
 | **MCP Gateway** | MetaMCP | MCP server aggregation |
 | **Secret Management** | Infisical | Centralized secrets |
-| **Memory Systems** | Graphiti, Mem0, AgentDB | Knowledge graphs, vector DBs |
+| **Memory Systems** | letta, Mem0, ruvector | Knowledge graphs, vector DBs |
 | **GUI Installer** | React + TypeScript + Vite | Installation interface |
 | **State Management** | Zustand | React state |
 | **Styling** | TailwindCSS + shadcn/ui | UI components |
@@ -1708,9 +1708,9 @@ export class RollbackManager {
 | Archon MCP | 8004 | HTTP/stdio | Archon OS |
 | MetaMCP Gateway | 8005 | HTTP/stdio | MCP Gateway |
 | Infisical MCP | 8006 | HTTP/stdio | Secrets |
-| Graphiti MCP | 8007 | HTTP/stdio | Knowledge graph |
+| letta MCP | 8007 | HTTP/stdio | Knowledge graph |
 | Mem0 MCP | 8008 | HTTP/stdio | Memory |
-| AgentDB MCP | 8009 | HTTP/stdio | Vector DB |
+| ruvector MCP | 8009 | HTTP/stdio | Vector DB |
 | Flow Nexus MCP | 8010 | HTTP/stdio | Flow coordination |
 | Management UI | 8080 | HTTP | Admin dashboard |
 | PostgreSQL | 5432 | TCP | Database |

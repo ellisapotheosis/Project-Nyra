@@ -334,12 +334,12 @@ Turborepo works seamlessly with Claude Flow:
 
 ```bash
 # Pre-task: Analyze affected packages
-npx @claude-flow/cli@latest hooks pre-task \
+npx @archon-os/cli@latest hooks pre-task \
   --description "Update service" \
   --context "$(turbo run build --dry-run --affected)"
 
 # Post-task: Store metrics
-npx @claude-flow/cli@latest hooks post-task \
+npx @archon-os/cli@latest hooks post-task \
   --task-id "build" \
   --metrics "$(turbo run build --summarize)"
 ```

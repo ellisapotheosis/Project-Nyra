@@ -213,14 +213,14 @@ Thought 8: Migration strategy from current architecture
 
 ```bash
 # Spawn researcher with sequential thinking
-npx @claude-flow/cli@latest agent spawn \
+npx @archon-os/cli@latest agent spawn \
   -t researcher \
   --mcp-tool sequential_thinking \
   --task "Research authentication patterns" \
   --name research-auth
 
 # Use in swarm coordination
-npx @claude-flow/cli@latest swarm init \
+npx @archon-os/cli@latest swarm init \
   --topology hierarchical \
   --enable-sequential-thinking \
   --max-agents 8
@@ -230,13 +230,13 @@ npx @claude-flow/cli@latest swarm init \
 
 ```bash
 # Pre-task planning
-npx @claude-flow/cli@latest hooks pre-task \
+npx @archon-os/cli@latest hooks pre-task \
   --description "Design microservices architecture" \
   --use-sequential-thinking true \
   --context "15 services, event-driven, CQRS"
 
 # Route complex decisions to sequential thinking
-npx @claude-flow/cli@latest hooks route \
+npx @archon-os/cli@latest hooks route \
   --task "Choose message broker for event streaming" \
   --prefer-sequential true
 ```
@@ -245,13 +245,13 @@ npx @claude-flow/cli@latest hooks route \
 
 ```bash
 # Store successful reasoning patterns
-npx @claude-flow/cli@latest memory store \
+npx @archon-os/cli@latest memory store \
   --key "seq-thinking-api-design" \
   --value "8-step process for API design" \
   --namespace patterns
 
 # Search for past reasoning patterns
-npx @claude-flow/cli@latest memory search \
+npx @archon-os/cli@latest memory search \
   --query "sequential thinking architecture" \
   --namespace patterns
 ```
@@ -473,5 +473,5 @@ docker run --rm \
 
 - [MCP Sequential Thinking Server](https://github.com/modelcontextprotocol/servers/tree/main/src/sequentialthinking)
 - [Model Context Protocol](https://modelcontextprotocol.io/)
-- [Claude Flow Documentation](https://github.com/ruvnet/claude-flow)
+- [Claude Flow Documentation](https://github.com/ruvnet/archon-os)
 - [Project Nyra Architecture](../architecture/system-architecture.md)

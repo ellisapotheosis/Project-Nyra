@@ -5,7 +5,7 @@ Created Files:
 --------------
 
 Workflow Definition:
-  .claude-flow/workflows/ingestion-sparc.json (252 lines)
+  .archon-os/workflows/ingestion-sparc.json (252 lines)
 
 Automation Scripts:
   scripts/ingestion/sparc-workflow.sh (240 lines) - Main workflow executor

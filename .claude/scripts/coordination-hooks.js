@@ -4,7 +4,7 @@
  * Coordination Hooks Script - Implements Claude Flow coordination hooks
  * 
  * This script provides coordination hooks that integrate with the existing
- * claude-flow hooks system while extending it for Archon orchestration.
+ * archon-os hooks system while extending it for Archon orchestration.
  */
 
 const fs = require('fs').promises;
@@ -46,10 +46,10 @@ class CoordinationHooks {
                 await this._ensureSessionDirectory(sessionId);
             }
             
-            // Execute original claude-flow pre-task hook if enabled
+            // Execute original archon-os pre-task hook if enabled
             if (this.config.enableClaudeFlowHooks) {
                 try {
-                    const hookCommand = `npx claude-flow@alpha hooks pre-task --description "${description}"`;
+                    const hookCommand = `npx archon-os@alpha hooks pre-task --description "${description}"`;
                     this._executeCommand(hookCommand);
                     this.logger.debug('✅ Claude Flow pre-task hook executed');
                 } catch (error) {
@@ -104,10 +104,10 @@ class CoordinationHooks {
         this.logger.info(`🏁 Post-task hook: Task ${taskId} (${success ? 'success' : 'failed'})`);
         
         try {
-            // Execute original claude-flow post-task hook if enabled
+            // Execute original archon-os post-task hook if enabled
             if (this.config.enableClaudeFlowHooks && taskId) {
                 try {
-                    const hookCommand = `npx claude-flow@alpha hooks post-task --task-id "${taskId}"`;
+                    const hookCommand = `npx archon-os@alpha hooks post-task --task-id "${taskId}"`;
                     this._executeCommand(hookCommand);
                     this.logger.debug('✅ Claude Flow post-task hook executed');
                 } catch (error) {
@@ -169,10 +169,10 @@ class CoordinationHooks {
         this.logger.info(`💾 Session restore hook: ${sessionId}`);
         
         try {
-            // Execute original claude-flow session-restore hook if enabled
+            // Execute original archon-os session-restore hook if enabled
             if (this.config.enableClaudeFlowHooks && sessionId) {
                 try {
-                    const hookCommand = `npx claude-flow@alpha hooks session-restore --session-id "${sessionId}"`;
+                    const hookCommand = `npx archon-os@alpha hooks session-restore --session-id "${sessionId}"`;
                     this._executeCommand(hookCommand);
                     this.logger.debug('✅ Claude Flow session-restore hook executed');
                 } catch (error) {
@@ -209,10 +209,10 @@ class CoordinationHooks {
         this.logger.info(`🔚 Session end hook: ${sessionId}`);
         
         try {
-            // Execute original claude-flow session-end hook if enabled
+            // Execute original archon-os session-end hook if enabled
             if (this.config.enableClaudeFlowHooks && sessionId) {
                 try {
-                    const hookCommand = `npx claude-flow@alpha hooks session-end --export-metrics ${exportMetrics}`;
+                    const hookCommand = `npx archon-os@alpha hooks session-end --export-metrics ${exportMetrics}`;
                     this._executeCommand(hookCommand);
                     this.logger.debug('✅ Claude Flow session-end hook executed');
                 } catch (error) {
@@ -247,10 +247,10 @@ class CoordinationHooks {
         this.logger.info(`📢 Notify hook: ${message} (${level})`);
         
         try {
-            // Execute original claude-flow notify hook if enabled
+            // Execute original archon-os notify hook if enabled
             if (this.config.enableClaudeFlowHooks) {
                 try {
-                    const hookCommand = `npx claude-flow@alpha hooks notify --message "${message}"`;
+                    const hookCommand = `npx archon-os@alpha hooks notify --message "${message}"`;
                     this._executeCommand(hookCommand);
                     this.logger.debug('✅ Claude Flow notify hook executed');
                 } catch (error) {
@@ -291,12 +291,12 @@ class CoordinationHooks {
         this.logger.info(`📝 Post-edit hook: ${file} (${operation})`);
         
         try {
-            // Execute original claude-flow post-edit hook if enabled
+            // Execute original archon-os post-edit hook if enabled
             if (this.config.enableClaudeFlowHooks && file) {
                 try {
                     const hookCommand = memoryKey ? 
-                        `npx claude-flow@alpha hooks post-edit --file "${file}" --memory-key "${memoryKey}"` :
-                        `npx claude-flow@alpha hooks post-edit --file "${file}"`;
+                        `npx archon-os@alpha hooks post-edit --file "${file}" --memory-key "${memoryKey}"` :
+                        `npx archon-os@alpha hooks post-edit --file "${file}"`;
                     this._executeCommand(hookCommand);
                     this.logger.debug('✅ Claude Flow post-edit hook executed');
                 } catch (error) {

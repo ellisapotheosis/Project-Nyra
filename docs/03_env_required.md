@@ -20,37 +20,37 @@ This deduplicated list is derived from active repo-root, `infra`, `apps`, and `s
 - `ADMIN_DASHBOARD_URL` — config | scopes: Apps | contexts: global | environment-dependent: yes | Endpoint or hostname; update per dev/staging/prod environment.
 - `ADMIN_EMAIL` — config | scopes: Infra | contexts: global | environment-dependent: no | Configuration value defined in active env templates.
 - `ADMIN_PASSWORD` — secret | scopes: Infra | contexts: global | environment-dependent: no | Secret material; keep in Infisical or untracked local env files.
-- `AGENTDB_AUTO_MIGRATE` — config | scopes: Infra, Repo Root | contexts: cicd, claude-flow | environment-dependent: no | Configuration value defined in active env templates.
-- `AGENTDB_CACHE_SIZE` — config | scopes: Infra, Repo Root | contexts: cicd, claude-flow | environment-dependent: no | Configuration value defined in active env templates.
-- `AGENTDB_DB` — config | scopes: Infra | contexts: dev | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
-- `AGENTDB_ENABLED` — config | scopes: Infra, Repo Root | contexts: cicd, claude-flow | environment-dependent: no | Configuration value defined in active env templates.
-- `AGENTDB_FALLBACK_LEGACY` — config | scopes: Infra, Repo Root | contexts: cicd, claude-flow | environment-dependent: no | Configuration value defined in active env templates.
-- `AGENTDB_HNSW_EF` — config | scopes: Infra, Repo Root | contexts: cicd, claude-flow | environment-dependent: no | Configuration value defined in active env templates.
-- `AGENTDB_HNSW_EF_SEARCH` — config | scopes: Infra, Repo Root | contexts: cicd, claude-flow | environment-dependent: no | Configuration value defined in active env templates.
-- `AGENTDB_HNSW_M` — config | scopes: Infra, Repo Root | contexts: cicd, claude-flow | environment-dependent: no | Configuration value defined in active env templates.
-- `AGENTDB_HOST` — config | scopes: Repo Root | contexts: global | environment-dependent: yes | Endpoint or hostname; update per dev/staging/prod environment.
-- `AGENTDB_LEARNING` — config | scopes: Infra, Repo Root | contexts: cicd, claude-flow | environment-dependent: no | Configuration value defined in active env templates.
-- `AGENTDB_LEARNING_ALGORITHM` — config | scopes: Infra, Repo Root | contexts: cicd, claude-flow | environment-dependent: no | Configuration value defined in active env templates.
-- `AGENTDB_PASSWORD` — secret | scopes: Infra | contexts: dev | environment-dependent: no | Secret material; keep in Infisical or untracked local env files.
-- `AGENTDB_PATH` — config | scopes: Infra, Repo Root | contexts: cicd, claude-flow | environment-dependent: no | Configuration value defined in active env templates.
-- `AGENTDB_PORT` — config | scopes: Infra, Repo Root | contexts: dev | environment-dependent: yes | Port/bind setting; often varies by host, profile, or deploy target.
-- `AGENTDB_QUANTIZATION` — config | scopes: Infra, Repo Root | contexts: cicd, claude-flow | environment-dependent: no | Configuration value defined in active env templates.
-- `AGENTDB_QUIC_PORT` — config | scopes: Repo Root | contexts: claude-flow | environment-dependent: yes | Port/bind setting; often varies by host, profile, or deploy target.
-- `AGENTDB_QUIC_SYNC` — config | scopes: Infra, Repo Root | contexts: cicd, claude-flow | environment-dependent: no | Configuration value defined in active env templates.
-- `AGENTDB_REASONING` — config | scopes: Infra, Repo Root | contexts: cicd, claude-flow | environment-dependent: no | Configuration value defined in active env templates.
-- `AGENTDB_USER` — config | scopes: Infra | contexts: dev | environment-dependent: no | Configuration value defined in active env templates.
-- `AGENTDB_VERSION` — config | scopes: Infra | contexts: dev | environment-dependent: no | Configuration value defined in active env templates.
+- `ruvector_AUTO_MIGRATE` — config | scopes: Infra, Repo Root | contexts: cicd, archon-os | environment-dependent: no | Configuration value defined in active env templates.
+- `ruvector_CACHE_SIZE` — config | scopes: Infra, Repo Root | contexts: cicd, archon-os | environment-dependent: no | Configuration value defined in active env templates.
+- `ruvector_DB` — config | scopes: Infra | contexts: dev | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
+- `ruvector_ENABLED` — config | scopes: Infra, Repo Root | contexts: cicd, archon-os | environment-dependent: no | Configuration value defined in active env templates.
+- `ruvector_FALLBACK_LEGACY` — config | scopes: Infra, Repo Root | contexts: cicd, archon-os | environment-dependent: no | Configuration value defined in active env templates.
+- `ruvector_HNSW_EF` — config | scopes: Infra, Repo Root | contexts: cicd, archon-os | environment-dependent: no | Configuration value defined in active env templates.
+- `ruvector_HNSW_EF_SEARCH` — config | scopes: Infra, Repo Root | contexts: cicd, archon-os | environment-dependent: no | Configuration value defined in active env templates.
+- `ruvector_HNSW_M` — config | scopes: Infra, Repo Root | contexts: cicd, archon-os | environment-dependent: no | Configuration value defined in active env templates.
+- `ruvector_HOST` — config | scopes: Repo Root | contexts: global | environment-dependent: yes | Endpoint or hostname; update per dev/staging/prod environment.
+- `ruvector_LEARNING` — config | scopes: Infra, Repo Root | contexts: cicd, archon-os | environment-dependent: no | Configuration value defined in active env templates.
+- `ruvector_LEARNING_ALGORITHM` — config | scopes: Infra, Repo Root | contexts: cicd, archon-os | environment-dependent: no | Configuration value defined in active env templates.
+- `ruvector_PASSWORD` — secret | scopes: Infra | contexts: dev | environment-dependent: no | Secret material; keep in Infisical or untracked local env files.
+- `ruvector_PATH` — config | scopes: Infra, Repo Root | contexts: cicd, archon-os | environment-dependent: no | Configuration value defined in active env templates.
+- `ruvector_PORT` — config | scopes: Infra, Repo Root | contexts: dev | environment-dependent: yes | Port/bind setting; often varies by host, profile, or deploy target.
+- `ruvector_QUANTIZATION` — config | scopes: Infra, Repo Root | contexts: cicd, archon-os | environment-dependent: no | Configuration value defined in active env templates.
+- `ruvector_QUIC_PORT` — config | scopes: Repo Root | contexts: archon-os | environment-dependent: yes | Port/bind setting; often varies by host, profile, or deploy target.
+- `ruvector_QUIC_SYNC` — config | scopes: Infra, Repo Root | contexts: cicd, archon-os | environment-dependent: no | Configuration value defined in active env templates.
+- `ruvector_REASONING` — config | scopes: Infra, Repo Root | contexts: cicd, archon-os | environment-dependent: no | Configuration value defined in active env templates.
+- `ruvector_USER` — config | scopes: Infra | contexts: dev | environment-dependent: no | Configuration value defined in active env templates.
+- `ruvector_VERSION` — config | scopes: Infra | contexts: dev | environment-dependent: no | Configuration value defined in active env templates.
 - `AGENTIC_FLOW_BOOTSTRAP` — config | scopes: Infra | contexts: dev | environment-dependent: no | Configuration value defined in active env templates.
 - `AGENTIC_FLOW_PORT` — config | scopes: Infra | contexts: dev | environment-dependent: yes | Port/bind setting; often varies by host, profile, or deploy target.
 - `AGENTIC_FLOW_PROVIDER` — config | scopes: Infra | contexts: dev | environment-dependent: no | Configuration value defined in active env templates.
-- `AGENTIC_FLOW_TRAINING` — config | scopes: Infra, Repo Root | contexts: cicd, claude-flow | environment-dependent: no | Configuration value defined in active env templates.
+- `AGENTIC_FLOW_TRAINING` — config | scopes: Infra, Repo Root | contexts: cicd, archon-os | environment-dependent: no | Configuration value defined in active env templates.
 - `AGENTIC_FLOW_VERSION` — config | scopes: Infra | contexts: dev | environment-dependent: no | Configuration value defined in active env templates.
 - `AGENT_BOOSTER_VERSION` — config | scopes: Infra | contexts: dev | environment-dependent: no | Configuration value defined in active env templates.
 - `AGENT_REGISTRATION_URL` — config | scopes: Services | contexts: archon, dev | environment-dependent: yes | Endpoint or hostname; update per dev/staging/prod environment.
-- `AIDEFENCE_BLOCK_SUSPICIOUS` — config | scopes: Repo Root | contexts: claude-flow, prod | environment-dependent: no | Configuration value defined in active env templates.
-- `AIDEFENCE_ENABLED` — config | scopes: Repo Root | contexts: claude-flow, dev, prod | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
-- `AIDEFENCE_MONITOR_INPUTS` — config | scopes: Repo Root | contexts: claude-flow, prod | environment-dependent: no | Configuration value defined in active env templates.
-- `AIDEFENCE_MONITOR_OUTPUTS` — config | scopes: Repo Root | contexts: claude-flow, prod | environment-dependent: no | Configuration value defined in active env templates.
+- `AIDEFENCE_BLOCK_SUSPICIOUS` — config | scopes: Repo Root | contexts: archon-os, prod | environment-dependent: no | Configuration value defined in active env templates.
+- `AIDEFENCE_ENABLED` — config | scopes: Repo Root | contexts: archon-os, dev, prod | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
+- `AIDEFENCE_MONITOR_INPUTS` — config | scopes: Repo Root | contexts: archon-os, prod | environment-dependent: no | Configuration value defined in active env templates.
+- `AIDEFENCE_MONITOR_OUTPUTS` — config | scopes: Repo Root | contexts: archon-os, prod | environment-dependent: no | Configuration value defined in active env templates.
 - `ALERTMANAGER_HOST` — config | scopes: Repo Root | contexts: global | environment-dependent: yes | Endpoint or hostname; update per dev/staging/prod environment.
 - `ALERTMANAGER_PORT` — config | scopes: Repo Root | contexts: orchestrator | environment-dependent: yes | Port/bind setting; often varies by host, profile, or deploy target.
 - `ALERT_CHECK_INTERVAL_MINUTES` — config | scopes: Services | contexts: global | environment-dependent: no | Configuration value defined in active env templates.
@@ -62,11 +62,11 @@ This deduplicated list is derived from active repo-root, `infra`, `apps`, and `s
 - `ALERT_THRESHOLD_VRAM_USAGE` — config | scopes: Infra | contexts: worker-5090 | environment-dependent: no | Configuration value defined in active env templates.
 - `ALERT_WEBHOOK_URL` — config | scopes: Services | contexts: global | environment-dependent: yes | Endpoint or hostname; update per dev/staging/prod environment.
 - `ALLOWED_FILE_TYPES` — config | scopes: Services | contexts: global | environment-dependent: no | Configuration value defined in active env templates.
-- `ALLOWED_ORIGINS` — config | scopes: Repo Root, Services | contexts: claude-flow, dev | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
-- `ANTHROPIC_API_KEY` — secret | scopes: Apps, Infra, Repo Root, Services | contexts: archon, cicd, claude-flow, dev, infisical, nexus-router, oracle, orchestrator, prod, worker-3060, worker-3090ti, worker-5090 | environment-dependent: yes | Secret material; keep in Infisical or untracked local env files.
-- `ANTHROPIC_MAX_TOKENS` — config | scopes: Infra, Repo Root, Services | contexts: cicd, claude-flow, nexus-router | environment-dependent: no | Configuration value defined in active env templates.
-- `ANTHROPIC_MODEL` — config | scopes: Infra, Repo Root, Services | contexts: archon, cicd, claude-flow, dev, nexus-router | environment-dependent: yes | Model selection; may differ by machine or provider tier.
-- `ANTHROPIC_TEMPERATURE` — config | scopes: Infra, Repo Root | contexts: cicd, claude-flow | environment-dependent: no | Configuration value defined in active env templates.
+- `ALLOWED_ORIGINS` — config | scopes: Repo Root, Services | contexts: archon-os, dev | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
+- `ANTHROPIC_API_KEY` — secret | scopes: Apps, Infra, Repo Root, Services | contexts: archon, cicd, archon-os, dev, infisical, nexus-router, oracle, orchestrator, prod, worker-3060, worker-3090ti, worker-5090 | environment-dependent: yes | Secret material; keep in Infisical or untracked local env files.
+- `ANTHROPIC_MAX_TOKENS` — config | scopes: Infra, Repo Root, Services | contexts: cicd, archon-os, nexus-router | environment-dependent: no | Configuration value defined in active env templates.
+- `ANTHROPIC_MODEL` — config | scopes: Infra, Repo Root, Services | contexts: archon, cicd, archon-os, dev, nexus-router | environment-dependent: yes | Model selection; may differ by machine or provider tier.
+- `ANTHROPIC_TEMPERATURE` — config | scopes: Infra, Repo Root | contexts: cicd, archon-os | environment-dependent: no | Configuration value defined in active env templates.
 - `API_KEY` — secret | scopes: Services | contexts: ratehunter | environment-dependent: no | Secret material; keep in Infisical or untracked local env files.
 - `API_KEY_EXPIRY` — config | scopes: Services | contexts: global | environment-dependent: no | Configuration value defined in active env templates.
 - `API_KEY_HEADER` — config | scopes: Services | contexts: global | environment-dependent: no | Configuration value defined in active env templates.
@@ -96,8 +96,8 @@ This deduplicated list is derived from active repo-root, `infra`, `apps`, and `s
 - `ARCHON_URL` — config | scopes: Infra | contexts: orchestrator | environment-dependent: yes | Endpoint or hostname; update per dev/staging/prod environment.
 - `ASSIGNMENT_ENABLED` — config | scopes: Services | contexts: global | environment-dependent: no | Configuration value defined in active env templates.
 - `ASSIGNMENT_STRATEGY` — config | scopes: Services | contexts: global | environment-dependent: no | Configuration value defined in active env templates.
-- `AUDIT_LOG_ENABLED` — config | scopes: Apps, Repo Root | contexts: claude-flow, prod | environment-dependent: no | Configuration value defined in active env templates.
-- `AUDIT_LOG_RETENTION_DAYS` — config | scopes: Repo Root | contexts: claude-flow, prod | environment-dependent: no | Configuration value defined in active env templates.
+- `AUDIT_LOG_ENABLED` — config | scopes: Apps, Repo Root | contexts: archon-os, prod | environment-dependent: no | Configuration value defined in active env templates.
+- `AUDIT_LOG_RETENTION_DAYS` — config | scopes: Repo Root | contexts: archon-os, prod | environment-dependent: no | Configuration value defined in active env templates.
 - `AUTH_SERVICE_URL` — config | scopes: Repo Root | contexts: infisical, orchestrator, worker-3060, worker-3090ti, worker-5090 | environment-dependent: yes | Endpoint or hostname; update per dev/staging/prod environment.
 - `AUTO_MIGRATE` — config | scopes: Apps | contexts: twenty | environment-dependent: no | Configuration value defined in active env templates.
 - `AUTO_SEED_DATA` — config | scopes: Apps | contexts: twenty | environment-dependent: no | Configuration value defined in active env templates.
@@ -121,13 +121,13 @@ This deduplicated list is derived from active repo-root, `infra`, `apps`, and `s
 - `BOOT_OPENCLAW` — config | scopes: Infra | contexts: global | environment-dependent: no | Configuration value defined in active env templates.
 - `BOOT_OPENCLAW_UI_PROXY` — config | scopes: Infra | contexts: openclaw | environment-dependent: no | Configuration value defined in active env templates.
 - `BOOT_OPENCLAW_VOICE` — config | scopes: Infra | contexts: openclaw | environment-dependent: no | Configuration value defined in active env templates.
-- `BUILD_ID` — config | scopes: Infra | contexts: cicd, claude-flow | environment-dependent: no | Configuration value defined in active env templates.
+- `BUILD_ID` — config | scopes: Infra | contexts: cicd, archon-os | environment-dependent: no | Configuration value defined in active env templates.
 - `BW_SESSION` — secret | scopes: Repo Root | contexts: global | environment-dependent: no | Secret material; keep in Infisical or untracked local env files.
 
 ## C
 - `CACHE_ENABLED` — config | scopes: Infra | contexts: worker-3060 | environment-dependent: no | Configuration value defined in active env templates.
 - `CACHE_MAX_SIZE` — config | scopes: Infra, Repo Root | contexts: worker-3060 | environment-dependent: no | Configuration value defined in active env templates.
-- `CACHE_TTL` — config | scopes: Infra, Repo Root, Services | contexts: claude-flow, dev, prod, worker-3060 | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
+- `CACHE_TTL` — config | scopes: Infra, Repo Root, Services | contexts: archon-os, dev, prod, worker-3060 | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
 - `CACHE_TTL_CALCULATOR` — config | scopes: Services | contexts: ratehunter | environment-dependent: no | Configuration value defined in active env templates.
 - `CACHE_TTL_RATES` — config | scopes: Services | contexts: ratehunter | environment-dependent: no | Configuration value defined in active env templates.
 - `CACHE_TTL_SECONDS` — config | scopes: Services | contexts: global | environment-dependent: no | Configuration value defined in active env templates.
@@ -147,64 +147,64 @@ This deduplicated list is derived from active repo-root, `infra`, `apps`, and `s
 - `CF_TUNNEL_NAME` — config | scopes: Infra | contexts: global | environment-dependent: no | Configuration value defined in active env templates.
 - `CF_TUNNEL_TOKEN` — secret | scopes: Infra | contexts: global | environment-dependent: no | Secret material; keep in Infisical or untracked local env files.
 - `CF_ZONE_ID` — config | scopes: Infra | contexts: global | environment-dependent: no | Configuration value defined in active env templates.
-- `CHECKPOINT_INTERVAL` — config | scopes: Repo Root | contexts: claude-flow, dev, prod | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
+- `CHECKPOINT_INTERVAL` — config | scopes: Repo Root | contexts: archon-os, dev, prod | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
 - `CHECK_INTERVAL` — config | scopes: Infra | contexts: worker-5090 | environment-dependent: no | Configuration value defined in active env templates.
-- `CI` — config | scopes: Infra | contexts: cicd, claude-flow | environment-dependent: no | Configuration value defined in active env templates.
-- `CI_PROVIDER` — config | scopes: Infra | contexts: cicd, claude-flow | environment-dependent: no | Configuration value defined in active env templates.
+- `CI` — config | scopes: Infra | contexts: cicd, archon-os | environment-dependent: no | Configuration value defined in active env templates.
+- `CI_PROVIDER` — config | scopes: Infra | contexts: cicd, archon-os | environment-dependent: no | Configuration value defined in active env templates.
 - `CLAUDE_API_KEY` — secret | scopes: Apps | contexts: twenty | environment-dependent: no | Secret material; keep in Infisical or untracked local env files.
 - `CLAUDE_DEV_KIT_MCP_URL` — config | scopes: Services | contexts: archon, dev | environment-dependent: yes | Endpoint or hostname; update per dev/staging/prod environment.
 - `CLAUDE_FLOW_API_KEY` — secret | scopes: Services | contexts: archon, dev | environment-dependent: yes | Secret material; keep in Infisical or untracked local env files.
-- `CLAUDE_FLOW_AUTO_COMMIT` — config | scopes: Infra, Repo Root | contexts: cicd, claude-flow, dev, prod | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
-- `CLAUDE_FLOW_AUTO_LEARNING` — config | scopes: Infra, Repo Root | contexts: cicd, claude-flow | environment-dependent: no | Configuration value defined in active env templates.
-- `CLAUDE_FLOW_AUTO_PUSH` — config | scopes: Infra, Repo Root | contexts: cicd, claude-flow, dev, prod | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
-- `CLAUDE_FLOW_CACHE_SIZE` — config | scopes: Infra, Repo Root | contexts: cicd, claude-flow, dev, prod | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
-- `CLAUDE_FLOW_CHECKPOINTS_ENABLED` — config | scopes: Infra, Repo Root | contexts: cicd, claude-flow, dev, prod | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
-- `CLAUDE_FLOW_CICD_MODE` — config | scopes: Infra | contexts: cicd, claude-flow | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
+- `CLAUDE_FLOW_AUTO_COMMIT` — config | scopes: Infra, Repo Root | contexts: cicd, archon-os, dev, prod | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
+- `CLAUDE_FLOW_AUTO_LEARNING` — config | scopes: Infra, Repo Root | contexts: cicd, archon-os | environment-dependent: no | Configuration value defined in active env templates.
+- `CLAUDE_FLOW_AUTO_PUSH` — config | scopes: Infra, Repo Root | contexts: cicd, archon-os, dev, prod | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
+- `CLAUDE_FLOW_CACHE_SIZE` — config | scopes: Infra, Repo Root | contexts: cicd, archon-os, dev, prod | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
+- `CLAUDE_FLOW_CHECKPOINTS_ENABLED` — config | scopes: Infra, Repo Root | contexts: cicd, archon-os, dev, prod | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
+- `CLAUDE_FLOW_CICD_MODE` — config | scopes: Infra | contexts: cicd, archon-os | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
 - `CLAUDE_FLOW_CODEX_VERSION` — config | scopes: Infra | contexts: dev | environment-dependent: no | Configuration value defined in active env templates.
-- `CLAUDE_FLOW_CONFIG_DIR` — config | scopes: Repo Root | contexts: claude-flow | environment-dependent: no | Configuration value defined in active env templates.
+- `CLAUDE_FLOW_CONFIG_DIR` — config | scopes: Repo Root | contexts: archon-os | environment-dependent: no | Configuration value defined in active env templates.
 - `CLAUDE_FLOW_CONFIG_PATH` — config | scopes: Repo Root | contexts: global | environment-dependent: no | Configuration value defined in active env templates.
-- `CLAUDE_FLOW_DASHBOARD_PORT` — config | scopes: Infra, Repo Root, Services | contexts: claude-flow, dev | environment-dependent: yes | Port/bind setting; often varies by host, profile, or deploy target.
-- `CLAUDE_FLOW_DATA_DIR` — config | scopes: Repo Root | contexts: claude-flow | environment-dependent: no | Configuration value defined in active env templates.
-- `CLAUDE_FLOW_DEBUG` — config | scopes: Infra, Repo Root | contexts: cicd, claude-flow, dev, prod | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
-- `CLAUDE_FLOW_ENABLED` — config | scopes: Infra, Repo Root | contexts: cicd, claude-flow | environment-dependent: no | Configuration value defined in active env templates.
-- `CLAUDE_FLOW_ENABLE_AGENT_DB` — config | scopes: Services | contexts: claude-flow | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
-- `CLAUDE_FLOW_ENABLE_REASONING_BANK` — config | scopes: Services | contexts: claude-flow | environment-dependent: no | Configuration value defined in active env templates.
-- `CLAUDE_FLOW_ENABLE_RUVECTOR` — config | scopes: Services | contexts: claude-flow | environment-dependent: no | Configuration value defined in active env templates.
-- `CLAUDE_FLOW_ENVIRONMENT` — config | scopes: Infra | contexts: cicd, claude-flow | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
-- `CLAUDE_FLOW_GITHUB_INTEGRATION` — config | scopes: Infra, Repo Root | contexts: cicd, claude-flow | environment-dependent: no | Configuration value defined in active env templates.
-- `CLAUDE_FLOW_HOOKS_ENABLED` — config | scopes: Infra, Repo Root | contexts: cicd, claude-flow | environment-dependent: no | Configuration value defined in active env templates.
+- `CLAUDE_FLOW_DASHBOARD_PORT` — config | scopes: Infra, Repo Root, Services | contexts: archon-os, dev | environment-dependent: yes | Port/bind setting; often varies by host, profile, or deploy target.
+- `CLAUDE_FLOW_DATA_DIR` — config | scopes: Repo Root | contexts: archon-os | environment-dependent: no | Configuration value defined in active env templates.
+- `CLAUDE_FLOW_DEBUG` — config | scopes: Infra, Repo Root | contexts: cicd, archon-os, dev, prod | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
+- `CLAUDE_FLOW_ENABLED` — config | scopes: Infra, Repo Root | contexts: cicd, archon-os | environment-dependent: no | Configuration value defined in active env templates.
+- `CLAUDE_FLOW_ENABLE_AGENT_DB` — config | scopes: Services | contexts: archon-os | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
+- `CLAUDE_FLOW_ENABLE_REASONING_BANK` — config | scopes: Services | contexts: archon-os | environment-dependent: no | Configuration value defined in active env templates.
+- `CLAUDE_FLOW_ENABLE_RUVECTOR` — config | scopes: Services | contexts: archon-os | environment-dependent: no | Configuration value defined in active env templates.
+- `CLAUDE_FLOW_ENVIRONMENT` — config | scopes: Infra | contexts: cicd, archon-os | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
+- `CLAUDE_FLOW_GITHUB_INTEGRATION` — config | scopes: Infra, Repo Root | contexts: cicd, archon-os | environment-dependent: no | Configuration value defined in active env templates.
+- `CLAUDE_FLOW_HOOKS_ENABLED` — config | scopes: Infra, Repo Root | contexts: cicd, archon-os | environment-dependent: no | Configuration value defined in active env templates.
 - `CLAUDE_FLOW_HOST` — config | scopes: Repo Root | contexts: global | environment-dependent: yes | Endpoint or hostname; update per dev/staging/prod environment.
-- `CLAUDE_FLOW_HOT_RELOAD` — config | scopes: Repo Root | contexts: claude-flow, dev | environment-dependent: no | Configuration value defined in active env templates.
-- `CLAUDE_FLOW_LOG_FILE` — config | scopes: Infra | contexts: cicd, claude-flow | environment-dependent: no | Configuration value defined in active env templates.
-- `CLAUDE_FLOW_LOG_LEVEL` — config | scopes: Infra, Repo Root | contexts: cicd, claude-flow, dev, prod | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
+- `CLAUDE_FLOW_HOT_RELOAD` — config | scopes: Repo Root | contexts: archon-os, dev | environment-dependent: no | Configuration value defined in active env templates.
+- `CLAUDE_FLOW_LOG_FILE` — config | scopes: Infra | contexts: cicd, archon-os | environment-dependent: no | Configuration value defined in active env templates.
+- `CLAUDE_FLOW_LOG_LEVEL` — config | scopes: Infra, Repo Root | contexts: cicd, archon-os, dev, prod | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
 - `CLAUDE_FLOW_MASTER_URL` — config | scopes: Repo Root | contexts: worker-3060 | environment-dependent: yes | Endpoint or hostname; update per dev/staging/prod environment.
-- `CLAUDE_FLOW_MAX_AGENTS` — config | scopes: Infra, Repo Root | contexts: cicd, claude-flow, dev, prod | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
-- `CLAUDE_FLOW_MAX_CONCURRENT_TASKS` — config | scopes: Infra, Repo Root | contexts: cicd, claude-flow, dev, prod | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
-- `CLAUDE_FLOW_MCP_HOST` — config | scopes: Services | contexts: claude-flow | environment-dependent: yes | Endpoint or hostname; update per dev/staging/prod environment.
-- `CLAUDE_FLOW_MCP_MODE` — config | scopes: Repo Root | contexts: claude-flow | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
-- `CLAUDE_FLOW_MCP_PORT` — config | scopes: Repo Root, Services | contexts: claude-flow | environment-dependent: yes | Port/bind setting; often varies by host, profile, or deploy target.
+- `CLAUDE_FLOW_MAX_AGENTS` — config | scopes: Infra, Repo Root | contexts: cicd, archon-os, dev, prod | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
+- `CLAUDE_FLOW_MAX_CONCURRENT_TASKS` — config | scopes: Infra, Repo Root | contexts: cicd, archon-os, dev, prod | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
+- `CLAUDE_FLOW_MCP_HOST` — config | scopes: Services | contexts: archon-os | environment-dependent: yes | Endpoint or hostname; update per dev/staging/prod environment.
+- `CLAUDE_FLOW_MCP_MODE` — config | scopes: Repo Root | contexts: archon-os | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
+- `CLAUDE_FLOW_MCP_PORT` — config | scopes: Repo Root, Services | contexts: archon-os | environment-dependent: yes | Port/bind setting; often varies by host, profile, or deploy target.
 - `CLAUDE_FLOW_MCP_VERSION` — config | scopes: Infra | contexts: dev | environment-dependent: no | Configuration value defined in active env templates.
-- `CLAUDE_FLOW_MEMORY_DIR` — config | scopes: Repo Root | contexts: claude-flow | environment-dependent: no | Configuration value defined in active env templates.
-- `CLAUDE_FLOW_MEMORY_LIMIT` — config | scopes: Infra, Repo Root | contexts: cicd, claude-flow, dev, prod | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
-- `CLAUDE_FLOW_MEMORY_PERSISTENCE` — config | scopes: Infra, Repo Root | contexts: cicd, claude-flow | environment-dependent: no | Configuration value defined in active env templates.
+- `CLAUDE_FLOW_MEMORY_DIR` — config | scopes: Repo Root | contexts: archon-os | environment-dependent: no | Configuration value defined in active env templates.
+- `CLAUDE_FLOW_MEMORY_LIMIT` — config | scopes: Infra, Repo Root | contexts: cicd, archon-os, dev, prod | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
+- `CLAUDE_FLOW_MEMORY_PERSISTENCE` — config | scopes: Infra, Repo Root | contexts: cicd, archon-os | environment-dependent: no | Configuration value defined in active env templates.
 - `CLAUDE_FLOW_MEMORY_VERSION` — config | scopes: Infra | contexts: dev | environment-dependent: no | Configuration value defined in active env templates.
-- `CLAUDE_FLOW_METRICS_PORT` — config | scopes: Services | contexts: claude-flow | environment-dependent: yes | Port/bind setting; often varies by host, profile, or deploy target.
-- `CLAUDE_FLOW_MODE` — config | scopes: Infra, Repo Root | contexts: cicd, claude-flow, dev, orchestrator, prod, worker-3060 | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
-- `CLAUDE_FLOW_NEURAL_OPTIMIZATION` — config | scopes: Infra, Repo Root | contexts: cicd, claude-flow | environment-dependent: no | Configuration value defined in active env templates.
+- `CLAUDE_FLOW_METRICS_PORT` — config | scopes: Services | contexts: archon-os | environment-dependent: yes | Port/bind setting; often varies by host, profile, or deploy target.
+- `CLAUDE_FLOW_MODE` — config | scopes: Infra, Repo Root | contexts: cicd, archon-os, dev, orchestrator, prod, worker-3060 | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
+- `CLAUDE_FLOW_NEURAL_OPTIMIZATION` — config | scopes: Infra, Repo Root | contexts: cicd, archon-os | environment-dependent: no | Configuration value defined in active env templates.
 - `CLAUDE_FLOW_NEURAL_VERSION` — config | scopes: Infra | contexts: dev | environment-dependent: no | Configuration value defined in active env templates.
-- `CLAUDE_FLOW_PARALLEL_PROCESSING` — config | scopes: Infra, Repo Root | contexts: cicd, claude-flow | environment-dependent: no | Configuration value defined in active env templates.
-- `CLAUDE_FLOW_PERFORMANCE_MODE` — config | scopes: Infra, Repo Root | contexts: cicd, claude-flow | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
+- `CLAUDE_FLOW_PARALLEL_PROCESSING` — config | scopes: Infra, Repo Root | contexts: cicd, archon-os | environment-dependent: no | Configuration value defined in active env templates.
+- `CLAUDE_FLOW_PERFORMANCE_MODE` — config | scopes: Infra, Repo Root | contexts: cicd, archon-os | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
 - `CLAUDE_FLOW_PORT` — config | scopes: Infra, Repo Root | contexts: dev | environment-dependent: yes | Port/bind setting; often varies by host, profile, or deploy target.
-- `CLAUDE_FLOW_REMOTE_EXECUTION` — config | scopes: Infra, Repo Root | contexts: cicd, claude-flow | environment-dependent: no | Configuration value defined in active env templates.
-- `CLAUDE_FLOW_SECURITY_AUDIT` — config | scopes: Infra, Repo Root | contexts: cicd, claude-flow, prod | environment-dependent: no | Configuration value defined in active env templates.
-- `CLAUDE_FLOW_TELEMETRY_ENABLED` — config | scopes: Infra, Repo Root | contexts: cicd, claude-flow, dev, prod | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
-- `CLAUDE_FLOW_TRUTH_THRESHOLD` — config | scopes: Infra, Repo Root | contexts: cicd, claude-flow | environment-dependent: no | Configuration value defined in active env templates.
+- `CLAUDE_FLOW_REMOTE_EXECUTION` — config | scopes: Infra, Repo Root | contexts: cicd, archon-os | environment-dependent: no | Configuration value defined in active env templates.
+- `CLAUDE_FLOW_SECURITY_AUDIT` — config | scopes: Infra, Repo Root | contexts: cicd, archon-os, prod | environment-dependent: no | Configuration value defined in active env templates.
+- `CLAUDE_FLOW_TELEMETRY_ENABLED` — config | scopes: Infra, Repo Root | contexts: cicd, archon-os, dev, prod | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
+- `CLAUDE_FLOW_TRUTH_THRESHOLD` — config | scopes: Infra, Repo Root | contexts: cicd, archon-os | environment-dependent: no | Configuration value defined in active env templates.
 - `CLAUDE_FLOW_URL` — config | scopes: Services | contexts: archon, dev | environment-dependent: yes | Endpoint or hostname; update per dev/staging/prod environment.
-- `CLAUDE_FLOW_VERBOSE` — config | scopes: Repo Root | contexts: claude-flow, dev, prod | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
-- `CLAUDE_FLOW_VERIFY_MODE` — config | scopes: Infra, Repo Root | contexts: cicd, claude-flow, prod | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
-- `CLAUDE_FLOW_VERSION` — config | scopes: Infra, Repo Root | contexts: cicd, claude-flow, dev | environment-dependent: no | Configuration value defined in active env templates.
-- `CLAUDE_FLOW_WATCH_MODE` — config | scopes: Repo Root | contexts: claude-flow, dev | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
-- `CLAUDE_FLOW_WORKER_THREADS` — config | scopes: Infra, Repo Root | contexts: cicd, claude-flow, dev, prod | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
+- `CLAUDE_FLOW_VERBOSE` — config | scopes: Repo Root | contexts: archon-os, dev, prod | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
+- `CLAUDE_FLOW_VERIFY_MODE` — config | scopes: Infra, Repo Root | contexts: cicd, archon-os, prod | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
+- `CLAUDE_FLOW_VERSION` — config | scopes: Infra, Repo Root | contexts: cicd, archon-os, dev | environment-dependent: no | Configuration value defined in active env templates.
+- `CLAUDE_FLOW_WATCH_MODE` — config | scopes: Repo Root | contexts: archon-os, dev | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
+- `CLAUDE_FLOW_WORKER_THREADS` — config | scopes: Infra, Repo Root | contexts: cicd, archon-os, dev, prod | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
 - `CLAWDBOT_GATEWAY_TOKEN` — secret | scopes: Infra | contexts: oracle | environment-dependent: no | Secret material; keep in Infisical or untracked local env files.
 - `CLEARBIT_API_KEY` — secret | scopes: Services | contexts: global | environment-dependent: no | Secret material; keep in Infisical or untracked local env files.
 - `CLOUDFLARED_HOSTNAME` — config | scopes: Infra | contexts: worker-5090 | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
@@ -216,11 +216,11 @@ This deduplicated list is derived from active repo-root, `infra`, `apps`, and `s
 - `CLOUDFLARED_TUNNEL_URL` — config | scopes: Infra | contexts: worker-3060 | environment-dependent: yes | Endpoint or hostname; update per dev/staging/prod environment.
 - `CLOUDFLARE_ACCOUNT_ID` — config | scopes: Repo Root | contexts: infisical, orchestrator | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
 - `CLOUDFLARE_API_TOKEN` — secret | scopes: Repo Root | contexts: oracle | environment-dependent: no | Secret material; keep in Infisical or untracked local env files.
-- `CLOUDFLARE_TUNNEL_ENABLED` — config | scopes: Repo Root | contexts: claude-flow, oracle, prod | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
+- `CLOUDFLARE_TUNNEL_ENABLED` — config | scopes: Repo Root | contexts: archon-os, oracle, prod | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
 - `CLOUDFLARE_TUNNEL_TOKEN` — secret | scopes: Repo Root | contexts: infisical, orchestrator | environment-dependent: yes | Secret material; keep in Infisical or untracked local env files.
 - `CLOUDFLARE_TUNNEL_TOKEN_ORCHESTRATOR` — secret | scopes: Infra, Repo Root | contexts: dev, oracle, orchestrator, worker-3060, worker-3090ti, worker-5090 | environment-dependent: yes | Secret material; keep in Infisical or untracked local env files.
 - `CLOUDFLARE_ZONE_ID` — config | scopes: Repo Root | contexts: oracle | environment-dependent: no | Configuration value defined in active env templates.
-- `COMPLETION_MODEL` — config | scopes: Infra, Repo Root | contexts: cicd, claude-flow, dev, prod | environment-dependent: yes | Model selection; may differ by machine or provider tier.
+- `COMPLETION_MODEL` — config | scopes: Infra, Repo Root | contexts: cicd, archon-os, dev, prod | environment-dependent: yes | Model selection; may differ by machine or provider tier.
 - `COMPOSE_DOCKER_CLI_BUILD` — config | scopes: Infra, Repo Root | contexts: infisical, worker-3060, worker-3090ti, worker-5090 | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
 - `COMPOSE_FILE` — config | scopes: Infra | contexts: worker-3090ti | environment-dependent: no | Configuration value defined in active env templates.
 - `COMPOSE_HTTP_TIMEOUT` — config | scopes: Infra | contexts: worker-3060 | environment-dependent: no | Configuration value defined in active env templates.
@@ -232,11 +232,11 @@ This deduplicated list is derived from active repo-root, `infra`, `apps`, and `s
 - `CONNECTION_TIMEOUT` — config | scopes: Repo Root | contexts: global | environment-dependent: no | Configuration value defined in active env templates.
 - `CONSENT_REQUIRED` — config | scopes: Services | contexts: global | environment-dependent: no | Configuration value defined in active env templates.
 - `CONTEXT7_API_KEY` — secret | scopes: Repo Root | contexts: global | environment-dependent: no | Secret material; keep in Infisical or untracked local env files.
-- `CONTINUOUS_INTEGRATION` — config | scopes: Infra | contexts: cicd, claude-flow | environment-dependent: no | Configuration value defined in active env templates.
+- `CONTINUOUS_INTEGRATION` — config | scopes: Infra | contexts: cicd, archon-os | environment-dependent: no | Configuration value defined in active env templates.
 - `COORDINATOR_TYPE` — config | scopes: Services | contexts: archon, dev | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
-- `CORS_ALLOWED_ORIGINS` — config | scopes: Apps, Repo Root, Services | contexts: claude-flow, dev, nexus-router, prod, twenty | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
-- `CORS_ALLOW_CREDENTIALS` — config | scopes: Repo Root | contexts: claude-flow, prod | environment-dependent: no | Configuration value defined in active env templates.
-- `CORS_ORIGIN` — config | scopes: Apps, Repo Root, Services | contexts: claude-flow, dev, prod, ratehunter | environment-dependent: yes | Endpoint or hostname; update per dev/staging/prod environment.
+- `CORS_ALLOWED_ORIGINS` — config | scopes: Apps, Repo Root, Services | contexts: archon-os, dev, nexus-router, prod, twenty | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
+- `CORS_ALLOW_CREDENTIALS` — config | scopes: Repo Root | contexts: archon-os, prod | environment-dependent: no | Configuration value defined in active env templates.
+- `CORS_ORIGIN` — config | scopes: Apps, Repo Root, Services | contexts: archon-os, dev, prod, ratehunter | environment-dependent: yes | Endpoint or hostname; update per dev/staging/prod environment.
 - `CORS_ORIGINS` — config | scopes: Services | contexts: archon, dev | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
 - `CPU_LIMIT` — config | scopes: Apps, Infra | contexts: worker-3090ti | environment-dependent: no | Configuration value defined in active env templates.
 - `CSP_ENABLED` — config | scopes: Apps | contexts: twenty | environment-dependent: no | Configuration value defined in active env templates.
@@ -249,15 +249,15 @@ This deduplicated list is derived from active repo-root, `infra`, `apps`, and `s
 - `DATABASE_HOST` — config | scopes: Apps | contexts: ratehunter | environment-dependent: yes | Endpoint or hostname; update per dev/staging/prod environment.
 - `DATABASE_NAME` — config | scopes: Apps | contexts: ratehunter | environment-dependent: no | Configuration value defined in active env templates.
 - `DATABASE_PASSWORD` — secret | scopes: Apps | contexts: ratehunter | environment-dependent: no | Secret material; keep in Infisical or untracked local env files.
-- `DATABASE_POOL_MAX` — config | scopes: Repo Root | contexts: claude-flow, prod | environment-dependent: no | Configuration value defined in active env templates.
-- `DATABASE_POOL_MIN` — config | scopes: Repo Root | contexts: claude-flow, prod | environment-dependent: no | Configuration value defined in active env templates.
+- `DATABASE_POOL_MAX` — config | scopes: Repo Root | contexts: archon-os, prod | environment-dependent: no | Configuration value defined in active env templates.
+- `DATABASE_POOL_MIN` — config | scopes: Repo Root | contexts: archon-os, prod | environment-dependent: no | Configuration value defined in active env templates.
 - `DATABASE_PORT` — config | scopes: Apps | contexts: ratehunter | environment-dependent: yes | Port/bind setting; often varies by host, profile, or deploy target.
-- `DATABASE_SSL` — config | scopes: Repo Root | contexts: claude-flow, prod | environment-dependent: no | Configuration value defined in active env templates.
-- `DATABASE_URL` — config | scopes: Infra, Repo Root, Services | contexts: archon, cicd, claude-flow, dev, prod, ratehunter | environment-dependent: yes | Endpoint or hostname; update per dev/staging/prod environment.
+- `DATABASE_SSL` — config | scopes: Repo Root | contexts: archon-os, prod | environment-dependent: no | Configuration value defined in active env templates.
+- `DATABASE_URL` — config | scopes: Infra, Repo Root, Services | contexts: archon, cicd, archon-os, dev, prod, ratehunter | environment-dependent: yes | Endpoint or hostname; update per dev/staging/prod environment.
 - `DATABASE_USER` — config | scopes: Apps | contexts: ratehunter | environment-dependent: no | Configuration value defined in active env templates.
 - `DATA_DIR` — config | scopes: Repo Root | contexts: global | environment-dependent: no | Configuration value defined in active env templates.
-- `DATA_ENCRYPTION_AT_REST` — config | scopes: Repo Root | contexts: claude-flow, prod | environment-dependent: no | Configuration value defined in active env templates.
-- `DATA_ENCRYPTION_IN_TRANSIT` — config | scopes: Repo Root | contexts: claude-flow, prod | environment-dependent: no | Configuration value defined in active env templates.
+- `DATA_ENCRYPTION_AT_REST` — config | scopes: Repo Root | contexts: archon-os, prod | environment-dependent: no | Configuration value defined in active env templates.
+- `DATA_ENCRYPTION_IN_TRANSIT` — config | scopes: Repo Root | contexts: archon-os, prod | environment-dependent: no | Configuration value defined in active env templates.
 - `DB_HOST` — config | scopes: Services | contexts: global | environment-dependent: yes | Endpoint or hostname; update per dev/staging/prod environment.
 - `DB_IDLE_TIMEOUT` — config | scopes: Apps | contexts: twenty | environment-dependent: no | Configuration value defined in active env templates.
 - `DB_MAX_CONNECTIONS` — config | scopes: Apps | contexts: twenty | environment-dependent: no | Configuration value defined in active env templates.
@@ -269,14 +269,14 @@ This deduplicated list is derived from active repo-root, `infra`, `apps`, and `s
 - `DB_PORT` — config | scopes: Services | contexts: global | environment-dependent: yes | Port/bind setting; often varies by host, profile, or deploy target.
 - `DB_TYPE` — config | scopes: Apps | contexts: global | environment-dependent: no | Configuration value defined in active env templates.
 - `DB_USER` — config | scopes: Services | contexts: global | environment-dependent: no | Configuration value defined in active env templates.
-- `DEBUG` — config | scopes: Infra, Repo Root, Services | contexts: cicd, claude-flow, worker-3090ti | environment-dependent: no | Configuration value defined in active env templates.
+- `DEBUG` — config | scopes: Infra, Repo Root, Services | contexts: cicd, archon-os, worker-3090ti | environment-dependent: no | Configuration value defined in active env templates.
 - `DEBUG_MODE` — config | scopes: Apps, Repo Root | contexts: dev, orchestrator, twenty | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
 - `DEFAULT_COMPLIANCE_EMAIL` — config | scopes: Apps | contexts: global | environment-dependent: no | Configuration value defined in active env templates.
 - `DEFAULT_LOAN_OFFICER_EMAIL` — config | scopes: Apps | contexts: global | environment-dependent: no | Configuration value defined in active env templates.
 - `DEFAULT_MODEL` — config | scopes: Infra | contexts: worker-3060 | environment-dependent: no | Model selection; may differ by machine or provider tier.
 - `DEFAULT_QUOTE_EXPIRY_DAYS` — config | scopes: Apps | contexts: twenty | environment-dependent: no | Configuration value defined in active env templates.
-- `DEPLOYMENT_ENVIRONMENT` — config | scopes: Infra | contexts: cicd, claude-flow | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
-- `DEPLOYMENT_TARGET` — config | scopes: Infra | contexts: cicd, claude-flow | environment-dependent: no | Configuration value defined in active env templates.
+- `DEPLOYMENT_ENVIRONMENT` — config | scopes: Infra | contexts: cicd, archon-os | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
+- `DEPLOYMENT_TARGET` — config | scopes: Infra | contexts: cicd, archon-os | environment-dependent: no | Configuration value defined in active env templates.
 - `DIFY_API_KEY` — secret | scopes: Infra | contexts: worker-3060, worker-3090ti | environment-dependent: yes | Secret material; keep in Infisical or untracked local env files.
 - `DIFY_ENCRYPTION_KEY` — secret | scopes: Repo Root | contexts: global | environment-dependent: no | Secret material; keep in Infisical or untracked local env files.
 - `DIFY_POSTGRES_DB` — config | scopes: Apps, Infra | contexts: global | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
@@ -285,7 +285,7 @@ This deduplicated list is derived from active repo-root, `infra`, `apps`, and `s
 - `DIFY_SECRET_KEY` — secret | scopes: Apps, Infra, Repo Root | contexts: global | environment-dependent: no | Secret material; keep in Infisical or untracked local env files.
 - `DIFY_URL` — config | scopes: Infra, Repo Root | contexts: worker-3060, worker-3090ti | environment-dependent: yes | Endpoint or hostname; update per dev/staging/prod environment.
 - `DISCORD_BOT_TOKEN` — secret | scopes: Infra | contexts: openclaw | environment-dependent: no | Secret material; keep in Infisical or untracked local env files.
-- `DISCORD_WEBHOOK_URL` — config | scopes: Infra | contexts: cicd, claude-flow | environment-dependent: yes | Endpoint or hostname; update per dev/staging/prod environment.
+- `DISCORD_WEBHOOK_URL` — config | scopes: Infra | contexts: cicd, archon-os | environment-dependent: yes | Endpoint or hostname; update per dev/staging/prod environment.
 - `DNC_CHECK_ENABLED` — config | scopes: Services | contexts: global | environment-dependent: no | Configuration value defined in active env templates.
 - `DOCKER_BUILDKIT` — config | scopes: Infra, Repo Root | contexts: infisical, worker-3060, worker-3090ti, worker-5090 | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
 - `DOCKER_CPU_LIMIT` — config | scopes: Infra | contexts: worker-5090 | environment-dependent: no | Configuration value defined in active env templates.
@@ -310,7 +310,7 @@ This deduplicated list is derived from active repo-root, `infra`, `apps`, and `s
 - `EMAIL_FROM_ADDRESS` — config | scopes: Apps, Repo Root | contexts: dev, twenty | environment-dependent: no | Configuration value defined in active env templates.
 - `EMAIL_FROM_NAME` — config | scopes: Apps | contexts: global | environment-dependent: no | Configuration value defined in active env templates.
 - `EMAIL_HOST` — config | scopes: Services | contexts: ratehunter | environment-dependent: yes | Endpoint or hostname; update per dev/staging/prod environment.
-- `EMAIL_NOTIFICATIONS` — config | scopes: Infra | contexts: cicd, claude-flow | environment-dependent: no | Configuration value defined in active env templates.
+- `EMAIL_NOTIFICATIONS` — config | scopes: Infra | contexts: cicd, archon-os | environment-dependent: no | Configuration value defined in active env templates.
 - `EMAIL_PASSWORD` — secret | scopes: Services | contexts: ratehunter | environment-dependent: no | Secret material; keep in Infisical or untracked local env files.
 - `EMAIL_PORT` — config | scopes: Services | contexts: ratehunter | environment-dependent: yes | Port/bind setting; often varies by host, profile, or deploy target.
 - `EMAIL_SECURE` — config | scopes: Services | contexts: ratehunter | environment-dependent: no | Configuration value defined in active env templates.
@@ -362,20 +362,20 @@ This deduplicated list is derived from active repo-root, `infra`, `apps`, and `s
 - `ENABLE_USER_PREFERENCES` — config | scopes: Services | contexts: dev | environment-dependent: no | Configuration value defined in active env templates.
 - `ENABLE_WORKFLOWS` — config | scopes: Repo Root | contexts: oracle, orchestrator, worker-3060 | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
 - `ENABLE_WORKFLOW_TEMPLATES` — config | scopes: Services | contexts: archon, dev | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
-- `ENCRYPTION_ALGORITHM` — config | scopes: Infra, Repo Root | contexts: cicd, claude-flow, prod | environment-dependent: no | Configuration value defined in active env templates.
-- `ENCRYPTION_KEY` — secret | scopes: Infra, Repo Root, Services | contexts: cicd, claude-flow, dev, prod | environment-dependent: yes | Secret material; keep in Infisical or untracked local env files.
+- `ENCRYPTION_ALGORITHM` — config | scopes: Infra, Repo Root | contexts: cicd, archon-os, prod | environment-dependent: no | Configuration value defined in active env templates.
+- `ENCRYPTION_KEY` — secret | scopes: Infra, Repo Root, Services | contexts: cicd, archon-os, dev, prod | environment-dependent: yes | Secret material; keep in Infisical or untracked local env files.
 - `ENRICHMENT_ENABLED` — config | scopes: Services | contexts: global | environment-dependent: no | Configuration value defined in active env templates.
 - `ENRICHMENT_PROVIDER` — config | scopes: Services | contexts: global | environment-dependent: no | Configuration value defined in active env templates.
 - `ENVIRONMENT` — config | scopes: Repo Root | contexts: global | environment-dependent: no | Configuration value defined in active env templates.
 - `EPIC_SDK_SPEC` — config | scopes: Infra | contexts: dev | environment-dependent: no | Configuration value defined in active env templates.
 - `EQUIFAX_API_KEY` — secret | scopes: Apps | contexts: twenty | environment-dependent: no | Secret material; keep in Infisical or untracked local env files.
-- `EVENT_SERVER_HEARTBEAT` — config | scopes: Repo Root, Services | contexts: claude-flow, infisical, orchestrator | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
-- `EVENT_SERVER_HOST` — config | scopes: Services | contexts: claude-flow | environment-dependent: yes | Endpoint or hostname; update per dev/staging/prod environment.
-- `EVENT_SERVER_HTTP_PORT` — config | scopes: Infra, Repo Root, Services | contexts: claude-flow, dev, infisical, orchestrator, worker-5090 | environment-dependent: yes | Port/bind setting; often varies by host, profile, or deploy target.
-- `EVENT_SERVER_MAX_CONNECTIONS` — config | scopes: Repo Root, Services | contexts: claude-flow, infisical, orchestrator | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
-- `EVENT_SERVER_PORT` — config | scopes: Services | contexts: claude-flow | environment-dependent: yes | Port/bind setting; often varies by host, profile, or deploy target.
-- `EVENT_SERVER_REPLAY_BUFFER` — config | scopes: Repo Root, Services | contexts: claude-flow, infisical, orchestrator | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
-- `EVENT_SERVER_WS_PORT` — config | scopes: Infra, Repo Root, Services | contexts: claude-flow, dev, infisical, orchestrator, worker-5090 | environment-dependent: yes | Port/bind setting; often varies by host, profile, or deploy target.
+- `EVENT_SERVER_HEARTBEAT` — config | scopes: Repo Root, Services | contexts: archon-os, infisical, orchestrator | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
+- `EVENT_SERVER_HOST` — config | scopes: Services | contexts: archon-os | environment-dependent: yes | Endpoint or hostname; update per dev/staging/prod environment.
+- `EVENT_SERVER_HTTP_PORT` — config | scopes: Infra, Repo Root, Services | contexts: archon-os, dev, infisical, orchestrator, worker-5090 | environment-dependent: yes | Port/bind setting; often varies by host, profile, or deploy target.
+- `EVENT_SERVER_MAX_CONNECTIONS` — config | scopes: Repo Root, Services | contexts: archon-os, infisical, orchestrator | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
+- `EVENT_SERVER_PORT` — config | scopes: Services | contexts: archon-os | environment-dependent: yes | Port/bind setting; often varies by host, profile, or deploy target.
+- `EVENT_SERVER_REPLAY_BUFFER` — config | scopes: Repo Root, Services | contexts: archon-os, infisical, orchestrator | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
+- `EVENT_SERVER_WS_PORT` — config | scopes: Infra, Repo Root, Services | contexts: archon-os, dev, infisical, orchestrator, worker-5090 | environment-dependent: yes | Port/bind setting; often varies by host, profile, or deploy target.
 - `EXPERIAN_API_KEY` — secret | scopes: Apps | contexts: twenty | environment-dependent: no | Secret material; keep in Infisical or untracked local env files.
 - `EXPERIMENTAL_FLASH_ATTENTION` — config | scopes: Infra | contexts: worker-3060 | environment-dependent: no | Configuration value defined in active env templates.
 - `EXPERIMENTAL_QUANTIZATION` — config | scopes: Infra | contexts: worker-3060 | environment-dependent: no | Configuration value defined in active env templates.
@@ -387,11 +387,11 @@ This deduplicated list is derived from active repo-root, `infra`, `apps`, and `s
 - `FALKORDB_PASSWORD` — secret | scopes: Repo Root | contexts: global | environment-dependent: no | Secret material; keep in Infisical or untracked local env files.
 - `FALKORDB_PORT` — config | scopes: Repo Root | contexts: global | environment-dependent: yes | Port/bind setting; often varies by host, profile, or deploy target.
 - `FANNIE_MAE_API_KEY` — secret | scopes: Apps | contexts: global | environment-dependent: no | Secret material; keep in Infisical or untracked local env files.
-- `FEATURE_DEBUG_TOOLS` — config | scopes: Repo Root | contexts: claude-flow, dev | environment-dependent: no | Configuration value defined in active env templates.
-- `FEATURE_EXPERIMENTAL` — config | scopes: Repo Root | contexts: claude-flow, dev | environment-dependent: no | Configuration value defined in active env templates.
-- `FEATURE_MOCK_SERVICES` — config | scopes: Repo Root | contexts: claude-flow, dev | environment-dependent: no | Configuration value defined in active env templates.
+- `FEATURE_DEBUG_TOOLS` — config | scopes: Repo Root | contexts: archon-os, dev | environment-dependent: no | Configuration value defined in active env templates.
+- `FEATURE_EXPERIMENTAL` — config | scopes: Repo Root | contexts: archon-os, dev | environment-dependent: no | Configuration value defined in active env templates.
+- `FEATURE_MOCK_SERVICES` — config | scopes: Repo Root | contexts: archon-os, dev | environment-dependent: no | Configuration value defined in active env templates.
 - `FILE_TOKEN_SECRET` — secret | scopes: Apps | contexts: dev, twenty | environment-dependent: no | Secret material; keep in Infisical or untracked local env files.
-- `FLOW_NEXUS_ENABLED` — config | scopes: Repo Root | contexts: claude-flow | environment-dependent: no | Configuration value defined in active env templates.
+- `FLOW_NEXUS_ENABLED` — config | scopes: Repo Root | contexts: archon-os | environment-dependent: no | Configuration value defined in active env templates.
 - `FORCE_HTTPS` — config | scopes: Apps | contexts: twenty | environment-dependent: no | Configuration value defined in active env templates.
 - `FREDDIE_MAC_API_KEY` — secret | scopes: Apps | contexts: global | environment-dependent: no | Secret material; keep in Infisical or untracked local env files.
 - `FREERATEUPDATER_WEBHOOK_SECRET` — secret | scopes: Repo Root | contexts: infisical, orchestrator | environment-dependent: yes | Secret material; keep in Infisical or untracked local env files.
@@ -426,14 +426,14 @@ This deduplicated list is derived from active repo-root, `infra`, `apps`, and `s
 - `GITEA_SSH_PORT` — config | scopes: Repo Root | contexts: gitea | environment-dependent: yes | Port/bind setting; often varies by host, profile, or deploy target.
 - `GITEA_TOKEN` — secret | scopes: Repo Root | contexts: global | environment-dependent: no | Secret material; keep in Infisical or untracked local env files.
 - `GITEA_URL` — config | scopes: Repo Root | contexts: global | environment-dependent: yes | Endpoint or hostname; update per dev/staging/prod environment.
-- `GITHUB_BRANCH` — config | scopes: Infra | contexts: cicd, claude-flow | environment-dependent: no | Configuration value defined in active env templates.
-- `GITHUB_REPOSITORY` — config | scopes: Infra | contexts: cicd, claude-flow | environment-dependent: no | Configuration value defined in active env templates.
-- `GITHUB_TOKEN` — secret | scopes: Infra, Repo Root, Services | contexts: archon, cicd, claude-flow, dev | environment-dependent: yes | Secret material; keep in Infisical or untracked local env files.
-- `GIT_AUTHOR_EMAIL` — config | scopes: Infra | contexts: cicd, claude-flow | environment-dependent: no | Configuration value defined in active env templates.
-- `GIT_AUTHOR_NAME` — config | scopes: Infra | contexts: cicd, claude-flow | environment-dependent: no | Configuration value defined in active env templates.
-- `GIT_COMMITTER_EMAIL` — config | scopes: Infra | contexts: cicd, claude-flow | environment-dependent: no | Configuration value defined in active env templates.
-- `GIT_COMMITTER_NAME` — config | scopes: Infra | contexts: cicd, claude-flow | environment-dependent: no | Configuration value defined in active env templates.
-- `GOOGLE_API_KEY` — secret | scopes: Infra, Repo Root | contexts: cicd, claude-flow, dev, infisical, oracle, orchestrator, prod, worker-3060, worker-3090ti, worker-5090 | environment-dependent: yes | Secret material; keep in Infisical or untracked local env files.
+- `GITHUB_BRANCH` — config | scopes: Infra | contexts: cicd, archon-os | environment-dependent: no | Configuration value defined in active env templates.
+- `GITHUB_REPOSITORY` — config | scopes: Infra | contexts: cicd, archon-os | environment-dependent: no | Configuration value defined in active env templates.
+- `GITHUB_TOKEN` — secret | scopes: Infra, Repo Root, Services | contexts: archon, cicd, archon-os, dev | environment-dependent: yes | Secret material; keep in Infisical or untracked local env files.
+- `GIT_AUTHOR_EMAIL` — config | scopes: Infra | contexts: cicd, archon-os | environment-dependent: no | Configuration value defined in active env templates.
+- `GIT_AUTHOR_NAME` — config | scopes: Infra | contexts: cicd, archon-os | environment-dependent: no | Configuration value defined in active env templates.
+- `GIT_COMMITTER_EMAIL` — config | scopes: Infra | contexts: cicd, archon-os | environment-dependent: no | Configuration value defined in active env templates.
+- `GIT_COMMITTER_NAME` — config | scopes: Infra | contexts: cicd, archon-os | environment-dependent: no | Configuration value defined in active env templates.
+- `GOOGLE_API_KEY` — secret | scopes: Infra, Repo Root | contexts: cicd, archon-os, dev, infisical, oracle, orchestrator, prod, worker-3060, worker-3090ti, worker-5090 | environment-dependent: yes | Secret material; keep in Infisical or untracked local env files.
 - `GOOGLE_APPLICATION_CREDENTIALS` — config | scopes: Repo Root | contexts: global | environment-dependent: no | Configuration value defined in active env templates.
 - `GOOGLE_CALLBACK_URL` — config | scopes: Services | contexts: global | environment-dependent: yes | Endpoint or hostname; update per dev/staging/prod environment.
 - `GOOGLE_CLIENT_ID` — config | scopes: Services | contexts: global | environment-dependent: no | Configuration value defined in active env templates.
@@ -441,7 +441,7 @@ This deduplicated list is derived from active repo-root, `infra`, `apps`, and `s
 - `GOOGLE_CLOUD_LOCATION` — config | scopes: Repo Root | contexts: global | environment-dependent: no | Configuration value defined in active env templates.
 - `GOOGLE_CLOUD_PROJECT` — config | scopes: Repo Root | contexts: global | environment-dependent: no | Configuration value defined in active env templates.
 - `GOOGLE_GEMINI_API_KEY` — secret | scopes: Infra, Repo Root | contexts: dev | environment-dependent: no | Secret material; keep in Infisical or untracked local env files.
-- `GOOGLE_GEMINI_MODEL` — config | scopes: Infra, Repo Root | contexts: cicd, claude-flow | environment-dependent: no | Model selection; may differ by machine or provider tier.
+- `GOOGLE_GEMINI_MODEL` — config | scopes: Infra, Repo Root | contexts: cicd, archon-os | environment-dependent: no | Model selection; may differ by machine or provider tier.
 - `GPU_3060_TAILSCALE_IP` — config | scopes: Repo Root | contexts: infisical, orchestrator, worker-3060, worker-3090ti, worker-5090 | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
 - `GPU_3090_TAILSCALE_IP` — config | scopes: Repo Root | contexts: infisical, orchestrator, worker-3060, worker-3090ti, worker-5090 | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
 - `GPU_5090_TAILSCALE_IP` — config | scopes: Repo Root | contexts: infisical, orchestrator, worker-3060, worker-3090ti, worker-5090 | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
@@ -452,27 +452,27 @@ This deduplicated list is derived from active repo-root, `infra`, `apps`, and `s
 - `GPU_MODEL` — config | scopes: Infra, Repo Root | contexts: worker-3060, worker-3090ti, worker-5090 | environment-dependent: yes | Model selection; may differ by machine or provider tier.
 - `GPU_TYPE` — config | scopes: Infra | contexts: worker-5090 | environment-dependent: no | Configuration value defined in active env templates.
 - `GPU_VRAM` — config | scopes: Infra, Repo Root | contexts: worker-3060, worker-3090ti, worker-5090 | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
-- `GPU_WORKER_3060_URL` — config | scopes: Repo Root | contexts: claude-flow, prod | environment-dependent: yes | Endpoint or hostname; update per dev/staging/prod environment.
-- `GPU_WORKER_3090_URL` — config | scopes: Repo Root | contexts: claude-flow, prod | environment-dependent: yes | Endpoint or hostname; update per dev/staging/prod environment.
-- `GPU_WORKER_5090_URL` — config | scopes: Repo Root | contexts: claude-flow, prod | environment-dependent: yes | Endpoint or hostname; update per dev/staging/prod environment.
+- `GPU_WORKER_3060_URL` — config | scopes: Repo Root | contexts: archon-os, prod | environment-dependent: yes | Endpoint or hostname; update per dev/staging/prod environment.
+- `GPU_WORKER_3090_URL` — config | scopes: Repo Root | contexts: archon-os, prod | environment-dependent: yes | Endpoint or hostname; update per dev/staging/prod environment.
+- `GPU_WORKER_5090_URL` — config | scopes: Repo Root | contexts: archon-os, prod | environment-dependent: yes | Endpoint or hostname; update per dev/staging/prod environment.
 - `GPU_WORKER_ID` — config | scopes: Infra | contexts: worker-3090ti, worker-5090 | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
-- `GRAFANA_ADMIN_PASSWORD` — secret | scopes: Infra, Repo Root | contexts: claude-flow, dev, infisical, oracle, orchestrator, prod, worker-3060, worker-3090ti, worker-5090 | environment-dependent: yes | Secret material; keep in Infisical or untracked local env files.
+- `GRAFANA_ADMIN_PASSWORD` — secret | scopes: Infra, Repo Root | contexts: archon-os, dev, infisical, oracle, orchestrator, prod, worker-3060, worker-3090ti, worker-5090 | environment-dependent: yes | Secret material; keep in Infisical or untracked local env files.
 - `GRAFANA_ADMIN_USER` — config | scopes: Infra, Repo Root | contexts: worker-3090ti | environment-dependent: no | Configuration value defined in active env templates.
 - `GRAFANA_API_KEY` — secret | scopes: Infra | contexts: worker-3060, worker-3090ti | environment-dependent: yes | Secret material; keep in Infisical or untracked local env files.
 - `GRAFANA_CPU_LIMIT` — config | scopes: Repo Root | contexts: global | environment-dependent: no | Configuration value defined in active env templates.
-- `GRAFANA_ENABLED` — config | scopes: Repo Root | contexts: claude-flow, dev, prod | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
+- `GRAFANA_ENABLED` — config | scopes: Repo Root | contexts: archon-os, dev, prod | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
 - `GRAFANA_HOST` — config | scopes: Repo Root | contexts: global | environment-dependent: yes | Endpoint or hostname; update per dev/staging/prod environment.
 - `GRAFANA_MEMORY_LIMIT` — config | scopes: Repo Root | contexts: orchestrator | environment-dependent: no | Configuration value defined in active env templates.
 - `GRAFANA_PASSWORD` — secret | scopes: Repo Root, Services | contexts: global | environment-dependent: no | Secret material; keep in Infisical or untracked local env files.
-- `GRAFANA_PORT` — config | scopes: Infra, Repo Root | contexts: claude-flow, dev, oracle, orchestrator, prod, worker-3060, worker-3090ti, worker-5090 | environment-dependent: yes | Port/bind setting; often varies by host, profile, or deploy target.
+- `GRAFANA_PORT` — config | scopes: Infra, Repo Root | contexts: archon-os, dev, oracle, orchestrator, prod, worker-3060, worker-3090ti, worker-5090 | environment-dependent: yes | Port/bind setting; often varies by host, profile, or deploy target.
 - `GRAFANA_URL` — config | scopes: Infra, Repo Root | contexts: infisical, orchestrator, worker-3060, worker-3090ti, worker-5090 | environment-dependent: yes | Endpoint or hostname; update per dev/staging/prod environment.
-- `GRAPHITI_API_KEY` — secret | scopes: Infra, Repo Root | contexts: worker-3060 | environment-dependent: no | Secret material; keep in Infisical or untracked local env files.
-- `GRAPHITI_GROUP_ID` — config | scopes: Apps, Infra | contexts: global | environment-dependent: no | Configuration value defined in active env templates.
-- `GRAPHITI_HOST` — config | scopes: Repo Root | contexts: global | environment-dependent: yes | Endpoint or hostname; update per dev/staging/prod environment.
-- `GRAPHITI_PORT` — config | scopes: Repo Root | contexts: global | environment-dependent: yes | Port/bind setting; often varies by host, profile, or deploy target.
-- `GRAPHITI_RELATIONSHIP_INFERENCE` — config | scopes: Repo Root | contexts: global | environment-dependent: no | Configuration value defined in active env templates.
-- `GRAPHITI_TEMPORAL_TRACKING` — config | scopes: Repo Root | contexts: global | environment-dependent: no | Configuration value defined in active env templates.
-- `GRAPHITI_URL` — config | scopes: Infra | contexts: worker-3060 | environment-dependent: yes | Endpoint or hostname; update per dev/staging/prod environment.
+- `letta_API_KEY` — secret | scopes: Infra, Repo Root | contexts: worker-3060 | environment-dependent: no | Secret material; keep in Infisical or untracked local env files.
+- `letta_GROUP_ID` — config | scopes: Apps, Infra | contexts: global | environment-dependent: no | Configuration value defined in active env templates.
+- `letta_HOST` — config | scopes: Repo Root | contexts: global | environment-dependent: yes | Endpoint or hostname; update per dev/staging/prod environment.
+- `letta_PORT` — config | scopes: Repo Root | contexts: global | environment-dependent: yes | Port/bind setting; often varies by host, profile, or deploy target.
+- `letta_RELATIONSHIP_INFERENCE` — config | scopes: Repo Root | contexts: global | environment-dependent: no | Configuration value defined in active env templates.
+- `letta_TEMPORAL_TRACKING` — config | scopes: Repo Root | contexts: global | environment-dependent: no | Configuration value defined in active env templates.
+- `letta_URL` — config | scopes: Infra | contexts: worker-3060 | environment-dependent: yes | Endpoint or hostname; update per dev/staging/prod environment.
 - `GRAPHQL_INTROSPECTION` — config | scopes: Apps | contexts: twenty | environment-dependent: no | Configuration value defined in active env templates.
 - `GRAPHQL_PLAYGROUND` — config | scopes: Apps | contexts: twenty | environment-dependent: no | Configuration value defined in active env templates.
 - `GROQ_API_KEY` — secret | scopes: Infra | contexts: openclaw | environment-dependent: no | Secret material; keep in Infisical or untracked local env files.
@@ -486,7 +486,7 @@ This deduplicated list is derived from active repo-root, `infra`, `apps`, and `s
 - `HEALTH_CHECK_START_PERIOD` — config | scopes: Infra | contexts: worker-3090ti | environment-dependent: no | Configuration value defined in active env templates.
 - `HEALTH_CHECK_TIMEOUT` — config | scopes: Apps, Infra | contexts: twenty, worker-3060, worker-3090ti, worker-5090 | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
 - `HEALTH_MONITOR_PORT` — config | scopes: Infra | contexts: worker-3060 | environment-dependent: yes | Port/bind setting; often varies by host, profile, or deploy target.
-- `HELMET_ENABLED` — config | scopes: Apps, Repo Root | contexts: claude-flow, dev, prod, twenty | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
+- `HELMET_ENABLED` — config | scopes: Apps, Repo Root | contexts: archon-os, dev, prod, twenty | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
 - `HF_TOKEN` — secret | scopes: Repo Root, Services | contexts: infisical, orchestrator, worker-3060, worker-3090ti, worker-5090 | environment-dependent: yes | Secret material; keep in Infisical or untracked local env files.
 - `HMDA_LAR_SUBMISSION_ENABLED` — config | scopes: Apps | contexts: global | environment-dependent: no | Configuration value defined in active env templates.
 - `HMDA_REPORTING_ENABLED` — config | scopes: Apps | contexts: twenty | environment-dependent: no | Configuration value defined in active env templates.
@@ -500,17 +500,17 @@ This deduplicated list is derived from active repo-root, `infra`, `apps`, and `s
 - `INFISICAL_AUTH_SECRET` — secret | scopes: Repo Root | contexts: infisical | environment-dependent: no | Secret material; keep in Infisical or untracked local env files.
 - `INFISICAL_CLIENT_ID` — config | scopes: Infra, Repo Root | contexts: global | environment-dependent: no | Configuration value defined in active env templates.
 - `INFISICAL_CLIENT_SECRET` — secret | scopes: Infra, Repo Root | contexts: global | environment-dependent: no | Secret material; keep in Infisical or untracked local env files.
-- `INFISICAL_ENABLED` — config | scopes: Repo Root | contexts: claude-flow, dev, prod | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
+- `INFISICAL_ENABLED` — config | scopes: Repo Root | contexts: archon-os, dev, prod | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
 - `INFISICAL_ENCRYPTION_KEY` — secret | scopes: Repo Root | contexts: infisical | environment-dependent: no | Secret material; keep in Infisical or untracked local env files.
 - `INFISICAL_ENV` — config | scopes: Infra, Repo Root | contexts: gitea, worker-3060, worker-3090ti, worker-5090 | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
-- `INFISICAL_ENVIRONMENT` — config | scopes: Repo Root | contexts: claude-flow, prod | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
-- `INFISICAL_PATH` — config | scopes: Infra, Repo Root | contexts: claude-flow, gitea, prod, worker-3060, worker-3090ti, worker-5090 | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
+- `INFISICAL_ENVIRONMENT` — config | scopes: Repo Root | contexts: archon-os, prod | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
+- `INFISICAL_PATH` — config | scopes: Infra, Repo Root | contexts: archon-os, gitea, prod, worker-3060, worker-3090ti, worker-5090 | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
 - `INFISICAL_POLL_INTERVAL` — config | scopes: Repo Root | contexts: gitea | environment-dependent: no | Configuration value defined in active env templates.
 - `INFISICAL_PORT` — config | scopes: Repo Root | contexts: infisical | environment-dependent: yes | Port/bind setting; often varies by host, profile, or deploy target.
 - `INFISICAL_POSTGRES_DB` — config | scopes: Repo Root | contexts: infisical | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
 - `INFISICAL_POSTGRES_PASSWORD` — secret | scopes: Repo Root | contexts: infisical | environment-dependent: no | Secret material; keep in Infisical or untracked local env files.
 - `INFISICAL_POSTGRES_USER` — config | scopes: Repo Root | contexts: infisical | environment-dependent: no | Configuration value defined in active env templates.
-- `INFISICAL_PROJECT_ID` — config | scopes: Infra, Repo Root | contexts: claude-flow, gitea, prod, worker-3060, worker-3090ti, worker-5090 | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
+- `INFISICAL_PROJECT_ID` — config | scopes: Infra, Repo Root | contexts: archon-os, gitea, prod, worker-3060, worker-3090ti, worker-5090 | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
 - `INFISICAL_SITE_URL` — config | scopes: Repo Root | contexts: infisical | environment-dependent: yes | Endpoint or hostname; update per dev/staging/prod environment.
 - `INFISICAL_TOKEN` — secret | scopes: Infra, Repo Root | contexts: orchestrator, worker-3060, worker-3090ti | environment-dependent: yes | Secret material; keep in Infisical or untracked local env files.
 - `INFISICAL_UNIVERSAL_AUTH_CLIENT_ID` — config | scopes: Repo Root | contexts: global | environment-dependent: no | Configuration value defined in active env templates.
@@ -527,7 +527,7 @@ This deduplicated list is derived from active repo-root, `infra`, `apps`, and `s
 - `JWT_REFRESH_EXPIRES_IN` — config | scopes: Services | contexts: global | environment-dependent: no | Configuration value defined in active env templates.
 - `JWT_REFRESH_EXPIRY` — config | scopes: Services | contexts: global | environment-dependent: no | Configuration value defined in active env templates.
 - `JWT_REFRESH_SECRET` — secret | scopes: Services | contexts: global | environment-dependent: no | Secret material; keep in Infisical or untracked local env files.
-- `JWT_SECRET` — secret | scopes: Apps, Infra, Repo Root, Services | contexts: cicd, claude-flow, dev, prod, ratehunter | environment-dependent: yes | Secret material; keep in Infisical or untracked local env files.
+- `JWT_SECRET` — secret | scopes: Apps, Infra, Repo Root, Services | contexts: cicd, archon-os, dev, prod, ratehunter | environment-dependent: yes | Secret material; keep in Infisical or untracked local env files.
 
 ## K
 - `KYUTAI_LLM_API_KEY` — secret | scopes: Infra | contexts: global | environment-dependent: no | Secret material; keep in Infisical or untracked local env files.
@@ -563,24 +563,24 @@ This deduplicated list is derived from active repo-root, `infra`, `apps`, and `s
 - `LITELLM_MASTER_KEY` — secret | scopes: Infra, Repo Root, Services | contexts: dev, openclaw, oracle, orchestrator, worker-3060, worker-3090ti, worker-5090 | environment-dependent: yes | Secret material; keep in Infisical or untracked local env files.
 - `LITELLM_MODE` — config | scopes: Services | contexts: global | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
 - `LITELLM_PORT` — config | scopes: Infra, Repo Root | contexts: dev, oracle, orchestrator, worker-3060, worker-3090ti, worker-5090 | environment-dependent: yes | Port/bind setting; often varies by host, profile, or deploy target.
-- `LOCAL_LLM_ENABLED` — config | scopes: Repo Root | contexts: claude-flow, dev, prod | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
-- `LOCAL_LLM_PRIORITY` — config | scopes: Repo Root | contexts: claude-flow, dev, prod | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
-- `LOCAL_LLM_URL` — config | scopes: Repo Root | contexts: claude-flow, dev | environment-dependent: yes | Endpoint or hostname; update per dev/staging/prod environment.
-- `LOGGING_LEVEL` — config | scopes: Services | contexts: claude-flow | environment-dependent: no | Configuration value defined in active env templates.
+- `LOCAL_LLM_ENABLED` — config | scopes: Repo Root | contexts: archon-os, dev, prod | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
+- `LOCAL_LLM_PRIORITY` — config | scopes: Repo Root | contexts: archon-os, dev, prod | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
+- `LOCAL_LLM_URL` — config | scopes: Repo Root | contexts: archon-os, dev | environment-dependent: yes | Endpoint or hostname; update per dev/staging/prod environment.
+- `LOGGING_LEVEL` — config | scopes: Services | contexts: archon-os | environment-dependent: no | Configuration value defined in active env templates.
 - `LOGIN_TOKEN_SECRET` — secret | scopes: Apps | contexts: dev, twenty | environment-dependent: no | Secret material; keep in Infisical or untracked local env files.
 - `LOG_DIR` — config | scopes: Repo Root | contexts: global | environment-dependent: no | Configuration value defined in active env templates.
 - `LOG_FILE` — config | scopes: Infra, Services | contexts: worker-3060, worker-5090 | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
-- `LOG_FILE_PATH` — config | scopes: Repo Root, Services | contexts: claude-flow, dev, prod | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
-- `LOG_FORMAT` — config | scopes: Apps, Infra, Repo Root | contexts: claude-flow, dev, prod, twenty, worker-3060, worker-5090 | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
-- `LOG_LEVEL` — config | scopes: Apps, Infra, Repo Root, Services | contexts: archon, claude-flow, dev, infisical, nexus-router, oracle, orchestrator, prod, ratehunter, twenty, worker-3060, worker-3090ti, worker-5090 | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
-- `LOG_MAX_FILES` — config | scopes: Infra, Repo Root | contexts: claude-flow, prod, worker-3060, worker-3090ti | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
-- `LOG_MAX_SIZE` — config | scopes: Infra, Repo Root | contexts: claude-flow, prod, worker-3060, worker-3090ti | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
+- `LOG_FILE_PATH` — config | scopes: Repo Root, Services | contexts: archon-os, dev, prod | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
+- `LOG_FORMAT` — config | scopes: Apps, Infra, Repo Root | contexts: archon-os, dev, prod, twenty, worker-3060, worker-5090 | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
+- `LOG_LEVEL` — config | scopes: Apps, Infra, Repo Root, Services | contexts: archon, archon-os, dev, infisical, nexus-router, oracle, orchestrator, prod, ratehunter, twenty, worker-3060, worker-3090ti, worker-5090 | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
+- `LOG_MAX_FILES` — config | scopes: Infra, Repo Root | contexts: archon-os, prod, worker-3060, worker-3090ti | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
+- `LOG_MAX_SIZE` — config | scopes: Infra, Repo Root | contexts: archon-os, prod, worker-3060, worker-3090ti | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
 - `LOG_PATH` — config | scopes: Infra | contexts: worker-3090ti | environment-dependent: no | Configuration value defined in active env templates.
-- `LOG_RETENTION_DAYS` — config | scopes: Repo Root | contexts: claude-flow, prod | environment-dependent: no | Configuration value defined in active env templates.
-- `LOKI_ENABLED` — config | scopes: Repo Root | contexts: claude-flow, prod | environment-dependent: no | Configuration value defined in active env templates.
+- `LOG_RETENTION_DAYS` — config | scopes: Repo Root | contexts: archon-os, prod | environment-dependent: no | Configuration value defined in active env templates.
+- `LOKI_ENABLED` — config | scopes: Repo Root | contexts: archon-os, prod | environment-dependent: no | Configuration value defined in active env templates.
 - `LOKI_HOST` — config | scopes: Repo Root | contexts: global | environment-dependent: yes | Endpoint or hostname; update per dev/staging/prod environment.
 - `LOKI_INGESTION_RATE_MB` — config | scopes: Infra | contexts: worker-3090ti | environment-dependent: no | Configuration value defined in active env templates.
-- `LOKI_PORT` — config | scopes: Infra, Repo Root | contexts: claude-flow, dev, oracle, orchestrator, prod, worker-3060, worker-3090ti, worker-5090 | environment-dependent: yes | Port/bind setting; often varies by host, profile, or deploy target.
+- `LOKI_PORT` — config | scopes: Infra, Repo Root | contexts: archon-os, dev, oracle, orchestrator, prod, worker-3060, worker-3090ti, worker-5090 | environment-dependent: yes | Port/bind setting; often varies by host, profile, or deploy target.
 - `LOKI_RETENTION_PERIOD` — config | scopes: Infra | contexts: worker-3090ti | environment-dependent: no | Configuration value defined in active env templates.
 - `LOKI_URL` — config | scopes: Infra | contexts: worker-3060, worker-3090ti, worker-5090 | environment-dependent: yes | Endpoint or hostname; update per dev/staging/prod environment.
 
@@ -590,10 +590,10 @@ This deduplicated list is derived from active repo-root, `infra`, `apps`, and `s
 - `MACHINE_IP_TAILSCALE` — config | scopes: Infra | contexts: worker-5090 | environment-dependent: no | Configuration value defined in active env templates.
 - `MACHINE_NAME` — config | scopes: Repo Root | contexts: orchestrator, worker-3060, worker-3090ti, worker-5090 | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
 - `MACHINE_ROLE` — config | scopes: Repo Root | contexts: orchestrator, worker-3060, worker-3090ti, worker-5090 | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
-- `MAX_AGENTS` — config | scopes: Infra, Repo Root | contexts: cicd, claude-flow | environment-dependent: no | Configuration value defined in active env templates.
+- `MAX_AGENTS` — config | scopes: Infra, Repo Root | contexts: cicd, archon-os | environment-dependent: no | Configuration value defined in active env templates.
 - `MAX_BATCH_SIZE` — config | scopes: Infra | contexts: worker-3060 | environment-dependent: no | Configuration value defined in active env templates.
 - `MAX_CONCURRENT_JOBS` — config | scopes: Repo Root | contexts: worker-3060 | environment-dependent: no | Configuration value defined in active env templates.
-- `MAX_CONCURRENT_REQUESTS` — config | scopes: Infra, Repo Root | contexts: cicd, claude-flow, worker-3060 | environment-dependent: no | Configuration value defined in active env templates.
+- `MAX_CONCURRENT_REQUESTS` — config | scopes: Infra, Repo Root | contexts: cicd, archon-os, worker-3060 | environment-dependent: no | Configuration value defined in active env templates.
 - `MAX_CONCURRENT_SCRAPERS` — config | scopes: Services | contexts: global | environment-dependent: no | Configuration value defined in active env templates.
 - `MAX_CONCURRENT_TASKS` — config | scopes: Services | contexts: archon, dev | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
 - `MAX_CONNECTIONS` — config | scopes: Repo Root | contexts: oracle | environment-dependent: no | Configuration value defined in active env templates.
@@ -613,7 +613,7 @@ This deduplicated list is derived from active repo-root, `infra`, `apps`, and `s
 - `MCP_GITLAB_PORT` — config | scopes: Repo Root | contexts: global | environment-dependent: yes | Port/bind setting; often varies by host, profile, or deploy target.
 - `MCP_GOOGLE_MAPS_PORT` — config | scopes: Repo Root | contexts: global | environment-dependent: yes | Port/bind setting; often varies by host, profile, or deploy target.
 - `MCP_POSTGRES_PORT` — config | scopes: Repo Root | contexts: global | environment-dependent: yes | Port/bind setting; often varies by host, profile, or deploy target.
-- `MCP_PROTOCOL_VERSION` — config | scopes: Repo Root | contexts: claude-flow | environment-dependent: no | Configuration value defined in active env templates.
+- `MCP_PROTOCOL_VERSION` — config | scopes: Repo Root | contexts: archon-os | environment-dependent: no | Configuration value defined in active env templates.
 - `MCP_SENTRY_PORT` — config | scopes: Repo Root | contexts: global | environment-dependent: yes | Port/bind setting; often varies by host, profile, or deploy target.
 - `MCP_SERVER_HOST` — config | scopes: Apps | contexts: twenty | environment-dependent: yes | Endpoint or hostname; update per dev/staging/prod environment.
 - `MCP_SERVER_PORT` — config | scopes: Apps | contexts: twenty | environment-dependent: yes | Port/bind setting; often varies by host, profile, or deploy target.
@@ -624,23 +624,23 @@ This deduplicated list is derived from active repo-root, `infra`, `apps`, and `s
 - `MEM0_HOST` — config | scopes: Repo Root | contexts: global | environment-dependent: yes | Endpoint or hostname; update per dev/staging/prod environment.
 - `MEM0_PORT` — config | scopes: Repo Root | contexts: global | environment-dependent: yes | Port/bind setting; often varies by host, profile, or deploy target.
 - `MEM0_URL` — config | scopes: Services | contexts: archon, dev | environment-dependent: yes | Endpoint or hostname; update per dev/staging/prod environment.
-- `MEMORY_AUTO_PERSIST` — config | scopes: Infra, Repo Root | contexts: cicd, claude-flow, dev | environment-dependent: no | Configuration value defined in active env templates.
-- `MEMORY_BACKEND` — config | scopes: Infra, Repo Root | contexts: cicd, claude-flow, dev, prod | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
-- `MEMORY_BACKUP_TO_GITHUB` — config | scopes: Infra, Repo Root | contexts: cicd, claude-flow, prod | environment-dependent: no | Configuration value defined in active env templates.
-- `MEMORY_COMPRESSION` — config | scopes: Infra, Repo Root | contexts: cicd, claude-flow, dev, prod | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
-- `MEMORY_ENABLE_HNSW` — config | scopes: Infra, Repo Root | contexts: cicd, claude-flow, prod | environment-dependent: no | Configuration value defined in active env templates.
-- `MEMORY_ENCRYPTION` — config | scopes: Repo Root | contexts: claude-flow, prod | environment-dependent: no | Configuration value defined in active env templates.
-- `MEMORY_HNSW_EF_CONSTRUCTION` — config | scopes: Infra, Repo Root | contexts: cicd, claude-flow | environment-dependent: no | Configuration value defined in active env templates.
-- `MEMORY_HNSW_M` — config | scopes: Infra, Repo Root | contexts: cicd, claude-flow | environment-dependent: no | Configuration value defined in active env templates.
+- `MEMORY_AUTO_PERSIST` — config | scopes: Infra, Repo Root | contexts: cicd, archon-os, dev | environment-dependent: no | Configuration value defined in active env templates.
+- `MEMORY_BACKEND` — config | scopes: Infra, Repo Root | contexts: cicd, archon-os, dev, prod | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
+- `MEMORY_BACKUP_TO_GITHUB` — config | scopes: Infra, Repo Root | contexts: cicd, archon-os, prod | environment-dependent: no | Configuration value defined in active env templates.
+- `MEMORY_COMPRESSION` — config | scopes: Infra, Repo Root | contexts: cicd, archon-os, dev, prod | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
+- `MEMORY_ENABLE_HNSW` — config | scopes: Infra, Repo Root | contexts: cicd, archon-os, prod | environment-dependent: no | Configuration value defined in active env templates.
+- `MEMORY_ENCRYPTION` — config | scopes: Repo Root | contexts: archon-os, prod | environment-dependent: no | Configuration value defined in active env templates.
+- `MEMORY_HNSW_EF_CONSTRUCTION` — config | scopes: Infra, Repo Root | contexts: cicd, archon-os | environment-dependent: no | Configuration value defined in active env templates.
+- `MEMORY_HNSW_M` — config | scopes: Infra, Repo Root | contexts: cicd, archon-os | environment-dependent: no | Configuration value defined in active env templates.
 - `MEMORY_LIMIT` — config | scopes: Apps, Infra | contexts: worker-3090ti | environment-dependent: no | Configuration value defined in active env templates.
-- `MEMORY_NAMESPACES` — config | scopes: Infra, Repo Root | contexts: cicd, claude-flow | environment-dependent: no | Configuration value defined in active env templates.
-- `MEMORY_PRIMARY_STORE` — config | scopes: Infra, Repo Root | contexts: cicd, claude-flow, prod | environment-dependent: no | Configuration value defined in active env templates.
-- `MEMORY_RETENTION_DAYS` — config | scopes: Infra, Repo Root, Services | contexts: cicd, claude-flow, dev | environment-dependent: no | Configuration value defined in active env templates.
-- `MEMORY_SECONDARY_STORE` — config | scopes: Infra, Repo Root | contexts: cicd, claude-flow, prod | environment-dependent: no | Configuration value defined in active env templates.
-- `MEMORY_SYNC_INTERVAL` — config | scopes: Infra, Repo Root | contexts: cicd, claude-flow, dev, prod | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
+- `MEMORY_NAMESPACES` — config | scopes: Infra, Repo Root | contexts: cicd, archon-os | environment-dependent: no | Configuration value defined in active env templates.
+- `MEMORY_PRIMARY_STORE` — config | scopes: Infra, Repo Root | contexts: cicd, archon-os, prod | environment-dependent: no | Configuration value defined in active env templates.
+- `MEMORY_RETENTION_DAYS` — config | scopes: Infra, Repo Root, Services | contexts: cicd, archon-os, dev | environment-dependent: no | Configuration value defined in active env templates.
+- `MEMORY_SECONDARY_STORE` — config | scopes: Infra, Repo Root | contexts: cicd, archon-os, prod | environment-dependent: no | Configuration value defined in active env templates.
+- `MEMORY_SYNC_INTERVAL` — config | scopes: Infra, Repo Root | contexts: cicd, archon-os, dev, prod | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
 - `MESSAGE_QUEUE_TYPE` — config | scopes: Apps | contexts: twenty | environment-dependent: no | Configuration value defined in active env templates.
 - `METRICS_ENABLED` — config | scopes: Apps, Repo Root, Services | contexts: archon, dev, infisical, orchestrator, twenty, worker-3060, worker-3090ti, worker-5090 | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
-- `METRICS_ENDPOINT` — config | scopes: Services | contexts: claude-flow | environment-dependent: no | Configuration value defined in active env templates.
+- `METRICS_ENDPOINT` — config | scopes: Services | contexts: archon-os | environment-dependent: no | Configuration value defined in active env templates.
 - `METRICS_EXPORT_PORT` — config | scopes: Repo Root | contexts: oracle | environment-dependent: yes | Port/bind setting; often varies by host, profile, or deploy target.
 - `METRICS_PORT` — config | scopes: Apps, Services | contexts: twenty | environment-dependent: yes | Port/bind setting; often varies by host, profile, or deploy target.
 - `MFA_ISSUER` — config | scopes: Services | contexts: global | environment-dependent: no | Configuration value defined in active env templates.
@@ -649,17 +649,17 @@ This deduplicated list is derived from active repo-root, `infra`, `apps`, and `s
 - `MICROSOFT_CLIENT_SECRET` — secret | scopes: Services | contexts: global | environment-dependent: no | Secret material; keep in Infisical or untracked local env files.
 - `MIN_BATCH_SIZE` — config | scopes: Infra | contexts: worker-3060 | environment-dependent: no | Configuration value defined in active env templates.
 - `MIN_CREDIT_SCORE` — config | scopes: Apps | contexts: twenty | environment-dependent: no | Configuration value defined in active env templates.
-- `MOCK_AWS` — config | scopes: Repo Root | contexts: claude-flow, dev | environment-dependent: no | Configuration value defined in active env templates.
-- `MOCK_SENDGRID` — config | scopes: Repo Root | contexts: claude-flow, dev | environment-dependent: no | Configuration value defined in active env templates.
-- `MOCK_TWILIO` — config | scopes: Repo Root | contexts: claude-flow, dev | environment-dependent: no | Configuration value defined in active env templates.
+- `MOCK_AWS` — config | scopes: Repo Root | contexts: archon-os, dev | environment-dependent: no | Configuration value defined in active env templates.
+- `MOCK_SENDGRID` — config | scopes: Repo Root | contexts: archon-os, dev | environment-dependent: no | Configuration value defined in active env templates.
+- `MOCK_TWILIO` — config | scopes: Repo Root | contexts: archon-os, dev | environment-dependent: no | Configuration value defined in active env templates.
 - `MODEL_CACHE_DIR` — config | scopes: Infra | contexts: worker-3090ti, worker-5090 | environment-dependent: yes | Model selection; may differ by machine or provider tier.
 - `MODEL_DTYPE` — config | scopes: Infra | contexts: worker-3090ti, worker-5090 | environment-dependent: yes | Model selection; may differ by machine or provider tier.
 - `MODEL_MANAGER_PORT` — config | scopes: Infra | contexts: worker-5090 | environment-dependent: yes | Port/bind setting; often varies by host, profile, or deploy target.
 - `MODEL_NAME` — config | scopes: Infra, Services | contexts: worker-3090ti, worker-5090 | environment-dependent: yes | Model selection; may differ by machine or provider tier.
 - `MODEL_ROUTING_COST_THRESHOLD` — config | scopes: Services | contexts: nexus-router | environment-dependent: no | Model selection; may differ by machine or provider tier.
-- `MODEL_ROUTING_FALLBACK_CLOUD` — config | scopes: Infra, Repo Root, Services | contexts: cicd, claude-flow, nexus-router | environment-dependent: no | Model selection; may differ by machine or provider tier.
-- `MODEL_ROUTING_PREFER_LOCAL` — config | scopes: Infra, Repo Root, Services | contexts: cicd, claude-flow, nexus-router | environment-dependent: no | Model selection; may differ by machine or provider tier.
-- `MODEL_ROUTING_STRATEGY` — config | scopes: Infra, Repo Root, Services | contexts: cicd, claude-flow, nexus-router, prod | environment-dependent: no | Model selection; may differ by machine or provider tier.
+- `MODEL_ROUTING_FALLBACK_CLOUD` — config | scopes: Infra, Repo Root, Services | contexts: cicd, archon-os, nexus-router | environment-dependent: no | Model selection; may differ by machine or provider tier.
+- `MODEL_ROUTING_PREFER_LOCAL` — config | scopes: Infra, Repo Root, Services | contexts: cicd, archon-os, nexus-router | environment-dependent: no | Model selection; may differ by machine or provider tier.
+- `MODEL_ROUTING_STRATEGY` — config | scopes: Infra, Repo Root, Services | contexts: cicd, archon-os, nexus-router, prod | environment-dependent: no | Model selection; may differ by machine or provider tier.
 - `MOLTBOT_WEB_PORT` — config | scopes: Infra | contexts: dev, oracle, orchestrator, worker-3060, worker-3090ti, worker-5090 | environment-dependent: yes | Port/bind setting; often varies by host, profile, or deploy target.
 - `MONGODB_URI` — config | scopes: Services | contexts: global | environment-dependent: no | Configuration value defined in active env templates.
 - `MONGO_PORT` — config | scopes: Infra | contexts: dev, oracle, orchestrator, worker-3060, worker-3090ti, worker-5090 | environment-dependent: yes | Port/bind setting; often varies by host, profile, or deploy target.
@@ -705,15 +705,15 @@ This deduplicated list is derived from active repo-root, `infra`, `apps`, and `s
 - `NEO4J_PASSWORD` — secret | scopes: Repo Root, Services | contexts: global | environment-dependent: no | Secret material; keep in Infisical or untracked local env files.
 - `NETWORK_DRIVER` — config | scopes: Infra | contexts: worker-3090ti | environment-dependent: no | Configuration value defined in active env templates.
 - `NETWORK_NAME` — config | scopes: Infra | contexts: worker-3090ti | environment-dependent: no | Configuration value defined in active env templates.
-- `NEURAL_BATCH_SIZE` — config | scopes: Infra, Repo Root | contexts: cicd, claude-flow | environment-dependent: no | Configuration value defined in active env templates.
-- `NEURAL_ERROR_PREVENTION_THRESHOLD` — config | scopes: Infra, Repo Root | contexts: cicd, claude-flow | environment-dependent: no | Configuration value defined in active env templates.
-- `NEURAL_FLASH_ATTENTION` — config | scopes: Infra, Repo Root | contexts: cicd, claude-flow, prod | environment-dependent: no | Configuration value defined in active env templates.
-- `NEURAL_LEARNING_RATE` — config | scopes: Infra, Repo Root | contexts: cicd, claude-flow | environment-dependent: no | Configuration value defined in active env templates.
-- `NEURAL_MODEL_OPTIMIZATION` — config | scopes: Infra, Repo Root | contexts: cicd, claude-flow | environment-dependent: no | Configuration value defined in active env templates.
-- `NEURAL_OPTIMIZATION_ENABLED` — config | scopes: Infra, Repo Root | contexts: cicd, claude-flow, prod | environment-dependent: no | Configuration value defined in active env templates.
-- `NEURAL_PERFORMANCE_AUTO_TUNE` — config | scopes: Infra, Repo Root | contexts: cicd, claude-flow | environment-dependent: no | Configuration value defined in active env templates.
-- `NEURAL_QUANTIZATION` — config | scopes: Infra, Repo Root | contexts: cicd, claude-flow, prod | environment-dependent: no | Configuration value defined in active env templates.
-- `NEURAL_UPDATE_FREQUENCY` — config | scopes: Infra, Repo Root | contexts: cicd, claude-flow | environment-dependent: no | Configuration value defined in active env templates.
+- `NEURAL_BATCH_SIZE` — config | scopes: Infra, Repo Root | contexts: cicd, archon-os | environment-dependent: no | Configuration value defined in active env templates.
+- `NEURAL_ERROR_PREVENTION_THRESHOLD` — config | scopes: Infra, Repo Root | contexts: cicd, archon-os | environment-dependent: no | Configuration value defined in active env templates.
+- `NEURAL_FLASH_ATTENTION` — config | scopes: Infra, Repo Root | contexts: cicd, archon-os, prod | environment-dependent: no | Configuration value defined in active env templates.
+- `NEURAL_LEARNING_RATE` — config | scopes: Infra, Repo Root | contexts: cicd, archon-os | environment-dependent: no | Configuration value defined in active env templates.
+- `NEURAL_MODEL_OPTIMIZATION` — config | scopes: Infra, Repo Root | contexts: cicd, archon-os | environment-dependent: no | Configuration value defined in active env templates.
+- `NEURAL_OPTIMIZATION_ENABLED` — config | scopes: Infra, Repo Root | contexts: cicd, archon-os, prod | environment-dependent: no | Configuration value defined in active env templates.
+- `NEURAL_PERFORMANCE_AUTO_TUNE` — config | scopes: Infra, Repo Root | contexts: cicd, archon-os | environment-dependent: no | Configuration value defined in active env templates.
+- `NEURAL_QUANTIZATION` — config | scopes: Infra, Repo Root | contexts: cicd, archon-os, prod | environment-dependent: no | Configuration value defined in active env templates.
+- `NEURAL_UPDATE_FREQUENCY` — config | scopes: Infra, Repo Root | contexts: cicd, archon-os | environment-dependent: no | Configuration value defined in active env templates.
 - `NEXT_PUBLIC_API_URL` — config | scopes: Apps | contexts: ratehunter | environment-dependent: yes | Public app/browser value; safe for client exposure but still varies by domain/environment.
 - `NEXT_PUBLIC_ENABLE_CALCULATOR` — config | scopes: Apps | contexts: ratehunter | environment-dependent: no | Public app/browser value; safe for client exposure but still varies by domain/environment.
 - `NEXT_PUBLIC_ENABLE_CHAT` — config | scopes: Apps | contexts: ratehunter | environment-dependent: no | Public app/browser value; safe for client exposure but still varies by domain/environment.
@@ -721,7 +721,7 @@ This deduplicated list is derived from active repo-root, `infra`, `apps`, and `s
 - `NEXT_PUBLIC_GTM_ID` — config | scopes: Apps | contexts: ratehunter | environment-dependent: no | Public app/browser value; safe for client exposure but still varies by domain/environment.
 - `NEXT_PUBLIC_SITE_NAME` — config | scopes: Apps | contexts: landing, ratehunter | environment-dependent: no | Public app/browser value; safe for client exposure but still varies by domain/environment.
 - `NEXT_PUBLIC_SITE_URL` — config | scopes: Apps | contexts: landing, ratehunter | environment-dependent: yes | Public app/browser value; safe for client exposure but still varies by domain/environment.
-- `NEXT_TELEMETRY_DISABLED` — config | scopes: Infra, Repo Root | contexts: cicd, claude-flow | environment-dependent: no | Configuration value defined in active env templates.
+- `NEXT_TELEMETRY_DISABLED` — config | scopes: Infra, Repo Root | contexts: cicd, archon-os | environment-dependent: no | Configuration value defined in active env templates.
 - `NEXUS_ADMIN_TOKEN` — secret | scopes: Infra, Repo Root | contexts: worker-5090 | environment-dependent: no | Secret material; keep in Infisical or untracked local env files.
 - `NEXUS_API_URL` — config | scopes: Infra | contexts: worker-3090ti | environment-dependent: yes | Endpoint or hostname; update per dev/staging/prod environment.
 - `NEXUS_BASE_URL` — config | scopes: Services | contexts: archon | environment-dependent: yes | Endpoint or hostname; update per dev/staging/prod environment.
@@ -745,9 +745,9 @@ This deduplicated list is derived from active repo-root, `infra`, `apps`, and `s
 - `NGINX_PORT` — config | scopes: Repo Root | contexts: oracle | environment-dependent: yes | Port/bind setting; often varies by host, profile, or deploy target.
 - `NGINX_SSL_PORT` — config | scopes: Repo Root | contexts: oracle | environment-dependent: yes | Port/bind setting; often varies by host, profile, or deploy target.
 - `NMLS_VALIDATION_ENABLED` — config | scopes: Apps | contexts: global | environment-dependent: no | Configuration value defined in active env templates.
-- `NODE_ENV` — config | scopes: Apps, Infra, Repo Root, Services | contexts: archon, cicd, claude-flow, dev, infisical, landing, nexus-router, oracle, orchestrator, prod, ratehunter, twenty, worker-3060, worker-3090ti, worker-5090 | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
+- `NODE_ENV` — config | scopes: Apps, Infra, Repo Root, Services | contexts: archon, cicd, archon-os, dev, infisical, landing, nexus-router, oracle, orchestrator, prod, ratehunter, twenty, worker-3060, worker-3090ti, worker-5090 | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
 - `NODE_EXPORTER_PORT` — config | scopes: Infra | contexts: worker-3060, worker-3090ti | environment-dependent: yes | Port/bind setting; often varies by host, profile, or deploy target.
-- `NODE_OPTIONS` — config | scopes: Repo Root | contexts: claude-flow, prod | environment-dependent: no | Configuration value defined in active env templates.
+- `NODE_OPTIONS` — config | scopes: Repo Root | contexts: archon-os, prod | environment-dependent: no | Configuration value defined in active env templates.
 - `NVIDIA_DRIVER_CAPABILITIES` — config | scopes: Infra, Repo Root | contexts: infisical, worker-3060, worker-3090ti, worker-5090 | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
 - `NVIDIA_EXPORTER_PORT` — config | scopes: Infra | contexts: worker-3090ti | environment-dependent: yes | Port/bind setting; often varies by host, profile, or deploy target.
 - `NVIDIA_VISIBLE_DEVICES` — config | scopes: Infra, Repo Root | contexts: infisical, worker-3060, worker-3090ti, worker-5090 | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
@@ -816,10 +816,10 @@ This deduplicated list is derived from active repo-root, `infra`, `apps`, and `s
 - `ONNX_RUNTIME_INTRA_OP_THREADS` — config | scopes: Infra | contexts: worker-3060 | environment-dependent: no | Configuration value defined in active env templates.
 - `ONNX_RUNTIME_LOG_LEVEL` — config | scopes: Infra | contexts: worker-3060 | environment-dependent: no | Configuration value defined in active env templates.
 - `ONNX_RUNTIME_PROVIDER` — config | scopes: Infra | contexts: worker-3060 | environment-dependent: no | Configuration value defined in active env templates.
-- `OPENAI_API_KEY` — secret | scopes: Apps, Infra, Repo Root, Services | contexts: cicd, claude-flow, dev, infisical, openclaw, oracle, orchestrator, worker-3060, worker-3090ti, worker-5090 | environment-dependent: yes | Secret material; keep in Infisical or untracked local env files.
+- `OPENAI_API_KEY` — secret | scopes: Apps, Infra, Repo Root, Services | contexts: cicd, archon-os, dev, infisical, openclaw, oracle, orchestrator, worker-3060, worker-3090ti, worker-5090 | environment-dependent: yes | Secret material; keep in Infisical or untracked local env files.
 - `OPENAI_BASE_URL` — config | scopes: Repo Root | contexts: gitea | environment-dependent: yes | Endpoint or hostname; update per dev/staging/prod environment.
-- `OPENAI_MODEL` — config | scopes: Infra | contexts: cicd, claude-flow | environment-dependent: no | Model selection; may differ by machine or provider tier.
-- `OPENAI_ORG_ID` — config | scopes: Infra, Repo Root | contexts: cicd, claude-flow | environment-dependent: no | Configuration value defined in active env templates.
+- `OPENAI_MODEL` — config | scopes: Infra | contexts: cicd, archon-os | environment-dependent: no | Model selection; may differ by machine or provider tier.
+- `OPENAI_ORG_ID` — config | scopes: Infra, Repo Root | contexts: cicd, archon-os | environment-dependent: no | Configuration value defined in active env templates.
 - `OPENCLAW_COMPOSE_VALIDATE` — config | scopes: Infra | contexts: openclaw | environment-dependent: no | Configuration value defined in active env templates.
 - `OPENCLAW_CONFIG_PATH` — config | scopes: Infra | contexts: openclaw | environment-dependent: no | Configuration value defined in active env templates.
 - `OPENCLAW_DATA_DIR` — config | scopes: Infra | contexts: openclaw | environment-dependent: no | Configuration value defined in active env templates.
@@ -850,10 +850,10 @@ This deduplicated list is derived from active repo-root, `infra`, `apps`, and `s
 - `OPENCLAW_WEBHOOK_INGRESS_PATH` — config | scopes: Infra | contexts: openclaw | environment-dependent: no | Configuration value defined in active env templates.
 - `OPENCLAW_WORKSPACE_VOLUME` — config | scopes: Infra | contexts: global | environment-dependent: no | Configuration value defined in active env templates.
 - `OPENMEMORY_USER` — config | scopes: Services | contexts: global | environment-dependent: no | Configuration value defined in active env templates.
-- `OPENROUTER_API_KEY` — secret | scopes: Apps, Infra, Repo Root, Services | contexts: cicd, claude-flow, dev, infisical, nexus-router, openclaw, oracle, orchestrator, prod, worker-3060, worker-3090ti, worker-5090 | environment-dependent: yes | Secret material; keep in Infisical or untracked local env files.
+- `OPENROUTER_API_KEY` — secret | scopes: Apps, Infra, Repo Root, Services | contexts: cicd, archon-os, dev, infisical, nexus-router, openclaw, oracle, orchestrator, prod, worker-3060, worker-3090ti, worker-5090 | environment-dependent: yes | Secret material; keep in Infisical or untracked local env files.
 - `OPENROUTER_BASE_URL` — config | scopes: Services | contexts: nexus-router | environment-dependent: yes | Endpoint or hostname; update per dev/staging/prod environment.
 - `OPENROUTER_FALLBACK_MODEL` — config | scopes: Services | contexts: nexus-router | environment-dependent: no | Model selection; may differ by machine or provider tier.
-- `OPENROUTER_MODEL` — config | scopes: Infra, Repo Root | contexts: cicd, claude-flow | environment-dependent: no | Model selection; may differ by machine or provider tier.
+- `OPENROUTER_MODEL` — config | scopes: Infra, Repo Root | contexts: cicd, archon-os | environment-dependent: no | Model selection; may differ by machine or provider tier.
 - `OPENWEBUI_PORT` — config | scopes: Infra | contexts: dev, oracle, orchestrator, worker-3060, worker-3090ti, worker-5090 | environment-dependent: yes | Port/bind setting; often varies by host, profile, or deploy target.
 - `ORACLE_INSTANCE_IP` — config | scopes: Repo Root | contexts: oracle | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
 - `ORACLE_REGION` — config | scopes: Repo Root | contexts: oracle | environment-dependent: no | Configuration value defined in active env templates.
@@ -866,13 +866,13 @@ This deduplicated list is derived from active repo-root, `infra`, `apps`, and `s
 - `PAGERDUTY_INTEGRATION_KEY` — secret | scopes: Services | contexts: global | environment-dependent: no | Secret material; keep in Infisical or untracked local env files.
 - `PASSWORD_RESET_EXPIRY` — config | scopes: Services | contexts: global | environment-dependent: no | Configuration value defined in active env templates.
 - `PERF_MONITOR_PORT` — config | scopes: Infra | contexts: worker-5090 | environment-dependent: yes | Port/bind setting; often varies by host, profile, or deploy target.
-- `PERF_TARGET_COMMAND_EXECUTION` — config | scopes: Infra, Repo Root | contexts: cicd, claude-flow | environment-dependent: no | Configuration value defined in active env templates.
-- `PERF_TARGET_MCP_RESPONSE` — config | scopes: Infra, Repo Root | contexts: cicd, claude-flow | environment-dependent: no | Configuration value defined in active env templates.
-- `PERF_TARGET_MEMORY_OPERATIONS` — config | scopes: Infra, Repo Root | contexts: cicd, claude-flow | environment-dependent: no | Configuration value defined in active env templates.
-- `PERF_TARGET_NEURAL_PREDICTIONS` — config | scopes: Infra, Repo Root | contexts: cicd, claude-flow | environment-dependent: no | Configuration value defined in active env templates.
+- `PERF_TARGET_COMMAND_EXECUTION` — config | scopes: Infra, Repo Root | contexts: cicd, archon-os | environment-dependent: no | Configuration value defined in active env templates.
+- `PERF_TARGET_MCP_RESPONSE` — config | scopes: Infra, Repo Root | contexts: cicd, archon-os | environment-dependent: no | Configuration value defined in active env templates.
+- `PERF_TARGET_MEMORY_OPERATIONS` — config | scopes: Infra, Repo Root | contexts: cicd, archon-os | environment-dependent: no | Configuration value defined in active env templates.
+- `PERF_TARGET_NEURAL_PREDICTIONS` — config | scopes: Infra, Repo Root | contexts: cicd, archon-os | environment-dependent: no | Configuration value defined in active env templates.
 - `PG_DATABASE_URL` — config | scopes: Apps | contexts: dev, twenty | environment-dependent: yes | Endpoint or hostname; update per dev/staging/prod environment.
 - `PII_ENCRYPTION_ENABLED` — config | scopes: Apps | contexts: global | environment-dependent: no | Configuration value defined in active env templates.
-- `PII_MASKING_ENABLED` — config | scopes: Repo Root | contexts: claude-flow, prod | environment-dependent: no | Configuration value defined in active env templates.
+- `PII_MASKING_ENABLED` — config | scopes: Repo Root | contexts: archon-os, prod | environment-dependent: no | Configuration value defined in active env templates.
 - `PORT` — config | scopes: Apps, Services | contexts: archon, dev, ratehunter, twenty | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
 - `PORT_ACTIVEPIECES` — config | scopes: Repo Root | contexts: global | environment-dependent: no | Configuration value defined in active env templates.
 - `PORT_DIFY` — config | scopes: Repo Root | contexts: global | environment-dependent: no | Configuration value defined in active env templates.
@@ -880,13 +880,13 @@ This deduplicated list is derived from active repo-root, `infra`, `apps`, and `s
 - `PORT_N8N` — config | scopes: Repo Root | contexts: global | environment-dependent: no | Configuration value defined in active env templates.
 - `PORT_TWENTYCRM` — config | scopes: Repo Root | contexts: global | environment-dependent: no | Configuration value defined in active env templates.
 - `POSTGRES_CPU_LIMIT` — config | scopes: Repo Root | contexts: global | environment-dependent: no | Configuration value defined in active env templates.
-- `POSTGRES_DB` — config | scopes: Infra, Repo Root | contexts: cicd, claude-flow, dev, infisical, oracle, orchestrator, worker-3060, worker-3090ti, worker-5090 | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
-- `POSTGRES_HOST` — config | scopes: Infra, Repo Root | contexts: cicd, claude-flow, infisical, orchestrator, worker-3060, worker-3090ti, worker-5090 | environment-dependent: yes | Endpoint or hostname; update per dev/staging/prod environment.
+- `POSTGRES_DB` — config | scopes: Infra, Repo Root | contexts: cicd, archon-os, dev, infisical, oracle, orchestrator, worker-3060, worker-3090ti, worker-5090 | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
+- `POSTGRES_HOST` — config | scopes: Infra, Repo Root | contexts: cicd, archon-os, infisical, orchestrator, worker-3060, worker-3090ti, worker-5090 | environment-dependent: yes | Endpoint or hostname; update per dev/staging/prod environment.
 - `POSTGRES_MEMORY_LIMIT` — config | scopes: Repo Root | contexts: oracle, orchestrator | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
-- `POSTGRES_PASSWORD` — secret | scopes: Infra, Repo Root, Services | contexts: cicd, claude-flow, dev, infisical, oracle, orchestrator, worker-3060, worker-3090ti, worker-5090 | environment-dependent: yes | Secret material; keep in Infisical or untracked local env files.
-- `POSTGRES_PORT` — config | scopes: Infra, Repo Root | contexts: cicd, claude-flow, dev, infisical, oracle, orchestrator, worker-3060, worker-3090ti, worker-5090 | environment-dependent: yes | Port/bind setting; often varies by host, profile, or deploy target.
+- `POSTGRES_PASSWORD` — secret | scopes: Infra, Repo Root, Services | contexts: cicd, archon-os, dev, infisical, oracle, orchestrator, worker-3060, worker-3090ti, worker-5090 | environment-dependent: yes | Secret material; keep in Infisical or untracked local env files.
+- `POSTGRES_PORT` — config | scopes: Infra, Repo Root | contexts: cicd, archon-os, dev, infisical, oracle, orchestrator, worker-3060, worker-3090ti, worker-5090 | environment-dependent: yes | Port/bind setting; often varies by host, profile, or deploy target.
 - `POSTGRES_URL` — config | scopes: Repo Root, Services | contexts: archon, dev, infisical, orchestrator, worker-3060, worker-3090ti, worker-5090 | environment-dependent: yes | Endpoint or hostname; update per dev/staging/prod environment.
-- `POSTGRES_USER` — config | scopes: Infra, Repo Root | contexts: cicd, claude-flow, dev, infisical, oracle, orchestrator, worker-3060, worker-3090ti, worker-5090 | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
+- `POSTGRES_USER` — config | scopes: Infra, Repo Root | contexts: cicd, archon-os, dev, infisical, oracle, orchestrator, worker-3060, worker-3090ti, worker-5090 | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
 - `PRIMARY_MODEL` — config | scopes: Infra | contexts: worker-3060, worker-3090ti | environment-dependent: yes | Model selection; may differ by machine or provider tier.
 - `PRIMARY_MODELS` — config | scopes: Infra | contexts: worker-5090 | environment-dependent: no | Configuration value defined in active env templates.
 - `PRIMARY_MODEL_SIZE` — config | scopes: Infra | contexts: worker-3090ti | environment-dependent: no | Configuration value defined in active env templates.
@@ -895,13 +895,13 @@ This deduplicated list is derived from active repo-root, `infra`, `apps`, and `s
 - `PROJECT_ENV` — config | scopes: Infra | contexts: worker-3090ti | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
 - `PROJECT_NAME` — config | scopes: Infra | contexts: worker-3090ti | environment-dependent: no | Configuration value defined in active env templates.
 - `PROJECT_REGION` — config | scopes: Infra | contexts: worker-3090ti | environment-dependent: no | Configuration value defined in active env templates.
-- `PROMETHEUS_ENABLED` — config | scopes: Infra, Repo Root | contexts: claude-flow, dev, prod, worker-3060 | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
+- `PROMETHEUS_ENABLED` — config | scopes: Infra, Repo Root | contexts: archon-os, dev, prod, worker-3060 | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
 - `PROMETHEUS_HOST` — config | scopes: Repo Root | contexts: global | environment-dependent: yes | Endpoint or hostname; update per dev/staging/prod environment.
-- `PROMETHEUS_PORT` — config | scopes: Infra, Repo Root | contexts: claude-flow, dev, infisical, oracle, orchestrator, prod, worker-3060, worker-3090ti, worker-5090 | environment-dependent: yes | Port/bind setting; often varies by host, profile, or deploy target.
+- `PROMETHEUS_PORT` — config | scopes: Infra, Repo Root | contexts: archon-os, dev, infisical, oracle, orchestrator, prod, worker-3060, worker-3090ti, worker-5090 | environment-dependent: yes | Port/bind setting; often varies by host, profile, or deploy target.
 - `PROMETHEUS_PUSH_GATEWAY` — config | scopes: Infra | contexts: worker-3060, worker-5090 | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
-- `PROMETHEUS_RETENTION` — config | scopes: Infra, Repo Root | contexts: claude-flow, prod, worker-3090ti | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
+- `PROMETHEUS_RETENTION` — config | scopes: Infra, Repo Root | contexts: archon-os, prod, worker-3090ti | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
 - `PROMETHEUS_URL` — config | scopes: Infra | contexts: worker-3060, worker-3090ti | environment-dependent: yes | Endpoint or hostname; update per dev/staging/prod environment.
-- `PROVIDER` — config | scopes: Infra, Repo Root | contexts: cicd, claude-flow, dev, prod | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
+- `PROVIDER` — config | scopes: Infra, Repo Root | contexts: cicd, archon-os, dev, prod | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
 - `PUBLIC_ADMIN_URL` — config | scopes: Repo Root | contexts: infisical, orchestrator, worker-5090 | environment-dependent: yes | Endpoint or hostname; update per dev/staging/prod environment.
 - `PUBLIC_BROKER_PORTAL_URL` — config | scopes: Repo Root | contexts: infisical, orchestrator, worker-3060, worker-3090ti, worker-5090 | environment-dependent: yes | Endpoint or hostname; update per dev/staging/prod environment.
 - `PUBLIC_CRM_URL` — config | scopes: Repo Root | contexts: infisical, orchestrator | environment-dependent: yes | Endpoint or hostname; update per dev/staging/prod environment.
@@ -930,41 +930,41 @@ This deduplicated list is derived from active repo-root, `infra`, `apps`, and `s
 - `RATE_CHANGE_THRESHOLD` — config | scopes: Apps | contexts: global | environment-dependent: no | Configuration value defined in active env templates.
 - `RATE_CHECK_INTERVAL_MINUTES` — config | scopes: Apps | contexts: global | environment-dependent: no | Configuration value defined in active env templates.
 - `RATE_COMPARISON_API_URL` — config | scopes: Repo Root | contexts: infisical, orchestrator, worker-5090 | environment-dependent: yes | Endpoint or hostname; update per dev/staging/prod environment.
-- `RATE_LIMITING_ENABLED` — config | scopes: Repo Root | contexts: claude-flow, dev, prod | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
+- `RATE_LIMITING_ENABLED` — config | scopes: Repo Root | contexts: archon-os, dev, prod | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
 - `RATE_LIMIT_DURATION` — config | scopes: Services | contexts: global | environment-dependent: no | Configuration value defined in active env templates.
 - `RATE_LIMIT_ENABLED` — config | scopes: Apps, Infra | contexts: worker-3060 | environment-dependent: no | Configuration value defined in active env templates.
-- `RATE_LIMIT_MAX` — config | scopes: Infra, Repo Root | contexts: cicd, claude-flow, prod | environment-dependent: no | Configuration value defined in active env templates.
+- `RATE_LIMIT_MAX` — config | scopes: Infra, Repo Root | contexts: cicd, archon-os, prod | environment-dependent: no | Configuration value defined in active env templates.
 - `RATE_LIMIT_MAX_REQUESTS` — config | scopes: Apps, Services | contexts: ratehunter | environment-dependent: no | Configuration value defined in active env templates.
 - `RATE_LIMIT_POINTS` — config | scopes: Services | contexts: global | environment-dependent: no | Configuration value defined in active env templates.
 - `RATE_LIMIT_REQUESTS` — config | scopes: Repo Root | contexts: oracle | environment-dependent: no | Configuration value defined in active env templates.
 - `RATE_LIMIT_REQUESTS_PER_MINUTE` — config | scopes: Infra | contexts: worker-3060 | environment-dependent: no | Configuration value defined in active env templates.
-- `RATE_LIMIT_WINDOW` — config | scopes: Infra, Repo Root, Services | contexts: cicd, claude-flow, prod | environment-dependent: no | Configuration value defined in active env templates.
+- `RATE_LIMIT_WINDOW` — config | scopes: Infra, Repo Root, Services | contexts: cicd, archon-os, prod | environment-dependent: no | Configuration value defined in active env templates.
 - `RATE_LIMIT_WINDOW_MINUTES` — config | scopes: Apps | contexts: global | environment-dependent: no | Configuration value defined in active env templates.
 - `RATE_LIMIT_WINDOW_MS` — config | scopes: Repo Root, Services | contexts: oracle, ratehunter | environment-dependent: no | Configuration value defined in active env templates.
 - `RATE_LOCK_DURATION_DAYS` — config | scopes: Apps | contexts: twenty | environment-dependent: no | Configuration value defined in active env templates.
 - `RATE_PROVIDER_API_KEY` — secret | scopes: Apps | contexts: ratehunter | environment-dependent: no | Secret material; keep in Infisical or untracked local env files.
 - `RATE_PROVIDER_API_URL` — config | scopes: Apps | contexts: ratehunter | environment-dependent: yes | Endpoint or hostname; update per dev/staging/prod environment.
-- `REASONINGBANK_DB_PATH` — config | scopes: Infra, Repo Root | contexts: cicd, claude-flow | environment-dependent: no | Configuration value defined in active env templates.
-- `REASONINGBANK_ENABLED` — config | scopes: Infra, Repo Root | contexts: cicd, claude-flow | environment-dependent: no | Configuration value defined in active env templates.
-- `REASONINGBANK_K` — config | scopes: Infra, Repo Root | contexts: cicd, claude-flow | environment-dependent: no | Configuration value defined in active env templates.
-- `REASONINGBANK_MIN_CONFIDENCE` — config | scopes: Infra, Repo Root | contexts: cicd, claude-flow | environment-dependent: no | Configuration value defined in active env templates.
+- `REASONINGBANK_DB_PATH` — config | scopes: Infra, Repo Root | contexts: cicd, archon-os | environment-dependent: no | Configuration value defined in active env templates.
+- `REASONINGBANK_ENABLED` — config | scopes: Infra, Repo Root | contexts: cicd, archon-os | environment-dependent: no | Configuration value defined in active env templates.
+- `REASONINGBANK_K` — config | scopes: Infra, Repo Root | contexts: cicd, archon-os | environment-dependent: no | Configuration value defined in active env templates.
+- `REASONINGBANK_MIN_CONFIDENCE` — config | scopes: Infra, Repo Root | contexts: cicd, archon-os | environment-dependent: no | Configuration value defined in active env templates.
 - `REDIS_CPU_LIMIT` — config | scopes: Repo Root | contexts: global | environment-dependent: no | Configuration value defined in active env templates.
 - `REDIS_DB` — config | scopes: Repo Root, Services | contexts: ratehunter | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
 - `REDIS_ENABLED` — config | scopes: Services | contexts: global | environment-dependent: no | Configuration value defined in active env templates.
-- `REDIS_HOST` — config | scopes: Apps, Infra, Repo Root, Services | contexts: cicd, claude-flow, orchestrator, ratehunter, worker-3060 | environment-dependent: yes | Endpoint or hostname; update per dev/staging/prod environment.
+- `REDIS_HOST` — config | scopes: Apps, Infra, Repo Root, Services | contexts: cicd, archon-os, orchestrator, ratehunter, worker-3060 | environment-dependent: yes | Endpoint or hostname; update per dev/staging/prod environment.
 - `REDIS_INTERNAL_URL` — config | scopes: Infra | contexts: worker-3060 | environment-dependent: yes | Endpoint or hostname; update per dev/staging/prod environment.
 - `REDIS_MAXMEMORY` — config | scopes: Infra | contexts: worker-3060 | environment-dependent: no | Configuration value defined in active env templates.
 - `REDIS_MAXMEMORY_POLICY` — config | scopes: Infra | contexts: worker-3060 | environment-dependent: no | Configuration value defined in active env templates.
-- `REDIS_MAX_CONNECTIONS` — config | scopes: Apps, Repo Root | contexts: claude-flow, prod, twenty | environment-dependent: no | Configuration value defined in active env templates.
+- `REDIS_MAX_CONNECTIONS` — config | scopes: Apps, Repo Root | contexts: archon-os, prod, twenty | environment-dependent: no | Configuration value defined in active env templates.
 - `REDIS_MEMORY_LIMIT` — config | scopes: Repo Root | contexts: oracle, orchestrator | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
 - `REDIS_MIN_CONNECTIONS` — config | scopes: Apps | contexts: twenty | environment-dependent: no | Configuration value defined in active env templates.
-- `REDIS_PASSWORD` — secret | scopes: Apps, Infra, Repo Root, Services | contexts: cicd, claude-flow, dev, oracle, orchestrator, ratehunter, worker-3060, worker-3090ti, worker-5090 | environment-dependent: yes | Secret material; keep in Infisical or untracked local env files.
-- `REDIS_PORT` — config | scopes: Apps, Infra, Repo Root, Services | contexts: cicd, claude-flow, dev, oracle, orchestrator, ratehunter, worker-3060, worker-3090ti, worker-5090 | environment-dependent: yes | Port/bind setting; often varies by host, profile, or deploy target.
-- `REDIS_URL` — config | scopes: Apps, Infra, Repo Root, Services | contexts: archon, cicd, claude-flow, dev, nexus-router, prod, twenty | environment-dependent: yes | Endpoint or hostname; update per dev/staging/prod environment.
+- `REDIS_PASSWORD` — secret | scopes: Apps, Infra, Repo Root, Services | contexts: cicd, archon-os, dev, oracle, orchestrator, ratehunter, worker-3060, worker-3090ti, worker-5090 | environment-dependent: yes | Secret material; keep in Infisical or untracked local env files.
+- `REDIS_PORT` — config | scopes: Apps, Infra, Repo Root, Services | contexts: cicd, archon-os, dev, oracle, orchestrator, ratehunter, worker-3060, worker-3090ti, worker-5090 | environment-dependent: yes | Port/bind setting; often varies by host, profile, or deploy target.
+- `REDIS_URL` — config | scopes: Apps, Infra, Repo Root, Services | contexts: archon, cicd, archon-os, dev, nexus-router, prod, twenty | environment-dependent: yes | Endpoint or hostname; update per dev/staging/prod environment.
 - `REFRESH_TOKEN_DURATION` — secret | scopes: Apps | contexts: twenty | environment-dependent: no | Secret material; keep in Infisical or untracked local env files.
 - `REFRESH_TOKEN_SECRET` — secret | scopes: Apps | contexts: dev, twenty | environment-dependent: no | Secret material; keep in Infisical or untracked local env files.
 - `REGISTER_WITH_GATEWAY` — config | scopes: Services | contexts: dev | environment-dependent: no | Configuration value defined in active env templates.
-- `REQUEST_TIMEOUT` — config | scopes: Infra, Repo Root | contexts: cicd, claude-flow, prod | environment-dependent: no | Configuration value defined in active env templates.
+- `REQUEST_TIMEOUT` — config | scopes: Infra, Repo Root | contexts: cicd, archon-os, prod | environment-dependent: no | Configuration value defined in active env templates.
 - `RESPA_TIMELINE_DAYS` — config | scopes: Apps | contexts: twenty | environment-dependent: no | Configuration value defined in active env templates.
 - `RETENTION_POLICY_DAYS` — config | scopes: Apps | contexts: global | environment-dependent: no | Configuration value defined in active env templates.
 - `RETRY_DELAY_MS` — config | scopes: Apps, Services | contexts: twenty | environment-dependent: no | Configuration value defined in active env templates.
@@ -982,10 +982,10 @@ This deduplicated list is derived from active repo-root, `infra`, `apps`, and `s
 - `RUVECTOR_HOST` — config | scopes: Repo Root | contexts: global | environment-dependent: yes | Endpoint or hostname; update per dev/staging/prod environment.
 - `RUVECTOR_PGADMIN_PORT` — config | scopes: Infra | contexts: dev, oracle, orchestrator, worker-3060, worker-3090ti, worker-5090 | environment-dependent: yes | Port/bind setting; often varies by host, profile, or deploy target.
 - `RUVECTOR_PORT` — config | scopes: Repo Root | contexts: global | environment-dependent: yes | Port/bind setting; often varies by host, profile, or deploy target.
-- `RUVECTOR_POSTGRES_DB` — config | scopes: Infra, Services | contexts: claude-flow, dev, oracle, orchestrator, worker-3060, worker-3090ti, worker-5090 | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
-- `RUVECTOR_POSTGRES_PASSWORD` — secret | scopes: Infra, Repo Root, Services | contexts: claude-flow, dev, oracle, orchestrator, worker-3060, worker-3090ti, worker-5090 | environment-dependent: yes | Secret material; keep in Infisical or untracked local env files.
+- `RUVECTOR_POSTGRES_DB` — config | scopes: Infra, Services | contexts: archon-os, dev, oracle, orchestrator, worker-3060, worker-3090ti, worker-5090 | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
+- `RUVECTOR_POSTGRES_PASSWORD` — secret | scopes: Infra, Repo Root, Services | contexts: archon-os, dev, oracle, orchestrator, worker-3060, worker-3090ti, worker-5090 | environment-dependent: yes | Secret material; keep in Infisical or untracked local env files.
 - `RUVECTOR_POSTGRES_PORT` — config | scopes: Infra | contexts: dev, oracle, orchestrator, worker-3060, worker-3090ti, worker-5090 | environment-dependent: yes | Port/bind setting; often varies by host, profile, or deploy target.
-- `RUVECTOR_POSTGRES_USER` — config | scopes: Infra, Services | contexts: claude-flow, dev, oracle, orchestrator, worker-3060, worker-3090ti, worker-5090 | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
+- `RUVECTOR_POSTGRES_USER` — config | scopes: Infra, Services | contexts: archon-os, dev, oracle, orchestrator, worker-3060, worker-3090ti, worker-5090 | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
 - `RUVECTOR_URL` — config | scopes: Infra | contexts: worker-3060 | environment-dependent: yes | Endpoint or hostname; update per dev/staging/prod environment.
 - `RUVECTOR_VERSION` — config | scopes: Infra | contexts: dev | environment-dependent: no | Configuration value defined in active env templates.
 
@@ -1005,20 +1005,20 @@ This deduplicated list is derived from active repo-root, `infra`, `apps`, and `s
 - `SEED_SAMPLE_DATA` — config | scopes: Apps | contexts: twenty | environment-dependent: no | Configuration value defined in active env templates.
 - `SENDGRID_API_KEY` — secret | scopes: Apps, Infra, Repo Root | contexts: infisical, orchestrator, worker-5090 | environment-dependent: yes | Secret material; keep in Infisical or untracked local env files.
 - `SENDGRID_FROM_EMAIL` — config | scopes: Repo Root | contexts: infisical, orchestrator, worker-5090 | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
-- `SENTRY_DSN` — config | scopes: Repo Root | contexts: claude-flow, prod | environment-dependent: no | Configuration value defined in active env templates.
-- `SENTRY_ENABLED` — config | scopes: Repo Root | contexts: claude-flow, dev, prod | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
-- `SENTRY_ENVIRONMENT` — config | scopes: Repo Root | contexts: claude-flow, prod | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
-- `SENTRY_TRACES_SAMPLE_RATE` — config | scopes: Repo Root | contexts: claude-flow, prod | environment-dependent: no | Configuration value defined in active env templates.
+- `SENTRY_DSN` — config | scopes: Repo Root | contexts: archon-os, prod | environment-dependent: no | Configuration value defined in active env templates.
+- `SENTRY_ENABLED` — config | scopes: Repo Root | contexts: archon-os, dev, prod | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
+- `SENTRY_ENVIRONMENT` — config | scopes: Repo Root | contexts: archon-os, prod | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
+- `SENTRY_TRACES_SAMPLE_RATE` — config | scopes: Repo Root | contexts: archon-os, prod | environment-dependent: no | Configuration value defined in active env templates.
 - `SERENA_MCP_URL` — config | scopes: Services | contexts: archon, dev | environment-dependent: yes | Endpoint or hostname; update per dev/staging/prod environment.
 - `SERVER_URL` — config | scopes: Apps | contexts: dev, twenty | environment-dependent: yes | Endpoint or hostname; update per dev/staging/prod environment.
 - `SERVICES` — config | scopes: Infra | contexts: worker-5090 | environment-dependent: no | Configuration value defined in active env templates.
 - `SERVICE_NAME` — config | scopes: Services | contexts: archon, dev | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
 - `SESSION_DURATION` — secret | scopes: Apps | contexts: twenty | environment-dependent: no | Secret material; keep in Infisical or untracked local env files.
-- `SESSION_SECRET` — secret | scopes: Infra, Repo Root | contexts: cicd, claude-flow, dev, prod | environment-dependent: yes | Secret material; keep in Infisical or untracked local env files.
-- `SESSION_SECURE` — secret | scopes: Repo Root | contexts: claude-flow, prod | environment-dependent: no | Secret material; keep in Infisical or untracked local env files.
+- `SESSION_SECRET` — secret | scopes: Infra, Repo Root | contexts: cicd, archon-os, dev, prod | environment-dependent: yes | Secret material; keep in Infisical or untracked local env files.
+- `SESSION_SECURE` — secret | scopes: Repo Root | contexts: archon-os, prod | environment-dependent: no | Secret material; keep in Infisical or untracked local env files.
 - `SESSION_TIMEOUT` — secret | scopes: Services | contexts: global | environment-dependent: no | Secret material; keep in Infisical or untracked local env files.
 - `SIGN_IN_PREFILLED` — config | scopes: Apps, Repo Root | contexts: dev, twenty | environment-dependent: no | Configuration value defined in active env templates.
-- `SLACK_WEBHOOK_URL` — config | scopes: Infra, Services | contexts: cicd, claude-flow | environment-dependent: yes | Endpoint or hostname; update per dev/staging/prod environment.
+- `SLACK_WEBHOOK_URL` — config | scopes: Infra, Services | contexts: cicd, archon-os | environment-dependent: yes | Endpoint or hostname; update per dev/staging/prod environment.
 - `SMTP_FROM` — config | scopes: Apps | contexts: ratehunter | environment-dependent: no | Configuration value defined in active env templates.
 - `SMTP_FROM_EMAIL` — config | scopes: Repo Root | contexts: global | environment-dependent: no | Configuration value defined in active env templates.
 - `SMTP_FROM_NAME` — config | scopes: Repo Root | contexts: global | environment-dependent: no | Configuration value defined in active env templates.
@@ -1042,19 +1042,19 @@ This deduplicated list is derived from active repo-root, `infra`, `apps`, and `s
 - `SUPABASE_SERVICE_KEY` — secret | scopes: Repo Root | contexts: global | environment-dependent: no | Secret material; keep in Infisical or untracked local env files.
 - `SUPABASE_URL` — config | scopes: Repo Root | contexts: global | environment-dependent: yes | Endpoint or hostname; update per dev/staging/prod environment.
 - `SUPPORT_CHAT_ENABLED` — config | scopes: Apps | contexts: dev, twenty | environment-dependent: no | Configuration value defined in active env templates.
-- `SWARM_AUTO_SCALE` — config | scopes: Infra, Repo Root | contexts: cicd, claude-flow | environment-dependent: no | Configuration value defined in active env templates.
-- `SWARM_COORDINATION_PROTOCOL` — config | scopes: Infra, Repo Root | contexts: cicd, claude-flow | environment-dependent: no | Configuration value defined in active env templates.
-- `SWARM_MAX_AGENTS` — config | scopes: Infra, Repo Root | contexts: cicd, claude-flow | environment-dependent: no | Configuration value defined in active env templates.
-- `SWARM_MEMORY_SHARED` — config | scopes: Infra, Repo Root | contexts: cicd, claude-flow | environment-dependent: no | Configuration value defined in active env templates.
-- `SWARM_NEURAL_SYNC` — config | scopes: Infra, Repo Root | contexts: cicd, claude-flow | environment-dependent: no | Configuration value defined in active env templates.
-- `SWARM_TOPOLOGY` — config | scopes: Infra, Repo Root | contexts: cicd, claude-flow | environment-dependent: no | Configuration value defined in active env templates.
+- `SWARM_AUTO_SCALE` — config | scopes: Infra, Repo Root | contexts: cicd, archon-os | environment-dependent: no | Configuration value defined in active env templates.
+- `SWARM_COORDINATION_PROTOCOL` — config | scopes: Infra, Repo Root | contexts: cicd, archon-os | environment-dependent: no | Configuration value defined in active env templates.
+- `SWARM_MAX_AGENTS` — config | scopes: Infra, Repo Root | contexts: cicd, archon-os | environment-dependent: no | Configuration value defined in active env templates.
+- `SWARM_MEMORY_SHARED` — config | scopes: Infra, Repo Root | contexts: cicd, archon-os | environment-dependent: no | Configuration value defined in active env templates.
+- `SWARM_NEURAL_SYNC` — config | scopes: Infra, Repo Root | contexts: cicd, archon-os | environment-dependent: no | Configuration value defined in active env templates.
+- `SWARM_TOPOLOGY` — config | scopes: Infra, Repo Root | contexts: cicd, archon-os | environment-dependent: no | Configuration value defined in active env templates.
 - `SYNC_BATCH_SIZE` — config | scopes: Apps, Services | contexts: twenty | environment-dependent: no | Configuration value defined in active env templates.
 - `SYNC_INTERVAL_MINUTES` — config | scopes: Apps, Services | contexts: twenty | environment-dependent: no | Configuration value defined in active env templates.
 
 ## T
 - `TAILSCALE_AUTHKEY` — config | scopes: Infra, Repo Root | contexts: worker-3060, worker-3090ti, worker-5090 | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
 - `TAILSCALE_AUTH_KEY` — secret | scopes: Infra | contexts: worker-3060, worker-3090ti | environment-dependent: yes | Secret material; keep in Infisical or untracked local env files.
-- `TAILSCALE_ENABLED` — config | scopes: Repo Root | contexts: claude-flow, orchestrator, prod | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
+- `TAILSCALE_ENABLED` — config | scopes: Repo Root | contexts: archon-os, orchestrator, prod | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
 - `TAILSCALE_HOSTNAME` — config | scopes: Infra | contexts: worker-3060, worker-3090ti, worker-5090 | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
 - `TAILSCALE_IP` — config | scopes: Infra, Repo Root | contexts: orchestrator, worker-3060, worker-3090ti, worker-5090 | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
 - `TAILSCALE_KEY` — secret | scopes: Infra | contexts: worker-3060, worker-3090ti, worker-5090 | environment-dependent: yes | Secret material; keep in Infisical or untracked local env files.
@@ -1080,8 +1080,8 @@ This deduplicated list is derived from active repo-root, `infra`, `apps`, and `s
 - `TRANSUNION_API_KEY` — secret | scopes: Apps | contexts: twenty | environment-dependent: no | Secret material; keep in Infisical or untracked local env files.
 - `TRID_API_KEY` — secret | scopes: Apps | contexts: global | environment-dependent: no | Secret material; keep in Infisical or untracked local env files.
 - `TRID_DISCLOSURE_ENABLED` — config | scopes: Apps | contexts: global | environment-dependent: no | Configuration value defined in active env templates.
-- `TRID_ENABLED` — config | scopes: Repo Root | contexts: claude-flow, prod | environment-dependent: no | Configuration value defined in active env templates.
-- `TURBO_TELEMETRY_DISABLED` — config | scopes: Infra, Repo Root | contexts: cicd, claude-flow | environment-dependent: no | Configuration value defined in active env templates.
+- `TRID_ENABLED` — config | scopes: Repo Root | contexts: archon-os, prod | environment-dependent: no | Configuration value defined in active env templates.
+- `TURBO_TELEMETRY_DISABLED` — config | scopes: Infra, Repo Root | contexts: cicd, archon-os | environment-dependent: no | Configuration value defined in active env templates.
 - `TWENTYCRM_API_KEY` — secret | scopes: Apps, Infra, Services | contexts: dev, oracle, orchestrator, twenty, worker-3060, worker-3090ti, worker-5090 | environment-dependent: yes | Secret material; keep in Infisical or untracked local env files.
 - `TWENTYCRM_API_URL` — config | scopes: Apps, Services | contexts: twenty | environment-dependent: yes | Endpoint or hostname; update per dev/staging/prod environment.
 - `TWENTYCRM_MCP_PORT` — config | scopes: Infra, Repo Root | contexts: dev, oracle, orchestrator, worker-3060, worker-3090ti, worker-5090 | environment-dependent: yes | Port/bind setting; often varies by host, profile, or deploy target.
@@ -1144,16 +1144,16 @@ This deduplicated list is derived from active repo-root, `infra`, `apps`, and `s
 - `VECTOR_COLLECTION` — config | scopes: Services | contexts: dev | environment-dependent: no | Configuration value defined in active env templates.
 - `VERBOSE_LOGGING` — config | scopes: Infra | contexts: worker-3090ti | environment-dependent: no | Configuration value defined in active env templates.
 - `VITE_API_BASE` — config | scopes: Repo Root | contexts: global | environment-dependent: no | Configuration value defined in active env templates.
-- `VITE_CLAUDE_FLOW_URL` — config | scopes: Apps, Repo Root, Services | contexts: claude-flow, infisical, orchestrator | environment-dependent: yes | Endpoint or hostname; update per dev/staging/prod environment.
-- `VITE_ENABLE_AGENT_MONITOR` — config | scopes: Repo Root, Services | contexts: claude-flow, infisical, orchestrator | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
-- `VITE_ENABLE_MEMORY_OPS` — config | scopes: Repo Root, Services | contexts: claude-flow, infisical, orchestrator | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
-- `VITE_ENABLE_METRICS` — config | scopes: Repo Root, Services | contexts: claude-flow, infisical, orchestrator | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
-- `VITE_ENABLE_TASK_TIMELINE` — config | scopes: Repo Root, Services | contexts: claude-flow, infisical, orchestrator | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
-- `VITE_ENABLE_TOPOLOGY` — config | scopes: Repo Root, Services | contexts: claude-flow, infisical, orchestrator | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
-- `VITE_EVENT_SERVER_HTTP_URL` — config | scopes: Apps, Repo Root, Services | contexts: claude-flow, infisical, orchestrator, worker-5090 | environment-dependent: yes | Endpoint or hostname; update per dev/staging/prod environment.
-- `VITE_EVENT_SERVER_URL` — config | scopes: Apps, Repo Root, Services | contexts: claude-flow, infisical, orchestrator, worker-5090 | environment-dependent: yes | Endpoint or hostname; update per dev/staging/prod environment.
-- `VITE_MAX_BUFFER_SIZE` — config | scopes: Repo Root, Services | contexts: claude-flow, infisical, orchestrator | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
-- `VITE_WEBSOCKET_RECONNECT_INTERVAL` — config | scopes: Repo Root, Services | contexts: claude-flow, infisical, orchestrator | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
+- `VITE_CLAUDE_FLOW_URL` — config | scopes: Apps, Repo Root, Services | contexts: archon-os, infisical, orchestrator | environment-dependent: yes | Endpoint or hostname; update per dev/staging/prod environment.
+- `VITE_ENABLE_AGENT_MONITOR` — config | scopes: Repo Root, Services | contexts: archon-os, infisical, orchestrator | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
+- `VITE_ENABLE_MEMORY_OPS` — config | scopes: Repo Root, Services | contexts: archon-os, infisical, orchestrator | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
+- `VITE_ENABLE_METRICS` — config | scopes: Repo Root, Services | contexts: archon-os, infisical, orchestrator | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
+- `VITE_ENABLE_TASK_TIMELINE` — config | scopes: Repo Root, Services | contexts: archon-os, infisical, orchestrator | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
+- `VITE_ENABLE_TOPOLOGY` — config | scopes: Repo Root, Services | contexts: archon-os, infisical, orchestrator | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
+- `VITE_EVENT_SERVER_HTTP_URL` — config | scopes: Apps, Repo Root, Services | contexts: archon-os, infisical, orchestrator, worker-5090 | environment-dependent: yes | Endpoint or hostname; update per dev/staging/prod environment.
+- `VITE_EVENT_SERVER_URL` — config | scopes: Apps, Repo Root, Services | contexts: archon-os, infisical, orchestrator, worker-5090 | environment-dependent: yes | Endpoint or hostname; update per dev/staging/prod environment.
+- `VITE_MAX_BUFFER_SIZE` — config | scopes: Repo Root, Services | contexts: archon-os, infisical, orchestrator | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
+- `VITE_WEBSOCKET_RECONNECT_INTERVAL` — config | scopes: Repo Root, Services | contexts: archon-os, infisical, orchestrator | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
 - `VLLM_5090_URL` — config | scopes: Repo Root | contexts: infisical, orchestrator, worker-3060, worker-3090ti, worker-5090 | environment-dependent: yes | Endpoint or hostname; update per dev/staging/prod environment.
 - `VLLM_GPU_MEMORY_UTILIZATION` — config | scopes: Repo Root | contexts: infisical, worker-5090 | environment-dependent: yes | Environment-specific configuration; confirm values per role and deployment stage.
 - `VLLM_HOST` — config | scopes: Repo Root | contexts: infisical, worker-5090 | environment-dependent: yes | Endpoint or hostname; update per dev/staging/prod environment.

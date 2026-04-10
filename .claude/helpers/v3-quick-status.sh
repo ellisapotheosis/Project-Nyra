@@ -22,19 +22,19 @@ CVES_FIXED=0
 SPEEDUP="1.0x"
 MEMORY="0%"
 
-if [ -f ".claude-flow/metrics/v3-progress.json" ]; then
-  DOMAINS=$(jq -r '.domains.completed // 0' ".claude-flow/metrics/v3-progress.json" 2>/dev/null || echo "0")
-  AGENTS=$(jq -r '.swarm.activeAgents // 0' ".claude-flow/metrics/v3-progress.json" 2>/dev/null || echo "0")
-  DDD_PROGRESS=$(jq -r '.ddd.progress // 0' ".claude-flow/metrics/v3-progress.json" 2>/dev/null || echo "0")
+if [ -f ".archon-os/metrics/v3-progress.json" ]; then
+  DOMAINS=$(jq -r '.domains.completed // 0' ".archon-os/metrics/v3-progress.json" 2>/dev/null || echo "0")
+  AGENTS=$(jq -r '.swarm.activeAgents // 0' ".archon-os/metrics/v3-progress.json" 2>/dev/null || echo "0")
+  DDD_PROGRESS=$(jq -r '.ddd.progress // 0' ".archon-os/metrics/v3-progress.json" 2>/dev/null || echo "0")
 fi
 
-if [ -f ".claude-flow/security/audit-status.json" ]; then
-  CVES_FIXED=$(jq -r '.cvesFixed // 0' ".claude-flow/security/audit-status.json" 2>/dev/null || echo "0")
+if [ -f ".archon-os/security/audit-status.json" ]; then
+  CVES_FIXED=$(jq -r '.cvesFixed // 0' ".archon-os/security/audit-status.json" 2>/dev/null || echo "0")
 fi
 
-if [ -f ".claude-flow/metrics/performance.json" ]; then
-  SPEEDUP=$(jq -r '.flashAttention.speedup // "1.0x"' ".claude-flow/metrics/performance.json" 2>/dev/null || echo "1.0x")
-  MEMORY=$(jq -r '.memory.reduction // "0%"' ".claude-flow/metrics/performance.json" 2>/dev/null || echo "0%")
+if [ -f ".archon-os/metrics/performance.json" ]; then
+  SPEEDUP=$(jq -r '.flashAttention.speedup // "1.0x"' ".archon-os/metrics/performance.json" 2>/dev/null || echo "1.0x")
+  MEMORY=$(jq -r '.memory.reduction // "0%"' ".archon-os/metrics/performance.json" 2>/dev/null || echo "0%")
 fi
 
 # Calculate progress percentages

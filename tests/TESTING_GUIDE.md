@@ -143,9 +143,9 @@ const results = await memory.ruvector.search('query', 5);
 // Letta
 await memory.letta.store('agent-id', { message: 'content' });
 
-// Graphiti
-await memory.graphiti.addNode({ id: 'node-1', type: 'Borrower' });
-await memory.graphiti.addEdge({ from: 'node-1', to: 'node-2', type: 'KNOWS' });
+// letta
+await memory.letta.addNode({ id: 'node-1', type: 'Borrower' });
+await memory.letta.addEdge({ from: 'node-1', to: 'node-2', type: 'KNOWS' });
 
 // Mem0
 await memory.mem0.store('user-id', { preferences: {} });
@@ -167,7 +167,7 @@ await db.clear();
 import { setupTestMCP } from '@utils/mcp';
 
 const mcpServers = await setupTestMCP();
-const result = await mcpServers['claude-flow'].executeTool('agent_spawn', {
+const result = await mcpServers['archon-os'].executeTool('agent_spawn', {
   type: 'coder'
 });
 ```

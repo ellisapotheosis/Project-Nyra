@@ -53,21 +53,21 @@ Config loading failed: Cannot find package 'zod'
 ## What Changed?
 
 The new `.claude/settings.json` configuration:
-- ✅ Uses `.claude/helpers/claude-flow-hook.sh` instead of `npx`
+- ✅ Uses `.claude/helpers/archon-os-hook.sh` instead of `npx`
 - ✅ Bypasses npx cache completely
 - ✅ Has multiple fallback options
-- ✅ Fails silently if claude-flow unavailable
+- ✅ Fails silently if archon-os unavailable
 
 ## After Restart
 
 Once restarted with the new hooks, run:
 
 ```bash
-# Initialize claude-flow
-bash scripts/init-claude-flow.sh
+# Initialize archon-os
+bash scripts/init-archon-os.sh
 
 # Verify it works
-bash .claude/helpers/claude-flow-hook.sh --version
+bash .claude/helpers/archon-os-hook.sh --version
 ```
 
 ---

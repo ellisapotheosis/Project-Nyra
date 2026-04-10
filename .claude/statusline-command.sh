@@ -56,8 +56,8 @@ get_git_info() {
 
 # Get Claude Flow status
 get_claude_flow_status() {
-    if command -v claude-flow &> /dev/null 2>&1; then
-        local agents=$(claude-flow agent list 2>/dev/null | grep -c "active" || echo "0")
+    if command -v archon-os &> /dev/null 2>&1; then
+        local agents=$(archon-os agent list 2>/dev/null | grep -c "active" || echo "0")
         if [ "$agents" -gt 0 ]; then
             echo " 🐝${agents}"
         fi
@@ -66,7 +66,7 @@ get_claude_flow_status() {
 
 # Get cluster indicator
 get_cluster_status() {
-    if [ -f ~/.claude-flow/distributed/cluster-config.json ]; then
+    if [ -f ~/.archon-os/distributed/cluster-config.json ]; then
         echo " 🖧4PC"
     fi
 }

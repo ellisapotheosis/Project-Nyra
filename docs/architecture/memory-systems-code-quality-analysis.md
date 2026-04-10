@@ -3,7 +3,7 @@
 **Analysis Date:** 2026-01-04
 **Analyzer:** Integration Specialist
 **Project:** Project-Nyra Monorepo
-**Scope:** Memory systems integration (Graphiti, Mem0, Letta)
+**Scope:** Memory systems integration (letta, Mem0, Letta)
 
 ---
 
@@ -22,7 +22,7 @@
 - ✅ **Strong architectural foundation** with SPARC methodology integration
 - ❌ **Incomplete implementation**: All memory adapters contain stub/TODO code
 - ⚠️ **No persistent memory**: Current implementation uses in-memory Map only
-- ⚠️ **Missing integration**: TwentyCRM → Graphiti pipeline not implemented
+- ⚠️ **Missing integration**: TwentyCRM → letta pipeline not implemented
 - ⚠️ **Letta Archivist**: Configuration files exist but agent not instantiated
 
 ---
@@ -31,7 +31,7 @@
 
 ### 1. Stub Implementations in Memory Adapters (SEVERITY: HIGH)
 
-**Location:** `bootstrap/.../memory/graphiti/graphiti_client.py`
+**Location:** `bootstrap/.../memory/letta/letta_client.py`
 
 ```python
 def add_entity(self, label: str, properties: Dict[str, Any]):
@@ -43,13 +43,13 @@ def add_entity(self, label: str, properties: Dict[str, Any]):
 **Risk:** Data loss, false confidence in memory persistence
 **Effort:** 8 hours per adapter
 
-**Recommendation:** Implement actual MCP integration using Graphiti MCP server
+**Recommendation:** Implement actual MCP integration using letta MCP server
 
 ---
 
 ### 2. Non-Persistent Shared Memory (SEVERITY: HIGH)
 
-**Location:** `apps/webapp/src/orchestration/claude-flow/orchestrator.ts:19`
+**Location:** `apps/webapp/src/orchestration/archon-os/orchestrator.ts:19`
 
 ```typescript
 private sharedMemory: Map<string, any> = new Map();
@@ -59,7 +59,7 @@ private sharedMemory: Map<string, any> = new Map();
 **Risk:** Context loss, inability to resume workflows
 **Effort:** 6 hours
 
-**Recommendation:** Replace with persistent store (SQLite, Redis, or AgentDB)
+**Recommendation:** Replace with persistent store (SQLite, Redis, or ruvector)
 
 ---
 
@@ -198,7 +198,7 @@ if (!jsonMatch) {
    - Well-defined coordination interfaces
 
 4. **Memory Configuration Present**
-   - `claude-flow.config.json` has memory settings
+   - `archon-os.config.json` has memory settings
    - Retention policies defined
    - Compression enabled
 
@@ -283,7 +283,7 @@ if (!jsonMatch) {
 
 ## Memory System Architecture Review
 
-### Current State: Graphiti MCP
+### Current State: letta MCP
 
 **Configured:** Yes (`.mcp.json`)
 **Implemented:** No (stub code only)
@@ -340,7 +340,7 @@ interface IMemoryService {
 }
 
 class DistributedMemoryService implements IMemoryService {
-  // Backed by AgentDB + Graphiti + Mem0
+  // Backed by ruvector + letta + Mem0
 }
 ```
 
@@ -364,7 +364,7 @@ class DistributedMemoryService implements IMemoryService {
 └─────────────────────────────────────┘
            │        │        │
     ┌──────┴──┐ ┌──┴───┐ ┌──┴────┐
-    │Graphiti │ │ Mem0 │ │ Letta │
+    │letta │ │ Mem0 │ │ Letta │
     │  (RAG)  │ │(Epis)│ │(State)│
     └─────────┘ └──────┘ └───────┘
 ```
@@ -415,12 +415,12 @@ const breaker = new CircuitBreaker(this.claude.messages.create, options);
    - Response parsers
 
 2. **Integration Tests** (Target: 70% coverage)
-   - Graphiti MCP integration
+   - letta MCP integration
    - Mem0 API calls
    - Letta agent coordination
 
 3. **End-to-End Tests** (Target: 5 critical paths)
-   - TwentyCRM event → Graphiti flow
+   - TwentyCRM event → letta flow
    - Chat summary → Mem0 flow
    - Memory query retrieval
 
@@ -432,12 +432,12 @@ const breaker = new CircuitBreaker(this.claude.messages.create, options);
 
 ### Phase 1: Foundation (Week 1)
 1. ✅ Implement MemoryService interface
-2. ✅ Connect Graphiti MCP server
+2. ✅ Connect letta MCP server
 3. ✅ Add structured logging
 4. ✅ Create health check endpoints
 
 ### Phase 2: Integrations (Week 2)
-1. ✅ Implement TwentyCRM → Graphiti pipeline
+1. ✅ Implement TwentyCRM → letta pipeline
 2. ✅ Implement Mem0 chat summary integration
 3. ✅ Configure Letta Archivist agent
 4. ✅ Build unified memory gateway
@@ -476,7 +476,7 @@ const breaker = new CircuitBreaker(this.claude.messages.create, options);
 
 ### Immediate Actions (This Sprint)
 
-1. ✅ Implement Graphiti MCP client with real integration
+1. ✅ Implement letta MCP client with real integration
 2. ✅ Create TwentyCRM event pipeline
 3. ✅ Implement Mem0 integration for chat summaries
 4. ✅ Configure Letta Archivist agent
@@ -507,7 +507,7 @@ const breaker = new CircuitBreaker(this.claude.messages.create, options);
 
 ### After Integration (Target)
 - Memory persistence: **100%** (all layers)
-- API integration: **100%** (Graphiti, Mem0, Letta)
+- API integration: **100%** (letta, Mem0, Letta)
 - Test coverage: **75%**
 - Documentation: **90%**
 
@@ -523,7 +523,7 @@ const breaker = new CircuitBreaker(this.claude.messages.create, options);
 
 The Project-Nyra memory systems have a **solid architectural foundation** with SPARC methodology integration and clear separation of concerns. However, the **implementation is incomplete** with stub code throughout the critical memory adapters.
 
-**Priority:** Implement the 4 critical integrations (Graphiti, Mem0, Letta, TwentyCRM pipeline) to unlock the full potential of the memory architecture.
+**Priority:** Implement the 4 critical integrations (letta, Mem0, Letta, TwentyCRM pipeline) to unlock the full potential of the memory architecture.
 
 **Estimated Completion:** 48 hours of focused development work
 

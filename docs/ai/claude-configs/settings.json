@@ -140,8 +140,8 @@
         "cache_size": 10000
       },
       "l2": {
-        "type": "agentdb",
-        "path": "${NYRA_DATA_ROOT}/agentdb",
+        "type": "ruvector",
+        "path": "${NYRA_DATA_ROOT}/ruvector",
         "enabled": true,
         "vector_enabled": true,
         "quantization": true,
@@ -156,8 +156,8 @@
         "retention_policy": "persistent"
       },
       "l4": {
-        "type": "graphiti",
-        "path": "${NYRA_DATA_ROOT}/graphiti",
+        "type": "letta",
+        "path": "${NYRA_DATA_ROOT}/letta",
         "enabled": true,
         "temporal_enabled": true,
         "knowledge_graph": true
@@ -251,7 +251,7 @@
   },
   "permissions": {
     "allow": [
-      "Bash(npx claude-flow *)",
+      "Bash(npx archon-os *)",
       "Bash(npx ruv-swarm *)",
       "Bash(npm run *)",
       "Bash(npm test *)",
@@ -313,15 +313,15 @@
         "hooks": [
           {
             "type": "command",
-            "command": "npx claude-flow@alpha hooks pre-command --command \"$CLAUDE_COMMAND\" --validate-safety true --prepare-resources true --predict-outcome true --check-patterns true --batch true --cache true"
+            "command": "npx archon-os@alpha hooks pre-command --command \"$CLAUDE_COMMAND\" --validate-safety true --prepare-resources true --predict-outcome true --check-patterns true --batch true --cache true"
           },
           {
             "type": "command",
-            "command": "npx claude-flow@alpha memory store --key \"command/pre/$CLAUDE_TIMESTAMP\" --value \"$CLAUDE_COMMAND\" --namespace \"commands\" --batch true"
+            "command": "npx archon-os@alpha memory store --key \"command/pre/$CLAUDE_TIMESTAMP\" --value \"$CLAUDE_COMMAND\" --namespace \"commands\" --batch true"
           },
           {
             "type": "command",
-            "command": "npx claude-flow@alpha neural predict --model \"error_preventer\" --input \"$CLAUDE_COMMAND\" --block-if-risky true --cache true"
+            "command": "npx archon-os@alpha neural predict --model \"error_preventer\" --input \"$CLAUDE_COMMAND\" --block-if-risky true --cache true"
           }
         ]
       },
@@ -332,15 +332,15 @@
         "hooks": [
           {
             "type": "command",
-            "command": "npx claude-flow@alpha hooks pre-edit --file \"$CLAUDE_EDITED_FILE\" --auto-assign-agents true --load-context true --analyze-impact true --batch true --cache true"
+            "command": "npx archon-os@alpha hooks pre-edit --file \"$CLAUDE_EDITED_FILE\" --auto-assign-agents true --load-context true --analyze-impact true --batch true --cache true"
           },
           {
             "type": "command",
-            "command": "npx claude-flow@alpha memory store --key \"edit/pre/$CLAUDE_EDITED_FILE\" --value \"$CLAUDE_OPERATION_CONTEXT\" --namespace \"edits\" --batch true"
+            "command": "npx archon-os@alpha memory store --key \"edit/pre/$CLAUDE_EDITED_FILE\" --value \"$CLAUDE_OPERATION_CONTEXT\" --namespace \"edits\" --batch true"
           },
           {
             "type": "command",
-            "command": "npx claude-flow@alpha neural optimize --operation \"file-edit\" --target \"$CLAUDE_EDITED_FILE\" --suggest-improvements true --cache true"
+            "command": "npx archon-os@alpha neural optimize --operation \"file-edit\" --target \"$CLAUDE_EDITED_FILE\" --suggest-improvements true --cache true"
           }
         ]
       },
@@ -351,7 +351,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "npx claude-flow@alpha swarm pre-task --agent-type \"$CLAUDE_AGENT_TYPE\" --prepare-pool true --allocate-resources true --cache true"
+            "command": "npx archon-os@alpha swarm pre-task --agent-type \"$CLAUDE_AGENT_TYPE\" --prepare-pool true --allocate-resources true --cache true"
           }
         ]
       }
@@ -364,15 +364,15 @@
         "hooks": [
           {
             "type": "command",
-            "command": "npx claude-flow@alpha hooks post-command --command \"$CLAUDE_COMMAND\" --track-metrics true --store-results true --analyze-performance true --batch true"
+            "command": "npx archon-os@alpha hooks post-command --command \"$CLAUDE_COMMAND\" --track-metrics true --store-results true --analyze-performance true --batch true"
           },
           {
             "type": "command",
-            "command": "npx claude-flow@alpha memory store --key \"command/post/$CLAUDE_TIMESTAMP\" --value \"{\\\"command\\\": \\\"$CLAUDE_COMMAND\\\", \\\"result\\\": \\\"$CLAUDE_RESULT\\\", \\\"duration\\\": $CLAUDE_DURATION}\" --namespace \"commands\" --batch true"
+            "command": "npx archon-os@alpha memory store --key \"command/post/$CLAUDE_TIMESTAMP\" --value \"{\\\"command\\\": \\\"$CLAUDE_COMMAND\\\", \\\"result\\\": \\\"$CLAUDE_RESULT\\\", \\\"duration\\\": $CLAUDE_DURATION}\" --namespace \"commands\" --batch true"
           },
           {
             "type": "command",
-            "command": "npx claude-flow@alpha neural train --model \"performance_optimizer\" --data \"{\\\"operation\\\": \\\"bash\\\", \\\"duration\\\": $CLAUDE_DURATION, \\\"success\\\": $CLAUDE_SUCCESS}\" --batch true"
+            "command": "npx archon-os@alpha neural train --model \"performance_optimizer\" --data \"{\\\"operation\\\": \\\"bash\\\", \\\"duration\\\": $CLAUDE_DURATION, \\\"success\\\": $CLAUDE_SUCCESS}\" --batch true"
           }
         ]
       },
@@ -383,11 +383,11 @@
         "hooks": [
           {
             "type": "command",
-            "command": "npx claude-flow@alpha hooks post-edit --file \"$CLAUDE_EDITED_FILE\" --format true --update-memory true --analyze-quality true --batch true"
+            "command": "npx archon-os@alpha hooks post-edit --file \"$CLAUDE_EDITED_FILE\" --format true --update-memory true --analyze-quality true --batch true"
           },
           {
             "type": "command",
-            "command": "npx claude-flow@alpha neural train --model \"pattern_recognizer\" --data \"{\\\"file\\\": \\\"$CLAUDE_EDITED_FILE\\\", \\\"operation\\\": \\\"edit\\\"}\" --batch true"
+            "command": "npx archon-os@alpha neural train --model \"pattern_recognizer\" --data \"{\\\"file\\\": \\\"$CLAUDE_EDITED_FILE\\\", \\\"operation\\\": \\\"edit\\\"}\" --batch true"
           }
         ]
       },
@@ -398,7 +398,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "npx claude-flow@alpha swarm post-task --agent-id \"$CLAUDE_AGENT_ID\" --collect-metrics true --update-pool true --cache true"
+            "command": "npx archon-os@alpha swarm post-task --agent-id \"$CLAUDE_AGENT_ID\" --collect-metrics true --update-pool true --cache true"
           }
         ]
       }
@@ -409,7 +409,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "/bin/bash -c 'echo \"🔄 NYRA PreCompact Guidance:\"; echo \"📋 Review Project-Nyra configuration:\"; echo \"   • 54+ available agents in .claude/agents/\"; echo \"   • Swarm coordination (hierarchical, mesh, adaptive)\"; echo \"   • SPARC methodology with 13 development modes\"; echo \"   • Memory hierarchy: RuVector → AgentDB → Letta → Graphiti → Mem0\"; echo \"   • 3 GPU workers for distributed processing\"; echo \"   • Neural optimization with WASM acceleration\"; echo \"✅ Ready for compact operation\"'"
+            "command": "/bin/bash -c 'echo \"🔄 NYRA PreCompact Guidance:\"; echo \"📋 Review Project-Nyra configuration:\"; echo \"   • 54+ available agents in .claude/agents/\"; echo \"   • Swarm coordination (hierarchical, mesh, adaptive)\"; echo \"   • SPARC methodology with 13 development modes\"; echo \"   • Memory hierarchy: RuVector → ruvector → Letta → letta → Mem0\"; echo \"   • 3 GPU workers for distributed processing\"; echo \"   • Neural optimization with WASM acceleration\"; echo \"✅ Ready for compact operation\"'"
           }
         ]
       },
@@ -428,7 +428,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "npx claude-flow@alpha hooks session-end --generate-summary true --persist-state true --export-metrics true --backup-memory true --optimize-models true --sync-github true"
+            "command": "npx archon-os@alpha hooks session-end --generate-summary true --persist-state true --export-metrics true --backup-memory true --optimize-models true --sync-github true"
           }
         ]
       }
@@ -479,16 +479,16 @@
   },
   "includeCoAuthoredBy": true,
   "enabledMcpjsonServers": [
-    "claude-flow",
+    "archon-os",
     "ruv-swarm",
-    "agentdb",
+    "ruvector",
     "ruvector",
     "letta",
     "flow-nexus"
   ],
   "statusLine": {
     "type": "command",
-    "command": "npx claude-flow@alpha status --format compact --show gpu,memory,agents,cache"
+    "command": "npx archon-os@alpha status --format compact --show gpu,memory,agents,cache"
   },
   "projectInfo": {
     "name": "Project-Nyra",

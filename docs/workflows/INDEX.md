@@ -16,7 +16,7 @@ Complete implementation of the SPARC (Specification, Pseudocode, Architecture, R
 
 | Component | Location | Lines | Description |
 |-----------|----------|-------|-------------|
-| **Workflow Definition** | `.claude-flow/workflows/ingestion-sparc.json` | 252 | Complete SPARC workflow configuration |
+| **Workflow Definition** | `.archon-os/workflows/ingestion-sparc.json` | 252 | Complete SPARC workflow configuration |
 | **Main Script** | `scripts/ingestion/sparc-workflow.sh` | 240 | Single item workflow execution |
 | **Batch Processor** | `scripts/ingestion/batch-process.sh` | 210 | Parallel batch processing |
 | **Status Monitor** | `scripts/ingestion/workflow-status.sh` | 180 | Real-time workflow monitoring |
@@ -41,7 +41,7 @@ Complete implementation of the SPARC (Specification, Pseudocode, Architecture, R
 - **[Troubleshooting](sparc-ingestion-guide.md#troubleshooting)** - Common issues and solutions
 
 #### Advanced Topics
-- **[Integration](sparc-ingestion-guide.md#integration-with-claude-flow)** - Claude Flow integration
+- **[Integration](sparc-ingestion-guide.md#integration-with-archon-os)** - Claude Flow integration
 - **[Performance](SPARC-IMPLEMENTATION-REPORT.md#performance-characteristics)** - Performance metrics
 - **[Security](SPARC-IMPLEMENTATION-REPORT.md#security-considerations)** - Security considerations
 - **[Extending](sparc-ingestion-guide.md#best-practices)** - Best practices
@@ -129,7 +129,7 @@ ingestion-sparc/
 ### Dependencies
 
 #### Required
-- Claude Flow CLI (`@claude-flow/cli@latest`)
+- Claude Flow CLI (`@archon-os/cli@latest`)
 - Bash 4.0+
 - Node.js 20+
 - jq (JSON processor)
@@ -142,13 +142,13 @@ ingestion-sparc/
 
 ```bash
 # Install Claude Flow CLI
-npm install -g @claude-flow/cli@latest
+npm install -g @archon-os/cli@latest
 
 # Start daemon
-npx @claude-flow/cli@latest daemon start
+npx @archon-os/cli@latest daemon start
 
 # Initialize memory
-npx @claude-flow/cli@latest memory init
+npx @archon-os/cli@latest memory init
 
 # Make scripts executable
 chmod +x scripts/ingestion/*.sh
@@ -158,9 +158,9 @@ chmod +x scripts/ingestion/*.sh
 
 | Issue | Solution |
 |-------|----------|
-| CLI not found | `npm install -g @claude-flow/cli@latest` |
-| Daemon not running | `npx @claude-flow/cli@latest daemon start` |
-| Memory not initialized | `npx @claude-flow/cli@latest memory init --force` |
+| CLI not found | `npm install -g @archon-os/cli@latest` |
+| Daemon not running | `npx @archon-os/cli@latest daemon start` |
+| Memory not initialized | `npx @archon-os/cli@latest memory init --force` |
 | Scripts not executable | `chmod +x scripts/ingestion/*.sh` |
 
 For detailed troubleshooting, see [Troubleshooting Guide](sparc-ingestion-guide.md#troubleshooting).
@@ -211,9 +211,9 @@ For more examples, see [Examples Section](sparc-ingestion-guide.md#examples).
 
 For issues or questions:
 - Check [Troubleshooting Guide](sparc-ingestion-guide.md#troubleshooting)
-- Run diagnostics: `npx @claude-flow/cli@latest doctor`
-- View logs: `.claude-flow/logs/daemon.log`
-- GitHub Issues: https://github.com/ruvnet/claude-flow/issues
+- Run diagnostics: `npx @archon-os/cli@latest doctor`
+- View logs: `.archon-os/logs/daemon.log`
+- GitHub Issues: https://github.com/ruvnet/archon-os/issues
 
 ---
 

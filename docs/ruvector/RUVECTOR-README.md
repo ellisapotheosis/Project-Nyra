@@ -130,7 +130,7 @@ RuVector is Claude Flow V3's self-learning Intelligence System implementing a 4-
 
 ### 1. RETRIEVE (Search - HNSW)
 ```bash
-mcp__claude-flow__memory_search --pattern "query" --limit 10
+mcp__archon-os__memory_search --pattern "query" --limit 10
 ```
 - Searches for similar patterns using vector similarity
 - **Speed**: <5ms via HNSW (150x-12,500x faster than linear)
@@ -138,9 +138,9 @@ mcp__claude-flow__memory_search --pattern "query" --limit 10
 
 ### 2. JUDGE (Track - Trajectory)
 ```bash
-npx claude-flow hooks intelligence trajectory-start
-npx claude-flow hooks intelligence trajectory-step
-npx claude-flow hooks intelligence trajectory-end
+npx archon-os hooks intelligence trajectory-start
+npx archon-os hooks intelligence trajectory-step
+npx archon-os hooks intelligence trajectory-end
 ```
 - Records the complete execution path
 - Captures outcomes at each step
@@ -149,7 +149,7 @@ npx claude-flow hooks intelligence trajectory-end
 
 ### 3. DISTILL (Extract - LoRA)
 ```bash
-mcp__claude-flow__memory_usage --action="store" --value="{pattern}"
+mcp__archon-os__memory_usage --action="store" --value="{pattern}"
 ```
 - Extracts key learnings from trajectory
 - Stores as reusable pattern
@@ -158,7 +158,7 @@ mcp__claude-flow__memory_usage --action="store" --value="{pattern}"
 
 ### 4. CONSOLIDATE (Protect - EWC++)
 ```bash
-npx claude-flow neural consolidate --namespace reasoningbank
+npx archon-os neural consolidate --namespace reasoningbank
 ```
 - Prevents catastrophic forgetting
 - Protects important past patterns
@@ -269,49 +269,49 @@ Hierarchical Navigable Small World Graph for fast vector search:
 ### 1. Implementing a New Feature
 ```bash
 # 1. Search for similar implementations
-mcp__claude-flow__memory_search --pattern "your feature type" --limit 10
+mcp__archon-os__memory_search --pattern "your feature type" --limit 10
 
 # 2. Start trajectory
-npx claude-flow hooks intelligence trajectory-start ...
+npx archon-os hooks intelligence trajectory-start ...
 
 # 3. Execute implementation steps with tracking
-npx claude-flow hooks intelligence trajectory-step ...
+npx archon-os hooks intelligence trajectory-step ...
 
 # 4. End with verdict
-npx claude-flow hooks intelligence trajectory-end --verdict "success" --reward 0.92
+npx archon-os hooks intelligence trajectory-end --verdict "success" --reward 0.92
 
 # 5. Store pattern
-mcp__claude-flow__memory_usage --action="store" ...
+mcp__archon-os__memory_usage --action="store" ...
 ```
 
 ### 2. Debugging an Issue
 ```bash
 # 1. Search for similar problems and fixes
-mcp__claude-flow__memory_search --pattern "bug type" --limit 5
+mcp__archon-os__memory_search --pattern "bug type" --limit 5
 
 # 2. Track debugging trajectory
-npx claude-flow hooks intelligence trajectory-start ...
+npx archon-os hooks intelligence trajectory-start ...
 
 # 3. Record fix attempts
-npx claude-flow hooks intelligence trajectory-step ...
+npx archon-os hooks intelligence trajectory-step ...
 
 # 4. Store solution pattern
-mcp__claude-flow__memory_usage --action="store" ...
+mcp__archon-os__memory_usage --action="store" ...
 ```
 
 ### 3. Performance Optimization
 ```bash
 # 1. Search optimization patterns
-mcp__claude-flow__memory_search --pattern "performance" --limit 10
+mcp__archon-os__memory_search --pattern "performance" --limit 10
 
 # 2. Track optimization trajectory
-npx claude-flow hooks intelligence trajectory-start ...
+npx archon-os hooks intelligence trajectory-start ...
 
 # 3. Measure improvements
-npx claude-flow hooks intelligence trajectory-step ...
+npx archon-os hooks intelligence trajectory-step ...
 
 # 4. Store optimization pattern
-mcp__claude-flow__memory_usage --action="store" ...
+mcp__archon-os__memory_usage --action="store" ...
 ```
 
 ---
@@ -336,17 +336,17 @@ mcp__claude-flow__memory_usage --action="store" ...
 hooks:
   pre: |
     # Initialize trajectory
-    npx claude-flow hooks intelligence trajectory-start ...
+    npx archon-os hooks intelligence trajectory-start ...
     # Search similar patterns
-    mcp__claude-flow__memory_search ...
+    mcp__archon-os__memory_search ...
 
   post: |
     # End trajectory
-    npx claude-flow hooks intelligence trajectory-end ...
+    npx archon-os hooks intelligence trajectory-end ...
     # Store pattern
-    mcp__claude-flow__memory_usage --action="store" ...
+    mcp__archon-os__memory_usage --action="store" ...
     # Consolidate
-    npx claude-flow neural consolidate ...
+    npx archon-os neural consolidate ...
 ```
 
 ---
@@ -377,7 +377,7 @@ hooks:
 
 ## References
 
-- **Official**: Claude Flow V3 GitHub (https://github.com/ruvnet/claude-flow)
+- **Official**: Claude Flow V3 GitHub (https://github.com/ruvnet/archon-os)
 - **Main Config**: `/CLAUDE.md` (this repository)
 - **Agent Specs**: `.claude/agents/v3/` directory
 - **Integration**: `mcp.json` (this repository)

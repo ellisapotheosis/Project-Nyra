@@ -12,16 +12,16 @@
 **Files to Merge**:
 - `docs/SETUP-GUIDE.md` - Comprehensive setup (950 lines)
 - `docs/COMPLETE-SETUP-GUIDE.md` - Nearly identical (900 lines)
-- `docs/CLAUDE-FLOW-SETUP.md` - Claude Flow v3 setup (200 lines)
-- `docs/CLAUDE-FLOW-QUICK-START.md` - Quick commands only (100 lines)
+- `docs/archon-os-SETUP.md` - Claude Flow v3 setup (200 lines)
+- `docs/archon-os-QUICK-START.md` - Quick commands only (100 lines)
 
 **Status**: 98% duplication between SETUP-GUIDE and COMPLETE-SETUP-GUIDE
 
 **Resolution Strategy**:
 - **Canonical**: `manual-tasks/setup/primary-setup-guide.md` (merge SETUP-GUIDE + COMPLETE-SETUP-GUIDE)
 - **Keep Separate**:
-  - `ai-automatable/quick-start.md` (from CLAUDE-FLOW-QUICK-START - quick commands)
-  - `ai-automatable/claude-flow-setup.md` (from CLAUDE-FLOW-SETUP - v3 specific)
+  - `ai-automatable/quick-start.md` (from archon-os-QUICK-START - quick commands)
+  - `ai-automatable/archon-os-setup.md` (from archon-os-SETUP - v3 specific)
 - **Archive**: SETUP-GUIDE.md (after merge)
 - **Archive**: COMPLETE-SETUP-GUIDE.md (after merge)
 
@@ -61,27 +61,27 @@
 
 ---
 
-### 3. Claude-Flow Setup Duplicates (Priority: HIGH)
+### 3. archon-os Setup Duplicates (Priority: HIGH)
 
 **Files to Merge**:
-- `docs/CLAUDE-FLOW-QUICK-START.md` - Quick commands (150 lines)
-- `docs/CLAUDE-FLOW-SETUP.md` - Full setup (450 lines)
-- `docs/CLAUDE-FLOW-PLUGINS-SETUP.md` - Plugins specific (200 lines)
-- `docs/CLAUDE-FLOW-V3-SETUP-SUMMARY.md` - Setup summary (300 lines)
+- `docs/archon-os-QUICK-START.md` - Quick commands (150 lines)
+- `docs/archon-os-SETUP.md` - Full setup (450 lines)
+- `docs/archon-os-PLUGINS-SETUP.md` - Plugins specific (200 lines)
+- `docs/archon-os-V3-SETUP-SUMMARY.md` - Setup summary (300 lines)
 
 **Status**: 70% overlap, complementary perspectives (full setup vs quick start)
 
 **Resolution Strategy**:
-- **Canonical**: `ai-automatable/claude-flow-setup.md` (comprehensive setup)
+- **Canonical**: `ai-automatable/archon-os-setup.md` (comprehensive setup)
 - **Keep Separate**:
   - `ai-automatable/quick-start.md` (5-minute quick commands)
   - `ai-automatable/plugins-setup.md` (plugin-specific)
-- **Archive**: CLAUDE-FLOW-QUICK-START.md (content migrated to quick-start.md)
-- **Archive**: CLAUDE-FLOW-PLUGINS-SETUP.md (content migrated)
-- **Archive**: CLAUDE-FLOW-V3-SETUP-SUMMARY.md (content migrated)
+- **Archive**: archon-os-QUICK-START.md (content migrated to quick-start.md)
+- **Archive**: archon-os-PLUGINS-SETUP.md (content migrated)
+- **Archive**: archon-os-V3-SETUP-SUMMARY.md (content migrated)
 
 **Action Items**:
-- [ ] Merge CLAUDE-FLOW-SETUP and V3-SETUP-SUMMARY
+- [ ] Merge archon-os-SETUP and V3-SETUP-SUMMARY
 - [ ] Extract quick-start commands
 - [ ] Extract plugins setup
 - [ ] Update CLAUDE.md references

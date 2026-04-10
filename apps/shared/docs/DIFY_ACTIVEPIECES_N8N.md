@@ -7,7 +7,7 @@
 
 Use **Nexus Router** as the only ingress for:
 - model calls (via LiteLLM/OpenRouter)
-- MCP tool calls (Activepieces, GitHub, Graphiti, etc.)
+- MCP tool calls (Activepieces, GitHub, letta, etc.)
 
 ## Recommended integration pattern
 1) Dify app uses Nexus as:

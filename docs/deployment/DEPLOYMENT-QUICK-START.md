@@ -183,7 +183,7 @@ docker compose -f infra/docker/docker-compose.orchestration.yml logs -f --tail=1
 **Q: "No active swarm found" when spawning agents?**
 A: The ruv-swarm MCP server needs to be restarted. Run:
 ```bash
-docker restart nyra-claude-flow
+docker restart nyra-archon-os
 ```
 
 **Q: Fuzzy search returns empty results?**

@@ -238,11 +238,11 @@ agents:
 **1. New SMS Campaign (Tier 3 - Sonnet)**
 ```bash
 # Get routing recommendation
-npx @claude-flow/cli@latest hooks pre-task \
+npx @archon-os/cli@latest hooks pre-task \
   --description "Design SMS drip campaign with rate limiting and cost optimization"
 
 # Initialize swarm for concurrent agent work
-npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 5 --strategy specialized
+npx @archon-os/cli@latest swarm init --topology hierarchical --max-agents 5 --strategy specialized
 
 # Spawn agents
 # 1. twilio_architect - Design campaign flow
@@ -255,7 +255,7 @@ npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 5 --
 **2. Webhook Validation Setup (Tier 1 - Agent Booster)**
 ```bash
 # Validate webhook signature implementation
-npx @claude-flow/cli@latest hooks pre-task \
+npx @archon-os/cli@latest hooks pre-task \
   --description "Add Twilio webhook request signature validation"
 # Intent: add-error-handling (validation + error responses)
 # Agent Booster can handle this directly
@@ -264,7 +264,7 @@ npx @claude-flow/cli@latest hooks pre-task \
 **3. Cost Monitoring (Tier 2 - Haiku)**
 ```bash
 # Implement cost tracking
-npx @claude-flow/cli@latest hooks pre-task \
+npx @archon-os/cli@latest hooks pre-task \
   --description "Add Twilio cost tracking and alerting"
 # Recommendation: haiku model for straightforward implementation
 ```
@@ -273,24 +273,24 @@ npx @claude-flow/cli@latest hooks pre-task \
 
 ```bash
 # Search for SMS campaign patterns
-npx @claude-flow/cli@latest memory search \
+npx @archon-os/cli@latest memory search \
   --query "high-converting mortgage SMS templates with CTA" \
   --namespace patterns
 
 # Store successful campaign
-npx @claude-flow/cli@latest memory store \
+npx @archon-os/cli@latest memory store \
   --namespace patterns \
   --key "sms-campaign-mortgage-success" \
   --value '{"conversion_rate": 0.12, "templates": ["rate-offer", "appointment"], "send_time": "morning"}'
 
 # Store rate limit strategy
-npx @claude-flow/cli@latest memory store \
+npx @archon-os/cli@latest memory store \
   --namespace patterns \
   --key "twilio-cost-optimization" \
   --value '{"batch_size": 100, "region": "US", "max_per_hour": 300, "retry_backoff": "exponential"}'
 
 # Search for webhook security patterns
-npx @claude-flow/cli@latest memory search \
+npx @archon-os/cli@latest memory search \
   --query "webhook idempotency and request validation" \
   --namespace patterns
 ```
@@ -618,12 +618,12 @@ describe('SMS Webhook', () => {
 ### Before SMS Campaign Launch
 ```bash
 # Search for successful SMS templates
-npx @claude-flow/cli@latest memory search \
+npx @archon-os/cli@latest memory search \
   --query "high-converting mortgage SMS templates" \
   --namespace patterns
 
 # Load cost optimization patterns
-npx @claude-flow/cli@latest memory search \
+npx @archon-os/cli@latest memory search \
   --query "Twilio cost optimization batching" \
   --namespace patterns
 ```
@@ -631,13 +631,13 @@ npx @claude-flow/cli@latest memory search \
 ### After Campaign Execution
 ```bash
 # Store campaign results
-npx @claude-flow/cli@latest memory store \
+npx @archon-os/cli@latest memory store \
   --namespace patterns \
   --key "sms-campaign-results-$(date +%Y%m%d)" \
   --value '{"templates_used": ["rateOffer"], "delivery_rate": 0.98, "conversion_rate": 0.12, "cost_per_lead": 0.0075}'
 
 # Train neural patterns on success
-npx @claude-flow/cli@latest neural train \
+npx @archon-os/cli@latest neural train \
   --pattern-type sms-optimization \
   --epochs 10
 ```

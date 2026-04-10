@@ -173,7 +173,7 @@ if (-not (Test-Path ".git")) {
 Write-Progress "Creating project directory structure..."
 
 $directories = @(
-    "orchestration/claude-flow",
+    "orchestration/archon-os",
     "orchestration/archon-os",
     "mcp-servers/nexus",
     "mcp-servers/letta",
@@ -205,12 +205,12 @@ $directories = @(
     "scripts/infisical",
     "scripts/dev",
     "scripts/repo",
-    "prompts/claude-flow",
+    "prompts/archon-os",
     "prompts/agents",
     "data/campaigns",
     "data/quotes",
     "data/n8n",
-    ".claude-flow"
+    ".archon-os"
 )
 
 foreach ($dir in $directories) {
@@ -226,7 +226,7 @@ Write-Phase "PHASE 2: Cloning Required Repositories"
 
 if (-not $SkipClone) {
     $repos = @{
-        "orchestration/claude-flow" = "https://github.com/ellisapotheosis/claude-flow.git"
+        "orchestration/archon-os" = "https://github.com/ellisapotheosis/archon-os.git"
         "orchestration/archon-os" = "https://github.com/ellisapotheosis/archon.git"
     }
     
@@ -339,8 +339,8 @@ Write-Phase "PHASE 4: Downloading Master Build Prompt"
 
 Write-Progress "Downloading Claude Flow master build prompt..."
 try {
-    $promptUrl = "https://raw.githubusercontent.com/ellisapotheosis/project-nyra/main/CLAUDE-FLOW-MASTER-BUILD-PROMPT.md"
-    Invoke-WebRequest -Uri $promptUrl -OutFile ".claude-flow/MASTER-BUILD-PROMPT.md" -ErrorAction Stop
+    $promptUrl = "https://raw.githubusercontent.com/ellisapotheosis/project-nyra/main/archon-os-MASTER-BUILD-PROMPT.md"
+    Invoke-WebRequest -Uri $promptUrl -OutFile ".archon-os/MASTER-BUILD-PROMPT.md" -ErrorAction Stop
     Write-Success "Master build prompt downloaded"
 } catch {
     Write-Progress "Using local master build prompt..."
@@ -390,9 +390,9 @@ try {
     Set-Location $RepoPath
     
     # Initialize Claude Flow with all features
-    Write-Progress "Running: npx claude-flow@alpha init --enhanced --pair --verify --sparc --roo --flow-nexus --neural --truth --batch --parallel --force"
+    Write-Progress "Running: npx archon-os@alpha init --enhanced --pair --verify --sparc --roo --flow-nexus --neural --truth --batch --parallel --force"
     
-    npx --yes claude-flow@alpha init --enhanced --pair --verify --sparc --roo --flow-nexus --neural --truth --batch --parallel --force
+    npx --yes archon-os@alpha init --enhanced --pair --verify --sparc --roo --flow-nexus --neural --truth --batch --parallel --force
     
     Write-Success "Claude Flow initialized"
     
@@ -406,7 +406,7 @@ try {
     Write-Host "NEXT STEPS:" -ForegroundColor Yellow
     Write-Host "1. In VS Code, open Claude Code (Ctrl+Shift+P > 'Claude Code: Open')" -ForegroundColor White
     Write-Host "2. Paste this command:" -ForegroundColor White
-    Write-Host "`n   Read .claude-flow/MASTER-BUILD-PROMPT.md and execute all phases autonomously. Do not ask for confirmation. Report progress every 30 minutes.`n" -ForegroundColor Cyan
+    Write-Host "`n   Read .archon-os/MASTER-BUILD-PROMPT.md and execute all phases autonomously. Do not ask for confirmation. Report progress every 30 minutes.`n" -ForegroundColor Cyan
     Write-Host "3. Press Enter and go to sleep! 😴" -ForegroundColor White
     Write-Host "`nWhen you wake up, all services will be running and ready to use.`n" -ForegroundColor Green
     

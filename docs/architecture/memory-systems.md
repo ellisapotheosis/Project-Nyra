@@ -10,7 +10,7 @@
 
 The Nyra memory systems provide comprehensive persistent memory for AI agents through a three-tier architecture:
 
-1. **GraphRAG** (Graphiti + FalkorDB) - Knowledge graph for entity relationships
+1. **GraphRAG** (letta + FalkorDB) - Knowledge graph for entity relationships
 2. **Episodic Memory** (Mem0) - Chat history and user preferences
 3. **Stateful Management** (Letta Archivist) - Agent state coordination
 
@@ -23,7 +23,7 @@ All memory operations are unified through a single gateway API that automaticall
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                    Application Layer                         │
-│  (Dify, TwentyCRM, Nyra Admin, Claude-Flow Orchestrator)   │
+│  (Dify, TwentyCRM, Nyra Admin, archon-os Orchestrator)   │
 └────────────────────┬────────────────────────────────────────┘
                      │
                      ▼
@@ -34,7 +34,7 @@ All memory operations are unified through a single gateway API that automaticall
         │                  │                  │
         ▼                  ▼                  ▼
 ┌───────────────┐  ┌──────────────┐  ┌──────────────┐
-│   Graphiti    │  │     Mem0     │  │    Letta     │
+│   letta    │  │     Mem0     │  │    Letta     │
 │   (GraphRAG)  │  │  (Episodic)  │  │  (Stateful)  │
 └───────┬───────┘  └──────────────┘  └──────┬───────┘
         │                                    │
@@ -55,12 +55,12 @@ All memory operations are unified through a single gateway API that automaticall
 
 ## Components
 
-### 1. Graphiti Service (GraphRAG)
+### 1. letta Service (GraphRAG)
 
 **Purpose:** Knowledge graph for entity relationships and CRM data
 
 **Technologies:**
-- Graphiti MCP Server
+- letta MCP Server
 - FalkorDB (graph database)
 - Qdrant (vector embeddings)
 
@@ -74,21 +74,21 @@ All memory operations are unified through a single gateway API that automaticall
 
 ```typescript
 // Add entity
-const leadId = await graphiti.addEntity('Lead', {
+const leadId = await letta.addEntity('Lead', {
   name: 'John Doe',
   email: 'john@example.com',
   score: 85
 });
 
 // Add relationship
-await graphiti.addRelationship(
+await letta.addRelationship(
   leadId,
   'HAS_OPPORTUNITY',
   opportunityId
 );
 
 // Query with Cypher
-const results = await graphiti.query(`
+const results = await letta.query(`
   MATCH (lead:Lead)-[:HAS_OPPORTUNITY]->(opp:Opportunity)
   WHERE lead.score > 80
   RETURN lead, opp
@@ -98,8 +98,8 @@ const results = await graphiti.query(`
 **Configuration:**
 
 ```env
-GRAPHITI_ENDPOINT=http://localhost:7459
-GRAPHITI_API_KEY=your-api-key
+letta_ENDPOINT=http://localhost:7459
+letta_API_KEY=your-api-key
 FALKORDB_HOST=localhost
 FALKORDB_PORT=6379
 FALKORDB_PASSWORD=changeme
@@ -172,7 +172,7 @@ MEM0_USE_LOCAL=true  # Enable local bridge mode
 // Create Archivist session
 const sessionId = await letta.createSession('archivist', {
   memory_policy: 'write_always',
-  memory_backends: ['graphiti', 'mem0']
+  memory_backends: ['letta', 'mem0']
 });
 
 // Send message to agent
@@ -208,7 +208,7 @@ POSTGRES_PASSWORD=changeme
 - **Auto-routing** by key prefix (graph:, chat:, session:)
 - **Caching layer** for fast reads
 - **Type-safe** operations with TypeScript
-- **Fallback chain** (Letta → Graphiti → Mem0 → Local)
+- **Fallback chain** (Letta → letta → Mem0 → Local)
 - **TTL support** for automatic expiration
 
 **API Examples:**
@@ -216,14 +216,14 @@ POSTGRES_PASSWORD=changeme
 ```typescript
 // Create gateway
 const gateway = new UnifiedMemoryGateway({
-  graphiti: { endpoint: 'http://localhost:7459' },
+  letta: { endpoint: 'http://localhost:7459' },
   mem0: { useLocal: true },
   letta: { endpoint: 'http://localhost:8283' }
 });
 
 // Set value (auto-routed by prefix)
 await gateway.set('graph:lead:123', leadData, {
-  source: 'graphiti',
+  source: 'letta',
   ttl: 3600,
   tags: ['crm', 'lead']
 });
@@ -239,16 +239,16 @@ const results = await gateway.query('graph:lead:*', {
 
 // Get statistics
 const stats = await gateway.stats();
-// Returns: { totalKeys, backends: { graphiti, mem0, letta, local } }
+// Returns: { totalKeys, backends: { letta, mem0, letta, local } }
 ```
 
 **Routing Rules:**
 
 | Key Prefix | Backend | Use Case |
 |------------|---------|----------|
-| `graph:` | Graphiti | Entities, relationships |
-| `entity:` | Graphiti | CRM entities |
-| `crm:` | Graphiti | CRM data |
+| `graph:` | letta | Entities, relationships |
+| `entity:` | letta | CRM entities |
+| `crm:` | letta | CRM data |
 | `chat:` | Mem0 | Chat messages |
 | `message:` | Mem0 | Episodic memory |
 | `pref:` | Mem0 | User preferences |
@@ -265,7 +265,7 @@ const stats = await gateway.stats();
 **Features:**
 - Webhook receiver for real-time events
 - Optional polling for systems without webhooks
-- Automatic entity creation in Graphiti
+- Automatic entity creation in letta
 - Relationship building (Lead → Opportunity → Activity)
 
 **Supported Events:**
@@ -284,7 +284,7 @@ type CRMEvent =
 ```
 TwentyCRM Event → Webhook/Polling → Pipeline Processor
                                            ↓
-                                    Graphiti Entities
+                                    letta Entities
                                            ↓
                                     Knowledge Graph
                                            ↓
@@ -295,7 +295,7 @@ TwentyCRM Event → Webhook/Polling → Pipeline Processor
 
 ```typescript
 // Create pipeline
-const pipeline = new TwentyCRMPipeline(graphiti, {
+const pipeline = new TwentyCRMPipeline(letta, {
   webhookSecret: 'your-secret',
   enablePolling: true,
   pollingInterval: 60000 // 1 minute
@@ -338,12 +338,12 @@ docker-compose -f docker-compose.memory.yml up -d
 docker-compose -f docker-compose.memory.yml ps
 
 # View logs
-docker-compose -f docker-compose.memory.yml logs -f graphiti
+docker-compose -f docker-compose.memory.yml logs -f letta
 ```
 
 Services included:
 - FalkorDB (port 6379)
-- Graphiti (port 7459)
+- letta (port 7459)
 - Qdrant (ports 6333, 6334)
 - Redis (ports 6379, 8001)
 - Letta (port 8283)
@@ -356,9 +356,9 @@ Services included:
 Create `.env` file:
 
 ```env
-# Graphiti
-GRAPHITI_ENDPOINT=http://localhost:7459
-GRAPHITI_API_KEY=your-api-key
+# letta
+letta_ENDPOINT=http://localhost:7459
+letta_API_KEY=your-api-key
 FALKORDB_PASSWORD=changeme
 
 # Mem0
@@ -401,7 +401,7 @@ const stats = await gateway.stats();
 
 console.log(stats.backends);
 // {
-//   graphiti: { connected: true, entities: 1234, edges: 5678 },
+//   letta: { connected: true, entities: 1234, edges: 5678 },
 //   mem0: { connected: true, memories: 9012 },
 //   letta: { connected: true, agents: 3 },
 //   local: { connected: true, keys: 45 }
@@ -426,7 +426,7 @@ const leadEvent = {
   }
 };
 
-// 2. Pipeline processes event → Graphiti
+// 2. Pipeline processes event → letta
 await pipeline.processEvent(leadEvent);
 
 // 3. Query lead via gateway
@@ -473,7 +473,7 @@ await mem0.addMessage('alice@example.com', followUp, 'assistant');
 
 ```typescript
 // Query CRM relationships
-const results = await graphiti.query(`
+const results = await letta.query(`
   MATCH (lead:Lead)-[:HAS_OPPORTUNITY]->(opp:Opportunity)
   -[:HAS_ACTIVITY]->(activity:Activity)
   WHERE lead.score > 80
@@ -503,7 +503,7 @@ const qualifiedLeads = results.map(r => ({
 npm run test:integration -- tests/integration/memory
 
 # Specific service
-npm run test:integration -- tests/integration/memory/graphiti
+npm run test:integration -- tests/integration/memory/letta
 
 # With coverage
 npm run test:coverage -- tests/integration/memory
@@ -525,7 +525,7 @@ npm run test:coverage -- tests/integration/memory
 |-----------|---------------|--------|
 | Gateway.set() | 45ms | <100ms |
 | Gateway.get() | 12ms | <50ms |
-| Graphiti.query() | 150ms | <200ms |
+| letta.query() | 150ms | <200ms |
 | Mem0.search() | 80ms | <100ms |
 | Letta.sendMessage() | 200ms | <300ms |
 
@@ -534,7 +534,7 @@ npm run test:coverage -- tests/integration/memory
 1. **Enable caching** for frequently accessed keys
 2. **Use batch operations** for multiple writes
 3. **Implement connection pooling** for database connections
-4. **Add indexes** to Graphiti for common queries
+4. **Add indexes** to letta for common queries
 5. **Use TTL** to prevent memory bloat
 
 ---
@@ -546,7 +546,7 @@ npm run test:coverage -- tests/integration/memory
 All services require API keys:
 
 ```env
-GRAPHITI_API_KEY=your-key
+letta_API_KEY=your-key
 MEM0_API_KEY=your-key
 LETTA_API_KEY=your-key
 ```
@@ -570,17 +570,17 @@ LETTA_API_KEY=your-key
 
 ### Common Issues
 
-**1. Graphiti Connection Failed**
+**1. letta Connection Failed**
 
 ```bash
-# Check Graphiti health
+# Check letta health
 curl http://localhost:7459/health
 
 # Check FalkorDB
 docker logs nyra-falkordb
 
 # Restart services
-docker-compose -f docker-compose.memory.yml restart graphiti falkordb
+docker-compose -f docker-compose.memory.yml restart letta falkordb
 ```
 
 **2. Mem0 API Rate Limited**
@@ -631,7 +631,7 @@ const gateway = new UnifiedMemoryGateway({
 
 ## References
 
-- [Graphiti MCP Documentation](https://github.com/getzep/graphiti)
+- [letta MCP Documentation](https://github.com/getzep/letta)
 - [FalkorDB Documentation](https://www.falkordb.com/docs)
 - [Mem0 Documentation](https://docs.mem0.ai)
 - [Letta Framework](https://github.com/cpacker/MemGPT)

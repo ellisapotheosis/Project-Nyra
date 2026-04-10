@@ -65,7 +65,7 @@ $serverCommands = @(
     @{ Port = 7404; Name = "sparc2"; Command = "npx sparc2-mcp --port 7404" },
     @{ Port = 7405; Name = "zep"; Command = "npx zep-mcp --port 7405" },
     @{ Port = 7406; Name = "qdrant"; Command = "npx qdrant-mcp --port 7406" },
-    @{ Port = 7407; Name = "graphiti"; Command = "npx graphiti-mcp --port 7407" },
+    @{ Port = 7407; Name = "letta"; Command = "npx letta-mcp --port 7407" },
     @{ Port = 7408; Name = "memtensor"; Command = "npx memtensor-mcp --port 7408" }
 )
 
@@ -83,9 +83,9 @@ Write-Host "🔧 Starting Specialized MCP Servers..." -ForegroundColor Magenta
 Write-Host "   Starting Archon MCP on port 8051..." -ForegroundColor Green
 Start-Process -FilePath "npx" -ArgumentList @("archon-mcp", "--port", "8051") -NoNewWindow -PassThru
 
-# Graphiti with specific configuration
-Write-Host "   Starting Graphiti MCP on port 8797..." -ForegroundColor Green
-Start-Process -FilePath "uvx" -ArgumentList @("getzep-graphiti-mcp", "--host", "0.0.0.0", "--port", "8797") -NoNewWindow -PassThru
+# letta with specific configuration
+Write-Host "   Starting letta MCP on port 8797..." -ForegroundColor Green
+Start-Process -FilePath "uvx" -ArgumentList @("getzep-letta-mcp", "--host", "0.0.0.0", "--port", "8797") -NoNewWindow -PassThru
 
 Start-Sleep -Seconds 5
 
@@ -162,9 +162,9 @@ Write-Host "   • Tool Search: http://localhost:12010/nyra/complete/search?q={q
 # Display server counts by category
 Write-Host "`n📊 Server Categories:" -ForegroundColor Yellow
 Write-Host "   • Core Development: 6 servers (filesystem, git, github, docker, shell, etc.)" -ForegroundColor White
-Write-Host "   • AI Orchestration: 7 servers (claude-flow, ruv-swarm, flow-nexus, roo, sparc, etc.)" -ForegroundColor White
+Write-Host "   • AI Orchestration: 7 servers (archon-os, ruv-swarm, flow-nexus, roo, sparc, etc.)" -ForegroundColor White
 Write-Host "   • Security & Secrets: 2 servers (bitwarden, infisical)" -ForegroundColor White
-Write-Host "   • Memory & Knowledge: 5 servers (qdrant, graphiti, mem0, zep, memtensor)" -ForegroundColor White
+Write-Host "   • Memory & Knowledge: 5 servers (qdrant, letta, mem0, zep, memtensor)" -ForegroundColor White
 Write-Host "   • Web Automation: 3 servers (browser-use, puppeteer, fetch)" -ForegroundColor White
 Write-Host "   • Development Tools: 4 servers (codanna, repo-docs, kilo-code, inception)" -ForegroundColor White
 Write-Host "   • Gateway Routers: 2 servers (metamcp, archon)" -ForegroundColor White
@@ -172,8 +172,8 @@ Write-Host "   • Gateway Routers: 2 servers (metamcp, archon)" -ForegroundColo
 Write-Host "`n✨ Fuzzy Tool Search Examples:" -ForegroundColor Magenta
 Write-Host "   • Search 'git': Returns git, github, repositories" -ForegroundColor White
 Write-Host "   • Search 'docker': Returns docker, docker-hub, containers" -ForegroundColor White
-Write-Host "   • Search 'memory': Returns qdrant, graphiti, mem0, zep" -ForegroundColor White
-Write-Host "   • Search 'ai': Returns claude-flow, gemini, sparc, orchestration" -ForegroundColor White
+Write-Host "   • Search 'memory': Returns qdrant, letta, mem0, zep" -ForegroundColor White
+Write-Host "   • Search 'ai': Returns archon-os, gemini, sparc, orchestration" -ForegroundColor White
 
 Write-Host "`n🔄 To stop all servers: Stop-Process -Name node -Force" -ForegroundColor Red
 Write-Host "💡 Logs are available in the individual server processes" -ForegroundColor Gray

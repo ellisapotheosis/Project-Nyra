@@ -3,7 +3,7 @@
 This kit stands up a **single orchestration plane** on your **orchestrator-mini** that:
 - uses **grafbase/nexus** as the MCP proxy + fuzzy tool selector
 - uses **LiteLLM** as the model broker (cloud + local GPU workers)
-- runs shared infra: **Postgres**, **Redis**, **AgentDB**, **RuVector**, **Graph (Neo4j or FalkorDB)**, optional **Twenty CRM**
+- runs shared infra: **Postgres**, **Redis**, **ruvector**, **RuVector**, **Graph (Neo4j or FalkorDB)**, optional **Twenty CRM**
 - provides UI: **Open WebUI** + **LobeChat** (optional)
 - integrates a **single “Docker MCP Toolkit entrypoint”** so you don’t have to add each toolkit server individually
 
@@ -34,7 +34,7 @@ Then configure LiteLLM on orchestrator via env vars:
 - `WORKER_RTX5090_OPENAI_BASE_URL`
 
 ## File access when orchestrators are containerized
-If Claude-Flow/Archon run in Docker, they **cannot** see your host filesystem unless:
+If archon-os/Archon run in Docker, they **cannot** see your host filesystem unless:
 - you mount host folders into the container, OR
 - you provide a **filesystem MCP server** (recommended) with controlled mounts.
 

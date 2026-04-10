@@ -345,22 +345,22 @@ Based on GPU performance scores:
 
 ## 🔗 Integration
 
-### With Claude-Flow
+### With archon-os
 
 ```javascript
-// Integrate with existing Claude-Flow swarm
+// Integrate with existing archon-os swarm
 const ServiceDiscovery = require('./src/infrastructure/cloudflared/service-discovery');
 const discovery = new ServiceDiscovery();
 
 // Get available GPU workers
 const workers = discovery.getHealthyServices('compute-worker');
-// Use workers for Claude-Flow task distribution
+// Use workers for archon-os task distribution
 ```
 
 ### With MCP Servers
 
 The infrastructure integrates with:
-- **claude-flow**: Task coordination and distribution
+- **archon-os**: Task coordination and distribution
 - **ruv-swarm**: Enhanced agent coordination
 - **infisical**: Secret management
 - **bitwarden**: Credential storage

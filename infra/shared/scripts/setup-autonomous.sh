@@ -184,7 +184,7 @@ fi
 print_progress "Creating project directory structure..."
 
 DIRECTORIES=(
-    "orchestration/claude-flow"
+    "orchestration/archon-os"
     "orchestration/archon-os"
     "mcp-servers/nexus"
     "mcp-servers/letta"
@@ -209,10 +209,10 @@ DIRECTORIES=(
     "docs/deployment"
     "scripts/setup"
     "scripts/dev"
-    "prompts/claude-flow"
+    "prompts/archon-os"
     "prompts/agents"
     "data/campaigns"
-    ".claude-flow"
+    ".archon-os"
 )
 
 for dir in "${DIRECTORIES[@]}"; do
@@ -288,7 +288,7 @@ if [ ${#EXISTING_REPOS[@]} -gt 0 ]; then
     done
     
     # Create manifest for Claude Flow
-    cat > "$REPO_PATH/.claude-flow/existing-repos-manifest.json" << EOF
+    cat > "$REPO_PATH/.archon-os/existing-repos-manifest.json" << EOF
 {
   "detected_at": "$(date -Iseconds)",
   "repositories": [
@@ -297,14 +297,14 @@ EOF
     first=true
     for repo in "${EXISTING_REPOS[@]}"; do
         if [ "$first" = false ]; then
-            echo "," >> "$REPO_PATH/.claude-flow/existing-repos-manifest.json"
+            echo "," >> "$REPO_PATH/.archon-os/existing-repos-manifest.json"
         fi
         first=false
         
         file_count=$(find "$repo" -type f | wc -l)
         size_mb=$(du -sm "$repo" | cut -f1)
         
-        cat >> "$REPO_PATH/.claude-flow/existing-repos-manifest.json" << EOF
+        cat >> "$REPO_PATH/.archon-os/existing-repos-manifest.json" << EOF
     {
       "name": "$(basename "$repo")",
       "path": "$repo",
@@ -314,9 +314,9 @@ EOF
 EOF
     done
     
-    echo -e "\n  ]\n}" >> "$REPO_PATH/.claude-flow/existing-repos-manifest.json"
+    echo -e "\n  ]\n}" >> "$REPO_PATH/.archon-os/existing-repos-manifest.json"
     
-    print_success "Created manifest: .claude-flow/existing-repos-manifest.json"
+    print_success "Created manifest: .archon-os/existing-repos-manifest.json"
     echo -e "\n${GREEN}Consolidation will preserve all production-ready work and avoid duplication.${NC}\n"
 else
     print_progress "No existing Nyra repositories found - will build from scratch"
@@ -328,7 +328,7 @@ fi
 print_phase "PHASE 5: Downloading Enhanced Master Build Prompt"
 
 print_progress "Downloading Claude Flow enhanced build prompt with consolidation support..."
-if curl -fsSL "https://raw.githubusercontent.com/ellisapotheosis/project-nyra/main/CLAUDE-FLOW-MASTER-BUILD-ENHANCED.md" -o ".claude-flow/MASTER-BUILD-ENHANCED.md"; then
+if curl -fsSL "https://raw.githubusercontent.com/ellisapotheosis/project-nyra/main/archon-os-MASTER-BUILD-ENHANCED.md" -o ".archon-os/MASTER-BUILD-ENHANCED.md"; then
     print_success "Enhanced master build prompt downloaded"
 else
     print_progress "Using local enhanced build prompt..."
@@ -363,7 +363,7 @@ echo -e "${MAGENTA}║  You can safely close this terminal and go to sleep. ║$
 echo -e "${MAGENTA}╚════════════════════════════════════════════════════════╝${NC}\n"
 
 print_progress "Initializing Claude Flow..."
-npx --yes claude-flow@alpha init --enhanced --pair --verify --sparc --roo --flow-nexus --neural --truth --batch --parallel --force
+npx --yes archon-os@alpha init --enhanced --pair --verify --sparc --roo --flow-nexus --neural --truth --batch --parallel --force
 
 print_success "Claude Flow initialized"
 
@@ -377,7 +377,7 @@ echo -e "${GREEN}╚════════════════════
 echo -e "${YELLOW}NEXT STEPS:${NC}"
 echo -e "1. In VS Code, open Claude Code (Cmd/Ctrl+Shift+P > 'Claude Code: Open')"
 echo -e "2. Paste this command:\n"
-echo -e "${CYAN}   Read .claude-flow/MASTER-BUILD-PROMPT.md and execute all phases autonomously.${NC}\n"
+echo -e "${CYAN}   Read .archon-os/MASTER-BUILD-PROMPT.md and execute all phases autonomously.${NC}\n"
 echo -e "3. Press Enter and go to sleep! 😴\n"
 
 # ============================================

@@ -84,8 +84,8 @@ Nexus Router (Port 6000) ← Unified MCP + LLM gateway
 4. **configs/nyra-nexus-router.json**
    - Status: ✅ UPDATED (lines 229, 267)
    - Changes: Removed `metamcp` server entry, updated backup_servers
-   - Before: `"backup_servers": ["metamcp", "claude-flow"]`
-   - After: `"backup_servers": ["claude-flow", "archon-mcp"]`
+   - Before: `"backup_servers": ["metamcp", "archon-os"]`
+   - After: `"backup_servers": ["archon-os", "archon-mcp"]`
 
 5. **configs/archon-mcp-config.json**
    - Status: ✅ UPDATED (line 110)
@@ -279,7 +279,7 @@ grep -r "metamcp\|MetaMCP\|METAMCP" \
 All changes have been documented in memory namespace `repo-cleanup` with key `metamcp-elimination`:
 
 ```bash
-npx @claude-flow/cli@latest memory store \
+npx @archon-os/cli@latest memory store \
   --namespace "repo-cleanup" \
   --key "metamcp-elimination" \
   --value "Eliminated all MetaMCP references from Project-Nyra repository. Replaced with Nexus Router unified gateway (ADR-002). Total: 28 files updated, 3 deleted, 3 archived. Modern architecture: Nexus Router (port 6000) replaces MetaMCP + LiteLLM for unified MCP + LLM routing."
@@ -368,7 +368,7 @@ In the unlikely event a rollback is needed:
 ### Architecture Decision Records
 - **ADR-002**: Nexus Router as Unified Gateway
   File: `docs/architecture/ARCHITECTURE-DECISIONS.md` (Line 63-97)
-- **ADR-001**: Dual Orchestrators (Claude-Flow + Archon OS)
+- **ADR-001**: Dual Orchestrators (archon-os + Archon OS)
   File: `docs/architecture/ARCHITECTURE-DECISIONS.md` (Line 29-60)
 
 ### Key Documentation

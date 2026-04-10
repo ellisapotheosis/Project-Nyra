@@ -95,7 +95,7 @@ We will adopt a **canonical Docker structure** with two primary locations:
 │   ├── ratehunter/Dockerfile
 │   └── mortgage-services/Dockerfile
 ├── orchestration/
-│   ├── claude-flow/Dockerfile
+│   ├── archon-os/Dockerfile
 │   └── serena/Dockerfile
 └── mcp-servers/ (already exists)
     ├── bitwarden/Dockerfile
@@ -200,7 +200,7 @@ cp apps/ratehunter/Dockerfile infra/docker/build/apps/ratehunter/
 cp apps/webapp/mortgage-services/Dockerfile infra/docker/build/apps/mortgage-services/
 
 # Orchestration (2 files)
-cp orchestration/claude-flow/Dockerfile infra/docker/build/orchestration/claude-flow/
+cp orchestration/archon-os/Dockerfile infra/docker/build/orchestration/archon-os/
 cp orchestration/serena/Dockerfile infra/docker/build/orchestration/serena/
 ```
 
@@ -228,7 +228,7 @@ curl http://localhost:6000/health  # Test routing
 **Review and merge**:
 - `services/litellm-proxy/docker-compose.yml` → `docker-compose.ai.yml`
 - `services/memory/*/docker-compose.*.yml` → `docker-compose.ai.yml`
-- `orchestration/claude-flow/config/*/docker-compose.yml` → `docker-compose.orchestrator.yml`
+- `orchestration/archon-os/config/*/docker-compose.yml` → `docker-compose.orchestrator.yml`
 
 **Create comparison reports** for each merge.
 

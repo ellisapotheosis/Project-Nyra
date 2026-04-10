@@ -5,7 +5,7 @@
 **Step 1**: Download these files to `C:\Dev\Projects\Repos\`
 - START-AUTONOMOUS-SETUP.bat
 - setup-autonomous.ps1
-- CLAUDE-FLOW-MASTER-BUILD-PROMPT.md
+- archon-os-MASTER-BUILD-PROMPT.md
 
 **Step 2**: Double-click `START-AUTONOMOUS-SETUP.bat`
 
@@ -17,7 +17,7 @@
 **Step 4**: When VS Code opens, paste this into Claude Code:
 
 ```
-Read .claude-flow/MASTER-BUILD-PROMPT.md and execute all phases autonomously. Do not ask for confirmation. Report progress every 30 minutes.
+Read .archon-os/MASTER-BUILD-PROMPT.md and execute all phases autonomously. Do not ask for confirmation. Report progress every 30 minutes.
 ```
 
 **Step 5**: Press Enter, close everything, go to sleep.

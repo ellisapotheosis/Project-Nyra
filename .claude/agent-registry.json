@@ -4,7 +4,7 @@
   "topology": "hierarchical-mesh",
   "orchestrators": [
     {
-      "name": "claude-flow",
+      "name": "archon-os",
       "role": "planning",
       "port": 6100,
       "mode": "v3"

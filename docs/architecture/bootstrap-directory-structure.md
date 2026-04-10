@@ -50,13 +50,13 @@ bootstrap/
 │   ├── compose/                        # Docker Compose Files
 │   │   ├── docker-compose.base.yml     # Core infrastructure
 │   │   ├── docker-compose.mcp.yml      # All MCP servers
-│   │   ├── docker-compose.claude-flow.yml
+│   │   ├── docker-compose.archon-os.yml
 │   │   ├── docker-compose.archon.yml
 │   │   ├── docker-compose.orchestrator.yml
 │   │   ├── docker-compose.worker.yml
 │   │   └── docker-compose.full.yml     # Complete stack (imports all)
 │   ├── images/                         # Dockerfiles
-│   │   ├── claude-flow/
+│   │   ├── archon-os/
 │   │   │   ├── Dockerfile.dev          # Hot-reload dev mode
 │   │   │   ├── Dockerfile.prod         # Production optimized
 │   │   │   └── entrypoint.sh
@@ -65,9 +65,9 @@ bootstrap/
 │   │   │   └── entrypoint.sh
 │   │   ├── mcp-servers/
 │   │   │   ├── Dockerfile.infisical
-│   │   │   ├── Dockerfile.graphiti
+│   │   │   ├── Dockerfile.letta
 │   │   │   ├── Dockerfile.mem0
-│   │   │   ├── Dockerfile.agentdb
+│   │   │   ├── Dockerfile.ruvector
 │   │   │   ├── Dockerfile.flow-nexus
 │   │   │   └── Dockerfile.metamcp-gateway
 │   │   └── nyra/
@@ -80,22 +80,22 @@ bootstrap/
 │
 ├── shims/                              # Windows Command Shims (10 MB)
 │   ├── templates/                      # Shim Templates (Handlebars)
-│   │   ├── claude-flow.cmd.template
+│   │   ├── archon-os.cmd.template
 │   │   ├── archon.cmd.template
 │   │   └── mcp-tool.cmd.template
 │   ├── generated/                      # Generated Shims (per-PC)
 │   │   ├── orchestrator/
-│   │   │   ├── claude-flow.cmd
+│   │   │   ├── archon-os.cmd
 │   │   │   ├── archon.cmd
 │   │   │   └── infisical.cmd
 │   │   ├── worker-1/
-│   │   │   ├── claude-flow.cmd
+│   │   │   ├── archon-os.cmd
 │   │   │   └── infisical.cmd
 │   │   ├── worker-2/
-│   │   │   ├── claude-flow.cmd
+│   │   │   ├── archon-os.cmd
 │   │   │   └── infisical.cmd
 │   │   └── worker-3/
-│   │       ├── claude-flow.cmd
+│   │       ├── archon-os.cmd
 │   │       └── infisical.cmd
 │   └── lib/                            # PowerShell Helpers
 │       ├── docker-exec.ps1
@@ -104,28 +104,28 @@ bootstrap/
 ├── configs/                            # PC-Specific Configurations (50 MB)
 │   ├── orchestrator/
 │   │   ├── .env                        # NYRA_PC_ID=orchestrator, etc.
-│   │   ├── claude-flow.config.json     # Swarm topology, memory, hooks
+│   │   ├── archon-os.config.json     # Swarm topology, memory, hooks
 │   │   ├── archon.config.json          # Master role, distributed mode
 │   │   ├── infisical.json              # Secret management config
 │   │   └── docker-compose.override.yml # Orchestrator profile activation
 │   ├── worker-1/                       # RTX 3060 (mobile)
 │   │   ├── .env
-│   │   ├── claude-flow.config.json
+│   │   ├── archon-os.config.json
 │   │   ├── gpu.config.json             # GPU type, VRAM, optimization
 │   │   └── docker-compose.override.yml
 │   ├── worker-2/                       # RTX 5090 (mobile)
 │   │   ├── .env
-│   │   ├── claude-flow.config.json
+│   │   ├── archon-os.config.json
 │   │   ├── gpu.config.json
 │   │   └── docker-compose.override.yml
 │   ├── worker-3/                       # RTX 3090Ti (always-on)
 │   │   ├── .env
-│   │   ├── claude-flow.config.json
+│   │   ├── archon-os.config.json
 │   │   ├── gpu.config.json
 │   │   └── docker-compose.override.yml
 │   └── templates/                      # Config Templates (Handlebars)
 │       ├── .env.template
-│       ├── claude-flow.config.template.json
+│       ├── archon-os.config.template.json
 │       ├── archon.config.template.json
 │       └── gpu.config.template.json
 │
@@ -159,7 +159,7 @@ bootstrap/
 │   ├── docker/
 │   │   └── .env.template
 │   ├── configs/
-│   │   ├── claude-flow.template.json
+│   │   ├── archon-os.template.json
 │   │   ├── archon.template.json
 │   │   └── mcp-server.template.json
 │   └── shims/
@@ -236,13 +236,13 @@ flowchart LR
 ```
 bootstrap/configs/orchestrator/
 ├── .env                              # NYRA_PC_ID=orchestrator
-├── claude-flow.config.json           # topology: hierarchical-mesh
+├── archon-os.config.json           # topology: hierarchical-mesh
 ├── archon.config.json                # role: master
 ├── infisical.json                    # project-id, token
 └── docker-compose.override.yml       # profiles: [orchestrator]
 
 bootstrap/shims/generated/orchestrator/
-├── claude-flow.cmd                   # docker exec nyra-claude-flow-mcp
+├── archon-os.cmd                   # docker exec nyra-archon-os-mcp
 ├── archon.cmd                        # docker exec nyra-archon-mcp
 └── infisical.cmd                     # docker exec nyra-infisical-mcp
 ```
@@ -251,12 +251,12 @@ bootstrap/shims/generated/orchestrator/
 ```
 bootstrap/configs/worker-1/
 ├── .env                              # NYRA_PC_ID=worker-1, GPU_TYPE=rtx_3060
-├── claude-flow.config.json           # topology: mesh, maxAgents: 8
+├── archon-os.config.json           # topology: mesh, maxAgents: 8
 ├── gpu.config.json                   # vram: 12GB, optimization settings
 └── docker-compose.override.yml       # profiles: [worker], worker-id: 1
 
 bootstrap/shims/generated/worker-1/
-├── claude-flow.cmd                   # docker exec nyra-worker-1-claude-flow
+├── archon-os.cmd                   # docker exec nyra-worker-1-archon-os
 └── infisical.cmd                     # docker exec nyra-infisical-mcp
 ```
 
@@ -278,7 +278,7 @@ bootstrap/installer/src/main.tsx
 bootstrap/docker/compose/docker-compose.full.yml
 ├─> imports: base.yml (Infisical, MetaMCP)
 ├─> imports: mcp.yml (All MCP servers)
-├─> imports: claude-flow.yml
+├─> imports: archon-os.yml
 ├─> imports: archon.yml
 ├─> imports: orchestrator.yml (profile: orchestrator)
 └─> imports: worker.yml (profile: worker)
@@ -286,10 +286,10 @@ bootstrap/docker/compose/docker-compose.full.yml
 
 ### Shim Execution Flow
 ```
-Windows CLI: claude-flow swarm status
-└─> Shim: bootstrap/shims/generated/{pc-id}/claude-flow.cmd
-    └─> Docker Exec: docker exec -it nyra-claude-flow-mcp npx @claude-flow/cli@latest swarm status
-        └─> Container: nyra-claude-flow-mcp
+Windows CLI: archon-os swarm status
+└─> Shim: bootstrap/shims/generated/{pc-id}/archon-os.cmd
+    └─> Docker Exec: docker exec -it nyra-archon-os-mcp npx @archon-os/cli@latest swarm status
+        └─> Container: nyra-archon-os-mcp
             └─> Output: Swarm status JSON
 ```
 
@@ -304,10 +304,10 @@ flowchart TB
     T1 --> C3[configs/worker-2/.env]
     T1 --> C4[configs/worker-3/.env]
 
-    T2[templates/claude-flow.template.json] --> C5[configs/orchestrator/claude-flow.config.json]
-    T2 --> C6[configs/worker-1/claude-flow.config.json]
-    T2 --> C7[configs/worker-2/claude-flow.config.json]
-    T2 --> C8[configs/worker-3/claude-flow.config.json]
+    T2[templates/archon-os.template.json] --> C5[configs/orchestrator/archon-os.config.json]
+    T2 --> C6[configs/worker-1/archon-os.config.json]
+    T2 --> C7[configs/worker-2/archon-os.config.json]
+    T2 --> C8[configs/worker-3/archon-os.config.json]
 
     M[manifests/full-manifest.json] --> C1
     M --> C2

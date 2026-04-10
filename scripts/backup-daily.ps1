@@ -77,15 +77,15 @@ foreach ($container in $redisContainers) {
     }
 }
 
-# 3. Backup AgentDB (HNSW vector database)
-Write-Log "Backing up AgentDB..." "INFO"
+# 3. Backup ruvector (HNSW vector database)
+Write-Log "Backing up ruvector..." "INFO"
 try {
-    $agentdbBackup = Join-Path $backupPath "agentdb-$timestamp"
-    docker exec agentdb tar czf /tmp/backup.tar.gz /app/data
-    docker cp agentdb:/tmp/backup.tar.gz "$agentdbBackup.tar.gz"
-    Write-Log "  ✓ AgentDB backed up" "SUCCESS"
+    $ruvectorBackup = Join-Path $backupPath "ruvector-$timestamp"
+    docker exec ruvector tar czf /tmp/backup.tar.gz /app/data
+    docker cp ruvector:/tmp/backup.tar.gz "$ruvectorBackup.tar.gz"
+    Write-Log "  ✓ ruvector backed up" "SUCCESS"
 } catch {
-    Write-Log "  ✗ Failed to backup AgentDB: $_" "WARNING"
+    Write-Log "  ✗ Failed to backup ruvector: $_" "WARNING"
 }
 
 # 4. Backup Environment Configuration

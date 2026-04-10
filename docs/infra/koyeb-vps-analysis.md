@@ -125,7 +125,7 @@
 **Core development/AI infrastructure**:
 - ✅ **Claude Flow** (requires local Claude Code access)
 - ✅ **Archon MCP servers**
-- ✅ **AgentDB, Qdrant** (vector databases)
+- ✅ **ruvector, Qdrant** (vector databases)
 - ✅ **Neo4j/FalkorDB** (knowledge graphs)
 - ✅ **Gitea** (local git hosting)
 - ✅ **Development environment**
@@ -186,7 +186,7 @@
 **LOCAL (Orchestrator PC)**:
 - Claude Flow development
 - Archon MCP
-- AgentDB/Qdrant
+- ruvector/Qdrant
 - Development environment
 
 **COST**: $0 cloud + $20/month electricity = **$20/month total**

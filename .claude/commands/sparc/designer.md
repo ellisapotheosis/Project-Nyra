@@ -7,7 +7,7 @@ UI/UX design with Memory coordination for consistent experiences.
 
 ### Option 1: Using MCP Tools (Preferred in Claude Code)
 ```javascript
-mcp__claude-flow__sparc_mode {
+mcp__archon-os__sparc_mode {
   mode: "designer",
   task_description: "create dashboard UI",
   options: {
@@ -20,16 +20,16 @@ mcp__claude-flow__sparc_mode {
 ### Option 2: Using NPX CLI (Fallback when MCP not available)
 ```bash
 # Use when running from terminal or MCP tools unavailable
-npx claude-flow sparc run designer "create dashboard UI"
+npx archon-os sparc run designer "create dashboard UI"
 
 # For alpha features
-npx @claude-flow/cli@latest sparc run designer "create dashboard UI"
+npx @archon-os/cli@latest sparc run designer "create dashboard UI"
 ```
 
 ### Option 3: Local Installation
 ```bash
-# If claude-flow is installed locally
-./claude-flow sparc run designer "create dashboard UI"
+# If archon-os is installed locally
+./archon-os sparc run designer "create dashboard UI"
 ```
 
 ## Core Capabilities

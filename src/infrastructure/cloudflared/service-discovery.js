@@ -35,7 +35,7 @@ class ServiceDiscovery extends EventEmitter {
         role: 'coordinator',
         capabilities: ['coordination', 'task-distribution', 'health-monitoring'],
         services: {
-          'claude-flow': { port: 3000, path: '/health' },
+          'archon-os': { port: 3000, path: '/health' },
           'task-api': { port: 8080, path: '/health' },
           'health-dashboard': { port: 9090, path: '/health' },
           'gpu-metrics': { port: 8081, path: '/metrics' }

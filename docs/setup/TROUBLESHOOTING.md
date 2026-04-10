@@ -14,7 +14,7 @@
 | Port already in use | "Address already in use" | [Port Conflicts](#port-conflicts) |
 | Database connection fails | "Cannot connect to PostgreSQL" | [Database Issues](#database-connection-issues) |
 | MCP server not responding | "Connection refused" | [MCP Issues](#mcp-server-issues) |
-| Claude Flow Zod error | "Cannot find package 'zod'" | [Claude Flow Issues](#claude-flow-issues) |
+| Claude Flow Zod error | "Cannot find package 'zod'" | [Claude Flow Issues](#archon-os-issues) |
 | Environment variables missing | "Variable undefined" | [Environment Issues](#environment-variable-issues) |
 | Network connectivity | Services can't communicate | [Network Issues](#network-and-connectivity-issues) |
 | Permission denied | "Permission denied" | [Permission Issues](#permission-and-access-issues) |
@@ -451,7 +451,7 @@ docker logs --follow [mcp-container]
 **Symptoms**:
 ```
 Config loading failed: Cannot find package 'zod' imported from
-...@claude-flow/shared/dist/core/config/schema.js
+...@archon-os/shared/dist/core/config/schema.js
 ```
 
 **Root Cause**: Claude Flow cached old version without zod dependency.
@@ -466,23 +466,23 @@ npm cache clean --force
 pnpm store prune
 
 # 3. Use local installation instead of npx
-npm install -g @claude-flow/cli@latest
+npm install -g @archon-os/cli@latest
 
 # 4. Or use pnpm exec
-pnpm exec claude-flow@alpha hooks pre-task --description "test"
+pnpm exec archon-os@alpha hooks pre-task --description "test"
 
 # 5. Verify zod is installed
 npm list zod
 
-# 6. Force reinstall claude-flow
-npm install -g @claude-flow/cli@latest --force
+# 6. Force reinstall archon-os
+npm install -g @archon-os/cli@latest --force
 
 # 7. Test again with fresh terminal
 # Open NEW terminal window for clean environment
-claude-flow --version
+archon-os --version
 ```
 
-See also: [CLAUDE-FLOW-ZOD-FIX.md](CLAUDE-FLOW-ZOD-FIX.md)
+See also: [archon-os-ZOD-FIX.md](archon-os-ZOD-FIX.md)
 
 ---
 
@@ -491,25 +491,25 @@ See also: [CLAUDE-FLOW-ZOD-FIX.md](CLAUDE-FLOW-ZOD-FIX.md)
 ### Problem: "Claude Flow command not found"
 
 **Symptoms**:
-- `claude-flow` command returns "not found"
-- `npx @claude-flow/cli` times out
+- `archon-os` command returns "not found"
+- `npx @archon-os/cli` times out
 - Hooks fail silently
 
 **Solutions**:
 
 ```bash
 # 1. Install Claude Flow globally
-npm install -g @claude-flow/cli@latest
+npm install -g @archon-os/cli@latest
 
 # 2. Verify installation
-which claude-flow  # macOS/Linux
-where claude-flow  # Windows
+which archon-os  # macOS/Linux
+where archon-os  # Windows
 
 # 3. Test version
-claude-flow --version
+archon-os --version
 
 # 4. If using pnpm, use pnpm exec
-pnpm exec claude-flow --version
+pnpm exec archon-os --version
 
 # 5. Create hook runner scripts (recommended)
 # See: [Hook Runner Scripts Setup](#hook-runner-scripts-setup)
@@ -536,24 +536,24 @@ vm_stat  # macOS
 wmic MEMORYPHYSICAL get MaximumCapacity  # Windows
 
 # 2. Limit number of concurrent agents
-# In claude-flow config, reduce max-agents
+# In archon-os config, reduce max-agents
 
 # 3. Restart daemon
-npx @claude-flow/cli@latest daemon stop
-npx @claude-flow/cli@latest daemon start
+npx @archon-os/cli@latest daemon stop
+npx @archon-os/cli@latest daemon start
 
 # 4. Check Claude Flow daemon status
-npx @claude-flow/cli@latest daemon status
+npx @archon-os/cli@latest daemon status
 
 # 5. View daemon logs
-npx @claude-flow/cli@latest daemon logs
+npx @archon-os/cli@latest daemon logs
 
 # 6. Force restart all agents
-npx @claude-flow/cli@latest agent stop --all
-npx @claude-flow/cli@latest agent spawn -t coder
+npx @archon-os/cli@latest agent stop --all
+npx @archon-os/cli@latest agent spawn -t coder
 
 # 7. Memory issue? Reduce max agents
-npx @claude-flow/cli@latest swarm init --max-agents 4
+npx @archon-os/cli@latest swarm init --max-agents 4
 ```
 
 ---
@@ -808,7 +808,7 @@ docker restart [container-name]
 docker volume prune
 
 # 7. Reduce number of agents
-npx @claude-flow/cli@latest swarm init --max-agents 2
+npx @archon-os/cli@latest swarm init --max-agents 2
 
 # 8. Monitor memory over time
 docker stats --no-stream --intervals 5
@@ -938,7 +938,7 @@ export DOCKER_CONTENT_TRUST=1
 docker --debug [command]
 
 # Claude Flow
-npx @claude-flow/cli@latest --verbose [command]
+npx @archon-os/cli@latest --verbose [command]
 
 # Services
 docker logs --follow --timestamps [container-name]
@@ -988,7 +988,7 @@ When reporting an issue:
 - [Docker Troubleshooting](https://docs.docker.com/config/daemon/#troubleshoot-the-daemon)
 - [PostgreSQL Common Issues](https://www.postgresql.org/docs/)
 - [Redis Troubleshooting](https://redis.io/docs/management/troubleshooting/)
-- [Claude Flow Issues](https://github.com/ruvnet/claude-flow/issues)
+- [Claude Flow Issues](https://github.com/ruvnet/archon-os/issues)
 
 ---
 

@@ -19,7 +19,7 @@
 ## 🛡️ ANTI-DRIFT CONFIG
 
 ```bash
-npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 8 --strategy specialized
+npx @archon-os/cli@latest swarm init --topology hierarchical --max-agents 8 --strategy specialized
 ```
 
 ---
@@ -36,9 +36,9 @@ npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 8 --
 ## 🧠 AUTO-LEARNING PROTOCOL
 
 ```bash
-npx @claude-flow/cli@latest memory search --query '[keywords]' --namespace patterns
-npx @claude-flow/cli@latest memory store --namespace patterns --key '[pattern]' --value '[result]'
-npx @claude-flow/cli@latest hooks post-task --task-id '[id]' --success true --store-results true
+npx @archon-os/cli@latest memory search --query '[keywords]' --namespace patterns
+npx @archon-os/cli@latest memory store --namespace patterns --key '[pattern]' --value '[result]'
+npx @archon-os/cli@latest hooks post-task --task-id '[id]' --success true --store-results true
 ```
 
 ---
@@ -46,9 +46,9 @@ npx @claude-flow/cli@latest hooks post-task --task-id '[id]' --success true --st
 ## 🚀 V3 CLI COMMANDS & 🚀 AVAILABLE AGENTS & 🪝 V3 HOOKS SYSTEM
 
 ```bash
-npx @claude-flow/cli@latest swarm init/status --topology hierarchical --max-agents 8
-npx @claude-flow/cli@latest memory store/search/retrieve --key/query
-npx @claude-flow/cli@latest hooks pre-task/post-task/post-edit
+npx @archon-os/cli@latest swarm init/status --topology hierarchical --max-agents 8
+npx @archon-os/cli@latest memory store/search/retrieve --key/query
+npx @archon-os/cli@latest hooks pre-task/post-task/post-edit
 ```
 
 Agents: `coder`, `reviewer`, `frontend-specialist`, `backend-dev`, `tester`
@@ -58,8 +58,8 @@ Agents: `coder`, `reviewer`, `frontend-specialist`, `backend-dev`, `tester`
 ## 📝 MEMORY COMMANDS REFERENCE
 
 ```bash
-npx @claude-flow/cli@latest memory store --key "web-pattern" --value "content" --namespace patterns
-npx @claude-flow/cli@latest memory search --query "web application development" --namespace patterns
+npx @archon-os/cli@latest memory store --key "web-pattern" --value "content" --namespace patterns
+npx @archon-os/cli@latest memory search --query "web application development" --namespace patterns
 ```
 
 ---
@@ -244,7 +244,7 @@ When changes span multiple apps, use hierarchical swarm:
 
 ```bash
 # Initialize swarm for multi-app work
-npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 8 --strategy specialized
+npx @archon-os/cli@latest swarm init --topology hierarchical --max-agents 8 --strategy specialized
 
 # Spawn app-specific agents
 # - CRM specialist for web/crm
@@ -258,12 +258,12 @@ npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 8 --
 **1. Cross-App Feature**
 ```bash
 # Pre-task: Check dependencies
-npx @claude-flow/cli@latest memory search \
+npx @archon-os/cli@latest memory search \
   --query "cross-app feature [description]" \
   --namespace patterns
 
 # Coordinate development
-npx @claude-flow/cli@latest hooks pre-task \
+npx @archon-os/cli@latest hooks pre-task \
   --description "Implement [feature] across CRM, RateHunter, and WebApp" \
   --coordinate-swarm true
 ```
@@ -271,7 +271,7 @@ npx @claude-flow/cli@latest hooks pre-task \
 **2. Shared Component Update**
 ```bash
 # Update shared component in all apps
-npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 6
+npx @archon-os/cli@latest swarm init --topology hierarchical --max-agents 6
 
 # Spawn agents for each app using the component
 # Update component + all consuming apps in parallel
@@ -280,7 +280,7 @@ npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 6
 **3. API Integration Change**
 ```bash
 # When backend API changes, update all clients
-npx @claude-flow/cli@latest memory retrieve \
+npx @archon-os/cli@latest memory retrieve \
   --namespace shared \
   --key "api-clients/[endpoint]"
 
@@ -357,12 +357,12 @@ pnpm --filter mortgage-assistant test
 ### Before Multi-App Changes
 ```bash
 # Search for previous multi-app updates
-npx @claude-flow/cli@latest memory search \
+npx @archon-os/cli@latest memory search \
   --query "multi-app update successful" \
   --namespace patterns
 
 # Check app dependencies
-npx @claude-flow/cli@latest memory search \
+npx @archon-os/cli@latest memory search \
   --query "app dependencies [feature]" \
   --namespace shared
 ```
@@ -370,13 +370,13 @@ npx @claude-flow/cli@latest memory search \
 ### After Successful Multi-App Update
 ```bash
 # Store successful pattern
-npx @claude-flow/cli@latest memory store \
+npx @archon-os/cli@latest memory store \
   --namespace patterns \
   --key "multi-app-success-$(date +%Y%m%d)" \
   --value "Updated [apps] for [feature] successfully"
 
 # Train neural pattern
-npx @claude-flow/cli@latest neural train \
+npx @archon-os/cli@latest neural train \
   --pattern-type multi-app-coordination \
   --epochs 10
 ```

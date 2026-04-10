@@ -31,7 +31,7 @@ Project-Nyra/
 │   │   │   └── webapp.Dockerfile              # Main web app
 │   │   │
 │   │   ├── orchestration/                     # Orchestration Systems
-│   │   │   ├── claude-flow.Dockerfile         # Claude Flow
+│   │   │   ├── archon-os.Dockerfile         # Claude Flow
 │   │   │   ├── archon-os.Dockerfile           # Archon OS
 │   │   │   └── serena.Dockerfile              # Serena orchestrator
 │   │   │
@@ -118,8 +118,8 @@ Project-Nyra/
 │   │       │   └── nexus.toml
 │   │       ├── litellm/
 │   │       │   └── config.yaml
-│   │       └── claude-flow/
-│   │           └── claude-flow.config.json
+│   │       └── archon-os/
+│   │           └── archon-os.config.json
 │   │
 │   ├── scripts/                               # Automation Scripts
 │   │   ├── build/                             # Build Automation

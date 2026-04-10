@@ -7,7 +7,7 @@
 **Port**: 3170
 **Language**: Python 3.10+
 **Framework**: FastMCP (FastAPI MCP implementation)
-**Dependencies**: fastmcp, mem0, anthropic, agentdb, pydantic, httpx
+**Dependencies**: fastmcp, mem0, anthropic, ruvector, pydantic, httpx
 **Template**: CLAUDE-MD-Python.md (star topology for client connections)
 
 ## 🚨 CRITICAL DEVELOPMENT RULES

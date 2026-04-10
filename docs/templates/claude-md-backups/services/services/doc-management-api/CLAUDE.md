@@ -56,7 +56,7 @@
 
 **Before spawning agents, get routing recommendation:**
 ```bash
-npx @claude-flow/cli@latest hooks pre-task --description "[task description]"
+npx @archon-os/cli@latest hooks pre-task --description "[task description]"
 ```
 
 **When you see recommendations:**
@@ -71,7 +71,7 @@ npx @claude-flow/cli@latest hooks pre-task --description "[task description]"
 
 **Use this configuration to prevent agent drift:**
 ```bash
-npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 6 --strategy specialized
+npx @archon-os/cli@latest swarm init --topology hierarchical --max-agents 6 --strategy specialized
 ```
 
 **Valid Topologies:**
@@ -95,7 +95,7 @@ When implementing document processing features or file handling:
 
 ```javascript
 // STEP 1: Initialize swarm with anti-drift config
-Bash("npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 6 --strategy specialized")
+Bash("npx @archon-os/cli@latest swarm init --topology hierarchical --max-agents 6 --strategy specialized")
 
 // STEP 2: Spawn ALL agents IN BACKGROUND in ONE message
 Task({
@@ -174,28 +174,28 @@ They're working in parallel. I'll synthesize their results when they complete.
 ### Before Starting Any Task
 ```bash
 # 1. Search memory for document processing patterns
-npx @claude-flow/cli@latest memory search --query "document processing OCR patterns" --namespace patterns
+npx @archon-os/cli@latest memory search --query "document processing OCR patterns" --namespace patterns
 
 # 2. Check if similar feature was done
-npx @claude-flow/cli@latest memory search --query "file upload S3 integration" --namespace tasks
+npx @archon-os/cli@latest memory search --query "file upload S3 integration" --namespace tasks
 
 # 3. Load learned optimizations
-npx @claude-flow/cli@latest hooks route --task "document processing"
+npx @archon-os/cli@latest hooks route --task "document processing"
 ```
 
 ### After Completing Any Task Successfully
 ```bash
 # 1. Store successful pattern
-npx @claude-flow/cli@latest memory store --namespace patterns --key "doc-ocr-pipeline" --value "Tesseract.js + Sharp + ElasticSearch integration pattern"
+npx @archon-os/cli@latest memory store --namespace patterns --key "doc-ocr-pipeline" --value "Tesseract.js + Sharp + ElasticSearch integration pattern"
 
 # 2. Train neural patterns
-npx @claude-flow/cli@latest hooks post-edit --file "src/services/DocumentProcessor.ts" --train-neural true
+npx @archon-os/cli@latest hooks post-edit --file "src/services/DocumentProcessor.ts" --train-neural true
 
 # 3. Record task completion
-npx @claude-flow/cli@latest hooks post-task --task-id "[task-id]" --success true --store-results true
+npx @archon-os/cli@latest hooks post-task --task-id "[task-id]" --success true --store-results true
 
 # 4. Trigger optimization for file handling
-npx @claude-flow/cli@latest hooks worker dispatch --trigger optimize
+npx @archon-os/cli@latest hooks worker dispatch --trigger optimize
 ```
 
 ### Continuous Improvement Triggers
@@ -308,7 +308,7 @@ services/doc-management-api/
 - **Max Agents**: 6 (document processing team)
 - **Strategy**: specialized (clear roles)
 - **Consensus**: raft
-- **Memory**: hybrid (AgentDB + HNSW)
+- **Memory**: hybrid (ruvector + HNSW)
 - **Neural**: Enabled for pattern learning
 
 ---
@@ -319,24 +319,24 @@ services/doc-management-api/
 
 ```bash
 # Swarm management
-npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 6 --strategy specialized
-npx @claude-flow/cli@latest swarm status
+npx @archon-os/cli@latest swarm init --topology hierarchical --max-agents 6 --strategy specialized
+npx @archon-os/cli@latest swarm status
 
 # Memory operations (vector search with 150x-12,500x speedup)
-npx @claude-flow/cli@latest memory search --query "OCR pipeline patterns"
-npx @claude-flow/cli@latest memory store --key "s3-upload-handler" --value "Handle multipart uploads with Sharp resize"
+npx @archon-os/cli@latest memory search --query "OCR pipeline patterns"
+npx @archon-os/cli@latest memory store --key "s3-upload-handler" --value "Handle multipart uploads with Sharp resize"
 
 # Agent management
-npx @claude-flow/cli@latest agent spawn -t coder --name doc-processor
-npx @claude-flow/cli@latest agent list
+npx @archon-os/cli@latest agent spawn -t coder --name doc-processor
+npx @archon-os/cli@latest agent list
 
 # Task execution
-npx @claude-flow/cli@latest task create --description "Add PDF text extraction"
-npx @claude-flow/cli@latest task assign --task-id [id] --agent-id [agent-id]
+npx @archon-os/cli@latest task create --description "Add PDF text extraction"
+npx @archon-os/cli@latest task assign --task-id [id] --agent-id [agent-id]
 
 # Hooks for learning
-npx @claude-flow/cli@latest hooks pre-task --description "Implement OCR confidence validation"
-npx @claude-flow/cli@latest hooks post-task --task-id "[id]" --success true
+npx @archon-os/cli@latest hooks pre-task --description "Implement OCR confidence validation"
+npx @archon-os/cli@latest hooks post-task --task-id "[id]" --success true
 ```
 
 ---
@@ -364,23 +364,23 @@ npx @claude-flow/cli@latest hooks post-task --task-id "[id]" --success true
 
 ```bash
 # Pre-task hooks (get routing recommendation)
-npx @claude-flow/cli@latest hooks pre-task --description "Add image compression for thumbnails"
+npx @archon-os/cli@latest hooks pre-task --description "Add image compression for thumbnails"
 
 # Post-edit hooks (learn from successful edits)
-npx @claude-flow/cli@latest hooks post-edit --file "src/services/DocumentProcessor.ts" --train-neural true
+npx @archon-os/cli@latest hooks post-edit --file "src/services/DocumentProcessor.ts" --train-neural true
 
 # Post-task hooks (record completion)
-npx @claude-flow/cli@latest hooks post-task --task-id "[id]" --success true --store-results true
+npx @archon-os/cli@latest hooks post-task --task-id "[id]" --success true --store-results true
 
 # Background workers for continuous improvement
-npx @claude-flow/cli@latest hooks worker dispatch --trigger optimize    # Performance optimization
-npx @claude-flow/cli@latest hooks worker dispatch --trigger audit       # Security analysis
-npx @claude-flow/cli@latest hooks worker dispatch --trigger testgaps    # Test coverage gaps
-npx @claude-flow/cli@latest hooks worker dispatch --trigger map         # Codebase mapping (after 5+ files)
+npx @archon-os/cli@latest hooks worker dispatch --trigger optimize    # Performance optimization
+npx @archon-os/cli@latest hooks worker dispatch --trigger audit       # Security analysis
+npx @archon-os/cli@latest hooks worker dispatch --trigger testgaps    # Test coverage gaps
+npx @archon-os/cli@latest hooks worker dispatch --trigger map         # Codebase mapping (after 5+ files)
 
 # Session management
-npx @claude-flow/cli@latest hooks session-start --session-id "doc-api-session"
-npx @claude-flow/cli@latest hooks session-end --export-metrics true
+npx @archon-os/cli@latest hooks session-start --session-id "doc-api-session"
+npx @archon-os/cli@latest hooks session-end --export-metrics true
 ```
 
 ---
@@ -389,12 +389,12 @@ npx @claude-flow/cli@latest hooks session-end --export-metrics true
 
 **At session start - restore previous context:**
 ```bash
-npx @claude-flow/cli@latest session restore --latest
+npx @archon-os/cli@latest session restore --latest
 ```
 
 **At session end - persist learned patterns:**
 ```bash
-npx @claude-flow/cli@latest hooks session-end --generate-summary true --persist-state true --export-metrics true
+npx @archon-os/cli@latest hooks session-end --generate-summary true --persist-state true --export-metrics true
 ```
 
 ---
@@ -403,14 +403,14 @@ npx @claude-flow/cli@latest hooks session-end --generate-summary true --persist-
 
 **Train on successful document processing patterns:**
 ```bash
-npx @claude-flow/cli@latest neural train --pattern-type document-processing --epochs 10
-npx @claude-flow/cli@latest neural train --pattern-type s3-optimization --epochs 5
+npx @archon-os/cli@latest neural train --pattern-type document-processing --epochs 10
+npx @archon-os/cli@latest neural train --pattern-type s3-optimization --epochs 5
 
 # Predict optimal approach for new document features
-npx @claude-flow/cli@latest neural predict --input "Add TIFF format support"
+npx @archon-os/cli@latest neural predict --input "Add TIFF format support"
 
 # View learned patterns
-npx @claude-flow/cli@latest neural patterns --list
+npx @archon-os/cli@latest neural patterns --list
 ```
 
 ---
@@ -622,7 +622,7 @@ LOG_FILE_PATH=./logs/app.log
 
 ## 🩺 Doctor Health Checks
 
-Run `npx @claude-flow/cli@latest doctor` to check:
+Run `npx @archon-os/cli@latest doctor` to check:
 ```bash
 ✓ Node.js version (20+)
 ✓ npm version (9+)
@@ -690,12 +690,12 @@ npm start
 ### Store Data
 ```bash
 # Store OCR pattern
-npx @claude-flow/cli@latest memory store --key "ocr-tesseract-config" \
+npx @archon-os/cli@latest memory store --key "ocr-tesseract-config" \
   --value "Language: eng, Confidence threshold: 60, Formats: pdf,tiff,jpg" \
   --namespace patterns
 
 # Store S3 optimization
-npx @claude-flow/cli@latest memory store --key "s3-multipart-upload" \
+npx @archon-os/cli@latest memory store --key "s3-multipart-upload" \
   --value "Chunk size: 5MB, Retry on failure, Verify integrity" \
   --namespace patterns --tags "s3,upload"
 ```
@@ -703,20 +703,20 @@ npx @claude-flow/cli@latest memory store --key "s3-multipart-upload" \
 ### Search Data (semantic vector search)
 ```bash
 # Find OCR patterns
-npx @claude-flow/cli@latest memory search --query "OCR accuracy optimization" --namespace patterns
+npx @archon-os/cli@latest memory search --query "OCR accuracy optimization" --namespace patterns
 
 # Find file handling patterns
-npx @claude-flow/cli@latest memory search --query "document upload handling" --limit 5
+npx @archon-os/cli@latest memory search --query "document upload handling" --limit 5
 ```
 
 ### List Entries
 ```bash
-npx @claude-flow/cli@latest memory list --namespace patterns --limit 10
+npx @archon-os/cli@latest memory list --namespace patterns --limit 10
 ```
 
 ### Retrieve Specific Entry
 ```bash
-npx @claude-flow/cli@latest memory retrieve --key "ocr-tesseract-config" --namespace patterns
+npx @archon-os/cli@latest memory retrieve --key "ocr-tesseract-config" --namespace patterns
 ```
 
 ---
@@ -749,7 +749,7 @@ npx @claude-flow/cli@latest memory retrieve --key "ocr-tesseract-config" --names
 
 - **Project Nyra**: `C:\Dev\Projects\Repos\Project-Nyra\CLAUDE.md`
 - **V3 Template**: `C:\Dev\Projects\Repos\Project-Nyra\docs\development\CLAUDE-MD-V3-TEMPLATE-GUIDE.md`
-- **Capabilities**: `.claude-flow/CAPABILITIES.md`
+- **Capabilities**: `.archon-os/CAPABILITIES.md`
 - **Architecture**: `ToDo/whitepaper-workflow/nyra-mcp-infisical-patchkit-v1/docs/whitepaper/ARCHITECTURE.md`
 
 ---

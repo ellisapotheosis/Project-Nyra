@@ -37,7 +37,7 @@ Successfully consolidated **274 scattered docker-compose files** into a single, 
   - Complete service labels for filtering
 
 #### Dockerfiles (Multi-Stage Builds)
-- ✅ `infra/Dockerfiles/claude-flow.Dockerfile`
+- ✅ `infra/Dockerfiles/archon-os.Dockerfile`
   - Node 20 + Volta + pnpm
   - Multi-stage build (base → dependencies → builder → runtime)
   - Non-root user (claudeflow:claudeflow)
@@ -52,11 +52,11 @@ Successfully consolidated **274 scattered docker-compose files** into a single, 
   - Health checks and metrics
 
 #### Infisical Agent Configurations
-- ✅ `infra/configs/infisical/agent-claude-flow.yaml`
+- ✅ `infra/configs/infisical/agent-archon-os.yaml`
   - Universal auth (machine identity)
-  - Secret path: `/claude-flow`
+  - Secret path: `/archon-os`
   - 60-second refresh interval
-  - File sink: `/secrets/claude-flow.env`
+  - File sink: `/secrets/archon-os.env`
 
 - ✅ `infra/configs/infisical/agent-archon.yaml`
   - Universal auth (machine identity)
@@ -93,7 +93,7 @@ Successfully consolidated **274 scattered docker-compose files** into a single, 
 **Service Groups**:
 - `make up` - Start all services
 - `make up-core` - Core infrastructure (postgres, redis, mongo)
-- `make up-ai` - AI/MCP services (claude-flow, archon, graphiti, mem0, letta)
+- `make up-ai` - AI/MCP services (archon-os, archon, letta, mem0, letta)
 - `make up-gateway` - API gateway (nexus, litellm)
 - `make up-apps` - Applications (dify, twenty, quote-api)
 - `make up-devtools` - Development tools (gitea, n8n, activepieces)
@@ -175,13 +175,13 @@ Successfully consolidated **274 scattered docker-compose files** into a single, 
 
 #### Layer 2: Secret Management
 4. **infisical** - Secret management server
-5. **agent-claude-flow** - Infisical agent sidecar for Claude Flow
+5. **agent-archon-os** - Infisical agent sidecar for Claude Flow
 6. **agent-archon** - Infisical agent sidecar for Archon
 
 #### Layer 3: AI & MCP Services
-7. **claude-flow** - Multi-agent orchestration framework
+7. **archon-os** - Multi-agent orchestration framework
 8. **archon** - AI operating system framework
-9. **graphiti-mcp** - Knowledge graph MCP server
+9. **letta-mcp** - Knowledge graph MCP server
 10. **mem0-mcp** - Memory management MCP server
 11. **letta** - Long-term memory agent (MemGPT)
 
@@ -349,7 +349,7 @@ redis:
   memory: 2GB
   storage: 10GB
 
-claude-flow:
+archon-os:
   cpu: 4 cores
   memory: 8GB
   storage: 10GB
@@ -552,11 +552,11 @@ nano .env
 - **Complete Reference**: `infra/ENV-VARIABLES-REFERENCE.md`
 
 ### Dockerfiles
-- **Claude Flow**: `infra/Dockerfiles/claude-flow.Dockerfile`
+- **Claude Flow**: `infra/Dockerfiles/archon-os.Dockerfile`
 - **Archon**: `infra/Dockerfiles/archon.Dockerfile`
 
 ### Infisical Configs
-- **Claude Flow Agent**: `infra/configs/infisical/agent-claude-flow.yaml`
+- **Claude Flow Agent**: `infra/configs/infisical/agent-archon-os.yaml`
 - **Archon Agent**: `infra/configs/infisical/agent-archon.yaml`
 
 ### Documentation

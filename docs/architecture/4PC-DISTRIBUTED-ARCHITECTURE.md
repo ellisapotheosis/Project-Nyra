@@ -48,16 +48,16 @@ services:
   - grafana (monitoring UI)
   - prometheus (metrics)
   - loki (logs)
-  - claude-flow daemon
+  - archon-os daemon
   - nexus-router (MCP entrypoint)
 
 mcp_servers:
-  - claude-flow
+  - archon-os
   - ruv-swarm
-  - agentdb
+  - ruvector
   - ruvector
   - letta
-  - graphiti
+  - letta
   - mem0
   - filesystem
   - github
@@ -393,7 +393,7 @@ User Request
      ↓
   PC1: Nexus Router (MCP Entrypoint)
      ↓
-  PC1: Claude-Flow Orchestrator
+  PC1: archon-os Orchestrator
      ↓
   Task Analysis & Classification
      ├── Reasoning Task → PC2 (RTX 4090)

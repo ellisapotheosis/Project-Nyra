@@ -46,7 +46,7 @@ Project Nyra uses a distributed 4-PC architecture with orchestrated deployment a
 ┌─────────────────────────────────────────────────────────┐
 │                  DATA & MEMORY LAYER                    │
 │  Letta (8283) | Mem0 (4321) | Neo4j (7474)            │
-│  PostgreSQL | Redis | FalkorDB | AgentDB               │
+│  PostgreSQL | Redis | FalkorDB | ruvector               │
 └─────────────────────────────────────────────────────────┘
                           │
 ┌─────────────────────────────────────────────────────────┐
@@ -94,7 +94,7 @@ Project Nyra uses a distributed 4-PC architecture with orchestrated deployment a
 - [ ] Database passwords generated
 - [ ] Security secrets generated
 - [ ] PC identity configured correctly (PC_NAME, PC_ROLE)
-- [ ] Configuration validated (`npx @claude-flow/cli@latest config validate`)
+- [ ] Configuration validated (`npx @archon-os/cli@latest config validate`)
 
 ### Service Dependencies
 
@@ -260,7 +260,7 @@ curl http://localhost:6000/health
 ```bash
 # Start memory services
 docker compose -f docker-compose.orchestrator.yml up -d \
-  letta mem0 agentdb ruvector
+  letta mem0 ruvector ruvector
 
 # Wait for memory systems (30 seconds)
 sleep 30
@@ -274,17 +274,17 @@ curl http://localhost:4321/health  # Mem0
 
 ```bash
 # Initialize Claude Flow
-npx @claude-flow/cli@latest init --preset orchestrator
-npx @claude-flow/cli@latest daemon start
+npx @archon-os/cli@latest init --preset orchestrator
+npx @archon-os/cli@latest daemon start
 
 # Initialize swarm
-npx @claude-flow/cli@latest swarm init \
+npx @archon-os/cli@latest swarm init \
   --topology hierarchical-mesh \
   --max-agents 35 \
   --strategy specialized
 
 # Verify Claude Flow
-npx @claude-flow/cli@latest status
+npx @archon-os/cli@latest status
 ```
 
 #### Step 2.4: Deploy Secrets Manager (Production)
@@ -321,9 +321,9 @@ curl http://localhost:5678  # n8n
 curl http://localhost:3001  # Dify
 
 # Initialize Claude Flow worker
-npx @claude-flow/cli@latest init --preset worker
-npx @claude-flow/cli@latest daemon start
-npx @claude-flow/cli@latest swarm join --coordinator http://10.0.0.1:7000
+npx @archon-os/cli@latest init --preset worker
+npx @archon-os/cli@latest daemon start
+npx @archon-os/cli@latest swarm join --coordinator http://10.0.0.1:7000
 ```
 
 #### Step 3.2: Deploy Worker 3 Services (PC3)
@@ -350,9 +350,9 @@ docker exec ollama ollama list
 docker exec ollama ollama run llama3.1:8b "What is 2+2?"
 
 # Initialize Claude Flow worker
-npx @claude-flow/cli@latest init --preset worker
-npx @claude-flow/cli@latest daemon start
-npx @claude-flow/cli@latest swarm join --coordinator http://10.0.0.1:7000
+npx @archon-os/cli@latest init --preset worker
+npx @archon-os/cli@latest daemon start
+npx @archon-os/cli@latest swarm join --coordinator http://10.0.0.1:7000
 ```
 
 #### Step 3.3: Deploy Worker 4 Services (PC4)
@@ -527,7 +527,7 @@ echo "=== PC1 - Orchestrator Services ==="
 check_service "Nexus Router" "http://localhost:6000/health" || ((FAILED++))
 check_service "Letta" "http://localhost:8283/health" || ((FAILED++))
 check_service "Mem0" "http://localhost:4321/health" || ((FAILED++))
-check_service "AgentDB" "http://localhost:8080/health" || ((FAILED++))
+check_service "ruvector" "http://localhost:8080/health" || ((FAILED++))
 check_service "Quote Engine" "http://localhost:8001/health" || ((FAILED++))
 check_service "Campaign Engine" "http://localhost:8002/health" || ((FAILED++))
 check_service "Orchestrator" "http://localhost:8010/health" || ((FAILED++))
@@ -551,7 +551,7 @@ check_service "Loki" "http://10.0.0.4:3100/ready" || ((FAILED++))
 
 echo ""
 echo "=== Claude Flow Status ==="
-if npx @claude-flow/cli@latest status > /dev/null 2>&1; then
+if npx @archon-os/cli@latest status > /dev/null 2>&1; then
     echo -e "${GREEN}✅ Claude Flow - OPERATIONAL${NC}"
 else
     echo -e "${RED}❌ Claude Flow - NOT OPERATIONAL${NC}"
@@ -582,7 +582,7 @@ chmod +x scripts/deployment/health-check-all.sh
 docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
 
 # Check Claude Flow swarm status
-npx @claude-flow/cli@latest swarm status
+npx @archon-os/cli@latest swarm status
 
 # Test end-to-end API flow
 curl -X POST http://localhost:8001/quote \
@@ -765,7 +765,7 @@ docker compose restart
 tar czf config-backup-$(date +%Y%m%d).tar.gz \
   .env \
   configs/ \
-  claude-flow.config.json \
+  archon-os.config.json \
   infra/docker/*.yml
 
 # Restore configurations
@@ -929,7 +929,7 @@ docker compose down
 
 # Restore previous configuration
 cp .env.backup .env
-cp claude-flow.config.json.backup claude-flow.config.json
+cp archon-os.config.json.backup archon-os.config.json
 
 # Restore previous images
 docker tag nyra/quote-engine:previous nyra/quote-engine:latest

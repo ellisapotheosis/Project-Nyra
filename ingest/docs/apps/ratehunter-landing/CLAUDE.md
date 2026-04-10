@@ -433,21 +433,21 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 **Initialize Swarm:**
 ```bash
 # Set up coordination topology for landing page development
-npx claude-flow@alpha swarm init --topology mesh --agents 6
+npx archon-os@alpha swarm init --topology mesh --agents 6
 
 # Spawn specialized agents
-npx claude-flow@alpha agent spawn --type frontend-dev --name "UI Builder"
-npx claude-flow@alpha agent spawn --type backend-dev --name "API Developer"
-npx claude-flow@alpha agent spawn --type integration --name "Integration Specialist"
-npx claude-flow@alpha agent spawn --type database --name "Database Architect"
-npx claude-flow@alpha agent spawn --type tester --name "QA Engineer"
-npx claude-flow@alpha agent spawn --type devops --name "DevOps Engineer"
+npx archon-os@alpha agent spawn --type frontend-dev --name "UI Builder"
+npx archon-os@alpha agent spawn --type backend-dev --name "API Developer"
+npx archon-os@alpha agent spawn --type integration --name "Integration Specialist"
+npx archon-os@alpha agent spawn --type database --name "Database Architect"
+npx archon-os@alpha agent spawn --type tester --name "QA Engineer"
+npx archon-os@alpha agent spawn --type devops --name "DevOps Engineer"
 ```
 
 **Task Orchestration:**
 ```bash
 # Parallel task execution
-npx claude-flow@alpha task orchestrate --task "Build landing page" --strategy parallel --agents 6
+npx archon-os@alpha task orchestrate --task "Build landing page" --strategy parallel --agents 6
 ```
 
 ### Agent Hooks Integration
@@ -456,14 +456,14 @@ npx claude-flow@alpha task orchestrate --task "Build landing page" --strategy pa
 
 **Pre-Task Hook:**
 ```bash
-npx claude-flow@alpha hooks pre-task \
+npx archon-os@alpha hooks pre-task \
   --description "Building RateHunter landing page components" \
   --agent-id "ui-builder"
 ```
 
 **Post-Edit Hook:**
 ```bash
-npx claude-flow@alpha hooks post-edit \
+npx archon-os@alpha hooks post-edit \
   --file "src/components/forms/LeadCaptureForm.tsx" \
   --memory-key "ratehunter/components/lead-capture-form"
 ```
@@ -471,10 +471,10 @@ npx claude-flow@alpha hooks post-edit \
 **Session Management:**
 ```bash
 # Restore previous session
-npx claude-flow@alpha hooks session-restore --session-id "ratehunter-landing-001"
+npx archon-os@alpha hooks session-restore --session-id "ratehunter-landing-001"
 
 # End session and export metrics
-npx claude-flow@alpha hooks session-end --export-metrics true
+npx archon-os@alpha hooks session-end --export-metrics true
 ```
 
 ---
@@ -485,7 +485,7 @@ npx claude-flow@alpha hooks session-end --export-metrics true
 
 **Store Project Context:**
 ```bash
-npx claude-flow@alpha memory store \
+npx archon-os@alpha memory store \
   --key "ratehunter/context" \
   --namespace "project" \
   --value '{
@@ -498,7 +498,7 @@ npx claude-flow@alpha memory store \
 
 **Store Component Architecture:**
 ```bash
-npx claude-flow@alpha memory store \
+npx archon-os@alpha memory store \
   --key "ratehunter/components/architecture" \
   --namespace "coordination" \
   --value '{
@@ -512,7 +512,7 @@ npx claude-flow@alpha memory store \
 
 **Store API Contracts:**
 ```bash
-npx claude-flow@alpha memory store \
+npx archon-os@alpha memory store \
   --key "ratehunter/api/contracts" \
   --namespace "integration" \
   --value '{
@@ -527,7 +527,7 @@ npx claude-flow@alpha memory store \
 
 **Store Architectural Decisions:**
 ```bash
-npx claude-flow@alpha memory store \
+npx archon-os@alpha memory store \
   --key "ratehunter/decisions/architecture" \
   --namespace "project" \
   --value '{

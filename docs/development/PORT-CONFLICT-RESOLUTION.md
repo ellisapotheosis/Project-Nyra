@@ -11,14 +11,14 @@ Redis and FalkorDB were both configured to use host port 6379, causing a port co
 ### 1. Docker Compose Files Updated
 - **bootstrap\configs\docker\docker-compose.memory.yml**
   - Changed FalkorDB port mapping from `6379:6379` to `6380:6379` (line 11)
-  - Updated Graphiti FALKORDB_PORT from `6379` to `6380` (line 33)
+  - Updated letta FALKORDB_PORT from `6379` to `6380` (line 33)
 
 - **infra\docker-compose\docker-compose.databases.yml**
   - Updated port mapping default from `${FALKORDB_PORT:-6379}:6379` to `${FALKORDB_PORT:-6380}:6379` (line 40)
 
 ### 2. Configuration Files Updated
 - **configs\templates\claude-settings-ultimate.json**
-  - Updated all `redis://localhost:6379` references to `redis://localhost:6380` for FalkorDB/Graphiti connections
+  - Updated all `redis://localhost:6379` references to `redis://localhost:6380` for FalkorDB/letta connections
 
 - **configs\claude-configs\.env**
   - Updated `FALKORDB_URL` from `redis://localhost:6379` to `redis://localhost:6380` (line 98)
@@ -44,7 +44,7 @@ Redis and FalkorDB were both configured to use host port 6379, causing a port co
 ## Files NOT Changed
 The following files reference `falkordb:6379` which is correct for internal Docker networking:
 - `infra\stacks\nyra-mortgage\docker-compose.yml`
-- `infra\stacks\nyra-mortgage\docker-compose.graphiti.yml`
+- `infra\stacks\nyra-mortgage\docker-compose.letta.yml`
 - `infra\docker-compose\docker-compose.orchestrator.yml`
 - `infra\docker\apps\docker-compose.apps.yml`
 - Various batch-config.json files

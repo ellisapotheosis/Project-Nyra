@@ -32,7 +32,7 @@ git log --oneline --all -- nyra-ingestion
 
 **Key Commits**:
 - `d6878e5f` - "chore: Remove duplicate PC folders from root (orchestrator-mini, worker-*, NYRA-AIO-Bootstrap)"
-- `a71cfe01` - Add Claude-Flow and Archon cleaning workflow guidance
+- `a71cfe01` - Add archon-os and Archon cleaning workflow guidance
 - `ecd689ce` - Update nyra-ingestion/pipelines/bootstrap_ingest.py
 - `96fca5c4` - ingestion: bootstrap pipeline; infra: ingestion compose + scripts
 - `73d34a22` - infra: add ingestion consolidation skeleton

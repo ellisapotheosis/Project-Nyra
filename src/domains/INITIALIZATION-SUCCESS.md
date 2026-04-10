@@ -132,7 +132,7 @@ Each domain has its own vocabulary:
 
 ## Memory Storage
 
-Domain initialization stored in AgentDB:
+Domain initialization stored in ruvector:
 
 **Namespace**: `architecture`
 **Keys**:
@@ -227,10 +227,10 @@ find src/domains -type d | sort
 wc -l src/domains/**/*.md
 
 # Retrieve from memory
-npx @claude-flow/cli@latest memory retrieve --key v3-ddd-initialization-complete --namespace architecture
+npx @archon-os/cli@latest memory retrieve --key v3-ddd-initialization-complete --namespace architecture
 
 # Search domain patterns
-npx @claude-flow/cli@latest memory search --query "DDD domain architecture" --namespace architecture
+npx @archon-os/cli@latest memory search --query "DDD domain architecture" --namespace architecture
 ```
 
 ---
@@ -244,7 +244,7 @@ npx @claude-flow/cli@latest memory search --query "DDD domain architecture" --na
 
 ### ADRs
 - ADR-007: Event Sourcing Architecture
-- ADR-001: Deep agentic-flow Integration
+- ADR-001: Deep archon-os Integration
 - ADR-006: Unified Memory Service
 - ADR-009: Hybrid Memory Backend
 

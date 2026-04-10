@@ -41,7 +41,7 @@ Project-Nyra/
 │   ├── quote-api/ (Python FastAPI)
 │   ├── campaign-engine/ (Node.js)
 │   ├── auth-service/ (Node.js)
-│   ├── memory/ (AgentDB integration)
+│   ├── memory/ (ruvector integration)
 │   ├── letta-integration/ (Memory management)
 │   └── ... (23 more services)
 ├── infra/ (Infrastructure as Code)
@@ -55,7 +55,7 @@ Project-Nyra/
 │   ├── api/
 │   └── troubleshooting/
 ├── mcp-servers/ (Model Context Protocol)
-│   ├── claude-flow/
+│   ├── archon-os/
 │   ├── sequential-thinking/
 │   ├── bitwarden/
 │   ├── infisical/
@@ -79,7 +79,7 @@ Project-Nyra/
 - Python 3.11 + FastAPI (Quote API, Orchestrator)
 - Node.js 20+ (Campaign Engine, Nexus Router)
 - PostgreSQL, Redis, RabbitMQ
-- AgentDB, Qdrant (Vector databases)
+- ruvector, Qdrant (Vector databases)
 
 **Infrastructure**:
 - Docker + Docker Compose
@@ -138,7 +138,7 @@ Project-Nyra/
    ```json
    {
      "mcpServers": {
-       "claude-flow": { "topology": "hierarchical-mesh", "maxAgents": 15 },
+       "archon-os": { "topology": "hierarchical-mesh", "maxAgents": 15 },
        "sequential-thinking": { "enableBranching": true },
        "dockerhub": { "namespace": "projectnyra" },
        "bitwarden": { "secretsManagement": true },
@@ -150,7 +150,7 @@ Project-Nyra/
 6. **Well-Architected Claude Flow V3**
    - Hierarchical-mesh topology
    - 15-agent swarm coordination
-   - Hybrid memory backend (AgentDB + RUVector)
+   - Hybrid memory backend (ruvector + RUVector)
    - Hooks system integration
 
 ---
@@ -167,7 +167,7 @@ Project-Nyra/
 .env.master (22.7 KB)
 .env.example (15.1 KB)
 .env.orchestration.template (8.8 KB)
-.env.claude-flow (1.9 KB)
+.env.archon-os (1.9 KB)
 .env.cloudflare.example (2.8 KB)
 .env.development (825 B)
 .env.production (462 B)
@@ -187,7 +187,7 @@ BEFORE (8 files):
 .env.master
 .env.example
 .env.orchestration.template
-.env.claude-flow
+.env.archon-os
 .env.cloudflare.example
 .env.development
 .env.production
@@ -637,7 +637,7 @@ CMD ["node", "server.js"]
        G[Claude Flow V3]
        H[Archon OS]
        I[MCP Servers]
-       J[AgentDB]
+       J[ruvector]
      end
 
      subgraph "GPU Workers (On-Demand)"
@@ -827,7 +827,7 @@ Track improvements using:
 For questions or discussions about this analysis:
 - **GitHub Issues**: https://github.com/ellisapotheosis/Project-Nyra/issues
 - **Architecture Reviews**: Schedule via project management tool
-- **Claude Flow Support**: https://github.com/ruvnet/claude-flow
+- **Claude Flow Support**: https://github.com/ruvnet/archon-os
 
 ---
 

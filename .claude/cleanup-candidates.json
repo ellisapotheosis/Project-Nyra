@@ -5,7 +5,7 @@
     "description": "All MCP services now run in docker-compose.infisical.yml with proper networking",
     "services": [
       "infisical-mcp (port 8006) - Secrets management and environment variables",
-      "claude-flow-mcp (port 8003) - SPARC methodology and swarm management",
+      "archon-os-mcp (port 8003) - SPARC methodology and swarm management",
       "metamcp-gateway-enhanced (port 8005) - MCP proxy aggregation and service discovery",
       "nyra-orchestrator (port 8000) - GPU cluster and mortgage workflow coordination",
       "nyra-worker-1/2/3 (ports 8001-8003) - GPU compute workers"
@@ -45,7 +45,7 @@
           "path": "configs/metamcp-gateway.json",
           "reason": "Service discovery hardcoded to localhost:8081, 8082, 8083, 8084, 8085",
           "lines_of_concern": "Lines 35-64 with hardcoded 'address': 'localhost:8081' pattern",
-          "current_use": "Not used - docker-compose uses service DNS names (claude-flow-mcp, infisical-mcp, etc.)",
+          "current_use": "Not used - docker-compose uses service DNS names (archon-os-mcp, infisical-mcp, etc.)",
           "why_obsolete": "Docker Compose networking uses internal DNS names, not localhost addresses",
           "safety": "Safe to archive - containerized setup doesn't use this",
           "recommendation": "ARCHIVE to _archive/configs-deprecated-2026-01-18"
@@ -67,9 +67,9 @@
           "recommendation": "ARCHIVE to _archive/configs-deprecated-2026-01-18"
         },
         {
-          "path": "configs/claude-flow-mcp-config.json",
-          "reason": "References localhost:8082 for Claude-Flow MCP server",
-          "current_use": "Not used - configured via docker-compose.infisical.yml (claude-flow-mcp service)",
+          "path": "configs/archon-os-mcp-config.json",
+          "reason": "References localhost:8082 for archon-os MCP server",
+          "current_use": "Not used - configured via docker-compose.infisical.yml (archon-os-mcp service)",
           "why_obsolete": "Docker Compose defines the canonical configuration",
           "safety": "Safe to archive",
           "recommendation": "ARCHIVE to _archive/configs-deprecated-2026-01-18"
@@ -133,8 +133,8 @@
           "recommendation": "REMOVE - Git provides version history"
         },
         {
-          "path": "configs/backup/latest/root/claude-flow.config.json",
-          "reason": "Backup snapshot of claude-flow config",
+          "path": "configs/backup/latest/root/archon-os.config.json",
+          "reason": "Backup snapshot of archon-os config",
           "recommendation": "REMOVE - Git provides version history"
         },
         {
@@ -143,7 +143,7 @@
           "recommendation": "REMOVE - Old backup no longer needed"
         },
         {
-          "path": "configs/backup/timestamped/20260115_211341/root/claude-flow.config.json",
+          "path": "configs/backup/timestamped/20260115_211341/root/archon-os.config.json",
           "reason": "Timestamped snapshot (old date)",
           "recommendation": "REMOVE - Old backup no longer needed"
         },
@@ -215,7 +215,7 @@
       "configs/metamcp-gateway.json",
       "configs/service-mesh-config.json",
       "configs/archon-mcp-config.json",
-      "configs/claude-flow-mcp-config.json",
+      "configs/archon-os-mcp-config.json",
       "configs/nyra-orchestrator-config.json",
       "configs/mcp-architecture.json",
       "configs/batch/batch-config.json",

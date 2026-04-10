@@ -227,7 +227,7 @@ This starts all 13 services in the correct order with proper dependency manageme
 docker compose -f docker-compose.orchestration.yml logs -f
 
 # View specific service logs
-docker logs nyra-claude-flow -f
+docker logs nyra-archon-os -f
 ```
 
 ---
@@ -388,10 +388,10 @@ docker info
 
 # Check service logs
 docker logs nyra-postgres
-docker logs nyra-claude-flow
+docker logs nyra-archon-os
 
 # Verify environment variables are injected
-docker inspect nyra-claude-flow | Select-String "ANTHROPIC_API_KEY"
+docker inspect nyra-archon-os | Select-String "ANTHROPIC_API_KEY"
 
 # Restart with verbose logging
 .\start-orchestration.ps1 -Verbose
@@ -452,7 +452,7 @@ docker compose --env-file ../../.env.orchestration.rendered -f docker-compose.or
 
 ```powershell
 # Only databases and Claude Flow
-infisical run --projectId="8374cea9-e5e8-4050-bda4-b91f25ab30ef" --env="dev" --path="/shared" -- docker compose -f docker-compose.orchestration.yml up postgresql redis claude-flow
+infisical run --projectId="8374cea9-e5e8-4050-bda4-b91f25ab30ef" --env="dev" --path="/shared" -- docker compose -f docker-compose.orchestration.yml up postgresql redis archon-os
 
 # Only specific services
 docker compose -f docker-compose.orchestration.yml up -d postgresql redis
@@ -487,7 +487,7 @@ docker compose -f docker-compose.orchestration.yml restart postgresql
 ## 📚 Additional Resources
 
 - **Infisical Documentation**: https://infisical.com/docs
-- **Claude Flow GitHub**: https://github.com/ruvnet/claude-flow
+- **Claude Flow GitHub**: https://github.com/ruvnet/archon-os
 - **Docker Compose Reference**: https://docs.docker.com/compose/
 - **Phase 3 Full Guide**: `./phase3-orchestration-execution-guide.md`
 - **Composable Templates**: `../../.claude/skills/bootstrap-agent/COMPOSABLE-TEMPLATES.md`
@@ -524,11 +524,11 @@ docker compose -f docker-compose.orchestration.yml logs -f
 infisical secrets set KEY=value --env=dev --path=/shared
 
 # Restart service
-docker compose -f docker-compose.orchestration.yml restart claude-flow
+docker compose -f docker-compose.orchestration.yml restart archon-os
 ```
 
 ---
 
 **🚀 Happy Orchestrating!**
 
-*For support, issues, or contributions, visit: https://github.com/ruvnet/claude-flow*
+*For support, issues, or contributions, visit: https://github.com/ruvnet/archon-os*

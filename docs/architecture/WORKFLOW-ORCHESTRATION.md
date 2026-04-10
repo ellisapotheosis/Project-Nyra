@@ -130,7 +130,7 @@ Execute independent tasks simultaneously for maximum efficiency.
 
 ```bash
 # Process multiple mortgage applications in parallel
-npx claude-flow task orchestrate \
+npx archon-os task orchestrate \
   --task "Process batch of 50 mortgage applications" \
   --strategy parallel \
   --max-concurrent 10 \
@@ -142,7 +142,7 @@ Execute tasks in order when dependencies exist.
 
 ```bash
 # Compliance workflow (must be sequential)
-npx claude-flow task orchestrate \
+npx archon-os task orchestrate \
   --task "Complete regulatory compliance checks" \
   --strategy sequential \
   --checkpoint-on-error \
@@ -154,7 +154,7 @@ Dynamically adjust strategy based on resource availability and load.
 
 ```bash
 # Lead processing with adaptive scaling
-npx claude-flow task orchestrate \
+npx archon-os task orchestrate \
   --task "Process incoming leads and route to agents" \
   --strategy adaptive \
   --monitor-resources \
@@ -167,7 +167,7 @@ Real-time output piping between agents for seamless information flow.
 
 ```bash
 # Document processing pipeline with stream chaining
-npx claude-flow automation run-workflow document-pipeline.json \
+npx archon-os automation run-workflow document-pipeline.json \
   --claude \
   --non-interactive \
   --output-format stream-json
@@ -236,7 +236,7 @@ Split work, process in parallel, then merge.
 
 ```bash
 # Multi-lender rate comparison
-npx claude-flow task orchestrate \
+npx archon-os task orchestrate \
   --task "Compare rates across 20 lenders" \
   --pattern fork-join \
   --lenders "quicken,rocket,better,guaranteed-rate,..."
@@ -259,7 +259,7 @@ Project Nyra uses a dual-orchestrator architecture for optimal task distribution
 
 **Configuration:**
 ```javascript
-// services/claude-flow/.env.development
+// services/archon-os/.env.development
 {
   orchestratorMode: "dual",
   archonOsUrl: "http://localhost:9001",
@@ -476,7 +476,7 @@ const parallelRateComparison = async (loanDetails) => {
 **CLI Usage:**
 ```bash
 # Parallel rate comparison
-npx claude-flow task orchestrate \
+npx archon-os task orchestrate \
   --task "Compare rates across 20 lenders for $450K 30yr fixed" \
   --strategy parallel \
   --max-concurrent 10 \
@@ -536,7 +536,7 @@ const complianceWorkflow = {
 **CLI Usage:**
 ```bash
 # Sequential compliance workflow
-npx claude-flow task orchestrate \
+npx archon-os task orchestrate \
   --task "Complete regulatory compliance for application APP-2024-001" \
   --strategy sequential \
   --checkpoint-on-error \
@@ -590,7 +590,7 @@ const adaptiveLeadProcessing = {
 **CLI Usage:**
 ```bash
 # Adaptive lead processing with auto-scaling
-npx claude-flow task orchestrate \
+npx archon-os task orchestrate \
   --task "Process incoming lead queue" \
   --strategy adaptive \
   --min-agents 3 \
@@ -669,13 +669,13 @@ graph LR
 **CLI Usage:**
 ```bash
 # Stream-chained document processing
-npx claude-flow automation run-workflow document-pipeline.json \
+npx archon-os automation run-workflow document-pipeline.json \
   --claude \
   --non-interactive \
   --output-format stream-json
 
 # With custom configuration
-npx claude-flow automation run-workflow \
+npx archon-os automation run-workflow \
   --config stream-chain-config.json \
   --enable-streaming \
   --buffer-size 4096
@@ -800,7 +800,7 @@ const routeOrchestrationRequest = async (req, res, next) => {
   if (complexity === "swarm" || complexity === "neural") {
     // Complex tasks → Claude Flow
     req.orchestrator = {
-      target: "claude-flow",
+      target: "archon-os",
       url: "http://localhost:9000",
       reason: "Complex multi-agent coordination required"
     };
@@ -813,11 +813,11 @@ const routeOrchestrationRequest = async (req, res, next) => {
     };
   } else {
     // Adaptive routing based on load
-    const claudeFlowLoad = await getOrchestratorLoad("claude-flow");
+    const claudeFlowLoad = await getOrchestratorLoad("archon-os");
     const archonOsLoad = await getOrchestratorLoad("archon-os");
 
     req.orchestrator = {
-      target: claudeFlowLoad < archonOsLoad ? "claude-flow" : "archon-os",
+      target: claudeFlowLoad < archonOsLoad ? "archon-os" : "archon-os",
       reason: "Load-based routing"
     };
   }
@@ -1048,7 +1048,7 @@ const coordinatedMemoryUpdate = async (agentId, workflowContext) => {
 {
   "name": "Complete Mortgage Application Processing",
   "description": "End-to-end mortgage application workflow with compliance checks",
-  "orchestrator": "claude-flow",
+  "orchestrator": "archon-os",
   "strategy": "adaptive",
   "version": "1.0.0",
 
@@ -1339,7 +1339,7 @@ const coordinatedMemoryUpdate = async (agentId, workflowContext) => {
 
 ```bash
 # Start the workflow
-npx claude-flow automation run-workflow workflows/mortgage-application.json \
+npx archon-os automation run-workflow workflows/mortgage-application.json \
   --claude \
   --output-format stream-json \
   --enable-monitoring
@@ -1354,7 +1354,7 @@ curl -X POST http://localhost:9000/api/workflows/execute \
 
 ```typescript
 // services/mortgage-assistant-api/workflows/mortgage-application.ts
-import { ClaudeFlowClient } from '@claude-flow/client';
+import { ClaudeFlowClient } from '@archon-os/client';
 import { WorkflowDefinition, WorkflowResult } from '../types';
 
 export class MortgageApplicationWorkflow {
@@ -1426,7 +1426,7 @@ export class MortgageApplicationWorkflow {
 {
   "name": "Intelligent Document Processing Pipeline",
   "description": "Upload → OCR → Extract → Validate → Store with stream chaining",
-  "orchestrator": "claude-flow",
+  "orchestrator": "archon-os",
   "strategy": "stream-chained",
   "version": "1.0.0",
 
@@ -1579,7 +1579,7 @@ export class MortgageApplicationWorkflow {
 
 ```bash
 # Process a single document
-npx claude-flow automation run-workflow workflows/document-processing.json \
+npx archon-os automation run-workflow workflows/document-processing.json \
   --claude \
   --non-interactive \
   --output-format stream-json \
@@ -1590,7 +1590,7 @@ npx claude-flow automation run-workflow workflows/document-processing.json \
   }'
 
 # Process multiple documents in parallel
-npx claude-flow task orchestrate \
+npx archon-os task orchestrate \
   --task "Process all documents for application APP-2024-001" \
   --strategy parallel \
   --max-concurrent 5 \
@@ -1978,7 +1978,7 @@ npx archon-os task orchestrate \
 {
   "name": "Multi-Lender Rate Comparison",
   "description": "Scrape rates from multiple lenders and generate comparison",
-  "orchestrator": "claude-flow",
+  "orchestrator": "archon-os",
   "strategy": "parallel",
   "version": "1.0.0",
 
@@ -2256,7 +2256,7 @@ npx archon-os task orchestrate \
 
 ```bash
 # Compare rates for a specific scenario
-npx claude-flow automation run-workflow workflows/rate-comparison.json \
+npx archon-os automation run-workflow workflows/rate-comparison.json \
   --claude \
   --output-format json \
   --input '{
@@ -2270,14 +2270,14 @@ npx claude-flow automation run-workflow workflows/rate-comparison.json \
   }'
 
 # Scheduled rate updates (runs every hour)
-npx claude-flow schedule add \
+npx archon-os schedule add \
   --workflow workflows/rate-comparison.json \
   --cron "0 * * * *" \
   --name "hourly-rate-update" \
   --cache-results
 
 # Real-time rate monitoring
-npx claude-flow task orchestrate \
+npx archon-os task orchestrate \
   --task "Monitor rates and alert on significant changes" \
   --strategy continuous \
   --workflow workflows/rate-comparison.json \
@@ -2289,7 +2289,7 @@ npx claude-flow task orchestrate \
 
 ```typescript
 // services/rate-comparison-engine/workflows/rate-comparison.ts
-import { ClaudeFlowClient } from '@claude-flow/client';
+import { ClaudeFlowClient } from '@archon-os/client';
 import { RateComparisonInput, RateComparisonResult } from '../types';
 
 export class RateComparisonWorkflow {
@@ -2466,14 +2466,14 @@ const state = await claudeFlow.memory.read({
 #### Pool Agents for Reuse
 ```bash
 # Create reusable agent pool
-npx claude-flow swarm init mortgage-processing-pool \
+npx archon-os swarm init mortgage-processing-pool \
   --topology star \
   --agents "doc-processor:5,calculator:3,validator:2" \
   --idle-timeout 600 \
   --persistent
 
 # Use pooled agents
-npx claude-flow task orchestrate \
+npx archon-os task orchestrate \
   --task "Process mortgage applications" \
   --use-pool mortgage-processing-pool
 ```
@@ -2532,19 +2532,19 @@ npx claude-flow task orchestrate \
 #### Test Workflows Incrementally
 ```bash
 # Test individual stages
-npx claude-flow workflow test \
+npx archon-os workflow test \
   --workflow workflows/mortgage-application.json \
   --stage document_processing \
   --mock-dependencies
 
 # Test with synthetic data
-npx claude-flow workflow test \
+npx archon-os workflow test \
   --workflow workflows/mortgage-application.json \
   --data test-data/sample-application.json \
   --dry-run
 
 # Full integration test
-npx claude-flow workflow test \
+npx archon-os workflow test \
   --workflow workflows/mortgage-application.json \
   --environment staging \
   --verbose
@@ -2553,15 +2553,15 @@ npx claude-flow workflow test \
 #### Validate Workflow Definitions
 ```bash
 # Lint workflow JSON
-npx claude-flow workflow lint workflows/mortgage-application.json
+npx archon-os workflow lint workflows/mortgage-application.json
 
 # Validate against schema
-npx claude-flow workflow validate \
+npx archon-os workflow validate \
   --workflow workflows/mortgage-application.json \
   --schema schemas/workflow-v1.json
 
 # Analyze workflow for issues
-npx claude-flow workflow analyze \
+npx archon-os workflow analyze \
   --workflow workflows/mortgage-application.json \
   --checks parallelism,dependencies,timeouts,error-handling
 ```
@@ -2636,13 +2636,13 @@ npx claude-flow workflow analyze \
 #### Workflow Status Dashboard
 ```bash
 # Monitor active workflows
-npx claude-flow workflow monitor \
+npx archon-os workflow monitor \
   --live \
   --metrics progress,performance,errors \
   --interval 5
 
 # Monitor specific workflow
-npx claude-flow workflow status \
+npx archon-os workflow status \
   --workflow-id "mortgage-app-123" \
   --detailed
 ```
@@ -2650,12 +2650,12 @@ npx claude-flow workflow status \
 #### Agent Metrics
 ```bash
 # Agent performance metrics
-npx claude-flow agent metrics \
+npx archon-os agent metrics \
   --agent-id "doc-processor-1" \
   --metrics cpu,memory,tasks,duration
 
 # Swarm-wide metrics
-npx claude-flow swarm monitor \
+npx archon-os swarm monitor \
   --swarm-id "mortgage-processing" \
   --topology-view
 ```
@@ -2722,13 +2722,13 @@ npx claude-flow swarm monitor \
 #### Interactive Debugging
 ```bash
 # Debug workflow step-by-step
-npx claude-flow workflow debug \
+npx archon-os workflow debug \
   --workflow workflows/mortgage-application.json \
   --breakpoints intake,document_processing,underwriting \
   --interactive
 
 # Inspect workflow state
-npx claude-flow workflow inspect \
+npx archon-os workflow inspect \
   --workflow-id "mortgage-app-123" \
   --show-memory \
   --show-context
@@ -2737,13 +2737,13 @@ npx claude-flow workflow inspect \
 #### Replay Failed Workflows
 ```bash
 # Replay from checkpoint
-npx claude-flow workflow replay \
+npx archon-os workflow replay \
   --workflow-id "mortgage-app-123" \
   --from-checkpoint "stage-2-complete" \
   --fix-errors
 
 # Replay with different parameters
-npx claude-flow workflow replay \
+npx archon-os workflow replay \
   --workflow-id "mortgage-app-123" \
   --override-input '{
     "timeout": 300000,
@@ -2756,13 +2756,13 @@ npx claude-flow workflow replay \
 #### Bottleneck Detection
 ```bash
 # Analyze workflow performance
-npx claude-flow performance analyze \
+npx archon-os performance analyze \
   --workflow-id "mortgage-app-123" \
   --detect-bottlenecks \
   --suggest-optimizations
 
 # Compare workflow executions
-npx claude-flow performance compare \
+npx archon-os performance compare \
   --workflow-ids "app-123,app-124,app-125" \
   --metrics duration,agent_utilization,parallelism
 ```
@@ -2770,13 +2770,13 @@ npx claude-flow performance compare \
 #### Resource Profiling
 ```bash
 # Profile resource usage
-npx claude-flow profile \
+npx archon-os profile \
   --workflow workflows/mortgage-application.json \
   --metrics cpu,memory,network,disk \
   --duration 3600
 
 # Generate performance report
-npx claude-flow report generate \
+npx archon-os report generate \
   --workflow-id "mortgage-app-123" \
   --type performance \
   --format pdf
@@ -2844,19 +2844,19 @@ npx claude-flow report generate \
   regions: [
     {
       name: "us-east-1",
-      orchestrator: "http://claude-flow-us-east:9000",
+      orchestrator: "http://archon-os-us-east:9000",
       capacity: 40,
       priority: 1
     },
     {
       name: "us-west-2",
-      orchestrator: "http://claude-flow-us-west:9000",
+      orchestrator: "http://archon-os-us-west:9000",
       capacity: 30,
       priority: 2
     },
     {
       name: "eu-west-1",
-      orchestrator: "http://claude-flow-eu-west:9000",
+      orchestrator: "http://archon-os-eu-west:9000",
       capacity: 20,
       priority: 3
     }

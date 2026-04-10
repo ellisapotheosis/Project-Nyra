@@ -32,11 +32,11 @@
   },
   "enableAllProjectMcpServers": true,
   "enabledMcpjsonServers": [
-    "claude-flow",
+    "archon-os",
     "ruv-swarm",
     "flow-nexus",
-    "agentic-flow",
-    "agentdb",
+    "archon-os",
+    "ruvector",
     "agent-booster",
     "epic-sdk"
   ],

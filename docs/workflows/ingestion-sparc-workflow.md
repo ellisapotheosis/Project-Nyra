@@ -5,7 +5,7 @@
 
 ## Overview
 
-This workflow implements the SPARC methodology (Specification, Pseudocode, Architecture, Refinement, Completion) for systematic processing of ingestion pipeline content. It can be invoked via claude-flow CLI for any ingestion content.
+This workflow implements the SPARC methodology (Specification, Pseudocode, Architecture, Refinement, Completion) for systematic processing of ingestion pipeline content. It can be invoked via archon-os CLI for any ingestion content.
 
 ## Workflow Inputs
 
@@ -155,7 +155,7 @@ inputs:
      /types          - Type definitions
    /workflows
      /.github        - GitHub Actions
-     /claude-flow    - Claude Flow workflows
+     /archon-os    - Claude Flow workflows
    ```
 
 2. **Integration Patterns**
@@ -315,13 +315,13 @@ inputs:
 3. **Knowledge Capture**
    ```bash
    # Store successful patterns
-   npx @claude-flow/cli@latest memory store \
+   npx @archon-os/cli@latest memory store \
      --key "ingestion-pattern-$(date +%s)" \
      --value "$(cat integration_report.json)" \
      --namespace ingestion_patterns
 
    # Train neural patterns
-   npx @claude-flow/cli@latest hooks post-task \
+   npx @archon-os/cli@latest hooks post-task \
      --task-id "ingestion-processing" \
      --success true \
      --store-results true
@@ -544,14 +544,14 @@ workflow:
 
 ### Create Workflow
 ```bash
-npx @claude-flow/cli@latest workflow create \
+npx @archon-os/cli@latest workflow create \
   --name "ingestion-sparc-processor" \
   --from-file "docs/workflows/ingestion-sparc-workflow.md"
 ```
 
 ### Execute Workflow
 ```bash
-npx @claude-flow/cli@latest workflow execute \
+npx @archon-os/cli@latest workflow execute \
   --workflow-id "ingestion-sparc-processor" \
   --variables '{
     "ingestion_path": "/path/to/ingestion",
@@ -565,12 +565,12 @@ npx @claude-flow/cli@latest workflow execute \
 ### Monitor Workflow
 ```bash
 # Check status
-npx @claude-flow/cli@latest workflow status \
+npx @archon-os/cli@latest workflow status \
   --workflow-id "ingestion-sparc-processor" \
   --verbose
 
 # View metrics
-npx @claude-flow/cli@latest workflow metrics \
+npx @archon-os/cli@latest workflow metrics \
   --workflow-id "ingestion-sparc-processor"
 ```
 
@@ -584,10 +584,10 @@ When user requests ingestion processing, Claude Code should:
 
 ```javascript
 // Step 1: Initialize swarm with anti-drift config
-Bash("npx @claude-flow/cli@latest swarm init --topology hierarchical-mesh --max-agents 10")
+Bash("npx @archon-os/cli@latest swarm init --topology hierarchical-mesh --max-agents 10")
 
 // Step 2: Execute SPARC workflow
-Bash(`npx @claude-flow/cli@latest workflow execute \
+Bash(`npx @archon-os/cli@latest workflow execute \
   --workflow-id ingestion-sparc-processor \
   --variables '{"ingestion_path": "${path}", "priority": "high"}'`)
 
@@ -628,7 +628,7 @@ After each workflow execution:
 
 1. **Store Pattern**
    ```bash
-   npx @claude-flow/cli@latest memory store \
+   npx @archon-os/cli@latest memory store \
      --key "sparc-ingestion-$(date +%s)" \
      --value "$(cat completion_report.json)" \
      --namespace workflow_patterns
@@ -636,7 +636,7 @@ After each workflow execution:
 
 2. **Train Neural Model**
    ```bash
-   npx @claude-flow/cli@latest neural train \
+   npx @archon-os/cli@latest neural train \
      --pattern-type sparc_workflow \
      --data completion_report.json
    ```
@@ -661,6 +661,6 @@ After each workflow execution:
 ## Support
 
 For issues or enhancements:
-- GitHub: https://github.com/ruvnet/claude-flow/issues
-- Documentation: `.claude-flow/CAPABILITIES.md`
-- Memory Search: `npx @claude-flow/cli@latest memory search --query "sparc workflow"`
+- GitHub: https://github.com/ruvnet/archon-os/issues
+- Documentation: `.archon-os/CAPABILITIES.md`
+- Memory Search: `npx @archon-os/cli@latest memory search --query "sparc workflow"`

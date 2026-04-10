@@ -20,19 +20,19 @@ Trajectory tracking records the complete execution path of an agent operation, c
 
 ```bash
 # Start trajectory at task initialization
-npx @claude-flow/cli@latest hooks intelligence trajectory-start \
+npx @archon-os/cli@latest hooks intelligence trajectory-start \
   --session-id "$SESSION_ID" \
   --agent-type "$AGENT_TYPE" \
   --task "$TASK_DESCRIPTION"
 
 # Record intermediate steps
-npx @claude-flow/cli@latest hooks intelligence trajectory-step \
+npx @archon-os/cli@latest hooks intelligence trajectory-step \
   --session-id "$SESSION_ID" \
   --operation "$OPERATION_NAME" \
   --outcome "success|failure"
 
 # End trajectory with verdict
-npx @claude-flow/cli@latest hooks intelligence trajectory-end \
+npx @archon-os/cli@latest hooks intelligence trajectory-end \
   --session-id "$SESSION_ID" \
   --verdict "success|failure" \
   --reward 0.95
@@ -47,18 +47,18 @@ hooks:
   pre: |
     echo "🧠 ReasoningBank Learner initializing intelligence system"
     SESSION_ID="rb-$(date +%s)"
-    npx @claude-flow/cli@latest hooks intelligence trajectory-start \
+    npx @archon-os/cli@latest hooks intelligence trajectory-start \
       --session-id "$SESSION_ID" \
       --agent-type "reasoningbank-learner" \
       --task "$TASK"
-    mcp__claude-flow__memory_search --pattern="pattern:*" --namespace="reasoningbank" --limit=10
+    mcp__archon-os__memory_search --pattern="pattern:*" --namespace="reasoningbank" --limit=10
 
   post: |
     echo "✅ Learning cycle complete"
-    npx @claude-flow/cli@latest hooks intelligence trajectory-end \
+    npx @archon-os/cli@latest hooks intelligence trajectory-end \
       --session-id "$SESSION_ID" \
       --verdict "${VERDICT:-success}"
-    mcp__claude-flow__memory_usage --action="store" \
+    mcp__archon-os__memory_usage --action="store" \
       --namespace="reasoningbank" \
       --key="pattern:$(date +%s)" \
       --value="$PATTERN_SUMMARY"
@@ -83,14 +83,14 @@ Verdicts provide binary evaluation (success/failure) of trajectories combined wi
 
 ```bash
 # Record trajectory step with metadata
-npx @claude-flow/cli@latest hooks intelligence trajectory-step \
+npx @archon-os/cli@latest hooks intelligence trajectory-step \
   --session-id "$SESSION_ID" \
   --operation "code-generation" \
   --outcome "success" \
   --metadata '{"files_changed": 3, "tests_passed": true}'
 
 # End trajectory with final verdict and reward
-npx @claude-flow/cli@latest hooks intelligence trajectory-end \
+npx @archon-os/cli@latest hooks intelligence trajectory-end \
   --session-id "$SESSION_ID" \
   --verdict "success" \
   --reward 0.95
@@ -113,7 +113,7 @@ if [ -n "$TRAJECTORY_ID" ]; then
   OUTPUT_LENGTH=${#OUTPUT:-0}
   QUALITY_SCORE="0.85"  # Default score
 
-  npx @claude-flow/cli@latest hooks intelligence trajectory-end \
+  npx @archon-os/cli@latest hooks intelligence trajectory-end \
     --session-id "$TRAJECTORY_ID" \
     --verdict "success" \
     --reward "$QUALITY_SCORE"
@@ -132,7 +132,7 @@ Extract key learnings from successful trajectories for future reuse.
 
 ```bash
 # Store successful pattern with metadata
-mcp__claude-flow__memory_usage --action="store" \
+mcp__archon-os__memory_usage --action="store" \
   --namespace="reasoningbank" \
   --key="pattern:auth-implementation" \
   --value='{"task":"implement auth","approach":"JWT with refresh","outcome":"success","reward":0.95}'
@@ -165,13 +165,13 @@ From `reasoningbank-learner.md`:
 
 ```bash
 # Search for patterns to distill
-npx @claude-flow/cli@latest hooks intelligence pattern-search \
+npx @archon-os/cli@latest hooks intelligence pattern-search \
   --query "authentication" \
   --min-reward 0.8 \
   --namespace reasoningbank
 
 # Get pattern statistics
-npx @claude-flow/cli@latest hooks intelligence pattern-stats \
+npx @archon-os/cli@latest hooks intelligence pattern-stats \
   --query "$TASK" \
   --k 10 \
   --namespace reasoningbank
@@ -189,10 +189,10 @@ Prevent catastrophic forgetting when learning new patterns while retaining old k
 
 ```bash
 # Consolidate patterns to prevent forgetting
-npx @claude-flow/cli@latest neural consolidate --namespace reasoningbank
+npx @archon-os/cli@latest neural consolidate --namespace reasoningbank
 
 # Check consolidation status
-npx @claude-flow/cli@latest hooks intelligence stats --namespace reasoningbank
+npx @archon-os/cli@latest hooks intelligence stats --namespace reasoningbank
 ```
 
 ### How It Works
@@ -211,7 +211,7 @@ npx @claude-flow/cli@latest hooks intelligence stats --namespace reasoningbank
 #### Store Pattern
 
 ```bash
-mcp__claude-flow__memory_usage --action="store" \
+mcp__archon-os__memory_usage --action="store" \
   --namespace="reasoningbank" \
   --key="pattern:PATTERN_NAME" \
   --value='JSON_SERIALIZED_DATA'
@@ -221,12 +221,12 @@ mcp__claude-flow__memory_usage --action="store" \
 
 ```bash
 # Semantic search with limit
-mcp__claude-flow__memory_search --pattern="$TASK" \
+mcp__archon-os__memory_search --pattern="$TASK" \
   --namespace="reasoningbank" \
   --limit=10
 
 # With threshold
-npx @claude-flow/cli@latest hooks intelligence pattern-stats \
+npx @archon-os/cli@latest hooks intelligence pattern-stats \
   --query "$TASK" \
   --k 10 \
   --namespace reasoningbank
@@ -235,7 +235,7 @@ npx @claude-flow/cli@latest hooks intelligence pattern-stats \
 #### Retrieve Specific Entry
 
 ```bash
-npx @claude-flow/cli@latest memory retrieve --key "pattern-auth" \
+npx @archon-os/cli@latest memory retrieve --key "pattern-auth" \
   --namespace "reasoningbank"
 ```
 
@@ -328,7 +328,7 @@ From `reasoningbank-learner.md`:
     "matcher": "^(Write|Edit|Task)$",
     "hooks": [{
       "type": "command",
-      "command": "npx @claude-flow/cli@latest hooks intelligence trajectory-step --operation $TOOL_NAME --outcome $TOOL_SUCCESS"
+      "command": "npx @archon-os/cli@latest hooks intelligence trajectory-step --operation $TOOL_NAME --outcome $TOOL_SUCCESS"
     }]
   }]
 }
@@ -338,17 +338,17 @@ From `reasoningbank-learner.md`:
 
 ```bash
 # Start session
-npx @claude-flow/cli@latest hooks session-start \
+npx @archon-os/cli@latest hooks session-start \
   --session-id "$ID" \
   --auto-configure
 
 # End session
-npx @claude-flow/cli@latest hooks session-end \
+npx @archon-os/cli@latest hooks session-end \
   --generate-summary true \
   --export-metrics true
 
 # Restore previous session
-npx @claude-flow/cli@latest hooks session-restore \
+npx @archon-os/cli@latest hooks session-restore \
   --session-id "$ID" \
   --latest
 ```
@@ -375,7 +375,7 @@ SONA is V3's adaptive neural system that learns from trajectories and verdicts t
 PERF_SESSION_ID="perf-$(date +%s)"
 
 # Start SONA trajectory
-TRAJECTORY_RESULT=$(npx @claude-flow/cli@latest hooks intelligence trajectory-start \
+TRAJECTORY_RESULT=$(npx @archon-os/cli@latest hooks intelligence trajectory-start \
   --task "performance-analysis" \
   --context "performance-engineer")
 
@@ -383,7 +383,7 @@ TRAJECTORY_RESULT=$(npx @claude-flow/cli@latest hooks intelligence trajectory-st
 TRAJECTORY_ID=$(echo "$TRAJECTORY_RESULT" | grep -oP '(?<=ID: )[a-f0-9-]+')
 
 # End trajectory with quality score
-npx @claude-flow/cli@latest hooks intelligence trajectory-end \
+npx @archon-os/cli@latest hooks intelligence trajectory-end \
   --session-id "$TRAJECTORY_ID" \
   --verdict "success" \
   --reward "0.85"
@@ -411,14 +411,14 @@ class SONAPerformanceOptimizer {
 
   async triggerSONALearning() {
     // Use SONA to learn optimization patterns
-    await mcp__claude-flow__neural_train({
+    await mcp__archon-os__neural_train({
       pattern_type: 'optimization',
       training_data: JSON.stringify(this.trajectories),
       epochs: 10
     });
 
     // Extract learned patterns
-    const patterns = await mcp__claude-flow__neural_patterns({
+    const patterns = await mcp__archon-os__neural_patterns({
       action: 'analyze',
       metadata: { domain: 'performance' }
     });
@@ -446,37 +446,37 @@ class SONAPerformanceOptimizer {
 SESSION_ID="task-123"
 
 # 1. Start trajectory
-npx @claude-flow/cli@latest hooks intelligence trajectory-start \
+npx @archon-os/cli@latest hooks intelligence trajectory-start \
   --session-id "$SESSION_ID" \
   --agent-type "coder" \
   --task "Implement user authentication"
 
 # 2. Track test writing
-npx @claude-flow/cli@latest hooks intelligence trajectory-step \
+npx @archon-os/cli@latest hooks intelligence trajectory-step \
   --session-id "$SESSION_ID" \
   --operation "write-test" \
   --outcome "success"
 
 # 3. Track feature implementation
-npx @claude-flow/cli@latest hooks intelligence trajectory-step \
+npx @archon-os/cli@latest hooks intelligence trajectory-step \
   --session-id "$SESSION_ID" \
   --operation "implement-feature" \
   --outcome "success"
 
 # 4. Track testing
-npx @claude-flow/cli@latest hooks intelligence trajectory-step \
+npx @archon-os/cli@latest hooks intelligence trajectory-step \
   --session-id "$SESSION_ID" \
   --operation "run-tests" \
   --outcome "success"
 
 # 5. End with verdict and quality score
-npx @claude-flow/cli@latest hooks intelligence trajectory-end \
+npx @archon-os/cli@latest hooks intelligence trajectory-end \
   --session-id "$SESSION_ID" \
   --verdict "success" \
   --reward 0.92
 
 # 6. Store learned pattern for future reuse
-mcp__claude-flow__memory_usage --action="store" \
+mcp__archon-os__memory_usage --action="store" \
   --namespace="reasoningbank" \
   --key="pattern:auth-implementation" \
   --value='{
@@ -498,8 +498,8 @@ From `workflow-coordinator.js`:
 
 ```javascript
 const workflowHooks = {
-  preTask: `npx @claude-flow/cli@latest hooks pre-task --description "${phase.name}: ${agentType}"`,
-  postTask: `npx @claude-flow/cli@latest hooks post-task --task-id "${workflow.id}-${phase.name}"`,
+  preTask: `npx @archon-os/cli@latest hooks pre-task --description "${phase.name}: ${agentType}"`,
+  postTask: `npx @archon-os/cli@latest hooks post-task --task-id "${workflow.id}-${phase.name}"`,
 };
 
 // Track workflow phases
@@ -617,7 +617,7 @@ for (const phase of workflow.phases) {
 - `CLAUDE.md`: RuVector Intelligence System Overview
 - `reasoningbank-learner.md`: Complete pattern implementation
 - `performance-engineer.md`: SONA integration example
-- `v3-memory-specialist.md`: AgentDB and HNSW integration
+- `v3-memory-specialist.md`: ruvector and HNSW integration
 - `workflow-coordinator.js`: Hook integration pattern
 
 ---

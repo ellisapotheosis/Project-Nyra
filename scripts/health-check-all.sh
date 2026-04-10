@@ -36,7 +36,7 @@ declare -a services=(
     "PC1|Letta (MemGPT)|http://10.0.0.1:8283/health|required"
     "PC1|Mem0|http://10.0.0.1:4321/health|required"
     "PC1|Claude Flow|http://10.0.0.1:3010/health|required"
-    "PC1|AgentDB|http://10.0.0.1:8080/health|required"
+    "PC1|ruvector|http://10.0.0.1:8080/health|required"
     "PC1|RuVector|http://10.0.0.1:8888/health|optional"
     "PC1|Redis (Orchestrator)|http://10.0.0.1:6380|required"
     "PC1|Qdrant|http://10.0.0.1:6333/healthz|optional"

@@ -1,4 +1,4 @@
-# NYRA MASTER SWARM (Claude-Flow / Claude-Code)
+# NYRA MASTER SWARM (archon-os / Claude-Code)
 
 Operate inside the **project-nyra** monorepo.
 
@@ -33,7 +33,7 @@ Acceptance:
 ## Phase 2 — CRM objects + sync
 @crm:
 - Add mortgage-specific fields to TwentyCRM.
-- Build `services/twenty-bridge` webhook receiver to upsert leads into Graphiti.
+- Build `services/twenty-bridge` webhook receiver to upsert leads into letta.
 
 ---
 
@@ -56,7 +56,7 @@ Acceptance:
 
 ## Phase 5 — Memory day-1
 @memory:
-- Wire Twenty events → Graphiti; chat summaries → Mem0.
+- Wire Twenty events → letta; chat summaries → Mem0.
 - Create Letta “Archivist” and define memory write policy.
 
 ---

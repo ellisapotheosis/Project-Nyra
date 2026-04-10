@@ -45,16 +45,16 @@ Automatic session checkpointing and state recovery for Project Nyra.
 ### Using CLI Commands
 ```bash
 # Save current session
-npx @claude-flow/cli@latest session save --name "my-checkpoint" --include-memory true
+npx @archon-os/cli@latest session save --name "my-checkpoint" --include-memory true
 
 # List saved sessions
-npx @claude-flow/cli@latest session list
+npx @archon-os/cli@latest session list
 
 # Restore session
-npx @claude-flow/cli@latest session restore --name "my-checkpoint"
+npx @archon-os/cli@latest session restore --name "my-checkpoint"
 
 # Restore latest session
-npx @claude-flow/cli@latest session restore --latest
+npx @archon-os/cli@latest session restore --latest
 ```
 
 ## 📁 Storage Locations
@@ -158,19 +158,19 @@ Edit `.claude/settings.json` and change the `checkpoint.interval`:
 ### Checkpoints Not Working
 ```bash
 # Check daemon status
-npx @claude-flow/cli@latest daemon status
+npx @archon-os/cli@latest daemon status
 
 # Manually save session
-npx @claude-flow/cli@latest session save --name "manual-test"
+npx @archon-os/cli@latest session save --name "manual-test"
 
 # Check memory store
-npx @claude-flow/cli@latest memory list --namespace checkpoints
+npx @archon-os/cli@latest memory list --namespace checkpoints
 ```
 
 ### Restore Not Working
 ```bash
 # List available sessions
-npx @claude-flow/cli@latest session list
+npx @archon-os/cli@latest session list
 
 # Check backup files
 ls -lh .claude/backups/
@@ -180,11 +180,11 @@ ls -lh .swarm/backups/
 ### Daemon Issues
 ```bash
 # Restart daemon
-npx @claude-flow/cli@latest daemon stop
-npx @claude-flow/cli@latest daemon start
+npx @archon-os/cli@latest daemon stop
+npx @archon-os/cli@latest daemon start
 
 # Check logs
-npx @claude-flow/cli@latest daemon status --verbose
+npx @archon-os/cli@latest daemon status --verbose
 ```
 
 ## 📝 Notes
@@ -198,16 +198,16 @@ npx @claude-flow/cli@latest daemon status --verbose
 
 ```bash
 # Memory operations
-npx @claude-flow/cli@latest memory search --query "checkpoint" --namespace checkpoints
+npx @archon-os/cli@latest memory search --query "checkpoint" --namespace checkpoints
 
 # Session operations
-npx @claude-flow/cli@latest session list
-npx @claude-flow/cli@latest session info --session-id [id]
+npx @archon-os/cli@latest session list
+npx @archon-os/cli@latest session info --session-id [id]
 
 # Daemon operations
-npx @claude-flow/cli@latest daemon start
-npx @claude-flow/cli@latest daemon status
-npx @claude-flow/cli@latest hooks worker status
+npx @archon-os/cli@latest daemon start
+npx @archon-os/cli@latest daemon status
+npx @archon-os/cli@latest hooks worker status
 ```
 
 ## ⚙️ Advanced Configuration

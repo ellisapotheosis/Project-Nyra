@@ -30,7 +30,7 @@
 
 **Use this to prevent agent drift:**
 ```bash
-npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 6 --strategy specialized
+npx @archon-os/cli@latest swarm init --topology hierarchical --max-agents 6 --strategy specialized
 ```
 
 ---
@@ -54,14 +54,14 @@ When the user requests complex work, spawn agents in background and WAIT.
 
 ### Before Starting Any Task
 ```bash
-npx @claude-flow/cli@latest memory search --query '[task keywords]' --namespace patterns
-npx @claude-flow/cli@latest hooks route --task '[task description]'
+npx @archon-os/cli@latest memory search --query '[task keywords]' --namespace patterns
+npx @archon-os/cli@latest hooks route --task '[task description]'
 ```
 
 ### After Completing Any Task Successfully
 ```bash
-npx @claude-flow/cli@latest memory store --namespace patterns --key '[pattern-name]' --value '[what worked]'
-npx @claude-flow/cli@latest hooks post-task --task-id '[id]' --success true --store-results true
+npx @archon-os/cli@latest memory store --namespace patterns --key '[pattern-name]' --value '[what worked]'
+npx @archon-os/cli@latest hooks post-task --task-id '[id]' --success true --store-results true
 ```
 
 ---
@@ -70,15 +70,15 @@ npx @claude-flow/cli@latest hooks post-task --task-id '[id]' --success true --st
 
 ```bash
 # Swarm management
-npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 6
+npx @archon-os/cli@latest swarm init --topology hierarchical --max-agents 6
 
 # Memory operations
-npx @claude-flow/cli@latest memory store --key "pattern" --value "content"
-npx @claude-flow/cli@latest memory search --query "search term"
+npx @archon-os/cli@latest memory store --key "pattern" --value "content"
+npx @archon-os/cli@latest memory search --query "search term"
 
 # Hooks
-npx @claude-flow/cli@latest hooks pre-task --description "[task]"
-npx @claude-flow/cli@latest hooks post-task --task-id "[id]" --success true
+npx @archon-os/cli@latest hooks pre-task --description "[task]"
+npx @archon-os/cli@latest hooks post-task --task-id "[id]" --success true
 ```
 
 ---
@@ -97,8 +97,8 @@ For dashboard development:
 ## 🪝 V3 Hooks System (27 Hooks + 12 Workers)
 
 ```bash
-npx @claude-flow/cli@latest hooks pre-task --description "dashboard metrics development"
-npx @claude-flow/cli@latest hooks post-edit --file "dashboard.tsx" --train-neural true
+npx @archon-os/cli@latest hooks pre-task --description "dashboard metrics development"
+npx @archon-os/cli@latest hooks post-edit --file "dashboard.tsx" --train-neural true
 ```
 
 ---
@@ -107,12 +107,12 @@ npx @claude-flow/cli@latest hooks post-edit --file "dashboard.tsx" --train-neura
 
 ### Store Data
 ```bash
-npx @claude-flow/cli@latest memory store --key "dashboard-pattern" --value "content" --namespace patterns
+npx @archon-os/cli@latest memory store --key "dashboard-pattern" --value "content" --namespace patterns
 ```
 
 ### Search Data
 ```bash
-npx @claude-flow/cli@latest memory search --query "dashboard visualization" --namespace patterns
+npx @archon-os/cli@latest memory search --query "dashboard visualization" --namespace patterns
 ```
 
 ---
@@ -159,7 +159,7 @@ pnpm lint
 ### 3-Tier Model Routing
 
 ```bash
-npx @claude-flow/cli@latest hooks pre-task \
+npx @archon-os/cli@latest hooks pre-task \
   --description "CRM dashboard data visualization development"
 ```
 
@@ -176,10 +176,10 @@ npx @claude-flow/cli@latest hooks pre-task \
 **1. New Dashboard Widget**
 ```bash
 # Initialize swarm
-npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 4 --strategy specialized
+npx @archon-os/cli@latest swarm init --topology hierarchical --max-agents 4 --strategy specialized
 
 # Store dashboard context
-npx @claude-flow/cli@latest memory store \
+npx @archon-os/cli@latest memory store \
   --namespace dashboard \
   --key "widgets/[name]" \
   --value "Widget requirements and data sources"
@@ -188,7 +188,7 @@ npx @claude-flow/cli@latest memory store \
 **2. Data Visualization**
 ```bash
 # Search for chart patterns
-npx @claude-flow/cli@latest memory search \
+npx @archon-os/cli@latest memory search \
   --query "recharts visualization mortgage metrics" \
   --namespace patterns
 ```
@@ -196,7 +196,7 @@ npx @claude-flow/cli@latest memory search \
 **3. Real-Time Metrics**
 ```bash
 # Check WebSocket patterns
-npx @claude-flow/cli@latest memory retrieve \
+npx @archon-os/cli@latest memory retrieve \
   --namespace patterns \
   --key "websocket-realtime-updates"
 ```
@@ -205,19 +205,19 @@ npx @claude-flow/cli@latest memory retrieve \
 
 **Before Development**:
 ```bash
-npx @claude-flow/cli@latest memory search \
+npx @archon-os/cli@latest memory search \
   --query "dashboard metrics visualization" \
   --namespace patterns
 ```
 
 **After Successful Implementation**:
 ```bash
-npx @claude-flow/cli@latest memory store \
+npx @archon-os/cli@latest memory store \
   --namespace patterns \
   --key "dashboard-success-$(date +%Y%m%d)" \
   --value "Implemented [widget/feature] successfully"
 
-npx @claude-flow/cli@latest hooks post-task \
+npx @archon-os/cli@latest hooks post-task \
   --task-id "dashboard-feat-001" \
   --success true \
   --store-results true

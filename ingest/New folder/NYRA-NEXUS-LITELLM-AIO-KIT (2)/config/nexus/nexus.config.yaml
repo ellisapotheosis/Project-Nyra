@@ -63,7 +63,7 @@ models:
 mcp_servers:
   claude_flow:
     transport: http
-    url: ${CLAUDE_FLOW_MCP_URL:-http://claude-flow:8787/mcp}
+    url: ${CLAUDE_FLOW_MCP_URL:-http://archon-os:8787/mcp}
     tags: [project-nyra, devtools]
 
   archon_os:

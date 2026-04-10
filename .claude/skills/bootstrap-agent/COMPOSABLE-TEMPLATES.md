@@ -471,7 +471,7 @@ Modules are discovered from two sources:
    - Checked first
 
 2. **Wiki Templates** (Priority 2)
-   - Path: `docs/references/claude-flow-wiki/`
+   - Path: `docs/references/archon-os-wiki/`
    - Claude Flow official templates
    - Used as fallback
    - Must be named `CLAUDE-MD-{name}.md`
@@ -605,7 +605,7 @@ The composable template system integrates with Claude Flow wiki:
 **Example**:
 ```bash
 # If "stack/react-nextjs" not found locally,
-# system tries: docs/references/claude-flow-wiki/CLAUDE-MD-react-nextjs.md
+# system tries: docs/references/archon-os-wiki/CLAUDE-MD-react-nextjs.md
 ```
 
 ---
@@ -615,9 +615,9 @@ The composable template system integrates with Claude Flow wiki:
 ### From Research (January 8, 2026)
 
 1. **[claude-code-templates (NPM)](https://www.npmjs.com/package/claude-code-templates)** - 400+ community components
-2. **[Claude Flow Wiki](https://github.com/ruvnet/claude-flow/wiki/CLAUDE-MD-Templates)** - Official templates
+2. **[Claude Flow Wiki](https://github.com/ruvnet/archon-os/wiki/CLAUDE-MD-Templates)** - Official templates
 3. **[Claude Code Best Practices](https://www.anthropic.com/engineering/claude-code-best-practices)** - Official guidelines
-4. **[Enterprise Templates](https://github.com/ruvnet/claude-flow/wiki/CLAUDE-MD-Enterprise)** - Enterprise patterns
+4. **[Enterprise Templates](https://github.com/ruvnet/archon-os/wiki/CLAUDE-MD-Enterprise)** - Enterprise patterns
 
 ---
 
@@ -631,7 +631,7 @@ The composable template system integrates with Claude Flow wiki:
 
 **Solution**:
 1. Check module path: `templates/modules/stack/my-stack.md`
-2. Check wiki fallback: `docs/references/claude-flow-wiki/CLAUDE-MD-my-stack.md`
+2. Check wiki fallback: `docs/references/archon-os-wiki/CLAUDE-MD-my-stack.md`
 3. Run `node build-brains.js --list` to see available modules
 
 ### Issue: Context Variable Not Replaced
@@ -679,6 +679,6 @@ The Composable Template System provides:
 
 **Sources**:
 - [claude-code-templates NPM](https://www.npmjs.com/package/claude-code-templates)
-- [Claude Flow GitHub](https://github.com/ruvnet/claude-flow)
+- [Claude Flow GitHub](https://github.com/ruvnet/archon-os)
 - [Claude Code Best Practices](https://www.anthropic.com/engineering/claude-code-best-practices)
 - [Anthropic Claude Code Documentation](https://docs.anthropic.com/en/docs/claude-code)

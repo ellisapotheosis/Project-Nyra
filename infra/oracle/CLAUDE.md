@@ -9,7 +9,7 @@
 - TwentyCRM (system of record)
 - Activepieces + n8n workflow engines
 - RuVector Postgres
-- FalkorDB + Graphiti MCP
+- FalkorDB + letta MCP
 - OpenClaw/Moltbot gateway
 - Quote API
 - Optional cloudflared tunnel

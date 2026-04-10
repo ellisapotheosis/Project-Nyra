@@ -859,7 +859,7 @@ Turborepo integrates seamlessly with Claude Flow for multi-agent development:
 ### Pre-Task Analysis
 ```bash
 # Before starting work, check affected packages
-npx @claude-flow/cli@latest hooks pre-task \
+npx @archon-os/cli@latest hooks pre-task \
   --description "Update authentication service" \
   --context "$(turbo run build --dry-run --affected)"
 ```
@@ -867,7 +867,7 @@ npx @claude-flow/cli@latest hooks pre-task \
 ### Post-Task Learning
 ```bash
 # After completing work, store performance metrics
-npx @claude-flow/cli@latest hooks post-task \
+npx @archon-os/cli@latest hooks post-task \
   --task-id "auth-update" \
   --success true \
   --metrics "$(turbo run build --summarize)"
@@ -876,7 +876,7 @@ npx @claude-flow/cli@latest hooks post-task \
 ### Swarm Coordination
 ```bash
 # Initialize swarm with Turborepo awareness
-npx @claude-flow/cli@latest swarm init \
+npx @archon-os/cli@latest swarm init \
   --topology hierarchical \
   --max-agents 8 \
   --metadata "$(cat turbo.json)"
@@ -917,7 +917,7 @@ npx @claude-flow/cli@latest swarm init \
 - [Turborepo Documentation](https://turbo.build/repo/docs)
 - [pnpm Workspaces](https://pnpm.io/workspaces)
 - [Project Nyra README](../../README.md)
-- [Claude Flow V3 Setup](../guides/CLAUDE-FLOW-V3-SETUP.md)
+- [Claude Flow V3 Setup](../guides/archon-os-V3-SETUP.md)
 
 ---
 

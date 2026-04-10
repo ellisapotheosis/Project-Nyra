@@ -1,7 +1,7 @@
 # Project Nyra — Architecture & Implementation Whitepaper (v1)
 
 **Date:** 2025-12-31  
-**Stack decisions locked in this doc:** Nexus Router (grafbase/nexus) + LiteLLM + OpenRouter, Dify + Activepieces + n8n, TwentyCRM as system-of-record CRM, standalone Nyra Admin UI (shadcn + Magic UI), Graphiti + Letta memory layer from day 0, and a scriptable Quote API.
+**Stack decisions locked in this doc:** Nexus Router (grafbase/nexus) + LiteLLM + OpenRouter, Dify + Activepieces + n8n, TwentyCRM as system-of-record CRM, standalone Nyra Admin UI (shadcn + Magic UI), letta + Letta memory layer from day 0, and a scriptable Quote API.
 
 > **Not legal advice.** This document includes compliance considerations and risk controls; run everything past qualified counsel before production use.
 
@@ -12,7 +12,7 @@
 Project Nyra is an AI-augmented mortgage operations platform with:
 - **Borrower-facing logistics automation** (status updates, doc requests, scheduling, message relay) with strict topic boundaries.
 - **Agent-facing orchestration** for internal workflows (lead triage, campaign selection, quote preparation, CRM hygiene).
-- **A “memory cube”**: Graphiti temporal knowledge graph + Letta memory manager, mirrored against TwentyCRM and enriched by conversation events.
+- **A “memory cube”**: letta temporal knowledge graph + Letta memory manager, mirrored against TwentyCRM and enriched by conversation events.
 - **Campaign & Quote control plane** in a standalone Nyra Admin webapp (shadcn + Magic UI), separate from TwentyCRM’s UI.
 
 The primary engineering goal is **high reliability + compliance-first automation**:
@@ -59,7 +59,7 @@ flowchart LR
 
   subgraph Systems[Systems of Record + Memory]
     T20[TwentyCRM (Postgres)]
-    GRA[Graphiti + FalkorDB/Neo4j]
+    GRA[letta + FalkorDB/Neo4j]
     LET[Letta (Memory Manager)]
     OBJ[(S3/MinIO for docs)]
     OBS[Prometheus/Loki/Grafana]
@@ -102,7 +102,7 @@ Nexus is the **unified routing + governance plane** for:
 ### Dify (embedded in Nyra Admin + borrower portals)
 Dify owns:
 - The **chat UI** and “AI app runtime”
-- **Knowledge** for grounded answers (but we prefer Graphiti for relationships)
+- **Knowledge** for grounded answers (but we prefer letta for relationships)
 - Exposing Dify apps as MCP if needed later.
 
 ### Activepieces
@@ -120,8 +120,8 @@ TwentyCRM is **system-of-record**:
 - leads, people, pipeline stages, activity.
 - You build a custom UI that operates *on top of* Twenty via API.
 
-### Graphiti + Letta
-- Graphiti: temporally-aware knowledge graph memory for agents.
+### letta + Letta
+- letta: temporally-aware knowledge graph memory for agents.
 - Letta: memory manager deciding what becomes durable memory.
 
 ---
@@ -170,7 +170,7 @@ Flow:
 ### 5.3 Quote generation
 - Quote API consumes scenario + borrower facts
 - Pricing adapters (Rocket/LenderPrice/etc.) — initial phase may be manual import
-- Output: multi-option quote JSON + (later) PDF; writeback to Twenty + Graphiti
+- Output: multi-option quote JSON + (later) PDF; writeback to Twenty + letta
 
 ### 5.4 Borrower conversation (logistics-only)
 Dify app “Borrower Concierge” reads pipeline stage + missing docs, offers scheduling, logs events.
@@ -196,7 +196,7 @@ Route all tools through Nexus:
 
 This package includes a proposed structure:
 - `bootstrap/` — scripts to clone forks, configure env, run dev/prod, set up Gitea and CI
-- `vendor/` — cloned forks (claude-flow, archon)
+- `vendor/` — cloned forks (archon-os, archon)
 - `prod/vendor-images/` — Dockerfiles to build pinned production images from those forks
 - `infra/` — docker-compose stacks, monitoring, secrets patterns
 - `apps/` — nyra-admin + ratehunter
@@ -212,7 +212,7 @@ This package includes a proposed structure:
 - Docker Hub MCP Server: https://docs.docker.com/ai/mcp-catalog-and-toolkit/hub-mcp/
 - Docker MCP Gateway: https://docs.docker.com/ai/mcp-catalog-and-toolkit/mcp-gateway/
 - GitHub MCP: https://github.com/github/github-mcp-server and https://docs.github.com/en/copilot/how-tos/provide-context/use-mcp/use-the-github-mcp-server
-- Graphiti: https://github.com/getzep/graphiti and docs: https://help.getzep.com/graphiti/getting-started/mcp-server
+- letta: https://github.com/getzep/letta and docs: https://help.getzep.com/letta/getting-started/mcp-server
 - Letta memory mgmt: https://docs.letta.com/advanced/memory-management/
 - CAN-SPAM guide (FTC): https://www.ftc.gov/business-guidance/resources/can-spam-act-compliance-guide-business
 - GLBA overview (FTC): https://www.ftc.gov/business-guidance/privacy-security/gramm-leach-bliley-act

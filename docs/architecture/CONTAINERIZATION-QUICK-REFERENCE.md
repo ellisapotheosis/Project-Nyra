@@ -36,7 +36,7 @@ docker-compose -f workers/docker-compose.worker-rtx<GPU>.yml up -d
 - **Letta** (8283) - Conversation memory
 - **Mem0** (4321) - Universal memory
 - **Claude Flow** (3010) - Multi-agent orchestrator
-- **AgentDB** (8080) - HNSW vector storage
+- **ruvector** (8080) - HNSW vector storage
 - **RuVector** (8888) - Memory optimization
 - **Infisical** (8082) - Secrets management
 
@@ -113,8 +113,8 @@ http://192.168.1.103:4001        # Worker RTX 3090Ti
 | Category | Size | Services |
 |----------|------|----------|
 | **Databases** | ~200GB | PostgreSQL, Neo4j, FalkorDB |
-| **Memory Systems** | ~50GB | Letta, Mem0, AgentDB |
-| **Vectors** | ~35GB | Qdrant, AgentDB |
+| **Memory Systems** | ~50GB | Letta, Mem0, ruvector |
+| **Vectors** | ~35GB | Qdrant, ruvector |
 | **Monitoring** | ~155GB | Prometheus (30d), Loki (30d) |
 | **Models (per worker)** | ~50GB | Ollama cache |
 | **Other** | ~90GB | Redis, configs, logs |
@@ -155,7 +155,7 @@ docker ps --filter "name=nyra"
 docker inspect nyra-nexus | jq '.[].State.Health'
 
 # Test connectivity
-docker exec nyra-claude-flow curl http://nexus-router:6000/health
+docker exec nyra-archon-os curl http://nexus-router:6000/health
 ```
 
 ### Debugging

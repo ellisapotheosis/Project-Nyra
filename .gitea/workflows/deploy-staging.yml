@@ -96,7 +96,7 @@ jobs:
 
           # Image versions (latest main builds)
           NEXUS_ROUTER_IMAGE=${REGISTRY}/nyra/nexus-router:${SHORT_SHA}
-          CLAUDE_FLOW_IMAGE=${REGISTRY}/nyra/claude-flow:${SHORT_SHA}
+          CLAUDE_FLOW_IMAGE=${REGISTRY}/nyra/archon-os:${SHORT_SHA}
           QUOTE_ENGINE_IMAGE=${REGISTRY}/nyra/quote-engine:${SHORT_SHA}
           CAMPAIGN_ENGINE_IMAGE=${REGISTRY}/nyra/campaign-engine:${SHORT_SHA}
 

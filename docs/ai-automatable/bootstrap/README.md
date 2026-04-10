@@ -9,7 +9,7 @@ Complete Claude Flow environment configuration:
 - Core Claude Flow settings
 - Multi-provider API support (Anthropic, OpenRouter, OpenAI, Gemini)
 - Swarm coordination and topology
-- AgentDB with quantization and HNSW indexing
+- ruvector with quantization and HNSW indexing
 - ReasoningBank adaptive learning
 - Neural network auto-optimization
 - Memory persistence and compression
@@ -36,12 +36,12 @@ Template for environment variables with all configurable options
 
 1. **Install Claude Flow:**
    ```bash
-   npm install -g claude-flow@alpha
+   npm install -g archon-os@alpha
    ```
 
 2. **Initialize configuration:**
    ```bash
-   npx @claude-flow/cli@latest init --force
+   npx @archon-os/cli@latest init --force
    ```
 
 3. **Copy environment file:**
@@ -62,8 +62,8 @@ Template for environment variables with all configurable options
 
 6. **Test installation:**
    ```bash
-   npx @claude-flow/cli@latest swarm init --topology mesh
-   npx @claude-flow/cli@latest agent list
+   npx @archon-os/cli@latest swarm init --topology mesh
+   npx @archon-os/cli@latest agent list
    ```
 
 ## Features Enabled
@@ -80,7 +80,7 @@ Template for environment variables with all configurable options
 - **Performance Optimizer**: Auto-tune for speed/accuracy/efficiency
 
 ### 💾 **Memory Systems**
-- **AgentDB**: Vector database with scalar quantization (150x faster)
+- **ruvector**: Vector database with scalar quantization (150x faster)
 - **ReasoningBank**: Adaptive learning from experience
 - **Namespaces**: swarm, tasks, patterns, errors, optimizations
 - **90-day retention**: Automatic cleanup
@@ -123,54 +123,54 @@ Template for environment variables with all configurable options
 
 ### Initialize Swarm
 ```bash
-npx @claude-flow/cli@latest swarm init --topology hierarchical --agents 10
+npx @archon-os/cli@latest swarm init --topology hierarchical --agents 10
 ```
 
 ### Orchestrate Complex Task
 ```bash
-npx @claude-flow/cli@latest task orchestrate "Build REST API with tests" --strategy adaptive --max-agents 5
+npx @archon-os/cli@latest task orchestrate "Build REST API with tests" --strategy adaptive --max-agents 5
 ```
 
 ### Memory Operations
 ```bash
 # Store
-npx @claude-flow/cli@latest memory store --key "api/design" --value "RESTful with JWT auth" --namespace tasks
+npx @archon-os/cli@latest memory store --key "api/design" --value "RESTful with JWT auth" --namespace tasks
 
 # Retrieve
-npx @claude-flow/cli@latest memory retrieve --key "api/design" --namespace tasks
+npx @archon-os/cli@latest memory retrieve --key "api/design" --namespace tasks
 ```
 
 ### Neural Training
 ```bash
-npx @claude-flow/cli@latest neural train --pattern code-review
-npx @claude-flow/cli@latest neural status
+npx @archon-os/cli@latest neural train --pattern code-review
+npx @archon-os/cli@latest neural status
 ```
 
 ### Checkpoints
 ```bash
 # Create
-npx @claude-flow/cli@latest checkpoint create --message "API milestone"
+npx @archon-os/cli@latest checkpoint create --message "API milestone"
 
 # List
-npx @claude-flow/cli@latest checkpoint list
+npx @archon-os/cli@latest checkpoint list
 
 # Restore
-npx @claude-flow/cli@latest checkpoint restore <id>
+npx @archon-os/cli@latest checkpoint restore <id>
 ```
 
 ### Truth Verification
 ```bash
 # Verify file
-npx @claude-flow/cli@latest verify verify src/api.ts --threshold 0.95
+npx @archon-os/cli@latest verify verify src/api.ts --threshold 0.95
 
 # Get report
-npx @claude-flow/cli@latest truth --report --json
+npx @archon-os/cli@latest truth --report --json
 ```
 
 ## Configuration Tips
 
 1. **Start small**: Begin with 5-10 agents, scale up as needed
-2. **Monitor memory**: Check `.claude-flow/memory/` size regularly
+2. **Monitor memory**: Check `.archon-os/memory/` size regularly
 3. **Tune neural models**: Adjust learning rates based on performance
 4. **GitHub integration**: Set `GITHUB_TOKEN` for automatic backups
 5. **Use Infisical**: Centralize secrets management across team
@@ -179,24 +179,24 @@ npx @claude-flow/cli@latest truth --report --json
 
 **Agents not spawning?**
 ```bash
-npx @claude-flow/cli@latest swarm status --verbose
-npx @claude-flow/cli@latest diagnostics --api-check
+npx @archon-os/cli@latest swarm status --verbose
+npx @archon-os/cli@latest diagnostics --api-check
 ```
 
 **Memory issues?**
 ```bash
-npx @claude-flow/cli@latest memory usage
-npx @claude-flow/cli@latest memory compress --namespace all
+npx @archon-os/cli@latest memory usage
+npx @archon-os/cli@latest memory compress --namespace all
 ```
 
 **Performance slow?**
 ```bash
-npx @claude-flow/cli@latest benchmark run --type swarm
-npx @claude-flow/cli@latest analysis bottleneck-detect
+npx @archon-os/cli@latest benchmark run --type swarm
+npx @archon-os/cli@latest analysis bottleneck-detect
 ```
 
 ## Support
 
-- Documentation: https://github.com/ruvnet/claude-flow
-- Issues: https://github.com/ruvnet/claude-flow/issues
-- Discussions: https://github.com/ruvnet/claude-flow/discussions
+- Documentation: https://github.com/ruvnet/archon-os
+- Issues: https://github.com/ruvnet/archon-os/issues
+- Discussions: https://github.com/ruvnet/archon-os/discussions

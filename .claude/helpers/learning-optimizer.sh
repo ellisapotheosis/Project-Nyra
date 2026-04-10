@@ -6,8 +6,8 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
-LEARNING_DIR="$PROJECT_ROOT/.claude-flow/learning"
-METRICS_DIR="$PROJECT_ROOT/.claude-flow/metrics"
+LEARNING_DIR="$PROJECT_ROOT/.archon-os/learning"
+METRICS_DIR="$PROJECT_ROOT/.archon-os/metrics"
 PATTERNS_DB="$LEARNING_DIR/patterns.db"
 LEARNING_FILE="$METRICS_DIR/learning.json"
 LAST_RUN_FILE="$METRICS_DIR/.optimizer-last-run"
@@ -105,8 +105,8 @@ EOF
 run_sona_training() {
   echo "[$(date +%H:%M:%S)] Spawning SONA learning agent..."
 
-  # Use agentic-flow for deep learning optimization
-  npx agentic-flow@alpha hooks intelligence 2>/dev/null || true
+  # Use archon-os for deep learning optimization
+  npx archon-os@alpha hooks intelligence 2>/dev/null || true
 
   echo "[$(date +%H:%M:%S)] ✓ SONA training triggered"
 }

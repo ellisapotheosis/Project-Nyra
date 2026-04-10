@@ -40,10 +40,10 @@ This guide provides proven best practices for maximizing the effectiveness of th
 
 ```bash
 # Initialize hierarchical swarm
-npx @claude-flow/cli@latest hive-mind init --topology hierarchical --max-agents 31
+npx @archon-os/cli@latest hive-mind init --topology hierarchical --max-agents 31
 
 # Example: End-to-end loan processing
-npx @claude-flow/cli@latest hive-mind spawn \
+npx @archon-os/cli@latest hive-mind spawn \
   "Process 50 loan applications: validate, quote, and campaign" \
   --workers 15 --parallel
 ```
@@ -63,7 +63,7 @@ npx @claude-flow/cli@latest hive-mind spawn \
 
 ```bash
 # Mesh for document analysis
-npx @claude-flow/cli@latest swarm "Analyze 100 mortgage documents" \
+npx @archon-os/cli@latest swarm "Analyze 100 mortgage documents" \
   --topology mesh --agents 20 --parallel
 ```
 
@@ -82,7 +82,7 @@ npx @claude-flow/cli@latest swarm "Analyze 100 mortgage documents" \
 
 ```bash
 # Adaptive topology switches based on task
-npx claude-flow hive init --topology adaptive --max-agents 31
+npx archon-os hive init --topology adaptive --max-agents 31
 ```
 
 **How it works**: Starts as mesh, switches to hierarchical if coordination needed.
@@ -109,11 +109,11 @@ npx claude-flow hive init --topology adaptive --max-agents 31
 #### Example: Quote Engine Development
 ```bash
 # GOOD: Use specialized agents
-npx claude-flow sparc run all "Build Quote Engine FastAPI service" \
+npx archon-os sparc run all "Build Quote Engine FastAPI service" \
   --agents planner,coder,tester
 
 # BAD: Generic agent for everything
-npx claude-flow task "Build Quote Engine" --agent researcher
+npx archon-os task "Build Quote Engine" --agent researcher
 ```
 
 ---
@@ -125,7 +125,7 @@ npx claude-flow task "Build Quote Engine" --agent researcher
 #### ✅ CORRECT: Batch Operations
 ```bash
 # Deploy multiple services simultaneously
-npx claude-flow task "Deploy Quote Engine, Campaign Engine, Orchestrator" \
+npx archon-os task "Deploy Quote Engine, Campaign Engine, Orchestrator" \
   --parallel --agents coder,coder,coder
 
 # Result: 3 services deployed in time of 1
@@ -134,9 +134,9 @@ npx claude-flow task "Deploy Quote Engine, Campaign Engine, Orchestrator" \
 #### ❌ WRONG: Sequential Operations
 ```bash
 # Don't do this!
-npx claude-flow task "Deploy Quote Engine"
-npx claude-flow task "Deploy Campaign Engine"
-npx claude-flow task "Deploy Orchestrator"
+npx archon-os task "Deploy Quote Engine"
+npx archon-os task "Deploy Campaign Engine"
+npx archon-os task "Deploy Orchestrator"
 
 # Result: 3x slower
 ```
@@ -150,9 +150,9 @@ npx claude-flow task "Deploy Orchestrator"
 #### Example: New Feature Development
 ```bash
 # GOOD: Decomposed into phases
-npx claude-flow sparc run specification "Add OCR document upload"
-npx claude-flow sparc run architecture "Add OCR document upload"
-npx claude-flow sparc run completion "Add OCR document upload"
+npx archon-os sparc run specification "Add OCR document upload"
+npx archon-os sparc run architecture "Add OCR document upload"
+npx archon-os sparc run completion "Add OCR document upload"
 
 # Uses SPARC methodology: Specification → Architecture → Completion
 ```
@@ -160,7 +160,7 @@ npx claude-flow sparc run completion "Add OCR document upload"
 #### Anti-Pattern: Monolithic Task
 ```bash
 # BAD: Single massive task
-npx claude-flow task "Build entire loan origination system with OCR, validation, quote generation, compliance, and UI"
+npx archon-os task "Build entire loan origination system with OCR, validation, quote generation, compliance, and UI"
 
 # Result: Poor quality, missed requirements
 ```
@@ -171,7 +171,7 @@ npx claude-flow task "Build entire loan origination system with OCR, validation,
 
 ## 2. Memory Management
 
-### 🗄️ AgentDB HNSW Optimization
+### 🗄️ ruvector HNSW Optimization
 
 **Use HNSW indexing for 150x-12,500x faster vector search.**
 
@@ -180,7 +180,7 @@ npx claude-flow task "Build entire loan origination system with OCR, validation,
 // .claude/settings.json
 {
   "memory": {
-    "backend": "agentdb",
+    "backend": "ruvector",
     "hnsw": {
       "M": 16,              // Connections per node (16 recommended)
       "efConstruction": 200, // Build quality (higher = better)
@@ -389,7 +389,7 @@ const scenarios = await cache.get("mortgage-scenarios-2026", async () => {
 #### 3. Batch API Calls
 ```bash
 # Process 50 leads in batch (1 API call instead of 50)
-npx claude-flow batch "Score and qualify 50 leads from freerateupdate.com" \
+npx archon-os batch "Score and qualify 50 leads from freerateupdate.com" \
   --batch-size 50 --parallel
 ```
 
@@ -471,24 +471,24 @@ const stateRequirements = {
 #### Validation Points
 ```bash
 # 1. Lead intake - Verify no discriminatory factors
-npx claude-flow task "Validate lead intake compliance" \
+npx archon-os task "Validate lead intake compliance" \
   --agent compliance-sentinel \
   --rules tila,respa,ecoa
 
 # 2. Quote generation - Verify APR accuracy
-npx claude-flow task "Validate quote compliance" \
+npx archon-os task "Validate quote compliance" \
   --agent compliance-sentinel \
   --rules tila,cfpb \
   --tolerance 0.00125  # ±0.125%
 
 # 3. Disclosure generation - Verify forms are current
-npx claude-flow task "Validate disclosure forms" \
+npx archon-os task "Validate disclosure forms" \
   --agent compliance-sentinel \
   --rules tila,respa,cfpb \
   --form-version 2026-01
 
 # 4. Campaign automation - Verify no prohibited content
-npx claude-flow task "Validate campaign messages" \
+npx archon-os task "Validate campaign messages" \
   --agent compliance-sentinel \
   --rules tcpa,cfpb \
   --consent-verified true
@@ -930,7 +930,7 @@ async def health_check():
         "database": await check_database(),
         "redis": await check_redis(),
         "nexus": await check_nexus_router(),
-        "agentdb": await check_agentdb(),
+        "ruvector": await check_ruvector(),
         "disk_space": await check_disk_space(),
         "memory": await check_memory()
     }
@@ -1350,12 +1350,12 @@ const allLeads = await Promise.all([
 
 ### Documentation
 - **[Complete Setup Guide](../setup-guides/00-MASTER-SETUP-GUIDE.md)** - 7-phase deployment
-- **[Troubleshooting Guide](../troubleshooting/CLAUDE-FLOW-ZOD-FIX.md)** - Issue solutions
-- **[Claude Flow Workflows](../workflows/TOP-15-CLAUDE-FLOW-WORKFLOWS.md)** - Essential workflows
-- **[Version Comparison](../CLAUDE-FLOW-VERSION-COMPARISON.md)** - Migration guide
+- **[Troubleshooting Guide](../troubleshooting/archon-os-ZOD-FIX.md)** - Issue solutions
+- **[Claude Flow Workflows](../workflows/TOP-15-archon-os-WORKFLOWS.md)** - Essential workflows
+- **[Version Comparison](../archon-os-VERSION-COMPARISON.md)** - Migration guide
 
 ### External Resources
-- **Claude Flow Documentation**: https://docs.claude-flow.dev
+- **Claude Flow Documentation**: https://docs.archon-os.dev
 - **TwentyCRM Docs**: https://docs.twenty.com
 - **n8n Workflow Library**: https://n8n.io/workflows
 - **CFPB Compliance**: https://www.consumerfinance.gov/compliance

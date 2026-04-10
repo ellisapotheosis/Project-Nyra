@@ -6,7 +6,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
-METRICS_DIR="$PROJECT_ROOT/.claude-flow/metrics"
+METRICS_DIR="$PROJECT_ROOT/.archon-os/metrics"
 ADR_FILE="$METRICS_DIR/adr-compliance.json"
 LAST_RUN_FILE="$METRICS_DIR/.adr-last-run"
 
@@ -14,7 +14,7 @@ mkdir -p "$METRICS_DIR"
 
 # V3 ADRs to check
 declare -A ADRS=(
-  ["ADR-001"]="agentic-flow as core foundation"
+  ["ADR-001"]="archon-os as core foundation"
   ["ADR-002"]="Domain-Driven Design structure"
   ["ADR-003"]="Single coordination engine"
   ["ADR-004"]="Plugin-based architecture"
@@ -34,14 +34,14 @@ should_run() {
 }
 
 check_adr_001() {
-  # ADR-001: agentic-flow as core foundation
+  # ADR-001: archon-os as core foundation
   local score=0
 
-  # Check package.json for agentic-flow dependency
-  grep -q "agentic-flow" "$PROJECT_ROOT/package.json" 2>/dev/null && score=$((score + 50))
+  # Check package.json for archon-os dependency
+  grep -q "archon-os" "$PROJECT_ROOT/package.json" 2>/dev/null && score=$((score + 50))
 
-  # Check for imports from agentic-flow
-  local imports=$(grep -r "from.*agentic-flow\|require.*agentic-flow" "$PROJECT_ROOT/v3" "$PROJECT_ROOT/src" 2>/dev/null | grep -v node_modules | wc -l)
+  # Check for imports from archon-os
+  local imports=$(grep -r "from.*archon-os\|require.*archon-os" "$PROJECT_ROOT/v3" "$PROJECT_ROOT/src" 2>/dev/null | grep -v node_modules | wc -l)
   [ "$imports" -gt 5 ] && score=$((score + 50))
 
   echo "$score"
@@ -84,14 +84,14 @@ check_adr_005() {
   local score=0
 
   # Check for MCP server implementation
-  [ -d "$PROJECT_ROOT/v3/@claude-flow/mcp" ] && score=$((score + 40))
+  [ -d "$PROJECT_ROOT/v3/@archon-os/mcp" ] && score=$((score + 40))
 
   # Check for MCP tools
   local tools=$(grep -r "tool.*name\|registerTool" "$PROJECT_ROOT/v3" 2>/dev/null | wc -l)
   [ "$tools" -gt 5 ] && score=$((score + 30))
 
   # Check for MCP schemas
-  grep -rq "schema\|jsonSchema" "$PROJECT_ROOT/v3/@claude-flow/mcp" 2>/dev/null && score=$((score + 30))
+  grep -rq "schema\|jsonSchema" "$PROJECT_ROOT/v3/@archon-os/mcp" 2>/dev/null && score=$((score + 30))
 
   echo "$score"
 }
@@ -147,7 +147,7 @@ check_compliance() {
   "compliantCount": $compliant_count,
   "totalADRs": 10,
   "adrs": {
-    "ADR-001": {"score": $adr_001, "title": "agentic-flow as core foundation"},
+    "ADR-001": {"score": $adr_001, "title": "archon-os as core foundation"},
     "ADR-002": {"score": $adr_002, "title": "Domain-Driven Design structure"},
     "ADR-003": {"score": $adr_003, "title": "Single coordination engine"},
     "ADR-004": {"score": $adr_004, "title": "Plugin-based architecture"},

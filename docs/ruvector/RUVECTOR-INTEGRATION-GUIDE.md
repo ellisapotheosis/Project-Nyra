@@ -55,7 +55,7 @@ RuVector is the intelligent memory and learning framework powering Claude Flow V
    - Trajectory judgment: <5ms
    - Memory distillation: <50ms
 
-3. **AgentDB Backend**
+3. **ruvector Backend**
    - Vector search: 150x-12,500x faster
    - Sub-millisecond search (<100µs)
    - Quantization: 4-32x memory reduction
@@ -79,27 +79,27 @@ node --version  # v20.0.0+
 bun --version   # 1.3.0+
 
 # Install Claude Flow V3 Alpha
-npm install -D @claude-flow/cli@latest
+npm install -D @archon-os/cli@latest
 
-# Install AgentDB (RuVector backend)
-npm install -g agentdb@latest
+# Install ruvector (RuVector backend)
+npm install -g ruvector@latest
 ```
 
 ### Initialize RuVector
 
 ```bash
-# 1. Initialize AgentDB database for ReasoningBank
-agentdb init ./.agentdb/reasoningbank.db --dimension 1536
+# 1. Initialize ruvector database for ReasoningBank
+ruvector init ./.ruvector/reasoningbank.db --dimension 1536
 
-# 2. Configure claude-flow for RuVector
-bun x @claude-flow/cli@latest config set memory.backend hybrid
-bun x @claude-flow/cli@latest config set memory.enableHNSW true
+# 2. Configure archon-os for RuVector
+bun x @archon-os/cli@latest config set memory.backend hybrid
+bun x @archon-os/cli@latest config set memory.enableHNSW true
 
 # 3. Start the daemon with intelligence workers
-bun x @claude-flow/cli@latest daemon start
+bun x @archon-os/cli@latest daemon start
 
 # 4. Verify setup
-bun x @claude-flow/cli@latest doctor
+bun x @archon-os/cli@latest doctor
 ```
 
 ---
@@ -141,7 +141,7 @@ RUVECTOR_BACKUP_INTERVAL_SECONDS=3600
 RUVECTOR_STORAGE_PATH=/mnt/nyra-data/ruvector
 ```
 
-### Claude Flow Config (claude-flow.config.json)
+### Claude Flow Config (archon-os.config.json)
 
 ```json
 {
@@ -240,13 +240,13 @@ await hooks.intelligence.trajectoryEnd({
 
 ```bash
 # Start tracking
-bun x @claude-flow/cli@latest hooks intelligence trajectory-start --session-id "task-123"
+bun x @archon-os/cli@latest hooks intelligence trajectory-start --session-id "task-123"
 
 # Record steps
-bun x @claude-flow/cli@latest hooks intelligence trajectory-step --operation "code-generation"
+bun x @archon-os/cli@latest hooks intelligence trajectory-step --operation "code-generation"
 
 # End with verdict
-bun x @claude-flow/cli@latest hooks intelligence trajectory-end --verdict "success" --reward 0.95
+bun x @archon-os/cli@latest hooks intelligence trajectory-end --verdict "success" --reward 0.95
 ```
 
 ### 2. Pattern Retrieval & Matching
@@ -255,7 +255,7 @@ bun x @claude-flow/cli@latest hooks intelligence trajectory-end --verdict "succe
 
 ```typescript
 // Search for similar patterns
-const similarPatterns = await agentdb.search({
+const similarPatterns = await ruvector.search({
   query: "implement authentication with JWT",
   namespace: "patterns",
   limit: 10,
@@ -278,7 +278,7 @@ if (bestPattern.confidence > 0.85) {
 
 ```bash
 # Search memory
-bun x @claude-flow/cli@latest memory search \
+bun x @archon-os/cli@latest memory search \
   --query "implement authentication with JWT" \
   --namespace patterns \
   --limit 10 \
@@ -300,7 +300,7 @@ interface VerdictJudgment {
 
 async function judgeOutcome(trajectory: Trajectory): Promise<VerdictJudgment> {
   // Retrieve similar past trajectories
-  const similar = await agentdb.search({
+  const similar = await ruvector.search({
     embedding: trajectory.embedding,
     limit: 10,
     filters: { verdict: "success" }
@@ -326,7 +326,7 @@ async function judgeOutcome(trajectory: Trajectory): Promise<VerdictJudgment> {
 
 ```typescript
 // Retrieve all experiences in domain
-const experiences = await agentdb.search({
+const experiences = await ruvector.search({
   query: "error handling strategies",
   namespace: "patterns",
   limit: 100
@@ -340,7 +340,7 @@ const distilledPattern = await neural.distill({
 });
 
 // Store distilled pattern
-await agentdb.store({
+await ruvector.store({
   type: "distilled-pattern",
   content: distilledPattern.summary,
   embedding: distilledPattern.embedding,
@@ -357,7 +357,7 @@ await agentdb.store({
 
 ```bash
 # Consolidate memory
-bun x @claude-flow/cli@latest neural consolidate \
+bun x @archon-os/cli@latest neural consolidate \
   --namespace patterns \
   --query "error handling strategies" \
   --optimize-memory true
@@ -370,7 +370,7 @@ bun x @claude-flow/cli@latest neural consolidate \
 ```bash
 # In CLAUDE.md or workflow
 # After editing a file successfully
-bun x @claude-flow/cli@latest hooks post-edit \
+bun x @archon-os/cli@latest hooks post-edit \
   --file "src/auth/jwt-service.ts" \
   --success true \
   --train-neural true
@@ -390,7 +390,7 @@ This automatically:
 
 ```typescript
 // Share learned patterns across agents
-const sharedPatterns = await agentdb.search({
+const sharedPatterns = await ruvector.search({
   namespace: "shared-patterns",
   limit: 50
 });
@@ -426,7 +426,7 @@ await federatedAggregator.sync(federatedConfig);
 
 ```typescript
 // Retrieve past experiences for training
-const pastExperiences = await agentdb.search({
+const pastExperiences = await ruvector.search({
   namespace: "trajectories",
   filters: {
     verdict: "success",
@@ -448,7 +448,7 @@ await neural.train({
 
 ## 🔍 9 Reinforcement Learning Algorithms
 
-### Available in AgentDB Learning Plugin
+### Available in ruvector Learning Plugin
 
 1. **Decision Transformer** (Recommended)
    - Offline RL via sequence modeling
@@ -499,7 +499,7 @@ await neural.train({
 
 ```bash
 # Train with Decision Transformer (recommended)
-bun x @claude-flow/cli@latest neural train \
+bun x @archon-os/cli@latest neural train \
   --pattern-type coordination \
   --algorithm decision-transformer \
   --epochs 10 \
@@ -537,25 +537,25 @@ bun x @claude-flow/cli@latest neural train \
 
 ```bash
 # Store pattern
-bun x @claude-flow/cli@latest memory store \
+bun x @archon-os/cli@latest memory store \
   --key "pattern-auth-jwt" \
   --value "Use JWT with refresh tokens for stateless auth" \
   --namespace patterns \
   --tags "auth,jwt,security"
 
 # Search patterns
-bun x @claude-flow/cli@latest memory search \
+bun x @archon-os/cli@latest memory search \
   --query "authentication patterns" \
   --namespace patterns \
   --limit 10
 
 # Retrieve specific pattern
-bun x @claude-flow/cli@latest memory retrieve \
+bun x @archon-os/cli@latest memory retrieve \
   --key "pattern-auth-jwt" \
   --namespace patterns
 
 # List all patterns
-bun x @claude-flow/cli@latest memory list \
+bun x @archon-os/cli@latest memory list \
   --namespace patterns \
   --limit 50
 ```
@@ -564,24 +564,24 @@ bun x @claude-flow/cli@latest memory list \
 
 ```bash
 # Start trajectory
-bun x @claude-flow/cli@latest hooks intelligence trajectory-start \
+bun x @archon-os/cli@latest hooks intelligence trajectory-start \
   --session-id "task-123" \
   --task-type "code-generation"
 
 # Record step
-bun x @claude-flow/cli@latest hooks intelligence trajectory-step \
+bun x @archon-os/cli@latest hooks intelligence trajectory-step \
   --type "action" \
   --operation "generate-class" \
   --metadata '{"language":"typescript"}'
 
 # End with verdict
-bun x @claude-flow/cli@latest hooks intelligence trajectory-end \
+bun x @archon-os/cli@latest hooks intelligence trajectory-end \
   --verdict "success" \
   --reward 0.95 \
   --metadata '{"testsPass":true}'
 
 # View statistics
-bun x @claude-flow/cli@latest hooks intelligence pattern-stats \
+bun x @archon-os/cli@latest hooks intelligence pattern-stats \
   --query "code-generation"
 ```
 
@@ -589,37 +589,37 @@ bun x @claude-flow/cli@latest hooks intelligence pattern-stats \
 
 ```bash
 # Train patterns
-bun x @claude-flow/cli@latest neural train \
+bun x @archon-os/cli@latest neural train \
   --pattern-type coordination \
   --epochs 10 \
   --learning-rate 0.001
 
 # Predict optimal approach
-bun x @claude-flow/cli@latest neural predict \
+bun x @archon-os/cli@latest neural predict \
   --input "implement microservice communication"
 
 # View learned patterns
-bun x @claude-flow/cli@latest neural patterns --list
+bun x @archon-os/cli@latest neural patterns --list
 
 # Consolidate memory
-bun x @claude-flow/cli@latest neural consolidate \
+bun x @archon-os/cli@latest neural consolidate \
   --namespace reasoningbank
 ```
 
-### AgentDB Operations
+### ruvector Operations
 
 ```bash
 # Initialize database
-agentdb init ./.agentdb/reasoningbank.db --dimension 1536
+ruvector init ./.ruvector/reasoningbank.db --dimension 1536
 
 # Migrate from existing memory
-agentdb migrate --source .swarm/memory.db --target ./.agentdb/reasoningbank.db
+ruvector migrate --source .swarm/memory.db --target ./.ruvector/reasoningbank.db
 
 # View statistics
-agentdb stats ./.agentdb/reasoningbank.db
+ruvector stats ./.ruvector/reasoningbank.db
 
 # Optimize database
-agentdb optimize ./.agentdb/reasoningbank.db --vacuum --rebuild-index
+ruvector optimize ./.ruvector/reasoningbank.db --vacuum --rebuild-index
 ```
 
 ---
@@ -629,10 +629,10 @@ agentdb optimize ./.agentdb/reasoningbank.db --vacuum --rebuild-index
 Navigate to `.claude/skills/` directory:
 
 - **reasoningbank-intelligence** - Adaptive learning with ReasoningBank
-- **reasoningbank-agentdb** - ReasoningBank with AgentDB backend (150x faster)
-- **agentdb-learning** - 9 RL algorithms for agent training
-- **agentdb-vector-search** - Semantic vector search
-- **agentdb-optimization** - Performance optimization and quantization
+- **reasoningbank-ruvector** - ReasoningBank with ruvector backend (150x faster)
+- **ruvector-learning** - 9 RL algorithms for agent training
+- **ruvector-vector-search** - Semantic vector search
+- **ruvector-optimization** - Performance optimization and quantization
 - **agentic-jujutsu** - Self-learning version control
 
 ---
@@ -643,11 +643,11 @@ Navigate to `.claude/skills/` directory:
 
 ```bash
 # Before starting any task
-bun x @claude-flow/cli@latest memory search --query '[task keywords]' --namespace patterns
+bun x @archon-os/cli@latest memory search --query '[task keywords]' --namespace patterns
 
 # After completing any task successfully
-bun x @claude-flow/cli@latest memory store --namespace patterns --key '[pattern-name]' --value '[what worked]'
-bun x @claude-flow/cli@latest hooks post-edit --file '[main-file]' --train-neural true
+bun x @archon-os/cli@latest memory store --namespace patterns --key '[pattern-name]' --value '[what worked]'
+bun x @archon-os/cli@latest hooks post-edit --file '[main-file]' --train-neural true
 ```
 
 ### In Package Scripts
@@ -655,9 +655,9 @@ bun x @claude-flow/cli@latest hooks post-edit --file '[main-file]' --train-neura
 ```json
 {
   "scripts": {
-    "learn:consolidate": "bun x @claude-flow/cli@latest neural consolidate",
-    "learn:train": "bun x @claude-flow/cli@latest neural train --epochs 10",
-    "memory:backup": "agentdb backup ./.agentdb/reasoningbank.db"
+    "learn:consolidate": "bun x @archon-os/cli@latest neural consolidate",
+    "learn:train": "bun x @archon-os/cli@latest neural train --epochs 10",
+    "memory:backup": "ruvector backup ./.ruvector/reasoningbank.db"
   }
 }
 ```
@@ -678,7 +678,7 @@ bun x @claude-flow/cli@latest hooks post-edit --file '[main-file]' --train-neura
 
 - **Skills:** `.claude/skills/reasoningbank-*`
 - **Agents:** `.claude/agents/v3/reasoningbank-learner.md`
-- **Type Definitions:** `node_modules/@claude-flow/cli/dist/src/memory/intelligence.d.ts`
+- **Type Definitions:** `node_modules/@archon-os/cli/dist/src/memory/intelligence.d.ts`
 - **Environment:** `.env.master` (RuVector configuration)
 - **CLAUDE.md:** Lines 481-530 (RuVector Intelligence System)
 

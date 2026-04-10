@@ -53,7 +53,7 @@ class MCPIntegration extends EventEmitter {
                     timeout: 45000,
                     retries: 2
                 },
-                'claude-flow': {
+                'archon-os': {
                     host: 'localhost',
                     port: 3003,
                     capabilities: [

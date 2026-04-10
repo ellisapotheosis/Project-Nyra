@@ -2,7 +2,7 @@
 
 ## Executive Summary
 
-This document is your sequenced execution playbook. Each phase contains **ready-to-fire prompts** for your agent stack (claude-code, claude-flow, Antigravity, Archon OS) with clear dependencies, acceptance criteria, and the exact order to ship Project Nyra.
+This document is your sequenced execution playbook. Each phase contains **ready-to-fire prompts** for your agent stack (claude-code, archon-os, Antigravity, Archon OS) with clear dependencies, acceptance criteria, and the exact order to ship Project Nyra.
 
 **Current State**: Infrastructure partially deployed (Tailscale mesh, Docker containers, LiteLLM, GPU workers operational). Core business apps (Twenty CRM, Activepieces, OpenClaw/MoltBot, landing page, drip campaigns) are designed but not built.
 
@@ -113,7 +113,7 @@ OUTPUT: NETWORK-MAP.md with full topology diagram (ASCII or Mermaid)
 
 ### Prompt 1.1 — Twenty CRM Deployment & Custom Mortgage Objects
 
-**Agent**: claude-code or claude-flow (multi-step)
+**Agent**: claude-code or archon-os (multi-step)
 **Estimated Time**: 2-3 hours
 **Dependencies**: Phase 0 complete
 
@@ -493,7 +493,7 @@ TASKS:
 
 4. CONFIGURE conversation memory:
    - Use Qdrant for semantic search of past conversations
-   - Use Graphiti for entity relationships (borrower ↔ loan ↔ status)
+   - Use letta for entity relationships (borrower ↔ loan ↔ status)
    - Conversations persist across sessions
 
 5. TEST with sample scenarios:
@@ -563,7 +563,7 @@ This is scaffolding only — actual voice implementation is Phase 7.
 
 ### Prompt 4.1 — New Lead Nurture Campaign (7-Day Sequence)
 
-**Agent**: claude-flow (multi-agent for parallel work)
+**Agent**: archon-os (multi-agent for parallel work)
 **Estimated Time**: 3-4 hours
 **Dependencies**: Phases 1-3 complete
 
@@ -644,7 +644,7 @@ ACCEPTANCE CRITERIA:
 
 ### Prompt 4.2 — Additional Campaign Sequences
 
-**Agent**: claude-flow
+**Agent**: archon-os
 **Estimated Time**: 2-3 hours per campaign
 **Dependencies**: Prompt 4.1 (use same patterns)
 
@@ -921,7 +921,7 @@ ACCEPTANCE CRITERIA:
 
 ### Prompt 7.1 — Borrower Conversation Hub
 
-**Agent**: claude-flow (full-stack feature)
+**Agent**: archon-os (full-stack feature)
 **Estimated Time**: 4-6 hours
 **Dependencies**: All previous phases
 
@@ -1013,7 +1013,7 @@ ACCEPTANCE CRITERIA:
 
 ### Prompt 8.1 — End-to-End Integration Test Suite
 
-**Agent**: claude-flow
+**Agent**: archon-os
 **Estimated Time**: 3-4 hours
 
 ```
@@ -1202,7 +1202,7 @@ OUTPUT:
 | Agent Tool | Best For | Use In Phases |
 |-----------|----------|---------------|
 | **claude-code** | Single-service implementation, Docker configs, API development | 0, 1, 2, 3, 5, 6, 8 |
-| **claude-flow** | Multi-agent parallel work, full-stack features, integration testing | 4, 7, 8 |
+| **archon-os** | Multi-agent parallel work, full-stack features, integration testing | 4, 7, 8 |
 | **Antigravity (Gemini)** | Frontend UI work, landing page, bulk code generation | 6, 7 |
 | **Archon OS** | Prompt management, task tracking, memory management | All (as project manager) |
 

@@ -304,7 +304,7 @@ git commit -m "chore: archive PC-specific bootstrap configs"
 
 # For true deletion (only after verification):
 git rm docker-compose.memory.yml
-git commit -m "chore: remove deprecated memory system config (replaced by graphiti/mem0)"
+git commit -m "chore: remove deprecated memory system config (replaced by letta/mem0)"
 ```
 
 ### Git Commit Strategy
@@ -596,7 +596,7 @@ docker-compose -f infra/docker-compose.yml --profile pc1 up -d
 
 **Before**: `nyra-orchestrator`, `nyra-memory`, `nyra-chromadb`
 
-**After**: `claude-flow`, `graphiti-mcp`, `mem0-mcp`
+**After**: `archon-os`, `letta-mcp`, `mem0-mcp`
 
 **Impact**: Service dependencies, inter-service communication
 

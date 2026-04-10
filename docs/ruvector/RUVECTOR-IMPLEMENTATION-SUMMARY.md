@@ -165,32 +165,32 @@ A comprehensive RuVector/ReasoningBank integration research was conducted using 
 ### 1. Setup (5 minutes)
 
 ```bash
-# Install AgentDB
-npm install -g agentdb@latest
+# Install ruvector
+npm install -g ruvector@latest
 
 # Initialize database
-agentdb init ./.agentdb/reasoningbank.db --dimension 1536
+ruvector init ./.ruvector/reasoningbank.db --dimension 1536
 
-# Configure claude-flow
-bun x @claude-flow/cli@latest config set memory.backend hybrid
-bun x @claude-flow/cli@latest config set memory.enableHNSW true
-bun x @claude-flow/cli@latest config set neural.enabled true
+# Configure archon-os
+bun x @archon-os/cli@latest config set memory.backend hybrid
+bun x @archon-os/cli@latest config set memory.enableHNSW true
+bun x @archon-os/cli@latest config set neural.enabled true
 
 # Start daemon
-bun x @claude-flow/cli@latest daemon start
+bun x @archon-os/cli@latest daemon start
 ```
 
 ### 2. First Pattern (2 minutes)
 
 ```bash
 # Store a pattern
-bun x @claude-flow/cli@latest memory store \
+bun x @archon-os/cli@latest memory store \
   --namespace "patterns" \
   --key "auth-jwt" \
   --value "Use JWT with httpOnly cookies and refresh tokens"
 
 # Search for patterns
-bun x @claude-flow/cli@latest memory search \
+bun x @archon-os/cli@latest memory search \
   --query "authentication security" \
   --namespace "patterns"
 ```
@@ -201,7 +201,7 @@ Add to your workflows:
 
 ```bash
 # After successful edits
-bun x @claude-flow/cli@latest hooks post-edit \
+bun x @archon-os/cli@latest hooks post-edit \
   --file "$FILE" \
   --success true \
   --train-neural true
@@ -279,14 +279,14 @@ bun x @claude-flow/cli@latest hooks post-edit \
 SESSION="feature-$(date +%s)"
 
 # Start tracking
-bun x @claude-flow/cli@latest hooks intelligence trajectory-start \
+bun x @archon-os/cli@latest hooks intelligence trajectory-start \
   --session-id "$SESSION"
 
 # Work on feature...
 # (make edits, write code, test)
 
 # End with verdict
-bun x @claude-flow/cli@latest hooks intelligence trajectory-end \
+bun x @archon-os/cli@latest hooks intelligence trajectory-end \
   --session-id "$SESSION" \
   --verdict "success" \
   --reward 0.92
@@ -297,7 +297,7 @@ bun x @claude-flow/cli@latest hooks intelligence trajectory-end \
 ```bash
 # Edit file successfully
 # Then train neural patterns
-bun x @claude-flow/cli@latest hooks post-edit \
+bun x @archon-os/cli@latest hooks post-edit \
   --file "src/auth/jwt-service.ts" \
   --success true \
   --train-neural true
@@ -307,7 +307,7 @@ bun x @claude-flow/cli@latest hooks post-edit \
 
 ```bash
 # Find patterns from past successes
-bun x @claude-flow/cli@latest memory search \
+bun x @archon-os/cli@latest memory search \
   --query "implement API rate limiting" \
   --namespace "patterns" \
   --threshold 0.8 \
@@ -326,7 +326,7 @@ bun x @claude-flow/cli@latest memory search \
 - [x] Architecture analyzed (4-step pipeline)
 - [x] Performance benchmarks documented
 - [x] Quick-start guide created
-- [ ] AgentDB database initialized
+- [ ] ruvector database initialized
 - [ ] Neural training enabled
 - [ ] First patterns stored
 - [ ] Trajectory tracking implemented
@@ -344,8 +344,8 @@ bun x @claude-flow/cli@latest memory search \
 
 **Skills:**
 - `.claude/skills/reasoningbank-intelligence/SKILL.md`
-- `.claude/skills/reasoningbank-agentdb/SKILL.md`
-- `.claude/skills/agentdb-learning/SKILL.md`
+- `.claude/skills/reasoningbank-ruvector/SKILL.md`
+- `.claude/skills/ruvector-learning/SKILL.md`
 
 **Services:**
 - `services/ruvector-search/` (TypeScript service)
@@ -381,7 +381,7 @@ All research findings have been stored in the `ruvector-research` namespace:
 
 Retrieve with:
 ```bash
-bun x @claude-flow/cli@latest memory search \
+bun x @archon-os/cli@latest memory search \
   --query "ruvector" \
   --namespace "ruvector-research"
 ```

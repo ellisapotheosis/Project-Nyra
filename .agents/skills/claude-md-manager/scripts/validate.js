@@ -90,7 +90,7 @@ class CLAUDEValidator {
     }
 
     // Check for V3-specific patterns
-    if (!this.content.includes('npx @claude-flow/cli@latest')) {
+    if (!this.content.includes('npx @archon-os/cli@latest')) {
       this.warnings.push('No Claude Flow CLI commands found - update to V3 patterns');
     }
   }

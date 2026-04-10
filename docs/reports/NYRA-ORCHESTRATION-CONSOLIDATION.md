@@ -71,7 +71,7 @@ The `nyra-orchestration/` folder (19MB) has been successfully archived to `_arch
 - **Why Archived**: Should be installed via npm, not committed
 
 #### Claude/ (980KB)
-- **What**: Claude Code Development Kit and claude-flow GUI demos
+- **What**: Claude Code Development Kit and archon-os GUI demos
 - **Why Archived**: External demos and cheatsheets
 
 ## Impact Analysis

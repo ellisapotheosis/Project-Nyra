@@ -64,7 +64,7 @@ Write-Host "`n🔍 Test 3: Fuzzy Tool Search" -ForegroundColor Green
 $searchQueries = @(
     @{ Query = "git"; ExpectedResults = @("git", "github", "repository") },
     @{ Query = "docker"; ExpectedResults = @("docker", "container", "image") },
-    @{ Query = "memory"; ExpectedResults = @("qdrant", "graphiti", "mem0") },
+    @{ Query = "memory"; ExpectedResults = @("qdrant", "letta", "mem0") },
     @{ Query = "ai"; ExpectedResults = @("claude", "gemini", "sparc") }
 )
 
@@ -130,27 +130,27 @@ catch {
     Write-Host "❌ Server status check failed: $($_.Exception.Message)" -ForegroundColor Red
 }
 
-# Test 5: Claude-Flow Integration
-Write-Host "`n🤖 Test 5: Claude-Flow MCP Integration" -ForegroundColor Green
+# Test 5: archon-os Integration
+Write-Host "`n🤖 Test 5: archon-os MCP Integration" -ForegroundColor Green
 try {
-    # Test if claude-flow tools are available through the router
-    $claudeFlowTest = Invoke-RestMethod -Uri "$RouterUrl/nyra/complete/search?q=claude-flow" -Method GET -Headers $headers -TimeoutSec 10
+    # Test if archon-os tools are available through the router
+    $claudeFlowTest = Invoke-RestMethod -Uri "$RouterUrl/nyra/complete/search?q=archon-os" -Method GET -Headers $headers -TimeoutSec 10
 
     if ($claudeFlowTest.results -and $claudeFlowTest.results.Count -gt 0) {
-        Write-Host "✅ Claude-Flow tools accessible through router" -ForegroundColor Green
+        Write-Host "✅ archon-os tools accessible through router" -ForegroundColor Green
         if ($Verbose) {
-            Write-Host "   Claude-Flow tools found:" -ForegroundColor Gray
+            Write-Host "   archon-os tools found:" -ForegroundColor Gray
             $claudeFlowTest.results | Select-Object -First 5 | ForEach-Object {
                 Write-Host "     • $($_.tool_name)" -ForegroundColor Gray
             }
         }
     }
     else {
-        Write-Warning "Claude-Flow tools not found through router. May need direct fallback."
+        Write-Warning "archon-os tools not found through router. May need direct fallback."
     }
 }
 catch {
-    Write-Host "❌ Claude-Flow integration test failed: $($_.Exception.Message)" -ForegroundColor Red
+    Write-Host "❌ archon-os integration test failed: $($_.Exception.Message)" -ForegroundColor Red
 }
 
 # Test 6: Load Balancing and Performance

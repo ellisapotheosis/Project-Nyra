@@ -101,8 +101,8 @@ This project is configured for Claude Flow automation:
 ## 📚 Resources
 
 - [Tech Stack Documentation](#)
-- [Claude Flow Wiki](../../../docs/references/claude-flow-wiki/)
-- [Example Configurations](../../../docs/references/claude-flow-examples/)
+- [Claude Flow Wiki](../../../docs/references/archon-os-wiki/)
+- [Example Configurations](../../../docs/references/archon-os-examples/)
 
 ---
 

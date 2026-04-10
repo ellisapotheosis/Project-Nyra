@@ -41,14 +41,14 @@ RUN corepack enable pnpm && \
 # ==========================================
 FROM base
 
-# Install claude-flow CLI globally
-RUN npm install -g @claude-flow/cli@latest
+# Install archon-os CLI globally
+RUN npm install -g @archon-os/cli@latest
 
 WORKDIR /app
 
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./
-COPY --from=builder /app/.claude-flow ./.claude-flow
+COPY --from=builder /app/.archon-os ./.archon-os
 
 # Copy CI/CD scripts
 COPY <<'EOF' /app/start-cicd.sh
@@ -83,7 +83,7 @@ RUN chmod +x /app/start-cicd.sh
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
-  CMD npx @claude-flow/cli@latest status || exit 1
+  CMD npx @archon-os/cli@latest status || exit 1
 
 # Start the CI/CD worker
 CMD ["/app/start-cicd.sh"]

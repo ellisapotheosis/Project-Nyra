@@ -436,8 +436,8 @@ Based on initial glob findings, these files should be organized:
 **RuVector Documentation** (Keep in `docs/` or create `docs/ruvector/`)
 - RUVECTOR-*.md files (10+ files)
 
-**Claude Flow Documentation** (Keep in `docs/` or create `docs/claude-flow/`)
-- CLAUDE-FLOW-*.md files (5+ files)
+**Claude Flow Documentation** (Keep in `docs/` or create `docs/archon-os/`)
+- archon-os-*.md files (5+ files)
 
 **Troubleshooting** (Move to `docs/troubleshooting/`)
 - Error-specific guides

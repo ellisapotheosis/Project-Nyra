@@ -7,8 +7,8 @@
   "findings": {
     "configuration_files_located": [
       ".mcp.json (root MCP config)",
-      "claude-flow.config.json (main config)",
-      ".claude-flow/mcp.json (Claude Flow MCP servers)",
+      "archon-os.config.json (main config)",
+      ".archon-os/mcp.json (Claude Flow MCP servers)",
       "infra/docker/base/docker-compose.mcp.yml (Docker services)",
       "configs/mcp/nyra-mcp-config.json (Nyra-specific config)",
       ".claude/src/mcp/ (MCP integration code)"
@@ -19,9 +19,9 @@
         "status": "ACTIVE",
         "servers_configured": 1,
         "server_details": {
-          "claude-flow": {
+          "archon-os": {
             "type": "stdio",
-            "command": "cmd /c npx @claude-flow/cli@latest mcp start",
+            "command": "cmd /c npx @archon-os/cli@latest mcp start",
             "autoStart": false,
             "environment": {
               "CLAUDE_FLOW_MODE": "v3",
@@ -34,14 +34,14 @@
         }
       },
       "claude_flow_main_config": {
-        "file": "claude-flow.config.json",
+        "file": "archon-os.config.json",
         "status": "ACTIVE",
         "version": "3.0.0",
         "mcp_servers": 1,
         "mcp_server_config": {
-          "claude-flow": {
+          "archon-os": {
             "command": "npx",
-            "args": ["-y", "@claude-flow/cli@latest"],
+            "args": ["-y", "@archon-os/cli@latest"],
             "enabled": true,
             "transport": "stdio"
           }
@@ -80,13 +80,13 @@
         }
       },
       "claude_flow_mcp_servers": {
-        "file": ".claude-flow/mcp.json",
+        "file": ".archon-os/mcp.json",
         "status": "ACTIVE",
         "total_servers": 7,
         "servers": [
           {
-            "name": "claude-flow@alpha",
-            "command": "npx claude-flow@alpha mcp start",
+            "name": "archon-os@alpha",
+            "command": "npx archon-os@alpha mcp start",
             "type": "stdio",
             "features": {
               "memory": "enabled",
@@ -131,8 +131,8 @@
             "description": "Flow Nexus cloud platform integration"
           },
           {
-            "name": "agentic-flow",
-            "command": "npx agentic-flow@latest mcp start",
+            "name": "archon-os",
+            "command": "npx archon-os@latest mcp start",
             "type": "stdio",
             "features": {
               "max_agents": 15,
@@ -142,15 +142,15 @@
             "description": "Agent-based workflow coordination"
           },
           {
-            "name": "agentdb",
-            "command": "npx agentdb@latest mcp start",
+            "name": "ruvector",
+            "command": "npx ruvector@latest mcp start",
             "type": "stdio",
             "features": {
               "vector_database": "enabled",
               "quantization": "enabled",
               "caching": "enabled"
             },
-            "storage_path": "./data/agentdb",
+            "storage_path": "./data/ruvector",
             "description": "Persistent vector database for pattern storage"
           },
           {
@@ -248,8 +248,8 @@
           "dependencies": ["mem0"]
         },
         "claude_flow": {
-          "image": "ghcr.io/ruv-inc/claude-flow:alpha",
-          "container_name": "nyra-claude-flow",
+          "image": "ghcr.io/ruv-inc/archon-os:alpha",
+          "container_name": "nyra-archon-os",
           "port": 3010,
           "role": "Multi-Agent Orchestrator",
           "mode": "orchestrator",
@@ -263,18 +263,18 @@
           ],
           "environment": {
             "CLAUDE_FLOW_MODE": "orchestrator",
-            "AGENTDB_URL": "http://agentdb:8080",
+            "ruvector_URL": "http://ruvector:8080",
             "REASONINGBANK_ENABLED": "true",
             "SWARM_MAX_AGENTS": 31,
             "SWARM_TOPOLOGY": "hierarchical"
           },
           "network": ["nyra-mcp", "nyra-core"],
           "healthcheck": "enabled",
-          "dependencies": ["nexus-router", "agentdb"]
+          "dependencies": ["nexus-router", "ruvector"]
         },
-        "agentdb": {
-          "image": "ghcr.io/ruv-inc/agentdb:latest",
-          "container_name": "nyra-agentdb",
+        "ruvector": {
+          "image": "ghcr.io/ruv-inc/ruvector:latest",
+          "container_name": "nyra-ruvector",
           "port": 8080,
           "role": "HNSW Vector Database",
           "performance": {
@@ -337,7 +337,7 @@
         "claude_flow": {
           "stdio_transport": "enabled",
           "type": "stdio",
-          "command": "npx @claude-flow/cli@latest mcp start",
+          "command": "npx @archon-os/cli@latest mcp start",
           "connectivity_method": "stdio pipes"
         },
         "docker_network": {
@@ -347,11 +347,11 @@
         }
       },
       "integration_flow": {
-        "step_1": "Claude Code -> .mcp.json (claude-flow server definition)",
+        "step_1": "Claude Code -> .mcp.json (archon-os server definition)",
         "step_2": "Claude Flow stdio transport -> agent spawning",
         "step_3": "Agents access services via Docker network (nyra-mcp)",
         "step_4": "Services coordinate via nexus-router (LLM gateway)",
-        "step_5": "Memory services (Letta, Mem0, AgentDB) store patterns",
+        "step_5": "Memory services (Letta, Mem0, ruvector) store patterns",
         "step_6": "RuVector optimizes and learns from patterns"
       }
     },
@@ -411,7 +411,7 @@
     "Nexus Router provides intelligent LLM gateway with fallback chains (Anthropic -> OpenRouter -> Gemini)",
     "Dual memory systems for redundancy (Letta for stateful memory, Mem0 for universal memory)",
     "Docker Compose orchestration with health checks and automatic restarts",
-    "HNSW vector database (AgentDB) provides 150x-12,500x faster semantic search",
+    "HNSW vector database (ruvector) provides 150x-12,500x faster semantic search",
     "RuVector neural optimization with SONA, MoE, Flash Attention, and EWC++",
     "Hierarchical-mesh swarm topology for anti-drift coordination",
     "Environment variable management for secure secrets handling",
@@ -449,7 +449,7 @@
   ],
   "working_connections": [
     "Claude Code -> .mcp.json -> Claude Flow stdio transport",
-    "Claude Flow -> AgentDB (http://agentdb:8080) for pattern storage",
+    "Claude Flow -> ruvector (http://ruvector:8080) for pattern storage",
     "Claude Flow -> Nexus Router (http://localhost:6000) for LLM requests",
     "Agents -> Letta (http://localhost:8283) for conversation memory",
     "Agents -> Mem0 (http://localhost:4321) for universal memory",
@@ -464,7 +464,7 @@
     "4. Add monitoring/alerting for MCP service health",
     "5. Test failover scenarios (e.g., Nexus Router down)",
     "6. Verify connection timeouts and retry logic work correctly",
-    "7. Monitor AgentDB performance with large pattern datasets",
+    "7. Monitor ruvector performance with large pattern datasets",
     "8. Validate memory service redundancy (Letta + Mem0)",
     "9. Test neural optimization impact on agent performance",
     "10. Document security best practices for MCP server communication"

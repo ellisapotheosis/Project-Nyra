@@ -240,7 +240,7 @@ cat > docs/infrastructure/INFRASTRUCTURE-CONSOLIDATION.md << EOF
 - 7 files to consolidate
 
 ### nyra-stack/ (Merge)
-- docker-compose.{local,addons,graphiti,services,voice}.yml
+- docker-compose.{local,addons,letta,services,voice}.yml
 - configs/, docs/, scripts/, services/
 - 23 files to consolidate
 
@@ -344,18 +344,18 @@ cat > docs/configuration/CONFIGURATION-CONSOLIDATION.md << EOF
 ### configs/ (Merge)
 - mcp/ - MCP configurations
 
-### coordination/ (Move to .claude-flow/)
+### coordination/ (Move to .archon-os/)
 - memory_bank/, orchestration/, subtasks/
 
 ### orchestration/ (Move to services/)
-- claude-flow/, serena/
+- archon-os/, serena/
 
 ### orchestrators/ (DELETE - Duplicate)
-- claude-flow/ (duplicate of orchestration/claude-flow/)
+- archon-os/ (duplicate of orchestration/archon-os/)
 
 ## Consolidation Plan
 - config/ - Primary configuration directory
-- .claude-flow/ - Claude Flow specific coordination
+- .archon-os/ - Claude Flow specific coordination
 - Delete orchestrators/ (duplicate)
 EOF
 
@@ -364,12 +364,12 @@ EOF
 mkdir -p config/mcp/
 cp -r configs/mcp/* config/mcp/
 
-# Move coordination to .claude-flow
-mkdir -p .claude-flow/coordination/
-cp -r coordination/* .claude-flow/coordination/
+# Move coordination to .archon-os
+mkdir -p .archon-os/coordination/
+cp -r coordination/* .archon-os/coordination/
 
 # Move orchestration to services
-cp -r orchestration/claude-flow services/claude-flow-orchestration
+cp -r orchestration/archon-os services/archon-os-orchestration
 cp -r orchestration/serena core/serena/orchestration
 
 # Phase 2.11: Clean up
@@ -394,7 +394,7 @@ Primary configuration directory for Project Nyra.
 
 ## Consolidated From
 - configs/mcp/ → config/mcp/
-- coordination/ → .claude-flow/coordination/
+- coordination/ → .archon-os/coordination/
 - orchestration/ → services/ and core/
 - orchestrators/ - Deleted (was duplicate)
 EOF
@@ -402,8 +402,8 @@ EOF
 
 **Expected Result**:
 - Single config/ directory for configurations
-- Claude-Flow specific configs in .claude-flow/
-- 5 → 2 configuration locations (config/ and .claude-flow/)
+- archon-os specific configs in .archon-os/
+- 5 → 2 configuration locations (config/ and .archon-os/)
 - orchestrators/ deleted (duplicate)
 
 ---
@@ -494,7 +494,7 @@ find . -type d -empty -delete
 # Phase 3.8: Consolidate .claude integrations
 # .claude/ - Keep (primary)
 # .claude-plugin/ - Merge and delete
-cp -r .claude-plugin/claude-flow .claude/integrations/
+cp -r .claude-plugin/archon-os .claude/integrations/
 rm -rf .claude-plugin/
 ```
 
@@ -519,7 +519,7 @@ find . -name "*.yml" -o -name "*.yaml" | xargs sed -i 's|nyra-stack/|infra/|g'
 
 # Configuration paths
 find . -name "*.ts" -o -name "*.js" | xargs sed -i 's|configs/mcp/|config/mcp/|g'
-find . -name "*.ts" -o -name "*.js" | xargs sed -i 's|coordination/|.claude-flow/coordination/|g'
+find . -name "*.ts" -o -name "*.js" | xargs sed -i 's|coordination/|.archon-os/coordination/|g'
 
 # Bootstrap paths
 find . -name "*.sh" -o -name "*.ps1" | xargs sed -i 's|bootstrap/core/consolidation-kit/|scripts/bootstrap/|g'
@@ -611,7 +611,7 @@ curl http://localhost:3009/health  # ratehunter
 curl http://localhost:8000/health  # quote-api
 
 # Phase 4.8: MCP server validation
-npx @claude-flow/cli@latest mcp health
+npx @archon-os/cli@latest mcp health
 
 # Phase 4.9: Memory system validation
 curl http://localhost:7000/health   # RuVector
@@ -660,7 +660,7 @@ cat > docs/PHASE3-RESTRUCTURING-COMPLETE.md << EOF
 
 ### Configuration
 - [x] Single config/ directory
-- [x] Claude-Flow specific in .claude-flow/
+- [x] archon-os specific in .archon-os/
 - [x] No duplicate configurations
 - [x] Documented configuration strategy
 
@@ -676,7 +676,7 @@ cat > docs/PHASE3-RESTRUCTURING-COMPLETE.md << EOF
 \`\`\`
 project-nyra/
 ├── .claude/              # Claude Code integration
-├── .claude-flow/         # Claude Flow coordination
+├── .archon-os/         # Claude Flow coordination
 ├── .github/              # GitHub workflows
 ├── .githooks/            # Git hooks
 ├── .hive-mind/           # Hive Mind coordination
@@ -776,7 +776,7 @@ docker-compose -f infra/docker/compose.dev.yml up
 
 ### Configuration
 **OLD**: Multiple locations (configs/, coordination/, orchestration/)
-**NEW**: config/ and .claude-flow/
+**NEW**: config/ and .archon-os/
 
 **Update import paths:**
 \`\`\`typescript

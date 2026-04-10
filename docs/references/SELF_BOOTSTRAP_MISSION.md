@@ -7,7 +7,7 @@ Bootstrap a comprehensive multi-agent AI development and orchestration ecosystem
 
 ### 1. Infrastructure Setup (Immediate - Phase 1)
 - **Docker/WSL Migration**: Migrate entire repo to WSL2 environment with Docker orchestration
-- **Claude-Code/Claude-Flow Integration**: Ensure seamless operation in containerized environment
+- **Claude-Code/archon-os Integration**: Ensure seamless operation in containerized environment
 - **Archon MCP Integration**: Configure Archon MCP server for advanced agent coordination
 - **MetaMCP Gateway**: Set up MetaMCP as proxy aggregator for all MCP services
 
@@ -26,7 +26,7 @@ Bootstrap a comprehensive multi-agent AI development and orchestration ecosystem
 ### 4. User Interface Stack (Phase 4)
 - **Open-WebUI**: Deploy comprehensive AI interface
 - **LobeChat**: Configure advanced conversational interface
-- **Claude-Flow UI**: Enable swarm visualization and control
+- **archon-os UI**: Enable swarm visualization and control
 - **Monitoring Dashboards**: System health and performance monitoring
 
 ### 5. Memory & Knowledge Systems (Phase 5)
@@ -53,8 +53,8 @@ services:
     networks:
       - nyra-net
 
-  claude-flow:
-    image: claude-flow:latest
+  archon-os:
+    image: archon-os:latest
     ports:
       - "3000:3000"
     environment:
@@ -84,7 +84,7 @@ services:
 ```
 Orchestrator PC (Main)
 ├── WSL2 + Docker Compose
-├── Claude-Code + Claude-Flow
+├── Claude-Code + archon-os
 ├── Archon MCP Server
 ├── MetaMCP Gateway
 └── Cloudflared Tunnel (nyra.ratehunter.net)
@@ -127,7 +127,7 @@ Worker PC 3 (GPU Compute)
 
 ### Phase 1 Complete When:
 - [ ] Repo fully migrated to WSL2 with Docker Compose
-- [ ] Claude-Code + Claude-Flow operational in containers
+- [ ] Claude-Code + archon-os operational in containers
 - [ ] Archon MCP integrated and responsive
 - [ ] MetaMCP gateway aggregating all MCP services
 - [ ] Basic UI accessible via browser
@@ -147,7 +147,7 @@ Worker PC 3 (GPU Compute)
 ### Phase 4 Complete When:
 - [ ] Open-WebUI fully functional
 - [ ] LobeChat integrated and responsive
-- [ ] Claude-Flow UI showing real-time swarm status
+- [ ] archon-os UI showing real-time swarm status
 - [ ] Monitoring dashboards operational
 
 ### Phase 5 Complete When:
@@ -161,19 +161,19 @@ Worker PC 3 (GPU Compute)
 ### Bootstrap Sequence
 ```bash
 # Phase 1: Infrastructure
-./claude-flow swarm "Infrastructure Setup" --agents 5 --parallel
+./archon-os swarm "Infrastructure Setup" --agents 5 --parallel
 
 # Phase 2: Network Configuration
-./claude-flow swarm "Network Architecture" --agents 3 --sequential
+./archon-os swarm "Network Architecture" --agents 3 --sequential
 
 # Phase 3: AI Model Deployment
-./claude-flow swarm "Model Infrastructure" --agents 4 --parallel
+./archon-os swarm "Model Infrastructure" --agents 4 --parallel
 
 # Phase 4: UI Stack Deployment
-./claude-flow swarm "Interface Systems" --agents 3 --parallel
+./archon-os swarm "Interface Systems" --agents 3 --parallel
 
 # Phase 5: Memory Systems
-./claude-flow swarm "Knowledge Architecture" --agents 2 --sequential
+./archon-os swarm "Knowledge Architecture" --agents 2 --sequential
 ```
 
 ## 🚨 Risk Mitigation

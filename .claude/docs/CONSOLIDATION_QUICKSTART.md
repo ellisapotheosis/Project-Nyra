@@ -53,13 +53,13 @@ bash scripts/consolidation/validate-consolidation.sh
 
 ### Step 4: Fix Hooks (15 minutes)
 ```bash
-# Fix claude-flow hook integration
-cd nyra-orchestration/Claude/claude-flow/
+# Fix archon-os hook integration
+cd nyra-orchestration/Claude/archon-os/
 npm rebuild better-sqlite3
 npm install
 
 # Test
-npx @claude-flow/cli@latest hooks session-restore --session-id "test"
+npx @archon-os/cli@latest hooks session-restore --session-id "test"
 ```
 
 ### Step 5: Push Changes
@@ -92,7 +92,7 @@ tar -czf ../nyra-cleanup.tar.gz Cleaning-Setup/
 **Solution**: Clear npm cache:
 ```bash
 npm cache clean --force
-cd nyra-orchestration/Claude/claude-flow/
+cd nyra-orchestration/Claude/archon-os/
 rm -rf node_modules package-lock.json
 npm install
 ```

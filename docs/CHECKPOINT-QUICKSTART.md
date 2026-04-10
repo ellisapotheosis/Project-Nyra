@@ -45,13 +45,13 @@ Your Claude Flow V3 setup now includes:
 ### Session Management (CLI)
 ```bash
 # List sessions
-npx @claude-flow/cli@latest session list
+npx @archon-os/cli@latest session list
 
 # Save session
-npx @claude-flow/cli@latest session save --name "my-work"
+npx @archon-os/cli@latest session save --name "my-work"
 
 # Restore session
-npx @claude-flow/cli@latest session restore --name "my-work"
+npx @archon-os/cli@latest session restore --name "my-work"
 ```
 
 ## 📁 Where Everything Is Stored
@@ -96,7 +96,7 @@ npx @claude-flow/cli@latest session restore --name "my-work"
 
 ### Check if daemon is running
 ```bash
-npx @claude-flow/cli@latest daemon status
+npx @archon-os/cli@latest daemon status
 ```
 
 ### Manually trigger checkpoint
@@ -106,7 +106,7 @@ npx @claude-flow/cli@latest daemon status
 
 ### View checkpoint metadata
 ```bash
-npx @claude-flow/cli@latest memory list --namespace checkpoints
+npx @archon-os/cli@latest memory list --namespace checkpoints
 ```
 
 ### Check backups
@@ -118,8 +118,8 @@ ls -lh .swarm/backups/
 ## 📚 Full Documentation
 
 - **Checkpoints**: `.claude/hooks/README-CHECKPOINTS.md`
-- **Claude Flow V3**: `~/projects/claude-flow/README.md`
-- **Hooks System**: `~/projects/claude-flow/CLAUDE.md`
+- **Claude Flow V3**: `~/projects/archon-os/README.md`
+- **Hooks System**: `~/projects/archon-os/CLAUDE.md`
 - **Project Config**: `./CLAUDE.md`
 
 ## ⚙️ Adjust Settings

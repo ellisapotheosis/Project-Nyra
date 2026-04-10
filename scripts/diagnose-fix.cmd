@@ -1,5 +1,5 @@
 @echo off
-REM Comprehensive SQLite/Claude-Flow Diagnostics and Fix Script
+REM Comprehensive SQLite/archon-os Diagnostics and Fix Script
 REM Run from: cmd.exe /c "C:\Dev\Projects\Repos\Project-Nyra\scripts\diagnose-fix.cmd"
 
 setlocal enabledelayedexpansion
@@ -77,13 +77,13 @@ if defined NEEDS_REBUILD (
 )
 echo.
 
-REM 6. CHECK CLAUDE-FLOW SUBMODULE
-echo [STEP 6] Checking claude-flow Submodule
+REM 6. CHECK archon-os SUBMODULE
+echo [STEP 6] Checking archon-os Submodule
 echo ────────────────────────────────────────────────────────────────────
-if exist "submodules\claude-flow" (
-    echo [OK] claude-flow submodule found
+if exist "submodules\archon-os" (
+    echo [OK] archon-os submodule found
 ) else (
-    echo [WARN] claude-flow submodule missing - initializing...
+    echo [WARN] archon-os submodule missing - initializing...
     call git submodule update --init --recursive
 )
 echo.

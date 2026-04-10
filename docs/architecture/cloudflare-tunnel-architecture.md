@@ -81,7 +81,7 @@ This document defines the Cloudflare tunnel integration strategy for Project Nyr
 | **Infrastructure** | | | | |
 | Infisical | 8080 | secrets.nyra.yourdomain.com | Admin Only | Infisical Auth + MFA |
 | Nexus Router | 8888 | nexus.nyra.yourdomain.com | Team | API Key |
-| Claude Flow Dashboard | 8081 | claude-flow.nyra.yourdomain.com | Team | Cloudflare Access |
+| Claude Flow Dashboard | 8081 | archon-os.nyra.yourdomain.com | Team | Cloudflare Access |
 | **Databases (Admin)** | | | | |
 | pgAdmin | 5050 | pgadmin.nyra.yourdomain.com | Admin Only | pgAdmin Auth |
 | Redis Commander | 8082 | redis.nyra.yourdomain.com | Admin Only | Cloudflare Access |
@@ -245,7 +245,7 @@ nyra.yourdomain.com                    A/AAAA   → Cloudflare proxy
 ├── pgadmin.nyra.yourdomain.com        CNAME    → <tunnel-id>.cfargotunnel.com
 ├── ratehunter.nyra.yourdomain.com     CNAME    → <tunnel-id>.cfargotunnel.com
 ├── crm.nyra.yourdomain.com            CNAME    → <tunnel-id>.cfargotunnel.com
-├── claude-flow.nyra.yourdomain.com    CNAME    → <tunnel-id>.cfargotunnel.com
+├── archon-os.nyra.yourdomain.com    CNAME    → <tunnel-id>.cfargotunnel.com
 ├── jupyter-rtx5090.nyra.yourdomain.com CNAME   → <dev-tunnel-id>.cfargotunnel.com
 ├── jupyter-rtx3060.nyra.yourdomain.com CNAME   → <dev-tunnel-id>.cfargotunnel.com
 ├── ollama-rtx5090.nyra.yourdomain.com  CNAME   → <dev-tunnel-id>.cfargotunnel.com
@@ -438,7 +438,7 @@ ingress:
     service: http://localhost:3004
 
   # Claude Flow Dashboard
-  - hostname: claude-flow.nyra.yourdomain.com
+  - hostname: archon-os.nyra.yourdomain.com
     service: http://localhost:8081
 
   # Redis Commander

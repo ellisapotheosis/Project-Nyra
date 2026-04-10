@@ -292,37 +292,37 @@ docs/
 
 ```bash
 # Task 1 completion
-npx @claude-flow/cli@latest memory store \
+npx @archon-os/cli@latest memory store \
   --key "optionA-task1-duplicates" \
   --namespace tasks \
   --value "Top duplicates found: README.md (166), CLAUDE.md (2), ..."
 
 # Task 2 completion
-npx @claude-flow/cli@latest memory store \
+npx @archon-os/cli@latest memory store \
   --key "optionA-task2-structure" \
   --namespace tasks \
   --value "Target structure designed: 11 major dirs, ~25 READMEs, ..."
 
 # Task 3 completion
-npx @claude-flow/cli@latest memory store \
+npx @archon-os/cli@latest memory store \
   --key "optionA-task3-migration" \
   --namespace tasks \
   --value "Migrated 46 files: 31 archived, 12 moved, 3 duplicates removed..."
 
 # Phase 1 completion
-npx @claude-flow/cli@latest memory store \
+npx @archon-os/cli@latest memory store \
   --key "optionA-complete" \
   --namespace tasks \
   --value "Phase 1 complete. 46 files reorganized..."
 
 # Final consolidation status
-npx @claude-flow/cli@latest memory store \
+npx @archon-os/cli@latest memory store \
   --key "docs-consolidation-complete" \
   --namespace docs-consolidation \
   --value "Phase 1 complete: 46 files reorganized, 44% root reduction, 73% README reduction. All 6 agents completed successfully. Zero data loss."
 
 # Consolidation metrics
-npx @claude-flow/cli@latest memory store \
+npx @archon-os/cli@latest memory store \
   --key "docs-consolidation-metrics" \
   --namespace docs-consolidation \
   --value "Files: 46 reorganized | Root: 106→59 (44%) | READMEs: 166→45 (73%) | Time: 135min vs 180min est (25% faster) | Quality: 100% accuracy, 0 conflicts"
@@ -482,7 +482,7 @@ Phase 2 is ready to begin with the following tasks:
 
 2. **Root Directory Cleanup** (59 → 2 files)
    - Move all RUVECTOR-* files
-   - Move all CLAUDE-FLOW-* files
+   - Move all archon-os-* files
    - Move remaining architecture/deployment docs
    - Keep only CLAUDE.md and README.md
 
@@ -510,7 +510,7 @@ For Phase 2, recommend spawning a specialized swarm:
 
 ```bash
 # Initialize anti-drift swarm
-npx @claude-flow/cli@latest swarm init \
+npx @archon-os/cli@latest swarm init \
   --topology hierarchical \
   --max-agents 6 \
   --strategy specialized
@@ -718,7 +718,7 @@ Phase 2 Ready:
 - Aggressive consolidation (665 → 300 files)
 - Directory index creation (11 README files)
 
-Co-Authored-By: Hierarchical Swarm Coordinator <coordinator@claude-flow>
+Co-Authored-By: Hierarchical Swarm Coordinator <coordinator@archon-os>
 Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>"
 ```
 

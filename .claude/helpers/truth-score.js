@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * Truth Score Calculator for Claude-Flow
+ * Truth Score Calculator for archon-os
  * Calculates and tracks truth scores for agent claims vs reality
  */
 
@@ -12,7 +12,7 @@ const { execSync } = require('child_process');
 class TruthScoreCalculator {
   constructor() {
     this.configPath = '.claude/config/verification.json';
-    this.memoryPath = '.claude-flow/memory/truth-scores';
+    this.memoryPath = '.archon-os/memory/truth-scores';
     this.config = null;
   }
 

@@ -695,7 +695,7 @@ Response: 200 OK
       "status": "healthy",
       "latency_ms": 45
     },
-    "graphiti": {
+    "letta": {
       "status": "healthy",
       "latency_ms": 23
     },
@@ -878,7 +878,7 @@ All error responses follow this format:
 | 422 | `VALIDATION_ERROR` | Request validation failed |
 | 429 | `RATE_LIMIT_EXCEEDED` | Too many requests |
 | 500 | `INTERNAL_ERROR` | Unexpected server error |
-| 502 | `BAD_GATEWAY` | Upstream service error (TwentyCRM/Graphiti) |
+| 502 | `BAD_GATEWAY` | Upstream service error (TwentyCRM/letta) |
 | 503 | `SERVICE_UNAVAILABLE` | Service temporarily unavailable |
 | 504 | `GATEWAY_TIMEOUT` | Upstream service timeout |
 

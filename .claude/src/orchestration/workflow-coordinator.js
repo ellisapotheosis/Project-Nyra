@@ -280,9 +280,9 @@ class WorkflowCoordinator extends EventEmitter {
         // Add coordination hooks if enabled
         if (workflow.options.coordinationHooks) {
             context.hooks = {
-                preTask: `npx claude-flow@alpha hooks pre-task --description "${phase.name}: ${agentType}"`,
-                postTask: `npx claude-flow@alpha hooks post-task --task-id "${workflow.id}-${phase.name}"`,
-                sessionRestore: `npx claude-flow@alpha hooks session-restore --session-id "workflow-${workflow.id}"`
+                preTask: `npx archon-os@alpha hooks pre-task --description "${phase.name}: ${agentType}"`,
+                postTask: `npx archon-os@alpha hooks post-task --task-id "${workflow.id}-${phase.name}"`,
+                sessionRestore: `npx archon-os@alpha hooks session-restore --session-id "workflow-${workflow.id}"`
             };
         }
         

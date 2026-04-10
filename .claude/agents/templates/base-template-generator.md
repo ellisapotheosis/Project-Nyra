@@ -16,14 +16,14 @@ hooks:
 
     # 🧠 v2.0.0-alpha: Learn from past successful templates
     echo "🧠 Learning from past template patterns..."
-    SIMILAR_TEMPLATES=$(npx @claude-flow/cli@latest memory search-patterns "Template generation: $TASK" --k=5 --min-reward=0.85 2>/dev/null || echo "")
+    SIMILAR_TEMPLATES=$(npx @archon-os/cli@latest memory search-patterns "Template generation: $TASK" --k=5 --min-reward=0.85 2>/dev/null || echo "")
     if [ -n "$SIMILAR_TEMPLATES" ]; then
       echo "📚 Found similar successful template patterns"
-      npx @claude-flow/cli@latest memory get-pattern-stats "Template generation" --k=5 2>/dev/null || true
+      npx @archon-os/cli@latest memory get-pattern-stats "Template generation" --k=5 2>/dev/null || true
     fi
 
     # Store task start
-    npx @claude-flow/cli@latest memory store-pattern \
+    npx @archon-os/cli@latest memory store-pattern \
       --session-id "template-gen-$(date +%s)" \
       --task "Template: $TASK" \
       --input "$TASK_CONTEXT" \
@@ -38,7 +38,7 @@ hooks:
     REWARD="0.9"
     SUCCESS="true"
 
-    npx @claude-flow/cli@latest memory store-pattern \
+    npx @archon-os/cli@latest memory store-pattern \
       --session-id "template-gen-$(date +%s)" \
       --task "Template: $TASK" \
       --output "Generated template with $FILE_COUNT files" \
@@ -49,7 +49,7 @@ hooks:
     # Train neural patterns
     if [ "$SUCCESS" = "true" ]; then
       echo "🧠 Training neural pattern from successful template"
-      npx @claude-flow/cli@latest neural train \
+      npx @archon-os/cli@latest neural train \
         --pattern-type "coordination" \
         --training-data "$TASK_OUTPUT" \
         --epochs 50 2>/dev/null || true
@@ -59,7 +59,7 @@ hooks:
     echo "❌ Template generation error: {{error_message}}"
 
     # Store failure pattern
-    npx @claude-flow/cli@latest memory store-pattern \
+    npx @archon-os/cli@latest memory store-pattern \
       --session-id "template-gen-$(date +%s)" \
       --task "Template: $TASK" \
       --output "Failed: {{error_message}}" \
@@ -68,7 +68,7 @@ hooks:
       --critique "Error: {{error_message}}" 2>/dev/null || true
 ---
 
-You are a Base Template Generator v2.0.0-alpha, an expert architect specializing in creating clean, well-structured foundational templates with **pattern learning** and **intelligent template search** powered by Agentic-Flow v2.0.0-alpha.
+You are a Base Template Generator v2.0.0-alpha, an expert architect specializing in creating clean, well-structured foundational templates with **pattern learning** and **intelligent template search** powered by archon-os v2.0.0-alpha.
 
 ## 🧠 Self-Learning Protocol
 
@@ -107,7 +107,7 @@ const graphContext = {
   nodeLabels: ['Component', 'API', 'Tests', 'Config']
 };
 
-const similarProjects = await agentDB.gnnEnhancedSearch(
+const similarProjects = await ruvector.gnnEnhancedSearch(
   templateEmbedding,
   {
     k: 10,
@@ -194,7 +194,7 @@ const projectGraph = {
   ]
 };
 
-const similarStructures = await agentDB.gnnEnhancedSearch(
+const similarStructures = await ruvector.gnnEnhancedSearch(
   newProjectEmbedding,
   {
     k: 5,
@@ -248,7 +248,7 @@ Quality standards:
 ```typescript
 // Use Flash Attention for large template generation (2.49x-7.47x faster)
 if (templateSize > 1024) {
-  const result = await agentDB.flashAttention(
+  const result = await ruvector.flashAttention(
     queryEmbedding,
     templateEmbeddings,
     templateEmbeddings

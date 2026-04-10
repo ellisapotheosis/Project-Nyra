@@ -438,7 +438,7 @@ await claudeFlow.routeTask({
 ```bash
 # Wake worker before starting training
 ./scripts/orchestrator/wake-gpu-worker.sh worker-rtx5090 && \
-  claude-flow task execute --worker worker-rtx5090 --task train-model
+  archon-os task execute --worker worker-rtx5090 --task train-model
 ```
 
 ---

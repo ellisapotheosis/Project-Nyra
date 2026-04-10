@@ -13,7 +13,7 @@
 
 ### 2. CLAUDE.md - 2 instances
 - `docs/CLAUDE.md` (main configuration)
-- `docs/references/claude-flow-wiki/CLAUDE.md` (reference)
+- `docs/references/archon-os-wiki/CLAUDE.md` (reference)
 - **Action:** Keep `docs/CLAUDE.md`, reference wiki version is OK
 
 ### 3. QUICK-START.md - 3 instances

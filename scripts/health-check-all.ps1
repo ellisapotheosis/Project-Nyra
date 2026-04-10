@@ -22,7 +22,7 @@ $services = @(
     @{PC="PC1"; Name="Letta (MemGPT)"; URL="http://10.0.0.1:8283/health"; Required=$true},
     @{PC="PC1"; Name="Mem0"; URL="http://10.0.0.1:4321/health"; Required=$true},
     @{PC="PC1"; Name="Claude Flow"; URL="http://10.0.0.1:3010/health"; Required=$true},
-    @{PC="PC1"; Name="AgentDB"; URL="http://10.0.0.1:8080/health"; Required=$true},
+    @{PC="PC1"; Name="ruvector"; URL="http://10.0.0.1:8080/health"; Required=$true},
     @{PC="PC1"; Name="RuVector"; URL="http://10.0.0.1:8888/health"; Required=$false},
     @{PC="PC1"; Name="Redis (Orchestrator)"; URL="http://10.0.0.1:6380"; Required=$true},
     @{PC="PC1"; Name="Qdrant"; URL="http://10.0.0.1:6333/healthz"; Required=$false},

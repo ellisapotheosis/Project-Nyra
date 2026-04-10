@@ -25,7 +25,7 @@
 ## 🛡️ ANTI-DRIFT CONFIG (PREFERRED)
 
 ```bash
-npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 5 --strategy specialized
+npx @archon-os/cli@latest swarm init --topology hierarchical --max-agents 5 --strategy specialized
 ```
 
 ---
@@ -49,13 +49,13 @@ Spawn agents in background and WAIT.
 
 ### Before Task
 ```bash
-npx @claude-flow/cli@latest memory search --query '[keywords]' --namespace patterns
+npx @archon-os/cli@latest memory search --query '[keywords]' --namespace patterns
 ```
 
 ### After Task
 ```bash
-npx @claude-flow/cli@latest memory store --namespace patterns --key '[pattern]' --value '[result]'
-npx @claude-flow/cli@latest hooks post-task --task-id '[id]' --success true --store-results true
+npx @archon-os/cli@latest memory store --namespace patterns --key '[pattern]' --value '[result]'
+npx @archon-os/cli@latest hooks post-task --task-id '[id]' --success true --store-results true
 ```
 
 ---
@@ -63,11 +63,11 @@ npx @claude-flow/cli@latest hooks post-task --task-id '[id]' --success true --st
 ## 🚀 V3 CLI Commands (26 Commands, 140+ Subcommands)
 
 ```bash
-npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 5
-npx @claude-flow/cli@latest memory store --key "pattern" --value "content"
-npx @claude-flow/cli@latest memory search --query "search term"
-npx @claude-flow/cli@latest hooks pre-task --description "[task]"
-npx @claude-flow/cli@latest hooks post-task --task-id "[id]" --success true
+npx @archon-os/cli@latest swarm init --topology hierarchical --max-agents 5
+npx @archon-os/cli@latest memory store --key "pattern" --value "content"
+npx @archon-os/cli@latest memory search --query "search term"
+npx @archon-os/cli@latest hooks pre-task --description "[task]"
+npx @archon-os/cli@latest hooks post-task --task-id "[id]" --success true
 ```
 
 ---
@@ -86,8 +86,8 @@ npx @claude-flow/cli@latest hooks post-task --task-id "[id]" --success true
 ## 🪝 V3 Hooks System (27 Hooks + 12 Workers)
 
 ```bash
-npx @claude-flow/cli@latest hooks pre-task --description "borrower portal feature"
-npx @claude-flow/cli@latest hooks post-edit --file "webapp.tsx" --train-neural true
+npx @archon-os/cli@latest hooks pre-task --description "borrower portal feature"
+npx @archon-os/cli@latest hooks post-edit --file "webapp.tsx" --train-neural true
 ```
 
 ---
@@ -95,9 +95,9 @@ npx @claude-flow/cli@latest hooks post-edit --file "webapp.tsx" --train-neural t
 ## 📝 Memory Commands Reference
 
 ```bash
-npx @claude-flow/cli@latest memory store --key "webapp-pattern" --value "content" --namespace patterns
-npx @claude-flow/cli@latest memory search --query "borrower portal features" --namespace patterns
-npx @claude-flow/cli@latest memory retrieve --key "pattern" --namespace patterns
+npx @archon-os/cli@latest memory store --key "webapp-pattern" --value "content" --namespace patterns
+npx @archon-os/cli@latest memory search --query "borrower portal features" --namespace patterns
+npx @archon-os/cli@latest memory retrieve --key "pattern" --namespace patterns
 ```
 
 ---
@@ -142,7 +142,7 @@ pnpm lint
 ### 3-Tier Model Routing
 
 ```bash
-npx @claude-flow/cli@latest hooks pre-task \
+npx @archon-os/cli@latest hooks pre-task \
   --description "Borrower portal feature development"
 ```
 
@@ -159,10 +159,10 @@ npx @claude-flow/cli@latest hooks pre-task \
 **1. Borrower Feature Development**
 ```bash
 # Initialize swarm for borrower features
-npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 5 --strategy specialized
+npx @archon-os/cli@latest swarm init --topology hierarchical --max-agents 5 --strategy specialized
 
 # Store borrower context
-npx @claude-flow/cli@latest memory store \
+npx @archon-os/cli@latest memory store \
   --namespace webapp \
   --key "features/borrower-portal" \
   --value "Self-service borrower features and workflows"
@@ -171,12 +171,12 @@ npx @claude-flow/cli@latest memory store \
 **2. User Flow Optimization**
 ```bash
 # Search for UX patterns
-npx @claude-flow/cli@latest memory search \
+npx @archon-os/cli@latest memory search \
   --query "borrower self-service mortgage application" \
   --namespace patterns
 
 # Store successful flow
-npx @claude-flow/cli@latest hooks post-task \
+npx @archon-os/cli@latest hooks post-task \
   --task-id "ux-opt-001" \
   --success true \
   --store-results true
@@ -185,16 +185,16 @@ npx @claude-flow/cli@latest hooks post-task \
 **3. Performance Optimization**
 ```bash
 # Run performance benchmarks
-npx @claude-flow/cli@latest performance benchmark --suite webapp
+npx @archon-os/cli@latest performance benchmark --suite webapp
 
 # Analyze and optimize
-npx @claude-flow/cli@latest hooks worker dispatch --trigger optimize
+npx @archon-os/cli@latest hooks worker dispatch --trigger optimize
 ```
 
 **4. Accessibility Improvements**
 ```bash
 # Check accessibility patterns
-npx @claude-flow/cli@latest memory search \
+npx @archon-os/cli@latest memory search \
   --query "wcag accessibility borrower portal" \
   --namespace patterns
 ```
@@ -203,19 +203,19 @@ npx @claude-flow/cli@latest memory search \
 
 **Before Development**:
 ```bash
-npx @claude-flow/cli@latest memory search \
+npx @archon-os/cli@latest memory search \
   --query "borrower portal features mortgage" \
   --namespace patterns
 ```
 
 **After Successful Implementation**:
 ```bash
-npx @claude-flow/cli@latest memory store \
+npx @archon-os/cli@latest memory store \
   --namespace patterns \
   --key "webapp-success-$(date +%Y%m%d)" \
   --value "Implemented borrower [feature] successfully"
 
-npx @claude-flow/cli@latest neural train \
+npx @archon-os/cli@latest neural train \
   --pattern-type borrower-workflows \
   --epochs 10
 ```

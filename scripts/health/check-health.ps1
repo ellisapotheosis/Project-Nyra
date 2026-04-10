@@ -23,7 +23,7 @@ $requiredContainers = @(
     @{Name="nyra-falkordb"; Service="FalkorDB"},
     @{Name="nyra-qdrant"; Service="Qdrant"},
     @{Name="nyra-nexus-router"; Service="Nexus Router"},
-    @{Name="nyra-claude-flow"; Service="Claude Flow"},
+    @{Name="nyra-archon-os"; Service="Claude Flow"},
     @{Name="nyra-archon-os"; Service="Archon OS"},
     @{Name="nyra-letta"; Service="Letta"}
 )
@@ -148,7 +148,7 @@ try {
 # ============================================
 Write-Host "`n5️⃣  Checking for errors in logs...`n" -ForegroundColor Yellow
 
-$containersToCheck = @("nyra-nexus-router", "nyra-claude-flow", "nyra-archon-os")
+$containersToCheck = @("nyra-nexus-router", "nyra-archon-os", "nyra-archon-os")
 $errorPatterns = @("ERROR", "FATAL", "CRITICAL", "failed to", "connection refused")
 $errorsFound = $false
 

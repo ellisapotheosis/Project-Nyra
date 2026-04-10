@@ -164,7 +164,7 @@ ingress:
   - hostname: nexus.$DOMAIN
     service: http://localhost:8888
 
-  - hostname: claude-flow.$DOMAIN
+  - hostname: archon-os.$DOMAIN
     service: http://localhost:8081
 
   # ===== Database Admin =====
@@ -242,7 +242,7 @@ SERVICES=(
     "jaeger"
     "secrets"
     "nexus"
-    "claude-flow"
+    "archon-os"
     "pgadmin"
     "redis"
     "ratehunter"

@@ -14,12 +14,12 @@
   "service_categories": {
     "databases": ["PostgreSQL", "Redis", "FalkorDB", "Qdrant", "Neo4j", "MongoDB", "ChromaDB"],
     "llm_services": ["LiteLLM", "Nexus", "Claude Flow", "Ollama", "OpenRouter"],
-    "memory_services": ["Letta", "Mem0", "Graphiti", "AgentDB", "RuVector"],
+    "memory_services": ["Letta", "Mem0", "letta", "ruvector", "RuVector"],
     "monitoring": ["Prometheus", "Grafana", "Loki", "Alertmanager", "Promtail", "cAdvisor", "Node Exporter"],
     "crm": ["TwentyCRM"],
     "workflow": ["n8n", "Activepieces", "Dify"],
     "orchestration": ["Claude Flow", "Archon OS", "Nexus Router", "Nyra Orchestrator"],
-    "mcp_servers": ["MetaMCP", "Graphiti MCP", "Mem0 MCP", "OpenMemory MCP", "Infisical MCP"],
+    "mcp_servers": ["MetaMCP", "letta MCP", "Mem0 MCP", "OpenMemory MCP", "Infisical MCP"],
     "security": ["Infisical", "Bitwarden"],
     "ui": ["Open-WebUI", "LobeChat", "Dify Web"]
   },
@@ -49,13 +49,13 @@
       },
       "docker-compose.memory.yml": {
         "path": "C:\\Dev\\Projects\\Repos\\Project-Nyra\\docker-compose.memory.yml",
-        "description": "Memory stack with Graphiti, FalkorDB, Qdrant, Redis, Letta, Mem0",
-        "services": ["falkordb", "graphiti", "qdrant", "redis", "letta", "postgres", "mem0-bridge", "prometheus", "grafana"],
+        "description": "Memory stack with letta, FalkorDB, Qdrant, Redis, Letta, Mem0",
+        "services": ["falkordb", "letta", "qdrant", "redis", "letta", "postgres", "mem0-bridge", "prometheus", "grafana"],
         "networks": ["nyra-memory"],
         "volumes": ["falkordb-data", "qdrant-data", "redis-data", "letta-data", "postgres-data", "mem0-data", "prometheus-data", "grafana-data"],
         "ports": {
           "6379": "falkordb",
-          "7459": "graphiti",
+          "7459": "letta",
           "6333": "qdrant",
           "6334": "qdrant-grpc",
           "8001": "redis-insight",
@@ -69,12 +69,12 @@
       "docker-compose.infisical.yml": {
         "path": "C:\\Dev\\Projects\\Repos\\Project-Nyra\\docker-compose.infisical.yml",
         "description": "Infisical secrets management with MCP integration and per-PC orchestration",
-        "services": ["infisical-mcp", "claude-flow-mcp", "metamcp-gateway-enhanced", "nyra-orchestrator", "nyra-worker-1", "nyra-worker-2", "nyra-worker-3", "postgres", "falkordb", "chromadb", "cloudflared-orchestrator"],
+        "services": ["infisical-mcp", "archon-os-mcp", "metamcp-gateway-enhanced", "nyra-orchestrator", "nyra-worker-1", "nyra-worker-2", "nyra-worker-3", "postgres", "falkordb", "chromadb", "cloudflared-orchestrator"],
         "networks": ["nyra-infisical-network"],
         "volumes": ["infisical_config", "infisical_cache", "infisical_secrets", "metamcp_cache", "claude_flow_cache", "orchestrator_cache", "worker1_cache", "worker2_cache", "worker3_cache", "postgres_data", "falkordb_data", "chromadb_data"],
         "ports": {
           "8006": "infisical-mcp",
-          "8003": "claude-flow-mcp",
+          "8003": "archon-os-mcp",
           "8005": "metamcp-gateway-enhanced",
           "8000": "nyra-orchestrator",
           "8001": "nyra-worker-1",
@@ -126,16 +126,16 @@
       "docker-compose.orchestrator.yml": {
         "path": "C:\\Dev\\Projects\\Repos\\Project-Nyra\\infra\\docker-compose.orchestrator.yml",
         "description": "Orchestrator node with routing and coordination",
-        "services": ["nexus-router", "letta", "postgres-letta", "mem0", "qdrant", "claude-flow", "agentdb", "ruvector", "infisical", "infisical-mongo", "redis"],
+        "services": ["nexus-router", "letta", "postgres-letta", "mem0", "qdrant", "archon-os", "ruvector", "ruvector", "infisical", "infisical-mongo", "redis"],
         "networks": ["nyra-net"],
-        "volumes": ["nexus-data", "letta-data", "mem0-data", "agentdb-data", "ruvector-data", "infisical-data", "redis-orchestrator-data"],
+        "volumes": ["nexus-data", "letta-data", "mem0-data", "ruvector-data", "ruvector-data", "infisical-data", "redis-orchestrator-data"],
         "ports": {
           "6000": "nexus-router",
           "8283": "letta",
           "4321": "mem0",
           "6333": "qdrant",
-          "3010": "claude-flow",
-          "8080": "agentdb",
+          "3010": "archon-os",
+          "8080": "ruvector",
           "8888": "ruvector",
           "6380": "redis"
         }
@@ -166,7 +166,7 @@
       "docker-compose.full.yml": {
         "path": "C:\\Dev\\Projects\\Repos\\Project-Nyra\\infra\\docker\\docker-compose.full.yml",
         "description": "Complete full stack with all layers - databases, orchestration, AI services, workflow, observability",
-        "services": ["postgresql", "redis", "falkordb", "qdrant", "claude-flow", "archon-os", "nexus-router", "letta", "open-webui", "lobechat", "n8n", "prometheus", "grafana", "loki", "promtail", "node-exporter", "cadvisor", "alertmanager"],
+        "services": ["postgresql", "redis", "falkordb", "qdrant", "archon-os", "archon-os", "nexus-router", "letta", "open-webui", "lobechat", "n8n", "prometheus", "grafana", "loki", "promtail", "node-exporter", "cadvisor", "alertmanager"],
         "networks": ["nyra-network"],
         "volumes": ["postgres_data", "redis_data", "falkordb_data", "qdrant_data", "claude_flow_data", "archon_data", "nexus_router_data", "letta_data", "open_webui_data", "lobechat_data", "n8n_data", "prometheus_data", "grafana_data", "loki_data", "alertmanager_data"],
         "ports": {
@@ -174,7 +174,7 @@
           "6379": "redis",
           "6380": "falkordb",
           "6333": "qdrant",
-          "9000": "claude-flow",
+          "9000": "archon-os",
           "9001": "archon-os",
           "9002": "archon-mcp",
           "8000": "nexus-router",
@@ -293,7 +293,7 @@
       "infra/archive/nyra-infra-old/compose/": {
         "path": "C:\\Dev\\Projects\\Repos\\Project-Nyra\\infra\\archive\\nyra-infra-old\\compose",
         "description": "18 archived compose files",
-        "files": ["compose.metamcp.yml", "compose.claude-flow.yml", "compose.mcp.yml", "compose.memory.yml", "compose.ui.yml", "compose.orchestration.yml", "compose.management.yml", "compose.metatool.yml", "compose.ingestion.yml", "compose.casistack.yml", "compose.mcp.services.yml", "compose.ui-integration.yml"]
+        "files": ["compose.metamcp.yml", "compose.archon-os.yml", "compose.mcp.yml", "compose.memory.yml", "compose.ui.yml", "compose.orchestration.yml", "compose.management.yml", "compose.metatool.yml", "compose.ingestion.yml", "compose.casistack.yml", "compose.mcp.services.yml", "compose.ui-integration.yml"]
       }
     }
   },
@@ -331,7 +331,7 @@
     },
     "8080": {
       "conflict": "High",
-      "services": ["openwebui", "archgw-router", "infisical", "agentdb", "cadvisor"],
+      "services": ["openwebui", "archgw-router", "infisical", "ruvector", "cadvisor"],
       "locations": ["root", "infra", "configs"]
     },
     "8283": {
@@ -419,7 +419,7 @@
       "components": ["dify-api", "dify-web"],
       "locations": ["infra", "workers"]
     },
-    "claude-flow": {
+    "archon-os": {
       "instances": 4,
       "configurations": ["orchestrator", "development", "production"],
       "locations": ["infra", "orchestration", "archive"]

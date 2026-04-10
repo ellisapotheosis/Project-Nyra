@@ -96,7 +96,7 @@ Infisical contains **hundreds** of additional environment variables that extend 
 **Claude Flow Configuration** (Complete):
 - `CLAUDE_FLOW_*` - 50+ configuration variables
 - `CLAUDE_CODE_*` - 15+ variables
-- `AGENTDB_*` - 25+ variables
+- `ruvector_*` - 25+ variables
 - `AGENTIC_FLOW_*` - 15+ variables
 
 **Authentication & Authorization**:

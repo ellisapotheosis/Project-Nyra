@@ -10,13 +10,13 @@ Generated: 2026-02-28T20:15:13+00:00
 - infra/compose/overrides/docker-compose.worker-rtx3090ti.override.yml
 - infra/compose/overrides/docker-compose.worker-rtx5090.override.yml
 - infra/configs/gitea/docker-compose.gitea.yml
-- infra/docker-compose.claude-flow-cicd.yml
+- infra/docker-compose.archon-os-cicd.yml
 - infra/docker-compose.dashboard.yml
 - infra/docker-compose.orchestrator-cf-tunnel.yml
 - infra/docker-compose.yml
-- infra/docker-compose/docker-compose.claude-flow.yml
+- infra/docker-compose/docker-compose.archon-os.yml
 - infra/stacks/nyra-mortgage/docker-compose.addons.yml
-- infra/stacks/nyra-mortgage/docker-compose.graphiti.yml
+- infra/stacks/nyra-mortgage/docker-compose.letta.yml
 - infra/stacks/nyra-mortgage/docker-compose.local.yml
 - infra/stacks/nyra-mortgage/docker-compose.services.yml
 - infra/stacks/nyra-mortgage/docker-compose.voice.yml
@@ -26,7 +26,7 @@ Generated: 2026-02-28T20:15:13+00:00
 - infra/workers/worker-5090/docker-compose.worker-5090.yml
 
 ## Dockerfiles discovered
-- apps/claude-flow-dashboard/Dockerfile
+- apps/archon-os-dashboard/Dockerfile
 - apps/ingestion/files/nyra-stack/services/mem0-rest/Dockerfile
 - apps/ingestion/files/nyra-stack/services/nyra-orchestrator/Dockerfile
 - apps/ingestion/files/services/campaign-engine/Dockerfile
@@ -45,8 +45,8 @@ Generated: 2026-02-28T20:15:13+00:00
 - services/archon-os/docker/Dockerfile.archon-os
 - services/archon-os/docker/Dockerfile.mcp
 - services/archon-os/docker/Dockerfile.server
-- services/claude-flow-event-server/Dockerfile
-- services/claude-flow/Dockerfile
+- services/archon-os-event-server/Dockerfile
+- services/archon-os/Dockerfile
 - services/gitea-mcp/Dockerfile
 - services/security-service/node_modules/sql.js/.devcontainer/Dockerfile
 
@@ -61,7 +61,7 @@ Generated: 2026-02-28T20:15:13+00:00
 - twenty-postgres
 - twentycrm
 - twentycrm-mcp
-- claude-flow
+- archon-os
 - archon-os
 - moltbot-web
 - openwebui
@@ -81,7 +81,7 @@ Generated: 2026-02-28T20:15:13+00:00
 - activepieces: ${ACTIVEPIECES_PORT:-8082}:80
 - twentycrm: ${TWENTYCRM_PORT:-3000}:3000
 - twentycrm-mcp: ${TWENTYCRM_MCP_PORT:-8082}:8082
-- claude-flow: ${CLAUDE_FLOW_PORT:-8085}:8080
+- archon-os: ${CLAUDE_FLOW_PORT:-8085}:8080
 - archon-os: ${ARCHON_OS_PORT:-9001}:9001
 - moltbot-web: ${MOLTBOT_WEB_PORT:-3030}:3030
 - openwebui: ${OPENWEBUI_PORT:-8088}:8080

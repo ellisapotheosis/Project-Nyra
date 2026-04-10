@@ -32,42 +32,42 @@ Deduplicated list of all env vars discovered in `.env*` files across requested p
 | `ADMIN_DASHBOARD_URL`                      |             1 | single consistent value pattern                                                                                         | no/maybe |
 | `ADMIN_EMAIL`                              |             2 | single consistent value pattern                                                                                         | no/maybe |
 | `ADMIN_PASSWORD`                           |             2 | single consistent value pattern                                                                                         | no/maybe |
-| `AGENTDB_API_KEY`                          |             1 | single consistent value pattern                                                                                         | no/maybe |
-| `AGENTDB_AUTO_MIGRATE`                     |             7 | uses different values/placeholders by file/environment                                                                  | no/maybe |
-| `AGENTDB_BACKUP_ENABLED`                   |             1 | single consistent value pattern                                                                                         | no/maybe |
-| `AGENTDB_CACHE_ENABLED`                    |             1 | single consistent value pattern                                                                                         | no/maybe |
-| `AGENTDB_CACHE_SIZE`                       |             8 | uses different values/placeholders by file/environment                                                                  | no/maybe |
-| `AGENTDB_COMPRESSION`                      |             1 | single consistent value pattern                                                                                         | no/maybe |
-| `AGENTDB_DATA_DIR`                         |             1 | single consistent value pattern                                                                                         | no/maybe |
-| `AGENTDB_DB`                               |             1 | env tags: dev; single consistent value pattern                                                                          | no/maybe |
-| `AGENTDB_DISTANCE_METRIC`                  |             1 | single consistent value pattern                                                                                         | no/maybe |
-| `AGENTDB_EMBEDDING_MODEL`                  |             1 | single consistent value pattern                                                                                         | no/maybe |
-| `AGENTDB_ENABLED`                          |            15 | uses different values/placeholders by file/environment                                                                  | no/maybe |
-| `AGENTDB_FALLBACK_LEGACY`                  |             7 | uses different values/placeholders by file/environment                                                                  | no/maybe |
-| `AGENTDB_HNSW_EF`                          |             9 | uses different values/placeholders by file/environment                                                                  | no/maybe |
-| `AGENTDB_HNSW_EF_CONSTRUCTION`             |             1 | single consistent value pattern                                                                                         | no/maybe |
-| `AGENTDB_HNSW_EF_SEARCH`                   |             5 | single consistent value pattern                                                                                         | no/maybe |
-| `AGENTDB_HNSW_M`                           |             9 | uses different values/placeholders by file/environment                                                                  | no/maybe |
-| `AGENTDB_HOST`                             |             1 | single consistent value pattern                                                                                         | no/maybe |
-| `AGENTDB_LEARNING`                         |             7 | uses different values/placeholders by file/environment                                                                  | no/maybe |
-| `AGENTDB_LEARNING_ALGORITHM`               |             7 | uses different values/placeholders by file/environment                                                                  | no/maybe |
-| `AGENTDB_PASSWORD`                         |             1 | env tags: dev; single consistent value pattern                                                                          | no/maybe |
-| `AGENTDB_PATH`                             |            16 | uses different values/placeholders by file/environment                                                                  | yes      |
-| `AGENTDB_PORT`                             |             4 | env tags: dev, general; uses different values/placeholders by file/environment                                          | no/maybe |
-| `AGENTDB_QUANTIZATION`                     |             8 | uses different values/placeholders by file/environment                                                                  | no/maybe |
-| `AGENTDB_QUIC_PEERS`                       |             3 | uses different values/placeholders by file/environment                                                                  | yes      |
-| `AGENTDB_QUIC_PORT`                        |             6 | uses different values/placeholders by file/environment                                                                  | no/maybe |
-| `AGENTDB_QUIC_SYNC`                        |             8 | uses different values/placeholders by file/environment                                                                  | no/maybe |
-| `AGENTDB_READ_ONLY`                        |             6 | single consistent value pattern                                                                                         | no/maybe |
-| `AGENTDB_REASONING`                        |             7 | uses different values/placeholders by file/environment                                                                  | no/maybe |
-| `AGENTDB_SNAPSHOT_INTERVAL`                |             1 | single consistent value pattern                                                                                         | no/maybe |
-| `AGENTDB_SYNC_FROM`                        |             6 | single consistent value pattern                                                                                         | yes      |
-| `AGENTDB_URL`                              |             1 | single consistent value pattern                                                                                         | no/maybe |
-| `AGENTDB_USER`                             |             1 | env tags: dev; single consistent value pattern                                                                          | no/maybe |
-| `AGENTDB_VECTOR_DIMENSIONS`                |             1 | single consistent value pattern                                                                                         | no/maybe |
-| `AGENTDB_VECTOR_ENABLED`                   |             1 | single consistent value pattern                                                                                         | no/maybe |
-| `AGENTDB_VERSION`                          |             1 | env tags: dev; single consistent value pattern                                                                          | no/maybe |
-| `AGENTDB_WAL_ENABLED`                      |             1 | single consistent value pattern                                                                                         | no/maybe |
+| `ruvector_API_KEY`                          |             1 | single consistent value pattern                                                                                         | no/maybe |
+| `ruvector_AUTO_MIGRATE`                     |             7 | uses different values/placeholders by file/environment                                                                  | no/maybe |
+| `ruvector_BACKUP_ENABLED`                   |             1 | single consistent value pattern                                                                                         | no/maybe |
+| `ruvector_CACHE_ENABLED`                    |             1 | single consistent value pattern                                                                                         | no/maybe |
+| `ruvector_CACHE_SIZE`                       |             8 | uses different values/placeholders by file/environment                                                                  | no/maybe |
+| `ruvector_COMPRESSION`                      |             1 | single consistent value pattern                                                                                         | no/maybe |
+| `ruvector_DATA_DIR`                         |             1 | single consistent value pattern                                                                                         | no/maybe |
+| `ruvector_DB`                               |             1 | env tags: dev; single consistent value pattern                                                                          | no/maybe |
+| `ruvector_DISTANCE_METRIC`                  |             1 | single consistent value pattern                                                                                         | no/maybe |
+| `ruvector_EMBEDDING_MODEL`                  |             1 | single consistent value pattern                                                                                         | no/maybe |
+| `ruvector_ENABLED`                          |            15 | uses different values/placeholders by file/environment                                                                  | no/maybe |
+| `ruvector_FALLBACK_LEGACY`                  |             7 | uses different values/placeholders by file/environment                                                                  | no/maybe |
+| `ruvector_HNSW_EF`                          |             9 | uses different values/placeholders by file/environment                                                                  | no/maybe |
+| `ruvector_HNSW_EF_CONSTRUCTION`             |             1 | single consistent value pattern                                                                                         | no/maybe |
+| `ruvector_HNSW_EF_SEARCH`                   |             5 | single consistent value pattern                                                                                         | no/maybe |
+| `ruvector_HNSW_M`                           |             9 | uses different values/placeholders by file/environment                                                                  | no/maybe |
+| `ruvector_HOST`                             |             1 | single consistent value pattern                                                                                         | no/maybe |
+| `ruvector_LEARNING`                         |             7 | uses different values/placeholders by file/environment                                                                  | no/maybe |
+| `ruvector_LEARNING_ALGORITHM`               |             7 | uses different values/placeholders by file/environment                                                                  | no/maybe |
+| `ruvector_PASSWORD`                         |             1 | env tags: dev; single consistent value pattern                                                                          | no/maybe |
+| `ruvector_PATH`                             |            16 | uses different values/placeholders by file/environment                                                                  | yes      |
+| `ruvector_PORT`                             |             4 | env tags: dev, general; uses different values/placeholders by file/environment                                          | no/maybe |
+| `ruvector_QUANTIZATION`                     |             8 | uses different values/placeholders by file/environment                                                                  | no/maybe |
+| `ruvector_QUIC_PEERS`                       |             3 | uses different values/placeholders by file/environment                                                                  | yes      |
+| `ruvector_QUIC_PORT`                        |             6 | uses different values/placeholders by file/environment                                                                  | no/maybe |
+| `ruvector_QUIC_SYNC`                        |             8 | uses different values/placeholders by file/environment                                                                  | no/maybe |
+| `ruvector_READ_ONLY`                        |             6 | single consistent value pattern                                                                                         | no/maybe |
+| `ruvector_REASONING`                        |             7 | uses different values/placeholders by file/environment                                                                  | no/maybe |
+| `ruvector_SNAPSHOT_INTERVAL`                |             1 | single consistent value pattern                                                                                         | no/maybe |
+| `ruvector_SYNC_FROM`                        |             6 | single consistent value pattern                                                                                         | yes      |
+| `ruvector_URL`                              |             1 | single consistent value pattern                                                                                         | no/maybe |
+| `ruvector_USER`                             |             1 | env tags: dev; single consistent value pattern                                                                          | no/maybe |
+| `ruvector_VECTOR_DIMENSIONS`                |             1 | single consistent value pattern                                                                                         | no/maybe |
+| `ruvector_VECTOR_ENABLED`                   |             1 | single consistent value pattern                                                                                         | no/maybe |
+| `ruvector_VERSION`                          |             1 | env tags: dev; single consistent value pattern                                                                          | no/maybe |
+| `ruvector_WAL_ENABLED`                      |             1 | single consistent value pattern                                                                                         | no/maybe |
 | `AGENTIC_FLOW_API_KEY`                     |             1 | single consistent value pattern                                                                                         | no/maybe |
 | `AGENTIC_FLOW_AUTH`                        |             1 | single consistent value pattern                                                                                         | no/maybe |
 | `AGENTIC_FLOW_BOOTSTRAP`                   |             1 | env tags: dev; single consistent value pattern                                                                          | no/maybe |
@@ -1103,46 +1103,46 @@ Deduplicated list of all env vars discovered in `.env*` files across requested p
 | `GRAFANA_ROOT_URL`                         |             5 | uses different values/placeholders by file/environment                                                                  | no/maybe |
 | `GRAFANA_URL`                              |            12 | env tags: dev, general; uses different values/placeholders by file/environment                                          | no/maybe |
 | `GRAFANA_USER`                             |             1 | single consistent value pattern                                                                                         | no/maybe |
-| `GRAPHITI_API_KEY`                         |             4 | uses different values/placeholders by file/environment                                                                  | yes      |
-| `GRAPHITI_AUTO_EXTRACTION`                 |             2 | single consistent value pattern                                                                                         | no/maybe |
-| `GRAPHITI_AUTO_INDEX`                      |             2 | single consistent value pattern                                                                                         | no/maybe |
-| `GRAPHITI_AUTO_SNAPSHOT`                   |             1 | single consistent value pattern                                                                                         | no/maybe |
-| `GRAPHITI_BACKEND`                         |             6 | uses different values/placeholders by file/environment                                                                  | no/maybe |
-| `GRAPHITI_BACKUP_DIR`                      |             2 | single consistent value pattern                                                                                         | no/maybe |
-| `GRAPHITI_BACKUP_ENABLED`                  |             2 | single consistent value pattern                                                                                         | no/maybe |
-| `GRAPHITI_BATCH_SIZE`                      |             2 | single consistent value pattern                                                                                         | no/maybe |
-| `GRAPHITI_COMPRESSION_ALGORITHM`           |             2 | single consistent value pattern                                                                                         | no/maybe |
-| `GRAPHITI_COMPRESSION_ENABLED`             |             2 | single consistent value pattern                                                                                         | no/maybe |
-| `GRAPHITI_EMBEDDING_DIMENSIONS`            |             2 | single consistent value pattern                                                                                         | no/maybe |
-| `GRAPHITI_EMBEDDING_MODEL`                 |             2 | single consistent value pattern                                                                                         | no/maybe |
-| `GRAPHITI_EMBEDDING_PROVIDER`              |             2 | single consistent value pattern                                                                                         | no/maybe |
-| `GRAPHITI_ENABLED`                         |             7 | uses different values/placeholders by file/environment                                                                  | no/maybe |
-| `GRAPHITI_EXTRACTION_BATCH_SIZE`           |             2 | single consistent value pattern                                                                                         | no/maybe |
-| `GRAPHITI_EXTRACTION_MODEL`                |             2 | single consistent value pattern                                                                                         | yes      |
-| `GRAPHITI_FALKORDB_HOST`                   |             2 | single consistent value pattern                                                                                         | no/maybe |
-| `GRAPHITI_FALKORDB_PASSWORD`               |             2 | single consistent value pattern                                                                                         | no/maybe |
-| `GRAPHITI_FALKORDB_PORT`                   |             2 | single consistent value pattern                                                                                         | no/maybe |
-| `GRAPHITI_FALKORDB_URL`                    |             2 | single consistent value pattern                                                                                         | no/maybe |
-| `GRAPHITI_GRAPH_NAME`                      |             2 | single consistent value pattern                                                                                         | no/maybe |
-| `GRAPHITI_GROUP_ID`                        |             5 | single consistent value pattern                                                                                         | no/maybe |
-| `GRAPHITI_HOST`                            |             1 | single consistent value pattern                                                                                         | no/maybe |
-| `GRAPHITI_INDEX_PROPERTIES`                |             2 | single consistent value pattern                                                                                         | no/maybe |
-| `GRAPHITI_MAX_NODES`                       |             3 | single consistent value pattern                                                                                         | no/maybe |
-| `GRAPHITI_MAX_RELATIONSHIPS`               |             2 | single consistent value pattern                                                                                         | no/maybe |
-| `GRAPHITI_NEO4J_PASSWORD`                  |             2 | single consistent value pattern                                                                                         | no/maybe |
-| `GRAPHITI_NEO4J_URI`                       |             2 | single consistent value pattern                                                                                         | no/maybe |
-| `GRAPHITI_NEO4J_USER`                      |             2 | single consistent value pattern                                                                                         | no/maybe |
-| `GRAPHITI_PASSWORD`                        |             1 | single consistent value pattern                                                                                         | no/maybe |
-| `GRAPHITI_PORT`                            |             5 | env tags: dev, general; uses different values/placeholders by file/environment                                          | no/maybe |
-| `GRAPHITI_QUERY_TIMEOUT`                   |             2 | single consistent value pattern                                                                                         | no/maybe |
-| `GRAPHITI_RELATIONSHIP_INFERENCE`          |             5 | single consistent value pattern                                                                                         | no/maybe |
-| `GRAPHITI_SNAPSHOT_ENABLED`                |             2 | single consistent value pattern                                                                                         | no/maybe |
-| `GRAPHITI_SNAPSHOT_INTERVAL`               |             5 | uses different values/placeholders by file/environment                                                                  | no/maybe |
-| `GRAPHITI_SNAPSHOT_RETENTION_DAYS`         |             2 | single consistent value pattern                                                                                         | no/maybe |
-| `GRAPHITI_TEMPORAL_TRACKING`               |             7 | single consistent value pattern                                                                                         | no/maybe |
-| `GRAPHITI_URI`                             |             2 | single consistent value pattern                                                                                         | no/maybe |
-| `GRAPHITI_URL`                             |             3 | env tags: dev, general; uses different values/placeholders by file/environment                                          | no/maybe |
-| `GRAPHITI_USER`                            |             1 | single consistent value pattern                                                                                         | no/maybe |
+| `letta_API_KEY`                         |             4 | uses different values/placeholders by file/environment                                                                  | yes      |
+| `letta_AUTO_EXTRACTION`                 |             2 | single consistent value pattern                                                                                         | no/maybe |
+| `letta_AUTO_INDEX`                      |             2 | single consistent value pattern                                                                                         | no/maybe |
+| `letta_AUTO_SNAPSHOT`                   |             1 | single consistent value pattern                                                                                         | no/maybe |
+| `letta_BACKEND`                         |             6 | uses different values/placeholders by file/environment                                                                  | no/maybe |
+| `letta_BACKUP_DIR`                      |             2 | single consistent value pattern                                                                                         | no/maybe |
+| `letta_BACKUP_ENABLED`                  |             2 | single consistent value pattern                                                                                         | no/maybe |
+| `letta_BATCH_SIZE`                      |             2 | single consistent value pattern                                                                                         | no/maybe |
+| `letta_COMPRESSION_ALGORITHM`           |             2 | single consistent value pattern                                                                                         | no/maybe |
+| `letta_COMPRESSION_ENABLED`             |             2 | single consistent value pattern                                                                                         | no/maybe |
+| `letta_EMBEDDING_DIMENSIONS`            |             2 | single consistent value pattern                                                                                         | no/maybe |
+| `letta_EMBEDDING_MODEL`                 |             2 | single consistent value pattern                                                                                         | no/maybe |
+| `letta_EMBEDDING_PROVIDER`              |             2 | single consistent value pattern                                                                                         | no/maybe |
+| `letta_ENABLED`                         |             7 | uses different values/placeholders by file/environment                                                                  | no/maybe |
+| `letta_EXTRACTION_BATCH_SIZE`           |             2 | single consistent value pattern                                                                                         | no/maybe |
+| `letta_EXTRACTION_MODEL`                |             2 | single consistent value pattern                                                                                         | yes      |
+| `letta_FALKORDB_HOST`                   |             2 | single consistent value pattern                                                                                         | no/maybe |
+| `letta_FALKORDB_PASSWORD`               |             2 | single consistent value pattern                                                                                         | no/maybe |
+| `letta_FALKORDB_PORT`                   |             2 | single consistent value pattern                                                                                         | no/maybe |
+| `letta_FALKORDB_URL`                    |             2 | single consistent value pattern                                                                                         | no/maybe |
+| `letta_GRAPH_NAME`                      |             2 | single consistent value pattern                                                                                         | no/maybe |
+| `letta_GROUP_ID`                        |             5 | single consistent value pattern                                                                                         | no/maybe |
+| `letta_HOST`                            |             1 | single consistent value pattern                                                                                         | no/maybe |
+| `letta_INDEX_PROPERTIES`                |             2 | single consistent value pattern                                                                                         | no/maybe |
+| `letta_MAX_NODES`                       |             3 | single consistent value pattern                                                                                         | no/maybe |
+| `letta_MAX_RELATIONSHIPS`               |             2 | single consistent value pattern                                                                                         | no/maybe |
+| `letta_NEO4J_PASSWORD`                  |             2 | single consistent value pattern                                                                                         | no/maybe |
+| `letta_NEO4J_URI`                       |             2 | single consistent value pattern                                                                                         | no/maybe |
+| `letta_NEO4J_USER`                      |             2 | single consistent value pattern                                                                                         | no/maybe |
+| `letta_PASSWORD`                        |             1 | single consistent value pattern                                                                                         | no/maybe |
+| `letta_PORT`                            |             5 | env tags: dev, general; uses different values/placeholders by file/environment                                          | no/maybe |
+| `letta_QUERY_TIMEOUT`                   |             2 | single consistent value pattern                                                                                         | no/maybe |
+| `letta_RELATIONSHIP_INFERENCE`          |             5 | single consistent value pattern                                                                                         | no/maybe |
+| `letta_SNAPSHOT_ENABLED`                |             2 | single consistent value pattern                                                                                         | no/maybe |
+| `letta_SNAPSHOT_INTERVAL`               |             5 | uses different values/placeholders by file/environment                                                                  | no/maybe |
+| `letta_SNAPSHOT_RETENTION_DAYS`         |             2 | single consistent value pattern                                                                                         | no/maybe |
+| `letta_TEMPORAL_TRACKING`               |             7 | single consistent value pattern                                                                                         | no/maybe |
+| `letta_URI`                             |             2 | single consistent value pattern                                                                                         | no/maybe |
+| `letta_URL`                             |             3 | env tags: dev, general; uses different values/placeholders by file/environment                                          | no/maybe |
+| `letta_USER`                            |             1 | single consistent value pattern                                                                                         | no/maybe |
 | `GRAPHQL_INTROSPECTION`                    |             3 | env tags: development, general; single consistent value pattern                                                         | no/maybe |
 | `GRAPHQL_PLAYGROUND`                       |             3 | env tags: development, general; single consistent value pattern                                                         | no/maybe |
 | `GROQ_API_KEY`                             |             3 | single consistent value pattern                                                                                         | no/maybe |
@@ -2901,8 +2901,8 @@ Deduplicated list of all env vars discovered in `.env*` files across requested p
 
 ### repo-root (18 files)
 
-- `.env.claude-flow`
-- `.env.dev.claude-flow`
+- `.env.archon-os`
+- `.env.dev.archon-os`
 - `.env.example`
 - `.env.example1`
 - `.env.gitea.template`
@@ -2911,7 +2911,7 @@ Deduplicated list of all env vars discovered in `.env*` files across requested p
 - `.env.oracle`
 - `.env.orchestrator`
 - `.env.orchestrator.template`
-- `.env.prod.claude-flow`
+- `.env.prod.archon-os`
 - `.env.stack.example`
 - `.env.template`
 - `.env.twenty.example`
@@ -2925,7 +2925,7 @@ Deduplicated list of all env vars discovered in `.env*` files across requested p
 - `infra/.env.example`
 - `infra/.env.example.todo`
 - `infra/compose/.env.example`
-- `infra/configs/claude-flow-cicd/.env.cicd.example`
+- `infra/configs/archon-os-cicd/.env.cicd.example`
 - `infra/dev-stack/.env.example`
 - `infra/env/.env.dev-laptop`
 - `infra/env/.env.oracle`
@@ -2955,7 +2955,7 @@ Deduplicated list of all env vars discovered in `.env*` files across requested p
 ### docs (138 files)
 
 - `docs/ai-automatable/bootstrap/MASTER-.env`
-- `docs/archive/repo-history/archive-root/20260306/apps-claude-flow-dashboard/.env.example`
+- `docs/archive/repo-history/archive-root/20260306/apps-archon-os-dashboard/.env.example`
 - `docs/archive/repo-history/archive-root/20260306/apps-nexus-dashboard/.env.example`
 - `docs/archive/repo-history/archive-root/20260306/apps-web-legacy/nyra-admin/.env.example`
 - `docs/archive/repo-history/archive-root/20260306/apps-web-legacy/nyra-admin/.env.local.example`
@@ -2995,7 +2995,7 @@ Deduplicated list of all env vars discovered in `.env*` files across requested p
 - `docs/archive/repo-history/archived-root/infra-20260206-1551/archive/nyra-infra-old/nyra-stack-v6_2/env/.env.example`
 - `docs/archive/repo-history/archived-root/infra-20260206-1551/bitwarden-mcp/.env.example`
 - `docs/archive/repo-history/archived-root/infra-20260206-1551/bitwarden-mcp/test/.env.example`
-- `docs/archive/repo-history/archived-root/infra-20260206-1551/configs/claude-flow-cicd/.env.cicd.example`
+- `docs/archive/repo-history/archived-root/infra-20260206-1551/configs/archon-os-cicd/.env.cicd.example`
 - `docs/archive/repo-history/archived-root/infra-20260206-1551/configs/cloudflare/.env.cloudflare.example`
 - `docs/archive/repo-history/archived-root/infra-20260206-1551/configs/environments/.env.ci`
 - `docs/archive/repo-history/archived-root/infra-20260206-1551/configs/environments/.env.development`
@@ -3016,9 +3016,9 @@ Deduplicated list of all env vars discovered in `.env*` files across requested p
 - `docs/archive/repo-history/archived-root/infra-20260206-1551/docker/.env.mcp.template`
 - `docs/archive/repo-history/archived-root/infra-20260206-1551/docker/.env.rendered`
 - `docs/archive/repo-history/archived-root/infra-20260206-1551/docker/archon-integration.env.example`
-- `docs/archive/repo-history/archived-root/infra-20260206-1551/docker/build/.env.claude-flow.example`
+- `docs/archive/repo-history/archived-root/infra-20260206-1551/docker/build/.env.archon-os.example`
 - `docs/archive/repo-history/archived-root/infra-20260206-1551/docker/services/.env.embeddings.example`
-- `docs/archive/repo-history/archived-root/infra-20260206-1551/docker/services/agentic-flow/.env.example`
+- `docs/archive/repo-history/archived-root/infra-20260206-1551/docker/services/archon-os/.env.example`
 - `docs/archive/repo-history/archived-root/infra-20260206-1551/docker/services/ruvector/.env.example`
 - `docs/archive/repo-history/archived-root/infra-20260206-1551/dockerhub-mcp/.env.example`
 - `docs/archive/repo-history/archived-root/infra-20260206-1551/environments/pc1-orchestrator.env.template`
@@ -3055,9 +3055,9 @@ Deduplicated list of all env vars discovered in `.env*` files across requested p
 - `docs/configuration/env-backups/infra/sequential-thinking-mcp/.env.example`
 - `docs/configuration/env-backups/infra/stacks/nyra-mortgage/.env.example`
 - `docs/configuration/env-backups/root/.env.ci`
-- `docs/configuration/env-backups/root/.env.claude-flow`
+- `docs/configuration/env-backups/root/.env.archon-os`
 - `docs/configuration/env-backups/root/.env.cloudflare.example`
-- `docs/configuration/env-backups/root/.env.dev.claude-flow`
+- `docs/configuration/env-backups/root/.env.dev.archon-os`
 - `docs/configuration/env-backups/root/.env.development`
 - `docs/configuration/env-backups/root/.env.development.optimal`
 - `docs/configuration/env-backups/root/.env.example`
@@ -3065,7 +3065,7 @@ Deduplicated list of all env vars discovered in `.env*` files across requested p
 - `docs/configuration/env-backups/root/.env.master`
 - `docs/configuration/env-backups/root/.env.orchestration.template`
 - `docs/configuration/env-backups/root/.env.orchestrator`
-- `docs/configuration/env-backups/root/.env.prod.claude-flow`
+- `docs/configuration/env-backups/root/.env.prod.archon-os`
 - `docs/configuration/env-backups/root/.env.production`
 - `docs/configuration/env-backups/root/.env.production.optimal`
 - `docs/configuration/env-backups/root/.env.template`
@@ -3086,16 +3086,16 @@ Deduplicated list of all env vars discovered in `.env*` files across requested p
 - `docs/configuration/infisical-secrets-management/machines/worker-rtx3090ti.env`
 - `docs/configuration/infisical-secrets-management/machines/worker-rtx5090.env`
 - `docs/configuration/infisical-secrets-management/migration/.infisical-auth.env`
-- `docs/references/claude-flow-examples/05-swarm-apps/rest-api-advanced/.env.example`
-- `docs/references/claude-flow-examples/05-swarm-apps/rest-api/.env.example`
-- `docs/references/claude-flow-examples/blog-api/.env.example`
-- `docs/references/claude-flow-examples/litellm/.env.example`
-- `docs/references/claude-flow-examples/rest-api-simple/.env.example`
-- `docs/references/claude-flow-examples/user-api/.env.example`
+- `docs/references/archon-os-examples/05-swarm-apps/rest-api-advanced/.env.example`
+- `docs/references/archon-os-examples/05-swarm-apps/rest-api/.env.example`
+- `docs/references/archon-os-examples/blog-api/.env.example`
+- `docs/references/archon-os-examples/litellm/.env.example`
+- `docs/references/archon-os-examples/rest-api-simple/.env.example`
+- `docs/references/archon-os-examples/user-api/.env.example`
 
 ### apps (12 files)
 
-- `apps/apps-claude-flow-dashboard/.env.example`
+- `apps/apps-archon-os-dashboard/.env.example`
 - `apps/ingestion/files/nyra-stack/.env.example`
 - `apps/ingestion/ratehunter-export/ingest-consolidated-old-nyra/ratehunter-api/.env.example`
 - `apps/ingestion/ratehunter-export/ingest-consolidated-old-nyra/ratehunter-web/.env.example`
@@ -3115,8 +3115,8 @@ Deduplicated list of all env vars discovered in `.env*` files across requested p
 - `services/archon-os/.env.example`
 - `services/auth-service/.env.example`
 - `services/campaign-engine/.env.example`
-- `services/claude-flow-event-server/.env.example`
-- `services/claude-flow/.env.example`
+- `services/archon-os-event-server/.env.example`
+- `services/archon-os/.env.example`
 - `services/doc-management-api/.env.example`
 - `services/gemini-mcp/.env.development`
 - `services/lead-capture-api/.env.example`

@@ -33,7 +33,7 @@ INFRASTRUCTURE (PRODUCTION-READY)
   infra/docker-compose.orchestrator.yml
     ├─ Nexus Router (port 6000)
     ├─ LiteLLM (port 4000)
-    ├─ Claude-Flow (port 8000)
+    ├─ archon-os (port 8000)
     ├─ OpenClaw (port 8001)
     ├─ Archon-OS (port 8080)
     ├─ Redis (6379)
@@ -122,7 +122,7 @@ SOURCE CODE STRUCTURE (STUBS FOR YOUR CODE)
 ================================================================================
 
   src/
-    ├─ claude-flow/ ..................... Dev orchestrator (stub)
+    ├─ archon-os/ ..................... Dev orchestrator (stub)
     ├─ openclaw/ ........................ Borrower agent (stub)
     └─ archon-os/ ....................... Knowledge backbone (stub)
 
@@ -191,7 +191,7 @@ QUICK START (IMMEDIATE DEPLOYMENT)
    # Wait 60 seconds
    make health-check
    
-   Expected: All green (Nexus, LiteLLM, Claude-Flow, OpenClaw, Redis, etc.)
+   Expected: All green (Nexus, LiteLLM, archon-os, OpenClaw, Redis, etc.)
 
 3. START WORKERS (Each GPU PC)
    make workers-up WORKER=rtx-5090

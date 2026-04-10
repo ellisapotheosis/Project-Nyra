@@ -31,20 +31,20 @@ This document contains mortgage-specific requirements, agents, workflows, and co
 |----------|--------|---------|
 | Find similar mortgage quotes | RuVector | `ruvector_search(query, k=5)` |
 | Remember borrower conversation | Letta | `letta_update_memory(agent_id, content)` |
-| Track loan status changes | Graphiti | `graphiti_get_evolution(loan_id, timerange)` |
+| Track loan status changes | letta | `letta_get_evolution(loan_id, timerange)` |
 | Store borrower preferences | Mem0 | `mem0_update_profile(borrower_id, prefs)` |
 | Share compliance patterns | OpenMemory | `openmemory_share(pattern, agents)` |
 | Search mortgage documents | RuVector | `ruvector_index(doc, metadata)` |
-| Query relationship history | Graphiti | `graphiti_query(cypher_query)` |
+| Query relationship history | letta | `letta_query(cypher_query)` |
 
 **Memory Coordination Pattern for Mortgage Tasks:**
 
 ```bash
 # Before any mortgage task, check relevant memory
-npx @claude-flow/cli@latest memory search --query "conventional loan qualification" --namespace mortgage-patterns
+npx @archon-os/cli@latest memory search --query "conventional loan qualification" --namespace mortgage-patterns
 
 # After successful task, store pattern
-npx @claude-flow/cli@latest memory store --key "pattern-dti-calculation" --value "Verified DTI formula with CFPB guidelines" --namespace mortgage-patterns
+npx @archon-os/cli@latest memory store --key "pattern-dti-calculation" --value "Verified DTI formula with CFPB guidelines" --namespace mortgage-patterns
 
 # Update agent memory
 letta_update_memory(borrower_agent_id, {
@@ -54,7 +54,7 @@ letta_update_memory(borrower_agent_id, {
 })
 
 # Track in knowledge graph
-graphiti_add_node({
+letta_add_node({
   type: "MortgageQuote",
   properties: { amount, rate, lender },
   relationships: [{ type: "QUOTED_FOR", targetId: borrower_id }]
@@ -69,7 +69,7 @@ graphiti_add_node({
 
 ```bash
 # 1. Initialize mesh swarm for parallel processing
-npx @claude-flow/cli@latest swarm init --topology mesh --max-agents 8 --strategy balanced
+npx @archon-os/cli@latest swarm init --topology mesh --max-agents 8 --strategy balanced
 
 # 2. Spawn mortgage workflow agents (in ONE message, mesh coordination)
 Task({
@@ -97,7 +97,7 @@ Task({
   run_in_background: true
 })
 Task({
-  prompt: "Create Graphiti knowledge graph relationships: Lead → Borrower → Quote",
+  prompt: "Create letta knowledge graph relationships: Lead → Borrower → Quote",
   subagent_type: "memory-specialist",
   description: "Memory coordination",
   run_in_background: true
@@ -110,7 +110,7 @@ Task({
 
 ```bash
 # Process borrower documents with OCR and validation
-npx @claude-flow/cli@latest workflow run document-processing \
+npx @archon-os/cli@latest workflow run document-processing \
   --borrower-id 12345 \
   --files "paystub.pdf,w2.pdf,bank_statement.pdf" \
   --agents "document-processor-agent,compliance-agent" \
@@ -121,7 +121,7 @@ npx @claude-flow/cli@latest workflow run document-processing \
 
 ```bash
 # Start automated drip sequence
-npx @claude-flow/cli@latest workflow run drip-campaign \
+npx @archon-os/cli@latest workflow run drip-campaign \
   --borrower-id 12345 \
   --sequence "pre-approval-nurture" \
   --channels "email,sms" \
@@ -148,7 +148,7 @@ npx @claude-flow/cli@latest workflow run drip-campaign \
 |--------|--------|------|
 | API response time (p95) | <200ms | Prometheus |
 | LLM routing local vs cloud | >80% local | Nexus logs |
-| Memory system read latency | <50ms | AgentDB metrics |
+| Memory system read latency | <50ms | ruvector metrics |
 | Agent task completion rate | >95% | Claude Flow dashboard |
 | System uptime | >99.9% | Grafana alerts |
 

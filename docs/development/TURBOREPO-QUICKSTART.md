@@ -294,7 +294,7 @@ PORT=3200 pnpm dev --filter=@nyra/ratehunter
 ### With Claude Flow
 ```bash
 # Pre-task: Check affected packages
-npx @claude-flow/cli@latest hooks pre-task \
+npx @archon-os/cli@latest hooks pre-task \
   --description "Update auth service" \
   --context "$(turbo run build --dry-run --affected)"
 ```

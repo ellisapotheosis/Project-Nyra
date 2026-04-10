@@ -40,7 +40,7 @@
 | `infisical-mcp/docker-compose.yml` | `infra-archived/infra-20260206-1551/infisical-mcp/docker-compose.yml` | Infisical MCP server | Integrate directly if secrets are centralized in Infisical; otherwise toolkit on-demand. |
 | `docker-compose.mcp-servers.yml` | `infra-archived/infra-20260206-1551/docker-compose/docker-compose.mcp-servers.yml` | MCP multiplex stack | Keep on-demand for troubleshooting/ops, not always-on. |
 | `nexus.toml` | `infra/configs/nexus/nexus.toml` + archived variants | Nexus routing policy | Integrate directly as canonical config and deduplicate with `infra/nexus.toml`. |
-| `docker-compose.graphiti.yml` | `infra/stacks/nyra-mortgage/docker-compose.graphiti.yml` | Graphiti memory graph | Keep optional/on-demand unless graph memory is actively used. |
+| `docker-compose.letta.yml` | `infra/stacks/nyra-mortgage/docker-compose.letta.yml` | letta memory graph | Keep optional/on-demand unless graph memory is actively used. |
 | `docker-compose.voice.yml` | `infra/stacks/nyra-mortgage/docker-compose.voice.yml` | Voice pipeline | On-demand extension only. |
 | `start-mcp-servers.ps1` | `infra/scripts/runtime/start-mcp-servers.ps1` (+ archived) | MCP bootstrap automation | Integrate directly (operator UX). |
 | `connect-mcp-ecosystem.ps1` | `infra/scripts/runtime/connect-mcp-ecosystem.ps1` | MCP connector bootstrap | Integrate directly. |

@@ -44,7 +44,7 @@
 | **letta-integration** | ⚠️ Exists | `services/letta-integration/CLAUDE.md` |
 | **mem0** | ⚠️ Exists | `services/mem0/CLAUDE.md` |
 | **mem0-mcp** | ⚠️ Exists | `services/mem0-mcp/CLAUDE.md` |
-| **graphiti-knowledge** | ⚠️ Exists | `services/graphiti-knowledge/CLAUDE.md` |
+| **letta-knowledge** | ⚠️ Exists | `services/letta-knowledge/CLAUDE.md` |
 
 **Memory Services Summary**: 0 new, 4 existing (all services already documented)
 
@@ -84,7 +84,7 @@
 | Service | Status | Path |
 |---------|--------|------|
 | **archon-os** | ⚠️ Exists | `services/archon-os/CLAUDE.md` |
-| **claude-flow** | ✅ Created | `services/claude-flow/CLAUDE.md` |
+| **archon-os** | ✅ Created | `services/archon-os/CLAUDE.md` |
 
 **Integration Services Summary**: 1 new, 1 existing
 
@@ -117,7 +117,7 @@
 - ✅ 6-agent mesh swarm configuration
 - ✅ Performance targets (< 2s quote generation)
 
-### 3. Claude Flow (`services/claude-flow/CLAUDE.md`)
+### 3. Claude Flow (`services/archon-os/CLAUDE.md`)
 **Technology**: TypeScript + Node.js
 **Purpose**: Planning and SPARC orchestration layer (dual-orchestrator with Archon OS)
 
@@ -228,10 +228,10 @@ All newly created CLAUDE.md files follow the established template structure:
 ### Service Coverage
 - ✅ All priority services have CLAUDE.md files (39 total)
 - ✅ API services documented (campaign-engine, quote-engine, doc-management-api, mortgage-assistant-api)
-- ✅ Memory services documented (letta, mem0, mem0-mcp, graphiti)
+- ✅ Memory services documented (letta, mem0, mem0-mcp, letta)
 - ✅ Infrastructure services documented (monitoring, database, cluster-setup, docker)
 - ✅ MCP servers documented (gemini, docker, dockerhub, litellm)
-- ✅ Integration services documented (archon-os, claude-flow)
+- ✅ Integration services documented (archon-os, archon-os)
 - ✅ Workflow services documented (n8n, activepieces)
 
 ### Template Compliance
@@ -288,7 +288,7 @@ All newly created CLAUDE.md files follow the established template structure:
 |------|-------|
 | campaign-engine | ~550 |
 | quote-engine | ~650 |
-| claude-flow | ~200 |
+| archon-os | ~200 |
 | monitoring | ~250 |
 | database | ~250 |
 | cluster-setup | ~300 |
@@ -369,7 +369,7 @@ All newly created CLAUDE.md files follow the established template structure:
 
 When adding new services to Project Nyra:
 
-1. **Use Bootstrap Agent Skill**: `npx @claude-flow/cli@latest init --wizard`
+1. **Use Bootstrap Agent Skill**: `npx @archon-os/cli@latest init --wizard`
 2. **Select Appropriate Template**: Python/FastAPI, TypeScript/Node.js, or Infrastructure
 3. **Customize for Service**: Add service-specific patterns, ports, dependencies
 4. **Include Compliance**: If mortgage-related, add regulatory requirements
@@ -433,7 +433,7 @@ The Project Nyra codebase now has comprehensive CLAUDE.md documentation for all 
 
 **Memory Storage**:
 ```bash
-npx @claude-flow/cli@latest memory store --key "optionE-complete" --value "39 CLAUDE.md files documented, 95% consistency score, 100% compliance coverage" --namespace tasks
+npx @archon-os/cli@latest memory store --key "optionE-complete" --value "39 CLAUDE.md files documented, 95% consistency score, 100% compliance coverage" --namespace tasks
 ```
 
 ---

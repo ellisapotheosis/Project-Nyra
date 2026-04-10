@@ -66,9 +66,9 @@ Files that should be moved to subdirectories:
 
 #### Reference Documentation (13 files) → `references/`
 - CLAUDE_FLOW_EXAMPLES_NOTES.md
-- CLAUDE-FLOW-OPTIMIZATION-QUICK-REF.md
-- CLAUDE-FLOW-V3-OPTIMIZATIONS.md
-- CLAUDE-FLOW-VERSION-COMPARISON.md
+- archon-os-OPTIMIZATION-QUICK-REF.md
+- archon-os-V3-OPTIMIZATIONS.md
+- archon-os-VERSION-COMPARISON.md
 - COMPARISONS.md
 - LOAN-LIFECYCLE.md
 - MCP_TOOL_REGISTRY.md
@@ -268,9 +268,9 @@ mv docs/observability-setup.md docs/guides/
 
 # Move reference docs
 mv docs/CLAUDE_FLOW_EXAMPLES_NOTES.md docs/references/
-mv docs/CLAUDE-FLOW-OPTIMIZATION-QUICK-REF.md docs/references/
-mv docs/CLAUDE-FLOW-V3-OPTIMIZATIONS.md docs/references/
-mv docs/CLAUDE-FLOW-VERSION-COMPARISON.md docs/references/
+mv docs/archon-os-OPTIMIZATION-QUICK-REF.md docs/references/
+mv docs/archon-os-V3-OPTIMIZATIONS.md docs/references/
+mv docs/archon-os-VERSION-COMPARISON.md docs/references/
 mv docs/COMPARISONS.md docs/references/
 mv docs/LOAN-LIFECYCLE.md docs/references/
 mv docs/MCP_TOOL_REGISTRY.md docs/references/

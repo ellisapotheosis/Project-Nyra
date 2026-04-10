@@ -12,7 +12,7 @@ This document outlines the cloudflared tunneling architecture for connecting 4 P
 - **Role**: Primary orchestrator, coordination logic, tunnel host
 - **Subdomain**: `orchestrator.ratehunter.net`
 - **Internal Services**:
-  - Claude-Flow coordination (port 3000)
+  - archon-os coordination (port 3000)
   - Task distribution API (port 8080)
   - Health monitoring dashboard (port 9090)
   - GPU metrics collector (port 8081)

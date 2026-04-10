@@ -33,7 +33,7 @@ Project Nyra uses a multi-layered configuration system spanning 4 PCs with diffe
 Config Files (by service)
 ├── nexus.toml - LLM Gateway
 ├── litellm-config.yaml - Model Routing
-├── claude-flow.config.json - Orchestration
+├── archon-os.config.json - Orchestration
 ├── docker-compose.yml - Infrastructure
 └── Service-specific configs
 ```
@@ -195,7 +195,7 @@ CLAUDE_FLOW_PORT=6100
 ARCHON_OS_PORT=6200
 LETTA_PORT=8283
 MEM0_PORT=4321
-AGENTDB_PORT=8080
+ruvector_PORT=8080
 RUVECTOR_PORT=8888
 INFISICAL_PORT=8080
 
@@ -231,7 +231,7 @@ NYRA_ADMIN_PORT=3101
 # ============================================================================
 
 # Core Settings
-CLAUDE_FLOW_CONFIG=./claude-flow.config.json
+CLAUDE_FLOW_CONFIG=./archon-os.config.json
 CLAUDE_FLOW_LOG_LEVEL=info
 CLAUDE_FLOW_DEBUG=false
 
@@ -242,9 +242,9 @@ SWARM_STRATEGY=specialized          # balanced, specialized, adaptive
 SWARM_CONSENSUS=byzantine           # byzantine, raft, gossip
 
 # Memory Backend
-CLAUDE_FLOW_MEMORY_BACKEND=hybrid   # hybrid, agentdb, filesystem
+CLAUDE_FLOW_MEMORY_BACKEND=hybrid   # hybrid, ruvector, filesystem
 CLAUDE_FLOW_MEMORY_PATH=./.swarm/memory.db
-AGENTDB_SYNC_FROM=                  # Orchestrator URL for workers
+ruvector_SYNC_FROM=                  # Orchestrator URL for workers
 
 # Neural Learning
 NEURAL_ENABLED=true
@@ -348,7 +348,7 @@ BACKUP_STORAGE_PATH=/backups
 
 ## Configuration Files
 
-### 1. Claude Flow Configuration (`claude-flow.config.json`)
+### 1. Claude Flow Configuration (`archon-os.config.json`)
 
 ```json
 {
@@ -382,7 +382,7 @@ BACKUP_STORAGE_PATH=/backups
   },
   "memory": {
     "backend": "hybrid",
-    "agentdb": {
+    "ruvector": {
       "enabled": true,
       "path": ".swarm/memory.db",
       "hnsw": {
@@ -539,9 +539,9 @@ proxy_mode = true
 aggregation = true
 
 [[mcp.servers]]
-name = "claude-flow"
+name = "archon-os"
 command = "npx"
-args = ["@claude-flow/cli@latest"]
+args = ["@archon-os/cli@latest"]
 env = { "CLAUDE_FLOW_MCP_PORT" = "3000" }
 
 [[mcp.servers]]
@@ -970,13 +970,13 @@ npm test
 
 ```bash
 # Validate Claude Flow config
-npx @claude-flow/cli@latest config validate
+npx @archon-os/cli@latest config validate
 
 # List current configuration
-npx @claude-flow/cli@latest config list
+npx @archon-os/cli@latest config list
 
 # Get specific value
-npx @claude-flow/cli@latest config get swarm.maxAgents
+npx @archon-os/cli@latest config get swarm.maxAgents
 ```
 
 ### Configuration Backup
@@ -986,7 +986,7 @@ npx @claude-flow/cli@latest config get swarm.maxAgents
 tar czf config-backup-$(date +%Y%m%d).tar.gz \
   .env \
   configs/ \
-  claude-flow.config.json \
+  archon-os.config.json \
   infra/docker/*.yml
 
 # Restore from backup
@@ -1023,13 +1023,13 @@ docker compose config | grep -A 20 "service-name:"
 **Issue: Claude Flow config not loading**
 ```bash
 # Check config file
-cat claude-flow.config.json | jq .
+cat archon-os.config.json | jq .
 
 # Validate config
-npx @claude-flow/cli@latest config validate
+npx @archon-os/cli@latest config validate
 
 # Reset to defaults
-npx @claude-flow/cli@latest config reset
+npx @archon-os/cli@latest config reset
 ```
 
 ---

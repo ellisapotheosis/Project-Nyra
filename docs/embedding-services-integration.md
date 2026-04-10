@@ -24,7 +24,7 @@ Complete guide for integrating ONNX Runtime and Xenova/Transformers embedding se
 │  ┌─────────────────────────────────────────────────────────┐  │
 │  │            Claude Flow V3 Orchestration                 │  │
 │  │  ┌──────────────────────────────────────────────────┐   │  │
-│  │  │  Embedding Router (claude-flow.config.json)      │   │  │
+│  │  │  Embedding Router (archon-os.config.json)      │   │  │
 │  │  │  - Priority: xenova -> onnx (fallback)           │   │  │
 │  │  │  - Cache: 10,000 embeddings, 1hr TTL            │   │  │
 │  │  └──────────────┬──────────────┬────────────────────┘   │  │
@@ -40,7 +40,7 @@ Complete guide for integrating ONNX Runtime and Xenova/Transformers embedding se
 │                  └──────────┬─────────┘                       │
 │                             │                                 │
 │                    ┌────────▼─────────┐                       │
-│                    │     AgentDB      │                       │
+│                    │     ruvector      │                       │
 │                    │  Vector Storage  │                       │
 │                    │  HNSW Indexing   │                       │
 │                    │  150x Faster     │                       │
@@ -63,7 +63,7 @@ Complete guide for integrating ONNX Runtime and Xenova/Transformers embedding se
 |---------|---------|------|--------------|
 | **Xenova/Transformers** | Fast embeddings, multilingual support | 8002 | No (WASM SIMD) |
 | **ONNX Runtime** | High-performance inference, custom models | 8001 | Yes (CUDA 12+) |
-| **AgentDB** | Vector storage with HNSW indexing | - | No |
+| **ruvector** | Vector storage with HNSW indexing | - | No |
 | **Claude Flow** | Embedding routing, caching, fallback | 8003 | No |
 
 ## Prerequisites
@@ -173,7 +173,7 @@ curl http://localhost:8002/health
 
 ### Claude Flow Integration
 
-Embedding services are automatically integrated via `claude-flow.config.json`:
+Embedding services are automatically integrated via `archon-os.config.json`:
 
 ```json
 {
@@ -229,7 +229,7 @@ docker-compose -f docker-compose.embeddings.yml restart xenova-embeddings
 
 #### ONNX Custom Models
 
-Place `.onnx` models in: `../../.claude-flow/models/`
+Place `.onnx` models in: `../../.archon-os/models/`
 
 Supported formats:
 - Standard ONNX (.onnx)
@@ -285,17 +285,17 @@ embeddings = generate_embeddings([
 ])
 ```
 
-### Pattern 2: AgentDB Integration
+### Pattern 2: ruvector Integration
 
 ```typescript
-import { AgentDB } from '@ruvnet/agentdb';
+import { ruvector } from '@ruvnet/ruvector';
 
 class MortgageDocumentStore {
-  private db: AgentDB;
+  private db: ruvector;
   private collection: string = 'mortgage-documents';
 
   constructor() {
-    this.db = new AgentDB({
+    this.db = new ruvector({
       backend: 'hybrid',
       hnsw: {
         enabled: true,
@@ -318,7 +318,7 @@ class MortgageDocumentStore {
 
     const { embeddings } = await response.json();
 
-    // Store in AgentDB with HNSW indexing
+    // Store in ruvector with HNSW indexing
     await this.db.collection(this.collection).insert({
       vector: embeddings[0],
       metadata: {
@@ -375,10 +375,10 @@ const similar = await store.searchSimilar(
 
 ```typescript
 // No direct API calls needed - Claude Flow handles routing
-import { ClaudeFlow } from '@claude-flow/sdk';
+import { ClaudeFlow } from '@archon-os/sdk';
 
 const cf = new ClaudeFlow({
-  config: './configs/claude-flow/orchestrator/claude-flow.config.json'
+  config: './configs/archon-os/orchestrator/archon-os.config.json'
 });
 
 // Embeddings are automatically generated and cached
@@ -392,7 +392,7 @@ const results = await cf.memory.search({
 // 1. Generates embedding using Xenova (primary)
 // 2. Falls back to ONNX if Xenova unavailable
 // 3. Caches result for 1 hour (10,000 entry cache)
-// 4. Searches AgentDB with HNSW indexing
+// 4. Searches ruvector with HNSW indexing
 ```
 
 ## Performance Optimization
@@ -610,7 +610,7 @@ See [tests/infra/embeddings/README.md](../tests/infra/embeddings/README.md) for 
 ## Next Steps
 
 1. Deploy services to orchestrator PC
-2. Integrate with AgentDB vector storage
+2. Integrate with ruvector vector storage
 3. Configure Claude Flow automatic routing
 4. Run test suite to verify functionality
 5. Monitor performance metrics
@@ -620,5 +620,5 @@ See [tests/infra/embeddings/README.md](../tests/infra/embeddings/README.md) for 
 
 - **Documentation**: [services/README.md](../infra/docker/services/README.md)
 - **Tests**: [tests/infra/embeddings/README.md](../tests/infra/embeddings/README.md)
-- **Configuration**: [claude-flow.config.json](../configs/claude-flow/orchestrator/claude-flow.config.json)
+- **Configuration**: [archon-os.config.json](../configs/archon-os/orchestrator/archon-os.config.json)
 - **Issues**: Project Nyra GitHub repository

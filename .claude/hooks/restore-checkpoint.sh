@@ -21,7 +21,7 @@ if [ "$SESSION_NAME" == "list" ]; then
 
   # List from memory
   echo "From memory store:"
-  npx @claude-flow/cli@latest memory list \
+  npx @archon-os/cli@latest memory list \
     --namespace checkpoints \
     --limit 10 \
     2>/dev/null || echo "  (none)"
@@ -42,18 +42,18 @@ fi
 # Restore session via CLI
 echo "  ├─ Restoring session state..."
 if [ "$SESSION_NAME" == "latest" ]; then
-  npx @claude-flow/cli@latest session restore --latest 2>/dev/null || {
+  npx @archon-os/cli@latest session restore --latest 2>/dev/null || {
     echo "  └─ ⚠️  No recent session found"
   }
 else
-  npx @claude-flow/cli@latest session restore --name "$SESSION_NAME" 2>/dev/null || {
+  npx @archon-os/cli@latest session restore --name "$SESSION_NAME" 2>/dev/null || {
     echo "  └─ ⚠️  Session not found: $SESSION_NAME"
   }
 fi
 
 # Retrieve checkpoint metadata
 echo "  ├─ Loading checkpoint metadata..."
-METADATA=$(npx @claude-flow/cli@latest memory retrieve \
+METADATA=$(npx @archon-os/cli@latest memory retrieve \
   --namespace checkpoints \
   --key "$SESSION_NAME" \
   2>/dev/null || echo "{}")
@@ -101,5 +101,5 @@ echo ""
 echo "💡 Tips:"
 echo "  • Check git status for uncommitted changes"
 echo "  • Review .claude/memory.db for session data"
-echo "  • Use 'npx @claude-flow/cli@latest session list' to see all sessions"
+echo "  • Use 'npx @archon-os/cli@latest session list' to see all sessions"
 echo ""

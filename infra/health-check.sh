@@ -81,11 +81,11 @@ echo ""
 
 echo "Docker Containers:"
 check_container "nyra-nexus-router"
-check_container "nyra-claude-flow-orchestrator"
+check_container "nyra-archon-os-orchestrator"
 check_container "nyra-postgres"
 check_container "nyra-redis"
 check_container "nyra-qdrant"
-check_container "nyra-graphiti"
+check_container "nyra-letta"
 check_container "nyra-prometheus"
 check_container "nyra-grafana"
 check_container "nyra-loki"
@@ -228,7 +228,7 @@ echo -e "${YELLOW}════════════════════�
 echo ""
 
 declare -a MCP_SERVERS=(
-    "graphiti:8000:Graphiti"
+    "letta:8000:letta"
     "qdrant:6333:Qdrant"
     "infisical-mcp:8006:Infisical"
     "composio-mcp:8086:Composio"

@@ -21,7 +21,7 @@ Project Nyra requires installation and configuration across a 4-PC Windows 11 cl
 
 Each PC needs:
 - Docker Desktop
-- Multiple MCP servers (Infisical, MetaMCP, Claude Flow, Archon, Graphiti, Mem0, AgentDB, Flow Nexus)
+- Multiple MCP servers (Infisical, MetaMCP, Claude Flow, Archon, letta, Mem0, ruvector, Flow Nexus)
 - Claude Flow V3 orchestration
 - Archon OS distributed framework
 - Per-PC configurations
@@ -71,7 +71,7 @@ Each PC needs:
         │  │  • MetaMCP (gateway)           │  │
         │  │  • Claude Flow (orchestration) │  │
         │  │  • Archon (AI OS)              │  │
-        │  │  • Graphiti, Mem0, AgentDB     │  │
+        │  │  • letta, Mem0, ruvector     │  │
         │  │  • Flow Nexus                  │  │
         │  └────────────────────────────────┘  │
         │  ┌────────────────────────────────┐  │
@@ -110,7 +110,7 @@ bootstrap/
 **Every service runs in a container**:
 - Claude Flow V3 MCP (dev and prod modes)
 - Archon OS MCP
-- All MCP servers (Infisical, MetaMCP, Graphiti, Mem0, AgentDB, Flow Nexus)
+- All MCP servers (Infisical, MetaMCP, letta, Mem0, ruvector, Flow Nexus)
 - Databases (PostgreSQL, FalkorDB, ChromaDB) on orchestrator
 - Nyra services (orchestrator + workers)
 
@@ -127,10 +127,10 @@ Windows `.cmd` files provide transparent Docker execution:
 **User Experience**:
 ```cmd
 # User types this on Windows CLI
-C:\> claude-flow swarm status
+C:\> archon-os swarm status
 
 # Shim translates to
-docker exec -it nyra-claude-flow-mcp npx @claude-flow/cli@latest swarm status
+docker exec -it nyra-archon-os-mcp npx @archon-os/cli@latest swarm status
 
 # User sees native output (no Docker knowledge needed)
 ```
@@ -173,12 +173,12 @@ Each PC has isolated configuration:
 bootstrap/configs/
 ├── orchestrator/
 │   ├── .env                        # NYRA_PC_ID=orchestrator
-│   ├── claude-flow.config.json     # Master, hierarchical-mesh
+│   ├── archon-os.config.json     # Master, hierarchical-mesh
 │   ├── archon.config.json          # Master role
 │   └── docker-compose.override.yml # Orchestrator profile
 ├── worker-1/                       # RTX 3060
 │   ├── .env                        # NYRA_PC_ID=worker-1
-│   ├── claude-flow.config.json     # Worker, mesh topology
+│   ├── archon-os.config.json     # Worker, mesh topology
 │   ├── gpu.config.json             # GPU-specific settings
 │   └── docker-compose.override.yml # Worker profile
 ├── worker-2/                       # RTX 5090
@@ -273,9 +273,9 @@ flowchart TD
 | Archon MCP | 8004 | Archon OS |
 | MetaMCP Gateway | 8005 | MCP aggregation |
 | Infisical MCP | 8006 | Secret management |
-| Graphiti MCP | 8007 | Knowledge graph |
+| letta MCP | 8007 | Knowledge graph |
 | Mem0 MCP | 8008 | Memory |
-| AgentDB MCP | 8009 | Vector DB |
+| ruvector MCP | 8009 | Vector DB |
 | Flow Nexus MCP | 8010 | Flow coordination |
 | Worker APIs | 8001-8003 | Worker APIs |
 
@@ -447,7 +447,7 @@ A: Consistency across PCs, easy updates, isolated dependencies, reproducible env
 A: React provides modern UI/UX, easy to develop, cross-platform potential. We can wrap it in Electron if needed for desktop distribution.
 
 **Q: Why shims instead of direct Docker commands?**
-A: User experience. Shims hide Docker complexity and provide native CLI experience. Users can type `claude-flow swarm status` instead of `docker exec -it nyra-claude-flow-mcp npx @claude-flow/cli@latest swarm status`.
+A: User experience. Shims hide Docker complexity and provide native CLI experience. Users can type `archon-os swarm status` instead of `docker exec -it nyra-archon-os-mcp npx @archon-os/cli@latest swarm status`.
 
 **Q: What if Docker Desktop doesn't work on a PC?**
 A: We provide alternatives (Rancher Desktop, Podman Desktop) and document manual Docker Engine setup.

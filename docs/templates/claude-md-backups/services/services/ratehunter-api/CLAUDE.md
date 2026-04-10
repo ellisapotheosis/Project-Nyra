@@ -56,7 +56,7 @@
 
 **Before spawning agents, get routing recommendation:**
 ```bash
-npx @claude-flow/cli@latest hooks pre-task --description "[task description]"
+npx @archon-os/cli@latest hooks pre-task --description "[task description]"
 ```
 
 **When you see recommendations:**
@@ -71,7 +71,7 @@ npx @claude-flow/cli@latest hooks pre-task --description "[task description]"
 
 **Use this configuration to prevent agent drift:**
 ```bash
-npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 6 --strategy specialized
+npx @archon-os/cli@latest swarm init --topology hierarchical --max-agents 6 --strategy specialized
 ```
 
 **Valid Topologies:**
@@ -95,7 +95,7 @@ When implementing quote and lead capture features:
 
 ```javascript
 // STEP 1: Initialize swarm with anti-drift config
-Bash("npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 6 --strategy specialized")
+Bash("npx @archon-os/cli@latest swarm init --topology hierarchical --max-agents 6 --strategy specialized")
 
 // STEP 2: Spawn ALL agents IN BACKGROUND in ONE message
 Task({
@@ -174,28 +174,28 @@ They're working in parallel. I'll synthesize their results when they complete.
 ### Before Starting Any Task
 ```bash
 # 1. Search memory for quote and lead patterns
-npx @claude-flow/cli@latest memory search --query "quote generation lead capture patterns" --namespace patterns
+npx @archon-os/cli@latest memory search --query "quote generation lead capture patterns" --namespace patterns
 
 # 2. Check if similar feature was done
-npx @claude-flow/cli@latest memory search --query "rate quote validation form" --namespace tasks
+npx @archon-os/cli@latest memory search --query "rate quote validation form" --namespace tasks
 
 # 3. Load learned optimizations
-npx @claude-flow/cli@latest hooks route --task "quote generation"
+npx @archon-os/cli@latest hooks route --task "quote generation"
 ```
 
 ### After Completing Any Task Successfully
 ```bash
 # 1. Store successful pattern
-npx @claude-flow/cli@latest memory store --namespace patterns --key "quote-generation" --value "Match rates to loan programs, include APR, fees, and monthly payment calculations"
+npx @archon-os/cli@latest memory store --namespace patterns --key "quote-generation" --value "Match rates to loan programs, include APR, fees, and monthly payment calculations"
 
 # 2. Train neural patterns
-npx @claude-flow/cli@latest hooks post-edit --file "src/services/QuoteService.ts" --train-neural true
+npx @archon-os/cli@latest hooks post-edit --file "src/services/QuoteService.ts" --train-neural true
 
 # 3. Record task completion
-npx @claude-flow/cli@latest hooks post-task --task-id "[task-id]" --success true --store-results true
+npx @archon-os/cli@latest hooks post-task --task-id "[task-id]" --success true --store-results true
 
 # 4. Trigger optimization for public API
-npx @claude-flow/cli@latest hooks worker dispatch --trigger optimize
+npx @archon-os/cli@latest hooks worker dispatch --trigger optimize
 ```
 
 ### Continuous Improvement Triggers
@@ -316,7 +316,7 @@ services/ratehunter-api/
 - **Max Agents**: 6 (landing page API team)
 - **Strategy**: specialized (clear roles)
 - **Consensus**: raft
-- **Memory**: hybrid (AgentDB + HNSW)
+- **Memory**: hybrid (ruvector + HNSW)
 - **Neural**: Enabled for pattern learning
 
 ---
@@ -327,24 +327,24 @@ services/ratehunter-api/
 
 ```bash
 # Swarm management
-npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 6 --strategy specialized
-npx @claude-flow/cli@latest swarm status
+npx @archon-os/cli@latest swarm init --topology hierarchical --max-agents 6 --strategy specialized
+npx @archon-os/cli@latest swarm status
 
 # Memory operations (vector search with 150x-12,500x speedup)
-npx @claude-flow/cli@latest memory search --query "quote generation lead capture patterns"
-npx @claude-flow/cli@latest memory store --key "lead-form-validation" --value "All fields required, email format validation, phone format validation"
+npx @archon-os/cli@latest memory search --query "quote generation lead capture patterns"
+npx @archon-os/cli@latest memory store --key "lead-form-validation" --value "All fields required, email format validation, phone format validation"
 
 # Agent management
-npx @claude-flow/cli@latest agent spawn -t coder --name quote-api
-npx @claude-flow/cli@latest agent list
+npx @archon-os/cli@latest agent spawn -t coder --name quote-api
+npx @archon-os/cli@latest agent list
 
 # Task execution
-npx @claude-flow/cli@latest task create --description "Add quote history endpoint"
-npx @claude-flow/cli@latest task assign --task-id [id] --agent-id [agent-id]
+npx @archon-os/cli@latest task create --description "Add quote history endpoint"
+npx @archon-os/cli@latest task assign --task-id [id] --agent-id [agent-id]
 
 # Hooks for learning
-npx @claude-flow/cli@latest hooks pre-task --description "Improve quote matching accuracy"
-npx @claude-flow/cli@latest hooks post-task --task-id "[id]" --success true
+npx @archon-os/cli@latest hooks pre-task --description "Improve quote matching accuracy"
+npx @archon-os/cli@latest hooks post-task --task-id "[id]" --success true
 ```
 
 ---
@@ -372,23 +372,23 @@ npx @claude-flow/cli@latest hooks post-task --task-id "[id]" --success true
 
 ```bash
 # Pre-task hooks (get routing recommendation)
-npx @claude-flow/cli@latest hooks pre-task --description "Add quote comparison endpoint"
+npx @archon-os/cli@latest hooks pre-task --description "Add quote comparison endpoint"
 
 # Post-edit hooks (learn from successful edits)
-npx @claude-flow/cli@latest hooks post-edit --file "src/services/QuoteService.ts" --train-neural true
+npx @archon-os/cli@latest hooks post-edit --file "src/services/QuoteService.ts" --train-neural true
 
 # Post-task hooks (record completion)
-npx @claude-flow/cli@latest hooks post-task --task-id "[id]" --success true --store-results true
+npx @archon-os/cli@latest hooks post-task --task-id "[id]" --success true --store-results true
 
 # Background workers for continuous improvement
-npx @claude-flow/cli@latest hooks worker dispatch --trigger optimize    # API performance
-npx @claude-flow/cli@latest hooks worker dispatch --trigger audit       # Security/privacy
-npx @claude-flow/cli@latest hooks worker dispatch --trigger testgaps    # Test coverage
-npx @claude-flow/cli@latest hooks worker dispatch --trigger document    # Swagger update
+npx @archon-os/cli@latest hooks worker dispatch --trigger optimize    # API performance
+npx @archon-os/cli@latest hooks worker dispatch --trigger audit       # Security/privacy
+npx @archon-os/cli@latest hooks worker dispatch --trigger testgaps    # Test coverage
+npx @archon-os/cli@latest hooks worker dispatch --trigger document    # Swagger update
 
 # Session management
-npx @claude-flow/cli@latest hooks session-start --session-id "ratehunter-api-session"
-npx @claude-flow/cli@latest hooks session-end --export-metrics true
+npx @archon-os/cli@latest hooks session-start --session-id "ratehunter-api-session"
+npx @archon-os/cli@latest hooks session-end --export-metrics true
 ```
 
 ---
@@ -397,12 +397,12 @@ npx @claude-flow/cli@latest hooks session-end --export-metrics true
 
 **At session start - restore previous context:**
 ```bash
-npx @claude-flow/cli@latest session restore --latest
+npx @archon-os/cli@latest session restore --latest
 ```
 
 **At session end - persist learned patterns:**
 ```bash
-npx @claude-flow/cli@latest hooks session-end --generate-summary true --persist-state true --export-metrics true
+npx @archon-os/cli@latest hooks session-end --generate-summary true --persist-state true --export-metrics true
 ```
 
 ---
@@ -411,15 +411,15 @@ npx @claude-flow/cli@latest hooks session-end --generate-summary true --persist-
 
 **Train on successful quote and lead patterns:**
 ```bash
-npx @claude-flow/cli@latest neural train --pattern-type quote-matching --epochs 10
-npx @claude-flow/cli@latest neural train --pattern-type lead-validation --epochs 10
-npx @claude-flow/cli@latest neural train --pattern-type api-design --epochs 10
+npx @archon-os/cli@latest neural train --pattern-type quote-matching --epochs 10
+npx @archon-os/cli@latest neural train --pattern-type lead-validation --epochs 10
+npx @archon-os/cli@latest neural train --pattern-type api-design --epochs 10
 
 # Predict optimal approach for new features
-npx @claude-flow/cli@latest neural predict --input "Add rate comparison feature"
+npx @archon-os/cli@latest neural predict --input "Add rate comparison feature"
 
 # View learned patterns
-npx @claude-flow/cli@latest neural patterns --list
+npx @archon-os/cli@latest neural patterns --list
 ```
 
 ---
@@ -642,7 +642,7 @@ DOC_MANAGEMENT_API_URL=http://localhost:3002
 
 ## 🩺 Doctor Health Checks
 
-Run `npx @claude-flow/cli@latest doctor` to check:
+Run `npx @archon-os/cli@latest doctor` to check:
 ```bash
 ✓ Node.js version (18+)
 ✓ npm version (9+)
@@ -711,12 +711,12 @@ npm start
 ### Store Data
 ```bash
 # Store quote generation pattern
-npx @claude-flow/cli@latest memory store --key "quote-matching-algorithm" \
+npx @archon-os/cli@latest memory store --key "quote-matching-algorithm" \
   --value "Match rates by loan program, calculate APR including fees, compute monthly payment" \
   --namespace patterns
 
 # Store lead validation
-npx @claude-flow/cli@latest memory store --key "lead-form-validation" \
+npx @archon-os/cli@latest memory store --key "lead-form-validation" \
   --value "Email required, phone required, name required, property ZIP required, loan amount required" \
   --namespace patterns --tags "form,validation"
 ```
@@ -724,20 +724,20 @@ npx @claude-flow/cli@latest memory store --key "lead-form-validation" \
 ### Search Data (semantic vector search)
 ```bash
 # Find quote patterns
-npx @claude-flow/cli@latest memory search --query "quote matching algorithm" --namespace patterns
+npx @archon-os/cli@latest memory search --query "quote matching algorithm" --namespace patterns
 
 # Find lead capture patterns
-npx @claude-flow/cli@latest memory search --query "lead form validation" --limit 5
+npx @archon-os/cli@latest memory search --query "lead form validation" --limit 5
 ```
 
 ### List Entries
 ```bash
-npx @claude-flow/cli@latest memory list --namespace patterns --limit 10
+npx @archon-os/cli@latest memory list --namespace patterns --limit 10
 ```
 
 ### Retrieve Specific Entry
 ```bash
-npx @claude-flow/cli@latest memory retrieve --key "quote-matching-algorithm" --namespace patterns
+npx @archon-os/cli@latest memory retrieve --key "quote-matching-algorithm" --namespace patterns
 ```
 
 ---
@@ -771,7 +771,7 @@ npx @claude-flow/cli@latest memory retrieve --key "quote-matching-algorithm" --n
 
 - **Project Nyra**: `C:\Dev\Projects\Repos\Project-Nyra\CLAUDE.md`
 - **V3 Template**: `C:\Dev\Projects\Repos\Project-Nyra\docs\development\CLAUDE-MD-V3-TEMPLATE-GUIDE.md`
-- **Capabilities**: `.claude-flow/CAPABILITIES.md`
+- **Capabilities**: `.archon-os/CAPABILITIES.md`
 - **Architecture**: `ToDo/whitepaper-workflow/nyra-mcp-infisical-patchkit-v1/docs/whitepaper/ARCHITECTURE.md`
 
 ---

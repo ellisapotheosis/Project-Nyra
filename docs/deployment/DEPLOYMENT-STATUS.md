@@ -189,7 +189,7 @@ All MCP servers route through Nexus Router, providing:
 2. Build RateHunter landing page
 3. Build Mortgage Assistant application
 4. Implement Letta agent integration
-5. Set up Graphiti temporal knowledge graphs
+5. Set up letta temporal knowledge graphs
 6. Configure TwentyCRM integration
 7. Build n8n mortgage drip workflows
 8. Set up CI/CD pipelines
@@ -218,7 +218,7 @@ Based on `INSTALLATION-SUMMARY.md`, these apps need development:
 8. `services/twilio-integration` - SMS/Voice
 9. `services/twentycrm-integration` - CRM sync
 10. `services/letta-integration` - Memory systems
-11. `services/graphiti-knowledge` - Knowledge graphs
+11. `services/letta-knowledge` - Knowledge graphs
 12. `services/ruvector-search` - Vector search
 
 ## 📊 Performance Metrics
@@ -298,7 +298,7 @@ OPENROUTER_API_KEY=<from-infisical>
 
 ### MCP Servers
 ```bash
-CLAUDE_FLOW_MCP_URL=http://claude-flow:9000/mcp
+CLAUDE_FLOW_MCP_URL=http://archon-os:9000/mcp
 ARCHON_MCP_URL=http://archon-os:9001/mcp
 INFISICAL_MCP_URL=http://infisical-mcp:4002
 ```

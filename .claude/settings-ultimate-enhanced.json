@@ -1,14 +1,14 @@
 {
   "_documentation": {
     "description": "Project Nyra - Ultimate Enhanced Settings Configuration",
-    "purpose": "This settings file orchestrates Claude-Flow with complete memory system integration including RuVector (fast vector search), Letta (agent memory), Graphiti (temporal knowledge graphs), FalkorDB (graph database), Mem0 (user personalization), and OpenMemory (cross-app profiles). The configuration is designed for a 4-PC setup with GPU workers and emphasizes performance through caching, batching, and neural optimization.",
+    "purpose": "This settings file orchestrates archon-os with complete memory system integration including RuVector (fast vector search), Letta (agent memory), letta (temporal knowledge graphs), FalkorDB (graph database), Mem0 (user personalization), and OpenMemory (cross-app profiles). The configuration is designed for a 4-PC setup with GPU workers and emphasizes performance through caching, batching, and neural optimization.",
     "architecture": "Hybrid local GPU + cloud API routing with intelligent fallback",
-    "memory_hierarchy": "RuVector (fast retrieval) → Letta (agent state) → Graphiti (temporal tracking) → Mem0 (user profiles)",
+    "memory_hierarchy": "RuVector (fast retrieval) → Letta (agent state) → letta (temporal tracking) → Mem0 (user profiles)",
     "last_updated": "2025-01-08"
   },
 
   "env": {
-    "_comment_env": "Environment variables control the fundamental operating behavior of Claude-Flow. These settings determine whether the system operates as an orchestrator (main PC) or worker (GPU machines), how aggressive the optimization should be, and whether features like auto-commit and GitHub integration are enabled.",
+    "_comment_env": "Environment variables control the fundamental operating behavior of archon-os. These settings determine whether the system operates as an orchestrator (main PC) or worker (GPU machines), how aggressive the optimization should be, and whether features like auto-commit and GitHub integration are enabled.",
     
     "CLAUDE_FLOW_MODE": "orchestrator",
     "CLAUDE_FLOW_AUTO_COMMIT": "true",
@@ -30,14 +30,14 @@
     "NODE_ENV": "production",
     "LOG_LEVEL": "info",
 
-    "_comment_memory_systems": "The following environment variables control which memory systems are active. You can enable multiple systems simultaneously as they serve different purposes. RuVector handles fast vector search, Letta manages agent memory state, Graphiti tracks temporal changes, and Mem0/OpenMemory handle user personalization.",
+    "_comment_memory_systems": "The following environment variables control which memory systems are active. You can enable multiple systems simultaneously as they serve different purposes. RuVector handles fast vector search, Letta manages agent memory state, letta tracks temporal changes, and Mem0/OpenMemory handle user personalization.",
     
     "RUVECTOR_ENABLED": "true",
     "RUVECTOR_MODE": "distributed",
     "LETTA_ENABLED": "true",
     "LETTA_MCP_ENABLED": "true",
-    "GRAPHITI_ENABLED": "true",
-    "GRAPHITI_BACKEND": "falkordb",
+    "letta_ENABLED": "true",
+    "letta_BACKEND": "falkordb",
     "FALKORDB_ENABLED": "true",
     "MEM0_ENABLED": "true",
     "OPENMEMORY_ENABLED": "true",
@@ -80,7 +80,7 @@
         "maxSize": 5000,
         "agentStateCache": true
       },
-      "graphiti": {
+      "letta": {
         "enabled": true,
         "ttl": 300000,
         "maxSize": 5000,
@@ -184,7 +184,7 @@
       "compressionThreshold": 512
     },
 
-    "_comment_systems": "The systems configuration defines how each memory system integrates with Claude-Flow. RuVector provides fast vector search for code and documentation, Letta maintains agent state across sessions, Graphiti tracks temporal changes in loan applications and borrower information, FalkorDB stores the graph database backend, and Mem0/OpenMemory handle user personalization that follows borrowers across different applications.",
+    "_comment_systems": "The systems configuration defines how each memory system integrates with archon-os. RuVector provides fast vector search for code and documentation, Letta maintains agent state across sessions, letta tracks temporal changes in loan applications and borrower information, FalkorDB stores the graph database backend, and Mem0/OpenMemory handle user personalization that follows borrowers across different applications.",
 
     "systems": {
       "ruvector": {
@@ -241,7 +241,7 @@
         "autoSaveInterval": 60
       },
       
-      "graphiti": {
+      "letta": {
         "enabled": true,
         "priority": 3,
         "backend": "falkordb",
@@ -253,7 +253,7 @@
         "autoExtraction": true,
         "extractionModel": "claude-sonnet-4-20250514",
         "extractionBatchSize": 100,
-        "namespace": "nyra.graphiti",
+        "namespace": "nyra.letta",
         "graphName": "nyra_knowledge_graph",
         "entityTypes": [
           "borrower",
@@ -305,7 +305,7 @@
         "dataRetentionDays": 365,
         "namespace": "nyra.mem0",
         "syncWithLetta": true,
-        "syncWithGraphiti": true
+        "syncWithletta": true
       },
       
       "openmemory": {
@@ -326,7 +326,7 @@
     },
 
     "coordination": {
-      "_comment_coordination": "Memory system coordination ensures all five systems work together harmoniously without conflicts or data duplication. The sync strategy determines how frequently systems exchange data, conflict resolution handles cases where different systems have different versions of the same data, and cross-system queries allow complex operations that span multiple memory types (for example, finding all borrowers who match a vector search AND have specific temporal state changes in Graphiti).",
+      "_comment_coordination": "Memory system coordination ensures all five systems work together harmoniously without conflicts or data duplication. The sync strategy determines how frequently systems exchange data, conflict resolution handles cases where different systems have different versions of the same data, and cross-system queries allow complex operations that span multiple memory types (for example, finding all borrowers who match a vector search AND have specific temporal state changes in letta).",
       
       "enabled": true,
       "syncStrategy": "eventual-consistency",
@@ -339,11 +339,11 @@
   },
 
   "permissions": {
-    "_comment_permissions": "Permission management is critical for security and preventing accidental destructive operations. The allow list explicitly permits safe operations like running Claude-Flow commands, Git operations, and MCP tool access. The deny list prevents dangerous commands that could damage the system. Auto-approve settings allow certain trusted tools to run without user confirmation, speeding up automated workflows.",
+    "_comment_permissions": "Permission management is critical for security and preventing accidental destructive operations. The allow list explicitly permits safe operations like running archon-os commands, Git operations, and MCP tool access. The deny list prevents dangerous commands that could damage the system. Auto-approve settings allow certain trusted tools to run without user confirmation, speeding up automated workflows.",
     
     "allow": [
-      "Bash(npx claude-flow *)",
-      "Bash(npx claude-flow@alpha *)",
+      "Bash(npx archon-os *)",
+      "Bash(npx archon-os@alpha *)",
       "Bash(npm run lint)",
       "Bash(npm run test:*)",
       "Bash(npm test *)",
@@ -377,7 +377,7 @@
       "Bash(cd *)",
       "Bash(cat *)",
       "Bash(echo *)",
-      "Bash(./claude-flow *)",
+      "Bash(./archon-os *)",
       "Bash(./.claude/helpers/*)",
       "mcp__*",
       "WebFetch"
@@ -390,7 +390,7 @@
     ],
     "autoApprove": {
       "mcp__ruv-swarm": ["*"],
-      "mcp__claude-flow": ["*"],
+      "mcp__archon-os": ["*"],
       "mcp__letta": ["*"],
       "mcp__openmemory": ["*"],
       "mcp__ruvector": ["*"]
@@ -398,7 +398,7 @@
   },
 
   "hooks": {
-    "_comment_hooks_overview": "The hooks system provides lifecycle event handling throughout Claude-Flow operations. Hooks trigger automatically at specific points (session start, before/after tool use, on errors, etc.) and can execute commands, update memory, train neural models, and create checkpoints. This creates a comprehensive audit trail while also enabling self-optimization through continuous learning.",
+    "_comment_hooks_overview": "The hooks system provides lifecycle event handling throughout archon-os operations. Hooks trigger automatically at specific points (session start, before/after tool use, on errors, etc.) and can execute commands, update memory, train neural models, and create checkpoints. This creates a comprehensive audit trail while also enabling self-optimization through continuous learning.",
     
     "_optimization": {
       "_comment": "Hook optimization settings control batching and parallelization of hook execution. When batch is true, multiple hooks can be combined into a single execution context, reducing overhead. Parallel execution allows independent hooks to run simultaneously. Caching prevents redundant hook executions for identical inputs, and deduplication removes duplicate commands from the execution queue.",
@@ -429,17 +429,17 @@
         "hooks": [
           {
             "type": "command",
-            "command": "npx claude-flow@alpha hooks pre-command --command \"$CLAUDE_COMMAND\" --validate-safety true --prepare-resources true --predict-outcome true --check-patterns true --batch true --cache true",
+            "command": "npx archon-os@alpha hooks pre-command --command \"$CLAUDE_COMMAND\" --validate-safety true --prepare-resources true --predict-outcome true --check-patterns true --batch true --cache true",
             "_comment": "Before executing any bash command, this hook validates safety, prepares necessary resources, predicts the outcome using neural models, and checks against known problematic patterns. This prevents many common errors before they occur."
           },
           {
             "type": "command",
-            "command": "npx claude-flow@alpha memory store --key \"command/pre/$CLAUDE_TIMESTAMP\" --value \"$CLAUDE_COMMAND\" --namespace \"commands\" --batch true",
+            "command": "npx archon-os@alpha memory store --key \"command/pre/$CLAUDE_TIMESTAMP\" --value \"$CLAUDE_COMMAND\" --namespace \"commands\" --batch true",
             "_comment": "Stores the command in memory before execution, creating an audit trail and allowing the neural optimization system to learn from both successful and failed commands."
           },
           {
             "type": "command",
-            "command": "npx claude-flow@alpha neural predict --model \"error_preventer\" --input \"$CLAUDE_COMMAND\" --block-if-risky true --cache true",
+            "command": "npx archon-os@alpha neural predict --model \"error_preventer\" --input \"$CLAUDE_COMMAND\" --block-if-risky true --cache true",
             "_comment": "Uses the error prevention neural model to predict if this command might fail or cause problems. If the risk score is too high, the command can be blocked and the user prompted for confirmation."
           }
         ]
@@ -451,17 +451,17 @@
         "hooks": [
           {
             "type": "command",
-            "command": "npx claude-flow@alpha hooks pre-edit --file \"$CLAUDE_EDITED_FILE\" --auto-assign-agents true --load-context true --analyze-impact true --batch true --cache true",
+            "command": "npx archon-os@alpha hooks pre-edit --file \"$CLAUDE_EDITED_FILE\" --auto-assign-agents true --load-context true --analyze-impact true --batch true --cache true",
             "_comment": "Before editing any file, this hook automatically assigns appropriate agents based on file type, loads relevant context from memory, and analyzes the potential impact of changes. This helps maintain code quality and prevents breaking changes."
           },
           {
             "type": "command",
-            "command": "npx claude-flow@alpha memory store --key \"edit/pre/$CLAUDE_EDITED_FILE\" --value \"$CLAUDE_OPERATION_CONTEXT\" --namespace \"edits\" --batch true",
+            "command": "npx archon-os@alpha memory store --key \"edit/pre/$CLAUDE_EDITED_FILE\" --value \"$CLAUDE_OPERATION_CONTEXT\" --namespace \"edits\" --batch true",
             "_comment": "Stores edit context before changes occur, enabling rollback and helping the system learn which types of edits are most successful."
           },
           {
             "type": "command",
-            "command": "npx claude-flow@alpha neural optimize --operation \"file-edit\" --target \"$CLAUDE_EDITED_FILE\" --suggest-improvements true --cache true",
+            "command": "npx archon-os@alpha neural optimize --operation \"file-edit\" --target \"$CLAUDE_EDITED_FILE\" --suggest-improvements true --cache true",
             "_comment": "Neural optimization analyzes the planned edit and suggests improvements based on past successful patterns, code style guidelines, and best practices for the specific file type."
           },
           {
@@ -476,12 +476,12 @@
         "hooks": [
           {
             "type": "command",
-            "command": "npx claude-flow@alpha memory store --key \"todos/$(date +%s)\" --value \"$CLAUDE_TODOS\" --namespace \"tasks\" --batch true",
+            "command": "npx archon-os@alpha memory store --key \"todos/$(date +%s)\" --value \"$CLAUDE_TODOS\" --namespace \"tasks\" --batch true",
             "_comment": "Stores TODO items in memory so they can be tracked, prioritized, and referenced by agents working on related tasks."
           },
           {
             "type": "command",
-            "command": "npx claude-flow@alpha neural predict --model \"task_predictor\" --input \"$CLAUDE_TODOS\" --optimize-order true --cache true",
+            "command": "npx archon-os@alpha neural predict --model \"task_predictor\" --input \"$CLAUDE_TODOS\" --optimize-order true --cache true",
             "_comment": "Neural prediction analyzes TODO items to suggest optimal ordering based on dependencies, complexity, and historical patterns of what order tends to work best for similar task sets."
           }
         ]
@@ -496,17 +496,17 @@
         "hooks": [
           {
             "type": "command",
-            "command": "npx claude-flow@alpha hooks post-command --command \"$CLAUDE_COMMAND\" --track-metrics true --store-results true --analyze-performance true --batch true",
+            "command": "npx archon-os@alpha hooks post-command --command \"$CLAUDE_COMMAND\" --track-metrics true --store-results true --analyze-performance true --batch true",
             "_comment": "After command execution, this hook tracks performance metrics (execution time, success/failure, resource usage), stores results for future reference, and analyzes performance to identify optimization opportunities."
           },
           {
             "type": "command",
-            "command": "npx claude-flow@alpha memory store --key \"command/post/$CLAUDE_TIMESTAMP\" --value \"{\\\"command\\\": \\\"$CLAUDE_COMMAND\\\", \\\"result\\\": \\\"$CLAUDE_RESULT\\\", \\\"duration\\\": $CLAUDE_DURATION}\" --namespace \"commands\" --batch true",
+            "command": "npx archon-os@alpha memory store --key \"command/post/$CLAUDE_TIMESTAMP\" --value \"{\\\"command\\\": \\\"$CLAUDE_COMMAND\\\", \\\"result\\\": \\\"$CLAUDE_RESULT\\\", \\\"duration\\\": $CLAUDE_DURATION}\" --namespace \"commands\" --batch true",
             "_comment": "Stores command results with performance data, building a historical database that helps predict future execution times and identify performance regressions."
           },
           {
             "type": "command",
-            "command": "npx claude-flow@alpha neural train --model \"performance_optimizer\" --data \"{\\\"operation\\\": \\\"bash\\\", \\\"duration\\\": $CLAUDE_DURATION, \\\"success\\\": $CLAUDE_SUCCESS}\" --batch true",
+            "command": "npx archon-os@alpha neural train --model \"performance_optimizer\" --data \"{\\\"operation\\\": \\\"bash\\\", \\\"duration\\\": $CLAUDE_DURATION, \\\"success\\\": $CLAUDE_SUCCESS}\" --batch true",
             "_comment": "Trains the performance optimizer model with actual execution data, allowing it to learn which commands are fast/slow, which succeed/fail, and patterns that predict outcomes."
           }
         ]
@@ -518,17 +518,17 @@
         "hooks": [
           {
             "type": "command",
-            "command": "npx claude-flow@alpha hooks post-edit --file \"$CLAUDE_EDITED_FILE\" --format true --update-memory true --train-neural true --analyze-quality true",
+            "command": "npx archon-os@alpha hooks post-edit --file \"$CLAUDE_EDITED_FILE\" --format true --update-memory true --train-neural true --analyze-quality true",
             "_comment": "After editing, this hook automatically formats the file according to project standards, updates memory with the changes, trains neural models to learn from the edit pattern, and analyzes code quality to ensure standards are maintained."
           },
           {
             "type": "command",
-            "command": "npx claude-flow@alpha memory store --key \"edit/post/{}\" --value '{\"changes\": $CLAUDE_CHANGES, \"quality_score\": $CLAUDE_QUALITY_SCORE}' --namespace \"edits\" --batch true",
+            "command": "npx archon-os@alpha memory store --key \"edit/post/{}\" --value '{\"changes\": $CLAUDE_CHANGES, \"quality_score\": $CLAUDE_QUALITY_SCORE}' --namespace \"edits\" --batch true",
             "_comment": "Stores edit outcomes with quality scoring, helping the system learn what constitutes high-quality code changes and avoid patterns that historically produce bugs or maintenance issues."
           },
           {
             "type": "command",
-            "command": "npx claude-flow@alpha neural train --model \"task_predictor\" --data '{\"file_type\": \"$CLAUDE_FILE_TYPE\", \"operation\": \"$CLAUDE_OPERATION\", \"success\": true}' --batch true",
+            "command": "npx archon-os@alpha neural train --model \"task_predictor\" --data '{\"file_type\": \"$CLAUDE_FILE_TYPE\", \"operation\": \"$CLAUDE_OPERATION\", \"success\": true}' --batch true",
             "_comment": "Trains the task predictor to understand which types of operations work well for different file types, improving future task assignment and agent selection."
           },
           {
@@ -543,12 +543,12 @@
         "hooks": [
           {
             "type": "command",
-            "command": "npx claude-flow@alpha memory store --key \"task/complete/$CLAUDE_TASK_ID\" --value '{\"task\": \"$CLAUDE_TASK\", \"agent\": \"$CLAUDE_AGENT\", \"result\": \"$CLAUDE_RESULT\"}' --namespace \"tasks\"",
+            "command": "npx archon-os@alpha memory store --key \"task/complete/$CLAUDE_TASK_ID\" --value '{\"task\": \"$CLAUDE_TASK\", \"agent\": \"$CLAUDE_AGENT\", \"result\": \"$CLAUDE_RESULT\"}' --namespace \"tasks\"",
             "_comment": "Stores completed task information with the agent that handled it and the result, building a knowledge base of which agents excel at which types of tasks."
           },
           {
             "type": "command",
-            "command": "npx claude-flow@alpha neural train --model \"task_predictor\" --data '{\"task_type\": \"$CLAUDE_TASK_TYPE\", \"agent_type\": \"$CLAUDE_AGENT_TYPE\", \"performance\": $CLAUDE_PERFORMANCE}'",
+            "command": "npx archon-os@alpha neural train --model \"task_predictor\" --data '{\"task_type\": \"$CLAUDE_TASK_TYPE\", \"agent_type\": \"$CLAUDE_AGENT_TYPE\", \"performance\": $CLAUDE_PERFORMANCE}'",
             "_comment": "Trains the task predictor to improve future task-to-agent assignments based on historical performance data."
           }
         ]
@@ -560,12 +560,12 @@
         "hooks": [
           {
             "type": "command",
-            "command": "npx claude-flow@alpha memory store --key \"prompt/$(date +%s)\" --value \"$CLAUDE_PROMPT\" --namespace \"prompts\"",
+            "command": "npx archon-os@alpha memory store --key \"prompt/$(date +%s)\" --value \"$CLAUDE_PROMPT\" --namespace \"prompts\"",
             "_comment": "Stores user prompts for pattern analysis and to help the system understand common request types and optimal responses."
           },
           {
             "type": "command",
-            "command": "npx claude-flow@alpha neural analyze --prompt \"$CLAUDE_PROMPT\" --suggest-approach true --predict-complexity true",
+            "command": "npx archon-os@alpha neural analyze --prompt \"$CLAUDE_PROMPT\" --suggest-approach true --predict-complexity true",
             "_comment": "Neural analysis of the prompt suggests the best approach to take (single agent vs swarm, which tools to use, estimated complexity) before any work begins."
           },
           {
@@ -582,7 +582,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "npx claude-flow@alpha hooks session-end --generate-summary true --persist-state true --export-metrics true --backup-memory true --optimize-models true",
+            "command": "npx archon-os@alpha hooks session-end --generate-summary true --persist-state true --export-metrics true --backup-memory true --optimize-models true",
             "_comment": "When a session ends, this comprehensive hook generates a summary of what was accomplished, persists all state to disk, exports performance metrics for analysis, backs up all memory systems, and optimizes neural models with the session's learning data."
           },
           {
@@ -592,12 +592,12 @@
           },
           {
             "type": "command",
-            "command": "npx claude-flow@alpha memory backup --namespace \"all\" --destination \".claude/memory-backup-$CLAUDE_SESSION_ID.json\"",
+            "command": "npx archon-os@alpha memory backup --namespace \"all\" --destination \".claude/memory-backup-$CLAUDE_SESSION_ID.json\"",
             "_comment": "Backs up all memory systems to a timestamped JSON file, ensuring no learning or context is lost between sessions."
           },
           {
             "type": "command",
-            "command": "npx claude-flow@alpha neural train --model \"all\" --data \"session\" --comprehensive true",
+            "command": "npx archon-os@alpha neural train --model \"all\" --data \"session\" --comprehensive true",
             "_comment": "Comprehensive neural model training at session end incorporates all the learning from the entire session, potentially discovering patterns that weren't visible from individual operations."
           },
           {
@@ -607,7 +607,7 @@
           },
           {
             "type": "command",
-            "command": "npx claude-flow@alpha github create-gist --name \"session-learnings-$CLAUDE_SESSION_ID\" --content \"$CLAUDE_SESSION_LEARNINGS\" --private true || true",
+            "command": "npx archon-os@alpha github create-gist --name \"session-learnings-$CLAUDE_SESSION_ID\" --content \"$CLAUDE_SESSION_LEARNINGS\" --private true || true",
             "_comment": "Creates a private GitHub Gist containing key learnings from the session, providing a shareable but secure way to document insights and patterns discovered."
           }
         ]
@@ -621,7 +621,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "npx claude-flow@alpha checkpoint create --message \"Auto-checkpoint: $CLAUDE_OPERATIONS_COUNT operations\" --include-memory true",
+            "command": "npx archon-os@alpha checkpoint create --message \"Auto-checkpoint: $CLAUDE_OPERATIONS_COUNT operations\" --include-memory true",
             "_comment": "Creates a checkpoint with current operation count and full memory state, enabling precise recovery to any point in time."
           },
           {
@@ -631,7 +631,7 @@
           },
           {
             "type": "command",
-            "command": "npx claude-flow@alpha memory sync --remote true --compress true",
+            "command": "npx archon-os@alpha memory sync --remote true --compress true",
             "_comment": "Syncs memory to remote storage (if configured) with compression, providing off-site backup of learned patterns."
           }
         ]
@@ -643,17 +643,17 @@
         "hooks": [
           {
             "type": "command",
-            "command": "npx claude-flow@alpha memory store --key \"error/$CLAUDE_ERROR_ID\" --value '{\"error\": \"$CLAUDE_ERROR\", \"context\": \"$CLAUDE_ERROR_CONTEXT\"}' --namespace \"errors\"",
+            "command": "npx archon-os@alpha memory store --key \"error/$CLAUDE_ERROR_ID\" --value '{\"error\": \"$CLAUDE_ERROR\", \"context\": \"$CLAUDE_ERROR_CONTEXT\"}' --namespace \"errors\"",
             "_comment": "Stores error information with full context, building a knowledge base of what went wrong and why. This helps prevent the same errors from recurring."
           },
           {
             "type": "command",
-            "command": "npx claude-flow@alpha neural train --model \"error_preventer\" --data '{\"error_type\": \"$CLAUDE_ERROR_TYPE\", \"operation\": \"$CLAUDE_OPERATION\", \"prevent\": true}'",
+            "command": "npx archon-os@alpha neural train --model \"error_preventer\" --data '{\"error_type\": \"$CLAUDE_ERROR_TYPE\", \"operation\": \"$CLAUDE_OPERATION\", \"prevent\": true}'",
             "_comment": "Trains the error prevention model to recognize patterns that lead to this type of error, improving future error prediction and prevention."
           },
           {
             "type": "command",
-            "command": "npx claude-flow@alpha analysis error-pattern --error \"$CLAUDE_ERROR\" --suggest-fix true --store-pattern true",
+            "command": "npx archon-os@alpha analysis error-pattern --error \"$CLAUDE_ERROR\" --suggest-fix true --store-pattern true",
             "_comment": "Analyzes the error pattern, suggests potential fixes based on similar past errors, and stores the pattern for future reference."
           }
         ]
@@ -735,11 +735,11 @@
   "includeCoAuthoredBy": true,
 
   "enabledPlugins": {
-    "claude-flow@claude-flow-marketplace": true
+    "archon-os@archon-os-marketplace": true
   },
 
   "enabledMcpjsonServers": [
-    "claude-flow",
+    "archon-os",
     "ruv-swarm",
     "letta",
     "openmemory",
@@ -749,9 +749,9 @@
   "mcpServers": {
     "_comment_mcp_servers": "MCP (Model Context Protocol) servers provide tool interfaces for external systems. Each server exposes a set of tools that Claude can use to interact with memory systems, orchestrators, and other services. The stdio type means the server communicates via standard input/output pipes, which is lightweight and secure.",
     
-    "claude-flow": {
+    "archon-os": {
       "command": "npx",
-      "args": ["claude-flow@alpha", "mcp", "start"],
+      "args": ["archon-os@alpha", "mcp", "start"],
       "type": "stdio",
       "_comment": "Primary orchestration server providing task management, agent coordination, and workflow execution tools."
     },
@@ -782,12 +782,12 @@
       "type": "stdio",
       "_comment": "High-performance vector search server for semantic code search, pattern matching, and similarity queries."
     },
-    "graphiti": {
+    "letta": {
       "command": "python",
-      "args": ["-m", "graphiti.mcp_server"],
+      "args": ["-m", "letta.mcp_server"],
       "type": "stdio",
       "env": {
-        "GRAPHITI_BACKEND": "falkordb",
+        "letta_BACKEND": "falkordb",
         "FALKORDB_URL": "redis://localhost:6380"
       },
       "_comment": "Temporal knowledge graph server for tracking entity relationships and state changes over time."
@@ -808,7 +808,7 @@
   },
 
   "_final_notes": {
-    "memory_system_overview": "This configuration integrates five specialized memory systems working together: RuVector for fast vector search across your codebase, Letta for maintaining agent state and personas, Graphiti for temporal knowledge graphs tracking how borrower and loan information evolves, FalkorDB as the graph database backend, and Mem0/OpenMemory for user personalization that follows borrowers across your applications. Each system has a specific role and they coordinate through the memory.systems.coordination section.",
+    "memory_system_overview": "This configuration integrates five specialized memory systems working together: RuVector for fast vector search across your codebase, Letta for maintaining agent state and personas, letta for temporal knowledge graphs tracking how borrower and loan information evolves, FalkorDB as the graph database backend, and Mem0/OpenMemory for user personalization that follows borrowers across your applications. Each system has a specific role and they coordinate through the memory.systems.coordination section.",
     
     "performance_philosophy": "The performance configuration is designed around the principle that your three GPU workers (48GB, 24GB, 12GB VRAM) should handle 95%+ of AI workload, with cloud APIs only as fallback for critical operations requiring maximum accuracy. Aggressive caching, batching, and parallel execution minimize both API costs and latency.",
     

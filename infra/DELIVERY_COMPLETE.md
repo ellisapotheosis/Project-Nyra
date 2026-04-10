@@ -263,7 +263,7 @@ Project Nyra uses 8 autonomous agent roles orchestrated by Claude Flow V3. Each 
 
 ### 6. Compliance & Audit Agent ⚖️
 **Responsibility**: Enforce TCPA/TRID/Fair Lending
-- Log all PII access (Graphiti)
+- Log all PII access (letta)
 - Verify STOP list compliance
 - Generate adverse action notices
 - Monthly audit reports
@@ -272,7 +272,7 @@ Project Nyra uses 8 autonomous agent roles orchestrated by Claude Flow V3. Each 
 ### 7. Memory & Knowledge Agent 🧠
 **Responsibility**: Maintain borrower context
 - Track conversation history (Letta)
-- Store preferences (Graphiti)
+- Store preferences (letta)
 - Note life events
 - Enable personalized messaging
 **Success**: 95%+ recall accuracy
@@ -373,7 +373,7 @@ After MVP is stable:
 1. **Enable SSL/TLS**: Update tunnel config with certificates
 2. **Setup OAuth**: Infisical OAuth for user authentication
 3. **Enable 2FA**: Cloudflare Access + 2FA
-4. **Audit Logging**: All PII access logged to Graphiti
+4. **Audit Logging**: All PII access logged to letta
 5. **Data Encryption**: PII encrypted in transit + at rest
 6. **Rate Limiting**: Implemented in Nexus Router
 7. **Network Segmentation**: Firewall rules per service
@@ -401,7 +401,7 @@ When you can do this end-to-end, you've succeeded:
 3. **Quote Generation**: Receives email with 3+ quotes <30 seconds
 4. **Campaign Trigger**: Starts drip campaign (email + SMS)
 5. **Response Handling**: STOP/reply pauses campaign immediately
-6. **Compliance Logging**: Audit trail visible in Graphiti
+6. **Compliance Logging**: Audit trail visible in letta
 7. **Memory**: Agent recalls borrower preferences from context
 8. **Monitoring**: Grafana shows all activity in real-time
 

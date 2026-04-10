@@ -37,7 +37,7 @@ SWARM_MEMORY_SHARED=true
 
 ## Cross-PC Setup
 
-1. **Add to .env.claude-flow:**
+1. **Add to .env.archon-os:**
    ```bash
    CLAUDE_FLOW_MEMORY_DIR=./.claude/memory
    REASONINGBANK_DB_PATH=.claude/memory/memory.db

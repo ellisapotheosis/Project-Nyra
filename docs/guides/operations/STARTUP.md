@@ -145,7 +145,7 @@ docker ps
 # - nyra-falkordb
 # - nyra-qdrant
 # - nyra-nexus-router
-# - nyra-claude-flow
+# - nyra-archon-os
 # - nyra-archon-os
 # - nyra-letta
 
@@ -178,7 +178,7 @@ curl http://localhost:9000/health  # Claude Flow
 
 ```bash
 # 1. Claude Flow MCP (Manual start - usually auto-started)
-npx @claude-flow/cli@latest mcp start
+npx @archon-os/cli@latest mcp start
 
 # 2. Nexus Router (includes MCP proxy)
 # Already started with docker-compose above
@@ -306,7 +306,7 @@ pnpm dev
 
 **Key features configured:**
 - ✅ 4 AI providers (Anthropic, OpenAI, Google Gemini, OpenRouter)
-- ✅ 15 MCP servers (Filesystem, GitHub, Git, Graphiti, etc.)
+- ✅ 15 MCP servers (Filesystem, GitHub, Git, letta, etc.)
 - ✅ 3 GPU workers (RTX 5090, 3090, 3060 via Tailscale)
 - ✅ Redis caching (1-hour TTL, deduplication)
 - ✅ Multi-level rate limiting (global, per-IP, per-server, per-tool)
@@ -682,58 +682,58 @@ docker restart nyra-nexus-router
 
 ```bash
 # Initialize a swarm
-npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 8
+npx @archon-os/cli@latest swarm init --topology hierarchical --max-agents 8
 
 # Spawn an agent
-npx @claude-flow/cli@latest agent spawn -t coder --name my-coder
+npx @archon-os/cli@latest agent spawn -t coder --name my-coder
 
 # Check swarm status
-npx @claude-flow/cli@latest swarm status
+npx @archon-os/cli@latest swarm status
 
 # Shutdown swarm
-npx @claude-flow/cli@latest swarm shutdown --graceful
+npx @archon-os/cli@latest swarm shutdown --graceful
 ```
 
 ### Memory System
 
 ```bash
 # Initialize memory database
-npx @claude-flow/cli@latest memory init --force --verbose
+npx @archon-os/cli@latest memory init --force --verbose
 
 # Store a pattern
-npx @claude-flow/cli@latest memory store \
+npx @archon-os/cli@latest memory store \
   --key "auth-pattern" \
   --value "JWT with refresh tokens" \
   --namespace patterns
 
 # Search memory
-npx @claude-flow/cli@latest memory search --query "authentication"
+npx @archon-os/cli@latest memory search --query "authentication"
 
 # List all entries
-npx @claude-flow/cli@latest memory list --namespace patterns
+npx @archon-os/cli@latest memory list --namespace patterns
 ```
 
 ### Background Workers (12 Workers)
 
 ```bash
 # List all workers
-npx @claude-flow/cli@latest hooks worker list
+npx @archon-os/cli@latest hooks worker list
 
 # Dispatch a worker
-npx @claude-flow/cli@latest hooks worker dispatch --trigger audit
+npx @archon-os/cli@latest hooks worker dispatch --trigger audit
 
 # Check worker status
-npx @claude-flow/cli@latest hooks worker status
+npx @archon-os/cli@latest hooks worker status
 ```
 
 ### Security Scanning
 
 ```bash
 # Run full security scan
-npx @claude-flow/cli@latest security scan --depth full
+npx @archon-os/cli@latest security scan --depth full
 
 # Audit security
-npx @claude-flow/cli@latest security audit
+npx @archon-os/cli@latest security audit
 
 # Check for vulnerabilities
 pnpm audit
@@ -743,10 +743,10 @@ pnpm audit
 
 ```bash
 # Run all benchmarks
-npx @claude-flow/cli@latest performance benchmark --suite all
+npx @archon-os/cli@latest performance benchmark --suite all
 
 # Profile specific component
-npx @claude-flow/cli@latest performance profile --target nexus-router
+npx @archon-os/cli@latest performance profile --target nexus-router
 ```
 
 ### Backup and Restore
@@ -889,7 +889,7 @@ After startup, you should have:
 - **MCP**: Model Context Protocol for tool integration
 - **GPU Workers**: 3 workers via Tailscale
 - **Swarm**: Multi-agent orchestration
-- **Memory**: AgentDB with HNSW indexing
+- **Memory**: ruvector with HNSW indexing
 
 ---
 

@@ -141,7 +141,7 @@ claude_flow.hyperbolic_embeddings
 
 ### Configuration
 ```yaml
-# .claude-flow/config.yaml
+# .archon-os/config.yaml
 memory:
   backend: ruvector
   enableHNSW: true
@@ -150,7 +150,7 @@ memory:
     port: 5433
     database: claude_flow
     user: claude
-    password: claude-flow-secure  # Change in production
+    password: archon-os-secure  # Change in production
     schema: claude_flow
     poolSize: 10
     connectionTimeout: 5000
@@ -227,13 +227,13 @@ store:
     host: ruvector-postgres
     port: 5432
     user: claude
-    password: claude-flow-secure
+    password: archon-os-secure
     database: claude_flow
 ```
 
 ### MCP Integration
 ```yaml
-# .claude-flow/config.yaml
+# .archon-os/config.yaml
 mcp:
   servers:
     - name: zep
@@ -369,10 +369,10 @@ Status: ✅ Always available
 
 ### Configuration
 ```yaml
-# .claude-flow/config.yaml
+# .archon-os/config.yaml
 memory:
   backend: hybrid  # Uses sql.js as fallback
-  persistPath: .claude-flow/data
+  persistPath: .archon-os/data
   cacheSize: 100
 ```
 
@@ -390,7 +390,7 @@ The following systems have been **removed and should NOT be deployed**:
 | **Qdrant** | Another vector DB | RuVector (faster, integrated) |
 | **OpenMemory** | Unmaintained, fragmented | Unified Golden Stack |
 | **Neo4j** | Heavy, complex | FalkorDB (Redis-compatible) |
-| **Graphiti (standalone)** | Now integrated | Zep + FalkorDB backend |
+| **letta (standalone)** | Now integrated | Zep + FalkorDB backend |
 
 ### Migration Notes
 If you have data in these systems:
@@ -414,7 +414,7 @@ If you have data in these systems:
 ├── Mem0 (personalization)
 ├── Qdrant (vectors)
 ├── OpenMemory (shared)
-├── Graphiti (graphs)
+├── letta (graphs)
 └── Neo4j (graph DB)
 
 Issues:
@@ -494,14 +494,14 @@ Benefits:
 
 ## 🔧 Configuration Management
 
-### Claude Flow Config (.claude-flow/config.yaml)
+### Claude Flow Config (.archon-os/config.yaml)
 ```yaml
 version: "3.0.0"
 
 memory:
   backend: ruvector
   enableHNSW: true
-  persistPath: .claude-flow/data
+  persistPath: .archon-os/data
   cacheSize: 100
 
   ruvector:

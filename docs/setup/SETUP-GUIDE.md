@@ -5,7 +5,7 @@
 ### **1. "Use in Claude Code" Clarification**
 - **Primary endpoint**: Claude Code will connect directly to individual MCP servers (no nexus router needed)
 - **API Key**: Each MCP server handles its own authentication
-- **Fuzzy search**: Available through claude-flow's built-in search capabilities
+- **Fuzzy search**: Available through archon-os's built-in search capabilities
 
 ### **2. Claude.cmd Wrapper Removal ✅**
 - **Removed**: The problematic claude.cmd wrapper has been replaced
@@ -22,10 +22,10 @@
 ```
 Orchestrator PC (Mini PC)    Client PC (RTX3060/RTX5090)
 ├── MetaMCP Router           ├── Archon OS UI
-├── Claude-Flow Dev          ├── Open WebUI
+├── archon-os Dev          ├── Open WebUI
 ├── RuVector Memory          ├── Neural Processing
-├── AgentDB                  ├── ONNX Runtime
-├── Graphiti Knowledge       ├── Transformers
+├── ruvector                  ├── ONNX Runtime
+├── letta Knowledge       ├── Transformers
 ├── Flow Nexus              └── Serena Assistant
 ├── Filesystem MCP
 ├── GitHub MCP
@@ -50,7 +50,7 @@ Remove-Item "claude.cmd" -ErrorAction SilentlyContinue
 .\scripts\setup-development-repos.ps1 -Force
 
 # This will:
-# - Clone github.com/ellisapotheosis/claude-flow to submodules/claude-flow
+# - Clone github.com/ellisapotheosis/archon-os to submodules/archon-os
 # - Clone github.com/ellisapotheosis/archon to submodules/archon
 # - Setup development branches and npm dependencies
 # - Initialize git submodules properly
@@ -71,7 +71,7 @@ Remove-Item "claude.cmd" -ErrorAction SilentlyContinue
 ### **Step 4: Configure Claude Code**
 Your `.mcp.json` now has **18 MCP servers** (not 22+, but comprehensive coverage):
 - Core: filesystem, git, github, docker, browser-use, shell, fetch, time
-- AI: claude-flow, ruv-swarm, flow-nexus, puppeteer, sequential-thinking
+- AI: archon-os, ruv-swarm, flow-nexus, puppeteer, sequential-thinking
 - Security: bitwarden, infisical
 - Development: mem0, context7, codanna, repo-docs, inception
 
@@ -83,7 +83,7 @@ nyra-claude.ps1 flow memory store "project_context" "NYRA development setup"
 # Access UIs
 # Archon OS: http://localhost:8051
 # Open WebUI: http://localhost:3000
-# Claude-Flow: http://localhost:7403
+# archon-os: http://localhost:7403
 ```
 
 ## 🔧 Addressing Your Specific Concerns
@@ -95,32 +95,32 @@ nyra-claude.ps1 flow memory store "project_context" "NYRA development setup"
 
 ### **Memory Systems (Correct Ones)**
 - ✅ **RuVector MCP**: Primary vector memory (port 7406)
-- ✅ **AgentDB MCP**: Agent database memory (port 7407)
-- ✅ **Graphiti MCP**: Knowledge graph memory (port 8797)
+- ✅ **ruvector MCP**: Agent database memory (port 7407)
+- ✅ **letta MCP**: Knowledge graph memory (port 8797)
 - ✅ **Mem0**: Personalization memory
 - ❌ **Removed**: memtensor (as you requested)
 
 ### **Missing Components Added**
 - ✅ **Serena MCP**: Assistant (port 8092)
 - ✅ **Gemini Assistant MCP**: Google AI (port 8093)
-- ✅ **Claude-Flow Development Kit**: Via submodule
+- ✅ **archon-os Development Kit**: Via submodule
 - ✅ **Archon OS MCP**: With 4 docker services (frontend, backend, db, redis)
 
-### **Dual Orchestration: Claude-Flow + Archon**
-- **Claude-Flow**: Primary orchestrator for AI/agents/memory
+### **Dual Orchestration: archon-os + Archon**
+- **archon-os**: Primary orchestrator for AI/agents/memory
 - **Archon OS**: Secondary orchestrator for UI/workflows/user interaction
 - **Integration**: Both communicate via shared memory and API endpoints
 - **Sync**: Configured in `config/development.json`
 
 ### **Development vs Production**
 - **Development**: Use submodules (live code editing)
-  - `submodules/claude-flow` - Your fork for development
+  - `submodules/archon-os` - Your fork for development
   - `submodules/archon` - Your fork for development
 - **Production**: Use Docker containers (stable deployment)
   - Dockerfile builds from your forks
   - Environment variables via Infisical
 
-## 🎯 Claude-Flow Plugin Commands
+## 🎯 archon-os Plugin Commands
 
 Use these via Claude Code with the `nyra-claude.ps1` wrapper:
 
@@ -152,19 +152,19 @@ nyra-claude.ps1 flow automate agent-selection --task "database design"
 
 ## 🔍 Memory System Status
 
-### **Claude-Flow Memory Initialization**
+### **archon-os Memory Initialization**
 The SQL memory setup should now work:
 ```powershell
 # Inside docker container (automatic on startup)
-docker exec nyra-claude-flow-dev npx @claude-flow/cli@latest memory init --reasoningbank --agentdb --ruvector
-docker exec nyra-claude-flow-dev npx @claude-flow/cli@latest agent memory init --reasoningbank
+docker exec nyra-archon-os-dev npx @archon-os/cli@latest memory init --reasoningbank --ruvector --ruvector
+docker exec nyra-archon-os-dev npx @archon-os/cli@latest agent memory init --reasoningbank
 ```
 
 ### **Missing Packages Resolution**
 The packages that don't exist as NPM modules are now:
-- **Docker services**: RuVector, AgentDB, Graphiti (via docker)
+- **Docker services**: RuVector, ruvector, letta (via docker)
 - **Integrated tools**: ONNX, @xenova/transformers (via containers)
-- **Development tools**: Epic SDK, Agent-Booster (via claude-flow fork)
+- **Development tools**: Epic SDK, Agent-Booster (via archon-os fork)
 
 ## 🚨 What Was Fixed
 
@@ -174,14 +174,14 @@ The packages that don't exist as NPM modules are now:
 4. ❌ **22+ servers confusion** → ✅ **18 working, categorized servers**
 5. ❌ **MetaMCP redundancy** → ✅ **Removed redundant routing**
 6. ❌ **Missing development setup** → ✅ **Forked repos as submodules**
-7. ❌ **Memory system confusion** → ✅ **RuVector + AgentDB + Graphiti**
+7. ❌ **Memory system confusion** → ✅ **RuVector + ruvector + letta**
 
 ## 🎉 Next Steps
 
 1. **Run the setup**: `.\scripts\setup-development-repos.ps1 -Force`
 2. **Start infrastructure**: `.\scripts\start-nyra-docker-infrastructure.ps1 -Force`
-3. **Test claude-flow**: `nyra-claude.ps1 flow memory stats`
+3. **Test archon-os**: `nyra-claude.ps1 flow memory stats`
 4. **Access Archon**: `http://localhost:8051`
-5. **Use dual orchestration**: Both Claude-Flow and Archon working together
+5. **Use dual orchestration**: Both archon-os and Archon working together
 
 The architecture is now properly dockerized, development-friendly, and avoids all the wrapper/routing issues you encountered!

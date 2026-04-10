@@ -111,14 +111,14 @@ describe('Regression Test Suite', () => {
 
     it('REGRESSION-006: Knowledge graph circular reference handling', async () => {
       // Create circular reference
-      await memory.graphiti.addNode({ id: 'node-a', type: 'Test' });
-      await memory.graphiti.addNode({ id: 'node-b', type: 'Test' });
+      await memory.letta.addNode({ id: 'node-a', type: 'Test' });
+      await memory.letta.addNode({ id: 'node-b', type: 'Test' });
 
-      await memory.graphiti.addEdge({ from: 'node-a', to: 'node-b', type: 'REFERENCES' });
-      await memory.graphiti.addEdge({ from: 'node-b', to: 'node-a', type: 'REFERENCES' });
+      await memory.letta.addEdge({ from: 'node-a', to: 'node-b', type: 'REFERENCES' });
+      await memory.letta.addEdge({ from: 'node-b', to: 'node-a', type: 'REFERENCES' });
 
       // Query should handle circular reference
-      const results = await memory.graphiti.query('MATCH (n:Test) RETURN n');
+      const results = await memory.letta.query('MATCH (n:Test) RETURN n');
       expect(results).toBeDefined();
     });
   });

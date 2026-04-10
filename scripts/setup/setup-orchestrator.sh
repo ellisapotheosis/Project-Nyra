@@ -126,7 +126,7 @@ setup_firewall() {
     sudo ufw allow from 192.168.1.0/24
 
     # Allow specific ports for Nyra services
-    sudo ufw allow 3000   # Claude-Flow
+    sudo ufw allow 3000   # archon-os
     sudo ufw allow 8080   # Task API
     sudo ufw allow 9090   # Health Dashboard
     sudo ufw allow 8081   # GPU Metrics
@@ -223,7 +223,7 @@ echo "🔍 Nyra Orchestrator Health Check - $(date)"
 echo "============================================"
 
 # Check services
-check_service "Claude-Flow" 3000 "/health" || FAILED=1
+check_service "archon-os" 3000 "/health" || FAILED=1
 check_service "Task API" 8080 "/health" || FAILED=1
 check_service "Health Dashboard" 9090 "/health" || FAILED=1
 check_service "GPU Metrics" 8081 "/metrics" || FAILED=1

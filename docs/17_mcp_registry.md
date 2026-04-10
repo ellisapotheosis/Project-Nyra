@@ -7,8 +7,8 @@
 | `docker-mcp-toolkit` | `infra/docker-compose.yml` | `8811` | `private` |
 | `git-mcp` | `infra/docker-compose.yml` | `8812` | `private` |
 | `github-mcp` | `infra/docker-compose.yml` | `8813` | `private` |
-| `graphiti-mcp` | `infra/oracle/docker-compose.oracle.yml` | `—` | `private` |
-| `graphiti_mcp` | `infra/stacks/nyra-mortgage/docker-compose.graphiti.yml` | `8000` | `private` |
+| `letta-mcp` | `infra/oracle/docker-compose.oracle.yml` | `—` | `private` |
+| `letta_mcp` | `infra/stacks/nyra-mortgage/docker-compose.letta.yml` | `8000` | `private` |
 | `infisical-mcp` | `infra/docker-compose.yml` | `8815` | `private` |
 | `nyra-mcp` | `infra/docker-compose.yml` | `3333` | `private` |
 | `openmemory_mcp` | `infra/stacks/nyra-mortgage/docker-compose.yml` | `8081` | `private` |

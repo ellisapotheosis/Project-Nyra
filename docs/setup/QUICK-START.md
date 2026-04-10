@@ -43,7 +43,7 @@ This starts **20+ services**:
 - **LLM Infrastructure**: LiteLLM, Nexus Router
 - **Workflow Automation**: n8n, Activepieces, Dify
 - **CRM**: TwentyCRM
-- **Memory Systems**: Letta, Graphiti MCP, Mem0 MCP
+- **Memory Systems**: Letta, letta MCP, Mem0 MCP
 - **Monitoring**: Prometheus, Loki, Grafana
 
 ### Step 3: Verify Services Are Running
@@ -95,13 +95,13 @@ Once all services are running, open these URLs:
 - [x] Dify for AI chat interface
 - [x] TwentyCRM for lead management
 - [x] Letta for memory management
-- [x] Graphiti & Mem0 MCP servers
+- [x] letta & Mem0 MCP servers
 - [x] Prometheus + Grafana + Loki for monitoring
 
 ### 🔄 Phase 1 - Week 3: Nexus Router + Memory Setup (NEXT)
 - [ ] Install @grafbase/nexus npm package
 - [ ] Configure Nexus MCP servers (Letta, TwentyCRM)
-- [ ] Setup Graphiti with FalkorDB backend
+- [ ] Setup letta with FalkorDB backend
 - [ ] Test memory persistence
 - [ ] Configure intelligent request routing
 

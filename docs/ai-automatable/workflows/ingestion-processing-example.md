@@ -19,13 +19,13 @@ This document demonstrates how to use the SPARC workflow to process ingestion co
 
 ```bash
 # Check system health
-npx @claude-flow/cli@latest doctor
+npx @archon-os/cli@latest doctor
 
 # Initialize memory system if needed
-npx @claude-flow/cli@latest memory init --force
+npx @archon-os/cli@latest memory init --force
 
 # Start daemon for background workers
-npx @claude-flow/cli@latest daemon start
+npx @archon-os/cli@latest daemon start
 ```
 
 ---
@@ -34,13 +34,13 @@ npx @claude-flow/cli@latest daemon start
 
 ```bash
 # Search for similar ingestion patterns
-npx @claude-flow/cli@latest memory search \
+npx @archon-os/cli@latest memory search \
   --query "docker compose integration" \
   --namespace ingestion_patterns \
   --limit 5
 
 # Retrieve the workflow definition
-npx @claude-flow/cli@latest memory retrieve \
+npx @archon-os/cli@latest memory retrieve \
   --key "ingestion-sparc-workflow" \
   --namespace consolidation
 ```
@@ -51,12 +51,12 @@ npx @claude-flow/cli@latest memory retrieve \
 
 ```bash
 # Create workflow from JSON definition
-npx @claude-flow/cli@latest workflow create \
+npx @archon-os/cli@latest workflow create \
   --name "ingestion-sparc-processor" \
-  --from-file ".claude-flow/workflows/ingestion-sparc.json"
+  --from-file ".archon-os/workflows/ingestion-sparc.json"
 
 # Verify workflow was created
-npx @claude-flow/cli@latest workflow list
+npx @archon-os/cli@latest workflow list
 ```
 
 **Expected Output:**
@@ -74,14 +74,14 @@ npx @claude-flow/cli@latest workflow list
 
 ```bash
 # Initialize with hierarchical-mesh topology (recommended for 10+ agents)
-npx @claude-flow/cli@latest swarm init \
+npx @archon-os/cli@latest swarm init \
   --topology hierarchical-mesh \
   --max-agents 10 \
   --strategy specialized \
   --consensus raft
 
 # Verify swarm initialization
-npx @claude-flow/cli@latest swarm status
+npx @archon-os/cli@latest swarm status
 ```
 
 **Expected Output:**
@@ -102,7 +102,7 @@ Health:       healthy
 
 ```bash
 # Execute with custom variables for historical ingestion
-npx @claude-flow/cli@latest workflow execute \
+npx @archon-os/cli@latest workflow execute \
   --workflow-id ingestion-sparc-processor \
   --variables '{
     "ingestion_path": "_archive/ingestion-historical-2026-01-18",
@@ -134,7 +134,7 @@ npx @claude-flow/cli@latest workflow execute \
 ### Option A: Real-Time Monitoring
 ```bash
 # Watch workflow progress (updates every 2s)
-npx @claude-flow/cli@latest workflow status \
+npx @archon-os/cli@latest workflow status \
   --workflow-id ingestion-sparc-processor \
   --watch
 ```
@@ -142,7 +142,7 @@ npx @claude-flow/cli@latest workflow status \
 ### Option B: Verbose Status Check
 ```bash
 # Get detailed status
-npx @claude-flow/cli@latest workflow status \
+npx @archon-os/cli@latest workflow status \
   --workflow-id ingestion-sparc-processor \
   --verbose
 ```
@@ -172,10 +172,10 @@ Phases:
 ### Option C: Check Agent Health
 ```bash
 # View all active agents
-npx @claude-flow/cli@latest agent list --status active
+npx @archon-os/cli@latest agent list --status active
 
 # Check swarm health
-npx @claude-flow/cli@latest swarm health
+npx @archon-os/cli@latest swarm health
 ```
 
 ---
@@ -184,7 +184,7 @@ npx @claude-flow/cli@latest swarm health
 
 ```bash
 # Check workflow completion status
-npx @claude-flow/cli@latest workflow status \
+npx @archon-os/cli@latest workflow status \
   --workflow-id ingestion-sparc-processor
 
 # View generated reports
@@ -244,7 +244,7 @@ cat config/storage/postgres.yml
 cat config/storage/neo4j.yml
 
 # Check security scan results
-npx @claude-flow/cli@latest security scan --path apps/
+npx @archon-os/cli@latest security scan --path apps/
 ```
 
 ---
@@ -253,15 +253,15 @@ npx @claude-flow/cli@latest security scan --path apps/
 
 ```bash
 # Verify patterns were stored
-npx @claude-flow/cli@latest memory search \
+npx @archon-os/cli@latest memory search \
   --query "ingestion docker integration" \
   --namespace ingestion_patterns
 
 # Check neural model training
-npx @claude-flow/cli@latest neural status
+npx @archon-os/cli@latest neural status
 
 # View learning metrics
-npx @claude-flow/cli@latest hooks metrics --period 1h
+npx @archon-os/cli@latest hooks metrics --period 1h
 ```
 
 ---
@@ -288,16 +288,16 @@ git commit -m "feat: Integrate historical ingestion content via SPARC workflow"
 
 ```bash
 # Check error details
-npx @claude-flow/cli@latest workflow status \
+npx @archon-os/cli@latest workflow status \
   --workflow-id ingestion-sparc-processor \
   --verbose
 
 # View logs
-npx @claude-flow/cli@latest workflow logs \
+npx @archon-os/cli@latest workflow logs \
   --workflow-id ingestion-sparc-processor
 
 # Rollback if needed
-npx @claude-flow/cli@latest workflow cancel \
+npx @archon-os/cli@latest workflow cancel \
   --workflow-id ingestion-sparc-processor \
   --reason "Rolling back due to errors"
 
@@ -309,14 +309,14 @@ cp -r backups/ingestion-sparc-20260118/* ./
 
 ```bash
 # Pause workflow
-npx @claude-flow/cli@latest workflow pause \
+npx @archon-os/cli@latest workflow pause \
   --workflow-id ingestion-sparc-processor
 
 # Check agent health
-npx @claude-flow/cli@latest agent health
+npx @archon-os/cli@latest agent health
 
 # Resume from last checkpoint
-npx @claude-flow/cli@latest workflow resume \
+npx @archon-os/cli@latest workflow resume \
   --workflow-id ingestion-sparc-processor \
   --from-checkpoint
 ```
@@ -361,7 +361,7 @@ security_checks:
 Execute with custom rules:
 
 ```bash
-npx @claude-flow/cli@latest workflow execute \
+npx @archon-os/cli@latest workflow execute \
   --workflow-id ingestion-sparc-processor \
   --variables '{
     "ingestion_path": "_archive/ingestion-historical-2026-01-18",
@@ -377,7 +377,7 @@ npx @claude-flow/cli@latest workflow execute \
 ### Fast Processing (Trade Quality for Speed)
 
 ```bash
-npx @claude-flow/cli@latest workflow execute \
+npx @archon-os/cli@latest workflow execute \
   --workflow-id ingestion-sparc-processor \
   --variables '{
     "ingestion_path": "_archive/ingestion-historical-2026-01-18",
@@ -392,7 +392,7 @@ npx @claude-flow/cli@latest workflow execute \
 ### Maximum Quality (More Time)
 
 ```bash
-npx @claude-flow/cli@latest workflow execute \
+npx @archon-os/cli@latest workflow execute \
   --workflow-id ingestion-sparc-processor \
   --variables '{
     "ingestion_path": "_archive/ingestion-historical-2026-01-18",
@@ -414,9 +414,9 @@ When working with Claude Code, the workflow can be triggered automatically:
 // User request: "Process the ingestion archive"
 
 // Claude Code responds:
-Bash("npx @claude-flow/cli@latest swarm init --topology hierarchical-mesh --max-agents 10")
+Bash("npx @archon-os/cli@latest swarm init --topology hierarchical-mesh --max-agents 10")
 
-Bash(`npx @claude-flow/cli@latest workflow execute \
+Bash(`npx @archon-os/cli@latest workflow execute \
   --workflow-id ingestion-sparc-processor \
   --variables '{"ingestion_path": "_archive/ingestion-historical-2026-01-18"}'`)
 
@@ -466,7 +466,7 @@ After successful execution, verify:
 
 After each successful run, the workflow learns:
 
-1. **Pattern Storage**: Successful integration patterns stored in AgentDB
+1. **Pattern Storage**: Successful integration patterns stored in ruvector
 2. **Neural Training**: Models learn from outcomes via SONA
 3. **Metric Tracking**: Performance metrics captured for optimization
 4. **Runbook Updates**: Best practices documented automatically
@@ -475,13 +475,13 @@ Query learnings:
 
 ```bash
 # Find similar successful patterns
-npx @claude-flow/cli@latest memory search \
+npx @archon-os/cli@latest memory search \
   --query "docker integration success" \
   --namespace workflow_patterns \
   --limit 10
 
 # Get recommendations for next ingestion
-npx @claude-flow/cli@latest neural predict \
+npx @archon-os/cli@latest neural predict \
   --input "Processing new ingestion archive with docker and configs"
 ```
 
@@ -492,7 +492,7 @@ npx @claude-flow/cli@latest neural predict \
 - Full Workflow Spec: `docs/workflows/ingestion-sparc-workflow.md`
 - Quick Reference: `docs/workflows/SPARC-QUICK-REFERENCE.md`
 - Visual Diagrams: `docs/workflows/sparc-workflow-diagram.md`
-- Workflow JSON: `.claude-flow/workflows/ingestion-sparc.json`
+- Workflow JSON: `.archon-os/workflows/ingestion-sparc.json`
 - Memory Key: `ingestion-sparc-workflow` (namespace: `consolidation`)
 
 ---
@@ -500,6 +500,6 @@ npx @claude-flow/cli@latest neural predict \
 ## Support
 
 For issues or questions:
-- GitHub: https://github.com/ruvnet/claude-flow/issues
-- Memory Search: `npx @claude-flow/cli@latest memory search --query "sparc workflow"`
-- Doctor Check: `npx @claude-flow/cli@latest doctor --fix`
+- GitHub: https://github.com/ruvnet/archon-os/issues
+- Memory Search: `npx @archon-os/cli@latest memory search --query "sparc workflow"`
+- Doctor Check: `npx @archon-os/cli@latest doctor --fix`

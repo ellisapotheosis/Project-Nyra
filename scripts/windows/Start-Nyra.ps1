@@ -2,7 +2,7 @@ param(
   [switch]$Addons,
   [switch]$Services,
   [switch]$LocalBuild,
-  [switch]$Graphiti
+  [switch]$letta
 )
 
 $ErrorActionPreference="Stop"
@@ -15,7 +15,7 @@ $files = @("docker-compose.yml")
 if ($Addons) { $files += "docker-compose.addons.yml" }
 if ($Services) { $files += "docker-compose.services.yml" }
 if ($LocalBuild) { $files += "docker-compose.local.yml" }
-if ($Graphiti) { $files += "docker-compose.graphiti.yml" }
+if ($letta) { $files += "docker-compose.letta.yml" }
 
 $cmd = @("docker","compose")
 foreach ($f in $files) { $cmd += @("-f",$f) }

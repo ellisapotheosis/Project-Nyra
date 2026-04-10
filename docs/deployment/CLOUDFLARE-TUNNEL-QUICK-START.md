@@ -131,7 +131,7 @@ sudo systemctl start cloudflared-rtx3090ti
    - Domain:
      - `grafana.nyra.yourdomain.com`
      - `crm.nyra.yourdomain.com`
-     - `claude-flow.nyra.yourdomain.com`
+     - `archon-os.nyra.yourdomain.com`
      - `nexus.nyra.yourdomain.com`
      - `jupyter-rtx5090.nyra.yourdomain.com`
      - `jupyter-rtx3060.nyra.yourdomain.com`

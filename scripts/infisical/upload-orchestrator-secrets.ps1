@@ -153,13 +153,13 @@ $result = Upload-Secrets -Secrets $mem0Secrets -Path "/orchestrator/mem0" -Categ
 $totalSuccess += $result.Success
 $totalFailed += $result.Failed
 
-# Graphiti
-$graphitiSecrets = @{
-    "GRAPHITI_API_KEY" = $env:GRAPHITI_API_KEY
-    "GRAPHITI_TEMPORAL_TRACKING" = "true"
-    "GRAPHITI_RELATIONSHIP_INFERENCE" = "true"
+# letta
+$lettaSecrets = @{
+    "letta_API_KEY" = $env:letta_API_KEY
+    "letta_TEMPORAL_TRACKING" = "true"
+    "letta_RELATIONSHIP_INFERENCE" = "true"
 }
-$result = Upload-Secrets -Secrets $graphitiSecrets -Path "/orchestrator/graphiti" -Category "Graphiti Graph Memory"
+$result = Upload-Secrets -Secrets $lettaSecrets -Path "/orchestrator/letta" -Category "letta Graph Memory"
 $totalSuccess += $result.Success
 $totalFailed += $result.Failed
 

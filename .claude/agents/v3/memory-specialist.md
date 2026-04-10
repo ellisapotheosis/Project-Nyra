@@ -23,21 +23,21 @@ hooks:
   pre: |
     echo "Memory Specialist initializing V3 memory system"
     # Initialize hybrid memory backend
-    mcp__claude-flow__memory_namespace --namespace="${NAMESPACE:-default}" --action="init"
+    mcp__archon-os__memory_namespace --namespace="${NAMESPACE:-default}" --action="init"
     # Check HNSW index status
-    mcp__claude-flow__memory_analytics --timeframe="1h"
+    mcp__archon-os__memory_analytics --timeframe="1h"
     # Store initialization event
-    mcp__claude-flow__memory_usage --action="store" --namespace="swarm" --key="memory-specialist:init:${TASK_ID}" --value="$(date -Iseconds): Memory specialist session started"
+    mcp__archon-os__memory_usage --action="store" --namespace="swarm" --key="memory-specialist:init:${TASK_ID}" --value="$(date -Iseconds): Memory specialist session started"
   post: |
     echo "Memory optimization complete"
     # Persist memory state
-    mcp__claude-flow__memory_persist --sessionId="${SESSION_ID}"
+    mcp__archon-os__memory_persist --sessionId="${SESSION_ID}"
     # Compress and optimize namespaces
-    mcp__claude-flow__memory_compress --namespace="${NAMESPACE:-default}"
+    mcp__archon-os__memory_compress --namespace="${NAMESPACE:-default}"
     # Generate memory analytics report
-    mcp__claude-flow__memory_analytics --timeframe="24h"
+    mcp__archon-os__memory_analytics --timeframe="24h"
     # Store completion metrics
-    mcp__claude-flow__memory_usage --action="store" --namespace="swarm" --key="memory-specialist:complete:${TASK_ID}" --value="$(date -Iseconds): Memory optimization completed"
+    mcp__archon-os__memory_usage --action="store" --namespace="swarm" --key="memory-specialist:complete:${TASK_ID}" --value="$(date -Iseconds): Memory optimization completed"
 ---
 
 # V3 Memory Specialist Agent
@@ -58,7 +58,7 @@ You are a **V3 Memory Specialist** agent responsible for optimizing the distribu
    |            (ADR-009 Implementation)               |
    |                                                   |
    |   +-------------+  +-------------+  +---------+  |
-   |   |   SQLite    |  |  AgentDB    |  |  HNSW   |  |
+   |   |   SQLite    |  |  ruvector    |  |  HNSW   |  |
    |   | (Structured)|  |  (Vector)   |  | (Index) |  |
    |   +-------------+  +-------------+  +---------+  |
    +--------------------------------------------------+
@@ -135,7 +135,7 @@ class HNSWOptimizer {
 }
 ```
 
-### 2. Hybrid Memory Backend (SQLite + AgentDB)
+### 2. Hybrid Memory Backend (SQLite + ruvector)
 
 Implements ADR-009 for combining structured storage with vector capabilities.
 
@@ -151,8 +151,8 @@ class HybridMemoryBackend {
       mmap: true
     });
 
-    // AgentDB for vector embeddings and semantic search
-    this.agentdb = new AgentDBBackend({
+    // ruvector for vector embeddings and semantic search
+    this.ruvector = new ruvectorBackend({
       dimensions: 1536,        // OpenAI embedding dimensions
       metric: 'cosine',
       indexType: 'hnsw',
@@ -160,7 +160,7 @@ class HybridMemoryBackend {
     });
 
     // Unified query interface
-    this.queryRouter = new QueryRouter(this.sqlite, this.agentdb);
+    this.queryRouter = new QueryRouter(this.sqlite, this.ruvector);
   }
 
   // Intelligent query routing
@@ -171,7 +171,7 @@ class HybridMemoryBackend {
       case 'structured':
         return this.sqlite.query(querySpec);
       case 'semantic':
-        return this.agentdb.semanticSearch(querySpec);
+        return this.ruvector.semanticSearch(querySpec);
       case 'hybrid':
         return this.hybridQuery(querySpec);
       default:
@@ -183,7 +183,7 @@ class HybridMemoryBackend {
   async hybridQuery(querySpec) {
     const [structuredResults, semanticResults] = await Promise.all([
       this.sqlite.query(querySpec.structured),
-      this.agentdb.semanticSearch(querySpec.semantic)
+      this.ruvector.semanticSearch(querySpec.semantic)
     ]);
 
     // Fusion scoring
@@ -884,54 +884,54 @@ class PatternDistiller {
 
 ```bash
 # Store with HNSW indexing
-mcp__claude-flow__memory_usage --action="store" --namespace="patterns" --key="auth:jwt-strategy" --value='{"pattern": "jwt-auth", "embedding": [...]}' --ttl=604800000
+mcp__archon-os__memory_usage --action="store" --namespace="patterns" --key="auth:jwt-strategy" --value='{"pattern": "jwt-auth", "embedding": [...]}' --ttl=604800000
 
 # Semantic search with HNSW
-mcp__claude-flow__memory_search --pattern="authentication strategies" --namespace="patterns" --limit=10
+mcp__archon-os__memory_search --pattern="authentication strategies" --namespace="patterns" --limit=10
 
 # Namespace management
-mcp__claude-flow__memory_namespace --namespace="project:myapp" --action="create"
+mcp__archon-os__memory_namespace --namespace="project:myapp" --action="create"
 
 # Memory analytics
-mcp__claude-flow__memory_analytics --timeframe="7d"
+mcp__archon-os__memory_analytics --timeframe="7d"
 
 # Memory compression
-mcp__claude-flow__memory_compress --namespace="default"
+mcp__archon-os__memory_compress --namespace="default"
 
 # Cross-session persistence
-mcp__claude-flow__memory_persist --sessionId="session-12345"
+mcp__archon-os__memory_persist --sessionId="session-12345"
 
 # Memory backup
-mcp__claude-flow__memory_backup --path="./backups/memory-$(date +%Y%m%d).bak"
+mcp__archon-os__memory_backup --path="./backups/memory-$(date +%Y%m%d).bak"
 
 # Distributed sync
-mcp__claude-flow__memory_sync --target="peer-agent-1"
+mcp__archon-os__memory_sync --target="peer-agent-1"
 ```
 
 ### CLI Commands
 
 ```bash
 # Initialize memory system
-npx @claude-flow/cli@latest memory init --backend=hybrid --hnsw-enabled
+npx @archon-os/cli@latest memory init --backend=hybrid --hnsw-enabled
 
 # Memory health check
-npx @claude-flow/cli@latest memory health
+npx @archon-os/cli@latest memory health
 
 # Search memories
-npx @claude-flow/cli@latest memory search -q "authentication patterns" --namespace="patterns"
+npx @archon-os/cli@latest memory search -q "authentication patterns" --namespace="patterns"
 
 # Consolidate memories
-npx @claude-flow/cli@latest memory consolidate --strategy=hybrid --retention=0.7
+npx @archon-os/cli@latest memory consolidate --strategy=hybrid --retention=0.7
 
 # Export/import namespaces
-npx @claude-flow/cli@latest memory export --namespace="project:myapp" --format=json
-npx @claude-flow/cli@latest memory import --file="backup.json" --namespace="project:myapp"
+npx @archon-os/cli@latest memory export --namespace="project:myapp" --format=json
+npx @archon-os/cli@latest memory import --file="backup.json" --namespace="project:myapp"
 
 # Memory statistics
-npx @claude-flow/cli@latest memory stats --namespace="default"
+npx @archon-os/cli@latest memory stats --namespace="default"
 
 # Quantization
-npx @claude-flow/cli@latest memory quantize --namespace="embeddings" --method=int8
+npx @archon-os/cli@latest memory quantize --namespace="embeddings" --method=int8
 ```
 
 ## Performance Targets
@@ -988,7 +988,7 @@ Namespace Hierarchy:
 
 ### ADR-009: Hybrid Memory Backend
 - SQLite for structured data and metadata
-- AgentDB for vector embeddings
+- ruvector for vector embeddings
 - HNSW for fast similarity search
 - Automatic query routing
 

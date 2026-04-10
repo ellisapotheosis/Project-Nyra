@@ -356,7 +356,7 @@ researcher  architect                      architect  security
                                         │
                                         ▼
                             ┌────────────────────────┐
-                            │  AgentDB Memory Store  │
+                            │  ruvector Memory Store  │
                             │  (Hybrid Backend)      │
                             └────────────────────────┘
 ```
@@ -408,7 +408,7 @@ Quick:  10 minutes with standard validation (parallel optimization)
          │                          │
          ▼                          ▼
 ┌────────────────────────────────────────────┐
-│         AgentDB Memory System              │
+│         ruvector Memory System              │
 │  ┌──────────┬──────────┬──────────┐        │
 │  │  HNSW    │  Vector  │  Neural  │        │
 │  │  Index   │  Store   │  Models  │        │

@@ -127,11 +127,11 @@ orchestrator-up:
 	@echo "$(GREEN)▶ Starting Orchestrator (Control Plane)...$(NC)"
 	$(DOCKER_COMPOSE) up -d \
 		nexus-router \
-		claude-flow-orchestrator \
+		archon-os-orchestrator \
 		postgres \
 		redis \
 		qdrant \
-		graphiti \
+		letta \
 		prometheus \
 		grafana \
 		loki
@@ -150,11 +150,11 @@ orchestrator-down:
 	@echo "$(YELLOW)⏹ Stopping Orchestrator...$(NC)"
 	$(DOCKER_COMPOSE) stop \
 		nexus-router \
-		claude-flow-orchestrator \
+		archon-os-orchestrator \
 		postgres \
 		redis \
 		qdrant \
-		graphiti \
+		letta \
 		prometheus \
 		grafana \
 		loki
@@ -165,7 +165,7 @@ orchestrator-restart: orchestrator-down orchestrator-up
 orchestrator-logs:
 	$(DOCKER_COMPOSE) logs -f \
 		nexus-router \
-		claude-flow-orchestrator
+		archon-os-orchestrator
 
 # ==============================================================================
 # WORKERS (GPU INFERENCE)

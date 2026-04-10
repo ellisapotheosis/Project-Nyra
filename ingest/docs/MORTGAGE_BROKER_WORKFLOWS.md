@@ -380,7 +380,7 @@ Comprehensive operational procedures for Ellis D Andersen as Senior Loan Officer
 ### Core Systems
 - **LOS**: Encompass by ICE Mortgage Technology
 - **CRM**: Custom PostgreSQL-based system
-- **AI Assistant**: Nyra (Claude-Flow orchestration)
+- **AI Assistant**: Nyra (archon-os orchestration)
 - **Website**: RateHunter.net (Cloudflare Tunnel)
 - **Email**: SendGrid for campaigns, Gmail for personal
 - **SMS**: Twilio

@@ -33,7 +33,7 @@ I've successfully designed and implemented a comprehensive Docker/WSL migration 
 infra/docker/
 ├── dev/Dockerfile.dev                    # Development container
 ├── metamcp/Dockerfile.gateway            # MetaMCP proxy aggregator
-├── claude-flow/Dockerfile.claude-flow    # Claude Flow MCP server
+├── archon-os/Dockerfile.archon-os    # Claude Flow MCP server
 ├── archon/Dockerfile.archon             # Archon MCP server
 ├── infisical/Dockerfile.sync            # Secrets sync service
 ├── nyra/Dockerfile.orchestrator         # Nyra core orchestrator

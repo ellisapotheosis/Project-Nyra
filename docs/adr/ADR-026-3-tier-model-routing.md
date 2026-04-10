@@ -83,7 +83,7 @@ Central orchestration service that:
 
 ### Configuration
 
-Updated `configs/claude-flow/claude-flow.config.json`:
+Updated `configs/archon-os/archon-os.config.json`:
 
 ```json
 {
@@ -207,7 +207,7 @@ curl -X POST http://localhost:3011/classify \
 
 - **Implementation**: `infra/docker/services/agent-booster/`, `infra/docker/services/epic-sdk/`
 - **Documentation**: `infra/docker/services/README.md`
-- **Configuration**: `configs/claude-flow/claude-flow.config.json`
+- **Configuration**: `configs/archon-os/archon-os.config.json`
 - **Docker Compose**: `infra/docker/services/docker-compose.routing.yml`
 
 ## Metrics

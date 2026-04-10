@@ -143,7 +143,7 @@ if [ -f ".mcp.json" ]; then
         log_info "Found $SERVER_COUNT MCP server configurations"
 
         # Check if required servers are configured
-        REQUIRED_SERVERS=("claude-flow" "sequential-thinking")
+        REQUIRED_SERVERS=("archon-os" "sequential-thinking")
         for server in "${REQUIRED_SERVERS[@]}"; do
             if jq -e ".mcpServers[\"$server\"]" .mcp.json > /dev/null 2>&1; then
                 log_pass "MCP server configured: $server"
@@ -250,7 +250,7 @@ EXPECTED_ROOT_ITEMS=(
     ".git"
     ".github"
     ".claude"
-    ".claude-flow"
+    ".archon-os"
     ".mcp.json"
     "apps"
     "services"

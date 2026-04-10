@@ -10,7 +10,7 @@
  * Backend priority:
  *   1. better-sqlite3 (native, WAL mode, indexed queries, ACID transactions)
  *   2. RuVector PostgreSQL (if RUVECTOR_* env vars set - TB-scale, GNN search)
- *   3. AgentDB from @claude-flow/memory (HNSW vector search)
+ *   3. ruvector from @archon-os/memory (HNSW vector search)
  *   4. JsonFileBackend (zero dependencies, always works)
  *
  * Proactive archiving:
@@ -35,7 +35,7 @@ import { createRequire } from 'module';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const PROJECT_ROOT = join(__dirname, '../..');
-const DATA_DIR = join(PROJECT_ROOT, '.claude-flow', 'data');
+const DATA_DIR = join(PROJECT_ROOT, '.archon-os', 'data');
 const ARCHIVE_JSON_PATH = join(DATA_DIR, 'transcript-archive.json');
 const ARCHIVE_DB_PATH = join(DATA_DIR, 'transcript-archive.db');
 
@@ -465,7 +465,7 @@ class RuVectorBackend {
       max: 3,
       idleTimeoutMillis: 10000,
       connectionTimeoutMillis: 3000,
-      application_name: 'claude-flow-context-persistence',
+      application_name: 'archon-os-context-persistence',
     });
 
     // Test connection and create schema
@@ -706,7 +706,7 @@ function getRuVectorConfig() {
 }
 
 // ============================================================================
-// Backend resolution: SQLite > RuVector PostgreSQL > AgentDB > JSON
+// Backend resolution: SQLite > RuVector PostgreSQL > ruvector > JSON
 // ============================================================================
 
 async function resolveBackend() {
@@ -727,19 +727,19 @@ async function resolveBackend() {
     }
   } catch { /* fall through */ }
 
-  // Tier 3: AgentDB from @claude-flow/memory (HNSW)
+  // Tier 3: ruvector from @archon-os/memory (HNSW)
   try {
-    const localDist = join(PROJECT_ROOT, 'v3/@claude-flow/memory/dist/index.js');
+    const localDist = join(PROJECT_ROOT, 'v3/@archon-os/memory/dist/index.js');
     let memPkg = null;
     if (existsSync(localDist)) {
       memPkg = await import(`file://${localDist}`);
     } else {
-      memPkg = await import('@claude-flow/memory');
+      memPkg = await import('@archon-os/memory');
     }
-    if (memPkg?.AgentDBBackend) {
-      const backend = new memPkg.AgentDBBackend();
+    if (memPkg?.ruvectorBackend) {
+      const backend = new memPkg.ruvectorBackend();
       await backend.initialize();
-      return { backend, type: 'agentdb' };
+      return { backend, type: 'ruvector' };
     }
   } catch { /* fall through */ }
 
@@ -1096,7 +1096,7 @@ async function retrieveContext(backend, sessionId, budget) {
 
   if (lines.length === 0) return '';
 
-  const footer = `\n\nFull archive: ${NAMESPACE} namespace in AgentDB (query with session ID: ${sessionId})`;
+  const footer = `\n\nFull archive: ${NAMESPACE} namespace in ruvector (query with session ID: ${sessionId})`;
   return header + lines.join('\n') + footer;
 }
 
@@ -1840,7 +1840,7 @@ async function doStatus() {
   const backendLabel = {
     sqlite: ARCHIVE_DB_PATH,
     ruvector: `${process.env.RUVECTOR_HOST || 'N/A'}:${process.env.RUVECTOR_PORT || '5432'}`,
-    agentdb: 'in-memory HNSW',
+    ruvector: 'in-memory HNSW',
     json: ARCHIVE_JSON_PATH,
   };
   console.log(`  Backend:     ${type} (${backendLabel[type] || type})`);

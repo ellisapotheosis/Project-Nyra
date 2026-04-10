@@ -15,11 +15,11 @@ const results = {
   files: []
 };
 
-// Validate .claude-flow/mcp.json
+// Validate .archon-os/mcp.json
 function validateClaudeFlowConfig() {
-  const filePath = path.join(projectRoot, '.claude-flow', 'mcp.json');
+  const filePath = path.join(projectRoot, '.archon-os', 'mcp.json');
   const fileResult = {
-    path: '.claude-flow/mcp.json',
+    path: '.archon-os/mcp.json',
     absolutePath: filePath,
     valid: true,
     errors: [],

@@ -193,7 +193,7 @@ RUVECTOR_SEARCH_THREADS=8-16
 
 RuVector works with:
 - Letta (agent OS-like memory)
-- Graphiti + FalkorDB (knowledge graphs)
+- letta + FalkorDB (knowledge graphs)
 - Mem0 + OpenMemory (user personalization)
 - Qdrant (alternative vector DB)
 - Redis (caching/coordination)

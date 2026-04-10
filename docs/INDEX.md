@@ -135,7 +135,7 @@
 - **Stack Decisions**: `ToDo/whitepaper-workflow/nyra-mcp-infisical-patchkit-v1/docs/STACK_DECISIONS.md`
 
 ### Full Feature Reference
-- **Claude Flow V3 Capabilities**: `.claude-flow/CAPABILITIES.md`
+- **Claude Flow V3 Capabilities**: `.archon-os/CAPABILITIES.md`
   - All 60+ agent types
   - All 26 CLI commands with 140+ subcommands
   - All 27 hooks + 12 background workers
@@ -166,7 +166,7 @@
 **Infrastructure/DevOps**
 1. Start: `/CLAUDE.md` (configuration)
 2. Reference: `/infra/CLAUDE.md` (infrastructure patterns)
-3. Check: `.claude-flow/CAPABILITIES.md` (full CLI reference)
+3. Check: `.archon-os/CAPABILITIES.md` (full CLI reference)
 
 **New Team Member**
 1. Start: `/docs/QUICK_START_CLAUDE_V3.md` (overview)
@@ -222,7 +222,7 @@
 | `/docs/CLAUDE_REFACTORING_SUMMARY.md` | 6.9KB | Summary | 2026-01-26 |
 | `/docs/REFACTORING_VALIDATION.md` | 15KB | Validation | 2026-01-26 |
 | `/docs/INDEX.md` | This file | Navigation | 2026-01-26 |
-| `.claude-flow/CAPABILITIES.md` | 50+KB | Full Reference | Generated |
+| `.archon-os/CAPABILITIES.md` | 50+KB | Full Reference | Generated |
 
 **Total Core Documentation**: ~56KB (main + supporting docs)
 

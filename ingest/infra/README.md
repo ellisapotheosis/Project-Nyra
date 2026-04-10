@@ -55,7 +55,7 @@ These files extend the base `docker-compose.yml` by enabling or disabling profil
 
 ### compose/oracle
 
-Two sample compose files are provided for Oracle Always‑Free deployment.  `docker-compose.oracle-core.yml` runs the core databases and critical services (Twenty CRM, RuVector Postgres, Redis, FalkorDB, Graphiti, Letta, etc.), while `docker-compose.oracle-apps.yml` runs the workflow engines (n8n/Activepieces) and API services (Quote API, Admin UI).  You can run these separately or together depending on your resource budget.
+Two sample compose files are provided for Oracle Always‑Free deployment.  `docker-compose.oracle-core.yml` runs the core databases and critical services (Twenty CRM, RuVector Postgres, Redis, FalkorDB, letta, Letta, etc.), while `docker-compose.oracle-apps.yml` runs the workflow engines (n8n/Activepieces) and API services (Quote API, Admin UI).  You can run these separately or together depending on your resource budget.
 
 ### env/
 

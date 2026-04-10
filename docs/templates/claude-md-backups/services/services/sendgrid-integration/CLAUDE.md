@@ -289,11 +289,11 @@ agents:
 **1. Email Template Design (Tier 2/3)**
 ```bash
 # Get routing recommendation for template design
-npx @claude-flow/cli@latest hooks pre-task \
+npx @archon-os/cli@latest hooks pre-task \
   --description "Design responsive mortgage document email template with personalization"
 
 # Initialize swarm
-npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 4 --strategy specialized
+npx @archon-os/cli@latest swarm init --topology hierarchical --max-agents 4 --strategy specialized
 
 # Spawn agents
 # 1. sendgrid_architect - Template structure
@@ -304,7 +304,7 @@ npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 4 --
 
 **2. Webhook Configuration (Tier 1 - Agent Booster)**
 ```bash
-npx @claude-flow/cli@latest hooks pre-task \
+npx @archon-os/cli@latest hooks pre-task \
   --description "Add SendGrid webhook signature validation"
 # Intent: add-error-handling
 # Agent Booster can implement validation directly
@@ -312,7 +312,7 @@ npx @claude-flow/cli@latest hooks pre-task \
 
 **3. Email Campaign Launch (Tier 3 - Sonnet)**
 ```bash
-npx @claude-flow/cli@latest hooks pre-task \
+npx @archon-os/cli@latest hooks pre-task \
   --description "Launch mortgage document request email campaign with rate limiting"
 
 # Spawn full team for campaign planning
@@ -322,24 +322,24 @@ npx @claude-flow/cli@latest hooks pre-task \
 
 ```bash
 # Search for email templates
-npx @claude-flow/cli@latest memory search \
+npx @archon-os/cli@latest memory search \
   --query "high-converting mortgage document request emails" \
   --namespace patterns
 
 # Store successful template
-npx @claude-flow/cli@latest memory store \
+npx @archon-os/cli@latest memory store \
   --namespace patterns \
   --key "email-template-doc-request" \
   --value '{"open_rate": 0.32, "click_rate": 0.18, "template_id": "sg-template-123"}'
 
 # Store rate limiting strategy
-npx @claude-flow/cli@latest memory store \
+npx @archon-os/cli@latest memory store \
   --namespace patterns \
   --key "sendgrid-rate-optimization" \
   --value '{"batch_size": 500, "per_day_limit": 50000, "warmup_days": 7}'
 
 # Search compliance patterns
-npx @claude-flow/cli@latest memory search \
+npx @archon-os/cli@latest memory search \
   --query "GDPR email compliance unsubscribe handling" \
   --namespace patterns
 ```
@@ -815,17 +815,17 @@ describe('Email Webhook', () => {
 ### Before Email Campaign Launch
 ```bash
 # Search for successful email templates
-npx @claude-flow/cli@latest memory search \
+npx @archon-os/cli@latest memory search \
   --query "high-converting mortgage document request emails" \
   --namespace patterns
 
 # Load compliance patterns
-npx @claude-flow/cli@latest memory search \
+npx @archon-os/cli@latest memory search \
   --query "GDPR email compliance best practices" \
   --namespace patterns
 
 # Load rate limiting strategy
-npx @claude-flow/cli@latest memory search \
+npx @archon-os/cli@latest memory search \
   --query "SendGrid batch sending optimization" \
   --namespace patterns
 ```
@@ -833,18 +833,18 @@ npx @claude-flow/cli@latest memory search \
 ### After Campaign Execution
 ```bash
 # Store campaign results
-npx @claude-flow/cli@latest memory store \
+npx @archon-os/cli@latest memory store \
   --namespace patterns \
   --key "email-campaign-results-$(date +%Y%m%d)" \
   --value '{"open_rate": 0.32, "click_rate": 0.18, "bounce_rate": 0.01, "unsubscribe_rate": 0.002, "cost": 125.50}'
 
 # Train neural patterns on success
-npx @claude-flow/cli@latest neural train \
+npx @archon-os/cli@latest neural train \
   --pattern-type email-optimization \
   --epochs 10
 
 # Record metrics
-npx @claude-flow/cli@latest hooks post-task \
+npx @archon-os/cli@latest hooks post-task \
   --task-id "email-campaign-001" \
   --success true \
   --store-results true

@@ -44,15 +44,15 @@ class MCPExamples {
     
     try {
       // Connect to a specific server
-      const connection = await this.mcp.connectToServer('claude-flow');
-      console.log('✅ Connected to claude-flow server');
+      const connection = await this.mcp.connectToServer('archon-os');
+      console.log('✅ Connected to archon-os server');
       
       // List available tools
-      const tools = await this.mcp.listTools('claude-flow');
+      const tools = await this.mcp.listTools('archon-os');
       console.log('🔧 Available tools:', tools.map(t => t.name).join(', '));
       
       // Check server health
-      const health = await this.mcp.getServerHealth('claude-flow');
+      const health = await this.mcp.getServerHealth('archon-os');
       console.log('❤️ Server health:', health.status);
       
     } catch (error) {
@@ -68,7 +68,7 @@ class MCPExamples {
     
     try {
       // Execute swarm initialization tool
-      const swarmResult = await this.mcp.executeTool('claude-flow', 'swarm_init', {
+      const swarmResult = await this.mcp.executeTool('archon-os', 'swarm_init', {
         topology: 'mesh',
         maxAgents: 5,
         strategy: 'balanced'
@@ -76,14 +76,14 @@ class MCPExamples {
       console.log('🔄 Swarm initialized:', swarmResult);
       
       // Execute agent spawn tool
-      const agentResult = await this.mcp.executeTool('claude-flow', 'agent_spawn', {
+      const agentResult = await this.mcp.executeTool('archon-os', 'agent_spawn', {
         type: 'researcher',
         capabilities: ['search', 'analyze', 'report']
       });
       console.log('🤖 Agent spawned:', agentResult);
       
       // Execute task orchestration
-      const taskResult = await this.mcp.executeTool('claude-flow', 'task_orchestrate', {
+      const taskResult = await this.mcp.executeTool('archon-os', 'task_orchestrate', {
         task: 'Analyze market trends in AI development',
         priority: 'high',
         strategy: 'adaptive'
@@ -234,9 +234,9 @@ class MCPExamples {
     try {
       // Execute multiple tools concurrently
       const promises = [
-        this.mcp.executeTool('claude-flow', 'swarm_status', {}),
-        this.mcp.executeTool('claude-flow', 'agent_list', {}),
-        this.mcp.executeTool('claude-flow', 'memory_usage', {})
+        this.mcp.executeTool('archon-os', 'swarm_status', {}),
+        this.mcp.executeTool('archon-os', 'agent_list', {}),
+        this.mcp.executeTool('archon-os', 'memory_usage', {})
       ];
       
       const results = await Promise.allSettled(promises);
@@ -327,7 +327,7 @@ class MCPExamples {
     try {
       // 1. Initialize swarm
       console.log('1️⃣ Initializing swarm...');
-      const swarmInit = await this.mcp.executeTool('claude-flow', 'swarm_init', {
+      const swarmInit = await this.mcp.executeTool('archon-os', 'swarm_init', {
         topology: 'hierarchical',
         maxAgents: 8,
         strategy: 'adaptive'
@@ -338,13 +338,13 @@ class MCPExamples {
       const agentTypes = ['researcher', 'coder', 'tester', 'reviewer'];
       const agents = await Promise.all(
         agentTypes.map(type =>
-          this.mcp.executeTool('claude-flow', 'agent_spawn', { type })
+          this.mcp.executeTool('archon-os', 'agent_spawn', { type })
         )
       );
       
       // 3. Orchestrate complex task
       console.log('3️⃣ Orchestrating task...');
-      const task = await this.mcp.executeTool('claude-flow', 'task_orchestrate', {
+      const task = await this.mcp.executeTool('archon-os', 'task_orchestrate', {
         task: 'Develop a machine learning model for sentiment analysis',
         priority: 'high',
         strategy: 'parallel',
@@ -353,7 +353,7 @@ class MCPExamples {
       
       // 4. Monitor progress
       console.log('4️⃣ Monitoring progress...');
-      const status = await this.mcp.executeTool('claude-flow', 'task_status', {
+      const status = await this.mcp.executeTool('archon-os', 'task_status', {
         taskId: task.taskId
       });
       
@@ -432,7 +432,7 @@ async function simpleExample() {
   try {
     await mcp.initialize();
     
-    const result = await mcp.executeTool('claude-flow', 'swarm_status', {});
+    const result = await mcp.executeTool('archon-os', 'swarm_status', {});
     console.log('Swarm status:', result);
     
   } catch (error) {

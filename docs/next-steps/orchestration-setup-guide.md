@@ -76,8 +76,8 @@ cd C:\Dev\Projects\Repos\Project-Nyra
    - Purpose: Advanced codebase analysis
 
 4. **Claude Flow**
-   - Repo: https://github.com/ruvnet/claude-flow.git
-   - Path: `orchestration/claude-flow/`
+   - Repo: https://github.com/ruvnet/archon-os.git
+   - Path: `orchestration/archon-os/`
    - Purpose: Multi-agent workflow orchestration
 
 5. **Archon OS**
@@ -186,7 +186,7 @@ docker-compose -f infra/docker/docker-compose.mcp.yml up -d
 - Serena (port 8086)
 - RuVector (port 6333)
 - Letta (port 8283)
-- Graphiti (port 8000)
+- letta (port 8000)
 - Mem0 (port 8001)
 - OpenMemory (port 8002)
 
@@ -227,7 +227,7 @@ docker ps
 ```
 
 Expected containers:
-- `claude-flow`
+- `archon-os`
 - `archon-os`
 - `nexus-router`
 - `gemini-assistant`
@@ -236,7 +236,7 @@ Expected containers:
 - `lobechat`
 - `ruvector`
 - `letta`
-- `graphiti`
+- `letta`
 
 ### Installation Log
 
@@ -290,7 +290,7 @@ If ports are already in use, modify `.env` file with different ports.
 
 1. ✓ Installation Complete
 2. **Configure MCP in Claude Desktop**
-   - Add claude-flow, gemini-assistant, serena to .mcp.json
+   - Add archon-os, gemini-assistant, serena to .mcp.json
 3. **Test Orchestration**
    - Run simple workflow through Claude Flow
    - Test agent spawning with Archon OS

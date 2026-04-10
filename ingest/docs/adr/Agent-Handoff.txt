@@ -9,7 +9,7 @@ A) Home Orchestrator PC (Windows + Docker Desktop + WSL2)
 
 Role: control plane for local LAN inference + agent workflows
 
-Runs: Grafbase/Nexus (single entrypoint), LiteLLM, workflow engines, dev orchestration (Claude-Flow dev), Archon OS, observability, Gitea (if kept local), etc.
+Runs: Grafbase/Nexus (single entrypoint), LiteLLM, workflow engines, dev orchestration (archon-os dev), Archon OS, observability, Gitea (if kept local), etc.
 
 MUST work with Docker Desktop WSL2 integration (not Docker Engine in WSL).
 
@@ -101,7 +101,7 @@ Archon MCP	8051
 Infisical	8080	Self-host optional (or use Infisical Cloud).
 Gitea UI	3001	Gitea runs on 3000 internally, mapped to 3001 host.
 Gitea SSH	2222	Container 22 → host 2222.
-Redis (shared)	6380	Shared by Twenty/Archon/Claude-Flow/Clawdbot using different DB indices.
+Redis (shared)	6380	Shared by Twenty/Archon/archon-os/Clawdbot using different DB indices.
 FalkorDB	6379	Graph DB (if using FalkorDB). Conflicts with Redis default, so keep Redis on 6380.
 n8n	5678	Automation.
 Prometheus	9090	
@@ -152,7 +152,7 @@ Cloudflared / tunnel compose overlays exist in uploads (docker-compose.orchestra
 
 Separate compose overlays exist for:
 
-Claude-Flow (docker-compose.claude-flow.yml, docker-compose.claude-flow-cicd.yml)
+archon-os (docker-compose.archon-os.yml, docker-compose.archon-os-cicd.yml)
 
 Archon (docker-compose.archon.yml)
 
@@ -178,17 +178,17 @@ Nexus as true single entrypoint
 
 Must aggregate:
 
-all MCP servers (Claude-Flow MCP, Archon MCP, Graphiti MCP, n8n MCP, Twenty MCP, etc.)
+all MCP servers (archon-os MCP, Archon MCP, letta MCP, n8n MCP, Twenty MCP, etc.)
 
 Docker Desktop MCP Toolkit gateway endpoint so Nexus can “see” toolkit-installed MCP servers without manually listing each one
 
-Claude-Flow “maximal modules”
+archon-os “maximal modules”
 
 Build/dev setup for:
 
-ruvnet/claude-flow modules: agentdb, agentic-flow, epic-sdk, agent-booster, onnx, cli, mcp, providers, memory, plus ruv-swarm if needed
+ruvnet/archon-os modules: ruvector, archon-os, epic-sdk, agent-booster, onnx, cli, mcp, providers, memory, plus ruv-swarm if needed
 
-Clarify which are separate containers vs npm modules used inside claude-flow runtime
+Clarify which are separate containers vs npm modules used inside archon-os runtime
 
 Archon OS full multi-container deployment
 
@@ -206,11 +206,11 @@ Decision to use:
 
 Mem0 as conversational memory backend for Clawdbot/OpenClaw (recommended)
 
-Graphiti + FalkorDB for graph memory
+letta + FalkorDB for graph memory
 
 Qdrant for RAG
 
-AgentDB + RuVector as production-grade semantic/pattern memory layer (per latest preference: AgentDB should be “prod” not “dev-only”)
+ruvector + RuVector as production-grade semantic/pattern memory layer (per latest preference: ruvector should be “prod” not “dev-only”)
 
 Letta: optional/likely removed unless specifically needed
 
@@ -319,7 +319,7 @@ Redis (shared)
 
 Qdrant (RAG)
 
-FalkorDB (graph) + Graphiti MCP (if graph memory used)
+FalkorDB (graph) + letta MCP (if graph memory used)
 
 Infisical server (optional if not using Infisical cloud)
 
@@ -335,7 +335,7 @@ LiteLLM
 
 n8n + Activepieces (may be Oracle or local; choose based on uptime needs)
 
-Claude-Flow (dev only)
+archon-os (dev only)
 
 Archon OS (dev + prod)
 
@@ -373,13 +373,13 @@ Merge the best of the uploaded compose files into a clean modular structure:
 
 infra/orchestrator/ + infra/oracle/ + infra/workers/
 
-shared infra/config/ for nexus/litellm/archon/claude-flow/observability
+shared infra/config/ for nexus/litellm/archon/archon-os/observability
 
 Ensure Nexus config includes:
 
 LiteLLM as provider
 
-MCP servers for Archon/Claude-Flow/Twenty/Graphiti/n8n
+MCP servers for Archon/archon-os/Twenty/letta/n8n
 
 Docker MCP Toolkit gateway (single upstream) so toolkit MCPs auto-register
 
@@ -403,8 +403,8 @@ Letta is considered optional / likely dropped to avoid memory-stack bloat.
 
 Mem0 is favored for conversational memory (Clawdbot / OpenClaw) only if self-hosted (no sending borrower PII to third-party endpoints).
 
-Graphiti + FalkorDB + Qdrant are used for structured graph + RAG.
+letta + FalkorDB + Qdrant are used for structured graph + RAG.
 
-AgentDB + RuVector are treated as production-grade memory/search layer (not dev-only), colocated with Postgres.
+ruvector + RuVector are treated as production-grade memory/search layer (not dev-only), colocated with Postgres.
 
 If you want, I can generate a second document that is purely “operator runbook” (copy/paste commands per machine, including Oracle provisioning steps you must click in the console, then everything else automated).

@@ -96,7 +96,7 @@ GET    /{{REPO_PATH}}           # List resources
 ### For API Feature Implementation
 ```bash
 # 1. Initialize swarm
-npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 6
+npx @archon-os/cli@latest swarm init --topology hierarchical --max-agents 6
 
 # 2. Spawn agents (architect → coder → tester → reviewer)
 # - Architect: Design API endpoint structure
@@ -108,7 +108,7 @@ npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 6
 ### For Bug Fixes
 ```bash
 # Route to correct team
-npx @claude-flow/cli@latest hooks pre-task --description "API endpoint bug"
+npx @archon-os/cli@latest hooks pre-task --description "API endpoint bug"
 # Likely response: Use Haiku model, coder + tester agents
 ```
 
@@ -118,13 +118,13 @@ Store and retrieve API patterns:
 
 ```bash
 # Store API pattern
-npx @claude-flow/cli@latest memory store \
+npx @archon-os/cli@latest memory store \
   --key "{{PROJECT_NAME}}-endpoint-pattern" \
   --value "Endpoint implementation approach" \
   --namespace api-patterns
 
 # Search for similar patterns
-npx @claude-flow/cli@latest memory search \
+npx @archon-os/cli@latest memory search \
   --query "error handling in API endpoints"
 ```
 
@@ -254,10 +254,10 @@ logger.info("api_request", {
 ### 1. Before Implementation
 ```bash
 # Search for similar patterns
-npx @claude-flow/cli@latest memory search --query "API endpoint implementation"
+npx @archon-os/cli@latest memory search --query "API endpoint implementation"
 
 # Get routing recommendation
-npx @claude-flow/cli@latest hooks pre-task --description "Add new API endpoint"
+npx @archon-os/cli@latest hooks pre-task --description "Add new API endpoint"
 ```
 
 ### 2. Implementation
@@ -270,13 +270,13 @@ npx @claude-flow/cli@latest hooks pre-task --description "Add new API endpoint"
 ### 3. After Implementation
 ```bash
 # Store pattern in memory
-npx @claude-flow/cli@latest memory store \
+npx @archon-os/cli@latest memory store \
   --key "{{PROJECT_NAME}}-endpoint-{{METHOD}}" \
   --value "Implementation details" \
   --namespace api-patterns
 
 # Record task completion
-npx @claude-flow/cli@latest hooks post-task --task-id "[id]" --success true
+npx @archon-os/cli@latest hooks post-task --task-id "[id]" --success true
 ```
 
 ## 📝 API Documentation
@@ -324,7 +324,7 @@ For complex API changes:
 
 ```bash
 # Initialize swarm for feature
-npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 6
+npx @archon-os/cli@latest swarm init --topology hierarchical --max-agents 6
 
 # Architecture phase (architect agent)
 Task({
@@ -400,9 +400,9 @@ curl http://localhost:{{PORT}}/health
 ## Supporting Documentation
 
 - **Project Root**: `CLAUDE.md` - Overall architecture
-- **Claude Flow**: `.claude-flow/CAPABILITIES.md` - V3 reference
+- **Claude Flow**: `.archon-os/CAPABILITIES.md` - V3 reference
 - **API Schema**: `docs/api.md` - Complete API documentation
-- **Performance**: `.claude-flow/metrics/` - Performance dashboards
+- **Performance**: `.archon-os/metrics/` - Performance dashboards
 
 ## Version
 

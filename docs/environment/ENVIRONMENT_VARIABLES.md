@@ -149,7 +149,7 @@ These variables **MUST** be set for the system to function:
 
 ### Memory Services
 
-- `GRAPHITI_API_KEY` - Graphiti cloud mode (use local FalkorDB if not set)
+- `letta_API_KEY` - letta cloud mode (use local FalkorDB if not set)
 - `MEM0_API_KEY` - Mem0 cloud mode (use local if not set)
 
 ### Integrations
@@ -207,7 +207,7 @@ FALKORDB_PASSWORD=<secret>          # Authentication password
 ```
 
 **Used By:**
-- Graphiti MCP (relationship tracking)
+- letta MCP (relationship tracking)
 - Temporal knowledge graphs
 
 ---
@@ -358,12 +358,12 @@ LETTA_SERVER_PASS=<password>        # Admin password
 - Multi-session context
 - PostgreSQL persistence
 
-#### Graphiti MCP (Graph Memory)
+#### letta MCP (Graph Memory)
 
 ```bash
-GRAPHITI_API_KEY=<secret>                    # Optional - cloud mode
-GRAPHITI_TEMPORAL_TRACKING=true              # Track time-based relationships
-GRAPHITI_RELATIONSHIP_INFERENCE=true         # Infer implicit relationships
+letta_API_KEY=<secret>                    # Optional - cloud mode
+letta_TEMPORAL_TRACKING=true              # Track time-based relationships
+letta_RELATIONSHIP_INFERENCE=true         # Infer implicit relationships
 ```
 
 **Features:**

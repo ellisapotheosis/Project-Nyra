@@ -100,7 +100,7 @@ graph TD
     R --> I[Activepieces]
 
     Q[Qdrant] --> B
-    N[Neo4j] --> J[Graphiti]
+    N[Neo4j] --> J[letta]
 
     F --> G
     F --> H
@@ -167,7 +167,7 @@ redis:
 | Image | Version | Size | Purpose | Update Frequency |
 |-------|---------|------|---------|------------------|
 | `qdrant/qdrant` | latest | ~450 MB | Vector embeddings storage | Bi-weekly |
-| `neo4j` | 5-community | ~700 MB | Graph database (Graphiti) | Quarterly |
+| `neo4j` | 5-community | ~700 MB | Graph database (letta) | Quarterly |
 | `falkordb/falkordb` | latest | ~120 MB | Redis-compatible graph DB | Monthly |
 
 **Configuration Example**:
@@ -184,7 +184,7 @@ qdrant:
 
 **Used By**:
 - Qdrant → Dify (RAG embeddings)
-- Neo4j → Graphiti (knowledge graphs)
+- Neo4j → letta (knowledge graphs)
 - FalkorDB → Lightweight graph operations
 
 ---
@@ -449,7 +449,7 @@ grafana:
 | Custom MCP Gemini | - | ~300 MB | Gemini assistant | ⚠️ Needs CI/CD |
 | Custom MCP Claude Flow | - | ~400 MB | Claude Flow server | ⚠️ Needs CI/CD |
 | Custom MCP RuV Swarm | - | ~350 MB | Swarm coordination | ⚠️ Needs CI/CD |
-| Custom MCP Graphiti | - | ~500 MB | Graph database | ⚠️ Needs CI/CD |
+| Custom MCP letta | - | ~500 MB | Graph database | ⚠️ Needs CI/CD |
 | Custom MCP Filesystem | - | ~150 MB | File operations | ⚠️ Needs CI/CD |
 | Custom MCP GitHub | - | ~200 MB | GitHub integration | ⚠️ Needs CI/CD |
 | Custom MCP Mem0 | - | ~350 MB | Memory service | ⚠️ Needs CI/CD |
@@ -457,21 +457,21 @@ grafana:
 
 **MCP Configuration Example**:
 ```yaml
-mcp-claude-flow:
+mcp-archon-os:
   build:
-    context: ../../bootstrap/mcp-servers/claude-flow
+    context: ../../bootstrap/mcp-servers/archon-os
     dockerfile: Dockerfile
-  container_name: nyra-mcp-claude-flow
+  container_name: nyra-mcp-archon-os
   environment:
     - CLAUDE_FLOW_MEMORY=true
     - CLAUDE_FLOW_DISTRIBUTED=true
     - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
     - NODE_ENV=production
   volumes:
-    - mcp-claude-flow-data:/app/data
-    - ../../.claude-flow:/app/.claude-flow:ro
+    - mcp-archon-os-data:/app/data
+    - ../../.archon-os:/app/.archon-os:ro
   healthcheck:
-    test: ["CMD", "npx", "@rUv/claude-flow@alpha", "health"]
+    test: ["CMD", "npx", "@rUv/archon-os@alpha", "health"]
     interval: 30s
 ```
 
@@ -635,7 +635,7 @@ dcgm-exporter:
 |---------|---------------|----------------|--------|
 | `nyra/nexus-router` | `services/nexus-router` | ~400 MB | ⚠️ Dockerfile needed |
 | `nyra/archon-os` | `infra/dual-orchestrator/archon-os` | ~500 MB | ⚠️ Dockerfile needed |
-| `nyra/claude-flow` | `infra/dual-orchestrator/claude-flow` | ~450 MB | ⚠️ Dockerfile needed |
+| `nyra/archon-os` | `infra/dual-orchestrator/archon-os` | ~450 MB | ⚠️ Dockerfile needed |
 
 **Nexus Router Dockerfile** (recommended):
 ```dockerfile
@@ -720,9 +720,9 @@ CMD ["python", "main.py"]
 | Service | Build Context | Estimated Size | Status |
 |---------|---------------|----------------|--------|
 | MCP Gemini | `bootstrap/mcp-gemini-assistant` | ~300 MB | ⚠️ Dockerfile needed |
-| MCP Claude Flow | `bootstrap/mcp-servers/claude-flow` | ~400 MB | ⚠️ Dockerfile needed |
+| MCP Claude Flow | `bootstrap/mcp-servers/archon-os` | ~400 MB | ⚠️ Dockerfile needed |
 | MCP RuV Swarm | `bootstrap/mcp-servers/ruv-swarm` | ~350 MB | ⚠️ Dockerfile needed |
-| MCP Graphiti | `bootstrap/mcp-servers/graphiti` | ~500 MB | ⚠️ Dockerfile needed |
+| MCP letta | `bootstrap/mcp-servers/letta` | ~500 MB | ⚠️ Dockerfile needed |
 | MCP Filesystem | `bootstrap/mcp-servers/filesystem` | ~150 MB | ⚠️ Dockerfile needed |
 | MCP GitHub | `bootstrap/mcp-servers/github` | ~200 MB | ⚠️ Dockerfile needed |
 | MCP Mem0 | `services/mem0-mcp` | ~350 MB | ✅ Dockerfile exists |
@@ -762,7 +762,7 @@ CMD ["node", "dist/server.js"]
 | Service | Build Context | Estimated Size | Status |
 |---------|---------------|----------------|--------|
 | Archon OS Coordinator | `infra/dual-orchestrator/archon-os` | ~500 MB | ⚠️ Dockerfile needed |
-| Claude Flow Orchestrator | `infra/dual-orchestrator/claude-flow` | ~450 MB | ⚠️ Dockerfile needed |
+| Claude Flow Orchestrator | `infra/dual-orchestrator/archon-os` | ~450 MB | ⚠️ Dockerfile needed |
 
 #### 5. Frontend Services (2 images)
 
@@ -1264,8 +1264,8 @@ jobs:
               - 'services/quote-engine/**'
             campaign-engine:
               - 'services/campaign-engine/**'
-            mcp-claude-flow:
-              - 'bootstrap/mcp-servers/claude-flow/**'
+            mcp-archon-os:
+              - 'bootstrap/mcp-servers/archon-os/**'
             # Add all other services...
 
   build-and-push:
@@ -1924,14 +1924,14 @@ docker compose -f docker-compose.yml build --no-cache nexus-router
 
 1. Nexus Router (`nyra/nexus-router`)
 2. Archon OS (`nyra/archon-os`)
-3. Claude Flow Orchestrator (`nyra/claude-flow`)
+3. Claude Flow Orchestrator (`nyra/archon-os`)
 4. Quote Engine (`nyra/quote-engine`)
 5. Campaign Engine (`nyra/campaign-engine`)
 6. Quote API (`nyra/quote-api`)
 7. MCP Gemini Assistant
 8. MCP Claude Flow
 9. MCP RuV Swarm
-10. MCP Graphiti
+10. MCP letta
 11. MCP Filesystem
 12. MCP GitHub
 13. MCP Mem0

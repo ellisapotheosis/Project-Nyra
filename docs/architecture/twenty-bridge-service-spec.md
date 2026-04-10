@@ -20,7 +20,7 @@ services/twenty-bridge/
 │   ├── models/
 │   │   ├── __init__.py
 │   │   ├── crm.py             # TwentyCRM data models
-│   │   ├── graph.py           # Graphiti entity models
+│   │   ├── graph.py           # letta entity models
 │   │   ├── sync.py            # Sync state models
 │   │   └── webhook.py         # Webhook payload models
 │   ├── api/
@@ -35,7 +35,7 @@ services/twenty-bridge/
 │   │   ├── sync_engine.py         # Core sync logic
 │   │   ├── graph_mapper.py        # CRM to Graph transformation
 │   │   ├── crm_client.py          # TwentyCRM API client
-│   │   └── graphiti_client.py     # Graphiti MCP client
+│   │   └── letta_client.py     # letta MCP client
 │   ├── database/
 │   │   ├── __init__.py
 │   │   ├── connection.py      # Database connection pool
@@ -98,7 +98,7 @@ logger = logging.getLogger(__name__)
 
 app = FastAPI(
     title="Twenty-Bridge",
-    description="TwentyCRM to Graphiti synchronization service",
+    description="TwentyCRM to letta synchronization service",
     version="1.0.0",
     docs_url="/docs",
     redoc_url="/redoc"
@@ -178,9 +178,9 @@ class Settings(BaseSettings):
     TWENTY_API_KEY: str
     TWENTY_WEBHOOK_SECRET: str
 
-    # Graphiti
-    GRAPHITI_BASE_URL: str = "http://graphiti_mcp:8000"
-    GRAPHITI_GROUP_ID: str = "nyra"
+    # letta
+    letta_BASE_URL: str = "http://letta_mcp:8000"
+    letta_GROUP_ID: str = "nyra"
 
     # Database
     DB_HOST: str = "twenty_bridge_postgres"
@@ -333,7 +333,7 @@ from datetime import datetime
 import asyncio
 
 from app.services.crm_client import crm_client
-from app.services.graphiti_client import graphiti_client
+from app.services.letta_client import letta_client
 from app.services.graph_mapper import graph_mapper
 from app.database.queries import (
     get_sync_state,
@@ -375,16 +375,16 @@ class SyncEngine:
             # 4. Transform CRM data to Graph entities
             graph_entities = await graph_mapper.map_lead_to_graph(crm_lead)
 
-            # 5. Upsert entities in Graphiti
+            # 5. Upsert entities in letta
             results = []
             for entity in graph_entities:
-                result = await graphiti_client.upsert_entity(entity)
+                result = await letta_client.upsert_entity(entity)
                 results.append(result)
 
             # 6. Sync relationships
             relationships = await graph_mapper.extract_relationships(crm_lead)
             for rel in relationships:
-                await graphiti_client.create_relationship(rel)
+                await letta_client.create_relationship(rel)
 
             # 7. Update sync state
             await update_sync_state(
@@ -436,7 +436,7 @@ class SyncEngine:
             results = []
 
             for entity in graph_entities:
-                result = await graphiti_client.upsert_entity(entity)
+                result = await letta_client.upsert_entity(entity)
                 results.append(result)
 
             # Sync application-specific relationships
@@ -445,7 +445,7 @@ class SyncEngine:
             # - Link to loan officer
             relationships = await graph_mapper.extract_application_relationships(crm_app)
             for rel in relationships:
-                await graphiti_client.create_relationship(rel)
+                await letta_client.create_relationship(rel)
 
             await update_sync_state(
                 entity_type="application",
@@ -544,7 +544,7 @@ from app.utils.logging import get_logger
 logger = get_logger(__name__)
 
 class GraphMapper:
-    """Transform CRM data to Graphiti entities and relationships"""
+    """Transform CRM data to letta entities and relationships"""
 
     async def map_lead_to_graph(self, crm_lead: Dict[str, Any]) -> List[GraphEntity]:
         """Transform CRM lead to Graph entities"""
@@ -874,8 +874,8 @@ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8020", "--worker
       - TWENTY_BASE_URL=http://twenty:3000
       - TWENTY_API_KEY=${TWENTY_API_KEY}
       - TWENTY_WEBHOOK_SECRET=${TWENTY_WEBHOOK_SECRET}
-      - GRAPHITI_BASE_URL=http://graphiti_mcp:8000
-      - GRAPHITI_GROUP_ID=nyra
+      - letta_BASE_URL=http://letta_mcp:8000
+      - letta_GROUP_ID=nyra
       - DB_HOST=twenty_bridge_postgres
       - DB_PASSWORD=${BRIDGE_DB_PASSWORD}
       - JWT_SECRET=${BRIDGE_JWT_SECRET}
@@ -883,7 +883,7 @@ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8020", "--worker
       - REDIS_HOST=falkordb
     depends_on:
       - twenty
-      - graphiti_mcp
+      - letta_mcp
       - twenty_bridge_postgres
     networks:
       - nyra

@@ -16,7 +16,7 @@ hooks:
 
     echo "🎯 Performance targets:"
     echo "  • Flash Attention: 2.49x-7.47x speedup"
-    echo "  • AgentDB Search: 150x-12,500x improvement"
+    echo "  • ruvector Search: 150x-12,500x improvement"
     echo "  • Memory Usage: 50-75% reduction"
     echo "  • Startup Time: <500ms"
     echo "  • SONA Learning: <0.05ms adaptation"
@@ -31,7 +31,7 @@ hooks:
     echo "⚡ Performance optimization milestone complete"
 
     # Store performance patterns
-    npx agentic-flow@alpha memory store-pattern \
+    npx archon-os@alpha memory store-pattern \
       --session-id "v3-perf-$(date +%s)" \
       --task "Performance: $TASK" \
       --agent "v3-performance-engineer" \
@@ -44,7 +44,7 @@ hooks:
 
 ## Mission: Aggressive Performance Targets
 
-Validate and optimize claude-flow v3 to achieve industry-leading performance improvements through Flash Attention, AgentDB HNSW indexing, and comprehensive system optimization.
+Validate and optimize archon-os v3 to achieve industry-leading performance improvements through Flash Attention, ruvector HNSW indexing, and comprehensive system optimization.
 
 ## Performance Target Matrix
 
@@ -56,7 +56,7 @@ Validate and optimize claude-flow v3 to achieve industry-leading performance imp
 │  Baseline: Standard attention mechanism │
 │  Target:   2.49x - 7.47x speedup       │
 │  Memory:   50-75% reduction             │
-│  Method:   agentic-flow@alpha integration│
+│  Method:   archon-os@alpha integration│
 └─────────────────────────────────────────┘
 ```
 
@@ -67,7 +67,7 @@ Validate and optimize claude-flow v3 to achieve industry-leading performance imp
 ├─────────────────────────────────────────┤
 │  Current:  O(n) linear search           │
 │  Target:   150x - 12,500x improvement   │
-│  Method:   AgentDB HNSW indexing        │
+│  Method:   ruvector HNSW indexing        │
 │  Latency:  Sub-100ms for 1M+ entries    │
 └─────────────────────────────────────────┘
 ```
@@ -133,7 +133,7 @@ class MemoryBenchmarks {
     // Target: HNSW search
     const hnswStart = performance.now();
     for (const query of testQueries) {
-      await this.agentDBMemory.hnswSearch(query);
+      await this.ruvectorMemory.hnswSearch(query);
     }
     const hnswTime = performance.now() - hnswStart;
 
@@ -378,12 +378,12 @@ class PerformanceRegression {
 ## Coordination with V3 Team
 
 ### **Memory Specialist (Agent #7)**
-- Validate AgentDB 150x-12,500x search improvements
+- Validate ruvector 150x-12,500x search improvements
 - Benchmark memory usage optimization
 - Test cross-agent memory sharing performance
 
 ### **Integration Architect (Agent #10)**
-- Validate agentic-flow@alpha performance integration
+- Validate archon-os@alpha performance integration
 - Test Flash Attention speedup implementation
 - Benchmark SONA learning performance
 
@@ -394,4 +394,4 @@ class PerformanceRegression {
 
 ---
 
-**⚡ Mission**: Validate and achieve industry-leading performance improvements that make claude-flow v3 the fastest and most efficient agent orchestration platform.
+**⚡ Mission**: Validate and achieve industry-leading performance improvements that make archon-os v3 the fastest and most efficient agent orchestration platform.

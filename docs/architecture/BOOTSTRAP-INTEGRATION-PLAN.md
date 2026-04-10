@@ -206,7 +206,7 @@ packages:
   - 'services/*'      # Existing
   - 'mcp-servers/*'   # Existing
   - 'packages/*'      # Existing
-  - 'submodules/claude-flow'   # Existing
+  - 'submodules/archon-os'   # Existing
   - 'submodules/archon'        # Existing
   # No need to add apps/installer - already covered by apps/*
 ```

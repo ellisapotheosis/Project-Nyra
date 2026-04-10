@@ -5,8 +5,8 @@
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 V3_DIR="$PROJECT_ROOT/v3"
-METRICS_DIR="$PROJECT_ROOT/.claude-flow/metrics"
-SECURITY_DIR="$PROJECT_ROOT/.claude-flow/security"
+METRICS_DIR="$PROJECT_ROOT/.archon-os/metrics"
+SECURITY_DIR="$PROJECT_ROOT/.archon-os/security"
 
 # Ensure directories exist
 mkdir -p "$METRICS_DIR" "$SECURITY_DIR"
@@ -26,8 +26,8 @@ count_modules() {
     local count=0
     local modules=()
 
-    if [ -d "$V3_DIR/@claude-flow" ]; then
-        for dir in "$V3_DIR/@claude-flow"/*/; do
+    if [ -d "$V3_DIR/@archon-os" ]; then
+        for dir in "$V3_DIR/@archon-os"/*/; do
             if [ -d "$dir" ]; then
                 name=$(basename "$dir")
                 modules+=("$name")
@@ -42,7 +42,7 @@ count_modules() {
 # Calculate module completion percentage
 calculate_module_progress() {
     local module="$1"
-    local module_dir="$V3_DIR/@claude-flow/$module"
+    local module_dir="$V3_DIR/@archon-os/$module"
 
     if [ ! -d "$module_dir" ]; then
         echo "0"
@@ -73,7 +73,7 @@ calculate_module_progress() {
 # Check security CVE status
 check_security_status() {
     local cves_fixed=0
-    local security_dir="$V3_DIR/@claude-flow/security/src"
+    local security_dir="$V3_DIR/@archon-os/security/src"
 
     # CVE-1: Input validation - check for input-validator.ts
     if [ -f "$security_dir/input-validator.ts" ]; then
@@ -101,7 +101,7 @@ calculate_ddd_progress() {
     local total_progress=0
     local module_count=0
 
-    for dir in "$V3_DIR/@claude-flow"/*/; do
+    for dir in "$V3_DIR/@archon-os"/*/; do
         if [ -d "$dir" ]; then
             name=$(basename "$dir")
             progress=$(calculate_module_progress "$name")
@@ -131,12 +131,12 @@ count_total_files() {
 count_domains() {
     local domains=0
 
-    # Map @claude-flow modules to DDD domains
-    [ -d "$V3_DIR/@claude-flow/swarm" ] && ((domains++))      # task-management
-    [ -d "$V3_DIR/@claude-flow/memory" ] && ((domains++))     # session-management
-    [ -d "$V3_DIR/@claude-flow/performance" ] && ((domains++)) # health-monitoring
-    [ -d "$V3_DIR/@claude-flow/cli" ] && ((domains++))        # lifecycle-management
-    [ -d "$V3_DIR/@claude-flow/integration" ] && ((domains++)) # event-coordination
+    # Map @archon-os modules to DDD domains
+    [ -d "$V3_DIR/@archon-os/swarm" ] && ((domains++))      # task-management
+    [ -d "$V3_DIR/@archon-os/memory" ] && ((domains++))     # session-management
+    [ -d "$V3_DIR/@archon-os/performance" ] && ((domains++)) # health-monitoring
+    [ -d "$V3_DIR/@archon-os/cli" ] && ((domains++))        # lifecycle-management
+    [ -d "$V3_DIR/@archon-os/integration" ] && ((domains++)) # event-coordination
 
     echo "$domains"
 }
@@ -171,11 +171,11 @@ sync_metrics() {
     "completed": $domains,
     "total": 5,
     "list": [
-      {"name": "task-management", "status": "$([ -d "$V3_DIR/@claude-flow/swarm" ] && echo "complete" || echo "pending")", "module": "swarm"},
-      {"name": "session-management", "status": "$([ -d "$V3_DIR/@claude-flow/memory" ] && echo "complete" || echo "pending")", "module": "memory"},
-      {"name": "health-monitoring", "status": "$([ -d "$V3_DIR/@claude-flow/performance" ] && echo "complete" || echo "pending")", "module": "performance"},
-      {"name": "lifecycle-management", "status": "$([ -d "$V3_DIR/@claude-flow/cli" ] && echo "complete" || echo "pending")", "module": "cli"},
-      {"name": "event-coordination", "status": "$([ -d "$V3_DIR/@claude-flow/integration" ] && echo "complete" || echo "pending")", "module": "integration"}
+      {"name": "task-management", "status": "$([ -d "$V3_DIR/@archon-os/swarm" ] && echo "complete" || echo "pending")", "module": "swarm"},
+      {"name": "session-management", "status": "$([ -d "$V3_DIR/@archon-os/memory" ] && echo "complete" || echo "pending")", "module": "memory"},
+      {"name": "health-monitoring", "status": "$([ -d "$V3_DIR/@archon-os/performance" ] && echo "complete" || echo "pending")", "module": "performance"},
+      {"name": "lifecycle-management", "status": "$([ -d "$V3_DIR/@archon-os/cli" ] && echo "complete" || echo "pending")", "module": "cli"},
+      {"name": "event-coordination", "status": "$([ -d "$V3_DIR/@archon-os/integration" ] && echo "complete" || echo "pending")", "module": "integration"}
     ]
   },
   "ddd": {
@@ -188,7 +188,7 @@ sync_metrics() {
     "activeAgents": 0,
     "totalAgents": 15,
     "topology": "hierarchical-mesh",
-    "coordination": "$([ -d "$V3_DIR/@claude-flow/swarm" ] && echo "ready" || echo "pending")"
+    "coordination": "$([ -d "$V3_DIR/@archon-os/swarm" ] && echo "ready" || echo "pending")"
   },
   "lastUpdated": "$timestamp",
   "autoSynced": true
@@ -206,21 +206,21 @@ EOF
       "id": "CVE-1",
       "description": "Input validation bypass",
       "severity": "critical",
-      "status": "$([ -f "$V3_DIR/@claude-flow/security/src/input-validator.ts" ] && echo "fixed" || echo "pending")",
+      "status": "$([ -f "$V3_DIR/@archon-os/security/src/input-validator.ts" ] && echo "fixed" || echo "pending")",
       "fixedBy": "input-validator.ts"
     },
     {
       "id": "CVE-2",
       "description": "Path traversal vulnerability",
       "severity": "critical",
-      "status": "$([ -f "$V3_DIR/@claude-flow/security/src/path-validator.ts" ] && echo "fixed" || echo "pending")",
+      "status": "$([ -f "$V3_DIR/@archon-os/security/src/path-validator.ts" ] && echo "fixed" || echo "pending")",
       "fixedBy": "path-validator.ts"
     },
     {
       "id": "CVE-3",
       "description": "Command injection vulnerability",
       "severity": "critical",
-      "status": "$([ -f "$V3_DIR/@claude-flow/security/src/safe-executor.ts" ] && echo "fixed" || echo "pending")",
+      "status": "$([ -f "$V3_DIR/@archon-os/security/src/safe-executor.ts" ] && echo "fixed" || echo "pending")",
       "fixedBy": "safe-executor.ts"
     }
   ],

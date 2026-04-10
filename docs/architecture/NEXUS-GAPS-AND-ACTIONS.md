@@ -185,9 +185,9 @@ LiteLLM (Port 4000):
 ```json
 {
   "mcpServers": {
-    "claude-flow": {
+    "archon-os": {
       "command": "cmd",
-      "args": ["/c", "npx", "@claude-flow/cli@latest", "mcp", "start"],
+      "args": ["/c", "npx", "@archon-os/cli@latest", "mcp", "start"],
       "env": {
         "CLAUDE_FLOW_MODE": "v3",
         "CLAUDE_FLOW_TOPOLOGY": "hierarchical-mesh",

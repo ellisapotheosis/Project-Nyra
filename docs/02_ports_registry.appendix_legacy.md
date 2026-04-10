@@ -11,7 +11,7 @@ These entries are intentionally excluded from the active registry because they a
 - `infra/compose/overrides/docker-compose.oracle.override.yml`
 - `infra/compose/overrides/docker-compose.orchestrator.override.yml`
 - `infra/compose/overrides/docker-compose.worker-rtx3060.override.yml`
-- `infra/docker-compose.claude-flow-cicd.yml`
+- `infra/docker-compose.archon-os-cicd.yml`
 - `infra/docker-compose.dashboard.yml`
 - `infra/docker-compose.orchestrator-cf-tunnel.yml`
 - `infra/docker-compose.twenty.yml`
@@ -23,8 +23,8 @@ These entries are intentionally excluded from the active registry because they a
 | activepieces | `infra/compose/overrides/docker-compose.orchestrator.override.yml` | `0.0.0.0:8082` | public-via-cloudflare-access |
 | activepieces | `infra/docker-compose.yml` | `8082` | public-via-cloudflare-access |
 | activepieces | `infra/oracle/docker-compose.oracle.yml` | `8080` | public-via-cloudflare-access |
-| agentdb | `infra/docker-compose.yml` | `5440` | private |
-| agentic-flow | `infra/docker-compose.yml` | `8095` | private |
+| ruvector | `infra/docker-compose.yml` | `5440` | private |
+| archon-os | `infra/docker-compose.yml` | `8095` | private |
 | archon-agent-work-orders | `infra/docker-compose.yml` | `8053` | private |
 | archon-agents | `infra/compose/docker-compose.archon.yml` | `8052` | private |
 | archon-agents | `infra/docker-compose.yml` | `8052` | private |
@@ -41,11 +41,11 @@ These entries are intentionally excluded from the active registry because they a
 | cadvisor | `infra/compose/overrides/docker-compose.worker-rtx3060.override.yml` | `127.0.0.1:8081` | private |
 | cadvisor | `infra/workers/worker-rtx3090ti/docker-compose.worker.yml` | `127.0.0.1:8081` | private |
 | cadvisor | `infra/workers/worker-rtx5090/docker-compose.worker.yml` | `127.0.0.1:8081` | private |
-| claude-flow | `infra/orchestrator/docker-compose.orchestrator.yml` | `8000` | private |
-| claude-flow-brain | `infra/docker-compose/docker-compose.claude-flow.yml` | `8080, 3000` | private |
-| claude-flow-cicd | `infra/docker-compose.claude-flow-cicd.yml` | `—` | private |
-| claude-flow-dashboard | `infra/docker-compose.dashboard.yml` | `3003` | private |
-| claude-flow-event-server | `infra/docker-compose.dashboard.yml` | `3004, 3005` | private |
+| archon-os | `infra/orchestrator/docker-compose.orchestrator.yml` | `8000` | private |
+| archon-os-brain | `infra/docker-compose/docker-compose.archon-os.yml` | `8080, 3000` | private |
+| archon-os-cicd | `infra/docker-compose.archon-os-cicd.yml` | `—` | private |
+| archon-os-dashboard | `infra/docker-compose.dashboard.yml` | `3003` | private |
+| archon-os-event-server | `infra/docker-compose.dashboard.yml` | `3004, 3005` | private |
 | cloudflared | `infra/compose/docker-compose.cloudflared.yml` | `—` | private |
 | cloudflared | `infra/compose/overrides/docker-compose.orchestrator.override.yml` | `—` | private |
 | cloudflared | `infra/compose/overrides/docker-compose.worker-rtx3060.override.yml` | `—` | private |

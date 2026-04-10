@@ -27,7 +27,7 @@
 | ruvector-postgres | service | yes | yes | 5436 | `RUVECTOR_POSTGRES_PASSWORD` | yes | private | `infra/ruvector` |
 
 ## Initial directory inventory
-- `/apps`: `claude-flow-dashboard`, `ingestion`, `landing`, `nexus-dashboard`, `shared`, `utilities`, `web`.
+- `/apps`: `archon-os-dashboard`, `ingestion`, `landing`, `nexus-dashboard`, `shared`, `utilities`, `web`.
 - `/services`: 36 service folders discovered (auth, campaign-engine, litellm-proxy, nexus-router, nyra-orchestrator, etc.).
 - `/infra`: compose/config/worker/cloud and multiple legacy scaffolds.
 - `/_archived`: **missing** at repo root; nearest archived tree is `infra-archived/infra-20260206-1551`.

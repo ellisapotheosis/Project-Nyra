@@ -9,7 +9,7 @@ Project Nyra is a state-of-the-art AI-powered mortgage brokerage automation plat
 - **Automation**: n8n & Activepieces (Workflows and campaign orchestration)
 - **AI/LLM**: Nexus Router + LiteLLM + GPU Worker Cluster (Local RTX 5090/3090/3060)
 - **Infrastructure**: Docker Compose, WSL2 (Ubuntu), Tailscale Mesh peering
-- **Memory**: Hybrid system (RuVector, Letta, Graphiti)
+- **Memory**: Hybrid system (RuVector, Letta, letta)
 
 ## 🎯 Current Status: Phase 1 (Core Data Layer)
 We are currently initializing the foundational data layer.

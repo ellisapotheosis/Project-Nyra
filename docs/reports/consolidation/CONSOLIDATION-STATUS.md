@@ -53,7 +53,7 @@
    - Document configuration options
 
 2. **Consolidate Docker Infrastructure** [⏳ PENDING]
-   - Move `/orchestration/claude-flow/` → `/infra/docker/services/claude-flow/`
+   - Move `/orchestration/archon-os/` → `/infra/docker/services/archon-os/`
    - Move `/orchestration/serena/` → `/infra/docker/services/serena/`
    - Update all docker-compose files with new paths
    - Create unified `/infra/docker/services/` structure

@@ -159,13 +159,13 @@ After creating a CLAUDE.md file, you can initialize a swarm for that component:
   --project_name "New API" --tech_stack "FastAPI,Python" --port 8003
 
 # Store in memory
-npx @claude-flow/cli@latest memory store \
+npx @archon-os/cli@latest memory store \
   --key "claude-md-new-api" \
   --value "Created CLAUDE.md for New API service" \
   --namespace templates
 
 # Initialize swarm
-npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 8
+npx @archon-os/cli@latest swarm init --topology hierarchical --max-agents 8
 ```
 
 ## Mortgage Compliance
@@ -214,7 +214,7 @@ To create custom templates, follow the structure of existing templates in `templ
 ## Support & Documentation
 
 - **Project Nyra Documentation**: `CLAUDE.md` (root)
-- **Claude Flow V3 Docs**: `.claude-flow/CAPABILITIES.md`
+- **Claude Flow V3 Docs**: `.archon-os/CAPABILITIES.md`
 - **Skill Prompt**: `prompt.md` (detailed usage guide)
 
 ## License

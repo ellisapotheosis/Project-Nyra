@@ -33,7 +33,7 @@
 │                        │  │ │ RuV Swarm MCP   │  │  │ │ LiteLLM          │ │
 │ ┌────────────────────┐ │  │ │ (NOT IN NEXUS)  │  │  │ │ (Port 4000)      │ │
 │ │ 13 MCP Servers:    │ │  │ │ CRITICAL!       │  │  │ │ ✗ Unused         │ │
-│ │ • Graphiti         │ │  │ └─────────────────┘  │  │ │                  │ │
+│ │ • letta         │ │  │ └─────────────────┘  │  │ │                  │ │
 │ │ • Qdrant           │ │  │                       │  │ │ (Letta, Mem0 use│ │
 │ │ • Context7         │ │  │ ┌─────────────────┐  │  │ │  this instead)   │ │
 │ │ • Exa              │ │  │ │ Archon OS MCP   │  │  │ └──────────────────┘ │
@@ -129,7 +129,7 @@ REQUEST FROM ORCHESTRATION AGENT:
 │  │ LAYER         │  │ (16 total)     │  │ SERVICES     │  │ STACK     │ │
 │  ├───────────────┤  ├────────────────┤  ├──────────────┤  ├────────────┤ │
 │  │ Claude Flow   │  │ Knowledge:     │  │ Neo4j        │  │ Prometheus │ │
-│  │ RuV Swarm     │  │ • Graphiti     │  │ PostgreSQL   │  │ Grafana    │ │
+│  │ RuV Swarm     │  │ • letta     │  │ PostgreSQL   │  │ Grafana    │ │
 │  │ Archon OS     │  │ • Qdrant       │  │ Redis        │  │ Loki       │ │
 │  │               │  │                │  │ Letta        │  │ AlertMgr   │ │
 │  │ (All can now  │  │ Code:          │  │ Mem0         │  │ Jaeger     │ │
@@ -260,7 +260,7 @@ CLIENT REQUEST
     │Orchestr.  │MCPs   │  │Support│  │Observ.  │
     │Layer  │  │(16)   │  │Svcs   │  │Stack    │
     ├────────┤  ├───────┤  ├──────┤  ├──────────┤
-    │Claude │  │Graphiti  │Neo4j  │  │Prometheus│
+    │Claude │  │letta  │Neo4j  │  │Prometheus│
     │Flow   │  │Qdrant    │PG     │  │Grafana   │
     │RuV    │  │Context7  │Redis  │  │Loki      │
     │Swarm  │  │Exa       │Letta  │  │AlertMgr  │
@@ -289,7 +289,7 @@ CLIENT REQUEST
 
 | Server | Currently Registered | Network | Status |
 |--------|---------------------|---------|--------|
-| Graphiti | ✓ | nyra-network | ✓ Working |
+| letta | ✓ | nyra-network | ✓ Working |
 | Qdrant | ✓ | nyra-network | ✓ Working |
 | Context7 | ✓ | nyra-network | ✓ Working |
 | Exa | ✓ | nyra-network | ✓ Working |
@@ -310,7 +310,7 @@ CLIENT REQUEST
 
 | Server | Should Be Registered | Network | Status |
 |--------|---------------------|---------|--------|
-| Graphiti | ✓ | nyra-network | ✓ Same |
+| letta | ✓ | nyra-network | ✓ Same |
 | Qdrant | ✓ | nyra-network | ✓ Same |
 | Context7 | ✓ | nyra-network | ✓ Same |
 | Exa | ✓ | nyra-network | ✓ Same |

@@ -32,7 +32,7 @@ tests/
 │   └── vitest.setup.ts          # Global test configuration
 ├── utils/
 │   ├── agents.ts                # Agent mock utilities
-│   ├── memory.ts                # Memory system mocks (RuVector, Letta, Graphiti, Mem0)
+│   ├── memory.ts                # Memory system mocks (RuVector, Letta, letta, Mem0)
 │   ├── mcp.ts                   # MCP server mocks
 │   └── database.ts              # Database mock utilities
 ├── fixtures/
@@ -93,9 +93,9 @@ const results = await memory.ruvector.search('DTI calculation', 5);
 // Letta (conversational memory)
 await memory.letta.store('agent-id', { message: 'Task complete' });
 
-// Graphiti (knowledge graph)
-await memory.graphiti.addNode({ id: 'borrower-001', type: 'Borrower' });
-await memory.graphiti.addEdge({ from: 'borrower-001', to: 'quote-001', type: 'RECEIVED' });
+// letta (knowledge graph)
+await memory.letta.addNode({ id: 'borrower-001', type: 'Borrower' });
+await memory.letta.addEdge({ from: 'borrower-001', to: 'quote-001', type: 'RECEIVED' });
 
 // Mem0 (user preferences)
 await memory.mem0.store('user-id', { preferredLoanType: 'conventional' });
@@ -106,7 +106,7 @@ await memory.mem0.store('user-id', { preferredLoanType: 'conventional' });
 import { setupTestMCP } from '@utils/mcp';
 
 const mcpServers = await setupTestMCP();
-const result = await mcpServers['claude-flow'].executeTool('agent_spawn', {
+const result = await mcpServers['archon-os'].executeTool('agent_spawn', {
   type: 'coder'
 });
 ```
@@ -133,7 +133,7 @@ Pre-configured test data for common scenarios:
 #### Memory Coordination Tests
 - RuVector vector search and retrieval
 - Letta conversational history management
-- Graphiti knowledge graph operations
+- letta knowledge graph operations
 - Mem0 user preference storage
 - Multi-system coordination patterns
 

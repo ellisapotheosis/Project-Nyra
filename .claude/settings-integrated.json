@@ -9,7 +9,7 @@
   },
   "permissions": {
     "allow": [
-      "Bash(npx claude-flow:*)",
+      "Bash(npx archon-os:*)",
       "Bash(npm run lint)",
       "Bash(npm run test:*)",
       "Bash(npm test:*)",
@@ -71,7 +71,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "cat | jq -r '.tool_input.command // empty' | tr '\\n' '\\0' | xargs -0 -I {} npx claude-flow@alpha hooks pre-command --command '{}' --validate-safety true --prepare-resources true",
+            "command": "cat | jq -r '.tool_input.command // empty' | tr '\\n' '\\0' | xargs -0 -I {} npx archon-os@alpha hooks pre-command --command '{}' --validate-safety true --prepare-resources true",
             "description": "Claude Flow: Pre-command validation"
           }
         ]
@@ -81,7 +81,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "cat | jq -r '.tool_input.file_path // .tool_input.path // empty' | tr '\\n' '\\0' | xargs -0 -I {} npx claude-flow@alpha hooks pre-edit --file '{}' --auto-assign-agents true --load-context true",
+            "command": "cat | jq -r '.tool_input.file_path // .tool_input.path // empty' | tr '\\n' '\\0' | xargs -0 -I {} npx archon-os@alpha hooks pre-edit --file '{}' --auto-assign-agents true --load-context true",
             "description": "Claude Flow: Pre-edit context loading"
           }
         ]
@@ -93,7 +93,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "cat | jq -r '.tool_input.command // empty' | tr '\\n' '\\0' | xargs -0 -I {} npx claude-flow@alpha hooks post-command --command '{}' --track-metrics true --store-results true",
+            "command": "cat | jq -r '.tool_input.command // empty' | tr '\\n' '\\0' | xargs -0 -I {} npx archon-os@alpha hooks post-command --command '{}' --track-metrics true --store-results true",
             "description": "Claude Flow: Post-command metrics"
           }
         ]
@@ -103,7 +103,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "cat | jq -r '.tool_input.file_path // .tool_input.path // empty' | tr '\\n' '\\0' | xargs -0 -I {} npx claude-flow@alpha hooks post-edit --file '{}' --format true --update-memory true",
+            "command": "cat | jq -r '.tool_input.file_path // .tool_input.path // empty' | tr '\\n' '\\0' | xargs -0 -I {} npx archon-os@alpha hooks post-edit --file '{}' --format true --update-memory true",
             "description": "Claude Flow: Post-edit formatting and memory"
           }
         ]
@@ -153,7 +153,7 @@
           },
           {
             "type": "command",
-            "command": "npx claude-flow@alpha hooks session-end --generate-summary true --persist-state true --export-metrics true",
+            "command": "npx archon-os@alpha hooks session-end --generate-summary true --persist-state true --export-metrics true",
             "description": "Claude Flow: Session end processing"
           }
         ]
@@ -161,7 +161,7 @@
     ]
   },
   "includeCoAuthoredBy": true,
-  "enabledMcpjsonServers": ["claude-flow", "ruv-swarm", "gemini-assistant", "context7"],
+  "enabledMcpjsonServers": ["archon-os", "ruv-swarm", "gemini-assistant", "context7"],
   "statusLine": {
     "type": "command",
     "command": ".claude/statusline-command.sh"

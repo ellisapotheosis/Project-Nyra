@@ -4,7 +4,7 @@ Main swarm orchestration command for Claude Flow.
 
 ## Usage
 ```bash
-npx claude-flow swarm <objective> [options]
+npx archon-os swarm <objective> [options]
 ```
 
 ## Options
@@ -17,11 +17,11 @@ npx claude-flow swarm <objective> [options]
 ## Examples
 ```bash
 # Basic swarm
-npx claude-flow swarm "Build REST API"
+npx archon-os swarm "Build REST API"
 
 # With strategy
-npx claude-flow swarm "Research AI patterns" --strategy research
+npx archon-os swarm "Research AI patterns" --strategy research
 
 # Open in Claude Code
-npx claude-flow swarm "Build API" --claude
+npx archon-os swarm "Build API" --claude
 ```

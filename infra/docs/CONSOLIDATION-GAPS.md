@@ -22,14 +22,14 @@ Generated: 2026-02-28T20:15:27.012965Z
   - infra/compose/overrides/docker-compose.worker-rtx5090.override.yml
 - **campaign_engine**
   - infra/stacks/nyra-mortgage/docker-compose.services.yml
-- **claude-flow-brain**
-  - infra/docker-compose/docker-compose.claude-flow.yml
-- **claude-flow-cicd**
-  - infra/docker-compose.claude-flow-cicd.yml
-  - infra/docker-compose/docker-compose.claude-flow.yml
-- **claude-flow-dashboard**
+- **archon-os-brain**
+  - infra/docker-compose/docker-compose.archon-os.yml
+- **archon-os-cicd**
+  - infra/docker-compose.archon-os-cicd.yml
+  - infra/docker-compose/docker-compose.archon-os.yml
+- **archon-os-dashboard**
   - infra/docker-compose.dashboard.yml
-- **claude-flow-event-server**
+- **archon-os-event-server**
   - infra/docker-compose.dashboard.yml
   - infra/stacks/nyra-mortgage/docker-compose.addons.yml
   - infra/stacks/nyra-mortgage/docker-compose.addons.yml
@@ -49,8 +49,8 @@ Generated: 2026-02-28T20:15:27.012965Z
 - **gpu-exporter**
   - infra/workers/worker-3060/docker-compose.worker-3060.yml
   - infra/workers/worker-5090/docker-compose.worker-5090.yml
-- **graphiti_mcp**
-  - infra/stacks/nyra-mortgage/docker-compose.graphiti.yml
+- **letta_mcp**
+  - infra/stacks/nyra-mortgage/docker-compose.letta.yml
 - **health-monitor**
   - infra/workers/worker-3060/docker-compose.worker-3060.yml
   - infra/workers/worker-3090/docker-compose.worker-3090.yml

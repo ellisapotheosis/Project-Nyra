@@ -4,7 +4,7 @@
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
-METRICS_DIR="$PROJECT_ROOT/.claude-flow/metrics"
+METRICS_DIR="$PROJECT_ROOT/.archon-os/metrics"
 UPDATE_SCRIPT="$SCRIPT_DIR/update-v3-progress.sh"
 
 # Ensure metrics directory exists
@@ -39,8 +39,8 @@ count_active_processes() {
     local mcp_count=0
     local agent_count=0
 
-    # Count agentic-flow processes
-    agentic_flow_count=$(ps aux 2>/dev/null | grep -E "agentic-flow" | grep -v grep | grep -v "swarm-monitor" | wc -l)
+    # Count archon-os processes
+    agentic_flow_count=$(ps aux 2>/dev/null | grep -E "archon-os" | grep -v grep | grep -v "swarm-monitor" | wc -l)
 
     # Count MCP server processes
     mcp_count=$(ps aux 2>/dev/null | grep -E "mcp.*start" | grep -v grep | wc -l)

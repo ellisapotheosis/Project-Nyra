@@ -57,7 +57,7 @@ hooks:
     echo "🔍 Running AIMDS threat detection on task input..."
 
     # Scan task for prompt injection/manipulation attempts
-    AIMDS_RESULT=$(npx @claude-flow/cli@latest security defend --input "$TASK" --mode thorough --json 2>/dev/null)
+    AIMDS_RESULT=$(npx @archon-os/cli@latest security defend --input "$TASK" --mode thorough --json 2>/dev/null)
 
     if [ -n "$AIMDS_RESULT" ]; then
       THREAT_COUNT=$(echo "$AIMDS_RESULT" | jq -r '.threats | length' 2>/dev/null || echo "0")
@@ -81,17 +81,17 @@ hooks:
     # ═══════════════════════════════════════════════════════════════
     echo "📊 Searching for similar threat patterns via HNSW..."
 
-    THREAT_PATTERNS=$(npx @claude-flow/cli@latest memory search-patterns "$TASK" --k=10 --min-reward=0.85 --namespace=security_threats 2>/dev/null)
+    THREAT_PATTERNS=$(npx @archon-os/cli@latest memory search-patterns "$TASK" --k=10 --min-reward=0.85 --namespace=security_threats 2>/dev/null)
     if [ -n "$THREAT_PATTERNS" ]; then
       PATTERN_COUNT=$(echo "$THREAT_PATTERNS" | jq -r 'length' 2>/dev/null || echo "0")
       echo "📊 Found $PATTERN_COUNT similar threat patterns (150x-12,500x faster via HNSW)"
-      npx @claude-flow/cli@latest memory get-pattern-stats "$TASK" --k=10 --namespace=security_threats 2>/dev/null
+      npx @archon-os/cli@latest memory get-pattern-stats "$TASK" --k=10 --namespace=security_threats 2>/dev/null
     fi
 
     # ═══════════════════════════════════════════════════════════════
     # PHASE 3: Learn from Past Security Failures
     # ═══════════════════════════════════════════════════════════════
-    SECURITY_FAILURES=$(npx @claude-flow/cli@latest memory search-patterns "$TASK" --only-failures --k=5 --namespace=security 2>/dev/null)
+    SECURITY_FAILURES=$(npx @archon-os/cli@latest memory search-patterns "$TASK" --only-failures --k=5 --namespace=security 2>/dev/null)
     if [ -n "$SECURITY_FAILURES" ]; then
       echo "⚠️  Learning from past security vulnerabilities..."
       echo "$SECURITY_FAILURES" | jq -r '.[] | "  - \(.task): \(.critique)"' 2>/dev/null | head -5
@@ -103,7 +103,7 @@ hooks:
     if [[ "$TASK" == *"auth"* ]] || [[ "$TASK" == *"session"* ]] || [[ "$TASK" == *"inject"* ]] || \
        [[ "$TASK" == *"password"* ]] || [[ "$TASK" == *"token"* ]] || [[ "$TASK" == *"crypt"* ]]; then
       echo "🔍 Checking CVE database for relevant vulnerabilities..."
-      npx @claude-flow/cli@latest security cve --check-relevant "$TASK" 2>/dev/null
+      npx @archon-os/cli@latest security cve --check-relevant "$TASK" 2>/dev/null
     fi
 
     # ═══════════════════════════════════════════════════════════════
@@ -112,7 +112,7 @@ hooks:
     SESSION_ID="security-architect-aimds-$(date +%s)"
     echo "📝 Initializing security session: $SESSION_ID"
 
-    npx @claude-flow/cli@latest hooks intelligence trajectory-start \
+    npx @archon-os/cli@latest hooks intelligence trajectory-start \
       --session-id "$SESSION_ID" \
       --agent-type "security-architect-aidefence" \
       --task "$TASK" \
@@ -120,7 +120,7 @@ hooks:
       2>/dev/null
 
     # Store task start with AIMDS context
-    npx @claude-flow/cli@latest memory store-pattern \
+    npx @archon-os/cli@latest memory store-pattern \
       --session-id "$SESSION_ID" \
       --task "$TASK" \
       --status "started" \
@@ -140,7 +140,7 @@ hooks:
     # ═══════════════════════════════════════════════════════════════
     echo "🔒 Running comprehensive security validation..."
 
-    npx @claude-flow/cli@latest security scan --depth full --output-format json > /tmp/security-scan.json 2>/dev/null
+    npx @archon-os/cli@latest security scan --depth full --output-format json > /tmp/security-scan.json 2>/dev/null
     VULNERABILITIES=$(jq -r '.vulnerabilities | length' /tmp/security-scan.json 2>/dev/null || echo "0")
     CRITICAL_COUNT=$(jq -r '.vulnerabilities | map(select(.severity == "critical")) | length' /tmp/security-scan.json 2>/dev/null || echo "0")
     HIGH_COUNT=$(jq -r '.vulnerabilities | map(select(.severity == "high")) | length' /tmp/security-scan.json 2>/dev/null || echo "0")
@@ -156,7 +156,7 @@ hooks:
     if [ -n "$SECURITY_SESSION_ID" ]; then
       echo "🧠 Running AIMDS behavioral analysis..."
 
-      BEHAVIOR_RESULT=$(npx @claude-flow/cli@latest security behavior \
+      BEHAVIOR_RESULT=$(npx @archon-os/cli@latest security behavior \
         --agent "$SECURITY_SESSION_ID" \
         --window "10m" \
         --json 2>/dev/null)
@@ -171,7 +171,7 @@ hooks:
         # Alert on high anomaly
         if [ "$(echo "$ANOMALY_SCORE > 0.8" | bc 2>/dev/null)" = "1" ]; then
           echo "⚠️  High anomaly score detected - flagging for review"
-          npx @claude-flow/cli@latest hooks notify --severity warning \
+          npx @archon-os/cli@latest hooks notify --severity warning \
             --message "High behavioral anomaly detected: score=$ANOMALY_SCORE" 2>/dev/null
         fi
       fi
@@ -198,7 +198,7 @@ hooks:
     # ═══════════════════════════════════════════════════════════════
     echo "💾 Storing security pattern for future learning..."
 
-    npx @claude-flow/cli@latest memory store-pattern \
+    npx @archon-os/cli@latest memory store-pattern \
       --session-id "${SECURITY_SESSION_ID:-security-architect-aimds-$(date +%s)}" \
       --task "$TASK" \
       --output "Security analysis: $VULNERABILITIES issues ($CRITICAL_COUNT critical, $HIGH_COUNT high)" \
@@ -210,7 +210,7 @@ hooks:
 
     # Also store in security_mitigations if successful
     if [ "$SUCCESS" = "true" ] && [ "$(echo "$REWARD > 0.8" | bc 2>/dev/null)" = "1" ]; then
-      npx @claude-flow/cli@latest memory store-pattern \
+      npx @archon-os/cli@latest memory store-pattern \
         --session-id "${SECURITY_SESSION_ID}" \
         --task "mitigation:$TASK" \
         --output "Effective security mitigation applied" \
@@ -227,7 +227,7 @@ hooks:
       echo "🧠 Training AIMDS meta-learner on successful pattern..."
 
       # Feed to strange-loop meta-learning system
-      npx @claude-flow/cli@latest security learn \
+      npx @archon-os/cli@latest security learn \
         --threat-type "security-assessment" \
         --strategy "comprehensive-scan" \
         --effectiveness "$REWARD" \
@@ -235,7 +235,7 @@ hooks:
 
       # Also train neural patterns
       echo "🔮 Training neural pattern from successful security assessment"
-      npx @claude-flow/cli@latest neural train \
+      npx @archon-os/cli@latest neural train \
         --pattern-type "coordination" \
         --training-data "security-assessment-aimds" \
         --epochs 50 \
@@ -245,7 +245,7 @@ hooks:
     # ═══════════════════════════════════════════════════════════════
     # PHASE 6: End Trajectory and Final Reporting
     # ═══════════════════════════════════════════════════════════════
-    npx @claude-flow/cli@latest hooks intelligence trajectory-end \
+    npx @archon-os/cli@latest hooks intelligence trajectory-end \
       --session-id "${SECURITY_SESSION_ID}" \
       --success "$SUCCESS" \
       --reward "$REWARD" \
@@ -254,12 +254,12 @@ hooks:
     # Alert on critical findings
     if [ "$CRITICAL_COUNT" -gt 0 ]; then
       echo "🚨 CRITICAL: $CRITICAL_COUNT critical vulnerabilities detected!"
-      npx @claude-flow/cli@latest hooks notify --severity critical \
+      npx @archon-os/cli@latest hooks notify --severity critical \
         --message "AIMDS: $CRITICAL_COUNT critical security vulnerabilities found" \
         2>/dev/null
     elif [ "$HIGH_COUNT" -gt 5 ]; then
       echo "⚠️  WARNING: $HIGH_COUNT high-severity vulnerabilities detected"
-      npx @claude-flow/cli@latest hooks notify --severity warning \
+      npx @archon-os/cli@latest hooks notify --severity warning \
         --message "AIMDS: $HIGH_COUNT high-severity vulnerabilities found" \
         2>/dev/null
     else
@@ -307,30 +307,30 @@ This agent extends the base `security-architect` with production-grade AI defens
 
 ```bash
 # Scan for prompt injection/manipulation
-npx @claude-flow/cli@latest security defend --input "<suspicious input>" --mode thorough
+npx @archon-os/cli@latest security defend --input "<suspicious input>" --mode thorough
 
 # Analyze agent behavior
-npx @claude-flow/cli@latest security behavior --agent <agent-id> --window 1h
+npx @archon-os/cli@latest security behavior --agent <agent-id> --window 1h
 
 # Verify LTL security policy
-npx @claude-flow/cli@latest security policy --agent <agent-id> --formula "G(edit -> F(review))"
+npx @archon-os/cli@latest security policy --agent <agent-id> --formula "G(edit -> F(review))"
 
 # Record successful mitigation for meta-learning
-npx @claude-flow/cli@latest security learn --threat-type prompt_injection --strategy sanitize --effectiveness 0.95
+npx @archon-os/cli@latest security learn --threat-type prompt_injection --strategy sanitize --effectiveness 0.95
 ```
 
 ## MCP Tool Integration
 
 ```javascript
 // Real-time threat scanning
-mcp__claude-flow__security_scan({
+mcp__archon-os__security_scan({
   action: "defend",
   input: userInput,
   mode: "thorough"
 })
 
 // Behavioral anomaly detection
-mcp__claude-flow__security_analyze({
+mcp__archon-os__security_analyze({
   action: "behavior",
   agentId: agentId,
   timeWindow: "1h",
@@ -338,20 +338,20 @@ mcp__claude-flow__security_analyze({
 })
 
 // LTL policy verification
-mcp__claude-flow__security_verify({
+mcp__archon-os__security_verify({
   action: "policy",
   agentId: agentId,
   policy: "G(!self_approve)"
 })
 ```
 
-## Threat Pattern Storage (AgentDB)
+## Threat Pattern Storage (ruvector)
 
 Threat patterns are stored in the shared `security_threats` namespace:
 
 ```typescript
 // Store learned threat pattern
-await agentDB.store({
+await ruvector.store({
   namespace: 'security_threats',
   key: `threat-${Date.now()}`,
   value: {
@@ -365,7 +365,7 @@ await agentDB.store({
 });
 
 // Search for similar threats (150x-12,500x faster via HNSW)
-const similarThreats = await agentDB.hnswSearch({
+const similarThreats = await ruvector.hnswSearch({
   namespace: 'security_threats',
   query: suspiciousInput,
   k: 10,

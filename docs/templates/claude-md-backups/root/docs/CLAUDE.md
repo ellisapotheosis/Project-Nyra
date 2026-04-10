@@ -102,8 +102,8 @@ docs/
 │   └── risk-assessments/    # Risk analysis docs
 │
 └── references/                # External references
-    ├── claude-flow-wiki/    # Claude Flow wiki
-    └── claude-flow-examples/ # Example projects
+    ├── archon-os-wiki/    # Claude Flow wiki
+    └── archon-os-examples/ # Example projects
 ```
 
 ---
@@ -137,7 +137,7 @@ docs/
 
 **Before spawning agents, get routing recommendation:**
 ```bash
-npx @claude-flow/cli@latest hooks pre-task --description "[documentation task description]"
+npx @archon-os/cli@latest hooks pre-task --description "[documentation task description]"
 ```
 
 **When you see these recommendations:**
@@ -163,10 +163,10 @@ Task({
 **Use this for documentation swarms:**
 ```bash
 # Small doc teams (4-6 agents) - use hierarchical for tight control
-npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 6 --strategy specialized
+npx @archon-os/cli@latest swarm init --topology hierarchical --max-agents 6 --strategy specialized
 
 # Large doc teams (8-10 agents) - use hierarchical-mesh for coordination
-npx @claude-flow/cli@latest swarm init --topology hierarchical-mesh --max-agents 10 --strategy specialized
+npx @archon-os/cli@latest swarm init --topology hierarchical-mesh --max-agents 10 --strategy specialized
 ```
 
 **Valid Topologies:**
@@ -188,7 +188,7 @@ When the user requests complex documentation work, **spawn agents in background 
 
 ```javascript
 // STEP 1: Initialize swarm coordination (anti-drift config)
-Bash("npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 6 --strategy specialized")
+Bash("npx @archon-os/cli@latest swarm init --topology hierarchical --max-agents 6 --strategy specialized")
 
 // STEP 2: Spawn ALL agents IN BACKGROUND in a SINGLE message
 // Use run_in_background: true so agents work concurrently
@@ -254,25 +254,25 @@ They're working in parallel. I'll synthesize their results when they complete.
 ### Before Starting Any Documentation Task
 ```bash
 # 1. Search memory for relevant documentation patterns from past work
-Bash("npx @claude-flow/cli@latest memory search --query '[documentation topic]' --namespace docs-patterns")
+Bash("npx @archon-os/cli@latest memory search --query '[documentation topic]' --namespace docs-patterns")
 
 # 2. Check if similar documentation was done before
-Bash("npx @claude-flow/cli@latest memory search --query '[doc type]' --namespace docs")
+Bash("npx @archon-os/cli@latest memory search --query '[doc type]' --namespace docs")
 
 # 3. Load learned documentation optimizations
-Bash("npx @claude-flow/cli@latest hooks route --task '[documentation task description]'")
+Bash("npx @archon-os/cli@latest hooks route --task '[documentation task description]'")
 ```
 
 ### After Completing Any Documentation Successfully
 ```bash
 # 1. Store successful pattern for future reference
-Bash("npx @claude-flow/cli@latest memory store --namespace docs-patterns --key '[pattern-name]' --value '[what worked]'")
+Bash("npx @archon-os/cli@latest memory store --namespace docs-patterns --key '[pattern-name]' --value '[what worked]'")
 
 # 2. Train neural patterns on the successful approach
-Bash("npx @claude-flow/cli@latest hooks post-edit --file '[main-doc-file]' --train-neural true")
+Bash("npx @archon-os/cli@latest hooks post-edit --file '[main-doc-file]' --train-neural true")
 
 # 3. Record task completion with metrics
-Bash("npx @claude-flow/cli@latest hooks post-task --task-id '[id]' --success true --store-results true")
+Bash("npx @archon-os/cli@latest hooks post-task --task-id '[id]' --success true --store-results true")
 ```
 
 ### Continuous Improvement Triggers
@@ -377,7 +377,7 @@ Detailed information with:
 **Code Blocks:**
 ```bash
 # Always specify language
-npx @claude-flow/cli@latest hooks pre-task --description "task"
+npx @archon-os/cli@latest hooks pre-task --description "task"
 ```
 
 ```javascript
@@ -396,7 +396,7 @@ const example = "Always use syntax highlighting";
 - Keep list items concise
 
 **Links:**
-- Use descriptive link text: [Claude Flow Documentation](https://github.com/ruvnet/claude-flow)
+- Use descriptive link text: [Claude Flow Documentation](https://github.com/ruvnet/archon-os)
 - Prefer relative links for internal docs: `[Setup Guide](./manual-tasks/setup/setup-guide.md)`
 
 **Images:**
@@ -419,10 +419,10 @@ const example = "Always use syntax highlighting";
 **Include Runnable Examples:**
 ```bash
 # Good: Complete, runnable command
-npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 6
+npx @archon-os/cli@latest swarm init --topology hierarchical --max-agents 6
 
 # Bad: Incomplete or placeholder
-npx @claude-flow/cli@latest swarm init [options]
+npx @archon-os/cli@latest swarm init [options]
 ```
 
 **Add Troubleshooting:**
@@ -476,17 +476,17 @@ Every guide should include:
 
 1. **Search for existing patterns:**
 ```bash
-npx @claude-flow/cli@latest memory search --query "similar documentation topic" --namespace docs-patterns
+npx @archon-os/cli@latest memory search --query "similar documentation topic" --namespace docs-patterns
 ```
 
 2. **Check for related docs:**
 ```bash
-npx @claude-flow/cli@latest memory search --query "related guides" --namespace docs
+npx @archon-os/cli@latest memory search --query "related guides" --namespace docs
 ```
 
 3. **Get routing recommendation:**
 ```bash
-npx @claude-flow/cli@latest hooks pre-task --description "Write [type] documentation for [topic]"
+npx @archon-os/cli@latest hooks pre-task --description "Write [type] documentation for [topic]"
 ```
 
 ### During Documentation Writing
@@ -501,7 +501,7 @@ npx @claude-flow/cli@latest hooks pre-task --description "Write [type] documenta
 
 1. **Store the pattern:**
 ```bash
-npx @claude-flow/cli@latest memory store \
+npx @archon-os/cli@latest memory store \
   --key "doc-pattern-[type]-[topic]" \
   --value "Approach used: [description]" \
   --namespace docs-patterns
@@ -509,14 +509,14 @@ npx @claude-flow/cli@latest memory store \
 
 2. **Train neural patterns:**
 ```bash
-npx @claude-flow/cli@latest hooks post-edit \
+npx @archon-os/cli@latest hooks post-edit \
   --file "docs/[subdirectory]/[filename].md" \
   --train-neural true
 ```
 
 3. **Record completion:**
 ```bash
-npx @claude-flow/cli@latest hooks post-task \
+npx @archon-os/cli@latest hooks post-task \
   --task-id "doc-[topic]" \
   --success true \
   --store-results true
@@ -538,19 +538,19 @@ npx @claude-flow/cli@latest hooks post-task \
 
 ```bash
 # Store successful documentation structure
-npx @claude-flow/cli@latest memory store \
+npx @archon-os/cli@latest memory store \
   --key "pattern-api-docs-structure" \
   --value "Structure: Overview → Authentication → Endpoints → Examples → Troubleshooting → Related Docs" \
   --namespace docs-patterns
 
 # Store writing approach
-npx @claude-flow/cli@latest memory store \
+npx @archon-os/cli@latest memory store \
   --key "pattern-technical-writing" \
   --value "Approach: Define problem → Show solution → Explain why → Provide example → Link to related" \
   --namespace docs-patterns
 
 # Store diagram conventions
-npx @claude-flow/cli@latest memory store \
+npx @archon-os/cli@latest memory store \
   --key "pattern-architecture-diagrams" \
   --value "Convention: Mermaid for simple flows, PlantUML for complex architectures, always include legend" \
   --namespace docs-patterns
@@ -560,18 +560,18 @@ npx @claude-flow/cli@latest memory store \
 
 ```bash
 # Search for API documentation patterns
-npx @claude-flow/cli@latest memory search \
+npx @archon-os/cli@latest memory search \
   --query "API documentation structure" \
   --namespace docs-patterns \
   --limit 5
 
 # Search for guide writing patterns
-npx @claude-flow/cli@latest memory search \
+npx @archon-os/cli@latest memory search \
   --query "setup guide approach" \
   --namespace docs-patterns
 
 # Search for troubleshooting patterns
-npx @claude-flow/cli@latest memory search \
+npx @archon-os/cli@latest memory search \
   --query "troubleshooting section structure" \
   --namespace docs-patterns
 ```
@@ -620,12 +620,12 @@ docs/nexus-router-deployment.md
 ```bash
 # REQUIRED: --key and --value
 # OPTIONAL: --namespace (default: "default"), --ttl, --tags
-npx @claude-flow/cli@latest memory store \
+npx @archon-os/cli@latest memory store \
   --key "doc-pattern-api-reference" \
   --value "Structure: Overview, Authentication, Endpoints, Examples, Troubleshooting" \
   --namespace docs-patterns
 
-npx @claude-flow/cli@latest memory store \
+npx @archon-os/cli@latest memory store \
   --key "doc-completed-setup-guide" \
   --value "Completed comprehensive setup guide with Windows/Linux sections" \
   --namespace docs \
@@ -636,11 +636,11 @@ npx @claude-flow/cli@latest memory store \
 ```bash
 # REQUIRED: --query (full flag, not -q)
 # OPTIONAL: --namespace, --limit, --threshold
-npx @claude-flow/cli@latest memory search \
+npx @archon-os/cli@latest memory search \
   --query "API documentation structure" \
   --namespace docs-patterns
 
-npx @claude-flow/cli@latest memory search \
+npx @archon-os/cli@latest memory search \
   --query "troubleshooting guide patterns" \
   --namespace docs-patterns \
   --limit 5
@@ -649,22 +649,22 @@ npx @claude-flow/cli@latest memory search \
 ### List Documentation Entries
 ```bash
 # OPTIONAL: --namespace, --limit
-npx @claude-flow/cli@latest memory list --namespace docs-patterns --limit 10
-npx @claude-flow/cli@latest memory list --namespace docs --limit 20
+npx @archon-os/cli@latest memory list --namespace docs-patterns --limit 10
+npx @archon-os/cli@latest memory list --namespace docs --limit 20
 ```
 
 ### Retrieve Specific Documentation Pattern
 ```bash
 # REQUIRED: --key
 # OPTIONAL: --namespace (default: "default")
-npx @claude-flow/cli@latest memory retrieve \
+npx @archon-os/cli@latest memory retrieve \
   --key "doc-pattern-api-reference" \
   --namespace docs-patterns
 ```
 
 ### Initialize Memory Database
 ```bash
-npx @claude-flow/cli@latest memory init --force --verbose
+npx @archon-os/cli@latest memory init --force --verbose
 ```
 
 ---
@@ -675,28 +675,28 @@ npx @claude-flow/cli@latest memory init --force --verbose
 
 ```bash
 # Before starting documentation work
-npx @claude-flow/cli@latest hooks pre-task \
+npx @archon-os/cli@latest hooks pre-task \
   --description "Write API documentation for Quote Engine" \
   --coordinate-swarm true
 
 # After completing documentation
-npx @claude-flow/cli@latest hooks post-task \
+npx @archon-os/cli@latest hooks post-task \
   --task-id "doc-quote-engine-api" \
   --success true \
   --store-results true
 
 # After editing documentation files
-npx @claude-flow/cli@latest hooks post-edit \
+npx @archon-os/cli@latest hooks post-edit \
   --file "docs/api/quote-engine-api.md" \
   --success true \
   --train-neural true
 
 # Session management for documentation work
-npx @claude-flow/cli@latest hooks session-start --session-id "docs-consolidation"
-npx @claude-flow/cli@latest hooks session-end --export-metrics true
+npx @archon-os/cli@latest hooks session-start --session-id "docs-consolidation"
+npx @archon-os/cli@latest hooks session-end --export-metrics true
 
 # Route documentation task to optimal agent
-npx @claude-flow/cli@latest hooks route \
+npx @archon-os/cli@latest hooks route \
   --task "Create architecture documentation for distributed memory system"
 ```
 
@@ -739,7 +739,7 @@ npx @claude-flow/cli@latest hooks route \
 
 ```bash
 # Configuration
-CLAUDE_FLOW_CONFIG=./claude-flow.config.json
+CLAUDE_FLOW_CONFIG=./archon-os.config.json
 CLAUDE_FLOW_LOG_LEVEL=info
 
 # Provider API Keys
@@ -767,10 +767,10 @@ CLAUDE_FLOW_MEMORY_PATH=./data/memory
 - **SPARC Workflows**: `ToDo/whitepaper-workflow/Nyra-Truth-and-Standards/MORTGAGE-SPARC-WORKFLOWS.md`
 
 ### Claude Flow V3
-- **Documentation**: https://github.com/ruvnet/claude-flow
-- **Issues**: https://github.com/ruvnet/claude-flow/issues
-- **Capabilities**: `.claude-flow/CAPABILITIES.md`
-- **Template Guide**: `docs/references/claude-flow-wiki/CLAUDE-MD-V3-TEMPLATE-GUIDE.md`
+- **Documentation**: https://github.com/ruvnet/archon-os
+- **Issues**: https://github.com/ruvnet/archon-os/issues
+- **Capabilities**: `.archon-os/CAPABILITIES.md`
+- **Template Guide**: `docs/references/archon-os-wiki/CLAUDE-MD-V3-TEMPLATE-GUIDE.md`
 
 ### Related Documentation
 - **Cleanup Reports**: `docs/cleanup/`
@@ -783,25 +783,25 @@ CLAUDE_FLOW_MEMORY_PATH=./data/memory
 
 ```bash
 # System health check
-npx @claude-flow/cli@latest doctor --fix
+npx @archon-os/cli@latest doctor --fix
 
 # Initialize memory systems
-npx @claude-flow/cli@latest memory init --force --verbose
+npx @archon-os/cli@latest memory init --force --verbose
 
 # Start daemon with background workers
-npx @claude-flow/cli@latest daemon start
+npx @archon-os/cli@latest daemon start
 
 # Initialize documentation swarm
-npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 6 --strategy specialized
+npx @archon-os/cli@latest swarm init --topology hierarchical --max-agents 6 --strategy specialized
 
 # Search for documentation patterns
-npx @claude-flow/cli@latest memory search --query "documentation patterns" --namespace docs-patterns
+npx @archon-os/cli@latest memory search --query "documentation patterns" --namespace docs-patterns
 
 # View system status
-npx @claude-flow/cli@latest status --watch
+npx @archon-os/cli@latest status --watch
 
 # Map documentation structure
-npx @claude-flow/cli@latest hooks worker dispatch --trigger map
+npx @archon-os/cli@latest hooks worker dispatch --trigger map
 ```
 
 ---

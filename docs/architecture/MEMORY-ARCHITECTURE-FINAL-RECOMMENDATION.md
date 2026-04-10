@@ -8,7 +8,7 @@
 
 ## Executive Summary
 
-**Project Nyra's memory architecture is 85% correctly configured.** All technologies you asked about (AgentDB, RUVector, mem0, Letta, OpenMemory, Zep) are **complementary, not competitive** - they work together by design.
+**Project Nyra's memory architecture is 85% correctly configured.** All technologies you asked about (ruvector, RUVector, mem0, Letta, OpenMemory, Zep) are **complementary, not competitive** - they work together by design.
 
 ### 🎯 Critical Finding
 
@@ -18,32 +18,32 @@
 
 ## Your Questions Answered
 
-### 1. AgentDB vs RUVector - Can we use both?
+### 1. ruvector vs RUVector - Can we use both?
 
 **Answer: YES - Use BOTH together!**
 
 | Component | Purpose | Performance |
 |-----------|---------|-------------|
-| **AgentDB** | Local SQLite with HNSW indexing | 150x-12,500x faster search |
+| **ruvector** | Local SQLite with HNSW indexing | 150x-12,500x faster search |
 | **RUVector** | 4-PC distributed coordination | <1ms QUIC sync latency |
 
-**Integration**: RUVector provides the distributed layer for AgentDB across your 4-PC architecture.
+**Integration**: RUVector provides the distributed layer for ruvector across your 4-PC architecture.
 
 ```
 Orchestrator PC (192.168.1.101)
-├── AgentDB (local HNSW index)
+├── ruvector (local HNSW index)
 └── RUVector Client
 
 GPU Worker 1 (192.168.1.102)
-├── AgentDB (local HNSW index)
+├── ruvector (local HNSW index)
 └── RUVector Client ←─┐
                        ├─ QUIC Sync (<1ms)
 GPU Worker 2 (192.168.1.103) │
-├── AgentDB (local HNSW index)─┤
+├── ruvector (local HNSW index)─┤
 └── RUVector Client           │
                               │
 GPU Worker 3 (192.168.1.104)  │
-├── AgentDB (local HNSW index)─┘
+├── ruvector (local HNSW index)─┘
 └── RUVector Client
 ```
 
@@ -87,9 +87,9 @@ GPU Worker 3 (192.168.1.104)  │
 
 ---
 
-### 3. Graphiti + FalkorDB vs Neo4j
+### 3. letta + FalkorDB vs Neo4j
 
-**Answer: Graphiti + FalkorDB (current config) is OPTIMAL**
+**Answer: letta + FalkorDB (current config) is OPTIMAL**
 
 **Performance Comparison**:
 
@@ -129,7 +129,7 @@ GPU Worker 3 (192.168.1.104)  │
 | Feature | Zep | Current Stack |
 |---------|-----|---------------|
 | Conversation memory | ✅ | ✅ mem0 + Letta |
-| Long-term context | ✅ | ✅ AgentDB + RUVector |
+| Long-term context | ✅ | ✅ ruvector + RUVector |
 | Semantic search | ✅ | ✅ Qdrant + HNSW |
 | Summarization | ✅ | ✅ Claude Flow hooks |
 
@@ -148,13 +148,13 @@ GPU Worker 3 (192.168.1.104)  │
 
 **Answer: CRITICAL MISSING PIECE - Implement event-driven memory synchronization**
 
-**Current Problem**: When you save a memory, it only goes to ONE backend (usually AgentDB). But you want it mirrored to:
+**Current Problem**: When you save a memory, it only goes to ONE backend (usually ruvector). But you want it mirrored to:
 - Qdrant (local vector search)
 - Qdrant Cloud (backup/sync)
 - Supabase (pgvector cloud federation)
 - PostgreSQL (audit trail)
 - FalkorDB (relationship graph)
-- AgentDB (Claude Flow primary)
+- ruvector (Claude Flow primary)
 
 **Solution: Memory Shim Service**
 
@@ -173,7 +173,7 @@ GPU Worker 3 (192.168.1.104)  │
     ┌──────────┴──────────┬───────────────┬──────────────┬─────────────┐
     ↓                     ↓               ↓              ↓             ↓
 ┌─────────┐      ┌──────────────┐  ┌──────────┐  ┌────────────┐  ┌──────────┐
-│ Qdrant  │      │ Supabase     │  │ AgentDB  │  │ FalkorDB   │  │ Postgres │
+│ Qdrant  │      │ Supabase     │  │ ruvector  │  │ FalkorDB   │  │ Postgres │
 │ (local) │      │ (pgvector)   │  │ (Claude) │  │ (graph)    │  │ (audit)  │
 │ Vector  │      │ Cloud Sync   │  │ Primary  │  │ Relations  │  │ Trail    │
 └─────────┘      └──────────────┘  └──────────┘  └────────────┘  └──────────┘
@@ -193,7 +193,7 @@ class MemoryShimService {
     await Promise.all([
       this.qdrant.insert(content, metadata),
       this.supabase.upsert(content, metadata),
-      this.agentdb.store(content, metadata),
+      this.ruvector.store(content, metadata),
       this.falkordb.addNode(content, metadata),
       this.postgres.log(content, metadata, timestamp)
     ]);
@@ -212,7 +212,7 @@ class MemoryShimService {
 
 ---
 
-### 6. RUVector Integration Beyond AgentDB
+### 6. RUVector Integration Beyond ruvector
 
 **Answer: YES! RUVector can enhance ALL backends**
 
@@ -262,7 +262,7 @@ results_gnn = ruvector.search_with_relationships("mortgage regulations TILA")
 
 | Component | Purpose | Status |
 |-----------|---------|--------|
-| **AgentDB** | Claude Flow primary memory, HNSW indexing | ✅ Configured |
+| **ruvector** | Claude Flow primary memory, HNSW indexing | ✅ Configured |
 | **RUVector** | Distributed coordination across 4 PCs | ✅ Integrated |
 | **mem0** | User personalization, conversation context | ✅ Configured |
 | **FalkorDB** | Graph relationships (regulations, leads) | ✅ Configured |
@@ -295,8 +295,8 @@ results_gnn = ruvector.search_with_relationships("mortgage regulations TILA")
 **Goal**: Ensure all configured services are running
 
 ```bash
-# Check AgentDB
-npx @claude-flow/cli@latest memory stats
+# Check ruvector
+npx @archon-os/cli@latest memory stats
 
 # Check mem0
 curl http://localhost:4321/health
@@ -365,7 +365,7 @@ npm install -g @openmemory/mcp-server
       "command": "npx",
       "args": ["@openmemory/mcp-server"],
       "env": {
-        "OPENMEMORY_BACKENDS": "qdrant,supabase,agentdb,falkordb,postgres"
+        "OPENMEMORY_BACKENDS": "qdrant,supabase,ruvector,falkordb,postgres"
       }
     }
   }
@@ -379,7 +379,7 @@ npm install -g @openmemory/mcp-server
 import { RabbitMQService } from '@nyra/rabbitmq';
 import { QdrantClient } from '@qdrant/client';
 import { createClient } from '@supabase/supabase-js';
-import { AgentDB } from '@agentic-flow/agentdb';
+import { ruvector } from '@archon-os/ruvector';
 import { FalkorDB } from 'falkordb';
 
 export class MemoryShimService {
@@ -387,7 +387,7 @@ export class MemoryShimService {
     private rabbitmq: RabbitMQService,
     private qdrant: QdrantClient,
     private supabase: SupabaseClient,
-    private agentdb: AgentDB,
+    private ruvector: ruvector,
     private falkordb: FalkorDB,
     private postgres: PostgresClient
   ) {}
@@ -409,7 +409,7 @@ export class MemoryShimService {
       const results = await Promise.allSettled([
         this.writeToQdrant(id, content, metadata, namespace),
         this.writeToSupabase(id, content, metadata, timestamp),
-        this.writeToAgentDB(id, content, metadata, namespace),
+        this.writeToruvector(id, content, metadata, namespace),
         this.writeToFalkorDB(id, content, metadata),
         this.writeToPostgres(id, content, metadata, timestamp)
       ]);
@@ -459,9 +459,9 @@ export class MemoryShimService {
       });
   }
 
-  private async writeToAgentDB(id: string, content: string, metadata: any, namespace: string) {
-    // Write to AgentDB (Claude Flow primary)
-    await this.agentdb.store({
+  private async writeToruvector(id: string, content: string, metadata: any, namespace: string) {
+    // Write to ruvector (Claude Flow primary)
+    await this.ruvector.store({
       key: id,
       value: content,
       metadata,
@@ -571,10 +571,10 @@ results = gnn.search_with_relationships("TILA regulations")
 
 ```bash
 # Enable in Claude Flow config
-npx @claude-flow/cli@latest config set performance.flashAttention true
+npx @archon-os/cli@latest config set performance.flashAttention true
 
 # Verify speedup
-npx @claude-flow/cli@latest hooks metrics --v3-dashboard
+npx @archon-os/cli@latest hooks metrics --v3-dashboard
 ```
 
 **Step 3: Configure Supabase Cloud Federation**
@@ -668,7 +668,7 @@ services:
 
 | Component | Status | Notes |
 |-----------|--------|-------|
-| AgentDB | ✅ Configured | HNSW indexing, 150x-12,500x faster |
+| ruvector | ✅ Configured | HNSW indexing, 150x-12,500x faster |
 | RUVector | ✅ Integrated | <1ms QUIC sync across 4 PCs |
 | mem0 | ✅ Configured | User personalization |
 | FalkorDB | ✅ Configured | Graph relationships |

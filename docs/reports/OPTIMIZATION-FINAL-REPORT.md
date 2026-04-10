@@ -9,7 +9,7 @@
 
 ## 📊 **Executive Summary**
 
-Successfully optimized claude-flow v3 configuration on this PC, achieving:
+Successfully optimized archon-os v3 configuration on this PC, achieving:
 - **150x-12,500x faster** pattern search via HNSW
 - **75% cost reduction** via 3-tier model routing
 - **2.49x-7.47x speedup** via Flash Attention
@@ -24,8 +24,8 @@ Successfully optimized claude-flow v3 configuration on this PC, achieving:
 | # | Task | Duration | Result | Details |
 |---|------|----------|--------|---------|
 | 1 | Config Schema Fix | <1s | ✅ | V3 schema validated |
-| 2 | Directory Setup | <1s | ✅ | data/, logs/, .claude-flow/ |
-| 3 | Memory Database | 2s | ✅ | AgentDB + HNSW (0.15 MB) |
+| 2 | Directory Setup | <1s | ✅ | data/, logs/, .archon-os/ |
+| 3 | Memory Database | 2s | ✅ | ruvector + HNSW (0.15 MB) |
 | 4 | **Neural Pre-training** | **1.0s** | ✅ | **84 files, 30 patterns, 16 strategies** |
 | 5 | Agent Configs | 3s | ✅ | 5 agents built |
 | 6 | Daemon Check | <1s | ✅ | PID: 414240 running |
@@ -61,7 +61,7 @@ Successfully optimized claude-flow v3 configuration on this PC, achieving:
 4. ✅ **CONSOLIDATE**: Deduplication, contradiction detection, pattern pruning
 
 ### Embeddings Enhanced
-- ✅ **EMBED**: all-MiniLM-L6-v2 (ONNX) - 75x faster with agentic-flow
+- ✅ **EMBED**: all-MiniLM-L6-v2 (ONNX) - 75x faster with archon-os
 - ✅ **HYPERBOLIC**: Poincaré ball projection for hierarchy preservation
 - ✅ **Semantic Search**: Enabled for intelligent pattern retrieval
 
@@ -76,11 +76,11 @@ Successfully optimized claude-flow v3 configuration on this PC, achieving:
 | ✅ Node.js | v24.3.0 | >= 20 required |
 | ✅ Claude Code CLI | v2.1.12 | Latest |
 | ✅ Git | v2.52.0 | Installed |
-| ✅ Config File | Valid | claude-flow.config.json |
+| ✅ Config File | Valid | archon-os.config.json |
 | ✅ Daemon | Running | PID: 414240 |
 | ✅ Memory DB | 0.15 MB | .swarm/memory.db |
 | ✅ API Keys | 3 Found | Anthropic, Claude, OpenAI |
-| ✅ MCP Servers | 1 Active | claude-flow |
+| ✅ MCP Servers | 1 Active | archon-os |
 | ✅ TypeScript | v5.9.3 | Installed |
 | ✅ Git Repo | Active | Project-Nyra |
 | ✅ Disk Space | OK | Windows (skipped) |
@@ -93,7 +93,7 @@ Successfully optimized claude-flow v3 configuration on this PC, achieving:
 
 ### 1. Memory System (HNSW-Indexed)
 ```yaml
-Type: hybrid (AgentDB + HNSW)
+Type: hybrid (ruvector + HNSW)
 Size: 0.15 MB (optimized)
 Capacity: 50,000 entries (5x increase)
 TTL: 7 days (604,800 seconds)
@@ -188,19 +188,19 @@ Optimizations per Agent: 7
 ## 📁 **Deliverables Created**
 
 ### Configuration Files
-- ✅ `claude-flow.config.json` - Optimized V3 config (root)
-- ✅ `.claude-flow/config.yaml` - Runtime optimizations
-- ✅ `.claude-flow/pipeline-config.v2.json` - V2 backup
-- ✅ `.claude-flow/swarm-config.v2.json` - V2 backup
+- ✅ `archon-os.config.json` - Optimized V3 config (root)
+- ✅ `.archon-os/config.yaml` - Runtime optimizations
+- ✅ `.archon-os/pipeline-config.v2.json` - V2 backup
+- ✅ `.archon-os/swarm-config.v2.json` - V2 backup
 
 ### Documentation (/docs)
-1. ✅ **CLAUDE-FLOW-V3-OPTIMIZATIONS.md** (11 pages)
+1. ✅ **archon-os-V3-OPTIMIZATIONS.md** (11 pages)
    - Complete optimization guide
    - Before/after comparisons
    - Troubleshooting section
    - Performance tuning tips
 
-2. ✅ **CLAUDE-FLOW-OPTIMIZATION-QUICK-REF.md** (7 pages)
+2. ✅ **archon-os-OPTIMIZATION-QUICK-REF.md** (7 pages)
    - Quick reference card
    - Top 10 optimizations
    - Useful commands
@@ -217,11 +217,11 @@ Optimizations per Agent: 7
    - Production readiness
 
 ### Automation Scripts (/todo)
-1. ✅ **optimize-claude-flow-bun.ps1** - PowerShell (Bun) ⭐ **RECOMMENDED**
-2. ✅ **optimize-claude-flow-bun.sh** - Bash (Bun) ⭐ **RECOMMENDED**
-3. ✅ **optimize-claude-flow.ps1** - PowerShell (npm)
-4. ✅ **optimize-claude-flow.bat** - Batch (npm)
-5. ✅ **optimize-claude-flow.sh** - Bash (npm)
+1. ✅ **optimize-archon-os-bun.ps1** - PowerShell (Bun) ⭐ **RECOMMENDED**
+2. ✅ **optimize-archon-os-bun.sh** - Bash (Bun) ⭐ **RECOMMENDED**
+3. ✅ **optimize-archon-os.ps1** - PowerShell (npm)
+4. ✅ **optimize-archon-os.bat** - Batch (npm)
+5. ✅ **optimize-archon-os.sh** - Bash (npm)
 6. ✅ **README-OPTIMIZATION.md** - Usage guide
 7. ✅ **OPTIMIZATION-SUCCESS-SUMMARY.md** - Results summary
 
@@ -235,7 +235,7 @@ Optimizations per Agent: 7
 cd C:\Dev\Projects\Repos\Project-Nyra\todo
 
 # Run Bun-optimized script
-.\optimize-claude-flow-bun.ps1
+.\optimize-archon-os-bun.ps1
 
 # Takes ~5 minutes, fully automated
 ```
@@ -245,7 +245,7 @@ The script will automatically:
 1. ✅ Verify Bun/Node.js installation
 2. ✅ Create required directories
 3. ✅ Validate configuration
-4. ✅ Initialize AgentDB with HNSW
+4. ✅ Initialize ruvector with HNSW
 5. ✅ Pre-train neural patterns (MoE, 10 epochs)
 6. ✅ Build 5 agent configurations
 7. ✅ Start background daemon
@@ -296,7 +296,7 @@ Savings: $2.66 per 1000 operations (89% reduction!)
    - **Impact**: Low - TypeScript path mapping quirk
    - **Action**: None required (Bun ignores, builds work)
 
-2. **claude-flow.config.json** - Schema validation messages
+2. **archon-os.config.json** - Schema validation messages
    - **Messages**: "Required" × 3, "Expected object, received string"
    - **Impact**: None - CLI validator quirk, all features work
    - **Verification**: 11/11 health checks pass ✅
@@ -310,7 +310,7 @@ Savings: $2.66 per 1000 operations (89% reduction!)
 | Category | Status | Details |
 |----------|--------|---------|
 | ✅ Configuration | Valid | V3 schema compliant |
-| ✅ Memory System | Operational | HNSW-indexed AgentDB |
+| ✅ Memory System | Operational | HNSW-indexed ruvector |
 | ✅ Neural Intelligence | Active | Pre-trained with 30 patterns |
 | ✅ Swarm Orchestration | Ready | 35-agent capacity |
 | ✅ API Keys | Configured | 3 providers active |
@@ -329,40 +329,40 @@ Savings: $2.66 per 1000 operations (89% reduction!)
 ### Basic Operations
 ```bash
 # System status
-bunx @claude-flow/cli@latest status
+bunx @archon-os/cli@latest status
 
 # Spawn an agent
-bunx @claude-flow/cli@latest agent spawn -t coder --name my-coder
+bunx @archon-os/cli@latest agent spawn -t coder --name my-coder
 
 # View swarm status
-bunx @claude-flow/cli@latest swarm status --detailed
+bunx @archon-os/cli@latest swarm status --detailed
 
 # Check metrics
-bunx @claude-flow/cli@latest hooks statusline
+bunx @archon-os/cli@latest hooks statusline
 ```
 
 ### Memory Operations
 ```bash
 # Search patterns (semantic)
-bunx @claude-flow/cli@latest memory search --query "authentication"
+bunx @archon-os/cli@latest memory search --query "authentication"
 
 # Store a pattern
-bunx @claude-flow/cli@latest memory store --key "pattern-auth" --value "JWT tokens" --namespace patterns
+bunx @archon-os/cli@latest memory store --key "pattern-auth" --value "JWT tokens" --namespace patterns
 
 # List all entries
-bunx @claude-flow/cli@latest memory list --limit 10
+bunx @archon-os/cli@latest memory list --limit 10
 ```
 
 ### Performance Monitoring
 ```bash
 # Metrics dashboard
-bunx @claude-flow/cli@latest hooks metrics --v3-dashboard
+bunx @archon-os/cli@latest hooks metrics --v3-dashboard
 
 # Performance report
-bunx @claude-flow/cli@latest performance report
+bunx @archon-os/cli@latest performance report
 
 # Neural status
-bunx @claude-flow/cli@latest neural status
+bunx @archon-os/cli@latest neural status
 ```
 
 ---
@@ -370,13 +370,13 @@ bunx @claude-flow/cli@latest neural status
 ## 📚 **Additional Resources**
 
 ### Documentation
-- **V3 Optimization Guide**: [CLAUDE-FLOW-V3-OPTIMIZATIONS.md](./CLAUDE-FLOW-V3-OPTIMIZATIONS.md)
-- **Quick Reference**: [CLAUDE-FLOW-OPTIMIZATION-QUICK-REF.md](./CLAUDE-FLOW-OPTIMIZATION-QUICK-REF.md)
+- **V3 Optimization Guide**: [archon-os-V3-OPTIMIZATIONS.md](./archon-os-V3-OPTIMIZATIONS.md)
+- **Quick Reference**: [archon-os-OPTIMIZATION-QUICK-REF.md](./archon-os-OPTIMIZATION-QUICK-REF.md)
 - **Claude Flow Guide**: [../CLAUDE.md](../CLAUDE.md)
 
 ### External Resources
-- **GitHub**: https://github.com/ruvnet/claude-flow
-- **Issues**: https://github.com/ruvnet/claude-flow/issues
+- **GitHub**: https://github.com/ruvnet/archon-os
+- **Issues**: https://github.com/ruvnet/archon-os/issues
 - **API Docs**: https://docs.anthropic.com
 
 ---
@@ -386,16 +386,16 @@ bunx @claude-flow/cli@latest neural status
 ### Quick Diagnostics
 ```bash
 # Run full health check
-bunx @claude-flow/cli@latest doctor
+bunx @archon-os/cli@latest doctor
 
 # Apply automatic fixes
-bunx @claude-flow/cli@latest doctor --fix
+bunx @archon-os/cli@latest doctor --fix
 
 # Check logs
-tail -f ./logs/claude-flow.log
+tail -f ./logs/archon-os.log
 
 # Restart daemon if needed
-bunx @claude-flow/cli@latest daemon restart
+bunx @archon-os/cli@latest daemon restart
 ```
 
 ### Common Issues
@@ -411,7 +411,7 @@ bunx @claude-flow/cli@latest daemon restart
 ### What Was Accomplished
 ✅ **V3 Configuration**: Fully optimized and validated
 ✅ **Neural Pre-training**: 84 files, 30 patterns, 16 strategies learned
-✅ **Memory System**: HNSW-indexed AgentDB (150x-12,500x faster)
+✅ **Memory System**: HNSW-indexed ruvector (150x-12,500x faster)
 ✅ **Swarm Orchestration**: 35-agent hierarchical-mesh topology
 ✅ **Cost Optimization**: 75% reduction via 3-tier routing
 ✅ **Agent Configs**: 5 specialized agents built and ready
@@ -440,13 +440,13 @@ bunx @claude-flow/cli@latest daemon restart
 
 ## 🏁 **Conclusion**
 
-Your claude-flow v3 system is now **fully optimized** and **production-ready**!
+Your archon-os v3 system is now **fully optimized** and **production-ready**!
 
 **Key Achievement**: Successfully upgraded from default configuration to enterprise-grade performance with minimal time investment.
 
 **Next Steps**:
 1. ✅ **This PC**: Complete and operational
-2. 📋 **Orchestrator PC**: Run `optimize-claude-flow-bun.ps1`
+2. 📋 **Orchestrator PC**: Run `optimize-archon-os-bun.ps1`
 3. 🚀 **Start Building**: Spawn agents and execute tasks
 4. 📊 **Monitor**: Track performance improvements
 5. 🔄 **Iterate**: System learns and improves automatically
@@ -459,4 +459,4 @@ Your claude-flow v3 system is now **fully optimized** and **production-ready**!
 **Total Duration**: ~5 minutes
 **Final Status**: ✅ **SUCCESS - PRODUCTION READY**
 
-🎉 **Congratulations on completing the claude-flow v3 optimization!** 🎉
+🎉 **Congratulations on completing the archon-os v3 optimization!** 🎉

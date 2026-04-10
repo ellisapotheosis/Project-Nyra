@@ -11,7 +11,7 @@ Based on comprehensive analysis of the Claude Flow MCP integration in Project Ny
 **Impact**: Medium | **Effort**: Low | **Status**: INCOMPLETE
 
 #### Current State
-- Flow-Nexus MCP server configured in `.claude-flow/mcp.json`
+- Flow-Nexus MCP server configured in `.archon-os/mcp.json`
 - Required credentials missing from environment
 - Cloud features unavailable
 
@@ -23,7 +23,7 @@ Based on comprehensive analysis of the Claude Flow MCP integration in Project Ny
 # Get: API_URL, API_KEY, USER_ID
 
 # 2. Update docker-compose.mcp.yml
-# Add environment variables to claude-flow service:
+# Add environment variables to archon-os service:
 environment:
   - FLOW_NEXUS_API_URL=${FLOW_NEXUS_API_URL}
   - FLOW_NEXUS_API_KEY=${FLOW_NEXUS_API_KEY}
@@ -40,7 +40,7 @@ docker-compose -f infra/docker/base/docker-compose.mcp.yml up -d
 
 **Option B: Disable if Not Needed**
 ```json
-// In .claude-flow/mcp.json, remove flow-nexus entry
+// In .archon-os/mcp.json, remove flow-nexus entry
 // or set "enabled": false
 ```
 
@@ -78,7 +78,7 @@ github-mcp:
     timeout: 10s
     retries: 3
 
-# Add to .claude-flow/mcp.json
+# Add to .archon-os/mcp.json
 {
   "github": {
     "command": "npx",
@@ -115,7 +115,7 @@ EPIC_SDK_API_KEY=sk-epic-xxxx...
 
 # Update docker-compose.mcp.yml to pass through environment
 # Or Option B: Disable Epic SDK if not needed
-# Remove from .claude-flow/mcp.json or set disabled: true
+# Remove from .archon-os/mcp.json or set disabled: true
 ```
 
 ---
@@ -139,11 +139,11 @@ EPIC_SDK_API_KEY=sk-epic-xxxx...
 2. Infisical (depends on infisical-mongo)
 3. Nexus Router (LLM gateway - no dependencies)
 4. LiteLLM (optional, depends on models)
-5. AgentDB (vector database - no dependencies)
+5. ruvector (vector database - no dependencies)
 6. Letta (depends on postgres-letta, nexus-router)
 7. Mem0 (depends on nexus-router)
 8. RuVector (no hard dependencies)
-9. Claude Flow (depends on nexus-router, agentdb)
+9. Claude Flow (depends on nexus-router, ruvector)
 
 ## Critical Path
 postgres-letta -> Letta -> Claude Flow
@@ -153,7 +153,7 @@ Nexus Router (must be up for: Letta, Mem0, Claude Flow)
 ## Health Check Validation
 After docker-compose up, wait 30 seconds for health checks
 curl http://localhost:6000/health  # Nexus Router
-curl http://localhost:8080/health  # AgentDB
+curl http://localhost:8080/health  # ruvector
 curl http://localhost:3010/health  # Claude Flow
 ```
 
@@ -176,8 +176,8 @@ echo "Checking Nexus Router (6000)..."
 curl -s http://localhost:6000/health | jq .
 echo ""
 
-# Check AgentDB
-echo "Checking AgentDB (8080)..."
+# Check ruvector
+echo "Checking ruvector (8080)..."
 curl -s http://localhost:8080/health | jq .
 echo ""
 
@@ -198,7 +198,7 @@ echo ""
 
 # Check MCP Server stdio connection
 echo "Checking Claude Flow MCP server..."
-npx @claude-flow/cli@latest agent list
+npx @archon-os/cli@latest agent list
 ```
 
 ---
@@ -255,11 +255,11 @@ global:
   evaluation_interval: 15s
 
 scrape_configs:
-  - job_name: 'claude-flow'
+  - job_name: 'archon-os'
     static_configs:
       - targets: ['localhost:3010']
 
-  - job_name: 'agentdb'
+  - job_name: 'ruvector'
     static_configs:
       - targets: ['localhost:8080']
 
@@ -290,8 +290,8 @@ describe('MCP Server Connections', () => {
     connectionManager = new MCPConnectionManager(config);
   });
 
-  test('should connect to claude-flow server', async () => {
-    const connection = await connectionManager.connect('claude-flow');
+  test('should connect to archon-os server', async () => {
+    const connection = await connectionManager.connect('archon-os');
     expect(connection).toBeDefined();
     expect(connection.isHealthy).toBe(true);
   });
@@ -324,7 +324,7 @@ describe('MCP Server Connections', () => {
     expect(response.status).toBe(200);
   });
 
-  test('should validate AgentDB connectivity', async () => {
+  test('should validate ruvector connectivity', async () => {
     const response = await fetch('http://localhost:8080/health');
     expect(response.status).toBe(200);
   });
@@ -356,22 +356,22 @@ docker-compose -f infra/docker/base/docker-compose.mcp.yml stop nexus-router
 sleep 5
 
 # Verify fallback behavior
-npx @claude-flow/cli@latest agent spawn -t coder --name test-failover
+npx @archon-os/cli@latest agent spawn -t coder --name test-failover
 # Expect: Should use fallback LLM provider (OpenRouter or Gemini)
 
 docker-compose -f infra/docker/base/docker-compose.mcp.yml start nexus-router
 sleep 10
 
-# Scenario 2: AgentDB Failure
-echo "Test 2: Simulating AgentDB failure..."
-docker-compose -f infra/docker/base/docker-compose.mcp.yml stop agentdb
+# Scenario 2: ruvector Failure
+echo "Test 2: Simulating ruvector failure..."
+docker-compose -f infra/docker/base/docker-compose.mcp.yml stop ruvector
 sleep 5
 
 # Verify agents still function (without vector search)
-npx @claude-flow/cli@latest memory search --query "test"
+npx @archon-os/cli@latest memory search --query "test"
 # Expect: Should gracefully degrade
 
-docker-compose -f infra/docker/base/docker-compose.mcp.yml start agentdb
+docker-compose -f infra/docker/base/docker-compose.mcp.yml start ruvector
 
 # Scenario 3: Memory Service Failure
 echo "Test 3: Testing Letta -> Mem0 fallback..."
@@ -393,20 +393,20 @@ docker-compose -f infra/docker/base/docker-compose.mcp.yml start letta
 **Optimize Vector Database**
 
 ```yaml
-# In docker-compose.mcp.yml, adjust agentdb config
-agentdb:
+# In docker-compose.mcp.yml, adjust ruvector config
+ruvector:
   environment:
     # Current settings
-    - AGENTDB_HNSW_M=16              # Connectivity
-    - AGENTDB_HNSW_EF_CONSTRUCTION=200  # Construction quality
-    - AGENTDB_QUANTIZATION=scalar
-    - AGENTDB_CACHE_SIZE=256          # MB
+    - ruvector_HNSW_M=16              # Connectivity
+    - ruvector_HNSW_EF_CONSTRUCTION=200  # Construction quality
+    - ruvector_QUANTIZATION=scalar
+    - ruvector_CACHE_SIZE=256          # MB
 
     # Recommended tuning for production
-    - AGENTDB_HNSW_M=32              # Higher connectivity = slower inserts, faster search
-    - AGENTDB_HNSW_EF_CONSTRUCTION=400  # Higher = better accuracy
-    - AGENTDB_HNSW_EF_SEARCH=200     # Search parameter (separate from construction)
-    - AGENTDB_CACHE_SIZE=1024        # Larger cache for frequently accessed patterns
+    - ruvector_HNSW_M=32              # Higher connectivity = slower inserts, faster search
+    - ruvector_HNSW_EF_CONSTRUCTION=400  # Higher = better accuracy
+    - ruvector_HNSW_EF_SEARCH=200     # Search parameter (separate from construction)
+    - ruvector_CACHE_SIZE=1024        # Larger cache for frequently accessed patterns
 ```
 
 ---
@@ -421,7 +421,7 @@ agentdb:
 # In docker-compose.mcp.yml, add network policies
 
 services:
-  claude-flow:
+  archon-os:
     networks:
       - nyra-mcp
     # Only expose via docker network, not localhost
@@ -437,7 +437,7 @@ networks:
         - subnet: 172.20.0.0/16
 
 # Add network aliases for service discovery
-  agentdb:
+  ruvector:
     networks:
       nyra-mcp:
         aliases:

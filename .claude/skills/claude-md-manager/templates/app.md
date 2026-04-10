@@ -29,7 +29,7 @@ For application development, Claude Code MUST:
 ### Feature Implementation Routing
 ```bash
 # Get optimal routing for feature development
-npx @claude-flow/cli@latest hooks pre-task --description "Add new feature to {{PROJECT_NAME}}"
+npx @archon-os/cli@latest hooks pre-task --description "Add new feature to {{PROJECT_NAME}}"
 ```
 
 ## 🏗️ Application Architecture
@@ -406,7 +406,7 @@ For major features:
 
 ```bash
 # Initialize swarm
-npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 5
+npx @archon-os/cli@latest swarm init --topology hierarchical --max-agents 5
 
 # Architecture phase
 Task({
@@ -443,13 +443,13 @@ Store application patterns:
 
 ```bash
 # Store component pattern
-npx @claude-flow/cli@latest memory store \
+npx @archon-os/cli@latest memory store \
   --key "{{PROJECT_NAME}}-component-pattern" \
   --value "Component architecture approach" \
   --namespace app-patterns
 
 # Search for UI patterns
-npx @claude-flow/cli@latest memory search \
+npx @archon-os/cli@latest memory search \
   --query "form handling patterns"
 ```
 
@@ -514,7 +514,7 @@ docker run -p 3000:3000 {{PROJECT_NAME}}
 ## Documentation References
 
 - **Project Root**: `CLAUDE.md` - Overall architecture
-- **Claude Flow**: `.claude-flow/CAPABILITIES.md` - V3 reference
+- **Claude Flow**: `.archon-os/CAPABILITIES.md` - V3 reference
 - **Components**: `docs/components.md` - Component library
 - **Next.js**: https://nextjs.org/docs - Official docs
 

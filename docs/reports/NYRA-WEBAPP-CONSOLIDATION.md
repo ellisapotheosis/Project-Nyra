@@ -195,7 +195,7 @@ git add apps/webapp/ docs/ai-context/dyad/
 
 **Claude Flow Integration**:
 - `.claude/` - Commands and skills
-- `.claude-flow/` - Metrics and config
+- `.archon-os/` - Metrics and config
 - `.hive-mind/` - Multi-agent coordination
 - `src/orchestration/` - Orchestration logic
 

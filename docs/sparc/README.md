@@ -62,22 +62,22 @@ Review the [ROADMAP](./ROADMAP.md) for priority features:
 
 **Full Pipeline (Recommended):**
 ```bash
-npx claude-flow sparc pipeline "Twenty-Bridge webhook service"
+npx archon-os sparc pipeline "Twenty-Bridge webhook service"
 ```
 
 **Phase-by-Phase:**
 ```bash
 # Specification
-npx claude-flow sparc run spec-pseudocode "Twenty-Bridge webhook service"
+npx archon-os sparc run spec-pseudocode "Twenty-Bridge webhook service"
 
 # Architecture
-npx claude-flow sparc run architect "Twenty-Bridge webhook service"
+npx archon-os sparc run architect "Twenty-Bridge webhook service"
 
 # Refinement (TDD)
-npx claude-flow sparc tdd "Twenty-Bridge webhook service"
+npx archon-os sparc tdd "Twenty-Bridge webhook service"
 
 # Completion
-npx claude-flow sparc run integration "Twenty-Bridge webhook service"
+npx archon-os sparc run integration "Twenty-Bridge webhook service"
 ```
 
 ### 3. Follow the Process
@@ -107,7 +107,7 @@ docs/sparc/
 ├── README.md                    # This file
 ├── ROADMAP.md                   # Feature prioritization and timeline
 ├── QUICK_START.md               # Detailed usage guide
-├── HOOKS_INTEGRATION.md         # Claude-Flow hooks guide
+├── HOOKS_INTEGRATION.md         # archon-os hooks guide
 ├── QUALITY_GATES.md             # Quality gate criteria
 │
 ├── specifications/              # Phase 1 outputs
@@ -302,17 +302,17 @@ SPARC uses multi-agent orchestration for parallel and sequential execution:
 
 ### Agent Coordination with Hooks
 
-All agents use [Claude-Flow hooks](./HOOKS_INTEGRATION.md) for coordination:
+All agents use [archon-os hooks](./HOOKS_INTEGRATION.md) for coordination:
 
 ```bash
 # Pre-task: Prepare environment
-npx @claude-flow/cli@latest hooks pre-task --description "[task]"
+npx @archon-os/cli@latest hooks pre-task --description "[task]"
 
 # During work: Store progress
-npx @claude-flow/cli@latest hooks post-edit --file "[file]" --memory-key "sparc/[feature]/[phase]"
+npx @archon-os/cli@latest hooks post-edit --file "[file]" --memory-key "sparc/[feature]/[phase]"
 
 # Post-task: Finalize and signal next phase
-npx @claude-flow/cli@latest hooks post-task --task-id "[id]" --next-phase "[next]"
+npx @archon-os/cli@latest hooks post-task --task-id "[id]" --next-phase "[next]"
 ```
 
 ### Parallel vs Sequential
@@ -333,7 +333,7 @@ npx @claude-flow/cli@latest hooks post-task --task-id "[id]" --next-phase "[next
 |----------|---------|----------|
 | [ROADMAP.md](./ROADMAP.md) | Feature prioritization and timeline | All team members |
 | [QUICK_START.md](./QUICK_START.md) | Detailed usage guide and examples | Developers |
-| [HOOKS_INTEGRATION.md](./HOOKS_INTEGRATION.md) | Claude-Flow hooks integration | Developers |
+| [HOOKS_INTEGRATION.md](./HOOKS_INTEGRATION.md) | archon-os hooks integration | Developers |
 | [QUALITY_GATES.md](./QUALITY_GATES.md) | Phase transition criteria | All team members |
 | [templates/](./templates/) | Phase documentation templates | Developers |
 
@@ -390,45 +390,45 @@ See [ROADMAP.md](./ROADMAP.md) for details.
 
 ```bash
 # List available modes
-npx claude-flow sparc modes
+npx archon-os sparc modes
 
 # Get mode details
-npx claude-flow sparc info architect
+npx archon-os sparc info architect
 
 # Run specific mode
-npx claude-flow sparc run <mode> "<task>"
+npx archon-os sparc run <mode> "<task>"
 
 # Run TDD workflow
-npx claude-flow sparc tdd "<feature>"
+npx archon-os sparc tdd "<feature>"
 
 # Run full pipeline
-npx claude-flow sparc pipeline "<task>"
+npx archon-os sparc pipeline "<task>"
 ```
 
 ### Swarm Commands
 
 ```bash
 # Initialize swarm
-npx claude-flow swarm init --topology mesh --agents 5
+npx archon-os swarm init --topology mesh --agents 5
 
 # Check status
-npx claude-flow swarm status
+npx archon-os swarm status
 
 # List agents
-npx claude-flow agent list
+npx archon-os agent list
 ```
 
 ### Memory Commands
 
 ```bash
 # Store context
-npx claude-flow memory store --key "sparc/[feature]/[phase]" --value "{...}"
+npx archon-os memory store --key "sparc/[feature]/[phase]" --value "{...}"
 
 # Retrieve context
-npx claude-flow memory retrieve --key "sparc/[feature]/[phase]"
+npx archon-os memory retrieve --key "sparc/[feature]/[phase]"
 
 # Search memory
-npx claude-flow memory search --query "[term]"
+npx archon-os memory search --query "[term]"
 ```
 
 ---
@@ -478,7 +478,7 @@ npx claude-flow memory search --query "[term]"
 
 **Issue: Memory not persisting**
 - Verify hooks are running
-- Check `.claude-flow/config.json`
+- Check `.archon-os/config.json`
 - Test memory store/retrieve manually
 - See [HOOKS_INTEGRATION.md](./HOOKS_INTEGRATION.md)
 
@@ -489,7 +489,7 @@ npx claude-flow memory search --query "[term]"
 ### Documentation
 - [QUICK_START.md](./QUICK_START.md) - Detailed guide
 - [Templates](./templates/) - Phase templates
-- [Claude-Flow Docs](https://github.com/ruvnet/claude-flow)
+- [archon-os Docs](https://github.com/ruvnet/archon-os)
 
 ### Team
 - SPARC Coordination Agent

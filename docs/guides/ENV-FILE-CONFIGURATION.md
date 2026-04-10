@@ -21,8 +21,8 @@ infra/configs/
 │   ├── .env.worker-3060
 │   ├── .env.worker-3090ti
 │   └── .env.worker-5090
-├── claude-flow/
-│   ├── .env.claude-flow
+├── archon-os/
+│   ├── .env.archon-os
 │   ├── .env.dev
 │   └── .env.prod
 └── [other configs...]
@@ -70,14 +70,14 @@ Set environment variables to point to config files:
 ```powershell
 # Set for current session
 $env:NYRA_ENV_PATH = "C:\Dev\Projects\Repos\Project-Nyra\infra\configs\environments\.env.development"
-$env:CLAUDE_FLOW_ENV = "C:\Dev\Projects\Repos\Project-Nyra\infra\configs\claude-flow\.env.dev"
+$env:CLAUDE_FLOW_ENV = "C:\Dev\Projects\Repos\Project-Nyra\infra\configs\archon-os\.env.dev"
 $env:DOTENV_CONFIG_PATH = "infra\configs\environments\.env.development"
 
 # Make permanent (add to PowerShell profile)
 notepad $PROFILE
 # Add these lines:
 # $env:NYRA_ENV_PATH = "C:\Dev\Projects\Repos\Project-Nyra\infra\configs\environments\.env.development"
-# $env:CLAUDE_FLOW_ENV = "C:\Dev\Projects\Repos\Project-Nyra\infra\configs\claude-flow\.env.dev"
+# $env:CLAUDE_FLOW_ENV = "C:\Dev\Projects\Repos\Project-Nyra\infra\configs\archon-os\.env.dev"
 ```
 
 **Update your code to read these**:
@@ -106,7 +106,7 @@ pnpm add -D dotenv-cli
     "dev:orchestrator": "dotenv -e infra/configs/orchestrator/.env.orchestrator -- pnpm dev",
     "dev:worker-3060": "dotenv -e infra/configs/workers/.env.worker-3060 -- pnpm dev",
     "build": "dotenv -e infra/configs/environments/.env.production -- turbo build",
-    "claude-flow": "dotenv -e infra/configs/claude-flow/.env.dev -- npx claude-flow"
+    "archon-os": "dotenv -e infra/configs/archon-os/.env.dev -- npx archon-os"
   }
 }
 ```
@@ -164,21 +164,21 @@ New-Item -ItemType SymbolicLink -Path ".env" -Target "infra\configs\environments
 
 ### Claude Flow
 
-Claude Flow can be configured via `infra/configs/claude-flow/claude-flow.config.json`:
+Claude Flow can be configured via `infra/configs/archon-os/archon-os.config.json`:
 
 ```json
 {
   "envFile": "../environments/.env.development",
   "envFiles": [
     "../environments/.env.development",
-    "../claude-flow/.env.dev"
+    "../archon-os/.env.dev"
   ]
 }
 ```
 
 Or use environment variable:
 ```powershell
-$env:CLAUDE_FLOW_ENV = "infra\configs\claude-flow\.env.dev"
+$env:CLAUDE_FLOW_ENV = "infra\configs\archon-os\.env.dev"
 ```
 
 ### Infisical MCP
@@ -338,7 +338,7 @@ docker-compose config
 pnpm turbo run build --dry-run
 
 # 5. Test Claude Flow
-npx claude-flow status
+npx archon-os status
 ```
 
 ---
@@ -367,7 +367,7 @@ require('dotenv').config({ path: 'infra/configs/environments/.env.development' }
 ### Claude Flow Not Reading Custom Env
 Set environment variable:
 ```powershell
-$env:CLAUDE_FLOW_CONFIG = "infra\configs\claude-flow\claude-flow.config.json"
+$env:CLAUDE_FLOW_CONFIG = "infra\configs\archon-os\archon-os.config.json"
 ```
 
 ---
@@ -377,7 +377,7 @@ $env:CLAUDE_FLOW_CONFIG = "infra\configs\claude-flow\claude-flow.config.json"
 | Tool | Recommended Option | Command |
 |------|-------------------|---------|
 | Claude Code | Symlink | `New-Item -ItemType SymbolicLink -Path ".env" -Target "infra\configs\environments\.env.development"` |
-| Claude Flow | Config File | Set `envFile` in `claude-flow.config.json` |
+| Claude Flow | Config File | Set `envFile` in `archon-os.config.json` |
 | Docker Compose | env_file | `env_file: - ./infra/configs/environments/.env.development` |
 | Node Scripts | dotenv-cli | `dotenv -e infra/configs/environments/.env.development -- node app.js` |
 | Turborepo | Symlink or globalEnv | Symlink `.env` or set in `turbo.json` |
@@ -396,6 +396,6 @@ $env:CLAUDE_FLOW_CONFIG = "infra\configs\claude-flow\claude-flow.config.json"
 - ✅ `infra/configs/environments/` - Environment-specific configs
 - ✅ `infra/configs/orchestrator/` - Orchestrator PC config
 - ✅ `infra/configs/workers/` - Worker PC configs (3060, 3090Ti, 5090)
-- ✅ `infra/configs/claude-flow/` - Claude Flow configs
+- ✅ `infra/configs/archon-os/` - Claude Flow configs
 
 **Next step**: Choose your option (1-5) and configure accordingly!

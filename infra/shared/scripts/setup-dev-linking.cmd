@@ -4,13 +4,13 @@ echo Setting up Project-Nyra development package linking...
 cd /d C:\Dev\Projects\Repos\Project-Nyra
 
 echo.
-echo Step 1: Installing dependencies in claude-flow...
-cd submodules\claude-flow
+echo Step 1: Installing dependencies in archon-os...
+cd submodules\archon-os
 pnpm install
 if errorlevel 1 goto error
 
 echo.
-echo Step 2: Creating global link for claude-flow...
+echo Step 2: Creating global link for archon-os...
 pnpm link --global
 if errorlevel 1 goto error
 
@@ -28,8 +28,8 @@ if errorlevel 1 goto error
 echo.
 echo Step 5: Returning to project root and linking packages locally...
 cd ..\..\..
-pnpm link --global claude-flow
-if errorlevel 1 echo Warning: claude-flow linking failed
+pnpm link --global archon-os
+if errorlevel 1 echo Warning: archon-os linking failed
 
 pnpm link --global archon-ui
 if errorlevel 1 echo Warning: archon-ui linking failed
@@ -43,7 +43,7 @@ echo.
 echo ✅ Development linking setup completed successfully!
 echo.
 echo Next steps:
-echo 1. Test claude-flow: npx claude-flow --version
+echo 1. Test archon-os: npx archon-os --version
 echo 2. Start development: .\scripts\switch-environment.ps1 -Environment development
 goto end
 

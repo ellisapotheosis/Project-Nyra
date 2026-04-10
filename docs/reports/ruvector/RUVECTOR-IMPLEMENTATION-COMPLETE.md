@@ -16,7 +16,7 @@ RuVector/ReasoningBank has been successfully implemented and verified in Project
 
 ### 1. Database Initialization ✅
 ```bash
-bun x @claude-flow/cli@latest memory init --force --verbose
+bun x @archon-os/cli@latest memory init --force --verbose
 ```
 
 **Results:**
@@ -29,7 +29,7 @@ bun x @claude-flow/cli@latest memory init --force --verbose
 
 ### 2. Configuration Verified ✅
 ```bash
-bun x @claude-flow/cli@latest config get memory
+bun x @archon-os/cli@latest config get memory
 ```
 
 **Configuration:**
@@ -41,7 +41,7 @@ bun x @claude-flow/cli@latest config get memory
 
 ### 3. Daemon Status ✅
 ```bash
-bun x @claude-flow/cli@latest daemon status
+bun x @archon-os/cli@latest daemon status
 ```
 
 **Daemon Details:**
@@ -60,7 +60,7 @@ bun x @claude-flow/cli@latest daemon status
 
 ### 4. Health Check ✅
 ```bash
-bun x @claude-flow/cli@latest doctor
+bun x @archon-os/cli@latest doctor
 ```
 
 **Results:** 11/11 checks passed ✅
@@ -146,7 +146,7 @@ Top Result:
 - 🔄 **Trajectory Tracking** - Record agent execution paths
 - 🔄 **Verdict Judgment** - Automatic success/failure classification
 - 🔄 **Neural Training** - Train on successful patterns
-- 🔄 **9 RL Algorithms** - Available via AgentDB learning plugin
+- 🔄 **9 RL Algorithms** - Available via ruvector learning plugin
 - 🔄 **Pattern Distillation** - Consolidate learnings via LoRA
 - 🔄 **EWC++ Consolidation** - Prevent catastrophic forgetting
 
@@ -156,7 +156,7 @@ Top Result:
 
 ### Store a New Pattern
 ```bash
-bun x @claude-flow/cli@latest memory store \
+bun x @archon-os/cli@latest memory store \
   --namespace "patterns" \
   --key "my-pattern" \
   --value "Description of what worked well" \
@@ -165,7 +165,7 @@ bun x @claude-flow/cli@latest memory store \
 
 ### Search for Patterns
 ```bash
-bun x @claude-flow/cli@latest memory search \
+bun x @archon-os/cli@latest memory search \
   --query "your natural language query" \
   --namespace "patterns" \
   --limit 5
@@ -173,13 +173,13 @@ bun x @claude-flow/cli@latest memory search \
 
 ### List All Patterns
 ```bash
-bun x @claude-flow/cli@latest memory list \
+bun x @archon-os/cli@latest memory list \
   --namespace "patterns"
 ```
 
 ### Retrieve Specific Pattern
 ```bash
-bun x @claude-flow/cli@latest memory retrieve \
+bun x @archon-os/cli@latest memory retrieve \
   --key "my-pattern" \
   --namespace "patterns"
 ```
@@ -267,41 +267,41 @@ All comprehensive documentation is in `/docs`:
 ### Memory Operations
 ```bash
 # Store
-bun x @claude-flow/cli@latest memory store -k "key" --value "data" --namespace patterns
+bun x @archon-os/cli@latest memory store -k "key" --value "data" --namespace patterns
 
 # Search
-bun x @claude-flow/cli@latest memory search -q "query" --namespace patterns
+bun x @archon-os/cli@latest memory search -q "query" --namespace patterns
 
 # List
-bun x @claude-flow/cli@latest memory list --namespace patterns
+bun x @archon-os/cli@latest memory list --namespace patterns
 
 # Retrieve
-bun x @claude-flow/cli@latest memory retrieve -k "key" --namespace patterns
+bun x @archon-os/cli@latest memory retrieve -k "key" --namespace patterns
 ```
 
 ### System Management
 ```bash
 # Daemon status
-bun x @claude-flow/cli@latest daemon status
+bun x @archon-os/cli@latest daemon status
 
 # Health check
-bun x @claude-flow/cli@latest doctor
+bun x @archon-os/cli@latest doctor
 
 # Memory config
-bun x @claude-flow/cli@latest config get memory
+bun x @archon-os/cli@latest config get memory
 ```
 
 ### Advanced (When Ready)
 ```bash
 # Trajectory tracking
-bun x @claude-flow/cli@latest hooks intelligence trajectory-start --session-id "task-123"
-bun x @claude-flow/cli@latest hooks intelligence trajectory-end --verdict "success"
+bun x @archon-os/cli@latest hooks intelligence trajectory-start --session-id "task-123"
+bun x @archon-os/cli@latest hooks intelligence trajectory-end --verdict "success"
 
 # Neural training
-bun x @claude-flow/cli@latest neural train --pattern-type coordination --epochs 10
+bun x @archon-os/cli@latest neural train --pattern-type coordination --epochs 10
 
 # Pattern stats
-bun x @claude-flow/cli@latest neural patterns --list
+bun x @archon-os/cli@latest neural patterns --list
 ```
 
 ---
@@ -311,19 +311,19 @@ bun x @claude-flow/cli@latest neural patterns --list
 ### Issue: Search is slow (>5s)
 **Solution:** Check if workers are running:
 ```bash
-bun x @claude-flow/cli@latest daemon status
+bun x @archon-os/cli@latest daemon status
 ```
 
 ### Issue: Patterns not being stored
 **Solution:** Verify memory database is initialized:
 ```bash
-bun x @claude-flow/cli@latest memory list
+bun x @archon-os/cli@latest memory list
 ```
 
 ### Issue: HNSW not enabled
 **Solution:** Reinitialize memory:
 ```bash
-bun x @claude-flow/cli@latest memory init --force --verbose
+bun x @archon-os/cli@latest memory init --force --verbose
 ```
 
 ---
@@ -339,7 +339,7 @@ bun x @claude-flow/cli@latest memory init --force --verbose
 
 **Retrieve research:**
 ```bash
-bun x @claude-flow/cli@latest memory search \
+bun x @archon-os/cli@latest memory search \
   --query "ruvector integration" \
   --namespace "ruvector-research"
 ```
@@ -383,7 +383,7 @@ bun x @claude-flow/cli@latest memory search \
 - ✅ Verified and tested
 - ✅ Ready for production use
 - ✅ Documented comprehensively
-- ✅ Integrated with claude-flow v3
+- ✅ Integrated with archon-os v3
 
 **Start using it today to build self-learning AI agents!**
 

@@ -1,10 +1,10 @@
-# NYRA AIO — MASTER SPARC BATCH (Claude-Flow via Claude Code)
+# NYRA AIO — MASTER SPARC BATCH (archon-os via Claude Code)
 
 > IMPORTANT:
-> - You are running inside **Claude Code** with the **claude-flow plugin** available.
-> - If claude-flow is not available, you MUST make it available:
->   - verify: `npx @claude-flow/cli@latest --version`
->   - if it fails, run: `npm i -g claude-flow@alpha` OR use `npx` from repo root with a locked version.
+> - You are running inside **Claude Code** with the **archon-os plugin** available.
+> - If archon-os is not available, you MUST make it available:
+>   - verify: `npx @archon-os/cli@latest --version`
+>   - if it fails, run: `npm i -g archon-os@alpha` OR use `npx` from repo root with a locked version.
 > - You MUST read and treat as authoritative:
 >   `C:\Dev\NYRA-AIO-Bootstrap\Nyra-Truth-and-Standards\Docs_Architecture_FINAL-ARCHITECTURE-DECISIONS.md`
 
@@ -14,8 +14,8 @@ Consolidate bootstraps, prompts, configs, docs, and repo structure so that:
 - **Project-Nyra** becomes the production monorepo with only current architecture materials
 - Legacy/conflicting bootstrap folders are removed (contents re-homed, originals deleted)
 - New decisions override old decisions everywhere
-- Dual orchestrator (Claude-Flow + Archon OS) is wired day-1
-- Tooling stack is correct: Nexus Router + LiteLLM/OpenRouter + Dify + Activepieces + n8n + TwentyCRM + memory systems (Graphiti/Falkor(or Neo4j), Letta, Mem0, Ruvector, Qdrant local, optional Zep)
+- Dual orchestrator (archon-os + Archon OS) is wired day-1
+- Tooling stack is correct: Nexus Router + LiteLLM/OpenRouter + Dify + Activepieces + n8n + TwentyCRM + memory systems (letta/Falkor(or Neo4j), Letta, Mem0, Ruvector, Qdrant local, optional Zep)
 
 ---
 
@@ -23,7 +23,7 @@ Consolidate bootstraps, prompts, configs, docs, and repo structure so that:
 - Read (and summarize into `C:\Dev\Projects\Repos\Project-Nyra\docs\standards\FINAL_ARCHITECTURE_DECISIONS.md`):
   - `C:\Dev\NYRA-AIO-Bootstrap\Nyra-Truth-and-Standards\Docs_Architecture_FINAL-ARCHITECTURE-DECISIONS.md`
 - Create/overwrite `C:\Dev\Projects\Repos\Project-Nyra\docs\standards\STACK_LOCK.md` that explicitly states:
-  - KEEP: nexus router (grafbase/nexus), litellm + openrouter, dify + activepieces + n8n, twentycrm, claude-code, claude-flow@alpha, archon, serena mcp, gemini assistant mcp, github mcp, filesystem mcp (dev only), docker + dockerhub mcp, observability (prometheus/loki/grafana)
+  - KEEP: nexus router (grafbase/nexus), litellm + openrouter, dify + activepieces + n8n, twentycrm, claude-code, archon-os@alpha, archon, serena mcp, gemini assistant mcp, github mcp, filesystem mcp (dev only), docker + dockerhub mcp, observability (prometheus/loki/grafana)
   - REMOVE: flowise, gohighlevel, plano/archgw
 - Add a “deprecation gate” doc explaining where deprecated references may live (docs/_deprecated only).
 
@@ -77,21 +77,21 @@ Consolidate bootstraps, prompts, configs, docs, and repo structure so that:
 - Must include:
   - SPARC batch prompt library (Nyra-specific)
   - Master “commands & workflows” guide (Nyra-specific)
-  - Master “everything commands” compendium (claude-flow, agentic-flow, agentdb, etc.)
+  - Master “everything commands” compendium (archon-os, archon-os, ruvector, etc.)
   - Claude Code setup + troubleshooting guide
   - ENV inventory + optimal-set docs (NO actual secrets)
 
 @impl: PROJECT-NYRA REFACTOR AND NORMALIZATION
 - In `C:\Dev\Projects\Repos\Project-Nyra`:
   - enforce: apps/, services/, infra/, docs/, prompts/, tools/, vendor/
-  - clone forks into: `vendor/forks/claude-flow` and `vendor/forks/archon`
-  - prepare prod containerization into: `containers/production/{claude-flow,archon,...}`
+  - clone forks into: `vendor/forks/archon-os` and `vendor/forks/archon`
+  - prepare prod containerization into: `containers/production/{archon-os,archon,...}`
   - remove forbidden stack references in active configs/docs
 
 @impl: DUAL ORCHESTRATOR WIRING (DAY-1)
-- Goal: Claude-Flow and Archon OS both running and used together.
+- Goal: archon-os and Archon OS both running and used together.
 - Implement:
-  - A “bridge” prompt: Archon stores decisions + tasks; Claude-Flow executes tasks; results feed back into Archon.
+  - A “bridge” prompt: Archon stores decisions + tasks; archon-os executes tasks; results feed back into Archon.
   - A local compose overlay that runs both in dev.
   - A validation script that checks both MCP endpoints reachable through Nexus Router.
 
@@ -104,7 +104,7 @@ Consolidate bootstraps, prompts, configs, docs, and repo structure so that:
     - Activepieces automation examples
     - n8n campaign scheduling examples
     - Quote API end-to-end
-    - Memory stack init (Graphiti + Letta + Mem0 + Ruvector + Qdrant)
+    - Memory stack init (letta + Letta + Mem0 + Ruvector + Qdrant)
   - Prefilled templates for future modules (new service, new MCP tool, new n8n workflow, new activepieces flow, new Dify app)
 
 ---
@@ -116,7 +116,7 @@ Consolidate bootstraps, prompts, configs, docs, and repo structure so that:
 - GUI-Installer has single canonical entrypoint and old bootstrap folders are removed
 - Claude-Configs contains consolidated guides + prompts + env docs
 - Project-Nyra has new normalized structure
-- Claude-Flow + Archon both running and tested
+- archon-os + Archon both running and tested
 - Produce a final `STATUS_REPORT.md` in both repos:
   - `C:\Dev\NYRA-AIO-Bootstrap\STATUS_REPORT.md`
   - `C:\Dev\Projects\Repos\Project-Nyra\STATUS_REPORT.md`

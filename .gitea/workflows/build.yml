@@ -21,8 +21,8 @@ jobs:
           - name: nexus-router
             context: .
             dockerfile: infra/docker/nexus-router/Dockerfile
-          - name: claude-flow
-            context: ./services/claude-flow
+          - name: archon-os
+            context: ./services/archon-os
             dockerfile: Dockerfile
           - name: quote-engine
             context: ./services/quote-engine

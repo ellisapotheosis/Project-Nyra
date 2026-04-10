@@ -40,7 +40,7 @@ infra/docker/
 │   ├── devcontainer/
 │   └── ci/
 ├── build/                ✅ Build artifacts
-├── claude-flow/          ✅ Claude Flow orchestrator
+├── archon-os/          ✅ Claude Flow orchestrator
 ├── compose/              ✅ NEW: MCP compose files (6 files)
 │   ├── docker-compose.bitwarden-mcp.yml
 │   ├── docker-compose.cloudflare.yml
@@ -136,7 +136,7 @@ rm C:/Dev/Projects/Repos/Project-Nyra/docker-compose.sequential-thinking-mcp.yml
 ```
 docker/
 ├── archon.Dockerfile              ❌ Should be removed or moved
-├── claude-flow.Dockerfile         ❌ Should be removed or moved
+├── archon-os.Dockerfile         ❌ Should be removed or moved
 ├── client/                        ❌ Contains docker-compose.yml
 │   └── docker-compose.yml
 ├── docker-compose.dev.yml         ❌ Active file
@@ -422,7 +422,7 @@ mv docker/tests infra/docker/tests
 
 # Move Dockerfiles
 mv docker/archon.Dockerfile infra/docker/archon/Dockerfile.legacy
-mv docker/claude-flow.Dockerfile infra/docker/claude-flow/Dockerfile.legacy
+mv docker/archon-os.Dockerfile infra/docker/archon-os/Dockerfile.legacy
 
 # Move compose files
 mv docker/docker-compose.yml infra/docker/compose/docker-compose.root-legacy.yml

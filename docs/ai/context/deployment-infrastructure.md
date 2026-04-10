@@ -84,7 +84,7 @@ If migration is incremental, keep old files in place but mark them as legacy and
 #### Data/Memory
 
 - RuVector
-- Graphiti (optional profile)
+- letta (optional profile)
 - Mem0 (optional profile)
 
 #### Observability
@@ -96,7 +96,7 @@ If migration is incremental, keep old files in place but mark them as legacy and
 
 ### 3) Canonical Infisical Pattern (non-negotiable)
 
-For orchestrator-tier services (e.g., claude-flow-dev, nexus-router, openclawd/moltbot, n8n, dify):
+For orchestrator-tier services (e.g., archon-os-dev, nexus-router, openclawd/moltbot, n8n, dify):
 
 - mount shared socket path from `infisical-agent-main`,
 - inject secrets at runtime via controlled entrypoint/wrapper,

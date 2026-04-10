@@ -495,7 +495,7 @@ That's it! You now have:
 ### External Resources
 
 - **Infisical Docs**: https://infisical.com/docs
-- **Claude Flow**: https://github.com/ruvnet/claude-flow
+- **Claude Flow**: https://github.com/ruvnet/archon-os
 - **Docker Compose**: https://docs.docker.com/compose/
 - **claude-code-templates**: https://www.npmjs.com/package/claude-code-templates
 

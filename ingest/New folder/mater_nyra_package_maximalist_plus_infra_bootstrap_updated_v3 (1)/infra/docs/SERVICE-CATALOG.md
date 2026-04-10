@@ -16,7 +16,7 @@ function and dependencies.
 | **postgres-twenty** | databases, crm  | Database for Twenty CRM. |
 | **postgres-nyra_ai** | databases, vector | RuVector Postgres cluster for embeddings and semantic search. |
 | **redis**           | databases       | General‑purpose cache and session store (port 6380). |
-| **falkordb**        | databases       | Graph database engine for temporal knowledge graphs (Graphiti). |
+| **falkordb**        | databases       | Graph database engine for temporal knowledge graphs (letta). |
 | **prometheus**      | observability   | Metrics collection for all services. |
 | **grafana**         | observability   | Visualization dashboard. |
 | **loki**            | observability   | Log aggregation. |
@@ -43,5 +43,5 @@ The following services are not included by default but may be useful in specific
 |------------------|----------------|-------|
 | **qdrant**       | vector        | Alternative vector DB used by older versions of Nyra.  Kept for reference. |
 | **zep**          | memory        | Document memory service.  Superseded by RuVector + Letta. |
-| **graphiti**     | graph         | Temporal graph API for Graphiti.  Launch if using graph queries outside FalkorDB. |
+| **letta**     | graph         | Temporal graph API for letta.  Launch if using graph queries outside FalkorDB. |
 | **ruvector-api** | vector        | Standalone RuVector HTTP API (requires Qdrant).  Not needed if using RuVector Postgres. |

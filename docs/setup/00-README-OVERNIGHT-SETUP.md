@@ -161,7 +161,7 @@ Once you've entered your API keys, the script will:
 
 **The Magic Command**:
 ```
-Read .claude-flow/MASTER-BUILD-PROMPT.md and execute all phases autonomously. Do not ask for confirmation. Report progress every 30 minutes.
+Read .archon-os/MASTER-BUILD-PROMPT.md and execute all phases autonomously. Do not ask for confirmation. Report progress every 30 minutes.
 ```
 
 **Then**:
@@ -384,7 +384,7 @@ docker-compose restart
 
 **Check logs**:
 ```powershell
-Get-Content .claude-flow/build.log -Tail 100
+Get-Content .archon-os/build.log -Tail 100
 ```
 
 **Common causes**:
@@ -425,7 +425,7 @@ docker-compose up -d
 
 ### Support
 - **GitHub Issues**: https://github.com/ellisapotheosis/project-nyra/issues
-- **Claude Flow Docs**: https://github.com/ruvnet/claude-flow/wiki
+- **Claude Flow Docs**: https://github.com/ruvnet/archon-os/wiki
 - **Archon OS Docs**: https://github.com/coleam00/Archon
 
 ---

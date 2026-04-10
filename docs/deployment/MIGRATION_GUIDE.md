@@ -191,16 +191,16 @@ infisical run -- docker-compose ps
 ### 7.2 Initialize Claude Flow
 ```bash
 # Initialize with SPARC methodology
-npx @claude-flow/cli@latest init --sparc
+npx @archon-os/cli@latest init --sparc
 
 # Start Claude Flow UI
-npx @claude-flow/cli@latest start --ui
+npx @archon-os/cli@latest start --ui
 ```
 
 ### 7.3 Configure MCP Servers
 ```bash
 # Add Claude Flow MCP
-claude mcp add claude-flow npx @claude-flow/cli@latest mcp start
+claude mcp add archon-os npx @archon-os/cli@latest mcp start
 
 # The MetaMCP gateway should automatically aggregate other MCP servers
 ```
@@ -299,11 +299,11 @@ sudo service docker restart
 #### Claude Flow Not Starting
 ```bash
 # Check Claude Flow logs
-npx @claude-flow/cli@latest logs
+npx @archon-os/cli@latest logs
 
 # Reinitialize if needed
-rm -rf .claude-flow
-npx @claude-flow/cli@latest init --sparc
+rm -rf .archon-os
+npx @archon-os/cli@latest init --sparc
 ```
 
 #### Database Connection Issues

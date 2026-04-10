@@ -166,7 +166,7 @@ project-nyra/
 │   └── utils/                      # Common utilities
 │
 ├── mcp-servers/                    # MCP server implementations
-│   ├── claude-flow/
+│   ├── archon-os/
 │   └── ruv-swarm/
 │
 ├── bootstrap/                      # 4-PC deployment system
@@ -196,7 +196,7 @@ project-nyra/
 │   │   │   ├── mcp.yml             # All MCP servers
 │   │   │   └── full.yml            # Complete stack (imports all)
 │   │   ├── images/                 # Dockerfiles
-│   │   │   ├── claude-flow/
+│   │   │   ├── archon-os/
 │   │   │   ├── archon-os/
 │   │   │   ├── mcp-servers/
 │   │   │   └── nyra/
@@ -258,7 +258,7 @@ project-nyra/
 │   └── CLAUDE.md
 │
 ├── submodules/                     # Git submodules
-│   ├── claude-flow/
+│   ├── archon-os/
 │   └── archon/
 │
 ├── _archive/                       # ORGANIZED archive (untracked)
@@ -442,7 +442,7 @@ packages:
   - mcp-servers/*
   - packages/*
   - bootstrap/installer       # NEW
-  - submodules/claude-flow
+  - submodules/archon-os
   - submodules/archon
 ```
 
@@ -980,7 +980,7 @@ packages:
   - mcp-servers/*
   - packages/*
   - bootstrap/installer        # NEW: Bootstrap installer
-  - submodules/claude-flow
+  - submodules/archon-os
   - submodules/archon
 ```
 

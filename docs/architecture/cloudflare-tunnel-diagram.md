@@ -227,7 +227,7 @@ graph TB
     subgraph "Team Access (Email + Optional MFA)"
         TEAM1[grafana.nyra.yourdomain.com]
         TEAM2[crm.nyra.yourdomain.com]
-        TEAM3[claude-flow.nyra.yourdomain.com]
+        TEAM3[archon-os.nyra.yourdomain.com]
         TEAM4[jupyter-*.nyra.yourdomain.com]
         TEAM5[ollama-*.nyra.yourdomain.com]
         style TEAM1 fill:#9cf,stroke:#333

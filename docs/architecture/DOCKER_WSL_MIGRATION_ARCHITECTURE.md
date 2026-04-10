@@ -14,8 +14,8 @@ This document outlines the complete migration strategy from Windows-native devel
 - **Secrets Management**: Infisical configured
 
 ### Key Dependencies
-- Claude-Flow orchestration
-- MCP servers (Claude-Flow, Archon, MetaMCP)
+- archon-os orchestration
+- MCP servers (archon-os, Archon, MetaMCP)
 - Multiple Python/Node.js services
 - PostgreSQL, FalkorDB, ChromaDB databases
 - Infisical secrets management
@@ -184,7 +184,7 @@ sudo apt install -y python3 python3-pip python3-venv
 #### Service Communication
 ```yaml
 # Internal communication via service names
-- CLAUDE_FLOW_URL=http://claude-flow-mcp:8003
+- CLAUDE_FLOW_URL=http://archon-os-mcp:8003
 - ARCHON_MCP_URL=http://archon-mcp:8004
 - METAMCP_GATEWAY_URL=http://metamcp-gateway:8005
 - POSTGRES_URL=postgresql://nyra:nyra_pass@postgres:5432/nyra_db

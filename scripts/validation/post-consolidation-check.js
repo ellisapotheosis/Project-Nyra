@@ -189,7 +189,7 @@ if (fs.existsSync('.mcp.json')) {
     const serverCount = Object.keys(mcpConfig.mcpServers || {}).length;
     logInfo(`Found ${serverCount} MCP server configurations`);
 
-    const requiredServers = ['claude-flow', 'sequential-thinking'];
+    const requiredServers = ['archon-os', 'sequential-thinking'];
     for (const server of requiredServers) {
       if (mcpConfig.mcpServers && mcpConfig.mcpServers[server]) {
         logPass(`MCP server configured: ${server}`);
@@ -329,7 +329,7 @@ sectionHeader('10. Verifying root directory cleanliness');
 logInfo('Checking root directory structure...');
 
 const expectedRootItems = [
-  '.git', '.github', '.claude', '.claude-flow', '.mcp.json',
+  '.git', '.github', '.claude', '.archon-os', '.mcp.json',
   'apps', 'services', 'packages', 'infra', 'mcp-servers', 'tools',
   'scripts', 'bootstrap', 'docs', 'config', 'submodules', 'tests', 'examples',
   'package.json', 'pnpm-workspace.yaml', 'pnpm-lock.yaml',

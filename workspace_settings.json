@@ -109,7 +109,7 @@
         "linux": "/bin/bash"
       },
       "env": {
-        "CLAUDE_FLOW_CONFIG": "${PROJECT_ROOT}/claude-flow.config.json",
+        "CLAUDE_FLOW_CONFIG": "${PROJECT_ROOT}/archon-os.config.json",
         "NODE_ENV": "development"
       }
     }
@@ -142,20 +142,20 @@
       {
         "label": "Start Claude Flow Daemon",
         "type": "shell",
-        "command": "npx @claude-flow/cli@latest daemon start",
+        "command": "npx @archon-os/cli@latest daemon start",
         "problemMatcher": [],
         "isBackground": true
       },
       {
         "label": "Run System Diagnostics",
         "type": "shell",
-        "command": "npx @claude-flow/cli@latest doctor --fix",
+        "command": "npx @archon-os/cli@latest doctor --fix",
         "problemMatcher": []
       },
       {
         "label": "Initialize Swarm",
         "type": "shell",
-        "command": "npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 8",
+        "command": "npx @archon-os/cli@latest swarm init --topology hierarchical --max-agents 8",
         "problemMatcher": []
       }
     ]

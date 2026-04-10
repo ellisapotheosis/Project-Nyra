@@ -95,7 +95,7 @@ This creates `.mcp-servers.json` with all MCP server configurations for Claude C
 
 ```bash
 # NPX-based servers (auto-start)
-claude mcp add claude-flow npx @claude-flow/cli@latest mcp start
+claude mcp add archon-os npx @archon-os/cli@latest mcp start
 claude mcp add ruv-swarm npx ruv-swarm mcp start
 claude mcp add flow-nexus npx flow-nexus@latest mcp start
 
@@ -222,16 +222,16 @@ docker-compose -f nyra-infra\compose\orchestration.compose.yml down
 docker-compose -f nyra-infra\compose\orchestration.compose.yml up -d --build
 ```
 
-### Claude-Flow Hooks (SQLite Module Error)
+### archon-os Hooks (SQLite Module Error)
 ```powershell
-# Navigate to claude-flow directory
-cd nyra-orchestration\claude-flow
+# Navigate to archon-os directory
+cd nyra-orchestration\archon-os
 
 # Rebuild native module for your Node.js version
 npm rebuild better-sqlite3
 
 # Or reinstall
-npm install claude-flow@alpha
+npm install archon-os@alpha
 ```
 
 ## Development Workflow
@@ -311,7 +311,7 @@ docker-compose -f nyra-infra\compose\ui.compose.yml up -d
 
 - **Documentation**: [CONSOLIDATION_COMPLETE.md](CONSOLIDATION_COMPLETE.md)
 - **Issues**: Create issue in repository
-- **Claude Flow**: https://github.com/ruvnet/claude-flow
+- **Claude Flow**: https://github.com/ruvnet/archon-os
 - **Flow Nexus**: https://flow-nexus.ruv.io
 
 ---

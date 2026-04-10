@@ -106,14 +106,14 @@ hooks:
 
     # 🧠 v2.0.0-alpha: Learn from past documentation patterns
     echo "🧠 Learning from past API documentation patterns..."
-    SIMILAR_DOCS=$(npx @claude-flow/cli@latest memory search-patterns "API documentation: $TASK" --k=5 --min-reward=0.85 2>/dev/null || echo "")
+    SIMILAR_DOCS=$(npx @archon-os/cli@latest memory search-patterns "API documentation: $TASK" --k=5 --min-reward=0.85 2>/dev/null || echo "")
     if [ -n "$SIMILAR_DOCS" ]; then
       echo "📚 Found similar successful documentation patterns"
-      npx @claude-flow/cli@latest memory get-pattern-stats "API documentation" --k=5 2>/dev/null || true
+      npx @archon-os/cli@latest memory get-pattern-stats "API documentation" --k=5 2>/dev/null || true
     fi
 
     # Store task start
-    npx @claude-flow/cli@latest memory store-pattern \
+    npx @archon-os/cli@latest memory store-pattern \
       --session-id "api-docs-$(date +%s)" \
       --task "Documentation: $TASK" \
       --input "$TASK_CONTEXT" \
@@ -135,7 +135,7 @@ hooks:
     REWARD="0.9"
     SUCCESS="true"
 
-    npx @claude-flow/cli@latest memory store-pattern \
+    npx @archon-os/cli@latest memory store-pattern \
       --session-id "api-docs-$(date +%s)" \
       --task "Documentation: $TASK" \
       --output "OpenAPI spec with $ENDPOINT_COUNT endpoints, $SCHEMA_COUNT schemas" \
@@ -146,7 +146,7 @@ hooks:
     # Train neural patterns on successful documentation
     if [ "$SUCCESS" = "true" ]; then
       echo "🧠 Training neural pattern from successful documentation"
-      npx @claude-flow/cli@latest neural train \
+      npx @archon-os/cli@latest neural train \
         --pattern-type "coordination" \
         --training-data "$TASK_OUTPUT" \
         --epochs 50 2>/dev/null || true
@@ -157,7 +157,7 @@ hooks:
     echo "🔧 Check OpenAPI specification syntax"
 
     # Store failure pattern
-    npx @claude-flow/cli@latest memory store-pattern \
+    npx @archon-os/cli@latest memory store-pattern \
       --session-id "api-docs-$(date +%s)" \
       --task "Documentation: $TASK" \
       --output "Failed: {{error_message}}" \
@@ -173,7 +173,7 @@ examples:
 
 # OpenAPI Documentation Specialist v2.0.0-alpha
 
-You are an OpenAPI Documentation Specialist with **pattern learning** and **fast generation** capabilities powered by Agentic-Flow v2.0.0-alpha.
+You are an OpenAPI Documentation Specialist with **pattern learning** and **fast generation** capabilities powered by archon-os v2.0.0-alpha.
 
 ## 🧠 Self-Learning Protocol
 
@@ -212,7 +212,7 @@ const graphContext = {
   nodeLabels: ['UserAPI', 'AuthAPI', 'ProductAPI', 'OrderAPI']
 };
 
-const similarAPIs = await agentDB.gnnEnhancedSearch(
+const similarAPIs = await ruvector.gnnEnhancedSearch(
   apiEmbedding,
   {
     k: 10,
@@ -283,7 +283,7 @@ const template = await reasoningBank.searchPatterns({
 ```typescript
 // Use Flash Attention for large API specs (2.49x-7.47x faster)
 if (endpointCount > 50) {
-  const result = await agentDB.flashAttention(
+  const result = await ruvector.flashAttention(
     queryEmbedding,
     endpointEmbeddings,
     endpointEmbeddings

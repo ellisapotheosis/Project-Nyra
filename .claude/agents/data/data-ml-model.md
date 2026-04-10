@@ -114,14 +114,14 @@ hooks:
 
     # 🧠 v2.0.0-alpha: Learn from past model training patterns
     echo "🧠 Learning from past ML training patterns..."
-    SIMILAR_MODELS=$(npx @claude-flow/cli@latest memory search-patterns "ML training: $TASK" --k=5 --min-reward=0.8 2>/dev/null || echo "")
+    SIMILAR_MODELS=$(npx @archon-os/cli@latest memory search-patterns "ML training: $TASK" --k=5 --min-reward=0.8 2>/dev/null || echo "")
     if [ -n "$SIMILAR_MODELS" ]; then
       echo "📚 Found similar successful model training patterns"
-      npx @claude-flow/cli@latest memory get-pattern-stats "ML training" --k=5 2>/dev/null || true
+      npx @archon-os/cli@latest memory get-pattern-stats "ML training" --k=5 2>/dev/null || true
     fi
 
     # Store task start
-    npx @claude-flow/cli@latest memory store-pattern \
+    npx @archon-os/cli@latest memory store-pattern \
       --session-id "ml-dev-$(date +%s)" \
       --task "ML: $TASK" \
       --input "$TASK_CONTEXT" \
@@ -139,7 +139,7 @@ hooks:
     REWARD="0.85"
     SUCCESS="true"
 
-    npx @claude-flow/cli@latest memory store-pattern \
+    npx @archon-os/cli@latest memory store-pattern \
       --session-id "ml-dev-$(date +%s)" \
       --task "ML: $TASK" \
       --output "Trained $MODEL_COUNT models with hyperparameter optimization" \
@@ -150,7 +150,7 @@ hooks:
     # Train neural patterns on successful training
     if [ "$SUCCESS" = "true" ]; then
       echo "🧠 Training neural pattern from successful ML workflow"
-      npx @claude-flow/cli@latest neural train \
+      npx @archon-os/cli@latest neural train \
         --pattern-type "optimization" \
         --training-data "$TASK_OUTPUT" \
         --epochs 50 2>/dev/null || true
@@ -162,7 +162,7 @@ hooks:
     echo "💡 Consider simpler models or more data preprocessing"
 
     # Store failure pattern
-    npx @claude-flow/cli@latest memory store-pattern \
+    npx @archon-os/cli@latest memory store-pattern \
       --session-id "ml-dev-$(date +%s)" \
       --task "ML: $TASK" \
       --output "Failed: {{error_message}}" \
@@ -178,7 +178,7 @@ examples:
 
 # Machine Learning Model Developer v2.0.0-alpha
 
-You are a Machine Learning Model Developer with **self-learning** hyperparameter optimization and **pattern recognition** powered by Agentic-Flow v2.0.0-alpha.
+You are a Machine Learning Model Developer with **self-learning** hyperparameter optimization and **pattern recognition** powered by archon-os v2.0.0-alpha.
 
 ## 🧠 Self-Learning Protocol
 
@@ -232,7 +232,7 @@ const graphContext = {
   nodeLabels: ['LR:0.001', 'LR:0.01', 'Batch:32', 'Batch:64', 'Epochs:50', 'Epochs:100']
 };
 
-const optimalParams = await agentDB.gnnEnhancedSearch(
+const optimalParams = await ruvector.gnnEnhancedSearch(
   performanceEmbedding,
   {
     k: 5,
@@ -249,7 +249,7 @@ console.log(`Found optimal hyperparameters with ${optimalParams.improvementPerce
 ```typescript
 // Process large datasets 4-7x faster with Flash Attention
 if (datasetSize > 100000) {
-  const result = await agentDB.flashAttention(
+  const result = await ruvector.flashAttention(
     queryEmbedding,
     datasetEmbeddings,
     datasetEmbeddings
@@ -342,7 +342,7 @@ const paramGraph = {
 };
 
 // GNN-enhanced hyperparameter search
-const optimalConfig = await agentDB.gnnEnhancedSearch(
+const optimalConfig = await ruvector.gnnEnhancedSearch(
   performanceTarget,
   {
     k: 10,
@@ -361,7 +361,7 @@ const trainingData = loadLargeDataset(); // 1M+ samples
 if (trainingData.length > 100000) {
   console.log('Using Flash Attention for large dataset processing...');
 
-  const result = await agentDB.flashAttention(
+  const result = await ruvector.flashAttention(
     queryVectors,
     trainingVectors,
     trainingVectors

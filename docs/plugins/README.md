@@ -5,7 +5,7 @@ Welcome to the Claude Flow v3 plugins documentation for Project Nyra. This direc
 ## Documentation Index
 
 ### 1. Setup Guide (START HERE)
-**File**: [`CLAUDE-FLOW-PLUGINS-SETUP.md`](../CLAUDE-FLOW-PLUGINS-SETUP.md)
+**File**: [`archon-os-PLUGINS-SETUP.md`](../archon-os-PLUGINS-SETUP.md)
 
 Complete installation and configuration guide covering:
 - Current plugin status
@@ -61,37 +61,37 @@ Completion status and next steps:
 ```bash
 # Automated installation
 cd /home/ellisapotheosis/projects/project-nyra
-./scripts/install-claude-flow-plugins.sh
+./scripts/install-archon-os-plugins.sh
 
 # Or manual installation
 pnpm add -D \
-  @claude-flow/embeddings@latest \
-  @claude-flow/security@latest \
-  @claude-flow/neural@latest \
-  @claude-flow/performance@latest
+  @archon-os/embeddings@latest \
+  @archon-os/security@latest \
+  @archon-os/neural@latest \
+  @archon-os/performance@latest
 ```
 
 ### 2. Initialize Plugins (2 minutes)
 
 ```bash
 # Initialize embeddings for RuVector
-npx @claude-flow/cli@latest embeddings init --provider agentic-flow
+npx @archon-os/cli@latest embeddings init --provider archon-os
 
 # Pretrain neural patterns
-npx @claude-flow/cli@latest hooks pretrain --model-type moe --epochs 5
+npx @archon-os/cli@latest hooks pretrain --model-type moe --epochs 5
 ```
 
 ### 3. Validate Installation (1 minute)
 
 ```bash
 # Check installed plugins
-npx @claude-flow/cli@latest plugins list --installed
+npx @archon-os/cli@latest plugins list --installed
 
 # Run health check
-npx @claude-flow/cli@latest doctor
+npx @archon-os/cli@latest doctor
 
 # Test embeddings
-npx @claude-flow/cli@latest embeddings search --query "test"
+npx @archon-os/cli@latest embeddings search --query "test"
 ```
 
 ## Plugin Categories
@@ -118,7 +118,7 @@ npx @claude-flow/cli@latest embeddings search --query "test"
 
 ### Search Documents (Embeddings)
 ```bash
-npx @claude-flow/cli@latest embeddings search \
+npx @archon-os/cli@latest embeddings search \
   --query "conventional loan qualification" \
   --k 5 \
   --threshold 0.7
@@ -126,21 +126,21 @@ npx @claude-flow/cli@latest embeddings search \
 
 ### Scan for Vulnerabilities (Security)
 ```bash
-npx @claude-flow/cli@latest security scan --depth full
-npx @claude-flow/cli@latest security cve --severity high
+npx @archon-os/cli@latest security scan --depth full
+npx @archon-os/cli@latest security cve --severity high
 ```
 
 ### Train on Patterns (Neural)
 ```bash
-npx @claude-flow/cli@latest neural train \
+npx @archon-os/cli@latest neural train \
   --pattern-type coordination \
   --epochs 10
 ```
 
 ### Benchmark Performance
 ```bash
-npx @claude-flow/cli@latest performance benchmark --suite all
-npx @claude-flow/cli@latest performance profile --target quote-api
+npx @archon-os/cli@latest performance benchmark --suite all
+npx @archon-os/cli@latest performance profile --target quote-api
 ```
 
 ## Integration with Nyra Systems
@@ -148,29 +148,29 @@ npx @claude-flow/cli@latest performance profile --target quote-api
 ### RuVector Memory System
 ```bash
 # Index mortgage documents
-npx @claude-flow/cli@latest embeddings batch \
+npx @archon-os/cli@latest embeddings batch \
   --input ./services/ruvector-search/data \
   --output ./data/memory/embeddings
 
 # Search indexed documents
-npx @claude-flow/cli@latest embeddings search \
+npx @archon-os/cli@latest embeddings search \
   --query "FHA loan requirements"
 ```
 
 ### Pre-commit Hooks
 ```bash
 # Enable security scan on commit
-npx @claude-flow/cli@latest config set \
-  plugins.config.@claude-flow/security.scanOnCommit true
+npx @archon-os/cli@latest config set \
+  plugins.config.@archon-os/security.scanOnCommit true
 ```
 
 ### Performance Monitoring
 ```bash
 # Track metrics in real-time
-npx @claude-flow/cli@latest performance metrics --watch
+npx @archon-os/cli@latest performance metrics --watch
 
 # Export to Prometheus
-npx @claude-flow/cli@latest performance metrics \
+npx @archon-os/cli@latest performance metrics \
   --export \
   --format prometheus
 ```
@@ -184,7 +184,7 @@ rm -rf node_modules/.cache
 pnpm install --force
 
 # Rebuild plugin index
-npx @claude-flow/cli@latest plugins discover --rebuild
+npx @archon-os/cli@latest plugins discover --rebuild
 ```
 
 ### Configuration Warnings
@@ -192,7 +192,7 @@ Current config has non-critical warnings (Expected object, received string/boole
 
 To suppress warnings:
 ```bash
-npx @claude-flow/cli@latest config validate --ignore-warnings
+npx @archon-os/cli@latest config validate --ignore-warnings
 ```
 
 ### IPFS Registry Slow
@@ -221,7 +221,7 @@ export CLAUDE_FLOW_PLUGIN_REGISTRY_GATEWAY=https://gateway.pinata.cloud
 │            Claude Flow v3 (Orchestrator)                 │
 │  ┌───────────────────────────────────────────────────┐  │
 │  │  NPM Plugins (v3) - Ready for installation       │  │
-│  │  ./node_modules/@claude-flow/                     │  │
+│  │  ./node_modules/@archon-os/                     │  │
 │  └───────────────────────────────────────────────────┘  │
 └─────────────────────────────────────────────────────────┘
                          │
@@ -236,7 +236,7 @@ export CLAUDE_FLOW_PLUGIN_REGISTRY_GATEWAY=https://gateway.pinata.cloud
 ## Configuration Files
 
 ### Main Config
-**File**: `/claude-flow.config.json`
+**File**: `/archon-os.config.json`
 
 Contains:
 - Plugin paths and registry
@@ -252,7 +252,7 @@ Contains:
 - Installation metadata
 
 ### Installation Script
-**File**: `/scripts/install-claude-flow-plugins.sh`
+**File**: `/scripts/install-archon-os-plugins.sh`
 
 Features:
 - Prerequisites check
@@ -274,7 +274,7 @@ For Nyra's 4-PC cluster with 32GB+ RAM per node, this overhead is acceptable.
 
 ## Plugin Registry
 
-**Registry**: claude-flow-official (IPFS-based)
+**Registry**: archon-os-official (IPFS-based)
 
 - **CID**: QmXbfEAaR7D2Ujm4GAkbwcGZQMHqAMpwDoje4583uNP834
 - **Gateway**: https://gateway.pinata.cloud
@@ -290,8 +290,8 @@ For Nyra's 4-PC cluster with 32GB+ RAM per node, this overhead is acceptable.
 - **Summary**: Setup status and next steps
 
 ### External Resources
-- **Claude Flow Docs**: https://github.com/ruvnet/claude-flow
-- **Issue Tracker**: https://github.com/ruvnet/claude-flow/issues
+- **Claude Flow Docs**: https://github.com/ruvnet/archon-os
+- **Issue Tracker**: https://github.com/ruvnet/archon-os/issues
 - **Plugin Registry**: IPFS QmXbfEAaR7D2Ujm4GAkbwcGZQMHqAMpwDoje4583uNP834
 
 ### Project Context
@@ -306,7 +306,7 @@ No. Claude Code plugins (v2) work independently from Claude Flow plugins (v3). B
 
 ### Where are plugins installed?
 - **Claude Code plugins**: `~/.claude/plugins/cache/` (global, per-project activation)
-- **Claude Flow plugins**: `./node_modules/@claude-flow/` (local, npm-managed)
+- **Claude Flow plugins**: `./node_modules/@archon-os/` (local, npm-managed)
 
 ### How do I add a custom plugin?
 See the "Custom Plugin Development" section in [`PLUGIN-ARCHITECTURE.md`](../PLUGIN-ARCHITECTURE.md).
@@ -322,9 +322,9 @@ Yes. Since plugins install in `node_modules/`, they work in containerized enviro
 
 ## Next Steps
 
-1. **Review Setup Guide**: Read [`CLAUDE-FLOW-PLUGINS-SETUP.md`](../CLAUDE-FLOW-PLUGINS-SETUP.md)
-2. **Run Installation**: Execute `/scripts/install-claude-flow-plugins.sh`
-3. **Validate Setup**: Check with `npx @claude-flow/cli@latest doctor`
+1. **Review Setup Guide**: Read [`archon-os-PLUGINS-SETUP.md`](../archon-os-PLUGINS-SETUP.md)
+2. **Run Installation**: Execute `/scripts/install-archon-os-plugins.sh`
+3. **Validate Setup**: Check with `npx @archon-os/cli@latest doctor`
 4. **Integrate Systems**: Connect with RuVector, TwentyCRM, Nexus
 5. **Create Custom Plugins**: Build Nyra-specific plugins for mortgage workflows
 

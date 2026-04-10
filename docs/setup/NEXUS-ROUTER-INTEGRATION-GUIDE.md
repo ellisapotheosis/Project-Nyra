@@ -355,7 +355,7 @@ GET http://localhost:4001/mcp/servers
 POST http://localhost:4001/mcp/gemini/*
 POST http://localhost:4001/mcp/serena/*
 POST http://localhost:4001/mcp/mem0/*
-POST http://localhost:4001/mcp/claude-flow/*
+POST http://localhost:4001/mcp/archon-os/*
 ```
 
 ### MCP Server Registry
@@ -367,7 +367,7 @@ Nexus Router aggregates these MCP servers:
 | Gemini MCP | 8085 | Google Gemini integration | /mcp/gemini/* |
 | Serena MCP | 8086 | Serena orchestration | /mcp/serena/* |
 | Mem0 | 8080 | Memory management | /mcp/mem0/* |
-| Claude Flow MCP | - | Claude Flow tools | /mcp/claude-flow/* |
+| Claude Flow MCP | - | Claude Flow tools | /mcp/archon-os/* |
 | Ruv-Swarm MCP | - | Swarm coordination | /mcp/ruv-swarm/* |
 | Bitwarden MCP | - | Secrets management | /mcp/bitwarden/* |
 | Sequential Thinking | - | Reasoning chains | /mcp/sequential-thinking/* |
@@ -409,7 +409,7 @@ curl http://localhost:4001/mcp/health
     "gemini": "healthy",
     "serena": "healthy",
     "mem0": "healthy",
-    "claude-flow": "healthy",
+    "archon-os": "healthy",
     "ruv-swarm": "degraded",
     "bitwarden": "healthy",
     "sequential-thinking": "healthy"

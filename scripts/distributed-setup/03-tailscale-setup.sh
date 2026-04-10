@@ -95,7 +95,7 @@ if [ "$PC_ROLE" = "orchestrator" ]; then
     echo ""
     echo "This PC will host:"
     echo "  - Gitea server (port 3000)"
-    echo "  - Claude-Flow orchestration"
+    echo "  - archon-os orchestration"
     echo "  - Coordination services"
     echo ""
 
@@ -183,11 +183,11 @@ if [ "$PC_ROLE" = "orchestrator" ]; then
     echo "  2. Run this script on all 3 worker PCs"
     echo "  3. Provide workers with orchestrator IP: ${TAILSCALE_IP}"
     echo "  4. (Optional) Enable MagicDNS for hostname access"
-    echo "  5. Run Claude-Flow setup: ./04-claude-flow-distributed.sh"
+    echo "  5. Run archon-os setup: ./04-archon-os-distributed.sh"
 else
     echo "📝 Next Steps:"
     echo "  1. Verify connectivity: ping ${ORCH_IP}"
     echo "  2. Test Git access: git clone gitea-local:test/test.git"
     echo "  3. Install Claude Code if not already installed"
-    echo "  4. Wait for orchestrator to configure Claude-Flow"
+    echo "  4. Wait for orchestrator to configure archon-os"
 fi

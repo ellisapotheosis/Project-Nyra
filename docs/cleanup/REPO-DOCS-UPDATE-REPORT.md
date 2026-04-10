@@ -183,7 +183,7 @@ This report documents the comprehensive update of Project Nyra repository docume
 - [System Architecture](docs/architecture/system-architecture.md) - Detailed architectural specifications
 - **[4-PC Distributed Architecture](...)**
 - [Dual Orchestrator Design](...) - Claude Flow + Archon OS
-- [Memory Systems](...) - Agent memory architecture (Letta, Mem0, Graphiti, Qdrant)
+- [Memory Systems](...) - Agent memory architecture (Letta, Mem0, letta, Qdrant)
 - **[Architecture Decisions](docs/architecture/ARCHITECTURE-DECISIONS.md)** - ADRs and technology choices
 ```
 
@@ -230,7 +230,7 @@ Established consistent pattern for references sections:
 
 ### Technology Stack Clarifications
 - **Infisical** → "self-hosted secrets management" (clarifies deployment model)
-- **Memory Systems** → "Letta, Mem0, Graphiti, Qdrant" (specific technologies listed)
+- **Memory Systems** → "Letta, Mem0, letta, Qdrant" (specific technologies listed)
 - **4-PC Architecture** → Consistent references across all docs
 
 ---

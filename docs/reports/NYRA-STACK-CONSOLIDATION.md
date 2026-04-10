@@ -52,7 +52,7 @@ infra/stacks/nyra-mortgage/
 │       └── Dockerfile
 ├── docker-compose.yml
 ├── docker-compose.addons.yml
-├── docker-compose.graphiti.yml
+├── docker-compose.letta.yml
 ├── docker-compose.local.yml
 ├── docker-compose.services.yml
 ├── docker-compose.voice.yml
@@ -67,7 +67,7 @@ A **batteries-included** Docker Compose stack focused on mortgage operations:
 
 **Core Services**:
 - **Twenty CRM**: System of record for customer data
-- **FalkorDB + Graphiti**: Graph memory for relationships and long-term facts
+- **FalkorDB + letta**: Graph memory for relationships and long-term facts
 - **Letta**: Stateful agent manager
 - **Mem0 (REST)**: Universal memory for preferences and conversational breadcrumbs
 - **Nexus**: LLM routing + MCP aggregation

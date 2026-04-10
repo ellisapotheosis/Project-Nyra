@@ -4,7 +4,7 @@
 ## One-Line Execution
 
 ```bash
-npx @claude-flow/cli@latest workflow execute \
+npx @archon-os/cli@latest workflow execute \
   --workflow-id ingestion-sparc-processor \
   --variables '{"ingestion_path": "/path/to/ingestion", "priority": "high"}'
 ```
@@ -35,12 +35,12 @@ validation_level: "standard"          # basic|standard|deep
 
 ```bash
 # Create workflow from file
-npx @claude-flow/cli@latest workflow create \
+npx @archon-os/cli@latest workflow create \
   --name "ingestion-sparc-processor" \
-  --from-file ".claude-flow/workflows/ingestion-sparc.json"
+  --from-file ".archon-os/workflows/ingestion-sparc.json"
 
 # Execute with custom variables
-npx @claude-flow/cli@latest workflow execute \
+npx @archon-os/cli@latest workflow execute \
   --workflow-id ingestion-sparc-processor \
   --variables '{
     "ingestion_path": "/archive/ingestion-historical",
@@ -51,16 +51,16 @@ npx @claude-flow/cli@latest workflow execute \
   }'
 
 # Monitor progress
-npx @claude-flow/cli@latest workflow status \
+npx @archon-os/cli@latest workflow status \
   --workflow-id ingestion-sparc-processor \
   --verbose
 
 # Pause if needed
-npx @claude-flow/cli@latest workflow pause \
+npx @archon-os/cli@latest workflow pause \
   --workflow-id ingestion-sparc-processor
 
 # Resume
-npx @claude-flow/cli@latest workflow resume \
+npx @archon-os/cli@latest workflow resume \
   --workflow-id ingestion-sparc-processor
 ```
 
@@ -78,7 +78,7 @@ npx @claude-flow/cli@latest workflow resume \
 
 ### 1. Docker Compose Integration
 ```bash
-npx @claude-flow/cli@latest workflow execute \
+npx @archon-os/cli@latest workflow execute \
   --workflow-id ingestion-sparc-processor \
   --variables '{
     "ingestion_path": "/path/to/docker-compose.yml",
@@ -90,7 +90,7 @@ npx @claude-flow/cli@latest workflow execute \
 
 ### 2. Configuration Merge
 ```bash
-npx @claude-flow/cli@latest workflow execute \
+npx @archon-os/cli@latest workflow execute \
   --workflow-id ingestion-sparc-processor \
   --variables '{
     "ingestion_path": "/path/to/configs",
@@ -102,7 +102,7 @@ npx @claude-flow/cli@latest workflow execute \
 
 ### 3. Code Migration
 ```bash
-npx @claude-flow/cli@latest workflow execute \
+npx @archon-os/cli@latest workflow execute \
   --workflow-id ingestion-sparc-processor \
   --variables '{
     "ingestion_path": "/path/to/code",
@@ -141,7 +141,7 @@ After successful completion:
 ### Manual Rollback
 ```bash
 # If workflow fails, rollback manually
-npx @claude-flow/cli@latest workflow cancel \
+npx @archon-os/cli@latest workflow cancel \
   --workflow-id ingestion-sparc-processor \
   --reason "Manual rollback requested"
 
@@ -153,12 +153,12 @@ ls /backups/ingestion-sparc-*
 
 ```bash
 # Find similar patterns
-npx @claude-flow/cli@latest memory search \
+npx @archon-os/cli@latest memory search \
   --query "ingestion processing" \
   --namespace ingestion_patterns
 
 # Retrieve specific workflow
-npx @claude-flow/cli@latest memory retrieve \
+npx @archon-os/cli@latest memory retrieve \
   --key "ingestion-sparc-workflow" \
   --namespace consolidation
 ```
@@ -169,10 +169,10 @@ When user requests ingestion processing:
 
 ```typescript
 // 1. Initialize swarm
-Bash("npx @claude-flow/cli@latest swarm init --topology hierarchical-mesh --max-agents 10")
+Bash("npx @archon-os/cli@latest swarm init --topology hierarchical-mesh --max-agents 10")
 
 // 2. Execute workflow
-Bash(`npx @claude-flow/cli@latest workflow execute \
+Bash(`npx @archon-os/cli@latest workflow execute \
   --workflow-id ingestion-sparc-processor \
   --variables '${JSON.stringify(variables)}'`)
 
@@ -185,19 +185,19 @@ Bash(`npx @claude-flow/cli@latest workflow execute \
 ### Workflow Stuck
 ```bash
 # Check status
-npx @claude-flow/cli@latest workflow status --workflow-id ingestion-sparc-processor
+npx @archon-os/cli@latest workflow status --workflow-id ingestion-sparc-processor
 
 # Check swarm health
-npx @claude-flow/cli@latest swarm status
+npx @archon-os/cli@latest swarm status
 
 # Check agent health
-npx @claude-flow/cli@latest agent health
+npx @archon-os/cli@latest agent health
 ```
 
 ### Phase Failures
 ```bash
 # View detailed logs
-npx @claude-flow/cli@latest workflow status --workflow-id ingestion-sparc-processor --verbose
+npx @archon-os/cli@latest workflow status --workflow-id ingestion-sparc-processor --verbose
 
 # Check specific phase
 cat /outputs/[phase]_report.json
@@ -206,10 +206,10 @@ cat /outputs/[phase]_report.json
 ### Memory Issues
 ```bash
 # Check memory stats
-npx @claude-flow/cli@latest memory stats
+npx @archon-os/cli@latest memory stats
 
 # Reinitialize if needed
-npx @claude-flow/cli@latest memory init --force
+npx @archon-os/cli@latest memory init --force
 ```
 
 ## Performance Tuning
@@ -248,6 +248,6 @@ npx @claude-flow/cli@latest memory init --force
 ## Support
 
 - Full Documentation: `docs/workflows/ingestion-sparc-workflow.md`
-- Workflow JSON: `.claude-flow/workflows/ingestion-sparc.json`
+- Workflow JSON: `.archon-os/workflows/ingestion-sparc.json`
 - Memory Key: `ingestion-sparc-workflow` (namespace: `consolidation`)
-- GitHub Issues: https://github.com/ruvnet/claude-flow/issues
+- GitHub Issues: https://github.com/ruvnet/archon-os/issues

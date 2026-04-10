@@ -34,10 +34,10 @@ IMMEDIATE ACTIONS REQUIRED
    rm -rf $USERPROFILE\AppData\Local\npm-cache\_npx
 
 2. UPDATE CLI (HIGH PRIORITY):
-   npm update @claude-flow/cli
+   npm update @archon-os/cli
 
 3. VERIFY SYSTEM:
-   npx @claude-flow/cli@latest doctor --fix
+   npx @archon-os/cli@latest doctor --fix
 
 WORKER PERFORMANCE SUMMARY
 ---------------------------

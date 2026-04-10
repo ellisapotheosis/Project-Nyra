@@ -5,7 +5,7 @@
 - Archive root requested `/_archived` was not found.
 
 Top-level runtime folders:
-- `apps/claude-flow-dashboard`
+- `apps/archon-os-dashboard`
 - `apps/ingestion`
 - `apps/landing`
 - `apps/nexus-dashboard`

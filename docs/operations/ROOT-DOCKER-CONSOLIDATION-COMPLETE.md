@@ -32,7 +32,7 @@ Successfully consolidated the root `docker/` folder into `infra/docker/` to elim
 ### 2. Files Archived with .old Extension
 
 Duplicate files that already had better versions in `infra/docker/`:
-- ✅ `docker/claude-flow.Dockerfile` → `.old` (infra has more modern Node 22 version)
+- ✅ `docker/archon-os.Dockerfile` → `.old` (infra has more modern Node 22 version)
 - ✅ `docker/docker-compose.yml` → `.old` (infra has modular include-based structure)
 - ✅ `docker/README.md` → `.old` (infra already has comprehensive README)
 
@@ -67,12 +67,12 @@ infra/docker/
 │   ├── archon/
 │   │   └── Dockerfile.python-legacy       # ← Moved from root
 │   ├── base/
-│   ├── claude-flow/
+│   ├── archon-os/
 │   ├── infisical/
 │   ├── mcp-servers/
 │   ├── orchestration/
 │   └── services/
-├── claude-flow/
+├── archon-os/
 ├── client/                                 # ← NEW: Moved from root
 │   └── docker-compose.yml
 ├── CONSOLIDATION-PLAN.md

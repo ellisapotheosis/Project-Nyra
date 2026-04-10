@@ -67,7 +67,7 @@ This document defines the canonical Docker structure for Project Nyra, consolida
   │   │   │   │   ├── Dockerfile.archon-os
   │   │   │   │   ├── Dockerfile.mcp
   │   │   │   │   └── Dockerfile.server
-  │   │   │   ├── claude-flow/Dockerfile
+  │   │   │   ├── archon-os/Dockerfile
   │   │   │   ├── ruv-swarm/Dockerfile
   │   │   │   └── serena/Dockerfile
   │   │   ├── base/                    # Base and utility Dockerfiles
@@ -262,7 +262,7 @@ While all services are on the same physical bridge network, services are logical
 | Archon OS | Yes (MCP) | 8000 | 8000 | AI OS framework |
 | **MCP Servers** | | | | |
 | All MCP servers | Yes (aggregated) | Various | Various | Nexus aggregates MCP tools |
-| Graphiti MCP | Yes (aggregated) | 8001 | 8001 | Knowledge graph memory |
+| letta MCP | Yes (aggregated) | 8001 | 8001 | Knowledge graph memory |
 | TwentyCRM MCP | Yes (aggregated) | 3000 | 3000 | CRM integration |
 | **Databases** | | | | |
 | PostgreSQL | Direct | 5432 | 5432 | Direct connections (performance) |

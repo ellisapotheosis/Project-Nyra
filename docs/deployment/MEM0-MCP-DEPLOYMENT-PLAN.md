@@ -14,7 +14,7 @@ Deployment plan for Mem0 MCP (Model Context Protocol) integration with Project N
 ### Key Features
 
 - ✅ **Hybrid Cloud/Local Mode**: Proxies to Mem0.ai cloud service when API key is present, falls back to local SQLite for offline/development
-- ✅ **MCP Protocol Support**: Ready for integration with Nexus Router and claude-flow
+- ✅ **MCP Protocol Support**: Ready for integration with Nexus Router and archon-os
 - ✅ **User Memory Management**: Per-user memory storage with metadata support
 - ✅ **Search Capabilities**: Query memories with full-text search
 - ✅ **Conversation Context**: Maintain context across sessions
@@ -943,7 +943,7 @@ docker exec -it nyra-mem0-mcp sqlite3 /data/memories.sqlite3 \
 - `infra/docker-compose.dev.yml` - Main compose file
 - `infra/nexus/nexus.yaml` - Nexus MCP configuration
 - `NEXUS-ROUTER-DEPLOYMENT-PLAN.md` - Nexus integration
-- `GRAPHITI-MCP-DEPLOYMENT-PLAN.md` - Related MCP service
+- `letta-MCP-DEPLOYMENT-PLAN.md` - Related MCP service
 - `INFRASTRUCTURE-SECURITY-AUDIT.md` - Security considerations
 
 ---

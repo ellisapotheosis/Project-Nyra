@@ -457,7 +457,7 @@ export class CLIHooksManager {
 export class LearningHooksIntegration {
   constructor(
     private agenticFlowHooks: AgenticFlowHooksClient,
-    private agentDBLearning: AgentDBLearningClient
+    private ruvectorLearning: ruvectorLearningClient
   ) {}
 
   async recordCommandStart(event: CLIHookEvent): Promise<void> {
@@ -469,8 +469,8 @@ export class LearningHooksIntegration {
       context: event.context
     });
 
-    // Record experience in AgentDB
-    await this.agentDBLearning.recordExperience({
+    // Record experience in ruvector
+    await this.ruvectorLearning.recordExperience({
       type: 'command_execution',
       state: this.encodeCommandState(event),
       action: event.command,
@@ -491,7 +491,7 @@ export class LearningHooksIntegration {
     });
 
     // Submit feedback to learning system
-    await this.agentDBLearning.submitFeedback({
+    await this.ruvectorLearning.submitFeedback({
       sessionId: event.context.learningSessionId,
       reward,
       success: true,
@@ -522,7 +522,7 @@ export class LearningHooksIntegration {
     });
 
     // Learn from failure
-    await this.agentDBLearning.submitFeedback({
+    await this.ruvectorLearning.submitFeedback({
       sessionId: event.context.learningSessionId,
       reward,
       success: false,

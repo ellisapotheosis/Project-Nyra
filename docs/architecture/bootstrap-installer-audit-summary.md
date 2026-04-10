@@ -35,7 +35,7 @@ The `bootstrap/installer/` directory serves as a **PC-level setup toolkit** for 
 
 **Purpose**: User-friendly interface for PC setup automation
 
-**Why Keep**: Core PC setup functionality - installing software, configuring network, deploying claude-flow configs TO individual machines.
+**Why Keep**: Core PC setup functionality - installing software, configuring network, deploying archon-os configs TO individual machines.
 
 ---
 
@@ -49,12 +49,12 @@ The `bootstrap/installer/` directory serves as a **PC-level setup toolkit** for 
 ├── bootstrap-worker.ps1/.sh          # Setup worker nodes (PC2-4)
 ├── configure-static-ip.ps1/.sh       # Network configuration (10.0.0.1-4)
 ├── health-check-all.ps1/.sh          # Check PC services health
-├── backup-daily.ps1/.sh              # Backup claude-flow configs
+├── backup-daily.ps1/.sh              # Backup archon-os configs
 ```
 
 **Purpose**: Automated scripts for individual PC configuration
 
-**Why Keep**: These configure PC-level settings (static IPs, WSL, Docker Desktop, claude-flow installation) that are specific to each physical machine.
+**Why Keep**: These configure PC-level settings (static IPs, WSL, Docker Desktop, archon-os installation) that are specific to each physical machine.
 
 ---
 
@@ -68,8 +68,8 @@ The `bootstrap/installer/` directory serves as a **PC-level setup toolkit** for 
 │   └── settings.json                  # Claude Code CLI settings
 ├── claude-desktop/
 │   └── .mcp.json                      # MCP server config for Claude Desktop
-├── claude-flow/
-│   ├── claude-flow.config.json        # Claude Flow V3 configuration
+├── archon-os/
+│   ├── archon-os.config.json        # Claude Flow V3 configuration
 │   └── .env.template                  # API keys template
 ├── wsl/
 │   └── .wslconfig                     # WSL2 kernel settings
@@ -89,7 +89,7 @@ The `bootstrap/installer/` directory serves as a **PC-level setup toolkit** for 
 
 **Why Keep**: These are PC-level configs installed at:
 - `%APPDATA%\Claude\` (Claude Code/Desktop)
-- `%USERPROFILE%\.claude-flow\` (Claude Flow)
+- `%USERPROFILE%\.archon-os\` (Claude Flow)
 - `%USERPROFILE%\.wslconfig` (WSL)
 - `%APPDATA%\Docker\` (Docker daemon)
 
@@ -125,7 +125,7 @@ The `bootstrap/installer/` directory serves as a **PC-level setup toolkit** for 
 ├── 01-gitea-setup.sh                  # Self-hosted git (optional)
 ├── 02-cloudflared-setup.sh            # Tunnel setup
 ├── 03-tailscale-setup.sh              # VPN mesh networking
-├── 04-claude-flow-distributed.sh     # Distributed claude-flow setup
+├── 04-archon-os-distributed.sh     # Distributed archon-os setup
 ```
 
 **Purpose**: Configure networking between the 4 PCs
@@ -141,7 +141,7 @@ The `bootstrap/installer/` directory serves as a **PC-level setup toolkit** for 
 **Keep**:
 ```
 ├── archon.sh                          # Archon OS shim
-├── claude-flow-dev.sh                 # Claude Flow development shim
+├── archon-os-dev.sh                 # Claude Flow development shim
 ├── [other platform shims]
 ```
 
@@ -167,7 +167,7 @@ The `bootstrap/installer/` directory serves as a **PC-level setup toolkit** for 
 ❌ Makefile                             # Docker operations
 ```
 
-**Why Remove**: These deploy **repository services** (PostgreSQL, Redis, Claude Flow MCP, Archon OS, Graphiti, Mem0, Gitea, n8n) that run IN containers. They are NOT PC setup scripts.
+**Why Remove**: These deploy **repository services** (PostgreSQL, Redis, Claude Flow MCP, Archon OS, letta, Mem0, Gitea, n8n) that run IN containers. They are NOT PC setup scripts.
 
 **Current Issue**: Confusion between:
 - Installing Docker Desktop on a PC (PC setup - KEEP)
@@ -277,8 +277,8 @@ bootstrap/installer/
 │   │   └── settings.json
 │   ├── claude-desktop/
 │   │   └── .mcp.json                   # Local MCP client config
-│   ├── claude-flow/
-│   │   ├── claude-flow.config.json
+│   ├── archon-os/
+│   │   ├── archon-os.config.json
 │   │   └── .env.template
 │   ├── wsl/
 │   │   └── .wslconfig
@@ -301,10 +301,10 @@ bootstrap/installer/
     │   ├── 01-gitea-setup.sh
     │   ├── 02-cloudflared-setup.sh
     │   ├── 03-tailscale-setup.sh
-    │   └── 04-claude-flow-distributed.sh
+    │   └── 04-archon-os-distributed.sh
     └── shims/                          # Cross-platform shims
         ├── archon.sh
-        └── claude-flow-dev.sh
+        └── archon-os-dev.sh
 ```
 
 ---
@@ -330,7 +330,7 @@ bootstrap/installer/
 3. **Deploy Configuration Files**
    - Claude Code settings → `%APPDATA%\Claude\`
    - Claude Desktop MCP config → `%APPDATA%\Claude\`
-   - Claude Flow config → `%USERPROFILE%\.claude-flow\`
+   - Claude Flow config → `%USERPROFILE%\.archon-os\`
    - WSL kernel config → `%USERPROFILE%\.wslconfig`
    - Docker daemon config → `%APPDATA%\Docker\`
 
@@ -358,7 +358,7 @@ bootstrap/installer/
    - PostgreSQL, Redis, MongoDB containers
    - Claude Flow MCP server
    - Archon OS service
-   - Graphiti/Mem0 MCP servers
+   - letta/Mem0 MCP servers
    - Gitea, n8n, Infisical
 
    **Correct Location**: `/infra/docker-compose/` or root `docker-compose.yml`
@@ -512,7 +512,7 @@ After reorganization, `bootstrap/installer/` should:
 |----------|----------------------------|----------|
 | **GUI App** | ✅ React installer | |
 | **Scripts** | ✅ bootstrap-*.ps1, configure-static-ip.ps1 | ❌ service deployment |
-| **Configs** | ✅ Claude Code/Desktop, claude-flow, WSL, Docker daemon | ❌ Service .env files |
+| **Configs** | ✅ Claude Code/Desktop, archon-os, WSL, Docker daemon | ❌ Service .env files |
 | **Docker** | ✅ Docker Desktop installation script | ❌ docker-compose.yml |
 | **Tests** | ✅ PC health checks | ❌ Service integration tests |
 | **Networking** | ✅ Static IP, Tailscale setup | |
@@ -526,7 +526,7 @@ The `bootstrap/installer/` directory should be a **PC setup toolkit**, not a ser
 
 1. Installing necessary software (Docker, WSL, Claude tools)
 2. Configuring network (static IPs, VPN)
-3. Deploying PC-level configs (Claude Code, claude-flow settings)
+3. Deploying PC-level configs (Claude Code, archon-os settings)
 4. Validating readiness (health checks)
 
 **After PC setup is complete**, the user can then:

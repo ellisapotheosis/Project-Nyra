@@ -117,17 +117,17 @@ if ($LASTEXITCODE -eq 0) {
     Write-Host "    FAILED: $testResult" -ForegroundColor Red
 }
 
-# 5. CLAUDE-FLOW MEMORY SYSTEM
-Write-Host "`n🧠 STEP 5: Claude-Flow Memory System" -ForegroundColor Magenta
+# 5. archon-os MEMORY SYSTEM
+Write-Host "`n🧠 STEP 5: archon-os Memory System" -ForegroundColor Magenta
 Write-Host "═══════════════════════════════════════════════════════════════`n" -ForegroundColor Magenta
 
-$claudeFlowPath = "$projectRoot\submodules\claude-flow"
+$claudeFlowPath = "$projectRoot\submodules\archon-os"
 if (Test-Path $claudeFlowPath) {
-    Write-Host "  claude-flow Submodule: " -NoNewline -ForegroundColor Yellow
+    Write-Host "  archon-os Submodule: " -NoNewline -ForegroundColor Yellow
     Write-Host "FOUND" -ForegroundColor Green
     
     # Check memory directories
-    $memoryDirs = @("memory", "db", "data", ".claude-flow")
+    $memoryDirs = @("memory", "db", "data", ".archon-os")
     foreach ($dir in $memoryDirs) {
         $dirPath = Join-Path $claudeFlowPath $dir
         $exists = Test-Path $dirPath
@@ -137,7 +137,7 @@ if (Test-Path $claudeFlowPath) {
         Write-Host $status -ForegroundColor $color
     }
 } else {
-    Write-Host "  claude-flow Submodule: NOT FOUND" -ForegroundColor Red
+    Write-Host "  archon-os Submodule: NOT FOUND" -ForegroundColor Red
 }
 
 # Check for memory-related deps
@@ -224,8 +224,8 @@ if (-not (Test-Path "$projectRoot\node_modules\better-sqlite3\build\Release\bett
 if (-not (Test-Path "$projectRoot\node_modules")) {
     $issues += "node_modules not found - run 'pnpm install'"
 }
-if (-not (Test-Path "$projectRoot\submodules\claude-flow")) {
-    $issues += "claude-flow submodule not initialized - run 'git submodule update --init --recursive'"
+if (-not (Test-Path "$projectRoot\submodules\archon-os")) {
+    $issues += "archon-os submodule not initialized - run 'git submodule update --init --recursive'"
 }
 
 if ($issues.Count -eq 0) {
@@ -244,7 +244,7 @@ Write-Host ""
 Write-Host "  2. If node_modules is missing:" -ForegroundColor White
 Write-Host "     pnpm install" -ForegroundColor Gray
 Write-Host ""
-Write-Host "  3. If claude-flow submodule is missing:" -ForegroundColor White
+Write-Host "  3. If archon-os submodule is missing:" -ForegroundColor White
 Write-Host "     git submodule update --init --recursive" -ForegroundColor Gray
 Write-Host ""
 Write-Host "  4. Fix the bootstrap script syntax errors:" -ForegroundColor White

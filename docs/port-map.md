@@ -7,7 +7,7 @@
 | postgres (main)   |                       5432 |           5432 |
 | twenty-postgres   | 5433 (recommended via env) |           5432 |
 | ruvector-postgres |                       5436 |           5432 |
-| agentdb           |                       5440 |           5432 |
+| ruvector           |                       5440 |           5432 |
 | redis             |                       6379 |           6379 |
 | mongo             |                      27017 |          27017 |
 

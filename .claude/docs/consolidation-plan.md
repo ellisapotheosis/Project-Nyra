@@ -16,7 +16,7 @@ The NYRA repository has accumulated significant organizational debt through rapi
 - **Scattered Cleanup Materials**: Bootstrap-Cleanup-Consolidation folder contains unprocessed materials
 - **Inconsistent Structure**: Mix of organized modules (nyra-orchestration) and legacy debris
 - **Git Status**: 200+ modified/deleted files pending cleanup
-- **Hook Integration Issues**: Claude-flow hooks failing due to Node.js module version mismatch
+- **Hook Integration Issues**: archon-os hooks failing due to Node.js module version mismatch
 
 **Impact:**
 - Repository size bloated by archival materials
@@ -108,7 +108,7 @@ The NYRA repository has accumulated significant organizational debt through rapi
 **Well-Organized Sections:**
 ```
 ✅ nyra-orchestration/
-   └── Claude/claude-flow/  # Good structure with docs, memory, etc.
+   └── Claude/archon-os/  # Good structure with docs, memory, etc.
 
 ✅ Root Configuration Files
    ├── CLAUDE.md  # Comprehensive, keep
@@ -258,7 +258,7 @@ The NYRA repository has accumulated significant organizational debt through rapi
    # Suggested structure:
    # core/           - Orchestrators and agents
    # webapp/         - UI components (Open-WebUI, Loab.Chat)
-   # memory/         - Memory systems (memOS, Graphiti, FalkorDB)
+   # memory/         - Memory systems (memOS, letta, FalkorDB)
    # infra/          - Docker, deployments, infrastructure
    # docs/           - All documentation (API, guides, architecture)
    # scripts/        - Utility and automation scripts
@@ -268,7 +268,7 @@ The NYRA repository has accumulated significant organizational debt through rapi
 2. **Migrate `nyra-orchestration/` Content**
    ```bash
    # Move Claude Flow to core
-   mv nyra-orchestration/Claude/claude-flow/ core/claude-flow/
+   mv nyra-orchestration/Claude/archon-os/ core/archon-os/
 
    # Update imports and documentation paths
    # Use search-replace or refactoring tool
@@ -280,7 +280,7 @@ The NYRA repository has accumulated significant organizational debt through rapi
    mkdir -p config/{mcp,docker,env-templates}
 
    # MCP configurations
-   mv nyra-orchestration/Claude/claude-flow/docs/mcp-*.md config/mcp/
+   mv nyra-orchestration/Claude/archon-os/docs/mcp-*.md config/mcp/
 
    # Create config index
    cat > config/README.md << 'EOF'
@@ -378,17 +378,17 @@ The NYRA repository has accumulated significant organizational debt through rapi
 
 **Actions:**
 
-1. **Fix Claude-Flow Hook Integration**
+1. **Fix archon-os Hook Integration**
    ```bash
    # Issue: Node module version mismatch (137 vs 127)
    # Solution: Rebuild better-sqlite3 for current Node version
 
-   cd core/claude-flow/
+   cd core/archon-os/
    npm rebuild better-sqlite3
    # Or: npm install --force
 
    # Verify hooks work
-   npx @claude-flow/cli@latest hooks session-restore --session-id "test"
+   npx @archon-os/cli@latest hooks session-restore --session-id "test"
    ```
 
 2. **Clean `.gitignore` and Remove Tracked Artifacts**
@@ -446,7 +446,7 @@ The NYRA repository has accumulated significant organizational debt through rapi
    ```
 
 **Success Criteria:**
-- ✅ Claude-Flow hooks working correctly
+- ✅ archon-os hooks working correctly
 - ✅ No build artifacts in git tracking
 - ✅ All module dependencies validated
 - ✅ CLAUDE.md reflects new structure
@@ -464,21 +464,21 @@ The NYRA repository has accumulated significant organizational debt through rapi
    # Test each module
    npm run test --workspaces
    # Or module by module
-   cd core/claude-flow && npm test
+   cd core/archon-os && npm test
    cd ../../memory/memos && python -m pytest
    ```
 
 2. **Verify Development Workflow**
    ```bash
    # Test SPARC commands
-   npx claude-flow sparc modes
-   npx claude-flow sparc status
+   npx archon-os sparc modes
+   npx archon-os sparc status
 
    # Test agent spawning
-   npx @claude-flow/cli@latest hooks session-restore --session-id "validation-test"
+   npx @archon-os/cli@latest hooks session-restore --session-id "validation-test"
 
    # Test memory operations
-   npx @claude-flow/cli@latest hooks pre-task --description "validation"
+   npx @archon-os/cli@latest hooks pre-task --description "validation"
    ```
 
 3. **Validate Documentation Links**
@@ -618,7 +618,7 @@ fi
 # Validate hooks
 echo ""
 echo "🪝 Validating Claude Flow Hooks:"
-if npx @claude-flow/cli@latest hooks session-restore --session-id "test" 2>&1 | grep -q "Session restored"; then
+if npx @archon-os/cli@latest hooks session-restore --session-id "test" 2>&1 | grep -q "Session restored"; then
   echo "  ✅ Hooks working"
 else
   echo "  ⚠️  Hooks need repair"
@@ -716,7 +716,7 @@ if __name__ == '__main__':
 1. **Hook Integration Fix**
    - **Risk**: Development workflow disruption
    - **Mitigation**: Test in isolated environment first
-   - **Recovery**: Reinstall claude-flow from scratch
+   - **Recovery**: Reinstall archon-os from scratch
 
 2. **Documentation Consolidation**
    - **Risk**: Breaking internal links, losing context
@@ -818,7 +818,7 @@ du -sh .
 find . -type f ! -path "./.git/*" | wc -l
 
 # Verify hooks
-npx @claude-flow/cli@latest hooks session-restore --session-id "test"
+npx @archon-os/cli@latest hooks session-restore --session-id "test"
 
 # Run tests
 npm run test --workspaces

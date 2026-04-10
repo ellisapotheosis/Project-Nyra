@@ -185,7 +185,7 @@ declare -A services=(
     ["Letta"]="http://localhost:8283/health"
     ["Mem0"]="http://localhost:4321/health"
     ["Claude Flow"]="http://localhost:3010/health"
-    ["AgentDB"]="http://localhost:8080/health"
+    ["ruvector"]="http://localhost:8080/health"
     ["Redis"]="http://localhost:6380"
 )
 

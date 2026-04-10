@@ -171,7 +171,7 @@ infisical secrets set \
 ### MCP Server URLs
 ```bash
 infisical secrets set \
-  CLAUDE_FLOW_MCP_URL=http://claude-flow:9000/mcp \
+  CLAUDE_FLOW_MCP_URL=http://archon-os:9000/mcp \
   ARCHON_MCP_URL=http://archon-os:9001/mcp \
   INFISICAL_MCP_URL=http://infisical-mcp:4002 \
   BITWARDEN_MCP_URL=http://bitwarden-mcp:4003 \

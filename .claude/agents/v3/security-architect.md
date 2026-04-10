@@ -22,14 +22,14 @@ hooks:
     echo "🛡️  Security Architect analyzing: $TASK"
 
     # 1. Search for similar security patterns via HNSW (150x-12,500x faster)
-    THREAT_PATTERNS=$(npx @claude-flow/cli@latest memory search-patterns "$TASK" --k=10 --min-reward=0.85 --namespace=security)
+    THREAT_PATTERNS=$(npx @archon-os/cli@latest memory search-patterns "$TASK" --k=10 --min-reward=0.85 --namespace=security)
     if [ -n "$THREAT_PATTERNS" ]; then
       echo "📊 Found ${#THREAT_PATTERNS[@]} similar threat patterns via HNSW"
-      npx @claude-flow/cli@latest memory get-pattern-stats "$TASK" --k=10 --namespace=security
+      npx @archon-os/cli@latest memory get-pattern-stats "$TASK" --k=10 --namespace=security
     fi
 
     # 2. Learn from past security failures
-    SECURITY_FAILURES=$(npx @claude-flow/cli@latest memory search-patterns "$TASK" --only-failures --k=5 --namespace=security)
+    SECURITY_FAILURES=$(npx @archon-os/cli@latest memory search-patterns "$TASK" --only-failures --k=5 --namespace=security)
     if [ -n "$SECURITY_FAILURES" ]; then
       echo "⚠️  Learning from past security vulnerabilities"
     fi
@@ -37,18 +37,18 @@ hooks:
     # 3. Check for known CVEs relevant to the task
     if [[ "$TASK" == *"auth"* ]] || [[ "$TASK" == *"session"* ]] || [[ "$TASK" == *"inject"* ]]; then
       echo "🔍 Checking CVE database for relevant vulnerabilities"
-      npx @claude-flow/cli@latest security cve --check-relevant "$TASK"
+      npx @archon-os/cli@latest security cve --check-relevant "$TASK"
     fi
 
     # 4. Initialize security session with trajectory tracking
     SESSION_ID="security-architect-$(date +%s)"
-    npx @claude-flow/cli@latest hooks intelligence trajectory-start \
+    npx @archon-os/cli@latest hooks intelligence trajectory-start \
       --session-id "$SESSION_ID" \
       --agent-type "security-architect" \
       --task "$TASK"
 
     # 5. Store task start for learning
-    npx @claude-flow/cli@latest memory store-pattern \
+    npx @archon-os/cli@latest memory store-pattern \
       --session-id "$SESSION_ID" \
       --task "$TASK" \
       --status "started" \
@@ -58,7 +58,7 @@ hooks:
     echo "✅ Security architecture analysis complete"
 
     # 1. Run comprehensive security validation
-    npx @claude-flow/cli@latest security scan --depth full --output-format json > /tmp/security-scan.json 2>/dev/null
+    npx @archon-os/cli@latest security scan --depth full --output-format json > /tmp/security-scan.json 2>/dev/null
     VULNERABILITIES=$(jq -r '.vulnerabilities | length' /tmp/security-scan.json 2>/dev/null || echo "0")
     CRITICAL_COUNT=$(jq -r '.vulnerabilities | map(select(.severity == "critical")) | length' /tmp/security-scan.json 2>/dev/null || echo "0")
 
@@ -75,7 +75,7 @@ hooks:
     fi
 
     # 3. Store learning pattern for future improvement
-    npx @claude-flow/cli@latest memory store-pattern \
+    npx @archon-os/cli@latest memory store-pattern \
       --session-id "security-architect-$(date +%s)" \
       --task "$TASK" \
       --output "Security analysis completed: $VULNERABILITIES issues found, $CRITICAL_COUNT critical" \
@@ -87,14 +87,14 @@ hooks:
     # 4. Train neural patterns on successful security assessments
     if [ "$SUCCESS" = "true" ] && [ $(echo "$REWARD > 0.9" | bc) -eq 1 ]; then
       echo "🧠 Training neural pattern from successful security assessment"
-      npx @claude-flow/cli@latest neural train \
+      npx @archon-os/cli@latest neural train \
         --pattern-type "coordination" \
         --training-data "security-assessment" \
         --epochs 50
     fi
 
     # 5. End trajectory tracking
-    npx @claude-flow/cli@latest hooks intelligence trajectory-end \
+    npx @archon-os/cli@latest hooks intelligence trajectory-end \
       --session-id "$SESSION_ID" \
       --success "$SUCCESS" \
       --reward "$REWARD"
@@ -102,7 +102,7 @@ hooks:
     # 6. Alert on critical findings
     if [ "$CRITICAL_COUNT" -gt 0 ]; then
       echo "🚨 CRITICAL: $CRITICAL_COUNT critical vulnerabilities detected!"
-      npx @claude-flow/cli@latest hooks notify --severity critical --message "Critical security vulnerabilities found"
+      npx @archon-os/cli@latest hooks notify --severity critical --message "Critical security vulnerabilities found"
     fi
 ---
 
@@ -127,7 +127,7 @@ You are a specialized security architect with advanced V3 intelligence capabilit
 
 ```typescript
 // Search for similar threat patterns using HNSW indexing
-const threatPatterns = await agentDB.hnswSearch({
+const threatPatterns = await ruvector.hnswSearch({
   query: 'SQL injection authentication bypass',
   k: 10,
   namespace: 'security_threats',
@@ -149,7 +149,7 @@ threatPatterns.results.forEach(pattern => {
 ```typescript
 // Scan large codebases efficiently with Flash Attention
 if (codebaseFiles.length > 1000) {
-  const securityScan = await agentDB.flashAttention(
+  const securityScan = await ruvector.flashAttention(
     securityQueryEmbedding,    // What vulnerabilities to look for
     codebaseEmbeddings,        // All code file embeddings
     vulnerabilityPatterns      // Known vulnerability patterns
@@ -631,7 +631,7 @@ class ZeroTrustSecurityManager {
   // Continuous risk assessment
   async assessRisk(entity: SecurityEntity): Promise<RiskAssessment> {
     // 1. Get historical behavior patterns via HNSW
-    const historicalPatterns = await agentDB.hnswSearch({
+    const historicalPatterns = await ruvector.hnswSearch({
       query: `behavior patterns for ${entity.type}`,
       k: 20,
       namespace: 'security_behavior'
@@ -641,7 +641,7 @@ class ZeroTrustSecurityManager {
     const currentBehavior = await this.analyzeBehavior(entity);
 
     // 3. Detect anomalies using Flash Attention
-    const anomalies = await agentDB.flashAttention(
+    const anomalies = await ruvector.flashAttention(
       currentBehavior.embedding,
       historicalPatterns.map(p => p.embedding),
       historicalPatterns.map(p => p.riskFactors)
@@ -702,7 +702,7 @@ if (securityFailures.length > 0) {
 
 ```typescript
 // Use GNN to find related security vulnerabilities (+12.4% accuracy)
-const relevantVulnerabilities = await agentDB.gnnEnhancedSearch(
+const relevantVulnerabilities = await ruvector.gnnEnhancedSearch(
   threatEmbedding,
   {
     k: 15,
@@ -793,7 +793,7 @@ const mergedFindings = securityConsensus.attentionWeights.map((weight, i) => ({
 
 ```javascript
 // Store security findings in coordinated memory
-mcp__claude-flow__memory_usage({
+mcp__archon-os__memory_usage({
   action: "store",
   key: "swarm/security-architect/assessment",
   namespace: "coordination",
@@ -816,7 +816,7 @@ mcp__claude-flow__memory_usage({
 })
 
 // Share with other security agents
-mcp__claude-flow__memory_usage({
+mcp__archon-os__memory_usage({
   action: "store",
   key: "swarm/shared/security-findings",
   namespace: "coordination",
@@ -834,25 +834,25 @@ mcp__claude-flow__memory_usage({
 
 ```bash
 # Full security scan
-npx @claude-flow/cli@latest security scan --depth full
+npx @archon-os/cli@latest security scan --depth full
 
 # CVE-specific checks
-npx @claude-flow/cli@latest security cve --check CVE-2024-001
-npx @claude-flow/cli@latest security cve --check CVE-2024-002
-npx @claude-flow/cli@latest security cve --check CVE-2024-003
+npx @archon-os/cli@latest security cve --check CVE-2024-001
+npx @archon-os/cli@latest security cve --check CVE-2024-002
+npx @archon-os/cli@latest security cve --check CVE-2024-003
 
 # Threat modeling
-npx @claude-flow/cli@latest security threats --methodology STRIDE
-npx @claude-flow/cli@latest security threats --methodology DREAD
+npx @archon-os/cli@latest security threats --methodology STRIDE
+npx @archon-os/cli@latest security threats --methodology DREAD
 
 # Audit report
-npx @claude-flow/cli@latest security audit --output-format markdown
+npx @archon-os/cli@latest security audit --output-format markdown
 
 # Validate security configuration
-npx @claude-flow/cli@latest security validate --config ./security.config.json
+npx @archon-os/cli@latest security validate --config ./security.config.json
 
 # Generate security report
-npx @claude-flow/cli@latest security report --format pdf --include-remediations
+npx @archon-os/cli@latest security report --format pdf --include-remediations
 ```
 
 ## Collaboration Protocol

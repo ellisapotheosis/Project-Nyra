@@ -40,7 +40,7 @@ graph TB
     end
 
     subgraph Orchestrators["Dual Orchestrators"]
-        CF["Claude-Flow MCP<br/>(Planning/SPARC)"]
+        CF["archon-os MCP<br/>(Planning/SPARC)"]
         AO["Archon OS MCP<br/>(Routing/Tasks)"]
     end
 
@@ -49,7 +49,7 @@ graph TB
         COMP["Composio MCP<br/>(80+ integrations)"]
         GIT["GitHub MCP<br/>(repo automation)"]
         FS["Filesystem MCP<br/>(dev only)"]
-        MEM["Memory MCPs<br/>(Mem0, Graphiti)"]
+        MEM["Memory MCPs<br/>(Mem0, letta)"]
     end
 
     subgraph Data["Data & Knowledge"]
@@ -128,8 +128,8 @@ graph TB
 | **Serena** | 8086 | Code analysis |
 | **Gemini Assistant** | 8085 | Cost-efficient inference |
 | **Mem0** | 4321 | Memory operations |
-| **Graphiti** | 8xxx | Knowledge graphs |
-| **AgentDB** | 8080 | Vector storage |
+| **letta** | 8xxx | Knowledge graphs |
+| **ruvector** | 8080 | Vector storage |
 | **RuVector** | 8888 | Search optimization |
 | **Composio** | 8xxx | 80+ integrations |
 | **GitHub** | 8xxx | Repository automation |
@@ -168,7 +168,7 @@ graph TB
 - **Primary Models**: Claude (Anthropic), Gemini (Google)
 - **Local Inference**: Ollama + vLLM
 - **Memory Systems**: Letta (conversational), Mem0 (episodic)
-- **Vector Embeddings**: Qdrant, AgentDB
+- **Vector Embeddings**: Qdrant, ruvector
 
 ### Infrastructure
 
@@ -264,7 +264,7 @@ graph TB
 - Ollama (large models)
 - Document management (OCR)
 - Ingestion pipelines
-- Graphiti knowledge processing
+- letta knowledge processing
 - RuVector search
 
 **Network**: `nyra-worker-rtx3090ti` (172.26.0.0/16)
@@ -326,11 +326,11 @@ graph TD
     MEM0 --> REDIS[(Redis<br/>Session Cache)]
 
     LETTA --> EXTRACT[Memory Extraction]
-    EXTRACT --> GRAPHITI[Graphiti: Knowledge Graph]
+    EXTRACT --> letta[letta: Knowledge Graph]
     EXTRACT --> QDRANT[Qdrant: Vector Storage]
 
-    GRAPHITI --> NEO4J[(Neo4j<br/>Relationships)]
-    GRAPHITI --> FALKOR[(FalkorDB<br/>Temporal Graphs)]
+    letta --> NEO4J[(Neo4j<br/>Relationships)]
+    letta --> FALKOR[(FalkorDB<br/>Temporal Graphs)]
     QDRANT --> VECTORS[(Embeddings)]
 
     NEO4J --> QUERY[Semantic Query]
@@ -347,7 +347,7 @@ graph TD
 |--------|------|---------|---------|-----------|
 | **Letta** | Conversational | Full conversation context | PostgreSQL | Indefinite |
 | **Mem0** | Episodic | User preferences, summaries | SQLite/Redis | Indefinite |
-| **Graphiti** | Graph | Relationships, temporal facts | Neo4j/FalkorDB | Indefinite |
+| **letta** | Graph | Relationships, temporal facts | Neo4j/FalkorDB | Indefinite |
 | **Qdrant** | Vector | Semantic embeddings | Native | Indefinite |
 | **Redis** | Cache | Session state, temp data | Memory | TTL-based |
 
@@ -503,7 +503,7 @@ graph LR
 ### Phase 2: Memory Systems (Week 2-3)
 - Deploy Letta with PostgreSQL backend
 - Deploy Mem0 REST API
-- Deploy Graphiti + Neo4j
+- Deploy letta + Neo4j
 - Test memory persistence
 
 ### Phase 3: Business Services (Week 3-4)
@@ -524,7 +524,7 @@ graph LR
 - Integrate authentication
 
 ### Phase 6: Orchestrators (Week 6-7)
-- Deploy Claude-Flow MCP
+- Deploy archon-os MCP
 - Deploy Archon OS MCP
 - Configure dual-orchestrator coordination
 - Test end-to-end workflows

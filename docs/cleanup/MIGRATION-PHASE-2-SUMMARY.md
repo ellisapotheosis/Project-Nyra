@@ -36,10 +36,10 @@ Successfully migrated documentation files from scattered locations to organized,
 ## Phase 2 Migration: AI-Automatable
 
 ### Files Migrated
-- **Source**: `docs/prompts/claude-flow/` → **Destination**: `docs/ai-automatable/prompts/`
+- **Source**: `docs/prompts/archon-os/` → **Destination**: `docs/ai-automatable/prompts/`
   - 13 prompt files moved including master prompts and auto-setup prompts
 
-- **Source**: `docs/bootstrap/claude-flow/` → **Destination**: `docs/ai-automatable/bootstrap/`
+- **Source**: `docs/bootstrap/archon-os/` → **Destination**: `docs/ai-automatable/bootstrap/`
   - 7 bootstrap files moved including configurations and setup scripts
 
 - **Source**: `docs/workflows/examples/` → **Destination**: `docs/ai-automatable/workflows/`
@@ -90,7 +90,7 @@ docs/manual-tasks/
 ## Root-Level File Migrations
 
 ### Deployment Files Copied to docs/deployment/
-- `CLAUDE-FLOW-FULL-FEATURES-CONTAINERIZATION.md` → `docs/deployment/claude-flow-containerization.md`
+- `archon-os-FULL-FEATURES-CONTAINERIZATION.md` → `docs/deployment/archon-os-containerization.md`
 - `CONTAINERIZATION-SUMMARY.md` → `docs/deployment/containerization-summary.md`
 - `DEPLOYMENT-COMPLETE-SUMMARY.md` → `docs/deployment/deployment-summary.md`
 

@@ -1,10 +1,10 @@
 #!/usr/bin/env pwsh
 <#
 .SYNOPSIS
-NYRA Claude-Flow System Demonstration Script
+NYRA archon-os System Demonstration Script
 
 .DESCRIPTION
-Demonstrates the complete NYRA Claude-Flow document processing system with:
+Demonstrates the complete NYRA archon-os document processing system with:
 - LlamaIndex document processing
 - Batch command wrappers
 - System status checks
@@ -39,7 +39,7 @@ function Show-SystemBanner {
     Write-Host @"
 
   ╔══════════════════════════════════════════════════════════════════════════════════╗
-  ║                    🤖 NYRA CLAUDE-FLOW SYSTEM DEMO                              ║
+  ║                    🤖 NYRA archon-os SYSTEM DEMO                              ║
   ║                  AI-Powered Document Processing Pipeline                        ║
   ╚══════════════════════════════════════════════════════════════════════════════════╝
 
@@ -72,16 +72,16 @@ function Test-SystemComponents {
         Write-StyledOutput "❌ Node.js: Not available" -Style 'ERROR'
     }
     
-    # Test Claude-Flow
+    # Test archon-os
     try {
-        $claudeFlowVersion = npx claude-flow@alpha --version 2>$null
+        $claudeFlowVersion = npx archon-os@alpha --version 2>$null
         if ($LASTEXITCODE -eq 0) {
-            Write-StyledOutput "✅ Claude-Flow: Available" -Style 'SUCCESS'
+            Write-StyledOutput "✅ archon-os: Available" -Style 'SUCCESS'
         } else {
-            Write-StyledOutput "⚠️  Claude-Flow: Installed but may have issues" -Style 'WARN'
+            Write-StyledOutput "⚠️  archon-os: Installed but may have issues" -Style 'WARN'
         }
     } catch {
-        Write-StyledOutput "❌ Claude-Flow: Not available" -Style 'ERROR'
+        Write-StyledOutput "❌ archon-os: Not available" -Style 'ERROR'
     }
     
     Write-Host ""
@@ -115,19 +115,19 @@ function Show-AvailableCommands {
     Write-StyledOutput "🚀 Available Commands:" -Style 'HEADER'
     
     Write-Host "  Document Processing:" -ForegroundColor White
-    Write-Host "    • .\scripts\mcp-wrappers\claude-flow-clean.bat" -ForegroundColor Gray
-    Write-Host "    • .\scripts\mcp-wrappers\claude-flow-watch.bat" -ForegroundColor Gray
+    Write-Host "    • .\scripts\mcp-wrappers\archon-os-clean.bat" -ForegroundColor Gray
+    Write-Host "    • .\scripts\mcp-wrappers\archon-os-watch.bat" -ForegroundColor Gray
     Write-Host "    • python .\Cleaning-Setup\scripts\document_processor.py" -ForegroundColor Gray
     
     Write-Host ""
     Write-Host "  System Management:" -ForegroundColor White
     Write-Host "    • .\scripts\system-status.bat" -ForegroundColor Gray
-    Write-Host "    • .\NYRA-Claude-Flow-Complete-Setup.ps1" -ForegroundColor Gray
+    Write-Host "    • .\NYRA-archon-os-Complete-Setup.ps1" -ForegroundColor Gray
     
     Write-Host ""
     Write-Host "  MCP Integration:" -ForegroundColor White
-    Write-Host "    • npx claude-flow@alpha --help" -ForegroundColor Gray
-    Write-Host "    • .\scripts\mcp-wrappers\claude-flow-start.bat" -ForegroundColor Gray
+    Write-Host "    • npx archon-os@alpha --help" -ForegroundColor Gray
+    Write-Host "    • .\scripts\mcp-wrappers\archon-os-start.bat" -ForegroundColor Gray
     
     Write-Host ""
 }
@@ -170,11 +170,11 @@ function Demo-DocumentProcessing {
         @"
 # NYRA System Demo Document
 
-This document demonstrates the NYRA Claude-Flow document processing system.
+This document demonstrates the NYRA archon-os document processing system.
 
 ## System Components
 - LlamaIndex for document processing
-- Claude-Flow for workflow orchestration  
+- archon-os for workflow orchestration  
 - Python scripts for automation
 - Batch wrappers for easy execution
 
@@ -200,7 +200,7 @@ function Show-NextSteps {
     
     Write-Host "  1. Document Processing:" -ForegroundColor White
     Write-Host "     • Add documents to .\Cleaning-Setup\raw-documents\" -ForegroundColor Gray
-    Write-Host "     • Run .\scripts\mcp-wrappers\claude-flow-clean.bat" -ForegroundColor Gray
+    Write-Host "     • Run .\scripts\mcp-wrappers\archon-os-clean.bat" -ForegroundColor Gray
     Write-Host "     • Check results in .\Cleaning-Setup\cleaned-documents\" -ForegroundColor Gray
     
     Write-Host ""
@@ -211,7 +211,7 @@ function Show-NextSteps {
     
     Write-Host ""
     Write-Host "  3. MCP Server Setup:" -ForegroundColor White
-    Write-Host "     • Complete Claude-Flow MCP server configuration" -ForegroundColor Gray
+    Write-Host "     • Complete archon-os MCP server configuration" -ForegroundColor Gray
     Write-Host "     • Setup FastMCP and Archon integration" -ForegroundColor Gray  
     Write-Host "     • Configure meta-MCP channels" -ForegroundColor Gray
     
@@ -256,7 +256,7 @@ function Show-SystemSummary {
     Write-Host "     • Python + LlamaIndex: $llamaStatus" -ForegroundColor Green
     Write-Host "     • Document Processing: ✅ Working" -ForegroundColor Green
     Write-Host "     • Batch Commands: ✅ Working" -ForegroundColor Green  
-    Write-Host "     • Claude-Flow MCP: ⚠️  Needs configuration" -ForegroundColor Yellow
+    Write-Host "     • archon-os MCP: ⚠️  Needs configuration" -ForegroundColor Yellow
     
     Write-Host ""
 }
@@ -271,13 +271,13 @@ function Main {
     Show-SystemSummary
     Show-NextSteps
     
-    Write-StyledOutput "🎉 NYRA Claude-Flow System Demo Complete!" -Style 'SUCCESS'
+    Write-StyledOutput "🎉 NYRA archon-os System Demo Complete!" -Style 'SUCCESS'
     Write-StyledOutput "The document processing pipeline is working and ready for use." -Style 'INFO'
     
     Write-Host ""
     Write-Host "📚 Documentation:" -ForegroundColor White
-    Write-Host "  • CLAUDE-FLOW-WORKFLOW-GUIDE.md - Complete usage guide" -ForegroundColor Gray
-    Write-Host "  • NYRA-Claude-Flow-Setup-Report.md - Setup documentation" -ForegroundColor Gray
+    Write-Host "  • archon-os-WORKFLOW-GUIDE.md - Complete usage guide" -ForegroundColor Gray
+    Write-Host "  • NYRA-archon-os-Setup-Report.md - Setup documentation" -ForegroundColor Gray
     Write-Host "  • scripts\ - Command wrappers and utilities" -ForegroundColor Gray
 }
 

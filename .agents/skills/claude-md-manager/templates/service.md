@@ -29,7 +29,7 @@ For service modifications, Claude Code MUST:
 ### Service Changes Routing
 ```bash
 # Get optimal routing for service changes
-npx @claude-flow/cli@latest hooks pre-task --description "{{PROJECT_NAME}} service modification"
+npx @archon-os/cli@latest hooks pre-task --description "{{PROJECT_NAME}} service modification"
 ```
 
 ## 🏗️ Service Architecture
@@ -220,13 +220,13 @@ alerts:
 ### Persistent State
 ```bash
 # Store service state in memory system
-npx @claude-flow/cli@latest memory store \
+npx @archon-os/cli@latest memory store \
   --key "{{PROJECT_NAME}}-state" \
   --value "Current service metrics" \
   --namespace {{NAMESPACE}}-services
 
 # Retrieve state for recovery
-npx @claude-flow/cli@latest memory retrieve \
+npx @archon-os/cli@latest memory retrieve \
   --key "{{PROJECT_NAME}}-state" \
   --namespace {{NAMESPACE}}-services
 ```
@@ -336,7 +336,7 @@ For complex service changes:
 
 ```bash
 # Initialize swarm
-npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 5
+npx @archon-os/cli@latest swarm init --topology hierarchical --max-agents 5
 
 # Architect designs service changes
 Task({
@@ -373,13 +373,13 @@ Store service patterns and learnings:
 
 ```bash
 # Store deployment pattern
-npx @claude-flow/cli@latest memory store \
+npx @archon-os/cli@latest memory store \
   --key "{{PROJECT_NAME}}-deployment" \
   --value "Deployment procedure and gotchas" \
   --namespace {{NAMESPACE}}-services
 
 # Search for troubleshooting patterns
-npx @claude-flow/cli@latest memory search \
+npx @archon-os/cli@latest memory search \
   --query "service stuck in processing loop"
 ```
 
@@ -482,7 +482,7 @@ docker logs {{PROJECT_NAME}} -f --tail 100
 ## Documentation References
 
 - **Project Root**: `CLAUDE.md` - Overall system architecture
-- **Claude Flow**: `.claude-flow/CAPABILITIES.md` - V3 reference
+- **Claude Flow**: `.archon-os/CAPABILITIES.md` - V3 reference
 - **Monitoring**: `monitoring/README.md` - Metrics and alerts
 - **Database**: `scripts/migrations/` - Schema documentation
 

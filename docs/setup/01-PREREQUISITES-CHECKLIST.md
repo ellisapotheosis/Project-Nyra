@@ -515,7 +515,7 @@ git submodule update --init --recursive
 
 # Verify
 ls -la
-# Should see: submodules/claude-flow, submodules/archon, etc.
+# Should see: submodules/archon-os, submodules/archon, etc.
 ```
 
 **Verification Checklist**:

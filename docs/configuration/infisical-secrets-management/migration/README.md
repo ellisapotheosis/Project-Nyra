@@ -58,14 +58,14 @@ This migration toolkit provides everything needed to reorganize your Infisical s
   └── ... (8 more databases)
 
 /clients/
-  ├── claude-flow/ (68 vars)
+  ├── archon-os/ (68 vars)
   ├── claude-code/ (12 vars)
   ├── infisical/ (19 vars)
   └── ... (5 more clients)
 
 /services/
   ├── archon/ (24 vars)
-  ├── agentdb/ (25 vars)
+  ├── ruvector/ (25 vars)
   ├── github/ (14 vars)
   └── ... (15 more services)
 

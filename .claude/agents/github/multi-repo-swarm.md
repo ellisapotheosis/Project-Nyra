@@ -12,15 +12,15 @@ tools:
   - Grep
   - LS
   - TodoWrite
-  - mcp__claude-flow__swarm_init
-  - mcp__claude-flow__agent_spawn
-  - mcp__claude-flow__task_orchestrate
-  - mcp__claude-flow__swarm_status
-  - mcp__claude-flow__memory_usage
-  - mcp__claude-flow__github_repo_analyze
-  - mcp__claude-flow__github_pr_manage
-  - mcp__claude-flow__github_sync_coord
-  - mcp__claude-flow__github_metrics
+  - mcp__archon-os__swarm_init
+  - mcp__archon-os__agent_spawn
+  - mcp__archon-os__task_orchestrate
+  - mcp__archon-os__swarm_status
+  - mcp__archon-os__memory_usage
+  - mcp__archon-os__github_repo_analyze
+  - mcp__archon-os__github_pr_manage
+  - mcp__archon-os__github_sync_coord
+  - mcp__archon-os__github_metrics
 hooks:
   pre:
     - "gh auth status || (echo 'GitHub CLI not authenticated' && exit 1)"

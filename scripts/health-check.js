@@ -116,7 +116,7 @@ async function checkClaudeFlow() {
 
   await runCheck(
     'Claude Flow CLI',
-    'npx @claude-flow/cli@latest --version',
+    'npx @archon-os/cli@latest --version',
     {
       validator: (output) => output.includes('3.0.0') || output.includes('alpha'),
       failMessage: 'Claude Flow V3 not installed'
@@ -125,19 +125,19 @@ async function checkClaudeFlow() {
 
   await runCheck(
     'MCP Server Status',
-    'npx @claude-flow/cli@latest mcp status',
+    'npx @archon-os/cli@latest mcp status',
     { optional: true }
   );
 
   await runCheck(
     'Memory Database',
-    'npx @claude-flow/cli@latest memory list --limit 1',
+    'npx @archon-os/cli@latest memory list --limit 1',
     { optional: true }
   );
 
   await runCheck(
     'Daemon Status',
-    'npx @claude-flow/cli@latest daemon status',
+    'npx @archon-os/cli@latest daemon status',
     { optional: true }
   );
 }
@@ -285,7 +285,7 @@ async function checkSecurityTools() {
 
   await runCheck(
     'Security Scan',
-    'npx @claude-flow/cli@latest security scan --quick',
+    'npx @archon-os/cli@latest security scan --quick',
     { optional: true }
   );
 }

@@ -86,7 +86,7 @@ hosts:
         ports:
         - ${TWENTYCRM_MCP_PORT:-8182}:8082
         category: mcp-server
-      claude-flow:
+      archon-os:
         profiles:
         - dev
         - all
@@ -230,14 +230,14 @@ hosts:
         ports:
         - ${INFISICAL_MCP_PORT:-8815}:8815
         category: mcp-server
-      agentdb:
+      ruvector:
         profiles:
         - apps
         - all
         ports:
-        - ${AGENTDB_PORT:-5440}:5432
+        - ${ruvector_PORT:-5440}:5432
         category: data
-      agentic-flow:
+      archon-os:
         profiles:
         - apps
         - all
@@ -454,7 +454,7 @@ hosts:
         profiles: []
         ports: []
         category: data
-      graphiti-mcp:
+      letta-mcp:
         profiles: []
         ports: []
         category: mcp-server
@@ -509,10 +509,10 @@ recommended_placement:
   - service: activepieces
     recommended_host: orchestrator
     category: platform
-  - service: agentdb
+  - service: ruvector
     recommended_host: orchestrator
     category: data
-  - service: agentic-flow
+  - service: archon-os
     recommended_host: orchestrator
     category: service
   - service: archon-agent-work-orders
@@ -539,7 +539,7 @@ recommended_placement:
   - service: cadvisor
     recommended_host: orchestrator
     category: service
-  - service: claude-flow
+  - service: archon-os
     recommended_host: orchestrator
     category: service
   - service: cloudflared
@@ -636,7 +636,7 @@ recommended_placement:
   - service: falkordb
     recommended_host: oracle-vps
     category: data
-  - service: graphiti-mcp
+  - service: letta-mcp
     recommended_host: oracle-vps
     category: mcp-server
   - service: moltbot

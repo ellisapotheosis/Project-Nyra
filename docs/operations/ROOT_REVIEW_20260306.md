@@ -7,7 +7,7 @@ Reviewed root-level folders for monorepo relevance and CI/CD linkage.
 - `.serena`
 - `my-ruvector`
 - `some/file` (and now-empty `some/`)
-- `.claude-plugin/claude-flow`
+- `.claude-plugin/archon-os`
 - `.devcontainer`
 
 ## Moved to archive

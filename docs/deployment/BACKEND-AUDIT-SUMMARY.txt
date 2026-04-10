@@ -39,9 +39,9 @@ KEY FINDINGS
 
 6. MEMORY SYSTEMS
    ✓ Letta - Active (stateful memory agent)
-   ⏳ Graphiti MCP - Pending Week 3 (FalkorDB backend)
+   ⏳ letta MCP - Pending Week 3 (FalkorDB backend)
    ⏳ Mem0 MCP - Pending Week 3 (cloud/local hybrid)
-   ✓ AgentDB - Production ready (150x-12500x faster)
+   ✓ ruvector - Production ready (150x-12500x faster)
 
 7. MONITORING & OBSERVABILITY
    ✓ Prometheus - Metrics collection
@@ -104,12 +104,12 @@ WEEK 1:
 [ ] Verify all health checks
 
 WEEK 2-3:
-[ ] Activate Graphiti MCP (resolve issues)
+[ ] Activate letta MCP (resolve issues)
 [ ] Activate Mem0 MCP (test hybrid mode)
 [ ] Deploy Nexus Router
 
 OPTIMIZATION:
-[ ] Enable AgentDB HNSW indexing
+[ ] Enable ruvector HNSW indexing
 [ ] Configure CRDT replication
 [ ] Implement ReasoningBank learning
 [ ] Performance tuning
@@ -117,13 +117,13 @@ OPTIMIZATION:
 KNOWN ISSUES
 ================================================================================
 
-1. GRAPHITI MCP
+1. letta MCP
    Issue: Port mismatch (3000 vs 8000 vs 9100)
    Issue: Image/service mismatch (pre-built vs custom)
    Issue: Missing Dockerfile for custom service
    Issue: Missing environment documentation
 
-   Resolution: See GRAPHITI-MCP-DEPLOYMENT-PLAN.md
+   Resolution: See letta-MCP-DEPLOYMENT-PLAN.md
 
 2. REDIS/FALKORDB PORT
    Issue: FalkorDB uses 6379 (Redis port)
@@ -131,7 +131,7 @@ KNOWN ISSUES
            Redis uses 6380 to avoid conflict
 
 3. MEMORY SYSTEMS COMMENTED OUT
-   Services: Graphiti, Mem0, Nexus Router (partial)
+   Services: letta, Mem0, Nexus Router (partial)
    Reason: Staged deployment per bootstrap
    Activation: Follow Week 3 deployment guide
 
@@ -177,10 +177,10 @@ Specific Guides:
 → docs/deployment/DOCKER-STATUS-REPORT.md
 → docs/deployment/SECRETS-CHECKLIST.md
 → docs/deployment/INFISICAL-SECRETS-REFERENCE.md
-→ docs/deployment/GRAPHITI-MCP-DEPLOYMENT-PLAN.md
+→ docs/deployment/letta-MCP-DEPLOYMENT-PLAN.md
 → docs/deployment/MEM0-MCP-DEPLOYMENT-PLAN.md
 → docs/deployment/MCP-SERVER-SETUP.md
-→ docs/integration/AGENTDB-INTEGRATION-GUIDE.md
+→ docs/integration/ruvector-INTEGRATION-GUIDE.md
 
 QUICK START COMMANDS
 ================================================================================
@@ -217,13 +217,13 @@ WHAT'S PRODUCTION-READY
 ✓ Activepieces (automation)
 ✓ TwentyCRM (CRM)
 ✓ Letta (memory)
-✓ AgentDB (vector search - 150x-12500x faster)
+✓ ruvector (vector search - 150x-12500x faster)
 ✓ Monitoring (Prometheus/Grafana/Loki)
 
 WHAT'S PENDING
 ================================================================================
 
-⏳ Graphiti MCP - Issues to resolve
+⏳ letta MCP - Issues to resolve
 ⏳ Mem0 MCP - Ready but commented out
 ⏳ Nexus Router - MCP proxy (Week 3)
 ⏳ Advanced memory coordination

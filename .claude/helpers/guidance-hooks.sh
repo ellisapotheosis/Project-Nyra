@@ -4,7 +4,7 @@
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
-CACHE_DIR="$PROJECT_ROOT/.claude-flow"
+CACHE_DIR="$PROJECT_ROOT/.archon-os"
 
 # Ensure cache directory exists
 mkdir -p "$CACHE_DIR" 2>/dev/null || true
@@ -54,7 +54,7 @@ case "$COMMAND" in
         [[ -z "$TASK" ]] && exit 0
         if [[ "$TASK" =~ (security|CVE|vulnerability) ]]; then
             echo -e "${DIM}[Route] security-architect${RESET}"
-        elif [[ "$TASK" =~ (memory|AgentDB|HNSW|vector) ]]; then
+        elif [[ "$TASK" =~ (memory|ruvector|HNSW|vector) ]]; then
             echo -e "${DIM}[Route] memory-specialist${RESET}"
         elif [[ "$TASK" =~ (performance|optimize|benchmark) ]]; then
             echo -e "${DIM}[Route] performance-engineer${RESET}"
@@ -68,7 +68,7 @@ case "$COMMAND" in
         cat << 'EOF'
 ## V3 Development Context
 
-**Architecture**: Domain-Driven Design with 15 @claude-flow modules
+**Architecture**: Domain-Driven Design with 15 @archon-os modules
 **Priority**: Security-first (CVE-1, CVE-2, CVE-3 remediation)
 **Performance Targets**:
 - HNSW search: 150x-12,500x faster
@@ -78,7 +78,7 @@ case "$COMMAND" in
 **Active Patterns**:
 - Use TDD London School (mock-first)
 - Event sourcing for state changes
-- agentic-flow@alpha as core foundation
+- archon-os@alpha as core foundation
 - Bounded contexts with clear interfaces
 
 **Code Quality Rules**:

@@ -348,7 +348,7 @@ app.post('/api/auth/login', RateLimiter.auth(), loginHandler);
 pnpm --filter @nyra/security-service --help
 
 # Claude Flow security commands
-npx @claude-flow/cli@latest security --help
+npx @archon-os/cli@latest security --help
 ```
 
 ### External Resources

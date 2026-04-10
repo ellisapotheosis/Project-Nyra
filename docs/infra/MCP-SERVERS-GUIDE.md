@@ -95,7 +95,7 @@ Project Nyra uses **11 MCP (Model Context Protocol) servers** distributed across
 
 ### NPX-based MCP Servers
 
-#### 7. **claude-flow**
+#### 7. **archon-os**
 - **Type**: NPX-managed via .mcp.json
 - **Port**: 8051
 - **Purpose**: Core orchestration and multi-agent coordination
@@ -104,8 +104,8 @@ Project Nyra uses **11 MCP (Model Context Protocol) servers** distributed across
   - 15 max agents
   - Hybrid memory backend
   - Hook system enabled (27 hooks + 12 workers)
-- **Start**: Managed by Claude Desktop or `npx @claude-flow/cli@latest mcp start`
-- **Configuration**: `infra/configs/claude-flow/`
+- **Start**: Managed by Claude Desktop or `npx @archon-os/cli@latest mcp start`
+- **Configuration**: `infra/configs/archon-os/`
 
 ### Service-based MCP Servers (Documentation Only)
 
@@ -286,13 +286,13 @@ Nexus Router acts as the **MetaMCP proxy aggregator** for smart routing between:
 ## 📝 Configuration Files
 
 ### .mcp.json (Root)
-Currently minimal - only claude-flow configured:
+Currently minimal - only archon-os configured:
 ```json
 {
   "mcpServers": {
-    "claude-flow": {
+    "archon-os": {
       "command": "cmd",
-      "args": ["/c", "npx", "@claude-flow/cli@latest", "mcp", "start"],
+      "args": ["/c", "npx", "@archon-os/cli@latest", "mcp", "start"],
       "env": {
         "CLAUDE_FLOW_MODE": "v3",
         "CLAUDE_FLOW_HOOKS_ENABLED": "true",
@@ -311,12 +311,12 @@ Currently minimal - only claude-flow configured:
 - **Production**: `infra/configs/mcp/.mcp.json.production`
 
 ### Claude Flow Configs
-Located in `infra/configs/claude-flow/`:
-- `claude-flow.config.json` - Full configuration
-- `claude-flow.config.minimal.json` - Minimal setup
+Located in `infra/configs/archon-os/`:
+- `archon-os.config.json` - Full configuration
+- `archon-os.config.minimal.json` - Minimal setup
 - `.env.dev` - Development environment
 - `.env.prod` - Production environment
-- `.env.claude-flow` - General environment
+- `.env.archon-os` - General environment
 
 ---
 
@@ -340,12 +340,12 @@ Project-Nyra/
 │       ├── mcp/                # MCP environment configs
 │       │   ├── .mcp.json.development
 │       │   └── .mcp.json.production
-│       └── claude-flow/        # Claude Flow configs
-│           ├── claude-flow.config.json
-│           ├── claude-flow.config.minimal.json
+│       └── archon-os/        # Claude Flow configs
+│           ├── archon-os.config.json
+│           ├── archon-os.config.minimal.json
 │           ├── .env.dev
 │           ├── .env.prod
-│           └── .env.claude-flow
+│           └── .env.archon-os
 │
 ├── services/
 │   ├── gemini-mcp/             # Gemini integration (docs only)
@@ -358,7 +358,7 @@ Project-Nyra/
 │   └── mcp/
 │       └── manage-mcp-servers.ps1  # Unified management script
 │
-└── .mcp.json                   # Root MCP config (claude-flow only)
+└── .mcp.json                   # Root MCP config (archon-os only)
 ```
 
 ---
@@ -419,11 +419,11 @@ docker logs nyra-bitwarden-mcp
 ### Claude Flow Not Starting
 ```powershell
 # Check MCP status
-npx @claude-flow/cli@latest mcp status
+npx @archon-os/cli@latest mcp status
 
 # Restart MCP daemon
-npx @claude-flow/cli@latest daemon stop
-npx @claude-flow/cli@latest daemon start
+npx @archon-os/cli@latest daemon stop
+npx @archon-os/cli@latest daemon start
 ```
 
 ---
@@ -435,11 +435,11 @@ npx @claude-flow/cli@latest daemon start
 - **Bitwarden MCP**: `infra/bitwarden-mcp/README.md`
 - **Docker MCP**: `infra/docker-mcp/README.md`
 - **Sequential Thinking**: `infra/sequential-thinking-mcp/README.md`
-- **Claude Flow**: `infra/configs/claude-flow/` + external context
+- **Claude Flow**: `infra/configs/archon-os/` + external context
 
 ### External Links
 - Nexus Router: https://nexusrouter.com
-- Claude Flow: https://github.com/ruvnet/claude-flow
+- Claude Flow: https://github.com/ruvnet/archon-os
 - MCP Specification: https://modelcontextprotocol.io
 
 ### Related Documents

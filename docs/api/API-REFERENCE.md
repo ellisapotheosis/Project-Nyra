@@ -14,7 +14,7 @@
 5. [Orchestrator API](#orchestrator-api)
 6. [Nexus Router API](#nexus-router-api)
 7. [Memory APIs](#memory-apis)
-8. [Claude Flow CLI Reference](#claude-flow-cli-reference)
+8. [Claude Flow CLI Reference](#archon-os-cli-reference)
 9. [MCP Tools Reference](#mcp-tools-reference)
 10. [Error Handling](#error-handling)
 
@@ -719,10 +719,10 @@ curl -X POST http://localhost:6000/v1/messages \
 
 ```bash
 # Install globally
-npm install -g @claude-flow/cli@latest
+npm install -g @archon-os/cli@latest
 
 # Or use npx
-npx @claude-flow/cli@latest [command]
+npx @archon-os/cli@latest [command]
 ```
 
 ### Core Commands
@@ -731,39 +731,39 @@ npx @claude-flow/cli@latest [command]
 
 ```bash
 # View system status
-npx @claude-flow/cli@latest status
+npx @archon-os/cli@latest status
 
 # JSON output
-npx @claude-flow/cli@latest status --format json
+npx @archon-os/cli@latest status --format json
 
 # Verbose output
-npx @claude-flow/cli@latest status --verbose
+npx @archon-os/cli@latest status --verbose
 
 # Watch mode (continuous monitoring)
-npx @claude-flow/cli@latest status --watch
+npx @archon-os/cli@latest status --watch
 ```
 
 #### Agent Management
 
 ```bash
 # List all agents
-npx @claude-flow/cli@latest agent list
+npx @archon-os/cli@latest agent list
 
 # Spawn agent
-npx @claude-flow/cli@latest agent spawn \
+npx @archon-os/cli@latest agent spawn \
   -t coder \
   --name my-coder
 
 # Agent status
-npx @claude-flow/cli@latest agent status \
+npx @archon-os/cli@latest agent status \
   --agent-id agent_123
 
 # Terminate agent
-npx @claude-flow/cli@latest agent terminate \
+npx @archon-os/cli@latest agent terminate \
   --agent-id agent_123
 
 # Agent pool status
-npx @claude-flow/cli@latest agent pool \
+npx @archon-os/cli@latest agent pool \
   --action status
 ```
 
@@ -771,72 +771,72 @@ npx @claude-flow/cli@latest agent pool \
 
 ```bash
 # Initialize swarm
-npx @claude-flow/cli@latest swarm init \
+npx @archon-os/cli@latest swarm init \
   --topology hierarchical-mesh \
   --max-agents 35 \
   --strategy specialized
 
 # Swarm status
-npx @claude-flow/cli@latest swarm status
+npx @archon-os/cli@latest swarm status
 
 # Scale swarm
-npx @claude-flow/cli@latest swarm scale \
+npx @archon-os/cli@latest swarm scale \
   --agents 50
 
 # Join swarm (worker)
-npx @claude-flow/cli@latest swarm join \
+npx @archon-os/cli@latest swarm join \
   --coordinator http://10.0.0.1:7000
 
 # Swarm health
-npx @claude-flow/cli@latest swarm health
+npx @archon-os/cli@latest swarm health
 ```
 
 #### Memory Operations
 
 ```bash
 # Store memory
-npx @claude-flow/cli@latest memory store \
+npx @archon-os/cli@latest memory store \
   --namespace patterns \
   --key auth-pattern \
   --value "JWT with refresh tokens"
 
 # Retrieve memory
-npx @claude-flow/cli@latest memory retrieve \
+npx @archon-os/cli@latest memory retrieve \
   --namespace patterns \
   --key auth-pattern
 
 # Search memory (vector search)
-npx @claude-flow/cli@latest memory search \
+npx @archon-os/cli@latest memory search \
   --query "authentication patterns" \
   --namespace patterns \
   --limit 5
 
 # List memories
-npx @claude-flow/cli@latest memory list \
+npx @archon-os/cli@latest memory list \
   --namespace patterns
 
 # Memory statistics
-npx @claude-flow/cli@latest memory stats
+npx @archon-os/cli@latest memory stats
 ```
 
 #### Task Management
 
 ```bash
 # Create task
-npx @claude-flow/cli@latest task create \
+npx @archon-os/cli@latest task create \
   --type feature \
   --description "Implement OAuth" \
   --priority high
 
 # List tasks
-npx @claude-flow/cli@latest task list
+npx @archon-os/cli@latest task list
 
 # Task status
-npx @claude-flow/cli@latest task status \
+npx @archon-os/cli@latest task status \
   --task-id task_123
 
 # Complete task
-npx @claude-flow/cli@latest task complete \
+npx @archon-os/cli@latest task complete \
   --task-id task_123
 ```
 
@@ -844,27 +844,27 @@ npx @claude-flow/cli@latest task complete \
 
 ```bash
 # Pre-task hook (get routing suggestions)
-npx @claude-flow/cli@latest hooks pre-task \
+npx @archon-os/cli@latest hooks pre-task \
   --description "implement authentication"
 
 # Post-task hook (record completion)
-npx @claude-flow/cli@latest hooks post-task \
+npx @archon-os/cli@latest hooks post-task \
   --task-id task_123 \
   --success true
 
 # Route task to optimal agent
-npx @claude-flow/cli@latest hooks route \
+npx @archon-os/cli@latest hooks route \
   --task "fix bug in authentication"
 
 # Explain routing decision
-npx @claude-flow/cli@latest hooks explain \
+npx @archon-os/cli@latest hooks explain \
   --topic "authentication"
 
 # View metrics
-npx @claude-flow/cli@latest hooks metrics
+npx @archon-os/cli@latest hooks metrics
 
 # Pretrain from repository
-npx @claude-flow/cli@latest hooks pretrain \
+npx @archon-os/cli@latest hooks pretrain \
   --depth deep
 ```
 
@@ -872,39 +872,39 @@ npx @claude-flow/cli@latest hooks pretrain \
 
 ```bash
 # Train neural patterns
-npx @claude-flow/cli@latest neural train \
+npx @archon-os/cli@latest neural train \
   --pattern-type coordination \
   --epochs 10
 
 # View patterns
-npx @claude-flow/cli@latest neural patterns \
+npx @archon-os/cli@latest neural patterns \
   --list
 
 # Predict optimal approach
-npx @claude-flow/cli@latest neural predict \
+npx @archon-os/cli@latest neural predict \
   --input "implement oauth"
 
 # Training status
-npx @claude-flow/cli@latest neural status
+npx @archon-os/cli@latest neural status
 ```
 
 #### Daemon Control
 
 ```bash
 # Start daemon
-npx @claude-flow/cli@latest daemon start
+npx @archon-os/cli@latest daemon start
 
 # Stop daemon
-npx @claude-flow/cli@latest daemon stop
+npx @archon-os/cli@latest daemon stop
 
 # Restart daemon
-npx @claude-flow/cli@latest daemon restart
+npx @archon-os/cli@latest daemon restart
 
 # Daemon status
-npx @claude-flow/cli@latest daemon status
+npx @archon-os/cli@latest daemon status
 
 # Enable worker
-npx @claude-flow/cli@latest daemon enable \
+npx @archon-os/cli@latest daemon enable \
   --worker predict
 ```
 
@@ -912,48 +912,48 @@ npx @claude-flow/cli@latest daemon enable \
 
 ```bash
 # List configuration
-npx @claude-flow/cli@latest config list
+npx @archon-os/cli@latest config list
 
 # Get specific value
-npx @claude-flow/cli@latest config get \
+npx @archon-os/cli@latest config get \
   swarm.maxAgents
 
 # Set value
-npx @claude-flow/cli@latest config set \
+npx @archon-os/cli@latest config set \
   swarm.maxAgents 50
 
 # Validate configuration
-npx @claude-flow/cli@latest config validate
+npx @archon-os/cli@latest config validate
 ```
 
 #### MCP Server
 
 ```bash
 # Start MCP server
-npx @claude-flow/cli@latest mcp start
+npx @archon-os/cli@latest mcp start
 
 # MCP status
-npx @claude-flow/cli@latest mcp status
+npx @archon-os/cli@latest mcp status
 
 # Stop MCP server
-npx @claude-flow/cli@latest mcp stop
+npx @archon-os/cli@latest mcp stop
 ```
 
 #### System Diagnostics
 
 ```bash
 # Run doctor (health checks)
-npx @claude-flow/cli@latest doctor
+npx @archon-os/cli@latest doctor
 
 # Fix issues automatically
-npx @claude-flow/cli@latest doctor --fix
+npx @archon-os/cli@latest doctor --fix
 
 # Performance benchmark
-npx @claude-flow/cli@latest performance benchmark \
+npx @archon-os/cli@latest performance benchmark \
   --suite all
 
 # Security scan
-npx @claude-flow/cli@latest security scan \
+npx @archon-os/cli@latest security scan \
   --depth full
 ```
 

@@ -3,8 +3,8 @@
 # Enables agent-to-agent messaging, pattern sharing, consensus, and task handoffs
 #
 # Integration with:
-# - @claude-flow/hooks SwarmCommunication module
-# - agentic-flow@alpha swarm coordination
+# - @archon-os/hooks SwarmCommunication module
+# - archon-os@alpha swarm coordination
 # - Local hooks system for real-time agent coordination
 #
 # Key mechanisms:
@@ -16,7 +16,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
-SWARM_DIR="$PROJECT_ROOT/.claude-flow/swarm"
+SWARM_DIR="$PROJECT_ROOT/.archon-os/swarm"
 MESSAGES_DIR="$SWARM_DIR/messages"
 PATTERNS_DIR="$SWARM_DIR/patterns"
 CONSENSUS_DIR="$SWARM_DIR/consensus"

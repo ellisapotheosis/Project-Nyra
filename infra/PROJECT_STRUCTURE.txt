@@ -10,5 +10,5 @@
 ./infra/config
 ./apps
 ./apps/archon-os
-./apps/claude-flow
+./apps/archon-os
 ./apps/openclaw

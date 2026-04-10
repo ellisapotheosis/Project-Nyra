@@ -125,7 +125,7 @@ DOCKER_HOST=unix:///var/run/docker.sock
 
 # Claude Flow
 CLAUDE_FLOW_MODE=orchestrator
-CLAUDE_FLOW_CONFIG=/opt/nyra/project-nyra/config/claude-flow/orchestrator/claude-flow.config.json
+CLAUDE_FLOW_CONFIG=/opt/nyra/project-nyra/config/archon-os/orchestrator/archon-os.config.json
 
 # Set all CHANGE_ME values with strong passwords:
 POSTGRES_PASSWORD=<strong-password>
@@ -232,11 +232,11 @@ mkdir -p ~/.claude-code
 ```json
 {
   "mcpServers": {
-    "claude-flow": {
+    "archon-os": {
       "command": "npx",
-      "args": ["-y", "@claude-flow/cli@latest", "mcp", "start"],
+      "args": ["-y", "@archon-os/cli@latest", "mcp", "start"],
       "env": {
-        "CLAUDE_FLOW_CONFIG": "/opt/nyra/project-nyra/config/claude-flow/orchestrator/claude-flow.config.json",
+        "CLAUDE_FLOW_CONFIG": "/opt/nyra/project-nyra/config/archon-os/orchestrator/archon-os.config.json",
         "CLAUDE_FLOW_MODE": "orchestrator"
       }
     },
@@ -340,7 +340,7 @@ docker ps | wc -l  # Should be 40+
 sudo systemctl status claude-code-orchestrator
 
 # 3. Check critical services
-docker ps | grep -E "postgres|redis|claude-flow|nexus"
+docker ps | grep -E "postgres|redis|archon-os|nexus"
 
 # 4. Test web UIs
 curl http://localhost:3003  # Grafana
@@ -419,7 +419,7 @@ NYRA_PC_IP=10.0.0.2
 ORCHESTRATOR_URL=http://10.0.0.1:3000
 DOCKER_HOST=tcp://localhost:2375
 CLAUDE_FLOW_MODE=worker
-CLAUDE_FLOW_CONFIG=/home/<your-user>/nyra/project-nyra/config/claude-flow/worker-laptop-1/claude-flow.config.json
+CLAUDE_FLOW_CONFIG=/home/<your-user>/nyra/project-nyra/config/archon-os/worker-laptop-1/archon-os.config.json
 GPU_ENABLED=true
 GPU_TYPE=rtx_5090
 GPU_MEMORY=24GB
@@ -432,7 +432,7 @@ ANTHROPIC_API_KEY=sk-ant-<your-key>
 Same as above but use:
 - `NYRA_PC_ID=worker-laptop-2`
 - `NYRA_PC_IP=10.0.0.3`
-- `CLAUDE_FLOW_CONFIG=.../worker-laptop-2/claude-flow.config.json`
+- `CLAUDE_FLOW_CONFIG=.../worker-laptop-2/archon-os.config.json`
 - `GPU_TYPE=rtx_3060`
 - `GPU_MEMORY=12GB`
 
@@ -506,11 +506,11 @@ mkdir -p ~/.claude-code
 ```json
 {
   "mcpServers": {
-    "claude-flow": {
+    "archon-os": {
       "command": "npx",
-      "args": ["-y", "@claude-flow/cli@latest", "mcp", "start"],
+      "args": ["-y", "@archon-os/cli@latest", "mcp", "start"],
       "env": {
-        "CLAUDE_FLOW_CONFIG": "/home/<user>/nyra/project-nyra/config/claude-flow/worker-laptop-1/claude-flow.config.json",
+        "CLAUDE_FLOW_CONFIG": "/home/<user>/nyra/project-nyra/config/archon-os/worker-laptop-1/archon-os.config.json",
         "CLAUDE_FLOW_MODE": "worker",
         "CLAUDE_FLOW_ORCHESTRATOR_URL": "http://10.0.0.1:3000"
       }
@@ -541,7 +541,7 @@ docker ps  # Should show orchestrator's 40+ containers
 claude-code --version
 
 # 5. Test Claude Flow
-npx @claude-flow/cli@latest swarm status
+npx @archon-os/cli@latest swarm status
 ```
 
 ---
@@ -1029,9 +1029,9 @@ sudo systemctl restart claude-code-orchestrator
   - Worker Docker connect: `scripts/worker-laptop/docker-connect.sh`
   - Wake GPU worker: `scripts/orchestrator/wake-gpu-worker.sh`
 - **Configs**:
-  - Orchestrator: `config/claude-flow/orchestrator/claude-flow.config.json`
-  - Worker Laptop 1: `config/claude-flow/worker-laptop-1/claude-flow.config.json`
-  - Worker Laptop 2: `config/claude-flow/worker-laptop-2/claude-flow.config.json`
+  - Orchestrator: `config/archon-os/orchestrator/archon-os.config.json`
+  - Worker Laptop 1: `config/archon-os/worker-laptop-1/archon-os.config.json`
+  - Worker Laptop 2: `config/archon-os/worker-laptop-2/archon-os.config.json`
 - **Infrastructure**: `infra/docker-compose.yml`, `infra/Makefile`
 
 ---

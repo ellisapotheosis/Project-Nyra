@@ -172,7 +172,7 @@ $pgPass = infisical secrets get "POSTGRES_PASSWORD" --path="/databases/postgres"
 - Claude Flow
 - Nexus Router
 - Archon OS
-- AgentDB
+- ruvector
 - Each database
 - Each GPU worker
 

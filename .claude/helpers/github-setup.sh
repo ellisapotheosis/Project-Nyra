@@ -22,7 +22,7 @@ fi
 
 echo ""
 echo "📦 GitHub swarm commands available:"
-echo "  - npx claude-flow github swarm"
-echo "  - npx claude-flow repo analyze"
-echo "  - npx claude-flow pr enhance"
-echo "  - npx claude-flow issue triage"
+echo "  - npx archon-os github swarm"
+echo "  - npx archon-os repo analyze"
+echo "  - npx archon-os pr enhance"
+echo "  - npx archon-os issue triage"

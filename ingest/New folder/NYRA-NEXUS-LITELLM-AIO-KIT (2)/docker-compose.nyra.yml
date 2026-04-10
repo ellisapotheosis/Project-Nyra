@@ -10,7 +10,7 @@ volumes:
   postgres-main-data:
   postgres-ruvector-data:
   redis-data:
-  agentdb-data:
+  ruvector-data:
   ruvector-data:
   qdrant-data:
   neo4j-data:
@@ -64,15 +64,15 @@ services:
   # -------------------------
   # Memory / Vector services
   # -------------------------
-  agentdb:
-    image: ruvnet/agentdb:latest
+  ruvector:
+    image: ruvnet/ruvector:latest
     profiles: ["core"]
     restart: unless-stopped
-    command: ["agentdb", "start", "--data", "/data", "--bind", "0.0.0.0", "--port", "8123"]
+    command: ["ruvector", "start", "--data", "/data", "--bind", "0.0.0.0", "--port", "8123"]
     volumes:
-      - agentdb-data:/data
+      - ruvector-data:/data
     ports:
-      - "${AGENTDB_PORT:-8123}:8123"
+      - "${ruvector_PORT:-8123}:8123"
     networks: [nyra]
 
   qdrant:
@@ -135,24 +135,24 @@ services:
       - "${FALKORDB_PORT:-6378}:6379"
     networks: [nyra]
 
-  graphiti:
-    image: graphiti/graphiti:latest
+  letta:
+    image: letta/letta:latest
     profiles: ["graph-neo4j", "graph-falkor"]
     restart: unless-stopped
     depends_on:
       - postgres-main
     environment:
-      GRAPHITI_BACKEND: ${GRAPHITI_BACKEND:-neo4j}
-      GRAPHITI_DATABASE_URL: ${GRAPHITI_DATABASE_URL:-postgres://nyra:change-me@postgres-main:5432/nyra_main}
+      letta_BACKEND: ${letta_BACKEND:-neo4j}
+      letta_DATABASE_URL: ${letta_DATABASE_URL:-postgres://nyra:change-me@postgres-main:5432/nyra_main}
       # Neo4j
-      GRAPHITI_NEO4J_URI: ${GRAPHITI_NEO4J_URI:-bolt://neo4j:7687}
-      GRAPHITI_NEO4J_USER: ${GRAPHITI_NEO4J_USER:-neo4j}
-      GRAPHITI_NEO4J_PASSWORD: ${GRAPHITI_NEO4J_PASSWORD:-change-me}
+      letta_NEO4J_URI: ${letta_NEO4J_URI:-bolt://neo4j:7687}
+      letta_NEO4J_USER: ${letta_NEO4J_USER:-neo4j}
+      letta_NEO4J_PASSWORD: ${letta_NEO4J_PASSWORD:-change-me}
       # FalkorDB
-      GRAPHITI_FALKORDB_URL: ${GRAPHITI_FALKORDB_URL:-redis://falkordb:6379}
-      GRAPHITI_FALKORDB_GRAPH_KEY: ${GRAPHITI_FALKORDB_GRAPH_KEY:-nyra}
+      letta_FALKORDB_URL: ${letta_FALKORDB_URL:-redis://falkordb:6379}
+      letta_FALKORDB_GRAPH_KEY: ${letta_FALKORDB_GRAPH_KEY:-nyra}
     ports:
-      - "${GRAPHITI_PORT:-7400}:7400"
+      - "${letta_PORT:-7400}:7400"
     networks: [nyra]
 
   # -------------------------
@@ -206,13 +206,13 @@ services:
   # -------------------------
   # Orchestrators (containerized)
   # -------------------------
-  claude-flow:
-    image: ruvnet/claude-flow:alpha
+  archon-os:
+    image: ruvnet/archon-os:alpha
     profiles: ["core"]
     restart: unless-stopped
     depends_on:
       - redis
-      - agentdb
+      - ruvector
       - ruvector
     environment:
       CLAUDE_FLOW_MODE: ${CLAUDE_FLOW_MODE:-orchestrator}
@@ -221,9 +221,9 @@ services:
       NYRA_NEXUS_URL: ${NYRA_NEXUS_URL:-http://nexus:8700}
       LITELLM_PROXY_URL: ${LITELLM_PROXY_URL:-http://litellm:4000}
       REDIS_URL: ${CLAUDE_FLOW_REDIS_URL:-redis://redis:6379/0}
-      AGENTDB_URL: ${AGENTDB_URL:-http://agentdb:8123}
+      ruvector_URL: ${ruvector_URL:-http://ruvector:8123}
       RUVECTOR_API_URL: ${RUVECTOR_API_URL:-http://ruvector:8000}
-      GRAPHITI_URL: ${GRAPHITI_URL:-http://graphiti:7400}
+      letta_URL: ${letta_URL:-http://letta:7400}
       # Provider keys injected via Infisical:
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
       OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
@@ -243,14 +243,14 @@ services:
     restart: unless-stopped
     depends_on:
       - redis
-      - agentdb
+      - ruvector
       - ruvector
     environment:
       ARCHON_ENV: ${ARCHON_ENV:-development}
       ARCHON_REDIS_URL: ${ARCHON_REDIS_URL:-redis://redis:6379/1}
-      ARCHON_AGENTDB_URL: ${ARCHON_AGENTDB_URL:-http://agentdb:8123}
+      ARCHON_ruvector_URL: ${ARCHON_ruvector_URL:-http://ruvector:8123}
       ARCHON_RUVECTOR_URL: ${ARCHON_RUVECTOR_URL:-http://ruvector:8000}
-      ARCHON_GRAPHITI_URL: ${ARCHON_GRAPHITI_URL:-http://graphiti:7400}
+      ARCHON_letta_URL: ${ARCHON_letta_URL:-http://letta:7400}
       NYRA_NEXUS_URL: ${NYRA_NEXUS_URL:-http://nexus:8700}
       LITELLM_PROXY_URL: ${LITELLM_PROXY_URL:-http://litellm:4000}
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}

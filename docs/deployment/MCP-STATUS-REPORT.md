@@ -18,11 +18,11 @@
 
 | Server | Status | Configuration Source | Notes |
 |--------|--------|---------------------|-------|
-| claude-flow | ✅ Connected | Claude Desktop + Project .mcp.json | Using @alpha version |
+| archon-os | ✅ Connected | Claude Desktop + Project .mcp.json | Using @alpha version |
 | desktop-commander | ❌ Failed | Claude Desktop only | Connection refused |
 | serena | ❌ Failed | Claude Desktop only | Connection refused |
 | flow-nexus | ❌ Failed | Claude Desktop only | Connection refused |
-| agentdb | ❌ Failed | Claude Desktop only | Connection refused |
+| ruvector | ❌ Failed | Claude Desktop only | Connection refused |
 
 ---
 
@@ -35,9 +35,9 @@
 ```json
 {
   "mcpServers": {
-    "claude-flow": {
+    "archon-os": {
       "command": "cmd",
-      "args": ["/c", "npx", "@claude-flow/cli@latest", "mcp", "start"],
+      "args": ["/c", "npx", "@archon-os/cli@latest", "mcp", "start"],
       "env": {
         "CLAUDE_FLOW_MODE": "v3",
         "CLAUDE_FLOW_HOOKS_ENABLED": "true",
@@ -64,11 +64,11 @@
 **Location**: Likely in Claude Desktop's global config (not in project)
 
 **Servers Configured**: 5 total
-- claude-flow
+- archon-os
 - desktop-commander
 - serena
 - flow-nexus
-- agentdb
+- ruvector
 
 **Issue**: 4 of 5 servers failing to connect, suggesting:
 1. Services not running
@@ -86,7 +86,7 @@
 **Error Message**:
 ```
 Config loading failed: Cannot find package 'zod' imported from
-C:\Users\edane\AppData\Local\npm-cache\_npx\85fb20e3e7e3a233\node_modules\@claude-flow\shared\dist\core\config\schema.js
+C:\Users\edane\AppData\Local\npm-cache\_npx\85fb20e3e7e3a233\node_modules\@archon-os\shared\dist\core\config\schema.js
 ```
 
 **Impact**:
@@ -94,40 +94,40 @@ C:\Users\edane\AppData\Local\npm-cache\_npx\85fb20e3e7e3a233\node_modules\@claud
 - Config validation may be broken
 - Could affect server reliability
 
-**Root Cause**: Missing `zod` package dependency in @claude-flow/cli installation
+**Root Cause**: Missing `zod` package dependency in @archon-os/cli installation
 
 **Recommended Fix**:
 ```bash
-# Reinstall claude-flow with all dependencies
-npm install -g @claude-flow/cli@latest
+# Reinstall archon-os with all dependencies
+npm install -g @archon-os/cli@latest
 
 # Or force dependency resolution
-cd C:\Users\edane\AppData\Local\npm-cache\_npx\85fb20e3e7e3a233\node_modules\@claude-flow\cli
+cd C:\Users\edane\AppData\Local\npm-cache\_npx\85fb20e3e7e3a233\node_modules\@archon-os\cli
 npm install
 ```
 
 ### Issue 2: Configuration Mismatch
 
 **Documented Servers** (from architecture docs): 9 servers
-- claude-flow
+- archon-os
 - ruv-swarm
-- agentdb
+- ruvector
 - ruvector
 - letta
-- graphiti
+- letta
 - mem0
 - filesystem
 - github
 
-**Project .mcp.json**: 1 server (claude-flow only)
+**Project .mcp.json**: 1 server (archon-os only)
 
-**Claude Desktop**: 5 servers (claude-flow, desktop-commander, serena, flow-nexus, agentdb)
+**Claude Desktop**: 5 servers (archon-os, desktop-commander, serena, flow-nexus, ruvector)
 
 **Missing from ALL configs**: 4 servers
 - ruv-swarm
 - ruvector (vector search)
 - letta (agent memory)
-- graphiti (knowledge graph)
+- letta (knowledge graph)
 - mem0 (memory system)
 - filesystem
 - github
@@ -156,9 +156,9 @@ npm install
 - **Command**: `npx flow-nexus@latest mcp start`
 - **Likely Issue**: Package not installed or authentication required
 
-**agentdb**: ✗ Failed to connect
+**ruvector**: ✗ Failed to connect
 - **Purpose**: Agent memory and vector database
-- **Command**: `npx agentdb@latest mcp`
+- **Command**: `npx ruvector@latest mcp`
 - **Likely Issue**: Package not installed or service not running
 
 ---
@@ -177,7 +177,7 @@ npm install
 ### Installation Method Issues
 
 **Current State** (based on user message):
-- **claude-flow**: Local cloned fork (submodule) + npm link
+- **archon-os**: Local cloned fork (submodule) + npm link
 - **archon OS**: Local cloned fork (submodule)
 - **Secret Injection**: Manual via CLAUDE.cmd PowerShell script
 
@@ -189,7 +189,7 @@ npm install
 5. Not container-friendly
 
 **Recommended State**:
-- **claude-flow**: npm package (@claude-flow/cli@latest)
+- **archon-os**: npm package (@archon-os/cli@latest)
 - **archon OS**: npm package (if available) or Docker container
 - **Secret Injection**: Automated via Infisical Docker agent/sidecar
 - **All MCP servers**: Configured in project .mcp.json
@@ -201,18 +201,18 @@ npm install
 
 ### Immediate Actions (Priority 1)
 
-1. **Fix claude-flow dependency issue**:
+1. **Fix archon-os dependency issue**:
    ```bash
-   npm install -g @claude-flow/cli@latest --force
+   npm install -g @archon-os/cli@latest --force
    ```
 
-2. **Verify claude-flow connection**:
+2. **Verify archon-os connection**:
    ```bash
-   npx @claude-flow/cli@latest mcp status
+   npx @archon-os/cli@latest mcp status
    ```
 
 3. **Document working configuration**:
-   - Capture current claude-flow@alpha settings
+   - Capture current archon-os@alpha settings
    - Ensure reproducible setup
 
 ### Short-Term Actions (Priority 2)
@@ -220,21 +220,21 @@ npm install
 4. **Remove local clones and submodules**:
    ```bash
    # Remove submodules
-   git submodule deinit -f orchestration/claude-flow
    git submodule deinit -f orchestration/archon-os
-   git rm -f orchestration/claude-flow
+   git submodule deinit -f orchestration/archon-os
    git rm -f orchestration/archon-os
-   rm -rf .git/modules/orchestration/claude-flow
+   git rm -f orchestration/archon-os
+   rm -rf .git/modules/orchestration/archon-os
    rm -rf .git/modules/orchestration/archon-os
 
    # Remove npm links
-   npm unlink @claude-flow/cli
+   npm unlink @archon-os/cli
    ```
 
 5. **Switch to npm packages**:
    ```bash
    # Install via package manager
-   pnpm add @claude-flow/cli@latest
+   pnpm add @archon-os/cli@latest
    pnpm add @archon-os/core@latest  # if available
    ```
 
@@ -242,9 +242,9 @@ npm install
    ```json
    {
      "mcpServers": {
-       "claude-flow": { ... },
+       "archon-os": { ... },
        "desktop-commander": { ... },
-       "agentdb": { ... },
+       "ruvector": { ... },
        "flow-nexus": { ... },
        "github": { ... },
        "filesystem": { ... }
@@ -269,8 +269,8 @@ npm install
      networks:
        - nyra-network
 
-   # Add sidecar to claude-flow service
-   claude-flow:
+   # Add sidecar to archon-os service
+   archon-os:
      depends_on:
        - infisical-agent
      volumes_from:
@@ -283,7 +283,7 @@ npm install
    - ruv-swarm
    - ruvector (vector search)
    - letta (agent memory)
-   - graphiti (knowledge graph)
+   - letta (knowledge graph)
    - mem0 (memory system)
 
 10. **Containerize all MCP servers**:
@@ -335,8 +335,8 @@ npm install
 The MCP server infrastructure is partially operational but has significant gaps:
 
 **Working** (20%):
-- ✅ claude-flow@alpha connected and operational
-- ✅ Project .mcp.json configured correctly for claude-flow
+- ✅ archon-os@alpha connected and operational
+- ✅ Project .mcp.json configured correctly for archon-os
 - ✅ V3 features enabled (hooks, hierarchical-mesh, hybrid memory)
 
 **Not Working** (80%):
@@ -413,7 +413,7 @@ The MCP server infrastructure is partially operational but has significant gaps:
 **Status**: Task #15 - MCP Audit Complete ⚠️
 
 **Next Tasks**:
-- Remove claude-flow and archon-os submodules
+- Remove archon-os and archon-os submodules
 - Switch to npm package installations
 - Setup Infisical Docker integration
 - Configure all missing MCP servers

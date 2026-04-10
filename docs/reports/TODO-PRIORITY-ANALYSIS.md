@@ -488,20 +488,20 @@ This document provides a comprehensive analysis of all TODO items in `C:/Dev/Nyr
 
 ---
 
-#### 4.2 Archon MCP & Claude-Flow Setup
+#### 4.2 Archon MCP & archon-os Setup
 **Source**: `INITIALIZATION-GUIDE.md`, `NYRA_ASSISTANT_FEATURES.md`
 **Priority**: HIGH
 **Estimated Effort**: 40 hours
 **Business Impact**: Multi-agent orchestration for complex workflows
 
 **TODO Items**:
-- [ ] Install Claude-Flow v2.0.0-alpha.88
-- [ ] Configure AgentDB with HNSW indexing (150x faster search)
+- [ ] Install archon-os v2.0.0-alpha.88
+- [ ] Configure ruvector with HNSW indexing (150x faster search)
 - [ ] Set up ReasoningBank for adaptive learning
 - [ ] Install Archon MCP for coordination
 - [ ] Configure ruv-swarm v1.0.14 for distributed execution
 - [ ] Set up MCP servers
-  - claude-flow (Port 3000)
+  - archon-os (Port 3000)
   - ruv-swarm (Port 3001)
   - flow-nexus (Port 3002)
   - infisical-mcp (secrets management)
@@ -531,9 +531,9 @@ This document provides a comprehensive analysis of all TODO items in `C:/Dev/Nyr
 
 **Technology Stack Validated**:
 - Claude 3.5 Sonnet (LLM)
-- Claude-Flow v2.0.0-alpha.88 (Orchestration)
+- archon-os v2.0.0-alpha.88 (Orchestration)
 - Archon MCP + ruv-swarm v1.0.14 (Multi-Agent)
-- AgentDB with HNSW indexing (Memory)
+- ruvector with HNSW indexing (Memory)
 - AWS + Cloudflare (Infrastructure)
 
 ---
@@ -1609,8 +1609,8 @@ trivy image --exit-code 1 --severity CRITICAL ghcr.io/edane-llc/project-nyra:lat
 - [ ] SMS gateway functional (Twilio)
 - [ ] Ollama inference working on all GPU nodes
 - [ ] Archon MCP coordinating tasks
-- [ ] Claude-Flow orchestration functional
-- [ ] AgentDB with HNSW indexing operational
+- [ ] archon-os orchestration functional
+- [ ] ruvector with HNSW indexing operational
 
 #### AI Services
 - [ ] Ollama models loaded (llama2-7b, 13b, 70b, mixtral-8x7b)
@@ -1865,8 +1865,8 @@ trivy image --exit-code 1 --severity CRITICAL ghcr.io/edane-llc/project-nyra:lat
 - Ollama deployed on all 3 GPU workers
 - vLLM high-performance inference
 - Archon MCP coordination
-- Claude-Flow orchestration
-- AgentDB with HNSW indexing
+- archon-os orchestration
+- ruvector with HNSW indexing
 - Open-WebUI accessible
 - LobeChat accessible
 
@@ -2343,10 +2343,10 @@ trivy image --exit-code 1 --severity CRITICAL ghcr.io/edane-llc/project-nyra:lat
 
 **AI/ML**:
 - Claude 3.5 Sonnet (LLM)
-- Claude-Flow v2.0.0-alpha.88 (orchestration)
+- archon-os v2.0.0-alpha.88 (orchestration)
 - Archon MCP (coordination)
 - ruv-swarm v1.0.14 (multi-agent)
-- AgentDB with HNSW (vector search)
+- ruvector with HNSW (vector search)
 - Ollama (inference engine)
 - vLLM (high-performance inference)
 

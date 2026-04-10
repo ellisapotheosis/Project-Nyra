@@ -207,7 +207,7 @@ This package includes the ultimate configurations I created for you:
 
 ### 2. settings.json (Enhanced .claude/settings.json)
 - All 6 memory systems integrated
-- RuVector, Letta, Graphiti, FalkorDB, Mem0, OpenMemory
+- RuVector, Letta, letta, FalkorDB, Mem0, OpenMemory
 - Advanced hooks and automation
 - GPU worker awareness
 - Neural learning models

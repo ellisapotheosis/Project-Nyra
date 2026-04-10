@@ -284,7 +284,7 @@ V3 includes RuVector with:
 - SPARC Workflows: `ToDo/whitepaper-workflow/Nyra-Truth-and-Standards/MORTGAGE-SPARC-WORKFLOWS.md`
 - Compliance Guide: `ToDo/whitepaper-workflow/nyra-mcp-infisical-patchkit-v1/docs/COMPLIANCE_GUARDRAILS.md`
 - Stack Decisions: `ToDo/whitepaper-workflow/nyra-mcp-infisical-patchkit-v1/docs/STACK_DECISIONS.md`
-- Full Capabilities: `.claude-flow/CAPABILITIES.md`
+- Full Capabilities: `.archon-os/CAPABILITIES.md`
 
 **Mortgage-Specific Documentation:**
 - See: `/docs/MORTGAGE_DOMAIN.md` (compliance, agents, workflows, metrics)
@@ -293,7 +293,7 @@ V3 includes RuVector with:
 - Nexus Router: https://nexusrouter.com/docs
 - Dify: https://docs.dify.ai/en/use-dify/build/mcp
 - Activepieces: https://www.activepieces.com/blog/model-context-protocol-mcp
-- Graphiti: https://help.getzep.com/graphiti/getting-started/mcp-server
+- letta: https://help.getzep.com/letta/getting-started/mcp-server
 - Letta: https://docs.letta.com/advanced/memory-management/
 
 ---
@@ -309,10 +309,10 @@ V3 includes RuVector with:
 - Git operations
 
 ### CLI Tools Handle Coordination (via Bash):
-- **Swarm init**: `npx @claude-flow/cli@latest swarm init --topology <type>`
-- **Agent spawn**: `npx @claude-flow/cli@latest agent spawn -t <type> --name <name>`
+- **Swarm init**: `npx @archon-os/cli@latest swarm init --topology <type>`
+- **Agent spawn**: `npx @archon-os/cli@latest agent spawn -t <type> --name <name>`
 - **Memory store/search/retrieve**: Memory operations
-- **Hooks**: `npx @claude-flow/cli@latest hooks <hook-name> [options]`
+- **Hooks**: `npx @archon-os/cli@latest hooks <hook-name> [options]`
 
 **KEY**: CLI coordinates strategy via Bash, Task tool agents execute!
 
@@ -322,7 +322,7 @@ V3 includes RuVector with:
 
 ```bash
 # Configuration
-CLAUDE_FLOW_CONFIG=./claude-flow.config.json
+CLAUDE_FLOW_CONFIG=./archon-os.config.json
 CLAUDE_FLOW_LOG_LEVEL=info
 
 # Provider API Keys
@@ -345,13 +345,13 @@ CLAUDE_FLOW_MEMORY_PATH=./data/memory
 
 ```bash
 # Add MCP servers
-claude mcp add claude-flow -- npx -y @claude-flow/cli@latest
+claude mcp add archon-os -- npx -y @archon-os/cli@latest
 
 # Start daemon
-npx @claude-flow/cli@latest daemon start
+npx @archon-os/cli@latest daemon start
 
 # System diagnostics
-npx @claude-flow/cli@latest doctor --fix
+npx @archon-os/cli@latest doctor --fix
 ```
 
 ---

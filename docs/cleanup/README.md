@@ -167,7 +167,7 @@ docs/
 2. **Clearer Navigation** - README files at each level provide index and quick links
 3. **Eliminated Duplication** - Single source of truth for each topic
 4. **Improved Discovery** - Easier to find what you need
-5. **MetaMCP Replaced** - Using standard MCP with claude-flow instead
+5. **MetaMCP Replaced** - Using standard MCP with archon-os instead
 
 ### Benefits
 - Faster onboarding for new developers

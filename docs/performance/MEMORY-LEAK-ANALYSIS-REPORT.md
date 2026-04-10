@@ -134,7 +134,7 @@ this.metricValues.get(name)!.push(metric);
 **Pattern:** `addEventListener` without corresponding `removeEventListener`
 **Found in:** 10 files including browser dashboard components
 **Example Files:**
-- `docs/references/claude-flow-examples/browser-dashboard/dashboard.js`
+- `docs/references/archon-os-examples/browser-dashboard/dashboard.js`
 - `apps/nexus-dashboard/src/hooks/use-mobile.tsx`
 
 ### 2. Timers/Intervals Not Cleared ❌

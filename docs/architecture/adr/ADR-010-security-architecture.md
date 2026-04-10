@@ -362,8 +362,8 @@ pnpm --filter @nyra/security-service scan:cve ./services
 pnpm --filter @nyra/security-service scan:full ./services
 
 # Via Claude Flow CLI
-npx @claude-flow/cli@latest security scan --depth full
-npx @claude-flow/cli@latest security cve --check CVE-2024-001
+npx @archon-os/cli@latest security scan --depth full
+npx @archon-os/cli@latest security cve --check CVE-2024-001
 ```
 
 ---

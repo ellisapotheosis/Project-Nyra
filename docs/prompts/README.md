@@ -1,4 +1,4 @@
 # Prompts
 
-- `claude-flow/` — ready-to-paste prompts for claude-flow (SPARC batch, swarms)
+- `archon-os/` — ready-to-paste prompts for archon-os (SPARC batch, swarms)
 - `agents/` — system prompts for specialized agents

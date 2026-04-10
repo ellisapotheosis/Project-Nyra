@@ -14,7 +14,7 @@ Successfully implemented a complete, production-ready SPARC (Specification, Pseu
 ## What Was Delivered
 
 ### 1. Core Workflow Definition
-- **File**: `.claude-flow/workflows/ingestion-sparc.json` (252 lines)
+- **File**: `.archon-os/workflows/ingestion-sparc.json` (252 lines)
 - Complete 5-phase SPARC workflow
 - Hierarchical-mesh topology with 10 max agents
 - Memory-based coordination with HNSW indexing
@@ -170,7 +170,7 @@ Central documentation index with:
 
 ```
 Project-Nyra/
-├── .claude-flow/workflows/
+├── .archon-os/workflows/
 │   └── ingestion-sparc.json          (252 lines)
 ├── scripts/ingestion/
 │   ├── sparc-workflow.sh             (240 lines)
@@ -227,7 +227,7 @@ All workflow data is stored with HNSW indexing for fast retrieval:
 **Stored in memory**:
 ```bash
 # View stored implementation
-npx @claude-flow/cli@latest memory retrieve \
+npx @archon-os/cli@latest memory retrieve \
   --key "sparc-workflow-implemented" \
   --namespace consolidation
 ```
@@ -246,7 +246,7 @@ npx @claude-flow/cli@latest memory retrieve \
 ## Dependencies
 
 ### Required
-- Claude Flow CLI (`@claude-flow/cli@latest`)
+- Claude Flow CLI (`@archon-os/cli@latest`)
 - Bash 4.0+
 - Node.js 20+
 - jq (for JSON processing)
@@ -258,7 +258,7 @@ npx @claude-flow/cli@latest memory retrieve \
 ### Installation
 ```bash
 # Install Claude Flow CLI
-npm install -g @claude-flow/cli@latest
+npm install -g @archon-os/cli@latest
 
 # Install jq
 brew install jq  # macOS
@@ -269,10 +269,10 @@ brew install parallel  # macOS
 sudo apt-get install parallel  # Linux
 
 # Start daemon
-npx @claude-flow/cli@latest daemon start
+npx @archon-os/cli@latest daemon start
 
 # Initialize memory
-npx @claude-flow/cli@latest memory init
+npx @archon-os/cli@latest memory init
 ```
 
 ## Testing & Validation
@@ -347,13 +347,13 @@ npx @claude-flow/cli@latest memory init
 ./scripts/ingestion/workflow-status.sh --help
 
 # System diagnostics
-npx @claude-flow/cli@latest doctor
+npx @archon-os/cli@latest doctor
 
 # Check daemon
-npx @claude-flow/cli@latest daemon status
+npx @archon-os/cli@latest daemon status
 
 # View logs
-tail -f .claude-flow/logs/daemon.log
+tail -f .archon-os/logs/daemon.log
 ```
 
 ### Troubleshooting
@@ -409,9 +409,9 @@ All components are tested, documented, and ready for immediate use in processing
 
 2. **Setup Environment**
    ```bash
-   npm install -g @claude-flow/cli@latest
-   npx @claude-flow/cli@latest daemon start
-   npx @claude-flow/cli@latest memory init
+   npm install -g @archon-os/cli@latest
+   npx @archon-os/cli@latest daemon start
+   npx @archon-os/cli@latest memory init
    chmod +x scripts/ingestion/*.sh
    ```
 

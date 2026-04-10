@@ -45,11 +45,11 @@ claude-md-backups/
 | archon-os/CLAUDE.md | services/archon-os/ | Archon OS service configuration |
 | auth-service/CLAUDE.md | services/auth-service/ | Authentication service config |
 | campaign-engine/CLAUDE.md | services/campaign-engine/ | Campaign management engine |
-| claude-flow/CLAUDE.md | services/claude-flow/ | Claude Flow orchestration service |
+| archon-os/CLAUDE.md | services/archon-os/ | Claude Flow orchestration service |
 | doc-management-api/CLAUDE.md | services/doc-management-api/ | Document management API |
 | gemini-mcp/CLAUDE.md | services/gemini-mcp/ | Google Gemini MCP integration |
 | github-mcp/CLAUDE.md | services/github-mcp/ | GitHub MCP server configuration |
-| graphiti-knowledge/CLAUDE.md | services/graphiti-knowledge/ | Graphiti knowledge graph service |
+| letta-knowledge/CLAUDE.md | services/letta-knowledge/ | letta knowledge graph service |
 | lead-capture-api/CLAUDE.md | services/lead-capture-api/ | Lead capture API configuration |
 | letta-integration/CLAUDE.md | services/letta-integration/ | Letta AI integration service |
 | litellm-proxy/CLAUDE.md | services/litellm-proxy/ | LiteLLM proxy service config |
@@ -69,7 +69,7 @@ claude-md-backups/
 | sendgrid-integration/CLAUDE.md | services/sendgrid-integration/ | SendGrid email integration |
 | sequential-thinking-mcp/CLAUDE.md | services/sequential-thinking-mcp/ | Sequential thinking MCP |
 | twilio-integration/CLAUDE.md | services/twilio-integration/ | Twilio communications integration |
-| orchestration/claude-flow/CLAUDE.md | orchestration/claude-flow/ | Claude Flow orchestration |
+| orchestration/archon-os/CLAUDE.md | orchestration/archon-os/ | Claude Flow orchestration |
 | orchestration/serena/serena/CLAUDE.md | orchestration/serena/serena/ | Serena orchestration layer |
 
 ### Infrastructure Directory (11 files)
@@ -104,7 +104,7 @@ claude-md-backups/
 | .github/CLAUDE.md | .github/ | GitHub workflows config |
 | configs/claude-configs/CLAUDE.md | configs/claude-configs/ | Claude configuration files |
 | docs/CLAUDE.md | docs/ | Documentation config |
-| docs/references/claude-flow-wiki/CLAUDE.md | docs/references/claude-flow-wiki/ | Claude Flow wiki reference |
+| docs/references/archon-os-wiki/CLAUDE.md | docs/references/archon-os-wiki/ | Claude Flow wiki reference |
 | scripts/CLAUDE.md | scripts/ | Scripts utilities config |
 | ToDo/whitepaper-workflow/CLAUDE-MD-Templates/CLAUDE.md | ToDo/whitepaper-workflow/CLAUDE-MD-Templates/ | Template examples |
 | _archive/backups-consolidated-2026-01-18/phase2-backup/phase2_20260107_220144/CLAUDE.md | _archive/ | Archive backup reference |

@@ -73,8 +73,8 @@
         href: "${LETTA_URL}"
         description: Agent memory runtime
         icon: mdi-brain
-    - Graphiti:
-        href: "${GRAPHITI_URL}"
+    - letta:
+        href: "${letta_URL}"
         description: Graph memory service
         icon: mdi-graph
     - Mem0:

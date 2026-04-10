@@ -3,7 +3,7 @@
 ## 🎯 Overview
 
 This document explains the **smart environment switching** setup for Project-Nyra that allows you to seamlessly switch between:
-- **Development**: Live editing of your forked claude-flow and archon repositories
+- **Development**: Live editing of your forked archon-os and archon repositories
 - **Production**: Stable npm packages and Docker containers
 
 ## 📁 Folder Structure
@@ -18,7 +18,7 @@ Project-Nyra/
 │   ├── setup-development-repos.ps1 (clone your forks)
 │   └── start-nyra-docker-infrastructure.ps1
 ├── submodules/ (YOUR FORKED DEVELOPMENT CODE)
-│   ├── claude-flow/ (github.com/ellisapotheosis/claude-flow)
+│   ├── archon-os/ (github.com/ellisapotheosis/archon-os)
 │   │   ├── src/mcp/server.js (local MCP server)
 │   │   ├── packages/ruv-swarm/ (ruv-swarm source)
 │   │   └── package.json (pnpm linked globally)
@@ -51,16 +51,16 @@ When you run `link-dev-packages.ps1`, your `.mcp.json` is updated to conditional
 ```json
 {
   "mcpServers": {
-    "claude-flow": {
+    "archon-os": {
       "command": "node",
       "args": ["-e", "
         const env = process.env.NODE_ENV || 'production';
-        if (env === 'development' && fs.existsSync('./submodules/claude-flow')) {
+        if (env === 'development' && fs.existsSync('./submodules/archon-os')) {
           // Use your local development code
-          spawn('node', ['./submodules/claude-flow/src/mcp/server.js']);
+          spawn('node', ['./submodules/archon-os/src/mcp/server.js']);
         } else {
           // Use stable npm package
-          spawn('npx', ['claude-flow@alpha', 'mcp', 'start']);
+          spawn('npx', ['archon-os@alpha', 'mcp', 'start']);
         }
       "],
       "env": {
@@ -87,7 +87,7 @@ When you run `link-dev-packages.ps1`, your `.mcp.json` is updated to conditional
 ```
 
 ### **2. Development Features**
-- **Live Code Editing**: Edit files in `submodules/claude-flow/` or `submodules/archon/`
+- **Live Code Editing**: Edit files in `submodules/archon-os/` or `submodules/archon/`
 - **Hot Reloading**: Changes appear instantly in running MCP servers
 - **npm/pnpm Linking**: Your local code is globally linked
 - **Environment Variables**: `NODE_ENV=development`, `NYRA_DEV_MODE=true`
@@ -98,11 +98,11 @@ When you run `link-dev-packages.ps1`, your `.mcp.json` is updated to conditional
 nyra-claude.ps1 flow --version
 
 # Edit and see changes live
-code submodules/claude-flow/src/
+code submodules/archon-os/src/
 code submodules/archon/frontend/
 
 # Commit your changes
-cd submodules/claude-flow
+cd submodules/archon-os
 git add .
 git commit -m "Add new feature"
 git push origin main
@@ -120,7 +120,7 @@ git push origin main
 ```
 
 ### **2. Production Features**
-- **Stable Packages**: Uses published `claude-flow@alpha`, `ruv-swarm@latest`
+- **Stable Packages**: Uses published `archon-os@alpha`, `ruv-swarm@latest`
 - **Docker Containers**: Containerized services for reliability
 - **No Development Dependencies**: Clean production environment
 - **Environment Variables**: `NODE_ENV=production`, `NYRA_DEV_MODE=false`
@@ -144,14 +144,14 @@ docker-compose -f docker/client/docker-compose.yml up -d
 
 ### **Example Linking Process:**
 ```powershell
-# 1. In submodules/claude-flow/
+# 1. In submodules/archon-os/
 pnpm link --global  # Creates global link
 
 # 2. In Project-Nyra root
-pnpm link --global ./submodules/claude-flow  # Links locally
+pnpm link --global ./submodules/archon-os  # Links locally
 
-# 3. Now when Node.js imports 'claude-flow'
-# it uses your local ./submodules/claude-flow code instead of npm package
+# 3. Now when Node.js imports 'archon-os'
+# it uses your local ./submodules/archon-os code instead of npm package
 ```
 
 ### **Benefits:**
@@ -172,7 +172,7 @@ pnpm link --global ./submodules/claude-flow  # Links locally
 .\scripts\switch-environment.ps1 -Environment development
 
 # 3. Edit and test
-code submodules/claude-flow/src/mcp/server.js
+code submodules/archon-os/src/mcp/server.js
 nyra-claude.ps1 flow memory store "test" "value"
 # Your edits are now live!
 ```
@@ -187,7 +187,7 @@ nyra-claude.ps1 flow memory store "test" "value"
 
 # 3. Use stable packages
 nyra-claude.ps1 flow --version
-# Now using claude-flow@alpha from npm
+# Now using archon-os@alpha from npm
 ```
 
 ## 🎯 Best Practices

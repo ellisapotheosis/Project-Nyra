@@ -39,7 +39,7 @@ docs/
 │   ├── PATTERNS.md
 │   ├── TURBOREPO-SETUP.md
 │   ├── LANGUAGE-TEMPLATES.md
-│   └── CLAUDE-FLOW-BUILD.md
+│   └── archon-os-BUILD.md
 │
 ├── operations/                        # Operations guides
 │   ├── README.md
@@ -62,8 +62,8 @@ docs/
 │
 ├── references/                       # External references
 │   ├── README.md
-│   ├── claude-flow-wiki/            # Keep as-is (reference material)
-│   └── claude-flow-examples/        # Keep as-is (reference examples)
+│   ├── archon-os-wiki/            # Keep as-is (reference material)
+│   └── archon-os-examples/        # Keep as-is (reference examples)
 │
 ├── ai-context/                       # AI assistant context files
 │   ├── README.md
@@ -127,8 +127,8 @@ docs/
 ## Migration Categories
 
 ### Category A: Keep in Place (Well-organized)
-- `references/claude-flow-wiki/` - External reference, keep as-is
-- `references/claude-flow-examples/` - External examples, keep as-is
+- `references/archon-os-wiki/` - External reference, keep as-is
+- `references/archon-os-examples/` - External examples, keep as-is
 - `api/examples/` - Properly organized
 
 ### Category B: Consolidate (Duplicates)

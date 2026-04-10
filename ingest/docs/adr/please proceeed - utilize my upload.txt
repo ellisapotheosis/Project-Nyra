@@ -1,24 +1,24 @@
 please proceeed - utilize my upload as your new base to build upon. it will be the new infra folder in my repo. give me everything you possibly can and utilize your entire context windows.
 Conversation with Gemini
 Neither your conversations with Gemini nor your Google Workspace data will be reviewed or used to improve generative AI models.
-how do i integrate letta with ruvnet/claude-flow and/or claude-code? is it worth it or should i just use graphiti + falkordb + ruvector + agentdb + postgres? what about integrating letta with clawdbot/moltbot?
+how do i integrate letta with ruvnet/archon-os and/or claude-code? is it worth it or should i just use letta + falkordb + ruvector + ruvector + postgres? what about integrating letta with clawdbot/moltbot?
 
 Gemini said
 It sounds like you are deep in the trenches of the current AI agent ecosystem, trying to figure out the best way to give your agents persistent, useful memory without over-engineering your stack. It is a wild landscape right now, so let's break down these integrations and whether they are actually worth your time.
 
-1. Integrating Letta with Claude Code & Claude-Flow
+1. Integrating Letta with Claude Code & archon-os
 Claude Code natively forgets everything between sessions, which is frustrating if you want it to learn your codebase's quirks over time. You have two main paths here:   
 
 The Bridge (Claude Subconscious): The Letta team recently released an experimental open-source plugin called Claude Subconscious. It acts as a persistent memory layer underneath Claude Code. Instead of modifying CLAUDE.md, a Letta agent silently observes your Claude Code transcripts in the background, learns your preferences, and injects context into your prompts via standard output. You can set it up using environment variables like LETTA_MODE and LETTA_AGENT_ID.   
 
 The Alternative (Letta Code): Honestly, instead of hacking Letta into Claude Code, you might just want to use Letta Code directly (npm install -g @letta-ai/letta-code). It is an open-source, memory-first coding harness built specifically to solve this problem. It is model-agnostic (you can plug in Claude 4.5 Sonnet, GPT-5.2, etc.) and it natively supports long-term memory, skill learning, and subagents without needing a bridge.   
 
-Claude-flow: If you are using claude-flow for multi-phase workflow automation, there isn't an out-of-the-box official integration with Letta. However, because Letta supports a .skills directory (reusable Python/shell scripts), you can easily wrap your claude-flow routines into Letta skills so your agent can trigger those workflows autonomously.
+archon-os: If you are using archon-os for multi-phase workflow automation, there isn't an out-of-the-box official integration with Letta. However, because Letta supports a .skills directory (reusable Python/shell scripts), you can easily wrap your archon-os routines into Letta skills so your agent can trigger those workflows autonomously.
 
-2. Letta vs. The Custom DB Stack (Graphiti + FalkorDB + Postgres + etc.)
+2. Letta vs. The Custom DB Stack (letta + FalkorDB + Postgres + etc.)
 You are asking the classic "Build vs. Buy (Open Source)" question.
 
-Should you string together Graphiti, FalkorDB, a vector DB, AgentDB, and Postgres? Probably not, unless you specifically need explicit Graph-RAG.
+Should you string together letta, FalkorDB, a vector DB, ruvector, and Postgres? Probably not, unless you specifically need explicit Graph-RAG.
 
 The Custom Stack Approach: Using a graph database like FalkorDB (which powers tools like Sibyl) forces you to explicitly manage your knowledge graph (e.g., mapping tasks to learnings, linking entities). It gives you absolute structural control over how memories relate to one another. But you are now on the hook for managing lock states, concurrency, database migrations, and orchestration.
 
@@ -64,7 +64,7 @@ Do not send live borrower data (FICO scores, income, SSNs, DTI) to a public clou
 The Fix: You must either self-host your conversational memory engine (whether that is MemOS, Mem0, or OpenMemory) entirely within your own Docker/Koyeb environment, or you must build a "PII Redactor" step that strips sensitive info before it gets sent to the memory cloud.
 
 3. The Ideal Memory Stack for Project-Nyra
-Because you are building a multi-agent system that writes code (Claude-Flow) and a conversational product that talks to humans (Clawdbot), you should not force one database to do everything. Here is the optimal, tiered architecture:
+Because you are building a multi-agent system that writes code (archon-os) and a conversational product that talks to humans (Clawdbot), you should not force one database to do everything. Here is the optimal, tiered architecture:
 
 Tier 1: The "System of Record" (Postgres / Supabase)
 What it does: Stores rigid, structured business data. Lead info, opt-in/consent timestamps (crucial for TCPA), pipeline status, loan quotes, and user accounts.
@@ -76,10 +76,10 @@ What it does: Powers Clawdbot. Remembers that Broker A prefers formatting in bul
 
 Why: These systems handle the complex logic of summarizing older chats, dropping irrelevant tangents, and injecting just the right amount of context into the prompt window before the LLM replies.
 
-Tier 3: Agentic "Brain" & Coding Memory (AgentDB)
-What it does: Used strictly by Claude-Flow and Archon MCP in your dev environment. It stores coding patterns, past debugging failures, and repository structure.
+Tier 3: Agentic "Brain" & Coding Memory (ruvector)
+What it does: Used strictly by archon-os and Archon MCP in your dev environment. It stores coding patterns, past debugging failures, and repository structure.
 
-Why: AgentDB is highly optimized for vector search and rapid state-syncing across your 4 LAN PCs. It is the "muscle memory" for your AI developers.   
+Why: ruvector is highly optimized for vector search and rapid state-syncing across your 4 LAN PCs. It is the "muscle memory" for your AI developers.   
 
 Tier 4: The Knowledge Base / RAG (Qdrant + Local Docs)
 What it does: Stores static, semi-static, or giant documents. E.g., Fannie Mae guidelines, daily rate sheets, your company's underwriting overlays.
@@ -87,7 +87,7 @@ What it does: Stores static, semi-static, or giant documents. E.g., Fannie Mae g
 Why: When Clawdbot is asked, "Can I do an FHA loan with a 580 score?", it uses tools to query Qdrant to find the exact guideline snippet to cite.
 
 The Verdict on Letta AI
-If you use MemOS for your conversational chatbot (Clawdbot) and AgentDB for your dev swarm (Claude-Flow), you do not need Letta. Letta is a fantastic operating system for agents, but injecting it here would just create overlap and unnecessary complexity.
+If you use MemOS for your conversational chatbot (Clawdbot) and ruvector for your dev swarm (archon-os), you do not need Letta. Letta is a fantastic operating system for agents, but injecting it here would just create overlap and unnecessary complexity.
 
 Next Step
 Since you are setting up your 4 LAN PCs right now via Infisical, would you like me to map out the exact .env variables and docker-compose snippet needed to self-host a conversational memory backend locally, so you can test OpenClaw without leaking data?
@@ -118,21 +118,21 @@ curl -fsSL https://claude.ai/install.sh | bash
 After installing:
 Simply close and reopen your terminal (or run source ~/.bashrc / source ~/.zshrc), and then type claude to authenticate your account and start your first session. These native installations will automatically update in the background so you stay on the latest version.
 
-map out the exact .env variables and docker-compose snippet needed to self-host a conversational memory backend locally, so you can test OpenClaw without leaking data and please givem e the complete top to bottom guide and scripts for setting up all memory systems/components were using including agentdb. https://github.com/MemTensor/MemOS-Cloud-OpenClaw-Plugin
+map out the exact .env variables and docker-compose snippet needed to self-host a conversational memory backend locally, so you can test OpenClaw without leaking data and please givem e the complete top to bottom guide and scripts for setting up all memory systems/components were using including ruvector. https://github.com/MemTensor/MemOS-Cloud-OpenClaw-Plugin
 
 Gemini said
 To build a truly private, self-hosted memory stack for Project-Nyra (your mortgage assistant and dev swarm), we need to make one major pivot right off the bat: You cannot use the MemOS plugin you linked if you want to stay local. The MemOS plugin is hardcoded to ping memos.memtensor.cn, which defeats the purpose of keeping borrower data safe. Instead, we are going to use Mem0 (the industry standard open-source memory layer) which provides the exact same lifecycle hooks for OpenClaw but runs entirely on your own hardware via a local API server.
 
-Additionally, there is a massive misconception about AgentDB that we need to clear up before you try to spin it up in Docker.
+Additionally, there is a massive misconception about ruvector that we need to clear up before you try to spin it up in Docker.
 
 Here is your complete, top-to-bottom guide to setting up the infrastructure.
 
-1. The AgentDB Reality Check (No Docker Needed)
-You do not put AgentDB in a Docker container. AgentDB is a serverless, embedded database.
+1. The ruvector Reality Check (No Docker Needed)
+You do not put ruvector in a Docker container. ruvector is a serverless, embedded database.
 
-It is built specifically to live inside the Node.js or Claude-Flow runtime. It uses a hyper-optimized SQLite + HNSW index that runs directly on your local disk or in memory, giving your agent swarm sub-millisecond retrieval without the latency of a network hop. It syncs across your LAN PCs automatically using a peer-to-peer QUIC protocol.
+It is built specifically to live inside the Node.js or archon-os runtime. It uses a hyper-optimized SQLite + HNSW index that runs directly on your local disk or in memory, giving your agent swarm sub-millisecond retrieval without the latency of a network hop. It syncs across your LAN PCs automatically using a peer-to-peer QUIC protocol.
 
-To use it in your dev environment, you simply install it via npm (npm install agentdb) in your Claude-Flow project and initialize it in your code. We will leave it entirely out of the Docker stack below.
+To use it in your dev environment, you simply install it via npm (npm install ruvector) in your archon-os project and initialize it in your code. We will leave it entirely out of the Docker stack below.
 
 2. The Project-Nyra Docker Compose Stack
 This docker-compose.yml file spins up your System of Record (Postgres), your Conversational Memory (Mem0 + Neo4j), and your Knowledge Base (Qdrant).
@@ -266,7 +266,7 @@ Let's lock this down. Since you want to focus entirely on bootstrapping the 4 LA
 Here is your dedicated litellm.config.yaml to route your cloud and local worker GPUs, followed by the exact Infisical folder structure and variable mapping you need to set up once so your PCs can just pull and boot.
 
 1. The litellm.config.yaml (The Universal Model Router)
-This configuration sits on your orchestrator. It securely pulls the API keys directly from the host environment (which Infisical will inject) and maps your 3 worker PCs so Nexus and Claude-Flow can seamlessly request local/code-heavy or local/fast models.
+This configuration sits on your orchestrator. It securely pulls the API keys directly from the host environment (which Infisical will inject) and maps your 3 worker PCs so Nexus and archon-os can seamlessly request local/code-heavy or local/fast models.
 
 YAML
 # config/litellm.config.yaml
@@ -336,21 +336,21 @@ GEMINI_API_KEY = AIza...
 LITELLM_MASTER_KEY = sk-nyra-master-123
 
 Path B: /shared/memory-and-infra (The Nervous System)
-Store the database credentials and unified memory URLs here. Claude-Flow and Archon OS will both read these.
+Store the database credentials and unified memory URLs here. archon-os and Archon OS will both read these.
 
 POSTGRES_USER = nyra
 
 POSTGRES_PASSWORD = super_secure_pg_password
 
-AGENTDB_ENABLED = true
+ruvector_ENABLED = true
 
-AGENTDB_QUIC_SYNC = true
+ruvector_QUIC_SYNC = true
 
-AGENTDB_QUIC_PEERS = 192.168.1.101:4433,192.168.1.102:4433,192.168.1.103:4433
+ruvector_QUIC_PEERS = 192.168.1.101:4433,192.168.1.102:4433,192.168.1.103:4433
 
-AGENTDB_URL = http://agentdb:8123
+ruvector_URL = http://ruvector:8123
 
-GRAPHITI_BACKEND = neo4j
+letta_BACKEND = neo4j
 
 FLOW_NEXUS_URL = http://nexus:8700
 
@@ -400,7 +400,7 @@ REVIEW THE FOLLOWING CONVERSATION AND OUR PLANS BUT INTEGRATE YOU MEM0 IDEAS INS
 Gemini said
 This is the exact pivot Project-Nyra needs. By bringing in the Oracle Cloud 24GB ARM VM, we solve the biggest bottleneck in your current plan: your Minisforum Orchestrator only has 16GB of RAM.
 
-If you tried to cram Postgres, Neo4j, Qdrant, Mem0, LiteLLM, MetaMCP, Archon, and Claude-Flow all onto that one mini-PC, it would choke. The Oracle VM is a massive strategic advantage. It is ARM-based, robust, and has plenty of RAM, making it the perfect "Always-On State & Memory Engine", while your home network becomes the "High-Performance Compute & Inference Engine".
+If you tried to cram Postgres, Neo4j, Qdrant, Mem0, LiteLLM, MetaMCP, Archon, and archon-os all onto that one mini-PC, it would choke. The Oracle VM is a massive strategic advantage. It is ARM-based, robust, and has plenty of RAM, making it the perfect "Always-On State & Memory Engine", while your home network becomes the "High-Performance Compute & Inference Engine".
 
 Here is the complete, top-to-bottom blueprint for Project-Nyra, integrating Mem0, the Oracle VM, and a unified Docker Profile strategy.
 
@@ -423,7 +423,7 @@ Why here? It sits physically next to your GPUs. It routes AI requests with zero 
 
 Model Router: LiteLLM (Routing to local GPUs, OpenRouter, Gemini).
 
-Agent Orchestration: Claude-Flow, Archon MCP, MetaMCP Gateway.
+Agent Orchestration: archon-os, Archon MCP, MetaMCP Gateway.
 
 Internal Dashboards: Open-WebUI, Grafana, Prometheus.
 
@@ -437,7 +437,7 @@ The Genius Move: Mem0 requires an LLM to extract facts from conversations to sav
 
 Clawdbot / OpenClaw: Uses the @mem0/openclaw-mem0 plugin. Points its baseUrl to http://oracle-vm.ts.net:8000.
 
-Claude-Flow / Archon: You write a simple MCP tool that allows your dev agents to query the exact same Mem0 API to remember your coding preferences.
+archon-os / Archon: You write a simple MCP tool that allows your dev agents to query the exact same Mem0 API to remember your coding preferences.
 
 3. Scaffolding & Docker Profiles Strategy
 You should use a Monorepo with a single, unified docker-compose.yml file. You will use Docker Profiles so you can deploy the exact same repository to all 5 machines, but only boot the specific containers needed for that machine's role.
@@ -522,13 +522,13 @@ Here is my finalized hardware and infrastructure topology:
 
 Oracle Cloud Free Tier VM (ARM, 24GB RAM, 4 CPU, 200GB Disk): Connected via Tailscale. Runs the oracle-cloud Docker profile. Hosts Postgres (pgvector) as the system of record, Mem0 API Server for conversational AI memory, Neo4j, Qdrant, and the public-facing Web App/Webhooks.
 
-Home Orchestrator PC (Minisforum, 16GB RAM): Connected via Tailscale. Runs the orchestrator Docker profile. Hosts LiteLLM (Universal Model Router), MetaMCP (MCP Aggregator), Claude-Flow (Primary Orchestrator), Archon OS (Secondary Orchestrator), and Open-WebUI.
+Home Orchestrator PC (Minisforum, 16GB RAM): Connected via Tailscale. Runs the orchestrator Docker profile. Hosts LiteLLM (Universal Model Router), MetaMCP (MCP Aggregator), archon-os (Primary Orchestrator), Archon OS (Secondary Orchestrator), and Open-WebUI.
 
 3x Home Worker PCs (RTX 5090, 3090Ti, 3060): Runs the worker Docker profile. Dedicated purely to local LLM inference (vLLM/Ollama) bound to the local network.
 
 Security & Secrets: Handled entirely by Infisical via CLI injection. No plaintext .env files. Public access is routed through Cloudflare Tunnels to the Oracle VM.
 
-Memory Architecture: Mem0 for persistent, cross-session conversational memory (Clawdbot/OpenClaw). AgentDB (embedded SQLite) for localized, sub-millisecond agent reasoning patterns inside Claude-Flow.
+Memory Architecture: Mem0 for persistent, cross-session conversational memory (Clawdbot/OpenClaw). ruvector (embedded SQLite) for localized, sub-millisecond agent reasoning patterns inside archon-os.
 
 Your task is to generate a comprehensive, 4-part deliverable:
 
@@ -537,7 +537,7 @@ Write a formal, high-level whitepaper explaining this exact hybrid-cloud, edge-c
 
 PART 2: The Agentic System Prompts
 Draft the core system prompts for my two main orchestrators:
-A) Claude-Flow (The Lead AI Developer): Prompt it to understand its role routing tasks, managing the MetaMCP toolset, using AgentDB for its own memory, and relying on Archon for specific sub-tasks.
+A) archon-os (The Lead AI Developer): Prompt it to understand its role routing tasks, managing the MetaMCP toolset, using ruvector for its own memory, and relying on Archon for specific sub-tasks.
 B) Clawdbot (The Mortgage Assistant): Prompt it to understand its role interacting with borrowers, querying the Mem0 API for past context before speaking, and safely handling mortgage-related inquiries.
 
 PART 3: Data Flow & Routing Matrix
@@ -551,7 +551,7 @@ This setup gives you enterprise-grade isolation while keeping costs practically 
 
 Would you like me to draft the exact Infisical CLI commands and folder mapping you will need to seamlessly push the Oracle VM secrets to the cloud while keeping the GPU worker secrets strictly local?
 
-you need to rewrite this without metamcp, i specifically have mentioned to you at least once a day to never mention metamcp again. im using grafbase/nexus instead as mcp proxy aggregator and single eentrypoint with fuzzy tool find and smart model/provider routing. its going to work in tandem with litellm to route the 3 worker pc's local llms models for dev workflows and n8n workflows / activepieces wporkflows. please give me everything i need from top to bottom to map out this new architecture along side clawdbot, archon OS, twenty crm, twenty crm postgres (or does twenty use redis?), redis =, claude-flow(dev only - both claude-flow and archon will use the same redis - maybe clawdbot as well?), mem0 memory for clawdbot - but does that mean that we should integrate regular mem0 or openmemory mcp as well now or in exchange for something else nnow that were dropping letta ai> we can use the claude-code plugin made by letta for claude subconscious unless we want to use openmemory or mem0 for the dev stack ? othewrwise its qdrant, then we can still use ruvector along side the twenty crm db and agentdb? or?
+you need to rewrite this without metamcp, i specifically have mentioned to you at least once a day to never mention metamcp again. im using grafbase/nexus instead as mcp proxy aggregator and single eentrypoint with fuzzy tool find and smart model/provider routing. its going to work in tandem with litellm to route the 3 worker pc's local llms models for dev workflows and n8n workflows / activepieces wporkflows. please give me everything i need from top to bottom to map out this new architecture along side clawdbot, archon OS, twenty crm, twenty crm postgres (or does twenty use redis?), redis =, archon-os(dev only - both archon-os and archon will use the same redis - maybe clawdbot as well?), mem0 memory for clawdbot - but does that mean that we should integrate regular mem0 or openmemory mcp as well now or in exchange for something else nnow that were dropping letta ai> we can use the claude-code plugin made by letta for claude subconscious unless we want to use openmemory or mem0 for the dev stack ? othewrwise its qdrant, then we can still use ruvector along side the twenty crm db and ruvector? or?
 
 Gemini said
 I completely apologize for the MetaMCP hallucination. You have been crystal clear: Grafbase Nexus is the undisputed proxy aggregator, fuzzy-tool-finder, and single entrypoint. Let's permanently purge MetaMCP from the architecture and map out the exact, highly-optimized stack you need using Nexus, LiteLLM, and your updated memory preferences.
@@ -561,21 +561,21 @@ Here is the complete top-to-bottom architecture, resolving your questions about 
 1. Answering Your Stack Questions
 Twenty CRM's Database: Twenty requires both Postgres and Redis. Postgres is the system of record for your CRM data (leads, pipelines), and Redis handles background jobs, webhooks, and caching.
 
-Shared Redis: Yes. You can (and should) use the same Redis container for Twenty CRM, Claude-Flow, Archon OS, and Clawdbot. You simply assign different logical databases in the connection string (e.g., redis://redis:6379/0 for Twenty, /1 for Flow, /2 for Archon).
+Shared Redis: Yes. You can (and should) use the same Redis container for Twenty CRM, archon-os, Archon OS, and Clawdbot. You simply assign different logical databases in the connection string (e.g., redis://redis:6379/0 for Twenty, /1 for Flow, /2 for Archon).
 
 Dropping Letta / Un-bloating Memory: Since you are dropping Letta AI, do not add more disjointed memory systems. Standardize on Mem0 for all conversational memory.
 
 Clawdbot: Uses Mem0 to remember borrower conversations and preferences.
 
-Dev Stack (Claude-Flow/Archon): Instead of using Letta's Claude Subconscious plugin, just give your agents an MCP tool that reads/writes to the exact same Mem0 API server to track your coding preferences.
+Dev Stack (archon-os/Archon): Instead of using Letta's Claude Subconscious plugin, just give your agents an MCP tool that reads/writes to the exact same Mem0 API server to track your coding preferences.
 
-Qdrant vs. Ruvector vs. AgentDB: You have too many vector DBs. Let's simplify:
+Qdrant vs. Ruvector vs. ruvector: You have too many vector DBs. Let's simplify:
 
-AgentDB: Keep this. It is an embedded, hyper-fast SQLite/HNSW engine. It is the "muscle memory" and short-term reasoning cache for Claude-Flow and Archon.
+ruvector: Keep this. It is an embedded, hyper-fast SQLite/HNSW engine. It is the "muscle memory" and short-term reasoning cache for archon-os and Archon.
 
 Qdrant: Keep this. It is your Tier-4 Knowledge Base for massive document RAG (Fannie Mae guidelines, rate sheets) used by Clawdbot and your dev tools.
 
-Ruvector: Drop it. AgentDB and Qdrant cover 100% of your vector needs. Ruvector is redundant here.
+Ruvector: Drop it. ruvector and Qdrant cover 100% of your vector needs. Ruvector is redundant here.
 
 2. The Clean, Nexus-Driven Architecture Map
 Plaintext
@@ -595,7 +595,7 @@ Plaintext
 │ - Routes to Worker 1 │     │ - Docker Desktop MCP      │
 │ - Routes to Worker 2 │     │ - Filesystem MCP          │
 │ - Routes to Worker 3 │     │ - Archon OS MCP           │
-│ - Cloud Fallbacks    │     │ - Claude-Flow MCP         │
+│ - Cloud Fallbacks    │     │ - archon-os MCP         │
 └──────────────────────┘     └───────────────────────────┘
 3. The Unified Memory & CRM Data Stack
 Postgres (nyra_main DB & mem0 DB): Holds Twenty CRM data AND acts as the permanent storage backend for Mem0.
@@ -606,10 +606,10 @@ Mem0 API Server: The global "personalization" engine for both borrowers (Clawdbo
 
 Qdrant: The mortgage RAG document store.
 
-AgentDB: Embedded directly via .agentdb/ directories in your WSL environments, syncing across the LAN via QUIC.
+ruvector: Embedded directly via .ruvector/ directories in your WSL environments, syncing across the LAN via QUIC.
 
 4. The Master docker-compose.yml
-This spins up the core datastores, Twenty, Mem0, LiteLLM, Nexus, and the Docker MCP Toolkit. (Claude-Flow and Archon OS run natively in WSL or as separate containers connecting to this network).
+This spins up the core datastores, Twenty, Mem0, LiteLLM, Nexus, and the Docker MCP Toolkit. (archon-os and Archon OS run natively in WSL or as separate containers connecting to this network).
 
 YAML
 version: "3.9"
@@ -740,7 +740,7 @@ models:
 
 routing:
   modelRouting:
-    # Tag-based routing logic for N8N/Claude-Flow requests
+    # Tag-based routing logic for N8N/archon-os requests
     - match: { tagsAny: [code, complex] }
       targetModel: dev-local
     - match: { tagsAny: [draft, fast] }
@@ -758,7 +758,7 @@ mcpServers:
     transport: http
     url: http://host.docker.internal:8788/mcp # Assuming Archon runs in WSL/Host
     tags: [orchestration, memory-management]
-  claude-flow:
+  archon-os:
     transport: http
     url: http://host.docker.internal:8787/mcp # Assuming CF runs in WSL/Host
     tags: [development, sparc]
@@ -795,7 +795,7 @@ please rewrite the attached whitepaper to account for the new architecture as we
 ive attached a zip folder with all of my infra-archived materials. please review it and utilize everything you possibly can to get me as close to the finish line of a completely working and ready to stand up /infra folder so that my entire stack is ready to stand up. remember, i need you to find and setup my  new gitea setup, retrieve and consolidate everything you can - especially for grafbase/nexus files and nexus.toml, and i also need you to add whatever it is to nexus that will add all of my mcp servers installed to docker desktops mcp s erver toolkit via the docker desktop app. i also need you to ensure that infisical and bitwarden are also included in the setup. please also help me decide what i should install via the docker mcp toolkit extensions in docker desktop versus what i should create and add the container for directly to the container stack - a few thigns i see available include context7, github, git, mongodb, notion, n8n, filesystem mcp, redis, tavily, elevenlabs, discord, api gateway, nextjs tools, sentry, circleci, rust filesystem, openapi toolkit, oracle  database, MCP database server, docker cli, docker-hub, prometheus, sentry, etc.
 
 
-i also jsut realized t hat ruvector,  ruvector-cli, ruvector-postgres should be  setup with/next  to agentdb  rather than agentdb being setup next to claude-flow since claude-flow is only for dev but agentdb it not and w ill be run in prod as well.
+i also jsut realized t hat ruvector,  ruvector-cli, ruvector-postgres should be  setup with/next  to ruvector  rather than ruvector being setup next to archon-os since archon-os is only for dev but ruvector it not and w ill be run in prod as well.
 
 
 also,  heres the infisical agent +  sidecar  pattern that should be hooked up to everything in our stack for easier secret injection:
@@ -1838,14 +1838,14 @@ LOCKED PRODUCT GOALS (MVP):
 
 5) Nyra Admin UI (shadcn + tweakcn + Magic UI) provides campaign builder + lead timeline + quote approvals.
 
-6) Memory day 0: Graphiti + Letta + RuVector(Postgres) + Redis + graph backend required by Graphiti (prefer FalkorDB on Redis unless Graphiti mandates Neo4j).
+6) Memory day 0: letta + Letta + RuVector(Postgres) + Redis + graph backend required by letta (prefer FalkorDB on Redis unless letta mandates Neo4j).
 
 
 DEPLOYMENT TARGETS (DECIDE & DOCUMENT):
 
-- Oracle should host: TwentyCRM + its Postgres, nyra_ai Postgres (pgvector for RuVector), Redis (+ FalkorDB module if used), Graphiti, Letta, n8n, Activepieces, Twilio webhooks endpoints, Quote API, & optionally Nyra Admin UI.
+- Oracle should host: TwentyCRM + its Postgres, nyra_ai Postgres (pgvector for RuVector), Redis (+ FalkorDB module if used), letta, Letta, n8n, Activepieces, Twilio webhooks endpoints, Quote API, & optionally Nyra Admin UI.
 
-- Orchestrator should host: Nexus Router (prod), model routing (LiteLLM/OpenRouter OR claude-flow providers if already integrated), internal MCP/dev tools, & optional UI mirrors.
+- Orchestrator should host: Nexus Router (prod), model routing (LiteLLM/OpenRouter OR archon-os providers if already integrated), internal MCP/dev tools, & optional UI mirrors.
 
 - Workers host: GPU inference only; can disconnect without breaking core workflows.
 
@@ -1883,7 +1883,7 @@ B) Oracle provisioning runbook (agent-executable after user creates account):
 
 C) Compose stacks:
 
-   1) oracle-core docker-compose.yml: postgres (twenty + nyra_ai), redis (+ falkordb if used), graphiti, letta, ruvector services, backups
+   1) oracle-core docker-compose.yml: postgres (twenty + nyra_ai), redis (+ falkordb if used), letta, letta, ruvector services, backups
 
    2) oracle-apps docker-compose.yml: twentycrm, n8n, activepieces, quote-api, admin-ui
 
@@ -2069,21 +2069,21 @@ screenshot
 
 ; keep Qdrant as a backup if needed.
 
-Tier 5: Knowledge graph	relationships & metadata	Graphiti + Neo4j/FalkorDB	For relational queries; run Neo4j or FalkorDB container and let Graphiti connect
+Tier 5: Knowledge graph	relationships & metadata	letta + Neo4j/FalkorDB	For relational queries; run Neo4j or FalkorDB container and let letta connect
 
 screenshot
 
 .
 
 
-You can still enable AgentDB as a local fallback and to maintain compatibility with existing tools
+You can still enable ruvector as a local fallback and to maintain compatibility with existing tools
 
 screenshot
 
 . The recommended arrangement is:
 
 
-AgentDB: acts as the default memory adapter; enable its QUIC sync so other machines stay consistent (set AGENTDB_QUIC_SYNC=true and list peer addresses).
+ruvector: acts as the default memory adapter; enable its QUIC sync so other machines stay consistent (set ruvector_QUIC_SYNC=true and list peer addresses).
 
 
 LettaAI: enable it (LETTA_ENABLED=true) and point LETTA_API_URL to your Letta server.
@@ -2099,7 +2099,7 @@ screenshot
 .
 
 
-Graphiti: set GRAPHITI_ENABLED=true and GRAPHITI_BACKEND=falkordb to use FalkorDB; alternatively set GRAPHITI_BACKEND=neo4j and configure GRAPHITI_URI, GRAPHITI_USER, GRAPHITI_PASSWORD.
+letta: set letta_ENABLED=true and letta_BACKEND=falkordb to use FalkorDB; alternatively set letta_BACKEND=neo4j and configure letta_URI, letta_USER, letta_PASSWORD.
 
 
 Qdrant: keep QDRANT_ENABLED=true but treat it as a backup (data can be replicated from RuVector).
@@ -2114,14 +2114,14 @@ Memorytensors/memOS: these are not databases but libraries for working with memo
 Containers for persistence – Run Redis, Qdrant, Neo4j/FalkorDB, and OpenMemory in Docker; mount volumes for data directories. The orchestrator PC (WSL or Linux) can run LettaAI and RuVector natively or in containers as well.
 
 
-Local vs. cloud – For production or cross‑device sync, use the Supabase integration. Enable FLOW_NEXUS_ENABLED=true and set SUPABASE_URL and keys. The integration will sync your AgentDB data into Supabase tables automatically
+Local vs. cloud – For production or cross‑device sync, use the Supabase integration. Enable FLOW_NEXUS_ENABLED=true and set SUPABASE_URL and keys. The integration will sync your ruvector data into Supabase tables automatically
 
 screenshot
 
 .
 
 
-AgentDB QUIC sync – To share memory across your 4 PCs, set AGENTDB_QUIC_SYNC=true and list peer addresses in AGENTDB_QUIC_PEERS (e.g., 192.168.1.101:4433,192.168.1.102:4433). This uses the QUIC protocol for sub‑millisecond synchronization.
+ruvector QUIC sync – To share memory across your 4 PCs, set ruvector_QUIC_SYNC=true and list peer addresses in ruvector_QUIC_PEERS (e.g., 192.168.1.101:4433,192.168.1.102:4433). This uses the QUIC protocol for sub‑millisecond synchronization.
 
 
 3. Optimal vs. maximal configuration
@@ -2144,17 +2144,17 @@ Below are two templates built from your existing files (env.example, env2.exampl
 
     "RUVECTOR_CONSENSUS": "raft",
 
-    "AGENTDB_ENABLED": "true",
+    "ruvector_ENABLED": "true",
 
-    "AGENTDB_VECTOR_ENABLED": "true",
+    "ruvector_VECTOR_ENABLED": "true",
 
-    "AGENTDB_QUANTIZATION": "scalar",
+    "ruvector_QUANTIZATION": "scalar",
 
-    "AGENTDB_CACHE_ENABLED": "true",
+    "ruvector_CACHE_ENABLED": "true",
 
-    "AGENTDB_QUIC_SYNC": "true",
+    "ruvector_QUIC_SYNC": "true",
 
-    "AGENTDB_QUIC_PEERS": "192.168.1.101:4433,192.168.1.102:4433,192.168.1.103:4433",
+    "ruvector_QUIC_PEERS": "192.168.1.101:4433,192.168.1.102:4433,192.168.1.103:4433",
 
     "LETTA_ENABLED": "true",
 
@@ -2164,9 +2164,9 @@ Below are two templates built from your existing files (env.example, env2.exampl
 
     "MEM0_ENABLED": "true",
 
-    "GRAPHITI_ENABLED": "true",
+    "letta_ENABLED": "true",
 
-    "GRAPHITI_BACKEND": "neo4j",
+    "letta_BACKEND": "neo4j",
 
     "QDRANT_ENABLED": "true",
 
@@ -2225,17 +2225,17 @@ HOST=0.0.0.0
 PROXY_PORT=8080
 
 
-# AgentDB + distributed sync
+# ruvector + distributed sync
 
-AGENTDB_ENABLED=true
+ruvector_ENABLED=true
 
-AGENTDB_PATH=.agentdb/claude-flow.db
+ruvector_PATH=.ruvector/archon-os.db
 
-AGENTDB_QUIC_SYNC=true
+ruvector_QUIC_SYNC=true
 
-AGENTDB_QUIC_PORT=4433
+ruvector_QUIC_PORT=4433
 
-AGENTDB_QUIC_PEERS=192.168.1.101:4433,192.168.1.102:4433,192.168.1.103:4433
+ruvector_QUIC_PEERS=192.168.1.101:4433,192.168.1.102:4433,192.168.1.103:4433
 
 
 # RuVector (primary vector store)
@@ -2271,15 +2271,15 @@ MEM0_API_KEY=m0_your_key_here
 
 # Graph memory
 
-GRAPHITI_ENABLED=true
+letta_ENABLED=true
 
-GRAPHITI_BACKEND=neo4j
+letta_BACKEND=neo4j
 
-GRAPHITI_URI=bolt://localhost:7687
+letta_URI=bolt://localhost:7687
 
-GRAPHITI_USER=neo4j
+letta_USER=neo4j
 
-GRAPHITI_PASSWORD=your_password
+letta_PASSWORD=your_password
 
 
 # Qdrant backup
@@ -2338,7 +2338,7 @@ Feature flags: CLAUDE_FLOW_ENABLED, CLAUDE_FLOW_AUTO_COMMIT, CLAUDE_FLOW_AUTO_PU
 Swarm/Hive: SWARM_TOPOLOGY, MAX_AGENTS, RUV_SWARM_ENABLED, RUV_SWARM_MODE, RUV_SWARM_TOPOLOGY, HIVE_MIND_ENABLED, HIVE_MIND_QUEEN_TYPE, HIVE_MIND_ENABLE_CONSENSUS, HIVE_MIND_MAX_WORKERS, HIVE_LOG_LEVEL.
 
 
-AgentDB: AGENTDB_ENABLED, AGENTDB_PATH, AGENTDB_VECTOR_ENABLED, AGENTDB_QUANTIZATION, AGENTDB_CACHE_ENABLED, AGENTDB_CACHE_SIZE, AGENTDB_HNSW_M, AGENTDB_HNSW_EF, AGENTDB_LEARNING, AGENTDB_LEARNING_ALGORITHM, AGENTDB_REASONING, AGENTDB_QUIC_SYNC, AGENTDB_QUIC_PORT, AGENTDB_QUIC_PEERS, AGENTDB_AUTO_MIGRATE, AGENTDB_FALLBACK_LEGACY.
+ruvector: ruvector_ENABLED, ruvector_PATH, ruvector_VECTOR_ENABLED, ruvector_QUANTIZATION, ruvector_CACHE_ENABLED, ruvector_CACHE_SIZE, ruvector_HNSW_M, ruvector_HNSW_EF, ruvector_LEARNING, ruvector_LEARNING_ALGORITHM, ruvector_REASONING, ruvector_QUIC_SYNC, ruvector_QUIC_PORT, ruvector_QUIC_PEERS, ruvector_AUTO_MIGRATE, ruvector_FALLBACK_LEGACY.
 
 
 ReasoningBank: REASONINGBANK_ENABLED, REASONINGBANK_DB_PATH, REASONINGBANK_K, REASONINGBANK_MIN_CONFIDENCE.
@@ -2356,7 +2356,7 @@ RuVector: RUVECTOR_ENABLED, RUVECTOR_URL, RUVECTOR_AUTH_KEY, RUVECTOR_CONSENSUS_
 Letta: LETTA_ENABLED, LETTA_API_URL, LETTA_API_KEY, LETTA_MEMORY_MANAGER.
 
 
-Graphiti & FalkorDB: GRAPHITI_ENABLED, GRAPHITI_URI, GRAPHITI_USER, GRAPHITI_PASSWORD, GRAPHITI_BACKEND, FALKORDB_URL, FALKORDB_GRAPH_KEY.
+letta & FalkorDB: letta_ENABLED, letta_URI, letta_USER, letta_PASSWORD, letta_BACKEND, FALKORDB_URL, FALKORDB_GRAPH_KEY.
 
 
 Supabase & Flow Nexus: FLOW_NEXUS_ENABLED, FLOW_NEXUS_URL, FLOW_NEXUS_API_KEY, FLOW_NEXUS_USER_ID, SUPABASE_URL, SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY.
@@ -2377,7 +2377,7 @@ Summary
 Archon: containerize for production but run natively (or in WSL) for development; maintain its own git repo or submodule to avoid polluting Project‑Nyra’s code.
 
 
-Memory: adopt the tiered architecture; use AgentDB+RuVector as the core, Letta/OpenMemory/Mem0 for context and personalization, and Graphiti + Qdrant as optional layers
+Memory: adopt the tiered architecture; use ruvector+RuVector as the core, Letta/OpenMemory/Mem0 for context and personalization, and letta + Qdrant as optional layers
 
 screenshot
 
@@ -2392,7 +2392,7 @@ By following this approach, you can run Claude Flow and Archon MCP in a dual‑o
 
 Sources
 
-ruvector-letta-graphiti-mem0-openmemory-falkordb-settings.json
+ruvector-letta-letta-mem0-openmemory-falkordb-settings.json
 
 File
 
@@ -2432,7 +2432,7 @@ settings-advanced-options.json
 
 File
 
-your .env and settings.json snippets are weak and dont have a single claude-flow env variable for some reason.... how about you make me the full master.example.env for project-nyra(that includes all possible environment variables that id ever possibly want or need to set), then make me a settings.json for claude-flow and a claude-example.env JUST for claude-code, claude-flow, agentic-flow, agentdb, epic-sdk, flow-nexus, hive-mind, ruv-swarm, agent-booster, ruvector (but ruvector variables that work inside of claude-flow), etc. related variables. I think that i can just set most env variables in infisical for claude-flow, so the settings.json should only contain env variables that i might want to change on the fly. 
+your .env and settings.json snippets are weak and dont have a single archon-os env variable for some reason.... how about you make me the full master.example.env for project-nyra(that includes all possible environment variables that id ever possibly want or need to set), then make me a settings.json for archon-os and a claude-example.env JUST for claude-code, archon-os, archon-os, ruvector, epic-sdk, flow-nexus, hive-mind, ruv-swarm, agent-booster, ruvector (but ruvector variables that work inside of archon-os), etc. related variables. I think that i can just set most env variables in infisical for archon-os, so the settings.json should only contain env variables that i might want to change on the fly. 
 
 
 Here are the requested configuration files:
@@ -2443,7 +2443,7 @@ Complete master environment template for Project‑Nyra: master.example.env
 This .env template includes every environment variable discovered across your existing env files, the complete template and the advanced settings files. It’s organised into logical sections (Infisical, Claude Flow core, Swarm/Hive settings, memory back‑ends, LLM providers, GPU workers, databases, security, monitoring, and so on). Leave variables blank or comment them out if unused.
 
 
-Optimised Claude Flow settings.json: claude-flow-settings.json
+Optimised Claude Flow settings.json: archon-os-settings.json
 
 This JSON only exposes variables you might want to toggle at runtime (agent limits, memory back‑ends, swarm/hive modes, logging). All sensitive keys and service URLs stay in Infisical or the master .env to avoid duplication. It mirrors the structure used in your existing settings files but reduces clutter to make on‑the‑fly changes easy.
 
@@ -2453,7 +2453,7 @@ Example environment file for Claude Code / Agentic Flow: claude-example.env
 Use this template when running the claude CLI or agentic‑flow on a development machine. It contains basic provider keys, memory toggles, file paths and debug flags tailored for individual agents. Advanced memory systems like Ruvector, Letta or OpenMemory can be enabled by flipping the corresponding flags and supplying the service URLs.
 
 
-These files draw from all available sources in your repo (including the ruvector-letta-graphiti-mem0-openmemory-falkordb settings file and the integration env template) to ensure coverage of every option
+These files draw from all available sources in your repo (including the ruvector-letta-letta-mem0-openmemory-falkordb settings file and the integration env template) to ensure coverage of every option
 
 newtab
 
@@ -2465,7 +2465,7 @@ If you’d like a ready-to-run bootstrap that installs Archon MCP alongside Clau
 
 Sources
 
-im using grafbase/nexus as my mcp server proxy aggregator with fuzzy tool find to save context tokens so that all tools are not blasting the endpoint. i want to install some mcp servers( Simple/general ones) via docker desktops mcp server toolkit but im unsure how best to add these mcp servers to my containerized stack behind nexus? also, if im running claude-code with claude-flow mcp server also being containerized in my stack, i dont think it will be able to work on files in my system right? would it work if i had the mcp server toolkit added to nexus and in the docker desktop toolkit i added the filesystem mcp server and added the folders i wanted it able to reach?
+im using grafbase/nexus as my mcp server proxy aggregator with fuzzy tool find to save context tokens so that all tools are not blasting the endpoint. i want to install some mcp servers( Simple/general ones) via docker desktops mcp server toolkit but im unsure how best to add these mcp servers to my containerized stack behind nexus? also, if im running claude-code with archon-os mcp server also being containerized in my stack, i dont think it will be able to work on files in my system right? would it work if i had the mcp server toolkit added to nexus and in the docker desktop toolkit i added the filesystem mcp server and added the folders i wanted it able to reach?
 
 Thought for 24s
 
@@ -2473,7 +2473,7 @@ Thought for 24s
 Short answer:
 
 
-Yes, you can dockerize Archon and Claude-Flow and run them in a dual-orchestrator setup.
+Yes, you can dockerize Archon and archon-os and run them in a dual-orchestrator setup.
 
 
 Yes, you can hang Docker Desktop MCP Toolkit servers (including filesystem) behind grafbase/nexus.
@@ -2485,7 +2485,7 @@ And yes, your “filesystem MCP in Docker with mounted folders” idea is exactl
 I’ll break it into the two big concerns you raised.
 
 
-1. Dockerizing Archon + Claude-Flow as dual orchestrators
+1. Dockerizing Archon + archon-os as dual orchestrators
 
 
 There’s no fundamental reason they must live on bare metal or inside your monorepo.
@@ -2494,7 +2494,7 @@ There’s no fundamental reason they must live on bare metal or inside your mono
 Think of each orchestrator as an MCP server endpoint:
 
 
-Claude-Flow MCP server
+archon-os MCP server
 
 
 Archon MCP server
@@ -2528,7 +2528,7 @@ Claude Code (client)
 
         │
 
-        ├── claude-flow-mcp (Docker container)
+        ├── archon-os-mcp (Docker container)
 
         └── archon-mcp (Docker container)
 
@@ -2542,11 +2542,11 @@ servers: [
 
   {
 
-    id: "claude-flow",
+    id: "archon-os",
 
     transport: "http",
 
-    url: "http://claude-flow-mcp:8001"  // or localhost:PORT if nexus runs on host
+    url: "http://archon-os-mcp:8001"  // or localhost:PORT if nexus runs on host
 
   },
 
@@ -2596,7 +2596,7 @@ grafbase/nexus (MCP proxy + fuzzy tool picker)
 
     │
 
-    ├─ claude-flow-mcp (container)
+    ├─ archon-os-mcp (container)
 
     ├─ archon-mcp     (container)
 
@@ -2692,7 +2692,7 @@ avoid loading every server per request, which is what you want for token savings
 You’re exactly right to worry about:
 
 
-if im running claude-code with claude-flow mcp server also being containerized in my stack, i dont think it will be able to work on files in my system right?
+if im running claude-code with archon-os mcp server also being containerized in my stack, i dont think it will be able to work on files in my system right?
 
 
 3.1 What’s true
@@ -2710,7 +2710,7 @@ Any host paths you mount as volumes.
 So:
 
 
-If Claude-Flow MCP is in a container with no volume for C:\Dev\..., it can’t see your host repo.
+If archon-os MCP is in a container with no volume for C:\Dev\..., it can’t see your host repo.
 
 
 Even if Claude Code is running on your desktop, once it calls a containerized MCP server, that server can only touch what’s inside its own world.
@@ -2827,7 +2827,7 @@ nexus (host process)
 
    │
 
-   ├─ http://localhost:8001 → claude-flow (container)
+   ├─ http://localhost:8001 → archon-os (container)
 
    ├─ http://localhost:8002 → archon (container)
 
@@ -2837,7 +2837,7 @@ nexus (host process)
 You run nexus directly on your machine.
 
 
-All MCP servers (claude-flow, archon, filesystem, etc.) are containers with ports exposed to host.
+All MCP servers (archon-os, archon, filesystem, etc.) are containers with ports exposed to host.
 
 
 Config just uses http://localhost:PORT.
@@ -2855,7 +2855,7 @@ nexus (container)
 
   │
 
-  ├─ claude-flow (container)
+  ├─ archon-os (container)
 
   ├─ archon (container)
 
@@ -2880,7 +2880,7 @@ This is cleaner if you’re going “full stack-in-a-box” and running the whol
 Since you mentioned:
 
 
-AgentDB
+ruvector
 
 
 LettaAI
@@ -2895,7 +2895,7 @@ OpenMemory
 Qdrant
 
 
-Graphiti + FalkorDB / Neo4j
+letta + FalkorDB / Neo4j
 
 
 memOS (Memorytensors)
@@ -2907,7 +2907,7 @@ The rule of thumb is the same:
 Databases/services (Qdrant, Neo4j, Supabase, memOS, etc.) → run as networked services (usually containers).
 
 
-Orchestrators/MCP servers (Claude-Flow, Archon, Ruvector, memory managers) → connect to them via HOST:PORT or URL.
+Orchestrators/MCP servers (archon-os, Archon, Ruvector, memory managers) → connect to them via HOST:PORT or URL.
 
 
 Filesystem access → via filesystem MCP with proper volume mounts.
@@ -2916,7 +2916,7 @@ Filesystem access → via filesystem MCP with proper volume mounts.
 You don’t have to put the memory systems in the same container as the orchestrators. Keeping them as separate services actually makes it easier to:
 
 
-share them between Archon + Claude-Flow,
+share them between Archon + archon-os,
 
 
 scale or swap backends,
@@ -2931,10 +2931,10 @@ If you want, next round I can sketch:
 a docker-compose.yml that includes:
 
 
-nexus, claude-flow, archon, filesystem-mcp,
+nexus, archon-os, archon, filesystem-mcp,
 
 
-plus qdrant, agentdb, maybe memos/mem0,
+plus qdrant, ruvector, maybe memos/mem0,
 
 
 and a sample nexus MCP config referencing all of them.
@@ -2943,7 +2943,7 @@ and a sample nexus MCP config referencing all of them.
 But for this question: your mental model is right on point, and the filesystem MCP via Docker Desktop toolkit + nexus is exactly how you keep claude-code able to work on real files while the brains live in containers.
 
 
-yes to your suggestions, however, since im using twenty crm which requires postgres (i think) + graphiti + falkordb (im not sure if this still uses postgres or if it uses redis now?) + ruvector + ruvector-postgres + agentdb (is agentdb its own db or do i need something with it?) along with claude-flow for dev and archon os for dev and prod - both of these will be connected to the same redis. archon OS can be used as a memory manager so im trying to decide if i should still utilize letta AI / letta OS or not... and is there already too much memory related junk? should i keep ruvector or is it cool? i was maybe thinking of utilizingit and integrating it into my twenty crm builds postgres? then this is all behind grafbase/nexus which also needs litellm, infisical, and bitwarden along side docker mcp toolkit which i want to add as an entrypoint for ALL of the mcp toolkit servers so that i dont have to add each one individually. please make me the compose stack and give nexus routing for models/providers along side litellm for my worker pc's local models as well as fuzzy tool find and all of the other possible nexus goodies.
+yes to your suggestions, however, since im using twenty crm which requires postgres (i think) + letta + falkordb (im not sure if this still uses postgres or if it uses redis now?) + ruvector + ruvector-postgres + ruvector (is ruvector its own db or do i need something with it?) along with archon-os for dev and archon os for dev and prod - both of these will be connected to the same redis. archon OS can be used as a memory manager so im trying to decide if i should still utilize letta AI / letta OS or not... and is there already too much memory related junk? should i keep ruvector or is it cool? i was maybe thinking of utilizingit and integrating it into my twenty crm builds postgres? then this is all behind grafbase/nexus which also needs litellm, infisical, and bitwarden along side docker mcp toolkit which i want to add as an entrypoint for ALL of the mcp toolkit servers so that i dont have to add each one individually. please make me the compose stack and give nexus routing for models/providers along side litellm for my worker pc's local models as well as fuzzy tool find and all of the other possible nexus goodies.
 
 Thought for 7m 14s
 
@@ -2954,10 +2954,10 @@ You’re right to call me out there – if we’re talking “master env + orche
 Let’s do this properly:
 
 
-First I’ll give you a high-level architecture sanity check (Postgres / Redis / ruvector / AgentDB / Archon / Letta / etc).
+First I’ll give you a high-level architecture sanity check (Postgres / Redis / ruvector / ruvector / Archon / Letta / etc).
 
 
-Then a docker-compose stack that wires all of this together behind grafbase/nexus with LiteLLM, Redis, Postgres, ruvector, AgentDB, Twenty, Graphiti+graph DB, Claude Flow, Archon OS, Infisical, Bitwarden, and a “Docker MCP Toolkit” entrypoint.
+Then a docker-compose stack that wires all of this together behind grafbase/nexus with LiteLLM, Redis, Postgres, ruvector, ruvector, Twenty, letta+graph DB, Claude Flow, Archon OS, Infisical, Bitwarden, and a “Docker MCP Toolkit” entrypoint.
 
 
 Then an example Nexus routing config showing:
@@ -2989,7 +2989,7 @@ Used by:
 Twenty CRM
 
 
-Graphiti (if you choose Postgres-backed graph – depends on your adapter)
+letta (if you choose Postgres-backed graph – depends on your adapter)
 
 
 ruvector (via RUVECTOR_DATABASE_URL, ideally a dedicated DB or schema)
@@ -3009,7 +3009,7 @@ nyra_main DB (Twenty + general app needs)
 ruvector DB (or nyra_main + ruvector schema)
 
 
-Optional graphiti DB if it still uses PG.
+Optional letta DB if it still uses PG.
 
 
 Redis (single)
@@ -3030,7 +3030,7 @@ Anything else that wants quick ephemeral state.
 That’s fine – just use different DB numbers (/0, /1, etc) if you want isolation.
 
 
-AgentDB
+ruvector
 
 
 Yes: it is its own DB, backed by SQLite / native engine.
@@ -3063,7 +3063,7 @@ You can colocate its DB with Twenty’s Postgres (just separate DB or schema). I
 Graph DB
 
 
-You mentioned Graphiti + FalkorDB/Neo4j.
+You mentioned letta + FalkorDB/Neo4j.
 
 
 To avoid insanity:
@@ -3074,7 +3074,7 @@ Pick one: FalkorDB or Neo4j.
 If you’re unsure, Neo4j is usually the more documented/stable choice.
 
 
-Graphiti then points at that graph DB via GRAPHITI_BACKEND and <BACKEND>_URI.
+letta then points at that graph DB via letta_BACKEND and <BACKEND>_URI.
 
 
 Letta / Mem0 / OpenMemory / memOS / Archon as memory manager
@@ -3089,10 +3089,10 @@ My pragmatic recommendation for v1 of your stack:
 Primary vector search: ruvector (+ maybe Qdrant later if you need more scale).
 
 
-Internal orchestrator memory: AgentDB for Claude Flow + Archon OS.
+Internal orchestrator memory: ruvector for Claude Flow + Archon OS.
 
 
-Graph memory: Graphiti + Neo4j/FalkorDB.
+Graph memory: letta + Neo4j/FalkorDB.
 
 
 Optional “meta” memory:
@@ -3107,13 +3107,13 @@ Same for memOS / MemoryTensors: great to add later, but they don’t have to be 
 Archon OS can indeed be your “memory manager” that delegates to:
 
 
-AgentDB (episodes & policies)
+ruvector (episodes & policies)
 
 
 ruvector (semantic search)
 
 
-Graphiti (relationships)
+letta (relationships)
 
 
 Letta / OpenMemory as needed via MCP.
@@ -3137,7 +3137,7 @@ redis-main
 twenty
 
 
-graphiti
+letta
 
 
 neo4j (swap for FalkorDB if you prefer)
@@ -3146,10 +3146,10 @@ neo4j (swap for FalkorDB if you prefer)
 ruvector
 
 
-agentdb
+ruvector
 
 
-claude-flow
+archon-os
 
 
 archon-os
@@ -3302,11 +3302,11 @@ services:
       - nyra
 
 
-  graphiti:
+  letta:
 
-    # TODO: replace with actual Graphiti image or build context
+    # TODO: replace with actual letta image or build context
 
-    image: graphiti/graphiti:latest
+    image: letta/letta:latest
 
     restart: unless-stopped
 
@@ -3318,17 +3318,17 @@ services:
 
     environment:
 
-      GRAPHITI_BACKEND: neo4j          # or "falkordb"
+      letta_BACKEND: neo4j          # or "falkordb"
 
-      GRAPHITI_NEO4J_URI: bolt://neo4j:7687
+      letta_NEO4J_URI: bolt://neo4j:7687
 
-      GRAPHITI_NEO4J_USER: neo4j
+      letta_NEO4J_USER: neo4j
 
-      GRAPHITI_NEO4J_PASSWORD: neo4j_password
+      letta_NEO4J_PASSWORD: neo4j_password
 
-      # If Graphiti still needs Postgres:
+      # If letta still needs Postgres:
 
-      GRAPHITI_DATABASE_URL: postgres://nyra:nyra_password@postgres-main:5432/nyra_main
+      letta_DATABASE_URL: postgres://nyra:nyra_password@postgres-main:5432/nyra_main
 
     networks:
 
@@ -3385,21 +3385,21 @@ services:
       - nyra
 
 
-  agentdb:
+  ruvector:
 
-    # TODO: use official AgentDB image or build your own
+    # TODO: use official ruvector image or build your own
 
-    # Minimal example: node:20-alpine with `npm install -g agentdb`
+    # Minimal example: node:20-alpine with `npm install -g ruvector`
 
-    image: ruvnet/agentdb:latest
+    image: ruvnet/ruvector:latest
 
     restart: unless-stopped
 
-    command: ["agentdb", "start", "--data", "/data", "--bind", "0.0.0.0", "--port", "8123"]
+    command: ["ruvector", "start", "--data", "/data", "--bind", "0.0.0.0", "--port", "8123"]
 
     volumes:
 
-      - agentdb-data:/data
+      - ruvector-data:/data
 
     ports:
 
@@ -3413,13 +3413,13 @@ services:
   # ---------- Orchestrators (Claude Flow + Archon OS) ----------
 
 
-  claude-flow:
+  archon-os:
 
     # Build from your Project-Nyra repo or a dedicated Claude Flow Dockerfile
 
     build:
 
-      context: ./claude-flow
+      context: ./archon-os
 
       dockerfile: Dockerfile
 
@@ -3431,7 +3431,7 @@ services:
 
       - postgres-main
 
-      - agentdb
+      - ruvector
 
       - ruvector
 
@@ -3456,11 +3456,11 @@ services:
 
       # Memory backends
 
-      AGENTDB_URL: http://agentdb:8123
+      ruvector_URL: http://ruvector:8123
 
       RUVECTOR_API_URL: http://ruvector:8000
 
-      GRAPHITI_URL: http://graphiti:7400
+      letta_URL: http://letta:7400
 
       # optional: Letta/OpenMemory/Qdrant toggles wired via .env/Infisical
 
@@ -3507,7 +3507,7 @@ services:
 
       - redis-main
 
-      - agentdb
+      - ruvector
 
       - ruvector
 
@@ -3517,11 +3517,11 @@ services:
 
       ARCHON_REDIS_URL: redis://redis-main:6379/1
 
-      ARCHON_AGENTDB_URL: http://agentdb:8123
+      ARCHON_ruvector_URL: http://ruvector:8123
 
       ARCHON_RUVECTOR_URL: http://ruvector:8000
 
-      ARCHON_GRAPHITI_URL: http://graphiti:7400
+      ARCHON_letta_URL: http://letta:7400
 
 
       # Use Nexus as your LLM router just like Claude Flow
@@ -3581,7 +3581,7 @@ services:
 
       - litellm
 
-      - claude-flow
+      - archon-os
 
       - archon-os
 
@@ -3725,7 +3725,7 @@ volumes:
 
   ruvector-data:
 
-  agentdb-data:
+  ruvector-data:
 
   infisical-data:
 
@@ -3734,7 +3734,7 @@ volumes:
 Notes about Docker MCP Toolkit + filesystem access
 
 
-“if im running claude-code with claude-flow mcp server also being containerized in my stack, i dont think it will be able to work on files in my system right? would it work if i had the mcp server toolkit added to nexus and in the docker desktop toolkit i added the filesystem mcp server and added the folders i wanted it able to reach?”
+“if im running claude-code with archon-os mcp server also being containerized in my stack, i dont think it will be able to work on files in my system right? would it work if i had the mcp server toolkit added to nexus and in the docker desktop toolkit i added the filesystem mcp server and added the folders i wanted it able to reach?”
 
 
 Yes, that pattern is exactly how you get host file access without giving every container full access:
@@ -3783,7 +3783,7 @@ Here’s an example config/nexus.config.yaml that:
 Registers upstream MCP servers:
 
 
-claude-flow (for project tools / workflows)
+archon-os (for project tools / workflows)
 
 
 archon-os
@@ -3945,11 +3945,11 @@ models:
 
 mcpServers:
 
-  claude-flow:
+  archon-os:
 
     transport: http
 
-    url: http://claude-flow:8787/mcp
+    url: http://archon-os:8787/mcp
 
     timeoutMs: 120000
 
@@ -4076,7 +4076,7 @@ routing:
 
           toolNamePrefix: nyra-
 
-        server: claude-flow
+        server: archon-os
 
       - match:
 
@@ -4091,7 +4091,7 @@ routing:
 
       servers:
 
-        - claude-flow
+        - archon-os
 
         - archon-os
 
@@ -4154,7 +4154,7 @@ Points at NEXUS_URL=http://<host>:8700.
 Sees MCP servers:
 
 
-claude-flow
+archon-os
 
 
 archon-os
@@ -4193,7 +4193,7 @@ Talks to your worker PC (vLLM, LM Studio, Ollama, etc.).
 Exposes those as local/* models to Nexus & Claude Flow.
 
 
-Tighten the Archon OS + Claude Flow env wiring based on exactly which memory backends you decide to keep enabled (Letta, OpenMemory, Mem0, etc.), using the env naming you already have in your master.example.env and claude-flow-settings.json.😼🔺yes please, i also mneed to map out what will be hosted on my free tier oracle VPS instance that has 200gb storage, 24gb ram, and 4 processors. my orchestrator pc hosts everything else except for the local models that my 3 pcs run(plus thie vllm + lmcache + redis or ollama if its the rtx3060).
+Tighten the Archon OS + Claude Flow env wiring based on exactly which memory backends you decide to keep enabled (Letta, OpenMemory, Mem0, etc.), using the env naming you already have in your master.example.env and archon-os-settings.json.😼🔺yes please, i also mneed to map out what will be hosted on my free tier oracle VPS instance that has 200gb storage, 24gb ram, and 4 processors. my orchestrator pc hosts everything else except for the local models that my 3 pcs run(plus thie vllm + lmcache + redis or ollama if its the rtx3060).
 
 
 
@@ -4205,7 +4205,7 @@ please rewrite the attached whitepaper to account for the new architecture as we
 ive attached a zip folder with all of my infra-archived materials. please review it and utilize everything you possibly can to get me as close to the finish line of a completely working and ready to stand up /infra folder so that my entire stack is ready to stand up. remember, i need you to find and setup my  new gitea setup, retrieve and consolidate everything you can - especially for grafbase/nexus files and nexus.toml, and i also need you to add whatever it is to nexus that will add all of my mcp servers installed to docker desktops mcp s erver toolkit via the docker desktop app. i also need you to ensure that infisical and bitwarden are also included in the setup. please also help me decide what i should install via the docker mcp toolkit extensions in docker desktop versus what i should create and add the container for directly to the container stack - a few thigns i see available include context7, github, git, mongodb, notion, n8n, filesystem mcp, redis, tavily, elevenlabs, discord, api gateway, nextjs tools, sentry, circleci, rust filesystem, openapi toolkit, oracle  database, MCP database server, docker cli, docker-hub, prometheus, sentry, etc.
 
 
-i also jsut realized t hat ruvector,  ruvector-cli, ruvector-postgres should be  setup with/next  to agentdb  rather than agentdb being setup next to claude-flow since claude-flow is only for dev but agentdb it not and w ill be run in prod as well.
+i also jsut realized t hat ruvector,  ruvector-cli, ruvector-postgres should be  setup with/next  to ruvector  rather than ruvector being setup next to archon-os since archon-os is only for dev but ruvector it not and w ill be run in prod as well.
 
 
 also,  heres the infisical agent +  sidecar  pattern that should be hooked up to everything in our stack for easier secret injection:

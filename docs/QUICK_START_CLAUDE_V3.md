@@ -48,7 +48,7 @@ Batch all of:
 
 ```bash
 # 1. Initialize mesh swarm
-npx @claude-flow/cli@latest swarm init --topology mesh --max-agents 6
+npx @archon-os/cli@latest swarm init --topology mesh --max-agents 6
 
 # 2. Write failing tests (RED)
 Task({
@@ -80,19 +80,19 @@ Task({
 
 ```bash
 # Search (semantic vector search)
-npx @claude-flow/cli@latest memory search --query "pattern keywords"
+npx @archon-os/cli@latest memory search --query "pattern keywords"
 
 # Store pattern
-npx @claude-flow/cli@latest memory store --key "name" --value "content" --namespace patterns
+npx @archon-os/cli@latest memory store --key "name" --value "content" --namespace patterns
 
 # Retrieve specific entry
-npx @claude-flow/cli@latest memory retrieve --key "name" --namespace patterns
+npx @archon-os/cli@latest memory retrieve --key "name" --namespace patterns
 
 # List entries
-npx @claude-flow/cli@latest memory list --namespace patterns --limit 10
+npx @archon-os/cli@latest memory list --namespace patterns --limit 10
 ```
 
-**Priority**: RuVector > Letta > Graphiti > Mem0 > OpenMemory
+**Priority**: RuVector > Letta > letta > Mem0 > OpenMemory
 
 ---
 
@@ -101,7 +101,7 @@ npx @claude-flow/cli@latest memory list --namespace patterns --limit 10
 ### Mesh (DEFAULT for TDD/Microservices)
 
 ```bash
-npx @claude-flow/cli@latest swarm init --topology mesh --max-agents 8 --strategy balanced
+npx @archon-os/cli@latest swarm init --topology mesh --max-agents 8 --strategy balanced
 ```
 - Peer-to-peer coordination
 - Use for: TDD, microservices, parallel features
@@ -109,7 +109,7 @@ npx @claude-flow/cli@latest swarm init --topology mesh --max-agents 8 --strategy
 ### Hierarchical (Compliance-Critical)
 
 ```bash
-npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 8 --strategy specialized
+npx @archon-os/cli@latest swarm init --topology hierarchical --max-agents 8 --strategy specialized
 ```
 - Queen controls workers
 - Use for: compliance validation, audit trails
@@ -117,7 +117,7 @@ npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 8 --
 ### Hierarchical-Mesh (10+ Agents)
 
 ```bash
-npx @claude-flow/cli@latest swarm init --topology hierarchical-mesh --max-agents 15 --strategy specialized
+npx @archon-os/cli@latest swarm init --topology hierarchical-mesh --max-agents 15 --strategy specialized
 ```
 - Hybrid: queen + peer communication
 - Use for: campaign orchestration, large workflows
@@ -130,58 +130,58 @@ npx @claude-flow/cli@latest swarm init --topology hierarchical-mesh --max-agents
 
 ```bash
 # Initialize project
-npx @claude-flow/cli@latest init --wizard
+npx @archon-os/cli@latest init --wizard
 
 # Start daemon
-npx @claude-flow/cli@latest daemon start
+npx @archon-os/cli@latest daemon start
 
 # System health check
-npx @claude-flow/cli@latest doctor --fix
+npx @archon-os/cli@latest doctor --fix
 
 # Check routing
-npx @claude-flow/cli@latest hooks pre-task --description "[task description]"
+npx @archon-os/cli@latest hooks pre-task --description "[task description]"
 
 # Record task completion
-npx @claude-flow/cli@latest hooks post-task --task-id "[id]" --success true
+npx @archon-os/cli@latest hooks post-task --task-id "[id]" --success true
 ```
 
 ### Agent Operations
 
 ```bash
 # Spawn agent
-npx @claude-flow/cli@latest agent spawn -t coder --name my-coder
+npx @archon-os/cli@latest agent spawn -t coder --name my-coder
 
 # List agents
-npx @claude-flow/cli@latest agent list
+npx @archon-os/cli@latest agent list
 
 # Check agent status
-npx @claude-flow/cli@latest agent status
+npx @archon-os/cli@latest agent status
 ```
 
 ### Memory Operations
 
 ```bash
 # Search
-npx @claude-flow/cli@latest memory search --query "pattern"
+npx @archon-os/cli@latest memory search --query "pattern"
 
 # Store
-npx @claude-flow/cli@latest memory store --key "name" --value "content" --namespace patterns
+npx @archon-os/cli@latest memory store --key "name" --value "content" --namespace patterns
 
 # Initialize memory
-npx @claude-flow/cli@latest memory init --force --verbose
+npx @archon-os/cli@latest memory init --force --verbose
 ```
 
 ### Performance & Security
 
 ```bash
 # Security scan
-npx @claude-flow/cli@latest security scan --depth full
+npx @archon-os/cli@latest security scan --depth full
 
 # Performance benchmark
-npx @claude-flow/cli@latest performance benchmark --suite all
+npx @archon-os/cli@latest performance benchmark --suite all
 
 # Coverage gaps
-npx @claude-flow/cli@latest hooks coverage-gaps --format table
+npx @archon-os/cli@latest hooks coverage-gaps --format table
 ```
 
 ---
@@ -225,23 +225,23 @@ npx @claude-flow/cli@latest hooks coverage-gaps --format table
 
 ```bash
 # Search for similar patterns
-npx @claude-flow/cli@latest memory search --query '[task keywords]' --namespace patterns
+npx @archon-os/cli@latest memory search --query '[task keywords]' --namespace patterns
 
 # Check routing recommendation
-npx @claude-flow/cli@latest hooks route --task '[task description]'
+npx @archon-os/cli@latest hooks route --task '[task description]'
 ```
 
 ### After Completing Task
 
 ```bash
 # Store successful pattern
-npx @claude-flow/cli@latest memory store --key 'pattern-name' --value 'what worked' --namespace patterns
+npx @archon-os/cli@latest memory store --key 'pattern-name' --value 'what worked' --namespace patterns
 
 # Train neural patterns
-npx @claude-flow/cli@latest hooks post-edit --file '[main-file]' --train-neural true
+npx @archon-os/cli@latest hooks post-edit --file '[main-file]' --train-neural true
 
 # Record completion
-npx @claude-flow/cli@latest hooks post-task --task-id '[id]' --success true --store-results true
+npx @archon-os/cli@latest hooks post-task --task-id '[id]' --success true --store-results true
 ```
 
 ---
@@ -249,7 +249,7 @@ npx @claude-flow/cli@latest hooks post-task --task-id '[id]' --success true --st
 ## Mortgage-Specific Rules (CRITICAL)
 
 1. **Compliance First**: Every mortgage feature MUST include TILA/RESPA/TRID validation
-2. **No Locked Component Modification**: Nexus, TwentyCRM, Dify, n8n, Letta, Graphiti
+2. **No Locked Component Modification**: Nexus, TwentyCRM, Dify, n8n, Letta, letta
 3. **Local LLMs First**: 80%+ on GPU workers, fallback to cloud only when needed
 4. **Encrypt Sensitive Data**: SSN, income, credit scores, financial documents
 5. **Audit Trails**: Complete audit logs for all mortgage operations
@@ -270,13 +270,13 @@ npx @claude-flow/cli@latest hooks post-task --task-id '[id]' --success true --st
 
 ```bash
 # MCP servers
-claude mcp add claude-flow -- npx -y @claude-flow/cli@latest
+claude mcp add archon-os -- npx -y @archon-os/cli@latest
 
 # Start daemon
-npx @claude-flow/cli@latest daemon start
+npx @archon-os/cli@latest daemon start
 
 # Health check
-npx @claude-flow/cli@latest doctor --fix
+npx @archon-os/cli@latest doctor --fix
 ```
 
 ---
@@ -289,7 +289,7 @@ npx @claude-flow/cli@latest doctor --fix
 | 2 | Haiku | 500ms | $0.0002 | Simple tasks, bug fixes |
 | 3 | Sonnet/Opus | 2-5s | $0.003+ | Architecture, security, reasoning |
 
-**Check routing before spawning**: `npx @claude-flow/cli@latest hooks pre-task --description "[task]"`
+**Check routing before spawning**: `npx @archon-os/cli@latest hooks pre-task --description "[task]"`
 
 ---
 
@@ -321,7 +321,7 @@ curl -X POST http://localhost:6000/v1/chat/completions \
 | `docs/CLAUDE_REFACTORING_SUMMARY.md` | What was refactored and why |
 | `docs/REFACTORING_VALIDATION.md` | Detailed validation report |
 | `docs/QUICK_START_CLAUDE_V3.md` | This file - quick reference |
-| `.claude-flow/CAPABILITIES.md` | Full feature reference |
+| `.archon-os/CAPABILITIES.md` | Full feature reference |
 
 ---
 
@@ -330,20 +330,20 @@ curl -X POST http://localhost:6000/v1/chat/completions \
 ### Start TDD Feature Development
 
 ```bash
-npx @claude-flow/cli@latest swarm init --topology mesh --max-agents 6
+npx @archon-os/cli@latest swarm init --topology mesh --max-agents 6
 # Then spawn 3 agents: tester (RED), coder (GREEN), reviewer (REFACTOR)
 ```
 
 ### Search Memory for Pattern
 
 ```bash
-npx @claude-flow/cli@latest memory search --query "authentication patterns"
+npx @archon-os/cli@latest memory search --query "authentication patterns"
 ```
 
 ### Create Mortgage Quote
 
 ```bash
-npx @claude-flow/cli@latest workflow run lead-to-quote \
+npx @archon-os/cli@latest workflow run lead-to-quote \
   --borrower-id 12345 \
   --topology mesh \
   --compliance-check true
@@ -352,13 +352,13 @@ npx @claude-flow/cli@latest workflow run lead-to-quote \
 ### Health Check
 
 ```bash
-npx @claude-flow/cli@latest doctor --fix
+npx @archon-os/cli@latest doctor --fix
 ```
 
 ### Performance Benchmark
 
 ```bash
-npx @claude-flow/cli@latest performance benchmark --suite all
+npx @archon-os/cli@latest performance benchmark --suite all
 ```
 
 ---
@@ -367,7 +367,7 @@ npx @claude-flow/cli@latest performance benchmark --suite all
 
 - **Main Documentation**: See `CLAUDE.md`
 - **Mortgage Details**: See `docs/MORTGAGE_DOMAIN.md`
-- **Full Features**: See `.claude-flow/CAPABILITIES.md`
+- **Full Features**: See `.archon-os/CAPABILITIES.md`
 - **Project Architecture**: See `ToDo/whitepaper-workflow/nyra-mcp-infisical-patchkit-v1/docs/`
 
 ---

@@ -23,7 +23,7 @@ I have designed and implemented a comprehensive MCP (Model Context Protocol) int
 - **Performance optimization** with neural networks and predictive scaling
 - **L1/L2 caching** (512MB/2GB) for optimized performance
 
-### 3. **Claude-Flow MCP Configuration** (`config/claude-flow-mcp-config.json`)
+### 3. **archon-os MCP Configuration** (`config/archon-os-mcp-config.json`)
 - **SPARC methodology integration** on port 8082
 - **Complete workflow pipeline**: Specification → Pseudocode → Architecture → Refinement → Completion
 - **Swarm management**: Mesh, hierarchical, ring, and star topologies
@@ -143,7 +143,7 @@ I have designed and implemented a comprehensive MCP (Model Context Protocol) int
 ### **Primary Services**
 - **MetaMCP Gateway**: `http://localhost:8080` - API gateway and proxy
 - **Archon MCP**: `http://localhost:8081` - Agent coordination
-- **Claude-Flow MCP**: `http://localhost:8082` - SPARC workflows
+- **archon-os MCP**: `http://localhost:8082` - SPARC workflows
 - **Nyra Orchestrator**: `http://localhost:8083` - GPU cluster management
 
 ### **Monitoring Stack**
@@ -170,11 +170,11 @@ chmod +x ./scripts/deploy-mcp-ecosystem.sh
 # Check MCP server registration
 claude mcp list
 
-# Start Claude-Flow UI
-./claude-flow start --ui
+# Start archon-os UI
+./archon-os start --ui
 
 # Check system status
-./claude-flow status
+./archon-os status
 ```
 
 ### **3. Integration Testing**
@@ -187,7 +187,7 @@ claude mcp list
 ```bash
 # Initialize with Infisical
 infisical login
-infisical run -- ./claude-flow status
+infisical run -- ./archon-os status
 ```
 
 ## 📚 Documentation Structure
@@ -196,7 +196,7 @@ infisical run -- ./claude-flow status
 - `config/mcp-architecture.json` - Overall architecture definition
 - `config/metamcp-gateway.json` - Gateway configuration
 - `config/archon-mcp-config.json` - Agent coordination settings
-- `config/claude-flow-mcp-config.json` - SPARC workflow configuration
+- `config/archon-os-mcp-config.json` - SPARC workflow configuration
 - `config/service-mesh-config.json` - Networking and security
 - `config/nyra-orchestrator-config.json` - GPU and mortgage workflows
 
@@ -241,7 +241,7 @@ infisical run -- ./claude-flow status
 ### **Immediate Actions**
 1. **Deploy the system**: Run `./scripts/deploy-mcp-ecosystem.sh`
 2. **Verify installation**: Execute integration tests
-3. **Start UI interface**: Launch `./claude-flow start --ui`
+3. **Start UI interface**: Launch `./archon-os start --ui`
 4. **Configure secrets**: Setup Infisical for production deployment
 
 ### **Production Readiness**

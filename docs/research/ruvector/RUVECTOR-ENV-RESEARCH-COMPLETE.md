@@ -326,7 +326,7 @@ INTEGRATION WITH PROJECT NYRA
 
 Memory Systems:
 - Letta (OS-like agent memory)
-- Graphiti + FalkorDB (temporal knowledge graphs)
+- letta + FalkorDB (temporal knowledge graphs)
 - Mem0 + OpenMemory (user personalization)
 - Qdrant (alternative vector DB)
 

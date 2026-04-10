@@ -576,7 +576,7 @@ npm run test:cost
 - Embedding requests routed to RuVector
 - Result caching in RuVector embeddings DB
 
-### With Graphiti Knowledge
+### With letta Knowledge
 - Context enrichment from knowledge graph
 - Entity-aware response generation
 
@@ -614,7 +614,7 @@ DELETE /admin/providers/{provider}/disable
 
 - **Nexus Router** - Request routing gateway
 - **RuVector Search** - Vector embeddings and search
-- **Graphiti Knowledge** - Knowledge graph context
+- **letta Knowledge** - Knowledge graph context
 - **Redis** - Response caching
 - **PostgreSQL** - Cost tracking database
 

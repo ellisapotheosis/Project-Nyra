@@ -6,13 +6,13 @@
 
 ```bash
 # Verify Claude Flow CLI is available
-npx @claude-flow/cli@latest --version
+npx @archon-os/cli@latest --version
 
 # Start daemon if not running
-npx @claude-flow/cli@latest daemon start
+npx @archon-os/cli@latest daemon start
 
 # Initialize memory
-npx @claude-flow/cli@latest memory init
+npx @archon-os/cli@latest memory init
 ```
 
 ### 2. Make Scripts Executable
@@ -129,41 +129,41 @@ chmod +x scripts/ingestion/*.sh
 ### CLI Not Found
 
 ```bash
-npm install -g @claude-flow/cli@latest
+npm install -g @archon-os/cli@latest
 ```
 
 ### Daemon Not Running
 
 ```bash
-npx @claude-flow/cli@latest daemon start
-npx @claude-flow/cli@latest daemon status
+npx @archon-os/cli@latest daemon start
+npx @archon-os/cli@latest daemon status
 ```
 
 ### Memory Issues
 
 ```bash
-npx @claude-flow/cli@latest memory init --force
-npx @claude-flow/cli@latest memory stats
+npx @archon-os/cli@latest memory init --force
+npx @archon-os/cli@latest memory stats
 ```
 
 ### Check Logs
 
 ```bash
-tail -f .claude-flow/logs/daemon.log
+tail -f .archon-os/logs/daemon.log
 ```
 
 ## Next Steps
 
 For detailed information, see:
 - **Full Guide**: `docs/workflows/sparc-ingestion-guide.md`
-- **Workflow Definition**: `.claude-flow/workflows/ingestion-sparc.json`
+- **Workflow Definition**: `.archon-os/workflows/ingestion-sparc.json`
 - **Script Source**: `scripts/ingestion/`
 
 ## Support
 
 Run diagnostics:
 ```bash
-npx @claude-flow/cli@latest doctor
+npx @archon-os/cli@latest doctor
 ```
 
 For help:

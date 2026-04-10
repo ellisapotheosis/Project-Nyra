@@ -63,23 +63,23 @@ Adaptive:     ⭐⭐⭐⭐⭐ Coordination Efficiency
 All swarm coordinators leverage the following MCP tools:
 
 ### Core Coordination Tools
-- `mcp__claude-flow__swarm_init` - Initialize swarm topology
-- `mcp__claude-flow__agent_spawn` - Create specialized worker agents  
-- `mcp__claude-flow__task_orchestrate` - Coordinate complex workflows
-- `mcp__claude-flow__swarm_monitor` - Real-time performance monitoring
+- `mcp__archon-os__swarm_init` - Initialize swarm topology
+- `mcp__archon-os__agent_spawn` - Create specialized worker agents  
+- `mcp__archon-os__task_orchestrate` - Coordinate complex workflows
+- `mcp__archon-os__swarm_monitor` - Real-time performance monitoring
 
 ### Advanced Features
-- `mcp__claude-flow__neural_patterns` - Pattern recognition and learning
-- `mcp__claude-flow__daa_consensus` - Distributed decision making
-- `mcp__claude-flow__topology_optimize` - Dynamic topology optimization
-- `mcp__claude-flow__performance_report` - Comprehensive analytics
+- `mcp__archon-os__neural_patterns` - Pattern recognition and learning
+- `mcp__archon-os__daa_consensus` - Distributed decision making
+- `mcp__archon-os__topology_optimize` - Dynamic topology optimization
+- `mcp__archon-os__performance_report` - Comprehensive analytics
 
 ## Usage Examples
 
 ### Hierarchical Coordination
 ```bash
 # Initialize hierarchical swarm for development project
-claude-flow agent spawn hierarchical-coordinator "Build authentication microservice"
+archon-os agent spawn hierarchical-coordinator "Build authentication microservice"
 
 # Agents will automatically:
 # 1. Decompose project into tasks
@@ -91,7 +91,7 @@ claude-flow agent spawn hierarchical-coordinator "Build authentication microserv
 ### Mesh Coordination  
 ```bash
 # Initialize mesh network for distributed processing
-claude-flow agent spawn mesh-coordinator "Process user analytics data"
+archon-os agent spawn mesh-coordinator "Process user analytics data"
 
 # Network will automatically:
 # 1. Establish peer-to-peer connections
@@ -103,7 +103,7 @@ claude-flow agent spawn mesh-coordinator "Process user analytics data"
 ### Adaptive Coordination
 ```bash
 # Initialize adaptive swarm for production optimization
-claude-flow agent spawn adaptive-coordinator "Optimize system performance"
+archon-os agent spawn adaptive-coordinator "Optimize system performance"
 
 # System will automatically:
 # 1. Analyze current workload patterns
@@ -177,14 +177,14 @@ Real-time visibility into:
 - **Resource Exhaustion**: Monitor and scale agent pools proactively
 - **Learning Issues**: Validate training data quality and model convergence
 
-## Integration with Claude-Flow
+## Integration with archon-os
 
-These agents integrate seamlessly with the broader claude-flow ecosystem:
+These agents integrate seamlessly with the broader archon-os ecosystem:
 
-- **Memory System**: All coordination state persisted in claude-flow memory bank
+- **Memory System**: All coordination state persisted in archon-os memory bank
 - **Terminal Management**: Agents can spawn and manage multiple terminal sessions
-- **MCP Integration**: Full access to claude-flow's MCP tool ecosystem
-- **Event System**: Real-time coordination through claude-flow event bus
-- **Configuration**: Managed through claude-flow configuration system
+- **MCP Integration**: Full access to archon-os's MCP tool ecosystem
+- **Event System**: Real-time coordination through archon-os event bus
+- **Configuration**: Managed through archon-os configuration system
 
-For implementation details, see individual agent files and the claude-flow documentation.
+For implementation details, see individual agent files and the archon-os documentation.
