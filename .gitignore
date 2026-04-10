@@ -523,4 +523,4 @@ gitea-setup-summary-*.md
 .env.archon.runtime
 
 # Local external dependencies (git repos)
-external/
+# external/

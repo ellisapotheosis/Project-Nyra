@@ -1,61 +1,111 @@
-[server]
-host = "0.0.0.0"
-port = 7000
-metrics_port = 9091
+##############################################################################
+# Project Nyra — Nexus Router (single entrypoint / proxy aggregator)
+##############################################################################
 
+[server]
+listen_address = "0.0.0.0:7000"
+
+[server.health]
+enabled = true
+path = "/health"
+
+[server.cors]
+enabled = true
+allow_origins = ["*"]
+allow_headers = ["authorization", "content-type", "x-api-key"]
+allow_methods = ["GET", "POST", "OPTIONS"]
+
+# -----------------------------------------------------------------------------
+# LLM Proxying (use Nexus as the single LLM+MCP entrypoint)
+# -----------------------------------------------------------------------------
+[llm]
+enabled = true
+
+# OpenAI-compatible endpoint (used by many apps)
+[llm.protocols.openai]
+enabled = true
+path = "/v1"
+
+# Anthropic-compatible endpoint (for Claude Code / Anthropic SDK clients)
+[llm.protocols.anthropic]
+enabled = true
+path = "/anthropic"
+
+# Primary local gateway: LiteLLM -> workers (vLLM + Ollama)
+[llm.providers.litellm]
+type = "openai"
+api_key = "{{ env.LITELLM_MASTER_KEY }}"
+base_url = "http://nyra-archon-litellm:4000/v1"
+forward_token = false
+
+[llm.providers.litellm.models."*"]
+
+# Optional direct cloud providers (kept as explicit fallbacks)
+[llm.providers.openai]
+type = "openai"
+api_key = "{{ env.OPENAI_API_KEY }}"
+forward_token = true
+[llm.providers.openai.models."gpt-4o-mini"]
+[llm.providers.openai.models."gpt-4o"]
+
+[llm.providers.anthropic]
+type = "anthropic"
+api_key = "{{ env.ANTHROPIC_API_KEY }}"
+[llm.providers.anthropic.models."claude-3-5-sonnet-20241022"]
+[llm.providers.anthropic.models."claude-3-5-haiku-20241022"]
+
+# -----------------------------------------------------------------------------
+# MCP Aggregation (everything funnels through Nexus /mcp)
+# -----------------------------------------------------------------------------
 [mcp]
 enabled = true
-aggregator_port = 8080
+path = "/mcp"
 
-[providers.litellm]
-type = "openai_compatible"
-base_url = "http://litellm:4000"
-api_key_env = "LITELLM_MASTER_KEY"
-models = ["*"]
+# Remote/self-hosted MCP servers (HTTP/SSE)
+[mcp.servers.archon]
+url = "http://nyra-archon-os:3000/mcp/sse"
 
-[providers.openai]
-type = "openai_compatible"
-base_url = "https://api.openai.com/v1"
-api_key_env = "OPENAI_API_KEY"
-models = ["gpt-5.2-codex"]
+[mcp.servers.n8n]
+url = "http://nyra-n8n:5678/mcp"
 
-[providers.google]
-type = "google"
-api_key_env = "GOOGLE_API_KEY"
-models = ["gemini-2.5-pro"]
+[mcp.servers.twenty]
+url = "http://nyra-twenty-crm:3000/mcp"
 
-# GPU Workers - Direct connections for fallback routing
-[workers.rtx5090]
-name = "RTX 5090 - Large Models (vLLM)"
-url = "http://worker-rtx5090.trex-fiordland.ts.net:8000"
-type = "vllm"
-capabilities = ["large_models", "reasoning", "70b+"]
-vram_gb = 48
-models = ["qwen2.5-72b", "llama-3.1-70b", "deepseek-r1", "deepseek-v3"]
-health_check = "/health"
+# Docker-launched MCP servers (via docker socket) for local tool access
+[mcp.servers.github]
+type = "docker"
+image = "ghcr.io/modelcontextprotocol/servers/github:latest"
+env = { GITHUB_PERSONAL_ACCESS_TOKEN = "{{ env.GITHUB_TOKEN }}" }
 
-[workers.rtx3060]
-name = "RTX 3060 - Small Models (Ollama)"
-url = "http://worker-rtx3060.trex-fiordland.ts.net:11434"
-type = "ollama"
-capabilities = ["small_models", "embeddings", "fast_inference"]
-vram_gb = 6
-models = ["qwen2.5:4b", "llama3.2:3b", "phi3:mini", "glm4:9b"]
-health_check = "/api/version"
+[mcp.servers.filesystem]
+type = "docker"
+image = "ghcr.io/modelcontextprotocol/servers/filesystem:latest"
+args = ["/projects"]
+volumes = ["/projects:/projects"]
 
-[workers.rtx3090ti]
-name = "RTX 3090Ti - Medium Models (vLLM)"
-url = "http://worker-rtx3090ti.trex-fiordland.ts.net:8001"
-type = "vllm"
-capabilities = ["medium_models", "coding", "32b", "vllm"]
-vram_gb = 24
-models = ["meta-llama/Llama-3.1-8B-Instruct", "codellama/CodeLlama-34b-Instruct-hf", "deepseek-ai/deepseek-coder-33b-instruct"]
-health_check = "/health"
+[mcp.servers.git]
+type = "docker"
+image = "ghcr.io/modelcontextprotocol/servers/git:latest"
+volumes = ["/projects:/projects"]
 
-[logging]
-level = "info"
-format = "json"
-
-[metrics]
+# Fuzzy tool search / discovery (Nexus built-in)
+[tool_search]
 enabled = true
-prometheus_endpoint = "/metrics"
+fuzzy_match = true
+max_results = 50
+ranking_strategy = "hybrid"
+
+# Rate limits and cache (use Redis)
+[rate_limits]
+enabled = true
+
+[rate_limits.backend]
+type = "redis"
+url = "redis://nyra-archon-redis:6379"
+
+[cache]
+enabled = true
+type = "redis"
+url = "redis://nyra-archon-redis:6379"
+ttl = 900
+prefix = "nexus:"

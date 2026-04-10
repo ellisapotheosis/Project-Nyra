@@ -127,31 +127,31 @@ export class MCPProxyService {
     // Default MCP servers for Project Nyra
     const defaultServers: MCPServer[] = [
       {
-        id: 'claude-flow',
-        name: 'Claude Flow MCP',
+        id: 'archon-os',
+        name: 'Archon OS MCP',
         protocol: 'http',
         config: {
-          url: process.env.CLAUDE_FLOW_MCP_URL || 'http://localhost:9000/mcp',
+          url: process.env.ARCHON_MCP_URL || 'http://archon:3000/mcp',
         },
         enabled: true,
         priority: 1,
       },
       {
-        id: 'archon-os',
-        name: 'Archon OS MCP',
+        id: 'github',
+        name: 'GitHub MCP',
         protocol: 'http',
         config: {
-          url: process.env.ARCHON_MCP_URL || 'http://localhost:8051/mcp',
+          url: process.env.GITHUB_MCP_URL || 'http://github-mcp:8813',
         },
         enabled: true,
         priority: 2,
       },
       {
-        id: 'infisical',
-        name: 'Infisical MCP',
+        id: 'git',
+        name: 'Git MCP',
         protocol: 'http',
         config: {
-          url: process.env.INFISICAL_MCP_URL || 'http://localhost:4002',
+          url: process.env.GIT_MCP_URL || 'http://git-mcp:8812',
         },
         enabled: true,
         priority: 3,
@@ -161,11 +161,71 @@ export class MCPProxyService {
         name: 'Bitwarden MCP',
         protocol: 'http',
         config: {
-          url: process.env.BITWARDEN_MCP_URL || 'http://localhost:4003',
+          url: process.env.BITWARDEN_MCP_URL || 'http://bitwarden-mcp:8814',
         },
-        enabled: false,
+        enabled: true,
         priority: 4,
       },
+      {
+        id: 'infisical',
+        name: 'Infisical MCP',
+        protocol: 'http',
+        config: {
+          url: process.env.INFISICAL_MCP_URL || 'http://infisical-mcp:8815',
+        },
+        enabled: true,
+        priority: 5,
+      },
+      {
+        id: 'docker',
+        name: 'Docker MCP',
+        protocol: 'http',
+        config: {
+          url: process.env.DOCKER_MCP_URL || 'http://docker-mcp-toolkit:8811',
+        },
+        enabled: true,
+        priority: 6,
+      },
+      {
+        id: 'twentycrm',
+        name: 'TwentyCRM MCP',
+        protocol: 'http',
+        config: {
+          url: process.env.TWENTYCRM_MCP_URL || 'http://twentycrm-mcp:8182',
+        },
+        enabled: true,
+        priority: 7,
+      },
+      {
+        id: 'gemini',
+        name: 'Gemini MCP',
+        protocol: 'http',
+        config: {
+          url: process.env.GEMINI_MCP_URL || 'http://gemini-mcp:8085/mcp',
+        },
+        enabled: true,
+        priority: 8,
+      },
+      {
+        id: 'sequential-thinking',
+        name: 'Sequential Thinking MCP',
+        protocol: 'http',
+        config: {
+          url: process.env.SEQUENTIAL_THINKING_MCP_URL || 'http://sequential-thinking-mcp:8093/mcp',
+        },
+        enabled: true,
+        priority: 9,
+      },
+      {
+        id: 'gitea',
+        name: 'Gitea MCP',
+        protocol: 'sse',
+        config: {
+          url: process.env.GITEA_MCP_URL || 'http://gitea-mcp:3100/sse',
+        },
+        enabled: true,
+        priority: 10,
+      }
     ];
 
     for (const server of defaultServers) {
