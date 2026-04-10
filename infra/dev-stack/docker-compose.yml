@@ -32,15 +32,15 @@ services:
     container_name: nyra-dev-ruvector-postgres
     profiles: ["core", "orchestrator", "all"]
     environment:
-      POSTGRES_DB: ${RUVECTOR_POSTGRES_DB:-claude_flow}
-      POSTGRES_USER: ${RUVECTOR_POSTGRES_USER:-claude}
-      POSTGRES_PASSWORD: ${RUVECTOR_POSTGRES_PASSWORD:-claude-flow-secure}
+      POSTGRES_DB: ${RUVECTOR_POSTGRES_DB:-nyra_vector}
+      POSTGRES_USER: ${RUVECTOR_POSTGRES_USER:-nyra}
+      POSTGRES_PASSWORD: ${RUVECTOR_POSTGRES_PASSWORD:-nyra-secure}
     ports:
       - "${RUVECTOR_POSTGRES_PORT:-5436}:5432"
     volumes:
       - ruvector_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${RUVECTOR_POSTGRES_USER:-claude} -d ${RUVECTOR_POSTGRES_DB:-claude_flow}"]
+      test: ["CMD-SHELL", "pg_isready -U ${RUVECTOR_POSTGRES_USER:-nyra} -d ${RUVECTOR_POSTGRES_DB:-nyra_vector}"]
       interval: 10s
       timeout: 5s
       retries: 10

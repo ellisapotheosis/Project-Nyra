@@ -5,8 +5,7 @@
   "files": [],
   "references": [
     { "path": "./services/nexus-router" },
-    { "path": "./packages/database" },
-    { "path": "./services/claude-flow" }
+    { "path": "./packages/database" }
   ],
   "compilerOptions": {
     "composite": true,
