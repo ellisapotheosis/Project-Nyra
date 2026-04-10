@@ -27,7 +27,6 @@
     "all:dev": "turbo run dev --parallel"
   },
   "dependencies": {
-    "agentic-jujutsu": "^2.3.6",
     "zod": "^4.3.5"
   },
   "devDependencies": {
