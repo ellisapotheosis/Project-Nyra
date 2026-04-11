@@ -3,7 +3,7 @@
 # Project Nyra - 4-PC Distributed Architecture
 # Run on ORCHESTRATOR PC only
 
-set -e
+set -euo pipefail
 
 echo "🌊 Project Nyra - Claude-Flow Distributed Setup"
 echo "==============================================="
@@ -21,6 +21,22 @@ ORCH_IP=$(cat /tmp/nyra-orchestrator-ip.txt)
 echo "📋 Configuration:"
 echo "  - Orchestrator IP: ${ORCH_IP}"
 echo ""
+
+# Step 0: Audit Cloudflare build script for ratehunter landing app
+echo "🔍 Auditing Cloudflare build script..."
+RATEHUNTER_PACKAGE_JSON="apps/landing/ratehunter-landing/package.json"
+if [ -f "$RATEHUNTER_PACKAGE_JSON" ]; then
+    if jq -e '.scripts["build:cf"] == "opennextjs-cloudflare build"' "$RATEHUNTER_PACKAGE_JSON" > /dev/null 2>&1; then
+        echo "  ✓ build:cf is present and matches Cloudflare build command"
+    else
+        echo "  ❌ build:cf is missing or not set to 'opennextjs-cloudflare build'"
+        echo "     File: $RATEHUNTER_PACKAGE_JSON"
+        exit 1
+    fi
+else
+    echo "  ❌ Could not find $RATEHUNTER_PACKAGE_JSON"
+    exit 1
+fi
 
 # Step 1: Get worker IPs
 echo "🔗 Worker Configuration"
@@ -268,12 +284,35 @@ EOF
 #!/bin/bash
 # Worker setup script
 
+set -euo pipefail
+
 echo "🔧 Setting up Nyra Worker..."
 
-# Install Claude Code if not present
-if ! command -v claude &> /dev/null; then
-    echo "Installing Claude Code..."
-    # Add installation command here
+# Install required tooling
+if ! command -v jq > /dev/null 2>&1; then
+    echo "Installing jq..."
+    if command -v apt-get > /dev/null 2>&1; then
+        sudo apt-get update && sudo apt-get install -y jq
+    else
+        echo "❌ jq is required but could not be auto-installed on this OS."
+        exit 1
+    fi
+fi
+
+if ! command -v git > /dev/null 2>&1; then
+    echo "Installing git..."
+    if command -v apt-get > /dev/null 2>&1; then
+        sudo apt-get update && sudo apt-get install -y git
+    else
+        echo "❌ git is required but could not be auto-installed on this OS."
+        exit 1
+    fi
+fi
+
+# Install Claude Flow CLI if not present
+if ! command -v claude-flow > /dev/null 2>&1; then
+    echo "Installing Claude Flow..."
+    npm install -g claude-flow@alpha
 fi
 
 # Create workspace
@@ -281,9 +320,21 @@ mkdir -p ~/nyra-workspace
 cd ~/nyra-workspace
 
 # Configure Git
-source worker-config.json
 git config --global user.name "$(jq -r '.git.user' worker-config.json)"
 git config --global user.email "$(jq -r '.git.email' worker-config.json)"
+
+# Generate lean MCP config that routes through Nexus
+mkdir -p ~/.config/nyra
+cat > ~/.mcp.json << 'MCP_EOF'
+{
+  "mcpServers": {
+    "nexus-router": {
+      "type": "sse",
+      "url": "http://localhost:4001/mcp/sse"
+    }
+  }
+}
+MCP_EOF
 
 echo "✅ Worker setup complete!"
 SETUP_EOF
@@ -325,5 +376,22 @@ echo "  npx claude-flow@alpha swarm 'Build REST API' \\"
 echo "    --config ~/.claude-flow/distributed/cluster-config.json \\"
 echo "    --distributed \\"
 echo "    --monitor"
+echo ""
+
+echo "🔧 Writing lean MCP configuration on orchestrator..."
+cat > ~/.mcp.json << 'EOF'
+{
+  "mcpServers": {
+    "nexus-router": {
+      "type": "sse",
+      "url": "http://localhost:4001/mcp/sse"
+    }
+  }
+}
+EOF
+echo "  ✓ ~/.mcp.json synchronized to Nexus endpoint (localhost:4001/mcp/sse)"
+echo ""
+
+echo "GRID ONLINE"
 echo ""
 echo "📖 Full documentation: /c/Dev/Projects/Repos/Project-Nyra/bootstrap/docs/distributed-architecture.md"
