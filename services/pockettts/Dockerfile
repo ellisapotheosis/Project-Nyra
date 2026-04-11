@@ -14,19 +14,14 @@ ENV PATH="/uv/bin:${PATH}"
 
 WORKDIR /app
 
-# Copy the official package files
-COPY pyproject.toml uv.lock README.md ./
-COPY pocket_tts ./pocket_tts
-
-# Install the package and dependencies using uv
-# --index-url is handled by the official pyproject.toml's [tool.uv.sources]
-RUN uv pip install --system -e . 
-
-# Now install the wrapper specific dependencies
+# Install dependencies from PyPI
+# We use the CPU version of torch as mandated
 RUN uv pip install --system \
+    pocket-tts \
     fastapi \
     uvicorn \
-    scipy
+    scipy \
+    torch --index-url https://download.pytorch.org/whl/cpu
 
 # Copy our OpenAI wrapper
 COPY main.py .

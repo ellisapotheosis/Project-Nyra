@@ -12,9 +12,9 @@ services:
       - TZ=UTC
       - PYTHONUNBUFFERED=1
     volumes:
-      - ../../data/pockettts/pocket_tts_cache:/root/.cache/pocket_tts # Official cache path
-      - ../../data/pockettts/hf_cache:/root/.cache/huggingface       # Official HF path
-      - ../../data/pockettts/voices:/app/voices                     # Voice clones
+      - pocket_tts_cache:/root/.cache/pocket_tts
+      - hf_cache:/root/.cache/huggingface
+      - ../../data/pockettts/voices:/app/voices  # Bind mount for easy user voice additions
     deploy:
       resources:
         limits:
@@ -25,6 +25,12 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
+
+volumes:
+  pocket_tts_cache:
+    name: ${COMPOSE_PROJECT_NAME:-nyra}_pocket_tts_cache
+  hf_cache:
+    name: ${COMPOSE_PROJECT_NAME:-nyra}_hf_cache
 
 networks:
   default:
