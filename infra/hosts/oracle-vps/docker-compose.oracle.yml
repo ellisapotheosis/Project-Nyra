@@ -2,7 +2,7 @@ name: nyra-oracle
 
 services:
   postgres:
-    image: ruvnet/ruvector-postgres:latest
+    image: postgres:15  # ruvnet/ruvector-postgres:latest jumped from PG15→PG17; data dir is PG15. Use standard postgres:15 until ruvnet publishes a PG15 tag or pg_upgrade is run.
     container_name: nyra-postgres
     restart: unless-stopped
     environment:
