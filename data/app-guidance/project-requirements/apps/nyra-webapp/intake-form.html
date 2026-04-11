@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NYRA Mortgage Assistant - Customer Intake</title>
+    <style>
+        :root {
+            --xulbux-purple: #7572F7;
+            --xulbux-accent: #B38CFF;
+            --xulbux-blue: #668CFF;
+            --xulbux-green: #96FFBE;
+            --xulbux-cyan: #9CF6FF;
+            --xulbux-mint: #A7FFD7;
+            --xulbux-pink: #FF5DAE;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: white;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+        
+        .header {
+            background: var(--xulbux-purple);
+            padding: 1rem 2rem;
+            text-align: center;
+            box-shadow: 0 2px 20px rgba(117, 114, 247, 0.3);
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 2.5rem;
+            font-weight: 300;
+        }
+        
+        .header p {
+            margin: 0.5rem 0 0 0;
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+        
+        .form-section {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(117, 114, 247, 0.2);
+            backdrop-filter: blur(10px);
+        }
+        
+        .form-section h2 {
+            color: var(--xulbux-accent);
+            margin-top: 0;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--xulbux-cyan);
+            font-weight: 500;
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid rgba(117, 114, 247, 0.3);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--xulbux-purple);
+            box-shadow: 0 0 10px rgba(117, 114, 247, 0.3);
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        
+        .ai-assistant {
+            background: linear-gradient(135deg, var(--xulbux-purple), var(--xulbux-accent));
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        
+        .ai-assistant h3 {
+            margin-top: 0;
+            font-size: 1.3rem;
+        }
+        
+        .submit-btn {
+            background: linear-gradient(135deg, var(--xulbux-purple), var(--xulbux-pink));
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            width: 100%;
+        }
+        
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(117, 114, 247, 0.4);
+        }
+        
+        .progress-bar {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            height: 8px;
+            margin: 1rem 0;
+        }
+        
+        .progress-fill {
+            background: linear-gradient(90deg, var(--xulbux-purple), var(--xulbux-accent));
+            height: 100%;
+            border-radius: 10px;
+            width: 25%;
+            transition: width 0.3s ease;
+        }
+        
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .container {
+                padding: 0 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🏠🤖 NYRA Mortgage Assistant</h1>
+        <p>AI-Powered End-to-End Mortgage Processing</p>
+    </div>
+    
+    <div class="container">
+        <div class="ai-assistant">
+            <h3>🧠 AI Assistant Ready</h3>
+            <p>I'll guide you through the mortgage process step by step. Just fill out the information below and I'll help you get the best rates and terms for your situation.</p>
+        </div>
+        
+        <div class="progress-bar">
+            <div class="progress-fill"></div>
+        </div>
+        <p style="text-align: center; color: var(--xulbux-cyan);">Step 1 of 4: Basic Information</p>
+        
+        <form id="mortgageIntake" onsubmit="submitForm(event)">
+            <!-- Personal Information -->
+            <div class="form-section">
+                <h2>👤 Personal Information</h2>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="firstName">First Name *</label>
+                        <input type="text" id="firstName" name="firstName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="lastName">Last Name *</label>
+                        <input type="text" id="lastName" name="lastName" required>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="email">Email Address *</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">Phone Number *</label>
+                        <input type="tel" id="phone" name="phone" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="ssn">Social Security Number *</label>
+                    <input type="password" id="ssn" name="ssn" placeholder="XXX-XX-XXXX" required>
+                </div>
+            </div>
+            
+            <!-- Loan Information -->
+            <div class="form-section">
+                <h2>🏠 Loan Information</h2>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="loanPurpose">Loan Purpose *</label>
+                        <select id="loanPurpose" name="loanPurpose" required>
+                            <option value="">Select Purpose</option>
+                            <option value="purchase">Purchase</option>
+                            <option value="refinance">Refinance</option>
+                            <option value="cashout">Cash-Out Refinance</option>
+                            <option value="construction">Construction</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="loanAmount">Desired Loan Amount *</label>
+                        <input type="number" id="loanAmount" name="loanAmount" min="1000" step="1000" required>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="propertyValue">Property Value *</label>
+                        <input type="number" id="propertyValue" name="propertyValue" min="1000" step="1000" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="downPayment">Down Payment Amount</label>
+                        <input type="number" id="downPayment" name="downPayment" min="0" step="1000">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="propertyAddress">Property Address</label>
+                    <textarea id="propertyAddress" name="propertyAddress" rows="3" placeholder="Enter property address or describe the type of property you're looking for"></textarea>
+                </div>
+            </div>
+            
+            <!-- Financial Information -->
+            <div class="form-section">
+                <h2>💰 Financial Information</h2>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="annualIncome">Annual Gross Income *</label>
+                        <input type="number" id="annualIncome" name="annualIncome" min="0" step="1000" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="employmentStatus">Employment Status *</label>
+                        <select id="employmentStatus" name="employmentStatus" required>
+                            <option value="">Select Status</option>
+                            <option value="employed">Employed</option>
+                            <option value="self-employed">Self-Employed</option>
+                            <option value="retired">Retired</option>
+                            <option value="unemployed">Unemployed</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="creditScore">Estimated Credit Score</label>
+                        <select id="creditScore" name="creditScore">
+                            <option value="">Select Range</option>
+                            <option value="excellent">Excellent (740+)</option>
+                            <option value="good">Good (670-739)</option>
+                            <option value="fair">Fair (580-669)</option>
+                            <option value="poor">Poor (Below 580)</option>
+                            <option value="unknown">Don't Know</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="monthlyDebts">Monthly Debt Payments</label>
+                        <input type="number" id="monthlyDebts" name="monthlyDebts" min="0" step="100" placeholder="Credit cards, car loans, student loans, etc.">
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Additional Information -->
+            <div class="form-section">
+                <h2>📋 Additional Information</h2>
+                
+                <div class="form-group">
+                    <label for="firstTimeBuyer">First Time Home Buyer?</label>
+                    <select id="firstTimeBuyer" name="firstTimeBuyer">
+                        <option value="">Select</option>
+                        <option value="yes">Yes</option>
+                        <option value="no">No</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="timeline">When do you need financing?</label>
+                    <select id="timeline" name="timeline">
+                        <option value="">Select Timeline</option>
+                        <option value="asap">As soon as possible</option>
+                        <option value="30days">Within 30 days</option>
+                        <option value="60days">Within 60 days</option>
+                        <option value="90days">Within 90 days</option>
+                        <option value="research">Just researching</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="additionalInfo">Additional Information or Questions</label>
+                    <textarea id="additionalInfo" name="additionalInfo" rows="4" placeholder="Tell us anything else that might help us provide better assistance..."></textarea>
+                </div>
+            </div>
+            
+            <button type="submit" class="submit-btn">
+                🚀 Start My Mortgage Journey with NYRA AI
+            </button>
+        </form>
+    </div>
+    
+    <script>
+        // Form validation and submission
+        function submitForm(event) {
+            event.preventDefault();
+            
+            const formData = new FormData(event.target);
+            const data = Object.fromEntries(formData.entries());
+            
+            // Show loading state
+            const btn = document.querySelector('.submit-btn');
+            btn.innerHTML = '🤖 Processing with NYRA AI...';
+            btn.disabled = true;
+            
+            // Simulate AI processing
+            setTimeout(() => {
+                alert('🎉 Thank you! NYRA AI is now analyzing your information and will provide personalized recommendations. You will be contacted within 24 hours with your pre-qualification results and next steps.');
+                
+                // In a real implementation, this would send data to your NYRA backend
+                console.log('Mortgage application data:', data);
+                
+                // Reset form
+                btn.innerHTML = '✅ Application Submitted Successfully!';
+                btn.style.background = 'linear-gradient(135deg, #96FFBE, #9CF6FF)';
+                btn.style.color = '#1a1a2e';
+            }, 3000);
+        }
+        
+        // Auto-calculate down payment percentage
+        function updateDownPaymentPercentage() {
+            const loanAmount = parseFloat(document.getElementById('loanAmount').value) || 0;
+            const propertyValue = parseFloat(document.getElementById('propertyValue').value) || 0;
+            const downPayment = parseFloat(document.getElementById('downPayment').value) || 0;
+            
+            if (propertyValue > 0) {
+                const percentage = ((downPayment / propertyValue) * 100).toFixed(1);
+                const loanToValue = (((propertyValue - downPayment) / propertyValue) * 100).toFixed(1);
+                
+                // Update labels with calculated values
+                const dpLabel = document.querySelector('label[for="downPayment"]');
+                dpLabel.innerHTML = `Down Payment Amount <span style="color: var(--xulbux-green);">(${percentage}% of property value, ${loanToValue}% LTV)</span>`;
+            }
+        }
+        
+        // Add event listeners for real-time calculations
+        document.getElementById('loanAmount').addEventListener('input', updateDownPaymentPercentage);
+        document.getElementById('propertyValue').addEventListener('input', updateDownPaymentPercentage);
+        document.getElementById('downPayment').addEventListener('input', updateDownPaymentPercentage);
+        
+        // Progress bar updates based on form completion
+        function updateProgress() {
+            const requiredFields = document.querySelectorAll('input[required], select[required]');
+            let filledFields = 0;
+            
+            requiredFields.forEach(field => {
+                if (field.value.trim() !== '') {
+                    filledFields++;
+                }
+            });
+            
+            const progressPercent = (filledFields / requiredFields.length) * 100;
+            document.querySelector('.progress-fill').style.width = progressPercent + '%';
+            
+            // Update step indicator
+            let step = 1;
+            if (progressPercent >= 25) step = 2;
+            if (progressPercent >= 50) step = 3;
+            if (progressPercent >= 75) step = 4;
+            
+            document.querySelector('.progress-bar + p').textContent = `Step ${step} of 4: ${
+                step === 1 ? 'Basic Information' :
+                step === 2 ? 'Loan Details' :
+                step === 3 ? 'Financial Review' : 'Final Steps'
+            }`;
+        }
+        
+        // Add listeners to all form fields
+        document.querySelectorAll('input, select, textarea').forEach(field => {
+            field.addEventListener('input', updateProgress);
+            field.addEventListener('change', updateProgress);
+        });
+    </script>
+</body>
+</html>
