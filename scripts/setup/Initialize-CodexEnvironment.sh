@@ -27,6 +27,7 @@ SETUP_MODE="${NYRA_CODEX_SETUP_MODE:-auto}"
 INSTALL_DEPS="${NYRA_CODEX_INSTALL_DEPS:-1}"
 RUN_TESTS="${NYRA_CODEX_RUN_TESTS:-0}"
 FULL_SETUP_SCRIPT="$REPO_ROOT/scripts/setup/codex-webapp-manual-setup.sh"
+AI_CLIENT_SYNC_SCRIPT="$REPO_ROOT/scripts/setup/sync-ai-client-config.sh"
 
 info() {
   printf '[codex-setup] %s\n' "$1"
@@ -61,6 +62,9 @@ ensure_pnpm() {
 
 run_minimal_setup() {
   info "Running minimal Codex bootstrap in $REPO_ROOT"
+  if [[ -x "$AI_CLIENT_SYNC_SCRIPT" ]]; then
+    "$AI_CLIENT_SYNC_SCRIPT"
+  fi
   ensure_pnpm
 
   if [[ "$RUN_TESTS" == "1" ]] && command -v pnpm >/dev/null 2>&1; then

@@ -5,7 +5,7 @@ set -e
 echo "🚀 Starting RTX 3060 Worker (Ollama)..."
 echo "Location: worker-rtx3060 (100.64.0.11:11434)"
 
-cd /home/ellisapotheosis/repos/project-nyra/infra/workers/worker-rtx3060
+cd /home/ellisapotheosis/repos/project-nyra/infra/hosts/worker-rtx3060
 
 # Check if NVIDIA GPU is accessible
 nvidia-smi > /dev/null || (echo "❌ NVIDIA GPU not found" && exit 1)

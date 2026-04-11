@@ -1,54 +1,215 @@
-#!/usr/bin/env bash
-set -euo pipefail
+#!/bin/bash
+# Project Nyra - Orchestrator Bootstrap Script (PC1)
+# Automated setup for: Minisforum UH680 Ryzen 7 6800H (iGPU, 16GB RAM) MiniPC
+# Environment: Ubuntu / WSL2
 
-ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-cd "$ROOT_DIR"
+set -e
 
-ENV_FILE="${ENV_FILE:-.env.gitea}"
-COMPOSE_FILE="${COMPOSE_FILE:-docker-compose.gitea.bootstrap.yml}"
-NETWORK_NAME="${NYRA_NETWORK:-nyra-net}"
-ENABLE_ACTIONS="${ENABLE_ACTIONS:-true}"
-ENABLE_ACTIONS_LARGE="${ENABLE_ACTIONS_LARGE:-false}"
-ENABLE_AI="${ENABLE_AI:-false}"
-ENABLE_INFISICAL_AGENT="${ENABLE_INFISICAL_AGENT:-false}"
-INFISICAL_PROJECT_ID="${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}"
+STATIC_IP="${1:-10.0.0.1}"
+TAILSCALE_AUTH_KEY="${2:-}"
+SKIP_DOCKER="${3:-false}"
+SKIP_TAILSCALE="${4:-false}"
+
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+CYAN='\033[0;36m'
+NC='\033[0m' # No Color
+
+echo -e "${CYAN}=================================="
+echo "  Project Nyra Orchestrator Setup"
+echo "  Hardware: Minisforum UH680 Ryzen 7 6800H (iGPU, 16GB RAM)"
+echo -e "==================================${NC}"
+echo ""
+
+# Function to log with timestamp
+log() {
+    local level="$1"
+    local message="$2"
+    local timestamp=$(date "+%Y-%m-%d %H:%M:%S")
+    local color="${NC}"
+
+    case "$level" in
+        ERROR) color="${RED}" ;;
+        SUCCESS) color="${GREEN}" ;;
+        WARNING) color="${YELLOW}" ;;
+        INFO) color="${NC}" ;;
+    esac
+
+    echo -e "${color}[$timestamp] [$level] $message${NC}"
+}
+
+# Check if running as root
+if [ "$EUID" -ne 0 ]; then
+    log "ERROR" "This script requires root privileges. Please run with sudo."
+    exit 1
+fi
+
+# Detect if running inside WSL
+IS_WSL=false
+if grep -qEi "(Microsoft|WSL)" /proc/version &> /dev/null; then
+    IS_WSL=true
+    log "WARNING" "WSL Environment Detected. Note: systemd network configurations apply to the WSL virtual switch, not your physical Windows NIC."
+fi
+
+# Step 1: Configure Static IP (Linux/Ubuntu Native)
+log "INFO" "Configuring static IP: $STATIC_IP"
+
+cat > /etc/systemd/network/10-static-eth0.network << EOF
+[Match]
+Name=eth0
+
+[Network]
+Address=$STATIC_IP/24
+Gateway=10.0.0.1
+DNS=1.1.1.1
+DNS=8.8.8.8
+EOF
+
+# Only attempt systemctl if systemd is running as PID 1 (standard in native Ubuntu, optional in WSL)
+if pidof systemd &> /dev/null; then
+    systemctl restart systemd-networkd
+    log "SUCCESS" "Static IP configured successfully via systemd-networkd"
+else
+    log "WARNING" "systemd not running. Static IP config written, but service could not be restarted."
+fi
+
+# Step 2: Install Docker
+if [ "$SKIP_DOCKER" != "true" ]; then
+    log "INFO" "Checking Docker installation..."
+
+    if ! command -v docker &> /dev/null; then
+        log "INFO" "Installing Docker for Ubuntu..."
+        curl -fsSL https://get.docker.com -o get-docker.sh
+        sh get-docker.sh
+        usermod -aG docker ${SUDO_USER:-$USER}
+        
+        if pidof systemd &> /dev/null; then
+            systemctl enable docker
+            systemctl start docker
+        fi
+        log "SUCCESS" "Docker installed"
+    else
+        log "SUCCESS" "Docker already installed"
+    fi
+
+    # Verify Docker is running
+    if ! docker ps &> /dev/null; then
+        log "WARNING" "Docker is not running. Starting Docker daemon..."
+        if pidof systemd &> /dev/null; then
+            systemctl start docker
+        elif [ "$IS_WSL" = true ]; then
+            service docker start
+        fi
+    fi
+fi
+
+# Step 3: Install Tailscale
+if [ "$SKIP_TAILSCALE" != "true" ]; then
+    log "INFO" "Checking Tailscale installation..."
+
+    if ! command -v tailscale &> /dev/null; then
+        log "INFO" "Installing Tailscale..."
+        curl -fsSL https://tailscale.com/install.sh | sh
+        log "SUCCESS" "Tailscale installed"
+    else
+        log "SUCCESS" "Tailscale already installed"
+    fi
+
+    # Connect to Tailscale
+    if [ -n "$TAILSCALE_AUTH_KEY" ]; then
+        log "INFO" "Connecting to Tailscale network..."
+        tailscale up --authkey="$TAILSCALE_AUTH_KEY" --accept-routes
+        log "SUCCESS" "Tailscale connected"
+    fi
+fi
+
+# Step 4: Clone Repository
+log "INFO" "Cloning Project Nyra repository..."
+REPO_PATH="/opt/Project-Nyra"
+
+if [ ! -d "$REPO_PATH" ]; then
+    # UPDATE THIS URL IF NEEDED
+    git clone https://github.com/yourusername/Project-Nyra.git "$REPO_PATH"
+    chown -R ${SUDO_USER:-$USER}:${SUDO_USER:-$USER} "$REPO_PATH"
+    log "SUCCESS" "Repository cloned to $REPO_PATH"
+else
+    log "INFO" "Repository already exists, pulling latest changes..."
+    cd "$REPO_PATH"
+    git pull origin main
+    log "SUCCESS" "Repository updated"
+fi
+
+# Step 5: Configure Environment Variables
+log "INFO" "Configuring environment variables..."
+ENV_FILE="$REPO_PATH/.env"
 
 if [ ! -f "$ENV_FILE" ]; then
-  cp .env.gitea.template "$ENV_FILE"
-  echo "Created $ENV_FILE from template"
+    cp "$REPO_PATH/master-.env.example" "$ENV_FILE"
+    chown ${SUDO_USER:-$USER}:${SUDO_USER:-$USER} "$ENV_FILE"
+    log "WARNING" "Created .env file from template. IMPORTANT: Edit $ENV_FILE with your API keys!"
+else
+    log "SUCCESS" ".env file already exists"
 fi
 
-if [ -z "${INFISICAL_TOKEN:-}" ]; then
-  echo "INFISICAL_TOKEN is required to bootstrap the Gitea stack." >&2
-  exit 1
-fi
+# Step 6: Deploy Orchestrator Services
+log "INFO" "Deploying orchestrator services..."
+cd "$REPO_PATH/infra"
 
-if ! docker network inspect "$NETWORK_NAME" >/dev/null 2>&1; then
-  docker network create "$NETWORK_NAME" >/dev/null
-  echo "Created docker network: $NETWORK_NAME"
-fi
+log "INFO" "Pulling Docker images..."
+docker compose -f docker-compose.orchestrator.yml pull
 
-PROFILES=()
-if [ "$ENABLE_ACTIONS" = "true" ]; then PROFILES+=(--profile actions); fi
-if [ "$ENABLE_ACTIONS_LARGE" = "true" ]; then PROFILES+=(--profile actions-large); fi
-if [ "$ENABLE_AI" = "true" ]; then PROFILES+=(--profile ai); fi
-if [ "$ENABLE_INFISICAL_AGENT" = "true" ]; then PROFILES+=(--profile infisical); fi
+log "INFO" "Starting services..."
+docker compose -f docker-compose.orchestrator.yml up -d
 
-docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" "${PROFILES[@]}" up -d
+# Wait for services to start
+log "INFO" "Waiting for services to initialize..."
+sleep 30
 
-echo "Waiting for Gitea to become healthy..."
-for _ in {1..60}; do
-  if docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" ps --format json 2>/dev/null | grep -q '"Name":"nyra-gitea"'; then
-    if curl -fsS "http://localhost:${GITEA_PORT:-3100}/api/healthz" >/dev/null 2>&1; then
-      echo "Gitea is healthy"
-      break
+# Step 7: Health Checks
+log "INFO" "Running health checks..."
+
+declare -A services=(
+    ["Nexus Router"]="http://localhost:6000/health"
+    ["Letta"]="http://localhost:8283/health"
+    ["Mem0"]="http://localhost:4321/health"
+    ["Claude Flow"]="http://localhost:3010/health"
+    ["ruvector"]="http://localhost:8080/health"
+    ["Redis"]="http://localhost:6380"
+)
+
+all_healthy=true
+
+for service in "${!services[@]}"; do
+    url="${services[$service]}"
+    if curl -sf "$url" > /dev/null 2>&1; then
+        log "SUCCESS" "$service: HEALTHY"
+    else
+        log "ERROR" "$service: UNHEALTHY"
+        all_healthy=false
     fi
-  fi
-  sleep 2
 done
 
-docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" ps
+# Step 8: Summary
+echo ""
+echo -e "${CYAN}=================================="
+echo "  Bootstrap Complete!"
+echo -e "==================================${NC}"
+echo ""
 
-echo "Bootstrap complete"
-echo "Gitea URL: http://localhost:${GITEA_PORT:-3100}"
-echo "Gitea SSH: ssh -p ${GITEA_SSH_PORT:-2222} git@localhost"
+if [ "$all_healthy" = true ]; then
+    log "SUCCESS" "All services are healthy and running!"
+else
+    log "WARNING" "Some services are unhealthy. Check logs with: docker compose logs [service-name]"
+fi
+
+echo ""
+echo -e "${YELLOW}Next Steps:${NC}"
+echo "1. Edit .env file with your API keys: $ENV_FILE"
+echo "2. Restart services: docker compose -f infra/docker-compose.orchestrator.yml restart"
+echo "3. Bootstrap worker nodes (PC2, PC3, PC4)"
+echo "4. Access services:"
+echo "   - Nexus Router: http://10.0.0.1:6000"
+echo "   - Letta: http://10.0.0.1:8283"
+echo "   - Grafana: http://10.0.0.4:3005 (after PC4 bootstrap)"
+echo ""

@@ -472,16 +472,30 @@ bootstrap/
 .env.gitea
 .env.infisical
 .env.archon
+.env.orchestrator
+.env.oracle
+.env.worker-*
+!.env.worker-*.template
 .env.portainer.orchestrator
 .env.portainer.edge
 .env.homeassistant-dashboard
 # Portainer per-node host configs (may contain PORTAINER_AGENT_SECRET)
 # Commit only TEMPLATE.env.host; fill secrets locally after pull.
 **/.env.host
-# Oracle VPS live env (contains secrets — copy from .env.oracle.template)
-infra/oracle/.env.oracle
+# Per-host env files — secrets live here during Infisical migration
+infra/env/.env.*
+!infra/env/.env.*.example
+!infra/env/TEMPLATE.env.host
+# Oracle VPS live env (moved from infra/oracle/ to infra/env/)
+infra/hosts/oracle-vps/.env*
+# Infisical agent tokens — never commit
+infra/hosts/**/.infisical-token
+infra/hosts/**/infisical-agent.token
+# Backup files in configs
+infra/configs/**/*.backup-*
 .secrets/
 gitea-setup-summary-*.md
 
 # Local external dependencies (git repos)
 # external/
+data/pockettts/
