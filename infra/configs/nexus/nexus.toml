@@ -71,6 +71,9 @@ url = "http://n8n:5678/mcp"
 [mcp.servers.twenty]
 url = "http://twentycrm:3000/mcp"
 
+[mcp.servers.mempalace]
+url = "{{ env.MEMPALACE_URL }}"
+
 # Docker-launched MCP servers (via docker socket) for local tool access
 [mcp.servers.github]
 type = "docker"

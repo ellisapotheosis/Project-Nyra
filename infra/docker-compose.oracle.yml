@@ -186,6 +186,28 @@ services:
   # MEMORY & KNOWLEDGE
   # ============================================================================
 
+  mempalace:
+    build:
+      context: ../../services/mempalace-mcp
+      dockerfile: Dockerfile
+    container_name: nyra-mempalace
+    environment:
+      PORT: 8000
+      MEMPAL_DIR: /data/vault
+    ports:
+      - "8002:8000"
+    volumes:
+      - mempalace_data:/root/.mempalace
+      - mempalace_vault:/data/vault
+    restart: unless-stopped
+    networks:
+      - oracle-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
   mem0:
     build:
       context: ../services/mem0
@@ -287,6 +309,8 @@ volumes:
   oracle_secrets:
   gitea_data:
   gitea_config:
+  mempalace_data:
+  mempalace_vault:
 
 networks:
   oracle-net:
