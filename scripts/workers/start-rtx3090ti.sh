@@ -5,7 +5,7 @@ set -e
 echo "🚀 Starting RTX 3090Ti Worker (vLLM + LMCache)..."
 echo "Location: worker-rtx3090ti (100.64.0.12:8000)"
 
-cd /home/ellisapotheosis/repos/project-nyra/infra/workers/worker-rtx3090ti
+cd /home/ellisapotheosis/repos/project-nyra/infra/hosts/worker-rtx3090ti
 
 # Check if NVIDIA GPU is accessible
 nvidia-smi > /dev/null || (echo "❌ NVIDIA GPU not found" && exit 1)

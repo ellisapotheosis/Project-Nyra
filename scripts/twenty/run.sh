@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-docker compose -f infra/oracle/docker-compose.oracle.yml up -d twenty
+docker compose -f infra/hosts/oracle-vps/docker-compose.yml up -d twenty
 
-docker compose -f infra/oracle/docker-compose.oracle.yml logs -f --tail=100 twenty
+docker compose -f infra/hosts/oracle-vps/docker-compose.yml logs -f --tail=100 twenty

@@ -25,17 +25,17 @@ echo "   docker compose -f docker-compose.archon.yml restart nexus-router litell
 echo ""
 
 echo "2️⃣  On RTX 5090 Worker (100.64.0.10):"
-echo "   cd ~/repos/project-nyra/infra/workers/worker-rtx5090"
+echo "   cd ~/repos/project-nyra/infra/hosts/worker-rtx5090"
 echo "   docker compose -f docker-compose.gpu.yml --profile gpu up -d"
 echo ""
 
 echo "3️⃣  On RTX 3090 Ti Worker (100.64.0.12):"
-echo "   cd ~/repos/project-nyra/infra/workers/worker-rtx3090ti"
+echo "   cd ~/repos/project-nyra/infra/hosts/worker-rtx3090ti"
 echo "   docker compose -f docker-compose.gpu.yml --profile gpu up -d"
 echo ""
 
 echo "4️⃣  On RTX 3060 Worker (100.64.0.11):"
-echo "   cd ~/repos/project-nyra/infra/workers/worker-rtx3060"
+echo "   cd ~/repos/project-nyra/infra/hosts/worker-rtx3060"
 echo "   docker compose -f docker-compose.gpu.yml --profile gpu up -d"
 echo "   # After Ollama starts, load models:"
 echo "   docker compose -f docker-compose.gpu.yml --profile setup up ollama-model-loader"
