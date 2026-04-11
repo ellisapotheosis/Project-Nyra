@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "lastScanned": 1775827605221,
+  "lastScanned": 1775921693468,
   "projectRoot": "/home/ellisapotheosis/repos/project-nyra",
   "techStack": {
     "languages": [
@@ -98,7 +98,7 @@
       "path": "agents",
       "purpose": null,
       "fileCount": 5,
-      "lastAccessed": 1775827605184,
+      "lastAccessed": 1775921693457,
       "keyFiles": [
         "architect.yaml",
         "coder.yaml",
@@ -107,22 +107,11 @@
         "tester.yaml"
       ]
     },
-    "ai-reviewer": {
-      "path": "ai-reviewer",
-      "purpose": null,
-      "fileCount": 3,
-      "lastAccessed": 1775827605192,
-      "keyFiles": [
-        "Dockerfile",
-        "main.py",
-        "requirements.txt"
-      ]
-    },
     "apps": {
       "path": "apps",
       "purpose": null,
       "fileCount": 5,
-      "lastAccessed": 1775827605211,
+      "lastAccessed": 1775921693457,
       "keyFiles": [
         "CLAUDE.md",
         "PROJECT_PRIORITY_MATRIX.md",
@@ -134,17 +123,21 @@
     "archive": {
       "path": "archive",
       "purpose": null,
-      "fileCount": 4,
-      "lastAccessed": 1775827605213,
+      "fileCount": 7,
+      "lastAccessed": 1775921693461,
       "keyFiles": [
-        "INDEX.md"
+        "CLAUDE.md",
+        "INGESTION-COMPLETE.md",
+        "MANIFEST.md",
+        "PROCESSING-GUIDE.md",
+        "README (2).md"
       ]
     },
     "ci": {
       "path": "ci",
       "purpose": null,
       "fileCount": 5,
-      "lastAccessed": 1775827605213,
+      "lastAccessed": 1775921693463,
       "keyFiles": [
         "Dockerfile.old",
         "README.md",
@@ -153,32 +146,25 @@
         "smoke-tests.sh"
       ]
     },
-    "codex": {
-      "path": "codex",
-      "purpose": null,
-      "fileCount": 0,
-      "lastAccessed": 1775827605213,
-      "keyFiles": []
-    },
     "config": {
       "path": "config",
       "purpose": "Configuration files",
       "fileCount": 0,
-      "lastAccessed": 1775827605213,
+      "lastAccessed": 1775921693463,
       "keyFiles": []
     },
     "data": {
       "path": "data",
       "purpose": "Data files",
       "fileCount": 0,
-      "lastAccessed": 1775827605213,
+      "lastAccessed": 1775921693463,
       "keyFiles": []
     },
     "docs": {
       "path": "docs",
       "purpose": "Documentation",
       "fileCount": 61,
-      "lastAccessed": 1775827605213,
+      "lastAccessed": 1775921693464,
       "keyFiles": [
         "00_scan_baseline.md",
         "01_inventory_matrix.md",
@@ -191,32 +177,21 @@
       "path": "environments",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1775827605213,
+      "lastAccessed": 1775921693464,
       "keyFiles": []
     },
     "external": {
       "path": "external",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1775827605213,
+      "lastAccessed": 1775921693464,
       "keyFiles": []
-    },
-    "infisical-secrets-init": {
-      "path": "infisical-secrets-init",
-      "purpose": null,
-      "fileCount": 3,
-      "lastAccessed": 1775827605214,
-      "keyFiles": [
-        "Dockerfile",
-        "agent-sidecar.sh",
-        "secrets-init.sh"
-      ]
     },
     "infra": {
       "path": "infra",
       "purpose": null,
-      "fileCount": 31,
-      "lastAccessed": 1775827605214,
+      "fileCount": 32,
+      "lastAccessed": 1775921693464,
       "keyFiles": [
         "0-100-AUTONOMOUS-PROMPT-GOD.md",
         "00_START_HERE.md",
@@ -225,21 +200,11 @@
         "CLAUDE_CODE_QUICK_GUIDE.md"
       ]
     },
-    "ingest": {
-      "path": "ingest",
-      "purpose": null,
-      "fileCount": 2,
-      "lastAccessed": 1775827605214,
-      "keyFiles": [
-        "Makefile",
-        "README.md"
-      ]
-    },
     "packages": {
       "path": "packages",
       "purpose": null,
       "fileCount": 1,
-      "lastAccessed": 1775827605214,
+      "lastAccessed": 1775921693464,
       "keyFiles": [
         "CLAUDE.md"
       ]
@@ -248,7 +213,7 @@
       "path": "scripts",
       "purpose": "Build/utility scripts",
       "fileCount": 81,
-      "lastAccessed": 1775827605215,
+      "lastAccessed": 1775921693465,
       "keyFiles": [
         "CLAUDE.md",
         "CONSOLIDATION-LOG.md",
@@ -261,7 +226,7 @@
       "path": "services",
       "purpose": "Business logic services",
       "fileCount": 2,
-      "lastAccessed": 1775827605216,
+      "lastAccessed": 1775921693465,
       "keyFiles": [
         "CLAUDE.md",
         "README.md"
@@ -271,7 +236,7 @@
       "path": "src",
       "purpose": "Source code",
       "fileCount": 2,
-      "lastAccessed": 1775827605216,
+      "lastAccessed": 1775921693465,
       "keyFiles": [
         "CLAUDE.md",
         "CONSOLIDATION-LOG.md"
@@ -281,7 +246,7 @@
       "path": "tests",
       "purpose": "Test files",
       "fileCount": 5,
-      "lastAccessed": 1775827605216,
+      "lastAccessed": 1775921693465,
       "keyFiles": [
         "README.md",
         "README_VITEST.md",
@@ -290,18 +255,11 @@
         "tsconfig.json"
       ]
     },
-    "workflows": {
-      "path": "workflows",
-      "purpose": null,
-      "fileCount": 0,
-      "lastAccessed": 1775827605216,
-      "keyFiles": []
-    },
     "apps/docs": {
       "path": "apps/docs",
       "purpose": "Documentation",
       "fileCount": 2,
-      "lastAccessed": 1775827605217,
+      "lastAccessed": 1775921693466,
       "keyFiles": [
         "README.md"
       ]
@@ -309,30 +267,19 @@
     "archive/docs": {
       "path": "archive/docs",
       "purpose": "Documentation",
-      "fileCount": 27,
-      "lastAccessed": 1775827605217,
+      "fileCount": 37,
+      "lastAccessed": 1775921693466,
       "keyFiles": [
         "AGENTDB-INTEGRATION-GUIDE.md",
-        "CLAUDE-FLOW-CICD-QUICKSTART.md",
-        "CLAUDE-FLOW-FULL-FEATURES-CONTAINERIZATION.md"
-      ]
-    },
-    "ingest/docs": {
-      "path": "ingest/docs",
-      "purpose": "Documentation",
-      "fileCount": 9,
-      "lastAccessed": 1775827605220,
-      "keyFiles": [
-        "ARCHITECTURE.md",
-        "BUSINESS_GOALS.md",
-        "CRM_REQUIREMENTS.md"
+        "APP_COMPONENTS_INVENTORY.json",
+        "APP_COMPONENTS_SUMMARY.md"
       ]
     },
     "packages/schemas": {
       "path": "packages/schemas",
       "purpose": "Schema definitions",
       "fileCount": 1,
-      "lastAccessed": 1775827605220,
+      "lastAccessed": 1775921693467,
       "keyFiles": [
         "README.md"
       ]
@@ -341,7 +288,7 @@
       "path": "tests/fixtures",
       "purpose": "Test fixtures",
       "fileCount": 6,
-      "lastAccessed": 1775827605221,
+      "lastAccessed": 1775921693468,
       "keyFiles": [
         "agents.json",
         "leads.json",
