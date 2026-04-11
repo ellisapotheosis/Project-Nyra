@@ -1,51 +1,47 @@
-# 06 Cloudflared Tunnels + DNS (Regenerated, Zero-Datastore-Leak)
+# 06 Cloudflared Tunnels + DNS (Regenerated, Zero Datastore Exposure)
 
-## Guardrails
+## Source files
+- `infra/cloudflared/config.yml`
+- `infra/cloudflared/hostname-map.md`
 
-- Tunnel only explicit HTTP(S) apps.
-- Cloudflare Access is required for every tunneled hostname in this pack.
-- The marketing landing page remains on Cloudflare Pages and stays public.
-- No datastore, SSH, or raw TCP ingress is included.
-- Final ingress rule is `http_status:404`.
+## Ingress policy
+- HTTP/S applications only.
+- All tunneled apps require Cloudflare Access.
+- Marketing landing remains Cloudflare Pages and is public.
+- Mandatory terminal rule:
 
-> Replace the example domain `nyra.example.com` and `<TUNNEL_UUID>` before applying DNS or tunnel routes.
-
-## DNS records to create
-
-- `archon.nyra.example.com` -> `<TUNNEL_UUID>.cfargotunnel.com`
-- `gitea.nyra.example.com` -> `<TUNNEL_UUID>.cfargotunnel.com`
-- `infisical.nyra.example.com` -> `<TUNNEL_UUID>.cfargotunnel.com`
-- `activepieces.nyra.example.com` -> `<TUNNEL_UUID>.cfargotunnel.com`
-- `n8n.nyra.example.com` -> `<TUNNEL_UUID>.cfargotunnel.com`
-- `twentycrm.nyra.example.com` -> `<TUNNEL_UUID>.cfargotunnel.com`
-- `grafana.nyra.example.com` -> `<TUNNEL_UUID>.cfargotunnel.com`
-
-## CLI alternative
-
-```bash
-cloudflared tunnel route dns <NAME_OR_UUID> archon.nyra.example.com
-cloudflared tunnel route dns <NAME_OR_UUID> gitea.nyra.example.com
-cloudflared tunnel route dns <NAME_OR_UUID> infisical.nyra.example.com
-cloudflared tunnel route dns <NAME_OR_UUID> activepieces.nyra.example.com
-cloudflared tunnel route dns <NAME_OR_UUID> n8n.nyra.example.com
-cloudflared tunnel route dns <NAME_OR_UUID> twentycrm.nyra.example.com
-cloudflared tunnel route dns <NAME_OR_UUID> grafana.nyra.example.com
+```yaml
+- service: http_status:404
 ```
 
-## Active tunnel hostnames
+## Routed hostnames
+- gitea.nyra.example.com -> orchestrator:3100
+- infisical.nyra.example.com -> orchestrator:3201
+- archon.nyra.example.com -> orchestrator:3737
+- n8n.nyra.example.com -> oracle:5678
+- activepieces.nyra.example.com -> oracle:8080
+- twentycrm.nyra.example.com -> oracle:3000
+- grafana.nyra.example.com -> oracle:3003
+- openwebui.nyra.example.com -> orchestrator:8088
+- nexus.nyra.example.com -> orchestrator:7000
 
-| Hostname | Local origin | Access policy | Notes |
-|---|---|---|---|
-| `archon.nyra.example.com` | `http://localhost:3737` | required | Archon operator UI |
-| `gitea.nyra.example.com` | `http://localhost:3100` | required | git forge UI |
-| `infisical.nyra.example.com` | `http://localhost:3201` | required | secrets UI and API |
-| `activepieces.nyra.example.com` | `http://localhost:3001` | required | workflow UI |
-| `n8n.nyra.example.com` | `http://localhost:5678` | required | automation UI and API |
-| `twentycrm.nyra.example.com` | `http://localhost:3000` | required | CRM app |
-| `grafana.nyra.example.com` | `http://localhost:3003` | required | observability UI |
+## Explicitly excluded from ingress
+- postgres
+- redis
+- mongo
+- falkordb
+- qdrant
+- neo4j
+- any raw TCP datastore endpoint
 
-## Explicitly non-exposed services
+## DNS record model
+For each routed hostname:
+- Type: CNAME
+- Target: `REPLACE_ME_TUNNEL_UUID.cfargotunnel.com`
+- Proxy: enabled
 
-- `postgres`, `redis`, `mongo`, `ruvector`, `ruvector-postgres`, `gitea-db`, `infisical-db`, `infisical-redis`
-- `worker-3060-ollama`, `worker-3090ti-vllm`, `worker-5090-vllm`
-- `gitea` SSH on port `22`
+CLI alternative:
+
+```bash
+cloudflared tunnel route dns REPLACE_ME_TUNNEL_NAME_OR_UUID <hostname>
+```

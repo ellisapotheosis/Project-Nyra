@@ -1,51 +1,32 @@
-# Cloudflared Export (Owner Summary)
+# Cloudflared Edge Pack Export
 
-## Guardrails
+## Included files
+- `infra/cloudflared/config.yml`
+- `infra/cloudflared/hostname-map.md`
+- `docs/06_cloudflared_tunnels_dns.md`
 
-- Tunnel only explicit HTTP(S) apps.
-- Cloudflare Access is required for every tunneled hostname in this pack.
-- The marketing landing page remains on Cloudflare Pages and stays public.
-- No datastore, SSH, or raw TCP ingress is included.
-- Final ingress rule is `http_status:404`.
+## Security posture
+- Cloudflared ingress includes HTTP/S applications only.
+- Datastores are explicitly excluded from ingress and DNS planning.
+- Cloudflare Access is required for all tunneled operational apps.
+- Final fail-closed ingress rule is present: `http_status:404`.
 
-> Replace the example domain `nyra.example.com` and `<TUNNEL_UUID>` before applying DNS or tunnel routes.
-
-## DNS records to create
-
-- `archon.nyra.example.com` -> `<TUNNEL_UUID>.cfargotunnel.com`
-- `gitea.nyra.example.com` -> `<TUNNEL_UUID>.cfargotunnel.com`
-- `infisical.nyra.example.com` -> `<TUNNEL_UUID>.cfargotunnel.com`
-- `activepieces.nyra.example.com` -> `<TUNNEL_UUID>.cfargotunnel.com`
-- `n8n.nyra.example.com` -> `<TUNNEL_UUID>.cfargotunnel.com`
-- `twentycrm.nyra.example.com` -> `<TUNNEL_UUID>.cfargotunnel.com`
-- `grafana.nyra.example.com` -> `<TUNNEL_UUID>.cfargotunnel.com`
-
-## CLI alternative
+## Apply commands
 
 ```bash
-cloudflared tunnel route dns <NAME_OR_UUID> archon.nyra.example.com
-cloudflared tunnel route dns <NAME_OR_UUID> gitea.nyra.example.com
-cloudflared tunnel route dns <NAME_OR_UUID> infisical.nyra.example.com
-cloudflared tunnel route dns <NAME_OR_UUID> activepieces.nyra.example.com
-cloudflared tunnel route dns <NAME_OR_UUID> n8n.nyra.example.com
-cloudflared tunnel route dns <NAME_OR_UUID> twentycrm.nyra.example.com
-cloudflared tunnel route dns <NAME_OR_UUID> grafana.nyra.example.com
+# Validate syntax
+cloudflared tunnel ingress validate --config infra/cloudflared/config.yml
+
+# Docker-based validation (portable)
+docker run --rm -v "$(pwd)/infra/cloudflared:/etc/cloudflared" cloudflare/cloudflared:latest \
+  tunnel ingress validate --config /etc/cloudflared/config.yml
+
+# Run tunnel (after placing credentials JSON)
+cloudflared tunnel --config infra/cloudflared/config.yml run REPLACE_ME_TUNNEL_NAME_OR_UUID
 ```
 
-## Active tunnel hostnames
+## DNS model
+Each routed hostname should be a proxied CNAME to:
+- `REPLACE_ME_TUNNEL_UUID.cfargotunnel.com`
 
-| Hostname | Local origin | Access policy | Notes |
-|---|---|---|---|
-| `archon.nyra.example.com` | `http://localhost:3737` | required | Archon operator UI |
-| `gitea.nyra.example.com` | `http://localhost:3100` | required | git forge UI |
-| `infisical.nyra.example.com` | `http://localhost:3201` | required | secrets UI and API |
-| `activepieces.nyra.example.com` | `http://localhost:3001` | required | workflow UI |
-| `n8n.nyra.example.com` | `http://localhost:5678` | required | automation UI and API |
-| `twentycrm.nyra.example.com` | `http://localhost:3000` | required | CRM app |
-| `grafana.nyra.example.com` | `http://localhost:3003` | required | observability UI |
-
-## Explicitly non-exposed services
-
-- `postgres`, `redis`, `mongo`, `ruvector`, `ruvector-postgres`, `gitea-db`, `infisical-db`, `infisical-redis`
-- `worker-3060-ollama`, `worker-3090ti-vllm`, `worker-5090-vllm`
-- `gitea` SSH on port `22`
+Use CLI route commands listed in `infra/cloudflared/hostname-map.md`.

@@ -1,44 +1,36 @@
 # 16 Environment Master List (Classified)
 
-## Active bootstrap env files
+## Active env files discovered
+- `.env.gitea` (runtime only; gitignored)
+- `.env.infisical` (runtime only; gitignored)
+- `.env.gitea.template`
+- `.env.infisical.template`
+- `.env.stack.example`
+- `infra/env/.env.orchestrator` (referenced by scripts)
+- `infra/env/.env.oracle` (referenced by scripts)
+- `infra/env/.env.worker-rtx3060` (referenced by scripts)
+- `infra/env/.env.worker-rtx3090ti` (referenced by scripts)
+- `infra/env/.env.worker-rtx5090` (referenced by scripts)
 
-- `.env.stack`
-- `.env.gitea`
-- `.env.infisical`
-- `infra/env/.env.orchestrator`
-- `infra/env/.env.oracle`
-- `infra/env/.env.worker-rtx3060`
-- `infra/env/.env.worker-rtx3090ti`
-- `infra/env/.env.worker-rtx5090`
+## Secret class variables (examples)
+- `INFISICAL_TOKEN`
+- `INFISICAL_POSTGRES_PASSWORD`
+- `INFISICAL_ENCRYPTION_KEY`
+- `INFISICAL_AUTH_SECRET`
+- `GITEA_RUNNER_REGISTRATION_TOKEN_FILE`
+- `OPENAI_API_KEY_FILE`
 
-## Secret classes
+## Config/runtime class variables (examples)
+- `NYRA_NETWORK`
+- `NYRA_MACHINE`
+- `GITEA_PORT`
+- `GITEA_SSH_PORT`
+- `INFISICAL_PORT`
+- `INFISICAL_SITE_URL`
+- `INFISICAL_API_URL`
+- `INFISICAL_PROJECT_ID`
 
-- Authentication material: `*_TOKEN`, `*_SECRET`, `*_PASSWORD`, `*_API_KEY`.
-- Encryption material: `INFISICAL_ENCRYPTION_KEY`, `INFISICAL_AUTH_SECRET`.
-- Infrastructure credentials: DB credentials and registry auth tokens.
-
-## Environment-dependent classes
-
-- Host routing: `*_URL`, `*_DOMAIN`, `*_HOST`, `*_ROOT_URL`.
-- Port exposure: `*_PORT`.
-- Runtime profile selectors: `*_ENV`, `*_ENVIRONMENT`, role profile variables.
-
-## Repository guardrails
-
+## Policy checks
 - `.env.gitea`, `.env.infisical`, and `.secrets/` are gitignored.
-- Templates (`.env.*.template`) remain committed for bootstrap reproducibility.
-- Generated docs never embed live secret values.
-
-## Known bootstrap variables (excerpt)
-
-| Variable | Class | Source stack |
-|---|---|---|
-| `GITEA_PORT` | env-dependent | `docker-compose.gitea.yml` |
-| `GITEA_SSH_PORT` | env-dependent | `docker-compose.gitea.yml` |
-| `INFISICAL_PORT` | env-dependent | `docker-compose.infisical.yml` |
-| `INFISICAL_POSTGRES_PASSWORD` | secret | `docker-compose.infisical.yml` |
-| `INFISICAL_ENCRYPTION_KEY` | secret | `docker-compose.infisical.yml` |
-| `INFISICAL_AUTH_SECRET` | secret | `docker-compose.infisical.yml` |
-| `INFISICAL_TOKEN` | secret | `docker-compose.gitea.yml`, `docker-compose.archon.yml` |
-| `INFISICAL_PROJECT_ID` | env-dependent | `docker-compose.gitea.yml`, workflows |
-| `STACK_ENV_FILE` | env-dependent | `Makefile` |
+- Templates remain committed for reproducibility.
+- No secrets embedded in docs or Cloudflared config.

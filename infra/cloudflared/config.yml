@@ -1,0 +1,23 @@
+tunnel: REPLACE_ME_TUNNEL_UUID
+credentials-file: /etc/cloudflared/REPLACE_ME_TUNNEL_UUID.json
+
+ingress:
+  - hostname: gitea.nyra.example.com
+    service: http://orchestrator:3100
+  - hostname: infisical.nyra.example.com
+    service: http://orchestrator:3201
+  - hostname: archon.nyra.example.com
+    service: http://orchestrator:3737
+  - hostname: n8n.nyra.example.com
+    service: http://oracle:5678
+  - hostname: activepieces.nyra.example.com
+    service: http://oracle:8080
+  - hostname: twentycrm.nyra.example.com
+    service: http://oracle:3000
+  - hostname: grafana.nyra.example.com
+    service: http://oracle:3003
+  - hostname: openwebui.nyra.example.com
+    service: http://orchestrator:8088
+  - hostname: nexus.nyra.example.com
+    service: http://orchestrator:7000
+  - service: http_status:404

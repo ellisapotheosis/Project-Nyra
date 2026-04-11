@@ -11,7 +11,8 @@ HEALTH_ENV_FILE ?= $(STACK_ENV_FILE)
 # Service Specific Compose Files
 ARCHON_COMPOSE := infra/compose/docker-compose.archon.yml
 TWENTY_COMPOSE := infra/compose/docker-compose.twenty.yml
-GITEA_COMPOSE := infra/compose/docker-compose.gitea.yml
+GITEA_COMPOSE := docker-compose.gitea.yml
+INFISICAL_COMPOSE := docker-compose.infisical.yml
 SUPABASE_COMPOSE := infra/compose/docker-compose.supabase.yml
 
 # Host Specific Compose Files
@@ -28,7 +29,11 @@ DEFAULT_PROFILES ?= core,gateway,workflow,crm,archon,apps,observability,vector
   archon-up archon-down archon-logs archon-ps \
   cluster cluster-kill grid grid-kill \
   nexus-up nexus-down health stack-up stack-verify \
-  gitea-up gitea-down gitea-ps twenty-crm-up twenty-crm-down
+  gitea-up gitea-down gitea-logs gitea-ps gitea-health \
+  up-gitea down-gitea logs-gitea health-gitea \
+  infisical-up infisical-down infisical-logs infisical-health \
+  up-infisical down-infisical logs-infisical health-infisical \
+  twenty-crm-up twenty-crm-down
 
 .DEFAULT_GOAL := help
 
@@ -115,6 +120,34 @@ gitea-up:
 
 gitea-down:
 	docker compose -f $(GITEA_COMPOSE) down
+
+gitea-logs:
+	docker compose -f $(GITEA_COMPOSE) --env-file .env.gitea logs -f --tail=200
+
+gitea-health:
+	docker compose -f $(GITEA_COMPOSE) --env-file .env.gitea ps
+
+up-gitea: gitea-up
+down-gitea: gitea-down
+logs-gitea: gitea-logs
+health-gitea: gitea-health
+
+infisical-up:
+	docker compose -f $(INFISICAL_COMPOSE) --env-file .env.infisical up -d
+
+infisical-down:
+	docker compose -f $(INFISICAL_COMPOSE) down
+
+infisical-logs:
+	docker compose -f $(INFISICAL_COMPOSE) --env-file .env.infisical logs -f --tail=200
+
+infisical-health:
+	docker compose -f $(INFISICAL_COMPOSE) --env-file .env.infisical ps
+
+up-infisical: infisical-up
+down-infisical: infisical-down
+logs-infisical: infisical-logs
+health-infisical: infisical-health
 
 twenty-crm-up:
 	docker compose -f $(TWENTY_COMPOSE) up -d

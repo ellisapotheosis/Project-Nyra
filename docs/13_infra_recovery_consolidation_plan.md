@@ -1,53 +1,37 @@
 # 13 Infra Recovery Consolidation Plan
 
-## What failed previously
+## Inventory-first findings
+1. Active orchestration points to `infra/docker-compose.yml` as base, with node overrides from `infra/compose/overrides/` via `infra/scripts/nyra`.
+2. Root bootstrap compose files for Gitea and Infisical exist and are currently the safest integration points (`docker-compose.gitea.yml`, `docker-compose.infisical.yml`).
+3. Prior recovery docs incorrectly referenced non-existent paths (for example, `infra/compose/docker-compose.gitea.yml`) and mixed in archived/ingest compose files.
 
-- Prior generated docs included low-signal placeholders and timestamp-only content.
-- Ports inventory included non-runtime compose examples from references and archive trees.
-- Edge exposure guidance lacked strict guardrails for datastore isolation.
+## Recovery actions completed
+- Rebuilt active ports registry from authoritative compose/runtime paths only.
+- Replaced low-signal docs 13–20 with evidence-based content.
+- Regenerated cloudflared edge pack with strict zero-datastore rules.
+- Added collision-safe Make targets for Gitea + Infisical bootstrap lifecycle.
 
-## What is repaired in this pass
-
-1. Inventory-first flow captured compose, workflows, Make targets, and secrets posture.
-2. Active-only ports registry regenerated from authoritative compose inputs.
-3. Cloudflared edge pack regenerated with explicit fail-closed 404 and no datastores.
-4. Gitea + Infisical additive bootstrap path retained without replacing existing stacks.
-
-## Authoritative sources used
-
-- `docker-compose.archon.yml`
+## Authoritative compose set used
+- `infra/docker-compose.yml`
+- `infra/compose/docker-compose.archon.yml`
+- `infra/compose/docker-compose.supabase.yml`
 - `docker-compose.gitea.yml`
 - `docker-compose.infisical.yml`
-- `infra/docker-compose.yml`
-- `infra/oracle/docker-compose.oracle.yml`
-- `infra/workers/worker-rtx3060/docker-compose.worker.yml`
-- `infra/workers/worker-rtx3090ti/docker-compose.worker.yml`
-- `infra/workers/worker-rtx5090/docker-compose.worker.yml`
+- `docker-compose.crm-api.yml`
+- `docker-compose.dev.yml`
+- `docker-compose.prod.yml`
+- `infra/hosts/orchestrator/docker-compose.orchestrator.yml`
+- `infra/hosts/oracle-vps/docker-compose.oracle.yml`
+- `infra/hosts/worker-rtx3060/docker-compose.worker.yml`
+- `infra/hosts/worker-rtx3090ti/docker-compose.worker.yml`
+- `infra/hosts/worker-rtx5090/docker-compose.worker.yml`
+- `infra/hosts/worker-rtx3060/docker-compose.gpu.yml`
+- `infra/hosts/worker-rtx3090ti/docker-compose.gpu.yml`
+- `infra/hosts/worker-rtx5090/docker-compose.gpu.yml`
 
-## Safety guarantees
-
-- No destructive file operations performed.
-- No real secret values committed.
-- Datastore services are not assigned public hostnames.
-- Existing Makefile targets remain unchanged and additive targets are preserved.
-- If a risky merge is detected later, parallel files should be added with explicit suffixes.
-
-## Validation gates attached to this plan
-
-- Compose parse/merge checks for Gitea + Infisical bootstrap paths.
-- YAML parse checks for GitHub + Gitea workflows.
-- Make target dry-runs for additive bootstrap wrappers.
-- Cloudflared ingress syntax validation using cloudflare/cloudflared image.
-
-## File evidence map
-
-| Requirement | Evidence file |
-|---|---|
-| Primary stack orchestration | `Makefile` |
-| Node role execution | `infra/scripts/node-up.sh` |
-| Role/profile orchestration | `infra/scripts/ultimate-bootstrap.sh` |
-| Active cloudflared config | `infra/cloudflared/config.yml` |
-| DNS/hostname mapping | `infra/cloudflared/hostname-map.md` |
-| Active ports registry | `docs/02_ports_registry.md` |
-| Legacy appendix | `docs/02_ports_registry.appendix_legacy.md` |
-| Recovery confidence output | `docs/20_recovery_confidence_report.md` |
+## Guardrails
+- No file deletions.
+- No committed real secrets.
+- No public datastore exposure.
+- Fail-closed cloudflared ingress with final 404.
+- Use `orchestrator` naming in all newly written assets.
