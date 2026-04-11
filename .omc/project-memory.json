@@ -1,0 +1,354 @@
+{
+  "version": "1.0.0",
+  "lastScanned": 1775827605221,
+  "projectRoot": "/home/ellisapotheosis/repos/project-nyra",
+  "techStack": {
+    "languages": [
+      {
+        "name": "JavaScript/TypeScript",
+        "version": ">=20",
+        "confidence": "high",
+        "markers": [
+          "package.json"
+        ]
+      },
+      {
+        "name": "TypeScript",
+        "version": null,
+        "confidence": "high",
+        "markers": [
+          "tsconfig.json"
+        ]
+      },
+      {
+        "name": "C/C++",
+        "version": null,
+        "confidence": "high",
+        "markers": [
+          "Makefile"
+        ]
+      }
+    ],
+    "frameworks": [
+      {
+        "name": "@playwright/test",
+        "version": "1.58.2",
+        "category": "testing"
+      },
+      {
+        "name": "vite",
+        "version": "7.3.2",
+        "category": "build"
+      },
+      {
+        "name": "vitest",
+        "version": "4.0.18",
+        "category": "testing"
+      }
+    ],
+    "packageManager": "pnpm",
+    "runtime": "Node.js 20"
+  },
+  "build": {
+    "buildCommand": "pnpm build",
+    "testCommand": "pnpm test",
+    "lintCommand": "pnpm lint",
+    "devCommand": "pnpm dev",
+    "scripts": {
+      "dev": "turbo run dev",
+      "build": "turbo run build",
+      "lint": "pnpm -r --if-present lint",
+      "test": "pnpm exec vitest --config vitest.smoke.config.mjs run",
+      "test:all": "pnpm exec vitest --config vitest.config.mjs run",
+      "docker:up": "docker compose -f infra/docker-compose.yml up -d",
+      "docker:down": "docker compose -f infra/docker-compose.yml down",
+      "twenty:setup": "docker compose -f infra/docker-compose.twenty.yml up -d",
+      "twenty:down": "docker compose -f infra/docker-compose.twenty.yml down",
+      "twenty:dev": "turbo run dev --filter=twenty-crm",
+      "admin:dev": "turbo run dev --filter=nyra-admin",
+      "all:dev": "turbo run dev --parallel"
+    }
+  },
+  "conventions": {
+    "namingStyle": null,
+    "importStyle": null,
+    "testPattern": null,
+    "fileOrganization": null
+  },
+  "structure": {
+    "isMonorepo": true,
+    "workspaces": [
+      "apps/*",
+      "apps/*/*",
+      "services/*",
+      "services/*/*",
+      "packages/*"
+    ],
+    "mainDirectories": [
+      "docs",
+      "scripts",
+      "src",
+      "tests"
+    ],
+    "gitBranches": null
+  },
+  "customNotes": [],
+  "directoryMap": {
+    "agents": {
+      "path": "agents",
+      "purpose": null,
+      "fileCount": 5,
+      "lastAccessed": 1775827605184,
+      "keyFiles": [
+        "architect.yaml",
+        "coder.yaml",
+        "reviewer.yaml",
+        "security-architect.yaml",
+        "tester.yaml"
+      ]
+    },
+    "ai-reviewer": {
+      "path": "ai-reviewer",
+      "purpose": null,
+      "fileCount": 3,
+      "lastAccessed": 1775827605192,
+      "keyFiles": [
+        "Dockerfile",
+        "main.py",
+        "requirements.txt"
+      ]
+    },
+    "apps": {
+      "path": "apps",
+      "purpose": null,
+      "fileCount": 5,
+      "lastAccessed": 1775827605211,
+      "keyFiles": [
+        "CLAUDE.md",
+        "PROJECT_PRIORITY_MATRIX.md",
+        "README.md",
+        "SOUL.BORROWER.md",
+        "SOUL.BROKER.md"
+      ]
+    },
+    "archive": {
+      "path": "archive",
+      "purpose": null,
+      "fileCount": 4,
+      "lastAccessed": 1775827605213,
+      "keyFiles": [
+        "INDEX.md"
+      ]
+    },
+    "ci": {
+      "path": "ci",
+      "purpose": null,
+      "fileCount": 5,
+      "lastAccessed": 1775827605213,
+      "keyFiles": [
+        "Dockerfile.old",
+        "README.md",
+        "docker-compose-lint.sh",
+        "forbidden-strings.sh",
+        "smoke-tests.sh"
+      ]
+    },
+    "codex": {
+      "path": "codex",
+      "purpose": null,
+      "fileCount": 0,
+      "lastAccessed": 1775827605213,
+      "keyFiles": []
+    },
+    "config": {
+      "path": "config",
+      "purpose": "Configuration files",
+      "fileCount": 0,
+      "lastAccessed": 1775827605213,
+      "keyFiles": []
+    },
+    "data": {
+      "path": "data",
+      "purpose": "Data files",
+      "fileCount": 0,
+      "lastAccessed": 1775827605213,
+      "keyFiles": []
+    },
+    "docs": {
+      "path": "docs",
+      "purpose": "Documentation",
+      "fileCount": 61,
+      "lastAccessed": 1775827605213,
+      "keyFiles": [
+        "00_scan_baseline.md",
+        "01_inventory_matrix.md",
+        "02_ports_registry.appendix_legacy.md",
+        "02_ports_registry.md",
+        "03_env_required.md"
+      ]
+    },
+    "environments": {
+      "path": "environments",
+      "purpose": null,
+      "fileCount": 0,
+      "lastAccessed": 1775827605213,
+      "keyFiles": []
+    },
+    "external": {
+      "path": "external",
+      "purpose": null,
+      "fileCount": 0,
+      "lastAccessed": 1775827605213,
+      "keyFiles": []
+    },
+    "infisical-secrets-init": {
+      "path": "infisical-secrets-init",
+      "purpose": null,
+      "fileCount": 3,
+      "lastAccessed": 1775827605214,
+      "keyFiles": [
+        "Dockerfile",
+        "agent-sidecar.sh",
+        "secrets-init.sh"
+      ]
+    },
+    "infra": {
+      "path": "infra",
+      "purpose": null,
+      "fileCount": 31,
+      "lastAccessed": 1775827605214,
+      "keyFiles": [
+        "0-100-AUTONOMOUS-PROMPT-GOD.md",
+        "00_START_HERE.md",
+        "ARCHITECTURE.md",
+        "CLAUDE_CODE_PROMPT.md",
+        "CLAUDE_CODE_QUICK_GUIDE.md"
+      ]
+    },
+    "ingest": {
+      "path": "ingest",
+      "purpose": null,
+      "fileCount": 2,
+      "lastAccessed": 1775827605214,
+      "keyFiles": [
+        "Makefile",
+        "README.md"
+      ]
+    },
+    "packages": {
+      "path": "packages",
+      "purpose": null,
+      "fileCount": 1,
+      "lastAccessed": 1775827605214,
+      "keyFiles": [
+        "CLAUDE.md"
+      ]
+    },
+    "scripts": {
+      "path": "scripts",
+      "purpose": "Build/utility scripts",
+      "fileCount": 81,
+      "lastAccessed": 1775827605215,
+      "keyFiles": [
+        "CLAUDE.md",
+        "CONSOLIDATION-LOG.md",
+        "Initialize-CodexEnvironment.sh",
+        "apply-overlays.ps1",
+        "backup-daily.ps1"
+      ]
+    },
+    "services": {
+      "path": "services",
+      "purpose": "Business logic services",
+      "fileCount": 2,
+      "lastAccessed": 1775827605216,
+      "keyFiles": [
+        "CLAUDE.md",
+        "README.md"
+      ]
+    },
+    "src": {
+      "path": "src",
+      "purpose": "Source code",
+      "fileCount": 2,
+      "lastAccessed": 1775827605216,
+      "keyFiles": [
+        "CLAUDE.md",
+        "CONSOLIDATION-LOG.md"
+      ]
+    },
+    "tests": {
+      "path": "tests",
+      "purpose": "Test files",
+      "fileCount": 5,
+      "lastAccessed": 1775827605216,
+      "keyFiles": [
+        "README.md",
+        "README_VITEST.md",
+        "TESTING_GUIDE.md",
+        "jest.setup.js",
+        "tsconfig.json"
+      ]
+    },
+    "workflows": {
+      "path": "workflows",
+      "purpose": null,
+      "fileCount": 0,
+      "lastAccessed": 1775827605216,
+      "keyFiles": []
+    },
+    "apps/docs": {
+      "path": "apps/docs",
+      "purpose": "Documentation",
+      "fileCount": 2,
+      "lastAccessed": 1775827605217,
+      "keyFiles": [
+        "README.md"
+      ]
+    },
+    "archive/docs": {
+      "path": "archive/docs",
+      "purpose": "Documentation",
+      "fileCount": 27,
+      "lastAccessed": 1775827605217,
+      "keyFiles": [
+        "AGENTDB-INTEGRATION-GUIDE.md",
+        "CLAUDE-FLOW-CICD-QUICKSTART.md",
+        "CLAUDE-FLOW-FULL-FEATURES-CONTAINERIZATION.md"
+      ]
+    },
+    "ingest/docs": {
+      "path": "ingest/docs",
+      "purpose": "Documentation",
+      "fileCount": 9,
+      "lastAccessed": 1775827605220,
+      "keyFiles": [
+        "ARCHITECTURE.md",
+        "BUSINESS_GOALS.md",
+        "CRM_REQUIREMENTS.md"
+      ]
+    },
+    "packages/schemas": {
+      "path": "packages/schemas",
+      "purpose": "Schema definitions",
+      "fileCount": 1,
+      "lastAccessed": 1775827605220,
+      "keyFiles": [
+        "README.md"
+      ]
+    },
+    "tests/fixtures": {
+      "path": "tests/fixtures",
+      "purpose": "Test fixtures",
+      "fileCount": 6,
+      "lastAccessed": 1775827605221,
+      "keyFiles": [
+        "agents.json",
+        "leads.json",
+        "memory-patterns.json"
+      ]
+    }
+  },
+  "hotPaths": [],
+  "userDirectives": []
+}

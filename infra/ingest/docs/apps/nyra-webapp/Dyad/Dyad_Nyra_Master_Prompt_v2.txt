@@ -1,0 +1,107 @@
+
+# Dyad Build Brief — Nyra Mortgage Assistant (Personal-first | Team branch)
+**Primary model for codegen & scaffolding:** Google Gemini 1.5 Pro (use my credits first).  
+**Fallback models (only when you get stuck / quality degrades):** OpenAI GPT‑4.1 (deep reasoning & scheduler logic), GPT‑4o (UI microcopy; low-latency), Anthropic Claude Sonnet (long docs).  
+Implement a “smart fallback”: if 2 consecutive attempts on Gemini fail unit tests or produce invalid builds, auto-switch that task to GPT‑4.1 for one pass, then return to Gemini.
+
+## Mission
+Ship the **Personal** Nyra Mortgage Assistant first, then produce a stripped **Team** build by toggling feature flags. The app must replicate/cover the core of Bonzo + AgentLegend (lead intake, auto‑classification, multi‑channel campaigns with Day‑0 relative sends + Day‑2+ fixed-time sends, opt‑outs, logging), and add my voice/agent layer.
+
+Use my existing UI files as a base (Tailwind/vanilla):
+- `/index.html`, `/style.css`, `/AI_RULES.md` (front-end rules: Tailwind + vanilla, no frameworks for public UI)
+- Python stubs: `/elevenlabs_handler.py` (TTS), `/nyra_core_stack.py`
+Dark mode must be **default**. Preserve existing color palette; ensure `dark:` variants everywhere.
+
+## Architecture (modular, AI-accessible)
+- **DB/Auth:** Supabase (Postgres + Auth). Tables below.
+- **APIs:** Node/TS (Express or Fastify) OR Supabase Edge Functions where sensible.
+- **Scheduler:** Durable job queue (BullMQ) + Redis, 1‑min tick fallback. Timezone-aware (America/Los_Angeles default; store per‑user tz).
+- **Event Bus:** Server‑sent events or WebSocket to stream status to UI + Dev Portal.
+- **Feature flags:** ENV or Supabase `settings` table to gate Personal‑only modules (`AI_PORTAL`, `VOICE`, `LLM_CLASSIFIER`).
+
+## Data Model (tables)
+- `users(id, email, name, role, tz, created_at)`
+- `leads(id, source, raw_payload jsonb, first_name, last_name, email, phone, address, fico int, ltv numeric, loan_amount numeric, lead_type enum['REFI','CASH_OUT','HELOC','PURCHASE','UNKNOWN'], received_at timestamptz, status enum['new','active','paused','won','lost'], opted_out boolean default false)`
+- `campaigns(id, name, lead_type, active boolean, description)`
+- `campaign_steps(id, campaign_id, phase enum['DAY0_REL','DAYN_FIXED'], offset_minutes int, day_index int, at_time time, channel enum['sms','email','voicemail','call','task'], template_id, enabled boolean)`
+- `templates(id, channel, name, body text, variables jsonb, stop_footer boolean)`
+- `events(id, lead_id, step_id, scheduled_for timestamptz, executed_at timestamptz, status enum['queued','sent','failed','skipped'], provider_response jsonb)`
+- `inbound_messages(id, lead_id, channel, body text, received_at timestamptz, thread_key text)`
+- `opt_outs(id, lead_id, channel, reason text, opted_out_at timestamptz)`
+- `quotes(id, lead_id, params jsonb, payment_breakdown jsonb, png_url text, created_at timestamptz)`
+- `settings(id, user_id, key, value)`
+- Personal only: `agent_logs(id, ts, agent, level, message jsonb)`
+
+## Integrations (phase 1)
+1) **Microsoft Graph (Outlook)**: pull from a dedicated “Leads” folder. Polling first; upgrade to webhook subscription later. Parser extracts purpose/amount/credit/address.
+2) **LeadMailbox**: if webhook/API exists, ingest; else parse vendor emails.
+3) **Twilio**: SMS + Voice. Inbound SMS webhook captures STOP/QUIT/UNSUBSCRIBE, inserts into `opt_outs`, flips `leads.opted_out=true`, cancels future `events` for that lead.
+4) **Email send**: Graph SendMail for reply-in-thread; later optional SendGrid.
+5) **Quote stub**: `/quotes/draft` endpoint consumes params and returns P&I/PITI + PNG chart. Readiness to swap to **LenderPrice** or **Rocket** later.
+
+## Classification
+Start rules: keyword heuristics → REF I/CASH_OUT/HELOC/PURCHASE; expose `/classify` to later swap to LLM (Gemini) few‑shot if confidence < threshold.
+
+## Scheduler semantics
+- On new lead: enqueue Day‑0 ladder from now: [0m, 30m, 2h, 5h] (configurable).
+- Midnight local: enqueue Day‑2+ windows for active leads using `campaign_steps` with `phase=DAYN_FIXED`.
+- Respect quiet hours, per‑day cap, and `opted_out`. All sends logged to `events` + `inbound_messages`.
+
+## Comms execution
+- **SMS** → Twilio; append STOP footer if template.stop_footer true.
+- **Email** → Graph/SMTP; maintain `thread_key` on first send.
+- **Voicemail / Fake Missed Call** → Twilio Voice: (a) short ring + hangup to create missed call log, (b) separate call with AMD and play prerecorded MP3. Store MP3 in Supabase storage.
+
+## Frontend (public app)
+- Import existing Tailwind HTML; ensure `<html class="dark">` on load; remember toggle in localStorage.
+- Pages: Dashboard, Leads, Lead Detail (timeline & manual actions), Campaigns (builder UI: Day‑0 relative tab + Day‑2+ fixed-time tab), Analytics, Settings.
+- Campaign Builder: draggable steps; channels: sms/email/voicemail/call/task; per‑step preview from `templates`.
+- Compliance switches: global STOP text, quiet hours, max sends/day, default TZ.
+- Lead Detail quick actions: Pause/Resume, Send Now, Mark Contacted, New Quote.
+
+## Personal‑only modules
+### Voice (2‑way now for dev; outbound voice later)
+- Build a **Voice Console** page (hidden behind `VOICE=true` flag). Real‑time STT→LLM→TTS loop:
+  - **STT:** start with browser SpeechRecognition; optional server STT (Whisper) later.
+  - **LLM:** orchestrator endpoint `/voice/ask` → use Gemini 1.5 for fast replies.
+  - **TTS:** use existing `elevenlabs_handler.py` → endpoint `/voice/speak`. Stream if possible.
+- Prepare adapters for **Kyutai** stack:
+  - STT/TTS: Next‑TTS / hibiki / moshi / unmute (see links). Design an interface `VoiceProvider { stt(stream), tts(stream) }` so we can swap ElevenLabs ⇄ Kyutai easily.
+- Twilio Realtime (future): add `/voice/call` to bridge WebRTC → Twilio → Nyra for true phone conversations.
+
+### Dev Agent Portal (agent-in-the-loop)
+- Page with chat + live logs. WebSocket stream of `agent_logs` and recent `events`.
+- Orchestrator agent (Gemini) with **memory** (Supabase pgvector or lite vector index) of project specs, decisions, and TODOs.
+- Slash-commands: `/status`, `/leads today`, `/errors last 1h`, `/gen template <type>`.
+- Optional embedded editor (Monaco) for code review snippets (read‑only first).
+
+## Security & Unlock
+- All Personal features gated by role claim or feature flag. The same repo builds two artifacts:
+  - `nyra-assistant-ellison` (Personal): `VOICE=true`, `AI_PORTAL=true`
+  - `nyra-assistant-team` (Team): flags false; AI/voice routes not bundled; UI links hidden.
+- JWT auth via Supabase. RBAC: `owner`, `broker`, `assistant`.
+
+## Hosting / DevOps
+- **Coolify** for self-hosting containers on my desktop (RTX 3090 Ti) and cloud; expose via subdomains:
+  - `app.domain.com` → public app
+  - `dev.domain.com` → Dev Agent Portal (protected)
+  - `voice.domain.com` → voice WS services
+- Reverse proxy (Caddy or Nginx). Use Tailscale/ZeroTier between local GPUs and cloud if needed.
+- Observability: emit OpenTelemetry traces; simple `/healthz` endpoints. Daily DB backups.
+
+## External UI accelerators (optional)
+- **LobeChat** or **Dify** as secondary chat frontends if needed; wire to orchestrator back-end.
+- MUI Toolpad for internal CRUD admin screens.
+
+## Initial deliverables
+1) Supabase schema + seed (3 campaigns: Refi, HELOC/HELOAN, Purchase).  
+2) Outlook (Graph) ingestor (poll) + parser → `leads`.  
+3) Twilio SMS send + inbound STOP webhook.  
+4) Scheduler (BullMQ) + dispatchers (sms/email/voicemail stub).  
+5) Frontend imported, **dark by default**, Campaign Builder (MVP), Lead Detail timeline.  
+6) `/quotes/draft` + tiny chart PNG for emails.  
+7) Personal: Voice Console (browser STT → Gemini → ElevenLabs), Dev Agent Portal (chat + logs).  
+8) README with env templates and scripts.
+
+## Stretch
+- LenderPrice integration; n8n flows; advanced analytics; Kyutai local voice; Twilio Realtime calls.

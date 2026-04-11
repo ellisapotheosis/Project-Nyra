@@ -1,69 +1,221 @@
 from __future__ import annotations
 
 import os
-import sqlite3
-import time
-from typing import List, Optional, Dict, Any
-from fastapi import FastAPI
+import json
+import asyncio
+import logging
+from typing import List, Optional, Dict, Any, Union
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
+from mem0 import Memory
+from mem0_falkordb import register
 
-DB_PATH = os.getenv("MEM0_STORE_PATH", "/data/mem0.sqlite")
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
-app = FastAPI(title="Mem0-lite REST (dev)", version="0.1.0")
+# Register the FalkorDB plugin
+register()
 
-def db() -> sqlite3.Connection:
-    conn = sqlite3.connect(DB_PATH)
-    conn.execute("PRAGMA journal_mode=WAL;")
-    conn.execute("""
-        CREATE TABLE IF NOT EXISTS memories (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          user_id TEXT NOT NULL,
-          text TEXT NOT NULL,
-          tags TEXT,
-          ts INTEGER NOT NULL
-        )
-    """)
-    conn.execute("CREATE INDEX IF NOT EXISTS idx_user_ts ON memories(user_id, ts);")
-    return conn
+app = FastAPI(title="Mem0 + FalkorDB MCP Service", version="0.3.0")
 
+# Configuration
+FALKORDB_HOST = os.getenv("FALKORDB_HOST", "nyra-falkordb")
+FALKORDB_PORT = int(os.getenv("FALKORDB_PORT", "6379"))
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+
+# Lazy initialization of Mem0
+_memory = None
+
+def get_memory():
+    global _memory
+    if _memory is None:
+        config = {
+            "graph_store": {
+                "provider": "falkordb",
+                "config": {
+                    "host": FALKORDB_HOST,
+                    "port": FALKORDB_PORT,
+                    "database": "mem0_nyra",
+                },
+            },
+            "llm": {
+                "provider": "openai",
+                "config": {
+                    "model": os.getenv("MEM0_LLM_MODEL", "gpt-4o-mini"),
+                    "api_key": OPENAI_API_KEY,
+                },
+            },
+            "vector_store": {
+                "provider": "chroma",
+                "config": {
+                    "path": "/data/vector_store",
+                }
+            }
+        }
+        
+        # Override if Qdrant is specified
+        if os.getenv("QDRANT_URL"):
+            config["vector_store"] = {
+                "provider": "qdrant",
+                "config": {
+                    "url": os.getenv("QDRANT_URL"),
+                    "api_key": os.getenv("QDRANT_API_KEY"),
+                }
+            }
+            
+        try:
+            _memory = Memory.from_config(config)
+            logger.info("Mem0 initialized with FalkorDB")
+        except Exception as e:
+            logger.error(f"Failed to initialize Mem0: {str(e)}")
+            raise e
+    return _memory
+
+# --- REST Models ---
 class AddMemoryReq(BaseModel):
     user_id: str
     text: str
-    tags: Optional[List[str]] = None
-
-class Memory(BaseModel):
-    user_id: str
-    text: str
-    tags: List[str] = Field(default_factory=list)
-    ts: int
+    metadata: Optional[Dict[str, Any]] = None
 
 class SearchReq(BaseModel):
     user_id: str
-    query: str = ""
-    limit: int = 20
+    query: str
+    limit: int = 10
 
+# --- REST Endpoints ---
 @app.get("/health")
 def health():
-    return {"ok": True, "db": DB_PATH}
+    return {
+        "status": "healthy",
+        "backend": "falkordb",
+        "host": FALKORDB_HOST,
+        "port": FALKORDB_PORT
+    }
 
 @app.post("/memories/add")
 def add_memory(req: AddMemoryReq):
-    conn = db()
-    tags = ",".join(req.tags or [])
-    ts = int(time.time())
-    conn.execute("INSERT INTO memories(user_id, text, tags, ts) VALUES (?,?,?,?)", (req.user_id, req.text, tags, ts))
-    conn.commit()
-    return {"ok": True, "ts": ts}
+    m = get_memory()
+    try:
+        result = m.add(req.text, user_id=req.user_id, metadata=req.metadata)
+        return {"ok": True, "result": result}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
-@app.post("/memories/search", response_model=List[Memory])
+@app.post("/memories/search")
 def search(req: SearchReq):
-    conn = db()
-    q = f"%{req.query}%"
-    cur = conn.execute(
-        "SELECT user_id, text, tags, ts FROM memories WHERE user_id=? AND text LIKE ? ORDER BY ts DESC LIMIT ?",
-        (req.user_id, q, req.limit),
-    )
-    out = []
-    for user_id, text, tags, ts in cur.fetchall():
-        out.append(Memory(user_id=user_id, text=text, tags=[t for t in tags.split(",") if t], ts=ts))
-    return out
+    m = get_memory()
+    try:
+        results = m.search(req.query, user_id=req.user_id, limit=req.limit)
+        return results
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+# --- MCP (Model Context Protocol) via SSE ---
+# Very basic MCP implementation for Nexus Router
+
+@app.get("/sse")
+async def mcp_sse(request: Request):
+    """MCP over SSE endpoint for Nexus/Grafbase."""
+    async def event_generator():
+        # MCP Handshake and Tool Listing
+        # This is a simplified version of the MCP protocol
+        # For a full implementation, we'd use mcp-python-sdk
+        
+        # 1. Send initialization
+        yield "event: message\ndata: " + json.dumps({
+            "jsonrpc": "2.0",
+            "method": "notifications/initialized"
+        }) + "\n\n"
+        
+        # Keep connection alive
+        while True:
+            if await request.is_disconnected():
+                break
+            await asyncio.sleep(15)
+            yield "event: ping\ndata: {}\n\n"
+
+    return StreamingResponse(event_generator(), media_type="text/event-stream")
+
+@app.post("/mcp/rpc")
+async def mcp_rpc(request: Request):
+    """Handle MCP JSON-RPC calls from Nexus."""
+    body = await request.json()
+    method = body.get("method")
+    params = body.get("params", {})
+    rpc_id = body.get("id")
+    
+    m = get_memory()
+    
+    try:
+        if method == "tools/list":
+            return {
+                "jsonrpc": "2.0",
+                "id": rpc_id,
+                "result": {
+                    "tools": [
+                        {
+                            "name": "mem0_add",
+                            "description": "Store a new memory for a user",
+                            "inputSchema": {
+                                "type": "object",
+                                "properties": {
+                                    "user_id": {"type": "string"},
+                                    "text": {"type": "string"},
+                                    "metadata": {"type": "object"}
+                                },
+                                "required": ["user_id", "text"]
+                            }
+                        },
+                        {
+                            "name": "mem0_search",
+                            "description": "Search user memories",
+                            "inputSchema": {
+                                "type": "object",
+                                "properties": {
+                                    "user_id": {"type": "string"},
+                                    "query": {"type": "string"},
+                                    "limit": {"type": "integer"}
+                                },
+                                "required": ["user_id", "query"]
+                            }
+                        }
+                    ]
+                }
+            }
+            
+        elif method == "tools/call":
+            tool_name = params.get("name")
+            args = params.get("arguments", {})
+            
+            if tool_name == "mem0_add":
+                res = m.add(args["text"], user_id=args["user_id"], metadata=args.get("metadata"))
+                return {
+                    "jsonrpc": "2.0",
+                    "id": rpc_id,
+                    "result": {"content": [{"type": "text", "text": f"Memory added: {json.dumps(res)}"}]}
+                }
+            elif tool_name == "mem0_search":
+                res = m.search(args["query"], user_id=args["user_id"], limit=args.get("limit", 10))
+                return {
+                    "jsonrpc": "2.0",
+                    "id": rpc_id,
+                    "result": {"content": [{"type": "text", "text": json.dumps(res)}]}
+                }
+            
+        return {
+            "jsonrpc": "2.0",
+            "id": rpc_id,
+            "error": {"code": -32601, "message": "Method not found"}
+        }
+    except Exception as e:
+        return {
+            "jsonrpc": "2.0",
+            "id": rpc_id,
+            "error": {"code": -32000, "message": str(e)}
+        }
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=5000)

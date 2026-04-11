@@ -80,6 +80,9 @@ help:
 	@echo "make grid               Launch NYRA tmux grid (4-node SSH mesh + Wrangler)"
 	@echo "make grid-kill          Kill the NYRA-GRID tmux session"
 	@echo
+	@echo "make grid               Launch NYRA tmux grid (4-node SSH mesh + Wrangler)"
+	@echo "make grid-kill          Kill the NYRA-GRID tmux session"
+	@echo
 	@echo "make gitea-up           Start Gitea bootstrap stack"
 	@echo "make gitea-up-ai        Start Gitea stack with AI reviewer profile"
 	@echo "make gitea-up-actions   Start Gitea stack with actions runner profile"
