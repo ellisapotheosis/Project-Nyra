@@ -497,5 +497,15 @@ infra/configs/**/*.backup-*
 gitea-setup-summary-*.md
 
 # Local external dependencies (git repos)
-# external/
+# external/ is NOT ignored — all subdirs are tracked by default.
+# Explicit negations below protect against any future broad exclude rules:
+!external/pocket-tts/
+!external/pocket-tts-openai/
+!external/archon/
 data/pockettts/
+
+################################################################################
+# Archon Runtime
+################################################################################
+# Archon runtime artifacts (never commit)
+.archon/mcp/          # May contain env var references

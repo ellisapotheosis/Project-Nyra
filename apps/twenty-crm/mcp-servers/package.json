@@ -1,5 +1,5 @@
 {
-  "name": "twenty-crm-mcp-server",
+  "name": "twenty-crm-mcp-server-upstream",
   "version": "1.0.0",
   "description": "Model Context Protocol server for TwentyCRM integration with Claude",
   "main": "index.js",
