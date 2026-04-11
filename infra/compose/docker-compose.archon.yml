@@ -135,6 +135,7 @@ services:
       - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
       - GITHUB_TOKEN=${GITHUB_TOKEN}
       - LITELLM_MASTER_KEY=${LITELLM_MASTER_KEY}
+      - MEMPALACE_URL=${MEMPALACE_URL}
       - NEXUS_CONFIG_PATH=/app/nexus.toml
     depends_on:
       redis:

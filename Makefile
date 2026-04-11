@@ -122,5 +122,11 @@ twenty-crm-up:
 supabase-up:
 	docker compose -f $(SUPABASE_COMPOSE) up -d
 
+mempalace-init:
+	docker compose exec mempalace-mcp mempalace init
+
+mempalace-mine:
+	docker compose exec mempalace-mcp mempalace mine
+
 health:
 	./scripts/verify-stack.sh
