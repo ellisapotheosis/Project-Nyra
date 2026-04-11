@@ -160,7 +160,7 @@ These belong in repo root folders, not bootstrap:
 - Compute demand detection
 - Automatic worker wake/sleep scheduling
 
-**Koyeb VPS Integration**:
+**Oracle VPS VPS Integration**:
 - Webapp backend hosting (reduce need for 24/7 GPU workers)
 - n8n workflow offloading
 - API gateway configuration
@@ -200,7 +200,7 @@ These belong in repo root folders, not bootstrap:
 - Configure n8n
 - Setup Claude (Code + Desktop)
 - Configure Wake-on-LAN
-- Setup Koyeb integration
+- Setup Oracle VPS integration
 - Run health checks
 - Generate summary report
 
@@ -414,7 +414,7 @@ bootstrap/installer/
 2. Tailscale VPN integration
 3. Cloudflared tunnel setup
 4. n8n workflow deployment
-5. Koyeb VPS integration
+5. Oracle VPS VPS integration
 
 ### Phase 4: Testing & Documentation (Week 4)
 1. End-to-end testing on all 4 PCs
@@ -505,7 +505,7 @@ bootstrap/installer/
 
 If you're implementing this, ask:
 
-1. **Koyeb VPS**: What should be hosted? (webapp backend? n8n? API gateway?)
+1. **Oracle VPS VPS**: What should be hosted? (webapp backend? n8n? API gateway?)
 2. **n8n Workflows**: Specific campaign templates needed?
 3. **Cloudflared**: Which services should be publicly accessible?
 4. **Wake-on-LAN**: Trigger conditions? (CPU threshold? Manual? Scheduled?)
@@ -521,7 +521,7 @@ If you're implementing this, ask:
 - **Static IPs**: 10.0.0.1-4 on LAN (not internet-routable)
 - **Always On**: Only orchestrator PC1 runs 24/7
 - **Compute on Demand**: GPU workers wake when needed, sleep otherwise
-- **Cost Optimization**: Koyeb free tier + minimal always-on usage
+- **Cost Optimization**: Oracle VPS free tier + minimal always-on usage
 
 ---
 

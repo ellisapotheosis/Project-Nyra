@@ -61,7 +61,7 @@ If you look closely at the default configuration for that MemOS plugin, the base
 
 Do not send live borrower data (FICO scores, income, SSNs, DTI) to a public cloud memory API, especially one hosted internationally. If you are planning to offer this as a SaaS to other brokers, or use it for your own California/multi-state licensed operations, you are bound by GLBA, TCPA, and strict data privacy laws.
 
-The Fix: You must either self-host your conversational memory engine (whether that is MemOS, Mem0, or OpenMemory) entirely within your own Docker/Koyeb environment, or you must build a "PII Redactor" step that strips sensitive info before it gets sent to the memory cloud.
+The Fix: You must either self-host your conversational memory engine (whether that is MemOS, Mem0, or OpenMemory) entirely within your own Docker/Oracle VPS environment, or you must build a "PII Redactor" step that strips sensitive info before it gets sent to the memory cloud.
 
 3. The Ideal Memory Stack for Project-Nyra
 Because you are building a multi-agent system that writes code (archon-os) and a conversational product that talks to humans (Clawdbot), you should not force one database to do everything. Here is the optimal, tiered architecture:

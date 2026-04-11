@@ -13,7 +13,7 @@ This directory contains archived infrastructure configurations from previous imp
 **Contents**:
 - `legacy-infra/` - Previous infrastructure setup
 - `nyra-stack-v6_2/` - Version 6.2 of the Nyra stack
-- `casistack-orchestrator/` - CASI Stack orchestrator
+- `nyra-stack-orchestrator/` - CASI Stack orchestrator
 - `compose/` - Old Docker Compose files (superseded by `infra/docker/`)
 - `metamcp-gateway/` - MetaMCP gateway configurations
 - `MCP-Servers/` - MCP server implementations

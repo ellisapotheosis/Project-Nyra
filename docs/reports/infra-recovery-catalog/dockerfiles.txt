@@ -15,7 +15,7 @@ assets/new-uploads-ingestion-input/project-nyra/docker/Dockerfile.web
 infra-archived/infra-20260206-1551/archive/legacy-infra-2026-01-19/Dockerfiles/archon.Dockerfile
 infra-archived/infra-20260206-1551/archive/legacy-infra-2026-01-19/Dockerfiles/archon-os.Dockerfile
 infra-archived/infra-20260206-1551/archive/legacy-infra-2026-01-19/dual-orchestrator/archon-os/Dockerfile
-infra-archived/infra-20260206-1551/archive/nyra-infra-old/casistack-orchestrator/Dockerfile
+infra-archived/infra-20260206-1551/archive/nyra-infra-old/nyra-stack-orchestrator/Dockerfile
 infra-archived/infra-20260206-1551/archive/nyra-infra-old/legacy-infra/metamcp-gateway/Dockerfile
 infra-archived/infra-20260206-1551/archive/nyra-infra-old/metamcp-gateway/Dockerfile
 infra-archived/infra-20260206-1551/bitwarden-mcp/Dockerfile

@@ -1,14 +1,14 @@
 version: '3.9'
-name: nyra-casistack
+name: nyra-nyra-stack
 
 networks:
   nyra:
     external: true
 
 services:
-  casistack-manager:
-    image: ghcr.io/lobehub/casistack-mcp-openwebui-docker-orchestrator:latest
-    container_name: casistack-mcp-manager
+  nyra-stack-manager:
+    image: ghcr.io/lobehub/nyra-stack-mcp-openwebui-docker-orchestrator:latest
+    container_name: nyra-stack-mcp-manager
     restart: unless-stopped
     environment:
       MANAGER_PORT: ${MANAGER_PORT:-3001}
@@ -21,7 +21,7 @@ services:
       - "${MANAGER_PORT:-3001}:3001"
     volumes:
       - ${CLAUDE_CONFIG_ABSOLUTE_PATH}:/config/claude_desktop_config.json:ro
-      - ./logs/casistack:/var/log/mcp-proxy-manager
+      - ./logs/nyra-stack:/var/log/mcp-proxy-manager
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://localhost:3001/health"]
       interval: 10s

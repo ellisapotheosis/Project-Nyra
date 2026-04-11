@@ -14,9 +14,9 @@ services:
       - ../metamcp-gateway/channels:/app/channels:ro
     restart: unless-stopped
 
-  casistack-orchestrator:
-    container_name: nyra_casistack
-    image: ghcr.io/lobehub/casistack-mcp-openwebui-docker-orchestrator:latest
+  nyra-stack-orchestrator:
+    container_name: nyra_nyra-stack
+    image: ghcr.io/lobehub/nyra-stack-mcp-openwebui-docker-orchestrator:latest
     environment:
       MANAGER_PORT: ${MANAGER_PORT:-8899}
       MCP_PROXY_MODE: ${MCP_PROXY_MODE:-unified}

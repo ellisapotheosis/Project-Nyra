@@ -1,4 +1,4 @@
-# Environment-specific configurations for Koyeb deployments
+# Environment-specific configurations for Oracle VPS deployments
 apiVersion: v1
 kind: ConfigMap
 metadata:

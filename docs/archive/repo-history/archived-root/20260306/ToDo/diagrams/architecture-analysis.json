@@ -24,7 +24,7 @@
         "worker1": "Alienware M15R7 (RTX 3060)",
         "worker2": "Alienware Area-51 (RTX 5090)",
         "worker3": "Desktop PC (RTX 3090Ti)",
-        "cloud": "Koyeb VPS (backup)"
+        "cloud": "Oracle VPS VPS (backup)"
       }
     },
     {
@@ -112,7 +112,7 @@
     },
     {
       "context": "MCP Integration Journey",
-      "timeline": ["MetaMCP as aggregator", "Individual MCP servers", "CASIStack orchestrator GUI", "Infisical MCP for secrets", "Multiple MCP server types"]
+      "timeline": ["MetaMCP as aggregator", "Individual MCP servers", "Nyra Stack orchestrator GUI", "Infisical MCP for secrets", "Multiple MCP server types"]
     }
   ],
   "outdated_sections": [

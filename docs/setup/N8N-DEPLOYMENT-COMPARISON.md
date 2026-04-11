@@ -1,8 +1,8 @@
-# n8n Deployment Comparison - Koyeb vs Flow Nexus
+# n8n Deployment Comparison - Oracle VPS vs Flow Nexus
 
 ## Executive Summary
 
-| Factor | Koyeb VPS | Flow Nexus |
+| Factor | Oracle VPS VPS | Flow Nexus |
 |--------|-----------|------------|
 | **Best For** | Production n8n 24/7 | AI swarm coordination |
 | **Pricing** | $0-54/month (predictable) | Credit-based (1-5 rUv/op) |
@@ -12,11 +12,11 @@
 | **Webhooks** | ✅ Public URLs | ✅ Public URLs |
 | **Recommended** | ✅ For n8n production | For swarm workflows |
 
-**TL;DR**: Use **Koyeb** for running n8n 24/7 for mortgage campaigns. Use **Flow Nexus** for AI swarm coordination and event-driven workflows.
+**TL;DR**: Use **Oracle VPS** for running n8n 24/7 for mortgage campaigns. Use **Flow Nexus** for AI swarm coordination and event-driven workflows.
 
 ---
 
-## 1. Koyeb VPS for n8n
+## 1. Oracle VPS VPS for n8n
 
 ### Pricing Model
 
@@ -59,7 +59,7 @@ Perfect for:
 
 ### Setup Process
 
-1. Create Koyeb account (FREE)
+1. Create Oracle VPS account (FREE)
 2. Click **Deploy app** → Docker
 3. Image: `n8nio/n8n:latest`
 4. Environment variables:
@@ -68,14 +68,14 @@ Perfect for:
    N8N_PROTOCOL=https
    WEBHOOK_URL=https://n8n.yourdomain.com/
    DB_TYPE=postgresdb
-   DB_POSTGRESDB_HOST=<koyeb-postgres-host>
+   DB_POSTGRESDB_HOST=<oracle-vps-postgres-host>
    DB_POSTGRESDB_PORT=5432
    DB_POSTGRESDB_DATABASE=n8n
    DB_POSTGRESDB_USER=<user>
    DB_POSTGRESDB_PASSWORD=<password>
    ```
 5. Deploy (5-10 minutes)
-6. Access at `https://your-app.koyeb.app`
+6. Access at `https://your-app.oracle-vps.ratehunter.net`
 7. Configure custom domain (optional)
 
 **Total Setup Time**: 15 minutes
@@ -121,7 +121,7 @@ Perfect for:
 - GitHub-integrated workflows
 
 **NOT ideal for**:
-- Simple 24/7 n8n hosting (use Koyeb instead)
+- Simple 24/7 n8n hosting (use Oracle VPS instead)
 - Traditional CRUD apps
 - Static websites
 
@@ -156,18 +156,18 @@ Perfect for:
 
 ### Cost Analysis (Monthly)
 
-| Usage | Koyeb | Flow Nexus |
+| Usage | Oracle VPS | Flow Nexus |
 |-------|-------|------------|
 | **Startup (Free Tier)** | $0 | 0-100 rUv (FREE via challenges) |
 | **Light Usage** (10 workflows/day) | $0-10 | 50-150 rUv (~$5-15) |
 | **Medium Usage** (100 workflows/day) | $39-54 | 500-1,500 rUv (~$50-150) |
 | **Heavy Usage** (24/7 campaigns) | $54 | 3,000+ rUv (~$300+) |
 
-**Winner for n8n 24/7**: **Koyeb** (predictable $54/month)
+**Winner for n8n 24/7**: **Oracle VPS** (predictable $54/month)
 
 ### Features Comparison
 
-| Feature | Koyeb | Flow Nexus |
+| Feature | Oracle VPS | Flow Nexus |
 |---------|-------|------------|
 | **n8n Container** | ✅ Pre-built | ⚠️ DIY integration |
 | **Database** | ✅ Included | ❌ Bring your own |
@@ -181,7 +181,7 @@ Perfect for:
 
 ### Performance Comparison
 
-| Metric | Koyeb | Flow Nexus |
+| Metric | Oracle VPS | Flow Nexus |
 |--------|-------|------------|
 | **Cold Start** | 5-10 seconds | 2-5 seconds (sandboxes) |
 | **Latency** | <100ms (regional) | <50ms (global edge) |
@@ -193,7 +193,7 @@ Perfect for:
 
 ## 4. Decision Matrix
 
-### Use Koyeb When:
+### Use Oracle VPS When:
 
 ✅ Running **traditional n8n 24/7** for mortgage campaigns
 ✅ Need **PostgreSQL database** included
@@ -223,10 +223,10 @@ Perfect for:
 
 Use **BOTH** for maximum effectiveness:
 
-### Koyeb: Production n8n Engine
+### Oracle VPS: Production n8n Engine
 
 ```
-Koyeb n8n ($54/month):
+Oracle VPS n8n ($54/month):
 ├── Daily mortgage lead campaigns
 ├── Email drip sequences
 ├── SMS follow-ups
@@ -250,7 +250,7 @@ Flow Nexus (100 rUv/month premium):
 ```
 User submits loan application
     ↓
-n8n (Koyeb) receives webhook
+n8n (Oracle VPS) receives webhook
     ↓
 Triggers Flow Nexus swarm via API
     ↓
@@ -263,7 +263,7 @@ n8n updates CRM + sends email
 
 ### Cost
 
-- **Koyeb n8n**: $54/month (24/7 campaigns)
+- **Oracle VPS n8n**: $54/month (24/7 campaigns)
 - **Flow Nexus Premium**: ~$10/month (AI coordination)
 - **Total**: **$64/month**
 
@@ -271,24 +271,24 @@ n8n updates CRM + sends email
 
 ## 6. Setup Guides
 
-### Option A: Koyeb n8n (Traditional) ⭐ RECOMMENDED
+### Option A: Oracle VPS n8n (Traditional) ⭐ RECOMMENDED
 
 See full guide: `docs/guides/KOYEB-N8N-SETUP.md`
 
 **Quick Start**:
 ```bash
-# 1. Create Koyeb app
-koyeb app create n8n \
+# 1. Create Oracle VPS app
+oracle-vps app create n8n \
   --docker n8nio/n8n:latest \
   --ports 5678:http \
   --env N8N_HOST=n8n.ratehunter.net \
   --env WEBHOOK_URL=https://n8n.ratehunter.net/
 
-# 2. Add database (use Koyeb free PostgreSQL)
-koyeb database create n8n-db --type postgres
+# 2. Add database (use Oracle VPS free PostgreSQL)
+oracle-vps database create n8n-db --type postgres
 
 # 3. Configure domain
-koyeb domain add n8n.ratehunter.net --app n8n
+oracle-vps domain add n8n.ratehunter.net --app n8n
 
 # 4. Access n8n
 open https://n8n.ratehunter.net
@@ -323,7 +323,7 @@ npx flow-nexus workflow execute mortgage-analysis \
 
 ## 7. Environment Variables
 
-### Koyeb n8n
+### Oracle VPS n8n
 
 ```bash
 # Required
@@ -331,9 +331,9 @@ N8N_HOST=n8n.ratehunter.net
 N8N_PROTOCOL=https
 WEBHOOK_URL=https://n8n.ratehunter.net/
 
-# Database (use Koyeb managed PostgreSQL)
+# Database (use Oracle VPS managed PostgreSQL)
 DB_TYPE=postgresdb
-DB_POSTGRESDB_HOST=<koyeb-provided>
+DB_POSTGRESDB_HOST=<oracle-vps-provided>
 DB_POSTGRESDB_PORT=5432
 DB_POSTGRESDB_DATABASE=n8n
 DB_POSTGRESDB_USER=<user>
@@ -380,12 +380,12 @@ FLOW_NEXUS_TRAINING_TIER=nano
 
 ### Scenario 1: Startup (Free Tier)
 
-**Setup**: Koyeb Starter + Flow Nexus Free (challenges)
+**Setup**: Oracle VPS Starter + Flow Nexus Free (challenges)
 
 | Service | Cost |
 |---------|------|
-| Koyeb Starter | $0/month |
-| Koyeb PostgreSQL | $0/month (1 free DB) |
+| Oracle VPS Starter | $0/month |
+| Oracle VPS PostgreSQL | $0/month (1 free DB) |
 | Flow Nexus (earned credits) | $0/month |
 | **Total** | **$0/month** |
 
@@ -396,13 +396,13 @@ FLOW_NEXUS_TRAINING_TIER=nano
 
 ### Scenario 2: Production (Recommended) ⭐
 
-**Setup**: Koyeb Pro + Flow Nexus Premium
+**Setup**: Oracle VPS Pro + Flow Nexus Premium
 
 | Service | Cost |
 |---------|------|
-| Koyeb Pro | $29/month |
-| Koyeb Compute (n8n 24/7) | $15-25/month |
-| Koyeb PostgreSQL | Included |
+| Oracle VPS Pro | $29/month |
+| Oracle VPS Compute (n8n 24/7) | $15-25/month |
+| Oracle VPS PostgreSQL | Included |
 | Flow Nexus Premium | ~$10/month (100 rUv) |
 | **Total** | **$54-64/month** |
 
@@ -415,11 +415,11 @@ FLOW_NEXUS_TRAINING_TIER=nano
 
 ### Scenario 3: Enterprise (High Volume)
 
-**Setup**: Koyeb Scale + Flow Nexus Credits
+**Setup**: Oracle VPS Scale + Flow Nexus Credits
 
 | Service | Cost |
 |---------|------|
-| Koyeb Scale | $299/month |
+| Oracle VPS Scale | $299/month |
 | Flow Nexus (1000 rUv) | ~$100/month |
 | **Total** | **$399/month** |
 
@@ -436,21 +436,21 @@ FLOW_NEXUS_TRAINING_TIER=nano
 ### For Project Nyra Mortgage Platform
 
 **Phase 1 (Months 1-3): Validation**
-- ✅ Use **Koyeb FREE** for n8n mortgage campaigns
+- ✅ Use **Oracle VPS FREE** for n8n mortgage campaigns
 - ✅ Use **Flow Nexus FREE** (earn 100-200 rUv via challenges)
 - ✅ Test lead generation workflows
 - ✅ Optimize conversion rates
 - **Cost**: $0/month
 
 **Phase 2 (Months 4-12): Growth**
-- ✅ Upgrade to **Koyeb Pro** ($54/month) for 24/7 reliability
+- ✅ Upgrade to **Oracle VPS Pro** ($54/month) for 24/7 reliability
 - ✅ Add **Flow Nexus Premium** (~$10/month) for AI swarms
 - ✅ Scale to 1,000+ leads/month
 - ✅ Integrate AI document analysis
 - **Cost**: $64/month
 
 **Phase 3 (Year 2+): Scale**
-- ✅ Keep **Koyeb Pro** or consider **Hetzner** ($14.50/month) + Coolify
+- ✅ Keep **Oracle VPS Pro** or consider **Hetzner** ($14.50/month) + Coolify
 - ✅ Increase **Flow Nexus credits** as needed for AI operations
 - ✅ Consider dedicated infrastructure at $147K+ ARR
 - **Cost**: $64-150/month
@@ -461,26 +461,26 @@ FLOW_NEXUS_TRAINING_TIER=nano
 
 ### Q: Can I run n8n on Flow Nexus?
 
-**A**: Yes, but Flow Nexus is designed for AI swarm coordination, not traditional app hosting. For 24/7 n8n, use Koyeb. Use Flow Nexus for AI-powered workflows that need multi-agent coordination.
+**A**: Yes, but Flow Nexus is designed for AI swarm coordination, not traditional app hosting. For 24/7 n8n, use Oracle VPS. Use Flow Nexus for AI-powered workflows that need multi-agent coordination.
 
 ### Q: Which is cheaper for mortgage campaigns?
 
-**A**: **Koyeb** is significantly cheaper for 24/7 n8n ($54/month) vs Flow Nexus ($300+/month for equivalent uptime). Use Flow Nexus only for AI-specific operations.
+**A**: **Oracle VPS** is significantly cheaper for 24/7 n8n ($54/month) vs Flow Nexus ($300+/month for equivalent uptime). Use Flow Nexus only for AI-specific operations.
 
-### Q: Can I migrate from Koyeb to Flow Nexus later?
+### Q: Can I migrate from Oracle VPS to Flow Nexus later?
 
 **A**: Yes, but you should use **both together** instead:
-- Koyeb: Traditional n8n workflows (email, SMS, CRM)
+- Oracle VPS: Traditional n8n workflows (email, SMS, CRM)
 - Flow Nexus: AI swarm coordination (document analysis, lead scoring)
 
 ### Q: How do I earn Flow Nexus credits?
 
 **A**: Complete coding challenges (10-500 rUv), daily login (5 rUv), referrals (50 rUv), or purchase credits.
 
-### Q: Can Flow Nexus replace Koyeb?
+### Q: Can Flow Nexus replace Oracle VPS?
 
 **A**: No. They serve different purposes:
-- **Koyeb**: Traditional PaaS for 24/7 apps
+- **Oracle VPS**: Traditional PaaS for 24/7 apps
 - **Flow Nexus**: AI swarm coordination platform
 
 Use both for optimal mortgage automation.
@@ -491,7 +491,7 @@ Use both for optimal mortgage automation.
 
 ### Immediate Actions
 
-1. ✅ Deploy n8n to **Koyeb FREE** (15 minutes)
+1. ✅ Deploy n8n to **Oracle VPS FREE** (15 minutes)
 2. ✅ Create mortgage campaign workflows (email, SMS)
 3. ✅ Test lead generation for 30 days
 4. ✅ Install **Flow Nexus** for AI experiments
@@ -499,17 +499,17 @@ Use both for optimal mortgage automation.
 
 ### Week 2-4: Optimization
 
-1. ✅ Monitor n8n performance on Koyeb
+1. ✅ Monitor n8n performance on Oracle VPS
 2. ✅ Test Flow Nexus AI swarms for document analysis
-3. ✅ Integrate Koyeb n8n ↔ Flow Nexus API
+3. ✅ Integrate Oracle VPS n8n ↔ Flow Nexus API
 4. ✅ Measure lead conversion rates
 
 ### Month 2: Decision Point
 
-- **If generating revenue**: Upgrade to Koyeb Pro ($54/month) + Flow Nexus Premium ($10/month)
+- **If generating revenue**: Upgrade to Oracle VPS Pro ($54/month) + Flow Nexus Premium ($10/month)
 - **If not profitable**: Stay on free tiers, optimize campaigns
 - **If high AI usage**: Increase Flow Nexus credits
 
 ---
 
-**Recommendation**: Start with **Koyeb FREE** for n8n production, use **Flow Nexus** for AI swarm experiments. Total cost: **$0-64/month** depending on scale.
+**Recommendation**: Start with **Oracle VPS FREE** for n8n production, use **Flow Nexus** for AI swarm experiments. Total cost: **$0-64/month** depending on scale.

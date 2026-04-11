@@ -2986,7 +2986,7 @@ Deduplicated list of all env vars discovered in `.env*` files across requested p
 - `docs/archive/repo-history/archived-root/infra-20260206-1551/archive/legacy-infra-2026-01-19/orchestrator-mini/configs/.env.template`
 - `docs/archive/repo-history/archived-root/infra-20260206-1551/archive/legacy-infra-2026-01-19/services/monitoring/.env.example`
 - `docs/archive/repo-history/archived-root/infra-20260206-1551/archive/nyra-infra-old/.env.example`
-- `docs/archive/repo-history/archived-root/infra-20260206-1551/archive/nyra-infra-old/compose/.env.casistack.example`
+- `docs/archive/repo-history/archived-root/infra-20260206-1551/archive/nyra-infra-old/compose/.env.nyra-stack.example`
 - `docs/archive/repo-history/archived-root/infra-20260206-1551/archive/nyra-infra-old/compose/.env.example`
 - `docs/archive/repo-history/archived-root/infra-20260206-1551/archive/nyra-infra-old/compose/env/metamcp.env.example`
 - `docs/archive/repo-history/archived-root/infra-20260206-1551/archive/nyra-infra-old/legacy-infra/.env.example`

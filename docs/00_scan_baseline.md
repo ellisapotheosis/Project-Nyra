@@ -393,7 +393,7 @@ infra/docker-compose.yml
 infra/docs
 infra/env
 infra/health-check.sh
-infra/koyeb
+infra/oracle-vps
 infra/mcp
 infra/mnt
 infra/n8n-workflows
@@ -624,7 +624,7 @@ scripts/
 - `docs/references/archon-os-examples/litellm/docker-compose.yml`
 - `infra-archived/infra-20260206-1551/archive/legacy-infra-2026-01-19/dual-orchestrator/archon-os/docker-compose.yml`
 - `infra-archived/infra-20260206-1551/archive/legacy-infra-2026-01-19/services/monitoring/docker-compose.yml`
-- `infra-archived/infra-20260206-1551/archive/nyra-infra-old/compose/compose.casistack.yml`
+- `infra-archived/infra-20260206-1551/archive/nyra-infra-old/compose/compose.nyra-stack.yml`
 - `infra-archived/infra-20260206-1551/archive/nyra-infra-old/compose/compose.archon-os.yml`
 - `infra-archived/infra-20260206-1551/archive/nyra-infra-old/compose/compose.ingestion.yml`
 - `infra-archived/infra-20260206-1551/archive/nyra-infra-old/compose/compose.management.yml`
@@ -795,7 +795,7 @@ scripts/
 - `docs/references/archon-os-examples/litellm/docker/Dockerfile`
 - `infra-archived/infra-20260206-1551/archive/legacy-infra-2026-01-19/Dockerfiles`
 - `infra-archived/infra-20260206-1551/archive/legacy-infra-2026-01-19/dual-orchestrator/archon-os/Dockerfile`
-- `infra-archived/infra-20260206-1551/archive/nyra-infra-old/casistack-orchestrator/Dockerfile`
+- `infra-archived/infra-20260206-1551/archive/nyra-infra-old/nyra-stack-orchestrator/Dockerfile`
 - `infra-archived/infra-20260206-1551/archive/nyra-infra-old/legacy-infra/metamcp-gateway/Dockerfile`
 - `infra-archived/infra-20260206-1551/archive/nyra-infra-old/metamcp-gateway/Dockerfile`
 - `infra-archived/infra-20260206-1551/bitwarden-mcp/Dockerfile`
@@ -1277,17 +1277,17 @@ infra/env/.env.worker-rtx3060
 infra/env/.env.worker-rtx3090ti
 infra/env/.env.worker-rtx5090
 infra/health-check.sh
-infra/koyeb
-infra/koyeb/README.md
-infra/koyeb/cost-optimization-guide.md
-infra/koyeb/environment-configs.yaml
-infra/koyeb/feature-flags.json
-infra/koyeb/infisical-template.yaml
-infra/koyeb/koyeb.yaml
-infra/koyeb/n8n-orchestrator.yaml
-infra/koyeb/pg_hba.conf
-infra/koyeb/scaling-policies.yaml
-infra/koyeb/webapp-backend.yaml
+infra/oracle-vps
+infra/oracle-vps/README.md
+infra/oracle-vps/cost-optimization-guide.md
+infra/oracle-vps/environment-configs.yaml
+infra/oracle-vps/feature-flags.json
+infra/oracle-vps/infisical-template.yaml
+infra/oracle-vps/oracle-vps.yaml
+infra/oracle-vps/n8n-orchestrator.yaml
+infra/oracle-vps/pg_hba.conf
+infra/oracle-vps/scaling-policies.yaml
+infra/oracle-vps/webapp-backend.yaml
 infra/mcp
 infra/mcp/nyra_mcp
 infra/mnt
@@ -1915,7 +1915,7 @@ workflows/n8n/templates
 - `docs/references/archon-os-examples/litellm/docker-compose.yml`
 - `infra-archived/infra-20260206-1551/archive/legacy-infra-2026-01-19/dual-orchestrator/archon-os/docker-compose.yml`
 - `infra-archived/infra-20260206-1551/archive/legacy-infra-2026-01-19/services/monitoring/docker-compose.yml`
-- `infra-archived/infra-20260206-1551/archive/nyra-infra-old/compose/compose.casistack.yml`
+- `infra-archived/infra-20260206-1551/archive/nyra-infra-old/compose/compose.nyra-stack.yml`
 - `infra-archived/infra-20260206-1551/archive/nyra-infra-old/compose/compose.archon-os.yml`
 - `infra-archived/infra-20260206-1551/archive/nyra-infra-old/compose/compose.ingestion.yml`
 - `infra-archived/infra-20260206-1551/archive/nyra-infra-old/compose/compose.management.yml`

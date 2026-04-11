@@ -3,7 +3,7 @@ volumes:
   metamcp_pg_data:
     description: Postgres data for MetaMCP
     driver: local
-  casistack_logs:
+  nyra-stack_logs:
     description: Orchestrator logs
     driver: local
 paths:

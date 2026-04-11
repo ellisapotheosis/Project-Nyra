@@ -15,14 +15,14 @@ The orchestrator machine (Minisforum UH680 with 16 GB DDR5 RAM) runs all core s
 | **Other services (Prometheus, Grafana, etc.)** | **1 GB** | Monitoring stack. |
 | **Operating system & overhead** | **2 GB** | Leaves headroom for OS, file cache and miscellaneous processes. |
 
-**Total Reserved:** approximately **13 GB**.  This leaves roughly **3 GB** of free memory for transient peaks and OS caching.  If additional services are required (e.g. Dify UI, heavy analytics), they should run on a worker laptop or on the Koyeb VPS.
+**Total Reserved:** approximately **13 GB**.  This leaves roughly **3 GB** of free memory for transient peaks and OS caching.  If additional services are required (e.g. Dify UI, heavy analytics), they should run on a worker laptop or on the Oracle VPS VPS.
 
 ## Tuning Guidelines
 
 1. **Monitor consumption** – Use Grafana dashboards or `htop` to observe memory usage over time.  The orchestrator’s Prometheus exporter collects metrics from Postgres and containers.
 2. **Adjust Postgres** – If the vector store grows, increase `shared_buffers` and `ruvector.memory_limit` gradually.  A good rule of thumb is to allocate 25–30 % of total RAM to Postgres but avoid starving other services.
 3. **Tune Redis** – Keep the `maxmemory` low; job payloads should be small.  BullMQ persists job results to Postgres, so Redis can evict old keys safely.
-4. **Use workers for heavy loads** – Offload memory‑intensive tasks (embedding generation, large prompts) to the RTX 3090 Ti worker or to a Koyeb VPS.  Only schedule these tasks on the orchestrator if necessary.
+4. **Use workers for heavy loads** – Offload memory‑intensive tasks (embedding generation, large prompts) to the RTX 3090 Ti worker or to a Oracle VPS VPS.  Only schedule these tasks on the orchestrator if necessary.
 5. **Consider RAM upgrade** – If additional features are added (e.g. more dashboards, large NLP models), upgrade the orchestrator to 32 GB RAM.  This provides a comfortable margin for growth.
 
 ## Worker Laptops
