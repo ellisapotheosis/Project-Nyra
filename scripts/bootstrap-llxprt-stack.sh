@@ -21,12 +21,16 @@ nyra_require_command ssh
 cd "${PROJECT_ROOT}"
 nyra_export_llxprt_env "${CF_APP_DIR}" "${CF_PROJECT_NAME}"
 
-if [[ ! -d "${JEFE_DIR}" ]]; then
+# Clone jefe if directory is missing OR empty (empty dir = aborted/partial clone)
+if [[ ! -d "${JEFE_DIR}" ]] || [[ -z "$(ls -A "${JEFE_DIR}" 2>/dev/null)" ]]; then
+  rm -rf "${JEFE_DIR}"
   git clone "${JEFE_REPO_URL}" "${JEFE_DIR}"
 fi
 
+# Ensure npm prefix directory exists before npm exec tries to lstat it
+mkdir -p "${NYRA_LLXPRT_NPM_PREFIX:-${HOME}/.cache/nyra-llxprt-code}"
 npm exec --yes --prefix "${NYRA_LLXPRT_NPM_PREFIX:-${HOME}/.cache/nyra-llxprt-code}" --package "${NYRA_LLXPRT_PACKAGE:-@vybestack/llxprt-code}" -- llxprt --help >/dev/null
-cargo build --release --manifest-path "${JEFE_DIR}/Cargo.toml" >/dev/null
+cargo build --release --manifest-path "${JEFE_DIR}/Cargo.toml"
 
 remote_cmd="$(cat <<EOF
 set -euo pipefail
