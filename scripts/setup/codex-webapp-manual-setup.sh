@@ -39,6 +39,7 @@ INFISICAL_PROJECT_ID="${INFISICAL_PROJECT_ID:-}"
 INFISICAL_API_URL="${INFISICAL_API_URL:-https://app.infisical.com/api}"
 INFISICAL_TOKEN_ARG=""
 ROOT_ENV_FILE="${ROOT_ENV_FILE:-$REPO_ROOT/.env}"
+AI_CLIENT_SYNC_SCRIPT="${AI_CLIENT_SYNC_SCRIPT:-$REPO_ROOT/scripts/setup/sync-ai-client-config.sh}"
 PYTHON_VENV_DIR="${PYTHON_VENV_DIR:-$REPO_ROOT/.venv}"
 NODE_VERSION="${NODE_VERSION:-20}"
 PNPM_VERSION="${PNPM_VERSION:-10.27.0}"
@@ -915,6 +916,11 @@ main() {
   ensure_ruby_tooling
   ensure_infisical
   ensure_infisical_auth
+
+  if [[ -x "$AI_CLIENT_SYNC_SCRIPT" ]]; then
+    info "Syncing Codex/Gemini client config"
+    "$AI_CLIENT_SYNC_SCRIPT"
+  fi
 
   export_root_env_file
   configure_github_auth
