@@ -9,9 +9,12 @@ STACK_ENV_FILE ?= .env.stack
 HEALTH_ENV_FILE ?= $(STACK_ENV_FILE)
 
 # Service Specific Compose Files
-ARCHON_COMPOSE := infra/compose/docker-compose.archon.yml
-TWENTY_COMPOSE := infra/docker-compose.twenty.yml
-GITEA_COMPOSE := infra/configs/gitea/docker-compose.gitea.yml
+ARCHON_BASE_COMPOSE ?= infra/compose/base.yml
+ARCHON_COMPOSE  := infra/compose/docker-compose.archon.yml
+ARCHON_OVERRIDE := infra/compose/docker-compose.archon.override.yml
+ARCHON_ENV_FILE ?= external/archon/nyra-configs/env/archon.env
+TWENTY_COMPOSE  := infra/docker-compose.twenty.yml
+GITEA_COMPOSE   := infra/configs/gitea/docker-compose.gitea.yml
 SUPABASE_COMPOSE := infra/compose/docker-compose.supabase.yml
 
 # Host Specific Compose Files
@@ -89,16 +92,39 @@ ps:
 # --- ARCHON TARGETS ---
 
 archon-up:
-	docker compose -f $(ARCHON_COMPOSE) --profile archon up -d
+	@if [ ! -f /usr/local/bin/llxprt ]; then \
+		echo -e "\033[33mWARNING: llxprt binary not found on host! Archon codex routing will fail.\033[0m"; \
+	fi
+	@if [ ! -d "$${HOME}/.config/llxprt" ]; then \
+		echo -e "\033[33mWARNING: $${HOME}/.config/llxprt not found on host! Archon llxprt config mount will be empty.\033[0m"; \
+	fi
+	@if [ ! -d "$${HOME}/.codex" ]; then \
+		echo -e "\033[33mWARNING: $${HOME}/.codex not found on host! Official Codex auth/config fallback will be unavailable in the Archon container.\033[0m"; \
+	fi
+	@profiles=$$(echo "$(ARCHON_PROFILES)" | tr ',' ' '); \
+	for p in $$profiles; do args="$$args --profile $$p"; done; \
+	if [ -f external/archon/Dockerfile.user ]; then \
+		docker compose --env-file $(ARCHON_ENV_FILE) -f $(ARCHON_BASE_COMPOSE) -f $(ARCHON_COMPOSE) -f $(ARCHON_OVERRIDE) $$args up -d; \
+	else \
+		docker compose --env-file $(ARCHON_ENV_FILE) -f $(ARCHON_BASE_COMPOSE) -f $(ARCHON_COMPOSE) $$args up -d; \
+	fi
+
+archon-build-user:
+	@if [ ! -f external/archon/Dockerfile.user ]; then \
+		echo "Creating external/archon/Dockerfile.user from example..."; \
+		cp external/archon/Dockerfile.user.example external/archon/Dockerfile.user; \
+	fi
+	docker compose --env-file $(ARCHON_ENV_FILE) -f $(ARCHON_BASE_COMPOSE) -f $(ARCHON_COMPOSE) -f $(ARCHON_OVERRIDE) build archon
+
 
 archon-down:
-	docker compose -f $(ARCHON_COMPOSE) down --remove-orphans
+	docker compose --env-file $(ARCHON_ENV_FILE) -f $(ARCHON_BASE_COMPOSE) -f $(ARCHON_COMPOSE) down --remove-orphans
 
 archon-logs:
-	docker compose -f $(ARCHON_COMPOSE) logs -f --tail=100
+	docker compose --env-file $(ARCHON_ENV_FILE) -f $(ARCHON_BASE_COMPOSE) -f $(ARCHON_COMPOSE) logs -f --tail=100
 
 archon-ps:
-	docker compose -f $(ARCHON_COMPOSE) ps
+	docker compose --env-file $(ARCHON_ENV_FILE) -f $(ARCHON_BASE_COMPOSE) -f $(ARCHON_COMPOSE) ps
 
 # --- DISTRIBUTED TARGETS ---
 

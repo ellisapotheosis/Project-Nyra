@@ -1,0 +1,41 @@
+name: orchestrator-maintenance
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 6 * * *'
+
+jobs:
+  maintain-orchestrator:
+    runs-on: self-hosted
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Sync Codex and Gemini client config
+        shell: bash
+        run: |
+          set -euo pipefail
+          chmod +x scripts/setup/sync-ai-client-config.sh
+          ./scripts/setup/sync-ai-client-config.sh
+
+      - name: Keep Gitea stack online
+        if: ${{ secrets.INFISICAL_TOKEN != '' }}
+        shell: bash
+        env:
+          INFISICAL_PROJECT_ID: 8374cea9-e5e8-4050-bda4-b91f25ab30ef
+          INFISICAL_TOKEN: ${{ secrets.INFISICAL_TOKEN }}
+        run: |
+          set -euo pipefail
+          chmod +x scripts/gitea/bootstrap-orchestrator-gitea.sh
+          ENABLE_ACTIONS=true ENABLE_ACTIONS_LARGE=true ENABLE_AI=false ENABLE_INFISICAL_AGENT=true \
+            ./scripts/gitea/bootstrap-orchestrator-gitea.sh
+
+      - name: Verify runner-facing CI health
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker ps --format 'table {{.Names}}\t{{.Status}}'
+          if command -v curl >/dev/null 2>&1; then
+            curl -fsS http://localhost:3100/api/healthz
+          fi

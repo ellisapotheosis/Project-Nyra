@@ -2,36 +2,98 @@ log:
   level: info
 
 runner:
+  # Runner state file
   file: .runner
+
+  # Capacity: fewer concurrent jobs due to resource intensity
   capacity: 2
+
+  # Environment variables for large/GPU jobs
   envs:
     DOCKER_HOST: unix:///var/run/docker.sock
     NYRA_CI: "true"
-  timeout: 3h
-  shutdown_timeout: 5m
+    NYRA_RUNNER_TYPE: "large"
+    NODE_ENV: "test"
+    CI: "true"
+    RUNNER_TOOL_CACHE: /cache/tools
+    RUNNER_TEMP: /tmp
+    # GPU environment
+    NVIDIA_VISIBLE_DEVICES: "all"
+    NVIDIA_DRIVER_CAPABILITIES: "compute,utility"
+
+  # Extended timeouts for large jobs
+  timeout: 4h
+  shutdown_timeout: 10m
+
+  # Security and fetching
   insecure: true
-  fetch_timeout: 10s
-  fetch_interval: 2s
+  fetch_timeout: 20s
+  fetch_interval: 5s
+
+  # Runner labels - large/GPU workloads
   labels:
     - "ubuntu-latest-large:docker://node:20-bookworm"
+    - "ubuntu-22.04-large:docker://ubuntu:22.04"
     - "docker-large:host"
     - "self-hosted-large:host"
+    - "gpu:host"
+    - "nyra-large:host"
+    - "python-gpu:docker://nvidia/cuda:12.1-devel-ubuntu22.04"
+    - "pytorch:docker://pytorch/pytorch:2.0.1-cuda11.7-cudnn8-devel"
+    - "tensorflow:docker://tensorflow/tensorflow:latest-gpu"
 
 cache:
-  enabled: false
-  dir: /data/cache
+  enabled: true
+  dir: /cache
+  host:
+    - "/tmp/cache-large:/cache/host"
 
 container:
+  # Docker network for job containers
   network: nyra-net
+
+  # Privileged mode for GPU access
   privileged: true
-  options: --cpus 8 --memory 16g
+
+  # High resource limits for large jobs
+  options: "--cpus=12 --memory=24g --shm-size=2g --gpus=all"
+
+  # Working directories
   workdir_parent: /data/workdir
+
+  # Volume mounts with GPU support
   valid_volumes:
-    - /var/run/docker.sock:/var/run/docker.sock
-    - /data/cache:/data/cache
-    - /tmp:/tmp
-  docker_host: unix:///var/run/docker.sock
-  force_pull: false
+    - "/var/run/docker.sock:/var/run/docker.sock"
+    - "/cache:/cache"
+    - "/tmp:/tmp"
+    - "/data/workdir:/data/workdir"
+    - "/usr/lib/nvidia:/usr/lib/nvidia:ro"
+    - "/usr/lib32/nvidia:/usr/lib32/nvidia:ro"
+
+  # Docker daemon connection
+  docker_host: "unix:///var/run/docker.sock"
+
+  # Always pull for GPU images (they change frequently)
+  force_pull: true
 
 host:
+  # Directory for host-mode GPU jobs
   workdir_parent: /data/workdir
+
+# Security settings for large jobs
+security:
+  # Extended timeout for complex operations
+  step_timeout: 3600
+
+  # Only accept jobs from trusted repositories
+  trusted_repos:
+    - "admin/Project-Nyra"
+    - "admin/*"
+
+# GPU-specific settings
+gpu:
+  # Enable GPU monitoring
+  monitoring: true
+
+  # GPU memory management
+  memory_fraction: 0.9

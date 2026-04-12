@@ -1,0 +1,330 @@
+{
+  "name": "Email Drip Campaign",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 8,13,18 * * *"
+            }
+          ]
+        }
+      },
+      "id": "cron-trigger",
+      "name": "Schedule - 8AM, 1PM, 6PM",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT l.*, lc.day_number, lc.last_email_sent, lc.email_open_count, lc.email_click_count \nFROM leads l \nJOIN lead_campaigns lc ON l.id = lc.lead_id \nWHERE lc.campaign_type = 'drip' \nAND lc.status = 'active' \nAND lc.email_enabled = true \nAND (lc.last_email_sent IS NULL OR lc.last_email_sent < NOW() - INTERVAL '2 days') \nAND lc.day_number <= 30 \nAND l.email_opt_out = false \nORDER BY lc.priority DESC, l.lead_score DESC \nLIMIT 200"
+      },
+      "id": "fetch-leads",
+      "name": "Fetch Active Email Campaigns",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2,
+      "position": [450, 300],
+      "credentials": {
+        "postgres": {
+          "id": "orchestrator_db",
+          "name": "Orchestrator PostgreSQL"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "functionCode": "// Generate personalized email content based on lead journey\nconst items = $input.all();\nconst emails = [];\n\nconst emailTemplates = {\n  day1: {\n    subject: '🏠 Welcome to Your Mortgage Journey, {{ firstName }}!',\n    type: 'welcome',\n    priority: 'high'\n  },\n  day3: {\n    subject: 'Your Complete Mortgage Document Checklist',\n    type: 'education',\n    priority: 'normal'\n  },\n  day5: {\n    subject: \"Today's Mortgage Rates + Your Personalized Quote\",\n    type: 'rate-update',\n    priority: 'high'\n  },\n  day7: {\n    subject: '7 Common Mortgage Mistakes (And How to Avoid Them)',\n    type: 'education',\n    priority: 'normal'\n  },\n  day10: {\n    subject: 'Pre-Approval: Your Secret Weapon in Home Shopping',\n    type: 'education',\n    priority: 'high'\n  },\n  day14: {\n    subject: '{{ firstName }}, Let\\'s Fast-Track Your Approval',\n    type: 'milestone',\n    priority: 'high'\n  },\n  day17: {\n    subject: 'Success Story: How Sarah Got Approved in 10 Days',\n    type: 'social-proof',\n    priority: 'normal'\n  },\n  day21: {\n    subject: '⚠️ Rates Alert: Lock In Before They Rise',\n    type: 'urgency',\n    priority: 'critical'\n  },\n  day24: {\n    subject: 'Your Questions Answered: Mortgage FAQ',\n    type: 'education',\n    priority: 'normal'\n  },\n  day28: {\n    subject: 'Final Reminder: Special Rate Expires Soon',\n    type: 'urgency',\n    priority: 'high'\n  },\n  day30: {\n    subject: '{{ firstName }}, We\\'re Still Here to Help',\n    type: 're-engagement',\n    priority: 'high'\n  }\n};\n\nitems.forEach(item => {\n  const lead = item.json;\n  const day = lead.day_number;\n  let template = emailTemplates[`day${day}`];\n  \n  // Use closest template if exact day not found\n  if (!template) {\n    const availableDays = Object.keys(emailTemplates).map(k => parseInt(k.replace('day', '')));\n    const closestDay = availableDays.reduce((prev, curr) => \n      Math.abs(curr - day) < Math.abs(prev - day) ? curr : prev\n    );\n    template = emailTemplates[`day${closestDay}`];\n  }\n  \n  if (template) {\n    // Personalize subject line\n    const subject = template.subject\n      .replace('{{ firstName }}', lead.first_name)\n      .replace('{{ lastName }}', lead.last_name);\n    \n    emails.push({\n      json: {\n        leadId: lead.id,\n        firstName: lead.first_name,\n        lastName: lead.last_name,\n        email: lead.email,\n        phone: lead.phone,\n        dayNumber: day,\n        subject: subject,\n        templateType: template.type,\n        priority: template.priority,\n        leadScore: lead.lead_score,\n        propertyValue: lead.property_value,\n        loanAmount: lead.loan_amount,\n        emailOpenCount: lead.email_open_count || 0,\n        emailClickCount: lead.email_click_count || 0\n      }\n    });\n  }\n});\n\nreturn emails;"
+      },
+      "id": "generate-email-content",
+      "name": "Generate Email Content",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [650, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.templateType }}",
+              "operation": "equals"
+            }
+          ]
+        },
+        "combineOperation": "any",
+        "options": {}
+      },
+      "id": "switch-template",
+      "name": "Route by Template Type",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 1,
+      "position": [850, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Welcome email template\nconst lead = $input.item.json;\n\nconst htmlBody = `\n<!DOCTYPE html>\n<html>\n<head>\n  <style>\n    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }\n    .container { max-width: 600px; margin: 0 auto; padding: 20px; }\n    .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }\n    .content { background: #f9f9f9; padding: 30px; }\n    .cta-button { display: inline-block; background: #667eea; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; margin: 20px 0; }\n    .footer { background: #333; color: #ccc; padding: 20px; text-align: center; font-size: 12px; border-radius: 0 0 10px 10px; }\n  </style>\n</head>\n<body>\n  <div class=\"container\">\n    <div class=\"header\">\n      <h1>🏠 Welcome ${lead.firstName}!</h1>\n      <p>Your Mortgage Journey Starts Here</p>\n    </div>\n    <div class=\"content\">\n      <h2>Thank You for Choosing Us</h2>\n      <p>Hi ${lead.firstName},</p>\n      <p>Welcome to the beginning of your homeownership journey! We're excited to help you secure the perfect mortgage for your dream home.</p>\n      \n      <h3>What Happens Next:</h3>\n      <ul>\n        <li><strong>Today:</strong> Your dedicated loan officer will review your application</li>\n        <li><strong>Within 24 hours:</strong> You'll receive your personalized rate quote</li>\n        <li><strong>Within 3 days:</strong> Document checklist and next steps</li>\n        <li><strong>Within 14 days:</strong> Pre-approval (if documents are ready)</li>\n      </ul>\n      \n      <h3>Quick Tips to Speed Up Approval:</h3>\n      <ol>\n        <li>Gather your financial documents (we'll send a checklist)</li>\n        <li>Check your credit report for accuracy</li>\n        <li>Avoid major purchases or credit changes</li>\n        <li>Respond quickly to our requests</li>\n      </ol>\n      \n      <a href=\"${process.env.CRM_URL}/portal/${lead.leadId}\" class=\"cta-button\">\n        Access Your Portal\n      </a>\n      \n      <p><strong>Your Reference Number:</strong> ${lead.leadId}</p>\n      <p><strong>Your Loan Officer:</strong> Will be assigned within 2 hours</p>\n      \n      <p>Questions? Reply to this email or call us at ${process.env.OFFICE_PHONE}.</p>\n    </div>\n    <div class=\"footer\">\n      <p>&copy; 2026 Nyra Mortgage. All rights reserved.</p>\n      <p><a href=\"${process.env.CRM_URL}/unsubscribe/${lead.leadId}\" style=\"color: #667eea;\">Unsubscribe</a></p>\n    </div>\n  </div>\n</body>\n</html>\n`;\n\nreturn {\n  json: {\n    ...lead,\n    htmlBody: htmlBody,\n    trackingPixel: `${process.env.N8N_WEBHOOK_URL}/email-open/${lead.leadId}`\n  }\n};"
+      },
+      "id": "template-welcome",
+      "name": "Template - Welcome",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [1050, 100]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Education email template\nconst lead = $input.item.json;\n\nconst htmlBody = `\n<!DOCTYPE html>\n<html>\n<head>\n  <style>\n    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }\n    .container { max-width: 600px; margin: 0 auto; padding: 20px; }\n    .header { background: #2c3e50; color: white; padding: 30px; text-align: center; }\n    .content { background: white; padding: 30px; }\n    .tip-box { background: #e8f4f8; border-left: 4px solid #3498db; padding: 15px; margin: 20px 0; }\n    .cta-button { display: inline-block; background: #3498db; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; margin: 20px 0; }\n  </style>\n</head>\n<body>\n  <div class=\"container\">\n    <div class=\"header\">\n      <h1>📚 Your Mortgage Education</h1>\n    </div>\n    <div class=\"content\">\n      <h2>Hi ${lead.firstName},</h2>\n      <p>Knowledge is power, especially when it comes to mortgages. Let's make you a mortgage expert!</p>\n      \n      <div class=\"tip-box\">\n        <h3>💡 Today's Topic: Pre-Approval vs Pre-Qualification</h3>\n        <p><strong>Pre-Qualification:</strong> A quick estimate based on self-reported information (takes 10 minutes)</p>\n        <p><strong>Pre-Approval:</strong> A thorough review with credit check and documentation (takes 1-3 days)</p>\n        <p><strong>Winner:</strong> Pre-approval shows sellers you're serious and can close quickly!</p>\n      </div>\n      \n      <h3>Your Document Checklist:</h3>\n      <ul>\n        <li>✓ Last 2 years of tax returns</li>\n        <li>✓ Last 2 months of bank statements</li>\n        <li>✓ Recent pay stubs (last 30 days)</li>\n        <li>✓ Photo ID (driver's license or passport)</li>\n        <li>✓ Proof of other income (if applicable)</li>\n      </ul>\n      \n      <a href=\"${process.env.CRM_URL}/portal/${lead.leadId}/documents\" class=\"cta-button\">\n        Upload Documents Now\n      </a>\n      \n      <p>Pro tip: Having these ready can cut approval time in half!</p>\n    </div>\n  </div>\n</body>\n</html>\n`;\n\nreturn { json: { ...lead, htmlBody: htmlBody } };"
+      },
+      "id": "template-education",
+      "name": "Template - Education",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [1050, 200]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Rate update email template\nconst lead = $input.item.json;\n\n// Calculate estimated rate based on lead score\nconst baseRate = 6.75;\nconst scoreAdjustment = (lead.leadScore - 50) * 0.01;\nconst estimatedRate = (baseRate - scoreAdjustment).toFixed(3);\n\n// Calculate monthly payment\nconst principal = lead.loanAmount;\nconst monthlyRate = estimatedRate / 100 / 12;\nconst numberOfPayments = 30 * 12;\nconst monthlyPayment = (principal * monthlyRate * Math.pow(1 + monthlyRate, numberOfPayments)) / (Math.pow(1 + monthlyRate, numberOfPayments) - 1);\n\nconst htmlBody = `\n<!DOCTYPE html>\n<html>\n<body>\n  <div style=\"font-family: Arial; max-width: 600px; margin: 0 auto;\">\n    <div style=\"background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); color: white; padding: 30px; text-align: center;\">\n      <h1>📊 Your Personalized Rate Quote</h1>\n    </div>\n    <div style=\"padding: 30px; background: white;\">\n      <h2>Hi ${lead.firstName},</h2>\n      <p>Great news! Based on your profile, here's your estimated rate:</p>\n      \n      <div style=\"background: #f0f9ff; border: 2px solid #0ea5e9; border-radius: 10px; padding: 30px; text-align: center; margin: 20px 0;\">\n        <h2 style=\"font-size: 48px; margin: 0; color: #0ea5e9;\">${estimatedRate}%</h2>\n        <p style=\"font-size: 24px; margin: 10px 0;\">30-Year Fixed</p>\n        <p style=\"font-size: 18px; color: #666;\">Estimated Monthly Payment: <strong>$${monthlyPayment.toLocaleString('en-US', {maximumFractionDigits: 0})}</strong></p>\n      </div>\n      \n      <div style=\"background: #fef3c7; padding: 20px; border-radius: 5px; margin: 20px 0;\">\n        <h3>⏰ Lock This Rate Today</h3>\n        <p>Rates change daily. Lock in now to secure this rate for 60 days!</p>\n      </div>\n      \n      <a href=\"${process.env.CRM_URL}/rate-lock/${lead.leadId}\" style=\"display: inline-block; background: #0ea5e9; color: white; padding: 15px 40px; text-decoration: none; border-radius: 5px; font-size: 18px; margin: 20px 0;\">\n        Lock This Rate\n      </a>\n      \n      <h3>Why This Rate?</h3>\n      <ul>\n        <li>Your credit profile: <strong>Excellent</strong></li>\n        <li>Loan-to-value ratio: <strong>${((lead.loanAmount / lead.propertyValue) * 100).toFixed(1)}%</strong></li>\n        <li>Property type: <strong>${lead.property_type || 'Primary Residence'}</strong></li>\n      </ul>\n    </div>\n  </div>\n</body>\n</html>\n`;\n\nreturn { json: { ...lead, htmlBody: htmlBody, estimatedRate: estimatedRate, monthlyPayment: monthlyPayment.toFixed(2) } };"
+      },
+      "id": "template-rate-update",
+      "name": "Template - Rate Update",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [1050, 300]
+    },
+    {
+      "parameters": {
+        "fromEmail": "={{ $env.SMTP_FROM_EMAIL }}",
+        "toEmail": "={{ $json.email }}",
+        "subject": "={{ $json.subject }}",
+        "emailType": "html",
+        "message": "={{ $json.htmlBody }}",
+        "options": {
+          "allowUnauthorizedCerts": false
+        }
+      },
+      "id": "send-email",
+      "name": "Send Email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [1250, 300],
+      "credentials": {
+        "smtp": {
+          "id": "smtp_account",
+          "name": "SMTP Account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE lead_campaigns SET last_email_sent = NOW(), email_count = email_count + 1, day_number = CASE WHEN last_email_sent < NOW() - INTERVAL '2 days' THEN day_number + 2 ELSE day_number + 1 END WHERE lead_id = $1 RETURNING *",
+        "additionalFields": {
+          "queryParameters": "={{ JSON.stringify([$json.leadId]) }}"
+        }
+      },
+      "id": "update-campaign-status",
+      "name": "Update Campaign Status",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2,
+      "position": [1450, 300],
+      "credentials": {
+        "postgres": {
+          "id": "orchestrator_db",
+          "name": "Orchestrator PostgreSQL"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "path": "email-open/:leadId",
+        "options": {},
+        "responseMode": "lastNode"
+      },
+      "id": "webhook-email-open",
+      "name": "Webhook - Email Open Tracking",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 500],
+      "webhookId": "email-open-tracker"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE lead_campaigns SET email_open_count = email_open_count + 1, last_opened_at = NOW() WHERE lead_id = $1",
+        "additionalFields": {
+          "queryParameters": "={{ JSON.stringify([$parameter.leadId]) }}"
+        }
+      },
+      "id": "track-email-open",
+      "name": "Track Email Open",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2,
+      "position": [450, 500],
+      "credentials": {
+        "postgres": {
+          "id": "orchestrator_db",
+          "name": "Orchestrator PostgreSQL"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+      },
+      "id": "return-tracking-pixel",
+      "name": "Return Tracking Pixel",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [650, 500]
+    }
+  ],
+  "connections": {
+    "Schedule - 8AM, 1PM, 6PM": {
+      "main": [
+        [
+          {
+            "node": "Fetch Active Email Campaigns",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Active Email Campaigns": {
+      "main": [
+        [
+          {
+            "node": "Generate Email Content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Email Content": {
+      "main": [
+        [
+          {
+            "node": "Route by Template Type",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route by Template Type": {
+      "main": [
+        [
+          {
+            "node": "Template - Welcome",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Template - Education",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Template - Rate Update",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Template - Welcome": {
+      "main": [
+        [
+          {
+            "node": "Send Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Template - Education": {
+      "main": [
+        [
+          {
+            "node": "Send Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Template - Rate Update": {
+      "main": [
+        [
+          {
+            "node": "Send Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Email": {
+      "main": [
+        [
+          {
+            "node": "Update Campaign Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook - Email Open Tracking": {
+      "main": [
+        [
+          {
+            "node": "Track Email Open",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Track Email Open": {
+      "main": [
+        [
+          {
+            "node": "Return Tracking Pixel",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "tags": [
+    {
+      "id": "email-campaign",
+      "name": "Email Campaign"
+    },
+    {
+      "id": "drip-campaign",
+      "name": "Drip Campaign"
+    }
+  ],
+  "meta": {
+    "instanceId": "orchestrator-mini"
+  }
+}

@@ -1,5 +1,0 @@
-services:
-  claude-flow-cicd:
-    extends:
-      file: ./docker-compose.claude-flow.full.yml
-      service: claude-flow-cicd

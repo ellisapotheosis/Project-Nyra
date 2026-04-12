@@ -2,47 +2,27 @@
   "mcpServers": {
     "nexus-router": {
       "type": "sse",
-      "url": "http://localhost:6000/mcp/sse"
+      "url": "http://orchestrator.trex-fiordland.ts.net:4000/mcp/sse"
     },
-    "ORCHESTRATOR_SSH": {
-      "type": "stdio",
-      "command": "/home/ellisapotheosis/.local/mcp-tools/node_modules/.bin/mcp-ssh-server-tool",
-      "env": {
-        "MCP_SILENT": "true"
-      }
-    },
-
-    "ORCHESTRATOR_DOCKER": {
-      "type": "stdio",
-      "command": "/home/ellisapotheosis/.local/mcp-tools/node_modules/.bin/docker-mcp",
-      "env": {
-        "DOCKER_HOST": "${ORCHESTRATOR_DOCKER_HOST}"
-      }
-    },
-
-    "HOMEASSISTANT_SSH": {
-      "type": "stdio",
-      "command": "/home/ellisapotheosis/.local/mcp-tools/node_modules/.bin/mcp-ssh-server-tool",
-      "env": {
-        "MCP_SILENT": "true"
-      }
-    },
-
-    "infisical-mcp": {
-      "type": "stdio",
+    "ssh": {
       "command": "npx",
-      "args": [
-        "-y",
-        "@infisical/mcp@latest"
-      ],
+      "args": ["-y", "@modelcontextprotocol/server-ssh"],
+      "env": {
+        "SSH_ALLOWED_HOSTS": "*.trex-fiordland.ts.net,100.64.0.*,github.com,gitea.ratehunter.net"
+      }
+    },
+    "infisical": {
+      "command": "npx",
+      "args": ["-y", "@infisical/mcp"],
       "env": {
         "INFISICAL_TOKEN": "${INFISICAL_TOKEN}",
         "INFISICAL_PROJECT_ID": "8374cea9-e5e8-4050-bda4-b91f25ab30ef",
         "INFISICAL_ENVIRONMENT": "dev",
-        "INFISICAL_FOLDER_PATH": "/shared"
+        "INFISICAL_FOLDER_PATH": "/shared",
+        "INFISICAL_UNIVERSAL_AUTH_CLIENT_ID": "${INFISICAL_UNIVERSAL_AUTH_CLIENT_ID}",
+        "INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET": "${INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET}"
       }
     },
-
     "serena": {
       "type": "stdio",
       "command": "uvx",
@@ -53,16 +33,7 @@
       "env": {
         "PYTHONUNBUFFERED": "1"
       }
-    },
-    "archon-os": {
-      "type": "stdio",
-      "command": "npx",
-      "args": ["-y", "archon-os", "mcp"]
     }
   },
-  
-  "disabledMcpServers": [
-    "serena",
-    "archon-os"
-  ]
+  "disabledMcpServers": []
 }

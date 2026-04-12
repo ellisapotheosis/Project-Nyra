@@ -305,51 +305,128 @@ services:
       retries: 3
 
   # ============================================================================
-  # SOURCE CONTROL & CI/CD
+  # SOURCE CONTROL & CI/CD (BACKUP INSTANCE)
   # ============================================================================
 
-  gitea:
-    image: gitea/gitea:latest
-    container_name: oracle-gitea
+  gitea-backup-db:
+    image: postgres:16-alpine
+    container_name: oracle-gitea-backup-db
+    depends_on:
+      infisical-agent:
+        condition: service_started
+    environment:
+      POSTGRES_DB: gitea_backup
+      POSTGRES_USER: gitea
+      POSTGRES_PASSWORD: ${GITEA_BACKUP_DB_PASSWORD}
+      POSTGRES_INITDB_ARGS: "--auth-host=scram-sha-256"
+    volumes:
+      - gitea_backup_db:/var/lib/postgresql/data
+    networks:
+      - oracle-net
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U gitea -d gitea_backup"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    profiles:
+      - gitea-backup
+
+  gitea-backup:
+    image: docker.gitea.com/gitea:1.25.4
+    container_name: oracle-gitea-backup
+    depends_on:
+      gitea-backup-db:
+        condition: service_healthy
     environment:
       USER_UID: 1000
       USER_GID: 1000
-      GITEA_ADMIN_USERNAME: ${GITEA_ADMIN_USERNAME}
-      GITEA_ADMIN_PASSWORD: ${GITEA_ADMIN_PASSWORD}
+
+      # Database configuration
+      GITEA__database__DB_TYPE: postgres
+      GITEA__database__HOST: gitea-backup-db:5432
+      GITEA__database__NAME: gitea_backup
+      GITEA__database__USER: gitea
+      GITEA__database__PASSWD: ${GITEA_BACKUP_DB_PASSWORD}
+
+      # Server configuration
+      GITEA__server__ROOT_URL: https://git-backup.ratehunter.net/
+      GITEA__server__SSH_DOMAIN: git-backup.ratehunter.net
+      GITEA__server__SSH_PORT: 2223
+      GITEA__server__SSH_LISTEN_PORT: 22
+      GITEA__server__DOMAIN: git-backup.ratehunter.net
+      GITEA__server__PROTOCOL: https
+
+      # Security
+      GITEA__security__SECRET_KEY: ${GITEA_BACKUP_SECRET_KEY}
+      GITEA__security__INTERNAL_TOKEN: ${GITEA_BACKUP_INTERNAL_TOKEN}
+      GITEA__security__INSTALL_LOCK: "true"
+
+      # Service settings
+      GITEA__service__DISABLE_REGISTRATION: "true"
+      GITEA__service__REQUIRE_SIGNIN_VIEW: "true"
+      GITEA__service__DEFAULT_BRANCH: main
+
+      # Repository mirroring
+      GITEA__repository__ENABLE_PUSH_CREATE_USER: "false"
+      GITEA__repository__DEFAULT_PRIVATE: private
+
+      # Webhook settings
+      GITEA__webhook__ALLOWED_HOST_LIST: "git.ratehunter.net,*.ratehunter.net,github.com"
+
+      # Log settings
+      GITEA__log__LEVEL: Info
+
     ports:
       - "3002:3000"
-      - "2222:22"
+      - "2223:22"
     volumes:
-      - gitea_data:/var/lib/gitea
-      - gitea_config:/etc/gitea
-    restart: unless-stopped
+      - gitea_backup_data:/data
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
     networks:
       - oracle-net
+    restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/api/v1/version"]
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/healthz"]
       interval: 30s
       timeout: 10s
       retries: 3
     profiles:
-      - optional
+      - gitea-backup
+    labels:
+      - "nyra.service=gitea-backup"
+      - "nyra.role=git-mirror"
+      - "nyra.machine=oracle"
 
-  gitea-runner:
-    image: gitea/act_runner:latest
-    container_name: oracle-gitea-runner
-    environment:
-      GITEA_INSTANCE_URL: http://gitea:3000
-      GITEA_RUNNER_REGISTRATION_TOKEN: ${GITEA_RUNNER_TOKEN}
-      CONFIG_FILE: /config.yaml
-    volumes:
-      - ./gitea/runner-config.yaml:/config.yaml:ro
-      - /var/run/docker.sock:/var/run/docker.sock
+  gitea-sync-orchestrator:
+    build:
+      context: ../infra/github-sync
+      dockerfile: Dockerfile
+    container_name: oracle-gitea-sync-orchestrator
     depends_on:
-      - gitea
-    restart: unless-stopped
+      gitea-backup:
+        condition: service_healthy
+    environment:
+      # Sync from orchestrator Gitea to Oracle backup
+      SOURCE_GITEA_URL: http://100.x.x.0:3100  # Tailscale orchestrator
+      SOURCE_GITEA_TOKEN: ${GITEA_ORCHESTRATOR_TOKEN}
+      TARGET_GITEA_URL: http://gitea-backup:3000
+      TARGET_GITEA_TOKEN: ${GITEA_BACKUP_TOKEN}
+      SYNC_INTERVAL: 600  # 10 minutes
+      SYNC_DIRECTION: pull_only
+      BACKUP_MODE: true
+      LOG_LEVEL: info
+    volumes:
+      - gitea_sync_data:/data
     networks:
       - oracle-net
+    restart: unless-stopped
     profiles:
-      - optional
+      - gitea-backup
+    labels:
+      - "nyra.service=gitea-sync"
+      - "nyra.category=backup"
 
   # ============================================================================
   # MONITORING & UTILITIES
@@ -379,6 +456,9 @@ volumes:
   oracle_secrets:
   gitea_data:
   gitea_config:
+  gitea_backup_data:
+  gitea_backup_db:
+  gitea_sync_data:
   mempalace_data:
   mempalace_vault:
   falkordb_data:

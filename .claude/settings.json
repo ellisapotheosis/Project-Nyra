@@ -1,4 +1,9 @@
 {
+  "env": {
+    "SOURCEGIT_CMD": "/usr/bin/sourcegit",
+    "LLXPRT_SOURCEGIT": "/usr/bin/sourcegit",
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
+  },
   "permissions": {
     "allow": [
       "Bash(npx archon-os:*)",
@@ -7,11 +12,6 @@
     ],
     "deny": [],
     "defaultMode": "bypassPermissions"
-  },
-  "skipDangerousModePermissionPrompt": true,
-  "env": {
-    "SOURCEGIT_CMD": "/usr/bin/sourcegit",
-    "LLXPRT_SOURCEGIT": "/usr/bin/sourcegit"
   },
   "hooks": {
     "PreToolUse": [
@@ -85,6 +85,11 @@
             "type": "command",
             "command": "[ -n \"$PROMPT\" ] && npx @archon-os/cli@latest hooks route --task \"$PROMPT\" || true",
             "timeout": 5000
+          },
+          {
+            "type": "command",
+            "command": "kild agent-status --self working 2>/dev/null || true",
+            "timeout": 5
           }
         ]
       }
@@ -101,6 +106,11 @@
             "type": "command",
             "command": "[ -n \"$SESSION_ID\" ] && npx @archon-os/cli@latest hooks session-restore --session-id \"$SESSION_ID\" 2>/dev/null || true",
             "timeout": 10000
+          },
+          {
+            "type": "command",
+            "command": ".claude/skills/save-task-list/hooks/verify-task-list.sh",
+            "statusMessage": "Checking for restored task list..."
           }
         ]
       }
@@ -117,6 +127,23 @@
             "type": "command",
             "command": "npx @archon-os/cli@latest daemon stop --graceful 2>/dev/null || true",
             "timeout": 5000
+          },
+          {
+            "type": "command",
+            "command": "kild agent-status --self idle 2>/dev/null || true",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "matcher": "rulecheck-agent",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/skills/rulecheck/hooks/slack-notify.sh",
+            "statusMessage": "Notifying Slack..."
           }
         ]
       }
@@ -144,6 +171,11 @@
             "type": "command",
             "command": "[ -n \"$NOTIFICATION_MESSAGE\" ] && npx @archon-os/cli@latest memory store --namespace notifications --key \"notify-$(date +%s)\" --value \"$NOTIFICATION_MESSAGE\" 2>/dev/null || true",
             "timeout": 3000
+          },
+          {
+            "type": "command",
+            "command": "kild agent-status --self waiting 2>/dev/null || true",
+            "timeout": 5
           }
         ]
       }
@@ -157,12 +189,11 @@
     "serena@claude-plugins-official": true,
     "github@claude-plugins-official": true,
     "context7@claude-plugins-official": true,
-    "agent-sdk-dev@claude-plugins-official": false,
     "claude-code-setup@claude-plugins-official": true,
     "superpowers@claude-plugins-official": true,
-    "claude-subconscious@claude-subconscious": true,
-    "oh-my-claudecode@omc": true
+    "claude-subconscious@claude-subconscious": true
   },
+  "skipDangerousModePermissionPrompt": true,
   "mcpServers": {
     "nexus-router": {
       "command": "cmd",
