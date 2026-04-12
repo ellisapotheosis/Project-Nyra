@@ -19,8 +19,8 @@
               "provider": "openai",
               "config": {
                 "model": "text-embedding-3-small",
-                "api_key": "${LITELLM_API_KEY}",
-                "base_url": "${LITELLM_BASE_URL}/v1"
+                "api_key": "REPLACE_WITH_LITELLM_API_KEY",
+                "base_url": "http://REPLACE_WITH_ORCHESTRATOR_TAILSCALE_IP:4000/v1"
               }
             },
             "vectorStore": {
@@ -30,8 +30,8 @@
             "graphStore": {
               "provider": "falkordb",
               "config": {
-                "host": "${FALKORDB_HOST}",
-                "port": "${FALKORDB_PORT:-6380}",
+                "host": "REPLACE_WITH_ORACLE_TAILSCALE_IP",
+                "port": 6380,
                 "graphName": "mem0"
               }
             },
@@ -39,8 +39,8 @@
               "provider": "openai",
               "config": {
                 "model": "gpt-4o-mini",
-                "api_key": "${LITELLM_API_KEY}",
-                "base_url": "${LITELLM_BASE_URL}/v1"
+                "api_key": "REPLACE_WITH_LITELLM_API_KEY",
+                "base_url": "http://REPLACE_WITH_ORCHESTRATOR_TAILSCALE_IP:4000/v1"
               }
             }
           }
