@@ -1,0 +1,357 @@
+# Instincts generated from https://github.com/ellisapotheosis/Project-Nyra
+# Generated: 2026-04-12T14:36:56.673Z
+# Version: 2.0
+# NOTE: This file supplements (does not replace) any existing curated instincts.
+# High-confidence manually curated instincts should be preserved alongside these.
+
+---
+id: Project-Nyra-commit-conventional
+trigger: "when writing a commit message"
+confidence: 0.85
+domain: git
+source: repo-analysis
+source_repo: https://github.com/ellisapotheosis/Project-Nyra
+---
+
+# Project Nyra Commit Conventional
+
+## Action
+
+Use conventional commit format with prefixes: fix, docs
+
+## Evidence
+
+- 2 commits analyzed
+- Detected conventional commit pattern
+- Examples: fix(landing): resolve Cloudflare Pages build and CI test failures, docs(landing): add comment about tailwind pinning
+
+---
+id: Project-Nyra-commit-length
+trigger: "when writing a commit message"
+confidence: 0.6
+domain: git
+source: repo-analysis
+source_repo: https://github.com/ellisapotheosis/Project-Nyra
+---
+
+# Project Nyra Commit Length
+
+## Action
+
+Write moderate-length commit messages (~57 characters)
+
+## Evidence
+
+- Average commit message length: 57 chars
+- Based on 2 commits
+
+---
+id: Project-Nyra-naming-files
+trigger: "when creating a new file"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: https://github.com/ellisapotheosis/Project-Nyra
+---
+
+# Project Nyra Naming Files
+
+## Action
+
+Use camelCase naming convention
+
+## Evidence
+
+- Analyzed file naming patterns in repository
+- Dominant pattern: camelCase
+
+---
+id: Project-Nyra-import-relative
+trigger: "when importing modules"
+confidence: 0.75
+domain: code-style
+source: repo-analysis
+source_repo: https://github.com/ellisapotheosis/Project-Nyra
+---
+
+# Project Nyra Import Relative
+
+## Action
+
+Use relative imports for project files
+
+## Evidence
+
+- Import analysis shows relative import pattern
+- Example: import { x } from '../lib/x'
+
+---
+id: Project-Nyra-export-style
+trigger: "when exporting from a module"
+confidence: 0.7
+domain: code-style
+source: repo-analysis
+source_repo: https://github.com/ellisapotheosis/Project-Nyra
+---
+
+# Project Nyra Export Style
+
+## Action
+
+Prefer named exports
+
+## Evidence
+
+- Export pattern analysis
+- Dominant style: named
+
+---
+id: Project-Nyra-test-separate
+trigger: "when writing tests"
+confidence: 0.8
+domain: testing
+source: repo-analysis
+source_repo: https://github.com/ellisapotheosis/Project-Nyra
+---
+
+# Project Nyra Test Separate
+
+## Action
+
+Place tests in the tests/ or __tests__/ directory, mirroring src structure
+
+## Evidence
+
+- Separate test directory pattern detected
+- Tests live in dedicated test folders
+
+---
+id: project-nyra-instinct-file-naming-camelcase
+trigger: "When creating a new file in the codebase"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: ellisapotheosis/Project-Nyra
+---
+
+# Project Nyra Instinct File Naming Camelcase
+
+## Action
+
+Name the file using camelCase
+
+## Evidence
+
+- Pattern in namingConventions.files
+
+---
+id: project-nyra-instinct-function-naming-camelcase
+trigger: "When defining a new function"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: ellisapotheosis/Project-Nyra
+---
+
+# Project Nyra Instinct Function Naming Camelcase
+
+## Action
+
+Name the function using camelCase
+
+## Evidence
+
+- Pattern in namingConventions.functions
+
+---
+id: project-nyra-instinct-class-naming-pascalcase
+trigger: "When creating a new class"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: ellisapotheosis/Project-Nyra
+---
+
+# Project Nyra Instinct Class Naming Pascalcase
+
+## Action
+
+Name the class using PascalCase
+
+## Evidence
+
+- Pattern in namingConventions.classes
+
+---
+id: project-nyra-instinct-constant-naming-screaming-snake-case
+trigger: "When declaring a constant"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: ellisapotheosis/Project-Nyra
+---
+
+# Project Nyra Instinct Constant Naming Screaming Snake Case
+
+## Action
+
+Name the constant using SCREAMING_SNAKE_CASE
+
+## Evidence
+
+- Pattern in namingConventions.constants
+
+---
+id: project-nyra-instinct-import-style-relative
+trigger: "When importing modules in JavaScript files"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: ellisapotheosis/Project-Nyra
+---
+
+# Project Nyra Instinct Import Style Relative
+
+## Action
+
+Use relative import paths
+
+## Evidence
+
+- Pattern in importStyle
+
+---
+id: project-nyra-instinct-export-style-named
+trigger: "When exporting modules or functions"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: ellisapotheosis/Project-Nyra
+---
+
+# Project Nyra Instinct Export Style Named
+
+## Action
+
+Use named exports
+
+## Evidence
+
+- Pattern in exportStyle
+
+---
+id: project-nyra-instinct-git-commit-conventional-fix
+trigger: "When committing a bug fix"
+confidence: 0.9
+domain: git
+source: repo-analysis
+source_repo: ellisapotheosis/Project-Nyra
+---
+
+# Project Nyra Instinct Git Commit Conventional Fix
+
+## Action
+
+Format the commit message as 'fix(scope): description'
+
+## Evidence
+
+- Seen in commit: fix(landing): resolve Cloudflare Pages build and CI test failures
+- Pattern in commits.prefixes
+
+---
+id: project-nyra-instinct-git-commit-conventional-docs
+trigger: "When committing documentation changes"
+confidence: 0.9
+domain: git
+source: repo-analysis
+source_repo: ellisapotheosis/Project-Nyra
+---
+
+# Project Nyra Instinct Git Commit Conventional Docs
+
+## Action
+
+Format the commit message as 'docs(scope): description'
+
+## Evidence
+
+- Seen in commit: docs(landing): add comment about tailwind pinning
+- Pattern in commits.prefixes
+
+---
+id: project-nyra-instinct-git-commit-length
+trigger: "When writing a commit message"
+confidence: 0.7
+domain: git
+source: repo-analysis
+source_repo: ellisapotheosis/Project-Nyra
+---
+
+# Project Nyra Instinct Git Commit Length
+
+## Action
+
+Keep the commit message concise, around 57 characters on average
+
+## Evidence
+
+- Pattern in commits.averageLength
+
+---
+id: project-nyra-instinct-test-location-separate
+trigger: "When adding or organizing test files"
+confidence: 0.8
+domain: testing
+source: repo-analysis
+source_repo: ellisapotheosis/Project-Nyra
+---
+
+# Project Nyra Instinct Test Location Separate
+
+## Action
+
+Place test files in a separate location from source files
+
+## Evidence
+
+- Pattern in architecture.folderStructure.testLocation
+
+---
+id: project-nyra-instinct-monorepo-apps-folder
+trigger: "When adding a new application or package"
+confidence: 0.8
+domain: architecture
+source: repo-analysis
+source_repo: ellisapotheosis/Project-Nyra
+---
+
+# Project Nyra Instinct Monorepo Apps Folder
+
+## Action
+
+Place it under the 'apps' folder in the monorepo
+
+## Evidence
+
+- Pattern in architecture.folderStructure.commonFolders
+
+---
+id: project-nyra-instinct-monorepo-external-folder
+trigger: "When adding external dependencies or modules"
+confidence: 0.8
+domain: architecture
+source: repo-analysis
+source_repo: ellisapotheosis/Project-Nyra
+---
+
+# Project Nyra Instinct Monorepo External Folder
+
+## Action
+
+Place them under the 'external' folder in the monorepo
+
+## Evidence
+
+- Pattern in architecture.folderStructure.commonFolders
+
