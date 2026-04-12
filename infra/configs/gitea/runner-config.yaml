@@ -2,36 +2,85 @@ log:
   level: info
 
 runner:
+  # Runner state file
   file: .runner
+
+  # Capacity: number of concurrent jobs
   capacity: 4
+
+  # Environment variables for all jobs
   envs:
     DOCKER_HOST: unix:///var/run/docker.sock
     NYRA_CI: "true"
+    NYRA_RUNNER_TYPE: "standard"
+    NODE_ENV: "test"
+    CI: "true"
+    RUNNER_TOOL_CACHE: /cache/tools
+    RUNNER_TEMP: /tmp
+
+  # Timeouts
   timeout: 2h
   shutdown_timeout: 3m
+
+  # Security and fetching
   insecure: true
-  fetch_timeout: 10s
-  fetch_interval: 2s
+  fetch_timeout: 15s
+  fetch_interval: 3s
+
+  # Runner labels - what this runner can handle
   labels:
     - "ubuntu-latest:docker://node:20-bookworm"
+    - "ubuntu-22.04:docker://ubuntu:22.04"
+    - "node:docker://node:20-bookworm"
+    - "python:docker://python:3.11-slim"
     - "docker:host"
     - "self-hosted:host"
+    - "nyra:host"
+    - "postgres:docker://postgres:16-alpine"
+    - "redis:docker://redis:7-alpine"
 
 cache:
-  enabled: false
-  dir: /data/cache
+  enabled: true
+  dir: /cache
+  host:
+    - "/tmp/cache:/cache/host"
 
 container:
+  # Docker network for job containers
   network: nyra-net
+
+  # Security settings
   privileged: false
-  options: --cpus 4 --memory 8g
+
+  # Resource limits for standard jobs
+  options: "--cpus=4 --memory=8g --shm-size=256m"
+
+  # Working directories
   workdir_parent: /data/workdir
+
+  # Volume mounts available to job containers
   valid_volumes:
-    - /var/run/docker.sock:/var/run/docker.sock
-    - /data/cache:/data/cache
-    - /tmp:/tmp
-  docker_host: unix:///var/run/docker.sock
-  force_pull: false
+    - "/var/run/docker.sock:/var/run/docker.sock"
+    - "/cache:/cache"
+    - "/tmp:/tmp"
+    - "/data/workdir:/data/workdir"
+
+  # Docker daemon connection
+  docker_host: "unix:///var/run/docker.sock"
+
+  # Always pull latest images for reproducibility
+  force_pull: true
 
 host:
+  # Directory for host-mode jobs
   workdir_parent: /data/workdir
+
+# Security settings
+security:
+  # Timeout for individual steps
+  step_timeout: 1800
+
+  # Only accept jobs from trusted repositories
+  trusted_repos:
+    - "admin/Project-Nyra"
+    - "admin/*"

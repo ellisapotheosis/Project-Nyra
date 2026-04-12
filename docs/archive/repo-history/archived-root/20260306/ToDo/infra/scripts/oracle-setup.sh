@@ -18,7 +18,7 @@ sudo systemctl start docker
 
 # 3. Install Tailscale and join your tailnet (replace AUTH_KEY)
 curl -fsSL https://tailscale.com/install.sh | sudo sh
-sudo tailscale up --authkey REPLACE_ME_TAILSCALE_AUTHKEY --hostname nyra-oracle
+sudo tailscale up --authkey REPLACE_ME_TAILSCALE_AUTHKEY --hostname oracle
 
 # 4. Create data directories for persistent volumes
 sudo mkdir -p /data/nyra/{postgres,redis,falkordb,ruvector,prometheus,grafana,loki,n8n,activepieces,letta,gitea}

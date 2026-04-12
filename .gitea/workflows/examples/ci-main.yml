@@ -1,0 +1,353 @@
+# ============================================================================
+# Project Nyra - Main CI/CD Workflow
+# ============================================================================
+# Comprehensive CI/CD pipeline for the main branch
+# Tests, builds, and deploys services automatically
+# ============================================================================
+
+name: CI/CD Main Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  NODE_VERSION: '20'
+  PYTHON_VERSION: '3.11'
+  REGISTRY: docker.io
+  NYRA_CI: 'true'
+
+jobs:
+  # ==========================================
+  # VALIDATION AND TESTING
+  # ==========================================
+  validate:
+    name: 🔍 Validate Changes
+    runs-on: ubuntu-latest
+    outputs:
+      backend_changed: ${{ steps.changes.outputs.backend }}
+      frontend_changed: ${{ steps.changes.outputs.frontend }}
+      infra_changed: ${{ steps.changes.outputs.infra }}
+      docs_changed: ${{ steps.changes.outputs.docs }}
+
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: 📊 Detect Changes
+        id: changes
+        run: |
+          # Detect which parts of the codebase changed
+          if git diff --name-only HEAD~1 HEAD | grep -E "^(services/|apps/.*api)" > /dev/null; then
+            echo "backend=true" >> $GITHUB_OUTPUT
+          else
+            echo "backend=false" >> $GITHUB_OUTPUT
+          fi
+
+          if git diff --name-only HEAD~1 HEAD | grep -E "^(apps/.*(?<!api)/)" > /dev/null; then
+            echo "frontend=true" >> $GITHUB_OUTPUT
+          else
+            echo "frontend=false" >> $GITHUB_OUTPUT
+          fi
+
+          if git diff --name-only HEAD~1 HEAD | grep -E "^(infra/|docker-compose|Dockerfile)" > /dev/null; then
+            echo "infra=true" >> $GITHUB_OUTPUT
+          else
+            echo "infra=false" >> $GITHUB_OUTPUT
+          fi
+
+          if git diff --name-only HEAD~1 HEAD | grep -E "^(docs/|README|\.md$)" > /dev/null; then
+            echo "docs=true" >> $GITHUB_OUTPUT
+          else
+            echo "docs=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: 📋 Summary
+        run: |
+          echo "## Change Detection Results" >> $GITHUB_STEP_SUMMARY
+          echo "- Backend: ${{ steps.changes.outputs.backend }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Frontend: ${{ steps.changes.outputs.frontend }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Infrastructure: ${{ steps.changes.outputs.infra }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Documentation: ${{ steps.changes.outputs.docs }}" >> $GITHUB_STEP_SUMMARY
+
+  # ==========================================
+  # BACKEND SERVICES TESTING
+  # ==========================================
+  test-backend:
+    name: 🐍 Test Backend Services
+    runs-on: ubuntu-latest
+    needs: validate
+    if: needs.validate.outputs.backend_changed == 'true'
+
+    strategy:
+      matrix:
+        service:
+          - quote-engine
+          - campaign-engine
+          - nexus-router
+          - gitea-mcp
+          - mem0-rest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_PASSWORD: testpass
+          POSTGRES_DB: testdb
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+      redis:
+        image: redis:7-alpine
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+
+      - name: 🐍 Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+
+      - name: 📦 Install Dependencies
+        working-directory: services/${{ matrix.service }}
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt
+          fi
+          if [ -f requirements-test.txt ]; then
+            pip install -r requirements-test.txt
+          fi
+
+      - name: 🧹 Lint Code
+        working-directory: services/${{ matrix.service }}
+        run: |
+          # Run linting tools
+          if command -v black &> /dev/null; then
+            black --check .
+          fi
+          if command -v flake8 &> /dev/null; then
+            flake8 .
+          fi
+          if command -v mypy &> /dev/null && [ -f mypy.ini ]; then
+            mypy .
+          fi
+
+      - name: 🧪 Run Tests
+        working-directory: services/${{ matrix.service }}
+        env:
+          DATABASE_URL: postgresql://postgres:testpass@localhost:5432/testdb
+          REDIS_URL: redis://localhost:6379
+          TEST_ENV: 'true'
+        run: |
+          if [ -f pytest.ini ] || [ -f pyproject.toml ]; then
+            pytest -v --cov=. --cov-report=xml
+          else
+            python -m unittest discover -s tests -v
+          fi
+
+      - name: 📊 Upload Coverage
+        uses: codecov/codecov-action@v3
+        if: always()
+        with:
+          file: coverage.xml
+          flags: ${{ matrix.service }}
+
+  # ==========================================
+  # FRONTEND TESTING
+  # ==========================================
+  test-frontend:
+    name: ⚛️ Test Frontend Apps
+    runs-on: ubuntu-latest
+    needs: validate
+    if: needs.validate.outputs.frontend_changed == 'true'
+
+    strategy:
+      matrix:
+        app:
+          - ratehunter
+          - nyra-admin
+
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+
+      - name: 📦 Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: apps/${{ matrix.app }}/package-lock.json
+
+      - name: 📦 Install Dependencies
+        working-directory: apps/${{ matrix.app }}
+        run: npm ci
+
+      - name: 🧹 Lint Code
+        working-directory: apps/${{ matrix.app }}
+        run: |
+          npm run lint
+          npm run type-check
+
+      - name: 🧪 Run Tests
+        working-directory: apps/${{ matrix.app }}
+        run: npm run test
+
+      - name: 🏗️ Build Application
+        working-directory: apps/${{ matrix.app }}
+        run: npm run build
+
+  # ==========================================
+  # INFRASTRUCTURE TESTING
+  # ==========================================
+  test-infrastructure:
+    name: 🏗️ Test Infrastructure
+    runs-on: docker
+    needs: validate
+    if: needs.validate.outputs.infra_changed == 'true'
+
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+
+      - name: 🐋 Validate Docker Compose
+        run: |
+          # Validate all compose files
+          for compose_file in docker-compose*.yml infra/docker-compose*.yml; do
+            if [ -f "$compose_file" ]; then
+              echo "Validating $compose_file"
+              docker-compose -f "$compose_file" config -q
+            fi
+          done
+
+      - name: 🔧 Test Service Builds
+        run: |
+          # Build critical services to ensure Dockerfiles work
+          docker-compose -f docker-compose.gitea.prod.yml build \
+            gitea \
+            gitea-act-runner \
+            gitea-mcp
+
+      - name: 🌐 Test Network Configuration
+        run: |
+          # Create and test network
+          docker network create nyra-net || true
+          docker network inspect nyra-net
+
+  # ==========================================
+  # SECURITY SCANNING
+  # ==========================================
+  security-scan:
+    name: 🛡️ Security Scan
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+
+      - name: 🔍 Run Secret Scan
+        run: |
+          # Check for exposed secrets (basic implementation)
+          if grep -r -i -E "password|secret|key|token" . \
+            --include="*.py" \
+            --include="*.js" \
+            --include="*.ts" \
+            --include="*.yml" \
+            --include="*.yaml" \
+            --exclude-dir=".git" \
+            --exclude-dir="node_modules" \
+            --exclude="*.example" | grep -v "# pragma: allowlist secret"; then
+            echo "⚠️ Potential secrets found in code"
+            exit 1
+          fi
+
+      - name: 🐍 Python Security Check
+        if: needs.validate.outputs.backend_changed == 'true'
+        run: |
+          pip install safety bandit
+          # Check for known vulnerabilities
+          find services/ -name requirements.txt -exec safety check -r {} \;
+          # Static security analysis
+          find services/ -name "*.py" -exec bandit -r {} \;
+
+  # ==========================================
+  # DEPLOYMENT (Main branch only)
+  # ==========================================
+  deploy:
+    name: 🚀 Deploy to Staging
+    runs-on: self-hosted
+    needs: [test-backend, test-frontend, test-infrastructure, security-scan]
+    if: |
+      github.ref == 'refs/heads/main' &&
+      github.event_name == 'push' &&
+      (needs.test-backend.result == 'success' || needs.test-backend.result == 'skipped') &&
+      (needs.test-frontend.result == 'success' || needs.test-frontend.result == 'skipped') &&
+      (needs.test-infrastructure.result == 'success' || needs.test-infrastructure.result == 'skipped') &&
+      needs.security-scan.result == 'success'
+
+    environment: staging
+
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+
+      - name: 🔄 Deploy Services
+        run: |
+          echo "🚀 Deploying to staging environment"
+
+          # Pull latest images
+          docker-compose -f docker-compose.gitea.prod.yml pull
+
+          # Restart updated services
+          docker-compose -f docker-compose.gitea.prod.yml up -d
+
+          # Health check
+          sleep 30
+          curl -f http://localhost:3100/api/healthz || exit 1
+
+      - name: 📊 Deployment Summary
+        run: |
+          echo "## Deployment Complete ✅" >> $GITHUB_STEP_SUMMARY
+          echo "- Environment: Staging" >> $GITHUB_STEP_SUMMARY
+          echo "- Commit: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Deployed at: $(date -Iseconds)" >> $GITHUB_STEP_SUMMARY
+
+  # ==========================================
+  # NOTIFICATION
+  # ==========================================
+  notify:
+    name: 📢 Notify Results
+    runs-on: ubuntu-latest
+    needs: [deploy]
+    if: always()
+
+    steps:
+      - name: 📊 Workflow Summary
+        run: |
+          echo "## Project Nyra CI/CD Results" >> $GITHUB_STEP_SUMMARY
+          echo "| Job | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Backend Tests | ${{ needs.test-backend.result || 'skipped' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Frontend Tests | ${{ needs.test-frontend.result || 'skipped' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Infrastructure | ${{ needs.test-infrastructure.result || 'skipped' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Security Scan | ${{ needs.security-scan.result || 'skipped' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Deployment | ${{ needs.deploy.result || 'skipped' }} |" >> $GITHUB_STEP_SUMMARY

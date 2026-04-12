@@ -1,0 +1,40 @@
+model_list:
+  - model_name: cloud/claude
+    litellm_params:
+      model: anthropic/claude-sonnet-4-20250514
+      api_key: os.environ/ANTHROPIC_API_KEY
+
+  - model_name: cloud/openai
+    litellm_params:
+      model: openai/gpt-5
+      api_key: os.environ/OPENAI_API_KEY
+
+  - model_name: cloud/gemini
+    litellm_params:
+      model: vertex_ai/gemini-2.5-pro
+      api_key: os.environ/GEMINI_API_KEY
+      vertex_project: os.environ/VERTEXAI_PROJECT
+      vertex_location: os.environ/VERTEXAI_LOCATION
+
+  - model_name: local/vllm-5090
+    litellm_params:
+      model: openai/local-model
+      api_base: http://worker-rtx5090.trex-fiordland.ts.net:8000/v1
+      api_key: os.environ/VLLM_API_KEY
+
+  - model_name: local/vllm-3090ti
+    litellm_params:
+      model: openai/local-model
+      api_base: http://worker-rtx3090ti.trex-fiordland.ts.net:8000/v1
+      api_key: os.environ/VLLM_API_KEY
+
+  - model_name: local/ollama
+    litellm_params:
+      model: ollama/llama3.2:3b
+      api_base: http://worker-rtx3060.trex-fiordland.ts.net:11434
+
+litellm_settings:
+  master_key: os.environ/LITELLM_MASTER_KEY
+  drop_params: true
+  success_callback: ["langfuse"]
+  failure_callback: ["langfuse"]

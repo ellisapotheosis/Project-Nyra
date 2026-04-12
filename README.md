@@ -1,38 +1,120 @@
 # Project Nyra
 
-> AI-Powered Mortgage Automation Platform with Multi-Agent Orchestration
+AI-powered mortgage lead automation platform built around a **control-plane / compute-plane** architecture.
 
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.7-blue)](https://www.typescriptlang.org/)
-[![Node.js](https://img.shields.io/badge/Node.js-20+-green)](https://nodejs.org/)
-[![pnpm](https://img.shields.io/badge/pnpm-10+-orange)](https://pnpm.io/)
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+## Executive summary
 
-## 🚀 Quick Start
+Project Nyra is designed to:
 
-### Get Running in 5 Commands (Recommended)
+- ingest mortgage leads from forms, email parsing, APIs, and lead vendors
+- normalize and dedupe them
+- write system-of-record data into **Twenty CRM**
+- run compliant multichannel drip campaigns
+- stop instantly on reply / STOP / unsubscribe
+- generate 3-option quote scenarios
+- provide a broker-facing AI assistant and internal operator tooling
 
-```bash
-cd ~/projects/project-nyra
-docker network create nyra-network
-cp infra/docker-compose/.env.example infra/docker-compose/.env
-docker compose -f infra/docker-compose.yml up -d
-docker compose -f infra/docker-compose.yml ps
-```
+## Hardware and topology
 
-**📖 Complete Guide**: See **[STARTUP-GUIDE.md](./STARTUP-GUIDE.md)** for detailed setup, troubleshooting, and advanced usage.
+### Control plane
+- **orchestrator** — MinisForum UM680, Windows 11 + WSL2 Ubuntu 24.04, Docker Desktop (WSL2 backend)
 
-### Option 2: GUI Bootstrap Installer (Windows)
+### Compute plane
+- **worker-rtx5090** — Windows 11 + WSL2 Ubuntu 24.04, Docker Desktop, primary **vLLM**
+- **worker-rtx3090ti** — Windows 11 + WSL2 Ubuntu 24.04, Docker Desktop, secondary **vLLM**
+- **worker-rtx3060** — Windows 11 + WSL2 Ubuntu 24.04, Docker Desktop, **Ollama** for small/utility models
+
+### Networking
+- Private east-west traffic over **Tailscale**
+- Prefer **MagicDNS hostnames** everywhere
+- Public ingress only through **Cloudflare Tunnel** on the orchestrator
+
+Default hostnames:
+- `orchestrator.trex-fiordland.ts.net`
+- `worker-rtx5090.trex-fiordland.ts.net`
+- `worker-rtx3090ti.trex-fiordland.ts.net`
+- `worker-rtx3060.trex-fiordland.ts.net`
+
+## Current architecture decisions
+
+### Control plane services
+These belong on the orchestrator:
+
+- Nexus Router (`grafbase/nexus`) as the single MCP / service / LLM ingress
+- LiteLLM as model gateway and router
+- Langfuse for LLM observability
+- Prometheus + Loki + Grafana
+- Portainer Server
+- n8n (internal only)
+- Twenty CRM
+- Archon OS
+- OpenClaw Gateway + OpenClaw Studio
+- Open WebUI (internal only)
+- Mem0 + FalkorDB
+- Postgres + Redis
+- Cloudflared
+
+### Worker roles
+- **5090** → vLLM primary
+- **3090 Ti** → vLLM secondary
+- **3060** → Ollama for small models, ingestion utilities, summarization, extraction
+
+### Current memory stack
+Use:
+- **Archon OS** as workflow/context memory manager
+- **Mem0** for selected assistant/runtime memory
+- **FalkorDB** as graph backend where graph memory is needed
+
+Do **not** reintroduce:
+- RuVector
+- Graphiti
+- Letta / letta
+- openmemory / openmemory MCP
+- Activepieces in the core path
+
+## Product surfaces
+
+- **apps/admin** → internal operator/admin UI
+- **apps/webapp** → broker/customer web application
+- **apps/landing** → marketing / lead capture
+- **OpenClaw** → assistant surface and chat runtime
+- **OpenClaw Studio** → assistant dashboard
+- **Open WebUI** → internal-only LLM workbench
+- **Twenty CRM** → CRM system of record
+
+## Canonical product rules
+
+- Twenty CRM is the system of record for contacts, loans, communications, campaign enrollment, and quotes.
+- n8n is internal glue, not the product brain.
+- Compliance logic lives in services, not only inside prompts or workflows.
+- Workers stay private over Tailscale.
+- The assistant never directly mutates CRM/databases; changes must go through Nyra services.
+
+## Repo docs in this pack
+
+- `AGENTS.md`
+- `CLAUDE.md`
+- `GEMINI.md`
+- `docs/EXECUTION_PLAN_INFRA.md`
+- `docs/EXECUTION_PLAN_APPS.md`
+- `docs/OWNER_MANUAL_ACTIONS.md`
+- `docs/MASTER_ARCHITECTURE.md`
+
+## Installer
+
+This pack includes a Windows installer:
+
+- `install_to_project_nyra.ps1`
+
+Default target:
+
+`\\wsl.localhost\Ubuntu-24.04\home\ellisapotheosis\repos\project-nyra`
+
+Run from Windows PowerShell after extracting the ZIP into `C:\Users\edane\Downloads`:
 
 ```powershell
-# Run the interactive installer
-cd bootstrap
-pnpm install
-pnpm start
-
-# Follow the GUI to select:
-# - PC configuration (orchestrator, worker, or standalone)
-# - Components to install (Docker, WSL, Archon OS, etc.)
-# - Configuration templates to deploy
+Set-ExecutionPolicy -Scope Process Bypass
+.\install_to_project_nyra.ps1 -Force
 ```
 
 **Bootstrap Guide**: [bootstrap/README.md](bootstrap/README.md)

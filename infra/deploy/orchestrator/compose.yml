@@ -1,0 +1,112 @@
+name: nyra-orchestrator
+
+networks:
+  nyra-net:
+
+volumes:
+  twenty_postgres_data:
+  redis_data:
+  falkordb_data:
+  langfuse_postgres_data:
+  portainer_data:
+  n8n_data:
+
+services:
+  redis:
+    image: redis:7-alpine
+    ports: ["6379:6379"]
+    restart: unless-stopped
+    networks: [nyra-net]
+
+  twenty-postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: twenty
+      POSTGRES_PASSWORD: ${TWENTY_DB_PASSWORD:-changeme}
+      POSTGRES_DB: twenty
+    ports: ["5432:5432"]
+    volumes:
+      - twenty_postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    networks: [nyra-net]
+
+  falkordb:
+    image: falkordb/falkordb:latest
+    ports: ["6380:6379"]
+    volumes:
+      - falkordb_data:/var/lib/falkordb/data
+    restart: unless-stopped
+    networks: [nyra-net]
+
+  litellm:
+    image: ghcr.io/berriai/litellm:main-latest
+    command: ["--config", "/app/config.yaml", "--port", "4000", "--host", "0.0.0.0"]
+    ports: ["8500:4000"]
+    volumes:
+      - ./litellm/config.yaml:/app/config.yaml:ro
+    restart: unless-stopped
+    networks: [nyra-net]
+
+  portainer:
+    image: portainer/portainer-ce:latest
+    ports: ["9000:9000", "9443:9443"]
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer_data:/data
+    restart: unless-stopped
+    networks: [nyra-net]
+
+  n8n:
+    image: docker.n8n.io/n8nio/n8n:latest
+    ports: ["5678:5678"]
+    environment:
+      N8N_HOST: n8n.ratehunter.net
+      N8N_PORT: 5678
+      N8N_PROTOCOL: https
+      GENERIC_TIMEZONE: America/Los_Angeles
+    volumes:
+      - n8n_data:/home/node/.n8n
+    restart: unless-stopped
+    networks: [nyra-net]
+
+  mem0:
+    image: mem0/mem0:latest
+    ports: ["8010:8000"]
+    environment:
+      ADMIN_API_KEY: ${MEM0_ADMIN_API_KEY:-changeme}
+    restart: unless-stopped
+    networks: [nyra-net]
+
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:main
+    ports: ["8088:8080"]
+    restart: unless-stopped
+    networks: [nyra-net]
+
+  grafana:
+    image: grafana/grafana:latest
+    ports: ["3006:3000"]
+    restart: unless-stopped
+    networks: [nyra-net]
+
+  prometheus:
+    image: prom/prometheus:latest
+    ports: ["9090:9090"]
+    restart: unless-stopped
+    networks: [nyra-net]
+
+  loki:
+    image: grafana/loki:latest
+    command: -config.file=/etc/loki/local-config.yaml
+    ports: ["3101:3100"]
+    restart: unless-stopped
+    networks: [nyra-net]
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    command: tunnel --config /etc/cloudflared/config.yml run
+    volumes:
+      - ./cloudflared/config.yml:/etc/cloudflared/config.yml:ro
+      - ./cloudflared:/etc/cloudflared:ro
+    restart: unless-stopped
+    networks: [nyra-net]

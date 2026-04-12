@@ -1,0 +1,38 @@
+{
+  "version": "2026-04-07",
+  "entrypoint": "http://localhost:4001/mcp/sse",
+  "servers": [
+    {
+      "id": "serena",
+      "transport": "sse",
+      "url_env": "SERENA_MCP_URL",
+      "default": "http://serena.tailnet.ts.net:8002/mcp/sse"
+    },
+    {
+      "id": "gitea",
+      "transport": "sse",
+      "url_env": "GITEA_MCP_URL",
+      "default": "http://gitea-vps.tailnet.ts.net:3100/mcp/sse"
+    },
+    {
+      "id": "mem0",
+      "transport": "http",
+      "url_env": "MEM0_MCP_URL",
+      "default": "http://oracle.trex-fiordland.ts.net:5000"
+    }
+  ],
+  "workers": [
+    {
+      "id": "worker-3060",
+      "ollama": "http://worker-3060.tailnet.ts.net:11434"
+    },
+    {
+      "id": "worker-3090",
+      "vllm": "http://worker-3090.tailnet.ts.net:8000"
+    },
+    {
+      "id": "worker-5090",
+      "vllm": "http://worker-5090.tailnet.ts.net:8000"
+    }
+  ]
+}

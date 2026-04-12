@@ -1,0 +1,631 @@
+{
+  "name": "Call Scheduling & Reminders",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "schedule-call",
+        "options": {},
+        "responseMode": "lastNode"
+      },
+      "id": "webhook-schedule-call",
+      "name": "Webhook - Schedule Call Request",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300],
+      "webhookId": "schedule-call-request"
+    },
+    {
+      "parameters": {
+        "functionCode": "// Process call scheduling request\nconst request = $input.item.json;\n\nconst callData = {\n  leadId: request.leadId || request.lead_id,\n  requestedBy: request.requestedBy || 'lead',\n  preferredDate: request.preferredDate || new Date(Date.now() + 24*60*60*1000).toISOString(),\n  preferredTime: request.preferredTime || '10:00',\n  timezone: request.timezone || 'America/New_York',\n  callType: request.callType || 'initial-consultation',\n  notes: request.notes || '',\n  priority: request.priority || 'normal',\n  duration: request.duration || 30,\n  status: 'pending'\n};\n\n// Calculate actual call datetime\nconst [hours, minutes] = callData.preferredTime.split(':');\nconst callDateTime = new Date(callData.preferredDate);\ncallDateTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);\n\ncallData.scheduledFor = callDateTime.toISOString();\n\n// Add reminder times (1 hour before and 15 minutes before)\ncallData.reminderTimes = [\n  new Date(callDateTime.getTime() - 60*60*1000).toISOString(),\n  new Date(callDateTime.getTime() - 15*60*1000).toISOString()\n];\n\nreturn { json: callData };"
+      },
+      "id": "process-call-request",
+      "name": "Process Call Request",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT l.*, lo.id as loan_officer_id, lo.name as loan_officer_name, lo.email as loan_officer_email, lo.phone as loan_officer_phone FROM leads l LEFT JOIN loan_officers lo ON lo.id = l.assigned_loan_officer WHERE l.id = $1",
+        "additionalFields": {
+          "queryParameters": "={{ JSON.stringify([$json.leadId]) }}"
+        }
+      },
+      "id": "fetch-lead-details",
+      "name": "Fetch Lead & Officer Details",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2,
+      "position": [650, 300],
+      "credentials": {
+        "postgres": {
+          "id": "orchestrator_db",
+          "name": "Orchestrator PostgreSQL"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.loan_officer_id !== null }}",
+              "operation": "equal",
+              "value2": "={{ true }}"
+            }
+          ]
+        }
+      },
+      "id": "check-officer-assigned",
+      "name": "Check if Officer Assigned",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [850, 300]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT lo.* FROM loan_officers lo WHERE lo.status = 'active' AND lo.current_lead_count < lo.max_lead_capacity ORDER BY lo.current_lead_count ASC, lo.performance_score DESC LIMIT 1"
+      },
+      "id": "assign-officer",
+      "name": "Auto-Assign Loan Officer",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2,
+      "position": [1050, 400],
+      "credentials": {
+        "postgres": {
+          "id": "orchestrator_db",
+          "name": "Orchestrator PostgreSQL"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE leads SET assigned_loan_officer = $1 WHERE id = $2 RETURNING *",
+        "additionalFields": {
+          "queryParameters": "={{ JSON.stringify([$json.id, $items('process-call-request')[0].json.leadId]) }}"
+        }
+      },
+      "id": "update-lead-assignment",
+      "name": "Update Lead Assignment",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2,
+      "position": [1250, 400],
+      "credentials": {
+        "postgres": {
+          "id": "orchestrator_db",
+          "name": "Orchestrator PostgreSQL"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.CALENDLY_API_URL }}/scheduling_links",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ 'Bearer ' + $env.CALENDLY_API_KEY }}"
+            }
+          ]
+        },
+        "method": "POST",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ max_event_count: 1, owner: $json.loan_officer_email, owner_type: 'EventType' }) }}"
+      },
+      "id": "create-calendly-link",
+      "name": "Create Calendly Scheduling Link",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [1050, 200]
+    },
+    {
+      "parameters": {
+        "operation": "insert",
+        "table": "scheduled_calls",
+        "columns": "lead_id, loan_officer_id, scheduled_for, call_type, duration, status, calendly_link, created_at",
+        "additionalFields": {
+          "values": "={{ JSON.stringify([$items('process-call-request')[0].json.leadId, $json.loan_officer_id, $items('process-call-request')[0].json.scheduledFor, $items('process-call-request')[0].json.callType, $items('process-call-request')[0].json.duration, 'scheduled', $items('create-calendly-link')[0].json.booking_url, new Date().toISOString()]) }}"
+        },
+        "returnFields": "*"
+      },
+      "id": "create-call-record",
+      "name": "Create Call Record",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2,
+      "position": [1250, 200],
+      "credentials": {
+        "postgres": {
+          "id": "orchestrator_db",
+          "name": "Orchestrator PostgreSQL"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fromEmail": "={{ $env.SMTP_FROM_EMAIL }}",
+        "toEmail": "={{ $items('fetch-lead-details')[0].json.email }}",
+        "subject": "Your Call is Scheduled with {{ $json.loan_officer_name }}",
+        "emailType": "html",
+        "message": "<!DOCTYPE html><html><body><div style=\"font-family: Arial; max-width: 600px; margin: 0 auto;\"><div style=\"background: #4f46e5; color: white; padding: 30px; text-align: center;\"><h1>📞 Call Confirmed!</h1></div><div style=\"padding: 30px;\"><h2>Hi {{ $items('fetch-lead-details')[0].json.first_name }},</h2><p>Great news! Your call with <strong>{{ $json.loan_officer_name }}</strong> is confirmed.</p><div style=\"background: #f0f9ff; border-left: 4px solid #0ea5e9; padding: 20px; margin: 20px 0;\"><h3>Call Details:</h3><ul><li><strong>Date & Time:</strong> {{ new Date($items('process-call-request')[0].json.scheduledFor).toLocaleString('en-US', { dateStyle: 'full', timeStyle: 'short' }) }}</li><li><strong>Duration:</strong> {{ $items('process-call-request')[0].json.duration }} minutes</li><li><strong>Type:</strong> {{ $items('process-call-request')[0].json.callType }}</li><li><strong>Officer:</strong> {{ $json.loan_officer_name }}</li><li><strong>Phone:</strong> {{ $json.loan_officer_phone }}</li></ul></div><p>You'll receive reminders 1 hour and 15 minutes before the call.</p><a href=\"{{ $items('create-calendly-link')[0].json.booking_url }}\" style=\"display: inline-block; background: #0ea5e9; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; margin: 20px 0;\">Add to Calendar</a><h3>Prepare for Your Call:</h3><ul><li>Have your financial documents ready</li><li>List your questions</li><li>Know your homeownership goals</li></ul></div></div></body></html>"
+      },
+      "id": "send-confirmation-email",
+      "name": "Send Confirmation Email to Lead",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [1450, 200],
+      "credentials": {
+        "smtp": {
+          "id": "smtp_account",
+          "name": "SMTP Account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "sendSms",
+        "from": "={{ $env.TWILIO_PHONE_NUMBER }}",
+        "to": "={{ $items('fetch-lead-details')[0].json.phone }}",
+        "message": "Hi {{ $items('fetch-lead-details')[0].json.first_name }}! Your call with {{ $json.loan_officer_name }} is scheduled for {{ new Date($items('process-call-request')[0].json.scheduledFor).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) }}. Check your email for details!"
+      },
+      "id": "send-confirmation-sms",
+      "name": "Send Confirmation SMS",
+      "type": "n8n-nodes-base.twilio",
+      "typeVersion": 1,
+      "position": [1450, 400],
+      "credentials": {
+        "twilioApi": {
+          "id": "twilio_account",
+          "name": "Twilio Account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "*/15 * * * *"
+            }
+          ]
+        }
+      },
+      "id": "cron-check-reminders",
+      "name": "Schedule - Check Reminders (Every 15min)",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [250, 600]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT sc.*, l.first_name, l.last_name, l.email, l.phone, lo.name as loan_officer_name FROM scheduled_calls sc JOIN leads l ON sc.lead_id = l.id JOIN loan_officers lo ON sc.loan_officer_id = lo.id WHERE sc.status = 'scheduled' AND sc.reminder_1hr_sent = false AND sc.scheduled_for <= NOW() + INTERVAL '1 hour' AND sc.scheduled_for > NOW()"
+      },
+      "id": "fetch-1hr-reminders",
+      "name": "Fetch 1-Hour Reminders Due",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2,
+      "position": [450, 600],
+      "credentials": {
+        "postgres": {
+          "id": "orchestrator_db",
+          "name": "Orchestrator PostgreSQL"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "sendSms",
+        "from": "={{ $env.TWILIO_PHONE_NUMBER }}",
+        "to": "={{ $json.phone }}",
+        "message": "Reminder: Your call with {{ $json.loan_officer_name }} is in 1 hour! Make sure you have your documents ready. Call {{ $env.OFFICE_PHONE }} if you need to reschedule."
+      },
+      "id": "send-1hr-reminder",
+      "name": "Send 1-Hour Reminder SMS",
+      "type": "n8n-nodes-base.twilio",
+      "typeVersion": 1,
+      "position": [650, 600],
+      "credentials": {
+        "twilioApi": {
+          "id": "twilio_account",
+          "name": "Twilio Account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE scheduled_calls SET reminder_1hr_sent = true WHERE id = $1",
+        "additionalFields": {
+          "queryParameters": "={{ JSON.stringify([$json.id]) }}"
+        }
+      },
+      "id": "mark-1hr-sent",
+      "name": "Mark 1hr Reminder Sent",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2,
+      "position": [850, 600],
+      "credentials": {
+        "postgres": {
+          "id": "orchestrator_db",
+          "name": "Orchestrator PostgreSQL"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT sc.*, l.first_name, l.phone, lo.name as loan_officer_name, lo.phone as loan_officer_phone FROM scheduled_calls sc JOIN leads l ON sc.lead_id = l.id JOIN loan_officers lo ON sc.loan_officer_id = lo.id WHERE sc.status = 'scheduled' AND sc.reminder_15min_sent = false AND sc.scheduled_for <= NOW() + INTERVAL '15 minutes' AND sc.scheduled_for > NOW()"
+      },
+      "id": "fetch-15min-reminders",
+      "name": "Fetch 15-Min Reminders Due",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2,
+      "position": [450, 800],
+      "credentials": {
+        "postgres": {
+          "id": "orchestrator_db",
+          "name": "Orchestrator PostgreSQL"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "sendSms",
+        "from": "={{ $env.TWILIO_PHONE_NUMBER }}",
+        "to": "={{ $json.phone }}",
+        "message": "Final reminder: Your call with {{ $json.loan_officer_name }} is in 15 minutes! {{ $json.loan_officer_name }} will call you at {{ $json.phone }}."
+      },
+      "id": "send-15min-reminder",
+      "name": "Send 15-Min Reminder SMS",
+      "type": "n8n-nodes-base.twilio",
+      "typeVersion": 1,
+      "position": [650, 800],
+      "credentials": {
+        "twilioApi": {
+          "id": "twilio_account",
+          "name": "Twilio Account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "sendSms",
+        "from": "={{ $env.TWILIO_PHONE_NUMBER }}",
+        "to": "={{ $json.loan_officer_phone }}",
+        "message": "Reminder: Call {{ $json.first_name }} in 15 minutes at {{ $json.phone }}. Call type: {{ $json.call_type }}. Duration: {{ $json.duration }} min."
+      },
+      "id": "remind-loan-officer",
+      "name": "Remind Loan Officer",
+      "type": "n8n-nodes-base.twilio",
+      "typeVersion": 1,
+      "position": [850, 800],
+      "credentials": {
+        "twilioApi": {
+          "id": "twilio_account",
+          "name": "Twilio Account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE scheduled_calls SET reminder_15min_sent = true WHERE id = $1",
+        "additionalFields": {
+          "queryParameters": "={{ JSON.stringify([$json.id]) }}"
+        }
+      },
+      "id": "mark-15min-sent",
+      "name": "Mark 15min Reminder Sent",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2,
+      "position": [1050, 800],
+      "credentials": {
+        "postgres": {
+          "id": "orchestrator_db",
+          "name": "Orchestrator PostgreSQL"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "path": "call-completed",
+        "options": {},
+        "responseMode": "lastNode"
+      },
+      "id": "webhook-call-completed",
+      "name": "Webhook - Call Completed",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 1000],
+      "webhookId": "call-completed-webhook"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE scheduled_calls SET status = 'completed', completed_at = NOW(), call_notes = $2, call_outcome = $3 WHERE id = $1 RETURNING *",
+        "additionalFields": {
+          "queryParameters": "={{ JSON.stringify([$json.callId, $json.notes || '', $json.outcome || 'completed']) }}"
+        }
+      },
+      "id": "mark-call-completed",
+      "name": "Mark Call Completed",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2,
+      "position": [450, 1000],
+      "credentials": {
+        "postgres": {
+          "id": "orchestrator_db",
+          "name": "Orchestrator PostgreSQL"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.CRM_API_URL }}/api/activities",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ 'Bearer ' + $env.CRM_API_KEY }}"
+            }
+          ]
+        },
+        "method": "POST",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ leadId: $json.lead_id, type: 'call', outcome: $json.call_outcome, notes: $json.call_notes, duration: $json.duration, completedAt: $json.completed_at }) }}"
+      },
+      "id": "log-to-crm",
+      "name": "Log Call Activity to CRM",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [650, 1000]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ success: true, message: 'Call marked as completed' }) }}"
+      },
+      "id": "respond-success",
+      "name": "Respond Success",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [850, 1000]
+    }
+  ],
+  "connections": {
+    "Webhook - Schedule Call Request": {
+      "main": [
+        [
+          {
+            "node": "Process Call Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Call Request": {
+      "main": [
+        [
+          {
+            "node": "Fetch Lead & Officer Details",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Lead & Officer Details": {
+      "main": [
+        [
+          {
+            "node": "Check if Officer Assigned",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check if Officer Assigned": {
+      "main": [
+        [
+          {
+            "node": "Create Calendly Scheduling Link",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Auto-Assign Loan Officer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Auto-Assign Loan Officer": {
+      "main": [
+        [
+          {
+            "node": "Update Lead Assignment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Lead Assignment": {
+      "main": [
+        [
+          {
+            "node": "Create Calendly Scheduling Link",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Calendly Scheduling Link": {
+      "main": [
+        [
+          {
+            "node": "Create Call Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Call Record": {
+      "main": [
+        [
+          {
+            "node": "Send Confirmation Email to Lead",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send Confirmation SMS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule - Check Reminders (Every 15min)": {
+      "main": [
+        [
+          {
+            "node": "Fetch 1-Hour Reminders Due",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Fetch 15-Min Reminders Due",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch 1-Hour Reminders Due": {
+      "main": [
+        [
+          {
+            "node": "Send 1-Hour Reminder SMS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send 1-Hour Reminder SMS": {
+      "main": [
+        [
+          {
+            "node": "Mark 1hr Reminder Sent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch 15-Min Reminders Due": {
+      "main": [
+        [
+          {
+            "node": "Send 15-Min Reminder SMS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send 15-Min Reminder SMS": {
+      "main": [
+        [
+          {
+            "node": "Remind Loan Officer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remind Loan Officer": {
+      "main": [
+        [
+          {
+            "node": "Mark 15min Reminder Sent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook - Call Completed": {
+      "main": [
+        [
+          {
+            "node": "Mark Call Completed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark Call Completed": {
+      "main": [
+        [
+          {
+            "node": "Log Call Activity to CRM",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Call Activity to CRM": {
+      "main": [
+        [
+          {
+            "node": "Respond Success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "tags": [
+    {
+      "id": "call-scheduling",
+      "name": "Call Scheduling"
+    },
+    {
+      "id": "reminders",
+      "name": "Reminders"
+    }
+  ],
+  "meta": {
+    "instanceId": "orchestrator-mini"
+  }
+}

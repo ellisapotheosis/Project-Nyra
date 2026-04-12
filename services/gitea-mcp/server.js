@@ -62,6 +62,83 @@ server.setRequestHandler('tools/list', async () => ({
         required: ['path', 'content', 'message'],
       },
     },
+    {
+      name: 'gitea_delete_file',
+      description: 'Delete a file from Gitea repository',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          path: { type: 'string', description: 'File path to delete' },
+          message: { type: 'string', description: 'Commit message' },
+          branch: { type: 'string', description: 'Branch (default: main)' },
+        },
+        required: ['path', 'message'],
+      },
+    },
+    {
+      name: 'gitea_list_branches',
+      description: 'List all branches in the repository',
+      inputSchema: {
+        type: 'object',
+        properties: {},
+      },
+    },
+    {
+      name: 'gitea_create_branch',
+      description: 'Create a new branch from an existing branch',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          branch_name: { type: 'string', description: 'Name of the new branch' },
+          from_branch: { type: 'string', description: 'Source branch (default: main)' },
+        },
+        required: ['branch_name'],
+      },
+    },
+    {
+      name: 'gitea_list_commits',
+      description: 'List recent commits on a branch',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          branch: { type: 'string', description: 'Branch name (default: main)' },
+          limit: { type: 'number', description: 'Number of commits to return (default: 10)' },
+        },
+      },
+    },
+    {
+      name: 'gitea_create_pull_request',
+      description: 'Create a pull request between branches',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          title: { type: 'string', description: 'PR title' },
+          body: { type: 'string', description: 'PR description' },
+          head: { type: 'string', description: 'Head branch (source)' },
+          base: { type: 'string', description: 'Base branch (target, default: main)' },
+        },
+        required: ['title', 'head'],
+      },
+    },
+    {
+      name: 'gitea_list_pull_requests',
+      description: 'List pull requests in the repository',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          state: { type: 'string', enum: ['open', 'closed', 'all'], description: 'PR state filter (default: open)' },
+          limit: { type: 'number', description: 'Number of PRs to return (default: 10)' },
+        },
+      },
+    },
+    {
+      name: 'gitea_get_repository_info',
+      description: 'Get repository information and statistics',
+      inputSchema: {
+        type: 'object',
+        properties: {},
+      },
+    },
   ],
 }));
 
@@ -127,6 +204,116 @@ server.setRequestHandler('tools/call', async (request) => {
         const result = await response.json();
         return {
           content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
+        };
+      }
+      case 'gitea_delete_file': {
+        const { path, message, branch = 'main' } = args;
+        const url = `${GITEA_URL}/api/v1/repos/${GITEA_OWNER}/${GITEA_REPO}/contents/${path}`;
+        // Get file SHA (required for deletion)
+        const fileInfo = await fetch(`${url}?ref=${branch}`, {
+          headers: { Authorization: `token ${GITEA_TOKEN}` },
+        });
+        if (!fileInfo.ok) {
+          throw new Error(`File not found: ${path}`);
+        }
+        const fileData = await fileInfo.json();
+        const response = await fetch(url, {
+          method: 'DELETE',
+          headers: {
+            Authorization: `token ${GITEA_TOKEN}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            message,
+            sha: fileData.sha,
+            branch,
+          }),
+        });
+        const result = await response.json();
+        return {
+          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
+        };
+      }
+      case 'gitea_list_branches': {
+        const url = `${GITEA_URL}/api/v1/repos/${GITEA_OWNER}/${GITEA_REPO}/branches`;
+        const response = await fetch(url, {
+          headers: { Authorization: `token ${GITEA_TOKEN}` },
+        });
+        const branches = await response.json();
+        return {
+          content: [{ type: 'text', text: JSON.stringify(branches, null, 2) }],
+        };
+      }
+      case 'gitea_create_branch': {
+        const { branch_name, from_branch = 'main' } = args;
+        const url = `${GITEA_URL}/api/v1/repos/${GITEA_OWNER}/${GITEA_REPO}/branches`;
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: {
+            Authorization: `token ${GITEA_TOKEN}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            new_branch_name: branch_name,
+            old_branch_name: from_branch,
+          }),
+        });
+        const result = await response.json();
+        return {
+          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
+        };
+      }
+      case 'gitea_list_commits': {
+        const { branch = 'main', limit = 10 } = args;
+        const url = `${GITEA_URL}/api/v1/repos/${GITEA_OWNER}/${GITEA_REPO}/commits?sha=${branch}&limit=${limit}`;
+        const response = await fetch(url, {
+          headers: { Authorization: `token ${GITEA_TOKEN}` },
+        });
+        const commits = await response.json();
+        return {
+          content: [{ type: 'text', text: JSON.stringify(commits, null, 2) }],
+        };
+      }
+      case 'gitea_create_pull_request': {
+        const { title, body = '', head, base = 'main' } = args;
+        const url = `${GITEA_URL}/api/v1/repos/${GITEA_OWNER}/${GITEA_REPO}/pulls`;
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: {
+            Authorization: `token ${GITEA_TOKEN}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            title,
+            body,
+            head,
+            base,
+          }),
+        });
+        const result = await response.json();
+        return {
+          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
+        };
+      }
+      case 'gitea_list_pull_requests': {
+        const { state = 'open', limit = 10 } = args;
+        const url = `${GITEA_URL}/api/v1/repos/${GITEA_OWNER}/${GITEA_REPO}/pulls?state=${state}&limit=${limit}`;
+        const response = await fetch(url, {
+          headers: { Authorization: `token ${GITEA_TOKEN}` },
+        });
+        const prs = await response.json();
+        return {
+          content: [{ type: 'text', text: JSON.stringify(prs, null, 2) }],
+        };
+      }
+      case 'gitea_get_repository_info': {
+        const url = `${GITEA_URL}/api/v1/repos/${GITEA_OWNER}/${GITEA_REPO}`;
+        const response = await fetch(url, {
+          headers: { Authorization: `token ${GITEA_TOKEN}` },
+        });
+        const repoInfo = await response.json();
+        return {
+          content: [{ type: 'text', text: JSON.stringify(repoInfo, null, 2) }],
         };
       }
       default:

@@ -1,0 +1,230 @@
+# ============================================================================
+# Project Nyra - Nexus Router Configuration
+# ============================================================================
+# Central MCP router and tool aggregator for Project Nyra
+# Routes tool calls to appropriate MCP servers with intelligent selection
+# ============================================================================
+
+[server]
+# Server configuration
+host = "0.0.0.0"
+port = 6000
+log_level = "info"
+timeout = 60
+
+# Authentication and security
+require_auth = true
+auth_timeout = 300
+
+# Tool routing and selection
+max_tools_per_request = 50
+tool_cache_ttl = 300
+
+[health]
+# Health check configuration
+enabled = true
+endpoint = "/health"
+interval = 30
+
+[metrics]
+# Metrics and monitoring
+enabled = true
+endpoint = "/metrics"
+prometheus_format = true
+
+# ============================================================================
+# MCP SERVER DEFINITIONS
+# ============================================================================
+
+[mcp.servers.gitea]
+# Gitea repository management
+name = "gitea-mcp"
+description = "Gitea repository operations and file management"
+url = "http://gitea-mcp:3100"
+health_endpoint = "/health"
+capabilities = [
+    "files",
+    "repositories",
+    "branches",
+    "pull_requests",
+    "commits"
+]
+priority = 10
+enabled = true
+
+[mcp.servers.docker]
+# Docker and infrastructure management
+name = "docker-mcp"
+description = "Docker container and compose operations"
+url = "http://docker-mcp:8811"
+health_endpoint = "/health"
+capabilities = [
+    "containers",
+    "compose",
+    "images",
+    "volumes",
+    "networks"
+]
+priority = 8
+enabled = true
+
+[mcp.servers.system]
+# System operations and file system access
+name = "system-mcp"
+description = "System operations and local file management"
+url = "http://system-mcp:8812"
+health_endpoint = "/health"
+capabilities = [
+    "filesystem",
+    "processes",
+    "system_info",
+    "environment"
+]
+priority = 5
+enabled = true
+
+[mcp.servers.ai]
+# AI and model operations
+name = "ai-mcp"
+description = "AI model management and inference operations"
+url = "http://ai-mcp:8813"
+health_endpoint = "/health"
+capabilities = [
+    "models",
+    "inference",
+    "embeddings",
+    "completions"
+]
+priority = 7
+enabled = true
+
+# ============================================================================
+# TOOL ROUTING CONFIGURATION
+# ============================================================================
+
+[routing]
+# Default routing strategy
+strategy = "capability_based"  # options: capability_based, round_robin, priority
+fallback_enabled = true
+cache_responses = true
+cache_ttl = 60
+
+# Tool selection algorithm
+[routing.selection]
+algorithm = "fuzzy"  # options: exact, fuzzy, semantic
+similarity_threshold = 0.7
+max_candidates = 5
+
+# Load balancing
+[routing.load_balancing]
+enabled = true
+strategy = "least_connections"  # options: round_robin, least_connections, weighted
+health_check_interval = 30
+
+# ============================================================================
+# AGENT CONFIGURATION
+# ============================================================================
+
+[agents.archon_os]
+name = "archon-os"
+description = "Development orchestration agent"
+allowed_capabilities = ["files", "repositories", "containers", "system_info"]
+rate_limit = 100  # requests per minute
+priority = "high"
+
+[agents.openclaw]
+name = "openclaw"
+description = "Borrower-facing mortgage assistant"
+allowed_capabilities = ["files", "repositories"]
+rate_limit = 50
+priority = "medium"
+
+[agents.claude_code]
+name = "claude-code"
+description = "Claude Code CLI agent"
+allowed_capabilities = ["files", "repositories", "containers", "system_info"]
+rate_limit = 200
+priority = "high"
+
+# ============================================================================
+# SECURITY CONFIGURATION
+# ============================================================================
+
+[security]
+# API key validation
+validate_api_keys = true
+key_rotation_interval = "7d"
+
+# Rate limiting
+global_rate_limit = 1000  # requests per minute
+per_agent_rate_limit = true
+
+# Request validation
+validate_requests = true
+sanitize_inputs = true
+max_request_size = "10MB"
+
+# CORS settings
+cors_enabled = true
+cors_origins = ["http://localhost:*", "https://*.ratehunter.net"]
+
+[security.authentication]
+# Authentication providers
+providers = ["token", "oauth2"]
+token_header = "Authorization"
+token_prefix = "Bearer "
+
+# ============================================================================
+# LOGGING AND MONITORING
+# ============================================================================
+
+[logging]
+level = "info"
+format = "json"
+output = "stdout"
+
+# Log rotation
+max_size = "100MB"
+max_files = 5
+compress = true
+
+[logging.fields]
+# Standard fields to include
+timestamp = true
+level = true
+service = true
+agent_id = true
+tool_name = true
+duration_ms = true
+success = true
+
+[monitoring]
+# Performance monitoring
+enable_tracing = true
+trace_sample_rate = 0.1
+
+# Error tracking
+enable_error_tracking = true
+error_sample_rate = 1.0
+
+# Custom metrics
+custom_metrics = [
+    "tool_usage_by_agent",
+    "response_time_by_capability",
+    "error_rate_by_server",
+    "cache_hit_ratio"
+]
+
+# ============================================================================
+# DEVELOPMENT OVERRIDES
+# ============================================================================
+
+[development]
+# Development-specific settings (overridden in production)
+debug_mode = false
+verbose_logging = false
+mock_external_services = false
+
+# Hot reload (development only)
+hot_reload = false
+watch_config = false
