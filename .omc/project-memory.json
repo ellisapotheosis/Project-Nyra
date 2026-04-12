@@ -296,6 +296,13 @@
       ]
     }
   },
-  "hotPaths": [],
+  "hotPaths": [
+    {
+      "path": "",
+      "accessCount": 1,
+      "lastAccessed": 1775955019123,
+      "type": "directory"
+    }
+  ],
   "userDirectives": []
 }
