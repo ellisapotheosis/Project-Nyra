@@ -42,6 +42,7 @@
     "jest-environment-jsdom": "^29.7.0",
     "postcss": "^8.4.32",
     "tailwindcss": "^3.4.19",
+    "//comment-tailwind": "Pinned to v3 to avoid Cloudflare Pages + PostCSS/Tailwind v4 integration issues. See PR #311.",
     "ts-jest": "^29.4.9",
     "typescript": "^5",
     "wrangler": "^4.59.2"
