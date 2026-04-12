@@ -19,8 +19,8 @@
               "provider": "openai",
               "config": {
                 "model": "text-embedding-3-small",
-                "api_key": "${LITELLM_API_KEY}",
-                "base_url": "${LITELLM_BASE_URL}/v1"
+                "api_key": "${OPENAI_API_KEY}",
+                "base_url": "${OPENAI_BASE_URL}"
               }
             },
             "vectorStore": {
@@ -31,7 +31,7 @@
               "provider": "falkordb",
               "config": {
                 "host": "${FALKORDB_HOST}",
-                "port": "${FALKORDB_PORT:-6380}",
+                "port": ${FALKORDB_PORT},
                 "graphName": "mem0"
               }
             },
@@ -39,11 +39,19 @@
               "provider": "openai",
               "config": {
                 "model": "gpt-4o-mini",
-                "api_key": "${LITELLM_API_KEY}",
-                "base_url": "${LITELLM_BASE_URL}/v1"
+                "api_key": "${OPENAI_API_KEY}",
+                "base_url": "${OPENAI_BASE_URL}"
               }
             }
           }
+        }
+      },
+      "openclaw-open-webui-channels": {
+        "enabled": true,
+        "config": {
+          "baseUrl": "http://open-webui:8080",
+          "botEmail": "${OPEN_WEBUI_BOT_EMAIL}",
+          "botPassword": "${OPEN_WEBUI_BOT_PASSWORD}"
         }
       }
     }

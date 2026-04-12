@@ -183,6 +183,27 @@ services:
       retries: 3
 
   # ============================================================================
+  # GRAPH DATABASE (FalkorDB — Redis-compatible, used by mem0 + openclaw)
+  # ============================================================================
+
+  falkordb:
+    image: falkordb/falkordb:latest
+    container_name: oracle-falkordb
+    ports:
+      - "6380:6379"   # Redis-protocol graph queries (avoids clash with redis:6379)
+      - "3006:3000"   # FalkorDB Browser UI
+    volumes:
+      - falkordb_data:/data
+    restart: unless-stopped
+    networks:
+      - oracle-net
+    healthcheck:
+      test: ["CMD", "redis-cli", "-p", "6379", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # ============================================================================
   # MEMORY & KNOWLEDGE
   # ============================================================================
 
@@ -214,22 +235,71 @@ services:
       dockerfile: Dockerfile
     container_name: oracle-mem0
     environment:
-      NODE_ENV: production
-      PORT: 5000
       DATABASE_URL: postgres://postgres:${POSTGRES_PASSWORD}@postgres:5432/mem0
-      LITELLM_API_URL: http://100.x.x.0:4000  # Tailscale orchestrator
+      LITELLM_API_URL: http://100.x.x.0:4000  # Tailscale orchestrator LiteLLM
       LITELLM_API_KEY: ${LITELLM_API_KEY}
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      FALKORDB_URL: redis://falkordb:6379
     ports:
       - "5000:5000"
     depends_on:
       postgres:
+        condition: service_healthy
+      falkordb:
         condition: service_healthy
     restart: unless-stopped
     networks:
       - oracle-net
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  openclaw:
+    build:
+      context: ../services/openclaw
+      dockerfile: Dockerfile
+    container_name: oracle-openclaw
+    environment:
+      OPENAI_API_KEY: ${LITELLM_API_KEY}
+      OPENAI_BASE_URL: http://100.x.x.0:4000/v1  # Tailscale orchestrator LiteLLM
+      FALKORDB_HOST: falkordb
+      FALKORDB_PORT: "6379"
+    ports:
+      - "18789:18789"
+    depends_on:
+      falkordb:
+        condition: service_healthy
+    volumes:
+      - openclaw_data:/root/.openclaw
+    restart: unless-stopped
+    networks:
+      - oracle-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:18789/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:main
+    container_name: oracle-open-webui
+    environment:
+      WEBUI_SECRET_KEY: ${WEBUI_SECRET_KEY}
+      ENABLE_SIGNUP: "false"
+      OPENAI_API_BASE_URL: http://100.x.x.0:4000/v1  # Tailscale orchestrator LiteLLM
+      OPENAI_API_KEY: ${LITELLM_API_KEY}
+      DEFAULT_MODELS: gpt-4o-mini
+    ports:
+      - "8888:8080"
+    volumes:
+      - open_webui_data:/app/backend/data
+    restart: unless-stopped
+    networks:
+      - oracle-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -311,6 +381,9 @@ volumes:
   gitea_config:
   mempalace_data:
   mempalace_vault:
+  falkordb_data:
+  openclaw_data:
+  open_webui_data:
 
 networks:
   oracle-net:

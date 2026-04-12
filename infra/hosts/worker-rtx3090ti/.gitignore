@@ -13,6 +13,7 @@ credentials.json
 
 # Cloudflared credentials
 *.json
+!openclaw/openclaw.json
 
 # Logs
 logs/
