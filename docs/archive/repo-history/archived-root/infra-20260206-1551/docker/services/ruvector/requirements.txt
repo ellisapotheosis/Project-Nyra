@@ -11,7 +11,7 @@ pydantic-settings==2.1.0
 # Neural Networks & ML
 torch==2.10.0
 onnxruntime==1.17.0
-transformers==5.3.0
+transformers==5.5.4
 sentence-transformers==2.3.1
 
 # Vector Search & Indexing
@@ -53,6 +53,6 @@ orjson==3.11.6
 cachetools==5.3.2
 
 # Testing (optional, for development)
-pytest==8.0.0
+pytest==9.0.3
 pytest-asyncio==0.23.4
 pytest-cov==4.1.0
