@@ -13,6 +13,14 @@ services:
       OPENCLAW_MCP_ENDPOINT: http://nexus-router:8080/mcp
       OPENCLAW_MCP_FALLBACK_ENDPOINT: http://nyra-mcp:3333/mcp
       OPENCLAW_SANDBOX_ENABLED: ${OPENCLAW_SANDBOX_ENABLED:-true}
+      OPENCLAW_CHANNEL: ${OPENCLAW_CHANNEL:-borrower-web}
+      OPENCLAW_SYSTEM_SOUL: ${OPENCLAW_SYSTEM_SOUL:-/workspace/apps/landing/ratehunter-landing/SOUL.BORROWER.md}
+      OPENCLAW_PLUGIN_MEM0: ${OPENCLAW_PLUGIN_MEM0:-@mem0/openclaw-mem0}
+      MEM0_BASE_URL: ${MEM0_BASE_URL:-http://mem0:4321}
+      MEM0_GRAPH_STORE: ${MEM0_GRAPH_STORE:-falkordb}
+      FALKORDB_URL: ${FALKORDB_URL:-redis://falkordb:6379}
+      ARCHON_BASE_URL: ${ARCHON_BASE_URL:-http://archon-os:8051}
+      OPENWEBUI_BASE_URL: ${OPENWEBUI_BASE_URL:-http://openwebui:8080}
       OPENCLAW_OUTBOUND_HTTP_ALLOWLIST: ${OPENCLAW_OUTBOUND_HTTP_ALLOWLIST:-nexus-router:8080,nyra-mcp:3333,n8n:5678,activepieces:80,twentycrm:3000,litellm:4000}
       OPENCLAW_TOOL_POLICY: ${OPENCLAW_TOOL_POLICY:-deny-by-default}
       OPENCLAW_TOOLS_ALLOW: ${OPENCLAW_TOOLS_ALLOW:-mcp,http_fetch,task}
@@ -48,9 +56,16 @@ services:
       OPENCLAW_HOME: /home/node/.openclaw
       OPENCLAW_SECRET_REF_MODE: ${OPENCLAW_SECRET_REF_MODE:-true}
       OPENCLAW_SANDBOX_ENABLED: ${OPENCLAW_SANDBOX_ENABLED:-true}
+      OPENCLAW_CHANNEL: ${OPENCLAW_CHANNEL:-broker-console}
+      OPENCLAW_PLUGIN_MEM0: ${OPENCLAW_PLUGIN_MEM0:-@mem0/openclaw-mem0}
       OPENAI_BASE_URL: http://litellm:4000/v1
       OPENAI_API_KEY: ${LITELLM_MASTER_KEY:?set LITELLM_MASTER_KEY}
       OPENCLAW_MCP_ENDPOINT: http://nexus-router:8080/mcp
+      MEM0_BASE_URL: ${MEM0_BASE_URL:-http://mem0:4321}
+      MEM0_GRAPH_STORE: ${MEM0_GRAPH_STORE:-falkordb}
+      FALKORDB_URL: ${FALKORDB_URL:-redis://falkordb:6379}
+      ARCHON_BASE_URL: ${ARCHON_BASE_URL:-http://archon-os:8051}
+      OPENWEBUI_BASE_URL: ${OPENWEBUI_BASE_URL:-http://openwebui:8080}
     volumes:
       - ${OPENCLAW_HOME_VOLUME:-./data/openclaw/config}:/home/node/.openclaw
       - ${OPENCLAW_WORKSPACE_VOLUME:-./data/openclaw/workspace}:/workspace

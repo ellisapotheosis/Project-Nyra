@@ -13,7 +13,7 @@
     "start": "next start",
     "lint": "eslint . --ignore-pattern .open-next --ignore-pattern .next --max-warnings=0",
     "test": "jest --watch",
-    "test:ci": "pnpm exec jest --ci --passWithNoTests || npx --yes jest@29 --ci --passWithNoTests",
+    "test:ci": "jest --ci --passWithNoTests",
     "typecheck": "tsc --noEmit",
     "cf:login": "wrangler login",
     "cf:deploy": "npm run build:cf && npm run deploy"
@@ -26,6 +26,7 @@
   },
   "devDependencies": {
     "@opennextjs/cloudflare": "1.17.1",
+    "@tailwindcss/postcss": "^4.2.2",
     "@testing-library/jest-dom": "^6.1.5",
     "@testing-library/react": "^14.1.2",
     "@testing-library/user-event": "^14.5.1",
