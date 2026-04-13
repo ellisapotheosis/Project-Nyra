@@ -7,6 +7,13 @@ services:
       OPENCLAW_CONFIG_FILE: /etc/openclaw/openclaw.json
       OPENAI_API_KEY: ${OPENAI_API_KEY:?set OPENAI_API_KEY}
       MEM0_API_KEY: ${MEM0_API_KEY:?set MEM0_API_KEY}
+      OPENCLAW_CHANNELS: ${OPENCLAW_CHANNELS:-borrower-web,broker-console}
+      OPENCLAW_PLUGIN_MEM0: ${OPENCLAW_PLUGIN_MEM0:-@mem0/openclaw-mem0}
+      MEM0_BASE_URL: ${MEM0_BASE_URL:-http://mem0:4321}
+      MEM0_GRAPH_STORE: ${MEM0_GRAPH_STORE:-falkordb}
+      FALKORDB_URL: ${FALKORDB_URL:-redis://falkordb:6379}
+      ARCHON_BASE_URL: ${ARCHON_BASE_URL:-http://archon-os:8051}
+      OPENWEBUI_BASE_URL: ${OPENWEBUI_BASE_URL:-http://openwebui:8080}
       NEXUS_MCP_URL: ${NEXUS_MCP_URL:-http://nexus-router:8080/mcp}
       OPENCLAW_WEBHOOK_INGRESS_PATH: ${OPENCLAW_WEBHOOK_INGRESS_PATH:-/webhooks/openclaw/inbound}
       TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}

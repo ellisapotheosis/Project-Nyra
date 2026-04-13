@@ -1,0 +1,31 @@
+# Project Nyra Cloudflared config (oracle plane)
+# Validate with:
+# cloudflared tunnel ingress validate --config infra/cloudflared/config.oracle.yml
+
+tunnel: ${CF_TUNNEL_UUID_ORACLE}
+credentials-file: ${CF_CREDENTIALS_FILE_ORACLE}
+
+ingress:
+  # Public (no Cloudflare Access policy by default)
+  - hostname: api.ratehunter.net
+    service: http://quote-api:7070
+
+  # Access-gated endpoints (policy configured in Cloudflare dashboard)
+  - hostname: twenty.ratehunter.net
+    service: http://twenty:3000
+  - hostname: activepieces.ratehunter.net
+    service: http://activepieces:80
+  - hostname: n8n.ratehunter.net
+    service: http://n8n:5678
+  - hostname: bot.ratehunter.net
+    service: http://moltbot:18789
+
+  # Placeholder reserved for orchestrator-only services (keep inactive here)
+  # - hostname: gitea.ratehunter.net
+  #   service: http://host.docker.internal:3100
+  # - hostname: grafana.ratehunter.net
+  #   service: http://host.docker.internal:3003
+  # - hostname: archon.ratehunter.net
+  #   service: http://host.docker.internal:9001
+
+  - service: http_status:404
