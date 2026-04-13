@@ -7,6 +7,8 @@ FORCE="${NYRA_FORCE_SECRETS:-false}"
 SECRET_UID="${NYRA_SECRETS_UID:-1000}"
 SECRET_GID="${NYRA_SECRETS_GID:-1000}"
 INFISICAL_PROJECT_ID="${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}"
+INFISICAL_ENV="${INFISICAL_ENV:-dev}"
+INFISICAL_PATH="${INFISICAL_PATH:-/shared}"
 
 umask 077
 mkdir -p "$SECRETS_DIR"
@@ -66,8 +68,8 @@ try_infisical_export(){
   infisical export \
     --token="${INFISICAL_TOKEN}" \
     --projectId="$INFISICAL_PROJECT_ID" \
-    --env="prod" \
-    --path="/shared" \
+    --env="${INFISICAL_ENV}" \
+    --path="${INFISICAL_PATH}" \
     --format=dotenv \
     --output-file="/tmp/nyra.infisical.env" >/dev/null
 
@@ -90,14 +92,14 @@ main(){
     chown "${SECRET_UID}:${SECRET_GID}" "$SECRETS_DIR"
   fi
 
-  if [[ -z "${INFISICAL_TOKEN:-}" ]]; then
-    log "INFISICAL_TOKEN is required."
-    exit 1
-  fi
-
   if ! need_write; then
     log "Secrets already initialized."
     exit 0
+  fi
+
+  if [[ -z "${INFISICAL_TOKEN:-}" ]]; then
+    log "INFISICAL_TOKEN is required."
+    exit 1
   fi
 
   if try_infisical_export; then

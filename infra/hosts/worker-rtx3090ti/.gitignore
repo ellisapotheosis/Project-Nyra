@@ -1,0 +1,82 @@
+# ============================================================================
+# Worker-3090 .gitignore
+# ============================================================================
+
+# Environment files (contains secrets)
+.env
+.env.local
+.env.*.local
+
+# Infisical credentials
+.infisical.json
+credentials.json
+
+# Cloudflared credentials
+*.json
+!openclaw/openclaw.json
+
+# Logs
+logs/
+*.log
+*.log.*
+
+# Data directories
+data/
+ollama-models/
+
+# Docker volumes
+volumes/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Backup files
+*.backup
+*.bak
+
+# Windows system files
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Node modules
+node_modules/
+
+# Build artifacts
+dist/
+build/
+
+# Monitoring data
+prometheus-data/
+grafana-data/
+loki-data/
+
+# SSL certificates
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+
+# Health check outputs
+health-report-*.json
+health-report-*.html

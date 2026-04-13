@@ -169,7 +169,7 @@ similarity_threshold = 0.65
 "openclaw" = ["quote-engine", "mem0", "archon-os", "twenty-crm", "lead-ingestion"]
 
 # Archon gets knowledge tools
-"archon-os" = ["oracle-database", "twenty-crm", "mem0", "quote-engine", "claude-flow"]
+"archon-os" = ["oracle-database", "twenty-crm", "mem0", "quote-engine"]
 
 # ============================================================================
 # LOGGING & OBSERVABILITY

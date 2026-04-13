@@ -158,39 +158,6 @@ consolidation-work/
 .turbo
 *.turbo.json
 
-################################################################################
-# Claude Flow Generated Files and Data
-################################################################################
-# Local settings and configurations
-.claude/settings.local.json
-.mcp.json
-archon-os.config.json
-
-# Runtime directories
-.swarm/
-.hive-mind/
-.archon-os/
-memory/
-coordination/
-
-# Memory and session data
-memory/archon-os-data.json
-memory/sessions/*
-!memory/sessions/README.md
-memory/agents/*
-!memory/agents/README.md
-
-# Coordination data
-coordination/memory_bank/*
-coordination/subtasks/*
-coordination/orchestration/*
-
-# Claude Flow executable
-archon-os
-
-# Generated prompt files
-hive-mind-prompt-*.txt
-swarm-prompt-*.txt
 
 ################################################################################
 # Database Files
@@ -505,22 +472,40 @@ bootstrap/
 .env.gitea
 .env.infisical
 .env.archon
+.env.orchestrator
+.env.oracle
+.env.worker-*
+!.env.worker-*.template
 .env.portainer.orchestrator
 .env.portainer.edge
 .env.homeassistant-dashboard
 # Portainer per-node host configs (may contain PORTAINER_AGENT_SECRET)
 # Commit only TEMPLATE.env.host; fill secrets locally after pull.
 **/.env.host
-# Oracle VPS live env (contains secrets — copy from .env.oracle.template)
-infra/oracle/.env.oracle
+# Per-host env files — secrets live here during Infisical migration
+infra/env/.env.*
+!infra/env/.env.*.example
+!infra/env/TEMPLATE.env.host
+# Oracle VPS live env (moved from infra/oracle/ to infra/env/)
+infra/hosts/oracle-vps/.env*
+# Infisical agent tokens — never commit
+infra/hosts/**/.infisical-token
+infra/hosts/**/infisical-agent.token
+# Backup files in configs
+infra/configs/**/*.backup-*
 .secrets/
 gitea-setup-summary-*.md
 
-# Memory database files (cross-PC persistent but too large for git)
-.claude/memory/memory.db
-.claude/memory/hnsw.index
-.claude/memory/hnsw.metadata.json
-.env.archon.runtime
-
 # Local external dependencies (git repos)
-# external/
+# external/ is NOT ignored — all subdirs are tracked by default.
+# Explicit negations below protect against any future broad exclude rules:
+!external/pocket-tts/
+!external/pocket-tts-openai/
+!external/archon/
+data/pockettts/
+
+################################################################################
+# Archon Runtime
+################################################################################
+# Archon runtime artifacts (never commit)
+.archon/mcp/          # May contain env var references

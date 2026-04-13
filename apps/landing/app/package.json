@@ -1,5 +1,5 @@
 {
-  "name": "@nyra/ratehunter-landing-legacy",
+  "name": "ratehunter-landing-legacy",
   "version": "1.0.0",
   "private": true,
   "scripts": {
@@ -19,7 +19,7 @@
     "cf:deploy": "pnpm run build && pnpm run deploy"
   },
   "dependencies": {
-    "next": "16.1.7",
+    "next": "16.2.3",
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "zod": "^4.3.6"

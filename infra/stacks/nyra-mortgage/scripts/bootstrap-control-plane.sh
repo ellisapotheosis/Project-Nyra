@@ -33,7 +33,7 @@ JSON
 echo "Wrote lean MCP config to $MCP_FILE"
 
 if command -v docker >/dev/null 2>&1; then
-  docker compose -f "$ROOT_DIR/docker-compose.yml" up -d nexus litellm openmemory_mcp || {
+  docker compose -f "$ROOT_DIR/docker-compose.yml" up -d nexus litellm || {
     echo "ERROR: failed to bring up Nexus control-plane services" >&2
     exit 1
   }

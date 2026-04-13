@@ -3,12 +3,6 @@
   "entrypoint": "http://localhost:4001/mcp/sse",
   "servers": [
     {
-      "id": "ruflo",
-      "transport": "sse",
-      "url_env": "RUFLO_MCP_URL",
-      "default": "http://ruflo.tailnet.ts.net:8001/mcp/sse"
-    },
-    {
       "id": "serena",
       "transport": "sse",
       "url_env": "SERENA_MCP_URL",
@@ -24,7 +18,7 @@
       "id": "mem0",
       "transport": "http",
       "url_env": "MEM0_MCP_URL",
-      "default": "http://openmemory_mcp:8081/mcp"
+      "default": "http://oracle.trex-fiordland.ts.net:5000"
     }
   ],
   "workers": [

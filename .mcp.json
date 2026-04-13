@@ -4,53 +4,6 @@
       "type": "sse",
       "url": "http://localhost:6000/mcp/sse"
     },
-    
-    "ruflo": {
-      "type": "stdio",
-      "command": "infisical",
-      "args": [
-        "run",
-        "--projectId=8374cea9-e5e8-4050-bda4-b91f25ab30ef",
-        "--env=dev",
-        "--path=/shared",
-        "--",
-        "npx",
-        "-y",
-        "ruflo@alpha",
-        "mcp",
-        "start"
-      ],
-      "env": {
-        "CLAUDE_FLOW_MODE": "orchestrator",
-        "CLAUDE_FLOW_AUTO_COMMIT": "true",
-        "CLAUDE_FLOW_AUTO_PUSH": "true",
-        "CLAUDE_FLOW_HOOKS_ENABLED": "true",
-        "CLAUDE_FLOW_GITHUB_INTEGRATION": "true",
-        "CLAUDE_FLOW_MEMORY_PERSISTENCE": "true",
-        "CLAUDE_FLOW_NEURAL_OPTIMIZATION": "true",
-        "CLAUDE_FLOW_CACHE_ENABLED": "true",
-        "CLAUDE_FLOW_PARALLEL_PROCESSING": "true",
-        "CLAUDE_FLOW_AGENT_POOL": "true",
-        "CLAUDE_FLOW_MCP_MODE": "advanced",
-        "CLAUDE_FLOW_TRUTH_THRESHOLD": "0.95",
-        "CLAUDE_FLOW_VERIFY_MODE": "strict",
-        "CLAUDE_FLOW_SECURITY_AUDIT": "true",
-        "MAX_AGENTS": "100",
-        "CLAUDE_FLOW_MAX_CONCURRENT_TASKS": "50",
-        "RUV_SWARM_ENABLED": "true",
-        "HIVE_MIND_ENABLED": "true",
-        "ruvector_ENABLED": "true",
-        "ruvector_QUIC_SYNC": "true",
-        "RUVECTOR_ENABLED": "true",
-        "RUVECTOR_MODE": "distributed",
-        "AGENTIC_FLOW_MEMORY_ENABLED": "true",
-        "HIVE_MIND_ENABLE_CONSENSUS": "true",
-        "ENABLE_METRICS": "true",
-        "ENABLE_TRACING": "true",
-        "LOG_LEVEL": "info"
-      }
-    },
-
     "ORCHESTRATOR_SSH": {
       "type": "stdio",
       "command": "/home/ellisapotheosis/.local/mcp-tools/node_modules/.bin/mcp-ssh-server-tool",
@@ -105,47 +58,11 @@
       "type": "stdio",
       "command": "npx",
       "args": ["-y", "archon-os", "mcp"]
-    },
-    "ruvector": {
-      "type": "stdio",
-      "command": "npx",
-      "args": ["-y", "ruvector", "mcp"]
-    },
-    "ruvector": {
-      "type": "stdio",
-      "command": "npx",
-      "args": ["-y", "ruvector-mcp"]
-    },
-    "agent-booster": {
-      "type": "stdio",
-      "command": "npx",
-      "args": ["-y", "agent-booster", "mcp"]
-    },
-    "epic-sdk": {
-      "type": "stdio",
-      "command": "npx",
-      "args": ["-y", "epic-sdk", "mcp"]
-    },
-    "ruv-swarm": {
-      "type": "stdio",
-      "command": "npx",
-      "args": ["-y", "ruv-swarm@latest", "mcp", "start"]
-    },
-    "flow-nexus": {
-      "type": "stdio",
-      "command": "npx",
-      "args": ["-y", "flow-nexus@latest", "mcp", "start"]
     }
   },
   
   "disabledMcpServers": [
     "serena",
-    "archon-os",
-    "ruvector",
-    "ruvector",
-    "agent-booster",
-    "epic-sdk",
-    "ruv-swarm",
-    "flow-nexus"
+    "archon-os"
   ]
 }

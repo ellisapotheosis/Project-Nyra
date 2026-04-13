@@ -24,6 +24,8 @@ volumes:
   twenty_pg: {}
   infisical_data: {}
   shared_secrets: {}
+  mempalace_data: {}
+  mempalace_vault: {}
 
 services:
   postgres:
@@ -135,6 +137,7 @@ services:
       NEXUS_CONFIG_PATH: /app/nexus.toml
       REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
       LITELLM_BASE_URL: http://litellm:4000
+      MEMPALACE_URL: ${MEMPALACE_URL:-}
       GOOGLE_API_KEY: ${GOOGLE_API_KEY:-}
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
       OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
@@ -176,6 +179,29 @@ services:
       interval: 15s
       timeout: 5s
       retries: 20
+    restart: unless-stopped
+    networks: [nyra]
+    logging: *default_logging
+
+  mempalace-mcp:
+    build:
+      context: ../services/mempalace-mcp
+      dockerfile: Dockerfile
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-mempalace-mcp
+    profiles: ['mcp', 'oracle', 'all']
+    environment:
+      PORT: 8000
+      MEMPAL_DIR: /data/vault
+    ports:
+      - '8002:8000'
+    volumes:
+      - mempalace_data:/root/.mempalace
+      - mempalace_vault:/data/vault
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:8000/health']
+      interval: 30s
+      timeout: 10s
+      retries: 3
     restart: unless-stopped
     networks: [nyra]
     logging: *default_logging

@@ -9,6 +9,7 @@ INFISICAL_ENV="${INFISICAL_ENV:-dev}"
 INFISICAL_PATH="${INFISICAL_PATH:-/shared}"
 INFISICAL_PROJECT_ID="${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}"
 ROOT_ENV_FILE="${ROOT_ENV_FILE:-$REPO_ROOT/.env}"
+AI_CLIENT_SYNC_SCRIPT="${AI_CLIENT_SYNC_SCRIPT:-$REPO_ROOT/scripts/setup/sync-ai-client-config.sh}"
 LITELLM_COMPOSE_FILE=""
 LITELLM_FALLBACK_COMPOSE_FILE="$REPO_ROOT/services/litellm-proxy/docker-compose.fallback.yml"
 EXTRA_COMPOSE_FILE=""
@@ -248,6 +249,11 @@ main() {
   nyra_resolve_infisical_project_id
 
   export HUSKY=0
+
+  if [[ -x "$AI_CLIENT_SYNC_SCRIPT" ]]; then
+    info "Syncing Codex/Gemini client config"
+    "$AI_CLIENT_SYNC_SCRIPT"
+  fi
 
   if [[ "$SKIP_ENV_EXPORT" -eq 0 ]]; then
     export_root_env_file

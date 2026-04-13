@@ -2,587 +2,207 @@
 
 SHELL := /bin/bash
 
+# Core Paths
 COMPOSE_FILE ?= infra/docker-compose.yml
 COMPOSE ?= docker compose -f $(COMPOSE_FILE)
 STACK_ENV_FILE ?= .env.stack
 HEALTH_ENV_FILE ?= $(STACK_ENV_FILE)
 
+# Service Specific Compose Files
+ARCHON_COMPOSE  := infra/compose/docker-compose.archon.yml
+ARCHON_OVERRIDE := infra/compose/docker-compose.archon.override.yml
+TWENTY_COMPOSE  := infra/docker-compose.twenty.yml
+GITEA_COMPOSE   := infra/configs/gitea/docker-compose.gitea.yml
+SUPABASE_COMPOSE := infra/compose/docker-compose.supabase.yml
+
+# Host Specific Compose Files (corrected to actual filenames on disk)
+ORCHESTRATOR_COMPOSE  := infra/hosts/orchestrator/docker-compose.orchestrator.yml
+WORKER_3060_COMPOSE   := infra/hosts/worker-rtx3060/docker-compose.worker.yml
+WORKER_3090TI_COMPOSE := infra/hosts/worker-rtx3090ti/docker-compose.worker.yml
+WORKER_5090_COMPOSE   := infra/hosts/worker-rtx5090/docker-compose.worker.yml
+ORACLE_COMPOSE        := infra/hosts/oracle-vps/docker-compose.oracle.yml
+
 DEFAULT_PROFILES ?= core,gateway,workflow,crm,archon,apps,observability,vector
-WORKER_PROFILE ?= workers
-TWENTY_COMPOSE_FILE ?= infra/docker-compose.twenty.yml
-TWENTY_COMPOSE ?= docker compose -f $(TWENTY_COMPOSE_FILE)
+ARCHON_PROFILES  ?= archon,with-db
 
-ifeq (,$(wildcard pnpm-lock.yaml))
-PKG_MGR ?= npm
-PKG_RUN ?= npx
-else
-PKG_MGR ?= pnpm
-PKG_RUN ?= pnpm exec
-endif
+# LLxprt paths (can be overridden via env)
+LLXPRT_NPM_PREFIX ?= $(HOME)/.cache/nyra-llxprt-code
+LLXPRT_PACKAGE    ?= @vybestack/llxprt-code
+JEFE_DIR          ?= external/llxprt-jefe
 
-.PHONY: grid grid-kill claw-build claw-rebuild claw-update \
-  help env-bootstrap install test test-all lint validate compose-config compose-config-all \
-  up down restart logs ps pull \
-  up-core up-orchestrator up-apps up-dev up-workers up-oracle up-worker-3060 up-worker-3090ti up-worker-5090 \
-  archon-config archon-up archon-down archon-logs archon-ps archon-up-infisical \
-  node-up-orchestrator node-up-oracle node-up-worker-3060 node-up-worker-3090ti node-up-worker-5090 node-down-orchestrator node-down-oracle node-down-worker-3060 node-down-worker-3090ti node-down-worker-5090 \
-  down-workers logs-workers nexus-up nexus-down health stack-up stack-verify scan-env ports port-check bootstrap-import bootstrap-import-apply bootstrap-ultimate bootstrap-oracle bootstrap-worker-3060 bootstrap-worker-3090ti bootstrap-worker-5090 \
-  archive-guard repo-structure-audit edge-docs cluster-docs \
-  gitea-up gitea-up-ai gitea-up-actions gitea-up-actions-large gitea-up-infisical-agent gitea-up-full gitea-down gitea-ps gitea-config gitea-bootstrap-orchestrator gitea-readiness infisical-up infisical-down infisical-config \
-  portainer-bootstrap portainer-edge-up portainer-down portainer-deploy-all \
-  ha-dashboard-up ha-dashboard-down \
-  oracle-context oracle-stack-up oracle-stack-down oracle-stack-logs oracle-stack-ps \
-  up-gitea down-gitea logs-gitea health-gitea up-infisical down-infisical logs-infisical health-infisical \
-  twenty-crm-config twenty-crm-up twenty-crm-down twenty-crm-restart twenty-crm-logs twenty-crm-ps twenty-crm-health twenty-crm-setup twenty-crm-reset twenty-crm-dev twenty-mcp-up twenty-mcp-down
+.PHONY: help install test lint validate up down restart logs ps pull \
+  up-core up-orchestrator up-apps up-dev up-workers up-oracle \
+  archon-up archon-down archon-logs archon-ps archon-build-user \
+  standup-orchestrator \
+  cluster cluster-kill grid grid-kill ai-grid ai-grid-kill \
+  nexus-up nexus-down health stack-up stack-verify \
+  gitea-up gitea-down gitea-ps \
+  twenty-crm-up twenty-crm-down \
+  supabase-up \
+  mempalace-init mempalace-mine \
+  llxprt-bootstrap llxprt-code llxprt-jefe llxprt-kill
 
 .DEFAULT_GOAL := help
 
 help:
-	@echo "Project Nyra - common targets"
+	@echo "Project Nyra - Unified Control Plane"
 	@echo
-	@echo "make install            Install root JS dependencies"
-	@echo "make env-bootstrap      Seed all core .env files from templates when missing"
-	@echo "make test               Run smoke tests ($(PKG_MGR) test)"
-	@echo "make test-all           Run full Vitest suite ($(PKG_MGR) run test:all)"
-	@echo "make lint               Run lint ($(PKG_MGR) lint)"
-	@echo "make validate           Validate compose + test + lint"
+	@echo "--- INFRASTRUCTURE ---"
+	@echo "make standup-orchestrator  Start full local stack (Open-WebUI -> Core -> Archon)"
+	@echo "make up                    Start default local stack profiles"
+	@echo "make down                  Stop and remove local stack"
+	@echo "make ps                    Show running containers"
+	@echo "make health                Run system-wide health checks"
 	@echo
-	@echo "make up                 Start default stack profiles"
-	@echo "make down               Stop and remove stack"
-	@echo "make logs               Tail logs for full stack"
-	@echo "make ps                 Show running containers"
+	@echo "--- ARCHON OS ---"
+	@echo "make archon-up             Start Archon stack (default: archon,with-db)"
+	@echo "                           ARCHON_PROFILES=archon,with-db,cloud,auth for full stack"
+	@echo "make archon-build-user     Build Archon using Dockerfile.user override"
+	@echo "make archon-down           Stop Archon stack"
+	@echo "make archon-logs           Tail Archon logs"
 	@echo
-	@echo "make up-core            Start core data services only"
-	@echo "make up-orchestrator    Start orchestrator profile set"
-	@echo "make up-apps            Start apps profile"
-	@echo "make up-dev             Start Archon OS dev profile"
-	@echo "make up-workers         Start worker profile if defined"
-	@echo "make logs-workers       Tail logs for all canonical worker compose stacks"
-	@echo "make archon-up          Start dedicated Archon stack (infra/compose/docker-compose.archon.yml)"
-	@echo "make archon-up-infisical Start dedicated Archon stack via infisical run"
-	@echo "make archon-down        Stop dedicated Archon stack"
-	@echo "make archon-logs        Tail dedicated Archon stack logs"
-	@echo "make archon-ps          Show dedicated Archon stack container status"
+	@echo "--- DISTRIBUTED CLUSTER (4-PC) ---"
+	@echo "make cluster               Launch tmux session controlling all 4 PCs"
+	@echo "make cluster-kill          Kill the NYRA-CLUSTER tmux session"
+	@echo "make grid                  Launch 5-pane monitor grid (SSH mesh)"
+	@echo "make grid-kill             Kill the NYRA-GRID tmux session"
+	@echo "make ai-grid               Launch AI CLI grid (Claude, Codex, Gemini, Workers)"
+	@echo "make ai-grid-kill          Kill the NYRA-AI-GRID tmux session"
+	@echo "make up-workers            Bring up all remote worker nodes via Docker contexts"
+	@echo "make up-oracle             Start Oracle VPS services"
 	@echo
-	@echo "make nexus-up           Start litellm + nexus-router only"
-	@echo "make nexus-down         Stop litellm + nexus-router"
-	@echo "make health             Stack health checks (uses HEALTH_ENV_FILE/STACK_ENV_FILE)"
-	@echo "make stack-up           One-command orchestrator bring-up (uses .env.stack)"
-	@echo "make stack-verify       Verify health endpoints + compose status"
-	@echo "make scan-env           Build env inventory + missing env reports"
-	@echo "make archive-guard      Fail if deprecated root archive paths return"
-	@echo "make repo-structure-audit Generate structure hotspot report in docs/reports/consolidation"
-	@echo "make edge-docs          Regenerate ports + cloudflared docs from canonical compose files"
-	@echo "make ports              Print canonical ports registry path"
-	@echo "make bootstrap-ultimate Bring up orchestrator + oracle + all workers"
-	@echo "make cluster-docs       Open distributed WSL2 cluster runbook path"
+	@echo "--- LLXPRT AI TOOLS ---"
+	@echo "make llxprt-bootstrap      Clone jefe + cache llxprt-code + build Rust binary"
+	@echo "make llxprt-code           Launch llxprt-code CLI (uses Nexus Router)"
+	@echo "make llxprt-jefe           Launch llxprt-jefe (Rust PM agent)"
+	@echo "make llxprt-kill           Kill both llxprt panes in NYRA-CLUSTER"
 	@echo
-	@echo "make grid               Launch NYRA tmux grid (4-node SSH mesh + Wrangler)"
-	@echo "make grid-kill          Kill the NYRA-GRID tmux session"
+	@echo "--- MEMPALACE MEMORY ---"
+	@echo "make mempalace-init        Initialize MemPalace DB on Oracle"
+	@echo "make mempalace-mine        Mine documents into MemPalace on Oracle"
 	@echo
-	@echo "make gitea-up           Start Gitea bootstrap stack"
-	@echo "make gitea-up-ai        Start Gitea stack with AI reviewer profile"
-	@echo "make gitea-up-actions   Start Gitea stack with actions runner profile"
-	@echo "make gitea-up-actions-large Start Gitea stack with large actions runner profile"
-	@echo "make gitea-up-infisical-agent Start Gitea stack with Infisical agent profile"
-	@echo "make gitea-config       Validate new Gitea compose config"
-	@echo "make gitea-bootstrap-orchestrator Bring up full Gitea + Actions package"
-	@echo "make portainer-bootstrap Bootstrap Portainer control-plane mesh package"
-	@echo "make portainer-edge-up  Start edge agent using .env.portainer.edge"
-	@echo "make portainer-down     Stop Portainer control-plane"
-	@echo "make portainer-deploy-all Deploy Portainer CE + agents to all 5 mesh nodes (incl. oracle)"
-	@echo "make oracle-context     Create 'oracle' docker context (SSH to VPS, one-time setup)"
-	@echo "make oracle-stack-up    Deploy latency-insensitive services to Oracle VPS via docker context"
-	@echo "make oracle-stack-down  Tear down Oracle VPS stack"
-	@echo "make oracle-stack-logs  Tail Oracle VPS stack logs"
-	@echo "make oracle-stack-ps    Show Oracle VPS running containers"
-	@echo "make ha-dashboard-up    Start HomeAssistant dashboard landing page"
-	@echo "make ha-dashboard-down  Stop HomeAssistant dashboard landing page"
-	@echo "make infisical-up       Start Infisical self-host stack"
-	@echo "make infisical-config   Validate new Infisical compose config"
+	@echo "--- COMPONENT STACKS ---"
+	@echo "make gitea-up              Start Gitea + Actions runner"
+	@echo "make gitea-down            Stop Gitea"
+	@echo "make gitea-ps              Show Gitea container status"
+	@echo "make twenty-crm-up         Start Twenty CRM"
+	@echo "make twenty-crm-down       Stop Twenty CRM"
+	@echo "make supabase-up           Start local Supabase DB"
 
-env-bootstrap:
-	@test -f .env.archon || cp .env.archon.example .env.archon
-	@test -f .env.gitea || cp .env.gitea.example .env.gitea
-	@test -f .env.infisical || cp .env.infisical.template .env.infisical
-	@test -f .env.orchestrator || cp .env.orchestrator.template .env.orchestrator
-	@test -f .env.oracle || cp .env.template .env.oracle
-	@test -f .env.worker-rtx3060 || cp .env.worker-rtx3060.template .env.worker-rtx3060
-	@test -f .env.worker-rtx3090 || echo "Missing .env.worker-rtx3090 (no template available)"
-	@test -f .env.worker-rtx5090 || echo "Missing .env.worker-rtx5090 (no template available)"
-	@echo "env-bootstrap complete"
+# --- CORE TARGETS ---
 
-install:
-	$(PKG_MGR) install
-
-test:
-	$(PKG_MGR) test
-
-test-all:
-	$(PKG_MGR) run test:all
-
-lint:
-	$(PKG_MGR) lint
-
-compose-config:
-	$(COMPOSE) config >/dev/null
-
-validate:
-	$(COMPOSE) config >/dev/null
-	@echo "compose config ok"
-	-@$(PKG_MGR) test
-	-@$(PKG_MGR) lint
-
-compose-config-all:
-	docker compose --env-file infra/env/.env.orchestrator -f infra/docker-compose.yml -f infra/compose/overrides/docker-compose.orchestrator.override.yml config >/dev/null
-	docker compose --env-file infra/env/.env.worker-rtx3060 -f infra/docker-compose.yml -f infra/compose/overrides/docker-compose.worker-rtx3060.override.yml config >/dev/null
-	docker compose --env-file infra/env/.env.worker-rtx3090ti -f infra/workers/worker-rtx3090ti/docker-compose.worker.yml config >/dev/null
-	docker compose --env-file infra/env/.env.worker-rtx5090 -f infra/workers/worker-rtx5090/docker-compose.worker.yml config >/dev/null
-	@echo "compose config ok for orchestrator and all workers"
+standup-orchestrator:
+	bash infra/scripts/standup-orchestrator.sh
 
 up:
 	@profiles=$$(echo "$(DEFAULT_PROFILES)" | tr ',' ' '); \
 	for p in $$profiles; do args="$$args --profile $$p"; done; \
-	echo "Starting profiles: $(DEFAULT_PROFILES)"; \
 	$(COMPOSE) $$args up -d
 
 down:
 	$(COMPOSE) down --remove-orphans
 
-restart: down up
-
-logs:
-	$(COMPOSE) logs -f --tail=200
-
 ps:
 	$(COMPOSE) ps
+	@echo "--- Archon Stack ---"
+	@docker compose -f $(ARCHON_COMPOSE) ps
 
-pull:
-	$(COMPOSE) pull
-
-up-core:
-	$(COMPOSE) --profile core up -d
-
-up-orchestrator:
-	$(COMPOSE) --profile orchestrator up -d
-
-up-apps:
-	$(COMPOSE) --profile apps up -d
-
-up-dev:
-	$(COMPOSE) --profile dev up -d
-
-up-workers:
-	$(COMPOSE) -f infra/workers/worker-rtx3060/docker-compose.worker.yml --profile worker-3060 up -d || $(COMPOSE) --profile worker-3060 up -d
-	$(COMPOSE) -f infra/workers/worker-rtx3090ti/docker-compose.worker.yml --profile worker-3090ti up -d || $(COMPOSE) --profile worker-3090ti up -d
-	$(COMPOSE) -f infra/workers/worker-rtx5090/docker-compose.worker.yml --profile worker-5090 up -d || $(COMPOSE) --profile worker-5090 up -d
-
-archon-config:
-	docker compose -f infra/compose/docker-compose.archon.yml config >/dev/null
+# --- ARCHON TARGETS ---
 
 archon-up:
-	docker compose -f infra/compose/docker-compose.archon.yml --profile archon up -d
+	@profiles=$$(echo "$(ARCHON_PROFILES)" | tr ',' ' '); \
+	for p in $$profiles; do args="$$args --profile $$p"; done; \
+	if [ -f external/archon/Dockerfile.user ]; then \
+		docker compose -f $(ARCHON_COMPOSE) -f $(ARCHON_OVERRIDE) $$args up -d; \
+	else \
+		docker compose -f $(ARCHON_COMPOSE) $$args up -d; \
+	fi
 
-archon-up-infisical:
-	infisical run $(INFISICAL_TOKEN_FLAG) --projectId="$(INFISICAL_PROJECT_ID)" --env="$(INFISICAL_ENV)" --path="$(INFISICAL_PATH)" -- docker compose -f infra/compose/docker-compose.archon.yml --profile archon up -d
+archon-build-user:
+	@if [ ! -f external/archon/Dockerfile.user ]; then \
+		echo "Creating external/archon/Dockerfile.user from example..."; \
+		cp external/archon/Dockerfile.user.example external/archon/Dockerfile.user; \
+	fi
+	docker compose -f $(ARCHON_COMPOSE) -f $(ARCHON_OVERRIDE) build archon
 
 archon-down:
-	docker compose -f infra/compose/docker-compose.archon.yml down --remove-orphans
+	docker compose -f $(ARCHON_COMPOSE) down --remove-orphans
 
 archon-logs:
-	docker compose -f infra/compose/docker-compose.archon.yml logs -f --tail=200
+	docker compose -f $(ARCHON_COMPOSE) logs -f --tail=100
 
 archon-ps:
-	docker compose -f infra/compose/docker-compose.archon.yml ps
+	docker compose -f $(ARCHON_COMPOSE) ps
 
-down-workers:
-	$(COMPOSE) -f infra/workers/worker-rtx3060/docker-compose.worker.yml down --remove-orphans || $(COMPOSE) --profile worker-3060 down --remove-orphans
-	$(COMPOSE) -f infra/workers/worker-rtx3090ti/docker-compose.worker.yml down --remove-orphans || $(COMPOSE) --profile worker-3090ti down --remove-orphans
-	$(COMPOSE) -f infra/workers/worker-rtx5090/docker-compose.worker.yml down --remove-orphans || $(COMPOSE) --profile worker-5090 down --remove-orphans
+# --- DISTRIBUTED TARGETS ---
 
-logs-workers:
-	-$(COMPOSE) -f infra/workers/worker-rtx3060/docker-compose.worker.yml logs -f --tail=200
-	-$(COMPOSE) -f infra/workers/worker-rtx3090ti/docker-compose.worker.yml logs -f --tail=200
-	-$(COMPOSE) -f infra/workers/worker-rtx5090/docker-compose.worker.yml logs -f --tail=200
+cluster:
+	bash scripts/nyra-cluster.sh
 
-nexus-up:
-	$(COMPOSE) --profile gateway up -d litellm nexus-router
-
-nexus-down:
-	$(COMPOSE) stop nexus-router litellm || true
-
-health:
-	./scripts/verify-stack.sh $(HEALTH_ENV_FILE)
-
-
-
-stack-up:
-	@test -f $(STACK_ENV_FILE) || (echo "Missing $(STACK_ENV_FILE). Copy .env.stack.example -> $(STACK_ENV_FILE)" && exit 1)
-	docker compose --env-file $(STACK_ENV_FILE) -f $(COMPOSE_FILE) --profile core --profile gateway --profile workflow --profile crm --profile archon --profile apps --profile observability --profile vector up -d
-
-stack-verify:
-	./scripts/stack/verify-stack.sh $(STACK_ENV_FILE)
-
-up-oracle:
-	docker compose -f infra/oracle/docker-compose.oracle.yml up -d
-
-up-worker-3060:
-	$(COMPOSE) --profile worker-3060 up -d
-
-up-worker-3090ti:
-	$(COMPOSE) --profile worker-3090ti up -d
-
-up-worker-5090:
-	$(COMPOSE) --profile worker-5090 up -d
-
-bootstrap-import:
-	./infra/scripts/bootstrap-import.sh bootstrap/incoming dry-run
-
-bootstrap-import-apply:
-	./infra/scripts/bootstrap-import.sh bootstrap/incoming apply
-
-
-bootstrap-ultimate:
-	./infra/scripts/ultimate-bootstrap.sh orchestrator up
-	./infra/scripts/ultimate-bootstrap.sh oracle up
-	./infra/scripts/ultimate-bootstrap.sh worker-3060 up
-	./infra/scripts/ultimate-bootstrap.sh worker-3090ti up
-	./infra/scripts/ultimate-bootstrap.sh worker-5090 up
-
-bootstrap-oracle:
-	./infra/scripts/ultimate-bootstrap.sh oracle up
-
-bootstrap-worker-3060:
-	./infra/scripts/ultimate-bootstrap.sh worker-3060 up
-
-bootstrap-worker-3090ti:
-	./infra/scripts/ultimate-bootstrap.sh worker-3090ti up
-
-bootstrap-worker-5090:
-	./infra/scripts/ultimate-bootstrap.sh worker-5090 up
-
-scan-env:
-	python scripts/generate-env-docs.py
-
-archive-guard:
-	bash ./scripts/maintenance/archive-guard.sh
-
-repo-structure-audit:
-	bash ./scripts/maintenance/repo-structure-audit.sh
-
-ports:
-	@echo "See docs/02_ports_registry.md"
-
-edge-docs:
-	python3 scripts/generate-edge-docs.py
-
-port-check:
-	python infra/scripts/check-port-collisions.py
-
-node-up-orchestrator:
-	./infra/scripts/node-up.sh orchestrator
-
-node-up-oracle:
-	./infra/scripts/node-up.sh oracle
-
-node-up-worker-3060:
-	./infra/scripts/node-up.sh worker-rtx3060
-
-node-up-worker-3090ti:
-	./infra/scripts/node-up.sh worker-rtx3090ti
-
-node-up-worker-5090:
-	./infra/scripts/node-up.sh worker-rtx5090
-
-node-down-orchestrator:
-	./infra/scripts/node-down.sh orchestrator
-
-node-down-oracle:
-	./infra/scripts/node-down.sh oracle
-
-node-down-worker-3060:
-	./infra/scripts/node-down.sh worker-rtx3060
-
-node-down-worker-3090ti:
-	./infra/scripts/node-down.sh worker-rtx3090ti
-
-node-down-worker-5090:
-	./infra/scripts/node-down.sh worker-rtx5090
-
-# Canonical consolidation wrappers (backwards compatible)
-.PHONY: down-oracle logs-oracle health-oracle down-orchestrator logs-orchestrator health-orchestrator health-workers audit-ports audit-env up-twenty down-twenty logs-twenty health-twenty
-
-down-oracle:
-	docker compose -f infra/oracle/docker-compose.oracle.yml down --remove-orphans
-
-logs-oracle:
-	docker compose -f infra/oracle/docker-compose.oracle.yml logs -f --tail=200
-
-health-oracle:
-	docker compose -f infra/oracle/docker-compose.oracle.yml ps
-
-down-orchestrator:
-	$(COMPOSE) --profile orchestrator down --remove-orphans
-
-logs-orchestrator:
-	$(COMPOSE) --profile orchestrator logs -f --tail=200
-
-health-orchestrator:
-	$(COMPOSE) --profile orchestrator ps
-
-up-twenty:
-	docker compose -f infra/oracle/docker-compose.oracle.yml up -d twenty postgres
-
-down-twenty:
-	docker compose -f infra/oracle/docker-compose.oracle.yml stop twenty postgres
-
-logs-twenty:
-	docker compose -f infra/oracle/docker-compose.oracle.yml logs -f --tail=200 twenty postgres
-
-health-twenty:
-	docker compose -f infra/oracle/docker-compose.oracle.yml ps twenty postgres
-
-health-workers:
-	$(COMPOSE) -f infra/workers/worker-rtx3060/docker-compose.worker.yml ps || $(COMPOSE) --profile worker-3060 ps || true
-	$(COMPOSE) -f infra/workers/worker-rtx3090ti/docker-compose.worker.yml ps || $(COMPOSE) --profile worker-3090ti ps || true
-	$(COMPOSE) -f infra/workers/worker-rtx5090/docker-compose.worker.yml ps || $(COMPOSE) --profile worker-5090 ps || true
-
-audit-ports:
-	python infra/scripts/check-port-collisions.py
-
-audit-env:
-	python scripts/generate-env-docs.py
-
-gitea-config:
-	docker compose -f docker-compose.gitea.yml --env-file .env.gitea config >/dev/null
-
-gitea-up:
-	docker compose -f docker-compose.gitea.yml --env-file .env.gitea up -d
-
-gitea-up-ai:
-	docker compose -f docker-compose.gitea.yml --env-file .env.gitea --profile ai up -d
-
-gitea-up-actions:
-	docker compose -f docker-compose.gitea.yml --env-file .env.gitea --profile actions up -d
-
-gitea-up-actions-large:
-	docker compose -f docker-compose.gitea.yml --env-file .env.gitea --profile actions-large up -d
-
-gitea-up-infisical-agent:
-	docker compose -f docker-compose.gitea.yml --env-file .env.gitea --profile infisical up -d
-
-gitea-down:
-	docker compose -f docker-compose.gitea.yml --env-file .env.gitea down --remove-orphans
-
-gitea-ps:
-	docker compose -f docker-compose.gitea.yml --env-file .env.gitea ps
-
-gitea-bootstrap-orchestrator:
-	ENABLE_ACTIONS=true ENABLE_ACTIONS_LARGE=false ENABLE_INFISICAL_AGENT=true ./scripts/gitea/bootstrap-orchestrator-gitea.sh
-
-supabase-up:
-	docker compose -f infra/compose/docker-compose.supabase.yml up -d
-
-supabase-down:
-	docker compose -f infra/compose/docker-compose.supabase.yml down
-
-infisical-config:
-	docker compose -f docker-compose.infisical.yml --env-file .env.infisical config >/dev/null
-
-infisical-up:
-	docker compose -f docker-compose.infisical.yml --env-file .env.infisical up -d
-
-infisical-down:
-	docker compose -f docker-compose.infisical.yml --env-file .env.infisical down --remove-orphans
-
-portainer-bootstrap:
-	./infra/orchestrator/portainer-mesh/bootstrap-portainer-mesh.sh
-
-portainer-edge-up:
-	docker compose --env-file infra/orchestrator/portainer-mesh/.env.portainer.edge -f infra/orchestrator/portainer-mesh/docker-compose.portainer.edge-agent.yml up -d
-
-portainer-down:
-	docker compose --env-file infra/orchestrator/portainer-mesh/.env.portainer.orchestrator -f infra/orchestrator/portainer-mesh/docker-compose.portainer.orchestrator.yml down --remove-orphans
-
-# Deploy Portainer CE server to orch, then agents to all 3 workers (sequential).
-# Each node sources its own infra/{orchestrator,worker-pcs/<node>}/.env.host.
-portainer-deploy-all:
-	@for pair in "orch:server" "worker-rtx5090:agent" "worker-rtx3090ti:agent" "worker-rtx3060:agent" "oracle:agent"; do \
-		node=$${pair%%:*}; role=$${pair##*:}; \
-		echo ""; \
-		echo "==> [$$node : $$role]"; \
-		bash infra/scripts/deploy-portainer.sh --node $$node --role $$role || exit 1; \
-	done
-	@echo ""
-	@echo "Portainer mesh deployment complete."
-
-ha-dashboard-up:
-	docker compose --env-file infra/homeassistant/.env.homeassistant-dashboard -f infra/homeassistant/docker-compose.homeassistant-dashboard.yml up -d
-
-ha-dashboard-down:
-	docker compose --env-file infra/homeassistant/.env.homeassistant-dashboard -f infra/homeassistant/docker-compose.homeassistant-dashboard.yml down --remove-orphans
-
-# ── Oracle VPS — latency-insensitive services ──────────────────────────────
-# These targets run docker compose on the Oracle VPS via SSH docker context.
-# Services: TwentyCRM, n8n, Activepieces, Prometheus, Grafana, Loki, cAdvisor,
-#           OpenWebUI, FalkorDB, Letta, Moltbot, Quote API.
-# Prereq: infra/oracle/.env.oracle must exist (copy from .env.oracle.template).
-
-oracle-context:
-	@docker context inspect oracle >/dev/null 2>&1 \
-		&& echo "Oracle docker context already exists." \
-		|| (docker context create oracle \
-			--docker host=ssh://oracle \
-			&& echo "Oracle docker context created.")
-
-# COMPOSE_FILE for oracle stack (standalone — self-contained DB/cache/services)
-ORACLE_COMPOSE_FILE := infra/oracle/docker-compose.oracle.yml
-ORACLE_ENV_FILE     := infra/oracle/.env.oracle
-
-oracle-stack-up: oracle-context
-	@test -f $(ORACLE_ENV_FILE) || { \
-		echo "Missing $(ORACLE_ENV_FILE)"; \
-		echo "Copy infra/oracle/.env.oracle.template → infra/oracle/.env.oracle and fill values."; \
-		exit 1; \
-	}
-	docker --context oracle compose \
-		--env-file $(ORACLE_ENV_FILE) \
-		-f $(ORACLE_COMPOSE_FILE) \
-		up -d
-	@echo "Oracle stack is up. Access via ssh-oracle or Portainer at https://orch:9443"
-
-oracle-stack-down: oracle-context
-	docker --context oracle compose \
-		--env-file $(ORACLE_ENV_FILE) \
-		-f $(ORACLE_COMPOSE_FILE) \
-		down --remove-orphans
-
-oracle-stack-logs: oracle-context
-	docker --context oracle compose \
-		--env-file $(ORACLE_ENV_FILE) \
-		-f $(ORACLE_COMPOSE_FILE) \
-		logs -f --tail=200
-
-oracle-stack-ps: oracle-context
-	docker --context oracle compose \
-		--env-file $(ORACLE_ENV_FILE) \
-		-f $(ORACLE_COMPOSE_FILE) \
-		ps
-
-# Additive bootstrap-safe wrappers (do not replace existing flows)
-up-gitea:
-	docker compose -f docker-compose.gitea.bootstrap.yml --env-file .env.gitea up -d
-
-down-gitea:
-	docker compose -f docker-compose.gitea.bootstrap.yml --env-file .env.gitea down --remove-orphans
-
-logs-gitea:
-	docker compose -f docker-compose.gitea.bootstrap.yml --env-file .env.gitea logs -f --tail=200
-
-health-gitea:
-	docker compose -f docker-compose.gitea.bootstrap.yml --env-file .env.gitea ps
-
-up-infisical:
-	docker compose -f docker-compose.infisical.bootstrap.yml --env-file .env.infisical up -d
-
-down-infisical:
-	docker compose -f docker-compose.infisical.bootstrap.yml --env-file .env.infisical down --remove-orphans
-
-logs-infisical:
-	docker compose -f docker-compose.infisical.bootstrap.yml --env-file .env.infisical logs -f --tail=200
-
-health-infisical:
-	docker compose -f docker-compose.infisical.bootstrap.yml --env-file .env.infisical ps
-
-# TwentyCRM Integration Commands
-.PHONY: twenty-crm-config twenty-crm-setup twenty-crm-up twenty-crm-dev twenty-crm-down twenty-crm-restart twenty-crm-logs twenty-crm-ps twenty-crm-health twenty-crm-reset twenty-mcp-up twenty-mcp-down
-
-twenty-crm-config:
-	$(TWENTY_COMPOSE) config >/dev/null
-	@echo "TwentyCRM compose config validated"
-
-twenty-crm-setup:
-	@echo "Setting up TwentyCRM for Nyra..."
-	cd apps/twenty-crm && node scripts/setup.js
-
-twenty-crm-up:
-	@echo "Starting TwentyCRM production stack..."
-	$(TWENTY_COMPOSE) up -d
-	@echo "TwentyCRM available at: http://localhost:3020"
-
-twenty-crm-dev:
-	@echo "Starting TwentyCRM development environment..."
-	cd apps/twenty-crm && npm run dev
-	@echo "TwentyCRM dev environment available at: http://localhost:3021"
-
-twenty-crm-down:
-	@echo "Stopping TwentyCRM stack..."
-	$(TWENTY_COMPOSE) down --remove-orphans
-
-twenty-crm-restart: twenty-crm-down twenty-crm-up
-
-twenty-crm-logs:
-	$(TWENTY_COMPOSE) logs -f --tail=200
-
-twenty-crm-ps:
-	$(TWENTY_COMPOSE) ps
-
-twenty-crm-health:
-	@echo "=== TwentyCRM Health Status ==="
-	$(TWENTY_COMPOSE) ps
-	@echo ""
-	@echo "=== Service Health Checks ==="
-	@docker inspect --format='{{.State.Health.Status}}' nyra-twenty-db 2>/dev/null | xargs -I {} echo "Database: {}" || echo "Database: not running"
-	@docker inspect --format='{{.State.Health.Status}}' nyra-twenty-redis 2>/dev/null | xargs -I {} echo "Redis: {}" || echo "Redis: not running"
-	@docker inspect --format='{{.State.Health.Status}}' nyra-twenty-crm 2>/dev/null | xargs -I {} echo "Application: {}" || echo "Application: not running"
-
-twenty-crm-reset:
-	@echo "WARNING: This will remove all TwentyCRM data!"
-	@read -p "Are you sure? (y/N): " confirm && [ "$$confirm" = "y" ]
-	$(TWENTY_COMPOSE) down -v --remove-orphans
-	@echo "TwentyCRM reset completed. Run 'make twenty-crm-setup' to initialize."
-
-twenty-mcp-up:
-	@echo "Starting TwentyCRM MCP Server..."
-	$(TWENTY_COMPOSE) --profile mcp-server up -d twenty-mcp-server
-	@echo "TwentyCRM MCP Server available at: http://localhost:3022"
-
-twenty-mcp-down:
-	@echo "Stopping TwentyCRM MCP Server..."
-	$(TWENTY_COMPOSE) stop twenty-mcp-server
-
-cluster-docs:
-	@echo "See docs/infra/DISTRIBUTED_WSL2_CLUSTER.md"
-
-git-remote-health:
-	bash ./scripts/maintenance/git-remote-health.sh
-
-host-layout-validate:
-	python3 scripts/maintenance/validate_host_layout.py
-
-host-plan:
-	python3 scripts/maintenance/generate-host-service-plan.py
-
-install-infra-host-layout:
-	bash ./scripts/setup/install-infra-host-layout.sh
+cluster-kill:
+	tmux kill-session -t NYRA-CLUSTER 2>/dev/null || true
 
 grid:
-	bash ./scripts/nyra-grid.sh
+	bash scripts/nyra-grid.sh
 
 grid-kill:
-	tmux kill-session -t "$${NYRA_TMUX_SESSION:-NYRA-GRID}" 2>/dev/null || true
+	tmux kill-session -t NYRA-GRID 2>/dev/null || true
 
-claw-build:
-	cd external/claw-code/rust && cargo build --workspace
-	ln -sf "$(PWD)/external/claw-code/rust/target/debug/claw" "$(HOME)/.local/bin/claw"
-	@echo "claw binary ready: $$(which claw)"
+ai-grid:
+	bash infra/scripts/ai-grid.sh
 
-claw-rebuild:
-	cd external/claw-code/rust && cargo clean && cargo build --workspace
-	ln -sf "$(PWD)/external/claw-code/rust/target/debug/claw" "$(HOME)/.local/bin/claw"
+ai-grid-kill:
+	tmux kill-session -t NYRA-AI-GRID 2>/dev/null || true
 
-claw-update:
-	git -C external/claw-code pull --ff-only
-	cd external/claw-code/rust && cargo build --workspace
-	ln -sf "$(PWD)/external/claw-code/rust/target/debug/claw" "$(HOME)/.local/bin/claw"
-	@echo "claw updated: $$("$(HOME)/.local/bin/claw" --version 2>&1 | head -2)"
+up-workers:
+	docker --context worker-rtx3060 compose -f $(WORKER_3060_COMPOSE) up -d
+	docker --context worker-rtx3090ti compose -f $(WORKER_3090TI_COMPOSE) up -d
+	docker --context worker-rtx5090 compose -f $(WORKER_5090_COMPOSE) up -d
+
+up-oracle:
+	docker --context oracle compose -f $(ORACLE_COMPOSE) up -d
+
+# --- LLXPRT TARGETS ---
+
+llxprt-bootstrap:
+	bash scripts/bootstrap-llxprt-stack.sh
+
+llxprt-code:
+	bash scripts/run-llxprt-code.sh
+
+llxprt-jefe:
+	bash scripts/run-llxprt-jefe.sh
+
+llxprt-kill:
+	@# Kill llxprt panes inside NYRA-CLUSTER (panes 0 and 1 = jefe and code)
+	tmux send-keys -t NYRA-CLUSTER:0.0 C-c 2>/dev/null || true
+	tmux send-keys -t NYRA-CLUSTER:0.1 C-c 2>/dev/null || true
+
+# --- COMPONENT TARGETS ---
+
+gitea-up:
+	docker compose -f $(GITEA_COMPOSE) --env-file .env.gitea up -d
+
+gitea-down:
+	docker compose -f $(GITEA_COMPOSE) down
+
+gitea-ps:
+	docker compose -f $(GITEA_COMPOSE) ps
+
+twenty-crm-up:
+	docker compose -f $(TWENTY_COMPOSE) up -d
+
+twenty-crm-down:
+	docker compose -f $(TWENTY_COMPOSE) down
+
+supabase-up:
+	docker compose -f $(SUPABASE_COMPOSE) up -d
+
+mempalace-init:
+	docker --context oracle exec -it nyra-mempalace mempalace init
+
+mempalace-mine:
+	docker --context oracle exec -it nyra-mempalace mempalace mine
+
+health:
+	bash scripts/verify-stack.sh

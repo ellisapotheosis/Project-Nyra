@@ -1,36 +1,51 @@
 {
-  "$schema": "https://openclaw.dev/schemas/config.json",
-  "provider": {
-    "name": "${OPENCLAW_PROVIDER:-openai}",
-    "baseUrl": "${OPENCLAW_OPENAI_BASE_URL:-https://api.openai.com/v1}",
-    "apiKey": "${OPENAI_API_KEY}"
-  },
-  "plugins": [
-    {
-      "package": "@mem0/openclaw-mem0",
-      "enabled": true,
-      "config": {
-        "mode": "platform",
-        "apiKey": "${MEM0_API_KEY}",
-        "memoryNamespaces": {
-          "conversational": "nyra-conversation",
-          "operational": "nyra-ops",
-          "crm": "nyra-crm"
+  "plugins": {
+    "slots": {
+      "memory": "openclaw-mem0"
+    },
+    "entries": {
+      "openclaw-mem0": {
+        "enabled": true,
+        "config": {
+          "mode": "open-source",
+          "userId": "nyra",
+          "autoRecall": true,
+          "autoCapture": true,
+          "enableGraph": true,
+          "topK": 5,
+          "searchThreshold": 0.3,
+          "oss": {
+            "embedder": {
+              "provider": "openai",
+              "config": {
+                "model": "text-embedding-3-small",
+                "api_key": "${LITELLM_API_KEY}",
+                "base_url": "${LITELLM_BASE_URL}/v1"
+              }
+            },
+            "vectorStore": {
+              "provider": "memory",
+              "config": { "dimension": 1536 }
+            },
+            "graphStore": {
+              "provider": "falkordb",
+              "config": {
+                "host": "${FALKORDB_HOST}",
+                "port": "${FALKORDB_PORT:-6380}",
+                "graphName": "mem0"
+              }
+            },
+            "llm": {
+              "provider": "openai",
+              "config": {
+                "model": "gpt-4o-mini",
+                "api_key": "${LITELLM_API_KEY}",
+                "base_url": "${LITELLM_BASE_URL}/v1"
+              }
+            }
+          }
         }
       }
     }
-  ],
-  "routing": {
-    "mcp": {
-      "primary": "${NEXUS_MCP_URL:-http://nexus-router:8080/mcp}",
-      "mode": "nexus"
-    }
-  },
-  "sessions": {
-    "path": "${OPENCLAW_SESSION_PATH:-/home/node/.openclaw/sessions}",
-    "persist": true
-  },
-  "webhooks": {
-    "ingressPath": "${OPENCLAW_WEBHOOK_INGRESS_PATH:-/webhooks/openclaw/inbound}"
   }
 }

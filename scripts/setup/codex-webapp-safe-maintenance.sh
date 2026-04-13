@@ -29,4 +29,5 @@ if [[ -z "$REPO_ROOT" ]]; then
 fi
 
 cd "$REPO_ROOT"
-exec bash "$REPO_ROOT/scripts/setup/codex-webapp-manual-maintenance.sh" --webapp-safe "$@"
+# Removed 'exec' to prevent the terminal from dying when the script finishes or errors
+bash "$REPO_ROOT/scripts/setup/codex-webapp-manual-maintenance.sh" --webapp-safe "$@"

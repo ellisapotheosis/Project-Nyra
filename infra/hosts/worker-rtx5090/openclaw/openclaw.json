@@ -1,0 +1,51 @@
+{
+  "plugins": {
+    "slots": {
+      "memory": "openclaw-mem0"
+    },
+    "entries": {
+      "openclaw-mem0": {
+        "enabled": true,
+        "config": {
+          "mode": "open-source",
+          "userId": "nyra",
+          "autoRecall": true,
+          "autoCapture": true,
+          "enableGraph": true,
+          "topK": 5,
+          "searchThreshold": 0.3,
+          "oss": {
+            "embedder": {
+              "provider": "openai",
+              "config": {
+                "model": "text-embedding-3-small",
+                "api_key": "REPLACE_WITH_LITELLM_API_KEY",
+                "base_url": "http://REPLACE_WITH_ORCHESTRATOR_TAILSCALE_IP:4000/v1"
+              }
+            },
+            "vectorStore": {
+              "provider": "memory",
+              "config": { "dimension": 1536 }
+            },
+            "graphStore": {
+              "provider": "falkordb",
+              "config": {
+                "host": "REPLACE_WITH_ORACLE_TAILSCALE_IP",
+                "port": 6380,
+                "graphName": "mem0"
+              }
+            },
+            "llm": {
+              "provider": "openai",
+              "config": {
+                "model": "gpt-4o-mini",
+                "api_key": "REPLACE_WITH_LITELLM_API_KEY",
+                "base_url": "http://REPLACE_WITH_ORCHESTRATOR_TAILSCALE_IP:4000/v1"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

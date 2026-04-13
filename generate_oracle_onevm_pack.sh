@@ -3,7 +3,7 @@ set -euo pipefail
 
 # Project Nyra — Oracle One-VM Stack Generator
 # Creates/updates:
-#   infra/oracle/docker-compose.oracle.yml
+#   infra/hosts/oracle-vps/docker-compose.yml
 #   infra/oracle/.env.example
 #   infra/oracle/initdb/00_create_dbs.sql
 #   infra/oracle/README.md
@@ -175,7 +175,7 @@ CREATE DATABASE n8n;
 CREATE EXTENSION IF NOT EXISTS ruvector;
 SQLEOF
 
-write_file infra/oracle/docker-compose.oracle.yml <<'COMPOSEEOF'
+write_file infra/hosts/oracle-vps/docker-compose.yml <<'COMPOSEEOF'
 name: nyra-oracle
 
 services:
