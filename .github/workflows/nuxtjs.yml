@@ -61,7 +61,7 @@ jobs:
           cache: ${{ steps.detect-package-manager.outputs.manager }}
       - name: Check Pages integration capability
         id: pages-capability
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             try {
