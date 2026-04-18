@@ -28,6 +28,11 @@ require_cmd() {
   fi
 }
 
+die() {
+  echo "ERROR: $*" >&2
+  exit 1
+}
+
 api() {
   local method="$1"
   local path="$2"
@@ -56,6 +61,59 @@ graphql() {
     -H "Authorization: Bearer ${GITHUB_TOKEN}" \
     "https://api.github.com/graphql" \
     -d "$(jq -cn --arg query "$query" --argjson variables "$variables" '{query:$query,variables:$variables}')"
+}
+
+graphql_unresolved_thread_count() {
+  local owner="$1"
+  local repo_name="$2"
+  local pr_number="$3"
+  local query='
+    query($owner:String!, $repo:String!, $number:Int!, $after:String) {
+      repository(owner:$owner, name:$repo) {
+        pullRequest(number:$number) {
+          reviewThreads(first:100, after:$after) {
+            nodes {
+              isResolved
+            }
+            pageInfo {
+              hasNextPage
+              endCursor
+            }
+          }
+        }
+      }
+    }'
+  local after='null'
+  local unresolved=0
+
+  while :; do
+    local variables response page_count has_next end_cursor
+    variables="$(jq -cn \
+      --arg owner "$owner" \
+      --arg repo "$repo_name" \
+      --argjson number "$pr_number" \
+      --argjson after "$after" \
+      '{owner:$owner,repo:$repo,number:$number,after:$after}')"
+    response="$(graphql "$query" "$variables")"
+
+    jq -e '.errors | not' >/dev/null <<<"$response" || \
+      die "GraphQL reviewThreads query failed for PR #${pr_number}: $(jq -c '.errors' <<<"$response")"
+
+    jq -e '.data.repository.pullRequest != null' >/dev/null <<<"$response" || \
+      die "GraphQL reviewThreads query returned no pull request data for PR #${pr_number}"
+
+    page_count="$(jq '[.data.repository.pullRequest.reviewThreads.nodes[]? | select(.isResolved == false)] | length' <<<"$response")"
+    unresolved=$((unresolved + page_count))
+    has_next="$(jq -r '.data.repository.pullRequest.reviewThreads.pageInfo.hasNextPage // false' <<<"$response")"
+    if [[ "$has_next" != "true" ]]; then
+      break
+    fi
+    end_cursor="$(jq -r '.data.repository.pullRequest.reviewThreads.pageInfo.endCursor // empty' <<<"$response")"
+    [[ -n "$end_cursor" ]] || die "Missing endCursor while paginating review threads for PR #${pr_number}"
+    after="$(jq -Rn --arg cursor "$end_cursor" '$cursor')"
+  done
+
+  echo "$unresolved"
 }
 
 REPO="${GITHUB_REPOSITORY:-}"
@@ -102,14 +160,16 @@ require_cmd curl
 require_cmd jq
 
 if [[ -z "$REPO" ]]; then
-  echo "Repository not set. Use --repo owner/name or set GITHUB_REPOSITORY." >&2
-  exit 1
+  die "Repository not set. Use --repo owner/name or set GITHUB_REPOSITORY."
 fi
 
 if [[ -z "${GITHUB_TOKEN:-}" ]]; then
-  echo "GITHUB_TOKEN is required." >&2
-  exit 1
+  die "GITHUB_TOKEN is required."
 fi
+
+[[ "$REPO" =~ ^[^/]+/[^/]+$ ]] || die "Repository must be in owner/name format: ${REPO}"
+owner="${REPO%%/*}"
+repo_name="${REPO#*/}"
 
 echo "Scanning open PRs for ${REPO}..."
 open_prs="$(api GET "/repos/${REPO}/pulls?state=open&per_page=100")"
@@ -126,12 +186,18 @@ for pr in $(jq -r '.[].number' <<<"$open_prs"); do
   title="$(jq -r '.title' <<<"$pr_data")"
   draft="$(jq -r '.draft' <<<"$pr_data")"
   mergeable_state="$(jq -r '.mergeable_state // "unknown"' <<<"$pr_data")"
-  requested_reviewers_count="$(jq -r '.requested_reviewers | length' <<<"$pr_data")"
+  requested_reviewers_count="$(jq -r '(.requested_reviewers | length) + (.requested_teams | length)' <<<"$pr_data")"
 
   reviews="$(api GET "/repos/${REPO}/pulls/${pr}/reviews")"
   review_state="$(jq -r '
-    sort_by(.submitted_at // "")
-    | reduce .[] as $r ({}; .[$r.user.login] = $r.state)
+    sort_by(.submitted_at // "9999-12-31T23:59:59Z")
+    | reduce .[] as $r ({};
+        .[
+          if ($r.user.login // "") != "" then $r.user.login
+          else "__review_id_" + (($r.id // "unknown") | tostring)
+          end
+        ] = $r.state
+      )
     | [.[]]
     | if any(. == "CHANGES_REQUESTED") then "CHANGES_REQUESTED"
       elif any(. == "APPROVED") then "APPROVED"
@@ -142,26 +208,12 @@ for pr in $(jq -r '.[].number' <<<"$open_prs"); do
   comments="$(jq -r '.comments' <<<"$issue")"
   review_comments="$(jq -r '.review_comments' <<<"$issue")"
 
-  read -r owner repo_name <<<"$(awk -F/ '{print $1, $2}' <<<"$REPO")"
-  threads_query='
-    query($owner:String!, $repo:String!, $number:Int!) {
-      repository(owner:$owner, name:$repo) {
-        pullRequest(number:$number) {
-          reviewThreads(first:100) {
-            nodes {
-              isResolved
-            }
-          }
-        }
-      }
-    }'
-  threads_data="$(graphql "$threads_query" "$(jq -cn --arg owner "$owner" --arg repo "$repo_name" --argjson number "$pr" '{owner:$owner,repo:$repo,number:$number}')")"
-  unresolved_threads="$(jq -r '[.data.repository.pullRequest.reviewThreads.nodes[] | select(.isResolved == false)] | length' <<<"$threads_data")"
+  unresolved_threads="$(graphql_unresolved_thread_count "$owner" "$repo_name" "$pr")"
 
   blockers="()"
   if [[ "$SHOW_BLOCKERS" == "true" ]]; then
     blockers="$(jq -r '
-      [ .[] | select(.state == "CHANGES_REQUESTED" or .state == "COMMENTED")
+      [ .[] | select(.state == "CHANGES_REQUESTED")
         | {user: (.user.login // "unknown"), state: .state, submitted_at: (.submitted_at // "n/a"), body: (.body // "")}
       ]
       | map("\(.user) [\(.state)] @ \(.submitted_at): " + ((.body | gsub("\\s+";" ") | .[0:120]) // ""))
