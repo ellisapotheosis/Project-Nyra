@@ -83,7 +83,6 @@ Generated: 2026-02-28T20:15:27.012965Z
   - infra/stacks/nyra-mortgage/docker-compose.yml
 - **ollama**
   - infra/workers/worker-3060/docker-compose.worker-3060.yml
-- **onnx-runtime**
   - infra/workers/worker-3060/docker-compose.worker-3060.yml
 - **openmemory_mcp**
   - infra/stacks/nyra-mortgage/docker-compose.yml
@@ -94,7 +93,6 @@ Generated: 2026-02-28T20:15:27.012965Z
   - infra/stacks/nyra-mortgage/docker-compose.services.yml
 - **quote_engine**
   - infra/stacks/nyra-mortgage/docker-compose.services.yml
-- **ruvector-pgadmin**
   - infra/compose/overrides/docker-compose.orchestrator.override.yml
 - **tunnel**
   - infra/docker-compose.orchestrator-cf-tunnel.yml
@@ -158,10 +156,6 @@ Generated: 2026-02-28T20:15:27.012965Z
 - REDIS_MAX_MEMORY
 - REDIS_PASSWORD
 - REDIS_PORT
-- RUVECTOR_POSTGRES_DB
-- RUVECTOR_POSTGRES_PASSWORD
-- RUVECTOR_POSTGRES_PORT
-- RUVECTOR_POSTGRES_USER
 - TIMEZONE
 - TWENTYCRM_API_KEY
 - TWENTYCRM_MCP_IMAGE

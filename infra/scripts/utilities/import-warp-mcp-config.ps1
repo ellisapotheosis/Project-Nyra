@@ -125,11 +125,6 @@ if ($GenerateNew) {
                 "args" = @("archon-os")
                 "env" = @{}
             }
-            "flow-nexus" = @{
-                "command" = "npx"  
-                "args" = @("flow-nexus")
-                "env" = @{}
-            }
             "desktop-commander" = @{
                 "command" = "npx"
                 "args" = @("desktop-commander")

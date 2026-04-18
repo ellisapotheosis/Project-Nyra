@@ -90,7 +90,7 @@ make verify-connectivity
 |---------|--------|---------|-----|
 | **Orchestrator (Control Plane)** | PC1 (Minisforum) | Cloudflared | Always-on coordinator |
 | **Nexus Router** | PC1 | nexus.ratehunter.net | MCP hub + LLM router |
-| **Claude Flow V3** | PC1 | Internal | Swarm orchestration |
+| **Archon OS** | PC1 | Internal | Context and workflow coordination |
 | **PostgreSQL, Redis, Qdrant** | PC1 | Internal (Tailscale) | Databases for all services |
 | **GPU Workers (Inference)** | PC2/3/4 (Tailscale mesh) | Internal | Distributed compute |
 | **TwentyCRM, n8n, Activepieces** | Oracle Cloud | Cloudflared | Always-on business logic |

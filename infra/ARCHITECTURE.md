@@ -13,7 +13,7 @@ Project Nyra is a **distributed, AI-powered mortgage lead automation platform** 
 2. **Deduplicate & enrich** lead data and store in TwentyCRM (system of record)
 3. **Execute intelligent drip campaigns** (45–60 day multi-channel sequences with STOP compliance)
 4. **Generate accurate loan quotes** via a stateless Quote API (mathematical parity with Excel)
-5. **Maintain memory without PII exposure** using letta + Mem0 + RuVector
+5. **Maintain memory without PII exposure** using scoped assistant memory and strict retention controls
 6. **Route AI workloads intelligently** across local GPU workers (5090, 3090Ti, 3060) and cloud
 7. **Expose all capabilities** via Nexus Router (MCP aggregator) to agents (archon-os, OpenClaw, Archon-OS)
 

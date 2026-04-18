@@ -21,7 +21,7 @@ curl -fsSL https://tailscale.com/install.sh | sudo sh
 sudo tailscale up --authkey REPLACE_ME_TAILSCALE_AUTHKEY --hostname nyra-oracle
 
 # 4. Create data directories for persistent volumes
-sudo mkdir -p /data/nyra/{postgres,redis,falkordb,ruvector,prometheus,grafana,loki,n8n,activepieces,letta,gitea}
+sudo mkdir -p /data/nyra/{postgres,redis,falkordb,prometheus,grafana,loki,n8n,activepieces,letta,gitea}
 sudo chown -R $USER:$USER /data/nyra
 
 # 5. (Optional) Install cloudflared for reverse proxy (comment out if not using Cloudflare on Oracle)

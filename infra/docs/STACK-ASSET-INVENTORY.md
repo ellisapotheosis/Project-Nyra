@@ -69,7 +69,6 @@ Generated: 2026-02-28T20:15:13+00:00
 - loki
 - grafana
 - cloudflared
-- ruvector-postgres
 
 ## Ports currently declared in master compose
 - postgres: ${POSTGRES_PORT:-5432}:5432
@@ -81,11 +80,10 @@ Generated: 2026-02-28T20:15:13+00:00
 - activepieces: ${ACTIVEPIECES_PORT:-8082}:80
 - twentycrm: ${TWENTYCRM_PORT:-3000}:3000
 - twentycrm-mcp: ${TWENTYCRM_MCP_PORT:-8082}:8082
-- archon-os: ${CLAUDE_FLOW_PORT:-8085}:8080
+- archon-os: ${ARCHON_OS_PORT:-9001}:9001
 - archon-os: ${ARCHON_OS_PORT:-9001}:9001
 - moltbot-web: ${MOLTBOT_WEB_PORT:-3030}:3030
 - openwebui: ${OPENWEBUI_PORT:-8088}:8080
 - prometheus: ${PROMETHEUS_PORT:-9090}:9090
 - loki: ${LOKI_PORT:-3100}:3100
 - grafana: ${GRAFANA_PORT:-3003}:3000
-- ruvector-postgres: ${RUVECTOR_POSTGRES_PORT:-5436}:5432

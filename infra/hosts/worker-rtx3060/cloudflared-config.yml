@@ -15,12 +15,6 @@ ingress:
       noTLSVerify: false
       http2Origin: true
 
-  # ONNX Runtime - GPU inference
-  - hostname: onnx-worker-3060.yourdomain.com
-    service: http://localhost:8001
-    originRequest:
-      connectTimeout: 10s
-
   # Embedding Service
   - hostname: embeddings-worker-3060.yourdomain.com
     service: http://localhost:8080
@@ -145,7 +139,6 @@ edge-ip-version: auto
 # 1. Setup:
 #    cloudflared tunnel create worker-3060
 #    cloudflared tunnel route dns worker-3060 ollama-worker-3060.yourdomain.com
-#    cloudflared tunnel route dns worker-3060 onnx-worker-3060.yourdomain.com
 #    cloudflared tunnel route dns worker-3060 embeddings-worker-3060.yourdomain.com
 #    cloudflared tunnel route dns worker-3060 health-worker-3060.yourdomain.com
 #

@@ -17,7 +17,6 @@ Cloudflare tunnel mappings, and your Infisical secrets accordingly.
 | Gitea SSH         | 22             | 2222      | core             | Internal |
 | Redis             | 6380           | 6380      | databases        | Internal |
 | FalkorDB          | 6379           | 6379      | databases        | Internal |
-| RuVector Postgres | 5432           | 5436      | databases/vector | Internal |
 | Postgres: Archon  | 5432           | n/a       | databases        | Internal |
 | Postgres: Gitea   | 5432           | n/a       | databases        | Internal |
 | Postgres: Infisical| 5432          | n/a       | databases        | Internal |

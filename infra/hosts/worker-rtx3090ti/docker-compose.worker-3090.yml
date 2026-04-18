@@ -107,76 +107,6 @@ services:
       - worker-network
 
   # ============================================================================
-  # Model Switcher - Hot-swap models based on demand
-  # ============================================================================
-  model-switcher:
-    image: python:3.11-slim
-    container_name: worker-3090-switcher
-    hostname: worker-3090-switcher
-    restart: unless-stopped
-    volumes:
-      - ./model-switcher:/app
-      - vllm-models:/models
-    environment:
-      - VLLM_URL=http://vllm:8000
-      - AVAILABLE_MODELS=meta-llama/Llama-3.1-8B-Instruct,meta-llama/Llama-3.1-70B-Instruct-AWQ,codellama/CodeLlama-34b-Instruct-hf,mistralai/Mixtral-8x7B-Instruct-v0.1-AWQ
-      - DEFAULT_MODEL=meta-llama/Llama-3.1-8B-Instruct
-    command: python /app/switcher.py
-    depends_on:
-      - vllm
-    labels:
-      - 'com.nyra.service=model-switcher'
-      - 'com.nyra.worker=rtx3090ti'
-    networks:
-      - worker-network
-
-  # ============================================================================
-  # Health Monitor - Periodic health checks and metrics
-  # ============================================================================
-  health-monitor:
-    image: curlimages/curl:latest
-    container_name: worker-3090-health-monitor
-    hostname: worker-3090-health-monitor
-    restart: unless-stopped
-    depends_on:
-      - vllm
-    volumes:
-      - ./health-check.sh:/health-check.sh:ro
-      - ./logs/health:/var/log/health
-    environment:
-      - VLLM_URL=http://vllm:8000
-      - WORKER_ID=${WORKER_ID:-worker-3090}
-      - CHECK_INTERVAL=60
-    entrypoint: ['/bin/sh', '-c']
-    command:
-      - |
-        while true; do
-          echo "[$(date -Iseconds)] Running health check..."
-
-          # Check vLLM API
-          if curl -sf "$${VLLM_URL}/health" > /dev/null; then
-            echo "[$(date -Iseconds)] [OK] vLLM API responding"
-          else
-            echo "[$(date -Iseconds)] [ERROR] vLLM API not responding"
-          fi
-
-          # Check model availability
-          MODELS=$$(curl -sf "$${VLLM_URL}/v1/models" | grep -o '"id"' | wc -l)
-          echo "[$(date -Iseconds)] [INFO] Available models: $$MODELS"
-
-          # Sleep before next check
-          sleep $${CHECK_INTERVAL}
-        done | tee -a /var/log/health/health-monitor.log
-    labels:
-      - 'com.project-nyra.service=health-monitor'
-      - 'com.project-nyra.worker=worker-3090'
-    logging:
-      driver: 'json-file'
-      options:
-        max-size: '10m'
-        max-file: '3'
-
-  # ============================================================================
   # Promtail - Log Shipper to Loki
   # ============================================================================
   promtail:
@@ -261,6 +191,10 @@ services:
         max-file: '3'
 
 volumes:
+  vllm-models:
+    driver: local
+  lmcache-data:
+    driver: local
   ollama-models:
     driver: local
     driver_opts:
@@ -269,6 +203,6 @@ volumes:
       device: ${OLLAMA_MODELS_PATH:-./data/ollama-models}
 
 networks:
-  default:
+  worker-network:
     name: nyra-worker-3090
     driver: bridge
