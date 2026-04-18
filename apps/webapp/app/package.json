@@ -21,7 +21,7 @@
     "react-calendar": "^4.7.0",
     "react-beautiful-dnd": "^13.1.1",
     "date-fns": "^3.0.0",
-    "recharts": "^2.10.3",
+    "recharts": "^3.8.1",
     "framer-motion": "^10.16.16",
     "lucide-react": "^0.303.0",
     "clsx": "^2.0.0",
