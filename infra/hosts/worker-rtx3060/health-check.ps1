@@ -49,7 +49,6 @@ Write-Host "`nDocker Services:" -ForegroundColor Yellow
 
 $services = @(
     @{ Name = "ollama"; Port = 11434; HealthPath = "/api/version" }
-    @{ Name = "onnx-runtime"; Port = 8001; HealthPath = "/v2/health/ready" }
     @{ Name = "embedding-service"; Port = 8080; HealthPath = "/health" }
     @{ Name = "health-monitor"; Port = 9090; HealthPath = "/health" }
     @{ Name = "redis"; Port = 6379; HealthPath = $null }

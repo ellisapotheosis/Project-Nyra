@@ -152,7 +152,7 @@ $env:Path += ";$nvidiaSmiPath"
 
 ### CUDA version mismatch
 
-**Problem**: Ollama or ONNX Runtime complains about CUDA version.
+**Problem**: Ollama or the embedding service complains about CUDA version.
 
 **Solution**:
 ```powershell
@@ -516,9 +516,6 @@ docker-compose -f docker-compose.worker-3060.yml restart redis
 
 # Ollama
 curl http://localhost:11434/api/version
-
-# ONNX
-curl http://localhost:8001/v2/health/ready
 
 # Embeddings
 curl http://localhost:8080/health

@@ -362,10 +362,10 @@ echo -e "${MAGENTA}║                                                        �
 echo -e "${MAGENTA}║  You can safely close this terminal and go to sleep. ║${NC}"
 echo -e "${MAGENTA}╚════════════════════════════════════════════════════════╝${NC}\n"
 
-print_progress "Initializing Claude Flow..."
-npx --yes archon-os@alpha init --enhanced --pair --verify --sparc --roo --flow-nexus --neural --truth --batch --parallel --force
+print_progress "Initializing Archon..."
+npx --yes archon-os@alpha init --enhanced --pair --verify --sparc --roo --batch --parallel --force
 
-print_success "Claude Flow initialized"
+print_success "Archon initialized"
 
 print_progress "Opening VS Code..."
 code "$REPO_PATH"

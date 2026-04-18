@@ -8,7 +8,6 @@
 ## Runtime responsibilities on Oracle VM
 - TwentyCRM (system of record)
 - Activepieces + n8n workflow engines
-- RuVector Postgres
 - FalkorDB + letta MCP
 - OpenClaw/Moltbot gateway
 - Quote API

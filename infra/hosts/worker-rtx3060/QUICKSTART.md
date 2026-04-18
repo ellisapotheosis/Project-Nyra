@@ -139,7 +139,6 @@ nvidia-smi
 | Service | Local URL | Tailscale URL |
 |---------|-----------|---------------|
 | Ollama | http://localhost:11434 | http://worker-3060.tail-net.ts.net:11434 |
-| ONNX Runtime | http://localhost:8001 | http://worker-3060.tail-net.ts.net:8001 |
 | Embeddings | http://localhost:8080 | http://worker-3060.tail-net.ts.net:8080 |
 | Health Monitor | http://localhost:9090 | http://worker-3060.tail-net.ts.net:9090 |
 | Redis | localhost:6379 | worker-3060.tail-net.ts.net:6379 |

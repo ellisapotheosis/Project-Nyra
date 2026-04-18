@@ -81,7 +81,6 @@ Write-Host @"
 
 Access services at:
   - Ollama: http://localhost:11434
-  - ONNX Runtime: http://localhost:8001
   - Embeddings: http://localhost:8080
   - Health Monitor: http://localhost:9090
 

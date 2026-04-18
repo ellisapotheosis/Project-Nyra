@@ -80,69 +80,6 @@ services:
       - worker-network
 
   # ============================================================================
-  # ONNX Runtime Service (GPU-accelerated embeddings)
-  # ============================================================================
-  onnx-runtime:
-    image: mcr.microsoft.com/onnxruntime/server:latest-cuda12
-    container_name: worker-3060-onnx
-    restart: unless-stopped
-    ports:
-      - "8001:8001"
-      - "8002:8002"
-    environment:
-      - CUDA_VISIBLE_DEVICES=0
-      - ORT_CUDA_PROVIDER=1
-      - ORT_LOGGING_LEVEL=WARNING
-    volumes:
-      - ./onnx-models:/models
-      - onnx-cache:/root/.cache
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: 1
-              capabilities: [gpu]
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8001/v2/health/ready"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    networks:
-      - worker-network
-
-  # ============================================================================
-  # Embedding Service (Xenova/transformers)
-  # ============================================================================
-  embedding-service:
-    build:
-      context: ./embedding-service
-      dockerfile: Dockerfile
-    container_name: worker-3060-embeddings
-    restart: unless-stopped
-    ports:
-      - "8080:8080"
-    environment:
-      - NODE_ENV=production
-      - EMBEDDING_MODEL=Xenova/all-MiniLM-L6-v2
-      - EMBEDDING_DEVICE=cuda
-      - BATCH_SIZE=32
-      - MAX_SEQUENCE_LENGTH=512
-      - CACHE_DIR=/cache
-    volumes:
-      - embedding-cache:/cache
-      - ./embedding-service:/app
-    depends_on:
-      - onnx-runtime
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    networks:
-      - worker-network
-
-  # ============================================================================
   # Health Monitor Service
   # ============================================================================
   health-monitor:
@@ -156,8 +93,6 @@ services:
     environment:
       - WORKER_NAME=worker-3060
       - OLLAMA_URL=http://ollama:11434
-      - ONNX_URL=http://onnx-runtime:8001
-      - EMBEDDING_URL=http://embedding-service:8080
       - CHECK_INTERVAL=60
       - PROMETHEUS_ENABLED=true
     volumes:
@@ -165,8 +100,6 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     depends_on:
       - ollama
-      - onnx-runtime
-      - embedding-service
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9090/health"]
       interval: 30s
@@ -236,10 +169,6 @@ services:
 
 volumes:
   ollama-data:
-    driver: local
-  onnx-cache:
-    driver: local
-  embedding-cache:
     driver: local
   redis-data:
     driver: local

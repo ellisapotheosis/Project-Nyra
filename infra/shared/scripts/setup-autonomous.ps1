@@ -446,12 +446,12 @@ Write-Progress "Initializing Claude Flow..."
 try {
     Set-Location $RepoPath
     
-    # Initialize Claude Flow with all features
-    Write-Progress "Running: npx archon-os@alpha init --enhanced --pair --verify --sparc --roo --flow-nexus --neural --truth --batch --parallel --force"
+    # Initialize Archon with the supported feature set
+    Write-Progress "Running: npx archon-os@alpha init --enhanced --pair --verify --sparc --roo --batch --parallel --force"
     
-    npx --yes archon-os@alpha init --enhanced --pair --verify --sparc --roo --flow-nexus --neural --truth --batch --parallel --force
+    npx --yes archon-os@alpha init --enhanced --pair --verify --sparc --roo --batch --parallel --force
     
-    Write-Success "Claude Flow initialized"
+    Write-Success "Archon initialized"
     
     Write-Progress "Opening VS Code with Claude Code..."
     code $RepoPath

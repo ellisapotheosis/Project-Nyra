@@ -59,11 +59,10 @@ worker-3060/
 - **Purpose**: Defines all Docker services and their configuration
 - **Services**:
   1. **ollama**: Primary LLM service (port 11434)
-  2. **onnx-runtime**: GPU-accelerated inference (ports 8001-8002)
-  3. **embedding-service**: Xenova/transformers embeddings (port 8080)
-  4. **health-monitor**: Service monitoring (port 9090)
-  5. **redis**: Inference caching (port 6379)
-  6. **node-exporter**: System metrics (port 9100)
+  2. **embedding-service**: Xenova/transformers embeddings (port 8080)
+  3. **health-monitor**: Service monitoring (port 9090)
+  4. **redis**: Inference caching (port 6379)
+  5. **node-exporter**: System metrics (port 9100)
   7. **gpu-exporter**: GPU metrics (port 9445)
 - **Networks**: Isolated `worker-network` (172.30.0.0/24)
 - **Volumes**: Persistent storage for models, cache, and data
@@ -158,7 +157,6 @@ worker-3060/
 - **Tests**:
   - GPU detection via nvidia-smi
   - Ollama API (version, models, generation)
-  - ONNX Runtime health and models
   - Embedding service (health, generation, similarity)
   - Health monitor endpoints
   - Redis (ping, set/get)
@@ -173,7 +171,6 @@ worker-3060/
 - **Purpose**: Expose services via Cloudflare tunnel
 - **Ingress Rules**:
   - `ollama-worker-3060.yourdomain.com` → Ollama (port 11434)
-  - `onnx-worker-3060.yourdomain.com` → ONNX Runtime (port 8001)
   - `embeddings-worker-3060.yourdomain.com` → Embeddings (port 8080)
   - `health-worker-3060.yourdomain.com` → Health Monitor (port 9090)
   - `metrics-worker-3060.yourdomain.com` → Prometheus (port 9090)
@@ -209,7 +206,6 @@ worker-3060/
 - **Dependencies**:
   - express (REST API)
   - @xenova/transformers (embeddings)
-  - onnxruntime-node (GPU acceleration)
   - prom-client (Prometheus metrics)
   - redis (caching)
 
@@ -218,7 +214,6 @@ worker-3060/
   - transformers>=4.40.0
   - torch>=2.2.0 (CUDA 12.4)
   - sentencepiece>=0.2.0
-  - onnxruntime-gpu>=1.17.0
 
 #### `embedding-service/server.js`
 - **API Endpoints**:
@@ -296,7 +291,6 @@ tailscale up
 | Service | Local | Tailscale | Public (Cloudflare) |
 |---------|-------|-----------|---------------------|
 | Ollama | :11434 | worker-3060.tail-net.ts.net:11434 | ollama-worker-3060.yourdomain.com |
-| ONNX | :8001 | worker-3060.tail-net.ts.net:8001 | onnx-worker-3060.yourdomain.com |
 | Embeddings | :8080 | worker-3060.tail-net.ts.net:8080 | embeddings-worker-3060.yourdomain.com |
 | Health | :9090 | worker-3060.tail-net.ts.net:9090 | health-worker-3060.yourdomain.com |
 | Redis | :6379 | worker-3060.tail-net.ts.net:6379 | (internal only) |
@@ -325,7 +319,7 @@ tailscale up
 ## 📈 Monitoring
 
 ### Prometheus Metrics
-- **Worker Health**: `worker_service_health{service="ollama|onnx|embedding"}`
+- **Worker Health**: `worker_service_health{service="ollama|embedding"}`
 - **Latency**: `worker_service_latency_ms{service="..."}`
 - **GPU**: `nvidia_gpu_*` (utilization, memory, temperature)
 - **Ollama**: `worker_ollama_requests_total{model="...",status="..."}`

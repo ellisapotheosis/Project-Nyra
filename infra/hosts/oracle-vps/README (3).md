@@ -116,7 +116,6 @@ If OCI returns `Out of host capacity`:
 ## Part B — Run Nyra one-VM stack (Docker Compose)
 
 This stack includes:
-- RuVector Postgres
 - Redis cache
 - FalkorDB + letta MCP
 - TwentyCRM
