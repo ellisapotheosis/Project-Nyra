@@ -347,6 +347,9 @@ scripts/github/review-and-merge-prs.sh --repo ellisapotheosis/Project-Nyra
 # Merge all currently eligible PRs (squash) after review
 scripts/github/review-and-merge-prs.sh --repo ellisapotheosis/Project-Nyra --merge
 
+# Print unresolved review blockers (changes requested/commented reviews)
+scripts/github/review-and-merge-prs.sh --repo ellisapotheosis/Project-Nyra --show-blockers
+
 # See what would merge without applying changes
 scripts/github/review-and-merge-prs.sh --repo ellisapotheosis/Project-Nyra --merge --dry-run
 ```
