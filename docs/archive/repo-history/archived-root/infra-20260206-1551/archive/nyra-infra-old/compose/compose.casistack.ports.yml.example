@@ -1,6 +1,6 @@
 version: '3.9'
 services:
-  casistack-manager:
+  nyra-stack-manager:
     ports:
       - '4200:4200'
       - '4201:4201'

@@ -98,7 +98,7 @@
         ]
       },
       "cloudCompute": {
-        "koyeb": {
+        "oracle-vps": {
           "enabled": true,
           "apiKey": "${KOYEB_API_KEY}",
           "region": "us-east-1",

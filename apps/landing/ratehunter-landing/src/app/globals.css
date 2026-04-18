@@ -1,4 +1,6 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
   --font-inter: "Avenir Next", "Segoe UI", "Helvetica Neue", sans-serif;

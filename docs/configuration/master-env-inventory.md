@@ -4483,7 +4483,7 @@ Generated from files containing `.env` in their filename across repo root, `infr
 | `SERENA_DISABLED`      | `false`                     | non-secret-literal | 29   |
 | `ARCHGW_DISABLED`      | `true`                      | non-secret-literal | 30   |
 
-### `docs/archive/repo-history/archived-root/infra-20260206-1551/archive/nyra-infra-old/compose/.env.casistack.example`
+### `docs/archive/repo-history/archived-root/infra-20260206-1551/archive/nyra-infra-old/compose/.env.nyra-stack.example`
 
 | Variable             | Value                                                   | Classification     | Line |
 | -------------------- | ------------------------------------------------------- | ------------------ | ---- |

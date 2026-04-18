@@ -6,7 +6,7 @@ This directory contains scripts used across all 4 PCs in the Nyra distributed cl
 
 ```
 shared/scripts/
-├── cli-wrappers/          # Claude Flow CLI launcher scripts
+├── cli-wrappers/          # Archon CLI launcher scripts
 │   ├── archon-os.bat    # Windows batch wrapper
 │   ├── archon-os.cmd    # Windows command wrapper
 │   ├── archon-os.ps1    # PowerShell wrapper

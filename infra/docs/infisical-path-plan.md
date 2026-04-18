@@ -23,10 +23,9 @@ All secrets that every node needs live here.  Examples include:
 | `POSTGRES_PASSWORD`              | Primary Postgres database password       |
 | `REDIS_PASSWORD`                 | Redis cache password                     |
 | `INFISICAL_ENCRYPTION_KEY`       | Encryption key for Infisical server      |
-| `CLAUDE_FLOW_JWT_SECRET`         | JWT secret shared by Claude Flow agents  |
+| `ARCHON_AUTH_SECRET`             | Auth secret shared by Archon services    |
 | `ANTHROPIC_API_KEY`              | Anthropic API key                        |
 | `OPENAI_API_KEY`                 | OpenAI API key                           |
-| `RUVECTOR_POSTGRES_PASSWORD`     | Password for the RuVector Postgres DB    |
 | *...*                            | Any other secrets used by all machines   |
 
 ### `/nyra/nodes/<machine>`

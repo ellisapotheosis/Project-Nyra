@@ -327,9 +327,6 @@ HEALTH_CHECK_TIMEOUT=10
 CLOUDFLARED_TUNNEL_ID=
 CLOUDFLARED_TUNNEL_TOKEN=
 
-# ONNX Runtime
-ONNX_RUNTIME_PROVIDER=cuda
-ONNX_RUNTIME_DEVICE=0
 "@
 
 $EnvContent | Out-File -FilePath "$WorkerDir\.env" -Encoding UTF8
@@ -400,7 +397,7 @@ if (!(Get-Command python -ErrorAction SilentlyContinue)) {
 Write-Host "  Installing Python packages..."
 python -m pip install --upgrade pip
 pip install transformers torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu124
-pip install sentence-transformers onnxruntime-gpu
+pip install sentence-transformers
 
 Write-Success "Python packages installed"
 

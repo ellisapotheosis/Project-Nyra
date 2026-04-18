@@ -83,7 +83,7 @@
         "Alienware Area-51 (RTX 5090)",
         "Desktop PC (RTX 3090Ti)"
       ],
-      "cloud": "Koyeb.com VPS",
+      "cloud": "Oracle VPS.com VPS",
       "networking": "cloudflared tunnels"
     }
   }

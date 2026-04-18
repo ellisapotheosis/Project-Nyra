@@ -403,7 +403,7 @@ NODE_MODULE_VERSION 137 vs 127
     ]
   },
   "infrastructure": {
-    "cloud": {"primary": "Koyeb", "secondary": "VPS"},
+    "cloud": {"primary": "Oracle VPS", "secondary": "VPS"},
     "local": {"gpus": ["RTX 5090", "RTX 3090", "RTX 3060"]},
     "secrets": {"current": "Bitwarden", "planned": "Infisical"}
   }

@@ -18,7 +18,7 @@ Claude Flow serves as one of the two primary orchestration pillars (paired with 
 - `nyra-orchestration/Claude/claude-flow-gui-main/` – GUI front‑end project for visual flow authoring.
 - `nyra-orchestration/anthropic-agents-sdk/` – utility launchers and SDK stubs used by Claude Flow in Nyra.
 - `nyra-infra/metamcp-gateway/` – **the** single MCP entrypoint (proxy + channels).
-- `nyra-infra/compose/nyra-mcp-stack.yml` – the compose stack that boots MetaMCP + CASIStack + Open WebUI.
+- `nyra-infra/compose/nyra-mcp-stack.yml` – the compose stack that boots MetaMCP + Nyra Stack + Open WebUI.
 - `nyra-infra/metamcp-gateway/channels/agents/` – channel bindings for orchestration engines (Claude Flow, Archon, LangGraph).
 
 ---
@@ -32,11 +32,11 @@ cd nyra-infra
 # (optional) pull secrets into a file env for compose
 # .\sync-secrets.ps1  # already present in repo to export from Infisical
 
-# bring up MetaMCP + CASIStack + Open WebUI
+# bring up MetaMCP + Nyra Stack + Open WebUI
 docker compose -f .\compose\nyra-mcp-stack.yml up -d --build
 ```
 3) Visit the GUI surfaces:
-- CASIStack Orchestrator: `http://localhost:${MANAGER_PORT}`
+- Nyra Stack Orchestrator: `http://localhost:${MANAGER_PORT}`
 - Open WebUI: `http://localhost:3000` (wired to MetaMCP endpoints as tools)
 
 ---
@@ -80,7 +80,7 @@ This injects SSE endpoints that point to your local MetaMCP gateway so **Claude 
 ---
 
 ## Environment Summary (see .env.example)
-- `MANAGER_PORT` – CASIStack dashboard/API port
+- `MANAGER_PORT` – Nyra Stack dashboard/API port
 - `MCP_PROXY_MODE` – `unified` or `individual`
 - `MCP_PROXY_TYPE` – `mcpo` or `mcp-bridge` (for individual)
 - `PORT_RANGE_START` / `PORT_RANGE_END` – port allocator bounds
@@ -93,4 +93,4 @@ This injects SSE endpoints that point to your local MetaMCP gateway so **Claude 
 ## Where to extend next
 - Add team‑specific channels (e.g., `agents/security.json`, `agents/research-highcontext.json`).
 - Enable unified audit logs in `nyra-infra/storage/nyra.storage.profile.yml`.
-- Add health probes in `metamcp.config.json` and surface them in CASIStack panels.
+- Add health probes in `metamcp.config.json` and surface them in Nyra Stack panels.

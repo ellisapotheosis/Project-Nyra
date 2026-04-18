@@ -13,7 +13,7 @@ assets/new-uploads-ingestion-input/docker/wsl/docker-compose.gitea.yml
 assets/new-uploads-ingestion-input/project-nyra/docker-compose.yml
 infra-archived/infra-20260206-1551/archive/legacy-infra-2026-01-19/dual-orchestrator/archon-os/docker-compose.yml
 infra-archived/infra-20260206-1551/archive/legacy-infra-2026-01-19/services/monitoring/docker-compose.yml
-infra-archived/infra-20260206-1551/archive/nyra-infra-old/compose/compose.casistack.yml
+infra-archived/infra-20260206-1551/archive/nyra-infra-old/compose/compose.nyra-stack.yml
 infra-archived/infra-20260206-1551/archive/nyra-infra-old/compose/compose.archon-os.yml
 infra-archived/infra-20260206-1551/archive/nyra-infra-old/compose/compose.ingestion.yml
 infra-archived/infra-20260206-1551/archive/nyra-infra-old/compose/compose.management.yml

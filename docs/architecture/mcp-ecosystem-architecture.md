@@ -37,7 +37,7 @@ The Nyra MCP (Model Context Protocol) ecosystem is a comprehensive multi-agent o
 - **Wake-on-LAN**: Magic packet worker activation
 - **Cloudflared Tunnels**: Secure inter-PC communication
 - **Mortgage Automation**: n8n workflow integration
-- **Koyeb Cloud**: Additional cloud compute resources
+- **Oracle VPS Cloud**: Additional cloud compute resources
 
 ## Service Mesh Architecture
 
@@ -71,7 +71,7 @@ The Nyra MCP (Model Context Protocol) ecosystem is a comprehensive multi-agent o
 - **Worker 3**: Desktop PC (RTX 3090Ti, 32GB)
 
 ### Cloud Integration
-- **Koyeb VPS**: Additional compute resources
+- **Oracle VPS VPS**: Additional compute resources
 - **Cloudflare**: DNS, CDN, and SSL termination
 - **RateHunter.net**: Primary domain hosting
 - **Cloudflared**: Secure tunnel management
@@ -116,7 +116,7 @@ The Nyra MCP (Model Context Protocol) ecosystem is a comprehensive multi-agent o
 ### Scaling Capabilities
 - **Horizontal**: Auto-scaling based on queue length and CPU usage
 - **Vertical**: Dynamic resource allocation per task
-- **Cloud Burst**: Koyeb integration for overflow capacity
+- **Cloud Burst**: Oracle VPS integration for overflow capacity
 - **Load Distribution**: Intelligent task routing
 
 ## API Endpoints

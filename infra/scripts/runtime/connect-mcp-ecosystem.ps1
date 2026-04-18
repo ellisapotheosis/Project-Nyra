@@ -85,10 +85,6 @@ $globalServers = @{
         "command" = "archon-os"
         "description" = "Global Claude Flow MCP"
     }
-    "flow-nexus" = @{
-        "command" = "flow-nexus"
-        "description" = "Global Flow Nexus MCP"
-    }
     "desktop-commander" = @{
         "command" = "desktop-commander"
         "description" = "Global Desktop Commander MCP"

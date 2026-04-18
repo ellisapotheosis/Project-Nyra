@@ -1,0 +1,154 @@
+# Oracle VPS Scaling Policies for Free Tier and Paid Tiers
+# Documentation: https://www.oracle-vps.com/docs/scaling/autoscaling
+apiVersion: v1
+kind: ScalingPolicy
+metadata:
+  name: free-tier-scaling
+  namespace: nyra-production
+  annotations:
+    tier: free
+    monthly_cost: "$0"
+spec:
+  limits:
+    cpu:
+      max: "1"
+      allocation: "0.5"
+    memory:
+      max: "512Mi"
+    storage:
+      max: "2.5Gi"
+    instances:
+      min: 1
+      max: 1
+    bandwidth:
+      monthly: "100Gi"
+      burstable: false
+    builds:
+      monthly: 100
+      concurrent: 1
+    execution:
+      hours: 730
+  autoSleep:
+    enabled: true
+    idleTimeout: 300
+    excludeServices:
+      - nyra-webapp-backend
+      - nyra-n8n-orchestrator
+  optimization:
+    resourceAllocation: "minimal"
+    container:
+      imageCompression: true
+      layerCaching: true
+      buildCache: true
+    runtime:
+      nodeOptions: "--max-old-space-size=384"
+      gcStrategy: "aggressive"
+
+---
+apiVersion: v1
+kind: ScalingPolicy
+metadata:
+  name: starter-tier-scaling
+  namespace: nyra-production
+  annotations:
+    tier: starter
+    monthly_cost: "$5"
+spec:
+  limits:
+    cpu:
+      max: "2"
+      allocation: "1"
+    memory:
+      max: "1Gi"
+    storage:
+      max: "5Gi"
+    instances:
+      min: 1
+      max: 2
+    bandwidth:
+      monthly: "500Gi"
+    builds:
+      monthly: 500
+      concurrent: 2
+  autoScaling:
+    enabled: true
+    rules:
+      - metric: cpu
+        threshold: 70
+        action: scale_up
+        cooldown: 300
+      - metric: memory
+        threshold: 80
+        action: scale_up
+        cooldown: 300
+      - metric: requests_per_minute
+        threshold: 500
+        action: scale_up
+        cooldown: 180
+  autoSleep:
+    enabled: false
+
+---
+apiVersion: v1
+kind: ScalingPolicy
+metadata:
+  name: production-tier-scaling
+  namespace: nyra-production
+  annotations:
+    tier: production
+    monthly_cost: "$20+"
+spec:
+  limits:
+    cpu:
+      max: "4"
+      allocation: "2"
+    memory:
+      max: "4Gi"
+    storage:
+      max: "20Gi"
+    instances:
+      min: 2
+      max: 10
+    bandwidth:
+      monthly: "unlimited"
+    builds:
+      monthly: "unlimited"
+      concurrent: 5
+  autoScaling:
+    enabled: true
+    strategy: predictive
+    rules:
+      - metric: cpu
+        threshold: 60
+        action: scale_up
+        cooldown: 180
+      - metric: memory
+        threshold: 70
+        action: scale_up
+        cooldown: 180
+      - metric: requests_per_minute
+        threshold: 1000
+        action: scale_up
+        cooldown: 60
+      - metric: response_time_p95
+        threshold: 500
+        action: scale_up
+        cooldown: 120
+      - metric: cpu
+        threshold: 20
+        action: scale_down
+        cooldown: 600
+      - metric: requests_per_minute
+        threshold: 100
+        action: scale_down
+        cooldown: 600
+  loadBalancing:
+    algorithm: least_connections
+    healthCheck:
+      enabled: true
+      interval: 10
+      timeout: 5
+      unhealthyThreshold: 3
+      healthyThreshold: 2
+  autoSleep:
+    enabled: false

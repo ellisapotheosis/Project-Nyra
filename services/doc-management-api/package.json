@@ -28,10 +28,10 @@
     "multer-s3": "^3.0.1",
     "sharp": "^0.33.1",
     "tesseract.js": "^7.0.0",
-    "pdf-parse": "^1.1.1",
+    "pdf-parse": "^2.4.5",
     "jsonwebtoken": "^9.0.2",
     "bcryptjs": "^2.4.3",
-    "joi": "^17.11.0",
+    "joi": "^18.1.2",
     "dotenv": "^16.3.1",
     "cors": "^2.8.5",
     "helmet": "^8.1.0",
@@ -41,7 +41,7 @@
     "compression": "^1.7.4",
     "uuid": "^13.0.0",
     "crypto": "^1.0.1",
-    "docusign-esign": "^7.0.0",
+    "docusign-esign": "^8.7.0",
     "elasticsearch": "^16.7.3"
   },
   "devDependencies": {
@@ -64,7 +64,7 @@
     "supertest": "^6.3.3",
     "eslint": "^10.2.0",
     "@typescript-eslint/eslint-plugin": "^6.17.0",
-    "@typescript-eslint/parser": "^8.58.0",
+    "@typescript-eslint/parser": "^8.58.2",
     "sequelize-cli": "^6.6.2"
   }
 }

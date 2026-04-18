@@ -186,7 +186,7 @@ The NYRA Distributed Memory Architecture is a comprehensive system designed to m
 - **Specs**: RTX 3090Ti, variable configuration
 - **Services**: Distributed storage, compute
 
-**Cloud (Koyeb VPS):**
+**Cloud (Oracle VPS VPS):**
 - **Role**: Backup, scaling, external access
 - **Services**: Backup storage, API gateway
 

@@ -1,4 +1,4 @@
-# Koyeb VPS Analysis for Project Nyra (2026)
+# Oracle VPS VPS Analysis for Project Nyra (2026)
 
 ## 1. KOYEB PRICING TIERS
 
@@ -62,14 +62,14 @@
 - **Free tier**: 30-day trial with $5 credits (NO permanent free tier)
 - **Best for**: Flexible billing, fast deploys, developer experience
 - **Database**: Postgres, MySQL, Redis included
-- **Trade-off**: No free tier after trial, simpler than Koyeb
+- **Trade-off**: No free tier after trial, simpler than Oracle VPS
 
 ### Render
 - **Pricing**: Starting at $7-19/month per service
 - **Free tier**: Available for static sites, web services (limited)
 - **Best for**: Predictable pricing, built-in background workers
 - **Database**: Postgres available ($7+/month)
-- **Trade-off**: Less flexible than Koyeb, better for structured workflows
+- **Trade-off**: Less flexible than Oracle VPS, better for structured workflows
 
 ### Fly.io
 - **Pricing**: Usage-based, ~$2/month per VM minimum
@@ -103,7 +103,7 @@
 
 ### Recommendation
 - **Development**: Supabase free tier
-- **Production**: Supabase Pro ($25/month) OR Koyeb managed Postgres
+- **Production**: Supabase Pro ($25/month) OR Oracle VPS managed Postgres
 
 ## 5. WHAT TO HOST WHERE
 
@@ -113,7 +113,7 @@
 - ✅ **ActivePieces workflows**
 - ✅ **RateHunter webapp** (Next.js frontend)
 - ✅ **Quote API** (Python FastAPI) - Customer-facing
-- ✅ **PostgreSQL database** (use Koyeb free database)
+- ✅ **PostgreSQL database** (use Oracle VPS free database)
 
 **Priority 2** - If budget allows:
 - Redis cache (for session/rate limiting)
@@ -147,15 +147,15 @@
 - **Pros**: Full control, no cloud costs
 - **Cons**: Single point of failure, home IP changes, no auto-scaling
 
-### Scenario B: Hybrid (Koyeb Free + Local Orchestrator)
-- **Koyeb**: $0/month (1 web service + 1 database on Starter)
+### Scenario B: Hybrid (Oracle VPS Free + Local Orchestrator)
+- **Oracle VPS**: $0/month (1 web service + 1 database on Starter)
 - **Supabase**: $0/month (free tier, development)
 - **Electricity**: ~$15-30/month (same, but orchestrator only for dev)
 - **Pros**: Production reliability, minimal cost
 - **Cons**: Limited to 1 service, need to optimize
 
-### Scenario C: Hybrid (Koyeb Pro + Local) ⭐ RECOMMENDED
-- **Koyeb Pro**: $29/month + compute (~$10-20/month = $39-49 total)
+### Scenario C: Hybrid (Oracle VPS Pro + Local) ⭐ RECOMMENDED
+- **Oracle VPS Pro**: $29/month + compute (~$10-20/month = $39-49 total)
 - **Supabase Pro**: $25/month (production database)
 - **Total cloud**: ~$64-74/month
 - **Local electricity savings**: Can run orchestrator only when developing
@@ -166,7 +166,7 @@
 - **Hetzner CCX11**: $14.50/month (2 vCPU dedicated, 8GB RAM)
 - **Supabase free or Pro**: $0-25/month
 - **Total**: $14.50-39.50/month
-- **Pros**: Dedicated resources, much cheaper than Koyeb for 24/7
+- **Pros**: Dedicated resources, much cheaper than Oracle VPS for 24/7
 - **Cons**: Manual DevOps, no auto-scaling, setup complexity
 
 ### 💡 RECOMMENDATION: Start with Scenario B, upgrade to C when profitable
@@ -174,10 +174,10 @@
 ## 7. HYBRID ARCHITECTURE (Recommended)
 
 ### Phase 1: Free Tier (Validate Product-Market Fit)
-**CLOUD (Koyeb Starter - FREE)**:
+**CLOUD (Oracle VPS Starter - FREE)**:
 - n8n workflow engine (mortgage campaigns)
 - Quote API (FastAPI)
-- PostgreSQL database (Koyeb free DB)
+- PostgreSQL database (Oracle VPS free DB)
 
 **CLOUD (Supabase Free)**:
 - Backup database option
@@ -192,12 +192,12 @@
 **COST**: $0 cloud + $20/month electricity = **$20/month total**
 
 ### Phase 2: Production (Revenue Generated) ⭐
-**CLOUD (Koyeb Pro - $29/month)**:
+**CLOUD (Oracle VPS Pro - $29/month)**:
 - n8n + ActivePieces (lead campaigns)
 - Quote API (FastAPI with auto-scaling)
 - RateHunter webapp (Next.js)
 - Admin dashboard
-- Koyeb Postgres (production)
+- Oracle VPS Postgres (production)
 
 **CLOUD (Supabase Pro - $25/month)**:
 - Primary database with pgvector
@@ -218,7 +218,7 @@
 
 ### Phase 3: Scale (High Traffic)
 **Consider**:
-- Koyeb Scale ($299/month) for SLA + compute credits
+- Oracle VPS Scale ($299/month) for SLA + compute credits
 - OR Hetzner dedicated server ($221/month) + Coolify self-hosted PaaS
 - Keep Supabase Pro for managed database
 - Multiple GPU workers for AI workload
@@ -226,29 +226,29 @@
 ## 8. IMMEDIATE ACTION PLAN
 
 ### Week 1: Free Tier Validation
-1. Deploy n8n to Koyeb Starter (use free web service)
-2. Deploy Quote API to Koyeb (or use Render free tier as 2nd service)
-3. Use Koyeb free Postgres for production data
+1. Deploy n8n to Oracle VPS Starter (use free web service)
+2. Deploy Quote API to Oracle VPS (or use Render free tier as 2nd service)
+3. Use Oracle VPS free Postgres for production data
 4. Keep Claude Flow local for development
 5. Test mortgage campaign workflows
 
 ### Week 2-4: Monitor & Optimize
-- Track Koyeb usage/costs (should be $0 on free tier)
+- Track Oracle VPS usage/costs (should be $0 on free tier)
 - Monitor n8n campaign performance
 - Optimize lead conversion rates
 - If successful, consider upgrading to Pro
 
 ### Decision Point (End of Month 1)
-- **If generating revenue**: Upgrade to Koyeb Pro + Supabase Pro ($54/month)
+- **If generating revenue**: Upgrade to Oracle VPS Pro + Supabase Pro ($54/month)
 - **If not profitable yet**: Stay on free tier, optimize campaigns
 - **If high compute needs**: Consider Hetzner CCX11 ($14.50/month) instead
 
 ## 9. KEY RECOMMENDATIONS
 
-1. ✅ **START FREE**: Use Koyeb Starter + Supabase free tier ($0/month)
+1. ✅ **START FREE**: Use Oracle VPS Starter + Supabase free tier ($0/month)
 2. ✅ **DEPLOY PUBLIC SERVICES**: Move n8n, Quote API, RateHunter to cloud
 3. ✅ **KEEP DEV LOCAL**: Claude Flow, MCP servers on orchestrator
-4. ✅ **MONITOR COSTS**: Koyeb bills by the second, watch compute usage
+4. ✅ **MONITOR COSTS**: Oracle VPS bills by the second, watch compute usage
 5. ✅ **UPGRADE WHEN PROFITABLE**: Move to Pro tier when revenue justifies it
 6. ✅ **CONSIDER HETZNER**: If 24/7 workload needs dedicated resources (more cost-effective)
 
@@ -258,16 +258,16 @@ If you want more control and lower costs:
 - Deploy Coolify (open-source PaaS) on Hetzner CCX11 ($14.50/month)
 - Get Heroku-like experience with full control
 - Host unlimited services on one VPS
-- Total cost: $14.50/month vs $54+/month for Koyeb Pro + Supabase
+- Total cost: $14.50/month vs $54+/month for Oracle VPS Pro + Supabase
 
 **Trade-off**: More DevOps work, but maximum value for money
 
 ---
 
 **Sources**:
-- [Koyeb Pricing](https://www.koyeb.com/pricing)
-- [Koyeb Autoscaling](https://www.koyeb.com/docs/run-and-scale/autoscaling)
+- [Oracle VPS Pricing](https://www.oracle-vps.com/pricing)
+- [Oracle VPS Autoscaling](https://www.oracle-vps.com/docs/run-and-scale/autoscaling)
 - [Railway vs Render vs Fly.io Comparison](https://medium.com/ai-disruption/railway-vs-fly-io-vs-render-which-cloud-gives-you-the-best-roi-2e3305399e5b)
 - [Hetzner Cloud VPS Pricing Calculator (Jan 2026)](https://costgoat.com/pricing/hetzner)
 - [Supabase Pricing 2026 Complete Breakdown](https://www.metacto.com/blogs/the-true-cost-of-supabase-a-comprehensive-guide-to-pricing-integration-and-maintenance)
-- [Top PostgreSQL Database Free Tiers in 2026](https://www.koyeb.com/blog/top-postgresql-database-free-tiers-in-2026)
+- [Top PostgreSQL Database Free Tiers in 2026](https://www.oracle-vps.com/blog/top-postgresql-database-free-tiers-in-2026)

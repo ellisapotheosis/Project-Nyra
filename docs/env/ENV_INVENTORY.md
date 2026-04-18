@@ -774,7 +774,7 @@ Total discovered keys: **516**
 - `infra/nyra-complete/infra/docker-compose.oracle.yml`
 
 ## `INFISICAL_ANTHROPIC_API_KEY`
-- `infra/koyeb/infisical-template.yaml`
+- `infra/oracle-vps/infisical-template.yaml`
 
 ## `INFISICAL_API_KEY`
 - `infra/RateHunter/docker-compose.ratehunter.yml`
@@ -789,19 +789,19 @@ Total discovered keys: **516**
 - `infra/docker-compose.yml`
 
 ## `INFISICAL_AWS_ACCESS_KEY_ID`
-- `infra/koyeb/infisical-template.yaml`
+- `infra/oracle-vps/infisical-template.yaml`
 
 ## `INFISICAL_AWS_S3_BUCKET`
-- `infra/koyeb/infisical-template.yaml`
+- `infra/oracle-vps/infisical-template.yaml`
 
 ## `INFISICAL_AWS_SECRET_ACCESS_KEY`
-- `infra/koyeb/infisical-template.yaml`
+- `infra/oracle-vps/infisical-template.yaml`
 
 ## `INFISICAL_DATABASE_URL`
-- `infra/koyeb/infisical-template.yaml`
+- `infra/oracle-vps/infisical-template.yaml`
 
 ## `INFISICAL_DATADOG_API_KEY`
-- `infra/koyeb/infisical-template.yaml`
+- `infra/oracle-vps/infisical-template.yaml`
 
 ## `INFISICAL_ENCRYPTION_KEY`
 - `infra/docker-compose.yml`
@@ -812,13 +812,13 @@ Total discovered keys: **516**
 - `infra/workers/worker-3090/promtail-config.yml`
 
 ## `INFISICAL_HUBSPOT_API_KEY`
-- `infra/koyeb/infisical-template.yaml`
+- `infra/oracle-vps/infisical-template.yaml`
 
 ## `INFISICAL_HUBSPOT_PORTAL_ID`
-- `infra/koyeb/infisical-template.yaml`
+- `infra/oracle-vps/infisical-template.yaml`
 
 ## `INFISICAL_JWT_SECRET`
-- `infra/koyeb/infisical-template.yaml`
+- `infra/oracle-vps/infisical-template.yaml`
 
 ## `INFISICAL_MCP_IMAGE`
 - `infra/docker-compose.yml`
@@ -834,65 +834,65 @@ Total discovered keys: **516**
 - `services/nexus-router/src/services/mcp-proxy.ts`
 
 ## `INFISICAL_MORTGAGE_RATE_API_KEY`
-- `infra/koyeb/infisical-template.yaml`
+- `infra/oracle-vps/infisical-template.yaml`
 
 ## `INFISICAL_MORTGAGE_RATE_API_URL`
-- `infra/koyeb/infisical-template.yaml`
+- `infra/oracle-vps/infisical-template.yaml`
 
 ## `INFISICAL_N8N_API_KEY`
-- `infra/koyeb/infisical-template.yaml`
+- `infra/oracle-vps/infisical-template.yaml`
 
 ## `INFISICAL_N8N_DB_DATABASE`
-- `infra/koyeb/infisical-template.yaml`
+- `infra/oracle-vps/infisical-template.yaml`
 
 ## `INFISICAL_N8N_DB_HOST`
-- `infra/koyeb/infisical-template.yaml`
+- `infra/oracle-vps/infisical-template.yaml`
 
 ## `INFISICAL_N8N_DB_PASSWORD`
-- `infra/koyeb/infisical-template.yaml`
+- `infra/oracle-vps/infisical-template.yaml`
 
 ## `INFISICAL_N8N_DB_PORT`
-- `infra/koyeb/infisical-template.yaml`
+- `infra/oracle-vps/infisical-template.yaml`
 
 ## `INFISICAL_N8N_DB_USER`
-- `infra/koyeb/infisical-template.yaml`
+- `infra/oracle-vps/infisical-template.yaml`
 
 ## `INFISICAL_N8N_ENCRYPTION_KEY`
-- `infra/koyeb/infisical-template.yaml`
+- `infra/oracle-vps/infisical-template.yaml`
 
 ## `INFISICAL_N8N_JWT_SECRET`
-- `infra/koyeb/infisical-template.yaml`
+- `infra/oracle-vps/infisical-template.yaml`
 
 ## `INFISICAL_OPENAI_API_KEY`
-- `infra/koyeb/infisical-template.yaml`
+- `infra/oracle-vps/infisical-template.yaml`
 
 ## `INFISICAL_PORT`
 - `infra/compose/overrides/docker-compose.orchestrator.override.yml`
 - `infra/docker-compose.yml`
 
 ## `INFISICAL_PROJECT_ID`
-- `infra/koyeb/infisical-template.yaml`
+- `infra/oracle-vps/infisical-template.yaml`
 
 ## `INFISICAL_REDIS_PASSWORD`
-- `infra/koyeb/infisical-template.yaml`
+- `infra/oracle-vps/infisical-template.yaml`
 
 ## `INFISICAL_REDIS_URL`
-- `infra/koyeb/infisical-template.yaml`
+- `infra/oracle-vps/infisical-template.yaml`
 
 ## `INFISICAL_REFRESH_TOKEN_SECRET`
-- `infra/koyeb/infisical-template.yaml`
+- `infra/oracle-vps/infisical-template.yaml`
 
 ## `INFISICAL_SENDGRID_API_KEY`
-- `infra/koyeb/infisical-template.yaml`
+- `infra/oracle-vps/infisical-template.yaml`
 
 ## `INFISICAL_SENTRY_AUTH_TOKEN`
-- `infra/koyeb/infisical-template.yaml`
+- `infra/oracle-vps/infisical-template.yaml`
 
 ## `INFISICAL_SENTRY_DSN`
-- `infra/koyeb/infisical-template.yaml`
+- `infra/oracle-vps/infisical-template.yaml`
 
 ## `INFISICAL_SESSION_SECRET`
-- `infra/koyeb/infisical-template.yaml`
+- `infra/oracle-vps/infisical-template.yaml`
 
 ## `INFISICAL_SITE_URL`
 - `infra/docker-compose.yml`
@@ -905,13 +905,13 @@ Total discovered keys: **516**
 - `infra/project-nyra-scaffold/infra/docker-compose.orchestrator.yml`
 
 ## `INFISICAL_TWILIO_ACCOUNT_SID`
-- `infra/koyeb/infisical-template.yaml`
+- `infra/oracle-vps/infisical-template.yaml`
 
 ## `INFISICAL_TWILIO_AUTH_TOKEN`
-- `infra/koyeb/infisical-template.yaml`
+- `infra/oracle-vps/infisical-template.yaml`
 
 ## `INFISICAL_TWILIO_PHONE_NUMBER`
-- `infra/koyeb/infisical-template.yaml`
+- `infra/oracle-vps/infisical-template.yaml`
 
 ## `INFRA_COUNT`
 - `infra/scripts/consolidate-docker-configs.sh`
@@ -1488,10 +1488,10 @@ Total discovered keys: **516**
 - `services/websocket-hub/src/config/index.ts`
 
 ## `PORT_RANGE_END`
-- `infra/scripts/legacy/generate-casistack-ports.sh`
+- `infra/scripts/legacy/generate-nyra-stack-ports.sh`
 
 ## `PORT_RANGE_START`
-- `infra/scripts/legacy/generate-casistack-ports.sh`
+- `infra/scripts/legacy/generate-nyra-stack-ports.sh`
 
 ## `POSTGRES_DB`
 - `infra/compose/base.yml`

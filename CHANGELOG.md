@@ -60,9 +60,9 @@
 
 ### Features
 
-* add casistack port generator (bash) ([09cf714](https://github.com/ellisapotheosis/Project-Nyra/commit/09cf7145ce1ff201ccc3e326447cee025a754080))
-* add casistack port generator (PowerShell) and update dashboard starter validation ([43b53d3](https://github.com/ellisapotheosis/Project-Nyra/commit/43b53d3dea73881199d6f542feaf5e72017ca170))
-* add casistack port override example ([d67721e](https://github.com/ellisapotheosis/Project-Nyra/commit/d67721ea217c40553669b7234abd89f8a7d668e5))
+* add nyra-stack port generator (bash) ([09cf714](https://github.com/ellisapotheosis/Project-Nyra/commit/09cf7145ce1ff201ccc3e326447cee025a754080))
+* add nyra-stack port generator (PowerShell) and update dashboard starter validation ([43b53d3](https://github.com/ellisapotheosis/Project-Nyra/commit/43b53d3dea73881199d6f542feaf5e72017ca170))
+* add nyra-stack port override example ([d67721e](https://github.com/ellisapotheosis/Project-Nyra/commit/d67721ea217c40553669b7234abd89f8a7d668e5))
 * Add complete NYRA-AIO-Bootstrap system ([750b1d9](https://github.com/ellisapotheosis/Project-Nyra/commit/750b1d9339dc7b175d7e29b1e415ea085aab1b5d))
 * Add consolidated Project Nyra to ingest folder ([9ba2191](https://github.com/ellisapotheosis/Project-Nyra/commit/9ba2191f24264b85ec855639bc0ffee82ca08a85))
 * add nyra-ingestion to .gitignore to exclude from tracking ([506e749](https://github.com/ellisapotheosis/Project-Nyra/commit/506e7495fcd914255d00eb02fe2f6f86cdaf9048))

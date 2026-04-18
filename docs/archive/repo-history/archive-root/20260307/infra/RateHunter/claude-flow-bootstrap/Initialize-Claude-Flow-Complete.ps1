@@ -13,7 +13,7 @@
     Setup mode: full, minimal, agents-only, mcp-only
     
 . PARAMETER DeploymentTarget
-    Where to deploy: local, docker, koyeb, hybrid
+    Where to deploy: local, docker, oracle-vps, hybrid
 #>
 
 param(
@@ -23,7 +23,7 @@ param(
     [ValidateSet('full', 'minimal', 'agents-only', 'mcp-only')]
     [string]$Mode = 'full',
     
-    [ValidateSet('local', 'docker', 'koyeb', 'hybrid')]
+    [ValidateSet('local', 'docker', 'oracle-vps', 'hybrid')]
     [string]$DeploymentTarget = 'hybrid'
 )
 
@@ -90,7 +90,7 @@ function Test-Prerequisites {
     }
     
     # Check Tailscale (if hybrid/distributed)
-    if ($DeploymentTarget -match "hybrid|koyeb") {
+    if ($DeploymentTarget -match "hybrid|oracle-vps") {
         try {
             tailscale status | Out-Null
             Write-Host "✅ Tailscale: connected" -ForegroundColor Green
@@ -462,7 +462,7 @@ function Setup-Infrastructure {
     $cloudflareConfig = @{
         domain = "ratehunter.net"
         subdomains = @(
-            @{ name = "api"; target = "koyeb-instance" },
+            @{ name = "api"; target = "oracle-vps-instance" },
             @{ name = "ui"; target = "open-webui" },
             @{ name = "chat"; target = "lobechat" },
             @{ name = "metrics"; target = "grafana" },
@@ -526,7 +526,7 @@ function Main {
             Setup-Docker -WorkspaceDir $workspaceDir
         }
         
-        if ($DeploymentTarget -eq "koyeb") {
+        if ($DeploymentTarget -eq "oracle-vps") {
             Setup-Kubernetes -WorkspaceDir $workspaceDir
         }
         

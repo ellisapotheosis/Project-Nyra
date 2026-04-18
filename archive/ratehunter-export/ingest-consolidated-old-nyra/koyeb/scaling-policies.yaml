@@ -1,5 +1,5 @@
-# Koyeb Scaling Policies for Free Tier and Paid Tiers
-# Documentation: https://www.koyeb.com/docs/scaling/autoscaling
+# Oracle VPS Scaling Policies for Free Tier and Paid Tiers
+# Documentation: https://www.oracle-vps.com/docs/scaling/autoscaling
 ---
 apiVersion: v1
 kind: ScalingPolicy
@@ -201,7 +201,7 @@ metadata:
   name: cost-optimization-guide
 data:
   recommendations.md: |
-    # Koyeb Cost Optimization for Project Nyra
+    # Oracle VPS Cost Optimization for Project Nyra
 
     ## Free Tier Strategy (Current)
 
@@ -268,7 +268,7 @@ data:
 
     ### 1. Optimize Build Frequency
     - Use GitHub Actions for CI/CD
-    - Only trigger Koyeb deploys on release tags
+    - Only trigger Oracle VPS deploys on release tags
     - Cache dependencies to speed up builds
 
     ### 2. Leverage Auto-Sleep
@@ -286,7 +286,7 @@ data:
     - Monitor actual resource usage
     - Start with minimal allocation
     - Scale up only when needed
-    - Use Koyeb metrics dashboard
+    - Use Oracle VPS metrics dashboard
 
     ### 5. Multi-Tenancy Strategy
     - Run multiple lightweight services per instance
@@ -297,7 +297,7 @@ data:
 
     ### Recommended Approach:
 
-    **Koyeb (Free Tier):**
+    **Oracle VPS (Free Tier):**
     - n8n workflow orchestration
     - Webhook endpoints
     - Lightweight API gateway
@@ -311,7 +311,7 @@ data:
     **Benefits:**
     - $0/month for production endpoints
     - Full control over data and processing
-    - Scale Koyeb only when needed
+    - Scale Oracle VPS only when needed
 
     ## Mortgage Lead Campaign Cost Analysis
 

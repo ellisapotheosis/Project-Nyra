@@ -3174,7 +3174,7 @@ The NYRA Distributed Memory Architecture is a comprehensive system designed to m
 - **Specs**: RTX 3090Ti, variable configuration
 - **Services**: Distributed storage, compute
 
-**Cloud (Koyeb VPS):**
+**Cloud (Oracle VPS VPS):**
 - **Role**: Backup, scaling, external access
 - **Services**: Backup storage, API gateway
 
@@ -3387,16 +3387,16 @@ Runs an MCP-to-OpenAPI proxy manager with unified or individual mode and a manag
 **Unified mode** exposes route-based endpoints (e.g., `/graphiti`, `/memory`) on the base port. **Individual mode** uses per-server ports in the defined range.
 
 
-   # MetaMCP + CASIStack Orchestrator GUI
+   # MetaMCP + Nyra Stack Orchestrator GUI
 
-This integrates [MetaMCP](https://github.com/metatool-ai/metamcp) as the aggregator with the CASIStack MCP OpenWebUI Orchestrator as a GUI to start/stop and expose OpenAPI endpoints.
+This integrates [MetaMCP](https://github.com/metatool-ai/metamcp) as the aggregator with the Nyra Stack MCP OpenWebUI Orchestrator as a GUI to start/stop and expose OpenAPI endpoints.
 
 ## Compose files
 - `nyra-infra/compose/compose.metatool.yml` → runs MetaMCP on port `12008` (see `env/metamcp.env.example`).
-- `nyra-infra/compose/compose.casistack.yml` → builds and runs CASIStack manager (ports `3001` and `4200-4300`).
+- `nyra-infra/compose/compose.nyra-stack.yml` → builds and runs Nyra Stack manager (ports `3001` and `4200-4300`).
 
 ## Environment (Infisical friendly)
-- CASIStack: see `.env.casistack.example`
+- Nyra Stack: see `.env.nyra-stack.example`
 - MetaMCP: see `env/metamcp.env.example`
 
 > MetaMCP supports referencing container env vars in server configs using `${VAR_NAME}` which works well with Infisical-managed environment injection.
@@ -3415,10 +3415,10 @@ copy .\env\metamcp.env.example .\env\metamcp.env
 # (fill env via Infisical)
 docker compose -f compose.metatool.yml up -d
 
-# 2) CASIStack Orchestrator
-copy .env.casistack.example .env
+# 2) Nyra Stack Orchestrator
+copy .env.nyra-stack.example .env
 # ensure CLAUDE_CONFIG_PATH points to your config file
-docker compose -f compose.casistack.yml up -d --build
+docker compose -f compose.nyra-stack.yml up -d --build
 
 # 3) GUI
 ..\scripts\start-mcp-dashboard.ps1
@@ -4247,7 +4247,7 @@ service_health_checks:
 }
 
 
-	# 03 — Infra: Cloudflare Tunnel, Koyeb, Domains, Email
+	# 03 — Infra: Cloudflare Tunnel, Oracle VPS, Domains, Email
 
 ## Cloudflare Tunnel (from HA Green or desktop)
 - Install `cloudflared`, authenticate, create a named tunnel.
@@ -4257,13 +4257,13 @@ service_health_checks:
   - (optional) `dev.ratehunter.net` → Dev/Agent Portal
 - Keep private services (LLMs, Redis, Postgres) on **Tailscale** only.
 
-## Koyeb (containers)
+## Oracle VPS (containers)
 - Build from Dockerfile or deploy prebuilt images.
 - One service per component: API, Scheduler, Portal.
-- Secrets via Koyeb UI; health checks per service.
+- Secrets via Oracle VPS UI; health checks per service.
 
 ## Domains & Email
-- DNS on Cloudflare. Route subdomains through Tunnel or Koyeb.
+- DNS on Cloudflare. Route subdomains through Tunnel or Oracle VPS.
 - Transactional email via **Graph (Outlook)** or SendGrid.
 
 
@@ -5340,16 +5340,16 @@ Delete (or repurpose) these:
 - SPF: remove includes for providers you no longer send from
 
 
-# MetaMCP + CASIStack Orchestrator GUI
+# MetaMCP + Nyra Stack Orchestrator GUI
 
-This integrates [MetaMCP](https://github.com/metatool-ai/metamcp) as the aggregator with the CASIStack MCP OpenWebUI Orchestrator as a GUI to start/stop and expose OpenAPI endpoints.
+This integrates [MetaMCP](https://github.com/metatool-ai/metamcp) as the aggregator with the Nyra Stack MCP OpenWebUI Orchestrator as a GUI to start/stop and expose OpenAPI endpoints.
 
 ## Compose files
 - `nyra-infra/compose/compose.metatool.yml` → runs MetaMCP on port `12008` (see `env/metamcp.env.example`).
-- `nyra-infra/compose/compose.casistack.yml` → builds and runs CASIStack manager (ports `3001` and `4200-4300`).
+- `nyra-infra/compose/compose.nyra-stack.yml` → builds and runs Nyra Stack manager (ports `3001` and `4200-4300`).
 
 ## Environment (Infisical friendly)
-- CASIStack: see `.env.casistack.example`
+- Nyra Stack: see `.env.nyra-stack.example`
 - MetaMCP: see `env/metamcp.env.example`
 
 > MetaMCP supports referencing container env vars in server configs using `${VAR_NAME}` which works well with Infisical-managed environment injection.
@@ -5368,10 +5368,10 @@ copy .\env\metamcp.env.example .\env\metamcp.env
 # (fill env via Infisical)
 docker compose -f compose.metatool.yml up -d
 
-# 2) CASIStack Orchestrator
-copy .env.casistack.example .env
+# 2) Nyra Stack Orchestrator
+copy .env.nyra-stack.example .env
 # ensure CLAUDE_CONFIG_PATH points to your config file
-docker compose -f compose.casistack.yml up -d --build
+docker compose -f compose.nyra-stack.yml up -d --build
 
 # 3) GUI
 ..\scripts\start-mcp-dashboard.ps1
@@ -5575,7 +5575,7 @@ The NYRA Distributed Memory Architecture is a comprehensive system designed to m
 - **Specs**: RTX 3090Ti, variable configuration
 - **Services**: Distributed storage, compute
 
-**Cloud (Koyeb VPS):**
+**Cloud (Oracle VPS VPS):**
 - **Role**: Backup, scaling, external access
 - **Services**: Backup storage, API gateway
 
@@ -10681,7 +10681,7 @@ in any and every script or module claude-flow is referenced as it has been moved
 │ using for orchestration which is my Minisforum UH680 Ryzen7 6800H 16GB-DDR5                                                           │
 │ RAM 1TB SSD. The orchestrator mini pc will orchestrate the other pc's and their                                                       │
 │ GPU's via cloudflared tunneling in addition to utilizing me free utilization                                                          │
-│ of my VPS from koyeb.com - the orchestrator will be able to ping and send magic                                                       │
+│ of my VPS from oracle-vps.com - the orchestrator will be able to ping and send magic                                                       │
 │ packets to the other worker pc's when extra compute power is needed to utilize                                                        │
 │ their GPU compute power. Nyra mortgage assistant will consist of n8n style                                                            │
 │ workflows and we will be creating a mortgage lead drip campaign for calls,                                                            │
@@ -11262,7 +11262,7 @@ i need to be able to maintain a windows 11 /c commands wrapped version of claude
 
 Now, most importantly, the GUI scripts should be condensed without throwing away anything useful. we want to keep all beneficial features and code and such. sort then condense categorically. there should be 1-2 main scripts that are condensed/combined  to be all in one bootstrap scripts for my 4 total pc's which include my minisforum UH680 Ryzen 7 6800H 16GB DDR5 1TB SSD mini pc (the orchestrator pc - this pc should have a script that differs from the rest since this is the pc that will be running all of the docker containers and mcp servers and such while the other pc's will be running our local LLM's on their GPU's). The other 3 pc's consist of my worker pc's which will also get their own separate worker pc script (unless we want to put both options in a singular script with a GUI where you can select which PC youre downloading on.) which includes setup for my desktop PC with an RTX3090Ti, and my two laptops that consist of my alienware M15R7 RTX3060 and my brand new alienware area-51 RTX5090. I need you to review all of the scripts, .ps1, .bat, readme's, and all other files in the repo root and in New-Review to sort out anything pertaining to bootstrapping the worker/orchestrator PC's to combine all of the relevant bootstrapping into its own package/folder titled LAN-PC-Bootstrap. The second category to sort and combine into is anything pertaining to document cleaning, repo consolidation, repo cleaning, config file condensation, cleaning, combination, etc. - so anything pertaining to llamaindex, ingestion, chunking, etc., although these things can also pertain to other agents such as claude/claude-flow, archon, fastmcp, codanna, serena, etc. This new "File-Cleaning" folder will be for condensing/combining my bootstrapping files/configs/scaffolding/etc. in one workflow while it will also contain a completely separate workflow for document cleanining of all files, notes, readme's, .md/.txt, chatgpt convos, etc., and conversion into memory for our projected memory systems that include Qdrant, Zep and/or mem0, graphiti and/or openmemory, and falkordb or neo4j and LMCache (a few of these are undecided). Then there are two additional GUI installers that already exist and need to be reviewed considering the M15R7 installer did not work on my laptop due to opening the relevant repo storage/backup app but then not proceeding or doing anything from there. i have not tried the other repo backup installer for the area-51 laptop. these two installers folders are currently existing in the project root. Then there should be an additional installer/setup for the MCP server package - all mcp servers should be consolidated into the same directory, however, it needs to be re-titled to "MCP-Servers and all relevant scripts or docs need to be edited and changed to address this new name change that is required to match the  main project repo. please review all of the ps1 and other scripts and files in the MCP servers folder as there is a lot of clutter that could use removal or condensation. perhaps make an all in one mcp server start/stop/logging/debugging setup? Then there should be a folder that should be condensed as best as possible that is simply for the project-nyra repo - besides the mcp server stuff - as long as it is condensed to some extent and not a mess we should be fine, we will review this after everything else is completed. Then the final GUI script package i can think of involves everything pertaining to Powershell/IDE's/windows terminal/bash/starship/posh/elvish/neovim/etc. - this script should be the one making the C:/Dev/IDE-Configs/Powershell directories and placing the bootstrap file as well as all of the other configs and profiles (it should only be placing copies considering that NYRA-AIO-Bootstrap package should remain the same without missing any files once all bootstrapping is completed on all 4 computers. remember, the powershell setup should have some type of a sync created and implemented that allows for the local pc files to be updated when the main package has changes made to it or perhaps when the repo's github remote has updates and the changes are pulled either to the remote USB drive on D:/ or from the repo root at C:/Dev/NYRA-AIO-Bootstrap (it should be able to sync from either of these locations depending on whether the USB or github repo pull is being utilized.
 
-remember, that i am trying to setup the 4 pc's LAN setup right now. they should all be connected via cloudflared tunnel via the orchestrator mini pc, however, i do also have free usage of a VPS on koyeb.com and im unsure how ill utilize it yet. perhaps for webapp backend. ratehunter.net will be my mortgage broker landing page while nyra.ratehunter.net will be the main webapps subdomain landing page that will be private either for just me or whoever else on my team or company uses nyra mortage assistant. i need to be able to access my setup trhough the domain from wherever i am, regardless if im in public and not on my LAN. Remember to also make sure to help me hook up ArchGW, Cloudflared, my domains/subdomains on cloudflare, koyeb.com, and all 4 of my pc's - a step by step setup script that is an expanded upon version of what is inside the "multi-device-orchestrator" folder that was moved out of  the root to elsewhere, it contained "NYRA-DeviceOrchestrator.ps1" and Setup-NYRAOrchestrator.ps1".  i have many more orchestrator/worker pc bootstrapping packages/zips/files/folders that i will upload to the repo after this run so we will continue working on this main setup some more sooon. 
+remember, that i am trying to setup the 4 pc's LAN setup right now. they should all be connected via cloudflared tunnel via the orchestrator mini pc, however, i do also have free usage of a VPS on oracle-vps.com and im unsure how ill utilize it yet. perhaps for webapp backend. ratehunter.net will be my mortgage broker landing page while nyra.ratehunter.net will be the main webapps subdomain landing page that will be private either for just me or whoever else on my team or company uses nyra mortage assistant. i need to be able to access my setup trhough the domain from wherever i am, regardless if im in public and not on my LAN. Remember to also make sure to help me hook up ArchGW, Cloudflared, my domains/subdomains on cloudflare, oracle-vps.com, and all 4 of my pc's - a step by step setup script that is an expanded upon version of what is inside the "multi-device-orchestrator" folder that was moved out of  the root to elsewhere, it contained "NYRA-DeviceOrchestrator.ps1" and Setup-NYRAOrchestrator.ps1".  i have many more orchestrator/worker pc bootstrapping packages/zips/files/folders that i will upload to the repo after this run so we will continue working on this main setup some more sooon. 
 
 
 REMEMBER - YOUR MAIN GOAL BESIDES CONSOLIDATION IS TO MAKE A CLEAR AND EASILY UNDERSTANDABLE BOOTSTRAPPING FLOW. NOOB USERS MUST BE ABLE TO KNOW WHERE TO START AND IN WHAT ORDER IS MOST EFFICIENT TO INSTALL AND SETUP EVERYTHING IN THE REPO. THERE SHOULD BE a .md FILE IN THE REPO ROOT WITH AN INDEX/SUMMARY AND STEP BY STEP GUIDE. ALL OTHER .ps1, .bat, .md, .txt, etc. files in the repo root need to either be moved to 'docs', 'scripts' or to their own "category folder" or 'specific use case folder'
@@ -11651,7 +11651,7 @@ For CI/CD integration and automation with parallel processing:
                                  │
               ┌──────────────────┴───────────────────┐
               │                                      │
-       [Koyeb VPS]                          [Local AI PCs via Tailscale]
+       [Oracle VPS VPS]                          [Local AI PCs via Tailscale]
  ┌─────────────────────┐                ┌────────────────────────────┐
  │   Landing page +     │                │ GPU workers, Node Exporter │
  │   Reverse proxy      │                │ Open-WebUI, LobeChat, Dify │
@@ -11812,14 +11812,14 @@ Push structured events (task completion times, errors, retries) as custom Promet
 
 word count: 472, tokens used: 2676, first token latency: 2566ms, model: OpenAI API (gpt-5-chat-latest), time: 09-03 03:12
 
-if you could please set me up with my entire dev stack thatd be great. id like to use open-webui + open-webui-pipelines as well as any additional open-webui tools, plugins, extensions, etyc. that you can find that may be useful. i am also going to use lobechat and if theres any additional benefit i can gain from using dify ontop of that i may add that as well. can you review these three options and tell me what the best combo is? im going to be tunneling my 3 local LAN pc's through my homeassistant green raspberry pi box, perhaps using tailscale. and cloudflare, but im going to start with using a VPS on Koyeb.com and hosting my web domain ratehunter.net on cloudflare for my business landing page/website, then im going to use subdomains to host each of my 3 local GPU's on each of my 3 local computers. i am building a web app that runs ai for personal use/ personal business use that will also be on a subdomain. as im building, im going to also host my open-webui and/or lobechat and dify so that i can access publically and cocntrol my ai dev stack. im unsure as to the best stack between those for ui/gui though. heres everything else i think id like to run
+if you could please set me up with my entire dev stack thatd be great. id like to use open-webui + open-webui-pipelines as well as any additional open-webui tools, plugins, extensions, etyc. that you can find that may be useful. i am also going to use lobechat and if theres any additional benefit i can gain from using dify ontop of that i may add that as well. can you review these three options and tell me what the best combo is? im going to be tunneling my 3 local LAN pc's through my homeassistant green raspberry pi box, perhaps using tailscale. and cloudflare, but im going to start with using a VPS on Oracle VPS.com and hosting my web domain ratehunter.net on cloudflare for my business landing page/website, then im going to use subdomains to host each of my 3 local GPU's on each of my 3 local computers. i am building a web app that runs ai for personal use/ personal business use that will also be on a subdomain. as im building, im going to also host my open-webui and/or lobechat and dify so that i can access publically and cocntrol my ai dev stack. im unsure as to the best stack between those for ui/gui though. heres everything else i think id like to run
 services:
 prometheus: # Metrics collection
 loki: # Log aggregation
 grafana: # Dashboarding
 alertmanager: # Notifications
 
-Got it 🚀 — you’re essentially building a full local–cloud hybrid AI dev stack with observability (Prometheus/Grafana/Loki), a UI layer (Open‑WebUI / LobeChat / Dify), and remote access via Tailscale/Cloudflare/Koyeb. Let’s break it into three parts: (1) compare Open‑WebUI, LobeChat, Dify; (2) propose the best combo; (3) show how it fits your infra plan (Koyeb + Cloudflare + subdomains + local GPUs).
+Got it 🚀 — you’re essentially building a full local–cloud hybrid AI dev stack with observability (Prometheus/Grafana/Loki), a UI layer (Open‑WebUI / LobeChat / Dify), and remote access via Tailscale/Cloudflare/Oracle VPS. Let’s break it into three parts: (1) compare Open‑WebUI, LobeChat, Dify; (2) propose the best combo; (3) show how it fits your infra plan (Oracle VPS + Cloudflare + subdomains + local GPUs).
 
 🧩 1. Comparing UI / GUI Options
 Open‑WebUI + OWUI-pipelines + Lobechat +Dify + Prometheus + Grafana + Loki + AlertManager
@@ -11828,7 +11828,7 @@ So far we are confirmed on ruvnet/claude-flow@alpha + claude-code / anthropics-c
 
 🌐 3. Infrastructure Design
 Cloud Layer
-Koyeb VPS + Cloudflare →
+Oracle VPS VPS + Cloudflare →
 Host landing page ratehunter.net
 Handle DNS & tunneling setup.
 Subdomains like:
@@ -15935,7 +15935,7 @@ google_credits_account_2: "$300"
         "archon-mcp",
         "claude-flow-mcp",
         "flow-nexus-mcp",
-        "casistack-mcp",
+        "nyra-stack-mcp",
         "archgw-mcp",
         "anthropic-agents-sdk"
       ],
@@ -16035,7 +16035,7 @@ frameworks:
   - langgraph: "google credits"
   - autogen2: "google credits" 
   - swarm_mcp: "google credits"
-  - casistack_orchestrator: "google credits"
+  - nyra-stack_orchestrator: "google credits"
 
 configuration:
   - separate_ai_frameworks_channel: true
@@ -16254,7 +16254,7 @@ const creditTracker = {
 - `archon-mcp` - Primary orchestrator
 - `claude-flow-mcp` - Secondary orchestrator  
 - `flow-nexus-mcp` - Workflow management
-- `casistack-mcp` - Docker orchestration
+- `nyra-stack-mcp` - Docker orchestration
 - `archgw-mcp` - Gateway management
 
 **🤖 AI-FRAMEWORKS CHANNEL (Separate):**

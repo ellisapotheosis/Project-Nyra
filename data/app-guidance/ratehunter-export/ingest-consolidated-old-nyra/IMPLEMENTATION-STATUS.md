@@ -38,7 +38,7 @@ This document tracks the implementation status of all 13 missing/incomplete comp
 7. ❌ `giteaInstaller.ts` - Gitea server (orchestrator only)
 8. ❌ `databaseInitializer.ts` - Database setup (orchestrator only)
 9. ❌ `gpuDriverInstaller.ts` - NVIDIA driver installation
-10. ❌ `koyebDeployer.ts` - Koyeb VPS deployment (orchestrator only)
+10. ❌ `oracle-vpsDeployer.ts` - Oracle VPS VPS deployment (orchestrator only)
 11. ❌ `n8nDeployer.ts` - n8n workflow deployment (orchestrator only)
 12. ❌ Enhanced `dockerInstaller.ts` - WSL integration
 13. ❌ Enhanced `tailscaleInstaller.ts` - Mesh VPN improvements
@@ -55,7 +55,7 @@ This document tracks the implementation status of all 13 missing/incomplete comp
 9. ❌ `GiteaSetupScreen.tsx` - Gitea setup (orchestrator only)
 10. ❌ `DatabaseSetupScreen.tsx` - Database initialization (orchestrator only)
 11. ❌ Enhanced `GPUConfigScreen.tsx` - GPU driver installation
-12. ❌ `KoyebSetupScreen.tsx` - Koyeb deployment (orchestrator only)
+12. ❌ `Oracle VPSSetupScreen.tsx` - Oracle VPS deployment (orchestrator only)
 13. ❌ `N8NSetupScreen.tsx` - n8n workflow deployment (orchestrator only)
 
 ## Implementation Priority
@@ -78,7 +78,7 @@ This document tracks the implementation status of all 13 missing/incomplete comp
 ### Phase 4: Orchestrator-Specific (LOW PRIORITY - Orchestrator Only)
 - [ ] giteaInstaller.ts + GiteaSetupScreen.tsx
 - [ ] databaseInitializer.ts + DatabaseSetupScreen.tsx
-- [ ] koyebDeployer.ts + KoyebSetupScreen.tsx
+- [ ] oracle-vpsDeployer.ts + Oracle VPSSetupScreen.tsx
 - [ ] n8nDeployer.ts + N8NSetupScreen.tsx
 
 ### Phase 5: Integration (FINAL)
