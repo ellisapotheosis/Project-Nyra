@@ -105,8 +105,9 @@ verify-connectivity: verify-paths
 	@bash ./verify-connectivity.sh
 
 clean:
-	docker system prune -f
-	docker volume prune -f
+	$(DOCKER_COMPOSE) -f $(MAIN_COMPOSE) down --remove-orphans || true
+	$(DOCKER_COMPOSE) -f $(WORKERS_COMPOSE) down --remove-orphans || true
+	$(DOCKER_COMPOSE) -f $(ORACLE_COMPOSE) down --remove-orphans || true
 
 reset:
 	@echo "WARNING: this removes containers and volumes for main + worker + oracle stacks."

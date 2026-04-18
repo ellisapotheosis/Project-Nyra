@@ -17,6 +17,16 @@ if ! command -v docker >/dev/null 2>&1; then
   exit 1
 fi
 
+if ! [[ "$TIMEOUT_SECONDS" =~ ^[0-9]+$ ]] || [[ "$TIMEOUT_SECONDS" -lt 0 ]]; then
+  echo "ERROR: TIMEOUT_SECONDS must be a non-negative integer" >&2
+  exit 1
+fi
+
+if ! docker compose -f "$COMPOSE_FILE" config >/dev/null; then
+  echo "ERROR: Compose preflight failed for $COMPOSE_FILE; refusing to stop running services" >&2
+  exit 1
+fi
+
 echo "Restarting services with compose file: $COMPOSE_FILE"
 
 docker compose -f "$COMPOSE_FILE" down --remove-orphans --timeout "$TIMEOUT_SECONDS"
