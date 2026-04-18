@@ -611,7 +611,7 @@ jobs:
 
       - name: Notify stakeholders
         if: github.event_name != 'workflow_dispatch'
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             const report = `
