@@ -88,13 +88,6 @@ hosts:
         category: mcp-server
       archon-os:
         profiles:
-        - dev
-        - all
-        ports:
-        - ${CLAUDE_FLOW_PORT:-8085}:8080
-        category: service
-      archon-os:
-        profiles:
         - archon
         - all
         ports:
@@ -230,30 +223,11 @@ hosts:
         ports:
         - ${INFISICAL_MCP_PORT:-8815}:8815
         category: mcp-server
-      ruvector:
-        profiles:
-        - apps
-        - all
-        ports:
-        - ${ruvector_PORT:-5440}:5432
-        category: data
-      archon-os:
-        profiles:
-        - apps
-        - all
-        ports:
-        - ${AGENTIC_FLOW_PORT:-8095}:8095
-        category: service
       cadvisor:
         profiles: []
         ports:
         - 0.0.0.0:${CADVISOR_PORT:-8081}:8080
         category: service
-      ruvector-pgadmin:
-        profiles: []
-        ports:
-        - 0.0.0.0:${RUVECTOR_PGADMIN_PORT:-5050}:80
-        category: data
       worker-3060-ollama:
         profiles:
         - worker-3060
@@ -272,16 +246,11 @@ hosts:
         ports:
         - ${WORKER_5090_VLLM_PORT:-8001}:8000
         category: service
-      ruvector-postgres:
-        profiles: []
-        ports:
-        - 0.0.0.0:${RUVECTOR_POSTGRES_PORT:-5436}:5432
-        category: data
   worker-hosts:
     nodes:
       worker-rtx5090:
         compose_files:
-        - infra/workers/worker-rtx5090/docker-compose.worker.yml
+        - infra/hosts/worker-rtx5090/docker-compose.worker-5090.yml
         env_files:
         - infra/env/.env.worker-rtx5090
         services:
@@ -332,7 +301,7 @@ hosts:
             category: service
       worker-rtx3090ti:
         compose_files:
-        - infra/workers/worker-rtx3090ti/docker-compose.worker.yml
+        - infra/hosts/worker-rtx3090ti/docker-compose.worker-3090.yml
         env_files:
         - infra/env/.env.worker-rtx3090ti
         services:
@@ -383,7 +352,7 @@ hosts:
             category: service
       worker-rtx3060:
         compose_files:
-        - infra/workers/worker-rtx3060/docker-compose.worker.yml
+        - infra/hosts/worker-rtx3060/docker-compose.worker-3060.yml
         - infra/compose/overrides/docker-compose.worker-rtx3060.override.yml
         env_files:
         - infra/env/.env.worker-rtx3060
@@ -509,9 +478,6 @@ recommended_placement:
   - service: activepieces
     recommended_host: orchestrator
     category: platform
-  - service: ruvector
-    recommended_host: orchestrator
-    category: data
   - service: archon-os
     recommended_host: orchestrator
     category: service
@@ -599,9 +565,6 @@ recommended_placement:
   - service: redis
     recommended_host: orchestrator
     category: data
-  - service: ruvector-pgadmin
-    recommended_host: orchestrator
-    category: data
   - service: worker-3060-ollama
     recommended_host: orchestrator
     category: service
@@ -613,9 +576,6 @@ recommended_placement:
     category: service
   oracle-vps:
   - service: postgres
-    recommended_host: oracle-vps
-    category: data
-  - service: ruvector-postgres
     recommended_host: oracle-vps
     category: data
   - service: twenty-postgres

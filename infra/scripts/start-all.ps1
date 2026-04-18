@@ -1,13 +1,13 @@
 # ============================================================================
 # Project Nyra - Master Infrastructure Startup Script
-# Queen Coordinator: 15-Agent Swarm Orchestration
+# Project Nyra infrastructure startup
 # ============================================================================
 #
 # This script starts the complete Project Nyra infrastructure stack:
 #   - Phase 1: Infisical Agent (Secrets Management)
 #   - Phase 2: Core Infrastructure (PostgreSQL, Redis, Neo4j, Qdrant, FalkorDB)
-#   - Phase 3: MCP Servers (Nexus Router, ruvector, RuVector, Letta, Mem0)
-#   - Phase 4: Claude Flow @alpha (Multi-Agent Orchestration)
+#   - Phase 3: MCP Servers (Nexus Router, LiteLLM, Letta, Mem0)
+#   - Phase 4: Archon / app services
 #   - Phase 5: Open-WebUI (Port 8088)
 #   - Phase 6: Orchestrator (Prometheus, Grafana, Loki)
 #   - Phase 7: Worker Nodes (Optional)
@@ -80,8 +80,8 @@ Write-Host @"
 ║    ██║ ╚████║   ██║   ██║  ██║██║  ██║    ██║     ██║  ██║╚██████╔╝         ║
 ║    ╚═╝  ╚═══╝   ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝    ╚═╝     ╚═╝  ╚═╝ ╚═════╝          ║
 ║                                                                              ║
-║              Queen Coordinator - 15-Agent Swarm Infrastructure               ║
-║                           Claude Flow V3 Alpha                               ║
+║                  Project Nyra Infrastructure Bootstrap                       ║
+║                       Current Control Plane Services                         ║
 ║                                                                              ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 
@@ -100,22 +100,20 @@ $Services = @{
     }
     MCP = @{
         ComposeFile = "base/docker-compose.mcp.yml"
-        Description = "MCP Servers (Nexus, LiteLLM, ruvector, RuVector, Letta, Mem0, Infisical)"
+        Description = "MCP Servers (Nexus, LiteLLM, Letta, Mem0, Infisical)"
         HealthChecks = @(
             @{ Name = "Nexus Router"; URL = "http://localhost:6000/health"; Port = 6000; Type = "http" }
             @{ Name = "LiteLLM"; URL = "http://localhost:4000/health"; Port = 4000; Type = "http" }
-            @{ Name = "ruvector"; URL = "http://localhost:8080/health"; Port = 8080; Type = "http" }
-            @{ Name = "RuVector"; URL = "http://localhost:8888/health"; Port = 8888; Type = "http" }
             @{ Name = "Letta"; URL = "http://localhost:8283/health"; Port = 8283; Type = "http" }
             @{ Name = "Mem0"; URL = "http://localhost:4321/health"; Port = 4321; Type = "http" }
         )
     }
     Apps = @{
         ComposeFile = "apps/docker-compose.apps.yml"
-        Description = "Applications (TwentyCRM, n8n, Open-WebUI, Claude Flow)"
+        Description = "Applications (TwentyCRM, n8n, Open-WebUI, Archon)"
         HealthChecks = @(
             @{ Name = "Open-WebUI"; URL = $OpenWebUiHealthUrl; Port = $OpenWebUiPort; Type = "http" }
-            @{ Name = "Claude Flow Alpha"; URL = "http://localhost:3010/health"; Port = 3010; Type = "http" }
+            @{ Name = "Archon"; URL = "http://localhost:3010/health"; Port = 3010; Type = "http" }
             @{ Name = "TwentyCRM"; URL = "http://localhost:3000/health"; Port = 3000; Type = "http" }
             @{ Name = "n8n"; URL = "http://localhost:5678/healthz"; Port = 5678; Type = "http" }
         )
@@ -364,9 +362,9 @@ else {
 }
 
 # ============================================================================
-# PHASE 3: MCP Servers (Nexus, ruvector, RuVector, Letta, Mem0)
+# PHASE 3: MCP Servers (Nexus, LiteLLM, Letta, Mem0)
 # ============================================================================
-Write-Phase "PHASE 3: MCP Servers (Nexus Router, ruvector, RuVector, Letta, Mem0)"
+Write-Phase "PHASE 3: MCP Servers (Nexus Router, LiteLLM, Letta, Mem0)"
 
 $mcpCompose = Join-Path $DockerDir "base/docker-compose.mcp.yml"
 if (Test-Path $mcpCompose) {
@@ -384,23 +382,6 @@ if (Test-Path $mcpCompose) {
         Start-Sleep -Seconds 2
     }
 
-    Write-Step "Waiting for ruvector..."
-    for ($i = 0; $i -lt 20; $i++) {
-        if (Test-ServiceHealth -Name "ruvector" -URL "http://localhost:8080/health" -Port 8080 -MaxRetries 1) {
-            Write-Success "ruvector ready"
-            break
-        }
-        Start-Sleep -Seconds 2
-    }
-
-    Write-Step "Waiting for RuVector..."
-    for ($i = 0; $i -lt 20; $i++) {
-        if (Test-ServiceHealth -Name "RuVector" -URL "http://localhost:8888/health" -Port 8888 -MaxRetries 1) {
-            Write-Success "RuVector ready"
-            break
-        }
-        Start-Sleep -Seconds 2
-    }
 }
 else {
     Write-Error "MCP compose file not found: $mcpCompose"
@@ -568,9 +549,6 @@ Write-Host @"
   AI/ML Stack:
     Nexus Router:     http://localhost:6000  (LLM Gateway)
     LiteLLM:          http://localhost:4000  (Model Proxy)
-    ruvector:          http://localhost:8080  (HNSW Vector DB)
-    RuVector:         http://localhost:8888  (Memory Optimization)
-
   Memory Services:
     Letta (MemGPT):   http://localhost:8283  (Stateful Memory)
     Mem0:             http://localhost:4321  (Universal Memory)

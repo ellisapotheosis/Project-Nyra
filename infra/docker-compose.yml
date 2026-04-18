@@ -20,7 +20,6 @@ volumes:
   grafana_data: {}
   prometheus_data: {}
   loki_data: {}
-  ruvector_data: {}
   twenty_pg: {}
   infisical_data: {}
   shared_secrets: {}
@@ -559,21 +558,6 @@ services:
       - /var/run:/var/run:ro
       - /sys:/sys:ro
       - /var/lib/docker/:/var/lib/docker:ro
-    restart: unless-stopped
-    networks: [nyra]
-    logging: *default_logging
-
-  ruvector-pgadmin:
-    image: dpage/pgadmin4:latest
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-ruvector-pgadmin
-    profiles: ['vector', 'debug', 'all']
-    environment:
-      PGADMIN_DEFAULT_EMAIL: ${RUVECTOR_PGADMIN_EMAIL:-admin@nyra.local}
-      PGADMIN_DEFAULT_PASSWORD: ${RUVECTOR_PGADMIN_PASSWORD:-changeme}
-    ports:
-      - '${RUVECTOR_PGADMIN_PORT:-5050}:80'
-    depends_on:
-      - ruvector-postgres
     restart: unless-stopped
     networks: [nyra]
     logging: *default_logging

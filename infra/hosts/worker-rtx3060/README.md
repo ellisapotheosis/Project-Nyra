@@ -92,12 +92,6 @@ docker-compose -f docker-compose.worker-3060.yml logs -f
 │  └──────────────────────────────────────────────┘  │
 │                                                     │
 │  ┌──────────────────────────────────────────────┐  │
-│  │  ONNX Runtime (Port 8001-8002)               │  │
-│  │  - GPU-accelerated inference                 │  │
-│  │  - Model serving                             │  │
-│  └──────────────────────────────────────────────┘  │
-│                                                     │
-│  ┌──────────────────────────────────────────────┐  │
 │  │  Embedding Service (Port 8080)               │  │
 │  │  - Xenova/transformers                       │  │
 │  │  - Batch processing                          │  │
@@ -148,25 +142,6 @@ curl http://localhost:11434/api/tags
 
 # Model info
 curl http://localhost:11434/api/show -d '{"name": "codellama:34b"}'
-```
-
-### ONNX Runtime (GPU Inference)
-
-**Port**: 8001 (HTTP), 8002 (gRPC)
-**URL**: http://localhost:8001
-
-**Usage**:
-```bash
-# Health check
-curl http://localhost:8001/v2/health/ready
-
-# Model list
-curl http://localhost:8001/v2/models
-
-# Inference
-curl -X POST http://localhost:8001/v2/models/{model_name}/infer \
-  -H "Content-Type: application/json" \
-  -d @input.json
 ```
 
 ### Embedding Service (Xenova)
@@ -319,9 +294,6 @@ cloudflared tunnel run worker-3060
 ```powershell
 # Allow Ollama
 New-NetFirewallRule -DisplayName "Ollama" -Direction Inbound -LocalPort 11434 -Protocol TCP -Action Allow
-
-# Allow ONNX Runtime
-New-NetFirewallRule -DisplayName "ONNX Runtime" -Direction Inbound -LocalPort 8001,8002 -Protocol TCP -Action Allow
 
 # Allow Embedding Service
 New-NetFirewallRule -DisplayName "Embeddings" -Direction Inbound -LocalPort 8080 -Protocol TCP -Action Allow
@@ -582,7 +554,6 @@ const embeddings = await fetch('http://worker-3060.tail-net.ts.net:8080/embed', 
 | Document Classification | Qwen 2 32B | 18 | 2.8s | 10GB |
 | Text Generation | Gemma 2 27B | 20 | 2.5s | 9GB |
 | Embeddings (batch=32) | Xenova | - | 250ms | 2GB |
-| ONNX Inference | Custom | - | 150ms | 3GB |
 
 ## Support
 

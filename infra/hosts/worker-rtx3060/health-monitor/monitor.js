@@ -50,11 +50,6 @@ const SERVICES = {
     healthPath: '/api/version',
     timeout: 5000
   },
-  onnx: {
-    url: process.env.ONNX_URL || 'http://onnx-runtime:8001',
-    healthPath: '/v2/health/ready',
-    timeout: 3000
-  },
   embedding: {
     url: process.env.EMBEDDING_URL || 'http://embedding-service:8080',
     healthPath: '/health',
@@ -65,7 +60,6 @@ const SERVICES = {
 // Service health state
 const serviceHealth = {
   ollama: { status: 'unknown', lastCheck: null, latency: 0 },
-  onnx: { status: 'unknown', lastCheck: null, latency: 0 },
   embedding: { status: 'unknown', lastCheck: null, latency: 0 }
 };
 

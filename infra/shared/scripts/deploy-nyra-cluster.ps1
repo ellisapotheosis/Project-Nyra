@@ -187,10 +187,10 @@ function Show-DeploymentSummary {
     Write-Banner "Deployment Summary"
 
     Write-Host "Bootstrap Kits Created:" -ForegroundColor Yellow
-    Write-Host "  ✓ PC1 (Orchestrator): Nexus, Claude Flow, Archon OS, Monitoring" -ForegroundColor Green
-    Write-Host "  ✓ PC2 (GPU Worker 1): Ollama, Ruvector Leader, Letta, Mem0, OpenClaw UI" -ForegroundColor Green
-    Write-Host "  ✓ PC3 (GPU Worker 2): Ruvector Follower, TwentyCRM, Databases" -ForegroundColor Green
-    Write-Host "  ✓ PC4 (GPU Worker 3): Ruvector Follower, n8n, Activepieces, Business Services" -ForegroundColor Green
+    Write-Host "  ✓ PC1 (Orchestrator): Nexus, Archon OS, Monitoring" -ForegroundColor Green
+    Write-Host "  ✓ PC2 (GPU Worker 1): Ollama, local inference services" -ForegroundColor Green
+    Write-Host "  ✓ PC3 (GPU Worker 2): vLLM inference services" -ForegroundColor Green
+    Write-Host "  ✓ PC4 (GPU Worker 3): workflow and business services" -ForegroundColor Green
     Write-Host ""
 
     Write-Host "Network Configuration:" -ForegroundColor Yellow

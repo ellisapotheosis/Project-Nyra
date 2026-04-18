@@ -108,18 +108,7 @@ if ($result.Status -eq "PASS") {
 }
 
 # ============================================================================
-# 3. ONNX Runtime Tests
-# ============================================================================
-Write-Host "`n[ONNX RUNTIME TESTS]" -ForegroundColor Magenta
-
-$result = Test-Endpoint "ONNX Health" "http://localhost:8001/v2/health/ready"
-$TestResults += $result
-
-$result = Test-Endpoint "ONNX Models" "http://localhost:8001/v2/models"
-$TestResults += $result
-
-# ============================================================================
-# 4. Embedding Service Tests
+# 3. Embedding Service Tests
 # ============================================================================
 Write-Host "`n[EMBEDDING SERVICE TESTS]" -ForegroundColor Magenta
 
@@ -218,7 +207,6 @@ Write-Host "`n[DOCKER CONTAINER TESTS]" -ForegroundColor Magenta
 
 $expectedContainers = @(
     "worker-3060-ollama",
-    "worker-3060-onnx",
     "worker-3060-embeddings",
     "worker-3060-health",
     "worker-3060-redis"

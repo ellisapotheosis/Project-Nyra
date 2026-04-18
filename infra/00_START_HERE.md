@@ -268,19 +268,16 @@ npm run build && npm run start  # → http://localhost:3010
 **Dashboard Components:**
 - **Agent Grid**: Real-time agent status and metrics
 - **Workflow Canvas**: Visual pipeline builder
-- **Memory Analytics**: RuVector + letta insights
+- **Memory Analytics**: Scoped assistant memory and workflow insights
 - **Performance Metrics**: Latency, cost, success rates
 - **Model Router**: LLM selection and routing logic
 
 ### 6.2 Multi-Agent Orchestration
 
 **🧠 Architecture**: Mesh topology (peer-to-peer) vs Hierarchical (controlled)
-**🔧 Memory**: RuVector (primary) + Letta + letta + Mem0
+**🔧 Memory**: Archon context + selected assistant memory + Mem0
 
 ```bash
-# Initialize agent swarm
-npx @archon-os/cli@latest swarm init --topology mesh --max-agents 8
-
 # Memory system setup
 npx @archon-os/cli@latest memory init --force --backend hybrid
 
