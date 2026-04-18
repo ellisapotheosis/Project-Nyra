@@ -1,6 +1,6 @@
-# Koyeb Integration Guide for Project Nyra
+# Oracle VPS Integration Guide for Project Nyra
 
-Complete guide for deploying Project Nyra's backend services to Koyeb VPS with mortgage lead drip campaign integration.
+Complete guide for deploying Project Nyra's backend services to Oracle VPS VPS with mortgage lead drip campaign integration.
 
 ## 📋 Table of Contents
 
@@ -18,16 +18,16 @@ Complete guide for deploying Project Nyra's backend services to Koyeb VPS with m
 
 ## Overview
 
-### What is Koyeb?
+### What is Oracle VPS?
 
-Koyeb is a serverless platform that deploys applications globally with zero infrastructure management. Perfect for:
+Oracle VPS is a serverless platform that deploys applications globally with zero infrastructure management. Perfect for:
 - **Rapid prototyping** and MVP launches
 - **Cost-effective hosting** with generous free tier
 - **Auto-scaling** without configuration
 - **Global CDN** and edge deployment
 - **Integrated CI/CD** from Git repositories
 
-### Why Koyeb for Project Nyra?
+### Why Oracle VPS for Project Nyra?
 
 1. **Free Tier Benefits**
    - 1 shared vCPU, 512 MB RAM, 2.5 GB storage
@@ -51,7 +51,7 @@ Koyeb is a serverless platform that deploys applications globally with zero infr
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                        Koyeb Cloud                          │
+│                        Oracle VPS Cloud                          │
 ├─────────────────────────────────────────────────────────────┤
 │                                                             │
 │  ┌──────────────────┐          ┌──────────────────┐       │
@@ -89,38 +89,38 @@ Koyeb is a serverless platform that deploys applications globally with zero infr
 
 ## Free Trial Setup
 
-### Step 1: Create Koyeb Account
+### Step 1: Create Oracle VPS Account
 
-1. Go to [https://www.koyeb.com](https://www.koyeb.com)
+1. Go to [https://www.oracle-vps.com](https://www.oracle-vps.com)
 2. Sign up with GitHub, GitLab, or email
 3. Verify your email address
 4. **No credit card required** for free tier
 
-### Step 2: Install Koyeb CLI
+### Step 2: Install Oracle VPS CLI
 
 **macOS:**
 ```bash
-brew install koyeb/tap/koyeb-cli
+brew install oracle-vps/tap/oracle-vps-cli
 ```
 
 **Linux:**
 ```bash
-curl -fsSL https://cli.koyeb.com/install.sh | bash
+curl -fsSL https://cli.oracle-vps.com/install.sh | bash
 ```
 
 **Windows (WSL):**
 ```bash
-curl -fsSL https://cli.koyeb.com/install.sh | bash
+curl -fsSL https://cli.oracle-vps.com/install.sh | bash
 ```
 
 **Verify Installation:**
 ```bash
-koyeb version
+oracle-vps version
 ```
 
 ### Step 3: Get API Token
 
-1. Log in to [Koyeb Dashboard](https://app.koyeb.com)
+1. Log in to [Oracle VPS Dashboard](https://app.oracle-vps.com)
 2. Navigate to **Account Settings** → **API**
 3. Click **Create API Token**
 4. Copy the token (shown only once)
@@ -137,8 +137,8 @@ source ~/.bashrc
 ### Step 4: Authenticate CLI
 
 ```bash
-echo "$KOYEB_API_TOKEN" | koyeb login
-koyeb whoami  # Verify authentication
+echo "$KOYEB_API_TOKEN" | oracle-vps login
+oracle-vps whoami  # Verify authentication
 ```
 
 ---
@@ -149,7 +149,7 @@ koyeb whoami  # Verify authentication
 
 Before deploying, ensure you have:
 
-1. **Koyeb Account & CLI** (see above)
+1. **Oracle VPS Account & CLI** (see above)
 2. **Infisical Account** for secret management
 3. **GitHub Repository** with Project Nyra code
 4. **Environment Variables** configured (see Configuration section)
@@ -163,18 +163,18 @@ cd bootstrap/orchestrator-mini/scripts
 
 # Full deployment with secret sync
 export KOYEB_API_TOKEN="your_token"
-./deploy-to-koyeb.sh
+./deploy-to-oracle-vps.sh
 
 # Deploy specific service
-./deploy-to-koyeb.sh --service webapp
+./deploy-to-oracle-vps.sh --service webapp
 
 # Skip secret sync (use existing secrets)
-./deploy-to-koyeb.sh --skip-secrets
+./deploy-to-oracle-vps.sh --skip-secrets
 ```
 
 The script will:
 1. ✅ Check prerequisites
-2. ✅ Authenticate with Koyeb
+2. ✅ Authenticate with Oracle VPS
 3. ✅ Sync secrets from Infisical
 4. ✅ Deploy n8n orchestrator
 5. ✅ Deploy webapp backend
@@ -190,22 +190,22 @@ If you prefer manual control:
 
 ```bash
 # Create secrets from Infisical
-infisical export --env production --path /koyeb --format dotenv > .env.koyeb
+infisical export --env production --path /oracle-vps --format dotenv > .env.oracle-vps
 
-# Create individual secrets in Koyeb
-koyeb secret create DATABASE_URL --value "$DATABASE_URL"
-koyeb secret create JWT_SECRET --value "$JWT_SECRET"
-koyeb secret create ANTHROPIC_API_KEY --value "$ANTHROPIC_API_KEY"
+# Create individual secrets in Oracle VPS
+oracle-vps secret create DATABASE_URL --value "$DATABASE_URL"
+oracle-vps secret create JWT_SECRET --value "$JWT_SECRET"
+oracle-vps secret create ANTHROPIC_API_KEY --value "$ANTHROPIC_API_KEY"
 # ... repeat for all secrets
 ```
 
 #### 2. Deploy n8n Service
 
 ```bash
-cd bootstrap/orchestrator-mini/configs/koyeb
+cd bootstrap/orchestrator-mini/configs/oracle-vps
 
-koyeb service create nyra-n8n-orchestrator \
-  --definition koyeb.yaml \
+oracle-vps service create nyra-n8n-orchestrator \
+  --definition oracle-vps.yaml \
   --app nyra \
   --region was \
   --wait
@@ -214,7 +214,7 @@ koyeb service create nyra-n8n-orchestrator \
 #### 3. Deploy Webapp Backend
 
 ```bash
-koyeb service create nyra-webapp-backend \
+oracle-vps service create nyra-webapp-backend \
   --definition webapp-backend.yaml \
   --app nyra \
   --region was \
@@ -225,11 +225,11 @@ koyeb service create nyra-webapp-backend \
 
 ```bash
 # Add custom domains
-koyeb domain create n8n.nyra.koyeb.app --service nyra-n8n-orchestrator
-koyeb domain create api.nyra.koyeb.app --service nyra-webapp-backend
+oracle-vps domain create n8n.nyra.oracle-vps.ratehunter.net --service nyra-n8n-orchestrator
+oracle-vps domain create api.nyra.oracle-vps.ratehunter.net --service nyra-webapp-backend
 
 # Get CNAME records
-koyeb domain list
+oracle-vps domain list
 ```
 
 #### 5. Update DNS
@@ -237,8 +237,8 @@ koyeb domain list
 Add CNAME records to your DNS provider:
 
 ```
-n8n.nyra.koyeb.app  →  CNAME  →  [koyeb-assigned-domain]
-api.nyra.koyeb.app  →  CNAME  →  [koyeb-assigned-domain]
+n8n.nyra.oracle-vps.ratehunter.net  →  CNAME  →  [oracle-vps-assigned-domain]
+api.nyra.oracle-vps.ratehunter.net  →  CNAME  →  [oracle-vps-assigned-domain]
 ```
 
 ---
@@ -247,9 +247,9 @@ api.nyra.koyeb.app  →  CNAME  →  [koyeb-assigned-domain]
 
 ### Environment Variables
 
-All sensitive configuration is managed via **Infisical** and synced to Koyeb.
+All sensitive configuration is managed via **Infisical** and synced to Oracle VPS.
 
-#### Required Secrets (Infisical Path: `/koyeb`)
+#### Required Secrets (Infisical Path: `/oracle-vps`)
 
 **Database:**
 - `DATABASE_URL` - PostgreSQL connection string
@@ -296,37 +296,37 @@ All sensitive configuration is managed via **Infisical** and synced to Koyeb.
 
 2. **Add Secrets**
    ```bash
-   # Add secrets to /koyeb path
-   infisical secrets set DATABASE_URL "postgresql://..." --env production --path /koyeb
-   infisical secrets set JWT_SECRET "$(openssl rand -hex 32)" --env production --path /koyeb
+   # Add secrets to /oracle-vps path
+   infisical secrets set DATABASE_URL "postgresql://..." --env production --path /oracle-vps
+   infisical secrets set JWT_SECRET "$(openssl rand -hex 32)" --env production --path /oracle-vps
    # ... repeat for all secrets
    ```
 
 3. **Configure Machine Identity** (Recommended for Production)
    ```bash
-   # Create machine identity for Koyeb
-   infisical identity create koyeb-production
+   # Create machine identity for Oracle VPS
+   infisical identity create oracle-vps-production
 
-   # Grant access to /koyeb path
-   infisical identity grant koyeb-production --path /koyeb --env production
+   # Grant access to /oracle-vps path
+   infisical identity grant oracle-vps-production --path /oracle-vps --env production
 
    # Get client credentials
-   infisical identity token create koyeb-production
+   infisical identity token create oracle-vps-production
    # Save INFISICAL_CLIENT_ID and INFISICAL_CLIENT_SECRET
    ```
 
-4. **Sync to Koyeb**
+4. **Sync to Oracle VPS**
    ```bash
    # Using deployment script (recommended)
-   ./bootstrap/orchestrator-mini/scripts/deploy-to-koyeb.sh
+   ./bootstrap/orchestrator-mini/scripts/deploy-to-oracle-vps.sh
 
    # Or manually
-   infisical export --env production --path /koyeb | koyeb secret import
+   infisical export --env production --path /oracle-vps | oracle-vps secret import
    ```
 
 ### Scaling Configuration
 
-Edit `bootstrap/orchestrator-mini/configs/koyeb/scaling-policies.yaml` to adjust resource allocation:
+Edit `bootstrap/orchestrator-mini/configs/oracle-vps/scaling-policies.yaml` to adjust resource allocation:
 
 ```yaml
 # Free Tier (default)
@@ -483,10 +483,10 @@ Lead Capture → n8n Workflow → Email/SMS Campaign → CRM Sync
 
 ```bash
 # Access n8n dashboard
-open https://n8n.nyra.koyeb.app
+open https://n8n.nyra.oracle-vps.ratehunter.net
 
 # Import workflows from templates
-cd bootstrap/orchestrator-mini/configs/koyeb
+cd bootstrap/orchestrator-mini/configs/oracle-vps
 # Upload workflow JSON files from n8n UI
 ```
 
@@ -520,7 +520,7 @@ webhooks:
 
 #### 4. Configure Lead Scoring
 
-Edit `bootstrap/orchestrator-mini/configs/koyeb/webapp-backend.yaml`:
+Edit `bootstrap/orchestrator-mini/configs/oracle-vps/webapp-backend.yaml`:
 
 ```yaml
 scoring_rules:
@@ -538,7 +538,7 @@ scoring_rules:
 
 ```bash
 # Test API endpoint
-curl -X POST https://api.nyra.koyeb.app/api/v1/leads \
+curl -X POST https://api.nyra.oracle-vps.ratehunter.net/api/v1/leads \
   -H "Content-Type: application/json" \
   -d '{
     "firstName": "Test",
@@ -553,7 +553,7 @@ curl -X POST https://api.nyra.koyeb.app/api/v1/leads \
 
 ```bash
 # Test webhook trigger
-curl -X POST https://n8n.nyra.koyeb.app/webhook/lead-capture \
+curl -X POST https://n8n.nyra.oracle-vps.ratehunter.net/webhook/lead-capture \
   -H "Content-Type: application/json" \
   -d '{"leadId": "test_123"}'
 ```
@@ -562,10 +562,10 @@ curl -X POST https://n8n.nyra.koyeb.app/webhook/lead-capture \
 
 ```bash
 # View n8n execution logs
-koyeb service logs nyra-n8n-orchestrator --tail 100
+oracle-vps service logs nyra-n8n-orchestrator --tail 100
 
 # View webapp backend logs
-koyeb service logs nyra-webapp-backend --tail 100
+oracle-vps service logs nyra-webapp-backend --tail 100
 ```
 
 ### Campaign Metrics
@@ -577,7 +577,7 @@ Track campaign performance in n8n dashboard:
 3. **Lead Conversion:** Consultation bookings
 4. **Error Rate:** Failed workflow executions
 
-**n8n Metrics Endpoint:** `GET https://n8n.nyra.koyeb.app/rest/executions`
+**n8n Metrics Endpoint:** `GET https://n8n.nyra.oracle-vps.ratehunter.net/rest/executions`
 
 ---
 
@@ -620,7 +620,7 @@ Track campaign performance in n8n dashboard:
 
 5. **Monitor Bandwidth Usage**
    ```bash
-   koyeb service metrics nyra-webapp-backend --metric bandwidth
+   oracle-vps service metrics nyra-webapp-backend --metric bandwidth
    ```
 
 ### When Free Tier Becomes Insufficient
@@ -654,7 +654,7 @@ Track campaign performance in n8n dashboard:
 **How to Upgrade:**
 ```bash
 # Update scaling policy
-koyeb service update nyra-webapp-backend \
+oracle-vps service update nyra-webapp-backend \
   --plan starter \
   --instances 2
 ```
@@ -679,7 +679,7 @@ koyeb service update nyra-webapp-backend \
 **How to Upgrade:**
 ```bash
 # Update to production plan
-koyeb service update nyra-webapp-backend \
+oracle-vps service update nyra-webapp-backend \
   --plan production \
   --instances-min 2 \
   --instances-max 10 \
@@ -701,7 +701,7 @@ koyeb service update nyra-webapp-backend \
 
 ### Monitoring Dashboard
 
-Access Koyeb dashboard: [https://app.koyeb.com](https://app.koyeb.com)
+Access Oracle VPS dashboard: [https://app.oracle-vps.com](https://app.oracle-vps.com)
 
 **Key Metrics:**
 - CPU usage
@@ -715,23 +715,23 @@ Access Koyeb dashboard: [https://app.koyeb.com](https://app.koyeb.com)
 
 ```bash
 # Real-time logs
-koyeb service logs nyra-webapp-backend --follow
+oracle-vps service logs nyra-webapp-backend --follow
 
 # Last 100 lines
-koyeb service logs nyra-webapp-backend --tail 100
+oracle-vps service logs nyra-webapp-backend --tail 100
 
 # Filter by timestamp
-koyeb service logs nyra-webapp-backend --since 1h
+oracle-vps service logs nyra-webapp-backend --since 1h
 
 # Export logs
-koyeb service logs nyra-webapp-backend --since 24h > logs.txt
+oracle-vps service logs nyra-webapp-backend --since 24h > logs.txt
 ```
 
 ### Health Checks
 
 ```bash
 # Check service health
-curl https://api.nyra.koyeb.app/api/health
+curl https://api.nyra.oracle-vps.ratehunter.net/api/health
 
 # Expected response
 {
@@ -754,7 +754,7 @@ curl https://api.nyra.koyeb.app/api/health
 **Solutions:**
 ```bash
 # Check logs for errors
-koyeb service logs nyra-webapp-backend --tail 50
+oracle-vps service logs nyra-webapp-backend --tail 50
 
 # Common issues:
 # - Missing environment variable
@@ -763,7 +763,7 @@ koyeb service logs nyra-webapp-backend --tail 50
 # - Health check timeout
 
 # Fix and redeploy
-koyeb service redeploy nyra-webapp-backend
+oracle-vps service redeploy nyra-webapp-backend
 ```
 
 #### 2. High Memory Usage
@@ -773,7 +773,7 @@ koyeb service redeploy nyra-webapp-backend
 **Solutions:**
 ```bash
 # Check memory metrics
-koyeb service metrics nyra-webapp-backend --metric memory
+oracle-vps service metrics nyra-webapp-backend --metric memory
 
 # Optimize Node.js memory
 # Add to environment variables:
@@ -795,7 +795,7 @@ NODE_OPTIONS="--gc-interval=100"
 # Use CDN for static assets
 
 # Monitor performance
-koyeb service metrics nyra-webapp-backend --metric response_time
+oracle-vps service metrics nyra-webapp-backend --metric response_time
 ```
 
 #### 4. n8n Workflow Failures
@@ -805,7 +805,7 @@ koyeb service metrics nyra-webapp-backend --metric response_time
 **Solutions:**
 ```bash
 # Check n8n logs
-koyeb service logs nyra-n8n-orchestrator
+oracle-vps service logs nyra-n8n-orchestrator
 
 # Common issues:
 # - Invalid webhook URL
@@ -814,7 +814,7 @@ koyeb service logs nyra-n8n-orchestrator
 # - Database connection lost
 
 # Restart n8n service
-koyeb service restart nyra-n8n-orchestrator
+oracle-vps service restart nyra-n8n-orchestrator
 ```
 
 ### Rollback Procedure
@@ -823,12 +823,12 @@ If deployment fails:
 
 ```bash
 # Automatic rollback via script
-./bootstrap/orchestrator-mini/scripts/deploy-to-koyeb.sh \
+./bootstrap/orchestrator-mini/scripts/deploy-to-oracle-vps.sh \
   --rollback nyra-webapp-backend
 
 # Manual rollback
-koyeb deployment list nyra-webapp-backend
-koyeb service redeploy nyra-webapp-backend --deployment <previous-deployment-id>
+oracle-vps deployment list nyra-webapp-backend
+oracle-vps service redeploy nyra-webapp-backend --deployment <previous-deployment-id>
 ```
 
 ---
@@ -894,7 +894,7 @@ koyeb service redeploy nyra-webapp-backend --deployment <previous-deployment-id>
 ### 5. Security
 
 ✅ **Do:**
-- Enable HTTPS (auto with Koyeb)
+- Enable HTTPS (auto with Oracle VPS)
 - Use rate limiting
 - Validate all inputs
 - Monitor for suspicious activity
@@ -907,9 +907,9 @@ koyeb service redeploy nyra-webapp-backend --deployment <previous-deployment-id>
 
 ---
 
-## When to Use Koyeb vs Local Orchestrator
+## When to Use Oracle VPS vs Local Orchestrator
 
-### Use Koyeb When:
+### Use Oracle VPS When:
 
 1. ✅ **Production Environment**
    - Need 99.9% uptime
@@ -963,7 +963,7 @@ koyeb service redeploy nyra-webapp-backend --deployment <previous-deployment-id>
 
 ### Hybrid Approach (Recommended)
 
-**Koyeb:**
+**Oracle VPS:**
 - Public API endpoints
 - n8n workflow orchestration
 - Webhook receivers
@@ -987,8 +987,8 @@ koyeb service redeploy nyra-webapp-backend --deployment <previous-deployment-id>
 
 ### Immediate Actions
 
-1. [ ] Create Koyeb account
-2. [ ] Install Koyeb CLI
+1. [ ] Create Oracle VPS account
+2. [ ] Install Oracle VPS CLI
 3. [ ] Set up Infisical secrets
 4. [ ] Run deployment script
 5. [ ] Test lead capture API
@@ -1017,14 +1017,14 @@ koyeb service redeploy nyra-webapp-backend --deployment <previous-deployment-id>
 
 ### Documentation
 
-- **Koyeb Docs:** https://www.koyeb.com/docs
-- **Koyeb CLI:** https://www.koyeb.com/docs/cli
+- **Oracle VPS Docs:** https://www.oracle-vps.com/docs
+- **Oracle VPS CLI:** https://www.oracle-vps.com/docs/cli
 - **n8n Docs:** https://docs.n8n.io
 - **Infisical Docs:** https://infisical.com/docs
 
 ### Community
 
-- **Koyeb Discord:** https://discord.gg/koyeb
+- **Oracle VPS Discord:** https://discord.gg/oracle-vps
 - **n8n Community:** https://community.n8n.io
 - **GitHub Issues:** https://github.com/your-org/project-nyra/issues
 
@@ -1032,7 +1032,7 @@ koyeb service redeploy nyra-webapp-backend --deployment <previous-deployment-id>
 
 If you encounter issues:
 
-1. Check logs: `koyeb service logs <service-name>`
+1. Check logs: `oracle-vps service logs <service-name>`
 2. Review health checks
 3. Verify secrets are set
 4. Check DNS configuration

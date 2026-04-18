@@ -293,7 +293,7 @@
       "infra/archive/nyra-infra-old/compose/": {
         "path": "C:\\Dev\\Projects\\Repos\\Project-Nyra\\infra\\archive\\nyra-infra-old\\compose",
         "description": "18 archived compose files",
-        "files": ["compose.metamcp.yml", "compose.archon-os.yml", "compose.mcp.yml", "compose.memory.yml", "compose.ui.yml", "compose.orchestration.yml", "compose.management.yml", "compose.metatool.yml", "compose.ingestion.yml", "compose.casistack.yml", "compose.mcp.services.yml", "compose.ui-integration.yml"]
+        "files": ["compose.metamcp.yml", "compose.archon-os.yml", "compose.mcp.yml", "compose.memory.yml", "compose.ui.yml", "compose.orchestration.yml", "compose.management.yml", "compose.metatool.yml", "compose.ingestion.yml", "compose.nyra-stack.yml", "compose.mcp.services.yml", "compose.ui-integration.yml"]
       }
     }
   },

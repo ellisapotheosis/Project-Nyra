@@ -17,7 +17,7 @@
 ```
 ├── .env.example (777 bytes, older: 2026-01-14)
 ├── README.md (318 bytes, minimal)
-├── casistack-orchestrator/
+├── nyra-stack-orchestrator/
 ├── compose/ (17 compose files)
 ├── docker/
 ├── legacy-infra/
@@ -90,7 +90,7 @@
 Move to `infra/archive/`:
 - ✅ `legacy-infra/` → Already marked as legacy
 - ✅ `nyra-stack-v6_2/` → Versioned old stack
-- ✅ `casistack-orchestrator/` → Old orchestrator
+- ✅ `nyra-stack-orchestrator/` → Old orchestrator
 
 ### Phase 2: Merge Unique Content
 1. **compose/** → Review and archive (infra/docker/ is superior)
@@ -128,7 +128,7 @@ Move to `infra/archive/`:
 **Actions**:
 - Archived `legacy-infra/` → `infra/archive/nyra-infra-old/legacy-infra/`
 - Archived `nyra-stack-v6_2/` → `infra/archive/nyra-infra-old/nyra-stack-v6_2/`
-- Archived `casistack-orchestrator/` → `infra/archive/nyra-infra-old/casistack-orchestrator/`
+- Archived `nyra-stack-orchestrator/` → `infra/archive/nyra-infra-old/nyra-stack-orchestrator/`
 
 ### Step 3: Archive Compose Files ✅
 **Status**: Complete

@@ -125,29 +125,29 @@ for workflow in *.json; do
 done
 ```
 
-#### Option 2: Koyeb Deployment (Production)
+#### Option 2: Oracle VPS Deployment (Production)
 
 ```bash
-# Install Koyeb CLI
-curl -fsSL https://koyeb.com/get-cli.sh | sh
+# Install Oracle VPS CLI
+curl -fsSL https://oracle-vps.com/get-cli.sh | sh
 
-# Login to Koyeb
-koyeb login
+# Login to Oracle VPS
+oracle-vps login
 
 # Deploy N8N service
-koyeb service create n8n-production \
+oracle-vps service create n8n-production \
   --docker n8nio/n8n:latest \
   --ports 5678:http \
   --routes /:5678 \
   --env N8N_ENCRYPTION_KEY=$N8N_ENCRYPTION_KEY \
   --env POSTGRES_HOST=$POSTGRES_HOST \
   --env POSTGRES_DB=$POSTGRES_DB \
-  --env N8N_WEBHOOK_URL=https://n8n-production-yourorg.koyeb.app \
+  --env N8N_WEBHOOK_URL=https://n8n-production-yourorg.oracle-vps.ratehunter.net \
   --regions fra \
   --instance-type micro
 
 # Deploy PostgreSQL (if not using external)
-koyeb service create postgres-orchestrator \
+oracle-vps service create postgres-orchestrator \
   --docker postgres:14-alpine \
   --ports 5432:tcp \
   --env POSTGRES_DB=nyra_orchestrator \
@@ -157,7 +157,7 @@ koyeb service create postgres-orchestrator \
   --instance-type small
 
 # Get service URL
-koyeb service get n8n-production
+oracle-vps service get n8n-production
 ```
 
 #### Option 3: Manual Setup
@@ -740,7 +740,7 @@ curl -X GET "http://localhost:5678/api/v1/executions?workflowId=123" \
    ```
 
 2. **Deploy N8N**
-   - Option A: Koyeb (see Koyeb section)
+   - Option A: Oracle VPS (see Oracle VPS section)
    - Option B: Docker Compose (see Docker section)
    - Option C: Kubernetes (use provided manifests)
 
@@ -870,8 +870,8 @@ View logs:
 # Docker
 docker-compose logs -f n8n
 
-# Koyeb
-koyeb service logs n8n-production --follow
+# Oracle VPS
+oracle-vps service logs n8n-production --follow
 ```
 
 ## 📚 Additional Resources

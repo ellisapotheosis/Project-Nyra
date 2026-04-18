@@ -1,4 +1,4 @@
-# Koyeb Deployment Configuration for Nyra Webapp Backend
+# Oracle VPS Deployment Configuration for Nyra Webapp Backend
 # API endpoints, authentication, and mortgage calculation services
 apiVersion: v1
 kind: Service
@@ -115,7 +115,7 @@ spec:
             name: infisical-secrets
             key: TWILIO_AUTH_TOKEN
       - name: N8N_WEBHOOK_URL
-        value: "https://n8n.nyra.koyeb.app/webhook"
+        value: "https://n8n.nyra.oracle-vps.ratehunter.net/webhook"
       - name: N8N_API_KEY
         valueFrom:
           secret:
@@ -162,7 +162,7 @@ spec:
         maxUnavailable: 0
   networking:
     domains:
-      - name: api.nyra.koyeb.app
+      - name: api.nyra.oracle-vps.ratehunter.net
         type: custom
       - name: backend.nyra.com
         type: custom

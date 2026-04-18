@@ -1,6 +1,6 @@
-# Infisical Secret Template for Koyeb Deployments
-# This manifest defines a Koyeb Secret populated from Infisical.  Use the
-# Infisical CLI to export secrets and inject into Koyeb via the Koyeb CLI.
+# Infisical Secret Template for Oracle VPS Deployments
+# This manifest defines a Oracle VPS Secret populated from Infisical.  Use the
+# Infisical CLI to export secrets and inject into Oracle VPS via the Oracle VPS CLI.
 apiVersion: v1
 kind: Secret
 metadata:
@@ -10,7 +10,7 @@ metadata:
     infisical.com/sync-enabled: "true"
     infisical.com/project-id: "${INFISICAL_PROJECT_ID}"
     infisical.com/environment: "production"
-    infisical.com/secret-path: "/koyeb"
+    infisical.com/secret-path: "/oracle-vps"
 type: Opaque
 data:
   # Database Configuration

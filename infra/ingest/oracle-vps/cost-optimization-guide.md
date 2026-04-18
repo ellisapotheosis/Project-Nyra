@@ -1,4 +1,4 @@
-# Koyeb Cost Optimization for Project Nyra
+# Oracle VPS Cost Optimization for Project Nyra
 
 ## Free Tier Strategy (Current)
 
@@ -74,7 +74,7 @@
 ### 1. Optimize Build Frequency
 
 - Use GitHub Actions for CI/CD.
-- Trigger Koyeb deploys only on release tags.
+- Trigger Oracle VPS deploys only on release tags.
 - Cache dependencies to speed up builds.
 
 ### 2. Leverage Auto‑Sleep
@@ -95,7 +95,7 @@
 - Monitor actual resource usage.
 - Start with minimal allocation.
 - Scale up only when needed.
-- Use the Koyeb metrics dashboard.
+- Use the Oracle VPS metrics dashboard.
 
 ### 5. Multi‑Tenancy Strategy
 
@@ -107,7 +107,7 @@
 
 ### Recommended Approach
 
-**Koyeb (Free Tier):**
+**Oracle VPS (Free Tier):**
 
 - n8n workflow orchestration
 - Webhook endpoints
@@ -124,7 +124,7 @@
 
 - \$0/month for production endpoints
 - Full control over data and processing
-- Scale Koyeb only when needed
+- Scale Oracle VPS only when needed
 
 ## Mortgage Lead Campaign Cost Analysis
 

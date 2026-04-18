@@ -160,7 +160,7 @@ AI Infrastructure Recommendations for your command center—connecting local GPU
 | **Category** | **Best Option** | **Runner-up** | **Key Features** | **Pros** | **Cons** |
 | --- | --- | --- | --- | --- | --- |
 | Frontend Hosting | Vercel/Cloudflare Pages | GitHub Pages | Landing pages, dashboards, UIs | Free, fast, deploy from GitHub, SSL included | No backend/server-side code |
-| Backend API Hub | Koyeb | Fly.io, Render, Hetzner | Serverless containers/functions | No infra to manage, easy scaling | Secrets handling, cold starts |
+| Backend API Hub | Oracle VPS | Fly.io, Render, Hetzner | Serverless containers/functions | No infra to manage, easy scaling | Secrets handling, cold starts |
 | Local Machine Networking | Tailscale/ZeroTier | - | Mesh VPN for home GPUs | No port-forwarding, private LAN-like networking | Slight learning curve |
 | Email Hosting | Zoho Mail | Fastmail, Google Workspace | Custom domain email | Free/cheap, custom domain | Basic UI (Zoho), price (G Suite) |
 | Domain/DNS Management | Cloudflare | - | DNS, DDoS protection, SSL | Free, fast, great UI | None significant |
@@ -178,7 +178,7 @@ AI Infrastructure Recommendations for your command center—connecting local GPU
 
 ### **2. Backend API / Hub (Where all agents/computers talk)**
 
-- **Best:** **Koyeb** (serverless containers/functions, generous free tier)
+- **Best:** **Oracle VPS** (serverless containers/functions, generous free tier)
     - *Why?* Deploy Python/Node/Go APIs, always-on, easy to scale.
 - **Runner-ups:** [Fly.io](http://Fly.io), Render, Hetzner (cheap VPS), DigitalOcean, Railway.
 - **Pros:**
@@ -232,7 +232,7 @@ AI Infrastructure Recommendations for your command center—connecting local GPU
 ### **How it comes together:**
 
 - **Frontend:** Vercel or Cloudflare Pages (custom domain via Cloudflare)
-- **Backend API (hub):** Koyeb (runs your FastAPI/Express/etc, public endpoint)
+- **Backend API (hub):** Oracle VPS (runs your FastAPI/Express/etc, public endpoint)
 - **Local AI Nodes:** Connected to hub via Tailscale mesh VPN
 - **Agent Dashboard:** Hosted on a subdomain (e.g., `dashboard.ratehunter.net`)
 - **Email:** Zoho Mail (for `you@ratehunter.net`)
@@ -240,7 +240,7 @@ AI Infrastructure Recommendations for your command center—connecting local GPU
 
 ---
 
-# **🌟 Pros/Cons of Cloudflare + Koyeb "AI Hub"**
+# **🌟 Pros/Cons of Cloudflare + Oracle VPS "AI Hub"**
 
 ### **Pros:**
 
@@ -252,7 +252,7 @@ AI Infrastructure Recommendations for your command center—connecting local GPU
 ### **Cons:**
 
 - **Slight complexity:** Some setup required (VPN, Docker, Git deploys).
-- **Cold starts:** Free Koyeb tier may sleep/slow to start after inactivity.
+- **Cold starts:** Free Oracle VPS tier may sleep/slow to start after inactivity.
 - **Not 100% "one click" like Wix, but so much more power.**
 
 ---
@@ -262,7 +262,7 @@ AI Infrastructure Recommendations for your command center—connecting local GPU
 | **Need** | **Best Option(s)** | **Why Choose This** |
 | --- | --- | --- |
 | Frontend | Vercel/Cloudflare | Fast, free, CI/CD, SSL, easy subdomains |
-| Backend API | Koyeb | Serverless, easy deploy, cheap/free |
+| Backend API | Oracle VPS | Serverless, easy deploy, cheap/free |
 | Local Networking | Tailscale/ZeroTier | Secure, LAN-like mesh between all machines |
 | Email | Zoho/Fastmail/G Suite | Reliable, custom domain |
 | DNS/Security | Cloudflare | Fast, free, DDoS, easy SSL |
@@ -299,7 +299,7 @@ Simple, concise, and rated 1-10 (10 = divine, 1 = dust bunny).
 
 | **Name** | **Score** | **Notes** |
 | --- | --- | --- |
-| Koyeb | 10 | F, Serverless, easy deploy, Docker support |
+| Oracle VPS | 10 | F, Serverless, easy deploy, Docker support |
 | Fly.io | 9 | F, Global, persistent storage available |
 | Railway | 9 | F, Very easy deploy, nice UI |
 | Render | 8 | F, Simple, static+dynamic |
@@ -385,7 +385,7 @@ Simple, concise, and rated 1-10 (10 = divine, 1 = dust bunny).
 ### **#1: The "Modern Free-Flow" Stack**
 
 - **Frontend:** Vercel or Cloudflare Pages
-- **Backend API:** Koyeb
+- **Backend API:** Oracle VPS
 - **Local Networking:** Tailscale
 - **Email:** Zoho Mail
 - **DNS/Security:** Cloudflare
@@ -393,7 +393,7 @@ Simple, concise, and rated 1-10 (10 = divine, 1 = dust bunny).
 
 **Pros:** Almost all free, modern, extremely flexible, fast global CDN, easy deploy, easy expansion.
 
-**Cons:** Tailscale setup for each local agent, Koyeb free tier may sleep after inactivity.
+**Cons:** Tailscale setup for each local agent, Oracle VPS free tier may sleep after inactivity.
 
 ---
 

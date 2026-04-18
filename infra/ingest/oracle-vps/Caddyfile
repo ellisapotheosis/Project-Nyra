@@ -1,0 +1,7 @@
+api.nyra.ratehunter.net {
+  reverse_proxy webapp-backend:8000
+}
+
+n8n.nyra.ratehunter.net {
+  reverse_proxy n8n:5678
+}

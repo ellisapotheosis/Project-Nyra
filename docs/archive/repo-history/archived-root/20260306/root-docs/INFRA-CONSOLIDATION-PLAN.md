@@ -1249,7 +1249,7 @@ docker compose \
 
 ---
 
-### 9.4 Cloud Offload Deployment (Koyeb/Oracle)
+### 9.4 Cloud Offload Deployment (Oracle VPS/Oracle)
 
 **Current Status**: Documented in archived configs, not active
 
@@ -1574,7 +1574,7 @@ docker compose up -d  # Services reconnect to existing data
    - Unified secrets system
 
 2. **Cloud Deployment**
-   - Migrate to Koyeb/Oracle
+   - Migrate to Oracle VPS/Oracle
    - Use same docker-compose.yml
    - Implement auto-scaling
 

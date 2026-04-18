@@ -1,5 +1,5 @@
-# Koyeb Deployment Manifest for n8n Workflows
-# Documentation: https://www.koyeb.com/docs/reference/api
+# Oracle VPS Deployment Manifest for n8n Workflows
+# Documentation: https://www.oracle-vps.com/docs/reference/api
 ---
 apiVersion: v1
 kind: Service
@@ -49,11 +49,11 @@ spec:
       - name: N8N_PROTOCOL
         value: "https"
       - name: N8N_HOST
-        value: "n8n.nyra.koyeb.app"
+        value: "n8n.nyra.oracle-vps.ratehunter.net"
       - name: N8N_PORT
         value: "5678"
       - name: WEBHOOK_URL
-        value: "https://n8n.nyra.koyeb.app/"
+        value: "https://n8n.nyra.oracle-vps.ratehunter.net/"
 
       # Database Configuration (Infisical-managed)
       - name: DB_TYPE
@@ -140,7 +140,7 @@ spec:
   networking:
     # Custom domains
     domains:
-      - name: n8n.nyra.koyeb.app
+      - name: n8n.nyra.oracle-vps.ratehunter.net
         type: custom
 
     # TLS/SSL

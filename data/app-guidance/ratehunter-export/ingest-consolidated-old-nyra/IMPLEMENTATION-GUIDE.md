@@ -43,7 +43,7 @@ This guide provides everything needed to complete the Bootstrap GUI Installer im
 6. ❌ `giteaInstaller.ts` - Gitea server (orchestrator only)
 7. ❌ `databaseInitializer.ts` - PostgreSQL/Redis/MongoDB/AgentDB setup (orchestrator only)
 8. ❌ `gpuDriverInstaller.ts` - NVIDIA driver installation
-9. ❌ `koyebDeployer.ts` - Koyeb VPS deployment (orchestrator only)
+9. ❌ `oracle-vpsDeployer.ts` - Oracle VPS VPS deployment (orchestrator only)
 10. ❌ `n8nDeployer.ts` - n8n workflow deployment (orchestrator only)
 11. ❌ Enhanced `dockerInstaller.ts` - Add WSL integration
 
@@ -57,7 +57,7 @@ This guide provides everything needed to complete the Bootstrap GUI Installer im
 7. ❌ `GiteaSetupScreen.tsx` - Gitea setup (orchestrator only)
 8. ❌ `DatabaseSetupScreen.tsx` - Database initialization (orchestrator only)
 9. ❌ Enhanced `GPUConfigScreen.tsx` - Add GPU driver installation
-10. ❌ `KoyebSetupScreen.tsx` - Koyeb deployment (orchestrator only)
+10. ❌ `Oracle VPSSetupScreen.tsx` - Oracle VPS deployment (orchestrator only)
 11. ❌ `N8NSetupScreen.tsx` - n8n workflow deployment (orchestrator only)
 12. ❌ Updated `DockerSetupScreen.tsx` - Add WSL integration
 13. ❌ Updated `App.tsx` - New 20-screen wizard flow
@@ -418,7 +418,7 @@ const SCREEN_FLOW = [
   // --- Orchestrator-only screens ---
   'gitea-setup',                // ❌ NEW - GiteaSetupScreen (orchestrator only)
   'database-setup',             // ❌ NEW - DatabaseSetupScreen (orchestrator only)
-  'koyeb-setup',                // ❌ NEW - KoyebSetupScreen (orchestrator only)
+  'oracle-vps-setup',                // ❌ NEW - Oracle VPSSetupScreen (orchestrator only)
   'n8n-setup',                  // ❌ NEW - N8NSetupScreen (orchestrator only)
   // --- All PCs ---
   'service-deployment',         // ✅ Existing
@@ -443,7 +443,7 @@ const SCREEN_FLOW = [
 3. Implement GPU driver installer and enhanced GPU screen
 
 ### Low Priority (Phase 3)
-1. Implement orchestrator-only services (Gitea, Database, Koyeb, n8n)
+1. Implement orchestrator-only services (Gitea, Database, Oracle VPS, n8n)
 2. Implement orchestrator-only screens
 3. Update App.tsx with complete flow and conditional logic
 

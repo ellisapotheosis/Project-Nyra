@@ -229,7 +229,7 @@ For questions or contributions, refer to the individual workflow documentation o
 - **Production Workflows**: Copied and organized 28+ workflows from original `/workflows/n8n/` directory
 - **Activepieces Integration**: Moved Activepieces workflow from `/workflows/activepieces/`
 - **Additional Workflows**: Discovered and added workflows from `/ingest/infra/orchestrator/n8n/`
-- **Infrastructure Files**: Consolidated Docker, Koyeb, and service configuration files
+- **Infrastructure Files**: Consolidated Docker, Oracle VPS, and service configuration files
 - **Documentation**: Preserved original comprehensive setup guide and created documentation index
 - **Directory Structure**: Organized workflows by category (lead-management, drip-campaigns, compliance, notifications, integrations)
 - **Examples**: Maintained example workflows and HTTP request templates
@@ -251,7 +251,7 @@ apps/shared/n8n-shared/
 ├── services/                          # Infrastructure and deployment files
 │   ├── docker-compose.n8n.yml        # Main Docker configuration
 │   ├── Dockerfile.n8n                # Custom n8n Docker image
-│   ├── koyeb-deployment.yaml         # Cloud deployment config
+│   ├── oracle-vps-deployment.yaml         # Cloud deployment config
 │   └── services/                      # TypeScript service implementations
 ├── documentation/                     # Complete setup and maintenance guides
 │   ├── INDEX.md                       # Documentation index
@@ -264,7 +264,7 @@ apps/shared/n8n-shared/
 - ✅ `/workflows/activepieces/` → `/apps/shared/n8n-shared/activepieces/`
 - ✅ `/ingest/infra/orchestrator/n8n/workflows/` → `/apps/shared/n8n-shared/workflows/`
 - ✅ `/infra/docker/n8n/` → `/apps/shared/n8n-shared/services/`
-- ✅ `/infra/koyeb/n8n-orchestrator.yaml` → `/apps/shared/n8n-shared/services/`
+- ✅ `/infra/oracle-vps/n8n-orchestrator.yaml` → `/apps/shared/n8n-shared/services/`
 - ✅ Infrastructure configurations from main Docker compose
 
 ### Migration Notes
