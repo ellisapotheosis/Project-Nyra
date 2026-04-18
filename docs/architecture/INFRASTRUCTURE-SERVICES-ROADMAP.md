@@ -8,7 +8,7 @@
 
 ## Executive Summary
 
-Based on comprehensive research of your existing accounts (Google Workspace, Cloudflare, Koyeb), we've identified **massive cost savings and performance improvements** without requiring new account creation.
+Based on comprehensive research of your existing accounts (Google Workspace, Cloudflare, Oracle VPS), we've identified **massive cost savings and performance improvements** without requiring new account creation.
 
 ### 🎯 Key Recommendations
 
@@ -16,11 +16,11 @@ Based on comprehensive research of your existing accounts (Google Workspace, Clo
 |---------|--------|-------------|----------------|
 | **Cloudflare R2** | Migrate from S3 | $150 | **$54,960/year** (98% reduction) |
 | **Google Workspace** | Upgrade to Business Plus | $22/user | ROI at 1 mortgage/year |
-| **Koyeb VPS** | Start FREE tier | $0 → $54 | Scale when profitable |
+| **Oracle VPS VPS** | Start FREE tier | $0 → $54 | Scale when profitable |
 | **Cloudflare Pages** | Deploy landing page | FREE | Hosting costs eliminated |
 | **Cloudflare Email** | Enable @ratehunter.net | FREE | Professional branding |
 
-**Total Monthly Cost**: $22-$76 (depending on Koyeb usage)
+**Total Monthly Cost**: $22-$76 (depending on Oracle VPS usage)
 **Total Annual Savings**: $55,000+ (Cloudflare R2 alone)
 
 ---
@@ -442,7 +442,7 @@ await drive.files.update({
 
 ---
 
-## 3. Koyeb VPS (FREE → $54/month)
+## 3. Oracle VPS VPS (FREE → $54/month)
 
 ### 🎯 Recommendation: Start FREE, Upgrade When Profitable
 
@@ -455,7 +455,7 @@ await drive.files.update({
 - Auto-scaling
 - GitHub CI/CD
 
-**Deploy to Koyeb FREE**:
+**Deploy to Oracle VPS FREE**:
 - ✅ n8n workflows (mortgage lead campaigns)
 - ✅ Quote API (Python FastAPI)
 - ✅ PostgreSQL database
@@ -468,7 +468,7 @@ await drive.files.update({
 
 **Total Cost**: $0/month cloud + ~$20/month electricity = **$20/month**
 
-### Why Koyeb FREE Tier is Perfect
+### Why Oracle VPS FREE Tier is Perfect
 
 **Your Use Case**: Mortgage lead drip campaigns need 24/7 uptime
 
@@ -477,7 +477,7 @@ await drive.files.update({
 - ❌ Power outage = campaigns stop
 - ❌ ISP blocks port 80/443 = can't receive webhooks
 
-**Koyeb Solution**:
+**Oracle VPS Solution**:
 - ✅ 99.9% uptime SLA
 - ✅ Professional infrastructure
 - ✅ No home internet dependency
@@ -485,28 +485,28 @@ await drive.files.update({
 
 ### Deployment Guide
 
-**Step 1: Deploy n8n to Koyeb**
+**Step 1: Deploy n8n to Oracle VPS**
 
 ```bash
-# Koyeb CLI
-koyeb app create n8n \
+# Oracle VPS CLI
+oracle-vps app create n8n \
   --docker "n8nio/n8n:latest" \
   --ports 5678:http \
-  --env N8N_HOST="n8n.nyra.koyeb.app" \
-  --env WEBHOOK_URL="https://n8n.nyra.koyeb.app/" \
+  --env N8N_HOST="n8n.nyra.oracle-vps.ratehunter.net" \
+  --env WEBHOOK_URL="https://n8n.nyra.oracle-vps.ratehunter.net/" \
   --env N8N_ENCRYPTION_KEY="${ENCRYPTION_KEY}" \
   --routes /=n8n:5678
 
 # Or via GitHub (auto-deploy)
 # 1. Fork n8n-custom config to your repo
-# 2. Connect Koyeb to GitHub
+# 2. Connect Oracle VPS to GitHub
 # 3. Auto-deploy on push
 ```
 
 **Step 2: Deploy Quote API**
 
 ```bash
-koyeb app create quote-api \
+oracle-vps app create quote-api \
   --docker "python:3.11-slim" \
   --ports 8000:http \
   --buildpack-build-command "pip install -r requirements.txt" \
@@ -518,18 +518,18 @@ koyeb app create quote-api \
 **Step 3: Configure Custom Domain**
 
 ```bash
-# Add ratehunter.net to Koyeb
-koyeb domain create ratehunter.net \
+# Add ratehunter.net to Oracle VPS
+oracle-vps domain create ratehunter.net \
   --app n8n \
   --alias www.ratehunter.net
 
 # Update Cloudflare DNS
-# CNAME n8n.nyra.koyeb.app → n8n.ratehunter.net
+# CNAME n8n.nyra.oracle-vps.ratehunter.net → n8n.ratehunter.net
 ```
 
 ### Phase 2: Production ($54/month When Profitable)
 
-**Koyeb Pro**: $29/month + $25/month Supabase Pro = $54/month
+**Oracle VPS Pro**: $29/month + $25/month Supabase Pro = $54/month
 
 **What You Get**:
 - 100 web services
@@ -538,7 +538,7 @@ koyeb domain create ratehunter.net \
 - Priority support
 - Advanced scaling
 
-**Deploy to Koyeb Pro**:
+**Deploy to Oracle VPS Pro**:
 - n8n + ActivePieces (auto-scaling)
 - Quote API (high availability)
 - RateHunter webapp (Next.js)
@@ -605,8 +605,8 @@ curl -fsSL https://cdn.coollabs.io/coolify/install.sh | bash
 
 **Impact**: Eliminate hosting costs, global CDN
 
-**Deploy n8n to Koyeb FREE**
-1. Create Koyeb account
+**Deploy n8n to Oracle VPS FREE**
+1. Create Oracle VPS account
 2. Deploy n8n container
 3. Migrate mortgage campaigns
 4. Test webhook reliability
@@ -648,7 +648,7 @@ curl -fsSL https://cdn.coollabs.io/coolify/install.sh | bash
 
 **Impact**: Reduced orchestrator load, 2-5x faster response times
 
-**Upgrade Koyeb to Pro** - $54/month (only when profitable)
+**Upgrade Oracle VPS to Pro** - $54/month (only when profitable)
 1. Scale n8n to multiple instances
 2. Deploy RateHunter webapp
 3. Add admin dashboard
@@ -664,10 +664,10 @@ curl -fsSL https://cdn.coollabs.io/coolify/install.sh | bash
 
 | Phase | Services | Monthly Cost | Savings |
 |-------|----------|-------------|---------|
-| **Phase 1** (Month 1) | Koyeb FREE, Cloudflare FREE, Gmail FREE | $0 | N/A |
+| **Phase 1** (Month 1) | Oracle VPS FREE, Cloudflare FREE, Gmail FREE | $0 | N/A |
 | **Phase 2** (Month 2) | + Google Workspace Business Plus | $22 | N/A |
 | **Phase 3** (Month 3) | + Cloudflare R2 | $172 | $4,580/month vs S3 |
-| **Phase 4** (Month 4+) | + Koyeb Pro + Supabase Pro | $226 | Still $4,500+ savings |
+| **Phase 4** (Month 4+) | + Oracle VPS Pro + Supabase Pro | $226 | Still $4,500+ savings |
 
 **Alternative (Hetzner)**: $36.50/month (Google Workspace $22 + Hetzner $14.50)
 
@@ -679,7 +679,7 @@ curl -fsSL https://cdn.coollabs.io/coolify/install.sh | bash
 | **Phase 1 (FREE tier)** | $240 | $56,760 |
 | **Phase 2 (+ Workspace)** | $504 | $56,496 |
 | **Phase 3 (+ R2)** | $2,568 | **$54,432** |
-| **Phase 4 (+ Koyeb Pro)** | $3,216 | **$53,784** |
+| **Phase 4 (+ Oracle VPS Pro)** | $3,216 | **$53,784** |
 
 **ROI**: Positive from Day 1 with Cloudflare R2 migration
 
@@ -691,15 +691,15 @@ curl -fsSL https://cdn.coollabs.io/coolify/install.sh | bash
 
 | Platform | Free Tier | Starting Price | Database | Best For |
 |----------|-----------|----------------|----------|----------|
-| **Koyeb** | ✅ 1 service + DB | $29/month | Postgres included | Auto-scaling, serverless |
+| **Oracle VPS** | ✅ 1 service + DB | $29/month | Postgres included | Auto-scaling, serverless |
 | **Railway** | ❌ 30-day trial | $5/month | Included | Fast deploys, simplicity |
 | **Render** | ✅ Limited | $7-19/month | $7+/month | Predictable pricing |
 | **Fly.io** | ❌ Removed | ~$2/month VM | $38+/month | Global edge, low-latency |
 | **Hetzner** | ❌ None | $14.50/month | DIY | Budget, dedicated resources |
 
 **Recommendation**:
-- **Start**: Koyeb FREE (test viability)
-- **Scale**: Koyeb Pro $54/month (when revenue justifies)
+- **Start**: Oracle VPS FREE (test viability)
+- **Scale**: Oracle VPS Pro $54/month (when revenue justifies)
 - **Budget**: Hetzner $14.50/month (73% cheaper, more DevOps work)
 
 ---
@@ -714,8 +714,8 @@ curl -fsSL https://cdn.coollabs.io/coolify/install.sh | bash
 | **Use Cloudflare Workers?** | ⚠️ MAYBE | Evaluate after Phase 3 |
 | **Upgrade to Cloudflare Pro?** | ❌ NO | Free tier sufficient |
 | **Upgrade Google Workspace?** | ✅ YES | $22/month, ROI at 1 mortgage |
-| **Use Koyeb FREE?** | ✅ YES | Zero risk, test viability |
-| **Upgrade to Koyeb Pro?** | ⚠️ WHEN PROFITABLE | $54/month, only when revenue justifies |
+| **Use Oracle VPS FREE?** | ✅ YES | Zero risk, test viability |
+| **Upgrade to Oracle VPS Pro?** | ⚠️ WHEN PROFITABLE | $54/month, only when revenue justifies |
 | **Use Hetzner?** | ⚠️ IF BUDGET TIGHT | 73% cheaper, more work |
 | **Keep Tailscale?** | ✅ YES | Better for GPU mesh network |
 | **Apply for GCP credits?** | ✅ YES | Separate application, $2K-$350K free |
@@ -727,8 +727,8 @@ curl -fsSL https://cdn.coollabs.io/coolify/install.sh | bash
 ### Week 1: Immediate Actions
 - [ ] Enable Cloudflare Email Routing (5 minutes)
 - [ ] Deploy RateHunter to Cloudflare Pages (1-2 hours)
-- [ ] Create Koyeb account (free)
-- [ ] Deploy n8n to Koyeb FREE tier (2-3 hours)
+- [ ] Create Oracle VPS account (free)
+- [ ] Deploy n8n to Oracle VPS FREE tier (2-3 hours)
 
 ### Week 2-3: Migration Preparation
 - [ ] Gather S3 usage metrics (storage size, egress volume)
@@ -745,7 +745,7 @@ curl -fsSL https://cdn.coollabs.io/coolify/install.sh | bash
 
 ### Month 2+: Optimization
 - [ ] Evaluate Cloudflare Workers for edge compute
-- [ ] Consider Koyeb Pro upgrade (only if revenue justifies)
+- [ ] Consider Oracle VPS Pro upgrade (only if revenue justifies)
 - [ ] Apply for GCP startup credits
 - [ ] Review cost savings and ROI
 
@@ -762,7 +762,7 @@ curl -fsSL https://cdn.coollabs.io/coolify/install.sh | bash
 | Data loss during migration | Use rclone with checksums | Restore from S3 backup |
 | Cost overrun | Set billing alerts ($200/month) | Pause migration, analyze costs |
 
-### Koyeb FREE Tier Limitations
+### Oracle VPS FREE Tier Limitations
 
 | Limitation | Workaround |
 |-----------|-----------|
@@ -780,17 +780,17 @@ curl -fsSL https://cdn.coollabs.io/coolify/install.sh | bash
 - **Cloudflare Pages**: https://developers.cloudflare.com/pages/
 - **Cloudflare Workers**: https://developers.cloudflare.com/workers/
 - **Google Workspace**: https://workspace.google.com/
-- **Koyeb**: https://www.koyeb.com/docs
+- **Oracle VPS**: https://www.oracle-vps.com/docs
 
 ### Community Support
 - **Cloudflare Discord**: https://discord.cloudflare.com
-- **Koyeb Discord**: https://discord.koyeb.com
+- **Oracle VPS Discord**: https://discord.oracle-vps.com
 - **Google Workspace Community**: https://support.google.com/a/community
 
 ### Pricing Calculators
 - **Cloudflare R2**: https://www.cloudflare.com/products/r2/pricing/
 - **Google Workspace**: https://workspace.google.com/pricing
-- **Koyeb**: https://www.koyeb.com/pricing
+- **Oracle VPS**: https://www.oracle-vps.com/pricing
 
 ---
 
@@ -802,10 +802,10 @@ curl -fsSL https://cdn.coollabs.io/coolify/install.sh | bash
 **ROI Timeline**: Immediate (savings start Day 1 of R2 migration)
 
 **Recommendation**:
-1. **Week 1**: Enable FREE services (Email Routing, Pages, Koyeb)
+1. **Week 1**: Enable FREE services (Email Routing, Pages, Oracle VPS)
 2. **Week 2-4**: Migrate to Cloudflare R2 ($54K/year savings)
 3. **Month 2**: Upgrade Google Workspace ($22/month, ROI at 1 mortgage)
-4. **Month 3+**: Optimize with Workers, evaluate Koyeb Pro when profitable
+4. **Month 3+**: Optimize with Workers, evaluate Oracle VPS Pro when profitable
 
 ---
 
@@ -813,4 +813,4 @@ curl -fsSL https://cdn.coollabs.io/coolify/install.sh | bash
 **Full Reports**:
 - Cloudflare: `docs/infra/CLOUDFLARE-SERVICES-RESEARCH-2026.md`
 - Google Workspace: `docs/reports/google-workspace-research-2026.md`
-- Koyeb: `docs/infrastructure/koyeb-vps-analysis.md`
+- Oracle VPS: `docs/infrastructure/oracle-vps-vps-analysis.md`

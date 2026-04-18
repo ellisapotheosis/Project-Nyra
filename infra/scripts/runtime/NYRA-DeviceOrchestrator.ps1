@@ -37,7 +37,7 @@ param(
     [string]$GPUTask,
     
     [string]$CloudflareToken,
-    [switch]$UseKoyeb,
+    [switch]$UseOracle VPS,
     [switch]$Verbose
 )
 

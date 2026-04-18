@@ -46,7 +46,7 @@ I have designed and implemented a comprehensive MCP (Model Context Protocol) int
 - **Wake-on-LAN**: Magic packet activation for worker PCs
 - **Cloudflared tunnels**: Secure inter-PC communication
 - **n8n workflow integration**: Mortgage lead processing automation
-- **Koyeb cloud**: Additional VPS compute resources
+- **Oracle VPS cloud**: Additional VPS compute resources
 - **Multi-channel communication**: Email, SMS, voice, voicemail
 
 ## 🛠️ Deployment Scripts
@@ -82,7 +82,7 @@ I have designed and implemented a comprehensive MCP (Model Context Protocol) int
 - **Worker 3**: Desktop PC (RTX 3090Ti, 32GB RAM)
 
 ### **Cloud Integration**
-- **Koyeb VPS**: Additional cloud compute resources
+- **Oracle VPS VPS**: Additional cloud compute resources
 - **Cloudflare**: DNS, CDN, and SSL termination
 - **RateHunter.net**: Primary domain with nyra.ratehunter.net subdomain
 - **Cloudflared**: Secure tunnel management between PCs
@@ -135,7 +135,7 @@ I have designed and implemented a comprehensive MCP (Model Context Protocol) int
 ### **Scaling Features**
 - **Horizontal scaling**: Auto-scaling based on queue length and resource usage
 - **Vertical scaling**: Dynamic resource allocation per task
-- **Cloud bursting**: Koyeb integration for overflow capacity
+- **Cloud bursting**: Oracle VPS integration for overflow capacity
 - **Load distribution**: Intelligent task routing and balancing
 
 ## 🔗 Service Endpoints
@@ -222,7 +222,7 @@ infisical run -- ./archon-os status
 ✅ Configured 4-PC distributed compute cluster
 ✅ Implemented Wake-on-LAN for on-demand worker activation
 ✅ Setup cloudflared tunnels for secure inter-PC communication
-✅ Integrated Koyeb cloud for additional compute capacity
+✅ Integrated Oracle VPS cloud for additional compute capacity
 
 ### **3. Mortgage Technology Automation**
 ✅ Designed n8n workflow integration for lead processing

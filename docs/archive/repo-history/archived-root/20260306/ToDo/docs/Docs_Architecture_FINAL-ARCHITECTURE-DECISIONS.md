@@ -48,7 +48,7 @@ After comprehensive evaluation of competing architectures, frameworks, and deplo
 - **Self-Hosted Git**:  Gitea (on orchestrator PC)
 - **CI/CD**: GitHub Actions + self-hosted runners (optional)
 - **Container Runtime**: Docker + Docker Compose
-- **Cloud Burst** (optional): Koyeb for stateless services
+- **Cloud Burst** (optional): Oracle VPS for stateless services
 
 ### AI Model Strategy
 - **Primary LLM**: Claude (Anthropic API via Nexus Router)

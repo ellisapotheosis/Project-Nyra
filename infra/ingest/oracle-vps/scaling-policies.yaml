@@ -1,5 +1,5 @@
-# Koyeb Scaling Policies for Free Tier and Paid Tiers
-# Documentation: https://www.koyeb.com/docs/scaling/autoscaling
+# Oracle VPS Scaling Policies for Free Tier and Paid Tiers
+# Documentation: https://www.oracle-vps.com/docs/scaling/autoscaling
 apiVersion: v1
 kind: ScalingPolicy
 metadata:

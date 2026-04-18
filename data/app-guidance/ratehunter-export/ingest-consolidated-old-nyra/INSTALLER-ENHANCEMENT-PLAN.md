@@ -215,17 +215,17 @@ export function detectPCType(hw: HardwareInfo): PCType {
 
 **Component**: `InfisicalSetupScreen.tsx`
 
-### 12. Koyeb VPS Integration (PRIORITY: LOW)
+### 12. Oracle VPS VPS Integration (PRIORITY: LOW)
 **Current**: Missing
-**Needed**: Configure Koyeb for webapp hosting
-- Authenticate with Koyeb API
-- Deploy webapp backend to Koyeb
+**Needed**: Configure Oracle VPS for webapp hosting
+- Authenticate with Oracle VPS API
+- Deploy webapp backend to Oracle VPS
 - Configure custom domains
 - Set up scaling policies (free tier)
 - Configure health checks
 - Monitor deployments
 
-**Component**: `KoyebSetupScreen.tsx` (orchestrator only)
+**Component**: `Oracle VPSSetupScreen.tsx` (orchestrator only)
 
 ### 13. n8n Workflow Deployment (PRIORITY: LOW - Orchestrator Only)
 **Current**: Missing
@@ -276,7 +276,7 @@ export function detectPCType(hw: HardwareInfo): PCType {
     ↓
 15. DatabaseSetupScreen (NEW - orchestrator only)
     ↓
-16. KoyebSetupScreen (NEW - orchestrator only)
+16. Oracle VPSSetupScreen (NEW - orchestrator only)
     ↓
 17. N8NSetupScreen (NEW - orchestrator only)
     ↓
@@ -304,7 +304,7 @@ export function detectPCType(hw: HardwareInfo): PCType {
 - claudeInstaller.ts (NEW) - Claude Code/Desktop
 - giteaInstaller.ts (NEW) - Gitea server
 - databaseInitializer.ts (NEW) - Database setup
-- koyebDeployer.ts (NEW) - Koyeb integration
+- oracle-vpsDeployer.ts (NEW) - Oracle VPS integration
 - n8nDeployer.ts (NEW) - n8n workflows
 - serviceOrchestrator.ts - Docker container management
 - healthChecker.ts - System health validation
@@ -333,7 +333,7 @@ export interface InstallerState {
     claude: StepStatus;
     gitea: StepStatus; // orchestrator only
     databases: StepStatus; // orchestrator only
-    koyeb: StepStatus; // orchestrator only
+    oracle-vps: StepStatus; // orchestrator only
     n8n: StepStatus; // orchestrator only
     services: StepStatus;
     healthCheck: StepStatus;
@@ -381,7 +381,7 @@ type StepStatus = 'pending' | 'running' | 'completed' | 'failed' | 'skipped';
 4. ✅ Database initialization (orchestrator)
 
 ### Phase 4: Advanced Features (Week 4)
-1. ✅ Koyeb integration (orchestrator)
+1. ✅ Oracle VPS integration (orchestrator)
 2. ✅ n8n workflow deployment (orchestrator)
 3. ✅ Comprehensive health checks
 4. ✅ Rollback mechanisms

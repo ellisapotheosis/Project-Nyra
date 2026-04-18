@@ -84,7 +84,7 @@ Project-Nyra/
 **Infrastructure**:
 - Docker + Docker Compose
 - Cloudflare (CDN, R2, Pages, Email)
-- Koyeb VPS (n8n, production services)
+- Oracle VPS VPS (n8n, production services)
 - 4-PC distributed GPU cluster (orchestrator + 3 workers)
 
 **AI/ML**:
@@ -627,7 +627,7 @@ CMD ["node", "server.js"]
        C[Mortgage Assistant]
      end
 
-     subgraph "API Gateway (Koyeb)"
+     subgraph "API Gateway (Oracle VPS)"
        D[Nexus Router]
        E[Quote API]
        F[Campaign Engine]

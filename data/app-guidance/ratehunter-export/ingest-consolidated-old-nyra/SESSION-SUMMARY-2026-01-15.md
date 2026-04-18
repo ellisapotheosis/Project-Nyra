@@ -156,7 +156,7 @@ Successfully implemented the **foundational infrastructure** for the Bootstrap G
 
 10. giteaInstaller.ts + GiteaSetupScreen.tsx
 11. databaseInitializer.ts + DatabaseSetupScreen.tsx
-12. koyebDeployer.ts + KoyebSetupScreen.tsx
+12. oracle-vpsDeployer.ts + Oracle VPSSetupScreen.tsx
 13. n8nDeployer.ts + N8NSetupScreen.tsx
 
 ### Phase 5: Final Integration (FINAL)
@@ -220,7 +220,7 @@ Successfully implemented the **foundational infrastructure** for the Bootstrap G
 - Graceful error handling
 
 ### 4. Role-Based Logic
-- Orchestrator-only components (Gitea, Database, Koyeb, n8n)
+- Orchestrator-only components (Gitea, Database, Oracle VPS, n8n)
 - Worker-only components (GPU drivers)
 - Conditional screen display in App.tsx
 - "Skipped" messages for inapplicable components

@@ -127,7 +127,7 @@ Nexus Router (Port 6000) ← Unified MCP + LLM gateway
 
 12. **docs/infra/metamcp_gui.md**
     - Status: ✅ ARCHIVED to `docs/_archive/deprecated-infra/`
-    - Reason: CASIStack + MetaMCP GUI integration guide
+    - Reason: Nyra Stack + MetaMCP GUI integration guide
 
 #### Category 4: UPDATE (Bootstrap/Architecture Documentation)
 

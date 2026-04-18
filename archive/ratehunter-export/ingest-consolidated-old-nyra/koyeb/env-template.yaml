@@ -1,6 +1,6 @@
-# Environment Variable Template for Koyeb Deployments
+# Environment Variable Template for Oracle VPS Deployments
 # Integrates with Infisical for secret management
-# Documentation: https://www.koyeb.com/docs/deploy/environment-variables
+# Documentation: https://www.oracle-vps.com/docs/deploy/environment-variables
 ---
 apiVersion: v1
 kind: Secret
@@ -11,7 +11,7 @@ metadata:
     infisical.com/sync-enabled: "true"
     infisical.com/project-id: "${INFISICAL_PROJECT_ID}"
     infisical.com/environment: "production"
-    infisical.com/secret-path: "/koyeb"
+    infisical.com/secret-path: "/oracle-vps"
 type: Opaque
 
 # Secret keys mapping (pulled from Infisical)
@@ -98,7 +98,7 @@ data:
       project:
         id: "${INFISICAL_PROJECT_ID}"
         environment: "production"
-        secret_path: "/koyeb"
+        secret_path: "/oracle-vps"
 
       # Sync configuration
       sync:
@@ -222,14 +222,14 @@ data:
     }
 
 ---
-# Koyeb Secret References (for Koyeb CLI/API)
-# These are injected during deployment via deploy-to-koyeb.sh script
+# Oracle VPS Secret References (for Oracle VPS CLI/API)
+# These are injected during deployment via deploy-to-oracle-vps.sh script
 #
-# Usage with Koyeb CLI:
-# koyeb secret create infisical-secrets \
+# Usage with Oracle VPS CLI:
+# oracle-vps secret create infisical-secrets \
 #   --value "$(infisical secrets export --env production --format dotenv)"
 #
 # Or inject individual secrets:
-# koyeb secret create DATABASE_URL --value "$DATABASE_URL"
-# koyeb secret create JWT_SECRET --value "$JWT_SECRET"
+# oracle-vps secret create DATABASE_URL --value "$DATABASE_URL"
+# oracle-vps secret create JWT_SECRET --value "$JWT_SECRET"
 # etc.

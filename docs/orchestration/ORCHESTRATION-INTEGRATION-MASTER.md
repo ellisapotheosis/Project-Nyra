@@ -1,10 +1,10 @@
 # Nyra Orchestration — Integration Master
 
-This doc stitches Claude Flow, Archon MCP, LangGraph, Anthropic Agents SDK, CASIStack Orchestrator, Open WebUI, and MetaMCP into a single mental model.
+This doc stitches Claude Flow, Archon MCP, LangGraph, Anthropic Agents SDK, Nyra Stack Orchestrator, Open WebUI, and MetaMCP into a single mental model.
 
 ## The Spine
 - **MetaMCP Gateway** (`nyra-infra/metamcp-gateway/`) is the single point of entry. Everything becomes an MCP tool behind it.
-- **CASIStack Orchestrator** exposes a dashboard and a management API on `${MANAGER_PORT}` to launch/stop individual MCP servers (unified vs individual mode).
+- **Nyra Stack Orchestrator** exposes a dashboard and a management API on `${MANAGER_PORT}` to launch/stop individual MCP servers (unified vs individual mode).
 - **Open WebUI** provides a chat/agent front-end that can hit MetaMCP tools, great for “Docker AI” and operational control.
 
 ## The Orchestrators
@@ -35,7 +35,7 @@ docker compose -f ./compose/nyra-mcp-stack.yml down
 - For live rotation, re‑run sync and restart affected services.
 
 ## Health + Logs
-- CASIStack dashboard on `${MANAGER_PORT}` shows which MCP servers are up.
+- Nyra Stack dashboard on `${MANAGER_PORT}` shows which MCP servers are up.
 - `docker ps`, `docker logs -f <svc>` for raw detail.
 - Open WebUI includes administration tools to list containers if Docker socket is mounted (optional).
 

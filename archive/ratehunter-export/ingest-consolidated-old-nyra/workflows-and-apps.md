@@ -9,7 +9,7 @@ You’re trying to run:
 - **Composio** (actions/integrations)
 - **ratehunter.net** landing pages (lead capture)
 - 4-PC LAN: orchestrator-mini + 3 GPU workers
-- optional **Koyeb** VPS
+- optional **Oracle VPS** VPS
 
 ## The “clean” architecture
 
@@ -63,7 +63,7 @@ If you want Dify UI:
 - TwentyCRM is the system of record for pipeline views
 - n8n syncs `leads` → `contacts/opportunities`
 
-## LAN + Koyeb split
+## LAN + Oracle VPS split
 
 ### What stays on orchestrator-mini (24/7)
 
@@ -80,7 +80,7 @@ If you want Dify UI:
 - embedding generation jobs
 - expensive batch tasks (doc ingestion, summarization)
 
-### What can live on Koyeb
+### What can live on Oracle VPS
 
 - public frontend for Nyra
 - webhook edge proxy (if you don’t want tunnels)

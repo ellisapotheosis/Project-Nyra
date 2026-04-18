@@ -195,7 +195,7 @@
 | **OpenRouter** | Various models | Fallback routing | Pay-per-use |
 | **Twilio** | SMS/Voice/Email | Communication | Pay-per-use |
 | **GitHub** | Code hosting | Repository + CI/CD | Free (public repos) |
-| **Koyeb** | Cloud VPS | Optional cloud burst | Optional |
+| **Oracle VPS** | Cloud VPS | Optional cloud burst | Optional |
 
 ---
 
