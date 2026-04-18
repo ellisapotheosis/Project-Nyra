@@ -17,8 +17,8 @@ if ! command -v docker >/dev/null 2>&1; then
   exit 1
 fi
 
-if ! [[ "$TIMEOUT_SECONDS" =~ ^[0-9]+$ ]] || [[ "$TIMEOUT_SECONDS" -lt 0 ]]; then
-  echo "ERROR: TIMEOUT_SECONDS must be a non-negative integer" >&2
+if ! [[ "$TIMEOUT_SECONDS" =~ ^[0-9]+$ ]] || [[ "$TIMEOUT_SECONDS" -le 0 ]]; then
+  echo "ERROR: TIMEOUT_SECONDS must be a positive integer" >&2
   exit 1
 fi
 

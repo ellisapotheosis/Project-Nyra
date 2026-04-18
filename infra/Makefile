@@ -11,7 +11,8 @@ CLOUDFLARED_COMPOSE := compose/docker-compose.cloudflared.yml
 SERVICE ?=
 WORKER ?=all
 
-.PHONY: help verify-paths init up down logs health build test dev \
+.PHONY: help verify-paths init bootstrap up down logs health build test dev \
+	db-init db-backup \
 	worker-up worker-down oracle-up oracle-down oracle-logs \
 	tunnel-start tunnel-stop tunnel-setup port-discovery verify-connectivity \
 	clean reset
@@ -21,9 +22,12 @@ help:
 	@echo "=================="
 	@echo "make verify-paths       Validate makefile file/script references"
 	@echo "make init               Install dependencies and bootstrap .env"
+	@echo "make bootstrap          Compatibility alias for init + up"
 	@echo "make up|down            Start/stop core infra stack"
 	@echo "make logs SERVICE=name  Tail logs (all services if SERVICE unset)"
 	@echo "make health             Run infra health checks"
+	@echo "make db-init            Compatibility init for the core postgres databases"
+	@echo "make db-backup          Run the canonical backup script"
 	@echo "make worker-up          Start worker compose stack"
 	@echo "make worker-down        Stop worker compose stack"
 	@echo "make oracle-up          Start Oracle VPS host stack"
@@ -47,6 +51,9 @@ verify-paths:
 init: verify-paths
 	@test -f ../.env || cp env/.env.template ../.env
 	@cd .. && pnpm install --frozen-lockfile || (cd .. && pnpm install)
+
+bootstrap: init up
+	@echo "Bootstrap complete."
 
 up: verify-paths
 	$(DOCKER_COMPOSE) -f $(MAIN_COMPOSE) up -d
@@ -73,6 +80,18 @@ test:
 
 dev:
 	cd .. && pnpm dev
+
+db-init: verify-paths
+	$(DOCKER_COMPOSE) -f $(MAIN_COMPOSE) up -d postgres
+	$(DOCKER_COMPOSE) -f $(MAIN_COMPOSE) exec -T postgres sh -lc '\
+		psql -v ON_ERROR_STOP=1 -U "$$POSTGRES_USER" -d "$$POSTGRES_DB" <<'\''SQL'\''\n\
+		SELECT '\''CREATE DATABASE twenty'\'' WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = '\''twenty'\'') \\gexec\n\
+		SELECT '\''CREATE DATABASE n8n'\'' WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = '\''n8n'\'') \\gexec\n\
+		SELECT '\''CREATE DATABASE litellm'\'' WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = '\''litellm'\'') \\gexec\n\
+		SQL'
+
+db-backup: verify-paths
+	@bash ../scripts/deployment/backup-data.sh
 
 worker-up: verify-paths
 	$(DOCKER_COMPOSE) -f $(WORKERS_COMPOSE) up -d
