@@ -1,0 +1,45 @@
+{
+  "broadcastAddress": "192.168.1.255",
+  "wolPort": 9,
+  "workers": [
+    {
+      "id": "worker-rtx3060",
+      "name": "Worker RTX 3060",
+      "host": "worker-rtx3060",
+      "ip": "192.168.1.101",
+      "mac": "REPLACE_ME_MAC_3060",
+      "healthUrl": "http://worker-rtx3060:8080/health",
+      "shutdown": {
+        "method": "ssh",
+        "user": "REPLACE_ME_SSH_USER",
+        "command": "sudo shutdown -h now"
+      }
+    },
+    {
+      "id": "worker-rtx3090ti",
+      "name": "Worker RTX 3090 Ti",
+      "host": "worker-rtx3090ti",
+      "ip": "192.168.1.102",
+      "mac": "REPLACE_ME_MAC_3090TI",
+      "healthUrl": "http://worker-rtx3090ti:8080/health",
+      "shutdown": {
+        "method": "ssh",
+        "user": "REPLACE_ME_SSH_USER",
+        "command": "sudo shutdown -h now"
+      }
+    },
+    {
+      "id": "worker-rtx5090",
+      "name": "Worker RTX 5090",
+      "host": "worker-rtx5090",
+      "ip": "192.168.1.103",
+      "mac": "REPLACE_ME_MAC_5090",
+      "healthUrl": "http://worker-rtx5090:8080/health",
+      "shutdown": {
+        "method": "ssh",
+        "user": "REPLACE_ME_SSH_USER",
+        "command": "sudo shutdown -h now"
+      }
+    }
+  ]
+}
