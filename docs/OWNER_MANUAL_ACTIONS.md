@@ -75,17 +75,25 @@ secret rotation and pull won't work until a new token is generated.
 
 ## Cloudflared Tunnel Token Regeneration (Orchestrator + Oracle)
 
-Both cloudflared tunnels have been broken for ~3 months. Root causes:
-- Orchestrator: TUNNEL_TOKEN was stored multi-line in shared.env (now fixed to single-line `.env.cloudflared`)
-- Even with correct format, Cloudflare edge rejects with "control stream failure" — the tunnel likely expired/was deleted
+Both cloudflared tunnels are broken. Root cause confirmed: the token is delivered correctly to
+the cloudflared container (it connects to CF edge at 198.41.200.43) but CF returns
+"control stream encountered a failure while serving" — a server-side rejection meaning the
+tunnel connector was deleted or expired in the Cloudflare dashboard after ~3 months offline.
 
 **Steps for each tunnel:**
 1. Go to https://dash.cloudflare.com → Zero Trust → Networks → Tunnels
-2. Either reconnect the existing tunnel (if it still exists) or create a new one
-3. Copy the single-line tunnel token
-4. For orchestrator: replace content of `infra/env/secrets/.env.cloudflared`: `TUNNEL_TOKEN=<new-token>`
-5. For oracle: update `.env.oracle` `CLOUDFLARED_TUNNEL_TOKEN=<new-oracle-token>`
-6. Restart: `docker compose ... up -d cloudflared`
+2. Delete the old stale connector(s) if shown
+3. Create a new tunnel → copy the single-line tunnel token
+4. For orchestrator: replace content of `infra/env/secrets/.env.cloudflared`:
+   ```
+   TUNNEL_TOKEN=<new-orchestrator-token>
+   ```
+5. For oracle: update `infra/env/secrets/.env.oracle` line:
+   ```
+   CLOUDFLARED_TUNNEL_TOKEN=<new-oracle-token>
+   ```
+   Then `scp` it to oracle: `scp infra/env/secrets/.env.oracle ubuntu@100.64.0.3:~/project-nyra/.env.oracle`
+6. Restart on oracle: `ssh ubuntu@100.64.0.3 "cd ~/project-nyra/infra/hosts/oracle-vps && docker compose -f docker-compose.oracle.yml --env-file ~/project-nyra/.env.oracle up -d cloudflared"`
 
 ## Grafbase Nexus — Docker Pull (Orchestrator)
 

@@ -17,6 +17,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       REDIS_PASSWORD: ${REDIS_PASSWORD:-}
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      CLOUDFLARED_TUNNEL_TOKEN: ${CLOUDFLARED_TUNNEL_TOKEN:-}
     volumes:
       - nyra_secrets:/run/nyra-secrets
     networks: [nyra_net]
@@ -208,6 +209,9 @@ services:
     image: cloudflare/cloudflared:latest
     container_name: nyra-cloudflared
     restart: unless-stopped
+    # cloudflared uses distroless image (no shell) so TUNNEL_TOKEN comes
+    # directly from compose env substitution; secrets-init writes the token
+    # file as well for auditing/future wrapper use.
     command: ["tunnel", "run"]
     environment:
       TUNNEL_TOKEN: ${CLOUDFLARED_TUNNEL_TOKEN}

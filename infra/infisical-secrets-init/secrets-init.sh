@@ -51,16 +51,18 @@ parse_dotenv_and_write(){
   v="$(getv OPENAI_API_KEY)";      [[ -n "$v" ]] && write_secret_file "$SECRETS_DIR/openai_api_key" "$v"
   v="$(getv GITEA_SECRET_KEY)";    [[ -n "$v" ]] && write_secret_file "$SECRETS_DIR/gitea_secret_key" "$v"
   v="$(getv GITEA_INTERNAL_TOKEN)"; [[ -n "$v" ]] && write_secret_file "$SECRETS_DIR/gitea_internal_token" "$v"
-  v="$(getv SUPABASE_URL)";        [[ -n "$v" ]] && write_secret_file "$SECRETS_DIR/supabase_url" "$v"
-  v="$(getv SUPABASE_SERVICE_KEY)"; [[ -n "$v" ]] && write_secret_file "$SECRETS_DIR/supabase_service_key" "$v"
+  v="$(getv SUPABASE_URL)";              [[ -n "$v" ]] && write_secret_file "$SECRETS_DIR/supabase_url" "$v"
+  v="$(getv SUPABASE_SERVICE_KEY)";     [[ -n "$v" ]] && write_secret_file "$SECRETS_DIR/supabase_service_key" "$v"
+  v="$(getv CLOUDFLARED_TUNNEL_TOKEN)"; [[ -n "$v" ]] && write_secret_file "$SECRETS_DIR/cloudflared_tunnel_token" "$v"
 }
 
 write_env_fallback(){
   # Write secrets from environment variables when Infisical is unavailable.
   # Called when infisical export times out or token is expired.
-  [[ -n "${POSTGRES_PASSWORD:-}" ]] && write_secret_file "$SECRETS_DIR/postgres_password" "$POSTGRES_PASSWORD"
-  [[ -n "${REDIS_PASSWORD:-}" ]]    && write_secret_file "$SECRETS_DIR/redis_password" "$REDIS_PASSWORD"
-  [[ -n "${OPENAI_API_KEY:-}" ]]    && write_secret_file "$SECRETS_DIR/openai_api_key" "$OPENAI_API_KEY"
+  [[ -n "${POSTGRES_PASSWORD:-}" ]]        && write_secret_file "$SECRETS_DIR/postgres_password" "$POSTGRES_PASSWORD"
+  [[ -n "${REDIS_PASSWORD:-}" ]]           && write_secret_file "$SECRETS_DIR/redis_password" "$REDIS_PASSWORD"
+  [[ -n "${OPENAI_API_KEY:-}" ]]           && write_secret_file "$SECRETS_DIR/openai_api_key" "$OPENAI_API_KEY"
+  [[ -n "${CLOUDFLARED_TUNNEL_TOKEN:-}" ]] && write_secret_file "$SECRETS_DIR/cloudflared_tunnel_token" "$CLOUDFLARED_TUNNEL_TOKEN"
   log "Wrote fallback secrets from environment variables."
 }
 
