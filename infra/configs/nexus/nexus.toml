@@ -3,7 +3,7 @@
 ##############################################################################
 
 [server]
-listen_address = "0.0.0.0:4000"
+listen_address = "0.0.0.0:3000"
 
 [server.health]
 enabled = true
@@ -73,6 +73,13 @@ url = "http://twentycrm:3000/mcp"
 
 [mcp.servers.mempalace]
 url = "{{ env.MEMPALACE_URL }}"
+
+# Oracle-hosted MCP servers (reached via Tailscale 100.64.0.3)
+[mcp.servers.openmemory]
+url = "http://100.64.0.3:8765/mcp/nexus/sse/nyra"
+
+[mcp.servers.infisical]
+url = "http://100.64.0.3:8766/sse"
 
 # Docker-launched MCP servers (via docker socket) for local tool access
 [mcp.servers.github]
