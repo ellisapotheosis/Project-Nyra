@@ -73,7 +73,7 @@ services:
     ports: ['${REDIS_PORT:-6379}:6379']
     volumes: ['redis_data:/data']
     healthcheck:
-      test: ['CMD-SHELL', "redis-cli -a '$${REDIS_PASSWORD}' ping | grep PONG"]
+      test: ['CMD-SHELL', "redis-cli -a \"$${REDIS_PASSWORD}\" ping | grep PONG"]
       interval: 5s
       timeout: 5s
       retries: 20

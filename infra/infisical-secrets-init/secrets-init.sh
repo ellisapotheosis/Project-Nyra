@@ -25,7 +25,6 @@ rand_b64() { openssl rand -base64 "${1:-32}"; }
 write_secret_file(){
   local path="$1"
   local value="$2"
-  # Ensure NO quotes are written to the file
   echo -n "$value" | tr -d "'\"" > "$path"
   chmod 600 "$path"
   if [[ "$(id -u)" -eq 0 ]]; then
@@ -41,35 +40,48 @@ parse_dotenv_and_write(){
   }
 
   local v
-  v="$(getv GITEA_DB_PASS)";        [[ -n "$v" ]] && write_secret_file "$SECRETS_DIR/gitea_db_pass" "$v"
-  v="$(getv GITEA_ADMIN_PASS)";     [[ -n "$v" ]] && write_secret_file "$SECRETS_DIR/gitea_admin_pass" "$v"
-  v="$(getv WEBHOOK_AUTH_TOKEN)";   [[ -n "$v" ]] && write_secret_file "$SECRETS_DIR/webhook_auth_token" "$v"
-  v="$(getv WEBHOOK_SECRET)";       [[ -n "$v" ]] && write_secret_file "$SECRETS_DIR/webhook_secret" "$v"
-  v="$(getv GITEA_TOKEN)";          [[ -n "$v" ]] && write_secret_file "$SECRETS_DIR/gitea_pat_token" "$v"
-  v="$(getv GITEA_RUNNER_TOKEN)";   [[ -n "$v" ]] && write_secret_file "$SECRETS_DIR/gitea_runner_token" "$v"
-  v="$(getv OPENAI_API_KEY)";       [[ -n "$v" ]] && write_secret_file "$SECRETS_DIR/openai_api_key" "$v"
-  v="$(getv GITEA_SECRET_KEY)";     [[ -n "$v" ]] && write_secret_file "$SECRETS_DIR/gitea_secret_key" "$v"
+  v="$(getv POSTGRES_PASSWORD)";   [[ -n "$v" ]] && write_secret_file "$SECRETS_DIR/postgres_password" "$v"
+  v="$(getv REDIS_PASSWORD)";      [[ -n "$v" ]] && write_secret_file "$SECRETS_DIR/redis_password" "$v"
+  v="$(getv GITEA_DB_PASS)";       [[ -n "$v" ]] && write_secret_file "$SECRETS_DIR/gitea_db_pass" "$v"
+  v="$(getv GITEA_ADMIN_PASS)";    [[ -n "$v" ]] && write_secret_file "$SECRETS_DIR/gitea_admin_pass" "$v"
+  v="$(getv WEBHOOK_AUTH_TOKEN)";  [[ -n "$v" ]] && write_secret_file "$SECRETS_DIR/webhook_auth_token" "$v"
+  v="$(getv WEBHOOK_SECRET)";      [[ -n "$v" ]] && write_secret_file "$SECRETS_DIR/webhook_secret" "$v"
+  v="$(getv GITEA_TOKEN)";         [[ -n "$v" ]] && write_secret_file "$SECRETS_DIR/gitea_pat_token" "$v"
+  v="$(getv GITEA_RUNNER_TOKEN)";  [[ -n "$v" ]] && write_secret_file "$SECRETS_DIR/gitea_runner_token" "$v"
+  v="$(getv OPENAI_API_KEY)";      [[ -n "$v" ]] && write_secret_file "$SECRETS_DIR/openai_api_key" "$v"
+  v="$(getv GITEA_SECRET_KEY)";    [[ -n "$v" ]] && write_secret_file "$SECRETS_DIR/gitea_secret_key" "$v"
   v="$(getv GITEA_INTERNAL_TOKEN)"; [[ -n "$v" ]] && write_secret_file "$SECRETS_DIR/gitea_internal_token" "$v"
-  v="$(getv SUPABASE_URL)";         [[ -n "$v" ]] && write_secret_file "$SECRETS_DIR/supabase_url" "$v"
+  v="$(getv SUPABASE_URL)";        [[ -n "$v" ]] && write_secret_file "$SECRETS_DIR/supabase_url" "$v"
   v="$(getv SUPABASE_SERVICE_KEY)"; [[ -n "$v" ]] && write_secret_file "$SECRETS_DIR/supabase_service_key" "$v"
+}
+
+write_env_fallback(){
+  # Write secrets from environment variables when Infisical is unavailable.
+  # Called when infisical export times out or token is expired.
+  [[ -n "${POSTGRES_PASSWORD:-}" ]] && write_secret_file "$SECRETS_DIR/postgres_password" "$POSTGRES_PASSWORD"
+  [[ -n "${REDIS_PASSWORD:-}" ]]    && write_secret_file "$SECRETS_DIR/redis_password" "$REDIS_PASSWORD"
+  [[ -n "${OPENAI_API_KEY:-}" ]]    && write_secret_file "$SECRETS_DIR/openai_api_key" "$OPENAI_API_KEY"
+  log "Wrote fallback secrets from environment variables."
 }
 
 try_infisical_export(){
   if [[ -z "${INFISICAL_TOKEN:-}" ]]; then
-    log "INFISICAL_TOKEN is required."
+    log "INFISICAL_TOKEN not set, skipping Infisical."
     return 1
   fi
 
   export INFISICAL_API_URL="${INFISICAL_API_URL:-https://app.infisical.com}"
 
-  # CLEANED COMMAND WITH PROVEN SETTINGS
-  infisical export \
+  if ! timeout 30s infisical export \
     --token="${INFISICAL_TOKEN}" \
     --projectId="$INFISICAL_PROJECT_ID" \
-    --env="prod" \
-    --path="/shared" \
+    --env="${INFISICAL_ENV:-prod}" \
+    --path="${INFISICAL_PATH:-/shared}" \
     --format=dotenv \
-    --output-file="/tmp/nyra.infisical.env" >/dev/null
+    --output-file="/tmp/nyra.infisical.env" >/dev/null 2>&1; then
+    log "Infisical export failed or timed out."
+    return 1
+  fi
 
   [[ -s "/tmp/nyra.infisical.env" ]] || return 1
   parse_dotenv_and_write "/tmp/nyra.infisical.env"
@@ -77,6 +89,7 @@ try_infisical_export(){
 }
 
 generate_missing(){
+  [[ -f "$SECRETS_DIR/postgres_password" ]]    || write_secret_file "$SECRETS_DIR/postgres_password" "$(rand_hex 24)"
   [[ -f "$SECRETS_DIR/gitea_db_pass" ]]        || write_secret_file "$SECRETS_DIR/gitea_db_pass" "$(rand_hex 24)"
   [[ -f "$SECRETS_DIR/gitea_secret_key" ]]     || write_secret_file "$SECRETS_DIR/gitea_secret_key" "$(rand_hex 32)"
   [[ -f "$SECRETS_DIR/gitea_internal_token" ]] || write_secret_file "$SECRETS_DIR/gitea_internal_token" "$(rand_hex 32)"
@@ -90,11 +103,6 @@ main(){
     chown "${SECRET_UID}:${SECRET_GID}" "$SECRETS_DIR"
   fi
 
-  if [[ -z "${INFISICAL_TOKEN:-}" ]]; then
-    log "INFISICAL_TOKEN is required."
-    exit 1
-  fi
-
   if ! need_write; then
     log "Secrets already initialized."
     exit 0
@@ -103,8 +111,8 @@ main(){
   if try_infisical_export; then
     log "Pulled secrets from Infisical."
   else
-    log "Failed to pull secrets from Infisical."
-    exit 1
+    log "Infisical unavailable — using env var fallback."
+    write_env_fallback
   fi
 
   generate_missing
@@ -113,5 +121,6 @@ main(){
   if [[ "$(id -u)" -eq 0 ]]; then
     chown "${SECRET_UID}:${SECRET_GID}" "$INIT_MARK"
   fi
+  log "Secrets initialization complete."
 }
 main "$@"
