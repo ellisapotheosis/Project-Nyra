@@ -169,4 +169,30 @@ mempalace-mine:
 	docker compose exec mempalace-mcp mempalace mine
 
 health:
-	./scripts/verify-stack.sh
+	bash scripts/verify-stack.sh
+
+.PHONY: secrets-init secrets-build secrets-up check-host
+
+check-host:
+	@if [ -z "$(HOST)" ]; then echo "🚨 Error: HOST is required."; exit 1; fi
+
+secrets-init: check-host
+	@if [ -z "$(TOKEN)" ]; then echo "🚨 Error: TOKEN is required."; exit 1; fi
+	@mkdir -p infra/hosts/$(HOST)
+	@echo "INFISICAL_TOKEN=$(TOKEN)" > infra/hosts/$(HOST)/.env.host
+	@echo "INFISICAL_PROJECT_ID=8374cea9-e5e8-4050-bda4-b91f25ab30ef" >> infra/hosts/$(HOST)/.env.host
+	@echo "INFISICAL_ENV=prod" >> infra/hosts/$(HOST)/.env.host
+	@echo "INFISICAL_PATH=/workers/$(HOST)" >> infra/hosts/$(HOST)/.env.host
+	@if [ "$(HOST)" = "homeassistant" ]; then echo "INFISICAL_PATH=/homeassistant" >> infra/hosts/$(HOST)/.env.host; fi
+	@echo "INFISICAL_API_URL=https://app.infisical.com" >> infra/hosts/$(HOST)/.env.host
+	@echo "NYRA_FORCE_SECRETS=false" >> infra/hosts/$(HOST)/.env.host
+	@echo "🐾 ✅ Successfully generated infra/hosts/$(HOST)/.env.host"
+
+secrets-build: check-host
+	@echo "🐾 🛠️  Building secrets sidecar for $(HOST)..."
+	docker compose -f infra/hosts/$(HOST)/docker-compose.yml --profile secrets build
+
+secrets-up: check-host
+	@echo "🐾 🚀 Starting secrets sidecar for $(HOST)..."
+	docker compose -f infra/hosts/$(HOST)/docker-compose.yml --env-file infra/hosts/$(HOST)/.env.host --profile secrets up -d
+

@@ -112,20 +112,46 @@ services:
     ports:
       - "5678:5678"
 
-  moltbot:
-    image: moltbot/moltbot:latest
-    container_name: nyra-moltbot
+ openclaw:
+    image: moltbot/moltbot:latest # Still using the moltbot base until they officially rename the registry
+    container_name: nyra-openclaw
     restart: unless-stopped
-    environment:
-      CLAWDBOT_GATEWAY_TOKEN: ${CLAWDBOT_GATEWAY_TOKEN}
-      CLAWDBOT_GATEWAY_PORT: ${CLAWDBOT_GATEWAY_PORT:-18789}
-    volumes:
-      - clawdbot_config:/home/node/.clawdbot
-      - clawdbot_workspace:/home/node/clawd
-    networks: [nyra_net]
+    networks:
+      - nyra_net
     ports:
-      - "18789:18789"
-      - "18790:18790"
+      # Exposing to your Oracle host so Tailscale can easily proxy them
+      - "18789:18789" # Backend Gateway API
+      - "18790:18790" # Frontend Web UI
+    environment:
+      # --- 🔒 SECURITY & INFISICAL SECRETS ---
+      # Fed directly from your "clients/openclaw" Infisical folder
+      CLAWDBOT_GATEWAY_TOKEN: ${OPENCLAW_GATEWAY_TOKEN}
+      CLAWDBOT_GATEWAY_PORT: ${OPENCLAW_GATEWAY_PORT:-18789}
+
+      # --- 🧠 PROJECT NYRA NEXUS INTEGRATION ---
+      # Hijack the default AI provider and force OpenClaw to use your own Nexus Router (LiteLLM)
+      # Make sure the host matches your actual LiteLLM container name!
+      OPENAI_API_BASE: http://nexus-router:4000/v1
+      OPENAI_API_KEY: ${LITELLM_MASTER_KEY}
+
+      # --- 🌐 TAILSCALE / CLOUDFLARE ROUTING ---
+      # Tells the app its true identity on your mesh network for proper CORS/Auth callbacks
+      PUBLIC_URL: ${OPENCLAW_PUBLIC_URL:-https://claw.oracle.trex-fiordland.ts.net}
+
+      # --- 🧪 EXPERIMENTAL & DEBUG GOODIES ---
+      DEBUG: "true" # Essential for tracking the prompts it sends to your Nexus Router
+      NODE_ENV: "development" # Keeps logging verbose while you tweak your multi-agent mesh
+
+    volumes:
+      # Standard persistence
+      - openclaw_config:/home/node/.clawdbot
+      - openclaw_workspace:/home/node/clawd
+
+      # --- 📁 EXPERIMENTAL CODEBASE INGESTION ---
+      # Mount your Project Nyra source code as Read-Only (:ro) into the bot's workspace.
+      # This allows OpenClaw to scan and read your actual repo files without risking accidental deletion!
+      # (Adjust './src' to wherever your actual code lives relative to the compose file)
+      - ./src:/home/ellisapotheosis/repos/project-nyra:ro
 
   quote-api:
     build:
