@@ -1,27 +1,22 @@
-# Infra Hosts Scaffolding
+# Infra Hosts
 
-This folder defines host ownership boundaries for infrastructure assets.
+Runtime ownership boundary for active infrastructure stacks.
 
-## Canonical host folders (Portainer-ready)
+## Canonical host folders
 
 - `orchestrator/`
-  Primary orchestrator node role (core app orchestration, CI/runtime coordination, internal gateways).
-- `worker-hosts/`
-  GPU worker host roles (one folder per worker node).
+- `worker-rtx3060/`
+- `worker-rtx3090ti/`
+- `worker-rtx5090/`
 - `oracle-vps/`
-  Cloud VPS role (public ingress, shared platform services, backup/control plane as needed).
 - `homeassistant/`
-  Home Assistant role (home lab operations plane, local service integrations, selected add-ons, and UI dashboard links).
 
-## Legacy compatibility folders
+## Runtime rule
 
-The following folders are retained so existing references do not break while transition to Portainer stack folders is in progress:
+Active docker compose entrypoints that are actually launched should live under a host folder (`infra/hosts/<host>`).
 
-- `orchestrator-host/` → maps to `orchestrator/`
-- `worker-pc-hosts/` → maps to `worker-hosts/`
-- `oracle-host/` → maps to `oracle-vps/`
-- `homeassistant-host/` → maps to `homeassistant/`
+## Supporting files
 
-## Rule
-
-When adding or moving infra assets, keep active runtime ownership documented in one of these host folders before merging.
+- Shared configs/templates can stay outside host folders.
+- Root-level env/compose templates were migrated to `infra/environments/`.
+- Legacy root compose files are retained in `infra/environments/legacy-root-compose/` until fully retired.

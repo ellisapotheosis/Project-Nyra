@@ -3,13 +3,13 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-COMPOSE_FILE="$ROOT_DIR/infra/docker-compose.yml"
+COMPOSE_FILE="$ROOT_DIR/infra/hosts/orchestrator/docker-compose.orchestrator.yml"
 OPENCLAW_COMPOSE="$ROOT_DIR/infra/compose/openclaw.profile.yml"
 OPENCLAW_UI_COMPOSE="$ROOT_DIR/infra/compose/openclaw.ui.compose.yml"
 
 # Load env if exists
-if [ -f "$ROOT_DIR/.env.orchestrator" ]; then
-    set -a; source "$ROOT_DIR/.env.orchestrator"; set +a
+if [ -f "$ROOT_DIR/infra/hosts/orchestrator/.env.final" ]; then
+    set -a; source "$ROOT_DIR/infra/hosts/orchestrator/.env.final"; set +a
 fi
 
 echo "🚀 Starting Project Nyra Orchestrator Stand-Up..."

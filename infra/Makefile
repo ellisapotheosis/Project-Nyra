@@ -3,10 +3,10 @@
 SHELL := /bin/bash
 
 DOCKER_COMPOSE ?= docker compose
-MAIN_COMPOSE := docker-compose.yml
+MAIN_COMPOSE := hosts/orchestrator/docker-compose.orchestrator.yml
 ORACLE_COMPOSE := hosts/oracle-vps/docker-compose.oracle.yml
 WORKERS_COMPOSE := hosts/docker-compose.workers.yml
-CLOUDFLARED_COMPOSE := compose/docker-compose.cloudflared.yml
+CLOUDFLARED_COMPOSE := hosts/orchestrator/docker-compose.cloudflared.yml
 
 SERVICE ?=
 WORKER ?=all
@@ -49,7 +49,7 @@ verify-paths:
 	@echo "All infra Makefile references are valid."
 
 init: verify-paths
-	@test -f ../.env || cp env/.env.template ../.env
+	@test -f ../.env || cp environments/templates/root/.env.template ../.env
 	@cd .. && pnpm install --frozen-lockfile || (cd .. && pnpm install)
 
 bootstrap: init up
@@ -76,7 +76,7 @@ build: verify-paths
 	$(DOCKER_COMPOSE) -f $(MAIN_COMPOSE) build
 
 test:
-	cd .. && pnpm test
+	cd .. && pnpm -r --if-present test
 
 dev:
 	cd .. && pnpm dev

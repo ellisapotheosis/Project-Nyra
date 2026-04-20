@@ -1,11 +1,18 @@
-# Project Nyra orchestration Makefile (Docker Compose + monorepo utilities)
+# Project Nyra orchestration Makefile (host-scoped compose)
 
 SHELL := /bin/bash
 
-# Core Paths
-COMPOSE_FILE ?= infra/docker-compose.yml
+# Canonical runtime compose files (all active stacks live in infra/hosts/*)
+ORCHESTRATOR_COMPOSE := infra/hosts/orchestrator/docker-compose.orchestrator.yml
+WORKER_3060_COMPOSE := infra/hosts/worker-rtx3060/docker-compose.worker-3060.yml
+WORKER_3090TI_COMPOSE := infra/hosts/worker-rtx3090ti/docker-compose.worker-3090.yml
+WORKER_5090_COMPOSE := infra/hosts/worker-rtx5090/docker-compose.worker-5090.yml
+ORACLE_COMPOSE := infra/hosts/oracle-vps/docker-compose.oracle.yml
+CLOUDFLARED_COMPOSE := infra/hosts/orchestrator/docker-compose.cloudflared.yml
+
+COMPOSE_FILE ?= $(ORCHESTRATOR_COMPOSE)
 COMPOSE ?= docker compose -f $(COMPOSE_FILE)
-STACK_ENV_FILE ?= .env.stack
+STACK_ENV_FILE ?= infra/environments/templates/root/.env.stack.example
 HEALTH_ENV_FILE ?= $(STACK_ENV_FILE)
 
 # Service Specific Compose Files
@@ -14,13 +21,6 @@ TWENTY_COMPOSE := infra/docker-compose.twenty.yml
 GITEA_COMPOSE := infra/configs/gitea/docker-compose.gitea.yml
 SUPABASE_COMPOSE := infra/compose/docker-compose.supabase.yml
 
-# Host Specific Compose Files
-ORCHESTRATOR_COMPOSE := infra/hosts/orchestrator/docker-compose.orchestrator.yml
-WORKER_3060_COMPOSE := infra/hosts/worker-rtx3060/docker-compose.worker-3060.yml
-WORKER_3090TI_COMPOSE := infra/hosts/worker-rtx3090ti/docker-compose.worker-3090.yml
-WORKER_5090_COMPOSE := infra/hosts/worker-rtx5090/docker-compose.worker-5090.yml
-ORACLE_COMPOSE := infra/hosts/oracle-vps/docker-compose.oracle.yml
-
 DEFAULT_PROFILES ?= core,gateway,workflow,crm,archon,apps,observability,vector
 
 .PHONY: help install test lint validate up down restart logs ps pull verify-paths \
@@ -28,7 +28,7 @@ DEFAULT_PROFILES ?= core,gateway,workflow,crm,archon,apps,observability,vector
   archon-up archon-down archon-logs archon-ps \
   cluster cluster-kill grid grid-kill \
   nexus-up nexus-down health stack-up stack-verify \
-  gitea-up gitea-down gitea-ps twenty-crm-up twenty-crm-down
+  gitea-up gitea-down gitea-ps twenty-crm-up twenty-crm-down tunnel-up tunnel-down
 
 .DEFAULT_GOAL := help
 
@@ -36,8 +36,8 @@ help:
 	@echo "Project Nyra - Unified Control Plane"
 	@echo
 	@echo "--- INFRASTRUCTURE ---"
-	@echo "make up                 Start default local stack profiles"
-	@echo "make down               Stop and remove local stack"
+	@echo "make up                 Start orchestrator default profiles"
+	@echo "make down               Stop and remove orchestrator stack"
 	@echo "make ps                 Show running containers"
 	@echo "make health             Run system-wide health checks"
 	@echo
@@ -56,6 +56,7 @@ help:
 	@echo "make gitea-up           Start Gitea + Actions"
 	@echo "make twenty-crm-up      Start Twenty CRM"
 	@echo "make supabase-up        Start local Supabase DB"
+	@echo "make tunnel-up          Start orchestrator cloudflared tunnel"
 	@echo "make verify-paths       Verify Makefile path references exist"
 
 verify-paths:
@@ -69,6 +70,7 @@ verify-paths:
 	@test -f $(WORKER_3090TI_COMPOSE) || (echo "Missing $(WORKER_3090TI_COMPOSE)" && exit 1)
 	@test -f $(WORKER_5090_COMPOSE) || (echo "Missing $(WORKER_5090_COMPOSE)" && exit 1)
 	@test -f $(ORACLE_COMPOSE) || (echo "Missing $(ORACLE_COMPOSE)" && exit 1)
+	@test -f $(CLOUDFLARED_COMPOSE) || (echo "Missing $(CLOUDFLARED_COMPOSE)" && exit 1)
 	@echo "All Makefile compose paths are valid."
 
 # --- CORE TARGETS ---
@@ -122,10 +124,16 @@ up-workers:
 up-oracle:
 	docker --context oracle compose -f $(ORACLE_COMPOSE) up -d
 
+tunnel-up:
+	docker compose -f $(CLOUDFLARED_COMPOSE) up -d
+
+tunnel-down:
+	docker compose -f $(CLOUDFLARED_COMPOSE) down --remove-orphans
+
 # --- COMPONENT TARGETS ---
 
 gitea-up:
-	docker compose -f $(GITEA_COMPOSE) --env-file .env.gitea up -d
+	docker compose -f $(GITEA_COMPOSE) --env-file infra/environments/templates/root/.env.gitea.example up -d
 
 gitea-down:
 	docker compose -f $(GITEA_COMPOSE) down

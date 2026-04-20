@@ -7,10 +7,10 @@ ENV_FILE="$ROOT/infra/env/nyra.env"
 if [[ ! -f "$ENV_FILE" ]]; then
   if [[ -f "$ROOT/infra/env/nyra.env.example" ]]; then
     cp "$ROOT/infra/env/nyra.env.example" "$ENV_FILE"
-  elif [[ -f "$ROOT/.env.stack.example" ]]; then
-    cp "$ROOT/.env.stack.example" "$ENV_FILE"
+  elif [[ -f "$ROOT/infra/environments/templates/root/.env.stack.example" ]]; then
+    cp "$ROOT/infra/environments/templates/root/.env.stack.example" "$ENV_FILE"
   else
-    echo "Missing env template: infra/env/nyra.env.example or .env.stack.example"
+    echo "Missing env template: infra/env/nyra.env.example or infra/environments/templates/root/.env.stack.example"
     exit 1
   fi
   echo "Created $ENV_FILE from example"
