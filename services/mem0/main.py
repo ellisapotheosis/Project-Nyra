@@ -24,8 +24,7 @@ def _parse_db_url(url: str) -> dict:
 
 def _build_config() -> dict:
     db = _parse_db_url(os.environ["DATABASE_URL"])
-    litellm_url = os.environ.get("LITELLM_API_URL", "")
-    litellm_key = os.environ.get("LITELLM_API_KEY", "sk-mem0")
+    openai_key = os.environ.get("OPENAI_API_KEY", "")
 
     cfg: dict = {
         "vector_store": {
@@ -33,19 +32,17 @@ def _build_config() -> dict:
             "config": {**db, "embedding_model_dims": 1536},
         },
         "llm": {
-            "provider": "litellm",
+            "provider": "openai",
             "config": {
                 "model": "gpt-4o-mini",
-                "api_base": litellm_url,
-                "api_key": litellm_key,
+                "api_key": openai_key,
             },
         },
         "embedder": {
-            "provider": "litellm",
+            "provider": "openai",
             "config": {
                 "model": "text-embedding-3-small",
-                "api_base": litellm_url,
-                "api_key": litellm_key,
+                "api_key": openai_key,
             },
         },
     }

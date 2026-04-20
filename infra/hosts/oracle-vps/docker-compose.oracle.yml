@@ -1,17 +1,61 @@
 name: nyra-oracle
 
 services:
+  # ── Infisical secrets init (runs once, writes files to /run/nyra-secrets/) ─
+  secrets-init:
+    build:
+      context: ../../infisical-secrets-init
+    container_name: nyra-secrets-init
+    restart: "no"
+    command: ["/usr/local/bin/secrets-init.sh"]
+    environment:
+      INFISICAL_TOKEN: ${INFISICAL_TOKEN:-}
+      INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
+      INFISICAL_ENV: ${INFISICAL_ENV:-prod}
+      INFISICAL_PATH: ${INFISICAL_PATH:-/shared}
+      # Fallback env vars written to secret files when Infisical is unavailable
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+    volumes:
+      - nyra_secrets:/run/nyra-secrets
+    networks: [nyra_net]
+
+  # ── Infisical agent (polls Infisical and refreshes secrets) ──────────────
+  infisical-agent:
+    build:
+      context: ../../infisical-secrets-init
+    container_name: nyra-infisical-agent
+    restart: unless-stopped
+    entrypoint: ["/usr/local/bin/agent-sidecar.sh"]
+    depends_on:
+      secrets-init:
+        condition: service_completed_successfully
+    environment:
+      INFISICAL_TOKEN: ${INFISICAL_TOKEN}
+      INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
+      INFISICAL_ENV: ${INFISICAL_ENV:-prod}
+      INFISICAL_PATH: ${INFISICAL_PATH:-/shared}
+      INFISICAL_POLL_INTERVAL: ${INFISICAL_POLL_INTERVAL:-60}
+    volumes:
+      - nyra_secrets:/run/nyra-secrets
+    networks: [nyra_net]
+
   postgres:
     image: postgres:15
     container_name: nyra-postgres
     restart: unless-stopped
+    depends_on:
+      secrets-init:
+        condition: service_completed_successfully
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-nyra}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_PASSWORD_FILE: /run/nyra-secrets/postgres_password
       POSTGRES_DB: ${POSTGRES_DB:-nyra}
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./initdb:/docker-entrypoint-initdb.d:ro
+      - nyra_secrets:/run/nyra-secrets:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-nyra} -d ${POSTGRES_DB:-nyra}"]
       interval: 10s
@@ -112,8 +156,9 @@ services:
     ports:
       - "5678:5678"
 
- openclaw:
+  openclaw:
     image: moltbot/moltbot:latest # Still using the moltbot base until they officially rename the registry
+    platform: linux/amd64 # x86-only image, emulated via QEMU on Oracle ARM64
     container_name: nyra-openclaw
     restart: unless-stopped
     networks:
@@ -131,7 +176,7 @@ services:
       # --- 🧠 PROJECT NYRA NEXUS INTEGRATION ---
       # Hijack the default AI provider and force OpenClaw to use your own Nexus Router (LiteLLM)
       # Make sure the host matches your actual LiteLLM container name!
-      OPENAI_API_BASE: http://nexus-router:4000/v1
+      OPENAI_API_BASE: http://orchestrator.trex-fiordland.ts.net:4000/v1
       OPENAI_API_KEY: ${LITELLM_MASTER_KEY}
 
       # --- 🌐 TAILSCALE / CLOUDFLARE ROUTING ---
@@ -147,15 +192,9 @@ services:
       - openclaw_config:/home/node/.clawdbot
       - openclaw_workspace:/home/node/clawd
 
-      # --- 📁 EXPERIMENTAL CODEBASE INGESTION ---
-      # Mount your Project Nyra source code as Read-Only (:ro) into the bot's workspace.
-      # This allows OpenClaw to scan and read your actual repo files without risking accidental deletion!
-      # (Adjust './src' to wherever your actual code lives relative to the compose file)
-      - ./src:/home/ellisapotheosis/repos/project-nyra:ro
-
   quote-api:
     build:
-      context: ../../services/quote-api
+      context: ../../../services/quote-api
     container_name: nyra-quote-api
     restart: unless-stopped
     environment:
@@ -169,8 +208,7 @@ services:
     image: cloudflare/cloudflared:latest
     container_name: nyra-cloudflared
     restart: unless-stopped
-    profiles: ["cloudflared"]
-    command: ["tunnel", "run", "--token", "${CLOUDFLARED_TUNNEL_TOKEN}"]
+    command: ["tunnel", "run"]
     environment:
       TUNNEL_TOKEN: ${CLOUDFLARED_TUNNEL_TOKEN}
     networks: [nyra_net]
@@ -273,17 +311,19 @@ services:
 
   mem0-rest:
     build:
-      context: ../stacks/nyra-mortgage/services/mem0-rest
+      context: ../../../services/mem0
     container_name: nyra-mem0-rest
     restart: unless-stopped
     depends_on:
       falkordb:
         condition: service_healthy
+      postgres:
+        condition: service_healthy
     environment:
-      FALKORDB_HOST: nyra-falkordb
-      FALKORDB_PORT: 6379
+      DATABASE_URL: postgresql://${POSTGRES_USER:-nyra}:${POSTGRES_PASSWORD}@nyra-postgres:5432/${POSTGRES_DB:-nyra}
+      FALKORDB_URL: redis://nyra-falkordb:6379
       OPENAI_API_KEY: ${OPENAI_API_KEY}
-      LITELLM_API_BASE: ${LITELLM_API_BASE:-http://orchestrator.trex-fiordland.ts.net:4000/v1}
+      LITELLM_API_URL: ${LITELLM_API_BASE:-http://orchestrator.trex-fiordland.ts.net:4000/v1}
       LITELLM_API_KEY: ${LITELLM_MASTER_KEY}
     ports:
       - "5000:5000"
@@ -294,6 +334,67 @@ services:
       timeout: 10s
       retries: 3
 
+  # ── OpenMemory MCP (self-hosted mem0 MCP server) ─────────────────────────
+  # TODO: Find correct Docker image. mem0ai/openmemory-mcp doesn't exist on Docker Hub.
+  # May need to build from https://github.com/mem0ai/mem0/tree/main/openmemory
+  # Uncomment and update image once verified:
+  # openmemory-mcp:
+  #   image: mem0ai/openmemory-mcp:latest
+  #   container_name: nyra-openmemory-mcp
+  #   restart: unless-stopped
+  #   depends_on:
+  #     mem0-rest:
+  #       condition: service_healthy
+  #   environment:
+  #     OPENAI_API_KEY: ${OPENAI_API_KEY}
+  #     MEM0_API_URL: http://nyra-mem0-rest:5000
+  #   ports:
+  #     - "8765:8765"
+  #   networks: [nyra_net]
+
+  # NOTE: Gitea is managed by its own compose file (docker-compose.gitea.yml)
+  # and runs as oracle-gitea on port 3100. Do not define it here to avoid
+  # SSH port 22 conflicts.
+
+  # ── Archon OS (AI agent orchestrator) ────────────────────────────────────
+  # Runs on Oracle — connects to LiteLLM + Nexus on orchestrator via Tailscale
+  archon:
+    build:
+      context: ../../../external/archon
+      dockerfile: Dockerfile
+    container_name: nyra-archon-os
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis-cache:
+        condition: service_healthy
+    env_file:
+      - ../../../external/archon/nyra-configs/env/archon.env
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-nyra}:${POSTGRES_PASSWORD}@nyra-postgres:5432/${POSTGRES_DB:-nyra}
+      REDIS_URL: redis://nyra-redis-cache:6379
+      PORT: "3000"
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      GOOGLE_API_KEY: ${GOOGLE_API_KEY:-}
+      GH_TOKEN: ${GITHUB_TOKEN:-}
+      NEXUS_ROUTER_URL: http://orchestrator.trex-fiordland.ts.net:7000
+      OPENAI_BASE_URL: http://orchestrator.trex-fiordland.ts.net:4000/v1
+      ARCHON_DATA: /.archon
+      NODE_ENV: production
+      ARCHON_DOCKER: "true"
+    volumes:
+      - archon_data:/.archon
+    ports:
+      - "3737:3000"
+    networks: [nyra_net]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
 networks:
   nyra_net:
 
@@ -303,10 +404,12 @@ volumes:
   twenty_local_storage:
   twenty_docker_data:
   n8n_data:
-  clawdbot_config:
-  clawdbot_workspace:
+  openclaw_config:
+  openclaw_workspace:
   prometheus_data:
   loki_data:
   grafana_data:
   openwebui_data:
   falkordb_data:
+  archon_data:
+  nyra_secrets:

@@ -4,5 +4,5 @@ services:
     container_name: cloudflared-tunnel
     restart: unless-stopped
     command: tunnel run
-    environment:
-      - TUNNEL_TOKEN=${TUNNEL_TOKEN}
+    env_file:
+      - env/secrets/.env.cloudflared
