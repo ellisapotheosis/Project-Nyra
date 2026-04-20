@@ -1,18 +1,13 @@
-version: "3.9"
-
 services:
-  # ============================================================================
-  # SECRETS MANAGEMENT
-  # ============================================================================
-
   infisical-agent:
     image: infisical/infisical-agent:latest
     container_name: nyra-infisical-agent
+    profiles: ["secrets"]
     environment:
       INFISICAL_TOKEN: ${INFISICAL_TOKEN}
-      INFISICAL_API_URL: ${INFISICAL_API_URL}
+      INFISICAL_API_URL: ${INFISICAL_API_URL:-https://app.infisical.com}
     volumes:
-      - secrets_volume:/secrets
+      - secrets_volume:/run/nyra-secrets
     restart: unless-stopped
     networks:
       - nyra-network
@@ -22,14 +17,10 @@ services:
       timeout: 10s
       retries: 3
 
-  # ============================================================================
-  # INFRASTRUCTURE CORE
-  # ============================================================================
-
   redis:
     image: redis:7-alpine
     container_name: nyra-redis
-    command: redis-server --save 60 1000 --appendonly yes
+    command: ["redis-server", "--save", "60", "1000", "--appendonly", "yes"]
     ports:
       - "6379:6379"
     volumes:
@@ -41,101 +32,82 @@ services:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
       timeout: 5s
-      retries: 3
-
-  # ============================================================================
-  # NEXUS ROUTER (MCP Hub)
-  # ============================================================================
-
-  nexus:
-    build:
-      context: ./nexus
-      dockerfile: Dockerfile
-    container_name: nyra-nexus-router
-    ports:
-      - "6000:6000"
-    environment:
-      NODE_ENV: production
-      LOG_LEVEL: info
-      LITELLM_API_BASE: "http://litellm:4000"
-      LITELLM_API_KEY: "dummy-key"
-      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
-      GITHUB_TOKEN: ${GITHUB_TOKEN}
-      TWENTY_API_TOKEN: ${TWENTY_API_TOKEN}
-      ACTIVEPIECES_TOKEN: ${ACTIVEPIECES_TOKEN}
-      INFISICAL_TOKEN: ${INFISICAL_TOKEN}
-      REDIS_URL: "redis://redis:6379"
-      DATABASE_URL: ${DATABASE_URL}
-    volumes:
-      - ./nexus/nexus.toml:/app/nexus.toml:ro
-      - secrets_volume:/secrets:ro
-    depends_on:
-      redis:
-        condition: service_healthy
-      infisical-agent:
-        condition: service_healthy
-    restart: unless-stopped
-    networks:
-      - nyra-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:6000/health"]
-      interval: 10s
-      timeout: 5s
       retries: 5
 
-  # ============================================================================
-  # LITELLM (Model Router)
-  # ============================================================================
-
   litellm:
-    image: ghcr.io/berriai/litellm:latest
+    image: ghcr.io/berriai/litellm:main-stable
     container_name: nyra-litellm-router
+    command: ["--config", "/app/config.yaml", "--port", "4000"]
     ports:
       - "4000:4000"
     environment:
-      LITELLM_LOG: info
-      LITELLM_CACHE: "true"
-      REDIS_HOST: redis
-      REDIS_PORT: 6379
-      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY}
-      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
-      DATABASE_URL: ${DATABASE_URL}
+      LITELLM_MASTER_KEY: ${LITELLM_MASTER_KEY:?set LITELLM_MASTER_KEY}
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      GOOGLE_API_KEY: ${GOOGLE_API_KEY:-}
     volumes:
-      - ./litellm/config.yaml:/app/config.yaml:ro
+      - ../../configs/litellm/config.yaml:/app/config.yaml:ro
     depends_on:
       redis:
         condition: service_healthy
     restart: unless-stopped
     networks:
       - nyra-network
-    command: ["litellm", "--config", "/app/config.yaml", "--port", "4000"]
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:4000/health"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
+      test:
+        [
+          "CMD-SHELL",
+          "python -c \"import os, urllib.request; req = urllib.request.Request('http://localhost:4000/v1/models', headers={'Authorization': 'Bearer ' + os.environ['LITELLM_MASTER_KEY']}); urllib.request.urlopen(req, timeout=12).read()\"",
+        ]
+      interval: 15s
+      timeout: 15s
+      retries: 5
 
-  # ============================================================================
-  # AGENTS & ORCHESTRATORS
-  # ============================================================================
+  nexus:
+    image: ghcr.io/grafbase/nexus:stable
+    container_name: nyra-nexus
+    ports:
+      - "6000:3000"
+    environment:
+      LITELLM_MASTER_KEY: ${LITELLM_MASTER_KEY:?set LITELLM_MASTER_KEY}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
+      GITHUB_TOKEN: ${GITHUB_TOKEN:-}
+      MEMPALACE_URL: ${MEMPALACE_URL:-}
+    volumes:
+      - ../../configs/nexus/nexus.toml:/etc/nexus/nexus.toml:ro
+    depends_on:
+      litellm:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - nyra-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
 
   openclaw:
     build:
-      context: ../src/openclaw
+      context: ../../../services/openclaw
       dockerfile: Dockerfile
     container_name: nyra-openclaw
+    profiles: ["apps"]
     ports:
       - "8001:8001"
     environment:
       NODE_ENV: production
-      NEXUS_API_URL: "http://nexus:6000"
+      NEXUS_API_URL: "http://nexus:3000"
       LITELLM_API_URL: "http://litellm:4000"
-      MEM0_API_URL: "http://oracle.trex-fiordland.ts.net:5000"
-      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
-      DATABASE_URL: ${DATABASE_URL}
-      QUOTE_ENGINE_URL: "http://oracle.trex-fiordland.ts.net:8089"
+      MEM0_API_URL: ${MEM0_API_URL:-http://oracle.trex-fiordland.ts.net:5000}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      DATABASE_URL: ${DATABASE_URL:-}
+      QUOTE_ENGINE_URL: ${QUOTE_ENGINE_URL:-http://oracle.trex-fiordland.ts.net:8089}
     volumes:
-      - secrets_volume:/secrets:ro
+      - secrets_volume:/run/nyra-secrets:ro
     depends_on:
       nexus:
         condition: service_healthy
@@ -144,27 +116,23 @@ services:
     restart: unless-stopped
     networks:
       - nyra-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
-      interval: 15s
-      timeout: 5s
-      retries: 3
 
   archon-os:
     build:
-      context: ../src/archon-os
+      context: ../../../external/archon
       dockerfile: Dockerfile
     container_name: nyra-archon-os
+    profiles: ["apps"]
     ports:
       - "8080:8080"
     environment:
       NODE_ENV: production
-      NEXUS_API_URL: "http://nexus:6000"
+      NEXUS_API_URL: "http://nexus:3000"
       LITELLM_API_URL: "http://litellm:4000"
       REDIS_URL: "redis://redis:6379"
-      DATABASE_URL: ${DATABASE_URL}
+      DATABASE_URL: ${DATABASE_URL:-}
     volumes:
-      - secrets_volume:/secrets:ro
+      - secrets_volume:/run/nyra-secrets:ro
     depends_on:
       redis:
         condition: service_healthy
@@ -173,19 +141,47 @@ services:
     restart: unless-stopped
     networks:
       - nyra-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
-      interval: 15s
-      timeout: 5s
-      retries: 3
 
-  # ============================================================================
-  # LOCAL TOOLKITS
-  # ============================================================================
+  n8n:
+    build:
+      context: ../../../
+      dockerfile: infra/docker/n8n/Dockerfile
+      args:
+        N8N_TWENTY_NODES_GIT: ${N8N_TWENTY_NODES_GIT:-}
+        N8N_EXTRA_PACKAGES: ${N8N_EXTRA_PACKAGES:-}
+    container_name: nyra-n8n
+    profiles: ["apps"]
+    restart: unless-stopped
+    depends_on:
+      redis:
+        condition: service_healthy
+      litellm:
+        condition: service_healthy
+    environment:
+      N8N_HOST: ${N8N_HOST:-localhost}
+      N8N_PORT: "5678"
+      N8N_PROTOCOL: http
+      NODE_ENV: production
+      WEBHOOK_URL: http://localhost:5678/
+      GENERIC_TIMEZONE: ${TIMEZONE:-UTC}
+      DB_TYPE: postgresdb
+      DB_POSTGRESDB_HOST: ${DB_POSTGRESDB_HOST:-postgres}
+      DB_POSTGRESDB_PORT: ${DB_POSTGRESDB_PORT:-5432}
+      DB_POSTGRESDB_DATABASE: ${DB_POSTGRESDB_DATABASE:-n8n}
+      DB_POSTGRESDB_USER: ${DB_POSTGRESDB_USER:-nyra}
+      DB_POSTGRESDB_PASSWORD: ${DB_POSTGRESDB_PASSWORD:-}
+      N8N_ENCRYPTION_KEY: ${N8N_ENCRYPTION_KEY:-}
+    ports:
+      - "5678:5678"
+    volumes:
+      - n8n_data:/home/node/.n8n
+    networks:
+      - nyra-network
 
   docker-mcp-toolkit:
     image: docker/mcp-toolkit:latest
     container_name: nyra-docker-toolkit
+    profiles: ["apps"]
     ports:
       - "8811:8811"
     environment:
@@ -193,36 +189,28 @@ services:
       DOCKER_HOST: unix:///var/run/docker.sock
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - /home/user/ProjectNyra:/workspace
+      - ../../../:/workspace
     restart: unless-stopped
     networks:
       - nyra-network
-
-  # ============================================================================
-  # MONITORING & UTILITIES
-  # ============================================================================
 
   postgres-client:
     image: postgres:16-alpine
     container_name: nyra-postgres-client
+    profiles: ["debug"]
     environment:
-      PGPASSWORD: ${POSTGRES_PASSWORD}
-    entrypoint: sleep infinity
+      PGPASSWORD: ${POSTGRES_PASSWORD:-}
+    entrypoint: ["sleep", "infinity"]
     volumes:
-      - secrets_volume:/secrets:ro
+      - secrets_volume:/run/nyra-secrets:ro
     restart: unless-stopped
     networks:
       - nyra-network
-    profiles:
-      - debug
-
-  # ============================================================================
-  # VOLUMES & NETWORKS
-  # ============================================================================
 
 volumes:
   redis_data:
   secrets_volume:
+  n8n_data:
 
 networks:
   nyra-network:
