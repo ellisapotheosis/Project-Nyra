@@ -106,7 +106,7 @@ jobs:
         run: ${{ steps.detect-package-manager.outputs.manager }} run generate
       - name: Upload artifact
         if: steps.pages-capability.outputs.can_deploy == 'true'
-        uses: actions/upload-pages-artifact@v4
+        uses: actions/upload-pages-artifact@v5
         with:
           path: ./dist
       - name: Pages deploy skipped summary
