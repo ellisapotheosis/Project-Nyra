@@ -338,23 +338,44 @@ services:
       timeout: 10s
       retries: 3
 
+  # ── Qdrant (vector store for OpenMemory MCP) ─────────────────────────────
+  # Note: qdrant image is distroless (no curl/wget) — no healthcheck possible.
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: nyra-qdrant
+    restart: unless-stopped
+    volumes:
+      - qdrant_data:/qdrant/storage
+    networks: [nyra_net]
+
   # ── OpenMemory MCP (self-hosted mem0 MCP server) ─────────────────────────
-  # TODO: Find correct Docker image. mem0ai/openmemory-mcp doesn't exist on Docker Hub.
-  # May need to build from https://github.com/mem0ai/mem0/tree/main/openmemory
-  # Uncomment and update image once verified:
-  # openmemory-mcp:
-  #   image: mem0ai/openmemory-mcp:latest
-  #   container_name: nyra-openmemory-mcp
-  #   restart: unless-stopped
-  #   depends_on:
-  #     mem0-rest:
-  #       condition: service_healthy
-  #   environment:
-  #     OPENAI_API_KEY: ${OPENAI_API_KEY}
-  #     MEM0_API_URL: http://nyra-mem0-rest:5000
-  #   ports:
-  #     - "8765:8765"
-  #   networks: [nyra_net]
+  # Built from source: github.com/mem0ai/mem0/tree/main/openmemory/api
+  # No published Docker image exists; Dockerfile sparse-clones the repo at build time.
+  openmemory-mcp:
+    build:
+      context: ../../../services/openmemory-mcp
+    container_name: nyra-openmemory-mcp
+    restart: unless-stopped
+    depends_on:
+      qdrant:
+        condition: service_started
+    environment:
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      QDRANT_HOST: nyra-qdrant
+      QDRANT_PORT: "6333"
+      USER: nyra
+      LLM_PROVIDER: openai
+      LLM_MODEL: gpt-4o-mini
+      EMBEDDER_PROVIDER: openai
+      EMBEDDER_MODEL: text-embedding-3-small
+    ports:
+      - "8765:8765"
+    networks: [nyra_net]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8765/docs"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   # NOTE: Gitea is managed by its own compose file (docker-compose.gitea.yml)
   # and runs as oracle-gitea on port 3100. Do not define it here to avoid
@@ -415,5 +436,6 @@ volumes:
   grafana_data:
   openwebui_data:
   falkordb_data:
+  qdrant_data:
   archon_data:
   nyra_secrets:

@@ -2,7 +2,7 @@
   "mcpServers": {
     "nexus-router": {
       "type": "sse",
-      "url": "http://orchestrator.trex-fiordland.ts.net:4000/mcp/sse"
+      "url": "http://orchestrator.trex-fiordland.ts.net:6000/mcp/sse"
     },
     "ssh": {
       "command": "npx",
@@ -22,6 +22,10 @@
         "INFISICAL_UNIVERSAL_AUTH_CLIENT_ID": "${INFISICAL_UNIVERSAL_AUTH_CLIENT_ID}",
         "INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET": "${INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET}"
       }
+    },
+    "openmemory": {
+      "type": "sse",
+      "url": "http://100.64.0.3:8765/mcp/claude/sse/nyra"
     },
     "serena": {
       "type": "stdio",
