@@ -503,6 +503,11 @@ gitea-setup-summary-*.md
 !external/pocket-tts-openai/
 !external/archon/
 data/pockettts/
+data/gitea/
+data/gitea-db/
+
+# llxprt local cache (npm prefix + jefe binary)
+.llxprt/
 
 ################################################################################
 # Archon Runtime

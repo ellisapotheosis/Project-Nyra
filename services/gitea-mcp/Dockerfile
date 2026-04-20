@@ -14,7 +14,8 @@ RUN apk add --no-cache \
     dumb-init
 
 # Create app user for security
-RUN addgroup -g 1000 app && adduser -D -u 1000 -G app app
+RUN addgroup -S app 2>/dev/null || addgroup app 2>/dev/null || true && \
+    adduser -D -S app 2>/dev/null || adduser -D app 2>/dev/null || true
 
 # Set working directory
 WORKDIR /app
@@ -23,7 +24,7 @@ WORKDIR /app
 COPY --chown=app:app package*.json ./
 
 # Install dependencies
-RUN npm ci --only=production && \
+RUN npm install --omit=dev && \
     npm cache clean --force && \
     rm -rf /root/.npm
 

@@ -1,15 +1,15 @@
 # ============================================================================
-# Project Nyra - Production Gitea Stack
+# Project Nyra - Complete Gitea Infrastructure
 # ============================================================================
-# Consolidated configuration with full CI/CD, AI review, and MCP integration
-# Designed for orchestrator hosting with Oracle backup/mirror
+# Enhanced production setup integrating all discovered configurations
+# Includes: CI/CD, AI review, monitoring, Oracle backup, MCP integration
 # ============================================================================
 
 version: '3.9'
 
 services:
   # ==========================================
-  # SECRETS MANAGEMENT
+  # SECRETS & CONFIGURATION MANAGEMENT
   # ==========================================
   nyra-secrets-init:
     build:
@@ -32,9 +32,10 @@ services:
     labels:
       - "nyra.service=secrets-init"
       - "nyra.category=infrastructure"
+      - "nyra.machine=${NYRA_MACHINE:-orchestrator}"
 
   # ==========================================
-  # DATABASE (PostgreSQL 16)
+  # CORE DATABASE CLUSTER
   # ==========================================
   gitea-db:
     image: postgres:16-alpine
@@ -46,13 +47,14 @@ services:
       POSTGRES_DB: gitea
       POSTGRES_USER: gitea
       POSTGRES_PASSWORD_FILE: /run/nyra-secrets/gitea_db_pass
-      POSTGRES_INITDB_ARGS: "--auth-host=scram-sha-256"
+      POSTGRES_INITDB_ARGS: "--auth-host=scram-sha-256 --data-checksums"
+      PGDATA: /var/lib/postgresql/data/pgdata
     ports:
       - "${GITEA_DB_PORT:-5433}:5432"
     volumes:
       - gitea_db_data:/var/lib/postgresql/data
       - nyra_secrets:/run/nyra-secrets:ro
-      - ./infra/configs/gitea/init-scripts:/docker-entrypoint-initdb.d:ro
+      - ./infra/configs/gitea/db-init:/docker-entrypoint-initdb.d:ro
     networks:
       - nyra-net
     restart: unless-stopped
@@ -62,73 +64,132 @@ services:
       timeout: 5s
       retries: 10
       start_period: 30s
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '2'
+        reservations:
+          memory: 512M
+          cpus: '0.5'
     labels:
       - "nyra.service=gitea-db"
       - "nyra.category=database"
       - "nyra.machine=${NYRA_MACHINE:-orchestrator}"
 
   # ==========================================
-  # GITEA SERVER
+  # REDIS CLUSTER (Cache & Sessions)
+  # ==========================================
+  gitea-redis:
+    image: redis:7-alpine
+    container_name: nyra-gitea-redis
+    command: >
+      redis-server
+      --appendonly yes
+      --appendfsync everysec
+      --maxmemory 1gb
+      --maxmemory-policy allkeys-lru
+      --requirepass "$$(cat /run/secrets/redis_password)"
+      --save 900 1
+      --save 300 10
+      --save 60 10000
+    volumes:
+      - gitea_redis_data:/data
+      - nyra_secrets:/run/secrets:ro
+    networks:
+      - nyra-net
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "--no-auth-warning", "-a", "$$(cat /run/secrets/redis_password)", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '1'
+    labels:
+      - "nyra.service=gitea-redis"
+      - "nyra.category=cache"
+
+  # ==========================================
+  # GITEA SERVER (Enhanced Configuration)
   # ==========================================
   gitea:
     image: docker.gitea.com/gitea:1.25.4
     container_name: nyra-gitea
     depends_on:
-      - nyra-secrets-init
+      gitea-db:
+        condition: service_healthy
+      gitea-redis:
+        condition: service_healthy
     environment:
-      # User and permissions
+      # Core Configuration
       USER_UID: 1000
       USER_GID: 1000
+      GITEA_WORK_DIR: /data/gitea
 
-      # Database configuration - SQLite for rapid deployment
-      GITEA__database__DB_TYPE: sqlite3
-      GITEA__database__PATH: /data/gitea/gitea.db
+      # Database Configuration
+      GITEA__database__DB_TYPE: postgres
+      GITEA__database__HOST: gitea-db:5432
+      GITEA__database__NAME: gitea
+      GITEA__database__USER: gitea
+      GITEA__database__PASSWD__FILE: /run/nyra-secrets/gitea_db_pass
+      GITEA__database__CHARSET: utf8
+      GITEA__database__SSL_MODE: disable
 
-      # Server configuration - Force HTTP mode
-      GITEA__server__ROOT_URL: http://localhost:3100/
-      GITEA__server__SSH_DOMAIN: localhost
-      GITEA__server__SSH_PORT: 2222
+      # Server Configuration
+      GITEA__server__ROOT_URL: ${GITEA_ROOT_URL:-https://git.ratehunter.net/}
+      GITEA__server__SSH_DOMAIN: ${GITEA_SSH_DOMAIN:-git.ratehunter.net}
+      GITEA__server__SSH_PORT: ${GITEA_SSH_PORT:-2222}
       GITEA__server__SSH_LISTEN_PORT: 22
-      GITEA__server__DOMAIN: localhost
-      GITEA__server__PROTOCOL: http
-      GITEA__server__HTTP_PORT: 3000
-      GITEA__server__CERT_FILE: ""
-      GITEA__server__KEY_FILE: ""
-      GITEA__server__ENABLE_HTTPS: "false"
+      GITEA__server__DOMAIN: ${GITEA_DOMAIN:-git.ratehunter.net}
+      GITEA__server__PROTOCOL: ${GITEA_PROTOCOL:-https}
       GITEA__server__LFS_START_SERVER: "true"
       GITEA__server__ENABLE_GZIP: "true"
+      GITEA__server__LANDING_PAGE: login
+      GITEA__server__ENABLE_PPROF: ${GITEA_ENABLE_PPROF:-false}
 
-      # Security
+      # Security Configuration
       GITEA__security__SECRET_KEY__FILE: /run/nyra-secrets/gitea_secret_key
       GITEA__security__INTERNAL_TOKEN__FILE: /run/nyra-secrets/gitea_internal_token
       GITEA__security__INSTALL_LOCK: "true"
       GITEA__security__MIN_PASSWORD_LENGTH: 12
       GITEA__security__PASSWORD_COMPLEXITY: "lower,upper,digit,spec"
+      GITEA__security__PASSWORD_HASH_ALGO: argon2
+      GITEA__security__SUCCESSFUL_TOKENS_CACHE_SIZE: 20
 
-      # Service settings
+      # Service Configuration
       GITEA__service__DISABLE_REGISTRATION: "true"
       GITEA__service__REQUIRE_SIGNIN_VIEW: "true"
       GITEA__service__DEFAULT_BRANCH: main
       GITEA__service__DEFAULT_KEEP_EMAIL_PRIVATE: "true"
       GITEA__service__ENABLE_NOTIFY_MAIL: "true"
+      GITEA__service__AUTO_WATCH_NEW_REPOS: "true"
+      GITEA__service__DEFAULT_ORG_VISIBILITY: private
 
-      # Actions (CI/CD)
+      # Actions & CI/CD
       GITEA__actions__ENABLED: "true"
       GITEA__actions__DEFAULT_ACTIONS_URL: github
       GITEA__actions__ARTIFACT_RETENTION_DAYS: 30
+      GITEA__actions__LOG_RETENTION_DAYS: 30
 
-      # Repository settings
+      # Repository Configuration
       GITEA__repository__ROOT: /data/git/repositories
       GITEA__repository__DEFAULT_PRIVATE: private
       GITEA__repository__ENABLE_PUSH_CREATE_USER: "true"
       GITEA__repository__ENABLE_PUSH_CREATE_ORG: "true"
       GITEA__repository__DEFAULT_REPO_UNITS: "repo.code,repo.releases,repo.issues,repo.pulls,repo.wiki,repo.actions"
+      GITEA__repository__PREFERRED_LICENSES: "MIT,Apache-2.0,GPL-3.0,BSD-3-Clause"
+      GITEA__repository__DISABLE_HTTP_GIT: "false"
 
-      # Webhook settings for GitHub sync
-      GITEA__webhook__ALLOWED_HOST_LIST: "github.com,api.github.com,*.github.com"
+      # Webhook Configuration
+      GITEA__webhook__ALLOWED_HOST_LIST: "github.com,api.github.com,*.github.com,*.ratehunter.net,localhost,127.0.0.1"
       GITEA__webhook__SKIP_TLS_VERIFY: "false"
+      GITEA__webhook__DELIVER_TIMEOUT: 15
 
-      # Email settings
+      # Email Configuration
       GITEA__mailer__ENABLED: "true"
       GITEA__mailer__SMTP_ADDR: ${SMTP_HOST:-smtp.gmail.com}
       GITEA__mailer__SMTP_PORT: ${SMTP_PORT:-587}
@@ -138,18 +199,28 @@ services:
       GITEA__mailer__USE_SENDMAIL: "false"
       GITEA__mailer__HELO_HOSTNAME: ${GITEA_DOMAIN:-git.ratehunter.net}
 
-      # Log settings
-      GITEA__log__LEVEL: ${LOG_LEVEL:-Info}
-      GITEA__log__ROOT_PATH: /data/gitea/log
-
-      # Performance settings
+      # Cache & Session Configuration
       GITEA__cache__ENABLED: "true"
       GITEA__cache__ADAPTER: redis
-      GITEA__cache__HOST: redis://gitea-redis:6379/0
+      GITEA__cache__HOST: redis://:$$(cat /run/nyra-secrets/redis_password)@gitea-redis:6379/0
+      GITEA__cache__ITEM_TTL: 16h
 
-      # Session settings
       GITEA__session__PROVIDER: redis
-      GITEA__session__PROVIDER_CONFIG: redis://gitea-redis:6379/1
+      GITEA__session__PROVIDER_CONFIG: redis://:$$(cat /run/nyra-secrets/redis_password)@gitea-redis:6379/1
+      GITEA__session__COOKIE_SECURE: "true"
+      GITEA__session__SAME_SITE: lax
+
+      # Performance & Logging
+      GITEA__log__LEVEL: ${LOG_LEVEL:-Info}
+      GITEA__log__ROOT_PATH: /data/gitea/log
+      GITEA__log__MODE: console,file
+      GITEA__log__BUFFER_LEN: 10000
+
+      # API & Metrics
+      GITEA__api__ENABLE_SWAGGER: "true"
+      GITEA__api__MAX_RESPONSE_ITEMS: 50
+      GITEA__metrics__ENABLED: "true"
+      GITEA__metrics__TOKEN__FILE: /run/nyra-secrets/gitea_metrics_token
 
     ports:
       - "${GITEA_PORT:-3100}:3000"
@@ -158,6 +229,7 @@ services:
       - gitea_data:/data
       - nyra_secrets:/run/nyra-secrets:ro
       - ./infra/configs/gitea/app.ini.d:/etc/gitea/conf.d:ro
+      - ./infra/configs/gitea/templates:/data/gitea/templates:ro
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
     networks:
@@ -169,11 +241,19 @@ services:
       timeout: 10s
       retries: 3
       start_period: 60s
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+          cpus: '4'
+        reservations:
+          memory: 1G
+          cpus: '1'
     labels:
       - "nyra.service=gitea"
       - "nyra.role=git-orchestrator"
       - "nyra.machine=${NYRA_MACHINE:-orchestrator}"
-      # Traefik labels for reverse proxy
+      # Traefik/Reverse Proxy Labels
       - "traefik.enable=true"
       - "traefik.http.routers.gitea.rule=Host(`git.ratehunter.net`)"
       - "traefik.http.routers.gitea.entrypoints=websecure"
@@ -181,33 +261,7 @@ services:
       - "traefik.http.services.gitea.loadbalancer.server.port=3000"
 
   # ==========================================
-  # REDIS (Cache & Sessions)
-  # ==========================================
-  gitea-redis:
-    image: redis:7-alpine
-    container_name: nyra-gitea-redis
-    command: >
-      redis-server
-      --appendonly yes
-      --appendfsync everysec
-      --maxmemory 512mb
-      --maxmemory-policy allkeys-lru
-    volumes:
-      - gitea_redis_data:/data
-    networks:
-      - nyra-net
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
-    labels:
-      - "nyra.service=gitea-redis"
-      - "nyra.category=cache"
-
-  # ==========================================
-  # INFISICAL AGENT (Secrets Sync)
+  # INFISICAL AGENT (Live Secrets Sync)
   # ==========================================
   infisical-agent-gitea:
     build:
@@ -223,7 +277,7 @@ services:
       INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
       INFISICAL_TOKEN: ${INFISICAL_TOKEN}
       INFISICAL_ENV: ${INFISICAL_ENV:-prod}
-      INFISICAL_PATH: ${INFISICAL_PATH:-/shared}
+      INFISICAL_PATH: ${INFISICAL_PATH:-/nyra/gitea}
       INFISICAL_POLL_INTERVAL: ${INFISICAL_POLL_INTERVAL:-300s}
     volumes:
       - nyra_secrets:/run/nyra-secrets
@@ -237,7 +291,7 @@ services:
       - "nyra.category=infrastructure"
 
   # ==========================================
-  # AI CODE REVIEWER
+  # AI CODE REVIEWER (Enhanced)
   # ==========================================
   gitea-ai-reviewer:
     build:
@@ -258,7 +312,12 @@ services:
       REVIEW_MAX_CHARS: ${REVIEW_MAX_CHARS:-18000}
       REVIEW_POST_AS_REVIEW: ${REVIEW_POST_AS_REVIEW:-true}
       REVIEW_LABEL: ${REVIEW_LABEL:-ai-reviewed}
-      REVIEW_SKIP_PATHS: "vendor/,node_modules/,*.lock,*.min.js,*.min.css"
+      REVIEW_SKIP_PATHS: "vendor/,node_modules/,*.lock,*.min.js,*.min.css,dist/,build/"
+      # Enhanced AI Features
+      REVIEW_ANALYZE_SECURITY: "true"
+      REVIEW_ANALYZE_PERFORMANCE: "true"
+      REVIEW_ANALYZE_ARCHITECTURE: "true"
+      REVIEW_AUTO_MERGE_THRESHOLD: "95"
     ports:
       - "${AI_REVIEWER_PORT:-8091}:8000"
     volumes:
@@ -278,7 +337,7 @@ services:
       - "nyra.category=automation"
 
   # ==========================================
-  # GITEA ACTIONS RUNNER (Standard)
+  # GITEA ACTIONS RUNNERS
   # ==========================================
   gitea-act-runner:
     image: nyra/gitea-act-runner:0.2.11
@@ -298,9 +357,13 @@ services:
       GITEA_RUNNER_CONFIG_TEMPLATE: /opt/nyra/runner-config.yaml
       GITEA_RUNNER_CONFIG_PATH: /data/config.yaml
       GITEA_RUNNER_NAME: nyra-runner-${NYRA_MACHINE:-orchestrator}
-      GITEA_RUNNER_LABELS: "ubuntu-latest:docker://node:20-bookworm,docker:host,self-hosted:host,nyra:host"
+      GITEA_RUNNER_LABELS: "ubuntu-latest:docker://node:20-bookworm,docker:host,self-hosted:host,nyra:host,postgres:docker://postgres:16-alpine"
       RUNNER_CACHE_DIR: /cache
       DOCKER_HOST: unix:///var/run/docker.sock
+      # Enhanced Runner Features
+      RUNNER_UPDATE_INTERVAL: "24h"
+      RUNNER_FETCH_TIMEOUT: "30s"
+      RUNNER_FETCH_INTERVAL: "5s"
     volumes:
       - act_runner_data:/data
       - act_runner_cache:/cache
@@ -311,6 +374,14 @@ services:
       - nyra-net
     entrypoint: ["/bin/sh", "/usr/local/bin/bootstrap-act-runner.sh"]
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 8G
+          cpus: '4'
+        reservations:
+          memory: 2G
+          cpus: '1'
     profiles:
       - actions
     labels:
@@ -318,9 +389,6 @@ services:
       - "nyra.machine=${NYRA_MACHINE:-orchestrator}"
       - "nyra.runner.type=standard"
 
-  # ==========================================
-  # GITEA ACTIONS RUNNER (Large/GPU)
-  # ==========================================
   gitea-act-runner-large:
     image: nyra/gitea-act-runner:0.2.11
     build:
@@ -342,9 +410,9 @@ services:
       GITEA_RUNNER_LABELS: "ubuntu-latest-large:docker://node:20-bookworm,docker-large:host,self-hosted-large:host,gpu:host,nyra-large:host"
       RUNNER_CACHE_DIR: /cache
       DOCKER_HOST: unix:///var/run/docker.sock
-      # GPU access for large jobs
-      NVIDIA_VISIBLE_DEVICES: all
-      NVIDIA_DRIVER_CAPABILITIES: compute,utility
+      # GPU Environment
+      NVIDIA_VISIBLE_DEVICES: "all"
+      NVIDIA_DRIVER_CAPABILITIES: "compute,utility"
     volumes:
       - act_runner_large_data:/data
       - act_runner_large_cache:/cache
@@ -357,6 +425,12 @@ services:
     restart: unless-stopped
     deploy:
       resources:
+        limits:
+          memory: 24G
+          cpus: '12'
+        reservations:
+          memory: 8G
+          cpus: '4'
         reservations:
           devices:
             - driver: nvidia
@@ -370,7 +444,7 @@ services:
       - "nyra.runner.type=large"
 
   # ==========================================
-  # GITEA MCP SERVER
+  # GITEA MCP SERVER (Enhanced)
   # ==========================================
   gitea-mcp:
     build:
@@ -388,6 +462,10 @@ services:
       GITEA_REPO: ${GITEA_REPO:-Project-Nyra}
       MCP_SERVER_NAME: gitea-mcp-server
       LOG_LEVEL: ${LOG_LEVEL:-info}
+      # Enhanced MCP Features
+      MCP_MAX_CONNECTIONS: 100
+      MCP_RATE_LIMIT: "1000/hour"
+      MCP_ENABLE_METRICS: "true"
     ports:
       - "${GITEA_MCP_PORT:-8092}:3100"
     volumes:
@@ -426,6 +504,14 @@ services:
       SYNC_DIRECTION: ${SYNC_DIRECTION:-bidirectional}
       CONFLICT_RESOLUTION: ${CONFLICT_RESOLUTION:-gitea_wins}
       LOG_LEVEL: ${LOG_LEVEL:-info}
+      # Enhanced Sync Features
+      SYNC_BRANCHES: ${SYNC_BRANCHES:-main,develop}
+      SYNC_TAGS: "true"
+      SYNC_RELEASES: "true"
+      SYNC_ISSUES: ${SYNC_ISSUES:-false}
+      SYNC_PULL_REQUESTS: ${SYNC_PULL_REQUESTS:-false}
+    ports:
+      - "${GITHUB_SYNC_PORT:-8093}:8080"
     volumes:
       - nyra_secrets:/run/nyra-secrets:ro
       - github_sync_data:/data
@@ -437,6 +523,56 @@ services:
     labels:
       - "nyra.service=github-mirror"
       - "nyra.category=synchronization"
+
+  # ==========================================
+  # MONITORING & OBSERVABILITY
+  # ==========================================
+  gitea-prometheus:
+    image: prom/prometheus:v2.51.0
+    container_name: nyra-gitea-prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=30d'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--web.enable-lifecycle'
+      - '--web.enable-admin-api'
+    ports:
+      - "${PROMETHEUS_PORT:-9090}:9090"
+    volumes:
+      - ./infra/configs/prometheus/gitea-prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    networks:
+      - nyra-net
+    restart: unless-stopped
+    profiles:
+      - monitoring
+    labels:
+      - "nyra.service=prometheus"
+      - "nyra.category=monitoring"
+
+  gitea-grafana:
+    image: grafana/grafana:11.1.3
+    container_name: nyra-gitea-grafana
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD_FILE: /run/nyra-secrets/grafana_admin_pass
+      GF_INSTALL_PLUGINS: grafana-piechart-panel,grafana-worldmap-panel
+    ports:
+      - "${GRAFANA_PORT:-3005}:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./infra/configs/grafana/gitea-dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./infra/configs/grafana/datasources:/etc/grafana/provisioning/datasources:ro
+      - nyra_secrets:/run/nyra-secrets:ro
+    networks:
+      - nyra-net
+    restart: unless-stopped
+    profiles:
+      - monitoring
+    labels:
+      - "nyra.service=grafana"
+      - "nyra.category=monitoring"
 
 # ==========================================
 # VOLUMES
@@ -475,6 +611,12 @@ volumes:
 
   github_sync_data:
     name: nyra-github-sync-data
+
+  prometheus_data:
+    name: nyra-prometheus-data
+
+  grafana_data:
+    name: nyra-grafana-data
 
   nyra_secrets:
     name: nyra-secrets
