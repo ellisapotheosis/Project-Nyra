@@ -475,7 +475,6 @@ bootstrap/
 .env.orchestrator
 .env.oracle
 .env.worker-*
-!.env.worker-*.template
 .env.portainer.orchestrator
 .env.portainer.edge
 .env.homeassistant-dashboard
