@@ -175,6 +175,7 @@ volumes:
 
 networks:
   worker-network:
+    name: nyra-worker-3060
     driver: bridge
     ipam:
       config:

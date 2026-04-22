@@ -321,10 +321,11 @@ services:
     depends_on:
       falkordb:
         condition: service_healthy
-      postgres:
-        condition: service_healthy
+      qdrant:
+        condition: service_started
     environment:
-      DATABASE_URL: postgresql://${POSTGRES_USER:-nyra}:${POSTGRES_PASSWORD}@nyra-postgres:5432/${POSTGRES_DB:-nyra}
+      QDRANT_HOST: nyra-qdrant
+      QDRANT_PORT: "6333"
       FALKORDB_URL: redis://nyra-falkordb:6379
       OPENAI_API_KEY: ${OPENAI_API_KEY}
       LITELLM_API_URL: ${LITELLM_API_BASE:-http://orchestrator.trex-fiordland.ts.net:4000/v1}

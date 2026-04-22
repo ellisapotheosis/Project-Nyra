@@ -1,35 +1,29 @@
 """
 mem0 REST API server for Project Nyra.
-Exposes mem0 Memory operations over HTTP with pgvector + FalkorDB backends.
+Exposes mem0 Memory operations over HTTP with Qdrant + FalkorDB backends.
 """
 import os
 from typing import Optional
-from urllib.parse import urlparse
 
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from mem0 import Memory
 
 
-def _parse_db_url(url: str) -> dict:
-    p = urlparse(url)
-    return {
-        "host": p.hostname,
-        "port": p.port or 5432,
-        "user": p.username,
-        "password": p.password,
-        "dbname": p.path.lstrip("/"),
-    }
-
-
 def _build_config() -> dict:
-    db = _parse_db_url(os.environ["DATABASE_URL"])
     openai_key = os.environ.get("OPENAI_API_KEY", "")
+    qdrant_host = os.environ.get("QDRANT_HOST", "nyra-qdrant")
+    qdrant_port = int(os.environ.get("QDRANT_PORT", "6333"))
 
     cfg: dict = {
         "vector_store": {
-            "provider": "pgvector",
-            "config": {**db, "embedding_model_dims": 1536},
+            "provider": "qdrant",
+            "config": {
+                "host": qdrant_host,
+                "port": qdrant_port,
+                "embedding_model_dims": 1536,
+                "collection_name": "mem0-nyra",
+            },
         },
         "llm": {
             "provider": "openai",
