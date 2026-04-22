@@ -19,7 +19,7 @@ services:
       INFISICAL_TOKEN: ${INFISICAL_TOKEN:-}
       INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
       INFISICAL_ENV: ${INFISICAL_ENV:-prod}
-      INFISICAL_PATH: ${INFISICAL_PATH:-/machines/worker-rtx3090ti}
+      INFISICAL_PATH: ${INFISICAL_PATH:-/workers/worker-rtx3090ti}
     volumes:
       - nyra_secrets:/run/nyra-secrets
     networks:
@@ -39,10 +39,77 @@ services:
       INFISICAL_TOKEN: ${INFISICAL_TOKEN}
       INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
       INFISICAL_ENV: ${INFISICAL_ENV:-prod}
-      INFISICAL_PATH: ${INFISICAL_PATH:-/machines/worker-rtx3090ti}
+      INFISICAL_PATH: ${INFISICAL_PATH:-/workers/worker-rtx3090ti}
       INFISICAL_POLL_INTERVAL: ${INFISICAL_POLL_INTERVAL:-60}
     volumes:
       - nyra_secrets:/run/nyra-secrets
+    networks:
+      - worker-network
+
+  # ============================================================================
+  # Portainer Edge Agent
+  # ============================================================================
+  portainer-edge-agent:
+    image: portainer/agent:2.27.9
+    container_name: worker-3090-portainer-agent
+    restart: unless-stopped
+    environment:
+      EDGE: "1"
+      EDGE_ID: ${PORTAINER_EDGE_ID}
+      EDGE_KEY: ${PORTAINER_EDGE_KEY}
+      EDGE_INSECURE_POLL: ${PORTAINER_EDGE_INSECURE_POLL:-1}
+      AGENT_CLUSTER_ADDR: tasks.portainer-edge-agent
+      AGENT_TAGS: ${PORTAINER_AGENT_TAGS:-nyra,edge}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/lib/docker/volumes:/var/lib/docker/volumes
+    networks:
+      - worker-network
+
+  # ============================================================================
+  # LiteLLM Proxy
+  # ============================================================================
+  litellm:
+    image: ghcr.io/berriai/litellm:main-latest
+    container_name: worker-3090-litellm
+    hostname: worker-3090-litellm
+    restart: unless-stopped
+    ports:
+      - '${LITELLM_PORT:-4000}:4000'
+    environment:
+      - MODEL_ID=worker-3090-vllm
+      - VLLM_BASE_URL=http://worker-3090-vllm:8000/v1
+      - LITELLM_LOG=INFO
+    volumes:
+      - ./litellm-config.yaml:/app/config.yaml:ro
+      - nyra_secrets:/run/nyra-secrets:ro
+    command: --config /app/config.yaml --port 4000
+    depends_on:
+      vllm:
+        condition: service_healthy
+      secrets-init:
+        condition: service_completed_successfully
+    networks:
+      - worker-network
+
+  # ============================================================================
+  # Redis Cache
+  # ============================================================================
+  redis:
+    image: redis:7-alpine
+    container_name: worker-3090-redis
+    hostname: worker-3090-redis
+    restart: unless-stopped
+    ports:
+      - '${REDIS_PORT:-6379}:6379'
+    command: redis-server --maxmemory 4gb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 3
     networks:
       - worker-network
 
@@ -115,6 +182,32 @@ services:
       - worker-network
 
   # ============================================================================
+  # Model Switcher
+  # ============================================================================
+  model-switcher:
+    image: python:3.11-slim
+    container_name: worker-3090-switcher
+    hostname: worker-3090-switcher
+    restart: unless-stopped
+    volumes:
+      - ./model-switcher:/app
+      - vllm-models:/models
+      - nyra_secrets:/run/nyra-secrets:ro
+    environment:
+      - VLLM_URL=http://worker-3090-vllm:8000
+      - AVAILABLE_MODELS=meta-llama/Llama-3.1-8B-Instruct,Qwen/Qwen2.5-32B-Instruct,mistralai/Mixtral-8x22B-Instruct-v0.1
+      - DEFAULT_MODEL=meta-llama/Llama-3.1-8B-Instruct
+      - SPECIALIZATION=analysis,reasoning,code
+    command: python /app/switcher.py
+    depends_on:
+      vllm:
+        condition: service_healthy
+      secrets-init:
+        condition: service_completed_successfully
+    networks:
+      - worker-network
+
+  # ============================================================================
   # LMCache Server (KV Cache sharing)
   # ============================================================================
   lmcache:
@@ -153,6 +246,37 @@ services:
       - worker-network
 
   # ============================================================================
+  # Health Monitor
+  # ============================================================================
+  health:
+    image: curlimages/curl:latest
+    container_name: worker-3090-health
+    hostname: worker-3090-health
+    restart: unless-stopped
+    depends_on:
+      - vllm
+      - litellm
+      - secrets-init
+    environment:
+      - VLLM_URL=http://worker-3090-vllm:8000
+      - LITELLM_URL=http://worker-3090-litellm:4000
+      - ORCHESTRATOR_URL=${ORCHESTRATOR_URL:-http://100.64.0.10:7000}
+      - WORKER_ID=worker-3090
+      - CHECK_INTERVAL=60
+    volumes:
+      - nyra_secrets:/run/nyra-secrets:ro
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        while true; do
+          VLLM_STATUS=$$(curl -sf "$$VLLM_URL/health" && echo "OK" || echo "FAIL")
+          LITELLM_STATUS=$$(curl -sf "$$LITELLM_URL/health" && echo "OK" || echo "FAIL")
+          sleep $$CHECK_INTERVAL
+        done
+    networks:
+      - worker-network
+
+  # ============================================================================
   # Promtail - Log Shipper to Loki
   # ============================================================================
   promtail:
@@ -167,7 +291,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - nyra_secrets:/run/nyra-secrets:ro
     environment:
-      - LOKI_URL=${LOKI_URL:-http://loki:3100}
+      - LOKI_URL=${LOKI_URL:-http://oracle.trex-fiordland.ts.net:3100}
       - WORKER_ID=${WORKER_ID:-worker-3090}
       - HOSTNAME=worker-3090
     command: -config.file=/etc/promtail/config.yml
@@ -248,6 +372,8 @@ volumes:
   vllm-models:
     driver: local
   lmcache-data:
+    driver: local
+  redis-data:
     driver: local
   nyra_secrets:
   ollama-models:

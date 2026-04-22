@@ -47,6 +47,7 @@ DEFAULT_PROFILES ?= core,gateway,workflow,crm,archon,apps,observability,vector
   voice-3060 voice-5090 voice-3090ti voice-orch voice-distributed \
   cf-orch-up cf-orch-down cf-orch-logs \
   oracle-apps-up oracle-apps-down oracle-webapp-up oracle-crm-api-up oracle-landing-up \
+  oracle-nexus-up oracle-litellm-up oracle-letta-up oracle-nyra-orchestrator-up \
   up-all down-all cluster-status
 
 .DEFAULT_GOAL := help
@@ -98,6 +99,10 @@ help:
 	@echo "make oracle-webapp-up   Start webapp only"
 	@echo "make oracle-crm-api-up  Start crm-api only"
 	@echo "make oracle-landing-up  Start landing page only"
+	@echo "make oracle-nexus-up    Start Nexus only"
+	@echo "make oracle-litellm-up  Start LiteLLM only"
+	@echo "make oracle-letta-up    Start Letta only"
+	@echo "make oracle-nyra-orchestrator-up Start Nyra orchestrator only"
 
 cluster-status:
 	@echo "=== [ORCHESTRATOR] ==="
@@ -281,13 +286,25 @@ oracle-apps-down:
 	docker --context oracle compose -f $(ORACLE_COMPOSE) -f $(ORACLE_APPS_COMPOSE) --profile apps down
 
 oracle-webapp-up:
-	docker --context oracle compose -f $(ORACLE_APPS_COMPOSE) --profile apps up -d webapp
+	docker --context oracle compose -f $(ORACLE_COMPOSE) -f $(ORACLE_APPS_COMPOSE) --profile apps up -d webapp
 
 oracle-crm-api-up:
-	docker --context oracle compose -f $(ORACLE_APPS_COMPOSE) --profile apps up -d crm-api
+	docker --context oracle compose -f $(ORACLE_COMPOSE) -f $(ORACLE_APPS_COMPOSE) --profile apps up -d crm-api
 
 oracle-landing-up:
-	docker --context oracle compose -f $(ORACLE_APPS_COMPOSE) --profile apps up -d landing
+	docker --context oracle compose -f $(ORACLE_COMPOSE) -f $(ORACLE_APPS_COMPOSE) --profile apps up -d landing
+
+oracle-nexus-up:
+	docker --context oracle compose -f $(ORACLE_COMPOSE) -f $(ORACLE_APPS_COMPOSE) --profile apps up -d nexus
+
+oracle-litellm-up:
+	docker --context oracle compose -f $(ORACLE_COMPOSE) -f $(ORACLE_APPS_COMPOSE) --profile apps up -d litellm
+
+oracle-letta-up:
+	docker --context oracle compose -f $(ORACLE_COMPOSE) -f $(ORACLE_APPS_COMPOSE) --profile apps up -d letta
+
+oracle-nyra-orchestrator-up:
+	docker --context oracle compose -f $(ORACLE_COMPOSE) -f $(ORACLE_APPS_COMPOSE) --profile apps up -d nyra_orchestrator
 
 secrets-init: check-host
 	@if [ -z "$(TOKEN)" ]; then echo "🚨 Error: TOKEN is required."; exit 1; fi
@@ -308,4 +325,3 @@ secrets-build: check-host
 secrets-up: check-host
 	@echo "🐾 🚀 Starting secrets sidecar for $(HOST)..."
 	docker compose -f infra/hosts/$(HOST)/docker-compose.yml --env-file infra/hosts/$(HOST)/.env.host --profile secrets up -d
-
