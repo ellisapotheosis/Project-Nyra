@@ -46,8 +46,7 @@ DEFAULT_PROFILES ?= core,gateway,workflow,crm,archon,apps,observability,vector
   gitea-up gitea-down gitea-ps twenty-crm-up twenty-crm-down \
   voice-3060 voice-5090 voice-3090ti voice-orch voice-distributed \
   cf-orch-up cf-orch-down cf-orch-logs \
-  oracle-apps-up oracle-apps-down oracle-webapp-up oracle-crm-api-up oracle-landing-up \
-  oracle-nexus-up oracle-litellm-up oracle-letta-up oracle-nyra-orchestrator-up \
+  oracle-apps-up oracle-apps-down oracle-quote-engine-up oracle-campaign-engine-up \
   up-all down-all cluster-status
 
 .DEFAULT_GOAL := help
@@ -96,13 +95,8 @@ help:
 	@echo "--- ORACLE APP STACK ---"
 	@echo "make oracle-apps-up     Start all oracle app-profile services"
 	@echo "make oracle-apps-down   Stop all oracle app-profile services"
-	@echo "make oracle-webapp-up   Start webapp only"
-	@echo "make oracle-crm-api-up  Start crm-api only"
-	@echo "make oracle-landing-up  Start landing page only"
-	@echo "make oracle-nexus-up    Start Nexus only"
-	@echo "make oracle-litellm-up  Start LiteLLM only"
-	@echo "make oracle-letta-up    Start Letta only"
-	@echo "make oracle-nyra-orchestrator-up Start Nyra orchestrator only"
+	@echo "make oracle-quote-engine-up Start quote_engine only"
+	@echo "make oracle-campaign-engine-up Start campaign_engine only"
 
 cluster-status:
 	@echo "=== [ORCHESTRATOR] ==="
@@ -276,8 +270,10 @@ cf-orch-logs:
 	docker compose -f $(CF_ORCH_COMPOSE) logs -f --tail=100
 
 # --- ORACLE APP STACK TARGETS ---
-# Apps run on Oracle VPS. Each service has its own target.
-# They use profile "apps" so they don't start with make up-oracle.
+# Apps run on Oracle VPS. They use profile \"apps\" so they don't start
+# with make up-oracle. Only app-only services from the mortgage stack live
+# in the overlay; infra services already defined in the canonical Oracle
+# compose stay there.
 
 oracle-apps-up:
 	docker --context oracle compose -f $(ORACLE_COMPOSE) -f $(ORACLE_APPS_COMPOSE) --profile apps up -d
@@ -285,26 +281,11 @@ oracle-apps-up:
 oracle-apps-down:
 	docker --context oracle compose -f $(ORACLE_COMPOSE) -f $(ORACLE_APPS_COMPOSE) --profile apps down
 
-oracle-webapp-up:
-	docker --context oracle compose -f $(ORACLE_COMPOSE) -f $(ORACLE_APPS_COMPOSE) --profile apps up -d webapp
+oracle-quote-engine-up:
+	docker --context oracle compose -f $(ORACLE_COMPOSE) -f $(ORACLE_APPS_COMPOSE) --profile apps up -d quote_engine
 
-oracle-crm-api-up:
-	docker --context oracle compose -f $(ORACLE_COMPOSE) -f $(ORACLE_APPS_COMPOSE) --profile apps up -d crm-api
-
-oracle-landing-up:
-	docker --context oracle compose -f $(ORACLE_COMPOSE) -f $(ORACLE_APPS_COMPOSE) --profile apps up -d landing
-
-oracle-nexus-up:
-	docker --context oracle compose -f $(ORACLE_COMPOSE) -f $(ORACLE_APPS_COMPOSE) --profile apps up -d nexus
-
-oracle-litellm-up:
-	docker --context oracle compose -f $(ORACLE_COMPOSE) -f $(ORACLE_APPS_COMPOSE) --profile apps up -d litellm
-
-oracle-letta-up:
-	docker --context oracle compose -f $(ORACLE_COMPOSE) -f $(ORACLE_APPS_COMPOSE) --profile apps up -d letta
-
-oracle-nyra-orchestrator-up:
-	docker --context oracle compose -f $(ORACLE_COMPOSE) -f $(ORACLE_APPS_COMPOSE) --profile apps up -d nyra_orchestrator
+oracle-campaign-engine-up:
+	docker --context oracle compose -f $(ORACLE_COMPOSE) -f $(ORACLE_APPS_COMPOSE) --profile apps up -d campaign_engine
 
 secrets-init: check-host
 	@if [ -z "$(TOKEN)" ]; then echo "🚨 Error: TOKEN is required."; exit 1; fi
