@@ -1,0 +1,68 @@
+# ============================================================================
+# Assistant Stack - Worker RTX 3090 Ti
+# ============================================================================
+# Nous Hermes 2 + OpenClaw + Hermes UI
+# Optimized for local GPU inference
+# ============================================================================
+
+version: '3.8'
+
+services:
+  # ============================================================================
+  # OpenClaw (Moltbot) - The Agent Brain
+  # ============================================================================
+  openclaw:
+    image: moltbot/moltbot:latest
+    container_name: assistant-openclaw
+    hostname: assistant-openclaw
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - OPENAI_API_BASE=http://vllm:8000/v1
+      - OPENAI_API_KEY=${NEXUS_ADMIN_TOKEN:-dummy}
+      - MEM0_API_KEY=${MEM0_API_KEY}
+      - TWENTY_API_KEY=${TWENTY_CRM_API_KEY}
+      - TWENTY_URL=${TWENTY_CRM_URL}
+      - NEXUS_URL=http://orchestrator:6000
+    volumes:
+      - ./config/openclaw:/home/node/.openclaw
+      - assistant-memory:/home/node/.memory
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    networks:
+      - worker-network
+      - assistant-mesh
+
+  # ============================================================================
+  # Hermes UI - Modern Interface for Nous Hermes 2
+  # ============================================================================
+  hermes-ui:
+    image: ghcr.io/nousresearch/hermes-ui:latest
+    container_name: assistant-hermes-ui
+    restart: unless-stopped
+    ports:
+      - '${HERMES_UI_PORT:-3080}:3000'
+    environment:
+      - BACKEND_URL=http://openclaw:18789
+      - DEFAULT_MODEL=nous-hermes2-solar:10.7b
+    depends_on:
+      - openclaw
+    networks:
+      - assistant-mesh
+
+networks:
+  worker-network:
+    external: true
+    name: nyra-worker-3090
+  assistant-mesh:
+    name: assistant-mesh
+    driver: bridge
+
+volumes:
+  assistant-memory:
+    driver: local

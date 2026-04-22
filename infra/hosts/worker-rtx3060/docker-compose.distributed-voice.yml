@@ -1,0 +1,28 @@
+version: '3.9'
+
+services:
+  unmute-stt:
+    image: ghcr.io/kyutai-labs/unmute:latest
+    container_name: worker-3060-unmute-stt
+    restart: unless-stopped
+    environment:
+      - UNMUTE_MODE=distributed
+      - UNMUTE_ROLE=stt
+      - UNMUTE_LLM_URL=http://worker-rtx5090:8081
+      - UNMUTE_OPENAI_API_KEY=${UNMUTE_OPENAI_API_KEY:-sk-dummy}
+    ports:
+      - "8081:8080"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    networks:
+      - worker-network
+
+networks:
+  worker-network:
+    external: true
+    name: nyra-worker-3060
