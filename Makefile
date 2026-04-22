@@ -6,6 +6,10 @@ SHELL := /bin/bash
 COMPOSE_FILE ?= infra/hosts/orchestrator/docker-compose.orchestrator.yml
 COMPOSE ?= docker compose -f $(COMPOSE_FILE)
 
+# Cloudflared Tunnel Compose Files
+CF_ORCH_COMPOSE  := infra/hosts/orchestrator/docker-compose.cloudflared.yml
+ORACLE_APPS_COMPOSE := infra/hosts/oracle-vps/docker-compose.apps.yml
+
 # Service Specific Compose Files
 ARCHON_BASE_COMPOSE ?= infra/compose/base.yml
 ARCHON_COMPOSE  := infra/compose/docker-compose.archon.yml
@@ -41,6 +45,8 @@ DEFAULT_PROFILES ?= core,gateway,workflow,crm,archon,apps,observability,vector
   nexus-up nexus-down health stack-up stack-verify \
   gitea-up gitea-down gitea-ps twenty-crm-up twenty-crm-down \
   voice-3060 voice-5090 voice-3090ti voice-orch voice-distributed \
+  cf-orch-up cf-orch-down cf-orch-logs \
+  oracle-apps-up oracle-apps-down oracle-webapp-up oracle-crm-api-up oracle-landing-up \
   up-all down-all cluster-status
 
 .DEFAULT_GOAL := help
@@ -80,6 +86,18 @@ help:
 	@echo "make voice-3090ti       Start standalone Unmute on RTX 3090 Ti"
 	@echo "make voice-orch         Start Kyutai Pocket TTS on Orchestrator"
 	@echo "make voice-distributed  Start distributed 3-node voice setup"
+	@echo
+	@echo "--- CLOUDFLARED TUNNELS ---"
+	@echo "make cf-orch-up         Start orchestrator CF tunnel (separate from main stack)"
+	@echo "make cf-orch-down       Stop orchestrator CF tunnel"
+	@echo "make cf-orch-logs       Tail orchestrator tunnel logs"
+	@echo
+	@echo "--- ORACLE APP STACK ---"
+	@echo "make oracle-apps-up     Start all oracle app-profile services"
+	@echo "make oracle-apps-down   Stop all oracle app-profile services"
+	@echo "make oracle-webapp-up   Start webapp only"
+	@echo "make oracle-crm-api-up  Start crm-api only"
+	@echo "make oracle-landing-up  Start landing page only"
 
 cluster-status:
 	@echo "=== [ORCHESTRATOR] ==="
@@ -240,6 +258,36 @@ voice-distributed:
 	docker --context worker-rtx3060 compose -f $(DIST_VOICE_3060) up -d
 	docker --context worker-rtx5090 compose -f $(DIST_VOICE_5090) up -d
 	docker --context worker-rtx3090ti compose -f $(DIST_VOICE_3090TI) up -d
+
+# --- CLOUDFLARED TUNNEL TARGETS ---
+
+cf-orch-up:
+	docker compose -f $(CF_ORCH_COMPOSE) up -d
+
+cf-orch-down:
+	docker compose -f $(CF_ORCH_COMPOSE) down
+
+cf-orch-logs:
+	docker compose -f $(CF_ORCH_COMPOSE) logs -f --tail=100
+
+# --- ORACLE APP STACK TARGETS ---
+# Apps run on Oracle VPS. Each service has its own target.
+# They use profile "apps" so they don't start with make up-oracle.
+
+oracle-apps-up:
+	docker --context oracle compose -f $(ORACLE_COMPOSE) -f $(ORACLE_APPS_COMPOSE) --profile apps up -d
+
+oracle-apps-down:
+	docker --context oracle compose -f $(ORACLE_COMPOSE) -f $(ORACLE_APPS_COMPOSE) --profile apps down
+
+oracle-webapp-up:
+	docker --context oracle compose -f $(ORACLE_APPS_COMPOSE) --profile apps up -d webapp
+
+oracle-crm-api-up:
+	docker --context oracle compose -f $(ORACLE_APPS_COMPOSE) --profile apps up -d crm-api
+
+oracle-landing-up:
+	docker --context oracle compose -f $(ORACLE_APPS_COMPOSE) --profile apps up -d landing
 
 secrets-init: check-host
 	@if [ -z "$(TOKEN)" ]; then echo "🚨 Error: TOKEN is required."; exit 1; fi
