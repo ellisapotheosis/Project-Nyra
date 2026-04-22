@@ -144,7 +144,7 @@ OLLAMA_NUM_PARALLEL=4
 
 ### 1. Configure Nexus Router
 
-Update `infra/docker/.env`:
+Update `infra/images/.env`:
 ```bash
 WORKER_3060_URL=http://100.83.23.49:11434
 WORKER_3060_MODELS=qwen2.5-coder:7b,llama3.1:8b,nomic-embed-text

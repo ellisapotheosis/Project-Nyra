@@ -324,9 +324,9 @@ export default function QuotesPage() {
                   <div className="text-sm text-slate-400">
                     APR: {rate.apr.toFixed(3)}% • {rate.points} points
                   </div>
-                  {rate.lender && (
+                  {(rate as any).lender && (
                     <div className="text-xs text-slate-500">
-                      via {rate.lender}
+                      via {(rate as any).lender}
                     </div>
                   )}
                   <div className="opacity-0 group-hover:opacity-100 transition-opacity pt-2">

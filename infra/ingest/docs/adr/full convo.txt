@@ -967,7 +967,7 @@ archon-os, ruvector, archon-os, epic-sdk, onnx, agent-booster, etc.,  Please bui
   "total_docker_references": 809,
   "docker_compose_files": {
     "main_orchestration": {
-      "path": "infra/docker/docker-compose.orchestration.yml",
+      "path": "infra/images/docker-compose.orchestration.yml",
       "purpose": "Core orchestration services - Claude Flow, Archon OS, databases",
       "services": [
         "postgresql (postgres:16-alpine) - Primary data store",
@@ -1004,7 +1004,7 @@ archon-os, ruvector, archon-os, epic-sdk, onnx, agent-booster, etc.,  Please bui
       "usage_command": "infisical run --projectId=8374cea9-e5e8-4050-bda4-b91f25ab30ef --env=dev --path=/shared -- docker compose -f docker-compose.orchestration.yml up"
     },
     "base_infrastructure": {
-      "path": "infra/docker/docker-compose.yml",
+      "path": "infra/images/docker-compose.yml",
       "type": "modular_base_with_includes",
       "includes": [
         "base/docker-compose.core.yml - Core databases and caches",
@@ -1029,73 +1029,73 @@ archon-os, ruvector, archon-os, epic-sdk, onnx, agent-booster, etc.,  Please bui
     },
     "worker_specific": {
       "rtx3060": {
-        "path": "infra/docker/workers/docker-compose.worker-rtx3060.yml",
+        "path": "infra/images/workers/docker-compose.worker-rtx3060.yml",
         "env_file": "configs/env/.env.worker-rtx3060"
       },
       "rtx5090": {
-        "path": "infra/docker/workers/docker-compose.worker-rtx5090.yml",
+        "path": "infra/images/workers/docker-compose.worker-rtx5090.yml",
         "env_file": "configs/env/.env.worker-rtx5090"
       },
       "rtx3090ti": {
-        "path": "infra/docker/workers/docker-compose.worker-rtx3090ti.yml",
+        "path": "infra/images/workers/docker-compose.worker-rtx3090ti.yml",
         "env_file": "configs/env/.env.worker-rtx3090ti"
       }
     },
     "specialized_compose_files": [
       {
-        "file": "infra/docker/docker-compose.services.yml",
+        "file": "infra/images/docker-compose.services.yml",
         "purpose": "14 microservices (auth, campaign, doc management, etc.)"
       },
       {
-        "file": "infra/docker/docker-compose.monitoring.yml",
+        "file": "infra/images/docker-compose.monitoring.yml",
         "purpose": "Prometheus + Grafana + Node Exporter + cAdvisor"
       },
       {
-        "file": "infra/docker/docker-compose.observability.yml",
+        "file": "infra/images/docker-compose.observability.yml",
         "purpose": "Loki + Promtail + Tempo for logging and tracing"
       },
       {
-        "file": "infra/docker/docker-compose.ui.yml",
+        "file": "infra/images/docker-compose.ui.yml",
         "purpose": "User interfaces (Open-WebUI, LobeChat, Dify, TwentyCRM)"
       },
       {
-        "file": "infra/docker/docker-compose.dev.yml",
+        "file": "infra/images/docker-compose.dev.yml",
         "purpose": "Development overrides (hot reload, debug ports, verbose logging)"
       },
       {
-        "file": "infra/docker/docker-compose.prod.yml",
+        "file": "infra/images/docker-compose.prod.yml",
         "purpose": "Production overrides (resource limits, health checks, restart policies)"
       },
       {
-        "file": "infra/docker/docker-compose.mcp-dev.yml",
+        "file": "infra/images/docker-compose.mcp-dev.yml",
         "purpose": "MCP development environment"
       },
       {
-        "file": "infra/docker/docker-compose.letta.yml",
+        "file": "infra/images/docker-compose.letta.yml",
         "purpose": "Graph memory services"
       },
       {
-        "file": "infra/docker/docker-compose.gitea.yml",
+        "file": "infra/images/docker-compose.gitea.yml",
         "purpose": "Self-hosted Git server"
       },
       {
-        "file": "infra/docker/docker-compose.voice.yml",
+        "file": "infra/images/docker-compose.voice.yml",
         "purpose": "Twilio voice/SMS integration"
       },
       {
-        "file": "infra/docker/docker-compose.dual-orchestrator.yml",
+        "file": "infra/images/docker-compose.dual-orchestrator.yml",
         "purpose": "Dual orchestrator setup"
       },
       {
-        "file": "infra/docker/docker-compose.full.yml",
+        "file": "infra/images/docker-compose.full.yml",
         "purpose": "Complete stack (all-in-one deployment)"
       },
       {
-        "file": "infra/docker/docker-compose.local.yml",
+        "file": "infra/images/docker-compose.local.yml",
         "purpose": "Local development"
       },
       {
-        "file": "infra/docker/docker-compose.mcp.yml",
+        "file": "infra/images/docker-compose.mcp.yml",
         "purpose": "MCP production"
       }
     ]
@@ -1183,7 +1183,7 @@ archon-os, ruvector, archon-os, epic-sdk, onnx, agent-booster, etc.,  Please bui
   },
   "environment_configurations": {
     "docker_specific_env_files": [
-      "infra/docker/.env.mcp.template",
+      "infra/images/.env.mcp.template",
       "bootstrap/orchestrator-mini/docker/.env.example",
       "bootstrap/worker-rtx3090ti/docker/.env.example",
       "bootstrap/worker-rtx3060/docker/.env.example",
@@ -1250,7 +1250,7 @@ archon-os, ruvector, archon-os, epic-sdk, onnx, agent-booster, etc.,  Please bui
       ]
     },
     "usage_guide": {
-      "path": "infra/docker/USAGE-GUIDE.md",
+      "path": "infra/images/USAGE-GUIDE.md",
       "size": "50.8 KB",
       "version": "5.0.0",
       "compose_files_documented": 17,
@@ -4460,7 +4460,7 @@ For production or a non‑interactive orchestrator, containerization is desirabl
 Dev: run Archon natively (or in WSL) alongside your codebase and editor, and mount volumes for memory persistence.
 
 
-Prod: build a Docker image (as in infra/docker/archon/Dockerfile.archon) and run with a persistent volume for .archon and .claude directories. Use environment variables to point it at other MCP servers (Claude Flow, MetaMCP, etc.) for orchestration.
+Prod: build a Docker image (as in infra/images/archon/Dockerfile.archon) and run with a persistent volume for .archon and .claude directories. Use environment variables to point it at other MCP servers (Claude Flow, MetaMCP, etc.) for orchestration.
 
 
 2. Memory architecture & how to deploy it

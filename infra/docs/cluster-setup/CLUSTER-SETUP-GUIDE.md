@@ -308,7 +308,7 @@ curl https://worker-5090.ratehunter.net/api/generate -d '{
 
 Configure Nexus Router to route to all Ollama workers:
 
-**Location**: `infra/docker/docker-compose.orchestration.yml`
+**Location**: `infra/images/docker-compose.orchestration.yml`
 
 Add environment variables for each worker:
 
