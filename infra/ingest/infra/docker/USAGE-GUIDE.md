@@ -14,9 +14,9 @@ cd infra/worker-rtx3090ti && cp ../configs/env/.env.worker-rtx3090ti.example .en
 cd infra/worker-rtx3060 && cp ../configs/env/.env.worker-rtx3060.example .env && docker compose --env-file .env up -d
 ```
 
-## `infra/docker/` wrappers
+## `infra/images/` wrappers
 These files mirror the orchestrator modular stack and point into `infra/orchestrator/compose/*`.
-Use them if you prefer an `infra/docker/*` command surface.
+Use them if you prefer an `infra/images/*` command surface.
 
 ## Profiles
 - `openclaw` — ClawHub/OpenClaw wrappers + adapter

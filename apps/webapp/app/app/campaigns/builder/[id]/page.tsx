@@ -1,4 +1,5 @@
 'use client';
+import { use } from 'react';
 
 import React, { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
@@ -17,8 +18,8 @@ interface CampaignStep {
   offsetMinutes?: number;
 }
 
-export default function CampaignBuilder({ params }: { params: { id: string } }) {
-  const [name, setName] = useState(params.id === 'new' ? 'New Campaign' : 'Purchase Nurture');
+export default function CampaignBuilder({ params }: { params: Promise<{ id: string }> }) {
+  const [name, setName] = useState( use(params).id === 'new' ? 'New Campaign' : 'Purchase Nurture');
   const [loanPurpose, setLoanPurpose] = useState('PURCHASE');
   const [steps, setSteps] = useState<CampaignStep[]>([
     { id: '1', day: 0, channel: 'email', templateId: 'welcome_quote', offsetMinutes: 5 },

@@ -169,7 +169,7 @@ docker-compose -f docker-compose.oracle.yml up -d
 
 ### 4.1 Multi-GPU Cluster Setup
 
-**🗂️ Location**: `/infra/docker/`, `/services/nexus-router/`
+**🗂️ Location**: `/infra/images/`, `/services/nexus-router/`
 **🎯 Models**: DeepSeek-R1 236B, Qwen 2.5 72B, CodeLlama 34B
 
 ```bash
@@ -379,13 +379,13 @@ python -m openclaw.main  # → http://localhost:8001
 
 ### 9.3 Archon OS Integration
 
-**🗂️ Location**: `/infra/docker/archon/`, `/tools/archon/`
+**🗂️ Location**: `/infra/images/archon/`, `/tools/archon/`
 **🎯 Purpose**: Task execution layer, Claude Flow coordination
 **📋 Status**: Ready for immediate deployment
 
 ```bash
 # Archon deployment (containerized)
-cd /infra/docker/archon/
+cd /infra/images/archon/
 docker-compose -f docker-compose.archon.yml up -d
 
 # Integration with Claude Flow

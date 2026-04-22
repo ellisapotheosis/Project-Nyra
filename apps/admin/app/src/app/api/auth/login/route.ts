@@ -16,7 +16,7 @@ const MOCK_USERS = [
       'audit:view', 'users:manage', 'reports:view', 'system:config'
     ],
     avatar: null,
-    lastLogin: null,
+    lastLogin: null as string | null,
   },
   {
     id: '2',
@@ -31,7 +31,7 @@ const MOCK_USERS = [
       'reports:view'
     ],
     avatar: null,
-    lastLogin: null,
+    lastLogin: null as string | null,
   },
   {
     id: '3',
@@ -46,7 +46,7 @@ const MOCK_USERS = [
       'reports:view'
     ],
     avatar: null,
-    lastLogin: null,
+    lastLogin: null as string | null,
   }
 ]
 

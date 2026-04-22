@@ -147,7 +147,7 @@ services:
   n8n:
     build:
       context: ../../../
-      dockerfile: infra/docker/n8n/Dockerfile
+      dockerfile: infra/images/n8n/Dockerfile
       args:
         N8N_TWENTY_NODES_GIT: ${N8N_TWENTY_NODES_GIT:-}
     container_name: nyra-n8n

@@ -148,7 +148,7 @@ curl http://localhost:11434/api/tags
 
 ## 🎯 Integration with Nexus Router
 
-Update your `infra/docker/.env` file:
+Update your `infra/images/.env` file:
 
 ```bash
 # Worker RTX 3060 Configuration

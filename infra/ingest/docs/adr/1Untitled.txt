@@ -415,7 +415,7 @@ For production or a non‑interactive orchestrator, containerization is desirabl
 Dev: run Archon natively (or in WSL) alongside your codebase and editor, and mount volumes for memory persistence.
 
 
-Prod: build a Docker image (as in infra/docker/archon/Dockerfile.archon) and run with a persistent volume for .archon and .claude directories. Use environment variables to point it at other MCP servers (Claude Flow, MetaMCP, etc.) for orchestration.
+Prod: build a Docker image (as in infra/images/archon/Dockerfile.archon) and run with a persistent volume for .archon and .claude directories. Use environment variables to point it at other MCP servers (Claude Flow, MetaMCP, etc.) for orchestration.
 
 
 2. Memory architecture & how to deploy it
@@ -3825,7 +3825,7 @@ For production or a non‑interactive orchestrator, containerization is desirabl
 Dev: run Archon natively (or in WSL) alongside your codebase and editor, and mount volumes for memory persistence.
 
 
-Prod: build a Docker image (as in infra/docker/archon/Dockerfile.archon) and run with a persistent volume for .archon and .claude directories. Use environment variables to point it at other MCP servers (Claude Flow, MetaMCP, etc.) for orchestration.
+Prod: build a Docker image (as in infra/images/archon/Dockerfile.archon) and run with a persistent volume for .archon and .claude directories. Use environment variables to point it at other MCP servers (Claude Flow, MetaMCP, etc.) for orchestration.
 
 
 2. Memory architecture & how to deploy it

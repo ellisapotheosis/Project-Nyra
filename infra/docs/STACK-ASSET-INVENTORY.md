@@ -35,8 +35,8 @@ Generated: 2026-02-28T20:15:13+00:00
 - apps/ingestion/files/services/quote-api/Dockerfile
 - apps/ingestion/files/services/quote-engine/Dockerfile
 - apps/web/webapp/mortgage-services/Dockerfile
-- infra/docker/n8n/Dockerfile
-- infra/docker/nexus-router/Dockerfile
+- infra/images/n8n/Dockerfile
+- infra/images/nexus-router/Dockerfile
 - infra/stacks/nyra-mortgage/services/mem0-rest/Dockerfile
 - infra/stacks/nyra-mortgage/services/nyra-orchestrator/Dockerfile
 - infra/workers/worker-3060/embedding-service/Dockerfile

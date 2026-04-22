@@ -184,13 +184,13 @@ EOF
         log_warning "bootstrap/docker/docker-compose.yml not found"
     fi
 
-    log_info "Analyzing infra/docker/docker-compose.yml..."
-    if [ -f "$REPO_ROOT/infra/docker/docker-compose.yml" ]; then
-        grep -E "^  [a-z0-9_-]+:" "$REPO_ROOT/infra/docker/docker-compose.yml" | sed 's/://g' | sed 's/^ *//' | sort > "$ANALYSIS_DIR/infra-services.txt"
+    log_info "Analyzing infra/images/docker-compose.yml..."
+    if [ -f "$REPO_ROOT/infra/images/docker-compose.yml" ]; then
+        grep -E "^  [a-z0-9_-]+:" "$REPO_ROOT/infra/images/docker-compose.yml" | sed 's/://g' | sed 's/^ *//' | sort > "$ANALYSIS_DIR/infra-services.txt"
         INFRA_COUNT=$(wc -l < "$ANALYSIS_DIR/infra-services.txt")
         log_success "Infra services: $INFRA_COUNT"
     else
-        log_warning "infra/docker/docker-compose.yml not found"
+        log_warning "infra/images/docker-compose.yml not found"
     fi
 
     # Find services not in bootstrap or infra
