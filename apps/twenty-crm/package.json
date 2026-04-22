@@ -16,17 +16,20 @@
     "seed": "docker compose exec twenty-crm npm run database:seed",
     "reset": "docker compose down -v && npm run start",
     "health": "curl -f http://localhost:3020/health || exit 1",
+    "provision:metadata": "node scripts/provision-metadata.js",
     "backup": "node scripts/backup.js",
     "restore": "node scripts/restore.js"
   },
   "dependencies": {
     "@apollo/client": "^3.14.0",
+    "dotenv": "^17.4.2",
     "graphql": "^16.8.1",
-    "graphql-request": "^6.1.0"
+    "graphql-request": "^6.1.0",
+    "node-fetch": "^3.3.2"
   },
   "devDependencies": {
-    "typescript": "^5.5.4",
-    "@types/node": "^20.14.10"
+    "@types/node": "^20.14.10",
+    "typescript": "^5.5.4"
   },
   "engines": {
     "node": ">=20.0.0"

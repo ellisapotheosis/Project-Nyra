@@ -1,0 +1,111 @@
+# Project Nyra - Development Environment Override
+# Use: docker-compose -f infra/docker-compose.yml -f docker-compose.dev.yml up -d
+
+name: nyra-dev
+
+services:
+  postgres:
+    ports:
+      - '${POSTGRES_PORT:-5432}:5432'  # Expose for local development tools
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-nyra_dev}
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
+      - ./infra/configs/postgres/init-dev.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    command:
+      - 'postgres'
+      - '-c'
+      - 'log_statement=all'  # Enable query logging for debugging
+      - '-c'
+      - 'log_duration=on'
+    restart: 'no'  # Don't auto-restart in dev
+
+  redis:
+    ports:
+      - '${REDIS_PORT:-6379}:6379'  # Expose for development tools
+    volumes:
+      - redis_dev_data:/data
+    restart: 'no'
+
+  nexus-router:
+    environment:
+      NEXUS_LOG_LEVEL: debug
+      NEXUS_HOT_RELOAD: 'true'
+    volumes:
+      - ./infra/configs/nexus/nexus.toml:/app/nexus.toml:ro
+      - ./infra/configs/nexus/dev-overrides.toml:/app/dev-overrides.toml:ro
+    restart: 'no'
+
+  litellm:
+    environment:
+      LITELLM_LOG_LEVEL: DEBUG
+      LITELLM_DROP_PARAMS: 'true'
+    volumes:
+      - ./infra/configs/litellm/config.yaml:/app/config.yaml:ro
+      - ./infra/configs/litellm/dev-models.yaml:/app/dev-models.yaml:ro
+    restart: 'no'
+
+  n8n:
+    environment:
+      N8N_LOG_LEVEL: debug
+      N8N_BASIC_AUTH_ACTIVE: 'false'  # Disable auth for easier dev
+      N8N_DISABLE_PRODUCTION_MAIN_PROCESS: 'true'
+      NODE_ENV: development
+    volumes:
+      - n8n_dev_data:/home/node/.n8n
+      - ./n8n-workflows:/opt/nyra/n8n-workflows:rw  # Read-write for development
+      - ./infra/configs/n8n/dev-settings.json:/home/node/.n8n/config/dev-settings.json:ro
+    restart: 'no'
+
+  twentycrm:
+    environment:
+      NODE_ENV: development
+      TWENTY_ENABLE_DEBUG: 'true'
+      TWENTY_DISABLE_AUTH: 'false'  # Keep auth enabled but make it easier
+    ports:
+      - '${TWENTYCRM_PORT:-3000}:3000'
+    restart: 'no'
+
+  # Development-specific services
+  postgres-admin:
+    image: dpage/pgadmin4:latest
+    container_name: nyra-pgadmin-dev
+    profiles: ['dev-tools']
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@nyra.dev
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-devpassword}
+    ports:
+      - '5050:80'
+    volumes:
+      - pgadmin_dev_data:/var/lib/pgadmin
+    depends_on:
+      - postgres
+    networks: [nyra]
+
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: nyra-redis-commander-dev
+    profiles: ['dev-tools']
+    environment:
+      REDIS_HOSTS: local:redis:6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+    ports:
+      - '8081:8081'
+    depends_on:
+      - redis
+    networks: [nyra]
+
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: nyra-mailhog-dev
+    profiles: ['dev-tools']
+    ports:
+      - '1025:1025'  # SMTP
+      - '8025:8025'  # Web UI
+    networks: [nyra]
+
+volumes:
+  postgres_dev_data:
+  redis_dev_data:
+  n8n_dev_data:
+  pgadmin_dev_data:
