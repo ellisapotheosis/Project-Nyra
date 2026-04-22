@@ -1,0 +1,24 @@
+# LiteLLM Configuration for Worker RTX 3090 Ti
+# Provides an OpenAI-compatible API for the local vLLM backend.
+
+model_list:
+  - model_name: ${MODEL_ID}
+    litellm_params:
+      model: openai/${MODEL_ID}
+      api_base: ${VLLM_BASE_URL}
+      api_key: dummy
+      timeout: 120
+      max_tokens: 32768
+    model_info:
+      mode: chat
+      supports_function_calling: true
+      supports_vision: false
+
+general_settings:
+  master_key: ${LITELLM_MASTER_KEY}
+  drop_params: true
+  json_logs: true
+
+litellm_settings:
+  drop_params: true
+  request_timeout: 300

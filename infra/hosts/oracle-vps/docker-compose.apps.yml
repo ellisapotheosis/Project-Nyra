@@ -1,0 +1,95 @@
+name: nyra-oracle-apps
+
+services:
+  nexus:
+    image: ghcr.io/grafbase/nexus:latest
+    container_name: nyra-nexus
+    profiles: ["apps"]
+    ports:
+      - "4001:4001"
+    volumes:
+      - ../../stacks/nyra-mortgage/configs/nexus/nexus.toml:/etc/nexus.toml:ro
+    environment:
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+      - LITELLM_MASTER_KEY=${LITELLM_MASTER_KEY}
+      - WORKER_3060_URL=${WORKER_3060_URL:-http://worker-rtx3060.trex-fiordland.ts.net:11434}
+      - WORKER_3090_URL=${WORKER_3090_URL:-http://worker-rtx3090ti.trex-fiordland.ts.net:8001}
+      - WORKER_5090_URL=${WORKER_5090_URL:-http://worker-rtx5090.trex-fiordland.ts.net:8000}
+    depends_on:
+      - litellm
+    networks: [nyra_net]
+
+  litellm:
+    image: ghcr.io/berriai/litellm:main-stable
+    container_name: nyra-litellm
+    profiles: ["apps"]
+    ports:
+      - "4000:4000"
+    volumes:
+      - ../../stacks/nyra-mortgage/configs/litellm/config.yaml:/app/config.yaml:ro
+    environment:
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - LLXPERT_CODER_BASE_URL=${LLXPERT_CODER_BASE_URL}
+      - LLXPERT_CODER_API_KEY=${LLXPERT_CODER_API_KEY:-dummy}
+    command: --config /app/config.yaml --port 4000
+    networks: [nyra_net]
+
+  letta_postgres:
+    image: postgres:16
+    container_name: nyra-letta-postgres
+    profiles: ["apps"]
+    environment:
+      - POSTGRES_USER=letta
+      - POSTGRES_PASSWORD=letta
+      - POSTGRES_DB=letta
+    volumes:
+      - letta_pg:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U letta -d letta"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks: [nyra_net]
+
+  letta:
+    image: ghcr.io/letta-ai/letta:latest
+    container_name: nyra-letta
+    profiles: ["apps"]
+    ports:
+      - "8283:8283"
+    depends_on:
+      letta_postgres:
+        condition: service_healthy
+    environment:
+      - DATABASE_URL=postgresql://letta:letta@letta_postgres:5432/letta
+      - OPENAI_BASE_URL=http://nexus:4001/v1
+      - OPENAI_API_KEY=dummy
+    networks: [nyra_net]
+
+  nyra_orchestrator:
+    build:
+      context: ../../stacks/nyra-mortgage/services/nyra-orchestrator
+      dockerfile: Dockerfile
+    container_name: nyra-orchestrator
+    profiles: ["apps"]
+    ports:
+      - "8010:8010"
+    environment:
+      - NYRA_POLICY_MODE=${NYRA_POLICY_MODE:-strict}
+      - NYRA_ALLOWED_CHANNELS=${NYRA_ALLOWED_CHANNELS:-sms,email,webchat}
+      - NYRA_ESCALATION_EMAIL=${NYRA_ESCALATION_EMAIL:-ops@example.com}
+      - TWENTY_BASE_URL=http://twenty:3000
+      - NEXUS_BASE_URL=http://nexus:4001
+      - LETTA_BASE_URL=http://letta:8283
+    depends_on:
+      - litellm
+      - twenty
+      - letta
+    networks: [nyra_net]
+
+volumes:
+  letta_pg: {}

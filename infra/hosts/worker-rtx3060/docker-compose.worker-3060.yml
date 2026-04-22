@@ -19,7 +19,7 @@ services:
       INFISICAL_TOKEN: ${INFISICAL_TOKEN:-}
       INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
       INFISICAL_ENV: ${INFISICAL_ENV:-prod}
-      INFISICAL_PATH: ${INFISICAL_PATH:-/machines/worker-rtx3060}
+      INFISICAL_PATH: ${INFISICAL_PATH:-/workers/worker-rtx3060}
     volumes:
       - nyra_secrets:/run/nyra-secrets
     networks:
@@ -39,10 +39,30 @@ services:
       INFISICAL_TOKEN: ${INFISICAL_TOKEN}
       INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
       INFISICAL_ENV: ${INFISICAL_ENV:-prod}
-      INFISICAL_PATH: ${INFISICAL_PATH:-/machines/worker-rtx3060}
+      INFISICAL_PATH: ${INFISICAL_PATH:-/workers/worker-rtx3060}
       INFISICAL_POLL_INTERVAL: ${INFISICAL_POLL_INTERVAL:-60}
     volumes:
       - nyra_secrets:/run/nyra-secrets
+    networks:
+      - worker-network
+
+  # ============================================================================
+  # Portainer Edge Agent
+  # ============================================================================
+  portainer-edge-agent:
+    image: portainer/agent:2.27.9
+    container_name: worker-3060-portainer-agent
+    restart: unless-stopped
+    environment:
+      EDGE: "1"
+      EDGE_ID: ${PORTAINER_EDGE_ID}
+      EDGE_KEY: ${PORTAINER_EDGE_KEY}
+      EDGE_INSECURE_POLL: ${PORTAINER_EDGE_INSECURE_POLL:-1}
+      AGENT_CLUSTER_ADDR: tasks.portainer-edge-agent
+      AGENT_TAGS: ${PORTAINER_AGENT_TAGS:-nyra,edge}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/lib/docker/volumes:/var/lib/docker/volumes
     networks:
       - worker-network
 
@@ -208,6 +228,30 @@ services:
             - driver: nvidia
               count: 1
               capabilities: [gpu]
+    networks:
+      - worker-network
+
+  # ============================================================================
+  # Promtail
+  # ============================================================================
+  promtail:
+    image: grafana/promtail:latest
+    container_name: worker-3060-promtail
+    hostname: worker-3060-promtail
+    restart: unless-stopped
+    volumes:
+      - ./promtail-config.yml:/etc/promtail/config.yml:ro
+      - ./logs:/var/log/worker-3060:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - nyra_secrets:/run/nyra-secrets:ro
+    environment:
+      - LOKI_URL=${LOKI_URL:-http://oracle.trex-fiordland.ts.net:3100}
+      - WORKER_ID=worker-3060
+    command: -config.file=/etc/promtail/config.yml
+    depends_on:
+      secrets-init:
+        condition: service_completed_successfully
     networks:
       - worker-network
 
