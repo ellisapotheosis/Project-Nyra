@@ -1,21 +1,46 @@
 services:
-  infisical-agent:
-    image: infisical/infisical-agent:latest
-    container_name: nyra-infisical-agent
-    profiles: ["secrets"]
+  # ── Infisical secrets init (runs once, writes files to /run/nyra-secrets/) ─
+  secrets-init:
+    build:
+      context: ../../infisical-secrets-init
+
+    container_name: nyra-secrets-init
+    restart: "no"
+    command: ["/usr/local/bin/secrets-init.sh"]
     environment:
-      INFISICAL_TOKEN: ${INFISICAL_TOKEN}
-      INFISICAL_API_URL: ${INFISICAL_API_URL:-https://app.infisical.com}
+      INFISICAL_TOKEN: ${INFISICAL_TOKEN:-}
+      INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
+      INFISICAL_ENV: ${INFISICAL_ENV:-prod}
+      INFISICAL_PATH: ${INFISICAL_PATH:-/machines/orchestrator}
+      # Fallback env vars
+      LITELLM_MASTER_KEY: ${LITELLM_MASTER_KEY:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
     volumes:
-      - secrets_volume:/run/nyra-secrets
-    restart: unless-stopped
+      - nyra_secrets:/run/nyra-secrets
     networks:
       - nyra-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8200/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+
+  # ── Infisical agent (polls Infisical and refreshes secrets) ──────────────
+  infisical-agent:
+    build:
+      context: ../../infisical-secrets-init
+
+    container_name: nyra-infisical-agent
+    restart: unless-stopped
+    entrypoint: ["/usr/local/bin/agent-sidecar.sh"]
+    depends_on:
+      secrets-init:
+        condition: service_completed_successfully
+    environment:
+      INFISICAL_TOKEN: ${INFISICAL_TOKEN}
+      INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
+      INFISICAL_ENV: ${INFISICAL_ENV:-prod}
+      INFISICAL_PATH: ${INFISICAL_PATH:-/machines/orchestrator}
+      INFISICAL_POLL_INTERVAL: ${INFISICAL_POLL_INTERVAL:-60}
+    volumes:
+      - nyra_secrets:/run/nyra-secrets
+    networks:
+      - nyra-network
 
   redis:
     image: redis:7-alpine
@@ -41,16 +66,16 @@ services:
     ports:
       - "4000:4000"
     environment:
+      # Secrets are now handled via /run/nyra-secrets files
       LITELLM_MASTER_KEY: ${LITELLM_MASTER_KEY:?set LITELLM_MASTER_KEY}
-      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
-      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
-      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
-      GOOGLE_API_KEY: ${GOOGLE_API_KEY:-}
     volumes:
       - ../../configs/litellm/config.yaml:/app/config.yaml:ro
+      - nyra_secrets:/run/nyra-secrets:ro
     depends_on:
       redis:
         condition: service_healthy
+      secrets-init:
+        condition: service_completed_successfully
     restart: unless-stopped
     networks:
       - nyra-network
@@ -78,9 +103,12 @@ services:
       MEMPALACE_URL: ${MEMPALACE_URL:-}
     volumes:
       - ../../configs/nexus/nexus.toml:/etc/nexus/nexus.toml:ro
+      - nyra_secrets:/run/nyra-secrets:ro
     depends_on:
       litellm:
         condition: service_healthy
+      secrets-init:
+        condition: service_completed_successfully
     restart: unless-stopped
     networks:
       - nyra-network
@@ -107,74 +135,15 @@ services:
       DATABASE_URL: ${DATABASE_URL:-}
       QUOTE_ENGINE_URL: ${QUOTE_ENGINE_URL:-http://oracle.trex-fiordland.ts.net:8089}
     volumes:
-      - secrets_volume:/run/nyra-secrets:ro
+      - nyra_secrets:/run/nyra-secrets:ro
     depends_on:
       nexus:
         condition: service_healthy
       litellm:
         condition: service_healthy
+      secrets-init:
+        condition: service_completed_successfully
     restart: unless-stopped
-    networks:
-      - nyra-network
-
-  archon-os:
-    build:
-      context: ../../../external/archon
-      dockerfile: Dockerfile
-    container_name: nyra-archon-os
-    profiles: ["apps"]
-    ports:
-      - "8080:8080"
-    environment:
-      NODE_ENV: production
-      NEXUS_API_URL: "http://nexus:3000"
-      LITELLM_API_URL: "http://litellm:4000"
-      REDIS_URL: "redis://redis:6379"
-      DATABASE_URL: ${DATABASE_URL:-}
-    volumes:
-      - secrets_volume:/run/nyra-secrets:ro
-    depends_on:
-      redis:
-        condition: service_healthy
-      nexus:
-        condition: service_healthy
-    restart: unless-stopped
-    networks:
-      - nyra-network
-
-  n8n:
-    build:
-      context: ../../../
-      dockerfile: infra/docker/n8n/Dockerfile
-      args:
-        N8N_TWENTY_NODES_GIT: ${N8N_TWENTY_NODES_GIT:-}
-        N8N_EXTRA_PACKAGES: ${N8N_EXTRA_PACKAGES:-}
-    container_name: nyra-n8n
-    profiles: ["apps"]
-    restart: unless-stopped
-    depends_on:
-      redis:
-        condition: service_healthy
-      litellm:
-        condition: service_healthy
-    environment:
-      N8N_HOST: ${N8N_HOST:-localhost}
-      N8N_PORT: "5678"
-      N8N_PROTOCOL: http
-      NODE_ENV: production
-      WEBHOOK_URL: http://localhost:5678/
-      GENERIC_TIMEZONE: ${TIMEZONE:-UTC}
-      DB_TYPE: postgresdb
-      DB_POSTGRESDB_HOST: ${DB_POSTGRESDB_HOST:-postgres}
-      DB_POSTGRESDB_PORT: ${DB_POSTGRESDB_PORT:-5432}
-      DB_POSTGRESDB_DATABASE: ${DB_POSTGRESDB_DATABASE:-n8n}
-      DB_POSTGRESDB_USER: ${DB_POSTGRESDB_USER:-nyra}
-      DB_POSTGRESDB_PASSWORD: ${DB_POSTGRESDB_PASSWORD:-}
-      N8N_ENCRYPTION_KEY: ${N8N_ENCRYPTION_KEY:-}
-    ports:
-      - "5678:5678"
-    volumes:
-      - n8n_data:/home/node/.n8n
     networks:
       - nyra-network
 
@@ -190,6 +159,10 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ../../../:/workspace
+      - nyra_secrets:/run/nyra-secrets:ro
+    depends_on:
+      secrets-init:
+        condition: service_completed_successfully
     restart: unless-stopped
     networks:
       - nyra-network
@@ -202,15 +175,14 @@ services:
       PGPASSWORD: ${POSTGRES_PASSWORD:-}
     entrypoint: ["sleep", "infinity"]
     volumes:
-      - secrets_volume:/run/nyra-secrets:ro
+      - nyra_secrets:/run/nyra-secrets:ro
     restart: unless-stopped
     networks:
       - nyra-network
 
 volumes:
   redis_data:
-  secrets_volume:
-  n8n_data:
+  nyra_secrets:
 
 networks:
   nyra-network:

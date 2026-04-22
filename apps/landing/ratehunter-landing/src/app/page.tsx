@@ -1,272 +1,136 @@
+import { LeadCaptureWizard } from '@/components/LeadCaptureWizard';
 import { BorrowerChatWidget } from '@/components/BorrowerChatWidget';
+import { 
+  Shield, Zap, Star, CheckCircle, 
+  ArrowRight, Phone, MessageSquare, Mail 
+} from 'lucide-react';
 
 const serviceLines = [
   {
     title: 'Purchase Mortgage Strategy',
-    body:
-      'Conventional, FHA, VA, jumbo, and down-payment assistance planning built around payment comfort, cash-to-close, and timeline readiness.',
+    body: 'Conventional, FHA, VA, and Jumbo planning built around payment comfort and timeline readiness.',
   },
   {
-    title: 'Refinance and Equity Planning',
-    body:
-      'Rate-and-term, cash-out refinance, and HELOC strategy with a plain-language breakdown of APR, monthly savings, and break-even timing.',
+    title: 'Refinance & Equity',
+    body: 'Cash-out and rate-and-term optimization with a plain-language breakdown of your break-even timing.',
   },
   {
     title: 'Real Estate Coordination',
-    body:
-      'One advisory lane for financing, property search guidance, listing questions, and offer timing so borrowers are not bouncing between silos.',
+    body: 'One advisor for financing and property search so you are never bouncing between silos.',
   },
   {
-    title: 'Branch-Level Support',
-    body:
-      'Borrower communication, pipeline clarity, and escalation paths designed to feel high-touch while remaining process-driven and compliant.',
-  },
-];
-
-const borrowerBenefits = [
-  'Plain-language guidance before you hand over documents',
-  'Borrower-facing chat for questions about pre-approval, rates, and next steps',
-  'Purchase, refinance, and investor scenarios supported in one experience',
-  'Compliance-aware communication without overpromising approval outcomes',
-];
-
-const processSteps = [
-  {
-    title: 'Start with goals',
-    body: 'Share what you are buying, refinancing, or comparing. We translate that into a financing game plan.',
-  },
-  {
-    title: 'Map the numbers',
-    body: 'Review payment targets, estimated cash to close, reserve strategy, and document requirements before you waste time.',
-  },
-  {
-    title: 'Move with confidence',
-    body: 'Use the borrower assistant for day-to-day questions while your application, property search, or rate strategy keeps moving.',
-  },
-];
-
-const operatingPrinciples = [
-  {
-    label: 'Borrower-first',
-    value: 'Education before pressure',
-  },
-  {
-    label: 'Advisory style',
-    value: 'Mortgage + real estate context together',
-  },
-  {
-    label: 'Chat-ready',
-    value: 'OpenClaw borrower assistant path',
+    title: 'Next-Gen Speed',
+    body: 'Powered by Nyra AI for instant quotes and 24/7 document guidance.',
   },
 ];
 
 export default function Home() {
   return (
-    <main className="relative min-h-screen pb-24">
-      <div className="mx-auto flex max-w-7xl flex-col gap-8 px-5 pb-16 pt-6 sm:px-8 lg:px-10">
-        <header className="section-shell sticky top-4 z-30 rounded-full px-4 py-3 md:px-6">
-          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-            <div>
-              <p className="eyebrow text-[0.66rem] font-semibold text-[var(--brand)]">RateHunter Advisory</p>
-              <p className="text-sm text-[var(--muted)]">
-                Mortgage broker, real estate broker, and branch-led borrower support
-              </p>
+    <main className="relative min-h-screen bg-background selection:bg-primary/10">
+      {/* Navigation */}
+      <nav className="fixed top-0 w-full z-50 bg-background/80 backdrop-blur-md border-b border-border/50">
+        <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+              <Zap className="h-5 w-5 text-primary-foreground" />
             </div>
-            <nav className="flex flex-wrap gap-2 text-sm text-[var(--brand-deep)]">
-              <a className="rounded-full px-3 py-2 hover:bg-white/70" href="#services">
-                Services
-              </a>
-              <a className="rounded-full px-3 py-2 hover:bg-white/70" href="#process">
-                Process
-              </a>
-              <a className="rounded-full px-3 py-2 hover:bg-white/70" href="#assistant">
-                Borrower Chat
-              </a>
-            </nav>
+            <span className="text-xl font-bold tracking-tighter">RateHunter</span>
           </div>
-        </header>
+          <div className="hidden md:flex items-center space-x-8 text-sm font-medium text-muted-foreground">
+            <a href="#services" className="hover:text-primary transition-colors">Services</a>
+            <a href="#wizard" className="hover:text-primary transition-colors">Get Quote</a>
+            <a href="tel:+18005550199" className="flex items-center text-primary">
+              <Phone className="h-4 w-4 mr-2" /> (800) 555-0199
+            </a>
+          </div>
+        </div>
+      </nav>
 
-        <section className="grid gap-6 lg:grid-cols-[1.3fr_0.9fr]">
-          <div className="section-shell overflow-hidden rounded-[2rem] p-8 md:p-12">
-            <p className="eyebrow text-xs font-semibold text-[var(--accent)]">
-              Purchase • Refinance • Investor • Listing-side coordination
-            </p>
-            <h1 className="display-copy mt-5 max-w-4xl text-5xl leading-[0.98] text-[var(--brand-deep)] md:text-7xl">
-              Mortgage guidance that feels personal, disciplined, and ready to move.
+      {/* Hero Section */}
+      <section className="pt-32 pb-20 px-4">
+        <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 items-center">
+          <div className="space-y-8">
+            <div className="inline-flex items-center space-x-2 bg-primary/10 px-3 py-1 rounded-full border border-primary/20">
+              <Star className="h-3 w-3 text-primary fill-primary" />
+              <span className="text-[10px] font-bold uppercase tracking-widest text-primary">Powered by Project Nyra AI</span>
+            </div>
+            <h1 className="text-6xl md:text-7xl font-bold tracking-tighter leading-[0.9] text-foreground">
+              Mortgage guidance that feels <span className="text-primary italic">personal</span>.
             </h1>
-            <p className="mt-6 max-w-2xl text-lg leading-8 text-[var(--muted)]">
-              This landing experience is built for a borrower-facing advisory brand: mortgage planning, real
-              estate context, and a chat assistant that can answer early questions before your team steps in.
+            <p className="text-xl text-muted-foreground leading-relaxed max-w-xl">
+              Get an instant, professional quote powered by the industry's most advanced AI engine. 
+              No pressure. No silos. Just the numbers you need to move with confidence.
             </p>
-
-            <div className="mt-8 flex flex-wrap gap-3">
-              <a
-                href="#assistant"
-                className="rounded-full bg-[var(--brand-deep)] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[var(--brand)]"
-              >
-                Start with borrower chat
-              </a>
-              <a
-                href="#process"
-                className="rounded-full border border-[var(--line)] bg-white/80 px-5 py-3 text-sm font-semibold text-[var(--brand-deep)] transition hover:border-[var(--brand)] hover:text-[var(--brand)]"
-              >
-                See the process
-              </a>
-            </div>
-
-            <div className="mt-10 grid gap-4 md:grid-cols-3">
-              {operatingPrinciples.map((item) => (
-                <article
-                  key={item.label}
-                  className="rounded-[1.5rem] border border-[var(--line)] bg-white/65 px-5 py-4"
-                >
-                  <p className="eyebrow text-[0.68rem] font-semibold text-[var(--brand)]">{item.label}</p>
-                  <p className="mt-3 text-lg font-semibold text-[var(--brand-deep)]">{item.value}</p>
-                </article>
-              ))}
+            <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+                <CheckCircle className="h-4 w-4 text-green-500" />
+                <span>Instant Soft-Quote</span>
+              </div>
+              <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+                <CheckCircle className="h-4 w-4 text-green-500" />
+                <span>TCPA Compliant</span>
+              </div>
+              <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+                <CheckCircle className="h-4 w-4 text-green-500" />
+                <span>Secure Data Handling</span>
+              </div>
             </div>
           </div>
 
-          <aside className="section-shell rounded-[2rem] p-6 md:p-8">
-            <p className="eyebrow text-xs font-semibold text-[var(--accent)]">Why this page converts better</p>
-            <div className="mt-5 space-y-4">
-              {borrowerBenefits.map((benefit) => (
-                <div
-                  key={benefit}
-                  className="rounded-[1.4rem] border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-4"
-                >
-                  <p className="text-base font-medium leading-7 text-[var(--brand-deep)]">{benefit}</p>
+          <div id="wizard" className="relative group">
+            <div className="absolute -inset-1 bg-gradient-to-r from-primary/20 to-accent/20 rounded-[2.5rem] blur opacity-25 group-hover:opacity-50 transition duration-1000"></div>
+            <LeadCaptureWizard />
+          </div>
+        </div>
+      </section>
+
+      {/* Services Grid */}
+      <section id="services" className="py-24 bg-muted/30 border-y border-border/50">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="text-center space-y-4 mb-16">
+            <h2 className="text-4xl font-bold tracking-tight">One front door for financing.</h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              We've replaced the generic "compare rates" treatment with a professional, AI-assisted advisory experience.
+            </p>
+          </div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {serviceLines.map((s, i) => (
+              <div key={i} className="p-8 bg-card border border-border/50 rounded-3xl shadow-sm hover:shadow-md transition-shadow group">
+                <div className="w-12 h-12 bg-primary/5 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-primary transition-colors">
+                  <Shield className="h-6 w-6 text-primary group-hover:text-primary-foreground" />
                 </div>
-              ))}
-            </div>
-            <div className="mt-6 rounded-[1.5rem] bg-[var(--brand-deep)] p-5 text-white">
-              <p className="eyebrow text-[0.68rem] font-semibold text-[var(--accent-soft)]">Compliance posture</p>
-              <p className="mt-3 text-sm leading-7 text-white/85">
-                Educational guidance only. Rate, APR, payment, and approval terms remain subject to lender
-                review, borrower profile, property profile, market conditions, and applicable regulation.
-              </p>
-            </div>
-          </aside>
-        </section>
-
-        <section id="services" className="section-shell rounded-[2rem] p-8 md:p-10">
-          <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
-            <div>
-              <p className="eyebrow text-xs font-semibold text-[var(--accent)]">Service lines</p>
-              <h2 className="display-copy mt-2 text-4xl text-[var(--brand-deep)] md:text-5xl">
-                One front door for financing and home-buying decisions.
-              </h2>
-            </div>
-            <p className="max-w-xl text-sm leading-7 text-[var(--muted)]">
-              The page is positioned for serious borrowers, homeowners, and referral partners who need clarity
-              fast without the generic “compare rates in 30 seconds” treatment.
-            </p>
-          </div>
-
-          <div className="mt-8 grid gap-4 md:grid-cols-2">
-            {serviceLines.map((service) => (
-              <article
-                key={service.title}
-                className="rounded-[1.7rem] border border-[var(--line)] bg-white/75 p-6 transition hover:-translate-y-0.5 hover:shadow-[0_24px_60px_-44px_rgba(17,32,51,0.6)]"
-              >
-                <h3 className="text-2xl font-semibold text-[var(--brand-deep)]">{service.title}</h3>
-                <p className="mt-3 text-base leading-7 text-[var(--muted)]">{service.body}</p>
-              </article>
+                <h3 className="text-xl font-bold mb-3">{s.title}</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">{s.body}</p>
+              </div>
             ))}
           </div>
-        </section>
+        </div>
+      </section>
 
-        <section className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]" id="process">
-          <div className="section-shell rounded-[2rem] p-8">
-            <p className="eyebrow text-xs font-semibold text-[var(--accent)]">Borrower journey</p>
-            <h2 className="display-copy mt-3 text-4xl text-[var(--brand-deep)]">A calmer path from first question to ready-to-act.</h2>
-            <div className="mt-8 space-y-5">
-              {processSteps.map((step, index) => (
-                <article key={step.title} className="rounded-[1.6rem] border border-[var(--line)] bg-white/75 p-5">
-                  <div className="flex items-start gap-4">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--brand-deep)] text-sm font-semibold text-white">
-                      {index + 1}
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-semibold text-[var(--brand-deep)]">{step.title}</h3>
-                      <p className="mt-2 text-base leading-7 text-[var(--muted)]">{step.body}</p>
-                    </div>
-                  </div>
-                </article>
-              ))}
-            </div>
+      {/* Trust Bar */}
+      <section className="py-16 border-b border-border/50">
+        <div className="max-w-7xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-8 opacity-50 grayscale hover:grayscale-0 transition-all">
+          <span className="font-bold text-2xl tracking-tighter">WEST CAPITAL</span>
+          <span className="font-bold text-2xl tracking-tighter">FANNIE MAE</span>
+          <span className="font-bold text-2xl tracking-tighter">FREDDIE MAC</span>
+          <span className="font-bold text-2xl tracking-tighter">VA APPROVED</span>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="py-12 px-4">
+        <div className="max-w-7xl mx-auto text-center space-y-6">
+          <div className="flex justify-center items-center space-x-2 grayscale opacity-50">
+            <Zap className="h-5 w-5" />
+            <span className="text-lg font-bold tracking-tighter">RateHunter</span>
           </div>
-
-          <div id="assistant" className="section-shell rounded-[2rem] p-8">
-            <p className="eyebrow text-xs font-semibold text-[var(--accent)]">Borrower assistant</p>
-            <h2 className="display-copy mt-3 text-4xl text-[var(--brand-deep)]">
-              OpenClaw-ready chat for borrower questions.
-            </h2>
-            <p className="mt-4 max-w-2xl text-base leading-8 text-[var(--muted)]">
-              The bottom-right chat widget now defaults to an internal route, so Cloudflare Pages can host the
-              UI cleanly while your backend points to OpenClaw, Open WebUI channels, or a streaming borrower
-              assistant gateway behind the scenes.
-            </p>
-
-            <div className="mt-8 grid gap-4 md:grid-cols-2">
-              <div className="rounded-[1.7rem] border border-[var(--line)] bg-white/70 p-5">
-                <p className="eyebrow text-[0.68rem] font-semibold text-[var(--brand)]">Borrower persona</p>
-                <p className="mt-3 text-base leading-7 text-[var(--muted)]">
-                  A dedicated borrower persona file now sits with this app so the public-facing assistant can
-                  stay separate from the broker-facing internal AI workspace.
-                </p>
-              </div>
-              <div className="rounded-[1.7rem] border border-[var(--line)] bg-white/70 p-5">
-                <p className="eyebrow text-[0.68rem] font-semibold text-[var(--brand)]">Server-side relay</p>
-                <p className="mt-3 text-base leading-7 text-[var(--muted)]">
-                  The proxy route keeps upstream URLs and API keys off the client while preserving streaming
-                  responses for a borrower-friendly chat experience.
-                </p>
-              </div>
-            </div>
-
-            <div className="mt-8 rounded-[1.7rem] border border-[var(--line)] bg-[var(--surface-strong)] p-5">
-              <p className="text-sm font-semibold text-[var(--brand-deep)]">Suggested public use cases</p>
-              <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                {[
-                  'Pre-approval document checklist',
-                  'Cash-to-close preparation',
-                  'Purchase vs refinance framing',
-                  'Rate vs APR education',
-                ].map((item) => (
-                  <div key={item} className="rounded-2xl bg-white px-4 py-3 text-sm text-[var(--muted)]">
-                    {item}
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section className="section-shell rounded-[2rem] p-8 md:p-10">
-          <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
-            <div>
-              <p className="eyebrow text-xs font-semibold text-[var(--accent)]">Conversion close</p>
-              <h2 className="display-copy mt-3 text-4xl text-[var(--brand-deep)] md:text-5xl">
-                Let the page educate, qualify, and route before a human handoff.
-              </h2>
-              <p className="mt-4 max-w-2xl text-base leading-8 text-[var(--muted)]">
-                This version is static-first, Cloudflare-friendly, and intentionally written for trust. No fake
-                urgency. No brittle live-feed hero. Just a professional borrower experience that can connect to
-                your OpenClaw stack when the backend is ready.
-              </p>
-            </div>
-            <div className="rounded-[1.8rem] bg-[var(--brand-deep)] p-6 text-white">
-              <p className="eyebrow text-[0.68rem] font-semibold text-[var(--accent-soft)]">Important</p>
-              <p className="mt-4 text-base leading-8 text-white/85">
-                All borrower-facing messaging should remain educational and non-binding. Final pricing,
-                qualification, and loan structure must come from the licensed process and lender decisioning
-                flow.
-              </p>
-            </div>
-          </div>
-        </section>
-      </div>
+          <p className="text-[10px] text-muted-foreground max-w-3xl mx-auto leading-relaxed uppercase tracking-widest">
+            RateHunter is a project nyra implementation. Mortgage services provided by licensed partners. 
+            Rates and terms are subject to credit approval and market conditions. 
+            Ellis D Andersen | NMLS# 2145025 | Equal Housing Opportunity.
+          </p>
+        </div>
+      </footer>
 
       <BorrowerChatWidget />
     </main>

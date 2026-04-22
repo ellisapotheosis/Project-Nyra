@@ -140,27 +140,40 @@ def calculate_loan_type_quote(req: LoanTypeRequest) -> Tuple[LoanTypeQuoteSummar
         payment_pi + tax + ins + hoa + monthly_pmi, 2
     )
 
+    from .micros import to_micros
+
     summary = LoanTypeQuoteSummary(
         quote_id=quote_id,
         loan_type=req.loan_type,
         base_loan_amount=req.loan_amount,
+        base_loan_amount_micros=to_micros(req.loan_amount),
         upfront_fees=round(upfront_fees, 2),
+        upfront_fees_micros=to_micros(upfront_fees),
         financed_amount=round(financed_amount, 2),
+        financed_amount_micros=to_micros(financed_amount),
         periodic_payment_pi=payment_pi,
+        periodic_payment_pi_micros=to_micros(payment_pi),
         monthly_pmi_or_mip=round(monthly_pmi, 2),
+        monthly_pmi_or_mip_micros=to_micros(monthly_pmi),
         periodic_payment_piti=periodic_payment_piti,
+        periodic_payment_piti_micros=to_micros(periodic_payment_piti),
         periodic_interest_rate=r,
         annual_interest_rate=req.annual_interest_rate,
         periods_per_year=ppy,
         number_of_payments=len(rows),
         term_years=req.term_years,
         total_interest=round(total_interest, 2),
+        total_interest_micros=to_micros(total_interest),
         total_pmi_or_mip=round(total_pmi_or_mip, 2),
+        total_pmi_or_mip_micros=to_micros(total_pmi_or_mip),
         total_paid=round(total_paid, 2),
+        total_paid_micros=to_micros(total_paid),
         payoff_date=payoff_date,
         ltv=round(req.ltv, 4),
         down_payment=req.down_payment,
+        down_payment_micros=to_micros(req.down_payment),
         property_value=req.property_value,
+        property_value_micros=to_micros(req.property_value),
         credit_score=req.credit_score,
         assumptions=assumptions_dict,
     )

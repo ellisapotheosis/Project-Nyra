@@ -2,6 +2,7 @@ import express from 'express'
 import cors from 'cors'
 import helmet from 'helmet'
 import dotenv from 'dotenv'
+import { rateLimit } from 'express-rate-limit'
 import { Pool } from 'pg'
 import fetch from 'node-fetch'
 import winston from 'winston'
@@ -45,6 +46,16 @@ const app = express()
 app.use(helmet())
 app.use(cors({ origin: process.env.CORS_ALLOWED_ORIGINS?.split(',') || '*' }))
 app.use(express.json())
+
+// Rate Limiting
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+  standardHeaders: true,
+  legacyHeaders: false,
+})
+
+app.use('/api/', limiter)
 
 app.use((req, res, next) => {
   if (CRM_API_KEY && req.headers['x-crm-api-key'] !== CRM_API_KEY) {
@@ -212,27 +223,30 @@ function mapLoanPurpose(purpose: string) {
   return 'PURCHASE'
 }
 
+// Canonical Lead Ingestion (PRD-001)
 app.post('/api/leads', async (req, res, next) => {
   try {
     const raw = req.body
+    
+    // Normalize to E.164 and Micros (PRD-001)
     const lead = {
       firstName: raw.firstName || raw.first_name || raw.fname,
       lastName: raw.lastName || raw.last_name || raw.lname,
       email: raw.email || raw.email_address,
       phone: normalizePhone(raw.phone || raw.phone_number),
-      loanPurpose: mapLoanPurpose(raw.loan_purpose || raw.loanType),
-      loanAmount: parseFloat(raw.loan_amount || raw.loanAmount) || 0,
-      propertyState: raw.state || raw.property_state || raw.propertyState,
-      creditScore: parseInt(raw.credit_score || raw.fico) || null,
-      source: raw.source || 'unknown',
+      loanPurpose: mapLoanPurpose(raw.loanPurpose || raw.loan_purpose || raw.loanType),
+      loanAmount: (parseFloat(raw.loanAmount || raw.loan_amount) || 0) * 10000, // micros
+      propertyState: raw.propertyState || raw.state || raw.property_state,
+      creditScore: parseInt(raw.creditScore || raw.credit_score || raw.fico) || null,
+      source: raw.source || 'ratehunter',
       consentTimestamp: new Date().toISOString()
     }
 
     if (!lead.firstName || !lead.lastName || (!lead.email && !lead.phone)) {
-      return res.status(400).json({ error: 'Invalid lead data: firstName, lastName, and (email or phone) are required' })
+      return res.status(400).json({ error: 'Missing required lead fields' })
     }
 
-    // Dedupe
+    // Deduplication Logic (PRD-001)
     const existing = await twentyClient.searchContacts({
       filter: {
         or: [
@@ -256,15 +270,12 @@ app.post('/api/leads', async (req, res, next) => {
         email: lead.email || '',
         phone: lead.phone || '',
         source: lead.source,
-        customFields: {
-          firstName: lead.firstName,
-          lastName: lead.lastName
-        }
+        customFields: { firstName: lead.firstName, lastName: lead.lastName }
       })
       personId = contact.id
     }
 
-    // Create mortgage lead
+    // Create MortgageLead (PRD-001)
     const mortgageLead = await twentyClient.createMortgageLead({
       personId,
       loanPurpose: lead.loanPurpose,
@@ -274,13 +285,13 @@ app.post('/api/leads', async (req, res, next) => {
       campaignStatus: 'PENDING'
     })
 
-    // Assign campaign and start workflow
+    // Trigger n8n Workflow
     if (N8N_WEBHOOK_URL) {
-      await fetch(`${N8N_WEBHOOK_URL.replace(/\/$/, '')}/webhook/lead-ingest`, {
+      fetch(`${N8N_WEBHOOK_URL.replace(/\/$/, '')}/webhook/lead-ingest`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...lead, mortgageLeadId: mortgageLead.id })
-      })
+        body: JSON.stringify({ ...lead, mortgageLeadId: mortgageLead.id, personId })
+      }).catch(err => logger.error('Failed to trigger n8n', err))
     }
 
     return res.status(201).json({ success: true, personId, mortgageLeadId: mortgageLead.id })
@@ -288,6 +299,59 @@ app.post('/api/leads', async (req, res, next) => {
     next(error)
   }
 })
+
+// Quote Generation API (PRD-003)
+app.post('/api/quotes', async (req, res, next) => {
+  try {
+    const request = req.body
+    
+    // 1. Validate scenario
+    if (!request.leadId || !request.scenario?.loanAmount) {
+      return res.status(400).json({ error: 'Invalid quote request' })
+    }
+
+    // 2. Delegate to Quote Engine (or internal logic)
+    const options = await fetchQuoteEngine(request.scenario)
+    
+    // 3. Create Quote in CRM as PENDING (PRD-003)
+    const quote = await twentyClient.createQuote({
+      leadId: request.leadId,
+      loanAmount: request.scenario.loanAmount * 10000, // micros
+      interestRate: options[0]?.rate || 0,
+      status: 'pending',
+      metadata: { options, scenario: request.scenario }
+    })
+
+    return res.status(201).json(quote)
+  } catch (error) {
+    next(error)
+  }
+})
+
+app.post('/api/quotes/:id/approve', async (req, res, next) => {
+  try {
+    const { approvedBy } = req.body
+    const quoteId = req.params.id
+    
+    const quote = await twentyClient.request<{ updateQuote: any }>('updateQuoteStatus', {
+      id: quoteId,
+      input: { status: 'approved', approvedBy, approvedAt: new Date().toISOString() }
+    })
+    
+    return res.json(quote)
+  } catch (error) {
+    next(error)
+  }
+})
+
+app.get('/api/leads', async (req, res, next) => {
+  try {
+    const leads = await twentyClient.searchMortgageLeads({}, 100);
+    return res.json({ leads });
+  } catch (error) {
+    next(error);
+  }
+});
 
 app.get('/api/leads/:id/conversation', async (req, res, next) => {
   try {
@@ -361,6 +425,29 @@ app.patch('/api/leads/:id/status', async (req, res, next) => {
     }
 
     return res.json({ loan: update.rows[0] })
+  } catch (error) {
+    next(error)
+  }
+})
+
+app.patch('/api/leads/:id/campaign', async (req, res, next) => {
+  try {
+    const { status } = req.body
+    const leadId = req.params.id
+
+    const update = await twentyClient.updateMortgageLead(leadId, {
+      campaignStatus: status
+    })
+
+    if (N8N_WEBHOOK_URL) {
+      fetch(`${N8N_WEBHOOK_URL.replace(/\/$/, '')}/webhook/campaign-control`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ leadId, status })
+      }).catch(err => logger.error('Failed to trigger n8n campaign-control', err))
+    }
+
+    return res.json({ success: true, update })
   } catch (error) {
     next(error)
   }

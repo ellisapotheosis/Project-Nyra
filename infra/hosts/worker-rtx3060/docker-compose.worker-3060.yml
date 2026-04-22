@@ -8,6 +8,44 @@
 version: '3.9'
 
 services:
+  # ── Infisical secrets init (runs once, writes files to /run/nyra-secrets/) ─
+  secrets-init:
+    build:
+      context: ../../infisical-secrets-init
+    container_name: worker-3060-secrets-init
+    restart: "no"
+    command: ["/usr/local/bin/secrets-init.sh"]
+    environment:
+      INFISICAL_TOKEN: ${INFISICAL_TOKEN:-}
+      INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
+      INFISICAL_ENV: ${INFISICAL_ENV:-prod}
+      INFISICAL_PATH: ${INFISICAL_PATH:-/machines/worker-rtx3060}
+    volumes:
+      - nyra_secrets:/run/nyra-secrets
+    networks:
+      - worker-network
+
+  # ── Infisical agent (polls Infisical and refreshes secrets) ──────────────
+  infisical-agent:
+    build:
+      context: ../../infisical-secrets-init
+    container_name: worker-3060-infisical-agent
+    restart: unless-stopped
+    entrypoint: ["/usr/local/bin/agent-sidecar.sh"]
+    depends_on:
+      secrets-init:
+        condition: service_completed_successfully
+    environment:
+      INFISICAL_TOKEN: ${INFISICAL_TOKEN}
+      INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
+      INFISICAL_ENV: ${INFISICAL_ENV:-prod}
+      INFISICAL_PATH: ${INFISICAL_PATH:-/machines/worker-rtx3060}
+      INFISICAL_POLL_INTERVAL: ${INFISICAL_POLL_INTERVAL:-60}
+    volumes:
+      - nyra_secrets:/run/nyra-secrets
+    networks:
+      - worker-network
+
   # ============================================================================
   # Ollama Service (GPU-enabled) - 12GB VRAM optimized
   # ============================================================================
@@ -15,6 +53,9 @@ services:
     image: ollama/ollama:latest
     container_name: worker-3060-ollama
     restart: unless-stopped
+    depends_on:
+      secrets-init:
+        condition: service_completed_successfully
     ports:
       - "11434:11434"
     environment:
@@ -31,6 +72,7 @@ services:
       - ollama-data:/root/.ollama
       - ./models:/models
       - ./ollama-modelfile:/modelfiles:ro
+      - nyra_secrets:/run/nyra-secrets:ro
     deploy:
       resources:
         reservations:
@@ -98,8 +140,10 @@ services:
     volumes:
       - ./health-monitor:/app
       - /var/run/docker.sock:/var/run/docker.sock:ro
+      - nyra_secrets:/run/nyra-secrets:ro
     depends_on:
       - ollama
+      - secrets-init
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9090/health"]
       interval: 30s
@@ -172,6 +216,7 @@ volumes:
     driver: local
   redis-data:
     driver: local
+  nyra_secrets:
 
 networks:
   worker-network:

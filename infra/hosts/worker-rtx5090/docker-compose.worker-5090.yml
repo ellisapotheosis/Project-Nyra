@@ -2,14 +2,50 @@
 # Worker RTX 5090 - Alienware Area-51 Laptop (32GB VRAM)
 # ============================================================================
 # vLLM + LMCache for high-performance large model inference
-# Specialization: Complex reasoning, mortgage calculations, compliance analysis
-# Primary models: Llama 3.1 70B, DeepSeek-R1 70B, Qwen 2.5 72B
 # Connected via Tailscale mesh to orchestrator
 # ============================================================================
 
 version: '3.8'
 
 services:
+  # ── Infisical secrets init (runs once, writes files to /run/nyra-secrets/) ─
+  secrets-init:
+    build:
+      context: ../../infisical-secrets-init
+    container_name: worker-5090-secrets-init
+    restart: "no"
+    command: ["/usr/local/bin/secrets-init.sh"]
+    environment:
+      INFISICAL_TOKEN: ${INFISICAL_TOKEN:-}
+      INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
+      INFISICAL_ENV: ${INFISICAL_ENV:-prod}
+      INFISICAL_PATH: ${INFISICAL_PATH:-/machines/worker-rtx5090}
+    volumes:
+      - nyra_secrets:/run/nyra-secrets
+    networks:
+      - worker-network
+
+  # ── Infisical agent (polls Infisical and refreshes secrets) ──────────────
+  infisical-agent:
+    build:
+      context: ../../infisical-secrets-init
+    container_name: worker-5090-infisical-agent
+    restart: unless-stopped
+    entrypoint: ["/usr/local/bin/agent-sidecar.sh"]
+    depends_on:
+      secrets-init:
+        condition: service_completed_successfully
+    environment:
+      INFISICAL_TOKEN: ${INFISICAL_TOKEN}
+      INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
+      INFISICAL_ENV: ${INFISICAL_ENV:-prod}
+      INFISICAL_PATH: ${INFISICAL_PATH:-/machines/worker-rtx5090}
+      INFISICAL_POLL_INTERVAL: ${INFISICAL_POLL_INTERVAL:-60}
+    volumes:
+      - nyra_secrets:/run/nyra-secrets
+    networks:
+      - worker-network
+
   # ============================================================================
   # vLLM Server with LMCache (32GB VRAM - Maximum Performance)
   # ============================================================================
@@ -24,17 +60,18 @@ services:
       - vllm-models:/root/.cache/huggingface
       - lmcache-data:/root/.cache/lmcache
       - ./logs/vllm:/var/log/vllm
+      - nyra_secrets:/run/nyra-secrets:ro
     environment:
       - CUDA_VISIBLE_DEVICES=0
       - NVIDIA_VISIBLE_DEVICES=all
       - NVIDIA_DRIVER_CAPABILITIES=compute,utility
-      - HF_TOKEN=${HF_TOKEN:-}
+      - HF_TOKEN_FILE=/run/nyra-secrets/hf_token
       - VLLM_ATTENTION_BACKEND=FLASHINFER
       # LMCache Configuration  
       - LMCACHE_ENABLED=true
       - LMCACHE_STORAGE_BACKEND=local
       - LMCACHE_LOCAL_DEVICE=cuda
-      - LMCACHE_MAX_LOCAL_CACHE_SIZE=12G  # Larger cache for 32GB
+      - LMCACHE_MAX_LOCAL_CACHE_SIZE=12G
     command: >
       --model Qwen/Qwen2.5-Coder-32B-Instruct
       --host 0.0.0.0
@@ -55,29 +92,20 @@ services:
               capabilities: [gpu]
         limits:
           memory: 48G
+    depends_on:
+      secrets-init:
+        condition: service_completed_successfully
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 30s
       timeout: 15s
       retries: 3
-      start_period: 180s  # Longer startup for 70B model
-    labels:
-      - "com.nyra.service=vllm"
-      - "com.nyra.worker=rtx5090"
-      - "com.nyra.gpu=rtx-5090"
-      - "com.nyra.vram=32gb"
-      - "com.nyra.device=alienware-area51"
-      - "com.nyra.specialization=large-models"
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "100m"
-        max-file: "5"
+      start_period: 180s
     networks:
       - worker-network
 
   # ============================================================================
-  # LMCache Server (KV Cache sharing - optimized for large models)
+  # LMCache Server
   # ============================================================================
   lmcache:
     image: lmcache/lmcache-server:latest
@@ -88,11 +116,15 @@ services:
       - "${LMCACHE_PORT:-8100}:8100"
     volumes:
       - lmcache-data:/data
+      - nyra_secrets:/run/nyra-secrets:ro
     environment:
       - LMCACHE_CONFIG_FILE=/etc/lmcache/config.yaml
       - LMCACHE_STORAGE_BACKEND=local
       - LMCACHE_LOCAL_DEVICE=cuda
       - LMCACHE_MAX_SIZE=12G
+    depends_on:
+      secrets-init:
+        condition: service_completed_successfully
     deploy:
       resources:
         reservations:
@@ -100,24 +132,11 @@ services:
             - driver: nvidia
               count: 1
               capabilities: [gpu]
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8100/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    labels:
-      - "com.nyra.service=lmcache"
-      - "com.nyra.worker=rtx5090"
     networks:
       - worker-network
 
   # ============================================================================
-  # Model Switcher - Hot-swap between large models
-  # Available models optimized for 32GB VRAM:
-  # - Llama 3.1 70B (AWQ quantized)
-  # - DeepSeek-R1 70B (reasoning specialist)
-  # - Qwen 2.5 72B (multilingual)
-  # - Mixtral 8x22B (MoE for varied tasks)
+  # Model Switcher
   # ============================================================================
   model-switcher:
     image: python:3.11-slim
@@ -127,6 +146,7 @@ services:
     volumes:
       - ./model-switcher:/app
       - vllm-models:/models
+      - nyra_secrets:/run/nyra-secrets:ro
     environment:
       - VLLM_URL=http://vllm:8000
       - AVAILABLE_MODELS=meta-llama/Llama-3.1-70B-Instruct-AWQ,deepseek-ai/DeepSeek-R1-Distill-Llama-70B,Qwen/Qwen2.5-72B-Instruct-AWQ,mistralai/Mixtral-8x22B-Instruct-v0.1-AWQ
@@ -134,15 +154,15 @@ services:
       - SPECIALIZATION=mortgage,compliance,reasoning
     command: python /app/switcher.py
     depends_on:
-      - vllm
-    labels:
-      - "com.nyra.service=model-switcher"
-      - "com.nyra.worker=rtx5090"
+      vllm:
+        condition: service_healthy
+      secrets-init:
+        condition: service_completed_successfully
     networks:
       - worker-network
 
   # ============================================================================
-  # LiteLLM Proxy - OpenAI-compatible API
+  # LiteLLM Proxy
   # ============================================================================
   litellm:
     image: ghcr.io/berriai/litellm:main-latest
@@ -152,22 +172,16 @@ services:
     ports:
       - "${LITELLM_PORT:-4000}:4000"
     environment:
-      - LITELLM_MASTER_KEY=${LITELLM_MASTER_KEY:-sk-worker-5090}
       - LITELLM_LOG=INFO
     volumes:
       - ./litellm-config.yaml:/app/config.yaml:ro
+      - nyra_secrets:/run/nyra-secrets:ro
     command: --config /app/config.yaml --port 4000
     depends_on:
       vllm:
         condition: service_healthy
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:4000/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    labels:
-      - "com.nyra.service=litellm"
-      - "com.nyra.worker=rtx5090"
+      secrets-init:
+        condition: service_completed_successfully
     networks:
       - worker-network
 
@@ -191,14 +205,11 @@ services:
             - driver: nvidia
               count: 1
               capabilities: [gpu]
-    labels:
-      - "com.nyra.service=gpu-exporter"
-      - "com.nyra.worker=rtx5090"
     networks:
       - worker-network
 
   # ============================================================================
-  # Health Monitor & Orchestrator Reporter
+  # Health Monitor
   # ============================================================================
   health-monitor:
     image: curlimages/curl:latest
@@ -208,30 +219,28 @@ services:
     depends_on:
       - vllm
       - litellm
+      - secrets-init
     environment:
       - VLLM_URL=http://vllm:8000
       - LITELLM_URL=http://litellm:4000
       - ORCHESTRATOR_URL=${ORCHESTRATOR_URL:-http://100.64.0.1:7000}
       - WORKER_ID=worker-5090
       - CHECK_INTERVAL=60
+    volumes:
+      - nyra_secrets:/run/nyra-secrets:ro
     entrypoint: ["/bin/sh", "-c"]
     command:
       - |
         while true; do
-          echo "[$(date -Iseconds)] Health check..."
           VLLM_STATUS=$$(curl -sf "$$VLLM_URL/health" && echo "OK" || echo "FAIL")
           LITELLM_STATUS=$$(curl -sf "$$LITELLM_URL/health" && echo "OK" || echo "FAIL")
-          echo "[$(date -Iseconds)] vLLM: $$VLLM_STATUS, LiteLLM: $$LITELLM_STATUS"
           sleep $$CHECK_INTERVAL
         done
     networks:
       - worker-network
-    labels:
-      - "com.nyra.service=health-monitor"
-      - "com.nyra.worker=rtx5090"
 
   # ============================================================================
-  # Promtail - Log Shipper to Orchestrator Loki
+  # Promtail
   # ============================================================================
   promtail:
     image: grafana/promtail:latest
@@ -243,13 +252,14 @@ services:
       - ./logs:/var/log/worker-5090:ro
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
+      - nyra_secrets:/run/nyra-secrets:ro
     environment:
       - LOKI_URL=${LOKI_URL:-http://100.64.0.1:3100}
       - WORKER_ID=worker-5090
     command: -config.file=/etc/promtail/config.yaml
-    labels:
-      - "com.nyra.service=promtail"
-      - "com.nyra.worker=rtx5090"
+    depends_on:
+      secrets-init:
+        condition: service_completed_successfully
     networks:
       - worker-network
 
@@ -268,3 +278,4 @@ volumes:
   lmcache-data:
     name: nyra-lmcache-5090
     driver: local
+  nyra_secrets:

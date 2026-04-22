@@ -16,6 +16,7 @@
     "cors": "^2.8.5",
     "dotenv": "^16.5.4",
     "express": "^4.20.4",
+    "express-rate-limit": "^8.3.2",
     "helmet": "^7.0.0",
     "node-fetch": "^3.3.2",
     "pg": "^8.14.0",
