@@ -1,6 +1,11 @@
 import type { Metadata } from "next";
+import { ClerkProvider, SignInButton, SignedIn, SignedOut, UserButton } from '@clerk/nextjs';
 import "./globals.css";
 import Link from 'next/link';
+import { Geist } from "next/font/google";
+import { cn } from "@/lib/utils";
+
+const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
 export const metadata: Metadata = {
   title: "Nyra WebApp",
@@ -13,22 +18,33 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className="antialiased min-h-screen bg-background text-foreground">
-        <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50 px-6 py-4 flex items-center justify-between">
-          <div>
-            <div className="text-[10px] uppercase tracking-[0.2em] font-bold text-muted-foreground">Project Nyra</div>
-            <div className="text-lg font-bold">Control Surface</div>
-          </div>
-          <nav className="flex items-center space-x-6 text-sm font-medium">
-            <Link href="/" className="text-muted-foreground hover:text-foreground transition-colors">Home</Link>
-            <Link href="/campaigns" className="text-muted-foreground hover:text-foreground transition-colors">Campaigns</Link>
-            <Link href="/assistant" className="text-muted-foreground hover:text-foreground transition-colors">Assistant</Link>
-            <Link href="/tools/openclaw" className="text-muted-foreground hover:text-foreground transition-colors">OpenClaw Admin</Link>
-          </nav>
-        </header>
-        <main className="p-8 max-w-7xl mx-auto">{children}</main>
-      </body>
-    </html>
+    <ClerkProvider>
+      <html lang="en" className={cn("font-sans", geist.variable)}>
+        <body className="antialiased min-h-screen bg-background text-foreground">
+          <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50 px-6 py-4 flex items-center justify-between">
+            <div>
+              <div className="text-[10px] uppercase tracking-[0.2em] font-bold text-muted-foreground">Project Nyra</div>
+              <div className="text-lg font-bold">Control Surface</div>
+            </div>
+            <nav className="flex items-center space-x-6 text-sm font-medium">
+              <Link href="/" className="text-muted-foreground hover:text-foreground transition-colors">Home</Link>
+              <Link href="/campaigns" className="text-muted-foreground hover:text-foreground transition-colors">Campaigns</Link>
+              <Link href="/assistant" className="text-muted-foreground hover:text-foreground transition-colors">Assistant</Link>
+              <div className="pl-4 border-l border-border flex items-center">
+                <SignedOut>
+                  <SignInButton mode="modal">
+                    <button className="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-xs font-bold uppercase tracking-widest hover:opacity-90 transition-opacity">Login</button>
+                  </SignInButton>
+                </SignedOut>
+                <SignedIn>
+                  <UserButton afterSignOutUrl="/" />
+                </SignedIn>
+              </div>
+            </nav>
+          </header>
+          <main className="p-8 max-w-7xl mx-auto">{children}</main>
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }

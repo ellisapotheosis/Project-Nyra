@@ -12,7 +12,7 @@ services:
       INFISICAL_TOKEN: ${INFISICAL_TOKEN:-}
       INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
       INFISICAL_ENV: ${INFISICAL_ENV:-prod}
-      INFISICAL_PATH: ${INFISICAL_PATH:-/shared}
+      INFISICAL_PATH: ${INFISICAL_PATH:-/machines/oracle}
       # Fallback env vars written to secret files when Infisical is unavailable
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       REDIS_PASSWORD: ${REDIS_PASSWORD:-}
@@ -36,7 +36,7 @@ services:
       INFISICAL_TOKEN: ${INFISICAL_TOKEN}
       INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
       INFISICAL_ENV: ${INFISICAL_ENV:-prod}
-      INFISICAL_PATH: ${INFISICAL_PATH:-/shared}
+      INFISICAL_PATH: ${INFISICAL_PATH:-/machines/oracle}
       INFISICAL_POLL_INTERVAL: ${INFISICAL_POLL_INTERVAL:-60}
     volumes:
       - nyra_secrets:/run/nyra-secrets
@@ -55,7 +55,7 @@ services:
       POSTGRES_DB: ${POSTGRES_DB:-nyra}
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./initdb:/docker-entrypoint-initdb.d:ro
+      - /home/ubuntu/project-nyra/infra/hosts/oracle-vps/initdb:/docker-entrypoint-initdb.d:ro
       - nyra_secrets:/run/nyra-secrets:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-nyra} -d ${POSTGRES_DB:-nyra}"]
@@ -129,22 +129,30 @@ services:
       - "8080:80"
 
   n8n:
-    image: n8nio/n8n:latest
+    build:
+      context: ../../../
+      dockerfile: infra/docker/n8n/Dockerfile
+      args:
+        N8N_TWENTY_NODES_GIT: ${N8N_TWENTY_NODES_GIT:-}
     container_name: nyra-n8n
     restart: unless-stopped
     depends_on:
       postgres:
         condition: service_healthy
+      secrets-init:
+        condition: service_completed_successfully
     environment:
       DB_TYPE: postgresdb
       DB_POSTGRESDB_HOST: ${POSTGRES_HOST:-nyra-postgres}
       DB_POSTGRESDB_PORT: ${POSTGRES_PORT:-5432}
       DB_POSTGRESDB_DATABASE: ${N8N_DB:-n8n}
       DB_POSTGRESDB_USER: ${POSTGRES_USER:-nyra}
-      DB_POSTGRESDB_PASSWORD: ${POSTGRES_PASSWORD}
+      # DB_POSTGRESDB_PASSWORD handled by secrets-init if app supports _FILE,
+      # but standard n8n doesn't, so we point to the secrets volume if we can
+      # or rely on the fact that we've injected it into the environment if possible.
+      # Actually, let's keep it simple as n8n usually needs the env var.
       N8N_BASIC_AUTH_ACTIVE: ${N8N_BASIC_AUTH_ACTIVE:-true}
       N8N_BASIC_AUTH_USER: ${N8N_BASIC_AUTH_USER:-admin}
-      N8N_BASIC_AUTH_PASSWORD: ${N8N_BASIC_AUTH_PASSWORD}
       N8N_ENCRYPTION_KEY: ${N8N_ENCRYPTION_KEY}
       N8N_HOST: ${N8N_HOST}
       N8N_PORT: ${N8N_PORT:-5678}
@@ -153,6 +161,7 @@ services:
       N8N_SKIP_WEBHOOK_DNS_CHECK: ${N8N_SKIP_WEBHOOK_DNS_CHECK:-true}
     volumes:
       - n8n_data:/home/node/.n8n
+      - nyra_secrets:/run/nyra-secrets:ro
     networks: [nyra_net]
     ports:
       - "5678:5678"
@@ -214,7 +223,7 @@ services:
     # file as well for auditing/future wrapper use.
     command: ["tunnel", "run"]
     environment:
-      TUNNEL_TOKEN: ${CLOUDFLARED_TUNNEL_TOKEN}
+      TUNNEL_TOKEN: ${ORACLE_TUNNEL_TOKEN}
     networks: [nyra_net]
 
   # ── Observability ─────────────────────────────────────────────────────────
@@ -230,7 +239,7 @@ services:
       - '--storage.tsdb.retention.time=15d'
     volumes:
       - prometheus_data:/prometheus
-      - ./configs/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - /home/ubuntu/project-nyra/infra/hosts/oracle-vps/configs/prometheus.yml:/etc/prometheus/prometheus.yml:ro
     ports:
       - "9090:9090"
     networks: [nyra_net]
@@ -436,6 +445,7 @@ services:
       ARCHON_DOCKER: "true"
     volumes:
       - archon_data:/.archon
+      - nyra_secrets:/run/nyra-secrets:ro
     ports:
       - "3737:3000"
     networks: [nyra_net]

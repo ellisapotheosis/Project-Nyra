@@ -76,8 +76,12 @@ class LoanTypeRequest(BaseModel):
     """Enhanced quote request with loan-type-specific fields."""
 
     # Core loan details
-    loan_amount: float = Field(..., gt=0, description="Base loan amount before any fees.")
-    property_value: float = Field(..., gt=0, description="Property appraised value.")
+    loan_amount: float = Field(..., gt=0, description="Base loan amount in USD.")
+    loan_amount_micros: Optional[int] = Field(None, description="Base loan amount in micros.")
+    
+    property_value: float = Field(..., gt=0, description="Property value in USD.")
+    property_value_micros: Optional[int] = Field(None, description="Property value in micros.")
+    
     annual_interest_rate: float = Field(..., gt=0, description="Nominal APR as decimal.")
     term_years: int = Field(..., ge=10, le=50)
     start_date: date = Field(..., description="First payment date.")
@@ -87,7 +91,19 @@ class LoanTypeRequest(BaseModel):
 
     # Borrower details
     credit_score: int = Field(..., ge=300, le=850)
-    down_payment: float = Field(0.0, ge=0, description="Down payment amount (not percentage).")
+    down_payment: float = Field(0.0, ge=0, description="Down payment amount in USD.")
+    down_payment_micros: Optional[int] = Field(None, description="Down payment amount in micros.")
+
+    # ... (rest of fields)
+    
+    def model_post_init(self, __context):
+        from .micros import from_micros
+        if self.loan_amount_micros is not None:
+            self.loan_amount = from_micros(self.loan_amount_micros)
+        if self.property_value_micros is not None:
+            self.property_value = from_micros(self.property_value_micros)
+        if self.down_payment_micros is not None:
+            self.down_payment = from_micros(self.down_payment_micros)
 
     # Optional payment details
     compounding: Literal["Monthly", "Semi-Annually"] = "Monthly"
@@ -125,13 +141,23 @@ class LoanTypeQuoteSummary(BaseModel):
 
     # Loan amounts
     base_loan_amount: float
+    base_loan_amount_micros: int = 0
+    
     upfront_fees: float
+    upfront_fees_micros: int = 0
+    
     financed_amount: float
+    financed_amount_micros: int = 0
 
     # Payment details
     periodic_payment_pi: float
+    periodic_payment_pi_micros: int = 0
+    
     monthly_pmi_or_mip: float
+    monthly_pmi_or_mip_micros: int = 0
+    
     periodic_payment_piti: float
+    periodic_payment_piti_micros: int = 0
 
     # Rates and terms
     periodic_interest_rate: float
@@ -142,14 +168,24 @@ class LoanTypeQuoteSummary(BaseModel):
 
     # Totals
     total_interest: float
+    total_interest_micros: int = 0
+    
     total_pmi_or_mip: float
+    total_pmi_or_mip_micros: int = 0
+    
     total_paid: float
+    total_paid_micros: int = 0
+    
     payoff_date: date
 
     # Loan details
     ltv: float
     down_payment: float
+    down_payment_micros: int = 0
+    
     property_value: float
+    property_value_micros: int = 0
+    
     credit_score: int
 
     # Assumptions used

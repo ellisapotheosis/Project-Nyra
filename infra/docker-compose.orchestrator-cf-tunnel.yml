@@ -1,8 +1,62 @@
+name: nyra-cloudflared-orchestrator
+
 services:
+  # ── Infisical secrets init (runs once, writes files to /run/nyra-secrets/) ─
+  secrets-init:
+    build:
+      context: ./infisical-secrets-init
+    container_name: orchestrator-cf-secrets-init
+    restart: "no"
+    command: ["/usr/local/bin/secrets-init.sh"]
+    environment:
+      INFISICAL_TOKEN: ${INFISICAL_TOKEN:-}
+      INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
+      INFISICAL_ENV: ${INFISICAL_ENV:-prod}
+      INFISICAL_PATH: ${INFISICAL_PATH:-/machines/orchestrator}
+    volumes:
+      - nyra_secrets:/run/nyra-secrets
+    networks:
+      - nyra-network
+
+  # ── Infisical agent (polls Infisical and refreshes secrets) ──────────────
+  infisical-agent:
+    build:
+      context: ./infisical-secrets-init
+    container_name: orchestrator-cf-infisical-agent
+    restart: unless-stopped
+    entrypoint: ["/usr/local/bin/agent-sidecar.sh"]
+    depends_on:
+      secrets-init:
+        condition: service_completed_successfully
+    environment:
+      INFISICAL_TOKEN: ${INFISICAL_TOKEN}
+      INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
+      INFISICAL_ENV: ${INFISICAL_ENV:-prod}
+      INFISICAL_PATH: ${INFISICAL_PATH:-/machines/orchestrator}
+      INFISICAL_POLL_INTERVAL: ${INFISICAL_POLL_INTERVAL:-60}
+    volumes:
+      - nyra_secrets:/run/nyra-secrets
+    networks:
+      - nyra-network
+
   tunnel:
     image: cloudflare/cloudflared:latest
     container_name: cloudflared-tunnel
     restart: unless-stopped
     command: tunnel run
-    env_file:
-      - env/secrets/.env.cloudflared
+    environment:
+      TUNNEL_TOKEN: ${ORCHESTRATOR_TUNNEL_TOKEN}
+    depends_on:
+      secrets-init:
+        condition: service_completed_successfully
+    networks:
+      - nyra-network
+
+volumes:
+  nyra_secrets:
+    external: true
+
+networks:
+  nyra-network:
+    external: true
+    name: nyra-network

@@ -40,7 +40,8 @@ DEFAULT_PROFILES ?= core,gateway,workflow,crm,archon,apps,observability,vector
   cluster cluster-kill grid grid-kill \
   nexus-up nexus-down health stack-up stack-verify \
   gitea-up gitea-down gitea-ps twenty-crm-up twenty-crm-down \
-  voice-3060 voice-5090 voice-3090ti voice-orch voice-distributed
+  voice-3060 voice-5090 voice-3090ti voice-orch voice-distributed \
+  up-all down-all cluster-status
 
 .DEFAULT_GOAL := help
 
@@ -48,13 +49,16 @@ help:
 	@echo "Project Nyra - Unified Control Plane"
 	@echo
 	@echo "--- INFRASTRUCTURE ---"
+	@echo "make up-all             Start all services across all PC nodes"
+	@echo "make down-all           Stop all services across all nodes"
+	@echo "make cluster-status     Show running containers across the entire cluster"
 	@echo "make up                 Start default local stack profiles"
 	@echo "make down               Stop and remove local stack"
 	@echo "make ps                 Show running containers"
 	@echo "make health             Run system-wide health checks"
 	@echo
 	@echo "--- ARCHON OS ---"
-	@echo "make archon-up          Start the multi-container Archon stack"
+	@echo "make archon-up          Start the multi-container Archon stack (on Oracle)"
 	@echo "make archon-down        Stop Archon stack"
 	@echo "make archon-logs        Tail Archon logs"
 	@echo
@@ -76,6 +80,26 @@ help:
 	@echo "make voice-3090ti       Start standalone Unmute on RTX 3090 Ti"
 	@echo "make voice-orch         Start Kyutai Pocket TTS on Orchestrator"
 	@echo "make voice-distributed  Start distributed 3-node voice setup"
+
+cluster-status:
+	@echo "=== [ORCHESTRATOR] ==="
+	@docker compose -f $(ORCHESTRATOR_COMPOSE) ps
+	@echo -e "\n=== [ORACLE-VPS] ==="
+	@docker --context oracle compose -f $(ORACLE_COMPOSE) ps
+	@echo -e "\n=== [WORKER-5090] ==="
+	@docker --context worker-rtx5090 compose -f $(WORKER_5090_COMPOSE) ps
+	@echo -e "\n=== [WORKER-3090TI] ==="
+	@docker --context worker-rtx3090ti compose -f $(WORKER_3090TI_COMPOSE) ps
+	@echo -e "\n=== [WORKER-3060] ==="
+	@docker --context worker-rtx3060 compose -f $(WORKER_3060_COMPOSE) ps
+
+up-all: up up-workers up-oracle
+
+down-all: down
+	docker --context oracle compose -f $(ORACLE_COMPOSE) down
+	docker --context worker-rtx5090 compose -f $(WORKER_5090_COMPOSE) down
+	docker --context worker-rtx3090ti compose -f $(WORKER_3090TI_COMPOSE) down
+	docker --context worker-rtx3060 compose -f $(WORKER_3060_COMPOSE) down
 
 verify-paths:
 	@test -f $(COMPOSE_FILE) || (echo "Missing $(COMPOSE_FILE)" && exit 1)

@@ -8,6 +8,44 @@
 version: '3.8'
 
 services:
+  # ── Infisical secrets init (runs once, writes files to /run/nyra-secrets/) ─
+  secrets-init:
+    build:
+      context: ../../infisical-secrets-init
+    container_name: worker-3090-secrets-init
+    restart: "no"
+    command: ["/usr/local/bin/secrets-init.sh"]
+    environment:
+      INFISICAL_TOKEN: ${INFISICAL_TOKEN:-}
+      INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
+      INFISICAL_ENV: ${INFISICAL_ENV:-prod}
+      INFISICAL_PATH: ${INFISICAL_PATH:-/machines/worker-rtx3090ti}
+    volumes:
+      - nyra_secrets:/run/nyra-secrets
+    networks:
+      - worker-network
+
+  # ── Infisical agent (polls Infisical and refreshes secrets) ──────────────
+  infisical-agent:
+    build:
+      context: ../../infisical-secrets-init
+    container_name: worker-3090-infisical-agent
+    restart: unless-stopped
+    entrypoint: ["/usr/local/bin/agent-sidecar.sh"]
+    depends_on:
+      secrets-init:
+        condition: service_completed_successfully
+    environment:
+      INFISICAL_TOKEN: ${INFISICAL_TOKEN}
+      INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
+      INFISICAL_ENV: ${INFISICAL_ENV:-prod}
+      INFISICAL_PATH: ${INFISICAL_PATH:-/machines/worker-rtx3090ti}
+      INFISICAL_POLL_INTERVAL: ${INFISICAL_POLL_INTERVAL:-60}
+    volumes:
+      - nyra_secrets:/run/nyra-secrets
+    networks:
+      - worker-network
+
   # ============================================================================
   # vLLM Server with LMCache (24GB VRAM optimized)
   # ============================================================================
@@ -22,11 +60,12 @@ services:
       - vllm-models:/root/.cache/huggingface
       - lmcache-data:/root/.cache/lmcache
       - ./logs/vllm:/var/log/vllm
+      - nyra_secrets:/run/nyra-secrets:ro
     environment:
       - CUDA_VISIBLE_DEVICES=0
       - NVIDIA_VISIBLE_DEVICES=all
       - NVIDIA_DRIVER_CAPABILITIES=compute,utility
-      - HF_TOKEN=${HF_TOKEN:-}
+      - HF_TOKEN_FILE=/run/nyra-secrets/hf_token
       - VLLM_ATTENTION_BACKEND=FLASHINFER
       # LMCache Configuration
       - LMCACHE_ENABLED=true
@@ -52,6 +91,9 @@ services:
               capabilities: [gpu]
         limits:
           memory: 32G
+    depends_on:
+      secrets-init:
+        condition: service_completed_successfully
     healthcheck:
       test: ['CMD', 'curl', '-f', 'http://localhost:8000/health']
       interval: 30s
@@ -84,10 +126,14 @@ services:
       - '${LMCACHE_PORT:-8100}:8100'
     volumes:
       - lmcache-data:/data
+      - nyra_secrets:/run/nyra-secrets:ro
     environment:
       - LMCACHE_CONFIG_FILE=/etc/lmcache/config.yaml
       - LMCACHE_STORAGE_BACKEND=local
       - LMCACHE_LOCAL_DEVICE=cuda
+    depends_on:
+      secrets-init:
+        condition: service_completed_successfully
     deploy:
       resources:
         reservations:
@@ -119,11 +165,15 @@ services:
       - ./logs:/var/log/worker-3090:ro
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
+      - nyra_secrets:/run/nyra-secrets:ro
     environment:
       - LOKI_URL=${LOKI_URL:-http://loki:3100}
       - WORKER_ID=${WORKER_ID:-worker-3090}
       - HOSTNAME=worker-3090
     command: -config.file=/etc/promtail/config.yml
+    depends_on:
+      secrets-init:
+        condition: service_completed_successfully
     labels:
       - 'com.project-nyra.service=promtail'
       - 'com.project-nyra.worker=worker-3090'
@@ -152,6 +202,8 @@ services:
       - '--path.sysfs=/host/sys'
       - '--path.rootfs=/rootfs'
       - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    networks:
+      - worker-network
     labels:
       - 'com.project-nyra.service=node-exporter'
       - 'com.project-nyra.worker=worker-3090'
@@ -181,6 +233,8 @@ services:
             - driver: nvidia
               count: 1
               capabilities: [gpu]
+    networks:
+      - worker-network
     labels:
       - 'com.project-nyra.service=nvidia-exporter'
       - 'com.project-nyra.worker=worker-3090'
@@ -195,6 +249,7 @@ volumes:
     driver: local
   lmcache-data:
     driver: local
+  nyra_secrets:
   ollama-models:
     driver: local
     driver_opts:
