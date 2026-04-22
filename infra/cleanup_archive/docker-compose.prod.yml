@@ -1,0 +1,164 @@
+# Project Nyra - Production Environment Override
+# Use: docker-compose -f infra/docker-compose.yml -f docker-compose.prod.yml up -d
+
+name: nyra-prod
+
+services:
+  postgres:
+    # No port exposure in production
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-nyra_prod}
+    volumes:
+      - postgres_prod_data:/var/lib/postgresql/data
+      - ./infra/configs/postgres/init-prod.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    command:
+      - 'postgres'
+      - '-c'
+      - 'max_connections=200'
+      - '-c'
+      - 'shared_buffers=512MB'
+      - '-c'
+      - 'effective_cache_size=2GB'
+      - '-c'
+      - 'maintenance_work_mem=128MB'
+      - '-c'
+      - 'checkpoint_completion_target=0.9'
+      - '-c'
+      - 'wal_buffers=16MB'
+      - '-c'
+      - 'default_statistics_target=100'
+      - '-c'
+      - 'random_page_cost=1.1'
+      - '-c'
+      - 'effective_io_concurrency=200'
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: ${POSTGRES_MEMORY_LIMIT:-2048M}
+          cpus: '${POSTGRES_CPU_LIMIT:-2.0}'
+
+  redis:
+    # No port exposure in production
+    volumes:
+      - redis_prod_data:/data
+    command:
+      - 'redis-server'
+      - '--requirepass'
+      - '${REDIS_PASSWORD}'
+      - '--maxmemory'
+      - '${REDIS_MAX_MEMORY:-1gb}'
+      - '--maxmemory-policy'
+      - 'allkeys-lru'
+      - '--save'
+      - '900 1'
+      - '--save'
+      - '300 10'
+      - '--save'
+      - '60 10000'
+      - '--appendonly'
+      - 'yes'
+      - '--appendfsync'
+      - 'everysec'
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: ${REDIS_MEMORY_LIMIT:-512M}
+          cpus: '${REDIS_CPU_LIMIT:-1.0}'
+
+  nexus-router:
+    environment:
+      NEXUS_LOG_LEVEL: warn
+      NEXUS_ENABLE_METRICS: 'true'
+      NEXUS_RATE_LIMIT_ENABLED: 'true'
+      NEXUS_RATE_LIMIT_REQUESTS: '${RATE_LIMIT_REQUESTS:-100}'
+      NEXUS_RATE_LIMIT_WINDOW_MS: '${RATE_LIMIT_WINDOW_MS:-60000}'
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: ${NEXUS_MEMORY_LIMIT:-1024M}
+          cpus: '${NEXUS_CPU_LIMIT:-2.0}'
+
+  litellm:
+    environment:
+      LITELLM_LOG_LEVEL: INFO
+      LITELLM_CACHE_ENABLED: 'true'
+      LITELLM_REQUEST_TIMEOUT: '${LITELLM_TIMEOUT:-300}'
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: ${LITELLM_MEMORY_LIMIT:-512M}
+          cpus: '${LITELLM_CPU_LIMIT:-1.0}'
+
+  n8n:
+    environment:
+      N8N_LOG_LEVEL: warn
+      N8N_METRICS: 'true'
+      N8N_BASIC_AUTH_ACTIVE: 'true'
+      NODE_ENV: production
+      N8N_DISABLE_PRODUCTION_MAIN_PROCESS: 'false'
+    volumes:
+      - n8n_prod_data:/home/node/.n8n
+      - ./n8n-workflows:/opt/nyra/n8n-workflows:ro  # Read-only in production
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: ${N8N_MEMORY_LIMIT:-1024M}
+          cpus: '${N8N_CPU_LIMIT:-1.0}'
+
+  twentycrm:
+    environment:
+      NODE_ENV: production
+      TWENTY_ENABLE_DEBUG: 'false'
+      TWENTY_CACHE_ENABLED: 'true'
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: ${TWENTY_MEMORY_LIMIT:-1024M}
+          cpus: '${TWENTY_CPU_LIMIT:-1.0}'
+
+  # Production monitoring and backup services
+  backup-agent:
+    image: nyra/backup-agent:latest
+    container_name: nyra-backup-agent-prod
+    profiles: ['backup']
+    environment:
+      BACKUP_SCHEDULE: ${BACKUP_SCHEDULE:-0 2 * * *}
+      BACKUP_RETENTION_DAYS: ${BACKUP_RETENTION_DAYS:-30}
+      POSTGRES_BACKUP_ENABLED: 'true'
+      REDIS_BACKUP_ENABLED: 'true'
+      S3_BUCKET: ${BACKUP_S3_BUCKET:-}
+      S3_ACCESS_KEY: ${BACKUP_S3_ACCESS_KEY:-}
+      S3_SECRET_KEY: ${BACKUP_S3_SECRET_KEY:-}
+    volumes:
+      - postgres_prod_data:/backup/postgres:ro
+      - redis_prod_data:/backup/redis:ro
+      - backup_data:/backup/output
+    depends_on:
+      - postgres
+      - redis
+    networks: [nyra]
+    restart: unless-stopped
+
+  log-aggregator:
+    image: grafana/promtail:latest
+    container_name: nyra-promtail-prod
+    profiles: ['monitoring']
+    volumes:
+      - ./infra/configs/promtail/config.yml:/etc/promtail/config.yml:ro
+      - /var/log:/var/log:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+    command: -config.file=/etc/promtail/config.yml
+    networks: [nyra]
+    restart: unless-stopped
+
+volumes:
+  postgres_prod_data:
+  redis_prod_data:
+  n8n_prod_data:
+  backup_data:

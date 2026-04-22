@@ -1,0 +1,53 @@
+# Bootstrap-safe variant; canonical docker-compose.infisical.yml kept untouched
+version: "3.8"
+
+services:
+  infisical-db:
+    image: postgres:16
+    container_name: nyra-infisical-db
+    environment:
+      POSTGRES_DB: ${INFISICAL_POSTGRES_DB:-infisical}
+      POSTGRES_USER: ${INFISICAL_POSTGRES_USER:-infisical}
+      POSTGRES_PASSWORD: ${INFISICAL_POSTGRES_PASSWORD:-REPLACE_ME}
+    volumes:
+      - infisical_db:/var/lib/postgresql/data
+    networks:
+      - nyra-net
+    restart: unless-stopped
+
+  infisical-redis:
+    image: redis:7-alpine
+    container_name: nyra-infisical-redis
+    networks:
+      - nyra-net
+    restart: unless-stopped
+
+  infisical:
+    image: infisical/infisical:latest
+    container_name: nyra-infisical
+    depends_on:
+      - infisical-db
+      - infisical-redis
+    environment:
+      ENCRYPTION_KEY: ${INFISICAL_ENCRYPTION_KEY:-REPLACE_ME_32_HEX}
+      AUTH_SECRET: ${INFISICAL_AUTH_SECRET:-REPLACE_ME_BASE64_32}
+      SITE_URL: ${INFISICAL_SITE_URL:-http://orchestrator:3201}
+      DB_CONNECTION_URI: postgres://${INFISICAL_POSTGRES_USER:-infisical}:${INFISICAL_POSTGRES_PASSWORD:-REPLACE_ME}@infisical-db:5432/${INFISICAL_POSTGRES_DB:-infisical}
+      REDIS_URL: redis://infisical-redis:6379
+      PORT: 8080
+    ports:
+      - "${INFISICAL_PORT:-3201}:8080"
+    networks:
+      - nyra-net
+    restart: unless-stopped
+    labels:
+      - "nyra.service=infisical"
+
+networks:
+  nyra-net:
+    name: ${NYRA_NETWORK:-nyra-net}
+    external: true
+
+volumes:
+  infisical_db:
+    name: nyra-infisical-db
