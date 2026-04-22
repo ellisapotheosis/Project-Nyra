@@ -125,3 +125,64 @@ curl http://orchestrator.trex-fiordland.ts.net:6000/mcp/sse -H "Accept: text/eve
 ```
 
 Once Nexus is running, the `.mcp.json` `nexus-router` entry will connect on reload.
+
+---
+
+## Cloudflare Access OIDC — Protect All Tunnel Subdomains
+
+Both tunnel subdomains (oracle + orchestrator) should be gated with CF Access so only your two
+email addresses can log in.
+
+**Allowed identities:**
+- `edaneandersen@gmail.com`
+- `ellisandersen@ratehunter.net`
+
+**Steps (Cloudflare Zero Trust Dashboard):**
+
+1. Go to **Zero Trust → Access → Applications → Add an application**
+2. Select **Self-hosted**
+3. For each subdomain listed in `~/repos/cloudflared/TUNNEL-SETUP-ORACLE.md` and
+   `~/repos/cloudflared/TUNNEL-SETUP-ORCHESTRATOR.md`, create one Application:
+   - **Application domain:** e.g. `n8n.ratehunter.net`
+   - **Session duration:** 24h
+   - **Identity provider:** Google (or GitHub)
+4. Create a **Policy** for each application:
+   - **Policy name:** `nyra-owners`
+   - **Action:** Allow
+   - **Include rule:** Emails — add both emails above
+5. For sensitive infra subdomains (portainer, prometheus, openmemory, mesh), add a second rule:
+   - **Include rule:** IP ranges → `100.64.0.0/10` (Tailscale CGNAT — all mesh nodes)
+   - Change the outer **Require** rule to **AND** so BOTH email + Tailscale IP must match
+
+**Subdomains needing Tailscale IP restriction (in addition to OIDC):**
+- `portainer.ratehunter.net`
+- `mesh.ratehunter.net`
+- `prometheus.ratehunter.net`
+- `openmemory.ratehunter.net`
+- `mem.ratehunter.net`
+
+**Note:** Services with their own strong auth (Grafana, n8n, Twenty CRM, Gitea, Activepieces, Portainer)
+have CF Access as a second gate — if CF Access token expires they still require a login.
+Services with NO native auth (Prometheus, OpenMemory MCP, mem0-rest) MUST have CF Access active.
+
+---
+
+## Regenerate Cloudflare Tunnel Tokens
+
+Both tunnels need new tokens. The existing connectors were deleted from the CF account.
+
+**Oracle VPS tunnel:**
+1. Go to Cloudflare Zero Trust → Tunnels → Create tunnel (or select existing oracle tunnel)
+2. Choose **Cloudflared** connector type
+3. Copy the tunnel token (starts with `ey...`)
+4. In Infisical → Project → `/machines/oracle` → add secret `ORACLE_TUNNEL_TOKEN=<token>`
+5. Restart oracle cloudflared: `ssh ubuntu@100.64.0.3 "docker restart nyra-cloudflared"`
+
+**Orchestrator tunnel:**
+1. Same process — create/select orchestrator tunnel in CF Zero Trust
+2. Copy the tunnel token
+3. In Infisical → `/machines/orchestrator` → add secret `ORCHESTRATOR_TUNNEL_TOKEN=<token>`
+4. Restart orchestrator tunnel: `make cf-orch-down && make cf-orch-up`
+
+**Set public hostname rules** in CF Zero Trust → Tunnels → (each tunnel) → Public Hostnames
+matching the tables in `~/repos/cloudflared/TUNNEL-SETUP-ORACLE.md` and `TUNNEL-SETUP-ORCHESTRATOR.md`.

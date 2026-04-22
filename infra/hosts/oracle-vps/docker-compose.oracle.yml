@@ -224,6 +224,11 @@ services:
     command: ["tunnel", "run"]
     environment:
       TUNNEL_TOKEN: ${ORACLE_TUNNEL_TOKEN}
+    # extra_hosts allows cloudflared to reach services NOT on nyra_net (e.g. Gitea
+    # which runs in its own compose network). git.ratehunter.net routes to
+    # http://host.docker.internal:3001 (Gitea's host-mapped port).
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     networks: [nyra_net]
 
   # ── Observability ─────────────────────────────────────────────────────────
