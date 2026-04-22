@@ -20,7 +20,12 @@
       "KillShell",
       "TaskOutput",
       "WebFetch",
-      "WebSearch"
+      "WebSearch",
+      "Bash(dos2unix /home/ellisapotheosis/.claude/plugins/marketplaces/mempalace/.claude-plugin/hooks/mempal-stop-hook.sh)",
+      "Bash(sed -i 's/\\\\r$//' /home/ellisapotheosis/.claude/plugins/marketplaces/mempalace/.claude-plugin/hooks/mempal-stop-hook.sh)",
+      "Bash(dos2unix /home/ellisapotheosis/.claude/plugins/cache/mempalace/mempalace/3.0.14/hooks/mempal-stop-hook.sh)",
+      "Bash(sed -i 's/\\\\r$//' /home/ellisapotheosis/.claude/plugins/cache/mempalace/mempalace/3.0.14/hooks/mempal-stop-hook.sh)",
+      "Bash(dos2unix /home/ellisapotheosis/.claude/plugins/cache/mempalace/mempalace/3.3.0/hooks/mempal-stop-hook.sh)"
     ],
     "deny": [
       "Bash(rm -rf /)",
@@ -40,6 +45,7 @@
     "agent-booster",
     "epic-sdk"
   ],
+  "outputStyle": "Explanatory",
   "bypassPermissionsModeAccepted": true,
   "experimental": {
     "ultrathinking": true,
@@ -85,6 +91,5 @@
     "autoApply": false,
     "showInline": true,
     "aggressiveness": "high"
-  },
-  "outputStyle": "Explanatory"
+  }
 }
