@@ -35,6 +35,21 @@ Create proxied records for:
 ### Cloudflare Access
 Create Access apps/policies for admin surfaces and require MFA.
 
+### Cloudflare Pages landing redeploy
+Cloudflare Pages previously built commit `e27167d216022d90be73f8df433e70ac8183c415`, which still contained orphaned
+gitlinks under `external/` and failed during recursive submodule initialization with:
+`fatal: No url found for submodule path 'external/openclaw-n8n-stack' in .gitmodules`.
+
+The repo-side fix is already on `origin/main`. Pages must rebuild from commit
+`8efd4c1356ae1ab8ad49fc8c6f13223aa9ec64ad` or newer.
+
+**Steps:**
+1. Open Cloudflare Dashboard → Workers & Pages → the landing Pages project.
+2. Verify the production branch is `main`.
+3. Trigger **Retry deployment** or **Create deployment** from the latest `main` commit.
+4. Confirm the deployment commit is `8efd4c13` or newer, not `e27167d`.
+5. If Cloudflare still reuses the old failed deployment, clear any queued/retry state and start a fresh production deploy from `main`.
+
 ## Tailscale
 Manual only if you want to enforce additional ACLs, tags, or device policies.
 
