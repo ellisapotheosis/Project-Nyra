@@ -98,6 +98,7 @@ function Send-MagicPacket {
     for ($i = 0; $i -lt 16; $i++) { $packet += $macBytes }
 
     $udp = [System.Net.Sockets.UdpClient]::new()
+    $udp.EnableBroadcast = $true
     $udp.Connect($BroadcastAddress, $Port)
     [void]$udp.Send($packet, $packet.Length)
     $udp.Close()
@@ -108,6 +109,14 @@ function Invoke-Wake {
 
     if (-not $Worker.mac) {
         throw "Worker '$($Worker.id)' has no MAC configured."
+    }
+
+    if (-not $BroadcastAddress -or [string]::IsNullOrEmpty($BroadcastAddress)) {
+        throw "No broadcastAddress configured for wake operation. Verify workers.json has broadcastAddress field."
+    }
+
+    if (-not $Port -or $Port -le 0) {
+        throw "No valid wolPort configured for wake operation. Verify workers.json has wolPort field."
     }
 
     if (Test-IsOnline -Worker $Worker) {
@@ -151,7 +160,12 @@ function Invoke-Sleep {
             $command = $Worker.shutdown.command
             if (-not $user -or -not $command) { throw "Worker '$($Worker.id)' ssh shutdown requires user and command" }
             $host = if ($Worker.host) { $Worker.host } else { $Worker.ip }
-            & ssh "$user@$host" $command | Out-Null
+
+            # Try SSH shutdown with proper error handling
+            $sshOutput = & ssh -o BatchMode=yes -o StrictHostKeyChecking=no -o ConnectTimeout=10 "$user@$host" $command 2>&1
+            if ($LASTEXITCODE -ne 0) {
+                throw "SSH shutdown failed for '$($Worker.id)'. Exit code: $LASTEXITCODE. Output: $sshOutput"
+            }
         }
         default {
             throw "Unsupported shutdown method '$method' for worker '$($Worker.id)'"
@@ -181,6 +195,32 @@ function Get-Status {
     return [pscustomobject]@{ id = $Worker.id; action = 'status'; status = $status }
 }
 
+function Invoke-Deploy {
+    param($Worker, [string]$BroadcastAddress, [int]$Port, [int]$TimeoutSeconds)
+
+    if (-not $Worker.mac) {
+        throw "Worker '$($Worker.id)' has no MAC configured for deployment wake."
+    }
+
+    if (-not $BroadcastAddress -or [string]::IsNullOrEmpty($BroadcastAddress)) {
+        throw "No broadcastAddress configured for deploy wake."
+    }
+
+    if (-not $Port -or $Port -le 0) {
+        throw "No valid wolPort configured for deploy wake."
+    }
+
+    if (Test-IsOnline -Worker $Worker) {
+        Write-Log 'INFO' "[$($Worker.id)] already online, skipping wake"
+    } else {
+        Write-Log 'INFO' "[$($Worker.id)] waking up before deployment..."
+        Invoke-Wake -Worker $Worker -BroadcastAddress $BroadcastAddress -Port $Port -TimeoutSeconds $TimeoutSeconds
+    }
+
+    Write-Log 'INFO' "[$($Worker.id)] ready for deployment"
+    return [pscustomobject]@{ id = $Worker.id; action = 'deploy'; status = 'ready' }
+}
+
 $config = Get-Config -Path $ConfigPath
 $targets = Resolve-Targets -Config $config -Requested $Target
 $results = @()
@@ -190,6 +230,7 @@ foreach ($worker in $targets) {
         'wake' { $results += Invoke-Wake -Worker $worker -BroadcastAddress $config.broadcastAddress -Port $config.wolPort -TimeoutSeconds $WaitTimeoutSeconds }
         'sleep' { $results += Invoke-Sleep -Worker $worker -TimeoutSeconds $WaitTimeoutSeconds }
         'status' { $results += Get-Status -Worker $worker }
+        'deploy' { $results += Invoke-Deploy -Worker $worker -BroadcastAddress $config.broadcastAddress -Port $config.wolPort -TimeoutSeconds $WaitTimeoutSeconds }
     }
 }
 
