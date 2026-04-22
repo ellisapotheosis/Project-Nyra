@@ -1,0 +1,59 @@
+{
+  "name": "Nyra STOP Reply Kill Switch",
+  "nodes": [
+    {
+      "parameters": {"path": "campaign/stop-reply", "httpMethod": "POST", "responseMode": "responseNode"},
+      "id": "WebhookStopReply",
+      "name": "Webhook: STOP Reply",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [220, 260]
+    },
+    {
+      "parameters": {
+        "conditions": {"string": [{"value1": "={{$json.body.replyText}}", "operation": "regex", "value2": "^(stop|unsubscribe|quit)$"}]}
+      },
+      "id": "IfStopWord",
+      "name": "If STOP/UNSUBSCRIBE",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [460, 260]
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "={{$env.TWENTY_SERVER_URL || 'http://twentycrm:3000'}}/rest/contacts/{{$json.body.contactId}}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"campaignPaused\": true, \"pausedReason\": \"STOP_REPLY\"}"
+      },
+      "id": "PauseInTwenty",
+      "name": "Pause Contact in Twenty",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [700, 200]
+    },
+    {
+      "parameters": {"respondWith": "json", "responseBody": "={\"ok\": true, \"action\": \"paused\"}"},
+      "id": "RespondOk",
+      "name": "Respond OK",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [940, 200]
+    }
+  ],
+  "connections": {
+    "Webhook: STOP Reply": {"main": [[{"node": "If STOP/UNSUBSCRIBE", "type": "main", "index": 0}]]},
+    "If STOP/UNSUBSCRIBE": {
+      "main": [
+        [{"node": "Pause Contact in Twenty", "type": "main", "index": 0}],
+        [{"node": "Respond OK", "type": "main", "index": 0}]
+      ]
+    },
+    "Pause Contact in Twenty": {"main": [[{"node": "Respond OK", "type": "main", "index": 0}]]}
+  },
+  "active": false,
+  "settings": {}
+}

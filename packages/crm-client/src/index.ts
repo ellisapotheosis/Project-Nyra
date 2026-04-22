@@ -41,6 +41,16 @@ export type TwentyCRMClientOptions = {
   operations?: Partial<TwentyOperations>
 }
 
+export type MortgageLeadInput = {
+  personId: string
+  loanPurpose: string
+  loanAmount: number
+  propertyState: string
+  source: string
+  campaignStatus?: string
+  customFields?: Record<string, unknown>
+}
+
 export type TwentyOperations = {
   searchLeads: string
   getLead: string
@@ -59,9 +69,105 @@ export type TwentyOperations = {
   enrollCampaign: string
   updateCampaignEnrollment: string
   getActiveCampaigns: string
+  createMortgageLead: string
+  getMortgageLead: string
+  updateMortgageLead: string
+  searchMortgageLeads: string
+  getCampaign: string
+  getCampaigns: string
+  createCampaign: string
+  updateCampaign: string
 }
 
 const defaultOperations: TwentyOperations = {
+  // ... (previous operations)
+  getCampaign: gql`
+    query GetCampaign($id: ID!) {
+      campaign(id: $id) {
+        id
+        name
+        steps
+        loanPurpose
+        active
+      }
+    }
+  `,
+  getCampaigns: gql`
+    query GetCampaigns {
+      campaigns {
+        id
+        name
+        steps
+        loanPurpose
+        active
+      }
+    }
+  `,
+  createCampaign: gql`
+    mutation CreateCampaign($input: CampaignCreateInput!) {
+      createCampaign(input: $input) {
+        id
+        name
+      }
+    }
+  `,
+  updateCampaign: gql`
+    mutation UpdateCampaign($id: ID!, $input: CampaignUpdateInput!) {
+      updateCampaign(id: $id, input: $input) {
+        id
+        name
+      }
+    }
+  `,
+  createMortgageLead: gql`
+    mutation CreateMortgageLead($input: MortgageLeadCreateInput!) {
+      createMortgageLead(input: $input) {
+        id
+        personId
+        loanPurpose
+        loanAmount
+        propertyState
+        source
+        campaignStatus
+        createdAt
+      }
+    }
+  `,
+  getMortgageLead: gql`
+    query GetMortgageLead($id: ID!) {
+      mortgageLead(id: $id) {
+        id
+        personId
+        loanPurpose
+        loanAmount
+        propertyState
+        source
+        campaignStatus
+        createdAt
+        updatedAt
+      }
+    }
+  `,
+  updateMortgageLead: gql`
+    mutation UpdateMortgageLead($id: ID!, $input: MortgageLeadUpdateInput!) {
+      updateMortgageLead(id: $id, input: $input) {
+        id
+        campaignStatus
+        updatedAt
+      }
+    }
+  `,
+  searchMortgageLeads: gql`
+    query SearchMortgageLeads($filter: MortgageLeadFilter, $limit: Int) {
+      mortgageLeads(filter: $filter, limit: $limit) {
+        id
+        personId
+        loanPurpose
+        loanAmount
+        campaignStatus
+      }
+    }
+  `,
   searchLeads: gql`
     query SearchLeads($filter: LeadFilter, $orderBy: LeadOrderBy, $limit: Int, $offset: Int) {
       leads(filter: $filter, orderBy: $orderBy, limit: $limit, offset: $offset) {
@@ -383,6 +489,26 @@ export class TwentyCRMClient {
   public async updateCampaignEnrollment(id: string, input: Record<string, unknown>) {
     const result = await this.request<{ updateCampaignEnrollment: any }>('updateCampaignEnrollment', { id, input })
     return result.updateCampaignEnrollment
+  }
+
+  public async createMortgageLead(input: MortgageLeadInput) {
+    const result = await this.request<{ createMortgageLead: any }>('createMortgageLead', { input })
+    return result.createMortgageLead
+  }
+
+  public async getMortgageLead(id: string) {
+    const result = await this.request<{ mortgageLead: any }>('getMortgageLead', { id })
+    return result.mortgageLead
+  }
+
+  public async updateMortgageLead(id: string, input: Record<string, unknown>) {
+    const result = await this.request<{ updateMortgageLead: any }>('updateMortgageLead', { id, input })
+    return result.updateMortgageLead
+  }
+
+  public async searchMortgageLeads(filter: Record<string, unknown> = {}, limit = 50) {
+    const result = await this.request<{ mortgageLeads: any[] }>('searchMortgageLeads', { filter, limit })
+    return result.mortgageLeads
   }
 
   public async getActiveCampaigns(contactId: string) {

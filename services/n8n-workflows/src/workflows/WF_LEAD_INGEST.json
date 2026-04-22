@@ -1,0 +1,281 @@
+{
+  "name": "WF_LEAD_INGEST",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "lead-ingest",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "trigger_lead_ingest",
+      "name": "Lead Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [100, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.body.mortgageLeadId || $json.mortgageLeadId }}",
+              "operation": "isNotEmpty"
+            }
+          ]
+        }
+      },
+      "id": "has_lead_id",
+      "name": "Has Lead ID?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [250, 450]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Canonical schema normalization\nconst raw = $input.first().json.body || $input.first().json;\nconst source = raw.source || 'unknown';\n\n// Helper to normalize phone numbers to E.164\nfunction normalizePhone(phone) {\n  if (!phone) return null;\n  let cleaned = phone.replace(/\\D/g, '');\n  if (cleaned.length === 10) cleaned = '1' + cleaned;\n  return '+' + cleaned;\n}\n\n// Helper to map loan purpose to canonical values\nfunction mapLoanPurpose(purpose) {\n  const p = (purpose || '').toUpperCase();\n  if (p.includes('PURCHASE')) return 'PURCHASE';\n  if (p.includes('CASH')) return 'REFI_CASH';\n  if (p.includes('REFI') || p.includes('RATE')) return 'REFI_RATE';\n  if (p.includes('HELOC')) return 'HELOC';\n  return 'PURCHASE';\n}\n\nconst lead = {\n  firstName: raw.firstName || raw.first_name || raw.fname,\n  lastName: raw.lastName || raw.last_name || raw.lname,\n  email: raw.email || raw.email_address,\n  phone: normalizePhone(raw.phone || raw.phone_number),\n  loanPurpose: mapLoanPurpose(raw.loan_purpose || raw.loanType),\n  loanAmount: parseFloat(raw.loan_amount || raw.loanAmount) || 0,\n  propertyState: raw.state || raw.property_state || raw.propertyState,\n  creditScore: parseInt(raw.credit_score || raw.fico) || null,\n  source: source,\n  consentTimestamp: new Date().toISOString(),\n  mortgageLeadId: raw.mortgageLeadId\n};\n\nreturn { json: lead };"
+      },
+      "id": "normalize_lead",
+      "name": "Normalize Lead",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 1,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "resource": "person",
+        "operation": "getAll",
+        "limit": 1,
+        "filters": {
+          "customProperties": {
+            "property": "email",
+            "value": "={{ $json.email }}"
+          }
+        }
+      },
+      "id": "search_person",
+      "name": "Search Person",
+      "type": "n8n-nodes-twenty.twenty",
+      "typeVersion": 1,
+      "position": [650, 300],
+      "credentials": {
+        "twentyApi": {
+          "id": "twenty-api-id",
+          "name": "Twenty CRM"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.length > 0 }}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "id": "person_exists",
+      "name": "Person Exists?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [850, 300]
+    },
+    {
+      "parameters": {
+        "resource": "person",
+        "operation": "create",
+        "firstName": "={{ $('Normalize Lead').json.firstName }}",
+        "lastName": "={{ $('Normalize Lead').json.lastName }}",
+        "email": "={{ $('Normalize Lead').json.email }}",
+        "phoneNumber": "={{ $('Normalize Lead').json.phone }}"
+      },
+      "id": "create_person",
+      "name": "Create Person",
+      "type": "n8n-nodes-twenty.twenty",
+      "typeVersion": 1,
+      "position": [1050, 400],
+      "credentials": {
+        "twentyApi": {
+          "id": "twenty-api-id",
+          "name": "Twenty CRM"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "mortgageLead",
+        "operation": "create",
+        "additionalFields": {
+          "personId": "={{ $json.id || $('Search Person').json[0].id }}",
+          "loanPurpose": "={{ $('Normalize Lead').json.loanPurpose }}",
+          "loanAmount": "={{ $('Normalize Lead').json.loanAmount }}",
+          "propertyState": "={{ $('Normalize Lead').json.propertyState }}",
+          "source": "={{ $('Normalize Lead').json.source }}",
+          "campaignStatus": "PENDING"
+        }
+      },
+      "id": "create_mortgage_lead",
+      "name": "Create MortgageLead",
+      "type": "n8n-nodes-twenty.twenty",
+      "typeVersion": 1,
+      "position": [1250, 300],
+      "credentials": {
+        "twentyApi": {
+          "id": "twenty-api-id",
+          "name": "Twenty CRM"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const lead = $node[\"Normalize Lead\"].json;\nconst mortgageLeadId = lead.mortgageLeadId || $node[\"Create MortgageLead\"].json.id;\n\nconst campaigns = {\n  PURCHASE: 'campaign_purchase_hot',\n  REFI_RATE: 'campaign_refi_rate',\n  REFI_CASH: 'campaign_refi_cashout',\n  HELOC: 'campaign_heloc',\n  DEFAULT: 'campaign_general'\n};\n\nconst assignedCampaignId = campaigns[lead.loanPurpose] || campaigns.DEFAULT;\n\nreturn { json: { leadId: mortgageLeadId, campaignId: assignedCampaignId } };"
+      },
+      "id": "assign_campaign",
+      "name": "Assign Campaign",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 1,
+      "position": [1450, 300]
+    },
+    {
+      "parameters": {
+        "workflowId": "WF_CAMPAIGN_EXECUTE",
+        "options": {
+          "waitForCompletion": false
+        }
+      },
+      "id": "start_campaign",
+      "name": "Start Campaign",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1,
+      "position": [1650, 300]
+    },
+    {
+      "parameters": {
+        "responseCode": 200,
+        "responseBody": "={{ JSON.stringify({ success: true, leadId: $json.leadId }) }}"
+      },
+      "id": "respond_success",
+      "name": "Respond Success",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1850, 300]
+    }
+  ],
+  "connections": {
+    "Lead Webhook": {
+      "main": [
+        [
+          {
+            "node": "has_lead_id",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "has_lead_id": {
+      "main": [
+        [
+          {
+            "node": "assign_campaign",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Normalize Lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Lead": {
+      "main": [
+        [
+          {
+            "node": "Search Person",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search Person": {
+      "main": [
+        [
+          {
+            "node": "Person Exists?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Person Exists?": {
+      "main": [
+        [
+          {
+            "node": "Create MortgageLead",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create Person",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Person": {
+      "main": [
+        [
+          {
+            "node": "Create MortgageLead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create MortgageLead": {
+      "main": [
+        [
+          {
+            "node": "assign_campaign",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "assign_campaign": {
+      "main": [
+        [
+          {
+            "node": "start_campaign",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "start_campaign": {
+      "main": [
+        [
+          {
+            "node": "respond_success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

@@ -196,36 +196,94 @@ async function fetchQuoteEngine(input: QuoteInput) {
   return response.json()
 }
 
+function normalizePhone(phone: string) {
+  if (!phone) return null
+  const cleaned = phone.replace(/\D/g, '')
+  if (cleaned.length === 10) return '+1' + cleaned
+  return '+' + cleaned
+}
+
+function mapLoanPurpose(purpose: string) {
+  const p = (purpose || '').toUpperCase()
+  if (p.includes('PURCHASE')) return 'PURCHASE'
+  if (p.includes('CASH')) return 'REFI_CASH'
+  if (p.includes('REFI') || p.includes('RATE')) return 'REFI_RATE'
+  if (p.includes('HELOC')) return 'HELOC'
+  return 'PURCHASE'
+}
+
 app.post('/api/leads', async (req, res, next) => {
   try {
-    const parsed = leadPayloadSchema.parse(req.body)
-    const leadInput: LeadInput = {
-      name: parsed.name,
-      email: parsed.email,
-      phone: parsed.phone,
-      source: parsed.source,
-      customFields: {
-        creditScore: parsed.creditScore,
-        annualIncome: parsed.annualIncome,
-        employmentStatus: parsed.employmentStatus,
-        consentEmail: parsed.consentEmail,
-        consentSms: parsed.consentSms,
-        consentVoice: parsed.consentVoice
-      }
+    const raw = req.body
+    const lead = {
+      firstName: raw.firstName || raw.first_name || raw.fname,
+      lastName: raw.lastName || raw.last_name || raw.lname,
+      email: raw.email || raw.email_address,
+      phone: normalizePhone(raw.phone || raw.phone_number),
+      loanPurpose: mapLoanPurpose(raw.loan_purpose || raw.loanType),
+      loanAmount: parseFloat(raw.loan_amount || raw.loanAmount) || 0,
+      propertyState: raw.state || raw.property_state || raw.propertyState,
+      creditScore: parseInt(raw.credit_score || raw.fico) || null,
+      source: raw.source || 'unknown',
+      consentTimestamp: new Date().toISOString()
     }
 
-    const contact = await twentyClient.createContact(leadInput)
-    const metadataId = await upsertLeadMetadata(contact.id, {
-      nyra_lead_score: parsed.creditScore ?? 60,
-      credit_score_range: parsed.creditScore ? `${parsed.creditScore}` : undefined,
-      loan_amount: parsed.loan.loanAmount
+    if (!lead.firstName || !lead.lastName || (!lead.email && !lead.phone)) {
+      return res.status(400).json({ error: 'Invalid lead data: firstName, lastName, and (email or phone) are required' })
+    }
+
+    // Dedupe
+    const existing = await twentyClient.searchContacts({
+      filter: {
+        or: [
+          lead.email ? { email: { eq: lead.email } } : null,
+          lead.phone ? { phoneNumber: { eq: lead.phone } } : null
+        ].filter(Boolean)
+      }
     })
 
-    const loan = await createLoanRecord(contact.id, parsed.loan)
-    const enrollment = await enrollCampaign(contact.id, 'New Lead Nurture')
-    await logCommunication(contact.id, 'email', 'outbound', 'Lead created via CRM API')
+    let personId: string
+    if (existing && existing.length > 0) {
+      personId = existing[0].id
+      await twentyClient.updateContact(personId, {
+        firstName: lead.firstName,
+        lastName: lead.lastName,
+        phoneNumber: lead.phone
+      })
+    } else {
+      const contact = await twentyClient.createContact({
+        name: `${lead.firstName} ${lead.lastName}`,
+        email: lead.email || '',
+        phone: lead.phone || '',
+        source: lead.source,
+        customFields: {
+          firstName: lead.firstName,
+          lastName: lead.lastName
+        }
+      })
+      personId = contact.id
+    }
 
-    return res.status(201).json({ contact, loan, enrollment, metadataId })
+    // Create mortgage lead
+    const mortgageLead = await twentyClient.createMortgageLead({
+      personId,
+      loanPurpose: lead.loanPurpose,
+      loanAmount: lead.loanAmount,
+      propertyState: lead.propertyState,
+      source: lead.source,
+      campaignStatus: 'PENDING'
+    })
+
+    // Assign campaign and start workflow
+    if (N8N_WEBHOOK_URL) {
+      await fetch(`${N8N_WEBHOOK_URL.replace(/\/$/, '')}/webhook/lead-ingest`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...lead, mortgageLeadId: mortgageLead.id })
+      })
+    }
+
+    return res.status(201).json({ success: true, personId, mortgageLeadId: mortgageLead.id })
   } catch (error) {
     next(error)
   }
@@ -355,8 +413,34 @@ app.post('/webhooks/twenty/contact-updated', (req, res) => {
   res.json({ success: true })
 })
 
-app.get('/health', (req, res) => {
-  res.json({ status: 'healthy', timestamp: new Date().toISOString() })
+app.post('/api/campaigns', async (req, res, next) => {
+  try {
+    const { name, steps, loanPurpose } = req.body
+    const campaign = await twentyClient.request<{ createCampaign: any }>('createCampaign', {
+      input: { name, steps: JSON.stringify(steps), loanPurpose, active: true }
+    })
+    return res.status(201).json(campaign)
+  } catch (error) {
+    next(error)
+  }
+})
+
+app.get('/api/campaigns/:id', async (req, res, next) => {
+  try {
+    const campaign = await twentyClient.request<{ campaign: any }>('getCampaign', { id: req.params.id })
+    return res.json(campaign)
+  } catch (error) {
+    next(error)
+  }
+})
+
+app.get('/api/campaigns', async (req, res, next) => {
+  try {
+    const campaigns = await twentyClient.request<{ campaigns: any[] }>('getCampaigns', {})
+    return res.json({ campaigns })
+  } catch (error) {
+    next(error)
+  }
 })
 
 app.use((error: unknown, req: express.Request, res: express.Response, next: express.NextFunction) => {
