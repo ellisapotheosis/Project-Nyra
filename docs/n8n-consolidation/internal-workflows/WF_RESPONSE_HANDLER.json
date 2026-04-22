@@ -1,0 +1,272 @@
+{
+  "name": "WF_RESPONSE_HANDLER",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "twilio-response",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "trigger_twilio_response",
+      "name": "Twilio Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [100, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const payload = $input.first().json.body;\n\nfunction normalizePhone(phone) {\n  if (!phone) return null;\n  let cleaned = phone.replace(/\\D/g, '');\n  if (cleaned.length === 10) cleaned = '1' + cleaned;\n  return '+' + cleaned;\n}\n\nreturn { json: { phone: normalizePhone(payload.From), body: payload.Body || \"\", type: payload.SmsSid ? \"sms\" : \"voice\" } };"
+      },
+      "id": "parse_response",
+      "name": "Parse Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 1,
+      "position": [300, 300]
+    },
+    {
+      "parameters": {
+        "resource": "mortgageLead",
+        "operation": "getAll",
+        "limit": 1,
+        "filters": {
+          "customProperties": {
+            "property": "phoneNumber",
+            "value": "={{ $json.phone }}"
+          }
+        }
+      },
+      "id": "find_lead_by_phone",
+      "name": "Find Lead by Phone",
+      "type": "n8n-nodes-twenty.twenty",
+      "typeVersion": 1,
+      "position": [500, 300],
+      "credentials": {
+        "twentyApi": {
+          "id": "twenty-api-id",
+          "name": "Twenty CRM"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = ($node[\"Parse Response\"].json.body || \"\").toUpperCase();\nconst STOP_KEYWORDS = [\"STOP\", \"UNSUBSCRIBE\", \"QUIT\", \"CANCEL\", \"OPT OUT\", \"OPTOUT\"];\nconst isStop = STOP_KEYWORDS.some(k => body.includes(k));\n\nreturn { json: { isStop } };"
+      },
+      "id": "check_stop_keyword",
+      "name": "Check STOP Keyword",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 1,
+      "position": [700, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.isStop }}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "id": "is_stop",
+      "name": "Is STOP?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [900, 300]
+    },
+    {
+      "parameters": {
+        "resource": "mortgageLead",
+        "operation": "update",
+        "id": "={{ $node[\"Find Lead by Phone\"].json[0].id }}",
+        "additionalFields": {
+          "campaignStatus": "OPTED_OUT",
+          "optOutTimestamp": "={{ new Date().toISOString() }}",
+          "optOutChannel": "={{ $node[\"Parse Response\"].json.type }}"
+        }
+      },
+      "id": "opt_out_lead",
+      "name": "Opt-out Lead",
+      "type": "n8n-nodes-twenty.twenty",
+      "typeVersion": 1,
+      "position": [1100, 200],
+      "credentials": {
+        "twentyApi": {
+          "id": "twenty-api-id",
+          "name": "Twenty CRM"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "mortgageLead",
+        "operation": "update",
+        "id": "={{ $node[\"Find Lead by Phone\"].json[0].id }}",
+        "additionalFields": {
+          "campaignStatus": "RESPONDED",
+          "responseTimestamp": "={{ new Date().toISOString() }}",
+          "responseChannel": "={{ $node[\"Parse Response\"].json.type }}",
+          "responseContent": "={{ $node[\"Parse Response\"].json.body }}"
+        }
+      },
+      "id": "mark_responded",
+      "name": "Mark Responded",
+      "type": "n8n-nodes-twenty.twenty",
+      "typeVersion": 1,
+      "position": [1100, 400],
+      "credentials": {
+        "twentyApi": {
+          "id": "twenty-api-id",
+          "name": "Twenty CRM"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fromEmail": "alerts@ratehunter.net",
+        "toEmail": "broker@ratehunter.net",
+        "subject": "Lead Responded: {{ $node[\"Find Lead by Phone\"].json[0].firstName }}",
+        "html": "Lead {{ $node[\"Find Lead by Phone\"].json[0].firstName }} responded via {{ $node[\"Parse Response\"].json.type }}:<br><br>{{ $node[\"Parse Response\"].json.body }}"
+      },
+      "id": "notify_broker",
+      "name": "Notify Broker",
+      "type": "n8n-nodes-base.sendGrid",
+      "typeVersion": 1,
+      "position": [1300, 400]
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "from": "+1234567890",
+        "to": "={{ $node[\"Parse Response\"].json.phone }}",
+        "message": "You have been unsubscribed. Reply HELP for assistance."
+      },
+      "id": "confirm_opt_out",
+      "name": "Confirm Opt-out",
+      "type": "n8n-nodes-base.twilio",
+      "typeVersion": 1,
+      "position": [1300, 200]
+    },
+    {
+      "parameters": {
+        "responseCode": 200,
+        "responseBody": "<Response></Response>"
+      },
+      "id": "respond_twiml",
+      "name": "Respond TwiML",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1550, 300]
+    }
+  ],
+  "connections": {
+    "Twilio Webhook": {
+      "main": [
+        [
+          {
+            "node": "Parse Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Response": {
+      "main": [
+        [
+          {
+            "node": "Find Lead by Phone",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Lead by Phone": {
+      "main": [
+        [
+          {
+            "node": "Check STOP Keyword",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check STOP Keyword": {
+      "main": [
+        [
+          {
+            "node": "is_stop",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "is_stop": {
+      "main": [
+        [
+          {
+            "node": "Opt-out Lead",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Mark Responded",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Opt-out Lead": {
+      "main": [
+        [
+          {
+            "node": "Confirm Opt-out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark Responded": {
+      "main": [
+        [
+          {
+            "node": "notify_broker",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Confirm Opt-out": {
+      "main": [
+        [
+          {
+            "node": "Respond TwiML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "notify_broker": {
+      "main": [
+        [
+          {
+            "node": "Respond TwiML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}
