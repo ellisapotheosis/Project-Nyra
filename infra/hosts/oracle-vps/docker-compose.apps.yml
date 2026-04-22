@@ -1,29 +1,64 @@
 name: nyra-oracle-apps
 
 services:
-  quote_engine:
+  webapp:
     profiles: ["apps"]
     build:
-      context: ../../stacks/nyra-mortgage/services/quote-engine
-    container_name: nyra-quote-engine
+      context: ../../../
+      dockerfile: infra/images/Dockerfile.nextjs
+      args:
+        APP_PATH: apps/webapp/app
+        APP_NAME: mortgage-assistant
+    container_name: nyra-webapp
     restart: unless-stopped
+    environment:
+      - PORT=3001
+      - NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=${NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
+      - CLERK_SECRET_KEY=${CLERK_SECRET_KEY}
+      - CRM_API_URL=http://nyra-crm-api:4001
     ports:
-      - "9010:9010"
-    networks: [nyra_net]
+      - "3001:3001"
+    networks:
+      - nyra_net
 
-  campaign_engine:
+  admin:
     profiles: ["apps"]
     build:
-      context: ../../stacks/nyra-mortgage/services/campaign-engine
-    container_name: nyra-campaign-engine
+      context: ../../../
+      dockerfile: infra/images/Dockerfile.nextjs
+      args:
+        APP_PATH: apps/admin/app
+        APP_NAME: nyra-admin
+    container_name: nyra-admin
     restart: unless-stopped
+    environment:
+      - PORT=3002
+      - NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=${NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
+      - CLERK_SECRET_KEY=${CLERK_SECRET_KEY}
+      - CRM_API_URL=http://nyra-crm-api:4001
     ports:
-      - "9020:9020"
-    volumes:
-      - ../../stacks/nyra-mortgage/data/campaigns:/app/data/campaigns:ro
-    networks: [nyra_net]
+      - "3002:3002"
+    networks:
+      - nyra_net
+
+  landing:
+    profiles: ["apps"]
+    build:
+      context: ../../../
+      dockerfile: infra/images/Dockerfile.nextjs
+      args:
+        APP_PATH: apps/landing/ratehunter-landing
+        APP_NAME: ratehunter-landing
+    container_name: nyra-landing
+    restart: unless-stopped
+    environment:
+      - PORT=3003
+    ports:
+      - "3003:3003"
+    networks:
+      - nyra_net
 
 networks:
   nyra_net:
     external: true
-    name: nyra-oracle_nyra_net
+    name: nyra_net

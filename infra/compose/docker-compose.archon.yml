@@ -133,7 +133,7 @@ services:
   nexus-router:
     build:
       context: ../..
-      dockerfile: infra/docker/nexus-router/Dockerfile
+      dockerfile: infra/images/nexus-router/Dockerfile
     container_name: nyra-archon-nexus-router
     profiles: ['archon', 'all']
     env_file:

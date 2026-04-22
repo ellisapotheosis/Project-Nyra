@@ -136,7 +136,7 @@ services:
     image: nyra/gitea-act-runner:0.2.11
     build:
       context: .
-      dockerfile: infra/docker/gitea-act-runner/Dockerfile
+      dockerfile: infra/images/gitea-act-runner/Dockerfile
       args:
         ACT_RUNNER_VERSION: 0.2.11
     container_name: nyra-gitea-actions
@@ -169,7 +169,7 @@ services:
     image: nyra/gitea-act-runner:0.2.11
     build:
       context: .
-      dockerfile: infra/docker/gitea-act-runner/Dockerfile
+      dockerfile: infra/images/gitea-act-runner/Dockerfile
       args:
         ACT_RUNNER_VERSION: 0.2.11
     container_name: nyra-gitea-actions-large

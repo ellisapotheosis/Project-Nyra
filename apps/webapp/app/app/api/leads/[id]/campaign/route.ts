@@ -1,14 +1,14 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from "next/server";
 
 const CRM_API_URL = process.env.CRM_API_URL || 'http://localhost:4001';
 const CRM_API_KEY = process.env.CRM_API_KEY;
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
     const body = await req.json();
     
     const response = await fetch(`${CRM_API_URL}/api/leads/${id}/campaign`, {

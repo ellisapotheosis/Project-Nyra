@@ -3,7 +3,7 @@
 SHELL := /bin/bash
 
 # Core Paths — canonical compose is per-host under infra/hosts/
-COMPOSE_FILE ?= infra/hosts/orchestrator/docker-compose.orchestrator.yml
+COMPOSE_FILE ?= infra/hosts/orchestrator/docker-compose.yml
 COMPOSE ?= docker compose -f $(COMPOSE_FILE)
 
 # Cloudflared Tunnel Compose Files
@@ -11,25 +11,21 @@ CF_ORCH_COMPOSE  := infra/hosts/orchestrator/docker-compose.cloudflared.yml
 ORACLE_APPS_COMPOSE := infra/hosts/oracle-vps/docker-compose.apps.yml
 
 # Service Specific Compose Files
-ARCHON_BASE_COMPOSE ?= infra/compose/base.yml
-ARCHON_COMPOSE  := infra/compose/docker-compose.archon.yml
-ARCHON_OVERRIDE := infra/compose/docker-compose.archon.override.yml
 ARCHON_ENV_FILE ?= external/archon/nyra-configs/env/archon.env
-GITEA_COMPOSE   := infra/configs/gitea/docker-compose.gitea.yml
-SUPABASE_COMPOSE := infra/compose/docker-compose.supabase.yml
 
 # Host Specific Compose Files
-ORCHESTRATOR_COMPOSE := infra/hosts/orchestrator/docker-compose.orchestrator.yml
-WORKER_3060_COMPOSE := infra/hosts/worker-rtx3060/docker-compose.worker-3060.yml
-WORKER_3090TI_COMPOSE := infra/hosts/worker-rtx3090ti/docker-compose.worker-3090.yml
-WORKER_5090_COMPOSE := infra/hosts/worker-rtx5090/docker-compose.worker-5090.yml
-ORACLE_COMPOSE := infra/hosts/oracle-vps/docker-compose.oracle.yml
+ORCHESTRATOR_COMPOSE := infra/hosts/orchestrator/docker-compose.yml
+WORKER_3060_COMPOSE := infra/hosts/worker-rtx3060/docker-compose.yml
+WORKER_3090TI_COMPOSE := infra/hosts/worker-rtx3090ti/docker-compose.yml
+WORKER_5090_COMPOSE := infra/hosts/worker-rtx5090/docker-compose.yml
+ORACLE_COMPOSE := infra/hosts/oracle-vps/docker-compose.yml
 
 # Voice Setup Compose Files
 VOICE_3060_COMPOSE := infra/hosts/worker-rtx3060/docker-compose.voice.yml
 VOICE_5090_COMPOSE := infra/hosts/worker-rtx5090/docker-compose.voice.yml
 VOICE_3090TI_COMPOSE := infra/hosts/worker-rtx3090ti/docker-compose.voice.yml
 VOICE_ORCHESTRATOR_COMPOSE := infra/hosts/orchestrator/docker-compose.voice.yml
+HERMES_5090_COMPOSE := infra/hosts/worker-rtx5090/docker-compose.hermes.yml
 
 # Distributed Voice Compose Files
 DIST_VOICE_3060 := infra/hosts/worker-rtx3060/docker-compose.distributed-voice.yml
@@ -44,7 +40,7 @@ DEFAULT_PROFILES ?= core,gateway,workflow,crm,archon,apps,observability,vector
   cluster cluster-kill grid grid-kill \
   nexus-up nexus-down health stack-up stack-verify \
   gitea-up gitea-down gitea-ps twenty-crm-up twenty-crm-down \
-  voice-3060 voice-5090 voice-3090ti voice-orch voice-distributed \
+  voice-3060 voice-5090 voice-3090ti voice-orch voice-distributed hermes-5090 \
   cf-orch-up cf-orch-down cf-orch-logs \
   oracle-apps-up oracle-apps-down oracle-quote-engine-up oracle-campaign-engine-up \
   up-all down-all cluster-status
@@ -72,12 +68,11 @@ help:
 	@echo "make cluster            Launch tmux session controlling all 4 PCs"
 	@echo "make grid               Launch 4-node monitor grid (SSH mesh)"
 	@echo "make up-workers         Bring up all remote worker nodes via contexts"
-	@echo "make up-oracle          Start Oracle VPS services"
+	@echo "make up-oracle          Start the full Oracle VPS stack including apps"
 	@echo
 	@echo "--- COMPONENT STACKS ---"
 	@echo "make gitea-up           Start Gitea + Actions"
 	@echo "make twenty-crm-up      Start Twenty CRM"
-	@echo "make supabase-up        Start local Supabase DB"
 	@echo "make verify-paths       Verify Makefile path references exist"
 	@echo
 	@echo "--- VOICE SETUPS ---"
@@ -86,6 +81,7 @@ help:
 	@echo "make voice-3090ti       Start standalone Unmute on RTX 3090 Ti"
 	@echo "make voice-orch         Start Kyutai Pocket TTS on Orchestrator"
 	@echo "make voice-distributed  Start distributed 3-node voice setup"
+	@echo "make hermes-5090        Start Hermes UI override on RTX 5090"
 	@echo
 	@echo "--- CLOUDFLARED TUNNELS ---"
 	@echo "make cf-orch-up         Start orchestrator CF tunnel (separate from main stack)"
@@ -113,25 +109,24 @@ cluster-status:
 up-all: up up-workers up-oracle
 
 down-all: down
-	docker --context oracle compose -f $(ORACLE_COMPOSE) down
+	docker --context oracle compose -f $(ORACLE_COMPOSE) -f $(ORACLE_APPS_COMPOSE) --profile apps down
 	docker --context worker-rtx5090 compose -f $(WORKER_5090_COMPOSE) down
 	docker --context worker-rtx3090ti compose -f $(WORKER_3090TI_COMPOSE) down
 	docker --context worker-rtx3060 compose -f $(WORKER_3060_COMPOSE) down
 
 verify-paths:
 	@test -f $(COMPOSE_FILE) || (echo "Missing $(COMPOSE_FILE)" && exit 1)
-	@test -f $(ARCHON_COMPOSE) || (echo "Missing $(ARCHON_COMPOSE)" && exit 1)
-	@test -f $(GITEA_COMPOSE) || (echo "Missing $(GITEA_COMPOSE)" && exit 1)
-	@test -f $(SUPABASE_COMPOSE) || (echo "Missing $(SUPABASE_COMPOSE)" && exit 1)
 	@test -f $(ORCHESTRATOR_COMPOSE) || (echo "Missing $(ORCHESTRATOR_COMPOSE)" && exit 1)
 	@test -f $(WORKER_3060_COMPOSE) || (echo "Missing $(WORKER_3060_COMPOSE)" && exit 1)
 	@test -f $(WORKER_3090TI_COMPOSE) || (echo "Missing $(WORKER_3090TI_COMPOSE)" && exit 1)
 	@test -f $(WORKER_5090_COMPOSE) || (echo "Missing $(WORKER_5090_COMPOSE)" && exit 1)
 	@test -f $(ORACLE_COMPOSE) || (echo "Missing $(ORACLE_COMPOSE)" && exit 1)
+	@test -f $(ORACLE_APPS_COMPOSE) || (echo "Missing $(ORACLE_APPS_COMPOSE)" && exit 1)
 	@test -f $(VOICE_3060_COMPOSE) || (echo "Missing $(VOICE_3060_COMPOSE)" && exit 1)
 	@test -f $(VOICE_5090_COMPOSE) || (echo "Missing $(VOICE_5090_COMPOSE)" && exit 1)
 	@test -f $(VOICE_3090TI_COMPOSE) || (echo "Missing $(VOICE_3090TI_COMPOSE)" && exit 1)
 	@test -f $(VOICE_ORCHESTRATOR_COMPOSE) || (echo "Missing $(VOICE_ORCHESTRATOR_COMPOSE)" && exit 1)
+	@test -f $(HERMES_5090_COMPOSE) || (echo "Missing $(HERMES_5090_COMPOSE)" && exit 1)
 	@test -f $(DIST_VOICE_3060) || (echo "Missing $(DIST_VOICE_3060)" && exit 1)
 	@test -f $(DIST_VOICE_5090) || (echo "Missing $(DIST_VOICE_5090)" && exit 1)
 	@test -f $(DIST_VOICE_3090TI) || (echo "Missing $(DIST_VOICE_3090TI)" && exit 1)
@@ -150,44 +145,25 @@ down:
 ps:
 	$(COMPOSE) ps
 	@echo "--- Archon Stack ---"
-	@docker compose -f $(ARCHON_COMPOSE) ps
+	@docker --context oracle compose -f $(ORACLE_COMPOSE) ps archon
 
 # --- ARCHON TARGETS ---
 
 archon-up:
-	@if [ ! -f /usr/local/bin/llxprt ]; then \
-		echo -e "\033[33mWARNING: llxprt binary not found on host! Archon codex routing will fail.\033[0m"; \
-	fi
-	@if [ ! -d "$${HOME}/.config/llxprt" ]; then \
-		echo -e "\033[33mWARNING: $${HOME}/.config/llxprt not found on host! Archon llxprt config mount will be empty.\033[0m"; \
-	fi
-	@if [ ! -d "$${HOME}/.codex" ]; then \
-		echo -e "\033[33mWARNING: $${HOME}/.codex not found on host! Official Codex auth/config fallback will be unavailable in the Archon container.\033[0m"; \
-	fi
-	@profiles=$$(echo "$(ARCHON_PROFILES)" | tr ',' ' '); \
-	for p in $$profiles; do args="$$args --profile $$p"; done; \
-	if [ -f external/archon/Dockerfile.user ]; then \
-		docker compose --env-file $(ARCHON_ENV_FILE) -f $(ARCHON_BASE_COMPOSE) -f $(ARCHON_COMPOSE) -f $(ARCHON_OVERRIDE) $$args up -d; \
-	else \
-		docker compose --env-file $(ARCHON_ENV_FILE) -f $(ARCHON_BASE_COMPOSE) -f $(ARCHON_COMPOSE) $$args up -d; \
-	fi
+	docker --context oracle compose --env-file $(ARCHON_ENV_FILE) -f $(ORACLE_COMPOSE) up -d archon
 
 archon-build-user:
-	@if [ ! -f external/archon/Dockerfile.user ]; then \
-		echo "Creating external/archon/Dockerfile.user from example..."; \
-		cp external/archon/Dockerfile.user.example external/archon/Dockerfile.user; \
-	fi
-	docker compose --env-file $(ARCHON_ENV_FILE) -f $(ARCHON_BASE_COMPOSE) -f $(ARCHON_COMPOSE) -f $(ARCHON_OVERRIDE) build archon
+	docker --context oracle compose --env-file $(ARCHON_ENV_FILE) -f $(ORACLE_COMPOSE) build archon
 
 
 archon-down:
-	docker compose --env-file $(ARCHON_ENV_FILE) -f $(ARCHON_BASE_COMPOSE) -f $(ARCHON_COMPOSE) down --remove-orphans
+	docker --context oracle compose --env-file $(ARCHON_ENV_FILE) -f $(ORACLE_COMPOSE) stop archon
 
 archon-logs:
-	docker compose --env-file $(ARCHON_ENV_FILE) -f $(ARCHON_BASE_COMPOSE) -f $(ARCHON_COMPOSE) logs -f --tail=100
+	docker --context oracle compose --env-file $(ARCHON_ENV_FILE) -f $(ORACLE_COMPOSE) logs -f --tail=100 archon
 
 archon-ps:
-	docker compose --env-file $(ARCHON_ENV_FILE) -f $(ARCHON_BASE_COMPOSE) -f $(ARCHON_COMPOSE) ps
+	docker --context oracle compose --env-file $(ARCHON_ENV_FILE) -f $(ORACLE_COMPOSE) ps archon
 
 # --- DISTRIBUTED TARGETS ---
 
@@ -209,27 +185,27 @@ up-workers:
 	docker --context worker-rtx5090 compose -f $(WORKER_5090_COMPOSE) up -d
 
 up-oracle:
-	docker --context oracle compose -f $(ORACLE_COMPOSE) up -d
+	docker --context oracle compose -f $(ORACLE_COMPOSE) -f $(ORACLE_APPS_COMPOSE) --profile apps up -d
 
 # --- COMPONENT TARGETS ---
 
 gitea-up:
-	docker compose -f $(GITEA_COMPOSE) --env-file .env.gitea up -d
+	docker --context oracle compose -f $(ORACLE_COMPOSE) up -d gitea gitea-runner github-mirror-sync gitea-mcp
 
 gitea-down:
-	docker compose -f $(GITEA_COMPOSE) down
+	docker --context oracle compose -f $(ORACLE_COMPOSE) stop gitea gitea-runner github-mirror-sync gitea-mcp
+
+gitea-ps:
+	docker --context oracle compose -f $(ORACLE_COMPOSE) ps gitea gitea-runner github-mirror-sync gitea-mcp
 
 twenty-crm-up:
 	docker --context oracle compose -f $(ORACLE_COMPOSE) up -d twenty
 
-supabase-up:
-	docker compose -f $(SUPABASE_COMPOSE) up -d
-
 mempalace-init:
-	docker compose exec mempalace-mcp mempalace init
+	docker --context oracle compose -f $(ORACLE_COMPOSE) exec mempalace-mcp mempalace init
 
 mempalace-mine:
-	docker compose exec mempalace-mcp mempalace mine
+	docker --context oracle compose -f $(ORACLE_COMPOSE) exec mempalace-mcp mempalace mine
 
 health:
 	bash scripts/verify-stack.sh
@@ -257,6 +233,9 @@ voice-distributed:
 	docker --context worker-rtx3060 compose -f $(DIST_VOICE_3060) up -d
 	docker --context worker-rtx5090 compose -f $(DIST_VOICE_5090) up -d
 	docker --context worker-rtx3090ti compose -f $(DIST_VOICE_3090TI) up -d
+
+hermes-5090:
+	docker --context worker-rtx5090 compose -f $(HERMES_5090_COMPOSE) up -d
 
 # --- CLOUDFLARED TUNNEL TARGETS ---
 

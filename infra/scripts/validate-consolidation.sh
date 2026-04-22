@@ -206,7 +206,7 @@ main() {
     compose_files=(
         "bootstrap/docker/docker-compose.yml"
         "infra/docker-compose.yml"
-        "infra/docker/docker-compose.yml"
+        "infra/images/docker-compose.yml"
     )
 
     for compose_file in "${compose_files[@]}"; do
