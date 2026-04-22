@@ -38,12 +38,24 @@ coverage
 *~
 .DS_Store
 
+# Data and Persistent Storage
+data/
+**/data/
+
 # Environment
 .env
 .env.local
 .env.*.local
 .env.development
 .env.test
+
+# Agent and AI Meta-directories
+.archon/
+.claude/
+.gemini/
+.codex/
+.letta/
+.pnpm-store/
 
 # Documentation
 *.md

@@ -456,7 +456,7 @@ npm run test            # Unit tests
 npm run test:watch      # Watch mode testing
 
 # Docker (from archived configs)
-docker build -f ../../infra/docker/apps/nyra-admin.Dockerfile .
+docker build -f ../../infra/images/apps/nyra-admin.Dockerfile .
 docker run -p 3008:3008 nyra-admin
 ```
 

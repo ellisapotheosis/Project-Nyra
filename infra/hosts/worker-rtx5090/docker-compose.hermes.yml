@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  hermes-ui:
+    image: ghcr.io/nousresearch/hermes-ui:latest
+    container_name: worker-5090-hermes-ui
+    restart: unless-stopped
+    ports:
+      - "${HERMES_UI_PORT:-3080}:3000"
+    environment:
+      - BACKEND_URL=${OPENCLAW_BACKEND_URL:-http://orchestrator.trex-fiordland.ts.net:8001}
+      - DEFAULT_MODEL=${HERMES_DEFAULT_MODEL:-nous-hermes2-solar:10.7b}
+    networks:
+      - worker-network
+
+networks:
+  worker-network:
+    external: true
+    name: nyra-worker-5090

@@ -126,7 +126,7 @@ services:
   nexus-router:
     build:
       context: ..
-      dockerfile: infra/docker/nexus-router/Dockerfile
+      dockerfile: infra/images/nexus-router/Dockerfile
     container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nexus-router
     profiles: ['gateway', 'orchestrator', 'archon', 'all']
     environment:
@@ -209,7 +209,7 @@ services:
   n8n:
     build:
       context: ..
-      dockerfile: infra/docker/n8n/Dockerfile
+      dockerfile: infra/images/n8n/Dockerfile
       args:
         N8N_TWENTY_NODES_GIT: ${N8N_TWENTY_NODES_GIT:-}
         N8N_EXTRA_PACKAGES: ${N8N_EXTRA_PACKAGES:-}

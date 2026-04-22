@@ -2616,7 +2616,7 @@ foreach ($config in $jsonConfigs) {
 # YAML Configuration Files
 $yamlConfigs = @(
     "config-consolidated/archon-system/archon-deployment-config.yml",
-    "infra/docker/docker-compose.yml"
+    "infra/images/docker-compose.yml"
 )
 foreach ($config in $yamlConfigs) {
     # Validate YAML syntax
@@ -2695,7 +2695,7 @@ function Test-NyraDependencies {
     
     $configFiles = @(
         "config-consolidated/metamcp/unified-metamcp-config.json",
-        "infra/docker/docker-compose.yml",
+        "infra/images/docker-compose.yml",
         "config-consolidated/claude-ecosystem/claude-desktop-config.json"
     )
     
@@ -6541,7 +6541,7 @@ foreach ($config in $jsonConfigs) {
 # YAML Configuration Files
 $yamlConfigs = @(
     "config-consolidated/archon-system/archon-deployment-config.yml",
-    "infra/docker/docker-compose.yml"
+    "infra/images/docker-compose.yml"
 )
 foreach ($config in $yamlConfigs) {
     # Validate YAML syntax
@@ -6620,7 +6620,7 @@ function Test-NyraDependencies {
     
     $configFiles = @(
         "config-consolidated/metamcp/unified-metamcp-config.json",
-        "infra/docker/docker-compose.yml",
+        "infra/images/docker-compose.yml",
         "config-consolidated/claude-ecosystem/claude-desktop-config.json"
     )
     
@@ -11889,7 +11889,7 @@ router_settings:
     google_2: 100  # dollars per month
 ***🔧 DOCKER COMPOSE INTEGRATION
 Updated Docker Compose with AI Stack
-# Addition to infra/docker/docker-compose.yml
+# Addition to infra/images/docker-compose.yml
 services:
   # LiteLLM Proxy
   litellm-proxy:

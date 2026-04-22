@@ -591,7 +591,7 @@ docker build -f docker/Dockerfile.archon-ui .
 docker run -p 3009:3009 archon-ui
 
 # With Archon OS integration
-docker-compose -f ../../infra/docker/docker-compose.archon.yml up
+docker-compose -f ../../infra/images/docker-compose.archon.yml up
 ```
 
 ---

@@ -263,7 +263,7 @@ apps/shared/n8n-shared/
 - ✅ `/workflows/n8n/` → `/apps/shared/n8n-shared/workflows/`
 - ✅ `/workflows/activepieces/` → `/apps/shared/n8n-shared/activepieces/`
 - ✅ `/ingest/infra/orchestrator/n8n/workflows/` → `/apps/shared/n8n-shared/workflows/`
-- ✅ `/infra/docker/n8n/` → `/apps/shared/n8n-shared/services/`
+- ✅ `/infra/images/n8n/` → `/apps/shared/n8n-shared/services/`
 - ✅ `/infra/oracle-vps/n8n-orchestrator.yaml` → `/apps/shared/n8n-shared/services/`
 - ✅ Infrastructure configurations from main Docker compose
 

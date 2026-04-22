@@ -202,7 +202,7 @@ With 12GB VRAM, you can keep 1 large model loaded at a time:
 
 ## Integration with Nexus Router
 
-Update Nexus Router environment variables in `infra/docker/.env`:
+Update Nexus Router environment variables in `infra/images/.env`:
 
 ```bash
 # Worker RTX 3060 Configuration
