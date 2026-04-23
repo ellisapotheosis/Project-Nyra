@@ -100,30 +100,6 @@ services:
     networks:
       - worker-network
 
-  # ── LMCache Server (KV Cache sharing) ───────────────────────────────────
-  lmcache:
-    image: lmcache/lmcache-server:latest
-    container_name: worker-3090-lmcache
-    hostname: worker-3090-lmcache
-    restart: unless-stopped
-    ports:
-      - '${LMCACHE_PORT:-8100}:8100'
-    volumes:
-      - lmcache_data:/data
-    environment:
-      - LMCACHE_STORAGE_BACKEND=local
-      - LMCACHE_LOCAL_DEVICE=cuda
-      - LMCACHE_MAX_LOCAL_CACHE_SIZE=8G
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: 1
-              capabilities: [gpu]
-    networks:
-      - worker-network
-
   # ── vLLM Server (24GB VRAM optimized) ───────────────────────────────────
   vllm:
     image: vllm/vllm-openai:latest
@@ -165,8 +141,6 @@ services:
     depends_on:
       secrets-init:
         condition: service_completed_successfully
-      lmcache:
-        condition: service_started
     healthcheck:
       test: ['CMD', 'curl', '-f', 'http://localhost:8000/health']
       interval: 30s

@@ -1,15 +1,74 @@
-version: '3.8'
-
 services:
-  hermes-ui:
-    image: ghcr.io/nousresearch/hermes-ui:latest
-    container_name: worker-5090-hermes-ui
+  hermes-init:
+    image: alpine:3.21
+    container_name: worker-5090-hermes-init
+    restart: "no"
+    command:
+      - /bin/sh
+      - -lc
+      - |
+        set -eu
+        mkdir -p /opt/data/plugins/memory
+        if [ ! -f /opt/data/config.yaml ]; then
+          cp /opt/bootstrap/config.yaml /opt/data/config.yaml
+        fi
+        if [ ! -d /opt/data/plugins/memory/agentmemory ]; then
+          mkdir -p /opt/data/plugins/memory/agentmemory
+          cp /opt/bootstrap/plugins/memory/agentmemory/__init__.py /opt/data/plugins/memory/agentmemory/__init__.py
+          cp /opt/bootstrap/plugins/memory/agentmemory/plugin.yaml /opt/data/plugins/memory/agentmemory/plugin.yaml
+        fi
+    volumes:
+      - ${HERMES_DATA_DIR:-/opt/nyra/hermes}:/opt/data
+      - ./hermes:/opt/bootstrap:ro
+    networks:
+      - worker-network
+
+  hermes:
+    image: nousresearch/hermes-agent:latest
+    container_name: worker-5090-hermes
     restart: unless-stopped
-    ports:
-      - "${HERMES_UI_PORT:-3080}:3000"
+    command: gateway run
+    depends_on:
+      hermes-init:
+        condition: service_completed_successfully
     environment:
-      - BACKEND_URL=${OPENCLAW_BACKEND_URL:-http://orchestrator.trex-fiordland.ts.net:8001}
-      - DEFAULT_MODEL=${HERMES_DEFAULT_MODEL:-nous-hermes2-solar:10.7b}
+      API_SERVER_ENABLED: ${HERMES_API_SERVER_ENABLED:-true}
+      API_SERVER_KEY: ${HERMES_API_SERVER_KEY}
+      AGENTMEMORY_URL: ${AGENTMEMORY_URL:-http://100.64.0.3:3111}
+      AGENTMEMORY_SECRET: ${AGENTMEMORY_SECRET:-}
+    ports:
+      - "127.0.0.1:${HERMES_GATEWAY_PORT:-8642}:8642"
+    volumes:
+      - ${HERMES_DATA_DIR:-/opt/nyra/hermes}:/opt/data
+    networks:
+      - worker-network
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - |
+          import urllib.request
+          urllib.request.urlopen("http://localhost:8642/health", timeout=5)
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 45s
+
+  hermes-dashboard:
+    image: nousresearch/hermes-agent:latest
+    container_name: worker-5090-hermes-dashboard
+    restart: unless-stopped
+    command: dashboard --host 0.0.0.0
+    depends_on:
+      hermes:
+        condition: service_healthy
+    environment:
+      GATEWAY_HEALTH_URL: http://hermes:8642
+    ports:
+      - "127.0.0.1:${HERMES_DASHBOARD_PORT:-9119}:9119"
+    volumes:
+      - ${HERMES_DATA_DIR:-/opt/nyra/hermes}:/opt/data
     networks:
       - worker-network
 
