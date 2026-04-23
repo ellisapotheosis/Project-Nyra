@@ -125,37 +125,6 @@ services:
       - worker-network
 
   # ============================================================================
-  # LMCache Server
-  # ============================================================================
-  lmcache:
-    image: lmcache/lmcache-server:latest
-    container_name: worker-5090-lmcache
-    hostname: worker-5090-lmcache
-    restart: unless-stopped
-    ports:
-      - "${LMCACHE_PORT:-8100}:8100"
-    volumes:
-      - lmcache-data:/data
-      - nyra_secrets:/run/nyra-secrets:ro
-    environment:
-      - LMCACHE_CONFIG_FILE=/etc/lmcache/config.yaml
-      - LMCACHE_STORAGE_BACKEND=local
-      - LMCACHE_LOCAL_DEVICE=cuda
-      - LMCACHE_MAX_SIZE=12G
-    depends_on:
-      secrets-init:
-        condition: service_completed_successfully
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: 1
-              capabilities: [gpu]
-    networks:
-      - worker-network
-
-  # ============================================================================
   # Model Switcher
   # ============================================================================
   model-switcher:

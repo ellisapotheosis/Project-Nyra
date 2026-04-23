@@ -98,29 +98,6 @@ services:
     networks:
       - worker-network
 
-  # ── LMCache Server ──────────────────────────────────────────────────────
-  lmcache:
-    image: lmcache/lmcache-server:latest
-    container_name: worker-5090-lmcache
-    hostname: worker-5090-lmcache
-    restart: unless-stopped
-    ports:
-      - '${LMCACHE_PORT:-8100}:8100'
-    volumes:
-      - lmcache_data:/data
-    environment:
-      - LMCACHE_STORAGE_BACKEND=local
-      - LMCACHE_LOCAL_DEVICE=cuda
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: 1
-              capabilities: [gpu]
-    networks:
-      - worker-network
-
   # ── vLLM Server ─────────────────────────────────────────────────────────
   vllm:
     image: vllm/vllm-openai:latest
@@ -159,8 +136,6 @@ services:
     depends_on:
       secrets-init:
         condition: service_completed_successfully
-      lmcache:
-        condition: service_started
     healthcheck:
       test: ['CMD', 'curl', '-f', 'http://localhost:8000/health']
       interval: 30s
