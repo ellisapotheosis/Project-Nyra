@@ -101,7 +101,7 @@ Node version: 20
 NODE_VERSION=20
 NODE_ENV=production
 NEXT_TELEMETRY_DISABLED=1
-NEXT_PUBLIC_SITE_URL=https://ratehunter.com
+NEXT_PUBLIC_SITE_URL=https://ratehunter.net
 NEXT_PUBLIC_SITE_NAME=RateHunter
 ```
 

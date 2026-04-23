@@ -48,7 +48,7 @@ Node version: 20
 NODE_VERSION=20
 NODE_ENV=production
 NEXT_TELEMETRY_DISABLED=1
-NEXT_PUBLIC_SITE_URL=https://ratehunter.com
+NEXT_PUBLIC_SITE_URL=https://ratehunter.net
 NEXT_PUBLIC_SITE_NAME=RateHunter
 ```
 
@@ -68,14 +68,14 @@ If your domain DNS is managed by Cloudflare:
 
 1. Go to **Workers & Pages** > **ratehunter-landing** > **Custom domains**
 2. Click **Set up a custom domain**
-3. Enter your domain (e.g., `ratehunter.com` or `www.ratehunter.com`)
+3. Enter your domain (e.g., `ratehunter.net` or `www.ratehunter.net`)
 4. Click **Activate domain**
 5. DNS records are automatically created ✅
 
 ### Option B: External DNS (domain managed elsewhere)
 
 1. In Cloudflare Pages, click **Set up a custom domain**
-2. Enter your domain: `ratehunter.com`
+2. Enter your domain: `ratehunter.net`
 3. You'll get a CNAME record to add to your DNS provider:
    ```
    CNAME @ ratehunter-landing.pages.dev
@@ -184,7 +184,7 @@ Already enabled automatically! View in **Analytics** tab:
 
 **Option 1: UptimeRobot (Free)**
 1. Go to [uptimerobot.com](https://uptimerobot.com)
-2. Add monitor for `https://ratehunter.com`
+2. Add monitor for `https://ratehunter.net`
 3. Set check interval: 5 minutes
 4. Add email alerts
 
@@ -216,7 +216,7 @@ Go to **Workers & Pages** > **ratehunter-landing** > **Settings** > **Environmen
 
 ```
 NODE_ENV=production
-NEXT_PUBLIC_SITE_URL=https://ratehunter.com
+NEXT_PUBLIC_SITE_URL=https://ratehunter.net
 NEXT_PUBLIC_GA_ID=G-XXXXXXXXXX (if using Google Analytics)
 ```
 
@@ -397,14 +397,14 @@ Create a `_redirects` file for URL management:
 
 ```
 # Redirect www to non-www (or vice versa)
-https://www.ratehunter.com/* https://ratehunter.com/:splat 301!
+https://www.ratehunter.net/* https://ratehunter.net/:splat 301!
 
 # Redirect old URLs to new ones
 /old-page /new-page 301
 /pricing /plans 301
 
 # Redirect specific paths
-/contact https://forms.ratehunter.com/contact 302
+/contact https://forms.ratehunter.net/contact 302
 
 # SPA fallback (if needed)
 /* /index.html 200
@@ -433,7 +433,7 @@ Go to **Caching** > **Configuration**
 
 **Create Page Rule** (Pro tier):
 ```
-URL: *ratehunter.com/static/*
+URL: *ratehunter.net/static/*
 Settings:
   - Cache Level: Cache Everything
   - Edge Cache TTL: 1 month
