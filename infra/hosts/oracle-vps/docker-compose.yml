@@ -589,7 +589,8 @@ services:
       redis-cache:
         condition: service_healthy
     env_file:
-      - ../../../external/archon/nyra-configs/env/archon.env
+      - path: ../../../external/archon/nyra-configs/env/archon.env
+        required: false
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER:-nyra}:${POSTGRES_PASSWORD}@postgres:5432/${ARCHON_DB_NAME:-archon}
       REDIS_URL: redis://nyra-redis-cache:6379
