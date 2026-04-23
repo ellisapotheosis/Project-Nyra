@@ -34,7 +34,8 @@ services:
       nexus-router:
         condition: service_healthy
     env_file:
-      - ../../external/archon/nyra-configs/env/archon.env
+      - path: ../../external/archon/nyra-configs/env/archon.env
+        required: false
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER:-nyra}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-nyra}
       REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
@@ -80,7 +81,8 @@ services:
     profiles: ["cloud"]
     restart: unless-stopped
     env_file:
-      - ../../external/archon/nyra-configs/env/archon.env
+      - path: ../../external/archon/nyra-configs/env/archon.env
+        required: false
     ports:
       - "80:80"
       - "443:443"
@@ -102,7 +104,8 @@ services:
     profiles: ["auth"]
     restart: unless-stopped
     env_file:
-      - ../../external/archon/nyra-configs/env/archon.env
+      - path: ../../external/archon/nyra-configs/env/archon.env
+        required: false
     environment:
       AUTH_PORT: "${AUTH_SERVICE_PORT:-9000}"
     expose:
@@ -137,7 +140,8 @@ services:
     container_name: nyra-archon-nexus-router
     profiles: ['archon', 'all']
     env_file:
-      - ../../external/archon/nyra-configs/env/archon.env
+      - path: ../../external/archon/nyra-configs/env/archon.env
+        required: false
     ports:
       - '4000:4000'
       - '8081:8081'
