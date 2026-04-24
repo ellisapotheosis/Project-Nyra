@@ -25,7 +25,4 @@ ingress:
   #   service: http://host.docker.internal:3100
   # - hostname: grafana.ratehunter.net
   #   service: http://host.docker.internal:3003
-  # - hostname: archon.ratehunter.net
-  #   service: http://host.docker.internal:9001
-
   - service: http_status:404

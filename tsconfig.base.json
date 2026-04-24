@@ -48,7 +48,8 @@
       "@/*": ["./src/*"],
       "@app/*": ["./apps/*"],
       "@services/*": ["./services/*"],
-      "@packages/*": ["./packages/*"]
+      "@packages/*": ["./packages/*"],
+      "@nyra/crm-client": ["./packages/crm-client/src/index.ts"]
     }
   },
   "exclude": [

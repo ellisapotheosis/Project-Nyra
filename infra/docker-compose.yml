@@ -30,7 +30,7 @@ services:
   postgres:
     image: pgvector/pgvector:pg16
     container_name: ${COMPOSE_PROJECT_NAME:-nyra}-postgres
-    profiles: ['core', 'archon', 'all']
+    profiles: ['core', 'all']
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-nyra}
       POSTGRES_USER: ${POSTGRES_USER:-nyra}
@@ -40,7 +40,6 @@ services:
       - postgres_data:/var/lib/postgresql/data
       - ./configs/postgres/pg_hba.conf:/etc/postgresql/pg_hba.conf:ro
       - ./configs/postgres/postgresql.conf:/etc/postgresql/postgresql.conf:ro
-      - ../external/archon/migrations:/docker-entrypoint-initdb.d/99-archon-migrations:ro
     command:
       [
         'postgres',
@@ -61,7 +60,7 @@ services:
   redis:
     image: redis:7-alpine
     container_name: ${COMPOSE_PROJECT_NAME:-nyra}-redis
-    profiles: ['core', 'archon', 'all']
+    profiles: ['core', 'all']
     environment:
       REDIS_PASSWORD: ${REDIS_PASSWORD:?set REDIS_PASSWORD}
     command:
@@ -102,7 +101,7 @@ services:
   litellm:
     image: ghcr.io/berriai/litellm:main-stable
     container_name: ${COMPOSE_PROJECT_NAME:-nyra}-litellm
-    profiles: ['gateway', 'orchestrator', 'archon', 'all']
+    profiles: ['gateway', 'orchestrator', 'all']
     command: ['--config', '/app/config.yaml', '--port', '4000']
     environment:
       LITELLM_MASTER_KEY: ${LITELLM_MASTER_KEY:?set LITELLM_MASTER_KEY}
@@ -128,7 +127,7 @@ services:
       context: ..
       dockerfile: infra/images/nexus-router/Dockerfile
     container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nexus-router
-    profiles: ['gateway', 'orchestrator', 'archon', 'all']
+    profiles: ['gateway', 'orchestrator', 'all']
     environment:
       NEXUS_ROUTER_PORT: ${NEXUS_ROUTER_PORT:-7000}
       NEXUS_MCP_PORT: ${NEXUS_MCP_PORT:-8080}
@@ -408,7 +407,7 @@ services:
   infisical-agent:
     image: infisical/cli:latest
     container_name: ${COMPOSE_PROJECT_NAME:-nyra}-infisical-agent
-    profiles: ['archon', 'secrets', 'oracle', 'all']
+    profiles: ['secrets', 'oracle', 'all']
     depends_on:
       infisical:
         condition: service_started
@@ -416,7 +415,7 @@ services:
     command: >-
       test -n "$INFISICAL_TOKEN" &&
       while true; do
-        infisical export --token="$INFISICAL_TOKEN" --projectId=${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef} --env=${INFISICAL_ENV:-prod} --path=/archon --format=dotenv > /secrets/archon.env &&
+        infisical export --token="$INFISICAL_TOKEN" --projectId=${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef} --env=${INFISICAL_ENV:-prod} --path=/shared --format=dotenv > /secrets/shared.env &&
         sleep ${INFISICAL_POLL_INTERVAL:-60};
       done
     environment:
@@ -434,12 +433,12 @@ services:
   infisical-cli:
     image: infisical/cli:latest
     container_name: ${COMPOSE_PROJECT_NAME:-nyra}-infisical-cli
-    profiles: ['archon', 'secrets', 'all']
+    profiles: ['secrets', 'all']
     entrypoint: ['/bin/sh', '-lc']
     command: >-
       test -n "$INFISICAL_TOKEN" &&
       infisical export --token="$INFISICAL_TOKEN" --projectId=${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef} --env=${INFISICAL_ENV:-prod} --path=/shared --format=dotenv
-      > /workspace/.env.archon.injected && tail -f /dev/null
+      > /workspace/.env.injected && tail -f /dev/null
     environment:
       INFISICAL_TOKEN: ${INFISICAL_TOKEN:?set INFISICAL_TOKEN}
       INFISICAL_API_URL: ${INFISICAL_API_URL:-http://infisical:8080}
@@ -459,7 +458,7 @@ services:
   infisical:
     image: infisical/infisical:latest
     container_name: ${COMPOSE_PROJECT_NAME:-nyra}-infisical
-    profiles: ['archon', 'secrets', 'oracle', 'all']
+    profiles: ['secrets', 'oracle', 'all']
     environment:
       NODE_ENV: production
       DB_CONNECTION_URI: postgresql://${POSTGRES_USER:-nyra}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-nyra}
