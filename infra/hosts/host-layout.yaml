@@ -12,7 +12,7 @@ host_constraints:
     resources:
       ram_gb: 16
     policy:
-      - Keep latency-sensitive UI/API routing services local (gateway, router, Archon UI, Open WebUI/OpenClaw UI).
+      - Keep latency-sensitive UI/API routing services local (gateway, router, Open WebUI/OpenClaw UI).
       - Keep write-heavy orchestration control loops local.
   oracle-vps:
     resources:

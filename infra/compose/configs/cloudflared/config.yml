@@ -22,12 +22,6 @@ ingress:
       connectTimeout: 30s
       noTLSVerify: false
 
-  # Claude Flow MCP Server
-  - hostname: archon-os.nyra.dev
-    service: http://archon-os:8003
-    originRequest:
-      connectTimeout: 30s
-
   # LiteLLM Proxy (OpenAI-compatible API)
   - hostname: api.nyra.dev
     service: http://litellm:4000
@@ -38,18 +32,6 @@ ingress:
   # Dashboards & UIs
   # ============================================================================
   
-  # Claude Flow Dashboard
-  - hostname: dashboard.nyra.dev
-    service: http://archon-os-dashboard:3003
-    originRequest:
-      connectTimeout: 10s
-
-  # Claude Flow Events (WebSocket)
-  - hostname: events.nyra.dev
-    service: http://archon-os-events:3004
-    originRequest:
-      connectTimeout: 30s
-      
   # Grafana
   - hostname: grafana.nyra.dev
     service: http://grafana:3000
@@ -70,13 +52,6 @@ ingress:
   # WebSocket Endpoints
   # ============================================================================
   
-  # Claude Flow Event WebSocket
-  - hostname: ws.nyra.dev
-    service: ws://archon-os-events:3004
-    originRequest:
-      connectTimeout: 30s
-      httpHostHeader: ws.nyra.dev
-
   # ============================================================================
   # Catch-all (404)
   # ============================================================================

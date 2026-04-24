@@ -373,7 +373,7 @@ export class TwentyCRMClient {
   private readonly queue: PQueue
   private readonly operations: TwentyOperations
 
-  constructor(private readonly options: TwentyCRMClientOptions) {
+  constructor(options: TwentyCRMClientOptions) {
     if (!options.endpoint || !options.apiKey) {
       throw new CRMError('endpoint and apiKey are required to initialize TwentyCRMClient')
     }
@@ -389,8 +389,8 @@ export class TwentyCRMClient {
     this.operations = { ...defaultOperations, ...(options.operations ?? {}) }
   }
 
-  private async request<T>(operation: keyof TwentyOperations, variables: Record<string, unknown>) {
-    return this.queue.add(async () => {
+  public async request<T>(operation: keyof TwentyOperations, variables: Record<string, unknown>): Promise<T> {
+    const result = await this.queue.add(async () => {
       try {
         const payload = await this.client.request<T>(this.operations[operation], variables)
         return payload
@@ -400,6 +400,11 @@ export class TwentyCRMClient {
         })
       }
     })
+
+    if (!result) {
+      throw new CRMError('Request failed to return data')
+    }
+    return result
   }
 
   public async createContact(payload: LeadInput) {

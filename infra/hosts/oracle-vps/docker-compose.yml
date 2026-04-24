@@ -10,10 +10,9 @@ services:
     command: ["/usr/local/bin/secrets-init.sh"]
     environment:
       INFISICAL_TOKEN: ${INFISICAL_TOKEN:-}
-      INFISICAL_PROJECT_ID: 
-        ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
+      INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
       INFISICAL_ENV: ${INFISICAL_ENV:-prod}
-      INFISICAL_PATH: ${INFISICAL_PATH:-/machines/oracle}
+      INFISICAL_PATH: /machines/oracle
       # Fallback env vars written to secret files when Infisical is unavailable
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       REDIS_PASSWORD: ${REDIS_PASSWORD:-}
@@ -35,10 +34,9 @@ services:
         condition: service_completed_successfully
     environment:
       INFISICAL_TOKEN: ${INFISICAL_TOKEN}
-      INFISICAL_PROJECT_ID: 
-        ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
+      INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
       INFISICAL_ENV: ${INFISICAL_ENV:-prod}
-      INFISICAL_PATH: ${INFISICAL_PATH:-/machines/oracle}
+      INFISICAL_PATH: /machines/oracle
       INFISICAL_POLL_INTERVAL: ${INFISICAL_POLL_INTERVAL:-60}
     volumes:
       - nyra_secrets:/run/nyra-secrets
@@ -88,7 +86,7 @@ services:
       POSTGRES_DB: ${POSTGRES_DB:-nyra}
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - /home/ubuntu/project-nyra/infra/hosts/oracle-vps/initdb:/docker-entrypoint-initdb.d:ro
+      - ./initdb:/docker-entrypoint-initdb.d:ro
       - nyra_secrets:/run/nyra-secrets:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-nyra} -d ${POSTGRES_DB:-nyra}"]
@@ -241,7 +239,7 @@ services:
       - '--storage.tsdb.retention.time=15d'
     volumes:
       - prometheus_data:/prometheus
-      - /home/ubuntu/project-nyra/infra/hosts/oracle-vps/configs/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ${PWD}/configs/prometheus.yml:/etc/prometheus/prometheus.yml:ro
     ports:
       - "9090:9090"
     networks: [nyra_net]
@@ -400,10 +398,12 @@ services:
     restart: unless-stopped
     environment:
       INFISICAL_TOKEN: ${INFISICAL_TOKEN}
-      INFISICAL_PROJECT_ID: 
-        ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
+      INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
       INFISICAL_ENVIRONMENT: ${INFISICAL_ENV:-prod}
       INFISICAL_FOLDER_PATH: ${INFISICAL_PATH:-/shared}
+      INFISICAL_UNIVERSAL_AUTH_CLIENT_ID: ${INFISICAL_UNIVERSAL_AUTH_CLIENT_ID}
+      INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET: ${INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET}
+      NPM_CONFIG_CACHE: /tmp/.npm
     command:
       - npx
       - -y
@@ -422,6 +422,7 @@ services:
       dockerfile: Dockerfile
     container_name: nyra-mempalace-mcp
     restart: unless-stopped
+    command: ["python", "-m", "mempalace.mcp_server"]
     environment:
       PORT: 8000
       MEMPAL_DIR: /data/vault
@@ -452,10 +453,11 @@ services:
       TWENTY_CRM_API_KEY: ${TWENTYCRM_API_KEY:-}
       TWENTY_CRM_WORKSPACE_ID: ${TWENTYCRM_WORKSPACE_ID:-default}
       NODE_ENV: production
+      NPM_CONFIG_CACHE: /tmp/.npm
     ports:
       - "${TWENTYCRM_MCP_PORT:-8182}:3022"
     volumes:
-      - ../../services/twenty-crm-mcp-server:/app:ro
+      - ../../../services/twenty-crm-mcp-server:/app:rw
     networks: [nyra_net]
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3022/health"]
@@ -539,7 +541,7 @@ services:
     volumes:
       - gitea_data:/var/lib/gitea:ro
       - ../../configs/gitea/mirror-sync.sh:/mirror-sync.sh:ro
-      - /home/ubuntu/.ssh:/root/.ssh:ro
+      - ${HOME:-/home/ellisapotheosis}/.ssh:/root/.ssh:ro
     environment:
       GITHUB_TOKEN: ${GITHUB_TOKEN:-}
       GITHUB_REPO: ${GITHUB_REPO:-ellisapotheosis/Project-Nyra}
@@ -564,57 +566,16 @@ services:
       gitea:
         condition: service_healthy
     environment:
-      PORT: ${GITEA_MCP_PORT:-3100}
+      PORT: ${GITEA_MCP_PORT:-3101}
       GITEA_URL: http://gitea:3000
     ports:
-      - "${GITEA_MCP_PORT:-3100}:3100"
+      - "${GITEA_MCP_PORT:-3101}:3101"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3100/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:3101/health"]
       interval: 30s
       timeout: 10s
       retries: 3
     networks: [nyra_net]
-
-  # ── Archon OS (AI agent orchestrator) ────────────────────────────────────
-  # Runs on Oracle — connects to LiteLLM + Nexus on orchestrator via Tailscale
-  archon:
-    build:
-      context: ../../../external/archon
-      dockerfile: Dockerfile
-    container_name: nyra-archon-os
-    restart: unless-stopped
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis-cache:
-        condition: service_healthy
-    env_file:
-      - path: ../../../external/archon/nyra-configs/env/archon.env
-        required: false
-    environment:
-      DATABASE_URL: postgresql://${POSTGRES_USER:-nyra}:${POSTGRES_PASSWORD}@postgres:5432/${ARCHON_DB_NAME:-archon}
-      REDIS_URL: redis://nyra-redis-cache:6379
-      PORT: "3000"
-      OPENAI_API_KEY: ${OPENAI_API_KEY}
-      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
-      GOOGLE_API_KEY: ${GOOGLE_API_KEY:-}
-      GH_TOKEN: ${GITHUB_TOKEN:-}
-      NEXUS_ROUTER_URL: http://orchestrator.trex-fiordland.ts.net:7000
-      OPENAI_BASE_URL: http://orchestrator.trex-fiordland.ts.net:4000/v1
-      ARCHON_DATA: /.archon
-      NODE_ENV: production
-      ARCHON_DOCKER: "true"
-    volumes:
-      - archon_data:/.archon
-      - nyra_secrets:/run/nyra-secrets:ro
-    ports:
-      - "3737:3000"
-    networks: [nyra_net]
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
 
   quote_engine:
     profiles: ["apps"]
@@ -688,6 +649,12 @@ services:
     image: node:20-alpine
     container_name: nyra-paperclip-mcp
     restart: unless-stopped
+    environment:
+      NPM_CONFIG_CACHE: /tmp/.npm
+      PAPERCLIP_API_URL: http://nyra-paperclip:3100
+      PAPERCLIP_API_KEY: ${PAPERCLIP_API_KEY:-dummy}
+    volumes:
+      - nyra_secrets:/run/nyra-secrets:ro
     command:
       - npx
       - -y
@@ -745,7 +712,6 @@ volumes:
   gitea_runner_data:
   falkordb_data:
   qdrant_data:
-  archon_data:
   mempalace_data:
   mempalace_vault:
   nyra_secrets:

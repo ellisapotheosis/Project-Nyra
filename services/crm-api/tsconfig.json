@@ -7,10 +7,11 @@
     "declaration": true,
     "declarationMap": true,
     "module": "NodeNext",
-    "moduleResolution": "NodeNext"
+    "moduleResolution": "NodeNext",
+    "tsBuildInfoFile": "dist/.tsbuildinfo"
   },
   "include": ["src"],
   "references": [
-    { "path": "../crm-client" }
+    { "path": "../../packages/crm-client" }
   ]
 }
