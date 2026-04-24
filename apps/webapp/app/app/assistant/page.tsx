@@ -1,12 +1,12 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { 
   Send, Bot, User, Sparkles, Zap, Shield, Cpu, 
   History, Clock, Phone, Mail, MessageSquare, 
@@ -59,8 +59,6 @@ export default function AssistantPage() {
   const [timeline, setTimeline] = useState<TimelineEvent[]>([]);
   const [loadingLeads, setLoadingLeads] = useState(true);
   const [loadingTimeline, setLoadingTimeline] = useState(false);
-  const scrollRef = useRef<HTMLDivElement>(null);
-
   const selectedLead = leads.find(l => l.id === selectedLeadId);
 
   // Fetch Leads on Mount
@@ -108,12 +106,6 @@ export default function AssistantPage() {
     };
     fetchTimeline();
   }, [selectedLeadId]);
-
-  useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-    }
-  }, [messages, isTyping]);
 
   const handleSend = async (overrideInput?: string) => {
     const text = overrideInput || input;
@@ -332,7 +324,7 @@ export default function AssistantPage() {
 
         <Card className="flex-1 flex flex-col min-h-0 border-none shadow-2xl bg-muted/30 backdrop-blur-md overflow-hidden">
           <CardContent className="flex-1 overflow-hidden p-0">
-            <ScrollArea ref={scrollRef} className="h-full p-6">
+            <ScrollArea className="h-full p-6">
               <div className="space-y-6">
                 <AnimatePresence initial={false}>
                   {messages.map((m) => (
