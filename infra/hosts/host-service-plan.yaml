@@ -26,7 +26,6 @@ hosts:
         profiles:
         - gateway
         - orchestrator
-        - archon
         - all
         ports:
         - ${LITELLM_PORT:-4000}:4000
@@ -35,7 +34,6 @@ hosts:
         profiles:
         - gateway
         - orchestrator
-        - archon
         - all
         ports:
         - ${NEXUS_ROUTER_PORT:-7000}:7000
@@ -86,48 +84,6 @@ hosts:
         ports:
         - ${TWENTYCRM_MCP_PORT:-8182}:8082
         category: mcp-server
-      archon-os:
-        profiles:
-        - archon
-        - all
-        ports:
-        - ${ARCHON_OS_PORT:-9001}:9001
-        category: service
-      archon-server:
-        profiles:
-        - archon
-        - all
-        ports:
-        - ${ARCHON_SERVER_PORT:-8181}:8181
-        category: service
-      archon-mcp:
-        profiles:
-        - archon
-        - all
-        ports:
-        - ${ARCHON_MCP_PORT:-8051}:8051
-        category: mcp-server
-      archon-agents:
-        profiles:
-        - archon
-        - all
-        ports:
-        - ${ARCHON_AGENTS_PORT:-8052}:8052
-        category: service
-      archon-agent-work-orders:
-        profiles:
-        - archon
-        - all
-        ports:
-        - ${AGENT_WORK_ORDERS_PORT:-8053}:8053
-        category: service
-      archon-ui:
-        profiles:
-        - archon
-        - all
-        ports:
-        - ${ARCHON_UI_PORT:-3737}:3737
-        category: app-ui
       moltbot-web:
         profiles:
         - apps
@@ -165,7 +121,6 @@ hosts:
         category: service
       infisical-agent:
         profiles:
-        - archon
         - secrets
         - oracle
         - all
@@ -173,7 +128,6 @@ hosts:
         category: service
       infisical-cli:
         profiles:
-        - archon
         - secrets
         - all
         ports: []
@@ -478,34 +432,10 @@ recommended_placement:
   - service: activepieces
     recommended_host: orchestrator
     category: platform
-  - service: archon-os
-    recommended_host: orchestrator
-    category: service
-  - service: archon-agent-work-orders
-    recommended_host: orchestrator
-    category: service
-  - service: archon-agents
-    recommended_host: orchestrator
-    category: service
-  - service: archon-mcp
-    recommended_host: orchestrator
-    category: mcp-server
-  - service: archon-os
-    recommended_host: orchestrator
-    category: service
-  - service: archon-server
-    recommended_host: orchestrator
-    category: service
-  - service: archon-ui
-    recommended_host: orchestrator
-    category: app-ui
   - service: bitwarden-mcp
     recommended_host: orchestrator
     category: mcp-server
   - service: cadvisor
-    recommended_host: orchestrator
-    category: service
-  - service: archon-os
     recommended_host: orchestrator
     category: service
   - service: cloudflared

@@ -27,7 +27,7 @@ refresh_secrets() {
     fname=$(printf '%s' "$key" | tr '[:upper:]' '[:lower:]')
     mkdir -p "$(dirname "/run/nyra-secrets/${fname}")"
     printf '%s' "$val" > "/run/nyra-secrets/${fname}"
-    done < /tmp/nyra_secrets_raw.env
+    done < /tmp/nyra_agent_raw.env
 
   rm -f /tmp/nyra_agent_raw.env
   echo "[Infisical Agent] Secrets refreshed at $(date -u +%Y-%m-%dT%H:%M:%SZ)"
