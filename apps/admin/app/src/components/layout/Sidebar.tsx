@@ -6,9 +6,6 @@ import {
   LayoutDashboard,
   Users,
   Calculator,
-  Mail,
-  MessageCircle,
-  Shield,
   Settings,
   LogOut
 } from 'lucide-react'
@@ -43,31 +40,12 @@ const navigationItems: NavigationItem[] = [
     icon: Calculator,
     description: 'Rate quotes and calculations'
   },
-  {
-    name: 'Campaigns',
-    href: '/campaigns',
-    icon: Mail,
-    badge: '3',
-    description: 'Email and SMS campaigns'
-  },
-  {
-    name: 'Chat',
-    href: '/chat',
-    icon: MessageCircle,
-    description: 'Embedded Dify chat interface'
-  },
-  {
-    name: 'Audit',
-    href: '/audit',
-    icon: Shield,
-    description: 'Compliance and audit logs'
-  },
 ]
 
 const bottomNavItems: NavigationItem[] = [
   {
     name: 'Settings',
-    href: '/settings',
+    href: '/',
     icon: Settings,
     description: 'System configuration'
   },
