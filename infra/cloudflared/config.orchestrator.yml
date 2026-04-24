@@ -23,8 +23,6 @@ ingress:
     service: http://n8n:5678
   - hostname: grafana.ratehunter.net
     service: http://grafana:3000
-  - hostname: archon.ratehunter.net
-    service: http://archon-os:9001
   - hostname: bot.ratehunter.net
     service: http://moltbot-web:3030
 

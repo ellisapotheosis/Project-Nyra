@@ -1,8 +1,0 @@
-# Docker Compose override for Archon user-extended builds.
-# Use: docker compose -f infra/compose/docker-compose.archon.yml -f infra/compose/docker-compose.archon.override.yml up -d --build
-
-services:
-  archon:
-    build:
-      context: ../../external/archon
-      dockerfile: Dockerfile.user

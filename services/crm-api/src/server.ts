@@ -3,11 +3,12 @@ import cors from 'cors'
 import helmet from 'helmet'
 import dotenv from 'dotenv'
 import { rateLimit } from 'express-rate-limit'
-import { Pool } from 'pg'
+import pg from 'pg'
+const { Pool } = pg
 import fetch from 'node-fetch'
 import winston from 'winston'
 import { z } from 'zod'
-import { TwentyCRMClient, LeadInput, QuoteInput, CommunicationInput } from '@nyra/crm-client'
+import { TwentyCRMClient, type QuoteInput, type MortgageLeadInput } from '@nyra/crm-client'
 
 dotenv.config()
 
@@ -59,31 +60,10 @@ app.use('/api/', limiter)
 
 app.use((req, res, next) => {
   if (CRM_API_KEY && req.headers['x-crm-api-key'] !== CRM_API_KEY) {
-    return res.status(401).json({ error: 'Invalid API key' })
+    res.status(401).json({ error: 'Invalid API key' })
+    return
   }
   next()
-})
-
-const leadPayloadSchema = z.object({
-  name: z.string(),
-  email: z.string().email(),
-  phone: z.string(),
-  source: z.string().optional(),
-  consentEmail: z.boolean().optional(),
-  consentSms: z.boolean().optional(),
-  consentVoice: z.boolean().optional(),
-  creditScore: z.number().int().optional(),
-  annualIncome: z.number().optional(),
-  employmentStatus: z.string().optional(),
-  loan: z.object({
-    loanPurpose: z.string(),
-    loanType: z.string(),
-    loanAmount: z.number(),
-    propertyValue: z.number().optional(),
-    interestRate: z.number().optional(),
-    termMonths: z.number().optional(),
-    source: z.string().optional()
-  })
 })
 
 const quotePayloadSchema = z.object({
@@ -100,66 +80,12 @@ const statusPayloadSchema = z.object({
   notes: z.string().optional()
 })
 
-async function upsertLeadMetadata(twentyLeadId: string, payload: Record<string, unknown>) {
-  const entries = Object.entries(payload).filter(([, value]) => value !== undefined)
-  if (entries.length === 0) {
-    const { rows } = await pool.query('SELECT id FROM nyra_integration.lead_metadata WHERE twenty_lead_id = $1', [twentyLeadId])
-    return rows[0]?.id
-  }
-  const columns = entries.map(([key]) => key)
-  const placeholders = entries.map((_, idx) => `$${idx + 2}`)
-  const query = `
-    INSERT INTO nyra_integration.lead_metadata (twenty_lead_id, ${columns.join(', ')})
-    VALUES ($1, ${placeholders.join(', ')})
-    ON CONFLICT (twenty_lead_id) DO UPDATE SET ${columns.map((column) => `${column}=EXCLUDED.${column}`).join(', ')}
-    RETURNING id
-  `
-  const values = [twentyLeadId, ...entries.map(([, value]) => value)]
-  const { rows } = await pool.query(query, values)
-  return rows[0]?.id
-}
-
-async function createLoanRecord(twentyLeadId: string, loanInfo: Record<string, unknown>, borrowerId?: string) {
-  const query = `
-    INSERT INTO nyra_integration.loans (
-      twenty_lead_id, borrower_id, loan_purpose, loan_type, loan_amount, property_value, term_months,
-      interest_rate, source
-    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-    RETURNING *
-  `
-  const values = [
-    twentyLeadId,
-    borrowerId,
-    loanInfo.loanPurpose,
-    loanInfo.loanType,
-    loanInfo.loanAmount,
-    loanInfo.propertyValue ?? null,
-    loanInfo.termMonths ?? 360,
-    loanInfo.interestRate ?? null,
-    loanInfo.source ?? 'web'
-  ]
-  const { rows } = await pool.query(query, values)
-  return rows[0]
-}
-
 async function getLoanIdForLead(leadId: string) {
   const result = await pool.query(
     `SELECT id FROM nyra_integration.loans WHERE twenty_lead_id = $1 ORDER BY created_at DESC LIMIT 1`,
     [leadId]
   )
   return result.rows[0]?.id ?? null
-}
-
-async function logCommunication(contactLeadId: string, channel: string, direction: string, notes?: string) {
-  const identity = await pool.query(
-    'SELECT id FROM nyra_integration.lead_metadata WHERE twenty_lead_id = $1',
-    [contactLeadId]
-  )
-  const contactId = identity.rows[0]?.id
-  await pool.query(
-    `INSERT INTO nyra_integration.communication_logs (contact_id, channel, direction, description, sent_at) VALUES ($1, $2, $3, $4, NOW())`,
-    [contactId, channel, direction, notes ?? null]
-  )
 }
 
 async function enrollCampaign(contactLeadId: string, campaignName = 'New Lead Nurture') {
@@ -204,7 +130,7 @@ async function fetchQuoteEngine(input: QuoteInput) {
     throw new Error('Quote engine returned an error')
   }
 
-  return response.json()
+  return response.json() as Promise<any>
 }
 
 function normalizePhone(phone: string) {
@@ -243,7 +169,8 @@ app.post('/api/leads', async (req, res, next) => {
     }
 
     if (!lead.firstName || !lead.lastName || (!lead.email && !lead.phone)) {
-      return res.status(400).json({ error: 'Missing required lead fields' })
+      res.status(400).json({ error: 'Missing required lead fields' })
+      return
     }
 
     // Deduplication Logic (PRD-001)
@@ -252,7 +179,7 @@ app.post('/api/leads', async (req, res, next) => {
         or: [
           lead.email ? { email: { eq: lead.email } } : null,
           lead.phone ? { phoneNumber: { eq: lead.phone } } : null
-        ].filter(Boolean)
+        ].filter((x): x is any => x !== null)
       }
     })
 
@@ -283,7 +210,7 @@ app.post('/api/leads', async (req, res, next) => {
       propertyState: lead.propertyState,
       source: lead.source,
       campaignStatus: 'PENDING'
-    })
+    } as MortgageLeadInput)
 
     // Trigger n8n Workflow
     if (N8N_WEBHOOK_URL) {
@@ -294,7 +221,7 @@ app.post('/api/leads', async (req, res, next) => {
       }).catch(err => logger.error('Failed to trigger n8n', err))
     }
 
-    return res.status(201).json({ success: true, personId, mortgageLeadId: mortgageLead.id })
+    res.status(201).json({ success: true, personId, mortgageLeadId: mortgageLead.id })
   } catch (error) {
     next(error)
   }
@@ -307,7 +234,8 @@ app.post('/api/quotes', async (req, res, next) => {
     
     // 1. Validate scenario
     if (!request.leadId || !request.scenario?.loanAmount) {
-      return res.status(400).json({ error: 'Invalid quote request' })
+      res.status(400).json({ error: 'Invalid quote request' })
+      return
     }
 
     // 2. Delegate to Quote Engine (or internal logic)
@@ -322,7 +250,7 @@ app.post('/api/quotes', async (req, res, next) => {
       metadata: { options, scenario: request.scenario }
     })
 
-    return res.status(201).json(quote)
+    res.status(201).json(quote)
   } catch (error) {
     next(error)
   }
@@ -338,16 +266,16 @@ app.post('/api/quotes/:id/approve', async (req, res, next) => {
       input: { status: 'approved', approvedBy, approvedAt: new Date().toISOString() }
     })
     
-    return res.json(quote)
+    res.json(quote)
   } catch (error) {
     next(error)
   }
 })
 
-app.get('/api/leads', async (req, res, next) => {
+app.get('/api/leads', async (_req, res, next) => {
   try {
     const leads = await twentyClient.searchMortgageLeads({}, 100);
-    return res.json({ leads });
+    res.json({ leads });
   } catch (error) {
     next(error);
   }
@@ -358,7 +286,10 @@ app.get('/api/leads/:id/conversation', async (req, res, next) => {
     const leadId = req.params.id
     const dbRes = await pool.query('SELECT id FROM nyra_integration.lead_metadata WHERE twenty_lead_id = $1', [leadId])
     const contactId = dbRes.rows[0]?.id
-    if (!contactId) return res.status(404).json({ error: 'Lead metadata not found' })
+    if (!contactId) {
+      res.status(404).json({ error: 'Lead metadata not found' })
+      return
+    }
 
     const logs = await pool.query(
       `SELECT channel, direction, content_preview, sent_at FROM nyra_integration.communication_logs WHERE contact_id = $1 ORDER BY sent_at DESC LIMIT 50`,
@@ -367,7 +298,7 @@ app.get('/api/leads/:id/conversation', async (req, res, next) => {
 
     const timeline = await twentyClient.timeline(leadId)
 
-    return res.json({ logs: logs.rows, timeline })
+    res.json({ logs: logs.rows, timeline })
   } catch (error) {
     next(error)
   }
@@ -377,7 +308,7 @@ app.post('/api/leads/:id/quote', async (req, res, next) => {
   try {
     const leadId = req.params.id
     const parsed = quotePayloadSchema.parse(req.body)
-    const enriched = (await fetchQuoteEngine(parsed)) as QuoteInput & { monthlyPayment: number; scenarios: unknown[] }
+    const enriched = (await fetchQuoteEngine(parsed as any)) as any
 
     const quoteResult = await twentyClient.createQuote({
       leadId,
@@ -396,7 +327,7 @@ app.post('/api/leads/:id/quote', async (req, res, next) => {
       [await getLoanIdForLead(leadId), leadId, JSON.stringify(enriched.scenarios), JSON.stringify(enriched)]
     )
 
-    return res.status(201).json({ quote: quoteResult })
+    res.status(201).json({ quote: quoteResult })
   } catch (error) {
     next(error)
   }
@@ -413,7 +344,8 @@ app.patch('/api/leads/:id/status', async (req, res, next) => {
     )
 
     if (update.rowCount === 0) {
-      return res.status(404).json({ error: 'Loan not found for lead' })
+      res.status(404).json({ error: 'Loan not found for lead' })
+      return
     }
 
     if (N8N_WEBHOOK_URL) {
@@ -424,7 +356,7 @@ app.patch('/api/leads/:id/status', async (req, res, next) => {
       })
     }
 
-    return res.json({ loan: update.rows[0] })
+    res.json({ loan: update.rows[0] })
   } catch (error) {
     next(error)
   }
@@ -447,13 +379,13 @@ app.patch('/api/leads/:id/campaign', async (req, res, next) => {
       }).catch(err => logger.error('Failed to trigger n8n campaign-control', err))
     }
 
-    return res.json({ success: true, update })
+    res.json({ success: true, update })
   } catch (error) {
     next(error)
   }
 })
 
-app.get('/api/dashboard/pipeline', async (req, res, next) => {
+app.get('/api/dashboard/pipeline', async (_req, res, next) => {
   try {
     const query = `
       SELECT campaign_name, status, COUNT(*)::int AS total, MAX(next_touch) AS next_touch
@@ -462,7 +394,7 @@ app.get('/api/dashboard/pipeline', async (req, res, next) => {
       ORDER BY campaign_name, status
     `
     const { rows } = await pool.query(query)
-    return res.json({ pipeline: rows })
+    res.json({ pipeline: rows })
   } catch (error) {
     next(error)
   }
@@ -496,7 +428,7 @@ app.post('/webhooks/twenty/loan-status', async (req, res, next) => {
   }
 })
 
-app.post('/webhooks/twenty/contact-updated', (req, res) => {
+app.post('/webhooks/twenty/contact-updated', (_req, res) => {
   res.json({ success: true })
 })
 
@@ -506,7 +438,7 @@ app.post('/api/campaigns', async (req, res, next) => {
     const campaign = await twentyClient.request<{ createCampaign: any }>('createCampaign', {
       input: { name, steps: JSON.stringify(steps), loanPurpose, active: true }
     })
-    return res.status(201).json(campaign)
+    res.status(201).json(campaign)
   } catch (error) {
     next(error)
   }
@@ -515,22 +447,23 @@ app.post('/api/campaigns', async (req, res, next) => {
 app.get('/api/campaigns/:id', async (req, res, next) => {
   try {
     const campaign = await twentyClient.request<{ campaign: any }>('getCampaign', { id: req.params.id })
-    return res.json(campaign)
+    res.json(campaign)
   } catch (error) {
     next(error)
   }
 })
 
-app.get('/api/campaigns', async (req, res, next) => {
+app.get('/api/campaigns', async (_req, res, next) => {
   try {
     const campaigns = await twentyClient.request<{ campaigns: any[] }>('getCampaigns', {})
-    return res.json({ campaigns })
+    res.json({ campaigns })
   } catch (error) {
     next(error)
   }
 })
 
-app.use((error: unknown, req: express.Request, res: express.Response, next: express.NextFunction) => {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+app.use((error: unknown, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
   logger.error('Unhandled error', error)
   res.status(500).json({ error: 'Internal server error' })
 })

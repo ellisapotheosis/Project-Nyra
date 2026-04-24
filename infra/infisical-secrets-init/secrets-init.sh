@@ -8,23 +8,23 @@ infisical export \
   --projectId="$INFISICAL_PROJECT_ID" \
   --env="$INFISICAL_ENV" \
   --path="$INFISICAL_PATH" \
-  --format=dotenv > /tmp/nyra_secrets_raw.env
+  --format=json > /tmp/nyra_secrets_raw.json
 
-# Write each secret as an individual file (KEY=VALUE -> /run/nyra-secrets/key)
-# Downstream services use *_FILE env vars that expect plain-value files.
-while IFS= read -r line || [ -n "$line" ]; do
-  case "$line" in
-    \#*|"") continue ;;
-  esac
-  key="${line%%=*}"
-  val="${line#*=}"
-  val="${val%\"}"
-  val="${val#\"}"
-  fname=$(printf '%s' "$key" | tr '[:upper:]' '[:lower:]')
-  # Create parent directories if key contains slashes
-  mkdir -p "$(dirname "/run/nyra-secrets/${fname}")"
-  printf '%s' "$val" > "/run/nyra-secrets/${fname}"
-done < /tmp/nyra_secrets_raw.env
+# Use jq to create individual files directly in a subshell to avoid shell splitting issues
+jq -c '.[]' /tmp/nyra_secrets_raw.json | while read -r row; do
+    key=$(echo "$row" | jq -r '.key')
+    val=$(echo "$row" | jq -r '.value')
+    
+    if [ -z "$key" ] || [ "$key" = "null" ]; then continue; fi
+    
+    fname=$(printf '%s' "$key" | tr '[:upper:]' '[:lower:]')
+    echo "[Nyra Secrets Init] Writing secret: $fname"
+    
+    target="/run/nyra-secrets/${fname}"
+    mkdir -p "$(dirname "$target")"
+    
+    printf '%s' "$val" > "$target"
+done
 
-rm -f /tmp/nyra_secrets_raw.env
+rm -f /tmp/nyra_secrets_raw.json
 echo "[Nyra Secrets Init] Done. Secrets written to /run/nyra-secrets/"
