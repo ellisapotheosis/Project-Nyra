@@ -43,7 +43,7 @@ Use this checklist to ensure your RateHunter landing page is fully configured an
 
 ### Environment Variables (Production)
 - [ ] `NODE_ENV=production`
-- [ ] `NEXT_PUBLIC_SITE_URL=https://ratehunter.com`
+- [ ] `NEXT_PUBLIC_SITE_URL=https://ratehunter.net`
 - [ ] `NEXT_PUBLIC_SITE_NAME=RateHunter`
 - [ ] `NODE_VERSION=20`
 - [ ] `NEXT_TELEMETRY_DISABLED=1`
@@ -59,11 +59,11 @@ Use this checklist to ensure your RateHunter landing page is fully configured an
 ## Custom Domain & SSL
 
 ### Domain Configuration
-- [ ] Custom domain added: `ratehunter.com`
+- [ ] Custom domain added: `ratehunter.net`
 - [ ] DNS configured (CNAME or A records)
 - [ ] Domain verified and active (green checkmark)
 - [ ] WWW redirect configured (www → non-www or vice versa)
-- [ ] Domain propagation complete (check DNS: `nslookup ratehunter.com`)
+- [ ] Domain propagation complete (check DNS: `nslookup ratehunter.net`)
 
 ### SSL/TLS
 - [ ] SSL certificate active (green padlock in browser)

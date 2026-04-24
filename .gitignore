@@ -227,6 +227,11 @@ share/python-wheels/
 *.egg
 PIPFILE.lock
 
+# Keep tracked frontend source libraries inside app trees.
+!apps/landing/ratehunter-landing/src/lib/
+!apps/landing/ratehunter-landing/src/lib/*.ts
+!apps/landing/ratehunter-landing/src/lib/*.tsx
+
 ################################################################################
 # Virtual Environments
 ################################################################################

@@ -208,44 +208,6 @@ services:
       - worker-network
 
   # ============================================================================
-  # LMCache Server (KV Cache sharing)
-  # ============================================================================
-  lmcache:
-    image: lmcache/lmcache-server:latest
-    container_name: worker-3090-lmcache
-    hostname: worker-3090-lmcache
-    restart: unless-stopped
-    ports:
-      - '${LMCACHE_PORT:-8100}:8100'
-    volumes:
-      - lmcache-data:/data
-      - nyra_secrets:/run/nyra-secrets:ro
-    environment:
-      - LMCACHE_CONFIG_FILE=/etc/lmcache/config.yaml
-      - LMCACHE_STORAGE_BACKEND=local
-      - LMCACHE_LOCAL_DEVICE=cuda
-    depends_on:
-      secrets-init:
-        condition: service_completed_successfully
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: 1
-              capabilities: [gpu]
-    healthcheck:
-      test: ['CMD', 'curl', '-f', 'http://localhost:8100/health']
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    labels:
-      - 'com.nyra.service=lmcache'
-      - 'com.nyra.worker=rtx3090ti'
-    networks:
-      - worker-network
-
-  # ============================================================================
   # Health Monitor
   # ============================================================================
   health:

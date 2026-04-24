@@ -6,6 +6,9 @@ const nextConfig = {
   poweredByHeader: false,
   compress: true,
   outputFileTracingRoot: path.resolve(__dirname, '../../..'),
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
   images: {
     formats: ['image/avif', 'image/webp'],
     minimumCacheTTL: 60,

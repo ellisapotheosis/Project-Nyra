@@ -34,7 +34,7 @@ DIST_VOICE_3090TI := infra/hosts/worker-rtx3090ti/docker-compose.distributed-voi
 
 DEFAULT_PROFILES ?= core,gateway,workflow,crm,archon,apps,observability,vector
 
-.PHONY: help install test lint validate up down restart logs ps pull verify-paths \
+.PHONY: help install test lint validate up down restart logs ps pull verify-paths dev-orchestrate dev-down dev-panels dev-status dev-llxprt-jefe dev-llxprt-code up-worker-3090ti up-worker-5090 up-worker-3060 up-all-workers down-all-workers paperclip-up paperclip-down paperclip-logs paperclip-status \
   up-core up-orchestrator up-apps up-dev up-workers up-oracle \
   archon-up archon-down archon-logs archon-ps \
   cluster cluster-kill grid grid-kill \
@@ -285,3 +285,138 @@ secrets-build: check-host
 secrets-up: check-host
 	@echo "🐾 🚀 Starting secrets sidecar for $(HOST)..."
 	docker compose -f infra/hosts/$(HOST)/docker-compose.yml --env-file infra/hosts/$(HOST)/.env.host --profile secrets up -d
+
+# ════════════════════════════════════════════════════════════════════════════
+# DEVELOPMENT ORCHESTRATION: ghostty + zellij + distributed inference
+# ════════════════════════════════════════════════════════════════════════════
+
+.PHONY: dev-orchestrate dev-down
+
+dev-orchestrate:
+	@echo "🚀 Launching Development Orchestration (ghostty + zellij)..."
+	@echo "   Panels: llxprt-jefe | llxprt-code | RTX3090Ti | RTX5090 | RTX3060 | PAPERCLIP"
+	@ghostty \
+		--command "zellij --layout compact" \
+		--title "Project Nyra - Distributed AI Development" &
+	@sleep 2
+	@zellij action new-pane -f -d right
+	@zellij action new-pane -f -d down
+	@zellij action new-pane -f -d right
+	@zellij action new-pane -f -d down
+	@zellij action new-pane -f -d right
+
+dev-panels:
+	@echo "Configuring zellij panels..."
+	@zellij action write-chars "# [1] llxprt-jefe (CLI Subscription)" && Enter
+	@zellij action write-chars "cd /home/ellisapotheosis/repos/project-nyra/external/llxprt-jefe && jefe" && Enter
+	@sleep 1
+	@zellij action move-focus right
+	@zellij action write-chars "# [2] llxprt-code (gemini-cli | codex-cli | claude-code)" && Enter
+	@zellij action write-chars "cd /home/ellisapotheosis/repos/project-nyra/external/llxprt-code && code" && Enter
+	@sleep 1
+	@zellij action move-focus down
+	@zellij action write-chars "# [3] RTX3090Ti (openclaw + gemma4)" && Enter
+	@zellij action write-chars "ssh worker-rtx3090ti-win 'docker --context orchestrator ps | grep -E vllm|openclaw'" && Enter
+	@sleep 1
+	@zellij action move-focus right
+	@zellij action write-chars "# [4] RTX5090 (claude-code + qwen3.6)" && Enter
+	@zellij action write-chars "ssh worker-rtx5090-win 'docker --context worker-rtx5090 ps | grep vllm'" && Enter
+	@sleep 1
+	@zellij action move-focus down
+	@zellij action write-chars "# [5] RTX3060 (embeddings + lightweight LLM + voice)" && Enter
+	@zellij action write-chars "ssh worker-rtx3060-win 'docker ps | grep -E embed|voice|inference'" && Enter
+	@sleep 1
+	@zellij action move-focus right
+	@zellij action write-chars "# [6] PAPERCLIP (Oracle VPS)" && Enter
+	@zellij action write-chars "ssh oracle-vps 'docker ps | grep paperclip'" && Enter
+
+dev-status:
+	@echo "=== Development Orchestration Status ==="
+	@echo ""
+	@echo "📝 Local Development Environments:"
+	@echo "  [1] llxprt-jefe:"
+	@test -d ./external/llxprt-jefe && echo "     ✓ $(ls -1 ./external/llxprt-jefe | wc -l) files" || echo "     ✗ Not found"
+	@echo "  [2] llxprt-code:"
+	@test -d ./external/llxprt-code && echo "     ✓ $(ls -1 ./external/llxprt-code | wc -l) files" || echo "     ✗ Not found"
+	@echo ""
+	@echo "🔌 Remote Workers (via SSH contexts):"
+	@echo "  [3] RTX3090Ti (openclaw + gemma4):"
+	@docker --context worker-rtx3090ti ps 2>/dev/null | grep -E "vllm|openclaw" || echo "     ℹ Not running (use 'make up-workers')"
+	@echo "  [4] RTX5090 (claude-code + qwen3.6):"
+	@docker --context worker-rtx5090 ps 2>/dev/null | grep vllm || echo "     ℹ Not running (use 'make up-workers')"
+	@echo "  [5] RTX3060 (embeddings + lightweight LLM + voice):"
+	@docker --context worker-rtx3060 ps 2>/dev/null | grep -E "embed|voice|inference" || echo "     ℹ Not running (use 'make up-workers')"
+	@echo ""
+	@echo "🗄️ PAPERCLIP (Oracle VPS):"
+	@docker compose -f $(ORACLE_COMPOSE) ps 2>/dev/null | grep paperclip || echo "     ℹ Not running (use 'make oracle-apps-up')"
+
+dev-down:
+	@echo "Shutting down Development Orchestration..."
+	@pkill -f "ghostty.*zellij" || echo "No ghostty session found"
+	@zellij kill-session || echo "No zellij session found"
+
+dev-llxprt-jefe:
+	@echo "Starting llxprt-jefe (CLI subscription mode)..."
+	@cd ./external/llxprt-jefe && jefe
+
+
+# DEV ORCHESTRATION: ghostty + zellij + distributed inference
+.PHONY: dev-orchestrate dev-status dev-down
+
+dev-orchestrate:
+	@echo "Launching Development Orchestration..."
+	@ghostty --command "zellij" --title "Nyra - Distributed AI Dev" &
+
+dev-status:
+	@echo "=== Development Orchestration Status ==="
+	@echo "[1] llxprt-jefe: $(test -d ./external/llxprt-jefe && echo OK || echo MISSING)"
+	@echo "[2] llxprt-code: $(test -d ./external/llxprt-code && echo OK || echo MISSING)"
+	@echo "[3] RTX3090Ti (openclaw+gemma4): $(docker --context orchestrator ps 2>/dev/null | grep -q vllm && echo RUNNING || echo CHECK)"
+	@echo "[4] RTX5090 (claude-code+qwen3.6): $(docker --context worker-rtx5090 ps 2>/dev/null | grep -q vllm && echo RUNNING || echo CHECK)"
+	@echo "[5] RTX3060 (embeddings+lm+voice): $(docker --context worker-rtx3060 ps 2>/dev/null && echo RUNNING || echo CHECK)"
+	@echo "[6] PAPERCLIP (Oracle): $(docker compose -f $(ORACLE_COMPOSE) ps 2>/dev/null | grep -q paperclip && echo RUNNING || echo CHECK)"
+
+dev-down:
+	pkill -f ghostty || true
+	pkill -f zellij || true
+
+# WORKER ORCHESTRATION
+.PHONY: up-worker-3090ti up-worker-5090 up-worker-3060 up-all-workers down-all-workers
+
+up-worker-3090ti:
+	@echo "Starting RTX3090Ti (openclaw + gemma4)..."
+	@docker compose -f $(WORKER_3090TI_COMPOSE) up -d
+
+up-worker-5090:
+	@echo "Starting RTX5090 (claude-code + qwen3.6)..."
+	@docker compose -f $(WORKER_5090_COMPOSE) up -d
+
+up-worker-3060:
+	@echo "Starting RTX3060 (embeddings + LLM + voice)..."
+	@docker compose -f $(WORKER_3060_COMPOSE) up -d
+
+up-all-workers: up-worker-3090ti up-worker-5090 up-worker-3060
+	@echo "All workers started"
+
+down-all-workers:
+	@docker compose -f $(WORKER_3090TI_COMPOSE) down
+	@docker compose -f $(WORKER_5090_COMPOSE) down
+	@docker compose -f $(WORKER_3060_COMPOSE) down
+
+# PAPERCLIP (Oracle VPS)
+.PHONY: paperclip-up paperclip-down paperclip-logs paperclip-status
+
+paperclip-up:
+	@echo "Starting PAPERCLIP..."
+	@docker compose -f $(ORACLE_COMPOSE) up -d paperclip paperclip-mcp
+	@echo "PAPERCLIP: http://paperclip.ratehunter.net"
+
+paperclip-down:
+	@docker compose -f $(ORACLE_COMPOSE) down
+
+paperclip-logs:
+	@docker compose -f $(ORACLE_COMPOSE) logs -f paperclip
+
+paperclip-status:
+	@docker compose -f $(ORACLE_COMPOSE) ps paperclip paperclip-mcp
+

@@ -296,9 +296,10 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Setup Node.js ${{ env.NODE_VERSION }}
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: ${{ env.NODE_VERSION }}
+          package-manager-cache: false
 
       - name: Setup PNPM
         uses: pnpm/action-setup@078e9d416474b29c0c387560859308974f7e9c53 # v4
@@ -405,13 +406,17 @@ jobs:
             echo "📊 Build size: $BUILD_SIZE"
           fi
 
+      - name: Verify build artifacts
+        run: |
+          echo "📦 Preparing build artifact from ${{ env.APP_DIR }}/${{ steps.build.outputs.build_dir }}"
+          test -d "${{ env.APP_DIR }}/${{ steps.build.outputs.build_dir }}"
+          ls -la "${{ env.APP_DIR }}/${{ steps.build.outputs.build_dir }}" | sed -n '1,80p'
+
       - name: Upload build artifacts
         uses: actions/upload-artifact@v7
         with:
           name: build-output-${{ github.sha }}
-          path: |
-            ${{ env.APP_DIR }}/${{ steps.build.outputs.build_dir }}
-            !${{ env.APP_DIR }}/${{ steps.build.outputs.build_dir }}/cache
+          path: ${{ env.APP_DIR }}/${{ steps.build.outputs.build_dir }}
           retention-days: 7
           if-no-files-found: error
 
