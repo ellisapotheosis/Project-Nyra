@@ -66,7 +66,7 @@ export default function CampaignBuilder({ params }: { params: Promise<{ id: stri
     <div className="flex flex-col space-y-6 p-8 bg-background min-h-screen">
       <div className="flex justify-between items-center">
         <div className="flex items-center space-x-4">
-          <Link href="/app/campaigns">
+          <Link href="/campaigns">
             <Button variant="ghost" size="icon">
               <ArrowLeft className="h-4 w-4" />
             </Button>
