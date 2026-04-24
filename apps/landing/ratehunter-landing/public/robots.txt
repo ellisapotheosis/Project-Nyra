@@ -9,7 +9,7 @@ Allow: /
 # Disallow: /api/
 
 # Sitemap location
-Sitemap: https://ratehunter.com/sitemap.xml
+Sitemap: https://ratehunter.net/sitemap.xml
 
 # Crawl-delay for specific bots (optional)
 # User-agent: Googlebot

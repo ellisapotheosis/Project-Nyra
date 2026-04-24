@@ -75,13 +75,13 @@ Do not leave the root directory as `/` in this repository. That makes Cloudflare
 ### If Your Domain is on Cloudflare:
 1. Go to your Pages project > **Custom domains**
 2. Click **Set up a custom domain**
-3. Enter: `ratehunter.com` (or `www.ratehunter.com`)
+3. Enter: `ratehunter.net` (or `www.ratehunter.net`)
 4. Click **Activate domain**
 5. Done! (DNS configured automatically)
 
 ### If Your Domain is External:
 1. In Cloudflare Pages, click **Set up a custom domain**
-2. Enter: `ratehunter.com`
+2. Enter: `ratehunter.net`
 3. Copy the CNAME record shown:
    ```
    Type: CNAME
