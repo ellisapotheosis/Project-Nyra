@@ -1,0 +1,14 @@
+{
+  "name": "@nyra/admin",
+  "private": true,
+  "scripts": {
+    "dev": "next dev -p 3002",
+    "build": "next build",
+    "lint": "eslint --no-error-on-unmatched-pattern \"**/*.{js,jsx,ts,tsx}\""
+  },
+  "dependencies": {
+    "next": "15.5.15",
+    "react": "19.2.0",
+    "react-dom": "19.2.0"
+  }
+}

@@ -1,41 +1,34 @@
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://project-nyra.pages.dev';
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://ratehunter.net';
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
-  title: 'RateHunter | Mortgage, Real Estate, and Borrower Guidance',
+  title: 'Ellis Andersen | Branch Manager, Mortgage Broker, Real Estate Agent',
   description:
-    'Borrower-first landing page for mortgage strategy, purchase guidance, refinance planning, and an OpenClaw-powered borrower chat experience.',
+    'Borrower-first mortgage and real estate guidance from Ellis Andersen at West Capital Lending, including purchase, refinance, HELOC, and application support.',
   keywords:
-    'mortgage broker, real estate broker, refinance, home purchase, borrower chat, mortgage guidance',
-  authors: [{ name: 'RateHunter Advisory' }],
+    'Ellis Andersen, mortgage broker, branch manager, real estate agent, West Capital Lending, RateHunter, HELOC, refinance, home purchase',
+  authors: [{ name: 'Ellis Andersen' }],
   openGraph: {
-    title: 'RateHunter | Mortgage, Real Estate, and Borrower Guidance',
+    title: 'Ellis Andersen | Branch Manager, Mortgage Broker, Real Estate Agent',
     description:
-      'Mortgage planning, home search guidance, and borrower support designed for a modern branch-led advisory experience.',
+      'Borrower-first mortgage and real estate guidance from Ellis Andersen at West Capital Lending.',
     url: siteUrl,
-    siteName: 'RateHunter Advisory',
+    siteName: 'RateHunter',
     locale: 'en_US',
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'RateHunter | Mortgage, Real Estate, and Borrower Guidance',
+    title: 'Ellis Andersen | Branch Manager, Mortgage Broker, Real Estate Agent',
     description:
-      'Mortgage planning, home search guidance, and borrower support designed for a modern branch-led advisory experience.',
+      'Borrower-first mortgage and real estate guidance from Ellis Andersen at West Capital Lending.',
   },
   robots: {
     index: true,
     follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      'max-video-preview': -1,
-      'max-image-preview': 'large',
-      'max-snippet': -1,
-    },
   },
 };
 
@@ -43,6 +36,7 @@ export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
   maximumScale: 5,
+  themeColor: '#242329',
 };
 
 export default function RootLayout({
@@ -54,12 +48,11 @@ export default function RootLayout({
     <html lang="en">
       <head>
         <link rel="manifest" href="/manifest.json" />
-        <meta name="theme-color" content="#0d2d4c" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
       </head>
-      <body className="font-sans antialiased">{children}</body>
+      <body>{children}</body>
     </html>
   );
 }

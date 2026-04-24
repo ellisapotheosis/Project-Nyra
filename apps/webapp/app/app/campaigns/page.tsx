@@ -9,18 +9,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Play, Pause, Plus, List, Settings, MessageSquare, Mail, Phone } from 'lucide-react';
 
 // Mock data for initial scaffold
-const mockLeads = [
-  { id: '1', name: 'John Doe', status: 'ACTIVE', campaign: 'New Lead Nurture', lastTouch: '2026-04-20 10:00', nextTouch: '2026-04-21 10:00', channel: 'SMS' },
-  { id: '2', name: 'Jane Smith', status: 'RESPONDED', campaign: 'Purchase Hot', lastTouch: '2026-04-19 14:30', nextTouch: '-', channel: 'Email' },
-  { id: '3', name: 'Bob Wilson', status: 'PENDING', campaign: 'Refi Rate', lastTouch: '-', nextTouch: '2026-04-20 16:00', channel: 'Voice' },
-];
-
-const mockCampaigns = [
-  { id: 'new_lead_nurture', name: 'New Lead Nurture', steps: 7, activeLeads: 12 },
-  { id: 'purchase_hot', name: 'Purchase Hot', steps: 5, activeLeads: 8 },
-  { id: 'refi_rate', name: 'Refi Rate', steps: 10, activeLeads: 5 },
-];
-
 export default function CampaignDashboard() {
   const [activeTab, setActiveTab] = useState('leads');
   const [leads, setLeads] = useState<any[]>([]);
@@ -36,7 +24,7 @@ export default function CampaignDashboard() {
         ]);
         const leadsData = await leadsRes.json();
         const campaignsData = await campaignsRes.json();
-        setLeads(leadsData.data || []);
+        setLeads(leadsData.leads || []);
         setCampaigns(campaignsData.campaigns || []);
       } catch (error) {
         console.error('Error fetching dashboard data:', error);
@@ -152,7 +140,7 @@ export default function CampaignDashboard() {
                 <CardHeader>
                   <CardTitle className="flex justify-between items-center">
                     {campaign.name}
-                    <Badge variant="outline">{JSON.parse(campaign.steps || '[]').length} Steps</Badge>
+                    <Badge variant="outline">{Array.isArray(campaign.steps) ? campaign.steps.length : 0} Steps</Badge>
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -160,14 +148,14 @@ export default function CampaignDashboard() {
                     Loan Purpose: {campaign.loanPurpose}
                   </p>
                   <div className="flex space-x-2">
-                    <Link href={`/app/campaigns/builder/${campaign.id}`} className="w-full">
+                    <Link href="/campaigns/builder" className="w-full">
                       <Button variant="secondary" className="w-full">Edit Sequence</Button>
                     </Link>
                   </div>
                 </CardContent>
               </Card>
             ))}
-            <Link href="/app/campaigns/builder/new">
+            <Link href="/campaigns/builder">
               <Card className="border-dashed h-full flex items-center justify-center hover:bg-muted/50 transition-colors cursor-pointer min-h-[150px]">
                 <div className="text-center">
                   <Plus className="mx-auto h-8 w-8 text-muted-foreground" />
