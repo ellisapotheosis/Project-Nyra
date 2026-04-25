@@ -417,6 +417,7 @@ jobs:
         with:
           name: build-output-${{ github.sha }}
           path: ${{ env.APP_DIR }}/${{ steps.build.outputs.build_dir }}
+          include-hidden-files: true
           retention-days: 7
           if-no-files-found: error
 
