@@ -485,6 +485,48 @@ jobs:
             exit 1
           fi
 
+      - name: Validate Cloudflare Pages project
+        env:
+          CF_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN || env.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID || env.CLOUDFLARE_ACCOUNT_ID }}
+          CF_PROJECT_NAME: ${{ env.CLOUDFLARE_PROJECT_NAME }}
+        run: |
+          echo "🔎 Validating Cloudflare Pages project configuration..."
+
+          if [ -z "$CF_API_TOKEN" ] || [ -z "$CF_ACCOUNT_ID" ]; then
+            echo "::error::Missing Cloudflare credentials. Ensure CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID are set."
+            exit 1
+          fi
+
+          echo "::add-mask::$CF_API_TOKEN"
+          echo "::add-mask::$CF_ACCOUNT_ID"
+
+          RESPONSE_FILE=$(mktemp)
+          HTTP_CODE=$(curl -sS -o "$RESPONSE_FILE" -w "%{http_code}" \
+            -H "Authorization: Bearer $CF_API_TOKEN" \
+            -H "Content-Type: application/json" \
+            "https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT_ID/pages/projects/$CF_PROJECT_NAME")
+
+          if [ "$HTTP_CODE" != "200" ]; then
+            echo "::error::Cloudflare Pages project lookup failed for account/project pair."
+            echo "::error::Expected account to contain Pages project '$CF_PROJECT_NAME'."
+            cat "$RESPONSE_FILE"
+            exit 1
+          fi
+
+          PROJECT_NAME=$(jq -r '.result.name // empty' "$RESPONSE_FILE")
+          SUBDOMAIN=$(jq -r '.result.subdomain // empty' "$RESPONSE_FILE")
+
+          if [ "$PROJECT_NAME" != "$CF_PROJECT_NAME" ]; then
+            echo "::error::Cloudflare returned an unexpected project name: '$PROJECT_NAME'."
+            exit 1
+          fi
+
+          echo "✅ Cloudflare Pages project found: $PROJECT_NAME"
+          if [ -n "$SUBDOMAIN" ]; then
+            echo "🌐 Cloudflare subdomain: https://$SUBDOMAIN"
+          fi
+
       - name: Deploy to Cloudflare Pages
         id: deploy
         uses: cloudflare/pages-action@v1
