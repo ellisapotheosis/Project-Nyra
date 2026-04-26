@@ -11,6 +11,7 @@ services:
         APP_NAME: mortgage-assistant
     container_name: nyra-webapp
     restart: unless-stopped
+    env_file: [.env]
     environment:
       - PORT=3001
       - NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=${NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
@@ -31,6 +32,7 @@ services:
         APP_NAME: nyra-admin
     container_name: nyra-admin
     restart: unless-stopped
+    env_file: [.env]
     environment:
       - PORT=3002
       - NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=${NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
@@ -51,6 +53,7 @@ services:
         APP_NAME: ratehunter-landing
     container_name: nyra-landing
     restart: unless-stopped
+    env_file: [.env]
     environment:
       - PORT=3003
     ports:

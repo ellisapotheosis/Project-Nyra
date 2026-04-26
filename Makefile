@@ -174,13 +174,50 @@ grid:
 grid-kill:
 	tmux kill-session -t nyra-grid 2>/dev/null || true
 
+# --- SECRET MANAGEMENT (INFISICAL CLIENT-SIDE EVALUATION) ---
+# This implements the "Zero-Footprint" remote architecture.
+# Secrets are exported locally on the orchestrator and embedded into
+# the deployment payload sent to the remote Docker daemon.
+
+INFISICAL_ENV_FILE := .env.infisical
+INFISICAL_PROJECT_ID := 8374cea9-e5e8-4050-bda4-b91f25ab30ef
+
+# Usage: $(call DEPLOY_REMOTE,context,compose_files,extra_args)
+define DEPLOY_REMOTE
+	@echo "--- 🐾 Deploying to context: $(1) ---"
+	@TARGET_DIR=$(dir $(firstword $(2))); \
+	if [ -f $(INFISICAL_ENV_FILE) ]; then \
+		echo "🔐 Authenticating and fetching secrets for $(1)..."; \
+		export $$(cat $(INFISICAL_ENV_FILE) | xargs) && \
+		infisical export --projectId $(INFISICAL_PROJECT_ID) --env dev --path /security/infisical --format=dotenv > $${TARGET_DIR}.env; \
+	else \
+		echo "⚠️  No $(INFISICAL_ENV_FILE) found. Proceeding without Infisical export."; \
+	fi
+	@echo "🚀 Starting stack..."
+	@docker --context $(1) compose $(foreach f,$(2),-f $(f)) $(3) up -d
+	@echo "🧹 Shredding temporary secret files from $${TARGET_DIR}..."
+	@rm -f $${TARGET_DIR}.env
+	@echo "✅ Deployment to $(1) complete."
+endef
+
+clean-env:
+	@echo "🧹 Cleaning up any stray .env files..."
+	@find infra/hosts -name ".env" -delete
+	@rm -f .env
+
+deploy-5090:
+	$(call DEPLOY_REMOTE,worker-rtx5090,$(WORKER_5090_COMPOSE))
+
+deploy-3090ti:
+	$(call DEPLOY_REMOTE,worker-rtx3090ti,$(WORKER_3090TI_COMPOSE))
+
 up-workers:
-	docker --context worker-rtx3060 compose -f $(WORKER_3060_COMPOSE) up -d
-	docker --context worker-rtx3090ti compose -f $(WORKER_3090TI_COMPOSE) up -d
-	docker --context worker-rtx5090 compose -f $(WORKER_5090_COMPOSE) up -d
+	$(call DEPLOY_REMOTE,worker-rtx3060,$(WORKER_3060_COMPOSE))
+	$(call DEPLOY_REMOTE,worker-rtx3090ti,$(WORKER_3090TI_COMPOSE))
+	$(call DEPLOY_REMOTE,worker-rtx5090,$(WORKER_5090_COMPOSE))
 
 up-oracle:
-	docker --context oracle compose -f $(ORACLE_COMPOSE) -f $(ORACLE_APPS_COMPOSE) --profile apps up -d
+	$(call DEPLOY_REMOTE,oracle,$(ORACLE_COMPOSE) $(ORACLE_APPS_COMPOSE),--profile apps)
 
 # --- ALWAYS-ON CI/CD TARGETS ---
 
