@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server"
 
-import { applications } from "@/lib/mock-data"
+import { getCrmWorkspaceData } from "@/lib/crm-data"
 
-export function GET() {
-  return NextResponse.json({ applications, source: "mock" })
+export async function GET() {
+  const { applications, source } = await getCrmWorkspaceData()
+  return NextResponse.json({ applications, source })
 }
