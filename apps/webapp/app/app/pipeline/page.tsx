@@ -1,24 +1,21 @@
 import { Activity, Award, Clock, DollarSign, TrendingUp, Users } from "lucide-react"
+import { unstable_noStore as noStore } from "next/cache"
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { getCrmWorkspaceData } from "@/lib/crm-data"
 
-const metrics = [
-  { title: "Today's Leads", value: "12", icon: Users, detail: "+8% from last week" },
-  { title: "Pipeline Value", value: "$24.5M", icon: DollarSign, detail: "+5% from last month" },
-  { title: "Conversion Rate", value: "3.2%", icon: TrendingUp, detail: "-0.3% from last month" },
-  { title: "Avg Processing Time", value: "18 days", icon: Clock, detail: "-2 days improvement" },
-  { title: "Compliance Score", value: "98.5%", icon: Award, detail: "No critical issues" },
-  { title: "Live Activity", value: "24", icon: Activity, detail: "Recent events in system" },
-]
+export default async function PipelinePage() {
+  noStore()
+  const { applications, crmOverview, leads, recentActivity, source } = await getCrmWorkspaceData()
+  const metrics = [
+    { title: "Today's Leads", value: String(leads.length), icon: Users, detail: `Source: ${source}` },
+    { title: "Pipeline Value", value: crmOverview.pipelineValue, icon: DollarSign, detail: "Derived from CRM applications" },
+    { title: "Conversion Rate", value: crmOverview.conversionRate, icon: TrendingUp, detail: "Lead-to-qualified ratio" },
+    { title: "Avg Processing Time", value: crmOverview.averageCycle, icon: Clock, detail: "Calculated from application updates" },
+    { title: "Compliance Score", value: "98.5%", icon: Award, detail: "Static until compliance service is wired in" },
+    { title: "Live Activity", value: String(recentActivity.length), icon: Activity, detail: `${applications.length} active application records` },
+  ]
 
-const recentActivity = [
-  "New lead from RateHunter for $450,000 purchase loan",
-  "Quote generated for Michael Chen at 6.875%",
-  "Application submitted for Lisa Rodriguez FHA purchase",
-  "Disclosure package delivered to David Kim",
-]
-
-export default function PipelinePage() {
   return (
     <div className="space-y-6">
       <div>
@@ -26,6 +23,7 @@ export default function PipelinePage() {
         <p className="mt-2 text-muted-foreground">
           Operations dashboard adapted from the admin prototype and reframed as a first-class route in the main app.
         </p>
+        <p className="mt-2 text-xs uppercase tracking-[0.24em] text-primary/80">Source: {source}</p>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
