@@ -8,43 +8,6 @@
 version: '3.8'
 
 services:
-  # ── Infisical secrets init ──────────────────────────────────────────────
-  secrets-init:
-    build:
-      context: ../../infisical-secrets-init
-    container_name: worker-3060-secrets-init
-    restart: "no"
-    command: ["/usr/local/bin/secrets-init.sh"]
-    environment:
-      INFISICAL_TOKEN: ${INFISICAL_TOKEN:-}
-      INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
-      INFISICAL_ENV: ${INFISICAL_ENV:-prod}
-      INFISICAL_PATH: ${INFISICAL_PATH:-/workers/worker-rtx3060}
-    volumes:
-      - nyra_secrets:/run/nyra-secrets
-    networks:
-      - worker-network
-
-  # ── Infisical agent ─────────────────────────────────────────────────────
-  infisical-agent:
-    build:
-      context: ../../infisical-secrets-init
-    container_name: worker-3060-infisical-agent
-    restart: unless-stopped
-    entrypoint: ["/usr/local/bin/agent-sidecar.sh"]
-    depends_on:
-      secrets-init:
-        condition: service_completed_successfully
-    environment:
-      INFISICAL_TOKEN: ${INFISICAL_TOKEN}
-      INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
-      INFISICAL_ENV: ${INFISICAL_ENV:-prod}
-      INFISICAL_PATH: ${INFISICAL_PATH:-/workers/worker-rtx3060}
-      INFISICAL_POLL_INTERVAL: ${INFISICAL_POLL_INTERVAL:-60}
-    volumes:
-      - nyra_secrets:/run/nyra-secrets
-    networks:
-      - worker-network
 
 
 
@@ -53,6 +16,7 @@ services:
     image: portainer/agent:2.27.9
     container_name: worker-3060-portainer-agent
     restart: unless-stopped
+    env_file: [.env]
     environment:
       EDGE: "1"
       EDGE_ID: ${PORTAINER_EDGE_ID}
@@ -69,6 +33,7 @@ services:
     image: ollama/ollama:latest
     container_name: worker-3060-ollama
     restart: unless-stopped
+    env_file: [.env]
     ports:
       - "11434:11434"
     environment:
@@ -79,7 +44,6 @@ services:
       - OLLAMA_GPU_OVERHEAD=256
     volumes:
       - ollama_models:/root/.ollama/models
-      - nyra_secrets:/run/nyra-secrets:ro
     deploy:
       resources:
         reservations:
@@ -105,11 +69,11 @@ services:
     container_name: worker-3060-litellm
     hostname: worker-3060-litellm
     restart: unless-stopped
+    env_file: [.env]
     ports:
       - "${LITELLM_PORT:-4000}:4000"
     volumes:
       - ./litellm:/app/litellm:ro
-      - nyra_secrets:/run/nyra-secrets:ro
     command: --config /app/litellm/config.yaml --port 4000
     depends_on:
       ollama:
@@ -123,10 +87,10 @@ services:
     container_name: worker-3060-switcher
     hostname: worker-3060-switcher
     restart: unless-stopped
+    env_file: [.env]
     volumes:
       - ./model-switcher:/app
       - ollama_models:/models
-      - nyra_secrets:/run/nyra-secrets:ro
     environment:
       - OLLAMA_URL=http://worker-3060-ollama:11434
       - AVAILABLE_MODELS=llama3.2:3b,phi3:mini,nomic-embed-text
@@ -143,11 +107,11 @@ services:
     image: grafana/promtail:latest
     container_name: worker-3060-promtail
     restart: unless-stopped
+    env_file: [.env]
     volumes:
       - ./promtail:/etc/promtail:ro
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - nyra_secrets:/run/nyra-secrets:ro
     environment:
       - LOKI_URL=${LOKI_URL:-http://oracle.trex-fiordland.ts.net:3100}
       - WORKER_ID=worker-3060
@@ -199,7 +163,6 @@ services:
 
 volumes:
   ollama_models:
-  nyra_secrets:
   syncthing_config:
   portainer_data:
 

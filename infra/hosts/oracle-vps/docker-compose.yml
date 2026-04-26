@@ -1,46 +1,6 @@
 name: nyra-oracle
 
 services:
-  # ── Infisical secrets init (runs once, writes files to /run/nyra-secrets/) ─
-  secrets-init:
-    build:
-      context: ../../infisical-secrets-init
-    container_name: nyra-secrets-init
-    restart: "no"
-    command: ["/usr/local/bin/secrets-init.sh"]
-    environment:
-      INFISICAL_TOKEN: ${INFISICAL_TOKEN:-}
-      INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
-      INFISICAL_ENV: ${INFISICAL_ENV:-prod}
-      INFISICAL_PATH: /machines/oracle
-      # Fallback env vars written to secret files when Infisical is unavailable
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
-      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
-      ORACLE_TUNNEL_TOKEN: ${ORACLE_TUNNEL_TOKEN:-}
-    volumes:
-      - nyra_secrets:/run/nyra-secrets
-    networks: [nyra_net]
-
-  # ── Infisical agent (polls Infisical and refreshes secrets) ──────────────
-  infisical-agent:
-    build:
-      context: ../../infisical-secrets-init
-    container_name: nyra-infisical-agent
-    restart: unless-stopped
-    entrypoint: ["/usr/local/bin/agent-sidecar.sh"]
-    depends_on:
-      secrets-init:
-        condition: service_completed_successfully
-    environment:
-      INFISICAL_TOKEN: ${INFISICAL_TOKEN}
-      INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
-      INFISICAL_ENV: ${INFISICAL_ENV:-prod}
-      INFISICAL_PATH: /machines/oracle
-      INFISICAL_POLL_INTERVAL: ${INFISICAL_POLL_INTERVAL:-60}
-    volumes:
-      - nyra_secrets:/run/nyra-secrets
-    networks: [nyra_net]
 
 
 
@@ -48,6 +8,7 @@ services:
     image: portainer/agent:2.27.9
     container_name: nyra-portainer-agent
     restart: unless-stopped
+    env_file: [.env]
     environment:
       EDGE: "1"
       EDGE_ID: ${PORTAINER_EDGE_ID}
@@ -64,17 +25,14 @@ services:
     image: postgres:15
     container_name: nyra-postgres
     restart: unless-stopped
-    depends_on:
-      secrets-init:
-        condition: service_completed_successfully
+    env_file: [.env]
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-nyra}
-      POSTGRES_PASSWORD_FILE: /run/nyra-secrets/postgres_password
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB:-nyra}
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./initdb:/docker-entrypoint-initdb.d:ro
-      - nyra_secrets:/run/nyra-secrets:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-nyra} -d ${POSTGRES_DB:-nyra}"]
       interval: 10s
@@ -86,6 +44,7 @@ services:
     image: redis:7-alpine
     container_name: nyra-redis-cache
     restart: unless-stopped
+    env_file: [.env]
     command: ["redis-server", "--appendonly", "yes"]
     volumes:
       - redis_cache_data:/data
@@ -100,6 +59,7 @@ services:
     image: twentycrm/twenty:latest
     container_name: nyra-twenty
     restart: unless-stopped
+    env_file: [.env]
     depends_on:
       postgres:
         condition: service_healthy
@@ -122,6 +82,7 @@ services:
     image: activepieces/activepieces:latest
     container_name: nyra-activepieces
     restart: unless-stopped
+    env_file: [.env]
     depends_on:
       postgres:
         condition: service_healthy
@@ -155,11 +116,10 @@ services:
         N8N_EXTRA_PACKAGES: ${N8N_EXTRA_PACKAGES:-}
     container_name: nyra-n8n
     restart: unless-stopped
+    env_file: [.env]
     depends_on:
       postgres:
         condition: service_healthy
-      secrets-init:
-        condition: service_completed_successfully
     environment:
       DB_TYPE: postgresdb
       DB_POSTGRESDB_HOST: ${POSTGRES_HOST:-nyra-postgres}
@@ -183,7 +143,6 @@ services:
       N8N_WORKFLOW_URL: ${WEBHOOK_URL:-https://n8n.ratehunter.net}
     volumes:
       - n8n_data:/home/node/.n8n
-      - nyra_secrets:/run/nyra-secrets:ro
       - ../../n8n-workflows:/opt/nyra/n8n-workflows:ro
     networks: [nyra_net]
     ports:
@@ -205,12 +164,10 @@ services:
     image: cloudflare/cloudflared:latest
     container_name: nyra-cloudflared
     restart: unless-stopped
+    env_file: [.env]
     command: ["tunnel", "run", "--token", "${ORACLE_TUNNEL_TOKEN}"]
     environment:
       - ORACLE_TUNNEL_TOKEN=${ORACLE_TUNNEL_TOKEN}
-    depends_on:
-      secrets-init:
-        condition: service_completed_successfully
     networks: [nyra_net]
 
   # ── Observability ─────────────────────────────────────────────────────────
@@ -468,7 +425,6 @@ services:
       - gitea_config:/etc/gitea
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
-      - nyra_secrets:/run/nyra-secrets:ro
     environment:
       USER_UID: ${GITEA_UID:-1000}
       USER_GID: ${GITEA_GID:-1000}
@@ -508,7 +464,6 @@ services:
       - gitea_runner_data:/data
       - /var/run/docker.sock:/var/run/docker.sock
       - ../../configs/gitea/runner-config.yaml:/config.yaml:ro
-      - nyra_secrets:/run/nyra-secrets:ro
     environment:
       CONFIG_FILE: /config.yaml
       GITEA_INSTANCE_URL: http://gitea:3000
@@ -641,7 +596,6 @@ services:
       PAPERCLIP_API_URL: http://nyra-paperclip:3100
       PAPERCLIP_API_KEY: ${PAPERCLIP_API_KEY:-dummy}
     volumes:
-      - nyra_secrets:/run/nyra-secrets:ro
     command:
       - npx
       - -y
@@ -671,7 +625,6 @@ services:
       MEMPALACE_URL: ${MEMPALACE_URL:-}
     volumes:
       - ../../configs/nexus/nexus.toml:/etc/nexus/nexus.toml:ro
-      - nyra_secrets:/run/nyra-secrets:ro
     networks: [nyra_net]
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
@@ -714,7 +667,6 @@ volumes:
   qdrant_data:
   mempalace_data:
   mempalace_vault:
-  nyra_secrets:
   paperclip_data:
   syncthing_config:
   portainer_data:

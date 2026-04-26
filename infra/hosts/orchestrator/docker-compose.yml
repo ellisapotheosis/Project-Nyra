@@ -1,52 +1,9 @@
 services:
-  # ── Infisical secrets init (runs once, writes files to /run/nyra-secrets/) ─
-  secrets-init:
-    build:
-      context: ../../infisical-secrets-init
-
-    container_name: nyra-secrets-init
-    restart: "no"
-    command: ["/usr/local/bin/secrets-init.sh"]
-    environment:
-      INFISICAL_TOKEN: ${INFISICAL_TOKEN:-}
-      INFISICAL_PROJECT_ID:
-        ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
-      INFISICAL_ENV: ${INFISICAL_ENV:-prod}
-      INFISICAL_PATH: ${INFISICAL_PATH:-/machines/orchestrator}
-      # Fallback env vars
-      LITELLM_MASTER_KEY: ${LITELLM_MASTER_KEY:-}
-      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
-    volumes:
-      - nyra_secrets:/run/nyra-secrets
-    networks:
-      - nyra-network
-
-  # ── Infisical agent (polls Infisical and refreshes secrets) ──────────────
-  infisical-agent:
-    build:
-      context: ../../infisical-secrets-init
-
-    container_name: nyra-infisical-agent
-    restart: unless-stopped
-    entrypoint: ["/usr/local/bin/agent-sidecar.sh"]
-    depends_on:
-      secrets-init:
-        condition: service_completed_successfully
-    environment:
-      INFISICAL_TOKEN: ${INFISICAL_TOKEN}
-      INFISICAL_PROJECT_ID:
-        ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
-      INFISICAL_ENV: ${INFISICAL_ENV:-prod}
-      INFISICAL_PATH: ${INFISICAL_PATH:-/machines/orchestrator}
-      INFISICAL_POLL_INTERVAL: ${INFISICAL_POLL_INTERVAL:-60}
-    volumes:
-      - nyra_secrets:/run/nyra-secrets
-    networks:
-      - nyra-network
 
   redis:
     image: redis:7-alpine
     container_name: nyra-redis
+    env_file: [.env]
     command: ["redis-server", "--save", "60", "1000", "--appendonly", "yes"]
     ports:
       - "6379:6379"
@@ -64,20 +21,17 @@ services:
   litellm:
     image: ghcr.io/berriai/litellm:main-stable
     container_name: nyra-litellm-router
+    env_file: [.env]
     command: ["--config", "/app/config.yaml", "--port", "4000"]
     ports:
       - "4000:4000"
     environment:
-      # Secrets are now handled via /run/nyra-secrets files
       LITELLM_MASTER_KEY: ${LITELLM_MASTER_KEY:-}
     volumes:
       - ../../configs/litellm/config.yaml:/app/config.yaml:ro
-      - nyra_secrets:/run/nyra-secrets:ro
     depends_on:
       redis:
         condition: service_healthy
-      secrets-init:
-        condition: service_completed_successfully
     restart: unless-stopped
     networks:
       - nyra-network
@@ -89,12 +43,13 @@ services:
       timeout: 15s
       retries: 5
 
-  openclaw:
+  openclaw-gateway:
     build:
       context: ../../../services/openclaw
       dockerfile: Dockerfile
-    container_name: nyra-openclaw
+    container_name: nyra-openclaw-gateway
     profiles: ["apps"]
+    env_file: [.env]
     ports:
       - "8001:8001"
     environment:
@@ -106,13 +61,9 @@ services:
       DATABASE_URL: ${DATABASE_URL:-}
       QUOTE_ENGINE_URL:
         ${QUOTE_ENGINE_URL:-http://oracle.trex-fiordland.ts.net:8089}
-    volumes:
-      - nyra_secrets:/run/nyra-secrets:ro
     depends_on:
       litellm:
         condition: service_healthy
-      secrets-init:
-        condition: service_completed_successfully
     restart: unless-stopped
     networks:
       - nyra-network
@@ -142,11 +93,10 @@ services:
     image: postgres:16-alpine
     container_name: nyra-postgres-client
     profiles: ["debug"]
+    env_file: [.env]
     environment:
       PGPASSWORD: ${POSTGRES_PASSWORD:-}
     entrypoint: ["sleep", "infinity"]
-    volumes:
-      - nyra_secrets:/run/nyra-secrets:ro
     restart: unless-stopped
     networks:
       - nyra-network
@@ -155,12 +105,10 @@ services:
     image: cloudflare/cloudflared:latest
     container_name: nyra-cloudflared-orchestrator
     restart: unless-stopped
+    env_file: [.env]
     command: ["tunnel", "run"]
     environment:
       TUNNEL_TOKEN: ${ORCHESTRATOR_TUNNEL_TOKEN:-}
-    depends_on:
-      secrets-init:
-        condition: service_completed_successfully
     networks:
       - nyra-network
 
@@ -233,7 +181,6 @@ services:
 volumes:
   redis_data:
   n8n_data:
-  nyra_secrets:
   cf_secrets:
   syncthing_config:
   portainer_data:
