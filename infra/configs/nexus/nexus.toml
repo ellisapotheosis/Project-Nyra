@@ -155,6 +155,14 @@ url = "http://100.64.0.3:3000/mcp"
 [mcp.servers.mem0]
 url = "http://100.64.0.3:5000"
 
+# Letta (MemGPT): Memory management, classification, and autonomous eviction
+[mcp.servers.letta]
+url = "http://100.64.0.3:8283/mcp"
+
+# memOS: Hierarchical and tensor-based long-term memory
+[mcp.servers.memos]
+url = "http://100.64.0.3:8085/mcp"
+
 # ── External / cloud MCP servers ──────────────────────────────────────────────
 
 # Mempalace: external graph memory service (URL injected at runtime via env)
