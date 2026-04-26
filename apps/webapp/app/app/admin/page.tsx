@@ -1,37 +1,9 @@
 import type { ComponentType } from "react"
 import { AlertTriangle, Award, Calculator, CheckCircle, Clock, DollarSign, TrendingUp, Users } from "lucide-react"
+import { unstable_noStore as noStore } from "next/cache"
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-
-const dashboardMetrics = [
-  { title: "Today's Leads", value: "12", change: "+8%", icon: Users },
-  { title: "Active Quotes", value: "847", change: "+12%", icon: Calculator },
-  { title: "Pipeline Value", value: "$24.5M", change: "+5%", icon: DollarSign },
-  { title: "Conversion Rate", value: "3.2%", change: "-0.3%", icon: TrendingUp },
-  { title: "Avg Processing Time", value: "18 days", change: "-2 days", icon: Clock },
-  { title: "Compliance Score", value: "98.5%", change: "+0.5%", icon: Award },
-]
-
-const recentActivity = [
-  {
-    title: "New lead from RateHunter",
-    description: "Sarah Johnson · $450,000 purchase loan",
-    time: "5 minutes ago",
-    status: "new",
-  },
-  {
-    title: "Quote generated",
-    description: "Michael Chen · 30Y Conventional at 6.875%",
-    time: "12 minutes ago",
-    status: "completed",
-  },
-  {
-    title: "Application submitted",
-    description: "Lisa Rodriguez · $325,000 FHA purchase",
-    time: "18 minutes ago",
-    status: "processing",
-  },
-]
+import { getCrmWorkspaceData } from "@/lib/crm-data"
 
 function MetricCard({
   title,
@@ -52,13 +24,30 @@ function MetricCard({
       </CardHeader>
       <CardContent>
         <div className="text-2xl font-semibold text-white">{value}</div>
-        <p className="mt-1 text-xs text-emerald-300">{change} from last month</p>
+        <p className="mt-1 text-xs text-emerald-300">{change}</p>
       </CardContent>
     </Card>
   )
 }
 
-export default function AdminPage() {
+export default async function AdminPage() {
+  noStore()
+  const { applications, crmOverview, leads, recentActivity, source } = await getCrmWorkspaceData()
+  const dashboardMetrics = [
+    { title: "Today's Leads", value: String(leads.length), change: source, icon: Users },
+    { title: "Active Quotes", value: String(applications.length), change: "Quote desk still partially local", icon: Calculator },
+    { title: "Pipeline Value", value: crmOverview.pipelineValue, change: "CRM-derived", icon: DollarSign },
+    { title: "Conversion Rate", value: crmOverview.conversionRate, change: "Lead progression", icon: TrendingUp },
+    { title: "Avg Processing Time", value: crmOverview.averageCycle, change: "Update cadence", icon: Clock },
+    { title: "Compliance Score", value: "98.5%", change: "Static for now", icon: Award },
+  ]
+  const activityCards = recentActivity.map((item, index) => ({
+    title: index < leads.length ? "Lead update" : "Application update",
+    description: item,
+    time: "CRM sync",
+    status: index % 3 === 0 ? "new" : index % 3 === 1 ? "completed" : "processing",
+  }))
+
   return (
     <div className="grid gap-6">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
@@ -68,6 +57,7 @@ export default function AdminPage() {
             The old admin prototype now lives inside the main internal webapp as a dedicated route family instead of a
             separate product.
           </p>
+          <p className="mt-2 text-xs uppercase tracking-[0.24em] text-cyan-200/80">Source: {source}</p>
         </div>
         <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-slate-300">
           {new Date().toLocaleDateString("en-US", {
@@ -90,7 +80,7 @@ export default function AdminPage() {
           <CardTitle className="text-white">Recent Activity</CardTitle>
         </CardHeader>
         <CardContent className="grid gap-4">
-          {recentActivity.map((activity) => (
+          {activityCards.map((activity) => (
             <div key={`${activity.title}-${activity.time}`} className="rounded-2xl border border-white/10 bg-black/20 p-4">
               <div className="flex items-start gap-3">
                 {activity.status === "completed" ? (

@@ -1,5 +1,7 @@
+import { unstable_noStore as noStore } from "next/cache"
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { applications } from "@/lib/mock-data"
+import { getCrmWorkspaceData } from "@/lib/crm-data"
 
 function currency(value: number) {
   return new Intl.NumberFormat("en-US", {
@@ -9,7 +11,10 @@ function currency(value: number) {
   }).format(value)
 }
 
-export default function ApplicationsPage() {
+export default async function ApplicationsPage() {
+  noStore()
+  const { applications, source } = await getCrmWorkspaceData()
+
   return (
     <div className="space-y-6">
       <div>
@@ -17,6 +22,7 @@ export default function ApplicationsPage() {
         <p className="mt-2 text-muted-foreground">
           Consolidated application visibility from the mortgage CRM surface, now inside the main internal webapp.
         </p>
+        <p className="mt-2 text-xs uppercase tracking-[0.24em] text-primary/80">Source: {source}</p>
       </div>
 
       <div className="grid gap-4">
