@@ -1,10 +1,12 @@
 import Image from "next/image"
 import Link from "next/link"
 import { ArrowRight, Bot, BriefcaseBusiness, Calculator, FileSpreadsheet, Sparkles, Workflow } from "lucide-react"
+import { unstable_noStore as noStore } from "next/cache"
 
 import { buttonVariants } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { applications, campaigns, crmOverview, leads } from "@/lib/mock-data"
+import { getCrmWorkspaceData } from "@/lib/crm-data"
+import { campaigns } from "@/lib/mock-data"
 import { cn } from "@/lib/utils"
 
 const modules = [
@@ -40,14 +42,16 @@ const modules = [
   },
 ]
 
-const kpis = [
-  { label: "Active leads", value: `${leads.length}` },
-  { label: "Live campaigns", value: `${campaigns.length}` },
-  { label: "Applications", value: `${applications.length}` },
-  { label: "Pipeline value", value: crmOverview.pipelineValue },
-]
+export default async function HomePage() {
+  noStore()
+  const { applications, crmOverview, leads, source } = await getCrmWorkspaceData()
+  const kpis = [
+    { label: "Active leads", value: `${leads.length}` },
+    { label: "Live campaigns", value: `${campaigns.length}` },
+    { label: "Applications", value: `${applications.length}` },
+    { label: "Pipeline value", value: crmOverview.pipelineValue },
+  ]
 
-export default function HomePage() {
   return (
     <div className="grid gap-6">
       <Card className="overflow-hidden border-border/70 bg-card/80 shadow-sm">
@@ -62,6 +66,7 @@ export default function HomePage() {
               public <code>ratehunter.net</code> landing page and now carries the regenerated TweakCN theme tokens and
               merged route structure.
             </p>
+            <p className="text-xs uppercase tracking-[0.24em] text-primary/80">Workspace source: {source}</p>
             <div className="flex flex-wrap gap-3">
               <Link href="/assistant" className={cn(buttonVariants({}))}>
                 Launch Assistant
