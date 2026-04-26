@@ -233,7 +233,7 @@ Project-Nyra/
 │   ├── nexus-router/        # LLM request routing
 │   ├── rate-comparison-engine/  # Rate tracking
 │   ├── ratehunter-api/      # Rate comparison API
-│   ├── ruvector-search/     # Vector search engine
+│   ├── vector-search/      # Vector search engine
 │   ├── twentycrm-integration/  # CRM integration
 │   ├── twilio-integration/  # SMS/Voice communications
 │   └── websocket-hub/       # Real-time connections

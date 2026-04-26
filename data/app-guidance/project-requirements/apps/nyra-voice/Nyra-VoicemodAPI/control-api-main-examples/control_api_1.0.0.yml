@@ -6,7 +6,7 @@ info:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0
 
-  description: 
+  description:
     # <style>
     #   .bullet { display:block; padding-left:1em; text-indent:-1em; }
     # </style>
@@ -15,7 +15,7 @@ info:
     The app supports bidirectional communication with plugins via websocket communication, with messages sent from the plugin controlling different actions in the app (change current voice, play a meme, etc), and messages received from the app notifying the plugin about changes in the user status (voices available, voice selected, etc.).
 
     <h2>How to connect to Voicemod App</h2>
-    The server listens by default at <b>ws://localhost:<PORT>/v1</b>. 
+    The server listens by default at <b>ws://localhost:<PORT>/v1</b>.
     The port will be one of a predetermined list. The ports currently being used by the app are, in order of preference&#58;<br>
     <div><b>• 59129</b></div>
     <div><b>• 20000</b></div>
@@ -36,7 +36,7 @@ info:
     <b>⚠You will need a client key to use this API. This client key will be provided to you by Voicemod.</b>
 
     <h2>Outbound messages (actions)</h2>
-    Actions are messages sent from plugin (client) to app (server), and typically come in two types&#58; 
+    Actions are messages sent from plugin (client) to app (server), and typically come in two types&#58;
     <div>• user data gathering messages, such as retrieving the list of available voices or memes</div>
     <div>• command messages, such as instructing the application to execute user commands, such as changing voice or playing a sound</div>
     <br>
@@ -83,7 +83,7 @@ channels:
       message:
         $ref: '#/components/messages/RegisterClientAction'
     subscribe:
-      description: 
+      description:
         <b>⚠This is the response to the first message that must be sent to the Voicemod app</b><br>
         This message is triggered in response to a <a href="#operation-publish-registerClient">registerClient</a> message. A <b>200, Authorized</b> response is required for communication between the plugin and app to be enabled.
       message:
@@ -111,7 +111,7 @@ channels:
 
   licenseTypeChanged:
     subscribe:
-      description: This message is triggered when the user license has changed in the Voicemod app. 
+      description: This message is triggered when the user license has changed in the Voicemod app.
       message:
         $ref: '#/components/messages/LicenseTypeChangedTrigger'
 
@@ -139,7 +139,7 @@ channels:
 
   getCurrentVoice:
     publish:
-      description: Requests the voice that is currently selected in the app. 
+      description: Requests the voice that is currently selected in the app.
       message:
         $ref: '#/components/messages/GetCurrentVoiceAction'
     subscribe:
@@ -194,7 +194,7 @@ channels:
 
   selectRandomVoice:
     publish:
-      description: Requests a change to a randomly selected voice. 
+      description: Requests a change to a randomly selected voice.
       message:
         $ref: '#/components/messages/SelectRandomVoiceAction'
 
@@ -414,7 +414,7 @@ components:
                 type: string
         example:
           actionType: getUser
-          actionObject: 
+          actionObject:
             userId: a5a564eb-4976-4b4e-a660-5adcc855560e
 
     GetUserLicenseAction:
@@ -443,7 +443,7 @@ components:
                 enum: ["pro", "free"]
         example:
           actionType: getUserLicense
-          actionObject: 
+          actionObject:
             licenseType: pro
 
     LicenseTypeChangedTrigger:
@@ -460,7 +460,7 @@ components:
           actionType: licenseTypeChanged
           appVersion: 2.7.0.3
           actionID: 9aabf036-0ba4-4359-a2d6-90ac8691e320
-          actionObject: 
+          actionObject:
             licenseType: free
           context: ""
 
@@ -491,7 +491,7 @@ components:
                 format: long
         example:
           actionType: getRotatoryVoicesRemainingTime
-          actionObject: 
+          actionObject:
             remainingTime: 71769
 
     # REQUEST DATA MESSAGES
@@ -526,7 +526,7 @@ components:
                 type: string
         example:
           actionType: getVoices
-          actionObject: 
+          actionObject:
             voices:
               - id: baby
                 friendlyName: Baby
@@ -543,7 +543,7 @@ components:
                 isNew: false
                 bitmapChecksum: 446244ad8e06e437ed13fa723d1df019
           currentVoice: nofx
-  
+
     GetCurrentVoiceAction:
       payload:
         properties:
@@ -649,7 +649,7 @@ components:
                 isCustom": true
                 enabled": true
                 showProLogo": false
-                sounds: 
+                sounds:
                   - id: ad6efa6b-4872-4217-9465-5415178dfc1f
                     name: Nuke Alert
                     isCustom: false
@@ -666,7 +666,7 @@ components:
                 isCustom": false
                 enabled": false
                 showProLogo": true
-                sounds: 
+                sounds:
                   - id: 1b7cda07-409f-4c25-999c-4729e8a931a3
                     name: Temple Gong
                     isCustom: false
@@ -719,7 +719,7 @@ components:
             properties:
               listOfMemes:
                 type: array
-                items: 
+                items:
                   $ref: '#/components/schemas/MemeFileMetaData'
         example:
           actionType: getMemes
@@ -749,9 +749,9 @@ components:
           id:
             type: string
           payload:
-            description: <b>Note</b> - only one of the two fields (voiceID or memeId) should be included in an outbound payload 
+            description: <b>Note</b> - only one of the two fields (voiceID or memeId) should be included in an outbound payload
             properties:
-              voiceID: 
+              voiceID:
                 type: string
                 description: The ID of the voice we want to recover the bitmap for
               memeId:
@@ -760,11 +760,11 @@ components:
         examples:
           - action: getBitmap
             id: ff7d7f15-0cbf-4c44-bc31-b56e0a6c9fa6
-            payload: 
+            payload:
               voiceID: nofx
           - action: getBitmap
             id: ff7d7f15-0cbf-4c44-bc31-b56e0a6c9fa6
-            payload: 
+            payload:
               memeId: "26"
 
     GetBitmapTrigger:
@@ -813,7 +813,7 @@ components:
             type: string
           payload:
             properties:
-              voiceID: 
+              voiceID:
                 type: string
                 description: The id of the voice we want to select
               parameterName:
@@ -838,7 +838,7 @@ components:
           payload:
             properties:
               mode:
-                description: 
+                description:
                   Shuffle mode - can be one of the following&#58;<br>
                   - <b>AllVoices</b>&#58; Select any voice.  Available if the user has a Pro license<br>
                   - <b>FreeVoices</b>&#58; Select any voice available in the free version<br>
@@ -851,7 +851,7 @@ components:
             payload: {}
           - action: selectRandomVoice
             id: ff7d7f15-0cbf-4c44-bc31-b56e0a6c9fa6
-            payload: 
+            payload:
               mode: FavoriteVoices
 
     VoiceChangedEventTrigger:
@@ -927,7 +927,7 @@ components:
           actionId: 9aabf036-0ba4-4359-a2d6-90ac8691e320
           actionObject:
             value: true
-  
+
     ToggleVoiceChangerAction:
       payload:
         properties:
@@ -941,7 +941,7 @@ components:
           action: toggleVoiceChanger
           id: ff7d7f15-0cbf-4c44-bc31-b56e0a6c9fa6
           payload: {}
-  
+
     GetVoiceChangerStatusAction:
       payload:
         properties:
@@ -955,7 +955,7 @@ components:
           action: getVoiceChangerStatus
           id: ff7d7f15-0cbf-4c44-bc31-b56e0a6c9fa6
           payload: {}
-  
+
     ToggleVoiceChangerTrigger:
       payload:
         properties:
@@ -1091,7 +1091,7 @@ components:
           payload:
             properties:
               badLanguage:
-                description: 
+                description:
                   New setting&#58;<br>
                   - 1 if we want to start the beep<br>
                   - 0 if we want to end it
@@ -1100,7 +1100,7 @@ components:
         example:
           action: setBeepSound
           id: ff7d7f15-0cbf-4c44-bc31-b56e0a6c9fa6
-          payload: 
+          payload:
             badLanguage: 1
 
     PlayMemeAction:
@@ -1121,7 +1121,7 @@ components:
         example:
           action: playMeme
           id: ff7d7f15-0cbf-4c44-bc31-b56e0a6c9fa6
-          payload: 
+          payload:
             FileName: "80"
             IsKeyDown: true
 
@@ -1270,7 +1270,7 @@ components:
 
 
   ###########
-  # SCHEMAS # 
+  # SCHEMAS #
   ###########
 
   schemas:
@@ -1311,22 +1311,22 @@ components:
 
     SoundboardMetaData:
       properties:
-        Id: 
+        Id:
           description: The id of the soundboard profile
           type: string
-        Name: 
+        Name:
           description: The friendly name of the soundboard
           type: string
-        IsCustom: 
+        IsCustom:
           description: True if the soundboard profile was created by the user
           type: boolean
-        Enabled: 
+        Enabled:
           description: True if user can execute meme sounds in this soundboard
           type: boolean
-        ShowProLogo: 
+        ShowProLogo:
           description: True if the user does not have a pro license and the soundboard is not enabled
           type: boolean
-        sounds: 
+        sounds:
           description: The meme sounds contained in this soundboard profile
           type: array
           items:
@@ -1334,23 +1334,23 @@ components:
 
     MemeMetaData:
       properties:
-        Id: 
+        Id:
           description: The id of the meme sound
           type: string
-        Name: 
-          description: The friendly name of the meme sound 
+        Name:
+          description: The friendly name of the meme sound
           type: string
-        IsCustom: 
+        IsCustom:
           description: True if the meme sound was created by the user
           type: boolean
-        Enabled: 
+        Enabled:
           description: True if user can execute this meme sound
           type: boolean
-        ShowProLogo: 
+        ShowProLogo:
           description: True if the user does not have a pro license and the meme sound is not enabled
           type: boolean
-        playbackMode: 
-          description: 
+        playbackMode:
+          description:
             The playback mode for the meme sound
             - <b>PlayRestart</b>&#58; On hit, stop the sound if it is still playing, then restart it from the beginning.
             - <b>PlayStop</b>&#58; On hit, stop the sound if it was still playing, restart it otherwise.
@@ -1358,26 +1358,26 @@ components:
             - <b>PlayOverlap</b>&#58; On hit, reproduce the sound without stopping any other instances still playing.
             - <b>PlayLoopOnPress</b>&#58; OnKeyDown, reproduce the sound on a loop and don't stop until the OnKeyUp.
           enum: ["PlayRestart", "PlayPause", "PlayStop", "PlayOverlap", "PlayLoopOnPress"]
-        loop: 
+        loop:
           description: True if the meme sound should be played back in loop
           type: boolean
-        muteOtherSounds: 
-          description: True if the meme sound should stop playback of other sounds 
+        muteOtherSounds:
+          description: True if the meme sound should stop playback of other sounds
           type: boolean
-        muteVoice: 
+        muteVoice:
           description: True if the meme sound should mute the user's microphone
           type: boolean
-        bitmapChecksum: 
+        bitmapChecksum:
           description: The bitmap checksum enables the client to persist or cache the image to avoid excess getBitmap requests and improve performance
           type: string
 
     MemeFileMetaData:
       properties:
         Name:
-          description: The friendly name of the meme sound 
+          description: The friendly name of the meme sound
           type: string
         Filename:
-          description: The filename of the meme sound 
+          description: The filename of the meme sound
           type: string
         Type:
           description:
@@ -1389,9 +1389,9 @@ components:
             - <b>PlayLoopOnPress</b>&#58; OnKeyDown, reproduce the sound on a loop and don't stop until the OnKeyUp.
           enum: ["PlayRestart", "PlayPause", "PlayStop", "PlayOverlap", "PlayLoopOnPress"]
         Image:
-          description: The filename of the meme sound's image 
+          description: The filename of the meme sound's image
           type: string
-    
+
     BitmapMetaData:
       properties:
         default:

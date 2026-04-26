@@ -10,7 +10,7 @@ services:
     volumes:
       # Mount nexus.toml configuration
       - ../../../configs/nexus/nexus.toml:/etc/nexus/nexus.toml:ro
-      
+
       # Optional: Mount TLS certs for production
       # - ../../../configs/nexus/certs:/etc/nexus/certs:ro
     environment:
@@ -23,29 +23,29 @@ services:
       - PERPLEXITY_API_KEY=${PERPLEXITY_API_KEY}
       - FIRECRAWL_API_KEY=${FIRECRAWL_API_KEY}
       - NOTION_TOKEN=${NOTION_TOKEN}
-      
+
       # Infisical MCP
       - INFISICAL_UNIVERSAL_AUTH_CLIENT_ID=${INFISICAL_UNIVERSAL_AUTH_CLIENT_ID}
       - INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET=${INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET}
-      
+
       # Bitwarden MCP
       - BWS_ACCESS_TOKEN=${BWS_ACCESS_TOKEN}
-      
+
       # Qdrant
       - QDRANT_API_KEY=${QDRANT_API_KEY}
-      
+
       # Neo4j (for Graphiti)
       - NEO4J_PASSWORD=${NEO4J_PASSWORD}
-      
+
       # AWS Bedrock (optional)
       - AWS_REGION=${AWS_REGION:-us-east-1}
       - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
       - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
-      
+
       # Admin configuration
       - ADMIN_EMAIL=${ADMIN_EMAIL:-admin@ratehunter.net}
       - DEV_TEAM_EMAILS=${DEV_TEAM_EMAILS}
-      
+
       # Node environment
       - NODE_ENV=${NODE_ENV:-production}
     networks:

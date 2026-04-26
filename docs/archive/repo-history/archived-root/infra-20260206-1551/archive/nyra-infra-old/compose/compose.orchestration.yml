@@ -4,7 +4,7 @@ services:
     image: ghcr.io/metatool-ai/metamcp:latest
     profiles: ["orchestration"]
     restart: unless-stopped
-    env_file:`r`n      -     
+    env_file:`r`n      -
     env_file:
       - ../.env
     env_file:
@@ -58,7 +58,7 @@ services:
     image: langgenius/dify-api:latest
     profiles: ["orchestration"]
     restart: unless-stopped
-    env_file:`r`n      -     
+    env_file:`r`n      -
     ports: [ "8000:80" ]
     networks:
       - nyra-net
@@ -66,8 +66,8 @@ services:
 
   env_file:`r`n
 
-    - 
+    -
 
-  
+
 
 

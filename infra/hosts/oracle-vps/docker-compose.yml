@@ -42,20 +42,7 @@ services:
       - nyra_secrets:/run/nyra-secrets
     networks: [nyra_net]
 
-  portainer:
-    image: portainer/portainer-ce:2.27.9
-    container_name: nyra-portainer
-    restart: unless-stopped
-    command:
-      - --http-enabled
-      - --admin-password=${PORTAINER_ADMIN_PASSWORD}
-    ports:
-      - "9000:9000"
-      - "9443:9443"
-    volumes:
-      - portainer_data:/data
-      - /var/run/docker.sock:/var/run/docker.sock
-    networks: [nyra_net]
+
 
   portainer-edge-agent:
     image: portainer/agent:2.27.9
@@ -295,7 +282,7 @@ services:
     container_name: nyra-openwebui
     restart: unless-stopped
     environment:
-      OPENAI_API_BASE_URL: 
+      OPENAI_API_BASE_URL:
         ${LITELLM_BASE_URL:-http://orchestrator.trex-fiordland.ts.net:4000/v1}
       OPENAI_API_KEY: ${LITELLM_MASTER_KEY}
       WEBUI_SECRET_KEY: ${OPENWEBUI_SECRET_KEY}
@@ -338,7 +325,7 @@ services:
       QDRANT_PORT: "6333"
       FALKORDB_URL: redis://nyra-falkordb:6379
       OPENAI_API_KEY: ${OPENAI_API_KEY}
-      LITELLM_API_URL: 
+      LITELLM_API_URL:
         ${LITELLM_API_BASE:-http://orchestrator.trex-fiordland.ts.net:4000/v1}
       LITELLM_API_KEY: ${LITELLM_MASTER_KEY}
     ports:
@@ -692,6 +679,19 @@ services:
       timeout: 5s
       retries: 5
 
+  # ── Syncthing ───────────────────────────────────────────────────────────
+  syncthing:
+    image: syncthing/syncthing:latest
+    container_name: nyra-syncthing
+    network_mode: host
+    environment:
+      - PUID=1000
+      - PGID=1000
+    volumes:
+      - syncthing_config:/var/syncthing
+      - /run/desktop/mnt/host/wsl/...:/var/syncthing/data/home
+    restart: unless-stopped
+
 networks:
   nyra_net:
 
@@ -716,4 +716,5 @@ volumes:
   mempalace_vault:
   nyra_secrets:
   paperclip_data:
+  syncthing_config:
   portainer_data:

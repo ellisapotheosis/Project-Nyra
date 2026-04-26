@@ -32,11 +32,10 @@ DIST_VOICE_3060 := infra/hosts/worker-rtx3060/docker-compose.distributed-voice.y
 DIST_VOICE_5090 := infra/hosts/worker-rtx5090/docker-compose.distributed-voice.yml
 DIST_VOICE_3090TI := infra/hosts/worker-rtx3090ti/docker-compose.distributed-voice.yml
 
-DEFAULT_PROFILES ?= core,gateway,workflow,crm,archon,apps,observability,vector
+DEFAULT_PROFILES ?= core,gateway,workflow,crm,apps,observability,vector
 
 .PHONY: help install test lint validate up down restart logs ps pull verify-paths dev-orchestrate dev-down dev-panels dev-status dev-llxprt-jefe dev-llxprt-code up-worker-3090ti up-worker-5090 up-worker-3060 up-all-workers down-all-workers paperclip-up paperclip-down paperclip-logs paperclip-status \
   up-core up-orchestrator up-apps up-dev up-workers up-oracle \
-  archon-up archon-down archon-logs archon-ps \
   cluster cluster-kill grid grid-kill \
   nexus-up nexus-down health stack-up stack-verify \
   gitea-up gitea-down gitea-ps twenty-crm-up twenty-crm-down \
@@ -58,11 +57,6 @@ help:
 	@echo "make down               Stop and remove local stack"
 	@echo "make ps                 Show running containers"
 	@echo "make health             Run system-wide health checks"
-	@echo
-	@echo "--- ARCHON OS ---"
-	@echo "make archon-up          Start the multi-container Archon stack (on Oracle)"
-	@echo "make archon-down        Stop Archon stack"
-	@echo "make archon-logs        Tail Archon logs"
 	@echo
 	@echo "--- DISTRIBUTED CLUSTER (4-PC) ---"
 	@echo "make cluster            Launch tmux session controlling all 4 PCs"
@@ -144,26 +138,6 @@ down:
 
 ps:
 	$(COMPOSE) ps
-	@echo "--- Archon Stack ---"
-	@docker --context oracle compose -f $(ORACLE_COMPOSE) ps archon
-
-# --- ARCHON TARGETS ---
-
-archon-up:
-	docker --context oracle compose --env-file $(ARCHON_ENV_FILE) -f $(ORACLE_COMPOSE) up -d archon
-
-archon-build-user:
-	docker --context oracle compose --env-file $(ARCHON_ENV_FILE) -f $(ORACLE_COMPOSE) build archon
-
-
-archon-down:
-	docker --context oracle compose --env-file $(ARCHON_ENV_FILE) -f $(ORACLE_COMPOSE) stop archon
-
-archon-logs:
-	docker --context oracle compose --env-file $(ARCHON_ENV_FILE) -f $(ORACLE_COMPOSE) logs -f --tail=100 archon
-
-archon-ps:
-	docker --context oracle compose --env-file $(ARCHON_ENV_FILE) -f $(ORACLE_COMPOSE) ps archon
 
 # --- DISTRIBUTED TARGETS ---
 
@@ -359,64 +333,42 @@ dev-llxprt-jefe:
 	@echo "Starting llxprt-jefe (CLI subscription mode)..."
 	@cd ./external/llxprt-jefe && jefe
 
-
-# DEV ORCHESTRATION: ghostty + zellij + distributed inference
-.PHONY: dev-orchestrate dev-status dev-down
-
-dev-orchestrate:
-	@echo "Launching Development Orchestration..."
-	@ghostty --command "zellij" --title "Nyra - Distributed AI Dev" &
-
-dev-status:
-	@echo "=== Development Orchestration Status ==="
-	@echo "[1] llxprt-jefe: $(test -d ./external/llxprt-jefe && echo OK || echo MISSING)"
-	@echo "[2] llxprt-code: $(test -d ./external/llxprt-code && echo OK || echo MISSING)"
-	@echo "[3] RTX3090Ti (openclaw+gemma4): $(docker --context orchestrator ps 2>/dev/null | grep -q vllm && echo RUNNING || echo CHECK)"
-	@echo "[4] RTX5090 (claude-code+qwen3.6): $(docker --context worker-rtx5090 ps 2>/dev/null | grep -q vllm && echo RUNNING || echo CHECK)"
-	@echo "[5] RTX3060 (embeddings+lm+voice): $(docker --context worker-rtx3060 ps 2>/dev/null && echo RUNNING || echo CHECK)"
-	@echo "[6] PAPERCLIP (Oracle): $(docker compose -f $(ORACLE_COMPOSE) ps 2>/dev/null | grep -q paperclip && echo RUNNING || echo CHECK)"
-
-dev-down:
-	pkill -f ghostty || true
-	pkill -f zellij || true
-
 # WORKER ORCHESTRATION
 .PHONY: up-worker-3090ti up-worker-5090 up-worker-3060 up-all-workers down-all-workers
 
 up-worker-3090ti:
 	@echo "Starting RTX3090Ti (openclaw + gemma4)..."
-	@docker compose -f $(WORKER_3090TI_COMPOSE) up -d
+	@docker --context worker-rtx3090ti compose -f $(WORKER_3090TI_COMPOSE) up -d
 
 up-worker-5090:
 	@echo "Starting RTX5090 (claude-code + qwen3.6)..."
-	@docker compose -f $(WORKER_5090_COMPOSE) up -d
+	@docker --context worker-rtx5090 compose -f $(WORKER_5090_COMPOSE) up -d
 
 up-worker-3060:
 	@echo "Starting RTX3060 (embeddings + LLM + voice)..."
-	@docker compose -f $(WORKER_3060_COMPOSE) up -d
+	@docker --context worker-rtx3060 compose -f $(WORKER_3060_COMPOSE) up -d
 
 up-all-workers: up-worker-3090ti up-worker-5090 up-worker-3060
 	@echo "All workers started"
 
 down-all-workers:
-	@docker compose -f $(WORKER_3090TI_COMPOSE) down
-	@docker compose -f $(WORKER_5090_COMPOSE) down
-	@docker compose -f $(WORKER_3060_COMPOSE) down
+	@docker --context worker-rtx3090ti compose -f $(WORKER_3090TI_COMPOSE) down
+	@docker --context worker-rtx5090 compose -f $(WORKER_5090_COMPOSE) down
+	@docker --context worker-rtx3060 compose -f $(WORKER_3060_COMPOSE) down
 
 # PAPERCLIP (Oracle VPS)
 .PHONY: paperclip-up paperclip-down paperclip-logs paperclip-status
 
 paperclip-up:
 	@echo "Starting PAPERCLIP..."
-	@docker compose -f $(ORACLE_COMPOSE) up -d paperclip paperclip-mcp
+	@docker --context oracle compose -f $(ORACLE_COMPOSE) up -d paperclip paperclip-mcp
 	@echo "PAPERCLIP: http://paperclip.ratehunter.net"
 
 paperclip-down:
-	@docker compose -f $(ORACLE_COMPOSE) down
+	@docker --context oracle compose -f $(ORACLE_COMPOSE) down
 
 paperclip-logs:
-	@docker compose -f $(ORACLE_COMPOSE) logs -f paperclip
+	@docker --context oracle compose -f $(ORACLE_COMPOSE) logs -f paperclip
 
 paperclip-status:
-	@docker compose -f $(ORACLE_COMPOSE) ps paperclip paperclip-mcp
-
+	@docker --context oracle compose -f $(ORACLE_COMPOSE) ps paperclip paperclip-mcp

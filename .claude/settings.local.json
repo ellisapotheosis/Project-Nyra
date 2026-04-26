@@ -37,13 +37,7 @@
   },
   "enableAllProjectMcpServers": true,
   "enabledMcpjsonServers": [
-    "archon-os",
-    "ruv-swarm",
-    "flow-nexus",
-    "archon-os",
-    "ruvector",
-    "agent-booster",
-    "epic-sdk"
+    "archon-os"
   ],
   "outputStyle": "Explanatory",
   "bypassPermissionsModeAccepted": true,

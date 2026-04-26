@@ -82,7 +82,7 @@ services:
       NYRA_NEXUS_ROUTER_URL: http://nexus-router:6000
       NYRA_WEBHOOK_SECRET: ${TWENTY_WEBHOOK_SECRET}
       NYRA_INTEGRATION_ENABLED: true
-      
+
       # External Integrations
       SUPPORT_CHAT_ENABLED: false
       TELEMETRY_ENABLED: false

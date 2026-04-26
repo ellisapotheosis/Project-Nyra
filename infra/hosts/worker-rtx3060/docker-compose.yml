@@ -46,22 +46,7 @@ services:
     networks:
       - worker-network
 
-  # ── Portainer Server (Standalone) ───────────────────────────────────────
-  portainer:
-    image: portainer/portainer-ce:2.27.9
-    container_name: worker-3060-portainer
-    restart: unless-stopped
-    command:
-      - --http-enabled
-      - --admin-password=${PORTAINER_ADMIN_PASSWORD}
-    ports:
-      - "9000:9000"
-      - "9443:9443"
-    volumes:
-      - portainer_data:/data
-      - /var/run/docker.sock:/var/run/docker.sock
-    networks:
-      - worker-network
+
 
   # ── Portainer Edge Agent ────────────────────────────────────────────────
   portainer-edge-agent:
@@ -199,9 +184,23 @@ services:
     networks:
       - worker-network
 
+  # ── Syncthing ───────────────────────────────────────────────────────────
+  syncthing:
+    image: syncthing/syncthing:latest
+    container_name: nyra-syncthing
+    network_mode: host
+    environment:
+      - PUID=1000
+      - PGID=1000
+    volumes:
+      - syncthing_config:/var/syncthing
+      - /run/desktop/mnt/host/wsl/...:/var/syncthing/data/home
+    restart: unless-stopped
+
 volumes:
   ollama_models:
   nyra_secrets:
+  syncthing_config:
   portainer_data:
 
 networks:
