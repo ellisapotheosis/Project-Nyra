@@ -321,12 +321,10 @@ services:
       qdrant:
         condition: service_started
     environment:
-      QDRANT_HOST: nyra-qdrant
-      QDRANT_PORT: "6333"
-      FALKORDB_URL: redis://nyra-falkordb:6379
+      FALKORDB_HOST: nyra-falkordb
+      FALKORDB_PORT: 6379
       OPENAI_API_KEY: ${OPENAI_API_KEY}
-      LITELLM_API_URL:
-        ${LITELLM_API_BASE:-http://orchestrator.trex-fiordland.ts.net:4000/v1}
+      LITELLM_API_BASE: ${LITELLM_API_BASE:-http://orchestrator.trex-fiordland.ts.net:4000/v1}
       LITELLM_API_KEY: ${LITELLM_MASTER_KEY}
     ports:
       - "5000:5000"
@@ -336,6 +334,49 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
+
+  # ── Letta (MemGPT) - Memory Manager & Classifier ──────────────────────────
+  letta-db:
+    image: ankane/pgvector:v0.5.1
+    container_name: nyra-letta-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: letta
+      POSTGRES_USER: letta
+      POSTGRES_PASSWORD: ${LETTA_DB_PASSWORD:-letta}
+    volumes:
+      - letta_db_data:/var/lib/postgresql/data
+    networks: [nyra_net]
+
+  letta:
+    image: letta/letta:latest
+    container_name: nyra-letta
+    restart: unless-stopped
+    depends_on:
+      - letta-db
+    environment:
+      LETTA_PG_URI: postgresql://letta:${LETTA_DB_PASSWORD:-letta}@letta-db:5432/letta
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      LITELLM_API_BASE: ${LITELLM_API_BASE:-http://orchestrator.trex-fiordland.ts.net:4000/v1}
+    ports:
+      - "8283:8283"
+    volumes:
+      - letta_data:/root/.letta
+    networks: [nyra_net]
+
+  # ── memOS (MemoryTensor) - Hierarchical Memory ────────────────────────────
+  mem-os:
+    image: memorytensor/mem-os:latest
+    container_name: nyra-mem-os
+    restart: unless-stopped
+    environment:
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      PORT: 8085
+    ports:
+      - "8085:8085"
+    volumes:
+      - mem_os_data:/app/data
+    networks: [nyra_net]
 
   # ── Qdrant (vector store for OpenMemory MCP) ─────────────────────────────
   # Note: qdrant image is distroless (no curl/wget) — no healthcheck possible.
@@ -718,3 +759,6 @@ volumes:
   paperclip_data:
   syncthing_config:
   portainer_data:
+  letta_db_data:
+  letta_data:
+  mem_os_data:
