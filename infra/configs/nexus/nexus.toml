@@ -127,13 +127,10 @@ path = "/mcp"
 [mcp.servers.docker-toolkit]
 url = "http://nyra-docker-toolkit:8811"
 
-# ── Oracle VPS MCP servers (100.64.0.3 via Tailscale mesh, always-on) ────────
-
-# Archon OS: AI agent orchestration framework (spawns sub-agents, manages tasks)
-[mcp.servers.archon]
-url = "http://100.64.0.3:3737/mcp/sse"
+# Oracle VPS MCP servers (100.64.0.3 via Tailscale mesh, always-on) ────────
 
 # OpenMemory MCP: self-hosted mem0 memory server with Qdrant vector backend
+
 # MCP SSE endpoint format: /mcp/{client_name}/sse/{user_id}
 [mcp.servers.openmemory]
 url = "http://100.64.0.3:8765/mcp/nexus/sse/nyra"

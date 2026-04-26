@@ -1,7 +1,8 @@
 import { Mail, MapPin, Phone, Star } from "lucide-react"
+import { unstable_noStore as noStore } from "next/cache"
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { leads } from "@/lib/mock-data"
+import { getCrmWorkspaceData } from "@/lib/crm-data"
 
 function currency(value: number) {
   return new Intl.NumberFormat("en-US", {
@@ -11,7 +12,9 @@ function currency(value: number) {
   }).format(value)
 }
 
-export default function LeadsPage() {
+export default async function LeadsPage() {
+  noStore()
+  const { leads, source } = await getCrmWorkspaceData()
   const qualifiedCount = leads.filter((lead) => lead.stage === "Qualified").length
   const averageLoan = Math.round(leads.reduce((sum, lead) => sum + lead.loanAmount, 0) / leads.length)
 
@@ -20,8 +23,9 @@ export default function LeadsPage() {
       <div>
         <h1 className="text-3xl font-semibold tracking-tight">Lead Management</h1>
         <p className="mt-2 text-muted-foreground">
-          Unified lead view pulling the strongest layout ideas from the old admin and CRM surfaces.
+          Unified lead view pulling from the active CRM bridge with mock fallback when the upstream is offline.
         </p>
+        <p className="mt-2 text-xs uppercase tracking-[0.24em] text-primary/80">Source: {source}</p>
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">
