@@ -8,8 +8,9 @@
 ## Runtime responsibilities on Oracle VM
 - TwentyCRM (system of record)
 - Activepieces + n8n workflow engines
-- FalkorDB + letta MCP
+- FalkorDB + Mem0 runtime memory
 - OpenClaw/Moltbot gateway
+- Gitea + act_runner + GitHub mirror sync for always-on development CI
 - Quote API
 - Optional cloudflared tunnel
 
@@ -18,3 +19,4 @@
 - Any quote/rate recommendation is draft-only until human-approved.
 - No public DB ports.
 - All secrets via `.env` or secret manager; never commit secrets.
+- Archon is removed from the active stack and must not be used by CI/CD runners.
