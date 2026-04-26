@@ -201,3 +201,23 @@ Both tunnels need new tokens. The existing connectors were deleted from the CF a
 
 **Set public hostname rules** in CF Zero Trust → Tunnels → (each tunnel) → Public Hostnames
 matching the tables in `~/repos/cloudflared/TUNNEL-SETUP-ORACLE.md` and `TUNNEL-SETUP-ORCHESTRATOR.md`.
+
+---
+
+## Enable Gitea → GitHub Mirror Sync on Oracle
+
+The Oracle Gitea stack is running, and `github-mirror-sync` is deployed. It cannot push back to GitHub until a GitHub token is provided.
+
+1. Create a fine-grained GitHub PAT for `ellisapotheosis/Project-Nyra`.
+2. Grant repository Contents read/write permission.
+3. On Oracle, add it to `/home/ubuntu/project-nyra/.env.gitea`:
+
+```bash
+GITHUB_TOKEN=<github-pat>
+```
+
+4. Restart the mirror loop:
+
+```bash
+ssh oracle 'cd /home/ubuntu/project-nyra && docker compose -f infra/hosts/oracle-vps/docker-compose.gitea.yml --env-file .env.gitea restart github-mirror-sync'
+```
