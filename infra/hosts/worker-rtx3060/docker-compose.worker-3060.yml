@@ -131,7 +131,7 @@ services:
         echo "=== Preloading models for RTX 3060 (12GB VRAM) ==="
         # Small models that fit well in 12GB
         curl -X POST http://ollama:11434/api/pull -d '{"name": "llama3.2:3b"}'      # 2GB
-        curl -X POST http://ollama:11434/api/pull -d '{"name": "phi3:mini"}'        # 2.3GB  
+        curl -X POST http://ollama:11434/api/pull -d '{"name": "phi3:mini"}'        # 2.3GB
         curl -X POST http://ollama:11434/api/pull -d '{"name": "mistral:7b-q4"}'    # 4GB
         curl -X POST http://ollama:11434/api/pull -d '{"name": "codellama:7b-q4"}' # 4GB
         # Embedding models

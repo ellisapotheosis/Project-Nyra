@@ -87,7 +87,7 @@ services:
       - NVIDIA_DRIVER_CAPABILITIES=compute,utility
       - HF_TOKEN_FILE=/run/nyra-secrets/hf_token
       - VLLM_ATTENTION_BACKEND=FLASHINFER
-      # LMCache Configuration  
+      # LMCache Configuration
       - LMCACHE_ENABLED=true
       - LMCACHE_STORAGE_BACKEND=local
       - LMCACHE_LOCAL_DEVICE=cuda

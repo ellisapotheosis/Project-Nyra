@@ -1,8 +1,11 @@
-FROM node:20-slim
+FROM node:22-slim
 
 RUN apt-get update && apt-get install -y \
     curl \
     gettext-base \
+    python3 \
+    make \
+    g++ \
     && rm -rf /var/lib/apt/lists/*
 
 # Install openclaw globally
@@ -12,7 +15,7 @@ RUN npm install -g openclaw@latest
 RUN openclaw plugins install @falkordb/openclaw-mem0
 
 # Install the Open WebUI channels plugin
-RUN openclaw plugins install https://github.com/Skyzi000/openclaw-open-webui-channels
+# RUN openclaw plugins install https://github.com/Skyzi000/openclaw-open-webui-channels
 
 COPY openclaw.json.template /etc/openclaw/openclaw.json.template
 COPY entrypoint.sh /entrypoint.sh

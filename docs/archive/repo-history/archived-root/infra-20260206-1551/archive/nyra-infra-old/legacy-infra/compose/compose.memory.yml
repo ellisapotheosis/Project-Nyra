@@ -38,7 +38,7 @@ services:
       - nyra-net
 
   env_file:`r`n
-    - 
-  
+    -
+
 
 

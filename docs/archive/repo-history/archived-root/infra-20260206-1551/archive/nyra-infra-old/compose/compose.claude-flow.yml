@@ -19,7 +19,7 @@ services:
     restart: unless-stopped
     ports:
       - "12018:12018"
-    env_file:`r`n      -     
+    env_file:`r`n      -
     environment:
       # Default: Haiku for cheap orchestration; override to sonnet when needed
       CLAUDE_MODEL: ${CLAUDE_MODEL:-claude-3-7-haiku}

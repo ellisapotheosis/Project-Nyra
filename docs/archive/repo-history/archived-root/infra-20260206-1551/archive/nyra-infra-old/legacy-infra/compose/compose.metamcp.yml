@@ -1,13 +1,13 @@
 services:
   metamcp:
-    build: 
+    build:
       context: ./infra/metamcp-gateway
       dockerfile: Dockerfile
     ports:
       - "12008:12008"
     networks:
       - nyra-network
-    env_file: 
+    env_file:
       - ../.env
 
 networks:

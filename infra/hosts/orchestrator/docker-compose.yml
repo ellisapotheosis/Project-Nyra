@@ -9,7 +9,7 @@ services:
     command: ["/usr/local/bin/secrets-init.sh"]
     environment:
       INFISICAL_TOKEN: ${INFISICAL_TOKEN:-}
-      INFISICAL_PROJECT_ID: 
+      INFISICAL_PROJECT_ID:
         ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
       INFISICAL_ENV: ${INFISICAL_ENV:-prod}
       INFISICAL_PATH: ${INFISICAL_PATH:-/machines/orchestrator}
@@ -34,7 +34,7 @@ services:
         condition: service_completed_successfully
     environment:
       INFISICAL_TOKEN: ${INFISICAL_TOKEN}
-      INFISICAL_PROJECT_ID: 
+      INFISICAL_PROJECT_ID:
         ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
       INFISICAL_ENV: ${INFISICAL_ENV:-prod}
       INFISICAL_PATH: ${INFISICAL_PATH:-/machines/orchestrator}
@@ -104,7 +104,7 @@ services:
       MEM0_API_URL: ${MEM0_API_URL:-http://oracle.trex-fiordland.ts.net:5000}
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
       DATABASE_URL: ${DATABASE_URL:-}
-      QUOTE_ENGINE_URL: 
+      QUOTE_ENGINE_URL:
         ${QUOTE_ENGINE_URL:-http://oracle.trex-fiordland.ts.net:8089}
     volumes:
       - nyra_secrets:/run/nyra-secrets:ro
@@ -117,25 +117,26 @@ services:
     networks:
       - nyra-network
 
-  docker-mcp-toolkit:
-    image: docker/mcp-toolkit:latest
-    container_name: nyra-docker-toolkit
-    profiles: ["apps"]
-    ports:
-      - "8811:8811"
-    environment:
-      MCP_PORT: 8811
-      DOCKER_HOST: unix:///var/run/docker.sock
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - ../../../:/workspace
-      - nyra_secrets:/run/nyra-secrets:ro
-    depends_on:
-      secrets-init:
-        condition: service_completed_successfully
-    restart: unless-stopped
-    networks:
-      - nyra-network
+  # docker-mcp-toolkit:
+  #   image: docker/mcp-toolkit:latest
+  #   container_name: nyra-docker-toolkit
+  #   profiles: ["apps"]
+  #   ports:
+  #     - "8811:8811"
+  #   environment:
+  #     MCP_PORT: 8811
+  #     DOCKER_HOST: unix:///var/run/docker.sock
+  #   volumes:
+  #     - /var/run/docker.sock:/var/run/docker.sock
+  #     - ../../../:/workspace
+  #     - nyra_secrets:/run/nyra-secrets:ro
+  #   depends_on:
+  #     secrets-init:
+  #       condition: service_completed_successfully
+  #   restart: unless-stopped
+  #   networks:
+  #     - nyra-network
+
 
   postgres-client:
     image: postgres:16-alpine
@@ -215,11 +216,26 @@ services:
     labels:
       - "nyra.service=portainer-edge-agent"
       - "nyra.role=edge"
+
+  # ── Syncthing ───────────────────────────────────────────────────────────
+  syncthing:
+    image: syncthing/syncthing:latest
+    container_name: nyra-syncthing
+    network_mode: host
+    environment:
+      - PUID=1000
+      - PGID=1000
+    volumes:
+      - syncthing_config:/var/syncthing
+      - /run/desktop/mnt/host/wsl/...:/var/syncthing/data/home
+    restart: unless-stopped
+
 volumes:
   redis_data:
   n8n_data:
   nyra_secrets:
   cf_secrets:
+  syncthing_config:
   portainer_data:
     name: nyra-portainer-data
 

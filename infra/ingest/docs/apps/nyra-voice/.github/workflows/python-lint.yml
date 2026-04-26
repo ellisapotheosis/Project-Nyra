@@ -45,15 +45,15 @@ jobs:
     # Use isort
     use-isort: # optional, default is true
     # Extra options: pylint $(extra-pylint-options) $(python-root-list)
-    extra-pylint-options: # optional, default is 
+    extra-pylint-options: # optional, default is
     # Extra options: pycodestyle $(extra-pycodestyle-options) $(python-root-list)
-    extra-pycodestyle-options: # optional, default is 
+    extra-pycodestyle-options: # optional, default is
     # Extra options: flake8 $(extra-flake8-options) $(python-root-list)
-    extra-flake8-options: # optional, default is 
+    extra-flake8-options: # optional, default is
     # Extra options: black --check --diff $(extra-black-options) $(python-root-list)
-    extra-black-options: # optional, default is 
+    extra-black-options: # optional, default is
     # Extra options: mypy $(extra-mypy-options) $(python-root-list)
-    extra-mypy-options: # optional, default is 
-    # Extra options: isort -rc $(extra-isort-options) $(python-root-list) -c --diff 
-    extra-isort-options: # optional, default is 
-          
+    extra-mypy-options: # optional, default is
+    # Extra options: isort -rc $(extra-isort-options) $(python-root-list) -c --diff
+    extra-isort-options: # optional, default is
+

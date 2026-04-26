@@ -13,7 +13,7 @@ version: "3.8"
 # through the existing Nyra service mesh.  To bring this up along with
 # the rest of the stack, run:
 #
-#   docker compose -f docker-compose.base.yml \ 
+#   docker compose -f docker-compose.base.yml \
 #                  -f docker-compose.nexus-one-hop.yml up -d
 
 services:
