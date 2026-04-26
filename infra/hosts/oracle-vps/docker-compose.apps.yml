@@ -22,45 +22,6 @@ services:
     networks:
       - nyra_net
 
-  admin:
-    profiles: ["apps"]
-    build:
-      context: ../../../
-      dockerfile: infra/images/Dockerfile.nextjs
-      args:
-        APP_PATH: apps/admin/app
-        APP_NAME: nyra-admin
-    container_name: nyra-admin
-    restart: unless-stopped
-    env_file: [.env]
-    environment:
-      - PORT=3002
-      - NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=${NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
-      - CLERK_SECRET_KEY=${CLERK_SECRET_KEY}
-      - CRM_API_URL=http://nyra-crm-api:4001
-    ports:
-      - "3002:3002"
-    networks:
-      - nyra_net
-
-  landing:
-    profiles: ["apps"]
-    build:
-      context: ../../../
-      dockerfile: infra/images/Dockerfile.nextjs
-      args:
-        APP_PATH: apps/landing/ratehunter-landing
-        APP_NAME: ratehunter-landing
-    container_name: nyra-landing
-    restart: unless-stopped
-    env_file: [.env]
-    environment:
-      - PORT=3003
-    ports:
-      - "3003:3003"
-    networks:
-      - nyra_net
-
 networks:
   nyra_net:
     external: true

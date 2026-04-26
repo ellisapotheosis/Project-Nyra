@@ -32,7 +32,13 @@ VOICE_3060_COMPOSE := infra/hosts/worker-rtx3060/docker-compose.voice.yml
 VOICE_5090_COMPOSE := infra/hosts/worker-rtx5090/docker-compose.voice.yml
 VOICE_3090TI_COMPOSE := infra/hosts/worker-rtx3090ti/docker-compose.voice.yml
 VOICE_ORCHESTRATOR_COMPOSE := infra/hosts/orchestrator/docker-compose.voice.yml
+
+# Assistant Overrides
 HERMES_5090_COMPOSE := infra/hosts/worker-rtx5090/docker-compose.hermes.yml
+HERMES_3090TI_COMPOSE := infra/hosts/worker-rtx3090ti/docker-compose.hermes.yml
+NERVE_5090_COMPOSE := infra/hosts/worker-rtx5090/docker-compose.nerve.yml
+NERVE_3090TI_COMPOSE := infra/hosts/worker-rtx3090ti/docker-compose.nerve.yml
+ORACLE_CLAWTEAM_COMPOSE := infra/hosts/oracle-vps/docker-compose.clawteam.yml
 
 # Distributed Voice Compose Files
 DIST_VOICE_3060 := infra/hosts/worker-rtx3060/docker-compose.distributed-voice.yml
@@ -311,12 +317,25 @@ voice-orch:
 	docker compose -f $(VOICE_ORCHESTRATOR_COMPOSE) up -d
 
 voice-distributed:
-	docker --context worker-rtx3060 compose -f $(DIST_VOICE_3060) up -d
-	docker --context worker-rtx5090 compose -f $(DIST_VOICE_5090) up -d
-	docker --context worker-rtx3090ti compose -f $(DIST_VOICE_3090TI) up -d
+	@echo "🎙️ Starting distributed 3-node voice setup..."
+	$(call DEPLOY_REMOTE,worker-rtx3060,$(DIST_VOICE_3060))
+	$(call DEPLOY_REMOTE,worker-rtx5090,$(DIST_VOICE_5090))
+	$(call DEPLOY_REMOTE,worker-rtx3090ti,$(DIST_VOICE_3090TI))
 
 hermes-5090:
-	docker --context worker-rtx5090 compose -f $(HERMES_5090_COMPOSE) up -d
+	$(call DEPLOY_REMOTE,worker-rtx5090,$(HERMES_5090_COMPOSE))
+
+hermes-3090ti:
+	$(call DEPLOY_REMOTE,worker-rtx3090ti,$(HERMES_3090TI_COMPOSE))
+
+nerve-5090:
+	$(call DEPLOY_REMOTE,worker-rtx5090,$(NERVE_5090_COMPOSE))
+
+nerve-3090ti:
+	$(call DEPLOY_REMOTE,worker-rtx3090ti,$(NERVE_3090TI_COMPOSE))
+
+oracle-clawteam:
+	$(call DEPLOY_REMOTE,oracle,$(ORACLE_CLAWTEAM_COMPOSE))
 
 # --- CLOUDFLARED TUNNEL TARGETS ---
 

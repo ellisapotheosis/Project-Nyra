@@ -55,21 +55,41 @@ services:
       retries: 10
     networks: [nyra_net]
 
+  twenty-db:
+    image: postgres:15
+    container_name: nyra-twenty-db
+    restart: unless-stopped
+    env_file: [.env]
+    environment:
+      POSTGRES_USER: ${TWENTY_DB_USER:-twenty}
+      POSTGRES_PASSWORD: ${TWENTY_DB_PASSWORD}
+      POSTGRES_DB: ${TWENTY_DB_NAME:-twenty}
+    volumes:
+      - twenty_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${TWENTY_DB_USER:-twenty} -d ${TWENTY_DB_NAME:-twenty}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks: [nyra_net]
+
   twenty:
     image: twentycrm/twenty:latest
     container_name: nyra-twenty
     restart: unless-stopped
     env_file: [.env]
     depends_on:
-      postgres:
+      twenty-db:
+        condition: service_healthy
+      redis-cache:
         condition: service_healthy
     environment:
       NODE_PORT: 3000
       SERVER_URL: ${TWENTY_SERVER_URL}
       FRONTEND_URL: ${TWENTY_FRONTEND_URL}
       APP_SECRET: ${TWENTY_APP_SECRET}
-      PG_DATABASE_URL: ${TWENTY_PG_DATABASE_URL}
-      REDIS_URL: ${TWENTY_REDIS_URL:-redis://nyra-redis-cache:6379}
+      PG_DATABASE_URL: postgresql://${TWENTY_DB_USER:-twenty}:${TWENTY_DB_PASSWORD}@nyra-twenty-db:5432/${TWENTY_DB_NAME:-twenty}
+      REDIS_URL: redis://nyra-redis-cache:6379
       STORAGE_TYPE: local
     volumes:
       - twenty_local_storage:/app/packages/twenty-server/.local-storage
@@ -77,6 +97,27 @@ services:
     networks: [nyra_net]
     ports:
       - "3000:3000"
+
+  twenty-worker:
+    image: twentycrm/twenty:latest
+    container_name: nyra-twenty-worker
+    restart: unless-stopped
+    env_file: [.env]
+    command: ["node", "packages/twenty-server/dist/src/main-worker.js"]
+    depends_on:
+      twenty:
+        condition: service_started
+      twenty-db:
+        condition: service_healthy
+    environment:
+      APP_SECRET: ${TWENTY_APP_SECRET}
+      PG_DATABASE_URL: postgresql://${TWENTY_DB_USER:-twenty}:${TWENTY_DB_PASSWORD}@nyra-twenty-db:5432/${TWENTY_DB_NAME:-twenty}
+      REDIS_URL: redis://nyra-redis-cache:6379
+      STORAGE_TYPE: local
+    volumes:
+      - twenty_local_storage:/app/packages/twenty-server/.local-storage
+      - twenty_docker_data:/app/docker-data
+    networks: [nyra_net]
 
   activepieces:
     image: activepieces/activepieces:latest
@@ -650,6 +691,7 @@ networks:
 
 volumes:
   postgres_data:
+  twenty_db_data:
   redis_cache_data:
   twenty_local_storage:
   twenty_docker_data:
