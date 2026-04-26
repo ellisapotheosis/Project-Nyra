@@ -3,7 +3,7 @@
 
 ### Features
 
-* add infra/dev-stack ruflo + dashboard runtime stack ([#175](https://github.com/ellisapotheosis/Project-Nyra/issues/175)) ([5e04dd6](https://github.com/ellisapotheosis/Project-Nyra/commit/5e04dd6f731d43dec4c67e921a8864bb8264a350))
+* add infra/dev-stack dashboard runtime stack ([#175](https://github.com/ellisapotheosis/Project-Nyra/issues/175)) ([5e04dd6](https://github.com/ellisapotheosis/Project-Nyra/commit/5e04dd6f731d43dec4c67e921a8864bb8264a350))
 
 # [1.1.0](https://github.com/ellisapotheosis/Project-Nyra/compare/v1.0.2...v1.1.0) (2026-03-11)
 
