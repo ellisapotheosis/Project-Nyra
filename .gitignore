@@ -492,6 +492,8 @@ infra/env/.env.*
 !infra/env/TEMPLATE.env.host
 # Oracle VPS live env (moved from infra/oracle/ to infra/env/)
 infra/hosts/oracle-vps/.env*
+# Generated Docker Compose output with expanded secrets.
+infra/hosts/oracle-vps/resolved_config.yml
 # Infisical agent tokens — never commit
 infra/hosts/**/.infisical-token
 infra/hosts/**/infisical-agent.token
