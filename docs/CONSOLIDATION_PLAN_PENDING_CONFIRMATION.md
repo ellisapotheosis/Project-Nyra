@@ -16,7 +16,6 @@ Consolidate Project Nyra into a clear three-app stack:
 
 ## Legacy Target Set for Purge (Phase 1)
 The following legacy stacks are flagged for removal from docs/infra/scripts references and artifacts:
-- archon OS
 - ruflo
 - claude-flow
 - ruvector
