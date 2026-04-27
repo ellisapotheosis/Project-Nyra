@@ -158,7 +158,6 @@ consolidation-work/
 
 # Workflow exports that may include credential metadata
 **/*n8n-export*.json
-**/*activepieces-export*.json
 
 ################################################################################
 # Turborepo

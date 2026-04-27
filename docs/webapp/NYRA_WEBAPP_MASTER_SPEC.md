@@ -19,7 +19,7 @@ The webapp is the **product brain surface**; Twenty CRM remains the **system-of-
 - Broker and borrower dashboards
 - Task orchestration to internal services
 - Retrieval and presentation of compliant next-best-actions
-- Workflow trigger contracts to n8n + Activepieces
+- Workflow trigger contracts to n8n
 
 ### 2.2 Responsibilities (Webapp does not own)
 - Golden customer record persistence (Twenty CRM owns)
@@ -56,7 +56,6 @@ The webapp is the **product brain surface**; Twenty CRM remains the **system-of-
 
 ### 3.2 Core Integrations
 - **n8n**: deterministic workflow routing and webhook choreography
-- **Activepieces**: event automation and fallback glue workflows
 - **Twilio**: SMS/telephony transport
 - **SendGrid**: email transport and event callbacks
 - **Kyutai Moshi**: low-latency voice loop for live broker-assistant interactions
@@ -68,7 +67,7 @@ The webapp is the **product brain surface**; Twenty CRM remains the **system-of-
 ### 4.1 Runtime Topology
 - Webapp: Next.js App Router app with API routes and server actions
 - Services: `services/*` boundaries for compliance, communication, quote, CRM API
-- Workflow engines: n8n + Activepieces as internal automations
+- Workflow engine: n8n as internal automation glue
 - Data authority: Twenty CRM
 
 ### 4.2 Environments
@@ -136,7 +135,7 @@ Use this as the baseline agent prompt for implementation tasks.
 ### 7.1 Context Package
 - Product: Mortgage Assistant for brokers and borrowers
 - Main apps: Landing, Webapp, Twenty CRM
-- Integrations: n8n, Activepieces, Twilio, SendGrid, Kyutai Moshi
+- Integrations: n8n, Twilio, SendGrid, Kyutai Moshi
 - Invariants:
   1. Twenty CRM is source of truth
   2. Compliance checks gate every outbound message
@@ -161,20 +160,19 @@ Use this as the baseline agent prompt for implementation tasks.
 1. Define/extend contract types (Zod + TS)
 2. Implement server-side business logic
 3. Wire UI changes
-4. Connect n8n/Activepieces triggers
+4. Connect n8n triggers
 5. Add Twilio/SendGrid/Moshi adapters
 6. Add tests and smoke scripts
 7. Update runbook and rollback steps
 
 ### 7.5 Prompt Template
-"Implement <feature> in Nyra Webapp using existing service boundaries. Enforce consent/quiet-hour/STOP checks before outbound actions. Persist and read lead state only through CRM API contracts. Use n8n or Activepieces only as workflow glue. Include tests, observability fields, and rollback notes."
+"Implement <feature> in Nyra Webapp using existing service boundaries. Enforce consent/quiet-hour/STOP checks before outbound actions. Persist and read lead state only through CRM API contracts. Use n8n only as internal workflow glue. Include tests, observability fields, and rollback notes."
 
 ---
 
 ## 8) Workflow Documentation Canon
 All workflow specs and examples should be documented under:
 - `docs/webapp/workflows/n8n`
-- `docs/webapp/workflows/activepieces`
 
 During migration, legacy workflow docs should be copied/adapted from scattered locations and normalized to one schema format.
 
@@ -196,7 +194,7 @@ A live readiness score in webapp that tells brokers exactly what data is still m
 ## 10) Migration Checklist (Implementation Pass)
 - [ ] Remove legacy references/assets listed in purge target set
 - [ ] Consolidate docs into landing/webapp/twenty-crm roots
-- [ ] Normalize n8n + Activepieces workflow docs under `docs/webapp/workflows`
+- [ ] Normalize n8n workflow docs under `docs/webapp/workflows`
 - [ ] Refactor scripts with legacy-specific branching
 - [ ] Update `.gitignore` and secret hygiene patterns
 - [ ] Run full lint/test/smoke validation
