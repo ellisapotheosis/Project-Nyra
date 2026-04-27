@@ -151,6 +151,14 @@ backups/
 **/consolidation-tmp/
 consolidation-work/
 
+# Consolidation planning artifacts
+**/migration-temp/
+**/migration-staging/
+**/.migration-cache/
+
+# Workflow exports that may include credential metadata
+**/*n8n-export*.json
+
 ################################################################################
 # Turborepo
 ################################################################################
