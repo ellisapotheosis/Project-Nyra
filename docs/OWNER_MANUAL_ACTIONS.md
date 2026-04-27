@@ -201,3 +201,27 @@ Both tunnels need new tokens. The existing connectors were deleted from the CF a
 
 **Set public hostname rules** in CF Zero Trust → Tunnels → (each tunnel) → Public Hostnames
 matching the tables in `~/repos/cloudflared/TUNNEL-SETUP-ORACLE.md` and `TUNNEL-SETUP-ORCHESTRATOR.md`.
+
+---
+
+## Cloudflare Tunnel UI DNS Import
+
+Manual owner action is required because Cloudflare dashboard login, DNS ownership, and Zero Trust
+Access policy changes require account access.
+
+Use the focused walkthrough and backup configs:
+
+- `docs/CLOUDFLARE_UI_DNS_WALKTHROUGH.md`
+- `infra/hosts/orchestrator/cloudflared-config.yml`
+- `infra/hosts/oracle-vps/cloudflared-config.yml`
+
+Copies have also been placed in `~/repos/cloudflared_DNS_setup` for direct Cloudflare dashboard
+import/reference:
+
+- `orchestrator-cloudflared-config.yml`
+- `oracle-vps-cloudflared-config.yml`
+- `CLOUDFLARE_UI_DNS_WALKTHROUGH.md`
+- `OWNER_MANUAL_ACTIONS.md`
+
+Create or update the two tunnels, import or enter the public hostname mappings, and apply Access
+policies to every private UI before use.
