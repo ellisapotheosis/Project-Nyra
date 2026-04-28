@@ -1,4 +1,4 @@
-# Archon OS Configuration - LiteLLM Proxy Service
+# LiteLLM Proxy Service
 
 ## Service Overview
 

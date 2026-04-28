@@ -20,7 +20,7 @@
               "config": {
                 "model": "text-embedding-3-small",
                 "api_key": "${OPENAI_API_KEY}",
-                "base_url": "${OPENAI_BASE_URL}"
+                "base_url": "${OPENAI_BASE_URL:-https://api.openai.com/v1}"
               }
             },
             "vectorStore": {
@@ -30,8 +30,8 @@
             "graphStore": {
               "provider": "falkordb",
               "config": {
-                "host": "${FALKORDB_HOST}",
-                "port": ${FALKORDB_PORT},
+                "host": "${FALKORDB_HOST:-falkordb}",
+                "port": ${FALKORDB_PORT:-6379},
                 "graphName": "mem0"
               }
             },
@@ -40,7 +40,7 @@
               "config": {
                 "model": "gpt-4o-mini",
                 "api_key": "${OPENAI_API_KEY}",
-                "base_url": "${OPENAI_BASE_URL}"
+                "base_url": "${OPENAI_BASE_URL:-https://api.openai.com/v1}"
               }
             }
           }

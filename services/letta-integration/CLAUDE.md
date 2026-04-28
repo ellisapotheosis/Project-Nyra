@@ -46,7 +46,7 @@
 
 ## 🐝 LETTA INTEGRATION WORKFLOW
 
-Use Archon workflows for memory system updates and integration testing.
+Use  workflows for memory system updates and integration testing.
 
 ### Available Agents
 - `memory_architect`: Memory System Design
