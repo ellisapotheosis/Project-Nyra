@@ -2,14 +2,28 @@
   "mcpServers": {
     "nexus-router": {
       "type": "sse",
-      "url": "http://100.64.0.31:6000/mcp/sse"
+      "url": "http://100.64.0.1:8080/mcp/sse"
+    },
+    "serena": {
+      "type": "sse",
+      "url": "http://100.64.0.1:8092/mcp/sse"
     },
     "ssh": {
       "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-ssh"],
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-ssh"
+      ],
       "env": {
         "SSH_ALLOWED_HOSTS": "*.trex-fiordland.ts.net,100.64.0.*,github.com,gitea.ratehunter.net"
       }
+    },
+    "shadcn": {
+      "command": "npx",
+      "args": [
+        "shadcn@latest",
+        "mcp"
+      ]
     }
   },
   "disabledMcpServers": []

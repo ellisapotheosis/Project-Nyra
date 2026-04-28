@@ -223,7 +223,7 @@ cf-orch-logs:
 	docker compose -f $(CF_ORCH_COMPOSE) logs -f --tail=100
 
 # --- ORACLE APP STACK TARGETS ---
-# Apps run on Oracle VPS. They use profile \"apps\" so they don't start
+# Apps run on Oracle VPS. They use profile "apps" so they don't start
 # with make up-oracle. Only app-only services from the mortgage stack live
 # in the overlay; infra services already defined in the canonical Oracle
 # compose stay there.
@@ -261,48 +261,89 @@ secrets-up: check-host
 	docker compose -f infra/hosts/$(HOST)/docker-compose.yml --env-file infra/hosts/$(HOST)/.env.host --profile secrets up -d
 
 # ════════════════════════════════════════════════════════════════════════════
-# DEVELOPMENT ORCHESTRATION: ghostty + zellij + distributed inference
+# MAXIMALIST SWARM ORCHESTRATION: WAVE + ZELLIJ + INFISICAL
 # ════════════════════════════════════════════════════════════════════════════
 
-.PHONY: dev-orchestrate dev-down
+.PHONY: swarm-setup swarm-up swarm-oracle swarm-utility swarm-down swarm-logs swarm-ghost swarm-grid nerve-ui-3090ti nerve-ui-5090 claw-team-up
 
-dev-orchestrate:
-	@echo "🚀 Launching Development Orchestration (ghostty + zellij)..."
-	@echo "   Panels: llxprt-jefe | llxprt-code | RTX3090Ti | RTX5090 | RTX3060 | PAPERCLIP"
-	@ghostty \
-		--command "zellij --layout compact" \
-		--title "Project Nyra - Distributed AI Development" &
-	@sleep 2
-	@zellij action new-pane -f -d right
-	@zellij action new-pane -f -d down
-	@zellij action new-pane -f -d right
-	@zellij action new-pane -f -d down
-	@zellij action new-pane -f -d right
+# Infisical integration: export secrets to .env.swarm
+.env.swarm:
+	@echo "🔐 Pulling secrets from Infisical CLI..."
+	@infisical export --env=prod --path=/workers/orchestrator --format=dotenv > .env.swarm || \
+		(echo "⚠️ Failed to pull Infisical secrets. Creating empty .env.swarm..." && touch .env.swarm)
 
-dev-panels:
-	@echo "Configuring zellij panels..."
-	@zellij action write-chars "# [1] llxprt-jefe (CLI Subscription)" && Enter
-	@zellij action write-chars "cd /home/ellisapotheosis/repos/project-nyra/external/llxprt-jefe && jefe" && Enter
-	@sleep 1
-	@zellij action move-focus right
-	@zellij action write-chars "# [2] llxprt-code (gemini-cli | codex-cli | claude-code)" && Enter
-	@zellij action write-chars "cd /home/ellisapotheosis/repos/project-nyra/external/llxprt-code && code" && Enter
-	@sleep 1
-	@zellij action move-focus down
-	@zellij action write-chars "# [3] RTX3090Ti (openclaw + gemma4)" && Enter
-	@zellij action write-chars "ssh worker-rtx3090ti-win 'docker --context orchestrator ps | grep -E vllm|openclaw'" && Enter
-	@sleep 1
-	@zellij action move-focus right
-	@zellij action write-chars "# [4] RTX5090 (claude-code + qwen3.6)" && Enter
-	@zellij action write-chars "ssh worker-rtx5090-win 'docker --context worker-rtx5090 ps | grep vllm'" && Enter
-	@sleep 1
-	@zellij action move-focus down
-	@zellij action write-chars "# [5] RTX3060 (embeddings + lightweight LLM + voice)" && Enter
-	@zellij action write-chars "ssh worker-rtx3060-win 'docker ps | grep -E embed|voice|inference'" && Enter
-	@sleep 1
-	@zellij action move-focus right
-	@zellij action write-chars "# [6] PAPERCLIP (Oracle VPS)" && Enter
-	@zellij action write-chars "ssh oracle-vps 'docker ps | grep paperclip'" && Enter
+swarm-setup:
+	@echo "🌊 Bootstrapping Maximalist Wave AI (Waveterm) & Zellij Swarm..."
+	@curl -fsSL https://dl.waveterm.dev/get-waveterm.sh | sh
+	@chmod +x scripts/setup-waveterm-cyberpunk.sh
+	@./scripts/setup-waveterm-cyberpunk.sh
+	@echo "✅ Configuration written. Restart WaveTerm to apply."
+
+swarm-up: .env.swarm
+	@echo "🌊 Booting Maximalist Zellij Swarm..."
+	@if zellij list-sessions 2>/dev/null | grep -q "nyra-swarm"; then \
+		echo "⚡ Swarm already active. Attaching via WaveTerm..."; \
+	else \
+		echo "🚀 Spawning detached Zellij Swarm (nyra-swarm)..."; \
+		set -a; source .env.swarm; set +a; \
+		zellij --layout infra/zellij/nyra-swarm.kdl --session nyra-swarm -d; \
+		echo "⏳ Waiting 3s for Ghost Layer (llxprt) proxy to stabilize on :8080..."; \
+		sleep 3; \
+	fi
+	@echo "🖥️  Launching WaveTerm Cockpit..."
+	@waveterm &
+	@echo "👉 Tip: Use Cmd+Shift+S in WaveTerm to attach to the Cockpit."
+
+swarm-oracle:
+	@echo "☁️  Deploying Asynchronous Heavy State to Oracle VPS..."
+	@docker --context oracle compose -f infra/hosts/oracle-vps/docker-compose.oracle.yml up -d
+	@echo "✅ Oracle Stack (Paperclip, SearXNG, Browserless) is LIVE."
+
+swarm-utility:
+	@echo "🛠️  Deploying Utility Node to RTX 3060..."
+	@docker --context worker-rtx3060 compose -f infra/hosts/worker-rtx3060/docker-compose.utility.yml up -d
+	@echo "✅ Utility Stack (Embeddings, TTS Voice) is LIVE."
+
+swarm-down:
+	@echo "🛑 Terminating local Zellij Swarm..."
+	@zellij kill-session nyra-swarm 2>/dev/null || echo "Local swarm already down."
+	@echo "🛑 Terminating remote stacks..."
+	@docker --context oracle compose -f infra/hosts/oracle-vps/docker-compose.oracle.yml down
+	@docker --context worker-rtx3060 compose -f infra/hosts/worker-rtx3060/docker-compose.utility.yml down
+	@rm -f .env.swarm
+	@echo "✅ Entire Swarm (Local + Oracle + Utility) terminated."
+
+swarm-logs:
+	@echo "📜 Fetching recent logs from Ghost Layer (Proxy & Daemon)..."
+	@zellij action -s nyra-swarm go-to-tab 1 2>/dev/null || echo "Swarm not running. Use 'make swarm-up'."
+	@echo "Ghost Layer tab focused. Check WaveTerm."
+
+swarm-ghost:
+	@echo "👻 Toggling Ghost Layer Visibility..."
+	@zellij action -s nyra-swarm go-to-tab 1 2>/dev/null || echo "Swarm not running."
+	@echo "Ghost Layer tab focused. Use Cmd+Shift+S to return to Cockpit."
+
+swarm-grid:
+	@echo "📊 Launching NYRA-GRID Dashboard..."
+	@wsh app:newTab --preset nyra-grid 2>/dev/null || echo "WaveTerm not running or wsh not in path. Launch WaveTerm and use Cmd+Shift+R."
+
+nerve-ui-3090ti:
+	@echo "🧠 Starting Nerve UI on RTX3090Ti..."
+	@docker --context worker-rtx3090ti compose -f $(WORKER_3090TI_COMPOSE) up -d openclaw
+	@echo "Nerve UI (3090Ti): http://worker-rtx3090ti.trex-fiordland.ts.net:8001"
+
+nerve-ui-5090:
+	@echo "🧠 Starting Nerve UI on RTX5090..."
+	@docker --context worker-rtx5090 compose -f $(WORKER_5090_COMPOSE) up -d openclaw
+	@echo "Nerve UI (5090): http://worker-rtx5090.trex-fiordland.ts.net:8001"
+
+claw-team-up:
+	@echo "🦞 Starting ClawTeam Orchestration (Distributed Nerve)..."
+	@make up-worker-3090ti
+	@make up-worker-5090
+	@make nerve-ui-3090ti
+	@make nerve-ui-5090
+	@echo "ClawTeam is active across the cluster."
 
 dev-status:
 	@echo "=== Development Orchestration Status ==="
@@ -372,3 +413,122 @@ paperclip-logs:
 
 paperclip-status:
 	@docker --context oracle compose -f $(ORACLE_COMPOSE) ps paperclip paperclip-mcp
+
+# ════════════════════════════════════════════════════════════════════════════
+# 🌊 ULTIMATE ORCHESTRATOR: Letta-MCP + Composio + Full Multi-CLI Cockpit
+# Auto-compilation, daemon health checks, unified WaveTerm launch
+# ════════════════════════════════════════════════════════════════════════════
+
+.PHONY: orchestrator-setup orchestrator-compile-letta orchestrator-daemon-health \
+  orchestrator-secrets orchestrator-wave-launch orchestrator-full \
+  orchestrator-daemon-logs orchestrator-down orchestrator-status
+
+# Pull secrets from Infisical, verify paths, prepare daemon environment
+orchestrator-setup:
+	@echo "🔐 [1/4] Pulling Infisical secrets for orchestrator..."
+	@mkdir -p ~/.nyra
+	@if command -v infisical &>/dev/null; then \
+		infisical export --env=prod --path=/workers/orchestrator --format=dotenv > ~/.nyra/.env.orchestrator 2>/dev/null || \
+		(echo "⚠️  Infisical offline. Creating minimal .env..." && echo "LLXPRT_DUMMY_KEY=local_dev" > ~/.nyra/.env.orchestrator); \
+	else \
+		echo "⚠️  Infisical CLI not installed. Skipping secret pull."; \
+	fi
+	@echo "✅ Secrets staged at ~/.nyra/.env.orchestrator"
+	@echo ""
+	@echo "📍 [2/4] Verifying critical paths..."
+	@test -d external/llxprt-jefe || (echo "❌ external/llxprt-jefe missing" && exit 1)
+	@test -d external/llxprt-code || (echo "❌ external/llxprt-code missing" && exit 1)
+	@test -f infra/zellij/nyra-orchestrator-mcp.kdl || (echo "❌ infra/zellij/nyra-orchestrator-mcp.kdl missing" && exit 1)
+	@echo "✅ All critical paths verified"
+	@echo ""
+
+# Compile Rust Letta-MCP server if not already built
+orchestrator-compile-letta:
+	@echo "🦀 [3/4] Building Rust Letta-MCP Server..."
+	@if [ ! -f ./target/release/letta-mcp-server ] && [ -d mcp-servers/letta-mcp ]; then \
+		echo "  → Compiling from mcp-servers/letta-mcp/Cargo.toml..."; \
+		cargo build --release --manifest-path mcp-servers/letta-mcp/Cargo.toml 2>&1 | tail -20; \
+		echo "✅ Letta-MCP compiled to ./target/release/letta-mcp-server"; \
+	elif [ -f ./target/release/letta-mcp-server ]; then \
+		echo "✅ Letta-MCP already built"; \
+	else \
+		echo "⚠️  Letta-MCP source not found. Skipping compilation. (Will fallback to stdio stubs)"; \
+	fi
+	@echo ""
+
+# Health check: Verify daemon will boot correctly
+orchestrator-daemon-health:
+	@echo "🏥 [4/4] Pre-flight daemon health check..."
+	@echo "  → llxprt-jefe: " && (cd external/llxprt-jefe && ./jefe --help >/dev/null 2>&1 && echo "✅" || echo "⚠️  Check manually")
+	@echo "  → llxprt-code: " && (cd external/llxprt-code && ./code --help >/dev/null 2>&1 && echo "✅" || echo "⚠️  Check manually")
+	@echo "  → Zellij layout: " && (zellij --layout infra/zellij/nyra-orchestrator-mcp.kdl --check >/dev/null 2>&1 && echo "✅" || echo "⚠️  Syntax check: infra/zellij/nyra-orchestrator-mcp.kdl")
+	@echo ""
+
+# Full orchestrator bootstrap: secrets → compile → health → launch
+orchestrator-full: orchestrator-setup orchestrator-compile-letta orchestrator-daemon-health
+	@echo "🚀 [FINAL] Launching Ultimate Orchestrator Cockpit..."
+	@set -a; source ~/.nyra/.env.orchestrator 2>/dev/null; set +a; \
+	if zellij list-sessions 2>/dev/null | grep -q "nyra-orchestrator"; then \
+		echo "⚡ Orchestrator session already active. Attaching..."; \
+	else \
+		echo "🌊 Spawning detached Zellij (nyra-orchestrator) with Letta-MCP daemon..."; \
+		zellij --layout infra/zellij/nyra-orchestrator-mcp.kdl --session nyra-orchestrator -d; \
+		sleep 2; \
+		echo "⏳ Waiting 3s for daemon layer (llxprt + Letta-MCP) to stabilize..."; \
+		sleep 3; \
+	fi
+	@echo "🖥️  Launching WaveTerm Cockpit UI..."
+	@waveterm &
+	@echo ""
+	@echo "✅ ORCHESTRATOR ACTIVE"
+	@echo ""
+	@echo "Next steps:"
+	@echo "  1. In WaveTerm: Cmd+Shift+O → Load 'multi-cli-cockpit' preset"
+	@echo "  2. Watch daemon health: make orchestrator-daemon-logs"
+	@echo "  3. Check worker status: make orchestrator-status"
+	@echo ""
+
+# Show daemon logs (tail all 3 daemon streams)
+orchestrator-daemon-logs:
+	@echo "📜 Daemon Layer Logs (live tail)..."
+	@mkdir -p ~/.nyra
+	@echo "---"
+	@tmux new-session -d -s nyra-logs \
+		"(echo '=== JEFE ==='; tail -f ~/.nyra/jefe.log)" \; \
+		split-window -h "(echo '=== CODE PROXY ==='; tail -f ~/.nyra/code-proxy.log)" \; \
+		split-window -h "(echo '=== LETTA-MCP ==='; tail -f ~/.nyra/letta-mcp.log)" \; \
+		attach
+	@tmux attach-session -t nyra-logs || true
+
+# Shutdown orchestrator session cleanly
+orchestrator-down:
+	@echo "🛑 Shutting down Orchestrator..."
+	@zellij kill-session nyra-orchestrator 2>/dev/null || echo "Session not running."
+	@pkill -f "waveterm" 2>/dev/null || echo "WaveTerm not running."
+	@pkill -f "llxprt-jefe" 2>/dev/null || echo "Jefe cleanup."
+	@pkill -f "llxprt-code" 2>/dev/null || echo "Code proxy cleanup."
+	@pkill -f "letta-mcp-server" 2>/dev/null || echo "Letta-MCP cleanup."
+	@rm -f ~/.nyra/.env.orchestrator
+	@echo "✅ Orchestrator shutdown complete."
+
+# Live status: orchestrator + workers + oracle
+orchestrator-status:
+	@echo "=== 🌊 ORCHESTRATOR STATUS ==="
+	@echo ""
+	@echo "[DAEMON] Zellij Session:"
+	@zellij list-sessions 2>/dev/null | grep nyra-orchestrator || echo "  ℹ Not running"
+	@echo ""
+	@echo "[DAEMON] Process Health:"
+	@pgrep -f "llxprt-jefe" >/dev/null && echo "  ✅ llxprt-jefe running (PID: $(pgrep -f 'llxprt-jefe'))" || echo "  ❌ llxprt-jefe down"
+	@pgrep -f "llxprt-code" >/dev/null && echo "  ✅ llxprt-code running (PID: $(pgrep -f 'llxprt-code'))" || echo "  ❌ llxprt-code down"
+	@pgrep -f "letta-mcp-server" >/dev/null && echo "  ✅ letta-mcp-server running (PID: $(pgrep -f 'letta-mcp-server'))" || echo "  ❌ letta-mcp-server down"
+	@echo ""
+	@echo "[WORKERS] GPU Cluster:"
+	@for ctx in worker-rtx5090 worker-rtx3090ti worker-rtx3060; do \
+		docker --context $$ctx ps --format '{{.Names}}:{{.Status}}' 2>/dev/null | wc -l && echo "  [$$ctx]: $$(docker --context $$ctx ps -q | wc -l) containers"; \
+	done
+	@echo ""
+	@echo "[ORACLE] VPS Services:"
+	@docker --context oracle ps --filter 'status=running' --format '{{.Service}}' 2>/dev/null | wc -l && echo "  Services running"
+	@echo ""
+

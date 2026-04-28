@@ -68,7 +68,15 @@ These belong on the oracle-vps:
 * **Open WebUI** (Internal model workbench)
 * **Quote API**
 * **Campaign Engine**
-* **Memory Stack**: mem0 + FalkorDB backend, OpenMemory MCP, Letta (Memory Manager), memOS, Mempalace, and claudemem.
+
+### Memory Stack
+A singular memory endpoint is provided via the **Nexus Router** (orchestrator:6000), aggregating:
+* **mem0** + **FalkorDB** backend (Oracle VPS)
+* **OpenMemory MCP** (Oracle VPS)
+* **Letta** Memory Manager (Oracle VPS)
+* **MemOS** (Oracle VPS)
+* **Mempalace** (Oracle VPS)
+* **claudemem** (Orchestrator)
 
 ### Worker roles
 
@@ -76,22 +84,8 @@ These belong on the oracle-vps:
 * **3090 Ti** → vLLM secondary, OpenClaw + Hermes UI
 * **3060** → Ollama for small models, ingestion utilities, summarization, extraction
 
-### Current memory stack
+### Product surfaces
 
-Use:
-
-* **Letta** (memory manager)
-* **Mem0** for selected assistant/runtime memory
-* **FalkorDB** as graph backend where graph memory is needed
-
-Do **not** reintroduce:
-
-* openmemory / openmemory MCP
-* memorytensor/memOS
-* mempalace
-* Activepieces in the core path
-
-## Product surfaces
 
 (All of the following apps are to be merged into /apps/webapp as separate pages to the same app except for the landing page and twenty CRM which will continue to be their own apps. Things like TwentyCRM, openclaw: nerve UI and clawteam, paperclip, open-webui will still maintain their autonomy as their code wont be merged but htey will be available via links from the webapp. twentyCRM will have an integration page that pulls in all of the CRM data the webapp needs to function. We will also be making a new UI page for n8n that acts as the mortgage lead drip campaign builder. active pieces UI will be integrated as its own page and so will openmemory and paperclip). We will also be integrating both n8n chat UI and openclaw chat UI into the webapp either on their own pages and/or maybe also into other pre-existing pages or maybe even both.
 

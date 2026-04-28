@@ -224,3 +224,22 @@ Both tunnels need new tokens. The existing connectors were deleted from the CF a
 
 **Set public hostname rules** in CF Zero Trust → Tunnels → (each tunnel) → Public Hostnames
 matching the tables in `~/repos/cloudflared/TUNNEL-SETUP-ORACLE.md` and `TUNNEL-SETUP-ORCHESTRATOR.md`.
+
+---
+
+## Composio Hosted MCP Server URL
+
+The Compose overrides require a hosted MCP URL and user-bound app connections.
+
+**Steps:**
+1. In Composio, create or select the hosted MCP server for Nyra external tools.
+2. Connect the required user/account credentials for Jira, Slack, and Twenty.
+3. Copy the MCP URL and API key into the secret store:
+   - `COMPOSIO_API_KEY`
+   - `COMPOSIO_DEFAULT_USER_ID`
+   - `COMPOSIO_MCP_SERVER_ID`
+   - `COMPOSIO_MCP_URL`
+4. Render `infra/env/composio.env.example` into the node-local secret env file before applying:
+   - `infra/compose/composio.inject.compose.yml`
+   - `infra/compose/composio.openclaw-mvp.inject.compose.yml`
+   - `infra/compose/composio.webapp.inject.compose.yml`

@@ -208,6 +208,34 @@ services:
       - /home/ellisapotheosis:/var/syncthing/data/home
     restart: unless-stopped
 
+  # ── OpenClaw (with Nerve UI) ────────────────────────────────────────────
+  openclaw:
+    build:
+      context: ../../../services/openclaw
+      dockerfile: Dockerfile
+    container_name: worker-5090-openclaw
+    restart: unless-stopped
+    ports:
+      - "8001:8001"
+      - "18789:18789"
+    environment:
+      NODE_ENV: production
+      NEXUS_API_URL: "http://oracle.trex-fiordland.ts.net:6000"
+      LITELLM_API_URL: "http://worker-5090-litellm:4000"
+      MEM0_API_URL: ${MEM0_API_URL:-http://oracle.trex-fiordland.ts.net:5000}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      DATABASE_URL: ${DATABASE_URL:-}
+      QUOTE_ENGINE_URL: ${QUOTE_ENGINE_URL:-http://oracle.trex-fiordland.ts.net:8089}
+    volumes:
+      - nyra_secrets:/run/nyra-secrets:ro
+    depends_on:
+      litellm:
+        condition: service_healthy
+      secrets-init:
+        condition: service_completed_successfully
+    networks:
+      - worker-network
+
 volumes:
   vllm_models:
   lmcache_data:
