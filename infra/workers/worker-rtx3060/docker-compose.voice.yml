@@ -1,0 +1,45 @@
+# Base Kyutai Unmute runtime for worker-rtx3060.
+
+name: nyra-worker-rtx3060-voice
+
+services:
+  kyutai-unmute:
+    image: ${UNMUTE_IMAGE:-ghcr.io/kyutai-labs/unmute:latest}
+    container_name: nyra-rtx3060-kyutai-unmute
+    restart: unless-stopped
+    runtime: nvidia
+    ipc: host
+    shm_size: 2gb
+    environment:
+      NVIDIA_VISIBLE_DEVICES: ${NVIDIA_VISIBLE_DEVICES:-0}
+      NVIDIA_DRIVER_CAPABILITIES: compute,utility
+      CUDA_DEVICE_ORDER: PCI_BUS_ID
+      UNMUTE_HOST: 0.0.0.0
+      UNMUTE_PORT: 8080
+      UNMUTE_MODE: ${UNMUTE_MODE:-nerve-base}
+      UNMUTE_MODEL_DIR: /models/kyutai
+      UNMUTE_CACHE_DIR: /cache
+      UNMUTE_PRECISION: ${UNMUTE_PRECISION:-int8}
+      UNMUTE_MAX_CONCURRENT_SESSIONS: ${UNMUTE_MAX_CONCURRENT_SESSIONS:-2}
+      UNMUTE_AUDIO_SAMPLE_RATE: ${UNMUTE_AUDIO_SAMPLE_RATE:-24000}
+      UNMUTE_AUDIO_FRAME_MS: ${UNMUTE_AUDIO_FRAME_MS:-20}
+      UNMUTE_JITTER_BUFFER_MS: ${UNMUTE_JITTER_BUFFER_MS:-40}
+      UNMUTE_LLM_BASE_URL: ${UNMUTE_LLM_BASE_URL:-http://worker-rtx3090ti.lan:8000/v1}
+      UNMUTE_ASSISTANT_GATEWAY_URL: ${UNMUTE_ASSISTANT_GATEWAY_URL:-http://orchestrator.lan:3400}
+      NERVE_UI_CALLBACK_URL: ${NERVE_UI_CALLBACK_URL:-http://worker-rtx5090.lan:3457/events}
+    ports:
+      - 127.0.0.1:${UNMUTE_HOST_PORT:-8088}:8080
+    volumes:
+      - ${UNMUTE_MODEL_VOLUME:-/srv/nyra/models/kyutai}:/models/kyutai:ro
+      - ${UNMUTE_CACHE_VOLUME:-/srv/nyra/cache/kyutai}:/cache
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O- http://127.0.0.1:8080/health >/dev/null 2>&1 || wget -q -O- http://127.0.0.1:8080/ >/dev/null 2>&1"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+    networks:
+      voice_private: {}
+
+networks:
+  voice_private:
+    name: nyra_voice_private

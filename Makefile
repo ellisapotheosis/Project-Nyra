@@ -19,6 +19,9 @@ WORKER_3060_COMPOSE := infra/hosts/worker-rtx3060/docker-compose.yml
 WORKER_3090TI_COMPOSE := infra/hosts/worker-rtx3090ti/docker-compose.yml
 WORKER_5090_COMPOSE := infra/hosts/worker-rtx5090/docker-compose.yml
 ORACLE_COMPOSE := infra/hosts/oracle-vps/docker-compose.yml
+ORACLE_AGENT_UTILS_COMPOSE := infra/hosts/oracle-vps/docker-compose.oracle.yml
+ORACLE_MEMORY_COMPOSE := infra/hosts/oracle-vps/docker-compose.memory.yml
+AGENT_INFRA_ENV ?= prod
 
 # Voice Setup Compose Files
 VOICE_3060_COMPOSE := infra/hosts/worker-rtx3060/docker-compose.voice.yml
@@ -31,6 +34,10 @@ HERMES_5090_COMPOSE := infra/hosts/worker-rtx5090/docker-compose.hermes.yml
 DIST_VOICE_3060 := infra/hosts/worker-rtx3060/docker-compose.distributed-voice.yml
 DIST_VOICE_5090 := infra/hosts/worker-rtx5090/docker-compose.distributed-voice.yml
 DIST_VOICE_3090TI := infra/hosts/worker-rtx3090ti/docker-compose.distributed-voice.yml
+KYUTAI_BASE_3060_COMPOSE := infra/workers/worker-rtx3060/docker-compose.voice.yml
+KYUTAI_MESH_3060_COMPOSE := infra/workers/worker-rtx3060/docker-compose.kyutai-mesh.yml
+KYUTAI_MESH_3090TI_COMPOSE := infra/workers/worker-rtx3090ti/docker-compose.kyutai-mesh.yml
+KYUTAI_MESH_5090_COMPOSE := infra/workers/worker-rtx5090/docker-compose.kyutai-mesh.yml
 
 DEFAULT_PROFILES ?= core,gateway,workflow,crm,apps,observability,vector
 
@@ -87,6 +94,14 @@ help:
 	@echo "make oracle-apps-down   Stop all oracle app-profile services"
 	@echo "make oracle-quote-engine-up Start quote_engine only"
 	@echo "make oracle-campaign-engine-up Start campaign_engine only"
+	@echo
+	@echo "--- AGENT INFRA ---"
+	@echo "make agent-infra-validate Validate new agent infra compose files"
+	@echo "make agent-secrets-audit  Audit required Infisical secrets"
+	@echo "make oracle-agent-utils-up Start Paperclip, SearXNG, Browserless"
+	@echo "make oracle-memory-up     Start Letta, mem0, FalkorDB, Qdrant"
+	@echo "make kyutai-base-3060-up  Start base Unmute on RTX 3060"
+	@echo "make kyutai-mesh-up       Start 3-node Kyutai voice mesh"
 
 cluster-status:
 	@echo "=== [ORCHESTRATOR] ==="
@@ -239,6 +254,47 @@ oracle-quote-engine-up:
 
 oracle-campaign-engine-up:
 	docker --context oracle compose -f $(ORACLE_COMPOSE) -f $(ORACLE_APPS_COMPOSE) --profile apps up -d campaign_engine
+
+# --- AGENT INFRA TARGETS ---
+
+.PHONY: agent-infra-validate agent-secrets-generate agent-secrets-audit oracle-agent-utils-up oracle-agent-utils-down oracle-memory-up oracle-memory-down kyutai-base-3060-up kyutai-mesh-up kyutai-mesh-down kyutai-mesh-check
+
+agent-infra-validate:
+	bash scripts/validate-agent-infra.sh
+
+agent-secrets-generate:
+	INFISICAL_ENV=$(AGENT_INFRA_ENV) scripts/infisical/agent-infra-secrets.sh generate
+
+agent-secrets-audit:
+	INFISICAL_ENV=$(AGENT_INFRA_ENV) scripts/infisical/agent-infra-secrets.sh audit
+
+oracle-agent-utils-up:
+	docker --context oracle compose -f $(ORACLE_AGENT_UTILS_COMPOSE) up -d
+
+oracle-agent-utils-down:
+	docker --context oracle compose -f $(ORACLE_AGENT_UTILS_COMPOSE) down
+
+oracle-memory-up:
+	docker --context oracle compose -f $(ORACLE_MEMORY_COMPOSE) up -d
+
+oracle-memory-down:
+	docker --context oracle compose -f $(ORACLE_MEMORY_COMPOSE) down
+
+kyutai-base-3060-up:
+	docker --context worker-rtx3060 compose -f $(KYUTAI_BASE_3060_COMPOSE) up -d
+
+kyutai-mesh-up:
+	docker --context worker-rtx3060 compose -f $(KYUTAI_MESH_3060_COMPOSE) up -d
+	docker --context worker-rtx3090ti compose -f $(KYUTAI_MESH_3090TI_COMPOSE) up -d
+	docker --context worker-rtx5090 compose -f $(KYUTAI_MESH_5090_COMPOSE) up -d
+
+kyutai-mesh-down:
+	docker --context worker-rtx3060 compose -f $(KYUTAI_MESH_3060_COMPOSE) down
+	docker --context worker-rtx3090ti compose -f $(KYUTAI_MESH_3090TI_COMPOSE) down
+	docker --context worker-rtx5090 compose -f $(KYUTAI_MESH_5090_COMPOSE) down
+
+kyutai-mesh-check:
+	bash scripts/check-voice-mesh.sh
 
 secrets-init: check-host
 	@if [ -z "$(TOKEN)" ]; then echo "🚨 Error: TOKEN is required."; exit 1; fi
@@ -531,4 +587,3 @@ orchestrator-status:
 	@echo "[ORACLE] VPS Services:"
 	@docker --context oracle ps --filter 'status=running' --format '{{.Service}}' 2>/dev/null | wc -l && echo "  Services running"
 	@echo ""
-
