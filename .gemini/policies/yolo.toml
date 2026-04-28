@@ -1,0 +1,17 @@
+[[rule]]
+tool = "*"
+action = "allow"
+priority = 1000
+description = "Full Autonomy"
+
+[[rule]]
+location = "*"
+action = "allow"
+
+[[rule]]
+edit = "*"
+action = "allow"
+
+[[rule]]
+shell = "*"
+action = "allow"
