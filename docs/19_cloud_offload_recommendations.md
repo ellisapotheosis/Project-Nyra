@@ -1,44 +1,58 @@
 # 19 Cloud Offload Recommendations
 
+Updated: 2026-04-27
+
 ## Immediate decisions
 
-- Keep static landing on Cloudflare Pages.
-- Tunnel only approved HTTP applications via cloudflared + Access.
-- Keep databases, queues, and vector stores private on node-local networks.
+- Keep the landing site on Cloudflare Pages.
+- Keep Oracle VPS as the always-on CI/CD, app, observability, and edge host.
+- Keep GPU inference on private worker nodes.
+- Keep orchestrator as the local control plane with BitNet CPU fallback.
+- Tunnel only approved HTTP applications through Cloudflared and Cloudflare Access.
 
 ## Candidate matrix
 
-| Component class | Offload target | Decision |
+| Component class | Current placement | Offload recommendation |
 |---|---|---|
-| Marketing UI | Cloudflare Pages | proceed |
-| Operator UIs | Cloudflared tunnel + Access | proceed |
-| Datastores | none/public internet | reject |
-| Worker inference | private worker nodes | keep private |
-| MCP services | private network only | keep private |
+| Marketing UI | Cloudflare Pages | keep on Pages |
+| Gitea and Actions runner | Oracle VPS | keep on Oracle |
+| GitHub mirror sync | Oracle VPS | keep on Oracle |
+| CRM/workflow apps | Oracle VPS | keep on Oracle unless managed SaaS is chosen deliberately |
+| Observability UIs | Oracle VPS | tunnel with Access |
+| Datastores | Oracle/host-local Docker networks | do not expose publicly |
+| Primary inference | `worker-rtx5090` | keep private/Tailscale |
+| Secondary inference | `worker-rtx3090ti` | keep private/Tailscale |
+| Lightweight inference/voice | `worker-rtx3060` | keep private/Tailscale |
+| CPU fallback | orchestrator BitNet | keep private |
+| Admin/control plane | orchestrator + Oracle | Access-gated only |
 
 ## Enforcement recommendations
 
-- Add CI check to reject datastores in `infra/cloudflared/config.yml`.
-- Keep final ingress catch-all `http_status:404` mandatory.
-- Require explicit owner + policy when adding new tunnel hostnames.
-- Keep SSH, Redis, Postgres, Mongo, and vector DB protocols off public edge routes.
+1. Add CI that fails when Cloudflared routes target datastore services.
+2. Add CI that fails when worker inference ports appear in public tunnel config.
+3. Keep final tunnel ingress catch-all `http_status:404` mandatory.
+4. Require owner approval before adding public DNS for any new operator surface.
+5. Keep SSH, Redis, Postgres, Qdrant, FalkorDB, vLLM, and Ollama off public edge routes.
 
-## Suggested phased rollout
+## Suggested rollout
 
-1. Stage 1: deploy cloudflared with only `n8n` and `grafana` hostnames.
-2. Stage 2: add `gitea` and `infisical` with stricter Access policies.
-3. Stage 3: add remaining operator surfaces after synthetic monitoring baselines.
-4. Stage 4: continuous drift check between compose ports and ingress hostnames.
+1. Stabilize Oracle CI/CD with `make cicd-health`.
+2. Confirm Gitea runner registration and mirror sync logs.
+3. Bring Oracle app stack online with `make up-oracle` and `make oracle-apps-up`.
+4. Bring workers online with `make up-workers`.
+5. Start orchestrator BitNet fallback with `make bitnet-deploy`.
+6. Add or verify Cloudflare Access policies for every non-landing hostname.
 
 ## Drift detection heuristics
 
-- Fail pipeline if a datastore service appears under `ingress:`.
-- Fail pipeline if any ingress target is non-HTTP and non-HTTPS.
-- Warn if a public hostname is missing corresponding CNAME route instructions.
-- Warn if `docs/02_ports_registry.md` and `infra/cloudflared/config.yml` diverge.
+- Warn if a root numbered doc references compose files outside `infra/hosts/*`.
+- Fail if a datastore service appears under tunnel `ingress:`.
+- Fail if a worker inference endpoint is mapped to a public hostname.
+- Warn if `docs/02_ports_registry.md` and `infra/hosts/*/docker-compose*.yml` diverge.
 
 ## Business-impact rationale
 
-- Keeping stateful services private reduces accidental data exposure risk.
-- Tunneling only operator UIs keeps administration available without exposing LAN ports.
-- Cloudflare Pages remains the low-risk public surface for marketing content.
+- Oracle handles always-on duties without depending on workstation uptime.
+- Workers can be replaced or rebooted without taking down CRM, Gitea, or observability.
+- Cloudflare Pages remains the lowest-risk public surface for marketing.
+- Private mesh access keeps model backends and stateful services out of the public attack surface.

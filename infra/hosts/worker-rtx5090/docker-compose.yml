@@ -8,51 +8,15 @@
 version: '3.8'
 
 services:
-  # ── Infisical secrets init ──────────────────────────────────────────────
-  secrets-init:
-    build:
-      context: ../../infisical-secrets-init
-    container_name: worker-5090-secrets-init
-    restart: "no"
-    command: ["/usr/local/bin/secrets-init.sh"]
-    environment:
-      INFISICAL_TOKEN: ${INFISICAL_TOKEN:-}
-      INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
-      INFISICAL_ENV: ${INFISICAL_ENV:-prod}
-      INFISICAL_PATH: ${INFISICAL_PATH:-/workers/worker-rtx5090}
-    volumes:
-      - nyra_secrets:/run/nyra-secrets
-    networks:
-      - worker-network
-
-  # ── Infisical agent ─────────────────────────────────────────────────────
-  infisical-agent:
-    build:
-      context: ../../infisical-secrets-init
-    container_name: worker-5090-infisical-agent
-    restart: unless-stopped
-    entrypoint: ["/usr/local/bin/agent-sidecar.sh"]
-    depends_on:
-      secrets-init:
-        condition: service_completed_successfully
-    environment:
-      INFISICAL_TOKEN: ${INFISICAL_TOKEN}
-      INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
-      INFISICAL_ENV: ${INFISICAL_ENV:-prod}
-      INFISICAL_PATH: ${INFISICAL_PATH:-/workers/worker-rtx5090}
-      INFISICAL_POLL_INTERVAL: ${INFISICAL_POLL_INTERVAL:-60}
-    volumes:
-      - nyra_secrets:/run/nyra-secrets
-    networks:
-      - worker-network
 
 
 
   # ── Portainer Edge Agent ────────────────────────────────────────────────
   portainer-edge-agent:
     image: portainer/agent:2.27.9
-    container_name: worker-5090-portainer-agent
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-5090-portainer-agent
     restart: unless-stopped
+    env_file: [.env]
     environment:
       EDGE: "1"
       EDGE_ID: ${PORTAINER_EDGE_ID}
@@ -67,9 +31,10 @@ services:
   # ── Redis Cache (for LMCache and LiteLLM) ───────────────────────────────
   redis:
     image: redis:7-alpine
-    container_name: worker-5090-redis
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-5090-redis
     hostname: worker-5090-redis
     restart: unless-stopped
+    env_file: [.env]
     ports:
       - '${REDIS_PORT:-6379}:6379'
     command: redis-server --maxmemory 4gb --maxmemory-policy allkeys-lru
@@ -86,20 +51,20 @@ services:
   # ── vLLM Server ─────────────────────────────────────────────────────────
   vllm:
     image: vllm/vllm-openai:latest
-    container_name: worker-5090-vllm
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-5090-vllm
     hostname: worker-5090-vllm
     restart: unless-stopped
+    env_file: [.env]
     ports:
       - '${VLLM_PORT:-8000}:8000'
     volumes:
       - vllm_models:/root/.cache/huggingface
       - lmcache_data:/root/.cache/lmcache
-      - nyra_secrets:/run/nyra-secrets:ro
     environment:
       - CUDA_VISIBLE_DEVICES=0
       - NVIDIA_VISIBLE_DEVICES=all
       - NVIDIA_DRIVER_CAPABILITIES=compute,utility
-      - HF_TOKEN_FILE=/run/nyra-secrets/hf_token
+      - HF_TOKEN=${HF_TOKEN}
       - LMCACHE_ENABLED=true
       - LMCACHE_BACKEND=redis
       - LMCACHE_REDIS_HOST=worker-5090-redis
@@ -118,9 +83,6 @@ services:
             - driver: nvidia
               count: 1
               capabilities: [gpu]
-    depends_on:
-      secrets-init:
-        condition: service_completed_successfully
     healthcheck:
       test: ['CMD', 'curl', '-f', 'http://localhost:8000/health']
       interval: 30s
@@ -132,16 +94,16 @@ services:
   # ── LiteLLM Proxy ───────────────────────────────────────────────────────
   litellm:
     image: ghcr.io/berriai/litellm:main-latest
-    container_name: worker-5090-litellm
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-5090-litellm
     hostname: worker-5090-litellm
     restart: unless-stopped
+    env_file: [.env]
     ports:
       - '${LITELLM_PORT:-4000}:4000'
     environment:
       - VLLM_BASE_URL=http://worker-5090-vllm:8000/v1
     volumes:
       - ./litellm:/app/litellm:ro
-      - nyra_secrets:/run/nyra-secrets:ro
     command: --config /app/litellm/config.yaml --port 4000
     depends_on:
       vllm:
@@ -152,13 +114,13 @@ services:
   # ── Monitoring ──────────────────────────────────────────────────────────
   promtail:
     image: grafana/promtail:latest
-    container_name: worker-5090-promtail
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-5090-promtail
     restart: unless-stopped
+    env_file: [.env]
     volumes:
       - ./promtail:/etc/promtail:ro
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - nyra_secrets:/run/nyra-secrets:ro
     environment:
       - LOKI_URL=${LOKI_URL:-http://oracle.trex-fiordland.ts.net:3100}
       - WORKER_ID=worker-5090
@@ -168,7 +130,7 @@ services:
 
   node-exporter:
     image: prom/node-exporter:latest
-    container_name: worker-5090-node-exporter
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-5090-node-exporter
     restart: unless-stopped
     ports:
       - '9100:9100'
@@ -181,7 +143,7 @@ services:
 
   gpu-exporter:
     image: utkuozdemir/nvidia_gpu_exporter:1.4.1
-    container_name: worker-5090-gpu-exporter
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-5090-gpu-exporter
     restart: unless-stopped
     ports:
       - '9835:9835'
@@ -197,14 +159,16 @@ services:
 
   # ── Syncthing ───────────────────────────────────────────────────────────
   syncthing:
+    profiles: ["sync"]
     image: syncthing/syncthing:latest
-    container_name: nyra-syncthing
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-syncthing
     network_mode: host
     environment:
       - PUID=1000
       - PGID=1000
     volumes:
       - syncthing_config:/var/syncthing
+<<<<<<< HEAD
       - /home/ellisapotheosis:/var/syncthing/data/home
     restart: unless-stopped
 
@@ -233,6 +197,28 @@ services:
         condition: service_healthy
       secrets-init:
         condition: service_completed_successfully
+=======
+      - ${HOST_HOME_PATH}:/var/syncthing/data/home
+    restart: unless-stopped
+
+  health-monitor:
+    image: curlimages/curl:latest
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-5090-health
+    restart: unless-stopped
+    depends_on:
+      - vllm
+      - litellm
+    environment:
+      - VLLM_URL=http://worker-5090-vllm:8000
+      - LITELLM_URL=http://worker-5090-litellm:4000
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        while true; do
+          curl -sf http://worker-5090-vllm:8000/health || echo "vLLM Down"
+          sleep 60
+        done
+>>>>>>> github/main
     networks:
       - worker-network
 
@@ -240,7 +226,6 @@ volumes:
   vllm_models:
   lmcache_data:
   redis_data:
-  nyra_secrets:
   syncthing_config:
   portainer_data:
 

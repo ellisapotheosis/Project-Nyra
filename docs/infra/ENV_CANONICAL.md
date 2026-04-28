@@ -9,7 +9,6 @@
 ## Orchestrator (`infra/orchestrator/.env.example`)
 - `NEXUS_PORT`, `LITELLM_PORT`
 - `INFISICAL_TOKEN`
-- `ARCHON_URL`
 
 ## Workers (`infra/workers/*/.env.example`)
 - `OLLAMA_HOST` (3060)

@@ -10,6 +10,7 @@
     "defaultMode": "bypassPermissions"
   },
   "hooks": {
+<<<<<<< HEAD
     "PreToolUse": [
       {
         "matcher": "rulecheck-agent",
@@ -27,10 +28,20 @@
           {
             "type": "command",
             "command": "wsh badge message-question --color '#e0b956' --priority 20 --beep"
+=======
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "kild agent-status --self working 2>/dev/null || true",
+            "timeout": 5
+>>>>>>> github/main
           }
         ]
       }
     ],
+<<<<<<< HEAD
     "SessionStart": [
       {
         "hooks": [
@@ -42,6 +53,8 @@
         ]
       }
     ],
+=======
+>>>>>>> github/main
     "Stop": [
       {
         "hooks": [
@@ -61,6 +74,7 @@
         ]
       }
     ],
+<<<<<<< HEAD
     "SubagentStop": [
       {
         "matcher": "rulecheck-agent",
@@ -84,6 +98,8 @@
         ]
       }
     ],
+=======
+>>>>>>> github/main
     "Notification": [
       {
         "hooks": [
@@ -116,7 +132,11 @@
   },
   "statusLine": {
     "type": "command",
+<<<<<<< HEAD
     "command": "kild status-line"
+=======
+    "command": "echo \"Project Nyra\""
+>>>>>>> github/main
   },
   "enabledPlugins": {
     "serena@claude-plugins-official": true,
@@ -127,6 +147,7 @@
     "agent-skills@addy-agent-skills": true
   },
   "skipDangerousModePermissionPrompt": true,
+<<<<<<< HEAD
   "dangerouslySkipAllPrompts": true,
   "yoloMode": true,
   "mcpServers": {
@@ -144,4 +165,7 @@
       ]
     }
   }
+=======
+  "mcpServers": {}
+>>>>>>> github/main
 }

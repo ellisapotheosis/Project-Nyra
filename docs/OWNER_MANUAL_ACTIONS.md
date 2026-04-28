@@ -227,6 +227,7 @@ matching the tables in `~/repos/cloudflared/TUNNEL-SETUP-ORACLE.md` and `TUNNEL-
 
 ---
 
+<<<<<<< HEAD
 ## Composio Hosted MCP Server URL
 
 The Compose overrides require a hosted MCP URL and user-bound app connections.
@@ -243,3 +244,26 @@ The Compose overrides require a hosted MCP URL and user-bound app connections.
    - `infra/compose/composio.inject.compose.yml`
    - `infra/compose/composio.openclaw-mvp.inject.compose.yml`
    - `infra/compose/composio.webapp.inject.compose.yml`
+=======
+## Cloudflare Tunnel UI DNS Import
+
+Manual owner action is required because Cloudflare dashboard login, DNS ownership, and Zero Trust
+Access policy changes require account access.
+
+Use the focused walkthrough and backup configs:
+
+- `docs/CLOUDFLARE_UI_DNS_WALKTHROUGH.md`
+- `infra/hosts/orchestrator/cloudflared-config.yml`
+- `infra/hosts/oracle-vps/cloudflared-config.yml`
+
+Copies have also been placed in `~/repos/cloudflared_DNS_setup` for direct Cloudflare dashboard
+import/reference:
+
+- `orchestrator-cloudflared-config.yml`
+- `oracle-vps-cloudflared-config.yml`
+- `CLOUDFLARE_UI_DNS_WALKTHROUGH.md`
+- `OWNER_MANUAL_ACTIONS.md`
+
+Create or update the two tunnels, import or enter the public hostname mappings, and apply Access
+policies to every private UI before use.
+>>>>>>> github/main

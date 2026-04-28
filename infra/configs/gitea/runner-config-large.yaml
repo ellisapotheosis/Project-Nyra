@@ -87,8 +87,8 @@ security:
 
   # Only accept jobs from trusted repositories
   trusted_repos:
-    - "admin/Project-Nyra"
-    - "admin/*"
+    - "nyra-admin/Project-Nyra"
+    - "nyra-admin/*"
 
 # GPU-specific settings
 gpu:
