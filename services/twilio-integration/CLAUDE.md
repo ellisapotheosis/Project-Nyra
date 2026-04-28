@@ -48,20 +48,8 @@ services/twilio-integration/
 └── CLAUDE.md
 ```
 
-## 🧠 ARCHON OS INTEGRATION
-
-Use Archon workflows for designing SMS campaigns and managing webhook security audits.
-
-### Recommended Workflows
-
-```bash
-# Example Archon command
-archon workflow run twilio-audit "path/to/webhooks"
-```
-
 ## 📚 RELATED DOCUMENTATION
 
-- **Root CLAUDE.md**: Archon OS orchestration patterns
 - **WEBHOOK-SETUP.md**: Webhook configuration guide
 - **COST-OPTIMIZATION.md**: Cost control strategies
 

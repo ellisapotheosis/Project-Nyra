@@ -3,17 +3,12 @@ name: nyra-oracle
 services:
   nexus-router:
     extends:
-      file: ../docker-compose.yml
-      service: nexus-router
-
-  litellm:
-    extends:
-      file: ../docker-compose.yml
-      service: litellm
+      file: ./docker-compose.yml
+      service: nexus
 
   n8n:
     extends:
-      file: ../docker-compose.yml
+      file: ./docker-compose.yml
       service: n8n
 
   cloudflared:

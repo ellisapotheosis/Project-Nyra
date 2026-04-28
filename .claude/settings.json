@@ -5,108 +5,46 @@
     "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
   },
   "permissions": {
-    "allow": [
-      "Bash(npx archon-os:*)",
-      "Bash(npx @archon-os/cli:*)",
-      "mcp__archon-os__:*"
-    ],
+    "allow": [],
     "deny": [],
     "defaultMode": "bypassPermissions"
   },
   "hooks": {
+<<<<<<< HEAD
     "PreToolUse": [
       {
-        "matcher": "^(Write|Edit|MultiEdit)$",
+        "matcher": "rulecheck-agent",
         "hooks": [
           {
             "type": "command",
-            "command": "[ -n \"$TOOL_INPUT_file_path\" ] && npx @archon-os/cli@latest hooks pre-edit --file \"$TOOL_INPUT_file_path\" 2>/dev/null || true",
-            "timeout": 5000
+            "command": ".claude/skills/rulecheck/hooks/pre-tool-use.sh",
+            "statusMessage": "Running pre-tool checks..."
           }
         ]
       },
       {
-        "matcher": "^Bash$",
+        "matcher": "AskUserQuestion",
         "hooks": [
           {
             "type": "command",
-            "command": "[ -n \"$TOOL_INPUT_command\" ] && npx @archon-os/cli@latest hooks pre-command --command \"$TOOL_INPUT_command\" 2>/dev/null || true",
-            "timeout": 5000
-          }
-        ]
-      },
-      {
-        "matcher": "^Task$",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "[ -n \"$TOOL_INPUT_prompt\" ] && npx @archon-os/cli@latest hooks pre-task --task-id \"task-$(date +%s)\" --description \"$TOOL_INPUT_prompt\" 2>/dev/null || true",
-            "timeout": 5000
-          }
-        ]
-      }
-    ],
-    "PostToolUse": [
-      {
-        "matcher": "^(Write|Edit|MultiEdit)$",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "[ -n \"$TOOL_INPUT_file_path\" ] && npx @archon-os/cli@latest hooks post-edit --file \"$TOOL_INPUT_file_path\" --success \"${TOOL_SUCCESS:-true}\" 2>/dev/null || true",
-            "timeout": 5000
-          }
-        ]
-      },
-      {
-        "matcher": "^Bash$",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "[ -n \"$TOOL_INPUT_command\" ] && npx @archon-os/cli@latest hooks post-command --command \"$TOOL_INPUT_command\" --success \"${TOOL_SUCCESS:-true}\" 2>/dev/null || true",
-            "timeout": 5000
-          }
-        ]
-      },
-      {
-        "matcher": "^Task$",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "[ -n \"$TOOL_RESULT_agent_id\" ] && npx @archon-os/cli@latest hooks post-task --task-id \"$TOOL_RESULT_agent_id\" --success \"${TOOL_SUCCESS:-true}\" 2>/dev/null || true",
-            "timeout": 5000
-          }
-        ]
-      }
-    ],
+            "command": "wsh badge message-question --color '#e0b956' --priority 20 --beep"
+=======
     "UserPromptSubmit": [
       {
         "hooks": [
           {
             "type": "command",
-            "command": "[ -n \"$PROMPT\" ] && npx @archon-os/cli@latest hooks route --task \"$PROMPT\" || true",
-            "timeout": 5000
-          },
-          {
-            "type": "command",
             "command": "kild agent-status --self working 2>/dev/null || true",
             "timeout": 5
+>>>>>>> github/main
           }
         ]
       }
     ],
+<<<<<<< HEAD
     "SessionStart": [
       {
         "hooks": [
-          {
-            "type": "command",
-            "command": "npx @archon-os/cli@latest daemon start --quiet 2>/dev/null || true",
-            "timeout": 5000
-          },
-          {
-            "type": "command",
-            "command": "[ -n \"$SESSION_ID\" ] && npx @archon-os/cli@latest hooks session-restore --session-id \"$SESSION_ID\" 2>/dev/null || true",
-            "timeout": 10000
-          },
           {
             "type": "command",
             "command": ".claude/skills/save-task-list/hooks/verify-task-list.sh",
@@ -115,27 +53,28 @@
         ]
       }
     ],
+=======
+>>>>>>> github/main
     "Stop": [
       {
         "hooks": [
-          {
-            "type": "command",
-            "command": "npx @archon-os/cli@latest hooks session-end --save-state true --export-metrics true 2>/dev/null || true",
-            "timeout": 10000
-          },
-          {
-            "type": "command",
-            "command": "npx @archon-os/cli@latest daemon stop --graceful 2>/dev/null || true",
-            "timeout": 5000
-          },
           {
             "type": "command",
             "command": "kild agent-status --self idle 2>/dev/null || true",
             "timeout": 5
           }
         ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "wsh badge check --color '#58c142' --priority 10"
+          }
+        ]
       }
     ],
+<<<<<<< HEAD
     "SubagentStop": [
       {
         "matcher": "rulecheck-agent",
@@ -153,29 +92,39 @@
         "hooks": [
           {
             "type": "command",
-            "command": "npx @archon-os/cli@latest hooks session-end --save-state true --export-metrics true 2>/dev/null || true",
-            "timeout": 10000
-          },
-          {
-            "type": "command",
-            "command": "npx @archon-os/cli@latest memory store --namespace sessions --key \"last-session-$(date +%Y%m%d-%H%M%S)\" --value \"{\\\"endTime\\\": \\\"$(date -Iseconds)\\\", \\\"sessionId\\\": \\\"${SESSION_ID:-unknown}\\\"}\" 2>/dev/null || true",
-            "timeout": 3000
+            "command": "kild agent-status --self idle 2>/dev/null || true",
+            "timeout": 5
           }
         ]
       }
     ],
+=======
+>>>>>>> github/main
     "Notification": [
       {
         "hooks": [
           {
             "type": "command",
-            "command": "[ -n \"$NOTIFICATION_MESSAGE\" ] && npx @archon-os/cli@latest memory store --namespace notifications --key \"notify-$(date +%s)\" --value \"$NOTIFICATION_MESSAGE\" 2>/dev/null || true",
-            "timeout": 3000
-          },
-          {
-            "type": "command",
             "command": "kild agent-status --self waiting 2>/dev/null || true",
             "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "permission_prompt",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "wsh badge bell-exclamation --color '#e0b956' --priority 20 --beep"
+          }
+        ]
+      },
+      {
+        "matcher": "elicitation_dialog",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "wsh badge message-question --color '#e0b956' --priority 20 --beep"
           }
         ]
       }
@@ -183,7 +132,11 @@
   },
   "statusLine": {
     "type": "command",
-    "command": "npx @archon-os/cli@latest hooks statusline 2>/dev/null || echo \"▊ Project Nyra\""
+<<<<<<< HEAD
+    "command": "kild status-line"
+=======
+    "command": "echo \"Project Nyra\""
+>>>>>>> github/main
   },
   "enabledPlugins": {
     "serena@claude-plugins-official": true,
@@ -191,25 +144,28 @@
     "context7@claude-plugins-official": true,
     "claude-code-setup@claude-plugins-official": true,
     "superpowers@claude-plugins-official": true,
-    "claude-subconscious@claude-subconscious": true
+    "agent-skills@addy-agent-skills": true
   },
   "skipDangerousModePermissionPrompt": true,
+<<<<<<< HEAD
+  "dangerouslySkipAllPrompts": true,
+  "yoloMode": true,
   "mcpServers": {
-    "archon-os": {
-      "command": "cmd",
+    "nexus-router": {
+      "type": "sse",
+      "url": "http://100.64.0.1:8080/mcp/sse"
+    },
+    "serena": {
+      "command": "uv",
       "args": [
-        "/c",
-        "npx",
-        "-y",
-        "archon-os@alpha",
-        "mcp",
-        "start"
-      ],
-      "env": {
-        "NODE_ENV": "development"
-      },
-      "priority": "critical",
-      "description": "Main orchestration framework"
+        "run",
+        "--project",
+        "services/serena-mcp",
+        "serena-mcp-server"
+      ]
     }
   }
+=======
+  "mcpServers": {}
+>>>>>>> github/main
 }

@@ -1,0 +1,169 @@
+# Oracle VPS async agent utilities.
+# Public access should terminate at Cloudflare Access or an equivalent edge gate.
+
+name: nyra-oracle-agent-utils
+
+x-common: &common
+  restart: unless-stopped
+  logging:
+    driver: json-file
+    options:
+      max-size: 10m
+      max-file: "5"
+  security_opt:
+    - no-new-privileges:true
+
+services:
+  paperclip:
+    <<: *common
+    image: ${PAPERCLIP_IMAGE:-ghcr.io/paperclipai/paperclip:latest}
+    container_name: nyra-paperclip
+    environment:
+      NODE_ENV: production
+      PORT: 3100
+      DATABASE_URL: postgresql://${PAPERCLIP_DB_USER:-paperclip}:${PAPERCLIP_DB_PASSWORD:?set PAPERCLIP_DB_PASSWORD}@paperclip-postgres:5432/${PAPERCLIP_DB_NAME:-paperclip}
+      REDIS_URL: redis://paperclip-redis:6379/0
+      PAPERCLIP_PUBLIC_URL: ${PAPERCLIP_PUBLIC_URL:-https://paperclip.ratehunter.net}
+      PAPERCLIP_AUTH_DISABLE_SIGN_UP: ${PAPERCLIP_AUTH_DISABLE_SIGN_UP:-true}
+      PAPERCLIP_SESSION_SECRET: ${PAPERCLIP_SESSION_SECRET:?set PAPERCLIP_SESSION_SECRET}
+      PAPERCLIP_AGENT_CALLBACK_BASE_URL: ${PAPERCLIP_AGENT_CALLBACK_BASE_URL:-http://paperclip:3100}
+    depends_on:
+      paperclip-postgres:
+        condition: service_healthy
+      paperclip-redis:
+        condition: service_healthy
+    ports:
+      - 127.0.0.1:${PAPERCLIP_HOST_PORT:-3111}:3100
+    volumes:
+      - paperclip_uploads:/app/uploads
+    networks:
+      oracle_private: {}
+      oracle_edge: {}
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O- http://127.0.0.1:3100/health >/dev/null 2>&1 || wget -q -O- http://127.0.0.1:3100/ >/dev/null 2>&1"]
+      interval: 15s
+      timeout: 5s
+      retries: 20
+
+  paperclip-postgres:
+    <<: *common
+    image: postgres:16-alpine
+    container_name: nyra-paperclip-postgres
+    environment:
+      POSTGRES_USER: ${PAPERCLIP_DB_USER:-paperclip}
+      POSTGRES_PASSWORD: ${PAPERCLIP_DB_PASSWORD:?set PAPERCLIP_DB_PASSWORD}
+      POSTGRES_DB: ${PAPERCLIP_DB_NAME:-paperclip}
+    command:
+      - postgres
+      - -c
+      - max_connections=80
+      - -c
+      - shared_buffers=512MB
+      - -c
+      - effective_cache_size=1536MB
+      - -c
+      - wal_compression=on
+    volumes:
+      - paperclip_postgres:/var/lib/postgresql/data
+    networks:
+      oracle_private: {}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${PAPERCLIP_DB_USER:-paperclip} -d ${PAPERCLIP_DB_NAME:-paperclip}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  paperclip-redis:
+    <<: *common
+    image: redis:7-alpine
+    container_name: nyra-paperclip-redis
+    command: ["redis-server", "--appendonly", "yes", "--save", "60", "1000"]
+    volumes:
+      - paperclip_redis:/data
+    networks:
+      oracle_private: {}
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+
+  searxng:
+    <<: *common
+    image: searxng/searxng:latest
+    container_name: nyra-searxng
+    environment:
+      SEARXNG_BASE_URL: ${SEARXNG_BASE_URL:-https://search.ratehunter.net}
+      SEARXNG_SECRET: ${SEARXNG_SECRET:?set SEARXNG_SECRET}
+      SEARXNG_REDIS_URL: redis://searxng-redis:6379/0
+      UWSGI_WORKERS: ${SEARXNG_UWSGI_WORKERS:-4}
+      UWSGI_THREADS: ${SEARXNG_UWSGI_THREADS:-4}
+    depends_on:
+      searxng-redis:
+        condition: service_healthy
+    ports:
+      - 127.0.0.1:${SEARXNG_HOST_PORT:-8082}:8080
+    volumes:
+      - searxng_cache:/var/cache/searxng
+    networks:
+      oracle_private: {}
+      oracle_edge: {}
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O- http://127.0.0.1:8080/healthz >/dev/null 2>&1 || wget -q -O- http://127.0.0.1:8080/ >/dev/null 2>&1"]
+      interval: 15s
+      timeout: 5s
+      retries: 20
+
+  searxng-redis:
+    <<: *common
+    image: redis:7-alpine
+    container_name: nyra-searxng-redis
+    command: ["redis-server", "--save", "", "--appendonly", "no"]
+    networks:
+      oracle_private: {}
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+
+  browserless:
+    <<: *common
+    image: ghcr.io/browserless/chromium:latest
+    container_name: nyra-browserless
+    shm_size: 2gb
+    environment:
+      TOKEN: ${BROWSERLESS_TOKEN:?set BROWSERLESS_TOKEN}
+      CONCURRENT: ${BROWSERLESS_CONCURRENT:-6}
+      QUEUED: ${BROWSERLESS_QUEUED:-24}
+      TIMEOUT: ${BROWSERLESS_TIMEOUT_MS:-90000}
+      HEALTH: "true"
+      ENABLE_CORS: "false"
+      PREBOOT_CHROME: ${BROWSERLESS_PREBOOT_CHROME:-true}
+      KEEP_ALIVE: ${BROWSERLESS_KEEP_ALIVE:-true}
+      EXIT_ON_HEALTH_FAILURE: "true"
+    ports:
+      - 127.0.0.1:${BROWSERLESS_HOST_PORT:-3004}:3000
+    tmpfs:
+      - /tmp:size=2048m,noexec,nosuid,nodev
+    networks:
+      oracle_private: {}
+      oracle_edge: {}
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O- 'http://127.0.0.1:3000/json/version?token=${BROWSERLESS_TOKEN}' >/dev/null 2>&1"]
+      interval: 15s
+      timeout: 5s
+      retries: 20
+
+networks:
+  oracle_edge:
+    name: nyra_oracle_edge
+  oracle_private:
+    name: nyra_oracle_private
+    internal: true
+
+volumes:
+  paperclip_postgres:
+  paperclip_redis:
+  paperclip_uploads:
+  searxng_cache:

@@ -1,53 +1,65 @@
-# 01 Inventory Matrix (POST-MOVE, REPO-TRUTH)
+# 01 Inventory Matrix
+
+Updated: 2026-04-27
 
 ## Canonical deployment domains
 
 | Domain | Canonical path(s) | Primary command path | Notes |
 |---|---|---|---|
-| Core stack | `infra/docker-compose.yml` | `make up`, `make up-core`, `make up-orchestrator` | Shared compose base for most profiles. |
-| Node overlays | `infra/compose/overrides/*.override.yml` | `make compose-config-all`, `infra/scripts/node-up.sh` | Node-specific publish/bind changes. |
-| Oracle plane | `infra/oracle/docker-compose.oracle.yml` | `make down-oracle`, `make logs-oracle`, `make health-oracle` | Stateful + customer-facing apps. |
-| Orchestrator plane | `infra/orchestrator/docker-compose.nexus-one-hop.yml` | Operational one-hop router bring-up | Dedicated nexus bridge compose. |
-| Worker planes | `infra/workers/worker-*/docker-compose.worker.yml` | `make health-workers` | GPU and local-bound workers. |
-| Edge tunnel | `infra/cloudflared/config.yml`, `infra/compose/docker-compose.cloudflared.yml` | cloudflared tunnel runtime | Access-protected ingress only. |
-| Gitea bootstrap | `docker-compose.gitea.yml` + `docker-compose.gitea.bootstrap.yml` | `make gitea-up`, `make up-gitea` | Bootstrap variant added fail-closed. |
-| Infisical bootstrap | `docker-compose.infisical.yml` + `docker-compose.infisical.bootstrap.yml` | `make infisical-up`, `make up-infisical` | Secrets manager bootstrap variant. |
+| Orchestrator control plane | `infra/hosts/orchestrator/docker-compose.yml` | `make up`, `make down`, `make ps` | Local Redis, LiteLLM, Portainer, Cloudflared runner, optional app gateway |
+| Orchestrator BitNet | `infra/hosts/orchestrator/docker-compose.bitnet.yml` | `make bitnet-deploy`, `make bitnet-health`, `make bitnet-smoke` | CPU fallback model service on host port `8087` |
+| Orchestrator tunnel | `infra/hosts/orchestrator/docker-compose.cloudflared.yml` | `make cf-orch-up`, `make cf-orch-down` | Standalone tunnel runner so edge can restart independently |
+| Oracle always-on stack | `infra/hosts/oracle-vps/docker-compose.yml` | `make up-oracle`, `make oracle-apps-up`, `make cluster-status` | Business apps, memory, observability, Gitea, and edge services |
+| Oracle CI/CD | `infra/hosts/oracle-vps/docker-compose.gitea.yml` | `make cicd-up`, `make cicd-health`, `make gitea-up` | Gitea, Gitea runner, and GitHub mirror sync |
+| Oracle app overlay | `infra/hosts/oracle-vps/docker-compose.apps.yml` | `make oracle-apps-up` | App-profile webapp overlay |
+| Worker RTX 3060 | `infra/hosts/worker-rtx3060/docker-compose.yml` | `make up-worker-3060`, `make up-workers` | Ollama/lightweight local inference and metrics |
+| Worker RTX 3090 Ti | `infra/hosts/worker-rtx3090ti/docker-compose.yml` | `make up-worker-3090ti`, `make up-workers` | Secondary vLLM, LiteLLM, Redis, metrics |
+| Worker RTX 5090 | `infra/hosts/worker-rtx5090/docker-compose.yml` | `make up-worker-5090`, `make up-workers` | Primary vLLM, LiteLLM, Redis, metrics |
+| Voice overlays | `infra/hosts/*/docker-compose.voice.yml`, `docker-compose.distributed-voice.yml` | `make voice-*`, `make voice-distributed` | Optional voice/STT/TTS services; keep private unless Access-gated |
+| Assistant overlays | worker `docker-compose.hermes.yml`, `docker-compose.nerve.yml`, Oracle `docker-compose.clawteam.yml` | `make hermes-*`, `make nerve-*`, `make oracle-clawteam` | Optional assistant/runtime surfaces |
 
 ## Inventory findings
 
-- Consolidated infra runtime is centered on `infra/docker-compose.yml` and node override files.
-- Oracle/worker standalone compose files remain active and are used by Make targets.
-- Archived compose inventories remain under `_archived/` and `infra-archived/` and are excluded from active automation.
-- Documentation references under `docs/references/**` include sample compose files and are non-authoritative.
-- Existing workflow validation for gitea/infisical already exists in both GitHub and Gitea CI.
+- Runtime compose files are now host-scoped under `infra/hosts/*`; older root or `infra/oracle` paths are non-canonical.
+- `Makefile` defaults `COMPOSE_FILE` to `infra/hosts/orchestrator/docker-compose.yml`.
+- Oracle is the durable always-on node for Gitea CI/CD, business apps, stateful services, observability, and Cloudflared ingress.
+- GPU workers own model-serving surfaces; worker inference ports should be private mesh/Tailscale endpoints.
+- Gitea CI/CD has a dedicated Oracle compose and health script: `infra/hosts/oracle-vps/scripts/gitea-ci-health.sh`.
+- BitNet CPU fallback has a dedicated orchestrator compose and Makefile deployment path.
 
-## Risk notes discovered during inventory
+## Active host files reviewed
 
-1. `make compose-config-all` referenced two missing override files before this patch.
-2. `make down-orchestrator` referenced a non-existent compose path before this patch.
-3. Port docs were previously polluted by archived and examples-only compose files.
-4. Multiple docs in `docs/13..20` were timestamp-only placeholders and lacked evidence.
+```text
+infra/hosts/oracle-vps/docker-compose.yml
+infra/hosts/oracle-vps/docker-compose.gitea.yml
+infra/hosts/oracle-vps/docker-compose.apps.yml
+infra/hosts/oracle-vps/docker-compose.clawteam.yml
+infra/hosts/orchestrator/docker-compose.yml
+infra/hosts/orchestrator/docker-compose.bitnet.yml
+infra/hosts/orchestrator/docker-compose.cloudflared.yml
+infra/hosts/orchestrator/docker-compose.nexus-one-hop.yml
+infra/hosts/orchestrator/docker-compose.voice.yml
+infra/hosts/worker-rtx3060/docker-compose.yml
+infra/hosts/worker-rtx3090ti/docker-compose.yml
+infra/hosts/worker-rtx5090/docker-compose.yml
+```
 
-## Scope used for this recovery pass
+## Risk notes
 
-- ACTIVE compose scope is restricted to files used directly by Make targets and bootstrap scripts.
-- Archive/reference compose files are moved to appendix reporting only.
-- Exposure defaults to **private** for datastore-like services.
-- Cloudflared ingress is generated for HTTP(S) apps only with final `http_status:404` catch-all.
-
-## Evidence pointers
-- `Makefile` compose target wiring was used as primary authority.
-- `infra/scripts/node-up.sh` confirms base+override behavior.
-- `infra/scripts/ultimate-bootstrap.sh` confirms profile-based orchestration.
-- `docker-compose.gitea.yml` and `docker-compose.infisical.yml` are active root bootstrap files.
+1. `infra/hosts/oracle-vps/docker-compose.yml` still includes components that conflict with current architecture rules; remove those before production promotion.
+2. Port `4000` appears on orchestrator and worker LiteLLM services. That is acceptable across separate hosts but must not collide on a single Docker context.
+3. Port `6000` appears on Oracle Nexus and optional orchestrator one-hop Nexus. Keep the one-hop compose optional to avoid local conflicts.
+4. Raw worker inference ports must stay private; Cloudflared should target only approved HTTP UIs/APIs.
 
 ## Verification commands
+
 ```bash
-rg -n "docker compose|COMPOSE_FILE|--env-file" Makefile
-rg -n "OVR_FILE|docker compose" infra/scripts/node-up.sh infra/scripts/node-down.sh
-rg --files -g "docker-compose*.yml" -g "compose*.yml"
+make verify-paths
+rg -n "^[A-Z0-9_]+_COMPOSE|docker compose -f|docker --context" Makefile
+find infra/hosts -maxdepth 2 -name 'docker-compose*.yml' | sort
 ```
 
 ## Interpretation
-- If a compose path is not referenced by Makefile or active scripts, it is non-authoritative for ACTIVE docs.
-- Archive and reference trees are retained for forensics only.
+
+- If a compose file is not under `infra/hosts/*` or wired through `Makefile`, it is not authoritative for root numbered docs.
+- Host folders are the ownership boundary for runtime placement, ports, and service exposure.
