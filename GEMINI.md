@@ -391,12 +391,14 @@ admin surfaces behind Cloudflare Access
 6. Memory model
 Use:
 Mem0 for selected assistant/runtime memory
-FalkorDB as graph backend where graph memory is needed
+OpenMemory MCP where shared MCP memory tools are needed
+FalkorDB as the Mem0 graph backend where graph memory is needed
+Qdrant as the Mem0/OpenMemory vector backend where configured
+Mempalace, ClaudeMem, and MemoryTensor/MemOS as allowed memory infrastructure
+Letta as a memory-manager agent and long-term agent memory integration
 Do not reintroduce:
 RuVector
 Graphiti
-Letta / letta
-openmemory / openmemory MCP
 7. Model serving and routing
 Local model serving
 vLLM on 5090 and 3090 Ti

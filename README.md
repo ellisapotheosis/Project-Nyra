@@ -61,14 +61,15 @@ These belong on the orchestrator:
 ### Current memory stack
 Use:
 - **Mem0** for selected assistant/runtime memory
-- **FalkorDB** as graph backend where graph memory is needed
+- **OpenMemory MCP** for shared MCP memory tools
+- **FalkorDB** as the Mem0 graph backend where graph memory is needed
+- **Qdrant** as the Mem0/OpenMemory vector backend where configured
+- **Mempalace**, **ClaudeMem**, and **MemoryTensor/MemOS** as allowed memory infrastructure
+- **Letta** as a memory-manager agent and long-term agent memory integration
 
 Do **not** reintroduce:
 - RuVector
 - Graphiti
-- Letta / letta
-- openmemory / openmemory MCP
-- Activepieces in the core path
 
 ## Product surfaces
 

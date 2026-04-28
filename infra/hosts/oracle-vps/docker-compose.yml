@@ -137,6 +137,35 @@ services:
         condition: service_started
     networks: [nyra_net]
 
+  activepieces:
+    image: activepieces/activepieces:latest
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-activepieces
+    restart: unless-stopped
+    env_file: [.env]
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis-cache:
+        condition: service_healthy
+    environment:
+      AP_DB_TYPE: ${AP_DB_TYPE:-POSTGRES}
+      AP_POSTGRES_HOST: ${AP_POSTGRES_HOST:-nyra-postgres}
+      AP_POSTGRES_PORT: ${AP_POSTGRES_PORT:-5432}
+      AP_POSTGRES_DATABASE: ${AP_POSTGRES_DATABASE:-activepieces}
+      AP_POSTGRES_USERNAME: ${AP_POSTGRES_USERNAME:-nyra}
+      AP_POSTGRES_PASSWORD: ${AP_POSTGRES_PASSWORD}
+      AP_REDIS_HOST: ${AP_REDIS_HOST:-nyra-redis-cache}
+      AP_REDIS_PORT: ${AP_REDIS_PORT:-6379}
+      AP_REDIS_PASSWORD: ${AP_REDIS_PASSWORD:-}
+      AP_ENCRYPTION_KEY: ${AP_ENCRYPTION_KEY}
+      AP_JWT_SECRET: ${AP_JWT_SECRET}
+      AP_FRONTEND_URL: ${AP_FRONTEND_URL:-https://active.ratehunter.net}
+      AP_EXECUTION_MODE: ${AP_EXECUTION_MODE:-UNSANDBOXED}
+      AP_TELEMETRY_ENABLED: ${AP_TELEMETRY_ENABLED:-false}
+    networks: [nyra_net]
+    ports:
+      - "8080:80"
+
   n8n:
     build:
       context: ../../../
@@ -305,7 +334,11 @@ services:
     depends_on:
       falkordb:
         condition: service_healthy
+      qdrant:
+        condition: service_started
     environment:
+      QDRANT_HOST: nyra-qdrant
+      QDRANT_PORT: "6333"
       FALKORDB_URL: redis://nyra-falkordb:6379
       OPENAI_API_KEY: ${OPENAI_API_KEY}
       LITELLM_API_URL:
@@ -316,6 +349,44 @@ services:
     networks: [nyra_net]
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ── Qdrant (vector backend for Mem0 and OpenMemory) ──────────────────────
+  # Note: qdrant image is distroless (no curl/wget) — no healthcheck possible.
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-qdrant
+    restart: unless-stopped
+    volumes:
+      - qdrant_data:/qdrant/storage
+    networks: [nyra_net]
+
+  # ── OpenMemory MCP (self-hosted mem0 MCP server) ─────────────────────────
+  # Built from source: github.com/mem0ai/mem0/tree/main/openmemory/api.
+  openmemory-mcp:
+    build:
+      context: ../../../services/openmemory-mcp
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-openmemory-mcp
+    restart: unless-stopped
+    depends_on:
+      qdrant:
+        condition: service_started
+    environment:
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      QDRANT_HOST: nyra-qdrant
+      QDRANT_PORT: "6333"
+      USER: nyra
+      LLM_PROVIDER: openai
+      LLM_MODEL: gpt-4o-mini
+      EMBEDDER_PROVIDER: openai
+      EMBEDDER_MODEL: text-embedding-3-small
+    ports:
+      - "8765:8765"
+    networks: [nyra_net]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8765/docs"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -529,6 +600,7 @@ services:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-nyra}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-nyra}
       - N8N_BASE_URL=http://nyra-n8n:5678
       - N8N_WEBHOOK_URL=http://nyra-n8n:5678/webhook/nyra/dispatch
+      - ACTIVEPIECES_BASE_URL=http://nyra-activepieces:8080
       - LOG_LEVEL=info
     networks: [nyra_net]
 
@@ -629,6 +701,7 @@ volumes:
   gitea_config:
   gitea_runner_data:
   falkordb_data:
+  qdrant_data:
   mempalace_data:
   mempalace_vault:
   paperclip_data:
