@@ -2,7 +2,7 @@ services:
 
   redis:
     image: redis:7-alpine
-    container_name: nyra-redis
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-redis
     env_file: [.env]
     command: ["redis-server", "--save", "60", "1000", "--appendonly", "yes"]
     ports:
@@ -20,7 +20,7 @@ services:
 
   litellm:
     image: ghcr.io/berriai/litellm:main-stable
-    container_name: nyra-litellm-router
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-litellm-router
     env_file: [.env]
     command: ["--config", "/app/config.yaml", "--port", "4000"]
     ports:
@@ -47,7 +47,7 @@ services:
     build:
       context: ../../../services/openclaw
       dockerfile: Dockerfile
-    container_name: nyra-openclaw-gateway
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-openclaw-gateway
     profiles: ["apps"]
     env_file: [.env]
     ports:
@@ -70,7 +70,7 @@ services:
 
   # docker-mcp-toolkit:
   #   image: docker/mcp-toolkit:latest
-  #   container_name: nyra-docker-toolkit
+  #   container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-docker-toolkit
   #   profiles: ["apps"]
   #   ports:
   #     - "8811:8811"
@@ -91,7 +91,7 @@ services:
 
   postgres-client:
     image: postgres:16-alpine
-    container_name: nyra-postgres-client
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-postgres-client
     profiles: ["debug"]
     env_file: [.env]
     environment:
@@ -103,7 +103,7 @@ services:
 
   cloudflared:
     image: cloudflare/cloudflared:latest
-    container_name: nyra-cloudflared-orchestrator
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-cloudflared-orchestrator
     restart: unless-stopped
     env_file: [.env]
     command: ["tunnel", "run"]
@@ -114,8 +114,8 @@ services:
 
   # ── Portainer Server (Standalone) ───────────────────────────────────────
   portainer:
-    image: portainer/portainer-ce:2.27.9
-    container_name: nyra-portainer
+    image: portainer/portainer-ce:latest
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-portainer
     restart: unless-stopped
     command:
       - --http-enabled
@@ -132,7 +132,7 @@ services:
 
   portainer-edge-agent-local:
     image: portainer/agent:2.27.9
-    container_name: nyra-portainer-edge-local
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-portainer-edge-local
     restart: unless-stopped
     environment:
       EDGE: "1"
@@ -149,7 +149,7 @@ services:
 
   portainer-edge-agent:
     image: portainer/agent:2.27.9
-    container_name: nyra-portainer-edge-agent
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-portainer-edge-agent
     restart: unless-stopped
     environment:
       EDGE: "1"
@@ -167,8 +167,9 @@ services:
 
   # ── Syncthing ───────────────────────────────────────────────────────────
   syncthing:
+    profiles: ["sync"]
     image: syncthing/syncthing:latest
-    container_name: nyra-syncthing
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-syncthing
     network_mode: host
     environment:
       - PUID=1000

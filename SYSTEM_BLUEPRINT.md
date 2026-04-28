@@ -1,7 +1,6 @@
 # Project Nyra: AI-Powered Mortgage Platform Blueprint
 
 ## 🌌 System Overview
-Project Nyra is a unified, all-in-one platform for mortgage brokers that combines the power of automated CRM outreach (Agent Legend/Bonzo) with cutting-edge multi-agent AI (Archon/OpenClaw).
 
 ## 🗺️ Architectural Mapping
 | Blueprint Category | Implementation | Component |
@@ -13,7 +12,6 @@ Project Nyra is a unified, all-in-one platform for mortgage brokers that combine
 | **5. Data Integration** | Nexus Router (MCP) | `services/nexus-router` |
 | **6. Analytics Dashboard** | WebApp + PostgreSQL | `apps/webapp` |
 | **8. AI Lead Scoring** | OpenClaw + Nexus Router | `services/openclaw` |
-| **9. Multi-Agent Assistant** | Archon + Hermes | `services/openclaw` |
 
 ## 🚀 Deployment Strategy
 1. **Orchestrator (Control Plane)**: nexus-router, n8n, twenty-crm (Oracle/OneVM).

@@ -476,7 +476,6 @@ bootstrap/
 .codanna/
 .env.gitea
 .env.infisical
-.env.archon
 .env.orchestrator
 .env.oracle
 .env.worker-*
@@ -495,6 +494,8 @@ bootstrap/
 !infra/env/TEMPLATE.env.host
 # Oracle VPS live env (moved from infra/oracle/ to infra/env/)
 infra/hosts/oracle-vps/.env*
+# Generated Docker Compose output with expanded secrets.
+infra/hosts/oracle-vps/resolved_config.yml
 # Infisical agent tokens — never commit
 infra/hosts/**/.infisical-token
 infra/hosts/**/infisical-agent.token
@@ -508,7 +509,6 @@ gitea-setup-summary-*.md
 # Explicit negations below protect against any future broad exclude rules:
 !external/pocket-tts/
 !external/pocket-tts-openai/
-!external/archon/
 data/pockettts/
 data/gitea/
 data/gitea-db/
@@ -517,7 +517,4 @@ data/gitea-db/
 .llxprt/
 
 ################################################################################
-# Archon Runtime
 ################################################################################
-# Archon runtime artifacts (never commit)
-.archon/mcp/          # May contain env var references

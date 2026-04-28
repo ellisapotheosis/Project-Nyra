@@ -14,7 +14,7 @@ services:
   # ── Portainer Edge Agent ────────────────────────────────────────────────
   portainer-edge-agent:
     image: portainer/agent:2.27.9
-    container_name: worker-5090-portainer-agent
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-5090-portainer-agent
     restart: unless-stopped
     env_file: [.env]
     environment:
@@ -31,7 +31,7 @@ services:
   # ── Redis Cache (for LMCache and LiteLLM) ───────────────────────────────
   redis:
     image: redis:7-alpine
-    container_name: worker-5090-redis
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-5090-redis
     hostname: worker-5090-redis
     restart: unless-stopped
     env_file: [.env]
@@ -51,7 +51,7 @@ services:
   # ── vLLM Server ─────────────────────────────────────────────────────────
   vllm:
     image: vllm/vllm-openai:latest
-    container_name: worker-5090-vllm
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-5090-vllm
     hostname: worker-5090-vllm
     restart: unless-stopped
     env_file: [.env]
@@ -94,7 +94,7 @@ services:
   # ── LiteLLM Proxy ───────────────────────────────────────────────────────
   litellm:
     image: ghcr.io/berriai/litellm:main-latest
-    container_name: worker-5090-litellm
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-5090-litellm
     hostname: worker-5090-litellm
     restart: unless-stopped
     env_file: [.env]
@@ -114,7 +114,7 @@ services:
   # ── Monitoring ──────────────────────────────────────────────────────────
   promtail:
     image: grafana/promtail:latest
-    container_name: worker-5090-promtail
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-5090-promtail
     restart: unless-stopped
     env_file: [.env]
     volumes:
@@ -130,7 +130,7 @@ services:
 
   node-exporter:
     image: prom/node-exporter:latest
-    container_name: worker-5090-node-exporter
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-5090-node-exporter
     restart: unless-stopped
     ports:
       - '9100:9100'
@@ -143,7 +143,7 @@ services:
 
   gpu-exporter:
     image: utkuozdemir/nvidia_gpu_exporter:1.4.1
-    container_name: worker-5090-gpu-exporter
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-5090-gpu-exporter
     restart: unless-stopped
     ports:
       - '9835:9835'
@@ -159,20 +159,21 @@ services:
 
   # ── Syncthing ───────────────────────────────────────────────────────────
   syncthing:
+    profiles: ["sync"]
     image: syncthing/syncthing:latest
-    container_name: nyra-syncthing
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-syncthing
     network_mode: host
     environment:
       - PUID=1000
       - PGID=1000
     volumes:
       - syncthing_config:/var/syncthing
-      - /run/desktop/mnt/host/wsl/...:/var/syncthing/data/home
+      - ${HOST_HOME_PATH}:/var/syncthing/data/home
     restart: unless-stopped
 
   health-monitor:
     image: curlimages/curl:latest
-    container_name: worker-5090-health
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-5090-health
     restart: unless-stopped
     depends_on:
       - vllm

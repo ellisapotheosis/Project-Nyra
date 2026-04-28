@@ -1,4 +1,4 @@
-# Rate Comparison Engine - Archon OS Configuration
+# Rate Comparison Engine
 
 > **Automated Mortgage Rate Scraping, Caching & Comparison**
 >
@@ -11,17 +11,6 @@
 **Tech Stack**: Express.js (JavaScript), PostgreSQL, Redis, Web Scraping (Axios, Cheerio), Node-Cron, Bull Queue
 **Port**: 3003
 **Domain**: Part of Project Nyra 4-PC mortgage automation platform
-
-## 🚨 AUTOMATIC ORCHESTRATION
-
-**When starting work on complex tasks, Claude Code MUST automatically:**
-
-1. **Use Archon workflows** via CLI or UI
-2. **Coordinate via memory**
-
-**Archon OS handles the heavy lifting of task execution!**
-
----
 
 ## 🤖 INTELLIGENT 3-TIER MODEL ROUTING (ADR-026)
 
@@ -42,17 +31,7 @@
 
 ### After Completing Any Task Successfully
 - Store successful patterns in Letta.
-- Record completion metrics in Archon.
-
----
-
-## 🚀 Archon OS CLI Commands
-
-```bash
-archon workflow list
-archon workflow run [name] "[task]"
-archon status
-```
+- Record completion metrics in structured service logs.
 
 ---
 
@@ -90,7 +69,6 @@ Environment Variables Required:
 ## Support & Resources
 
 - **Project Nyra**: `CLAUDE.md` in root
-- **Archon UI**: http://localhost:3737
 
 ---
 

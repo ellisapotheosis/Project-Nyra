@@ -47,7 +47,6 @@ These belong on the orchestrator:
 - Portainer Server
 - n8n (internal only)
 - Twenty CRM
-- Archon OS
 - OpenClaw Gateway + OpenClaw Studio
 - Open WebUI (internal only)
 - Mem0 + FalkorDB
@@ -61,7 +60,6 @@ These belong on the orchestrator:
 
 ### Current memory stack
 Use:
-- **Archon OS** as workflow/context memory manager
 - **Mem0** for selected assistant/runtime memory
 - **FalkorDB** as graph backend where graph memory is needed
 
@@ -139,7 +137,7 @@ pnpm test
 
 Project Nyra is an intelligent mortgage automation platform that combines:
 
-- **Multi-Agent AI Orchestration** - Archon OS, Ruv-Swarm, and Flow-Nexus working together
+- **AI orchestration** - OpenClaw, Nexus Router, and local model workers working together
 - **Microservices Architecture** - 14 specialized backend services
 - **Modern Frontend Apps** - 5 user-facing applications
 - **Real-Time Processing** - WebSocket connections and event-driven workflows
@@ -156,7 +154,7 @@ Project Nyra is an intelligent mortgage automation platform that combines:
 
 ## Project Status
 
-**Current Phase:** Phase 3 - Orchestration Integration (Archon OS)
+**Current Phase:** Oracle CI/CD and OpenClaw-centered orchestration
 
 **Last Updated:** January 21, 2026
 
@@ -176,7 +174,7 @@ Project Nyra is an intelligent mortgage automation platform that combines:
 ┌─────────────────────────────────────────────────────────────┐
 │  Windows Orchestrator PC (Mini PC)                          │
 │  ├── Docker Desktop + WSL2                                  │
-│  ├── Orchestration Services (Archon OS)                     │
+│  ├── Orchestration Services (OpenClaw + Nexus Router)       │
 │  ├── Message Queue (RabbitMQ)                              │
 │  ├── Coordination Layer                                     │
 │  └── Magic Packet Wake-on-LAN for workers                  │
@@ -245,7 +243,6 @@ Project-Nyra/
 │   └── utils/               # Shared utilities
 │
 ├── external/                # External tools and submodules
-│   └── archon/              # Agent operating system
 │
 ├── infra/                   # Infrastructure as code
 │   ├── docker/              # Docker Compose files
@@ -276,7 +273,6 @@ Executed by a **15-agent swarm** using hierarchical coordination:
 **Essential Consolidation Docs:**
 - 🔥 **[Repository Consolidation 2026-01-18](docs/REPOSITORY-CONSOLIDATION-2026-01-18.md)** - Complete consolidation documentation with before/after, migration guide, SPARC workflow
 - 🔥 **[apps/ingestion/](apps/ingestion/README.md)** - NEW systematic content processing workspace
-- 🔥 **[SPARC Workflows](.archon-os/workflows/README.md)** - Automated multi-agent workflow templates
 - 🔥 **[Consolidation Complete](docs/operations/CONSOLIDATION-COMPLETE.md)** - Infrastructure consolidation summary
 - 🔥 **[Environment Variables Guide](docs/operations/ENV-VARIABLE-GUIDE.md)** - Complete variable reference
 - 🔥 **[Docker Usage Guide](infra/docker/USAGE-GUIDE.md)** - Docker deployment patterns
@@ -295,7 +291,7 @@ Executed by a **15-agent swarm** using hierarchical coordination:
 - **[Architecture Overview](docs/architecture/ARCHITECTURE-OVERVIEW.md)** - Complete system design (Level 1 & 2 diagrams)
 - [System Architecture](docs/architecture/system-architecture.md) - Detailed architectural specifications
 - **[4-PC Distributed Architecture](docs/architecture/4PC-DISTRIBUTED-ARCHITECTURE.md)** - Multi-PC deployment with GPU workers
-- [Dual Orchestrator Design](docs/architecture/DUAL-ORCHESTRATOR-ARCHITECTURE.md)** - Archon OS + Archon OS integration
+- [Architecture Decisions](docs/architecture/ARCHITECTURE-DECISIONS.md)** - current architecture decisions
 - [Memory Systems](docs/architecture/memory-systems.md) - Agent memory architecture (Letta, Mem0, letta, Qdrant)
 - [API Contracts](docs/architecture/api-contracts.md) - Service interfaces
 - **[Architecture Decisions](docs/architecture/ARCHITECTURE-DECISIONS.md)** - ADRs and technology choices
@@ -338,7 +334,7 @@ Executed by a **15-agent swarm** using hierarchical coordination:
 - **UI Components:** Custom + Shadcn/ui
 
 ### AI & Orchestration
-- **Agent Framework:** Archon OS
+- **Assistant runtime:** OpenClaw Gateway + OpenClaw Studio
 - **Swarm Intelligence:** Ruv-Swarm (Latest)
 - **Cloud Orchestration:** Flow-Nexus (Latest)
 - **MCP Protocol:** Model Context Protocol
@@ -447,7 +443,6 @@ Project Nyra includes a comprehensive bootstrap system for setting up the 4-PC d
 - **PowerShell Scripts** - Automated component installation
 - **Configuration Templates** - Pre-configured settings for:
   - Claude Code / Claude Desktop
-  - Archon OS V3
   - Docker Desktop
   - WSL2 (.wslconfig)
   - Infisical (secrets management)
@@ -464,7 +459,6 @@ pnpm install && pnpm start
 # 3. Choose components to install:
 #    - Docker Desktop
 #    - WSL2 + Ubuntu
-#    - Archon OS
 #    - Development tools
 #    - Configuration templates
 
@@ -485,7 +479,6 @@ See [bootstrap/configs/README.md](bootstrap/configs/README.md) for details on al
 - Redis (Port: 6379) - Cache layer
 - FalkorDB (Port: 6380) - Graph database
 - Qdrant (Port: 6333) - Vector database
-- Archon OS - Agent operating system
 - Nexus Router - LLM routing
 - Letta (Ports: 8283, 8284) - Agent memory
 
@@ -493,20 +486,6 @@ See [bootstrap/configs/README.md](bootstrap/configs/README.md) for details on al
 ```bash
 cd infra/docker
 docker compose -f docker-compose.orchestration.yml up -d
-```
-
-**Archon Full Stack (Dedicated Compose + Nexus Router + Infisical):**
-```bash
-# Validate compose
-make archon-config
-
-# Start dedicated Archon profile stack
-make archon-up
-
-# Start with Infisical secret injection (/shared path)
-make archon-up-infisical
-# equivalent direct command:
-# infisical run --env=prod --path="/shared" -- docker compose -f docker-compose.archon.yml --profile archon up -d
 ```
 
 ### Port Allocation
@@ -556,17 +535,6 @@ Strategy: balanced | specialized | adaptive
 ```
 
 ### Using the Agent System
-
-```bash
-# Initialize a workflow
-archon workflow list
-
-# Run a task
-archon workflow run assist "What workflows are available?"
-
-# Check workflow status
-archon workflow status
-```
 
 ## Contributing
 
@@ -660,8 +628,8 @@ pnpm db:migrate
 # Check MCP health
 pnpm mcp:health-check
 
-# View MCP logs
-docker logs nyra-archon-os
+# View Nexus Router logs
+docker logs nyra-nexus-router
 ```
 
 ## Support
