@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nyra Mortgage Suite | LendingPad Integration</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#2563eb',
+                        secondary: '#0ea5e9',
+                        accent: '#8b5cf6',
+                        dark: '#1e293b',
+                        light: '#f8fafc'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .campaign-timeline::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 20px;
+            height: 100%;
+            width: 2px;
+            background: linear-gradient(to bottom, #8b5cf6, #0ea5e9);
+        }
+        
+        .timeline-item:nth-child(even) {
+            animation-delay: 0.2s;
+        }
+        
+        .timeline-item:nth-child(odd) {
+            animation-delay: 0.4s;
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out forwards;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .campaign-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        .lead-badge {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.5); }
+            70% { box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+    <!-- Communication Panel (fixed at bottom) -->
+    <div class="fixed bottom-0 right-0 w-80 bg-white shadow-lg rounded-t-lg z-20 hidden" id="communication-panel">
+        <div class="border-b px-4 py-2 flex justify-between items-center">
+            <h3 class="font-medium">Communications</h3>
+            <div class="flex space-x-2">
+                <button class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-phone"></i>
+                </button>
+                <button class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-sms"></i>
+                </button>
+                <button class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-envelope"></i>
+                </button>
+            </div>
+        </div>
+        <div class="p-4 h-64 overflow-y-auto">
+            <!-- Messages will appear here -->
+        </div>
+        <div class="border-t p-2">
+            <div class="flex">
+                <input type="text" class="flex-1 border rounded-l px-3 py-2" placeholder="Type message...">
+                <button class="bg-primary text-white px-4 rounded-r">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+            <div class="mt-2 text-xs text-gray-500">
+                <label class="flex items-center">
+                    <input type="checkbox" class="mr-1"> Include STOP instructions
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="bg-white shadow-md fixed w-full z-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <i class="fas fa-robot text-accent text-2xl mr-2"></i>
+                        <span class="text-xl font-bold text-dark">Nyra <span class="text-primary">Mortgage</span></span>
+                    </div>
+                    <div class="hidden md:ml-6 md:flex md:space-x-8">
+                        <a href="#" class="border-b-2 border-primary text-dark px-1 pt-1 text-sm font-medium">Dashboard</a>
+                        <a href="#" class="text-gray-500 hover:text-dark px-1 pt-1 text-sm font-medium">Campaigns</a>
+                        <a href="#" class="text-gray-500 hover:text-dark px-1 pt-1 text-sm font-medium">Leads</a>
+                        <a href="#" class="text-gray-500 hover:text-dark px-1 pt-1 text-sm font-medium">Analytics</a>
+                        <a href="#" class="text-gray-500 hover:text-dark px-1 pt-1 text-sm font-medium">Settings</a>
+                    </div>
+                </div>
+                <div class="flex items-center">
+                    <div class="ml-3 relative">
+                        <div class="flex items-center space-x-4">
+                            <button class="bg-primary hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium flex items-center">
+                                <i class="fas fa-plus mr-2"></i> New Campaign
+                            </button>
+                            <div class="relative">
+                                <div class="relative group">
+                                    <button class="flex text-sm rounded-full focus:outline-none">
+                                    <img class="h-8 w-8 rounded-full" src="https://ui-avatars.com/api/?name=Loan+Officer&background=0ea5e9&color=fff" alt="User">
+                                </button>
+                                <span class="absolute top-0 right-0 block h-2 w-2 rounded-full bg-red-500 ring-2 ring-white"></span>
+                                <div class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 hidden group-hover:block">
+                                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 theme-switch" data-theme="light-default">Light Default</a>
+                                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 theme-switch" data-theme="light-purple">Light Purple</a>
+                                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 theme-switch" data-theme="light-seafoam">Light Seafoam</a>
+                                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 theme-switch" data-theme="dark-default">Dark Default</a>
+                                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 theme-switch" data-theme="dark-neon">Dark Neon</a>
+                                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 theme-switch" data-theme="dark-violet">Dark Violet</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="pt-16 flex">
+        <!-- Sidebar -->
+        <div class="hidden md:block w-64 bg-white shadow-md h-[calc(100vh-4rem)] fixed overflow-y-auto">
+            <div class="p-4 border-b">
+                <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wider">Campaign Types</h3>
+                <ul class="mt-2 space-y-1">
+                    <li>
+                        <a href="#" class="group flex items-center px-2 py-2 text-sm font-medium rounded-md bg-blue-50 text-primary">
+                            <i class="fas fa-sync-alt mr-3 text-primary"></i>
+                            Refinance Leads
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-700 hover:bg-gray-50">
+                            <i class="fas fa-money-bill-wave mr-3 text-green-500"></i>
+                            Cash Out Leads
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-700 hover:bg-gray-50">
+                            <i class="fas fa-home mr-3 text-purple-500"></i>
+                            Home Equity Leads
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-700 hover:bg-gray-50">
+                            <i class="fas fa-shopping-cart mr-3 text-yellow-500"></i>
+                            Purchase Loan Leads
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="p-4 border-b">
+                <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wider">Quick Connect</h3>
+                <ul class="mt-2 space-y-1">
+                    <li>
+                        <a href="#" class="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-700 hover:bg-gray-50" data-iframe="true">
+                            <i class="fas fa-rocket mr-3 text-orange-500"></i>
+                            Rocket Mortgage
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-700 hover:bg-gray-50" data-iframe="false">
+                            <i class="fas fa-credit-card mr-3 text-blue-500"></i>
+                            LenderPrice
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-700 hover:bg-gray-50" data-iframe="true">
+                            <i class="fas fa-piggy-bank mr-3 text-green-500"></i>
+                            Advantage Credit
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="p-4">
+                <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wider">Integrations</h3>
+                <ul class="mt-2 space-y-1">
+                    <li>
+                        <a href="#" class="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-700 hover:bg-gray-50">
+                            <i class="fab fa-twilio mr-3 text-blue-500"></i>
+                            Twilio Settings
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-700 hover:bg-gray-50">
+                            <i class="fas fa-mail-bulk mr-3 text-red-500"></i>
+                            LeadMailbox CRM
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-700 hover:bg-gray-50">
+                            <i class="fab fa-google mr-3 text-green-500"></i>
+                            Gmail Integration
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-700 hover:bg-gray-50">
+                            <i class="fab fa-microsoft mr-3 text-blue-600"></i>
+                            Outlook Integration
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Dashboard -->
+        <div class="flex-1 md:ml-64">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+                <!-- Header -->
+                <div class="md:flex md:items-center md:justify-between mb-8">
+                    <div class="flex-1 min-w-0">
+                        <h1 class="text-2xl font-bold leading-7 text-dark sm:text-3xl sm:truncate">
+                            Campaign Dashboard
+                        </h1>
+                        <p class="mt-1 text-sm text-gray-500">
+                            Manage your mortgage lead campaigns with AI-powered automation
+                        </p>
+                    </div>
+                    <div class="mt-4 flex md:mt-0 md:ml-4">
+                        <button type="button" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none">
+                            <i class="fas fa-download mr-2"></i> Export Data
+                        </button>
+                        <button type="button" class="ml-3 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-blue-700 focus:outline-none">
+                            <i class="fas fa-play mr-2"></i> Start Campaign
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Stats -->
+                <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 mb-8">
+                    <div class="bg-white overflow-hidden shadow rounded-lg">
+                        <div class="px-4 py-5 sm:p-6">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0 bg-blue-100 rounded-md p-3">
+                                    <i class="fas fa-users text-blue-600 text-xl"></i>
+                                </div>
+                                <div class="ml-5 w-0 flex-1">
+                                    <dl>
+                                        <dt class="text-sm font-medium text-gray-500 truncate">Total Leads</dt>
+                                        <dd class="flex items-baseline">
+                                            <div class="text-2xl font-semibold text-gray-900">1,248</div>
+                                            <div class="ml-2 flex items-baseline text-sm font-semibold text-green-600">
+                                                <i class="fas fa-arrow-up text-xs"></i>
+                                                <span>12.4%</span>
+                                            </div>
+                                        </dd>
+                                    </dl>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white overflow-hidden shadow rounded-lg">
+                        <div class="px-4 py-5 sm:p-6">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0 bg-purple-100 rounded-md p-3">
+                                    <i class="fas fa-calendar-alt text-purple-600 text-xl"></i>
+                                </div>
+                                <div class="ml-5 w-0 flex-1">
+                                    <dl>
+                                        <dt class="text-sm font-medium text-gray-500 truncate">Active Campaigns</dt>
+                                        <dd class="text-2xl font-semibold text-gray-900">8</dd>
+                                    </dl>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white overflow-hidden shadow rounded-lg">
+                        <div class="px-4 py-5 sm:p-6">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0 bg-green-100 rounded-md p-3">
+                                    <i class="fas fa-phone-alt text-green-600 text-xl"></i>
+                                </div>
+                                <div class="ml-5 w-0 flex-1">
+                                    <dl>
+                                        <dt class="text-sm font-medium text-gray-500 truncate">Today's Calls</dt>
+                                        <dd class="text-2xl font-semibold text-gray-900">142</dd>
+                                    </dl>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white overflow-hidden shadow rounded-lg">
+                        <div class="px-4 py-5 sm:p-6">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0 bg-red-100 rounded-md p-3">
+                                    <i class="fas fa-envelope text-red-600 text-xl"></i>
+                                </div>
+                                <div class="ml-5 w-0 flex-1">
+                                    <dl>
+                                        <dt class="text-sm font-medium text-gray-500 truncate">Emails Sent</dt>
+                                        <dd class="text-2xl font-semibold text-gray-900">1,842</dd>
+                                    </dl>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Campaigns Section -->
+                <div class="mb-8">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-lg font-semibold text-gray-800">Your Campaigns</h2>
+                        <button class="text-sm text-primary font-medium flex items-center">
+                            View All <i class="fas fa-chevron-right ml-1 text-xs"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- Campaign Card 1 -->
+                        <div class="campaign-card bg-white rounded-xl shadow-md overflow-hidden transition-all duration-300">
+                            <div class="p-5 border-b">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                            Active
+                                        </span>
+                                        <h3 class="mt-2 text-lg font-bold text-gray-900">Refinance Blitz</h3>
+                                    </div>
+                                    <div class="bg-purple-100 p-2 rounded-lg">
+                                        <i class="fas fa-sync-alt text-purple-600"></i>
+                                    </div>
+                                </div>
+                                <p class="mt-2 text-sm text-gray-500">45-day campaign for refinance leads</p>
+                            </div>
+                            <div class="bg-gray-50 px-5 py-3">
+                                <div class="flex justify-between text-sm">
+                                    <div>
+                                        <p class="text-gray-500">Leads</p>
+                                        <p class="font-medium">342</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-gray-500">Completion</p>
+                                        <p class="font-medium">62%</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-gray-500">Response</p>
+                                        <p class="font-medium">18.7%</p>
+                                    </div>
+                                </div>
+                                <div class="mt-2">
+                                    <div class="w-full bg-gray-200 rounded-full h-2">
+                                        <div class="bg-blue-600 h-2 rounded-full" style="width: 62%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Campaign Card 2 -->
+                        <div class="campaign-card bg-white rounded-xl shadow-md overflow-hidden transition-all duration-300">
+                            <div class="p-5 border-b">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                            Completed
+                                        </span>
+                                        <h3 class="mt-2 text-lg font-bold text-gray-900">Home Equity Pro</h3>
+                                    </div>
+                                    <div class="bg-green-100 p-2 rounded-lg">
+                                        <i class="fas fa-home text-green-600"></i>
+                                    </div>
+                                </div>
+                                <p class="mt-2 text-sm text-gray-500">30-day campaign for HELOC leads</p>
+                            </div>
+                            <div class="bg-gray-50 px-5 py-3">
+                                <div class="flex justify-between text-sm">
+                                    <div>
+                                        <p class="text-gray-500">Leads</p>
+                                        <p class="font-medium">187</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-gray-500">Completion</p>
+                                        <p class="font-medium">100%</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-gray-500">Response</p>
+                                        <p class="font-medium">22.4%</p>
+                                    </div>
+                                </div>
+                                <div class="mt-2">
+                                    <div class="w-full bg-gray-200 rounded-full h-2">
+                                        <div class="bg-green-600 h-2 rounded-full" style="width: 100%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Campaign Card 3 -->
+                        <div class="campaign-card bg-white rounded-xl shadow-md overflow-hidden transition-all duration-300">
+                            <div class="p-5 border-b">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                            Draft
+                                        </span>
+                                        <h3 class="mt-2 text-lg font-bold text-gray-900">Purchase Power</h3>
+                                    </div>
+                                    <div class="bg-yellow-100 p-2 rounded-lg">
+                                        <i class="fas fa-shopping-cart text-yellow-600"></i>
+                                    </div>
+                                </div>
+                                <p class="mt-2 text-sm text-gray-500">40-day campaign for purchase leads</p>
+                            </div>
+                            <div class="bg-gray-50 px-5 py-3">
+                                <div class="flex justify-between text-sm">
+                                    <div>
+                                        <p class="text-gray-500">Leads</p>
+                                        <p class="font-medium">0</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-gray-500">Completion</p>
+                                        <p class="font-medium">0%</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-gray-500">Response</p>
+                                        <p class="font-medium">0%</p>
+                                    </div>
+                                </div>
+                                <div class="mt-2">
+                                    <div class="w-full bg-gray-200 rounded-full h-2">
+                                        <div class="bg-yellow-400 h-2 rounded-full" style="width: 0%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Leads & Timeline -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Recent Leads -->
+                    <div class="bg-white shadow rounded-lg">
+                        <div class="px-4 py-5 sm:px-6 border-b">
+                            <h3 class="text-lg leading-6 font-medium text-gray-900">Recent Leads</h3>
+                            <p class="mt-1 text-sm text-gray-500">Leads added in the last 24 hours</p>
+                        </div>
+                        <div class="flow-root">
+                            <ul class="divide-y divide-gray-200">
+                                <li class="py-4 px-6 hover:bg-gray-50 transition-colors">
+                                    <div class="flex items-center">
+                                        <div class="flex-shrink-0">
+                                            <img class="h-10 w-10 rounded-full" src="https://ui-avatars.com/api/?name=John+Doe&background=0ea5e9&color=fff" alt="">
+                                        </div>
+                                        <div class="ml-4">
+                                            <div class="flex items-center">
+                                                <h4 class="text-sm font-medium text-gray-900">John Doe</h4>
+                                                <span class="ml-2 lead-badge inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                                    New
+                                                </span>
+                                            </div>
+                                            <div class="mt-1 flex items-center text-sm text-gray-500">
+                                                <i class="fas fa-home mr-1 text-sm"></i>
+                                                <span>Refinance - $325,000 loan</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="mt-2 flex justify-end">
+                                        <button class="text-xs bg-primary text-white px-3 py-1 rounded-md">Assign Campaign</button>
+                                    </div>
+                                </li>
+                                
+                                <li class="py-4 px-6 hover:bg-gray-50 transition-colors">
+                                    <div class="flex items-center">
+                                        <div class="flex-shrink-0">
+                                            <img class="h-10 w-10 rounded-full" src="https://ui-avatars.com/api/?name=Sarah+Smith&background=8b5cf6&color=fff" alt="">
+                                        </div>
+                                        <div class="ml-4">
+                                            <div class="flex items-center">
+                                                <h4 class="text-sm font-medium text-gray-900">Sarah Smith</h4>
+                                                <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                                    Purchase
+                                                </span>
+                                            </div>
+                                            <div class="mt-1 flex items-center text-sm text-gray-500">
+                                                <i class="fas fa-envelope mr-1 text-sm"></i>
+                                                <span>sarah@example.com</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="mt-2 flex justify-end">
+                                        <button class="text-xs bg-primary text-white px-3 py-1 rounded-md">Assign Campaign</button>
+                                    </div>
+                                </li>
+                                
+                                <li class="py-4 px-6 hover:bg-gray-50 transition-colors">
+                                    <div class="flex items-center">
+                                        <div class="flex-shrink-0">
+                                            <img class="h-10 w-10 rounded-full" src="https://ui-avatars.com/api/?name=Mike+Johnson&background=0ea5e9&color=fff" alt="">
+                                        </div>
+                                        <div class="ml-4">
+                                            <h4 class="text-sm font-medium text-gray-900">Mike Johnson</h4>
+                                            <div class="mt-1 flex items-center text-sm text-gray-500">
+                                                <i class="fas fa-phone-alt mr-1 text-sm"></i>
+                                                <span>(555) 123-4567</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="mt-2 flex justify-end">
+                                        <button class="text-xs bg-primary text-white px-3 py-1 rounded-md">Assign Campaign</button>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <!-- Campaign Timeline -->
+                    <div class="bg-white shadow rounded-lg">
+                        <div class="px-4 py-5 sm:px-6 border-b">
+                            <h3 class="text-lg leading-6 font-medium text-gray-900">Campaign Timeline</h3>
+                            <p class="mt-1 text-sm text-gray-500">Upcoming scheduled communications</p>
+                        </div>
+                        <div class="px-4 py-5 sm:p-6">
+                            <div class="relative campaign-timeline pl-8">
+                                <!-- Timeline Item 1 -->
+                                <div class="timeline-item relative mb-8 fade-in">
+                                    <div class="absolute left-0 top-0 w-4 h-4 rounded-full bg-accent border-4 border-white"></div>
+                                    <div class="ml-6">
+                                        <p class="text-sm text-gray-500">Today, 10:30 AM</p>
+                                        <h4 class="font-medium text-gray-900">Missed Call + Voicemail</h4>
+                                        <p class="text-sm text-gray-500 mt-1">John Doe - Refinance Blitz Campaign</p>
+                                        <div class="mt-2 flex">
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                                <i class="fab fa-twilio mr-1"></i> Twilio
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Timeline Item 2 -->
+                                <div class="timeline-item relative mb-8 fade-in">
+                                    <div class="absolute left-0 top-0 w-4 h-4 rounded-full bg-secondary border-4 border-white"></div>
+                                    <div class="ml-6">
+                                        <p class="text-sm text-gray-500">Today, 1:45 PM</p>
+                                        <h4 class="font-medium text-gray-900">Personalized Email</h4>
+                                        <p class="text-sm text-gray-500 mt-1">Sarah Smith - Purchase Power Campaign</p>
+                                        <div class="mt-2 flex">
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                                <i class="fab fa-google mr-1"></i> Gmail
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Timeline Item 3 -->
+                                <div class="timeline-item relative mb-8 fade-in">
+                                    <div class="absolute left-0 top-0 w-4 h-4 rounded-full bg-primary border-4 border-white"></div>
+                                    <div class="ml-6">
+                                        <p class="text-sm text-gray-500">Tomorrow, 9:15 AM</p>
+                                        <h4 class="font-medium text-gray-900">Text Message</h4>
+                                        <p class="text-sm text-gray-500 mt-1">Mike Johnson - Cash Out Campaign</p>
+                                        <div class="mt-2 flex">
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                                <i class="fab fa-twilio mr-1"></i> Twilio
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Timeline Item 4 -->
+                                <div class="timeline-item relative fade-in">
+                                    <div class="absolute left-0 top-0 w-4 h-4 rounded-full bg-purple-500 border-4 border-white"></div>
+                                    <div class="ml-6">
+                                        <p class="text-sm text-gray-500">Tomorrow, 3:30 PM</p>
+                                        <h4 class="font-medium text-gray-900">Follow-up Email</h4>
+                                        <p class="text-sm text-gray-500 mt-1">Emily Wilson - HELOC Campaign</p>
+                                        <div class="mt-2 flex">
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-600 text-white">
+                                                <i class="fab fa-microsoft mr-1"></i> Outlook
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Rate Comparison Tool -->
+                <div class="mb-8 bg-white shadow rounded-lg">
+                    <div class="px-4 py-5 sm:px-6 border-b">
+                        <h3 class="text-lg leading-6 font-medium text-gray-900">Pricing Engine Comparison</h3>
+                        <p class="mt-1 text-sm text-gray-500">Compare rates across multiple lenders</p>
+                    </div>
+                    <div class="px-4 py-5 sm:p-6">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div class="border border-gray-200 rounded-lg p-4">
+                                <h4 class="font-medium text-center mb-3">Rocket Mortgage</h4>
+                                <div class="space-y-3" id="rocket-rates">
+                                    <!-- Rates will be populated here -->
+                                </div>
+                            </div>
+                            <div class="border border-gray-200 rounded-lg p-4">
+                                <h4 class="font-medium text-center mb-3">LendingPad</h4>
+                                <div class="space-y-3" id="lendingpad-rates">
+                                    <!-- Rates will be populated here -->
+                                </div>
+                            </div>
+                            <div class="border border-gray-200 rounded-lg p-4">
+                                <h4 class="font-medium text-center mb-3">LenderPrice</h4>
+                                <div class="space-y-3" id="lenderprice-rates">
+                                    <!-- Rates will be populated here -->
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-6">
+                            <button class="bg-primary hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium">
+                                Generate Rate Comparison Image
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Campaign Builder -->
+                <div class="mt-8 bg-white shadow rounded-lg">
+                    <div class="px-4 py-5 sm:px-6 border-b">
+                        <h3 class="text-lg leading-6 font-medium text-gray-900">Campaign Builder</h3>
+                        <p class="mt-1 text-sm text-gray-500">Create your automated campaign sequence</p>
+                    </div>
+                    <div class="px-4 py-5 sm:p-6">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <!-- Step 1 -->
+                            <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                                <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-blue-100">
+                                    <i class="fas fa-plus text-blue-600"></i>
+                                </div>
+                                <h3 class="mt-4 text-sm font-medium text-gray-900">Add First Step</h3>
+                                <p class="mt-1 text-sm text-gray-500">Start building your campaign sequence</p>
+                                <button class="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-blue-700 focus:outline-none">
+                                    Add Action
+                                </button>
+                            </div>
+                            
+                            <!-- Step 2 -->
+                            <div class="border-2 border-gray-200 rounded-lg p-6">
+                                <div class="flex justify-between">
+                                    <div>
+                                        <h3 class="text-sm font-medium text-gray-900">Day 1: Initial Contact</h3>
+                                        <p class="mt-1 text-xs text-gray-500">Trigger: Immediately after lead assignment</p>
+                                    </div>
+                                    <button class="text-gray-400 hover:text-gray-500">
+                                        <i class="fas fa-ellipsis-v"></i>
+                                    </button>
+                                </div>
+                                
+                                <div class="mt-4 space-y-3">
+                                    <div class="flex items-start">
+                                        <div class="flex-shrink-0">
+                                            <div class="flex items-center justify-center h-6 w-6 rounded-full bg-green-100">
+                                                <i class="fas fa-phone text-green-600 text-xs"></i>
+                                            </div>
+                                        </div>
+                                        <div class="ml-3">
+                                            <p class="text-sm font-medium text-gray-900">Missed Call + Voicemail</p>
+                                            <p class="text-xs text-gray-500">10:30 AM | Twilio</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="flex items-start">
+                                        <div class="flex-shrink-0">
+                                            <div class="flex items-center justify-center h-6 w-6 rounded-full bg-blue-100">
+                                                <i class="fas fa-sms text-blue-600 text-xs"></i>
+                                            </div>
+                                        </div>
+                                        <div class="ml-3">
+                                            <p class="text-sm font-medium text-gray-900">Text Message</p>
+                                            <p class="text-xs text-gray-500">1:00 PM | Twilio</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="flex items-start">
+                                        <div class="flex-shrink-0">
+                                            <div class="flex items-center justify-center h-6 w-6 rounded-full bg-red-100">
+                                                <i class="fas fa-envelope text-red-600 text-xs"></i>
+                                            </div>
+                                        </div>
+                                        <div class="ml-3">
+                                            <p class="text-sm font-medium text-gray-900">Email</p>
+                                            <p class="text-xs text-gray-500">3:45 PM | Gmail</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Step 3 -->
+                            <div class="border-2 border-gray-200 rounded-lg p-6">
+                                <div class="flex justify-between">
+                                    <div>
+                                        <h3 class="text-sm font-medium text-gray-900">Day 2: Follow-up</h3>
+                                        <p class="mt-1 text-xs text-gray-500">Trigger: 24 hours after initial contact</p>
+                                    </div>
+                                    <button class="text-gray-400 hover:text-gray-500">
+                                        <i class="fas fa-ellipsis-v"></i>
+                                    </button>
+                                </div>
+                                
+                                <div class="mt-4 space-y-3">
+                                    <div class="flex items-start">
+                                        <div class="flex-shrink-0">
+                                            <div class="flex items-center justify-center h-6 w-6 rounded-full bg-green-100">
+                                                <i class="fas fa-phone text-green-600 text-xs"></i>
+                                            </div>
+                                        </div>
+                                        <div class="ml-3">
+                                            <p class="text-sm font-medium text-gray-900">Missed Call + Voicemail</p>
+                                            <p class="text-xs text-gray-500">9:15 AM | Twilio</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="flex items-start">
+                                        <div class="flex-shrink-0">
+                                            <div class="flex items-center justify-center h-6 w-6 rounded-full bg-red-100">
+                                                <i class="fas fa-envelope text-red-600 text-xs"></i>
+                                            </div>
+                                        </div>
+                                        <div class="ml-3">
+                                            <p class="text-sm font-medium text-gray-900">Email</p>
+                                            <p class="text-xs text-gray-500">2:30 PM | Outlook</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-6 flex justify-end">
+                            <button class="bg-primary hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium">
+                                Save Campaign
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Simple animations for timeline items
+        document.addEventListener('DOMContentLoaded', function() {
+            const timelineItems = document.querySelectorAll('.timeline-item');
+            
+            timelineItems.forEach((item, index) => {
+                // Apply staggered animation
+                item.style.animationDelay = `${index * 0.1}s`;
+            });
+            
+            // Campaign card hover effect
+            const campaignCards = document.querySelectorAll('.campaign-card');
+            campaignCards.forEach(card => {
+                card.addEventListener('mouseenter', () => {
+                    card.classList.add('transform');
+                });
+                card.addEventListener('mouseleave', () => {
+                    card.classList.remove('transform');
+                });
+            });
+        });
+    </script>
+<p style="border-radius: 8px; text-align: center; font-size: 12px; color: #fff; margin-top: 16px;position: fixed; left: 8px; bottom: 8px; z-index: 10; background: rgba(0, 0, 0, 0.8); padding: 4px 8px;">Made with <img src="https://enzostvs-deepsite.hf.space/logo.svg" alt="DeepSite Logo" style="width: 16px; height: 16px; vertical-align: middle;display:inline-block;margin-right:3px;filter:brightness(0) invert(1);"><a href="https://enzostvs-deepsite.hf.space" style="color: #fff;text-decoration: underline;" target="_blank" >DeepSite</a> - 🧬 <a href="https://enzostvs-deepsite.hf.space?remix=ellisapotheosis/apotheosis-mortgage-lead-campaign" style="color: #fff;text-decoration: underline;" target="_blank" >Remix</a></p></body>
+</html>

@@ -127,16 +127,52 @@ path = "/mcp"
 [mcp.servers.docker-toolkit]
 url = "http://nyra-docker-toolkit:8811"
 
+<<<<<<< HEAD
+# ── Oracle VPS MCP servers (100.64.0.31 via Tailscale mesh, always-on) ───────
+=======
 # ── Oracle VPS MCP servers (oracle via Tailscale mesh, always-on) ────────
+>>>>>>> github/main
 
 # OpenMemory MCP: self-hosted mem0 memory server with Qdrant vector backend
+
 # MCP SSE endpoint format: /mcp/{client_name}/sse/{user_id}
 [mcp.servers.openmemory]
+<<<<<<< HEAD
+url = "http://100.64.0.31:8765/mcp/nexus/sse/nyra"
+=======
 url = "http://oracle:8765/mcp/nexus/sse/nyra"
+>>>>>>> github/main
 
 # Infisical MCP: secrets read/write via @infisical/mcp (supergateway stdio→SSE bridge)
 # Gives agents the ability to fetch and update secrets from Infisical projects.
 [mcp.servers.infisical]
+<<<<<<< HEAD
+url = "http://100.64.0.31:8766/sse"
+
+# n8n: workflow execution, trigger automation pipelines, inspect executions
+[mcp.servers.n8n]
+url = "http://100.64.0.31:5678/mcp"
+
+# TwentyCRM: borrower/lead/deal management (open-source CRM)
+[mcp.servers.twenty]
+url = "http://100.64.0.31:3000/mcp"
+
+# Mem0 REST API: conversational memory REST interface (search/store/delete memories)
+[mcp.servers.mem0]
+url = "http://100.64.0.31:5000/sse"
+
+# memOS: Hierarchical and tensor-based long-term memory
+[mcp.servers.memos]
+url = "http://100.64.0.31:8085/mcp"
+
+# Letta (MemGPT): Memory management and autonomous context orchestration
+[mcp.servers.letta]
+url = "http://100.64.0.31:8283/mcp"
+
+# Claudemem: Cross-session persistent observation memory
+[mcp.servers.claudemem]
+url = "http://orchestrator.trex-fiordland.ts.net:37700/mcp"
+=======
 url = "http://oracle:8766/sse"
 
 # n8n: workflow execution, trigger automation pipelines, inspect executions
@@ -160,13 +196,13 @@ url = "http://oracle:8767/sse"
 # Nerve UI (OpenClaw): Runtime agent dashboard on RTX 3090 Ti
 [mcp.servers.nerve_ui]
 url = "http://worker-rtx3090ti.trex-fiordland.ts.net:8001/mcp"
+>>>>>>> github/main
 
 # ── External / cloud MCP servers ──────────────────────────────────────────────
 
-# Mempalace: external graph memory service (URL injected at runtime via env)
-# Set MEMPALACE_URL in orchestrator env to activate; leave unset to skip.
+# Mempalace: memory palace graph-based indexing
 [mcp.servers.mempalace]
-url = "{{ env.MEMPALACE_URL }}"
+url = "http://100.64.0.31:8002/sse"
 
 # ── TOOL DISCOVERY & FUZZY SEARCH ────────────────────────────────────────────
 # Nexus indexes all tools from all MCP servers and serves them via unified search.

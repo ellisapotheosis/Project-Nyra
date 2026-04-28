@@ -21,5 +21,14 @@ experimental:
 
 mcpServers:
   nexus-router:
+<<<<<<< HEAD
+    httpUrl: "http://100.64.0.1:8080/mcp/sse"
+    tools: ["*"]
+  serena:
+    command: "uv"
+    args: ["run", "--project", "services/serena-mcp", "serena-mcp-server"]
+
+=======
     httpUrl: "http://localhost:7000/mcp"
     tools: ["*"]
+>>>>>>> github/main

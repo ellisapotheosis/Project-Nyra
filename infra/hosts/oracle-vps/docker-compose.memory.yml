@@ -1,0 +1,162 @@
+# Oracle VPS cognitive backend.
+# Letta owns long-lived agent state, mem0 owns selected runtime memory, FalkorDB is the graph substrate.
+
+name: nyra-memory
+
+x-common: &common
+  restart: unless-stopped
+  logging:
+    driver: json-file
+    options:
+      max-size: 10m
+      max-file: "5"
+  security_opt:
+    - no-new-privileges:true
+
+services:
+  letta:
+    <<: *common
+    image: ${LETTA_IMAGE:-letta/letta:latest}
+    container_name: nyra-letta
+    environment:
+      LETTA_PG_URI: postgresql://${LETTA_DB_USER:-letta}:${LETTA_DB_PASSWORD:?set LETTA_DB_PASSWORD}@letta-postgres:5432/${LETTA_DB_NAME:-letta}
+      LETTA_SERVER_PASSWORD: ${LETTA_SERVER_PASSWORD:?set LETTA_SERVER_PASSWORD}
+      LETTA_SERVER_HOST: 0.0.0.0
+      LETTA_SERVER_PORT: 8283
+      OPENAI_API_KEY: ${OPENAI_API_KEY:?set OPENAI_API_KEY}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      LETTA_DEFAULT_LLM_CONFIG: ${LETTA_DEFAULT_LLM_CONFIG:-}
+      LETTA_DEFAULT_EMBEDDING_CONFIG: ${LETTA_DEFAULT_EMBEDDING_CONFIG:-}
+      MEM0_BASE_URL: http://mem0:5000
+      FALKORDB_URL: redis://falkordb:6379
+    depends_on:
+      letta-postgres:
+        condition: service_healthy
+      mem0:
+        condition: service_healthy
+    ports:
+      - 127.0.0.1:${LETTA_HOST_PORT:-8283}:8283
+    volumes:
+      - letta_state:/root/.letta
+    networks:
+      memory_private: {}
+      memory_edge: {}
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O- http://127.0.0.1:8283/v1/health >/dev/null 2>&1 || wget -q -O- http://127.0.0.1:8283/health >/dev/null 2>&1"]
+      interval: 15s
+      timeout: 5s
+      retries: 30
+
+  mem0:
+    <<: *common
+    build:
+      context: ../../..
+      dockerfile: services/mem0/Dockerfile
+    image: ${MEM0_IMAGE:-nyra/mem0-rest:local}
+    container_name: nyra-mem0
+    environment:
+      OPENAI_API_KEY: ${OPENAI_API_KEY:?set OPENAI_API_KEY}
+      QDRANT_HOST: qdrant
+      QDRANT_PORT: 6333
+      FALKORDB_URL: redis://falkordb:6379
+      MEM0_ENVIRONMENT: production
+    depends_on:
+      qdrant:
+        condition: service_healthy
+      falkordb:
+        condition: service_healthy
+    ports:
+      - 127.0.0.1:${MEM0_HOST_PORT:-5000}:5000
+    networks:
+      memory_private: {}
+      memory_edge: {}
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O- http://127.0.0.1:5000/health >/dev/null 2>&1 || curl -fsS http://127.0.0.1:5000/health >/dev/null 2>&1"]
+      interval: 15s
+      timeout: 5s
+      retries: 20
+
+  falkordb:
+    <<: *common
+    image: falkordb/falkordb:latest
+    container_name: nyra-falkordb
+    environment:
+      FALKORDB_ARGS: >-
+        THREAD_COUNT ${FALKORDB_THREADS:-4}
+        CACHE_SIZE ${FALKORDB_CACHE_SIZE_MB:-2048}
+        TIMEOUT_MAX ${FALKORDB_TIMEOUT_MAX_MS:-60000}
+        TIMEOUT_DEFAULT ${FALKORDB_TIMEOUT_DEFAULT_MS:-30000}
+        QUERY_MEM_CAPACITY ${FALKORDB_QUERY_MEM_CAPACITY:-536870912}
+    volumes:
+      - falkordb_data:/data
+    networks:
+      memory_private:
+        aliases:
+          - graph-store
+    healthcheck:
+      test: ["CMD", "redis-cli", "-h", "127.0.0.1", "-p", "6379", "PING"]
+      interval: 10s
+      timeout: 3s
+      retries: 20
+
+  qdrant:
+    <<: *common
+    image: qdrant/qdrant:latest
+    container_name: nyra-qdrant-memory
+    environment:
+      QDRANT__SERVICE__HTTP_PORT: 6333
+      QDRANT__SERVICE__GRPC_PORT: 6334
+      QDRANT__STORAGE__PERFORMANCE__MAX_SEARCH_THREADS: ${QDRANT_MAX_SEARCH_THREADS:-4}
+      QDRANT__SERVICE__API_KEY: ${QDRANT_API_KEY:-}
+    volumes:
+      - qdrant_data:/qdrant/storage
+    networks:
+      memory_private: {}
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O- http://127.0.0.1:6333/healthz >/dev/null 2>&1"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+
+  letta-postgres:
+    <<: *common
+    image: postgres:16-alpine
+    container_name: nyra-letta-postgres
+    environment:
+      POSTGRES_USER: ${LETTA_DB_USER:-letta}
+      POSTGRES_PASSWORD: ${LETTA_DB_PASSWORD:?set LETTA_DB_PASSWORD}
+      POSTGRES_DB: ${LETTA_DB_NAME:-letta}
+    command:
+      - postgres
+      - -c
+      - max_connections=120
+      - -c
+      - shared_buffers=1GB
+      - -c
+      - effective_cache_size=3GB
+      - -c
+      - maintenance_work_mem=256MB
+      - -c
+      - wal_compression=on
+    volumes:
+      - letta_postgres:/var/lib/postgresql/data
+    networks:
+      memory_private: {}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${LETTA_DB_USER:-letta} -d ${LETTA_DB_NAME:-letta}"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+
+networks:
+  memory_edge:
+    name: nyra_memory_edge
+  memory_private:
+    name: nyra_memory_private
+    internal: true
+
+volumes:
+  letta_postgres:
+  letta_state:
+  falkordb_data:
+  qdrant_data:

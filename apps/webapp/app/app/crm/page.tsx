@@ -1,9 +1,13 @@
 import { Activity, FileText, Target, Users } from "lucide-react"
+import { unstable_noStore as noStore } from "next/cache"
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { applications, crmOverview, leads } from "@/lib/mock-data"
+import { getCrmWorkspaceData } from "@/lib/crm-data"
 
-export default function CrmPage() {
+export default async function CrmPage() {
+  noStore()
+  const { applications, crmOverview, leads, source } = await getCrmWorkspaceData()
+
   return (
     <div className="space-y-6">
       <div>
@@ -11,6 +15,7 @@ export default function CrmPage() {
         <p className="mt-2 text-muted-foreground">
           This page replaces the separate mortgage CRM prototype with an internal overview route inside the main webapp.
         </p>
+        <p className="mt-2 text-xs uppercase tracking-[0.24em] text-primary/80">Source: {source}</p>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
