@@ -5,112 +5,18 @@
     "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
   },
   "permissions": {
-    "allow": [
-      "Bash(npx archon-os:*)",
-      "Bash(npx @archon-os/cli:*)",
-      "mcp__archon-os__:*"
-    ],
+    "allow": [],
     "deny": [],
     "defaultMode": "bypassPermissions"
   },
   "hooks": {
-    "PreToolUse": [
-      {
-        "matcher": "^(Write|Edit|MultiEdit)$",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "[ -n \"$TOOL_INPUT_file_path\" ] && npx @archon-os/cli@latest hooks pre-edit --file \"$TOOL_INPUT_file_path\" 2>/dev/null || true",
-            "timeout": 5000
-          }
-        ]
-      },
-      {
-        "matcher": "^Bash$",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "[ -n \"$TOOL_INPUT_command\" ] && npx @archon-os/cli@latest hooks pre-command --command \"$TOOL_INPUT_command\" 2>/dev/null || true",
-            "timeout": 5000
-          }
-        ]
-      },
-      {
-        "matcher": "^Task$",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "[ -n \"$TOOL_INPUT_prompt\" ] && npx @archon-os/cli@latest hooks pre-task --task-id \"task-$(date +%s)\" --description \"$TOOL_INPUT_prompt\" 2>/dev/null || true",
-            "timeout": 5000
-          }
-        ]
-      }
-    ],
-    "PostToolUse": [
-      {
-        "matcher": "^(Write|Edit|MultiEdit)$",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "[ -n \"$TOOL_INPUT_file_path\" ] && npx @archon-os/cli@latest hooks post-edit --file \"$TOOL_INPUT_file_path\" --success \"${TOOL_SUCCESS:-true}\" 2>/dev/null || true",
-            "timeout": 5000
-          }
-        ]
-      },
-      {
-        "matcher": "^Bash$",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "[ -n \"$TOOL_INPUT_command\" ] && npx @archon-os/cli@latest hooks post-command --command \"$TOOL_INPUT_command\" --success \"${TOOL_SUCCESS:-true}\" 2>/dev/null || true",
-            "timeout": 5000
-          }
-        ]
-      },
-      {
-        "matcher": "^Task$",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "[ -n \"$TOOL_RESULT_agent_id\" ] && npx @archon-os/cli@latest hooks post-task --task-id \"$TOOL_RESULT_agent_id\" --success \"${TOOL_SUCCESS:-true}\" 2>/dev/null || true",
-            "timeout": 5000
-          }
-        ]
-      }
-    ],
     "UserPromptSubmit": [
       {
         "hooks": [
           {
             "type": "command",
-            "command": "[ -n \"$PROMPT\" ] && npx @archon-os/cli@latest hooks route --task \"$PROMPT\" || true",
-            "timeout": 5000
-          },
-          {
-            "type": "command",
             "command": "kild agent-status --self working 2>/dev/null || true",
             "timeout": 5
-          }
-        ]
-      }
-    ],
-    "SessionStart": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "npx @archon-os/cli@latest daemon start --quiet 2>/dev/null || true",
-            "timeout": 5000
-          },
-          {
-            "type": "command",
-            "command": "[ -n \"$SESSION_ID\" ] && npx @archon-os/cli@latest hooks session-restore --session-id \"$SESSION_ID\" 2>/dev/null || true",
-            "timeout": 10000
-          },
-          {
-            "type": "command",
-            "command": ".claude/skills/save-task-list/hooks/verify-task-list.sh",
-            "statusMessage": "Checking for restored task list..."
           }
         ]
       }
@@ -120,46 +26,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "npx @archon-os/cli@latest hooks session-end --save-state true --export-metrics true 2>/dev/null || true",
-            "timeout": 10000
-          },
-          {
-            "type": "command",
-            "command": "npx @archon-os/cli@latest daemon stop --graceful 2>/dev/null || true",
-            "timeout": 5000
-          },
-          {
-            "type": "command",
             "command": "kild agent-status --self idle 2>/dev/null || true",
             "timeout": 5
-          }
-        ]
-      }
-    ],
-    "SubagentStop": [
-      {
-        "matcher": "rulecheck-agent",
-        "hooks": [
-          {
-            "type": "command",
-            "command": ".claude/skills/rulecheck/hooks/slack-notify.sh",
-            "statusMessage": "Notifying Slack..."
-          }
-        ]
-      }
-    ],
-    "SessionEnd": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "npx @archon-os/cli@latest hooks session-end --save-state true --export-metrics true 2>/dev/null || true",
-            "timeout": 10000
-          },
-          {
-            "type": "command",
-            "command": "npx @archon-os/cli@latest memory store --namespace sessions --key \"last-session-$(date +%Y%m%d-%H%M%S)\" --value \"{\\\"endTime\\\": \\\"$(date -Iseconds)\\\", \\\"sessionId\\\": \\\"${SESSION_ID:-unknown}\\\"}\" 2>/dev/null || true",
-            "timeout": 3000
           }
         ]
       }
@@ -167,11 +35,6 @@
     "Notification": [
       {
         "hooks": [
-          {
-            "type": "command",
-            "command": "[ -n \"$NOTIFICATION_MESSAGE\" ] && npx @archon-os/cli@latest memory store --namespace notifications --key \"notify-$(date +%s)\" --value \"$NOTIFICATION_MESSAGE\" 2>/dev/null || true",
-            "timeout": 3000
-          },
           {
             "type": "command",
             "command": "kild agent-status --self waiting 2>/dev/null || true",
@@ -183,7 +46,7 @@
   },
   "statusLine": {
     "type": "command",
-    "command": "npx @archon-os/cli@latest hooks statusline 2>/dev/null || echo \"▊ Project Nyra\""
+    "command": "echo \"Project Nyra\""
   },
   "enabledPlugins": {
     "serena@claude-plugins-official": true,
@@ -194,22 +57,5 @@
     "claude-subconscious@claude-subconscious": true
   },
   "skipDangerousModePermissionPrompt": true,
-  "mcpServers": {
-    "archon-os": {
-      "command": "cmd",
-      "args": [
-        "/c",
-        "npx",
-        "-y",
-        "archon-os@alpha",
-        "mcp",
-        "start"
-      ],
-      "env": {
-        "NODE_ENV": "development"
-      },
-      "priority": "critical",
-      "description": "Main orchestration framework"
-    }
-  }
+  "mcpServers": {}
 }

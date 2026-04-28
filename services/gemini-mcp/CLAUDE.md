@@ -21,7 +21,7 @@ Gemini MCP Server provides a Model Context Protocol bridge to Google's Gemini AI
 - **Framework**: MCP SDK (@modelcontextprotocol)
 - **AI Provider**: Google Gemini API
 - **Protocols**: Stdio (primary), HTTP (fallback)
-- **Integration**: Nexus Router, Claude Flow, Archon OS
+- **Integration**: Nexus Router, Claude Flow
 
 ### Supported Models
 - **Text**: `gemini-pro`, `gemini-1.5-pro`
@@ -74,7 +74,6 @@ REGISTER_WITH_GATEWAY=true
 
 # Orchestrator Integration
 CLAUDE_FLOW_URL=http://localhost:9000
-ARCHON_OS_URL=http://localhost:9001
 ENABLE_DUAL_ORCHESTRATOR=true
 
 # Nexus Router
@@ -429,11 +428,10 @@ const routeRequest = async (request: AIRequest) => {
 
 ### Dual Orchestrator Coordination
 ```typescript
-// Register with both Claude Flow and Archon OS
+// Register with Claude Flow
 const registerWithOrchestrators = async () => {
   const orchestrators = [
     process.env.CLAUDE_FLOW_URL,
-    process.env.ARCHON_OS_URL
   ];
 
   for (const url of orchestrators) {
@@ -611,7 +609,7 @@ npm run format
 
 - **Nexus Router** - Central MCP gateway
 - **Claude Flow** - Agent orchestration
-- **Archon OS** - Task management
+- **** - Task management
 - **Serena MCP** - Agent coordination
 - **LiteLLM Proxy** - Multi-provider routing
 
