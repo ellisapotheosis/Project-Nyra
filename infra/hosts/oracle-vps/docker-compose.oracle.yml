@@ -1,0 +1,54 @@
+# infra/hosts/oracle-vps/docker-compose.oracle.yml
+# 🚀 Project Nyra - Oracle VPS Asynchronous Heavy State Stack
+# 24/7 Uptime | 24GB RAM
+
+version: '3.8'
+
+services:
+  # ── Paperclip (Goal Manager & Agent Dashboard) ─────────────
+  paperclip:
+    image: ghcr.io/paperclipai/paperclip:latest
+    container_name: nyra-paperclip
+    restart: unless-stopped
+    environment:
+      - DATABASE_URL=postgresql://nyra:${POSTGRES_PASSWORD}@postgres:5432/paperclip
+      - SENTRY_WEBHOOK_SECRET=${SENTRY_WEBHOOK_SECRET}
+      - PAPERCLIP_AUTH_DISABLE_SIGN_UP=true
+      - PORT=3100
+    volumes:
+      - paperclip_data:/paperclip
+    ports:
+      - "3111:3100"
+    networks: [nyra_net]
+
+  # ── SearXNG (Self-Hosted Private Search) ───────────────────
+  searxng:
+    image: searxng/searxng:latest
+    container_name: nyra-searxng
+    restart: unless-stopped
+    volumes:
+      - ./searxng:/etc/searxng:ro
+    environment:
+      - SEARXNG_BASE_URL=https://search.ratehunter.net
+    ports:
+      - "8082:8080"
+    networks: [nyra_net]
+
+  # ── Browserless (Headless Puppeteer Scraping) ──────────────
+  browserless:
+    image: browserless/chrome:latest
+    container_name: nyra-browserless
+    restart: unless-stopped
+    environment:
+      - MAX_CONCURRENT_SESSIONS=5
+      - TOKEN=${BROWSERLESS_TOKEN}
+    ports:
+      - "3004:3000"
+    networks: [nyra_net]
+
+networks:
+  nyra_net:
+    external: true
+
+volumes:
+  paperclip_data:

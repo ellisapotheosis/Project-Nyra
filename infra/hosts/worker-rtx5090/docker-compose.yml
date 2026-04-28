@@ -205,7 +205,7 @@ services:
       - PGID=1000
     volumes:
       - syncthing_config:/var/syncthing
-      - /run/desktop/mnt/host/wsl/...:/var/syncthing/data/home
+      - /home/ellisapotheosis:/var/syncthing/data/home
     restart: unless-stopped
 
 volumes:

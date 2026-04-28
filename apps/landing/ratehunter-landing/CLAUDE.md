@@ -13,7 +13,7 @@
 ## APPLICATION CONTEXT
 
 ### Purpose
-RateHunter Landing is the public-facing entry point for the mortgage platform. It showcases competitive rates, educates borrowers, and captures high-quality leads through optimized conversion funnels.
+Landing Page is the public-facing entry point for the mortgage platform. It showcases competitive rates, educates borrowers, and captures high-quality leads through optimized conversion funnels.
 
 ---
 

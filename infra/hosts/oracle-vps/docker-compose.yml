@@ -321,8 +321,9 @@ services:
       qdrant:
         condition: service_started
     environment:
-      FALKORDB_HOST: nyra-falkordb
-      FALKORDB_PORT: 6379
+      FALKORDB_URL: redis://nyra-falkordb:6379
+      QDRANT_HOST: nyra-qdrant
+      QDRANT_PORT: 6333
       OPENAI_API_KEY: ${OPENAI_API_KEY}
       LITELLM_API_BASE: ${LITELLM_API_BASE:-http://orchestrator.trex-fiordland.ts.net:4000/v1}
       LITELLM_API_KEY: ${LITELLM_MASTER_KEY}
@@ -365,6 +366,7 @@ services:
     networks: [nyra_net]
 
   # ── memOS (MemoryTensor) - Hierarchical Memory ────────────────────────────
+
   mem-os:
     image: memorytensor/mem-os:latest
     container_name: nyra-mem-os
@@ -721,17 +723,7 @@ services:
       retries: 5
 
   # ── Syncthing ───────────────────────────────────────────────────────────
-  syncthing:
-    image: syncthing/syncthing:latest
-    container_name: nyra-syncthing
-    network_mode: host
-    environment:
-      - PUID=1000
-      - PGID=1000
-    volumes:
-      - syncthing_config:/var/syncthing
-      - /run/desktop/mnt/host/wsl/...:/var/syncthing/data/home
-    restart: unless-stopped
+
 
 networks:
   nyra_net:
@@ -757,7 +749,6 @@ volumes:
   mempalace_vault:
   nyra_secrets:
   paperclip_data:
-  syncthing_config:
   portainer_data:
   letta_db_data:
   letta_data:
