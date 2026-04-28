@@ -22,7 +22,7 @@ Hard rules:
 - Never expose worker inference endpoints publicly.
 - Never make n8n the system-of-record or the business brain.
 - Never let the assistant directly mutate CRM or databases.
-- Never reintroduce RuVector, Graphiti, Letta, openmemory, or Activepieces into the current architecture.
+- Never reintroduce RuVector or Graphiti into the current architecture.
 - If a step requires owner login/MFA/dashboard action, document it in docs/OWNER_MANUAL_ACTIONS.md and continue.
 
 If uncertain:
@@ -62,10 +62,16 @@ Workers are GPU appliances:
 - `worker-rtx3060` → Ollama, ingestion helpers, summarization, extraction, smaller local tasks
 
 ### Memory
-- Mem0 + FalkorDB is used only for selected assistant/runtime memory.
+- Mem0 is the primary selected assistant/runtime memory layer.
+- OpenMemory MCP is allowed and supported as part of the memory plane.
+- FalkorDB is used as a Mem0 graph backend where graph memory is needed.
+- Qdrant is allowed as the vector backend for Mem0/OpenMemory where configured.
+- Mempalace, ClaudeMem, and MemoryTensor/MemOS are allowed memory infrastructure components.
+- Letta is allowed as a memory-manager agent and long-term agent memory integration.
 
 ### Workflow engine
 - n8n is allowed as internal automation glue.
+- Activepieces is allowed as internal automation glue where explicitly deployed.
 - n8n is not the customer-facing product UI.
 - n8n is not the business brain.
 
@@ -513,12 +519,14 @@ admin surfaces behind Cloudflare Access
 6. Memory model
 Use:
 Mem0 for selected assistant/runtime memory
-FalkorDB as graph backend where graph memory is needed
+OpenMemory MCP where shared MCP memory tools are needed
+FalkorDB as the Mem0 graph backend where graph memory is needed
+Qdrant as the Mem0/OpenMemory vector backend where configured
+Mempalace, ClaudeMem, and MemoryTensor/MemOS as allowed memory infrastructure
+Letta as a memory-manager agent and long-term agent memory integration
 Do not reintroduce:
 RuVector
 Graphiti
-Letta / letta
-openmemory / openmemory MCP
 7. Model serving and routing
 Local model serving
 vLLM on 5090 and 3090 Ti

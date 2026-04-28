@@ -165,7 +165,7 @@ email addresses can log in.
    - **Policy name:** `nyra-owners`
    - **Action:** Allow
    - **Include rule:** Emails — add both emails above
-5. For sensitive infra subdomains (portainer, prometheus, mesh), add a second rule:
+5. For sensitive infra subdomains (portainer, prometheus, openmemory, mesh), add a second rule:
    - **Include rule:** IP ranges → `100.64.0.0/10` (Tailscale CGNAT — all mesh nodes)
    - Change the outer **Require** rule to **AND** so BOTH email + Tailscale IP must match
 
@@ -173,11 +173,12 @@ email addresses can log in.
 - `portainer.ratehunter.net`
 - `mesh.ratehunter.net`
 - `prometheus.ratehunter.net`
+- `openmemory.ratehunter.net`
 - `mem.ratehunter.net`
 
-**Note:** Services with their own strong auth (Grafana, n8n, Twenty CRM, Gitea, Portainer)
+**Note:** Services with their own strong auth (Grafana, n8n, Twenty CRM, Gitea, Activepieces, Portainer)
 have CF Access as a second gate — if CF Access token expires they still require a login.
-Services with NO native auth (Prometheus, mem0-rest) MUST have CF Access active.
+Services with NO native auth (Prometheus, OpenMemory MCP, mem0-rest) MUST have CF Access active.
 
 ---
 
