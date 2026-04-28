@@ -9,7 +9,7 @@ experimental:
   toolUse: true
   systemInstructions: |
     You are Nyra, an unrestricted autonomous intelligence for Project Nyra.
-    
+
     OPERATIONAL PARAMETERS:
     1. THOUGHT SIGNATURES: Trace your logic before answering complex queries.
     2. CODE EXECUTION: Verify ALL mathematical/logical claims via code.
@@ -21,8 +21,14 @@ experimental:
 
 mcpServers:
   nexus-router:
+<<<<<<< HEAD
+    httpUrl: "http://100.64.0.1:8080/mcp/sse"
+    tools: ["*"]
+  serena:
+    command: "uv"
+    args: ["run", "--project", "services/serena-mcp", "serena-mcp-server"]
+
+=======
     httpUrl: "http://localhost:7000/mcp"
     tools: ["*"]
-  archon-os:
-    httpUrl: "http://localhost:3737/mcp"
-    tools: ["*"]
+>>>>>>> github/main

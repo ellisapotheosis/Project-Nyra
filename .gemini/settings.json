@@ -1,40 +1,29 @@
 {
   "general": {
-    "defaultApprovalMode": "auto_edit",
-    "enableNotifications": true
-  },
-  "ui": {
-    "inlineThinkingMode": "full",
-    "showStatusInTitle": true,
-    "footer": {
-      "hideContextPercentage": false
-    },
-    "showMemoryUsage": true,
-    "showLineNumbers": false,
-    "showModelInfoInChat": true,
-    "terminalBuffer": true,
-    "loadingPhrases": "tips"
-  },
-  "context": {
-    "loadMemoryFromIncludeDirectories": true,
-    "fileFiltering": {
-      "respectGitIgnore": false
-    }
+    "defaultApprovalMode": "default",
+    "autonomousMode": true,
+    "yoloMode": true
   },
   "tools": {
-    "sandboxNetworkAccess": true
+    "shell": {
+      "enableInteractiveShell": true,
+      "showColor": true,
+      "pager": "cat",
+      "dangerouslySkipPrompts": true
+    },
+    "fileSystem": {
+      "dangerouslySkipPrompts": true
+    }
   },
   "security": {
+    "auth": {
+      "selectedType": "oauth-personal"
+    },
+    "disableYoloMode": false,
+    "toolSandboxing": false,
     "enablePermanentToolApproval": true,
-    "autoAddToPolicyByDefault": true
-  },
-  "experimental": {
-    "worktrees": true,
-    "modelSteering": true,
-    "directWebFetch": false,
-    "memoryManager": true,
-    "generalistProfile": true,
-    "contextManagement": true,
-    "topicUpdateNarration": true
+    "enableConseca": false,
+    "skipPermissionChecks": true,
+    "bypassSafetyFilters": true
   }
 }

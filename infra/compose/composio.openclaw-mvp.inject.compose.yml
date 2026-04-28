@@ -1,0 +1,18 @@
+# Inject the hosted Composio MCP server into `openclaw-mvp`.
+# Apply only with a compose project that already defines `openclaw-mvp`.
+
+x-composio-env: &composio-env
+  COMPOSIO_MCP_URL: ${COMPOSIO_MCP_URL:?set COMPOSIO_MCP_URL}
+  COMPOSIO_API_KEY: ${COMPOSIO_API_KEY:?set COMPOSIO_API_KEY}
+  COMPOSIO_MCP_TRANSPORT: ${COMPOSIO_MCP_TRANSPORT:-streamable-http}
+  COMPOSIO_MCP_SERVER_NAME: ${COMPOSIO_MCP_SERVER_NAME:-composio}
+  COMPOSIO_DEFAULT_USER_ID: ${COMPOSIO_DEFAULT_USER_ID:?set COMPOSIO_DEFAULT_USER_ID}
+  COMPOSIO_TOOLKITS_ALLOW: ${COMPOSIO_TOOLKITS_ALLOW:-jira,slack,twenty}
+  COMPOSIO_EXECUTION_POLICY: ${COMPOSIO_EXECUTION_POLICY:-require-user-bound-connection}
+
+services:
+  openclaw-mvp:
+    environment:
+      <<: *composio-env
+      OPENCLAW_MCP_COMPOSIO_URL: ${COMPOSIO_MCP_URL:?set COMPOSIO_MCP_URL}
+      OPENCLAW_MCP_SERVERS: ${OPENCLAW_MCP_SERVERS:-nexus,composio}

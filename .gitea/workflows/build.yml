@@ -20,10 +20,13 @@ jobs:
         service:
           - name: nexus-router
             context: .
-            dockerfile: infra/docker/nexus-router/Dockerfile
-          - name: archon-os
-            context: ./services/archon-os
+            dockerfile: infra/images/nexus-router/Dockerfile
+          - name: quote-api
+            context: ./services/quote-api
             dockerfile: Dockerfile
+          - name: crm-api
+            context: .
+            dockerfile: services/crm-api/Dockerfile
           - name: quote-engine
             context: ./services/quote-engine
             dockerfile: Dockerfile
@@ -31,7 +34,7 @@ jobs:
             context: ./services/campaign-engine
             dockerfile: Dockerfile
           - name: backup-agent
-            context: ./infra/docker/backup-agent
+            context: ./infra/images/backup-agent
             dockerfile: Dockerfile
 
     steps:

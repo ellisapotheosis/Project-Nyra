@@ -224,3 +224,46 @@ Both tunnels need new tokens. The existing connectors were deleted from the CF a
 
 **Set public hostname rules** in CF Zero Trust → Tunnels → (each tunnel) → Public Hostnames
 matching the tables in `~/repos/cloudflared/TUNNEL-SETUP-ORACLE.md` and `TUNNEL-SETUP-ORCHESTRATOR.md`.
+
+---
+
+<<<<<<< HEAD
+## Composio Hosted MCP Server URL
+
+The Compose overrides require a hosted MCP URL and user-bound app connections.
+
+**Steps:**
+1. In Composio, create or select the hosted MCP server for Nyra external tools.
+2. Connect the required user/account credentials for Jira, Slack, and Twenty.
+3. Copy the MCP URL and API key into the secret store:
+   - `COMPOSIO_API_KEY`
+   - `COMPOSIO_DEFAULT_USER_ID`
+   - `COMPOSIO_MCP_SERVER_ID`
+   - `COMPOSIO_MCP_URL`
+4. Render `infra/env/composio.env.example` into the node-local secret env file before applying:
+   - `infra/compose/composio.inject.compose.yml`
+   - `infra/compose/composio.openclaw-mvp.inject.compose.yml`
+   - `infra/compose/composio.webapp.inject.compose.yml`
+=======
+## Cloudflare Tunnel UI DNS Import
+
+Manual owner action is required because Cloudflare dashboard login, DNS ownership, and Zero Trust
+Access policy changes require account access.
+
+Use the focused walkthrough and backup configs:
+
+- `docs/CLOUDFLARE_UI_DNS_WALKTHROUGH.md`
+- `infra/hosts/orchestrator/cloudflared-config.yml`
+- `infra/hosts/oracle-vps/cloudflared-config.yml`
+
+Copies have also been placed in `~/repos/cloudflared_DNS_setup` for direct Cloudflare dashboard
+import/reference:
+
+- `orchestrator-cloudflared-config.yml`
+- `oracle-vps-cloudflared-config.yml`
+- `CLOUDFLARE_UI_DNS_WALKTHROUGH.md`
+- `OWNER_MANUAL_ACTIONS.md`
+
+Create or update the two tunnels, import or enter the public hostname mappings, and apply Access
+policies to every private UI before use.
+>>>>>>> github/main

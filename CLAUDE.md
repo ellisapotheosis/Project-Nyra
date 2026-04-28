@@ -4,6 +4,12 @@ Claude Code CLI rules for Project Nyra.
 
 Claude must read `AGENTS.md` before making changes.
 
+## Cluster Architecture
+- **Orchestrator (LAN)**: Control Plane, Nexus Router, LiteLLM, OpenClaw, Monitoring.
+- **Oracle-VPS (Cloud)**: Twenty CRM, Gitea, DBs, Campaign Engine, Public Ingress.
+- **Workers (GPU)**: vLLM (5090, 3090 Ti), Ollama (3060).
+- **Syncthing**: Synchronizes `~/` across the 4 local nodes (orchestrator + 3 workers).
+
 ## Required behavior
 - Follow `AGENTS.md` as the global project contract.
 - Prefer small, verifiable changes.
