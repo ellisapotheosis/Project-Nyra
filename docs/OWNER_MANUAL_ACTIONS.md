@@ -1,12 +1,226 @@
-# Owner Manual Actions
+# OWNER_MANUAL_ACTIONS.md
 
-## Cloudflare Tunnel Public Hostnames
+Manual tasks that AI agents cannot complete for you because they require:
 
-Manual owner action is required because Cloudflare dashboard login, DNS ownership, and Zero Trust Access policy changes require account access.
+- dashboard login
+- MFA
+- OAuth consent
+- purchasing / account acceptance
+- DNS verification
+- domain verification
+- physical device access
 
-Use `docs/CLOUDFLARE_UI_DNS_WALKTHROUGH.md` and these backup configs:
+Agents should always document these steps here instead of blocking.
 
+## Cloudflare
+
+### Tunnel objects
+Create or confirm the tunnel objects and retrieve locally managed credentials JSON files.
+
+Expected tunnel scope:
+- orchestrator tunnel
+- optional oracle tunnel later
+
+### DNS
+Create proxied records for:
+- `nyra.ratehunter.net`
+- `api.ratehunter.net`
+- `hooks.ratehunter.net`
+- `twenty.ratehunter.net`
+- `n8n.ratehunter.net`
+- `grafana.ratehunter.net`
+- `archon.ratehunter.net`
+- `bot.ratehunter.net`
+
+### Cloudflare Access
+Create Access apps/policies for admin surfaces and require MFA.
+
+### Cloudflare Pages landing redeploy
+Cloudflare Pages previously built commit `e27167d216022d90be73f8df433e70ac8183c415`, which still contained orphaned
+gitlinks under `external/` and failed during recursive submodule initialization with:
+`fatal: No url found for submodule path 'external/openclaw-n8n-stack' in .gitmodules`.
+
+The repo-side fix is already on `origin/main`. Pages must rebuild from commit
+`8efd4c1356ae1ab8ad49fc8c6f13223aa9ec64ad` or newer.
+
+**Steps:**
+1. Open Cloudflare Dashboard → Workers & Pages → the landing Pages project.
+2. Verify the production branch is `main`.
+3. Trigger **Retry deployment** or **Create deployment** from the latest `main` commit.
+4. Confirm the deployment commit is `8efd4c13` or newer, not `e27167d`.
+5. If Cloudflare still reuses the old failed deployment, clear any queued/retry state and start a fresh production deploy from `main`.
+
+## Tailscale
+Manual only if you want to enforce additional ACLs, tags, or device policies.
+
+## Twilio / email providers
+Agents cannot:
+- buy phone numbers
+- complete A2P registration
+- verify email domains / DKIM / SPF
+
+Record all provider secrets in gitignored env files only.
+
+## Claude / OpenAI / Gemini
+Agents cannot perform your subscription or OAuth sign-ins for:
+- Claude Code
+- Codex CLI / OpenAI account auth
+- Gemini CLI / Google auth
+
+## Hardware / OS
+Agents cannot:
+- install GPU drivers
+- change BIOS virtualization settings
+- resolve physical thermal or power issues
+
+## Infisical Token Renewal (URGENT)
+
+The `INFISICAL_TOKEN` stored in `infra/env/secrets/shared.env` and `.env.stack-clean` has expired
+(JWT exp ≈ 2026-04-10). The `secrets-init` container falls back to env vars for now, but Infisical
+secret rotation and pull won't work until a new token is generated.
+
+**Steps:**
+1. Log in to https://app.infisical.com
+2. Go to Organization Settings → Machine Identities → find the Nyra identity
+3. Generate a new access token (set a 90-day or 365-day TTL)
+4. Update `infra/env/secrets/shared.env`: replace `INFISICAL_TOKEN='...'` with the new token
+5. Update `infra/env/secrets/.env.stack-clean` and `infra/env/secrets/.env.oracle`
+6. On oracle: `echo "INFISICAL_TOKEN=<new-token>" >> ~/project-nyra/.env.oracle`
+7. Restart secrets-init: `docker compose -f docker-compose.oracle.yml --env-file .env.oracle up -d secrets-init`
+
+## Cloudflared Tunnel Token Regeneration (Orchestrator + Oracle)
+
+Both cloudflared tunnels are broken. Root cause confirmed: the token is delivered correctly to
+the cloudflared container (it connects to CF edge at 198.41.200.43) but CF returns
+"control stream encountered a failure while serving" — a server-side rejection meaning the
+tunnel connector was deleted or expired in the Cloudflare dashboard after ~3 months offline.
+
+**Steps for each tunnel:**
+1. Go to https://dash.cloudflare.com → Zero Trust → Networks → Tunnels
+2. Delete the old stale connector(s) if shown
+3. Create a new tunnel → copy the single-line tunnel token
+4. For orchestrator: replace content of `infra/env/secrets/.env.cloudflared`:
+   ```
+   TUNNEL_TOKEN=<new-orchestrator-token>
+   ```
+5. For oracle: update `infra/env/secrets/.env.oracle` line:
+   ```
+   CLOUDFLARED_TUNNEL_TOKEN=<new-oracle-token>
+   ```
+   Then `scp` it to oracle: `scp infra/env/secrets/.env.oracle ubuntu@100.64.0.3:~/project-nyra/.env.oracle`
+6. Restart on oracle: `ssh ubuntu@100.64.0.3 "cd ~/project-nyra/infra/hosts/oracle-vps && docker compose -f docker-compose.oracle.yml --env-file ~/project-nyra/.env.oracle up -d cloudflared"`
+
+## Grafbase Nexus — Docker Pull (Orchestrator)
+
+Docker Desktop on Windows blocks `docker pull` from GHCR in SSH sessions (credential manager
+requires interactive Windows session). Must be done once interactively.
+
+**Steps (run on the orchestrator Windows machine, NOT via SSH):**
+
+```powershell
+# Pull the Grafbase Nexus image
+docker pull ghcr.io/grafbase/nexus:stable
+
+# Start Grafbase Nexus on port 6000 (run from repo root)
+docker run -d `
+  --name nyra-nexus-grafbase `
+  --network nyra-net `
+  -p 6000:6000 `
+  -v C:\path\to\project-nyra\infra\configs\nexus\nexus.toml:/etc/nexus/nexus.toml:ro `
+  -e LITELLM_MASTER_KEY=<from-infisical> `
+  -e ANTHROPIC_API_KEY=<from-infisical> `
+  -e GITHUB_TOKEN=<from-infisical> `
+  ghcr.io/grafbase/nexus:stable
+```
+
+**Then test:**
+```
+curl http://orchestrator.trex-fiordland.ts.net:6000/health
+curl http://orchestrator.trex-fiordland.ts.net:6000/mcp/sse -H "Accept: text/event-stream"
+```
+
+Once Nexus is running, the `.mcp.json` `nexus-router` entry will connect on reload.
+
+---
+
+## Cloudflare Access OIDC — Protect All Tunnel Subdomains
+
+Both tunnel subdomains (oracle + orchestrator) should be gated with CF Access so only your two
+email addresses can log in.
+
+**Allowed identities:**
+- `edaneandersen@gmail.com`
+- `ellisandersen@ratehunter.net`
+
+**Steps (Cloudflare Zero Trust Dashboard):**
+
+1. Go to **Zero Trust → Access → Applications → Add an application**
+2. Select **Self-hosted**
+3. For each subdomain listed in `~/repos/cloudflared/TUNNEL-SETUP-ORACLE.md` and
+   `~/repos/cloudflared/TUNNEL-SETUP-ORCHESTRATOR.md`, create one Application:
+   - **Application domain:** e.g. `n8n.ratehunter.net`
+   - **Session duration:** 24h
+   - **Identity provider:** Google (or GitHub)
+4. Create a **Policy** for each application:
+   - **Policy name:** `nyra-owners`
+   - **Action:** Allow
+   - **Include rule:** Emails — add both emails above
+5. For sensitive infra subdomains (portainer, prometheus, mesh), add a second rule:
+   - **Include rule:** IP ranges → `100.64.0.0/10` (Tailscale CGNAT — all mesh nodes)
+   - Change the outer **Require** rule to **AND** so BOTH email + Tailscale IP must match
+
+**Subdomains needing Tailscale IP restriction (in addition to OIDC):**
+- `portainer.ratehunter.net`
+- `mesh.ratehunter.net`
+- `prometheus.ratehunter.net`
+- `mem.ratehunter.net`
+
+**Note:** Services with their own strong auth (Grafana, n8n, Twenty CRM, Gitea, Portainer)
+have CF Access as a second gate — if CF Access token expires they still require a login.
+Services with NO native auth (Prometheus, mem0-rest) MUST have CF Access active.
+
+---
+
+## Regenerate Cloudflare Tunnel Tokens
+
+Both tunnels need new tokens. The existing connectors were deleted from the CF account.
+
+**Oracle VPS tunnel:**
+1. Go to Cloudflare Zero Trust → Tunnels → Create tunnel (or select existing oracle tunnel)
+2. Choose **Cloudflared** connector type
+3. Copy the tunnel token (starts with `ey...`)
+4. In Infisical → Project → `/machines/oracle` → add secret `ORACLE_TUNNEL_TOKEN=<token>`
+5. Restart oracle cloudflared: `ssh ubuntu@100.64.0.3 "docker restart nyra-cloudflared"`
+
+**Orchestrator tunnel:**
+1. Same process — create/select orchestrator tunnel in CF Zero Trust
+2. Copy the tunnel token
+3. In Infisical → `/machines/orchestrator` → add secret `ORCHESTRATOR_TUNNEL_TOKEN=<token>`
+4. Restart orchestrator tunnel: `make cf-orch-down && make cf-orch-up`
+
+**Set public hostname rules** in CF Zero Trust → Tunnels → (each tunnel) → Public Hostnames
+matching the tables in `~/repos/cloudflared/TUNNEL-SETUP-ORACLE.md` and `TUNNEL-SETUP-ORCHESTRATOR.md`.
+
+---
+
+## Cloudflare Tunnel UI DNS Import
+
+Manual owner action is required because Cloudflare dashboard login, DNS ownership, and Zero Trust
+Access policy changes require account access.
+
+Use the focused walkthrough and backup configs:
+
+- `docs/CLOUDFLARE_UI_DNS_WALKTHROUGH.md`
 - `infra/hosts/orchestrator/cloudflared-config.yml`
 - `infra/hosts/oracle-vps/cloudflared-config.yml`
 
-Create the two tunnels, add the public hostname mappings, and apply Access policies to every private UI before use.
+Copies have also been placed in `~/repos/cloudflared_DNS_setup` for direct Cloudflare dashboard
+import/reference:
+
+- `orchestrator-cloudflared-config.yml`
+- `oracle-vps-cloudflared-config.yml`
+- `CLOUDFLARE_UI_DNS_WALKTHROUGH.md`
+- `OWNER_MANUAL_ACTIONS.md`
+
+Create or update the two tunnels, import or enter the public hostname mappings, and apply Access
+policies to every private UI before use.
