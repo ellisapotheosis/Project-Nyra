@@ -70,6 +70,7 @@ cat <<EOF > "$WAVE_CONFIG_DIR/keybindings.json"
 [
   { "keys": ["Cmd:Shift:S"], "command": "app:newTab", "args": { "preset": "zellij-swarm" }, "info": "Attach Zellij Swarm" },
   { "keys": ["Cmd:Shift:R"], "command": "app:newTab", "args": { "preset": "nyra-grid" }, "info": "Launch NYRA-GRID" },
+  { "keys": ["Cmd:Shift:N"], "command": "app:newTab", "args": { "preset": "clawteam-nerve" }, "info": "Launch Nerve UIs" },
   { "keys": ["Cmd:Shift:G"], "command": "app:newTab", "args": { "preset": "ghost-layer-debug" }, "info": "Debug Ghost Layer" },
   { "keys": ["Cmd:Shift:E"], "command": "app:toggleSidebar", "info": "Toggle Wave AI (Ghost Proxy)" },
   { "keys": ["Cmd:Shift:W"], "command": "pane:close", "info": "Close Active Pane" },
