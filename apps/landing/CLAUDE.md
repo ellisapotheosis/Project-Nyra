@@ -4,7 +4,7 @@
 >
 > **Inherits from**: `apps/CLAUDE.md`
 > **Stack**: Next.js 15/Vite, React 18-19, TypeScript 5, Tailwind CSS 4
-> **Port**: 3001 (RateHunter landing), 3000 (others)
+> **Port**: 3001 (ratehunter-landing), 3000 (others)
 > **Type**: SSG/Landing Pages (public facing)
 
 ## Overview
