@@ -1,4 +1,4 @@
-# Archon OS Configuration - Nexus Router Service
+# Nexus Router Service
 
 ## Service Overview
 
@@ -82,7 +82,7 @@ Client Request → [Protocol Parser] → [Authentication] → [Router] → Targe
 - Unified authentication
 
 ### Used By
-- All Archon OS agents
+- All  agents
 - External client applications
 - Internal microservices
 

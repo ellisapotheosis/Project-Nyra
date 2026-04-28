@@ -21,7 +21,7 @@ Sequential Thinking MCP Server enables Claude agents to engage in structured ste
 - **Framework**: MCP SDK (@modelcontextprotocol/server-sequential-thinking)
 - **Storage**: In-memory with optional Redis persistence
 - **Protocols**: Stdio (primary), HTTP (fallback)
-- **Integrations**: Nexus Router, Claude Flow, Archon OS
+- **Integrations**: Nexus Router, Claude Flow
 
 ### Supported Reasoning Patterns
 - Linear multi-step reasoning
@@ -100,7 +100,6 @@ ROUTE_REQUESTS_THROUGH_NEXUS=true
 
 # Orchestrator Integration
 CLAUDE_FLOW_URL=http://localhost:9000
-ARCHON_OS_URL=http://localhost:9001
 
 # Caching
 REDIS_URL=redis://localhost:6379
@@ -721,7 +720,7 @@ npm run analyze-chains
 
 - **Nexus Router** - Central MCP gateway
 - **Claude Flow** - Agent orchestration
-- **Archon OS** - Task management
+- **** - Task management
 - **Gemini MCP** - AI provider
 
 ## Resources

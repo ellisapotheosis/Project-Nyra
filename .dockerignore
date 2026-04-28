@@ -50,7 +50,6 @@ data/
 .env.test
 
 # Agent and AI Meta-directories
-.archon/
 .claude/
 .gemini/
 .codex/

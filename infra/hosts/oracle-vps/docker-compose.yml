@@ -1,4 +1,4 @@
-name: nyra-oracle
+name: nyra-network
 
 services:
 
@@ -6,7 +6,7 @@ services:
 
   portainer-edge-agent:
     image: portainer/agent:2.27.9
-    container_name: nyra-portainer-agent
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-portainer-agent
     restart: unless-stopped
     env_file: [.env]
     environment:
@@ -23,7 +23,7 @@ services:
 
   postgres:
     image: postgres:15
-    container_name: nyra-postgres
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-postgres
     restart: unless-stopped
     env_file: [.env]
     environment:
@@ -42,7 +42,7 @@ services:
 
   redis-cache:
     image: redis:7-alpine
-    container_name: nyra-redis-cache
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-redis-cache
     restart: unless-stopped
     env_file: [.env]
     command: ["redis-server", "--appendonly", "yes"]
@@ -57,7 +57,7 @@ services:
 
   twenty-db:
     image: postgres:15
-    container_name: nyra-twenty-db
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-twenty-db
     restart: unless-stopped
     env_file: [.env]
     environment:
@@ -75,7 +75,7 @@ services:
 
   twenty:
     image: twentycrm/twenty:latest
-    container_name: nyra-twenty
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-twenty
     restart: unless-stopped
     env_file: [.env]
     depends_on:
@@ -100,7 +100,7 @@ services:
 
   twenty-worker:
     image: twentycrm/twenty:latest
-    container_name: nyra-twenty-worker
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-twenty-worker
     restart: unless-stopped
     env_file: [.env]
     command: ["node", "packages/twenty-server/dist/src/main-worker.js"]
@@ -119,34 +119,23 @@ services:
       - twenty_docker_data:/app/docker-data
     networks: [nyra_net]
 
-  activepieces:
-    image: activepieces/activepieces:latest
-    container_name: nyra-activepieces
+  twenty-mcp:
+    build:
+      context: ../../../services/twenty-mcp-jezweb
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-twenty-mcp
     restart: unless-stopped
     env_file: [.env]
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis-cache:
-        condition: service_healthy
-    environment:
-      AP_DB_TYPE: ${AP_DB_TYPE:-POSTGRES}
-      AP_POSTGRES_HOST: ${AP_POSTGRES_HOST:-nyra-postgres}
-      AP_POSTGRES_PORT: ${AP_POSTGRES_PORT:-5432}
-      AP_POSTGRES_DATABASE: ${AP_POSTGRES_DATABASE:-activepieces}
-      AP_POSTGRES_USERNAME: ${AP_POSTGRES_USERNAME:-nyra}
-      AP_POSTGRES_PASSWORD: ${AP_POSTGRES_PASSWORD}
-      AP_REDIS_HOST: ${AP_REDIS_HOST:-nyra-redis-cache}
-      AP_REDIS_PORT: ${AP_REDIS_PORT:-6379}
-      AP_REDIS_PASSWORD: ${AP_REDIS_PASSWORD:-}
-      AP_ENCRYPTION_KEY: ${AP_ENCRYPTION_KEY}
-      AP_JWT_SECRET: ${AP_JWT_SECRET}
-      AP_FRONTEND_URL: ${AP_FRONTEND_URL:-https://active.ratehunter.net}
-      AP_EXECUTION_MODE: ${AP_EXECUTION_MODE:-UNSANDBOXED}
-      AP_TELEMETRY_ENABLED: ${AP_TELEMETRY_ENABLED:-false}
-    networks: [nyra_net]
     ports:
-      - "8080:80"
+      - "8400:8400"
+    environment:
+      - TWENTY_API_KEY=${TWENTY_API_KEY}
+      - TWENTY_API_URL=http://twenty:3000
+      - TWENTY_GRAPHQL_URL=http://twenty:3000/graphql
+      - PORT=8400
+    depends_on:
+      twenty:
+        condition: service_started
+    networks: [nyra_net]
 
   n8n:
     build:
@@ -155,7 +144,7 @@ services:
       args:
         N8N_TWENTY_NODES_GIT: ${N8N_TWENTY_NODES_GIT:-}
         N8N_EXTRA_PACKAGES: ${N8N_EXTRA_PACKAGES:-}
-    container_name: nyra-n8n
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-n8n
     restart: unless-stopped
     env_file: [.env]
     depends_on:
@@ -192,7 +181,7 @@ services:
   quote-api:
     build:
       context: ../../../services/quote-api
-    container_name: nyra-quote-api
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-quote-api
     restart: unless-stopped
     environment:
       PORT: ${QUOTE_API_PORT:-7070}
@@ -203,7 +192,7 @@ services:
 
   cloudflared:
     image: cloudflare/cloudflared:latest
-    container_name: nyra-cloudflared
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-cloudflared
     restart: unless-stopped
     env_file: [.env]
     command: ["tunnel", "run", "--token", "${ORACLE_TUNNEL_TOKEN}"]
@@ -217,7 +206,7 @@ services:
 
   prometheus:
     image: prom/prometheus:latest
-    container_name: nyra-prometheus
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-prometheus
     restart: unless-stopped
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
@@ -231,7 +220,7 @@ services:
 
   loki:
     image: grafana/loki:3.4.3
-    container_name: nyra-loki
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-loki
     restart: unless-stopped
     command: -config.file=/etc/loki/local-config.yaml
     volumes:
@@ -242,7 +231,7 @@ services:
 
   grafana:
     image: grafana/grafana:latest
-    container_name: nyra-grafana
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-grafana
     restart: unless-stopped
     depends_on:
       - prometheus
@@ -259,7 +248,7 @@ services:
 
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:latest
-    container_name: nyra-cadvisor
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-cadvisor
     restart: unless-stopped
     privileged: true
     volumes:
@@ -277,7 +266,7 @@ services:
 
   openwebui:
     image: ghcr.io/open-webui/open-webui:main
-    container_name: nyra-openwebui
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-openwebui
     restart: unless-stopped
     environment:
       OPENAI_API_BASE_URL:
@@ -295,7 +284,7 @@ services:
 
   falkordb:
     image: falkordb/falkordb:latest
-    container_name: nyra-falkordb
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-falkordb
     restart: unless-stopped
     ports:
       - "6381:6379" # Mapped to 6381 to avoid conflict with nyra-redis-cache
@@ -311,16 +300,12 @@ services:
   mem0-rest:
     build:
       context: ../../../services/mem0
-    container_name: nyra-mem0-rest
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-mem0-rest
     restart: unless-stopped
     depends_on:
       falkordb:
         condition: service_healthy
-      qdrant:
-        condition: service_started
     environment:
-      QDRANT_HOST: nyra-qdrant
-      QDRANT_PORT: "6333"
       FALKORDB_URL: redis://nyra-falkordb:6379
       OPENAI_API_KEY: ${OPENAI_API_KEY}
       LITELLM_API_URL:
@@ -335,51 +320,12 @@ services:
       timeout: 10s
       retries: 3
 
-  # ── Qdrant (vector store for OpenMemory MCP) ─────────────────────────────
-  # Note: qdrant image is distroless (no curl/wget) — no healthcheck possible.
-  qdrant:
-    image: qdrant/qdrant:latest
-    container_name: nyra-qdrant
-    restart: unless-stopped
-    volumes:
-      - qdrant_data:/qdrant/storage
-    networks: [nyra_net]
-
-  # ── OpenMemory MCP (self-hosted mem0 MCP server) ─────────────────────────
-  # Built from source: github.com/mem0ai/mem0/tree/main/openmemory/api
-  # No published Docker image exists; Dockerfile sparse-clones the repo at build time.
-  openmemory-mcp:
-    build:
-      context: ../../../services/openmemory-mcp
-    container_name: nyra-openmemory-mcp
-    restart: unless-stopped
-    depends_on:
-      qdrant:
-        condition: service_started
-    environment:
-      OPENAI_API_KEY: ${OPENAI_API_KEY}
-      QDRANT_HOST: nyra-qdrant
-      QDRANT_PORT: "6333"
-      USER: nyra
-      LLM_PROVIDER: openai
-      LLM_MODEL: gpt-4o-mini
-      EMBEDDER_PROVIDER: openai
-      EMBEDDER_MODEL: text-embedding-3-small
-    ports:
-      - "8765:8765"
-    networks: [nyra_net]
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8765/docs"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-
   # ── Infisical MCP (stdio→SSE bridge via supergateway) ────────────────────
   # Converts @infisical/mcp stdio server to HTTP/SSE so Nexus can aggregate it.
   # Exposed on port 8766; Nexus connects at http://100.64.0.3:8766/sse
   infisical-mcp:
     image: node:20-alpine
-    container_name: nyra-infisical-mcp
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-infisical-mcp
     restart: unless-stopped
     environment:
       INFISICAL_TOKEN: ${INFISICAL_TOKEN}
@@ -405,7 +351,7 @@ services:
     build:
       context: ../../../services/mempalace-mcp
       dockerfile: Dockerfile
-    container_name: nyra-mempalace-mcp
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-mempalace-mcp
     restart: unless-stopped
     command: ["python", "-m", "mempalace.mcp_server"]
     environment:
@@ -423,36 +369,11 @@ services:
       retries: 3
     networks: [nyra_net]
 
-  twentycrm-mcp:
-    image: node:20-alpine
-    container_name: nyra-twentycrm-mcp
-    working_dir: /app
-    restart: unless-stopped
-    command: ["sh", "-c", "npm install && npm start"]
-    depends_on:
-      twenty:
-        condition: service_started
-    environment:
-      MCP_SERVER_PORT: 3022
-      TWENTY_CRM_URL: http://twenty:3000
-      TWENTY_CRM_API_KEY: ${TWENTYCRM_API_KEY:-}
-      TWENTY_CRM_WORKSPACE_ID: ${TWENTYCRM_WORKSPACE_ID:-default}
-      NODE_ENV: production
-      NPM_CONFIG_CACHE: /tmp/.npm
-    ports:
-      - "${TWENTYCRM_MCP_PORT:-8182}:3022"
-    volumes:
-      - ../../../services/twenty-crm-mcp-server:/app:rw
-    networks: [nyra_net]
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3022/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+
 
   gitea:
     image: gitea/gitea:1.21-rootless
-    container_name: nyra-gitea
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-gitea
     hostname: gitea
     restart: unless-stopped
     depends_on:
@@ -495,7 +416,7 @@ services:
 
   gitea-runner:
     image: gitea/act_runner:latest
-    container_name: nyra-gitea-runner
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-gitea-runner
     hostname: gitea-runner
     restart: unless-stopped
     depends_on:
@@ -515,7 +436,7 @@ services:
 
   github-mirror-sync:
     image: alpine/git:latest
-    container_name: nyra-github-mirror
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-github-mirror
     hostname: github-mirror
     restart: unless-stopped
     depends_on:
@@ -543,7 +464,7 @@ services:
   gitea-mcp:
     build:
       context: ../../../services/gitea-mcp
-    container_name: nyra-gitea-mcp
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-gitea-mcp
     restart: unless-stopped
     depends_on:
       gitea:
@@ -565,7 +486,7 @@ services:
     build:
       context: ../../../services/quote-engine
       dockerfile: Dockerfile
-    container_name: nyra-quote-engine
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-quote-engine
     restart: unless-stopped
     ports:
       - "5000:5000"
@@ -575,7 +496,7 @@ services:
     build:
       context: ../../../
       dockerfile: services/crm-api/Dockerfile
-    container_name: nyra-crm-api
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-crm-api
     restart: unless-stopped
     depends_on:
       twenty:
@@ -599,7 +520,7 @@ services:
     build:
       context: ../../../services/campaign-engine
       dockerfile: Dockerfile
-    container_name: nyra-campaign-engine
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-campaign-engine
     restart: unless-stopped
     ports:
       - "8020:8020"
@@ -608,14 +529,13 @@ services:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-nyra}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-nyra}
       - N8N_BASE_URL=http://nyra-n8n:5678
       - N8N_WEBHOOK_URL=http://nyra-n8n:5678/webhook/nyra/dispatch
-      - ACTIVEPIECES_BASE_URL=http://nyra-activepieces:8080
       - LOG_LEVEL=info
     networks: [nyra_net]
 
   # ── Paperclip AI (Multi-Agent Orchestration) ─────────────────────────────
   paperclip:
     image: ghcr.io/paperclipai/paperclip:latest
-    container_name: nyra-paperclip
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-paperclip
     restart: unless-stopped
     environment:
       - PAPERCLIP_AUTH_DISABLE_SIGN_UP=true
@@ -630,19 +550,21 @@ services:
   # Exposes Paperclip orchestration tools to the Nexus aggregator.
   paperclip-mcp:
     image: node:20-alpine
-    container_name: nyra-paperclip-mcp
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-paperclip-mcp
     restart: unless-stopped
     environment:
       NPM_CONFIG_CACHE: /tmp/.npm
       PAPERCLIP_API_URL: http://nyra-paperclip:3100
       PAPERCLIP_API_KEY: ${PAPERCLIP_API_KEY:-dummy}
-    volumes:
     command:
       - npx
       - -y
       - supergateway
-      - --stdio
-      - "npx -y @paperclipai/mcp-server"
+      - --sse
+      - http://nyra-paperclip:3100/mcp
+      - npx
+      - -y
+      - "@paperclipai/mcp-server"
       - --port
       - "8767"
     ports:
@@ -653,7 +575,7 @@ services:
   # THE single entrypoint: MCP tool aggregation + LLM proxy
   nexus:
     image: ghcr.io/grafbase/nexus:stable
-    container_name: nyra-nexus
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-nexus
     restart: unless-stopped
     ports:
       - "6000:3000"
@@ -665,7 +587,7 @@ services:
       GITHUB_TOKEN: ${GITHUB_TOKEN}
       MEMPALACE_URL: ${MEMPALACE_URL:-}
     volumes:
-      - ../../configs/nexus/nexus.toml:/etc/nexus/nexus.toml:ro
+      - ./nexus.toml:/etc/nexus.toml:ro
     networks: [nyra_net]
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
@@ -675,8 +597,9 @@ services:
 
   # ── Syncthing ───────────────────────────────────────────────────────────
   syncthing:
+    profiles: ["sync"]
     image: syncthing/syncthing:latest
-    container_name: nyra-syncthing
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-syncthing
     network_mode: host
     environment:
       - PUID=1000
@@ -706,7 +629,6 @@ volumes:
   gitea_config:
   gitea_runner_data:
   falkordb_data:
-  qdrant_data:
   mempalace_data:
   mempalace_vault:
   paperclip_data:

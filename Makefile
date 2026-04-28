@@ -156,9 +156,20 @@ verify-paths:
 # --- CORE TARGETS ---
 
 up:
+	@echo "--- 🐾 Deploying to Local Orchestrator ---"
+	@TARGET_DIR=$(dir $(ORCHESTRATOR_COMPOSE)); \
+	if [ -f $(INFISICAL_ENV_FILE) ]; then \
+		echo "🔐 Authenticating and fetching secrets..."; \
+		export $$(grep -v '^#' $(INFISICAL_ENV_FILE) | xargs) && \
+		infisical export --projectId $(INFISICAL_PROJECT_ID) --env dev --path /shared --format=dotenv > $${TARGET_DIR}.env; \
+	else \
+		echo "⚠️  No $(INFISICAL_ENV_FILE) found. Proceeding without Infisical export."; \
+	fi
 	@profiles=$$(echo "$(DEFAULT_PROFILES)" | tr ',' ' '); \
 	for p in $$profiles; do args="$$args --profile $$p"; done; \
 	$(COMPOSE) $$args up -d
+	@echo "🧹 Shredding temporary secret files from $${TARGET_DIR}..."
+	@rm -f $${TARGET_DIR}.env
 
 down:
 	$(COMPOSE) down --remove-orphans
@@ -194,8 +205,8 @@ define DEPLOY_REMOTE
 	@TARGET_DIR=$(dir $(firstword $(2))); \
 	if [ -f $(INFISICAL_ENV_FILE) ]; then \
 		echo "🔐 Authenticating and fetching secrets for $(1)..."; \
-		export $$(cat $(INFISICAL_ENV_FILE) | xargs) && \
-		infisical export --projectId $(INFISICAL_PROJECT_ID) --env dev --path /security/infisical --format=dotenv > $${TARGET_DIR}.env; \
+		export $$(grep -v '^#' $(INFISICAL_ENV_FILE) | xargs) && \
+		infisical export --projectId $(INFISICAL_PROJECT_ID) --env dev --path /shared --format=dotenv > $${TARGET_DIR}.env; \
 	else \
 		echo "⚠️  No $(INFISICAL_ENV_FILE) found. Proceeding without Infisical export."; \
 	fi
