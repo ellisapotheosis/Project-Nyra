@@ -600,7 +600,7 @@ services:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-nyra}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-nyra}
       - N8N_BASE_URL=http://nyra-n8n:5678
       - N8N_WEBHOOK_URL=http://nyra-n8n:5678/webhook/nyra/dispatch
-      - ACTIVEPIECES_BASE_URL=http://nyra-activepieces:8080
+      - ACTIVEPIECES_BASE_URL=http://activepieces:80
       - LOG_LEVEL=info
     networks: [nyra_net]
 
