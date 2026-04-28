@@ -1,53 +1,57 @@
-# 09 LiteLLM + Nexus Router Notes
+# 09 LiteLLM and Nexus Router
+
+Updated: 2026-04-27
 
 ## Active services
 
-- `litellm` in `infra/docker-compose.yml` (port default 4000)
-- `nexus-router` in `infra/docker-compose.yml` (ports default 7000/8080/9091)
-- optional one-hop router compose: `infra/orchestrator/docker-compose.nexus-one-hop.yml`
+| Host | Service | Compose | Port(s) |
+|---|---|---|---:|
+| `orchestrator` | `litellm` | `infra/hosts/orchestrator/docker-compose.yml` | `4000` |
+| `orchestrator` | `nexus_onehop` | `infra/hosts/orchestrator/docker-compose.nexus-one-hop.yml` | `6000`, `6011` |
+| `oracle-vps` | `nexus` | `infra/hosts/oracle-vps/docker-compose.yml` | `6000 -> 3000` |
+| `worker-rtx3060` | `litellm` | `infra/hosts/worker-rtx3060/docker-compose.yml` | `4000` |
+| `worker-rtx3090ti` | `litellm` | `infra/hosts/worker-rtx3090ti/docker-compose.yml` | `4000` |
+| `worker-rtx5090` | `litellm` | `infra/hosts/worker-rtx5090/docker-compose.yml` | `4000` |
 
-## Exposure policy
+## Current topology
 
-- `litellm` and `nexus-router` may be exposed via Cloudflared with Access.
-- backend worker inference endpoints remain private/Tailscale/local-only.
-- no datastore-adjacent ports are tunneled.
+- Orchestrator LiteLLM is the local control-plane model gateway.
+- Worker LiteLLM services sit beside local Ollama/vLLM backends and should be reached over private mesh/Tailscale.
+- Oracle Nexus is present as an always-on MCP/LLM entrypoint on host port `6000`.
+- Optional orchestrator `nexus_onehop` is a separate one-hop gateway and should be started only when needed because it also binds `6000`.
 
 ## Health targets
 
-- LiteLLM: `/health`
-- Nexus router: `/health`
+| Service | Probe |
+|---|---|
+| Orchestrator LiteLLM | `http://127.0.0.1:4000/health` |
+| Oracle Nexus | `http://oracle:6000/health` or host-local equivalent |
+| Worker LiteLLM | `http://<worker>:4000/health` |
+| vLLM workers | `http://<worker>:8000/v1/models` |
 
-## Operational guidance
+## Exposure policy
 
-1. Keep model backend URLs internal/private where possible.
-2. Restrict public ingress to API consumers that require Internet access.
-3. Add Access service tokens for machine-to-machine integrations.
+- LiteLLM and Nexus endpoints are not public by default.
+- If exposed, place them behind Cloudflared and Cloudflare Access.
+- Worker inference endpoints remain private/Tailscale-only.
+- Do not tunnel Redis, model cache stores, or direct vLLM/Ollama ports to the public internet.
 
 ## Related files
 
-- `infra/docker-compose.yml`
-- `infra/orchestrator/docker-compose.nexus-one-hop.yml`
-- `infra/cloudflared/config.yml`
-
-## Security notes
-- Do not expose admin/debug endpoints without Access and audit logging.
-- Keep provider credentials in Infisical, not inline env files.
-- For high-risk integrations, require mTLS or service-token auth in front of gateway routes.
-
-## Reliability notes
-- Define alerting on `/health` failure rates and latency percentiles.
-- Keep one-hop profile optional to reduce blast radius for standard operations.
-
-## Evidence references
-- Source compose: `infra/docker-compose.yml`
-- Targeting policy: `infra/cloudflared/config.yml`
-- Control surface docs: `docs/02_ports_registry.md`
-
-## Command snippets
-```bash
-rg -n "<service-name>|ports:" infra/docker-compose.yml
+```text
+infra/hosts/orchestrator/docker-compose.yml
+infra/hosts/orchestrator/docker-compose.nexus-one-hop.yml
+infra/hosts/oracle-vps/docker-compose.yml
+infra/hosts/oracle-vps/nexus.toml
+infra/hosts/worker-rtx3060/docker-compose.yml
+infra/hosts/worker-rtx3090ti/docker-compose.yml
+infra/hosts/worker-rtx5090/docker-compose.yml
 ```
 
+## Command snippets
+
 ```bash
-rg -n "hostname:|service:" infra/cloudflared/config.yml
+docker compose -f infra/hosts/orchestrator/docker-compose.yml ps litellm
+docker --context oracle compose -f infra/hosts/oracle-vps/docker-compose.yml ps nexus
+docker --context worker-rtx5090 compose -f infra/hosts/worker-rtx5090/docker-compose.yml ps vllm litellm
 ```
