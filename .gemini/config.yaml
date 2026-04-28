@@ -21,8 +21,9 @@ experimental:
 
 mcpServers:
   nexus-router:
-    httpUrl: "http://localhost:7000/mcp"
+    httpUrl: "http://100.64.0.1:8080/mcp/sse"
     tools: ["*"]
-  archon-os:
-    httpUrl: "http://localhost:3737/mcp"
-    tools: ["*"]
+  serena:
+    command: "uv"
+    args: ["run", "--project", "services/serena-mcp", "serena-mcp-server"]
+
