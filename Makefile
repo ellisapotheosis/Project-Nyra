@@ -10,41 +10,25 @@ COMPOSE ?= docker compose -f $(COMPOSE_FILE)
 CF_ORCH_COMPOSE  := infra/hosts/orchestrator/docker-compose.cloudflared.yml
 ORACLE_APPS_COMPOSE := infra/hosts/oracle-vps/docker-compose.apps.yml
 
+# Service Specific Compose Files
+ARCHON_ENV_FILE ?= external/archon/nyra-configs/env/archon.env
+
 # Host Specific Compose Files
 ORCHESTRATOR_COMPOSE := infra/hosts/orchestrator/docker-compose.yml
-ORCHESTRATOR_BITNET_COMPOSE := infra/hosts/orchestrator/docker-compose.bitnet.yml
 WORKER_3060_COMPOSE := infra/hosts/worker-rtx3060/docker-compose.yml
 WORKER_3090TI_COMPOSE := infra/hosts/worker-rtx3090ti/docker-compose.yml
 WORKER_5090_COMPOSE := infra/hosts/worker-rtx5090/docker-compose.yml
 ORACLE_COMPOSE := infra/hosts/oracle-vps/docker-compose.yml
-<<<<<<< HEAD
 ORACLE_AGENT_UTILS_COMPOSE := infra/hosts/oracle-vps/docker-compose.oracle.yml
 ORACLE_MEMORY_COMPOSE := infra/hosts/oracle-vps/docker-compose.memory.yml
 AGENT_INFRA_ENV ?= prod
-=======
-ORACLE_GITEA_COMPOSE := infra/hosts/oracle-vps/docker-compose.gitea.yml
-ORACLE_GITEA_ENV ?= .env.gitea
-GITEA_CONTAINER_PREFIX ?= nyra
-ORACLE_SSH ?= oracle
-ORACLE_REMOTE_REPO ?= /home/ubuntu/project-nyra
-ORCHESTRATOR_SSH ?= 100.64.0.1
-ORCHESTRATOR_REMOTE_REPO ?= /home/ellisapotheosis/repos/project-nyra
-ORCHESTRATOR_DOCKER_CONFIG ?= /tmp/docker-empty
-BITNET_CONTAINER_NAME ?= nyra-bitnet
->>>>>>> github/main
 
 # Voice Setup Compose Files
 VOICE_3060_COMPOSE := infra/hosts/worker-rtx3060/docker-compose.voice.yml
 VOICE_5090_COMPOSE := infra/hosts/worker-rtx5090/docker-compose.voice.yml
 VOICE_3090TI_COMPOSE := infra/hosts/worker-rtx3090ti/docker-compose.voice.yml
 VOICE_ORCHESTRATOR_COMPOSE := infra/hosts/orchestrator/docker-compose.voice.yml
-
-# Assistant Overrides
 HERMES_5090_COMPOSE := infra/hosts/worker-rtx5090/docker-compose.hermes.yml
-HERMES_3090TI_COMPOSE := infra/hosts/worker-rtx3090ti/docker-compose.hermes.yml
-NERVE_5090_COMPOSE := infra/hosts/worker-rtx5090/docker-compose.nerve.yml
-NERVE_3090TI_COMPOSE := infra/hosts/worker-rtx3090ti/docker-compose.nerve.yml
-ORACLE_CLAWTEAM_COMPOSE := infra/hosts/oracle-vps/docker-compose.clawteam.yml
 
 # Distributed Voice Compose Files
 DIST_VOICE_3060 := infra/hosts/worker-rtx3060/docker-compose.distributed-voice.yml
@@ -61,8 +45,7 @@ DEFAULT_PROFILES ?= core,gateway,workflow,crm,apps,observability,vector
   up-core up-orchestrator up-apps up-dev up-workers up-oracle \
   cluster cluster-kill grid grid-kill \
   nexus-up nexus-down health stack-up stack-verify \
-  cicd-up cicd-down cicd-ps cicd-logs cicd-health cicd-restart cicd-sync gitea-up gitea-down gitea-ps gitea-logs gitea-health twenty-crm-up twenty-crm-down \
-  bitnet-sync bitnet-up bitnet-down bitnet-ps bitnet-logs bitnet-health bitnet-smoke bitnet-deploy \
+  gitea-up gitea-down gitea-ps twenty-crm-up twenty-crm-down \
   voice-3060 voice-5090 voice-3090ti voice-orch voice-distributed hermes-5090 \
   cf-orch-up cf-orch-down cf-orch-logs \
   oracle-apps-up oracle-apps-down oracle-quote-engine-up oracle-campaign-engine-up \
@@ -92,17 +75,6 @@ help:
 	@echo "make gitea-up           Start Gitea + Actions"
 	@echo "make twenty-crm-up      Start Twenty CRM"
 	@echo "make verify-paths       Verify Makefile path references exist"
-	@echo
-	@echo "--- ALWAYS-ON CI/CD (ORACLE) ---"
-	@echo "make cicd-up            Start Oracle Gitea + runner + GitHub mirror"
-	@echo "make cicd-health        Verify Oracle CI/CD stack health"
-	@echo "make cicd-logs          Tail Oracle CI/CD logs"
-	@echo "make cicd-sync          Copy CI/CD config to Oracle"
-	@echo
-	@echo "--- BITNET CPU FALLBACK (ORCHESTRATOR) ---"
-	@echo "make bitnet-deploy      Sync, build, start, and health-check BitNet"
-	@echo "make bitnet-health      Check BitNet HTTP health on orchestrator"
-	@echo "make bitnet-smoke       Run a short OpenAI-compatible chat completion"
 	@echo
 	@echo "--- VOICE SETUPS ---"
 	@echo "make voice-3060         Start standalone Unmute on RTX 3060"
@@ -154,12 +126,10 @@ down-all: down
 verify-paths:
 	@test -f $(COMPOSE_FILE) || (echo "Missing $(COMPOSE_FILE)" && exit 1)
 	@test -f $(ORCHESTRATOR_COMPOSE) || (echo "Missing $(ORCHESTRATOR_COMPOSE)" && exit 1)
-	@test -f $(ORCHESTRATOR_BITNET_COMPOSE) || (echo "Missing $(ORCHESTRATOR_BITNET_COMPOSE)" && exit 1)
 	@test -f $(WORKER_3060_COMPOSE) || (echo "Missing $(WORKER_3060_COMPOSE)" && exit 1)
 	@test -f $(WORKER_3090TI_COMPOSE) || (echo "Missing $(WORKER_3090TI_COMPOSE)" && exit 1)
 	@test -f $(WORKER_5090_COMPOSE) || (echo "Missing $(WORKER_5090_COMPOSE)" && exit 1)
 	@test -f $(ORACLE_COMPOSE) || (echo "Missing $(ORACLE_COMPOSE)" && exit 1)
-	@test -f $(ORACLE_GITEA_COMPOSE) || (echo "Missing $(ORACLE_GITEA_COMPOSE)" && exit 1)
 	@test -f $(ORACLE_APPS_COMPOSE) || (echo "Missing $(ORACLE_APPS_COMPOSE)" && exit 1)
 	@test -f $(VOICE_3060_COMPOSE) || (echo "Missing $(VOICE_3060_COMPOSE)" && exit 1)
 	@test -f $(VOICE_5090_COMPOSE) || (echo "Missing $(VOICE_5090_COMPOSE)" && exit 1)
@@ -174,20 +144,9 @@ verify-paths:
 # --- CORE TARGETS ---
 
 up:
-	@echo "--- 🐾 Deploying to Local Orchestrator ---"
-	@TARGET_DIR=$(dir $(ORCHESTRATOR_COMPOSE)); \
-	if [ -f $(INFISICAL_ENV_FILE) ]; then \
-		echo "🔐 Authenticating and fetching secrets..."; \
-		export $$(grep -v '^#' $(INFISICAL_ENV_FILE) | xargs) && \
-		infisical export --projectId $(INFISICAL_PROJECT_ID) --env dev --path /shared --format=dotenv > $${TARGET_DIR}.env; \
-	else \
-		echo "⚠️  No $(INFISICAL_ENV_FILE) found. Proceeding without Infisical export."; \
-	fi
 	@profiles=$$(echo "$(DEFAULT_PROFILES)" | tr ',' ' '); \
 	for p in $$profiles; do args="$$args --profile $$p"; done; \
 	$(COMPOSE) $$args up -d
-	@echo "🧹 Shredding temporary secret files from $${TARGET_DIR}..."
-	@rm -f $${TARGET_DIR}.env
 
 down:
 	$(COMPOSE) down --remove-orphans
@@ -209,110 +168,24 @@ grid:
 grid-kill:
 	tmux kill-session -t nyra-grid 2>/dev/null || true
 
-# --- SECRET MANAGEMENT (INFISICAL CLIENT-SIDE EVALUATION) ---
-# This implements the "Zero-Footprint" remote architecture.
-# Secrets are exported locally on the orchestrator and embedded into
-# the deployment payload sent to the remote Docker daemon.
-
-INFISICAL_ENV_FILE := .env.infisical
-INFISICAL_PROJECT_ID := 8374cea9-e5e8-4050-bda4-b91f25ab30ef
-
-# Usage: $(call DEPLOY_REMOTE,context,compose_files,extra_args)
-define DEPLOY_REMOTE
-	@echo "--- 🐾 Deploying to context: $(1) ---"
-	@TARGET_DIR=$(dir $(firstword $(2))); \
-	if [ -f $(INFISICAL_ENV_FILE) ]; then \
-		echo "🔐 Authenticating and fetching secrets for $(1)..."; \
-		export $$(grep -v '^#' $(INFISICAL_ENV_FILE) | xargs) && \
-		infisical export --projectId $(INFISICAL_PROJECT_ID) --env dev --path /shared --format=dotenv > $${TARGET_DIR}.env; \
-	else \
-		echo "⚠️  No $(INFISICAL_ENV_FILE) found. Proceeding without Infisical export."; \
-	fi
-	@echo "🚀 Starting stack..."
-	@docker --context $(1) compose $(foreach f,$(2),-f $(f)) $(3) up -d
-	@echo "🧹 Shredding temporary secret files from $${TARGET_DIR}..."
-	@rm -f $${TARGET_DIR}.env
-	@echo "✅ Deployment to $(1) complete."
-endef
-
-clean-env:
-	@echo "🧹 Cleaning up any stray .env files..."
-	@find infra/hosts -name ".env" -delete
-	@rm -f .env
-
-deploy-5090:
-	$(call DEPLOY_REMOTE,worker-rtx5090,$(WORKER_5090_COMPOSE))
-
-deploy-3090ti:
-	$(call DEPLOY_REMOTE,worker-rtx3090ti,$(WORKER_3090TI_COMPOSE))
-
 up-workers:
-	$(call DEPLOY_REMOTE,worker-rtx3060,$(WORKER_3060_COMPOSE))
-	$(call DEPLOY_REMOTE,worker-rtx3090ti,$(WORKER_3090TI_COMPOSE))
-	$(call DEPLOY_REMOTE,worker-rtx5090,$(WORKER_5090_COMPOSE))
+	docker --context worker-rtx3060 compose -f $(WORKER_3060_COMPOSE) up -d
+	docker --context worker-rtx3090ti compose -f $(WORKER_3090TI_COMPOSE) up -d
+	docker --context worker-rtx5090 compose -f $(WORKER_5090_COMPOSE) up -d
 
 up-oracle:
-	$(call DEPLOY_REMOTE,oracle,$(ORACLE_COMPOSE) $(ORACLE_APPS_COMPOSE),--profile apps)
-
-# --- ALWAYS-ON CI/CD TARGETS ---
-
-cicd-sync:
-	rsync -azR .gitea infra/configs/gitea infra/hosts/oracle-vps/docker-compose.gitea.yml infra/hosts/oracle-vps/scripts/gitea-ci-health.sh $(ORACLE_SSH):$(ORACLE_REMOTE_REPO)/
-
-cicd-up:
-	ssh $(ORACLE_SSH) 'cd $(ORACLE_REMOTE_REPO) && docker compose -f $(ORACLE_GITEA_COMPOSE) --env-file $(ORACLE_GITEA_ENV) up -d'
-
-cicd-down:
-	ssh $(ORACLE_SSH) 'cd $(ORACLE_REMOTE_REPO) && docker compose -f $(ORACLE_GITEA_COMPOSE) --env-file $(ORACLE_GITEA_ENV) down'
-
-cicd-restart:
-	ssh $(ORACLE_SSH) 'cd $(ORACLE_REMOTE_REPO) && docker compose -f $(ORACLE_GITEA_COMPOSE) --env-file $(ORACLE_GITEA_ENV) up -d --force-recreate'
-
-cicd-ps:
-	ssh $(ORACLE_SSH) 'cd $(ORACLE_REMOTE_REPO) && docker compose -f $(ORACLE_GITEA_COMPOSE) --env-file $(ORACLE_GITEA_ENV) ps'
-
-cicd-logs:
-	ssh $(ORACLE_SSH) 'cd $(ORACLE_REMOTE_REPO) && docker compose -f $(ORACLE_GITEA_COMPOSE) --env-file $(ORACLE_GITEA_ENV) logs -f --tail=100 gitea gitea-runner github-mirror-sync'
-
-cicd-health:
-	ssh $(ORACLE_SSH) 'cd $(ORACLE_REMOTE_REPO) && GITEA_HTTP_PORT=3001 infra/hosts/oracle-vps/scripts/gitea-ci-health.sh'
-
-gitea-up: cicd-up
-
-gitea-down: cicd-down
-
-gitea-ps: cicd-ps
-
-gitea-logs: cicd-logs
-
-gitea-health: cicd-health
-
-# --- BITNET CPU FALLBACK TARGETS ---
-
-bitnet-sync:
-	rsync -az infra/hosts/orchestrator/docker-compose.bitnet.yml infra/hosts/orchestrator/bitnet $(ORCHESTRATOR_SSH):$(ORCHESTRATOR_REMOTE_REPO)/infra/hosts/orchestrator/
-
-bitnet-up:
-	ssh $(ORCHESTRATOR_SSH) 'mkdir -p $(ORCHESTRATOR_DOCKER_CONFIG) && cd $(ORCHESTRATOR_REMOTE_REPO)/infra/hosts/orchestrator && DOCKER_CONFIG=$(ORCHESTRATOR_DOCKER_CONFIG) docker compose -f docker-compose.bitnet.yml up -d --build'
-
-bitnet-down:
-	ssh $(ORCHESTRATOR_SSH) 'cd $(ORCHESTRATOR_REMOTE_REPO)/infra/hosts/orchestrator && docker compose -f docker-compose.bitnet.yml down'
-
-bitnet-ps:
-	ssh $(ORCHESTRATOR_SSH) 'docker ps --filter name=$(BITNET_CONTAINER_NAME) --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"'
-
-bitnet-logs:
-	ssh $(ORCHESTRATOR_SSH) 'docker logs -f --tail=100 $(BITNET_CONTAINER_NAME)'
-
-bitnet-health:
-	ssh $(ORCHESTRATOR_SSH) 'curl -fsS http://127.0.0.1:8087/health'
-
-bitnet-smoke:
-	ssh $(ORCHESTRATOR_SSH) 'curl -fsS http://127.0.0.1:8087/v1/chat/completions -H "Content-Type: application/json" -d '"'"'{"model":"bitnet","messages":[{"role":"user","content":"Reply with exactly: nyra-bitnet-ok"}],"max_tokens":8,"temperature":0}'"'"''
-
-bitnet-deploy: bitnet-sync bitnet-up bitnet-health bitnet-smoke
+	docker --context oracle compose -f $(ORACLE_COMPOSE) -f $(ORACLE_APPS_COMPOSE) --profile apps up -d
 
 # --- COMPONENT TARGETS ---
+
+gitea-up:
+	docker --context oracle compose -f $(ORACLE_COMPOSE) up -d gitea gitea-runner github-mirror-sync gitea-mcp
+
+gitea-down:
+	docker --context oracle compose -f $(ORACLE_COMPOSE) stop gitea gitea-runner github-mirror-sync gitea-mcp
+
+gitea-ps:
+	docker --context oracle compose -f $(ORACLE_COMPOSE) ps gitea gitea-runner github-mirror-sync gitea-mcp
 
 twenty-crm-up:
 	docker --context oracle compose -f $(ORACLE_COMPOSE) up -d twenty
@@ -346,25 +219,12 @@ voice-orch:
 	docker compose -f $(VOICE_ORCHESTRATOR_COMPOSE) up -d
 
 voice-distributed:
-	@echo "🎙️ Starting distributed 3-node voice setup..."
-	$(call DEPLOY_REMOTE,worker-rtx3060,$(DIST_VOICE_3060))
-	$(call DEPLOY_REMOTE,worker-rtx5090,$(DIST_VOICE_5090))
-	$(call DEPLOY_REMOTE,worker-rtx3090ti,$(DIST_VOICE_3090TI))
+	docker --context worker-rtx3060 compose -f $(DIST_VOICE_3060) up -d
+	docker --context worker-rtx5090 compose -f $(DIST_VOICE_5090) up -d
+	docker --context worker-rtx3090ti compose -f $(DIST_VOICE_3090TI) up -d
 
 hermes-5090:
-	$(call DEPLOY_REMOTE,worker-rtx5090,$(HERMES_5090_COMPOSE))
-
-hermes-3090ti:
-	$(call DEPLOY_REMOTE,worker-rtx3090ti,$(HERMES_3090TI_COMPOSE))
-
-nerve-5090:
-	$(call DEPLOY_REMOTE,worker-rtx5090,$(NERVE_5090_COMPOSE))
-
-nerve-3090ti:
-	$(call DEPLOY_REMOTE,worker-rtx3090ti,$(NERVE_3090TI_COMPOSE))
-
-oracle-clawteam:
-	$(call DEPLOY_REMOTE,oracle,$(ORACLE_CLAWTEAM_COMPOSE))
+	docker --context worker-rtx5090 compose -f $(HERMES_5090_COMPOSE) up -d
 
 # --- CLOUDFLARED TUNNEL TARGETS ---
 
