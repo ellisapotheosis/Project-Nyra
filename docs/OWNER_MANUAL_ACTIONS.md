@@ -50,6 +50,29 @@ The repo-side fix is already on `origin/main`. Pages must rebuild from commit
 4. Confirm the deployment commit is `8efd4c13` or newer, not `e27167d`.
 5. If Cloudflare still reuses the old failed deployment, clear any queued/retry state and start a fresh production deploy from `main`.
 
+### Cloudflare Pages project/account mismatch for landing deploy
+GitHub Actions now completes the landing app build and uploads the `.open-next` artifact successfully, but the
+Cloudflare deploy step fails when `cloudflare/pages-action@v1` calls:
+`/accounts/<CLOUDFLARE_ACCOUNT_ID>/pages/projects/ratehunter-landing`
+
+Current failure from run `24940332215` on April 25, 2026:
+- `code: 7003` — `Could not route to /accounts/.../pages/projects/ratehunter-landing`
+- `code: 7000` — `No route for that URI`
+
+This means one of these owner-managed values is wrong or missing:
+- the Cloudflare Pages project does not exist under that account
+- `CLOUDFLARE_ACCOUNT_ID` points to the wrong Cloudflare account
+- `CLOUDFLARE_API_TOKEN` belongs to a different account or lacks Pages access
+
+**Steps:**
+1. Open Cloudflare Dashboard → **Workers & Pages**.
+2. Confirm there is a Pages project named exactly `ratehunter-landing`.
+3. If it does not exist, create it or rename the existing project to match the workflow.
+4. In the Cloudflare dashboard sidebar, copy the **Account ID** for the account that owns that Pages project.
+5. Update GitHub repository secrets or Infisical so `CLOUDFLARE_ACCOUNT_ID` matches that exact account.
+6. Verify the API token used by Actions has access to that same account and includes Pages permissions.
+7. Re-run the `Deploy to Cloudflare Pages` workflow after correcting the account/project mismatch.
+
 ## Tailscale
 Manual only if you want to enforce additional ACLs, tags, or device policies.
 
@@ -204,6 +227,24 @@ matching the tables in `~/repos/cloudflared/TUNNEL-SETUP-ORACLE.md` and `TUNNEL-
 
 ---
 
+<<<<<<< HEAD
+## Composio Hosted MCP Server URL
+
+The Compose overrides require a hosted MCP URL and user-bound app connections.
+
+**Steps:**
+1. In Composio, create or select the hosted MCP server for Nyra external tools.
+2. Connect the required user/account credentials for Jira, Slack, and Twenty.
+3. Copy the MCP URL and API key into the secret store:
+   - `COMPOSIO_API_KEY`
+   - `COMPOSIO_DEFAULT_USER_ID`
+   - `COMPOSIO_MCP_SERVER_ID`
+   - `COMPOSIO_MCP_URL`
+4. Render `infra/env/composio.env.example` into the node-local secret env file before applying:
+   - `infra/compose/composio.inject.compose.yml`
+   - `infra/compose/composio.openclaw-mvp.inject.compose.yml`
+   - `infra/compose/composio.webapp.inject.compose.yml`
+=======
 ## Cloudflare Tunnel UI DNS Import
 
 Manual owner action is required because Cloudflare dashboard login, DNS ownership, and Zero Trust
@@ -225,3 +266,4 @@ import/reference:
 
 Create or update the two tunnels, import or enter the public hostname mappings, and apply Access
 policies to every private UI before use.
+>>>>>>> github/main
