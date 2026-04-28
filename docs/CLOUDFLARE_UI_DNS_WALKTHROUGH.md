@@ -13,7 +13,7 @@ Source docs: https://developers.cloudflare.com/tunnel/advanced/local-management/
 
 - `infra/hosts/oracle-vps/resolved_config.yml` contains expanded secrets and should be treated as sensitive. Do not commit or share generated resolved compose output.
 - `infra/hosts/oracle-vps/config.yml` is a generated Docker Compose config, not a Cloudflared tunnel config. The Cloudflared backup config added for Oracle is `infra/hosts/oracle-vps/cloudflared-config.yml`.
-- `activepieces`, `openmemory`, and any Letta/openmemory-style service are deprecated by the current Project Nyra architecture rules. I did not add active routes for them in the backup configs.
+- Activepieces, OpenMemory MCP, Qdrant, Mem0, FalkorDB, Letta, Mempalace, ClaudeMem, and MemoryTensor/MemOS are allowed infrastructure when explicitly deployed. Raw memory/MCP endpoints should remain private unless an owner intentionally adds a protected route.
 - Datastores and raw model or MCP endpoints should not get public DNS records. Keep Postgres, Redis, FalkorDB, Qdrant, Loki, worker inference, and raw MCP servers private.
 
 ## Tunnel Split
@@ -81,8 +81,8 @@ Do not create Cloudflare Public Hostnames for these:
 | `redis`, `redis-cache` | Datastores stay private |
 | `falkordb`, `qdrant`, `loki` | Data/observability backends stay private |
 | `mem0-rest`, `openmemory-mcp`, `infisical-mcp`, `gitea-mcp`, `paperclip-mcp`, `twentycrm-mcp`, `mempalace-mcp`, `docker-mcp-toolkit` | Raw API/MCP endpoints should not be browser-exposed |
-| `activepieces` | Deprecated in current architecture; do not expand exposure |
-| `letta` | No focused host service found and deprecated by architecture rules |
+| `activepieces` | Internal automation surface; expose only behind Cloudflare Access if an owner intentionally enables a UI route |
+| `letta` | Memory-manager agent; add a protected route only when a focused host service is deployed |
 | worker vLLM/Ollama endpoints | Worker inference stays private over Tailscale |
 
 For AgentMemory, the compose file already binds to the Tailscale IP by default:
