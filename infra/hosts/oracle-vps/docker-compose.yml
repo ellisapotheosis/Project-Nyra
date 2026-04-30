@@ -8,19 +8,15 @@ services:
     image: infisical/cli:latest
     container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-infisical-sidecar
     restart: unless-stopped
-    entrypoint: ["/bin/sh", "-lc"]
-    command: >-
-      while true; do
-        infisical export --projectId=${INFISICAL_PROJECT_ID:?set INFISICAL_PROJECT_ID} --env=${INFISICAL_ENV:-prod} --path=${INFISICAL_PATH:-/machines/oracle-vps} --format=dotenv > /repo/.env &&
-        sleep ${INFISICAL_POLL_INTERVAL:-60};
-      done
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - >-
+        while true; do
+          infisical export --projectId=8374cea9-e5e8-4050-bda4-b91f25ab30ef --env=prod --path=/machines/oracle-vps --format=dotenv > /repo/.env &&
+          sleep 60;
+        done
     environment:
       INFISICAL_TOKEN: ${INFISICAL_TOKEN:?set INFISICAL_TOKEN}
-      INFISICAL_API_URL: ${INFISICAL_API_URL:-https://app.infisical.com}
-      INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID}
-      INFISICAL_ENV: ${INFISICAL_ENV:-prod}
-      INFISICAL_PATH: ${INFISICAL_PATH:-/machines/oracle-vps}
-      INFISICAL_POLL_INTERVAL: ${INFISICAL_POLL_INTERVAL:-60}
     volumes:
       - ./.env:/repo/.env
     networks: [nyra_net]
@@ -124,7 +120,7 @@ services:
     container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-twenty-worker
     restart: unless-stopped
     env_file: [.env]
-    command: ["node", "packages/twenty-server/dist/src/main-worker.js"]
+    command: ["yarn", "worker:prod"]
     depends_on:
       twenty:
         condition: service_started
@@ -134,6 +130,8 @@ services:
       APP_SECRET: ${TWENTY_APP_SECRET}
       PG_DATABASE_URL: postgresql://${TWENTY_DB_USER:-twenty}:${TWENTY_DB_PASSWORD}@twenty-db:5432/${TWENTY_DB_NAME:-twenty}
       REDIS_URL: redis://redis-cache:6379
+      DISABLE_DB_MIGRATIONS: "true"
+      DISABLE_CRON_JOBS_REGISTRATION: "true"
       STORAGE_TYPE: local
     volumes:
       - twenty_local_storage:/app/packages/twenty-server/.local-storage
@@ -646,14 +644,14 @@ services:
     restart: unless-stopped
     environment:
       NPM_CONFIG_CACHE: /tmp/.npm
-      PAPERCLIP_API_URL: http://nyra-paperclip:3100
+      PAPERCLIP_API_URL: http://paperclip:3100
       PAPERCLIP_API_KEY: ${PAPERCLIP_API_KEY:-dummy}
     command:
       - npx
       - -y
       - supergateway
       - --sse
-      - http://nyra-paperclip:3100/mcp
+      - http://paperclip:3100/mcp
       - npx
       - -y
       - "@paperclipai/mcp-server"
