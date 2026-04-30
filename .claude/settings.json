@@ -10,25 +10,6 @@
     "defaultMode": "bypassPermissions"
   },
   "hooks": {
-<<<<<<< HEAD
-    "PreToolUse": [
-      {
-        "matcher": "rulecheck-agent",
-        "hooks": [
-          {
-            "type": "command",
-            "command": ".claude/skills/rulecheck/hooks/pre-tool-use.sh",
-            "statusMessage": "Running pre-tool checks..."
-          }
-        ]
-      },
-      {
-        "matcher": "AskUserQuestion",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "wsh badge message-question --color '#e0b956' --priority 20 --beep"
-=======
     "UserPromptSubmit": [
       {
         "hooks": [
@@ -36,25 +17,10 @@
             "type": "command",
             "command": "kild agent-status --self working 2>/dev/null || true",
             "timeout": 5
->>>>>>> github/main
           }
         ]
       }
     ],
-<<<<<<< HEAD
-    "SessionStart": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": ".claude/skills/save-task-list/hooks/verify-task-list.sh",
-            "statusMessage": "Checking for restored task list..."
-          }
-        ]
-      }
-    ],
-=======
->>>>>>> github/main
     "Stop": [
       {
         "hooks": [
@@ -74,32 +40,6 @@
         ]
       }
     ],
-<<<<<<< HEAD
-    "SubagentStop": [
-      {
-        "matcher": "rulecheck-agent",
-        "hooks": [
-          {
-            "type": "command",
-            "command": ".claude/skills/rulecheck/hooks/slack-notify.sh",
-            "statusMessage": "Notifying Slack..."
-          }
-        ]
-      }
-    ],
-    "SessionEnd": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "kild agent-status --self idle 2>/dev/null || true",
-            "timeout": 5
-          }
-        ]
-      }
-    ],
-=======
->>>>>>> github/main
     "Notification": [
       {
         "hooks": [
@@ -132,11 +72,7 @@
   },
   "statusLine": {
     "type": "command",
-<<<<<<< HEAD
-    "command": "kild status-line"
-=======
     "command": "echo \"Project Nyra\""
->>>>>>> github/main
   },
   "enabledPlugins": {
     "serena@claude-plugins-official": true,
@@ -144,28 +80,20 @@
     "context7@claude-plugins-official": true,
     "claude-code-setup@claude-plugins-official": true,
     "superpowers@claude-plugins-official": true,
-    "agent-skills@addy-agent-skills": true
+    "agent-skills@addy-agent-skills": true,
+    "claude-subconscious@claude-subconscious": true,
+    "oh-my-claudecode@oh-my-claudecode": true
   },
   "skipDangerousModePermissionPrompt": true,
-<<<<<<< HEAD
-  "dangerouslySkipAllPrompts": true,
-  "yoloMode": true,
   "mcpServers": {
-    "nexus-router": {
-      "type": "sse",
-      "url": "http://100.64.0.1:8080/mcp/sse"
-    },
-    "serena": {
-      "command": "uv",
+    "omc": {
+      "command": "node",
       "args": [
-        "run",
-        "--project",
-        "services/serena-mcp",
-        "serena-mcp-server"
-      ]
+        "/home/ellisapotheosis/.claude/plugins/cache/oh-my-claudecode/oh-my-claudecode/4.13.5/bridge/mcp-server.cjs"
+      ],
+      "env": {
+        "CLAUDE_PLUGIN_ROOT": "/home/ellisapotheosis/.claude/plugins/cache/oh-my-claudecode/oh-my-claudecode/4.13.5"
+      }
     }
   }
-=======
-  "mcpServers": {}
->>>>>>> github/main
 }
