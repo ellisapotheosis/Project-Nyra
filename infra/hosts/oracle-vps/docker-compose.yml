@@ -8,15 +8,10 @@ services:
     image: infisical/cli:latest
     container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-infisical-sidecar
     restart: unless-stopped
+    env_file: [.env.oracle]
     entrypoint: ["/bin/sh", "-c"]
     command:
-      - >-
-        while true; do
-          infisical export --projectId=8374cea9-e5e8-4050-bda4-b91f25ab30ef --env=prod --path=/machines/oracle-vps --format=dotenv > /repo/.env &&
-          sleep 60;
-        done
-    environment:
-      INFISICAL_TOKEN: ${INFISICAL_TOKEN:?set INFISICAL_TOKEN}
+      - "while true; do infisical export --projectId=8374cea9-e5e8-4050-bda4-b91f25ab30ef --env=prod --path=/machines/oracle-vps --format=dotenv > /repo/.env && sleep 60; done"
     volumes:
       - ./.env:/repo/.env
     networks: [nyra_net]
