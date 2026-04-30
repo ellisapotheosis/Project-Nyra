@@ -2,7 +2,28 @@ name: nyra-network
 
 services:
 
-
+  # ── Infisical Sidecar (Secret Sync) ───────────────────────────────────────
+  # Synchronizes secrets from Infisical to the local .env file.
+  infisical-sidecar:
+    image: infisical/cli:latest
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-infisical-sidecar
+    restart: unless-stopped
+    entrypoint: ["/bin/sh", "-lc"]
+    command: >-
+      while true; do
+        infisical export --projectId=${INFISICAL_PROJECT_ID:?set INFISICAL_PROJECT_ID} --env=${INFISICAL_ENV:-prod} --path=${INFISICAL_PATH:-/machines/oracle-vps} --format=dotenv > /repo/.env &&
+        sleep ${INFISICAL_POLL_INTERVAL:-60};
+      done
+    environment:
+      INFISICAL_TOKEN: ${INFISICAL_TOKEN:?set INFISICAL_TOKEN}
+      INFISICAL_API_URL: ${INFISICAL_API_URL:-https://app.infisical.com}
+      INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID}
+      INFISICAL_ENV: ${INFISICAL_ENV:-prod}
+      INFISICAL_PATH: ${INFISICAL_PATH:-/machines/oracle-vps}
+      INFISICAL_POLL_INTERVAL: ${INFISICAL_POLL_INTERVAL:-60}
+    volumes:
+      - ./.env:/repo/.env
+    networks: [nyra_net]
 
   portainer-edge-agent:
     image: portainer/agent:2.27.9
@@ -88,8 +109,8 @@ services:
       SERVER_URL: ${TWENTY_SERVER_URL}
       FRONTEND_URL: ${TWENTY_FRONTEND_URL}
       APP_SECRET: ${TWENTY_APP_SECRET}
-      PG_DATABASE_URL: postgresql://${TWENTY_DB_USER:-twenty}:${TWENTY_DB_PASSWORD}@nyra-twenty-db:5432/${TWENTY_DB_NAME:-twenty}
-      REDIS_URL: redis://nyra-redis-cache:6379
+      PG_DATABASE_URL: postgresql://${TWENTY_DB_USER:-twenty}:${TWENTY_DB_PASSWORD}@twenty-db:5432/${TWENTY_DB_NAME:-twenty}
+      REDIS_URL: redis://redis-cache:6379
       STORAGE_TYPE: local
     volumes:
       - twenty_local_storage:/app/packages/twenty-server/.local-storage
@@ -111,8 +132,8 @@ services:
         condition: service_healthy
     environment:
       APP_SECRET: ${TWENTY_APP_SECRET}
-      PG_DATABASE_URL: postgresql://${TWENTY_DB_USER:-twenty}:${TWENTY_DB_PASSWORD}@nyra-twenty-db:5432/${TWENTY_DB_NAME:-twenty}
-      REDIS_URL: redis://nyra-redis-cache:6379
+      PG_DATABASE_URL: postgresql://${TWENTY_DB_USER:-twenty}:${TWENTY_DB_PASSWORD}@twenty-db:5432/${TWENTY_DB_NAME:-twenty}
+      REDIS_URL: redis://redis-cache:6379
       STORAGE_TYPE: local
     volumes:
       - twenty_local_storage:/app/packages/twenty-server/.local-storage
@@ -128,7 +149,7 @@ services:
     ports:
       - "8400:8400"
     environment:
-      - TWENTY_API_KEY=${TWENTY_API_KEY}
+      - TWENTY_BASE_URL=http://twenty:3000
       - TWENTY_API_URL=http://twenty:3000
       - TWENTY_GRAPHQL_URL=http://twenty:3000/graphql
       - PORT=8400
@@ -299,7 +320,7 @@ services:
     restart: unless-stopped
     environment:
       OPENAI_API_BASE_URL:
-        ${LITELLM_BASE_URL:-http://orchestrator.trex-fiordland.ts.net:4000/v1}
+        ${LITELLM_BASE_URL:-http://litellm:4000/v1}
       OPENAI_API_KEY: ${LITELLM_MASTER_KEY}
       WEBUI_SECRET_KEY: ${OPENWEBUI_SECRET_KEY}
     volumes:
@@ -337,11 +358,11 @@ services:
       qdrant:
         condition: service_started
     environment:
-      FALKORDB_URL: redis://nyra-falkordb:6379
-      QDRANT_HOST: nyra-qdrant
+      FALKORDB_URL: redis://falkordb:6379
+      QDRANT_HOST: qdrant
       QDRANT_PORT: 6333
       OPENAI_API_KEY: ${OPENAI_API_KEY}
-      LITELLM_API_BASE: ${LITELLM_API_BASE:-http://orchestrator.trex-fiordland.ts.net:4000/v1}
+      LITELLM_API_BASE: ${LITELLM_API_BASE:-http://litellm:4000/v1}
       LITELLM_API_KEY: ${LITELLM_MASTER_KEY}
     ports:
       - "5000:5000"
@@ -351,50 +372,6 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-
-  # ── Letta (MemGPT) - Memory Manager & Classifier ──────────────────────────
-  letta-db:
-    image: ankane/pgvector:v0.5.1
-    container_name: nyra-letta-db
-    restart: unless-stopped
-    environment:
-      POSTGRES_DB: letta
-      POSTGRES_USER: letta
-      POSTGRES_PASSWORD: ${LETTA_DB_PASSWORD:-letta}
-    volumes:
-      - letta_db_data:/var/lib/postgresql/data
-    networks: [nyra_net]
-
-  letta:
-    image: letta/letta:latest
-    container_name: nyra-letta
-    restart: unless-stopped
-    depends_on:
-      - letta-db
-    environment:
-      LETTA_PG_URI: postgresql://letta:${LETTA_DB_PASSWORD:-letta}@letta-db:5432/letta
-      OPENAI_API_KEY: ${OPENAI_API_KEY}
-      LITELLM_API_BASE: ${LITELLM_API_BASE:-http://orchestrator.trex-fiordland.ts.net:4000/v1}
-    ports:
-      - "8283:8283"
-    volumes:
-      - letta_data:/root/.letta
-    networks: [nyra_net]
-
-  # ── memOS (MemoryTensor) - Hierarchical Memory ────────────────────────────
-
-  mem-os:
-    image: memorytensor/mem-os:latest
-    container_name: nyra-mem-os
-    restart: unless-stopped
-    environment:
-      OPENAI_API_KEY: ${OPENAI_API_KEY}
-      PORT: 8085
-    ports:
-      - "8085:8085"
-    volumes:
-      - mem_os_data:/app/data
-    networks: [nyra_net]
 
   # ── Qdrant (vector backend for Mem0 and OpenMemory) ──────────────────────
   # Note: qdrant image is distroless (no curl/wget) — no healthcheck possible.
@@ -418,7 +395,7 @@ services:
         condition: service_started
     environment:
       OPENAI_API_KEY: ${OPENAI_API_KEY}
-      QDRANT_HOST: nyra-qdrant
+      QDRANT_HOST: qdrant
       QDRANT_PORT: "6333"
       USER: nyra
       LLM_PROVIDER: openai
@@ -686,6 +663,27 @@ services:
       - "8767:8767"
     networks: [nyra_net]
 
+  # ── Magic UI MCP (stdio→SSE bridge via supergateway) ──────────────────────
+  # Converts @magicuidesign/mcp stdio server to HTTP/SSE so Nexus can aggregate it.
+  # Exposed on port 8768; Nexus connects at http://oracle:8768/sse
+  magicui-mcp:
+    image: node:20-alpine
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-magicui-mcp
+    restart: unless-stopped
+    environment:
+      NPM_CONFIG_CACHE: /tmp/.npm
+    command:
+      - npx
+      - -y
+      - supergateway
+      - --stdio
+      - "npx -y @magicuidesign/mcp@latest"
+      - --port
+      - "8768"
+    ports:
+      - "8768:8768"
+    networks: [nyra_net]
+
   # ── Supabase Stack ────────────────────────────────────────────────────────
   supabase-db:
     image: supabase/postgres:15.1.1.78
@@ -760,6 +758,35 @@ services:
       - "8000:8000"
     networks: [nyra_net]
 
+  # ── LiteLLM Proxy ─────────────────────────────────────────────────────────
+  # Moved from orchestrator: co-located with Nexus to eliminate Tailscale hop.
+  litellm:
+    image: ghcr.io/berriai/litellm:main-stable
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-litellm
+    restart: unless-stopped
+    command: ["--config", "/app/config.yaml", "--port", "4000"]
+    ports:
+      - "4000:4000"
+    environment:
+      LITELLM_MASTER_KEY: ${LITELLM_MASTER_KEY:-}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-nyra}:${POSTGRES_PASSWORD}@postgres:5432/litellm
+      REDIS_HOST: redis-cache
+      REDIS_PORT: "6379"
+    volumes:
+      - ../../configs/litellm/config.yaml:/app/config.yaml:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis-cache:
+        condition: service_healthy
+    networks: [nyra_net]
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:4000/health/readiness', timeout=8)\""]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
   # ── Nexus Aggregator (Grafbase Nexus) ────────────────────────────────────
   # THE single entrypoint: MCP tool aggregation + LLM proxy
   nexus:
@@ -777,6 +804,9 @@ services:
       MEMPALACE_URL: ${MEMPALACE_URL:-}
     volumes:
       - ./nexus.toml:/etc/nexus.toml:ro
+    depends_on:
+      litellm:
+        condition: service_healthy
     networks: [nyra_net]
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
@@ -803,6 +833,7 @@ networks:
 
 volumes:
   postgres_data:
+  litellm_data:
   twenty_db_data:
   redis_cache_data:
   twenty_local_storage:
