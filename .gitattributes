@@ -22,3 +22,6 @@
 
 # Never treat local Codanna caches as LFS assets
 .codanna/** -filter -diff -merge -text
+
+# Reduce recurring merge conflicts for additive ignore rules
+.gitignore merge=union
