@@ -684,13 +684,14 @@ services:
     restart: unless-stopped
     env_file: [.env]
     environment:
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_PASSWORD: ${SUPABASE_DB_PASSWORD:-${POSTGRES_PASSWORD}}
       POSTGRES_DB: postgres
       POSTGRES_USER: postgres
     ports:
       - "54322:5432"
     volumes:
       - supabase_db_data:/var/lib/postgresql/data
+      - ./initdb/supabase:/docker-entrypoint-initdb.d:ro
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "postgres"]
       interval: 10s
@@ -708,10 +709,11 @@ services:
     env_file: [.env]
     environment:
       GOTRUE_DB_DRIVER: postgres
-      GOTRUE_DB_DATABASE_URL: postgres://postgres:${POSTGRES_PASSWORD}@supabase-db:5432/postgres?sslmode=disable
+      GOTRUE_DB_DATABASE_URL: postgres://postgres:${SUPABASE_DB_PASSWORD:-${POSTGRES_PASSWORD}}@supabase-db:5432/postgres?sslmode=disable
       GOTRUE_SITE_URL: ${SUPABASE_SITE_URL:-https://nyra.ratehunter.net}
       GOTRUE_JWT_SECRET: ${JWT_SECRET}
       GOTRUE_JWT_EXP: 3600
+      API_EXTERNAL_URL: ${SUPABASE_AUTH_EXTERNAL_URL:-https://api.ratehunter.net/auth/v1}
       GOTRUE_EXTERNAL_URL: ${SUPABASE_AUTH_EXTERNAL_URL:-https://api.ratehunter.net/auth/v1}
       GOTRUE_MAILER_AUTOCONFIRM: "true"
       GOTRUE_DB_MAX_POOL_SIZE: 20
@@ -726,7 +728,7 @@ services:
         condition: service_healthy
     env_file: [.env]
     environment:
-      PGRST_DB_URI: postgres://postgres:${POSTGRES_PASSWORD}@supabase-db:5432/postgres
+      PGRST_DB_URI: postgres://postgres:${SUPABASE_DB_PASSWORD:-${POSTGRES_PASSWORD}}@supabase-db:5432/postgres
       PGRST_DB_SCHEMA: public
       PGRST_DB_ANON_ROLE: anon
       PGRST_JWT_SECRET: ${JWT_SECRET}
