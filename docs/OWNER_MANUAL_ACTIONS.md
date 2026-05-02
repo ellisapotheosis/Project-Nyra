@@ -70,6 +70,8 @@ This means one of these owner-managed values is wrong or missing:
 3. If it does not exist, create it or rename the existing project to match the workflow.
 4. In the Cloudflare dashboard sidebar, copy the **Account ID** for the account that owns that Pages project.
 5. Update GitHub repository secrets or Infisical so `CLOUDFLARE_ACCOUNT_ID` matches that exact account.
+   - It must be the real 32-character hexadecimal Cloudflare Account ID.
+   - Do not set it to the literal string `$CLOUDFLARE_ACCOUNT_ID`, the zone ID, account email, or project name.
 6. Verify the API token used by Actions has access to that same account and includes Pages permissions.
 7. Re-run the `Deploy to Cloudflare Pages` workflow after correcting the account/project mismatch.
 
