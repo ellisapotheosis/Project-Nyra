@@ -237,7 +237,6 @@ services:
     image: cloudflare/cloudflared:latest
     container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-cloudflared
     restart: unless-stopped
-    env_file: [.env]
     command: ["tunnel", "run", "--token", "${ORACLE_TUNNEL_TOKEN}"]
     environment:
       - ORACLE_TUNNEL_TOKEN=${ORACLE_TUNNEL_TOKEN}
