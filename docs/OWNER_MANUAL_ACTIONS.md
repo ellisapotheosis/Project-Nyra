@@ -73,6 +73,28 @@ This means one of these owner-managed values is wrong or missing:
 6. Verify the API token used by Actions has access to that same account and includes Pages permissions.
 7. Re-run the `Deploy to Cloudflare Pages` workflow after correcting the account/project mismatch.
 
+### ratehunter.net serves branded 404 after a successful landing deploy
+Observed on May 1, 2026: `https://ratehunter.net/` resolves through Cloudflare but serves a branded `404 Page Not Found`
+instead of the landing app homepage. This is different from a build failure. It means the public hostname is not serving
+the deployed `apps/landing/ratehunter-landing` homepage.
+
+Likely causes:
+- `ratehunter.net` is attached to a different Pages project, Worker route, or Cloudflared fallback origin.
+- The `ratehunter-landing` Pages project deployed successfully, but `ratehunter.net` is not listed under that project's custom domains.
+- DNS for the apex or `www` hostname points at a stale Cloudflare route instead of the Pages custom-domain binding.
+- The deployment adapter uploaded an artifact that returns 200/404 but does not serve the OpenNext landing app content.
+
+**Steps:**
+1. Open Cloudflare Dashboard → **Workers & Pages** → `ratehunter-landing` → **Custom domains**.
+2. Confirm both `ratehunter.net` and `www.ratehunter.net` are attached to this exact project and show as active.
+3. Open the Cloudflare DNS records for the `ratehunter.net` zone and confirm there is no Worker route, Pages project,
+   or Cloudflared tunnel hostname taking precedence over the apex.
+4. If the domain is attached to another project, remove it there first, then add it to `ratehunter-landing`.
+5. If `ratehunter.net` is intentionally served by Cloudflared instead of Pages, update
+   `.github/workflows/deploy-cloudflare-pages.yml` and `docs/05_cloudflare_pages_landing.md` before switching traffic.
+6. Re-run the GitHub workflow. Production deploys now verify that `https://ratehunter.net/` contains the expected
+   landing homepage text (`Ellis Andersen`) and will fail if the domain still serves the 404 page.
+
 ## Tailscale
 Manual only if you want to enforce additional ACLs, tags, or device policies.
 
