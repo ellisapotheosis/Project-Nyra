@@ -10,6 +10,7 @@ node_modules/
 **/node_modules/
 package-lock.json
 yarn.lock
+pnpm-lock.yaml
 !pnpm-lock.yaml
 .pnp/
 .pnp.js
