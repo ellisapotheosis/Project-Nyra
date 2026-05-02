@@ -500,6 +500,20 @@ jobs:
             exit 1
           fi
 
+          case "$CF_ACCOUNT_ID" in
+            "\$"*|"your_"*|"YOUR_"*|"<"*">")
+              echo "::error::CLOUDFLARE_ACCOUNT_ID appears to be a placeholder value, not a real Cloudflare Account ID."
+              echo "::error::Set CLOUDFLARE_ACCOUNT_ID to the 32-character Account ID from the Cloudflare dashboard account that owns '$CF_PROJECT_NAME'."
+              exit 1
+              ;;
+          esac
+
+          if ! printf '%s' "$CF_ACCOUNT_ID" | grep -Eq '^[A-Fa-f0-9]{32}$'; then
+            echo "::error::CLOUDFLARE_ACCOUNT_ID must be the 32-character hexadecimal Account ID from the Cloudflare dashboard."
+            echo "::error::Do not use the zone ID, project name, account email, or the literal string '\$CLOUDFLARE_ACCOUNT_ID'."
+            exit 1
+          fi
+
           echo "::add-mask::$CF_API_TOKEN"
           echo "::add-mask::$CF_ACCOUNT_ID"
 
