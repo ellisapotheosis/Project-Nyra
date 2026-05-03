@@ -37,7 +37,7 @@ Use this checklist to ensure your RateHunter landing page is fully configured an
 - [ ] Root directory: `apps/landing/ratehunter-landing`
 - [ ] Install command: `npm install`
 - [ ] Build command: `npm run build:cf`
-- [ ] Output directory: `.open-next/assets`
+- [ ] Output directory: `.open-next`
 - [ ] Node version: 20
 - [ ] Root directory is **not** `/`
 
