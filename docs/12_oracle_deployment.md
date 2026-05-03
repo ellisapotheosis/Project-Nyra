@@ -1,42 +1,74 @@
-# 12 Oracle Deployment (Canonical Snapshot)
+# 12 Oracle Deployment
+
+Updated: 2026-04-27
 
 ## Primary compose
 
-- `infra/oracle/docker-compose.oracle.yml`
+| Purpose | File |
+|---|---|
+| Full Oracle stack | `infra/hosts/oracle-vps/docker-compose.yml` |
+| Gitea CI/CD stack | `infra/hosts/oracle-vps/docker-compose.gitea.yml` |
+| App overlay | `infra/hosts/oracle-vps/docker-compose.apps.yml` |
+| Clawteam overlay | `infra/hosts/oracle-vps/docker-compose.clawteam.yml` |
+| Agent memory overlay | `infra/hosts/oracle-vps/docker-compose.agentmemory.yml` |
 
-## Services observed
+## Always-on services
 
-- `twenty` (CRM)
-- `activepieces` (automation)
-- `n8n` (workflow)
-- `moltbot` (voice)
-- `quote-api` (service API)
-- state stores: postgres / redis / mongo / meilisearch / neo4j
+| Service group | Services |
+|---|---|
+| CRM and workflow | `twenty`, `twenty-worker`, `twenty-mcp`, `n8n`, `crm-api`, `campaign_engine` |
+| Quote and document handling | `quote-api`, `quote_engine`, `paperclip`, `paperclip-mcp` |
+| CI/CD | `gitea`, `gitea-runner`, `github-mirror-sync`, `gitea-mcp` |
+| Observability | `prometheus`, `loki`, `grafana`, `cadvisor` |
+| Runtime memory | `mem0-rest`, `falkordb`, `qdrant`, `mempalace-mcp` |
+| Operations | `cloudflared`, `portainer-edge-agent`, `syncthing` profile |
+
+## Key ports
+
+| Service | Port(s) |
+|---|---:|
+| Twenty | `3000` |
+| Gitea | `3001`, `2222` |
+| n8n | `5678` |
+| Grafana | `3003 -> 3000` |
+| Prometheus | `9090` |
+| Open WebUI | `8088 -> 8080` |
+| Quote API | `7070` |
+| CRM API | `4001` |
+| Paperclip | `3111 -> 3100` |
+| Oracle Nexus | `6000 -> 3000` |
 
 ## Placement rationale
 
-Oracle node is intended for stable, always-on control-plane and business-facing services with durable state.
+Oracle is the always-on host for services that need durable availability when the local workstation or GPU workers are offline. This includes Git hosting, Actions runners, business apps, observability, document handling, and edge tunnel execution.
 
-## Exposure model
-
-- App UIs/APIs can be Access-gated through Cloudflared.
-- Datastores remain private/internal only.
-- Media and low-level ports should stay private unless explicitly required.
-
-## Verification commands
+## Makefile operations
 
 ```bash
-docker compose -f infra/oracle/docker-compose.oracle.yml config
-make health-oracle
+make up-oracle
+make oracle-apps-up
+make cicd-up
+make cicd-health
+make cicd-logs
+make paperclip-up
 ```
 
 ## Preflight checklist
-- [ ] env file prepared with non-placeholder secrets
-- [ ] durable storage paths mounted and backed up
-- [ ] private firewall rules enforced for datastore ports
-- [ ] cloudflared hostnames mapped only for approved app/API services
+
+- [ ] `.env.gitea` exists on Oracle for `docker-compose.gitea.yml`.
+- [ ] Oracle Docker context or SSH target is reachable.
+- [ ] Cloudflared token exists in Infisical or host environment.
+- [ ] Public hostnames are Access-gated except marketing Pages.
+- [ ] Datastore ports are firewalled from the public internet.
 
 ## Post-deploy checklist
-- [ ] `docker compose ps` healthy state
-- [ ] app/API endpoints pass smoke checks
-- [ ] datastore endpoints inaccessible from public internet
+
+- [ ] `make cicd-health` passes.
+- [ ] `docker --context oracle compose -f infra/hosts/oracle-vps/docker-compose.yml ps` shows expected services.
+- [ ] Gitea UI and runner are healthy.
+- [ ] `github-mirror-sync` logs show successful mirror activity.
+- [ ] Cloudflared tunnel ends with a catch-all 404 route.
+
+## Known cleanup item
+
+The Oracle compose still contains services that conflict with current architecture rules. Treat those entries as cleanup work before production hardening.

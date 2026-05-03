@@ -9,14 +9,12 @@
 #               │       ├─► worker-5090 (reasoning, 32GB VRAM)
 #               │       ├─► worker-3090 (analysis, 24GB VRAM)
 #               │       └─► worker-3060 (coding, 12GB VRAM)
-#               ├─► Anthropic API (fallback, Claude 4 family)
-#               ├─► OpenAI API (fallback, GPT-4o / GPT-5)
-#               ├─► OpenRouter (last-resort, 200+ models)
+#               ├─► Anthropic API (fallback, disabled by default)
+#               ├─► OpenRouter (last-resort multi-model, disabled by default)
 #               └─► MCP servers
 #                       ├─ orchestrator-local (same Docker network)
 #                       │       └─► docker-mcp-toolkit :8811
 #                       └─ oracle VPS via Tailscale (100.64.0.3)
-#                               ├─► archon-os :3737
 #                               ├─► openmemory-mcp :8765
 #                               ├─► infisical-mcp :8766
 #                               ├─► n8n :5678
@@ -61,7 +59,7 @@ path = "/anthropic"
 [llm.providers.litellm]
 type = "openai"
 api_key = "{{ env.LITELLM_MASTER_KEY }}"
-base_url = "http://litellm:4000/v1"
+base_url = "http://worker-3090-litellm:4000/v1"
 forward_token = false
 
 [llm.providers.litellm.models."*"]
@@ -72,9 +70,23 @@ forward_token = false
 #   premium  → claude-opus, o3, deepseek-r1             (~$0.015/1K,  ~5s)
 #   local    → GPU workers via LiteLLM                  ($0,          ~1-5s)
 
-# FALLBACK 1: Anthropic direct — Claude 4 family (latest as of Aug 2025)
+# SUBSCRIPTION PROXY: Local CLI tools proxy (@vybestack/llxprt-jefe + llxprt-code)
+# This utilizes your active subscriptions (codex-cli, gemini-cli, claude-code)
+# instead of burning direct cloud API tokens.
+[llm.providers.subscription]
+type = "openai"
+enabled = true
+# Jefe typically exposes a local proxy port for the subscription APIs
+base_url = "http://127.0.0.1:4545/v1"
+api_key = "sk-llxprt-jefe-local"
+forward_token = false
+
+[llm.providers.subscription.models."*"]
+
+# FALLBACK: Anthropic direct — Claude 4 family (latest as of Aug 2025)
 [llm.providers.anthropic]
 type = "anthropic"
+enabled = false # Toggle on/off here if subscription proxy fails
 api_key = "{{ env.ANTHROPIC_API_KEY }}"
 
 [llm.providers.anthropic.models."claude-opus-4-7"]
@@ -84,22 +96,10 @@ api_key = "{{ env.ANTHROPIC_API_KEY }}"
 [llm.providers.anthropic.models."claude-3-5-sonnet-20241022"]
 [llm.providers.anthropic.models."claude-3-5-haiku-20241022"]
 
-# FALLBACK 2: OpenAI direct
-[llm.providers.openai]
-type = "openai"
-api_key = "{{ env.OPENAI_API_KEY }}"
-forward_token = true
-
-[llm.providers.openai.models."gpt-4o"]
-[llm.providers.openai.models."gpt-4o-mini"]
-[llm.providers.openai.models."gpt-5"]
-[llm.providers.openai.models."o3"]
-[llm.providers.openai.models."o4-mini"]
-
-# FALLBACK 3: OpenRouter — 200+ models, used when local + cloud APIs unavailable
-# Good for: deepseek-r1 (reasoning), Gemini (cheap/fast), Llama (open weights)
+# FALLBACK 2: OpenRouter — 200+ models, disabled by default
 [llm.providers.openrouter]
 type = "openai"
+enabled = false
 api_key = "{{ env.OPENROUTER_API_KEY }}"
 base_url = "https://openrouter.ai/api/v1"
 forward_token = false
@@ -127,40 +127,82 @@ path = "/mcp"
 [mcp.servers.docker-toolkit]
 url = "http://nyra-docker-toolkit:8811"
 
-# ── Oracle VPS MCP servers (100.64.0.3 via Tailscale mesh, always-on) ────────
-
-# Archon OS: AI agent orchestration framework (spawns sub-agents, manages tasks)
-[mcp.servers.archon]
-url = "http://100.64.0.3:3737/mcp/sse"
+<<<<<<< HEAD
+# ── Oracle VPS MCP servers (100.64.0.31 via Tailscale mesh, always-on) ───────
+=======
+# ── Oracle VPS MCP servers (oracle via Tailscale mesh, always-on) ────────
+>>>>>>> github/main
 
 # OpenMemory MCP: self-hosted mem0 memory server with Qdrant vector backend
+
 # MCP SSE endpoint format: /mcp/{client_name}/sse/{user_id}
 [mcp.servers.openmemory]
-url = "http://100.64.0.3:8765/mcp/nexus/sse/nyra"
+<<<<<<< HEAD
+url = "http://100.64.0.31:8765/mcp/nexus/sse/nyra"
+=======
+url = "http://oracle:8765/mcp/nexus/sse/nyra"
+>>>>>>> github/main
 
 # Infisical MCP: secrets read/write via @infisical/mcp (supergateway stdio→SSE bridge)
 # Gives agents the ability to fetch and update secrets from Infisical projects.
 [mcp.servers.infisical]
-url = "http://100.64.0.3:8766/sse"
+<<<<<<< HEAD
+url = "http://100.64.0.31:8766/sse"
 
 # n8n: workflow execution, trigger automation pipelines, inspect executions
 [mcp.servers.n8n]
-url = "http://100.64.0.3:5678/mcp"
+url = "http://100.64.0.31:5678/mcp"
 
 # TwentyCRM: borrower/lead/deal management (open-source CRM)
 [mcp.servers.twenty]
-url = "http://100.64.0.3:3000/mcp"
+url = "http://100.64.0.31:3000/mcp"
 
 # Mem0 REST API: conversational memory REST interface (search/store/delete memories)
 [mcp.servers.mem0]
-url = "http://100.64.0.3:5000"
+url = "http://100.64.0.31:5000/sse"
+
+# memOS: Hierarchical and tensor-based long-term memory
+[mcp.servers.memos]
+url = "http://100.64.0.31:8085/mcp"
+
+# Letta (MemGPT): Memory management and autonomous context orchestration
+[mcp.servers.letta]
+url = "http://100.64.0.31:8283/mcp"
+
+# Claudemem: Cross-session persistent observation memory
+[mcp.servers.claudemem]
+url = "http://orchestrator.trex-fiordland.ts.net:37700/mcp"
+=======
+url = "http://oracle:8766/sse"
+
+# n8n: workflow execution, trigger automation pipelines, inspect executions
+[mcp.servers.n8n]
+url = "http://oracle:5678/mcp"
+
+# TwentyCRM: borrower/lead/deal management (open-source CRM)
+[mcp.servers.twenty]
+url = "http://oracle:8400"
+
+# Mem0 REST API: conversational memory REST interface (search/store/delete memories)
+[mcp.servers.mem0]
+url = "http://oracle:5000"
+
+# Paperclip: OCR and document classification
+[mcp.servers.paperclip]
+url = "http://oracle:8767/sse"
+
+# ── Worker Node MCP servers (via Tailscale) ──────────────────────────────────
+
+# Nerve UI (OpenClaw): Runtime agent dashboard on RTX 3090 Ti
+[mcp.servers.nerve_ui]
+url = "http://worker-rtx3090ti.trex-fiordland.ts.net:8001/mcp"
+>>>>>>> github/main
 
 # ── External / cloud MCP servers ──────────────────────────────────────────────
 
-# Mempalace: external graph memory service (URL injected at runtime via env)
-# Set MEMPALACE_URL in orchestrator env to activate; leave unset to skip.
+# Mempalace: memory palace graph-based indexing
 [mcp.servers.mempalace]
-url = "{{ env.MEMPALACE_URL }}"
+url = "http://100.64.0.31:8002/sse"
 
 # ── TOOL DISCOVERY & FUZZY SEARCH ────────────────────────────────────────────
 # Nexus indexes all tools from all MCP servers and serves them via unified search.

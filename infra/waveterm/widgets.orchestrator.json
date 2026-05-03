@@ -1,0 +1,178 @@
+{
+  "widgetLayout": {
+    "position": "bottom-right",
+    "direction": "vertical",
+    "gap": 8,
+    "padding": 12,
+    "backgroundColor": "rgba(10, 10, 18, 0.85)",
+    "borderColor": "#00ff6644",
+    "borderWidth": 1,
+    "borderRadius": 4
+  },
+
+  "widgets": [
+    {
+      "id": "cpu-monitor",
+      "type": "line-chart",
+      "title": "CPU Usage",
+      "width": 200,
+      "height": 60,
+      "command": "top -bn1 | grep 'Cpu(s)' | awk '{print $2}' | cut -d'%' -f1",
+      "updateInterval": 2000,
+      "theme": {
+        "lineColor": "#00ff66",
+        "backgroundColor": "rgba(0, 255, 102, 0.05)",
+        "textColor": "#e0e0e0",
+        "labelSize": 11,
+        "valueSize": 12,
+        "gridColor": "#00ff6622"
+      }
+    },
+
+    {
+      "id": "memory-monitor",
+      "type": "gauge",
+      "title": "Memory",
+      "width": 200,
+      "height": 60,
+      "command": "free | grep Mem | awk '{printf \"%.0f\", $3/$2*100}'",
+      "unit": "%",
+      "updateInterval": 2000,
+      "thresholds": {
+        "warning": 75,
+        "critical": 90
+      },
+      "theme": {
+        "fillColor": "#0099ff",
+        "warningColor": "#ffff00",
+        "criticalColor": "#ff0047",
+        "backgroundColor": "rgba(0, 153, 255, 0.05)",
+        "textColor": "#e0e0e0"
+      }
+    },
+
+    {
+      "id": "disk-monitor",
+      "type": "gauge",
+      "title": "Disk (/)",
+      "width": 200,
+      "height": 60,
+      "command": "df / | tail -1 | awk '{print $5}' | cut -d'%' -f1",
+      "unit": "%",
+      "updateInterval": 5000,
+      "thresholds": {
+        "warning": 80,
+        "critical": 95
+      },
+      "theme": {
+        "fillColor": "#ff00ff",
+        "warningColor": "#ffff00",
+        "criticalColor": "#ff0047",
+        "backgroundColor": "rgba(255, 0, 255, 0.05)",
+        "textColor": "#e0e0e0"
+      }
+    },
+
+    {
+      "id": "network-monitor",
+      "type": "bar-chart",
+      "title": "Network (Mbps)",
+      "width": 200,
+      "height": 60,
+      "command": "ss -s | grep TCP | awk '{print $3}' || echo '0'",
+      "updateInterval": 3000,
+      "theme": {
+        "barColor": "#00ffff",
+        "backgroundColor": "rgba(0, 255, 255, 0.05)",
+        "textColor": "#e0e0e0"
+      }
+    },
+
+    {
+      "id": "gpu-monitor-5090",
+      "type": "gauge",
+      "title": "GPU-5090",
+      "width": 200,
+      "height": 60,
+      "command": "ssh worker-rtx5090-win 'nvidia-smi --query-gpu=utilization.gpu --format=csv,noheader,nounits' || echo '0'",
+      "unit": "%",
+      "updateInterval": 2000,
+      "thresholds": {
+        "warning": 70,
+        "critical": 90
+      },
+      "theme": {
+        "fillColor": "#ff3366",
+        "warningColor": "#ffff00",
+        "criticalColor": "#ff0047",
+        "backgroundColor": "rgba(255, 51, 102, 0.05)",
+        "textColor": "#e0e0e0"
+      }
+    },
+
+    {
+      "id": "gpu-monitor-3090ti",
+      "type": "gauge",
+      "title": "GPU-3090Ti",
+      "width": 200,
+      "height": 60,
+      "command": "ssh worker-rtx3090ti-win 'nvidia-smi --query-gpu=utilization.gpu --format=csv,noheader,nounits' || echo '0'",
+      "unit": "%",
+      "updateInterval": 2000,
+      "thresholds": {
+        "warning": 70,
+        "critical": 90
+      },
+      "theme": {
+        "fillColor": "#33ff99",
+        "warningColor": "#ffff00",
+        "criticalColor": "#ff0047",
+        "backgroundColor": "rgba(51, 255, 153, 0.05)",
+        "textColor": "#e0e0e0"
+      }
+    },
+
+    {
+      "id": "daemon-status",
+      "type": "status-indicator",
+      "title": "Daemon Health",
+      "width": 200,
+      "height": 60,
+      "checks": [
+        {
+          "name": "llxprt-jefe",
+          "command": "pgrep -f 'llxprt-jefe' >/dev/null && echo 'ok' || echo 'down'"
+        },
+        {
+          "name": "llxprt-code",
+          "command": "curl -s http://localhost:8080/health >/dev/null 2>&1 && echo 'ok' || echo 'down'"
+        },
+        {
+          "name": "letta-mcp",
+          "command": "pgrep -f 'letta-mcp-server' >/dev/null && echo 'ok' || echo 'down'"
+        }
+      ],
+      "updateInterval": 5000,
+      "theme": {
+        "okColor": "#00ff66",
+        "downColor": "#ff0047",
+        "backgroundColor": "rgba(0, 255, 102, 0.05)",
+        "textColor": "#e0e0e0"
+      }
+    },
+
+    {
+      "id": "zellij-status",
+      "type": "text-display",
+      "title": "Active Session",
+      "width": 200,
+      "height": 40,
+      "command": "zellij list-sessions 2>/dev/null | grep 'nyra-orchestrator' || echo 'inactive'",
+      "updateInterval": 5000,
+      "theme": {
+        "textColor": "#e0e0e0",
+        "fontSize": 11
+      }
+    }
+  ]
+}

@@ -50,6 +50,53 @@ The repo-side fix is already on `origin/main`. Pages must rebuild from commit
 4. Confirm the deployment commit is `8efd4c13` or newer, not `e27167d`.
 5. If Cloudflare still reuses the old failed deployment, clear any queued/retry state and start a fresh production deploy from `main`.
 
+### Cloudflare Pages project/account mismatch for landing deploy
+GitHub Actions now completes the landing app build and uploads the `.open-next` artifact successfully, but the
+Cloudflare deploy step fails when `cloudflare/pages-action@v1` calls:
+`/accounts/<CLOUDFLARE_ACCOUNT_ID>/pages/projects/ratehunter-landing`
+
+Current failure from run `24940332215` on April 25, 2026:
+- `code: 7003` — `Could not route to /accounts/.../pages/projects/ratehunter-landing`
+- `code: 7000` — `No route for that URI`
+
+This means one of these owner-managed values is wrong or missing:
+- the Cloudflare Pages project does not exist under that account
+- `CLOUDFLARE_ACCOUNT_ID` points to the wrong Cloudflare account
+- `CLOUDFLARE_API_TOKEN` belongs to a different account or lacks Pages access
+
+**Steps:**
+1. Open Cloudflare Dashboard → **Workers & Pages**.
+2. Confirm there is a Pages project named exactly `ratehunter-landing`.
+3. If it does not exist, create it or rename the existing project to match the workflow.
+4. In the Cloudflare dashboard sidebar, copy the **Account ID** for the account that owns that Pages project.
+5. Update GitHub repository secrets or Infisical so `CLOUDFLARE_ACCOUNT_ID` matches that exact account.
+   - It must be the real 32-character hexadecimal Cloudflare Account ID.
+   - Do not set it to the literal string `$CLOUDFLARE_ACCOUNT_ID`, the zone ID, account email, or project name.
+6. Verify the API token used by Actions has access to that same account and includes Pages permissions.
+7. Re-run the `Deploy to Cloudflare Pages` workflow after correcting the account/project mismatch.
+
+### ratehunter.net serves branded 404 after a successful landing deploy
+Observed on May 1, 2026: `https://ratehunter.net/` resolves through Cloudflare but serves a branded `404 Page Not Found`
+instead of the landing app homepage. This is different from a build failure. It means the public hostname is not serving
+the deployed `apps/landing/ratehunter-landing` homepage.
+
+Likely causes:
+- `ratehunter.net` is attached to a different Pages project, Worker route, or Cloudflared fallback origin.
+- The `ratehunter-landing` Pages project deployed successfully, but `ratehunter.net` is not listed under that project's custom domains.
+- DNS for the apex or `www` hostname points at a stale Cloudflare route instead of the Pages custom-domain binding.
+- The deployment adapter uploaded an artifact that returns 200/404 but does not serve the OpenNext landing app content.
+
+**Steps:**
+1. Open Cloudflare Dashboard → **Workers & Pages** → `ratehunter-landing` → **Custom domains**.
+2. Confirm both `ratehunter.net` and `www.ratehunter.net` are attached to this exact project and show as active.
+3. Open the Cloudflare DNS records for the `ratehunter.net` zone and confirm there is no Worker route, Pages project,
+   or Cloudflared tunnel hostname taking precedence over the apex.
+4. If the domain is attached to another project, remove it there first, then add it to `ratehunter-landing`.
+5. If `ratehunter.net` is intentionally served by Cloudflared instead of Pages, update
+   `.github/workflows/deploy-cloudflare-pages.yml` and `docs/05_cloudflare_pages_landing.md` before switching traffic.
+6. Re-run the GitHub workflow. Production deploys now verify that `https://ratehunter.net/` contains the expected
+   landing homepage text (`Ellis Andersen`) and will fail if the domain still serves the 404 page.
+
 ## Tailscale
 Manual only if you want to enforce additional ACLs, tags, or device policies.
 
@@ -201,3 +248,46 @@ Both tunnels need new tokens. The existing connectors were deleted from the CF a
 
 **Set public hostname rules** in CF Zero Trust → Tunnels → (each tunnel) → Public Hostnames
 matching the tables in `~/repos/cloudflared/TUNNEL-SETUP-ORACLE.md` and `TUNNEL-SETUP-ORCHESTRATOR.md`.
+
+---
+
+<<<<<<< HEAD
+## Composio Hosted MCP Server URL
+
+The Compose overrides require a hosted MCP URL and user-bound app connections.
+
+**Steps:**
+1. In Composio, create or select the hosted MCP server for Nyra external tools.
+2. Connect the required user/account credentials for Jira, Slack, and Twenty.
+3. Copy the MCP URL and API key into the secret store:
+   - `COMPOSIO_API_KEY`
+   - `COMPOSIO_DEFAULT_USER_ID`
+   - `COMPOSIO_MCP_SERVER_ID`
+   - `COMPOSIO_MCP_URL`
+4. Render `infra/env/composio.env.example` into the node-local secret env file before applying:
+   - `infra/compose/composio.inject.compose.yml`
+   - `infra/compose/composio.openclaw-mvp.inject.compose.yml`
+   - `infra/compose/composio.webapp.inject.compose.yml`
+=======
+## Cloudflare Tunnel UI DNS Import
+
+Manual owner action is required because Cloudflare dashboard login, DNS ownership, and Zero Trust
+Access policy changes require account access.
+
+Use the focused walkthrough and backup configs:
+
+- `docs/CLOUDFLARE_UI_DNS_WALKTHROUGH.md`
+- `infra/hosts/orchestrator/cloudflared-config.yml`
+- `infra/hosts/oracle-vps/cloudflared-config.yml`
+
+Copies have also been placed in `~/repos/cloudflared_DNS_setup` for direct Cloudflare dashboard
+import/reference:
+
+- `orchestrator-cloudflared-config.yml`
+- `oracle-vps-cloudflared-config.yml`
+- `CLOUDFLARE_UI_DNS_WALKTHROUGH.md`
+- `OWNER_MANUAL_ACTIONS.md`
+
+Create or update the two tunnels, import or enter the public hostname mappings, and apply Access
+policies to every private UI before use.
+>>>>>>> github/main
