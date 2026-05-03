@@ -58,10 +58,14 @@ Use the landing app as the Cloudflare project root so Pages only installs and bu
 - **Root directory**: `apps/landing/ratehunter-landing`
 - **Install command**: `npm install`
 - **Build command**: `npm run build:cf`
-- **Build output directory**: `.open-next/assets`
+- **Build output directory**: `.open-next`
 - **Node version**: `20`
 
 Do not use `/` as the project root in this monorepo. A repo-root install can fail on unrelated workspace packages before the landing app build starts.
+
+`npm run build:cf` prepares Cloudflare Pages advanced mode by copying the OpenNext worker entry from
+`.open-next/worker.js` to `.open-next/_worker.js`. Do not point Pages at `.open-next/assets`; that directory contains
+only static assets and will serve the branded 404 for `/`.
 
 #### If your Cloudflare project keeps using repo root (v2 root directory strategy)
 
@@ -70,7 +74,7 @@ If the Cloudflare UI is currently configured with an empty root directory and a 
 - **Root directory**: *(leave blank)*
 - **Install command**: `cd apps/landing/ratehunter-landing && npm install`
 - **Build command**: `cd apps/landing/ratehunter-landing && npm run build:cf`
-- **Build output directory**: `apps/landing/ratehunter-landing/.open-next/assets`
+- **Build output directory**: `apps/landing/ratehunter-landing/.open-next`
 
 This avoids `pnpm install` running at monorepo root and prevents frozen-lockfile failures caused by unrelated workspace packages.
 
