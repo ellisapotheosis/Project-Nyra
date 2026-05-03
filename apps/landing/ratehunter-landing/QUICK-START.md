@@ -48,7 +48,7 @@ git push origin main
 - Root directory: **apps/landing/ratehunter-landing**
 - Install command: `npm install`
 - Build command: `npm run build:cf`
-- Build output directory: `.open-next/assets`
+- Build output directory: `.open-next`
 
 **Environment variables** (click "Add variable"):
 ```
