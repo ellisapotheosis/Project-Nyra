@@ -30,7 +30,7 @@ This guide walks you through setting up a production-ready Cloudflare Pages depl
 Framework preset: Next.js
 Root directory: apps/landing/ratehunter-landing
 Build command: npm run build:cf
-Build output directory: .open-next/assets
+Build output directory: .open-next
 Install command: npm install
 Node version: 20
 ```
