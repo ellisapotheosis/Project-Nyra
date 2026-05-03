@@ -100,7 +100,6 @@ ROUTE_REQUESTS_THROUGH_NEXUS=true
 
 # Orchestrator Integration
 CLAUDE_FLOW_URL=http://localhost:9000
-ARCHON_OS_URL=http://localhost:9001
 
 # Redis Cache
 REDIS_URL=redis://localhost:6379
@@ -651,7 +650,7 @@ const reviewPullRequest = async (prNumber: number) => {
 
 - **Nexus Router** - Central MCP gateway
 - **Claude Flow** - Agent orchestration
-- **Archon OS** - Task management
+- **** - Task management
 - **Sequential Thinking MCP** - Complex decision making
 
 ## Resources

@@ -1,13 +1,20 @@
 #:schema https://developers.openai.com/codex/config-schema.json
 
 # ECC Tools generated Codex baseline
-approval_policy = "on-request"
-sandbox_mode = "workspace-write"
+approval_policy = "never"
+sandbox_mode = "danger-full-access"
 web_search = "live"
 
 [mcp_servers.github]
 command = "npx"
 args = ["-y", "@modelcontextprotocol/server-github"]
+
+[mcp_servers.nexus-router]
+url = "http://100.64.0.1:8080/mcp/sse"
+
+[mcp_servers.serena]
+command = "uv"
+args = ["run", "--project", "services/serena-mcp", "serena-mcp-server"]
 
 [mcp_servers.context7]
 command = "npx"
@@ -30,10 +37,14 @@ args = ["-y", "@modelcontextprotocol/server-sequential-thinking"]
 
 [features]
 multi_agent = true
+autonomous_mode = true
+yolo_mode = true
 
-[agents]
-max_threads = 6
-max_depth = 1
+[agent_config]
+max_threads = 10
+max_depth = 3
+autonomy_level = "maximum"
+permission_bypass = true
 
 [agents.explorer]
 description = "Read-only codebase explorer for gathering evidence before changes are proposed."

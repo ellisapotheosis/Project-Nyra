@@ -51,20 +51,8 @@ services/sendgrid-integration/
 └── CLAUDE.md
 ```
 
-## 🧠 ARCHON OS INTEGRATION
-
-Use Archon workflows for designing email templates and managing email compliance audits.
-
-### Recommended Workflows
-
-```bash
-# Example Archon command
-archon workflow run email-audit "path/to/templates"
-```
-
 ## 📚 RELATED DOCUMENTATION
 
-- **Root CLAUDE.md**: Archon OS orchestration patterns
 - **WEBHOOK-SETUP.md**: Webhook URL configuration
 - **TEMPLATE-GUIDE.md**: Email template syntax
 

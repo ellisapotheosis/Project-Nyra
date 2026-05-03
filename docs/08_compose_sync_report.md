@@ -1,45 +1,57 @@
-# 08 Compose Sync Report (Post-Reconciliation)
+# 08 Compose Sync Report
+
+Updated: 2026-04-27
 
 ## Objective
 
-Validate that docs, Makefile targets, and bootstrap scripts point to real compose files.
+Validate that root numbered docs, Makefile targets, and host-scoped compose files agree on active stack placement.
+
+## Current Makefile compose paths
+
+| Variable | Path |
+|---|---|
+| `ORCHESTRATOR_COMPOSE` | `infra/hosts/orchestrator/docker-compose.yml` |
+| `ORCHESTRATOR_BITNET_COMPOSE` | `infra/hosts/orchestrator/docker-compose.bitnet.yml` |
+| `CF_ORCH_COMPOSE` | `infra/hosts/orchestrator/docker-compose.cloudflared.yml` |
+| `ORACLE_COMPOSE` | `infra/hosts/oracle-vps/docker-compose.yml` |
+| `ORACLE_GITEA_COMPOSE` | `infra/hosts/oracle-vps/docker-compose.gitea.yml` |
+| `ORACLE_APPS_COMPOSE` | `infra/hosts/oracle-vps/docker-compose.apps.yml` |
+| `WORKER_3060_COMPOSE` | `infra/hosts/worker-rtx3060/docker-compose.yml` |
+| `WORKER_3090TI_COMPOSE` | `infra/hosts/worker-rtx3090ti/docker-compose.yml` |
+| `WORKER_5090_COMPOSE` | `infra/hosts/worker-rtx5090/docker-compose.yml` |
+| `VOICE_*` | `infra/hosts/*/docker-compose.voice.yml` |
+| `DIST_VOICE_*` | `infra/hosts/*/docker-compose.distributed-voice.yml` |
+| `HERMES_*` | worker `docker-compose.hermes.yml` files |
+| `NERVE_*` | worker `docker-compose.nerve.yml` files |
 
 ## Findings
 
-- `infra/docker-compose.yml` is the primary stack compose.
-- `infra/scripts/node-up.sh` and `node-down.sh` use `infra/docker-compose.yml` + overrides.
-- `make compose-config-all` previously referenced missing worker override files.
-- `make down-orchestrator` previously referenced a missing compose file under `infra/orchestrator/`.
+- `Makefile` now treats `infra/hosts/orchestrator/docker-compose.yml` as the default local compose file.
+- `make verify-paths` validates the host-scoped compose files used by the main targets.
+- Oracle CI/CD uses a dedicated compose at `infra/hosts/oracle-vps/docker-compose.gitea.yml`.
+- Oracle app-profile services use `infra/hosts/oracle-vps/docker-compose.apps.yml` as an overlay.
+- Worker stacks are controlled through Docker contexts: `worker-rtx3060`, `worker-rtx3090ti`, and `worker-rtx5090`.
+- BitNet CPU fallback has first-class targets: `bitnet-sync`, `bitnet-up`, `bitnet-health`, `bitnet-smoke`, and `bitnet-deploy`.
 
-## Corrective actions
+## Drift corrections made in this doc set
 
-1. Updated `make compose-config-all` to validate worker compose files that actually exist.
-2. Updated orchestrator down/log/health targets to use `infra/docker-compose.yml` profiles.
-3. Added additive `up-gitea/down-gitea/logs-gitea/health-gitea` targets.
-4. Added additive `up-infisical/down-infisical/logs-infisical/health-infisical` targets.
+1. Replaced old `infra/docker-compose.yml` references with `infra/hosts/orchestrator/docker-compose.yml`.
+2. Replaced old `infra/oracle/*` references with `infra/hosts/oracle-vps/*`.
+3. Replaced old `infra/workers/*` references with `infra/hosts/worker-*/*`.
+4. Rebuilt root port guidance around current host-scoped compose files.
+5. Added a missing root `02_ports_registry.md` snapshot.
 
-## Validation performed
+## Validation commands
 
-- Docker compose config checks for:
-  - base infra stack + orchestrator override
-  - worker compose files
-  - gitea bootstrap compose
-  - infisical bootstrap compose
-- cloudflared ingress validation command executed via official container image.
-- workflow YAML parse check executed for `.github/workflows` and `.gitea/workflows`.
-
-## Status
-
-- Compose references are synchronized with on-disk repo truth for active targets.
+```bash
+make verify-paths
+docker compose -f infra/hosts/orchestrator/docker-compose.yml config
+docker --context oracle compose -f infra/hosts/oracle-vps/docker-compose.yml config
+docker --context oracle compose -f infra/hosts/oracle-vps/docker-compose.gitea.yml --env-file .env.gitea config
+```
 
 ## Remaining caveats
-- Full runtime validation requires Docker in the execution environment.
-- Some legacy scripts still mention historical paths and should be reviewed in future cleanup PRs.
 
-## Recommended CI additions
-- Add a check that every compose path in Makefile exists.
-- Add a check that cloudflared config has final 404 catch-all.
-- Add a check that datastore services are never listed in hostname map.
-
-## Evidence
-- This report is backed by direct grep/sed parsing of Makefile and infra scripts.
+- Full runtime validation requires the Docker contexts and hosts to be reachable.
+- Some compose files still contain components that conflict with the current architecture rules; those are stack cleanup items, not doc truth.
+- Dashboard-managed Cloudflare tunnel routes must be compared manually against `infra/hosts/oracle-vps/cloudflared-config.yml`.

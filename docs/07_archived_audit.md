@@ -1,46 +1,51 @@
-# 07 Archived Audit (Scope Hygiene)
+# 07 Archived Audit
+
+Updated: 2026-04-27
 
 ## Archive policy
 
-When content is no longer canonical, it is retained under:
+Root numbered docs should describe active runtime state only. Archive, recovery, and ingestion folders are not authoritative for current deployment.
 
-- `/_archived/YYYYMMDD/...`
+Non-active scopes:
 
-No destructive deletion is used for infra/doc recovery work.
-
-## What is considered non-active
-
-- `_archived/**`
-- `infra-archived/**`
-- `docs/references/**`
-
-These paths may contain valid historic examples but are excluded from active runtime registry and edge mappings.
-
-## Why this matters
-
-1. Avoids accidental port conflicts when generating active registries.
-2. Prevents legacy insecure exposure patterns from being reintroduced.
-3. Keeps post-move documentation deterministic and auditable.
+```text
+docs/archive/**
+infra/cleanup_archive/**
+infra/ingest/**
+data/app-guidance/**
+data/project-requirements/**
+```
 
 ## Current audit result
 
-- Active ports registry now uses Makefile/script referenced compose files only.
-- Legacy compose discovery is preserved in `docs/02_ports_registry.appendix_legacy.md`.
-- Placeholder docs have been rebuilt with source-linked evidence sections.
+- Active compose ownership has moved to `infra/hosts/<host-name>/`.
+- Root numbered docs now use `infra/hosts/*` and `Makefile` as the evidence base.
+- Legacy root paths such as `infra/docker-compose.yml`, `infra/oracle/*`, and `infra/workers/*` should not be reintroduced into root numbered docs unless those files are restored as active Makefile targets.
+- Archived files containing removed stack components were deleted during the cleanup pass.
 
-## Follow-up recommendation
+## What is active
 
-Create a periodic CI check that fails if `docs/02_ports_registry.md` references paths under `_archived/` or `docs/references/`.
+| Evidence class | Active source |
+|---|---|
+| Compose paths | `Makefile` variables ending in `_COMPOSE` |
+| Host placement | `infra/hosts/*/docker-compose*.yml` |
+| CI/CD placement | `infra/hosts/oracle-vps/docker-compose.gitea.yml` |
+| Edge hostnames | `infra/hosts/oracle-vps/cloudflared-config.yml` and Cloudflare dashboard-managed tunnel settings |
+| BitNet fallback | `infra/hosts/orchestrator/docker-compose.bitnet.yml` |
+
+## Review rule
+
+Before adding a service to a root numbered doc:
+
+1. Confirm the service exists in `infra/hosts/*/docker-compose*.yml`.
+2. Confirm whether a Makefile target starts or validates that compose path.
+3. Confirm whether the service is public, Access-gated, private, or profile-gated.
+4. Do not treat archive or reference files as active deployment evidence.
 
 ## Evidence commands
-```bash
-rg --files -g "docker-compose*.yml" -g "compose*.yml" | sort
-```
 
 ```bash
-rg -n "docker compose|COMPOSE_FILE|--env-file" Makefile infra/scripts/*.sh
+find infra/hosts -maxdepth 2 -name 'docker-compose*.yml' | sort
+rg -n "^[A-Z0-9_]+_COMPOSE|docker compose -f|docker --context" Makefile
+rg -n "hostname:|service:" infra/hosts/oracle-vps/cloudflared-config.yml
 ```
-
-## Audit conclusion
-- Active docs now separate canonical runtime configuration from historical/reference materials.
-- This prevents accidental resurrection of insecure or stale exposure patterns.
