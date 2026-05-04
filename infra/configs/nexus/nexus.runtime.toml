@@ -1,0 +1,18 @@
+# Runtime config for ghcr.io/grafbase/nexus:stable (v0.6.x).
+# Keep this intentionally small: the stable image currently accepts only
+# server, mcp, llm, and telemetry top-level sections.
+
+[server]
+listen_address = "0.0.0.0:3000"
+
+[server.health]
+enabled = true
+path = "/health"
+
+[mcp]
+enabled = true
+path = "/mcp"
+
+[mcp.servers.github]
+url = "https://api.githubcopilot.com/mcp/"
+auth.token = "{{ env.GITHUB_TOKEN }}"

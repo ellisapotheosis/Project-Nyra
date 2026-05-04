@@ -1,6 +1,6 @@
 # 01 Inventory Matrix
 
-Updated: 2026-04-27
+Updated: 2026-04-30
 
 ## Canonical deployment domains
 
@@ -23,6 +23,7 @@ Updated: 2026-04-27
 - Runtime compose files are now host-scoped under `infra/hosts/*`; older root or `infra/oracle` paths are non-canonical.
 - `Makefile` defaults `COMPOSE_FILE` to `infra/hosts/orchestrator/docker-compose.yml`.
 - Oracle is the durable always-on node for Gitea CI/CD, business apps, stateful services, observability, and Cloudflared ingress.
+- Cloudflared hostname and Web UI setup material is consolidated in `docs/cloudflared/`; root numbered docs should point there rather than duplicating per-host tunnel maps.
 - GPU workers own model-serving surfaces; worker inference ports should be private mesh/Tailscale endpoints.
 - Gitea CI/CD has a dedicated Oracle compose and health script: `infra/hosts/oracle-vps/scripts/gitea-ci-health.sh`.
 - BitNet CPU fallback has a dedicated orchestrator compose and Makefile deployment path.
@@ -49,7 +50,7 @@ infra/hosts/worker-rtx5090/docker-compose.yml
 1. `infra/hosts/oracle-vps/docker-compose.yml` still includes components that conflict with current architecture rules; remove those before production promotion.
 2. Port `4000` appears on orchestrator and worker LiteLLM services. That is acceptable across separate hosts but must not collide on a single Docker context.
 3. Port `6000` appears on Oracle Nexus and optional orchestrator one-hop Nexus. Keep the one-hop compose optional to avoid local conflicts.
-4. Raw worker inference ports must stay private; Cloudflared should target only approved HTTP UIs/APIs.
+4. Raw worker inference ports must stay private; Cloudflared should target only approved HTTP UIs/APIs and every non-marketing route should be Cloudflare Access-gated.
 
 ## Verification commands
 
@@ -63,3 +64,4 @@ find infra/hosts -maxdepth 2 -name 'docker-compose*.yml' | sort
 
 - If a compose file is not under `infra/hosts/*` or wired through `Makefile`, it is not authoritative for root numbered docs.
 - Host folders are the ownership boundary for runtime placement, ports, and service exposure.
+- `docs/cloudflared/hostname-matrix.md` is the current owner-facing DNS/hostname checklist for `ratehunter.net`.

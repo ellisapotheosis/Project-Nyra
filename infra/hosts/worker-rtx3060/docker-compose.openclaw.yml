@@ -1,0 +1,37 @@
+# infra/hosts/worker-rtx3060/docker-compose.openclaw.yml
+# 🦞 Project Nyra - OpenClaw + NerveUI for RTX 3060 (Cron/Testing/Rate Quoting)
+
+services:
+  openclaw:
+    environment:
+      - OPENCLAW_ROLE=worker
+      - OPENCLAW_WORKER_NAME=rtx3060
+      - OPENCLAW_MODE=cron-automation
+      - NERVE_UI_ENABLED=true
+      - ACTIVEPIECES_API_URL=http://oracle.trex-fiordland.ts.net:5000
+      - QUOTE_ENGINE_URL=http://oracle.trex-fiordland.ts.net:8089
+      - RATE_QUOTING_ENABLED=true
+      - CRON_JOB_EXECUTOR=enabled
+    ports:
+      - "8003:8001"
+      - "18791:18789"
+
+  nerveui:
+    image: nerve/nerveui:latest
+    container_name: worker-3060-nerveui
+    environment:
+      - NERVE_OPENCLAW_GATEWAY=http://localhost:8001
+      - NERVE_MODE=cron-interface
+      - NERVE_MORTGAGE_AUTOMATION=true
+    ports:
+      - "6008:6006"
+    depends_on:
+      - openclaw
+    networks:
+      - nyra_net
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6006/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 3

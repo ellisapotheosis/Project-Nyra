@@ -1,6 +1,6 @@
 # 10 Voice and OpenClaw Integration
 
-Updated: 2026-04-27
+Updated: 2026-04-30
 
 ## Current state
 
@@ -21,6 +21,23 @@ Voice and assistant/runtime services are optional overlays. They should stay pri
 | `worker-rtx5090` | `unmute-llm` | `docker-compose.distributed-voice.yml` | `8081 -> 8080` | distributed LLM role |
 | `worker-rtx3090ti` | `openclaw`, `nerve-ui` | `docker-compose.nerve.yml` | `8001`, `18789` | optional runtime/dashboard |
 | `worker-rtx5090` | `openclaw`, `nerve-ui` | `docker-compose.nerve.yml` | `8001`, `18789` | optional runtime/dashboard |
+
+## Cloudflared hostnames
+
+Optional assistant/runtime web surfaces should use the Access-gated hostnames
+documented in `docs/cloudflared/hostname-matrix.md`.
+
+Recommended worker UI hostnames:
+
+| Hostname | Origin |
+|---|---|
+| `openclaw-5090.ratehunter.net` | `worker-rtx5090.trex-fiordland.ts.net:8001` |
+| `nerve-5090.ratehunter.net` | `worker-rtx5090.trex-fiordland.ts.net:18789` |
+| `openclaw-3090.ratehunter.net` | `worker-rtx3090ti.trex-fiordland.ts.net:8001` |
+| `nerve-3090.ratehunter.net` | `worker-rtx3090ti.trex-fiordland.ts.net:18789` |
+
+Keep raw voice/media ports private. Do not publish Unmute transport ports unless
+there is a dedicated Access policy and a documented product reason.
 
 ## Makefile targets
 

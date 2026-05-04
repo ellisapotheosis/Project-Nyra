@@ -142,3 +142,47 @@
     ]
   }
 }
+    {
+      "name": "3-worker-openclaw-topology",
+      "icon": "🦞",
+      "description": "OpenClaw status + NerveUI for all 3 workers (inference + cron)",
+      "layout": "tiled",
+      "panes": [
+        {
+          "title": "RTX5090 OpenClaw Status",
+          "cmd": "watch -n 5 'curl -s http://worker-rtx5090:8001/health 2>/dev/null | jq . || echo Offline'",
+          "rows": 12,
+          "cols": 40
+        },
+        {
+          "title": "RTX3090Ti OpenClaw Status",
+          "cmd": "watch -n 5 'curl -s http://worker-rtx3090ti:8002/health 2>/dev/null | jq . || echo Offline'",
+          "rows": 12,
+          "cols": 40
+        },
+        {
+          "title": "RTX3060 OpenClaw (Cron/Testing)",
+          "cmd": "watch -n 5 'curl -s http://worker-rtx3060:8003/health 2>/dev/null | jq . || echo Offline'",
+          "rows": 12,
+          "cols": 40
+        },
+        {
+          "title": "NerveUI Dashboard (RTX5090)",
+          "cmd": "curl -s http://worker-rtx5090:6006/dashboard 2>/dev/null || echo 'Connecting to NerveUI...'",
+          "rows": 16,
+          "cols": 80
+        },
+        {
+          "title": "NerveUI Dashboard (RTX3090Ti)",
+          "cmd": "curl -s http://worker-rtx3090ti:6007/dashboard 2>/dev/null || echo 'Connecting to NerveUI...'",
+          "rows": 16,
+          "cols": 80
+        },
+        {
+          "title": "NerveUI Cron Interface (RTX3060)",
+          "cmd": "curl -s http://worker-rtx3060:6008/cron 2>/dev/null || echo 'Connecting to Cron Interface...'",
+          "rows": 16,
+          "cols": 80
+        }
+      ]
+    }

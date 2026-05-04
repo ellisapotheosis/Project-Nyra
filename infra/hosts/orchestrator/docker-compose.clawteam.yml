@@ -1,0 +1,36 @@
+# infra/hosts/orchestrator/docker-compose.clawteam.yml
+# 🦞 Project Nyra - ClawTeam Primary Node Override for Orchestrator
+
+services:
+  clawteam:
+    image: ghcr.io/claw-ai/clawteam:latest
+    container_name: nyra-clawteam-primary
+    environment:
+      - CLAWTEAM_ROLE=primary
+      - CLAWTEAM_HOST=orchestrator
+      - CLAWTEAM_MEMORY_LIMIT=5g
+      - CLAWTEAM_FALLBACK_REPLICA=worker-rtx3060:9002
+      - WORKER_NODES=["worker-rtx5090", "worker-rtx3090ti", "worker-rtx3060"]
+      - NERVE_UI_ENABLED=true
+      - LITELLM_API_URL=http://litellm:4000
+      - NEXUS_ROUTER_URL=http://localhost:7000
+    ports:
+      - "9001:9000"
+      - "18789:18789"
+    depends_on:
+      litellm:
+        condition: service_healthy
+    networks:
+      - nyra-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          memory: 5g
+        reservations:
+          memory: 3g

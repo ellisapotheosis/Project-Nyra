@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "lastScanned": 1777328287235,
+  "lastScanned": 1777907631352,
   "projectRoot": "/home/ellisapotheosis/repos/project-nyra",
   "techStack": {
     "languages": [
@@ -50,7 +50,7 @@
     "runtime": "Node.js 20"
   },
   "build": {
-    "buildCommand": "cat >> Makefile << 'MAKEEOF'\n\n# ════════════════════════════════════════════════════════════════════════════\n# 🌊 ULTIMATE ORCHESTRATOR: Letta-MCP + Composio + Full Multi-CLI Cockpit\n# Auto-compilation, daemon health checks, unified WaveTerm launch\n# ════════════════════════════════════════════════════════════════════════════\n\n.PHONY: orchestrator-setup orchestrator-compile-letta orchestrator-daemon-health \\\n  orchestrator-secrets orchestrator-wave-launch orchestrator-full \\\n  orchestrator-daemon-logs orchestrator-down orchestrator-status\n\n# Pull secrets from Infisical, verify paths, prepare daemon environment\norchestrator-setup:\n\t@echo \"🔐 [1/4] Pulling Infisical secrets for orchestrator...\"\n\t@mkdir -p ~/.nyra\n\t@if command -v infisical &>/dev/null; then \\\n\t\tinfisical export --env=prod --path=/workers/orchestrator --format=dotenv > ~/.nyra/.env.orchestrator 2>/dev/null || \\\n\t\t(echo \"⚠️  Infisical offline. Creating minimal .env...\" && echo \"LLXPRT_DUMMY_KEY=local_dev\" > ~/.nyra/.env.orchestrator); \\\n\telse \\\n\t\techo \"⚠️  Infisical CLI not installed. Skipping secret pull.\"; \\\n\tfi\n\t@echo \"✅ Secrets staged at ~/.nyra/.env.orchestrator\"\n\t@echo \"\"\n\t@echo \"📍 [2/4] Verifying critical paths...\"\n\t@test -d external/llxprt-jefe || (echo \"❌ external/llxprt-jefe missing\" && exit 1)\n\t@test -d external/llxprt-code || (echo \"❌ external/llxprt-code missing\" && exit 1)\n\t@test -f infra/zellij/nyra-orchestrator-mcp.kdl || (echo \"❌ infra/zellij/nyra-orchestrator-mcp.kdl missing\" && exit 1)\n\t@echo \"✅ All critical paths verified\"\n\t@echo \"\"\n\n# Compile Rust Letta-MCP server if not already built\norchestrator-compile-letta:\n\t@echo \"🦀 [3/4] Building Rust Letta-MCP Server...\"\n\t@if [ ! -f ./target/release/letta-mcp-server ] && [ -d mcp-servers/letta-mcp ]; then \\\n\t\techo \"  → Compiling from mcp-servers/letta-mcp/Cargo.toml...\"; \\\n\t\tcargo build --release --manifest-path mcp-servers/letta-mcp/Cargo.toml 2>&1 | tail -20; \\\n\t\techo \"✅ Letta-MCP compiled to ./target/release/letta-mcp-server\"; \\\n\telif [ -f ./target/release/letta-mcp-server ]; then \\\n\t\techo \"✅ Letta-MCP already built\"; \\\n\telse \\\n\t\techo \"⚠️  Letta-MCP source not found. Skipping compilation. (Will fallback to stdio stubs)\"; \\\n\tfi\n\t@echo \"\"\n\n# Health check: Verify daemon will boot correctly\norchestrator-daemon-health:\n\t@echo \"🏥 [4/4] Pre-flight daemon health check...\"\n\t@echo \"  → llxprt-jefe: \" && (cd external/llxprt-jefe && ./jefe --help >/dev/null 2>&1 && echo \"✅\" || echo \"⚠️  Check manually\")\n\t@echo \"  → llxprt-code: \" && (cd external/llxprt-code && ./code --help >/dev/null 2>&1 && echo \"✅\" || echo \"⚠️  Check manually\")\n\t@echo \"  → Zellij layout: \" && (zellij --layout infra/zellij/nyra-orchestrator-mcp.kdl --check >/dev/null 2>&1 && echo \"✅\" || echo \"⚠️  Syntax check: infra/zellij/nyra-orchestrator-mcp.kdl\")\n\t@echo \"\"\n\n# Full orchestrator bootstrap: secrets → compile → health → launch\norchestrator-full: orchestrator-setup orchestrator-compile-letta orchestrator-daemon-health\n\t@echo \"🚀 [FINAL] Launching Ultimate Orchestrator Cockpit...\"\n\t@set -a; source ~/.nyra/.env.orchestrator 2>/dev/null; set +a; \\\n\tif zellij list-sessions 2>/dev/null | grep -q \"nyra-orchestrator\"; then \\\n\t\techo \"⚡ Orchestrator session already active. Attaching...\"; \\\n\telse \\\n\t\techo \"🌊 Spawning detached Zellij (nyra-orchestrator) with Letta-MCP daemon...\"; \\\n\t\tzellij --layout infra/zellij/nyra-orchestrator-mcp.kdl --session nyra-orchestrator -d; \\\n\t\tsleep 2; \\\n\t\techo \"⏳ Waiting 3s for daemon layer (llxprt + Letta-MCP) to stabilize...\"; \\\n\t\tsleep 3; \\\n\tfi\n\t@echo \"🖥️  Launching WaveTerm Cockpit UI...\"\n\t@waveterm &\n\t@echo \"\"\n\t@echo \"✅ ORCHESTRATOR ACTIVE\"\n\t@echo \"\"\n\t@echo \"Next steps:\"\n\t@echo \"  1. In WaveTerm: Cmd+Shift+O → Load 'multi-cli-cockpit' preset\"\n\t@echo \"  2. Watch daemon health: make orchestrator-daemon-logs\"\n\t@echo \"  3. Check worker status: make orchestrator-status\"\n\t@echo \"\"\n\n# Show daemon logs (tail all 3 daemon streams)\norchestrator-daemon-logs:\n\t@echo \"📜 Daemon Layer Logs (live tail)...\"\n\t@mkdir -p ~/.nyra\n\t@echo \"---\"\n\t@tmux new-session -d -s nyra-logs \\\n\t\t\"(echo '=== JEFE ==='; tail -f ~/.nyra/jefe.log)\" \\; \\\n\t\tsplit-window -h \"(echo '=== CODE PROXY ==='; tail -f ~/.nyra/code-proxy.log)\" \\; \\\n\t\tsplit-window -h \"(echo '=== LETTA-MCP ==='; tail -f ~/.nyra/letta-mcp.log)\" \\; \\\n\t\tattach\n\t@tmux attach-session -t nyra-logs || true\n\n# Shutdown orchestrator session cleanly\norchestrator-down:\n\t@echo \"🛑 Shutting down Orchestrator...\"\n\t@zellij kill-session nyra-orchestrator 2>/dev/null || echo \"Session not running.\"\n\t@pkill -f \"waveterm\" 2>/dev/null || echo \"WaveTerm not running.\"\n\t@pkill -f \"llxprt-jefe\" 2>/dev/null || echo \"Jefe cleanup.\"\n\t@pkill -f \"llxprt-code\" 2>/dev/null || echo \"Code proxy cleanup.\"\n\t@pkill -f \"letta-mcp-server\" 2>/dev/null || echo \"Letta-MCP cleanup.\"\n\t@rm -f ~/.nyra/.env.orchestrator\n\t@echo \"✅ Orchestrator shutdown complete.\"\n\n# Live status: orchestrator + workers + oracle\norchestrator-status:\n\t@echo \"=== 🌊 ORCHESTRATOR STATUS ===\"\n\t@echo \"\"\n\t@echo \"[DAEMON] Zellij Session:\"\n\t@zellij list-sessions 2>/dev/null | grep nyra-orchestrator || echo \"  ℹ Not running\"\n\t@echo \"\"\n\t@echo \"[DAEMON] Process Health:\"\n\t@pgrep -f \"llxprt-jefe\" >/dev/null && echo \"  ✅ llxprt-jefe running (PID: $(pgrep -f 'llxprt-jefe'))\" || echo \"  ❌ llxprt-jefe down\"\n\t@pgrep -f \"llxprt-code\" >/dev/null && echo \"  ✅ llxprt-code running (PID: $(pgrep -f 'llxprt-code'))\" || echo \"  ❌ llxprt-code down\"\n\t@pgrep -f \"letta-mcp-server\" >/dev/null && echo \"  ✅ letta-mcp-server running (PID: $(pgrep -f 'letta-mcp-server'))\" || echo \"  ❌ letta-mcp-server down\"\n\t@echo \"\"\n\t@echo \"[WORKERS] GPU Cluster:\"\n\t@for ctx in worker-rtx5090 worker-rtx3090ti worker-rtx3060; do \\\n\t\tdocker --context $$ctx ps --format '{{.Names}}:{{.Status}}' 2>/dev/null | wc -l && echo \"  [$$ctx]: $$(docker --context $$ctx ps -q | wc -l) containers\"; \\\n\tdone\n\t@echo \"\"\n\t@echo \"[ORACLE] VPS Services:\"\n\t@docker --context oracle ps --filter 'status=running' --format '{{.Service}}' 2>/dev/null | wc -l && echo \"  Services running\"\n\t@echo \"\"\n\nMAKEEOF\n",
+    "buildCommand": "pnpm build",
     "testCommand": "pnpm test",
     "lintCommand": "pnpm lint",
     "devCommand": "pnpm dev",
@@ -97,11 +97,10 @@
     "apps": {
       "path": "apps",
       "purpose": null,
-      "fileCount": 5,
-      "lastAccessed": 1777328287224,
+      "fileCount": 4,
+      "lastAccessed": 1777907631341,
       "keyFiles": [
         "CLAUDE.md",
-        "PROJECT_PRIORITY_MATRIX.md",
         "README.md",
         "SOUL.BORROWER.md",
         "SOUL.BROKER.md"
@@ -111,14 +110,14 @@
       "path": "archive",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1777328287225,
+      "lastAccessed": 1777907631344,
       "keyFiles": []
     },
     "bootstrap": {
       "path": "bootstrap",
       "purpose": null,
       "fileCount": 2,
-      "lastAccessed": 1777328287229,
+      "lastAccessed": 1777907631346,
       "keyFiles": [
         "README.md"
       ]
@@ -127,7 +126,7 @@
       "path": "config",
       "purpose": "Configuration files",
       "fileCount": 1,
-      "lastAccessed": 1777328287230,
+      "lastAccessed": 1777907631346,
       "keyFiles": [
         "README.md"
       ]
@@ -136,54 +135,54 @@
       "path": "configs",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1777328287230,
+      "lastAccessed": 1777907631346,
       "keyFiles": []
     },
     "data": {
       "path": "data",
       "purpose": "Data files",
       "fileCount": 0,
-      "lastAccessed": 1777328287231,
+      "lastAccessed": 1777907631347,
       "keyFiles": []
     },
     "docs": {
       "path": "docs",
       "purpose": "Documentation",
-      "fileCount": 65,
-      "lastAccessed": 1777328287231,
+      "fileCount": 28,
+      "lastAccessed": 1777907631347,
       "keyFiles": [
-        "00_scan_baseline.md",
+        "00_current_stack_overview.md",
         "01_inventory_matrix.md",
-        "02_ports_registry.appendix_legacy.md",
         "02_ports_registry.md",
-        "03_env_required.md"
+        "07_archived_audit.md",
+        "08_compose_sync_report.md"
       ]
     },
     "external": {
       "path": "external",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1777328287231,
+      "lastAccessed": 1777907631347,
       "keyFiles": []
     },
     "infra": {
       "path": "infra",
       "purpose": null,
-      "fileCount": 24,
-      "lastAccessed": 1777328287231,
+      "fileCount": 13,
+      "lastAccessed": 1777907631347,
       "keyFiles": [
         "0-100-AUTONOMOUS-PROMPT-GOD.md",
-        "00_START_HERE.md",
-        "ARCHITECTURE.md",
-        "CLAUDE_CODE_PROMPT.md",
-        "CLAUDE_CODE_QUICK_GUIDE.md"
+        "LLXPRT-JEFE-INTEGRATION.md",
+        "Makefile",
+        "ORACLE-VPS-APOTHEOSIS-STEPS.md",
+        "REPO-CATCHUP.md"
       ]
     },
     "packages": {
       "path": "packages",
       "purpose": null,
       "fileCount": 1,
-      "lastAccessed": 1777328287232,
+      "lastAccessed": 1777907631348,
       "keyFiles": [
         "CLAUDE.md"
       ]
@@ -191,52 +190,56 @@
     "scripts": {
       "path": "scripts",
       "purpose": "Build/utility scripts",
-      "fileCount": 59,
-      "lastAccessed": 1777328287232,
+      "fileCount": 53,
+      "lastAccessed": 1777907631348,
       "keyFiles": [
-        "CLEANUP_CONSOLIDATION_PLAN.md",
         "Initialize-CodexEnvironment.sh",
-        "apply-overlays.ps1",
         "backup-env-files.ps1",
-        "bootstrap-cloudflared-oracle.sh"
+        "bootstrap-cloudflared-oracle.sh",
+        "bootstrap-cloudflared-orchestrator.sh",
+        "bootstrap-llxprt-stack.sh"
       ]
+    },
+    "secrets": {
+      "path": "secrets",
+      "purpose": null,
+      "fileCount": 0,
+      "lastAccessed": 1777907631348,
+      "keyFiles": []
     },
     "services": {
       "path": "services",
       "purpose": "Business logic services",
-      "fileCount": 2,
-      "lastAccessed": 1777328287232,
+      "fileCount": 1,
+      "lastAccessed": 1777907631348,
       "keyFiles": [
-        "CLAUDE.md",
-        "README.md"
+        "CLAUDE.md"
       ]
     },
     "skills": {
       "path": "skills",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1777328287232,
+      "lastAccessed": 1777907631349,
       "keyFiles": []
     },
     "src": {
       "path": "src",
       "purpose": "Source code",
-      "fileCount": 2,
-      "lastAccessed": 1777328287233,
+      "fileCount": 1,
+      "lastAccessed": 1777907631349,
       "keyFiles": [
-        "CLAUDE.md",
-        "CONSOLIDATION-LOG.md"
+        "CLAUDE.md"
       ]
     },
     "tests": {
       "path": "tests",
       "purpose": "Test files",
-      "fileCount": 5,
-      "lastAccessed": 1777328287233,
+      "fileCount": 4,
+      "lastAccessed": 1777907631349,
       "keyFiles": [
         "README.md",
         "README_VITEST.md",
-        "TESTING_GUIDE.md",
         "jest.setup.js",
         "tsconfig.json"
       ]
@@ -245,14 +248,14 @@
       "path": "workflows",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1777328287233,
+      "lastAccessed": 1777907631349,
       "keyFiles": []
     },
     "apps/docs": {
       "path": "apps/docs",
       "purpose": "Documentation",
       "fileCount": 2,
-      "lastAccessed": 1777328287233,
+      "lastAccessed": 1777907631350,
       "keyFiles": [
         "README.md"
       ]
@@ -261,7 +264,7 @@
       "path": "packages/schemas",
       "purpose": "Schema definitions",
       "fileCount": 1,
-      "lastAccessed": 1777328287234,
+      "lastAccessed": 1777907631351,
       "keyFiles": [
         "README.md"
       ]
@@ -270,7 +273,7 @@
       "path": "tests/fixtures",
       "purpose": "Test fixtures",
       "fileCount": 6,
-      "lastAccessed": 1777328287235,
+      "lastAccessed": 1777907631352,
       "keyFiles": [
         "agents.json",
         "leads.json",
@@ -292,6 +295,12 @@
       "type": "file"
     },
     {
+      "path": "Makefile",
+      "accessCount": 2,
+      "lastAccessed": 1777907944694,
+      "type": "file"
+    },
+    {
       "path": "",
       "accessCount": 1,
       "lastAccessed": 1775955019123,
@@ -307,6 +316,24 @@
       "path": ".serena/project.yml",
       "accessCount": 1,
       "lastAccessed": 1777330197284,
+      "type": "file"
+    },
+    {
+      "path": ".mempalace/session-2026-04-29-oracle-ssh.md",
+      "accessCount": 1,
+      "lastAccessed": 1777451431691,
+      "type": "file"
+    },
+    {
+      "path": ".mempalace/session-2026-04-29-oracle-ssh-service-down.md",
+      "accessCount": 1,
+      "lastAccessed": 1777688573101,
+      "type": "file"
+    },
+    {
+      "path": ".mempalace/session-2026-05-02-oracle-ssh-diagnosis.md",
+      "accessCount": 1,
+      "lastAccessed": 1777719071979,
       "type": "file"
     }
   ],
