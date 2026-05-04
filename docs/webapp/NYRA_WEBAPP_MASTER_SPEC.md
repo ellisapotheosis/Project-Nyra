@@ -166,7 +166,7 @@ Use this as the baseline agent prompt for implementation tasks.
 7. Update runbook and rollback steps
 
 ### 7.5 Prompt Template
-"Implement <feature> in Nyra Webapp using existing service boundaries. Enforce consent/quiet-hour/STOP checks before outbound actions. Persist and read lead state only through CRM API contracts. Use n8n only as workflow glue. Include tests, observability fields, and rollback notes."
+"Implement <feature> in Nyra Webapp using existing service boundaries. Enforce consent/quiet-hour/STOP checks before outbound actions. Persist and read lead state only through CRM API contracts. Use n8n only as internal workflow glue. Include tests, observability fields, and rollback notes."
 
 ---
 

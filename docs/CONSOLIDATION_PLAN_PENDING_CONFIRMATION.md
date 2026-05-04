@@ -37,7 +37,8 @@ After confirmation, the implementation pass will:
 
 ## Inventory Findings (High Signal)
 - Legacy references are widespread across `docs`, `infra/docs`, and `scripts` and need an orchestrated sweep.
-- Active automation still includes n8n in multiple places, which is in-scope and should be retained for Webapp orchestration.
+- Active automation still includes n8n in multiple places, which is in-scope as internal glue and should be retained for Webapp orchestration.
+- Activepieces references are legacy/deprecated and should not be reintroduced into the target architecture.
 - Existing workflow docs are split between `docs/n8n-consolidation` and `infra/n8n-workflows`; these should be mirrored into the new docs webapp workflow canon during migration.
 
 ## Execution Safety Guardrails

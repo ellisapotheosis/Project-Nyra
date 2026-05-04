@@ -10,7 +10,6 @@ node_modules/
 **/node_modules/
 package-lock.json
 yarn.lock
-pnpm-lock.yaml
 !pnpm-lock.yaml
 .pnp/
 .pnp.js
@@ -151,6 +150,13 @@ backups/
 **/consolidation-tmp/
 consolidation-work/
 
+# Consolidation planning artifacts
+**/migration-temp/
+**/migration-staging/
+**/.migration-cache/
+
+# Workflow exports that may include credential metadata
+**/*n8n-export*.json
 
 ################################################################################
 # Turborepo
@@ -477,7 +483,6 @@ bootstrap/
 .codanna/
 .env.gitea
 .env.infisical
-.env.archon
 .env.orchestrator
 .env.oracle
 .env.worker-*
@@ -488,11 +493,16 @@ bootstrap/
 # Commit only TEMPLATE.env.host; fill secrets locally after pull.
 **/.env.host
 # Per-host env files — secrets live here during Infisical migration
-infra/env/.env.*
-!infra/env/.env.*.example
+# Secrets
+.env
+.env.infisical
+.env.*
+!.env.example
 !infra/env/TEMPLATE.env.host
 # Oracle VPS live env (moved from infra/oracle/ to infra/env/)
 infra/hosts/oracle-vps/.env*
+# Generated Docker Compose output with expanded secrets.
+infra/hosts/oracle-vps/resolved_config.yml
 # Infisical agent tokens — never commit
 infra/hosts/**/.infisical-token
 infra/hosts/**/infisical-agent.token
@@ -506,7 +516,6 @@ gitea-setup-summary-*.md
 # Explicit negations below protect against any future broad exclude rules:
 !external/pocket-tts/
 !external/pocket-tts-openai/
-!external/archon/
 data/pockettts/
 data/gitea/
 data/gitea-db/
@@ -515,7 +524,10 @@ data/gitea-db/
 .llxprt/
 
 ################################################################################
-# Archon Runtime
 ################################################################################
 # Archon runtime artifacts (never commit)
 .archon/mcp/          # May contain env var references
+
+# MemPalace per-project files (issue #185)
+mempalace.yaml
+entities.json
