@@ -137,51 +137,78 @@ jobs:
       - name: Check available secrets configuration
         id: check-secrets
         env:
-          # Test if secrets are available (will be empty string if not set)
+          # Test if secrets are available (will be empty string if not set).
+          # Infisical's GitHub sync writes normal GitHub secrets, so these
+          # are still treated as a GitHub-synced source at runtime.
           HAS_CLOUDFLARE_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN != '' }}
           HAS_CLOUDFLARE_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID != '' }}
+          HAS_INFISICAL_SYNC_TOKEN: ${{ secrets.INFISICAL_CLOUDFLARE_API_TOKEN != '' }}
+          HAS_INFISICAL_SYNC_ACCOUNT: ${{ secrets.INFISICAL_CLOUDFLARE_ACCOUNT_ID != '' }}
+          HAS_CF_ALIAS_TOKEN: ${{ secrets.CF_API_TOKEN != '' }}
+          HAS_CF_ALIAS_ACCOUNT: ${{ secrets.CF_ACCOUNT_ID != '' }}
+          HAS_PAGES_ALIAS_TOKEN: ${{ secrets.CLOUDFLARE_PAGES_API_TOKEN != '' }}
+          HAS_PAGES_ALIAS_ACCOUNT: ${{ secrets.CLOUDFLARE_PAGES_ACCOUNT_ID != '' }}
           HAS_INFISICAL_TOKEN: ${{ secrets.INFISICAL_TOKEN != '' }}
         run: |
           echo "🔐 Checking secrets configuration..."
 
-          # Check direct Cloudflare secrets
+          HAS_GITHUB_SYNCED_PAIR=false
           if [ "$HAS_CLOUDFLARE_TOKEN" == "true" ] && [ "$HAS_CLOUDFLARE_ACCOUNT" == "true" ]; then
-            echo "has_direct_secrets=true" >> $GITHUB_OUTPUT
-            echo "✅ Direct Cloudflare secrets found"
-          else
-            echo "has_direct_secrets=false" >> $GITHUB_OUTPUT
-            echo "⚠️ Direct Cloudflare secrets not found (CLOUDFLARE_API_TOKEN / CLOUDFLARE_ACCOUNT_ID)"
+            HAS_GITHUB_SYNCED_PAIR=true
+            echo "✅ GitHub secret pair found: CLOUDFLARE_API_TOKEN / CLOUDFLARE_ACCOUNT_ID"
+          fi
+          if [ "$HAS_INFISICAL_SYNC_TOKEN" == "true" ] && [ "$HAS_INFISICAL_SYNC_ACCOUNT" == "true" ]; then
+            HAS_GITHUB_SYNCED_PAIR=true
+            echo "✅ GitHub secret pair found: INFISICAL_CLOUDFLARE_API_TOKEN / INFISICAL_CLOUDFLARE_ACCOUNT_ID"
+          fi
+          if [ "$HAS_CF_ALIAS_TOKEN" == "true" ] && [ "$HAS_CF_ALIAS_ACCOUNT" == "true" ]; then
+            HAS_GITHUB_SYNCED_PAIR=true
+            echo "✅ GitHub secret pair found: CF_API_TOKEN / CF_ACCOUNT_ID"
+          fi
+          if [ "$HAS_PAGES_ALIAS_TOKEN" == "true" ] && [ "$HAS_PAGES_ALIAS_ACCOUNT" == "true" ]; then
+            HAS_GITHUB_SYNCED_PAIR=true
+            echo "✅ GitHub secret pair found: CLOUDFLARE_PAGES_API_TOKEN / CLOUDFLARE_PAGES_ACCOUNT_ID"
           fi
 
-          # Check Infisical tokens
+          # Check GitHub secrets, including values synced from Infisical.
+          if [ "$HAS_GITHUB_SYNCED_PAIR" == "true" ]; then
+            echo "has_direct_secrets=true" >> $GITHUB_OUTPUT
+            echo "✅ GitHub/Infisical-synced Cloudflare secrets found"
+          else
+            echo "has_direct_secrets=false" >> $GITHUB_OUTPUT
+            echo "⚠️ No GitHub-synced Cloudflare credential pair found"
+          fi
+
+          # Check Infisical CLI token. This is only needed when the workflow
+          # fetches secrets directly from Infisical instead of using GitHub sync.
           if [ "$HAS_INFISICAL_TOKEN" == "true" ]; then
             echo "has_infisical=true" >> $GITHUB_OUTPUT
-            echo "✅ Infisical integration detected"
+            echo "✅ Infisical CLI token detected"
           else
             echo "has_infisical=false" >> $GITHUB_OUTPUT
-            echo "ℹ️ No Infisical tokens configured"
+            echo "ℹ️ No Infisical CLI token configured"
           fi
 
           # Determine deployment method
-          if [ "$HAS_CLOUDFLARE_TOKEN" == "true" ] && [ "$HAS_CLOUDFLARE_ACCOUNT" == "true" ]; then
-            echo "deploy_method=direct" >> $GITHUB_OUTPUT
-            echo "📝 Will use direct secrets method"
+          if [ "$HAS_GITHUB_SYNCED_PAIR" == "true" ]; then
+            echo "deploy_method=github-synced" >> $GITHUB_OUTPUT
+            echo "📝 Will resolve Cloudflare credentials from GitHub secrets, including Infisical-synced aliases"
           elif [ "$HAS_INFISICAL_TOKEN" == "true" ]; then
-            echo "deploy_method=infisical" >> $GITHUB_OUTPUT
-            echo "📝 Will use Infisical to fetch secrets"
+            echo "deploy_method=infisical-cli" >> $GITHUB_OUTPUT
+            echo "📝 Will use Infisical CLI to fetch secrets"
           else
             echo "deploy_method=none" >> $GITHUB_OUTPUT
             echo "❌ No valid secret source available"
           fi
 
   # ==========================================================================
-  # Fetch Secrets from Infisical (only if direct secrets not available)
+  # Fetch Secrets from Infisical (only if GitHub-synced secrets are not available)
   # ==========================================================================
   fetch-secrets:
     name: 🔑 Fetch Secrets from Infisical
     runs-on: ubuntu-latest
     needs: preflight
-    if: needs.preflight.outputs.deploy_method == 'infisical'
+    if: needs.preflight.outputs.deploy_method == 'infisical-cli'
     outputs:
       secrets_available: ${{ steps.fetch.outputs.secrets_available }}
     steps:
@@ -430,12 +457,12 @@ jobs:
     name: 🚀 Deploy to Cloudflare Pages
     runs-on: ubuntu-latest
     needs: [preflight, build, fetch-secrets]
-    # Run if we have direct secrets OR if fetch-secrets succeeded
+    # Run if we have GitHub-synced secrets OR if fetch-secrets succeeded
     # Use 'always()' to evaluate even if fetch-secrets was skipped
     if: |
       always() &&
       needs.build.result == 'success' &&
-      (needs.preflight.outputs.deploy_method == 'direct' ||
+      (needs.preflight.outputs.deploy_method == 'github-synced' ||
        (needs.fetch-secrets.result == 'success' && needs.fetch-secrets.outputs.secrets_available == 'true'))
     environment:
       name: ${{ needs.preflight.outputs.environment }}
@@ -455,14 +482,14 @@ jobs:
           path: ${{ env.APP_DIR }}/${{ needs.build.outputs.build_dir }}
 
       - name: Download secrets from Infisical (if applicable)
-        if: needs.preflight.outputs.deploy_method == 'infisical'
+        if: needs.preflight.outputs.deploy_method == 'infisical-cli'
         uses: actions/download-artifact@v8
         with:
           name: cloudflare-secrets-${{ needs.preflight.outputs.environment }}
           path: /tmp
 
       - name: Load Infisical secrets
-        if: needs.preflight.outputs.deploy_method == 'infisical'
+        if: needs.preflight.outputs.deploy_method == 'infisical-cli'
         id: load-infisical
         run: |
           if [ -f "/tmp/cloudflare-secrets.env" ]; then
@@ -487,13 +514,117 @@ jobs:
             exit 1
           fi
 
+      - name: Resolve Cloudflare credentials
+        id: cloudflare-secrets
+        env:
+          GITHUB_CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          GITHUB_CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          INFISICAL_SYNC_CLOUDFLARE_API_TOKEN: ${{ secrets.INFISICAL_CLOUDFLARE_API_TOKEN }}
+          INFISICAL_SYNC_CLOUDFLARE_ACCOUNT_ID: ${{ secrets.INFISICAL_CLOUDFLARE_ACCOUNT_ID }}
+          GITHUB_CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+          GITHUB_CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+          GITHUB_CLOUDFLARE_PAGES_API_TOKEN: ${{ secrets.CLOUDFLARE_PAGES_API_TOKEN }}
+          GITHUB_CLOUDFLARE_PAGES_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_PAGES_ACCOUNT_ID }}
+          ENV_CLOUDFLARE_API_TOKEN: ${{ env.CLOUDFLARE_API_TOKEN }}
+          ENV_CLOUDFLARE_ACCOUNT_ID: ${{ env.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          echo "🔐 Resolving Cloudflare credential source..."
+
+          is_placeholder() {
+            local value="$1"
+            case "$value" in
+              ""|"\$"*|"your_"*|"YOUR_"*|"<"*">")
+                return 0
+                ;;
+              *)
+                return 1
+                ;;
+            esac
+          }
+
+          is_account_id() {
+            printf '%s' "$1" | grep -Eq '^[A-Fa-f0-9]{32}$'
+          }
+
+          read_secret_file_value() {
+            local key="$1"
+            if [ -f /tmp/cloudflare-secrets.env ]; then
+              grep -E "^${key}=" /tmp/cloudflare-secrets.env | tail -n 1 | sed "s/^${key}=//" | sed -e 's/^"//' -e 's/"$//' -e "s/^'//" -e "s/'$//"
+            fi
+          }
+
+          try_pair() {
+            local source="$1"
+            local token="$2"
+            local account_id="$3"
+
+            if is_placeholder "$token" && is_placeholder "$account_id"; then
+              return 0
+            fi
+
+            if ! is_placeholder "$token" && is_account_id "$account_id"; then
+              SELECTED_SOURCE="$source"
+              SELECTED_TOKEN="$token"
+              SELECTED_ACCOUNT_ID="$account_id"
+              return 1
+            fi
+
+            if ! is_placeholder "$token" || ! is_placeholder "$account_id"; then
+              echo "::warning::Ignoring Cloudflare credential candidate '$source' because token/account pair is incomplete or account ID is not a 32-character hex value."
+            fi
+
+            return 0
+          }
+
+          SELECTED_SOURCE=""
+          SELECTED_TOKEN=""
+          SELECTED_ACCOUNT_ID=""
+
+          INFISICAL_FILE_TOKEN="$(read_secret_file_value CLOUDFLARE_API_TOKEN)"
+          INFISICAL_FILE_ACCOUNT_ID="$(read_secret_file_value CLOUDFLARE_ACCOUNT_ID)"
+
+          # Prefer runtime Infisical CLI output when it exists, then validate
+          # GitHub secrets that may be synced by Infisical's GitHub integration.
+          try_pair "infisical-cli:CLOUDFLARE_*" "$INFISICAL_FILE_TOKEN" "$INFISICAL_FILE_ACCOUNT_ID" || true
+          if [ -z "$SELECTED_TOKEN" ]; then
+            try_pair "github-secret:CLOUDFLARE_*" "$GITHUB_CLOUDFLARE_API_TOKEN" "$GITHUB_CLOUDFLARE_ACCOUNT_ID" || true
+          fi
+          if [ -z "$SELECTED_TOKEN" ]; then
+            try_pair "github-secret:INFISICAL_CLOUDFLARE_*" "$INFISICAL_SYNC_CLOUDFLARE_API_TOKEN" "$INFISICAL_SYNC_CLOUDFLARE_ACCOUNT_ID" || true
+          fi
+          if [ -z "$SELECTED_TOKEN" ]; then
+            try_pair "github-secret:CF_*" "$GITHUB_CF_API_TOKEN" "$GITHUB_CF_ACCOUNT_ID" || true
+          fi
+          if [ -z "$SELECTED_TOKEN" ]; then
+            try_pair "github-secret:CLOUDFLARE_PAGES_*" "$GITHUB_CLOUDFLARE_PAGES_API_TOKEN" "$GITHUB_CLOUDFLARE_PAGES_ACCOUNT_ID" || true
+          fi
+          if [ -z "$SELECTED_TOKEN" ]; then
+            try_pair "workflow-env:CLOUDFLARE_*" "$ENV_CLOUDFLARE_API_TOKEN" "$ENV_CLOUDFLARE_ACCOUNT_ID" || true
+          fi
+
+          if [ -z "$SELECTED_TOKEN" ] || [ -z "$SELECTED_ACCOUNT_ID" ]; then
+            echo "::error::No valid Cloudflare credential pair found."
+            echo "::error::Infisical GitHub sync should expose one valid pair using CLOUDFLARE_*, INFISICAL_CLOUDFLARE_*, CF_*, or CLOUDFLARE_PAGES_* secret names."
+            echo "::error::CLOUDFLARE_ACCOUNT_ID must be the 32-character hex Account ID for the Cloudflare account that owns '${{ env.CLOUDFLARE_PROJECT_NAME }}'."
+            exit 1
+          fi
+
+          echo "::add-mask::$SELECTED_TOKEN"
+          echo "::add-mask::$SELECTED_ACCOUNT_ID"
+          echo "api_token=$SELECTED_TOKEN" >> "$GITHUB_OUTPUT"
+          echo "account_id=$SELECTED_ACCOUNT_ID" >> "$GITHUB_OUTPUT"
+          echo "source=$SELECTED_SOURCE" >> "$GITHUB_OUTPUT"
+          echo "✅ Selected Cloudflare credential source: $SELECTED_SOURCE"
+
       - name: Validate Cloudflare Pages project
         env:
-          CF_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN || env.CLOUDFLARE_API_TOKEN }}
-          CF_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID || env.CLOUDFLARE_ACCOUNT_ID }}
+          CF_API_TOKEN: ${{ steps.cloudflare-secrets.outputs.api_token }}
+          CF_ACCOUNT_ID: ${{ steps.cloudflare-secrets.outputs.account_id }}
+          CF_SECRET_SOURCE: ${{ steps.cloudflare-secrets.outputs.source }}
           CF_PROJECT_NAME: ${{ env.CLOUDFLARE_PROJECT_NAME }}
         run: |
           echo "🔎 Validating Cloudflare Pages project configuration..."
+          echo "🔐 Credential source: $CF_SECRET_SOURCE"
 
           if [ -z "$CF_API_TOKEN" ] || [ -z "$CF_ACCOUNT_ID" ]; then
             echo "::error::Missing Cloudflare credentials. Ensure CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID are set."
@@ -547,9 +678,8 @@ jobs:
         id: deploy
         uses: cloudflare/pages-action@v1
         with:
-          # Use direct secrets if available, otherwise use env vars loaded from Infisical
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN || env.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID || env.CLOUDFLARE_ACCOUNT_ID }}
+          apiToken: ${{ steps.cloudflare-secrets.outputs.api_token }}
+          accountId: ${{ steps.cloudflare-secrets.outputs.account_id }}
           projectName: ${{ env.CLOUDFLARE_PROJECT_NAME }}
           directory: ${{ env.APP_DIR }}/${{ needs.build.outputs.build_dir }}
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
@@ -882,7 +1012,7 @@ jobs:
             case "${{ steps.failure-reason.outputs.stage }}" in
               preflight)
                 echo "- Check if required secrets are configured"
-                echo "- Verify Infisical integration is working"
+                echo "- Verify Infisical GitHub secret sync or Infisical CLI integration is working"
                 echo "- Ensure \`CLOUDFLARE_API_TOKEN\` and \`CLOUDFLARE_ACCOUNT_ID\` are set"
                 ;;
               build)
@@ -893,6 +1023,7 @@ jobs:
               deploy)
                 echo "- Verify Cloudflare API token has correct permissions"
                 echo "- Check if the project exists in Cloudflare Pages"
+                echo "- Check the selected credential source in the \`Resolve Cloudflare credentials\` step"
                 echo "- Ensure build output directory is correct"
                 ;;
               *)
@@ -902,14 +1033,16 @@ jobs:
             echo ""
             echo "## 📋 Configuration Checklist"
             echo ""
-            echo "1. **Direct Secrets Method**: Set these in GitHub repository secrets:"
+            echo "1. **Infisical GitHub Sync Method**: Sync one valid Cloudflare credential pair into GitHub repository or environment secrets:"
             echo "   - \`CLOUDFLARE_API_TOKEN\` - Your Cloudflare API token with Pages permissions"
             echo "   - \`CLOUDFLARE_ACCOUNT_ID\` - Your Cloudflare account ID"
+            echo "   - Supported aliases: \`INFISICAL_CLOUDFLARE_*\`, \`CF_*\`, or \`CLOUDFLARE_PAGES_*\`"
+            echo "   - If stale GitHub secrets exist, enable Infisical override/delete or remove the stale GitHub value"
             echo ""
-            echo "2. **Infisical Method**: Configure Infisical integration:"
-            echo "   - \`INFISICAL_TOKEN\` (recommended) or universal-auth client credentials"
+            echo "2. **Infisical CLI Method**: Configure direct Infisical fetch:"
+            echo "   - \`INFISICAL_TOKEN\` or universal-auth client credentials"
             echo "   - Ensure \`CLOUDFLARE_API_TOKEN\` and \`CLOUDFLARE_ACCOUNT_ID\` are in Infisical"
-            echo "   - Sync secrets to the correct GitHub environment (production/preview)"
+            echo "   - Store them under \`/CI-CD\` or \`/shared\` for the correct Infisical environment"
           } >> $GITHUB_STEP_SUMMARY
 
       - name: Comment on PR about failure
