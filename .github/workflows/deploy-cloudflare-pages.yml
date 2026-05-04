@@ -49,6 +49,8 @@ env:
   PNPM_VERSION: '10.27.0'
   APP_DIR: 'apps/landing/ratehunter-landing'
   CLOUDFLARE_PROJECT_NAME: 'ratehunter-landing'
+  PRODUCTION_DOMAIN: 'https://ratehunter.net'
+  EXPECTED_HOMEPAGE_TEXT: 'Ellis Andersen'
   # Infisical configuration for secret injection
   INFISICAL_PROJECT_ID: '8374cea9-e5e8-4050-bda4-b91f25ab30ef'
 
@@ -135,51 +137,136 @@ jobs:
       - name: Check available secrets configuration
         id: check-secrets
         env:
-          # Test if secrets are available (will be empty string if not set)
+          # Test if secrets are available (will be empty string if not set).
+          # Infisical's GitHub sync writes normal GitHub secrets, so these
+          # are still treated as a GitHub-synced source at runtime.
           HAS_CLOUDFLARE_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN != '' }}
           HAS_CLOUDFLARE_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID != '' }}
+          HAS_INFISICAL_SYNC_TOKEN: ${{ secrets.INFISICAL_CLOUDFLARE_API_TOKEN != '' }}
+          HAS_INFISICAL_SYNC_ACCOUNT: ${{ secrets.INFISICAL_CLOUDFLARE_ACCOUNT_ID != '' }}
+          HAS_CF_ALIAS_TOKEN: ${{ secrets.CF_API_TOKEN != '' }}
+          HAS_CF_ALIAS_ACCOUNT: ${{ secrets.CF_ACCOUNT_ID != '' }}
+          HAS_PAGES_ALIAS_TOKEN: ${{ secrets.CLOUDFLARE_PAGES_API_TOKEN != '' }}
+          HAS_PAGES_ALIAS_ACCOUNT: ${{ secrets.CLOUDFLARE_PAGES_ACCOUNT_ID != '' }}
           HAS_INFISICAL_TOKEN: ${{ secrets.INFISICAL_TOKEN != '' }}
+          GITHUB_CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          GITHUB_CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          INFISICAL_SYNC_CLOUDFLARE_API_TOKEN: ${{ secrets.INFISICAL_CLOUDFLARE_API_TOKEN }}
+          INFISICAL_SYNC_CLOUDFLARE_ACCOUNT_ID: ${{ secrets.INFISICAL_CLOUDFLARE_ACCOUNT_ID }}
+          GITHUB_CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+          GITHUB_CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+          GITHUB_CLOUDFLARE_PAGES_API_TOKEN: ${{ secrets.CLOUDFLARE_PAGES_API_TOKEN }}
+          GITHUB_CLOUDFLARE_PAGES_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_PAGES_ACCOUNT_ID }}
         run: |
           echo "🔐 Checking secrets configuration..."
 
-          # Check direct Cloudflare secrets
+          is_placeholder() {
+            local value="$1"
+            case "$value" in
+              ""|"\$"*|"your_"*|"YOUR_"*|"<"*">")
+                return 0
+                ;;
+              *)
+                return 1
+                ;;
+            esac
+          }
+
+          is_account_id() {
+            printf '%s' "$1" | grep -Eq '^[A-Fa-f0-9]{32}$'
+          }
+
+          has_valid_pair() {
+            local source="$1"
+            local token="$2"
+            local account_id="$3"
+
+            if ! is_placeholder "$token" && is_account_id "$account_id"; then
+              echo "✅ Valid GitHub secret pair found: $source"
+              return 0
+            fi
+
+            if ! is_placeholder "$token" || ! is_placeholder "$account_id"; then
+              echo "::warning::GitHub secret pair '$source' exists but account ID is missing, placeholder, or not a 32-character hex value."
+            fi
+
+            return 1
+          }
+
+          HAS_GITHUB_SYNCED_PAIR=false
+          HAS_VALID_GITHUB_SYNCED_PAIR=false
           if [ "$HAS_CLOUDFLARE_TOKEN" == "true" ] && [ "$HAS_CLOUDFLARE_ACCOUNT" == "true" ]; then
-            echo "has_direct_secrets=true" >> $GITHUB_OUTPUT
-            echo "✅ Direct Cloudflare secrets found"
-          else
-            echo "has_direct_secrets=false" >> $GITHUB_OUTPUT
-            echo "⚠️ Direct Cloudflare secrets not found (CLOUDFLARE_API_TOKEN / CLOUDFLARE_ACCOUNT_ID)"
+            HAS_GITHUB_SYNCED_PAIR=true
+            echo "✅ GitHub secret pair found: CLOUDFLARE_API_TOKEN / CLOUDFLARE_ACCOUNT_ID"
+            if has_valid_pair "CLOUDFLARE_API_TOKEN / CLOUDFLARE_ACCOUNT_ID" "$GITHUB_CLOUDFLARE_API_TOKEN" "$GITHUB_CLOUDFLARE_ACCOUNT_ID"; then
+              HAS_VALID_GITHUB_SYNCED_PAIR=true
+            fi
+          fi
+          if [ "$HAS_INFISICAL_SYNC_TOKEN" == "true" ] && [ "$HAS_INFISICAL_SYNC_ACCOUNT" == "true" ]; then
+            HAS_GITHUB_SYNCED_PAIR=true
+            echo "✅ GitHub secret pair found: INFISICAL_CLOUDFLARE_API_TOKEN / INFISICAL_CLOUDFLARE_ACCOUNT_ID"
+            if has_valid_pair "INFISICAL_CLOUDFLARE_API_TOKEN / INFISICAL_CLOUDFLARE_ACCOUNT_ID" "$INFISICAL_SYNC_CLOUDFLARE_API_TOKEN" "$INFISICAL_SYNC_CLOUDFLARE_ACCOUNT_ID"; then
+              HAS_VALID_GITHUB_SYNCED_PAIR=true
+            fi
+          fi
+          if [ "$HAS_CF_ALIAS_TOKEN" == "true" ] && [ "$HAS_CF_ALIAS_ACCOUNT" == "true" ]; then
+            HAS_GITHUB_SYNCED_PAIR=true
+            echo "✅ GitHub secret pair found: CF_API_TOKEN / CF_ACCOUNT_ID"
+            if has_valid_pair "CF_API_TOKEN / CF_ACCOUNT_ID" "$GITHUB_CF_API_TOKEN" "$GITHUB_CF_ACCOUNT_ID"; then
+              HAS_VALID_GITHUB_SYNCED_PAIR=true
+            fi
+          fi
+          if [ "$HAS_PAGES_ALIAS_TOKEN" == "true" ] && [ "$HAS_PAGES_ALIAS_ACCOUNT" == "true" ]; then
+            HAS_GITHUB_SYNCED_PAIR=true
+            echo "✅ GitHub secret pair found: CLOUDFLARE_PAGES_API_TOKEN / CLOUDFLARE_PAGES_ACCOUNT_ID"
+            if has_valid_pair "CLOUDFLARE_PAGES_API_TOKEN / CLOUDFLARE_PAGES_ACCOUNT_ID" "$GITHUB_CLOUDFLARE_PAGES_API_TOKEN" "$GITHUB_CLOUDFLARE_PAGES_ACCOUNT_ID"; then
+              HAS_VALID_GITHUB_SYNCED_PAIR=true
+            fi
           fi
 
-          # Check Infisical tokens
+          # Check GitHub secrets, including values synced from Infisical.
+          if [ "$HAS_VALID_GITHUB_SYNCED_PAIR" == "true" ]; then
+            echo "has_direct_secrets=true" >> $GITHUB_OUTPUT
+            echo "✅ Valid GitHub/Infisical-synced Cloudflare secrets found"
+          elif [ "$HAS_GITHUB_SYNCED_PAIR" == "true" ]; then
+            echo "has_direct_secrets=false" >> $GITHUB_OUTPUT
+            echo "⚠️ GitHub/Infisical-synced Cloudflare secrets exist but none contain a valid account ID"
+          else
+            echo "has_direct_secrets=false" >> $GITHUB_OUTPUT
+            echo "⚠️ No GitHub-synced Cloudflare credential pair found"
+          fi
+
+          # Check Infisical CLI token. This is only needed when the workflow
+          # fetches secrets directly from Infisical instead of using GitHub sync.
           if [ "$HAS_INFISICAL_TOKEN" == "true" ]; then
             echo "has_infisical=true" >> $GITHUB_OUTPUT
-            echo "✅ Infisical integration detected"
+            echo "✅ Infisical CLI token detected"
           else
             echo "has_infisical=false" >> $GITHUB_OUTPUT
-            echo "ℹ️ No Infisical tokens configured"
+            echo "ℹ️ No Infisical CLI token configured"
           fi
 
           # Determine deployment method
-          if [ "$HAS_CLOUDFLARE_TOKEN" == "true" ] && [ "$HAS_CLOUDFLARE_ACCOUNT" == "true" ]; then
-            echo "deploy_method=direct" >> $GITHUB_OUTPUT
-            echo "📝 Will use direct secrets method"
+          if [ "$HAS_VALID_GITHUB_SYNCED_PAIR" == "true" ]; then
+            echo "deploy_method=github-synced" >> $GITHUB_OUTPUT
+            echo "📝 Will resolve Cloudflare credentials from GitHub secrets, including Infisical-synced aliases"
           elif [ "$HAS_INFISICAL_TOKEN" == "true" ]; then
-            echo "deploy_method=infisical" >> $GITHUB_OUTPUT
-            echo "📝 Will use Infisical to fetch secrets"
+            echo "deploy_method=infisical-cli" >> $GITHUB_OUTPUT
+            echo "📝 Will use Infisical CLI to fetch secrets"
           else
             echo "deploy_method=none" >> $GITHUB_OUTPUT
             echo "❌ No valid secret source available"
+            exit 1
           fi
 
   # ==========================================================================
-  # Fetch Secrets from Infisical (only if direct secrets not available)
+  # Fetch Secrets from Infisical (only if GitHub-synced secrets are not available)
   # ==========================================================================
   fetch-secrets:
     name: 🔑 Fetch Secrets from Infisical
     runs-on: ubuntu-latest
     needs: preflight
-    if: needs.preflight.outputs.deploy_method == 'infisical'
+    if: needs.preflight.outputs.deploy_method == 'infisical-cli'
     outputs:
       secrets_available: ${{ steps.fetch.outputs.secrets_available }}
     steps:
@@ -287,7 +374,7 @@ jobs:
     name: 🔨 Build Application
     runs-on: ubuntu-latest
     needs: preflight
-    if: needs.preflight.outputs.should_deploy == 'true'
+    if: needs.preflight.outputs.should_deploy == 'true' && needs.preflight.outputs.deploy_method != 'none'
     outputs:
       build_dir: ${{ steps.build.outputs.build_dir }}
       build_size: ${{ steps.build.outputs.build_size }}
@@ -428,12 +515,12 @@ jobs:
     name: 🚀 Deploy to Cloudflare Pages
     runs-on: ubuntu-latest
     needs: [preflight, build, fetch-secrets]
-    # Run if we have direct secrets OR if fetch-secrets succeeded
+    # Run if we have GitHub-synced secrets OR if fetch-secrets succeeded
     # Use 'always()' to evaluate even if fetch-secrets was skipped
     if: |
       always() &&
       needs.build.result == 'success' &&
-      (needs.preflight.outputs.deploy_method == 'direct' ||
+      (needs.preflight.outputs.deploy_method == 'github-synced' ||
        (needs.fetch-secrets.result == 'success' && needs.fetch-secrets.outputs.secrets_available == 'true'))
     environment:
       name: ${{ needs.preflight.outputs.environment }}
@@ -453,14 +540,14 @@ jobs:
           path: ${{ env.APP_DIR }}/${{ needs.build.outputs.build_dir }}
 
       - name: Download secrets from Infisical (if applicable)
-        if: needs.preflight.outputs.deploy_method == 'infisical'
+        if: needs.preflight.outputs.deploy_method == 'infisical-cli'
         uses: actions/download-artifact@v8
         with:
           name: cloudflare-secrets-${{ needs.preflight.outputs.environment }}
           path: /tmp
 
       - name: Load Infisical secrets
-        if: needs.preflight.outputs.deploy_method == 'infisical'
+        if: needs.preflight.outputs.deploy_method == 'infisical-cli'
         id: load-infisical
         run: |
           if [ -f "/tmp/cloudflare-secrets.env" ]; then
@@ -485,16 +572,134 @@ jobs:
             exit 1
           fi
 
+      - name: Resolve Cloudflare credentials
+        id: cloudflare-secrets
+        env:
+          GITHUB_CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          GITHUB_CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          INFISICAL_SYNC_CLOUDFLARE_API_TOKEN: ${{ secrets.INFISICAL_CLOUDFLARE_API_TOKEN }}
+          INFISICAL_SYNC_CLOUDFLARE_ACCOUNT_ID: ${{ secrets.INFISICAL_CLOUDFLARE_ACCOUNT_ID }}
+          GITHUB_CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+          GITHUB_CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+          GITHUB_CLOUDFLARE_PAGES_API_TOKEN: ${{ secrets.CLOUDFLARE_PAGES_API_TOKEN }}
+          GITHUB_CLOUDFLARE_PAGES_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_PAGES_ACCOUNT_ID }}
+          ENV_CLOUDFLARE_API_TOKEN: ${{ env.CLOUDFLARE_API_TOKEN }}
+          ENV_CLOUDFLARE_ACCOUNT_ID: ${{ env.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          echo "🔐 Resolving Cloudflare credential source..."
+
+          is_placeholder() {
+            local value="$1"
+            case "$value" in
+              ""|"\$"*|"your_"*|"YOUR_"*|"<"*">")
+                return 0
+                ;;
+              *)
+                return 1
+                ;;
+            esac
+          }
+
+          is_account_id() {
+            printf '%s' "$1" | grep -Eq '^[A-Fa-f0-9]{32}$'
+          }
+
+          read_secret_file_value() {
+            local key="$1"
+            if [ -f /tmp/cloudflare-secrets.env ]; then
+              grep -E "^${key}=" /tmp/cloudflare-secrets.env | tail -n 1 | sed "s/^${key}=//" | sed -e 's/^"//' -e 's/"$//' -e "s/^'//" -e "s/'$//"
+            fi
+          }
+
+          try_pair() {
+            local source="$1"
+            local token="$2"
+            local account_id="$3"
+
+            if is_placeholder "$token" && is_placeholder "$account_id"; then
+              return 0
+            fi
+
+            if ! is_placeholder "$token" && is_account_id "$account_id"; then
+              SELECTED_SOURCE="$source"
+              SELECTED_TOKEN="$token"
+              SELECTED_ACCOUNT_ID="$account_id"
+              return 1
+            fi
+
+            if ! is_placeholder "$token" || ! is_placeholder "$account_id"; then
+              echo "::warning::Ignoring Cloudflare credential candidate '$source' because token/account pair is incomplete or account ID is not a 32-character hex value."
+            fi
+
+            return 0
+          }
+
+          SELECTED_SOURCE=""
+          SELECTED_TOKEN=""
+          SELECTED_ACCOUNT_ID=""
+
+          INFISICAL_FILE_TOKEN="$(read_secret_file_value CLOUDFLARE_API_TOKEN)"
+          INFISICAL_FILE_ACCOUNT_ID="$(read_secret_file_value CLOUDFLARE_ACCOUNT_ID)"
+
+          # Prefer runtime Infisical CLI output when it exists, then validate
+          # GitHub secrets that may be synced by Infisical's GitHub integration.
+          try_pair "infisical-cli:CLOUDFLARE_*" "$INFISICAL_FILE_TOKEN" "$INFISICAL_FILE_ACCOUNT_ID" || true
+          if [ -z "$SELECTED_TOKEN" ]; then
+            try_pair "github-secret:CLOUDFLARE_*" "$GITHUB_CLOUDFLARE_API_TOKEN" "$GITHUB_CLOUDFLARE_ACCOUNT_ID" || true
+          fi
+          if [ -z "$SELECTED_TOKEN" ]; then
+            try_pair "github-secret:INFISICAL_CLOUDFLARE_*" "$INFISICAL_SYNC_CLOUDFLARE_API_TOKEN" "$INFISICAL_SYNC_CLOUDFLARE_ACCOUNT_ID" || true
+          fi
+          if [ -z "$SELECTED_TOKEN" ]; then
+            try_pair "github-secret:CF_*" "$GITHUB_CF_API_TOKEN" "$GITHUB_CF_ACCOUNT_ID" || true
+          fi
+          if [ -z "$SELECTED_TOKEN" ]; then
+            try_pair "github-secret:CLOUDFLARE_PAGES_*" "$GITHUB_CLOUDFLARE_PAGES_API_TOKEN" "$GITHUB_CLOUDFLARE_PAGES_ACCOUNT_ID" || true
+          fi
+          if [ -z "$SELECTED_TOKEN" ]; then
+            try_pair "workflow-env:CLOUDFLARE_*" "$ENV_CLOUDFLARE_API_TOKEN" "$ENV_CLOUDFLARE_ACCOUNT_ID" || true
+          fi
+
+          if [ -z "$SELECTED_TOKEN" ] || [ -z "$SELECTED_ACCOUNT_ID" ]; then
+            echo "::error::No valid Cloudflare credential pair found."
+            echo "::error::Infisical GitHub sync should expose one valid pair using CLOUDFLARE_*, INFISICAL_CLOUDFLARE_*, CF_*, or CLOUDFLARE_PAGES_* secret names."
+            echo "::error::CLOUDFLARE_ACCOUNT_ID must be the 32-character hex Account ID for the Cloudflare account that owns '${{ env.CLOUDFLARE_PROJECT_NAME }}'."
+            exit 1
+          fi
+
+          echo "::add-mask::$SELECTED_TOKEN"
+          echo "::add-mask::$SELECTED_ACCOUNT_ID"
+          echo "api_token=$SELECTED_TOKEN" >> "$GITHUB_OUTPUT"
+          echo "account_id=$SELECTED_ACCOUNT_ID" >> "$GITHUB_OUTPUT"
+          echo "source=$SELECTED_SOURCE" >> "$GITHUB_OUTPUT"
+          echo "✅ Selected Cloudflare credential source: $SELECTED_SOURCE"
+
       - name: Validate Cloudflare Pages project
         env:
-          CF_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN || env.CLOUDFLARE_API_TOKEN }}
-          CF_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID || env.CLOUDFLARE_ACCOUNT_ID }}
+          CF_API_TOKEN: ${{ steps.cloudflare-secrets.outputs.api_token }}
+          CF_ACCOUNT_ID: ${{ steps.cloudflare-secrets.outputs.account_id }}
+          CF_SECRET_SOURCE: ${{ steps.cloudflare-secrets.outputs.source }}
           CF_PROJECT_NAME: ${{ env.CLOUDFLARE_PROJECT_NAME }}
         run: |
           echo "🔎 Validating Cloudflare Pages project configuration..."
+          echo "🔐 Credential source: $CF_SECRET_SOURCE"
 
           if [ -z "$CF_API_TOKEN" ] || [ -z "$CF_ACCOUNT_ID" ]; then
             echo "::error::Missing Cloudflare credentials. Ensure CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID are set."
+            exit 1
+          fi
+
+          case "$CF_ACCOUNT_ID" in
+            "\$"*|"your_"*|"YOUR_"*|"<"*">")
+              echo "::error::CLOUDFLARE_ACCOUNT_ID appears to be a placeholder value, not a real Cloudflare Account ID."
+              echo "::error::Set CLOUDFLARE_ACCOUNT_ID to the 32-character Account ID from the Cloudflare dashboard account that owns '$CF_PROJECT_NAME'."
+              exit 1
+              ;;
+          esac
+
+          if ! printf '%s' "$CF_ACCOUNT_ID" | grep -Eq '^[A-Fa-f0-9]{32}$'; then
+            echo "::error::CLOUDFLARE_ACCOUNT_ID must be the 32-character hexadecimal Account ID from the Cloudflare dashboard."
+            echo "::error::Do not use the zone ID, project name, account email, or the literal string '\$CLOUDFLARE_ACCOUNT_ID'."
             exit 1
           fi
 
@@ -531,9 +736,8 @@ jobs:
         id: deploy
         uses: cloudflare/pages-action@v1
         with:
-          # Use direct secrets if available, otherwise use env vars loaded from Infisical
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN || env.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID || env.CLOUDFLARE_ACCOUNT_ID }}
+          apiToken: ${{ steps.cloudflare-secrets.outputs.api_token }}
+          accountId: ${{ steps.cloudflare-secrets.outputs.account_id }}
           projectName: ${{ env.CLOUDFLARE_PROJECT_NAME }}
           directory: ${{ env.APP_DIR }}/${{ needs.build.outputs.build_dir }}
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
@@ -544,6 +748,7 @@ jobs:
         run: |
           echo "🔍 Verifying deployment..."
           DEPLOY_URL="${{ steps.deploy.outputs.url }}"
+          EXPECTED_TEXT="${{ env.EXPECTED_HOMEPAGE_TEXT }}"
 
           if [ -n "$DEPLOY_URL" ]; then
             echo "✅ Deployment URL: $DEPLOY_URL"
@@ -553,22 +758,76 @@ jobs:
             ATTEMPT=1
             while [ $ATTEMPT -le $MAX_ATTEMPTS ]; do
               echo "Attempt $ATTEMPT/$MAX_ATTEMPTS: Checking $DEPLOY_URL..."
-              HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "$DEPLOY_URL" || echo "000")
+              RESPONSE_FILE=$(mktemp)
+              HTTP_CODE=$(curl -sS -L -o "$RESPONSE_FILE" -w "%{http_code}" "$DEPLOY_URL" || echo "000")
 
               if [ "$HTTP_CODE" = "200" ] || [ "$HTTP_CODE" = "301" ] || [ "$HTTP_CODE" = "302" ]; then
-                echo "✅ Site is accessible (HTTP $HTTP_CODE)"
-                break
+                if grep -q "$EXPECTED_TEXT" "$RESPONSE_FILE"; then
+                  echo "✅ Deployment URL served expected landing page content (HTTP $HTTP_CODE)"
+                  rm -f "$RESPONSE_FILE"
+                  break
+                fi
+
+                if [ $ATTEMPT -eq $MAX_ATTEMPTS ]; then
+                  echo "::error::Deployment URL was reachable but did not include expected homepage text '$EXPECTED_TEXT'."
+                  echo "::error::This usually means the wrong build output or Cloudflare deploy adapter was used."
+                  sed -n '1,80p' "$RESPONSE_FILE"
+                  rm -f "$RESPONSE_FILE"
+                  exit 1
+                fi
+
+                echo "⏳ Deployment URL reachable but expected content is not live yet, waiting..."
               elif [ $ATTEMPT -eq $MAX_ATTEMPTS ]; then
-                echo "⚠️ Site not fully accessible after $MAX_ATTEMPTS attempts (HTTP $HTTP_CODE)"
+                echo "::error::Deployment URL not accessible after $MAX_ATTEMPTS attempts (HTTP $HTTP_CODE)."
+                rm -f "$RESPONSE_FILE"
+                exit 1
               else
                 echo "⏳ Site not ready yet (HTTP $HTTP_CODE), waiting..."
-                sleep 10
               fi
+              rm -f "$RESPONSE_FILE"
+              sleep 10
               ATTEMPT=$((ATTEMPT + 1))
             done
           else
-            echo "⚠️ No deployment URL returned"
+            echo "::error::No deployment URL returned by Cloudflare Pages action."
+            exit 1
           fi
+
+      - name: Verify production custom domain
+        if: needs.preflight.outputs.environment == 'production'
+        env:
+          PRODUCTION_DOMAIN: ${{ env.PRODUCTION_DOMAIN }}
+          EXPECTED_TEXT: ${{ env.EXPECTED_HOMEPAGE_TEXT }}
+        run: |
+          echo "🔍 Verifying production hostname: $PRODUCTION_DOMAIN"
+
+          MAX_ATTEMPTS=12
+          ATTEMPT=1
+          while [ $ATTEMPT -le $MAX_ATTEMPTS ]; do
+            echo "Attempt $ATTEMPT/$MAX_ATTEMPTS: Checking $PRODUCTION_DOMAIN..."
+            RESPONSE_FILE=$(mktemp)
+            HTTP_CODE=$(curl -sS -L -o "$RESPONSE_FILE" -w "%{http_code}" "$PRODUCTION_DOMAIN" || echo "000")
+
+            if [ "$HTTP_CODE" = "200" ] && grep -q "$EXPECTED_TEXT" "$RESPONSE_FILE"; then
+              echo "✅ Production hostname serves expected landing page content."
+              rm -f "$RESPONSE_FILE"
+              exit 0
+            fi
+
+            if [ $ATTEMPT -eq $MAX_ATTEMPTS ]; then
+              echo "::error::Production hostname did not serve the expected RateHunter landing page."
+              echo "::error::HTTP status: $HTTP_CODE"
+              echo "::error::Expected page text: $EXPECTED_TEXT"
+              echo "::error::Likely causes: ratehunter.net is not attached to the '$CLOUDFLARE_PROJECT_NAME' Pages project, DNS points to a Cloudflared/Worker fallback instead of Pages, or the deployed artifact is not the OpenNext app output."
+              sed -n '1,120p' "$RESPONSE_FILE"
+              rm -f "$RESPONSE_FILE"
+              exit 1
+            fi
+
+            rm -f "$RESPONSE_FILE"
+            sleep 10
+            ATTEMPT=$((ATTEMPT + 1))
+          done
 
       - name: Output deployment environment
         run: |
@@ -605,6 +864,19 @@ jobs:
           fi
 
       - name: Create deployment summary
+        env:
+          DEPLOY_ENVIRONMENT: ${{ needs.preflight.outputs.environment }}
+          DEPLOY_URL: ${{ needs.deploy.outputs.url }}
+          DEPLOYMENT_ID: ${{ needs.deploy.outputs.deployment_id }}
+          DEPLOY_BRANCH: ${{ github.head_ref || github.ref_name }}
+          DEPLOY_COMMIT: ${{ github.sha }}
+          BUILD_SIZE: ${{ needs.build.outputs.build_size }}
+          BUILD_DIR: ${{ needs.build.outputs.build_dir }}
+          ACTOR: ${{ github.actor }}
+          RUN_NUMBER: ${{ github.run_number }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          PROJECT_NAME: ${{ env.CLOUDFLARE_PROJECT_NAME }}
+          PRODUCTION_DOMAIN: ${{ env.PRODUCTION_DOMAIN }}
         run: |
           {
             echo "# 🚀 Cloudflare Pages Deployment"
@@ -612,29 +884,31 @@ jobs:
             echo "| Property | Value |"
             echo "|----------|-------|"
             echo "| **Status** | ✅ Deployed |"
-            echo "| **Environment** | \`${{ needs.preflight.outputs.environment }}\` |"
-            echo "| **URL** | [${{ needs.deploy.outputs.url }}](${{ needs.deploy.outputs.url }}) |"
-            echo "| **Deployment ID** | \`${{ needs.deploy.outputs.deployment_id }}\` |"
-            echo "| **Branch** | \`${{ github.head_ref || github.ref_name }}\` |"
-            echo "| **Commit** | \`${{ github.sha }}\` |"
-            echo "| **Build Size** | \`${{ needs.build.outputs.build_size }}\` |"
-            echo "| **Triggered By** | @${{ github.actor }} |"
-            echo "| **Workflow Run** | [#${{ github.run_number }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) |"
+            echo "| **Environment** | \`$DEPLOY_ENVIRONMENT\` |"
+            echo "| **URL** | [$DEPLOY_URL]($DEPLOY_URL) |"
+            echo "| **Production domain** | [$PRODUCTION_DOMAIN]($PRODUCTION_DOMAIN) |"
+            echo "| **Deployment ID** | \`$DEPLOYMENT_ID\` |"
+            echo "| **Branch** | \`$DEPLOY_BRANCH\` |"
+            echo "| **Commit** | \`$DEPLOY_COMMIT\` |"
+            echo "| **Build Size** | \`$BUILD_SIZE\` |"
+            echo "| **Triggered By** | @$ACTOR |"
+            echo "| **Workflow Run** | [#$RUN_NUMBER]($RUN_URL) |"
             echo ""
             echo "## 📊 Build Information"
             echo ""
-            echo "- **Build Directory**: \`${{ needs.build.outputs.build_dir }}\`"
+            echo "- **Build Directory**: \`$BUILD_DIR\`"
             echo "- **Node Version**: \`${{ env.NODE_VERSION }}\`"
             echo "- **PNPM Version**: \`${{ env.PNPM_VERSION }}\`"
             echo ""
             echo "## 🔗 Quick Links"
             echo ""
-            if [ "${{ needs.preflight.outputs.environment }}" == "production" ]; then
-              echo "- 🌐 [Production Site](${{ needs.deploy.outputs.url }})"
-              echo "- 📊 [Cloudflare Analytics](https://dash.cloudflare.com/?to=/:account/pages/view/${{ env.CLOUDFLARE_PROJECT_NAME }}/analytics)"
-              echo "- ⚙️ [Cloudflare Settings](https://dash.cloudflare.com/?to=/:account/pages/view/${{ env.CLOUDFLARE_PROJECT_NAME }}/settings)"
+            if [ "$DEPLOY_ENVIRONMENT" == "production" ]; then
+              echo "- 🌐 [Production Site]($PRODUCTION_DOMAIN)"
+              echo "- 🚀 [Deployment URL]($DEPLOY_URL)"
+              echo "- 📊 [Cloudflare Analytics](https://dash.cloudflare.com/?to=/:account/pages/view/$PROJECT_NAME/analytics)"
+              echo "- ⚙️ [Cloudflare Settings](https://dash.cloudflare.com/?to=/:account/pages/view/$PROJECT_NAME/settings)"
             else
-              echo "- 🔍 [Preview Deployment](${{ needs.deploy.outputs.url }})"
+              echo "- 🔍 [Preview Deployment]($DEPLOY_URL)"
               echo "- 📝 [Pull Request](${{ github.event.pull_request.html_url || 'N/A' }})"
             fi
           } >> $GITHUB_STEP_SUMMARY
@@ -796,7 +1070,7 @@ jobs:
             case "${{ steps.failure-reason.outputs.stage }}" in
               preflight)
                 echo "- Check if required secrets are configured"
-                echo "- Verify Infisical integration is working"
+                echo "- Verify Infisical GitHub secret sync or Infisical CLI integration is working"
                 echo "- Ensure \`CLOUDFLARE_API_TOKEN\` and \`CLOUDFLARE_ACCOUNT_ID\` are set"
                 ;;
               build)
@@ -807,6 +1081,7 @@ jobs:
               deploy)
                 echo "- Verify Cloudflare API token has correct permissions"
                 echo "- Check if the project exists in Cloudflare Pages"
+                echo "- Check the selected credential source in the \`Resolve Cloudflare credentials\` step"
                 echo "- Ensure build output directory is correct"
                 ;;
               *)
@@ -816,14 +1091,16 @@ jobs:
             echo ""
             echo "## 📋 Configuration Checklist"
             echo ""
-            echo "1. **Direct Secrets Method**: Set these in GitHub repository secrets:"
+            echo "1. **Infisical GitHub Sync Method**: Sync one valid Cloudflare credential pair into GitHub repository or environment secrets:"
             echo "   - \`CLOUDFLARE_API_TOKEN\` - Your Cloudflare API token with Pages permissions"
             echo "   - \`CLOUDFLARE_ACCOUNT_ID\` - Your Cloudflare account ID"
+            echo "   - Supported aliases: \`INFISICAL_CLOUDFLARE_*\`, \`CF_*\`, or \`CLOUDFLARE_PAGES_*\`"
+            echo "   - If stale GitHub secrets exist, enable Infisical override/delete or remove the stale GitHub value"
             echo ""
-            echo "2. **Infisical Method**: Configure Infisical integration:"
-            echo "   - \`INFISICAL_TOKEN\` (recommended) or universal-auth client credentials"
+            echo "2. **Infisical CLI Method**: Configure direct Infisical fetch:"
+            echo "   - \`INFISICAL_TOKEN\` or universal-auth client credentials"
             echo "   - Ensure \`CLOUDFLARE_API_TOKEN\` and \`CLOUDFLARE_ACCOUNT_ID\` are in Infisical"
-            echo "   - Sync secrets to the correct GitHub environment (production/preview)"
+            echo "   - Store them under \`/CI-CD\` or \`/shared\` for the correct Infisical environment"
           } >> $GITHUB_STEP_SUMMARY
 
       - name: Comment on PR about failure

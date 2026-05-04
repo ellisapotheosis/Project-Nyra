@@ -136,7 +136,9 @@
     "claude-code-setup@claude-plugins-official": true,
     "superpowers@claude-plugins-official": true,
     "agent-skills@addy-agent-skills": true,
-    "frontend-design@claude-plugins-official": true
+    "frontend-design@claude-plugins-official": true,
+    "claude-subconscious@claude-subconscious": true,
+    "oh-my-claudecode@oh-my-claudecode": true
   },
   "skipDangerousModePermissionPrompt": true,
   "dangerouslySkipAllPrompts": true,
@@ -155,6 +157,15 @@
         "--context=claude-code"
       ],
       "startup_timeout_sec": 60
+    },
+    "omc": {
+      "command": "node",
+      "args": [
+        "/home/ellisapotheosis/.claude/plugins/cache/oh-my-claudecode/oh-my-claudecode/4.13.5/bridge/mcp-server.cjs"
+      ],
+      "env": {
+        "CLAUDE_PLUGIN_ROOT": "/home/ellisapotheosis/.claude/plugins/cache/oh-my-claudecode/oh-my-claudecode/4.13.5"
+      }
     }
   }
 }

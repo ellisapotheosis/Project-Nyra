@@ -2,7 +2,19 @@ name: nyra-network
 
 services:
 
-
+  # ── Infisical Sidecar (Secret Sync) ───────────────────────────────────────
+  # Synchronizes secrets from Infisical to the local .env file.
+  infisical-sidecar:
+    image: infisical/cli:latest
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-infisical-sidecar
+    restart: unless-stopped
+    env_file: [.env.oracle]
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - "while true; do infisical export --projectId=8374cea9-e5e8-4050-bda4-b91f25ab30ef --env=prod --path=/machines/oracle-vps --format=dotenv > /repo/.env && sleep 60; done"
+    volumes:
+      - ./.env:/repo/.env
+    networks: [nyra_net]
 
   portainer-edge-agent:
     image: portainer/agent:2.27.9
@@ -88,8 +100,8 @@ services:
       SERVER_URL: ${TWENTY_SERVER_URL}
       FRONTEND_URL: ${TWENTY_FRONTEND_URL}
       APP_SECRET: ${TWENTY_APP_SECRET}
-      PG_DATABASE_URL: postgresql://${TWENTY_DB_USER:-twenty}:${TWENTY_DB_PASSWORD}@nyra-twenty-db:5432/${TWENTY_DB_NAME:-twenty}
-      REDIS_URL: redis://nyra-redis-cache:6379
+      PG_DATABASE_URL: postgresql://${TWENTY_DB_USER:-twenty}:${TWENTY_DB_PASSWORD}@twenty-db:5432/${TWENTY_DB_NAME:-twenty}
+      REDIS_URL: redis://redis-cache:6379
       STORAGE_TYPE: local
     volumes:
       - twenty_local_storage:/app/packages/twenty-server/.local-storage
@@ -103,7 +115,7 @@ services:
     container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-twenty-worker
     restart: unless-stopped
     env_file: [.env]
-    command: ["node", "packages/twenty-server/dist/src/main-worker.js"]
+    command: ["yarn", "worker:prod"]
     depends_on:
       twenty:
         condition: service_started
@@ -111,8 +123,10 @@ services:
         condition: service_healthy
     environment:
       APP_SECRET: ${TWENTY_APP_SECRET}
-      PG_DATABASE_URL: postgresql://${TWENTY_DB_USER:-twenty}:${TWENTY_DB_PASSWORD}@nyra-twenty-db:5432/${TWENTY_DB_NAME:-twenty}
-      REDIS_URL: redis://nyra-redis-cache:6379
+      PG_DATABASE_URL: postgresql://${TWENTY_DB_USER:-twenty}:${TWENTY_DB_PASSWORD}@twenty-db:5432/${TWENTY_DB_NAME:-twenty}
+      REDIS_URL: redis://redis-cache:6379
+      DISABLE_DB_MIGRATIONS: "true"
+      DISABLE_CRON_JOBS_REGISTRATION: "true"
       STORAGE_TYPE: local
     volumes:
       - twenty_local_storage:/app/packages/twenty-server/.local-storage
@@ -128,7 +142,7 @@ services:
     ports:
       - "8400:8400"
     environment:
-      - TWENTY_API_KEY=${TWENTY_API_KEY}
+      - TWENTY_BASE_URL=http://twenty:3000
       - TWENTY_API_URL=http://twenty:3000
       - TWENTY_GRAPHQL_URL=http://twenty:3000/graphql
       - PORT=8400
@@ -223,7 +237,6 @@ services:
     image: cloudflare/cloudflared:latest
     container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-cloudflared
     restart: unless-stopped
-    env_file: [.env]
     command: ["tunnel", "run", "--token", "${ORACLE_TUNNEL_TOKEN}"]
     environment:
       - ORACLE_TUNNEL_TOKEN=${ORACLE_TUNNEL_TOKEN}
@@ -299,7 +312,7 @@ services:
     restart: unless-stopped
     environment:
       OPENAI_API_BASE_URL:
-        ${LITELLM_BASE_URL:-http://orchestrator.trex-fiordland.ts.net:4000/v1}
+        ${LITELLM_BASE_URL:-http://litellm:4000/v1}
       OPENAI_API_KEY: ${LITELLM_MASTER_KEY}
       WEBUI_SECRET_KEY: ${OPENWEBUI_SECRET_KEY}
     volumes:
@@ -337,14 +350,12 @@ services:
       qdrant:
         condition: service_started
     environment:
-      FALKORDB_URL: redis://nyra-falkordb:6379
-      QDRANT_HOST: nyra-qdrant
+      FALKORDB_URL: redis://falkordb:6379
+      QDRANT_HOST: qdrant
       QDRANT_PORT: 6333
       OPENAI_API_KEY: ${OPENAI_API_KEY}
-      LITELLM_API_BASE: ${LITELLM_API_BASE:-http://worker-rtx3060.trex-fiordland.ts.net:11434/v1}
+      LITELLM_API_BASE: ${LITELLM_API_BASE:-http://litellm:4000/v1}
       LITELLM_API_KEY: ${LITELLM_MASTER_KEY}
-      EMBEDDING_MODEL: nomic-embed-text
-      EXTRACTION_MODEL: llama3.2:3b
     ports:
       - "5000:5000"
     networks: [nyra_net]
@@ -369,22 +380,20 @@ services:
   openmemory-mcp:
     build:
       context: ../../../services/openmemory-mcp
-    container_name: nyra-openmemory-mcp
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-openmemory-mcp
     restart: unless-stopped
     depends_on:
       qdrant:
         condition: service_started
     environment:
       OPENAI_API_KEY: ${OPENAI_API_KEY}
-      QDRANT_HOST: nyra-qdrant
+      QDRANT_HOST: qdrant
       QDRANT_PORT: "6333"
       USER: nyra
-      LLM_PROVIDER: litellm
-      LLM_MODEL: llama3.2:3b
-      LLM_BASE_URL: http://worker-rtx3060.trex-fiordland.ts.net:11434/v1
-      EMBEDDER_PROVIDER: litellm
-      EMBEDDER_MODEL: nomic-embed-text
-      EMBEDDER_BASE_URL: http://worker-rtx3060.trex-fiordland.ts.net:11434/v1
+      LLM_PROVIDER: openai
+      LLM_MODEL: gpt-4o-mini
+      EMBEDDER_PROVIDER: openai
+      EMBEDDER_MODEL: text-embedding-3-small
     ports:
       - "8765:8765"
     networks: [nyra_net]
@@ -629,14 +638,14 @@ services:
     restart: unless-stopped
     environment:
       NPM_CONFIG_CACHE: /tmp/.npm
-      PAPERCLIP_API_URL: http://nyra-paperclip:3100
+      PAPERCLIP_API_URL: http://paperclip:3100
       PAPERCLIP_API_KEY: ${PAPERCLIP_API_KEY:-dummy}
     command:
       - npx
       - -y
       - supergateway
       - --sse
-      - http://nyra-paperclip:3100/mcp
+      - http://paperclip:3100/mcp
       - npx
       - -y
       - "@paperclipai/mcp-server"
@@ -645,6 +654,132 @@ services:
     ports:
       - "8767:8767"
     networks: [nyra_net]
+
+  # ── Magic UI MCP (stdio→SSE bridge via supergateway) ──────────────────────
+  # Converts @magicuidesign/mcp stdio server to HTTP/SSE so Nexus can aggregate it.
+  # Exposed on port 8768; Nexus connects at http://oracle:8768/sse
+  magicui-mcp:
+    image: node:20-alpine
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-magicui-mcp
+    restart: unless-stopped
+    environment:
+      NPM_CONFIG_CACHE: /tmp/.npm
+    command:
+      - npx
+      - -y
+      - supergateway
+      - --stdio
+      - "npx -y @magicuidesign/mcp@latest"
+      - --port
+      - "8768"
+    ports:
+      - "8768:8768"
+    networks: [nyra_net]
+
+  # ── Supabase Stack ────────────────────────────────────────────────────────
+  supabase-db:
+    image: supabase/postgres:15.1.1.78
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-supabase-db
+    restart: unless-stopped
+    env_file: [.env]
+    environment:
+      POSTGRES_PASSWORD: ${SUPABASE_DB_PASSWORD:-${POSTGRES_PASSWORD}}
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+    ports:
+      - "54322:5432"
+    volumes:
+      - supabase_db_data:/var/lib/postgresql/data
+      - ./initdb/supabase:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks: [nyra_net]
+
+  supabase-auth:
+    image: supabase/gotrue:v2.132.3
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-supabase-auth
+    restart: unless-stopped
+    depends_on:
+      supabase-db:
+        condition: service_healthy
+    env_file: [.env]
+    environment:
+      GOTRUE_DB_DRIVER: postgres
+      GOTRUE_DB_DATABASE_URL: postgres://postgres:${SUPABASE_DB_PASSWORD:-${POSTGRES_PASSWORD}}@supabase-db:5432/postgres?sslmode=disable
+      GOTRUE_SITE_URL: ${SUPABASE_SITE_URL:-https://nyra.ratehunter.net}
+      GOTRUE_JWT_SECRET: ${JWT_SECRET}
+      GOTRUE_JWT_EXP: 3600
+      API_EXTERNAL_URL: ${SUPABASE_AUTH_EXTERNAL_URL:-https://api.ratehunter.net/auth/v1}
+      GOTRUE_EXTERNAL_URL: ${SUPABASE_AUTH_EXTERNAL_URL:-https://api.ratehunter.net/auth/v1}
+      GOTRUE_MAILER_AUTOCONFIRM: "true"
+      GOTRUE_DB_MAX_POOL_SIZE: 20
+    networks: [nyra_net]
+
+  supabase-rest:
+    image: postgrest/postgrest:v10.1.1
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-supabase-rest
+    restart: unless-stopped
+    depends_on:
+      supabase-db:
+        condition: service_healthy
+    env_file: [.env]
+    environment:
+      PGRST_DB_URI: postgres://postgres:${SUPABASE_DB_PASSWORD:-${POSTGRES_PASSWORD}}@supabase-db:5432/postgres
+      PGRST_DB_SCHEMA: public
+      PGRST_DB_ANON_ROLE: anon
+      PGRST_JWT_SECRET: ${JWT_SECRET}
+    networks: [nyra_net]
+
+  supabase-kong:
+    image: kong:2.8.1
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-supabase-kong
+    restart: unless-stopped
+    depends_on:
+      supabase-auth:
+        condition: service_started
+      supabase-rest:
+        condition: service_started
+    volumes:
+      - ./configs/supabase/kong.yml:/etc/kong/kong.yml:ro
+    environment:
+      KONG_DATABASE: "off"
+      KONG_DECLARATIVE_CONFIG: /etc/kong/kong.yml
+      KONG_PROXY_LISTEN: 0.0.0.0:8000
+    ports:
+      - "8000:8000"
+    networks: [nyra_net]
+
+  # ── LiteLLM Proxy ─────────────────────────────────────────────────────────
+  # Moved from orchestrator: co-located with Nexus to eliminate Tailscale hop.
+  litellm:
+    image: ghcr.io/berriai/litellm:main-stable
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-litellm
+    restart: unless-stopped
+    command: ["--config", "/app/config.yaml", "--port", "4000"]
+    ports:
+      - "4000:4000"
+    environment:
+      LITELLM_MASTER_KEY: ${LITELLM_MASTER_KEY:-}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-nyra}:${POSTGRES_PASSWORD}@postgres:5432/litellm
+      REDIS_HOST: redis-cache
+      REDIS_PORT: "6379"
+    volumes:
+      - ../../configs/litellm/config.yaml:/app/config.yaml:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis-cache:
+        condition: service_healthy
+    networks: [nyra_net]
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:4000/health/readiness', timeout=8)\""]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
 
   # ── Nexus Aggregator (Grafbase Nexus) ────────────────────────────────────
   # THE single entrypoint: MCP tool aggregation + LLM proxy
@@ -663,6 +798,9 @@ services:
       MEMPALACE_URL: ${MEMPALACE_URL:-}
     volumes:
       - ./nexus.toml:/etc/nexus.toml:ro
+    depends_on:
+      litellm:
+        condition: service_healthy
     networks: [nyra_net]
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
@@ -671,13 +809,25 @@ services:
       retries: 5
 
   # ── Syncthing ───────────────────────────────────────────────────────────
-  # ── Qdrant (vector backend for Mem0 and OpenMemory) ──────────────────────
+  syncthing:
+    profiles: ["sync"]
+    image: syncthing/syncthing:latest
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-syncthing
+    network_mode: host
+    environment:
+      - PUID=1000
+      - PGID=1000
+    volumes:
+      - syncthing_config:/var/syncthing
+      - /run/desktop/mnt/host/wsl/...:/var/syncthing/data/home
+    restart: unless-stopped
 
 networks:
   nyra_net:
 
 volumes:
   postgres_data:
+  litellm_data:
   twenty_db_data:
   redis_cache_data:
   twenty_local_storage:
@@ -697,7 +847,9 @@ volumes:
   mempalace_data:
   mempalace_vault:
   paperclip_data:
+  syncthing_config:
   portainer_data:
   letta_db_data:
   letta_data:
   mem_os_data:
+  supabase_db_data:
