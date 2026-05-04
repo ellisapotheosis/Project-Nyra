@@ -341,8 +341,10 @@ services:
       QDRANT_HOST: nyra-qdrant
       QDRANT_PORT: 6333
       OPENAI_API_KEY: ${OPENAI_API_KEY}
-      LITELLM_API_BASE: ${LITELLM_API_BASE:-http://orchestrator.trex-fiordland.ts.net:4000/v1}
+      LITELLM_API_BASE: ${LITELLM_API_BASE:-http://worker-rtx3060.trex-fiordland.ts.net:11434/v1}
       LITELLM_API_KEY: ${LITELLM_MASTER_KEY}
+      EMBEDDING_MODEL: nomic-embed-text
+      EXTRACTION_MODEL: llama3.2:3b
     ports:
       - "5000:5000"
     networks: [nyra_net]
@@ -352,55 +354,7 @@ services:
       timeout: 10s
       retries: 3
 
-<<<<<<< HEAD
-  # ── Letta (MemGPT) - Memory Manager & Classifier ──────────────────────────
-  letta-db:
-    image: ankane/pgvector:v0.5.1
-    container_name: nyra-letta-db
-    restart: unless-stopped
-    environment:
-      POSTGRES_DB: letta
-      POSTGRES_USER: letta
-      POSTGRES_PASSWORD: ${LETTA_DB_PASSWORD:-letta}
-    volumes:
-      - letta_db_data:/var/lib/postgresql/data
-    networks: [nyra_net]
-
-  letta:
-    image: letta/letta:latest
-    container_name: nyra-letta
-    restart: unless-stopped
-    depends_on:
-      - letta-db
-    environment:
-      LETTA_PG_URI: postgresql://letta:${LETTA_DB_PASSWORD:-letta}@letta-db:5432/letta
-      OPENAI_API_KEY: ${OPENAI_API_KEY}
-      LITELLM_API_BASE: ${LITELLM_API_BASE:-http://orchestrator.trex-fiordland.ts.net:4000/v1}
-    ports:
-      - "8283:8283"
-    volumes:
-      - letta_data:/root/.letta
-    networks: [nyra_net]
-
-  # ── memOS (MemoryTensor) - Hierarchical Memory ────────────────────────────
-
-  mem-os:
-    image: memorytensor/mem-os:latest
-    container_name: nyra-mem-os
-    restart: unless-stopped
-    environment:
-      OPENAI_API_KEY: ${OPENAI_API_KEY}
-      PORT: 8085
-    ports:
-      - "8085:8085"
-    volumes:
-      - mem_os_data:/app/data
-    networks: [nyra_net]
-
-  # ── Qdrant (vector store for OpenMemory MCP) ─────────────────────────────
-=======
   # ── Qdrant (vector backend for Mem0 and OpenMemory) ──────────────────────
->>>>>>> github/main
   # Note: qdrant image is distroless (no curl/wget) — no healthcheck possible.
   qdrant:
     image: qdrant/qdrant:latest
@@ -415,7 +369,7 @@ services:
   openmemory-mcp:
     build:
       context: ../../../services/openmemory-mcp
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-openmemory-mcp
+    container_name: nyra-openmemory-mcp
     restart: unless-stopped
     depends_on:
       qdrant:
@@ -425,10 +379,12 @@ services:
       QDRANT_HOST: nyra-qdrant
       QDRANT_PORT: "6333"
       USER: nyra
-      LLM_PROVIDER: openai
-      LLM_MODEL: gpt-4o-mini
-      EMBEDDER_PROVIDER: openai
-      EMBEDDER_MODEL: text-embedding-3-small
+      LLM_PROVIDER: litellm
+      LLM_MODEL: llama3.2:3b
+      LLM_BASE_URL: http://worker-rtx3060.trex-fiordland.ts.net:11434/v1
+      EMBEDDER_PROVIDER: litellm
+      EMBEDDER_MODEL: nomic-embed-text
+      EMBEDDER_BASE_URL: http://worker-rtx3060.trex-fiordland.ts.net:11434/v1
     ports:
       - "8765:8765"
     networks: [nyra_net]
@@ -715,22 +671,7 @@ services:
       retries: 5
 
   # ── Syncthing ───────────────────────────────────────────────────────────
-<<<<<<< HEAD
-
-=======
-  syncthing:
-    profiles: ["sync"]
-    image: syncthing/syncthing:latest
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-syncthing
-    network_mode: host
-    environment:
-      - PUID=1000
-      - PGID=1000
-    volumes:
-      - syncthing_config:/var/syncthing
-      - /run/desktop/mnt/host/wsl/...:/var/syncthing/data/home
-    restart: unless-stopped
->>>>>>> github/main
+  # ── Qdrant (vector backend for Mem0 and OpenMemory) ──────────────────────
 
 networks:
   nyra_net:

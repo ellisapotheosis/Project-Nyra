@@ -405,7 +405,7 @@ services:
       - /usr/local/bin/agent-sidecar.sh
     environment:
       INFISICAL_ENV: ${INFISICAL_ENV:-prod}
-      INFISICAL_PATH: ${INFISICAL_PATH:-/machines/oracle}
+      INFISICAL_PATH: ${INFISICAL_PATH:-/machines/oracle-vps}
       INFISICAL_POLL_INTERVAL: ${INFISICAL_POLL_INTERVAL:-60}
       INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
       INFISICAL_TOKEN: ${INFISICAL_TOKEN}
@@ -928,7 +928,7 @@ services:
     container_name: nyra-secrets-init
     environment:
       INFISICAL_ENV: ${INFISICAL_ENV:-prod}
-      INFISICAL_PATH: ${INFISICAL_PATH:-/machines/oracle}
+      INFISICAL_PATH: ${INFISICAL_PATH:-/machines/oracle-vps}
       INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
       INFISICAL_TOKEN: ${INFISICAL_TOKEN:-}
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}

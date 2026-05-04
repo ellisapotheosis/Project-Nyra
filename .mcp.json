@@ -2,11 +2,17 @@
   "mcpServers": {
     "nexus-router": {
       "type": "sse",
-      "url": "http://100.64.0.1:8080/mcp/sse"
+      "url": "http://127.0.0.1:6000/mcp",
+      "startup_timeout_sec": 90
     },
     "serena": {
-      "type": "sse",
-      "url": "http://100.64.0.1:8092/mcp/sse"
+      "command": "serena",
+      "args": [
+        "start-mcp-server",
+        "--project-from-cwd",
+        "--context=claude-code"
+      ],
+      "startup_timeout_sec": 60
     },
     "ssh": {
       "command": "npx",

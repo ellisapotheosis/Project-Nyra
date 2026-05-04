@@ -96,6 +96,25 @@ Agents cannot:
 - change BIOS virtualization settings
 - resolve physical thermal or power issues
 
+### AlienApoth51 Windows OpenSSH elevation
+
+The current WSL session is on `AlienApoth51` / `worker-rtx5090-wsl`. Ubuntu SSH is configured and
+listening on port `23`, but Windows OpenSSH on the host is stopped. Non-elevated PowerShell cannot
+read or edit `C:\ProgramData\ssh\sshd_config` or start `sshd` because the Windows session token is
+medium integrity and the Administrators group is UAC-filtered.
+
+Run this once from an elevated Windows PowerShell on AlienApoth51:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File C:\Users\edane\nyra-fix-local-windows-sshd.ps1
+```
+
+Expected result:
+- `C:\ProgramData\ssh\sshd_config` contains `Port 2223`
+- Windows service `sshd` is `Running`
+- `Test-NetConnection 127.0.0.1 -Port 2223` succeeds
+- From WSL, `ssh -p 2223 edane@100.64.0.11 hostname` reaches the Windows host
+
 ## Infisical Token Renewal (URGENT)
 
 The `INFISICAL_TOKEN` stored in `infra/env/secrets/shared.env` and `.env.stack-clean` has expired
@@ -159,10 +178,19 @@ docker run -d `
 **Then test:**
 ```
 curl http://orchestrator.trex-fiordland.ts.net:6000/health
-curl http://orchestrator.trex-fiordland.ts.net:6000/mcp/sse -H "Accept: text/event-stream"
+curl http://orchestrator.trex-fiordland.ts.net:6000/mcp -H "Accept: text/event-stream"
 ```
 
 Once Nexus is running, the `.mcp.json` `nexus-router` entry will connect on reload.
+
+**Current client config:**
+
+- Local Claude/Codex MCP clients point to `http://127.0.0.1:6000/mcp`.
+- Keep the SSH forward running until Windows exposes the orchestrator WSL port over Tailscale:
+  `ssh -fN -L 127.0.0.1:6000:127.0.0.1:6000 orch`.
+- `startup_timeout_sec` is set to `90` for Nexus to allow slow router startup.
+- If this still times out, first verify the orchestrator is reachable over Tailscale and SSH
+  before debugging the MCP client.
 
 ---
 
@@ -213,7 +241,7 @@ Both tunnels need new tokens. The existing connectors were deleted from the CF a
 1. Go to Cloudflare Zero Trust → Tunnels → Create tunnel (or select existing oracle tunnel)
 2. Choose **Cloudflared** connector type
 3. Copy the tunnel token (starts with `ey...`)
-4. In Infisical → Project → `/machines/oracle` → add secret `ORACLE_TUNNEL_TOKEN=<token>`
+4. In Infisical -> Project -> `/machines/oracle-vps` -> add secret `ORACLE_TUNNEL_TOKEN=<token>`
 5. Restart oracle cloudflared: `ssh ubuntu@100.64.0.3 "docker restart nyra-cloudflared"`
 
 **Orchestrator tunnel:**
@@ -227,7 +255,6 @@ matching the tables in `~/repos/cloudflared/TUNNEL-SETUP-ORACLE.md` and `TUNNEL-
 
 ---
 
-<<<<<<< HEAD
 ## Composio Hosted MCP Server URL
 
 The Compose overrides require a hosted MCP URL and user-bound app connections.
@@ -244,7 +271,9 @@ The Compose overrides require a hosted MCP URL and user-bound app connections.
    - `infra/compose/composio.inject.compose.yml`
    - `infra/compose/composio.openclaw-mvp.inject.compose.yml`
    - `infra/compose/composio.webapp.inject.compose.yml`
-=======
+
+---
+
 ## Cloudflare Tunnel UI DNS Import
 
 Manual owner action is required because Cloudflare dashboard login, DNS ownership, and Zero Trust
@@ -266,4 +295,3 @@ import/reference:
 
 Create or update the two tunnels, import or enter the public hostname mappings, and apply Access
 policies to every private UI before use.
->>>>>>> github/main

@@ -10,7 +10,17 @@
     "defaultMode": "bypassPermissions"
   },
   "hooks": {
-<<<<<<< HEAD
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "kild agent-status --self working 2>/dev/null || true",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
     "PreToolUse": [
       {
         "matcher": "rulecheck-agent",
@@ -28,20 +38,10 @@
           {
             "type": "command",
             "command": "wsh badge message-question --color '#e0b956' --priority 20 --beep"
-=======
-    "UserPromptSubmit": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "kild agent-status --self working 2>/dev/null || true",
-            "timeout": 5
->>>>>>> github/main
           }
         ]
       }
     ],
-<<<<<<< HEAD
     "SessionStart": [
       {
         "hooks": [
@@ -53,8 +53,6 @@
         ]
       }
     ],
-=======
->>>>>>> github/main
     "Stop": [
       {
         "hooks": [
@@ -74,7 +72,6 @@
         ]
       }
     ],
-<<<<<<< HEAD
     "SubagentStop": [
       {
         "matcher": "rulecheck-agent",
@@ -98,8 +95,6 @@
         ]
       }
     ],
-=======
->>>>>>> github/main
     "Notification": [
       {
         "hooks": [
@@ -132,11 +127,7 @@
   },
   "statusLine": {
     "type": "command",
-<<<<<<< HEAD
     "command": "kild status-line"
-=======
-    "command": "echo \"Project Nyra\""
->>>>>>> github/main
   },
   "enabledPlugins": {
     "serena@claude-plugins-official": true,
@@ -144,28 +135,26 @@
     "context7@claude-plugins-official": true,
     "claude-code-setup@claude-plugins-official": true,
     "superpowers@claude-plugins-official": true,
-    "agent-skills@addy-agent-skills": true
+    "agent-skills@addy-agent-skills": true,
+    "frontend-design@claude-plugins-official": true
   },
   "skipDangerousModePermissionPrompt": true,
-<<<<<<< HEAD
   "dangerouslySkipAllPrompts": true,
   "yoloMode": true,
   "mcpServers": {
     "nexus-router": {
       "type": "sse",
-      "url": "http://100.64.0.1:8080/mcp/sse"
+      "url": "http://127.0.0.1:6000/mcp",
+      "startup_timeout_sec": 90
     },
     "serena": {
-      "command": "uv",
+      "command": "serena",
       "args": [
-        "run",
-        "--project",
-        "services/serena-mcp",
-        "serena-mcp-server"
-      ]
+        "start-mcp-server",
+        "--project-from-cwd",
+        "--context=claude-code"
+      ],
+      "startup_timeout_sec": 60
     }
   }
-=======
-  "mcpServers": {}
->>>>>>> github/main
 }
