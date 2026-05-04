@@ -587,3 +587,191 @@ orchestrator-status:
 	@echo "[ORACLE] VPS Services:"
 	@docker --context oracle ps --filter 'status=running' --format '{{.Service}}' 2>/dev/null | wc -l && echo "  Services running"
 	@echo ""
+
+# ════════════════════════════════════════════════════════════════════════════
+# 📎 PAPERCLIP + 🦞 CLAWTEAM — Oracle-VPS Primary + RTX3060 Fallback
+# ════════════════════════════════════════════════════════════════════════════
+
+.PHONY: oracle-paperclip oracle-clawteam rtx3060-clawteam-fallback \
+  clawteam-all-deploy clawteam-monitor clawteam-failover-check
+
+oracle-paperclip:
+	docker context use oracle-vps && \
+	cd infra/hosts/oracle-vps && \
+	docker-compose -f docker-compose.yml -f docker-compose.paperclip.yml up -d paperclip && \
+	docker context use default && \
+	echo "✅ Paperclip MCP Gateway deployed to Oracle-VPS (port 8888)"
+
+oracle-clawteam:
+	docker context use oracle-vps && \
+	cd infra/hosts/oracle-vps && \
+	docker-compose -f docker-compose.yml -f docker-compose.clawteam.yml up -d clawteam && \
+	docker context use default && \
+	sleep 2 && \
+	echo "✅ ClawTeam Primary deployed to Oracle-VPS (port 9001)"
+
+rtx3060-clawteam-fallback:
+	docker context use worker-rtx3060 && \
+	cd infra/hosts/worker-rtx3060 && \
+	docker-compose -f docker-compose.yml -f docker-compose.clawteam.yml up -d clawteam && \
+	docker context use default && \
+	echo "✅ ClawTeam Fallback deployed to RTX3060 (port 9002)"
+
+clawteam-all-deploy: oracle-clawteam rtx3060-clawteam-fallback
+	@echo "✅ ClawTeam dual-deployment complete"
+	@echo "   Primary:  oracle-vps:9001"
+	@echo "   Fallback: worker-rtx3060:9002"
+	@docker context use oracle-vps && \
+	docker exec nyra-clawteam-primary curl -s http://localhost:9000/health 2>/dev/null | jq .status && \
+	docker context use default
+
+clawteam-monitor:
+	@echo "Monitoring ClawTeam on Oracle-VPS..."
+	@watch -n 5 "docker context use oracle-vps && docker stats nyra-clawteam-primary --no-stream && docker context use default"
+
+clawteam-failover-check:
+	@echo "Checking ClawTeam health: Primary (Oracle) vs Fallback (RTX3060)..."
+	docker context use oracle-vps && \
+	ORACLE_HEALTH=$$(docker exec nyra-clawteam-primary curl -s http://localhost:9000/health 2>/dev/null | jq .status || echo "down") && \
+	docker context use default && \
+	docker context use worker-rtx3060 && \
+	RTX3060_HEALTH=$$(docker exec worker-3060-clawteam-fallback curl -s http://localhost:9000/health 2>/dev/null | jq .status || echo "down") && \
+	docker context use default && \
+	echo "Oracle-VPS ClawTeam: $$ORACLE_HEALTH" && \
+	echo "RTX3060 Fallback:    $$RTX3060_HEALTH" && \
+	if [ "$$ORACLE_HEALTH" != "healthy" ] && [ "$$RTX3060_HEALTH" = "healthy" ]; then \
+		echo "⚠️  PRIMARY DOWN — Fallback to RTX3060 active"; \
+	fi
+
+paperclip-oracle: oracle-paperclip
+	@echo "Paperclip MCP Gateway ready at oracle-vps:8888"
+
+
+# ════════════════════════════════════════════════════════════════════════════
+# 🦞 RTX3060 OPENCLAW — Cron Jobs + Rate Quoting + Activepieces Testing
+# ════════════════════════════════════════════════════════════════════════════
+
+.PHONY: rtx3060-openclaw rtx3060-openclaw-health openclaw-all-workers \
+  openclaw-status-dashboard
+
+rtx3060-openclaw:
+	docker context use worker-rtx3060 && \
+	cd infra/hosts/worker-rtx3060 && \
+	docker-compose -f docker-compose.yml -f docker-compose.openclaw.yml up -d openclaw nerveui && \
+	docker context use default && \
+	sleep 3 && \
+	echo "✅ RTX3060 OpenClaw deployed (port 8003) + NerveUI (port 6008)" && \
+	echo "   Mode: Cron automation, rate quoting, Activepieces testing" && \
+	echo "   NerveUI: http://worker-rtx3060:6008"
+
+rtx3060-openclaw-health:
+	docker context use worker-rtx3060 && \
+	echo "=== RTX3060 OpenClaw Health ===" && \
+	docker ps --filter "name=worker-3060" --format "table {{.Names}}\t{{.Status}}" && \
+	echo "" && \
+	echo "=== RTX3060 NerveUI Health ===" && \
+	curl -s http://localhost:6008/health 2>/dev/null | jq . || echo "NerveUI starting..." && \
+	docker context use default
+
+openclaw-all-workers:
+	@echo "Deploying OpenClaw + NerveUI to all 3 workers..."
+	@echo ""
+	@echo "1️⃣  RTX5090 (inference)..."
+	docker context use worker-rtx5090 && cd infra/hosts/worker-rtx5090 && docker-compose -f docker-compose.yml -f docker-compose.clawteam.yml up -d openclaw && docker context use default && sleep 2
+	@echo "✅ RTX5090 OpenClaw running (port 8001)"
+	@echo ""
+	@echo "2️⃣  RTX3090Ti (inference)..."
+	docker context use worker-rtx3090ti && cd infra/hosts/worker-rtx3090ti && docker-compose -f docker-compose.yml -f docker-compose.clawteam.yml up -d openclaw && docker context use default && sleep 2
+	@echo "✅ RTX3090Ti OpenClaw running (port 8002)"
+	@echo ""
+	@echo "3️⃣  RTX3060 (cron/testing)..."
+	docker context use worker-rtx3060 && cd infra/hosts/worker-rtx3060 && docker-compose -f docker-compose.yml -f docker-compose.openclaw.yml up -d openclaw nerveui && docker context use default && sleep 2
+	@echo "✅ RTX3060 OpenClaw running (port 8003) + NerveUI (port 6008)"
+	@echo ""
+	@echo "✅ All 3 workers online with OpenClaw + NerveUI instances"
+
+openclaw-status-dashboard:
+	@echo "════════════════════════════════════════════════════════════"
+	@echo "🦞 OPENCLAW TOPOLOGY — 3 Workers + NerveUI Monitoring"
+	@echo "════════════════════════════════════════════════════════════"
+	@echo ""
+	@echo "🔴 RTX5090 (Inference)"
+	@echo "   OpenClaw: worker-rtx5090:8001 | NerveUI: worker-rtx5090:6006"
+	docker context use worker-rtx5090 && curl -s http://localhost:8001/health 2>/dev/null | jq .status || echo "   Status: offline" && docker context use default
+	@echo ""
+	@echo "🟢 RTX3090Ti (Inference)"
+	@echo "   OpenClaw: worker-rtx3090ti:8002 | NerveUI: worker-rtx3090ti:6007"
+	docker context use worker-rtx3090ti && curl -s http://localhost:8002/health 2>/dev/null | jq .status || echo "   Status: offline" && docker context use default
+	@echo ""
+	@echo "🟡 RTX3060 (Cron/Testing)"
+	@echo "   OpenClaw: worker-rtx3060:8003 | NerveUI: worker-rtx3060:6008"
+	docker context use worker-rtx3060 && curl -s http://localhost:8003/health 2>/dev/null | jq .status || echo "   Status: offline" && docker context use default
+	@echo ""
+	@echo "════════════════════════════════════════════════════════════"
+
+
+# ════════════════════════════════════════════════════════════════════════════
+# 🐳 DOCKER IMAGE BUILDS — ClawTeam + Paperclip (from Dockerfiles)
+# ════════════════════════════════════════════════════════════════════════════
+
+.PHONY: docker-build-clawteam docker-build-paperclip docker-build-all \
+  docker-push-clawteam docker-push-paperclip
+
+docker-build-clawteam:
+	@echo "Building ClawTeam Docker image..."
+	docker build -f infra/docker/Dockerfile.clawteam -t nyra/clawteam:latest .
+	@echo "✅ ClawTeam image built: nyra/clawteam:latest"
+
+docker-build-paperclip:
+	@echo "Building Paperclip Docker image..."
+	docker build -f infra/docker/Dockerfile.paperclip -t nyra/paperclip:latest .
+	@echo "✅ Paperclip image built: nyra/paperclip:latest"
+
+docker-build-all: docker-build-clawteam docker-build-paperclip
+	@echo "✅ All images built successfully"
+
+docker-push-clawteam:
+	docker tag nyra/clawteam:latest localhost:5000/nyra/clawteam:latest
+	docker push localhost:5000/nyra/clawteam:latest
+	@echo "✅ ClawTeam image pushed to localhost:5000"
+
+docker-push-paperclip:
+	docker tag nyra/paperclip:latest localhost:5000/nyra/paperclip:latest
+	docker push localhost:5000/nyra/paperclip:latest
+	@echo "✅ Paperclip image pushed to localhost:5000"
+
+# ════════════════════════════════════════════════════════════════════════════
+# UPDATED DEPLOYMENT — Uses docker-compose build (instead of image:)
+# ════════════════════════════════════════════════════════════════════════════
+
+oracle-clawteam-deploy:
+	docker context use oracle && \
+	cd infra/hosts/oracle-vps && \
+	docker-compose -f docker-compose.yml -f docker-compose.clawteam.yml build clawteam && \
+	docker-compose -f docker-compose.yml -f docker-compose.clawteam.yml up -d clawteam && \
+	docker context use default && \
+	sleep 3 && \
+	echo "✅ ClawTeam deployed to Oracle-VPS (port 8080)" && \
+	docker context use oracle && \
+	docker logs nyra-clawteam-primary --tail 20 && \
+	docker context use default
+
+oracle-paperclip-deploy:
+	docker context use oracle && \
+	cd infra/hosts/oracle-vps && \
+	docker-compose -f docker-compose.yml -f docker-compose.paperclip.yml build paperclip && \
+	docker-compose -f docker-compose.yml -f docker-compose.paperclip.yml up -d paperclip && \
+	docker context use default && \
+	sleep 3 && \
+	echo "✅ Paperclip deployed to Oracle-VPS (port 3100)" && \
+	docker context use oracle && \
+	docker logs nyra-paperclip-mcp-gateway --tail 20 && \
+	docker context use default
+
+oracle-clawteam-paperclip-all:
+	@echo "Building + deploying ClawTeam + Paperclip to Oracle-VPS..."
+	@$(MAKE) docker-build-all
+	@$(MAKE) oracle-clawteam-deploy
+	@$(MAKE) oracle-paperclip-deploy
+	@echo "✅ All services deployed to Oracle-VPS via Portainer"
+

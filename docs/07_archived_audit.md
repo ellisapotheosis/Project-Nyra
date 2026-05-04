@@ -1,6 +1,6 @@
 # 07 Archived Audit
 
-Updated: 2026-04-27
+Updated: 2026-04-30
 
 ## Archive policy
 
@@ -30,7 +30,7 @@ data/project-requirements/**
 | Compose paths | `Makefile` variables ending in `_COMPOSE` |
 | Host placement | `infra/hosts/*/docker-compose*.yml` |
 | CI/CD placement | `infra/hosts/oracle-vps/docker-compose.gitea.yml` |
-| Edge hostnames | `infra/hosts/oracle-vps/cloudflared-config.yml` and Cloudflare dashboard-managed tunnel settings |
+| Edge hostnames | `docs/cloudflared/hostname-matrix.md`, `docs/cloudflared/cloudflared-oracle.yml`, Cloudflare dashboard-managed tunnel settings |
 | BitNet fallback | `infra/hosts/orchestrator/docker-compose.bitnet.yml` |
 
 ## Review rule
@@ -47,5 +47,5 @@ Before adding a service to a root numbered doc:
 ```bash
 find infra/hosts -maxdepth 2 -name 'docker-compose*.yml' | sort
 rg -n "^[A-Z0-9_]+_COMPOSE|docker compose -f|docker --context" Makefile
-rg -n "hostname:|service:" infra/hosts/oracle-vps/cloudflared-config.yml
+rg -n "hostname:|service:" docs/cloudflared/*.yml
 ```

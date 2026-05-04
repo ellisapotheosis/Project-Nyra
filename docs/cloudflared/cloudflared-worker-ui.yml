@@ -1,0 +1,57 @@
+# Project Nyra optional worker/orchestrator UI tunnel template.
+# This config assumes the tunnel host can resolve Tailscale MagicDNS names.
+# Replace placeholders before use:
+#   <WORKER_UI_TUNNEL_UUID>
+#   /etc/cloudflared/<WORKER_UI_TUNNEL_UUID>.json
+#
+# Keep all hostnames in this file Cloudflare Access-gated.
+# Do not add vLLM, Ollama, Redis, Postgres, Qdrant, FalkorDB, exporter, or raw
+# voice/media transport ports here.
+
+tunnel: <WORKER_UI_TUNNEL_UUID>
+credentials-file: /etc/cloudflared/<WORKER_UI_TUNNEL_UUID>.json
+
+originRequest:
+  connectTimeout: 30s
+
+ingress:
+  # Orchestrator control-plane UIs/APIs
+  - hostname: litellm.ratehunter.net
+    service: http://orchestrator.trex-fiordland.ts.net:4000
+  - hostname: openclaw.ratehunter.net
+    service: http://orchestrator.trex-fiordland.ts.net:8001
+  - hostname: portainer.ratehunter.net
+    service: https://orchestrator.trex-fiordland.ts.net:9443
+    originRequest:
+      noTLSVerify: true
+  - hostname: prometheus-orch.ratehunter.net
+    service: http://orchestrator.trex-fiordland.ts.net:9090
+  - hostname: grafana-orch.ratehunter.net
+    service: http://orchestrator.trex-fiordland.ts.net:3003
+  - hostname: loki-orch.ratehunter.net
+    service: http://orchestrator.trex-fiordland.ts.net:3100
+  - hostname: cadvisor-orch.ratehunter.net
+    service: http://orchestrator.trex-fiordland.ts.net:8081
+
+  # Worker RTX 5090 UI/API surfaces. Access-gated, internal operators only.
+  - hostname: openclaw-5090.ratehunter.net
+    service: http://worker-rtx5090.trex-fiordland.ts.net:8001
+  - hostname: nerve-5090.ratehunter.net
+    service: http://worker-rtx5090.trex-fiordland.ts.net:18789
+  - hostname: litellm-5090.ratehunter.net
+    service: http://worker-rtx5090.trex-fiordland.ts.net:4000
+
+  # Worker RTX 3090 Ti UI/API surfaces. Access-gated, internal operators only.
+  - hostname: openclaw-3090.ratehunter.net
+    service: http://worker-rtx3090ti.trex-fiordland.ts.net:8001
+  - hostname: nerve-3090.ratehunter.net
+    service: http://worker-rtx3090ti.trex-fiordland.ts.net:18789
+  - hostname: litellm-3090.ratehunter.net
+    service: http://worker-rtx3090ti.trex-fiordland.ts.net:4000
+
+  # Worker RTX 3060 utility gateway. Keep Ollama itself private.
+  - hostname: litellm-3060.ratehunter.net
+    service: http://worker-rtx3060.trex-fiordland.ts.net:4000
+
+  # Catch-all. Required by cloudflared.
+  - service: http_status:404

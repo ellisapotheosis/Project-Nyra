@@ -1,6 +1,6 @@
 # 19 Cloud Offload Recommendations
 
-Updated: 2026-04-27
+Updated: 2026-04-30
 
 ## Immediate decisions
 
@@ -9,6 +9,7 @@ Updated: 2026-04-27
 - Keep GPU inference on private worker nodes.
 - Keep orchestrator as the local control plane with BitNet CPU fallback.
 - Tunnel only approved HTTP applications through Cloudflared and Cloudflare Access.
+- Use `docs/cloudflared/` as the owner-facing tunnel/DNS setup package for `ratehunter.net`.
 
 ## Candidate matrix
 
@@ -18,7 +19,7 @@ Updated: 2026-04-27
 | Gitea and Actions runner | Oracle VPS | keep on Oracle |
 | GitHub mirror sync | Oracle VPS | keep on Oracle |
 | CRM/workflow apps | Oracle VPS | keep on Oracle unless managed SaaS is chosen deliberately |
-| Observability UIs | Oracle VPS | tunnel with Access |
+| Observability UIs | Oracle VPS | tunnel with Access using `grafana`, `prometheus`, `loki`, and `cadvisor` hostnames as needed |
 | Datastores | Oracle/host-local Docker networks | do not expose publicly |
 | Primary inference | `worker-rtx5090` | keep private/Tailscale |
 | Secondary inference | `worker-rtx3090ti` | keep private/Tailscale |
@@ -42,6 +43,7 @@ Updated: 2026-04-27
 4. Bring workers online with `make up-workers`.
 5. Start orchestrator BitNet fallback with `make bitnet-deploy`.
 6. Add or verify Cloudflare Access policies for every non-landing hostname.
+7. Validate local-managed tunnel files with `cloudflared tunnel ingress validate docs/cloudflared/cloudflared-oracle.yml` and `docs/cloudflared/cloudflared-worker-ui.yml` after replacing placeholders.
 
 ## Drift detection heuristics
 
@@ -49,6 +51,7 @@ Updated: 2026-04-27
 - Fail if a datastore service appears under tunnel `ingress:`.
 - Fail if a worker inference endpoint is mapped to a public hostname.
 - Warn if `docs/02_ports_registry.md` and `infra/hosts/*/docker-compose*.yml` diverge.
+- Warn if a `ratehunter.net` Cloudflared route is not listed in `docs/cloudflared/hostname-matrix.md`.
 
 ## Business-impact rationale
 

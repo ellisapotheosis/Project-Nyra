@@ -132,9 +132,7 @@ services:
         # Small models that fit well in 12GB
         curl -X POST http://ollama:11434/api/pull -d '{"name": "llama3.2:3b"}'      # 2GB
         curl -X POST http://ollama:11434/api/pull -d '{"name": "phi3:mini"}'        # 2.3GB
-        curl -X POST http://ollama:11434/api/pull -d '{"name": "mistral:7b-q4"}'    # 4GB
-        curl -X POST http://ollama:11434/api/pull -d '{"name": "codellama:7b-q4"}' # 4GB
-        # Embedding models
+        curl -X POST http://ollama:11434/api/pull -d '{"name": "mistral:7b-v0.3"}' # 4.1GB
         curl -X POST http://ollama:11434/api/pull -d '{"name": "nomic-embed-text"}' # 274MB
         curl -X POST http://ollama:11434/api/pull -d '{"name": "all-minilm:l6-v2"}' # 45MB
         echo "=== Model preload complete ==="

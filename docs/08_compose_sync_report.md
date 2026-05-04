@@ -1,6 +1,6 @@
 # 08 Compose Sync Report
 
-Updated: 2026-04-27
+Updated: 2026-04-30
 
 ## Objective
 
@@ -30,6 +30,7 @@ Validate that root numbered docs, Makefile targets, and host-scoped compose file
 - `make verify-paths` validates the host-scoped compose files used by the main targets.
 - Oracle CI/CD uses a dedicated compose at `infra/hosts/oracle-vps/docker-compose.gitea.yml`.
 - Oracle app-profile services use `infra/hosts/oracle-vps/docker-compose.apps.yml` as an overlay.
+- Oracle Cloudflared hostname planning is now consolidated under `docs/cloudflared/`, with two local-managed tunnel templates and a Web UI checklist.
 - Worker stacks are controlled through Docker contexts: `worker-rtx3060`, `worker-rtx3090ti`, and `worker-rtx5090`.
 - BitNet CPU fallback has first-class targets: `bitnet-sync`, `bitnet-up`, `bitnet-health`, `bitnet-smoke`, and `bitnet-deploy`.
 
@@ -54,4 +55,4 @@ docker --context oracle compose -f infra/hosts/oracle-vps/docker-compose.gitea.y
 
 - Full runtime validation requires the Docker contexts and hosts to be reachable.
 - Some compose files still contain components that conflict with the current architecture rules; those are stack cleanup items, not doc truth.
-- Dashboard-managed Cloudflare tunnel routes must be compared manually against `infra/hosts/oracle-vps/cloudflared-config.yml`.
+- Dashboard-managed Cloudflare tunnel routes must be compared manually against `docs/cloudflared/hostname-matrix.md` and the two YAML templates in `docs/cloudflared/`.

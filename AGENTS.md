@@ -80,7 +80,7 @@ Workers are GPU appliances:
 
 - `worker-rtx5090` → primary vLLM, OpenClaw + Nerve UI
 - `worker-rtx3090ti` → secondary vLLM, OpenClaw + Hermes UI
-- `worker-rtx3060` → Ollama, ingestion helpers, summarization, extraction, smaller local tasks
+- `worker-rtx3060` → Embeddings, Extraction, Background Tasks, Summarization
 
 ### Memory
 - Mem0 is the primary selected assistant/runtime memory layer.
@@ -175,73 +175,80 @@ Work is only done when:
 <claude-mem-context>
 # Memory Context
 
-# [project-nyra] recent context, 2026-04-28 9:55am PDT
+# [project-nyra] recent context, 2026-05-04 10:57am PDT
 
 Legend: 🎯session 🔴bugfix 🟣feature 🔄refactor ✅change 🔵discovery ⚖️decision 🚨security_alert 🔐security_note
 Format: ID TIME TYPE TITLE
 Fetch details: get_observations([IDs]) | Search: mem-search skill
 
-Stats: 45 obs (18,570t read) | 1,243,980t work | 99% savings
+Stats: 50 obs (18,266t read) | 964,124t work | 98% savings
 
-### Apr 27, 2026
-1 3:20p 🔵 project-nyra and global Claude Code settings.json configurations audited
-2 3:45p 🔵 Multi-layer memory infrastructure via Grafbase/nexus MCP proxy aggregator
-4 " ✅ claude-mem SessionStart hook added to global ~/.claude/settings.json
-5 " 🟣 Unified memory architecture document created for project-nyra with three-layer stack
-3 3:46p 🔵 project-nyra .mcp.json reveals full MCP server topology including SSE-based serena and SSH/shadcn servers
-6 3:49p 🔵 project-nyra MEMORY.md index reveals rich existing project memory with 15+ reference documents
-7 " ✅ Memory setup fully verified: hook active, architecture doc written, MEMORY.md index updated
-S10 Add Claude Code notification hooks to both project-nyra local settings and global Ubuntu settings — configuring wsh badge commands for permission prompts, elicitation dialogs, AskUserQuestion, and Stop events (Apr 27, 3:50 PM)
-38 3:50p 🔵 Global ~/.claude/settings.json Hook Structure Revealed
-39 " ✅ wsh Badge Notification Hooks Added to Global ~/.claude/settings.json
-S8 Resume fixing SSH on worker-rtx5090 and all other PCs in the cluster (Apr 27, 3:50 PM)
-S5 Session complete: memory stack setup, Serena config fix, MemPalace KG saved (Apr 27, 3:50 PM)
-S15 SSH cluster configuration remediation across 5-machine homelab — fix port 2224 on worker-rtx5090 and propagate to all nodes (Apr 27, 8:55 PM)
-16 8:55p 🔵 Project Nyra SSH Infrastructure State Mapped
-46 " 🔵 User Preference: Full Autonomy Over Command Execution
-S9 Fix SSH on worker-rtx5090 and propagate fixes to all Project Nyra cluster machines (Apr 27, 8:55 PM)
-S11 Add wsh badge notification hooks to both project-nyra local .claude/settings.json and global ~/.claude/settings.json, merging with existing hook entries (Apr 27, 8:56 PM)
-33 9:49p ⚖️ Project RateHunter "NEKO" Grid — Finalized Distributed Architecture
-34 " 🔵 Cloudflare Pages Path Mismatch — /apps/landing vs /apps/landing/landing-page
-40 9:53p 🔵 Gemini CLI Installed via Windows npm, Accessible from WSL
-18 10:26p 🔵 WaveTerm Configuration Structure and wsh Command Reference Researched
-19 10:27p 🔵 WaveTerm Custom AI Provider Configuration Schema (v0.13+)
 ### Apr 28, 2026
-17 5:37a 🔵 Project Nyra Infrastructure Architecture Mapped
-20 5:38a ✅ AGENTS.md Control Plane Architecture Updated to Reflect Orchestrator/Oracle-VPS Split
-21 " ✅ README.md Hardware Topology and Architecture Decisions Updated
-22 " 🔵 host-service-plan.yaml Has Stale Path References and Contradicts Actual infra/hosts Layout
-24 " 🔴 Syncthing Home Directory Volume Mount Corrected on All Four Local Hosts
-25 " 🔵 Oracle-VPS Compose File Contains Explicitly Banned Services (Letta, openmemory-mcp)
-26 " 🔵 Syncthing Architecture Pattern: network_mode host, PUID/PGID 1000, Separate Config Volume
-23 " 🔵 Project Nyra Oracle VPS Full Stack Mapped — Services, Ports, and Architecture
-27 5:39a 🔵 Worker GPU Node Stacks Mapped — RTX 3090 Ti Has OpenClaw, RTX 5090 Does Not
-31 " 🟣 WaveTerm Maximalist Bootstrap Script Created — Full Nyra Stack Integration
-28 " ✅ Syncthing Added to AGENTS.md with Data Synchronization Section and Canonical Mount Rule
-29 " ✅ CLAUDE.md and GEMINI.md Updated with Cluster Architecture Quick-Reference
-30 " 🟣 Syncthing Home Folder Sync Fully Deployed and Documented Across All 5 Project Nyra Hosts
-32 5:40a 🟣 Makefile Migrated from Ghostty+Zellij to WaveTerm — Five New Override Targets Added
-35 5:43a 🔵 Duplicate wrangler.toml Files Found — Name Conflict Between Legacy and Active Landing Apps
-36 " 🔴 Landing App Renamed ratehunter-landing → landing-page; All Codebase References Updated
-37 " ✅ Cloudflare Pages Dashboard Settings Determined for landing-page App
-45 5:53a ✅ wsh Badge Hooks Added to Project-Nyra Local settings.json
 S12 Add wsh Wave Terminal badge notification hooks to both project-nyra local and global Ubuntu ~/.claude/settings.json, merging with all existing hook entries (Apr 28, 5:54 AM)
 S13 Add wsh Wave Terminal badge notification hooks to both project-nyra local and global ~/.claude/settings.json — task fully completed with jq validation and MemPalace KG storage (Apr 28, 5:56 AM)
-41 5:58a 🔵 gemini skills install Blocked by Interactive Prompt When Run From project-nyra
-42 " 🔵 gemini skills install with --consent Completed But Skills Not Written to Project .gemini Directory
-43 " 🔵 gemini skills install Places Extensions at ~/.gemini/extensions/, Not ~/.gemini/skills/
-47 " 🔵 Cloudflare Pages Deployment Failing Due to Missing .gitmodules Entry for external/openclaw-n8n-stack
-48 " ⚖️ Reverted landing-page Rename Back to ratehunter-landing to Match Cloudflare Pages UI
-44 5:59a 🟣 21 addyosmani/agent-skills Installed Globally at ~/.gemini/skills/
 S14 SSH cluster configuration fix for multi-machine homelab — user also issued permanent autonomy directive requiring Claude to run all executable commands without delegating back to user (Apr 28, 6:11 AM)
 S16 SSH completely unresponsive on worker-rtx5090 (Windows) — requires local PowerShell fix to restore sshd_config and restart service on port 2224 (Apr 28, 6:15 AM)
-49 6:24a ✅ Landing App Reverted Back to ratehunter-landing Name Across All Config Files
-50 " ✅ CLOUDFLARE-DEPLOY.md Updated With 10 ratehunter-landing Path Replacements
-51 " 🔵 .gitmodules Only Registers 2 of 4 Referenced Submodules — Root Cause of Cloudflare Deploy Failure
-52 6:25a 🔵 external/openclaw-n8n-stack Not Present in Current Git Index — Submodule Error May Be Stale
-53 6:27a ⚖️ Hybrid WaveTerm+Zellij Architecture Specified — Zellij as Persistence Layer, WaveTerm as Cockpit UI
+S19 Project-nyra cluster network remediation — Oracle VPS SSH bootstrap problem: correct IP/port found but authentication blocked, awaiting user input on key injection method (Apr 28, 6:15 AM)
+S17 Full stack health audit + access guide for project-nyra: Wave AI + llxprt + OpenClaw + Zellij orchestrator, plus Paperclip, ClawTeam, NerveUI, and Gitea — user uncertain about whether a prior agent's Makefile run left everything healthy (Apr 28, 9:00 AM)
+80 11:01a 🔴 Fixed P1 extends path bug in docker-compose.oracle-core.yml
+83 11:07a 🔵 Merge into fix/ratehunter-landing-deployment blocked by uncommitted local changes
+84 11:10a ✅ Mega-commit of 1115 files staged and committed to fix/ratehunter-landing-deployment
+85 " 🔵 Merge with github/main produced 10 content/modify-delete conflicts
+88 11:35a 🔵 Oracle VPS Port 22 Unreachable via Direct TCP from AlienApoth51 WSL
+### Apr 29, 2026
+S18 Oracle VPS SSH debugging — oci_api_key.pem format conversion attempt, still failing; user clarified correct IP is 100.64.0.3 (Apr 29, 1:11 AM)
+S20 Project-nyra cluster remediation — Oracle VPS SSH bootstrap blocked; session paused awaiting user choice of key injection method (OCI Console vs Infisical project ID) (Apr 29, 1:24 AM)
+S22 omc-setup — environment inspected, awaiting user config target choice (Apr 29, 1:30 AM)
+98 8:55p 🔵 Massive Docs Reorganization In-Progress in project-nyra
+99 " 🔵 Cloudflare Pages Deployment Workflow Uses Infisical for Secrets
+101 " 🔵 Webapp (mortgage-assistant) Has No Auth Middleware and No Edge/Cloudflare Config
+102 " 🔵 Webapp Runtime Dependencies: OpenClaw Proxy, CRM Bridge, and Twenty Services
+103 " 🔵 Oracle VPS Infrastructure Stack: Full Service Composition
+105 " 🔴 Resolved Git Merge Conflicts in project-nyra .claude/settings.json
+100 8:56p 🔵 Landing Page App Structure: Next.js with Cloudflare Workers Target
+104 " 🔵 Webapp SPEC: Canonical App at app.ratehunter.net, Uses pnpm, Nexus Router Port 6000
+106 8:57p ⚖️ Architecture Decision: Landing on Cloudflare Pages, Webapp on Oracle VPS Behind Cloudflare
+107 " ✅ Supabase Auth Env Vars Added to Webapp .env.example
+109 " 🔵 project-nyra MCP Configuration Inventory and serena-mcp Stub Discrepancy
+108 " 🔵 Landing Page CI Root Cause: Cloudflare Pages Account/Project Secret Mismatch
+110 8:58p 🚨 GitHub Dependabot Reports 588 Vulnerabilities on Project-Nyra Default Branch
+111 " 🔵 Cloudflare Pages CI Has Failed on Every Run — 4 Consecutive Failures Since April 26
+112 " 🔵 Remote Main Has Diverged From Local — PR #375 Blocked by Unstaged Changes
+113 " 🔵 github/main Already Had Partial Supabase Config With localhost:8000 Default URL
+114 8:59p ✅ PR #375 Superseded by Clean Branch docs-webapp-oracle-supabase-plan-v2 Rebased on Main
+115 " ✅ PR #375 Closed and v2 Replacement PR Created Against main
+116 " ✅ PR #376 Merged — Webapp Hosting Docs and Supabase Env Now on Main
+117 " 🔵 Large Infrastructure Cleanup Already on Main: Claude-Flow Purge and Supabase Kong Config Added
+118 9:01p 🔵 Root Cause Confirmed: CLOUDFLARE_ACCOUNT_ID Points to Wrong Account — Project "ratehunter-landing" Not Found
+### May 3, 2026
+119 5:38a 🔵 OMC Global Config Found at ~/.claude/.omc-config.json
+120 " 🔵 project-nyra Has No Project-Level CLAUDE.md
+121 5:39a 🔵 OMC v4.13.4 Plugin Cache Contains setup-progress.sh
+122 5:40a 🔵 OMC Setup Phase 1: CLAUDE.md Install Logic and Options
+S21 omc-setup — initializing OMC for project-nyra (May 3, 5:40 AM)
+123 5:41a ✅ Global CLAUDE.md Updated from OMC v4.11.5 to v4.13.4
+124 " 🟣 project-nyra Received Fresh Local CLAUDE.md at v4.13.4
+125 " 🔵 OMC Setup Phase 2: Six-Step Environment Configuration Flow
+126 " 🔵 OMC HUD Already Installed at ~/.claude/hud/omc-hud.mjs
+127 " 🔵 Global settings.json Contains Legacy OMC Hooks Alongside Plugin-Managed Hooks
+128 " 🔵 OMC Plugin Cache Clean; v4.13.5 Update Available
+129 5:42a ✅ OMC Config Updated: ultrawork Mode Confirmed, taskTool Set to builtin
+130 " 🟣 OMC CLI (oh-my-claude-sisyphus) Installed Globally via npm
+131 " 🔵 OMC Setup Phase 3: Integration Setup — MCP, Agent Teams, and Teammate Display
+### May 4, 2026
+132 10:12a 🔵 Codex Config TOML Uses Different Enum Values Than CLI Flags
+133 " 🔵 Codex CLI 0.128.0 Full Autonomy Flag: `--dangerously-bypass-approvals-and-sandbox`
+134 10:13a 🔵 Windows Codex Config Bug: `approval_mode = "never"` Invalid in `[apps]` Section
+135 " 🔵 Ubuntu vs Windows Codex Config Key Name Divergence: `sandbox` vs `sandbox_mode`
+136 " 🔵 Codex 0.128.0 Feature Flag Inventory — All Stable and Experimental Flags
+137 " 🔵 Ubuntu Codex MCP Server Configuration: 9 Servers Across Command and URL Types
+138 10:14a 🔵 Ubuntu Codex `default.rules` Is 52% Larger Than Windows — Rule Sets Have Diverged
+139 " 🔵 Windows `.tmp` Cache Has OMC Marketplace Clone With Full oh-my-claudecode Repo Structure
+140 " ✅ Ubuntu Codex Config Backed Up Before Autonomy/Permission Changes
+141 " 🔴 Both Codex Configs Rebuilt — Bug Fixed, Full Autonomy and Feature Parity Applied
+142 " 🔴 Both Codex Configs Verified Working — Windows Config No Longer Errors on Load
 
-Access 1244k tokens of past work via get_observations([IDs]) or mem-search skill.
+Access 964k tokens of past work via get_observations([IDs]) or mem-search skill.
 </claude-mem-context>
 =======
 

@@ -1,6 +1,6 @@
 # 11 Public vs Private Exposure Matrix
 
-Updated: 2026-04-27
+Updated: 2026-04-30
 
 ## Public edge rule
 
@@ -15,23 +15,25 @@ Public ingress should flow through Cloudflared only. Operator and internal app s
 
 ## Access-gated HTTP surfaces
 
-`infra/hosts/oracle-vps/cloudflared-config.yml` currently lists these candidate hostnames:
+`docs/cloudflared/hostname-matrix.md` is the current consolidated hostname checklist. Primary candidate hostnames:
 
 | Hostname | Origin service |
 |---|---|
-| `app.ratehunter.net` | `nyra-webapp:3001` |
-| `admin.ratehunter.net` | `nyra-admin:3002` |
-| `twenty.ratehunter.net` | `nyra-twenty:3000` |
-| `n8n.ratehunter.net` | `nyra-n8n:5678` |
-| `gitea.ratehunter.net` | `nyra-gitea:3000` |
-| `grafana.ratehunter.net` | `nyra-grafana:3000` |
-| `prometheus.ratehunter.net` | `nyra-prometheus:9090` |
-| `cadvisor.ratehunter.net` | `nyra-cadvisor:8080` |
-| `openwebui.ratehunter.net` | `nyra-openwebui:8080` |
-| `openclaw.ratehunter.net` | `nyra-openclaw:18790` |
-| `clawteam.ratehunter.net` | `nyra-clawteam:8080` |
-| `paperclip.ratehunter.net` | `nyra-paperclip:3100` |
-| `portainer-oracle.ratehunter.net` | `nyra-portainer:9443` |
+| `nyra.ratehunter.net` | `webapp:3001` |
+| `crm.ratehunter.net` | `twenty:3000` |
+| `n8n.ratehunter.net` | `n8n:5678` |
+| `activepieces.ratehunter.net` | `activepieces:80` |
+| `nexus.ratehunter.net` | `nexus:3000` |
+| `gitea.ratehunter.net` | `gitea:3000` |
+| `grafana.ratehunter.net` | `grafana:3000` |
+| `prometheus.ratehunter.net` | `prometheus:9090` |
+| `loki.ratehunter.net` | `loki:3100` |
+| `cadvisor.ratehunter.net` | `cadvisor:8080` |
+| `openwebui.ratehunter.net` | `openwebui:8080` |
+| `openmemory.ratehunter.net` | `openmemory-mcp:8765` |
+| `letta.ratehunter.net` | `letta:8283` |
+| `paperclip.ratehunter.net` | `paperclip:3100` |
+| `clawteam.ratehunter.net` | `clawteam:8080` |
 
 ## Restricted non-HTTP
 
@@ -49,7 +51,7 @@ Never publish direct DNS or Cloudflared routes for:
 - Worker `vllm`, `ollama`, model cache, and local LiteLLM ports unless Access-gated for a narrowly scoped internal API
 - Worker exporter ports `9100` and `9835`
 - Raw voice/media transport ports
-- Internal MCP bridges such as `infisical-mcp`, `paperclip-mcp`, and `gitea-mcp`
+- Internal MCP bridges unless they are explicitly owner-only Access-gated in `docs/cloudflared/hostname-matrix.md`
 
 ## Enforcement rules
 
@@ -61,6 +63,6 @@ Never publish direct DNS or Cloudflared routes for:
 ## Verification commands
 
 ```bash
-rg -n "hostname:|service:" infra/hosts/oracle-vps/cloudflared-config.yml
-rg -n "postgres|redis|qdrant|vllm|ollama|9835|9100" infra/hosts/oracle-vps/cloudflared-config.yml
+rg -n "hostname:|service:" docs/cloudflared/*.yml
+rg -n "postgres|redis|qdrant|vllm|ollama|9835|9100" docs/cloudflared/*.yml
 ```

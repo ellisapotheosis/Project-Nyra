@@ -15,6 +15,7 @@ const links = [
   { href: "/applications", label: "Applications" },
   { href: "/admin", label: "Admin" },
   { href: "/tools/openclaw", label: "OpenClaw" },
+  { href: process.env.NEXT_PUBLIC_NEXUS_UI_URL ?? "https://nexus.ratehunter.net", label: "Nexus", external: true },
 ]
 
 export function SiteHeader() {
@@ -44,6 +45,8 @@ export function SiteHeader() {
             <Link
               key={link.href}
               href={link.href}
+              target={link.external ? "_blank" : undefined}
+              rel={link.external ? "noreferrer" : undefined}
               className={cn(buttonVariants({ variant: "ghost", size: "sm" }), "rounded-full")}
             >
               {link.label}

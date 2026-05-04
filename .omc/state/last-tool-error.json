@@ -1,7 +1,7 @@
 {
   "tool_name": "Bash",
-  "tool_input_preview": "{\"command\":\"echo '{\\\"event\\\":\\\"reminder\\\",\\\"client\\\":\\\"claude-code\\\",\\\"message\\\":\\\"AAAK:2025-07-14|ratehunter|RateHunter core value: financial anxiety reduction. Real competition is inaction. Position...",
-  "error": "Exit code 2\nusage: mempalace hook run [-h] --hook {session-start,stop,precompact}\n                          --harness {claude-code,codex}\nmempalace hook run: error: the following arguments are required: --hook, --harness",
-  "timestamp": "2026-04-28T16:59:53.534Z",
+  "tool_input_preview": "{\"command\":\"mempalace status 2>&1\",\"description\":\"Verify MemPalace indexed the session\"}",
+  "error": "Exit code 139",
+  "timestamp": "2026-05-04T15:19:55.376Z",
   "retry_count": 2
 }

@@ -8,10 +8,10 @@ autonomy:
 mcp:
   enabled: true
   servers:
-    nexus-router: "http://100.64.0.1:8080/mcp/sse"
+    nexus-router: "http://127.0.0.1:6000/mcp"
     serena:
-      command: "uv"
-      args: ["run", "--project", "services/serena-mcp", "serena-mcp-server"]
+      command: "serena"
+      args: ["start-mcp-server", "--project-from-cwd", "--context=claude-code"]
 
 features:
   experimental_agent_teams: true

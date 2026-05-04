@@ -1,6 +1,6 @@
 # 12 Oracle Deployment
 
-Updated: 2026-04-27
+Updated: 2026-04-30
 
 ## Primary compose
 
@@ -16,11 +16,11 @@ Updated: 2026-04-27
 
 | Service group | Services |
 |---|---|
-| CRM and workflow | `twenty`, `twenty-worker`, `twenty-mcp`, `n8n`, `crm-api`, `campaign_engine` |
+| CRM and workflow | `twenty`, `twenty-worker`, `twenty-mcp`, `activepieces`, `n8n`, `crm-api`, `campaign_engine` |
 | Quote and document handling | `quote-api`, `quote_engine`, `paperclip`, `paperclip-mcp` |
 | CI/CD | `gitea`, `gitea-runner`, `github-mirror-sync`, `gitea-mcp` |
 | Observability | `prometheus`, `loki`, `grafana`, `cadvisor` |
-| Runtime memory | `mem0-rest`, `falkordb`, `qdrant`, `mempalace-mcp` |
+| Runtime memory | `mem0-rest`, `falkordb`, `qdrant`, `letta`, `mem-os`, `openmemory-mcp`, `mempalace-mcp` |
 | Operations | `cloudflared`, `portainer-edge-agent`, `syncthing` profile |
 
 ## Key ports
@@ -30,6 +30,7 @@ Updated: 2026-04-27
 | Twenty | `3000` |
 | Gitea | `3001`, `2222` |
 | n8n | `5678` |
+| Activepieces | `8080 -> 80` |
 | Grafana | `3003 -> 3000` |
 | Prometheus | `9090` |
 | Open WebUI | `8088 -> 8080` |
@@ -37,6 +38,24 @@ Updated: 2026-04-27
 | CRM API | `4001` |
 | Paperclip | `3111 -> 3100` |
 | Oracle Nexus | `6000 -> 3000` |
+| OpenMemory MCP | `8765` |
+| Letta | `8283` |
+| memOS | `8085` |
+
+## Cloudflared package
+
+Use `docs/cloudflared/` for the current `ratehunter.net` public hostname
+package. The canonical public app hostnames are:
+
+| Hostname | Service |
+|---|---|
+| `nyra.ratehunter.net` | WebApp |
+| `crm.ratehunter.net` | Twenty CRM |
+| `n8n.ratehunter.net` | n8n |
+| `activepieces.ratehunter.net` | Activepieces |
+| `nexus.ratehunter.net` | Oracle Nexus |
+| `grafana.ratehunter.net` | Grafana |
+| `paperclip.ratehunter.net` | Paperclip |
 
 ## Placement rationale
 
@@ -58,6 +77,7 @@ make paperclip-up
 - [ ] `.env.gitea` exists on Oracle for `docker-compose.gitea.yml`.
 - [ ] Oracle Docker context or SSH target is reachable.
 - [ ] Cloudflared token exists in Infisical or host environment.
+- [ ] Public hostnames match `docs/cloudflared/hostname-matrix.md`.
 - [ ] Public hostnames are Access-gated except marketing Pages.
 - [ ] Datastore ports are firewalled from the public internet.
 

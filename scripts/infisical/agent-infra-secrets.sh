@@ -6,6 +6,8 @@ cd "$ROOT_DIR"
 
 PROJECT_ID="${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}"
 INFISICAL_ENV_NAME="${INFISICAL_ENV:-dev}"
+INFISICAL_ENV_NAMES="${INFISICAL_ENVS:-${INFISICAL_ENV:-dev}}"
+INFISICAL_SOURCE_ENV="${INFISICAL_SOURCE_ENV:-prod}"
 GENERATED_ENV="secrets/infisical/agent-infra.generated.env"
 
 usage() {
@@ -16,6 +18,11 @@ generate        Create/reuse local generated secrets in secrets/infisical/agent-
 audit           Check which required secrets exist in Infisical and local environment without printing values.
 push            Push generated/retrieved values to Infisical.
 export-template Print a key/path manifest as CSV.
+
+Environment selection:
+  INFISICAL_ENV=prod                 single environment
+  INFISICAL_ENVS=dev,stag,prod       multiple environments
+  INFISICAL_SOURCE_ENV=prod          fallback source env for existing secret values
 USAGE
 }
 
@@ -93,44 +100,24 @@ load_local_sources() {
 manifest_csv() {
   cat <<'CSV'
 path,key,source,required
-/oracle/agent-utils,PAPERCLIP_DB_PASSWORD,generated,yes
-/oracle/agent-utils,PAPERCLIP_SESSION_SECRET,generated,yes
-/oracle/agent-utils,SEARXNG_SECRET,generated,yes
-/oracle/agent-utils,BROWSERLESS_TOKEN,generated,yes
-/oracle/memory,LETTA_DB_PASSWORD,generated,yes
-/oracle/memory,LETTA_SERVER_PASSWORD,generated,yes
-/oracle/memory,QDRANT_API_KEY,generated,yes
-/shared/providers,OPENAI_API_KEY,environment,yes
-/shared/providers,ANTHROPIC_API_KEY,environment,no
-/shared/providers,LITELLM_MASTER_KEY,environment,yes
-/shared/composio,COMPOSIO_API_KEY,manual,yes
-/shared/composio,COMPOSIO_MCP_SERVER_ID,manual,yes
-/shared/composio,COMPOSIO_MCP_URL,manual,yes
-/shared/composio,COMPOSIO_DEFAULT_USER_ID,config,yes
-/shared/composio,COMPOSIO_MCP_TRANSPORT,config,yes
-/shared/composio,COMPOSIO_MCP_SERVER_NAME,config,yes
-/shared/composio,COMPOSIO_TOOLKITS_ALLOW,config,yes
-/shared/composio,COMPOSIO_EXECUTION_POLICY,config,yes
-/worker-rtx3060/voice,RTX3060_LAN_IP,config,yes
-/worker-rtx3060/voice,RTX3090TI_LAN_IP,config,yes
-/worker-rtx3060/voice,RTX5090_LAN_IP,config,yes
-/worker-rtx3060/voice,VOICE_PTP_INTERFACE,config,yes
-/worker-rtx3060/voice,ASSISTANT_GATEWAY_URL,config,yes
-/worker-rtx3090ti/voice,RTX3060_LAN_IP,config,yes
-/worker-rtx3090ti/voice,RTX3090TI_LAN_IP,config,yes
-/worker-rtx3090ti/voice,RTX5090_LAN_IP,config,yes
-/worker-rtx3090ti/voice,VOICE_PTP_INTERFACE,config,yes
-/worker-rtx3090ti/voice,ASSISTANT_GATEWAY_URL,config,yes
-/worker-rtx3090ti/voice,LITELLM_BASE_URL,config,yes
-/worker-rtx3090ti/voice,LITELLM_API_KEY,environment,yes
-/worker-rtx3090ti/voice,MEMORY_BASE_URL,config,yes
-/worker-rtx3090ti/voice,COMPOSIO_API_KEY,manual,yes
-/worker-rtx3090ti/voice,COMPOSIO_MCP_URL,manual,yes
-/worker-rtx5090/voice,RTX3060_LAN_IP,config,yes
-/worker-rtx5090/voice,RTX3090TI_LAN_IP,config,yes
-/worker-rtx5090/voice,RTX5090_LAN_IP,config,yes
-/worker-rtx5090/voice,VOICE_PTP_INTERFACE,config,yes
-/worker-rtx5090/voice,ASSISTANT_GATEWAY_URL,config,yes
+/clients/paperclip,PAPERCLIP_DB_PASSWORD,generated,yes
+/clients/paperclip,PAPERCLIP_SESSION_SECRET,generated,yes
+/clients/searxng,SEARXNG_SECRET,generated,yes
+/clients/browserless,BROWSERLESS_TOKEN,generated,yes
+/clients/letta,LETTA_DB_PASSWORD,generated,yes
+/clients/letta,LETTA_SERVER_PASSWORD,generated,yes
+/databases/qdrant-local,QDRANT_API_KEY,generated,yes
+/providers/openai,OPENAI_API_KEY,environment,yes
+/providers/anthropic,ANTHROPIC_API_KEY,environment,no
+/providers/litellm,LITELLM_MASTER_KEY,environment,yes
+/clients/composio,COMPOSIO_API_KEY,manual,yes
+/clients/composio,COMPOSIO_MCP_SERVER_ID,manual,yes
+/clients/composio,COMPOSIO_MCP_URL,manual,yes
+/clients/composio,COMPOSIO_DEFAULT_USER_ID,config,yes
+/clients/composio,COMPOSIO_MCP_TRANSPORT,config,yes
+/clients/composio,COMPOSIO_MCP_SERVER_NAME,config,yes
+/clients/composio,COMPOSIO_TOOLKITS_ALLOW,config,yes
+/clients/composio,COMPOSIO_EXECUTION_POLICY,config,yes
 CSV
 }
 
@@ -139,18 +126,23 @@ value_for_key() {
   printf '%s' "${!key:-}"
 }
 
+split_envs() {
+  tr ',' '\n' <<<"$INFISICAL_ENV_NAMES" | sed 's/^[[:space:]]*//; s/[[:space:]]*$//' | awk 'NF'
+}
+
 is_placeholder() {
   local value="$1"
   [[ -z "$value" || "$value" == replace-me || "$value" == replace-* || "$value" == *'${'* || "$value" == change-me* ]]
 }
 
 infisical_get_status() {
-  local path="$1"
-  local key="$2"
+  local env_name="$1"
+  local path="$2"
+  local key="$3"
   local value
   value="$(infisical secrets get "$key" \
     --projectId "$PROJECT_ID" \
-    --env "$INFISICAL_ENV_NAME" \
+    --env "$env_name" \
     --path "$path" \
     --plain \
     --silent 2>/dev/null || true)"
@@ -161,13 +153,90 @@ infisical_get_status() {
   fi
 }
 
+infisical_secret_value() {
+  local env_name="$1"
+  local path="$2"
+  local key="$3"
+  local value
+  value="$(infisical secrets get "$key" \
+    --projectId "$PROJECT_ID" \
+    --env "$env_name" \
+    --path "$path" \
+    --plain \
+    --silent 2>/dev/null || true)"
+  printf '%s' "$value"
+}
+
+ensure_folder() {
+  local env_name="$1"
+  local full="$2"
+  local parent="/"
+  local current=""
+  local part
+  IFS=/ read -ra parts <<<"${full#/}"
+  for part in "${parts[@]}"; do
+    [[ -n "$part" ]] || continue
+    if [[ "$parent" == "/" ]]; then
+      current="/$part"
+    else
+      current="$parent/$part"
+    fi
+    if ! infisical secrets folders get \
+      --projectId "$PROJECT_ID" \
+      --env "$env_name" \
+      --path "$parent" \
+      --output json \
+      --silent 2>/dev/null | jq -e --arg name "$part" '.[]? | select(.folderName == $name)' >/dev/null; then
+      infisical secrets folders create \
+        --projectId "$PROJECT_ID" \
+        --env "$env_name" \
+        --path "$parent" \
+        --name "$part" \
+        --silent >/dev/null
+      printf 'created folder %-24s %s\n' "$env_name" "$current"
+    fi
+    parent="$current"
+  done
+}
+
+value_for_manifest_entry() {
+  local env_name="$1"
+  local path="$2"
+  local key="$3"
+  local source="$4"
+  local value
+
+  value="$(value_for_key "$key")"
+  if ! is_placeholder "$value"; then
+    printf '%s' "$value"
+    return 0
+  fi
+
+  value="$(infisical_secret_value "$env_name" "$path" "$key")"
+  if [[ -n "$value" ]]; then
+    printf '%s' "$value"
+    return 0
+  fi
+
+  if [[ "$env_name" != "$INFISICAL_SOURCE_ENV" ]]; then
+    value="$(infisical_secret_value "$INFISICAL_SOURCE_ENV" "$path" "$key")"
+    if [[ -n "$value" ]]; then
+      printf '%s' "$value"
+      return 0
+    fi
+  fi
+
+  printf ''
+}
+
 set_secret() {
-  local path="$1"
-  local key="$2"
-  local value="$3"
+  local env_name="$1"
+  local path="$2"
+  local key="$3"
+  local value="$4"
   infisical secrets set "$key=$value" \
     --projectId "$PROJECT_ID" \
-    --env "$INFISICAL_ENV_NAME" \
+    --env "$env_name" \
     --path "$path" \
     --silent >/dev/null
 }
@@ -175,17 +244,20 @@ set_secret() {
 audit() {
   load_local_sources
   printf 'Infisical project: %s\n' "$PROJECT_ID"
-  printf 'Infisical env: %s\n' "$INFISICAL_ENV_NAME"
-  printf '%-28s %-34s %-12s %-12s\n' "PATH" "KEY" "LOCAL" "INFISICAL"
-  manifest_csv | tail -n +2 | while IFS=',' read -r path key source required; do
-    value="$(value_for_key "$key")"
-    if is_placeholder "$value"; then
-      local_status="missing"
-    else
-      local_status="available"
-    fi
-    remote_status="$(infisical_get_status "$path" "$key")"
-    printf '%-28s %-34s %-12s %-12s\n' "$path" "$key" "$local_status" "$remote_status"
+  printf 'Infisical envs: %s\n' "$INFISICAL_ENV_NAMES"
+  split_envs | while read -r env_name; do
+    printf '\n[%s]\n' "$env_name"
+    printf '%-28s %-34s %-12s %-12s\n' "PATH" "KEY" "LOCAL/SOURCE" "INFISICAL"
+    manifest_csv | tail -n +2 | while IFS=',' read -r path key source required; do
+      value="$(value_for_manifest_entry "$env_name" "$path" "$key" "$source")"
+      if is_placeholder "$value"; then
+        local_status="missing"
+      else
+        local_status="available"
+      fi
+      remote_status="$(infisical_get_status "$env_name" "$path" "$key")"
+      printf '%-28s %-34s %-12s %-12s\n' "$path" "$key" "$local_status" "$remote_status"
+    done
   done
 }
 
@@ -194,16 +266,20 @@ push() {
   local pushed=0
   local skipped=0
 
-  manifest_csv | tail -n +2 | while IFS=',' read -r path key source required; do
-    value="$(value_for_key "$key")"
-    if is_placeholder "$value"; then
-      printf 'skip %-34s missing local value\n' "$key"
-      skipped=$((skipped + 1))
-      continue
-    fi
-    set_secret "$path" "$key" "$value"
-    printf 'set  %-34s %s\n' "$key" "$path"
-    pushed=$((pushed + 1))
+  split_envs | while read -r env_name; do
+    printf '[%s]\n' "$env_name"
+    manifest_csv | tail -n +2 | while IFS=',' read -r path key source required; do
+      ensure_folder "$env_name" "$path"
+      value="$(value_for_manifest_entry "$env_name" "$path" "$key" "$source")"
+      if is_placeholder "$value"; then
+        printf 'skip %-34s missing value for %s\n' "$key" "$env_name"
+        skipped=$((skipped + 1))
+        continue
+      fi
+      set_secret "$env_name" "$path" "$key" "$value"
+      printf 'set  %-34s %s %s\n' "$key" "$env_name" "$path"
+      pushed=$((pushed + 1))
+    done
   done
 }
 

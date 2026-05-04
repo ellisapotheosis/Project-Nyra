@@ -1,19 +1,24 @@
 # 11 - Public vs Private Exposure
 
+Updated: 2026-04-30
+
 ## Recommended exposure policy
 
 ### Public via Cloudflared (internet-facing)
-- `mcp.nyra.dev` -> `nexus-router:7000` (primary API ingress)
-- `api.nyra.dev` -> `litellm:4000` (optional; can remain private if Nexus is sole ingress)
-- `n8n.nyra.dev` -> `n8n:5678` (needed for external webhooks)
-- `chat.nyra.dev` -> `moltbot-web:3030` (end-user chat surface)
-- `landing.ratehunter.net` -> Cloudflare Pages project from `apps/landing/ratehunter-landing`
+- `ratehunter.net` and `www.ratehunter.net` -> Cloudflare Pages marketing site.
+- `nyra.ratehunter.net` -> WebApp.
+- `crm.ratehunter.net` -> Twenty CRM.
+- `n8n.ratehunter.net` -> n8n.
+- `activepieces.ratehunter.net` -> Activepieces.
+- `nexus.ratehunter.net` -> Nexus Router.
+- Additional Access-gated routes are listed in `docs/cloudflared/hostname-matrix.md`.
 
 ### Private (Tailscale / internal only)
 - Datastores: postgres, redis, mongo, ruvector-postgres
 - Worker inference lanes: 3060/3090/5090 vLLM/Ollama
-- Observability backends: prometheus/loki
-- Admin UIs: openwebui, twentycrm, grafana (unless Cloudflare Access policy is strict)
+- Datastore and vector backends: FalkorDB, Qdrant, Postgres, Redis
+- Raw voice/media transport ports
+- Admin UIs and MCP bridges unless Cloudflare Access policy is strict
 
 ## Rationale
 - Keep blast radius small: only gateway/webhook/chat surfaces public.
@@ -23,13 +28,13 @@
 ## Subdomain map (recommended)
 | Subdomain | Service | Exposure class |
 |---|---|---|
-| `landing.ratehunter.net` | landing page | public (Pages) |
-| `mcp.nyra.dev` | nexus-router | public |
-| `api.nyra.dev` | litellm (optional) | public or private |
-| `n8n.nyra.dev` | n8n | public (auth+access) |
-| `chat.nyra.dev` | moltbot-web/openclaw UI | public |
-| `grafana.nyra.dev` | grafana | private-preferred |
-| `crm.nyra.dev` | twentycrm | private-preferred |
+| `ratehunter.net` | landing page | public Pages |
+| `nyra.ratehunter.net` | webapp | Access-gated |
+| `crm.ratehunter.net` | Twenty CRM | Access-gated |
+| `n8n.ratehunter.net` | n8n | Access-gated |
+| `activepieces.ratehunter.net` | Activepieces | Access-gated |
+| `nexus.ratehunter.net` | Nexus Router | Access-gated |
+| `grafana.ratehunter.net` | Grafana | Access-gated |
 
 ## GPU routing (Agent C)
 - Orchestrator route order (default):

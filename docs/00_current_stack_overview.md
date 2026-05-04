@@ -1,6 +1,6 @@
 # 00 Current Stack Overview
 
-Updated: 2026-04-27
+Updated: 2026-04-30
 
 ## Source of truth
 
@@ -25,7 +25,7 @@ Core services:
 | `redis` | `6379` | Local cache for control-plane services |
 | `litellm` | `4000` | Local model gateway |
 | `openclaw-gateway` | `8001` | Profile-gated app service |
-| `cloudflared` | none | Token-managed tunnel runner |
+| `cloudflared` | none | Optional tunnel runner; public DNS plan is consolidated in `docs/cloudflared/` |
 | `portainer` | `9000`, `9443` | Local Portainer server |
 | `portainer-edge-agent-local` | none | Local edge agent |
 | `portainer-edge-agent` | none | Edge agent profile |
@@ -47,8 +47,9 @@ Primary services in `infra/hosts/oracle-vps/docker-compose.yml`:
 
 | Service | Port(s) | Notes |
 |---|---:|---|
-| `twenty` | `3000` | CRM app |
+| `twenty` | `3000` | CRM app; canonical public hostname `crm.ratehunter.net` |
 | `twenty-mcp` | `8400` | CRM MCP/API bridge |
+| `activepieces` | `8080 -> 80` | Internal automation UI/runtime |
 | `n8n` | `5678` | Internal workflow automation |
 | `quote-api` | `7070` | Quote service API |
 | `grafana` | `3003 -> 3000` | Observability UI |
@@ -57,6 +58,9 @@ Primary services in `infra/hosts/oracle-vps/docker-compose.yml`:
 | `cadvisor` | `8081 -> 8080` | Container metrics |
 | `openwebui` | `8088 -> 8080` | Internal model workbench |
 | `mem0-rest` | `5000` | Runtime memory REST API |
+| `letta` | `8283` | Memory manager UI/API |
+| `mem-os` | `8085` | MemoryTensor/memOS service |
+| `openmemory-mcp` | `8765` | OpenMemory MCP HTTP/SSE bridge |
 | `falkordb` | `6381 -> 6379` | Graph memory store |
 | `qdrant` | internal | Vector store |
 | `infisical-mcp` | `8766` | Secrets MCP bridge |
@@ -70,6 +74,8 @@ Primary services in `infra/hosts/oracle-vps/docker-compose.yml`:
 | `gitea-mcp` | `3101` | Gitea MCP bridge |
 | `crm-api` | `4001` | Twenty integration boundary |
 | `campaign_engine` | `8020` | Profile-gated app service |
+| `webapp` | `3001` | App overlay; canonical public hostname `nyra.ratehunter.net` |
+| `clawteam` | `8090 -> 8080` | Optional HKUDS/ClawTeam assistant surface |
 | `syncthing` | profile-gated | Optional sync service |
 
 ## Worker plane
@@ -104,6 +110,7 @@ Optional worker overlays:
 ## Policy notes
 
 - Public ingress should stay Cloudflared-only.
+- Use `docs/cloudflared/` as the current hostname, Cloudflare Access, and tunnel-config package for `ratehunter.net`.
 - Datastores remain private and must not receive public DNS hostnames.
 - Worker inference ports are for private mesh/Tailscale access, not public exposure.
 - Some compose files still contain components that conflict with the current architecture rules; treat those as cleanup targets before production promotion.

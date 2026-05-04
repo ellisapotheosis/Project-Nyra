@@ -1,6 +1,6 @@
 # 02 Ports Registry
 
-Updated: 2026-04-27
+Updated: 2026-04-30
 
 This registry is generated manually from `infra/hosts/*/docker-compose*.yml` and should be treated as a snapshot of the active host-scoped stack.
 
@@ -22,6 +22,7 @@ This registry is generated manually from `infra/hosts/*/docker-compose*.yml` and
 |---|---|---:|---:|---|
 | `twenty` | `infra/hosts/oracle-vps/docker-compose.yml` | `3000` | `3000` | Access-gated |
 | `twenty-mcp` | `infra/hosts/oracle-vps/docker-compose.yml` | `8400` | `8400` | private |
+| `activepieces` | `infra/hosts/oracle-vps/docker-compose.yml` | `8080` | `80` | Access-gated |
 | `n8n` | `infra/hosts/oracle-vps/docker-compose.yml` | `5678` | `5678` | Access-gated |
 | `quote-api` | `infra/hosts/oracle-vps/docker-compose.yml` | `7070` | `7070` | private/API gated |
 | `prometheus` | `infra/hosts/oracle-vps/docker-compose.yml` | `9090` | `9090` | Access-gated only |
@@ -31,6 +32,9 @@ This registry is generated manually from `infra/hosts/*/docker-compose*.yml` and
 | `openwebui` | `infra/hosts/oracle-vps/docker-compose.yml` | `8088` | `8080` | Access-gated |
 | `falkordb` | `infra/hosts/oracle-vps/docker-compose.yml` | `6381` | `6379` | private |
 | `mem0-rest` | `infra/hosts/oracle-vps/docker-compose.yml` | `5000` | `5000` | private |
+| `letta` | `infra/hosts/oracle-vps/docker-compose.yml` | `8283` | `8283` | Access-gated if enabled |
+| `mem-os` | `infra/hosts/oracle-vps/docker-compose.yml` | `8085` | `8085` | Access-gated if enabled |
+| `openmemory-mcp` | `infra/hosts/oracle-vps/docker-compose.yml` | `8765` | `8765` | owner-only Access-gated |
 | `infisical-mcp` | `infra/hosts/oracle-vps/docker-compose.yml` | `8766` | `8766` | private |
 | `mempalace-mcp` | `infra/hosts/oracle-vps/docker-compose.yml` | `8002` | `8000` | private |
 | `gitea` | `infra/hosts/oracle-vps/docker-compose.yml` | `3001`, `2222` | `3000`, `2222` | UI Access-gated; SSH restricted |
@@ -43,6 +47,12 @@ This registry is generated manually from `infra/hosts/*/docker-compose*.yml` and
 | `agentmemory` | `infra/hosts/oracle-vps/docker-compose.agentmemory.yml` | `3111`, `3112`, `3113` | `3111`, `3112`, `3113` | Tailscale/private bind |
 | `webapp` | `infra/hosts/oracle-vps/docker-compose.apps.yml` | `3001` | `3001` | Access-gated |
 | `clawteam` | `infra/hosts/oracle-vps/docker-compose.clawteam.yml` | `8090` | `8080` | Access-gated if enabled |
+
+## Cloudflared hostname package
+
+The current `ratehunter.net` Cloudflared setup package lives in `docs/cloudflared/`.
+Use that package for public hostnames, Access policy classes, and local-managed
+`cloudflared` YAML templates. This registry remains the port evidence source.
 
 ## Worker RTX 3060
 
