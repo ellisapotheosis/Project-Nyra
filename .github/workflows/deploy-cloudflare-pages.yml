@@ -149,31 +149,88 @@ jobs:
           HAS_PAGES_ALIAS_TOKEN: ${{ secrets.CLOUDFLARE_PAGES_API_TOKEN != '' }}
           HAS_PAGES_ALIAS_ACCOUNT: ${{ secrets.CLOUDFLARE_PAGES_ACCOUNT_ID != '' }}
           HAS_INFISICAL_TOKEN: ${{ secrets.INFISICAL_TOKEN != '' }}
+          GITHUB_CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          GITHUB_CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          INFISICAL_SYNC_CLOUDFLARE_API_TOKEN: ${{ secrets.INFISICAL_CLOUDFLARE_API_TOKEN }}
+          INFISICAL_SYNC_CLOUDFLARE_ACCOUNT_ID: ${{ secrets.INFISICAL_CLOUDFLARE_ACCOUNT_ID }}
+          GITHUB_CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+          GITHUB_CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+          GITHUB_CLOUDFLARE_PAGES_API_TOKEN: ${{ secrets.CLOUDFLARE_PAGES_API_TOKEN }}
+          GITHUB_CLOUDFLARE_PAGES_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_PAGES_ACCOUNT_ID }}
         run: |
           echo "🔐 Checking secrets configuration..."
 
+          is_placeholder() {
+            local value="$1"
+            case "$value" in
+              ""|"\$"*|"your_"*|"YOUR_"*|"<"*">")
+                return 0
+                ;;
+              *)
+                return 1
+                ;;
+            esac
+          }
+
+          is_account_id() {
+            printf '%s' "$1" | grep -Eq '^[A-Fa-f0-9]{32}$'
+          }
+
+          has_valid_pair() {
+            local source="$1"
+            local token="$2"
+            local account_id="$3"
+
+            if ! is_placeholder "$token" && is_account_id "$account_id"; then
+              echo "✅ Valid GitHub secret pair found: $source"
+              return 0
+            fi
+
+            if ! is_placeholder "$token" || ! is_placeholder "$account_id"; then
+              echo "::warning::GitHub secret pair '$source' exists but account ID is missing, placeholder, or not a 32-character hex value."
+            fi
+
+            return 1
+          }
+
           HAS_GITHUB_SYNCED_PAIR=false
+          HAS_VALID_GITHUB_SYNCED_PAIR=false
           if [ "$HAS_CLOUDFLARE_TOKEN" == "true" ] && [ "$HAS_CLOUDFLARE_ACCOUNT" == "true" ]; then
             HAS_GITHUB_SYNCED_PAIR=true
             echo "✅ GitHub secret pair found: CLOUDFLARE_API_TOKEN / CLOUDFLARE_ACCOUNT_ID"
+            if has_valid_pair "CLOUDFLARE_API_TOKEN / CLOUDFLARE_ACCOUNT_ID" "$GITHUB_CLOUDFLARE_API_TOKEN" "$GITHUB_CLOUDFLARE_ACCOUNT_ID"; then
+              HAS_VALID_GITHUB_SYNCED_PAIR=true
+            fi
           fi
           if [ "$HAS_INFISICAL_SYNC_TOKEN" == "true" ] && [ "$HAS_INFISICAL_SYNC_ACCOUNT" == "true" ]; then
             HAS_GITHUB_SYNCED_PAIR=true
             echo "✅ GitHub secret pair found: INFISICAL_CLOUDFLARE_API_TOKEN / INFISICAL_CLOUDFLARE_ACCOUNT_ID"
+            if has_valid_pair "INFISICAL_CLOUDFLARE_API_TOKEN / INFISICAL_CLOUDFLARE_ACCOUNT_ID" "$INFISICAL_SYNC_CLOUDFLARE_API_TOKEN" "$INFISICAL_SYNC_CLOUDFLARE_ACCOUNT_ID"; then
+              HAS_VALID_GITHUB_SYNCED_PAIR=true
+            fi
           fi
           if [ "$HAS_CF_ALIAS_TOKEN" == "true" ] && [ "$HAS_CF_ALIAS_ACCOUNT" == "true" ]; then
             HAS_GITHUB_SYNCED_PAIR=true
             echo "✅ GitHub secret pair found: CF_API_TOKEN / CF_ACCOUNT_ID"
+            if has_valid_pair "CF_API_TOKEN / CF_ACCOUNT_ID" "$GITHUB_CF_API_TOKEN" "$GITHUB_CF_ACCOUNT_ID"; then
+              HAS_VALID_GITHUB_SYNCED_PAIR=true
+            fi
           fi
           if [ "$HAS_PAGES_ALIAS_TOKEN" == "true" ] && [ "$HAS_PAGES_ALIAS_ACCOUNT" == "true" ]; then
             HAS_GITHUB_SYNCED_PAIR=true
             echo "✅ GitHub secret pair found: CLOUDFLARE_PAGES_API_TOKEN / CLOUDFLARE_PAGES_ACCOUNT_ID"
+            if has_valid_pair "CLOUDFLARE_PAGES_API_TOKEN / CLOUDFLARE_PAGES_ACCOUNT_ID" "$GITHUB_CLOUDFLARE_PAGES_API_TOKEN" "$GITHUB_CLOUDFLARE_PAGES_ACCOUNT_ID"; then
+              HAS_VALID_GITHUB_SYNCED_PAIR=true
+            fi
           fi
 
           # Check GitHub secrets, including values synced from Infisical.
-          if [ "$HAS_GITHUB_SYNCED_PAIR" == "true" ]; then
+          if [ "$HAS_VALID_GITHUB_SYNCED_PAIR" == "true" ]; then
             echo "has_direct_secrets=true" >> $GITHUB_OUTPUT
-            echo "✅ GitHub/Infisical-synced Cloudflare secrets found"
+            echo "✅ Valid GitHub/Infisical-synced Cloudflare secrets found"
+          elif [ "$HAS_GITHUB_SYNCED_PAIR" == "true" ]; then
+            echo "has_direct_secrets=false" >> $GITHUB_OUTPUT
+            echo "⚠️ GitHub/Infisical-synced Cloudflare secrets exist but none contain a valid account ID"
           else
             echo "has_direct_secrets=false" >> $GITHUB_OUTPUT
             echo "⚠️ No GitHub-synced Cloudflare credential pair found"
@@ -190,7 +247,7 @@ jobs:
           fi
 
           # Determine deployment method
-          if [ "$HAS_GITHUB_SYNCED_PAIR" == "true" ]; then
+          if [ "$HAS_VALID_GITHUB_SYNCED_PAIR" == "true" ]; then
             echo "deploy_method=github-synced" >> $GITHUB_OUTPUT
             echo "📝 Will resolve Cloudflare credentials from GitHub secrets, including Infisical-synced aliases"
           elif [ "$HAS_INFISICAL_TOKEN" == "true" ]; then
