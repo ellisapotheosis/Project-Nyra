@@ -525,12 +525,9 @@ data/gitea-db/
 
 ################################################################################
 ################################################################################
-<<<<<<< HEAD
 # Archon runtime artifacts (never commit)
 .archon/mcp/          # May contain env var references
 
 # MemPalace per-project files (issue #185)
 mempalace.yaml
 entities.json
-=======
->>>>>>> github/main
