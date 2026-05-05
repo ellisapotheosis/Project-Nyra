@@ -1,11 +1,4 @@
 name = "ratehunter-landing"
-main = ".open-next/worker.js"
 pages_build_output_dir = ".open-next"
 compatibility_date = "2026-03-06"
 compatibility_flags = ["nodejs_compat"]
-
-[assets]
-directory = ".open-next/assets"
-
-[build]
-command = "npm run build:cf"
