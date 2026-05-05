@@ -142,6 +142,12 @@ url = "http://100.64.0.31:8283/mcp"
 [mcp.servers.claudemem]
 url = "http://orchestrator.trex-fiordland.ts.net:37700/mcp"
 
+# Home Assistant: smart home control and HA administration via ha-mcp.
+# The ha-mcp container keeps the long-lived access token in Docker env, not TOML.
+[mcp.servers.homeassistant]
+protocol = "streamable-http"
+url = "http://ha-mcp:8086/mcp"
+
 # ── External / cloud MCP servers ──────────────────────────────────────────────
 
 # Mempalace: memory palace graph-based indexing

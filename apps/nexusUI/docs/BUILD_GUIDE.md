@@ -19,8 +19,8 @@ cp .env.example .env.local
 Defaults assume local tunnels or local services:
 
 ```text
-NEXUS_BASE_URL=http://127.0.0.1:6000
-LITELLM_BASE_URL=http://127.0.0.1:4000
+NEXUS_BASE_URL=http://oracle.trex-fiordland.ts.net:6000
+LITELLM_BASE_URL=http://oracle.trex-fiordland.ts.net:4000
 ```
 
 Leave `NEXUS_CONFIG_APPLY_ENABLED=false` unless an apply adapter has been implemented and reviewed.
@@ -46,16 +46,22 @@ pnpm --filter @nyra/nexus-ui typecheck
 pnpm --filter @nyra/nexus-ui build
 ```
 
-## 5. Deploy On Orchestrator
+## 5. Deploy On Oracle VPS Or Admin Host
 
-Recommended Docker/service shape:
+Grafbase Nexus and LiteLLM are currently Oracle VPS services in:
+
+```text
+infra/hosts/oracle-vps/docker-compose.yml
+```
+
+Recommended UI service shape:
 
 ```bash
 pnpm --filter @nyra/nexus-ui build
 pnpm --filter @nyra/nexus-ui start
 ```
 
-Bind the service privately on the orchestrator, then expose it through Cloudflared with Cloudflare Access.
+Bind the service privately, then expose it through Cloudflared with Cloudflare Access.
 
 Suggested hostname:
 
@@ -91,8 +97,8 @@ The next implementation step is an explicit apply adapter:
 1. Read `config/nexus-ui.settings.json`.
 2. Generate version-specific Nexus TOML and LiteLLM YAML.
 3. Write rendered config to a staging path.
-4. Validate with the target Nexus/LiteLLM versions.
-5. Restart or reload services through orchestrator-owned automation.
+4. Validate with the target Nexus/LiteLLM versions on Oracle VPS.
+5. Restart or reload services through host-owned automation in `infra/hosts/oracle-vps`.
 6. Record the action in logs.
 
 The adapter must refuse to run unless:

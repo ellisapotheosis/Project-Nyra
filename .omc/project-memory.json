@@ -289,6 +289,12 @@
       "type": "file"
     },
     {
+      "path": ".mcp.json",
+      "accessCount": 4,
+      "lastAccessed": 1777942632118,
+      "type": "file"
+    },
+    {
       "path": ".codex/config.toml",
       "accessCount": 3,
       "lastAccessed": 1777393588941,
@@ -305,12 +311,6 @@
       "accessCount": 1,
       "lastAccessed": 1775955019123,
       "type": "directory"
-    },
-    {
-      "path": ".mcp.json",
-      "accessCount": 1,
-      "lastAccessed": 1777329947174,
-      "type": "file"
     },
     {
       "path": ".serena/project.yml",

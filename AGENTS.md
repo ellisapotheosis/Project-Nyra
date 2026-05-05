@@ -41,28 +41,23 @@ The control plane is split between the local **orchestrator** (MinisForum) and t
 - LiteLLM
 - Prometheus / Loki / Grafana (LAN)
 - Portainer Server
-<<<<<<< HEAD
 - n8n (Internal)
-- OpenClaw Gateway / Studio
+- OpenClaw Gateway
+- OpenClaw Studio
 - Pocket TTS
 - Syncthing (Cluster Sync)
+- Open WebUI
+- Quote API
+- Campaign Engine
+- Mem0
+- Cloudflared Tunnel (Public Ingress)
 
 #### Oracle-VPS (Cloud)
 - Twenty CRM (System of Record)
 - Gitea
 - Activepieces
 - Qdrant / FalkorDB
-=======
-- n8n
-- Twenty CRM
-- OpenClaw Gateway
-- OpenClaw Studio
->>>>>>> github/main
-- Open WebUI
-- Quote API
-- Campaign Engine
 - Mem0
-- Cloudflared Tunnel (Public Ingress)
 
 ### Data Synchronization
 - **Syncthing** is used across all 4 local nodes (orchestrator, rtx5090, rtx3090ti, rtx3060) to sync the `~/` folder.
@@ -141,7 +136,7 @@ Agents must place work in the correct location.
 - `services/*` → backend business services
 - `packages/*` → shared libraries, types, domain modules
 - `workflows/n8n/*` → n8n workflow JSONs
-- `deploy/*` → per-node deployment files
+- `infra/hosts/<host-name>/*` → the only valid per-host Docker Compose and deployment files
 - `ops/*` → scripts, tmux, profiles, operational helpers
 - `docs/*` → architecture, execution plans, manual steps
 
@@ -170,87 +165,6 @@ Work is only done when:
 - smoke checks pass
 - no deprecated architecture is reintroduced
 
-
-<<<<<<< HEAD
-<claude-mem-context>
-# Memory Context
-
-# [project-nyra] recent context, 2026-05-04 10:57am PDT
-
-Legend: 🎯session 🔴bugfix 🟣feature 🔄refactor ✅change 🔵discovery ⚖️decision 🚨security_alert 🔐security_note
-Format: ID TIME TYPE TITLE
-Fetch details: get_observations([IDs]) | Search: mem-search skill
-
-Stats: 50 obs (18,266t read) | 964,124t work | 98% savings
-
-### Apr 28, 2026
-S12 Add wsh Wave Terminal badge notification hooks to both project-nyra local and global Ubuntu ~/.claude/settings.json, merging with all existing hook entries (Apr 28, 5:54 AM)
-S13 Add wsh Wave Terminal badge notification hooks to both project-nyra local and global ~/.claude/settings.json — task fully completed with jq validation and MemPalace KG storage (Apr 28, 5:56 AM)
-S14 SSH cluster configuration fix for multi-machine homelab — user also issued permanent autonomy directive requiring Claude to run all executable commands without delegating back to user (Apr 28, 6:11 AM)
-S16 SSH completely unresponsive on worker-rtx5090 (Windows) — requires local PowerShell fix to restore sshd_config and restart service on port 2224 (Apr 28, 6:15 AM)
-S19 Project-nyra cluster network remediation — Oracle VPS SSH bootstrap problem: correct IP/port found but authentication blocked, awaiting user input on key injection method (Apr 28, 6:15 AM)
-S17 Full stack health audit + access guide for project-nyra: Wave AI + llxprt + OpenClaw + Zellij orchestrator, plus Paperclip, ClawTeam, NerveUI, and Gitea — user uncertain about whether a prior agent's Makefile run left everything healthy (Apr 28, 9:00 AM)
-80 11:01a 🔴 Fixed P1 extends path bug in docker-compose.oracle-core.yml
-83 11:07a 🔵 Merge into fix/ratehunter-landing-deployment blocked by uncommitted local changes
-84 11:10a ✅ Mega-commit of 1115 files staged and committed to fix/ratehunter-landing-deployment
-85 " 🔵 Merge with github/main produced 10 content/modify-delete conflicts
-88 11:35a 🔵 Oracle VPS Port 22 Unreachable via Direct TCP from AlienApoth51 WSL
-### Apr 29, 2026
-S18 Oracle VPS SSH debugging — oci_api_key.pem format conversion attempt, still failing; user clarified correct IP is 100.64.0.3 (Apr 29, 1:11 AM)
-S20 Project-nyra cluster remediation — Oracle VPS SSH bootstrap blocked; session paused awaiting user choice of key injection method (OCI Console vs Infisical project ID) (Apr 29, 1:24 AM)
-S22 omc-setup — environment inspected, awaiting user config target choice (Apr 29, 1:30 AM)
-98 8:55p 🔵 Massive Docs Reorganization In-Progress in project-nyra
-99 " 🔵 Cloudflare Pages Deployment Workflow Uses Infisical for Secrets
-101 " 🔵 Webapp (mortgage-assistant) Has No Auth Middleware and No Edge/Cloudflare Config
-102 " 🔵 Webapp Runtime Dependencies: OpenClaw Proxy, CRM Bridge, and Twenty Services
-103 " 🔵 Oracle VPS Infrastructure Stack: Full Service Composition
-105 " 🔴 Resolved Git Merge Conflicts in project-nyra .claude/settings.json
-100 8:56p 🔵 Landing Page App Structure: Next.js with Cloudflare Workers Target
-104 " 🔵 Webapp SPEC: Canonical App at app.ratehunter.net, Uses pnpm, Nexus Router Port 6000
-106 8:57p ⚖️ Architecture Decision: Landing on Cloudflare Pages, Webapp on Oracle VPS Behind Cloudflare
-107 " ✅ Supabase Auth Env Vars Added to Webapp .env.example
-109 " 🔵 project-nyra MCP Configuration Inventory and serena-mcp Stub Discrepancy
-108 " 🔵 Landing Page CI Root Cause: Cloudflare Pages Account/Project Secret Mismatch
-110 8:58p 🚨 GitHub Dependabot Reports 588 Vulnerabilities on Project-Nyra Default Branch
-111 " 🔵 Cloudflare Pages CI Has Failed on Every Run — 4 Consecutive Failures Since April 26
-112 " 🔵 Remote Main Has Diverged From Local — PR #375 Blocked by Unstaged Changes
-113 " 🔵 github/main Already Had Partial Supabase Config With localhost:8000 Default URL
-114 8:59p ✅ PR #375 Superseded by Clean Branch docs-webapp-oracle-supabase-plan-v2 Rebased on Main
-115 " ✅ PR #375 Closed and v2 Replacement PR Created Against main
-116 " ✅ PR #376 Merged — Webapp Hosting Docs and Supabase Env Now on Main
-117 " 🔵 Large Infrastructure Cleanup Already on Main: Claude-Flow Purge and Supabase Kong Config Added
-118 9:01p 🔵 Root Cause Confirmed: CLOUDFLARE_ACCOUNT_ID Points to Wrong Account — Project "ratehunter-landing" Not Found
-### May 3, 2026
-119 5:38a 🔵 OMC Global Config Found at ~/.claude/.omc-config.json
-120 " 🔵 project-nyra Has No Project-Level CLAUDE.md
-121 5:39a 🔵 OMC v4.13.4 Plugin Cache Contains setup-progress.sh
-122 5:40a 🔵 OMC Setup Phase 1: CLAUDE.md Install Logic and Options
-S21 omc-setup — initializing OMC for project-nyra (May 3, 5:40 AM)
-123 5:41a ✅ Global CLAUDE.md Updated from OMC v4.11.5 to v4.13.4
-124 " 🟣 project-nyra Received Fresh Local CLAUDE.md at v4.13.4
-125 " 🔵 OMC Setup Phase 2: Six-Step Environment Configuration Flow
-126 " 🔵 OMC HUD Already Installed at ~/.claude/hud/omc-hud.mjs
-127 " 🔵 Global settings.json Contains Legacy OMC Hooks Alongside Plugin-Managed Hooks
-128 " 🔵 OMC Plugin Cache Clean; v4.13.5 Update Available
-129 5:42a ✅ OMC Config Updated: ultrawork Mode Confirmed, taskTool Set to builtin
-130 " 🟣 OMC CLI (oh-my-claude-sisyphus) Installed Globally via npm
-131 " 🔵 OMC Setup Phase 3: Integration Setup — MCP, Agent Teams, and Teammate Display
-### May 4, 2026
-132 10:12a 🔵 Codex Config TOML Uses Different Enum Values Than CLI Flags
-133 " 🔵 Codex CLI 0.128.0 Full Autonomy Flag: `--dangerously-bypass-approvals-and-sandbox`
-134 10:13a 🔵 Windows Codex Config Bug: `approval_mode = "never"` Invalid in `[apps]` Section
-135 " 🔵 Ubuntu vs Windows Codex Config Key Name Divergence: `sandbox` vs `sandbox_mode`
-136 " 🔵 Codex 0.128.0 Feature Flag Inventory — All Stable and Experimental Flags
-137 " 🔵 Ubuntu Codex MCP Server Configuration: 9 Servers Across Command and URL Types
-138 10:14a 🔵 Ubuntu Codex `default.rules` Is 52% Larger Than Windows — Rule Sets Have Diverged
-139 " 🔵 Windows `.tmp` Cache Has OMC Marketplace Clone With Full oh-my-claudecode Repo Structure
-140 " ✅ Ubuntu Codex Config Backed Up Before Autonomy/Permission Changes
-141 " 🔴 Both Codex Configs Rebuilt — Bug Fixed, Full Autonomy and Feature Parity Applied
-142 " 🔴 Both Codex Configs Verified Working — Windows Config No Longer Errors on Load
-
-Access 964k tokens of past work via get_observations([IDs]) or mem-search skill.
-</claude-mem-context>
-=======
 
 EXECUTION_PLAN_APPS.md
 Software engineering playbook for Project Nyra.
@@ -441,6 +355,8 @@ Use MagicDNS hostnames as the default addressing layer.
 Do not hardcode LAN IPs as primary service endpoints.
 Infrastructure rules
 Use Docker Compose per node.
+Live Docker Compose source files must live only under `infra/hosts/<host-name>/`.
+Do not use `infra/deploy`, `infra/compose`, `infra/stacks`, `infra/workers`, `infra/homeassistant`, `infra/cleanup_archive`, or `infra/ingest` as runtime Compose sources.
 Do not use Docker Swarm right now.
 Do not use Kubernetes right now.
 Keep workers private over Tailscale.
@@ -477,25 +393,25 @@ See `ops/scripts/health-check.sh` in this pack.
 Worker deployment
 worker-rtx3060 — Ollama
 ```bash
-docker compose -f deploy/worker-rtx3060/compose.yml up -d
+docker compose -f infra/hosts/worker-rtx3060/docker-compose.yml up -d
 docker logs -f nyra-ollama-3060
 curl http://localhost:11434/api/tags
 ```
 worker-rtx5090 — vLLM
 ```bash
-docker compose -f deploy/worker-rtx5090/compose.yml up -d
+docker compose -f infra/hosts/worker-rtx5090/docker-compose.yml up -d
 curl http://localhost:8000/health
 curl http://localhost:8000/v1/models
 ```
 worker-rtx3090ti — vLLM
 ```bash
-docker compose -f deploy/worker-rtx3090ti/compose.yml up -d
+docker compose -f infra/hosts/worker-rtx3090ti/docker-compose.yml up -d
 curl http://localhost:8000/health
 curl http://localhost:8000/v1/models
 ```
 Orchestrator bring-up
 ```bash
-docker compose -f deploy/orchestrator/compose.yml up -d
+docker compose -f infra/hosts/orchestrator/docker-compose.yml up -d
 bash ops/scripts/health-check.sh
 ```
 LiteLLM routing model
@@ -657,7 +573,7 @@ Internal-only LLM workbench.
 `services/*` → business services
 `packages/*` → shared libs
 `workflows/n8n/*` → workflow JSON
-`deploy/*` → infra per node
+`infra/hosts/<host-name>/*` → infra per host; the only valid Docker Compose source location
 `ops/*` → scripts, tmux, profiles
 `docs/*` → architecture and execution plans
 10. Non-goals
@@ -666,4 +582,3 @@ no Kubernetes for now
 no public worker inference
 no assistant-direct database mutations
 no resurrecting deprecated memory stack pieces
->>>>>>> github/main

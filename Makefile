@@ -21,7 +21,25 @@ WORKER_5090_COMPOSE := infra/hosts/worker-rtx5090/docker-compose.yml
 ORACLE_COMPOSE := infra/hosts/oracle-vps/docker-compose.yml
 ORACLE_AGENT_UTILS_COMPOSE := infra/hosts/oracle-vps/docker-compose.oracle.yml
 ORACLE_MEMORY_COMPOSE := infra/hosts/oracle-vps/docker-compose.memory.yml
+ORACLE_LETTA_MCP_COMPOSE := infra/hosts/oracle-vps/docker-compose.letta-mcp.yml
+ORACLE_MEMORY_EXTRA_COMPOSE := infra/hosts/oracle-vps/docker-compose.memory-extra.yml
+ORACLE_PAPERCLIP_COMPOSE := infra/hosts/oracle-vps/docker-compose.paperclip.yml
+ORACLE_CLAWTEAM_COMPOSE := infra/hosts/oracle-vps/docker-compose.clawteam.yml
+ORACLE_UI_FACTORY_SERVICES := nyra-ui-engine magicui-mcp shadcn-mcp
+ORACLE_MCP_TOOL_SERVICES := litellm ha-mcp twenty-mcp git-mcp sequential-thinking-mcp playwright-mcp firecrawl-mcp magicui-mcp shadcn-mcp next-devtools-mcp tavily-mcp wcgw-mcp gitingest-mcp codebase-index-mcp nexus
+ORACLE_PORTAINER_SERVICES := portainer portainer-edge-agent
+INFISICAL_RUNTIME_COMPOSE := infra/hosts/_templates/docker-compose.infisical-runtime.yml
+WORKER_AI_COMMON_COMPOSE := infra/hosts/_templates/docker-compose.worker-ai-common.yml
+WORKER_5090_NERVE_COMPOSE := infra/hosts/worker-rtx5090/docker-compose.nerve.yml
+WORKER_5090_MODEL_SWITCHER_COMPOSE := infra/hosts/worker-rtx5090/docker-compose.model-switcher.yml
+WORKER_3090TI_NERVE_COMPOSE := infra/hosts/worker-rtx3090ti/docker-compose.nerve.yml
+WORKER_3060_OPENCLAW_COMPOSE := infra/hosts/worker-rtx3060/docker-compose.openclaw.yml
 AGENT_INFRA_ENV ?= prod
+ORCHESTRATOR_CONTEXT ?= orchestrator
+ORACLE_CONTEXT ?= oracle
+WORKER_5090_CONTEXT ?= worker-rtx5090
+WORKER_3090TI_CONTEXT ?= worker-rtx3090ti
+WORKER_3060_CONTEXT ?= worker-rtx3060
 
 # Voice Setup Compose Files
 VOICE_3060_COMPOSE := infra/hosts/worker-rtx3060/docker-compose.voice.yml
@@ -49,6 +67,9 @@ DEFAULT_PROFILES ?= core,gateway,workflow,crm,apps,observability,vector
   voice-3060 voice-5090 voice-3090ti voice-orch voice-distributed hermes-5090 \
   cf-orch-up cf-orch-down cf-orch-logs \
   oracle-apps-up oracle-apps-down oracle-quote-engine-up oracle-campaign-engine-up \
+  oracle-ui-factory-up oracle-ui-factory-down oracle-ui-factory-ps oracle-ui-install \
+  oracle-mcp-tools-up oracle-mcp-tools-down oracle-mcp-tools-ps \
+  oracle-portainer-up oracle-portainer-down oracle-portainer-ps \
   up-all down-all cluster-status
 
 .DEFAULT_GOAL := help
@@ -102,6 +123,17 @@ help:
 	@echo "make oracle-memory-up     Start Letta, mem0, FalkorDB, Qdrant"
 	@echo "make kyutai-base-3060-up  Start base Unmute on RTX 3060"
 	@echo "make kyutai-mesh-up       Start 3-node Kyutai voice mesh"
+	@echo
+	@echo "--- WAVE AI + ZELLIJ GRID ---"
+	@echo "make wave-stack-up        Start orchestrator + 5090/3090 AI grid and attach Wave/Zellij"
+	@echo "make wave-stack-up-3060   Start default grid plus 3060 OpenClaw/NerveUI tab"
+	@echo "make wave-stack-status    Show AI grid container status through Docker contexts"
+	@echo "make wave-only            Attach the persistent Wave/Zellij cockpit only"
+	@echo "make oracle-paperclip-up  Start Paperclip on Oracle VPS"
+	@echo "make oracle-clawteam-up   Start ClawTeam on Oracle VPS"
+	@echo "make oracle-ui-factory-up Start UI Factory MCP/tooling containers"
+	@echo "make oracle-mcp-tools-up  Start Oracle MCP containers and Nexus aggregator"
+	@echo "make oracle-portainer-up  Start Oracle Portainer CE + local agent"
 
 cluster-status:
 	@echo "=== [ORCHESTRATOR] ==="
@@ -517,7 +549,7 @@ orchestrator-daemon-health:
 	@echo "🏥 [4/4] Pre-flight daemon health check..."
 	@echo "  → llxprt-jefe: " && (cd external/llxprt-jefe && ./jefe --help >/dev/null 2>&1 && echo "✅" || echo "⚠️  Check manually")
 	@echo "  → llxprt-code: " && (cd external/llxprt-code && ./code --help >/dev/null 2>&1 && echo "✅" || echo "⚠️  Check manually")
-	@echo "  → Zellij layout: " && (zellij --layout infra/zellij/nyra-orchestrator-mcp.kdl --check >/dev/null 2>&1 && echo "✅" || echo "⚠️  Syntax check: infra/zellij/nyra-orchestrator-mcp.kdl")
+	@echo "  → Zellij layout: " && (zellij setup --dump-layout infra/zellij/nyra-orchestrator-mcp.kdl >/dev/null 2>&1 && echo "✅" || echo "⚠️  Syntax check: infra/zellij/nyra-orchestrator-mcp.kdl")
 	@echo ""
 
 # Full orchestrator bootstrap: secrets → compile → health → launch
@@ -596,47 +628,30 @@ orchestrator-status:
   clawteam-all-deploy clawteam-monitor clawteam-failover-check
 
 oracle-paperclip:
-	docker context use oracle-vps && \
-	cd infra/hosts/oracle-vps && \
-	docker-compose -f docker-compose.yml -f docker-compose.paperclip.yml up -d paperclip && \
-	docker context use default && \
-	echo "✅ Paperclip MCP Gateway deployed to Oracle-VPS (port 8888)"
+	@$(MAKE) oracle-paperclip-up
 
 oracle-clawteam:
-	docker context use oracle-vps && \
-	cd infra/hosts/oracle-vps && \
-	docker-compose -f docker-compose.yml -f docker-compose.clawteam.yml up -d clawteam && \
-	docker context use default && \
-	sleep 2 && \
-	echo "✅ ClawTeam Primary deployed to Oracle-VPS (port 9001)"
+	@$(MAKE) oracle-clawteam-up
 
 rtx3060-clawteam-fallback:
-	docker context use worker-rtx3060 && \
-	cd infra/hosts/worker-rtx3060 && \
-	docker-compose -f docker-compose.yml -f docker-compose.clawteam.yml up -d clawteam && \
-	docker context use default && \
-	echo "✅ ClawTeam Fallback deployed to RTX3060 (port 9002)"
+	@docker --context $(WORKER_3060_CONTEXT) compose \
+	  -f infra/hosts/worker-rtx3060/docker-compose.yml \
+	  -f infra/hosts/worker-rtx3060/docker-compose.clawteam.yml up -d clawteam
 
 clawteam-all-deploy: oracle-clawteam rtx3060-clawteam-fallback
 	@echo "✅ ClawTeam dual-deployment complete"
 	@echo "   Primary:  oracle-vps:9001"
 	@echo "   Fallback: worker-rtx3060:9002"
-	@docker context use oracle-vps && \
-	docker exec nyra-clawteam-primary curl -s http://localhost:9000/health 2>/dev/null | jq .status && \
-	docker context use default
+	@docker --context $(ORACLE_CONTEXT) exec nyra-clawteam-primary curl -s http://localhost:8080/health 2>/dev/null | jq .status || true
 
 clawteam-monitor:
 	@echo "Monitoring ClawTeam on Oracle-VPS..."
-	@watch -n 5 "docker context use oracle-vps && docker stats nyra-clawteam-primary --no-stream && docker context use default"
+	@watch -n 5 "docker --context $(ORACLE_CONTEXT) stats nyra-clawteam-primary --no-stream"
 
 clawteam-failover-check:
 	@echo "Checking ClawTeam health: Primary (Oracle) vs Fallback (RTX3060)..."
-	docker context use oracle-vps && \
-	ORACLE_HEALTH=$$(docker exec nyra-clawteam-primary curl -s http://localhost:9000/health 2>/dev/null | jq .status || echo "down") && \
-	docker context use default && \
-	docker context use worker-rtx3060 && \
-	RTX3060_HEALTH=$$(docker exec worker-3060-clawteam-fallback curl -s http://localhost:9000/health 2>/dev/null | jq .status || echo "down") && \
-	docker context use default && \
+	ORACLE_HEALTH=$$(docker --context $(ORACLE_CONTEXT) exec nyra-clawteam-primary curl -s http://localhost:8080/health 2>/dev/null | jq .status || echo "down") && \
+	RTX3060_HEALTH=$$(docker --context $(WORKER_3060_CONTEXT) exec worker-3060-clawteam-fallback curl -s http://localhost:9000/health 2>/dev/null | jq .status || echo "down") && \
 	echo "Oracle-VPS ClawTeam: $$ORACLE_HEALTH" && \
 	echo "RTX3060 Fallback:    $$RTX3060_HEALTH" && \
 	if [ "$$ORACLE_HEALTH" != "healthy" ] && [ "$$RTX3060_HEALTH" = "healthy" ]; then \
@@ -655,40 +670,16 @@ paperclip-oracle: oracle-paperclip
   openclaw-status-dashboard
 
 rtx3060-openclaw:
-	docker context use worker-rtx3060 && \
-	cd infra/hosts/worker-rtx3060 && \
-	docker-compose -f docker-compose.yml -f docker-compose.openclaw.yml up -d openclaw nerveui && \
-	docker context use default && \
-	sleep 3 && \
-	echo "✅ RTX3060 OpenClaw deployed (port 8003) + NerveUI (port 6008)" && \
-	echo "   Mode: Cron automation, rate quoting, Activepieces testing" && \
-	echo "   NerveUI: http://worker-rtx3060:6008"
+	@$(MAKE) worker-3060-ai-up
 
 rtx3060-openclaw-health:
-	docker context use worker-rtx3060 && \
-	echo "=== RTX3060 OpenClaw Health ===" && \
-	docker ps --filter "name=worker-3060" --format "table {{.Names}}\t{{.Status}}" && \
-	echo "" && \
-	echo "=== RTX3060 NerveUI Health ===" && \
-	curl -s http://localhost:6008/health 2>/dev/null | jq . || echo "NerveUI starting..." && \
-	docker context use default
+	@echo "=== RTX3060 OpenClaw Health ==="
+	@docker --context $(WORKER_3060_CONTEXT) ps --filter "name=worker-3060" --format "table {{.Names}}\t{{.Status}}"
 
 openclaw-all-workers:
-	@echo "Deploying OpenClaw + NerveUI to all 3 workers..."
-	@echo ""
-	@echo "1️⃣  RTX5090 (inference)..."
-	docker context use worker-rtx5090 && cd infra/hosts/worker-rtx5090 && docker-compose -f docker-compose.yml -f docker-compose.clawteam.yml up -d openclaw && docker context use default && sleep 2
-	@echo "✅ RTX5090 OpenClaw running (port 8001)"
-	@echo ""
-	@echo "2️⃣  RTX3090Ti (inference)..."
-	docker context use worker-rtx3090ti && cd infra/hosts/worker-rtx3090ti && docker-compose -f docker-compose.yml -f docker-compose.clawteam.yml up -d openclaw && docker context use default && sleep 2
-	@echo "✅ RTX3090Ti OpenClaw running (port 8002)"
-	@echo ""
-	@echo "3️⃣  RTX3060 (cron/testing)..."
-	docker context use worker-rtx3060 && cd infra/hosts/worker-rtx3060 && docker-compose -f docker-compose.yml -f docker-compose.openclaw.yml up -d openclaw nerveui && docker context use default && sleep 2
-	@echo "✅ RTX3060 OpenClaw running (port 8003) + NerveUI (port 6008)"
-	@echo ""
-	@echo "✅ All 3 workers online with OpenClaw + NerveUI instances"
+	@$(MAKE) worker-5090-ai-up
+	@$(MAKE) worker-3090ti-ai-up
+	@$(MAKE) worker-3060-ai-up
 
 openclaw-status-dashboard:
 	@echo "════════════════════════════════════════════════════════════"
@@ -697,15 +688,15 @@ openclaw-status-dashboard:
 	@echo ""
 	@echo "🔴 RTX5090 (Inference)"
 	@echo "   OpenClaw: worker-rtx5090:8001 | NerveUI: worker-rtx5090:6006"
-	docker context use worker-rtx5090 && curl -s http://localhost:8001/health 2>/dev/null | jq .status || echo "   Status: offline" && docker context use default
+	@docker --context $(WORKER_5090_CONTEXT) exec worker-5090-openclaw curl -s http://localhost:8001/health 2>/dev/null | jq .status || echo "   Status: offline"
 	@echo ""
 	@echo "🟢 RTX3090Ti (Inference)"
 	@echo "   OpenClaw: worker-rtx3090ti:8002 | NerveUI: worker-rtx3090ti:6007"
-	docker context use worker-rtx3090ti && curl -s http://localhost:8002/health 2>/dev/null | jq .status || echo "   Status: offline" && docker context use default
+	@docker --context $(WORKER_3090TI_CONTEXT) exec worker-3090-openclaw curl -s http://localhost:8001/health 2>/dev/null | jq .status || echo "   Status: offline"
 	@echo ""
 	@echo "🟡 RTX3060 (Cron/Testing)"
 	@echo "   OpenClaw: worker-rtx3060:8003 | NerveUI: worker-rtx3060:6008"
-	docker context use worker-rtx3060 && curl -s http://localhost:8003/health 2>/dev/null | jq .status || echo "   Status: offline" && docker context use default
+	@docker --context $(WORKER_3060_CONTEXT) exec worker-3060-openclaw curl -s http://localhost:8001/health 2>/dev/null | jq .status || echo "   Status: offline"
 	@echo ""
 	@echo "════════════════════════════════════════════════════════════"
 
@@ -745,28 +736,18 @@ docker-push-paperclip:
 # ════════════════════════════════════════════════════════════════════════════
 
 oracle-clawteam-deploy:
-	docker context use oracle && \
-	cd infra/hosts/oracle-vps && \
-	docker-compose -f docker-compose.yml -f docker-compose.clawteam.yml build clawteam && \
-	docker-compose -f docker-compose.yml -f docker-compose.clawteam.yml up -d clawteam && \
-	docker context use default && \
-	sleep 3 && \
-	echo "✅ ClawTeam deployed to Oracle-VPS (port 8080)" && \
-	docker context use oracle && \
-	docker logs nyra-clawteam-primary --tail 20 && \
-	docker context use default
+	@docker --context $(ORACLE_CONTEXT) compose -f $(ORACLE_COMPOSE) -f $(ORACLE_CLAWTEAM_COMPOSE) build clawteam
+	@docker --context $(ORACLE_CONTEXT) compose -f $(ORACLE_COMPOSE) -f $(ORACLE_CLAWTEAM_COMPOSE) up -d clawteam
+	@sleep 3
+	@echo "✅ ClawTeam deployed to Oracle-VPS (port 8080)"
+	@docker --context $(ORACLE_CONTEXT) logs nyra-clawteam-primary --tail 20
 
 oracle-paperclip-deploy:
-	docker context use oracle && \
-	cd infra/hosts/oracle-vps && \
-	docker-compose -f docker-compose.yml -f docker-compose.paperclip.yml build paperclip && \
-	docker-compose -f docker-compose.yml -f docker-compose.paperclip.yml up -d paperclip && \
-	docker context use default && \
-	sleep 3 && \
-	echo "✅ Paperclip deployed to Oracle-VPS (port 3100)" && \
-	docker context use oracle && \
-	docker logs nyra-paperclip-mcp-gateway --tail 20 && \
-	docker context use default
+	@docker --context $(ORACLE_CONTEXT) compose -f $(ORACLE_COMPOSE) -f $(ORACLE_PAPERCLIP_COMPOSE) build paperclip
+	@docker --context $(ORACLE_CONTEXT) compose -f $(ORACLE_COMPOSE) -f $(ORACLE_PAPERCLIP_COMPOSE) up -d paperclip
+	@sleep 3
+	@echo "✅ Paperclip deployed to Oracle-VPS (port 3100)"
+	@docker --context $(ORACLE_CONTEXT) logs nyra-paperclip-mcp-gateway --tail 20
 
 oracle-clawteam-paperclip-all:
 	@echo "Building + deploying ClawTeam + Paperclip to Oracle-VPS..."
@@ -774,4 +755,222 @@ oracle-clawteam-paperclip-all:
 	@$(MAKE) oracle-clawteam-deploy
 	@$(MAKE) oracle-paperclip-deploy
 	@echo "✅ All services deployed to Oracle-VPS via Portainer"
+
+# ============================================================================
+# Wave AI + Zellij persistent grid
+# ============================================================================
+
+.PHONY: wave-stack-up wave-stack-up-3060 wave-stack-down wave-stack-status \
+  wave-only wave-only-3060 orchestrator-ai-up orchestrator-ai-down \
+  worker-5090-ai-up worker-3090ti-ai-up worker-3060-ai-up \
+  worker-5090-ai-down worker-3090ti-ai-down worker-3060-ai-down \
+  oracle-memory-manager-up oracle-memory-extra-up oracle-memory-full-up \
+  oracle-memory-full-down oracle-webapp-twenty-up oracle-webapp-twenty-down \
+  oracle-paperclip-up oracle-paperclip-down oracle-clawteam-up \
+  oracle-clawteam-down oracle-agent-tools-up oracle-agent-tools-down
+
+wave-stack-up: orchestrator-ai-up worker-5090-ai-up worker-3090ti-ai-up oracle-memory-full-up oracle-webapp-twenty-up oracle-portainer-up oracle-mcp-tools-up wave-only
+
+wave-stack-up-3060: orchestrator-ai-up worker-5090-ai-up worker-3090ti-ai-up worker-3060-ai-up oracle-memory-full-up oracle-webapp-twenty-up oracle-portainer-up oracle-mcp-tools-up wave-only-3060
+
+wave-stack-down: orchestrator-ai-down worker-5090-ai-down worker-3090ti-ai-down worker-3060-ai-down oracle-memory-full-down oracle-webapp-twenty-down oracle-mcp-tools-down
+	@zellij kill-session nyra-wave-ai 2>/dev/null || true
+
+wave-only:
+	@chmod +x scripts/nyra-wave-zellij.sh scripts/nyra-zellij-pane.sh
+	@NYRA_INCLUDE_3060=0 scripts/nyra-wave-zellij.sh
+
+wave-only-3060:
+	@chmod +x scripts/nyra-wave-zellij.sh scripts/nyra-zellij-pane.sh
+	@NYRA_INCLUDE_3060=1 scripts/nyra-wave-zellij.sh
+
+orchestrator-ai-up:
+	@echo "Starting lightweight orchestrator edge services; LiteLLM/Nexus/Portainer CE run on Oracle..."
+	@NYRA_INFISICAL_PATH=/machines/orchestrator \
+	  docker --context $(ORCHESTRATOR_CONTEXT) compose --env-file /dev/null \
+	  -f $(ORCHESTRATOR_COMPOSE) \
+	  -f $(INFISICAL_RUNTIME_COMPOSE) \
+	  --profile apps up -d \
+	  openclaw-gateway cloudflared portainer-edge-agent infisical-agent infisical-sidecar
+
+orchestrator-ai-down:
+	@NYRA_INFISICAL_PATH=/machines/orchestrator \
+	  docker --context $(ORCHESTRATOR_CONTEXT) compose --env-file /dev/null \
+	  -f $(ORCHESTRATOR_COMPOSE) \
+	  -f $(INFISICAL_RUNTIME_COMPOSE) down
+
+worker-5090-ai-up:
+	@echo "Starting RTX5090 vLLM + LMCache + Redis + LiteLLM + OpenClaw + NerveUI..."
+	@NYRA_INFISICAL_PATH=/machines/worker-rtx5090 WORKER_GRAFANA_PORT=3005 \
+	  docker --context $(WORKER_5090_CONTEXT) compose --env-file /dev/null \
+	  -f $(WORKER_5090_COMPOSE) \
+	  -f $(INFISICAL_RUNTIME_COMPOSE) \
+	  -f $(WORKER_AI_COMMON_COMPOSE) \
+	  -f $(WORKER_5090_MODEL_SWITCHER_COMPOSE) \
+	  -f $(WORKER_5090_NERVE_COMPOSE) up -d \
+	  portainer-edge-agent redis vllm litellm promtail node-exporter gpu-exporter health-monitor grafana model-switcher openclaw nerve-ui infisical-agent infisical-sidecar
+
+worker-3090ti-ai-up:
+	@echo "Starting RTX3090Ti vLLM + LMCache + Redis + LiteLLM + OpenClaw + NerveUI..."
+	@NYRA_INFISICAL_PATH=/machines/worker-rtx3090ti WORKER_GRAFANA_PORT=3006 \
+	  docker --context $(WORKER_3090TI_CONTEXT) compose --env-file /dev/null \
+	  -f $(WORKER_3090TI_COMPOSE) \
+	  -f $(INFISICAL_RUNTIME_COMPOSE) \
+	  -f $(WORKER_AI_COMMON_COMPOSE) \
+	  -f $(WORKER_3090TI_NERVE_COMPOSE) up -d \
+	  portainer-edge-agent redis vllm litellm model-switcher promtail node-exporter gpu-exporter health-monitor grafana openclaw nerve-ui infisical-agent infisical-sidecar
+
+worker-3060-ai-up:
+	@echo "Starting RTX3060 Ollama + LiteLLM + optional OpenClaw + NerveUI..."
+	@NYRA_INFISICAL_PATH=/machines/worker-rtx3060 WORKER_GRAFANA_PORT=3007 \
+	  docker --context $(WORKER_3060_CONTEXT) compose --env-file /dev/null \
+	  -f $(WORKER_3060_COMPOSE) \
+	  -f $(INFISICAL_RUNTIME_COMPOSE) \
+	  -f $(WORKER_AI_COMMON_COMPOSE) \
+	  -f $(WORKER_3060_OPENCLAW_COMPOSE) up -d \
+	  portainer-edge-agent ollama litellm model-switcher promtail node-exporter gpu-exporter grafana openclaw nerve-ui infisical-agent infisical-sidecar
+
+worker-5090-ai-down:
+	@NYRA_INFISICAL_PATH=/machines/worker-rtx5090 WORKER_GRAFANA_PORT=3005 \
+	  docker --context $(WORKER_5090_CONTEXT) compose --env-file /dev/null \
+	  -f $(WORKER_5090_COMPOSE) \
+	  -f $(INFISICAL_RUNTIME_COMPOSE) \
+	  -f $(WORKER_AI_COMMON_COMPOSE) \
+	  -f $(WORKER_5090_MODEL_SWITCHER_COMPOSE) \
+	  -f $(WORKER_5090_NERVE_COMPOSE) down
+
+worker-3090ti-ai-down:
+	@NYRA_INFISICAL_PATH=/machines/worker-rtx3090ti WORKER_GRAFANA_PORT=3006 \
+	  docker --context $(WORKER_3090TI_CONTEXT) compose --env-file /dev/null \
+	  -f $(WORKER_3090TI_COMPOSE) \
+	  -f $(INFISICAL_RUNTIME_COMPOSE) \
+	  -f $(WORKER_AI_COMMON_COMPOSE) \
+	  -f $(WORKER_3090TI_NERVE_COMPOSE) down
+
+worker-3060-ai-down:
+	@NYRA_INFISICAL_PATH=/machines/worker-rtx3060 WORKER_GRAFANA_PORT=3007 \
+	  docker --context $(WORKER_3060_CONTEXT) compose --env-file /dev/null \
+	  -f $(WORKER_3060_COMPOSE) \
+	  -f $(INFISICAL_RUNTIME_COMPOSE) \
+	  -f $(WORKER_AI_COMMON_COMPOSE) \
+	  -f $(WORKER_3060_OPENCLAW_COMPOSE) down
+
+oracle-memory-manager-up:
+	@echo "Starting Oracle memory manager: Letta + mem0 + FalkorDB + Qdrant + Letta MCP..."
+	@docker --context $(ORACLE_CONTEXT) compose --env-file /dev/null \
+	  -f $(ORACLE_MEMORY_COMPOSE) \
+	  -f $(ORACLE_LETTA_MCP_COMPOSE) up -d
+
+oracle-memory-extra-up:
+	@echo "Starting optional memory companions: memOS/MemoryTensor and ClaudeMem..."
+	@docker --context $(ORACLE_CONTEXT) compose --env-file /dev/null \
+	  -f $(ORACLE_MEMORY_COMPOSE) \
+	  -f $(ORACLE_MEMORY_EXTRA_COMPOSE) up -d memos claudemem
+
+oracle-memory-full-up: oracle-memory-manager-up oracle-memory-extra-up
+
+oracle-memory-full-down:
+	@docker --context $(ORACLE_CONTEXT) compose --env-file /dev/null \
+	  -f $(ORACLE_MEMORY_COMPOSE) \
+	  -f $(ORACLE_LETTA_MCP_COMPOSE) \
+	  -f $(ORACLE_MEMORY_EXTRA_COMPOSE) down
+
+oracle-webapp-twenty-up:
+	@echo "Starting Oracle webapp + Twenty CRM + Twenty MCP..."
+	@docker --context $(ORACLE_CONTEXT) compose --env-file /dev/null \
+	  -f $(ORACLE_COMPOSE) \
+	  -f $(ORACLE_APPS_COMPOSE) \
+	  --profile apps up -d \
+	  postgres redis-cache twenty-db twenty twenty-worker twenty-mcp crm-api webapp cloudflared portainer-edge-agent infisical-sidecar
+
+oracle-webapp-twenty-down:
+	@docker --context $(ORACLE_CONTEXT) compose --env-file /dev/null \
+	  -f $(ORACLE_COMPOSE) \
+	  -f $(ORACLE_APPS_COMPOSE) down
+
+oracle-paperclip-up:
+	@echo "Starting Paperclip on Oracle VPS..."
+	@docker --context $(ORACLE_CONTEXT) compose --env-file /dev/null \
+	  -f $(ORACLE_COMPOSE) up -d paperclip paperclip-mcp
+
+oracle-paperclip-down:
+	@docker --context $(ORACLE_CONTEXT) compose --env-file /dev/null \
+	  -f $(ORACLE_COMPOSE) stop paperclip paperclip-mcp
+
+oracle-clawteam-up:
+	@echo "Starting ClawTeam on Oracle VPS..."
+	@docker --context $(ORACLE_CONTEXT) compose --env-file /dev/null \
+	  -f $(ORACLE_COMPOSE) \
+	  -f $(ORACLE_CLAWTEAM_COMPOSE) up -d clawteam
+
+oracle-clawteam-down:
+	@docker --context $(ORACLE_CONTEXT) compose --env-file /dev/null \
+	  -f $(ORACLE_COMPOSE) \
+	  -f $(ORACLE_CLAWTEAM_COMPOSE) stop clawteam
+
+oracle-agent-tools-up: oracle-paperclip-up oracle-clawteam-up
+
+oracle-agent-tools-down: oracle-paperclip-down oracle-clawteam-down
+
+oracle-ui-factory-up:
+	@echo "Starting Oracle UI Factory containers..."
+	@docker --context $(ORACLE_CONTEXT) compose --env-file /dev/null \
+	  -f $(ORACLE_COMPOSE) up -d $(ORACLE_UI_FACTORY_SERVICES)
+
+oracle-ui-factory-down:
+	@docker --context $(ORACLE_CONTEXT) compose --env-file /dev/null \
+	  -f $(ORACLE_COMPOSE) stop $(ORACLE_UI_FACTORY_SERVICES)
+
+oracle-ui-factory-ps:
+	@docker --context $(ORACLE_CONTEXT) compose --env-file /dev/null \
+	  -f $(ORACLE_COMPOSE) ps $(ORACLE_UI_FACTORY_SERVICES)
+
+oracle-ui-install:
+	@test -n "$(COMPONENT)" || (echo "usage: make oracle-ui-install COMPONENT=@magicui/shiny-button" >&2; exit 64)
+	@scripts/nyra-ui-install.sh "$(COMPONENT)"
+
+oracle-mcp-tools-up:
+	@echo "Starting Oracle MCP tool containers and Nexus..."
+	@docker --context $(ORACLE_CONTEXT) compose --env-file /dev/null \
+	  -f $(ORACLE_COMPOSE) up -d $(ORACLE_MCP_TOOL_SERVICES)
+
+oracle-mcp-tools-down:
+	@docker --context $(ORACLE_CONTEXT) compose --env-file /dev/null \
+	  -f $(ORACLE_COMPOSE) stop $(ORACLE_MCP_TOOL_SERVICES)
+
+oracle-mcp-tools-ps:
+	@docker --context $(ORACLE_CONTEXT) compose --env-file /dev/null \
+	  -f $(ORACLE_COMPOSE) ps $(ORACLE_MCP_TOOL_SERVICES)
+
+oracle-portainer-up:
+	@echo "Starting Oracle Portainer CE control plane..."
+	@docker --context $(ORACLE_CONTEXT) compose --env-file /dev/null \
+	  -f $(ORACLE_COMPOSE) up -d $(ORACLE_PORTAINER_SERVICES)
+
+oracle-portainer-down:
+	@docker --context $(ORACLE_CONTEXT) compose --env-file /dev/null \
+	  -f $(ORACLE_COMPOSE) stop $(ORACLE_PORTAINER_SERVICES)
+
+oracle-portainer-ps:
+	@docker --context $(ORACLE_CONTEXT) compose --env-file /dev/null \
+	  -f $(ORACLE_COMPOSE) ps $(ORACLE_PORTAINER_SERVICES)
+
+wave-stack-status:
+	@echo "=== ORCHESTRATOR ==="
+	@docker --context $(ORCHESTRATOR_CONTEXT) compose -f $(ORCHESTRATOR_COMPOSE) ps || true
+	@echo
+	@echo "=== WORKER RTX5090 ==="
+	@docker --context $(WORKER_5090_CONTEXT) compose -f $(WORKER_5090_COMPOSE) -f $(WORKER_5090_NERVE_COMPOSE) ps || true
+	@echo
+	@echo "=== WORKER RTX3090TI ==="
+	@docker --context $(WORKER_3090TI_CONTEXT) compose -f $(WORKER_3090TI_COMPOSE) -f $(WORKER_3090TI_NERVE_COMPOSE) ps || true
+	@echo
+	@echo "=== WORKER RTX3060 ==="
+	@docker --context $(WORKER_3060_CONTEXT) compose -f $(WORKER_3060_COMPOSE) -f $(WORKER_3060_OPENCLAW_COMPOSE) ps || true
+	@echo
+	@echo "=== ORACLE MEMORY ==="
+	@docker --context $(ORACLE_CONTEXT) compose -f $(ORACLE_MEMORY_COMPOSE) -f $(ORACLE_LETTA_MCP_COMPOSE) ps || true
+	@echo
+	@echo "=== ORACLE APPS ==="
+	@docker --context $(ORACLE_CONTEXT) compose -f $(ORACLE_COMPOSE) -f $(ORACLE_APPS_COMPOSE) ps || true
 

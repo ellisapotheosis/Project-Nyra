@@ -47,74 +47,48 @@ Default hostnames:
 
 These belong on the orchestrator:
 
-<<<<<<< HEAD
 * **Nexus Router** (`grafbase/nexus`) as the single MCP / service / LLM ingress
 * **LiteLLM** as model gateway and router
-* **OpenClaw Gateway + OpenClaw Studio**
-* **n8n** (internal automation)
-* **Prometheus + Loki + Grafana** (LAN monitoring)
+* **Langfuse** for LLM observability
+* **Prometheus + Loki + Grafana** for LAN monitoring
 * **Portainer Server**
+* **n8n** (internal automation)
+* **OpenClaw Gateway + OpenClaw Studio**
+* **Open WebUI** (internal only)
 * **Pocket TTS**
 * **Docker MCP Toolkit**
+* **Cloudflared** for public ingress
 
 ### Oracle-VPS services (Cloud Platform)
 
 These belong on the oracle-vps:
 
 * **Twenty CRM** (System of Record)
-* **Gitea** (Git \& CI/CD)
+* **Gitea** (Git & CI/CD)
 * **Activepieces** (Alternative automation)
 * **Qdrant** (Vector Database)
 * **FalkorDB** (Graph Database)
-* **Open WebUI** (Internal model workbench)
-* **Quote API**
-* **Campaign Engine**
+* **Mem0**
 
-### Memory Stack
-A singular memory endpoint is provided via the **Nexus Router** (orchestrator:6000), aggregating:
-* **mem0** + **FalkorDB** backend (Oracle VPS)
-* **OpenMemory MCP** (Oracle VPS)
-* **Letta** Memory Manager (Oracle VPS)
-* **MemOS** (Oracle VPS)
-* **Mempalace** (Oracle VPS)
-* **claudemem** (Orchestrator)
-=======
-- Nexus Router (`grafbase/nexus`) as the single MCP / service / LLM ingress
-- LiteLLM as model gateway and router
-- Langfuse for LLM observability
-- Prometheus + Loki + Grafana
-- Portainer Server
-- n8n (internal only)
-- Twenty CRM
-- OpenClaw Gateway + OpenClaw Studio
-- Open WebUI (internal only)
-- Mem0 + FalkorDB
-- Postgres + Redis
-- Cloudflared
->>>>>>> github/main
+### Current memory stack
+
+Use:
+* **Mem0** for selected assistant/runtime memory
+* **OpenMemory MCP** for shared MCP memory tools
+* **FalkorDB** as the Mem0 graph backend where graph memory is needed
+* **Qdrant** as the Mem0/OpenMemory vector backend where configured
+* **Mempalace**, **ClaudeMem**, and **MemoryTensor/MemOS** as allowed memory infrastructure
+* **Letta** as a memory-manager agent and long-term agent memory integration
+
+Do **not** reintroduce:
+* RuVector
+* Graphiti
 
 ### Worker roles
 
-<<<<<<< HEAD
-* **5090** → vLLM primary (DeepSeek), OpenClaw + Nerve UI
-* **3090 Ti** → vLLM secondary, OpenClaw + Hermes UI
-* **3060** → Ollama for small models, ingestion utilities, summarization, extraction
-
-### Product surfaces
-=======
-### Current memory stack
-Use:
-- **Mem0** for selected assistant/runtime memory
-- **OpenMemory MCP** for shared MCP memory tools
-- **FalkorDB** as the Mem0 graph backend where graph memory is needed
-- **Qdrant** as the Mem0/OpenMemory vector backend where configured
-- **Mempalace**, **ClaudeMem**, and **MemoryTensor/MemOS** as allowed memory infrastructure
-- **Letta** as a memory-manager agent and long-term agent memory integration
-
-Do **not** reintroduce:
-- RuVector
-- Graphiti
->>>>>>> github/main
+* **5090** -> vLLM primary, OpenClaw + Nerve UI
+* **3090 Ti** -> vLLM secondary, OpenClaw + Hermes UI
+* **3060** -> Ollama for small models, ingestion utilities, summarization, extraction
 
 
 (All of the following apps are to be merged into /apps/webapp as separate pages to the same app except for the landing page and twenty CRM which will continue to be their own apps. Things like TwentyCRM, openclaw: nerve UI and clawteam, paperclip, open-webui will still maintain their autonomy as their code wont be merged but htey will be available via links from the webapp. twentyCRM will have an integration page that pulls in all of the CRM data the webapp needs to function. We will also be making a new UI page for n8n that acts as the mortgage lead drip campaign builder. active pieces UI will be integrated as its own page and so will openmemory and paperclip). We will also be integrating both n8n chat UI and openclaw chat UI into the webapp either on their own pages and/or maybe also into other pre-existing pages or maybe even both.
@@ -184,19 +158,11 @@ pnpm test
 
 Project Nyra is an intelligent mortgage automation platform that combines:
 
-<<<<<<< HEAD
-* **Multi-Agent AI Orchestration** - Archon OS, Ruv-Swarm, and Flow-Nexus working together
-* **Microservices Architecture** - 14 specialized backend services
-* **Modern Frontend Apps** - 5 user-facing applications
-* **Real-Time Processing** - WebSocket connections and event-driven workflows
-* **Smart Routing** - Intelligent LLM request routing (GPU → Cloud fallback)
-=======
 - **AI orchestration** - OpenClaw, Nexus Router, and local model workers working together
 - **Microservices Architecture** - 14 specialized backend services
 - **Modern Frontend Apps** - 5 user-facing applications
 - **Real-Time Processing** - WebSocket connections and event-driven workflows
-- **Smart Routing** - Intelligent LLM request routing (GPU → Cloud fallback)
->>>>>>> github/main
+- **Smart Routing** - Intelligent LLM request routing (GPU -> Cloud fallback)
 
 ### Key Features
 
@@ -330,21 +296,11 @@ Executed by a **15-agent swarm** using hierarchical coordination:
 * ✅ **\~700 MB** - Historical materials safely archived with rollback instructions
 
 **Essential Consolidation Docs:**
-<<<<<<< HEAD
-
-* 🔥 [**Repository Consolidation 2026-01-18**](docs/REPOSITORY-CONSOLIDATION-2026-01-18.md) - Complete consolidation documentation with before/after, migration guide, SPARC workflow
-* 🔥 [**apps/ingestion/**](apps/ingestion/README.md) - NEW systematic content processing workspace
-* 🔥 [**SPARC Workflows**](.archon-os/workflows/README.md) - Automated multi-agent workflow templates
-* 🔥 [**Consolidation Complete**](docs/operations/CONSOLIDATION-COMPLETE.md) - Infrastructure consolidation summary
-* 🔥 [**Environment Variables Guide**](docs/operations/ENV-VARIABLE-GUIDE.md) - Complete variable reference
-* 🔥 [**Docker Usage Guide**](infra/docker/USAGE-GUIDE.md) - Docker deployment patterns
-=======
-- 🔥 **[Repository Consolidation 2026-01-18](docs/REPOSITORY-CONSOLIDATION-2026-01-18.md)** - Complete consolidation documentation with before/after, migration guide, SPARC workflow
-- 🔥 **[apps/ingestion/](apps/ingestion/README.md)** - NEW systematic content processing workspace
-- 🔥 **[Consolidation Complete](docs/operations/CONSOLIDATION-COMPLETE.md)** - Infrastructure consolidation summary
-- 🔥 **[Environment Variables Guide](docs/operations/ENV-VARIABLE-GUIDE.md)** - Complete variable reference
-- 🔥 **[Docker Usage Guide](infra/docker/USAGE-GUIDE.md)** - Docker deployment patterns
->>>>>>> github/main
+- **[Repository Consolidation 2026-01-18](docs/REPOSITORY-CONSOLIDATION-2026-01-18.md)** - Complete consolidation documentation with before/after, migration guide, SPARC workflow
+- **[apps/ingestion/](apps/ingestion/README.md)** - NEW systematic content processing workspace
+- **[Consolidation Complete](docs/operations/CONSOLIDATION-COMPLETE.md)** - Infrastructure consolidation summary
+- **[Environment Variables Guide](docs/operations/ENV-VARIABLE-GUIDE.md)** - Complete variable reference
+- **[Docker Usage Guide](infra/docker/USAGE-GUIDE.md)** - Docker deployment patterns
 
 ### Getting Started
 
@@ -358,24 +314,12 @@ Executed by a **15-agent swarm** using hierarchical coordination:
 * [**Configuration Templates**](bootstrap/configs/README.md) - Pre-built configuration files
 
 ### Architecture
-<<<<<<< HEAD
-
-* [**Architecture Overview**](docs/architecture/ARCHITECTURE-OVERVIEW.md) - Complete system design (Level 1 \& 2 diagrams)
-* [System Architecture](docs/architecture/system-architecture.md) - Detailed architectural specifications
-* [**4-PC Distributed Architecture**](docs/architecture/4PC-DISTRIBUTED-ARCHITECTURE.md) - Multi-PC deployment with GPU workers
-* [Dual Orchestrator Design](docs/architecture/DUAL-ORCHESTRATOR-ARCHITECTURE.md)\*\* - Archon OS + Archon OS integration
-* [Memory Systems](docs/architecture/memory-systems.md) - Agent memory architecture (Letta, Mem0, letta, Qdrant)
-* [API Contracts](docs/architecture/api-contracts.md) - Service interfaces
-* [**Architecture Decisions**](docs/architecture/ARCHITECTURE-DECISIONS.md) - ADRs and technology choices
-=======
 - **[Architecture Overview](docs/architecture/ARCHITECTURE-OVERVIEW.md)** - Complete system design (Level 1 & 2 diagrams)
 - [System Architecture](docs/architecture/system-architecture.md) - Detailed architectural specifications
 - **[4-PC Distributed Architecture](docs/architecture/4PC-DISTRIBUTED-ARCHITECTURE.md)** - Multi-PC deployment with GPU workers
-- [Architecture Decisions](docs/architecture/ARCHITECTURE-DECISIONS.md)** - current architecture decisions
-- [Memory Systems](docs/architecture/memory-systems.md) - Agent memory architecture (Letta, Mem0, letta, Qdrant)
+- [Memory Systems](docs/architecture/memory-systems.md) - Agent memory architecture (Letta, Mem0, Qdrant)
 - [API Contracts](docs/architecture/api-contracts.md) - Service interfaces
 - **[Architecture Decisions](docs/architecture/ARCHITECTURE-DECISIONS.md)** - ADRs and technology choices
->>>>>>> github/main
 
 ### Development
 
@@ -414,27 +358,17 @@ Executed by a **15-agent swarm** using hierarchical coordination:
 
 ### Frontend
 
-<<<<<<< HEAD
 * **Framework:** React 18 / Next.js 14
 * **State:** Redux / Zustand
 * **Styling:** Tailwind CSS
-* **UI Components:** Custom + Shadcn/ui
-=======
+* **UI Components:** Custom + shadcn/ui
+
 ### AI & Orchestration
-- **Assistant runtime:** OpenClaw Gateway + OpenClaw Studio
-- **Swarm Intelligence:** Ruv-Swarm (Latest)
-- **Cloud Orchestration:** Flow-Nexus (Latest)
-- **MCP Protocol:** Model Context Protocol
-- **Memory System:** Letta
->>>>>>> github/main
 
-### AI \& Orchestration
-
-* **Agent Framework:** Archon OS
-* **Swarm Intelligence:** Ruv-Swarm (Latest)
-* **Cloud Orchestration:** Flow-Nexus (Latest)
+* **Assistant runtime:** OpenClaw Gateway + OpenClaw Studio
+* **Routing:** Nexus Router and LiteLLM
 * **MCP Protocol:** Model Context Protocol
-* **Memory System:** Letta
+* **Memory System:** Mem0, OpenMemory MCP, FalkorDB, Qdrant, Letta
 
 ### DevOps \& Infrastructure
 
@@ -536,19 +470,6 @@ scripts/github/review-and-merge-prs.sh --repo ellisapotheosis/Project-Nyra --mer
 Project Nyra includes a comprehensive bootstrap system for setting up the 4-PC distributed architecture:
 
 **Components:**
-<<<<<<< HEAD
-
-* **GUI Installer** - React-based interactive installer (port 5173)
-* **PowerShell Scripts** - Automated component installation
-* **Configuration Templates** - Pre-configured settings for:
-
-  * Claude Code / Claude Desktop
-  * Archon OS V3
-  * Docker Desktop
-  * WSL2 (.wslconfig)
-  * Infisical (secrets management)
-  * Gitea (self-hosted Git)
-=======
 - **GUI Installer** - React-based interactive installer (port 5173)
 - **PowerShell Scripts** - Automated component installation
 - **Configuration Templates** - Pre-configured settings for:
@@ -557,7 +478,6 @@ Project Nyra includes a comprehensive bootstrap system for setting up the 4-PC d
   - WSL2 (.wslconfig)
   - Infisical (secrets management)
   - Gitea (self-hosted Git)
->>>>>>> github/main
 
 **Installation Workflow:**
 
@@ -587,23 +507,12 @@ See [bootstrap/configs/README.md](bootstrap/configs/README.md) for details on al
 ### Orchestration Stack
 
 **Services Running:**
-<<<<<<< HEAD
-
-* PostgreSQL (Port: 5432) - Primary database
-* Redis (Port: 6379) - Cache layer
-* FalkorDB (Port: 6380) - Graph database
-* Qdrant (Port: 6333) - Vector database
-* Archon OS - Agent operating system
-* Nexus Router - LLM routing
-* Letta (Ports: 8283, 8284) - Agent memory
-=======
 - PostgreSQL (Port: 5432) - Primary database
 - Redis (Port: 6379) - Cache layer
 - FalkorDB (Port: 6380) - Graph database
 - Qdrant (Port: 6333) - Vector database
 - Nexus Router - LLM routing
 - Letta (Ports: 8283, 8284) - Agent memory
->>>>>>> github/main
 
 **Start Orchestration Stack:**
 
@@ -612,24 +521,6 @@ cd infra/docker
 docker compose -f docker-compose.orchestration.yml up -d
 ```
 
-<<<<<<< HEAD
-**Archon Full Stack (Dedicated Compose + Nexus Router + Infisical):**
-
-```bash
-# Validate compose
-make archon-config
-
-# Start dedicated Archon profile stack
-make archon-up
-
-# Start with Infisical secret injection (/shared path)
-make archon-up-infisical
-# equivalent direct command:
-# infisical run --env=prod --path="/shared" -- docker compose -f docker-compose.archon.yml --profile archon up -d
-```
-
-=======
->>>>>>> github/main
 ### Port Allocation
 
 See [Services README](services/README.md) for complete port allocation table.
@@ -908,4 +799,3 @@ make health-twenty
 * Keep upstream under `apps/twenty` as isolated boundary.
 * Keep Nyra adapters in `packages/clients/twenty` + service integrations.
 * Use `docs/apps/TWENTY\_EXTRACTION\_PLAN.md` when splitting into sibling repo.
-
