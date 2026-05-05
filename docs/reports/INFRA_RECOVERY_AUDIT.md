@@ -11,9 +11,6 @@
 - MCP config/server artifacts: `docs/reports/infra-recovery-catalog/mcp-configs.txt` (143 files)
 - Grafbase/Nexus artifacts: `docs/reports/infra-recovery-catalog/grafbase-nexus-files.txt` (11 files)
 - n8n workflows: `docs/reports/infra-recovery-catalog/n8n-workflows.txt` (13 files)
-
-<<<<<<< codex/prevent-.env-files-from-being-uploaded
-=======
 ## Security validation: leaked env history is not yet remediated
 - ✅ Verified `.gitignore` blocks future accidental recommits for the named paths.
 - ❌ Verified `infra-archived/infra-20260206-1551/docker-compose/.env.golden-stack-populated` is still tracked in HEAD and present in commit history, so credentials remain recoverable from Git history.
@@ -29,8 +26,6 @@
 - `nyra-configs/.env`
 - `config/env/.env.legacy`
 - `configs/env/.env.legacy`
-
->>>>>>> main
 ## Recovery list (high-priority items missing or weakly represented in active infra)
 | Filename | Path | Service | Recommendation |
 |---|---|---|---|

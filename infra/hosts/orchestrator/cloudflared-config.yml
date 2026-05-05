@@ -13,10 +13,13 @@ originRequest:
 ingress:
   # Private UIs - protect every hostname in this group with Cloudflare Access.
   - hostname: litellm.ratehunter.net
-    service: http://nyra-litellm-router:4000
+    service: http://oracle.trex-fiordland.ts.net:4000
 
   - hostname: nexus.ratehunter.net
-    service: http://nyra-nexus:3000
+    service: http://oracle.trex-fiordland.ts.net:3016
+
+  - hostname: nexus-router.ratehunter.net
+    service: http://oracle.trex-fiordland.ts.net:6000
 
   - hostname: openclaw-gateway.ratehunter.net
     service: http://nyra-openclaw-gateway:8001

@@ -1,0 +1,43 @@
+# Optional memory-manager companions for the Oracle memory plane.
+# Images are overridable because these projects do not all publish under one
+# stable canonical image namespace.
+
+services:
+  memos:
+    image: ${MEMOS_IMAGE:-ghcr.io/memodb-io/memos:latest}
+    container_name: nyra-memos
+    restart: unless-stopped
+    environment:
+      MEM0_BASE_URL: http://mem0:5000
+      FALKORDB_URL: redis://falkordb:6379
+      QDRANT_URL: http://qdrant:6333
+      LETTA_BASE_URL: http://letta:8283
+    ports:
+      - "127.0.0.1:${MEMOS_HOST_PORT:-8338}:8080"
+    depends_on:
+      - mem0
+      - falkordb
+      - qdrant
+      - letta
+    networks:
+      - memory_edge
+
+  claudemem:
+    image: ${CLAUDEMEM_IMAGE:-ghcr.io/ruvnet/claudemem:latest}
+    container_name: nyra-claudemem
+    restart: unless-stopped
+    environment:
+      MEM0_BASE_URL: http://mem0:5000
+      OPENMEMORY_MCP_URL: ${OPENMEMORY_MCP_URL:-http://oracle.trex-fiordland.ts.net:8765}
+      LETTA_BASE_URL: http://letta:8283
+    ports:
+      - "127.0.0.1:${CLAUDEMEM_HOST_PORT:-8339}:8080"
+    depends_on:
+      - mem0
+      - letta
+    networks:
+      - memory_edge
+
+networks:
+  memory_edge:
+    name: nyra_memory_edge

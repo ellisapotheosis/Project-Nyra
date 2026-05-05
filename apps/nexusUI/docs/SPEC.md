@@ -24,13 +24,15 @@ Nyra Nexus UI is an operator console for the Project Nyra agent control plane. I
 
 The app persists a typed JSON model to `config/nexus-ui.settings.json`. This is the operator-approved desired state.
 
+The live Nexus/LiteLLM services currently live on Oracle VPS in `infra/hosts/oracle-vps/docker-compose.yml`. Compose files outside `infra/hosts/<host-name>/` are not runtime sources.
+
 ### Live State
 
 Live state is probed from `NEXUS_BASE_URL` and `LITELLM_BASE_URL`. The app currently checks health only.
 
 ### Apply Adapter
 
-A future adapter may translate desired state into live Nexus TOML, LiteLLM YAML, Docker Compose updates, systemd reloads, or orchestrator commands. It must be disabled by default and guarded by `NEXUS_CONFIG_APPLY_ENABLED=true`.
+A future adapter may translate desired state into live Nexus TOML, LiteLLM YAML, Docker Compose updates, systemd reloads, or host-owned commands. It must be disabled by default and guarded by `NEXUS_CONFIG_APPLY_ENABLED=true`.
 
 ## Functional Requirements
 

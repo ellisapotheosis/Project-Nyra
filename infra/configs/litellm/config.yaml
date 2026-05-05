@@ -71,7 +71,7 @@ litellm_settings:
   cache: true
   cache_params:
     type: redis
-    host: redis
+    host: redis-cache
     port: 6379
   set_verbose: false
   strategy: latency_based_routing

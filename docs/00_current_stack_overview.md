@@ -8,8 +8,8 @@ Active runtime ownership is now under `infra/hosts/<host-name>/`.
 
 | Host | Canonical compose | Role |
 |---|---|---|
-| `orchestrator` | `infra/hosts/orchestrator/docker-compose.yml` | Local control plane, LiteLLM, Nexus, Portainer, optional OpenClaw gateway |
-| `oracle-vps` | `infra/hosts/oracle-vps/docker-compose.yml` | Always-on app, data, observability, memory, Gitea, CI/CD, and edge tunnel host |
+| `orchestrator` | `infra/hosts/orchestrator/docker-compose.yml` | Local OpenClaw gateway, Portainer agent, optional CPU BitNet testing, and local helper services |
+| `oracle-vps` | `infra/hosts/oracle-vps/docker-compose.yml` | Always-on app, Grafbase Nexus, LiteLLM, data, observability, memory, Gitea, CI/CD, and edge services |
 | `worker-rtx3060` | `infra/hosts/worker-rtx3060/docker-compose.yml` | Ollama/lightweight inference and worker metrics |
 | `worker-rtx3090ti` | `infra/hosts/worker-rtx3090ti/docker-compose.yml` | Secondary vLLM worker and local LiteLLM |
 | `worker-rtx5090` | `infra/hosts/worker-rtx5090/docker-compose.yml` | Primary vLLM worker and local LiteLLM |
@@ -35,7 +35,7 @@ Optional orchestrator add-ons:
 | Compose | Service | Port(s) |
 |---|---|---:|
 | `docker-compose.bitnet.yml` | `bitnet` | `8087 -> 8080` |
-| `docker-compose.nexus-one-hop.yml` | `nexus_onehop` | `6000`, `6011` |
+| `docker-compose.bitnet.yml` | `bitnet` | `8087` |
 | `docker-compose.voice.yml` | `pocket-tts` | `8080` |
 | `docker-compose.cloudflared.yml` | `cloudflared` | none |
 

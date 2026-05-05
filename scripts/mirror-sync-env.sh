@@ -42,16 +42,8 @@ for dir in "$BASE_DIR"/*/; do
         cat "$dir/.env.host" >> "$dir/.env"
     fi
 
-    echo "\n# --- Infisical Shared Secrets ---" >> "$dir/.env"
-    # 3. Append Shared Secrets from Infisical
-    infisical export \
-        --projectId="$PROJECT_ID" \
-        --env="dev" \
-        --path="/shared" \
-        --format=dotenv >> "$dir/.env"
-
-    echo "\n# --- Infisical Machine Secrets ---" >> "$dir/.env"
-    # 4. Append Machine-Specific Secrets from Infisical
+    echo "\n# --- Infisical Secrets (Shared + Machine) ---" >> "$dir/.env"
+    # 3. Export combined secrets from the machine path (which symlinks to /shared)
     infisical export \
         --projectId="$PROJECT_ID" \
         --env="dev" \

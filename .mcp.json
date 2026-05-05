@@ -2,7 +2,10 @@
   "mcpServers": {
     "nexus-router": {
       "type": "sse",
-      "url": "http://127.0.0.1:6000/mcp",
+      "url": "https://nexus.ratehunter.net/mcp",
+      "headers": {
+        "Authorization": "Bearer ${ORCHESTRATOR_TUNNEL_TOKEN}"
+      },
       "startup_timeout_sec": 90
     },
     "serena": {

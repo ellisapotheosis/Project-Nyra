@@ -584,7 +584,7 @@ export function NexusConsole() {
               <CardHeader>
                 <CardTitle>LiteLLM YAML Preview</CardTitle>
                 <CardDescription>
-                  Merge with the existing orchestrator LiteLLM config and keep provider secrets in environment variables.
+                  Merge with the existing Oracle VPS LiteLLM config and keep provider secrets in environment variables.
                 </CardDescription>
               </CardHeader>
               <CardContent>
