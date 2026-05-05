@@ -6,10 +6,10 @@ Updated: 2026-04-30
 
 | Domain | Canonical path(s) | Primary command path | Notes |
 |---|---|---|---|
-| Orchestrator control plane | `infra/hosts/orchestrator/docker-compose.yml` | `make up`, `make down`, `make ps` | Local Redis, LiteLLM, Portainer, Cloudflared runner, optional app gateway |
+| Orchestrator local services | `infra/hosts/orchestrator/docker-compose.yml` | `make up`, `make down`, `make ps` | Local OpenClaw gateway, Portainer agent, optional helper services |
 | Orchestrator BitNet | `infra/hosts/orchestrator/docker-compose.bitnet.yml` | `make bitnet-deploy`, `make bitnet-health`, `make bitnet-smoke` | CPU fallback model service on host port `8087` |
 | Orchestrator tunnel | `infra/hosts/orchestrator/docker-compose.cloudflared.yml` | `make cf-orch-up`, `make cf-orch-down` | Standalone tunnel runner so edge can restart independently |
-| Oracle always-on stack | `infra/hosts/oracle-vps/docker-compose.yml` | `make up-oracle`, `make oracle-apps-up`, `make cluster-status` | Business apps, memory, observability, Gitea, and edge services |
+| Oracle always-on stack | `infra/hosts/oracle-vps/docker-compose.yml` | `make up-oracle`, `make oracle-apps-up`, `make cluster-status` | Business apps, Grafbase Nexus, LiteLLM, memory, observability, Gitea, and edge services |
 | Oracle CI/CD | `infra/hosts/oracle-vps/docker-compose.gitea.yml` | `make cicd-up`, `make cicd-health`, `make gitea-up` | Gitea, Gitea runner, and GitHub mirror sync |
 | Oracle app overlay | `infra/hosts/oracle-vps/docker-compose.apps.yml` | `make oracle-apps-up` | App-profile webapp overlay |
 | Worker RTX 3060 | `infra/hosts/worker-rtx3060/docker-compose.yml` | `make up-worker-3060`, `make up-workers` | Ollama/lightweight local inference and metrics |
@@ -38,7 +38,6 @@ infra/hosts/oracle-vps/docker-compose.clawteam.yml
 infra/hosts/orchestrator/docker-compose.yml
 infra/hosts/orchestrator/docker-compose.bitnet.yml
 infra/hosts/orchestrator/docker-compose.cloudflared.yml
-infra/hosts/orchestrator/docker-compose.nexus-one-hop.yml
 infra/hosts/orchestrator/docker-compose.voice.yml
 infra/hosts/worker-rtx3060/docker-compose.yml
 infra/hosts/worker-rtx3090ti/docker-compose.yml
@@ -48,8 +47,8 @@ infra/hosts/worker-rtx5090/docker-compose.yml
 ## Risk notes
 
 1. `infra/hosts/oracle-vps/docker-compose.yml` still includes components that conflict with current architecture rules; remove those before production promotion.
-2. Port `4000` appears on orchestrator and worker LiteLLM services. That is acceptable across separate hosts but must not collide on a single Docker context.
-3. Port `6000` appears on Oracle Nexus and optional orchestrator one-hop Nexus. Keep the one-hop compose optional to avoid local conflicts.
+2. Port `4000` is Oracle LiteLLM and may also appear on worker-local LiteLLM services. That is acceptable across separate hosts but must not collide on a single Docker context.
+3. Port `6000` is Oracle Grafbase Nexus. Do not add an orchestrator Nexus compose unless the architecture is deliberately changed.
 4. Raw worker inference ports must stay private; Cloudflared should target only approved HTTP UIs/APIs and every non-marketing route should be Cloudflare Access-gated.
 
 ## Verification commands

@@ -16,7 +16,6 @@ services:
     image: portainer/agent:2.27.9
     container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-3060-portainer-agent
     restart: unless-stopped
-    env_file: [.env]
     environment:
       EDGE: "1"
       EDGE_ID: ${PORTAINER_EDGE_ID}
@@ -33,7 +32,6 @@ services:
     image: ollama/ollama:latest
     container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-3060-ollama
     restart: unless-stopped
-    env_file: [.env]
     ports:
       - "11434:11434"
     environment:
@@ -69,7 +67,6 @@ services:
     container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-3060-litellm
     hostname: worker-3060-litellm
     restart: unless-stopped
-    env_file: [.env]
     ports:
       - "${LITELLM_PORT:-4000}:4000"
     volumes:
@@ -87,7 +84,6 @@ services:
     container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-3060-switcher
     hostname: worker-3060-switcher
     restart: unless-stopped
-    env_file: [.env]
     volumes:
       - ./model-switcher:/app
       - ollama_models:/models
@@ -107,7 +103,6 @@ services:
     image: grafana/promtail:latest
     container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-3060-promtail
     restart: unless-stopped
-    env_file: [.env]
     volumes:
       - ./promtail:/etc/promtail:ro
       - /var/lib/docker/containers:/var/lib/docker/containers:ro

@@ -7,7 +7,6 @@ Updated: 2026-04-27
 | Host | Service | Compose | Port(s) |
 |---|---|---|---:|
 | `orchestrator` | `litellm` | `infra/hosts/orchestrator/docker-compose.yml` | `4000` |
-| `orchestrator` | `nexus_onehop` | `infra/hosts/orchestrator/docker-compose.nexus-one-hop.yml` | `6000`, `6011` |
 | `oracle-vps` | `nexus` | `infra/hosts/oracle-vps/docker-compose.yml` | `6000 -> 3000` |
 | `worker-rtx3060` | `litellm` | `infra/hosts/worker-rtx3060/docker-compose.yml` | `4000` |
 | `worker-rtx3090ti` | `litellm` | `infra/hosts/worker-rtx3090ti/docker-compose.yml` | `4000` |
@@ -40,7 +39,6 @@ Updated: 2026-04-27
 
 ```text
 infra/hosts/orchestrator/docker-compose.yml
-infra/hosts/orchestrator/docker-compose.nexus-one-hop.yml
 infra/hosts/oracle-vps/docker-compose.yml
 infra/hosts/oracle-vps/nexus.toml
 infra/hosts/worker-rtx3060/docker-compose.yml
@@ -51,7 +49,6 @@ infra/hosts/worker-rtx5090/docker-compose.yml
 ## Command snippets
 
 ```bash
-docker compose -f infra/hosts/orchestrator/docker-compose.yml ps litellm
-docker --context oracle compose -f infra/hosts/oracle-vps/docker-compose.yml ps nexus
+docker --context oracle compose -f infra/hosts/oracle-vps/docker-compose.yml ps nexus litellm
 docker --context worker-rtx5090 compose -f infra/hosts/worker-rtx5090/docker-compose.yml ps vllm litellm
 ```

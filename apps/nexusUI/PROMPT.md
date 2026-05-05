@@ -19,11 +19,13 @@ Build and maintain a production-quality admin UI that lets Nyra operators manage
 
 - This app is a separate admin surface and should be deployed to a separate Access-gated subdomain, normally `nexus.ratehunter.net`.
 - Link to it from `apps/webapp`, but do not embed it inside the broker/customer webapp.
+- Current runtime placement is Oracle VPS: Grafbase Nexus and LiteLLM are in `infra/hosts/oracle-vps/docker-compose.yml`.
+- Do not use `infra/deploy/*`, `infra/compose/*`, `infra/stacks/*`, or `infra/workers/*` as live Compose sources. Host compose stacks live only under `infra/hosts/<host-name>/`.
 - Treat `config/nexus-ui.settings.json` as desired state, not guaranteed live state.
 - Do not write live Nexus or LiteLLM config unless a reviewed apply adapter exists and `NEXUS_CONFIG_APPLY_ENABLED=true`.
 - Never store secret values in app state or JSON. Store only secret references like `GITHUB_TOKEN`.
 - Never expose worker inference endpoints, datastores, or raw unauthenticated MCP internals publicly.
-- Nexus MCP endpoint is `/mcp` for the currently deployed Grafbase Nexus v0.6 generation.
+- Nexus MCP endpoint is `/mcp` for the deployed Grafbase Nexus generation unless official docs for the pinned version say otherwise.
 - If Nexus upstream config changes, update the generator only after checking official docs for the deployed version.
 
 ## Product Requirements

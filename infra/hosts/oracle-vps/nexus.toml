@@ -4,7 +4,7 @@
 #
 # Topology:
 #   Claude Code / agents
-#       └─► Nexus :6000 (orchestrator)
+#       └─► Nexus :6000 (oracle-vps)
 #               ├─► LiteLLM :4000 → GPU workers (primary, ~80% traffic)
 #               │       ├─► worker-5090 (reasoning, 32GB VRAM)
 #               │       ├─► worker-3090 (analysis, 24GB VRAM)
@@ -12,9 +12,7 @@
 #               ├─► Anthropic API (fallback, disabled by default)
 #               ├─► OpenRouter (last-resort multi-model, disabled by default)
 #               └─► MCP servers
-#                       ├─ orchestrator-local (same Docker network)
-#                       │       └─► docker-mcp-toolkit :8811
-#                       └─ oracle VPS via Tailscale (100.64.0.3)
+#                       └─ oracle-vps-local (same Docker network)
 #                               ├─► openmemory-mcp :8765
 #                               ├─► infisical-mcp :8766
 #                               ├─► n8n :5678
@@ -59,7 +57,7 @@ path = "/anthropic"
 [llm.providers.litellm]
 type = "openai"
 api_key = "{{ env.LITELLM_MASTER_KEY }}"
-base_url = "http://worker-3090-litellm:4000/v1"
+base_url = "http://litellm:4000/v1"
 forward_token = false
 
 [llm.providers.litellm.models."*"]
@@ -75,10 +73,10 @@ forward_token = false
 # instead of burning direct cloud API tokens.
 [llm.providers.subscription]
 type = "openai"
-enabled = true
-# Jefe typically exposes a local proxy port for the subscription APIs
-base_url = "http://127.0.0.1:4545/v1"
-api_key = "sk-llxprt-jefe-local"
+enabled = false
+# Enable only if a subscription proxy is reachable from oracle-vps.
+base_url = "{{ env.LLXPRT_JEFE_BASE_URL }}"
+api_key = "{{ env.LLXPRT_JEFE_API_KEY }}"
 forward_token = false
 
 [llm.providers.subscription.models."*"]
@@ -120,40 +118,83 @@ forward_token = false
 enabled = true
 path = "/mcp"
 
-# ── Orchestrator-local MCP servers (same Docker network = no Tailscale hop) ──
-
-# Docker MCP Toolkit: container mgmt + filesystem via Docker socket
-# Gives agents the ability to run docker commands, read/write host files.
-[mcp.servers.docker-toolkit]
-url = "http://nyra-docker-toolkit:8811"
-
-# ── Oracle VPS MCP servers (oracle via Tailscale mesh, always-on) ────────
+# ── Oracle VPS MCP servers (same Docker network = no Tailscale hop) ──────
 
 # OpenMemory MCP: self-hosted mem0 memory server with Qdrant vector backend
 # MCP SSE endpoint format: /mcp/{client_name}/sse/{user_id}
 [mcp.servers.openmemory]
-url = "http://oracle:8765/mcp/nexus/sse/nyra"
+url = "http://openmemory-mcp:8765/mcp/nexus/sse/nyra"
 
 # Infisical MCP: secrets read/write via @infisical/mcp (supergateway stdio→SSE bridge)
 # Gives agents the ability to fetch and update secrets from Infisical projects.
 [mcp.servers.infisical]
-url = "http://oracle:8766/sse"
+url = "http://infisical-mcp:8766/sse"
 
 # n8n: workflow execution, trigger automation pipelines, inspect executions
 [mcp.servers.n8n]
-url = "http://oracle:5678/mcp"
+url = "http://n8n:5678/mcp"
 
 # TwentyCRM: borrower/lead/deal management (open-source CRM)
 [mcp.servers.twenty]
-url = "http://oracle:8400"
+url = "http://twenty-mcp:8400"
 
 # Mem0 REST API: conversational memory REST interface (search/store/delete memories)
 [mcp.servers.mem0]
-url = "http://oracle:5000"
+url = "http://mem0-rest:5000"
 
 # Paperclip: OCR and document classification
 [mcp.servers.paperclip]
-url = "http://oracle:8767/sse"
+url = "http://paperclip-mcp:8767/sse"
+
+# Magic UI: animated React components and templates.
+[mcp.servers.magicui]
+url = "http://magicui-mcp:8768/sse"
+
+# shadcn/ui: registry browser/search/install tooling for shadcn-compatible registries.
+[mcp.servers.shadcn]
+url = "http://shadcn-mcp:8769/sse"
+
+# Sequential Thinking: structured chain-of-thought planning tool.
+[mcp.servers.sequential-thinking]
+url = "http://sequential-thinking-mcp:8770/sse"
+
+# Playwright: browser automation for UI checks and screenshots.
+[mcp.servers.playwright]
+url = "http://playwright-mcp:8771/sse"
+
+# Firecrawl: crawling, scraping, extraction, and web search.
+[mcp.servers.firecrawl]
+url = "http://firecrawl-mcp:8772/sse"
+
+# Git: raw git repository operations against the mounted Project Nyra workspace.
+[mcp.servers.git]
+url = "http://git-mcp:8773/sse"
+
+# Next.js DevTools: runtime diagnostics for running Next.js dev servers.
+[mcp.servers.next-devtools]
+url = "http://next-devtools-mcp:8774/sse"
+
+# Tavily: low-latency web search and research API.
+[mcp.servers.tavily]
+url = "http://tavily-mcp:8775/sse"
+
+# WCGW: workspace shell/code tools behind Nexus.
+[mcp.servers.wcgw]
+url = "http://wcgw-mcp:8776/sse"
+
+# Gitingest: repo ingestion and digest generation for local/remote Git repos.
+[mcp.servers.gitingest]
+url = "http://gitingest-mcp:8777/sse"
+
+# Codebase Index: structural symbol/dependency index for Project Nyra.
+[mcp.servers.codebase-index]
+url = "http://codebase-index-mcp:8778/sse"
+
+# Home Assistant: smart home control and HA administration via ha-mcp.
+# The ha-mcp container keeps the long-lived access token in Docker env, not TOML.
+[mcp.servers.homeassistant]
+protocol = "streamable-http"
+url = "http://ha-mcp:8086/mcp"
 
 # ── Worker Node MCP servers (via Tailscale) ──────────────────────────────────
 
@@ -187,7 +228,7 @@ enabled = true
 
 [rate_limits.backend]
 type = "redis"
-url = "redis://redis:6379"
+url = "redis://redis-cache:6379"
 
 # ── RESPONSE CACHE ────────────────────────────────────────────────────────────
 # Deduplicates identical LLM + tool calls within TTL window.
@@ -196,6 +237,6 @@ url = "redis://redis:6379"
 [cache]
 enabled = true
 type = "redis"
-url = "redis://redis:6379"
+url = "redis://redis-cache:6379"
 ttl = 900
 prefix = "nexus:"

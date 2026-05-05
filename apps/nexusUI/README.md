@@ -4,6 +4,8 @@ Operator UI for the Project Nyra control plane. This app manages desired Nexus R
 
 This belongs in `apps/nexusUI`, not inside `apps/webapp`, because it is an admin/control-plane console. Deploy it on a separate Access-gated subdomain such as `nexus.ratehunter.net`, then link to it from the broker webapp.
 
+Current runtime placement: Grafbase Nexus and LiteLLM live on `oracle-vps` in `infra/hosts/oracle-vps/docker-compose.yml`. The orchestrator may run a CPU BitNet test service, but it should not become the canonical Nexus/LiteLLM host unless the architecture docs and host compose ownership are deliberately changed.
+
 ## What It Controls
 
 - Fuzzy tool find: enable/disable fuzzy MCP tool lookup behavior and result limits.
@@ -64,8 +66,8 @@ cp .env.example .env.local
 Important variables:
 
 - `NEXUS_UI_SETTINGS_PATH`: JSON settings file written by the app.
-- `NEXUS_BASE_URL`: Nexus Router base URL for status checks. Default: `http://127.0.0.1:6000`.
-- `LITELLM_BASE_URL`: LiteLLM proxy URL for status checks. Default: `http://127.0.0.1:4000`.
+- `NEXUS_BASE_URL`: Nexus Router base URL for status checks. Default: `http://oracle.trex-fiordland.ts.net:6000`.
+- `LITELLM_BASE_URL`: LiteLLM proxy URL for status checks. Default: `http://oracle.trex-fiordland.ts.net:4000`.
 - `LITELLM_MASTER_KEY`: optional secret used only for authenticated LiteLLM health/model calls.
 - `NEXUS_CONFIG_APPLY_ENABLED`: must remain `false` until a reviewed deployment adapter exists.
 - `NEXT_PUBLIC_WEBAPP_URL`: link target back to the broker webapp.
@@ -76,9 +78,9 @@ Never store actual provider tokens in `config/nexus-ui.settings.json`. Use secre
 
 Recommended:
 
-1. Run this app as a standalone Next.js service on the orchestrator.
-2. Bind it to localhost or the Tailscale interface.
-3. Expose it through the orchestrator Cloudflared tunnel as `nexus.ratehunter.net`.
+1. Run this app as a standalone Next.js service on `oracle-vps` or another explicitly chosen admin host.
+2. Point `NEXUS_BASE_URL` and `LITELLM_BASE_URL` at Oracle-local Nexus/LiteLLM.
+3. Expose the UI through a Cloudflared tunnel as `nexus.ratehunter.net`.
 4. Put Cloudflare Access in front of the hostname.
 5. Link from `apps/webapp` with `NEXT_PUBLIC_NEXUS_UI_URL=https://nexus.ratehunter.net`.
 
