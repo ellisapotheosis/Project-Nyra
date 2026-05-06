@@ -1,7 +1,0 @@
-[submodule "external/claw-code"]
-	path = external/claw-code
-	url = https://github.com/ultraworkers/claw-code
-
-[submodule "external/llxprt-jefe"]
-	path = external/llxprt-jefe
-	url = https://github.com/vybestack/llxprt-jefe.git
