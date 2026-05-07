@@ -13,6 +13,7 @@
     "packages/*"
   ],
   "scripts": {
+    "prepare": "husky",
     "dev": "turbo run dev --concurrency=30",
     "build": "turbo run build",
     "lint": "pnpm -r --if-present lint",
@@ -35,6 +36,8 @@
     "@typescript-eslint/eslint-plugin": "^8.57.0",
     "@typescript-eslint/parser": "^8.58.2",
     "eslint": "^10.0.3",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.4.0",
     "prettier": "^3.4.2",
     "turbo": "^2.8.15",
     "typescript": "^5.7.0",
