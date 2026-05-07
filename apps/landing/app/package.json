@@ -19,6 +19,7 @@
     "cf:deploy": "pnpm run build && pnpm run deploy"
   },
   "dependencies": {
+    "@tailwindcss/postcss": "^4.2.4",
     "next": "15.5.15",
     "react": "18.3.1",
     "react-dom": "18.3.1",

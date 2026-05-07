@@ -26,5 +26,9 @@
   "6c37fbe3-5bab-4115-b10d-87056a1edf13": {
     "conversationId": "conv-44f65c05-24c8-487b-a271-85c79d752384",
     "agentId": "agent-8ae0ffbc-eb51-462f-beea-14a6daf2ae4d"
+  },
+  "fc051c79-f5f4-4d47-a5aa-474cfbfa4f28": {
+    "conversationId": "conv-e916833e-adec-478e-bb0a-e294f1c672e6",
+    "agentId": "agent-8ae0ffbc-eb51-462f-beea-14a6daf2ae4d"
   }
 }
