@@ -15,7 +15,7 @@ services:
       LETTA_MCP_PACKAGE: ${LETTA_MCP_PACKAGE:-@letta-ai/letta-mcp-server}
       LETTA_MCP_PORT: ${LETTA_MCP_PORT:-8284}
     ports:
-      - "127.0.0.1:${LETTA_MCP_HOST_PORT:-8284}:8284"
+      - "${ORACLE_TAILSCALE_IP:-127.0.0.1}:${LETTA_MCP_HOST_PORT:-8284}:8284"
     command:
       - /bin/sh
       - -lc
@@ -23,8 +23,6 @@ services:
         npm exec -y supergateway -- \
           --stdio "npx -y $$LETTA_MCP_PACKAGE" \
           --port "$$LETTA_MCP_PORT"
-    depends_on:
-      - letta
     networks:
       - memory_edge
 

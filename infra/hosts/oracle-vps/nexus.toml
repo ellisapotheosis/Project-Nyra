@@ -142,6 +142,11 @@ url = "http://twenty-mcp:8400"
 [mcp.servers.mem0]
 url = "http://mem0-rest:5000"
 
+# Letta MCP: long-lived agent identity and memory-manager orchestration tools.
+# The bridge runs in the Oracle memory plane and is exposed only on Tailscale.
+[mcp.servers.letta]
+url = "http://oracle.trex-fiordland.ts.net:8284/sse"
+
 # Paperclip: OCR and document classification
 [mcp.servers.paperclip]
 url = "http://paperclip-mcp:8767/sse"

@@ -16,10 +16,13 @@ ingress:
     service: http://oracle.trex-fiordland.ts.net:4000
 
   - hostname: nexus.ratehunter.net
-    service: http://oracle.trex-fiordland.ts.net:3016
+    service: http://oracle.trex-fiordland.ts.net:6000
 
   - hostname: nexus-router.ratehunter.net
     service: http://oracle.trex-fiordland.ts.net:6000
+
+  - hostname: letta.ratehunter.net
+    service: http://oracle.trex-fiordland.ts.net:8283
 
   - hostname: openclaw-gateway.ratehunter.net
     service: http://nyra-openclaw-gateway:8001
