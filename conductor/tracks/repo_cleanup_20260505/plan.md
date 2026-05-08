@@ -3,7 +3,7 @@
 ## Phase 1: Repo Truth and Docs Cleanup
 
 - [x] Task: Resolve merge conflict markers in root docs (`AGENTS.md`, `README.md`, `GEMINI.md`) 61e62cd
-- [ ] Task: Update architecture docs (`docs/MASTER_ARCHITECTURE.md`, etc.) to match `/infra/hosts/` structure
+- [x] Task: Update architecture docs (`docs/MASTER_ARCHITECTURE.md`, etc.) to match `/infra/hosts/` structure 76bb3fb
 - [ ] Task: Standardize repo-wide metadata and remove stale historical proposals
 - [ ] Task: Conductor - User Manual Verification 'Phase 1: Repo Truth and Docs Cleanup' (Protocol in workflow.md)
 
