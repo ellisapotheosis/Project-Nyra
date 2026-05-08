@@ -35,14 +35,18 @@ services:
       mem0:
         condition: service_healthy
     ports:
-      - 127.0.0.1:${LETTA_HOST_PORT:-8283}:8283
+      - ${ORACLE_TAILSCALE_IP:-127.0.0.1}:${LETTA_HOST_PORT:-8283}:8283
     volumes:
       - letta_state:/root/.letta
     networks:
       memory_private: {}
       memory_edge: {}
     healthcheck:
-      test: ["CMD-SHELL", "wget -q -O- http://127.0.0.1:8283/v1/health >/dev/null 2>&1 || wget -q -O- http://127.0.0.1:8283/health >/dev/null 2>&1"]
+      test:
+        [
+          "CMD-SHELL",
+          "wget -q -O- http://127.0.0.1:8283/v1/health >/dev/null 2>&1 || wget -q -O- http://127.0.0.1:8283/health >/dev/null 2>&1",
+        ]
       interval: 15s
       timeout: 5s
       retries: 30
@@ -71,7 +75,11 @@ services:
       memory_private: {}
       memory_edge: {}
     healthcheck:
-      test: ["CMD-SHELL", "wget -q -O- http://127.0.0.1:5000/health >/dev/null 2>&1 || curl -fsS http://127.0.0.1:5000/health >/dev/null 2>&1"]
+      test:
+        [
+          "CMD-SHELL",
+          "wget -q -O- http://127.0.0.1:5000/health >/dev/null 2>&1 || curl -fsS http://127.0.0.1:5000/health >/dev/null 2>&1",
+        ]
       interval: 15s
       timeout: 5s
       retries: 20
@@ -113,7 +121,11 @@ services:
     networks:
       memory_private: {}
     healthcheck:
-      test: ["CMD-SHELL", "wget -q -O- http://127.0.0.1:6333/healthz >/dev/null 2>&1"]
+      test:
+        [
+          "CMD-SHELL",
+          "wget -q -O- http://127.0.0.1:6333/healthz >/dev/null 2>&1",
+        ]
       interval: 10s
       timeout: 5s
       retries: 20
@@ -143,7 +155,11 @@ services:
     networks:
       memory_private: {}
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${LETTA_DB_USER:-letta} -d ${LETTA_DB_NAME:-letta}"]
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${LETTA_DB_USER:-letta} -d ${LETTA_DB_NAME:-letta}",
+        ]
       interval: 10s
       timeout: 5s
       retries: 20

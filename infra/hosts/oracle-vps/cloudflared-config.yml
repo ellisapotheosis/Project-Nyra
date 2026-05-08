@@ -55,6 +55,9 @@ ingress:
   - hostname: paperclip.ratehunter.net
     service: http://nyra-paperclip:3100
 
+  - hostname: letta.ratehunter.net
+    service: http://oracle.trex-fiordland.ts.net:8283
+
   - hostname: portainer-oracle.ratehunter.net
     service: https://nyra-portainer:9443
     originRequest:

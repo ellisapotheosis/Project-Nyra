@@ -15,14 +15,18 @@ Agents should always document these steps here instead of blocking.
 ## Cloudflare
 
 ### Tunnel objects
+
 Create or confirm the tunnel objects and retrieve locally managed credentials JSON files.
 
 Expected tunnel scope:
+
 - orchestrator tunnel
 - optional oracle tunnel later
 
 ### DNS
+
 Create proxied records for:
+
 - `nyra.ratehunter.net`
 - `api.ratehunter.net`
 - `hooks.ratehunter.net`
@@ -33,9 +37,42 @@ Create proxied records for:
 - `bot.ratehunter.net`
 
 ### Cloudflare Access
+
 Create Access apps/policies for admin surfaces and require MFA.
 
+### Letta owner-only subdomain and MCP access
+
+Letta can have its own owner-only subdomain without taking control away from
+Paperclip, Clawteam, or Nerve UI. Those tools should continue to control
+OpenClaw agents through their existing OpenClaw/Nexus endpoints; Letta adds
+persistent agent state and memory-manager orchestration, not an exclusive
+replacement control plane.
+
+**Steps:**
+
+1. In Cloudflare DNS/Zero Trust, create `letta.ratehunter.net` and route it to
+   the Oracle Letta origin from `infra/hosts/*/cloudflared-config.yml`.
+2. Protect `letta.ratehunter.net` with Cloudflare Access. Use owner-only access
+   or a service-token policy for automation.
+3. On Oracle, set `ORACLE_TAILSCALE_IP=100.64.0.3` or the current Oracle
+   Tailscale IP before starting the memory compose stack. This binds Letta and
+   Letta MCP to the private mesh instead of localhost-only.
+4. Restart the Oracle memory stack:
+   ```bash
+   docker compose \
+     -f infra/hosts/oracle-vps/docker-compose.memory.yml \
+     -f infra/hosts/oracle-vps/docker-compose.letta-mcp.yml \
+     up -d
+   ```
+5. Restart Nexus after Letta MCP is healthy so it rediscovers the
+   `[mcp.servers.letta]` tools.
+6. On every workstation running Claude Code, set `ORCHESTRATOR_TUNNEL_TOKEN`
+   to the Cloudflare Access service token expected by `.mcp.json`; otherwise
+   `https://nexus.ratehunter.net/mcp` redirects to browser login and MCP auth
+   fails.
+
 ### Cloudflare Pages landing redeploy
+
 Cloudflare Pages previously built commit `e27167d216022d90be73f8df433e70ac8183c415`, which still contained orphaned
 gitlinks under `external/` and failed during recursive submodule initialization with:
 `fatal: No url found for submodule path 'external/openclaw-n8n-stack' in .gitmodules`.
@@ -44,6 +81,7 @@ The repo-side fix is already on `origin/main`. Pages must rebuild from commit
 `8efd4c1356ae1ab8ad49fc8c6f13223aa9ec64ad` or newer.
 
 **Steps:**
+
 1. Open Cloudflare Dashboard → Workers & Pages → the landing Pages project.
 2. Verify the production branch is `main`.
 3. Trigger **Retry deployment** or **Create deployment** from the latest `main` commit.
@@ -51,20 +89,24 @@ The repo-side fix is already on `origin/main`. Pages must rebuild from commit
 5. If Cloudflare still reuses the old failed deployment, clear any queued/retry state and start a fresh production deploy from `main`.
 
 ### Cloudflare Pages project/account mismatch for landing deploy
+
 GitHub Actions now completes the landing app build and uploads the `.open-next` artifact successfully, but the
 Cloudflare deploy step fails when `cloudflare/pages-action@v1` calls:
 `/accounts/<CLOUDFLARE_ACCOUNT_ID>/pages/projects/ratehunter-landing`
 
 Current failure from run `24940332215` on April 25, 2026:
+
 - `code: 7003` — `Could not route to /accounts/.../pages/projects/ratehunter-landing`
 - `code: 7000` — `No route for that URI`
 
 This means one of these owner-managed values is wrong or missing:
+
 - the Cloudflare Pages project does not exist under that account
 - `CLOUDFLARE_ACCOUNT_ID` points to the wrong Cloudflare account
 - `CLOUDFLARE_API_TOKEN` belongs to a different account or lacks Pages access
 
 **Steps:**
+
 1. Open Cloudflare Dashboard → **Workers & Pages**.
 2. Confirm there is a Pages project named exactly `ratehunter-landing`.
 3. If it does not exist, create it or rename the existing project to match the workflow.
@@ -76,17 +118,20 @@ This means one of these owner-managed values is wrong or missing:
 7. Re-run the `Deploy to Cloudflare Pages` workflow after correcting the account/project mismatch.
 
 ### ratehunter.net serves branded 404 after a successful landing deploy
+
 Observed on May 1, 2026: `https://ratehunter.net/` resolves through Cloudflare but serves a branded `404 Page Not Found`
 instead of the landing app homepage. This is different from a build failure. It means the public hostname is not serving
 the deployed `apps/landing/ratehunter-landing` homepage.
 
 Likely causes:
+
 - `ratehunter.net` is attached to a different Pages project, Worker route, or Cloudflared fallback origin.
 - The `ratehunter-landing` Pages project deployed successfully, but `ratehunter.net` is not listed under that project's custom domains.
 - DNS for the apex or `www` hostname points at a stale Cloudflare route instead of the Pages custom-domain binding.
 - The deployment adapter uploaded an artifact that returns 200/404 but does not serve the OpenNext landing app content.
 
 **Steps:**
+
 1. Open Cloudflare Dashboard → **Workers & Pages** → `ratehunter-landing` → **Custom domains**.
 2. Confirm both `ratehunter.net` and `www.ratehunter.net` are attached to this exact project and show as active.
 3. Open the Cloudflare DNS records for the `ratehunter.net` zone and confirm there is no Worker route, Pages project,
@@ -98,10 +143,13 @@ Likely causes:
    landing homepage text (`Ellis Andersen`) and will fail if the domain still serves the 404 page.
 
 ## Tailscale
+
 Manual only if you want to enforce additional ACLs, tags, or device policies.
 
 ## Twilio / email providers
+
 Agents cannot:
+
 - buy phone numbers
 - complete A2P registration
 - verify email domains / DKIM / SPF
@@ -109,13 +157,17 @@ Agents cannot:
 Record all provider secrets in gitignored env files only.
 
 ## Claude / OpenAI / Gemini
+
 Agents cannot perform your subscription or OAuth sign-ins for:
+
 - Claude Code
 - Codex CLI / OpenAI account auth
 - Gemini CLI / Google auth
 
 ## Hardware / OS
+
 Agents cannot:
+
 - install GPU drivers
 - change BIOS virtualization settings
 - resolve physical thermal or power issues
@@ -134,6 +186,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File C:\Users\edane\nyra-fix-loca
 ```
 
 Expected result:
+
 - `C:\ProgramData\ssh\sshd_config` contains `Port 2223`
 - Windows service `sshd` is `Running`
 - `Test-NetConnection 127.0.0.1 -Port 2223` succeeds
@@ -146,6 +199,7 @@ The `INFISICAL_TOKEN` stored in `infra/env/secrets/shared.env` and `.env.stack-c
 secret rotation and pull won't work until a new token is generated.
 
 **Steps:**
+
 1. Log in to https://app.infisical.com
 2. Go to Organization Settings → Machine Identities → find the Nyra identity
 3. Generate a new access token (set a 90-day or 365-day TTL)
@@ -162,6 +216,7 @@ the cloudflared container (it connects to CF edge at 198.41.200.43) but CF retur
 tunnel connector was deleted or expired in the Cloudflare dashboard after ~3 months offline.
 
 **Steps for each tunnel:**
+
 1. Go to https://dash.cloudflare.com → Zero Trust → Networks → Tunnels
 2. Delete the old stale connector(s) if shown
 3. Create a new tunnel → copy the single-line tunnel token
@@ -200,6 +255,7 @@ docker run -d `
 ```
 
 **Then test:**
+
 ```
 curl http://orchestrator.trex-fiordland.ts.net:6000/health
 curl http://orchestrator.trex-fiordland.ts.net:6000/mcp -H "Accept: text/event-stream"
@@ -224,6 +280,7 @@ Both tunnel subdomains (oracle + orchestrator) should be gated with CF Access so
 email addresses can log in.
 
 **Allowed identities:**
+
 - `edaneandersen@gmail.com`
 - `ellisandersen@ratehunter.net`
 
@@ -245,6 +302,7 @@ email addresses can log in.
    - Change the outer **Require** rule to **AND** so BOTH email + Tailscale IP must match
 
 **Subdomains needing Tailscale IP restriction (in addition to OIDC):**
+
 - `portainer.ratehunter.net`
 - `mesh.ratehunter.net`
 - `prometheus.ratehunter.net`
@@ -262,6 +320,7 @@ Services with NO native auth (Prometheus, OpenMemory MCP, mem0-rest) MUST have C
 Both tunnels need new tokens. The existing connectors were deleted from the CF account.
 
 **Oracle VPS tunnel:**
+
 1. Go to Cloudflare Zero Trust → Tunnels → Create tunnel (or select existing oracle tunnel)
 2. Choose **Cloudflared** connector type
 3. Copy the tunnel token (starts with `ey...`)
@@ -269,6 +328,7 @@ Both tunnels need new tokens. The existing connectors were deleted from the CF a
 5. Restart oracle cloudflared: `ssh ubuntu@100.64.0.3 "docker restart nyra-cloudflared"`
 
 **Orchestrator tunnel:**
+
 1. Same process — create/select orchestrator tunnel in CF Zero Trust
 2. Copy the tunnel token
 3. In Infisical → `/machines/orchestrator` → add secret `ORCHESTRATOR_TUNNEL_TOKEN=<token>`
@@ -284,6 +344,7 @@ matching the tables in `~/repos/cloudflared/TUNNEL-SETUP-ORACLE.md` and `TUNNEL-
 The Compose overrides require a hosted MCP URL and user-bound app connections.
 
 **Steps:**
+
 1. In Composio, create or select the hosted MCP server for Nyra external tools.
 2. Connect the required user/account credentials for Jira, Slack, and Twenty.
 3. Copy the MCP URL and API key into the secret store:
