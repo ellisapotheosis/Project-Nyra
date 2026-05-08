@@ -4,7 +4,7 @@
 
 - [x] Task: Resolve merge conflict markers in root docs (`AGENTS.md`, `README.md`, `GEMINI.md`) 61e62cd
 - [x] Task: Update architecture docs (`docs/MASTER_ARCHITECTURE.md`, etc.) to match `/infra/hosts/` structure 76bb3fb
-- [ ] Task: Standardize repo-wide metadata and remove stale historical proposals
+- [x] Task: Standardize repo-wide metadata and remove stale historical proposals 6f0b1e4
 - [ ] Task: Conductor - User Manual Verification 'Phase 1: Repo Truth and Docs Cleanup' (Protocol in workflow.md)
 
 ## Phase 2: Webapp API Client Layer Foundation
