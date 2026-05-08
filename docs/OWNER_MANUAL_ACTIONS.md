@@ -14,6 +14,51 @@ Agents should always document these steps here instead of blocking.
 
 ## Cloudflare
 
+### Cloudflare Tunnel desired-state apply for Project Nyra subdomains
+
+Generated desired-state files now exist for the orchestrator and Oracle VPS tunnels:
+
+- `infra/cloudflare/desired-state/exposure-matrix.yml`
+- `infra/cloudflare/generated-remote/orchestrator-tunnel.config.payload.json`
+- `infra/cloudflare/generated-remote/oracle-tunnel.config.payload.json`
+- `infra/cloudflare/generated-remote/dns-records.desired.json`
+- `infra/cloudflare/generated-remote/access-apps.desired.json`
+
+Important routing decision:
+
+- `ratehunter.net` and `www.ratehunter.net` stay on Cloudflare Pages only.
+- App/service/MCP hostnames use subdomains such as `nyra.ratehunter.net`, `api.ratehunter.net`, and `nexus.ratehunter.net`.
+
+Apply status:
+
+- Applied through Cloudflare API on 2026-05-08.
+- Tunnel configs applied successfully.
+- DNS records applied successfully.
+- UI/admin Access apps applied successfully.
+- `ratehunter.net` and `www.ratehunter.net` remain Cloudflare Pages hostnames.
+
+Required follow-up:
+
+1. Rotate `ORCHESTRATOR_TUNNEL_TOKEN`; a token was pasted into chat during setup.
+2. Confirm Infisical `/machines/orchestrator` contains `ORCHESTRATOR_TUNNEL_ID` and `ORCHESTRATOR_TUNNEL_TOKEN`.
+3. Replace Infisical `/machines/oracle-vps` `ORACLE_TUNNEL_TOKEN` with the token for tunnel `02fa18b6-ffcd-4b37-91ba-409642d5fb8f`.
+4. Add `SUPABASE_DB_URL_PASSWORD` as the URL-encoded form of `SUPABASE_DB_PASSWORD` if the raw password contains URL-reserved characters.
+5. Repair the stale Oracle Docker/Tailscale context so `docker --context oracle ...` works again without using the public SSH endpoint.
+
+Current runtime caveat:
+
+- The orchestrator tunnel connector is online as tunnel `ae0bd53a-f22e-4414-8593-5b765dcd044b`.
+- The Oracle tunnel connector is online as tunnel `02fa18b6-ffcd-4b37-91ba-409642d5fb8f`, but this session used a runtime token override because the shared Infisical token currently mismatches the tunnel ID.
+- The preferred Linkwarden hostname is `links.ratehunter.net`; keep `linkwarden.ratehunter.net` only as a temporary alias if desired.
+- `http://100.64.0.2:3007` timed out from the tunnel path and needs origin validation.
+
+Current Oracle smoke status:
+
+- `https://api.ratehunter.net/auth/v1/health` returns `200`.
+- `https://hooks.ratehunter.net` returns `200`.
+- `https://nyra.ratehunter.net`, `https://nexus.ratehunter.net`, `https://litellm.ratehunter.net`, `https://n8n.ratehunter.net`, and `https://twenty.ratehunter.net` reach Cloudflare Access.
+- `https://nexus-router.ratehunter.net` returns `502` because Nexus is unhealthy while MCP backends are unavailable.
+
 ### Tunnel objects
 
 Create or confirm the tunnel objects and retrieve locally managed credentials JSON files.
