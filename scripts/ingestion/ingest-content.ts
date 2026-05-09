@@ -22,6 +22,7 @@ import {
   DEFAULT_CONFIG,
   FILE_TYPE_MAP,
   TARGET_STRUCTURE,
+  loadConfig,
   mergeConfig,
   validateConfig
 } from './config';
@@ -260,6 +261,7 @@ async function main() {
     .name('ingest-content')
     .description('Content ingestion pipeline for apps/webapp')
     .version('1.0.0')
+    .option('-c, --config <file>', 'JSON config file')
     .option('-s, --source <dirs...>', 'Source directories to scan')
     .option('-t, --target <dir>', 'Target directory for ingested content')
     .option('-d, --dry-run', 'Run without actually copying files', false)
@@ -270,17 +272,19 @@ async function main() {
     .parse(process.argv);
 
   const options = program.opts();
+  const fileConfig = loadConfig(options.config);
 
   // Validate required options
-  if (!options.source || options.source.length === 0) {
+  if ((!options.source || options.source.length === 0) && (!fileConfig.sourceDirs || fileConfig.sourceDirs.length === 0)) {
     console.error('Error: At least one source directory must be specified');
-    console.error('Usage: ingest-content --source <dir> [--source <dir2>...]');
+    console.error('Usage: ingest-content --source <dir> [--source <dir2>...] or --config <file>');
     process.exit(1);
   }
 
   // Build configuration
   const config: Partial<IngestionConfig> = {
-    sourceDirs: options.source,
+    ...fileConfig,
+    sourceDirs: options.source || fileConfig.sourceDirs,
     dryRun: options.dryRun,
     overwrite: options.overwrite,
     generateManifest: options.manifest !== false,

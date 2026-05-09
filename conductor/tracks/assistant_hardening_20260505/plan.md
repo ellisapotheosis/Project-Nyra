@@ -8,12 +8,12 @@
 
 ## Phase 2: Landing Page Integration
 
-- [ ] Task: Standardize lead capture payload structure
-- [ ] Task: Connect landing page form to `crmApi.ingestLead`
-- [ ] Task: Implement thank-you page with appointment booking handoff
+- [x] Task: Standardize lead capture payload structure
+- [x] Task: Connect landing page form to `crmApi.ingestLead`
+- [x] Task: Implement thank-you page with appointment booking handoff
 
 ## Phase 3: Compliance and Attribution
 
-- [ ] Task: Add mandatory consent checkboxes to landing forms
-- [ ] Task: Ensure lead source and UTM parameters are captured and stored in Twenty CRM
-- [ ] Task: Conductor - User Manual Verification 'Phase 3: Compliance and Attribution' (Protocol in workflow.md)
+- [x] Task: Add mandatory consent checkboxes to landing forms
+- [x] Task: Ensure lead source and UTM parameters are captured and stored in Twenty CRM
+- [x] Task: Conductor - User Manual Verification 'Phase 3: Compliance and Attribution' (Protocol in workflow.md)

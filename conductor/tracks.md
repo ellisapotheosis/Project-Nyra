@@ -14,15 +14,15 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ---
 
-- [~] **Track: Campaign Builder MVP (Mortgage drip sequence editor)**
+- [x] **Track: Campaign Builder MVP (Mortgage drip sequence editor)**
       _Link: [./tracks/campaign_builder_20260505/](./tracks/campaign_builder_20260505/)_
 
 ---
 
-- [~] **Track: Quote Desk MVP (FastAPI integration and broker approval gates)**
+- [x] **Track: Quote Desk MVP (FastAPI integration and broker approval gates)**
       _Link: [./tracks/quote_desk_20260505/](./tracks/quote_desk_20260505/)_
 
 ---
 
-- [ ] **Track: Assistant Hardening and Landing Lead Capture**
+- [x] **Track: Assistant Hardening and Landing Lead Capture**
       _Link: [./tracks/assistant_hardening_20260505/](./tracks/assistant_hardening_20260505/)_

@@ -64,6 +64,11 @@ export const campaignApi = {
     client.put<CampaignTemplate>(`/api/campaigns/${id}`, data),
 
   /**
+   * Delete a campaign template.
+   */
+  deleteCampaign: (id: string) => client.delete(`/api/campaigns/${id}`),
+
+  /**
    * Get real-time stats for a campaign.
    */
   getCampaignStats: (id: string) =>
