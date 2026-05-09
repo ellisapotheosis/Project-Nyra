@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  llxprt-code:
+    image: node:20-alpine
+    container_name: nyra-worker-3060-llxprt-code
+    restart: unless-stopped
+    environment:
+      HOME: /tmp
+    command:
+      - /bin/sh
+      - -c
+      - "npm i -g @vybestack/llxprt-code && llxprt-code server --port 8081"
+    volumes:
+      - ${HOME:-/home/ellisapotheosis}/.config:/tmp/.config:ro
+    networks:
+      - worker-network
+
+networks:
+  worker-network:
+    external: true

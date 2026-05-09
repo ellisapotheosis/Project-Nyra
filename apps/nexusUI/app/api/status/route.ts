@@ -36,7 +36,7 @@ export async function GET() {
 
   const [nexus, liteLLM] = await Promise.all([
     probe(new URL("/health", nexusBaseUrl).toString()),
-    probe(new URL("/health", liteLLMBaseUrl).toString(), { headers }),
+    probe(new URL("/health/readiness", liteLLMBaseUrl).toString(), { headers }),
   ]);
 
   return NextResponse.json({ nexus, liteLLM, checkedAt: new Date().toISOString() });

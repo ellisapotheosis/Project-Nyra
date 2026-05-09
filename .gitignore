@@ -82,6 +82,9 @@ ehthumbs.db
 Thumbs.db
 Desktop.ini
 
+# Local Codex/CLI root config copy; canonical repo config lives under .codex/.
+/config.toml
+
 ################################################################################
 # Windows Reserved Filenames (Security)
 ################################################################################
@@ -432,6 +435,8 @@ dist/
 ################################################################################
 .cache/
 public/
+!apps/nexusUI/public/
+!apps/nexusUI/public/.gitkeep
 
 ################################################################################
 # Serverless directories
@@ -547,3 +552,16 @@ data/gitea-db/
 # MemPalace per-project files (issue #185)
 mempalace.yaml
 entities.json
+.codex/*
+!.codex/agents/
+!.codex/agents/**
+!.codex/skills/
+!.codex/skills/**
+.codex/skills/.system/**
+!.codex/prompts/
+!.codex/prompts/**
+
+# Windows metadata copied through WSL/SMB
+*:Zone.Identifier
+Thumbs.db*
+Desktop.ini

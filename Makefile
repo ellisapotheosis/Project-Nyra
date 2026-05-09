@@ -14,6 +14,13 @@ ORACLE_APPS_COMPOSE := infra/hosts/oracle-vps/docker-compose.apps.yml
 ARCHON_ENV_FILE ?= external/archon/nyra-configs/env/archon.env
 
 # Host Specific Compose Files
+ORCHESTRATOR_LLXPRT_COMPOSE := infra/hosts/orchestrator/docker-compose.llxprt.yml
+WORKER_3060_LLXPRT_COMPOSE := infra/hosts/worker-rtx3060/docker-compose.llxprt.yml
+WORKER_3090TI_LLXPRT_COMPOSE := infra/hosts/worker-rtx3090ti/docker-compose.llxprt.yml
+WORKER_5090_LLXPRT_COMPOSE := infra/hosts/worker-rtx5090/docker-compose.llxprt.yml
+ORACLE_ACTIVEPIECES_MCP_COMPOSE := infra/hosts/oracle-vps/docker-compose.activepieces-mcp.yml
+
+# Existing paths...
 ORCHESTRATOR_COMPOSE := infra/hosts/orchestrator/docker-compose.yml
 WORKER_3060_COMPOSE := infra/hosts/worker-rtx3060/docker-compose.yml
 WORKER_3090TI_COMPOSE := infra/hosts/worker-rtx3090ti/docker-compose.yml
@@ -26,7 +33,7 @@ ORACLE_MEMORY_EXTRA_COMPOSE := infra/hosts/oracle-vps/docker-compose.memory-extr
 ORACLE_PAPERCLIP_COMPOSE := infra/hosts/oracle-vps/docker-compose.paperclip.yml
 ORACLE_CLAWTEAM_COMPOSE := infra/hosts/oracle-vps/docker-compose.clawteam.yml
 ORACLE_UI_FACTORY_SERVICES := nyra-ui-engine magicui-mcp shadcn-mcp
-ORACLE_MCP_TOOL_SERVICES := litellm ha-mcp twenty-mcp git-mcp sequential-thinking-mcp playwright-mcp firecrawl-mcp magicui-mcp shadcn-mcp next-devtools-mcp tavily-mcp wcgw-mcp gitingest-mcp codebase-index-mcp nexus
+ORACLE_MCP_TOOL_SERVICES := llxprt-bridge llxprt-bridge-proxy activepieces-mcp litellm ha-mcp twenty-mcp git-mcp sequential-thinking-mcp playwright-mcp firecrawl-mcp magicui-mcp shadcn-mcp next-devtools-mcp tavily-mcp wcgw-mcp gitingest-mcp codebase-index-mcp nexus
 ORACLE_PORTAINER_SERVICES := portainer portainer-edge-agent
 INFISICAL_RUNTIME_COMPOSE := infra/hosts/_templates/docker-compose.infisical-runtime.yml
 WORKER_AI_COMMON_COMPOSE := infra/hosts/_templates/docker-compose.worker-ai-common.yml
@@ -35,6 +42,7 @@ WORKER_5090_MODEL_SWITCHER_COMPOSE := infra/hosts/worker-rtx5090/docker-compose.
 WORKER_3090TI_NERVE_COMPOSE := infra/hosts/worker-rtx3090ti/docker-compose.nerve.yml
 WORKER_3060_OPENCLAW_COMPOSE := infra/hosts/worker-rtx3060/docker-compose.openclaw.yml
 AGENT_INFRA_ENV ?= prod
+INFISICAL_PROJECT_ID ?= 8374cea9-e5e8-4050-bda4-b91f25ab30ef
 ORCHESTRATOR_CONTEXT ?= orchestrator
 ORACLE_CONTEXT ?= oracle
 WORKER_5090_CONTEXT ?= worker-rtx5090
@@ -59,7 +67,7 @@ KYUTAI_MESH_5090_COMPOSE := infra/workers/worker-rtx5090/docker-compose.kyutai-m
 
 DEFAULT_PROFILES ?= core,gateway,workflow,crm,apps,observability,vector
 
-.PHONY: help install test lint validate up down restart logs ps pull verify-paths dev-orchestrate dev-down dev-panels dev-status dev-llxprt-jefe dev-llxprt-code up-worker-3090ti up-worker-5090 up-worker-3060 up-all-workers down-all-workers paperclip-up paperclip-down paperclip-logs paperclip-status \
+.PHONY: help install test lint validate up down restart logs ps pull verify-paths dev-orchestrate dev-down dev-panels dev-status dev-llxprt-jefe dev-llxprt-code llxprt-bridge-up llxprt-bridge-down llxprt-bridge-status llxprt-oracle-tunnel-up llxprt-oracle-tunnel-down llxprt-oracle-tunnel-status llxprt-oracle-subscription-up up-worker-3090ti up-worker-5090 up-worker-3060 up-all-workers down-all-workers paperclip-up paperclip-down paperclip-logs paperclip-status \
   up-core up-orchestrator up-apps up-dev up-workers up-oracle \
   cluster cluster-kill grid grid-kill \
   nexus-up nexus-down health stack-up stack-verify \
@@ -70,7 +78,18 @@ DEFAULT_PROFILES ?= core,gateway,workflow,crm,apps,observability,vector
   oracle-ui-factory-up oracle-ui-factory-down oracle-ui-factory-ps oracle-ui-install \
   oracle-mcp-tools-up oracle-mcp-tools-down oracle-mcp-tools-ps \
   oracle-portainer-up oracle-portainer-down oracle-portainer-ps \
+  sync-env sync-env-all \
   up-all down-all cluster-status
+
+restoration-up: oracle-mcp-tools-up oracle-memory-full-up
+	@echo "🚀 Bringing up LLXPRT cluster..."
+	@docker --context $(ORCHESTRATOR_CONTEXT) compose -f $(ORCHESTRATOR_LLXPRT_COMPOSE) up -d
+	@docker --context $(WORKER_5090_CONTEXT) compose -f $(WORKER_5090_LLXPRT_COMPOSE) up -d
+	@docker --context $(WORKER_3090TI_CONTEXT) compose -f $(WORKER_3090TI_LLXPRT_COMPOSE) up -d
+	@docker --context $(WORKER_3060_CONTEXT) compose -f $(WORKER_3060_LLXPRT_COMPOSE) up -d
+	@echo "🐾 Starting ActivePieces MCP on Oracle..."
+	@docker --context oracle compose -f $(ORACLE_ACTIVEPIECES_MCP_COMPOSE) up -d
+	@echo "✅ Full Restoration Stack is LIVE."
 
 .DEFAULT_GOAL := help
 
@@ -81,10 +100,14 @@ help:
 	@echo "make up-all             Start all services across all PC nodes"
 	@echo "make down-all           Stop all services across all nodes"
 	@echo "make cluster-status     Show running containers across the entire cluster"
+	@echo "make restoration-up     🚀 RESTORE ALL MISSING SERVICES (ActivePieces, LLXPRT, Memory)"
 	@echo "make up                 Start default local stack profiles"
 	@echo "make down               Stop and remove local stack"
 	@echo "make ps                 Show running containers"
 	@echo "make health             Run system-wide health checks"
+	@echo "make llxprt-bridge-up   Start local OpenAI-compatible LLxprt subscription bridge"
+	@echo "make llxprt-oracle-tunnel-up  Reverse-tunnel the LLxprt bridge into Oracle"
+	@echo "make llxprt-oracle-subscription-up  Start the bridge and Oracle reverse tunnel"
 	@echo
 	@echo "--- DISTRIBUTED CLUSTER (4-PC) ---"
 	@echo "make cluster            Launch tmux session controlling all 4 PCs"
@@ -147,7 +170,11 @@ cluster-status:
 	@echo -e "\n=== [WORKER-3060] ==="
 	@docker --context worker-rtx3060 compose -f $(WORKER_3060_COMPOSE) ps
 
-up-all: up up-workers up-oracle
+up-all: sync-env up up-workers up-oracle
+
+sync-env:
+	@echo "🐾 Synchronizing cluster environment secrets from Infisical..."
+	@./scripts/mirror-sync-env.sh
 
 down-all: down
 	docker --context oracle compose -f $(ORACLE_COMPOSE) -f $(ORACLE_APPS_COMPOSE) --profile apps down
@@ -461,6 +488,26 @@ dev-down:
 dev-llxprt-jefe:
 	@echo "Starting llxprt-jefe (CLI subscription mode)..."
 	@cd ./external/llxprt-jefe && jefe
+
+llxprt-bridge-up:
+	@infisical run --projectId=$(INFISICAL_PROJECT_ID) --env=$(AGENT_INFRA_ENV) --path=/providers/llxprt -- ./scripts/start-llxprt-bridge.sh
+
+llxprt-bridge-down:
+	@./scripts/stop-llxprt-bridge.sh
+
+llxprt-bridge-status:
+	@curl -fsS http://127.0.0.1:8090/health || (echo "llxprt-bridge down" && exit 1)
+
+llxprt-oracle-tunnel-up:
+	@./scripts/start-llxprt-oracle-tunnel.sh
+
+llxprt-oracle-tunnel-down:
+	@./scripts/stop-llxprt-oracle-tunnel.sh
+
+llxprt-oracle-tunnel-status:
+	@ssh nyra-dev 'curl -fsS http://127.0.0.1:8090/health' || (echo "llxprt oracle tunnel down" && exit 1)
+
+llxprt-oracle-subscription-up: llxprt-bridge-up llxprt-oracle-tunnel-up llxprt-oracle-tunnel-status
 
 # WORKER ORCHESTRATION
 .PHONY: up-worker-3090ti up-worker-5090 up-worker-3060 up-all-workers down-all-workers
@@ -857,20 +904,23 @@ worker-3060-ai-down:
 
 oracle-memory-manager-up:
 	@echo "Starting Oracle memory manager: Letta + mem0 + FalkorDB + Qdrant + Letta MCP..."
-	@docker --context $(ORACLE_CONTEXT) compose --env-file /dev/null \
+	@infisical run --projectId=$(INFISICAL_PROJECT_ID) --env=$(AGENT_INFRA_ENV) --path=/machines/oracle-vps -- \
+	  docker --context $(ORACLE_CONTEXT) compose --env-file /dev/null \
 	  -f $(ORACLE_MEMORY_COMPOSE) \
-	  -f $(ORACLE_LETTA_MCP_COMPOSE) up -d
+	  -f $(ORACLE_LETTA_MCP_COMPOSE) up -d --build
 
 oracle-memory-extra-up:
 	@echo "Starting optional memory companions: memOS/MemoryTensor and ClaudeMem..."
-	@docker --context $(ORACLE_CONTEXT) compose --env-file /dev/null \
+	@infisical run --projectId=$(INFISICAL_PROJECT_ID) --env=$(AGENT_INFRA_ENV) --path=/machines/oracle-vps -- \
+	  docker --context $(ORACLE_CONTEXT) compose --env-file /dev/null \
 	  -f $(ORACLE_MEMORY_COMPOSE) \
 	  -f $(ORACLE_MEMORY_EXTRA_COMPOSE) up -d memos claudemem
 
 oracle-memory-full-up: oracle-memory-manager-up oracle-memory-extra-up
 
 oracle-memory-full-down:
-	@docker --context $(ORACLE_CONTEXT) compose --env-file /dev/null \
+	@infisical run --projectId=$(INFISICAL_PROJECT_ID) --env=$(AGENT_INFRA_ENV) --path=/machines/oracle-vps -- \
+	  docker --context $(ORACLE_CONTEXT) compose --env-file /dev/null \
 	  -f $(ORACLE_MEMORY_COMPOSE) \
 	  -f $(ORACLE_LETTA_MCP_COMPOSE) \
 	  -f $(ORACLE_MEMORY_EXTRA_COMPOSE) down
@@ -931,15 +981,19 @@ oracle-ui-install:
 
 oracle-mcp-tools-up:
 	@echo "Starting Oracle MCP tool containers and Nexus..."
-	@docker --context $(ORACLE_CONTEXT) compose --env-file /dev/null \
-	  -f $(ORACLE_COMPOSE) up -d $(ORACLE_MCP_TOOL_SERVICES)
+	@LLXPRT_BRIDGE_API_KEY="$$(infisical secrets get LLXPRT_BRIDGE_API_KEY --projectId=$(INFISICAL_PROJECT_ID) --env=$(AGENT_INFRA_ENV) --path=/providers/llxprt --plain --silent 2>/dev/null)" \
+	  infisical run --projectId=$(INFISICAL_PROJECT_ID) --env=$(AGENT_INFRA_ENV) --path=/machines/oracle-vps -- \
+	  docker --context $(ORACLE_CONTEXT) compose --env-file /dev/null \
+	  -f $(ORACLE_COMPOSE) -f $(ORACLE_ACTIVEPIECES_MCP_COMPOSE) up -d $(ORACLE_MCP_TOOL_SERVICES)
 
 oracle-mcp-tools-down:
-	@docker --context $(ORACLE_CONTEXT) compose --env-file /dev/null \
+	@infisical run --projectId=$(INFISICAL_PROJECT_ID) --env=$(AGENT_INFRA_ENV) --path=/machines/oracle-vps -- \
+	  docker --context $(ORACLE_CONTEXT) compose --env-file /dev/null \
 	  -f $(ORACLE_COMPOSE) stop $(ORACLE_MCP_TOOL_SERVICES)
 
 oracle-mcp-tools-ps:
-	@docker --context $(ORACLE_CONTEXT) compose --env-file /dev/null \
+	@infisical run --projectId=$(INFISICAL_PROJECT_ID) --env=$(AGENT_INFRA_ENV) --path=/machines/oracle-vps -- \
+	  docker --context $(ORACLE_CONTEXT) compose --env-file /dev/null \
 	  -f $(ORACLE_COMPOSE) ps $(ORACLE_MCP_TOOL_SERVICES)
 
 oracle-portainer-up:
