@@ -54,7 +54,6 @@ VOICE_3060_COMPOSE := infra/hosts/worker-rtx3060/docker-compose.voice.yml
 VOICE_5090_COMPOSE := infra/hosts/worker-rtx5090/docker-compose.voice.yml
 VOICE_3090TI_COMPOSE := infra/hosts/worker-rtx3090ti/docker-compose.voice.yml
 VOICE_ORCHESTRATOR_COMPOSE := infra/hosts/orchestrator/docker-compose.voice.yml
-HERMES_5090_COMPOSE := infra/hosts/worker-rtx5090/docker-compose.hermes.yml
 
 # Distributed Voice Compose Files
 DIST_VOICE_3060 := infra/hosts/worker-rtx3060/docker-compose.distributed-voice.yml
@@ -65,14 +64,14 @@ KYUTAI_MESH_3060_COMPOSE := infra/workers/worker-rtx3060/docker-compose.kyutai-m
 KYUTAI_MESH_3090TI_COMPOSE := infra/workers/worker-rtx3090ti/docker-compose.kyutai-mesh.yml
 KYUTAI_MESH_5090_COMPOSE := infra/workers/worker-rtx5090/docker-compose.kyutai-mesh.yml
 
-DEFAULT_PROFILES ?= core,gateway,workflow,crm,apps,observability,vector
+DEFAULT_PROFILES ?= apps,sync,debug
 
 .PHONY: help install test lint validate up down restart logs ps pull verify-paths dev-orchestrate dev-down dev-panels dev-status dev-llxprt-jefe dev-llxprt-code llxprt-bridge-up llxprt-bridge-down llxprt-bridge-status llxprt-oracle-tunnel-up llxprt-oracle-tunnel-down llxprt-oracle-tunnel-status llxprt-oracle-subscription-up up-worker-3090ti up-worker-5090 up-worker-3060 up-all-workers down-all-workers paperclip-up paperclip-down paperclip-logs paperclip-status \
   up-core up-orchestrator up-apps up-dev up-workers up-oracle \
   cluster cluster-kill grid grid-kill \
   nexus-up nexus-down health stack-up stack-verify \
   gitea-up gitea-down gitea-ps twenty-crm-up twenty-crm-down \
-  voice-3060 voice-5090 voice-3090ti voice-orch voice-distributed hermes-5090 \
+  voice-3060 voice-5090 voice-3090ti voice-orch voice-distributed \
   cf-orch-up cf-orch-down cf-orch-logs \
   oracle-apps-up oracle-apps-down oracle-quote-engine-up oracle-campaign-engine-up \
   oracle-ui-factory-up oracle-ui-factory-down oracle-ui-factory-ps oracle-ui-install \
@@ -126,7 +125,6 @@ help:
 	@echo "make voice-3090ti       Start standalone Unmute on RTX 3090 Ti"
 	@echo "make voice-orch         Start Kyutai Pocket TTS on Orchestrator"
 	@echo "make voice-distributed  Start distributed 3-node voice setup"
-	@echo "make hermes-5090        Start Hermes UI override on RTX 5090"
 	@echo
 	@echo "--- CLOUDFLARED TUNNELS ---"
 	@echo "make cf-orch-up         Start orchestrator CF tunnel (separate from main stack)"
@@ -194,7 +192,6 @@ verify-paths:
 	@test -f $(VOICE_5090_COMPOSE) || (echo "Missing $(VOICE_5090_COMPOSE)" && exit 1)
 	@test -f $(VOICE_3090TI_COMPOSE) || (echo "Missing $(VOICE_3090TI_COMPOSE)" && exit 1)
 	@test -f $(VOICE_ORCHESTRATOR_COMPOSE) || (echo "Missing $(VOICE_ORCHESTRATOR_COMPOSE)" && exit 1)
-	@test -f $(HERMES_5090_COMPOSE) || (echo "Missing $(HERMES_5090_COMPOSE)" && exit 1)
 	@test -f $(DIST_VOICE_3060) || (echo "Missing $(DIST_VOICE_3060)" && exit 1)
 	@test -f $(DIST_VOICE_5090) || (echo "Missing $(DIST_VOICE_5090)" && exit 1)
 	@test -f $(DIST_VOICE_3090TI) || (echo "Missing $(DIST_VOICE_3090TI)" && exit 1)
@@ -237,14 +234,16 @@ up-oracle:
 
 # --- COMPONENT TARGETS ---
 
+ORACLE_GITEA_COMPOSE := infra/hosts/oracle-vps/docker-compose.gitea.yml
+
 gitea-up:
-	docker --context oracle compose -f $(ORACLE_COMPOSE) up -d gitea gitea-runner github-mirror-sync gitea-mcp
+	docker --context oracle compose -f $(ORACLE_GITEA_COMPOSE) up -d
 
 gitea-down:
-	docker --context oracle compose -f $(ORACLE_COMPOSE) stop gitea gitea-runner github-mirror-sync gitea-mcp
+	docker --context oracle compose -f $(ORACLE_GITEA_COMPOSE) stop
 
 gitea-ps:
-	docker --context oracle compose -f $(ORACLE_COMPOSE) ps gitea gitea-runner github-mirror-sync gitea-mcp
+	docker --context oracle compose -f $(ORACLE_GITEA_COMPOSE) ps
 
 twenty-crm-up:
 	docker --context oracle compose -f $(ORACLE_COMPOSE) up -d twenty
@@ -281,9 +280,6 @@ voice-distributed:
 	docker --context worker-rtx3060 compose -f $(DIST_VOICE_3060) up -d
 	docker --context worker-rtx5090 compose -f $(DIST_VOICE_5090) up -d
 	docker --context worker-rtx3090ti compose -f $(DIST_VOICE_3090TI) up -d
-
-hermes-5090:
-	docker --context worker-rtx5090 compose -f $(HERMES_5090_COMPOSE) up -d
 
 # --- CLOUDFLARED TUNNEL TARGETS ---
 
@@ -541,7 +537,7 @@ paperclip-up:
 	@echo "PAPERCLIP: http://paperclip.ratehunter.net"
 
 paperclip-down:
-	@docker --context oracle compose -f $(ORACLE_COMPOSE) down
+	@docker --context oracle compose -f $(ORACLE_COMPOSE) stop paperclip paperclip-mcp
 
 paperclip-logs:
 	@docker --context oracle compose -f $(ORACLE_COMPOSE) logs -f paperclip
@@ -838,7 +834,7 @@ orchestrator-ai-up:
 	  -f $(ORCHESTRATOR_COMPOSE) \
 	  -f $(INFISICAL_RUNTIME_COMPOSE) \
 	  --profile apps up -d \
-	  openclaw-gateway cloudflared portainer-edge-agent infisical-agent infisical-sidecar
+	  openclaw-gateway portainer-edge-agent infisical-agent infisical-sidecar
 
 orchestrator-ai-down:
 	@NYRA_INFISICAL_PATH=/machines/orchestrator \

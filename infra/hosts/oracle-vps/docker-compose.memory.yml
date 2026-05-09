@@ -17,7 +17,7 @@ services:
   letta:
     <<: *common
     image: ${LETTA_IMAGE:-letta/letta:latest}
-    container_name: nyra-letta
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-letta
     environment:
       LETTA_PG_URI: postgresql://${LETTA_DB_USER:-letta}:${LETTA_DB_PASSWORD:?set LETTA_DB_PASSWORD}@letta-postgres:5432/${LETTA_DB_NAME:-letta}
       LETTA_SERVER_PASSWORD: ${LETTA_SERVER_PASSWORD:?set LETTA_SERVER_PASSWORD}

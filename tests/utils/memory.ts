@@ -9,7 +9,7 @@
  * - OpenMemory (collaborative memory)
  */
 
-import { vi } from 'vitest';
+import { vi } from "vitest";
 
 export interface TestMemorySystem {
   store: (key: string, value: any) => Promise<void>;
@@ -26,24 +26,31 @@ export const createMockRuVector = (): TestMemorySystem => {
     store: vi.fn().mockImplementation(async (key: string, value: any) => {
       storage.set(key, value);
       // Mock vector embedding
-      vectors.set(key, Array(768).fill(0).map(() => Math.random()));
+      vectors.set(
+        key,
+        Array(768)
+          .fill(0)
+          .map(() => Math.random())
+      );
     }),
     retrieve: vi.fn().mockImplementation(async (key: string) => {
       return storage.get(key);
     }),
     search: vi.fn().mockImplementation(async (query: string, k: number = 5) => {
       // Mock vector search - return all entries with mock scores
-      const results = Array.from(storage.entries()).slice(0, k).map(([key, value]) => ({
-        key,
-        value,
-        score: Math.random()
-      }));
+      const results = Array.from(storage.entries())
+        .slice(0, k)
+        .map(([key, value]) => ({
+          key,
+          value,
+          score: Math.random(),
+        }));
       return results.sort((a, b) => b.score - a.score);
     }),
     clear: vi.fn().mockImplementation(async () => {
       storage.clear();
       vectors.clear();
-    })
+    }),
   };
 };
 
@@ -57,7 +64,7 @@ export const createMockLetta = (): TestMemorySystem => {
       }
       agentMemories.get(agentId)!.push({
         timestamp: Date.now(),
-        ...memory
+        ...memory,
       });
     }),
     retrieve: vi.fn().mockImplementation(async (agentId: string) => {
@@ -67,7 +74,7 @@ export const createMockLetta = (): TestMemorySystem => {
       // Mock semantic search across all memories
       const allMemories: any[] = [];
       agentMemories.forEach((memories, agentId) => {
-        memories.forEach(memory => {
+        memories.forEach((memory) => {
           allMemories.push({ agentId, ...memory });
         });
       });
@@ -75,7 +82,7 @@ export const createMockLetta = (): TestMemorySystem => {
     }),
     clear: vi.fn().mockImplementation(async () => {
       agentMemories.clear();
-    })
+    }),
   };
 };
 
@@ -94,18 +101,20 @@ export const createMockletta = () => {
       // Mock Cypher query results
       return Array.from(nodes.values()).slice(0, 10);
     }),
-    getEvolution: vi.fn().mockImplementation(async (entityId: string, timeRange: any) => {
-      // Mock temporal evolution
-      return {
-        entityId,
-        changes: [],
-        timeline: []
-      };
-    }),
+    getEvolution: vi
+      .fn()
+      .mockImplementation(async (entityId: string, timeRange: any) => {
+        // Mock temporal evolution
+        return {
+          entityId,
+          changes: [],
+          timeline: [],
+        };
+      }),
     clear: vi.fn().mockImplementation(async () => {
       nodes.clear();
       edges.splice(0, edges.length);
-    })
+    }),
   };
 };
 
@@ -113,21 +122,25 @@ export const createMockMem0 = (): TestMemorySystem => {
   const profiles = new Map<string, any>();
 
   return {
-    store: vi.fn().mockImplementation(async (userId: string, preferences: any) => {
-      profiles.set(userId, { ...profiles.get(userId), ...preferences });
-    }),
+    store: vi
+      .fn()
+      .mockImplementation(async (userId: string, preferences: any) => {
+        profiles.set(userId, { ...profiles.get(userId), ...preferences });
+      }),
     retrieve: vi.fn().mockImplementation(async (userId: string) => {
       return profiles.get(userId) || {};
     }),
     search: vi.fn().mockImplementation(async (query: string, k: number = 5) => {
-      return Array.from(profiles.entries()).slice(0, k).map(([userId, profile]) => ({
-        userId,
-        profile
-      }));
+      return Array.from(profiles.entries())
+        .slice(0, k)
+        .map(([userId, profile]) => ({
+          userId,
+          profile,
+        }));
     }),
     clear: vi.fn().mockImplementation(async () => {
       profiles.clear();
-    })
+    }),
   };
 };
 
@@ -135,14 +148,12 @@ export const setupTestMemory = async () => {
   return {
     ruvector: createMockRuVector(),
     letta: createMockLetta(),
-    letta: createMockletta(),
-    mem0: createMockMem0()
+    mem0: createMockMem0(),
   };
 };
 
 export const teardownTestMemory = async (memory: any) => {
   await memory.ruvector.clear();
-  await memory.letta.clear();
   await memory.letta.clear();
   await memory.mem0.clear();
 };

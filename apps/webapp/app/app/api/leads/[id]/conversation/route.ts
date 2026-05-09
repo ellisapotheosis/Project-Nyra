@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
 
-import { timelines } from "@/lib/mock-data"
-
 const CRM_API_URL = process.env.CRM_API_URL
 const CRM_API_KEY = process.env.CRM_API_KEY
 
@@ -27,5 +25,5 @@ export async function GET(
     } catch {}
   }
 
-  return NextResponse.json({ logs: timelines[id] || [], source: "mock" })
+  return NextResponse.json({ logs: [], source: "mock" })
 }
