@@ -24,246 +24,243 @@ import {
   Play,
 } from "lucide-react";
 
-export default function LeadProfilePage() {
+import { crmApi, useApi } from '@/lib/api';
+import { StatusGate } from '@/components/status-gate';
+import { Timeline } from '@/components/leads/timeline';
+
+export default function LeadProfilePage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = React.use(params);
+  
+  const leadApi = useApi(() => crmApi.getLead(id));
+  const conversationApi = useApi(() => crmApi.getLeadConversation(id));
+
+  React.useEffect(() => {
+    leadApi.execute();
+    conversationApi.execute();
+  }, [id]);
+
+  const lead = leadApi.data?.lead;
+  const logs = conversationApi.data?.logs || [];
+
   return (
-    <div className="flex flex-col md:flex-row h-[calc(100vh-4rem)] bg-slate-50 overflow-hidden">
-      {/* Left Column: Lead Details & Actions */}
-      <div className="w-full md:w-[400px] flex flex-col border-r border-slate-200 bg-white overflow-y-auto">
-        {/* Profile Header */}
-        <div className="p-6 border-b border-slate-100 flex flex-col items-center text-center">
-          <div className="h-20 w-20 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-2xl mb-4 shadow-sm">
-            JD
-          </div>
-          <h2 className="text-2xl font-bold text-slate-900 tracking-tight">
-            John Doe
-          </h2>
-          <div className="flex items-center mt-2 space-x-2">
-            <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-100 border-none">
-              Refinance
-            </Badge>
-            <Badge className="bg-green-100 text-green-800 hover:bg-green-100 border-none">
-              Active Campaign
-            </Badge>
-          </div>
-        </div>
-
-        {/* Quick Actions */}
-        <div className="p-4 grid grid-cols-3 gap-2 border-b border-slate-100 bg-slate-50/50">
-          <Button
-            variant="outline"
-            className="flex flex-col h-auto py-3 bg-white hover:bg-slate-50 hover:text-blue-600 border-slate-200"
-          >
-            <Phone className="h-4 w-4 mb-1" />
-            <span className="text-xs">Call</span>
-          </Button>
-          <Button
-            variant="outline"
-            className="flex flex-col h-auto py-3 bg-white hover:bg-slate-50 hover:text-blue-600 border-slate-200"
-          >
-            <MessageSquare className="h-4 w-4 mb-1" />
-            <span className="text-xs">Text</span>
-          </Button>
-          <Button
-            variant="outline"
-            className="flex flex-col h-auto py-3 bg-white hover:bg-slate-50 hover:text-blue-600 border-slate-200"
-          >
-            <Mail className="h-4 w-4 mb-1" />
-            <span className="text-xs">Email</span>
-          </Button>
-        </div>
-
-        {/* Details Section */}
-        <div className="p-6 space-y-6 flex-1">
-          <div>
-            <h3 className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-3">
-              Contact Info
-            </h3>
-            <div className="space-y-3">
-              <div className="flex items-center text-sm text-slate-600">
-                <Phone className="h-4 w-4 mr-3 text-slate-400" />
-                (555) 123-4567
+    <StatusGate
+      data={lead}
+      isLoading={leadApi.isLoading}
+      error={leadApi.error}
+      onRetry={() => {
+        leadApi.execute();
+        conversationApi.execute();
+      }}
+    >
+      {(currentLead) => (
+        <div className="flex flex-col md:flex-row h-[calc(100vh-4rem)] bg-slate-50 overflow-hidden">
+          {/* Left Column: Lead Details & Actions */}
+          <div className="w-full md:w-[400px] flex flex-col border-r border-slate-200 bg-white overflow-y-auto">
+            {/* Profile Header */}
+            <div className="p-6 border-b border-slate-100 flex flex-col items-center text-center">
+              <div className="h-20 w-20 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-2xl mb-4 shadow-sm">
+                {currentLead.firstName?.[0]}{currentLead.lastName?.[0]}
               </div>
-              <div className="flex items-center text-sm text-slate-600">
-                <Mail className="h-4 w-4 mr-3 text-slate-400" />
-                john.doe@example.com
-              </div>
-              <div className="flex items-start text-sm text-slate-600">
-                <MapPin className="h-4 w-4 mr-3 text-slate-400 mt-0.5" />
-                <span>
-                  123 Main St, Apt 4B
-                  <br />
-                  Austin, TX 78701
-                </span>
-              </div>
-            </div>
-          </div>
-
-          <div>
-            <h3 className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-3">
-              Loan Details
-            </h3>
-            <div className="space-y-3">
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-slate-500">Loan Amount</span>
-                <span className="font-semibold text-slate-900">$325,000</span>
-              </div>
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-slate-500">Property Value</span>
-                <span className="font-semibold text-slate-900">$450,000</span>
-              </div>
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-slate-500">Credit Score</span>
-                <span className="font-semibold text-slate-900 flex items-center">
-                  <CreditCard className="h-3 w-3 mr-1 text-green-600" />
-                  720-739
-                </span>
-              </div>
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-slate-500">Current Campaign</span>
-                <span className="font-semibold text-blue-600 underline cursor-pointer">
-                  Refinance Blitz
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Right Column: Communication History / Activity Feed */}
-      <div className="flex-1 flex flex-col bg-slate-50">
-        {/* Feed Header */}
-        <div className="h-16 px-8 border-b border-slate-200 bg-white flex items-center justify-between shrink-0">
-          <h2 className="text-lg font-bold text-slate-900">
-            Activity & Communications
-          </h2>
-          <Tabs defaultValue="all" className="w-auto">
-            <TabsList className="bg-slate-100">
-              <TabsTrigger value="all">All</TabsTrigger>
-              <TabsTrigger value="calls">Calls</TabsTrigger>
-              <TabsTrigger value="messages">Messages</TabsTrigger>
-              <TabsTrigger value="campaign">Campaigns</TabsTrigger>
-              <TabsTrigger value="pricing">Pricing</TabsTrigger>
-            </TabsList>
-          </Tabs>
-        </div>
-
-        {/* Scrollable Feed */}
-        <ScrollArea className="flex-1 p-8">
-          <TabsContent value="all" className="mt-0">
-            <div className="space-y-6 max-w-3xl mx-auto">
-              {/* Timeline Item: Incoming Message */}
-              <div className="flex items-start space-x-4">
-                <div className="h-10 w-10 rounded-full bg-slate-200 flex items-center justify-center shrink-0">
-                  <User className="h-5 w-5 text-slate-500" />
-                </div>
-                <div className="flex-1 bg-white p-4 rounded-2xl rounded-tl-sm shadow-sm border border-slate-100">
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-sm font-semibold text-slate-900">
-                      John Doe (SMS)
-                    </span>
-                    <span className="text-xs text-slate-400">Just now</span>
-                  </div>
-                  <p className="text-sm text-slate-700">
-                    Hey Ellis, I saw the email about rates dropping. I'm
-                    interested in seeing what my options look like for pulling
-                    some cash out for renovations.
-                  </p>
-                </div>
+              <h2 className="text-2xl font-bold text-slate-900 tracking-tight">
+                {currentLead.firstName} {currentLead.lastName}
+              </h2>
+              <div className="flex items-center mt-2 space-x-2">
+                <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-100 border-none">
+                  {currentLead.loanPurpose || 'General'}
+                </Badge>
+                <Badge className="bg-green-100 text-green-800 hover:bg-green-100 border-none">
+                  {currentLead.campaignStatus || 'Active Campaign'}
+                </Badge>
               </div>
 
-              {/* Timeline Item: Automated Email (Campaign) */}
-              <div className="flex items-start space-x-4 flex-row-reverse space-x-reverse">
-                <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
-                  <Mail className="h-5 w-5 text-blue-600" />
-                </div>
-                <div className="flex-1 bg-blue-50 p-4 rounded-2xl rounded-tr-sm shadow-sm border border-blue-100">
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-xs text-blue-400">
-                      Today, 9:00 AM
-                    </span>
-                    <span className="text-sm font-semibold text-blue-900 flex items-center">
-                      <CheckCircle2 className="h-3 w-3 mr-1 text-green-500" />
-                      Automated Email Sent
-                    </span>
-                  </div>
-                  <div className="text-sm text-blue-800 font-medium mb-1">
-                    Subject: 📉 Rates just dropped - Good news for your
-                    refinance!
-                  </div>
-                  <p className="text-sm text-blue-700 line-clamp-2">
-                    Hi John, great news. We saw a dip in the market today that
-                    puts you in a great position to refinance your loan and
-                    lower your monthly payment. Let's chat for 5 minutes
-                    today...
-                  </p>
-                  <div className="mt-3 flex">
-                    <Badge
-                      variant="outline"
-                      className="bg-white/50 text-blue-600 border-blue-200 text-[10px] uppercase"
-                    >
-                      Refinance Blitz: Step 3
-                    </Badge>
-                  </div>
-                </div>
-              </div>
-
-              {/* Timeline Item: Missed Call / Voicemail Drop */}
-              <div className="flex items-start space-x-4 flex-row-reverse space-x-reverse">
-                <div className="h-10 w-10 rounded-full bg-purple-100 flex items-center justify-center shrink-0">
-                  <PhoneMissed className="h-5 w-5 text-purple-600" />
-                </div>
-                <div className="flex-1 bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-xs text-slate-400">
-                      Yesterday, 2:30 PM
-                    </span>
-                    <span className="text-sm font-semibold text-slate-900 flex items-center">
-                      Ringless Voicemail Dropped
-                    </span>
-                  </div>
-                  <div className="flex items-center space-x-3 p-3 bg-slate-50 rounded-lg">
-                    <Button
-                      variant="secondary"
-                      size="icon"
-                      className="h-8 w-8 rounded-full shrink-0"
-                    >
-                      <Play className="h-4 w-4" />
-                    </Button>
-                    <div className="flex-1 h-1.5 bg-slate-200 rounded-full overflow-hidden">
-                      <div className="h-full w-1/3 bg-purple-500 rounded-full" />
-                    </div>
-                    <span className="text-xs font-medium text-slate-500">
-                      0:45
-                    </span>
-                  </div>
-                  <div className="mt-3 flex">
-                    <Badge
-                      variant="outline"
-                      className="bg-slate-50 text-slate-500 border-slate-200 text-[10px] uppercase"
-                    >
-                      Refinance Blitz: Step 2
-                    </Badge>
-                  </div>
-                </div>
-              </div>
-
-              {/* Timeline Item: System Note */}
-              <div className="flex justify-center my-6">
-                <Badge
-                  variant="outline"
-                  className="bg-white text-slate-400 border-slate-200 px-4 py-1 text-xs"
-                >
-                  <Clock className="h-3 w-3 mr-1" />
-                  Lead assigned to Ellis Andersen - Yesterday, 9:00 AM
+              {/* Compliance Badges */}
+              <div className="flex items-center mt-4 space-x-2">
+                <Badge variant="outline" className={`${currentLead.hasConsent ? 'border-green-200 text-green-700 bg-green-50' : 'border-red-200 text-red-700 bg-red-50'} text-[10px] uppercase font-bold`}>
+                  {currentLead.hasConsent ? '✓ Consent' : '✗ No Consent'}
+                </Badge>
+                <Badge variant="outline" className={`${currentLead.onDncList ? 'border-red-200 text-red-700 bg-red-50' : 'border-slate-200 text-slate-500 bg-white'} text-[10px] uppercase font-bold`}>
+                  {currentLead.onDncList ? '! DNC List' : '✓ Not DNC'}
+                </Badge>
+                <Badge variant="outline" className="border-blue-200 text-blue-700 bg-blue-50 text-[10px] uppercase font-bold">
+                  {/* TODO: Implement real-time quiet hours check */}
+                  ☀ Business Hours
                 </Badge>
               </div>
             </div>
-          </TabsContent>
 
-          <TabsContent
-            value="pricing"
-            className="mt-0 max-w-3xl mx-auto space-y-8"
-          >
+            {/* Quick Actions */}
+            <div className="p-4 grid grid-cols-3 gap-2 border-b border-slate-100 bg-slate-50/50">
+              <Button
+                variant="outline"
+                className="flex flex-col h-auto py-3 bg-white hover:bg-slate-50 hover:text-blue-600 border-slate-200"
+              >
+                <Phone className="h-4 w-4 mb-1" />
+                <span className="text-xs">Call</span>
+              </Button>
+              <Button
+                variant="outline"
+                className="flex flex-col h-auto py-3 bg-white hover:bg-slate-50 hover:text-blue-600 border-slate-200"
+              >
+                <MessageSquare className="h-4 w-4 mb-1" />
+                <span className="text-xs">Text</span>
+              </Button>
+              <Button
+                variant="outline"
+                className="flex flex-col h-auto py-3 bg-white hover:bg-slate-50 hover:text-blue-600 border-slate-200"
+              >
+                <Mail className="h-4 w-4 mb-1" />
+                <span className="text-xs">Email</span>
+              </Button>
+            </div>
+
+            {/* Details Section */}
+            <div className="p-6 space-y-6 flex-1">
+              <div>
+                <h3 className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-3">
+                  Contact Info
+                </h3>
+                <div className="space-y-3">
+                  <div className="flex items-center text-sm text-slate-600">
+                    <Phone className="h-4 w-4 mr-3 text-slate-400" />
+                    {currentLead.phone || 'No phone'}
+                  </div>
+                  <div className="flex items-center text-sm text-slate-600">
+                    <Mail className="h-4 w-4 mr-3 text-slate-400" />
+                    {currentLead.email}
+                  </div>
+                  <div className="flex items-start text-sm text-slate-600">
+                    <MapPin className="h-4 w-4 mr-3 text-slate-400 mt-0.5" />
+                    <span>
+                      {currentLead.location || 'Location unknown'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <h3 className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-3">
+                  Loan Details
+                </h3>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-slate-500">Loan Amount</span>
+                    <span className="font-semibold text-slate-900">
+                      ${(currentLead.loanAmount || 0).toLocaleString()}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-slate-500">Property Value</span>
+                    <span className="font-semibold text-slate-900">
+                      ${(currentLead.propertyValue || 0).toLocaleString()}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-slate-500">Credit Score</span>
+                    <span className="font-semibold text-slate-900 flex items-center">
+                      <CreditCard className="h-3 w-3 mr-1 text-green-600" />
+                      {currentLead.creditScore || currentLead.creditBand || 'Unknown'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Campaign Controls */}
+              <div className="border-t pt-6">
+                <h3 className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-4">
+                  Campaign Management
+                </h3>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg border border-slate-100">
+                    <div className="flex flex-col">
+                      <span className="text-sm font-semibold text-slate-900">
+                        {currentLead.campaignName || 'Refinance Blitz'}
+                      </span>
+                      <span className="text-[10px] text-slate-500 uppercase">
+                        Current Step: 3 of 5
+                      </span>
+                    </div>
+                    <Badge className={currentLead.campaignStatus === 'ACTIVE' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}>
+                      {currentLead.campaignStatus || 'PAUSED'}
+                    </Badge>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      className="text-xs font-semibold"
+                      onClick={() => {
+                        crmApi.updateLeadCampaign(id, currentLead.campaignStatus === 'ACTIVE' ? 'PAUSED' : 'ACTIVE')
+                          .then(() => leadApi.execute());
+                      }}
+                    >
+                      {currentLead.campaignStatus === 'ACTIVE' ? 'Pause Campaign' : 'Resume Campaign'}
+                    </Button>
+                    <Button 
+                      variant="destructive" 
+                      size="sm"
+                      className="text-xs font-semibold bg-red-50 text-red-600 border-red-100 hover:bg-red-100"
+                      onClick={() => {
+                        if (confirm('Are you sure you want to stop this campaign?')) {
+                          crmApi.updateLeadCampaign(id, 'STOPPED')
+                            .then(() => leadApi.execute());
+                        }
+                      }}
+                    >
+                      Stop Campaign
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Right Column: Communication History / Activity Feed */}
+          <div className="flex-1 flex flex-col bg-slate-50">
+            {/* Feed Header */}
+            <div className="h-16 px-8 border-b border-slate-200 bg-white flex items-center justify-between shrink-0">
+              <h2 className="text-lg font-bold text-slate-900">
+                Activity & Communications
+              </h2>
+              <Tabs defaultValue="all" className="w-auto">
+                <TabsList className="bg-slate-100">
+                  <TabsTrigger value="all">All</TabsTrigger>
+                  <TabsTrigger value="calls">Calls</TabsTrigger>
+                  <TabsTrigger value="messages">Messages</TabsTrigger>
+                  <TabsTrigger value="pricing">Pricing</TabsTrigger>
+                </TabsList>
+              </Tabs>
+            </div>
+
+            {/* Scrollable Feed */}
+            <ScrollArea className="flex-1 p-8">
+              <TabsContent value="all" className="mt-0">
+                <Timeline 
+                  logs={logs} 
+                  isLoading={conversationApi.isLoading} 
+                  leadName={currentLead.firstName} 
+                />
+              </TabsContent>
+
+              <TabsContent value="calls" className="mt-0">
+                <Timeline 
+                  logs={logs.filter(l => l.channel === 'call' || l.channel === 'voicemail')} 
+                  isLoading={conversationApi.isLoading} 
+                  leadName={currentLead.firstName} 
+                />
+              </TabsContent>
+
+              <TabsContent value="messages" className="mt-0">
+                <Timeline 
+                  logs={logs.filter(l => l.channel === 'sms' || l.channel === 'email')} 
+                  isLoading={conversationApi.isLoading} 
+                  leadName={currentLead.firstName} 
+                />
+              </TabsContent>
+
+              <TabsContent
+                value="pricing"
+                className="mt-0 max-w-3xl mx-auto space-y-8"
+              >
             <div>
               <h3 className="text-lg font-bold text-slate-900 mb-1">
                 Pricing Comparison
@@ -533,5 +530,7 @@ export default function LeadProfilePage() {
         </div>
       </div>
     </div>
+      )}
+    </StatusGate>
   );
 }

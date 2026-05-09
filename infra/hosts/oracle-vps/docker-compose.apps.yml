@@ -7,7 +7,7 @@ services:
       args:
         APP_PATH: apps/webapp/app
         APP_NAME: mortgage-assistant
-    container_name: nyra-webapp
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-webapp
     restart: unless-stopped
     command: ["sh", "-c", "node $${NEXT_STANDALONE_SERVER}"]
     environment:
@@ -29,7 +29,7 @@ services:
       args:
         APP_PATH: apps/nexusUI
         APP_NAME: "@nyra/nexus-ui"
-    container_name: nyra-nexus-ui
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nexus-ui
     restart: unless-stopped
     command: ["sh", "-c", "node $${NEXT_STANDALONE_SERVER}"]
     environment:

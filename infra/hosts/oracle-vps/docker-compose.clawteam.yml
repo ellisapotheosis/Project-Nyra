@@ -6,7 +6,7 @@ services:
     build:
       context: ../../docker
       dockerfile: Dockerfile.clawteam
-    container_name: nyra-clawteam-primary
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-clawteam-primary
     environment:
       - CLAWTEAM_ROLE=primary
       - CLAWTEAM_HOST=oracle-vps
@@ -15,7 +15,7 @@ services:
       - WORKER_NODES=["worker-rtx5090", "worker-rtx3090ti", "worker-rtx3060"]
       - NERVE_UI_ENABLED=false
     ports:
-      - "8080:8080"
+      - "8085:8080"
     volumes:
       - clawteam_state:/root/.clawteam
     networks:
@@ -35,4 +35,4 @@ services:
 
 volumes:
   clawteam_state:
-    name: nyra-clawteam-state
+    name: ${COMPOSE_PROJECT_NAME:-nyra}-clawteam-state

@@ -6,7 +6,7 @@ services:
     build:
       context: ../../docker
       dockerfile: Dockerfile.paperclip
-    container_name: nyra-paperclip-mcp-gateway
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-paperclip-mcp-gateway
     environment:
       - NODE_ENV=production
       - PAPERCLIP_ROLE=gateway
@@ -36,4 +36,4 @@ services:
 
 volumes:
   paperclip_data:
-    name: nyra-paperclip-data
+    name: ${COMPOSE_PROJECT_NAME:-nyra}-paperclip-data

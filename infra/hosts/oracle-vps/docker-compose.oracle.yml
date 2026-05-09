@@ -48,7 +48,7 @@ services:
   paperclip-postgres:
     <<: *common
     image: postgres:16-alpine
-    container_name: nyra-paperclip-postgres
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-paperclip-postgres
     environment:
       POSTGRES_USER: ${PAPERCLIP_DB_USER:-paperclip}
       POSTGRES_PASSWORD: ${PAPERCLIP_DB_PASSWORD:?set PAPERCLIP_DB_PASSWORD}
@@ -76,7 +76,7 @@ services:
   paperclip-redis:
     <<: *common
     image: redis:7-alpine
-    container_name: nyra-paperclip-redis
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-paperclip-redis
     command: ["redis-server", "--appendonly", "yes", "--save", "60", "1000"]
     volumes:
       - paperclip_redis:/data
@@ -91,7 +91,7 @@ services:
   searxng:
     <<: *common
     image: searxng/searxng:latest
-    container_name: nyra-searxng
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-searxng
     environment:
       SEARXNG_BASE_URL: ${SEARXNG_BASE_URL:-https://search.ratehunter.net}
       SEARXNG_SECRET: ${SEARXNG_SECRET:?set SEARXNG_SECRET}
@@ -117,7 +117,7 @@ services:
   searxng-redis:
     <<: *common
     image: redis:7-alpine
-    container_name: nyra-searxng-redis
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-searxng-redis
     command: ["redis-server", "--save", "", "--appendonly", "no"]
     networks:
       oracle_private: {}
@@ -130,7 +130,7 @@ services:
   browserless:
     <<: *common
     image: ghcr.io/browserless/chromium:latest
-    container_name: nyra-browserless
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-browserless
     shm_size: 2gb
     environment:
       TOKEN: ${BROWSERLESS_TOKEN:?set BROWSERLESS_TOKEN}
