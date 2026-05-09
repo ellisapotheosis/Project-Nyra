@@ -14,11 +14,11 @@
 - [x] Task: Implement typed client for CRM (`crm-api`) 6ca9827
 - [x] Task: Implement typed client for Campaigns (`campaign-engine`) 51e872a
 - [x] Task: Implement typed client for Quotes (`quote-api`) 4d4f9bd
-- [ ] Task: Conductor - User Manual Verification 'Phase 2: Webapp API Client Layer Foundation' (Protocol in workflow.md) 6b039d2
+- [x] Task: Conductor - User Manual Verification 'Phase 2: Webapp API Client Layer Foundation' (Protocol in workflow.md) 6b039d2
 
-## Phase 3: Webapp Refactor and Validation
+## Phase 3: Webapp Refactor and Validation [checkpoint: 558fffc]
 
-- [~] Task: Write Tests: Verify existing pages still work with the new API client layer
-- [ ] Task: Implement: Replace scattered raw `fetch` calls in webapp with typed API clients
-- [ ] Task: Implement: Add standardized loading, error, and empty states to API-dependent components
-- [ ] Task: Conductor - User Manual Verification 'Phase 3: Webapp Refactor and Validation' (Protocol in workflow.md)
+- [x] Task: Write Tests: Verify existing pages still work with the new API client layer 5f17418
+- [x] Task: Implement: Replace scattered raw `fetch` calls in webapp with typed API clients 5f17418
+- [x] Task: Implement: Add standardized loading, error, and empty states to API-dependent components 5f17418
+- [x] Task: Conductor - User Manual Verification 'Phase 3: Webapp Refactor and Validation' (Protocol in workflow.md) 558fffc
