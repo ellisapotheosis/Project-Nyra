@@ -1,11 +1,11 @@
 # Implementation Plan: Repo truth, docs cleanup, and webapp API standardization
 
-## Phase 1: Repo Truth and Docs Cleanup
+## Phase 1: Repo Truth and Docs Cleanup [checkpoint: a8862d3]
 
 - [x] Task: Resolve merge conflict markers in root docs (`AGENTS.md`, `README.md`, `GEMINI.md`) 61e62cd
 - [x] Task: Update architecture docs (`docs/MASTER_ARCHITECTURE.md`, etc.) to match `/infra/hosts/` structure 76bb3fb
 - [x] Task: Standardize repo-wide metadata and remove stale historical proposals 6f0b1e4
-- [ ] Task: Conductor - User Manual Verification 'Phase 1: Repo Truth and Docs Cleanup' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 1: Repo Truth and Docs Cleanup' (Protocol in workflow.md) a8862d3
 
 ## Phase 2: Webapp API Client Layer Foundation
 
