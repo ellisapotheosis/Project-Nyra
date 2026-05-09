@@ -8,19 +8,25 @@
         "name": "JavaScript/TypeScript",
         "version": ">=20",
         "confidence": "high",
-        "markers": ["package.json"]
+        "markers": [
+          "package.json"
+        ]
       },
       {
         "name": "TypeScript",
         "version": null,
         "confidence": "high",
-        "markers": ["tsconfig.json"]
+        "markers": [
+          "tsconfig.json"
+        ]
       },
       {
         "name": "C/C++",
         "version": null,
         "confidence": "high",
-        "markers": ["Makefile"]
+        "markers": [
+          "Makefile"
+        ]
       }
     ],
     "frameworks": [
@@ -45,7 +51,7 @@
   },
   "build": {
     "buildCommand": "pnpm build",
-    "testCommand": "pnpm test",
+    "testCommand": "gh pr create \\\n  --repo ellisapotheosis/Project-Nyra \\\n  --head feat/pre-commit-hooks-v2 \\\n  --base main \\\n  --title \"chore: add pre-commit hooks (husky + lint-staged + prettier)\" \\\n  --body \"$(cat <<'EOF'\n## Summary\n\n- Adds Husky v9 pre-commit hook via `prepare` script — auto-installs on `pnpm install`\n- Adds lint-staged to run Prettier on all staged files before commit\n- Adds `.prettierrc` with standard defaults (2-space, semi, trailing comma ES5)\n- Extends existing `.git/hooks/pre-commit` (container name + whitespace checks) to invoke Husky chain\n- Smoke test suite (28 tests, ~350ms) runs on every commit\n\n## Test plan\n\n- [x] `pnpm exec lint-staged` runs cleanly on staged files\n- [x] Full hook chain verified: container check → whitespace → lint-staged → vitest smoke\n- [x] `pnpm run prepare` installs Husky git hooks\n- [x] `.husky/pre-commit` is executable and tracked in version control\n- [x] Branch rebased onto current `main` — lockfile regenerated cleanly\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\nEOF\n)\" 2>&1",
     "lintCommand": "pnpm lint",
     "devCommand": "pnpm dev",
     "scripts": {
@@ -78,7 +84,12 @@
       "services/*/*",
       "packages/*"
     ],
-    "mainDirectories": ["docs", "scripts", "src", "tests"],
+    "mainDirectories": [
+      "docs",
+      "scripts",
+      "src",
+      "tests"
+    ],
     "gitBranches": null
   },
   "customNotes": [],
@@ -107,14 +118,18 @@
       "purpose": null,
       "fileCount": 2,
       "lastAccessed": 1777907631346,
-      "keyFiles": ["README.md"]
+      "keyFiles": [
+        "README.md"
+      ]
     },
     "config": {
       "path": "config",
       "purpose": "Configuration files",
       "fileCount": 1,
       "lastAccessed": 1777907631346,
-      "keyFiles": ["README.md"]
+      "keyFiles": [
+        "README.md"
+      ]
     },
     "configs": {
       "path": "configs",
@@ -168,7 +183,9 @@
       "purpose": null,
       "fileCount": 1,
       "lastAccessed": 1777907631348,
-      "keyFiles": ["CLAUDE.md"]
+      "keyFiles": [
+        "CLAUDE.md"
+      ]
     },
     "scripts": {
       "path": "scripts",
@@ -195,7 +212,9 @@
       "purpose": "Business logic services",
       "fileCount": 1,
       "lastAccessed": 1777907631348,
-      "keyFiles": ["CLAUDE.md"]
+      "keyFiles": [
+        "CLAUDE.md"
+      ]
     },
     "skills": {
       "path": "skills",
@@ -209,7 +228,9 @@
       "purpose": "Source code",
       "fileCount": 1,
       "lastAccessed": 1777907631349,
-      "keyFiles": ["CLAUDE.md"]
+      "keyFiles": [
+        "CLAUDE.md"
+      ]
     },
     "tests": {
       "path": "tests",
@@ -235,28 +256,114 @@
       "purpose": "Documentation",
       "fileCount": 2,
       "lastAccessed": 1777907631350,
-      "keyFiles": ["README.md"]
+      "keyFiles": [
+        "README.md"
+      ]
     },
     "packages/schemas": {
       "path": "packages/schemas",
       "purpose": "Schema definitions",
       "fileCount": 1,
       "lastAccessed": 1777907631351,
-      "keyFiles": ["README.md"]
+      "keyFiles": [
+        "README.md"
+      ]
     },
     "tests/fixtures": {
       "path": "tests/fixtures",
       "purpose": "Test fixtures",
       "fileCount": 6,
       "lastAccessed": 1777907631352,
-      "keyFiles": ["agents.json", "leads.json", "memory-patterns.json"]
+      "keyFiles": [
+        "agents.json",
+        "leads.json",
+        "memory-patterns.json"
+      ]
     }
   },
   "hotPaths": [
     {
+      "path": "Makefile",
+      "accessCount": 24,
+      "lastAccessed": 1778313113149,
+      "type": "file"
+    },
+    {
+      "path": "infra/hosts/oracle-vps/docker-compose.yml",
+      "accessCount": 20,
+      "lastAccessed": 1778313131566,
+      "type": "file"
+    },
+    {
+      "path": "infra/hosts/worker-rtx3090ti/docker-compose.gpu.yml",
+      "accessCount": 14,
+      "lastAccessed": 1778313219098,
+      "type": "file"
+    },
+    {
       "path": "package.json",
       "accessCount": 8,
       "lastAccessed": 1777975348519,
+      "type": "file"
+    },
+    {
+      "path": "infra/hosts/orchestrator/docker-compose.clawteam.yml",
+      "accessCount": 8,
+      "lastAccessed": 1778313027030,
+      "type": "file"
+    },
+    {
+      "path": "infra/hosts/oracle-vps/docker-compose.oracle.yml",
+      "accessCount": 8,
+      "lastAccessed": 1778313242757,
+      "type": "file"
+    },
+    {
+      "path": "infra/hosts/oracle-vps/docker-compose.memory.yml",
+      "accessCount": 8,
+      "lastAccessed": 1778313246781,
+      "type": "file"
+    },
+    {
+      "path": "infra/hosts/orchestrator/docker-compose.cloudflared.yml",
+      "accessCount": 8,
+      "lastAccessed": 1778313250926,
+      "type": "file"
+    },
+    {
+      "path": "infra/hosts/worker-rtx3060/docker-compose.gpu.yml",
+      "accessCount": 6,
+      "lastAccessed": 1778312829834,
+      "type": "file"
+    },
+    {
+      "path": "infra/hosts/worker-rtx5090/docker-compose.gpu.yml",
+      "accessCount": 6,
+      "lastAccessed": 1778312874389,
+      "type": "file"
+    },
+    {
+      "path": "infra/hosts/worker-rtx5090/docker-compose.yml",
+      "accessCount": 6,
+      "lastAccessed": 1778312884713,
+      "type": "file"
+    },
+    {
+      "path": "infra/hosts/worker-rtx3090ti/docker-compose.yml",
+      "accessCount": 6,
+      "lastAccessed": 1778312894558,
+      "type": "file"
+    },
+    {
+      "path": "infra/hosts/orchestrator/docker-compose.voice.yml",
+      "accessCount": 6,
+      "lastAccessed": 1778312923622,
+      "type": "file"
+    },
+    {
+      "path": "infra/hosts/orchestrator/docker-compose.yml",
+      "accessCount": 6,
+      "lastAccessed": 1778313041284,
       "type": "file"
     },
     {
@@ -272,15 +379,51 @@
       "type": "file"
     },
     {
-      "path": ".codex/config.toml",
-      "accessCount": 3,
-      "lastAccessed": 1777393588941,
+      "path": "infra/hosts/oracle-vps/docker-compose.clawteam.yml",
+      "accessCount": 4,
+      "lastAccessed": 1778312730598,
       "type": "file"
     },
     {
-      "path": "Makefile",
-      "accessCount": 2,
-      "lastAccessed": 1777907944694,
+      "path": "infra/hosts/oracle-vps/docker-compose.apps.yml",
+      "accessCount": 4,
+      "lastAccessed": 1778312746503,
+      "type": "file"
+    },
+    {
+      "path": "infra/hosts/oracle-vps/docker-compose.memory-extra.yml",
+      "accessCount": 4,
+      "lastAccessed": 1778312754634,
+      "type": "file"
+    },
+    {
+      "path": "infra/hosts/oracle-vps/docker-compose.letta-mcp.yml",
+      "accessCount": 4,
+      "lastAccessed": 1778312755024,
+      "type": "file"
+    },
+    {
+      "path": "infra/hosts/oracle-vps/docker-compose.paperclip.yml",
+      "accessCount": 4,
+      "lastAccessed": 1778312756483,
+      "type": "file"
+    },
+    {
+      "path": "infra/hosts/orchestrator/docker-compose.observability.yml",
+      "accessCount": 4,
+      "lastAccessed": 1778312756550,
+      "type": "file"
+    },
+    {
+      "path": "infra/hosts/host-layout.yaml",
+      "accessCount": 4,
+      "lastAccessed": 1778312757130,
+      "type": "file"
+    },
+    {
+      "path": ".codex/config.toml",
+      "accessCount": 3,
+      "lastAccessed": 1777393588941,
       "type": "file"
     },
     {
@@ -299,6 +442,66 @@
       "path": ".husky/pre-commit",
       "accessCount": 2,
       "lastAccessed": 1777975359721,
+      "type": "file"
+    },
+    {
+      "path": "infra/hosts/oracle-vps/nexus.toml",
+      "accessCount": 2,
+      "lastAccessed": 1778281856060,
+      "type": "file"
+    },
+    {
+      "path": "infra/hosts/orchestrator/docker-compose.bitnet.yml",
+      "accessCount": 2,
+      "lastAccessed": 1778281875198,
+      "type": "file"
+    },
+    {
+      "path": "infra/hosts/orchestrator/cloudflared-config.yml",
+      "accessCount": 2,
+      "lastAccessed": 1778281875622,
+      "type": "file"
+    },
+    {
+      "path": "infra/hosts/worker-rtx3060/docker-compose.worker.yml",
+      "accessCount": 2,
+      "lastAccessed": 1778281892347,
+      "type": "file"
+    },
+    {
+      "path": "infra/hosts/worker-rtx3060/docker-compose.yml",
+      "accessCount": 2,
+      "lastAccessed": 1778281893806,
+      "type": "file"
+    },
+    {
+      "path": "infra/hosts/worker-rtx3090ti/docker-compose.worker.yml",
+      "accessCount": 2,
+      "lastAccessed": 1778281896706,
+      "type": "file"
+    },
+    {
+      "path": "infra/hosts/worker-rtx5090/docker-compose.worker.yml",
+      "accessCount": 2,
+      "lastAccessed": 1778281897052,
+      "type": "file"
+    },
+    {
+      "path": "infra/hosts/worker-rtx3090ti/docker-compose.assistant.yml",
+      "accessCount": 2,
+      "lastAccessed": 1778312765156,
+      "type": "file"
+    },
+    {
+      "path": "infra/hosts/worker-rtx5090/docker-compose.assistant.yml",
+      "accessCount": 2,
+      "lastAccessed": 1778312766004,
+      "type": "file"
+    },
+    {
+      "path": "infra/hosts/worker-rtx3090ti/docker-compose.hermes.yml",
+      "accessCount": 2,
+      "lastAccessed": 1778312766319,
       "type": "file"
     },
     {

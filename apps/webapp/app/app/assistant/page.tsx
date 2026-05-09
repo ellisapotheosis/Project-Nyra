@@ -16,30 +16,15 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
+import { crmApi, useApi } from '@/lib/api';
+import { StatusGate } from '@/components/status-gate';
+
 interface Message {
   id: string;
   role: 'assistant' | 'user';
   content: string;
   timestamp: Date;
   model?: string;
-}
-
-interface Lead {
-  id: string;
-  firstName: string;
-  lastName: string;
-  campaignStatus: string;
-  loanPurpose: string;
-  loanAmount: number;
-}
-
-interface TimelineEvent {
-  id: string;
-  type: string;
-  channel: string;
-  direction: string;
-  description: string;
-  sentAt: string;
 }
 
 export default function AssistantPage() {
@@ -54,57 +39,37 @@ export default function AssistantPage() {
   ]);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
-  const [leads, setLeads] = useState<Lead[]>([]);
   const [selectedLeadId, setSelectedLeadId] = useState<string | null>(null);
-  const [timeline, setTimeline] = useState<TimelineEvent[]>([]);
-  const [loadingLeads, setLoadingLeads] = useState(true);
-  const [loadingTimeline, setLoadingTimeline] = useState(false);
-  const selectedLead = leads.find(l => l.id === selectedLeadId);
+
+  const leadsApi = useApi(crmApi.getLeads);
+  const timelineApi = useApi(crmApi.getLeadConversation);
+  const campaignUpdateApi = useApi(crmApi.updateLeadCampaign);
+
+  const leads = leadsApi.data?.leads || [];
+  const selectedLead = leads.find((l: any) => l.id === selectedLeadId);
+  const timeline = timelineApi.data?.logs || [];
 
   // Fetch Leads on Mount
   useEffect(() => {
-    const fetchLeads = async () => {
-      try {
-        const response = await fetch('/api/leads');
-        const data = await response.json();
-        setLeads(data.leads || []);
-      } catch (error) {
-        console.error('Failed to fetch leads:', error);
-      } finally {
-        setLoadingLeads(false);
-      }
-    };
-    fetchLeads();
+    leadsApi.execute();
   }, []);
 
   // Fetch Timeline when Lead selected
   useEffect(() => {
     if (!selectedLeadId) return;
 
-    const fetchTimeline = async () => {
-      setLoadingTimeline(true);
-      try {
-        const response = await fetch(`/api/leads/${selectedLeadId}/conversation`);
-        const data = await response.json();
-        setTimeline(data.logs || []);
-        
-        const lead = leads.find(l => l.id === selectedLeadId);
-        if (lead) {
-          setMessages(prev => [...prev, {
-            id: Date.now().toString(),
-            role: 'assistant',
-            content: `Loaded ${lead.firstName}'s file. Status: ${lead.campaignStatus}. They're looking for a ${lead.loanPurpose} loan. What can I do?`,
-            timestamp: new Date(),
-            model: 'Nous Hermes 2'
-          }]);
-        }
-      } catch (error) {
-        console.error('Failed to fetch timeline:', error);
-      } finally {
-        setLoadingTimeline(false);
+    timelineApi.execute(selectedLeadId).then(() => {
+      const lead = leads.find((l: any) => l.id === selectedLeadId);
+      if (lead) {
+        setMessages(prev => [...prev, {
+          id: Date.now().toString(),
+          role: 'assistant',
+          content: `Loaded ${lead.firstName}'s file. Status: ${lead.campaignStatus}. They're looking for a ${lead.loanPurpose} loan. What can I do?`,
+          timestamp: new Date(),
+          model: 'Nous Hermes 2'
+        }]);
       }
-    };
-    fetchTimeline();
+    });
   }, [selectedLeadId]);
 
   const handleSend = async (overrideInput?: string) => {
@@ -160,20 +125,14 @@ export default function AssistantPage() {
   const updateCampaignStatus = async (status: string) => {
     if (!selectedLeadId) return;
     try {
-      const response = await fetch(`/api/leads/${selectedLeadId}/campaign`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status })
-      });
-      if (response.ok) {
-        setLeads(leads.map(l => l.id === selectedLeadId ? { ...l, campaignStatus: status } : l));
-        setMessages(prev => [...prev, {
-          id: Date.now().toString(),
-          role: 'assistant',
-          content: `Successfully updated campaign status to ${status}.`,
-          timestamp: new Date()
-        }]);
-      }
+      await campaignUpdateApi.execute(selectedLeadId, status);
+      leadsApi.execute(); // Refresh leads to get updated status
+      setMessages(prev => [...prev, {
+        id: Date.now().toString(),
+        role: 'assistant',
+        content: `Successfully updated campaign status to ${status}.`,
+        timestamp: new Date()
+      }]);
     } catch (error) {
       console.error('Failed to update status:', error);
     }
@@ -207,29 +166,37 @@ export default function AssistantPage() {
             </CardTitle>
           </CardHeader>
           <CardContent className="p-2 pt-0">
-            <ScrollArea className="h-32">
-              {loadingLeads ? (
-                <div className="p-4 text-center text-xs text-muted-foreground">Loading...</div>
-              ) : (
-                <div className="space-y-1">
-                  {leads.map(lead => (
-                    <button
-                      key={lead.id}
-                      onClick={() => setSelectedLeadId(lead.id)}
-                      className={`w-full text-left p-2 rounded-lg transition-colors flex items-center justify-between group ${
-                        selectedLeadId === lead.id ? 'bg-primary/10 border-l-2 border-primary' : 'hover:bg-muted/50'
-                      }`}
-                    >
-                      <div className="min-w-0">
-                        <p className="text-xs font-semibold truncate">{lead.firstName} {lead.lastName}</p>
-                        <p className="text-[10px] text-muted-foreground uppercase">{lead.loanPurpose}</p>
-                      </div>
-                      <ChevronRight className={`h-3 w-3 transition-opacity ${selectedLeadId === lead.id ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`} />
-                    </button>
-                  ))}
-                </div>
+            <StatusGate
+              data={leads}
+              error={leadsApi.error}
+              isLoading={leadsApi.isLoading}
+              onRetry={leadsApi.execute}
+              isEmpty={(d) => d.length === 0}
+              loadingMessage="Loading leads..."
+              emptyMessage="No leads found."
+            >
+              {(leadsData) => (
+                <ScrollArea className="h-32">
+                  <div className="space-y-1">
+                    {leadsData.map((lead: any) => (
+                      <button
+                        key={lead.id}
+                        onClick={() => setSelectedLeadId(lead.id)}
+                        className={`w-full text-left p-2 rounded-lg transition-colors flex items-center justify-between group ${
+                          selectedLeadId === lead.id ? 'bg-primary/10 border-l-2 border-primary' : 'hover:bg-muted/50'
+                        }`}
+                      >
+                        <div className="min-w-0">
+                          <p className="text-xs font-semibold truncate">{lead.firstName} {lead.lastName}</p>
+                          <p className="text-[10px] text-muted-foreground uppercase">{lead.loanPurpose}</p>
+                        </div>
+                        <ChevronRight className={`h-3 w-3 transition-opacity ${selectedLeadId === lead.id ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`} />
+                      </button>
+                    ))}
+                  </div>
+                </ScrollArea>
               )}
-            </ScrollArea>
+            </StatusGate>
           </CardContent>
         </Card>
 
@@ -240,7 +207,7 @@ export default function AssistantPage() {
               <div className="flex justify-between items-start">
                 <div>
                   <h3 className="text-sm font-bold">{selectedLead.firstName} {selectedLead.lastName}</h3>
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-widest">{selectedLead.loanPurpose} • ${ (selectedLead.loanAmount/10000).toLocaleString() }</p>
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-widest">{selectedLead.loanPurpose} • ${ ((selectedLead.loanAmount || 0)/10000).toLocaleString() }</p>
                 </div>
                 <Badge variant={selectedLead.campaignStatus === 'ACTIVE' ? 'default' : 'secondary'} className="text-[9px] px-1.5 py-0">
                   {selectedLead.campaignStatus}
@@ -249,15 +216,33 @@ export default function AssistantPage() {
               
               <div className="grid grid-cols-2 gap-2">
                 {selectedLead.campaignStatus === 'ACTIVE' ? (
-                  <Button size="sm" variant="outline" className="h-8 text-[10px]" onClick={() => updateCampaignStatus('PAUSED')}>
+                  <Button 
+                    size="sm" 
+                    variant="outline" 
+                    className="h-8 text-[10px]" 
+                    onClick={() => updateCampaignStatus('PAUSED')}
+                    disabled={campaignUpdateApi.isLoading}
+                  >
                     <Pause className="h-3 w-3 mr-1" /> Pause Drip
                   </Button>
                 ) : (
-                  <Button size="sm" variant="outline" className="h-8 text-[10px]" onClick={() => updateCampaignStatus('ACTIVE')}>
+                  <Button 
+                    size="sm" 
+                    variant="outline" 
+                    className="h-8 text-[10px]" 
+                    onClick={() => updateCampaignStatus('ACTIVE')}
+                    disabled={campaignUpdateApi.isLoading}
+                  >
                     <Play className="h-3 w-3 mr-1" /> Resume Drip
                   </Button>
                 )}
-                <Button size="sm" variant="outline" className="h-8 text-[10px]" onClick={() => updateCampaignStatus('COMPLETE')}>
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  className="h-8 text-[10px]" 
+                  onClick={() => updateCampaignStatus('COMPLETE')}
+                  disabled={campaignUpdateApi.isLoading}
+                >
                   <CheckCircle2 className="h-3 w-3 mr-1" /> Mark Closed
                 </Button>
               </div>
@@ -273,35 +258,46 @@ export default function AssistantPage() {
             </CardTitle>
           </CardHeader>
           <CardContent className="p-0 flex-1 overflow-hidden">
-            <ScrollArea className="h-full">
-              {!selectedLeadId ? (
-                <div className="p-8 text-center flex flex-col items-center justify-center space-y-2 opacity-50 h-full">
-                  <Clock className="h-8 w-8 text-muted-foreground" />
-                  <p className="text-xs">Select lead for history</p>
-                </div>
-              ) : (
-                <div className="p-4 space-y-4">
-                  {timeline.length === 0 && !loadingTimeline && <p className="text-center text-[10px] text-muted-foreground italic">No logs.</p>}
-                  {timeline.map((event, i) => (
-                    <div key={i} className="relative pl-6 pb-4 group">
-                      {i !== timeline.length - 1 && <div className="absolute left-[7px] top-4 bottom-0 w-[2px] bg-border" />}
-                      <div className="absolute left-0 top-1 w-3.5 h-3.5 rounded-full border-2 border-primary bg-background flex items-center justify-center z-10">
-                        {getChannelIcon(event.channel)}
-                      </div>
-                      <div className="space-y-0.5">
-                        <div className="flex justify-between items-center text-[9px] font-bold uppercase tracking-wider text-primary/70">
-                          <span>{event.direction} {event.channel}</span>
-                          <span className="text-muted-foreground font-normal">{new Date(event.sentAt).toLocaleDateString()}</span>
+            {!selectedLeadId ? (
+              <div className="p-8 text-center flex flex-col items-center justify-center space-y-2 opacity-50 h-full">
+                <Clock className="h-8 w-8 text-muted-foreground" />
+                <p className="text-xs">Select lead for history</p>
+              </div>
+            ) : (
+              <StatusGate
+                data={timeline}
+                error={timelineApi.error}
+                isLoading={timelineApi.isLoading}
+                onRetry={() => timelineApi.execute(selectedLeadId)}
+                isEmpty={(d) => d.length === 0}
+                loadingMessage="Fetching timeline..."
+                emptyMessage="No activity logs found."
+              >
+                {(timelineData) => (
+                  <ScrollArea className="h-full">
+                    <div className="p-4 space-y-4">
+                      {timelineData.map((event: any, i: number) => (
+                        <div key={i} className="relative pl-6 pb-4 group">
+                          {i !== timelineData.length - 1 && <div className="absolute left-[7px] top-4 bottom-0 w-[2px] bg-border" />}
+                          <div className="absolute left-0 top-1 w-3.5 h-3.5 rounded-full border-2 border-primary bg-background flex items-center justify-center z-10">
+                            {getChannelIcon(event.channel)}
+                          </div>
+                          <div className="space-y-0.5">
+                            <div className="flex justify-between items-center text-[9px] font-bold uppercase tracking-wider text-primary/70">
+                              <span>{event.direction} {event.channel}</span>
+                              <span className="text-muted-foreground font-normal">{new Date(event.sentAt).toLocaleDateString()}</span>
+                            </div>
+                            <p className="text-[11px] leading-snug text-foreground/90 bg-muted/30 p-2 rounded-lg border border-border/30">
+                              {event.content_preview}
+                            </p>
+                          </div>
                         </div>
-                        <p className="text-[11px] leading-snug text-foreground/90 bg-muted/30 p-2 rounded-lg border border-border/30">
-                          {event.description}
-                        </p>
-                      </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
-              )}
-            </ScrollArea>
+                  </ScrollArea>
+                )}
+              </StatusGate>
+            )}
           </CardContent>
         </Card>
       </div>
