@@ -13,7 +13,7 @@
 - [x] Task: Create typed API client base and helpers in `apps/webapp/app/lib/api/` 4a615b1
 - [x] Task: Implement typed client for CRM (`crm-api`) 6ca9827
 - [x] Task: Implement typed client for Campaigns (`campaign-engine`) 51e872a
-- [ ] Task: Implement typed client for Quotes (`quote-api`)
+- [x] Task: Implement typed client for Quotes (`quote-api`) 4d4f9bd
 - [ ] Task: Conductor - User Manual Verification 'Phase 2: Webapp API Client Layer Foundation' (Protocol in workflow.md)
 
 ## Phase 3: Webapp Refactor and Validation
