@@ -9,7 +9,7 @@
 
 ## Phase 2: Webapp API Client Layer Foundation
 
-- [ ] Task: Standardize and document environment variables for CRM, Campaigns, and Quotes
+- [x] Task: Standardize and document environment variables for CRM, Campaigns, and Quotes f556b51
 - [ ] Task: Create typed API client base and helpers in `apps/webapp/app/lib/api/`
 - [ ] Task: Implement typed client for CRM (`crm-api`)
 - [ ] Task: Implement typed client for Campaigns (`campaign-engine`)
