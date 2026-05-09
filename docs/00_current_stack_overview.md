@@ -92,7 +92,6 @@ Optional worker overlays:
 |---|---|---:|
 | `docker-compose.voice.yml` | all workers | `8098 -> 8080` |
 | `docker-compose.distributed-voice.yml` | 3060/3090Ti/5090 | `8081 -> 8080` |
-| `docker-compose.hermes.yml` | 3090Ti/5090 | `8642`, `9119` bound to localhost |
 | `docker-compose.nerve.yml` | 3090Ti/5090 | `8001`, `18789` |
 
 ## Makefile entrypoints

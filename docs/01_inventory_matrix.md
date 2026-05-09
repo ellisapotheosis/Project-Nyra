@@ -16,7 +16,6 @@ Updated: 2026-04-30
 | Worker RTX 3090 Ti | `infra/hosts/worker-rtx3090ti/docker-compose.yml` | `make up-worker-3090ti`, `make up-workers` | Secondary vLLM, LiteLLM, Redis, metrics |
 | Worker RTX 5090 | `infra/hosts/worker-rtx5090/docker-compose.yml` | `make up-worker-5090`, `make up-workers` | Primary vLLM, LiteLLM, Redis, metrics |
 | Voice overlays | `infra/hosts/*/docker-compose.voice.yml`, `docker-compose.distributed-voice.yml` | `make voice-*`, `make voice-distributed` | Optional voice/STT/TTS services; keep private unless Access-gated |
-| Assistant overlays | worker `docker-compose.hermes.yml`, `docker-compose.nerve.yml`, Oracle `docker-compose.clawteam.yml` | `make hermes-*`, `make nerve-*`, `make oracle-clawteam` | Optional assistant/runtime surfaces |
 
 ## Inventory findings
 

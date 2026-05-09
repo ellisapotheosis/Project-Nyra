@@ -57,7 +57,8 @@ Current Oracle smoke status:
 - `https://api.ratehunter.net/auth/v1/health` returns `200`.
 - `https://hooks.ratehunter.net` returns `200`.
 - `https://nyra.ratehunter.net`, `https://nexus.ratehunter.net`, `https://litellm.ratehunter.net`, `https://n8n.ratehunter.net`, and `https://twenty.ratehunter.net` reach Cloudflare Access.
-- `https://nexus-router.ratehunter.net` returns `502` because Nexus is unhealthy while MCP backends are unavailable.
+- `https://nexus.ratehunter.net` is the Nexus Router endpoint and should remain Cloudflare Access-gated.
+- `https://nexus-ui.ratehunter.net` is the Nexus UI endpoint and should remain Cloudflare Access-gated.
 
 ### Tunnel objects
 

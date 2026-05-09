@@ -103,13 +103,13 @@ A future adapter may translate desired state into live Nexus TOML, LiteLLM YAML,
 Use:
 
 ```text
-nexus.ratehunter.net
+nexus-ui.ratehunter.net
 ```
 
 Add a webapp link through:
 
 ```text
-NEXT_PUBLIC_NEXUS_UI_URL=https://nexus.ratehunter.net
+NEXT_PUBLIC_NEXUS_UI_URL=https://nexus-ui.ratehunter.net
 ```
 
 ## Acceptance Criteria

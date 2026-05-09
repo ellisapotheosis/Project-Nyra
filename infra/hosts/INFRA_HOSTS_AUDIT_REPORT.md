@@ -102,8 +102,8 @@
 
 | Worker | GPU | Specialization | Primary Services |
 |--------|-----|-----------------|------------------|
-| **worker-rtx5090** | RTX 5090 (48GB) | Large models, reasoning | vLLM, Hermes, DeepSeek |
-| **worker-rtx3090ti** | RTX 3090 Ti (24GB) | General purpose, assistant | vLLM, OpenClaw, Hermes UI |
+| **worker-rtx5090** | RTX 5090 (48GB) | Large models, reasoning | vLLM, DeepSeek |
+| **worker-rtx3090ti** | RTX 3090 Ti (24GB) | General purpose, assistant | vLLM, OpenClaw, Nerve UI |
 | **worker-rtx3060** | RTX 3060 (12GB) | Smaller models, processing | Ollama, document processing |
 
 ---
@@ -135,7 +135,6 @@ infra/hosts/worker-rtx5090/
 ├── docker-compose.gpu.yml                (vllm-server, lmcache, redis-cache)
 ├── docker-compose.voice.yml              (unmute-standalone)
 ├── docker-compose.distributed-voice.yml  (unmute-llm)
-├── docker-compose.hermes.yml             (hermes, hermes-dashboard, hermes-init)
 └── cloudflared-config.yml                (cloudflare tunnel config)
 ```
 
@@ -149,7 +148,7 @@ infra/hosts/worker-rtx3090ti/
 ├── docker-compose.gpu.yml                (vllm-server, lmcache, redis-cache)
 ├── docker-compose.voice.yml              (unmute-standalone)
 ├── docker-compose.distributed-voice.yml  (unmute-tts)
-├── docker-compose.assistant.yml          (openclaw, hermes-ui)
+├── docker-compose.assistant.yml          (openclaw, nerve-ui)
 ├── cloudflared-config.yml                (cloudflare tunnel config)
 └── promtail-config.yml                   (log shipping config)
 ```

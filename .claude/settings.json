@@ -150,8 +150,13 @@
       "startup_timeout_sec": 90
     },
     "serena": {
-      "command": "serena",
+      "command": "/home/ellisapotheosis/.local/bin/uvx",
       "args": [
+        "--python",
+        "3.13",
+        "--from",
+        "git+https://github.com/oraios/serena",
+        "serena",
         "start-mcp-server",
         "--project-from-cwd",
         "--context=claude-code"

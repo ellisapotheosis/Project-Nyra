@@ -53,4 +53,5 @@ async def activepieces_trigger(webhook_path: str, payload: dict) -> dict:
 
 if __name__ == "__main__":
     # Use standard run which handles transport based on arguments or defaults
-    mcp.run(transport="sse")
+    port = int(os.getenv("NYRA_MCP_PORT", "3333"))
+    mcp.run(transport="sse", host="0.0.0.0", port=port)
