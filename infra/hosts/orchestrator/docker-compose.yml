@@ -52,15 +52,10 @@ services:
     networks:
       - nyra-network
 
-  cloudflared:
-    image: cloudflare/cloudflared:latest
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-cloudflared-orchestrator
-    restart: unless-stopped
-    command: ["tunnel", "run"]
-    environment:
-      TUNNEL_TOKEN: ${ORCHESTRATOR_TUNNEL_TOKEN:-}
-    networks:
-      - nyra-network
+  # NOTE: cloudflared is managed via the standalone overlay
+  # docker-compose.cloudflared.yml (use `make cf-orch-up`). It is intentionally
+  # NOT defined in this main compose so it can be stopped/started without
+  # affecting LiteLLM, Nexus, or Redis.
 
   # ── Portainer CE Server (Central Management) ────────────────────────────
   # The central UI/API for managing every Docker host through agents.

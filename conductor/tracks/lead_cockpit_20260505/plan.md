@@ -2,7 +2,7 @@
 
 ## Phase 1: Cockpit Layout and Profile
 
-- [ ] Task: Create `/leads/[id]` route structure
+- [~] Task: Create `/leads/[id]` route structure
 - [ ] Task: Implement Lead Profile card with full metadata
 - [ ] Task: Add source attribution and tag display
 

@@ -128,3 +128,78 @@ Work is only done when:
 - docs are updated
 - smoke checks pass
 - no deprecated architecture is reintroduced
+
+
+<claude-mem-context>
+# Memory Context
+
+# [project-nyra] recent context, 2026-05-08 8:57pm PDT
+
+Legend: 🎯session 🔴bugfix 🟣feature 🔄refactor ✅change 🔵discovery ⚖️decision 🚨security_alert 🔐security_note
+Format: ID TIME TYPE TITLE
+Fetch details: get_observations([IDs]) | Search: mem-search skill
+
+Stats: 50 obs (16,175t read) | 252,004t work | 94% savings
+
+### May 4, 2026
+S2 Configure OMC HUD display preset to "full" mode for comprehensive orchestration visibility in Claude Code status line (May 4, 11:01 PM)
+S1 Status check and configuration of oh-my-claudecode HUD (statusLine display) (May 4, 11:01 PM)
+### May 5, 2026
+S3 Setup pre-commit hooks infrastructure (husky + lint-staged + prettier) for project-nyra monorepo (May 5, 12:39 AM)
+S4 Create PR, review, merge pre-commit hooks feature; sync local repo with GitHub; audit and review stashes from previous syncs to decide what to keep/merge/discard (May 5, 3:05 AM)
+### May 7, 2026
+30 5:52a 🔴 Fixed Nexus MCP router URL pointing to wrong Tailscale host
+26 " 🔵 Single remote commit not yet merged to local main
+27 " 🔵 Stashed pre-sync changes: configuration cleanup and infrastructure updates
+28 5:53a 🔵 Stash@{4}: Hardcoded environment variable change from pr-297-rebase
+29 " 🔵 Stashes @{0-3} are near-identical duplicates from same sync operation
+37 " 🔵 MCP server connectivity failures after configuration changes
+35 5:54a 🔵 Stash@{2} differs from stash@{1} in workflow and project memory files
+36 " 🔵 Confirmed: Stash@{2} and stash@{3} are bit-for-bit identical
+39 " 🔵 Docker fix documentation files still exist on GitHub main
+40 " 🔵 Infisical secrets file from stash@{4} does not exist on GitHub main
+41 5:55a ✅ Feature branch created for pre-commit hooks work
+42 " 🚨 GitHub reports 679 vulnerabilities in Project-Nyra default branch
+43 " ✅ Feature branch feat/pre-commit-hooks pushed to GitHub
+44 " ✅ Pull request #389 created for pre-commit hooks feature
+45 " 🔵 PR #389 diff shows pre-commit hook implementation with side-effect modifications
+46 5:56a ⚖️ PR #389 reviewed and approved for merge
+47 5:57a ✅ pnpm-lock.yaml conflict resolved, upstream version accepted
+49 6:01a 🔵 Repository in active interactive rebase; changes staged and pending
+50 " ⚖️ Interactive rebase aborted; working state restored from stash
+51 6:02a ✅ New feature branch created from origin/main; working state preserved
+52 " 🟣 Pre-commit hooks successfully integrated and tested on feat/pre-commit-hooks-v2
+53 6:07a ✅ Feature branch feat/pre-commit-hooks-v2 pushed to GitHub
+54 " ⚖️ PR #389 closed in favor of clean rebased branch
+55 " ✅ PR #390 created from clean feat/pre-commit-hooks-v2 branch
+56 " ✅ PR #390 squash merged to main; feature branch deleted
+57 6:08a ✅ Local main branch synced with origin/main; pre-commit hooks now in HEAD
+58 " ✅ Working state restored from stash; local main fully synced
+59 " 🔵 Repository verified synced; pre-commit hooks merged; stash review list ready
+60 " ✅ Temporary PR resolution stash discarded
+### May 8, 2026
+62 4:09p ✅ Stash applied restoring infrastructure configs and documentation
+63 " 🔵 Infrastructure hosts topology and service architecture mapped
+64 " 🔵 Makefile is 976-line orchestration hub with recent consolidation work
+65 4:10p 🔵 oracle-vps docker-compose defines complete 1158-line backend platform stack
+66 " 🔵 Nexus (Grafbase) aggregates 25+ MCP servers and 4-tier LLM routing
+67 4:11p 🔵 Orchestrator host runs lightweight edge node with local observability and BitNet inference
+68 " 🔵 Host layout defines infrastructure bootstrap order and service placement policies
+69 " 🔵 Vercel deployment failure with CircleCI checks passing
+S5 Complete top-to-bottom audit of the Makefile (976 lines) and all container/host stacks across the 4-PC GPU cluster infrastructure, reviewing all docker-compose files and overlay configurations for each host (oracle-vps, orchestrator, worker-rtx3060, worker-rtx3090ti, worker-rtx5090), identifying all infrastructure issues, misconfigurations, and misalignments. (May 8, 4:12 PM)
+70 4:12p 🔵 Vercel CLI installation initiated for deployment log inspection
+71 " 🔐 Deprecated tar dependency with security vulnerabilities in Vercel CLI install
+72 4:13p 🔵 Vercel CLI authentication required for deployment log inspection
+73 " 🔵 Vercel inspect command stdin unavailable; process cannot be interrupted
+74 " ✅ Vercel inspect process terminated
+75 " 🔴 Root cause of Vercel deployment failure identified
+76 " 🔵 PR #391 merge failed due to diverged branches
+77 " 🟣 PR #391 successfully merged to main
+78 4:14p 🔵 Repository branch state and stale remote tracking branches
+79 " 🔵 Local main branch has uncommitted changes and diverges from remote
+80 " ✅ Conductor track status updated to in-progress
+81 " ✅ Repository state synchronized with remote main after PR #391 merge
+82 4:15p 🔵 Local repository successfully synchronized with remote main
+
+Access 252k tokens of past work via get_observations([IDs]) or mem-search skill.
+</claude-mem-context>

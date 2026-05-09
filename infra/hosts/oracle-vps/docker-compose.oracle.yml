@@ -17,7 +17,7 @@ services:
   paperclip:
     <<: *common
     image: ${PAPERCLIP_IMAGE:-ghcr.io/paperclipai/paperclip:latest}
-    container_name: nyra-paperclip
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-paperclip
     environment:
       NODE_ENV: production
       PORT: 3100

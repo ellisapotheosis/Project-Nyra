@@ -312,58 +312,8 @@ services:
     networks: [nyra_net]
 
   # ── Memory System (Mem0 + FalkorDB) ───────────────────────────────────────
-  # Primary memory layer for borrower profiles and cross-session knowledge.
-
-  falkordb:
-    image: falkordb/falkordb:latest
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-falkordb
-    restart: unless-stopped
-    ports:
-      - "6381:6379" # Mapped to 6381 to avoid conflict with nyra-redis-cache
-    volumes:
-      - falkordb_data:/data
-    networks: [nyra_net]
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-  mem0-rest:
-    build:
-      context: ../../../services/mem0
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-mem0-rest
-    restart: unless-stopped
-    depends_on:
-      falkordb:
-        condition: service_healthy
-      qdrant:
-        condition: service_started
-    environment:
-      FALKORDB_URL: redis://falkordb:6379
-      QDRANT_HOST: qdrant
-      QDRANT_PORT: 6333
-      OPENAI_API_KEY: ${OPENAI_API_KEY}
-      LITELLM_API_BASE: ${LITELLM_API_BASE:-http://litellm:4000/v1}
-      LITELLM_API_KEY: ${LITELLM_MASTER_KEY}
-    ports:
-      - "5000:5000"
-    networks: [nyra_net]
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-
-  # ── Qdrant (vector backend for Mem0 and OpenMemory) ──────────────────────
-  # Note: qdrant image is distroless (no curl/wget) — no healthcheck possible.
-  qdrant:
-    image: qdrant/qdrant:latest
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-qdrant
-    restart: unless-stopped
-    volumes:
-      - qdrant_data:/qdrant/storage
-    networks: [nyra_net]
+  # NOTE: mem0-rest, falkordb, and qdrant are CANONICAL in
+  # docker-compose.memory.yml. Do not redefine them here.
 
   # ── OpenMemory MCP (self-hosted mem0 MCP server) ─────────────────────────
   # Built from source: github.com/mem0ai/mem0/tree/main/openmemory/api.
@@ -372,9 +322,7 @@ services:
       context: ../../../services/openmemory-mcp
     container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-openmemory-mcp
     restart: unless-stopped
-    depends_on:
-      qdrant:
-        condition: service_started
+    # NOTE: qdrant lives in docker-compose.memory.yml; reach it via Tailscale.
     environment:
       OPENAI_API_KEY: ${OPENAI_API_KEY}
       QDRANT_HOST: qdrant
@@ -444,115 +392,9 @@ services:
 
 
 
-  gitea:
-    image: gitea/gitea:1.21-rootless
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-gitea
-    hostname: gitea
-    restart: unless-stopped
-    depends_on:
-      postgres:
-        condition: service_healthy
-    ports:
-      - "${GITEA_HTTP_PORT:-3001}:3000"
-      - "${GITEA_SSH_PORT:-2222}:2222"
-    volumes:
-      - gitea_data:/var/lib/gitea
-      - gitea_config:/etc/gitea
-      - /etc/timezone:/etc/timezone:ro
-      - /etc/localtime:/etc/localtime:ro
-    environment:
-      USER_UID: ${GITEA_UID:-1000}
-      USER_GID: ${GITEA_GID:-1000}
-      GITEA__database__DB_TYPE: postgres
-      GITEA__database__HOST: postgres:5432
-      GITEA__database__NAME: ${GITEA_DB_NAME:-gitea}
-      GITEA__database__USER: ${GITEA_DB_USER:-nyra}
-      GITEA__database__PASSWD: ${POSTGRES_PASSWORD}
-      GITEA__server__DOMAIN: ${GITEA_DOMAIN:-git.oracle.trex-fiordland.ts.net}
-      GITEA__server__ROOT_URL: ${GITEA_ROOT_URL:-https://git.oracle.trex-fiordland.ts.net/}
-      GITEA__server__SSH_DOMAIN: ${GITEA_SSH_DOMAIN:-oracle.trex-fiordland.ts.net}
-      GITEA__server__SSH_PORT: ${GITEA_SSH_PORT:-2222}
-      GITEA__server__SSH_LISTEN_PORT: 2222
-      GITEA__server__START_SSH_SERVER: "true"
-      GITEA__service__DISABLE_REGISTRATION: "true"
-      GITEA__service__REQUIRE_SIGNIN_VIEW: "false"
-      GITEA__actions__ENABLED: "true"
-      GITEA__mirror__ENABLED: "true"
-      GITEA__mirror__DEFAULT_INTERVAL: 10m
-      GITEA__webhook__ALLOWED_HOST_LIST: github.com,api.github.com
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/api/healthz"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    networks: [nyra_net]
-
-  gitea-runner:
-    image: gitea/act_runner:latest
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-gitea-runner
-    hostname: gitea-runner
-    restart: unless-stopped
-    depends_on:
-      gitea:
-        condition: service_healthy
-    volumes:
-      - gitea_runner_data:/data
-      - /var/run/docker.sock:/var/run/docker.sock
-      - ../../configs/gitea/runner-config.yaml:/config.yaml:ro
-    environment:
-      CONFIG_FILE: /config.yaml
-      GITEA_INSTANCE_URL: http://gitea:3000
-      GITEA_RUNNER_REGISTRATION_TOKEN: ${GITEA_RUNNER_TOKEN:-}
-      GITEA_RUNNER_NAME: ${GITEA_RUNNER_NAME:-nyra-runner-01}
-      GITEA_RUNNER_LABELS: ${GITEA_RUNNER_LABELS:-ubuntu-latest:docker://node:20,self-hosted:host}
-    networks: [nyra_net]
-
-  github-mirror-sync:
-    image: alpine/git:latest
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-github-mirror
-    hostname: github-mirror
-    restart: unless-stopped
-    depends_on:
-      gitea:
-        condition: service_healthy
-    volumes:
-      - gitea_data:/var/lib/gitea:ro
-      - ../../configs/gitea/mirror-sync.sh:/mirror-sync.sh:ro
-      - ${HOME:-/home/ellisapotheosis}/.ssh:/root/.ssh:ro
-    environment:
-      GITHUB_TOKEN: ${GITHUB_TOKEN:-}
-      GITHUB_REPO: ${GITHUB_REPO:-ellisapotheosis/Project-Nyra}
-      GITEA_URL: http://gitea:3000
-      GITEA_TOKEN: ${GITEA_TOKEN:-}
-      MIRROR_INTERVAL_SECONDS: ${GITHUB_MIRROR_INTERVAL_SECONDS:-600}
-    entrypoint: ["/bin/sh", "-c"]
-    command:
-      - |
-        while true; do
-          /bin/sh /mirror-sync.sh || true
-          sleep "$${MIRROR_INTERVAL_SECONDS}"
-        done
-    networks: [nyra_net]
-
-  gitea-mcp:
-    build:
-      context: ../../../services/gitea-mcp
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-gitea-mcp
-    restart: unless-stopped
-    depends_on:
-      gitea:
-        condition: service_healthy
-    environment:
-      PORT: ${GITEA_MCP_PORT:-3101}
-      GITEA_URL: http://gitea:3000
-    ports:
-      - "${GITEA_MCP_PORT:-3101}:3101"
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3101/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    networks: [nyra_net]
+  # NOTE: gitea, gitea-runner, github-mirror-sync, gitea-mcp are managed via the
+  # docker-compose.gitea.yml overlay (use `make gitea-up`). They are NOT defined
+  # here so the overlay's hardened secrets and dedicated DB stay canonical.
 
   # ── Generic Git MCP (stdio→SSE bridge via supergateway) ──────────────────
   # Local Git repository operations for Gitea-backed repos. API-level Gitea
@@ -700,7 +542,7 @@ services:
   # Long-lived execution container for registry installs into /infra/apps/landing-page.
   nyra-ui-engine:
     image: node:20-alpine
-    container_name: nyra-ui-engine
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-ui-engine
     restart: unless-stopped
     working_dir: /app
     environment:
@@ -1126,11 +968,6 @@ volumes:
   loki_data:
   grafana_data:
   openwebui_data:
-  gitea_data:
-  gitea_config:
-  gitea_runner_data:
-  falkordb_data:
-  qdrant_data:
   mempalace_data:
   mempalace_vault:
   paperclip_data:

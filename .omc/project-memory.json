@@ -283,9 +283,87 @@
   },
   "hotPaths": [
     {
+      "path": "Makefile",
+      "accessCount": 24,
+      "lastAccessed": 1778313113149,
+      "type": "file"
+    },
+    {
+      "path": "infra/hosts/oracle-vps/docker-compose.yml",
+      "accessCount": 20,
+      "lastAccessed": 1778313131566,
+      "type": "file"
+    },
+    {
+      "path": "infra/hosts/worker-rtx3090ti/docker-compose.gpu.yml",
+      "accessCount": 14,
+      "lastAccessed": 1778313219098,
+      "type": "file"
+    },
+    {
       "path": "package.json",
       "accessCount": 8,
       "lastAccessed": 1777975348519,
+      "type": "file"
+    },
+    {
+      "path": "infra/hosts/orchestrator/docker-compose.clawteam.yml",
+      "accessCount": 8,
+      "lastAccessed": 1778313027030,
+      "type": "file"
+    },
+    {
+      "path": "infra/hosts/oracle-vps/docker-compose.oracle.yml",
+      "accessCount": 8,
+      "lastAccessed": 1778313242757,
+      "type": "file"
+    },
+    {
+      "path": "infra/hosts/oracle-vps/docker-compose.memory.yml",
+      "accessCount": 8,
+      "lastAccessed": 1778313246781,
+      "type": "file"
+    },
+    {
+      "path": "infra/hosts/orchestrator/docker-compose.cloudflared.yml",
+      "accessCount": 8,
+      "lastAccessed": 1778313250926,
+      "type": "file"
+    },
+    {
+      "path": "infra/hosts/worker-rtx3060/docker-compose.gpu.yml",
+      "accessCount": 6,
+      "lastAccessed": 1778312829834,
+      "type": "file"
+    },
+    {
+      "path": "infra/hosts/worker-rtx5090/docker-compose.gpu.yml",
+      "accessCount": 6,
+      "lastAccessed": 1778312874389,
+      "type": "file"
+    },
+    {
+      "path": "infra/hosts/worker-rtx5090/docker-compose.yml",
+      "accessCount": 6,
+      "lastAccessed": 1778312884713,
+      "type": "file"
+    },
+    {
+      "path": "infra/hosts/worker-rtx3090ti/docker-compose.yml",
+      "accessCount": 6,
+      "lastAccessed": 1778312894558,
+      "type": "file"
+    },
+    {
+      "path": "infra/hosts/orchestrator/docker-compose.voice.yml",
+      "accessCount": 6,
+      "lastAccessed": 1778312923622,
+      "type": "file"
+    },
+    {
+      "path": "infra/hosts/orchestrator/docker-compose.yml",
+      "accessCount": 6,
+      "lastAccessed": 1778313041284,
       "type": "file"
     },
     {
@@ -301,9 +379,45 @@
       "type": "file"
     },
     {
-      "path": "Makefile",
+      "path": "infra/hosts/oracle-vps/docker-compose.clawteam.yml",
       "accessCount": 4,
-      "lastAccessed": 1778281833427,
+      "lastAccessed": 1778312730598,
+      "type": "file"
+    },
+    {
+      "path": "infra/hosts/oracle-vps/docker-compose.apps.yml",
+      "accessCount": 4,
+      "lastAccessed": 1778312746503,
+      "type": "file"
+    },
+    {
+      "path": "infra/hosts/oracle-vps/docker-compose.memory-extra.yml",
+      "accessCount": 4,
+      "lastAccessed": 1778312754634,
+      "type": "file"
+    },
+    {
+      "path": "infra/hosts/oracle-vps/docker-compose.letta-mcp.yml",
+      "accessCount": 4,
+      "lastAccessed": 1778312755024,
+      "type": "file"
+    },
+    {
+      "path": "infra/hosts/oracle-vps/docker-compose.paperclip.yml",
+      "accessCount": 4,
+      "lastAccessed": 1778312756483,
+      "type": "file"
+    },
+    {
+      "path": "infra/hosts/orchestrator/docker-compose.observability.yml",
+      "accessCount": 4,
+      "lastAccessed": 1778312756550,
+      "type": "file"
+    },
+    {
+      "path": "infra/hosts/host-layout.yaml",
+      "accessCount": 4,
+      "lastAccessed": 1778312757130,
       "type": "file"
     },
     {
@@ -331,81 +445,9 @@
       "type": "file"
     },
     {
-      "path": "infra/hosts/oracle-vps/docker-compose.yml",
-      "accessCount": 2,
-      "lastAccessed": 1778281833786,
-      "type": "file"
-    },
-    {
-      "path": "infra/hosts/oracle-vps/docker-compose.oracle.yml",
-      "accessCount": 2,
-      "lastAccessed": 1778281834303,
-      "type": "file"
-    },
-    {
-      "path": "infra/hosts/oracle-vps/docker-compose.apps.yml",
-      "accessCount": 2,
-      "lastAccessed": 1778281834536,
-      "type": "file"
-    },
-    {
-      "path": "infra/hosts/oracle-vps/docker-compose.memory.yml",
-      "accessCount": 2,
-      "lastAccessed": 1778281834849,
-      "type": "file"
-    },
-    {
-      "path": "infra/hosts/oracle-vps/docker-compose.letta-mcp.yml",
-      "accessCount": 2,
-      "lastAccessed": 1778281852870,
-      "type": "file"
-    },
-    {
-      "path": "infra/hosts/oracle-vps/docker-compose.memory-extra.yml",
-      "accessCount": 2,
-      "lastAccessed": 1778281854244,
-      "type": "file"
-    },
-    {
-      "path": "infra/hosts/oracle-vps/docker-compose.paperclip.yml",
-      "accessCount": 2,
-      "lastAccessed": 1778281855102,
-      "type": "file"
-    },
-    {
-      "path": "infra/hosts/oracle-vps/docker-compose.clawteam.yml",
-      "accessCount": 2,
-      "lastAccessed": 1778281855384,
-      "type": "file"
-    },
-    {
       "path": "infra/hosts/oracle-vps/nexus.toml",
       "accessCount": 2,
       "lastAccessed": 1778281856060,
-      "type": "file"
-    },
-    {
-      "path": "infra/hosts/orchestrator/docker-compose.yml",
-      "accessCount": 2,
-      "lastAccessed": 1778281873397,
-      "type": "file"
-    },
-    {
-      "path": "infra/hosts/orchestrator/docker-compose.cloudflared.yml",
-      "accessCount": 2,
-      "lastAccessed": 1778281873797,
-      "type": "file"
-    },
-    {
-      "path": "infra/hosts/orchestrator/docker-compose.observability.yml",
-      "accessCount": 2,
-      "lastAccessed": 1778281874538,
-      "type": "file"
-    },
-    {
-      "path": "infra/hosts/orchestrator/docker-compose.voice.yml",
-      "accessCount": 2,
-      "lastAccessed": 1778281875085,
       "type": "file"
     },
     {
@@ -421,12 +463,6 @@
       "type": "file"
     },
     {
-      "path": "infra/hosts/orchestrator/docker-compose.clawteam.yml",
-      "accessCount": 2,
-      "lastAccessed": 1778281875690,
-      "type": "file"
-    },
-    {
       "path": "infra/hosts/worker-rtx3060/docker-compose.worker.yml",
       "accessCount": 2,
       "lastAccessed": 1778281892347,
@@ -436,18 +472,6 @@
       "path": "infra/hosts/worker-rtx3060/docker-compose.yml",
       "accessCount": 2,
       "lastAccessed": 1778281893806,
-      "type": "file"
-    },
-    {
-      "path": "infra/hosts/worker-rtx3060/docker-compose.gpu.yml",
-      "accessCount": 2,
-      "lastAccessed": 1778281894003,
-      "type": "file"
-    },
-    {
-      "path": "infra/hosts/worker-rtx3090ti/docker-compose.yml",
-      "accessCount": 2,
-      "lastAccessed": 1778281895787,
       "type": "file"
     },
     {
@@ -463,27 +487,21 @@
       "type": "file"
     },
     {
-      "path": "infra/hosts/worker-rtx5090/docker-compose.gpu.yml",
+      "path": "infra/hosts/worker-rtx3090ti/docker-compose.assistant.yml",
       "accessCount": 2,
-      "lastAccessed": 1778281897490,
+      "lastAccessed": 1778312765156,
       "type": "file"
     },
     {
-      "path": "infra/hosts/worker-rtx3090ti/docker-compose.gpu.yml",
+      "path": "infra/hosts/worker-rtx5090/docker-compose.assistant.yml",
       "accessCount": 2,
-      "lastAccessed": 1778281899868,
+      "lastAccessed": 1778312766004,
       "type": "file"
     },
     {
-      "path": "infra/hosts/worker-rtx5090/docker-compose.yml",
+      "path": "infra/hosts/worker-rtx3090ti/docker-compose.hermes.yml",
       "accessCount": 2,
-      "lastAccessed": 1778281901955,
-      "type": "file"
-    },
-    {
-      "path": "infra/hosts/host-layout.yaml",
-      "accessCount": 2,
-      "lastAccessed": 1778281902406,
+      "lastAccessed": 1778312766319,
       "type": "file"
     },
     {
