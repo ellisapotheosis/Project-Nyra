@@ -105,6 +105,11 @@ services:
     networks: [nyra_net]
     ports:
       - "3000:3000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
   twenty-worker:
     image: twentycrm/twenty:latest
@@ -113,7 +118,7 @@ services:
     command: ["yarn", "worker:prod"]
     depends_on:
       twenty:
-        condition: service_started
+        condition: service_healthy
       twenty-db:
         condition: service_healthy
     environment:
@@ -213,6 +218,11 @@ services:
     networks: [nyra_net]
     ports:
       - "5678:5678"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5678/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
   quote-api:
     build:
@@ -225,6 +235,11 @@ services:
     networks: [nyra_net]
     ports:
       - "7070:7070"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:7070/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
   cloudflared:
     image: cloudflare/cloudflared:latest
@@ -235,6 +250,11 @@ services:
       TUNNEL_TOKEN: ${ORACLE_TUNNEL_TOKEN}
       ORACLE_TUNNEL_TOKEN: ${ORACLE_TUNNEL_TOKEN}
     networks: [nyra_net]
+    healthcheck:
+      test: ["CMD", "cloudflared", "--version"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
 
   # ── Observability ─────────────────────────────────────────────────────────
   # Metrics, logs, and dashboards run on Oracle (always-on, latency-insensitive).
@@ -253,6 +273,11 @@ services:
     ports:
       - "9090:9090"
     networks: [nyra_net]
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:9090/-/healthy"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   loki:
     image: grafana/loki:3.4.3
@@ -264,6 +289,11 @@ services:
     ports:
       - "3100:3100"
     networks: [nyra_net]
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3100/ready"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   grafana:
     image: grafana/grafana:latest
@@ -281,6 +311,11 @@ services:
     ports:
       - "3003:3000"
     networks: [nyra_net]
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:latest
@@ -313,6 +348,11 @@ services:
     ports:
       - "8088:8080"
     networks: [nyra_net]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   # ── Memory System (Mem0 + FalkorDB) ───────────────────────────────────────
   # NOTE: mem0-rest, falkordb, and qdrant are CANONICAL in
@@ -445,7 +485,7 @@ services:
     restart: unless-stopped
     depends_on:
       twenty:
-        condition: service_started
+        condition: service_healthy
       postgres:
         condition: service_healthy
     environment:
@@ -459,6 +499,11 @@ services:
     ports:
       - "4001:4001"
     networks: [nyra_net]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4001/api/leads?limit=1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   campaign_engine:
     profiles: ["apps"]
@@ -491,6 +536,11 @@ services:
     ports:
       - "3111:3100"
     networks: [nyra_net]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3100/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   # ── Paperclip MCP Server ─────────────────────────────────────────────────
   # Exposes Paperclip orchestration tools to the Nexus aggregator.

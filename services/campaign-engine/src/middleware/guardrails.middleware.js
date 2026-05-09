@@ -43,10 +43,6 @@ export class GuardrailMiddleware {
    * Check message content for compliance
    */
   static validateContent(content) {
-    if (!config.compliance.enableGuardrails) {
-      return { valid: true, warnings: [] };
-    }
-
     const warnings = [];
     const errors = [];
 

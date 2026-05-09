@@ -1,8 +1,10 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 
 export function LeadCaptureForm() {
+  const searchParams = useSearchParams();
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -13,7 +15,20 @@ export function LeadCaptureForm() {
     propertyState: 'TX',
     creditScore: 740,
     consent: false,
+    utmSource: '',
+    utmMedium: '',
+    utmCampaign: '',
   });
+
+  useEffect(() => {
+    setFormData(prev => ({
+      ...prev,
+      utmSource: searchParams.get('utm_source') || '',
+      utmMedium: searchParams.get('utm_medium') || '',
+      utmCampaign: searchParams.get('utm_campaign') || '',
+    }));
+  }, [searchParams]);
+
   const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -26,15 +41,13 @@ export function LeadCaptureForm() {
     setStatus('submitting');
     
     try {
-      // In a real setup this points to the NEXT_PUBLIC_CRM_API_URL
-      // For now we proxy or hit the direct API if exposed
-      const crmApiUrl = process.env.NEXT_PUBLIC_CRM_API_URL || 'http://localhost:4001';
+      // Direct ingestion to Lead Capture API (intelligent front door)
+      const leadCaptureApiUrl = process.env.NEXT_PUBLIC_LEAD_CAPTURE_API_URL || 'http://localhost:3300';
       
-      const res = await fetch(`${crmApiUrl}/api/leads`, {
+      const res = await fetch(`${leadCaptureApiUrl}/api/leads`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          'x-crm-api-key': process.env.NEXT_PUBLIC_CRM_API_KEY || ''
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({
           ...formData,
@@ -45,7 +58,6 @@ export function LeadCaptureForm() {
       if (!res.ok) throw new Error('Ingestion failed');
       
       setStatus('success');
-      // Redirect or show thank you
       window.location.href = '/thank-you';
     } catch (err) {
       console.error(err);
