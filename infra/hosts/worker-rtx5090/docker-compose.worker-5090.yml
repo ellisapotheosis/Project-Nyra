@@ -178,7 +178,7 @@ services:
   # GPU Metrics Exporter
   # ============================================================================
   gpu-exporter:
-    image: utkuozdemir/nvidia_gpu_exporter:latest
+    image: haytao/nvidia-gpu-exporter:latest
     container_name: worker-5090-gpu-exporter
     hostname: worker-5090-gpu-exporter
     restart: unless-stopped

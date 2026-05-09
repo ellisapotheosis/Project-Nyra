@@ -12,15 +12,18 @@ services:
       FALKORDB_URL: redis://falkordb:6379
       QDRANT_URL: http://qdrant:6333
       LETTA_BASE_URL: http://letta:8283
-    ports:
-      - "127.0.0.1:${MEMOS_HOST_PORT:-8338}:8080"
+    expose:
+      - "8080"
     depends_on:
       - mem0
       - falkordb
       - qdrant
       - letta
     networks:
-      - memory_edge
+      memory_edge: {}
+      nyra_net:
+        aliases:
+          - memory-memos
 
   claudemem:
     image: ${CLAUDEMEM_IMAGE:-ghcr.io/ruvnet/claudemem:latest}
@@ -30,14 +33,20 @@ services:
       MEM0_BASE_URL: http://mem0:5000
       OPENMEMORY_MCP_URL: ${OPENMEMORY_MCP_URL:-http://oracle.trex-fiordland.ts.net:8765}
       LETTA_BASE_URL: http://letta:8283
-    ports:
-      - "127.0.0.1:${CLAUDEMEM_HOST_PORT:-8339}:8080"
+    expose:
+      - "8080"
     depends_on:
       - mem0
       - letta
     networks:
-      - memory_edge
+      memory_edge: {}
+      nyra_net:
+        aliases:
+          - memory-claudemem
 
 networks:
   memory_edge:
     name: nyra_memory_edge
+  nyra_net:
+    external: true
+    name: nyra-network_nyra_net
