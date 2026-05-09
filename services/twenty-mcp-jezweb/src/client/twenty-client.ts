@@ -2,7 +2,7 @@ import { GraphQLClient } from 'graphql-request';
 import { TwentyConfig, Person, Company, Task, Note, SearchOptions } from '../types/twenty.js';
 import { Opportunity, CreateOpportunityInput, UpdateOpportunityInput, SearchOpportunitiesInput } from '../types/opportunities.js';
 import { Activity, Comment, CreateCommentInput, ActivityFilter, EntityActivitiesInput, ActivityTimeline } from '../types/activities.js';
-import { ObjectMetadata, FieldMetadata, ObjectSchema, ObjectSummary, MetadataQueryOptions, FieldQueryOptions } from '../types/metadata.js';
+import { ObjectMetadata, FieldMetadata, ObjectSchema, ObjectSummary, MetadataQueryOptions, FieldQueryOptions, RelationshipMetadata } from '../types/metadata.js';
 import {
   RelationshipSummary,
   CompanyContactsResult,
@@ -880,6 +880,16 @@ export class TwentyClient {
 
     const objectNode = result.objects.edges[0].node;
     const fields = objectNode.fields.edges.map(edge => edge.node);
+    const relationships = fields
+      .filter(field => field.type === 'RELATION' && field.settings?.relationObjectMetadataId)
+      .map((field): RelationshipMetadata => ({
+        id: `${objectNode.id}:${field.id}`,
+        fromObjectMetadataId: objectNode.id,
+        toObjectMetadataId: field.settings?.relationObjectMetadataId || '',
+        fromFieldMetadataId: field.id,
+        toFieldMetadataId: field.settings?.relationFieldMetadataId || '',
+        relationType: 'MANY_TO_ONE'
+      }));
 
     return {
       object: {
@@ -898,7 +908,7 @@ export class TwentyClient {
         fields
       },
       fields,
-      relationships: [] // TODO: Implement relationship discovery
+      relationships
     };
   }
 

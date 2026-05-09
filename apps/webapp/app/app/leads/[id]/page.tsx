@@ -41,6 +41,7 @@ export default function LeadProfilePage({ params }: { params: Promise<{ id: stri
 
   const lead = leadApi.data?.lead;
   const logs = conversationApi.data?.logs || [];
+  const quietHoursStatus = getQuietHoursStatus(lead);
 
   return (
     <StatusGate
@@ -81,9 +82,8 @@ export default function LeadProfilePage({ params }: { params: Promise<{ id: stri
                 <Badge variant="outline" className={`${currentLead.onDncList ? 'border-red-200 text-red-700 bg-red-50' : 'border-slate-200 text-slate-500 bg-white'} text-[10px] uppercase font-bold`}>
                   {currentLead.onDncList ? '! DNC List' : '✓ Not DNC'}
                 </Badge>
-                <Badge variant="outline" className="border-blue-200 text-blue-700 bg-blue-50 text-[10px] uppercase font-bold">
-                  {/* TODO: Implement real-time quiet hours check */}
-                  ☀ Business Hours
+                <Badge variant="outline" className={`${quietHoursStatus.inQuietHours ? 'border-amber-200 text-amber-700 bg-amber-50' : 'border-blue-200 text-blue-700 bg-blue-50'} text-[10px] uppercase font-bold`}>
+                  {quietHoursStatus.label}
                 </Badge>
               </div>
             </div>
@@ -533,4 +533,78 @@ export default function LeadProfilePage({ params }: { params: Promise<{ id: stri
       )}
     </StatusGate>
   );
+}
+
+function getQuietHoursStatus(lead: any): { inQuietHours: boolean; label: string } {
+  const timeZone = lead?.timeZone || lead?.timezone || timeZoneForState(lead?.propertyState || lead?.state) || 'America/Los_Angeles';
+  const localHour = Number(new Intl.DateTimeFormat('en-US', {
+    timeZone,
+    hour: 'numeric',
+    hour12: false
+  }).format(new Date()));
+  const inQuietHours = localHour < 9 || localHour >= 21;
+
+  return {
+    inQuietHours,
+    label: inQuietHours ? 'Quiet Hours' : 'Business Hours'
+  };
+}
+
+function timeZoneForState(state?: string): string | undefined {
+  const normalized = state?.trim().toUpperCase();
+  const zones: Record<string, string> = {
+    AL: 'America/Chicago',
+    AK: 'America/Anchorage',
+    AZ: 'America/Phoenix',
+    AR: 'America/Chicago',
+    CA: 'America/Los_Angeles',
+    CO: 'America/Denver',
+    CT: 'America/New_York',
+    DC: 'America/New_York',
+    DE: 'America/New_York',
+    FL: 'America/New_York',
+    GA: 'America/New_York',
+    HI: 'Pacific/Honolulu',
+    IA: 'America/Chicago',
+    ID: 'America/Denver',
+    IL: 'America/Chicago',
+    IN: 'America/Indiana/Indianapolis',
+    KS: 'America/Chicago',
+    KY: 'America/New_York',
+    LA: 'America/Chicago',
+    MA: 'America/New_York',
+    MD: 'America/New_York',
+    ME: 'America/New_York',
+    MI: 'America/Detroit',
+    MN: 'America/Chicago',
+    MO: 'America/Chicago',
+    MS: 'America/Chicago',
+    MT: 'America/Denver',
+    NC: 'America/New_York',
+    ND: 'America/Chicago',
+    NE: 'America/Chicago',
+    NH: 'America/New_York',
+    NJ: 'America/New_York',
+    NM: 'America/Denver',
+    NV: 'America/Los_Angeles',
+    NY: 'America/New_York',
+    OH: 'America/New_York',
+    OK: 'America/Chicago',
+    OR: 'America/Los_Angeles',
+    PA: 'America/New_York',
+    RI: 'America/New_York',
+    SC: 'America/New_York',
+    SD: 'America/Chicago',
+    TN: 'America/Chicago',
+    TX: 'America/Chicago',
+    UT: 'America/Denver',
+    VA: 'America/New_York',
+    VT: 'America/New_York',
+    WA: 'America/Los_Angeles',
+    WI: 'America/Chicago',
+    WV: 'America/New_York',
+    WY: 'America/Denver'
+  };
+
+  return normalized ? zones[normalized] : undefined;
 }

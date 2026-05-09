@@ -5,9 +5,10 @@ import { Calculator, Clock, Lock, TrendingUp, WifiOff, CheckCircle2, AlertCircle
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { quoteApi, useApi } from '@/lib/api';
+import { quoteApi, crmApi, useApi } from '@/lib/api';
 import { StatusGate } from '@/components/status-gate';
 import { QuoteRequestForm } from '@/components/quotes/quote-request-form';
+import { QuoteComparisonGrid } from '@/components/quotes/quote-comparison-grid';
 
 function currency(value: number) {
   return new Intl.NumberFormat("en-US", {
@@ -20,6 +21,7 @@ function currency(value: number) {
 export default function QuotesPage() {
   const loanTypesApi = useApi(quoteApi.getLoanTypes);
   const comparisonApi = useApi(quoteApi.compareLoanTypes);
+  const approveApi = useApi(crmApi.approveQuote);
 
   useEffect(() => {
     loanTypesApi.execute();
@@ -29,12 +31,25 @@ export default function QuotesPage() {
     comparisonApi.execute(data);
   };
 
+  const handleApprove = async (loanType: string) => {
+    const result = comparisonApi.data?.comparison[loanType as any];
+    if (result?.quote_id) {
+      try {
+        await approveApi.execute(result.quote_id, "SYSTEM_BROKER");
+        alert(`Quote ${result.quote_id} (${loanType}) approved and synced to CRM!`);
+      } catch (error) {
+        console.error("Approval failed:", error);
+        alert("Quote approval failed. Please try again.");
+      }
+    }
+  };
+
   return (
     <div className="space-y-6 p-8 bg-slate-50 min-h-screen">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Quote Desk</h1>
-          <p className="mt-2 text-muted-foreground">
+          <h1 className="text-3xl font-bold tracking-tight text-slate-900">Quote Desk</h1>
+          <p className="mt-2 text-slate-500">
             Deterministic Rate Comparison Engine
           </p>
         </div>
@@ -44,11 +59,11 @@ export default function QuotesPage() {
         </div>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid gap-6 lg:grid-cols-3">
         {/* Left Column: Input Form */}
-        <Card className="border-l-4 border-l-blue-600 shadow-md">
+        <Card className="border-l-4 border-l-blue-600 shadow-md lg:col-span-1">
           <CardHeader>
-            <CardTitle className="text-xl font-bold">Scenario Input</CardTitle>
+            <CardTitle className="text-xl font-bold text-slate-900">Scenario Input</CardTitle>
           </CardHeader>
           <CardContent>
             <QuoteRequestForm 
@@ -58,11 +73,12 @@ export default function QuotesPage() {
           </CardContent>
         </Card>
 
-        {/* Right Column: Program Status & Recent Results */}
-        <div className="space-y-6">
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-bold uppercase tracking-widest text-slate-400">Available Programs</CardTitle>
+        {/* Right Column: Comparison Grid */}
+        <div className="lg:col-span-2 space-y-6">
+          <Card className="shadow-sm border-slate-200">
+            <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
+              <CardTitle className="text-[10px] font-black uppercase tracking-widest text-slate-400">Available Programs</CardTitle>
+              <Badge variant="outline" className="bg-slate-50 text-slate-500 border-slate-200 text-[10px]">REAL-TIME</Badge>
             </CardHeader>
             <CardContent className="space-y-3">
               <StatusGate
@@ -74,7 +90,7 @@ export default function QuotesPage() {
                 emptyMessage="No loan programs found."
               >
                 {(loanTypes) => (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                     {loanTypes.map((product: any) => (
                       <div
                         key={product.type}
@@ -84,9 +100,7 @@ export default function QuotesPage() {
                           <p className="text-sm font-bold text-slate-900">{product.name}</p>
                           <p className="text-[10px] text-slate-500">Max {product.max_ltv}% LTV</p>
                         </div>
-                        <Badge variant="outline" className="bg-green-50 text-green-700 border-green-100 text-[10px]">
-                          Active
-                        </Badge>
+                        <div className="h-2 w-2 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]" />
                       </div>
                     ))}
                   </div>
@@ -95,62 +109,43 @@ export default function QuotesPage() {
             </CardContent>
           </Card>
 
-          <Card className="flex-1">
-            <CardHeader>
-              <CardTitle className="text-sm font-bold uppercase tracking-widest text-slate-400">Engine Output</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {!comparisonApi.data && !comparisonApi.isLoading && (
-                <div className="flex flex-col items-center justify-center p-12 text-center opacity-50 space-y-4">
-                  <Calculator className="h-12 w-12 text-slate-300" />
+          {!comparisonApi.data && !comparisonApi.isLoading && (
+            <Card className="flex-1 bg-slate-50/50 border-dashed border-2">
+              <CardContent>
+                <div className="flex flex-col items-center justify-center p-24 text-center space-y-4">
+                  <div className="h-16 w-16 rounded-full bg-white border border-slate-200 flex items-center justify-center shadow-sm">
+                    <Calculator className="h-8 w-8 text-slate-300" />
+                  </div>
                   <div>
-                    <p className="text-sm font-bold text-slate-900">Ready for Calculation</p>
-                    <p className="text-xs text-slate-500">Submit the scenario form to see comparisons</p>
+                    <p className="text-lg font-bold text-slate-900">Ready for Calculation</p>
+                    <p className="text-sm text-slate-500">Submit the scenario form to generate comparisons</p>
                   </div>
                 </div>
-              )}
+              </CardContent>
+            </Card>
+          )}
 
-              {comparisonApi.isLoading && (
-                <div className="flex flex-col items-center justify-center p-12 space-y-4">
-                  <div className="h-12 w-12 rounded-full border-4 border-blue-100 border-t-blue-600 animate-spin" />
-                  <p className="text-sm font-medium text-slate-600">Analyzing loan programs...</p>
+          {comparisonApi.isLoading && (
+            <Card className="flex-1">
+              <CardContent>
+                <div className="flex flex-col items-center justify-center p-24 space-y-6">
+                  <div className="h-16 w-16 rounded-full border-4 border-blue-100 border-t-blue-600 animate-spin shadow-inner" />
+                  <div className="text-center">
+                    <p className="text-lg font-bold text-slate-900">Analyzing loan programs...</p>
+                    <p className="text-sm text-slate-500 mt-1 italic">Executing deterministic mortgage math in Python backend</p>
+                  </div>
                 </div>
-              )}
+              </CardContent>
+            </Card>
+          )}
 
-              {comparisonApi.data && (
-                <div className="space-y-4">
-                  {Object.entries(comparisonApi.data.comparison).map(([type, result]: [any, any]) => (
-                    <div 
-                      key={type} 
-                      className={`p-4 rounded-xl border flex items-center justify-between transition-all ${
-                        result.available ? 'border-green-100 bg-green-50/30' : 'border-red-100 bg-red-50/30 opacity-60'
-                      }`}
-                    >
-                      <div className="flex items-center space-x-3">
-                        <div className={`h-10 w-10 rounded-full flex items-center justify-center ${
-                          result.available ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'
-                        }`}>
-                          {result.available ? <CheckCircle2 className="h-5 w-5" /> : <AlertCircle className="h-5 w-5" />}
-                        </div>
-                        <div>
-                          <p className="font-bold text-slate-900 uppercase">{type}</p>
-                          <p className="text-xs text-slate-500">
-                            {result.available ? 'Qualification Met' : result.error || 'Does not meet guidelines'}
-                          </p>
-                        </div>
-                      </div>
-                      {result.available && (
-                        <div className="text-right">
-                          <p className="text-lg font-bold text-slate-900">{currency(result.monthly_payment)}</p>
-                          <p className="text-[10px] text-slate-500 uppercase font-bold">Monthly PITI</p>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
+          {comparisonApi.data && (
+            <QuoteComparisonGrid 
+              data={comparisonApi.data} 
+              onApprove={handleApprove}
+              isApproving={approveApi.isLoading}
+            />
+          )}
         </div>
       </div>
     </div>

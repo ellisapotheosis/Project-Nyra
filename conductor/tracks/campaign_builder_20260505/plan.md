@@ -14,6 +14,6 @@
 
 ## Phase 3: Integration and Persistence
 
-- [ ] Task: Connect Save button to `campaignApi.createCampaign` and `updateCampaign`
-- [ ] Task: Implement Delete template functionality
+- [x] Task: Connect Save button to `campaignApi.createCampaign` and `updateCampaign`
+- [x] Task: Implement Delete template functionality
 - [ ] Task: Conductor - User Manual Verification 'Phase 3: Integration and Persistence' (Protocol in workflow.md)

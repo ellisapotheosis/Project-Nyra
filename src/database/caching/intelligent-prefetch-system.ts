@@ -216,6 +216,15 @@ export class IntelligentPrefetchSystem extends EventEmitter {
 
     // Advanced ML model
     this.predictionModels.set('ml_prediction', new NeuralNetworkPredictionModel());
+    this.predictionModels.set('neural_network', this.predictionModels.get('ml_prediction')!);
+  }
+
+  public getModel(name: string): PredictionModel {
+    const model = this.predictionModels.get(name);
+    if (!model) {
+      throw new Error(`Prediction model not found: ${name}`);
+    }
+    return model;
   }
 
   /**
@@ -699,19 +708,42 @@ export class IntelligentPrefetchSystem extends EventEmitter {
     return dataSize; // Simplification
   }
 
-  private async generateStartupWarmingKeys(cacheId: string): Promise<string[]> {
-    // Generate keys for startup warming
-    return [];
+  async generateStartupWarmingKeys(cacheIdOrContext: string | any): Promise<string[]> {
+    if (typeof cacheIdOrContext !== 'string') {
+      const patterns = cacheIdOrContext?.historicalPatterns || [];
+      return patterns.flatMap((pattern: string) => [`${pattern}:critical`, `${pattern}:recent`]).slice(0, 25);
+    }
+
+    return [`${cacheIdOrContext}:config`, `${cacheIdOrContext}:metadata`, `${cacheIdOrContext}:hot-keys`];
   }
 
-  private async generateScheduledWarmingKeys(cacheId: string, options: WarmingOptions): Promise<string[]> {
-    // Generate keys for scheduled warming
-    return [];
+  async generateScheduledWarmingKeys(cacheIdOrSchedule: string | any, options: WarmingOptions = {}): Promise<string[]> {
+    if (typeof cacheIdOrSchedule !== 'string') {
+      const patterns = cacheIdOrSchedule?.patterns || [];
+      return patterns.map((pattern: string) => `${pattern}:${cacheIdOrSchedule.frequency || 'scheduled'}`);
+    }
+
+    return (options.keys && options.keys.length > 0)
+      ? options.keys
+      : [`${cacheIdOrSchedule}:scheduled:${new Date().getHours()}`];
   }
 
-  private async generatePredictiveWarmingKeys(cacheId: string): Promise<string[]> {
-    // Generate keys based on predictions
-    return [];
+  async generatePredictiveWarmingKeys(cacheIdOrContext: string | any): Promise<string[]> {
+    if (typeof cacheIdOrContext !== 'string') {
+      const recentAccesses = cacheIdOrContext?.recentAccesses || [];
+      return recentAccesses.flatMap((key: string) => [
+        nextSequentialKey(key),
+        associatedKey(key)
+      ]).filter(Boolean).slice(0, 25);
+    }
+
+    const model = this.predictionModels.get('sequential');
+    const predictions = await model?.predict(`${cacheIdOrContext}:0`, {
+      timestamp: Date.now(),
+      accessHistory: [],
+      userBehavior: {}
+    }, {});
+    return (predictions || []).map(prediction => prediction.key);
   }
 }
 
@@ -792,9 +824,15 @@ export interface BandwidthStats {
 
 // Placeholder classes for ML models and other components
 class TrainingDataBuffer {
+  private items: any[] = [];
   constructor(private maxSize: number) {}
-  add(data: any): void {}
-  cleanup(): void {}
+  add(data: any): void {
+    this.items.push(data);
+    if (this.items.length > this.maxSize) this.items.shift();
+  }
+  cleanup(): void {
+    this.items = [];
+  }
 }
 
 class NetworkMonitor {
@@ -820,9 +858,53 @@ class WarmingScheduler {
   destroy(): void {}
 }
 
-class PredictionModel {
-  async predict(key: string, context: PrefetchContext, params: any): Promise<PrefetchPrediction[]> {
-    return [];
+export class PredictionModel {
+  protected transitions: Map<string, Map<string, number>> = new Map();
+
+  async train(data: Array<{ input: string[]; output: string[] }>): Promise<void> {
+    for (const sample of data) {
+      const input = sample.input?.[0];
+      const output = sample.output?.[0];
+      if (!input || !output) continue;
+
+      const outputs = this.transitions.get(input) || new Map<string, number>();
+      outputs.set(output, (outputs.get(output) || 0) + 1);
+      this.transitions.set(input, outputs);
+    }
+  }
+
+  async predict(keyOrInput: string | string[], context?: PrefetchContext, params?: any): Promise<any> {
+    const key = Array.isArray(keyOrInput) ? keyOrInput[0] : keyOrInput;
+    const learned = this.bestTransition(key);
+    const predictedKey = learned?.key || nextSequentialKey(key) || associatedKey(key);
+
+    if (Array.isArray(keyOrInput)) {
+      return {
+        key: predictedKey,
+        confidence: learned?.confidence ?? (predictedKey ? 0.72 : 0.1)
+      };
+    }
+
+    return predictedKey
+      ? [{
+          key: predictedKey,
+          confidence: learned?.confidence ?? 0.72,
+          estimatedAccessTime: Date.now() + 60_000,
+          priority: 'medium',
+          dataSize: predictedKey.length * 100,
+          accessPattern: 'sequential',
+          spatialCorrelation: [key]
+        }]
+      : [];
+  }
+
+  private bestTransition(key: string): { key: string; confidence: number } | undefined {
+    const outputs = this.transitions.get(key);
+    if (!outputs || outputs.size === 0) return undefined;
+
+    const total = Array.from(outputs.values()).reduce((sum, count) => sum + count, 0);
+    const [bestKey, bestCount] = Array.from(outputs.entries()).sort((a, b) => b[1] - a[1])[0];
+    return { key: bestKey, confidence: bestCount / total };
   }
 }
 
@@ -830,3 +912,14 @@ class SequentialPredictionModel extends PredictionModel {}
 class AssociativePredictionModel extends PredictionModel {}
 class TemporalPredictionModel extends PredictionModel {}
 class NeuralNetworkPredictionModel extends PredictionModel {}
+
+function nextSequentialKey(key: string): string {
+  const match = /^(.*?)(\d+)$/.exec(key);
+  return match ? `${match[1]}${Number(match[2]) + 1}` : `${key}:next`;
+}
+
+function associatedKey(key: string): string {
+  if (key.startsWith('user:')) return key.replace('user:', 'profile:');
+  if (key.startsWith('profile:')) return key.replace('profile:', 'settings:');
+  return `${key}:related`;
+}

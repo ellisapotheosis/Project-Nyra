@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { PersonalHeader } from '@/components/PersonalHeader';
 import { AboutSection } from '@/components/AboutSection';
 import { PersonalFooter } from '@/components/PersonalFooter';
+import { LeadCaptureForm } from '@/components/LeadCaptureForm';
 
 interface RateCard {
   product: string;
@@ -145,31 +146,39 @@ export default async function Home() {
       <main className="relative">
         {/* Hero Section with Ellis Branding */}
         <section className="relative mx-auto max-w-6xl px-6 pb-16 pt-20">
-          <p className="inline-flex rounded-full border border-cyan-400/40 bg-cyan-400/10 px-4 py-1 text-xs uppercase tracking-[0.2em] text-cyan-200">
-            Ellis Andersen · West Capital Lending · 2026 Edition
-          </p>
-          <h1 className="mt-6 text-4xl font-bold leading-tight md:text-6xl">
-            Mortgage Intelligence
-            <span className="block bg-gradient-to-r from-cyan-300 via-violet-300 to-fuchsia-300 bg-clip-text text-transparent">
-              with Personal Service
-            </span>
-          </h1>
-          <p className="mt-6 max-w-2xl text-slate-300">
-            I shop hundreds of lenders to find you the best rates and terms. Static-first UX with real-time data sources,
-            A+ BBB rating, and faster closing times than industry averages.
-          </p>
-          <div className="mt-8 grid gap-4 sm:grid-cols-3">
-            <div className="rounded-xl border border-slate-800 bg-slate-900/80 p-4 backdrop-blur">
-              <p className="text-xs uppercase tracking-widest text-slate-400">10Y Treasury</p>
-              <p className="mt-2 text-3xl font-semibold text-cyan-300">{tenYearYield.toFixed(2)}%</p>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div>
+              <p className="inline-flex rounded-full border border-cyan-400/40 bg-cyan-400/10 px-4 py-1 text-xs uppercase tracking-[0.2em] text-cyan-200">
+                Ellis Andersen · West Capital Lending · 2026 Edition
+              </p>
+              <h1 className="mt-6 text-4xl font-bold leading-tight md:text-6xl">
+                Mortgage Intelligence
+                <span className="block bg-gradient-to-r from-cyan-300 via-violet-300 to-fuchsia-300 bg-clip-text text-transparent">
+                  with Personal Service
+                </span>
+              </h1>
+              <p className="mt-6 max-w-xl text-slate-300">
+                I shop hundreds of lenders to find you the best rates and terms. Static-first UX with real-time data sources,
+                A+ BBB rating, and faster closing times than industry averages.
+              </p>
+              <div className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                <div className="rounded-xl border border-slate-800 bg-slate-900/80 p-4 backdrop-blur">
+                  <p className="text-xs uppercase tracking-widest text-slate-400">10Y Treasury</p>
+                  <p className="mt-2 text-3xl font-semibold text-cyan-300">{tenYearYield.toFixed(2)}%</p>
+                </div>
+                <div className="rounded-xl border border-slate-800 bg-slate-900/80 p-4 backdrop-blur hidden xl:block">
+                  <p className="text-xs uppercase tracking-widest text-slate-400">Products Tracked</p>
+                  <p className="mt-2 text-3xl font-semibold text-violet-300">{rates.length}</p>
+                </div>
+                <div className="rounded-xl border border-slate-800 bg-slate-900/80 p-4 backdrop-blur">
+                  <p className="text-xs uppercase tracking-widest text-slate-400">BBB Rating</p>
+                  <p className="mt-2 text-3xl font-semibold text-emerald-300">A+</p>
+                </div>
+              </div>
             </div>
-            <div className="rounded-xl border border-slate-800 bg-slate-900/80 p-4 backdrop-blur">
-              <p className="text-xs uppercase tracking-widest text-slate-400">Products Tracked</p>
-              <p className="mt-2 text-3xl font-semibold text-violet-300">{rates.length}</p>
-            </div>
-            <div className="rounded-xl border border-slate-800 bg-slate-900/80 p-4 backdrop-blur">
-              <p className="text-xs uppercase tracking-widest text-slate-400">BBB Rating</p>
-              <p className="mt-2 text-3xl font-semibold text-emerald-300">A+</p>
+            
+            <div className="lg:pl-8">
+              <LeadCaptureForm />
             </div>
           </div>
         </section>

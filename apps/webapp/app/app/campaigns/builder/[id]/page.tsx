@@ -28,10 +28,11 @@ import {
   PhoneMissed,
 } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 import { campaignApi, useApi } from "@/lib/api";
 import { StatusGate } from "@/components/status-gate";
-import { ChannelPreview } from "../components/ChannelPreview";
+import { ChannelPreview } from "@/components/campaigns/channel-preview";
 
 interface CampaignStep {
   id: string;
@@ -54,6 +55,9 @@ export default function CampaignBuilder({
   const fetchCampaignApi = useApi(campaignApi.getCampaign);
   const saveCampaignApi = useApi(campaignApi.createCampaign);
   const updateCampaignApi = useApi(campaignApi.updateCampaign);
+  const deleteCampaignApi = useApi(campaignApi.deleteCampaign);
+
+  const router = useRouter();
 
   useEffect(() => {
     if (campaignId !== "new") {
@@ -99,14 +103,32 @@ export default function CampaignBuilder({
     try {
       const payload = { name, steps, loanPurpose, active: true };
       if (campaignId === "new") {
-        await saveCampaignApi.execute(payload);
+        const result = await saveCampaignApi.execute(payload);
+        alert("Campaign created successfully!");
+        router.push(`/campaigns/builder/${result.id}`);
       } else {
         await updateCampaignApi.execute(campaignId, payload);
+        alert("Campaign updated successfully!");
       }
-      alert("Campaign saved successfully!");
     } catch (error) {
       console.error("Error saving campaign:", error);
       alert("Error saving campaign.");
+    }
+  };
+
+  const deleteCampaign = async () => {
+    if (
+      confirm(
+        "Are you sure you want to delete this campaign? This action cannot be undone."
+      )
+    ) {
+      try {
+        await deleteCampaignApi.execute(campaignId);
+        router.push("/campaigns");
+      } catch (error) {
+        console.error("Error deleting campaign:", error);
+        alert("Error deleting campaign.");
+      }
     }
   };
 
@@ -167,9 +189,24 @@ export default function CampaignBuilder({
           <Button
             variant="ghost"
             className="font-bold text-slate-500 hover:bg-slate-100 px-6 rounded-xl h-12"
+            onClick={() => router.push("/campaigns")}
           >
             Discard
           </Button>
+          {campaignId !== "new" && (
+            <Button
+              variant="outline"
+              className="font-bold text-red-500 border-red-100 hover:bg-red-50 px-6 rounded-xl h-12"
+              onClick={deleteCampaign}
+              disabled={deleteCampaignApi.isLoading}
+            >
+              {deleteCampaignApi.isLoading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                "Delete"
+              )}
+            </Button>
+          )}
           <Button
             onClick={saveCampaign}
             className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-8 rounded-xl h-12 shadow-lg shadow-blue-500/20 transition-all active:scale-95"
