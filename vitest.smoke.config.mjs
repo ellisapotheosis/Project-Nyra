@@ -9,12 +9,12 @@ export default {
     globals: true,
     environment: 'node',
     setupFiles: ['./tests/setup/vitest.setup.ts'],
-    include: ['tests/unit/mortgage/**/*.test.ts'],
+    include: ['tests/unit/**/*.test.ts'],
     exclude: ['node_modules/**', 'dist/**', 'build/**', '.next/**']
   },
   resolve: {
     alias: {
-      '@': resolve(__dirname, './src'),
+      '@': resolve(__dirname, './apps/webapp/app'),
       '@tests': resolve(__dirname, './tests')
     }
   }
