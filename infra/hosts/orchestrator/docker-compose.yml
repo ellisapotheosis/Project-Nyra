@@ -62,26 +62,21 @@ services:
     networks:
       - nyra-network
 
-  # ── Portainer Edge Agent ────────────────────────────────────────────────
-  # Oracle VPS now hosts Portainer CE. Keep exactly one lightweight agent here
-  # so the Oracle Portainer control plane can manage orchestrator Docker.
-  portainer-edge-agent:
-    image: portainer/agent:2.27.9
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-portainer-edge-agent
+  # ── Portainer CE Server (Central Management) ────────────────────────────
+  # The central UI/API for managing every Docker host through agents.
+  portainer:
+    image: portainer/portainer-ce:2.27.9
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-portainer
     restart: unless-stopped
-    environment:
-      EDGE: "1"
-      EDGE_ID: ${PORTAINER_EDGE_ID}
-      EDGE_KEY: ${PORTAINER_EDGE_KEY}
-      EDGE_INSECURE_POLL: ${PORTAINER_EDGE_INSECURE_POLL:-1}
-      AGENT_CLUSTER_ADDR: tasks.portainer-edge-agent
-      AGENT_TAGS: ${PORTAINER_AGENT_TAGS:-nyra,edge}
+    ports:
+      - "8000:8000"
+      - "9000:9000"
+      - "9443:9443"
     volumes:
+      - portainer_data:/data
       - /var/run/docker.sock:/var/run/docker.sock
-      - /var/lib/docker/volumes:/var/lib/docker/volumes
-    labels:
-      - "nyra.service=portainer-edge-agent"
-      - "nyra.role=edge"
+    networks:
+      - nyra-network
 
   # ── Syncthing ───────────────────────────────────────────────────────────
   syncthing:
@@ -101,6 +96,7 @@ volumes:
   n8n_data:
   cf_secrets:
   syncthing_config:
+  portainer_data:
 
 networks:
   nyra-network:

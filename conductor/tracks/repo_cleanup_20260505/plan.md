@@ -18,7 +18,7 @@
 
 ## Phase 3: Webapp Refactor and Validation
 
-- [ ] Task: Write Tests: Verify existing pages still work with the new API client layer
+- [~] Task: Write Tests: Verify existing pages still work with the new API client layer
 - [ ] Task: Implement: Replace scattered raw `fetch` calls in webapp with typed API clients
 - [ ] Task: Implement: Add standardized loading, error, and empty states to API-dependent components
 - [ ] Task: Conductor - User Manual Verification 'Phase 3: Webapp Refactor and Validation' (Protocol in workflow.md)

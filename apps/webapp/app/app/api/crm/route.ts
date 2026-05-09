@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server"
 
-import { getCrmWorkspaceData } from "@/lib/crm-data"
-
 export async function GET() {
-  const data = await getCrmWorkspaceData()
-  return NextResponse.json(data)
+  // This route is deprecated in favor of direct crmApi calls from client components.
+  // Returning empty object to satisfy typecheck for now.
+  return NextResponse.json({ message: "Deprecated. Use crmApi.getPipeline() instead." })
 }

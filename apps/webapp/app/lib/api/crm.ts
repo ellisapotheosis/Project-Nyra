@@ -2,16 +2,19 @@ import { createClient } from "./base";
 
 export interface Lead {
   id: string;
-  name: string;
-  email: string;
-  phone: string;
-  source: string;
-  loanPurpose: string;
-  loanAmount: number;
-  propertyState: string;
+  name?: string;
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  phone?: string;
+  source?: string;
+  loanPurpose?: string;
+  loanAmount?: number;
+  propertyState?: string;
   campaignStatus?: string;
   status?: string;
-  createdAt: string;
+  createdAt?: string;
+  [key: string]: any; // Allow for other fields from Twenty CRM
 }
 
 export interface ConversationLog {

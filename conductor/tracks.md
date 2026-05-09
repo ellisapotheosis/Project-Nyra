@@ -4,5 +4,5 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ---
 
-- [ ] **Track: Repo truth, docs cleanup, and webapp API standardization**
+- [~] **Track: Repo truth, docs cleanup, and webapp API standardization**
       _Link: [./tracks/repo_cleanup_20260505/](./tracks/repo_cleanup_20260505/)_

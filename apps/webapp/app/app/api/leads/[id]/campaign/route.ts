@@ -35,6 +35,6 @@ export async function PATCH(
     return NextResponse.json({ error: "Lead not found" }, { status: 404 })
   }
 
-  lead.campaignStatus = body.status || lead.campaignStatus
+  (lead as any).campaignStatus = body.status || (lead as any).campaignStatus
   return NextResponse.json({ success: true, lead, source: "mock" })
 }

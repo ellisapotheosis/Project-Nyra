@@ -8,9 +8,10 @@ services:
     image: infisical/cli:latest
     container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-infisical-sidecar
     restart: unless-stopped
+    env_file: [.env.oracle]
     entrypoint: ["/bin/sh", "-c"]
     command:
-      - "while true; do infisical export --projectId=8374cea9-e5e8-4050-bda4-b91f25ab30ef --env=prod --path=/machines/oracle-vps --format=dotenv > /repo/.env && sleep 60; done"
+      - "while true; do infisical export --projectId=8374cea9-e5e8-4050-bda4-b91f25ab30ef --env=prod --path=/machines/oracle-vps --format=dotenv --silent > /repo/.env && sleep 60; done"
     volumes:
       - ./.env:/repo/.env
     networks: [nyra_net]
@@ -29,22 +30,6 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - /var/lib/docker/volumes:/var/lib/docker/volumes
-    networks: [nyra_net]
-
-  # ── Portainer CE Server (Oracle 24/7 control plane) ─────────────────────
-  # The central UI/API for managing every Docker host through agents.
-  # Other hosts should run Portainer Agent/Edge Agent only.
-  portainer:
-    image: portainer/portainer-ce:2.27.9
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-portainer
-    restart: unless-stopped
-    ports:
-      - "8000:8000"
-      - "9000:9000"
-      - "9443:9443"
-    volumes:
-      - portainer_data:/data
-      - /var/run/docker.sock:/var/run/docker.sock
     networks: [nyra_net]
 
   postgres:
@@ -107,10 +92,10 @@ services:
         condition: service_healthy
     environment:
       NODE_PORT: 3000
-      SERVER_URL: ${TWENTY_SERVER_URL}
-      FRONTEND_URL: ${TWENTY_FRONTEND_URL}
+      SERVER_URL: https://twenty.ratehunter.net
+      FRONTEND_URL: https://twenty.ratehunter.net
       APP_SECRET: ${TWENTY_APP_SECRET}
-      PG_DATABASE_URL: postgresql://${TWENTY_DB_USER:-twenty}:${TWENTY_DB_PASSWORD}@twenty-db:5432/${TWENTY_DB_NAME:-twenty}
+      PG_DATABASE_URL: postgresql://${TWENTY_DB_USER:-twenty}:${TWENTY_DB_PASSWORD}@twenty-db:5432/twenty
       REDIS_URL: redis://redis-cache:6379
       STORAGE_TYPE: local
     volumes:
@@ -132,7 +117,7 @@ services:
         condition: service_healthy
     environment:
       APP_SECRET: ${TWENTY_APP_SECRET}
-      PG_DATABASE_URL: postgresql://${TWENTY_DB_USER:-twenty}:${TWENTY_DB_PASSWORD}@twenty-db:5432/${TWENTY_DB_NAME:-twenty}
+      PG_DATABASE_URL: postgresql://${TWENTY_DB_USER:-twenty}:${TWENTY_DB_PASSWORD}@twenty-db:5432/twenty
       REDIS_URL: redis://redis-cache:6379
       DISABLE_DB_MIGRATIONS: "true"
       DISABLE_CRON_JOBS_REGISTRATION: "true"
@@ -143,7 +128,7 @@ services:
     networks: [nyra_net]
 
   twenty-mcp:
-    image: ${TWENTY_MCP_IMAGE:-ghcr.io/ellisapotheosis/twenty-mcp-server:latest}
+    image: ${TWENTY_MCP_IMAGE:-nyra-network-twenty-mcp:latest}
     container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-twenty-mcp
     restart: unless-stopped
     ports:
@@ -602,7 +587,7 @@ services:
     container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-quote-engine
     restart: unless-stopped
     ports:
-      - "5000:5000"
+      - "8089:5000"
     networks: [nyra_net]
 
   crm-api:
