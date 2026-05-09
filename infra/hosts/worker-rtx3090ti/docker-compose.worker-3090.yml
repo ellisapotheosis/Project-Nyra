@@ -303,7 +303,7 @@ services:
   # NVIDIA GPU Exporter - GPU metrics for Prometheus
   # ============================================================================
   nvidia-gpu-exporter:
-    image: utkuozdemir/nvidia_gpu_exporter:latest
+    image: haytao/nvidia-gpu-exporter:latest
     container_name: worker-3090-nvidia-exporter
     hostname: worker-3090-nvidia-exporter
     restart: unless-stopped

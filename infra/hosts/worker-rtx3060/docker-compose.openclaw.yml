@@ -28,7 +28,7 @@ services:
       - worker-network
 
   nerve-ui:
-    image: ghcr.io/dagger-hashimoto/nerve-ui:latest
+    image: ghcr.io/oraios/nerve-ui:latest
     container_name: worker-3060-nerve-ui
     restart: unless-stopped
     ports:

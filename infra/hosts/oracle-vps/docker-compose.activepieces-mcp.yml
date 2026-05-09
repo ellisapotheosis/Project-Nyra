@@ -1,0 +1,20 @@
+services:
+  activepieces-mcp:
+    build:
+      context: ../../../services/nyra-mcp
+    container_name: nyra-activepieces-mcp
+    restart: unless-stopped
+    environment:
+      NYRA_MCP_PORT: 3333
+      AP_INTERNAL_BASE_URL: http://activepieces:80
+      ACTIVEPIECES_API_KEY: ${ACTIVEPIECES_API_KEY:-}
+      NYRA_HTTP_ALLOWLIST: "http://activepieces,http://n8n,http://twenty"
+    depends_on:
+      activepieces:
+        condition: service_started
+    networks:
+      - nyra-network_nyra_net
+
+networks:
+  nyra-network_nyra_net:
+    external: true

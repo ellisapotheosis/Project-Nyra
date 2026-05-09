@@ -2,11 +2,11 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { RateHunterLogo } from "@/components/icons/ratehunter-logo";
-import { 
-  LayoutDashboard, 
-  Users, 
-  FileText, 
-  Settings, 
+import {
+  LayoutDashboard,
+  Users,
+  FileText,
+  Settings,
   Bell,
   Search,
   Plus
@@ -25,7 +25,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className={`${inter.className} bg-slate-50 text-slate-900`}>
         <div className="flex h-screen overflow-hidden">
           {/* Sidebar */}
@@ -33,7 +33,7 @@ export default function RootLayout({
             <div className="p-6">
               <RateHunterLogo />
             </div>
-            
+
             <nav className="flex-1 px-4 space-y-1">
               <SidebarItem icon={<LayoutDashboard size={20} />} label="Pipeline" active />
               <SidebarItem icon={<Users size={20} />} label="Leads" />
@@ -53,17 +53,18 @@ export default function RootLayout({
               </div>
             </div>
           </aside>
-          
+
           {/* Main Content */}
           <main className="flex-1 flex flex-col overflow-hidden">
             {/* Header */}
             <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8 shrink-0">
               <div className="relative w-96 max-w-full">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                <input 
-                  type="text" 
-                  placeholder="Search leads, applications, documents..." 
+                <input
+                  type="text"
+                  placeholder="Search leads, applications, documents..."
                   className="w-full pl-10 pr-4 py-2 bg-slate-100 border-transparent rounded-full text-sm focus:bg-white focus:border-blue-500 transition-all outline-none"
+                  suppressHydrationWarning
                 />
               </div>
 
@@ -92,11 +93,11 @@ export default function RootLayout({
 
 function SidebarItem({ icon, label, active = false }: { icon: React.ReactNode, label: string, active?: boolean }) {
   return (
-    <a 
-      href="#" 
+    <a
+      href="#"
       className={`flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
-        active 
-          ? "bg-blue-50 text-blue-600" 
+        active
+          ? "bg-blue-50 text-blue-600"
           : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
       }`}
     >

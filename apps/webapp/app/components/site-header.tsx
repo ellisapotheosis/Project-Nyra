@@ -15,7 +15,7 @@ const links = [
   { href: "/applications", label: "Applications" },
   { href: "/admin", label: "Admin" },
   { href: "/tools/openclaw", label: "OpenClaw" },
-  { href: process.env.NEXT_PUBLIC_NEXUS_UI_URL ?? "https://nexus.ratehunter.net", label: "Nexus", external: true },
+  { href: process.env.NEXT_PUBLIC_NEXUS_UI_URL ?? "https://nexus-ui.ratehunter.net", label: "Nexus", external: true },
 ]
 
 export function SiteHeader() {
