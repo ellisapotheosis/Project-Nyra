@@ -5,7 +5,7 @@
 services:
   memos:
     image: ${MEMOS_IMAGE:-ghcr.io/memodb-io/memos:latest}
-    container_name: nyra-memos
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-memos
     restart: unless-stopped
     environment:
       MEM0_BASE_URL: http://mem0:5000
@@ -27,7 +27,7 @@ services:
 
   claudemem:
     image: ${CLAUDEMEM_IMAGE:-ghcr.io/ruvnet/claudemem:latest}
-    container_name: nyra-claudemem
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-claudemem
     restart: unless-stopped
     environment:
       MEM0_BASE_URL: http://mem0:5000

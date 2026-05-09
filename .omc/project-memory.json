@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "lastScanned": 1777907631352,
+  "lastScanned": 1778326094237,
   "projectRoot": "/home/ellisapotheosis/repos/project-nyra",
   "techStack": {
     "languages": [
@@ -51,10 +51,11 @@
   },
   "build": {
     "buildCommand": "pnpm build",
-    "testCommand": "gh pr create \\\n  --repo ellisapotheosis/Project-Nyra \\\n  --head feat/pre-commit-hooks-v2 \\\n  --base main \\\n  --title \"chore: add pre-commit hooks (husky + lint-staged + prettier)\" \\\n  --body \"$(cat <<'EOF'\n## Summary\n\n- Adds Husky v9 pre-commit hook via `prepare` script — auto-installs on `pnpm install`\n- Adds lint-staged to run Prettier on all staged files before commit\n- Adds `.prettierrc` with standard defaults (2-space, semi, trailing comma ES5)\n- Extends existing `.git/hooks/pre-commit` (container name + whitespace checks) to invoke Husky chain\n- Smoke test suite (28 tests, ~350ms) runs on every commit\n\n## Test plan\n\n- [x] `pnpm exec lint-staged` runs cleanly on staged files\n- [x] Full hook chain verified: container check → whitespace → lint-staged → vitest smoke\n- [x] `pnpm run prepare` installs Husky git hooks\n- [x] `.husky/pre-commit` is executable and tracked in version control\n- [x] Branch rebased onto current `main` — lockfile regenerated cleanly\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\nEOF\n)\" 2>&1",
+    "testCommand": "pnpm test",
     "lintCommand": "pnpm lint",
     "devCommand": "pnpm dev",
     "scripts": {
+      "prepare": "husky",
       "dev": "turbo run dev --concurrency=30",
       "build": "turbo run build",
       "lint": "pnpm -r --if-present lint",
@@ -90,7 +91,10 @@
       "src",
       "tests"
     ],
-    "gitBranches": null
+    "gitBranches": {
+      "defaultBranch": "main",
+      "branchingStrategy": null
+    }
   },
   "customNotes": [],
   "directoryMap": {
@@ -98,7 +102,7 @@
       "path": "apps",
       "purpose": null,
       "fileCount": 4,
-      "lastAccessed": 1777907631341,
+      "lastAccessed": 1778326094193,
       "keyFiles": [
         "CLAUDE.md",
         "README.md",
@@ -106,50 +110,40 @@
         "SOUL.BROKER.md"
       ]
     },
-    "archive": {
-      "path": "archive",
+    "conductor": {
+      "path": "conductor",
       "purpose": null,
-      "fileCount": 0,
-      "lastAccessed": 1777907631344,
-      "keyFiles": []
-    },
-    "bootstrap": {
-      "path": "bootstrap",
-      "purpose": null,
-      "fileCount": 2,
-      "lastAccessed": 1777907631346,
+      "fileCount": 6,
+      "lastAccessed": 1778326094196,
       "keyFiles": [
-        "README.md"
+        "index.md",
+        "product-guidelines.md",
+        "product.md",
+        "tech-stack.md",
+        "tracks.md"
       ]
     },
     "config": {
       "path": "config",
       "purpose": "Configuration files",
       "fileCount": 1,
-      "lastAccessed": 1777907631346,
+      "lastAccessed": 1778326094209,
       "keyFiles": [
         "README.md"
       ]
-    },
-    "configs": {
-      "path": "configs",
-      "purpose": null,
-      "fileCount": 0,
-      "lastAccessed": 1777907631346,
-      "keyFiles": []
     },
     "data": {
       "path": "data",
       "purpose": "Data files",
       "fileCount": 0,
-      "lastAccessed": 1777907631347,
+      "lastAccessed": 1778326094213,
       "keyFiles": []
     },
     "docs": {
       "path": "docs",
       "purpose": "Documentation",
-      "fileCount": 28,
-      "lastAccessed": 1777907631347,
+      "fileCount": 34,
+      "lastAccessed": 1778326094216,
       "keyFiles": [
         "00_current_stack_overview.md",
         "01_inventory_matrix.md",
@@ -162,36 +156,52 @@
       "path": "external",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1777907631347,
+      "lastAccessed": 1778326094217,
       "keyFiles": []
     },
     "infra": {
       "path": "infra",
       "purpose": null,
-      "fileCount": 13,
-      "lastAccessed": 1777907631347,
+      "fileCount": 12,
+      "lastAccessed": 1778326094218,
       "keyFiles": [
         "0-100-AUTONOMOUS-PROMPT-GOD.md",
+        "COMPOSE_SOURCE_OF_TRUTH.md",
         "LLXPRT-JEFE-INTEGRATION.md",
         "Makefile",
-        "ORACLE-VPS-APOTHEOSIS-STEPS.md",
-        "REPO-CATCHUP.md"
+        "ORACLE-VPS-APOTHEOSIS-STEPS.md"
+      ]
+    },
+    "logs": {
+      "path": "logs",
+      "purpose": null,
+      "fileCount": 1,
+      "lastAccessed": 1778326094220,
+      "keyFiles": [
+        "gitea-setup.log"
       ]
     },
     "packages": {
       "path": "packages",
       "purpose": null,
       "fileCount": 1,
-      "lastAccessed": 1777907631348,
+      "lastAccessed": 1778326094222,
       "keyFiles": [
         "CLAUDE.md"
       ]
     },
+    "screenshots": {
+      "path": "screenshots",
+      "purpose": null,
+      "fileCount": 0,
+      "lastAccessed": 1778326094223,
+      "keyFiles": []
+    },
     "scripts": {
       "path": "scripts",
       "purpose": "Build/utility scripts",
-      "fileCount": 53,
-      "lastAccessed": 1777907631348,
+      "fileCount": 61,
+      "lastAccessed": 1778326094224,
       "keyFiles": [
         "Initialize-CodexEnvironment.sh",
         "backup-env-files.ps1",
@@ -200,18 +210,11 @@
         "bootstrap-llxprt-stack.sh"
       ]
     },
-    "secrets": {
-      "path": "secrets",
-      "purpose": null,
-      "fileCount": 0,
-      "lastAccessed": 1777907631348,
-      "keyFiles": []
-    },
     "services": {
       "path": "services",
       "purpose": "Business logic services",
       "fileCount": 1,
-      "lastAccessed": 1777907631348,
+      "lastAccessed": 1778326094226,
       "keyFiles": [
         "CLAUDE.md"
       ]
@@ -220,14 +223,14 @@
       "path": "skills",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1777907631349,
+      "lastAccessed": 1778326094227,
       "keyFiles": []
     },
     "src": {
       "path": "src",
       "purpose": "Source code",
       "fileCount": 1,
-      "lastAccessed": 1777907631349,
+      "lastAccessed": 1778326094228,
       "keyFiles": [
         "CLAUDE.md"
       ]
@@ -236,7 +239,7 @@
       "path": "tests",
       "purpose": "Test files",
       "fileCount": 4,
-      "lastAccessed": 1777907631349,
+      "lastAccessed": 1778326094228,
       "keyFiles": [
         "README.md",
         "README_VITEST.md",
@@ -244,18 +247,25 @@
         "tsconfig.json"
       ]
     },
+    "tmp": {
+      "path": "tmp",
+      "purpose": null,
+      "fileCount": 0,
+      "lastAccessed": 1778326094229,
+      "keyFiles": []
+    },
     "workflows": {
       "path": "workflows",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1777907631349,
+      "lastAccessed": 1778326094229,
       "keyFiles": []
     },
     "apps/docs": {
       "path": "apps/docs",
       "purpose": "Documentation",
       "fileCount": 2,
-      "lastAccessed": 1777907631350,
+      "lastAccessed": 1778326094230,
       "keyFiles": [
         "README.md"
       ]
@@ -264,7 +274,7 @@
       "path": "packages/schemas",
       "purpose": "Schema definitions",
       "fileCount": 1,
-      "lastAccessed": 1777907631351,
+      "lastAccessed": 1778326094233,
       "keyFiles": [
         "README.md"
       ]
@@ -273,7 +283,7 @@
       "path": "tests/fixtures",
       "purpose": "Test fixtures",
       "fileCount": 6,
-      "lastAccessed": 1777907631352,
+      "lastAccessed": 1778326094236,
       "keyFiles": [
         "agents.json",
         "leads.json",
@@ -295,9 +305,57 @@
       "type": "file"
     },
     {
+      "path": "infra/hosts/oracle-vps/docker-compose.oracle.yml",
+      "accessCount": 20,
+      "lastAccessed": 1778326662997,
+      "type": "file"
+    },
+    {
+      "path": "infra/hosts/oracle-vps/docker-compose.memory.yml",
+      "accessCount": 18,
+      "lastAccessed": 1778326654831,
+      "type": "file"
+    },
+    {
+      "path": "infra/hosts/orchestrator/docker-compose.observability.yml",
+      "accessCount": 16,
+      "lastAccessed": 1778326738748,
+      "type": "file"
+    },
+    {
       "path": "infra/hosts/worker-rtx3090ti/docker-compose.gpu.yml",
       "accessCount": 14,
       "lastAccessed": 1778313219098,
+      "type": "file"
+    },
+    {
+      "path": "infra/hosts/orchestrator/docker-compose.cloudflared.yml",
+      "accessCount": 12,
+      "lastAccessed": 1778326670131,
+      "type": "file"
+    },
+    {
+      "path": "infra/hosts/oracle-vps/docker-compose.clawteam.yml",
+      "accessCount": 12,
+      "lastAccessed": 1778326704784,
+      "type": "file"
+    },
+    {
+      "path": "infra/hosts/oracle-vps/docker-compose.apps.yml",
+      "accessCount": 10,
+      "lastAccessed": 1778326623084,
+      "type": "file"
+    },
+    {
+      "path": "infra/hosts/oracle-vps/docker-compose.memory-extra.yml",
+      "accessCount": 10,
+      "lastAccessed": 1778326680841,
+      "type": "file"
+    },
+    {
+      "path": "infra/hosts/oracle-vps/docker-compose.paperclip.yml",
+      "accessCount": 10,
+      "lastAccessed": 1778326708834,
       "type": "file"
     },
     {
@@ -313,21 +371,9 @@
       "type": "file"
     },
     {
-      "path": "infra/hosts/oracle-vps/docker-compose.oracle.yml",
+      "path": "infra/hosts/oracle-vps/docker-compose.letta-mcp.yml",
       "accessCount": 8,
-      "lastAccessed": 1778313242757,
-      "type": "file"
-    },
-    {
-      "path": "infra/hosts/oracle-vps/docker-compose.memory.yml",
-      "accessCount": 8,
-      "lastAccessed": 1778313246781,
-      "type": "file"
-    },
-    {
-      "path": "infra/hosts/orchestrator/docker-compose.cloudflared.yml",
-      "accessCount": 8,
-      "lastAccessed": 1778313250926,
+      "lastAccessed": 1778326637716,
       "type": "file"
     },
     {
@@ -367,6 +413,12 @@
       "type": "file"
     },
     {
+      "path": "infra/hosts/host-layout.yaml",
+      "accessCount": 6,
+      "lastAccessed": 1778326587682,
+      "type": "file"
+    },
+    {
       "path": ".claude/settings.json",
       "accessCount": 5,
       "lastAccessed": 1777381804014,
@@ -379,45 +431,9 @@
       "type": "file"
     },
     {
-      "path": "infra/hosts/oracle-vps/docker-compose.clawteam.yml",
+      "path": "infra/hosts/worker-rtx3060/docker-compose.voice.yml",
       "accessCount": 4,
-      "lastAccessed": 1778312730598,
-      "type": "file"
-    },
-    {
-      "path": "infra/hosts/oracle-vps/docker-compose.apps.yml",
-      "accessCount": 4,
-      "lastAccessed": 1778312746503,
-      "type": "file"
-    },
-    {
-      "path": "infra/hosts/oracle-vps/docker-compose.memory-extra.yml",
-      "accessCount": 4,
-      "lastAccessed": 1778312754634,
-      "type": "file"
-    },
-    {
-      "path": "infra/hosts/oracle-vps/docker-compose.letta-mcp.yml",
-      "accessCount": 4,
-      "lastAccessed": 1778312755024,
-      "type": "file"
-    },
-    {
-      "path": "infra/hosts/oracle-vps/docker-compose.paperclip.yml",
-      "accessCount": 4,
-      "lastAccessed": 1778312756483,
-      "type": "file"
-    },
-    {
-      "path": "infra/hosts/orchestrator/docker-compose.observability.yml",
-      "accessCount": 4,
-      "lastAccessed": 1778312756550,
-      "type": "file"
-    },
-    {
-      "path": "infra/hosts/host-layout.yaml",
-      "accessCount": 4,
-      "lastAccessed": 1778312757130,
+      "lastAccessed": 1778326742490,
       "type": "file"
     },
     {
@@ -502,6 +518,18 @@
       "path": "infra/hosts/worker-rtx3090ti/docker-compose.hermes.yml",
       "accessCount": 2,
       "lastAccessed": 1778312766319,
+      "type": "file"
+    },
+    {
+      "path": "infra/hosts/worker-rtx3090ti/docker-compose.voice.yml",
+      "accessCount": 2,
+      "lastAccessed": 1778326571261,
+      "type": "file"
+    },
+    {
+      "path": "infra/hosts/worker-rtx5090/docker-compose.voice.yml",
+      "accessCount": 2,
+      "lastAccessed": 1778326571625,
       "type": "file"
     },
     {

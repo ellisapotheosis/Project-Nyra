@@ -8,12 +8,12 @@
 
 ## Phase 2: Unified Timeline
 
-- [ ] Task: Implement `TimelineActivity` component for different event types (SMS, Email, Call)
-- [ ] Task: Wire timeline to `crmApi.getLeadConversation`
-- [ ] Task: Add filter and search within the timeline
+- [x] Task: Implement `TimelineActivity` component for different event types (SMS, Email, Call)
+- [x] Task: Wire timeline to `crmApi.getLeadConversation`
+- [x] Task: Add filter and search within the timeline
 
 ## Phase 3: Compliance and Controls
 
-- [ ] Task: Add visual compliance badges (Consent, DNC, Quiet Hours)
-- [ ] Task: Implement campaign enrollment and state toggle buttons
+- [x] Task: Add visual compliance badges (Consent, DNC, Quiet Hours)
+- [x] Task: Implement campaign enrollment and state toggle buttons
 - [ ] Task: Conductor - User Manual Verification 'Phase 3: Compliance and Controls' (Protocol in workflow.md)

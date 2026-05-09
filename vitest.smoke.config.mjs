@@ -15,7 +15,8 @@ export default {
   resolve: {
     alias: {
       '@': resolve(__dirname, './apps/webapp/app'),
-      '@tests': resolve(__dirname, './tests')
+      '@tests': resolve(__dirname, './tests'),
+      '@utils': resolve(__dirname, './tests/utils')
     }
   }
 };

@@ -57,7 +57,7 @@ services:
       context: ../../..
       dockerfile: services/mem0/Dockerfile
     image: ${MEM0_IMAGE:-nyra/mem0-rest:local}
-    container_name: nyra-mem0
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-mem0
     environment:
       OPENAI_API_KEY: ${OPENAI_API_KEY:?set OPENAI_API_KEY}
       QDRANT_HOST: qdrant
@@ -87,7 +87,7 @@ services:
   falkordb:
     <<: *common
     image: falkordb/falkordb:latest
-    container_name: nyra-falkordb
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-falkordb
     environment:
       FALKORDB_ARGS: >-
         THREAD_COUNT ${FALKORDB_THREADS:-4}
@@ -110,7 +110,7 @@ services:
   qdrant:
     <<: *common
     image: qdrant/qdrant:latest
-    container_name: nyra-qdrant-memory
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-qdrant-memory
     environment:
       QDRANT__SERVICE__HTTP_PORT: 6333
       QDRANT__SERVICE__GRPC_PORT: 6334
@@ -133,7 +133,7 @@ services:
   letta-postgres:
     <<: *common
     image: postgres:16-alpine
-    container_name: nyra-letta-postgres
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-letta-postgres
     environment:
       POSTGRES_USER: ${LETTA_DB_USER:-letta}
       POSTGRES_PASSWORD: ${LETTA_DB_PASSWORD:?set LETTA_DB_PASSWORD}

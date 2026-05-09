@@ -7,7 +7,7 @@
 services:
   letta-mcp:
     image: node:20-alpine
-    container_name: nyra-letta-mcp
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-letta-mcp
     restart: unless-stopped
     environment:
       LETTA_BASE_URL: ${LETTA_BASE_URL:-http://letta:8283}

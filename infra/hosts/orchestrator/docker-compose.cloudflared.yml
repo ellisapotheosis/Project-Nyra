@@ -30,7 +30,7 @@ services:
 
   cloudflared:
     image: cloudflare/cloudflared:latest
-    container_name: nyra-cloudflared-orchestrator
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-cloudflared-orchestrator
     restart: unless-stopped
     command: ["tunnel", "--no-autoupdate", "run"]
     environment:
