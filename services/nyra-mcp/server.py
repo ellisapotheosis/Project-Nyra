@@ -20,11 +20,29 @@ def _is_allowed(url: str) -> bool:
 def ping() -> str:
     """Health check."""
     return "pong"
+ORCHESTRATOR_URL = os.getenv("ORCHESTRATOR_URL", "http://nyra-orchestrator:8010").rstrip("/")
+
+async def _log_audit(tool_name: str, payload: dict):
+    """Log tool call to Orchestrator audit trail."""
+    try:
+        async with httpx.AsyncClient(timeout=5) as client:
+            await client.post(
+                f"{ORCHESTRATOR_URL}/audit/tool-call",
+                json={
+                    "tool_name": tool_name,
+                    "arguments": payload,
+                    "lead_id": payload.get("lead_id") or payload.get("borrower_id")
+                }
+            )
+    except Exception as e:
+        print(f"Audit logging failed: {e}")
 
 @mcp.tool()
 async def activepieces_trigger(webhook_path: str, payload: dict) -> dict:
     """Trigger an Activepieces webhook inside the docker network."""
+    await _log_audit("activepieces_trigger", {"webhook_path": webhook_path, **payload})
     webhook_path = webhook_path if webhook_path.startswith("/") else "/" + webhook_path
+...
     url = f"{AP_INTERNAL_BASE_URL}{webhook_path}"
     if not _is_allowed(url) and not _is_allowed(AP_INTERNAL_BASE_URL):
         return {"ok": False, "error": "Activepieces URL blocked by allowlist", "url": url}

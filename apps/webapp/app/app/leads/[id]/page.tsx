@@ -53,7 +53,7 @@ export default function LeadProfilePage({ params }: { params: Promise<{ id: stri
         conversationApi.execute();
       }}
     >
-      {(currentLead) => (
+      {(currentLead: any) => (
         <div className="flex flex-col md:flex-row h-[calc(100vh-4rem)] bg-slate-50 overflow-hidden">
           {/* Left Column: Lead Details & Actions */}
           <div className="w-full md:w-[400px] flex flex-col border-r border-slate-200 bg-white overflow-y-auto">

@@ -2,9 +2,9 @@
 
 ## Phase 1: Assistant Safety
 
-- [ ] Task: Implement token verification in `/api/internal/openclaw/chat`
-- [ ] Task: Create `ProposedActionCard` UI component
-- [ ] Task: Implement audit logging for assistant tool requests in `openclaw` service
+- [x] Task: Implement token verification in `/api/internal/openclaw/chat`
+- [x] Task: Create `ProposedActionCard` UI component
+- [x] Task: Implement audit logging for assistant tool requests (Orchestrator Level integration)
 
 ## Phase 2: Landing Page Integration
 

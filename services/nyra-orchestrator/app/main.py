@@ -692,6 +692,36 @@ async def list_pending_escalations():
         return {"escalations": escalations, "count": len(escalations)}
 
 
+class ToolCallEntry(BaseModel):
+    """Assistant tool call entry"""
+    tool_name: str
+    arguments: Dict[str, Any]
+    assistant_id: Optional[str] = "nyra-assistant"
+    lead_id: Optional[str] = None
+    timestamp: datetime = Field(default_factory=datetime.utcnow)
+
+
+@app.post("/audit/tool-call")
+async def log_tool_call_endpoint(entry: ToolCallEntry):
+    """Log an assistant tool call for audit purposes"""
+    await log_audit_event(
+        "assistant",
+        entry.assistant_id,
+        f"tool_call:{entry.tool_name}",
+        "assistant",
+        {
+            "arguments": entry.arguments,
+            "lead_id": entry.lead_id,
+            "timestamp": entry.timestamp.isoformat()
+        }
+    )
+    
+    # Also log to a specialized tool_calls table if it exists (or just audit_logs for now)
+    logger.info(f"Assistant tool call logged: {entry.tool_name} for lead {entry.lead_id}")
+    
+    return {"status": "success"}
+
+
 @app.get("/audit/logs/{entity_id}")
 async def get_audit_logs(entity_id: str, limit: int = 50):
     """Get audit logs for an entity"""
