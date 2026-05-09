@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   llxprt-code:
-    image: node:20-alpine
+    image: node:20-slim
     container_name: nyra-worker-3060-llxprt-code
     restart: unless-stopped
     environment:
@@ -10,7 +10,7 @@ services:
     command:
       - /bin/sh
       - -c
-      - "npm i -g @vybestack/llxprt-code && llxprt-code server --port 8081"
+      - "npx --yes @vybestack/llxprt-code server --port 8081 --host 0.0.0.0
     volumes:
       - ${HOME:-/home/ellisapotheosis}/.config:/tmp/.config:ro
     networks:

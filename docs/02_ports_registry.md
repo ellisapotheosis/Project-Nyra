@@ -74,8 +74,6 @@ Use that package for public hostnames, Access policy classes, and local-managed
 | `litellm` | `infra/hosts/worker-rtx3090ti/docker-compose.yml` | `4000` | `4000` | private/Tailscale |
 | `node-exporter` | `infra/hosts/worker-rtx3090ti/docker-compose.yml` | `9100` | `9100` | private metrics |
 | `gpu-exporter` | `infra/hosts/worker-rtx3090ti/docker-compose.yml` | `9835` | `9835` | private metrics |
-| `hermes` | `docker-compose.hermes.yml` | `8642` | `8642` | localhost/private |
-| `hermes-dashboard` | `docker-compose.hermes.yml` | `9119` | `9119` | localhost/private |
 | `openclaw` | `docker-compose.nerve.yml` | `8001` | `8001` | private |
 | `nerve-ui` | `docker-compose.nerve.yml` | `18789` | `18789` | private |
 | `unmute-standalone` | `docker-compose.voice.yml` | `8098` | `8080` | private |
@@ -90,8 +88,6 @@ Use that package for public hostnames, Access policy classes, and local-managed
 | `litellm` | `infra/hosts/worker-rtx5090/docker-compose.yml` | `4000` | `4000` | private/Tailscale |
 | `node-exporter` | `infra/hosts/worker-rtx5090/docker-compose.yml` | `9100` | `9100` | private metrics |
 | `gpu-exporter` | `infra/hosts/worker-rtx5090/docker-compose.yml` | `9835` | `9835` | private metrics |
-| `hermes` | `docker-compose.hermes.yml` | `8642` | `8642` | localhost/private |
-| `hermes-dashboard` | `docker-compose.hermes.yml` | `9119` | `9119` | localhost/private |
 | `openclaw` | `docker-compose.nerve.yml` | `8001` | `8001` | private |
 | `nerve-ui` | `docker-compose.nerve.yml` | `18789` | `18789` | private |
 | `unmute-standalone` | `docker-compose.voice.yml` | `8098` | `8080` | private |

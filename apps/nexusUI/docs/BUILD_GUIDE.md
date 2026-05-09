@@ -66,7 +66,7 @@ Bind the service privately, then expose it through Cloudflared with Cloudflare A
 Suggested hostname:
 
 ```text
-nexus.ratehunter.net
+nexus-ui.ratehunter.net
 ```
 
 ## 6. Cloudflared Ingress
@@ -74,7 +74,7 @@ nexus.ratehunter.net
 Add an ingress rule on the orchestrator tunnel that points to the UI service port:
 
 ```yaml
-- hostname: nexus.ratehunter.net
+- hostname: nexus-ui.ratehunter.net
   service: http://localhost:3016
 ```
 
@@ -85,7 +85,7 @@ Keep Cloudflare Access required for this hostname. This is an admin surface.
 Set this in the webapp deployment environment:
 
 ```text
-NEXT_PUBLIC_NEXUS_UI_URL=https://nexus.ratehunter.net
+NEXT_PUBLIC_NEXUS_UI_URL=https://nexus-ui.ratehunter.net
 ```
 
 The webapp header reads this variable and renders the Nexus navigation link.

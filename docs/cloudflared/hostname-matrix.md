@@ -34,8 +34,8 @@ LiteLLM, and service surfaces.
 | `prometheus.ratehunter.net` | Prometheus | `http://prometheus:9090` | Owner-only |
 | `cadvisor.ratehunter.net` | cAdvisor | `http://cadvisor:8080` | Owner-only |
 | `openwebui.ratehunter.net` | Open WebUI | `http://openwebui:8080` | Required |
-| `nexus.ratehunter.net` | Nexus UI | `http://nexus-ui:3016` | Required |
-| `nexus-router.ratehunter.net` | Nexus Router API/MCP | `http://nexus:3000` | Service token preferred |
+| `nexus.ratehunter.net` | Nexus Router API/MCP | `http://nexus:3000` | Cloudflare Access service token preferred |
+| `nexus-ui.ratehunter.net` | Nexus UI | `http://nexus-ui:3016` | Required |
 | `litellm.ratehunter.net` | LiteLLM | `http://litellm:4000` | Owner-only |
 | `paperclip.ratehunter.net` | Paperclip UI | `http://paperclip:3100` | Required; confirm service health first |
 | `clawteam.ratehunter.net` | ClawTeam UI | `http://clawteam:8080` | Required; optional overlay must be running |
@@ -63,7 +63,7 @@ Preferred external entrypoint if needed:
 
 | Hostname | Service | Origin URL | Access policy |
 |---|---|---|---|
-| `nexus-router.ratehunter.net` | Nexus Router MCP/API aggregator | `http://nexus:3000` | Cloudflare Access service token |
+| `nexus.ratehunter.net` | Nexus Router MCP/API aggregator | `http://nexus:3000` | Cloudflare Access service token |
 
 Direct MCP hostnames are allowed only when explicitly needed and protected by
 Cloudflare Access service-token policies. Candidate origins are listed in
