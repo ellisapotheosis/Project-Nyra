@@ -54,7 +54,12 @@ export const crmApi = {
   /**
    * Fetch all mortgage leads.
    */
-  getLeads: () => client.get<{ leads: Lead[] }>("/api/leads"),
+  getLeads: () => client.get<{ leads: Lead[] }>('/api/leads'),
+
+  /**
+   * Fetch a single lead by ID.
+   */
+  getLead: (id: string) => client.get<{ lead: Lead }>(`/api/leads/${id}`),
 
   /**
    * Fetch lead conversation history and timeline.

@@ -1,7 +1,0 @@
-{
-  "tool_name": "Bash",
-  "tool_input_preview": "{\"command\":\"git -C /home/ellisapotheosis/repos/project-nyra fetch origin main 2>&1 && git -C /home/ellisapotheosis/repos/project-nyra checkout main 2>&1 && git -C /home/ellisapotheosis/repos/project-n...",
-  "error": "Exit code 1\nFrom https://github.com/ellisapotheosis/Project-Nyra\n * branch                main       -> FETCH_HEAD\n   685ebc6e3..d349f7cd3  main       -> origin/main\nerror: Your local changes to the following files would be overwritten by checkout:\n\t.omc/project-memory.json\n\t.omc/state/last-tool-error.json\nPlease commit your changes or stash them before you switch branches.\nAborting",
-  "timestamp": "2026-05-07T13:08:06.922Z",
-  "retry_count": 2
-}

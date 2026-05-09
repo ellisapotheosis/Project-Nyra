@@ -32,7 +32,7 @@ services:
     image: cloudflare/cloudflared:latest
     container_name: nyra-cloudflared-orchestrator
     restart: unless-stopped
-    command: ["tunnel", "run"]
+    command: ["tunnel", "--no-autoupdate", "run"]
     environment:
       TUNNEL_TOKEN: ${ORCHESTRATOR_TUNNEL_TOKEN}
     depends_on:

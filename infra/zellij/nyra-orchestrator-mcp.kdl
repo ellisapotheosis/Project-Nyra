@@ -22,10 +22,10 @@ layout {
     tab name="[DAEMON] Ghost_Layer" hide_floating_panes=true {
         pane split_direction="vertical" {
             pane name="llxprt-jefe [DAEMON]" command="bash" {
-                args "-c" "mkdir -p ~/.nyra; exec > ~/.nyra/jefe.log 2>&1; cd external/llxprt-jefe && while true; do ./jefe || true; sleep 2; done"
+                args "-c" "mkdir -p ~/.nyra; exec > ~/.nyra/jefe.log 2>&1; cd ~/repos/project-nyra && while true; do ./scripts/run-llxprt-jefe.sh || true; sleep 2; done"
             }
-            pane name="llxprt-code [PROXY]" command="bash" {
-                args "-c" "mkdir -p ~/.nyra; exec > ~/.nyra/code-proxy.log 2>&1; cd external/llxprt-code && while true; do ./code --listen 127.0.0.1:8080 || true; sleep 2; done"
+            pane name="llxprt-code [CODEX]" command="bash" {
+                args "-c" "mkdir -p ~/.nyra; exec > ~/.nyra/code-proxy.log 2>&1; cd ~/repos/project-nyra && while true; do ./scripts/run-llxprt-code.sh --profile-load codex || true; sleep 2; done"
             }
             pane name="letta-mcp-server [RUST]" command="bash" {
                 args "-c" "mkdir -p ~/.nyra; exec > ~/.nyra/letta-mcp.log 2>&1; if [ ! -f ./target/release/letta-mcp-server ]; then echo 'Building Letta-MCP...'; cargo build --release --manifest-path mcp-servers/letta-mcp/Cargo.toml || exit 1; fi; exec ./target/release/letta-mcp-server"
@@ -43,13 +43,13 @@ layout {
             // ==== UPPER: 3 CLI Panes with Full MCP Bridge ====
             pane split_direction="horizontal" size="65%" {
                 pane name="[CLAUDE] claude-code" command="bash" {
-                    args "-c" "exec 3<>(socat - TCP:localhost:8080); export ANTHROPIC_BASE_URL=http://localhost:8080/v1; export ANTHROPIC_API_KEY=llxprt_ghost; export MCP_STDIO_SERVERS='letta:/home/user/.nyra/letta-mcp.sock|composio:/home/user/.nyra/composio-mcp.sock'; cd ~/repos/project-nyra && claude --enable-mcp letta,composio"
+                    args "-c" "export MCP_HTTP_URL=http://oracle.trex-fiordland.ts.net:6000/mcp; cd ~/repos/project-nyra && claude"
                 }
                 pane name="[GEMINI] gemini-cli" command="bash" {
-                    args "-c" "export GEMINI_API_BASE=http://localhost:8080/v1; export GEMINI_API_KEY=llxprt_ghost; export MCP_STDIO_SERVERS='letta:/home/user/.nyra/letta-mcp.sock|composio:/home/user/.nyra/composio-mcp.sock'; cd ~/repos/project-nyra && gemini --mcp letta,composio"
+                    args "-c" "export MCP_HTTP_URL=http://oracle.trex-fiordland.ts.net:6000/mcp; cd ~/repos/project-nyra && gemini"
                 }
                 pane name="[CODEX] codex-cli" command="bash" {
-                    args "-c" "export OPENAI_BASE_URL=http://localhost:8080/v1; export OPENAI_API_KEY=llxprt_ghost; export MCP_STDIO_SERVERS='letta:/home/user/.nyra/letta-mcp.sock|composio:/home/user/.nyra/composio-mcp.sock'; cd ~/repos/project-nyra && codex --mcp letta,composio"
+                    args "-c" "cd ~/repos/project-nyra && codex"
                 }
             }
 

@@ -1,0 +1,182 @@
+# Project Nyra Cloudflare exposure matrix.
+# Source: project-nyra-cloudflare-final-prompt-pack plus current repo compose files.
+# Policy:
+# - ratehunter.net and www.ratehunter.net are Cloudflare Pages only.
+# - UI/admin/dashboard routes require Cloudflare Access.
+# - API/MCP routes require service-token or signed-request controls unless noted.
+# - raw databases, caches, vector stores, worker model ports, and Docker sockets are not tunneled.
+
+domain: ratehunter.net
+management_mode: api_managed_tunnels_with_docker_connectors
+
+tunnels:
+  orchestrator:
+    secret_token: ORCHESTRATOR_TUNNEL_TOKEN
+    secret_id: ORCHESTRATOR_TUNNEL_ID
+    infisical_path: /machines/orchestrator
+    known_active_tunnel_id: ae0bd53a-f22e-4414-8593-5b765dcd044b
+  oracle:
+    secret_token: ORACLE_TUNNEL_TOKEN
+    secret_id: ORACLE_TUNNEL_ID
+    infisical_path: /machines/oracle-vps
+
+pages:
+  - hostname: ratehunter.net
+    target: cloudflare_pages
+    access: public
+  - hostname: www.ratehunter.net
+    target: cloudflare_pages
+    access: public
+
+routes:
+  - hostname: nyra.ratehunter.net
+    tunnel: oracle
+    origin: http://webapp:3001
+    exposure: public_auth
+    notes: Broker/customer webapp. Keep Access until Supabase/app auth is production-ready.
+  - hostname: api.ratehunter.net
+    tunnel: oracle
+    origin: http://supabase-kong:8000
+    exposure: public_supabase_gateway
+    notes: Browser auth/API gateway for self-hosted Supabase; do not block Auth with interactive Access.
+  - hostname: hooks.ratehunter.net
+    tunnel: oracle
+    origin: http://n8n:5678
+    exposure: public_service_token_or_signed_webhook
+    notes: Prefer provider allowlists and signed webhook paths.
+  - hostname: twenty.ratehunter.net
+    tunnel: oracle
+    origin: http://twenty:3000
+    exposure: public_auth
+  - hostname: crm.ratehunter.net
+    tunnel: oracle
+    origin: http://twenty:3000
+    exposure: public_auth
+    notes: Alias for Twenty CRM.
+  - hostname: n8n.ratehunter.net
+    tunnel: oracle
+    origin: http://n8n:5678
+    exposure: public_auth
+  - hostname: gitea.ratehunter.net
+    tunnel: oracle
+    origin: http://gitea:3000
+    exposure: public_auth
+  - hostname: activepieces.ratehunter.net
+    tunnel: oracle
+    origin: http://activepieces:80
+    exposure: public_auth
+  - hostname: grafana.ratehunter.net
+    tunnel: oracle
+    origin: http://grafana:3000
+    exposure: public_auth
+  - hostname: prometheus.ratehunter.net
+    tunnel: oracle
+    origin: http://prometheus:9090
+    exposure: owner_only_public_auth
+  - hostname: cadvisor.ratehunter.net
+    tunnel: oracle
+    origin: http://cadvisor:8080
+    exposure: owner_only_public_auth
+  - hostname: openwebui.ratehunter.net
+    tunnel: oracle
+    origin: http://openwebui:8080
+    exposure: public_auth
+  - hostname: nexus.ratehunter.net
+    tunnel: oracle
+    origin: http://nexus-ui:3016
+    exposure: public_auth
+    notes: Human UI for Nexus.
+  - hostname: nexus-router.ratehunter.net
+    tunnel: oracle
+    origin: http://nexus:3000
+    exposure: public_service_token
+    notes: Machine/API entrypoint; prefer agents use Tailscale/private URL unless external access is needed.
+  - hostname: litellm.ratehunter.net
+    tunnel: oracle
+    origin: http://litellm:4000
+    exposure: owner_only_public_auth
+  - hostname: paperclip.ratehunter.net
+    tunnel: oracle
+    origin: http://paperclip:3100
+    exposure: public_auth
+  - hostname: clawteam.ratehunter.net
+    tunnel: oracle
+    origin: http://clawteam:8080
+    exposure: public_auth
+    notes: Requires optional clawteam compose overlay to be running.
+  - hostname: portainer-oracle.ratehunter.net
+    tunnel: oracle
+    origin: https://portainer:9443
+    exposure: owner_only_public_auth
+    origin_tls_verify: false
+  - hostname: git-ssh.ratehunter.net
+    tunnel: oracle
+    origin: ssh://gitea:2222
+    exposure: owner_only_cloudflared_access_ssh
+    notes: Optional. Requires cloudflared access ssh client flow.
+  - hostname: links.ratehunter.net
+    tunnel: orchestrator
+    origin: http://100.64.0.2:3007
+    exposure: public_auth
+    notes: Preferred Linkwarden/Starwarden hostname. Origin timed out in current smoke test.
+  - hostname: linkwarden.ratehunter.net
+    tunnel: orchestrator
+    origin: http://100.64.0.2:3007
+    exposure: public_auth
+    notes: Existing dashboard route; keep temporarily or redirect to links.ratehunter.net.
+  - hostname: openclaw-gateway.ratehunter.net
+    tunnel: orchestrator
+    origin: http://nyra-openclaw-gateway:8001
+    exposure: public_auth
+
+mcp_policy:
+  default: nexus_first
+  direct_public_hostnames: service_token_only
+  preferred_external_entrypoint: https://nexus-router.ratehunter.net/mcp
+  direct_candidates:
+    - hostname: openmemory-mcp.ratehunter.net
+      origin: http://openmemory-mcp:8765
+    - hostname: twenty-mcp.ratehunter.net
+      origin: http://twenty-mcp:8400
+    - hostname: infisical-mcp.ratehunter.net
+      origin: http://infisical-mcp:8766
+    - hostname: mempalace-mcp.ratehunter.net
+      origin: http://mempalace-mcp:8000
+    - hostname: gitea-mcp.ratehunter.net
+      origin: http://gitea-mcp:3101
+    - hostname: git-mcp.ratehunter.net
+      origin: http://git-mcp:8773
+    - hostname: paperclip-mcp.ratehunter.net
+      origin: http://paperclip-mcp:8767
+    - hostname: magicui-mcp.ratehunter.net
+      origin: http://magicui-mcp:8768
+    - hostname: shadcn-mcp.ratehunter.net
+      origin: http://shadcn-mcp:8769
+    - hostname: sequential-thinking-mcp.ratehunter.net
+      origin: http://sequential-thinking-mcp:8770
+    - hostname: playwright-mcp.ratehunter.net
+      origin: http://playwright-mcp:8771
+    - hostname: firecrawl-mcp.ratehunter.net
+      origin: http://firecrawl-mcp:8772
+    - hostname: next-devtools-mcp.ratehunter.net
+      origin: http://next-devtools-mcp:8774
+    - hostname: tavily-mcp.ratehunter.net
+      origin: http://tavily-mcp:8775
+    - hostname: wcgw-mcp.ratehunter.net
+      origin: http://wcgw-mcp:8776
+    - hostname: gitingest-mcp.ratehunter.net
+      origin: http://gitingest-mcp:8777
+    - hostname: codebase-index-mcp.ratehunter.net
+      origin: http://codebase-index-mcp:8778
+
+not_tunneled:
+  - postgres
+  - twenty-db
+  - supabase-db
+  - redis-cache
+  - falkordb
+  - qdrant
+  - loki
+  - worker-vllm
+  - worker-ollama
+  - docker-socket

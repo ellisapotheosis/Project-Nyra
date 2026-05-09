@@ -1,0 +1,28 @@
+{
+  "zone_name": "ratehunter.net",
+  "note": "Create proxied CNAME records to <tunnel-id>.cfargotunnel.com. Apex/www are excluded because Cloudflare Pages owns them.",
+  "records": [
+    { "name": "nyra", "type": "CNAME", "content": "${ORACLE_TUNNEL_ID}.cfargotunnel.com", "proxied": true },
+    { "name": "api", "type": "CNAME", "content": "${ORACLE_TUNNEL_ID}.cfargotunnel.com", "proxied": true },
+    { "name": "hooks", "type": "CNAME", "content": "${ORACLE_TUNNEL_ID}.cfargotunnel.com", "proxied": true },
+    { "name": "twenty", "type": "CNAME", "content": "${ORACLE_TUNNEL_ID}.cfargotunnel.com", "proxied": true },
+    { "name": "crm", "type": "CNAME", "content": "${ORACLE_TUNNEL_ID}.cfargotunnel.com", "proxied": true },
+    { "name": "n8n", "type": "CNAME", "content": "${ORACLE_TUNNEL_ID}.cfargotunnel.com", "proxied": true },
+    { "name": "gitea", "type": "CNAME", "content": "${ORACLE_TUNNEL_ID}.cfargotunnel.com", "proxied": true },
+    { "name": "activepieces", "type": "CNAME", "content": "${ORACLE_TUNNEL_ID}.cfargotunnel.com", "proxied": true },
+    { "name": "grafana", "type": "CNAME", "content": "${ORACLE_TUNNEL_ID}.cfargotunnel.com", "proxied": true },
+    { "name": "prometheus", "type": "CNAME", "content": "${ORACLE_TUNNEL_ID}.cfargotunnel.com", "proxied": true },
+    { "name": "cadvisor", "type": "CNAME", "content": "${ORACLE_TUNNEL_ID}.cfargotunnel.com", "proxied": true },
+    { "name": "openwebui", "type": "CNAME", "content": "${ORACLE_TUNNEL_ID}.cfargotunnel.com", "proxied": true },
+    { "name": "nexus", "type": "CNAME", "content": "${ORACLE_TUNNEL_ID}.cfargotunnel.com", "proxied": true },
+    { "name": "nexus-router", "type": "CNAME", "content": "${ORACLE_TUNNEL_ID}.cfargotunnel.com", "proxied": true },
+    { "name": "litellm", "type": "CNAME", "content": "${ORACLE_TUNNEL_ID}.cfargotunnel.com", "proxied": true },
+    { "name": "paperclip", "type": "CNAME", "content": "${ORACLE_TUNNEL_ID}.cfargotunnel.com", "proxied": true },
+    { "name": "clawteam", "type": "CNAME", "content": "${ORACLE_TUNNEL_ID}.cfargotunnel.com", "proxied": true },
+    { "name": "portainer-oracle", "type": "CNAME", "content": "${ORACLE_TUNNEL_ID}.cfargotunnel.com", "proxied": true },
+    { "name": "git-ssh", "type": "CNAME", "content": "${ORACLE_TUNNEL_ID}.cfargotunnel.com", "proxied": true },
+    { "name": "links", "type": "CNAME", "content": "${ORCHESTRATOR_TUNNEL_ID}.cfargotunnel.com", "proxied": true },
+    { "name": "linkwarden", "type": "CNAME", "content": "${ORCHESTRATOR_TUNNEL_ID}.cfargotunnel.com", "proxied": true },
+    { "name": "openclaw-gateway", "type": "CNAME", "content": "${ORCHESTRATOR_TUNNEL_ID}.cfargotunnel.com", "proxied": true }
+  ]
+}

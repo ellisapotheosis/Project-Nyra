@@ -3,7 +3,7 @@
 ## Phase 1: Cockpit Layout and Profile
 
 - [x] Task: Create `/leads/[id]` route structure 03b3557
-- [ ] Task: Implement Lead Profile card with full metadata
+- [~] Task: Implement Lead Profile card with full metadata
 - [ ] Task: Add source attribution and tag display
 
 ## Phase 2: Unified Timeline
