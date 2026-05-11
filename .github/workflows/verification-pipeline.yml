@@ -362,6 +362,11 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@078e9d416474b29c0c387560859308974f7e9c53 # v4
+        with:
+          version: "10.27.0"
+
       - name: Download build artifacts
         uses: actions/download-artifact@v8
         with:

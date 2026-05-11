@@ -32,7 +32,7 @@ export interface ExecutionStatus {
  * Campaign Engine API Client
  */
 const CAMPAIGN_ENGINE_URL =
-  process.env.CAMPAIGN_ENGINE_URL || "http://localhost:8020";
+  typeof window === "undefined" ? process.env.CAMPAIGN_ENGINE_URL || "http://localhost:8020" : "";
 
 const client = createClient({
   baseUrl: CAMPAIGN_ENGINE_URL,

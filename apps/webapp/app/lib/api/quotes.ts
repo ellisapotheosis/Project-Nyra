@@ -57,8 +57,9 @@ export interface ComparisonResponse {
 /**
  * Quote API Client (Deterministic Mortgage Math - Python/FastAPI)
  */
-const QUOTE_API_URL = process.env.QUOTE_API_URL || "http://localhost:7070";
-const QUOTE_API_SECRET = process.env.QUOTE_API_SECRET || "";
+const QUOTE_API_URL =
+  typeof window === "undefined" ? process.env.QUOTE_API_URL || "http://localhost:7070" : "";
+const QUOTE_API_SECRET = typeof window === "undefined" ? process.env.QUOTE_API_SECRET || "" : "";
 
 const client = createClient({
   baseUrl: QUOTE_API_URL,
@@ -69,35 +70,35 @@ export const quoteApi = {
   /**
    * Get available loan types and their characteristics.
    */
-  getLoanTypes: () => client.get<{ loan_types: any[] }>("/quote/loan-types"),
+  getLoanTypes: () => client.get<{ loan_types: any[] }>("/api/quote/loan-types"),
 
   /**
    * Get quote for Conventional loan.
    */
   getConventionalQuote: (req: QuoteRequest) =>
-    client.post<QuoteResponse>("/quote/conventional", req),
+    client.post<QuoteResponse>("/api/quote/conventional", req),
 
   /**
    * Get quote for FHA loan.
    */
   getFHAQuote: (req: QuoteRequest) =>
-    client.post<QuoteResponse>("/quote/fha", req),
+    client.post<QuoteResponse>("/api/quote/fha", req),
 
   /**
    * Get quote for VA loan.
    */
   getVAQuote: (req: QuoteRequest) =>
-    client.post<QuoteResponse>("/quote/va", req),
+    client.post<QuoteResponse>("/api/quote/va", req),
 
   /**
    * Get quote for USDA loan.
    */
   getUSDAQuote: (req: QuoteRequest) =>
-    client.post<QuoteResponse>("/quote/usda", req),
+    client.post<QuoteResponse>("/api/quote/usda", req),
 
   /**
    * Compare all loan types for the same property/borrower.
    */
   compareLoanTypes: (req: QuoteRequest) =>
-    client.post<ComparisonResponse>("/quote/compare-loan-types", req),
+    client.post<ComparisonResponse>("/api/quote/compare-loan-types", req),
 };

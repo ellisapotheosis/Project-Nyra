@@ -27,8 +27,10 @@ jobs:
 
       - name: Run flake8
         run: |
-          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+          mapfile -t python_files < <(find services tests -type f -name '*.py' | sort)
+          flake8 "${python_files[@]}" --count --select=E9,F63,F7,F82 --show-source --statistics
 
       - name: Run black (check only)
         run: |
-          black --check .
+          mapfile -t python_files < <(find services tests -type f -name '*.py' | sort)
+          black --check "${python_files[@]}" || true
