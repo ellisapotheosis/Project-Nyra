@@ -2,7 +2,7 @@ name: CI/CD - Enhanced Main Pipeline
 
 on:
   schedule:
-    - cron: '0 4 * * *'
+    - cron: "0 4 * * *"
   workflow_dispatch:
 
 concurrency:
@@ -10,8 +10,8 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  NODE_VERSION: '20'
-  PNPM_VERSION: '10.27.0'
+  NODE_VERSION: "20"
+  PNPM_VERSION: "10.27.0"
   TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
   TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
 
@@ -31,6 +31,19 @@ jobs:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Setup PNPM
+        uses: pnpm/action-setup@078e9d416474b29c0c387560859308974f7e9c53 # v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Install dependencies
+        run: pnpm install --no-frozen-lockfile
 
       - uses: dorny/paths-filter@v4
         id: filter
@@ -56,10 +69,10 @@ jobs:
 
           if [ "${{ github.event_name }}" == "pull_request" ]; then
             # For PRs, detect changes against base branch
-            CHANGED_WORKSPACES=$(pnpm turbo run build --dry=json --filter="...[origin/${{ github.base_ref }}]" 2>/dev/null | jq -c '[.packages[]]' || echo '[]')
+            CHANGED_WORKSPACES=$(pnpm exec turbo run build --dry=json --filter="...[origin/${{ github.base_ref }}]" 2>/dev/null | jq -c '[.packages[]]' || echo '[]')
           else
             # For pushes, detect changes in last commit
-            CHANGED_WORKSPACES=$(pnpm turbo run build --dry=json --filter="...[HEAD^]" 2>/dev/null | jq -c '[.packages[]]' || echo '[]')
+            CHANGED_WORKSPACES=$(pnpm exec turbo run build --dry=json --filter="...[HEAD^]" 2>/dev/null | jq -c '[.packages[]]' || echo '[]')
           fi
 
           echo "workspaces=$CHANGED_WORKSPACES" >> $GITHUB_OUTPUT
@@ -145,12 +158,15 @@ jobs:
             **/node_modules
           key: ${{ runner.os }}-node-modules-${{ hashFiles('**/pnpm-lock.yaml') }}
 
+      - name: Ensure dependencies are available
+        run: pnpm install --no-frozen-lockfile
+
       - name: Run ESLint on changed packages
         run: |
           if [ "${{ github.event_name }}" == "pull_request" ]; then
-            pnpm turbo run lint --filter="...[origin/${{ github.base_ref }}]"
+            pnpm exec turbo run lint --filter="...[origin/${{ github.base_ref }}]"
           else
-            pnpm turbo run lint --filter="...[HEAD^]"
+            pnpm exec turbo run lint --filter="...[HEAD^]"
           fi
 
       - name: Check Prettier formatting
@@ -194,13 +210,16 @@ jobs:
             **/node_modules
           key: ${{ runner.os }}-node-modules-${{ hashFiles('**/pnpm-lock.yaml') }}
 
+      - name: Ensure dependencies are available
+        run: pnpm install --no-frozen-lockfile
+
       - name: Run TypeScript check on changed packages
         run: |
           # Use turbo to check types only in changed packages
           if [ "${{ github.event_name }}" == "pull_request" ]; then
-            pnpm turbo run typecheck --filter="...[origin/${{ github.base_ref }}]" || echo "No typecheck script in changed packages"
+            pnpm exec turbo run typecheck --filter="...[origin/${{ github.base_ref }}]" || echo "No typecheck script in changed packages"
           else
-            pnpm turbo run typecheck --filter="...[HEAD^]" || echo "No typecheck script in changed packages"
+            pnpm exec turbo run typecheck --filter="...[HEAD^]" || echo "No typecheck script in changed packages"
           fi
 
   # Security Audit
@@ -228,6 +247,9 @@ jobs:
             node_modules
             **/node_modules
           key: ${{ runner.os }}-node-modules-${{ hashFiles('**/pnpm-lock.yaml') }}
+
+      - name: Ensure dependencies are available
+        run: pnpm install --no-frozen-lockfile
 
       - name: Run security audit
         run: |
@@ -274,15 +296,18 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-turbo-
 
+      - name: Ensure dependencies are available
+        run: pnpm install --no-frozen-lockfile
+
       - name: Build changed packages with Turbo
         run: |
           # Build only packages that changed (and their dependents)
           if [ "${{ github.event_name }}" == "pull_request" ]; then
             echo "Building packages changed compared to ${{ github.base_ref }}"
-            pnpm turbo run build --filter="...[origin/${{ github.base_ref }}]" --concurrency=4
+            pnpm exec turbo run build --filter="...[origin/${{ github.base_ref }}]" --concurrency=4
           else
             echo "Building packages changed in last commit"
-            pnpm turbo run build --filter="...[HEAD^]" --concurrency=4
+            pnpm exec turbo run build --filter="...[HEAD^]" --concurrency=4
           fi
 
       - name: Upload build artifacts
@@ -329,6 +354,9 @@ jobs:
             **/node_modules
           key: ${{ runner.os }}-node-modules-${{ hashFiles('**/pnpm-lock.yaml') }}
 
+      - name: Ensure dependencies are available
+        run: pnpm install --no-frozen-lockfile
+
       - name: Download build artifacts
         uses: actions/download-artifact@v8
         with:
@@ -355,7 +383,7 @@ jobs:
         uses: codecov/codecov-action@v6
         if: always()
         with:
-          files: '**/coverage/coverage-final.json'
+          files: "**/coverage/coverage-final.json"
           flags: ${{ matrix.workspace }}
           token: ${{ secrets.CODECOV_TOKEN }}
         continue-on-error: true
@@ -411,6 +439,9 @@ jobs:
             node_modules
             **/node_modules
           key: ${{ runner.os }}-node-modules-${{ hashFiles('**/pnpm-lock.yaml') }}
+
+      - name: Ensure dependencies are available
+        run: pnpm install --no-frozen-lockfile
 
       - name: Run integration tests
         env:

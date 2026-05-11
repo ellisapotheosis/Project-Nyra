@@ -145,9 +145,19 @@ export const createMockMem0 = (): TestMemorySystem => {
 };
 
 export const setupTestMemory = async () => {
+  const letta = createMockLetta();
+  const knowledgeGraph = createMockletta();
+
   return {
     ruvector: createMockRuVector(),
-    letta: createMockLetta(),
+    letta: {
+      ...letta,
+      ...knowledgeGraph,
+      clear: vi.fn().mockImplementation(async () => {
+        await letta.clear();
+        await knowledgeGraph.clear();
+      }),
+    },
     mem0: createMockMem0(),
   };
 };

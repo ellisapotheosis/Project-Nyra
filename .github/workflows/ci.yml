@@ -2,21 +2,19 @@ name: CI
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [main, develop]
     paths:
-      - '**/*.py'
-      - 'pyproject.toml'
-      - 'uv.lock'
-      - 'pytest.ini'
-      - '.github/workflows/ci.yml'
+      - "external/pocket-tts/**/*.py"
+      - "external/pocket-tts/pyproject.toml"
+      - "external/pocket-tts/uv.lock"
+      - ".github/workflows/ci.yml"
   pull_request:
-    branches: [ main, develop ]
+    branches: [main, develop]
     paths:
-      - '**/*.py'
-      - 'pyproject.toml'
-      - 'uv.lock'
-      - 'pytest.ini'
-      - '.github/workflows/ci.yml'
+      - "external/pocket-tts/**/*.py"
+      - "external/pocket-tts/pyproject.toml"
+      - "external/pocket-tts/uv.lock"
+      - ".github/workflows/ci.yml"
 
 concurrency:
   group: python-ci-${{ github.ref }}
@@ -24,6 +22,7 @@ concurrency:
 
 env:
   PYTHON_VERSION: "3.11"
+  PYTHON_PROJECT_DIR: "external/pocket-tts"
 
 jobs:
   detect-python-project:
@@ -31,42 +30,46 @@ jobs:
     outputs:
       enabled: ${{ steps.detect.outputs.enabled }}
     steps:
-    - uses: actions/checkout@v6
-    - id: detect
-      run: |
-        if find . -name pyproject.toml -o -name uv.lock | grep -q .; then
-          echo "enabled=true" >> "$GITHUB_OUTPUT"
-        else
-          echo "enabled=false" >> "$GITHUB_OUTPUT"
-          echo "::notice::Skipping python CI jobs (no pyproject.toml/uv.lock found)."
-        fi
+      - uses: actions/checkout@v6
+      - id: detect
+        run: |
+          if [ -f "${{ env.PYTHON_PROJECT_DIR }}/pyproject.toml" ] && [ -f "${{ env.PYTHON_PROJECT_DIR }}/uv.lock" ]; then
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Skipping python CI jobs (${PYTHON_PROJECT_DIR} is missing pyproject.toml or uv.lock)."
+          fi
 
   lint:
     runs-on: ubuntu-latest
     needs: detect-python-project
     if: needs.detect-python-project.outputs.enabled == 'true'
     steps:
-    - uses: actions/checkout@v6
+      - uses: actions/checkout@v6
 
-    - name: Install uv
-      uses: astral-sh/setup-uv@v4
-      with:
-        enable-cache: false
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          enable-cache: false
 
-    - name: Set up Python
-      run: uv python install ${{ env.PYTHON_VERSION }}
+      - name: Set up Python
+        run: uv python install ${{ env.PYTHON_VERSION }}
 
-    - name: Install dependencies
-      run: uv sync --group lint
+      - name: Install dependencies
+        working-directory: ${{ env.PYTHON_PROJECT_DIR }}
+        run: uv sync --group lint
 
-    - name: Run ruff (lint)
-      run: uv run ruff check .
+      - name: Run ruff (lint)
+        working-directory: ${{ env.PYTHON_PROJECT_DIR }}
+        run: uv run ruff check .
 
-    - name: Run ruff (format check)
-      run: uv run ruff format --check .
+      - name: Run ruff (format check)
+        working-directory: ${{ env.PYTHON_PROJECT_DIR }}
+        run: uv run ruff format --check .
 
-    - name: Run mypy
-      run: uv run mypy src/ --ignore-missing-imports
+      - name: Run mypy
+        working-directory: ${{ env.PYTHON_PROJECT_DIR }}
+        run: uv run mypy pocket_tts --ignore-missing-imports
 
   test:
     runs-on: ubuntu-latest
@@ -77,28 +80,30 @@ jobs:
         python-version: ["3.11", "3.12"]
 
     steps:
-    - uses: actions/checkout@v6
+      - uses: actions/checkout@v6
 
-    - name: Install uv
-      uses: astral-sh/setup-uv@v4
-      with:
-        enable-cache: false
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          enable-cache: false
 
-    - name: Set up Python ${{ matrix.python-version }}
-      run: uv python install ${{ matrix.python-version }}
+      - name: Set up Python ${{ matrix.python-version }}
+        run: uv python install ${{ matrix.python-version }}
 
-    - name: Install dependencies
-      run: uv sync --group test
+      - name: Install dependencies
+        working-directory: ${{ env.PYTHON_PROJECT_DIR }}
+        run: uv sync --group test
 
-    - name: Run tests
-      run: uv run pytest tests/ -v --cov=src --cov-report=xml
+      - name: Run tests
+        working-directory: ${{ env.PYTHON_PROJECT_DIR }}
+        run: uv run pytest tests/ -v --cov=pocket_tts --cov-report=xml
 
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v6
-      with:
-        file: ./coverage.xml
-        flags: unittests
-        name: codecov-umbrella
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v6
+        with:
+          file: ${{ env.PYTHON_PROJECT_DIR }}/coverage.xml
+          flags: unittests
+          name: codecov-umbrella
 
   build:
     runs-on: ubuntu-latest
@@ -106,27 +111,29 @@ jobs:
     if: needs.detect-python-project.outputs.enabled == 'true'
 
     steps:
-    - uses: actions/checkout@v6
+      - uses: actions/checkout@v6
 
-    - name: Install uv
-      uses: astral-sh/setup-uv@v4
-      with:
-        enable-cache: false
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          enable-cache: false
 
-    - name: Set up Python
-      run: uv python install ${{ env.PYTHON_VERSION }}
+      - name: Set up Python
+        run: uv python install ${{ env.PYTHON_VERSION }}
 
-    - name: Install dependencies
-      run: uv sync
+      - name: Install dependencies
+        working-directory: ${{ env.PYTHON_PROJECT_DIR }}
+        run: uv sync
 
-    - name: Build package
-      run: uv build
+      - name: Build package
+        working-directory: ${{ env.PYTHON_PROJECT_DIR }}
+        run: uv build
 
-    - name: Upload build artifacts
-      uses: actions/upload-artifact@v7
-      with:
-        name: dist
-        path: dist/
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: dist
+          path: ${{ env.PYTHON_PROJECT_DIR }}/dist/
 
   security:
     runs-on: ubuntu-latest
@@ -134,34 +141,37 @@ jobs:
     if: needs.detect-python-project.outputs.enabled == 'true'
 
     steps:
-    - uses: actions/checkout@v6
+      - uses: actions/checkout@v6
 
-    - name: Install uv
-      uses: astral-sh/setup-uv@v4
-      with:
-        enable-cache: false
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          enable-cache: false
 
-    - name: Set up Python
-      run: uv python install ${{ env.PYTHON_VERSION }}
+      - name: Set up Python
+        run: uv python install ${{ env.PYTHON_VERSION }}
 
-    - name: Install dependencies
-      run: uv sync
+      - name: Install dependencies
+        working-directory: ${{ env.PYTHON_PROJECT_DIR }}
+        run: uv sync
 
-    - name: Run safety check
-      run: |
-        uv add --dev safety
-        uv run safety check
-      continue-on-error: true
+      - name: Run safety check
+        working-directory: ${{ env.PYTHON_PROJECT_DIR }}
+        run: |
+          uv add --dev safety
+          uv run safety check
+        continue-on-error: true
 
-    - name: Run bandit security linter
-      run: |
-        uv add --dev bandit
-        uv run bandit -r src/ -f json -o bandit-report.json || true
+      - name: Run bandit security linter
+        working-directory: ${{ env.PYTHON_PROJECT_DIR }}
+        run: |
+          uv add --dev bandit
+          uv run bandit -r pocket_tts -f json -o bandit-report.json || true
 
-    - name: Upload security reports
-      uses: actions/upload-artifact@v7
-      with:
-        name: security-reports
-        path: |
-          bandit-report.json
-      if: always()
+      - name: Upload security reports
+        uses: actions/upload-artifact@v7
+        with:
+          name: security-reports
+          path: |
+            ${{ env.PYTHON_PROJECT_DIR }}/bandit-report.json
+        if: always()

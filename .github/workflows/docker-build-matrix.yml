@@ -4,21 +4,21 @@ on:
   push:
     branches: [main, develop]
     paths:
-      - 'apps/**/Dockerfile'
-      - 'services/**/Dockerfile'
-      - 'infra/**'
-      - '.github/workflows/docker-build-matrix.yml'
-      - '!**/infra-archived/**'
+      - "apps/**/Dockerfile"
+      - "services/**/Dockerfile"
+      - "infra/**"
+      - ".github/workflows/docker-build-matrix.yml"
+      - "!**/infra-archived/**"
   pull_request:
     branches: [main]
     paths:
-      - 'apps/**/Dockerfile'
-      - 'services/**/Dockerfile'
-      - '!**/infra-archived/**'
+      - "apps/**/Dockerfile"
+      - "services/**/Dockerfile"
+      - "!**/infra-archived/**"
   workflow_dispatch:
     inputs:
       service:
-        description: 'Specific service to build (leave empty for all)'
+        description: "Specific service to build (leave empty for all)"
         required: false
         type: string
 
@@ -68,7 +68,7 @@ jobs:
               if [[ "$dir" == *"infra-archived"* ]]; then continue; fi
               if [ -f "$dir" ]; then
                 app=$(dirname "$dir" | cut -d'/' -f2)
-                MATRIX="${MATRIX}{\"name\":\"${app}\",\"context\":\".\",\"dockerfile\":\"apps/${app}/Dockerfile\",\"type\":\"app\"},"
+                MATRIX="${MATRIX}{\"name\":\"${app}\",\"context\":\"apps/${app}\",\"dockerfile\":\"Dockerfile\",\"type\":\"app\"},"
               fi
             done
           fi
@@ -79,7 +79,7 @@ jobs:
               if [[ "$dir" == *"infra-archived"* ]]; then continue; fi
               if [ -f "$dir" ]; then
                 service=$(dirname "$dir" | cut -d'/' -f2)
-                MATRIX="${MATRIX}{\"name\":\"${service}\",\"context\":\".\",\"dockerfile\":\"services/${service}/Dockerfile\",\"type\":\"service\"},"
+                MATRIX="${MATRIX}{\"name\":\"${service}\",\"context\":\"services/${service}\",\"dockerfile\":\"Dockerfile\",\"type\":\"service\"},"
               fi
             done
           fi
@@ -157,16 +157,16 @@ jobs:
         if: github.event_name != 'pull_request'
         with:
           image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-${{ matrix.name }}:${{ steps.meta.outputs.version }}
-          format: 'sarif'
-          output: 'trivy-results-${{ matrix.name }}.sarif'
+          format: "sarif"
+          output: "trivy-results-${{ matrix.name }}.sarif"
 
       - name: Upload Trivy results to GitHub Security
         uses: github/codeql-action/upload-sarif@v4
         if: github.event_name != 'pull_request' && github.actor != 'dependabot[bot]'
         continue-on-error: true
         with:
-          sarif_file: 'trivy-results-${{ matrix.name }}.sarif'
-          category: 'docker-${{ matrix.name }}'
+          sarif_file: "trivy-results-${{ matrix.name }}.sarif"
+          category: "docker-${{ matrix.name }}"
 
   # Verify all builds succeeded
   build-complete:

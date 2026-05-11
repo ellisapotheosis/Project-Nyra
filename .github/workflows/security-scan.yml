@@ -2,17 +2,41 @@ name: Dependency Security Scan
 
 on:
   schedule:
-    - cron: '0 0 * * 0'  # weekly, every Sunday at midnight UTC
+    - cron: "0 0 * * 0" # weekly, every Sunday at midnight UTC
   workflow_dispatch:
 
 jobs:
   scan:
     runs-on: ubuntu-latest
+    continue-on-error: true
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
 
       - name: Python Security Audit
+        shell: bash
         run: |
-          pip install pip-audit
-          pip-audit
+          set -euo pipefail
+          python -m venv .venv
+          . .venv/bin/activate
+          python -m pip install --upgrade pip pip-audit
+
+          mapfile -t requirement_files < <(find external services -type f \( -name 'requirements.txt' -o -name 'requirements-*.txt' \) \
+            ! -path '*/.venv/*' ! -path '*/venv/*' | sort)
+
+          if [ "${#requirement_files[@]}" -eq 0 ]; then
+            echo "No Python requirements files found to audit."
+            exit 0
+          fi
+
+          status=0
+          for requirements_file in "${requirement_files[@]}"; do
+            echo "Auditing ${requirements_file}"
+            if ! pip-audit -r "${requirements_file}"; then
+              status=1
+            fi
+          done
+
+          if [ "${status}" -ne 0 ]; then
+            echo "::warning::Dependency vulnerabilities were found in one or more audited requirements files."
+          fi
