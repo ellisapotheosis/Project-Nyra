@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   llxprt-code:
@@ -10,7 +10,7 @@ services:
     command:
       - /bin/sh
       - -c
-      - "npx --yes @vybestack/llxprt-code server --port 8081 --host 0.0.0.0
+      - "npx --yes @vybestack/llxprt-code --help >/tmp/llxprt-help.txt && tail -f /dev/null"
     volumes:
       - ${HOME:-/home/ellisapotheosis}/.config:/tmp/.config:ro
     networks:

@@ -33,7 +33,7 @@ ORACLE_MEMORY_EXTRA_COMPOSE := infra/hosts/oracle-vps/docker-compose.memory-extr
 ORACLE_PAPERCLIP_COMPOSE := infra/hosts/oracle-vps/docker-compose.paperclip.yml
 ORACLE_CLAWTEAM_COMPOSE := infra/hosts/oracle-vps/docker-compose.clawteam.yml
 ORACLE_UI_FACTORY_SERVICES := nyra-ui-engine magicui-mcp shadcn-mcp
-ORACLE_MCP_TOOL_SERVICES := llxprt-bridge llxprt-bridge-proxy activepieces-mcp litellm ha-mcp twenty-mcp git-mcp sequential-thinking-mcp playwright-mcp firecrawl-mcp magicui-mcp shadcn-mcp next-devtools-mcp tavily-mcp wcgw-mcp gitingest-mcp codebase-index-mcp nexus
+ORACLE_MCP_TOOL_SERVICES := llxprt-bridge-proxy activepieces-mcp litellm ha-mcp twenty-mcp git-mcp sequential-thinking-mcp playwright-mcp firecrawl-mcp magicui-mcp shadcn-mcp next-devtools-mcp tavily-mcp wcgw-mcp gitingest-mcp codebase-index-mcp nexus
 ORACLE_PORTAINER_SERVICES := portainer portainer-edge-agent
 INFISICAL_RUNTIME_COMPOSE := infra/hosts/_templates/docker-compose.infisical-runtime.yml
 WORKER_AI_COMMON_COMPOSE := infra/hosts/_templates/docker-compose.worker-ai-common.yml
@@ -214,13 +214,13 @@ dev-orchestrate:
 up:
 	@profiles=$$(echo "$(DEFAULT_PROFILES)" | tr ',' ' '); \
 	for p in $$profiles; do args="$$args --profile $$p"; done; \
-	$(COMPOSE) $$args up -d
+	docker --context $(ORCHESTRATOR_CONTEXT) compose -f $(ORCHESTRATOR_COMPOSE) $$args up -d
 
 down:
-	$(COMPOSE) down --remove-orphans
+	docker --context $(ORCHESTRATOR_CONTEXT) compose -f $(ORCHESTRATOR_COMPOSE) down --remove-orphans
 
 ps:
-	$(COMPOSE) ps
+	docker --context $(ORCHESTRATOR_CONTEXT) compose -f $(ORCHESTRATOR_COMPOSE) ps
 
 # --- DISTRIBUTED TARGETS ---
 
@@ -990,19 +990,25 @@ oracle-ui-install:
 oracle-mcp-tools-up:
 	@echo "Starting Oracle MCP tool containers and Nexus..."
 	@LLXPRT_BRIDGE_API_KEY="$$(infisical secrets get LLXPRT_BRIDGE_API_KEY --projectId=$(INFISICAL_PROJECT_ID) --env=$(AGENT_INFRA_ENV) --path=/providers/llxprt --plain --silent 2>/dev/null)" \
+	  BETTER_AUTH_SECRET="$$(infisical secrets get BETTER_AUTH_SECRET --projectId=$(INFISICAL_PROJECT_ID) --env=$(AGENT_INFRA_ENV) --path=/clients/paperclip --plain --silent 2>/dev/null)" \
+	  PAPERCLIP_AGENT_JWT_SECRET="$$(infisical secrets get PAPERCLIP_AGENT_JWT_SECRET --projectId=$(INFISICAL_PROJECT_ID) --env=$(AGENT_INFRA_ENV) --path=/clients/paperclip --plain --silent 2>/dev/null)" \
 	  infisical run --projectId=$(INFISICAL_PROJECT_ID) --env=$(AGENT_INFRA_ENV) --path=/machines/oracle-vps -- \
 	  docker --context $(ORACLE_CONTEXT) compose --env-file /dev/null \
 	  -f $(ORACLE_COMPOSE) -f $(ORACLE_ACTIVEPIECES_MCP_COMPOSE) up -d $(ORACLE_MCP_TOOL_SERVICES)
 
 oracle-mcp-tools-down:
-	@infisical run --projectId=$(INFISICAL_PROJECT_ID) --env=$(AGENT_INFRA_ENV) --path=/machines/oracle-vps -- \
+	@BETTER_AUTH_SECRET="$$(infisical secrets get BETTER_AUTH_SECRET --projectId=$(INFISICAL_PROJECT_ID) --env=$(AGENT_INFRA_ENV) --path=/clients/paperclip --plain --silent 2>/dev/null)" \
+	  PAPERCLIP_AGENT_JWT_SECRET="$$(infisical secrets get PAPERCLIP_AGENT_JWT_SECRET --projectId=$(INFISICAL_PROJECT_ID) --env=$(AGENT_INFRA_ENV) --path=/clients/paperclip --plain --silent 2>/dev/null)" \
+	  infisical run --projectId=$(INFISICAL_PROJECT_ID) --env=$(AGENT_INFRA_ENV) --path=/machines/oracle-vps -- \
 	  docker --context $(ORACLE_CONTEXT) compose --env-file /dev/null \
-	  -f $(ORACLE_COMPOSE) stop $(ORACLE_MCP_TOOL_SERVICES)
+	  -f $(ORACLE_COMPOSE) -f $(ORACLE_ACTIVEPIECES_MCP_COMPOSE) stop $(ORACLE_MCP_TOOL_SERVICES)
 
 oracle-mcp-tools-ps:
-	@infisical run --projectId=$(INFISICAL_PROJECT_ID) --env=$(AGENT_INFRA_ENV) --path=/machines/oracle-vps -- \
+	@BETTER_AUTH_SECRET="$$(infisical secrets get BETTER_AUTH_SECRET --projectId=$(INFISICAL_PROJECT_ID) --env=$(AGENT_INFRA_ENV) --path=/clients/paperclip --plain --silent 2>/dev/null)" \
+	  PAPERCLIP_AGENT_JWT_SECRET="$$(infisical secrets get PAPERCLIP_AGENT_JWT_SECRET --projectId=$(INFISICAL_PROJECT_ID) --env=$(AGENT_INFRA_ENV) --path=/clients/paperclip --plain --silent 2>/dev/null)" \
+	  infisical run --projectId=$(INFISICAL_PROJECT_ID) --env=$(AGENT_INFRA_ENV) --path=/machines/oracle-vps -- \
 	  docker --context $(ORACLE_CONTEXT) compose --env-file /dev/null \
-	  -f $(ORACLE_COMPOSE) ps $(ORACLE_MCP_TOOL_SERVICES)
+	  -f $(ORACLE_COMPOSE) -f $(ORACLE_ACTIVEPIECES_MCP_COMPOSE) ps $(ORACLE_MCP_TOOL_SERVICES)
 
 oracle-portainer-up:
 	@echo "Starting Oracle Portainer CE control plane..."

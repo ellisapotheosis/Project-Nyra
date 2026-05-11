@@ -29,12 +29,27 @@ services:
       - nyra-network
 
   cloudflared:
-    image: cloudflare/cloudflared:latest
+    build:
+      context: .
+      dockerfile: Dockerfile.cloudflared-wrapper
+    image: nyra/cloudflared-wrapper:latest
     container_name: ${COMPOSE_PROJECT_NAME:-nyra}-cloudflared-orchestrator
     restart: unless-stopped
-    command: ["tunnel", "--no-autoupdate", "run"]
+    command:
+      - |
+        token="$${TUNNEL_TOKEN:-}"
+        if [ -z "$$token" ] && [ -f /run/nyra-secrets/orchestrator_tunnel_token ]; then
+          token="$$(cat /run/nyra-secrets/orchestrator_tunnel_token)"
+        fi
+        if [ -z "$$token" ]; then
+          echo "ORCHESTRATOR_TUNNEL_TOKEN is required" >&2
+          exit 1
+        fi
+        exec cloudflared tunnel --no-autoupdate run --token "$$token"
     environment:
-      TUNNEL_TOKEN: ${ORCHESTRATOR_TUNNEL_TOKEN}
+      TUNNEL_TOKEN: ${ORCHESTRATOR_TUNNEL_TOKEN:-}
+    volumes:
+      - cf_secrets:/run/nyra-secrets:ro
     depends_on:
       secrets-init:
         condition: service_completed_successfully
@@ -47,4 +62,4 @@ volumes:
 networks:
   nyra-network:
     external: true
-    name: nyra-network
+    name: orchestrator_nyra-network

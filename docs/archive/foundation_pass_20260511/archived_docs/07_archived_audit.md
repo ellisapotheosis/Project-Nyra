@@ -25,13 +25,13 @@ data/project-requirements/**
 
 ## What is active
 
-| Evidence class | Active source |
-|---|---|
-| Compose paths | `Makefile` variables ending in `_COMPOSE` |
-| Host placement | `infra/hosts/*/docker-compose*.yml` |
-| CI/CD placement | `infra/hosts/oracle-vps/docker-compose.gitea.yml` |
-| Edge hostnames | `docs/cloudflared/hostname-matrix.md`, `docs/cloudflared/cloudflared-oracle.yml`, Cloudflare dashboard-managed tunnel settings |
-| BitNet fallback | `infra/hosts/orchestrator/docker-compose.bitnet.yml` |
+| Evidence class  | Active source                                                                                                                  |
+| --------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| Compose paths   | `Makefile` variables ending in `_COMPOSE`                                                                                      |
+| Host placement  | `infra/hosts/*/docker-compose*.yml`                                                                                            |
+| CI/CD placement | `infra/hosts/oracle-vps/docker-compose.gitea.yml`                                                                              |
+| Edge hostnames  | `docs/cloudflared/hostname-matrix.md`, `docs/cloudflared/cloudflared-oracle.yml`, Cloudflare dashboard-managed tunnel settings |
+| BitNet fallback | `infra/hosts/orchestrator/docker-compose.bitnet.yml`                                                                           |
 
 ## Review rule
 

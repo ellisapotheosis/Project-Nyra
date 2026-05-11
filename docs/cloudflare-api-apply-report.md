@@ -39,7 +39,7 @@ Smoke checks:
 - `https://hooks.ratehunter.net` returned `200`.
 - `https://n8n.ratehunter.net` returned `302` to Cloudflare Access.
 - `https://twenty.ratehunter.net` returned `302` to Cloudflare Access.
-- `https://nexus.ratehunter.net` is the Nexus Router endpoint and `https://nexus-ui.ratehunter.net` is the Nexus UI endpoint. Both should remain Cloudflare Access-gated.
+- `https://nexus.ratehunter.net` is the Nexus UI endpoint and `https://nexus-router.ratehunter.net` is the Nexus Router API/MCP endpoint. Both should remain Cloudflare Access-gated; the router endpoint should use service-token protection for agent traffic.
 
 Runtime fixes applied:
 

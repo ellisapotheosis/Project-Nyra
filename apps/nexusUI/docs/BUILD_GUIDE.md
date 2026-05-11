@@ -63,19 +63,19 @@ pnpm --filter @nyra/nexus-ui start
 
 Bind the service privately, then expose it through Cloudflared with Cloudflare Access.
 
-Suggested hostname:
+Current desired/applied hostname:
 
 ```text
-nexus-ui.ratehunter.net
+nexus.ratehunter.net
 ```
 
 ## 6. Cloudflared Ingress
 
-Add an ingress rule on the orchestrator tunnel that points to the UI service port:
+Add an ingress rule on the Oracle tunnel that points to the UI service:
 
 ```yaml
-- hostname: nexus-ui.ratehunter.net
-  service: http://localhost:3016
+- hostname: nexus.ratehunter.net
+  service: http://nexus-ui:3016
 ```
 
 Keep Cloudflare Access required for this hostname. This is an admin surface.
@@ -85,7 +85,7 @@ Keep Cloudflare Access required for this hostname. This is an admin surface.
 Set this in the webapp deployment environment:
 
 ```text
-NEXT_PUBLIC_NEXUS_UI_URL=https://nexus-ui.ratehunter.net
+NEXT_PUBLIC_NEXUS_UI_URL=https://nexus.ratehunter.net
 ```
 
 The webapp header reads this variable and renders the Nexus navigation link.

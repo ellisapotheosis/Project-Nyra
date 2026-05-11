@@ -27,7 +27,7 @@ Generated desired-state files now exist for the orchestrator and Oracle VPS tunn
 Important routing decision:
 
 - `ratehunter.net` and `www.ratehunter.net` stay on Cloudflare Pages only.
-- App/service/MCP hostnames use subdomains such as `nyra.ratehunter.net`, `api.ratehunter.net`, and `nexus.ratehunter.net`.
+- App/service/MCP hostnames use subdomains such as `nyra.ratehunter.net`, `api.ratehunter.net`, `nexus.ratehunter.net`, and `nexus-router.ratehunter.net`.
 
 Apply status:
 
@@ -44,21 +44,22 @@ Required follow-up:
 3. Replace Infisical `/machines/oracle-vps` `ORACLE_TUNNEL_TOKEN` with the token for tunnel `02fa18b6-ffcd-4b37-91ba-409642d5fb8f`.
 4. Add `SUPABASE_DB_URL_PASSWORD` as the URL-encoded form of `SUPABASE_DB_PASSWORD` if the raw password contains URL-reserved characters.
 5. Repair the stale Oracle Docker/Tailscale context so `docker --context oracle ...` works again without using the public SSH endpoint.
+6. Validate the Home Assistant Green Linkwarden origin from the orchestrator tunnel container. The route and Access apps exist, but the current Codex App session is logged out of Tailscale and cannot reach `100.64.0.2:3007`.
 
 Current runtime caveat:
 
 - The orchestrator tunnel connector is online as tunnel `ae0bd53a-f22e-4414-8593-5b765dcd044b`.
 - The Oracle tunnel connector is online as tunnel `02fa18b6-ffcd-4b37-91ba-409642d5fb8f`, but this session used a runtime token override because the shared Infisical token currently mismatches the tunnel ID.
 - The preferred Linkwarden hostname is `links.ratehunter.net`; keep `linkwarden.ratehunter.net` only as a temporary alias if desired.
-- `http://100.64.0.2:3007` timed out from the tunnel path and needs origin validation.
+- `http://100.64.0.2:3007` timed out from this local Codex App session on 2026-05-11. Tailscale also reported this session is logged out, so final origin validation must run from the orchestrator tunnel container or a Tailscale-authenticated shell.
 
 Current Oracle smoke status:
 
 - `https://api.ratehunter.net/auth/v1/health` returns `200`.
 - `https://hooks.ratehunter.net` returns `200`.
 - `https://nyra.ratehunter.net`, `https://nexus.ratehunter.net`, `https://litellm.ratehunter.net`, `https://n8n.ratehunter.net`, and `https://twenty.ratehunter.net` reach Cloudflare Access.
-- `https://nexus.ratehunter.net` is the Nexus Router endpoint and should remain Cloudflare Access-gated.
-- `https://nexus-ui.ratehunter.net` is the Nexus UI endpoint and should remain Cloudflare Access-gated.
+- `https://nexus.ratehunter.net` is the Nexus UI endpoint and should remain Cloudflare Access-gated.
+- `https://nexus-router.ratehunter.net` is the Nexus Router API/MCP endpoint and should remain Cloudflare Access-gated with service-token protection for agent traffic.
 
 ### Tunnel objects
 
@@ -114,7 +115,7 @@ replacement control plane.
    `[mcp.servers.letta]` tools.
 6. On every workstation running Claude Code, set `ORCHESTRATOR_TUNNEL_TOKEN`
    to the Cloudflare Access service token expected by `.mcp.json`; otherwise
-   `https://nexus.ratehunter.net/mcp` redirects to browser login and MCP auth
+   `https://nexus-router.ratehunter.net/mcp` redirects to browser login and MCP auth
    fails.
 
 ### Cloudflare Pages landing redeploy

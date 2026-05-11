@@ -16,6 +16,7 @@ omx setup [--force] [--merge-agents] [--dry-run] [--verbose] [--scope <user|proj
 If you only want lightweight `AGENTS.md` scaffolding for an existing repo or subtree, use `omx agents-init [path]` instead of full setup.
 
 Supported setup flags (current implementation):
+
 - `--force`: overwrite/reinstall managed artifacts where applicable
 - `--merge-agents`: when `AGENTS.md` already exists, preserve user-authored content and insert/refresh OMX-managed generated sections between explicit `<!-- OMX:AGENTS:START -->` / `<!-- OMX:AGENTS:END -->` markers
 - `--dry-run`: print actions without mutating files
@@ -60,7 +61,7 @@ Supported setup flags (current implementation):
   - `project`: local directories (`./.codex`, `./.codex/skills`, `./.omx/agents`)
 - User-scope skill delivery targets:
   - `legacy`: keep installing/updating OMX skills in the resolved user skill root
-  - `plugin`: rely on Codex plugin discovery for bundled skills and archive/remove legacy OMX-managed prompts/skills/native agents; setup still installs native Codex hooks and setup-owned runtime feature flags (`codex_hooks = true`, `goals = true`) because plugins do not carry hooks or enable Codex goal mode by themselves.
+  - `plugin`: rely on Codex plugin discovery for bundled skills and archive/remove legacy OMX-managed prompts/skills/native agents; setup still installs native Codex hooks and setup-owned runtime feature flags (`hooks = true` on current Codex, legacy `codex_hooks = true` when that is the only reported hook feature, plus `goals = true`) because plugins do not carry hooks or enable Codex goal mode by themselves.
 - Migration hint: in `user` scope, if historical `~/.agents/skills` still exists alongside `${CODEX_HOME:-~/.codex}/skills`, current setup prints a cleanup hint. **Why the paths differ**: `${CODEX_HOME:-~/.codex}/skills/` is the path current Codex CLI natively loads as its skill root; `~/.agents/skills/` was the skill root in an older Codex CLI release before `~/.codex` became the standard home directory. OMX writes only to the canonical `${CODEX_HOME:-~/.codex}/skills/` path. When both directories exist simultaneously, Codex discovers skills from both trees and may show duplicate entries in Enable/Disable Skills. Archive or remove `~/.agents/skills/` to resolve this.
 - If persisted scope is `project`, `omx` launch automatically uses `CODEX_HOME=./.codex` unless user explicitly overrides `CODEX_HOME`.
 - Plugin mode prompts separately for optional AGENTS.md defaults and optional `developer_instructions` defaults. If `developer_instructions` already exists, setup asks before overwriting it; non-interactive runs preserve it.
@@ -71,15 +72,15 @@ Supported setup flags (current implementation):
 
 Use this map when reconciling setup behavior or debugging a confusing install:
 
-| Surface | Owner | Notes |
-| --- | --- | --- |
-| `./.omx/setup-scope.json` | `omx setup` | Persists setup scope and user-scope skill delivery mode. TTY reruns summarize it and offer keep/review/reset. |
-| `~/.codex/config.toml` / `./.codex/config.toml` | `omx setup` generated blocks + user edits | Setup refreshes OMX-managed blocks while preserving supported manual content; setup-owned runtime feature flags include `multi_agent`, `child_agents_md`, `hooks`, and `goals`. |
-| `~/.codex/hooks.json` / `./.codex/hooks.json` | `omx setup` shared ownership | Setup owns OMX native hook wrappers and preserves user-owned hooks. |
-| prompts, skills, native agents | `omx setup` or Codex plugin delivery | Legacy mode installs local files; plugin mode relies on plugin discovery for bundled skills and archives/removes legacy OMX-managed prompt/native-agent copies. |
-| `AGENTS.md` | `omx setup` with overwrite safety | Generated defaults or managed refreshes are guarded by force/session checks. |
-| `./.omx/hud-config.json` | `omx setup` / `$hud` | Setup creates the focused default; `$hud` can adjust it later. |
-| notification hooks | `omx setup` / `$configure-notifications` | Setup wires defaults outside plugin skill delivery; notification skill owns deeper provider configuration. |
+| Surface                                         | Owner                                     | Notes                                                                                                                                                                                                                                 |
+| ----------------------------------------------- | ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `./.omx/setup-scope.json`                       | `omx setup`                               | Persists setup scope and user-scope skill delivery mode. TTY reruns summarize it and offer keep/review/reset.                                                                                                                         |
+| `~/.codex/config.toml` / `./.codex/config.toml` | `omx setup` generated blocks + user edits | Setup refreshes OMX-managed blocks while preserving supported manual content; setup-owned runtime feature flags include `multi_agent`, `child_agents_md`, the Codex hook feature flag (`hooks` or legacy `codex_hooks`), and `goals`. |
+| `~/.codex/hooks.json` / `./.codex/hooks.json`   | `omx setup` shared ownership              | Setup owns OMX native hook wrappers and preserves user-owned hooks.                                                                                                                                                                   |
+| prompts, skills, native agents                  | `omx setup` or Codex plugin delivery      | Legacy mode installs local files; plugin mode relies on plugin discovery for bundled skills and archives/removes legacy OMX-managed prompt/native-agent copies.                                                                       |
+| `AGENTS.md`                                     | `omx setup` with overwrite safety         | Generated defaults or managed refreshes are guarded by force/session checks.                                                                                                                                                          |
+| `./.omx/hud-config.json`                        | `omx setup` / `$hud`                      | Setup creates the focused default; `$hud` can adjust it later.                                                                                                                                                                        |
+| notification hooks                              | `omx setup` / `$configure-notifications`  | Setup wires defaults outside plugin skill delivery; notification skill owns deeper provider configuration.                                                                                                                            |
 
 ## If `$omx-setup` is missing or stale
 
@@ -110,11 +111,12 @@ omx doctor
 ## Expected verification indicators
 
 From `omx doctor`, expect:
+
 - Prompts installed (scope-dependent: user or project)
 - Skills installed (scope-dependent: user or project)
 - AGENTS.md found in project root
 - `.omx/state` exists
-- OMX MCP servers configured in scope target `config.toml` (`~/.codex/config.toml` or `./.codex/config.toml`)
+- CLI-first config present in the scope target `config.toml`; first-party OMX MCP servers and shared MCP registry sync are omitted by default unless setup was run with `--mcp compat`
 
 ## Troubleshooting
 

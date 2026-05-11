@@ -25,7 +25,10 @@
     "twenty:down": "docker compose -f infra/docker-compose.twenty.yml down",
     "twenty:dev": "turbo run dev --filter=twenty-crm",
     "admin:dev": "turbo run dev --filter=nyra-admin",
-    "all:dev": "turbo run dev --parallel"
+    "all:dev": "turbo run dev --parallel",
+    "typecheck": "turbo run typecheck",
+    "test:contracts": "pnpm -C packages/domain-models test && pnpm -C packages/integration-adapters test",
+    "docs:check": "ls docs/*.md && ls docs/ops/*.md"
   },
   "dependencies": {
     "zod": "^4.3.5"
