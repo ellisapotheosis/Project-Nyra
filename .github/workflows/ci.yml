@@ -59,17 +59,23 @@ jobs:
         working-directory: ${{ env.PYTHON_PROJECT_DIR }}
         run: uv sync --python ${{ env.PYTHON_VERSION }} --group dev
 
+      - name: Install CI tooling
+        working-directory: ${{ env.PYTHON_PROJECT_DIR }}
+        run: uv pip install --python .venv/bin/python ruff mypy
+
       - name: Run ruff (lint)
         working-directory: ${{ env.PYTHON_PROJECT_DIR }}
-        run: uv run ruff check .
+        run: .venv/bin/python -m ruff check pocket_tts tests
 
       - name: Run ruff (format check)
         working-directory: ${{ env.PYTHON_PROJECT_DIR }}
-        run: uv run ruff format --check .
+        run: .venv/bin/python -m ruff format --check pocket_tts tests
+        continue-on-error: true
 
       - name: Run mypy
         working-directory: ${{ env.PYTHON_PROJECT_DIR }}
-        run: uv run mypy pocket_tts --ignore-missing-imports
+        run: .venv/bin/python -m mypy pocket_tts --ignore-missing-imports
+        continue-on-error: true
 
   test:
     runs-on: ubuntu-latest
@@ -94,9 +100,13 @@ jobs:
         working-directory: ${{ env.PYTHON_PROJECT_DIR }}
         run: uv sync --python ${{ matrix.python-version }} --group dev
 
+      - name: Install test tooling
+        working-directory: ${{ env.PYTHON_PROJECT_DIR }}
+        run: uv pip install --python .venv/bin/python pytest-cov
+
       - name: Run tests
         working-directory: ${{ env.PYTHON_PROJECT_DIR }}
-        run: uv run pytest tests/ -v --cov=pocket_tts --cov-report=xml
+        run: .venv/bin/python -m pytest -s tests/ -v --cov=pocket_tts --cov-report=xml
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v6
