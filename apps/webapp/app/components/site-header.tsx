@@ -1,5 +1,6 @@
 import Image from "next/image"
 import Link from "next/link"
+import { Settings } from "lucide-react"
 
 import { buttonVariants } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
@@ -13,9 +14,9 @@ const links = [
   { href: "/pipeline", label: "Pipeline" },
   { href: "/crm", label: "CRM" },
   { href: "/applications", label: "Applications" },
-  { href: "/admin", label: "Admin" },
+  { href: "/settings", label: "Settings" },
   { href: "/tools/openclaw", label: "OpenClaw" },
-  { href: process.env.NEXT_PUBLIC_NEXUS_UI_URL ?? "https://nexus-ui.ratehunter.net", label: "Nexus", external: true },
+  { href: process.env.NEXT_PUBLIC_NEXUS_UI_URL ?? "https://nexus.ratehunter.net", label: "Nexus", external: true },
 ]
 
 export function SiteHeader() {
@@ -36,9 +37,13 @@ export function SiteHeader() {
               Broker-facing workspace for campaigns, quotes, pipeline, and CRM views
             </span>
           </Link>
-          <div className="rounded-full border border-border/60 bg-card/70 px-3 py-1 text-xs uppercase tracking-[0.22em] text-muted-foreground">
-            nyra.ratehunter.net
-          </div>
+          <Link
+            href="/settings"
+            className="inline-flex size-9 items-center justify-center rounded-full border border-border/60 bg-card/70 text-muted-foreground hover:text-foreground"
+            aria-label="Open settings"
+          >
+            <Settings className="size-4" />
+          </Link>
         </div>
         <nav className="flex flex-wrap gap-2">
           {links.map((link) => (
