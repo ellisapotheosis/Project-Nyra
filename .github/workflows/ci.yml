@@ -57,7 +57,7 @@ jobs:
 
       - name: Install dependencies
         working-directory: ${{ env.PYTHON_PROJECT_DIR }}
-        run: uv sync --group lint
+        run: uv sync --python ${{ env.PYTHON_VERSION }} --group dev
 
       - name: Run ruff (lint)
         working-directory: ${{ env.PYTHON_PROJECT_DIR }}
@@ -92,7 +92,7 @@ jobs:
 
       - name: Install dependencies
         working-directory: ${{ env.PYTHON_PROJECT_DIR }}
-        run: uv sync --group test
+        run: uv sync --python ${{ matrix.python-version }} --group dev
 
       - name: Run tests
         working-directory: ${{ env.PYTHON_PROJECT_DIR }}
@@ -101,7 +101,7 @@ jobs:
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v6
         with:
-          file: ${{ env.PYTHON_PROJECT_DIR }}/coverage.xml
+          files: ${{ env.PYTHON_PROJECT_DIR }}/coverage.xml
           flags: unittests
           name: codecov-umbrella
 
@@ -123,7 +123,7 @@ jobs:
 
       - name: Install dependencies
         working-directory: ${{ env.PYTHON_PROJECT_DIR }}
-        run: uv sync
+        run: uv sync --python ${{ env.PYTHON_VERSION }}
 
       - name: Build package
         working-directory: ${{ env.PYTHON_PROJECT_DIR }}
@@ -153,7 +153,7 @@ jobs:
 
       - name: Install dependencies
         working-directory: ${{ env.PYTHON_PROJECT_DIR }}
-        run: uv sync
+        run: uv sync --python ${{ env.PYTHON_VERSION }}
 
       - name: Run safety check
         working-directory: ${{ env.PYTHON_PROJECT_DIR }}
