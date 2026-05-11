@@ -472,7 +472,6 @@ async def startup_event():
 @app.on_event("shutdown")
 async def shutdown_event():
     """Close database pool on shutdown"""
-    global db_pool
     if db_pool:
         await db_pool.close()
     logger.info("Nyra Orchestrator shutdown")

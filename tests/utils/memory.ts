@@ -147,7 +147,10 @@ export const createMockMem0 = (): TestMemorySystem => {
 export const setupTestMemory = async () => {
   return {
     ruvector: createMockRuVector(),
-    letta: createMockLetta(),
+    letta: {
+      ...createMockLetta(),
+      ...createMockletta(),
+    },
     mem0: createMockMem0(),
   };
 };
