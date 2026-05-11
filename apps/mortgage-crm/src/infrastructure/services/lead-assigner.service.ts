@@ -1,6 +1,7 @@
-import { ILeadAssigner } from "../application/use-cases/create-lead.use-case";
-import { Lead } from "../domain/entities/lead.entity";
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient } from '@prisma/client';
+
+import { ILeadAssigner } from '@/application/use-cases/create-lead.use-case';
+import { Lead } from '@/domain/entities/lead.entity';
 
 export class RoundRobinLeadAssigner implements ILeadAssigner {
   constructor(private prisma: PrismaClient) {}
