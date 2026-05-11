@@ -145,12 +145,15 @@ jobs:
             **/node_modules
           key: ${{ runner.os }}-node-modules-${{ hashFiles('**/pnpm-lock.yaml') }}
 
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --prefer-offline
+
       - name: Run ESLint on changed packages
         run: |
           if [ "${{ github.event_name }}" == "pull_request" ]; then
-            pnpm turbo run lint --filter="...[origin/${{ github.base_ref }}]"
+            pnpm exec turbo run lint --filter="...[origin/${{ github.base_ref }}]"
           else
-            pnpm turbo run lint --filter="...[HEAD^]"
+            pnpm exec turbo run lint --filter="...[HEAD^]"
           fi
 
       - name: Check Prettier formatting
@@ -194,13 +197,16 @@ jobs:
             **/node_modules
           key: ${{ runner.os }}-node-modules-${{ hashFiles('**/pnpm-lock.yaml') }}
 
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --prefer-offline
+
       - name: Run TypeScript check on changed packages
         run: |
           # Use turbo to check types only in changed packages
           if [ "${{ github.event_name }}" == "pull_request" ]; then
-            pnpm turbo run typecheck --filter="...[origin/${{ github.base_ref }}]" || echo "No typecheck script in changed packages"
+            pnpm exec turbo run typecheck --filter="...[origin/${{ github.base_ref }}]" || echo "No typecheck script in changed packages"
           else
-            pnpm turbo run typecheck --filter="...[HEAD^]" || echo "No typecheck script in changed packages"
+            pnpm exec turbo run typecheck --filter="...[HEAD^]" || echo "No typecheck script in changed packages"
           fi
 
   # Security Audit
@@ -228,6 +234,9 @@ jobs:
             node_modules
             **/node_modules
           key: ${{ runner.os }}-node-modules-${{ hashFiles('**/pnpm-lock.yaml') }}
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --prefer-offline
 
       - name: Run security audit
         run: |
@@ -274,15 +283,18 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-turbo-
 
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --prefer-offline
+
       - name: Build changed packages with Turbo
         run: |
           # Build only packages that changed (and their dependents)
           if [ "${{ github.event_name }}" == "pull_request" ]; then
             echo "Building packages changed compared to ${{ github.base_ref }}"
-            pnpm turbo run build --filter="...[origin/${{ github.base_ref }}]" --concurrency=4
+            pnpm exec turbo run build --filter="...[origin/${{ github.base_ref }}]" --concurrency=4
           else
             echo "Building packages changed in last commit"
-            pnpm turbo run build --filter="...[HEAD^]" --concurrency=4
+            pnpm exec turbo run build --filter="...[HEAD^]" --concurrency=4
           fi
 
       - name: Upload build artifacts
@@ -328,6 +340,9 @@ jobs:
             node_modules
             **/node_modules
           key: ${{ runner.os }}-node-modules-${{ hashFiles('**/pnpm-lock.yaml') }}
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --prefer-offline
 
       - name: Download build artifacts
         uses: actions/download-artifact@v8
@@ -411,6 +426,9 @@ jobs:
             node_modules
             **/node_modules
           key: ${{ runner.os }}-node-modules-${{ hashFiles('**/pnpm-lock.yaml') }}
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --prefer-offline
 
       - name: Run integration tests
         env:

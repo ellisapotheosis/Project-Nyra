@@ -15,7 +15,8 @@ export default {
   resolve: {
     alias: {
       '@': resolve(__dirname, './src'),
-      '@tests': resolve(__dirname, './tests')
+      '@tests': resolve(__dirname, './tests'),
+      '@jest/globals': resolve(__dirname, './tests/setup/jest-globals-compat.ts')
     }
   }
 };
