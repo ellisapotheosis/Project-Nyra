@@ -12,14 +12,12 @@ on:
       - "**/*.md"
       - "**/*.txt"
       - "docs/archive/**"
-      - "data/**"
   pull_request:
     branches: ["main"]
     paths-ignore:
       - "**/*.md"
       - "**/*.txt"
       - "docs/archive/**"
-      - "data/**"
   schedule:
     - cron: "37 12 * * 1"
   workflow_dispatch: # Allows you to run this manually from the Actions tab
@@ -30,9 +28,19 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  code-scanning-disabled:
+    name: Code Scanning Not Enabled
+    if: vars.ENABLE_CODE_SCANNING != 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Explain skipped analysis
+        run: |
+          echo "::notice::Skipping CodeQL because ENABLE_CODE_SCANNING is not set to true."
+          echo "Enable GitHub code scanning for this repository, then set repository variable ENABLE_CODE_SCANNING=true." >> "$GITHUB_STEP_SUMMARY"
+
   analyze:
+    if: vars.ENABLE_CODE_SCANNING == 'true'
     name: Analyze (${{ matrix.language }})
-    if: vars.ENABLE_CODEQL == 'true'
     runs-on: ${{ (matrix.language == 'swift' && 'macos-latest') || 'ubuntu-latest' }}
     permissions:
       security-events: write
