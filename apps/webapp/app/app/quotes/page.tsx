@@ -1,11 +1,11 @@
 'use client';
 
-import React, { useEffect } from 'react';
-import { Calculator, Clock, Lock, TrendingUp, WifiOff, CheckCircle2, AlertCircle } from "lucide-react"
+import React, { useEffect, useState } from 'react';
+import { Calculator, CheckCircle2, WifiOff, XCircle } from "lucide-react"
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { quoteApi, crmApi, useApi } from '@/lib/api';
+import { quoteApi, crmApi, useApi, type LoanType } from '@/lib/api';
 import { StatusGate } from '@/components/status-gate';
 import { QuoteRequestForm } from '@/components/quotes/quote-request-form';
 import { QuoteComparisonGrid } from '@/components/quotes/quote-comparison-grid';
@@ -19,6 +19,7 @@ function currency(value: number) {
 }
 
 export default function QuotesPage() {
+  const [notice, setNotice] = useState<{ type: "success" | "error"; message: string } | null>(null)
   const loanTypesApi = useApi(quoteApi.getLoanTypes);
   const comparisonApi = useApi(quoteApi.compareLoanTypes);
   const approveApi = useApi(crmApi.approveQuote);
@@ -28,18 +29,19 @@ export default function QuotesPage() {
   }, []);
 
   const handleRunComparison = (data: any) => {
+    setNotice(null)
     comparisonApi.execute(data);
   };
 
-  const handleApprove = async (loanType: string) => {
-    const result = comparisonApi.data?.comparison[loanType as any];
+  const handleApprove = async (loanType: LoanType) => {
+    const result = comparisonApi.data?.comparison[loanType];
     if (result?.quote_id) {
       try {
         await approveApi.execute(result.quote_id, "SYSTEM_BROKER");
-        alert(`Quote ${result.quote_id} (${loanType}) approved and synced to CRM!`);
+        setNotice({ type: "success", message: `Quote ${result.quote_id} (${loanType}) approved and synced to CRM.` })
       } catch (error) {
         console.error("Approval failed:", error);
-        alert("Quote approval failed. Please try again.");
+        setNotice({ type: "error", message: "Quote approval failed. Please try again." })
       }
     }
   };
@@ -58,6 +60,19 @@ export default function QuotesPage() {
           Offline Mode: Using base program parameters
         </div>
       </div>
+      {notice && (
+        <div
+          className={`flex items-center gap-2 rounded-lg border px-4 py-3 text-sm ${
+            notice.type === "success"
+              ? "border-primary/30 bg-primary/10 text-foreground"
+              : "border-destructive/30 bg-destructive/10 text-foreground"
+          }`}
+          role="status"
+        >
+          {notice.type === "success" ? <CheckCircle2 className="size-4 text-primary" /> : <XCircle className="size-4 text-destructive" />}
+          {notice.message}
+        </div>
+      )}
 
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Left Column: Input Form */}

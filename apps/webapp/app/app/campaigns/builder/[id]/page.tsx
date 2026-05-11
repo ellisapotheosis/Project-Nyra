@@ -51,6 +51,7 @@ export default function CampaignBuilder({
   const [name, setName] = useState("Purchase Nurture");
   const [loanPurpose, setLoanPurpose] = useState("PURCHASE");
   const [steps, setSteps] = useState<CampaignStep[]>([]);
+  const [notice, setNotice] = useState<{ type: "success" | "error"; message: string } | null>(null);
 
   const fetchCampaignApi = useApi(campaignApi.getCampaign);
   const saveCampaignApi = useApi(campaignApi.createCampaign);
@@ -101,18 +102,19 @@ export default function CampaignBuilder({
 
   const saveCampaign = async () => {
     try {
+      setNotice(null);
       const payload = { name, steps, loanPurpose, active: true };
       if (campaignId === "new") {
         const result = await saveCampaignApi.execute(payload);
-        alert("Campaign created successfully!");
+        setNotice({ type: "success", message: "Campaign created successfully." });
         router.push(`/campaigns/builder/${result.id}`);
       } else {
         await updateCampaignApi.execute(campaignId, payload);
-        alert("Campaign updated successfully!");
+        setNotice({ type: "success", message: "Campaign updated successfully." });
       }
     } catch (error) {
       console.error("Error saving campaign:", error);
-      alert("Error saving campaign.");
+      setNotice({ type: "error", message: "Error saving campaign." });
     }
   };
 
@@ -123,11 +125,12 @@ export default function CampaignBuilder({
       )
     ) {
       try {
+        setNotice(null);
         await deleteCampaignApi.execute(campaignId);
         router.push("/campaigns");
       } catch (error) {
         console.error("Error deleting campaign:", error);
-        alert("Error deleting campaign.");
+        setNotice({ type: "error", message: "Error deleting campaign." });
       }
     }
   };
@@ -184,6 +187,18 @@ export default function CampaignBuilder({
           {isOutOfOrder && (
             <div className="flex items-center px-4 py-2 bg-red-50 text-red-700 rounded-xl border border-red-100 text-xs font-bold animate-pulse">
               <AlertCircle className="mr-2 h-4 w-4" /> Out of Order
+            </div>
+          )}
+          {notice && (
+            <div
+              className={`rounded-xl border px-4 py-2 text-xs font-bold ${
+                notice.type === "success"
+                  ? "border-primary/30 bg-primary/10 text-foreground"
+                  : "border-destructive/30 bg-destructive/10 text-foreground"
+              }`}
+              role="status"
+            >
+              {notice.message}
             </div>
           )}
           <Button
