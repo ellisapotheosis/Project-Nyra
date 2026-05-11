@@ -914,7 +914,7 @@ export class TwentyClient {
 
   async getFieldMetadata(options: FieldQueryOptions = {}): Promise<FieldMetadata[]> {
     let query: string;
-    let variables: any = {};
+    const variables: any = {};
 
     if (options.objectId || options.objectName) {
       // Get fields for a specific object
@@ -1176,7 +1176,7 @@ export class TwentyClient {
   }
 
   async getRelationshipSummary(entityId: string, entityType: string): Promise<RelationshipSummary> {
-    let counts = {
+    const counts = {
       companies: 0,
       contacts: 0,
       opportunities: 0,

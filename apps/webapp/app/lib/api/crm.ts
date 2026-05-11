@@ -42,7 +42,8 @@ export interface Campaign {
 /**
  * CRM API Client (REST boundary over Twenty CRM)
  */
-const CRM_API_URL = process.env.CRM_API_URL || "http://localhost:4001";
+const CRM_API_URL =
+  typeof window === "undefined" ? process.env.CRM_API_URL || "http://localhost:4001" : "";
 const CRM_API_KEY = process.env.CRM_API_KEY || "";
 
 const client = createClient({
