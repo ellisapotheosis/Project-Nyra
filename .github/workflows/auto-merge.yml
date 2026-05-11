@@ -35,7 +35,7 @@ jobs:
       - name: Get PR information
         id: pr-info
         env:
-          GH_TOKEN: ${{ secrets.AUTOMERGE_PAT || secrets.GH_PAT_WORKFLOWS || secrets.GH_TOKEN || github.token }}
+          GH_TOKEN: ${{ github.token || secrets.AUTOMERGE_PAT || secrets.GH_PAT_WORKFLOWS || secrets.GH_TOKEN }}
         run: |
           if [ "${{ github.event_name }}" == "pull_request" ]; then
             PR_NUMBER="${{ github.event.pull_request.number }}"
@@ -90,7 +90,7 @@ jobs:
           steps.check-auto-merge.outputs.has-auto-merge == 'true' &&
           steps.check-auto-merge.outputs.has-do-not-merge == 'false'
         env:
-          GH_TOKEN: ${{ secrets.AUTOMERGE_PAT || secrets.GH_PAT_WORKFLOWS || secrets.GH_TOKEN || github.token }}
+          GH_TOKEN: ${{ github.token || secrets.AUTOMERGE_PAT || secrets.GH_PAT_WORKFLOWS || secrets.GH_TOKEN }}
         run: |
           PR_NUMBER="${{ steps.pr-info.outputs.pr-number }}"
           MAX_WAIT=300  # 5 minutes
@@ -139,7 +139,7 @@ jobs:
           steps.check-auto-merge.outputs.has-auto-merge == 'true' &&
           steps.check-auto-merge.outputs.has-do-not-merge == 'false'
         env:
-          GH_TOKEN: ${{ secrets.AUTOMERGE_PAT || secrets.GH_PAT_WORKFLOWS || secrets.GH_TOKEN || github.token }}
+          GH_TOKEN: ${{ github.token || secrets.AUTOMERGE_PAT || secrets.GH_PAT_WORKFLOWS || secrets.GH_TOKEN }}
         run: |
           PR_NUMBER="${{ steps.pr-info.outputs.pr-number }}"
           OWNER="${{ github.repository_owner }}"
@@ -203,7 +203,7 @@ jobs:
       - name: Merge Pull Request
         if: steps.merge-check.outputs.can-merge == 'true'
         env:
-          GH_TOKEN: ${{ secrets.AUTOMERGE_PAT || secrets.GH_PAT_WORKFLOWS || secrets.GH_TOKEN || github.token }}
+          GH_TOKEN: ${{ github.token || secrets.AUTOMERGE_PAT || secrets.GH_PAT_WORKFLOWS || secrets.GH_TOKEN }}
         run: |
           PR_NUMBER="${{ steps.pr-info.outputs.pr-number }}"
 
@@ -220,7 +220,7 @@ jobs:
           steps.check-auto-merge.outputs.has-auto-merge == 'true' &&
           steps.merge-check.outputs.can-merge != 'true'
         env:
-          GH_TOKEN: ${{ secrets.AUTOMERGE_PAT || secrets.GH_PAT_WORKFLOWS || secrets.GH_TOKEN || github.token }}
+          GH_TOKEN: ${{ github.token || secrets.AUTOMERGE_PAT || secrets.GH_PAT_WORKFLOWS || secrets.GH_TOKEN }}
         run: |
           PR_NUMBER="${{ steps.pr-info.outputs.pr-number }}"
 
@@ -249,7 +249,7 @@ jobs:
     steps:
       - name: Remove old auto-merge comments
         env:
-          GH_TOKEN: ${{ secrets.AUTOMERGE_PAT || secrets.GH_PAT_WORKFLOWS || secrets.GH_TOKEN || github.token }}
+          GH_TOKEN: ${{ github.token || secrets.AUTOMERGE_PAT || secrets.GH_PAT_WORKFLOWS || secrets.GH_TOKEN }}
         run: |
           PR_NUMBER="${{ github.event.pull_request.number }}"
 
