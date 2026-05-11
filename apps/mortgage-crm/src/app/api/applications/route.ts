@@ -1,9 +1,14 @@
-import { NextRequest, NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
-import { SubmitApplicationUseCase, IApplicationRepository, IAUSService } from "../../../../application/use-cases/submit-application.use-case";
-import { DocumentRequirementsGenerator } from "../../../../domain/services/document-requirements.generator";
-import { LoanApplication } from "../../../../domain/entities/loan-application.entity";
-import { z } from "zod";
+import { PrismaClient } from '@prisma/client';
+import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
+
+import {
+  IAUSService,
+  IApplicationRepository,
+  SubmitApplicationUseCase,
+} from '@/application/use-cases/submit-application.use-case';
+import { LoanApplication } from '@/domain/entities/loan-application.entity';
+import { DocumentRequirementsGenerator } from '@/domain/services/document-requirements.generator';
 
 const prisma = new PrismaClient();
 
@@ -44,15 +49,15 @@ class PrismaApplicationRepo implements IApplicationRepository {
 class MockAUSService implements IAUSService {
   async run(application: LoanApplication): Promise<{ result: string; recommendation: string }> {
     return {
-      result: "Approve",
-      recommendation: "Eligible"
+      result: 'Approve',
+      recommendation: 'Eligible',
     };
   }
 }
 
 const submitApplicationSchema = z.object({
   leadId: z.string(),
-  loanType: z.enum(["CONVENTIONAL", "FHA", "VA", "USDA", "JUMBO"]),
+  loanType: z.enum(['CONVENTIONAL', 'FHA', 'VA', 'USDA', 'JUMBO']),
   amount: z.number().min(50000),
   term: z.number(),
   rate: z.number(),
@@ -98,8 +103,8 @@ export async function POST(req: NextRequest) {
     }, { status: 201 });
 
   } catch (error: any) {
-    console.error("Error submitting application:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    console.error('Error submitting application:', error);
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
 
@@ -118,7 +123,7 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json(applications);
   } catch (error: any) {
-    console.error("Error fetching applications:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    console.error('Error fetching applications:', error);
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
