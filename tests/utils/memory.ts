@@ -18,6 +18,13 @@ export interface TestMemorySystem {
   clear: () => Promise<void>;
 }
 
+export interface TestLettaMemorySystem extends TestMemorySystem {
+  addNode: (node: any) => Promise<void>;
+  addEdge: (edge: any) => Promise<void>;
+  query: (cypher: string) => Promise<any[]>;
+  getEvolution: (entityId: string, timeRange: any) => Promise<any>;
+}
+
 export const createMockRuVector = (): TestMemorySystem => {
   const storage = new Map<string, any>();
   const vectors = new Map<string, number[]>();
@@ -86,7 +93,7 @@ export const createMockLetta = (): TestMemorySystem => {
   };
 };
 
-export const createMockletta = () => {
+export const createMockKnowledgeGraphLetta = () => {
   const nodes = new Map<string, any>();
   const edges: any[] = [];
 
@@ -145,19 +152,19 @@ export const createMockMem0 = (): TestMemorySystem => {
 };
 
 export const setupTestMemory = async () => {
-  const letta = createMockLetta();
-  const knowledgeGraph = createMockletta();
+  const conversationalLetta = createMockLetta();
+  const graphLetta = createMockKnowledgeGraphLetta();
 
   return {
     ruvector: createMockRuVector(),
     letta: {
-      ...letta,
-      ...knowledgeGraph,
+      ...conversationalLetta,
+      ...graphLetta,
       clear: vi.fn().mockImplementation(async () => {
-        await letta.clear();
-        await knowledgeGraph.clear();
+        await conversationalLetta.clear();
+        await graphLetta.clear();
       }),
-    },
+    } satisfies TestLettaMemorySystem,
     mem0: createMockMem0(),
   };
 };

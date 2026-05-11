@@ -241,6 +241,9 @@ PIPFILE.lock
 
 # Keep tracked frontend source libraries inside app trees.
 !apps/webapp/app/lib/
+!apps/mortgage-crm/src/lib/
+!apps/mortgage-crm/src/lib/*.ts
+!apps/mortgage-crm/src/lib/*.tsx
 !apps/landing/ratehunter-landing/src/lib/
 !apps/landing/ratehunter-landing/src/lib/*.ts
 !apps/landing/ratehunter-landing/src/lib/*.tsx

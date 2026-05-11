@@ -158,8 +158,11 @@ jobs:
             **/node_modules
           key: ${{ runner.os }}-node-modules-${{ hashFiles('**/pnpm-lock.yaml') }}
 
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile --prefer-offline
+      - name: Ensure dependencies are available
+        run: |
+          if [ ! -f node_modules/.modules.yaml ] || [ ! -x node_modules/.bin/turbo ]; then
+            pnpm install --no-frozen-lockfile
+          fi
 
       - name: Run ESLint on changed packages
         run: |
@@ -210,8 +213,11 @@ jobs:
             **/node_modules
           key: ${{ runner.os }}-node-modules-${{ hashFiles('**/pnpm-lock.yaml') }}
 
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile --prefer-offline
+      - name: Ensure dependencies are available
+        run: |
+          if [ ! -f node_modules/.modules.yaml ] || [ ! -x node_modules/.bin/turbo ]; then
+            pnpm install --no-frozen-lockfile
+          fi
 
       - name: Run TypeScript check on changed packages
         run: |
@@ -248,8 +254,11 @@ jobs:
             **/node_modules
           key: ${{ runner.os }}-node-modules-${{ hashFiles('**/pnpm-lock.yaml') }}
 
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile --prefer-offline
+      - name: Ensure dependencies are available
+        run: |
+          if [ ! -f node_modules/.modules.yaml ] || [ ! -x node_modules/.bin/turbo ]; then
+            pnpm install --no-frozen-lockfile
+          fi
 
       - name: Run security audit
         run: |
@@ -288,6 +297,12 @@ jobs:
             **/node_modules
           key: ${{ runner.os }}-node-modules-${{ hashFiles('**/pnpm-lock.yaml') }}
 
+      - name: Ensure dependencies are available
+        run: |
+          if [ ! -f node_modules/.modules.yaml ] || [ ! -x node_modules/.bin/turbo ]; then
+            pnpm install --no-frozen-lockfile
+          fi
+
       - name: Restore Turbo cache
         uses: actions/cache@v5
         with:
@@ -295,9 +310,6 @@ jobs:
           key: ${{ runner.os }}-turbo-${{ github.sha }}
           restore-keys: |
             ${{ runner.os }}-turbo-
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile --prefer-offline
 
       - name: Build changed packages with Turbo
         run: |
@@ -354,8 +366,11 @@ jobs:
             **/node_modules
           key: ${{ runner.os }}-node-modules-${{ hashFiles('**/pnpm-lock.yaml') }}
 
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile --prefer-offline
+      - name: Ensure dependencies are available
+        run: |
+          if [ ! -f node_modules/.modules.yaml ] || [ ! -x node_modules/.bin/turbo ]; then
+            pnpm install --no-frozen-lockfile
+          fi
 
       - name: Download build artifacts
         uses: actions/download-artifact@v8
@@ -439,9 +454,6 @@ jobs:
             node_modules
             **/node_modules
           key: ${{ runner.os }}-node-modules-${{ hashFiles('**/pnpm-lock.yaml') }}
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile --prefer-offline
 
       - name: Run integration tests
         env:

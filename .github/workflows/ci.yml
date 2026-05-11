@@ -4,16 +4,18 @@ on:
   push:
     branches: [main, develop]
     paths:
-      - "external/pocket-tts/**/*.py"
-      - "external/pocket-tts/pyproject.toml"
-      - "external/pocket-tts/uv.lock"
+      - "**/*.py"
+      - "pyproject.toml"
+      - "uv.lock"
+      - "pytest.ini"
       - ".github/workflows/ci.yml"
   pull_request:
     branches: [main, develop]
     paths:
-      - "external/pocket-tts/**/*.py"
-      - "external/pocket-tts/pyproject.toml"
-      - "external/pocket-tts/uv.lock"
+      - "**/*.py"
+      - "pyproject.toml"
+      - "uv.lock"
+      - "pytest.ini"
       - ".github/workflows/ci.yml"
 
 concurrency:
@@ -22,7 +24,6 @@ concurrency:
 
 env:
   PYTHON_VERSION: "3.11"
-  PYTHON_PROJECT_DIR: "external/pocket-tts"
 
 jobs:
   detect-python-project:
@@ -33,11 +34,11 @@ jobs:
       - uses: actions/checkout@v6
       - id: detect
         run: |
-          if [ -f "${{ env.PYTHON_PROJECT_DIR }}/pyproject.toml" ] && [ -f "${{ env.PYTHON_PROJECT_DIR }}/uv.lock" ]; then
+          if [ -f pyproject.toml ] || [ -f uv.lock ]; then
             echo "enabled=true" >> "$GITHUB_OUTPUT"
           else
             echo "enabled=false" >> "$GITHUB_OUTPUT"
-            echo "::notice::Skipping python CI jobs (${PYTHON_PROJECT_DIR} is missing pyproject.toml or uv.lock)."
+            echo "::notice::Skipping python CI jobs (no root pyproject.toml/uv.lock found)."
           fi
 
   lint:
@@ -56,26 +57,16 @@ jobs:
         run: uv python install ${{ env.PYTHON_VERSION }}
 
       - name: Install dependencies
-        working-directory: ${{ env.PYTHON_PROJECT_DIR }}
-        run: uv sync --python ${{ env.PYTHON_VERSION }} --group dev
-
-      - name: Install CI tooling
-        working-directory: ${{ env.PYTHON_PROJECT_DIR }}
-        run: uv pip install --python .venv/bin/python ruff mypy
+        run: uv sync --group lint
 
       - name: Run ruff (lint)
-        working-directory: ${{ env.PYTHON_PROJECT_DIR }}
-        run: .venv/bin/python -m ruff check pocket_tts tests
+        run: uv run ruff check .
 
       - name: Run ruff (format check)
-        working-directory: ${{ env.PYTHON_PROJECT_DIR }}
-        run: .venv/bin/python -m ruff format --check pocket_tts tests
-        continue-on-error: true
+        run: uv run ruff format --check .
 
       - name: Run mypy
-        working-directory: ${{ env.PYTHON_PROJECT_DIR }}
-        run: .venv/bin/python -m mypy pocket_tts --ignore-missing-imports
-        continue-on-error: true
+        run: uv run mypy src/ --ignore-missing-imports
 
   test:
     runs-on: ubuntu-latest
@@ -97,21 +88,15 @@ jobs:
         run: uv python install ${{ matrix.python-version }}
 
       - name: Install dependencies
-        working-directory: ${{ env.PYTHON_PROJECT_DIR }}
-        run: uv sync --python ${{ matrix.python-version }} --group dev
-
-      - name: Install test tooling
-        working-directory: ${{ env.PYTHON_PROJECT_DIR }}
-        run: uv pip install --python .venv/bin/python pytest-cov
+        run: uv sync --group test
 
       - name: Run tests
-        working-directory: ${{ env.PYTHON_PROJECT_DIR }}
-        run: .venv/bin/python -m pytest -s tests/ -v --cov=pocket_tts --cov-report=xml
+        run: uv run pytest tests/ -v --cov=src --cov-report=xml
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v6
         with:
-          files: ${{ env.PYTHON_PROJECT_DIR }}/coverage.xml
+          files: ./coverage.xml
           flags: unittests
           name: codecov-umbrella
 
@@ -132,18 +117,16 @@ jobs:
         run: uv python install ${{ env.PYTHON_VERSION }}
 
       - name: Install dependencies
-        working-directory: ${{ env.PYTHON_PROJECT_DIR }}
-        run: uv sync --python ${{ env.PYTHON_VERSION }}
+        run: uv sync
 
       - name: Build package
-        working-directory: ${{ env.PYTHON_PROJECT_DIR }}
         run: uv build
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v7
         with:
           name: dist
-          path: ${{ env.PYTHON_PROJECT_DIR }}/dist/
+          path: dist/
 
   security:
     runs-on: ubuntu-latest
@@ -162,26 +145,23 @@ jobs:
         run: uv python install ${{ env.PYTHON_VERSION }}
 
       - name: Install dependencies
-        working-directory: ${{ env.PYTHON_PROJECT_DIR }}
-        run: uv sync --python ${{ env.PYTHON_VERSION }}
+        run: uv sync
 
       - name: Run safety check
-        working-directory: ${{ env.PYTHON_PROJECT_DIR }}
         run: |
           uv add --dev safety
           uv run safety check
         continue-on-error: true
 
       - name: Run bandit security linter
-        working-directory: ${{ env.PYTHON_PROJECT_DIR }}
         run: |
           uv add --dev bandit
-          uv run bandit -r pocket_tts -f json -o bandit-report.json || true
+          uv run bandit -r src/ -f json -o bandit-report.json || true
 
       - name: Upload security reports
         uses: actions/upload-artifact@v7
         with:
           name: security-reports
           path: |
-            ${{ env.PYTHON_PROJECT_DIR }}/bandit-report.json
+            bandit-report.json
         if: always()

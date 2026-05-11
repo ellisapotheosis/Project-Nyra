@@ -1,7 +1,8 @@
-import { Result } from "../domain/result";
-import { LoanApplication } from "../domain/entities/loan-application.entity";
-import { ILeadRepository } from "./create-lead.use-case";
-import { DocumentRequirementsGenerator } from "../domain/services/document-requirements.generator";
+import { Result } from '@/domain/result';
+import { LoanApplication } from '@/domain/entities/loan-application.entity';
+import { DocumentRequirementsGenerator } from '@/domain/services/document-requirements.generator';
+
+import { ILeadRepository } from './create-lead.use-case';
 
 export interface SubmitApplicationDTO {
   leadId: string;

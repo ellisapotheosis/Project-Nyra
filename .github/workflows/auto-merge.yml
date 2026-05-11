@@ -35,7 +35,7 @@ jobs:
       - name: Get PR information
         id: pr-info
         env:
-          GH_TOKEN: ${{ github.token || secrets.AUTOMERGE_PAT || secrets.GH_PAT_WORKFLOWS || secrets.GH_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           if [ "${{ github.event_name }}" == "pull_request" ]; then
             PR_NUMBER="${{ github.event.pull_request.number }}"
@@ -54,7 +54,7 @@ jobs:
           echo "pr-number=$PR_NUMBER" >> $GITHUB_OUTPUT
 
           # Get PR details
-          PR_DATA=$(gh pr view $PR_NUMBER --json labels,mergeable,reviewDecision,statusCheckRollup,headRefName)
+          PR_DATA=$(gh pr view $PR_NUMBER --json labels,mergeable,reviewDecision,headRefName)
 
           echo "labels=$(echo $PR_DATA | jq -c '.labels')" >> $GITHUB_OUTPUT
           echo "mergeable=$(echo $PR_DATA | jq -r '.mergeable')" >> $GITHUB_OUTPUT
@@ -90,7 +90,7 @@ jobs:
           steps.check-auto-merge.outputs.has-auto-merge == 'true' &&
           steps.check-auto-merge.outputs.has-do-not-merge == 'false'
         env:
-          GH_TOKEN: ${{ github.token || secrets.AUTOMERGE_PAT || secrets.GH_PAT_WORKFLOWS || secrets.GH_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           PR_NUMBER="${{ steps.pr-info.outputs.pr-number }}"
           MAX_WAIT=300  # 5 minutes
@@ -102,17 +102,16 @@ jobs:
           echo "Required contexts: $REQUIRED_CONTEXTS"
 
           while [ $ELAPSED -lt $MAX_WAIT ]; do
-            # Get status checks
-            STATUS=$(gh pr view $PR_NUMBER --json statusCheckRollup --jq '.statusCheckRollup')
+            STATUS=$(gh pr checks "$PR_NUMBER" --json name,state,bucket 2>/dev/null || echo '[]')
 
             if [ "$REQUIRED_CONTEXTS" != "[]" ]; then
-              STATUS=$(echo "$STATUS" | jq --argjson required "$REQUIRED_CONTEXTS" '[.[] | select((.context // .name) as $n | $required | index($n))]')
+              STATUS=$(echo "$STATUS" | jq --argjson required "$REQUIRED_CONTEXTS" '[.[] | select(.name as $n | $required | index($n))]')
             fi
 
-            # Count pending, failing, and passing checks
-            PENDING=$(echo $STATUS | jq '[.[] | select(.status == "PENDING" or .status == "IN_PROGRESS")] | length')
-            FAILING=$(echo $STATUS | jq '[.[] | select(.status == "FAILURE" or .status == "ERROR")] | length')
-            PASSING=$(echo $STATUS | jq '[.[] | select(.status == "SUCCESS")] | length')
+            # Count pending, failing, and passing checks using gh pr checks output.
+            PENDING=$(echo "$STATUS" | jq '[.[] | select(.state == "PENDING" or .state == "IN_PROGRESS")] | length')
+            FAILING=$(echo "$STATUS" | jq '[.[] | select(.state == "FAILURE" or .state == "ERROR")] | length')
+            PASSING=$(echo "$STATUS" | jq '[.[] | select(.state == "SUCCESS")] | length')
 
             echo "Checks - Passing: $PASSING, Pending: $PENDING, Failing: $FAILING"
 
@@ -139,7 +138,7 @@ jobs:
           steps.check-auto-merge.outputs.has-auto-merge == 'true' &&
           steps.check-auto-merge.outputs.has-do-not-merge == 'false'
         env:
-          GH_TOKEN: ${{ github.token || secrets.AUTOMERGE_PAT || secrets.GH_PAT_WORKFLOWS || secrets.GH_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           PR_NUMBER="${{ steps.pr-info.outputs.pr-number }}"
           OWNER="${{ github.repository_owner }}"
@@ -203,7 +202,7 @@ jobs:
       - name: Merge Pull Request
         if: steps.merge-check.outputs.can-merge == 'true'
         env:
-          GH_TOKEN: ${{ github.token || secrets.AUTOMERGE_PAT || secrets.GH_PAT_WORKFLOWS || secrets.GH_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           PR_NUMBER="${{ steps.pr-info.outputs.pr-number }}"
 
@@ -220,7 +219,7 @@ jobs:
           steps.check-auto-merge.outputs.has-auto-merge == 'true' &&
           steps.merge-check.outputs.can-merge != 'true'
         env:
-          GH_TOKEN: ${{ github.token || secrets.AUTOMERGE_PAT || secrets.GH_PAT_WORKFLOWS || secrets.GH_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           PR_NUMBER="${{ steps.pr-info.outputs.pr-number }}"
 
@@ -249,13 +248,20 @@ jobs:
     steps:
       - name: Remove old auto-merge comments
         env:
-          GH_TOKEN: ${{ github.token || secrets.AUTOMERGE_PAT || secrets.GH_PAT_WORKFLOWS || secrets.GH_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           PR_NUMBER="${{ github.event.pull_request.number }}"
 
           # Get comments from bot
           COMMENTS=$(gh api "/repos/${{ github.repository }}/issues/$PR_NUMBER/comments" \
-            --jq '[.[] | select(.user.type == "Bot" and (.body | contains("Auto-Merge Status")))] | .[].id')
+            --jq '[.[] | select(.user.type == "Bot" and (.body | contains("Auto-Merge Status")))] | .[].id' \
+            2>/dev/null || true)
+          COMMENTS=$(printf '%s\n' "$COMMENTS" | grep -E '^[0-9]+$' || true)
+
+          if [ -z "$COMMENTS" ]; then
+            echo "No old auto-merge comments to remove or GitHub CLI auth unavailable."
+            exit 0
+          fi
 
           # Delete old comments
           for COMMENT_ID in $COMMENTS; do

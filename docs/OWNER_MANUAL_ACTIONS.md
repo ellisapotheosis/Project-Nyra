@@ -210,6 +210,22 @@ Agents cannot perform your subscription or OAuth sign-ins for:
 - Codex CLI / OpenAI account auth
 - Gemini CLI / Google auth
 
+## GitHub
+
+### Enable GitHub code scanning for CodeQL
+
+The repository currently ships a guarded CodeQL workflow, but GitHub Actions must not try to upload
+CodeQL results until code scanning is enabled in the repository settings. The workflow now skips unless
+repository variable `ENABLE_CODE_SCANNING` is set to `true`.
+
+**Steps:**
+
+1. Open GitHub → repository **Settings** → **Security** / **Code security and analysis**.
+2. Enable **Code scanning** for the repository if it is currently disabled.
+3. Open GitHub → repository **Settings** → **Secrets and variables** → **Actions** → **Variables**.
+4. Add repository variable `ENABLE_CODE_SCANNING` with value `true`.
+5. Re-run the `CodeQL Advanced` workflow after the setting and variable are both in place.
+
 ## Hardware / OS
 
 Agents cannot:

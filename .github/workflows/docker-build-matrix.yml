@@ -68,7 +68,7 @@ jobs:
               if [[ "$dir" == *"infra-archived"* ]]; then continue; fi
               if [ -f "$dir" ]; then
                 app=$(dirname "$dir" | cut -d'/' -f2)
-                MATRIX="${MATRIX}{\"name\":\"${app}\",\"context\":\"apps/${app}\",\"dockerfile\":\"Dockerfile\",\"type\":\"app\"},"
+                MATRIX="${MATRIX}{\"name\":\"${app}\",\"context\":\"apps/${app}\",\"dockerfile\":\"apps/${app}/Dockerfile\",\"type\":\"app\"},"
               fi
             done
           fi
@@ -79,7 +79,17 @@ jobs:
               if [[ "$dir" == *"infra-archived"* ]]; then continue; fi
               if [ -f "$dir" ]; then
                 service=$(dirname "$dir" | cut -d'/' -f2)
-                MATRIX="${MATRIX}{\"name\":\"${service}\",\"context\":\"services/${service}\",\"dockerfile\":\"Dockerfile\",\"type\":\"service\"},"
+                context="services/${service}"
+                dockerfile="Dockerfile"
+
+                case "$service" in
+                  crm-api)
+                    context="."
+                    dockerfile="services/${service}/Dockerfile"
+                    ;;
+                esac
+
+                MATRIX="${MATRIX}{\"name\":\"${service}\",\"context\":\"${context}\",\"dockerfile\":\"${dockerfile}\",\"type\":\"service\"},"
               fi
             done
           fi
