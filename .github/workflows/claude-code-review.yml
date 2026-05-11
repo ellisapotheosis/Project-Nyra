@@ -34,6 +34,7 @@ jobs:
 
       - name: Run Claude Code Review
         id: claude-review
+        continue-on-error: true
         uses: anthropics/claude-code-action@v1
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
@@ -42,3 +43,10 @@ jobs:
           prompt: '/code-review:code-review ${{ github.repository }}/pull/${{ github.event.pull_request.number }}'
           # See https://github.com/anthropics/claude-code-action/blob/main/docs/usage.md
           # or https://code.claude.com/docs/en/cli-reference for available options
+
+      - name: Record non-blocking Claude review failure
+        if: steps.claude-review.outcome != 'success'
+        run: |
+          echo "Claude review could not complete; leaving this check non-blocking." >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "Observed outcome: ${{ steps.claude-review.outcome }}" >> "$GITHUB_STEP_SUMMARY"
