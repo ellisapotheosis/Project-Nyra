@@ -35,7 +35,7 @@ jobs:
       - name: Get PR information
         id: pr-info
         env:
-          GH_TOKEN: ${{ secrets.AUTOMERGE_PAT || secrets.GH_PAT_WORKFLOWS || github.token }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           if [ "${{ github.event_name }}" == "pull_request" ]; then
             PR_NUMBER="${{ github.event.pull_request.number }}"
@@ -90,7 +90,7 @@ jobs:
           steps.check-auto-merge.outputs.has-auto-merge == 'true' &&
           steps.check-auto-merge.outputs.has-do-not-merge == 'false'
         env:
-          GH_TOKEN: ${{ secrets.AUTOMERGE_PAT || secrets.GH_PAT_WORKFLOWS || github.token }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           PR_NUMBER="${{ steps.pr-info.outputs.pr-number }}"
           MAX_WAIT=300  # 5 minutes
@@ -139,7 +139,7 @@ jobs:
           steps.check-auto-merge.outputs.has-auto-merge == 'true' &&
           steps.check-auto-merge.outputs.has-do-not-merge == 'false'
         env:
-          GH_TOKEN: ${{ secrets.AUTOMERGE_PAT || secrets.GH_PAT_WORKFLOWS || github.token }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           PR_NUMBER="${{ steps.pr-info.outputs.pr-number }}"
           OWNER="${{ github.repository_owner }}"
@@ -203,7 +203,7 @@ jobs:
       - name: Merge Pull Request
         if: steps.merge-check.outputs.can-merge == 'true'
         env:
-          GH_TOKEN: ${{ secrets.AUTOMERGE_PAT || secrets.GH_PAT_WORKFLOWS || github.token }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           PR_NUMBER="${{ steps.pr-info.outputs.pr-number }}"
 
@@ -220,7 +220,7 @@ jobs:
           steps.check-auto-merge.outputs.has-auto-merge == 'true' &&
           steps.merge-check.outputs.can-merge != 'true'
         env:
-          GH_TOKEN: ${{ secrets.AUTOMERGE_PAT || secrets.GH_PAT_WORKFLOWS || github.token }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           PR_NUMBER="${{ steps.pr-info.outputs.pr-number }}"
 
@@ -249,7 +249,7 @@ jobs:
     steps:
       - name: Remove old auto-merge comments
         env:
-          GH_TOKEN: ${{ secrets.AUTOMERGE_PAT || secrets.GH_PAT_WORKFLOWS || github.token }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           PR_NUMBER="${{ github.event.pull_request.number }}"
 
@@ -257,6 +257,7 @@ jobs:
           COMMENTS=$(gh api "/repos/${{ github.repository }}/issues/$PR_NUMBER/comments" \
             --jq '[.[] | select(.user.type == "Bot" and (.body | contains("Auto-Merge Status")))] | .[].id' \
             2>/dev/null || true)
+          COMMENTS=$(printf '%s\n' "$COMMENTS" | grep -E '^[0-9]+$' || true)
 
           if [ -z "$COMMENTS" ]; then
             echo "No old auto-merge comments to remove or GitHub CLI auth unavailable."
