@@ -1,0 +1,7 @@
+name: Project Nyra CodeQL
+
+paths-ignore:
+  - docs/archive/**
+  - data/**
+  - external/**
+  - infra/cleanup_archive/**
