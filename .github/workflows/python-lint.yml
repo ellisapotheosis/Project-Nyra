@@ -9,6 +9,16 @@ concurrency:
   group: python-lint-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  PYTHON_LINT_PATHS: >-
+    services
+    infra/ai-reviewer
+    infra/github-sync
+    infra/hosts/worker-rtx3060/embedding-service
+    tests/infra
+  PYTHON_FORMAT_PATHS: >-
+    services/nyra-mcp/server.py
+
 jobs:
   lint:
     runs-on: ubuntu-latest
@@ -27,10 +37,8 @@ jobs:
 
       - name: Run flake8
         run: |
-          mapfile -t python_files < <(find services tests -type f -name '*.py' | sort)
-          flake8 "${python_files[@]}" --count --select=E9,F63,F7,F82 --show-source --statistics
+          flake8 $PYTHON_LINT_PATHS --count --select=E9,F63,F7,F82 --show-source --statistics
 
       - name: Run black (check only)
         run: |
-          mapfile -t python_files < <(find services tests -type f -name '*.py' | sort)
-          black --check "${python_files[@]}" || true
+          black --check $PYTHON_FORMAT_PATHS
