@@ -6,6 +6,7 @@ import {
   describe,
   expect,
   it,
+  test,
   vi,
 } from "vitest";
 
@@ -20,4 +21,5 @@ export {
   expect,
   it,
   jest,
+  test,
 };

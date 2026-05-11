@@ -1,7 +1,8 @@
-import { Result } from "../domain/result";
-import { LoanApplication } from "../domain/entities/loan-application.entity";
+import { Result } from "@/domain/result";
+import { LoanApplication } from "@/domain/entities/loan-application.entity";
+import { DocumentRequirementsGenerator } from "@/domain/services/document-requirements.generator";
+
 import { ILeadRepository } from "./create-lead.use-case";
-import { DocumentRequirementsGenerator } from "../domain/services/document-requirements.generator";
 
 export interface SubmitApplicationDTO {
   leadId: string;
@@ -17,7 +18,9 @@ export interface IApplicationRepository {
 }
 
 export interface IAUSService {
-  run(application: LoanApplication): Promise<{ result: string; recommendation: string }>;
+  run(
+    application: LoanApplication
+  ): Promise<{ result: string; recommendation: string }>;
 }
 
 export class SubmitApplicationUseCase {
@@ -28,10 +31,12 @@ export class SubmitApplicationUseCase {
     private docGenerator: DocumentRequirementsGenerator
   ) {}
 
-  async execute(data: SubmitApplicationDTO): Promise<Result<{ application: LoanApplication }>> {
+  async execute(
+    data: SubmitApplicationDTO
+  ): Promise<Result<{ application: LoanApplication }>> {
     // 1. Verify lead exists and is in correct state (QUALIFIED or PRE_APPROVED)
     // For brevity, we assume lead lookup here.
-    
+
     // 2. Create Application Entity
     const appOrError = LoanApplication.create({
       leadId: data.leadId,
@@ -40,15 +45,20 @@ export class SubmitApplicationUseCase {
       amount: data.amount,
       term: data.term,
       rate: data.rate,
-      productId: data.productId
+      productId: data.productId,
     });
 
     if (appOrError.isFailure) return Result.fail(appOrError.error!);
     const application = appOrError.value;
 
     // 3. Generate Document Requirements
-    const requirements = this.docGenerator.generate(application.loanType, "EMPLOYED");
-    requirements.forEach(req => application.addCondition(`Required Document: ${req.type}`));
+    const requirements = this.docGenerator.generate(
+      application.loanType,
+      "EMPLOYED"
+    );
+    requirements.forEach((req) =>
+      application.addCondition(`Required Document: ${req.type}`)
+    );
 
     // 4. Submit Application
     application.submit();

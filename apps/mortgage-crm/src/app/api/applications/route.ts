@@ -1,9 +1,14 @@
-import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
-import { SubmitApplicationUseCase, IApplicationRepository, IAUSService } from "../../../../application/use-cases/submit-application.use-case";
-import { DocumentRequirementsGenerator } from "../../../../domain/services/document-requirements.generator";
-import { LoanApplication } from "../../../../domain/entities/loan-application.entity";
+import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+
+import {
+  IAUSService,
+  IApplicationRepository,
+  SubmitApplicationUseCase,
+} from "@/application/use-cases/submit-application.use-case";
+import { LoanApplication } from "@/domain/entities/loan-application.entity";
+import { DocumentRequirementsGenerator } from "@/domain/services/document-requirements.generator";
 
 const prisma = new PrismaClient();
 
@@ -26,26 +31,28 @@ class PrismaApplicationRepo implements IApplicationRepository {
           create: application["props"].conditions.map((c: any) => ({
             id: c.id,
             description: c.description,
-            status: c.status
-          }))
+            status: c.status,
+          })),
         },
         milestones: {
           create: application["props"].milestones.map((m: any) => ({
             name: m.name,
             status: m.status,
-            createdAt: m.createdAt
-          }))
-        }
-      }
+            createdAt: m.createdAt,
+          })),
+        },
+      },
     });
   }
 }
 
 class MockAUSService implements IAUSService {
-  async run(application: LoanApplication): Promise<{ result: string; recommendation: string }> {
+  async run(
+    application: LoanApplication
+  ): Promise<{ result: string; recommendation: string }> {
     return {
       result: "Approve",
-      recommendation: "Eligible"
+      recommendation: "Eligible",
     };
   }
 }
@@ -62,11 +69,14 @@ const submitApplicationSchema = z.object({
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    
+
     // Validate input
     const validationResult = submitApplicationSchema.safeParse(body);
     if (!validationResult.success) {
-      return NextResponse.json({ error: validationResult.error.errors }, { status: 400 });
+      return NextResponse.json(
+        { error: validationResult.error.errors },
+        { status: 400 }
+      );
     }
 
     const data = validationResult.data;
@@ -91,15 +101,20 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: result.error }, { status: 400 });
     }
 
-    return NextResponse.json({ 
-      success: true, 
-      applicationId: result.value.application.id,
-      status: result.value.application.status
-    }, { status: 201 });
-
+    return NextResponse.json(
+      {
+        success: true,
+        applicationId: result.value.application.id,
+        status: result.value.application.status,
+      },
+      { status: 201 }
+    );
   } catch (error: any) {
     console.error("Error submitting application:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 }
+    );
   }
 }
 
@@ -112,13 +127,16 @@ export async function GET(req: NextRequest) {
         conditions: true,
         milestones: true,
       },
-      orderBy: { createdAt: 'desc' },
-      take: 50
+      orderBy: { createdAt: "desc" },
+      take: 50,
     });
 
     return NextResponse.json(applications);
   } catch (error: any) {
     console.error("Error fetching applications:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 }
+    );
   }
 }
