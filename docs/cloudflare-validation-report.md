@@ -40,7 +40,7 @@ Runtime validation:
 - `nyra.ratehunter.net`, `nexus.ratehunter.net`, `litellm.ratehunter.net`, `n8n.ratehunter.net`, and `twenty.ratehunter.net` all reach Cloudflare Access.
 - `api.ratehunter.net/auth/v1/health` returns `200`.
 - `hooks.ratehunter.net` returns `200`.
-- `nexus.ratehunter.net` is the Nexus Router endpoint and `nexus-ui.ratehunter.net` is the Nexus UI endpoint. Both should remain Cloudflare Access-gated.
+- `nexus.ratehunter.net` is the Nexus UI endpoint and `nexus-router.ratehunter.net` is the Nexus Router API/MCP endpoint. Both should remain Cloudflare Access-gated; the router endpoint should use service-token protection for agent traffic.
 
 Runtime caveats:
 

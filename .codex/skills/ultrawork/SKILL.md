@@ -8,25 +8,28 @@ Ultrawork is a parallel execution engine for high-throughput task completion. It
 </Purpose>
 
 <Use_When>
+
 - Multiple independent tasks can run simultaneously
 - User says "ulw", "ultrawork", or explicitly wants parallel execution
 - Task benefits from concurrent execution plus lightweight evidence before wrap-up
 - You need a direct-tool lane plus optional background evidence lanes without entering Ralph
-</Use_When>
+  </Use_When>
 
 <Do_Not_Use_When>
+
 - Task requires guaranteed completion with persistence, architect verification, or deslop/reverification -- use `ralph` instead (Ralph includes ultrawork)
 - Task requires a full autonomous pipeline -- use `autopilot` instead (autopilot includes Ralph which includes ultrawork)
 - There is only one sequential task with no parallelism opportunity -- execute directly or delegate to a single `executor`
 - The request is still in plan-consensus mode -- keep planning artifacts in `ralplan` until execution is explicitly authorized
 - User needs session persistence for resume -- use `ralph`, which adds persistence on top of ultrawork
-</Do_Not_Use_When>
+  </Do_Not_Use_When>
 
 <Why_This_Exists>
 Sequential task execution wastes time when tasks are independent. Ultrawork keeps the execution branch fast while tightening the protocol: gather enough context first, define pass/fail acceptance criteria before editing, decide deliberately between local execution and delegation, and finish with evidence rather than vibes.
 </Why_This_Exists>
 
 <Execution_Policy>
+
 - Gather enough context before implementation. Start with the task intent, desired outcome, constraints, likely touchpoints, and any uncertainty that would change the execution path.
 - If uncertainty is still material after a quick repo read, do a focused evidence pass first instead of immediately editing.
 - Define pass/fail acceptance criteria before launching execution lanes. Include the command, artifact, or manual check that will prove success.
@@ -40,7 +43,7 @@ Sequential task execution wastes time when tasks are independent. Ultrawork keep
 - Run quick commands (git status, file reads, simple checks) in the foreground.
 - Apply the shared workflow guidance pattern: outcome-first framing, concise visible updates for speculative/blocked lanes, local overrides for the active workflow branch, evidence-backed validation, explicit stop rules, and continuation of clear safe execution branches instead of restarting or re-asking.
 - If the user says `continue`, continue the active workflow branch rather than restarting discovery or re-asking settled questions.
-</Execution_Policy>
+  </Execution_Policy>
 
 <Steps>
 1. **Read agent reference**: Load `docs/shared/agent-tiers.md` for tier selection.
@@ -70,6 +73,7 @@ Sequential task execution wastes time when tasks are independent. Ultrawork keep
 </Steps>
 
 <Tool_Usage>
+
 - Use LOW-tier delegation for simple lookups and bounded evidence gathering.
 - Use STANDARD-tier delegation for standard implementation and regression work.
 - Use THOROUGH-tier delegation for complex analysis, architectural review, or risky multi-file changes.
@@ -77,20 +81,20 @@ Sequential task execution wastes time when tasks are independent. Ultrawork keep
 - Prefer background evidence lanes when you can learn something useful in parallel with implementation.
 - Use `run_in_background: true` for package installs, builds, and test suites.
 - Use foreground execution for quick status checks and file operations.
-</Tool_Usage>
+  </Tool_Usage>
 
 ## State Management
 
-Use `omx_state` MCP tools for ultrawork lifecycle state.
+Use the CLI-first state surface (`omx state ... --json`) for ultrawork lifecycle state. If explicit MCP compatibility tools are already available, equivalent `omx_state` calls are optional compatibility, not the default.
 
 - **On start**:
-  `state_write({mode: "ultrawork", active: true, reinforcement_count: 1, started_at: "<now>"})`
+  `omx state write --input '{"mode":"ultrawork","active":true,"reinforcement_count":1,"started_at":"<now>"}' --json`
 - **On each reinforcement/loop step**:
-  `state_write({mode: "ultrawork", reinforcement_count: <current>})`
+  `omx state write --input '{"mode":"ultrawork","reinforcement_count":<current>}' --json`
 - **On completion**:
-  `state_write({mode: "ultrawork", active: false})`
+  `omx state write --input '{"mode":"ultrawork","active":false}' --json`
 - **On cancellation/cleanup**:
-  run `$cancel` (which should call `state_clear(mode="ultrawork")`)
+  run `$cancel` (which should call `omx state clear --input '{"mode":"ultrawork"}' --json`)
 
 <Examples>
 <Good>
@@ -102,10 +106,13 @@ Acceptance criteria:
 - Manual QA: verify `$ultrawork` activation message still points to the session state file
 
 Direct-tool lane:
+
 - update `skills/ultrawork/SKILL.md`
 
 Background evidence lane:
-- delegate(role="test-engineer", tier="STANDARD", task="Map which hook tests cover ultrawork activation messaging", model="...")
+
+- use /prompts:test-engineer for this scoped task
+
 ```
 Why good: Context is grounded first, acceptance criteria are explicit, and the direct-tool lane runs alongside a bounded evidence lane.
 </Good>
@@ -113,8 +120,10 @@ Why good: Context is grounded first, acceptance criteria are explicit, and the d
 <Good>
 Correct use of self-vs-delegate judgment:
 ```
+
 Shared-file edit in progress across `src/scripts/codex-native-hook.ts` and its test -> keep implementation local.
 Independent regression mapping for keyword-detector coverage -> delegate to a test-engineer lane.
+
 ```
 Why good: Shared-file work stays local; independent evidence work fans out.
 </Good>
@@ -122,8 +131,10 @@ Why good: Shared-file work stays local; independent evidence work fans out.
 <Bad>
 Parallelizing before the task is grounded:
 ```
-delegate(role="executor", tier="STANDARD", task="Implement whatever seems necessary", model="...")
-delegate(role="test-engineer", tier="STANDARD", task="Figure out how to test it later", model="...")
+
+use /prompts:executor for this scoped task
+use /prompts:test-engineer for this scoped task
+
 ```
 Why bad: No context snapshot, no pass/fail target, and delegation starts before the work is shaped.
 </Bad>
@@ -131,7 +142,9 @@ Why bad: No context snapshot, no pass/fail target, and delegation starts before 
 <Bad>
 Claiming success without evidence or manual QA:
 ```
+
 Made the changes. Ultrawork should be updated now.
+
 ```
 Why bad: No verification output, no acceptance evidence, and no manual QA note when the behavior is user-visible.
 </Bad>
@@ -159,17 +172,20 @@ Why bad: No verification output, no acceptance evidence, and no manual QA note w
 ## Relationship to Other Modes
 
 ```
+
 ralph (persistence + verified completion wrapper)
- \-- includes: ultrawork (this skill)
-     \-- provides: high-throughput execution + lightweight evidence
+\-- includes: ultrawork (this skill)
+\-- provides: high-throughput execution + lightweight evidence
 
 autopilot (autonomous execution)
- \-- includes: ralph
-     \-- includes: ultrawork (this skill)
+\-- includes: ralph
+\-- includes: ultrawork (this skill)
 
 ecomode (token efficiency)
- \-- modifies: ultrawork's model selection
+\-- modifies: ultrawork's model selection
+
 ```
 
 Ultrawork is the parallelism and execution-discipline layer. Ralph adds persistence, architect verification, deslop, and retry-until-done behavior. Autopilot adds the broader autonomous lifecycle pipeline. Ecomode adjusts ultrawork's model routing to favor cheaper models.
 </Advanced>
+```

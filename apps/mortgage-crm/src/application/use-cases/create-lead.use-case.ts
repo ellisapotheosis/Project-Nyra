@@ -1,7 +1,7 @@
-import { LeadStatus } from '@prisma/client';
+import { LeadStatus } from "@prisma/client";
 
-import { Lead } from '@/domain/entities/lead.entity';
-import { Result } from '@/domain/result';
+import { Lead } from "@/domain/entities/lead.entity";
+import { Result } from "@/domain/result";
 
 export interface CreateLeadDTO {
   source: string;

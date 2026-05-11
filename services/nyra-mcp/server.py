@@ -4,8 +4,10 @@ from typing import Any, Optional
 import httpx
 from mcp.server.fastmcp import FastMCP
 
-# Initialize FastMCP
-mcp = FastMCP("nyra-mcp")
+NYRA_MCP_PORT = int(os.getenv("NYRA_MCP_PORT", "3333"))
+
+# Initialize FastMCP. Host/port are constructor settings in current mcp.
+mcp = FastMCP("nyra-mcp", host="0.0.0.0", port=NYRA_MCP_PORT)
 
 ALLOWLIST = [s.strip() for s in os.getenv("NYRA_HTTP_ALLOWLIST", "").split(",") if s.strip()]
 TWENTY_SERVER_URL = os.getenv("TWENTY_SERVER_URL", "http://twenty-server:3000").rstrip("/")
@@ -51,6 +53,4 @@ async def activepieces_trigger(webhook_path: str, payload: dict) -> dict:
         return {"ok": resp.is_success, "status": resp.status_code, "text": resp.text[:200000]}
 
 if __name__ == "__main__":
-    # Use standard run which handles transport based on arguments or defaults
-    port = int(os.getenv("NYRA_MCP_PORT", "3333"))
-    mcp.run(transport="sse", host="0.0.0.0", port=port)
+    mcp.run(transport="sse")

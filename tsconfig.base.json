@@ -49,6 +49,10 @@
       "@app/*": ["./apps/*"],
       "@services/*": ["./services/*"],
       "@packages/*": ["./packages/*"],
+      "@nyra/domain-models": ["./packages/domain-models/src/index.ts"],
+      "@nyra/integration-adapters": [
+        "./packages/integration-adapters/src/index.ts"
+      ],
       "@nyra/crm-client": ["./packages/crm-client/src/index.ts"]
     }
   },

@@ -16,6 +16,9 @@ export interface TestMemorySystem {
   retrieve: (key: string) => Promise<any>;
   search: (query: string, k?: number) => Promise<any[]>;
   clear: () => Promise<void>;
+  addNode?: (node: any) => Promise<void>;
+  addEdge?: (edge: any) => Promise<void>;
+  query?: (query: string) => Promise<any[]>;
 }
 
 export interface TestLettaMemorySystem extends TestMemorySystem {
@@ -63,6 +66,8 @@ export const createMockRuVector = (): TestMemorySystem => {
 
 export const createMockLetta = (): TestMemorySystem => {
   const agentMemories = new Map<string, any[]>();
+  const graphNodes = new Map<string, any>();
+  const graphEdges: any[] = [];
 
   return {
     store: vi.fn().mockImplementation(async (agentId: string, memory: any) => {
@@ -89,6 +94,17 @@ export const createMockLetta = (): TestMemorySystem => {
     }),
     clear: vi.fn().mockImplementation(async () => {
       agentMemories.clear();
+      graphNodes.clear();
+      graphEdges.splice(0, graphEdges.length);
+    }),
+    addNode: vi.fn().mockImplementation(async (node: any) => {
+      graphNodes.set(node.id, node);
+    }),
+    addEdge: vi.fn().mockImplementation(async (edge: any) => {
+      graphEdges.push(edge);
+    }),
+    query: vi.fn().mockImplementation(async () => {
+      return Array.from(graphNodes.values()).slice(0, 10);
     }),
   };
 };

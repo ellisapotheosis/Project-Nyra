@@ -14,17 +14,19 @@ If `$code-review` is not clean, Autopilot returns to `$ralplan` with the review 
 </Purpose>
 
 <Use_When>
+
 - User wants hands-off execution from a concrete idea, issue, PRD, or requirements artifact to reviewed code
 - User says `$autopilot`, "autopilot", "auto pilot", "autonomous", "build me", "create me", "make me", "full auto", "handle it all", or "I want a/an..."
 - Task needs planning, implementation, verification, and code review with automatic follow-up when review is not clean
-</Use_When>
+  </Use_When>
 
 <Do_Not_Use_When>
+
 - User wants to explore options or brainstorm -- use `$plan` / `$ralplan`
 - User says "just explain", "draft only", or "what would you suggest" -- respond conversationally
 - User wants a single focused code change -- use `$ralph` or direct executor work
 - User wants only review/critique of existing code -- use `$code-review`
-</Do_Not_Use_When>
+  </Do_Not_Use_When>
 
 <Strict_Loop_Contract>
 Autopilot must not run a separate broad expansion/planning/execution/QA/validation lifecycle as its primary behavior. It delegates those concerns to the three canonical workflow phases below:
@@ -65,6 +67,7 @@ Before Phase `ralplan` starts or resumes:
 </Pre-context Intake>
 
 <Execution_Policy>
+
 - Always execute phases in order: `ralplan`, then `ralph`, then `code-review`.
 - Never skip directly from vague/freeform expansion to implementation; unclear input must be clarified or planned through `$ralplan`.
 - A non-clean `$code-review` always returns to `$ralplan`; do not patch findings ad hoc outside the loop.
@@ -72,10 +75,10 @@ Before Phase `ralplan` starts or resumes:
 - Use existing hooks, `.omx/state`, `$ralplan`, `$ralph`, `$code-review`, and pipeline primitives; do not invent a separate execution framework.
 - Continue automatically through safe reversible phase transitions. Ask only for destructive, credential-gated, or materially preference-dependent branches.
 - Apply the shared workflow guidance pattern: outcome-first framing, concise visible updates for multi-step execution, local overrides for the active workflow branch, validation proportional to risk, explicit stop rules, and automatic continuation for safe reversible steps. Ask only for material, destructive, credentialed, external-production, or preference-dependent branches.
-</Execution_Policy>
+  </Execution_Policy>
 
 <State_Management>
-Use `omx_state` MCP tools (or `omx state ... --json` fallback if MCP transport is unavailable) for Autopilot lifecycle state. State must be session-aware when a session id exists.
+Use the CLI-first state surface (`omx state ... --json`) for Autopilot lifecycle state. State must be session-aware when a session id exists. If the explicit MCP compatibility surface is already available, equivalent `omx_state` tool calls remain acceptable but are not required.
 
 Required fields:
 
@@ -99,16 +102,17 @@ Required fields:
 }
 ```
 
-- **On start**: `state_write({mode:"autopilot", active:true, current_phase:"ralplan", iteration:1, review_cycle:0, state:{phase_cycle:["ralplan","ralph","code-review"], handoff_artifacts:{context_snapshot_path, ralplan:null, ralph:null, code_review:null}, review_verdict:null, return_to_ralplan_reason:null}})`
+- **On start**: `omx state write --input '{"mode":"autopilot","active":true,"current_phase":"ralplan","iteration":1,"review_cycle":0,"state":{"phase_cycle":["ralplan","ralph","code-review"],"handoff_artifacts":{"context_snapshot_path":"<snapshot-path>","ralplan":null,"ralph":null,"code_review":null},"review_verdict":null,"return_to_ralplan_reason":null}}' --json`
 - **On ralplan -> ralph**: set `current_phase:"ralph"`, persist the plan/test-spec paths under `handoff_artifacts.ralplan`.
 - **On ralph -> code-review**: set `current_phase:"code-review"`, persist implementation/test evidence under `handoff_artifacts.ralph`.
 - **On clean review**: set `active:false`, `current_phase:"complete"`, persist `review_verdict:{recommendation:"APPROVE", architectural_status:"CLEAR", clean:true}` and `completed_at`.
 - **On non-clean review**: increment `iteration` and `review_cycle`, set `current_phase:"ralplan"`, persist `review_verdict:{..., clean:false}`, persist `handoff_artifacts.code_review`, and set `return_to_ralplan_reason` to a concise review-driven reason.
 - **On cancellation**: run `$cancel`; preserve progress for resume rather than deleting handoff artifacts.
-</State_Management>
+  </State_Management>
 
 <Continuation_And_Resume>
 When the user says `continue`, `resume`, or `keep going` while Autopilot is active, read `autopilot-state.json` and continue from `current_phase`:
+
 - `ralplan`: run/update consensus planning from current handoffs and any `return_to_ralplan_reason`.
 - `ralph`: execute the approved plan and record verification evidence.
 - `code-review`: review the current diff and decide clean vs return-to-ralplan.
@@ -128,13 +132,15 @@ Pipeline state should use `current_phase` values that match the same phase names
 </Pipeline_Orchestrator>
 
 <Escalation_And_Stop_Conditions>
+
 - Stop and report a blocker when required credentials/authority are missing.
 - Stop and report when the same review or verification failure recurs across 3 review cycles with no meaningful new plan.
 - Stop when the user says "stop", "cancel", or "abort" and run `$cancel`.
 - Otherwise, continue the loop until `$code-review` is clean.
-</Escalation_And_Stop_Conditions>
+  </Escalation_And_Stop_Conditions>
 
 <Final_Checklist>
+
 - [ ] Phase `ralplan` produced/updated approved planning artifacts
 - [ ] Phase `ralph` implemented and verified the plan with fresh evidence
 - [ ] Phase `code-review` returned a clean verdict (`APPROVE` + `CLEAR`)
@@ -142,7 +148,7 @@ Pipeline state should use `current_phase` values that match the same phase names
 - [ ] Tests/build/lint/typecheck evidence from Ralph is available in handoff artifacts
 - [ ] Autopilot state is marked `complete` or cancellation state is preserved coherently
 - [ ] User receives a concise summary with plan, implementation, verification, and review evidence
-</Final_Checklist>
+      </Final_Checklist>
 
 <Examples>
 <Good>
