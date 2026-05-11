@@ -67,8 +67,9 @@ jobs:
             for dir in apps/*/Dockerfile; do
               if [[ "$dir" == *"infra-archived"* ]]; then continue; fi
               if [ -f "$dir" ]; then
-                app=$(dirname "$dir" | cut -d'/' -f2)
-                MATRIX="${MATRIX}{\"name\":\"${app}\",\"context\":\"apps/${app}\",\"dockerfile\":\"apps/${app}/Dockerfile\",\"type\":\"app\"},"
+                app_dir=$(dirname "$dir")
+                app=$(basename "$app_dir")
+                MATRIX="${MATRIX}{\"name\":\"${app}\",\"context\":\"${app_dir}\",\"dockerfile\":\"Dockerfile\",\"type\":\"app\"},"
               fi
             done
           fi

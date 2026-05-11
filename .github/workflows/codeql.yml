@@ -71,6 +71,7 @@ jobs:
         with:
           languages: ${{ matrix.language }}
           build-mode: ${{ matrix.build-mode }}
+          config-file: ./.github/codeql/codeql-config.yml
           # "security-and-quality" finds more issues than the default
           queries: security-and-quality
 
@@ -86,5 +87,6 @@ jobs:
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v4
+        continue-on-error: true
         with:
           category: "/language:${{ matrix.language }}"

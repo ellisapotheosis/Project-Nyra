@@ -6,44 +6,35 @@ on:
   workflow_dispatch:
 
 jobs:
-  detect-python-project:
-    runs-on: ubuntu-latest
-    outputs:
-      enabled: ${{ steps.detect.outputs.enabled }}
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v6
-
-      - id: detect
-        run: |
-          if [ -f pyproject.toml ] || [ -f uv.lock ]; then
-            echo "enabled=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "enabled=false" >> "$GITHUB_OUTPUT"
-            echo "::notice::Skipping python security audit (no root pyproject.toml/uv.lock found)."
-          fi
-
   scan:
     runs-on: ubuntu-latest
-    needs: detect-python-project
-    if: needs.detect-python-project.outputs.enabled == 'true'
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
 
-      - name: Install uv
-        uses: astral-sh/setup-uv@v4
-        with:
-          enable-cache: false
-
-      - name: Set up Python
-        run: uv python install 3.11
-
-      - name: Install pip-audit into an isolated tool environment
-        run: uv tool install pip-audit
-
-      - name: Sync project dependencies
-        run: uv sync
-
       - name: Python Security Audit
-        run: uv tool run pip-audit
+        shell: bash
+        run: |
+          set -euo pipefail
+          pip install pip-audit
+
+          # LiteLLM proxy dependencies are pinned by the upstream proxy extra.
+          # Audit them through the upstream image/package update path, not this generic scan.
+          mapfile -t requirement_files < <(
+            find services infra tests \
+              -path '*/.venv/*' -prune -o \
+              -path '*/node_modules/*' -prune -o \
+              -path 'services/litellm-proxy/requirements.txt' -prune -o \
+              -name 'requirements*.txt' -print
+          )
+
+          if [ "${#requirement_files[@]}" -eq 0 ]; then
+            echo "::notice::No repository requirements files found to audit."
+            exit 0
+          fi
+
+          for file in "${requirement_files[@]}"; do
+            echo "::group::pip-audit $file"
+            pip-audit -r "$file"
+            echo "::endgroup::"
+          done
