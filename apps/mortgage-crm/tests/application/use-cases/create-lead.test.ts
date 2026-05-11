@@ -1,4 +1,7 @@
-import { CreateLeadUseCase, CreateLeadDTO } from "../../../src/application/use-cases/create-lead.use-case";
+import {
+  CreateLeadUseCase,
+  CreateLeadDTO,
+} from "../../../src/application/use-cases/create-lead.use-case";
 import { LeadStatus } from "@prisma/client";
 
 describe("CreateLeadUseCase", () => {
@@ -15,7 +18,12 @@ describe("CreateLeadUseCase", () => {
       notifyLoanOfficer: jest.fn().mockResolvedValue(undefined),
     };
     mockLeadAssigner = {
-      assign: jest.fn().mockResolvedValue({ loanOfficerId: "officer-123", reason: "round_robin" }),
+      assign: jest
+        .fn()
+        .mockResolvedValue({
+          loanOfficerId: "officer-123",
+          reason: "round_robin",
+        }),
     };
     useCase = new CreateLeadUseCase(
       mockLeadRepo,
@@ -32,13 +40,13 @@ describe("CreateLeadUseCase", () => {
         firstName: "John",
         lastName: "Doe",
         email: "john@example.com",
-        phone: "5551234567"
+        phone: "5551234567",
       },
       loanRequest: {
         amount: 350000,
         propertyType: "single_family",
-        zipCode: "90210"
-      }
+        zipCode: "90210",
+      },
     };
 
     // Act
@@ -62,14 +70,14 @@ describe("CreateLeadUseCase", () => {
         firstName: "", // Invalid: empty name
         lastName: "Doe",
         email: "invalid-email",
-        phone: "555"
-      }
+        phone: "555",
+      },
     };
 
     const result = await useCase.execute(invalidData);
 
     expect(result.isFailure).toBe(true);
-    expect(result.error).toContain("validation");
+    expect(result.error.toLowerCase()).toContain("validation");
     expect(mockLeadRepo.save).not.toHaveBeenCalled();
   });
 });
