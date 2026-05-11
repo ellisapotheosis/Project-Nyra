@@ -5,7 +5,7 @@
 # Connected via Tailscale mesh to orchestrator
 # ============================================================================
 
-version: '3.8'
+version: "3.8"
 
 services:
   # ── Infisical secrets init (runs once, writes files to /run/nyra-secrets/) ─
@@ -93,12 +93,12 @@ services:
       - LMCACHE_LOCAL_DEVICE=cuda
       - LMCACHE_MAX_LOCAL_CACHE_SIZE=12G
     command: >
-      --model Qwen/Qwen2.5-Coder-32B-Instruct
+      --model Qwen/Qwen2.5-Coder-3B-Instruct
       --host 0.0.0.0
       --port 8000
       --tensor-parallel-size 1
-      --gpu-memory-utilization 0.92
-      --max-model-len 32768
+      --gpu-memory-utilization 0.70
+      --max-model-len 8192
       --enable-prefix-caching
       --enable-chunked-prefill
       --trust-remote-code
@@ -178,7 +178,7 @@ services:
   # GPU Metrics Exporter
   # ============================================================================
   gpu-exporter:
-    image: haytao/nvidia-gpu-exporter:latest
+    image: utkuozdemir/nvidia_gpu_exporter:1.4.1
     container_name: worker-5090-gpu-exporter
     hostname: worker-5090-gpu-exporter
     restart: unless-stopped
@@ -208,10 +208,10 @@ services:
     ports:
       - "${NODE_EXPORTER_PORT:-9100}:9100"
     command:
-      - '--path.procfs=/host/proc'
-      - '--path.sysfs=/host/sys'
-      - '--path.rootfs=/rootfs'
-      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+      - "--path.procfs=/host/proc"
+      - "--path.sysfs=/host/sys"
+      - "--path.rootfs=/rootfs"
+      - "--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)"
     volumes:
       - /proc:/host/proc:ro
       - /sys:/host/sys:ro

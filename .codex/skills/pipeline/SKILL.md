@@ -20,11 +20,11 @@ RALPLAN (consensus planning) -> team-exec (Codex CLI workers) -> ralph-verify (a
 
 Pipeline parameters are configurable per run:
 
-| Parameter | Default | Description |
-|-----------|---------|-------------|
-| `maxRalphIterations` | 10 | Ralph verification iteration ceiling |
-| `workerCount` | 2 | Number of Codex CLI team workers |
-| `agentType` | `executor` | Agent type for team workers |
+| Parameter            | Default    | Description                          |
+| -------------------- | ---------- | ------------------------------------ |
+| `maxRalphIterations` | 10         | Ralph verification iteration ceiling |
+| `workerCount`        | 2          | Number of Codex CLI team workers     |
+| `agentType`          | `executor` | Agent type for team workers          |
 
 ## Stage Interface
 
@@ -52,9 +52,9 @@ return a `StageResult` with status, artifacts, and duration.
 Pipeline state persists via the ModeState system at `.omx/state/pipeline-state.json`.
 The HUD renders pipeline phase automatically. Resume is supported from the last incomplete stage.
 
-- **On start**: `state_write({mode: "pipeline", active: true, current_phase: "stage:ralplan"})`
-- **On stage transitions**: `state_write({mode: "pipeline", current_phase: "stage:<name>"})`
-- **On completion**: `state_write({mode: "pipeline", active: false, current_phase: "complete"})`
+- **On start**: `omx state write --input '{"mode":"pipeline","active":true,"current_phase":"stage:ralplan"}' --json`
+- **On stage transitions**: `omx state write --input '{"mode":"pipeline","current_phase":"stage:<name>"}' --json`
+- **On completion**: `omx state write --input '{"mode":"pipeline","active":false,"current_phase":"complete"}' --json`
 
 ## API
 
@@ -65,12 +65,12 @@ import {
   createRalplanStage,
   createTeamExecStage,
   createRalphVerifyStage,
-} from './pipeline/index.js';
+} from "./pipeline/index.js";
 
-const config = createAutopilotPipelineConfig('build feature X', {
+const config = createAutopilotPipelineConfig("build feature X", {
   stages: [
     createRalplanStage(),
-    createTeamExecStage({ workerCount: 3, agentType: 'executor' }),
+    createTeamExecStage({ workerCount: 3, agentType: "executor" }),
     createRalphVerifyStage({ maxIterations: 15 }),
   ],
 });

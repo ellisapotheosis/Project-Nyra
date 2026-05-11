@@ -1,7 +1,7 @@
 # oh-my-codex top-level settings (must be before any [table])
-notify = ["node", "/home/ellisapotheosis/.local/share/fnm/node-versions/v22.22.1/installation/lib/node_modules/oh-my-codex/dist/scripts/notify-hook.js"]
 model_reasoning_effort = "medium"
 developer_instructions = "You have oh-my-codex installed. AGENTS.md is the orchestration brain and main control surface. Follow AGENTS.md for skill/keyword routing, $name workflow invocation, and role-specialized subagents. Use outcome-first, concise progress updates: state the target result, constraints, validation evidence, and stop condition before adding process detail. Native subagents live in .codex/agents and may handle independent parallel subtasks within one Codex session or team pane. Skills load from .codex/skills, not native-agent TOMLs. Treat installed prompts as narrower execution surfaces under AGENTS.md authority."
+
 # oh-my-codex seeded behavioral defaults (uninstall removes unchanged defaults)
 model_context_window = 250000
 model_auto_compact_token_limit = 200000
@@ -219,72 +219,38 @@ status_line = [
 max_threads = 6
 max_depth = 2
 
+# MemPalace MCP Server
+[mcp_servers.mempalace]
+command = "mempalace-mcp"
+
 # ============================================================
 # oh-my-codex (OMX) Configuration
 # Managed by omx setup - manual edits preserved on next setup
 # ============================================================
 
-# OMX State Management MCP Server
-[mcp_servers.omx_state]
-command = "node"
-args = ["/home/ellisapotheosis/.local/share/fnm/node-versions/v22.22.1/installation/lib/node_modules/oh-my-codex/dist/mcp/state-server.js"]
-enabled = true
-startup_timeout_sec = 5
-
-# OMX Project Memory MCP Server
-[mcp_servers.omx_memory]
-command = "node"
-args = ["/home/ellisapotheosis/.local/share/fnm/node-versions/v22.22.1/installation/lib/node_modules/oh-my-codex/dist/mcp/memory-server.js"]
-enabled = true
-startup_timeout_sec = 5
-
-# OMX Code Intelligence MCP Server (LSP diagnostics, AST search)
-[mcp_servers.omx_code_intel]
-command = "node"
-args = ["/home/ellisapotheosis/.local/share/fnm/node-versions/v22.22.1/installation/lib/node_modules/oh-my-codex/dist/mcp/code-intel-server.js"]
-enabled = true
-startup_timeout_sec = 10
-
-# OMX Trace MCP Server (agent flow timeline & statistics)
-[mcp_servers.omx_trace]
-command = "node"
-args = ["/home/ellisapotheosis/.local/share/fnm/node-versions/v22.22.1/installation/lib/node_modules/oh-my-codex/dist/mcp/trace-server.js"]
-enabled = true
-startup_timeout_sec = 5
-
-# OMX Wiki MCP Server (persistent project knowledge base)
-[mcp_servers.omx_wiki]
-command = "node"
-args = ["/home/ellisapotheosis/.local/share/fnm/node-versions/v22.22.1/installation/lib/node_modules/oh-my-codex/dist/mcp/wiki-server.js"]
-enabled = true
-startup_timeout_sec = 5
-
 # OMX-owned Codex hook trust state
 # Trusts only setup-managed codex-native-hook.js wrappers.
 [hooks.state."/home/ellisapotheosis/repos/project-nyra/.codex/hooks.json:post_compact:0:0"]
-trusted_hash = "sha256:1c1bc5c659b86164c6cec5eb62ed148c1ec61e1aabbe0f01ba9ca40468fbd758"
+trusted_hash = "sha256:3e5a76d237fda2fe338f7426f4f249177e29c371358a6978b8b7790568697750"
 
 [hooks.state."/home/ellisapotheosis/repos/project-nyra/.codex/hooks.json:post_tool_use:0:0"]
-trusted_hash = "sha256:c09f383d4b09ceddaccb52d5495c9f22125306e14e2b15445cc6ad0e12b1793b"
+trusted_hash = "sha256:c9a3a9c7c901d4f8ff65a7f77d97e7edbe880f83bdec1bc4087fa888e855b0b3"
 
 [hooks.state."/home/ellisapotheosis/repos/project-nyra/.codex/hooks.json:pre_compact:0:0"]
-trusted_hash = "sha256:dc7864b37e1e8274b95723589ff189aa455c130d0c5ae8c6b1f776a0d863aff9"
+trusted_hash = "sha256:c4b58c2c078208c61ec06ed1431a5569e3261495021b1651b9f15b22ddc37c18"
 
 [hooks.state."/home/ellisapotheosis/repos/project-nyra/.codex/hooks.json:pre_tool_use:0:0"]
-trusted_hash = "sha256:10f08cd8188d19aecdd6a32ca87335f19aee67dd8da5cd5256fcf9559c4c40bf"
+trusted_hash = "sha256:5588e2b87f53fca25d57291e065e7dee2fe1f33a408aee242bbcd2037b26e3ba"
 
 [hooks.state."/home/ellisapotheosis/repos/project-nyra/.codex/hooks.json:session_start:0:0"]
-trusted_hash = "sha256:c97947b6200a9750987a932008121b8b01953031c2a69db83ffa1c94475919d2"
+trusted_hash = "sha256:3dde2b20a1b4f76bc447d70c133641c11d9351432771b0a7b31733313049aecc"
 
 [hooks.state."/home/ellisapotheosis/repos/project-nyra/.codex/hooks.json:stop:0:0"]
-trusted_hash = "sha256:db3fcc03f0724b7a38b149e64b75bdf96003e02f81b5ceef235160316d0c82cb"
+trusted_hash = "sha256:4e805f10225cb7faab67f37759abc57f05d1d01a198d8982c573669eef83dc5b"
 
 [hooks.state."/home/ellisapotheosis/repos/project-nyra/.codex/hooks.json:user_prompt_submit:0:0"]
-trusted_hash = "sha256:238965b70559be16ad87ac7a36b84e69d1760b4e1c4fb06c191789f6aed4bfe3"
+trusted_hash = "sha256:648e7f94e649c1ea77931fd48851cee6ee68c85659d6078580b9eaaf7a4b1293"
 # End OMX-owned Codex hook trust state
 
 # ============================================================
 # End oh-my-codex
-# MemPalace MCP Server
-[mcp_servers.mempalace]
-command = "mempalace-mcp"

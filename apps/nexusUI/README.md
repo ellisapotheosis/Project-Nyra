@@ -2,7 +2,7 @@
 
 Operator UI for the Project Nyra control plane. This app manages desired Nexus Router settings, MCP tool visibility, tool groups, fuzzy tool discovery, smart routing intent, and LiteLLM integration from a dedicated Next.js surface.
 
-This belongs in `apps/nexusUI`, not inside `apps/webapp`, because it is an admin/control-plane console. Deploy it on the separate Access-gated subdomain `nexus-ui.ratehunter.net`, then link to it from the broker webapp. The raw Nexus Router endpoint is `nexus.ratehunter.net`.
+This belongs in `apps/nexusUI`, not inside `apps/webapp`, because it is an admin/control-plane console. The current Cloudflare desired/applied state exposes the UI at the Access-gated subdomain `nexus.ratehunter.net`, then links to it from the broker webapp. The raw Nexus Router API/MCP endpoint is `nexus-router.ratehunter.net`.
 
 Current runtime placement: Grafbase Nexus and LiteLLM live on `oracle-vps` in `infra/hosts/oracle-vps/docker-compose.yml`. The orchestrator may run a CPU BitNet test service, but it should not become the canonical Nexus/LiteLLM host unless the architecture docs and host compose ownership are deliberately changed.
 
@@ -80,9 +80,9 @@ Recommended:
 
 1. Run this app as a standalone Next.js service on `oracle-vps` or another explicitly chosen admin host.
 2. Point `NEXUS_BASE_URL` and `LITELLM_BASE_URL` at Oracle-local Nexus/LiteLLM.
-3. Expose the UI through a Cloudflared tunnel as `nexus-ui.ratehunter.net`.
+3. Expose the UI through a Cloudflared tunnel as `nexus.ratehunter.net`.
 4. Put Cloudflare Access in front of the hostname.
-5. Link from `apps/webapp` with `NEXT_PUBLIC_NEXUS_UI_URL=https://nexus-ui.ratehunter.net`.
+5. Link from `apps/webapp` with `NEXT_PUBLIC_NEXUS_UI_URL=https://nexus.ratehunter.net`.
 
 Do not expose worker vLLM, Ollama, Postgres, Redis, FalkorDB, or raw unauthenticated MCP internals.
 

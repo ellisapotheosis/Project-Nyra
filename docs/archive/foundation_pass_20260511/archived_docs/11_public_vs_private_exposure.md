@@ -8,37 +8,37 @@ Public ingress should flow through Cloudflared only. Operator and internal app s
 
 ## Public unauthenticated
 
-| Surface | Preferred origin | Notes |
-|---|---|---|
-| `ratehunter.net` | Cloudflare Pages | Marketing landing only |
+| Surface              | Preferred origin | Notes                   |
+| -------------------- | ---------------- | ----------------------- |
+| `ratehunter.net`     | Cloudflare Pages | Marketing landing only  |
 | `www.ratehunter.net` | Cloudflare Pages | Marketing landing alias |
 
 ## Access-gated HTTP surfaces
 
 `docs/cloudflared/hostname-matrix.md` is the current consolidated hostname checklist. Primary candidate hostnames:
 
-| Hostname | Origin service |
-|---|---|
-| `nyra.ratehunter.net` | `webapp:3001` |
-| `crm.ratehunter.net` | `twenty:3000` |
-| `n8n.ratehunter.net` | `n8n:5678` |
-| `activepieces.ratehunter.net` | `activepieces:80` |
-| `nexus.ratehunter.net` | `nexus:3000` |
-| `gitea.ratehunter.net` | `gitea:3000` |
-| `grafana.ratehunter.net` | `grafana:3000` |
-| `prometheus.ratehunter.net` | `prometheus:9090` |
-| `loki.ratehunter.net` | `loki:3100` |
-| `cadvisor.ratehunter.net` | `cadvisor:8080` |
-| `openwebui.ratehunter.net` | `openwebui:8080` |
-| `openmemory.ratehunter.net` | `openmemory-mcp:8765` |
-| `letta.ratehunter.net` | `letta:8283` |
-| `paperclip.ratehunter.net` | `paperclip:3100` |
-| `clawteam.ratehunter.net` | `clawteam:8080` |
+| Hostname                      | Origin service        |
+| ----------------------------- | --------------------- |
+| `nyra.ratehunter.net`         | `webapp:3001`         |
+| `crm.ratehunter.net`          | `twenty:3000`         |
+| `n8n.ratehunter.net`          | `n8n:5678`            |
+| `activepieces.ratehunter.net` | `activepieces:80`     |
+| `nexus.ratehunter.net`        | `nexus:3000`          |
+| `gitea.ratehunter.net`        | `gitea:3000`          |
+| `grafana.ratehunter.net`      | `grafana:3000`        |
+| `prometheus.ratehunter.net`   | `prometheus:9090`     |
+| `loki.ratehunter.net`         | `loki:3100`           |
+| `cadvisor.ratehunter.net`     | `cadvisor:8080`       |
+| `openwebui.ratehunter.net`    | `openwebui:8080`      |
+| `openmemory.ratehunter.net`   | `openmemory-mcp:8765` |
+| `letta.ratehunter.net`        | `letta:8283`          |
+| `paperclip.ratehunter.net`    | `paperclip:3100`      |
+| `clawteam.ratehunter.net`     | `clawteam:8080`       |
 
 ## Restricted non-HTTP
 
-| Hostname | Origin service | Rule |
-|---|---|---|
+| Hostname                 | Origin service          | Rule                                                                    |
+| ------------------------ | ----------------------- | ----------------------------------------------------------------------- |
 | `git-ssh.ratehunter.net` | `ssh://nyra-gitea:2222` | Use only with Cloudflare Access SSH clients and explicit owner approval |
 
 ## Private-only

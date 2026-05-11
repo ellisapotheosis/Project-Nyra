@@ -10,6 +10,7 @@ Conduct a thorough code review for quality, security, and maintainability with s
 ## When to Use
 
 This skill activates when:
+
 - User requests "review this code", "code review"
 - Before merging a pull request
 - After implementing a major feature
@@ -123,27 +124,29 @@ Run both lanes in parallel, then synthesize them with the deterministic rules ab
 The code-reviewer agent SHOULD consult Codex for cross-validation.
 
 ### Protocol
+
 1. **Form your OWN review FIRST** - Complete the review independently
 2. **Consult for validation** - Cross-check findings with Codex
 3. **Critically evaluate** - Never blindly adopt external findings
 4. **Graceful fallback** - Never block if tools unavailable
 
 ### When to Consult
+
 - Security-sensitive code changes
 - Complex architectural patterns
 - Unfamiliar codebases or languages
 - High-stakes production code
 
 ### When to Skip
+
 - Simple refactoring
 - Well-understood patterns
 - Time-critical reviews
 - Small, isolated changes
 
 ### Tool Usage
-Before first MCP tool use, call `ToolSearch("mcp")` to discover deferred MCP tools.
-Use `mcp__x__ask_codex` with `agent_role: "code-reviewer"`.
-If ToolSearch finds no MCP tools, fall back to the `code-reviewer` agent.
+
+Prefer native `code-reviewer` agent consultation or CLI-backed `ask_codex` surfaces when available. Optional MCP compatibility ask tools may be used only when already enabled. If consultation tools are unavailable, fall back to the `code-reviewer` agent.
 
 **Note:** Codex calls can take up to 1 hour. Consider the review timeline before consulting.
 
@@ -209,6 +212,7 @@ Address any WATCH concerns before treating the change as merge-ready.
 The `code-reviewer` lane checks:
 
 ### Security
+
 - [ ] No hardcoded secrets (API keys, passwords, tokens)
 - [ ] All user inputs sanitized
 - [ ] SQL/NoSQL injection prevention
@@ -217,6 +221,7 @@ The `code-reviewer` lane checks:
 - [ ] Authentication/authorization properly enforced
 
 ### Code Quality
+
 - [ ] Functions < 50 lines (guideline)
 - [ ] Cyclomatic complexity < 10
 - [ ] No deeply nested code (> 4 levels)
@@ -224,12 +229,14 @@ The `code-reviewer` lane checks:
 - [ ] Clear, descriptive naming
 
 ### Performance
+
 - [ ] No N+1 query patterns
 - [ ] Appropriate caching where applicable
 - [ ] Efficient algorithms (avoid O(n²) when O(n) possible)
 - [ ] No unnecessary re-renders (React/Vue)
 
 ### Best Practices
+
 - [ ] Error handling present and appropriate
 - [ ] Logging at appropriate levels
 - [ ] Documentation for public APIs
@@ -252,7 +259,6 @@ The `architect` lane checks:
 **REQUEST CHANGES** - `code-reviewer` returns REQUEST CHANGES or architect status is `BLOCK`
 **COMMENT** - `code-reviewer` returns COMMENT with architect status `CLEAR`, architect status is `WATCH`, or only LOW/MEDIUM improvements remain
 
-
 ## Scenario Examples
 
 **Good:** The user says `continue` after the workflow already has a clear next step. Continue the current branch of work instead of restarting or re-asking the same question.
@@ -264,21 +270,27 @@ The `architect` lane checks:
 ## Use with Other Skills
 
 **With Team:**
+
 ```
 /team "review recent auth changes and report findings"
 ```
+
 Includes coordinated review execution across specialized agents.
 
 **With Ralph:**
+
 ```
 /ralph code-review then fix all issues
 ```
+
 On the explicit Ralph path, review findings should flow into automatic fix follow-up without another permission prompt. Plain `code-review` itself remains read-only and does **not** promise auto-fix.
 
 **With Ultrawork:**
+
 ```
 /ultrawork review all files in src/
 ```
+
 Parallel code review across multiple files.
 
 ## Best Practices

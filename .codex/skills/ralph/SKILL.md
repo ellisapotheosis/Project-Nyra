@@ -12,24 +12,27 @@ Ralph is a persistence loop that keeps working on a task until it is fully compl
 </Purpose>
 
 <Use_When>
+
 - Task requires guaranteed completion with verification (not just "do your best")
 - User says "ralph", "don't stop", "must complete", "finish this", or "keep going until done"
 - Work may span multiple iterations and needs persistence across retries
 - Task benefits from parallel execution with architect sign-off at the end
-</Use_When>
+  </Use_When>
 
 <Do_Not_Use_When>
+
 - User wants a full autonomous pipeline from idea to code -- use `autopilot` instead
 - User wants to explore or plan before committing -- use `plan` skill instead
 - User wants a quick one-shot fix -- delegate directly to an executor agent
 - User wants manual control over completion -- use `ultrawork` directly
-</Do_Not_Use_When>
+  </Do_Not_Use_When>
 
 <Why_This_Exists>
 Complex tasks often fail silently: partial implementations get declared "done", tests get skipped, edge cases get forgotten. Ralph prevents this by looping until work is genuinely complete, requiring fresh verification evidence before allowing completion, and using tiered architect review to confirm quality.
 </Why_This_Exists>
 
 <Execution_Policy>
+
 - Fire independent agent calls simultaneously -- never wait sequentially for independent work
 - Use `run_in_background: true` for long operations (installs, builds, test suites)
 - Always pass the `model` parameter explicitly when delegating to agents
@@ -37,7 +40,7 @@ Complex tasks often fail silently: partial implementations get declared "done", 
 - Deliver the full implementation: no scope reduction, no partial completion, no deleting tests to make them pass
 - Apply the shared workflow guidance pattern: outcome-first framing, concise visible updates for multi-step execution, local overrides for the active workflow branch, validation proportional to risk, explicit stop rules, and automatic continuation for safe reversible steps. Ask only for material, destructive, credentialed, external-production, or preference-dependent branches.
 - Integrate with Codex goal mode when goal tools are available: inspect the active thread goal with `get_goal`, preserve it as the top-level stop condition, and only call `update_goal({status: "complete"})` after a Ralph completion audit proves the objective is actually achieved.
-</Execution_Policy>
+  </Execution_Policy>
 
 <Steps>
 0. **Pre-context intake (required before planning/execution loop starts)**:
@@ -91,15 +94,15 @@ Complex tasks often fail silently: partial implementations get declared "done", 
 </Steps>
 
 <Tool_Usage>
-- Before first MCP tool use, call `ToolSearch("mcp")` to discover deferred MCP tools
+
 - Use `ask_codex` with `agent_role: "architect"` for verification cross-checks when changes are security-sensitive, architectural, or involve complex multi-system integration
 - Skip Codex consultation for simple feature additions, well-tested changes, or time-critical verification
-- If ToolSearch finds no MCP tools or Codex is unavailable, proceed with architect agent verification alone -- never block on external tools
-- Use `state_write` / `state_read` for ralph mode state persistence between iterations
+- If MCP compatibility tools are unavailable, proceed with CLI/agent verification alone -- never block on external tools
+- Use `omx state write/read --input '<json>' --json` for ralph mode state persistence between iterations
 - Use Codex goal tools when present: `get_goal` to discover or re-check the active objective, `create_goal` only when the user/system explicitly requested a new goal and no active goal exists, and `update_goal` only after the audited objective is fully achieved.
 - Persist context snapshot path in Ralph mode state so later phases and agents share the same grounding context
-- If an `omx_state` MCP tool call reports that its stdio transport is unavailable/closed, do **not** retry the same MCP call. Retry once through the supported CLI parity surface with the same payload, preserving `workingDirectory` and `session_id`: `omx state write --input '<json>' --json`, `omx state read --input '<json>' --json`, or `omx state clear --input '<json>' --json`. If the CLI path also fails, continue with `.omx/context` / `.omx/plans` file-backed artifacts and report the state persistence blocker.
-</Tool_Usage>
+- Prefer CLI state commands. If an explicit MCP compatibility `omx_state` call reports that its stdio transport is unavailable/closed, do **not** retry the same MCP call. Retry once through the supported CLI parity surface with the same payload, preserving `workingDirectory` and `session_id`: `omx state write --input '<json>' --json`, `omx state read --input '<json>' --json`, or `omx state clear --input '<json>' --json`. If the CLI path also fails, continue with `.omx/context` / `.omx/plans` file-backed artifacts and report the state persistence blocker.
+  </Tool_Usage>
 
 ## Goal Mode Integration
 
@@ -118,19 +121,18 @@ Codex goal mode is the thread-level completion contract for long-running Ralph w
 
 ## State Management
 
-Use the `omx_state` MCP server tools (`state_write`, `state_read`, `state_clear`) for Ralph lifecycle state.
+Use the CLI-first state surface for Ralph lifecycle state (`omx state write/read/clear --input '<json>' --json`). Explicit MCP compatibility tools (`state_write`, `state_read`, `state_clear`) remain acceptable only when already enabled.
 
 - **On start**:
-  `state_write({mode: "ralph", active: true, iteration: 1, max_iterations: 10, current_phase: "executing", started_at: "<now>", state: {context_snapshot_path: "<snapshot-path>"}})`
+  `omx state write --input '{"mode":"ralph","active":true,"iteration":1,"max_iterations":10,"current_phase":"executing","started_at":"<now>","state":{"context_snapshot_path":"<snapshot-path>"}}' --json`
 - **On each iteration**:
-  `state_write({mode: "ralph", iteration: <current>, current_phase: "executing"})`
+  `omx state write --input '{"mode":"ralph","iteration":<current>,"current_phase":"executing"}' --json`
 - **On verification/fix transition**:
-  `state_write({mode: "ralph", current_phase: "verifying"})` or `state_write({mode: "ralph", current_phase: "fixing"})`
+  `omx state write --input '{"mode":"ralph","current_phase":"verifying"}' --json` or `omx state write --input '{"mode":"ralph","current_phase":"fixing"}' --json`
 - **On completion**:
-  `state_write({mode: "ralph", active: false, current_phase: "complete", completed_at: "<now>"})`
+  `omx state write --input '{"mode":"ralph","active":false,"current_phase":"complete","completed_at":"<now>"}' --json`
 - **On cancellation/cleanup**:
-  run `$cancel` (which should call `state_clear(mode="ralph")`)
-
+  run `$cancel` (which should call `omx state clear --input '{"mode":"ralph"}' --json`)
 
 ## Scenario Examples
 
@@ -181,14 +183,16 @@ Why bad: These are independent tasks that should run in parallel, not sequential
 </Examples>
 
 <Escalation_And_Stop_Conditions>
+
 - Stop and report when a fundamental blocker requires user input (missing credentials, unclear requirements, external service down)
 - Stop when the user says "stop", "cancel", or "abort" -- run `/cancel`
 - Continue working when the hook system sends "The boulder never stops" -- this means the iteration continues
 - If architect rejects verification, fix the issues and re-verify (do not stop)
 - If the same issue recurs across 3+ iterations, report it as a potential fundamental problem
-</Escalation_And_Stop_Conditions>
+  </Escalation_And_Stop_Conditions>
 
 <Final_Checklist>
+
 - [ ] All requirements from the original task are met (no scope reduction)
 - [ ] Zero pending or in_progress TODO items
 - [ ] Fresh test run output shows all tests pass
@@ -199,7 +203,7 @@ Why bad: These are independent tasks that should run in parallel, not sequential
 - [ ] ai-slop-cleaner pass completed on changed files (or --no-deslop specified)
 - [ ] Post-deslop regression tests pass
 - [ ] `/cancel` run for clean state cleanup
-</Final_Checklist>
+      </Final_Checklist>
 
 <Advanced>
 ## PRD Mode (Optional)
@@ -207,6 +211,7 @@ Why bad: These are independent tasks that should run in parallel, not sequential
 When the user provides the `--prd` flag, initialize a Product Requirements Document before starting the ralph loop.
 
 ### Detecting PRD Mode
+
 Check if `{{PROMPT}}` contains `--prd` or `--PRD`.
 
 Prompt-side `$ralph` workflow activation is lighter-weight than `omx ralph --prd ...`.
@@ -215,11 +220,14 @@ CLI entrypoint or apply the PRD startup gate. Treat `omx ralph --prd ...` as the
 explicit PRD-gated path.
 
 ### Detecting `--no-deslop`
+
 Check if `{{PROMPT}}` contains `--no-deslop`.
 If `--no-deslop` is present, skip the deslop pass entirely after Step 7 and continue using the latest successful pre-deslop verification evidence.
 
 ### Visual Reference Flags (Optional)
+
 Ralph execution supports visual reference flags for screenshot tasks:
+
 - Repeatable image inputs: `-i <image-path>` (can be used multiple times)
 - Image directory input: `--images-dir <directory>`
 
@@ -227,6 +235,7 @@ Example:
 `ralph -i refs/hn.png -i refs/hn-item.png --images-dir ./screenshots "match HackerNews layout"`
 
 ### PRD Workflow
+
 1. Run deep-interview in quick mode before creating PRD artifacts:
    - Execute: `$deep-interview --quick <task>`
    - Complete a compact requirements pass (context, goals, scope, constraints, validation)
@@ -260,10 +269,12 @@ Example:
 7. Proceed to normal ralph loop using user stories as the task list
 
 ### Example
+
 User input: `--prd build a todo app with React and TypeScript`
 Workflow: Detect flag, extract task, create `.omx/plans/prd-{slug}.md`, create `.omx/state/{scope}/ralph-progress.json`, begin ralph loop.
 
 ### Legacy compatibility
+
 - During the compatibility window, Ralph `--prd` startup still validates machine-readable story state from `.omx/prd.json`.
 - `.omx/plans/prd-{slug}.md` remains the canonical storage/documentation artifact, but it is not yet the startup validation source.
 - If `.omx/prd.json` exists and canonical PRD is absent, migrate one-way into `.omx/plans/prd-{slug}.md`.
@@ -273,16 +284,18 @@ Workflow: Detect flag, extract task, create `.omx/plans/prd-{slug}.md`, create `
 ## Background Execution Rules
 
 **Run in background** (`run_in_background: true`):
+
 - Package installation (npm install, pip install, cargo build)
 - Build processes (make, project build commands)
 - Test suites
 - Docker operations (docker build, docker pull)
 
 **Run blocking** (foreground):
+
 - Quick status checks (git status, ls, pwd)
 - File reads and edits
 - Simple commands
-</Advanced>
+  </Advanced>
 
 Original task:
 {{PROMPT}}

@@ -100,16 +100,16 @@ A future adapter may translate desired state into live Nexus TOML, LiteLLM YAML,
 
 ## Suggested Subdomain
 
-Use:
+Current desired/applied hostname:
 
 ```text
-nexus-ui.ratehunter.net
+nexus.ratehunter.net
 ```
 
 Add a webapp link through:
 
 ```text
-NEXT_PUBLIC_NEXUS_UI_URL=https://nexus-ui.ratehunter.net
+NEXT_PUBLIC_NEXUS_UI_URL=https://nexus.ratehunter.net
 ```
 
 ## Acceptance Criteria

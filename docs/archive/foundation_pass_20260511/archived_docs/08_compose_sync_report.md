@@ -8,21 +8,21 @@ Validate that root numbered docs, Makefile targets, and host-scoped compose file
 
 ## Current Makefile compose paths
 
-| Variable | Path |
-|---|---|
-| `ORCHESTRATOR_COMPOSE` | `infra/hosts/orchestrator/docker-compose.yml` |
-| `ORCHESTRATOR_BITNET_COMPOSE` | `infra/hosts/orchestrator/docker-compose.bitnet.yml` |
-| `CF_ORCH_COMPOSE` | `infra/hosts/orchestrator/docker-compose.cloudflared.yml` |
-| `ORACLE_COMPOSE` | `infra/hosts/oracle-vps/docker-compose.yml` |
-| `ORACLE_GITEA_COMPOSE` | `infra/hosts/oracle-vps/docker-compose.gitea.yml` |
-| `ORACLE_APPS_COMPOSE` | `infra/hosts/oracle-vps/docker-compose.apps.yml` |
-| `WORKER_3060_COMPOSE` | `infra/hosts/worker-rtx3060/docker-compose.yml` |
-| `WORKER_3090TI_COMPOSE` | `infra/hosts/worker-rtx3090ti/docker-compose.yml` |
-| `WORKER_5090_COMPOSE` | `infra/hosts/worker-rtx5090/docker-compose.yml` |
-| `VOICE_*` | `infra/hosts/*/docker-compose.voice.yml` |
-| `DIST_VOICE_*` | `infra/hosts/*/docker-compose.distributed-voice.yml` |
-| `HERMES_*` | worker `docker-compose.hermes.yml` files |
-| `NERVE_*` | worker `docker-compose.nerve.yml` files |
+| Variable                      | Path                                                      |
+| ----------------------------- | --------------------------------------------------------- |
+| `ORCHESTRATOR_COMPOSE`        | `infra/hosts/orchestrator/docker-compose.yml`             |
+| `ORCHESTRATOR_BITNET_COMPOSE` | `infra/hosts/orchestrator/docker-compose.bitnet.yml`      |
+| `CF_ORCH_COMPOSE`             | `infra/hosts/orchestrator/docker-compose.cloudflared.yml` |
+| `ORACLE_COMPOSE`              | `infra/hosts/oracle-vps/docker-compose.yml`               |
+| `ORACLE_GITEA_COMPOSE`        | `infra/hosts/oracle-vps/docker-compose.gitea.yml`         |
+| `ORACLE_APPS_COMPOSE`         | `infra/hosts/oracle-vps/docker-compose.apps.yml`          |
+| `WORKER_3060_COMPOSE`         | `infra/hosts/worker-rtx3060/docker-compose.yml`           |
+| `WORKER_3090TI_COMPOSE`       | `infra/hosts/worker-rtx3090ti/docker-compose.yml`         |
+| `WORKER_5090_COMPOSE`         | `infra/hosts/worker-rtx5090/docker-compose.yml`           |
+| `VOICE_*`                     | `infra/hosts/*/docker-compose.voice.yml`                  |
+| `DIST_VOICE_*`                | `infra/hosts/*/docker-compose.distributed-voice.yml`      |
+| `HERMES_*`                    | worker `docker-compose.hermes.yml` files                  |
+| `NERVE_*`                     | worker `docker-compose.nerve.yml` files                   |
 
 ## Findings
 

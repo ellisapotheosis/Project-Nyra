@@ -5,15 +5,18 @@ Updated: 2026-04-30
 ## Recommended exposure policy
 
 ### Public via Cloudflared (internet-facing)
+
 - `ratehunter.net` and `www.ratehunter.net` -> Cloudflare Pages marketing site.
 - `nyra.ratehunter.net` -> WebApp.
 - `crm.ratehunter.net` -> Twenty CRM.
 - `n8n.ratehunter.net` -> n8n.
 - `activepieces.ratehunter.net` -> Activepieces.
-- `nexus.ratehunter.net` -> Nexus Router.
+- `nexus.ratehunter.net` -> Nexus UI.
+- `nexus-router.ratehunter.net` -> Nexus Router API/MCP endpoint.
 - Additional Access-gated routes are listed in `docs/cloudflared/hostname-matrix.md`.
 
 ### Private (Tailscale / internal only)
+
 - Datastores: postgres, redis, mongo, ruvector-postgres
 - Worker inference lanes: 3060/3090/5090 vLLM/Ollama
 - Datastore and vector backends: FalkorDB, Qdrant, Postgres, Redis
@@ -21,22 +24,26 @@ Updated: 2026-04-30
 - Admin UIs and MCP bridges unless Cloudflare Access policy is strict
 
 ## Rationale
+
 - Keep blast radius small: only gateway/webhook/chat surfaces public.
 - Worker GPU endpoints should not be direct internet targets.
 - Data plane remains internal; control plane proxied through Cloudflare Access.
 
 ## Subdomain map (recommended)
-| Subdomain | Service | Exposure class |
-|---|---|---|
-| `ratehunter.net` | landing page | public Pages |
-| `nyra.ratehunter.net` | webapp | Access-gated |
-| `crm.ratehunter.net` | Twenty CRM | Access-gated |
-| `n8n.ratehunter.net` | n8n | Access-gated |
-| `activepieces.ratehunter.net` | Activepieces | Access-gated |
-| `nexus.ratehunter.net` | Nexus Router | Access-gated |
-| `grafana.ratehunter.net` | Grafana | Access-gated |
+
+| Subdomain                     | Service                       | Exposure class       |
+| ----------------------------- | ----------------------------- | -------------------- |
+| `ratehunter.net`              | landing page                  | public Pages         |
+| `nyra.ratehunter.net`         | webapp                        | Access-gated         |
+| `crm.ratehunter.net`          | Twenty CRM                    | Access-gated         |
+| `n8n.ratehunter.net`          | n8n                           | Access-gated         |
+| `activepieces.ratehunter.net` | Activepieces                  | Access-gated         |
+| `nexus.ratehunter.net`        | Nexus UI                      | Access-gated         |
+| `nexus-router.ratehunter.net` | Nexus Router API/MCP endpoint | Access service token |
+| `grafana.ratehunter.net`      | Grafana                       | Access-gated         |
 
 ## GPU routing (Agent C)
+
 - Orchestrator route order (default):
   1. `worker-5090` for long-context / larger models
   2. `worker-3090ti` for medium throughput
@@ -44,6 +51,7 @@ Updated: 2026-04-30
 - Nexus should call worker endpoints over Tailscale hostnames/IPs only.
 
 ## Openclaw + Kyutai Unmute coexistence (Agent D)
+
 - Quick default: run Openclaw (`moltbot-web`) on orchestrator; run Kyutai components as separate compose project with explicit GPU device reservations per host.
 - If co-locating temporarily on one host, pin containers with CUDA visibility and memory-friendly models to avoid VRAM contention.
 - Preferred split (to reduce delay/risk):

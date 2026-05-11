@@ -13,19 +13,19 @@ Updated: 2026-04-30
 
 ## Candidate matrix
 
-| Component class | Current placement | Offload recommendation |
-|---|---|---|
-| Marketing UI | Cloudflare Pages | keep on Pages |
-| Gitea and Actions runner | Oracle VPS | keep on Oracle |
-| GitHub mirror sync | Oracle VPS | keep on Oracle |
-| CRM/workflow apps | Oracle VPS | keep on Oracle unless managed SaaS is chosen deliberately |
-| Observability UIs | Oracle VPS | tunnel with Access using `grafana`, `prometheus`, `loki`, and `cadvisor` hostnames as needed |
-| Datastores | Oracle/host-local Docker networks | do not expose publicly |
-| Primary inference | `worker-rtx5090` | keep private/Tailscale |
-| Secondary inference | `worker-rtx3090ti` | keep private/Tailscale |
-| Lightweight inference/voice | `worker-rtx3060` | keep private/Tailscale |
-| CPU fallback | orchestrator BitNet | keep private |
-| Admin/control plane | orchestrator + Oracle | Access-gated only |
+| Component class             | Current placement                 | Offload recommendation                                                                       |
+| --------------------------- | --------------------------------- | -------------------------------------------------------------------------------------------- |
+| Marketing UI                | Cloudflare Pages                  | keep on Pages                                                                                |
+| Gitea and Actions runner    | Oracle VPS                        | keep on Oracle                                                                               |
+| GitHub mirror sync          | Oracle VPS                        | keep on Oracle                                                                               |
+| CRM/workflow apps           | Oracle VPS                        | keep on Oracle unless managed SaaS is chosen deliberately                                    |
+| Observability UIs           | Oracle VPS                        | tunnel with Access using `grafana`, `prometheus`, `loki`, and `cadvisor` hostnames as needed |
+| Datastores                  | Oracle/host-local Docker networks | do not expose publicly                                                                       |
+| Primary inference           | `worker-rtx5090`                  | keep private/Tailscale                                                                       |
+| Secondary inference         | `worker-rtx3090ti`                | keep private/Tailscale                                                                       |
+| Lightweight inference/voice | `worker-rtx3060`                  | keep private/Tailscale                                                                       |
+| CPU fallback                | orchestrator BitNet               | keep private                                                                                 |
+| Admin/control plane         | orchestrator + Oracle             | Access-gated only                                                                            |
 
 ## Enforcement recommendations
 
