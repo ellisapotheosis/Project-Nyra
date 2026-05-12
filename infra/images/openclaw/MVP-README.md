@@ -31,6 +31,7 @@ bash infra/openclaw/scripts/up.sh
 ```
 
 `up.sh` will:
+
 - validate required env values,
 - auto-create data directories,
 - auto-build OpenClaw image if missing,
