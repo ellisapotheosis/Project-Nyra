@@ -1,5 +1,4 @@
 import { Result } from "../../domain/result";
-import { Document } from "../../domain/entities/document.entity";
 
 export interface SignatureRequest {
   documentId: string;
@@ -19,6 +18,8 @@ export class MockESignatureService implements IESignatureService {
   private envelopes: Map<string, string> = new Map();
 
   async requestSignature(request: SignatureRequest): Promise<Result<string>> {
+    void request;
+
     const envelopeId = `env_${Math.random().toString(36).substr(2, 9)}`;
     
     // In a real implementation, this calls DocuSign or HelloSign API

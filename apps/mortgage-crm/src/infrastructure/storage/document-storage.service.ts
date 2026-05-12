@@ -10,6 +10,8 @@ export class MockDocumentStorageService implements IDocumentStorageService {
   private storage: Map<string, Buffer> = new Map();
 
   async uploadDocument(fileBuffer: Buffer, fileName: string, mimeType: string): Promise<Result<string>> {
+    void mimeType;
+
     const fileId = `${Date.now()}-${fileName}`;
     const fileUrl = `https://mock-storage.nyra.com/docs/${fileId}`;
     

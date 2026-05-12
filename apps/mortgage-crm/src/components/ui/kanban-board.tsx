@@ -2,14 +2,8 @@
 
 import React, { useState, useEffect } from "react";
 import { Badge } from "./badge";
-import { Card, CardHeader, CardContent } from "./card";
-import { 
-  MoreHorizontal, 
-  Phone, 
-  Mail, 
-  Calendar,
-  AlertCircle
-} from "lucide-react";
+import { Card, CardContent } from "./card";
+import { MoreHorizontal, Phone, Mail, Calendar } from "lucide-react";
 
 type LeadStatus = "NEW" | "CONTACTED" | "QUALIFIED" | "PRE_APPROVED" | "APPLICATION" | "PROCESSING" | "APPROVED" | "CLOSED";
 
