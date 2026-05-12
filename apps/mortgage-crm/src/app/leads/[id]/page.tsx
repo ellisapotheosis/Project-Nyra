@@ -11,7 +11,13 @@ import {
   Send
 } from "lucide-react";
 
-export default function LeadDetailPage({ params }: { params: { id: string } }) {
+export default async function LeadDetailPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+
   return (
     <div className="max-w-7xl mx-auto space-y-8">
       {/* Header */}
@@ -24,6 +30,8 @@ export default function LeadDetailPage({ params }: { params: { id: string } }) {
             <h1 className="text-3xl font-black text-slate-900 tracking-tighter">John Doe</h1>
             <div className="flex items-center space-x-3 mt-1 text-slate-500 font-medium">
               <span className="flex items-center"><Clock size={16} className="mr-1" /> Last contact 2h ago</span>
+              <span>•</span>
+              <span className="font-mono text-xs uppercase tracking-[0.2em] text-slate-400">Lead {id}</span>
               <span>•</span>
               <span className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full text-[10px] uppercase font-bold">Qualified</span>
             </div>
