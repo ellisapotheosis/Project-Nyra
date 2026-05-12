@@ -7,7 +7,7 @@ services:
 
   vllm:
     image: vllm/vllm-openai:latest
-    container_name: nyra-vllm-${WORKER_NAME}
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-vllm-${WORKER_NAME}
     ports:
       - "8000:8000"
     environment:
@@ -49,7 +49,7 @@ services:
 
   ollama:
     image: ollama/ollama:latest
-    container_name: nyra-ollama-${WORKER_NAME}
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-ollama-${WORKER_NAME}
     ports:
       - "11434:11434"
     environment:
@@ -82,7 +82,7 @@ services:
 
   health-checker:
     image: curlimages/curl:latest
-    container_name: nyra-health-checker-${WORKER_NAME}
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-health-checker-${WORKER_NAME}
     environment:
       CHECK_INTERVAL: "60"
       WORKER_NAME: "${WORKER_NAME}"

@@ -4,7 +4,7 @@ services:
   llxprt-jefe:
     build:
       context: ../../../external/llxprt-jefe
-    container_name: nyra-llxprt-jefe
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-llxprt-jefe
     restart: unless-stopped
     environment:
       JEFE_PORT: 8080
@@ -17,7 +17,7 @@ services:
 
   llxprt-code:
     image: node:20-slim
-    container_name: nyra-llxprt-code
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-llxprt-code
     restart: unless-stopped
     environment:
       HOME: /tmp

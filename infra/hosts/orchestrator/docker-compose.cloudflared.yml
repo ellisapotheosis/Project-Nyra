@@ -13,7 +13,7 @@ name: nyra-cloudflared-orchestrator
 services:
   secrets-init:
     build:
-      context: ../../infisical-secrets-init
+      context: ../../images/infisical-secrets-init
     container_name: ${COMPOSE_PROJECT_NAME:-nyra}-cf-secrets-init
     restart: "no"
     command: ["/usr/local/bin/secrets-init.sh"]

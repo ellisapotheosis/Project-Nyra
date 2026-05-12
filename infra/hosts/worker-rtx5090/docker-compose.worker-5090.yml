@@ -11,7 +11,7 @@ services:
   # ── Infisical secrets init (runs once, writes files to /run/nyra-secrets/) ─
   secrets-init:
     build:
-      context: ../../infisical-secrets-init
+      context: ../../images/infisical-secrets-init
     container_name: worker-5090-secrets-init
     restart: "no"
     command: ["/usr/local/bin/secrets-init.sh"]
@@ -28,7 +28,7 @@ services:
   # ── Infisical agent (polls Infisical and refreshes secrets) ──────────────
   infisical-agent:
     build:
-      context: ../../infisical-secrets-init
+      context: ../../images/infisical-secrets-init
     container_name: worker-5090-infisical-agent
     restart: unless-stopped
     entrypoint: ["/usr/local/bin/agent-sidecar.sh"]
