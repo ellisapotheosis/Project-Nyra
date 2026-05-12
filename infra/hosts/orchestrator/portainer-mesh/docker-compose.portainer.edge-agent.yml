@@ -3,7 +3,7 @@ version: "3.8"
 services:
   portainer-edge-agent:
     image: portainer/agent:2.27.9
-    container_name: nyra-portainer-edge-agent
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-portainer-edge-agent
     restart: unless-stopped
     environment:
       EDGE: "1"
