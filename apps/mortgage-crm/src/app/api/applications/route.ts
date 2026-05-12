@@ -48,7 +48,7 @@ class PrismaApplicationRepo implements IApplicationRepository {
 
 class MockAUSService implements IAUSService {
   async run(
-    application: LoanApplication
+    _application: LoanApplication
   ): Promise<{ result: string; recommendation: string }> {
     return {
       result: "Approve",
@@ -118,7 +118,7 @@ export async function POST(req: NextRequest) {
   }
 }
 
-export async function GET(req: NextRequest) {
+export async function GET(_req: NextRequest) {
   try {
     const applications = await prisma.loanApplication.findMany({
       include: {
