@@ -12,8 +12,10 @@ on:
   pull_request:
     branches: [main]
     paths:
+      - ".github/workflows/docker-build-matrix.yml"
       - "apps/**/Dockerfile"
       - "services/**/Dockerfile"
+      - "infra/**"
       - "!**/infra-archived/**"
   workflow_dispatch:
     inputs:
@@ -38,6 +40,7 @@ jobs:
     outputs:
       apps: ${{ steps.filter.outputs.apps }}
       services: ${{ steps.filter.outputs.services }}
+      build_date: ${{ steps.set-matrix.outputs.build_date }}
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
       - uses: actions/checkout@v6
@@ -59,8 +62,17 @@ jobs:
       - name: Set build matrix
         id: set-matrix
         run: |
+          shopt -s nullglob
+
           # Build matrix of all services with Dockerfiles
           MATRIX='{"include":['
+          BUILD_DATE="${{ github.event.head_commit.timestamp }}"
+          REQUESTED_SERVICE="${{ github.event.inputs.service }}"
+          selected_count=0
+
+          if [ -z "$BUILD_DATE" ]; then
+            BUILD_DATE="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+          fi
 
           # Add apps
           if [ "${{ steps.filter.outputs.apps }}" == "true" ] || [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
@@ -69,7 +81,13 @@ jobs:
               if [ -f "$dir" ]; then
                 app_dir=$(dirname "$dir")
                 app=$(basename "$app_dir")
-                MATRIX="${MATRIX}{\"name\":\"${app}\",\"context\":\"${app_dir}\",\"dockerfile\":\"Dockerfile\",\"type\":\"app\"},"
+
+                if [ -n "$REQUESTED_SERVICE" ] && [ "$REQUESTED_SERVICE" != "$app" ]; then
+                  continue
+                fi
+
+                MATRIX="${MATRIX}{\"name\":\"${app}\",\"context\":\"${app_dir}\",\"dockerfile\":\"${app_dir}/Dockerfile\",\"type\":\"app\"},"
+                selected_count=$((selected_count + 1))
               fi
             done
           fi
@@ -81,7 +99,11 @@ jobs:
               if [ -f "$dir" ]; then
                 service=$(dirname "$dir" | cut -d'/' -f2)
                 context="services/${service}"
-                dockerfile="Dockerfile"
+                dockerfile="${context}/Dockerfile"
+
+                if [ -n "$REQUESTED_SERVICE" ] && [ "$REQUESTED_SERVICE" != "$service" ]; then
+                  continue
+                fi
 
                 case "$service" in
                   crm-api)
@@ -91,14 +113,21 @@ jobs:
                 esac
 
                 MATRIX="${MATRIX}{\"name\":\"${service}\",\"context\":\"${context}\",\"dockerfile\":\"${dockerfile}\",\"type\":\"service\"},"
+                selected_count=$((selected_count + 1))
               fi
             done
+          fi
+
+          if [ -n "$REQUESTED_SERVICE" ] && [ "$selected_count" -eq 0 ]; then
+            echo "No Docker build target matched workflow_dispatch input: $REQUESTED_SERVICE" >&2
+            exit 1
           fi
 
           # Remove trailing comma and close JSON
           MATRIX=$(echo "$MATRIX" | sed 's/,$//')
           MATRIX="${MATRIX}]}"
 
+          echo "build_date=$BUILD_DATE" >> $GITHUB_OUTPUT
           echo "matrix=$MATRIX" >> $GITHUB_OUTPUT
           echo "Generated matrix: $MATRIX"
 
@@ -159,7 +188,7 @@ jobs:
           cache-to: type=gha,mode=max,scope=${{ matrix.name }}
           platforms: linux/amd64,linux/arm64
           build-args: |
-            BUILD_DATE=${{ github.event.head_commit.timestamp }}
+            BUILD_DATE=${{ needs.detect-changes.outputs.build_date }}
             VCS_REF=${{ github.sha }}
             VERSION=${{ steps.meta.outputs.version }}
 
