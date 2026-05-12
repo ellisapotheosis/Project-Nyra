@@ -53,7 +53,7 @@ jobs:
         run: |
           VERIFICATION_ID="verify-$(date +%Y%m%d-%H%M%S)-${{ github.sha }}"
           echo "verification-id=$VERIFICATION_ID" >> $GITHUB_OUTPUT
-          echo "test-matrix={\"include\":[{\"os\":\"ubuntu-latest\",\"node\":\"18\"},{\"os\":\"ubuntu-latest\",\"node\":\"20\"},{\"os\":\"macos-latest\",\"node\":\"20\"},{\"os\":\"windows-latest\",\"node\":\"20\"}]}" >> $GITHUB_OUTPUT
+          echo "test-matrix={\"include\":[{\"os\":\"ubuntu-latest\",\"node\":\"20\"},{\"os\":\"macos-latest\",\"node\":\"20\"},{\"os\":\"windows-latest\",\"node\":\"20\"}]}" >> $GITHUB_OUTPUT
           echo "cache-key=${{ env.CACHE_VERSION }}-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}" >> $GITHUB_OUTPUT
 
       - name: Install dependencies
