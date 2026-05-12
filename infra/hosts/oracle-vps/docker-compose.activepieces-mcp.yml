@@ -2,7 +2,7 @@ services:
   activepieces-mcp:
     build:
       context: ../../../services/nyra-mcp
-    container_name: nyra-activepieces-mcp
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-activepieces-mcp
     restart: unless-stopped
     environment:
       NYRA_MCP_PORT: 3333
