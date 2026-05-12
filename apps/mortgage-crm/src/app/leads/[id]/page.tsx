@@ -1,10 +1,9 @@
-import { 
-  CheckCircle2, 
-  Clock, 
-  FileText, 
-  User, 
-  Home, 
-  DollarSign,
+import {
+  CheckCircle2,
+  Clock,
+  FileText,
+  User,
+  Home,
   Paperclip,
   MessageSquare,
   History,

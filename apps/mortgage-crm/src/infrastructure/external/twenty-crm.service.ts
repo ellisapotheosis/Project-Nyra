@@ -23,6 +23,7 @@ export class TwentyCRMService implements ITwentyCRMService {
           'Content-Type': 'application/json'
         }
       });
+      void searchRes;
       
       // Since Twenty CRM is system of record, we always sync data over
       const personData = {
@@ -34,6 +35,7 @@ export class TwentyCRMService implements ITwentyCRMService {
         phones: [lead["props"].borrower.phone],
         city: "", // Can parse from zip if needed
       };
+      void personData;
 
       // Mocking the creation for now as we don't have a live Twenty instance
       // const createRes = await fetch(`${this.baseUrl}/people`, {
