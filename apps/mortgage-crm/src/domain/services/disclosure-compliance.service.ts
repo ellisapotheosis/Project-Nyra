@@ -1,6 +1,3 @@
-import { LoanApplication } from "../entities/loan-application.entity";
-import { Result } from "../result";
-
 export class DisclosureComplianceService {
   /**
    * TRID Rule: Loan Estimate must be delivered within 3 business days of application.

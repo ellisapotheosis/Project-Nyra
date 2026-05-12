@@ -25,11 +25,13 @@ export interface IAUSService {
 
 export class SubmitApplicationUseCase {
   constructor(
-    private leadRepo: ILeadRepository,
+    leadRepo: ILeadRepository,
     private appRepo: IApplicationRepository,
     private ausService: IAUSService,
     private docGenerator: DocumentRequirementsGenerator
-  ) {}
+  ) {
+    void leadRepo;
+  }
 
   async execute(
     data: SubmitApplicationDTO
