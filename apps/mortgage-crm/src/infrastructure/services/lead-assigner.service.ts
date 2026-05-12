@@ -7,6 +7,8 @@ export class RoundRobinLeadAssigner implements ILeadAssigner {
   constructor(private prisma: PrismaClient) {}
 
   async assign(lead: Lead): Promise<{ loanOfficerId: string; reason: string }> {
+    void lead;
+
     // Get all loan officers
     const officers = await this.prisma.user.findMany({
       where: {
@@ -26,8 +28,16 @@ export class RoundRobinLeadAssigner implements ILeadAssigner {
       };
     }
 
+    const [officer] = officers;
+    if (!officer) {
+      return {
+        loanOfficerId: "unassigned_queue",
+        reason: "no_officers_available",
+      };
+    }
+
     return {
-      loanOfficerId: officers[0].id,
+      loanOfficerId: officer.id,
       reason: "round_robin_load_balancing",
     };
   }

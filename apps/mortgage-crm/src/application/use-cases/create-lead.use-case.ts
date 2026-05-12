@@ -1,5 +1,3 @@
-import { LeadStatus } from "@prisma/client";
-
 import { Lead } from "@/domain/entities/lead.entity";
 import { Result } from "@/domain/result";
 
