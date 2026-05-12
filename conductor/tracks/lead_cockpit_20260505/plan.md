@@ -4,7 +4,7 @@
 
 - [x] Task: Create `/leads/[id]` route structure 03b3557
 - [x] Task: Implement Lead Profile card with full metadata f5ead7a
-- [~] Task: Add source attribution and tag display
+- [x] Task: Add source attribution and tag display
 
 ## Phase 2: Unified Timeline
 
@@ -16,4 +16,4 @@
 
 - [x] Task: Add visual compliance badges (Consent, DNC, Quiet Hours)
 - [x] Task: Implement campaign enrollment and state toggle buttons
-- [ ] Task: Conductor - User Manual Verification 'Phase 3: Compliance and Controls' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 3: Compliance and Controls' (Protocol in workflow.md) — verified with `pnpm --dir apps/webapp/app typecheck`, `pnpm --dir apps/webapp/app lint`, and Playwright screenshot of `/leads/1`.
