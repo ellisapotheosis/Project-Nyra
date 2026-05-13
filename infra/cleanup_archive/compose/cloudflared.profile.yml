@@ -1,7 +1,0 @@
-services:
-  cloudflared:
-    image: cloudflare/cloudflared:latest
-    profiles: ["cloudflared"]
-    command: tunnel run --config /etc/cloudflared/config.yml
-    volumes:
-      - ../cloudflared/config.yml:/etc/cloudflared/config.yml:ro

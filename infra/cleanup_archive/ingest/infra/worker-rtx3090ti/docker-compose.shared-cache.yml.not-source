@@ -1,4 +1,0 @@
-services:
-  vllm-lmcache:
-    environment:
-      LMCACHE_REMOTE_URL: redis://100.64.0.1:6380

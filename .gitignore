@@ -34,6 +34,7 @@ coverage/
 # Environment Files and Secrets
 ################################################################################
 .env
+.env.*
 .env.local
 .env.*.local
 .env.development.local
@@ -48,6 +49,33 @@ coverage/
 secrets/
 .secrets/
 credentials/
+.letta/
+.mempalace/
+data/gitea/
+data/app-guidance/files/nyra-stack/
+infra/env/secrets/
+infra/cloudflare/apply-results/
+
+# Host/runtime env files must stay local or come from Infisical.
+**/.env
+**/.env.*
+**/*.env
+!**/.env.example
+!**/.env.*.example
+!**/*.env.example
+!**/*.example.env
+!**/.env.template
+!**/.env.*.template
+!**/*.env.template
+!**/*.template.env
+!**/env.template
+!**/*.tmpl
+
+# Historical env backups and ingest archives can contain copied secrets.
+docs/**/env-backups/
+docs/**/archived-root/
+infra/cleanup_archive/
+data/**/ratehunter-export/
 
 # Explicitly blocked leaked secret files (do not commit)
 infra/docker-compose/.env.golden-stack-populated

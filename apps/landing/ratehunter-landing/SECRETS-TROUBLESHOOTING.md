@@ -17,11 +17,13 @@ This happens because of a **scope mismatch** between where secrets are configure
 The deployment workflow supports two methods for obtaining secrets:
 
 ### Method 1: Direct GitHub Repository Secrets (Recommended)
+
 Secrets are stored directly in GitHub repository settings.
 
 **Priority**: ✅ Checked first, always preferred if available
 
 **Configuration**:
+
 1. Go to your GitHub repository
 2. Navigate to **Settings** → **Secrets and variables** → **Actions**
 3. Add these repository secrets:
@@ -29,11 +31,13 @@ Secrets are stored directly in GitHub repository settings.
    - `CLOUDFLARE_ACCOUNT_ID` - Your Cloudflare account ID
 
 ### Method 2: Infisical Integration (Fallback)
+
 Secrets are fetched from Infisical and used as environment variables.
 
 **Priority**: Used only if direct secrets are not found
 
 **Configuration**:
+
 1. Set up Infisical integration for your repository
 2. Add these secrets in Infisical under `/shared` path:
    - `CLOUDFLARE_API_TOKEN`
@@ -48,11 +52,13 @@ Secrets are fetched from Infisical and used as environment variables.
 ### Step 1: Verify Secret Existence
 
 **For Direct GitHub Secrets:**
+
 1. Go to repository → Settings → Secrets and variables → Actions
 2. Look for `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`
 3. If missing, add them
 
 **For Infisical:**
+
 ```bash
 # Log in to Infisical CLI
 infisical login
@@ -65,11 +71,11 @@ infisical export --env=prod --path=/shared --format=dotenv | grep CLOUDFLARE
 
 GitHub has different secret scopes:
 
-| Scope | Access |
-|-------|--------|
-| **Repository secrets** | Available to all workflows in the repo |
-| **Environment secrets** | Only available in specific environments |
-| **Organization secrets** | Available to selected repos in the org |
+| Scope                    | Access                                  |
+| ------------------------ | --------------------------------------- |
+| **Repository secrets**   | Available to all workflows in the repo  |
+| **Environment secrets**  | Only available in specific environments |
+| **Organization secrets** | Available to selected repos in the org  |
 
 **Common Issue**: Secrets are in an environment (e.g., `production`) but the workflow job doesn't specify that environment.
 
@@ -79,11 +85,11 @@ GitHub has different secret scopes:
 
 The workflow maps GitHub environments to Infisical environments:
 
-| Workflow Environment | Infisical Environment |
-|---------------------|----------------------|
-| `production` | `prod` |
-| `preview` / `staging` | `staging` |
-| Other | `dev` |
+| Workflow Environment  | Infisical Environment |
+| --------------------- | --------------------- |
+| `production`          | `prod`                |
+| `preview` / `staging` | `staging`             |
+| Other                 | `dev`                 |
 
 Ensure your Infisical secrets are in the correct environment.
 
@@ -156,6 +162,7 @@ If using Infisical's GitHub sync feature:
 3. Check sync status in Infisical dashboard
 
 **Infisical Project Configuration:**
+
 ```yaml
 Project ID: 8374cea9-e5e8-4050-bda4-b91f25ab30ef
 Path: /shared
@@ -183,8 +190,7 @@ If you've tried everything above and still have issues:
 1. **Check Workflow Logs**: Look for specific error messages in the GitHub Actions run
 2. **Verify Token Validity**: Test your Cloudflare token with:
    ```bash
-   curl -H "Authorization: Bearer YOUR_TOKEN" \
-     "https://api.cloudflare.com/client/v4/user/tokens/verify"
+   cloudflare-token-verify-command
    ```
 3. **Check Cloudflare Project Exists**: Ensure the `ratehunter-landing` project exists in Cloudflare Pages
 4. **Open an Issue**: Create a GitHub issue with the full error log (redact any secrets!)
