@@ -32,8 +32,8 @@ Expected warnings:
 
 Runtime validation:
 
-- `docker --context oracle ps` still targets stale Tailscale SSH and is not the working path from this machine.
-- Direct Docker over public Oracle SSH works with `ssh://ubuntu@163.192.46.128:23`.
+- `docker --context oracle ps` should use Tailscale/MagicDNS only, preferably `ssh://ubuntu@oracle.trex-fiordland.ts.net:2223`.
+- Do not use public Oracle IP addresses for Docker or SSH access.
 - `docker --context orchestrator ps` timed out over SSH to `orchestrator.trex-fiordland.ts.net:2223`.
 - The live orchestrator tunnel is connected and now has `links`, `linkwarden`, and `openclaw-gateway` routes.
 - The Oracle tunnel is connected and healthy with 4 connector connections after recreating `cloudflared`.

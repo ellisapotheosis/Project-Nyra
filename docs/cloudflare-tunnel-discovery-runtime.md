@@ -28,6 +28,6 @@ Docker contexts found:
 
 Blocked runtime checks:
 
-- `docker --context oracle ps` failed because SSH to `oracle.trex-fiordland.ts.net:23` timed out.
+- `docker --context oracle ps` failed because SSH to `oracle.trex-fiordland.ts.net:2223` timed out.
 - `docker --context orchestrator ps` failed because SSH to `orchestrator.trex-fiordland.ts.net:2223` timed out.
 - Do not assume Oracle runtime containers are healthy until `docker --context oracle ps` returns successfully.
