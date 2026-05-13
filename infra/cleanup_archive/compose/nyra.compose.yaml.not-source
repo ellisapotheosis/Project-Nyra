@@ -1,4 +1,0 @@
-name: nyra
-include:
-  - ../docker-compose.yml
-  - ./openclaw.profile.yml
