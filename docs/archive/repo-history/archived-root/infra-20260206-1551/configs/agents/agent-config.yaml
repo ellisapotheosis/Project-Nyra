@@ -1,9 +1,0 @@
-infisical:
-  address: "https://app.infisical.com"
-auth:
-  type: "universal-auth"
-sinks:
-  - type: "file"
-    destination-path: "./.env"
-    config:
-      format: "dotenv"

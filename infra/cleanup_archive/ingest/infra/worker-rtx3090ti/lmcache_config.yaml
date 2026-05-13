@@ -1,7 +1,0 @@
-chunk_size: ${LMCACHE_CHUNK_SIZE:-256}
-remote_url: "${LMCACHE_REMOTE_URL:-redis://redis-lmcache:6379}"
-remote_serde: "${LMCACHE_REMOTE_SERDE:-naive}"
-local_cpu: ${LMCACHE_LOCAL_CPU:-true}
-max_local_cpu_size: ${LMCACHE_MAX_LOCAL_CPU_SIZE:-16}
-# Optional shared cache mode (set to orchestrator or dedicated cache host if desired)
-# remote_url: "redis://100.64.0.x:6379"
