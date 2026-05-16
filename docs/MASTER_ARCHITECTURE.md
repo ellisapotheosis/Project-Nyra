@@ -70,8 +70,8 @@ These live on the **Oracle-VPS**:
 
 ## 7. App Surfaces
 
-- **apps/webapp**: Canonical broker/customer web application (Control Surface).
-- **apps/landing**: Marketing and lead capture.
+- **apps/projectnyra**: Canonical broker/customer web application (Control Surface).
+- **apps/ratehunter**: Marketing and lead capture.
 - **OpenClaw**: Broker/customer assistant surface.
 
 ## 8. Repo Placement Guidance

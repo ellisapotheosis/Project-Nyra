@@ -15,71 +15,74 @@ ingress:
   # Do not add apex/www routes to this tunnel.
 
   # Broker/customer webapp. Keep Access-gated until app auth is fully live.
-  - hostname: nyra.ratehunter.net
+  - hostname: app.projectnyra.com
     service: http://webapp:3001
 
   # Self-hosted Supabase gateway for browser auth/API calls. Do not put a
   # browser-blocking Access policy in front of Supabase Auth endpoints.
-  - hostname: api.ratehunter.net
+  - hostname: api.projectnyra.com
     service: http://supabase-kong:8000
 
   # Webhooks should use provider allowlists, signed paths, or service tokens.
-  - hostname: hooks.ratehunter.net
+  - hostname: hooks.projectnyra.com
     service: http://n8n:5678
 
   # Private UIs - protect every hostname in this group with Cloudflare Access.
-  - hostname: twenty.ratehunter.net
+  - hostname: twenty.projectnyra.com
     service: http://twenty:3000
 
-  - hostname: crm.ratehunter.net
+  - hostname: crm.projectnyra.com
     service: http://twenty:3000
 
-  - hostname: n8n.ratehunter.net
+  - hostname: n8n.projectnyra.com
     service: http://n8n:5678
 
-  - hostname: gitea.ratehunter.net
+  - hostname: gitea.projectnyra.com
     service: http://gitea:3000
 
-  - hostname: activepieces.ratehunter.net
+  - hostname: activepieces.projectnyra.com
     service: http://activepieces:80
 
-  - hostname: grafana.ratehunter.net
+  - hostname: grafana.projectnyra.com
     service: http://grafana:3000
 
-  - hostname: prometheus.ratehunter.net
+  - hostname: openlit.projectnyra.com
+    service: http://openlit:3000
+
+  - hostname: prometheus.projectnyra.com
     service: http://prometheus:9090
 
-  - hostname: cadvisor.ratehunter.net
+  - hostname: cadvisor.projectnyra.com
     service: http://cadvisor:8080
 
-  - hostname: openwebui.ratehunter.net
+  - hostname: openwebui.projectnyra.com
     service: http://openwebui:8080
 
-  - hostname: nexus-ui.ratehunter.net
+  - hostname: nexus-ui.projectnyra.com
     service: http://nexus-ui:3016
 
-  - hostname: litellm.ratehunter.net
+  - hostname: litellm.projectnyra.com
     service: http://litellm:4000
 
-  - hostname: nexus.ratehunter.net
+  - hostname: nexus.projectnyra.com
     service: http://nexus:3000
 
-  - hostname: clawteam.ratehunter.net
+  - hostname: clawteam.projectnyra.com
     service: http://clawteam:8080
 
-  - hostname: paperclip.ratehunter.net
+  - hostname: paperclip.projectnyra.com
     service: http://paperclip:3100
 
-  - hostname: letta.ratehunter.net
+  - hostname: letta.projectnyra.com
     service: http://oracle.trex-fiordland.ts.net:8283
 
-  - hostname: portainer-oracle.ratehunter.net
+  - hostname: portainer-oracle.projectnyra.com
     service: https://portainer:9443
     originRequest:
       noTLSVerify: true
 
   # Optional non-HTTP route. Use only with cloudflared access/SSH clients.
-  - hostname: git-ssh.ratehunter.net
+  - hostname: git-ssh.projectnyra.com
     service: ssh://gitea:2222
 
   # Oracle catch-all. Required by cloudflared.

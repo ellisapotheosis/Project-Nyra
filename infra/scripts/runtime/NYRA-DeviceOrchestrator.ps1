@@ -344,7 +344,7 @@ function Setup-CloudflareIntegration {
     # Update DNS records for each subdomain
     foreach ($subdomain in $NetworkConfig.Subdomains.Keys) {
         $ip = $NetworkConfig.Subdomains[$subdomain]
-        Write-NYRALog "Updating DNS: $subdomain.ratehunter.net -> $ip" "INFO"
+        Write-NYRALog "Updating DNS: $subdomain.projectnyra.com -> $ip" "INFO"
         
         # This would use Cloudflare API to update DNS records
         # In a real implementation, you'd use the Cloudflare REST API
@@ -354,7 +354,7 @@ function Setup-CloudflareIntegration {
     foreach ($tunnel in $NetworkConfig.CloudflareTunnels.Keys) {
         Write-NYRALog "Configuring Cloudflare Tunnel: $tunnel" "INFO"
         # cloudflared tunnel create $tunnel
-        # cloudflared tunnel route dns $tunnel $tunnel.ratehunter.net
+        # cloudflared tunnel route dns $tunnel $tunnel.projectnyra.com
     }
     
     Write-NYRALog "Cloudflare integration configured" "SUCCESS"
@@ -381,7 +381,7 @@ function Get-ClusterStatus {
     Write-Host "`n🌐 Network Configuration:" -ForegroundColor Cyan
     Write-Host "   Domain: $($NetworkConfig.Domain)" -ForegroundColor White
     foreach ($subdomain in $NetworkConfig.Subdomains.Keys) {
-        Write-Host "   $subdomain.ratehunter.net -> $($NetworkConfig.Subdomains[$subdomain])" -ForegroundColor Gray
+        Write-Host "   $subdomain.projectnyra.com -> $($NetworkConfig.Subdomains[$subdomain])" -ForegroundColor Gray
     }
 }
 

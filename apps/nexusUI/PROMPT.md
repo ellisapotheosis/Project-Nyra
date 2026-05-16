@@ -17,8 +17,8 @@ Build and maintain a production-quality admin UI that lets Nyra operators manage
 
 ## Architecture Rules
 
-- This app is a separate admin surface and should be deployed to the Access-gated subdomain `nexus.ratehunter.net`. The raw Nexus Router API/MCP endpoint is `nexus-router.ratehunter.net`.
-- Link to it from `apps/webapp`, but do not embed it inside the broker/customer webapp.
+- This app is a separate admin surface and should be deployed to the Access-gated subdomain `nexus.projectnyra.com`. The raw Nexus Router API/MCP endpoint is `nexus-router.projectnyra.com`.
+- Link to it from `apps/projectnyra`, but do not embed it inside the broker/customer webapp.
 - Current runtime placement is Oracle VPS: Grafbase Nexus and LiteLLM are in `infra/hosts/oracle-vps/docker-compose.yml`.
 - Do not use `infra/deploy/*`, `infra/compose/*`, `infra/stacks/*`, or `infra/workers/*` as live Compose sources. Host compose stacks live only under `infra/hosts/<host-name>/`.
 - Treat `config/nexus-ui.settings.json` as desired state, not guaranteed live state.

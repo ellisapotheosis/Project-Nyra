@@ -13,7 +13,7 @@ graph TD
     subgraph "Project-Nyra Monorepo"
         A[apps/ratehunter]
         B[apps/nyra-admin]
-        C[apps/webapp]
+        C[apps/projectnyra]
         D[services/quote-api]
         E[packages/types]
         F[packages/utils]
@@ -46,6 +46,7 @@ graph TD
 ```
 
 **Problems**:
+
 - 🔴 Bootstrap is isolated (red boxes)
 - 🔴 Types duplicated between `packages/types` and `installer/types`
 - 🔴 No code reuse between installer and other apps
@@ -60,7 +61,7 @@ graph TD
     subgraph "Project-Nyra Monorepo"
         A[apps/ratehunter]
         B[apps/nyra-admin]
-        C[apps/webapp]
+        C[apps/projectnyra]
         D[apps/installer]
 
         E[services/quote-api]
@@ -102,6 +103,7 @@ graph TD
 ```
 
 **Benefits**:
+
 - ✅ Installer integrated into monorepo (green boxes)
 - ✅ Three new shared packages for types, UI, and config
 - ✅ Admin dashboard can reuse UI components (blue dashed lines)
@@ -173,6 +175,7 @@ graph LR
 ```
 
 **Legend**:
+
 - 🟠 **Solid lines**: Current dependencies
 - 🔵 **Dashed lines**: Future reuse opportunities
 - 🟡 **Orange boxes**: New packages created during integration
@@ -312,6 +315,7 @@ Project-Nyra/
 ```
 
 **Legend**:
+
 - 🟢 **Moved**: `bootstrap/installer` → `apps/installer`
 - 🆕 **New**: Three extracted packages
 - 📂 **Unchanged**: Other bootstrap directories remain
@@ -483,6 +487,7 @@ gantt
 ```
 
 **Results**:
+
 - **Before**: ~215 seconds (3.6 minutes)
 - **After (cold)**: ~40 seconds
 - **After (cached)**: ~4 seconds
@@ -604,18 +609,18 @@ mindmap
 
 ```typescript
 // Old import paths
-import { PCRole } from './types/manifest';
-import { PCSelector } from './components/PCSelector';
-import { validateManifest } from './services/validator';
+import { PCRole } from "./types/manifest";
+import { PCSelector } from "./components/PCSelector";
+import { validateManifest } from "./services/validator";
 ```
 
 ### After Integration
 
 ```typescript
 // New import paths
-import { PCRole } from '@nyra/bootstrap-types';
-import { PCSelector } from '@nyra/bootstrap-ui/components';
-import { validateManifest } from '@nyra/bootstrap-config/validators';
+import { PCRole } from "@nyra/bootstrap-types";
+import { PCSelector } from "@nyra/bootstrap-ui/components";
+import { validateManifest } from "@nyra/bootstrap-config/validators";
 ```
 
 ### Auto-Import Configuration
@@ -698,6 +703,7 @@ graph LR
 ```
 
 **Legend**:
+
 - 🟢 **Green**: Target achieved
 - 🟡 **Yellow**: Acceptable but can improve
 

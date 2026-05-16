@@ -29,11 +29,11 @@ Repository and guidance:
 - [x] Completed Run 10 infra/ops/CI report.
 - [x] Completed team progress summary report.
 - [x] Added owner-manual-action coverage for GitHub, Vercel, Cloudflare, Infisical, Twenty, n8n, Activepieces, Twilio, SendGrid, Google Workspace, and code scanning subscription checks.
-- [x] Added a narrow `.gitignore` preservation rule for nested `apps/webapp/app/lib/**` source files.
+- [x] Added a narrow `.gitignore` preservation rule for nested `apps/projectnyra/lib/**` source files.
 
 Landing:
 
-- [x] Kept `apps/landing/ratehunter-landing` as the public borrower-facing destination.
+- [x] Kept `apps/ratehunter/landing` as the public borrower-facing destination.
 - [x] Added `data-nyra-theme="apotheosis"` to the landing root layout.
 - [x] Added `NEXT_PUBLIC_MARKETING_DEFAULT_THEME="apotheosis"` and `NEXT_PUBLIC_ENABLE_MOTION="true"` placeholders to the landing env example.
 - [x] Added `src/app/themes/apotheosis.css` as the named landing-compatible Apotheosis token layer.
@@ -48,7 +48,7 @@ Landing:
 
 Webapp:
 
-- [x] Kept `apps/webapp/app` as the internal broker command center destination.
+- [x] Kept `apps/projectnyra` as the internal broker command center destination.
 - [x] Added a locked theme registry with `midnight`, `mint-midnight`, `mint-midnight-glow`, and `apotheosis`.
 - [x] Added a first-party webapp theme provider using `data-nyra-theme` and localStorage.
 - [x] Set webapp default theme identity to `mint-midnight`.
@@ -70,7 +70,7 @@ Validation already run in prior pass:
 - [x] 2026-05-11 Run 03: `pnpm --filter ratehunter-landing typecheck` passed.
 - [x] 2026-05-11 Run 03: `pnpm --filter ratehunter-landing build:cf` passed.
 - [x] 2026-05-11 Run 03: landing source scan for forbidden internal terms returned no matches.
-- [x] 2026-05-11 Run 03: `git diff --check -- apps/landing/ratehunter-landing` passed.
+- [x] 2026-05-11 Run 03: `git diff --check -- apps/ratehunter/landing` passed.
 
 Known blockers already observed:
 
@@ -82,7 +82,7 @@ Known blockers already observed:
 - [x] 2026-05-11 Run 04 validation blocker was resolved by the Run 05-07 route lane; `pnpm --filter mortgage-assistant typecheck`, `lint`, and `build` passed after stale `.next` output was cleared.
 - [ ] 2026-05-11 Run 10 GitHub CI: recent auto-merge runs failed with bad credentials; owner must renew or replace `INFISICAL_GH_TOKEN`.
 - [ ] 2026-05-11 Run 10 CodeQL: recent CodeQL run failed because code scanning is not enabled for the repository; owner must enable GitHub Code Security/code scanning if available for the current plan/visibility.
-- [x] 2026-05-11 Run 03 asset preservation: added narrow `.gitignore` exceptions for selected landing public assets under `apps/landing/ratehunter-landing/public/**`.
+- [x] 2026-05-11 Run 03 asset preservation: added narrow `.gitignore` exceptions for selected landing public assets under `apps/ratehunter/landing/public/**`.
 
 ## Remaining Top-Level Work
 

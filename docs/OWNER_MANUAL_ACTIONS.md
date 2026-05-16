@@ -26,8 +26,8 @@ Generated desired-state files now exist for the orchestrator and Oracle VPS tunn
 
 Important routing decision:
 
-- `ratehunter.net` and `www.ratehunter.net` stay on Cloudflare Pages only.
-- App/service/MCP hostnames use subdomains such as `nyra.ratehunter.net`, `api.ratehunter.net`, `nexus.ratehunter.net`, and `nexus-router.ratehunter.net`.
+- `ratehunter.com` and `www.ratehunter.com` stay on Cloudflare Pages only.
+- App/service/MCP hostnames use subdomains such as `app.projectnyra.com`, `api.projectnyra.com`, `nexus.projectnyra.com`, and `nexus-router.projectnyra.com`.
 
 Apply status:
 
@@ -35,7 +35,7 @@ Apply status:
 - Tunnel configs applied successfully.
 - DNS records applied successfully.
 - UI/admin Access apps applied successfully.
-- `ratehunter.net` and `www.ratehunter.net` remain Cloudflare Pages hostnames.
+- `ratehunter.com` and `www.ratehunter.com` remain Cloudflare Pages hostnames.
 
 Required follow-up:
 
@@ -50,16 +50,16 @@ Current runtime caveat:
 
 - The orchestrator tunnel connector is online as tunnel `ae0bd53a-f22e-4414-8593-5b765dcd044b`.
 - The Oracle tunnel connector is online as tunnel `02fa18b6-ffcd-4b37-91ba-409642d5fb8f`, but this session used a runtime token override because the shared Infisical token currently mismatches the tunnel ID.
-- The preferred Linkwarden hostname is `links.ratehunter.net`; keep `linkwarden.ratehunter.net` only as a temporary alias if desired.
+- The preferred Linkwarden hostname is `links.projectnyra.com`; keep `linkwarden.projectnyra.com` only as a temporary alias if desired.
 - `http://100.64.0.2:3007` timed out from this local Codex App session on 2026-05-11. Tailscale also reported this session is logged out, so final origin validation must run from the orchestrator tunnel container or a Tailscale-authenticated shell.
 
 Current Oracle smoke status:
 
-- `https://api.ratehunter.net/auth/v1/health` returns `200`.
-- `https://hooks.ratehunter.net` returns `200`.
-- `https://nyra.ratehunter.net`, `https://nexus.ratehunter.net`, `https://litellm.ratehunter.net`, `https://n8n.ratehunter.net`, and `https://twenty.ratehunter.net` reach Cloudflare Access.
-- `https://nexus.ratehunter.net` is the Nexus UI endpoint and should remain Cloudflare Access-gated.
-- `https://nexus-router.ratehunter.net` is the Nexus Router API/MCP endpoint and should remain Cloudflare Access-gated with service-token protection for agent traffic.
+- `https://api.projectnyra.com/auth/v1/health` returns `200`.
+- `https://hooks.projectnyra.com` returns `200`.
+- `https://app.projectnyra.com`, `https://nexus.projectnyra.com`, `https://litellm.projectnyra.com`, `https://n8n.projectnyra.com`, and `https://twenty.projectnyra.com` reach Cloudflare Access.
+- `https://nexus.projectnyra.com` is the Nexus UI endpoint and should remain Cloudflare Access-gated.
+- `https://nexus-router.projectnyra.com` is the Nexus Router API/MCP endpoint and should remain Cloudflare Access-gated with service-token protection for agent traffic.
 
 ### Tunnel objects
 
@@ -74,18 +74,31 @@ Expected tunnel scope:
 
 Create proxied records for:
 
-- `nyra.ratehunter.net`
-- `api.ratehunter.net`
-- `hooks.ratehunter.net`
-- `twenty.ratehunter.net`
-- `n8n.ratehunter.net`
-- `grafana.ratehunter.net`
-- `archon.ratehunter.net`
-- `bot.ratehunter.net`
+- `app.projectnyra.com`
+- `api.projectnyra.com`
+- `hooks.projectnyra.com`
+- `twenty.projectnyra.com`
+- `n8n.projectnyra.com`
+- `grafana.projectnyra.com`
+- `archon.projectnyra.com`
+- `bot.projectnyra.com`
 
 ### Cloudflare Access
 
 Create Access apps/policies for admin surfaces and require MFA.
+
+### OpenLIT owner-only access
+
+OpenLIT has been added to the Oracle VPS stack as `openlit.projectnyra.com`, routed to `openlit:3000` in
+`infra/hosts/oracle-vps/cloudflared-config.yml`.
+
+**Steps:**
+
+1. In Cloudflare Zero Trust, add or confirm the Oracle tunnel public hostname `openlit.projectnyra.com`.
+2. Protect `openlit.projectnyra.com` with Cloudflare Access before exposing it outside Tailscale.
+3. In Infisical `/machines/oracle-vps`, set stable production values for `OPENLIT_NEXTAUTH_SECRET`,
+   `OPENLIT_VAULT_ENCRYPTION_KEY`, and `OPENLIT_DB_PASSWORD`.
+4. Restart the Oracle main stack after those secrets are present.
 
 ### Letta owner-only subdomain and MCP access
 
@@ -97,9 +110,9 @@ replacement control plane.
 
 **Steps:**
 
-1. In Cloudflare DNS/Zero Trust, create `letta.ratehunter.net` and route it to
+1. In Cloudflare DNS/Zero Trust, create `letta.projectnyra.com` and route it to
    the Oracle Letta origin from `infra/hosts/*/cloudflared-config.yml`.
-2. Protect `letta.ratehunter.net` with Cloudflare Access. Use owner-only access
+2. Protect `letta.projectnyra.com` with Cloudflare Access. Use owner-only access
    or a service-token policy for automation.
 3. On Oracle, set `ORACLE_TAILSCALE_IP=100.64.0.3` or the current Oracle
    Tailscale IP before starting the memory compose stack. This binds Letta and
@@ -115,7 +128,7 @@ replacement control plane.
    `[mcp.servers.letta]` tools.
 6. On every workstation running Claude Code, set `ORCHESTRATOR_TUNNEL_TOKEN`
    to the Cloudflare Access service token expected by `.mcp.json`; otherwise
-   `https://nexus-router.ratehunter.net/mcp` redirects to browser login and MCP auth
+   `https://nexus-router.projectnyra.com/mcp` redirects to browser login and MCP auth
    fails.
 
 ### Cloudflare Pages landing redeploy
@@ -164,29 +177,29 @@ This means one of these owner-managed values is wrong or missing:
 6. Verify the API token used by Actions has access to that same account and includes Pages permissions.
 7. Re-run the `Deploy to Cloudflare Pages` workflow after correcting the account/project mismatch.
 
-### ratehunter.net serves branded 404 after a successful landing deploy
+### ratehunter.com serves branded 404 after a successful landing deploy
 
-Observed on May 1, 2026: `https://ratehunter.net/` resolves through Cloudflare but serves a branded `404 Page Not Found`
+Observed on May 1, 2026: `https://ratehunter.com/` resolves through Cloudflare but serves a branded `404 Page Not Found`
 instead of the landing app homepage. This is different from a build failure. It means the public hostname is not serving
-the deployed `apps/landing/ratehunter-landing` homepage.
+the deployed `apps/ratehunter/landing` homepage.
 
 Likely causes:
 
-- `ratehunter.net` is attached to a different Pages project, Worker route, or Cloudflared fallback origin.
-- The `ratehunter-landing` Pages project deployed successfully, but `ratehunter.net` is not listed under that project's custom domains.
+- `ratehunter.com` is attached to a different Pages project, Worker route, or Cloudflared fallback origin.
+- The `ratehunter-landing` Pages project deployed successfully, but `ratehunter.com` is not listed under that project's custom domains.
 - DNS for the apex or `www` hostname points at a stale Cloudflare route instead of the Pages custom-domain binding.
 - The deployment adapter uploaded an artifact that returns 200/404 but does not serve the OpenNext landing app content.
 
 **Steps:**
 
 1. Open Cloudflare Dashboard → **Workers & Pages** → `ratehunter-landing` → **Custom domains**.
-2. Confirm both `ratehunter.net` and `www.ratehunter.net` are attached to this exact project and show as active.
-3. Open the Cloudflare DNS records for the `ratehunter.net` zone and confirm there is no Worker route, Pages project,
+2. Confirm both `ratehunter.com` and `www.ratehunter.com` are attached to this exact project and show as active.
+3. Open the Cloudflare DNS records for the `ratehunter.com` zone and confirm there is no Worker route, Pages project,
    or Cloudflared tunnel hostname taking precedence over the apex.
 4. If the domain is attached to another project, remove it there first, then add it to `ratehunter-landing`.
-5. If `ratehunter.net` is intentionally served by Cloudflared instead of Pages, update
+5. If `ratehunter.com` is intentionally served by Cloudflared instead of Pages, update
    `.github/workflows/deploy-cloudflare-pages.yml` and `docs/05_cloudflare_pages_landing.md` before switching traffic.
-6. Re-run the GitHub workflow. Production deploys now verify that `https://ratehunter.net/` contains the expected
+6. Re-run the GitHub workflow. Production deploys now verify that `https://ratehunter.com/` contains the expected
    landing homepage text (`Ellis Andersen`) and will fail if the domain still serves the 404 page.
 
 ## Tailscale
@@ -320,8 +333,8 @@ docker run -d `
 **Then test:**
 
 ```
-curl http://orchestrator.trex-fiordland.ts.net:6000/health
-curl http://orchestrator.trex-fiordland.ts.net:6000/mcp -H "Accept: text/event-stream"
+curl http://orchestrator.trex-fiordland.ts.com:6000/health
+curl http://orchestrator.trex-fiordland.ts.com:6000/mcp -H "Accept: text/event-stream"
 ```
 
 Once Nexus is running, the `.mcp.json` `nexus-router` entry will connect on reload.
@@ -345,7 +358,7 @@ email addresses can log in.
 **Allowed identities:**
 
 - `edaneandersen@gmail.com`
-- `ellisandersen@ratehunter.net`
+- `ellisandersen@ratehunter.com`
 
 **Steps (Cloudflare Zero Trust Dashboard):**
 
@@ -353,7 +366,7 @@ email addresses can log in.
 2. Select **Self-hosted**
 3. For each subdomain listed in `~/repos/cloudflared/TUNNEL-SETUP-ORACLE.md` and
    `~/repos/cloudflared/TUNNEL-SETUP-ORCHESTRATOR.md`, create one Application:
-   - **Application domain:** e.g. `n8n.ratehunter.net`
+   - **Application domain:** e.g. `n8n.projectnyra.com`
    - **Session duration:** 24h
    - **Identity provider:** Google (or GitHub)
 4. Create a **Policy** for each application:
@@ -366,11 +379,11 @@ email addresses can log in.
 
 **Subdomains needing Tailscale IP restriction (in addition to OIDC):**
 
-- `portainer.ratehunter.net`
-- `mesh.ratehunter.net`
-- `prometheus.ratehunter.net`
-- `openmemory.ratehunter.net`
-- `mem.ratehunter.net`
+- `portainer.projectnyra.com`
+- `mesh.projectnyra.com`
+- `prometheus.projectnyra.com`
+- `openmemory.projectnyra.com`
+- `mem.projectnyra.com`
 
 **Note:** Services with their own strong auth (Grafana, n8n, Twenty CRM, Gitea, Activepieces, Portainer)
 have CF Access as a second gate — if CF Access token expires they still require a login.

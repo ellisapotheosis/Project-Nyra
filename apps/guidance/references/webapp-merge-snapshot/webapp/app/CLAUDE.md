@@ -15,20 +15,22 @@
 
 **3 tiers for optimal cost/performance:**
 
-| Tier | Handler | Latency | Cost | Use Cases |
-|------|---------|---------|------|-----------|
-| **1** | Local Small (Qwen 32B) | <1ms | $0 | Simple transforms |
-| **2** | Local Large (DeepSeek R1) | ~500ms | $0.0002 | Simple tasks, bug fixes |
-| **3** | Sonnet/Opus | 2-5s | $0.003-$0.015 | Complex reasoning |
+| Tier  | Handler                   | Latency | Cost          | Use Cases               |
+| ----- | ------------------------- | ------- | ------------- | ----------------------- |
+| **1** | Local Small (Qwen 32B)    | <1ms    | $0            | Simple transforms       |
+| **2** | Local Large (DeepSeek R1) | ~500ms  | $0.0002       | Simple tasks, bug fixes |
+| **3** | Sonnet/Opus               | 2-5s    | $0.003-$0.015 | Complex reasoning       |
 
 ---
 
 ## 🧠 AUTO-LEARNING PROTOCOL
 
 ### Before Task
+
 - Search memory for relevant patterns in Letta.
 
 ### After Task Success
+
 - Record completion metrics in Archon.
 - Store successful patterns in Letta.
 
@@ -75,12 +77,15 @@ archon status
 ## 🚨 CRITICAL DEVELOPMENT RULES
 
 ### Parallel Component Development Pattern
+
 **MANDATORY**: All features and pages MUST be developed in parallel.
 
 ### Loan Officer Workflow First
+
 **CRITICAL**: Design around actual loan officer workflows (Dashboard, Pipeline, Document Hub, Client Communication, Task Automation).
 
 ### Compliance & Security
+
 **MANDATORY**: Every loan-related feature must include encryption, audit trails, role permissions, and compliance with retention policies.
 
 ## 🐝 ARCHON OS WORKFLOW
@@ -109,7 +114,7 @@ For complex UI development, use specialized Archon workflows for frontend engine
 ## 📚 RELATED DOCUMENTATION
 
 - **Root CLAUDE.md**: Archon OS patterns
-- **apps/webapp/CLAUDE.md**: Web app ecosystem overview
+- **apps/projectnyra/CLAUDE.md**: Web app ecosystem overview
 - **services/quote-engine/**: Loan calculation backend
 - **services/campaign-engine/**: Borrower communication
 

@@ -10,11 +10,11 @@ info:
 
     **Base URL**: `http://localhost:8004` (development)
 
-    **Production URL**: `https://api.ratehunter.net/memory`
+    **Production URL**: `https://api.projectnyra.com/memory`
   version: 1.0.0
   contact:
     name: Project Nyra API Support
-    email: api@ratehunter.net
+    email: api@ratehunter.com
   license:
     name: Proprietary
 
@@ -23,7 +23,7 @@ servers:
     description: Local development server
   - url: http://mem0:8004
     description: Docker internal network
-  - url: https://api.ratehunter.net/memory
+  - url: https://api.projectnyra.com/memory
     description: Production API
 
 tags:
@@ -42,7 +42,7 @@ paths:
       summary: Health check endpoint
       tags: [health]
       responses:
-        '200':
+        "200":
           description: Service is healthy
           content:
             application/json:
@@ -76,14 +76,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/MemoryRequest'
+              $ref: "#/components/schemas/MemoryRequest"
       responses:
-        '201':
+        "201":
           description: Memory stored successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MemoryResponse'
+                $ref: "#/components/schemas/MemoryResponse"
 
     get:
       summary: List memories
@@ -104,14 +104,14 @@ paths:
             type: integer
             default: 50
       responses:
-        '200':
+        "200":
           description: Memories retrieved
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/MemoryResponse'
+                  $ref: "#/components/schemas/MemoryResponse"
 
   /memory/{memory_id}:
     get:
@@ -124,12 +124,12 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: Memory retrieved
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MemoryResponse'
+                $ref: "#/components/schemas/MemoryResponse"
 
     delete:
       summary: Delete memory
@@ -141,7 +141,7 @@ paths:
           schema:
             type: string
       responses:
-        '204':
+        "204":
           description: Memory deleted
 
   /search:
@@ -181,7 +181,7 @@ paths:
                   default: 0.7
                   description: Minimum similarity score (0-1)
       responses:
-        '200':
+        "200":
           description: Search results
           content:
             application/json:
@@ -192,7 +192,7 @@ paths:
                     type: array
                     items:
                       allOf:
-                        - $ref: '#/components/schemas/MemoryResponse'
+                        - $ref: "#/components/schemas/MemoryResponse"
                         - type: object
                           properties:
                             similarity_score:
@@ -230,12 +230,12 @@ paths:
             type: boolean
             default: false
       responses:
-        '200':
+        "200":
           description: Complete context retrieved
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/LeadContext'
+                $ref: "#/components/schemas/LeadContext"
 
     post:
       summary: Update lead context
@@ -261,7 +261,7 @@ paths:
                 metadata:
                   type: object
       responses:
-        '200':
+        "200":
           description: Context updated
 
   /summary/{lead_id}:
@@ -285,7 +285,7 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: Summary generated
           content:
             application/json:
@@ -332,7 +332,7 @@ paths:
                   type: string
                   example: "Customer prefers 30-year fixed rate with minimal closing costs"
       responses:
-        '200':
+        "200":
           description: Embeddings generated
           content:
             application/json:

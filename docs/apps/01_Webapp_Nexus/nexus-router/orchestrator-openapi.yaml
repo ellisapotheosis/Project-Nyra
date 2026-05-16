@@ -9,11 +9,11 @@ info:
 
     **Base URL**: `http://localhost:8003` (development)
 
-    **Production URL**: `https://api.ratehunter.net/orchestrator`
+    **Production URL**: `https://api.projectnyra.com/orchestrator`
   version: 1.0.0
   contact:
     name: Project Nyra API Support
-    email: api@ratehunter.net
+    email: api@ratehunter.com
   license:
     name: Proprietary
 
@@ -22,7 +22,7 @@ servers:
     description: Local development server
   - url: http://orchestrator:8003
     description: Docker internal network
-  - url: https://api.ratehunter.net/orchestrator
+  - url: https://api.projectnyra.com/orchestrator
     description: Production API
 
 tags:
@@ -41,7 +41,7 @@ paths:
       summary: Health check endpoint
       tags: [health]
       responses:
-        '200':
+        "200":
           description: Service is healthy
           content:
             application/json:
@@ -86,17 +86,17 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/LeadIntakeRequest'
+              $ref: "#/components/schemas/LeadIntakeRequest"
       responses:
-        '200':
+        "200":
           description: Workflow executed successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/WorkflowResponse'
-        '400':
+                $ref: "#/components/schemas/WorkflowResponse"
+        "400":
           description: Validation error
-        '500':
+        "500":
           description: Workflow execution failed
 
   /workflows/quote-to-application:
@@ -127,12 +127,12 @@ paths:
                 quote_id:
                   type: string
       responses:
-        '200':
+        "200":
           description: Application created successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/WorkflowResponse'
+                $ref: "#/components/schemas/WorkflowResponse"
 
   /workflows/rate-lock:
     post:
@@ -164,7 +164,7 @@ paths:
                   enum: [30, 45, 60]
                   description: Lock period in days
       responses:
-        '200':
+        "200":
           description: Rate locked successfully
           content:
             application/json:
@@ -200,14 +200,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/TaskRequest'
+              $ref: "#/components/schemas/TaskRequest"
       responses:
-        '202':
+        "202":
           description: Task accepted
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/TaskResponse'
+                $ref: "#/components/schemas/TaskResponse"
 
     get:
       summary: List tasks
@@ -223,14 +223,14 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: Tasks retrieved
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/TaskResponse'
+                  $ref: "#/components/schemas/TaskResponse"
 
   /tasks/{task_id}:
     get:
@@ -243,12 +243,12 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: Task status retrieved
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/TaskDetailResponse'
+                $ref: "#/components/schemas/TaskDetailResponse"
 
   /integrations/credit-report:
     post:
@@ -279,7 +279,7 @@ paths:
                   enum: [experian, equifax, transunion, all]
                   default: all
       responses:
-        '200':
+        "200":
           description: Credit report retrieved
           content:
             application/json:
@@ -329,7 +329,7 @@ paths:
                   type: boolean
                   default: false
       responses:
-        '202':
+        "202":
           description: Appraisal ordered
           content:
             application/json:
@@ -372,9 +372,17 @@ paths:
                   type: string
                 document_type:
                   type: string
-                  enum: [pay_stub, w2, bank_statement, tax_return, id_document, other]
+                  enum:
+                    [
+                      pay_stub,
+                      w2,
+                      bank_statement,
+                      tax_return,
+                      id_document,
+                      other,
+                    ]
       responses:
-        '200':
+        "200":
           description: Document uploaded and processed
           content:
             application/json:
@@ -406,18 +414,19 @@ paths:
         - Average response time
         - Conversion rates
       responses:
-        '200':
+        "200":
           description: Dashboard data retrieved
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DashboardMetrics'
+                $ref: "#/components/schemas/DashboardMetrics"
 
 components:
   schemas:
     LeadIntakeRequest:
       type: object
-      required: [email, firstName, lastName, loanAmount, propertyValue, creditScore]
+      required:
+        [email, firstName, lastName, loanAmount, propertyValue, creditScore]
       properties:
         email:
           type: string
@@ -478,7 +487,14 @@ components:
       properties:
         task_type:
           type: string
-          enum: [document_processing, credit_report_pull, appraisal_order, title_search, income_verification]
+          enum:
+            [
+              document_processing,
+              credit_report_pull,
+              appraisal_order,
+              title_search,
+              income_verification,
+            ]
         lead_id:
           type: string
         priority:
@@ -507,7 +523,7 @@ components:
 
     TaskDetailResponse:
       allOf:
-        - $ref: '#/components/schemas/TaskResponse'
+        - $ref: "#/components/schemas/TaskResponse"
         - type: object
           properties:
             progress:

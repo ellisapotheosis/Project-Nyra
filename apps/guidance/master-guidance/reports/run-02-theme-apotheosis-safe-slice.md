@@ -13,9 +13,9 @@ Run 02 completed the safe landing-side Apotheosis token application without broa
 
 ## Changes Made
 
-- Added `apps/landing/ratehunter-landing/src/app/themes/apotheosis.css` as the named landing-compatible Apotheosis token file.
+- Added `apps/ratehunter/landing/src/app/themes/apotheosis.css` as the named landing-compatible Apotheosis token file.
 - Mapped the supplied dark Apotheosis OKLCH semantic tokens into the landing token layer to preserve the current public dark premium baseline.
-- Updated `apps/landing/ratehunter-landing/tailwind.config.ts` so semantic colors resolve through CSS variables directly, including opacity-aware `color-mix()` support for Tailwind slash-opacity utilities.
+- Updated `apps/ratehunter/landing/tailwind.config.ts` so semantic colors resolve through CSS variables directly, including opacity-aware `color-mix()` support for Tailwind slash-opacity utilities.
 - Updated landing globals to consume semantic tokens for body color, background, selection, panels, dividers, and background accents.
 - Updated theme guidance and the progress checklist with the Tailwind v4-to-v3 compatibility decision.
 

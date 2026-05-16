@@ -229,10 +229,10 @@ check_tunnel_status() {
 
 check_tunnel_connectivity() {
     local test_urls=(
-        "https://nyra.ratehunter.net"
-        "https://orchestrator.ratehunter.net"
-        "https://health.ratehunter.net"
-        "https://api.ratehunter.net"
+        "https://app.projectnyra.com"
+        "https://orchestrator.projectnyra.com"
+        "https://health.projectnyra.com"
+        "https://api.projectnyra.com"
     )
 
     local failed=0
@@ -250,13 +250,13 @@ check_tunnel_connectivity() {
 
 check_dns_resolution() {
     local domains=(
-        "nyra.ratehunter.net"
-        "orchestrator.ratehunter.net"
-        "worker1.ratehunter.net"
-        "worker2.ratehunter.net"
-        "worker3.ratehunter.net"
-        "api.ratehunter.net"
-        "health.ratehunter.net"
+        "app.projectnyra.com"
+        "orchestrator.projectnyra.com"
+        "worker1.projectnyra.com"
+        "worker2.projectnyra.com"
+        "worker3.projectnyra.com"
+        "api.projectnyra.com"
+        "health.projectnyra.com"
     )
 
     local failed=0
@@ -325,19 +325,19 @@ class CloudflareLoadBalancer {
             origins: [
                 {
                     name: 'worker1',
-                    address: 'worker1.ratehunter.net',
+                    address: 'worker1.projectnyra.com',
                     enabled: true,
                     weight: 0.7 // RTX 3060 - lower weight
                 },
                 {
                     name: 'worker2',
-                    address: 'worker2.ratehunter.net',
+                    address: 'worker2.projectnyra.com',
                     enabled: true,
                     weight: 1.0 // RTX 5090 - highest weight
                 },
                 {
                     name: 'worker3',
-                    address: 'worker3.ratehunter.net',
+                    address: 'worker3.projectnyra.com',
                     enabled: true,
                     weight: 0.9 // RTX 3090Ti - high weight
                 }
@@ -361,7 +361,7 @@ class CloudflareLoadBalancer {
 
     async createLoadBalancer(poolId) {
         const lbConfig = {
-            name: 'api.ratehunter.net',
+            name: 'api.projectnyra.com',
             fallback_pool: poolId,
             default_pools: [poolId],
             description: 'Nyra GPU Compute Load Balancer',
@@ -421,13 +421,13 @@ show_setup_info() {
     echo "   - Configuration: /etc/cloudflared/config.yml"
     echo
     echo "🌐 DNS Records:"
-    echo "   - nyra.ratehunter.net → Tunnel"
-    echo "   - orchestrator.ratehunter.net → Tunnel"
-    echo "   - worker1.ratehunter.net → Tunnel (proxy)"
-    echo "   - worker2.ratehunter.net → Tunnel (proxy)"
-    echo "   - worker3.ratehunter.net → Tunnel (proxy)"
-    echo "   - api.ratehunter.net → Load Balanced"
-    echo "   - health.ratehunter.net → Tunnel"
+    echo "   - app.projectnyra.com → Tunnel"
+    echo "   - orchestrator.projectnyra.com → Tunnel"
+    echo "   - worker1.projectnyra.com → Tunnel (proxy)"
+    echo "   - worker2.projectnyra.com → Tunnel (proxy)"
+    echo "   - worker3.projectnyra.com → Tunnel (proxy)"
+    echo "   - api.projectnyra.com → Load Balanced"
+    echo "   - health.projectnyra.com → Tunnel"
     echo
     echo "🔍 Monitoring:"
     echo "   - Tunnel health checks every 5 minutes"
@@ -436,16 +436,16 @@ show_setup_info() {
     echo
     echo "⚡ Next Steps:"
     echo "   1. Verify tunnel status: systemctl status cloudflared"
-    echo "   2. Test DNS resolution: nslookup nyra.ratehunter.net"
+    echo "   2. Test DNS resolution: nslookup app.projectnyra.com"
     echo "   3. Check tunnel metrics: http://localhost:8888/metrics"
     echo "   4. Setup worker nodes with tunnel credentials"
     echo "   5. Configure load balancer (optional)"
     echo
     echo "🔗 Service URLs:"
-    echo "   - Main Interface: https://nyra.ratehunter.net"
-    echo "   - Orchestrator: https://orchestrator.ratehunter.net"
-    echo "   - Health Dashboard: https://health.ratehunter.net"
-    echo "   - API Gateway: https://api.ratehunter.net"
+    echo "   - Main Interface: https://app.projectnyra.com"
+    echo "   - Orchestrator: https://orchestrator.projectnyra.com"
+    echo "   - Health Dashboard: https://health.projectnyra.com"
+    echo "   - API Gateway: https://api.projectnyra.com"
 }
 
 # Main setup function

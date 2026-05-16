@@ -23,7 +23,7 @@ services:
       PORT: 3100
       DATABASE_URL: postgresql://${PAPERCLIP_DB_USER:-paperclip}:${PAPERCLIP_DB_PASSWORD:?set PAPERCLIP_DB_PASSWORD}@paperclip-postgres:5432/${PAPERCLIP_DB_NAME:-paperclip}
       REDIS_URL: redis://paperclip-redis:6379/0
-      PAPERCLIP_PUBLIC_URL: ${PAPERCLIP_PUBLIC_URL:-https://paperclip.ratehunter.net}
+      PAPERCLIP_PUBLIC_URL: ${PAPERCLIP_PUBLIC_URL:-https://paperclip.projectnyra.com}
       PAPERCLIP_AUTH_DISABLE_SIGN_UP: ${PAPERCLIP_AUTH_DISABLE_SIGN_UP:-true}
       PAPERCLIP_SESSION_SECRET: ${PAPERCLIP_SESSION_SECRET:?set PAPERCLIP_SESSION_SECRET}
       PAPERCLIP_AGENT_CALLBACK_BASE_URL: ${PAPERCLIP_AGENT_CALLBACK_BASE_URL:-http://paperclip:3100}
@@ -40,7 +40,11 @@ services:
       oracle_private: {}
       oracle_edge: {}
     healthcheck:
-      test: ["CMD-SHELL", "wget -q -O- http://127.0.0.1:3100/health >/dev/null 2>&1 || wget -q -O- http://127.0.0.1:3100/ >/dev/null 2>&1"]
+      test:
+        [
+          "CMD-SHELL",
+          "wget -q -O- http://127.0.0.1:3100/health >/dev/null 2>&1 || wget -q -O- http://127.0.0.1:3100/ >/dev/null 2>&1",
+        ]
       interval: 15s
       timeout: 5s
       retries: 20
@@ -68,7 +72,11 @@ services:
     networks:
       oracle_private: {}
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${PAPERCLIP_DB_USER:-paperclip} -d ${PAPERCLIP_DB_NAME:-paperclip}"]
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${PAPERCLIP_DB_USER:-paperclip} -d ${PAPERCLIP_DB_NAME:-paperclip}",
+        ]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -93,7 +101,7 @@ services:
     image: searxng/searxng:latest
     container_name: ${COMPOSE_PROJECT_NAME:-nyra}-searxng
     environment:
-      SEARXNG_BASE_URL: ${SEARXNG_BASE_URL:-https://search.ratehunter.net}
+      SEARXNG_BASE_URL: ${SEARXNG_BASE_URL:-https://search.projectnyra.com}
       SEARXNG_SECRET: ${SEARXNG_SECRET:?set SEARXNG_SECRET}
       SEARXNG_REDIS_URL: redis://searxng-redis:6379/0
       UWSGI_WORKERS: ${SEARXNG_UWSGI_WORKERS:-4}
@@ -109,7 +117,11 @@ services:
       oracle_private: {}
       oracle_edge: {}
     healthcheck:
-      test: ["CMD-SHELL", "wget -q -O- http://127.0.0.1:8080/healthz >/dev/null 2>&1 || wget -q -O- http://127.0.0.1:8080/ >/dev/null 2>&1"]
+      test:
+        [
+          "CMD-SHELL",
+          "wget -q -O- http://127.0.0.1:8080/healthz >/dev/null 2>&1 || wget -q -O- http://127.0.0.1:8080/ >/dev/null 2>&1",
+        ]
       interval: 15s
       timeout: 5s
       retries: 20
@@ -150,7 +162,11 @@ services:
       oracle_private: {}
       oracle_edge: {}
     healthcheck:
-      test: ["CMD-SHELL", "wget -q -O- 'http://127.0.0.1:3000/json/version?token=${BROWSERLESS_TOKEN}' >/dev/null 2>&1"]
+      test:
+        [
+          "CMD-SHELL",
+          "wget -q -O- 'http://127.0.0.1:3000/json/version?token=${BROWSERLESS_TOKEN}' >/dev/null 2>&1",
+        ]
       interval: 15s
       timeout: 5s
       retries: 20

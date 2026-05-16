@@ -18,7 +18,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 SESSION_NAME="${NYRA_TMUX_SESSION:-NYRA-GRID}"
-CF_APP_DIR="${NYRA_CF_APP_DIR:-${PROJECT_ROOT}/apps/landing/ratehunter-landing}"
+CF_APP_DIR="${NYRA_CF_APP_DIR:-${PROJECT_ROOT}/apps/ratehunter/landing}"
 CF_PROJECT_NAME="${NYRA_CF_PROJECT_NAME:-project-nyra}"
 CF_ENVIRONMENT="${NYRA_CF_ENVIRONMENT:-production}"
 REMOTE_PROJECT_ROOT="${NYRA_REMOTE_PROJECT_ROOT:-/home/ellisapotheosis/repos/project-nyra}"

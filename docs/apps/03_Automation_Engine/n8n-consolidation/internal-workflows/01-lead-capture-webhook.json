@@ -101,11 +101,11 @@
     },
     {
       "parameters": {
-        "fromEmail": "noreply@ratehunter.net",
+        "fromEmail": "noreply@ratehunter.com",
         "toEmail": "={{$json.email}}",
         "subject": "Your Mortgage Quote is Ready!",
         "emailType": "html",
-        "message": "<h2>Hello {{$json.firstName}},</h2><p>Thank you for your interest! We've generated a personalized mortgage quote for you.</p><p><strong>Loan Amount:</strong> ${{$json.loanAmount}}</p><p><strong>Estimated Rate:</strong> {{$node['Generate Quote'].json.rate}}%</p><p><a href=\"https://ratehunter.net/quote/{{$node['Save to Database'].json.id}}\">View Full Quote</a></p>"
+        "message": "<h2>Hello {{$json.firstName}},</h2><p>Thank you for your interest! We've generated a personalized mortgage quote for you.</p><p><strong>Loan Amount:</strong> ${{$json.loanAmount}}</p><p><strong>Estimated Rate:</strong> {{$node['Generate Quote'].json.rate}}%</p><p><a href=\"https://ratehunter.com/quote/{{$node['Save to Database'].json.id}}\">View Full Quote</a></p>"
       },
       "id": "email-send-quote",
       "name": "Send Quote Email",

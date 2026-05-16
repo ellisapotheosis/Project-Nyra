@@ -57,29 +57,34 @@ apps/
 ## Design Principles
 
 ### 1. Category-Based Organization
+
 Apps are organized by **type** (web, landing, cli) not domain (mortgage, admin)
+
 - **Why:** Technical similarity, easier build optimization, clearer team boundaries
 
 ### 2. Clear Separation of Concerns
+
 - **Production apps:** `web/`, `landing/`, `desktop/`, `mobile/`
 - **Development tools:** `utilities/`
 - **Temporary processing:** `ingestion/`
 - **Shared resources:** `shared/`
 
 ### 3. Naming Conventions
+
 - **Directories:** kebab-case (`mortgage-assistant`)
 - **Packages:** `@nyra/app-name` (`@nyra/mortgage-assistant`)
 - **Components:** PascalCase (`Button.tsx`)
 - **Utilities:** camelCase (`formatCurrency.ts`)
 
 ### 4. Port Allocation
-| Category | Range | Examples |
-|----------|-------|----------|
-| Web Apps | 3000-3099 | mortgage-assistant:3000, ratehunter:3009 |
-| Landing Pages | 3100-3199 | ratehunter-landing:3001 |
-| Desktop Apps | 3200-3299 | Reserved |
-| Services | 3300-3999 | Various backend APIs |
-| Infrastructure | 4000-4999 | WebSocket, databases |
+
+| Category       | Range     | Examples                                 |
+| -------------- | --------- | ---------------------------------------- |
+| Web Apps       | 3000-3099 | mortgage-assistant:3000, ratehunter:3009 |
+| Landing Pages  | 3100-3199 | ratehunter-landing:3001                  |
+| Desktop Apps   | 3200-3299 | Reserved                                 |
+| Services       | 3300-3999 | Various backend APIs                     |
+| Infrastructure | 4000-4999 | WebSocket, databases                     |
 
 ---
 
@@ -116,6 +121,7 @@ Apps are organized by **type** (web, landing, cli) not domain (mortgage, admin)
 ```
 
 **Key Features:**
+
 - Automated validation against schemas
 - Processing scripts for migration/transformation
 - Metadata tracking (what's been processed)
@@ -147,6 +153,7 @@ Apps are organized by **type** (web, landing, cli) not domain (mortgage, admin)
    - No direct app-to-app calls
 
 2. **Shared Configuration** (`configs/`)
+
    ```
    configs/
    ├── shared/
@@ -158,10 +165,11 @@ Apps are organized by **type** (web, landing, cli) not domain (mortgage, admin)
    ```
 
 3. **Shared Packages** (`packages/`)
+
    ```typescript
-   import { Button } from '@nyra/ui';
-   import { formatCurrency } from '@nyra/utils';
-   import { User } from '@nyra/types';
+   import { Button } from "@nyra/ui";
+   import { formatCurrency } from "@nyra/utils";
+   import { User } from "@nyra/types";
    ```
 
 4. **Service Mapping**
@@ -182,20 +190,22 @@ Apps are organized by **type** (web, landing, cli) not domain (mortgage, admin)
 ### Turborepo + pnpm Workspaces
 
 **Workspace Configuration:**
+
 ```yaml
 packages:
-  - 'apps/web/*'
-  - 'apps/landing/*'
-  - 'apps/desktop/*'
-  - 'apps/cli/*'
-  - 'apps/mobile/*'
-  - 'apps/utilities/*'
-  - 'apps/ingestion'
-  - 'packages/*'
-  - 'services/*'
+  - "apps/web/*"
+  - "apps/ratehunter/*"
+  - "apps/desktop/*"
+  - "apps/cli/*"
+  - "apps/mobile/*"
+  - "apps/utilities/*"
+  - "apps/ingestion"
+  - "packages/*"
+  - "services/*"
 ```
 
 **Common Commands:**
+
 ```bash
 # Development
 pnpm dev                          # Start all apps
@@ -214,6 +224,7 @@ pnpm --filter @nyra/mortgage-assistant test
 ```
 
 **Turborepo Pipeline:**
+
 ```json
 {
   "pipeline": {
@@ -240,18 +251,21 @@ pnpm --filter @nyra/mortgage-assistant test
 ### 6-Phase Approach (4 Weeks)
 
 **Phase 1: Assessment** (Week 1)
+
 - Inventory current apps
 - Map dependencies
 - Create migration plan
 - **Status:** ✅ Complete
 
 **Phase 2: Structure Creation** (Week 1-2)
+
 - Create new folder structure (empty)
 - Write documentation
 - Create app templates
 - **Status:** 🔄 Ready to start
 
 **Phase 3: App Migration** (Week 2-4)
+
 - Migrate utilities first (lowest risk)
 - Then landing pages
 - Then web apps (one by one)
@@ -259,6 +273,7 @@ pnpm --filter @nyra/mortgage-assistant test
 - **Status:** ⏳ Pending
 
 **Phase 4: Ingestion Setup** (Week 3)
+
 - Create ingestion structure
 - Write processing scripts
 - Move archive content
@@ -266,6 +281,7 @@ pnpm --filter @nyra/mortgage-assistant test
 - **Status:** ⏳ Pending
 
 **Phase 5: Integration Updates** (Week 4)
+
 - Update Docker Compose
 - Update CI/CD pipelines
 - Update deployment scripts
@@ -273,6 +289,7 @@ pnpm --filter @nyra/mortgage-assistant test
 - **Status:** ⏳ Pending
 
 **Phase 6: Validation & Cleanup** (Week 4)
+
 - Full system test
 - Performance testing
 - Security audit
@@ -300,6 +317,7 @@ pnpm --filter @nyra/mortgage-assistant test
 ```
 
 **Migration Checklist per App:**
+
 - [ ] Move to new location
 - [ ] Update package.json name
 - [ ] Update imports and configs
@@ -319,6 +337,7 @@ pnpm --filter @nyra/mortgage-assistant test
 **Rejected:** Domain-based (mortgage, admin, marketing)
 
 **Rationale:**
+
 - Apps in same category share tech stack
 - Easier build optimization (Turborepo caching)
 - Clearer team boundaries
@@ -327,6 +346,7 @@ pnpm --filter @nyra/mortgage-assistant test
 ### Why Separate Ingestion Folder?
 
 **Rationale:**
+
 - Content is temporary (shouldn't pollute other folders)
 - Needs special workflow (queue → process → complete)
 - Most content shouldn't be version controlled
@@ -336,11 +356,13 @@ pnpm --filter @nyra/mortgage-assistant test
 ### Why Shared Folder vs Packages?
 
 **apps/shared/**
+
 - Static resources (images, fonts, data files)
 - Not executable code
 - Large binary files OK
 
 **packages/**
+
 - Reusable code (components, utilities)
 - Versioned and published
 - TypeScript/JavaScript only
@@ -350,6 +372,7 @@ pnpm --filter @nyra/mortgage-assistant test
 ## Success Metrics
 
 **Migration Success:**
+
 - [ ] All apps migrated without breaking changes
 - [ ] All tests pass
 - [ ] All builds succeed
@@ -357,12 +380,14 @@ pnpm --filter @nyra/mortgage-assistant test
 - [ ] Documentation complete
 
 **Structural Quality:**
+
 - [ ] Every app has README.md and CLAUDE.md
 - [ ] Consistent package.json structure
 - [ ] No duplicate code across apps
 - [ ] Clear dependency graph
 
 **Developer Productivity:**
+
 - [ ] <15 min to add new app
 - [ ] <5 min to start development
 - [ ] <1 day onboarding time
@@ -419,15 +444,15 @@ node scripts/distribute.js
 
 ```typescript
 // Import from shared packages
-import { Button } from '@nyra/ui';
-import { formatCurrency } from '@nyra/utils';
-import { User } from '@nyra/types';
+import { Button } from "@nyra/ui";
+import { formatCurrency } from "@nyra/utils";
+import { User } from "@nyra/types";
 
 // Import shared config
-import sharedConfig from '@/configs/shared/api-endpoints.json';
+import sharedConfig from "@/configs/shared/api-endpoints.json";
 
 // Import shared assets
-import logo from '@/apps/shared/assets/images/logo.png';
+import logo from "@/apps/shared/assets/images/logo.png";
 
 // Call backend service
 const response = await fetch(`${API_URL}/applications`);
@@ -438,18 +463,21 @@ const response = await fetch(`${API_URL}/applications`);
 ## Next Steps
 
 ### Immediate (This Week)
+
 1. Review and approve this architecture
 2. Create empty folder structure
 3. Write READMEs for each category
 4. Create app templates
 
 ### Short-Term (Weeks 2-3)
+
 1. Begin app migration (utilities first)
 2. Set up ingestion system
 3. Test migration process
 4. Update build system
 
 ### Medium-Term (Week 4)
+
 1. Complete all app migrations
 2. Update integrations
 3. Validate entire system

@@ -12,10 +12,10 @@ Desired model from the canonical prompt pack:
 
 Current live drift:
 
-- Orchestrator tunnel is connected but only has `linkwarden.ratehunter.net`; all other desired hostnames are missing.
-- `links.ratehunter.net` is the preferred Linkwarden hostname, but live config currently uses `linkwarden.ratehunter.net`.
-- `nexus.ratehunter.net` returned Cloudflare `530` because no working public hostname/origin config exists for it.
-- `openclaw-gateway.ratehunter.net` and `portainer.ratehunter.net` did not resolve.
+- Orchestrator tunnel is connected but only has `linkwarden.projectnyra.com`; all other desired hostnames are missing.
+- `links.projectnyra.com` is the preferred Linkwarden hostname, but live config currently uses `linkwarden.projectnyra.com`.
+- `nexus.projectnyra.com` returned Cloudflare `530` because no working public hostname/origin config exists for it.
+- `openclaw-gateway.projectnyra.com` and `portainer.projectnyra.com` did not resolve.
 - Oracle tunnel state was not verified from this local session.
 - `infra/hosts/oracle-vps/cloudflared-config.yml` previously conflicted with the Pages decision by routing apex/www through Oracle; fixed in this working tree.
 

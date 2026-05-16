@@ -1,4 +1,5 @@
 # PROJECT NYRA — ULTIMATE MASTER PROMPT v4.0
+
 ## Stack Stood Up → Verification → Integration → MVP
 
 **Model Directive:** You are a 150 IQ world-leading expert with PhDs in distributed systems, CRM architecture, mortgage industry compliance, MCP protocol design, and full-stack development. Execute with sacred-geometry precision and quantum-catgirl efficiency. 😼✨
@@ -27,38 +28,38 @@
 
 ### ✅ DEPLOYED — Need Health Verification
 
-| Service | Container | Port | Health Endpoint | Status |
-|---------|-----------|------|-----------------|--------|
-| **RuVector** | `nyra-ruvector` | 8200 | `/health` | ⏳ VERIFY |
-| **RuVector Postgres** | `nyra-ruvector-postgres` | 5433 | `pg_isready` | ⏳ VERIFY |
-| **Archon OS** | `nyra-archon` | 4000 | `/health` | ⏳ VERIFY |
-| **Archon UI** | `nyra-archon-ui` | 4001 | `/` | ⏳ VERIFY |
-| **Archon DB** | `nyra-archon-db` | 5434 | `pg_isready` | ⏳ VERIFY |
-| **Redis** | `nyra-redis` | 6379 | `redis-cli ping` | ⏳ VERIFY |
-| **Letta AI** | `nyra-letta` | 8283 | `/health` | ⏳ VERIFY |
-| **Graphiti MCP** | `nyra-graphiti` | 8100 | `/health` | ⏳ VERIFY |
-| **FalkorDB** | `nyra-falkordb` | 6380 | `redis-cli ping` | ⏳ VERIFY |
-| **Twenty CRM** | `nyra-twenty` | 3020 | `/healthz` | ⏳ VERIFY |
-| **Twenty Postgres** | `nyra-twenty-postgres` | 5432 | `pg_isready` | ⏳ VERIFY |
-| **Twenty MCP** | `nyra-twenty-mcp` | 8400 | `/health` | ⏳ CONFIG |
-| **Claude-Flow** | `nyra-claude-flow` | 3001 | `/health` | ⏳ VERIFY |
-| **AgentDB** | `nyra-agentdb` | 8300 | `/health` | ⏳ VERIFY |
-| **Claude-Flow Dashboard** | `nyra-cf-dashboard` | 3100 | `/` | ⏳ VERIFY |
-| **Nexus Router** | `nyra-nexus` | 6000 | `/health` | ⏳ VERIFY |
-| **LiteLLM** | `nyra-litellm` | 8500 | `/health` | ⏳ VERIFY |
-| **n8n** | `nyra-n8n` | 5678 | `/healthz` | ⏳ VERIFY |
-| **Activepieces** | `nyra-activepieces` | 5000 | `/health` | ⏳ VERIFY |
-| **Gitea** | `nyra-gitea` | 3000 | `/api/healthz` | ⏳ SYNC NEEDED |
-| **Moltbot** | `nyra-moltbot` | 3333 | `/health` | ⏳ CONFIG |
+| Service                   | Container                | Port | Health Endpoint  | Status         |
+| ------------------------- | ------------------------ | ---- | ---------------- | -------------- |
+| **RuVector**              | `nyra-ruvector`          | 8200 | `/health`        | ⏳ VERIFY      |
+| **RuVector Postgres**     | `nyra-ruvector-postgres` | 5433 | `pg_isready`     | ⏳ VERIFY      |
+| **Archon OS**             | `nyra-archon`            | 4000 | `/health`        | ⏳ VERIFY      |
+| **Archon UI**             | `nyra-archon-ui`         | 4001 | `/`              | ⏳ VERIFY      |
+| **Archon DB**             | `nyra-archon-db`         | 5434 | `pg_isready`     | ⏳ VERIFY      |
+| **Redis**                 | `nyra-redis`             | 6379 | `redis-cli ping` | ⏳ VERIFY      |
+| **Letta AI**              | `nyra-letta`             | 8283 | `/health`        | ⏳ VERIFY      |
+| **Graphiti MCP**          | `nyra-graphiti`          | 8100 | `/health`        | ⏳ VERIFY      |
+| **FalkorDB**              | `nyra-falkordb`          | 6380 | `redis-cli ping` | ⏳ VERIFY      |
+| **Twenty CRM**            | `nyra-twenty`            | 3020 | `/healthz`       | ⏳ VERIFY      |
+| **Twenty Postgres**       | `nyra-twenty-postgres`   | 5432 | `pg_isready`     | ⏳ VERIFY      |
+| **Twenty MCP**            | `nyra-twenty-mcp`        | 8400 | `/health`        | ⏳ CONFIG      |
+| **Claude-Flow**           | `nyra-claude-flow`       | 3001 | `/health`        | ⏳ VERIFY      |
+| **AgentDB**               | `nyra-agentdb`           | 8300 | `/health`        | ⏳ VERIFY      |
+| **Claude-Flow Dashboard** | `nyra-cf-dashboard`      | 3100 | `/`              | ⏳ VERIFY      |
+| **Nexus Router**          | `nyra-nexus`             | 6000 | `/health`        | ⏳ VERIFY      |
+| **LiteLLM**               | `nyra-litellm`           | 8500 | `/health`        | ⏳ VERIFY      |
+| **n8n**                   | `nyra-n8n`               | 5678 | `/healthz`       | ⏳ VERIFY      |
+| **Activepieces**          | `nyra-activepieces`      | 5000 | `/health`        | ⏳ VERIFY      |
+| **Gitea**                 | `nyra-gitea`             | 3000 | `/api/healthz`   | ⏳ SYNC NEEDED |
+| **Moltbot**               | `nyra-moltbot`           | 3333 | `/health`        | ⏳ CONFIG      |
 
 ### Worker PCs (Tailscale Mesh)
 
-| Node | Tailscale IP | Hardware | Role | Status |
-|------|-------------|----------|------|--------|
-| **Orchestrator** | 100.87.235.78 | AMD Ryzen 7 | Control Plane | ✅ RUNNING |
-| **worker-rtx3060** | 100.107.188.97 | Alienware M15R7, RTX 3060 8GB | Ollama | ⏳ SETUP |
-| **worker-rtx5090** | 100.102.204.112 | Alienware Area-51, RTX 5090 32GB | vLLM + LMCache | ⏳ SETUP |
-| **worker-rtx3090ti** | [GET IP] | Intel i7-12700, RTX 3090Ti 24GB | vLLM + LMCache | ⏳ SETUP |
+| Node                 | Tailscale IP    | Hardware                         | Role           | Status     |
+| -------------------- | --------------- | -------------------------------- | -------------- | ---------- |
+| **Orchestrator**     | 100.87.235.78   | AMD Ryzen 7                      | Control Plane  | ✅ RUNNING |
+| **worker-rtx3060**   | 100.107.188.97  | Alienware M15R7, RTX 3060 8GB    | Ollama         | ⏳ SETUP   |
+| **worker-rtx5090**   | 100.102.204.112 | Alienware Area-51, RTX 5090 32GB | vLLM + LMCache | ⏳ SETUP   |
+| **worker-rtx3090ti** | [GET IP]        | Intel i7-12700, RTX 3090Ti 24GB  | vLLM + LMCache | ⏳ SETUP   |
 
 ---
 
@@ -142,7 +143,7 @@ echo "────────────────────────�
 if command -v tailscale &> /dev/null; then
   ts_ip=$(tailscale ip -4 2>/dev/null || echo "unknown")
   echo "  ✅ Orchestrator IP: $ts_ip"
-  
+
   # Ping workers
   for worker in "100.107.188.97" "100.102.204.112"; do
     if tailscale ping -c 1 "$worker" > /dev/null 2>&1; then
@@ -204,7 +205,7 @@ project-nyra/
 │   ├── landing/                      # Cloudflare Pages (ratehunter.net)
 │   │   └── src/
 │   │
-│   ├── webapp/                       # Main mortgage app (app.ratehunter.net)
+│   ├── webapp/                       # Main mortgage app (app.projectnyra.com)
 │   │   └── src/
 │   │       ├── components/
 │   │       │   ├── ui/               # shadcn components
@@ -214,7 +215,7 @@ project-nyra/
 │   │       ├── hooks/
 │   │       └── lib/
 │   │
-│   ├── admin/                        # Nyra Admin UI (admin.ratehunter.net)
+│   ├── admin/                        # Nyra Admin UI (admin.projectnyra.com)
 │   │   └── src/
 │   │
 │   ├── claude-flow-dashboard/        # Custom Claude-Flow UI (dev only)
@@ -412,157 +413,196 @@ echo "✅ Cleanup complete"
 // packages/twenty-custom-objects/src/MortgageLead.ts
 
 export const MortgageLeadDefinition = {
-  nameSingular: 'mortgageLead',
-  namePlural: 'mortgageLeads',
-  labelSingular: 'Mortgage Lead',
-  labelPlural: 'Mortgage Leads',
-  description: 'Mortgage lead with loan details and campaign tracking',
-  icon: 'IconHome',
-  
+  nameSingular: "mortgageLead",
+  namePlural: "mortgageLeads",
+  labelSingular: "Mortgage Lead",
+  labelPlural: "Mortgage Leads",
+  description: "Mortgage lead with loan details and campaign tracking",
+  icon: "IconHome",
+
   fields: [
     // === CONTACT INFO ===
-    { name: 'firstName', type: 'TEXT', label: 'First Name', required: true },
-    { name: 'lastName', type: 'TEXT', label: 'Last Name', required: true },
-    { name: 'email', type: 'EMAIL', label: 'Email', required: true, unique: true },
-    { name: 'phone', type: 'PHONE', label: 'Phone', required: true },
-    { name: 'secondaryPhone', type: 'PHONE', label: 'Secondary Phone' },
-    
+    { name: "firstName", type: "TEXT", label: "First Name", required: true },
+    { name: "lastName", type: "TEXT", label: "Last Name", required: true },
+    {
+      name: "email",
+      type: "EMAIL",
+      label: "Email",
+      required: true,
+      unique: true,
+    },
+    { name: "phone", type: "PHONE", label: "Phone", required: true },
+    { name: "secondaryPhone", type: "PHONE", label: "Secondary Phone" },
+
     // === LEAD SOURCE ===
-    { 
-      name: 'source', 
-      type: 'SELECT', 
-      label: 'Lead Source',
+    {
+      name: "source",
+      type: "SELECT",
+      label: "Lead Source",
       options: [
-        'LendingTree',
-        'FreeRateUpdate', 
-        'LeadMailbox',
-        'Zillow',
-        'Realtor.com',
-        'Website',
-        'Referral',
-        'Email',
-        'Manual',
-        'Other'
-      ]
+        "LendingTree",
+        "FreeRateUpdate",
+        "LeadMailbox",
+        "Zillow",
+        "Realtor.com",
+        "Website",
+        "Referral",
+        "Email",
+        "Manual",
+        "Other",
+      ],
     },
-    { name: 'sourceLeadId', type: 'TEXT', label: 'Source Lead ID' },
-    { name: 'rawPayload', type: 'RAW_JSON', label: 'Raw Payload' },
-    
+    { name: "sourceLeadId", type: "TEXT", label: "Source Lead ID" },
+    { name: "rawPayload", type: "RAW_JSON", label: "Raw Payload" },
+
     // === LOAN DETAILS ===
-    { 
-      name: 'loanPurpose', 
-      type: 'SELECT', 
-      label: 'Loan Purpose',
+    {
+      name: "loanPurpose",
+      type: "SELECT",
+      label: "Loan Purpose",
       options: [
-        'Purchase',
-        'Refinance',
-        'CashOut',
-        'HELOC',
-        'HELOAN',
-        'Commercial',
-        'HardMoney',
-        'Construction',
-        'VA',
-        'FHA'
-      ]
+        "Purchase",
+        "Refinance",
+        "CashOut",
+        "HELOC",
+        "HELOAN",
+        "Commercial",
+        "HardMoney",
+        "Construction",
+        "VA",
+        "FHA",
+      ],
     },
-    { name: 'loanAmount', type: 'CURRENCY', label: 'Loan Amount' },
-    { name: 'downPayment', type: 'CURRENCY', label: 'Down Payment' },
-    { name: 'propertyValue', type: 'CURRENCY', label: 'Property Value' },
-    { name: 'currentMortgageBalance', type: 'CURRENCY', label: 'Current Mortgage Balance' },
-    { name: 'ltv', type: 'NUMBER', label: 'LTV %', format: 'percentage' },
-    { name: 'cltv', type: 'NUMBER', label: 'CLTV %', format: 'percentage' },
-    { name: 'fico', type: 'NUMBER', label: 'FICO Score' },
-    { name: 'annualIncome', type: 'CURRENCY', label: 'Annual Income' },
-    { name: 'dti', type: 'NUMBER', label: 'DTI %', format: 'percentage' },
-    
+    { name: "loanAmount", type: "CURRENCY", label: "Loan Amount" },
+    { name: "downPayment", type: "CURRENCY", label: "Down Payment" },
+    { name: "propertyValue", type: "CURRENCY", label: "Property Value" },
+    {
+      name: "currentMortgageBalance",
+      type: "CURRENCY",
+      label: "Current Mortgage Balance",
+    },
+    { name: "ltv", type: "NUMBER", label: "LTV %", format: "percentage" },
+    { name: "cltv", type: "NUMBER", label: "CLTV %", format: "percentage" },
+    { name: "fico", type: "NUMBER", label: "FICO Score" },
+    { name: "annualIncome", type: "CURRENCY", label: "Annual Income" },
+    { name: "dti", type: "NUMBER", label: "DTI %", format: "percentage" },
+
     // === PROPERTY INFO ===
-    { name: 'propertyAddress', type: 'TEXT', label: 'Property Address' },
-    { name: 'propertyCity', type: 'TEXT', label: 'City' },
-    { name: 'propertyState', type: 'TEXT', label: 'State' },
-    { name: 'propertyZip', type: 'TEXT', label: 'ZIP' },
-    { name: 'propertyCounty', type: 'TEXT', label: 'County' },
-    { 
-      name: 'propertyType', 
-      type: 'SELECT', 
-      label: 'Property Type',
+    { name: "propertyAddress", type: "TEXT", label: "Property Address" },
+    { name: "propertyCity", type: "TEXT", label: "City" },
+    { name: "propertyState", type: "TEXT", label: "State" },
+    { name: "propertyZip", type: "TEXT", label: "ZIP" },
+    { name: "propertyCounty", type: "TEXT", label: "County" },
+    {
+      name: "propertyType",
+      type: "SELECT",
+      label: "Property Type",
       options: [
-        'SingleFamily',
-        'Condo',
-        'Townhouse',
-        'MultiFamily_2-4',
-        'MultiFamily_5+',
-        'Commercial',
-        'Land',
-        'Manufactured'
-      ]
+        "SingleFamily",
+        "Condo",
+        "Townhouse",
+        "MultiFamily_2-4",
+        "MultiFamily_5+",
+        "Commercial",
+        "Land",
+        "Manufactured",
+      ],
     },
-    { 
-      name: 'occupancy', 
-      type: 'SELECT', 
-      label: 'Occupancy',
-      options: ['Primary', 'Secondary', 'Investment']
+    {
+      name: "occupancy",
+      type: "SELECT",
+      label: "Occupancy",
+      options: ["Primary", "Secondary", "Investment"],
     },
-    
+
     // === CAMPAIGN STATUS ===
-    { 
-      name: 'status', 
-      type: 'SELECT', 
-      label: 'Lead Status',
+    {
+      name: "status",
+      type: "SELECT",
+      label: "Lead Status",
       options: [
-        'New',
-        'Contacted',
-        'Qualified',
-        'Application',
-        'Processing',
-        'Underwriting',
-        'Approved',
-        'Closed',
-        'Lost',
-        'DNC'
-      ]
+        "New",
+        "Contacted",
+        "Qualified",
+        "Application",
+        "Processing",
+        "Underwriting",
+        "Approved",
+        "Closed",
+        "Lost",
+        "DNC",
+      ],
     },
-    { name: 'campaignId', type: 'RELATION', label: 'Active Campaign', target: 'campaign' },
-    { name: 'campaignDay', type: 'NUMBER', label: 'Campaign Day' },
-    { name: 'campaignPaused', type: 'BOOLEAN', label: 'Campaign Paused', default: false },
-    
+    {
+      name: "campaignId",
+      type: "RELATION",
+      label: "Active Campaign",
+      target: "campaign",
+    },
+    { name: "campaignDay", type: "NUMBER", label: "Campaign Day" },
+    {
+      name: "campaignPaused",
+      type: "BOOLEAN",
+      label: "Campaign Paused",
+      default: false,
+    },
+
     // === COMPLIANCE ===
-    { name: 'optedOut', type: 'BOOLEAN', label: 'Opted Out', default: false },
-    { name: 'dncDate', type: 'DATE_TIME', label: 'DNC Date' },
-    { name: 'dncReason', type: 'TEXT', label: 'DNC Reason' },
-    { name: 'consentSms', type: 'BOOLEAN', label: 'SMS Consent', default: false },
-    { name: 'consentEmail', type: 'BOOLEAN', label: 'Email Consent', default: false },
-    { name: 'consentCall', type: 'BOOLEAN', label: 'Call Consent', default: false },
-    { name: 'tcpaTimestamp', type: 'DATE_TIME', label: 'TCPA Consent Timestamp' },
-    { name: 'tcpaSource', type: 'TEXT', label: 'TCPA Consent Source' },
-    
+    { name: "optedOut", type: "BOOLEAN", label: "Opted Out", default: false },
+    { name: "dncDate", type: "DATE_TIME", label: "DNC Date" },
+    { name: "dncReason", type: "TEXT", label: "DNC Reason" },
+    {
+      name: "consentSms",
+      type: "BOOLEAN",
+      label: "SMS Consent",
+      default: false,
+    },
+    {
+      name: "consentEmail",
+      type: "BOOLEAN",
+      label: "Email Consent",
+      default: false,
+    },
+    {
+      name: "consentCall",
+      type: "BOOLEAN",
+      label: "Call Consent",
+      default: false,
+    },
+    {
+      name: "tcpaTimestamp",
+      type: "DATE_TIME",
+      label: "TCPA Consent Timestamp",
+    },
+    { name: "tcpaSource", type: "TEXT", label: "TCPA Consent Source" },
+
     // === TIMESTAMPS ===
-    { name: 'receivedAt', type: 'DATE_TIME', label: 'Received At' },
-    { name: 'firstContactedAt', type: 'DATE_TIME', label: 'First Contacted' },
-    { name: 'lastContactedAt', type: 'DATE_TIME', label: 'Last Contacted' },
-    { name: 'lastResponseAt', type: 'DATE_TIME', label: 'Last Response' },
-    { name: 'nextActionAt', type: 'DATE_TIME', label: 'Next Action' },
-    { name: 'convertedAt', type: 'DATE_TIME', label: 'Converted At' },
-    
+    { name: "receivedAt", type: "DATE_TIME", label: "Received At" },
+    { name: "firstContactedAt", type: "DATE_TIME", label: "First Contacted" },
+    { name: "lastContactedAt", type: "DATE_TIME", label: "Last Contacted" },
+    { name: "lastResponseAt", type: "DATE_TIME", label: "Last Response" },
+    { name: "nextActionAt", type: "DATE_TIME", label: "Next Action" },
+    { name: "convertedAt", type: "DATE_TIME", label: "Converted At" },
+
     // === ASSIGNMENT ===
-    { name: 'assignedTo', type: 'TEXT', label: 'Assigned To' },
-    { name: 'assignedTeam', type: 'TEXT', label: 'Assigned Team' },
+    { name: "assignedTo", type: "TEXT", label: "Assigned To" },
+    { name: "assignedTeam", type: "TEXT", label: "Assigned Team" },
   ],
-  
+
   relations: [
-    { name: 'quotes', type: 'ONE_TO_MANY', target: 'quote' },
-    { name: 'communications', type: 'ONE_TO_MANY', target: 'communication' },
-    { name: 'campaign', type: 'MANY_TO_ONE', target: 'campaign' },
-    { name: 'documents', type: 'ONE_TO_MANY', target: 'document' },
+    { name: "quotes", type: "ONE_TO_MANY", target: "quote" },
+    { name: "communications", type: "ONE_TO_MANY", target: "communication" },
+    { name: "campaign", type: "MANY_TO_ONE", target: "campaign" },
+    { name: "documents", type: "ONE_TO_MANY", target: "document" },
   ],
-  
+
   indexes: [
-    { fields: ['email'], unique: true },
-    { fields: ['phone'] },
-    { fields: ['status', 'campaignDay'] },
-    { fields: ['source', 'receivedAt'] },
-    { fields: ['assignedTo', 'status'] },
-  ]
+    { fields: ["email"], unique: true },
+    { fields: ["phone"] },
+    { fields: ["status", "campaignDay"] },
+    { fields: ["source", "receivedAt"] },
+    { fields: ["assignedTo", "status"] },
+  ],
 };
 ```
 
@@ -572,52 +612,101 @@ export const MortgageLeadDefinition = {
 // packages/twenty-custom-objects/src/Campaign.ts
 
 export const CampaignDefinition = {
-  nameSingular: 'campaign',
-  namePlural: 'campaigns',
-  labelSingular: 'Campaign',
-  labelPlural: 'Campaigns',
-  description: 'Multi-channel drip campaign with scheduling',
-  icon: 'IconSend',
-  
+  nameSingular: "campaign",
+  namePlural: "campaigns",
+  labelSingular: "Campaign",
+  labelPlural: "Campaigns",
+  description: "Multi-channel drip campaign with scheduling",
+  icon: "IconSend",
+
   fields: [
-    { name: 'name', type: 'TEXT', label: 'Campaign Name', required: true },
-    { name: 'description', type: 'TEXT', label: 'Description' },
-    { name: 'active', type: 'BOOLEAN', label: 'Active', default: true },
-    
-    { 
-      name: 'loanPurpose', 
-      type: 'SELECT', 
-      label: 'Target Loan Purpose',
-      options: ['Purchase', 'Refinance', 'CashOut', 'HELOC', 'HELOAN', 'Commercial', 'HardMoney', 'All']
+    { name: "name", type: "TEXT", label: "Campaign Name", required: true },
+    { name: "description", type: "TEXT", label: "Description" },
+    { name: "active", type: "BOOLEAN", label: "Active", default: true },
+
+    {
+      name: "loanPurpose",
+      type: "SELECT",
+      label: "Target Loan Purpose",
+      options: [
+        "Purchase",
+        "Refinance",
+        "CashOut",
+        "HELOC",
+        "HELOAN",
+        "Commercial",
+        "HardMoney",
+        "All",
+      ],
     },
-    
-    { name: 'durationDays', type: 'NUMBER', label: 'Duration (Days)', default: 45 },
-    { name: 'maxAttemptsPerDay', type: 'NUMBER', label: 'Max Attempts/Day', default: 3 },
-    
+
+    {
+      name: "durationDays",
+      type: "NUMBER",
+      label: "Duration (Days)",
+      default: 45,
+    },
+    {
+      name: "maxAttemptsPerDay",
+      type: "NUMBER",
+      label: "Max Attempts/Day",
+      default: 3,
+    },
+
     // Quiet hours
-    { name: 'quietHoursStart', type: 'TEXT', label: 'Quiet Hours Start', default: '20:00' },
-    { name: 'quietHoursEnd', type: 'TEXT', label: 'Quiet Hours End', default: '09:00' },
-    { name: 'timezone', type: 'TEXT', label: 'Timezone', default: 'America/Los_Angeles' },
-    
+    {
+      name: "quietHoursStart",
+      type: "TEXT",
+      label: "Quiet Hours Start",
+      default: "20:00",
+    },
+    {
+      name: "quietHoursEnd",
+      type: "TEXT",
+      label: "Quiet Hours End",
+      default: "09:00",
+    },
+    {
+      name: "timezone",
+      type: "TEXT",
+      label: "Timezone",
+      default: "America/Los_Angeles",
+    },
+
     // Days active
-    { name: 'workWeekdays', type: 'BOOLEAN', label: 'Run Weekdays', default: true },
-    { name: 'workWeekends', type: 'BOOLEAN', label: 'Run Weekends', default: false },
-    
+    {
+      name: "workWeekdays",
+      type: "BOOLEAN",
+      label: "Run Weekdays",
+      default: true,
+    },
+    {
+      name: "workWeekends",
+      type: "BOOLEAN",
+      label: "Run Weekends",
+      default: false,
+    },
+
     // Steps stored as JSON
-    { name: 'stepsJson', type: 'RAW_JSON', label: 'Campaign Steps' },
-    
+    { name: "stepsJson", type: "RAW_JSON", label: "Campaign Steps" },
+
     // Stats
-    { name: 'totalLeads', type: 'NUMBER', label: 'Total Leads', default: 0 },
-    { name: 'activeLeads', type: 'NUMBER', label: 'Active Leads', default: 0 },
-    { name: 'convertedLeads', type: 'NUMBER', label: 'Converted Leads', default: 0 },
-    { name: 'optedOutLeads', type: 'NUMBER', label: 'Opted Out', default: 0 },
+    { name: "totalLeads", type: "NUMBER", label: "Total Leads", default: 0 },
+    { name: "activeLeads", type: "NUMBER", label: "Active Leads", default: 0 },
+    {
+      name: "convertedLeads",
+      type: "NUMBER",
+      label: "Converted Leads",
+      default: 0,
+    },
+    { name: "optedOutLeads", type: "NUMBER", label: "Opted Out", default: 0 },
   ],
-  
+
   relations: [
-    { name: 'leads', type: 'ONE_TO_MANY', target: 'mortgageLead' },
-    { name: 'steps', type: 'ONE_TO_MANY', target: 'campaignStep' },
-    { name: 'templates', type: 'MANY_TO_MANY', target: 'template' },
-  ]
+    { name: "leads", type: "ONE_TO_MANY", target: "mortgageLead" },
+    { name: "steps", type: "ONE_TO_MANY", target: "campaignStep" },
+    { name: "templates", type: "MANY_TO_MANY", target: "template" },
+  ],
 };
 ```
 
@@ -627,81 +716,122 @@ export const CampaignDefinition = {
 // packages/twenty-custom-objects/src/Quote.ts
 
 export const QuoteDefinition = {
-  nameSingular: 'quote',
-  namePlural: 'quotes',
-  labelSingular: 'Quote',
-  labelPlural: 'Quotes',
-  description: 'Loan quote with payment breakdown',
-  icon: 'IconReceipt',
-  
+  nameSingular: "quote",
+  namePlural: "quotes",
+  labelSingular: "Quote",
+  labelPlural: "Quotes",
+  description: "Loan quote with payment breakdown",
+  icon: "IconReceipt",
+
   fields: [
     // Relation
-    { name: 'leadId', type: 'RELATION', label: 'Lead', target: 'mortgageLead', required: true },
-    
+    {
+      name: "leadId",
+      type: "RELATION",
+      label: "Lead",
+      target: "mortgageLead",
+      required: true,
+    },
+
     // Loan Parameters
-    { name: 'loanAmount', type: 'CURRENCY', label: 'Loan Amount' },
-    { name: 'propertyValue', type: 'CURRENCY', label: 'Property Value' },
-    { name: 'ltv', type: 'NUMBER', label: 'LTV %' },
-    { name: 'term', type: 'NUMBER', label: 'Term (Years)', default: 30 },
-    
+    { name: "loanAmount", type: "CURRENCY", label: "Loan Amount" },
+    { name: "propertyValue", type: "CURRENCY", label: "Property Value" },
+    { name: "ltv", type: "NUMBER", label: "LTV %" },
+    { name: "term", type: "NUMBER", label: "Term (Years)", default: 30 },
+
     // Rate Info
-    { name: 'interestRate', type: 'NUMBER', label: 'Interest Rate', format: 'percentage' },
-    { name: 'apr', type: 'NUMBER', label: 'APR', format: 'percentage' },
-    { name: 'rateType', type: 'SELECT', label: 'Rate Type', options: ['Fixed', 'ARM', '5/1 ARM', '7/1 ARM', '10/1 ARM'] },
-    { name: 'rateSource', type: 'TEXT', label: 'Rate Source' },
-    { name: 'rateDate', type: 'DATE_TIME', label: 'Rate Date' },
-    
+    {
+      name: "interestRate",
+      type: "NUMBER",
+      label: "Interest Rate",
+      format: "percentage",
+    },
+    { name: "apr", type: "NUMBER", label: "APR", format: "percentage" },
+    {
+      name: "rateType",
+      type: "SELECT",
+      label: "Rate Type",
+      options: ["Fixed", "ARM", "5/1 ARM", "7/1 ARM", "10/1 ARM"],
+    },
+    { name: "rateSource", type: "TEXT", label: "Rate Source" },
+    { name: "rateDate", type: "DATE_TIME", label: "Rate Date" },
+
     // Payment Breakdown
-    { name: 'monthlyPI', type: 'CURRENCY', label: 'Monthly P&I' },
-    { name: 'monthlyTax', type: 'CURRENCY', label: 'Monthly Tax' },
-    { name: 'monthlyInsurance', type: 'CURRENCY', label: 'Monthly Insurance' },
-    { name: 'monthlyPMI', type: 'CURRENCY', label: 'Monthly PMI' },
-    { name: 'monthlyHOA', type: 'CURRENCY', label: 'Monthly HOA' },
-    { name: 'monthlyPITI', type: 'CURRENCY', label: 'Monthly PITI' },
-    
+    { name: "monthlyPI", type: "CURRENCY", label: "Monthly P&I" },
+    { name: "monthlyTax", type: "CURRENCY", label: "Monthly Tax" },
+    { name: "monthlyInsurance", type: "CURRENCY", label: "Monthly Insurance" },
+    { name: "monthlyPMI", type: "CURRENCY", label: "Monthly PMI" },
+    { name: "monthlyHOA", type: "CURRENCY", label: "Monthly HOA" },
+    { name: "monthlyPITI", type: "CURRENCY", label: "Monthly PITI" },
+
     // Costs
-    { name: 'closingCosts', type: 'CURRENCY', label: 'Closing Costs' },
-    { name: 'points', type: 'NUMBER', label: 'Points' },
-    { name: 'pointsCost', type: 'CURRENCY', label: 'Points Cost' },
-    { name: 'lenderCredits', type: 'CURRENCY', label: 'Lender Credits' },
-    { name: 'cashToClose', type: 'CURRENCY', label: 'Cash to Close' },
-    
+    { name: "closingCosts", type: "CURRENCY", label: "Closing Costs" },
+    { name: "points", type: "NUMBER", label: "Points" },
+    { name: "pointsCost", type: "CURRENCY", label: "Points Cost" },
+    { name: "lenderCredits", type: "CURRENCY", label: "Lender Credits" },
+    { name: "cashToClose", type: "CURRENCY", label: "Cash to Close" },
+
     // Loan Type
-    { 
-      name: 'loanType', 
-      type: 'SELECT', 
-      label: 'Loan Type',
-      options: ['Conventional', 'FHA', 'VA', 'USDA', 'Jumbo', 'NonQM']
+    {
+      name: "loanType",
+      type: "SELECT",
+      label: "Loan Type",
+      options: ["Conventional", "FHA", "VA", "USDA", "Jumbo", "NonQM"],
     },
-    { 
-      name: 'loanPurpose', 
-      type: 'SELECT', 
-      label: 'Loan Purpose',
-      options: ['Purchase', 'Refinance', 'CashOut', 'HELOC']
+    {
+      name: "loanPurpose",
+      type: "SELECT",
+      label: "Loan Purpose",
+      options: ["Purchase", "Refinance", "CashOut", "HELOC"],
     },
-    
+
     // Quote Meta
-    { name: 'optionNumber', type: 'NUMBER', label: 'Option #' },
-    { name: 'optionLabel', type: 'TEXT', label: 'Option Label' },
-    { name: 'isRecommended', type: 'BOOLEAN', label: 'Recommended', default: false },
-    
+    { name: "optionNumber", type: "NUMBER", label: "Option #" },
+    { name: "optionLabel", type: "TEXT", label: "Option Label" },
+    {
+      name: "isRecommended",
+      type: "BOOLEAN",
+      label: "Recommended",
+      default: false,
+    },
+
     // Full calculation params
-    { name: 'paramsJson', type: 'RAW_JSON', label: 'Full Parameters' },
-    
+    { name: "paramsJson", type: "RAW_JSON", label: "Full Parameters" },
+
     // Delivery
-    { name: 'pngUrl', type: 'TEXT', label: 'Chart PNG URL' },
-    { name: 'pdfUrl', type: 'TEXT', label: 'Quote PDF URL' },
-    { name: 'sentToLead', type: 'BOOLEAN', label: 'Sent to Lead', default: false },
-    { name: 'sentAt', type: 'DATE_TIME', label: 'Sent At' },
-    { name: 'sentVia', type: 'SELECT', label: 'Sent Via', options: ['Email', 'SMS', 'Both'] },
-    
+    { name: "pngUrl", type: "TEXT", label: "Chart PNG URL" },
+    { name: "pdfUrl", type: "TEXT", label: "Quote PDF URL" },
+    {
+      name: "sentToLead",
+      type: "BOOLEAN",
+      label: "Sent to Lead",
+      default: false,
+    },
+    { name: "sentAt", type: "DATE_TIME", label: "Sent At" },
+    {
+      name: "sentVia",
+      type: "SELECT",
+      label: "Sent Via",
+      options: ["Email", "SMS", "Both"],
+    },
+
     // Approval (REQUIRED for rate advice)
-    { name: 'requiresApproval', type: 'BOOLEAN', label: 'Requires Approval', default: true },
-    { name: 'approvalStatus', type: 'SELECT', label: 'Approval Status', options: ['Pending', 'Approved', 'Rejected'] },
-    { name: 'approvedBy', type: 'TEXT', label: 'Approved By' },
-    { name: 'approvedAt', type: 'DATE_TIME', label: 'Approved At' },
-    { name: 'approvalNotes', type: 'TEXT', label: 'Approval Notes' },
-  ]
+    {
+      name: "requiresApproval",
+      type: "BOOLEAN",
+      label: "Requires Approval",
+      default: true,
+    },
+    {
+      name: "approvalStatus",
+      type: "SELECT",
+      label: "Approval Status",
+      options: ["Pending", "Approved", "Rejected"],
+    },
+    { name: "approvedBy", type: "TEXT", label: "Approved By" },
+    { name: "approvedAt", type: "DATE_TIME", label: "Approved At" },
+    { name: "approvalNotes", type: "TEXT", label: "Approval Notes" },
+  ],
 };
 ```
 
@@ -711,74 +841,123 @@ export const QuoteDefinition = {
 // packages/twenty-custom-objects/src/Communication.ts
 
 export const CommunicationDefinition = {
-  nameSingular: 'communication',
-  namePlural: 'communications',
-  labelSingular: 'Communication',
-  labelPlural: 'Communications',
-  description: 'All lead communications for timeline',
-  icon: 'IconMessage',
-  
+  nameSingular: "communication",
+  namePlural: "communications",
+  labelSingular: "Communication",
+  labelPlural: "Communications",
+  description: "All lead communications for timeline",
+  icon: "IconMessage",
+
   fields: [
-    { name: 'leadId', type: 'RELATION', label: 'Lead', target: 'mortgageLead', required: true },
-    
-    { 
-      name: 'direction', 
-      type: 'SELECT', 
-      label: 'Direction',
-      options: ['Outbound', 'Inbound']
+    {
+      name: "leadId",
+      type: "RELATION",
+      label: "Lead",
+      target: "mortgageLead",
+      required: true,
     },
-    
-    { 
-      name: 'channel', 
-      type: 'SELECT', 
-      label: 'Channel',
-      options: ['SMS', 'Email', 'Voicemail', 'Call', 'MissedCall', 'WebChat']
+
+    {
+      name: "direction",
+      type: "SELECT",
+      label: "Direction",
+      options: ["Outbound", "Inbound"],
     },
-    
-    { 
-      name: 'status', 
-      type: 'SELECT', 
-      label: 'Status',
-      options: ['Queued', 'Sending', 'Sent', 'Delivered', 'Read', 'Failed', 'Received', 'Answered']
+
+    {
+      name: "channel",
+      type: "SELECT",
+      label: "Channel",
+      options: ["SMS", "Email", "Voicemail", "Call", "MissedCall", "WebChat"],
     },
-    
+
+    {
+      name: "status",
+      type: "SELECT",
+      label: "Status",
+      options: [
+        "Queued",
+        "Sending",
+        "Sent",
+        "Delivered",
+        "Read",
+        "Failed",
+        "Received",
+        "Answered",
+      ],
+    },
+
     // Content
-    { name: 'subject', type: 'TEXT', label: 'Subject (Email)' },
-    { name: 'body', type: 'TEXT', label: 'Message Body' },
-    { name: 'templateId', type: 'RELATION', label: 'Template', target: 'template' },
-    
+    { name: "subject", type: "TEXT", label: "Subject (Email)" },
+    { name: "body", type: "TEXT", label: "Message Body" },
+    {
+      name: "templateId",
+      type: "RELATION",
+      label: "Template",
+      target: "template",
+    },
+
     // Call-specific
-    { name: 'callDuration', type: 'NUMBER', label: 'Call Duration (seconds)' },
-    { name: 'recordingUrl', type: 'TEXT', label: 'Recording URL' },
-    { name: 'voicemailUrl', type: 'TEXT', label: 'Voicemail URL' },
-    { name: 'disposition', type: 'SELECT', label: 'Call Disposition', 
-      options: ['Answered', 'Voicemail', 'NoAnswer', 'Busy', 'Failed'] },
-    
+    { name: "callDuration", type: "NUMBER", label: "Call Duration (seconds)" },
+    { name: "recordingUrl", type: "TEXT", label: "Recording URL" },
+    { name: "voicemailUrl", type: "TEXT", label: "Voicemail URL" },
+    {
+      name: "disposition",
+      type: "SELECT",
+      label: "Call Disposition",
+      options: ["Answered", "Voicemail", "NoAnswer", "Busy", "Failed"],
+    },
+
     // Provider info
-    { name: 'provider', type: 'SELECT', label: 'Provider', options: ['Twilio', 'SendGrid', 'Internal'] },
-    { name: 'providerMessageId', type: 'TEXT', label: 'Provider Message ID' },
-    { name: 'providerResponse', type: 'RAW_JSON', label: 'Provider Response' },
-    
+    {
+      name: "provider",
+      type: "SELECT",
+      label: "Provider",
+      options: ["Twilio", "SendGrid", "Internal"],
+    },
+    { name: "providerMessageId", type: "TEXT", label: "Provider Message ID" },
+    { name: "providerResponse", type: "RAW_JSON", label: "Provider Response" },
+
     // Threading
-    { name: 'threadKey', type: 'TEXT', label: 'Thread Key' },
-    { name: 'parentId', type: 'RELATION', label: 'Parent Message', target: 'communication' },
-    
+    { name: "threadKey", type: "TEXT", label: "Thread Key" },
+    {
+      name: "parentId",
+      type: "RELATION",
+      label: "Parent Message",
+      target: "communication",
+    },
+
     // Campaign link
-    { name: 'campaignId', type: 'RELATION', label: 'Campaign', target: 'campaign' },
-    { name: 'campaignStepId', type: 'TEXT', label: 'Campaign Step ID' },
-    { name: 'campaignDay', type: 'NUMBER', label: 'Campaign Day' },
-    
+    {
+      name: "campaignId",
+      type: "RELATION",
+      label: "Campaign",
+      target: "campaign",
+    },
+    { name: "campaignStepId", type: "TEXT", label: "Campaign Step ID" },
+    { name: "campaignDay", type: "NUMBER", label: "Campaign Day" },
+
     // Timestamps
-    { name: 'scheduledFor', type: 'DATE_TIME', label: 'Scheduled For' },
-    { name: 'sentAt', type: 'DATE_TIME', label: 'Sent At' },
-    { name: 'deliveredAt', type: 'DATE_TIME', label: 'Delivered At' },
-    { name: 'readAt', type: 'DATE_TIME', label: 'Read At' },
-    { name: 'receivedAt', type: 'DATE_TIME', label: 'Received At' },
-    
+    { name: "scheduledFor", type: "DATE_TIME", label: "Scheduled For" },
+    { name: "sentAt", type: "DATE_TIME", label: "Sent At" },
+    { name: "deliveredAt", type: "DATE_TIME", label: "Delivered At" },
+    { name: "readAt", type: "DATE_TIME", label: "Read At" },
+    { name: "receivedAt", type: "DATE_TIME", label: "Received At" },
+
     // Compliance
-    { name: 'containsStopWord', type: 'BOOLEAN', label: 'Contains STOP', default: false },
-    { name: 'piiRedacted', type: 'BOOLEAN', label: 'PII Redacted', default: false },
-  ]
+    {
+      name: "containsStopWord",
+      type: "BOOLEAN",
+      label: "Contains STOP",
+      default: false,
+    },
+    {
+      name: "piiRedacted",
+      type: "BOOLEAN",
+      label: "PII Redacted",
+      default: false,
+    },
+  ],
 };
 ```
 
@@ -857,7 +1036,7 @@ services:
     environment:
       - DATABASE_URL=postgres://twenty:${TWENTY_DB_PASSWORD}@twenty-postgres:5432/twenty
       - REDIS_URL=redis://redis:6379
-      - FRONT_BASE_URL=https://crm.ratehunter.net
+      - FRONT_BASE_URL=https://crm.projectnyra.com
     depends_on:
       twenty-postgres:
         condition: service_healthy
@@ -1117,7 +1296,7 @@ echo "✨ Memory verification complete!"
 
 ```yaml
 # infra/docker/worker-rtx3060/docker-compose.yml
-version: '3.8'
+version: "3.8"
 
 services:
   ollama:
@@ -1177,6 +1356,7 @@ volumes:
 ```
 
 **Models to pull (8GB VRAM limit):**
+
 ```bash
 # infra/docker/worker-rtx3060/models.txt
 llama3.2:3b          # Fast general purpose
@@ -1193,7 +1373,7 @@ mistral:7b-instruct  # Instruction following
 
 ```yaml
 # infra/docker/worker-rtx5090/docker-compose.yml
-version: '3.8'
+version: "3.8"
 
 services:
   vllm:
@@ -1284,7 +1464,7 @@ volumes:
 
 ```yaml
 # infra/docker/worker-rtx3090ti/docker-compose.yml
-version: '3.8'
+version: "3.8"
 
 services:
   vllm:
@@ -1374,7 +1554,7 @@ volumes:
 │  │                    NYRA ADMIN UI (Primary)                           │   │
 │  │  Location: apps/admin/                                               │   │
 │  │  Stack: Next.js + shadcn + tweakcn + Magic UI                       │   │
-│  │  URL: admin.ratehunter.net                                          │   │
+│  │  URL: admin.projectnyra.com                                          │   │
 │  │                                                                      │   │
 │  │  Features:                                                           │   │
 │  │  ├── Dashboard (lead overview, campaign stats)                       │   │
@@ -1402,8 +1582,8 @@ volumes:
 │                                                                             │
 │  ┌─────────────────────────────────────────────────────────────────────┐   │
 │  │                    WEBAPP (Customer-Facing)                          │   │
-│  │  Location: apps/webapp/                                              │   │
-│  │  URL: app.ratehunter.net                                            │   │
+│  │  Location: apps/projectnyra/                                              │   │
+│  │  URL: app.projectnyra.com                                            │   │
 │  │                                                                      │   │
 │  │  Features:                                                           │   │
 │  │  ├── Lead Intake Form                                                │   │
@@ -1419,7 +1599,7 @@ volumes:
 ## 6.2 Moltbot Integration (Instead of Dify)
 
 ```typescript
-// apps/webapp/src/components/MoltbotChat.tsx
+// apps/projectnyra/src/components/MoltbotChat.tsx
 
 import { useEffect, useRef, useState } from 'react';
 
@@ -1429,10 +1609,10 @@ interface MoltbotChatProps {
   leadContext?: Record<string, any>;
 }
 
-export function MoltbotChat({ 
-  position = 'bottom-right', 
+export function MoltbotChat({
+  position = 'bottom-right',
   leadId,
-  leadContext 
+  leadContext
 }: MoltbotChatProps) {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [isOpen, setIsOpen] = useState(false);
@@ -1497,18 +1677,18 @@ export function MoltbotChat({
 
 Based on uploaded UI files and competitor analysis:
 
-| Feature | Bonzo | AgentLegend | Nyra Target |
-|---------|-------|-------------|-------------|
-| Visual Campaign Builder | ✅ | ✅ | ✅ Build with shadcn |
-| Multi-channel (SMS/Email/Call/VM) | ✅ | ✅ | ✅ via Twilio |
-| Lead Timeline | ✅ | ✅ | ✅ Communication object |
-| Day-relative scheduling | ✅ | ✅ | ✅ Campaign steps |
-| Fixed-time scheduling | ✅ | ✅ | ✅ Campaign steps |
-| STOP word detection | ✅ | ✅ | ✅ WF_OPTOUT_PROCESS |
-| Quick Actions | ✅ | ✅ | ✅ Lead detail page |
-| AI Chat Assistant | ❌ | Limited | ✅ Moltbot |
-| Quote Generation | ❌ | ❌ | ✅ Quote API |
-| Memory/Context | ❌ | ❌ | ✅ Graphiti/Letta |
+| Feature                           | Bonzo | AgentLegend | Nyra Target             |
+| --------------------------------- | ----- | ----------- | ----------------------- |
+| Visual Campaign Builder           | ✅    | ✅          | ✅ Build with shadcn    |
+| Multi-channel (SMS/Email/Call/VM) | ✅    | ✅          | ✅ via Twilio           |
+| Lead Timeline                     | ✅    | ✅          | ✅ Communication object |
+| Day-relative scheduling           | ✅    | ✅          | ✅ Campaign steps       |
+| Fixed-time scheduling             | ✅    | ✅          | ✅ Campaign steps       |
+| STOP word detection               | ✅    | ✅          | ✅ WF_OPTOUT_PROCESS    |
+| Quick Actions                     | ✅    | ✅          | ✅ Lead detail page     |
+| AI Chat Assistant                 | ❌    | Limited     | ✅ Moltbot              |
+| Quote Generation                  | ❌    | ❌          | ✅ Quote API            |
+| Memory/Context                    | ❌    | ❌          | ✅ Graphiti/Letta       |
 
 ---
 
@@ -1573,16 +1753,43 @@ Based on uploaded UI files and competitor analysis:
         "operation": "create",
         "fieldsUi": {
           "fieldValues": [
-            { "fieldId": "firstName", "fieldValue": "={{ $('Normalize Lead').item.json.firstName }}" },
-            { "fieldId": "lastName", "fieldValue": "={{ $('Normalize Lead').item.json.lastName }}" },
-            { "fieldId": "email", "fieldValue": "={{ $('Normalize Lead').item.json.email }}" },
-            { "fieldId": "phone", "fieldValue": "={{ $('Normalize Lead').item.json.phone }}" },
-            { "fieldId": "source", "fieldValue": "={{ $('Normalize Lead').item.json.source }}" },
-            { "fieldId": "loanPurpose", "fieldValue": "={{ $('Normalize Lead').item.json.loanPurpose }}" },
-            { "fieldId": "loanAmount", "fieldValue": "={{ $('Normalize Lead').item.json.loanAmount }}" },
-            { "fieldId": "fico", "fieldValue": "={{ $('Normalize Lead').item.json.fico }}" },
+            {
+              "fieldId": "firstName",
+              "fieldValue": "={{ $('Normalize Lead').item.json.firstName }}"
+            },
+            {
+              "fieldId": "lastName",
+              "fieldValue": "={{ $('Normalize Lead').item.json.lastName }}"
+            },
+            {
+              "fieldId": "email",
+              "fieldValue": "={{ $('Normalize Lead').item.json.email }}"
+            },
+            {
+              "fieldId": "phone",
+              "fieldValue": "={{ $('Normalize Lead').item.json.phone }}"
+            },
+            {
+              "fieldId": "source",
+              "fieldValue": "={{ $('Normalize Lead').item.json.source }}"
+            },
+            {
+              "fieldId": "loanPurpose",
+              "fieldValue": "={{ $('Normalize Lead').item.json.loanPurpose }}"
+            },
+            {
+              "fieldId": "loanAmount",
+              "fieldValue": "={{ $('Normalize Lead').item.json.loanAmount }}"
+            },
+            {
+              "fieldId": "fico",
+              "fieldValue": "={{ $('Normalize Lead').item.json.fico }}"
+            },
             { "fieldId": "status", "fieldValue": "New" },
-            { "fieldId": "receivedAt", "fieldValue": "={{ $('Normalize Lead').item.json.receivedAt }}" }
+            {
+              "fieldId": "receivedAt",
+              "fieldValue": "={{ $('Normalize Lead').item.json.receivedAt }}"
+            }
           ]
         }
       },
@@ -1682,9 +1889,7 @@ Based on uploaded UI files and competitor analysis:
     {
       "parameters": {
         "conditions": {
-          "boolean": [
-            { "value1": "={{ $json.isOptOut }}", "value2": true }
-          ]
+          "boolean": [{ "value1": "={{ $json.isOptOut }}", "value2": true }]
         }
       },
       "name": "If Opt-Out",
@@ -1710,7 +1915,10 @@ Based on uploaded UI files and competitor analysis:
           "fieldValues": [
             { "fieldId": "optedOut", "fieldValue": true },
             { "fieldId": "status", "fieldValue": "DNC" },
-            { "fieldId": "dncDate", "fieldValue": "={{ new Date().toISOString() }}" },
+            {
+              "fieldId": "dncDate",
+              "fieldValue": "={{ new Date().toISOString() }}"
+            },
             { "fieldId": "dncReason", "fieldValue": "SMS STOP received" },
             { "fieldId": "campaignPaused", "fieldValue": true }
           ]
@@ -1728,8 +1936,14 @@ Based on uploaded UI files and competitor analysis:
         "bodyParameters": {
           "parameters": [
             { "name": "type", "value": "COMPLIANCE_OPTOUT" },
-            { "name": "entityId", "value": "={{ $('Find Lead').item.json.data[0].id }}" },
-            { "name": "data", "value": "={{ JSON.stringify({ phone: $('Parse SMS').item.json.phone, message: $('Parse SMS').item.json.message, timestamp: $('Parse SMS').item.json.receivedAt }) }}" }
+            {
+              "name": "entityId",
+              "value": "={{ $('Find Lead').item.json.data[0].id }}"
+            },
+            {
+              "name": "data",
+              "value": "={{ JSON.stringify({ phone: $('Parse SMS').item.json.phone, message: $('Parse SMS').item.json.message, timestamp: $('Parse SMS').item.json.receivedAt }) }}"
+            }
           ]
         }
       },
@@ -1767,6 +1981,7 @@ Based on uploaded UI files and competitor analysis:
 **Priority:** CRITICAL (must complete first)
 
 **Tasks:**
+
 1. [ ] Run health-check-all.sh
 2. [ ] Fix any unhealthy services
 3. [ ] Execute infra-cleanup.sh
@@ -1775,11 +1990,13 @@ Based on uploaded UI files and competitor analysis:
 6. [ ] Verify Cloudflare tunnel routing
 
 **Files to touch:**
+
 - `infra/scripts/*.sh`
 - `infra/docker/*/docker-compose.yml`
 - `infra/cloudflared/*.yml`
 
 **Definition of Done:**
+
 - All health checks pass (100%)
 - Directory structure matches spec
 - Workers reachable via Tailscale
@@ -1792,6 +2009,7 @@ Based on uploaded UI files and competitor analysis:
 **Priority:** HIGH
 
 **Tasks:**
+
 1. [ ] Add GitHub remote to local repo
 2. [ ] Fetch all branches
 3. [ ] Merge/rebase as needed
@@ -1800,10 +2018,12 @@ Based on uploaded UI files and competitor analysis:
 6. [ ] Set up branch protection rules
 
 **Files to touch:**
+
 - `.git/config`
 - `.github/workflows/*.yml`
 
 **Definition of Done:**
+
 - Gitea and GitHub in sync
 - All branches present
 - No merge conflicts
@@ -1816,6 +2036,7 @@ Based on uploaded UI files and competitor analysis:
 **Priority:** CRITICAL
 
 **Tasks:**
+
 1. [ ] Verify Twenty CRM health
 2. [ ] Create custom objects (MortgageLead, Campaign, Quote, Communication)
 3. [ ] Build twenty-mcp-jezweb Docker image
@@ -1827,12 +2048,14 @@ Based on uploaded UI files and competitor analysis:
 9. [ ] Test end-to-end lead creation
 
 **Files to touch:**
+
 - `packages/twenty-custom-objects/src/*.ts`
 - `~/projects/twenty-mcp-jezweb/*`
 - `infra/docker/orchestrator/docker-compose.twenty.yml`
 - `workflows/n8n/*.json`
 
 **Definition of Done:**
+
 - Custom objects created in Twenty
 - MCP server running and registered
 - Can create/read/update leads via n8n
@@ -1846,6 +2069,7 @@ Based on uploaded UI files and competitor analysis:
 **Priority:** HIGH
 
 **Tasks:**
+
 1. [ ] Run verify-memory.sh
 2. [ ] Fix any failing memory systems
 3. [ ] Create memory schemas for mortgage data
@@ -1856,10 +2080,12 @@ Based on uploaded UI files and competitor analysis:
 8. [ ] Configure memory retention policies
 
 **Files to touch:**
+
 - `packages/memory-schemas/src/*.ts`
 - `infra/scripts/verify-memory.sh`
 
 **Definition of Done:**
+
 - All memory systems healthy
 - Can store/retrieve entities
 - Embeddings generate correctly
@@ -1873,6 +2099,7 @@ Based on uploaded UI files and competitor analysis:
 **Priority:** HIGH
 
 **Tasks:**
+
 1. [ ] Import WF_LEAD_INGEST workflow
 2. [ ] Import WF_CAMPAIGN_EXECUTE workflow
 3. [ ] Import WF_QUOTE_GENERATE workflow
@@ -1884,10 +2111,12 @@ Based on uploaded UI files and competitor analysis:
 9. [ ] Set up cron triggers
 
 **Files to touch:**
+
 - `workflows/n8n/*.json`
 - `workflows/activepieces/flows/*`
 
 **Definition of Done:**
+
 - All 5 workflows imported and active
 - Credentials configured
 - Test lead flows through entire pipeline
@@ -1901,6 +2130,7 @@ Based on uploaded UI files and competitor analysis:
 **Priority:** MEDIUM
 
 **Tasks:**
+
 1. [ ] Setup Next.js + shadcn in apps/admin
 2. [ ] Create dashboard page
 3. [ ] Create leads list/detail pages
@@ -1912,11 +2142,13 @@ Based on uploaded UI files and competitor analysis:
 9. [ ] Add Nexus status embed
 
 **Files to touch:**
+
 - `apps/admin/src/**/*`
-- `apps/webapp/src/**/*`
-- `apps/webapp/src/components/MoltbotChat.tsx`
+- `apps/projectnyra/src/**/*`
+- `apps/projectnyra/src/components/MoltbotChat.tsx`
 
 **Definition of Done:**
+
 - Admin UI functional
 - Campaign builder works
 - Moltbot embedded and working
@@ -1930,6 +2162,7 @@ Based on uploaded UI files and competitor analysis:
 **Priority:** MEDIUM
 
 **Tasks:**
+
 1. [ ] Get RTX 3090Ti Tailscale IP
 2. [ ] Create worker docker-compose files
 3. [ ] Deploy Ollama on RTX 3060
@@ -1940,10 +2173,12 @@ Based on uploaded UI files and competitor analysis:
 8. [ ] Configure LiteLLM routing
 
 **Files to touch:**
+
 - `infra/docker/worker-*/docker-compose.yml`
 - `infra/docker/worker-*/.env`
 
 **Definition of Done:**
+
 - All 3 workers running
 - Models loaded
 - Can route inference via LiteLLM
@@ -1956,6 +2191,7 @@ Based on uploaded UI files and competitor analysis:
 **Priority:** HIGH
 
 **Tasks:**
+
 1. [ ] Implement STOP word detection
 2. [ ] Create DNC list management
 3. [ ] Implement quiet hours logic
@@ -1965,11 +2201,13 @@ Based on uploaded UI files and competitor analysis:
 7. [ ] Create compliance dashboard widget
 
 **Files to touch:**
+
 - `packages/compliance/src/*.ts`
 - `services/campaign-engine/src/compliance.ts`
 - `workflows/n8n/WF_OPTOUT_PROCESS.json`
 
 **Definition of Done:**
+
 - STOP immediately halts campaign
 - DNC list properly maintained
 - All PII access logged
@@ -1983,6 +2221,7 @@ Based on uploaded UI files and competitor analysis:
 **Priority:** MEDIUM
 
 **Tasks:**
+
 1. [ ] Create Quote API service
 2. [ ] Implement loan calculation engine
 3. [ ] Create 3-option comparison logic
@@ -1992,10 +2231,12 @@ Based on uploaded UI files and competitor analysis:
 7. [ ] Integrate with campaign engine
 
 **Files to touch:**
+
 - `services/quote-api/src/*.ts`
 - `packages/quote-engine/src/*.ts`
 
 **Definition of Done:**
+
 - Quote API functional
 - 3 options generated correctly
 - Matches Excel calculations
@@ -2009,6 +2250,7 @@ Based on uploaded UI files and competitor analysis:
 **Priority:** MEDIUM
 
 **Tasks:**
+
 1. [ ] Configure Moltbot container
 2. [ ] Connect to memory systems
 3. [ ] Integrate with Twenty CRM
@@ -2017,10 +2259,12 @@ Based on uploaded UI files and competitor analysis:
 6. [ ] Configure voice capabilities (if supported)
 
 **Files to touch:**
+
 - `services/moltbot/src/*`
 - `infra/docker/orchestrator/docker-compose.yml`
 
 **Definition of Done:**
+
 - Moltbot running and healthy
 - Can access lead context
 - Embedded in webapp
@@ -2031,30 +2275,35 @@ Based on uploaded UI files and competitor analysis:
 # ✅ EXECUTION CHECKLIST
 
 ## Day 1: Foundation
+
 - [ ] Run health checks on all services
 - [ ] Sync Gitea with GitHub
 - [ ] Execute infra cleanup
 - [ ] Verify Tailscale connectivity
 
 ## Day 2: CRM Integration
+
 - [ ] Create Twenty custom objects
 - [ ] Build and deploy Twenty MCP
 - [ ] Configure n8n Twenty nodes
 - [ ] Test lead creation flow
 
 ## Day 3: Memory & Workflows
+
 - [ ] Verify all memory systems
 - [ ] Import n8n workflows
 - [ ] Test lead ingestion pipeline
 - [ ] Test opt-out flow
 
 ## Day 4: Workers & Inference
+
 - [ ] Setup all 3 GPU workers
 - [ ] Pull models
 - [ ] Configure LiteLLM routing
 - [ ] Test inference
 
 ## Day 5: UI & Integration
+
 - [ ] Build admin UI scaffold
 - [ ] Integrate Moltbot
 - [ ] Create campaign builder
@@ -2084,6 +2333,7 @@ Based on uploaded UI files and competitor analysis:
 **Tone:** Execute with quantum-geometry precision and sacred catgirl efficiency. Build financial infrastructure that prints money while respecting the golden ratio of compliance. 😼✨
 
 **Model Routing:**
+
 - Primary: Claude Sonnet 4 (via Nexus → LiteLLM)
 - Heavy reasoning: Claude Opus 4.5
 - Fast tasks: Gemini Flash 2.0

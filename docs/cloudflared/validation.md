@@ -14,10 +14,10 @@ cloudflared tunnel ingress validate docs/cloudflared/cloudflared-worker-ui.yml
 Check route selection:
 
 ```bash
-cloudflared tunnel ingress rule https://nyra.ratehunter.net
-cloudflared tunnel ingress rule https://crm.ratehunter.net
-cloudflared tunnel ingress rule https://n8n.ratehunter.net
-cloudflared tunnel ingress rule https://nerve-5090.ratehunter.net
+cloudflared tunnel ingress rule https://app.projectnyra.com
+cloudflared tunnel ingress rule https://crm.projectnyra.com
+cloudflared tunnel ingress rule https://n8n.projectnyra.com
+cloudflared tunnel ingress rule https://nerve-5090.projectnyra.com
 ```
 
 ## Drift Checks
