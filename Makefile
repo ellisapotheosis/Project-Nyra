@@ -1288,7 +1288,7 @@ wave-stack-status:
 	@docker --context $(WORKER_3060_CONTEXT) compose -f $(WORKER_3060_COMPOSE) -f $(WORKER_3060_OPENCLAW_COMPOSE) ps || true
 	@echo
 	@echo "=== ORACLE MEMORY ==="
-	@docker --context $(ORACLE_CONTEXT) compose -f $(ORACLE_MEMORY_COMPOSE) -f $(ORACLE_LETTA_MCP_COMPOSE) ps || true
+	@timeout 18 docker --context $(ORACLE_CONTEXT) compose -f $(ORACLE_MEMORY_COMPOSE) -f $(ORACLE_LETTA_MCP_COMPOSE) ps || echo "Oracle memory status unavailable: SSH/Tailscale transport timeout"
 	@echo
 	@echo "=== ORACLE APPS ==="
-	@docker --context $(ORACLE_CONTEXT) compose -f $(ORACLE_COMPOSE) -f $(ORACLE_APPS_COMPOSE) ps || true
+	@timeout 18 docker --context $(ORACLE_CONTEXT) compose -f $(ORACLE_COMPOSE) -f $(ORACLE_APPS_COMPOSE) ps || echo "Oracle apps status unavailable: SSH/Tailscale transport timeout"
