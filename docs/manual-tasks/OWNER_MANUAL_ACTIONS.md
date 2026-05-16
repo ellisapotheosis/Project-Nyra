@@ -41,13 +41,25 @@ The following steps require manual action by the repository owner or broker admi
 - [ ] Set `projectnyra.com` nameservers to Cloudflare:
     - `mcgrory.ns.cloudflare.com`
     - `zita.ns.cloudflare.com`
-- [ ] Verify with `dig +short NS ratehunter.net` and `dig +short NS projectnyra.com`.
+- [ ] Verify with `make domains-status`.
+
+Current verification on 2026-05-16:
+
+- `ratehunter.net` still publishes `dns101.registrar-servers.com` and `dns102.registrar-servers.com`; Cloudflare zone status is `moved`.
+- `projectnyra.com` still publishes `launch1.spaceship.net` and `launch2.spaceship.net`; Cloudflare zone status is `pending`.
+- Both domains need the same Cloudflare nameserver pair above set inside Spaceship.
 
 ### 7. Tailscale Oracle SSH ACL
 - [ ] Log in to the Tailscale admin console for `ratehunter.net`.
 - [ ] Update ACLs so `worker-rtx5090.trex-fiordland.ts.net`, Windows orchestrator/admin nodes, and deployment hosts can open TCP to `oracle.trex-fiordland.ts.net` on ports `23` and `2223`.
 - [ ] Verify from Windows with `Test-NetConnection oracle.trex-fiordland.ts.net -Port 23`.
 - [ ] Verify from WSL with `ssh -G oracle` resolving `HostName 100.64.0.3` and `Port 23`, then `ssh oracle true`.
+- [ ] Replace the Tailscale API key in `~/.zsh/99-secrets.zsh` if `make tailscale-oracle-doctor` returns HTTP `401`.
+
+Current verification on 2026-05-16:
+
+- `TAILSCALE_API_KEY` is present after sourcing `~/.zsh/99-secrets.zsh`, but Tailscale API calls return HTTP `401` with `API token invalid`.
+- Tailscale peer ping to Oracle works, but OS-level TCP from `worker-rtx5090` to Oracle ports `23` and `2223` times out.
 
 ## Owner Action Dashboard Contract
 
