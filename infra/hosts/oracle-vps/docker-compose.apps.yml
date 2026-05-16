@@ -5,14 +5,14 @@ services:
       context: ../../../
       dockerfile: infra/images/Dockerfile.nextjs
       args:
-        APP_PATH: apps/webapp/app
-        APP_NAME: mortgage-assistant
+        APP_PATH: apps/projectnyra
+        APP_NAME: projectnyra
     container_name: ${COMPOSE_PROJECT_NAME:-nyra}-webapp
     restart: unless-stopped
     command: ["sh", "-c", "node $${NEXT_STANDALONE_SERVER}"]
     environment:
       - PORT=3001
-      - NEXT_STANDALONE_SERVER=apps/webapp/app/server.js
+      - NEXT_STANDALONE_SERVER=apps/projectnyra/server.js
       - NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=${NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
       - CLERK_SECRET_KEY=${CLERK_SECRET_KEY}
       - CRM_API_URL=http://nyra-crm-api:4001
@@ -40,7 +40,7 @@ services:
       - LITELLM_BASE_URL=http://litellm:4000
       - NEXUS_CONFIG_APPLY_ENABLED=false
       - NEXUS_DEPLOY_TARGET=oracle-vps
-      - NEXT_PUBLIC_WEBAPP_URL=${NEXT_PUBLIC_WEBAPP_URL:-https://app.ratehunter.net}
+      - NEXT_PUBLIC_WEBAPP_URL=${NEXT_PUBLIC_WEBAPP_URL:-https://app.projectnyra.com}
     ports:
       - "3016:3016"
     volumes:

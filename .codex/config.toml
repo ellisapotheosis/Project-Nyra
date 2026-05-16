@@ -92,14 +92,6 @@ args = [
 command = "npx"
 startup_timeout_sec = 120
 
-[mcp_servers.infisical]
-args = [
-    "-y",
-    "@infisical/mcp",
-]
-command = "npx"
-startup_timeout_sec = 120
-
 [mcp_servers.memory]
 args = [
     "-y",
@@ -110,21 +102,12 @@ startup_timeout_sec = 120
 
 [mcp_servers.nexus-router]
 startup_timeout_sec = 120
-url = "https://nexus.ratehunter.net/mcp"
+url = "https://nexus-router.projectnyra.com/mcp"
 
 [mcp_servers.playwright]
 args = [
     "-y",
     "@playwright/mcp@latest",
-]
-command = "npx"
-startup_timeout_sec = 120
-
-[mcp_servers.playwright-cli]
-args = [
-    "-y",
-    "@playwright/cli",
-    "mcp-server",
 ]
 command = "npx"
 startup_timeout_sec = 120

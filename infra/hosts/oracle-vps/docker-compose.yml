@@ -1,6 +1,44 @@
 name: nyra-network
 
 services:
+  # ── Infisical secrets init (runs once, writes files to /run/nyra-secrets/) ─
+  # Mirrors the worker-host secret volume pattern so Oracle services can consume
+  # file-backed secrets without committing them to source.
+  secrets-init:
+    build:
+      context: ../../images/infisical-secrets-init
+    container_name: nyra-network-nyra-secrets-init
+    restart: "no"
+    command: ["/usr/local/bin/secrets-init.sh"]
+    environment:
+      INFISICAL_TOKEN: ${INFISICAL_TOKEN:-}
+      INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
+      INFISICAL_ENV: ${INFISICAL_ENV:-prod}
+      INFISICAL_PATH: ${INFISICAL_PATH:-/machines/oracle-vps}
+    volumes:
+      - nyra_secrets:/run/nyra-secrets
+    networks: [nyra_net]
+
+  # ── Infisical agent (polls Infisical and refreshes file-backed secrets) ───
+  infisical-agent:
+    build:
+      context: ../../images/infisical-secrets-init
+    container_name: nyra-network-nyra-infisical-agent
+    restart: unless-stopped
+    entrypoint: ["/usr/local/bin/agent-sidecar.sh"]
+    depends_on:
+      secrets-init:
+        condition: service_completed_successfully
+    environment:
+      INFISICAL_TOKEN: ${INFISICAL_TOKEN:-}
+      INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
+      INFISICAL_ENV: ${INFISICAL_ENV:-prod}
+      INFISICAL_PATH: ${INFISICAL_PATH:-/machines/oracle-vps}
+      INFISICAL_POLL_INTERVAL: ${INFISICAL_POLL_INTERVAL:-60}
+    volumes:
+      - nyra_secrets:/run/nyra-secrets
+    networks: [nyra_net]
+
   # ── Infisical Sidecar (Secret Sync) ───────────────────────────────────────
   # Synchronizes secrets from Infisical to the local .env file.
   infisical-sidecar:
@@ -98,8 +136,8 @@ services:
         condition: service_healthy
     environment:
       NODE_PORT: 3000
-      SERVER_URL: https://twenty.ratehunter.net
-      FRONTEND_URL: https://twenty.ratehunter.net
+      SERVER_URL: https://twenty.projectnyra.com
+      FRONTEND_URL: https://twenty.projectnyra.com
       APP_SECRET: ${TWENTY_APP_SECRET}
       PG_DATABASE_URL: postgresql://${TWENTY_DB_USER:-twenty}:${TWENTY_DB_PASSWORD}@twenty-db:5432/twenty
       REDIS_URL: redis://redis-cache:6379
@@ -176,7 +214,7 @@ services:
       AP_REDIS_PASSWORD: ${AP_REDIS_PASSWORD:-}
       AP_ENCRYPTION_KEY: ${AP_ENCRYPTION_KEY}
       AP_JWT_SECRET: ${AP_JWT_SECRET}
-      AP_FRONTEND_URL: ${AP_FRONTEND_URL:-https://active.ratehunter.net}
+      AP_FRONTEND_URL: ${AP_FRONTEND_URL:-https://active.projectnyra.com}
       AP_EXECUTION_MODE: ${AP_EXECUTION_MODE:-UNSANDBOXED}
       AP_TELEMETRY_ENABLED: ${AP_TELEMETRY_ENABLED:-false}
     networks: [nyra_net]
@@ -216,7 +254,7 @@ services:
       OFFICE_PHONE: ${OFFICE_PHONE:-}
       TWILIO_PHONE_NUMBER: ${TWILIO_PHONE_NUMBER:-}
       SMTP_FROM_EMAIL: ${SMTP_FROM_EMAIL:-}
-      N8N_WORKFLOW_URL: ${WEBHOOK_URL:-https://n8n.ratehunter.net}
+      N8N_WORKFLOW_URL: ${WEBHOOK_URL:-https://n8n.projectnyra.com}
     volumes:
       - n8n_data:/home/node/.n8n
       - ../../n8n-workflows:/opt/nyra/n8n-workflows:ro
@@ -336,6 +374,85 @@ services:
     ports:
       - "8081:8080"
     networks: [nyra_net]
+
+  # ── OpenLIT AI Observability ──────────────────────────────────────────────
+  # Self-hosted OpenLIT stack on Oracle VPS. Public access, if enabled, must stay
+  # behind Cloudflare Access; OTLP ports are bound to Tailscale by default.
+  openlit-clickhouse:
+    image: clickhouse/clickhouse-server:24.4.1
+    container_name: nyra-network-nyra-openlit-clickhouse
+    restart: unless-stopped
+    environment:
+      CLICKHOUSE_USER: ${OPENLIT_DB_USER:-default}
+      CLICKHOUSE_PASSWORD: ${OPENLIT_DB_PASSWORD:-OPENLIT}
+      CLICKHOUSE_DATABASE: ${OPENLIT_DB_NAME:-openlit}
+      CLICKHOUSE_ALWAYS_RUN_INITDB_SCRIPTS: "true"
+    volumes:
+      - openlit_clickhouse_data:/var/lib/clickhouse
+      - ./configs/openlit/clickhouse-config.xml:/etc/clickhouse-server/config.d/openlit-config.xml:ro
+      - ./configs/openlit/clickhouse-init.sh:/docker-entrypoint-initdb.d/openlit-init.sh:ro
+    ports:
+      - "${ORACLE_TAILSCALE_IP:-127.0.0.1}:${OPENLIT_CLICKHOUSE_HTTP_PORT:-8123}:8123"
+      - "${ORACLE_TAILSCALE_IP:-127.0.0.1}:${OPENLIT_CLICKHOUSE_NATIVE_PORT:-9000}:9000"
+    networks: [nyra_net]
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "clickhouse-client --user=$${CLICKHOUSE_USER} --password=$${CLICKHOUSE_PASSWORD} --query='SELECT 1' || exit 1",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 60s
+
+  openlit:
+    image: ghcr.io/openlit/openlit:latest
+    container_name: nyra-network-nyra-openlit
+    restart: unless-stopped
+    depends_on:
+      openlit-clickhouse:
+        condition: service_healthy
+    environment:
+      TELEMETRY_ENABLED: ${OPENLIT_TELEMETRY_ENABLED:-false}
+      INIT_DB_HOST: openlit-clickhouse
+      INIT_DB_PORT: 8123
+      INIT_DB_DATABASE: ${OPENLIT_DB_NAME:-openlit}
+      INIT_DB_USERNAME: ${OPENLIT_DB_USER:-default}
+      INIT_DB_PASSWORD: ${OPENLIT_DB_PASSWORD:-OPENLIT}
+      SQLITE_DATABASE_URL: file:/app/client/data/data.db
+      PORT: 3000
+      DOCKER_PORT: 3000
+      NEXTAUTH_URL: ${OPENLIT_NEXTAUTH_URL:-https://openlit.projectnyra.com}
+      NEXTAUTH_SECRET: ${OPENLIT_NEXTAUTH_SECRET:-change-me-openlit-nextauth-secret}
+      OPENLIT_VAULT_ENCRYPTION_KEY: ${OPENLIT_VAULT_ENCRYPTION_KEY:-change-me-openlit-vault-key}
+      OPENLIT_ALLOWED_CORS_ORIGINS: ${OPENLIT_ALLOWED_CORS_ORIGINS:-https://openlit.projectnyra.com}
+      GOOGLE_CLIENT_ID: ${OPENLIT_GOOGLE_CLIENT_ID:-}
+      GOOGLE_CLIENT_SECRET: ${OPENLIT_GOOGLE_CLIENT_SECRET:-}
+      GITHUB_CLIENT_ID: ${OPENLIT_GITHUB_CLIENT_ID:-}
+      GITHUB_CLIENT_SECRET: ${OPENLIT_GITHUB_CLIENT_SECRET:-}
+      OPAMP_ENVIRONMENT: ${OPENLIT_OPAMP_ENVIRONMENT:-production}
+      OPAMP_CERTS_DIR: /app/opamp/certs
+      OPAMP_TLS_INSECURE_SKIP_VERIFY: ${OPENLIT_OPAMP_TLS_INSECURE_SKIP_VERIFY:-false}
+      OPAMP_TLS_REQUIRE_CLIENT_CERT: ${OPENLIT_OPAMP_TLS_REQUIRE_CLIENT_CERT:-true}
+      OPAMP_TLS_MIN_VERSION: ${OPENLIT_OPAMP_TLS_MIN_VERSION:-1.2}
+      OPAMP_TLS_MAX_VERSION: ${OPENLIT_OPAMP_TLS_MAX_VERSION:-1.3}
+      OPAMP_LOG_LEVEL: ${OPENLIT_OPAMP_LOG_LEVEL:-info}
+    volumes:
+      - openlit_data:/app/client/data
+      - ./configs/openlit/otel-collector-config.yaml:/etc/otel/otel-collector-config.yaml:ro
+      - nyra_secrets:/run/nyra-secrets:ro
+    ports:
+      - "${OPENLIT_HOST_PORT:-3004}:3000"
+      - "${ORACLE_TAILSCALE_IP:-127.0.0.1}:${OPENLIT_OTLP_GRPC_PORT:-4317}:4317"
+      - "${ORACLE_TAILSCALE_IP:-127.0.0.1}:${OPENLIT_OTLP_HTTP_PORT:-4318}:4318"
+    networks: [nyra_net]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+      start_period: 60s
 
   # ── Chat UI ───────────────────────────────────────────────────────────────
   # OpenWebUI proxies all LLM requests to local Oracle LiteLLM.
@@ -602,11 +719,11 @@ services:
     ports:
       - "8768:8768"
     volumes:
-      - ../../apps/landing-page:/app
+      - ../../../apps/projectnyra:/app
     networks: [nyra_net]
 
   # ── Nyra UI Factory ─────────────────────────────────────────────────────
-  # Long-lived execution container for registry installs into /infra/apps/landing-page.
+  # Long-lived execution container for registry installs into the Project Nyra app.
   nyra-ui-engine:
     image: node:20-alpine
     container_name: nyra-network-nyra-ui-engine
@@ -626,7 +743,7 @@ services:
       - -f
       - /dev/null
     volumes:
-      - ../../apps/landing-page:/app
+      - ../../../apps/projectnyra:/app
     networks: [nyra_net]
 
   # ── shadcn Registry MCP (stdio→SSE bridge via supergateway) ──────────────
@@ -651,7 +768,7 @@ services:
     ports:
       - "8769:8769"
     volumes:
-      - ../../apps/landing-page:/app
+      - ../../../apps/projectnyra:/app
     networks: [nyra_net]
 
   # ── Sequential Thinking MCP (stdio→SSE bridge via supergateway) ──────────
@@ -864,11 +981,11 @@ services:
     environment:
       GOTRUE_DB_DRIVER: postgres
       GOTRUE_DB_DATABASE_URL: postgres://postgres:${SUPABASE_DB_URL_PASSWORD:-${SUPABASE_DB_PASSWORD:-${POSTGRES_PASSWORD}}}@supabase-db:5432/postgres?sslmode=disable
-      GOTRUE_SITE_URL: ${SUPABASE_SITE_URL:-https://nyra.ratehunter.net}
+      GOTRUE_SITE_URL: ${SUPABASE_SITE_URL:-https://app.projectnyra.com}
       GOTRUE_JWT_SECRET: ${JWT_SECRET}
       GOTRUE_JWT_EXP: 3600
-      API_EXTERNAL_URL: ${SUPABASE_AUTH_EXTERNAL_URL:-https://api.ratehunter.net/auth/v1}
-      GOTRUE_EXTERNAL_URL: ${SUPABASE_AUTH_EXTERNAL_URL:-https://api.ratehunter.net/auth/v1}
+      API_EXTERNAL_URL: ${SUPABASE_AUTH_EXTERNAL_URL:-https://api.projectnyra.com/auth/v1}
+      GOTRUE_EXTERNAL_URL: ${SUPABASE_AUTH_EXTERNAL_URL:-https://api.projectnyra.com/auth/v1}
       GOTRUE_MAILER_AUTOCONFIRM: "true"
       GOTRUE_DB_MAX_POOL_SIZE: 20
     networks: [nyra_net]
@@ -962,7 +1079,7 @@ services:
     restart: unless-stopped
     command: ["ha-mcp-web"]
     environment:
-      HOMEASSISTANT_URL: ${HOMEASSISTANT_URL:-https://homeassistant.ratehunter.net}
+      HOMEASSISTANT_URL: ${HOMEASSISTANT_URL:-https://homeassistant.projectnyra.com}
       HOMEASSISTANT_TOKEN: ${HOMEASSISTANT_TOKEN:-${HOME_ASSISTANT_TOKEN:-${HOME_ASSISTANT_TOKEN_SECRET:-}}}
       BACKUP_HINT: ${HA_MCP_BACKUP_HINT:-normal}
       HAMCP_ENABLE_FILESYSTEM_TOOLS: ${HAMCP_ENABLE_FILESYSTEM_TOOLS:-false}
@@ -1054,6 +1171,9 @@ volumes:
   prometheus_data:
   loki_data:
   grafana_data:
+  openlit_clickhouse_data:
+  openlit_data:
+  nyra_secrets:
   openwebui_data:
   mempalace_data:
   mempalace_vault:

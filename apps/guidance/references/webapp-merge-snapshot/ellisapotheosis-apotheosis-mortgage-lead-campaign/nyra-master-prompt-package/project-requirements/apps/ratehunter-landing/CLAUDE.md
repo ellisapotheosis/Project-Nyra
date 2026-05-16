@@ -3,6 +3,7 @@
 ## 🚨 CRITICAL: CONCURRENT EXECUTION & FILE MANAGEMENT
 
 **ABSOLUTE RULES**:
+
 1. ALL operations MUST be concurrent/parallel in a single message
 2. **NEVER save working files to the root folder**
 3. ALWAYS organize files in appropriate subdirectories
@@ -11,6 +12,7 @@
 ### ⚡ GOLDEN RULE: "1 MESSAGE = ALL RELATED OPERATIONS"
 
 **MANDATORY PATTERNS:**
+
 - **TodoWrite**: ALWAYS batch ALL todos in ONE call (5-10+ todos minimum)
 - **Task tool**: ALWAYS spawn ALL agents in ONE message with full instructions
 - **File operations**: ALWAYS batch ALL reads/writes/edits in ONE message
@@ -22,15 +24,18 @@
 ## 🎯 PROJECT CONTEXT
 
 ### Application Overview
+
 **RateHunter.net Landing Page** is a high-converting lead generation website for mortgage rate comparisons and real-time quotes.
 
 **Primary Purpose:**
+
 - Capture mortgage leads through intelligent forms
 - Showcase competitive mortgage rates in real-time
 - Integrate Nyra AI chatbot for instant pre-qualification
 - Drive conversions to loan officers via AI-powered routing
 
 **Target Audience:**
+
 - Homebuyers seeking mortgage rates
 - Homeowners looking to refinance
 - Real estate investors comparing loan products
@@ -38,6 +43,7 @@
 ### Technology Stack
 
 **Frontend Framework:**
+
 - **Next.js 14** (App Router with React Server Components)
 - **TypeScript** (strict mode enabled)
 - **Tailwind CSS** (utility-first styling)
@@ -46,18 +52,21 @@
 - **Zod** (schema validation)
 
 **Backend Integration:**
+
 - **Next.js API Routes** (serverless functions)
 - **PostgreSQL** (via Prisma ORM)
 - **Redis** (session caching, rate limiting)
 - **Nyra Assistant API** (AI chat integration)
 
 **Infrastructure:**
+
 - **Cloudflare Tunnel** (secure public access)
 - **Docker** (containerized deployment)
 - **Infisical** (secrets management)
 - **Tailscale** (private networking)
 
 **Analytics & Monitoring:**
+
 - **Vercel Analytics** (Core Web Vitals)
 - **PostHog** (product analytics, A/B testing)
 - **Sentry** (error tracking)
@@ -177,6 +186,7 @@ apps/ratehunter-landing/
 ### Next.js 14 Best Practices
 
 **Server Components (Default):**
+
 ```typescript
 // app/(marketing)/page.tsx - Server Component
 import { prisma } from '@/lib/prisma';
@@ -210,6 +220,7 @@ export default async function HomePage() {
 ```
 
 **Client Components (Interactive):**
+
 ```typescript
 // components/forms/LeadCaptureForm.tsx
 'use client';
@@ -245,24 +256,22 @@ export function LeadCaptureForm() {
 ### API Route Patterns
 
 **Lead Capture Endpoint:**
+
 ```typescript
 // app/api/leads/route.ts
-import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import { redis } from '@/lib/redis';
-import { leadSchema } from '@/lib/validation';
-import { rateLimit } from '@/lib/rate-limit';
+import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
+import { redis } from "@/lib/redis";
+import { leadSchema } from "@/lib/validation";
+import { rateLimit } from "@/lib/rate-limit";
 
 export async function POST(req: NextRequest) {
   // Rate limiting
-  const ip = req.headers.get('x-forwarded-for') || 'unknown';
+  const ip = req.headers.get("x-forwarded-for") || "unknown";
   const { success } = await rateLimit.check(ip);
 
   if (!success) {
-    return NextResponse.json(
-      { error: 'Too many requests' },
-      { status: 429 }
-    );
+    return NextResponse.json({ error: "Too many requests" }, { status: 429 });
   }
 
   try {
@@ -277,7 +286,7 @@ export async function POST(req: NextRequest) {
         loanAmount: validated.loanAmount,
         propertyType: validated.propertyType,
         creditScore: validated.creditScore,
-        source: 'landing_page',
+        source: "landing_page",
         ipAddress: ip,
       },
     });
@@ -286,22 +295,21 @@ export async function POST(req: NextRequest) {
     await redis.setex(`lead:${lead.id}`, 3600, JSON.stringify(lead));
 
     // Trigger Nyra Assistant workflow
-    await fetch(process.env.NYRA_API_URL + '/api/leads/qualify', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+    await fetch(process.env.NYRA_API_URL + "/api/leads/qualify", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ leadId: lead.id }),
     });
 
     return NextResponse.json({
       success: true,
       leadId: lead.id,
-      message: 'Lead captured successfully',
+      message: "Lead captured successfully",
     });
-
   } catch (error) {
-    console.error('Lead capture error:', error);
+    console.error("Lead capture error:", error);
     return NextResponse.json(
-      { error: 'Failed to capture lead' },
+      { error: "Failed to capture lead" },
       { status: 500 }
     );
   }
@@ -311,21 +319,22 @@ export async function POST(req: NextRequest) {
 ### Validation Schemas
 
 **Zod Schemas:**
+
 ```typescript
 // lib/validation.ts
-import { z } from 'zod';
+import { z } from "zod";
 
 export const leadSchema = z.object({
-  email: z.string().email('Invalid email address'),
-  phone: z.string().regex(/^\d{10}$/, 'Phone must be 10 digits'),
-  firstName: z.string().min(2, 'First name required'),
-  lastName: z.string().min(2, 'Last name required'),
+  email: z.string().email("Invalid email address"),
+  phone: z.string().regex(/^\d{10}$/, "Phone must be 10 digits"),
+  firstName: z.string().min(2, "First name required"),
+  lastName: z.string().min(2, "Last name required"),
   loanAmount: z.number().min(50000).max(5000000),
-  propertyType: z.enum(['single_family', 'condo', 'townhouse', 'multi_family']),
+  propertyType: z.enum(["single_family", "condo", "townhouse", "multi_family"]),
   propertyValue: z.number().min(50000).max(10000000),
   creditScore: z.number().min(300).max(850).optional(),
   downPayment: z.number().min(0).optional(),
-  zipCode: z.string().regex(/^\d{5}$/, 'Invalid ZIP code'),
+  zipCode: z.string().regex(/^\d{5}$/, "Invalid ZIP code"),
   isFirstTimeHomeBuyer: z.boolean().optional(),
 });
 
@@ -335,8 +344,8 @@ export const rateQuoteSchema = z.object({
   loanAmount: z.number().min(50000),
   propertyValue: z.number().min(50000),
   creditScore: z.number().min(300).max(850),
-  loanType: z.enum(['conventional', 'fha', 'va', 'usda']),
-  loanTerm: z.enum(['15', '20', '30']),
+  loanType: z.enum(["conventional", "fha", "va", "usda"]),
+  loanTerm: z.enum(["15", "20", "30"]),
   zipCode: z.string().regex(/^\d{5}$/),
 });
 
@@ -346,6 +355,7 @@ export type RateQuoteData = z.infer<typeof rateQuoteSchema>;
 ### Component Styling Patterns
 
 **Tailwind CSS with TypeScript:**
+
 ```typescript
 // components/ui/Button.tsx
 import { type ButtonHTMLAttributes, forwardRef } from 'react';
@@ -399,31 +409,37 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 ### Agent Roles for RateHunter Landing
 
 **1. Frontend UI Agent (React + Next.js)**
+
 - **Responsibilities**: Build landing page components, forms, calculators
 - **Coordination**: Share component APIs via memory
 - **Tools**: React, TypeScript, Tailwind CSS
 
 **2. Backend API Agent (Next.js API Routes)**
+
 - **Responsibilities**: Create API endpoints for lead capture, rate fetching
 - **Coordination**: Document API contracts in memory
 - **Tools**: Next.js API Routes, Prisma, Redis
 
 **3. Integration Agent (Nyra Assistant + External APIs)**
+
 - **Responsibilities**: Integrate Nyra chatbot, rate providers, LOS systems
 - **Coordination**: Track integration status in memory
 - **Tools**: API clients, webhooks, event handlers
 
 **4. Database Agent (PostgreSQL + Prisma)**
+
 - **Responsibilities**: Design schema, migrations, queries
 - **Coordination**: Store schema documentation in memory
 - **Tools**: Prisma, PostgreSQL, migrations
 
 **5. Testing Agent (Jest + Playwright)**
+
 - **Responsibilities**: Unit tests, integration tests, E2E tests
 - **Coordination**: Report test coverage in memory
 - **Tools**: Jest, React Testing Library, Playwright
 
 **6. DevOps Agent (Docker + Cloudflare)**
+
 - **Responsibilities**: Containerization, deployment, CI/CD
 - **Coordination**: Track deployment status in memory
 - **Tools**: Docker, Cloudflare Tunnel, GitHub Actions
@@ -431,6 +447,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 ### Swarm Coordination Pattern
 
 **Initialize Swarm:**
+
 ```bash
 # Set up coordination topology for landing page development
 npx claude-flow@alpha swarm init --topology mesh --agents 6
@@ -445,6 +462,7 @@ npx claude-flow@alpha agent spawn --type devops --name "DevOps Engineer"
 ```
 
 **Task Orchestration:**
+
 ```bash
 # Parallel task execution
 npx claude-flow@alpha task orchestrate --task "Build landing page" --strategy parallel --agents 6
@@ -455,6 +473,7 @@ npx claude-flow@alpha task orchestrate --task "Build landing page" --strategy pa
 **Every Agent MUST Use Hooks:**
 
 **Pre-Task Hook:**
+
 ```bash
 npx claude-flow@alpha hooks pre-task \
   --description "Building RateHunter landing page components" \
@@ -462,6 +481,7 @@ npx claude-flow@alpha hooks pre-task \
 ```
 
 **Post-Edit Hook:**
+
 ```bash
 npx claude-flow@alpha hooks post-edit \
   --file "src/components/forms/LeadCaptureForm.tsx" \
@@ -469,6 +489,7 @@ npx claude-flow@alpha hooks post-edit \
 ```
 
 **Session Management:**
+
 ```bash
 # Restore previous session
 npx claude-flow@alpha hooks session-restore --session-id "ratehunter-landing-001"
@@ -484,6 +505,7 @@ npx claude-flow@alpha hooks session-end --export-metrics true
 ### Context Storage Patterns
 
 **Store Project Context:**
+
 ```bash
 npx claude-flow@alpha memory store \
   --key "ratehunter/context" \
@@ -497,6 +519,7 @@ npx claude-flow@alpha memory store \
 ```
 
 **Store Component Architecture:**
+
 ```bash
 npx claude-flow@alpha memory store \
   --key "ratehunter/components/architecture" \
@@ -511,6 +534,7 @@ npx claude-flow@alpha memory store \
 ```
 
 **Store API Contracts:**
+
 ```bash
 npx claude-flow@alpha memory store \
   --key "ratehunter/api/contracts" \
@@ -526,6 +550,7 @@ npx claude-flow@alpha memory store \
 ### Decision Tracking
 
 **Store Architectural Decisions:**
+
 ```bash
 npx claude-flow@alpha memory store \
   --key "ratehunter/decisions/architecture" \
@@ -545,6 +570,7 @@ npx claude-flow@alpha memory store \
 ### Docker Configuration
 
 **Dockerfile (Multi-stage Build):**
+
 ```dockerfile
 # apps/ratehunter-landing/Dockerfile
 FROM node:20-alpine AS base
@@ -591,9 +617,10 @@ CMD ["node", "server.js"]
 ```
 
 **Docker Compose (Development):**
+
 ```yaml
 # apps/ratehunter-landing/docker-compose.yml
-version: '3.9'
+version: "3.9"
 
 services:
   web:
@@ -641,6 +668,7 @@ volumes:
 ### Cloudflare Tunnel Setup
 
 **tunnel.yml:**
+
 ```yaml
 # Cloudflare Tunnel configuration
 tunnel: ratehunter-landing
@@ -657,6 +685,7 @@ ingress:
 ### GitHub Actions CI/CD
 
 **Build and Deploy Workflow:**
+
 ```yaml
 # .github/workflows/deploy-ratehunter.yml
 name: Deploy RateHunter Landing
@@ -665,11 +694,11 @@ on:
   push:
     branches: [main]
     paths:
-      - 'apps/ratehunter-landing/**'
+      - "apps/ratehunter-landing/**"
   pull_request:
     branches: [main]
     paths:
-      - 'apps/ratehunter-landing/**'
+      - "apps/ratehunter-landing/**"
 
 jobs:
   test:
@@ -678,8 +707,8 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
+          node-version: "20"
+          cache: "npm"
 
       - name: Install dependencies
         working-directory: apps/ratehunter-landing
@@ -731,6 +760,7 @@ jobs:
 ### Performance Monitoring
 
 **Web Vitals Tracking:**
+
 ```typescript
 // app/layout.tsx
 import { Analytics } from '@vercel/analytics/react';
@@ -750,16 +780,18 @@ export default function RootLayout({ children }) {
 ```
 
 **PostHog Analytics Integration:**
+
 ```typescript
 // lib/posthog.ts
-import posthog from 'posthog-js';
+import posthog from "posthog-js";
 
 export const initPostHog = () => {
-  if (typeof window !== 'undefined') {
+  if (typeof window !== "undefined") {
     posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY!, {
-      api_host: process.env.NEXT_PUBLIC_POSTHOG_HOST || 'https://app.posthog.com',
+      api_host:
+        process.env.NEXT_PUBLIC_POSTHOG_HOST || "https://app.posthog.com",
       loaded: (posthog) => {
-        if (process.env.NODE_ENV === 'development') posthog.debug();
+        if (process.env.NODE_ENV === "development") posthog.debug();
       },
     });
   }
@@ -767,10 +799,12 @@ export const initPostHog = () => {
 
 // Track lead capture events
 export const trackLeadCapture = (leadData: Partial<LeadFormData>) => {
-  posthog.capture('lead_captured', {
+  posthog.capture("lead_captured", {
     loan_amount: leadData.loanAmount,
     property_type: leadData.propertyType,
-    credit_score_range: leadData.creditScore ? Math.floor(leadData.creditScore / 100) * 100 : null,
+    credit_score_range: leadData.creditScore
+      ? Math.floor(leadData.creditScore / 100) * 100
+      : null,
   });
 };
 ```
@@ -778,9 +812,10 @@ export const trackLeadCapture = (leadData: Partial<LeadFormData>) => {
 ### Error Tracking
 
 **Sentry Configuration:**
+
 ```typescript
 // sentry.client.config.ts
-import * as Sentry from '@sentry/nextjs';
+import * as Sentry from "@sentry/nextjs";
 
 Sentry.init({
   dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
@@ -806,6 +841,7 @@ Sentry.init({
 ### Security Best Practices
 
 **Environment Variables (via Infisical):**
+
 ```bash
 # Fetch secrets from Infisical
 npx infisical export --env=production --format=dotenv > .env.production
@@ -820,14 +856,15 @@ npx infisical export --env=production --format=dotenv > .env.production
 ```
 
 **Rate Limiting:**
+
 ```typescript
 // lib/rate-limit.ts
-import { Ratelimit } from '@upstash/ratelimit';
-import { redis } from './redis';
+import { Ratelimit } from "@upstash/ratelimit";
+import { redis } from "./redis";
 
 export const rateLimit = new Ratelimit({
   redis: redis,
-  limiter: Ratelimit.slidingWindow(10, '10 s'), // 10 requests per 10 seconds
+  limiter: Ratelimit.slidingWindow(10, "10 s"), // 10 requests per 10 seconds
   analytics: true,
 });
 
@@ -839,9 +876,10 @@ export const checkRateLimit = async (ip: string) => {
 ```
 
 **Input Sanitization:**
+
 ```typescript
 // lib/sanitize.ts
-import DOMPurify from 'isomorphic-dompurify';
+import DOMPurify from "isomorphic-dompurify";
 
 export const sanitizeInput = (input: string): string => {
   return DOMPurify.sanitize(input, {
@@ -856,7 +894,7 @@ export const sanitizeLeadData = (data: LeadFormData): LeadFormData => {
     firstName: sanitizeInput(data.firstName),
     lastName: sanitizeInput(data.lastName),
     email: data.email.toLowerCase().trim(),
-    phone: data.phone.replace(/\D/g, ''),
+    phone: data.phone.replace(/\D/g, ""),
   };
 };
 ```
@@ -864,6 +902,7 @@ export const sanitizeLeadData = (data: LeadFormData): LeadFormData => {
 ### Compliance (TCPA, GDPR)
 
 **Cookie Consent:**
+
 ```typescript
 // components/CookieConsent.tsx
 'use client';
@@ -904,45 +943,53 @@ export function CookieConsent() {
 ### Integration with Project-Nyra Components
 
 **1. Nyra Assistant Integration:**
+
 ```typescript
 // lib/nyra-client.ts
 export const nyraClient = {
   qualifyLead: async (leadId: string) => {
-    const response = await fetch(`${process.env.NYRA_API_URL}/api/leads/qualify`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.NYRA_API_KEY}`,
-      },
-      body: JSON.stringify({ leadId }),
-    });
+    const response = await fetch(
+      `${process.env.NYRA_API_URL}/api/leads/qualify`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${process.env.NYRA_API_KEY}`,
+        },
+        body: JSON.stringify({ leadId }),
+      }
+    );
     return response.json();
   },
 
   getRateQuote: async (quoteData: RateQuoteData) => {
-    const response = await fetch(`${process.env.NYRA_API_URL}/api/rates/quote`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.NYRA_API_KEY}`,
-      },
-      body: JSON.stringify(quoteData),
-    });
+    const response = await fetch(
+      `${process.env.NYRA_API_URL}/api/rates/quote`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${process.env.NYRA_API_KEY}`,
+        },
+        body: JSON.stringify(quoteData),
+      }
+    );
     return response.json();
   },
 };
 ```
 
 **2. Mortgage CRM Integration:**
+
 ```typescript
 // lib/crm-client.ts
 export const crmClient = {
   createLead: async (leadData: LeadFormData) => {
     const response = await fetch(`${process.env.CRM_API_URL}/api/leads`, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.CRM_API_KEY}`,
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${process.env.CRM_API_KEY}`,
       },
       body: JSON.stringify(leadData),
     });
@@ -954,15 +1001,18 @@ export const crmClient = {
 ### Shared Infrastructure
 
 **PostgreSQL Database:**
+
 - Shared database server on `database-01.nyra.local`
 - Database: `ratehunter_landing`
 - Schema: Isolated from other apps
 
 **Redis Cache:**
+
 - Shared Redis cluster on `cache-01.nyra.local`
 - Namespace: `ratehunter:`
 
 **Infisical Secrets:**
+
 - Organization: `project-nyra`
 - Project: `ratehunter-landing`
 - Environment: `production`
@@ -974,6 +1024,7 @@ export const crmClient = {
 ### Development Workflow
 
 **1. Local Development:**
+
 ```bash
 # Start development environment
 cd apps/ratehunter-landing
@@ -986,6 +1037,7 @@ npm run dev
 ```
 
 **2. Feature Development:**
+
 ```bash
 # Create feature branch
 git checkout -b feature/new-calculator
@@ -999,6 +1051,7 @@ git push origin feature/new-calculator
 ```
 
 **3. Testing:**
+
 ```bash
 # Run all tests
 npm test
@@ -1015,15 +1068,17 @@ npm run test:e2e
 ### Deployment Workflow
 
 **1. Staging Deployment:**
+
 ```bash
 # Deploy to staging
 npm run deploy:staging
 
 # Verify deployment
-curl https://staging.ratehunter.net/api/health
+curl https://staging.projectnyra.com/api/health
 ```
 
 **2. Production Deployment:**
+
 ```bash
 # Merge to main triggers automatic deployment
 git checkout main
@@ -1037,16 +1092,19 @@ npm run deploy:monitor
 ### Testing Workflow
 
 **Unit Tests:**
+
 ```bash
 npm run test:unit
 ```
 
 **Integration Tests:**
+
 ```bash
 npm run test:integration
 ```
 
 **E2E Tests:**
+
 ```bash
 npm run test:e2e
 ```
@@ -1056,6 +1114,7 @@ npm run test:e2e
 ## 📚 ADDITIONAL RESOURCES
 
 ### Key Documentation
+
 - [Next.js 14 Documentation](https://nextjs.org/docs)
 - [Tailwind CSS Documentation](https://tailwindcss.com/docs)
 - [Prisma Documentation](https://www.prisma.io/docs)
@@ -1063,6 +1122,7 @@ npm run test:e2e
 - [Zod Validation](https://zod.dev/)
 
 ### Project-Specific Docs
+
 - `/docs/architecture.md` - System architecture
 - `/docs/api.md` - API documentation
 - `/docs/deployment.md` - Deployment guide

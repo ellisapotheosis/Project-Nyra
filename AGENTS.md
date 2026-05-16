@@ -103,7 +103,7 @@ Workers are GPU appliances:
 
 - OpenClaw Gateway + OpenClaw Studio are the primary assistant runtime/dashboard.
 - Open WebUI is internal-only model/tool workbench.
-- apps/webapp should use the OpenClaw chat experience for the assistant surface.
+- apps/projectnyra should use the OpenClaw chat experience for the assistant surface.
 
 ## Product invariants
 
@@ -144,8 +144,8 @@ Agents must place work in the correct location.
 ### Repo roots
 
 - `apps/admin` → internal operator/admin UI
-- `apps/webapp` → broker/customer web application
-- `apps/landing` → landing and lead capture
+- `apps/projectnyra` → broker/customer web application
+- `apps/ratehunter` → landing and lead capture
 - `services/*` → backend business services
 - `packages/*` → shared libraries, types, domain modules
 - `workflows/n8n/*` → n8n workflow JSONs
@@ -318,14 +318,14 @@ communications timeline
 compliance controls
 assistant tooling panel
 provider/settings pages
-apps/webapp
+apps/projectnyra
 Build the broker/customer-facing application with:
 intake
 status
 quote views
 document collection
 assistant/chat experience via OpenClaw
-apps/landing
+apps/ratehunter
 Build the marketing and lead-capture landing experience.
 UI standards
 Use everywhere:
@@ -461,15 +461,15 @@ small local utility tasks: Ollama
 Cloudflared policy
 Tunnel only orchestrator-facing services.
 Public
-`nyra.ratehunter.net`
-`api.ratehunter.net`
-`hooks.ratehunter.net`
+`app.projectnyra.com`
+`api.projectnyra.com`
+`hooks.projectnyra.com`
 Access-gated
-`gitea.ratehunter.net`
-`twenty.ratehunter.net`
-`n8n.ratehunter.net`
-`grafana.ratehunter.net`
-`bot.ratehunter.net`
+`gitea.projectnyra.com`
+`twenty.projectnyra.com`
+`n8n.projectnyra.com`
+`grafana.projectnyra.com`
+`bot.projectnyra.com`
 Never tunnel publicly
 worker inference endpoints
 Postgres
@@ -589,9 +589,9 @@ This document exists to give future agents and humans one top-to-bottom picture 
 8. App surfaces
    apps/admin
    Internal operator/admin UI.
-   apps/webapp
+   apps/projectnyra
    Broker/customer web application.
-   apps/landing
+   apps/ratehunter
    Marketing and lead capture.
    OpenClaw
    Broker/customer assistant surface.
@@ -617,90 +617,93 @@ This document exists to give future agents and humans one top-to-bottom picture 
 <claude-mem-context>
 # Memory Context
 
-# [project-nyra] recent context, 2026-05-09 6:56am PDT
+# [project-nyra] recent context, 2026-05-13 7:47pm PDT
 
 Legend: 🎯session 🔴bugfix 🟣feature 🔄refactor ✅change 🔵discovery ⚖️decision 🚨security_alert 🔐security_note
 Format: ID TIME TYPE TITLE
 Fetch details: get_observations([IDs]) | Search: mem-search skill
 
-Stats: 50 obs (19,715t read) | 2,074,417t work | 99% savings
-
-### Apr 28, 2026
-
-S14 SSH cluster configuration fix for multi-machine homelab — user also issued permanent autonomy directive requiring Claude to run all executable commands without delegating back to user (Apr 28, 6:11 AM)
-S16 SSH completely unresponsive on worker-rtx5090 (Windows) — requires local PowerShell fix to restore sshd_config and restart service on port 2224 (Apr 28, 6:15 AM)
-S19 Project-nyra cluster network remediation — Oracle VPS SSH bootstrap problem: correct IP/port found but authentication blocked, awaiting user input on key injection method (Apr 28, 6:15 AM)
-S17 Full stack health audit + access guide for project-nyra: Wave AI + llxprt + OpenClaw + Zellij orchestrator, plus Paperclip, ClawTeam, NerveUI, and Gitea — user uncertain about whether a prior agent's Makefile run left everything healthy (Apr 28, 9:00 AM)
-
-### Apr 29, 2026
-
-S18 Oracle VPS SSH debugging — oci_api_key.pem format conversion attempt, still failing; user clarified correct IP is 100.64.0.3 (Apr 29, 1:11 AM)
-S20 Project-nyra cluster remediation — Oracle VPS SSH bootstrap blocked; session paused awaiting user choice of key injection method (OCI Console vs Infisical project ID) (Apr 29, 1:24 AM)
-S22 omc-setup — environment inspected, awaiting user config target choice (Apr 29, 1:30 AM)
-
-### May 3, 2026
-
-S23 Fix invalid approval_policy enum values in three Codex config.toml files (May 3, 5:40 AM)
-S21 omc-setup — initializing OMC for project-nyra (May 3, 5:40 AM)
+Stats: 50 obs (21,064t read) | 323,858t work | 93% savings
 
 ### May 4, 2026
 
-134 10:13a 🔵 Windows Codex Config Bug: `approval_mode = "never"` Invalid in `[apps]` Section
-135 " 🔵 Ubuntu vs Windows Codex Config Key Name Divergence: `sandbox` vs `sandbox_mode`
-136 " 🔵 Codex 0.128.0 Feature Flag Inventory — All Stable and Experimental Flags
-138 10:14a 🔵 Ubuntu Codex `default.rules` Is 52% Larger Than Windows — Rule Sets Have Diverged
-139 " 🔵 Windows `.tmp` Cache Has OMC Marketplace Clone With Full oh-my-claudecode Repo Structure
-140 " ✅ Ubuntu Codex Config Backed Up Before Autonomy/Permission Changes
-141 " 🔴 Both Codex Configs Rebuilt — Bug Fixed, Full Autonomy and Feature Parity Applied
-142 " 🔴 Both Codex Configs Verified Working — Windows Config No Longer Errors on Load
-143 " ⚖️ GitHub CLI Auth Switched from Token Env Vars to SSH-based CLI Auth
-144 2:21p ✅ New infra/zellij/scripts changes queued for PR from secondary PC
+S2 Configure OMC HUD display preset to "full" mode for comprehensive orchestration visibility in Claude Code status line (May 4, 11:01 PM)
+S1 Status check and configuration of oh-my-claudecode HUD (statusLine display) (May 4, 11:01 PM)
 
 ### May 5, 2026
 
-145 8:35a 🔵 Working tree change scope far larger than initial assessment — 274 files across infrastructure reorganization
-146 8:36a 🔴 pnpm-lock.yaml has hundreds of leftover conflict markers blocking commit on new branch
-152 9:11a 🟣 Superpowers Extension Installed for Gemini CLI
-153 " 🔵 Project-Nyra Monorepo Structure Mapped
-154 " 🔵 Project-Nyra Multi-Host Infrastructure Port Registry Documented
-155 9:13a 🔵 Project-Nyra Apps With package.json vs. Empty/Static Dirs Identified
-147 10:45a 🔵 Invalid approval_policy value in Codex config files
-148 10:46a 🔴 Fixed invalid approval_policy in three Codex config files
-149 " 🔵 Codex approval_policy schema documented in knowledge graph
-S24 Fix invalid approval_policy enum values in three Codex config.toml files across different locations (May 5, 10:46 AM)
-150 10:59a 🔵 Oracle VPS Secret Migration: Identified All OCI Credentials and Config Files Requiring Update
-156 " 🔵 Oracle VPS Infrastructure Reduction Requiring Secrets Rotation
-162 " 🔵 Infisical CLI Confirmed Installed Locally (v0.43.79)
-151 11:00a 🔵 Oracle VPS terraform.tfvars Missing; Infisical Confirmed as Secrets Backend; Full Secret Checklist Assembled
-157 11:04a ✅ Gemini CLI Superpowers Extension Installation
-160 " 🔵 project-nyra Monorepo App Structure
-158 11:05a 🔵 Oracle VPS Stack Architecture and Required Secrets Inventory
-159 " 🔵 SSH and OCI API Keys Confirmed Present Locally
-161 " 🔵 project-nyra App Port Assignments and Tech Stack Confirmed
-163 " 🔵 project-nyra Turbo Config and Environment State
-164 " 🟣 All 7 project-nyra Apps Launched as Background Processes
-165 11:06a 🔵 project-nyra App Routes Mapped from page.tsx Files
-166 " 🔵 App Startup Failures: Next.js 15 Port Flag Bug and Pre-occupied Port 3016
-167 " 🟣 Four More Apps Started Successfully via PORT= Env Var Fix
-168 11:07a 🔵 port 3016 EADDRINUSE Root Cause: workerd Process from Cloudflare Wrangler
-169 " 🟣 project-nyra Dev Environment Successfully Stood Up (6 of 7 Apps)
-170 " 🔵 Project-Nyra Complete Application Port Map
-171 " 🟣 Playwright Screenshot Script for All App Routes
-172 " 🔴 Three App Build Fixes: PostCSS, Root Layout, Missing Utils
-173 " 🔵 Mortgage-CRM UI Component Library Structure
-174 3:35p 🔴 Mortgage-CRM Hydration Mismatch Fixed with suppressHydrationWarning
-175 3:36p 🔴 Landing-Legacy PostCSS Config Was CJS Not ESM — Re-fixed
-176 " 🔴 Nyra-Admin Root Layout CSS Import Path Fixed
-177 3:38p ✅ Session Summary: Project-Nyra Full App Audit and Build Stabilization 2026-05-05
-178 3:39p ⚖️ Mine Workflow Complete: project-nyra Migration Readiness Confirmed
-179 " 🔵 Webapp V1 Original Design Source Material Located
-180 5:32p ⚖️ Webapp Migration Strategy: Build Campaign Management Dashboard Based on V1 Vision
-181 5:34p 🔵 Rich Shared Asset Library in apps/shared/assets/ Contains Multiple Design Reference Directories
-182 5:37p 🔵 RTK Tool Limitation: Does Not Support Compound find Predicates
-183 " 🔵 Complete Image Asset Inventory for Project-Nyra Shared Assets
-184 " ⚖️ Session Checkpoint: Project-Nyra Phase 2 Planning State 2026-05-06
+S3 Setup pre-commit hooks infrastructure (husky + lint-staged + prettier) for project-nyra monorepo (May 5, 12:39 AM)
+S4 Create PR, review, merge pre-commit hooks feature; sync local repo with GitHub; audit and review stashes from previous syncs to decide what to keep/merge/discard (May 5, 3:05 AM)
 
-Access 2074k tokens of past work via get_observations([IDs]) or mem-search skill.
+### May 7, 2026
+
+S5 Complete top-to-bottom audit of the Makefile (976 lines) and all container/host stacks across the 4-PC GPU cluster infrastructure, reviewing all docker-compose files and overlay configurations for each host (oracle-vps, orchestrator, worker-rtx3060, worker-rtx3090ti, worker-rtx5090), identifying all infrastructure issues, misconfigurations, and misalignments. (May 7, 6:09 AM)
+
+### May 8, 2026
+
+S6 Review WSL/Ubuntu terminal setup configuration — agent claimed to fix broken shell config and Windows Terminal starting directory, but user reports setup is still incorrect and pointing to Windows edane directory instead of WSL Linux home (May 8, 4:12 PM)
+
+### May 11, 2026
+
+137 10:32p 🚨 Potential Credential Exposure in Staged .env.stack File
+138 10:33p 🔴 Credential Exposure Fixed in .env.stack — Replaced Real Password with Placeholder
+139 10:34p 🔵 .gitignore Blocks Direct Modifications to Moved Environment Files
+140 " 🔐 Final Credential Scan of Staged Changes Validates Security Posture
+141 " 🔵 Pre-commit Hook Blocked Infra Cleanup Commit Due to Test Failure
+142 " ✅ Infrastructure Reorganization Staged but Blocked by Test Failures
+143 10:35p ✅ Infrastructure Reorganization Successfully Committed to Branch
+144 " ✅ Infrastructure Reorganization Branch Pushed to GitHub and Ready for PR
+145 " ✅ Infrastructure Reorganization Pull Request Created on GitHub
+146 " 🔵 PR #403 Created with DIRTY Merge State; GitHub CI Checks Restricted
+147 10:36p 🔵 Rebase Encountered Merge Conflicts in docker-compose.llxprt.yml Files
+148 " 🔵 Merge Conflict Details: Node Image Version and Container Naming Strategy
+149 " 🔵 Merge Conflict Includes Three Implementation Differences in llxprt-code Service
+150 " ⚖️ Merge Conflict Resolution: Adopt Alpine Images and Parameterized Container Naming
+
+### May 12, 2026
+
+151 7:30a ✅ Prettier ignore patterns expanded for infrastructure directories
+152 7:31a ✅ Infrastructure cleanup: container naming, folder restructure, and build context standardization
+153 " 🔵 Infra restructuring commit incomplete — message describes three phases but only .prettierignore committed
+154 " 🔵 Multiple git stashes exist; potential location for lost infra restructuring changes
+155 " 🔵 Infrastructure restructuring exists in working tree but was never staged/committed
+156 " 🔵 Infrastructure restructuring in working tree is untracked by git — not showing in git diff
+157 7:32a 🔵 Infrastructure cleanup work exists on feature branch chore/infra-cleanup-phase3 with stash backups
+158 " 🔵 Infrastructure restructuring is fully committed to HEAD — git diff --stat was incomplete
+159 7:33a ✅ Infrastructure cleanup commit staged locally but not pushed to origin/main
+160 " ✅ Infrastructure cleanup branch pushed to remote; critical security vulnerabilities detected by GitHub
+161 7:34a 🟣 Infrastructure cleanup pull request created and ready for review
+162 " 🔵 PR merge failed — local and remote main branches have diverged
+163 7:37a 🔴 WSL/Ubuntu Shell Configuration Fixed: Broken Symlink Resolution
+164 7:38a 🔵 Windows Terminal Settings Files Located in WSL Environment
+165 " 🔵 Windows Terminal Ubuntu-24.04 Profile Correctly Configured
+166 " 🔵 Windows Terminal Preview Ubuntu Profile Also Correctly Configured
+167 " ✅ Windows Terminal Ubuntu Profiles Updated with Backslash Path Notation and --cd Flag
+169 7:39a 🔵 Windows Terminal Configuration Changes Verified and Functionally Tested
+170 7:45a 🔵 PR #408 Successfully Merged with Cherry-Pick History Issue
+171 7:46a ✅ Infrastructure Host Layout Expanded with Service and GPU Worker Specialization
+172 " 🔵 Smoke Tests Passing; Dependabot Reports 1415 Vulnerabilities on Main Branch
+S7 Infrastructure Restructure and Host Layout Documentation: Complete container name standardization, folder organization, and distributed voice architecture documentation for Project Nyra multi-host GPU orchestration. (May 12, 7:46 AM)
+
+### May 13, 2026
+
+173 12:03p 🔵 Docker Compose validation and environment variable requirements
+174 12:04p 🔵 Infisical secret injection confirmed functional with 553 secrets
+175 12:05p 🟣 Openlit observability container and configuration added to oracle-vps stack
+176 " 🔵 Nexus Router MCP server configured but unresponsive
+178 " ✅ Gemini and Codex configuration simplified and updated to latest models
+179 " 🔵 Oracle VPS SSH connection unresponsive to connection attempts
+180 " 🔵 Oracle VPS DNS hostname resolution failure; actual internal hostname is oracle.trex-fiordland.ts.net
+181 12:06p ✅ Documentation updated to include OpenLIT in service exposure and routing matrices
+182 7:25p 🔵 Domain consolidation scope identified: 705 ratehunter.net references across infra, apps, and docs
+183 7:26p 🔵 projectnyra.com exists in only 2 files; ratehunter.net dominates all infrastructure and app configs
+184 " 🔵 Cloudflared tunnel configs maintain 60+ hostname routes across 4 distributed hosts, all using ratehunter.net subdomains
+185 " 🔵 Monorepo uses pnpm workspaces and Turbo with flat/nested app structure; restructuring requires path updates in 3 config files
+186 7:27p 🔵 App structure shows nested Next.js App Router with dual landing implementations; consolidation required for clean restructuring
+187 " 🔵 Service URL hardcoding spans 260+ references across docker-compose, cloudflared configs, .env examples, and source code
+188 " 🔵 Architectural Gap: Target Service/Package Structure Does Not Exist
+
+Access 324k tokens of past work via get_observations([IDs]) or mem-search skill.
 </claude-mem-context>
 
 <!-- OMX:AGENTS:START -->

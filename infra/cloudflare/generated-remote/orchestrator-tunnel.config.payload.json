@@ -2,15 +2,15 @@
   "config": {
     "ingress": [
       {
-        "hostname": "links.ratehunter.net",
+        "hostname": "links.projectnyra.com",
         "service": "http://100.64.0.2:3007"
       },
       {
-        "hostname": "linkwarden.ratehunter.net",
+        "hostname": "linkwarden.projectnyra.com",
         "service": "http://100.64.0.2:3007"
       },
       {
-        "hostname": "openclaw-gateway.ratehunter.net",
+        "hostname": "openclaw-gateway.projectnyra.com",
         "service": "http://nyra-openclaw-gateway:8001"
       },
       {

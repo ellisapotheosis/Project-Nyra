@@ -37,10 +37,10 @@ $sharedSecrets = @{
     "OPENROUTER_API_KEY" = $env:OPENROUTER_API_KEY
     "CONTEXT7_API_KEY" = $env:CONTEXT7_API_KEY
     "GITHUB_TOKEN" = $env:GITHUB_TOKEN
-    "DOMAIN" = "ratehunter.net"
-    "SUBDOMAIN_NYRA" = "nyra.ratehunter.net"
-    "SUBDOMAIN_API" = "api.ratehunter.net"
-    "SUBDOMAIN_ADMIN" = "admin.ratehunter.net"
+    "DOMAIN" = "projectnyra.com"
+    "SUBDOMAIN_NYRA" = "app.projectnyra.com"
+    "SUBDOMAIN_API" = "api.projectnyra.com"
+    "SUBDOMAIN_ADMIN" = "admin.projectnyra.com"
     "NODE_ENV" = $Environment
     "ENVIRONMENT" = $Environment
 }

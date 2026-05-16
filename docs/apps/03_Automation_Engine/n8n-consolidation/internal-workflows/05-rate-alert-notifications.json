@@ -114,11 +114,11 @@
     },
     {
       "parameters": {
-        "fromEmail": "rates@ratehunter.net",
+        "fromEmail": "rates@ratehunter.com",
         "toEmail": "={{$json.email}}",
         "subject": "🎉 Great News! Rates Just Dropped - Save ${{$json.estimatedMonthlySavings}}/month",
         "emailType": "html",
-        "message": "<h2 style=\"color: #15803d;\">Exciting Rate Drop Alert! 🎉</h2><p>Hi {{$json.firstName}},</p><p>Great news! Mortgage rates have dropped significantly since your quote.</p><div style=\"background: #f0fdf4; padding: 20px; border-radius: 8px; border-left: 4px solid #15803d; margin: 20px 0;\"><table style=\"width: 100%;\"><tr><td><strong>Your Quoted Rate:</strong></td><td style=\"text-align: right;\">{{$json.quotedRate}}%</td></tr><tr><td><strong>Current Rate:</strong></td><td style=\"text-align: right; color: #15803d; font-size: 1.2em;\">{{$json.currentRate}}%</td></tr><tr><td><strong>Rate Savings:</strong></td><td style=\"text-align: right; color: #15803d;\">{{$json.savings}}%</td></tr><tr style=\"border-top: 2px solid #15803d;\"><td><strong>Monthly Savings:</strong></td><td style=\"text-align: right; font-size: 1.3em; color: #15803d;\"><strong>${{$json.estimatedMonthlySavings}}</strong></td></tr></table></div><p>This could save you <strong>${{Math.round($json.estimatedMonthlySavings * 360)}}</strong> over the life of your loan!</p><p><a href=\"https://ratehunter.net/update-quote/{{$json.id}}\" style=\"background: #15803d; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;\">Get Updated Quote</a></p><p><em>Rates change frequently. Lock in this rate before it goes up!</em></p>"
+        "message": "<h2 style=\"color: #15803d;\">Exciting Rate Drop Alert! 🎉</h2><p>Hi {{$json.firstName}},</p><p>Great news! Mortgage rates have dropped significantly since your quote.</p><div style=\"background: #f0fdf4; padding: 20px; border-radius: 8px; border-left: 4px solid #15803d; margin: 20px 0;\"><table style=\"width: 100%;\"><tr><td><strong>Your Quoted Rate:</strong></td><td style=\"text-align: right;\">{{$json.quotedRate}}%</td></tr><tr><td><strong>Current Rate:</strong></td><td style=\"text-align: right; color: #15803d; font-size: 1.2em;\">{{$json.currentRate}}%</td></tr><tr><td><strong>Rate Savings:</strong></td><td style=\"text-align: right; color: #15803d;\">{{$json.savings}}%</td></tr><tr style=\"border-top: 2px solid #15803d;\"><td><strong>Monthly Savings:</strong></td><td style=\"text-align: right; font-size: 1.3em; color: #15803d;\"><strong>${{$json.estimatedMonthlySavings}}</strong></td></tr></table></div><p>This could save you <strong>${{Math.round($json.estimatedMonthlySavings * 360)}}</strong> over the life of your loan!</p><p><a href=\"https://ratehunter.com/update-quote/{{$json.id}}\" style=\"background: #15803d; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;\">Get Updated Quote</a></p><p><em>Rates change frequently. Lock in this rate before it goes up!</em></p>"
       },
       "id": "email-major-drop",
       "name": "Send Major Drop Alert",
@@ -134,11 +134,11 @@
     },
     {
       "parameters": {
-        "fromEmail": "rates@ratehunter.net",
+        "fromEmail": "rates@ratehunter.com",
         "toEmail": "={{$json.email}}",
         "subject": "Rate Update: Save ${{$json.estimatedMonthlySavings}}/month",
         "emailType": "html",
-        "message": "<h2>Rate Drop Alert</h2><p>Hi {{$json.firstName}},</p><p>Rates have dropped since your quote. You could save ${{$json.estimatedMonthlySavings}}/month.</p><p><strong>Your Rate:</strong> {{$json.quotedRate}}%<br/><strong>Current Rate:</strong> {{$json.currentRate}}%</p><p><a href=\"https://ratehunter.net/update-quote/{{$json.id}}\">Get Updated Quote</a></p>"
+        "message": "<h2>Rate Drop Alert</h2><p>Hi {{$json.firstName}},</p><p>Rates have dropped since your quote. You could save ${{$json.estimatedMonthlySavings}}/month.</p><p><strong>Your Rate:</strong> {{$json.quotedRate}}%<br/><strong>Current Rate:</strong> {{$json.currentRate}}%</p><p><a href=\"https://ratehunter.com/update-quote/{{$json.id}}\">Get Updated Quote</a></p>"
       },
       "id": "email-standard-drop",
       "name": "Send Standard Alert",
@@ -155,7 +155,7 @@
     {
       "parameters": {
         "phoneNumber": "={{$json.phone}}",
-        "message": "🎉 RATE DROP! Save ${{$json.estimatedMonthlySavings}}/mo on your mortgage. New rate: {{$json.currentRate}}% (was {{$json.quotedRate}}%). Update now: https://ratehunter.net/u/{{$json.id}} - RateHunter"
+        "message": "🎉 RATE DROP! Save ${{$json.estimatedMonthlySavings}}/mo on your mortgage. New rate: {{$json.currentRate}}% (was {{$json.quotedRate}}%). Update now: https://ratehunter.com/u/{{$json.id}} - RateHunter"
       },
       "id": "sms-rate-alert",
       "name": "Send SMS Alert",

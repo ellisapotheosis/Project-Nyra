@@ -4,12 +4,12 @@ You own platform cleanup for the unified internal webapp.
 
 ## Canonical Destination
 
-- [apps/webapp/app](/home/ellisapotheosis/repos/project-nyra/apps/webapp/app)
+- [apps/projectnyra](/home/ellisapotheosis/repos/project-nyra/apps/projectnyra)
 
 ## Source Material
 
 - current webapp:
-  [apps/webapp/app](/home/ellisapotheosis/repos/project-nyra/apps/webapp/app)
+  [apps/projectnyra](/home/ellisapotheosis/repos/project-nyra/apps/projectnyra)
 
 - admin auth references:
   [apps/admin/app/src/contexts/AuthContext.tsx](/home/ellisapotheosis/repos/project-nyra/apps/admin/app/src/contexts/AuthContext.tsx)
@@ -38,4 +38,3 @@ You own platform cleanup for the unified internal webapp.
 3. Supabase local/VPS integration plan
 4. Websocket dependency audit
 5. Platform env/config notes for Oracle deployment
-

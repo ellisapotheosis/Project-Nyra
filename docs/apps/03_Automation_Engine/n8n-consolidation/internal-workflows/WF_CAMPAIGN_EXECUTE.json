@@ -123,7 +123,8 @@
     },
     {
       "parameters": {
-        "amount": 1,\n        "unit": "hours"
+        "amount": 1,
+        "unit": "hours"
       },
       "id": "wait_for_morning",
       "name": "Wait for Morning",
@@ -184,7 +185,7 @@
     },
     {
       "parameters": {
-        "fromEmail": "mortgage@ratehunter.net",
+        "fromEmail": "mortgage@ratehunter.com",
         "toEmail": "={{ $('Check Lead Status').json.person.email }}",
         "subject": "Mortgage Update",
         "html": "={{ $node[\"Calculate Delay\"].json.templateId }}"

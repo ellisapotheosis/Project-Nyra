@@ -66,11 +66,11 @@
     },
     {
       "parameters": {
-        "fromEmail": "quotes@ratehunter.net",
+        "fromEmail": "quotes@ratehunter.com",
         "toEmail": "={{$json.email}}",
         "subject": "={{$json.subject}}",
         "emailType": "html",
-        "message": "<h2>Hi {{$json.firstName}},</h2><p>Your personalized mortgage quote is ready!</p><div style=\"background: #f5f5f5; padding: 20px; border-radius: 8px;\"><p><strong>Loan Amount:</strong> ${{$json.loanAmount}}</p><p><strong>Interest Rate:</strong> {{$json.rate}}%</p><p><strong>Monthly Payment:</strong> ${{$json.monthly_payment}}</p></div><p><a href=\"https://ratehunter.net/quote/{{$json.id}}\" style=\"background: #0284c7; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;\">View Full Quote</a></p><p>What happens next?</p><ol><li>Review your quote details</li><li>Upload required documents</li><li>Lock in your rate (good for 60 days)</li></ol>"
+        "message": "<h2>Hi {{$json.firstName}},</h2><p>Your personalized mortgage quote is ready!</p><div style=\"background: #f5f5f5; padding: 20px; border-radius: 8px;\"><p><strong>Loan Amount:</strong> ${{$json.loanAmount}}</p><p><strong>Interest Rate:</strong> {{$json.rate}}%</p><p><strong>Monthly Payment:</strong> ${{$json.monthly_payment}}</p></div><p><a href=\"https://ratehunter.com/quote/{{$json.id}}\" style=\"background: #0284c7; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;\">View Full Quote</a></p><p>What happens next?</p><ol><li>Review your quote details</li><li>Upload required documents</li><li>Lock in your rate (good for 60 days)</li></ol>"
       },
       "id": "email-day1",
       "name": "Day 1 Email",
@@ -86,11 +86,11 @@
     },
     {
       "parameters": {
-        "fromEmail": "quotes@ratehunter.net",
+        "fromEmail": "quotes@ratehunter.com",
         "toEmail": "={{$json.email}}",
         "subject": "={{$json.subject}}",
         "emailType": "html",
-        "message": "<h2>{{$json.firstName}}, we're here to help!</h2><p>We noticed you received your quote a few days ago. Do you have any questions?</p><p><strong>Your Rate: {{$json.rate}}%</strong></p><p>Common questions we get:</p><ul><li>What documents do I need?</li><li>How long is the approval process?</li><li>Can I adjust my loan amount?</li></ul><p><a href=\"https://ratehunter.net/faq\">View Full FAQ</a></p><p>Or schedule a call with our mortgage specialists:</p><p><a href=\"https://ratehunter.net/schedule/{{$json.id}}\" style=\"background: #0284c7; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;\">Schedule a Call</a></p>"
+        "message": "<h2>{{$json.firstName}}, we're here to help!</h2><p>We noticed you received your quote a few days ago. Do you have any questions?</p><p><strong>Your Rate: {{$json.rate}}%</strong></p><p>Common questions we get:</p><ul><li>What documents do I need?</li><li>How long is the approval process?</li><li>Can I adjust my loan amount?</li></ul><p><a href=\"https://ratehunter.com/faq\">View Full FAQ</a></p><p>Or schedule a call with our mortgage specialists:</p><p><a href=\"https://ratehunter.com/schedule/{{$json.id}}\" style=\"background: #0284c7; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;\">Schedule a Call</a></p>"
       },
       "id": "email-day3",
       "name": "Day 3 Email",
@@ -106,11 +106,11 @@
     },
     {
       "parameters": {
-        "fromEmail": "quotes@ratehunter.net",
+        "fromEmail": "quotes@ratehunter.com",
         "toEmail": "={{$json.email}}",
         "subject": "={{$json.subject}}",
         "emailType": "html",
-        "message": "<h2>{{$json.firstName}}, Your Rate Won't Last Forever</h2><p>Mortgage rates change daily. Your quote at <strong>{{$json.rate}}%</strong> is still available, but not for long.</p><div style=\"background: #fef3c7; padding: 20px; border-radius: 8px; border-left: 4px solid #f59e0b;\"><p><strong>⏰ Rate Lock Expires Soon</strong></p><p>Lock in this rate today to guarantee your monthly payment of ${{$json.monthly_payment}}</p></div><p><a href=\"https://ratehunter.net/lock-rate/{{$json.id}}\" style=\"background: #dc2626; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;\">Lock Your Rate Now</a></p><p>If you're not ready, that's okay. But rates could go up at any time.</p>"
+        "message": "<h2>{{$json.firstName}}, Your Rate Won't Last Forever</h2><p>Mortgage rates change daily. Your quote at <strong>{{$json.rate}}%</strong> is still available, but not for long.</p><div style=\"background: #fef3c7; padding: 20px; border-radius: 8px; border-left: 4px solid #f59e0b;\"><p><strong>⏰ Rate Lock Expires Soon</strong></p><p>Lock in this rate today to guarantee your monthly payment of ${{$json.monthly_payment}}</p></div><p><a href=\"https://ratehunter.com/lock-rate/{{$json.id}}\" style=\"background: #dc2626; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;\">Lock Your Rate Now</a></p><p>If you're not ready, that's okay. But rates could go up at any time.</p>"
       },
       "id": "email-day5",
       "name": "Day 5 Email",
@@ -145,7 +145,7 @@
     {
       "parameters": {
         "phoneNumber": "={{$json.phone}}",
-        "message": "Hi {{$json.firstName}}! Your mortgage quote is ready. Check your email or visit https://ratehunter.net/quote/{{$json.id}} to view. - RateHunter Team"
+        "message": "Hi {{$json.firstName}}! Your mortgage quote is ready. Check your email or visit https://ratehunter.com/quote/{{$json.id}} to view. - RateHunter Team"
       },
       "id": "sms-notification",
       "name": "Send SMS Notification",

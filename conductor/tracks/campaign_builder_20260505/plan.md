@@ -16,4 +16,4 @@
 
 - [x] Task: Connect Save button to `campaignApi.createCampaign` and `updateCampaign`
 - [x] Task: Implement Delete template functionality
-- [x] Task: Conductor - User Manual Verification 'Phase 3: Integration and Persistence' (Protocol in workflow.md) — verified with `pnpm --dir apps/webapp/app typecheck`, `pnpm --dir apps/webapp/app lint`, and Playwright screenshot of `/campaigns/builder/1`.
+- [x] Task: Conductor - User Manual Verification 'Phase 3: Integration and Persistence' (Protocol in workflow.md) — verified with `pnpm --dir apps/projectnyra typecheck`, `pnpm --dir apps/projectnyra lint`, and Playwright screenshot of `/campaigns/builder/1`.

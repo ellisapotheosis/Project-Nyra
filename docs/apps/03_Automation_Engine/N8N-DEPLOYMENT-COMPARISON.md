@@ -2,15 +2,15 @@
 
 ## Executive Summary
 
-| Factor | Oracle VPS VPS | Flow Nexus |
-|--------|-----------|------------|
-| **Best For** | Production n8n 24/7 | AI swarm coordination |
-| **Pricing** | $0-54/month (predictable) | Credit-based (1-5 rUv/op) |
-| **Setup Time** | 15 minutes | 5 minutes |
-| **Scaling** | Auto-scale containers | Swarm-based orchestration |
-| **Database** | Included (PostgreSQL) | Bring your own |
-| **Webhooks** | ✅ Public URLs | ✅ Public URLs |
-| **Recommended** | ✅ For n8n production | For swarm workflows |
+| Factor          | Oracle VPS VPS            | Flow Nexus                |
+| --------------- | ------------------------- | ------------------------- |
+| **Best For**    | Production n8n 24/7       | AI swarm coordination     |
+| **Pricing**     | $0-54/month (predictable) | Credit-based (1-5 rUv/op) |
+| **Setup Time**  | 15 minutes                | 5 minutes                 |
+| **Scaling**     | Auto-scale containers     | Swarm-based orchestration |
+| **Database**    | Included (PostgreSQL)     | Bring your own            |
+| **Webhooks**    | ✅ Public URLs            | ✅ Public URLs            |
+| **Recommended** | ✅ For n8n production     | For swarm workflows       |
 
 **TL;DR**: Use **Oracle VPS** for running n8n 24/7 for mortgage campaigns. Use **Flow Nexus** for AI swarm coordination and event-driven workflows.
 
@@ -21,6 +21,7 @@
 ### Pricing Model
 
 **Starter Plan (FREE)**:
+
 - $0/month + pay-as-you-go compute
 - 1 free web service (perfect for n8n)
 - 1 free PostgreSQL database
@@ -28,6 +29,7 @@
 - **Requires**: Credit card
 
 **Pro Plan (Production)**:
+
 - $29/month base + compute
 - $10 included compute credits
 - Estimated total: **$39-54/month** for n8n with database
@@ -41,7 +43,7 @@
 ✅ **Public Webhook URL**: Stable URL for workflow triggers
 ✅ **Auto-Scaling**: Scale from 0-10 instances based on load
 ✅ **SSL/TLS**: Automatic HTTPS certificates
-✅ **Custom Domain**: `n8n.ratehunter.net` support
+✅ **Custom Domain**: `n8n.projectnyra.com` support
 ✅ **GitHub CI/CD**: Auto-deploy on git push
 ✅ **Health Checks**: Automatic restart on failure
 ✅ **Logs & Metrics**: Built-in monitoring
@@ -50,6 +52,7 @@
 ### Use Cases
 
 Perfect for:
+
 - 24/7 mortgage lead drip campaigns
 - Scheduled workflows (daily/weekly reports)
 - Webhook-triggered automations
@@ -75,7 +78,7 @@ Perfect for:
    DB_POSTGRESDB_PASSWORD=<password>
    ```
 5. Deploy (5-10 minutes)
-6. Access at `https://your-app.oracle-vps.ratehunter.net`
+6. Access at `https://your-app.oracle-vps.projectnyra.com`
 7. Configure custom domain (optional)
 
 **Total Setup Time**: 15 minutes
@@ -87,11 +90,13 @@ Perfect for:
 ### Pricing Model
 
 **Credit-Based (rUv)**:
+
 - **Swarm Operations**: 1-5 rUv per operation
 - **Sandboxes**: 1-5 rUv per hour
 - **Premium**: 100 rUv/month (~$10/month equivalent)
 
 **How to Get rUv Credits**:
+
 - **Challenges**: 10-500 rUv per completion
 - **Daily Login**: 5 rUv daily bonus
 - **Referrals**: 50 rUv per user
@@ -112,6 +117,7 @@ Perfect for:
 ### Use Cases
 
 Perfect for:
+
 - AI-powered workflow orchestration (Claude + n8n)
 - Multi-agent coordination (researcher + coder + tester)
 - Event-driven swarm responses
@@ -121,6 +127,7 @@ Perfect for:
 - GitHub-integrated workflows
 
 **NOT ideal for**:
+
 - Simple 24/7 n8n hosting (use Oracle VPS instead)
 - Traditional CRUD apps
 - Static websites
@@ -156,38 +163,38 @@ Perfect for:
 
 ### Cost Analysis (Monthly)
 
-| Usage | Oracle VPS | Flow Nexus |
-|-------|-------|------------|
-| **Startup (Free Tier)** | $0 | 0-100 rUv (FREE via challenges) |
-| **Light Usage** (10 workflows/day) | $0-10 | 50-150 rUv (~$5-15) |
-| **Medium Usage** (100 workflows/day) | $39-54 | 500-1,500 rUv (~$50-150) |
-| **Heavy Usage** (24/7 campaigns) | $54 | 3,000+ rUv (~$300+) |
+| Usage                                | Oracle VPS | Flow Nexus                      |
+| ------------------------------------ | ---------- | ------------------------------- |
+| **Startup (Free Tier)**              | $0         | 0-100 rUv (FREE via challenges) |
+| **Light Usage** (10 workflows/day)   | $0-10      | 50-150 rUv (~$5-15)             |
+| **Medium Usage** (100 workflows/day) | $39-54     | 500-1,500 rUv (~$50-150)        |
+| **Heavy Usage** (24/7 campaigns)     | $54        | 3,000+ rUv (~$300+)             |
 
 **Winner for n8n 24/7**: **Oracle VPS** (predictable $54/month)
 
 ### Features Comparison
 
-| Feature | Oracle VPS | Flow Nexus |
-|---------|-------|------------|
-| **n8n Container** | ✅ Pre-built | ⚠️ DIY integration |
-| **Database** | ✅ Included | ❌ Bring your own |
-| **Auto-Scaling** | ✅ Yes | ✅ Swarm-based |
-| **Webhooks** | ✅ Public URLs | ✅ Public URLs |
-| **AI Agents** | ❌ No | ✅ Multi-agent swarms |
-| **Monitoring** | ✅ Built-in | ✅ Performance metrics |
-| **Custom Domain** | ✅ Easy setup | ✅ Via Cloudflare |
-| **GitHub CI/CD** | ✅ Native | ✅ Native |
-| **Learning Curve** | Low | Medium-High |
+| Feature            | Oracle VPS     | Flow Nexus             |
+| ------------------ | -------------- | ---------------------- |
+| **n8n Container**  | ✅ Pre-built   | ⚠️ DIY integration     |
+| **Database**       | ✅ Included    | ❌ Bring your own      |
+| **Auto-Scaling**   | ✅ Yes         | ✅ Swarm-based         |
+| **Webhooks**       | ✅ Public URLs | ✅ Public URLs         |
+| **AI Agents**      | ❌ No          | ✅ Multi-agent swarms  |
+| **Monitoring**     | ✅ Built-in    | ✅ Performance metrics |
+| **Custom Domain**  | ✅ Easy setup  | ✅ Via Cloudflare      |
+| **GitHub CI/CD**   | ✅ Native      | ✅ Native              |
+| **Learning Curve** | Low            | Medium-High            |
 
 ### Performance Comparison
 
-| Metric | Oracle VPS | Flow Nexus |
-|--------|-------|------------|
-| **Cold Start** | 5-10 seconds | 2-5 seconds (sandboxes) |
-| **Latency** | <100ms (regional) | <50ms (global edge) |
-| **Uptime SLA** | 99.9% (Scale plan) | 99.95% (distributed) |
-| **Max Workflows/sec** | 100+ | 1,000+ (swarm) |
-| **Database Queries** | PostgreSQL (managed) | ruvector (vector) |
+| Metric                | Oracle VPS           | Flow Nexus              |
+| --------------------- | -------------------- | ----------------------- |
+| **Cold Start**        | 5-10 seconds         | 2-5 seconds (sandboxes) |
+| **Latency**           | <100ms (regional)    | <50ms (global edge)     |
+| **Uptime SLA**        | 99.9% (Scale plan)   | 99.95% (distributed)    |
+| **Max Workflows/sec** | 100+                 | 1,000+ (swarm)          |
+| **Database Queries**  | PostgreSQL (managed) | ruvector (vector)       |
 
 ---
 
@@ -276,22 +283,23 @@ n8n updates CRM + sends email
 See full guide: `docs/guides/KOYEB-N8N-SETUP.md`
 
 **Quick Start**:
+
 ```bash
 # 1. Create Oracle VPS app
 oracle-vps app create n8n \
   --docker n8nio/n8n:latest \
   --ports 5678:http \
-  --env N8N_HOST=n8n.ratehunter.net \
-  --env WEBHOOK_URL=https://n8n.ratehunter.net/
+  --env N8N_HOST=n8n.projectnyra.com \
+  --env WEBHOOK_URL=https://n8n.projectnyra.com/
 
 # 2. Add database (use Oracle VPS free PostgreSQL)
 oracle-vps database create n8n-db --type postgres
 
 # 3. Configure domain
-oracle-vps domain add n8n.ratehunter.net --app n8n
+oracle-vps domain add n8n.projectnyra.com --app n8n
 
 # 4. Access n8n
-open https://n8n.ratehunter.net
+open https://n8n.projectnyra.com
 ```
 
 ### Option B: Flow Nexus Swarm (AI-Powered)
@@ -299,6 +307,7 @@ open https://n8n.ratehunter.net
 See full guide: `docs/guides/FLOW-NEXUS-N8N-SETUP.md`
 
 **Quick Start**:
+
 ```bash
 # 1. Initialize Flow Nexus
 npx flow-nexus@latest init
@@ -327,9 +336,9 @@ npx flow-nexus workflow execute mortgage-analysis \
 
 ```bash
 # Required
-N8N_HOST=n8n.ratehunter.net
+N8N_HOST=n8n.projectnyra.com
 N8N_PROTOCOL=https
-WEBHOOK_URL=https://n8n.ratehunter.net/
+WEBHOOK_URL=https://n8n.projectnyra.com/
 
 # Database (use Oracle VPS managed PostgreSQL)
 DB_TYPE=postgresdb
@@ -350,7 +359,7 @@ N8N_LOG_LEVEL=info
 N8N_EMAIL_MODE=smtp
 N8N_SMTP_HOST=smtp.gmail.com
 N8N_SMTP_PORT=587
-N8N_SMTP_USER=leads@ratehunter.net
+N8N_SMTP_USER=leads@ratehunter.com
 N8N_SMTP_PASS=<app-password>
 ```
 
@@ -382,14 +391,15 @@ FLOW_NEXUS_TRAINING_TIER=nano
 
 **Setup**: Oracle VPS Starter + Flow Nexus Free (challenges)
 
-| Service | Cost |
-|---------|------|
-| Oracle VPS Starter | $0/month |
-| Oracle VPS PostgreSQL | $0/month (1 free DB) |
-| Flow Nexus (earned credits) | $0/month |
-| **Total** | **$0/month** |
+| Service                     | Cost                 |
+| --------------------------- | -------------------- |
+| Oracle VPS Starter          | $0/month             |
+| Oracle VPS PostgreSQL       | $0/month (1 free DB) |
+| Flow Nexus (earned credits) | $0/month             |
+| **Total**                   | **$0/month**         |
 
 **Limitations**:
+
 - 1 n8n instance
 - Limited workflows (<1000/month)
 - Earn rUv via challenges
@@ -398,15 +408,16 @@ FLOW_NEXUS_TRAINING_TIER=nano
 
 **Setup**: Oracle VPS Pro + Flow Nexus Premium
 
-| Service | Cost |
-|---------|------|
-| Oracle VPS Pro | $29/month |
-| Oracle VPS Compute (n8n 24/7) | $15-25/month |
-| Oracle VPS PostgreSQL | Included |
-| Flow Nexus Premium | ~$10/month (100 rUv) |
-| **Total** | **$54-64/month** |
+| Service                       | Cost                 |
+| ----------------------------- | -------------------- |
+| Oracle VPS Pro                | $29/month            |
+| Oracle VPS Compute (n8n 24/7) | $15-25/month         |
+| Oracle VPS PostgreSQL         | Included             |
+| Flow Nexus Premium            | ~$10/month (100 rUv) |
+| **Total**                     | **$54-64/month**     |
 
 **Benefits**:
+
 - 24/7 n8n uptime
 - AI swarm coordination
 - PostgreSQL included
@@ -417,13 +428,14 @@ FLOW_NEXUS_TRAINING_TIER=nano
 
 **Setup**: Oracle VPS Scale + Flow Nexus Credits
 
-| Service | Cost |
-|---------|------|
-| Oracle VPS Scale | $299/month |
-| Flow Nexus (1000 rUv) | ~$100/month |
-| **Total** | **$399/month** |
+| Service               | Cost           |
+| --------------------- | -------------- |
+| Oracle VPS Scale      | $299/month     |
+| Flow Nexus (1000 rUv) | ~$100/month    |
+| **Total**             | **$399/month** |
 
 **Benefits**:
+
 - 99.9% uptime SLA
 - 1000 services
 - Unlimited AI swarm operations
@@ -436,6 +448,7 @@ FLOW_NEXUS_TRAINING_TIER=nano
 ### For Project Nyra Mortgage Platform
 
 **Phase 1 (Months 1-3): Validation**
+
 - ✅ Use **Oracle VPS FREE** for n8n mortgage campaigns
 - ✅ Use **Flow Nexus FREE** (earn 100-200 rUv via challenges)
 - ✅ Test lead generation workflows
@@ -443,6 +456,7 @@ FLOW_NEXUS_TRAINING_TIER=nano
 - **Cost**: $0/month
 
 **Phase 2 (Months 4-12): Growth**
+
 - ✅ Upgrade to **Oracle VPS Pro** ($54/month) for 24/7 reliability
 - ✅ Add **Flow Nexus Premium** (~$10/month) for AI swarms
 - ✅ Scale to 1,000+ leads/month
@@ -450,6 +464,7 @@ FLOW_NEXUS_TRAINING_TIER=nano
 - **Cost**: $64/month
 
 **Phase 3 (Year 2+): Scale**
+
 - ✅ Keep **Oracle VPS Pro** or consider **Hetzner** ($14.50/month) + Coolify
 - ✅ Increase **Flow Nexus credits** as needed for AI operations
 - ✅ Consider dedicated infrastructure at $147K+ ARR
@@ -470,6 +485,7 @@ FLOW_NEXUS_TRAINING_TIER=nano
 ### Q: Can I migrate from Oracle VPS to Flow Nexus later?
 
 **A**: Yes, but you should use **both together** instead:
+
 - Oracle VPS: Traditional n8n workflows (email, SMS, CRM)
 - Flow Nexus: AI swarm coordination (document analysis, lead scoring)
 
@@ -480,6 +496,7 @@ FLOW_NEXUS_TRAINING_TIER=nano
 ### Q: Can Flow Nexus replace Oracle VPS?
 
 **A**: No. They serve different purposes:
+
 - **Oracle VPS**: Traditional PaaS for 24/7 apps
 - **Flow Nexus**: AI swarm coordination platform
 

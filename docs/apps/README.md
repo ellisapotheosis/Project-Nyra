@@ -36,7 +36,7 @@ in the numbered child folders below.
 
 ## Consolidation Notes
 
-- `apps/admin` is being absorbed into `apps/webapp` as internal pages and
+- `apps/admin` is being absorbed into `apps/projectnyra` as internal pages and
   reusable components.
 - Other app surfaces should be treated as webapp pages, webapp services, or
   extractable UI/components unless they are specifically n8n/Activepieces,

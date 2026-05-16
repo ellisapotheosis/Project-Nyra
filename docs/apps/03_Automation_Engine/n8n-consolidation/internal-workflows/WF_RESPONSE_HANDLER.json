@@ -124,8 +124,8 @@
     },
     {
       "parameters": {
-        "fromEmail": "alerts@ratehunter.net",
-        "toEmail": "broker@ratehunter.net",
+        "fromEmail": "alerts@ratehunter.com",
+        "toEmail": "broker@ratehunter.com",
         "subject": "Lead Responded: {{ $node[\"Find Lead by Phone\"].json[0].firstName }}",
         "html": "Lead {{ $node[\"Find Lead by Phone\"].json[0].firstName }} responded via {{ $node[\"Parse Response\"].json.type }}:<br><br>{{ $node[\"Parse Response\"].json.body }}"
       },

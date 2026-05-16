@@ -1,13 +1,15 @@
-# RateHunter.net Landing Page Requirements
+# RateHunter.com Landing Page Requirements
 
 ## Executive Summary
-RateHunter.net is a mortgage lead generation platform that will serve as the primary customer-facing interface for Project-Nyra's mortgage operations. The landing page must capture leads across multiple channels (phone, SMS, email, web) and integrate with the backend drip campaign system.
+
+RateHunter.com is a mortgage lead generation platform that will serve as the primary customer-facing interface for Project-Nyra's mortgage operations. The landing page must capture leads across multiple channels (phone, SMS, email, web) and integrate with the backend drip campaign system.
 
 ---
 
 ## Business Goals
 
 ### Primary Objectives
+
 1. **Lead Capture**: Collect qualified mortgage leads 24/7 across all channels
 2. **Lead Qualification**: Automatically classify leads (Personal, Commercial, Residential)
 3. **Instant Response**: Provide immediate engagement through automated systems
@@ -15,6 +17,7 @@ RateHunter.net is a mortgage lead generation platform that will serve as the pri
 5. **Brand Positioning**: Establish Ellis D Andersen LLC as a trusted mortgage advisor
 
 ### Success Metrics
+
 - Lead capture rate: Target 80%+ of visitors
 - Lead quality score: Target 7.5/10 average
 - Response time: Sub-2-minute automated response
@@ -28,10 +31,13 @@ RateHunter.net is a mortgage lead generation platform that will serve as the pri
 ### FR-001: Multi-Channel Lead Capture
 
 #### Priority: CRITICAL
+
 #### Description
+
 Comprehensive lead capture system supporting all communication channels.
 
 #### Acceptance Criteria
+
 - [ ] Web form with progressive disclosure (name → email → phone → loan details)
 - [ ] Click-to-call phone integration with Voicemod API
 - [ ] SMS text capture with two-way messaging
@@ -41,6 +47,7 @@ Comprehensive lead capture system supporting all communication channels.
 - [ ] Privacy policy acceptance and TCPA compliance
 
 #### Technical Specifications
+
 ```typescript
 interface LeadCaptureForm {
   personalInfo: {
@@ -50,14 +57,14 @@ interface LeadCaptureForm {
     phone: string;
   };
   loanDetails: {
-    loanType: 'personal' | 'commercial' | 'residential';
+    loanType: "personal" | "commercial" | "residential";
     loanAmount: number;
     propertyValue?: number;
-    creditScore?: '300-579' | '580-669' | '670-739' | '740-799' | '800+';
-    timeframe: 'immediate' | '1-3-months' | '3-6-months' | 'exploratory';
+    creditScore?: "300-579" | "580-669" | "670-739" | "740-799" | "800+";
+    timeframe: "immediate" | "1-3-months" | "3-6-months" | "exploratory";
   };
   source: {
-    channel: 'web' | 'phone' | 'sms' | 'email' | 'referral';
+    channel: "web" | "phone" | "sms" | "email" | "referral";
     campaign?: string;
     referrer?: string;
   };
@@ -75,10 +82,13 @@ interface LeadCaptureForm {
 ### FR-002: Real-Time Quote Generation
 
 #### Priority: HIGH
+
 #### Description
+
 Instant mortgage rate quotes based on lead-provided information, integrated with LOS (Loan Origination System) pricing engine.
 
 #### Acceptance Criteria
+
 - [ ] Dynamic rate calculator with loan amount, credit score, loan type inputs
 - [ ] Integration with Encompass/Calyx LOS for real-time rates
 - [ ] Display of APR, monthly payment, total interest over loan term
@@ -88,6 +98,7 @@ Instant mortgage rate quotes based on lead-provided information, integrated with
 - [ ] Quote valid for 7 days with expiration warning
 
 #### Rate Display Example
+
 ```
 Loan Amount: $450,000
 Property Value: $500,000
@@ -104,10 +115,13 @@ Total Interest: $601,200
 ### FR-003: Interactive Mortgage Calculator
 
 #### Priority: MEDIUM
+
 #### Description
+
 Public-facing calculator for leads to explore scenarios before submitting information.
 
 #### Acceptance Criteria
+
 - [ ] Loan amount slider ($50K - $5M)
 - [ ] Down payment percentage selector (3%-50%)
 - [ ] Loan term selector (10, 15, 20, 30 years)
@@ -118,6 +132,7 @@ Public-facing calculator for leads to explore scenarios before submitting inform
 - [ ] "Get This Rate" CTA that pre-fills lead capture form
 
 #### Calculator Outputs
+
 - Monthly principal + interest
 - Total monthly payment (PITI)
 - Loan-to-value ratio (LTV)
@@ -129,10 +144,13 @@ Public-facing calculator for leads to explore scenarios before submitting inform
 ### FR-004: Educational Content Hub
 
 #### Priority: MEDIUM
+
 #### Description
+
 SEO-optimized content to establish authority and nurture leads through the buyer's journey.
 
 #### Content Categories
+
 1. **First-Time Homebuyer Guides**
    - Down payment assistance programs
    - FHA vs Conventional loans
@@ -155,6 +173,7 @@ SEO-optimized content to establish authority and nurture leads through the buyer
    - Local market reports (Southern California focus)
 
 #### SEO Requirements
+
 - Target keywords: "best mortgage rates", "VA loan California", "FHA loan down payment", "commercial real estate financing"
 - Meta descriptions with CTAs
 - Schema markup for articles and FAQs
@@ -165,10 +184,13 @@ SEO-optimized content to establish authority and nurture leads through the buyer
 ### FR-005: Trust & Social Proof
 
 #### Priority: HIGH
+
 #### Description
+
 Build credibility through testimonials, certifications, and transparency.
 
 #### Trust Elements
+
 - [ ] Customer testimonials with photos and loan details (with permission)
 - [ ] Google Reviews integration (target 4.8+ star rating)
 - [ ] NMLS license display for Ellis D Andersen (#XXXX)
@@ -181,6 +203,7 @@ Build credibility through testimonials, certifications, and transparency.
 - [ ] Loans funded counter (dynamic)
 
 #### Testimonial Template
+
 ```markdown
 "Ellis helped us secure a 6.5% rate when other lenders quoted 7.2%.
 His responsiveness and expertise made our first home purchase smooth and stress-free."
@@ -195,10 +218,13 @@ Closed: March 2024
 ### FR-006: Nyra AI Assistant Integration
 
 #### Priority: HIGH
+
 #### Description
+
 Embedded chatbot interface powered by Nyra AI assistant for instant lead engagement.
 
 #### Acceptance Criteria
+
 - [ ] Floating chat widget (bottom-right corner, expandable)
 - [ ] Greeting message: "Hi! I'm Nyra, Ellis's AI assistant. How can I help with your mortgage needs?"
 - [ ] Natural language understanding of mortgage questions
@@ -209,6 +235,7 @@ Embedded chatbot interface powered by Nyra AI assistant for instant lead engagem
 - [ ] Multilingual support (English, Spanish)
 
 #### Conversation Flow Example
+
 ```
 Nyra: Hi! I'm Nyra, Ellis's AI assistant. How can I help with your mortgage needs?
 
@@ -231,10 +258,13 @@ you this quote with next steps?
 ### FR-007: Mobile-First Responsive Design
 
 #### Priority: CRITICAL
+
 #### Description
+
 Optimized experience for mobile devices (60%+ of mortgage searches occur on mobile).
 
 #### Mobile Requirements
+
 - [ ] Touch-friendly buttons (minimum 44x44px tap targets)
 - [ ] Simplified navigation (hamburger menu)
 - [ ] One-tap phone calling
@@ -245,6 +275,7 @@ Optimized experience for mobile devices (60%+ of mortgage searches occur on mobi
 - [ ] Native mobile app integration (future phase)
 
 #### Viewport Breakpoints
+
 - Mobile: 320px - 767px
 - Tablet: 768px - 1023px
 - Desktop: 1024px+
@@ -254,10 +285,13 @@ Optimized experience for mobile devices (60%+ of mortgage searches occur on mobi
 ### FR-008: Cloudflare Tunnel Integration
 
 #### Priority: HIGH
+
 #### Description
-Secure, performant hosting via Cloudflare Tunnel (ratehunter.net domain).
+
+Secure, performant hosting via Cloudflare Tunnel (ratehunter.com domain).
 
 #### Infrastructure Requirements
+
 - [ ] Cloudflare Tunnel for origin server obfuscation
 - [ ] DDoS protection via Cloudflare
 - [ ] SSL/TLS encryption (Let's Encrypt certificate)
@@ -268,10 +302,11 @@ Secure, performant hosting via Cloudflare Tunnel (ratehunter.net domain).
 - [ ] Geographic analytics (track lead sources by region)
 
 #### DNS Configuration
+
 ```
-ratehunter.net        A     CLOUDFLARE_TUNNEL_IP
-www.ratehunter.net    CNAME ratehunter.net
-api.ratehunter.net    A     CLOUDFLARE_TUNNEL_IP
+ratehunter.com        A     CLOUDFLARE_TUNNEL_IP
+www.ratehunter.com    CNAME ratehunter.com
+api.projectnyra.com    A     CLOUDFLARE_TUNNEL_IP
 ```
 
 ---
@@ -279,11 +314,13 @@ api.ratehunter.net    A     CLOUDFLARE_TUNNEL_IP
 ## User Stories
 
 ### US-001: First-Time Homebuyer
+
 **As a** first-time homebuyer
 **I want to** quickly see if I qualify for a mortgage
 **So that** I can start house hunting with confidence
 
 **Acceptance Criteria:**
+
 - Pre-qualification form takes <3 minutes to complete
 - Instant qualification decision (approve/refer/deny)
 - Recommended loan programs (FHA, Conventional, VA)
@@ -292,11 +329,13 @@ api.ratehunter.net    A     CLOUDFLARE_TUNNEL_IP
 ---
 
 ### US-002: Refinance Seeker
+
 **As a** current homeowner
 **I want to** check if refinancing will save me money
 **So that** I can lower my monthly payments
 
 **Acceptance Criteria:**
+
 - Refinance calculator compares current vs new payment
 - Break-even analysis shows months to recoup closing costs
 - Cash-out refinance option calculator
@@ -305,11 +344,13 @@ api.ratehunter.net    A     CLOUDFLARE_TUNNEL_IP
 ---
 
 ### US-003: Commercial Property Investor
+
 **As a** commercial real estate investor
 **I want to** get pre-approved for a multi-family property loan
 **So that** I can make competitive offers
 
 **Acceptance Criteria:**
+
 - Separate intake form for commercial properties
 - Upload capability for property financials (rent roll, expenses)
 - SBA loan program information
@@ -318,11 +359,13 @@ api.ratehunter.net    A     CLOUDFLARE_TUNNEL_IP
 ---
 
 ### US-004: Referral Partner
+
 **As a** real estate agent
 **I want to** refer my clients to a reliable lender
 **So that** my deals close on time
 
 **Acceptance Criteria:**
+
 - Partner referral portal with tracking
 - Co-branded landing pages for agents
 - Real-time loan status updates for referred clients
@@ -336,7 +379,7 @@ api.ratehunter.net    A     CLOUDFLARE_TUNNEL_IP
 
 ```mermaid
 graph TD
-    A[Visitor lands on RateHunter.net] --> B{Entry Point}
+    A[Visitor lands on RateHunter.com] --> B{Entry Point}
     B --> C[Web Form]
     B --> D[Phone Call]
     B --> E[Chatbot]
@@ -397,9 +440,11 @@ graph LR
 ## API Endpoints
 
 ### POST /api/v1/leads
+
 Create new lead from form submission.
 
 **Request:**
+
 ```json
 {
   "firstName": "John",
@@ -415,6 +460,7 @@ Create new lead from form submission.
 ```
 
 **Response:**
+
 ```json
 {
   "leadId": "lead_abc123",
@@ -425,16 +471,18 @@ Create new lead from form submission.
     "Ellis will call within 24 hours",
     "Complete pre-approval application"
   ],
-  "quoteUrl": "https://ratehunter.net/quotes/lead_abc123"
+  "quoteUrl": "https://ratehunter.com/quotes/lead_abc123"
 }
 ```
 
 ---
 
 ### POST /api/v1/quotes/generate
+
 Generate real-time mortgage quote.
 
 **Request:**
+
 ```json
 {
   "loanAmount": 450000,
@@ -446,6 +494,7 @@ Generate real-time mortgage quote.
 ```
 
 **Response:**
+
 ```json
 {
   "quoteId": "quote_xyz789",
@@ -468,7 +517,7 @@ Generate real-time mortgage quote.
     },
     {
       "name": "5/1 ARM",
-      "rate": 6.10,
+      "rate": 6.1,
       "monthlyPayment": 2734
     }
   ]
@@ -480,6 +529,7 @@ Generate real-time mortgage quote.
 ## Database Schema Requirements
 
 ### leads table
+
 ```sql
 CREATE TABLE leads (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -516,6 +566,7 @@ CREATE INDEX idx_leads_created ON leads(created_at DESC);
 ```
 
 ### quotes table
+
 ```sql
 CREATE TABLE quotes (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -544,6 +595,7 @@ CREATE INDEX idx_quotes_created ON quotes(created_at DESC);
 ## Design Requirements
 
 ### Visual Identity
+
 - **Primary Brand**: Ellis D Andersen LLC / West Capital Lending
 - **Color Scheme**:
   - Primary: Xulbux Purple (#6C5CE7)
@@ -557,6 +609,7 @@ CREATE INDEX idx_quotes_created ON quotes(created_at DESC);
 - **Logo Placement**: Top-left corner with West Capital Lending co-branding
 
 ### UI Components
+
 1. **Hero Section**
    - Headline: "Get Your Best Mortgage Rate in 60 Seconds"
    - Subheadline: "Trusted by 1,200+ California homebuyers"
@@ -588,27 +641,32 @@ CREATE INDEX idx_quotes_created ON quotes(created_at DESC);
 ## Compliance & Legal Requirements
 
 ### TCPA (Telephone Consumer Protection Act)
+
 - [ ] Explicit consent checkbox for phone/SMS marketing
 - [ ] Opt-out instructions in every SMS message
 - [ ] Do Not Call registry compliance
 - [ ] Call recording disclosure (if applicable)
 
 ### RESPA (Real Estate Settlement Procedures Act)
+
 - [ ] Affiliated Business Arrangement (AfBA) disclosures if referring to title/escrow
 - [ ] Good Faith Estimate (GFE) delivery within 3 business days of application
 
 ### TILA (Truth in Lending Act)
+
 - [ ] APR disclosure on all rate quotes
 - [ ] Finance charge calculations
 - [ ] Total of payments disclosure
 - [ ] Prepayment penalty disclosure (if applicable)
 
 ### Fair Lending Laws
+
 - [ ] Equal Housing Opportunity statement
 - [ ] Non-discriminatory language in all materials
 - [ ] Accessible design (WCAG 2.1 AA compliance)
 
 ### Privacy Policy
+
 - [ ] GDPR compliance (for international visitors)
 - [ ] CCPA compliance (California Consumer Privacy Act)
 - [ ] Cookie consent banner
@@ -620,17 +678,20 @@ CREATE INDEX idx_quotes_created ON quotes(created_at DESC);
 ## Performance Requirements
 
 ### Load Time Targets
+
 - First Contentful Paint (FCP): <1.5 seconds
 - Largest Contentful Paint (LCP): <2.5 seconds
 - Cumulative Layout Shift (CLS): <0.1
 - First Input Delay (FID): <100ms
 
 ### Uptime & Reliability
+
 - Uptime SLA: 99.9% (< 8.77 hours downtime/year)
 - Disaster recovery: <1 hour RTO (Recovery Time Objective)
 - Backup frequency: Hourly incremental, daily full
 
 ### Scalability
+
 - Concurrent users: 500+
 - Requests per second: 100+
 - Database connections: Pool of 50-200
@@ -641,6 +702,7 @@ CREATE INDEX idx_quotes_created ON quotes(created_at DESC);
 ## Integration Points
 
 ### Upstream Services
+
 1. **LOS (Loan Origination System)**: Encompass or Calyx
    - Real-time rate pricing
    - Credit pull integration (soft pull for quotes)
@@ -671,28 +733,33 @@ CREATE INDEX idx_quotes_created ON quotes(created_at DESC);
 ## Testing Requirements
 
 ### Unit Tests
+
 - Form validation logic
 - Quote calculation accuracy
 - API request/response handling
 
 ### Integration Tests
+
 - LOS API connectivity
 - CRM lead creation
 - Email delivery
 - SMS sending
 
 ### End-to-End Tests
+
 - Complete lead submission flow
 - Quote generation and delivery
 - Chat conversation to lead conversion
 - Mobile responsiveness
 
 ### Performance Tests
+
 - Load testing (100 concurrent users)
 - Stress testing (burst to 500 users)
 - Soak testing (sustained load for 24 hours)
 
 ### Security Tests
+
 - Penetration testing
 - SQL injection prevention
 - XSS vulnerability scanning
@@ -703,6 +770,7 @@ CREATE INDEX idx_quotes_created ON quotes(created_at DESC);
 ## Deployment Plan
 
 ### Phase 1: MVP (Weeks 1-4)
+
 - [ ] Basic web form lead capture
 - [ ] Static quote calculator
 - [ ] Cloudflare Tunnel setup
@@ -710,6 +778,7 @@ CREATE INDEX idx_quotes_created ON quotes(created_at DESC);
 - [ ] Compliance pages (Privacy, Terms)
 
 ### Phase 2: Enhancement (Weeks 5-8)
+
 - [ ] Nyra chatbot integration
 - [ ] Real-time LOS rate quotes
 - [ ] Email drip campaign setup
@@ -717,6 +786,7 @@ CREATE INDEX idx_quotes_created ON quotes(created_at DESC);
 - [ ] A/B testing framework
 
 ### Phase 3: Advanced Features (Weeks 9-12)
+
 - [ ] SMS two-way messaging
 - [ ] Voicemod voice integration
 - [ ] Educational content hub
@@ -728,6 +798,7 @@ CREATE INDEX idx_quotes_created ON quotes(created_at DESC);
 ## Success Criteria
 
 ### Launch Readiness
+
 - [ ] All critical features (FR-001, FR-002, FR-003) implemented
 - [ ] Security audit passed
 - [ ] Compliance review approved by legal
@@ -736,6 +807,7 @@ CREATE INDEX idx_quotes_created ON quotes(created_at DESC);
 - [ ] Monitoring and alerting configured
 
 ### Post-Launch Metrics (30-Day)
+
 - 1,000+ leads captured
 - 30%+ conversion from visitor to lead
 - 4.5+ star average from customer satisfaction survey
@@ -747,6 +819,7 @@ CREATE INDEX idx_quotes_created ON quotes(created_at DESC);
 ## Maintenance & Support
 
 ### Ongoing Tasks
+
 - Weekly rate updates (manual or automated via LOS)
 - Monthly content updates (blog posts, market insights)
 - Quarterly compliance audits
@@ -754,8 +827,9 @@ CREATE INDEX idx_quotes_created ON quotes(created_at DESC);
 - Daily database backups with 30-day retention
 
 ### Support Channels
-- Technical support: tech@ratehunter.net
-- Lead inquiries: ellis@ratehunter.net
+
+- Technical support: tech@ratehunter.com
+- Lead inquiries: ellis@ratehunter.com
 - Escalations: Ellis D Andersen direct line
 
 ---
@@ -763,12 +837,14 @@ CREATE INDEX idx_quotes_created ON quotes(created_at DESC);
 ## References
 
 ### Related Documents
+
 - `NYRA_ASSISTANT_FEATURES.md` - Chatbot integration details
 - `LEAD_DRIP_CAMPAIGNS.md` - Post-capture nurturing workflows
 - `CRM_REQUIREMENTS.md` - Lead management system specs
 - `MORTGAGE_BROKER_WORKFLOWS.md` - Operational procedures
 
 ### External Resources
+
 - Encompass LOS API Documentation
 - Cloudflare Tunnel Setup Guide
 - NMLS Compliance Resources

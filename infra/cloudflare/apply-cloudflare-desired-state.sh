@@ -71,7 +71,7 @@ echo "Upserting DNS records..."
 : > "$RESULTS_DIR/dns-upsert.ndjson"
 jq -c '.records[]' "$RESULTS_DIR/dns-records.resolved.json" | while IFS= read -r rec; do
   short="$(jq -r '.name' <<<"$rec")"
-  fqdn="${short}.ratehunter.net"
+  fqdn="${short}.projectnyra.com"
   existing="$(api GET "/zones/${ZONE_ID}/dns_records?name=${fqdn}&per_page=20")"
   id="$(jq -r '.result[0].id // empty' <<<"$existing")"
   payload="$(mktemp)"

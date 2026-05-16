@@ -10,11 +10,11 @@ info:
 
     **Base URL**: `http://localhost:8002` (development)
 
-    **Production URL**: `https://api.ratehunter.net/campaign`
+    **Production URL**: `https://api.projectnyra.com/campaign`
   version: 1.0.0
   contact:
     name: Project Nyra API Support
-    email: api@ratehunter.net
+    email: api@ratehunter.com
   license:
     name: Proprietary
 
@@ -23,7 +23,7 @@ servers:
     description: Local development server
   - url: http://campaign-engine:8002
     description: Docker internal network
-  - url: https://api.ratehunter.net/campaign
+  - url: https://api.projectnyra.com/campaign
     description: Production API
 
 tags:
@@ -42,7 +42,7 @@ paths:
       summary: Health check endpoint
       tags: [health]
       responses:
-        '200':
+        "200":
           description: Service is healthy
           content:
             application/json:
@@ -72,20 +72,20 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/LeadRequest'
+              $ref: "#/components/schemas/LeadRequest"
       responses:
-        '201':
+        "201":
           description: Lead created successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/LeadResponse'
-        '200':
+                $ref: "#/components/schemas/LeadResponse"
+        "200":
           description: Lead updated successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/LeadResponse'
+                $ref: "#/components/schemas/LeadResponse"
 
     get:
       summary: List all leads
@@ -112,7 +112,7 @@ paths:
             default: 50
             maximum: 100
       responses:
-        '200':
+        "200":
           description: Leads retrieved successfully
           content:
             application/json:
@@ -122,7 +122,7 @@ paths:
                   leads:
                     type: array
                     items:
-                      $ref: '#/components/schemas/LeadResponse'
+                      $ref: "#/components/schemas/LeadResponse"
                   total:
                     type: integer
                   page:
@@ -141,12 +141,12 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: Lead details retrieved
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/LeadDetailResponse'
+                $ref: "#/components/schemas/LeadDetailResponse"
 
     patch:
       summary: Update lead status
@@ -166,11 +166,20 @@ paths:
               properties:
                 status:
                   type: string
-                  enum: [new, contacted, quoted, in_progress, approved, closed, dead]
+                  enum:
+                    [
+                      new,
+                      contacted,
+                      quoted,
+                      in_progress,
+                      approved,
+                      closed,
+                      dead,
+                    ]
                 notes:
                   type: string
       responses:
-        '200':
+        "200":
           description: Lead updated successfully
 
   /campaigns:
@@ -190,14 +199,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CampaignRequest'
+              $ref: "#/components/schemas/CampaignRequest"
       responses:
-        '201':
+        "201":
           description: Campaign created
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CampaignResponse'
+                $ref: "#/components/schemas/CampaignResponse"
 
     get:
       summary: List all campaigns
@@ -209,14 +218,14 @@ paths:
             type: string
             enum: [draft, active, paused, completed]
       responses:
-        '200':
+        "200":
           description: Campaigns retrieved
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/CampaignResponse'
+                  $ref: "#/components/schemas/CampaignResponse"
 
   /campaigns/{campaign_id}:
     get:
@@ -229,12 +238,12 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: Campaign details
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CampaignDetailResponse'
+                $ref: "#/components/schemas/CampaignDetailResponse"
 
     patch:
       summary: Update campaign
@@ -255,7 +264,7 @@ paths:
                   type: string
                   enum: [active, paused, completed]
       responses:
-        '200':
+        "200":
           description: Campaign updated
 
   /campaigns/{campaign_id}/enroll:
@@ -279,7 +288,7 @@ paths:
                 lead_id:
                   type: string
       responses:
-        '200':
+        "200":
           description: Lead enrolled successfully
 
   /engagement/track:
@@ -300,9 +309,9 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/EngagementEvent'
+              $ref: "#/components/schemas/EngagementEvent"
       responses:
-        '200':
+        "200":
           description: Event tracked
 
   /engagement/{lead_id}:
@@ -316,14 +325,14 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: Engagement history retrieved
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/EngagementEvent'
+                  $ref: "#/components/schemas/EngagementEvent"
 
 components:
   schemas:
@@ -391,7 +400,7 @@ components:
 
     LeadDetailResponse:
       allOf:
-        - $ref: '#/components/schemas/LeadResponse'
+        - $ref: "#/components/schemas/LeadResponse"
         - type: object
           properties:
             campaigns:
@@ -483,7 +492,7 @@ components:
 
     CampaignDetailResponse:
       allOf:
-        - $ref: '#/components/schemas/CampaignResponse'
+        - $ref: "#/components/schemas/CampaignResponse"
         - type: object
           properties:
             steps:
@@ -519,7 +528,14 @@ components:
           type: string
         event_type:
           type: string
-          enum: [email_open, email_click, link_click, form_submission, document_upload]
+          enum:
+            [
+              email_open,
+              email_click,
+              link_click,
+              form_submission,
+              document_upload,
+            ]
         campaign_id:
           type: string
         metadata:

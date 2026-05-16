@@ -61,6 +61,7 @@ curl http://localhost:11434/api/embeddings -d '{
 To allow other PCs to access this worker via Tailscale:
 
 ### Quick Test (Temporary)
+
 ```bash
 # Stop current Ollama
 pkill ollama
@@ -70,6 +71,7 @@ OLLAMA_HOST=0.0.0.0 ollama serve
 ```
 
 ### Permanent Setup (Recommended)
+
 ```powershell
 # Run in PowerShell (as regular user)
 [System.Environment]::SetEnvironmentVariable('OLLAMA_HOST', '0.0.0.0', 'User')
@@ -177,35 +179,39 @@ curl http://localhost:6000/v1/chat/completions \
 To expose via the internet:
 
 1. **Configure tunnel** (~/.cloudflared/config-worker-rtx3060.yaml):
+
 ```yaml
 tunnel: worker-rtx3060
 credentials-file: ~/.cloudflared/33d0dc8b-4a1f-4f31-b482-5309171ffdf8.json
 
 ingress:
-  - hostname: worker-3060.ratehunter.net
+  - hostname: worker-3060.projectnyra.com
     service: http://localhost:11434
   - service: http_status:404
 ```
 
 2. **Start tunnel**:
+
 ```bash
 cloudflared tunnel run --config ~/.cloudflared/config-worker-rtx3060.yaml worker-rtx3060
 ```
 
 3. **Test from anywhere**:
+
 ```bash
-curl https://worker-3060.ratehunter.net/api/tags
+curl https://worker-3060.projectnyra.com/api/tags
 ```
 
 ## 📚 Your Models
 
-| Model | Size | VRAM | Best For |
-|-------|------|------|----------|
-| **qwen2.5-coder:7b** ✨ | 4.7GB | 4.9GB loaded | Code generation, mortgage calculations |
-| **llama3.1:8b** | 4.9GB | ~5GB loaded | General reasoning, loan qualification |
-| **nomic-embed-text** | 274MB | ~300MB loaded | Document similarity, vector search |
+| Model                   | Size  | VRAM          | Best For                               |
+| ----------------------- | ----- | ------------- | -------------------------------------- |
+| **qwen2.5-coder:7b** ✨ | 4.7GB | 4.9GB loaded  | Code generation, mortgage calculations |
+| **llama3.1:8b**         | 4.9GB | ~5GB loaded   | General reasoning, loan qualification  |
+| **nomic-embed-text**    | 274MB | ~300MB loaded | Document similarity, vector search     |
 
 **Performance**:
+
 - qwen2.5-coder: ~40-50 tokens/sec (after warmup)
 - llama3.1: ~35-45 tokens/sec
 - nomic-embed-text: ~1000+ tokens/sec
@@ -257,6 +263,7 @@ curl http://localhost:11434/api/generate -d '{"model": "llama3.1:8b", "keep_aliv
 ## ✨ Summary
 
 Your worker is **production-ready** with:
+
 - ✅ 3 models optimized for 12GB VRAM
 - ✅ qwen2.5-coder for mortgage code generation
 - ✅ llama3.1 for reasoning and qualification logic
@@ -265,6 +272,7 @@ Your worker is **production-ready** with:
 - ✅ 6-7GB VRAM available for additional models
 
 **Next Steps**:
+
 1. ✅ Models working - verified!
 2. ⏳ Enable Tailscale access (`OLLAMA_HOST=0.0.0.0`)
 3. ⏳ Update Nexus Router configuration

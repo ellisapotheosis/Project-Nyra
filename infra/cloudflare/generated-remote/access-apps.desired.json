@@ -1,30 +1,30 @@
 {
   "team_name": "${CF_ACCESS_TEAM_NAME}",
-  "domain": "ratehunter.net",
+  "domain": "projectnyra.com",
   "default_ui_policy": "allow Google Workspace/domain-approved users, require MFA where available",
   "service_token_policy": "allow only named Cloudflare Access service tokens for API/MCP machine access",
   "applications": [
     {
       "name": "Nyra Webapp",
-      "hostnames": ["nyra.ratehunter.net"],
+      "hostnames": ["app.projectnyra.com"],
       "type": "self_hosted",
       "policy": "public_auth_until_supabase_auth_ready"
     },
     {
       "name": "Nyra Admin UIs",
       "hostnames": [
-        "twenty.ratehunter.net",
-        "crm.ratehunter.net",
-        "n8n.ratehunter.net",
-        "gitea.ratehunter.net",
-        "activepieces.ratehunter.net",
-        "openwebui.ratehunter.net",
-        "nexus.ratehunter.net",
-        "paperclip.ratehunter.net",
-        "clawteam.ratehunter.net",
-        "links.ratehunter.net",
-        "linkwarden.ratehunter.net",
-        "openclaw-gateway.ratehunter.net"
+        "twenty.projectnyra.com",
+        "crm.projectnyra.com",
+        "n8n.projectnyra.com",
+        "gitea.projectnyra.com",
+        "activepieces.projectnyra.com",
+        "openwebui.projectnyra.com",
+        "nexus.projectnyra.com",
+        "paperclip.projectnyra.com",
+        "clawteam.projectnyra.com",
+        "links.projectnyra.com",
+        "linkwarden.projectnyra.com",
+        "openclaw-gateway.projectnyra.com"
       ],
       "type": "self_hosted",
       "policy": "public_auth"
@@ -32,25 +32,21 @@
     {
       "name": "Nyra Owner Only Infra",
       "hostnames": [
-        "grafana.ratehunter.net",
-        "prometheus.ratehunter.net",
-        "cadvisor.ratehunter.net",
-        "litellm.ratehunter.net",
-        "portainer-oracle.ratehunter.net"
+        "grafana.projectnyra.com",
+        "prometheus.projectnyra.com",
+        "cadvisor.projectnyra.com",
+        "litellm.projectnyra.com",
+        "portainer-oracle.projectnyra.com"
       ],
       "type": "self_hosted",
       "policy": "owner_only_public_auth"
     },
     {
       "name": "Nyra Service APIs",
-      "hostnames": ["nexus-router.ratehunter.net", "hooks.ratehunter.net"],
+      "hostnames": ["nexus-router.projectnyra.com", "hooks.projectnyra.com"],
       "type": "self_hosted",
       "policy": "service_token_or_signed_request"
     }
   ],
-  "excluded_from_access": [
-    "ratehunter.net",
-    "www.ratehunter.net",
-    "api.ratehunter.net"
-  ]
+  "excluded_from_access": ["api.projectnyra.com"]
 }
