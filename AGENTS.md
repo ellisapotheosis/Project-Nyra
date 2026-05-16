@@ -180,6 +180,15 @@ Work is only done when:
 - smoke checks pass
 - no deprecated architecture is reintroduced
 
+## Current repo workflows and commands
+
+- The active workspace toolchain is `pnpm` + Turbo. Prefer repo-root commands such as `pnpm dev`, `pnpm build`, `pnpm typecheck`, `pnpm lint`, and `pnpm test` before inventing ad hoc equivalents.
+- For narrower validation, prefer workspace-scoped commands with `pnpm --filter <workspace> <script>`. Current CI also uses changed-package Turbo runs such as `pnpm exec turbo run lint --filter="...[origin/<base>]"` and `pnpm exec turbo run typecheck --filter="...[origin/<base>]"`.
+- Current root test entrypoints are intentional: `pnpm test` runs the Vitest smoke suite, `pnpm test:unit` runs `bash scripts/testing/run-unit-tests.sh`, and `pnpm test:contracts` runs the package contract tests.
+- Playwright is configured at the repo root via `playwright.config.ts`. For browser E2E work, use `pnpm exec playwright test` instead of assuming a root `test:e2e` script exists.
+- The Cloudflare landing apps in `apps/landing/app` and `apps/landing/ratehunter-landing` currently expose `build:cf`, `preview`, `deploy`, `deploy:production`, `deploy:preview`, and `cf:login`.
+- The current general health-check entrypoint is `bash scripts/health-check.sh`; do not rely on the older `ops/scripts/health-check.sh` path.
+
 EXECUTION_PLAN_APPS.md
 Software engineering playbook for Project Nyra.
 Scope
@@ -408,11 +417,11 @@ Health-check script
 Install and use:
 
 ```bash
-chmod +x ops/scripts/health-check.sh
-bash ops/scripts/health-check.sh
+chmod +x scripts/health-check.sh
+bash scripts/health-check.sh
 ```
 
-See `ops/scripts/health-check.sh` in this pack.
+See `scripts/health-check.sh` in this pack.
 Worker deployment
 worker-rtx3060 — Ollama
 
@@ -442,7 +451,7 @@ Orchestrator bring-up
 
 ```bash
 docker compose -f infra/hosts/orchestrator/docker-compose.yml up -d
-bash ops/scripts/health-check.sh
+bash scripts/health-check.sh
 ```
 
 LiteLLM routing model
