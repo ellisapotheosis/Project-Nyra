@@ -3,10 +3,13 @@
 SHELL := /bin/bash
 
 DOCKER_COMPOSE ?= docker compose
-MAIN_COMPOSE := docker-compose.yml
+MAIN_COMPOSE := hosts/orchestrator/docker-compose.yml
 ORACLE_COMPOSE := hosts/oracle-vps/docker-compose.oracle.yml
-WORKERS_COMPOSE := hosts/docker-compose.workers.yml
-CLOUDFLARED_COMPOSE := compose/docker-compose.cloudflared.yml
+WORKER_3060_COMPOSE := hosts/worker-rtx3060/docker-compose.yml
+WORKER_3090TI_COMPOSE := hosts/worker-rtx3090ti/docker-compose.yml
+WORKER_5090_COMPOSE := hosts/worker-rtx5090/docker-compose.yml
+CLOUDFLARED_COMPOSE := hosts/orchestrator/docker-compose.cloudflared.yml
+ROOT_MAKE ?= $(MAKE) -C ..
 
 SERVICE ?=
 WORKER ?=all
@@ -69,9 +72,11 @@ help:
 verify-paths:
 	@test -f $(MAIN_COMPOSE) || (echo "Missing $(MAIN_COMPOSE)" && exit 1)
 	@test -f $(ORACLE_COMPOSE) || (echo "Missing $(ORACLE_COMPOSE)" && exit 1)
-	@test -f $(WORKERS_COMPOSE) || (echo "Missing $(WORKERS_COMPOSE)" && exit 1)
+	@test -f $(WORKER_3060_COMPOSE) || (echo "Missing $(WORKER_3060_COMPOSE)" && exit 1)
+	@test -f $(WORKER_3090TI_COMPOSE) || (echo "Missing $(WORKER_3090TI_COMPOSE)" && exit 1)
+	@test -f $(WORKER_5090_COMPOSE) || (echo "Missing $(WORKER_5090_COMPOSE)" && exit 1)
 	@test -f $(CLOUDFLARED_COMPOSE) || (echo "Missing $(CLOUDFLARED_COMPOSE)" && exit 1)
-	@test -f health-check.sh || (echo "Missing health-check.sh" && exit 1)
+	@test -f ../scripts/health-check.sh || (echo "Missing ../scripts/health-check.sh" && exit 1)
 	@test -f port-discovery.sh || (echo "Missing port-discovery.sh" && exit 1)
 	@test -f tunnel-setup.sh || (echo "Missing tunnel-setup.sh" && exit 1)
 	@test -f verify-connectivity.sh || (echo "Missing verify-connectivity.sh" && exit 1)
@@ -85,10 +90,10 @@ bootstrap: init up
 	@echo "Bootstrap complete."
 
 up: verify-paths
-	$(DOCKER_COMPOSE) -f $(MAIN_COMPOSE) up -d
+	$(ROOT_MAKE) up
 
 down:
-	$(DOCKER_COMPOSE) -f $(MAIN_COMPOSE) down --remove-orphans
+	$(ROOT_MAKE) down
 
 logs: verify-paths
 ifdef SERVICE
@@ -98,11 +103,11 @@ else
 endif
 
 health: verify-paths
-	@bash ./health-check.sh
+	@bash ../scripts/health-check.sh
 
 build: verify-paths
 	cd .. && pnpm build
-	$(DOCKER_COMPOSE) -f $(MAIN_COMPOSE) build
+	$(ROOT_MAKE) up
 
 test:
 	cd .. && pnpm test
@@ -111,7 +116,7 @@ dev:
 	cd .. && pnpm dev
 
 db-init: verify-paths
-	$(DOCKER_COMPOSE) -f $(MAIN_COMPOSE) up -d postgres
+	$(ROOT_MAKE) up
 	$(DOCKER_COMPOSE) -f $(MAIN_COMPOSE) exec -T postgres sh -lc '\
 		psql -v ON_ERROR_STOP=1 -U "$$POSTGRES_USER" -d "$$POSTGRES_DB" <<'\''SQL'\''\n\
 		SELECT '\''CREATE DATABASE twenty'\'' WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = '\''twenty'\'') \\gexec\n\
@@ -123,16 +128,16 @@ db-backup: verify-paths
 	@bash ../scripts/deployment/backup-data.sh
 
 worker-up: verify-paths
-	$(DOCKER_COMPOSE) -f $(WORKERS_COMPOSE) up -d
+	$(ROOT_MAKE) up-workers
 
 worker-down: verify-paths
-	$(DOCKER_COMPOSE) -f $(WORKERS_COMPOSE) down --remove-orphans
+	$(ROOT_MAKE) down-all-workers
 
 oracle-up: verify-paths
-	$(DOCKER_COMPOSE) -f $(ORACLE_COMPOSE) up -d
+	$(ROOT_MAKE) up-oracle
 
 oracle-down: verify-paths
-	$(DOCKER_COMPOSE) -f $(ORACLE_COMPOSE) down --remove-orphans
+	$(ROOT_MAKE) oracle-webapp-twenty-down
 
 oracle-logs: verify-paths
 	$(DOCKER_COMPOSE) -f $(ORACLE_COMPOSE) logs -f
@@ -141,10 +146,10 @@ tunnel-setup: verify-paths
 	@bash ./tunnel-setup.sh
 
 tunnel-start: verify-paths
-	$(DOCKER_COMPOSE) -f $(CLOUDFLARED_COMPOSE) up -d
+	$(ROOT_MAKE) cf-orch-up
 
 tunnel-stop: verify-paths
-	$(DOCKER_COMPOSE) -f $(CLOUDFLARED_COMPOSE) down --remove-orphans
+	$(ROOT_MAKE) cf-orch-down
 
 port-discovery: verify-paths
 	@bash ./port-discovery.sh
@@ -247,12 +252,16 @@ tmux-ai-grid:
 
 clean:
 	$(DOCKER_COMPOSE) -f $(MAIN_COMPOSE) down --remove-orphans || true
-	$(DOCKER_COMPOSE) -f $(WORKERS_COMPOSE) down --remove-orphans || true
+	$(DOCKER_COMPOSE) -f $(WORKER_3060_COMPOSE) down --remove-orphans || true
+	$(DOCKER_COMPOSE) -f $(WORKER_3090TI_COMPOSE) down --remove-orphans || true
+	$(DOCKER_COMPOSE) -f $(WORKER_5090_COMPOSE) down --remove-orphans || true
 	$(DOCKER_COMPOSE) -f $(ORACLE_COMPOSE) down --remove-orphans || true
 
 reset:
 	@echo "WARNING: this removes containers and volumes for main + worker + oracle stacks."
 	$(DOCKER_COMPOSE) -f $(MAIN_COMPOSE) down -v --remove-orphans || true
-	$(DOCKER_COMPOSE) -f $(WORKERS_COMPOSE) down -v --remove-orphans || true
+	$(DOCKER_COMPOSE) -f $(WORKER_3060_COMPOSE) down -v --remove-orphans || true
+	$(DOCKER_COMPOSE) -f $(WORKER_3090TI_COMPOSE) down -v --remove-orphans || true
+	$(DOCKER_COMPOSE) -f $(WORKER_5090_COMPOSE) down -v --remove-orphans || true
 	$(DOCKER_COMPOSE) -f $(ORACLE_COMPOSE) down -v --remove-orphans || true
 	docker system prune -af

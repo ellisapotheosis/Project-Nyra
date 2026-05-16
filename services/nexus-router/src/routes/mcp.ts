@@ -1,9 +1,85 @@
 import { Router, Request, Response } from 'express';
 import { MCPProxyService } from '../services/mcp-proxy';
+import { MCPSSEServer } from '../services/mcp-sse-server';
 import { createLogger } from '../utils/logger';
 
 const logger = createLogger('mcp-route');
 const router = Router();
+
+/**
+ * Native MCP Protocol Support - Server-Sent Events
+ *
+ * GET / establishes SSE connection for streaming MCP protocol
+ * POST / handles JSON-RPC 2.0 MCP requests
+ *
+ * Compatible with ChatGPT Developer Mode and standard MCP clients
+ */
+const mcpSSEServer = MCPSSEServer.getInstance();
+
+// GET / - Establish native MCP SSE connection
+router.get('/', async (req: Request, res: Response): Promise<void> => {
+  try {
+    await mcpSSEServer.handleSSEConnection(req, res);
+  } catch (error) {
+    logger.error('Error establishing MCP SSE connection:', error);
+    res.status(500).json({
+      jsonrpc: '2.0',
+      id: null,
+      error: {
+        code: -32000,
+        message: error instanceof Error ? error.message : 'Failed to establish SSE connection',
+      },
+    });
+  }
+});
+
+// POST / - Handle native MCP JSON-RPC 2.0 requests
+router.post('/', async (req: Request, res: Response): Promise<void> => {
+  try {
+    const request = req.body;
+
+    if (!request) {
+      res.status(400).json({
+        jsonrpc: '2.0',
+        id: null,
+        error: {
+          code: -32700,
+          message: 'Parse error: request body is empty',
+        },
+      });
+      return;
+    }
+
+    // Handle batch requests
+    if (Array.isArray(request)) {
+      const responses = await Promise.all(
+        request.map(async (req) => mcpSSEServer.processRequest(req))
+      );
+      // Filter out undefined responses (notifications with no id)
+      const validResponses = responses.filter((r) => r !== undefined);
+      if (validResponses.length === 0) {
+        res.status(204).send();
+      } else {
+        res.json(validResponses);
+      }
+      return;
+    }
+
+    // Handle single request
+    const response = await mcpSSEServer.processRequest(request);
+    res.json(response);
+  } catch (error) {
+    logger.error('Error processing MCP request:', error);
+    res.status(500).json({
+      jsonrpc: '2.0',
+      id: req.body?.id || null,
+      error: {
+        code: -32000,
+        message: error instanceof Error ? error.message : 'Internal server error',
+      },
+    });
+  }
+});
 
 // List all registered MCP servers
 router.get('/servers', async (_req: Request, res: Response) => {

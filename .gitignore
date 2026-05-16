@@ -23,6 +23,7 @@ build/
 !infra/docker/build/
 out/
 .next/
+**/.next.backup-*/
 .nuxt/
 .output/
 *.log
@@ -102,6 +103,9 @@ Desktop.ini
 *.tmp
 *.temp
 .cache/
+.playwright-mcp/
+**/.omc/state/
+**/.omc/sessions/
 .temp/
 tmp/
 temp/

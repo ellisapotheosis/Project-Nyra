@@ -1,4 +1,3 @@
-import axios, { AxiosInstance } from 'axios';
 import { EventBus } from '../events/EventBus';
 import { SystemEvent, MCPServerStatus, GPUMetrics } from '../types';
 import { config } from '../config';
@@ -6,8 +5,38 @@ import { createLogger } from '../utils/logger';
 
 const logger = createLogger('nexus-integration');
 
+interface NexusClient {
+  get<T = any>(path: string): Promise<{ data: T }>;
+  post<T = any>(path: string, body: unknown): Promise<{ data: T }>;
+}
+
+function createNexusClient(baseUrl: string, apiKey?: string): NexusClient {
+  const request = async <T>(path: string, init?: RequestInit): Promise<{ data: T }> => {
+    const response = await fetch(new URL(path, baseUrl), {
+      ...init,
+      headers: {
+        ...(apiKey ? { Authorization: `Bearer ${apiKey}` } : {}),
+        ...(init?.body ? { 'Content-Type': 'application/json' } : {}),
+        ...init?.headers,
+      },
+      signal: AbortSignal.timeout(5000),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Nexus Router request failed: ${response.status} ${response.statusText}`);
+    }
+
+    return { data: (await response.json()) as T };
+  };
+
+  return {
+    get: (path) => request(path),
+    post: (path, body) => request(path, { method: 'POST', body: JSON.stringify(body) }),
+  };
+}
+
 export class NexusIntegration {
-  private client: AxiosInstance | null = null;
+  private client: NexusClient | null = null;
   private pollingInterval: NodeJS.Timeout | null = null;
   private eventBus: EventBus;
 
@@ -15,13 +44,7 @@ export class NexusIntegration {
     this.eventBus = eventBus;
 
     if (config.nexusRouterUrl) {
-      this.client = axios.create({
-        baseURL: config.nexusRouterUrl,
-        timeout: 5000,
-        headers: config.nexusRouterApiKey
-          ? { 'Authorization': `Bearer ${config.nexusRouterApiKey}` }
-          : {},
-      });
+      this.client = createNexusClient(config.nexusRouterUrl, config.nexusRouterApiKey);
       logger.info({ url: config.nexusRouterUrl }, 'Nexus Router integration initialized');
     } else {
       logger.warn('Nexus Router URL not configured, integration disabled');
@@ -71,8 +94,8 @@ export class NexusIntegration {
       };
 
       this.eventBus.emit('mcp:status', event);
-    } catch (error: any) {
-      logger.error({ error: error.message }, 'Failed to poll MCP status');
+    } catch (error) {
+      logger.error({ error: error instanceof Error ? error.message : String(error) }, 'Failed to poll MCP status');
     }
   }
 
@@ -89,8 +112,8 @@ export class NexusIntegration {
       };
 
       this.eventBus.emit('gpu:metrics', event);
-    } catch (error: any) {
-      logger.error({ error: error.message }, 'Failed to poll GPU metrics');
+    } catch (error) {
+      logger.error({ error: error instanceof Error ? error.message : String(error) }, 'Failed to poll GPU metrics');
     }
   }
 
@@ -109,8 +132,8 @@ export class NexusIntegration {
       };
 
       this.eventBus.emit('tools:discovery', event);
-    } catch (error: any) {
-      logger.error({ error: error.message }, 'Failed to query tool discovery');
+    } catch (error) {
+      logger.error({ error: error instanceof Error ? error.message : String(error) }, 'Failed to query tool discovery');
     }
   }
 
@@ -125,8 +148,8 @@ export class NexusIntegration {
         params,
       });
       return response.data;
-    } catch (error: any) {
-      logger.error({ error: error.message, command }, 'Failed to send command');
+    } catch (error) {
+      logger.error({ error: error instanceof Error ? error.message : String(error), command }, 'Failed to send command');
       throw error;
     }
   }

@@ -100,7 +100,7 @@ describe('DocxCampaignParser', () => {
   describe('extractCampaignName', () => {
     it('should extract campaign names', () => {
       const lines = ['Campaign Day 1-5', 'Content'];
-      expect(parser.extractCampaignName(lines)).toBe('Campaign Day 1 5');
+      expect(parser.extractCampaignName(lines)).toBe('Campaign Day 1-5');
 
       const lines2 = ['Day 1-5', 'Content'];
       expect(parser.extractCampaignName(lines2)).toContain('Campaign Day 1-5');

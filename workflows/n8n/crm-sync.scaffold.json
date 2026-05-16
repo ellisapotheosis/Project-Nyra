@@ -1,0 +1,134 @@
+{
+  "name": "Nyra CRM Communication Sync Scaffold",
+  "active": false,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "nyra/crm/communication-sync",
+        "responseMode": "responseNode"
+      },
+      "id": "crm-sync-webhook",
+      "name": "CRM Sync Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [0, 0]
+    },
+    {
+      "parameters": {
+        "jsCode": "const payload = $json.body ?? $json;\nif (!payload.idempotencyKey || !payload.leadId || !payload.status) throw new Error('CRM sync payload missing idempotencyKey, leadId, or status');\nreturn [{ json: payload }];"
+      },
+      "id": "validate-crm-sync-payload",
+      "name": "Validate CRM Sync Payload",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [240, 0]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.CRM_API_URL}}/api/timeline/communications",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Idempotency-Key",
+              "value": "={{$json.idempotencyKey}}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "jsonBody": "={{$json}}"
+      },
+      "id": "write-crm-timeline-event",
+      "name": "Write CRM Timeline Event",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [500, 0]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.CRM_API_URL}}/api/audit-events",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Idempotency-Key",
+              "value": "={{$json.idempotencyKey}}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "jsonBody": "={{$json}}"
+      },
+      "id": "write-audit-event",
+      "name": "Write Audit Event",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [760, 0]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { ok: true, idempotencyKey: $json.idempotencyKey } }}"
+      },
+      "id": "crm-sync-response",
+      "name": "CRM Sync Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1020, 0]
+    }
+  ],
+  "connections": {
+    "CRM Sync Webhook": {
+      "main": [
+        [
+          {
+            "node": "Validate CRM Sync Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate CRM Sync Payload": {
+      "main": [
+        [
+          {
+            "node": "Write CRM Timeline Event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Write CRM Timeline Event": {
+      "main": [
+        [
+          {
+            "node": "Write Audit Event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Write Audit Event": {
+      "main": [
+        [
+          {
+            "node": "CRM Sync Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "saveExecutionProgress": true,
+    "saveManualExecutions": true
+  },
+  "tags": ["nyra", "crm", "audit", "scaffold"]
+}

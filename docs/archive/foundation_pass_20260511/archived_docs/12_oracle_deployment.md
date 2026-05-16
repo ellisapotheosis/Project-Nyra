@@ -49,13 +49,13 @@ package. The canonical public app hostnames are:
 
 | Hostname                      | Service      |
 | ----------------------------- | ------------ |
-| `nyra.ratehunter.net`         | WebApp       |
-| `crm.ratehunter.net`          | Twenty CRM   |
-| `n8n.ratehunter.net`          | n8n          |
-| `activepieces.ratehunter.net` | Activepieces |
-| `nexus.ratehunter.net`        | Oracle Nexus |
-| `grafana.ratehunter.net`      | Grafana      |
-| `paperclip.ratehunter.net`    | Paperclip    |
+| `app.projectnyra.com`         | WebApp       |
+| `crm.projectnyra.com`          | Twenty CRM   |
+| `n8n.projectnyra.com`          | n8n          |
+| `activepieces.projectnyra.com` | Activepieces |
+| `nexus.projectnyra.com`        | Oracle Nexus |
+| `grafana.projectnyra.com`      | Grafana      |
+| `paperclip.projectnyra.com`    | Paperclip    |
 
 ## Placement rationale
 

@@ -14,6 +14,13 @@ Use Gemini primarily for:
 - landing page polish
 - fast alternative implementation passes
 
+## Canonical Workspace Paths
+
+- `apps/cockpit` → (projectnyra.com) Primary logic scaffold and command center.
+- `apps/landing` → (ratehunter.net) Public broker landing page.
+- `packages/ui` → Shared design system and premium effects.
+- `packages/assets` → Shared media and documentation assets.
+
 ## Cluster Architecture
 
 - **Orchestrator (LAN)**: Control Plane, Nexus Router, LiteLLM, OpenClaw, Monitoring.
@@ -24,6 +31,11 @@ Use Gemini primarily for:
 ## Rules
 
 - Follow `AGENTS.md` as the global project contract.
+- **Visual Identity (High Fidelity)**: Strictly adhere to the **Dark Mode / Indigo / Seafoam** palette.
+  - Primary: Indigo/Purple (Indigo-500/600).
+  - Secondary: Seafoam/Turquoise (Turquoise-400/500).
+  - Alerts: Neon Pink (Pink-400/500).
+  - Component Pattern: High professional density, ShadCN tokens, oklch colors. No light mode.
 - TypeScript only for apps and services unless there is a strong reason otherwise (e.g., Python for `quote-api`).
 - Do not place business logic in UI components.
 - Use the shared tweakcn/shadcn/Magic UI design language.

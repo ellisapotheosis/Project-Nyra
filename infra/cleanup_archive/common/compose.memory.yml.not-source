@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
+      POSTGRES_DB: ${POSTGRES_DB:-nyra}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - nyra-network
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+    networks:
+      - nyra-network
+
+  falkordb:
+    image: falkordb/falkordb:latest
+    restart: unless-stopped
+    volumes:
+      - falkordb_data:/data
+    networks:
+      - nyra-network
+
+volumes:
+  postgres_data:
+  redis_data:
+  falkordb_data:

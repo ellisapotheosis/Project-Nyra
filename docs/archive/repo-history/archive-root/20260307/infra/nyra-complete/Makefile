@@ -114,7 +114,7 @@ oracle-up:
 	@echo "$(BLUE)Starting Oracle Cloud Stack...$(NC)"
 	cd infra && docker-compose -f docker-compose.oracle.yml up -d
 	@echo "$(GREEN)✓ Oracle stack started$(NC)"
-	@echo "  TwentyCRM: https://crm.ratehunter.net"
+	@echo "  TwentyCRM: https://crm.projectnyra.com"
 	@echo "  Activepieces: https://workflows.ratehunter.net"
 	@echo "  Quote Engine: http://localhost:8089"
 

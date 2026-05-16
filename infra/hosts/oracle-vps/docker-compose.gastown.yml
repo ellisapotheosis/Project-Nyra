@@ -1,0 +1,109 @@
+# infra/hosts/oracle-vps/docker-compose.gastown.yml
+# Project Nyra - Gas Town test override for Oracle-VPS.
+#
+# Gas Town is evaluated as an operator-facing multi-agent coordination
+# workspace. Keep it private/Tailscale-first while testing; do not add public
+# Cloudflare ingress until an access policy is explicitly chosen.
+
+services:
+  infisical-agent:
+    environment:
+      INFISICAL_EXTRA_PATHS: ${NYRA_INFISICAL_EXTRA_PATHS:-/clients/gastown /providers/llxprt}
+    entrypoint:
+      - /bin/sh
+      - -lc
+      - |
+        mkdir -p /run/nyra-secrets
+        while true; do
+          if [ -n "$$INFISICAL_TOKEN" ]; then
+            : > /run/nyra-secrets/runtime.env.tmp
+            infisical export \
+              --projectId "$$INFISICAL_PROJECT_ID" \
+              --env "$$INFISICAL_ENV" \
+              --path "$$INFISICAL_SHARED_PATH" \
+              --format dotenv >> /run/nyra-secrets/runtime.env.tmp &&
+            if [ "$$INFISICAL_PATH" != "$$INFISICAL_SHARED_PATH" ]; then
+              infisical export \
+                --projectId "$$INFISICAL_PROJECT_ID" \
+                --env "$$INFISICAL_ENV" \
+                --path "$$INFISICAL_PATH" \
+                --format dotenv >> /run/nyra-secrets/runtime.env.tmp
+            fi
+            for extra_path in $$INFISICAL_EXTRA_PATHS; do
+              if [ -n "$$extra_path" ] && [ "$$extra_path" != "$$INFISICAL_SHARED_PATH" ] && [ "$$extra_path" != "$$INFISICAL_PATH" ]; then
+                infisical export \
+                  --projectId "$$INFISICAL_PROJECT_ID" \
+                  --env "$$INFISICAL_ENV" \
+                  --path "$$extra_path" \
+                  --format dotenv >> /run/nyra-secrets/runtime.env.tmp
+              fi
+            done
+            mv /run/nyra-secrets/runtime.env.tmp /run/nyra-secrets/runtime.env
+          else
+            : > /run/nyra-secrets/runtime.env
+            echo "INFISICAL_TOKEN is not set; wrote empty runtime env."
+          fi
+          sleep "$$INFISICAL_EXPORT_INTERVAL_SECONDS"
+        done
+
+  gastown:
+    image: ${GASTOWN_IMAGE:-nyra-gastown:latest}
+    build:
+      context: ../../docker
+      dockerfile: Dockerfile.gastown
+      args:
+        GASTOWN_REPO: ${GASTOWN_REPO:-https://github.com/gastownhall/gastown.git}
+        GASTOWN_REF: ${GASTOWN_REF:-main}
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-gastown
+    stdin_open: true
+    tty: true
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - SETUID
+      - SETGID
+      - DAC_OVERRIDE
+      - FOWNER
+      - NET_RAW
+    environment:
+      IS_SANDBOX: "1"
+      GIT_USER: ${GASTOWN_GIT_USER:-${GIT_USER:-Project Nyra}}
+      GIT_EMAIL: ${GASTOWN_GIT_EMAIL:-${GIT_EMAIL:-nyra@projectnyra.com}}
+    volumes:
+      - gastown_agent_home:/home/agent
+      - gastown_workspace:/gt
+      - gastown_dolt_data:/gt/.dolt-data
+      - nyra_runtime_secrets:/run/nyra-secrets:ro
+    ports:
+      - "${GASTOWN_DASHBOARD_PORT:-8096}:8080"
+    command:
+      - /bin/sh
+      - -lc
+      - |
+        set -a
+        if [ -f /run/nyra-secrets/runtime.env ]; then
+          . /run/nyra-secrets/runtime.env
+        fi
+        set +a
+        cd /gt
+        exec /app/gastown/gt dashboard --bind 0.0.0.0 --port 8080
+    networks:
+      - nyra_net
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8080/ >/dev/null"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+volumes:
+  gastown_agent_home:
+    name: ${COMPOSE_PROJECT_NAME:-nyra}-gastown-agent-home
+  gastown_workspace:
+    name: ${COMPOSE_PROJECT_NAME:-nyra}-gastown-workspace
+  gastown_dolt_data:
+    name: ${COMPOSE_PROJECT_NAME:-nyra}-gastown-dolt-data

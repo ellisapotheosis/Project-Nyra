@@ -1,19 +1,51 @@
 name: nyra-network
 
 services:
-  # ── Infisical Sidecar (Secret Sync) ───────────────────────────────────────
-  # Synchronizes secrets from Infisical to the local .env file.
-  infisical-sidecar:
-    profiles: ["secrets"]
+  # ── Infisical Runtime Secret Sync ─────────────────────────────────────────
+  # Synchronizes shared + machine secrets into an in-memory Docker volume.
+  # Makefile targets inject the same paths into docker compose via infisical run.
+  infisical-agent:
     image: infisical/cli:latest
-    container_name: nyra-network-nyra-infisical-sidecar
+    container_name: nyra-network-nyra-infisical-agent
     restart: unless-stopped
-    env_file: [.env.oracle]
+    environment:
+      INFISICAL_TOKEN: ${INFISICAL_TOKEN:-}
+      INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
+      INFISICAL_ENV: ${INFISICAL_ENV:-dev}
+      INFISICAL_SHARED_PATH: ${NYRA_INFISICAL_SHARED_PATH:-/shared}
+      INFISICAL_PATH: ${NYRA_INFISICAL_PATH:-/machines/oracle-vps}
+      INFISICAL_EXPORT_INTERVAL_SECONDS: ${INFISICAL_EXPORT_INTERVAL_SECONDS:-300}
     entrypoint: ["/bin/sh", "-c"]
     command:
-      - "while true; do infisical export --projectId=8374cea9-e5e8-4050-bda4-b91f25ab30ef --env=prod --path=/machines/oracle-vps --format=dotenv --silent > /repo/.env && sleep 60; done"
+      - |
+        mkdir -p /run/nyra-secrets
+        while true; do
+          if [ -n "$$INFISICAL_TOKEN" ]; then
+            : > /run/nyra-secrets/runtime.env.tmp
+            infisical export --projectId "$$INFISICAL_PROJECT_ID" --env "$$INFISICAL_ENV" --path "$$INFISICAL_SHARED_PATH" --format dotenv >> /run/nyra-secrets/runtime.env.tmp &&
+            if [ "$$INFISICAL_PATH" != "$$INFISICAL_SHARED_PATH" ]; then
+              infisical export --projectId "$$INFISICAL_PROJECT_ID" --env "$$INFISICAL_ENV" --path "$$INFISICAL_PATH" --format dotenv >> /run/nyra-secrets/runtime.env.tmp
+            fi &&
+            mv /run/nyra-secrets/runtime.env.tmp /run/nyra-secrets/runtime.env
+          else
+            : > /run/nyra-secrets/runtime.env
+            echo "INFISICAL_TOKEN is not set; wrote empty runtime env."
+          fi
+          sleep "$$INFISICAL_EXPORT_INTERVAL_SECONDS"
+        done
     volumes:
-      - ./.env:/repo/.env
+      - nyra_runtime_secrets:/run/nyra-secrets
+    networks: [nyra_net]
+
+  infisical-sidecar:
+    image: alpine:3.20
+    container_name: nyra-network-nyra-infisical-sidecar
+    restart: unless-stopped
+    depends_on:
+      - infisical-agent
+    command: ["/bin/sh", "-lc", "while true; do test -f /run/nyra-secrets/runtime.env && wc -l /run/nyra-secrets/runtime.env || true; sleep 300; done"]
+    volumes:
+      - nyra_runtime_secrets:/run/nyra-secrets:ro
     networks: [nyra_net]
 
   portainer-edge-agent:
@@ -28,6 +60,18 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - /var/lib/docker/volumes:/var/lib/docker/volumes
+    networks: [nyra_net]
+
+  portainer:
+    image: portainer/portainer-ce:2.27.9
+    container_name: nyra-network-nyra-portainer
+    restart: unless-stopped
+    ports:
+      - "9000:9000"
+      - "9443:9443"
+    volumes:
+      - portainer_data:/data
+      - /var/run/docker.sock:/var/run/docker.sock
     networks: [nyra_net]
 
   postgres:
@@ -98,8 +142,8 @@ services:
         condition: service_healthy
     environment:
       NODE_PORT: 3000
-      SERVER_URL: https://twenty.ratehunter.net
-      FRONTEND_URL: https://twenty.ratehunter.net
+      SERVER_URL: https://twenty.projectnyra.com
+      FRONTEND_URL: https://twenty.projectnyra.com
       APP_SECRET: ${TWENTY_APP_SECRET}
       PG_DATABASE_URL: postgresql://${TWENTY_DB_USER:-twenty}:${TWENTY_DB_PASSWORD}@twenty-db:5432/twenty
       REDIS_URL: redis://redis-cache:6379
@@ -176,7 +220,7 @@ services:
       AP_REDIS_PASSWORD: ${AP_REDIS_PASSWORD:-}
       AP_ENCRYPTION_KEY: ${AP_ENCRYPTION_KEY}
       AP_JWT_SECRET: ${AP_JWT_SECRET}
-      AP_FRONTEND_URL: ${AP_FRONTEND_URL:-https://active.ratehunter.net}
+      AP_FRONTEND_URL: ${AP_FRONTEND_URL:-https://active.projectnyra.com}
       AP_EXECUTION_MODE: ${AP_EXECUTION_MODE:-UNSANDBOXED}
       AP_TELEMETRY_ENABLED: ${AP_TELEMETRY_ENABLED:-false}
     networks: [nyra_net]
@@ -216,7 +260,7 @@ services:
       OFFICE_PHONE: ${OFFICE_PHONE:-}
       TWILIO_PHONE_NUMBER: ${TWILIO_PHONE_NUMBER:-}
       SMTP_FROM_EMAIL: ${SMTP_FROM_EMAIL:-}
-      N8N_WORKFLOW_URL: ${WEBHOOK_URL:-https://n8n.ratehunter.net}
+      N8N_WORKFLOW_URL: ${WEBHOOK_URL:-https://n8n.projectnyra.com}
     volumes:
       - n8n_data:/home/node/.n8n
       - ../../n8n-workflows:/opt/nyra/n8n-workflows:ro
@@ -543,8 +587,8 @@ services:
     restart: unless-stopped
     environment:
       - PAPERCLIP_AUTH_DISABLE_SIGN_UP=true
-      - BETTER_AUTH_SECRET=${BETTER_AUTH_SECRET}
-      - PAPERCLIP_AGENT_JWT_SECRET=${PAPERCLIP_AGENT_JWT_SECRET}
+      - BETTER_AUTH_SECRET=${BETTER_AUTH_SECRET:-${PAPERCLIP_SESSION_SECRET:-}}
+      - PAPERCLIP_AGENT_JWT_SECRET=${PAPERCLIP_AGENT_JWT_SECRET:-${PAPERCLIP_SESSION_SECRET:-}}
       - PORT=3100
     volumes:
       - paperclip_data:/paperclip
@@ -864,11 +908,11 @@ services:
     environment:
       GOTRUE_DB_DRIVER: postgres
       GOTRUE_DB_DATABASE_URL: postgres://postgres:${SUPABASE_DB_URL_PASSWORD:-${SUPABASE_DB_PASSWORD:-${POSTGRES_PASSWORD}}}@supabase-db:5432/postgres?sslmode=disable
-      GOTRUE_SITE_URL: ${SUPABASE_SITE_URL:-https://nyra.ratehunter.net}
+      GOTRUE_SITE_URL: ${SUPABASE_SITE_URL:-https://nyra.projectnyra.com}
       GOTRUE_JWT_SECRET: ${JWT_SECRET}
       GOTRUE_JWT_EXP: 3600
-      API_EXTERNAL_URL: ${SUPABASE_AUTH_EXTERNAL_URL:-https://api.ratehunter.net/auth/v1}
-      GOTRUE_EXTERNAL_URL: ${SUPABASE_AUTH_EXTERNAL_URL:-https://api.ratehunter.net/auth/v1}
+      API_EXTERNAL_URL: ${SUPABASE_AUTH_EXTERNAL_URL:-https://api.projectnyra.com/auth/v1}
+      GOTRUE_EXTERNAL_URL: ${SUPABASE_AUTH_EXTERNAL_URL:-https://api.projectnyra.com/auth/v1}
       GOTRUE_MAILER_AUTOCONFIRM: "true"
       GOTRUE_DB_MAX_POOL_SIZE: 20
     networks: [nyra_net]
@@ -962,7 +1006,7 @@ services:
     restart: unless-stopped
     command: ["ha-mcp-web"]
     environment:
-      HOMEASSISTANT_URL: ${HOMEASSISTANT_URL:-https://homeassistant.ratehunter.net}
+      HOMEASSISTANT_URL: ${HOMEASSISTANT_URL:-https://homeassistant.projectnyra.com}
       HOMEASSISTANT_TOKEN: ${HOMEASSISTANT_TOKEN:-${HOME_ASSISTANT_TOKEN:-${HOME_ASSISTANT_TOKEN_SECRET:-}}}
       BACKUP_HINT: ${HA_MCP_BACKUP_HINT:-normal}
       HAMCP_ENABLE_FILESYSTEM_TOOLS: ${HAMCP_ENABLE_FILESYSTEM_TOOLS:-false}
@@ -1064,3 +1108,4 @@ volumes:
   letta_data:
   mem_os_data:
   supabase_db_data:
+  nyra_runtime_secrets:

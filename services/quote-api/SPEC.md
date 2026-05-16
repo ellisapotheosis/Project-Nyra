@@ -6,14 +6,15 @@ The "Deal Closer". This service generates multi-lender mortgage comparisons in r
 ## 🏗️ Core Responsibilities (from PRD-003)
 1. **Scenario Analysis**: Calculating LTV, DTI (if info available), and program eligibility.
 2. **Multi-Lender Comparison**: Generating 3+ options per request.
-3. **Pricing Adapters**: 
+3. **Pricing Adapters**:
    - **Rate Sheet Adapter**: Internal database of imported rates.
    - **API Adapters**: (Future) Integration with Rocket, LenderPrice, etc.
 4. **Approval Workflow**: Quotes are generated as `PENDING` and require human broker approval before delivery.
 
 ## 🛠️ Stack
-- **Runtime**: Node.js (Express + TypeScript).
-- **Storage**: Postgres (for rate sheets and generated quotes).
+- **Runtime**: Python + FastAPI.
+- **Primary app**: `services/quote-api/app/main.py`.
+- **Storage**: Service-owned persistence is not wired yet; generated quote records must be stored through `services/crm-api` / Twenty when promoted to broker workflow state.
 - **Interface**: REST API.
 
 ## 🤖 AI Agent / Developer Guidance
@@ -30,5 +31,8 @@ The "Deal Closer". This service generates multi-lender mortgage comparisons in r
 - **Approval**: Quotes MUST NOT be delivered to borrowers without an `approvedBy` user ID.
 
 ### 3. Contextual Knowledge
-- The service runs on port `7070` (production) or `8089` (local).
-- It uses the `mortgageQuote` custom object in Twenty CRM as the final storage for delivered quotes.
+- The service runs on port `7070` in the target compose/runtime path.
+- Canonical Project Nyra generation endpoint: `POST /api/quotes/generate`.
+- Legacy/support endpoints remain available under `/quote/*`, including `/quote/{loan_type}/price`, `/quote/{loan_type}/pdf`, and `/quote/compare-loan-types`.
+- It uses the `mortgageQuote` custom object in Twenty CRM as the final storage target for delivered quotes.
+- Do not rewrite the service to Node/Express just to satisfy stale documentation; migrate only through an explicit architecture decision.

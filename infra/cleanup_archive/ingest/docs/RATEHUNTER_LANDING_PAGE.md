@@ -271,7 +271,7 @@ Secure, performant hosting via Cloudflare Tunnel (ratehunter.net domain).
 ```
 ratehunter.net        A     CLOUDFLARE_TUNNEL_IP
 www.ratehunter.net    CNAME ratehunter.net
-api.ratehunter.net    A     CLOUDFLARE_TUNNEL_IP
+api.projectnyra.com    A     CLOUDFLARE_TUNNEL_IP
 ```
 
 ---

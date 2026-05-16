@@ -1,0 +1,90 @@
+[
+  {
+    "app": "cockpit",
+    "route": "/",
+    "url": "http://localhost:3005/",
+    "status": 200,
+    "ok": true,
+    "screenshot": "apps/guidance/screenshots/final-polished/cockpit/index.png"
+  },
+  {
+    "app": "cockpit",
+    "route": "/leads",
+    "url": "http://localhost:3005/leads",
+    "status": 200,
+    "ok": true,
+    "screenshot": "apps/guidance/screenshots/final-polished/cockpit/leads.png"
+  },
+  {
+    "app": "cockpit",
+    "route": "/pipeline",
+    "url": "http://localhost:3005/pipeline",
+    "status": 200,
+    "ok": true,
+    "screenshot": "apps/guidance/screenshots/final-polished/cockpit/pipeline.png"
+  },
+  {
+    "app": "cockpit",
+    "route": "/campaigns",
+    "url": "http://localhost:3005/campaigns",
+    "status": 200,
+    "ok": true,
+    "screenshot": "apps/guidance/screenshots/final-polished/cockpit/campaigns.png"
+  },
+  {
+    "app": "cockpit",
+    "route": "/quotes",
+    "url": "http://localhost:3005/quotes",
+    "status": 200,
+    "ok": true,
+    "screenshot": "apps/guidance/screenshots/final-polished/cockpit/quotes.png"
+  },
+  {
+    "app": "cockpit",
+    "route": "/fleet",
+    "url": "http://localhost:3005/fleet",
+    "status": 200,
+    "ok": true,
+    "screenshot": "apps/guidance/screenshots/final-polished/cockpit/fleet.png"
+  },
+  {
+    "app": "cockpit",
+    "route": "/memory",
+    "url": "http://localhost:3005/memory",
+    "status": 200,
+    "ok": true,
+    "screenshot": "apps/guidance/screenshots/final-polished/cockpit/memory.png"
+  },
+  {
+    "app": "cockpit",
+    "route": "/admin/integrations",
+    "url": "http://localhost:3005/admin/integrations",
+    "status": 200,
+    "ok": true,
+    "screenshot": "apps/guidance/screenshots/final-polished/cockpit/admin_integrations.png"
+  },
+  {
+    "app": "cockpit",
+    "route": "/assistant",
+    "url": "http://localhost:3005/assistant",
+    "status": 200,
+    "ok": true,
+    "screenshot": "apps/guidance/screenshots/final-polished/cockpit/assistant.png"
+  },
+  {
+    "app": "cockpit",
+    "route": "/logs",
+    "url": "http://localhost:3005/logs",
+    "status": 200,
+    "ok": true,
+    "screenshot": "apps/guidance/screenshots/final-polished/cockpit/logs.png"
+  },
+  {
+    "app": "landing",
+    "route": "/",
+    "url": "http://localhost:3004/",
+    "status": 200,
+    "ok": true,
+    "screenshot": "apps/guidance/screenshots/final-polished/landing/index.png"
+  }
+]

@@ -167,7 +167,7 @@ EOF
     for i in "${!OPEN_PORTS[@]}"; do
         port="${OPEN_PORTS[$i]}"
         service="${KNOWN_SERVICES[$port]}"
-        
+
         # Map ports to hostnames
         case $port in
             3001)
@@ -185,7 +185,7 @@ EOF
                 ;;
             3002)
                 cat >> "$TUNNEL_CONFIG" <<EOF
-  - hostname: app.ratehunter.net
+  - hostname: app.projectnyra.com
     service: http://localhost:$port
     originRequest: { noTLSVerify: true, connectTimeout: 30s }
 EOF
@@ -199,7 +199,7 @@ EOF
                 ;;
             3020)
                 cat >> "$TUNNEL_CONFIG" <<EOF
-  - hostname: crm.ratehunter.net
+  - hostname: crm.projectnyra.com
     service: http://localhost:$port
     originRequest: { noTLSVerify: true, connectTimeout: 30s }
 EOF
@@ -220,17 +220,17 @@ EOF
                 ;;
             5678)
                 cat >> "$TUNNEL_CONFIG" <<EOF
-  - hostname: n8n.ratehunter.net
+  - hostname: n8n.projectnyra.com
     service: http://localhost:$port
     originRequest: { noTLSVerify: true, connectTimeout: 30s }
 EOF
                 ;;
             6000)
                 cat >> "$TUNNEL_CONFIG" <<EOF
-  - hostname: nexus.ratehunter.net
+  - hostname: nexus.projectnyra.com
     service: http://localhost:$port
     originRequest: { noTLSVerify: true, connectTimeout: 30s }
-  - hostname: api.ratehunter.net
+  - hostname: api.projectnyra.com
     service: http://localhost:$port
     originRequest: { noTLSVerify: true, connectTimeout: 30s }
 EOF
@@ -244,7 +244,7 @@ EOF
                 ;;
             3005)
                 cat >> "$TUNNEL_CONFIG" <<EOF
-  - hostname: grafana.ratehunter.net
+  - hostname: grafana.projectnyra.com
     service: http://localhost:$port
     originRequest: { noTLSVerify: true, connectTimeout: 30s }
 EOF
@@ -298,12 +298,12 @@ Config: $TUNNEL_CONFIG
 
 Public URLs:
   https://ratehunter.net
-  https://app.ratehunter.net
-  https://crm.ratehunter.net
+  https://app.projectnyra.com
+  https://crm.projectnyra.com
   https://chat.ratehunter.net
-  https://nexus.ratehunter.net
+  https://nexus.projectnyra.com
   https://orchestrator.ratehunter.net
-  https://grafana.ratehunter.net
+  https://grafana.projectnyra.com
 
 Start tunnel with:
   cloudflared tunnel --config $TUNNEL_CONFIG run

@@ -1,7 +1,7 @@
 # Cloudflared Baseline Hostnames
 
 - `ratehunter.net` -> `apps/landing`
-- `app.ratehunter.net` -> `apps/webapp`
+- `app.projectnyra.com` -> `apps/webapp`
 - `admin.ratehunter.net` -> `apps/admin` (Access-protected)
-- `api.ratehunter.net` -> `services/quote-api`
-- `hooks.ratehunter.net` -> `services/webhooks`
+- `api.projectnyra.com` -> `services/quote-api`
+- `hooks.projectnyra.com` -> `services/webhooks`

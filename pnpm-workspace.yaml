@@ -8,6 +8,8 @@ packages:
   - tools/*
   - mcp-servers/*
   - '!apps/ingestion/**'
+  - '!apps/guidance/references/**'
+  - '!services/archived/**'
   - '!docs/archive/**'
 
 onlyBuiltDependencies:

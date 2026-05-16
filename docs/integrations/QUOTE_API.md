@@ -14,4 +14,19 @@ Every quote MUST return 3 distinct options:
 
 ## Implementation
 
-Currently using a deterministic mock engine in `packages/integration-adapters`. Future implementation will wire to real pricing engines.
+The active service is `services/quote-api`, a Python/FastAPI service. The canonical endpoints are:
+
+- `POST /api/quotes/generate`
+- `POST /api/v1/quote`
+
+The current deterministic implementation returns:
+
+- `LOWEST_PAYMENT` / `Buy-down`
+- `BALANCED` / `Standard par`
+- `LOWEST_COST` / `Lender credit`
+
+Each option includes principal and interest, taxes, insurance, HOA, PMI when applicable, cash to close, APR, points, assumptions, and calculation trace. The service is deterministic until live rate sheets are configured.
+
+## CRM Boundary
+
+`services/quote-api` calculates quote options. `services/crm-api` mirrors generated or approved quote artifacts to Twenty CRM. Assistants and UI surfaces must not calculate or invent quote terms.

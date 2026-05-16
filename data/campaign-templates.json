@@ -4,21 +4,9 @@
     "name": "New Internet Lead",
     "description": "Immediate multi-channel follow-up for fresh web leads.",
     "steps": [
-      {
-        "delay": "0m",
-        "channel": "SMS",
-        "content": "Hi {firstName}, thanks for your inquiry! I'm looking at your request now. Do you have a quick minute to chat?"
-      },
-      {
-        "delay": "5m",
-        "channel": "EMAIL",
-        "content": "Subject: Your Mortgage Inquiry\nHi {firstName},\n\nI received your inquiry regarding a mortgage. I'm currently reviewing the details and will give you a call shortly..."
-      },
-      {
-        "delay": "1h",
-        "channel": "CALL",
-        "content": "Scheduled follow-up call"
-      }
+      { "delay": "0m", "channel": "SMS", "content": "Hi {firstName}, thanks for your inquiry! I'm looking at your request now. Do you have a quick minute to chat?" },
+      { "delay": "5m", "channel": "EMAIL", "content": "Subject: Your Mortgage Inquiry\nHi {firstName},\n\nI received your inquiry regarding a mortgage. I'm currently reviewing the details and will give you a call shortly..." },
+      { "delay": "1h", "channel": "CALL", "content": "Scheduled follow-up call" }
     ]
   },
   {
@@ -26,47 +14,57 @@
     "name": "Purchase Pre-Approval",
     "description": "Nurturing leads who are looking to buy but not yet pre-approved.",
     "steps": [
-      {
-        "delay": "1d",
-        "channel": "EMAIL",
-        "content": "Subject: Ready to start house hunting?\nHi {firstName}, being pre-approved is the first step..."
-      }
+      { "delay": "1d", "channel": "EMAIL", "content": "Subject: Ready to start house hunting?\nHi {firstName}, being pre-approved is the first step. Let's get your numbers ready..." },
+      { "delay": "3d", "channel": "SMS", "content": "Hi {firstName}, just checking in to see if you've found any properties you'd like me to run numbers on?" }
     ]
   },
   {
     "id": "refinance-inquiry",
     "name": "Refinance Inquiry",
     "description": "Follow-up for homeowners looking to lower their rate or take cash out.",
-    "steps": []
+    "steps": [
+      { "delay": "10m", "channel": "SMS", "content": "Hi {firstName}, I see you're interested in a refinance. I'm running some market comparisons for you now." },
+      { "delay": "4h", "channel": "EMAIL", "content": "Subject: Your Refinance Analysis\nHi {firstName}, here are a few scenarios based on current market rates..." }
+    ]
   },
   {
     "id": "realtor-partner-lead",
     "name": "Realtor Partner Lead",
     "description": "Warm handoff from a realtor partner.",
-    "steps": []
+    "steps": [
+      { "delay": "0m", "channel": "SMS", "content": "Hi {firstName}, our partner {realtorName} mentioned you're looking for a mortgage. Happy to help! When is a good time to connect?" }
+    ]
   },
   {
     "id": "credit-repair-follow-up",
     "name": "Credit Repair Follow-Up",
     "description": "Long-term nurturing for leads with credit challenges.",
-    "steps": []
+    "steps": [
+      { "delay": "1w", "channel": "EMAIL", "content": "Subject: Your path to homeownership\nHi {firstName}, just checking in on your credit improvement progress. We're here when you're ready." }
+    ]
   },
   {
     "id": "rate-watch",
     "name": "Rate Watch",
     "description": "Notifications when market rates hit a specific target.",
-    "steps": []
+    "steps": [
+      { "delay": "0m", "channel": "SMS", "content": "🚀 Rate Alert! {firstName}, the market just hit your target rate. Should we lock it in?" }
+    ]
   },
   {
     "id": "dormant-lead-reactivation",
     "name": "Dormant Lead Reactivation",
     "description": "Re-engaging leads who have been silent for 60+ days.",
-    "steps": []
+    "steps": [
+      { "delay": "0m", "channel": "EMAIL", "content": "Subject: Still thinking about that move?\nHi {firstName}, it's been a while. Just wanted to see if your plans have changed..." }
+    ]
   },
   {
     "id": "post-close-referral",
     "name": "Post-Close Referral",
     "description": "Asking for referrals after a successful funding.",
-    "steps": []
+    "steps": [
+      { "delay": "7d", "channel": "EMAIL", "content": "Subject: Congratulations! How was your experience?\nHi {firstName}, hope you're settling in well. If you know anyone else looking to buy, we'd love the referral!" }
+    ]
   }
 ]

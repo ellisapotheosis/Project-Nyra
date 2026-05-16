@@ -1,0 +1,18 @@
+{
+  "config": {
+    "ingress": [
+      {
+        "hostname": "links.projectnyra.com",
+        "service": "http://linkwarden:3000"
+      },
+      {
+        "hostname": "linkwarden.projectnyra.com",
+        "service": "http://linkwarden:3000"
+      },
+      {
+        "hostname": "openclaw-gateway.projectnyra.com",
+        "service": "http://openclaw-gateway:8001"
+      }
+    ]
+  }
+}

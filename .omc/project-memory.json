@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "lastScanned": 1778326094237,
+  "lastScanned": 1778727540498,
   "projectRoot": "/home/ellisapotheosis/repos/project-nyra",
   "techStack": {
     "languages": [
@@ -51,23 +51,22 @@
   },
   "build": {
     "buildCommand": "pnpm build",
-    "testCommand": "pnpm test",
-    "lintCommand": "pnpm lint",
+    "testCommand": "make test",
+    "lintCommand": null,
     "devCommand": "pnpm dev",
     "scripts": {
       "prepare": "husky",
-      "dev": "turbo run dev --concurrency=30",
+      "dev": "turbo run dev --parallel",
       "build": "turbo run build",
-      "lint": "pnpm -r --if-present lint",
-      "test": "pnpm exec vitest --config vitest.smoke.config.mjs run",
-      "test:all": "pnpm exec vitest --config vitest.config.mjs run",
-      "docker:up": "docker compose -f infra/docker-compose.yml up -d",
-      "docker:down": "docker compose -f infra/docker-compose.yml down",
-      "twenty:setup": "docker compose -f infra/docker-compose.twenty.yml up -d",
-      "twenty:down": "docker compose -f infra/docker-compose.twenty.yml down",
+      "cockpit:dev": "turbo run dev --filter=nyra-cockpit",
+      "landing:dev": "turbo run dev --filter=ratehunter-landing",
+      "projectnyra:dev": "turbo run dev --filter=projectnyra-site",
+      "projectnyra:build": "turbo run build --filter=projectnyra-site",
+      "all:dev": "turbo run dev --parallel",
       "twenty:dev": "turbo run dev --filter=twenty-crm",
-      "admin:dev": "turbo run dev --filter=nyra-admin",
-      "all:dev": "turbo run dev --parallel"
+      "typecheck": "turbo run typecheck",
+      "test:contracts": "pnpm -C packages/domain-models test && pnpm -C packages/integration-adapters test",
+      "docs:check": "ls docs/*.md && ls docs/ops/*.md"
     }
   },
   "conventions": {
@@ -81,40 +80,47 @@
     "workspaces": [
       "apps/*",
       "apps/*/*",
+      "apps/*/*/*",
       "services/*",
       "services/*/*",
       "packages/*"
     ],
     "mainDirectories": [
       "docs",
-      "scripts",
       "src",
       "tests"
     ],
-    "gitBranches": {
-      "defaultBranch": "main",
-      "branchingStrategy": null
-    }
+    "gitBranches": null
   },
   "customNotes": [],
   "directoryMap": {
     "apps": {
       "path": "apps",
       "purpose": null,
-      "fileCount": 4,
-      "lastAccessed": 1778326094193,
+      "fileCount": 5,
+      "lastAccessed": 1778727540479,
       "keyFiles": [
         "CLAUDE.md",
+        "INFISICAL_APP_RUNTIME.md",
         "README.md",
         "SOUL.BORROWER.md",
         "SOUL.BROKER.md"
+      ]
+    },
+    "bootstrap": {
+      "path": "bootstrap",
+      "purpose": null,
+      "fileCount": 2,
+      "lastAccessed": 1778727540480,
+      "keyFiles": [
+        "README.md"
       ]
     },
     "conductor": {
       "path": "conductor",
       "purpose": null,
       "fileCount": 6,
-      "lastAccessed": 1778326094196,
+      "lastAccessed": 1778727540489,
       "keyFiles": [
         "index.md",
         "product-guidelines.md",
@@ -127,94 +133,80 @@
       "path": "config",
       "purpose": "Configuration files",
       "fileCount": 1,
-      "lastAccessed": 1778326094209,
+      "lastAccessed": 1778727540490,
       "keyFiles": [
         "README.md"
       ]
     },
+    "configs": {
+      "path": "configs",
+      "purpose": null,
+      "fileCount": 0,
+      "lastAccessed": 1778727540490,
+      "keyFiles": []
+    },
     "data": {
       "path": "data",
       "purpose": "Data files",
-      "fileCount": 0,
-      "lastAccessed": 1778326094213,
-      "keyFiles": []
+      "fileCount": 2,
+      "lastAccessed": 1778727540491,
+      "keyFiles": [
+        "campaign-templates.json",
+        "seed-leads.json"
+      ]
     },
     "docs": {
       "path": "docs",
       "purpose": "Documentation",
-      "fileCount": 34,
-      "lastAccessed": 1778326094216,
+      "fileCount": 3,
+      "lastAccessed": 1778727540491,
       "keyFiles": [
-        "00_current_stack_overview.md",
-        "01_inventory_matrix.md",
-        "02_ports_registry.md",
-        "07_archived_audit.md",
-        "08_compose_sync_report.md"
+        "PROJECT_NYRA_CONTEXT.md",
+        "PROJECT_NYRA_CURRENT_STATE.md",
+        "README.md"
       ]
     },
     "external": {
       "path": "external",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1778326094217,
+      "lastAccessed": 1778727540491,
       "keyFiles": []
     },
     "infra": {
       "path": "infra",
       "purpose": null,
-      "fileCount": 12,
-      "lastAccessed": 1778326094218,
+      "fileCount": 14,
+      "lastAccessed": 1778727540491,
       "keyFiles": [
         "0-100-AUTONOMOUS-PROMPT-GOD.md",
+        "CLAUDE.md",
         "COMPOSE_SOURCE_OF_TRUTH.md",
-        "LLXPRT-JEFE-INTEGRATION.md",
-        "Makefile",
-        "ORACLE-VPS-APOTHEOSIS-STEPS.md"
-      ]
-    },
-    "logs": {
-      "path": "logs",
-      "purpose": null,
-      "fileCount": 1,
-      "lastAccessed": 1778326094220,
-      "keyFiles": [
-        "gitea-setup.log"
+        "INFRA_STRUCTURE.md",
+        "LLXPRT-JEFE-INTEGRATION.md"
       ]
     },
     "packages": {
       "path": "packages",
       "purpose": null,
       "fileCount": 1,
-      "lastAccessed": 1778326094222,
+      "lastAccessed": 1778727540492,
       "keyFiles": [
         "CLAUDE.md"
       ]
     },
-    "screenshots": {
-      "path": "screenshots",
+    "secrets": {
+      "path": "secrets",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1778326094223,
+      "lastAccessed": 1778727540492,
       "keyFiles": []
-    },
-    "scripts": {
-      "path": "scripts",
-      "purpose": "Build/utility scripts",
-      "fileCount": 61,
-      "lastAccessed": 1778326094224,
-      "keyFiles": [
-        "Initialize-CodexEnvironment.sh",
-        "backup-env-files.ps1",
-        "bootstrap-cloudflared-oracle.sh",
-        "bootstrap-cloudflared-orchestrator.sh",
-        "bootstrap-llxprt-stack.sh"
-      ]
     },
     "services": {
       "path": "services",
       "purpose": "Business logic services",
       "fileCount": 1,
-      "lastAccessed": 1778326094226,
+      "lastAccessed": 1778727540493,
       "keyFiles": [
         "CLAUDE.md"
       ]
@@ -223,14 +215,14 @@
       "path": "skills",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1778326094227,
+      "lastAccessed": 1778727540493,
       "keyFiles": []
     },
     "src": {
       "path": "src",
       "purpose": "Source code",
       "fileCount": 1,
-      "lastAccessed": 1778326094228,
+      "lastAccessed": 1778727540493,
       "keyFiles": [
         "CLAUDE.md"
       ]
@@ -239,7 +231,7 @@
       "path": "tests",
       "purpose": "Test files",
       "fileCount": 4,
-      "lastAccessed": 1778326094228,
+      "lastAccessed": 1778727540494,
       "keyFiles": [
         "README.md",
         "README_VITEST.md",
@@ -247,34 +239,37 @@
         "tsconfig.json"
       ]
     },
-    "tmp": {
-      "path": "tmp",
-      "purpose": null,
-      "fileCount": 0,
-      "lastAccessed": 1778326094229,
-      "keyFiles": []
-    },
     "workflows": {
       "path": "workflows",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1778326094229,
+      "lastAccessed": 1778727540494,
       "keyFiles": []
     },
-    "apps/docs": {
-      "path": "apps/docs",
-      "purpose": "Documentation",
+    "docs/api": {
+      "path": "docs/api",
+      "purpose": "API routes",
       "fileCount": 2,
-      "lastAccessed": 1778326094230,
+      "lastAccessed": 1778727540495,
       "keyFiles": [
+        "API_REFERENCE.md",
         "README.md"
+      ]
+    },
+    "packages/assets": {
+      "path": "packages/assets",
+      "purpose": "Static assets",
+      "fileCount": 2,
+      "lastAccessed": 1778727540496,
+      "keyFiles": [
+        "package.json"
       ]
     },
     "packages/schemas": {
       "path": "packages/schemas",
       "purpose": "Schema definitions",
       "fileCount": 1,
-      "lastAccessed": 1778326094233,
+      "lastAccessed": 1778727540496,
       "keyFiles": [
         "README.md"
       ]
@@ -283,7 +278,7 @@
       "path": "tests/fixtures",
       "purpose": "Test fixtures",
       "fileCount": 6,
-      "lastAccessed": 1778326094236,
+      "lastAccessed": 1778727540498,
       "keyFiles": [
         "agents.json",
         "leads.json",
@@ -560,6 +555,36 @@
       "path": ".mempalace/session-2026-05-02-oracle-ssh-diagnosis.md",
       "accessCount": 1,
       "lastAccessed": 1777719071979,
+      "type": "file"
+    },
+    {
+      "path": "services/nexus-router/src/index.ts",
+      "accessCount": 1,
+      "lastAccessed": 1778541888573,
+      "type": "file"
+    },
+    {
+      "path": "services/nexus-router/src/services/mcp-sse-server.ts",
+      "accessCount": 1,
+      "lastAccessed": 1778541888626,
+      "type": "file"
+    },
+    {
+      "path": "apps/guidance/IMPLEMENTATION_PLAN.md",
+      "accessCount": 1,
+      "lastAccessed": 1778631365242,
+      "type": "file"
+    },
+    {
+      "path": "apps/guidance/DOMAIN_MODEL.md",
+      "accessCount": 1,
+      "lastAccessed": 1778631365248,
+      "type": "file"
+    },
+    {
+      "path": "apps/projectnyra-webapp/theme.ts",
+      "accessCount": 1,
+      "lastAccessed": 1778631418591,
       "type": "file"
     }
   ],

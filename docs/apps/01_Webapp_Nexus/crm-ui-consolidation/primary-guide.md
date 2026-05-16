@@ -114,10 +114,10 @@ cloudflared tunnel create nyra-worker2-tunnel
 cloudflared tunnel create nyra-worker3-tunnel
 
 # Configure DNS records
-cloudflared tunnel route dns nyra-orchestrator-tunnel api.nyra.ratehunter.net
-cloudflared tunnel route dns nyra-worker1-tunnel worker1.nyra.ratehunter.net
-cloudflared tunnel route dns nyra-worker2-tunnel worker2.nyra.ratehunter.net
-cloudflared tunnel route dns nyra-worker3-tunnel worker3.nyra.ratehunter.net
+cloudflared tunnel route dns nyra-orchestrator-tunnel api.app.projectnyra.com
+cloudflared tunnel route dns nyra-worker1-tunnel worker1.app.projectnyra.com
+cloudflared tunnel route dns nyra-worker2-tunnel worker2.app.projectnyra.com
+cloudflared tunnel route dns nyra-worker3-tunnel worker3.app.projectnyra.com
 ```
 
 ## Deployment Process

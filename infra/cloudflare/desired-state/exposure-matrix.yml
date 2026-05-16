@@ -29,59 +29,59 @@ pages:
     access: public
 
 routes:
-  - hostname: nyra.ratehunter.net
+  - hostname: app.projectnyra.com
     tunnel: oracle
     origin: http://webapp:3001
     exposure: public_auth
     notes: Broker/customer webapp. Keep Access until Supabase/app auth is production-ready.
-  - hostname: api.ratehunter.net
+  - hostname: api.projectnyra.com
     tunnel: oracle
     origin: http://supabase-kong:8000
     exposure: public_supabase_gateway
     notes: Browser auth/API gateway for self-hosted Supabase; do not block Auth with interactive Access.
-  - hostname: hooks.ratehunter.net
+  - hostname: hooks.projectnyra.com
     tunnel: oracle
     origin: http://n8n:5678
     exposure: public_service_token_or_signed_webhook
     notes: Prefer provider allowlists and signed webhook paths.
-  - hostname: twenty.ratehunter.net
+  - hostname: twenty.projectnyra.com
     tunnel: oracle
     origin: http://twenty:3000
     exposure: public_auth
-  - hostname: crm.ratehunter.net
+  - hostname: crm.projectnyra.com
     tunnel: oracle
     origin: http://twenty:3000
     exposure: public_auth
     notes: Alias for Twenty CRM.
-  - hostname: n8n.ratehunter.net
+  - hostname: n8n.projectnyra.com
     tunnel: oracle
     origin: http://n8n:5678
     exposure: public_auth
-  - hostname: gitea.ratehunter.net
+  - hostname: gitea.projectnyra.com
     tunnel: oracle
     origin: http://gitea:3000
     exposure: public_auth
-  - hostname: activepieces.ratehunter.net
+  - hostname: activepieces.projectnyra.com
     tunnel: oracle
     origin: http://activepieces:80
     exposure: public_auth
-  - hostname: grafana.ratehunter.net
+  - hostname: grafana.projectnyra.com
     tunnel: oracle
     origin: http://grafana:3000
     exposure: public_auth
-  - hostname: prometheus.ratehunter.net
+  - hostname: prometheus.projectnyra.com
     tunnel: oracle
     origin: http://prometheus:9090
     exposure: owner_only_public_auth
-  - hostname: cadvisor.ratehunter.net
+  - hostname: cadvisor.projectnyra.com
     tunnel: oracle
     origin: http://cadvisor:8080
     exposure: owner_only_public_auth
-  - hostname: openwebui.ratehunter.net
+  - hostname: openwebui.projectnyra.com
     tunnel: oracle
     origin: http://openwebui:8080
     exposure: public_auth
-  - hostname: nexus.ratehunter.net
+  - hostname: nexus.projectnyra.com
     tunnel: oracle
     origin: http://nexus-ui:3016
     exposure: public_auth
@@ -91,25 +91,25 @@ routes:
     origin: http://nexus:3000
     exposure: public_service_token
     notes: Machine/API entrypoint; prefer agents use Tailscale/private URL unless external access is needed.
-  - hostname: litellm.ratehunter.net
+  - hostname: litellm.projectnyra.com
     tunnel: oracle
     origin: http://litellm:4000
     exposure: owner_only_public_auth
-  - hostname: paperclip.ratehunter.net
+  - hostname: paperclip.projectnyra.com
     tunnel: oracle
     origin: http://paperclip:3100
     exposure: public_auth
-  - hostname: clawteam.ratehunter.net
+  - hostname: clawteam.projectnyra.com
     tunnel: oracle
     origin: http://clawteam:8080
     exposure: public_auth
     notes: Requires optional clawteam compose overlay to be running.
-  - hostname: portainer-oracle.ratehunter.net
+  - hostname: portainer-oracle.projectnyra.com
     tunnel: oracle
     origin: https://portainer:9443
     exposure: owner_only_public_auth
     origin_tls_verify: false
-  - hostname: git-ssh.ratehunter.net
+  - hostname: git-ssh.projectnyra.com
     tunnel: oracle
     origin: ssh://gitea:2222
     exposure: owner_only_cloudflared_access_ssh

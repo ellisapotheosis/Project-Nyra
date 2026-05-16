@@ -15,14 +15,14 @@ Current package: `docs/cloudflared/`
 ## Recommended DNS/subdomain map
 | Hostname | Target (internal) | Exposure |
 |---|---|---|
-| `nyra.ratehunter.net` | `webapp:3001` | Access-gated app |
+| `app.projectnyra.com` | `webapp:3001` | Access-gated app |
 | `ratehunter.net`, `www.ratehunter.net` | Cloudflare Pages | public marketing |
-| `crm.ratehunter.net` | `twenty:3000` | Access-gated CRM |
-| `n8n.ratehunter.net` | `n8n:5678` | Access-gated workflows/webhooks |
-| `activepieces.ratehunter.net` | `activepieces:80` | Access-gated workflows |
-| `nexus.ratehunter.net` | `nexus:3000` | Access-gated AI/MCP gateway |
-| `grafana.ratehunter.net` | `grafana:3000` | Access-gated observability |
-| `paperclip.ratehunter.net` | `paperclip:3100` | Access-gated document UI |
+| `crm.projectnyra.com` | `twenty:3000` | Access-gated CRM |
+| `n8n.projectnyra.com` | `n8n:5678` | Access-gated workflows/webhooks |
+| `activepieces.projectnyra.com` | `activepieces:80` | Access-gated workflows |
+| `nexus.projectnyra.com` | `nexus:3000` | Access-gated AI/MCP gateway |
+| `grafana.projectnyra.com` | `grafana:3000` | Access-gated observability |
+| `paperclip.projectnyra.com` | `paperclip:3100` | Access-gated document UI |
 | `nerve-5090.ratehunter.net` | `worker-rtx5090.trex-fiordland.ts.net:18789` | Access-gated worker UI |
 | `nerve-3090.ratehunter.net` | `worker-rtx3090ti.trex-fiordland.ts.net:18789` | Access-gated worker UI |
 

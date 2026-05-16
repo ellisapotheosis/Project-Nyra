@@ -579,7 +579,7 @@ services:
       N8N_PORT: ${N8N_PORT:-5678}
       N8N_PROTOCOL: ${N8N_PROTOCOL:-https}
       N8N_SKIP_WEBHOOK_DNS_CHECK: ${N8N_SKIP_WEBHOOK_DNS_CHECK:-true}
-      N8N_WORKFLOW_URL: ${WEBHOOK_URL:-https://n8n.ratehunter.net}
+      N8N_WORKFLOW_URL: ${WEBHOOK_URL:-https://n8n.projectnyra.com}
       OFFICE_PHONE: ${OFFICE_PHONE:-}
       SMTP_FROM_EMAIL: ${SMTP_FROM_EMAIL:-}
       TWILIO_PHONE_NUMBER: ${TWILIO_PHONE_NUMBER:-}

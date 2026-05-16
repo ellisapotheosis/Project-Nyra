@@ -1,9 +1,10 @@
 import mongoose, { Schema, Document } from 'mongoose';
 import { IRole } from '../types/auth.types';
 
-export interface IRoleDocument extends IRole, Document {}
+type RoleModel = Omit<IRole, '_id'>;
+export type IRoleDocument = Document<unknown, object, RoleModel> & RoleModel;
 
-const RoleSchema = new Schema<IRoleDocument>({
+const RoleSchema = new Schema<RoleModel>({
   name: {
     type: String,
     required: true,
@@ -26,20 +27,21 @@ const RoleSchema = new Schema<IRoleDocument>({
 }, {
   timestamps: true,
   toJSON: {
-    transform: (doc, ret) => {
-      delete ret.__v;
-      return ret;
+    transform: (_doc, ret) => {
+      const output = ret as Record<string, unknown>;
+      delete output.__v;
+      return output;
     }
   }
 });
 
 // Prevent deletion of system roles
-RoleSchema.pre('remove', function(next) {
+RoleSchema.pre('deleteOne', { document: true, query: false } as never, (function(this: IRoleDocument, next: (error?: Error) => void) {
   if (this.isSystem) {
     next(new Error('Cannot delete system role'));
   } else {
     next();
   }
-});
+}) as never);
 
-export const Role = mongoose.model<IRoleDocument>('Role', RoleSchema);
+export const Role = mongoose.model<RoleModel>('Role', RoleSchema);

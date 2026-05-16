@@ -1,2 +1,2 @@
 # webhooks
-Canonical webhook ingress service (hooks.ratehunter.net).
+Canonical webhook ingress service (hooks.projectnyra.com).

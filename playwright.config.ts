@@ -87,14 +87,14 @@ export default defineConfig({
     ? undefined
     : [
         {
-          command: 'pnpm --filter @nyra/webapp dev',
-          port: 3000,
+          command: 'pnpm cockpit:dev --port 3005',
+          port: 3005,
           timeout: 120 * 1000,
           reuseExistingServer: !process.env.CI,
         },
         {
-          command: 'pnpm --filter @nyra/nexus-dashboard dev',
-          port: 3001,
+          command: 'pnpm landing:dev --port 3004',
+          port: 3004,
           timeout: 120 * 1000,
           reuseExistingServer: !process.env.CI,
         },

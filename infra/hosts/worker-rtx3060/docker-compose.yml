@@ -11,16 +11,16 @@ services:
 
 
 
-  # ── Portainer Edge Agent ────────────────────────────────────────────────
+  # ── Portainer Agent ─────────────────────────────────────────────────────
   portainer-edge-agent:
     image: portainer/agent:2.27.9
     container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-3060-portainer-agent
     restart: unless-stopped
     environment:
-      EDGE: "1"
-      EDGE_ID: ${PORTAINER_EDGE_ID}
-      EDGE_KEY: ${PORTAINER_EDGE_KEY}
-      EDGE_INSECURE_POLL: ${PORTAINER_EDGE_INSECURE_POLL:-1}
+      AGENT_CLUSTER_ADDR: tasks.portainer-edge-agent
+      AGENT_TAGS: ${PORTAINER_AGENT_TAGS:-nyra,worker-rtx3060,standard}
+    ports:
+      - "${PORTAINER_AGENT_PORT:-9001}:9001"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - /var/lib/docker/volumes:/var/lib/docker/volumes
@@ -63,14 +63,14 @@ services:
 
   # ── LiteLLM Proxy ───────────────────────────────────────────────────────
   litellm:
-    image: ghcr.io/berriai/litellm:main-latest
+    build:
+      context: ./litellm
+    image: nyra/worker-3060-litellm:local
     container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-3060-litellm
     hostname: worker-3060-litellm
     restart: unless-stopped
     ports:
       - "${LITELLM_PORT:-4000}:4000"
-    volumes:
-      - ./litellm:/app/litellm:ro
     command: --config /app/litellm/config.yaml --port 4000
     depends_on:
       ollama:
@@ -80,12 +80,13 @@ services:
 
   # ── Model Switcher ──────────────────────────────────────────────────────
   model-switcher:
-    image: python:3.11-slim
+    build:
+      context: ./model-switcher
+    image: nyra/worker-3060-model-switcher:local
     container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-3060-switcher
     hostname: worker-3060-switcher
     restart: unless-stopped
     volumes:
-      - ./model-switcher:/app
       - ollama_models:/models
     environment:
       - OLLAMA_URL=http://worker-3060-ollama:11434
@@ -100,17 +101,18 @@ services:
 
   # ── Monitoring ──────────────────────────────────────────────────────────
   promtail:
-    image: grafana/promtail:latest
+    build:
+      context: ./promtail
+    image: nyra/worker-3060-promtail:local
     container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-3060-promtail
     restart: unless-stopped
     volumes:
-      - ./promtail:/etc/promtail:ro
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
     environment:
       - LOKI_URL=${LOKI_URL:-http://oracle.trex-fiordland.ts.net:3100}
       - WORKER_ID=worker-3060
-    command: -config.file=/etc/promtail/config.yml
+    command: -config.file=/etc/promtail/config.yml -config.expand-env=true
     networks:
       - worker-network
 
@@ -140,6 +142,40 @@ services:
             - driver: nvidia
               count: 1
               capabilities: [gpu]
+    networks:
+      - worker-network
+
+  # ── Assistant Cockpit (OpenClaw + Nerve + PicoClaw) ───────────────────────
+  openclaw:
+    image: ghcr.io/openclaw/openclaw:latest
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-3060-openclaw
+    restart: unless-stopped
+    ports:
+      - "8001:8001"
+    environment:
+      - LLM_URL=http://worker-3060-litellm:4000
+    networks:
+      - worker-network
+
+  nerve:
+    image: ghcr.io/openclaw/nerve-ui:latest
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-3060-nerve
+    restart: unless-stopped
+    ports:
+      - "18789:18789"
+    environment:
+      - OPENCLAW_URL=http://worker-3060-openclaw:8001
+    networks:
+      - worker-network
+
+  picoclaw:
+    image: ghcr.io/openclaw/picoclaw:latest
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-3060-picoclaw
+    restart: unless-stopped
+    ports:
+      - "8002:8001"
+    environment:
+      - LLM_URL=http://worker-3060-litellm:4000
     networks:
       - worker-network
 

@@ -23,13 +23,17 @@ Project Nyra utilizes a heterogeneous compute plane to optimize for cost and per
 - **Tasks**: Summarization, extraction, embedding generation, health checks.
 
 ### 4. Orchestrator (Control Plane)
-
 - **Role**: Management & Routing.
-- **Targets**: LiteLLM, Nexus Router.
-- **Tasks**: Request routing, load balancing, tool aggregation, memory write-back.
+- **Targets**: LiteLLM, Nexus Router, Letta.
+- **Tasks**: Request routing, load balancing, tool aggregation, memory write-back, context orchestration.
 
-## Routing Policy
+## 2. Orchestration Routing
+- **Letta State**: Managed on the Orchestrator for low-latency context sync.
+- **ClawTeam Logic**: Executed on the **5090** or **LLXPRT Bridge** for maximum coordination fidelity.
+- **Goal Alignment (Paperclip)**: Distributed policy enforcement across all workers.
 
+## 3. Inference Routing
 - **Nexus Router** evaluates the `AgentActionRisk` level.
-- **LiteLLM** routes to the appropriate worker based on model availability and priority.
+- **LLXPRT Bridge**: Routed to for highest-fidelity reasoning (Subscription-based Claude/Codex).
+- **LiteLLM**: Standard routing for local vLLM/Ollama endpoints.
 - **Burst Capacity**: If 5090 is at peak load, 3090 Ti acts as the secondary burst target.

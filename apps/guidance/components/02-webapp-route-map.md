@@ -29,8 +29,7 @@ Expected feature sourcing:
 - route structure, branding merge, and shared shell: from `webapp-merge/next-app`
 
 Hard constraints:
-- single internal product on `nyra.ratehunter.net`
+- single internal product on `app.projectnyra.com`
 - no separate admin app in final product
 - no Clerk in final product
 - leave `apps/twenty` untouched
-

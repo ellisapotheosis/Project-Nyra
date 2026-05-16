@@ -58,7 +58,7 @@ export class DocxCampaignParser {
   extractCampaignName(lines) {
     const firstLine = lines[0] || '';
     if (firstLine.toLowerCase().includes('campaign')) {
-      return firstLine.replace(/[:\-]/g, '').trim();
+      return firstLine.replace(/:/g, ' ').replace(/\s+/g, ' ').trim();
     }
 
     // Look for "Day X-Y" pattern
@@ -86,7 +86,7 @@ export class DocxCampaignParser {
       const line = lines[i];
 
       // Detect day header
-      const dayMatch = line.match(/^Day\s+(\d+)/i);
+      const dayMatch = line.match(/^Day\s+(\d+)\s*$/i);
       if (dayMatch) {
         // Save previous step if exists
         if (currentChannel && currentBody.length > 0) {

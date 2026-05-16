@@ -47,7 +47,7 @@ Primary services in `infra/hosts/oracle-vps/docker-compose.yml`:
 
 | Service              |                Port(s) | Notes                                                        |
 | -------------------- | ---------------------: | ------------------------------------------------------------ |
-| `twenty`             |                 `3000` | CRM app; canonical public hostname `crm.ratehunter.net`      |
+| `twenty`             |                 `3000` | CRM app; canonical public hostname `crm.projectnyra.com`      |
 | `twenty-mcp`         |                 `8400` | CRM MCP/API bridge                                           |
 | `activepieces`       |           `8080 -> 80` | Internal automation UI/runtime                               |
 | `n8n`                |                 `5678` | Internal workflow automation                                 |
@@ -74,7 +74,7 @@ Primary services in `infra/hosts/oracle-vps/docker-compose.yml`:
 | `gitea-mcp`          |                 `3101` | Gitea MCP bridge                                             |
 | `crm-api`            |                 `4001` | Twenty integration boundary                                  |
 | `campaign_engine`    |                 `8020` | Profile-gated app service                                    |
-| `webapp`             |                 `3001` | App overlay; canonical public hostname `nyra.ratehunter.net` |
+| `webapp`             |                 `3001` | App overlay; canonical public hostname `app.projectnyra.com` |
 | `clawteam`           |         `8090 -> 8080` | Optional HKUDS/ClawTeam assistant surface                    |
 | `syncthing`          |          profile-gated | Optional sync service                                        |
 

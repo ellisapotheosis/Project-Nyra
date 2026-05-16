@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  twenty:
+    image: twentycrm/twenty:latest
+    restart: unless-stopped
+    environment:
+      - PORT=3000
+    networks:
+      - nyra-network
+
+  activepieces:
+    image: activepieces/activepieces:latest
+    restart: unless-stopped
+    networks:
+      - nyra-network
+
+  nexus:
+    image: grafbase/nexus:latest
+    restart: unless-stopped
+    networks:
+      - nyra-network

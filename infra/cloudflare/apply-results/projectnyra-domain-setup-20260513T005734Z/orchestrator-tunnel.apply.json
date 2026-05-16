@@ -1,0 +1,1 @@
+{"success":false,"errors":[{"code":1056,"message":"Bad Configuration: Validation failed: The last ingress rule must match all URLs (i.e. it should not have a hostname or path filter)\n"}],"messages":[],"result":null}

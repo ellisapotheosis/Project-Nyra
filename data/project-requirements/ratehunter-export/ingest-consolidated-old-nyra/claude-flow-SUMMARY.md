@@ -125,9 +125,9 @@ Created `.env.template` for each PC with:
 - Secure public access without exposing IP
 - Domains configured:
   - `ratehunter.net` → Landing page (port 3000)
-  - `app.ratehunter.net` → Mortgage assistant (port 8000)
-  - `crm.ratehunter.net` → TwentyCRM (port 3001)
-  - `api.ratehunter.net` → Nexus Router (port 6000)
+  - `app.projectnyra.com` → Mortgage assistant (port 8000)
+  - `crm.projectnyra.com` → TwentyCRM (port 3001)
+  - `api.projectnyra.com` → Nexus Router (port 6000)
   - `metrics.ratehunter.net` → Grafana (port 3005)
 - Automatic HTTPS with Cloudflare certificates
 
@@ -567,4 +567,3 @@ You now have a **complete, production-ready** Docker-based deployment for Projec
 **Next Steps**: Deploy orchestrator, then workers, verify, integrate
 
 🚀 **You're ready to deploy!**
-

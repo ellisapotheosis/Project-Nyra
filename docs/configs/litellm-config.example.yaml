@@ -1,0 +1,40 @@
+# LiteLLM Config Example
+
+# Copy this content into the live LiteLLM config location only after the runtime
+# secret source is available. Do not commit real provider keys.
+
+model_list:
+  - model_name: nyra-primary-coding
+    litellm_params:
+      model: anthropic/claude-sonnet-4-5
+      api_key: ${ANTHROPIC_API_KEY}
+
+  - model_name: nyra-private-5090
+    litellm_params:
+      model: openai/nyra-vllm-5090
+      api_base: http://worker-rtx5090.trex-fiordland.ts.net:8000/v1
+      api_key: ${VLLM_API_KEY}
+
+  - model_name: nyra-private-3090ti
+    litellm_params:
+      model: openai/nyra-vllm-3090ti
+      api_base: http://worker-rtx3090ti.trex-fiordland.ts.net:8000/v1
+      api_key: ${VLLM_API_KEY}
+
+  - model_name: nyra-utility-3060
+    litellm_params:
+      model: ollama_chat/qwen3-coder
+      api_base: http://worker-rtx3060.trex-fiordland.ts.net:11434
+
+router_settings:
+  routing_strategy: usage-based-routing-v2
+  allowed_fails: 2
+  cooldown_time: 60
+
+litellm_settings:
+  drop_params: true
+  set_verbose: false
+
+general_settings:
+  master_key: ${LITELLM_MASTER_KEY}
+  store_model_in_db: true

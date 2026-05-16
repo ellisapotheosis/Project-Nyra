@@ -1,0 +1,44 @@
+name: Operator Validation
+
+on:
+  pull_request:
+    paths:
+      - ".gitea/workflows/**"
+      - "docs/ops/**"
+      - "docs/runbooks/**"
+      - "ops/scripts/**"
+      - "infra/hosts/**/docker-compose*.yml"
+      - "infra/environments/.env.gitea.template"
+  push:
+    branches:
+      - main
+
+jobs:
+  validate-operator-surface:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Enable pnpm
+        run: corepack enable
+
+      - name: Validate shell scripts
+        run: |
+          bash -n ops/scripts/nyra-validate-compose.sh
+          bash -n ops/scripts/nyra-smoke-checks.sh
+
+      - name: Validate Oracle Gitea compose
+        run: |
+          bash ops/scripts/nyra-validate-compose.sh \
+            --host oracle-vps \
+            --file docker-compose.gitea.yml \
+            --env-file infra/environments/.env.gitea.template
+
+      - name: Run contract tests
+        run: pnpm test:contracts

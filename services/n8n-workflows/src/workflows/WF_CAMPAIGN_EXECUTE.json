@@ -185,7 +185,7 @@
     },
     {
       "parameters": {
-        "fromEmail": "mortgage@ratehunter.net",
+        "fromEmail": "mortgage@projectnyra.com",
         "toEmail": "={{ $('Check Lead Status').json.person.email }}",
         "subject": "Mortgage Update",
         "html": "={{ $node[\"Calculate Delay\"].json.templateId }}"

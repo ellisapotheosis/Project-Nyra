@@ -186,10 +186,10 @@ In Cloudflare Tunnel settings, add public hostnames:
 
 | Hostname | Type | URL |
 |---|---|---|
-| `nyra.ratehunter.net` | HTTP | `http://192.168.1.100:3000` (TwentyCRM) |
-| `n8n.ratehunter.net` | HTTP | `http://192.168.1.100:5678` (n8n) |
+| `app.projectnyra.com` | HTTP | `http://192.168.1.100:3000` (TwentyCRM) |
+| `n8n.projectnyra.com` | HTTP | `http://192.168.1.100:5678` (n8n) |
 | `dify.ratehunter.net` | HTTP | `http://192.168.1.100:3001` (Dify) |
-| `grafana.ratehunter.net` | HTTP | `http://192.168.1.100:3002` (Grafana) |
+| `grafana.projectnyra.com` | HTTP | `http://192.168.1.100:3002` (Grafana) |
 
 **Skip this for now** if you just want internal access via Tailscale.
 

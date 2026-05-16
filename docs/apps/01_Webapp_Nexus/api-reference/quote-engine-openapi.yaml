@@ -10,7 +10,7 @@ info:
 
     **Base URL**: `http://localhost:8001` (development)
 
-    **Production URL**: `https://api.ratehunter.net/quote`
+    **Production URL**: `https://api.projectnyra.com/quote`
   version: 1.0.0
   contact:
     name: Project Nyra API Support
@@ -23,7 +23,7 @@ servers:
     description: Local development server
   - url: http://quote-engine:8001
     description: Docker internal network
-  - url: https://api.ratehunter.net/quote
+  - url: https://api.projectnyra.com/quote
     description: Production API
 
 tags:

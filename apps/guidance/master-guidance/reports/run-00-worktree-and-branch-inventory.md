@@ -1,83 +1,241 @@
 # Run 00 Worktree And Branch Inventory
 
 Date: 2026-05-11
-Workspace: `/mnt/c/Users/edane/.codex/worktrees/8160/project-nyra`
-Branch at inspection: `main`
 
-## Current Worktree
+## Summary
 
-- `git status --short` returned clean output.
-- No source changes were pending in the current worktree at inspection time.
-- `gh pr status` shows no PR associated with `main`.
+The repository is not safe for a blind merge. The current worktree is heavily dirty, the current Git state reports no active branch through `gh pr status`, and candidate branches mix useful landing/webapp/deployment changes with risky deletions and forbidden deprecated stack additions.
 
-## Branch And Remote Facts
+Recommended next run: `01-repo-hygiene-preservation`.
 
-- Remotes:
-  - `github git@github.com:ellisapotheosis/Project-Nyra.git`
-  - `origin git@github.com:ellisapotheosis/Project-Nyra.git`
-- Local/remote branch set includes several CI-focused branches, notably:
-  - `codex/fix-ci-failures`
-  - `codex/fix-ci-monitor-failures`
-  - `codex/fix-ci-monitor-failures-2`
-  - `fix/ci-failures-20260511`
-- Open PRs created by the current user that still need explicit triage:
-  - `#396 Stabilize CI around repo-scoped tooling`
-  - `#395 Fix CI bootstrap and workflow false positives`
-  - `#388 Implement Universal 2142 sci-fi OS interface suite`
+## GitHub And Vercel Access
 
-## Vercel Metadata
+GitHub:
 
-- `.vercel/project.json` is missing in this worktree.
-- No local Vercel project metadata was available through the filesystem inspection path.
-- This means any branch-level Vercel safety decision still needs either CLI/plugin confirmation or a later worktree that contains `.vercel/`.
+- Repository: `ellisapotheosis/Project-Nyra`
+- URL: `https://github.com/ellisapotheosis/Project-Nyra`
+- Visibility: private
+- Default branch: `main`
+- `gh pr status` reports no current branch.
+- Created PR: `#388 Implement Universal 2142 sci-fi OS interface suite [v0/ellisapotheosis-680b2db9]`
+- PR #388 status: 2 of 3 checks failing.
 
-## Candidate Branch Diff Review
+Vercel:
 
-Inspected with:
+- No `.vercel/project.json` found in the current worktree.
+- No `vercel.json` found in the current worktree.
+- Vercel project metadata is therefore not locally linked.
+- Vercel plugin tools are available, but no team/project identifier was present locally to query a specific project without an owner selection.
 
-- `git diff --name-status main...<branch> -- 'apps/**' '.github/workflows/**' 'vercel.json' 'wrangler.toml' 'package.json' 'pnpm-lock.yaml' 'apps/**/package.json' 'services/**/package.json'`
+## Current Dirty State Relevant To This Work
 
-### Safe
+Modified workflow/config files:
 
-- `codex/fix-ci-failures`
-  - Touches only workflow files in the inspected path set:
-    - `.github/workflows/ci-main-enhanced.yml`
-    - `.github/workflows/ci-preflight.yml`
-    - `.github/workflows/ci.yml`
-    - `.github/workflows/codeql.yml`
-    - `.github/workflows/docker-build-matrix.yml`
-    - `.github/workflows/security-scan.yml`
-    - `.github/workflows/verification-pipeline.yml`
-  - Safe in the narrow sense that it does not touch app code, deployment manifests, or package manifests in the inspected set.
-  - Still requires content review before reuse because workflow-only does not imply semantically correct.
+- `.github/workflows/auto-merge.yml`
+- `.github/workflows/auto-pr.yml`
+- `.github/workflows/automerge.yml`
+- `.github/workflows/ci-preflight.yml`
+- `.github/workflows/codeql.yml`
+- `.github/workflows/deploy-cloudflare-pages.yml`
+- `.github/workflows/docker-build-matrix.yml`
+- `.github/workflows/docker-build.yml`
+- `.github/workflows/nextjs.yml`
+- `.github/workflows/nexus-router-ci.yml`
+- `.github/workflows/nightly-ci-report.yml`
+- `.github/workflows/nuxtjs.yml`
+- `.github/workflows/release-changelog.yml`
+- `.github/workflows/verification-pipeline.yml`
+- `.gitignore`
+- `pnpm-lock.yaml`
 
-### Risky
+Modified landing files:
 
-- `codex/fix-ci-monitor-failures`
-  - Touches the same CI workflow family as above, but also:
-    - `.github/workflows/auto-merge.yml`
-    - `.github/workflows/auto-pr.yml`
-    - `pnpm-lock.yaml`
-  - Risk is higher because automation workflows affect PR lifecycle behavior and lockfile churn is hard to reason about without reconstructing the exact install context.
+- `apps/ratehunter-landing/.env.example`
+- `apps/ratehunter-landing/src/app/globals.css`
+- `apps/ratehunter-landing/src/app/layout.tsx`
+- `apps/ratehunter-landing/src/app/page.tsx`
 
-### Forbidden
+Modified webapp files:
 
-- Any candidate branch that reintroduces deprecated memory stack components or public exposure of internal infrastructure should be blocked immediately.
-- Explicitly forbidden patterns for later branch triage:
-  - Reintroducing `RuVector` or `Graphiti`
-  - Making worker inference endpoints public
-  - Adding direct assistant-to-CRM or assistant-to-database mutation paths
-  - Turning n8n or Activepieces into broker-facing product UI
-  - Merging Docker/runtime changes from non-canonical infra locations outside `infra/hosts/<host>/`
+- `apps/nyra-webapp/.env.example`
+- `apps/nyra-webapp/app/admin/layout.tsx`
+- `apps/nyra-webapp/app/layout.tsx`
+- `apps/nyra-webapp/app/page.tsx`
+- `apps/nyra-webapp/components/site-header.tsx`
 
-### Needs User Decision
+Untracked files/directories relevant to current runs:
 
-- PR `#396` should be explicitly closed, superseded, or reconciled against the already-merged CI work before anyone reuses that branch. It still shows failing checks and overlaps the now-landed CI surface.
-- PR `#395` should be explicitly closed, superseded, or reconciled for the same reason. It is older, overlaps the CI surface, and still shows failing checks.
-- PR `#388` is unrelated to the current CI lane and should not be mixed into guidance or CI consolidation work without an explicit product/UI decision.
+- `apps/guidance/master-guidance/`
+- `apps/nyra-webapp/app/admin/integrations/`
+- `apps/nyra-webapp/app/tools/nexus/`
+- `apps/nyra-webapp/components/theme-switcher.tsx`
+- `apps/nyra-webapp/lib/crm-data.ts`
+- `apps/nyra-webapp/lib/mock-data.ts`
+- `apps/nyra-webapp/lib/themes/`
 
-## Recommended Next Step
+Known broader dirty-state risk:
 
-- Treat the current `main` worktree as the clean baseline.
-- Before any future branch merge, first resolve stale PRs `#395` and `#396` as superseded-or-reconcile items.
-- If a later run needs deployment inventory, gather Vercel metadata through CLI or plugin because filesystem metadata is absent in this worktree.
+- The full worktree includes many unrelated deleted archive files under `docs/archive/**`.
+- Do not restore, delete, or overwrite those archive paths in app/UI/theme/CI runs unless explicitly assigned.
+
+## Candidate Branches
+
+Branches observed:
+
+- `feat/landing-webapp-updates`
+- `codex/landing-cloudflare-openclaw-clean`
+- `fix/ratehunter-pages-opennext-output`
+- `fix/ratehunter-pages-opennext-output-v2`
+- `fix/ratehunter-pages-wrangler-config`
+- `github/codex/fix-landing-page-deployment-issues`
+- `github/fix/ratehunter-landing-deployment`
+- `origin/fix/ratehunter-landing-deployment`
+- `origin/main`
+
+## Branch Classification
+
+### `feat/landing-webapp-updates`
+
+Useful:
+
+- Adds workflow files that may contain CI ideas.
+- Adds `apps/PROJECT_PRIORITY_MATRIX.md`.
+- Adds `apps/admin/.env.example`.
+
+Risk:
+
+- Deletes many `Zone.Identifier` reference files under guidance snapshots.
+- Large enough to require file-by-file review before import.
+
+Decision:
+
+- Do not merge wholesale.
+- Cherry-pick only specific docs or env examples after inspection.
+
+### `codex/landing-cloudflare-openclaw-clean`
+
+Useful:
+
+- Touches landing/webapp/admin/workflow deployment material.
+- May contain Cloudflare Pages workflow improvements.
+
+Risk:
+
+- Deletes existing `apps/guidance/**` source docs, which violates current preservation rules.
+- Deletes some workflow files.
+- Deletes `apps/admin/app/next-env.d.ts`.
+
+Decision:
+
+- Do not merge wholesale.
+- Inspect specific deployment/workflow file diffs only.
+
+### `fix/ratehunter-pages-opennext-output` and `fix/ratehunter-pages-opennext-output-v2`
+
+Useful:
+
+- Contains landing Cloudflare/OpenNext deployment docs and `wrangler.toml` changes.
+- Removes `scripts/prepare-cloudflare-pages-output.mjs` from the landing build path.
+
+Risk:
+
+- Deletes `apps/nexusUI/**`.
+- Deletes `apps/twenty-crm/INDEX.md`.
+- Changes webapp header/package/lockfile in one branch.
+
+Decision:
+
+- Do not merge wholesale.
+- Safe candidates for manual review: `apps/ratehunter-landing/package.json`, `wrangler.toml`, and landing deployment docs.
+- Block deletions of `apps/nexusUI/**` and `apps/twenty-crm/INDEX.md`.
+
+### `fix/ratehunter-pages-wrangler-config`
+
+Observed app diff:
+
+- No relevant app/workflow diff was printed by the scoped comparison.
+
+Decision:
+
+- Low priority unless another report identifies a missing Wrangler fix.
+
+### `github/codex/fix-landing-page-deployment-issues`
+
+Useful:
+
+- Contains deployment/workflow edits and app priority matrix.
+
+Forbidden/risky:
+
+- Adds `apps/apps-claude-flow-dashboard/**`, which violates the “do not reintroduce Claude-Flow” project rule.
+- Deletes `apps/SOUL.BORROWER.md` and `apps/SOUL.BROKER.md`.
+- Deletes some Claude workflow files and mortgage CRM workflow.
+
+Decision:
+
+- Do not merge wholesale.
+- Explicitly block `apps/apps-claude-flow-dashboard/**`.
+- Only inspect isolated deployment fixes if needed.
+
+### `github/fix/ratehunter-landing-deployment` and `origin/fix/ratehunter-landing-deployment`
+
+Useful:
+
+- Landing deployment docs and package/wrangler changes.
+- Webapp route updates for admin, applications, CRM, leads, pipeline, quotes, and package/env files.
+
+Risk:
+
+- Deletes `apps/nexusUI/**`.
+- Deletes `apps/twenty-crm/INDEX.md`.
+- Deletes some guidance reference files.
+
+Decision:
+
+- Do not merge wholesale.
+- Use as a source for manual webapp route comparison only after current untracked webapp changes are preserved.
+- Block deletions of Nexus UI and Twenty CRM docs.
+
+### `origin/main`
+
+Useful:
+
+- Adds shared RateHunter logo and PFP assets.
+- Adds some `apps/landing/app` lead capture material.
+- Updates Nexus UI docs/source.
+
+Risk:
+
+- Touches a different landing app path, `apps/landing/app`, not the canonical `apps/ratehunter-landing`.
+- Adds many large assets; copy intentionally only.
+- Deletes some guidance `Zone.Identifier` files.
+
+Decision:
+
+- Good source for shared assets and Nexus improvements.
+- Do not bulk-copy into canonical app public folders.
+- Select canonical assets by design review first.
+
+## Safe Next Actions
+
+1. Run repo hygiene before merging app code.
+2. Preserve the current `apps/guidance/master-guidance/**` and webapp untracked files by keeping them visible to Git.
+3. Review landing deployment branch diffs file-by-file for `package.json`, `wrangler.toml`, and Cloudflare docs.
+4. Review `origin/main` shared RateHunter asset additions as source assets, not direct app-public copies.
+5. Keep current `apps/nexusUI/**` and `apps/twenty-crm/**`; block branch deletions unless a later explicit archive/retirement plan exists.
+
+## Blocked Or Requires User Approval
+
+- Whether to keep the regenerated `pnpm-lock.yaml`.
+- Whether to restore unrelated deleted archive files from the dirty worktree.
+- Which Vercel team/project should be queried if multiple projects exist.
+- Whether PR #388 is relevant to this app-consolidation branch.
+- Any branch merge that would delete guidance docs, Nexus UI, Twenty CRM reference files, or add deprecated Claude-Flow material.
+
+## Validation
+
+This report is documentation-only and should validate with:
+
+```bash
+git diff --check -- apps/guidance/master-guidance/reports/run-00-worktree-and-branch-inventory.md
+```

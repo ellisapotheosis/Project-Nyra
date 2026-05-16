@@ -5,20 +5,21 @@ MAIN_COMPOSE = docker-compose.yml
 APPS_COMPOSE = docker-compose.apps.yml
 GITEA_COMPOSE = docker-compose.gitea.yml
 GITEA_ENV = ../../../.env.gitea
+ROOT_MAKE = $(MAKE) -C ../../..
 
 .PHONY: up down apps-up apps-down build apps-build logs apps-logs gitea-up gitea-down gitea-ps gitea-logs
 
 up:
-	$(DOCKER_COMPOSE) -f $(MAIN_COMPOSE) up -d
+	$(ROOT_MAKE) up-oracle
 
 down:
-	$(DOCKER_COMPOSE) -f $(MAIN_COMPOSE) down
+	$(ROOT_MAKE) oracle-webapp-twenty-down
 
 apps-up:
-	$(DOCKER_COMPOSE) -f $(MAIN_COMPOSE) -f $(APPS_COMPOSE) --profile apps up -d
+	$(ROOT_MAKE) oracle-apps-up
 
 apps-down:
-	$(DOCKER_COMPOSE) -f $(MAIN_COMPOSE) -f $(APPS_COMPOSE) --profile apps stop
+	$(ROOT_MAKE) oracle-apps-down
 
 build:
 	$(DOCKER_COMPOSE) -f $(MAIN_COMPOSE) build
@@ -33,13 +34,13 @@ apps-logs:
 	$(DOCKER_COMPOSE) -f $(MAIN_COMPOSE) -f $(APPS_COMPOSE) --profile apps logs -f
 
 gitea-up:
-	$(DOCKER_COMPOSE) -f $(GITEA_COMPOSE) --env-file $(GITEA_ENV) up -d
+	$(ROOT_MAKE) gitea-up
 
 gitea-down:
-	$(DOCKER_COMPOSE) -f $(GITEA_COMPOSE) --env-file $(GITEA_ENV) down
+	$(ROOT_MAKE) gitea-down
 
 gitea-ps:
-	$(DOCKER_COMPOSE) -f $(GITEA_COMPOSE) --env-file $(GITEA_ENV) ps
+	$(ROOT_MAKE) gitea-ps
 
 gitea-logs:
 	$(DOCKER_COMPOSE) -f $(GITEA_COMPOSE) --env-file $(GITEA_ENV) logs -f gitea gitea-runner github-mirror-sync

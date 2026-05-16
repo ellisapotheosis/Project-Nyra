@@ -1,7 +1,8 @@
 import mongoose, { Schema, Document } from 'mongoose';
 import { IUser } from '../types/auth.types';
 
-export interface IUserDocument extends IUser, Document {}
+type UserModel = Omit<IUser, '_id'>;
+export type IUserDocument = Document<unknown, object, UserModel> & UserModel;
 
 const OAuthProviderSchema = new Schema({
   provider: { type: String, enum: ['google', 'microsoft'], required: true },
@@ -10,7 +11,7 @@ const OAuthProviderSchema = new Schema({
   displayName: { type: String, required: true }
 }, { _id: false });
 
-const UserSchema = new Schema<IUserDocument>({
+const UserSchema = new Schema<UserModel>({
   email: {
     type: String,
     required: true,
@@ -59,11 +60,12 @@ const UserSchema = new Schema<IUserDocument>({
 }, {
   timestamps: true,
   toJSON: {
-    transform: (doc, ret) => {
-      delete ret.__v;
-      delete ret.password;
-      delete ret.mfaSecret;
-      return ret;
+    transform: (_doc, ret) => {
+      const output = ret as Record<string, unknown>;
+      delete output.__v;
+      delete output.password;
+      delete output.mfaSecret;
+      return output;
     }
   }
 });
@@ -73,4 +75,4 @@ UserSchema.index({ email: 1 });
 UserSchema.index({ roles: 1 });
 UserSchema.index({ createdAt: -1 });
 
-export const User = mongoose.model<IUserDocument>('User', UserSchema);
+export const User = mongoose.model<UserModel>('User', UserSchema);

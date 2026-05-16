@@ -197,14 +197,14 @@
       "aud": "f09a12b5db441709c9702319ef4e31c22010d2028b2471e94b5001e5ae59d5b0",
       "created_at": "2026-05-08T13:34:53Z",
       "updated_at": "2026-05-08T13:34:53Z",
-      "domain": "portainer-oracle.ratehunter.net",
+      "domain": "portainer-oracle.projectnyra.com",
       "self_hosted_domains": [
-        "portainer-oracle.ratehunter.net"
+        "portainer-oracle.projectnyra.com"
       ],
       "destinations": [
         {
           "type": "public",
-          "uri": "portainer-oracle.ratehunter.net"
+          "uri": "portainer-oracle.projectnyra.com"
         }
       ],
       "app_launcher_visible": true,
@@ -255,14 +255,14 @@
       "aud": "d578f35ace995aef3776160c2c73d247974cecdf4ef3d09ba2543be44d258f7a",
       "created_at": "2026-05-08T13:34:53Z",
       "updated_at": "2026-05-08T13:34:53Z",
-      "domain": "clawteam.ratehunter.net",
+      "domain": "clawteam.projectnyra.com",
       "self_hosted_domains": [
-        "clawteam.ratehunter.net"
+        "clawteam.projectnyra.com"
       ],
       "destinations": [
         {
           "type": "public",
-          "uri": "clawteam.ratehunter.net"
+          "uri": "clawteam.projectnyra.com"
         }
       ],
       "app_launcher_visible": true,
@@ -318,14 +318,14 @@
       "aud": "14c0b7327cbb545e5a52abd2d5fcb2b9f3581f5c9bb9ff4318c4f3f15965baa1",
       "created_at": "2026-05-08T13:34:52Z",
       "updated_at": "2026-05-08T13:34:52Z",
-      "domain": "paperclip.ratehunter.net",
+      "domain": "paperclip.projectnyra.com",
       "self_hosted_domains": [
-        "paperclip.ratehunter.net"
+        "paperclip.projectnyra.com"
       ],
       "destinations": [
         {
           "type": "public",
-          "uri": "paperclip.ratehunter.net"
+          "uri": "paperclip.projectnyra.com"
         }
       ],
       "app_launcher_visible": true,
@@ -381,14 +381,14 @@
       "aud": "fa8971f2e6a5e02ed4ba8e8fd392356f9ea5cddfbdf8208be5bdaa5c99568964",
       "created_at": "2026-05-08T13:34:51Z",
       "updated_at": "2026-05-08T13:34:51Z",
-      "domain": "litellm.ratehunter.net",
+      "domain": "litellm.projectnyra.com",
       "self_hosted_domains": [
-        "litellm.ratehunter.net"
+        "litellm.projectnyra.com"
       ],
       "destinations": [
         {
           "type": "public",
-          "uri": "litellm.ratehunter.net"
+          "uri": "litellm.projectnyra.com"
         }
       ],
       "app_launcher_visible": true,
@@ -439,14 +439,14 @@
       "aud": "0d056b607ff90d00a5ebe102a57ee2d50b504b457f76812a0bb07c8bf02c2926",
       "created_at": "2026-05-08T13:34:51Z",
       "updated_at": "2026-05-08T13:34:51Z",
-      "domain": "nexus.ratehunter.net",
+      "domain": "nexus.projectnyra.com",
       "self_hosted_domains": [
-        "nexus.ratehunter.net"
+        "nexus.projectnyra.com"
       ],
       "destinations": [
         {
           "type": "public",
-          "uri": "nexus.ratehunter.net"
+          "uri": "nexus.projectnyra.com"
         }
       ],
       "app_launcher_visible": true,
@@ -502,14 +502,14 @@
       "aud": "9153f5b1c3e903ef81461dc0dce034db2c4b1710bb99230db9d2948cbc59377b",
       "created_at": "2026-05-08T13:34:50Z",
       "updated_at": "2026-05-08T13:34:50Z",
-      "domain": "openwebui.ratehunter.net",
+      "domain": "openwebui.projectnyra.com",
       "self_hosted_domains": [
-        "openwebui.ratehunter.net"
+        "openwebui.projectnyra.com"
       ],
       "destinations": [
         {
           "type": "public",
-          "uri": "openwebui.ratehunter.net"
+          "uri": "openwebui.projectnyra.com"
         }
       ],
       "app_launcher_visible": true,
@@ -565,14 +565,14 @@
       "aud": "6b3f58c721f38dd1d0e227ecd66e7c3b465fbfd2d781cede0571871be7e99344",
       "created_at": "2026-05-08T13:34:50Z",
       "updated_at": "2026-05-08T13:34:50Z",
-      "domain": "cadvisor.ratehunter.net",
+      "domain": "cadvisor.projectnyra.com",
       "self_hosted_domains": [
-        "cadvisor.ratehunter.net"
+        "cadvisor.projectnyra.com"
       ],
       "destinations": [
         {
           "type": "public",
-          "uri": "cadvisor.ratehunter.net"
+          "uri": "cadvisor.projectnyra.com"
         }
       ],
       "app_launcher_visible": true,
@@ -623,14 +623,14 @@
       "aud": "5f9cc783916e0d73a1e2cd7f1be15ac01ac7e14dad491e7e3e7bf106bc77a695",
       "created_at": "2026-05-08T13:34:49Z",
       "updated_at": "2026-05-08T13:34:49Z",
-      "domain": "prometheus.ratehunter.net",
+      "domain": "prometheus.projectnyra.com",
       "self_hosted_domains": [
-        "prometheus.ratehunter.net"
+        "prometheus.projectnyra.com"
       ],
       "destinations": [
         {
           "type": "public",
-          "uri": "prometheus.ratehunter.net"
+          "uri": "prometheus.projectnyra.com"
         }
       ],
       "app_launcher_visible": true,
@@ -681,14 +681,14 @@
       "aud": "666010c1b075fbb6b72210914d8bb356c567f6b82cf9f009a6399bd66a0dac00",
       "created_at": "2026-05-08T13:34:49Z",
       "updated_at": "2026-05-08T13:34:49Z",
-      "domain": "grafana.ratehunter.net",
+      "domain": "grafana.projectnyra.com",
       "self_hosted_domains": [
-        "grafana.ratehunter.net"
+        "grafana.projectnyra.com"
       ],
       "destinations": [
         {
           "type": "public",
-          "uri": "grafana.ratehunter.net"
+          "uri": "grafana.projectnyra.com"
         }
       ],
       "app_launcher_visible": true,
@@ -739,14 +739,14 @@
       "aud": "90072a6be9c547c10b8ca5642f0659555caf9e7afc9e801e2264ef569bb9ecea",
       "created_at": "2026-05-08T13:34:48Z",
       "updated_at": "2026-05-08T13:34:48Z",
-      "domain": "activepieces.ratehunter.net",
+      "domain": "activepieces.projectnyra.com",
       "self_hosted_domains": [
-        "activepieces.ratehunter.net"
+        "activepieces.projectnyra.com"
       ],
       "destinations": [
         {
           "type": "public",
-          "uri": "activepieces.ratehunter.net"
+          "uri": "activepieces.projectnyra.com"
         }
       ],
       "app_launcher_visible": true,
@@ -802,14 +802,14 @@
       "aud": "d5b59a78122fe5a8c715b28a75b8b05f107a96537121d5c654355df14e9a9086",
       "created_at": "2026-05-08T13:34:48Z",
       "updated_at": "2026-05-08T13:34:48Z",
-      "domain": "n8n.ratehunter.net",
+      "domain": "n8n.projectnyra.com",
       "self_hosted_domains": [
-        "n8n.ratehunter.net"
+        "n8n.projectnyra.com"
       ],
       "destinations": [
         {
           "type": "public",
-          "uri": "n8n.ratehunter.net"
+          "uri": "n8n.projectnyra.com"
         }
       ],
       "app_launcher_visible": true,
@@ -865,14 +865,14 @@
       "aud": "c5e74c90f25d987d6a8e56d3b9c6ddfdd5d18d70581bfb197d7ae7812bf7218a",
       "created_at": "2026-05-08T13:34:47Z",
       "updated_at": "2026-05-08T13:34:47Z",
-      "domain": "twenty.ratehunter.net",
+      "domain": "twenty.projectnyra.com",
       "self_hosted_domains": [
-        "twenty.ratehunter.net"
+        "twenty.projectnyra.com"
       ],
       "destinations": [
         {
           "type": "public",
-          "uri": "twenty.ratehunter.net"
+          "uri": "twenty.projectnyra.com"
         }
       ],
       "app_launcher_visible": true,
@@ -976,14 +976,14 @@
       "aud": "53cf564887d91fe881a888659381731875a4451e63f02787286d0ec807cbdb61",
       "created_at": "2026-04-24T21:22:43Z",
       "updated_at": "2026-04-24T21:22:43Z",
-      "domain": "nyra.ratehunter.net",
+      "domain": "app.projectnyra.com",
       "self_hosted_domains": [
-        "nyra.ratehunter.net"
+        "app.projectnyra.com"
       ],
       "destinations": [
         {
           "type": "public",
-          "uri": "nyra.ratehunter.net"
+          "uri": "app.projectnyra.com"
         }
       ],
       "app_launcher_visible": true,
@@ -1013,7 +1013,7 @@
               }
             }
           ],
-          "name": "nyra.ratehunter.net_auth",
+          "name": "app.projectnyra.com_auth",
           "require": [],
           "connection_rules": {
             "rdp": {
@@ -1098,18 +1098,18 @@
       "id": "b6e3909d-f3c8-4d4f-b104-0a9542edb77f",
       "uid": "b6e3909d-f3c8-4d4f-b104-0a9542edb77f",
       "type": "self_hosted",
-      "name": "gitea.ratehunter.net Web UI Login Page",
+      "name": "gitea.projectnyra.com Web UI Login Page",
       "aud": "e1a7b159d2cc322b30cf32d4875971737528a46452263a0d247d57f6e4078738",
       "created_at": "2026-03-14T13:07:11Z",
       "updated_at": "2026-03-14T13:07:11Z",
-      "domain": "gitea.ratehunter.net",
+      "domain": "gitea.projectnyra.com",
       "self_hosted_domains": [
-        "gitea.ratehunter.net"
+        "gitea.projectnyra.com"
       ],
       "destinations": [
         {
           "type": "public",
-          "uri": "gitea.ratehunter.net"
+          "uri": "gitea.projectnyra.com"
         }
       ],
       "app_launcher_visible": true,
@@ -1553,14 +1553,14 @@
       "aud": "682cb818c01885f351a672adc9c16e5b6d5709e4feb106ad2d47b9deba1f18cd",
       "created_at": "2026-01-20T02:18:46Z",
       "updated_at": "2026-01-20T02:18:46Z",
-      "domain": "crm.ratehunter.net",
+      "domain": "crm.projectnyra.com",
       "self_hosted_domains": [
-        "crm.ratehunter.net"
+        "crm.projectnyra.com"
       ],
       "destinations": [
         {
           "type": "public",
-          "uri": "crm.ratehunter.net"
+          "uri": "crm.projectnyra.com"
         }
       ],
       "app_launcher_visible": true,

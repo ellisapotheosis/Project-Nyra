@@ -96,18 +96,18 @@ make_payload() {
 }
 
 cat > "$RESULTS_DIR/access-desired.tsv" <<'EOF'
-Nyra Twenty CRM	twenty.ratehunter.net	team
-Nyra n8n	n8n.ratehunter.net	team
-Nyra Activepieces	activepieces.ratehunter.net	team
-Nyra Grafana	grafana.ratehunter.net	owner
-Nyra Prometheus	prometheus.ratehunter.net	owner
-Nyra cAdvisor	cadvisor.ratehunter.net	owner
-Nyra Open WebUI	openwebui.ratehunter.net	team
-Nyra Nexus UI	nexus.ratehunter.net	team
-Nyra LiteLLM	litellm.ratehunter.net	owner
-Nyra Paperclip	paperclip.ratehunter.net	team
-Nyra ClawTeam	clawteam.ratehunter.net	team
-Nyra Oracle Portainer	portainer-oracle.ratehunter.net	owner
+Nyra Twenty CRM	twenty.projectnyra.com	team
+Nyra n8n	n8n.projectnyra.com	team
+Nyra Activepieces	activepieces.projectnyra.com	team
+Nyra Grafana	grafana.projectnyra.com	owner
+Nyra Prometheus	prometheus.projectnyra.com	owner
+Nyra cAdvisor	cadvisor.projectnyra.com	owner
+Nyra Open WebUI	openwebui.projectnyra.com	team
+Nyra Nexus UI	nexus.projectnyra.com	team
+Nyra LiteLLM	litellm.projectnyra.com	owner
+Nyra Paperclip	paperclip.projectnyra.com	team
+Nyra ClawTeam	clawteam.projectnyra.com	team
+Nyra Oracle Portainer	portainer-oracle.projectnyra.com	owner
 Nyra Links	links.ratehunter.net	team
 Nyra Linkwarden Alias	linkwarden.ratehunter.net	team
 Nyra OpenClaw Gateway	openclaw-gateway.ratehunter.net	team

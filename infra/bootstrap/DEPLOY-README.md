@@ -45,13 +45,14 @@ Per each node (orchestrator, oracle-vps, worker-rtx5090, worker-rtx3090ti, worke
 
 | Node | Tailscale Host | Port | Type |
 |------|---|------|------|
-| orchestrator | orchestrator.trex-fiordland.ts.net | 22 | Linux |
-| oracle-vps | oracle-vps.trex-fiordland.ts.net | 22 | Linux |
-| worker-rtx5090 | worker-rtx5090.trex-fiordland.ts.net | 2222 | WSL2 |
-| worker-rtx3090ti | worker-rtx3090ti.trex-fiordland.ts.net | 22 | Linux |
-| worker-rtx3060 | worker-rtx3060.trex-fiordland.ts.net | 2222 | WSL2 |
+| orchestrator | orchestrator.trex-fiordland.ts.net | 2223 | Windows OpenSSH |
+| oracle-vps | 100.64.0.3 | 23 | Ubuntu |
+| worker-rtx5090 | worker-rtx5090.trex-fiordland.ts.net | 2223 | Windows OpenSSH |
+| worker-rtx3090ti | worker-rtx3090ti.trex-fiordland.ts.net | 2223 | Windows OpenSSH |
+| worker-rtx3060 | worker-rtx3060.trex-fiordland.ts.net | 2223 | Windows OpenSSH |
 
-SSH user: `edane` on all nodes
+SSH user: `edane` on Windows PC nodes and `ubuntu` on Oracle VPS.
+Windows-native SSH config should use `oracle.trex-fiordland.ts.net` for Oracle. WSL and this bootstrap script use Oracle's Tailscale IP, `100.64.0.3`, to avoid public-IP dependency.
 
 ## After Deployment
 
@@ -94,8 +95,8 @@ SSH user: `edane` on all nodes
 
 **SSH connection fails:**
 - Ensure Tailscale is active: `tailscale status`
-- Test manually: `ssh -p 2222 edane@worker-rtx5090.trex-fiordland.ts.net`
-- Check firewall: Port 22 and 2222 must be open on each node
+- Test manually: `ssh -p 2223 edane@worker-rtx5090.trex-fiordland.ts.net`
+- Check firewall: Port 2223 must be open on each managed node
 
 **BOOTSTRAP.sh fails:**
 - Ensure oh-my-zsh not already installed: `rm -rf ~/.oh-my-zsh` if needed

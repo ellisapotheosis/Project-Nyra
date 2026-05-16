@@ -39,6 +39,7 @@ import { ModelDiscoveryService } from './services/model-discovery';
 import { RateLimitStore } from './services/rate-limit-store';
 import { ProviderManager } from './services/provider-manager';
 import { MetricsCollectorService } from './services/metrics-collector';
+import { AuditLogger } from './services/audit-logger';
 
 const logger = createLogger('nexus-router');
 
@@ -88,6 +89,14 @@ async function startServer(): Promise<void> {
   // Initialize metrics collector
   const metricsCollector = MetricsCollectorService.getInstance();
   logger.info('Metrics collector initialized');
+
+  // Initialize audit logger
+  const auditLogger = AuditLogger.getInstance();
+  if (auditLogger.isEnabled()) {
+    logger.info(`Audit logging enabled: ${auditLogger.getLogPath()}`);
+  } else {
+    logger.info('Audit logging disabled');
+  }
 
   // Security middleware
   app.use(helmet());
@@ -234,6 +243,7 @@ async function startServer(): Promise<void> {
   // Graceful shutdown
   process.on('SIGTERM', async () => {
     logger.info('SIGTERM received, shutting down gracefully...');
+    AuditLogger.getInstance().close();
     wss.close();
     server.close();
     MetricsCollectorService.getInstance().shutdown();
@@ -247,6 +257,7 @@ async function startServer(): Promise<void> {
 
   process.on('SIGINT', async () => {
     logger.info('SIGINT received, shutting down gracefully...');
+    AuditLogger.getInstance().close();
     wss.close();
     server.close();
     MetricsCollectorService.getInstance().shutdown();

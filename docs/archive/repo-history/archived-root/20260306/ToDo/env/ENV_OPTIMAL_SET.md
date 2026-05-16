@@ -24,11 +24,11 @@ Secrets are **intentionally blank** — store them in Infisical.
 - TWENTY_BASE_URL=https://crm.staging.ratehunter.net
 
 ## Production defaults (split services)
-- NEXUS_PUBLIC_URL=https://nexus.ratehunter.net
-- DIFY_WEB_URL=https://nyra.ratehunter.net
+- NEXUS_PUBLIC_URL=https://nexus.projectnyra.com
+- DIFY_WEB_URL=https://app.projectnyra.com
 - N8N_EDITOR_BASE_URL=https://automation.ratehunter.net
 - AP_BASE_URL=https://actions.ratehunter.net
-- TWENTY_BASE_URL=https://crm.ratehunter.net
+- TWENTY_BASE_URL=https://crm.projectnyra.com
 
 ## Infisical path mapping rules (your taxonomy)
 - Clients:

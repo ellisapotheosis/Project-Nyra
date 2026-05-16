@@ -1,0 +1,41 @@
+# Nexus Router Example
+
+# Copy this content into the live Nexus config location only after secrets and
+# runtime mounts are available. Keep worker inference endpoints private.
+
+[server]
+host = "0.0.0.0"
+port = 6000
+public_base_url = "https://nexus.ratehunter.net"
+
+[auth]
+mode = "token"
+token_env = "NEXUS_API_TOKEN"
+
+[memory]
+primary = "mem0"
+openmemory_mcp_url = "http://oracle-vps.trex-fiordland.ts.net:8765/mcp"
+mem0_url = "http://oracle-vps.trex-fiordland.ts.net:8888"
+falkordb_url = "redis://oracle-vps.trex-fiordland.ts.net:6379"
+qdrant_url = "http://oracle-vps.trex-fiordland.ts.net:6333"
+
+[litellm]
+base_url = "http://orchestrator.trex-fiordland.ts.net:4000"
+api_key_env = "LITELLM_MASTER_KEY"
+
+[[mcp_servers]]
+name = "openmemory"
+transport = "sse"
+url = "http://oracle-vps.trex-fiordland.ts.net:8765/sse"
+allowed_roles = ["assistant", "analyst", "executor"]
+
+[[mcp_servers]]
+name = "github"
+transport = "stdio"
+command = "github-mcp-server"
+allowed_roles = ["executor", "reviewer", "git-master"]
+
+[audit]
+enabled = true
+sink = "crm-timeline"
+redact_secrets = true

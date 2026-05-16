@@ -1,93 +1,40 @@
-# Exact Reference Map
+# Exact Reference Map (Updated 2026-05-12)
 
-## Frozen Source Material From `webapp-merge`
+## Canonical Domain Strategy
+- **projectnyra.com**: Authenticated internal cockpit (`apps/cockpit`).
+- **ratehunter.net**: Public broker landing page (`apps/landing`).
 
-All copied into:
-- [apps/guidance/references/webapp-merge-snapshot](/home/ellisapotheosis/repos/project-nyra/apps/guidance/references/webapp-merge-snapshot)
+## Active Application Entrypoints
 
-Primary references:
+### 1. Internal Cockpit (Project Nyra)
+- **Root Path**: [apps/cockpit](/home/ellisapotheosis/repos/project-nyra/apps/cockpit)
+- **Homepage (Mission Overview)**: [apps/cockpit/src/app/page.tsx](/home/ellisapotheosis/repos/project-nyra/apps/cockpit/src/app/page.tsx)
+- **Leads Registry**: [apps/cockpit/src/app/(broker)/leads/page.tsx](/home/ellisapotheosis/repos/project-nyra/apps/cockpit/src/app/(broker)/leads/page.tsx)
+- **Pipeline Kanban**: [apps/cockpit/src/app/(broker)/pipeline/page.tsx](/home/ellisapotheosis/repos/project-nyra/apps/cockpit/src/app/(broker)/pipeline/page.tsx)
+- **Fleet Control**: [apps/cockpit/src/app/(ops)/fleet/page.tsx](/home/ellisapotheosis/repos/project-nyra/apps/cockpit/src/app/(ops)/fleet/page.tsx)
+- **Mempalace (3D Memory)**: [apps/cockpit/src/app/(ops)/memory/page.tsx](/home/ellisapotheosis/repos/project-nyra/apps/cockpit/src/app/(ops)/memory/page.tsx)
 
-- Merged scaffold and TweakCN base:
-  [apps/guidance/references/webapp-merge-snapshot/next-app](/home/ellisapotheosis/repos/project-nyra/apps/guidance/references/webapp-merge-snapshot/next-app)
+### 2. Public Landing (RateHunter)
+- **Root Path**: [apps/landing](/home/ellisapotheosis/repos/project-nyra/apps/landing)
+- **Homepage**: [apps/landing/src/app/page.tsx](/home/ellisapotheosis/repos/project-nyra/apps/landing/src/app/page.tsx)
+- **Lead Capture Wizard**: [apps/landing/src/components/LeadCaptureWizard.tsx](/home/ellisapotheosis/repos/project-nyra/apps/landing/src/components/LeadCaptureWizard.tsx)
+- **Borrower Chat**: [apps/landing/src/components/BorrowerChatWidget.tsx](/home/ellisapotheosis/repos/project-nyra/apps/landing/src/components/BorrowerChatWidget.tsx)
 
-- Original scaffold before regeneration:
-  [apps/guidance/references/webapp-merge-snapshot/next-app-pre-regenerate-20260422-1327](/home/ellisapotheosis/repos/project-nyra/apps/guidance/references/webapp-merge-snapshot/next-app-pre-regenerate-20260422-1327)
+## Shared Logic & UI Shards
+- **@nyra/ui**: [packages/ui](/home/ellisapotheosis/repos/project-nyra/packages/ui) - Shared component library.
+- **@nyra/assets**: [packages/assets](/home/ellisapotheosis/repos/project-nyra/packages/assets) - Central logo and brand repository.
+- **@nyra/domain-models**: [packages/domain-models](/home/ellisapotheosis/repos/project-nyra/packages/domain-models) - Type-safe mortgage entities.
 
-- Source admin app from backup repo:
-  [apps/guidance/references/webapp-merge-snapshot/admin](/home/ellisapotheosis/repos/project-nyra/apps/guidance/references/webapp-merge-snapshot/admin)
+## Archived Prototypes (Reference Only)
+All deprecated codebases are moved to:
+- [apps/guidance/references/consolidated-archive-20260512](/home/ellisapotheosis/repos/project-nyra/apps/guidance/references/consolidated-archive-20260512)
+- [services/archived](/home/ellisapotheosis/repos/project-nyra/services/archived)
 
-- Source webapp app from backup repo:
-  [apps/guidance/references/webapp-merge-snapshot/webapp](/home/ellisapotheosis/repos/project-nyra/apps/guidance/references/webapp-merge-snapshot/webapp)
-
-- Uploaded assets and Carrd scrape:
-  [apps/guidance/references/webapp-merge-snapshot/ellisapotheosis-apotheosis-mortgage-lead-campaign](/home/ellisapotheosis/repos/project-nyra/apps/guidance/references/webapp-merge-snapshot/ellisapotheosis-apotheosis-mortgage-lead-campaign)
-
-- Carrd scrape exact folder:
-  [apps/guidance/references/webapp-merge-snapshot/ellisapotheosis-apotheosis-mortgage-lead-campaign/ratehunter.carrd.co-landing-page-webscraped-code](/home/ellisapotheosis/repos/project-nyra/apps/guidance/references/webapp-merge-snapshot/ellisapotheosis-apotheosis-mortgage-lead-campaign/ratehunter.carrd.co-landing-page-webscraped-code)
-
-- Uploaded logos:
-  [apps/guidance/references/webapp-merge-snapshot/ellisapotheosis-apotheosis-mortgage-lead-campaign/ratehunter_logo](/home/ellisapotheosis/repos/project-nyra/apps/guidance/references/webapp-merge-snapshot/ellisapotheosis-apotheosis-mortgage-lead-campaign/ratehunter_logo)
-
-## Current Public Landing App
-
-- Current public app:
-  [apps/landing/ratehunter-landing](/home/ellisapotheosis/repos/project-nyra/apps/landing/ratehunter-landing)
-
-- Current landing homepage:
-  [apps/landing/ratehunter-landing/src/app/page.tsx](/home/ellisapotheosis/repos/project-nyra/apps/landing/ratehunter-landing/src/app/page.tsx)
-
-- Current borrower lead wizard:
-  [apps/landing/ratehunter-landing/src/components/LeadCaptureWizard.tsx](/home/ellisapotheosis/repos/project-nyra/apps/landing/ratehunter-landing/src/components/LeadCaptureWizard.tsx)
-
-- Current borrower chat widget:
-  [apps/landing/ratehunter-landing/src/components/BorrowerChatWidget.tsx](/home/ellisapotheosis/repos/project-nyra/apps/landing/ratehunter-landing/src/components/BorrowerChatWidget.tsx)
-
-## Current Internal App Candidates
-
-- Main internal webapp candidate:
-  [apps/webapp/app](/home/ellisapotheosis/repos/project-nyra/apps/webapp/app)
-
-- Current internal homepage:
-  [apps/webapp/app/app/page.tsx](/home/ellisapotheosis/repos/project-nyra/apps/webapp/app/app/page.tsx)
-
-- Current assistant page:
-  [apps/webapp/app/app/assistant/page.tsx](/home/ellisapotheosis/repos/project-nyra/apps/webapp/app/app/assistant/page.tsx)
-
-- Current campaigns page:
-  [apps/webapp/app/app/campaigns/page.tsx](/home/ellisapotheosis/repos/project-nyra/apps/webapp/app/app/campaigns/page.tsx)
-
-- OpenClaw tool page:
-  [apps/webapp/app/app/tools/openclaw/page.tsx](/home/ellisapotheosis/repos/project-nyra/apps/webapp/app/app/tools/openclaw/page.tsx)
-
-- Admin prototype:
-  [apps/admin/app](/home/ellisapotheosis/repos/project-nyra/apps/admin/app)
-
-- Admin dashboard page:
-  [apps/admin/app/src/app/page.tsx](/home/ellisapotheosis/repos/project-nyra/apps/admin/app/src/app/page.tsx)
-
-- Admin leads page:
-  [apps/admin/app/src/app/leads/page.tsx](/home/ellisapotheosis/repos/project-nyra/apps/admin/app/src/app/leads/page.tsx)
-
-- Admin quotes page:
-  [apps/admin/app/src/app/quotes/page.tsx](/home/ellisapotheosis/repos/project-nyra/apps/admin/app/src/app/quotes/page.tsx)
-
-- CRM prototype:
-  [apps/mortgage-crm](/home/ellisapotheosis/repos/project-nyra/apps/mortgage-crm)
-
-- Twenty shell, do not modify:
-  [apps/twenty](/home/ellisapotheosis/repos/project-nyra/apps/twenty)
-
-- Twenty integration/config package:
-  [apps/twenty-crm](/home/ellisapotheosis/repos/project-nyra/apps/twenty-crm)
+Primary historical snapshots:
+- Foundation Pass Base: [apps/guidance/references/foundation-pass-snapshot](/home/ellisapotheosis/repos/project-nyra/apps/guidance/references/foundation-pass-snapshot)
+- WebApp Merge Legacy: [apps/guidance/references/webapp-merge-snapshot](/home/ellisapotheosis/repos/project-nyra/apps/guidance/references/webapp-merge-snapshot)
 
 ## Theme/Token References
-
-- TweakCN/shadCN globals:
-  [apps/guidance/references/webapp-merge-snapshot/next-app/app/globals.css](/home/ellisapotheosis/repos/project-nyra/apps/guidance/references/webapp-merge-snapshot/next-app/app/globals.css)
-
-- TweakCN/shadCN components config:
-  [apps/guidance/references/webapp-merge-snapshot/next-app/components.json](/home/ellisapotheosis/repos/project-nyra/apps/guidance/references/webapp-merge-snapshot/next-app/components.json)
-
-- Original exported token CSS:
-  [apps/guidance/references/webapp-merge-snapshot/ellisapotheosis-apotheosis-mortgage-lead-campaign/index.css](/home/ellisapotheosis/repos/project-nyra/apps/guidance/references/webapp-merge-snapshot/ellisapotheosis-apotheosis-mortgage-lead-campaign/index.css)
-
+- Canonical Palette: **Dark Mode / Indigo / Seafoam / Neon Pink**.
+- Primary tokens: Indigo-600 (Primary), Turquoise-500 (Secondary), Pink-500 (Alerts).
+- Visualization: Sacred Geometry (MerKaBa, Tesseract) used as metaphor for memory and reasoning duality.

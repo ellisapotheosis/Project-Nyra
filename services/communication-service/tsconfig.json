@@ -1,0 +1,16 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "../..",
+    "paths": {
+      "@nyra/domain-models": ["packages/domain-models/src/index.ts"],
+      "@nyra/compliance-service": ["services/compliance-service/src/index.ts"]
+    }
+  },
+  "include": [
+    "src/**/*.ts",
+    "../../packages/domain-models/src/**/*.ts",
+    "../compliance-service/src/**/*.ts"
+  ]
+}

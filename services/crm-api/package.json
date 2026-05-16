@@ -12,6 +12,8 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
+    "@nyra/domain-models": "workspace:*",
+    "@nyra/integration-adapters": "workspace:*",
     "@nyra/crm-client": "workspace:*",
     "cors": "^2.8.5",
     "dotenv": "^16.5.4",
@@ -21,7 +23,7 @@
     "node-fetch": "^3.3.2",
     "pg": "^8.14.0",
     "winston": "^3.10.0",
-    "zod": "^3.23.8"
+    "zod": "^4.3.5"
   },
   "devDependencies": {
     "@types/cors": "^2.8.13",

@@ -9,7 +9,7 @@ info:
 
     **Base URL**: `http://localhost:8003` (development)
 
-    **Production URL**: `https://api.ratehunter.net/orchestrator`
+    **Production URL**: `https://api.projectnyra.com/orchestrator`
   version: 1.0.0
   contact:
     name: Project Nyra API Support
@@ -22,7 +22,7 @@ servers:
     description: Local development server
   - url: http://orchestrator:8003
     description: Docker internal network
-  - url: https://api.ratehunter.net/orchestrator
+  - url: https://api.projectnyra.com/orchestrator
     description: Production API
 
 tags:

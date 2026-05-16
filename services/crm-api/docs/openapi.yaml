@@ -74,6 +74,44 @@ components:
           type: string
         notes:
           type: string
+    CampaignEnrollRequest:
+      type: object
+      properties:
+        campaignName:
+          type: string
+          default: New Lead Nurture
+        channelPreferences:
+          type: array
+          items:
+            type: string
+            enum: [email, sms, voice]
+    CampaignPauseRequest:
+      type: object
+      properties:
+        reason:
+          type: string
+          default: manual_pause
+        notes:
+          type: string
+    ReplyWebhook:
+      type: object
+      required: [leadId, body]
+      properties:
+        leadId:
+          type: string
+        channel:
+          type: string
+          enum: [email, sms, voice, webhook]
+          default: webhook
+        body:
+          type: string
+        providerMessageId:
+          type: string
+        receivedAt:
+          type: string
+          format: date-time
+        metadata:
+          type: object
 paths:
   /api/leads:
     post:
@@ -87,6 +125,20 @@ paths:
       responses:
         '201':
           description: Lead created
+  /api/leads/{id}:
+    get:
+      summary: Get a Twenty mortgage lead plus local Nyra metadata
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Lead found
+        '404':
+          description: Lead not found
   /api/leads/{id}/conversation:
     get:
       summary: Unified conversation for a lead
@@ -135,6 +187,54 @@ paths:
       responses:
         '200':
           description: Loan updated
+  /api/leads/{id}/campaigns/enroll:
+    post:
+      summary: Enroll a lead into a campaign after consent and dedupe checks
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CampaignEnrollRequest'
+      responses:
+        '201':
+          description: Campaign enrollment created
+  /api/leads/{id}/campaigns/pause:
+    post:
+      summary: Pause active or pending campaign enrollments for a lead
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CampaignPauseRequest'
+      responses:
+        '200':
+          description: Campaign enrollments paused
+  /api/webhooks/reply:
+    post:
+      summary: Record an inbound reply, detect STOP intent, and pause campaigns
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReplyWebhook'
+      responses:
+        '200':
+          description: Reply handled
   /api/dashboard/pipeline:
     get:
       summary: Pipeline summary

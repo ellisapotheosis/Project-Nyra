@@ -71,7 +71,7 @@ services:
       infisical-agent:
         condition: service_started
     environment:
-      SERVER_URL: https://crm.ratehunter.net
+      SERVER_URL: https://crm.projectnyra.com
       DATABASE_URL: postgres://postgres:${ORACLE_DATABASE_PASSWORD}@postgres:5432/twenty
       REDIS_URL: redis://:${ORACLE_REDIS_PASSWORD}@redis:6379
       JWT_SECRET: ${ORACLE_TwentyCRM_SECRET_KEY}

@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from datetime import date
+from datetime import date, datetime, timezone
 from typing import Literal, Optional, List
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 
 Compounding = Literal["Monthly", "Semi-Annually"]
@@ -27,7 +27,7 @@ class QuoteRequest(BaseModel):
     loan_amount: float = Field(..., gt=0, description="Principal (PV).")
     annual_interest_rate: float = Field(
         ...,
-        gt=0,
+        ge=0,
         description="Nominal APR as decimal (e.g., 0.0706 for 7.06%).",
     )
     term_years: int = Field(..., ge=1, le=50)
@@ -86,3 +86,69 @@ class CompareRequest(BaseModel):
 
 class CompareResponse(BaseModel):
     results: List[QuoteResponse]
+
+
+class CanonicalMoney(BaseModel):
+    amountCents: int
+    currency: str = Field("USD", min_length=3, max_length=3)
+
+
+class CanonicalLoanScenario(BaseModel):
+    purpose: Literal["PURCHASE", "REFI_RATE", "REFI_CASH", "HELOC"]
+    loanAmount: CanonicalMoney
+    propertyValue: Optional[CanonicalMoney] = None
+    downPayment: Optional[CanonicalMoney] = None
+    state: str = Field(..., min_length=2, max_length=2)
+    occupancy: Literal["PRIMARY", "SECOND_HOME", "INVESTMENT"]
+    loanType: Optional[Literal["CONVENTIONAL", "FHA", "VA", "USDA", "JUMBO", "HELOC"]] = None
+    creditScore: Optional[int] = Field(None, ge=300, le=850)
+    annualTaxes: Optional[CanonicalMoney] = None
+    annualInsurance: Optional[CanonicalMoney] = None
+    monthlyHoa: Optional[CanonicalMoney] = None
+    pmiRateBps: Optional[int] = Field(None, ge=0, le=300)
+
+    @model_validator(mode="after")
+    def validate_property_equity(self):
+        if self.propertyValue and self.downPayment:
+            if self.downPayment.amountCents >= self.propertyValue.amountCents:
+                raise ValueError("downPayment.amountCents must be less than propertyValue.amountCents")
+        return self
+
+
+class CanonicalQuoteRequest(BaseModel):
+    leadId: str
+    loanScenario: CanonicalLoanScenario
+    requestedBy: str
+    requestedAt: str
+    baseRate: Optional[float] = Field(None, ge=0, description="Base note rate as a percent, e.g. 6.75")
+    termYears: int = Field(30, ge=1, le=50)
+
+
+class CanonicalPricingScenario(BaseModel):
+    id: Optional[str] = None
+    kind: Literal["LOWEST_PAYMENT", "BALANCED", "LOWEST_COST"]
+    label: str
+    rate: float = Field(..., ge=0)
+    apr: float = Field(..., ge=0)
+    points: float = 0
+    monthlyPayment: CanonicalMoney
+    cashToClose: CanonicalMoney
+    closingCosts: CanonicalMoney
+    breakEvenMonths: Optional[float] = Field(None, ge=0)
+    assumptions: List[str] = Field(default_factory=list)
+    calculationTrace: dict = Field(default_factory=dict)
+
+
+class CanonicalQuoteResponse(BaseModel):
+    id: Optional[str] = None
+    leadId: str
+    loanScenarioId: Optional[str] = None
+    status: Literal["DRAFT", "READY", "APPROVED", "SENT", "EXPIRED"] = "READY"
+    options: List[CanonicalPricingScenario] = Field(..., min_length=3, max_length=3)
+    selectedOptionId: Optional[str] = None
+    expiresAt: Optional[str] = None
+    createdAt: Optional[str] = None
+
+
+def utc_now_iso() -> str:
+    return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")

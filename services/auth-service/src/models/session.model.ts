@@ -1,9 +1,10 @@
 import mongoose, { Schema, Document } from 'mongoose';
 import { ISession } from '../types/auth.types';
 
-export interface ISessionDocument extends ISession, Document {}
+type SessionModel = Omit<ISession, '_id'>;
+export type ISessionDocument = Document<unknown, object, SessionModel> & SessionModel;
 
-const SessionSchema = new Schema<ISessionDocument>({
+const SessionSchema = new Schema<SessionModel>({
   userId: {
     type: String,
     required: true,
@@ -42,9 +43,10 @@ const SessionSchema = new Schema<ISessionDocument>({
 }, {
   timestamps: true,
   toJSON: {
-    transform: (doc, ret) => {
-      delete ret.__v;
-      return ret;
+    transform: (_doc, ret) => {
+      const output = ret as Record<string, unknown>;
+      delete output.__v;
+      return output;
     }
   }
 });
@@ -56,4 +58,4 @@ SessionSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 SessionSchema.index({ userId: 1, isActive: 1 });
 SessionSchema.index({ userId: 1, createdAt: -1 });
 
-export const Session = mongoose.model<ISessionDocument>('Session', SessionSchema);
+export const Session = mongoose.model<SessionModel>('Session', SessionSchema);

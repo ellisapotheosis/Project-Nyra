@@ -7,7 +7,7 @@ To ensure consistency and compliance, every component in this directory (and rel
 
 | Component | Spec Location | Focus |
 | :--- | :--- | :--- |
-| **Main WebApp** | [`/apps/webapp/SPEC.md`](./webapp/SPEC.md) | Control Surface, shadcn/oklch, Dashboard. |
+| **Main WebApp** | [`/apps/nyra-webapp/SPEC.md`](./nyra-webapp/SPEC.md) | Broker command center, shadcn/oklch, dashboard. |
 | **CRM API** | [`/services/crm-api/SPEC.md`](../services/crm-api/SPEC.md) | Data Layer, Lead Normalization, CRM Sync. |
 | **n8n Workflows** | [`/services/n8n-workflows/SPEC.md`](../services/n8n-workflows/SPEC.md) | Drip Engine, Twilio/SendGrid, TCPA Kill-Switch. |
 | **Nyra Assistant** | [`/services/openclaw/SPEC.md`](../services/openclaw/SPEC.md) | Persona, Hermes Inference, Mem0 Persistence. |

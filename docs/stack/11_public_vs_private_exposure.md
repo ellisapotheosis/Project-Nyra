@@ -7,11 +7,11 @@ Updated: 2026-04-30
 ### Public via Cloudflared (internet-facing)
 
 - `ratehunter.net` and `www.ratehunter.net` -> Cloudflare Pages marketing site.
-- `nyra.ratehunter.net` -> WebApp.
-- `crm.ratehunter.net` -> Twenty CRM.
-- `n8n.ratehunter.net` -> n8n.
-- `activepieces.ratehunter.net` -> Activepieces.
-- `nexus.ratehunter.net` -> Nexus UI.
+- `app.projectnyra.com` -> WebApp.
+- `crm.projectnyra.com` -> Twenty CRM.
+- `n8n.projectnyra.com` -> n8n.
+- `activepieces.projectnyra.com` -> Activepieces.
+- `nexus.projectnyra.com` -> Nexus UI.
 - `nexus-router.ratehunter.net` -> Nexus Router API/MCP endpoint.
 - Additional Access-gated routes are listed in `docs/cloudflared/hostname-matrix.md`.
 
@@ -34,13 +34,13 @@ Updated: 2026-04-30
 | Subdomain                     | Service                       | Exposure class       |
 | ----------------------------- | ----------------------------- | -------------------- |
 | `ratehunter.net`              | landing page                  | public Pages         |
-| `nyra.ratehunter.net`         | webapp                        | Access-gated         |
-| `crm.ratehunter.net`          | Twenty CRM                    | Access-gated         |
-| `n8n.ratehunter.net`          | n8n                           | Access-gated         |
-| `activepieces.ratehunter.net` | Activepieces                  | Access-gated         |
-| `nexus.ratehunter.net`        | Nexus UI                      | Access-gated         |
+| `app.projectnyra.com`         | webapp                        | Access-gated         |
+| `crm.projectnyra.com`          | Twenty CRM                    | Access-gated         |
+| `n8n.projectnyra.com`          | n8n                           | Access-gated         |
+| `activepieces.projectnyra.com` | Activepieces                  | Access-gated         |
+| `nexus.projectnyra.com`        | Nexus UI                      | Access-gated         |
 | `nexus-router.ratehunter.net` | Nexus Router API/MCP endpoint | Access service token |
-| `grafana.ratehunter.net`      | Grafana                       | Access-gated         |
+| `grafana.projectnyra.com`      | Grafana                       | Access-gated         |
 
 ## GPU routing (Agent C)
 

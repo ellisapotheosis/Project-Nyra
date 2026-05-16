@@ -203,6 +203,13 @@ export class CampaignService {
       };
     }
 
+    if (execution.isTerminal?.()) {
+      return {
+        success: false,
+        error: `Execution is terminal: ${execution.status}`
+      };
+    }
+
     if (execution.status !== 'paused') {
       return {
         success: false,
@@ -255,8 +262,19 @@ export class CampaignService {
       };
     }
 
-    execution.status = 'completed';
-    execution.completedAt = new Date();
+    if (execution.isTerminal?.()) {
+      return {
+        success: true,
+        execution: execution.toJSON()
+      };
+    }
+
+    execution.status = 'stopped';
+    execution.stoppedAt = new Date();
+    execution.metadata = {
+      ...execution.metadata,
+      stopReason: execution.metadata?.stopReason || 'manual_stop'
+    };
 
     // Cancel scheduled jobs
     this.scheduler.cancelExecution(executionId);
@@ -267,6 +285,62 @@ export class CampaignService {
       success: true,
       execution: execution.toJSON()
     };
+  }
+
+  /**
+   * Pause active automation after a borrower reply.
+   */
+  async handleInboundReply(executionId, reply = {}) {
+    const execution = this.executions.get(executionId);
+
+    if (!execution) {
+      return {
+        success: false,
+        error: 'Execution not found'
+      };
+    }
+
+    if (execution.isTerminal?.()) {
+      return {
+        success: true,
+        execution: execution.toJSON()
+      };
+    }
+
+    execution.status = 'replied';
+    execution.pausedAt = new Date();
+    execution.metadata = {
+      ...execution.metadata,
+      replySnapshot: reply,
+      pauseReason: 'borrower_reply'
+    };
+    this.scheduler.pauseExecution(executionId);
+
+    GuardrailMiddleware.logComplianceEvent({
+      type: 'BORROWER_REPLY_PAUSE',
+      contactId: execution.contactId,
+      campaignId: execution.campaignId,
+      action: 'pause_execution'
+    });
+
+    return {
+      success: true,
+      execution: execution.toJSON()
+    };
+  }
+
+  /**
+   * Stop active automation after STOP/unsubscribe compliance signal.
+   */
+  async handleComplianceStop(executionId, reason = 'STOP_DETECTED') {
+    const execution = this.executions.get(executionId);
+    if (execution) {
+      execution.metadata = {
+        ...execution.metadata,
+        stopReason: reason
+      };
+    }
+    return this.stopExecution(executionId);
   }
 
   /**
@@ -328,6 +402,7 @@ export class CampaignService {
       active: executions.filter(e => e.status === 'active').length,
       paused: executions.filter(e => e.status === 'paused').length,
       completed: executions.filter(e => e.status === 'completed').length,
+      stopped: executions.filter(e => e.status === 'stopped').length,
       failed: executions.filter(e => e.status === 'failed').length,
       averageProgress: 0,
       totalSteps: 0,

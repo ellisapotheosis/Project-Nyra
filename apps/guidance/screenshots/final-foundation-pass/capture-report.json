@@ -1,0 +1,74 @@
+[
+  {
+    "app": "nyra-webapp",
+    "route": "/",
+    "url": "http://localhost:3005/",
+    "status": 500,
+    "ok": true,
+    "screenshot": "apps/guidance/screenshots/final-foundation-pass/nyra-webapp/index.png"
+  },
+  {
+    "app": "nyra-webapp",
+    "route": "/leads",
+    "url": "http://localhost:3005/leads",
+    "status": 500,
+    "ok": true,
+    "screenshot": "apps/guidance/screenshots/final-foundation-pass/nyra-webapp/leads.png"
+  },
+  {
+    "app": "nyra-webapp",
+    "route": "/campaigns",
+    "url": "http://localhost:3005/campaigns",
+    "status": 500,
+    "ok": true,
+    "screenshot": "apps/guidance/screenshots/final-foundation-pass/nyra-webapp/campaigns.png"
+  },
+  {
+    "app": "nyra-webapp",
+    "route": "/quotes",
+    "url": "http://localhost:3005/quotes",
+    "status": 500,
+    "ok": true,
+    "screenshot": "apps/guidance/screenshots/final-foundation-pass/nyra-webapp/quotes.png"
+  },
+  {
+    "app": "nyra-webapp",
+    "route": "/fleet",
+    "url": "http://localhost:3005/fleet",
+    "status": 500,
+    "ok": true,
+    "screenshot": "apps/guidance/screenshots/final-foundation-pass/nyra-webapp/fleet.png"
+  },
+  {
+    "app": "nyra-webapp",
+    "route": "/memory",
+    "url": "http://localhost:3005/memory",
+    "status": 500,
+    "ok": true,
+    "screenshot": "apps/guidance/screenshots/final-foundation-pass/nyra-webapp/memory.png"
+  },
+  {
+    "app": "nyra-webapp",
+    "route": "/admin",
+    "url": "http://localhost:3005/admin",
+    "status": 500,
+    "ok": true,
+    "screenshot": "apps/guidance/screenshots/final-foundation-pass/nyra-webapp/admin.png"
+  },
+  {
+    "app": "nyra-webapp",
+    "route": "/assistant",
+    "url": "http://localhost:3005/assistant",
+    "status": 500,
+    "ok": true,
+    "screenshot": "apps/guidance/screenshots/final-foundation-pass/nyra-webapp/assistant.png"
+  },
+  {
+    "app": "ratehunter-landing",
+    "route": "/",
+    "url": "http://localhost:3004/",
+    "status": 200,
+    "ok": true,
+    "screenshot": "apps/guidance/screenshots/final-foundation-pass/ratehunter-landing/index.png"
+  }
+]

@@ -9,10 +9,11 @@ export class CampaignExecution {
     this.campaignId = data.campaignId;
     this.contactId = data.contactId;
     this.leadId = data.leadId || null;
-    this.status = data.status || 'pending'; // pending, active, paused, completed, failed
+    this.status = data.status || 'pending'; // pending, active, paused, replied, stopped, completed, failed
     this.currentStep = data.currentStep || 0;
     this.startedAt = data.startedAt || null;
     this.completedAt = data.completedAt || null;
+    this.stoppedAt = data.stoppedAt || null;
     this.pausedAt = data.pausedAt || null;
     this.steps = data.steps || [];
     this.metadata = data.metadata || {};
@@ -32,6 +33,13 @@ export class CampaignExecution {
    */
   isCompleted() {
     return this.status === 'completed' || this.completedAt !== null;
+  }
+
+  /**
+   * Check if execution cannot be resumed.
+   */
+  isTerminal() {
+    return ['stopped', 'completed'].includes(this.status);
   }
 
   /**
@@ -61,6 +69,7 @@ export class CampaignExecution {
       progress: this.getProgress(),
       startedAt: this.startedAt,
       completedAt: this.completedAt,
+      stoppedAt: this.stoppedAt,
       pausedAt: this.pausedAt,
       steps: this.steps,
       metadata: this.metadata,

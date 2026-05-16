@@ -34,8 +34,8 @@ you use the Cloudflare Web UI, manually recreate the hostnames from
 |---|---|
 | `ratehunter.net` | Cloudflare Pages landing site |
 | `www.ratehunter.net` | Cloudflare Pages landing alias |
-| `nyra.ratehunter.net` | Project Nyra webapp |
-| `crm.ratehunter.net` | Twenty CRM |
+| `app.projectnyra.com` | Project Nyra webapp |
+| `crm.projectnyra.com` | Twenty CRM |
 
 All other hostnames in this package should be Cloudflare Access-gated unless a
 future product decision explicitly makes them public.

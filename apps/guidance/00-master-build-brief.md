@@ -10,7 +10,7 @@ There are two separate products:
    - Deployment target: Cloudflare Pages
    - Must not contain internal broker/admin/CRM routes
 
-2. Internal app: `nyra.ratehunter.net`
+2. Internal app: `app.projectnyra.com`
    - Target app: [apps/webapp/app](/home/ellisapotheosis/repos/project-nyra/apps/webapp/app)
    - Audience: Ellis, coworkers, mortgage brokers, real estate brokers, branch-manager-facing workflows
    - Must become a single multi-page app with consolidated internal routes
@@ -44,7 +44,7 @@ There are two separate products:
 
 ## Final Webapp Route Direction
 
-Recommended internal app routes under `nyra.ratehunter.net`:
+Recommended internal app routes under `app.projectnyra.com`:
 - `/`
 - `/assistant`
 - `/campaigns`
@@ -95,4 +95,3 @@ Before modifying any major app:
 4. CRM + Pipeline + Quotes
 5. Auth + Platform Cleanup
 6. Integration Orchestrator
-

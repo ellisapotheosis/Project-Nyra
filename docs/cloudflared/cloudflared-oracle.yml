@@ -18,36 +18,36 @@ originRequest:
 
 ingress:
   # Primary app surfaces
-  - hostname: nyra.ratehunter.net
+  - hostname: app.projectnyra.com
     service: http://webapp:3001
-  - hostname: crm.ratehunter.net
+  - hostname: crm.projectnyra.com
     service: http://twenty:3000
-  - hostname: n8n.ratehunter.net
+  - hostname: n8n.projectnyra.com
     service: http://n8n:5678
-  - hostname: hooks.ratehunter.net
+  - hostname: hooks.projectnyra.com
     path: /webhook/*
     service: http://n8n:5678
-  - hostname: activepieces.ratehunter.net
+  - hostname: activepieces.projectnyra.com
     service: http://activepieces:80
   - hostname: active.ratehunter.net
     service: http://activepieces:80
 
   # AI, assistant, and internal workbench surfaces
-  - hostname: nexus.ratehunter.net
+  - hostname: nexus.projectnyra.com
     service: http://nexus:3000
-  - hostname: openwebui.ratehunter.net
+  - hostname: openwebui.projectnyra.com
     service: http://openwebui:8080
-  - hostname: clawteam.ratehunter.net
+  - hostname: clawteam.projectnyra.com
     service: http://clawteam:8080
-  - hostname: paperclip.ratehunter.net
+  - hostname: paperclip.projectnyra.com
     service: http://paperclip:3100
 
   # Business service APIs
-  - hostname: crm-api.ratehunter.net
+  - hostname: crm-api.projectnyra.com
     service: http://crm-api:4001
   - hostname: quote.ratehunter.net
     service: http://quote-api:7070
-  - hostname: quote-api.ratehunter.net
+  - hostname: quote-api.projectnyra.com
     service: http://quote-api:7070
   - hostname: campaign.ratehunter.net
     service: http://campaign_engine:8020
@@ -55,7 +55,7 @@ ingress:
   # Memory and MCP HTTP/SSE bridges. Owner-only Access policies required.
   - hostname: mem0.ratehunter.net
     service: http://mem0-rest:5000
-  - hostname: letta.ratehunter.net
+  - hostname: letta.projectnyra.com
     service: http://letta:8283
   - hostname: memos.ratehunter.net
     service: http://mem-os:8085
@@ -73,15 +73,15 @@ ingress:
     service: http://paperclip-mcp:8767
 
   # Git and observability
-  - hostname: gitea.ratehunter.net
+  - hostname: gitea.projectnyra.com
     service: http://gitea:3000
-  - hostname: grafana.ratehunter.net
+  - hostname: grafana.projectnyra.com
     service: http://grafana:3000
-  - hostname: prometheus.ratehunter.net
+  - hostname: prometheus.projectnyra.com
     service: http://prometheus:9090
   - hostname: loki.ratehunter.net
     service: http://loki:3100
-  - hostname: cadvisor.ratehunter.net
+  - hostname: cadvisor.projectnyra.com
     service: http://cadvisor:8080
 
   # Catch-all. Required by cloudflared.

@@ -4,5 +4,10 @@
     "outDir": "./dist",
     "rootDir": "../.."
   },
-  "include": ["src/**/*.ts", "../domain-models/src/**/*.ts"]
+  "include": [
+    "src/**/*.ts",
+    "../domain-models/src/**/*.ts",
+    "../crm-client/src/**/*.ts"
+  ],
+  "exclude": ["src/mock-server.ts"]
 }

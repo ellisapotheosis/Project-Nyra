@@ -1,0 +1,41 @@
+{
+  "name": "Nyra Simple Internal Notifications Scaffold",
+  "active": false,
+  "trigger": {
+    "type": "WEBHOOK",
+    "path": "/nyra/internal-notification"
+  },
+  "steps": [
+    {
+      "id": "validate-notification",
+      "type": "CODE",
+      "description": "Reject events without idempotencyKey, eventType, or message. Do not accept borrower-send requests here."
+    },
+    {
+      "id": "post-internal-notification",
+      "type": "HTTP_REQUEST",
+      "description": "Post to an internal notification endpoint or Slack webhook loaded from the Activepieces secret store.",
+      "method": "POST",
+      "url": "${INTERNAL_NOTIFICATION_URL}",
+      "headers": {
+        "Idempotency-Key": "{{idempotencyKey}}"
+      }
+    },
+    {
+      "id": "record-notification-audit",
+      "type": "HTTP_REQUEST",
+      "description": "Record notification attempt through crm-api/audit boundary.",
+      "method": "POST",
+      "url": "${CRM_API_URL}/api/audit-events",
+      "headers": {
+        "Idempotency-Key": "{{idempotencyKey}}"
+      }
+    }
+  ],
+  "disallowedActions": [
+    "TWILIO_SEND_SMS",
+    "SENDGRID_SEND_EMAIL",
+    "CRM_DIRECT_MUTATION",
+    "QUOTE_GENERATION"
+  ]
+}

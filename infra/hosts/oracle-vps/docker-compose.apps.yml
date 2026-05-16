@@ -40,7 +40,7 @@ services:
       - LITELLM_BASE_URL=http://litellm:4000
       - NEXUS_CONFIG_APPLY_ENABLED=false
       - NEXUS_DEPLOY_TARGET=oracle-vps
-      - NEXT_PUBLIC_WEBAPP_URL=${NEXT_PUBLIC_WEBAPP_URL:-https://app.ratehunter.net}
+      - NEXT_PUBLIC_WEBAPP_URL=${NEXT_PUBLIC_WEBAPP_URL:-https://app.projectnyra.com}
     ports:
       - "3016:3016"
     volumes:

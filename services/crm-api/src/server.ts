@@ -9,6 +9,7 @@ import fetch from 'node-fetch'
 import winston from 'winston'
 import { z } from 'zod'
 import { TwentyCRMClient, type QuoteInput, type MortgageLeadInput } from '@nyra/crm-client'
+import { AuditLogger, ClassificationService, TwentyIntegrationAdapter } from '@nyra/integration-adapters'
 
 dotenv.config()
 
@@ -42,6 +43,13 @@ const twentyClient = new TwentyCRMClient({
   apiKey: TWENTY_CRM_API_KEY
 })
 
+// Initialize Foundation Logic
+const adapter = new TwentyIntegrationAdapter(
+  `${TWENTY_CRM_URL.replace(/\/$/, '')}/graphql`,
+  TWENTY_CRM_API_KEY
+)
+const audit = new AuditLogger(adapter)
+
 const app = express()
 
 app.use(helmet())
@@ -72,12 +80,31 @@ const quotePayloadSchema = z.object({
   loanTermYears: z.number().optional(),
   propertyValue: z.number().optional(),
   downPayment: z.number().optional(),
-  metadata: z.record(z.any()).optional()
+  metadata: z.record(z.string(), z.any()).optional()
 })
 
 const statusPayloadSchema = z.object({
   status: z.string(),
   notes: z.string().optional()
+})
+
+const campaignEnrollPayloadSchema = z.object({
+  campaignName: z.string().min(1).default('New Lead Nurture'),
+  channelPreferences: z.array(z.enum(['email', 'sms', 'voice'])).default(['email', 'sms'])
+})
+
+const campaignPausePayloadSchema = z.object({
+  reason: z.string().min(1).default('manual_pause'),
+  notes: z.string().optional()
+})
+
+const replyWebhookSchema = z.object({
+  leadId: z.string().min(1),
+  channel: z.enum(['email', 'sms', 'voice', 'webhook']).default('webhook'),
+  body: z.string().min(1),
+  providerMessageId: z.string().optional(),
+  receivedAt: z.string().optional(),
+  metadata: z.record(z.string(), z.any()).optional()
 })
 
 async function getLoanIdForLead(leadId: string) {
@@ -98,6 +125,31 @@ async function enrollCampaign(contactLeadId: string, campaignName = 'New Lead Nu
   `
   const { rows } = await pool.query(query, [contactLeadId, campaignName])
   return rows[0]
+}
+
+async function pauseCampaignsForLead(leadId: string, _reason: string, _notes?: string) {
+  const result = await pool.query(
+    `UPDATE nyra_integration.campaign_enrollments
+     SET status = 'paused'
+     WHERE contact_id IN (
+       SELECT id FROM nyra_integration.lead_metadata WHERE twenty_lead_id = $1
+     )
+     AND status IN ('active', 'pending')
+     RETURNING *`,
+    [leadId]
+  )
+  return result.rows
+}
+
+async function updateMortgageLeadCampaignStatus(leadId: string, campaignStatus: string) {
+  return twentyClient.request<{ updateMortgageLead: any }>('updateMortgageLead', {
+    id: leadId,
+    input: { campaignStatus }
+  })
+}
+
+function isStopIntent(message: string) {
+  return /\b(STOP|UNSUBSCRIBE|REMOVE|CANCEL|OPT\s*OUT|DNC)\b/i.test(message)
 }
 
 async function fetchQuoteEngine(input: QuoteInput) {
@@ -153,7 +205,7 @@ function mapLoanPurpose(purpose: string) {
 app.post('/api/leads', async (req, res, next) => {
   try {
     const raw = req.body
-    
+
     // Normalize to E.164 and Micros (PRD-001)
     const lead = {
       firstName: raw.firstName || raw.first_name || raw.fname,
@@ -162,7 +214,10 @@ app.post('/api/leads', async (req, res, next) => {
       phone: normalizePhone(raw.phone || raw.phone_number),
       loanPurpose: mapLoanPurpose(raw.loanPurpose || raw.loan_purpose || raw.loanType),
       loanAmount: (parseFloat(raw.loanAmount || raw.loan_amount) || 0) * 10000, // micros
+      propertyValue: (parseFloat(raw.propertyValue || raw.property_value) || 0) * 10000,
       propertyState: raw.propertyState || raw.state || raw.property_state,
+      creditRange: raw.creditRange || raw.credit_range,
+      timeframe: raw.timeframe,
       creditScore: parseInt(raw.creditScore || raw.credit_score || raw.fico) || null,
       source: raw.source || 'ratehunter',
       consentTimestamp: new Date().toISOString()
@@ -174,7 +229,7 @@ app.post('/api/leads', async (req, res, next) => {
     }
 
     // Deduplication Logic (PRD-001)
-    const existing = await twentyClient.searchContacts({
+    const existingResult = await twentyClient.searchContacts({
       filter: {
         or: [
           lead.email ? { email: { eq: lead.email } } : null,
@@ -182,35 +237,55 @@ app.post('/api/leads', async (req, res, next) => {
         ].filter((x): x is any => x !== null)
       }
     })
+    const existing = Array.isArray((existingResult as any)?.leads)
+      ? (existingResult as any).leads
+      : Array.isArray(existingResult)
+        ? existingResult
+        : []
 
     let personId: string
     if (existing && existing.length > 0) {
       personId = existing[0].id
       await twentyClient.updateContact(personId, {
-        firstName: lead.firstName,
-        lastName: lead.lastName,
-        phoneNumber: lead.phone
+        name: `${lead.firstName} ${lead.lastName}`,
+        email: lead.email || '',
+        phone: lead.phone || '',
+        customFields: { firstName: lead.firstName, lastName: lead.lastName }
       })
     } else {
-      const contact = await twentyClient.createContact({
+      const contactResult = await twentyClient.createContact({
         name: `${lead.firstName} ${lead.lastName}`,
         email: lead.email || '',
         phone: lead.phone || '',
         source: lead.source,
         customFields: { firstName: lead.firstName, lastName: lead.lastName }
       })
+      const contact = (contactResult as any)?.createLead ?? contactResult
       personId = contact.id
     }
 
     // Create MortgageLead (PRD-001)
-    const mortgageLead = await twentyClient.createMortgageLead({
+    const mortgageLeadResult = await twentyClient.createMortgageLead({
       personId,
       loanPurpose: lead.loanPurpose,
       loanAmount: lead.loanAmount,
-      propertyState: lead.propertyState,
+      propertyValue: lead.propertyValue,
+      propertyState: lead.propertyState || '',
+      creditRange: lead.creditRange,
+      timeframe: lead.timeframe,
       source: lead.source,
       campaignStatus: 'PENDING'
     } as MortgageLeadInput)
+    const mortgageLead = (mortgageLeadResult as any)?.createMortgageLead ?? mortgageLeadResult
+
+    // Log Foundation Audit
+    await audit.log({
+      entityType: 'MORTGAGE_LEAD',
+      entityId: mortgageLead.id,
+      action: 'LEAD_INGESTED',
+      riskLevel: 'CRM_MUTATION',
+      performer: 'SYSTEM'
+    })
 
     // Trigger n8n Workflow
     if (N8N_WEBHOOK_URL) {
@@ -231,7 +306,7 @@ app.post('/api/leads', async (req, res, next) => {
 app.post('/api/quotes', async (req, res, next) => {
   try {
     const request = req.body
-    
+
     // 1. Validate scenario
     if (!request.leadId || !request.scenario?.loanAmount) {
       res.status(400).json({ error: 'Invalid quote request' })
@@ -240,7 +315,7 @@ app.post('/api/quotes', async (req, res, next) => {
 
     // 2. Delegate to Quote Engine (or internal logic)
     const options = await fetchQuoteEngine(request.scenario)
-    
+
     // 3. Create Quote in CRM as PENDING (PRD-003)
     const quote = await twentyClient.createQuote({
       leadId: request.leadId,
@@ -260,12 +335,12 @@ app.post('/api/quotes/:id/approve', async (req, res, next) => {
   try {
     const { approvedBy } = req.body
     const quoteId = req.params.id
-    
+
     const quote = await twentyClient.request<{ updateQuote: any }>('updateQuoteStatus', {
       id: quoteId,
       input: { status: 'approved', approvedBy, approvedAt: new Date().toISOString() }
     })
-    
+
     res.json(quote)
   } catch (error) {
     next(error)
@@ -280,6 +355,26 @@ app.get('/api/leads', async (_req, res, next) => {
     next(error);
   }
 });
+
+app.get('/api/leads/:id', async (req, res, next) => {
+  try {
+    const result = await twentyClient.getMortgageLead(req.params.id)
+    const lead = (result as any)?.mortgageLead ?? result
+    if (!lead?.id) {
+      res.status(404).json({ error: 'Lead not found' })
+      return
+    }
+
+    const local = await pool.query(
+      `SELECT * FROM nyra_integration.lead_metadata WHERE twenty_lead_id = $1 LIMIT 1`,
+      [req.params.id]
+    )
+
+    res.json({ lead, metadata: local.rows[0] ?? null })
+  } catch (error) {
+    next(error)
+  }
+})
 
 app.get('/api/leads/:id/conversation', async (req, res, next) => {
   try {
@@ -296,9 +391,16 @@ app.get('/api/leads/:id/conversation', async (req, res, next) => {
       [contactId]
     )
 
-    const timeline = await twentyClient.timeline(leadId)
+    // Foundation Intelligence: Classify the latest inbound message
+    const latestInbound = logs.rows.find(l => l.direction === 'inbound')
+    let classification = null
+    if (latestInbound) {
+      classification = ClassificationService.classify(latestInbound.content_preview)
+    }
 
-    res.json({ logs: logs.rows, timeline })
+    const timeline = await twentyClient.request<{ communications: any[] }>('listCommunications', { leadId })
+
+    res.json({ logs: logs.rows, timeline, classification })
   } catch (error) {
     next(error)
   }
@@ -367,9 +469,7 @@ app.patch('/api/leads/:id/campaign', async (req, res, next) => {
     const { status } = req.body
     const leadId = req.params.id
 
-    const update = await twentyClient.updateMortgageLead(leadId, {
-      campaignStatus: status
-    })
+    const update = await updateMortgageLeadCampaignStatus(leadId, status)
 
     if (N8N_WEBHOOK_URL) {
       fetch(`${N8N_WEBHOOK_URL.replace(/\/$/, '')}/webhook/campaign-control`, {
@@ -380,6 +480,99 @@ app.patch('/api/leads/:id/campaign', async (req, res, next) => {
     }
 
     res.json({ success: true, update })
+  } catch (error) {
+    next(error)
+  }
+})
+
+app.post('/api/leads/:id/campaigns/enroll', async (req, res, next) => {
+  try {
+    const leadId = req.params.id
+    const parsed = campaignEnrollPayloadSchema.parse(req.body)
+    const enrollment = await enrollCampaign(leadId, parsed.campaignName)
+    await updateMortgageLeadCampaignStatus(leadId, 'ACTIVE')
+
+    if (N8N_WEBHOOK_URL) {
+      fetch(`${N8N_WEBHOOK_URL.replace(/\/$/, '')}/webhook/campaign-enroll`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ leadId, ...parsed, enrollmentId: enrollment?.id })
+      }).catch(err => logger.error('Failed to trigger n8n campaign-enroll', err))
+    }
+
+    res.status(201).json({ success: true, enrollment })
+  } catch (error) {
+    next(error)
+  }
+})
+
+app.post('/api/leads/:id/campaigns/pause', async (req, res, next) => {
+  try {
+    const leadId = req.params.id
+    const parsed = campaignPausePayloadSchema.parse(req.body)
+    const paused = await pauseCampaignsForLead(leadId, parsed.reason, parsed.notes)
+    await updateMortgageLeadCampaignStatus(leadId, 'PAUSED')
+
+    if (N8N_WEBHOOK_URL) {
+      fetch(`${N8N_WEBHOOK_URL.replace(/\/$/, '')}/webhook/campaign-pause`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ leadId, ...parsed, pausedCount: paused.length })
+      }).catch(err => logger.error('Failed to trigger n8n campaign-pause', err))
+    }
+
+    res.json({ success: true, paused })
+  } catch (error) {
+    next(error)
+  }
+})
+
+app.post('/api/webhooks/reply', async (req, res, next) => {
+  try {
+    const parsed = replyWebhookSchema.parse(req.body)
+    const stopDetected = isStopIntent(parsed.body)
+    const pauseReason = stopDetected ? 'stop_detected' : 'inbound_reply'
+
+    const contact = await pool.query(
+      `SELECT id FROM nyra_integration.lead_metadata WHERE twenty_lead_id = $1 LIMIT 1`,
+      [parsed.leadId]
+    )
+    const contactId = contact.rows[0]?.id
+
+    if (contactId) {
+      await pool.query(
+        `INSERT INTO nyra_integration.communication_logs
+         (contact_id, channel, direction, content_preview, sent_at)
+         VALUES ($1, $2, 'inbound', $3, $4)`,
+        [
+          contactId,
+          parsed.channel,
+          parsed.body.slice(0, 500),
+          parsed.receivedAt ?? new Date().toISOString()
+        ]
+      )
+    }
+
+    const paused = await pauseCampaignsForLead(parsed.leadId, pauseReason, parsed.body.slice(0, 250))
+    await updateMortgageLeadCampaignStatus(parsed.leadId, stopDetected ? 'STOPPED' : 'PAUSED')
+
+    await audit.log({
+      entityType: 'MORTGAGE_LEAD',
+      entityId: parsed.leadId,
+      action: stopDetected ? 'STOP_DETECTED' : 'REPLY_PAUSED_CAMPAIGN',
+      riskLevel: 'CRM_MUTATION',
+      performer: 'SYSTEM'
+    })
+
+    if (N8N_WEBHOOK_URL) {
+      fetch(`${N8N_WEBHOOK_URL.replace(/\/$/, '')}/webhook/reply-received`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...parsed, stopDetected, pausedCount: paused.length })
+      }).catch(err => logger.error('Failed to trigger n8n reply-received', err))
+    }
+
+    res.json({ success: true, stopDetected, pausedCount: paused.length })
   } catch (error) {
     next(error)
   }
@@ -402,7 +595,7 @@ app.get('/api/dashboard/pipeline', async (_req, res, next) => {
 
 const webhookSchema = z.object({
   leadId: z.string(),
-  payload: z.record(z.any())
+  payload: z.record(z.string(), z.any())
 })
 
 app.post('/webhooks/twenty/contact-created', async (req, res, next) => {

@@ -8,27 +8,24 @@
   "workspaces": [
     "apps/*",
     "apps/*/*",
+    "apps/*/*/*",
     "services/*",
     "services/*/*",
     "packages/*"
   ],
   "scripts": {
     "prepare": "husky",
-    "dev": "turbo run dev --concurrency=30",
+    "dev": "turbo run dev --parallel",
     "build": "turbo run build",
-    "lint": "pnpm -r --if-present lint",
-    "test:unit": "pnpm exec vitest --config vitest.smoke.config.mjs run",
-    "test": "pnpm exec vitest --config vitest.smoke.config.mjs run",
-    "test:all": "pnpm exec vitest --config vitest.config.mjs run",
-    "docker:up": "docker compose -f infra/docker-compose.yml up -d",
-    "docker:down": "docker compose -f infra/docker-compose.yml down",
-    "twenty:setup": "docker compose -f infra/docker-compose.twenty.yml up -d",
-    "twenty:down": "docker compose -f infra/docker-compose.twenty.yml down",
-    "twenty:dev": "turbo run dev --filter=twenty-crm",
-    "admin:dev": "turbo run dev --filter=nyra-admin",
+    "cockpit:dev": "turbo run dev --filter=nyra-cockpit",
+    "landing:dev": "turbo run dev --filter=ratehunter-landing",
+    "projectnyra:dev": "turbo run dev --filter=projectnyra-site",
+    "projectnyra:build": "turbo run build --filter=projectnyra-site",
     "all:dev": "turbo run dev --parallel",
+    "twenty:dev": "turbo run dev --filter=twenty-crm",
     "typecheck": "turbo run typecheck",
     "test:contracts": "pnpm -C packages/domain-models test && pnpm -C packages/integration-adapters test",
+
     "docs:check": "ls docs/*.md && ls docs/ops/*.md"
   },
   "dependencies": {

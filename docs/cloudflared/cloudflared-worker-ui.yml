@@ -16,7 +16,7 @@ originRequest:
 
 ingress:
   # Orchestrator control-plane UIs/APIs
-  - hostname: litellm.ratehunter.net
+  - hostname: litellm.projectnyra.com
     service: http://orchestrator.trex-fiordland.ts.net:4000
   - hostname: openclaw.ratehunter.net
     service: http://orchestrator.trex-fiordland.ts.net:8001

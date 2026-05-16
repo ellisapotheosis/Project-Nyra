@@ -326,15 +326,15 @@ ingress:
     service: http://localhost:3000
 
   # Mortgage assistant app
-  - hostname: app.ratehunter.net
+  - hostname: app.projectnyra.com
     service: http://localhost:8000
 
   # CRM Dashboard
-  - hostname: crm.ratehunter.net
+  - hostname: crm.projectnyra.com
     service: http://localhost:3001
 
   # API Gateway (Nexus Router)
-  - hostname: api.ratehunter.net
+  - hostname: api.projectnyra.com
     service: http://localhost:6000
 
   # Grafana Monitoring
@@ -350,9 +350,9 @@ ingress:
 ```powershell
 # Create DNS records for each subdomain
 cloudflared tunnel route dns nyra-mortgage-platform ratehunter.net
-cloudflared tunnel route dns nyra-mortgage-platform app.ratehunter.net
-cloudflared tunnel route dns nyra-mortgage-platform crm.ratehunter.net
-cloudflared tunnel route dns nyra-mortgage-platform api.ratehunter.net
+cloudflared tunnel route dns nyra-mortgage-platform app.projectnyra.com
+cloudflared tunnel route dns nyra-mortgage-platform crm.projectnyra.com
+cloudflared tunnel route dns nyra-mortgage-platform api.projectnyra.com
 cloudflared tunnel route dns nyra-mortgage-platform metrics.ratehunter.net
 ```
 
@@ -556,7 +556,7 @@ curl -X POST http://localhost:6100/api/agent/spawn \
 curl https://ratehunter.net
 
 # API Gateway
-curl https://api.ratehunter.net/health
+curl https://api.projectnyra.com/health
 
 # Metrics dashboard
 https://metrics.ratehunter.net (login with Grafana creds)

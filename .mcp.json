@@ -2,7 +2,7 @@
   "mcpServers": {
     "nexus-router": {
       "type": "sse",
-      "url": "https://nexus.ratehunter.net/mcp",
+      "url": "https://nexus.projectnyra.com/mcp",
       "headers": {
         "Authorization": "Bearer ${ORCHESTRATOR_TUNNEL_TOKEN}"
       },
@@ -24,7 +24,7 @@
         "@modelcontextprotocol/server-ssh"
       ],
       "env": {
-        "SSH_ALLOWED_HOSTS": "*.trex-fiordland.ts.net,100.64.0.*,github.com,gitea.ratehunter.net"
+        "SSH_ALLOWED_HOSTS": "*.trex-fiordland.ts.net,100.64.0.*,github.com,gitea.projectnyra.com"
       }
     },
     "shadcn": {

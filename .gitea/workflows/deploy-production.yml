@@ -140,7 +140,7 @@ jobs:
 
     environment:
       name: ${{ needs.pre-deployment-checks.outputs.environment-name }}
-      url: ${{ github.event.inputs.environment == 'oracle-vps' && 'https://ratehunter.net' || 'http://prod.nyra.internal' }}
+      url: ${{ github.event.inputs.environment == 'oracle-vps' && 'https://projectnyra.com' || 'http://prod.nyra.internal' }}
 
     steps:
       - name: 📥 Checkout
@@ -228,7 +228,7 @@ jobs:
           # Oracle VPS specific
           $(if [[ "$ENVIRONMENT" == "oracle-vps" ]]; then
             echo "CLOUDFLARE_TUNNEL_TOKEN=${{ secrets.CLOUDFLARE_TUNNEL_TOKEN }}"
-            echo "DOMAIN_NAME=ratehunter.net"
+            echo "DOMAIN_NAME=projectnyra.com"
             echo "SSL_ENABLED=true"
           fi)
           EOF
@@ -316,7 +316,7 @@ jobs:
           echo "   Time: $(date -Iseconds)"
           echo ""
           if [[ "${{ github.event.inputs.environment }}" == "oracle-vps" ]]; then
-            echo "🔗 Public Access: https://ratehunter.net"
+            echo "🔗 Public Access: https://projectnyra.com"
           else
             echo "🔗 Internal Access: http://prod.nyra.internal"
           fi

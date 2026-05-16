@@ -274,9 +274,9 @@ Public endpoints via Cloudflare Tunnel:
 | Domain | Service | Port |
 |--------|---------|------|
 | ratehunter.net | Landing Page | 3000 |
-| app.ratehunter.net | Mortgage Assistant | 8000 |
-| crm.ratehunter.net | TwentyCRM Dashboard | 3001 |
-| api.ratehunter.net | Nexus Router | 6000 |
+| app.projectnyra.com | Mortgage Assistant | 8000 |
+| crm.projectnyra.com | TwentyCRM Dashboard | 3001 |
+| api.projectnyra.com | Nexus Router | 6000 |
 | metrics.ratehunter.net | Grafana | 3005 |
 
 ---
@@ -397,4 +397,3 @@ nvidia-smi -l 1
 **Cluster Size**: 4 PCs (1 orchestrator + 3 GPU workers)
 **Total GPU Memory**: 84GB (48GB + 24GB + 12GB)
 **Cost Savings**: 80% inference cost reduction vs cloud-only
-

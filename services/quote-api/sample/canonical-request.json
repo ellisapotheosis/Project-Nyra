@@ -1,0 +1,39 @@
+{
+  "leadId": "lead_sample_001",
+  "requestedBy": "broker_sample",
+  "requestedAt": "2026-05-14T18:00:00.000Z",
+  "baseRate": 6.75,
+  "termYears": 30,
+  "loanScenario": {
+    "purpose": "PURCHASE",
+    "loanAmount": {
+      "amountCents": 45000000,
+      "currency": "USD"
+    },
+    "propertyValue": {
+      "amountCents": 50000000,
+      "currency": "USD"
+    },
+    "downPayment": {
+      "amountCents": 5000000,
+      "currency": "USD"
+    },
+    "annualTaxes": {
+      "amountCents": 720000,
+      "currency": "USD"
+    },
+    "annualInsurance": {
+      "amountCents": 180000,
+      "currency": "USD"
+    },
+    "monthlyHoa": {
+      "amountCents": 0,
+      "currency": "USD"
+    },
+    "pmiRateBps": 60,
+    "state": "CA",
+    "occupancy": "PRIMARY",
+    "loanType": "CONVENTIONAL",
+    "creditScore": 740
+  }
+}

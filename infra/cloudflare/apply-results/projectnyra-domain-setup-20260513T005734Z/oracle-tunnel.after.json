@@ -1,0 +1,178 @@
+{
+  "config": {
+    "ingress": [
+      {
+        "hostname": "activepieces.projectnyra.com",
+        "service": "http://activepieces:80"
+      },
+      {
+        "service": "http://activepieces:80",
+        "hostname": "activepieces.projectnyra.com"
+      },
+      {
+        "hostname": "api.projectnyra.com",
+        "service": "http://supabase-kong:8000"
+      },
+      {
+        "service": "http://supabase-kong:8000",
+        "hostname": "api.projectnyra.com"
+      },
+      {
+        "hostname": "app.projectnyra.com",
+        "service": "http://webapp:3001"
+      },
+      {
+        "hostname": "cadvisor.projectnyra.com",
+        "service": "http://cadvisor:8080"
+      },
+      {
+        "service": "http://cadvisor:8080",
+        "hostname": "cadvisor.projectnyra.com"
+      },
+      {
+        "hostname": "clawteam.projectnyra.com",
+        "service": "http://clawteam:8080"
+      },
+      {
+        "service": "http://clawteam:8080",
+        "hostname": "clawteam.projectnyra.com"
+      },
+      {
+        "hostname": "crm.projectnyra.com",
+        "service": "http://twenty:3000"
+      },
+      {
+        "service": "http://twenty:3000",
+        "hostname": "crm.projectnyra.com"
+      },
+      {
+        "hostname": "git-ssh.projectnyra.com",
+        "service": "ssh://gitea:2222"
+      },
+      {
+        "service": "ssh://gitea:2222",
+        "hostname": "git-ssh.projectnyra.com"
+      },
+      {
+        "hostname": "gitea.projectnyra.com",
+        "service": "http://gitea:3000"
+      },
+      {
+        "service": "http://gitea:3000",
+        "hostname": "gitea.projectnyra.com"
+      },
+      {
+        "hostname": "grafana.projectnyra.com",
+        "service": "http://grafana:3000"
+      },
+      {
+        "service": "http://grafana:3000",
+        "hostname": "grafana.projectnyra.com"
+      },
+      {
+        "hostname": "hooks.projectnyra.com",
+        "service": "http://n8n:5678"
+      },
+      {
+        "service": "http://n8n:5678",
+        "hostname": "hooks.projectnyra.com"
+      },
+      {
+        "hostname": "litellm.projectnyra.com",
+        "service": "http://litellm:4000"
+      },
+      {
+        "service": "http://litellm:4000",
+        "hostname": "litellm.projectnyra.com"
+      },
+      {
+        "hostname": "n8n.projectnyra.com",
+        "service": "http://n8n:5678"
+      },
+      {
+        "service": "http://n8n:5678",
+        "hostname": "n8n.projectnyra.com"
+      },
+      {
+        "hostname": "nexus-router.projectnyra.com",
+        "service": "http://nexus:3000"
+      },
+      {
+        "service": "http://nexus-ui:3016",
+        "hostname": "nexus-ui.projectnyra.com"
+      },
+      {
+        "hostname": "nexus.projectnyra.com",
+        "service": "http://nexus-ui:3016"
+      },
+      {
+        "service": "http://nexus:3000",
+        "hostname": "nexus.projectnyra.com"
+      },
+      {
+        "service": "http://webapp:3001",
+        "hostname": "app.projectnyra.com"
+      },
+      {
+        "hostname": "openwebui.projectnyra.com",
+        "service": "http://openwebui:8080"
+      },
+      {
+        "service": "http://openwebui:8080",
+        "hostname": "openwebui.projectnyra.com"
+      },
+      {
+        "hostname": "paperclip.projectnyra.com",
+        "service": "http://paperclip:3100"
+      },
+      {
+        "service": "http://paperclip:3100",
+        "hostname": "paperclip.projectnyra.com"
+      },
+      {
+        "hostname": "portainer-oracle.projectnyra.com",
+        "service": "https://portainer:9443",
+        "originRequest": {
+          "noTLSVerify": true
+        }
+      },
+      {
+        "service": "https://portainer:9443",
+        "hostname": "portainer-oracle.projectnyra.com",
+        "originRequest": {
+          "noTLSVerify": true
+        }
+      },
+      {
+        "hostname": "projectnyra.com",
+        "service": "http://webapp:3001"
+      },
+      {
+        "hostname": "prometheus.projectnyra.com",
+        "service": "http://prometheus:9090"
+      },
+      {
+        "service": "http://prometheus:9090",
+        "hostname": "prometheus.projectnyra.com"
+      },
+      {
+        "hostname": "twenty.projectnyra.com",
+        "service": "http://twenty:3000"
+      },
+      {
+        "service": "http://twenty:3000",
+        "hostname": "twenty.projectnyra.com"
+      },
+      {
+        "hostname": "www.projectnyra.com",
+        "service": "http://webapp:3001"
+      },
+      {
+        "service": "http_status:404"
+      }
+    ],
+    "warp-routing": {
+      "enabled": false
+    }
+  }
+}

@@ -9,7 +9,7 @@ services:
       - "8002:8001"
     environment:
       NODE_ENV: production
-      NEXUS_API_URL: "http://orchestrator.trex-fiordland.ts.net:6000"
+      NEXUS_API_URL: "http://oracle.trex-fiordland.ts.net:6000"
       OPENCLAW_GATEWAY_URL: "http://orchestrator.trex-fiordland.ts.net:8001"
       LITELLM_API_URL: "http://worker-3090-litellm:4000"
       MEM0_API_URL: ${MEM0_API_URL:-http://oracle.trex-fiordland.ts.net:5000}
@@ -22,7 +22,7 @@ services:
       - worker-network
 
   nerve-ui:
-    image: ghcr.io/oraios/nerve-ui:latest
+    image: ghcr.io/openclaw/nerve-ui:latest
     container_name: worker-3090-nerve-ui
     restart: unless-stopped
     ports:

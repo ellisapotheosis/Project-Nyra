@@ -2,8 +2,8 @@
 
 **Phase 2 Complete - Ready for Production Deployment**
 
-**Date**: 2026-01-27  
-**Version**: 1.0.0  
+**Date**: 2026-01-27
+**Version**: 1.0.0
 **Status**: ✅ All Code Complete
 
 ---
@@ -311,8 +311,8 @@ start ..\health-dashboard.html
 ```powershell
 # Test public URLs (from orchestrator or external)
 curl https://ratehunter.net
-curl https://nyra.ratehunter.net
-curl https://crm.ratehunter.net
+curl https://app.projectnyra.com
+curl https://crm.projectnyra.com
 curl https://monitor.ratehunter.net
 
 # Should all return HTTP 200
@@ -564,7 +564,7 @@ docker logs worker-rtx5090-vllm | grep -i redis
 
 ---
 
-**Last Updated**: 2026-01-27  
-**Version**: 1.0.0  
-**Status**: ✅ Ready for Production Deployment  
+**Last Updated**: 2026-01-27
+**Version**: 1.0.0
+**Status**: ✅ Ready for Production Deployment
 **Estimated Total Deployment Time**: 3-4 hours (all 4 PCs)

@@ -14,7 +14,7 @@ services:
       OPENCLAW_ROLE: worker
       OPENCLAW_WORKER_NAME: rtx3060
       OPENCLAW_MODE: cron-automation
-      NEXUS_API_URL: "http://orchestrator.trex-fiordland.ts.net:6000"
+      NEXUS_API_URL: "http://oracle.trex-fiordland.ts.net:6000"
       OPENCLAW_GATEWAY_URL: "http://orchestrator.trex-fiordland.ts.net:8001"
       LITELLM_API_URL: "http://worker-rtx3060.trex-fiordland.ts.net:4000"
       ACTIVEPIECES_API_URL: "http://oracle.trex-fiordland.ts.net:5000"
@@ -28,7 +28,7 @@ services:
       - worker-network
 
   nerve-ui:
-    image: ghcr.io/oraios/nerve-ui:latest
+    image: ghcr.io/openclaw/nerve-ui:latest
     container_name: worker-3060-nerve-ui
     restart: unless-stopped
     ports:

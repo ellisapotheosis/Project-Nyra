@@ -1,7 +1,7 @@
 # TwentyCRM Integration Strategy for Project Nyra
 
-**Decision Date:** 2025-01-18  
-**Architecture Principle:** "Extend TwentyCRM, don't replace it"  
+**Decision Date:** 2025-01-18
+**Architecture Principle:** "Extend TwentyCRM, don't replace it"
 **Reference:** WHITEPAPER.md § 3 - "TwentyCRM is system-of-record"
 
 ---
@@ -115,7 +115,7 @@ services:
       - DATABASE_URL=postgresql://twenty:${TWENTYCRM_DB_PASSWORD}@postgres:5432/twenty
       - REDIS_URL=redis://redis:6379
       - ACCESS_TOKEN_SECRET=${TWENTYCRM_SECRET_KEY}
-      - FRONT_BASE_URL=https://crm.ratehunter.net
+      - FRONT_BASE_URL=https://crm.projectnyra.com
     volumes:
       # Mount custom schema migrations
       - ./twenty-custom-migrations:/app/packages/twenty-server/src/database/migrations/custom
@@ -186,11 +186,11 @@ import { CampaignTrigger } from '@/components/campaigns/trigger';
 
 export default async function LeadsPage() {
   const leads = await getLeads();
-  
+
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-4">Mortgage Leads</h1>
-      
+
       {/* TwentyCRM data in custom UI */}
       <DataTable
         data={leads}
@@ -230,7 +230,7 @@ import { graphitiClient } from './graphiti-client';
 export async function syncLeadToGraphiti(leadId: string) {
   // 1. Fetch lead from TwentyCRM
   const lead = await twentyClient.getPerson(leadId);
-  
+
   // 2. Create temporal knowledge graph node
   await graphitiClient.addNode({
     entityType: 'MortgageLead',
@@ -244,7 +244,7 @@ export async function syncLeadToGraphiti(leadId: string) {
       createdAt: lead.createdAt
     }
   });
-  
+
   // 3. Create relationship to campaign (if exists)
   if (lead.activeCampaign) {
     await graphitiClient.addEdge({
@@ -261,7 +261,7 @@ export async function handleTwentyWebhook(event: WebhookEvent) {
   if (event.type === 'person.created') {
     await syncLeadToGraphiti(event.data.id);
   }
-  
+
   if (event.type === 'person.updated') {
     await syncLeadToGraphiti(event.data.id);
   }
@@ -283,11 +283,11 @@ twenty = TwentyClient(...)
 @app.post("/webhooks/twenty")
 async def twenty_webhook(request: Request):
     event = await request.json()
-    
+
     if event['type'] == 'person.created':
         lead = twenty.get_person(event['data']['id'])
         await sync_to_graphiti(lead)
-    
+
     return {"status": "ok"}
 ```
 
@@ -352,7 +352,7 @@ cd ../../infra
 docker compose up -d twentycrm
 
 # 6. Access TwentyCRM UI
-# https://crm.ratehunter.net (via Cloudflare Tunnel)
+# https://crm.projectnyra.com (via Cloudflare Tunnel)
 ```
 
 ### Phase 2: Build Bridge Service (Week 2)

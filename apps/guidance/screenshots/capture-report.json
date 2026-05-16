@@ -1,0 +1,337 @@
+[
+  {
+    "app": "admin-shell",
+    "route": "/",
+    "url": "http://localhost:3002/",
+    "status": 500,
+    "ok": false,
+    "screenshot": "screenshots/admin-shell/index.png",
+    "consoleMessages": [
+      "error: Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "error: ./app/page.tsx\n'client-only' cannot be imported from a Server Component module. It should only be used from a Client Component.\n\nThe error was caused by using 'styled-jsx' in './app/page.tsx'. It only works in a Client Component but none of its parents are marked with \"use client\", so they're Server Components by default.\n\nImport trace for requested module:\n  ./app/page.tsx"
+    ],
+    "pageErrors": [
+      "'client-only' cannot be imported from a Server Component module. It should only be used from a Client Component.\n\nThe error was caused by using 'styled-jsx' in './app/page.tsx'. It only works in a Client Component but none of its parents are marked with \"use client\", so they're Server Components by default.\n\nImport trace for requested module:\n  ./app/page.tsx"
+    ],
+    "failedRequests": []
+  },
+  {
+    "app": "nyra-admin",
+    "route": "/",
+    "url": "http://localhost:3008/",
+    "status": 200,
+    "ok": true,
+    "screenshot": "screenshots/nyra-admin/index.png",
+    "consoleMessages": [],
+    "pageErrors": [],
+    "failedRequests": []
+  },
+  {
+    "app": "nyra-admin",
+    "route": "/leads",
+    "url": "http://localhost:3008/leads",
+    "status": 200,
+    "ok": true,
+    "screenshot": "screenshots/nyra-admin/_leads.png",
+    "consoleMessages": [],
+    "pageErrors": [],
+    "failedRequests": []
+  },
+  {
+    "app": "nyra-admin",
+    "route": "/quotes",
+    "url": "http://localhost:3008/quotes",
+    "status": 200,
+    "ok": true,
+    "screenshot": "screenshots/nyra-admin/_quotes.png",
+    "consoleMessages": [
+      "warning: WebSocket connection to 'ws://localhost:6000/socket.io/?EIO=4&transport=websocket' failed: WebSocket is closed before the connection is established.",
+      "error: WebSocket connection to 'ws://localhost:6000/socket.io/?EIO=4&transport=websocket' failed: Error in connection establishment: net::ERR_UNSAFE_PORT",
+      "error: WebSocket connection error: TransportError: websocket error\n    at WS.onError (webpack-internal:///(app-pages-browser)/../../../node_modules/.pnpm/engine.io-client@6.6.4/node_modules/engine.io-client/build/esm/transport.js:48:37)\n    at ws.onerror (webpack-internal:///(app-pages-browser)/../../../node_modules/.pnpm/engine.io-client@6.6.4/node_modules/engine.io-client/build/esm/transports/websocket.js:58:39)",
+      "error: WebSocket connection to 'ws://localhost:6000/socket.io/?EIO=4&transport=websocket' failed: Error in connection establishment: net::ERR_UNSAFE_PORT",
+      "error: WebSocket connection error: TransportError: websocket error\n    at WS.onError (webpack-internal:///(app-pages-browser)/../../../node_modules/.pnpm/engine.io-client@6.6.4/node_modules/engine.io-client/build/esm/transport.js:48:37)\n    at ws.onerror (webpack-internal:///(app-pages-browser)/../../../node_modules/.pnpm/engine.io-client@6.6.4/node_modules/engine.io-client/build/esm/transports/websocket.js:58:39)"
+    ],
+    "pageErrors": [],
+    "failedRequests": []
+  },
+  {
+    "app": "landing-legacy",
+    "route": "/",
+    "url": "http://localhost:3007/",
+    "status": 0,
+    "ok": false,
+    "screenshot": null,
+    "consoleMessages": [],
+    "pageErrors": [],
+    "failedRequests": [
+      "http://localhost:3007/ :: net::ERR_CONNECTION_REFUSED"
+    ],
+    "error": "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3007/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3007/\", waiting until \"networkidle\"\u001b[22m\n"
+  },
+  {
+    "app": "landing-legacy",
+    "route": "/thank-you",
+    "url": "http://localhost:3007/thank-you",
+    "status": 0,
+    "ok": false,
+    "screenshot": null,
+    "consoleMessages": [],
+    "pageErrors": [],
+    "failedRequests": [
+      "http://localhost:3007/thank-you :: net::ERR_CONNECTION_REFUSED"
+    ],
+    "error": "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3007/thank-you\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3007/thank-you\", waiting until \"networkidle\"\u001b[22m\n"
+  },
+  {
+    "app": "landing-main",
+    "route": "/",
+    "url": "http://localhost:3004/",
+    "status": 0,
+    "ok": false,
+    "screenshot": null,
+    "consoleMessages": [],
+    "pageErrors": [],
+    "failedRequests": [
+      "http://localhost:3004/ :: net::ERR_CONNECTION_REFUSED"
+    ],
+    "error": "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3004/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3004/\", waiting until \"networkidle\"\u001b[22m\n"
+  },
+  {
+    "app": "webapp",
+    "route": "/",
+    "url": "http://localhost:3005/",
+    "status": 0,
+    "ok": false,
+    "screenshot": null,
+    "consoleMessages": [],
+    "pageErrors": [],
+    "failedRequests": [
+      "http://localhost:3005/ :: net::ERR_CONNECTION_REFUSED"
+    ],
+    "error": "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3005/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3005/\", waiting until \"networkidle\"\u001b[22m\n"
+  },
+  {
+    "app": "webapp",
+    "route": "/applications",
+    "url": "http://localhost:3005/applications",
+    "status": 0,
+    "ok": false,
+    "screenshot": null,
+    "consoleMessages": [],
+    "pageErrors": [],
+    "failedRequests": [
+      "http://localhost:3005/applications :: net::ERR_CONNECTION_REFUSED"
+    ],
+    "error": "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3005/applications\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3005/applications\", waiting until \"networkidle\"\u001b[22m\n"
+  },
+  {
+    "app": "webapp",
+    "route": "/assistant",
+    "url": "http://localhost:3005/assistant",
+    "status": 0,
+    "ok": false,
+    "screenshot": null,
+    "consoleMessages": [],
+    "pageErrors": [],
+    "failedRequests": [
+      "http://localhost:3005/assistant :: net::ERR_CONNECTION_REFUSED"
+    ],
+    "error": "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3005/assistant\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3005/assistant\", waiting until \"networkidle\"\u001b[22m\n"
+  },
+  {
+    "app": "webapp",
+    "route": "/campaigns",
+    "url": "http://localhost:3005/campaigns",
+    "status": 0,
+    "ok": false,
+    "screenshot": null,
+    "consoleMessages": [],
+    "pageErrors": [],
+    "failedRequests": [
+      "http://localhost:3005/campaigns :: net::ERR_CONNECTION_REFUSED"
+    ],
+    "error": "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3005/campaigns\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3005/campaigns\", waiting until \"networkidle\"\u001b[22m\n"
+  },
+  {
+    "app": "webapp",
+    "route": "/campaigns/builder",
+    "url": "http://localhost:3005/campaigns/builder",
+    "status": 0,
+    "ok": false,
+    "screenshot": null,
+    "consoleMessages": [],
+    "pageErrors": [],
+    "failedRequests": [
+      "http://localhost:3005/campaigns/builder :: net::ERR_CONNECTION_REFUSED"
+    ],
+    "error": "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3005/campaigns/builder\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3005/campaigns/builder\", waiting until \"networkidle\"\u001b[22m\n"
+  },
+  {
+    "app": "webapp",
+    "route": "/campaigns/builder/1",
+    "url": "http://localhost:3005/campaigns/builder/1",
+    "status": 0,
+    "ok": false,
+    "screenshot": null,
+    "consoleMessages": [],
+    "pageErrors": [],
+    "failedRequests": [
+      "http://localhost:3005/campaigns/builder/1 :: net::ERR_CONNECTION_REFUSED"
+    ],
+    "error": "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3005/campaigns/builder/1\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3005/campaigns/builder/1\", waiting until \"networkidle\"\u001b[22m\n"
+  },
+  {
+    "app": "webapp",
+    "route": "/crm",
+    "url": "http://localhost:3005/crm",
+    "status": 0,
+    "ok": false,
+    "screenshot": null,
+    "consoleMessages": [],
+    "pageErrors": [],
+    "failedRequests": [
+      "http://localhost:3005/crm :: net::ERR_CONNECTION_REFUSED"
+    ],
+    "error": "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3005/crm\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3005/crm\", waiting until \"networkidle\"\u001b[22m\n"
+  },
+  {
+    "app": "webapp",
+    "route": "/leads",
+    "url": "http://localhost:3005/leads",
+    "status": 0,
+    "ok": false,
+    "screenshot": null,
+    "consoleMessages": [],
+    "pageErrors": [],
+    "failedRequests": [
+      "http://localhost:3005/leads :: net::ERR_CONNECTION_REFUSED"
+    ],
+    "error": "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3005/leads\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3005/leads\", waiting until \"networkidle\"\u001b[22m\n"
+  },
+  {
+    "app": "webapp",
+    "route": "/leads/1",
+    "url": "http://localhost:3005/leads/1",
+    "status": 0,
+    "ok": false,
+    "screenshot": null,
+    "consoleMessages": [],
+    "pageErrors": [],
+    "failedRequests": [
+      "http://localhost:3005/leads/1 :: net::ERR_CONNECTION_REFUSED"
+    ],
+    "error": "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3005/leads/1\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3005/leads/1\", waiting until \"networkidle\"\u001b[22m\n"
+  },
+  {
+    "app": "webapp",
+    "route": "/pipeline",
+    "url": "http://localhost:3005/pipeline",
+    "status": 0,
+    "ok": false,
+    "screenshot": null,
+    "consoleMessages": [],
+    "pageErrors": [],
+    "failedRequests": [
+      "http://localhost:3005/pipeline :: net::ERR_CONNECTION_REFUSED"
+    ],
+    "error": "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3005/pipeline\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3005/pipeline\", waiting until \"networkidle\"\u001b[22m\n"
+  },
+  {
+    "app": "webapp",
+    "route": "/quotes",
+    "url": "http://localhost:3005/quotes",
+    "status": 0,
+    "ok": false,
+    "screenshot": null,
+    "consoleMessages": [],
+    "pageErrors": [],
+    "failedRequests": [
+      "http://localhost:3005/quotes :: net::ERR_CONNECTION_REFUSED"
+    ],
+    "error": "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3005/quotes\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3005/quotes\", waiting until \"networkidle\"\u001b[22m\n"
+  },
+  {
+    "app": "webapp",
+    "route": "/settings",
+    "url": "http://localhost:3005/settings",
+    "status": 0,
+    "ok": false,
+    "screenshot": null,
+    "consoleMessages": [],
+    "pageErrors": [],
+    "failedRequests": [
+      "http://localhost:3005/settings :: net::ERR_CONNECTION_REFUSED"
+    ],
+    "error": "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3005/settings\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3005/settings\", waiting until \"networkidle\"\u001b[22m\n"
+  },
+  {
+    "app": "webapp",
+    "route": "/tools/openclaw",
+    "url": "http://localhost:3005/tools/openclaw",
+    "status": 0,
+    "ok": false,
+    "screenshot": null,
+    "consoleMessages": [],
+    "pageErrors": [],
+    "failedRequests": [
+      "http://localhost:3005/tools/openclaw :: net::ERR_CONNECTION_REFUSED"
+    ],
+    "error": "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3005/tools/openclaw\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3005/tools/openclaw\", waiting until \"networkidle\"\u001b[22m\n"
+  },
+  {
+    "app": "mortgage-crm",
+    "route": "/",
+    "url": "http://localhost:3006/",
+    "status": 0,
+    "ok": false,
+    "screenshot": null,
+    "consoleMessages": [],
+    "pageErrors": [],
+    "failedRequests": [
+      "http://localhost:3006/ :: net::ERR_CONNECTION_REFUSED"
+    ],
+    "error": "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3006/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3006/\", waiting until \"networkidle\"\u001b[22m\n"
+  },
+  {
+    "app": "mortgage-crm",
+    "route": "/leads/1",
+    "url": "http://localhost:3006/leads/1",
+    "status": 0,
+    "ok": false,
+    "screenshot": null,
+    "consoleMessages": [],
+    "pageErrors": [],
+    "failedRequests": [
+      "http://localhost:3006/leads/1 :: net::ERR_CONNECTION_REFUSED"
+    ],
+    "error": "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3006/leads/1\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3006/leads/1\", waiting until \"networkidle\"\u001b[22m\n"
+  },
+  {
+    "app": "twenty-shell",
+    "route": "/",
+    "url": "http://localhost:3003/",
+    "status": 200,
+    "ok": true,
+    "screenshot": "screenshots/twenty-shell/index.png",
+    "consoleMessages": [
+      "warning: Image with src \"/ratehunter-navbar-logo.png\" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: \"auto\"' or 'height: \"auto\"' to maintain the aspect ratio.",
+      "warning: Image with src \"/ratehunter-footer-logo.png\" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: \"auto\"' or 'height: \"auto\"' to maintain the aspect ratio."
+    ],
+    "pageErrors": [],
+    "failedRequests": []
+  },
+  {
+    "app": "nexus-ui",
+    "route": "/",
+    "url": "http://localhost:3018/",
+    "status": 0,
+    "ok": false,
+    "screenshot": null,
+    "consoleMessages": [],
+    "pageErrors": [],
+    "failedRequests": [
+      "http://localhost:3018/ :: net::ERR_CONNECTION_REFUSED"
+    ],
+    "error": "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3018/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3018/\", waiting until \"networkidle\"\u001b[22m\n"
+  }
+]

@@ -65,6 +65,20 @@ const ConfigSchema = z.object({
     enabled: z.boolean().default(true),
     metricsInterval: z.number().default(60000),
   }),
+  mcp: z.object({
+    github: z.object({
+      enabled: z.boolean().default(true),
+      token: z.string().optional(),
+      baseUrl: z.string().default('http://github-mcp:8813'),
+      timeout: z.number().default(30000),
+      retries: z.number().default(3),
+    }),
+    auditLogging: z.object({
+      enabled: z.boolean().default(true),
+      logPath: z.string().default('./logs/mcp-audit.log'),
+      redactSecrets: z.boolean().default(true),
+    }),
+  }),
 });
 
 // Parse local workers from environment
@@ -157,6 +171,20 @@ export const config = ConfigSchema.parse({
   monitoring: {
     enabled: process.env.NEXUS_MONITORING_ENABLED !== 'false',
     metricsInterval: 60000,
+  },
+  mcp: {
+    github: {
+      enabled: process.env.GITHUB_MCP_ENABLED !== 'false',
+      token: process.env.GITHUB_TOKEN,
+      baseUrl: process.env.GITHUB_MCP_URL || 'http://github-mcp:8813',
+      timeout: parseInt(process.env.GITHUB_MCP_TIMEOUT || '30000', 10),
+      retries: parseInt(process.env.GITHUB_MCP_RETRIES || '3', 10),
+    },
+    auditLogging: {
+      enabled: process.env.MCP_AUDIT_LOGGING_ENABLED !== 'false',
+      logPath: process.env.MCP_AUDIT_LOG_PATH || './logs/mcp-audit.log',
+      redactSecrets: process.env.MCP_AUDIT_REDACT_SECRETS !== 'false',
+    },
   },
 });
 

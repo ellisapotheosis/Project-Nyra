@@ -2,7 +2,9 @@
 
 services:
   model-switcher:
-    image: python:3.11-slim
+    build:
+      context: ./model-switcher
+    image: nyra/worker-5090-model-switcher:local
     container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-5090-model-switcher
     restart: unless-stopped
     ports:
@@ -11,9 +13,8 @@ services:
       VLLM_URL: http://worker-5090-vllm:8000
       LITELLM_URL: http://worker-5090-litellm:4000
       MODEL_SWITCHER_WORKER: worker-rtx5090
+      SWITCHER_PORT: "8099"
     working_dir: /app
-    volumes:
-      - ./model-switcher:/app:ro
     command:
       - /bin/sh
       - -lc

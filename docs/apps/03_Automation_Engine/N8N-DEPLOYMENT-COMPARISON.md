@@ -41,7 +41,7 @@
 ✅ **Public Webhook URL**: Stable URL for workflow triggers
 ✅ **Auto-Scaling**: Scale from 0-10 instances based on load
 ✅ **SSL/TLS**: Automatic HTTPS certificates
-✅ **Custom Domain**: `n8n.ratehunter.net` support
+✅ **Custom Domain**: `n8n.projectnyra.com` support
 ✅ **GitHub CI/CD**: Auto-deploy on git push
 ✅ **Health Checks**: Automatic restart on failure
 ✅ **Logs & Metrics**: Built-in monitoring
@@ -281,17 +281,17 @@ See full guide: `docs/guides/KOYEB-N8N-SETUP.md`
 oracle-vps app create n8n \
   --docker n8nio/n8n:latest \
   --ports 5678:http \
-  --env N8N_HOST=n8n.ratehunter.net \
-  --env WEBHOOK_URL=https://n8n.ratehunter.net/
+  --env N8N_HOST=n8n.projectnyra.com \
+  --env WEBHOOK_URL=https://n8n.projectnyra.com/
 
 # 2. Add database (use Oracle VPS free PostgreSQL)
 oracle-vps database create n8n-db --type postgres
 
 # 3. Configure domain
-oracle-vps domain add n8n.ratehunter.net --app n8n
+oracle-vps domain add n8n.projectnyra.com --app n8n
 
 # 4. Access n8n
-open https://n8n.ratehunter.net
+open https://n8n.projectnyra.com
 ```
 
 ### Option B: Flow Nexus Swarm (AI-Powered)
@@ -327,9 +327,9 @@ npx flow-nexus workflow execute mortgage-analysis \
 
 ```bash
 # Required
-N8N_HOST=n8n.ratehunter.net
+N8N_HOST=n8n.projectnyra.com
 N8N_PROTOCOL=https
-WEBHOOK_URL=https://n8n.ratehunter.net/
+WEBHOOK_URL=https://n8n.projectnyra.com/
 
 # Database (use Oracle VPS managed PostgreSQL)
 DB_TYPE=postgresdb

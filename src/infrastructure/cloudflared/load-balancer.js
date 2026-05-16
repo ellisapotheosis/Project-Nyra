@@ -136,7 +136,7 @@ class CloudflareLoadBalancer {
    */
   async createLoadBalancer(poolId) {
     const lbConfig = {
-      name: 'api.ratehunter.net',
+      name: 'api.projectnyra.com',
       fallback_pool: poolId,
       default_pools: [poolId],
       description: 'Nyra GPU Compute API Load Balancer',
@@ -342,7 +342,7 @@ class CloudflareLoadBalancer {
       console.log('─'.repeat(50));
       console.log(`Pool ID: ${pool.id}`);
       console.log(`Load Balancer ID: ${loadBalancer.id}`);
-      console.log(`API Endpoint: https://api.ratehunter.net`);
+      console.log(`API Endpoint: https://api.projectnyra.com`);
       console.log('\n📊 Features Enabled:');
       console.log('   - Dynamic latency steering');
       console.log('   - Health monitoring');
@@ -352,7 +352,7 @@ class CloudflareLoadBalancer {
       return {
         pool,
         loadBalancer,
-        apiEndpoint: 'https://api.ratehunter.net'
+        apiEndpoint: 'https://api.projectnyra.com'
       };
     } catch (error) {
       console.error('❌ Load balancing setup failed:', error.message);
@@ -385,7 +385,7 @@ class CloudflareLoadBalancer {
     console.log('🧪 Testing load balancer functionality...');
 
     const testEndpoints = [
-      'https://api.ratehunter.net/health',
+      'https://api.projectnyra.com/health',
       'https://worker1.ratehunter.net/health',
       'https://worker2.ratehunter.net/health',
       'https://worker3.ratehunter.net/health'

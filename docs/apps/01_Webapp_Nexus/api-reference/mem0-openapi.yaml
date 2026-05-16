@@ -10,7 +10,7 @@ info:
 
     **Base URL**: `http://localhost:8004` (development)
 
-    **Production URL**: `https://api.ratehunter.net/memory`
+    **Production URL**: `https://api.projectnyra.com/memory`
   version: 1.0.0
   contact:
     name: Project Nyra API Support
@@ -23,7 +23,7 @@ servers:
     description: Local development server
   - url: http://mem0:8004
     description: Docker internal network
-  - url: https://api.ratehunter.net/memory
+  - url: https://api.projectnyra.com/memory
     description: Production API
 
 tags:

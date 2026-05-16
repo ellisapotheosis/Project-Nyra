@@ -45,8 +45,8 @@ DATABASE_URL=postgresql://nyra_admin:${POSTGRES_PASSWORD}@orchestrator-mini.tail
 
 # Server Configuration
 PORT=3000
-SERVER_URL=https://crm.ratehunter.net
-FRONT_BASE_URL=https://crm.ratehunter.net
+SERVER_URL=https://crm.projectnyra.com
+FRONT_BASE_URL=https://crm.projectnyra.com
 
 # Authentication
 ACCESS_TOKEN_SECRET=$(openssl rand -hex 32)
@@ -83,7 +83,7 @@ TELEMETRY_ANONYMIZATION_ENABLED=true
 SIGN_UP_DISABLED=false
 
 # n8n Webhook Integration
-N8N_WEBHOOK_URL=https://n8n.ratehunter.net/webhook
+N8N_WEBHOOK_URL=https://n8n.projectnyra.com/webhook
 N8N_API_KEY=${N8N_API_KEY}
 
 # Mortgage-Specific Fields
@@ -108,8 +108,8 @@ Add to `orchestrator/docker-compose.yml`:
       - "3001:3000"
     environment:
       - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:${POSTGRES_PORT}/twentycrm
-      - SERVER_URL=https://crm.ratehunter.net
-      - FRONT_BASE_URL=https://crm.ratehunter.net
+      - SERVER_URL=https://crm.projectnyra.com
+      - FRONT_BASE_URL=https://crm.projectnyra.com
       - ACCESS_TOKEN_SECRET=${TWENTYCRM_ACCESS_TOKEN_SECRET}
       - REFRESH_TOKEN_SECRET=${TWENTYCRM_REFRESH_TOKEN_SECRET}
       - LOGIN_TOKEN_SECRET=${TWENTYCRM_LOGIN_TOKEN_SECRET}
@@ -164,14 +164,14 @@ Add to `.cloudflared/config.yml`:
 ```yaml
 ingress:
   # ... existing entries ...
-  - hostname: crm.ratehunter.net
+  - hostname: crm.projectnyra.com
     service: http://localhost:3001
   # ... catch-all ...
 ```
 
 Create DNS record:
 ```powershell
-cloudflared tunnel route dns nyra-mortgage-platform crm.ratehunter.net
+cloudflared tunnel route dns nyra-mortgage-platform crm.projectnyra.com
 ```
 
 ### 5. Deploy TwentyCRM
@@ -193,7 +193,7 @@ docker-compose up -d twentycrm
 docker-compose logs -f twentycrm
 
 # Access CRM
-# https://crm.ratehunter.net
+# https://crm.projectnyra.com
 ```
 
 ---
@@ -297,11 +297,11 @@ systemctl restart n8n  # or docker-compose restart n8n
 
 ### 2. Configure n8n Credentials
 
-In n8n UI (https://n8n.ratehunter.net):
+In n8n UI (https://n8n.projectnyra.com):
 
 1. Go to **Settings** → **Credentials**
 2. Add **Twenty CRM** credentials:
-   - **API URL**: `https://crm.ratehunter.net/graphql`
+   - **API URL**: `https://crm.projectnyra.com/graphql`
    - **API Key**: (generate in TwentyCRM → Settings → API)
 
 ### 3. Example Workflows

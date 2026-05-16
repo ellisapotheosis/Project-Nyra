@@ -226,15 +226,15 @@ access:
       requires:
         - mfa: true
       hostnames:
-        - "admin.nyra.ratehunter.net"
-        - "monitor.nyra.ratehunter.net"
+        - "admin.app.projectnyra.com"
+        - "monitor.app.projectnyra.com"
 
     - name: "API Access"
       includes:
         - service_token: true
         - ip_range: "192.168.1.0/24"
       hostnames:
-        - "api.nyra.ratehunter.net"
+        - "api.app.projectnyra.com"
 
     - name: "Worker Access (Internal Only)"
       includes:
@@ -269,9 +269,9 @@ ip_rules:
 #### 🟠 HIGH: No Service-Level Access Control
 
 **Exposed Services Without Authorization:**
-- `admin.nyra.ratehunter.net` → Admin interface (port 4000)
-- `monitor.nyra.ratehunter.net` → Monitoring (port 3000)
-- `metrics.nyra.ratehunter.net` → Prometheus (port 9090)
+- `admin.app.projectnyra.com` → Admin interface (port 4000)
+- `monitor.app.projectnyra.com` → Monitoring (port 3000)
+- `metrics.app.projectnyra.com` → Prometheus (port 9090)
 - `worker1-metrics.ratehunter.net` → Worker metrics (port 9001)
 - `worker1-health.ratehunter.net` → Health endpoints
 
@@ -313,7 +313,7 @@ rate_limiting:
     period: 60s
     action: block
     hostnames:
-      - "admin.nyra.ratehunter.net"
+      - "admin.app.projectnyra.com"
 ```
 
 ### Access Policy Security Score
@@ -337,11 +337,11 @@ rate_limiting:
 
 | Hostname | Service | Port | Sensitivity | Public? | Issue |
 |----------|---------|------|-------------|---------|-------|
-| `api.nyra.ratehunter.net` | API Gateway | 8000 | HIGH | ✅ Yes | Requires auth |
-| `admin.nyra.ratehunter.net` | Admin Panel | 4000 | CRITICAL | ✅ Yes | 🔴 SHOULD BE INTERNAL |
-| `monitor.nyra.ratehunter.net` | Monitoring | 3000 | HIGH | ✅ Yes | 🔴 SHOULD BE INTERNAL |
-| `metrics.nyra.ratehunter.net` | Prometheus | 9090 | HIGH | ✅ Yes | 🔴 SHOULD BE INTERNAL |
-| `nyra.ratehunter.net` | Web UI | 3000 | MEDIUM | ✅ Yes | Needs auth |
+| `api.app.projectnyra.com` | API Gateway | 8000 | HIGH | ✅ Yes | Requires auth |
+| `admin.app.projectnyra.com` | Admin Panel | 4000 | CRITICAL | ✅ Yes | 🔴 SHOULD BE INTERNAL |
+| `monitor.app.projectnyra.com` | Monitoring | 3000 | HIGH | ✅ Yes | 🔴 SHOULD BE INTERNAL |
+| `metrics.app.projectnyra.com` | Prometheus | 9090 | HIGH | ✅ Yes | 🔴 SHOULD BE INTERNAL |
+| `app.projectnyra.com` | Web UI | 3000 | MEDIUM | ✅ Yes | Needs auth |
 | `mcp.ratehunter.net` | MetaMCP Gateway | 8005 | HIGH | ✅ Yes | 🟠 Requires service token |
 | `secrets.ratehunter.net` | Infisical MCP | 8006 | CRITICAL | ✅ Yes | 🔴 SECRETS API PUBLIC! |
 
@@ -396,7 +396,7 @@ rate_limiting:
 
 #### 🔴 CRITICAL: Admin Panel Publicly Accessible
 
-**Service:** `admin.nyra.ratehunter.net` (port 4000)
+**Service:** `admin.app.projectnyra.com` (port 4000)
 
 **Risk:**
 - Administrative functions exposed to internet
@@ -409,7 +409,7 @@ rate_limiting:
 # Access admin panel only via VPN or SSH tunnel
 
 # Option 2: Add strict Cloudflare Access policy
-- hostname: admin.nyra.ratehunter.net
+- hostname: admin.app.projectnyra.com
   service: http://localhost:4000
   access:
     required: true
@@ -843,8 +843,8 @@ iptables -A DOCKER-USER -s 172.21.0.0/16 -d 8.8.8.8 -p udp --dport 53 -j ACCEPT 
 **Primary Domain:** ratehunter.net
 
 **Subdomains Configured:**
-- `nyra.ratehunter.net` → Orchestrator Web UI
-- `api.ratehunter.net` → API Gateway
+- `app.projectnyra.com` → Orchestrator Web UI
+- `api.projectnyra.com` → API Gateway
 - `admin.ratehunter.net` → Admin Panel
 - `monitor.ratehunter.net` → Monitoring Dashboard
 - `metrics.ratehunter.net` → Prometheus Metrics
@@ -896,7 +896,7 @@ done
 
 **Expected Output:**
 ```
-=== api.ratehunter.net ===
+=== api.projectnyra.com ===
 <tunnel-id>.cfargotunnel.com.
 104.16.x.x
 ```
@@ -1718,7 +1718,7 @@ trivy image cloudflare/cloudflared:latest
 docker exec nyra-worker-1 nc -zv nyra-postgres 5432
 
 # Review DNS records
-dig +short api.ratehunter.net
+dig +short api.projectnyra.com
 dig +short admin.ratehunter.net
 
 # Check log file permissions

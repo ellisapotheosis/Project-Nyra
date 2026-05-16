@@ -50,7 +50,7 @@ class CloudflareDNSManager {
         comment: 'Nyra Worker 3 - Desktop PC (RTX 3090Ti)'
       },
       {
-        name: 'api.ratehunter.net',
+        name: 'api.projectnyra.com',
         type: 'CNAME',
         content: `${process.env.NYRA_ORCHESTRATOR_TUNNEL_ID}.cfargotunnel.com`,
         comment: 'Nyra API Gateway - Load Balanced'
@@ -62,7 +62,7 @@ class CloudflareDNSManager {
         comment: 'Nyra Health Monitoring Dashboard'
       },
       {
-        name: 'nyra.ratehunter.net',
+        name: 'app.projectnyra.com',
         type: 'CNAME',
         content: `${process.env.NYRA_ORCHESTRATOR_TUNNEL_ID}.cfargotunnel.com`,
         comment: 'Main Nyra Interface'

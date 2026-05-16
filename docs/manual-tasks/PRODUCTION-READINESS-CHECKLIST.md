@@ -228,7 +228,7 @@
   ingress:
     - hostname: compute-01.ratehunter.net
       service: http://localhost:8080
-    - hostname: api.ratehunter.net
+    - hostname: api.projectnyra.com
       service: http://localhost:3000
     - service: http_status:404
   ```
@@ -1440,7 +1440,7 @@
 
 - [ ] **Configure webhooks (optional)**
   - Navigate to Settings → Mail Settings → Event Webhook
-  - Webhook URL: `https://api.ratehunter.net/webhooks/sendgrid`
+  - Webhook URL: `https://api.projectnyra.com/webhooks/sendgrid`
   - Select events: delivered, opened, clicked, bounced, spam_report
   - Implement webhook handler in API
   - Time: 45 minutes
@@ -1531,8 +1531,8 @@
   - Navigate to Phone Numbers → Manage → Active Numbers
   - Select your number
   - Configure webhooks:
-    - Messaging webhook: `https://api.ratehunter.net/webhooks/twilio`
-    - Status callback: `https://api.ratehunter.net/webhooks/twilio/status`
+    - Messaging webhook: `https://api.projectnyra.com/webhooks/twilio`
+    - Status callback: `https://api.projectnyra.com/webhooks/twilio/status`
   - Implement webhook handlers in API
   - Time: 45 minutes
 
@@ -2597,7 +2597,7 @@
         },
       };
 
-      const res = http.post('https://api.ratehunter.net/rates/quote', payload, params);
+      const res = http.post('https://api.projectnyra.com/rates/quote', payload, params);
 
       check(res, {
         'status is 200': (r) => r.status === 200,
@@ -2680,7 +2680,7 @@
 - [ ] **Define scope**
   - In-scope:
     - Web application (ratehunter.net)
-    - API endpoints (api.ratehunter.net)
+    - API endpoints (api.projectnyra.com)
     - Infrastructure (Cloudflare, worker PCs)
   - Out-of-scope:
     - Third-party services (Anthropic, SendGrid)
@@ -2948,7 +2948,7 @@
     # Test rate quote endpoint
     for i in {1..1000}; do
       curl -w "%{time_total}\n" -o /dev/null -s \
-        -X POST https://api.ratehunter.net/rates/quote \
+        -X POST https://api.projectnyra.com/rates/quote \
         -H "Content-Type: application/json" \
         -d '{"loanAmount":300000,"creditScore":720}'
     done | awk '{sum+=$1; sumsq+=$1*$1} END {print "Avg:",sum/NR,"StdDev:",sqrt(sumsq/NR - (sum/NR)**2)}'
@@ -3047,7 +3047,7 @@
     ssh worker-01 "sudo shutdown now"
 
     # Monitor from Compute-01
-    watch -n 5 'curl -s https://api.ratehunter.net/health | jq'
+    watch -n 5 'curl -s https://api.projectnyra.com/health | jq'
     ```
   - Verify behavior matches expectations
   - Bring Worker-01 back online
@@ -3194,7 +3194,7 @@
     **Description**: Generates mortgage rate quotes using AI models
     **Owner**: Backend Team (backend-oncall@company.com)
     **Dependencies**: PostgreSQL, Redis, Anthropic API, OpenRouter
-    **Health Check**: https://api.ratehunter.net/health
+    **Health Check**: https://api.projectnyra.com/health
     **Dashboard**: https://ratehunter.grafana.net/d/api-metrics
     **Logs**: Grafana Loki, query: {service="rate-api"}
 
@@ -3514,7 +3514,7 @@
   - Monitor from multiple locations (US-East, US-West, EU)
   - Check:
     - Website uptime (ratehunter.net)
-    - API health endpoint (api.ratehunter.net/health)
+    - API health endpoint (api.projectnyra.com/health)
   - Alert if down from 2+ locations
   - Time: 2 hours
 
@@ -3884,4 +3884,3 @@
 ---
 
 **END OF DOCUMENT**
-

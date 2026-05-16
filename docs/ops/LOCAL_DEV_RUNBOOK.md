@@ -41,13 +41,27 @@ cd services/campaign-service
 pnpm dev
 ```
 
-## 4. Testing Contracts
-
+## 4. Testing & Verification
 ```bash
-pnpm test:contracts
+# Run contract tests
+make foundation-check
+
+# Run end-to-end behavioral simulation
+make simulate
 ```
 
-## 5. Adding New Integrations
+## 5. UI Development
+Access the Fleet Dashboard and Campaign views:
+```bash
+make fleet-dev
+```
+- **Fleet Dashboard**: `http://localhost:3000/fleet`
+- **Campaign Dashboard**: `http://localhost:3000/campaigns`
+- **Lead Management**: `http://localhost:3000/leads`
+
+## 6. Adding New Integrations
+...
+
 
 1. Define the interface in `packages/integration-adapters`.
 2. Implement a mock client.

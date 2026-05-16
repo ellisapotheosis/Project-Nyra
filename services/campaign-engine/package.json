@@ -7,9 +7,9 @@
   "scripts": {
     "start": "node src/index.js",
     "dev": "nodemon src/index.js",
-    "test": "NODE_ENV=test jest --coverage",
-    "test:watch": "NODE_ENV=test jest --watch",
-    "test:integration": "NODE_ENV=test jest --testPathPattern=integration",
+    "test": "NODE_ENV=test NODE_OPTIONS=--experimental-vm-modules jest --coverage",
+    "test:watch": "NODE_ENV=test NODE_OPTIONS=--experimental-vm-modules jest --watch",
+    "test:integration": "NODE_ENV=test NODE_OPTIONS=--experimental-vm-modules jest --testPathPattern=integration",
     "lint": "eslint src tests",
     "format": "prettier --write \"src/**/*.js\" \"tests/**/*.js\""
   },

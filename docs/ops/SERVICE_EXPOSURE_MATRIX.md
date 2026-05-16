@@ -4,19 +4,19 @@
 
 | Service                  | Level     | Public Hostname                                     | Notes                                                    |
 | :----------------------- | :-------- | :-------------------------------------------------- | :------------------------------------------------------- |
-| **TwentyCRM**            | Protected | `crm.ratehunter.net`                                | Cloudflare Access required.                              |
-| **WebApp**               | Public    | `nyra.ratehunter.net`                               | Primary broker/customer interface.                       |
-| **Activepieces**         | Protected | `activepieces.ratehunter.net`                       | Internal automation dashboard.                           |
-| **n8n**                  | Protected | `n8n.ratehunter.net`                                | Internal automation.                                     |
-| **Gitea**                | Protected | `gitea.ratehunter.net`                              | Repository hosting.                                      |
-| **Grafana**              | Protected | `grafana.ratehunter.net`                            | Monitoring.                                              |
-| **Linkwarden**           | Protected | `links.ratehunter.net`, `linkwarden.ratehunter.net` | Home Assistant Green origin through orchestrator tunnel. |
-| **Nexus UI**             | Protected | `nexus.ratehunter.net`                              | Operator UI.                                             |
-| **Nexus Router API/MCP** | Protected | `nexus-router.ratehunter.net`                       | Service-token preferred; agent entrypoint.               |
-| **LiteLLM**              | Protected | `litellm.ratehunter.net`                            | Owner-only model router.                                 |
-| **vLLM / Ollama**        | Private   | N/A                                                 | Tailscale only.                                          |
-| **Postgres / Redis**     | Private   | N/A                                                 | Never expose publicly.                                   |
-| **FalkorDB / Qdrant**    | Private   | N/A                                                 | Never expose publicly.                                   |
+| **Landing Page**         | Public    | `ratehunter.net`                                    | Hosted on Cloudflare Pages.                              |
+| **Lead Capture API**     | Public    | `capture.projectnyra.com`                            | Webhook Ingress (Oracle VPS).                            |
+| **WebApp**               | Public    | `app.projectnyra.com`                               | Broker/Customer interface (Oracle VPS).                 |
+| **TwentyCRM**            | Protected | `crm.projectnyra.com`                                | Cloudflare Access required (Oracle VPS).                 |
+| **Activepieces**         | Protected | `activepieces.projectnyra.com`                       | Internal automation (Oracle VPS).                        |
+| **n8n**                  | Protected | `n8n.projectnyra.com`                                | Internal automation (Oracle VPS).                        |
+| **Gitea**                | Protected | `gitea.projectnyra.com`                              | Repository hosting (Oracle VPS).                         |
+| **Nexus Router API/MCP** | Protected | `nexus.projectnyra.com`                              | Single entrypoint (Oracle VPS).                          |
+| **Nexus Console UI**     | Protected | `nexus-ui.projectnyra.com`                           | Operator dashboard (Oracle VPS).                         |
+| **LiteLLM**              | Protected | `litellm.projectnyra.com`                            | Model router (Oracle VPS).                               |
+| **vLLM / Ollama**        | Private   | N/A                                                 | Tailscale only (Local GPU Workers).                      |
+| **Postgres / Redis**     | Private   | N/A                                                 | Tailscale only (Oracle VPS / Local).                     |
+| **FalkorDB / Qdrant**    | Private   | N/A                                                 | Tailscale only (Oracle VPS).                             |
 
 ## Access Policy
 

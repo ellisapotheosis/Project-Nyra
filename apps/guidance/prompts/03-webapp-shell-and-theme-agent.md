@@ -1,6 +1,6 @@
 # Prompt: Unified Webapp Shell + Theme Agent
 
-You are responsible for the broker-facing product at `nyra.ratehunter.net`.
+You are responsible for the broker-facing product at `app.projectnyra.com`.
 
 ## Canonical Destination
 
@@ -68,4 +68,3 @@ Ensure:
 3. TweakCN/shadCN theme actually active
 4. Branding/logo sizing corrected
 5. Clear notes on what is still stubbed vs real
-

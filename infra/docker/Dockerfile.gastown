@@ -1,0 +1,73 @@
+# infra/docker/Dockerfile.gastown
+# Gas Town dashboard/runtime container for Project Nyra Oracle VPS testing.
+
+FROM golang:1.25-bookworm
+
+ARG GASTOWN_REPO=https://github.com/gastownhall/gastown.git
+ARG GASTOWN_REF=main
+
+ENV DEBIAN_FRONTEND=noninteractive
+ENV PATH="/app/gastown:/home/agent/go/bin:${PATH}"
+ENV TERM=xterm-256color
+ENV COLORTERM=truecolor
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    bash \
+    build-essential \
+    ca-certificates \
+    curl \
+    git \
+    gh \
+    libicu-dev \
+    netcat-openbsd \
+    ripgrep \
+    sqlite3 \
+    tini \
+    tmux \
+    vim \
+    zsh \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN curl -fsSL https://raw.githubusercontent.com/steveyegge/beads/main/scripts/install.sh | bash \
+    && curl -fsSL https://github.com/dolthub/dolt/releases/latest/download/install.sh | bash
+
+RUN useradd --create-home --shell /bin/zsh agent \
+    && mkdir -p /app /gt /gt/.dolt-data \
+    && chown -R agent:agent /app /gt /home/agent
+
+USER agent
+RUN git clone --depth 1 --branch "${GASTOWN_REF}" "${GASTOWN_REPO}" /app/gastown \
+    && cd /app/gastown \
+    && make build
+
+USER root
+RUN cat > /app/docker-entrypoint.sh <<'EOF' \
+    && chmod +x /app/docker-entrypoint.sh \
+    && chown agent:agent /app/docker-entrypoint.sh
+#!/bin/sh
+set -e
+
+if [ -n "$GIT_USER" ] && [ -n "$GIT_EMAIL" ]; then
+  git config --global user.name "$GIT_USER"
+  git config --global user.email "$GIT_EMAIL"
+  git config --global credential.helper store
+  dolt config --global --add user.name "$GIT_USER" || true
+  dolt config --global --add user.email "$GIT_EMAIL" || true
+fi
+
+if [ ! -f /gt/mayor/town.json ]; then
+  echo "Initializing Gas Town workspace at /gt..."
+  /app/gastown/gt install /gt --git
+else
+  echo "Using existing Gas Town workspace at /gt."
+fi
+
+exec "$@"
+EOF
+
+USER agent
+WORKDIR /gt
+EXPOSE 8080
+
+ENTRYPOINT ["tini", "--", "/app/docker-entrypoint.sh"]
+CMD ["/app/gastown/gt", "dashboard", "--bind", "0.0.0.0", "--port", "8080"]

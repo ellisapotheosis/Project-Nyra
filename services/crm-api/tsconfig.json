@@ -2,15 +2,21 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "outDir": "dist",
-    "rootDir": "src",
+    "rootDir": "../..",
     "composite": true,
     "declaration": true,
     "declarationMap": true,
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
     "tsBuildInfoFile": "dist/.tsbuildinfo"
   },
-  "include": ["src"],
+  "include": [
+    "src",
+    "../../packages/domain-models/src/**/*.ts",
+    "../../packages/crm-client/src/**/*.ts",
+    "../../packages/integration-adapters/src/**/*.ts"
+  ],
+  "exclude": ["../../packages/integration-adapters/src/mock-server.ts"],
   "references": [
     { "path": "../../packages/crm-client" }
   ]

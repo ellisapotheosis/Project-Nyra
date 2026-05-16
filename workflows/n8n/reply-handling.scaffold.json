@@ -1,0 +1,134 @@
+{
+  "name": "Nyra Unified Inbox Reply Handling Scaffold",
+  "active": false,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "nyra/unified-inbox/event",
+        "responseMode": "responseNode"
+      },
+      "id": "unified-inbox-webhook",
+      "name": "Unified Inbox Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [0, 0]
+    },
+    {
+      "parameters": {
+        "jsCode": "const event = $json.body ?? $json;\nif (!event.idempotencyKey || !event.campaignDirective) throw new Error('Unified inbox event missing idempotencyKey or campaignDirective');\nreturn [{ json: event }];"
+      },
+      "id": "validate-unified-inbox-event",
+      "name": "Validate Unified Inbox Event",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [240, 0]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.CAMPAIGN_ENGINE_URL}}/api/campaigns/inbox-events",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Idempotency-Key",
+              "value": "={{$json.idempotencyKey}}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "jsonBody": "={{$json}}"
+      },
+      "id": "apply-campaign-directive",
+      "name": "Apply Campaign Directive",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [500, 0]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.CRM_API_URL}}/api/timeline/unified-inbox",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Idempotency-Key",
+              "value": "={{$json.idempotencyKey}}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "jsonBody": "={{$json}}"
+      },
+      "id": "sync-inbox-event-to-crm",
+      "name": "Sync Inbox Event To CRM",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [760, 0]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { ok: true, idempotencyKey: $json.idempotencyKey, directive: $json.campaignDirective } }}"
+      },
+      "id": "reply-handling-response",
+      "name": "Reply Handling Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1020, 0]
+    }
+  ],
+  "connections": {
+    "Unified Inbox Webhook": {
+      "main": [
+        [
+          {
+            "node": "Validate Unified Inbox Event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Unified Inbox Event": {
+      "main": [
+        [
+          {
+            "node": "Apply Campaign Directive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Apply Campaign Directive": {
+      "main": [
+        [
+          {
+            "node": "Sync Inbox Event To CRM",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sync Inbox Event To CRM": {
+      "main": [
+        [
+          {
+            "node": "Reply Handling Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "saveExecutionProgress": true,
+    "saveManualExecutions": true
+  },
+  "tags": ["nyra", "unified-inbox", "scaffold"]
+}

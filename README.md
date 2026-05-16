@@ -1,70 +1,66 @@
 # Project Nyra
 
-AI-powered mortgage lead automation platform built around a **control-plane / compute-plane** architecture.
+AI-powered mortgage lead automation platform built around a distributed **control-plane / compute-plane** architecture.
 
-## Executive summary
+## 🏁 Foundation Status: Logic Scaffold READY
+Project Nyra has completed its definitive **Foundation Pass**. The system is now a high-fidelity, type-safe scaffold that is visually aligned with the **Indigo/Seafoam** design system.
 
-Project Nyra is an intelligent mortgage automation platform designed to ingest mortgage leads, normalize and dedupe them, write system-of-record data into **Twenty CRM**, run compliant multichannel drip campaigns, and provide a broker-facing AI assistant.
+### Core Capabilities
+- **Distributed Orchestration**: Letta/mem0 context sync across a 4-PC GPU cluster.
+- **Integration Layer**: Real SDK adapters for TwentyCRM, Twilio, SendGrid, and Activepieces.
+- **Safety & Governance**: Paperclip Governor for hallucination detection and Compliance Sentinel.
+- **Fleet Dashboard**: Real-time AI node status and direct service links.
 
-## Hardware and topology
-
-### Control plane
-
-- **orchestrator** — LAN control plane (MinisForum).
-- **oracle-vps** — Cloud platform for stateful services and Twenty CRM.
-
-### Compute plane
-
-- **worker-rtx5090** — Primary vLLM node.
-- **worker-rtx3090ti** — Secondary vLLM node.
-- **worker-rtx3060** — Ollama for utility models.
-
-### Networking
-
-- Private traffic over **Tailscale** (MagicDNS).
-- Public ingress via **Cloudflare Tunnel** (orchestrator and oracle-vps).
-
-## Monorepo Structure
-
-```text
-Project-Nyra/
-├── apps/                    # Frontend applications
-│   ├── webapp/              # Canonical broker command center
-│   └── landing/             # Marketing and lead capture
-├── services/                # Backend microservices
-│   ├── crm-api/             # Twenty integration boundary
-│   ├── campaign-engine/     # Campaign definitions and control
-│   ├── quote-api/           # Deterministic mortgage math (FastAPI)
-│   └── ...
-├── packages/                # Shared packages and utilities
-├── infra/                   # Infrastructure as code
-│   └── hosts/               # Per-host Docker Compose and configs
-└── docs/                    # Architecture and execution plans
-```
-
-## Quick Start
+## 🚀 Quick Start (Development)
 
 ```bash
-# Install dependencies
-pnpm install
+# 1. Initialize environment (Infisical Secrets + Env Mirroring)
+make setup-dev
 
-# Start development environment
-pnpm dev
+# 2. Launch Development Cockpit (projectnyra.com)
+pnpm cockpit:dev
 
-# Build all packages
-pnpm build
+# 3. Launch Public Landing (ratehunter.net)
+pnpm landing:dev
 
-# Run tests
-pnpm test
+# 4. Execute behavioral simulation
+make simulate
+```
+
+## HARDWARE_TOPOLOGY_TRACE
+- **orchestrator** — LAN control plane (MinisForum).
+- **oracle-vps** — Cloud platform for stateful services and Twenty CRM.
+- **worker-rtx5090** — Primary vLLM node for private local model serving.
+- **worker-rtx3090ti** — Steady-state operations node.
+- **worker-rtx3060** — Utility / Classification / TTS node.
+
+## CANONICAL_WORKSPACE_MAP
+```text
+Project-Nyra/
+├── apps/                    # System Entrypoints
+│   ├── cockpit/             # (projectnyra.com) Internal Command Hub
+│   └── landing/             # (ratehunter.net) Public Broker Landing
+├── packages/                # Core Logic & Shared Assets
+│   ├── ui/                  # @nyra/ui Design System (Indigo/Seafoam)
+│   ├── domain-models/       # Type-safe mortgage entity schemas
+│   ├── integration-adapters/# Real SDK clients (Twenty, Twilio, etc)
+│   ├── assets/              # Shared brand media and documentation
+│   └── utilities/           # Developer tooling and scripts
+├── services/                # Backend Microservices
+│   ├── crm-api/             # System-of-record boundary
+│   ├── lead-capture-api/    # Public ingress validation
+│   └── nexus-router/        # AI logic and tool orchestration
+└── docs/                    # Global Governance & Runbooks
 ```
 
 ## Documentation
 
+- [docs/PROJECT_NYRA_CURRENT_STATE.md](./docs/PROJECT_NYRA_CURRENT_STATE.md) - Current source-of-truth implementation snapshot.
+- [docs/CONDUCTOR_TASKS.md](./docs/CONDUCTOR_TASKS.md) - Adjusted finish-line backlog after repo comparison.
+- [docs/FOUNDATION_PASS_REPORT.md](./docs/FOUNDATION_PASS_REPORT.md) - Definitive completion report.
+- [docs/api/README.md](./docs/api/README.md) - Index of all system interfaces.
+- [docs/BOOTSTRAP_RUNBOOK.md](./docs/BOOTSTRAP_RUNBOOK.md) - Zero-to-running guide.
 - [AGENTS.md](./AGENTS.md) - Global project contract for AI agents.
-- [GEMINI.md](./GEMINI.md) - Specific rules for Gemini CLI.
-- [docs/MASTER_ARCHITECTURE.md](./docs/MASTER_ARCHITECTURE.md) - Full system design.
-- [docs/EXECUTION_PLAN_APPS.md](./docs/EXECUTION_PLAN_APPS.md) - Software engineering playbook.
-- [docs/EXECUTION_PLAN_INFRA.md](./docs/EXECUTION_PLAN_INFRA.md) - DevOps playbook.
 
 ---
 

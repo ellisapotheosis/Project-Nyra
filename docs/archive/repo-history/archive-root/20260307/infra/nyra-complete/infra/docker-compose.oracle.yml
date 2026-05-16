@@ -75,7 +75,7 @@ services:
     container_name: oracle-twenty-crm
     environment:
       NODE_ENV: production
-      SERVER_URL: https://crm.ratehunter.net
+      SERVER_URL: https://crm.projectnyra.com
       DATABASE_URL: postgres://postgres:${POSTGRES_PASSWORD}@postgres:5432/twenty
       REDIS_URL: redis://redis:6379
       JWT_SECRET: ${JWT_SECRET}

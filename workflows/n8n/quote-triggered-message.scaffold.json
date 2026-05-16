@@ -1,0 +1,113 @@
+{
+  "name": "Nyra Quote Triggered Message Scaffold",
+  "active": false,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "nyra/quotes/message-trigger",
+        "responseMode": "responseNode"
+      },
+      "id": "quote-trigger-webhook",
+      "name": "Quote Trigger Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [0, 0]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.QUOTE_SERVICE_URL}}/api/quotes/validate-message-trigger",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Idempotency-Key",
+              "value": "={{($json.body ?? $json).idempotencyKey}}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "jsonBody": "={{$json.body ?? $json}}"
+      },
+      "id": "validate-quote-trigger",
+      "name": "Validate Quote Trigger",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [260, 0]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.CAMPAIGN_ENGINE_URL}}/api/campaigns/quote-triggered-steps",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Idempotency-Key",
+              "value": "={{$json.idempotencyKey}}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "jsonBody": "={{$json}}"
+      },
+      "id": "create-quote-message-step",
+      "name": "Create Quote Message Step",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [520, 0]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { ok: true, idempotencyKey: $json.idempotencyKey } }}"
+      },
+      "id": "quote-trigger-response",
+      "name": "Quote Trigger Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [780, 0]
+    }
+  ],
+  "connections": {
+    "Quote Trigger Webhook": {
+      "main": [
+        [
+          {
+            "node": "Validate Quote Trigger",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Quote Trigger": {
+      "main": [
+        [
+          {
+            "node": "Create Quote Message Step",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Quote Message Step": {
+      "main": [
+        [
+          {
+            "node": "Quote Trigger Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "saveExecutionProgress": true,
+    "saveManualExecutions": true
+  },
+  "tags": ["nyra", "quote-service", "scaffold"]
+}

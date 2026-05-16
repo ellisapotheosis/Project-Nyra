@@ -63,7 +63,7 @@ This document details the complete mortgage brokerage business processes that Pr
 ```
 
 **Integration Flow**:
-1. Webhook received at `https://nyra.ratehunter.net/api/webhooks/freerateupdate`
+1. Webhook received at `https://app.projectnyra.com/api/webhooks/freerateupdate`
 2. Nexus Router validates signature and payload
 3. Quote Engine processes immediately (< 2 seconds target)
 4. TwentyCRM creates lead record
@@ -1175,7 +1175,7 @@ def recommend_rate_lock(lead_data, market_trends):
 
 #### 1. FreeRateUpdate.com Webhook Handler
 
-**Endpoint**: `POST https://nyra.ratehunter.net/api/webhooks/freerateupdate`
+**Endpoint**: `POST https://app.projectnyra.com/api/webhooks/freerateupdate`
 
 **Integration Code** (Nyra Orchestrator):
 ```python
@@ -1374,7 +1374,7 @@ class TwilioCampaignService:
             to=to,
             from_=self.from_number,
             url=script_url,
-            status_callback=f"https://nyra.ratehunter.net/api/twilio/status",
+            status_callback=f"https://app.projectnyra.com/api/twilio/status",
             status_callback_event=["completed"]
         )
 

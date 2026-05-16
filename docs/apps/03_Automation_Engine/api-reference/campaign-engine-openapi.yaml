@@ -10,7 +10,7 @@ info:
 
     **Base URL**: `http://localhost:8002` (development)
 
-    **Production URL**: `https://api.ratehunter.net/campaign`
+    **Production URL**: `https://api.projectnyra.com/campaign`
   version: 1.0.0
   contact:
     name: Project Nyra API Support
@@ -23,7 +23,7 @@ servers:
     description: Local development server
   - url: http://campaign-engine:8002
     description: Docker internal network
-  - url: https://api.ratehunter.net/campaign
+  - url: https://api.projectnyra.com/campaign
     description: Production API
 
 tags:

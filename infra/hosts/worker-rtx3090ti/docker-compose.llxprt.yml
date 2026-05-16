@@ -10,7 +10,7 @@ services:
     command:
       - /bin/sh
       - -c
-      - "npx --yes @vybestack/llxprt-code server --port 8081 --host 0.0.0.0
+      - "npx --yes @vybestack/llxprt-code server --port 8081 --host 0.0.0.0"
     volumes:
       - ${HOME:-/home/ellisapotheosis}/.config:/tmp/.config:ro
     networks:

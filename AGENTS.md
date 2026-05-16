@@ -49,8 +49,6 @@ The control plane is split between the local **orchestrator** (MinisForum) and t
 - Pocket TTS
 - Syncthing (Cluster Sync)
 - Open WebUI
-- Quote API
-- Campaign Engine
 - Mem0
 - Cloudflared Tunnel (Public Ingress)
 
@@ -61,6 +59,8 @@ The control plane is split between the local **orchestrator** (MinisForum) and t
 - Activepieces
 - Qdrant / FalkorDB
 - Mem0
+- Quote API
+- Campaign Engine
 
 ### Data Synchronization
 
@@ -103,12 +103,15 @@ Workers are GPU appliances:
 
 - OpenClaw Gateway + OpenClaw Studio are the primary assistant runtime/dashboard.
 - Open WebUI is internal-only model/tool workbench.
-- apps/webapp should use the OpenClaw chat experience for the assistant surface.
+- apps/cockpit should use the OpenClaw chat experience for the assistant surface.
 
 ## Product invariants
 
 - Twenty CRM is the system of record.
 - Compliance is explicit code with tests.
+- **Safety Gates**: All outbound communication MUST pass through `ComplianceService` (STOP detection) and `ApprovalService` (HITL).
+- **Audit Mandate**: Every mutation or communication MUST log an `AuditEvent` via `AuditLogger` to the CRM timeline.
+- **Logical Scaffolding**: Use `@nyra/domain-models` for all type contracts and `@nyra/integration-adapters` for all 3rd party SDK calls.
 - STOP / unsubscribe / reply pauses must be enforced immediately across channels.
 - The quote engine owns quote generation. The assistant must not hallucinate rates or costs.
 - All communications are logged with metadata and tied back to CRM records.
@@ -132,10 +135,14 @@ Workers are GPU appliances:
 
 ### UI conventions
 
-- Use a shared tweakcn-driven design token palette
-- Keep a consistent shadcn + Magic UI system across admin, landing, and webapp
-- Avoid random inline colors and one-off styling decisions
-- Keep broker-facing UI professional, modern, and fast
+- **Visual Identity (High Fidelity)**: Strictly adhere to the **Dark Mode / Indigo / Seafoam / Neon Pink** palette.
+  - Primary: Indigo/Purple (Indigo-500/600).
+  - Secondary: Seafoam/Turquoise (Turquoise-400/500).
+  - Alerts: Neon Pink (Pink-400/500).
+  - Component Pattern: High professional density, ShadCN tokens, oklch colors. No light mode.
+- Use the shared tweakcn/shadcn/Magic UI design language.
+- Avoid random inline colors and one-off styling decisions.
+- Keep broker-facing UI professional, modern, and fast.
 
 ## Directory routing
 
@@ -143,9 +150,9 @@ Agents must place work in the correct location.
 
 ### Repo roots
 
-- `apps/admin` → internal operator/admin UI
-- `apps/webapp` → broker/customer web application
-- `apps/landing` → landing and lead capture
+- `apps/cockpit` → (projectnyra.com) Unified broker and operations command hub.
+- `apps/landing` → (ratehunter.net) Public mortgage broker landing page.
+
 - `services/*` → backend business services
 - `packages/*` → shared libraries, types, domain modules
 - `workflows/n8n/*` → n8n workflow JSONs
@@ -192,7 +199,7 @@ communication logging
 quote engine
 admin UI
 landing page
-broker/customer webapp
+broker cockpit
 OpenClaw assistant integration
 Product rules
 Twenty CRM is the system of record.
@@ -308,8 +315,8 @@ Important:
 quotes come from the quote service only
 assistant must never fabricate quote terms
 Phase 7 — App surfaces
-apps/admin
-Build the operator/admin portal with:
+apps/cockpit
+Build the internal command center and broker application with:
 dashboard
 lead list/detail
 campaign management
@@ -318,7 +325,7 @@ communications timeline
 compliance controls
 assistant tooling panel
 provider/settings pages
-apps/webapp
+apps/cockpit
 Build the broker/customer-facing application with:
 intake
 status
@@ -342,7 +349,7 @@ campaign engine schedules and stops correctly
 STOP/reply/unsubscribe rules work immediately
 quote engine outputs deterministic 3-option scenarios
 admin UI exposes operational controls
-webapp integrates the OpenClaw chat surface
+cockpit integrates the OpenClaw chat surface
 all domain logic has tests
 
 EXECUTION_PLAN_INFRA.md
@@ -461,15 +468,15 @@ small local utility tasks: Ollama
 Cloudflared policy
 Tunnel only orchestrator-facing services.
 Public
-`nyra.ratehunter.net`
-`api.ratehunter.net`
-`hooks.ratehunter.net`
+`app.projectnyra.com`
+`api.projectnyra.com`
+`hooks.projectnyra.com`
 Access-gated
-`gitea.ratehunter.net`
-`twenty.ratehunter.net`
-`n8n.ratehunter.net`
-`grafana.ratehunter.net`
-`bot.ratehunter.net`
+`gitea.projectnyra.com`
+`twenty.projectnyra.com`
+`n8n.projectnyra.com`
+`grafana.projectnyra.com`
+`bot.projectnyra.com`
 Never tunnel publicly
 worker inference endpoints
 Postgres
@@ -587,12 +594,10 @@ This document exists to give future agents and humans one top-to-bottom picture 
    one frontend session should route one request to one backend at a time
    parallel subagents are preferred over trying to make one conversation span all GPUs directly
 8. App surfaces
-   apps/admin
-   Internal operator/admin UI.
-   apps/webapp
-   Broker/customer web application.
+   apps/cockpit
+   Unified internal command center and broker application.
    apps/landing
-   Marketing and lead capture.
+   Public marketing and lead capture.
    OpenClaw
    Broker/customer assistant surface.
    OpenClaw Studio
@@ -693,9 +698,9 @@ S24 Fix invalid approval_policy enum values in three Codex config.toml files acr
 176 " 🔴 Nyra-Admin Root Layout CSS Import Path Fixed
 177 3:38p ✅ Session Summary: Project-Nyra Full App Audit and Build Stabilization 2026-05-05
 178 3:39p ⚖️ Mine Workflow Complete: project-nyra Migration Readiness Confirmed
-179 " 🔵 Webapp V1 Original Design Source Material Located
-180 5:32p ⚖️ Webapp Migration Strategy: Build Campaign Management Dashboard Based on V1 Vision
-181 5:34p 🔵 Rich Shared Asset Library in apps/shared/assets/ Contains Multiple Design Reference Directories
+179 " 🔵 Cockpit V1 Original Design Source Material Located
+180 5:32p ⚖️ Cockpit Migration Strategy: Build Campaign Management Dashboard Based on V1 Vision
+181 5:34p 🔵 Rich Shared Asset Library in packages/assets/ Contains Multiple Design Reference Directories
 182 5:37p 🔵 RTK Tool Limitation: Does Not Support Compound find Predicates
 183 " 🔵 Complete Image Asset Inventory for Project-Nyra Shared Assets
 184 " ⚖️ Session Checkpoint: Project-Nyra Phase 2 Planning State 2026-05-06
@@ -1107,8 +1112,15 @@ Do not manually duplicate hook-owned activation state unless recovering from mis
 
 ---
 
-## Setup
+## Nyra Non-UI Foundation (2026-05-11)
+- **Status**: Logic Scaffold Complete.
+- **Rules**:
+    - Strictly Dark Mode / Indigo / Seafoam palette for all UI.
+    - All outbound communication MUST pass through `ComplianceService`.
+    - All mutations MUST log an `AuditEvent` via `AuditLogger`.
+    - Use `@nyra/domain-models` for all type contracts.
+    - Use `@nyra/integration-adapters` for all 3rd party SDK calls.
+    - Follow `docs/ops/WORKER_ROUTING.md` for AI task assignment.
 
-Execute `omx setup` to install all components. Execute `omx doctor` to verify installation.
-
-<!-- OMX:AGENTS:END -->
+## Development Workflow
+...

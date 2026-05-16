@@ -1,9 +1,10 @@
 import mongoose, { Schema, Document } from 'mongoose';
 import { IPermission } from '../types/auth.types';
 
-export interface IPermissionDocument extends IPermission, Document {}
+type PermissionModel = Omit<IPermission, '_id'>;
+export type IPermissionDocument = Document<unknown, object, PermissionModel> & PermissionModel;
 
-const PermissionSchema = new Schema<IPermissionDocument>({
+const PermissionSchema = new Schema<PermissionModel>({
   name: {
     type: String,
     required: true,
@@ -28,9 +29,10 @@ const PermissionSchema = new Schema<IPermissionDocument>({
 }, {
   timestamps: true,
   toJSON: {
-    transform: (doc, ret) => {
-      delete ret.__v;
-      return ret;
+    transform: (_doc, ret) => {
+      const output = ret as Record<string, unknown>;
+      delete output.__v;
+      return output;
     }
   }
 });
@@ -38,4 +40,4 @@ const PermissionSchema = new Schema<IPermissionDocument>({
 // Compound index for resource and action
 PermissionSchema.index({ resource: 1, action: 1 });
 
-export const Permission = mongoose.model<IPermissionDocument>('Permission', PermissionSchema);
+export const Permission = mongoose.model<PermissionModel>('Permission', PermissionSchema);

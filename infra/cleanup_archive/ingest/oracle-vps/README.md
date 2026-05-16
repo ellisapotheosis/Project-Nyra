@@ -40,8 +40,8 @@ cp .env.example .env
 sudo docker compose -f docker-compose.oracle-vps.yml up -d
 
 # 4) Verify health
-curl -fsS https://api.nyra.ratehunter.net/health
-curl -fsS https://n8n.nyra.ratehunter.net/healthz
+curl -fsS https://api.app.projectnyra.com/health
+curl -fsS https://n8n.app.projectnyra.com/healthz
 ```
 
 ## Notes

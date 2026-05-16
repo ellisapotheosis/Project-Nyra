@@ -1,0 +1,108 @@
+{
+  "check_tailscale": true,
+  "nodes": [
+    {
+      "name": "orchestrator",
+      "role": "control-plane",
+      "tailscale_ip": "100.64.0.10",
+      "docker_host": "ssh://orchestrator.trex-fiordland.ts.net",
+      "ssh": "orchestrator.trex-fiordland.ts.net"
+    },
+    {
+      "name": "oracle-vps",
+      "role": "cloud-state-plane",
+      "tailscale_ip": "100.64.0.3",
+      "docker_host": "ssh://oracle.trex-fiordland.ts.net",
+      "ssh": "oracle.trex-fiordland.ts.net"
+    },
+    {
+      "name": "worker-rtx5090",
+      "role": "primary-vllm-worker",
+      "tailscale_ip": "100.64.0.11",
+      "docker_host": "ssh://worker-rtx5090.trex-fiordland.ts.net",
+      "ssh": "worker-rtx5090.trex-fiordland.ts.net",
+      "gpu": true
+    },
+    {
+      "name": "worker-rtx3090ti",
+      "role": "secondary-vllm-worker",
+      "tailscale_ip": "100.64.0.13",
+      "docker_host": "ssh://worker-rtx3090ti.trex-fiordland.ts.net",
+      "ssh": "worker-rtx3090ti.trex-fiordland.ts.net",
+      "gpu": true
+    },
+    {
+      "name": "worker-rtx3060",
+      "role": "utility-ollama-worker",
+      "tailscale_ip": "100.64.0.12",
+      "docker_host": "ssh://worker-rtx3060.trex-fiordland.ts.net",
+      "ssh": "worker-rtx3060.trex-fiordland.ts.net",
+      "gpu": true
+    }
+  ],
+  "services": [
+    {
+      "name": "Nexus Router",
+      "type": "http",
+      "endpoint": "http://orchestrator.trex-fiordland.ts.net:6000/health",
+      "timeout": 5
+    },
+    {
+      "name": "LiteLLM",
+      "type": "http",
+      "endpoint": "http://orchestrator.trex-fiordland.ts.net:8500/health",
+      "timeout": 5
+    },
+    {
+      "name": "Grafana",
+      "type": "http",
+      "endpoint": "http://orchestrator.trex-fiordland.ts.net:3006",
+      "timeout": 5
+    },
+    {
+      "name": "Prometheus",
+      "type": "http",
+      "endpoint": "http://orchestrator.trex-fiordland.ts.net:9090/-/ready",
+      "timeout": 5
+    },
+    {
+      "name": "Cloudflared process",
+      "type": "command",
+      "command": [
+        "cloudflared",
+        "tunnel",
+        "list",
+        "--json"
+      ],
+      "timeout": 10
+    },
+    {
+      "name": "vLLM RTX 5090",
+      "type": "http",
+      "endpoint": "http://worker-rtx5090.trex-fiordland.ts.net:8000/health",
+      "timeout": 5
+    },
+    {
+      "name": "vLLM RTX 3090 Ti",
+      "type": "http",
+      "endpoint": "http://worker-rtx3090ti.trex-fiordland.ts.net:8000/health",
+      "timeout": 5
+    },
+    {
+      "name": "Ollama RTX 3060",
+      "type": "http",
+      "endpoint": "http://worker-rtx3060.trex-fiordland.ts.net:11434/api/tags",
+      "timeout": 5
+    }
+  ],
+  "pending_services": [
+    {
+      "name": "Twenty CRM schema objects",
+      "reason": "Owner credentials and live CRM schema migration are intentionally outside repo-only validation."
+    },
+    {
+      "name": "Twilio and SendGrid production sends",
+      "reason": "Requires provider credentials and should remain disabled until compliance gates are live."
+    }
+  ]
+}

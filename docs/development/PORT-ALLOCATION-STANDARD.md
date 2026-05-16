@@ -39,7 +39,7 @@ This document defines the **canonical port assignments** for all Project Nyra se
 
 **Note**: Each worker uses the SAME ports locally. They're accessed via IP address:
 - Worker-1 (RTX 3060): 192.168.1.101:4001
-- Worker-2 (RTX 5090): 192.168.1.102:4001  
+- Worker-2 (RTX 5090): 192.168.1.102:4001
 - Worker-3 (RTX 3090Ti): 192.168.1.103:4001
 
 ---
@@ -69,7 +69,7 @@ grafana:
   ports:
     - "3005:3000"  # CORRECTED: Was 3001:3000
 
-# infra/docker/docker-compose.monitoring.yml  
+# infra/docker/docker-compose.monitoring.yml
 grafana:
   ports:
     - "3005:3000"  # CORRECTED: Was 3000:3000
@@ -99,12 +99,12 @@ campaign-engine:8002 → twilio.com (external)
 
 ### Cloudflare Tunnel Mappings (External Access)
 ```
-https://nyra.ratehunter.net → orchestrator:3001 (Dify)
-https://crm.ratehunter.net → orchestrator:3000 (TwentyCRM)
+https://app.projectnyra.com → orchestrator:3001 (Dify)
+https://crm.projectnyra.com → orchestrator:3000 (TwentyCRM)
 https://admin.ratehunter.net → orchestrator:3101 (Nyra Admin)
 https://ratehunter.net → orchestrator:3100 (RateHunter public)
-https://n8n.ratehunter.net → orchestrator:5678 (n8n workflows)
-https://grafana.ratehunter.net → orchestrator:3005 (Grafana)
+https://n8n.projectnyra.com → orchestrator:5678 (n8n workflows)
+https://grafana.projectnyra.com → orchestrator:3005 (Grafana)
 ```
 
 ### Worker Access (Internal Only)

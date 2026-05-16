@@ -5,10 +5,10 @@
 #
 # Deploys .zsh configuration, docker contexts, SSH config, and Portainer to:
 # - orchestrator (Portainer CE server)
-# - oracle-vps (Linux, port 22)
-# - worker-rtx5090 (WSL2, port 2222)
-# - worker-rtx3090ti (Linux, port 22)
-# - worker-rtx3060 (WSL2, port 2222)
+# - oracle-vps (Linux, Tailscale IP on SSH port 23)
+# - worker-rtx5090 (Windows OpenSSH, port 2223)
+# - worker-rtx3090ti (Windows OpenSSH, port 2223)
+# - worker-rtx3060 (Windows OpenSSH, port 2223)
 #
 # Usage:
 #   bash infra/bootstrap/DEPLOY-ALL-NODES.sh [--confirm]
@@ -25,12 +25,28 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m'
 
-declare -A NODES=(
-  [orchestrator]="orchestrator.trex-fiordland.ts.net:22"
-  [oracle-vps]="oracle-vps.trex-fiordland.ts.net:22"
-  [worker-rtx5090]="worker-rtx5090.trex-fiordland.ts.net:2222"
-  [worker-rtx3090ti]="worker-rtx3090ti.trex-fiordland.ts.net:22"
-  [worker-rtx3060]="worker-rtx3060.trex-fiordland.ts.net:2222"
+declare -A NODE_HOSTS=(
+  [orchestrator]="orchestrator.trex-fiordland.ts.net"
+  [oracle-vps]="100.64.0.3"
+  [worker-rtx5090]="worker-rtx5090.trex-fiordland.ts.net"
+  [worker-rtx3090ti]="worker-rtx3090ti.trex-fiordland.ts.net"
+  [worker-rtx3060]="worker-rtx3060.trex-fiordland.ts.net"
+)
+
+declare -A NODE_PORTS=(
+  [orchestrator]="2223"
+  [oracle-vps]="23"
+  [worker-rtx5090]="2223"
+  [worker-rtx3090ti]="2223"
+  [worker-rtx3060]="2223"
+)
+
+declare -A NODE_USERS=(
+  [orchestrator]="edane"
+  [oracle-vps]="ubuntu"
+  [worker-rtx5090]="edane"
+  [worker-rtx3090ti]="edane"
+  [worker-rtx3060]="edane"
 )
 
 CONFIRM_FLAG="${1:-}"
@@ -60,12 +76,12 @@ check_git_repo() {
 
 test_ssh_connection() {
   local node_name=$1
-  local host_port=$2
-  local host="${host_port%:*}"
-  local port="${host_port#*:}"
+  local host="${NODE_HOSTS[$node_name]}"
+  local port="${NODE_PORTS[$node_name]}"
+  local user="${NODE_USERS[$node_name]}"
 
-  log_info "Testing SSH to $node_name ($host:$port)..."
-  if timeout 5 ssh -p "$port" -o ConnectTimeout=3 -o StrictHostKeyChecking=no edane@"$host" "echo OK" &>/dev/null; then
+  log_info "Testing SSH to $node_name ($user@$host:$port)..."
+  if timeout 5 ssh -p "$port" -o ConnectTimeout=3 -o StrictHostKeyChecking=no "$user@$host" "echo OK" &>/dev/null; then
     log_success "SSH to $node_name works"
     return 0
   else
@@ -76,51 +92,50 @@ test_ssh_connection() {
 
 deploy_zsh_config() {
   local node_name=$1
-  local host_port=$2
-  local host="${host_port%:*}"
-  local port="${host_port#*:}"
+  local host="${NODE_HOSTS[$node_name]}"
+  local port="${NODE_PORTS[$node_name]}"
+  local user="${NODE_USERS[$node_name]}"
 
   log_info "Deploying .zsh config to $node_name..."
   rsync -avz --delete -e "ssh -p $port" "$BOOTSTRAP_ZSH_CONFIG/" \
-    "edane@$host:~/bootstrap-zsh-config/" &>/dev/null || return 1
-  
-  ssh -p "$port" "edane@$host" bash ~/bootstrap-zsh-config/BOOTSTRAP.sh &>/dev/null || return 1
+    "$user@$host:~/bootstrap-zsh-config/" &>/dev/null || return 1
+
+  ssh -p "$port" "$user@$host" bash ~/bootstrap-zsh-config/BOOTSTRAP.sh &>/dev/null || return 1
   log_success "$node_name: .zsh config deployed"
   return 0
 }
 
 setup_ssh_config() {
   local node_name=$1
-  local host_port=$2
-  local host="${host_port%:*}"
-  local port="${host_port#*:}"
+  local host="${NODE_HOSTS[$node_name]}"
+  local port="${NODE_PORTS[$node_name]}"
+  local user="${NODE_USERS[$node_name]}"
 
   log_info "Setting up SSH config on $node_name..."
-  ssh -p "$port" "edane@$host" "mkdir -p ~/.ssh && chmod 700 ~/.ssh" &>/dev/null || return 1
+  ssh -p "$port" "$user@$host" "mkdir -p ~/.ssh && chmod 700 ~/.ssh" &>/dev/null || return 1
 
-  for n_name in "${!NODES[@]}"; do
-    local n_host_port="${NODES[$n_name]}"
-    local n_host="${n_host_port%:*}"
-    local n_port="${n_host_port#*:}"
-    ssh -p "$port" "edane@$host" "ssh-keyscan -p $n_port -H $n_host >> ~/.ssh/known_hosts 2>/dev/null" &>/dev/null || true
+  for n_name in "${!NODE_HOSTS[@]}"; do
+    local n_host="${NODE_HOSTS[$n_name]}"
+    local n_port="${NODE_PORTS[$n_name]}"
+    ssh -p "$port" "$user@$host" "ssh-keyscan -p $n_port -H $n_host >> ~/.ssh/known_hosts 2>/dev/null" &>/dev/null || true
   done
 
   local ssh_config_entries=""
-  for n_name in "${!NODES[@]}"; do
-    local n_host_port="${NODES[$n_name]}"
-    local n_host="${n_host_port%:*}"
-    local n_port="${n_host_port#*:}"
+  for n_name in "${!NODE_HOSTS[@]}"; do
+    local n_host="${NODE_HOSTS[$n_name]}"
+    local n_port="${NODE_PORTS[$n_name]}"
+    local n_user="${NODE_USERS[$n_name]}"
     ssh_config_entries+="
 Host $n_name
   HostName $n_host
-  User edane
+  User $n_user
   Port $n_port
   StrictHostKeyChecking no
   UserKnownHostsFile ~/.ssh/known_hosts
 "
   done
 
-  ssh -p "$port" "edane@$host" "cat >> ~/.ssh/config << 'SSHCFG_EOF'
+  ssh -p "$port" "$user@$host" "cat >> ~/.ssh/config << 'SSHCFG_EOF'
 $ssh_config_entries
 SSHCFG_EOF
   chmod 600 ~/.ssh/config" &>/dev/null || return 1
@@ -131,18 +146,18 @@ SSHCFG_EOF
 
 setup_docker_contexts() {
   local node_name=$1
-  local host_port=$2
-  local host="${host_port%:*}"
-  local port="${host_port#*:}"
+  local host="${NODE_HOSTS[$node_name]}"
+  local port="${NODE_PORTS[$node_name]}"
+  local user="${NODE_USERS[$node_name]}"
 
   log_info "Setting up docker contexts on $node_name..."
 
-  for ctx_name in "${!NODES[@]}"; do
+  for ctx_name in "${!NODE_HOSTS[@]}"; do
     [ "$ctx_name" = "$node_name" ] && continue
-    local ctx_host_port="${NODES[$ctx_name]}"
-    local ctx_host="${ctx_host_port%:*}"
-    local ctx_port="${ctx_host_port#*:}"
-    ssh -p "$port" "edane@$host" "docker context create $ctx_name --docker \"host=ssh://edane@$ctx_host:$ctx_port\" 2>/dev/null || true" &>/dev/null || true
+    local ctx_host="${NODE_HOSTS[$ctx_name]}"
+    local ctx_port="${NODE_PORTS[$ctx_name]}"
+    local ctx_user="${NODE_USERS[$ctx_name]}"
+    ssh -p "$port" "$user@$host" "docker context create $ctx_name --docker \"host=ssh://$ctx_user@$ctx_host:$ctx_port\" 2>/dev/null || true" &>/dev/null || true
   done
 
   log_success "$node_name: Docker contexts configured"
@@ -151,15 +166,15 @@ setup_docker_contexts() {
 
 setup_portainer() {
   local node_name=$1
-  local host_port=$2
-  local host="${host_port%:*}"
-  local port="${host_port#*:}"
-  local is_server=$3
+  local host="${NODE_HOSTS[$node_name]}"
+  local port="${NODE_PORTS[$node_name]}"
+  local user="${NODE_USERS[$node_name]}"
+  local is_server=$2
 
   log_info "Setting up Portainer on $node_name..."
 
   if [ "$is_server" = "true" ]; then
-    ssh -p "$port" "edane@$host" "
+    ssh -p "$port" "$user@$host" "
       docker run -d --name portainer --restart always \
         -p 8000:8000 -p 9443:9443 \
         -v /var/run/docker.sock:/var/run/docker.sock \
@@ -168,7 +183,7 @@ setup_portainer() {
     " &>/dev/null || true
     log_success "$node_name: Portainer CE server deployed"
   else
-    ssh -p "$port" "edane@$host" "
+    ssh -p "$port" "$user@$host" "
       docker run -d --name portainer_edge_agent --restart always \
         -v /var/run/docker.sock:/var/run/docker.sock \
         -v /var/lib/docker/volumes:/var/lib/docker/volumes \
@@ -196,8 +211,8 @@ main() {
 
   log_info "Testing SSH connections..."
   local all_reachable=true
-  for node_name in "${!NODES[@]}"; do
-    test_ssh_connection "$node_name" "${NODES[$node_name]}" || all_reachable=false
+  for node_name in "${!NODE_HOSTS[@]}"; do
+    test_ssh_connection "$node_name" || all_reachable=false
   done
 
   if [ "$all_reachable" = "false" ] && [ "$CONFIRM_FLAG" != "--confirm" ]; then
@@ -213,10 +228,10 @@ main() {
     log_info "║  Deploying to: $node_name"
     log_info "╚═══════════════════════════════════════════════════════════════╝"
 
-    deploy_zsh_config "$node_name" "${NODES[$node_name]}" || continue
-    setup_ssh_config "$node_name" "${NODES[$node_name]}" || log_warn "$node_name: SSH config had issues"
-    [ "$node_name" != "orchestrator" ] && setup_docker_contexts "$node_name" "${NODES[$node_name]}"
-    [ "$node_name" = "orchestrator" ] && setup_portainer "$node_name" "${NODES[$node_name]}" "true" || setup_portainer "$node_name" "${NODES[$node_name]}" "false"
+    deploy_zsh_config "$node_name" || continue
+    setup_ssh_config "$node_name" || log_warn "$node_name: SSH config had issues"
+    [ "$node_name" != "orchestrator" ] && setup_docker_contexts "$node_name"
+    [ "$node_name" = "orchestrator" ] && setup_portainer "$node_name" "true" || setup_portainer "$node_name" "false"
 
     log_success "✓ $node_name deployment complete"
   done

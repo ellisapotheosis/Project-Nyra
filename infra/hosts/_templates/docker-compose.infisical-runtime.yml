@@ -1,12 +1,13 @@
 # Shared Infisical runtime overlay.
 #
 # Use this with the host compose file from the repo root:
-#   NYRA_INFISICAL_PATH=/machines/orchestrator \
+#   NYRA_INFISICAL_SHARED_PATH=/shared NYRA_INFISICAL_PATH=/machines/orchestrator \
 #   docker --context <ctx> compose -f infra/hosts/<host>/docker-compose.yml \
 #     -f infra/hosts/_templates/docker-compose.infisical-runtime.yml up -d
 #
 # It consumes the active shell environment. It does not require per-host .env
-# files in the compose directory.
+# files in the compose directory. Export order is shared first, host-specific
+# second, so host values override shared defaults when both define a key.
 
 services:
   infisical-agent:
@@ -16,27 +17,39 @@ services:
     environment:
       INFISICAL_TOKEN: ${INFISICAL_TOKEN:-}
       INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-}
-      INFISICAL_ENV: ${INFISICAL_ENV:-prod}
+      INFISICAL_ENV: ${INFISICAL_ENV:-dev}
+      INFISICAL_SHARED_PATH: ${NYRA_INFISICAL_SHARED_PATH:-/shared}
       INFISICAL_PATH: ${NYRA_INFISICAL_PATH:-/}
       INFISICAL_EXPORT_INTERVAL_SECONDS: ${INFISICAL_EXPORT_INTERVAL_SECONDS:-300}
     volumes:
       - nyra_runtime_secrets:/run/nyra-secrets
-    entrypoint: ["/bin/sh", "-lc"]
-    command: |
-      mkdir -p /run/nyra-secrets
-      while true; do
-        if [ -n "$$INFISICAL_TOKEN" ]; then
-          infisical export \
-            --env "$$INFISICAL_ENV" \
-            --path "$$INFISICAL_PATH" \
-            --format dotenv > /run/nyra-secrets/runtime.env.tmp &&
-            mv /run/nyra-secrets/runtime.env.tmp /run/nyra-secrets/runtime.env
-        else
-          : > /run/nyra-secrets/runtime.env
-          echo "INFISICAL_TOKEN is not set; wrote empty runtime env."
-        fi
-        sleep "$$INFISICAL_EXPORT_INTERVAL_SECONDS"
-      done
+    entrypoint:
+      - /bin/sh
+      - -lc
+      - |
+        mkdir -p /run/nyra-secrets
+        while true; do
+          if [ -n "$$INFISICAL_TOKEN" ]; then
+            : > /run/nyra-secrets/runtime.env.tmp
+            infisical export \
+              --projectId "$$INFISICAL_PROJECT_ID" \
+              --env "$$INFISICAL_ENV" \
+              --path "$$INFISICAL_SHARED_PATH" \
+              --format dotenv >> /run/nyra-secrets/runtime.env.tmp &&
+              if [ "$$INFISICAL_PATH" != "$$INFISICAL_SHARED_PATH" ]; then
+                infisical export \
+                  --projectId "$$INFISICAL_PROJECT_ID" \
+                  --env "$$INFISICAL_ENV" \
+                  --path "$$INFISICAL_PATH" \
+                  --format dotenv >> /run/nyra-secrets/runtime.env.tmp
+              fi &&
+              mv /run/nyra-secrets/runtime.env.tmp /run/nyra-secrets/runtime.env
+          else
+            : > /run/nyra-secrets/runtime.env
+            echo "INFISICAL_TOKEN is not set; wrote empty runtime env."
+          fi
+          sleep "$$INFISICAL_EXPORT_INTERVAL_SECONDS"
+        done
 
   infisical-sidecar:
     image: alpine:3.20

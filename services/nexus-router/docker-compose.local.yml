@@ -1,0 +1,167 @@
+version: '3.8'
+
+# Local Docker Compose Setup for Nexus Router + GitHub MCP Integration
+# Usage: docker-compose -f docker-compose.local.yml up -d
+#
+# Services:
+#   - nexus-router: Main MCP gateway (port 8000)
+#   - github-mcp: GitHub MCP server (port 8813)
+#   - redis: Caching layer (port 6379)
+
+services:
+  # Redis - Caching layer for Nexus Router
+  redis:
+    image: redis:7-alpine
+    container_name: nexus-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - nexus-network
+    environment:
+      - REDIS_APPENDONLY=yes
+    command: redis-server --appendonly yes
+
+  # GitHub MCP Server
+  # Pre-built image from GitHub MCP project
+  github-mcp:
+    image: mcpservers/github:latest
+    container_name: nexus-github-mcp
+    ports:
+      - "8813:8813"
+    environment:
+      # GitHub authentication (set these before running)
+      - GITHUB_TOKEN=${GITHUB_TOKEN:-}
+      - SERVER_HOST=0.0.0.0
+      - SERVER_PORT=8813
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8813/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - nexus-network
+    # Override the default command if needed
+    entrypoint: >
+      sh -c '
+        if [ -z "$$GITHUB_TOKEN" ]; then
+          echo "Warning: GITHUB_TOKEN not set. GitHub operations will be read-only."
+        fi
+        exec node dist/server.js
+      '
+
+  # Nexus Router - Main MCP Gateway
+  nexus-router:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: nexus-router
+    ports:
+      - "8000:8000"
+    depends_on:
+      redis:
+        condition: service_healthy
+      github-mcp:
+        condition: service_healthy
+    environment:
+      # Server Configuration
+      - NEXUS_ROUTER_PORT=8000
+      - NODE_ENV=development
+      - LOG_LEVEL=debug
+
+      # Redis Configuration
+      - REDIS_URL=redis://redis:6379
+
+      # Model Routing
+      - MODEL_ROUTING_STRATEGY=cost-optimized
+      - MODEL_ROUTING_PREFER_LOCAL=true
+      - MODEL_ROUTING_FALLBACK_CLOUD=false
+
+      # GitHub MCP Configuration
+      - GITHUB_MCP_ENABLED=true
+      - GITHUB_MCP_URL=http://github-mcp:8813
+      - GITHUB_MCP_TIMEOUT=30000
+      - GITHUB_MCP_RETRIES=3
+      - GITHUB_TOKEN=${GITHUB_TOKEN:-}
+
+      # Audit Logging Configuration
+      - MCP_AUDIT_LOGGING_ENABLED=true
+      - MCP_AUDIT_LOG_PATH=/app/logs/mcp-audit.log
+      - MCP_AUDIT_REDACT_SECRETS=true
+
+      # ChatGPT Integration
+      - ORCHESTRATOR_TUNNEL_TOKEN=${ORCHESTRATOR_TUNNEL_TOKEN:-dev-token}
+
+      # Cloud Providers (optional, for fallback)
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY:-}
+
+      # CORS Configuration
+      - CORS_ALLOWED_ORIGINS=http://localhost:3000,http://localhost:3001,https://chatgpt.com,http://127.0.0.1:3000
+
+      # Monitoring
+      - NEXUS_MONITORING_ENABLED=true
+
+    volumes:
+      # Mount logs directory
+      - ./logs:/app/logs
+      # Mount source code for development (optional - remove for production)
+      - ./src:/app/src
+
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+    networks:
+      - nexus-network
+
+    command: npm run dev
+
+networks:
+  nexus-network:
+    driver: bridge
+
+volumes:
+  redis-data:
+    driver: local
+
+# Quick start guide:
+#
+# 1. Set up environment variables:
+#    export GITHUB_TOKEN=ghp_your_token_here
+#    export ORCHESTRATOR_TUNNEL_TOKEN=your_token_here
+#
+# 2. Start the services:
+#    docker-compose -f docker-compose.local.yml up -d
+#
+# 3. Wait for services to be healthy:
+#    docker-compose -f docker-compose.local.yml ps
+#
+# 4. Verify the setup:
+#    npm run validate
+#    npm run test:chatgpt
+#
+# 5. View logs:
+#    docker-compose -f docker-compose.local.yml logs -f nexus-router
+#    npm run logs:audit
+#
+# 6. Run tests:
+#    npm run test:all
+#
+# 7. Stop services:
+#    docker-compose -f docker-compose.local.yml down
+#
+# Services will be available at:
+#   - Nexus Router: http://localhost:8000
+#   - MCP Endpoint: http://localhost:8000/mcp
+#   - GitHub MCP: http://localhost:8813
+#   - Redis: localhost:6379

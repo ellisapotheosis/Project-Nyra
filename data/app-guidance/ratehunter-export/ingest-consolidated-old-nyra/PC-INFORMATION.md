@@ -97,11 +97,11 @@ DOCKER_NETWORK_SUBNET=172.28.0.0/16
 | Subdomain | Service | Local Port |
 |-----------|---------|------------|
 | ratehunter.net | Landing Page | 3000 |
-| app.ratehunter.net | Mortgage Assistant | 8000 |
-| crm.ratehunter.net | TwentyCRM | 3001 |
-| api.ratehunter.net | Nexus Router | 6000 |
+| app.projectnyra.com | Mortgage Assistant | 8000 |
+| crm.projectnyra.com | TwentyCRM | 3001 |
+| api.projectnyra.com | Nexus Router | 6000 |
 | metrics.ratehunter.net | Grafana | 3005 |
-| n8n.ratehunter.net | n8n Workflows | 5678 |
+| n8n.projectnyra.com | n8n Workflows | 5678 |
 | dify.ratehunter.net | Dify Chat | 3002 |
 
 ### Cloudflared Config Path

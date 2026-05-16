@@ -1,0 +1,148 @@
+{
+  "records": [
+    {
+      "name": "projectnyra.com",
+      "type": "CNAME",
+      "content": "02fa18b6-ffcd-4b37-91ba-409642d5fb8f.cfargotunnel.com",
+      "proxied": true
+    },
+    {
+      "name": "www.projectnyra.com",
+      "type": "CNAME",
+      "content": "02fa18b6-ffcd-4b37-91ba-409642d5fb8f.cfargotunnel.com",
+      "proxied": true
+    },
+    {
+      "name": "app.projectnyra.com",
+      "type": "CNAME",
+      "content": "02fa18b6-ffcd-4b37-91ba-409642d5fb8f.cfargotunnel.com",
+      "proxied": true
+    },
+    {
+      "name": "api.projectnyra.com",
+      "type": "CNAME",
+      "content": "02fa18b6-ffcd-4b37-91ba-409642d5fb8f.cfargotunnel.com",
+      "proxied": true
+    },
+    {
+      "name": "hooks.projectnyra.com",
+      "type": "CNAME",
+      "content": "02fa18b6-ffcd-4b37-91ba-409642d5fb8f.cfargotunnel.com",
+      "proxied": true
+    },
+    {
+      "name": "twenty.projectnyra.com",
+      "type": "CNAME",
+      "content": "02fa18b6-ffcd-4b37-91ba-409642d5fb8f.cfargotunnel.com",
+      "proxied": true
+    },
+    {
+      "name": "crm.projectnyra.com",
+      "type": "CNAME",
+      "content": "02fa18b6-ffcd-4b37-91ba-409642d5fb8f.cfargotunnel.com",
+      "proxied": true
+    },
+    {
+      "name": "n8n.projectnyra.com",
+      "type": "CNAME",
+      "content": "02fa18b6-ffcd-4b37-91ba-409642d5fb8f.cfargotunnel.com",
+      "proxied": true
+    },
+    {
+      "name": "gitea.projectnyra.com",
+      "type": "CNAME",
+      "content": "02fa18b6-ffcd-4b37-91ba-409642d5fb8f.cfargotunnel.com",
+      "proxied": true
+    },
+    {
+      "name": "activepieces.projectnyra.com",
+      "type": "CNAME",
+      "content": "02fa18b6-ffcd-4b37-91ba-409642d5fb8f.cfargotunnel.com",
+      "proxied": true
+    },
+    {
+      "name": "grafana.projectnyra.com",
+      "type": "CNAME",
+      "content": "02fa18b6-ffcd-4b37-91ba-409642d5fb8f.cfargotunnel.com",
+      "proxied": true
+    },
+    {
+      "name": "prometheus.projectnyra.com",
+      "type": "CNAME",
+      "content": "02fa18b6-ffcd-4b37-91ba-409642d5fb8f.cfargotunnel.com",
+      "proxied": true
+    },
+    {
+      "name": "cadvisor.projectnyra.com",
+      "type": "CNAME",
+      "content": "02fa18b6-ffcd-4b37-91ba-409642d5fb8f.cfargotunnel.com",
+      "proxied": true
+    },
+    {
+      "name": "openwebui.projectnyra.com",
+      "type": "CNAME",
+      "content": "02fa18b6-ffcd-4b37-91ba-409642d5fb8f.cfargotunnel.com",
+      "proxied": true
+    },
+    {
+      "name": "nexus.projectnyra.com",
+      "type": "CNAME",
+      "content": "02fa18b6-ffcd-4b37-91ba-409642d5fb8f.cfargotunnel.com",
+      "proxied": true
+    },
+    {
+      "name": "nexus-router.projectnyra.com",
+      "type": "CNAME",
+      "content": "02fa18b6-ffcd-4b37-91ba-409642d5fb8f.cfargotunnel.com",
+      "proxied": true
+    },
+    {
+      "name": "litellm.projectnyra.com",
+      "type": "CNAME",
+      "content": "02fa18b6-ffcd-4b37-91ba-409642d5fb8f.cfargotunnel.com",
+      "proxied": true
+    },
+    {
+      "name": "paperclip.projectnyra.com",
+      "type": "CNAME",
+      "content": "02fa18b6-ffcd-4b37-91ba-409642d5fb8f.cfargotunnel.com",
+      "proxied": true
+    },
+    {
+      "name": "clawteam.projectnyra.com",
+      "type": "CNAME",
+      "content": "02fa18b6-ffcd-4b37-91ba-409642d5fb8f.cfargotunnel.com",
+      "proxied": true
+    },
+    {
+      "name": "portainer-oracle.projectnyra.com",
+      "type": "CNAME",
+      "content": "02fa18b6-ffcd-4b37-91ba-409642d5fb8f.cfargotunnel.com",
+      "proxied": true
+    },
+    {
+      "name": "git-ssh.projectnyra.com",
+      "type": "CNAME",
+      "content": "02fa18b6-ffcd-4b37-91ba-409642d5fb8f.cfargotunnel.com",
+      "proxied": true
+    },
+    {
+      "name": "links.projectnyra.com",
+      "type": "CNAME",
+      "content": "5ccd2294-6166-471f-8828-bf2b56f157fe.cfargotunnel.com",
+      "proxied": true
+    },
+    {
+      "name": "linkwarden.projectnyra.com",
+      "type": "CNAME",
+      "content": "5ccd2294-6166-471f-8828-bf2b56f157fe.cfargotunnel.com",
+      "proxied": true
+    },
+    {
+      "name": "openclaw-gateway.projectnyra.com",
+      "type": "CNAME",
+      "content": "5ccd2294-6166-471f-8828-bf2b56f157fe.cfargotunnel.com",
+      "proxied": true
+    }
+  ]
+}

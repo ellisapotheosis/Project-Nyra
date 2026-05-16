@@ -1,0 +1,165 @@
+{
+  "name": "Nyra Campaign Engine Dispatch Scaffold",
+  "active": false,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "nyra/campaign-engine/dispatch",
+        "responseMode": "responseNode"
+      },
+      "id": "campaign-dispatch-webhook",
+      "name": "Campaign Dispatch Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [0, 0]
+    },
+    {
+      "parameters": {
+        "jsCode": "const payload = $json.body ?? $json;\nconst required = ['enrollmentId', 'campaignId', 'stepId', 'channel', 'templateId', 'idempotencyKey'];\nconst missing = required.filter((key) => !payload[key]);\nif (missing.length) throw new Error(`Missing dispatch fields: ${missing.join(',')}`);\nreturn [{ json: payload }];"
+      },
+      "id": "validate-dispatch-payload",
+      "name": "Validate Dispatch Payload",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [240, 0]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.COMMUNICATION_SERVICE_URL}}/api/messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Idempotency-Key",
+              "value": "={{$json.idempotencyKey}}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "leadId",
+              "value": "={{$json.leadId}}"
+            },
+            {
+              "name": "campaignId",
+              "value": "={{$json.campaignId}}"
+            },
+            {
+              "name": "campaignEnrollmentId",
+              "value": "={{$json.enrollmentId}}"
+            },
+            {
+              "name": "campaignStepId",
+              "value": "={{$json.stepId}}"
+            },
+            {
+              "name": "channel",
+              "value": "={{$json.channel}}"
+            },
+            {
+              "name": "templateId",
+              "value": "={{$json.templateId}}"
+            },
+            {
+              "name": "mergeContextRef",
+              "value": "={{$json.mergeContextRef}}"
+            }
+          ]
+        }
+      },
+      "id": "send-template-message",
+      "name": "Send Template Message",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [500, 0]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.CRM_API_URL}}/api/timeline/communications",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Idempotency-Key",
+              "value": "={{$json.idempotencyKey}}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "jsonBody": "={{$json}}"
+      },
+      "id": "sync-communication-log",
+      "name": "Sync Communication Log",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [760, 0]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { ok: true, idempotencyKey: $json.idempotencyKey } }}"
+      },
+      "id": "dispatch-response",
+      "name": "Dispatch Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1020, 0]
+    }
+  ],
+  "connections": {
+    "Campaign Dispatch Webhook": {
+      "main": [
+        [
+          {
+            "node": "Validate Dispatch Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Dispatch Payload": {
+      "main": [
+        [
+          {
+            "node": "Send Template Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Template Message": {
+      "main": [
+        [
+          {
+            "node": "Sync Communication Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sync Communication Log": {
+      "main": [
+        [
+          {
+            "node": "Dispatch Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "saveExecutionProgress": true,
+    "saveManualExecutions": true
+  },
+  "tags": ["nyra", "campaign-engine", "scaffold"]
+}

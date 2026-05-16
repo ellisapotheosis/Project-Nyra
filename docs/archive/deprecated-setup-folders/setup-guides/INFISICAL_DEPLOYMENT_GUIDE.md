@@ -410,7 +410,7 @@ tail -f logs/infisical/infisical-mcp.log
 ### Monitoring
 
 Access monitoring dashboards:
-- **Orchestrator**: https://nyra.ratehunter.net
+- **Orchestrator**: https://app.projectnyra.com
 - **GPU Metrics**: https://gpu-1.ratehunter.net, https://gpu-2.ratehunter.net, https://gpu-3.ratehunter.net
 - **MCP Gateway**: https://mcp.ratehunter.net
 
@@ -483,9 +483,9 @@ load_balancing:
 
 ### Support Contacts
 
-- **Infrastructure**: infrastructure@nyra.ratehunter.net
-- **Security**: security@nyra.ratehunter.net
-- **Emergency**: emergency@nyra.ratehunter.net
+- **Infrastructure**: infrastructure@app.projectnyra.com
+- **Security**: security@app.projectnyra.com
+- **Emergency**: emergency@app.projectnyra.com
 
 ---
 
