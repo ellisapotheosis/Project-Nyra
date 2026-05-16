@@ -57,6 +57,15 @@ ORACLE_CONTEXT ?= oracle
 WORKER_5090_CONTEXT ?= worker-rtx5090
 WORKER_3090TI_CONTEXT ?= worker-rtx3090ti
 WORKER_3060_CONTEXT ?= worker-rtx3060
+TAILSCALE_SECRET_FILE ?= $(HOME)/.zsh/99-secrets.zsh
+ORACLE_MAGICDNS ?= oracle.trex-fiordland.ts.net
+ORACLE_TAILSCALE_IP ?= 100.64.0.3
+ORACLE_SSH_PORT ?= 23
+PC_SSH_PORT ?= 2223
+RATEHUNTER_DOMAIN ?= ratehunter.net
+PROJECTNYRA_DOMAIN ?= projectnyra.com
+CLOUDFLARE_NS_1 ?= mcgrory.ns.cloudflare.com
+CLOUDFLARE_NS_2 ?= zita.ns.cloudflare.com
 
 # Voice Setup Compose Files
 VOICE_3060_COMPOSE := infra/hosts/worker-rtx3060/docker-compose.voice.yml
@@ -86,10 +95,11 @@ DEFAULT_PROFILES ?= apps,sync,debug
   oracle-ui-factory-up oracle-ui-factory-down oracle-ui-factory-ps oracle-ui-install \
   oracle-mcp-tools-up oracle-mcp-tools-down oracle-mcp-tools-ps \
   oracle-portainer-up oracle-portainer-down oracle-portainer-ps \
-  sync-env sync-env-all \
-  up-all down-all cluster-status \
-  foundation-check fleet-dev simulate \
-  setup-dev verify-clis
+	sync-env sync-env-all \
+	up-all down-all cluster-status \
+	foundation-check fleet-dev simulate \
+	setup-dev verify-clis \
+	fleet-ssh-check docker-context-doctor tailscale-oracle-doctor domains-status domains-next operator-stack-status
 
 setup-dev:
 	@echo "🏗️  Setting up Project Nyra development environment..."
@@ -160,6 +170,12 @@ help:
 	@echo "make llxprt-bridge-up   Start local OpenAI-compatible LLxprt subscription bridge"
 	@echo "make llxprt-oracle-tunnel-up  Reverse-tunnel the LLxprt bridge into Oracle"
 	@echo "make llxprt-oracle-subscription-up  Start the bridge and Oracle reverse tunnel"
+	@echo "make fleet-ssh-check    Check PC MagicDNS SSH and WSL Oracle tailnet SSH"
+	@echo "make docker-context-doctor Validate Docker contexts across PCs and Oracle"
+	@echo "make tailscale-oracle-doctor Check Tailscale API/policy access for Oracle TCP"
+	@echo "make domains-status     Show registrar NS vs Cloudflare zone status"
+	@echo "make domains-next       Print the exact Spaceship nameserver actions"
+	@echo "make operator-stack-status Show Wave/Zellij/LLXPRT/Letta/OpenClaw status"
 	@echo
 	@echo "--- DISTRIBUTED CLUSTER (4-PC) ---"
 	@echo "make cluster            Launch tmux session controlling all 4 PCs"
@@ -223,6 +239,86 @@ cluster-status:
 	@docker --context worker-rtx3060 compose -f $(WORKER_3060_COMPOSE) ps
 
 status: cluster-status
+
+fleet-ssh-check:
+	@echo "=== SSH addressing model ==="
+	@echo "Windows/PC SSH: MagicDNS hostnames on :$(PC_SSH_PORT)"
+	@echo "WSL/Oracle SSH: Tailscale IP $(ORACLE_TAILSCALE_IP):$(ORACLE_SSH_PORT)"
+	@echo
+	@for host in orchestrator.trex-fiordland.ts.net worker-rtx5090.trex-fiordland.ts.net worker-rtx3090ti.trex-fiordland.ts.net worker-rtx3060.trex-fiordland.ts.net; do \
+		printf "%-48s " "$$host:$(PC_SSH_PORT)"; \
+		timeout 5 bash -lc "</dev/tcp/$$host/$(PC_SSH_PORT)" >/dev/null 2>&1 && echo OK || echo FAIL; \
+	done
+	@echo
+	@echo "WSL effective Oracle ssh config:"
+	@ssh -G oracle 2>/dev/null | awk '/^(user|hostname|port) / {print "  " $$0}' || true
+	@printf "%-48s " "$(ORACLE_TAILSCALE_IP):$(ORACLE_SSH_PORT)"; \
+		timeout 5 bash -lc "</dev/tcp/$(ORACLE_TAILSCALE_IP)/$(ORACLE_SSH_PORT)" >/dev/null 2>&1 && echo OK || echo FAIL
+
+docker-context-doctor:
+	@echo "=== Docker context transport ==="
+	@for ctx in $(WORKER_5090_CONTEXT) $(WORKER_3090TI_CONTEXT) $(WORKER_3060_CONTEXT) $(ORCHESTRATOR_CONTEXT) $(ORACLE_CONTEXT) oracle-vps-oci; do \
+		printf "%-22s " "$$ctx"; \
+		out=$$(timeout 18 docker --context "$$ctx" version --format '{{.Server.Version}}' 2>&1); rc=$$?; \
+		if [ $$rc -eq 0 ]; then echo "$$out"; else printf "FAIL "; if [ -n "$$out" ]; then echo "$$out" | head -n 1; else echo "timeout/no output"; fi; fi; \
+	done
+
+tailscale-oracle-doctor:
+	@echo "=== Tailscale Oracle TCP/API check ==="
+	@echo "Oracle MagicDNS: $(ORACLE_MAGICDNS)"
+	@echo "Oracle Tailscale IP: $(ORACLE_TAILSCALE_IP)"
+	@echo "Expected SSH ports: $(ORACLE_SSH_PORT), 2223"
+	@zsh -lc 'source "$(TAILSCALE_SECRET_FILE)" >/dev/null 2>&1 || true; \
+		if [ -z "$$TAILSCALE_API_KEY" ]; then echo "TAILSCALE_API_KEY missing after sourcing $(TAILSCALE_SECRET_FILE)"; exit 0; fi; \
+		echo "TAILSCALE_API_KEY present in shell; probing Tailscale API without printing it"; \
+		for endpoint in devices acl policy-file; do \
+			case "$$endpoint" in \
+				devices) url="https://api.tailscale.com/api/v2/tailnet/-/devices?fields=all" ;; \
+				acl) url="https://api.tailscale.com/api/v2/tailnet/-/acl" ;; \
+				policy-file) url="https://api.tailscale.com/api/v2/tailnet/-/policy-file" ;; \
+			esac; \
+			http_status=$$(curl -sS -o /tmp/nyra-tailscale-$$endpoint.json -w "%{http_code}" -H "Authorization: Bearer $$TAILSCALE_API_KEY" "$$url" || true); \
+			printf "%-12s HTTP %s " "$$endpoint" "$$http_status"; head -c 160 /tmp/nyra-tailscale-$$endpoint.json; echo; \
+			rm -f /tmp/nyra-tailscale-$$endpoint.json; \
+		done'
+	@echo
+	@echo "TCP probes from this WSL shell:"
+	@for port in $(ORACLE_SSH_PORT) 2223; do \
+		printf "%-48s " "$(ORACLE_TAILSCALE_IP):$$port"; \
+		timeout 5 bash -lc "</dev/tcp/$(ORACLE_TAILSCALE_IP)/$$port" >/dev/null 2>&1 && echo OK || echo FAIL; \
+	done
+
+domains-status:
+	@echo "=== Domain registrar and Cloudflare status ==="
+	@for domain in $(RATEHUNTER_DOMAIN) $(PROJECTNYRA_DOMAIN); do \
+		echo; echo "$$domain public NS:"; \
+		dig +short NS "$$domain" | sort | sed 's/^/  /' || true; \
+	done
+	@zsh -lc 'source "$(TAILSCALE_SECRET_FILE)" >/dev/null 2>&1 || true; \
+		if [ -z "$$CLOUDFLARE_API_KEY" ] || [ -z "$$CLOUDFLARE_EMAIL" ]; then echo; echo "Cloudflare API key/email missing from shell"; exit 0; fi; \
+		echo; echo "Cloudflare zone status:"; \
+		for domain in "$(RATEHUNTER_DOMAIN)" "$(PROJECTNYRA_DOMAIN)"; do \
+			resp=$$(curl -sS -H "X-Auth-Email: $$CLOUDFLARE_EMAIL" -H "X-Auth-Key: $$CLOUDFLARE_API_KEY" "https://api.cloudflare.com/client/v4/zones?name=$$domain"); \
+			printf "  %s: " "$$domain"; echo "$$resp" | jq -r ".result[0] | if . == null then \"not found\" else (.status + \" ns=\" + (.name_servers // [] | join(\",\"))) end"; \
+		done'
+
+domains-next:
+	@echo "In Spaceship, set both domains to these custom Cloudflare nameservers:"
+	@echo "  $(CLOUDFLARE_NS_1)"
+	@echo "  $(CLOUDFLARE_NS_2)"
+	@echo
+	@echo "Domains:"
+	@echo "  $(RATEHUNTER_DOMAIN)    public marketing/landing namespace"
+	@echo "  $(PROJECTNYRA_DOMAIN)   private/product/admin namespace, Access-gated where needed"
+	@echo
+	@echo "After saving in Spaceship, run: make domains-status"
+
+operator-stack-status:
+	@echo "=== CLI subscription bridge ==="
+	@$(MAKE) --no-print-directory llxprt-bridge-status || true
+	@echo
+	@echo "=== Wave/Zellij/OpenClaw/Letta Docker grid ==="
+	@$(MAKE) --no-print-directory wave-stack-status || true
 
 deploy-orch: up
 
