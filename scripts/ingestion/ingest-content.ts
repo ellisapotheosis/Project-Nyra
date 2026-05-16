@@ -7,36 +7,40 @@
  *
  * Usage:
  *   node ingest-content.ts --source ./content --dry-run
- *   node ingest-content.ts --source ./docs --source ./assets --target ./apps/webapp/public/content
+ *   node ingest-content.ts --source ./docs --source ./assets --target ./apps/projectnyra/public/content
  */
 
-import path from 'path';
-import { Command } from 'commander';
+import path from "path";
+import { Command } from "commander";
 import {
   IngestionConfig,
   FileMetadata,
   FileType,
-  ProcessingResult
-} from './types';
+  ProcessingResult,
+} from "./types";
 import {
   DEFAULT_CONFIG,
   FILE_TYPE_MAP,
   TARGET_STRUCTURE,
   loadConfig,
   mergeConfig,
-  validateConfig
-} from './config';
-import { createLogger } from './utils/logger';
+  validateConfig,
+} from "./config";
+import { createLogger } from "./utils/logger";
 import {
   scanFiles,
   calculateFileHash,
   getFileStats,
   getFileExtension,
-  ensureDir
-} from './utils/file-operations';
-import { createManifest, saveManifest, getManifestSummary } from './utils/manifest';
-import { createProcessorRegistry } from './processors';
-import { createValidatorRegistry } from './validators';
+  ensureDir,
+} from "./utils/file-operations";
+import {
+  createManifest,
+  saveManifest,
+  getManifestSummary,
+} from "./utils/manifest";
+import { createProcessorRegistry } from "./processors";
+import { createValidatorRegistry } from "./validators";
 
 /**
  * Main ingestion pipeline
@@ -52,7 +56,7 @@ class IngestionPipeline {
     this.logger = createLogger(this.config.logLevel, false);
     this.processorRegistry = createProcessorRegistry({
       config: this.config,
-      logger: this.logger
+      logger: this.logger,
     });
     this.validatorRegistry = createValidatorRegistry();
   }
@@ -61,14 +65,18 @@ class IngestionPipeline {
    * Run the ingestion pipeline
    */
   async run(): Promise<void> {
-    this.logger.info('Starting content ingestion pipeline...');
-    this.logger.info(`Dry run mode: ${this.config.dryRun ? 'ENABLED' : 'DISABLED'}`);
+    this.logger.info("Starting content ingestion pipeline...");
+    this.logger.info(
+      `Dry run mode: ${this.config.dryRun ? "ENABLED" : "DISABLED"}`
+    );
 
     // Validate configuration
     const configValidation = validateConfig(this.config);
     if (!configValidation.valid) {
-      this.logger.error('Configuration validation failed:');
-      configValidation.errors.forEach(error => this.logger.error(`  - ${error}`));
+      this.logger.error("Configuration validation failed:");
+      configValidation.errors.forEach((error) =>
+        this.logger.error(`  - ${error}`)
+      );
       process.exit(1);
     }
 
@@ -127,7 +135,7 @@ class IngestionPipeline {
           size: stats.size,
           hash,
           modified: stats.mtime,
-          status: 'pending'
+          status: "pending",
         };
 
         files.push(file);
@@ -144,7 +152,7 @@ class IngestionPipeline {
    */
   private detectFileType(filePath: string): FileType {
     const extension = getFileExtension(filePath);
-    return (FILE_TYPE_MAP[extension] as FileType) || 'unknown';
+    return (FILE_TYPE_MAP[extension] as FileType) || "unknown";
   }
 
   /**
@@ -152,14 +160,16 @@ class IngestionPipeline {
    */
   private calculateTargetPath(sourcePath: string, fileType: FileType): string {
     const filename = path.basename(sourcePath);
-    const typeDir = TARGET_STRUCTURE[fileType] || 'other';
+    const typeDir = TARGET_STRUCTURE[fileType] || "other";
     return path.join(this.config.targetDir, typeDir, filename);
   }
 
   /**
    * Process all files
    */
-  private async processFiles(files: FileMetadata[]): Promise<ProcessingResult[]> {
+  private async processFiles(
+    files: FileMetadata[]
+  ): Promise<ProcessingResult[]> {
     const results: ProcessingResult[] = [];
 
     for (const file of files) {
@@ -168,20 +178,20 @@ class IngestionPipeline {
 
       if (!validation.valid) {
         this.logger.error(`Validation failed for ${file.sourcePath}:`);
-        validation.errors.forEach(error => this.logger.error(`  - ${error}`));
-        file.status = 'error';
-        file.error = validation.errors.join(', ');
+        validation.errors.forEach((error) => this.logger.error(`  - ${error}`));
+        file.status = "error";
+        file.error = validation.errors.join(", ");
         results.push({
           success: false,
           file,
-          message: 'Validation failed',
-          warnings: validation.warnings
+          message: "Validation failed",
+          warnings: validation.warnings,
         });
         continue;
       }
 
       if (validation.warnings.length > 0) {
-        validation.warnings.forEach(warning =>
+        validation.warnings.forEach((warning) =>
           this.logger.warn(`${file.sourcePath}: ${warning}`)
         );
       }
@@ -191,11 +201,11 @@ class IngestionPipeline {
 
       if (!processor) {
         this.logger.warn(`No processor found for file type: ${file.fileType}`);
-        file.status = 'skipped';
+        file.status = "skipped";
         results.push({
           success: false,
           file,
-          message: 'No processor available'
+          message: "No processor available",
         });
         continue;
       }
@@ -211,7 +221,7 @@ class IngestionPipeline {
    * Generate manifest file
    */
   private async generateManifest(files: FileMetadata[]): Promise<void> {
-    this.logger.info('Generating manifest...');
+    this.logger.info("Generating manifest...");
 
     const manifest = createManifest(files, this.config.targetDir);
 
@@ -229,24 +239,26 @@ class IngestionPipeline {
   private printSummary(results: ProcessingResult[]): void {
     const summary = {
       total: results.length,
-      success: results.filter(r => r.success).length,
-      failed: results.filter(r => !r.success && r.file.status === 'error').length,
-      skipped: results.filter(r => !r.success && r.file.status === 'skipped').length
+      success: results.filter((r) => r.success).length,
+      failed: results.filter((r) => !r.success && r.file.status === "error")
+        .length,
+      skipped: results.filter((r) => !r.success && r.file.status === "skipped")
+        .length,
     };
 
-    this.logger.info('');
-    this.logger.info('='.repeat(50));
-    this.logger.info('INGESTION SUMMARY');
-    this.logger.info('='.repeat(50));
+    this.logger.info("");
+    this.logger.info("=".repeat(50));
+    this.logger.info("INGESTION SUMMARY");
+    this.logger.info("=".repeat(50));
     this.logger.info(`Total files:     ${summary.total}`);
     this.logger.info(`Successful:      ${summary.success}`);
     this.logger.info(`Failed:          ${summary.failed}`);
     this.logger.info(`Skipped:         ${summary.skipped}`);
-    this.logger.info('='.repeat(50));
+    this.logger.info("=".repeat(50));
 
     if (this.config.dryRun) {
-      this.logger.info('');
-      this.logger.info('NOTE: Dry run mode - no files were actually copied');
+      this.logger.info("");
+      this.logger.info("NOTE: Dry run mode - no files were actually copied");
     }
   }
 }
@@ -258,26 +270,35 @@ async function main() {
   const program = new Command();
 
   program
-    .name('ingest-content')
-    .description('Content ingestion pipeline for apps/webapp')
-    .version('1.0.0')
-    .option('-c, --config <file>', 'JSON config file')
-    .option('-s, --source <dirs...>', 'Source directories to scan')
-    .option('-t, --target <dir>', 'Target directory for ingested content')
-    .option('-d, --dry-run', 'Run without actually copying files', false)
-    .option('--no-manifest', 'Skip manifest generation')
-    .option('--overwrite', 'Overwrite existing files', false)
-    .option('--max-size <bytes>', 'Maximum file size in bytes', '10485760')
-    .option('--log-level <level>', 'Log level (debug, info, warn, error)', 'info')
+    .name("ingest-content")
+    .description("Content ingestion pipeline for apps/projectnyra")
+    .version("1.0.0")
+    .option("-c, --config <file>", "JSON config file")
+    .option("-s, --source <dirs...>", "Source directories to scan")
+    .option("-t, --target <dir>", "Target directory for ingested content")
+    .option("-d, --dry-run", "Run without actually copying files", false)
+    .option("--no-manifest", "Skip manifest generation")
+    .option("--overwrite", "Overwrite existing files", false)
+    .option("--max-size <bytes>", "Maximum file size in bytes", "10485760")
+    .option(
+      "--log-level <level>",
+      "Log level (debug, info, warn, error)",
+      "info"
+    )
     .parse(process.argv);
 
   const options = program.opts();
   const fileConfig = loadConfig(options.config);
 
   // Validate required options
-  if ((!options.source || options.source.length === 0) && (!fileConfig.sourceDirs || fileConfig.sourceDirs.length === 0)) {
-    console.error('Error: At least one source directory must be specified');
-    console.error('Usage: ingest-content --source <dir> [--source <dir2>...] or --config <file>');
+  if (
+    (!options.source || options.source.length === 0) &&
+    (!fileConfig.sourceDirs || fileConfig.sourceDirs.length === 0)
+  ) {
+    console.error("Error: At least one source directory must be specified");
+    console.error(
+      "Usage: ingest-content --source <dir> [--source <dir2>...] or --config <file>"
+    );
     process.exit(1);
   }
 
@@ -289,7 +310,7 @@ async function main() {
     overwrite: options.overwrite,
     generateManifest: options.manifest !== false,
     maxFileSize: parseInt(options.maxSize, 10),
-    logLevel: options.logLevel
+    logLevel: options.logLevel,
   };
 
   if (options.target) {
@@ -301,15 +322,15 @@ async function main() {
     const pipeline = new IngestionPipeline(config);
     await pipeline.run();
   } catch (error) {
-    console.error('Pipeline failed:', error);
+    console.error("Pipeline failed:", error);
     process.exit(1);
   }
 }
 
 // Run if called directly
 if (import.meta.url === `file://${process.argv[1]}`) {
-  main().catch(error => {
-    console.error('Fatal error:', error);
+  main().catch((error) => {
+    console.error("Fatal error:", error);
     process.exit(1);
   });
 }

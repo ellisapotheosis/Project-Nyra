@@ -12,7 +12,7 @@ This track focuses on stabilizing the project repository by resolving documentat
   - Standardize repo-wide metadata and remove stale historical proposals.
 - **P0.2: Webapp API Client Layer Standardization:**
   - Standardize environment variable names (`CRM_API_URL`, `CRM_API_KEY`, etc.).
-  - Implement a typed API client layer in `apps/webapp/app/lib/api/`.
+  - Implement a typed API client layer in `apps/projectnyra/lib/api/`.
   - Replace scattered raw `fetch` calls with these typed helpers.
   - Add standardized loading, error, and empty states.
 

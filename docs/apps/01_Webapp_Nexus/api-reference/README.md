@@ -4,12 +4,12 @@ Comprehensive API documentation for all Project Nyra microservices.
 
 ## 📚 Available APIs
 
-| Service | Port | OpenAPI Spec | Description |
-|---------|------|--------------|-------------|
-| **Quote Engine** | 8001 | [quote-engine-openapi.yaml](./quote-engine-openapi.yaml) | Mortgage quote generation and rate calculations |
-| **Campaign Engine** | 8002 | [campaign-engine-openapi.yaml](./campaign-engine-openapi.yaml) | Lead management and campaign automation |
-| **Orchestrator** | 8003 | [orchestrator-openapi.yaml](./orchestrator-openapi.yaml) | Workflow coordination and service orchestration |
-| **Mem0** | 8004 | [mem0-openapi.yaml](./mem0-openapi.yaml) | AI memory and context management |
+| Service             | Port | OpenAPI Spec                                                   | Description                                     |
+| ------------------- | ---- | -------------------------------------------------------------- | ----------------------------------------------- |
+| **Quote Engine**    | 8001 | [quote-engine-openapi.yaml](./quote-engine-openapi.yaml)       | Mortgage quote generation and rate calculations |
+| **Campaign Engine** | 8002 | [campaign-engine-openapi.yaml](./campaign-engine-openapi.yaml) | Lead management and campaign automation         |
+| **Orchestrator**    | 8003 | [orchestrator-openapi.yaml](./orchestrator-openapi.yaml)       | Workflow coordination and service orchestration |
+| **Mem0**            | 8004 | [mem0-openapi.yaml](./mem0-openapi.yaml)                       | AI memory and context management                |
 
 ---
 
@@ -20,6 +20,7 @@ Comprehensive API documentation for all Project Nyra microservices.
 Use Swagger UI or Redoc to view beautiful, interactive API documentation.
 
 **With Docker (Recommended):**
+
 ```bash
 docker run -p 8080:8080 \
   -e SWAGGER_JSON=/docs/quote-engine-openapi.yaml \
@@ -62,6 +63,7 @@ X-API-Key: your-api-key-here
 ```
 
 Generate dev key:
+
 ```bash
 openssl rand -hex 32
 ```
@@ -71,25 +73,27 @@ openssl rand -hex 32
 ## 📖 Code Examples
 
 ### JavaScript/Node.js
+
 ```javascript
-const response = await fetch('http://localhost:8001/quote', {
-  method: 'POST',
+const response = await fetch("http://localhost:8001/quote", {
+  method: "POST",
   headers: {
-    'X-API-Key': process.env.NYRA_API_KEY,
-    'Content-Type': 'application/json'
+    "X-API-Key": process.env.NYRA_API_KEY,
+    "Content-Type": "application/json",
   },
   body: JSON.stringify({
     loan_amount: 450000,
     property_value: 550000,
     credit_score: 750,
-    employment_status: 'full-time'
-  })
+    employment_status: "full-time",
+  }),
 });
 const quote = await response.json();
-console.log('Monthly payment:', quote.monthly_payment);
+console.log("Monthly payment:", quote.monthly_payment);
 ```
 
 ### Python
+
 ```python
 import requests
 
@@ -104,7 +108,7 @@ print(f"Monthly payment: {quote['monthly_payment']}")
 
 ## 🤝 Support
 
-- **Email**: api@ratehunter.net
-- **Documentation**: https://docs.ratehunter.net
+- **Email**: api@ratehunter.com
+- **Documentation**: https://docs.projectnyra.com
 
 **© 2026 Project Nyra. All rights reserved.**

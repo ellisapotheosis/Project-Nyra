@@ -81,11 +81,11 @@
     },
     {
       "parameters": {
-        "fromEmail": "compliance@ratehunter.net",
-        "toEmail": "compliance-team@ratehunter.net",
+        "fromEmail": "compliance@ratehunter.com",
+        "toEmail": "compliance-team@ratehunter.com",
         "subject": "🚨 CRITICAL: Compliance Issues - Lead {{$json.leadId}}",
         "emailType": "html",
-        "message": "<h2 style=\"color: #dc2626;\">⚠️ Critical Compliance Issues Detected</h2><p><strong>Lead ID:</strong> {{$json.leadId}}</p><p><strong>Check Date:</strong> {{$json.checkDate}}</p><div style=\"background: #fee2e2; padding: 15px; border-left: 4px solid #dc2626; margin: 20px 0;\"><p><strong>Critical Issues:</strong> {{$json.criticalIssues}}</p><p><strong>High Priority:</strong> {{$json.highIssues}}</p><p><strong>Medium Priority:</strong> {{$json.mediumIssues}}</p></div><h3>Issues Detail:</h3><ul>{{#each issues}}<li><strong>[{{this.severity}}] {{this.type}}:</strong> {{this.message}}<br/><em>Regulation: {{this.regulation}}</em></li>{{/each}}</ul><p><a href=\"https://ratehunter.net/admin/compliance/{{$json.leadId}}\" style=\"background: #dc2626; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;\">Review in Admin Panel</a></p>"
+        "message": "<h2 style=\"color: #dc2626;\">⚠️ Critical Compliance Issues Detected</h2><p><strong>Lead ID:</strong> {{$json.leadId}}</p><p><strong>Check Date:</strong> {{$json.checkDate}}</p><div style=\"background: #fee2e2; padding: 15px; border-left: 4px solid #dc2626; margin: 20px 0;\"><p><strong>Critical Issues:</strong> {{$json.criticalIssues}}</p><p><strong>High Priority:</strong> {{$json.highIssues}}</p><p><strong>Medium Priority:</strong> {{$json.mediumIssues}}</p></div><h3>Issues Detail:</h3><ul>{{#each issues}}<li><strong>[{{this.severity}}] {{this.type}}:</strong> {{this.message}}<br/><em>Regulation: {{this.regulation}}</em></li>{{/each}}</ul><p><a href=\"https://ratehunter.com/admin/compliance/{{$json.leadId}}\" style=\"background: #dc2626; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;\">Review in Admin Panel</a></p>"
       },
       "id": "email-critical-alert",
       "name": "Send Critical Alert",
@@ -101,11 +101,11 @@
     },
     {
       "parameters": {
-        "fromEmail": "compliance@ratehunter.net",
-        "toEmail": "compliance-team@ratehunter.net",
+        "fromEmail": "compliance@ratehunter.com",
+        "toEmail": "compliance-team@ratehunter.com",
         "subject": "⚠️ Compliance Review Required - Lead {{$json.leadId}}",
         "emailType": "html",
-        "message": "<h2 style=\"color: #f59e0b;\">Compliance Issues Detected</h2><p><strong>Lead ID:</strong> {{$json.leadId}}</p><p><strong>Total Issues:</strong> {{$json.issuesCount}}</p><p><a href=\"https://ratehunter.net/admin/compliance/{{$json.leadId}}\">Review Details</a></p>"
+        "message": "<h2 style=\"color: #f59e0b;\">Compliance Issues Detected</h2><p><strong>Lead ID:</strong> {{$json.leadId}}</p><p><strong>Total Issues:</strong> {{$json.issuesCount}}</p><p><a href=\"https://ratehunter.com/admin/compliance/{{$json.leadId}}\">Review Details</a></p>"
       },
       "id": "email-standard-alert",
       "name": "Send Standard Alert",

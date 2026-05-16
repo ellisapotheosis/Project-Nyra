@@ -1,4 +1,5 @@
 # Apps/ Folder Architecture Design
+
 ## Architecture Decision Record (ADR)
 
 **Status:** Proposed
@@ -32,12 +33,14 @@ This document defines the canonical folder structure for Project-Nyra's `apps/` 
 ## Context and Problem Statement
 
 ### Current State
+
 - 14 applications in `apps/` with inconsistent organization
 - Mix of frontend apps, assets, docs, and data files
 - No clear separation between production apps and utilities
 - Unclear relationship between apps and services
 
 ### Requirements
+
 1. Clear separation of concerns (frontend/backend/shared)
 2. Scalable structure for future applications
 3. Support for monorepo tooling (Turborepo, pnpm workspaces)
@@ -50,9 +53,11 @@ This document defines the canonical folder structure for Project-Nyra's `apps/` 
 ## Design Principles
 
 ### 1. Separation of Concerns
+
 **Principle:** Each app has a single, well-defined purpose
 
 **Application:**
+
 - Frontend apps in `apps/web/`
 - Backend apps/APIs in `apps/api/`
 - CLI tools in `apps/cli/`
@@ -60,33 +65,41 @@ This document defines the canonical folder structure for Project-Nyra's `apps/` 
 - Utilities in `apps/utilities/`
 
 ### 2. Domain-Driven Organization
+
 **Principle:** Organize by business domain, not technical layer
 
 **Application:**
+
 - Mortgage domain: mortgage-assistant, ratehunter
 - Admin domain: nexus-dashboard, nyra-admin
 - Marketing domain: landing pages, marketing sites
 
 ### 3. Discoverability
+
 **Principle:** Structure should be self-documenting
 
 **Application:**
+
 - Clear folder names that describe purpose
 - README.md in every app directory
 - CLAUDE.md for AI agent integration
 
 ### 4. Scalability
+
 **Principle:** Support growth without restructuring
 
 **Application:**
+
 - Flat structure within categories (avoid deep nesting)
 - Category-based organization allows adding new apps easily
 - Shared code in `packages/` not `apps/`
 
 ### 5. Build System Integration
+
 **Principle:** Work seamlessly with Turborepo and pnpm
 
 **Application:**
+
 - Each app is a workspace package
 - Clear dependency declarations
 - Consistent build scripts across apps
@@ -208,6 +221,7 @@ apps/
 **Format:** `kebab-case` (all lowercase, hyphen-separated)
 
 **Examples:**
+
 - ✅ `mortgage-assistant`
 - ✅ `ratehunter-landing`
 - ✅ `nexus-dashboard`
@@ -221,6 +235,7 @@ apps/
 **Format:** `@nyra/app-{name}` or `@nyra/{category}-{name}`
 
 **Examples:**
+
 ```json
 {
   "name": "@nyra/mortgage-assistant",
@@ -234,18 +249,21 @@ apps/
 ### File Names
 
 **Components:** PascalCase
+
 ```
 Button.tsx
 ApplicationCard.tsx
 ```
 
 **Utilities:** camelCase
+
 ```
 formatCurrency.ts
 validateEmail.ts
 ```
 
 **Config Files:** kebab-case or standard names
+
 ```
 next.config.js
 tsconfig.json
@@ -261,6 +279,7 @@ tailwind.config.js
 **Purpose:** User-facing web applications built with React/Next.js
 
 **Characteristics:**
+
 - Port allocation: 3000-3099
 - Built with Next.js 14+
 - TypeScript required
@@ -268,6 +287,7 @@ tailwind.config.js
 - Responsive design (mobile-first)
 
 **Standard Structure:**
+
 ```
 {app-name}/
 ├── src/
@@ -285,6 +305,7 @@ tailwind.config.js
 ```
 
 **Current Apps:**
+
 - `mortgage-assistant` - Main loan officer dashboard
 - `ratehunter` - Rate comparison tool
 - `nexus-dashboard` - System monitoring
@@ -293,11 +314,12 @@ tailwind.config.js
 - `crm-dashboard` - CRM analytics
 - `webapp` - General web app
 
-### 2. Landing Pages (`apps/landing/`)
+### 2. Landing Pages (`apps/ratehunter/`)
 
 **Purpose:** Marketing and promotional websites
 
 **Characteristics:**
+
 - Port allocation: 3100-3199
 - SEO optimized
 - Fast page loads (<2s)
@@ -305,6 +327,7 @@ tailwind.config.js
 - Lead capture forms
 
 **Standard Structure:**
+
 ```
 {landing-name}/
 ├── src/
@@ -317,6 +340,7 @@ tailwind.config.js
 ```
 
 **Current Apps:**
+
 - `ratehunter-landing` - RateHunter marketing site
 - `main-landing` - Main Nyra landing page (future)
 
@@ -325,12 +349,14 @@ tailwind.config.js
 **Purpose:** Electron-based desktop applications
 
 **Characteristics:**
+
 - Cross-platform (Windows, macOS, Linux)
 - Native OS integration
 - Offline capability
 - Auto-update support
 
 **Standard Structure:**
+
 ```
 {desktop-app}/
 ├── src/
@@ -344,6 +370,7 @@ tailwind.config.js
 ```
 
 **Current Apps:**
+
 - `installer` - Bootstrap GUI installer (from bootstrap/)
 
 ### 4. CLI Tools (`apps/cli/`)
@@ -351,12 +378,14 @@ tailwind.config.js
 **Purpose:** Command-line interface applications
 
 **Characteristics:**
+
 - Node.js based
 - Commander.js or similar
 - Rich terminal UI (Ink/blessed)
 - Cross-platform
 
 **Standard Structure:**
+
 ```
 {cli-name}/
 ├── src/
@@ -369,6 +398,7 @@ tailwind.config.js
 ```
 
 **Future Apps:**
+
 - `nyra-cli` - Main CLI tool
 - `deployment-cli` - Deployment automation
 
@@ -377,12 +407,14 @@ tailwind.config.js
 **Purpose:** Native mobile applications (future)
 
 **Characteristics:**
+
 - React Native or native
 - iOS and Android
 - Offline-first
 - Push notifications
 
 **Standard Structure:**
+
 ```
 ios/
 ├── src/
@@ -400,12 +432,14 @@ android/
 **Purpose:** Internal development tools
 
 **Characteristics:**
+
 - Development-only
 - Not deployed to production
 - Support other apps
 - May be monorepo-specific
 
 **Current Apps:**
+
 - `shadcn-tweakcn` - Component development tool
 - `design-system` - Design system docs (future)
 
@@ -414,6 +448,7 @@ android/
 **Purpose:** Content processing and migration
 
 **Characteristics:**
+
 - Temporary staging area
 - Processing workflows
 - Historical data migration
@@ -426,12 +461,14 @@ android/
 **Purpose:** Resources shared across multiple apps
 
 **Characteristics:**
+
 - Not a runnable application
 - Assets, data, documentation
 - Imported by other apps
 - Version controlled
 
 **Contents:**
+
 - `assets/` - Images, icons, fonts, videos
 - `data/` - Seed data, fixtures, schemas
 - `docs/` - Guides, screenshots, demos
@@ -558,12 +595,14 @@ graph LR
 ### Retention Policy
 
 **Temporary Files:**
+
 - `queue/`: 7 days
 - `in-progress/`: 24 hours (auto-cleanup if stale)
 - `completed/`: 30 days (then archive or delete)
 - `failed/`: 90 days (review and retry)
 
 **Permanent Archival:**
+
 - Successfully processed items can be archived
 - Failed items reviewed quarterly
 - Large files compressed before archival
@@ -571,6 +610,7 @@ graph LR
 ### Processing Scripts
 
 **migrate-configs.js**
+
 ```javascript
 // Migrate old configuration files to new format
 // Validate against schema
@@ -579,6 +619,7 @@ graph LR
 ```
 
 **process-docs.js**
+
 ```javascript
 // Convert documentation formats
 // Update internal links
@@ -587,6 +628,7 @@ graph LR
 ```
 
 **validate.js**
+
 ```javascript
 // Validate against JSON schemas
 // Check file integrity
@@ -597,6 +639,7 @@ graph LR
 ### Access Control
 
 **Gitignore Strategy:**
+
 ```gitignore
 # apps/ingestion/.gitignore
 
@@ -621,6 +664,7 @@ outputs/*
 ```
 
 **Rationale:**
+
 - Ingestion content is temporary
 - Don't bloat git repository
 - Track structure and processing logic
@@ -645,6 +689,7 @@ outputs/*
 ```
 
 **Implementation:**
+
 - Apps call backend via REST/GraphQL APIs
 - Services publish events to message bus
 - Apps subscribe to relevant events
@@ -655,6 +700,7 @@ outputs/*
 **Location:** `configs/`
 
 **Structure:**
+
 ```
 configs/
 ├── shared/
@@ -669,14 +715,15 @@ configs/
 ```
 
 **Usage:**
+
 ```typescript
 // apps/web/mortgage-assistant/src/lib/config.ts
-import sharedConfig from '@/configs/shared/api-endpoints.json';
-import appConfig from '@/configs/app-specific/mortgage-assistant.json';
+import sharedConfig from "@/configs/shared/api-endpoints.json";
+import appConfig from "@/configs/app-specific/mortgage-assistant.json";
 
 export const config = {
   ...sharedConfig,
-  ...appConfig
+  ...appConfig,
 };
 ```
 
@@ -685,15 +732,17 @@ export const config = {
 **Location:** `packages/`
 
 **Usage:**
+
 ```typescript
 // Import from shared packages
-import { Button, Card } from '@nyra/ui';
-import { formatCurrency } from '@nyra/utils';
-import { User } from '@nyra/types';
-import { useAuth } from '@nyra/hooks';
+import { Button, Card } from "@nyra/ui";
+import { formatCurrency } from "@nyra/utils";
+import { User } from "@nyra/types";
+import { useAuth } from "@nyra/hooks";
 ```
 
 **Available Packages:**
+
 - `@nyra/ui` - Shared UI components
 - `@nyra/utils` - Utility functions
 - `@nyra/types` - TypeScript types
@@ -706,18 +755,20 @@ import { useAuth } from '@nyra/hooks';
 **Pattern:** Backend services in `services/`
 
 **Apps consume services via:**
+
 ```typescript
 // Service client
-import { ApplicationService } from '@nyra/services-client';
+import { ApplicationService } from "@nyra/services-client";
 
 const appService = new ApplicationService({
-  baseURL: process.env.NEXT_PUBLIC_API_URL
+  baseURL: process.env.NEXT_PUBLIC_API_URL,
 });
 
 const applications = await appService.getAll();
 ```
 
 **Service Mapping:**
+
 ```
 apps/web/mortgage-assistant  → services/mortgage-assistant-api
 apps/web/ratehunter         → services/ratehunter-api
@@ -728,6 +779,7 @@ apps/web/nyra-admin         → services/auth-service
 ### 5. Docker Integration
 
 **Compose Structure:**
+
 ```yaml
 # docker-compose.yml
 services:
@@ -752,6 +804,7 @@ services:
 ```
 
 **Dockerfile Template:**
+
 ```dockerfile
 # apps/web/{app-name}/Dockerfile
 FROM node:20-alpine AS base
@@ -790,6 +843,7 @@ apps/web/mortgage-assistant/
 ```
 
 **Environment Variables:**
+
 ```bash
 # .env.example
 NEXT_PUBLIC_API_URL=http://localhost:3100
@@ -830,26 +884,27 @@ NEXT_PUBLIC_ENABLE_ANALYTICS=false
 
 ```yaml
 packages:
-  - 'apps/web/*'
-  - 'apps/landing/*'
-  - 'apps/desktop/*'
-  - 'apps/cli/*'
-  - 'apps/mobile/*'
-  - 'apps/utilities/*'
-  - 'apps/ingestion'
-  - 'packages/*'
-  - 'services/*'
+  - "apps/web/*"
+  - "apps/ratehunter/*"
+  - "apps/desktop/*"
+  - "apps/cli/*"
+  - "apps/mobile/*"
+  - "apps/utilities/*"
+  - "apps/ingestion"
+  - "packages/*"
+  - "services/*"
 ```
 
 ### Package Scripts
 
 **Root package.json:**
+
 ```json
 {
   "scripts": {
     "dev": "turbo run dev",
     "dev:web": "turbo run dev --filter='./apps/web/*'",
-    "dev:landing": "turbo run dev --filter='./apps/landing/*'",
+    "dev:landing": "turbo run dev --filter='./apps/ratehunter/*'",
     "build": "turbo run build",
     "build:web": "turbo run build --filter='./apps/web/*'",
     "test": "turbo run test",
@@ -861,6 +916,7 @@ packages:
 ```
 
 **App package.json:**
+
 ```json
 {
   "name": "@nyra/mortgage-assistant",
@@ -887,6 +943,7 @@ packages:
 ### Build Targets
 
 **Development:**
+
 ```bash
 # Start all web apps
 pnpm dev:web
@@ -899,6 +956,7 @@ pnpm --filter @nyra/mortgage-assistant dev -- -p 3000
 ```
 
 **Production:**
+
 ```bash
 # Build all apps
 pnpm build
@@ -911,6 +969,7 @@ pnpm build && pnpm start
 ```
 
 **Testing:**
+
 ```bash
 # Test all apps
 pnpm test
@@ -927,24 +986,29 @@ pnpm test -- --coverage
 ## Migration Strategy
 
 ### Phase 1: Assessment (Week 1)
+
 **Goal:** Understand current state and plan migration
 
 **Tasks:**
+
 1. ✅ Inventory all current apps
 2. ✅ Identify dependencies between apps
 3. ✅ Determine migration order
 4. ✅ Create migration plan
 
 **Deliverables:**
+
 - Apps inventory document
 - Dependency graph
 - Migration timeline
 - Risk assessment
 
 ### Phase 2: Structure Creation (Week 1-2)
+
 **Goal:** Create new folder structure without moving apps
 
 **Tasks:**
+
 1. Create new folder structure
    ```bash
    mkdir -p apps/{web,landing,desktop,cli,mobile,utilities,ingestion,shared}
@@ -954,18 +1018,21 @@ pnpm test -- --coverage
 4. Update root README.md
 
 **Deliverables:**
+
 - New folder structure (empty)
 - Documentation for each category
 - App templates
 
 ### Phase 3: App Migration (Week 2-4)
+
 **Goal:** Move apps to new structure one by one
 
 **Priority Order:**
+
 1. Utilities (lowest risk)
    - `shadcn-tweakcn` → `apps/utilities/`
 2. Landing pages
-   - `ratehunter-landing` → `apps/landing/`
+   - `ratehunter-landing` → `apps/ratehunter/`
 3. Web apps (one at a time)
    - `mortgage-assistant` → `apps/web/`
    - `ratehunter` → `apps/web/`
@@ -982,6 +1049,7 @@ pnpm test -- --coverage
    - `docs` → `apps/shared/docs/`
 
 **Migration Script:**
+
 ```bash
 #!/bin/bash
 # migrate-app.sh
@@ -1020,6 +1088,7 @@ fi
 ```
 
 **Per-App Checklist:**
+
 - [ ] Move app to new location
 - [ ] Update package.json name
 - [ ] Update internal imports
@@ -1032,9 +1101,11 @@ fi
 - [ ] Remove old location
 
 ### Phase 4: Ingestion Setup (Week 3)
+
 **Goal:** Set up ingestion folder and processing
 
 **Tasks:**
+
 1. Create ingestion folder structure
 2. Write processing scripts
 3. Create validation schemas
@@ -1043,14 +1114,17 @@ fi
 6. Test with sample content
 
 **Deliverables:**
+
 - Functional ingestion system
 - Processing scripts
 - Documentation
 
 ### Phase 5: Integration Updates (Week 4)
+
 **Goal:** Update all integration points
 
 **Tasks:**
+
 1. Update Docker Compose files
 2. Update CI/CD pipelines
 3. Update environment configs
@@ -1059,14 +1133,17 @@ fi
 6. Update documentation
 
 **Deliverables:**
+
 - Updated integration configs
 - Updated deployment pipelines
 - Updated documentation
 
 ### Phase 6: Validation & Cleanup (Week 4)
+
 **Goal:** Verify everything works and clean up
 
 **Tasks:**
+
 1. Full system test
 2. Performance testing
 3. Security audit
@@ -1075,6 +1152,7 @@ fi
 6. Archive old backups
 
 **Deliverables:**
+
 - Test results
 - Performance report
 - Security report
@@ -1090,6 +1168,7 @@ fi
 **Decision:** Organize by app type (web, landing, cli, etc.) not by domain
 
 **Rationale:**
+
 1. **Technical Similarity:** Apps in the same category share tech stack, build process, and deployment patterns
 2. **Scalability:** Easy to add new apps to existing categories
 3. **Build Optimization:** Turborepo can cache more effectively
@@ -1099,6 +1178,7 @@ fi
 **Alternative Considered:** Domain-based (mortgage/, admin/, marketing/)
 
 **Rejected Because:**
+
 - Creates confusion when apps span domains
 - Harder to apply consistent tooling
 - Build system becomes more complex
@@ -1109,6 +1189,7 @@ fi
 **Decision:** Create `apps/ingestion/` for content processing
 
 **Rationale:**
+
 1. **Temporary Nature:** Content is temporary, shouldn't pollute other folders
 2. **Processing Workflow:** Needs special structure (queue, in-progress, completed)
 3. **Version Control:** Most content shouldn't be committed
@@ -1118,6 +1199,7 @@ fi
 **Alternative Considered:** Process directly in destination folders
 
 **Rejected Because:**
+
 - Clutters production directories
 - No clear workflow tracking
 - Harder to rollback failed processing
@@ -1130,24 +1212,27 @@ fi
 **Rationale:**
 
 **apps/shared/**
+
 - Static resources (images, fonts, data files)
 - Not executable code
 - Referenced by path imports
 - Can be large binary files
 
 **packages/**
+
 - Reusable code (components, utilities, types)
 - Versioned and published
 - TypeScript/JavaScript
 - Imported as npm packages
 
 **Example:**
+
 ```typescript
 // Using shared assets
-import logo from '@/apps/shared/assets/images/logo.png';
+import logo from "@/apps/shared/assets/images/logo.png";
 
 // Using shared packages
-import { Button } from '@nyra/ui';
+import { Button } from "@nyra/ui";
 ```
 
 ### Why Flat Structure Within Categories?
@@ -1155,12 +1240,14 @@ import { Button } from '@nyra/ui';
 **Decision:** Avoid deep nesting (e.g., `apps/web/mortgage/assistant/`)
 
 **Rationale:**
+
 1. **Discoverability:** Easy to find apps
 2. **Path Length:** Shorter import paths
 3. **Flexibility:** Apps can change purpose without moving
 4. **Simplicity:** Easier to understand and navigate
 
 **Acceptable Depth:** Max 2 levels
+
 ```
 apps/web/mortgage-assistant/  ✅
 apps/web/mortgage/assistant/  ❌
@@ -1171,6 +1258,7 @@ apps/web/mortgage/assistant/  ❌
 **Decision:** Allocate port ranges to categories
 
 **Ranges:**
+
 - Web apps: 3000-3099
 - Landing pages: 3100-3199
 - Desktop apps: 3200-3299
@@ -1179,6 +1267,7 @@ apps/web/mortgage/assistant/  ❌
 - Infrastructure: 4000-4999
 
 **Rationale:**
+
 1. **Predictability:** Easy to remember and find
 2. **Scalability:** Room for growth
 3. **Organization:** Clear separation
@@ -1190,26 +1279,31 @@ apps/web/mortgage/assistant/  ❌
 ## Quality Attributes
 
 ### Scalability
+
 - **Target:** Support 50+ apps without restructuring
 - **Measure:** Can add new app in <15 minutes
 - **Achievement:** Category-based structure, templates
 
 ### Maintainability
+
 - **Target:** New developers productive in <1 day
 - **Measure:** Time to understand structure
 - **Achievement:** Clear organization, comprehensive docs
 
 ### Performance
+
 - **Target:** Build all apps in <10 minutes
 - **Measure:** Turborepo build time
 - **Achievement:** Optimal caching, parallel builds
 
 ### Security
+
 - **Target:** No secrets in repository
 - **Measure:** Secret scanning passes
 - **Achievement:** .env.example pattern, .gitignore
 
 ### Developer Experience
+
 - **Target:** Consistent commands across all apps
 - **Measure:** Script consistency percentage
 - **Achievement:** Standard package.json scripts
@@ -1219,6 +1313,7 @@ apps/web/mortgage/assistant/  ❌
 ## Success Metrics
 
 ### Migration Success
+
 - [ ] All apps migrated without breaking changes
 - [ ] All tests pass
 - [ ] All builds succeed
@@ -1226,6 +1321,7 @@ apps/web/mortgage/assistant/  ❌
 - [ ] Documentation complete
 
 ### Structural Quality
+
 - [ ] Every app has README.md
 - [ ] Every app has CLAUDE.md
 - [ ] Consistent package.json structure
@@ -1233,6 +1329,7 @@ apps/web/mortgage/assistant/  ❌
 - [ ] Clear dependency graph
 
 ### Developer Productivity
+
 - [ ] <15 min to add new app
 - [ ] <5 min to start development
 - [ ] <1 day onboarding time
@@ -1243,23 +1340,27 @@ apps/web/mortgage/assistant/  ❌
 ## Next Steps
 
 ### Immediate Actions
+
 1. Review and approve this architecture design
 2. Create new folder structure (empty)
 3. Begin Phase 2: Structure Creation
 
 ### Week 1-2
+
 1. Complete folder structure
 2. Create documentation
 3. Create app templates
 4. Begin app migration (utilities first)
 
 ### Week 3-4
+
 1. Continue app migration
 2. Set up ingestion system
 3. Update integrations
 4. Validate and test
 
 ### Week 5+
+
 1. Monitor for issues
 2. Iterate based on feedback
 3. Update documentation
@@ -1281,22 +1382,22 @@ apps/web/mortgage/assistant/  ❌
 
 ### A. Current App Inventory
 
-| App | Current Location | New Location | Port | Status |
-|-----|-----------------|--------------|------|--------|
-| mortgage-assistant | `apps/` | `apps/web/` | 3000 | Production |
-| ratehunter | `apps/` | `apps/web/` | 3009 | Production |
-| ratehunter-landing | `apps/` | `apps/landing/` | 3001 | Production |
-| nexus-dashboard | `apps/` | `apps/web/` | 3002 | Production |
-| nyra-admin | `apps/` | `apps/web/` | 3003 | Production |
-| crm | `apps/` | `apps/web/` | 3004 | Development |
-| crm-dashboard | `apps/` | `apps/web/` | 3005 | Development |
-| webapp | `apps/` | `apps/web/` | 3006 | Development |
-| shadcn-tweakcn | `apps/` | `apps/utilities/` | N/A | Development |
-| landing | `apps/` | `apps/landing/main-landing` | 3100 | Planning |
-| installer | `bootstrap/` | `apps/desktop/` | N/A | Production |
-| assets | `apps/` | `apps/shared/assets/` | N/A | Shared |
-| data | `apps/` | `apps/shared/data/` | N/A | Shared |
-| docs | `apps/` | `apps/shared/docs/` | N/A | Shared |
+| App                | Current Location | New Location                   | Port | Status      |
+| ------------------ | ---------------- | ------------------------------ | ---- | ----------- |
+| mortgage-assistant | `apps/`          | `apps/web/`                    | 3000 | Production  |
+| ratehunter         | `apps/`          | `apps/web/`                    | 3009 | Production  |
+| ratehunter-landing | `apps/`          | `apps/ratehunter/`             | 3001 | Production  |
+| nexus-dashboard    | `apps/`          | `apps/web/`                    | 3002 | Production  |
+| nyra-admin         | `apps/`          | `apps/web/`                    | 3003 | Production  |
+| crm                | `apps/`          | `apps/web/`                    | 3004 | Development |
+| crm-dashboard      | `apps/`          | `apps/web/`                    | 3005 | Development |
+| webapp             | `apps/`          | `apps/web/`                    | 3006 | Development |
+| shadcn-tweakcn     | `apps/`          | `apps/utilities/`              | N/A  | Development |
+| landing            | `apps/`          | `apps/ratehunter/main-landing` | 3100 | Planning    |
+| installer          | `bootstrap/`     | `apps/desktop/`                | N/A  | Production  |
+| assets             | `apps/`          | `apps/shared/assets/`          | N/A  | Shared      |
+| data               | `apps/`          | `apps/shared/data/`            | N/A  | Shared      |
+| docs               | `apps/`          | `apps/shared/docs/`            | N/A  | Shared      |
 
 ### B. Dependency Graph
 
@@ -1323,17 +1424,17 @@ graph TD
 
 ### C. Port Allocation Table
 
-| Range | Category | Count | Examples |
-|-------|----------|-------|----------|
-| 3000-3099 | Web Apps | 10 | mortgage-assistant:3000, ratehunter:3009 |
-| 3100-3199 | Landing Pages | 10 | ratehunter-landing:3001 |
-| 3200-3299 | Desktop Apps | 10 | Reserved |
-| 3300-3399 | API Services | 20 | mortgage-api:3300 |
-| 3400-3499 | Integration Services | 20 | auth-service:3400 |
-| 3500-3599 | AI Services | 20 | serena-mcp:3500 |
-| 3600-3999 | Reserved Services | 50 | Reserved for growth |
-| 4000-4499 | Infrastructure | 50 | postgres:5432, redis:6379 |
-| 4500-4999 | WebSocket/Realtime | 50 | websocket-hub:4500 |
+| Range     | Category             | Count | Examples                                 |
+| --------- | -------------------- | ----- | ---------------------------------------- |
+| 3000-3099 | Web Apps             | 10    | mortgage-assistant:3000, ratehunter:3009 |
+| 3100-3199 | Landing Pages        | 10    | ratehunter-landing:3001                  |
+| 3200-3299 | Desktop Apps         | 10    | Reserved                                 |
+| 3300-3399 | API Services         | 20    | mortgage-api:3300                        |
+| 3400-3499 | Integration Services | 20    | auth-service:3400                        |
+| 3500-3599 | AI Services          | 20    | serena-mcp:3500                          |
+| 3600-3999 | Reserved Services    | 50    | Reserved for growth                      |
+| 4000-4499 | Infrastructure       | 50    | postgres:5432, redis:6379                |
+| 4500-4999 | WebSocket/Realtime   | 50    | websocket-hub:4500                       |
 
 ---
 

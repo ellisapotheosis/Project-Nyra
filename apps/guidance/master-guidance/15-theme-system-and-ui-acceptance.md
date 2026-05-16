@@ -4,12 +4,12 @@ This document locks the Project Nyra theme names, defaults, and UI-effect rules 
 
 ## Locked Themes
 
-| Upload mapping | Display name | Slug | Role |
-| --- | --- | --- | --- |
-| Images 1-2 | Midnight | `midnight` | Conservative dark SaaS/admin-safe fallback |
-| Images 3-4 | Mint Midnight | `mint-midnight` | Authenticated broker webapp default |
-| Images 5-6 | Mint Midnight Glow | `mint-midnight-glow` | Labs/demo/investor/sizzle mode |
-| Images 7-8 | Apotheosis | `apotheosis` | Public landing default and premium brand theme |
+| Upload mapping | Display name       | Slug                 | Role                                           |
+| -------------- | ------------------ | -------------------- | ---------------------------------------------- |
+| Images 1-2     | Midnight           | `midnight`           | Conservative dark SaaS/admin-safe fallback     |
+| Images 3-4     | Mint Midnight      | `mint-midnight`      | Authenticated broker webapp default            |
+| Images 5-6     | Mint Midnight Glow | `mint-midnight-glow` | Labs/demo/investor/sizzle mode                 |
+| Images 7-8     | Apotheosis         | `apotheosis`         | Public landing default and premium brand theme |
 
 The final two Nano Banana images are moodboards only. Do not recreate them literally as production UI.
 
@@ -25,11 +25,11 @@ The webapp theme choice is global and user-level. Do not set different default t
 
 ## Current Implementation Truth
 
-- `apps/webapp/app/app/globals.css` currently has generic `:root` and `.dark` TweakCN token blocks.
-- `apps/webapp/app/app/layout.tsx` preserves the `dark` class while adding `data-nyra-theme`.
-- `apps/landing/ratehunter-landing/src/app/layout.tsx` declares `data-nyra-theme="apotheosis"`.
-- `apps/landing/ratehunter-landing/src/app/themes/apotheosis.css` contains the adapted Apotheosis token layer for the public landing app.
-- `apps/landing/ratehunter-landing/tailwind.config.ts` resolves semantic colors through CSS variables directly so the landing app can consume OKLCH tokens under Tailwind v3.
+- `apps/projectnyra/app/globals.css` currently has generic `:root` and `.dark` TweakCN token blocks.
+- `apps/projectnyra/app/layout.tsx` preserves the `dark` class while adding `data-nyra-theme`.
+- `apps/ratehunter/landing/src/app/layout.tsx` declares `data-nyra-theme="apotheosis"`.
+- `apps/ratehunter/landing/src/app/themes/apotheosis.css` contains the adapted Apotheosis token layer for the public landing app.
+- `apps/ratehunter/landing/tailwind.config.ts` resolves semantic colors through CSS variables directly so the landing app can consume OKLCH tokens under Tailwind v3.
 - The four complete named CSS token files have not been found in the repo yet; only the user-provided Apotheosis token payload has been applied to a named landing-compatible token file.
 
 Do not claim the four TweakCN palettes have been extracted until the token source is found and separated into named theme files.

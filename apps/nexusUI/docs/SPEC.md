@@ -103,13 +103,13 @@ A future adapter may translate desired state into live Nexus TOML, LiteLLM YAML,
 Current desired/applied hostname:
 
 ```text
-nexus.ratehunter.net
+nexus.projectnyra.com
 ```
 
 Add a webapp link through:
 
 ```text
-NEXT_PUBLIC_NEXUS_UI_URL=https://nexus.ratehunter.net
+NEXT_PUBLIC_NEXUS_UI_URL=https://nexus.projectnyra.com
 ```
 
 ## Acceptance Criteria

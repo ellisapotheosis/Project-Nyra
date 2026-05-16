@@ -23,7 +23,7 @@ export default {
   },
   resolve: {
     alias: {
-      "@": resolve(__dirname, "./apps/webapp/app"),
+      "@": resolve(__dirname, "./apps/projectnyra"),
       "@tests": resolve(__dirname, "./tests"),
       "@utils": resolve(__dirname, "./tests/utils"),
       "@jest/globals": resolve(

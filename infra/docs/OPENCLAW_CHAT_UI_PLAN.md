@@ -7,7 +7,7 @@ Target the admin app first, not the borrower webapp.
 Reason:
 
 - `apps/admin/app` already has an active Next.js app structure.
-- `apps/webapp` currently reads more like a scaffold/spec than the stronger internal-tool target.
+- `apps/projectnyra` currently reads more like a scaffold/spec than the stronger internal-tool target.
 - OpenClaw operator chat is an internal operations surface, so admin is the safer first home.
 
 ## Preferred path
@@ -18,16 +18,18 @@ Reason:
 4. Render a thin internal chat page or panel under an admin route such as `/tools/openclaw`.
 
 ## Alternative path (reverse proxy hosted UI)
+
 - Reverse proxy OpenClaw UI to `/tools/openclaw`.
 - Protect route with existing SSO/session middleware.
 
 ## Security requirements
+
 - No direct browser->OpenClaw token exposure.
 - Audit user id, org id, prompt id, and tool invocation id.
 - Enforce request size/rate limits at proxy layer.
 
-
 ## Proxy baseline included now
+
 - `infra/compose/openclaw.ui.compose.yml` adds nginx proxy path `/tools/openclaw/` -> `openclaw-mvp:3400`.
 - Use this as the transition state until internal panel route is implemented.
 

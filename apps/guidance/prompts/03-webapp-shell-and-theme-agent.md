@@ -1,10 +1,10 @@
 # Prompt: Unified Webapp Shell + Theme Agent
 
-You are responsible for the broker-facing product at `nyra.ratehunter.net`.
+You are responsible for the broker-facing product at `app.projectnyra.com`.
 
 ## Canonical Destination
 
-- [apps/webapp/app](/home/ellisapotheosis/repos/project-nyra/apps/webapp/app)
+- [apps/projectnyra](/home/ellisapotheosis/repos/project-nyra/apps/projectnyra)
 
 ## Source Material
 
@@ -12,7 +12,7 @@ You are responsible for the broker-facing product at `nyra.ratehunter.net`.
   [guidance snapshot next-app](/home/ellisapotheosis/repos/project-nyra/apps/guidance/references/webapp-merge-snapshot/next-app)
 
 - current internal webapp:
-  [apps/webapp/app](/home/ellisapotheosis/repos/project-nyra/apps/webapp/app)
+  [apps/projectnyra](/home/ellisapotheosis/repos/project-nyra/apps/projectnyra)
 
 - admin prototype:
   [apps/admin/app](/home/ellisapotheosis/repos/project-nyra/apps/admin/app)
@@ -54,9 +54,11 @@ You are responsible for the broker-facing product at `nyra.ratehunter.net`.
 ## Theme Requirements
 
 Theme source:
+
 - [theme migration brief](/home/ellisapotheosis/repos/project-nyra/apps/guidance/components/03-theme-migration-brief.md)
 
 Ensure:
+
 - TweakCN variables are actually imported
 - components use the shared token contract
 - current old globals do not override the theme
@@ -68,4 +70,3 @@ Ensure:
 3. TweakCN/shadCN theme actually active
 4. Branding/logo sizing corrected
 5. Clear notes on what is still stubbed vs real
-

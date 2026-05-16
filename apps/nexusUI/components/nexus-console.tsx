@@ -21,7 +21,13 @@ import {
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
@@ -56,7 +62,11 @@ function statusBadge(status?: { ok: boolean; status: number }) {
     return <Badge variant="outline">unknown</Badge>;
   }
 
-  return <Badge variant={status.ok ? "default" : "destructive"}>{status.ok ? "online" : `offline ${status.status}`}</Badge>;
+  return (
+    <Badge variant={status.ok ? "default" : "destructive"}>
+      {status.ok ? "online" : `offline ${status.status}`}
+    </Badge>
+  );
 }
 
 function fieldId(prefix: string, value: string) {
@@ -75,7 +85,10 @@ export function NexusConsole() {
   const liteLLMYaml = useMemo(() => generateLiteLLMYaml(settings), [settings]);
 
   async function refresh() {
-    const [settingsResponse, statusResponse] = await Promise.all([fetch("/api/settings"), fetch("/api/status")]);
+    const [settingsResponse, statusResponse] = await Promise.all([
+      fetch("/api/settings"),
+      fetch("/api/status"),
+    ]);
     const settingsJson = await settingsResponse.json();
     const statusJson = await statusResponse.json();
 
@@ -85,7 +98,11 @@ export function NexusConsole() {
   }
 
   useEffect(() => {
-    refresh().catch((error) => setMessage(error instanceof Error ? error.message : "Unable to load settings"));
+    refresh().catch((error) =>
+      setMessage(
+        error instanceof Error ? error.message : "Unable to load settings"
+      )
+    );
   }, []);
 
   async function save() {
@@ -113,7 +130,10 @@ export function NexusConsole() {
     }
   }
 
-  function update<K extends keyof NexusUiSettings>(key: K, value: NexusUiSettings[K]) {
+  function update<K extends keyof NexusUiSettings>(
+    key: K,
+    value: NexusUiSettings[K]
+  ) {
     setSettings((current) => ({ ...current, [key]: value }));
   }
 
@@ -127,17 +147,27 @@ export function NexusConsole() {
                 <Network />
               </div>
               <div className="flex flex-col gap-1">
-                <p className="text-sm text-muted-foreground">Project Nyra control plane</p>
-                <h1 className="text-2xl font-semibold leading-tight">Nexus Router Console</h1>
+                <p className="text-sm text-muted-foreground">
+                  Project Nyra control plane
+                </p>
+                <h1 className="text-2xl font-semibold leading-tight">
+                  Nexus Router Console
+                </h1>
                 <p className="max-w-3xl text-sm text-muted-foreground">
-                  Configure MCP tool visibility, group-level activation, fuzzy tool discovery, smart routing policy, and
-                  LiteLLM integration from one operator surface.
+                  Configure MCP tool visibility, group-level activation, fuzzy
+                  tool discovery, smart routing policy, and LiteLLM integration
+                  from one operator surface.
                 </p>
               </div>
             </div>
             <div className="flex flex-wrap items-center gap-2">
               <Button variant="outline" asChild>
-                <a href={process.env.NEXT_PUBLIC_WEBAPP_URL ?? "https://nyra.ratehunter.net"}>
+                <a
+                  href={
+                    process.env.NEXT_PUBLIC_WEBAPP_URL ??
+                    "https://app.projectnyra.com"
+                  }
+                >
                   <Globe2 data-icon="inline-start" />
                   Webapp
                 </a>
@@ -182,16 +212,34 @@ export function NexusConsole() {
         </nav>
 
         <div className="flex flex-col gap-5">
-          <section className={cn("gap-4 md:grid-cols-3", activeSection === "overview" ? "grid" : "hidden")}>
-            <MetricCard title="Groups active" value={`${summary.enabledGroups}/${settings.groups.length}`} icon={Layers3} />
-            <MetricCard title="Tools available" value={`${summary.enabledTools}/${settings.tools.length}`} icon={Boxes} />
-            <MetricCard title="LLM providers" value={`${summary.enabledProviders}/${settings.llmProviders.length}`} icon={Bot} />
+          <section
+            className={cn(
+              "gap-4 md:grid-cols-3",
+              activeSection === "overview" ? "grid" : "hidden"
+            )}
+          >
+            <MetricCard
+              title="Groups active"
+              value={`${summary.enabledGroups}/${settings.groups.length}`}
+              icon={Layers3}
+            />
+            <MetricCard
+              title="Tools available"
+              value={`${summary.enabledTools}/${settings.tools.length}`}
+              icon={Boxes}
+            />
+            <MetricCard
+              title="LLM providers"
+              value={`${summary.enabledProviders}/${settings.llmProviders.length}`}
+              icon={Bot}
+            />
             <Card className="md:col-span-3">
               <CardHeader>
                 <CardTitle>Control Surface</CardTitle>
                 <CardDescription>
-                  Saves desired operator state to a local settings file. The config preview shows what an apply adapter
-                  should render for the deployed Nexus and LiteLLM versions.
+                  Saves desired operator state to a local settings file. The
+                  config preview shows what an apply adapter should render for
+                  the deployed Nexus and LiteLLM versions.
                 </CardDescription>
               </CardHeader>
               <CardContent className="grid gap-4 md:grid-cols-2">
@@ -199,11 +247,18 @@ export function NexusConsole() {
                   icon={Search}
                   title="Fuzzy tool find"
                   description="Let agents find tools by approximate names, related words, or aliases."
-                  checked={settings.nexus.toolSearch.enabled && settings.nexus.toolSearch.fuzzyMatch}
+                  checked={
+                    settings.nexus.toolSearch.enabled &&
+                    settings.nexus.toolSearch.fuzzyMatch
+                  }
                   onCheckedChange={(checked) =>
                     update("nexus", {
                       ...settings.nexus,
-                      toolSearch: { ...settings.nexus.toolSearch, enabled: checked, fuzzyMatch: checked },
+                      toolSearch: {
+                        ...settings.nexus.toolSearch,
+                        enabled: checked,
+                        fuzzyMatch: checked,
+                      },
                     })
                   }
                 />
@@ -212,27 +267,44 @@ export function NexusConsole() {
                   title="Smart routing"
                   description="Prefer the configured model policy instead of static model selection."
                   checked={settings.routing.enabled}
-                  onCheckedChange={(checked) => update("routing", { ...settings.routing, enabled: checked })}
+                  onCheckedChange={(checked) =>
+                    update("routing", { ...settings.routing, enabled: checked })
+                  }
                 />
                 <ToggleRow
                   icon={ShieldCheck}
                   title="Privacy mode"
                   description="Favor local and private endpoints for sensitive mortgage workflow context."
                   checked={settings.routing.privacyMode}
-                  onCheckedChange={(checked) => update("routing", { ...settings.routing, privacyMode: checked })}
+                  onCheckedChange={(checked) =>
+                    update("routing", {
+                      ...settings.routing,
+                      privacyMode: checked,
+                    })
+                  }
                 />
                 <ToggleRow
                   icon={ServerCog}
                   title="Apply adapter"
                   description="Keep disabled until Nexus config generation is wired to deployment automation."
                   checked={settings.nexus.configApplyEnabled}
-                  onCheckedChange={(checked) => update("nexus", { ...settings.nexus, configApplyEnabled: checked })}
+                  onCheckedChange={(checked) =>
+                    update("nexus", {
+                      ...settings.nexus,
+                      configApplyEnabled: checked,
+                    })
+                  }
                 />
               </CardContent>
             </Card>
           </section>
 
-          <section className={cn("grid gap-4 lg:grid-cols-2", activeSection === "groups" ? "grid" : "hidden")}>
+          <section
+            className={cn(
+              "grid gap-4 lg:grid-cols-2",
+              activeSection === "groups" ? "grid" : "hidden"
+            )}
+          >
             {settings.groups.map((group) => (
               <Card key={group.id}>
                 <CardHeader>
@@ -247,8 +319,10 @@ export function NexusConsole() {
                         update(
                           "groups",
                           settings.groups.map((candidate) =>
-                            candidate.id === group.id ? { ...candidate, enabled: checked } : candidate,
-                          ),
+                            candidate.id === group.id
+                              ? { ...candidate, enabled: checked }
+                              : candidate
+                          )
                         )
                       }
                     />
@@ -256,19 +330,34 @@ export function NexusConsole() {
                 </CardHeader>
                 <CardContent className="flex flex-wrap gap-2">
                   <Badge variant="outline">
-                    {settings.tools.filter((tool) => tool.groupId === group.id && tool.enabled).length} tools
+                    {
+                      settings.tools.filter(
+                        (tool) => tool.groupId === group.id && tool.enabled
+                      ).length
+                    }{" "}
+                    tools
                   </Badge>
-                  <Badge variant={group.enabled ? "default" : "secondary"}>{group.enabled ? "active" : "inactive"}</Badge>
+                  <Badge variant={group.enabled ? "default" : "secondary"}>
+                    {group.enabled ? "active" : "inactive"}
+                  </Badge>
                 </CardContent>
               </Card>
             ))}
           </section>
 
-          <section className={cn("flex flex-col gap-4", activeSection === "tools" ? "flex" : "hidden")}>
+          <section
+            className={cn(
+              "flex flex-col gap-4",
+              activeSection === "tools" ? "flex" : "hidden"
+            )}
+          >
             <Card>
               <CardHeader>
                 <CardTitle>Tool Discovery</CardTitle>
-                <CardDescription>Set fuzzy search behavior and default result limits for agent tool lookup.</CardDescription>
+                <CardDescription>
+                  Set fuzzy search behavior and default result limits for agent
+                  tool lookup.
+                </CardDescription>
               </CardHeader>
               <CardContent className="grid gap-4 md:grid-cols-3">
                 <ToggleRow
@@ -279,7 +368,10 @@ export function NexusConsole() {
                   onCheckedChange={(checked) =>
                     update("nexus", {
                       ...settings.nexus,
-                      toolSearch: { ...settings.nexus.toolSearch, fuzzyMatch: checked },
+                      toolSearch: {
+                        ...settings.nexus.toolSearch,
+                        fuzzyMatch: checked,
+                      },
                     })
                   }
                 />
@@ -293,7 +385,10 @@ export function NexusConsole() {
                     onChange={(event) =>
                       update("nexus", {
                         ...settings.nexus,
-                        toolSearch: { ...settings.nexus.toolSearch, maxResults: Number(event.target.value) },
+                        toolSearch: {
+                          ...settings.nexus.toolSearch,
+                          maxResults: Number(event.target.value),
+                        },
                       })
                     }
                   />
@@ -308,7 +403,8 @@ export function NexusConsole() {
                         ...settings.nexus,
                         toolSearch: {
                           ...settings.nexus.toolSearch,
-                          rankingStrategy: event.target.value as NexusUiSettings["nexus"]["toolSearch"]["rankingStrategy"],
+                          rankingStrategy: event.target
+                            .value as NexusUiSettings["nexus"]["toolSearch"]["rankingStrategy"],
                         },
                       })
                     }
@@ -335,8 +431,10 @@ export function NexusConsole() {
                           update(
                             "tools",
                             settings.tools.map((candidate) =>
-                              candidate.id === tool.id ? { ...candidate, enabled: checked } : candidate,
-                            ),
+                              candidate.id === tool.id
+                                ? { ...candidate, enabled: checked }
+                                : candidate
+                            )
                           )
                         }
                       />
@@ -344,20 +442,34 @@ export function NexusConsole() {
                   </CardHeader>
                   <CardContent className="flex flex-wrap gap-2">
                     <Badge variant="outline">{tool.id}</Badge>
-                    <Badge variant={tool.readOnly ? "secondary" : "outline"}>{tool.readOnly ? "read only" : "mutating"}</Badge>
-                    <Badge variant={tool.riskLevel === "high" ? "destructive" : "outline"}>{tool.riskLevel}</Badge>
+                    <Badge variant={tool.readOnly ? "secondary" : "outline"}>
+                      {tool.readOnly ? "read only" : "mutating"}
+                    </Badge>
+                    <Badge
+                      variant={
+                        tool.riskLevel === "high" ? "destructive" : "outline"
+                      }
+                    >
+                      {tool.riskLevel}
+                    </Badge>
                   </CardContent>
                 </Card>
               ))}
             </div>
           </section>
 
-          <section className={cn("grid gap-4", activeSection === "routing" ? "grid" : "hidden")}>
+          <section
+            className={cn(
+              "grid gap-4",
+              activeSection === "routing" ? "grid" : "hidden"
+            )}
+          >
             <Card>
               <CardHeader>
                 <CardTitle>Smart Routing</CardTitle>
                 <CardDescription>
-                  Defines the model-routing intent Nexus should expose and LiteLLM should enforce.
+                  Defines the model-routing intent Nexus should expose and
+                  LiteLLM should enforce.
                 </CardDescription>
               </CardHeader>
               <CardContent className="grid gap-4 md:grid-cols-2">
@@ -366,7 +478,9 @@ export function NexusConsole() {
                   title="Routing enabled"
                   description="Use policy-driven model selection."
                   checked={settings.routing.enabled}
-                  onCheckedChange={(checked) => update("routing", { ...settings.routing, enabled: checked })}
+                  onCheckedChange={(checked) =>
+                    update("routing", { ...settings.routing, enabled: checked })
+                  }
                 />
                 <ToggleRow
                   icon={ShieldCheck}
@@ -374,7 +488,10 @@ export function NexusConsole() {
                   description="Reject models that are not present in the configured provider list."
                   checked={settings.routing.requireExplicitModelAllowlist}
                   onCheckedChange={(checked) =>
-                    update("routing", { ...settings.routing, requireExplicitModelAllowlist: checked })
+                    update("routing", {
+                      ...settings.routing,
+                      requireExplicitModelAllowlist: checked,
+                    })
                   }
                 />
                 <Field label="Strategy" id="routing-strategy">
@@ -385,7 +502,8 @@ export function NexusConsole() {
                     onChange={(event) =>
                       update("routing", {
                         ...settings.routing,
-                        strategy: event.target.value as NexusUiSettings["routing"]["strategy"],
+                        strategy: event.target
+                          .value as NexusUiSettings["routing"]["strategy"],
                       })
                     }
                   >
@@ -400,14 +518,24 @@ export function NexusConsole() {
                   <Input
                     id="default-model"
                     value={settings.routing.defaultModel}
-                    onChange={(event) => update("routing", { ...settings.routing, defaultModel: event.target.value })}
+                    onChange={(event) =>
+                      update("routing", {
+                        ...settings.routing,
+                        defaultModel: event.target.value,
+                      })
+                    }
                   />
                 </Field>
                 <Field label="Fallback model" id="fallback-model">
                   <Input
                     id="fallback-model"
                     value={settings.routing.fallbackModel}
-                    onChange={(event) => update("routing", { ...settings.routing, fallbackModel: event.target.value })}
+                    onChange={(event) =>
+                      update("routing", {
+                        ...settings.routing,
+                        fallbackModel: event.target.value,
+                      })
+                    }
                   />
                 </Field>
                 <ToggleRow
@@ -415,7 +543,12 @@ export function NexusConsole() {
                   title="Token forwarding"
                   description="Forward user bearer tokens to downstream providers when supported."
                   checked={settings.routing.tokenForwarding}
-                  onCheckedChange={(checked) => update("routing", { ...settings.routing, tokenForwarding: checked })}
+                  onCheckedChange={(checked) =>
+                    update("routing", {
+                      ...settings.routing,
+                      tokenForwarding: checked,
+                    })
+                  }
                 />
               </CardContent>
             </Card>
@@ -434,8 +567,10 @@ export function NexusConsole() {
                           update(
                             "llmProviders",
                             settings.llmProviders.map((candidate) =>
-                              candidate.id === provider.id ? { ...candidate, enabled: checked } : candidate,
-                            ),
+                              candidate.id === provider.id
+                                ? { ...candidate, enabled: checked }
+                                : candidate
+                            )
                           )
                         }
                       />
@@ -450,15 +585,19 @@ export function NexusConsole() {
                           update(
                             "llmProviders",
                             settings.llmProviders.map((candidate) =>
-                              candidate.id === provider.id ? { ...candidate, models: event.target.value } : candidate,
-                            ),
+                              candidate.id === provider.id
+                                ? { ...candidate, models: event.target.value }
+                                : candidate
+                            )
                           )
                         }
                       />
                     </Field>
                     <div className="flex flex-wrap gap-2">
                       <Badge variant="outline">{provider.protocol}</Badge>
-                      <Badge variant="outline">{provider.rateLimitRpm} rpm</Badge>
+                      <Badge variant="outline">
+                        {provider.rateLimitRpm} rpm
+                      </Badge>
                       <Badge variant="outline">weight {provider.weight}</Badge>
                     </div>
                   </CardContent>
@@ -467,12 +606,18 @@ export function NexusConsole() {
             </div>
           </section>
 
-          <section className={cn("grid gap-4", activeSection === "litellm" ? "grid" : "hidden")}>
+          <section
+            className={cn(
+              "grid gap-4",
+              activeSection === "litellm" ? "grid" : "hidden"
+            )}
+          >
             <Card>
               <CardHeader>
                 <CardTitle>LiteLLM Integration</CardTitle>
                 <CardDescription>
-                  Keep LiteLLM as the model proxy while Nexus acts as the agent MCP and routing entrypoint.
+                  Keep LiteLLM as the model proxy while Nexus acts as the agent
+                  MCP and routing entrypoint.
                 </CardDescription>
               </CardHeader>
               <CardContent className="grid gap-4 md:grid-cols-2">
@@ -481,31 +626,67 @@ export function NexusConsole() {
                   title="LiteLLM enabled"
                   description="Include LiteLLM in model routing and status checks."
                   checked={settings.liteLLM.enabled}
-                  onCheckedChange={(checked) => update("liteLLM", { ...settings.liteLLM, enabled: checked })}
+                  onCheckedChange={(checked) =>
+                    update("liteLLM", { ...settings.liteLLM, enabled: checked })
+                  }
                 />
                 <Field label="LiteLLM base URL" id="litellm-url">
                   <Input
                     id="litellm-url"
                     value={settings.liteLLM.baseUrl}
-                    onChange={(event) => update("liteLLM", { ...settings.liteLLM, baseUrl: event.target.value })}
+                    onChange={(event) =>
+                      update("liteLLM", {
+                        ...settings.liteLLM,
+                        baseUrl: event.target.value,
+                      })
+                    }
                   />
                 </Field>
                 {[
-                  ["virtualKeyMode", "Virtual keys", "Manage budgeted keys and per-agent access."],
-                  ["budgetAlerts", "Budget alerts", "Enable spend monitoring hooks."],
-                  ["cache", "Cache", "Enable LiteLLM response caching where appropriate."],
-                  ["retries", "Retries", "Retry transient model provider failures."],
-                  ["fallbacks", "Fallbacks", "Use alternate models when primary routes fail."],
-                  ["guardrails", "Guardrails", "Reserve a switch for future policy enforcement."],
+                  [
+                    "virtualKeyMode",
+                    "Virtual keys",
+                    "Manage budgeted keys and per-agent access.",
+                  ],
+                  [
+                    "budgetAlerts",
+                    "Budget alerts",
+                    "Enable spend monitoring hooks.",
+                  ],
+                  [
+                    "cache",
+                    "Cache",
+                    "Enable LiteLLM response caching where appropriate.",
+                  ],
+                  [
+                    "retries",
+                    "Retries",
+                    "Retry transient model provider failures.",
+                  ],
+                  [
+                    "fallbacks",
+                    "Fallbacks",
+                    "Use alternate models when primary routes fail.",
+                  ],
+                  [
+                    "guardrails",
+                    "Guardrails",
+                    "Reserve a switch for future policy enforcement.",
+                  ],
                 ].map(([key, title, description]) => (
                   <ToggleRow
                     key={key}
                     icon={SlidersHorizontal}
                     title={title}
                     description={description}
-                    checked={Boolean(settings.liteLLM[key as keyof NexusUiSettings["liteLLM"]])}
+                    checked={Boolean(
+                      settings.liteLLM[key as keyof NexusUiSettings["liteLLM"]]
+                    )}
                     onCheckedChange={(checked) =>
-                      update("liteLLM", { ...settings.liteLLM, [key]: checked } as NexusUiSettings["liteLLM"])
+                      update("liteLLM", {
+                        ...settings.liteLLM,
+                        [key]: checked,
+                      } as NexusUiSettings["liteLLM"])
                     }
                   />
                 ))}
@@ -513,14 +694,24 @@ export function NexusConsole() {
                   <Input
                     id="litellm-model-groups"
                     value={settings.liteLLM.modelGroups}
-                    onChange={(event) => update("liteLLM", { ...settings.liteLLM, modelGroups: event.target.value })}
+                    onChange={(event) =>
+                      update("liteLLM", {
+                        ...settings.liteLLM,
+                        modelGroups: event.target.value,
+                      })
+                    }
                   />
                 </Field>
               </CardContent>
             </Card>
           </section>
 
-          <section className={cn("grid gap-4 xl:grid-cols-2", activeSection === "environment" ? "grid" : "hidden")}>
+          <section
+            className={cn(
+              "grid gap-4 xl:grid-cols-2",
+              activeSection === "environment" ? "grid" : "hidden"
+            )}
+          >
             {settings.environment.map((item) => (
               <Card key={item.key}>
                 <CardHeader>
@@ -535,15 +726,24 @@ export function NexusConsole() {
                         update(
                           "environment",
                           settings.environment.map((candidate) =>
-                            candidate.key === item.key ? { ...candidate, enabled: checked } : candidate,
-                          ),
+                            candidate.key === item.key
+                              ? { ...candidate, enabled: checked }
+                              : candidate
+                          )
                         )
                       }
                     />
                   </div>
                 </CardHeader>
                 <CardContent className="grid gap-3">
-                  <Field label={item.valueMode === "secret-ref" ? "Secret env reference" : "Value"} id={fieldId("env", item.key)}>
+                  <Field
+                    label={
+                      item.valueMode === "secret-ref"
+                        ? "Secret env reference"
+                        : "Value"
+                    }
+                    id={fieldId("env", item.key)}
+                  >
                     <Input
                       id={fieldId("env", item.key)}
                       value={item.value}
@@ -551,15 +751,19 @@ export function NexusConsole() {
                         update(
                           "environment",
                           settings.environment.map((candidate) =>
-                            candidate.key === item.key ? { ...candidate, value: event.target.value } : candidate,
-                          ),
+                            candidate.key === item.key
+                              ? { ...candidate, value: event.target.value }
+                              : candidate
+                          )
                         )
                       }
                     />
                   </Field>
                   <div className="flex flex-wrap gap-2">
                     <Badge variant="outline">{item.key}</Badge>
-                    <Badge variant={item.required ? "default" : "secondary"}>{item.required ? "required" : "optional"}</Badge>
+                    <Badge variant={item.required ? "default" : "secondary"}>
+                      {item.required ? "required" : "optional"}
+                    </Badge>
                     <Badge variant="outline">{item.valueMode}</Badge>
                   </div>
                 </CardContent>
@@ -567,28 +771,43 @@ export function NexusConsole() {
             ))}
           </section>
 
-          <section className={cn("grid gap-4", activeSection === "preview" ? "grid" : "hidden")}>
+          <section
+            className={cn(
+              "grid gap-4",
+              activeSection === "preview" ? "grid" : "hidden"
+            )}
+          >
             <Card>
               <CardHeader>
                 <CardTitle>Nexus TOML Preview</CardTitle>
                 <CardDescription>
-                  Version-aware apply automation should treat the commented settings as desired policy until mapped to
-                  the deployed Nexus release.
+                  Version-aware apply automation should treat the commented
+                  settings as desired policy until mapped to the deployed Nexus
+                  release.
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <Textarea className="min-h-[420px] font-mono text-xs" readOnly value={nexusToml} />
+                <Textarea
+                  className="min-h-[420px] font-mono text-xs"
+                  readOnly
+                  value={nexusToml}
+                />
               </CardContent>
             </Card>
             <Card>
               <CardHeader>
                 <CardTitle>LiteLLM YAML Preview</CardTitle>
                 <CardDescription>
-                  Merge with the existing Oracle VPS LiteLLM config and keep provider secrets in environment variables.
+                  Merge with the existing Oracle VPS LiteLLM config and keep
+                  provider secrets in environment variables.
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <Textarea className="min-h-[360px] font-mono text-xs" readOnly value={liteLLMYaml} />
+                <Textarea
+                  className="min-h-[360px] font-mono text-xs"
+                  readOnly
+                  value={liteLLMYaml}
+                />
               </CardContent>
             </Card>
           </section>
@@ -598,7 +817,15 @@ export function NexusConsole() {
   );
 }
 
-function MetricCard({ title, value, icon: Icon }: { title: string; value: string; icon: typeof Gauge }) {
+function MetricCard({
+  title,
+  value,
+  icon: Icon,
+}: {
+  title: string;
+  value: string;
+  icon: typeof Gauge;
+}) {
   return (
     <Card>
       <CardHeader>
@@ -641,7 +868,15 @@ function ToggleRow({
   );
 }
 
-function Field({ label, id, children }: { label: string; id: string; children: React.ReactNode }) {
+function Field({
+  label,
+  id,
+  children,
+}: {
+  label: string;
+  id: string;
+  children: React.ReactNode;
+}) {
   return (
     <div className="flex flex-col gap-2">
       <Label htmlFor={id}>{label}</Label>

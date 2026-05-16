@@ -1,15 +1,16 @@
 # webapp
 
-Canonical customer app (`app.ratehunter.net`).
+Canonical customer app (`app.projectnyra.com`).
 
 Core surfaces:
+
 - Lead Capture
 - Quote Viewer
 - Embedded Assistant Widget (OpenClaw ChatUI)
 
 ## OpenClaw chat route (`/tools/openclaw`)
 
-This repo includes a thin internal panel at `/tools/openclaw` in `apps/webapp/app`,
+This repo includes a thin internal panel at `/tools/openclaw` in `apps/projectnyra`,
 backed by server-side proxy routes:
 
 - `POST /api/internal/openclaw/chat`
@@ -18,12 +19,12 @@ backed by server-side proxy routes:
 Copy the env template:
 
 ```bash
-cp apps/webapp/app/.env.example apps/webapp/app/.env.local
+cp apps/projectnyra/.env.example apps/projectnyra/.env.local
 ```
 
 Then run:
 
 ```bash
-cd apps/webapp/app
+cd apps/projectnyra
 npm run dev
 ```

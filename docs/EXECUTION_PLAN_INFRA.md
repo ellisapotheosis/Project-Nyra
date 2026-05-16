@@ -32,6 +32,6 @@ DevOps playbook for Project Nyra.
 
 ## Cloudflared Policy
 
-- Public: `ratehunter.net`, `app.ratehunter.net`, `api.ratehunter.net`.
-- Access-gated: `twenty.ratehunter.net`, `gitea.ratehunter.net`, `n8n.ratehunter.net`.
+- Public: `ratehunter.net`, `app.projectnyra.com`, `api.projectnyra.com`.
+- Access-gated: `twenty.projectnyra.com`, `gitea.projectnyra.com`, `n8n.projectnyra.com`.
 - Never tunnel publicly: Database ports, worker inference endpoints, raw MCP internals.

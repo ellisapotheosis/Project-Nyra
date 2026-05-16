@@ -37,10 +37,10 @@ Runtime validation:
 - `docker --context orchestrator ps` timed out over SSH to `orchestrator.trex-fiordland.ts.net:2223`.
 - The live orchestrator tunnel is connected and now has `links`, `linkwarden`, and `openclaw-gateway` routes.
 - The Oracle tunnel is connected and healthy with 4 connector connections after recreating `cloudflared`.
-- `nyra.ratehunter.net`, `nexus.ratehunter.net`, `litellm.ratehunter.net`, `n8n.ratehunter.net`, and `twenty.ratehunter.net` all reach Cloudflare Access.
-- `api.ratehunter.net/auth/v1/health` returns `200`.
-- `hooks.ratehunter.net` returns `200`.
-- `nexus.ratehunter.net` is the Nexus UI endpoint and `nexus-router.ratehunter.net` is the Nexus Router API/MCP endpoint. Both should remain Cloudflare Access-gated; the router endpoint should use service-token protection for agent traffic.
+- `app.projectnyra.com`, `nexus.projectnyra.com`, `litellm.projectnyra.com`, `n8n.projectnyra.com`, and `twenty.projectnyra.com` all reach Cloudflare Access.
+- `api.projectnyra.com/auth/v1/health` returns `200`.
+- `hooks.projectnyra.com` returns `200`.
+- `nexus.projectnyra.com` is the Nexus UI endpoint and `nexus-router.projectnyra.com` is the Nexus Router API/MCP endpoint. Both should remain Cloudflare Access-gated; the router endpoint should use service-token protection for agent traffic.
 
 Runtime caveats:
 

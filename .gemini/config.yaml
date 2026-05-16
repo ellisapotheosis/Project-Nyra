@@ -1,9 +1,9 @@
 models:
-  default: "gemini-2.0-pro-exp-02-05"
+  default: "gemini-2.5-flash"
   overrides:
-    flash: "gemini-2.0-flash"
-    vision: "gemini-2.0-pro-vision-preview"
-    reasoning: "gemini-2.0-pro-thinking-exp"
+    flash: "gemini-2.5-flash"
+    vision: "gemini-2.5-pro"
+    reasoning: "gemini-2.5-pro"
 
 experimental:
   toolUse: true
@@ -19,10 +19,4 @@ experimental:
   temperature: 0.7
   topP: 0.95
 
-mcpServers:
-  nexus-router:
-    httpUrl: "http://localhost:6000/mcp"
-    tools: ["*"]
-  serena:
-    command: "uv"
-    args: ["run", "--project", "services/serena-mcp", "serena-mcp-server"]
+mcpServers: {}
