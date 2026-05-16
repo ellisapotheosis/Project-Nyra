@@ -2,6 +2,18 @@
 
 Welcome, Agent. This folder contains the user-facing interfaces and administrative surfaces for Project Nyra.
 
+## Canonical App Roles
+
+| Path                      | Status                                  | Role                                                                                                                           |
+| :------------------------ | :-------------------------------------- | :----------------------------------------------------------------------------------------------------------------------------- |
+| `apps/projectnyra`        | Canonical product app                   | Project Nyra broker/admin/assistant surface for `projectnyra.com` and `app.projectnyra.com`.                                   |
+| `apps/ratehunter/landing` | Canonical public landing                | Personal mortgage brokerage landing page for `ratehunter.net` only.                                                            |
+| `apps/mortgage-crm`       | Migration source                        | Older standalone CRM prototype; migrate useful lead, Kanban, domain, and compliance ideas into `apps/projectnyra` or services. |
+| `apps/admin`              | Migration source                        | Older standalone admin prototype; Project Nyra admin routes now live under `apps/projectnyra/app/(admin)`.                     |
+| `apps/nexusUI`            | Separate active control-plane app       | Access-gated Nexus Router UI linked from Project Nyra, not embedded into the broker app.                                       |
+| `apps/twenty`             | Temporary bootstrap shell               | Transitional Twenty shell/source copy. Keep isolated until detached.                                                           |
+| `apps/twenty-crm`         | Temporary integration/bootstrap package | TwentyCRM integration scripts and MCP support; runtime compose belongs under `infra/hosts`.                                    |
+
 ## 📚 Specification Index
 
 To ensure consistency and compliance, every component in this directory (and related services) follows a strict `SPEC.md`. **Review these before making changes.**
