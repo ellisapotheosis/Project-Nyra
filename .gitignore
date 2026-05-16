@@ -244,13 +244,10 @@ share/python-wheels/
 PIPFILE.lock
 
 # Keep tracked frontend source libraries inside app trees.
-!apps/webapp/app/lib/
-!apps/mortgage-crm/src/lib/
-!apps/mortgage-crm/src/lib/*.ts
-!apps/mortgage-crm/src/lib/*.tsx
-!apps/landing/ratehunter-landing/src/lib/
-!apps/landing/ratehunter-landing/src/lib/*.ts
-!apps/landing/ratehunter-landing/src/lib/*.tsx
+!apps/**/src/lib/
+!apps/**/src/lib/**
+!apps/**/app/lib/
+!apps/**/app/lib/**
 
 ################################################################################
 # Virtual Environments
@@ -339,6 +336,10 @@ yarn-error.log*
 lerna-debug.log*
 .pnpm-debug.log*
 pnpm-debug.log*
+
+# Keep Next.js app route folders named "logs" trackable.
+!apps/**/src/app/**/logs/
+!apps/**/src/app/**/logs/**
 
 ################################################################################
 # Runtime Data
@@ -429,6 +430,8 @@ dist/
 ################################################################################
 .cache/
 public/
+!apps/**/public/
+!apps/**/public/**
 !apps/nexusUI/public/
 !apps/nexusUI/public/.gitkeep
 
