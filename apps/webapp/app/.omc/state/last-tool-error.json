@@ -1,7 +1,0 @@
-{
-  "tool_name": "Bash",
-  "tool_input_preview": "{\"command\":\"which poetry 2>&1; echo \\\"---\\\"; type poetry 2>&1; echo \\\"---\\\"; poetry --version 2>&1\",\"description\":\"Check if poetry is available in current session\"}",
-  "error": "Exit code 127\npoetry not found\n---\npoetry not found\n---\n(eval):1: command not found: poetry",
-  "timestamp": "2026-04-26T08:49:24.356Z",
-  "retry_count": 1
-}

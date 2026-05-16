@@ -9,12 +9,14 @@ This guide provides step-by-step instructions for deploying the Nyra distributed
 ### Hardware Requirements
 
 **Orchestrator Node (Minisforum UH680)**
+
 - Ryzen 7 6800H processor
 - 16GB DDR5 RAM
 - 1TB SSD storage
 - Network connectivity to all worker nodes
 
 **Worker Nodes**
+
 - **Worker 1**: Alienware M15R7 with RTX 3060 (6GB VRAM)
 - **Worker 2**: Alienware Area-51 with RTX 5090 (32GB VRAM)
 - **Worker 3**: Desktop PC with RTX 3090Ti (24GB VRAM)
@@ -22,12 +24,14 @@ This guide provides step-by-step instructions for deploying the Nyra distributed
 ### Software Requirements
 
 **All Nodes**
+
 - Docker Engine 24.0+
 - Docker Compose 2.20+
 - NVIDIA Container Toolkit (for GPU workers)
 - PowerShell 7.0+ (Windows) or Bash (Linux)
 
 **Orchestrator Only**
+
 - Infisical CLI (for secrets management)
 - Cloudflare Tunnel client
 - Python 3.9+ (for model downloads)
@@ -57,10 +61,12 @@ Update your local DNS or hosts file:
 ### Firewall Rules
 
 **Orchestrator**
+
 - Inbound: 8000 (API Gateway), 3000 (Grafana), 9090 (Prometheus)
 - Outbound: 8001-8003 (Worker APIs), 4001-4003 (Worker LiteLLM)
 
 **Workers**
+
 - Inbound: 8001-8003 (Health), 4001-4003 (LiteLLM), 9001-9003 (Metrics)
 - Outbound: 8000 (Orchestrator API)
 
@@ -114,10 +120,10 @@ cloudflared tunnel create nyra-worker2-tunnel
 cloudflared tunnel create nyra-worker3-tunnel
 
 # Configure DNS records
-cloudflared tunnel route dns nyra-orchestrator-tunnel api.nyra.ratehunter.net
-cloudflared tunnel route dns nyra-worker1-tunnel worker1.nyra.ratehunter.net
-cloudflared tunnel route dns nyra-worker2-tunnel worker2.nyra.ratehunter.net
-cloudflared tunnel route dns nyra-worker3-tunnel worker3.nyra.ratehunter.net
+cloudflared tunnel route dns nyra-orchestrator-tunnel api.app.projectnyra.com
+cloudflared tunnel route dns nyra-worker1-tunnel worker1.app.projectnyra.com
+cloudflared tunnel route dns nyra-worker2-tunnel worker2.app.projectnyra.com
+cloudflared tunnel route dns nyra-worker3-tunnel worker3.app.projectnyra.com
 ```
 
 ## Deployment Process
@@ -174,6 +180,7 @@ curl http://localhost:8000/health
 **Models will be automatically downloaded during deployment. To manually download:**
 
 **Worker 1 Models (RTX 3060):**
+
 ```bash
 docker exec nyra-worker1-ollama ollama pull llama-3.1-8b-instruct
 docker exec nyra-worker1-ollama ollama pull code-llama-7b-instruct
@@ -181,12 +188,14 @@ docker exec nyra-worker1-ollama ollama pull mistral-7b-instruct-v0.3
 ```
 
 **Worker 2 Models (RTX 5090):**
+
 ```bash
 # Large models - use HuggingFace Hub
 python -c "from huggingface_hub import snapshot_download; snapshot_download('meta-llama/Llama-3.1-70B-Instruct', cache_dir='/app/models/worker2')"
 ```
 
 **Worker 3 Models (RTX 3090Ti):**
+
 ```bash
 python -c "from huggingface_hub import snapshot_download; snapshot_download('meta-llama/Llama-3.1-33B-Instruct', cache_dir='/app/models/worker3')"
 ```
@@ -255,6 +264,7 @@ Invoke-RestMethod -Uri "http://localhost:8000/v1/chat/completions" -Method Post 
 ### Common Issues
 
 **1. Worker not responding after WOL:**
+
 ```powershell
 # Check network connectivity
 Test-Connection worker1.nyra.local
@@ -264,6 +274,7 @@ Test-Connection worker1.nyra.local
 ```
 
 **2. Model loading failures:**
+
 ```bash
 # Check GPU memory
 nvidia-smi
@@ -273,6 +284,7 @@ docker-compose -f config/docker-compose.worker1.yml restart ollama
 ```
 
 **3. API Gateway routing issues:**
+
 ```powershell
 # Check LiteLLM logs
 docker logs nyra-api-gateway
@@ -282,6 +294,7 @@ curl http://worker1.nyra.local:4001/health
 ```
 
 **4. Cloudflared tunnel problems:**
+
 ```bash
 # Check tunnel status
 cloudflared tunnel info nyra-orchestrator-tunnel
@@ -293,16 +306,19 @@ docker-compose restart cloudflared
 ### Performance Tuning
 
 **1. GPU Memory Optimization:**
+
 - Adjust `gpu_memory_utilization` in worker configs
 - Enable model quantization for larger models
 - Configure model rotation for memory efficiency
 
 **2. Request Routing Optimization:**
+
 - Monitor routing patterns in Grafana
 - Adjust routing rules based on actual usage
 - Configure load balancing thresholds
 
 **3. Caching Optimization:**
+
 - Monitor Redis cache hit rates
 - Adjust cache TTL values
 - Enable response caching for common queries
@@ -312,16 +328,19 @@ docker-compose restart cloudflared
 ### Regular Tasks
 
 **Daily:**
+
 - Check worker status and GPU health
 - Monitor error rates and response times
 - Review request routing patterns
 
 **Weekly:**
+
 - Update model weights if available
 - Review and rotate API keys
 - Check disk space and logs
 
 **Monthly:**
+
 - Update Docker images
 - Review and optimize configurations
 - Test disaster recovery procedures
@@ -329,6 +348,7 @@ docker-compose restart cloudflared
 ### Scaling Considerations
 
 **Adding Workers:**
+
 1. Configure new worker in orchestrator config
 2. Create Docker Compose file for new worker
 3. Update Prometheus monitoring
@@ -336,6 +356,7 @@ docker-compose restart cloudflared
 5. Add to Wake-on-LAN script
 
 **Model Updates:**
+
 1. Test new models in staging environment
 2. Download models during off-peak hours
 3. Update LiteLLM configuration
@@ -352,18 +373,21 @@ docker-compose restart cloudflared
 ## Backup and Recovery
 
 **Configuration Backup:**
+
 ```bash
 # Backup all configs
 tar -czf nyra-config-backup-$(date +%Y%m%d).tar.gz config/ scripts/ docs/
 ```
 
 **Model Weights Backup:**
+
 ```bash
 # Backup model weights (large files)
 rsync -av /app/models/ backup-server:/nyra-models/
 ```
 
 **Database Backup:**
+
 ```bash
 # Backup LiteLLM database
 docker exec nyra-postgres pg_dump -U litellm litellm > litellm-backup-$(date +%Y%m%d).sql

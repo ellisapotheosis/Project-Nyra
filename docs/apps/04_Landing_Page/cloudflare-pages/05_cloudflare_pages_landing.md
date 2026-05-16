@@ -6,12 +6,12 @@ Updated: 2026-04-27
 
 The marketing landing property should stay on Cloudflare Pages unless a product decision explicitly moves it into the Oracle app stack.
 
-| Item | Current policy |
-|---|---|
-| Canonical app location | `apps/landing` |
-| Public domain | `ratehunter.net` / `www.ratehunter.net` |
-| Preferred deployment | Cloudflare Pages project + branch previews |
-| Public access | unauthenticated marketing surface only |
+| Item                   | Current policy                             |
+| ---------------------- | ------------------------------------------ |
+| Canonical app location | `apps/ratehunter`                          |
+| Public domain          | `ratehunter.net` / `www.ratehunter.net`    |
+| Preferred deployment   | Cloudflare Pages project + branch previews |
+| Public access          | unauthenticated marketing surface only     |
 
 ## Current edge config note
 
@@ -37,11 +37,11 @@ Use those only if the landing site is intentionally moved from Pages to a contai
 
 ## Related infrastructure
 
-| Purpose | File |
-|---|---|
-| Oracle tunnel backup hostname map | `infra/hosts/oracle-vps/cloudflared-config.yml` |
-| Orchestrator tunnel runner | `infra/hosts/orchestrator/docker-compose.cloudflared.yml` |
-| Oracle tunnel runner | `infra/hosts/oracle-vps/docker-compose.yml` service `cloudflared` |
+| Purpose                           | File                                                              |
+| --------------------------------- | ----------------------------------------------------------------- |
+| Oracle tunnel backup hostname map | `infra/hosts/oracle-vps/cloudflared-config.yml`                   |
+| Orchestrator tunnel runner        | `infra/hosts/orchestrator/docker-compose.cloudflared.yml`         |
+| Oracle tunnel runner              | `infra/hosts/oracle-vps/docker-compose.yml` service `cloudflared` |
 
 ## Verification checklist
 

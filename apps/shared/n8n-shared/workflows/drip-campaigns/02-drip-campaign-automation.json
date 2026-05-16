@@ -67,11 +67,11 @@
     },
     {
       "parameters": {
-        "fromEmail": "support@ratehunter.net",
+        "fromEmail": "support@ratehunter.com",
         "toEmail": "={{$json.email}}",
         "subject": "Welcome to RateHunter - Your Mortgage Journey Starts Here",
         "emailType": "html",
-        "message": "<h2>Welcome {{$json.firstName}}!</h2><p>We're excited to help you find the perfect mortgage rate.</p><p>Your personalized quote: <strong>{{$json.quote_rate}}%</strong></p><p><a href=\"https://ratehunter.net/dashboard/{{$json.id}}\">View Your Dashboard</a></p><p>Next steps:</p><ul><li>Review your quote details</li><li>Upload required documents</li><li>Schedule a consultation</li></ul>"
+        "message": "<h2>Welcome {{$json.firstName}}!</h2><p>We're excited to help you find the perfect mortgage rate.</p><p>Your personalized quote: <strong>{{$json.quote_rate}}%</strong></p><p><a href=\"https://ratehunter.com/dashboard/{{$json.id}}\">View Your Dashboard</a></p><p>Next steps:</p><ul><li>Review your quote details</li><li>Upload required documents</li><li>Schedule a consultation</li></ul>"
       },
       "id": "email-welcome",
       "name": "Send Welcome Email",
@@ -105,11 +105,11 @@
     },
     {
       "parameters": {
-        "fromEmail": "support@ratehunter.net",
+        "fromEmail": "support@ratehunter.com",
         "toEmail": "={{$json.email}}",
         "subject": "Documents Needed - Let's Move Forward!",
         "emailType": "html",
-        "message": "<h2>Hi {{$json.firstName}},</h2><p>Ready to take the next step? We need a few documents to proceed:</p><ul><li>Pay stubs (last 2 months)</li><li>W-2 forms (last 2 years)</li><li>Bank statements (last 2 months)</li></ul><p><a href=\"https://ratehunter.net/upload/{{$json.id}}\">Upload Documents Securely</a></p>"
+        "message": "<h2>Hi {{$json.firstName}},</h2><p>Ready to take the next step? We need a few documents to proceed:</p><ul><li>Pay stubs (last 2 months)</li><li>W-2 forms (last 2 years)</li><li>Bank statements (last 2 months)</li></ul><p><a href=\"https://ratehunter.com/upload/{{$json.id}}\">Upload Documents Securely</a></p>"
       },
       "id": "email-documents",
       "name": "Request Documents",
@@ -125,11 +125,11 @@
     },
     {
       "parameters": {
-        "fromEmail": "support@ratehunter.net",
+        "fromEmail": "support@ratehunter.com",
         "toEmail": "={{$json.email}}",
         "subject": "Limited Time Offer - Lock Your Rate Today!",
         "emailType": "html",
-        "message": "<h2>{{$json.firstName}}, Don't Miss Out!</h2><p>Mortgage rates are changing. Lock in your rate of <strong>{{$json.quote_rate}}%</strong> today!</p><p>This rate is available for the next 48 hours.</p><p><a href=\"https://ratehunter.net/lock-rate/{{$json.id}}\">Lock Your Rate Now</a></p>"
+        "message": "<h2>{{$json.firstName}}, Don't Miss Out!</h2><p>Mortgage rates are changing. Lock in your rate of <strong>{{$json.quote_rate}}%</strong> today!</p><p>This rate is available for the next 48 hours.</p><p><a href=\"https://ratehunter.com/lock-rate/{{$json.id}}\">Lock Your Rate Now</a></p>"
       },
       "id": "email-urgency",
       "name": "Send Urgency Email",

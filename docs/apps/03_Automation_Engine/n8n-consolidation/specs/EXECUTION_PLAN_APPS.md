@@ -58,17 +58,20 @@ workflows/
 ## Phase 1 — CRM data layer
 
 ### Goals
+
 - Deploy and stabilize Twenty CRM
 - Model mortgage-specific objects
 - Build shared CRM client package and service wrapper
 
 ### Core objects
+
 - `LOAN`
 - `CAMPAIGN_ENROLLMENT`
 - `COMMUNICATION_LOG`
 - `QUOTE`
 
 ### Contact extensions
+
 - consent_email
 - consent_sms
 - consent_voice
@@ -78,6 +81,7 @@ workflows/
 - do_not_contact
 
 ### Required package
+
 - `packages/crm-client`
 - `services/crm-api`
 
@@ -93,6 +97,7 @@ Build `services/lead-ingestion` to:
 - log ingestion audit events
 
 Expected routes:
+
 - `POST /api/leads`
 - `POST /api/leads/ingest`
 - `GET /api/leads/:id`
@@ -124,6 +129,7 @@ Build `services/compliance-service` to own:
 - contact-level compliance state
 
 Required invariants:
+
 - STOP must halt all future outreach immediately
 - unsubscribe must be honored immediately
 - reply must pause automation and notify broker
@@ -139,6 +145,7 @@ Build `services/communication-service` to own:
 - CRM timeline sync
 
 Channels:
+
 - email
 - sms
 - voice / voicemail
@@ -154,13 +161,16 @@ Build `services/quote-service` to own:
 - quote history and expiration
 
 Important:
+
 - quotes come from the quote service only
 - assistant must never fabricate quote terms
 
 ## Phase 7 — App surfaces
 
 ### apps/admin
+
 Build the operator/admin portal with:
+
 - dashboard
 - lead list/detail
 - campaign management
@@ -170,20 +180,24 @@ Build the operator/admin portal with:
 - assistant tooling panel
 - provider/settings pages
 
-### apps/webapp
+### apps/projectnyra
+
 Build the broker/customer-facing application with:
+
 - intake
 - status
 - quote views
 - document collection
 - assistant/chat experience via OpenClaw
 
-### apps/landing
+### apps/ratehunter
+
 Build the marketing and lead-capture landing experience.
 
 ## UI standards
 
 Use everywhere:
+
 - Next.js App Router
 - TypeScript
 - Tailwind

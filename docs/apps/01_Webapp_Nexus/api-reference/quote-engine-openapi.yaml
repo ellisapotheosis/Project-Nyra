@@ -10,11 +10,11 @@ info:
 
     **Base URL**: `http://localhost:8001` (development)
 
-    **Production URL**: `https://api.ratehunter.net/quote`
+    **Production URL**: `https://api.projectnyra.com/quote`
   version: 1.0.0
   contact:
     name: Project Nyra API Support
-    email: api@ratehunter.net
+    email: api@ratehunter.com
   license:
     name: Proprietary
 
@@ -23,7 +23,7 @@ servers:
     description: Local development server
   - url: http://quote-engine:8001
     description: Docker internal network
-  - url: https://api.ratehunter.net/quote
+  - url: https://api.projectnyra.com/quote
     description: Production API
 
 tags:
@@ -41,7 +41,7 @@ paths:
       tags: [health]
       description: Returns service health status and version information
       responses:
-        '200':
+        "200":
           description: Service is healthy
           content:
             application/json:
@@ -76,7 +76,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/QuoteRequest'
+              $ref: "#/components/schemas/QuoteRequest"
             examples:
               conventional:
                 summary: Conventional loan example
@@ -103,24 +103,24 @@ paths:
                   occupancy: "primary"
                   zip_code: "10001"
       responses:
-        '200':
+        "200":
           description: Quote generated successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/QuoteResponse'
-        '400':
+                $ref: "#/components/schemas/QuoteResponse"
+        "400":
           description: Invalid request parameters
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-        '500':
+                $ref: "#/components/schemas/Error"
+        "500":
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
 
   /quote/{quote_id}:
     get:
@@ -135,18 +135,18 @@ paths:
             format: uuid
           description: Unique quote identifier
       responses:
-        '200':
+        "200":
           description: Quote retrieved successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/QuoteResponse'
-        '404':
+                $ref: "#/components/schemas/QuoteResponse"
+        "404":
           description: Quote not found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
 
   /rates:
     get:
@@ -163,12 +163,12 @@ paths:
         - VA (30-year)
         - USDA (30-year)
       responses:
-        '200':
+        "200":
           description: Current rates retrieved
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/RatesResponse'
+                $ref: "#/components/schemas/RatesResponse"
 
   /calculate:
     post:
@@ -195,12 +195,12 @@ paths:
                   example: 30
                   description: Loan term in years
       responses:
-        '200':
+        "200":
           description: Calculation completed
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CalculationResponse'
+                $ref: "#/components/schemas/CalculationResponse"
 
 components:
   schemas:

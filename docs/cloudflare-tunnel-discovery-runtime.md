@@ -11,7 +11,7 @@ Runtime facts from local inspection:
 - Local Docker has `nyra-cloudflared-orchestrator` running on `nyra-network`.
 - `nyra-cloudflared-orchestrator` registered tunnel `ae0bd53a-f22e-4414-8593-5b765dcd044b` over `http2`.
 - Active remote config pushed by Cloudflare currently contains only:
-  - `linkwarden.ratehunter.net -> http://100.64.0.2:3007`
+  - `linkwarden.projectnyra.com -> http://100.64.0.2:3007`
   - catch-all `http_status:404`
 - The Linkwarden origin logged a proxy cancellation and previous smoke tests timed out, so the origin at `100.64.0.2:3007` still needs validation from the connector network.
 

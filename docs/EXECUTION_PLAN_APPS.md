@@ -47,5 +47,5 @@ Software engineering playbook for Project Nyra.
 
 ## Phase 7 — App Surfaces
 
-- **apps/webapp**: The central broker command center.
-- **apps/landing**: Marketing and lead capture.
+- **apps/projectnyra**: The central broker command center.
+- **apps/ratehunter**: Marketing and lead capture.

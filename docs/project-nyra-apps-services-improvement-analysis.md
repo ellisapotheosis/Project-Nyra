@@ -17,8 +17,8 @@ files, generated Cloudflare state, and current Project Nyra architecture rules.
   the current project session state.
 - Cloudflare prompt-pack deliverables exist and generated remote JSON parses
   cleanly with `jq empty`.
-- Cloudflare-side Linkwarden work is complete: `links.ratehunter.net` and
-  `linkwarden.ratehunter.net` exist in orchestrator tunnel config, DNS points to
+- Cloudflare-side Linkwarden work is complete: `links.projectnyra.com` and
+  `linkwarden.projectnyra.com` exist in orchestrator tunnel config, DNS points to
   the orchestrator tunnel, and Access apps exist for both hostnames.
 - Final Linkwarden origin health remains environment-bound because this Codex App
   session is logged out of Tailscale and cannot reach `100.64.0.2:3007`.
@@ -27,15 +27,15 @@ files, generated Cloudflare state, and current Project Nyra architecture rules.
 
 - The monorepo uses `pnpm@10.27.0`, Turbo, TypeScript, and workspaces for
   `apps/*`, `apps/*/*`, `services/*`, `services/*/*`, and `packages/*`.
-- Main app workspaces include `apps/admin`, `apps/webapp/app`,
-  `apps/landing/ratehunter-landing`, `apps/nexusUI`, `apps/twenty`, and
+- Main app workspaces include `apps/admin`, `apps/projectnyra`,
+  `apps/ratehunter/landing`, `apps/nexusUI`, `apps/twenty`, and
   `apps/twenty-crm`.
 - Main service workspaces include `services/crm-api`, `services/campaign-engine`,
   `services/nexus-router`, `services/twilio-integration`,
   `services/twentycrm-integration`, `services/security-service`,
   `services/ratehunter-api`, and supporting MCP/integration services.
 - Required SPEC files referenced by `apps/README.md` exist:
-  `apps/webapp/SPEC.md`, `services/crm-api/SPEC.md`,
+  `apps/projectnyra/SPEC.md`, `services/crm-api/SPEC.md`,
   `services/n8n-workflows/SPEC.md`, `services/openclaw/SPEC.md`, and
   `services/quote-api/SPEC.md`.
 
@@ -44,10 +44,10 @@ files, generated Cloudflare state, and current Project Nyra architecture rules.
 1. Normalize public Nexus hostnames across docs and UI defaults.
 
    Evidence: the generated and applied Oracle tunnel payload maps
-   `nexus.ratehunter.net` to `http://nexus-ui:3016` and
-   `nexus-router.ratehunter.net` to `http://nexus:3000`, while older docs still
-   described `nexus.ratehunter.net` as the router endpoint and
-   `nexus-ui.ratehunter.net` as the UI. This analysis pass corrected the current
+   `nexus.projectnyra.com` to `http://nexus-ui:3016` and
+   `nexus-router.projectnyra.com` to `http://nexus:3000`, while older docs still
+   described `nexus.projectnyra.com` as the router endpoint and
+   `nexus-ui.projectnyra.com` as the UI. This analysis pass corrected the current
    app docs, Cloudflare reports, hostname matrix, exposure policy, and webapp
    default Nexus URL.
 

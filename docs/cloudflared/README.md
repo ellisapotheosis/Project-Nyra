@@ -3,7 +3,7 @@
 Updated: 2026-04-30
 
 This folder is the current owner-facing package for setting up Project Nyra
-Cloudflare Tunnel hostnames for `ratehunter.net`.
+Cloudflare Tunnel hostnames for `projectnyra.com`; `ratehunter.net` is landing-only.
 
 ## Important Cloudflared Modes
 
@@ -20,22 +20,22 @@ you use the Cloudflare Web UI, manually recreate the hostnames from
 
 ## Files
 
-| File | Purpose |
-|---|---|
-| `hostname-matrix.md` | Canonical hostname, origin, and Access policy matrix |
-| `cloudflared-oracle.yml` | Main Oracle/local Docker-network tunnel template |
+| File                        | Purpose                                                        |
+| --------------------------- | -------------------------------------------------------------- |
+| `hostname-matrix.md`        | Canonical hostname, origin, and Access policy matrix           |
+| `cloudflared-oracle.yml`    | Main Oracle/local Docker-network tunnel template               |
 | `cloudflared-worker-ui.yml` | Optional worker/orchestrator UI tunnel template over Tailscale |
-| `webui-public-hostnames.md` | Step-by-step Cloudflare Web UI entry list |
-| `validation.md` | Validation and drift checks |
+| `webui-public-hostnames.md` | Step-by-step Cloudflare Web UI entry list                      |
+| `validation.md`             | Validation and drift checks                                    |
 
 ## Public Entry Points
 
-| Hostname | Role |
-|---|---|
-| `ratehunter.net` | Cloudflare Pages landing site |
-| `www.ratehunter.net` | Cloudflare Pages landing alias |
-| `nyra.ratehunter.net` | Project Nyra webapp |
-| `crm.ratehunter.net` | Twenty CRM |
+| Hostname              | Role                           |
+| --------------------- | ------------------------------ |
+| `ratehunter.net`      | Cloudflare Pages landing site  |
+| `www.ratehunter.net`  | Cloudflare Pages landing alias |
+| `app.projectnyra.com` | Project Nyra webapp            |
+| `crm.projectnyra.com` | Twenty CRM                     |
 
 All other hostnames in this package should be Cloudflare Access-gated unless a
 future product decision explicitly makes them public.

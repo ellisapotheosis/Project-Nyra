@@ -35,7 +35,7 @@ start_service() {
 echo ">>> CORE SERVICES" | tee -a $LOG_FILE
 echo "" | tee -a $LOG_FILE
 
-start_service "landing" "$PROJECT_ROOT/apps/landing/ratehunter-landing" "3001" "npm run dev -- -p 3001"
+start_service "landing" "$PROJECT_ROOT/apps/ratehunter/landing" "3001" "npm run dev -- -p 3001"
 start_service "webapp" "$PROJECT_ROOT/apps/web/webapp" "3002" "npm run dev -- -p 3002"
 start_service "nexus-router" "$PROJECT_ROOT/services/nexus-router" "6000" "npm start"
 start_service "orchestrator" "$PROJECT_ROOT/services/nyra-orchestrator" "8000" "npm start"

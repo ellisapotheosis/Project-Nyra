@@ -292,7 +292,7 @@ create_worker_config() {
   "worker": {
     "name": "$WORKER_NAME",
     "ip": "$WORKER_IP",
-    "hostname": "$WORKER_NAME.ratehunter.net",
+    "hostname": "$WORKER_NAME.projectnyra.com",
     "gpu_model": "$GPU_MODEL",
     "ports": {
       "gpu_api": $GPU_API_PORT,
@@ -338,7 +338,7 @@ create_tunnel_config() {
 
     # Replace variables in config
     sed -i "s/\${WORKER_NAME}/$WORKER_NAME/g" "/etc/cloudflared/$WORKER_NAME.yml"
-    sed -i "s/\${WORKER_HOSTNAME}/$WORKER_NAME.ratehunter.net/g" "/etc/cloudflared/$WORKER_NAME.yml"
+    sed -i "s/\${WORKER_HOSTNAME}/$WORKER_NAME.projectnyra.com/g" "/etc/cloudflared/$WORKER_NAME.yml"
     sed -i "s/\${GPU_API_PORT}/$GPU_API_PORT/g" "/etc/cloudflared/$WORKER_NAME.yml"
     sed -i "s/\${HEALTH_PORT}/$HEALTH_PORT/g" "/etc/cloudflared/$WORKER_NAME.yml"
     sed -i "s/\${METRICS_PORT}/$METRICS_PORT/g" "/etc/cloudflared/$WORKER_NAME.yml"
@@ -459,7 +459,7 @@ show_setup_info() {
     echo "   - Name: $WORKER_NAME"
     echo "   - IP: $WORKER_IP"
     echo "   - GPU: $GPU_MODEL"
-    echo "   - Hostname: $WORKER_NAME.ratehunter.net"
+    echo "   - Hostname: $WORKER_NAME.projectnyra.com"
     echo
     echo "🔧 Services and Ports:"
     echo "   - GPU API: $GPU_API_PORT"
@@ -483,7 +483,7 @@ show_setup_info() {
     echo "   4. Test GPU compute availability"
     echo
     echo "🔗 Service URLs (after registration):"
-    echo "   - https://$WORKER_NAME.ratehunter.net"
+    echo "   - https://$WORKER_NAME.projectnyra.com"
 }
 
 # Main setup function

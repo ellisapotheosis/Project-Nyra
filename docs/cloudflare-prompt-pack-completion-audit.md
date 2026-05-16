@@ -52,18 +52,18 @@ Evidence in `docs/cloudflare-api-apply-report.md` states:
 
 Evidence in `infra/cloudflare/apply-results/orchestrator-config-after.json` shows the active orchestrator tunnel routes:
 
-- `links.ratehunter.net -> http://100.64.0.2:3007`
-- `linkwarden.ratehunter.net -> http://100.64.0.2:3007`
-- `openclaw-gateway.ratehunter.net -> http://nyra-openclaw-gateway:8001`
+- `links.projectnyra.com -> http://100.64.0.2:3007`
+- `linkwarden.projectnyra.com -> http://100.64.0.2:3007`
+- `openclaw-gateway.projectnyra.com -> http://nyra-openclaw-gateway:8001`
 
-Evidence in `infra/cloudflare/apply-results/dns-records-after.json` shows `links.ratehunter.net` and `linkwarden.ratehunter.net` point to:
+Evidence in `infra/cloudflare/apply-results/dns-records-after.json` shows `links.projectnyra.com` and `linkwarden.projectnyra.com` point to:
 
 - `ae0bd53a-f22e-4414-8593-5b765dcd044b.cfargotunnel.com`
 
 Evidence in `infra/cloudflare/apply-results/access-apps-after.json` shows Access apps exist for:
 
-- `links.ratehunter.net`
-- `linkwarden.ratehunter.net`
+- `links.projectnyra.com`
+- `linkwarden.projectnyra.com`
 
 ## Linkwarden / Home Assistant status
 
@@ -74,7 +74,7 @@ The route, DNS records, and Access apps are created. Origin health is not proven
 - `tailscale status` reported this session is logged out.
 - `ping 100.64.0.2` had 100% packet loss.
 - `curl -I --max-time 12 http://100.64.0.2:3007` timed out.
-- `curl --http1.1 -I --max-time 12 https://links.ratehunter.net` returned an empty reply.
+- `curl --http1.1 -I --max-time 12 https://links.projectnyra.com` returned an empty reply.
 
 Inference:
 

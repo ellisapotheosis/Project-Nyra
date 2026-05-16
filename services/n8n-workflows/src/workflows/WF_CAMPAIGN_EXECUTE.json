@@ -37,8 +37,7 @@
       "type": "n8n-nodes-base.itemLists",
       "typeVersion": 1,
       "position": [500, 300]
-    }
-,
+    },
     {
       "parameters": {
         "jsCode": "const step = $input.first().json;\nconst leadId = $node[\"Execute Trigger\"].json.leadId;\n\n// Logic to calculate delay based on step.day and step.offsetMinutes\nlet delayMinutes = 0;\nif (step.day === 0) {\n  delayMinutes = step.offsetMinutes || 0;\n} else {\n  // For simplicity in this mock, we calculate minutes until next scheduled day/time\n  // In real n8n, we might use a Wait node with a specific date\n  delayMinutes = step.day * 1440; \n}\n\nreturn { json: { ...step, leadId, delayMinutes } };"
@@ -124,7 +123,8 @@
     },
     {
       "parameters": {
-        "amount": 1,\n        "unit": "hours"
+        "amount": 1,
+        "unit": "hours"
       },
       "id": "wait_for_morning",
       "name": "Wait for Morning",
@@ -185,7 +185,7 @@
     },
     {
       "parameters": {
-        "fromEmail": "mortgage@ratehunter.net",
+        "fromEmail": "mortgage@ratehunter.com",
         "toEmail": "={{ $('Check Lead Status').json.person.email }}",
         "subject": "Mortgage Update",
         "html": "={{ $node[\"Calculate Delay\"].json.templateId }}"

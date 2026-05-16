@@ -16,4 +16,4 @@
 
 - [x] Task: Add visual compliance badges (Consent, DNC, Quiet Hours)
 - [x] Task: Implement campaign enrollment and state toggle buttons
-- [x] Task: Conductor - User Manual Verification 'Phase 3: Compliance and Controls' (Protocol in workflow.md) — verified with `pnpm --dir apps/webapp/app typecheck`, `pnpm --dir apps/webapp/app lint`, and Playwright screenshot of `/leads/1`.
+- [x] Task: Conductor - User Manual Verification 'Phase 3: Compliance and Controls' (Protocol in workflow.md) — verified with `pnpm --dir apps/projectnyra typecheck`, `pnpm --dir apps/projectnyra lint`, and Playwright screenshot of `/leads/1`.

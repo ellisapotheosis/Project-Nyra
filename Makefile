@@ -59,10 +59,10 @@ VOICE_ORCHESTRATOR_COMPOSE := infra/hosts/orchestrator/docker-compose.voice.yml
 DIST_VOICE_3060 := infra/hosts/worker-rtx3060/docker-compose.distributed-voice.yml
 DIST_VOICE_5090 := infra/hosts/worker-rtx5090/docker-compose.distributed-voice.yml
 DIST_VOICE_3090TI := infra/hosts/worker-rtx3090ti/docker-compose.distributed-voice.yml
-KYUTAI_BASE_3060_COMPOSE := infra/workers/worker-rtx3060/docker-compose.voice.yml
-KYUTAI_MESH_3060_COMPOSE := infra/workers/worker-rtx3060/docker-compose.kyutai-mesh.yml
-KYUTAI_MESH_3090TI_COMPOSE := infra/workers/worker-rtx3090ti/docker-compose.kyutai-mesh.yml
-KYUTAI_MESH_5090_COMPOSE := infra/workers/worker-rtx5090/docker-compose.kyutai-mesh.yml
+KYUTAI_BASE_3060_COMPOSE := infra/hosts/worker-rtx3060/docker-compose.voice.yml
+KYUTAI_MESH_3060_COMPOSE := infra/hosts/worker-rtx3060/docker-compose.distributed-voice.yml
+KYUTAI_MESH_3090TI_COMPOSE := infra/hosts/worker-rtx3090ti/docker-compose.distributed-voice.yml
+KYUTAI_MESH_5090_COMPOSE := infra/hosts/worker-rtx5090/docker-compose.distributed-voice.yml
 
 DEFAULT_PROFILES ?= apps,sync,debug
 
@@ -546,7 +546,7 @@ down-all-workers:
 paperclip-up:
 	@echo "Starting PAPERCLIP..."
 	@docker --context oracle compose -f $(ORACLE_COMPOSE) up -d paperclip paperclip-mcp
-	@echo "PAPERCLIP: http://paperclip.ratehunter.net"
+	@echo "PAPERCLIP: http://paperclip.projectnyra.com"
 
 paperclip-down:
 	@docker --context oracle compose -f $(ORACLE_COMPOSE) stop paperclip paperclip-mcp
@@ -1041,4 +1041,3 @@ wave-stack-status:
 	@echo
 	@echo "=== ORACLE APPS ==="
 	@docker --context $(ORACLE_CONTEXT) compose -f $(ORACLE_COMPOSE) -f $(ORACLE_APPS_COMPOSE) ps || true
-

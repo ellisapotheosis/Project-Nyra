@@ -11,7 +11,7 @@
 This guide covers the complete setup of Project Nyra's Gitea infrastructure, including:
 
 - **Production-ready Gitea server** with PostgreSQL backend
-- **AI-powered code review** integration with Claude via Nexus Router  
+- **AI-powered code review** integration with Claude via Nexus Router
 - **Dual Actions runners** (standard + large/GPU)
 - **GitHub synchronization** with bidirectional mirroring
 - **MCP integration** for agent access
@@ -104,8 +104,8 @@ Key environment variables in `.env.gitea`:
 
 ```bash
 # Server Configuration
-GITEA_DOMAIN=git.ratehunter.net
-GITEA_ROOT_URL=https://git.ratehunter.net/
+GITEA_DOMAIN=git.projectnyra.com
+GITEA_ROOT_URL=https://git.projectnyra.com/
 GITEA_PORT=3100
 GITEA_SSH_PORT=2222
 
@@ -154,31 +154,37 @@ webhook_secret          # Webhook signing secret
 The Gitea stack supports multiple profiles for different features:
 
 ### Default Profile (Always Active)
+
 - Gitea server + database
 - Redis cache
 - Infisical secrets management
 
 ### Actions Profile (`--profile actions`)
+
 - Standard Actions runner
 - CI/CD pipeline support
 - Docker-in-Docker builds
 
 ### Actions-Large Profile (`--profile actions-large`)
+
 - Large GPU-enabled runner
 - High-resource builds
 - AI/ML model operations
 
 ### AI Profile (`--profile ai`)
+
 - AI code reviewer service
 - Claude integration via Nexus
 - Automated PR reviews
 
 ### Mirror Profile (`--profile mirror`)
+
 - GitHub synchronization
 - Bidirectional mirroring
 - Conflict resolution
 
 ### Infisical Profile (`--profile infisical`)
+
 - Live secrets synchronization
 - Automatic secret rotation
 
@@ -187,7 +193,7 @@ The Gitea stack supports multiple profiles for different features:
 The AI reviewer automatically analyzes pull requests and provides:
 
 - **Security analysis** - vulnerability detection
-- **Code quality** - best practices and maintainability  
+- **Code quality** - best practices and maintainability
 - **Performance** - optimization suggestions
 - **Architecture** - design pattern recommendations
 
@@ -218,7 +224,7 @@ Automated bidirectional sync between Gitea and GitHub:
 
 1. **Bidirectional** (default) - Changes sync in both directions
 2. **GitHub → Gitea** - One-way sync from GitHub
-3. **Gitea → GitHub** - One-way sync to GitHub  
+3. **Gitea → GitHub** - One-way sync to GitHub
 4. **Backup mode** - Read-only mirroring
 
 ### Conflict Resolution
@@ -242,11 +248,13 @@ curl http://localhost:8093/health
 ## 🏃‍♂️ Actions Runners
 
 ### Standard Runner
+
 - **Resources**: 4 CPU, 8GB RAM
 - **Labels**: `ubuntu-latest`, `docker`, `self-hosted`, `nyra`
 - **Use cases**: Standard CI/CD, tests, builds
 
-### Large Runner  
+### Large Runner
+
 - **Resources**: 12 CPU, 24GB RAM, GPU access
 - **Labels**: `ubuntu-latest-large`, `docker-large`, `gpu`, `nyra-large`
 - **Use cases**: AI/ML models, heavy builds, GPU workloads
@@ -266,22 +274,22 @@ The Gitea MCP server provides agent access to repository operations:
 
 ```javascript
 // Repository operations
-gitea_list_files(path, ref)           // List directory contents
-gitea_read_file(path, ref)            // Read file contents  
-gitea_create_file(path, content, msg) // Create/update files
-gitea_delete_file(path, msg)          // Delete files
+gitea_list_files(path, ref); // List directory contents
+gitea_read_file(path, ref); // Read file contents
+gitea_create_file(path, content, msg); // Create/update files
+gitea_delete_file(path, msg); // Delete files
 
 // Branch operations
-gitea_list_branches()                 // List all branches
-gitea_create_branch(name, from)       // Create new branch
-gitea_list_commits(branch, limit)     // List recent commits
+gitea_list_branches(); // List all branches
+gitea_create_branch(name, from); // Create new branch
+gitea_list_commits(branch, limit); // List recent commits
 
 // Pull request operations
-gitea_create_pull_request(title, body, head, base)
-gitea_list_pull_requests(state, limit)
+gitea_create_pull_request(title, body, head, base);
+gitea_list_pull_requests(state, limit);
 
 // Repository info
-gitea_get_repository_info()           // Get repo stats
+gitea_get_repository_info(); // Get repo stats
 ```
 
 ### Nexus Router Integration
@@ -306,7 +314,7 @@ curl -X POST http://nexus-router:6000/api/servers \
 ```bash
 # Service health
 curl http://localhost:3100/api/healthz        # Gitea
-curl http://localhost:8091/health             # AI reviewer  
+curl http://localhost:8091/health             # AI reviewer
 curl http://localhost:8092/health             # MCP server
 curl http://localhost:8093/health             # GitHub sync
 
@@ -329,7 +337,7 @@ docker-compose -f docker-compose.gitea.prod.yml logs gitea-act-runner
 Key metrics tracked:
 
 - Repository operations per hour
-- PR review completion time  
+- PR review completion time
 - Actions runner queue depth
 - Sync success/failure rates
 - AI review accuracy ratings
@@ -339,8 +347,9 @@ Key metrics tracked:
 ### Automated Backups
 
 Daily backups include:
+
 - PostgreSQL database dumps
-- Gitea data volumes  
+- Gitea data volumes
 - Configuration files
 - Secrets (encrypted)
 
@@ -348,7 +357,7 @@ Daily backups include:
 # Manual backup
 ./.gitea/workflows/backup-restore.yml
 
-# Restore from backup  
+# Restore from backup
 ./scripts/gitea-setup.sh restore backup_20260411_143022
 ```
 
@@ -361,18 +370,21 @@ Daily backups include:
 ## 🔐 Security Best Practices
 
 ### Access Control
+
 - Disable user registration
 - Require sign-in to view repositories
 - Enable 2FA for admin accounts
 - Use SSH keys for Git operations
 
-### API Security  
+### API Security
+
 - Rate limiting via Nexus Router
 - Token rotation (weekly)
 - Request size limits
 - CORS restrictions
 
 ### Network Security
+
 - Internal Docker networks
 - Tailscale mesh for Oracle backup
 - No public SSH exposure (Git over HTTPS)
@@ -382,6 +394,7 @@ Daily backups include:
 ### Common Issues
 
 **Gitea won't start**
+
 ```bash
 # Check logs
 docker-compose -f docker-compose.gitea.prod.yml logs gitea
@@ -394,6 +407,7 @@ docker run --rm -v nyra_secrets:/secrets alpine ls -la /secrets
 ```
 
 **Actions runners not connecting**
+
 ```bash
 # Check registration token
 docker-compose logs gitea-act-runner
@@ -403,6 +417,7 @@ docker-compose logs gitea-act-runner
 ```
 
 **AI review not working**
+
 ```bash
 # Check AI reviewer logs
 docker-compose logs gitea-ai-reviewer
@@ -414,6 +429,7 @@ curl http://nexus-router:6000/health
 ```
 
 **GitHub sync failing**
+
 ```bash
 # Check sync service logs
 docker-compose logs github-mirror-sync
@@ -434,17 +450,20 @@ curl -H "Authorization: token $GITHUB_TOKEN" https://api.github.com/user
 ## 📈 Performance Tuning
 
 ### Database Optimization
+
 - Shared buffers: 512MB
-- Work memory: 64MB  
+- Work memory: 64MB
 - Maintenance work memory: 256MB
 - Connection pooling via PgBouncer
 
 ### Runner Optimization
+
 - Parallel job limits based on CPU cores
 - Cache optimization for dependencies
 - Docker layer caching for faster builds
 
 ### Network Optimization
+
 - Internal DNS resolution
 - HTTP/2 for Git operations
 - Compression for large files
@@ -452,6 +471,7 @@ curl -H "Authorization: token $GITHUB_TOKEN" https://api.github.com/user
 ## 🔄 Upgrade Procedures
 
 ### Minor Updates
+
 ```bash
 # Pull latest images
 docker-compose -f docker-compose.gitea.prod.yml pull
@@ -461,6 +481,7 @@ docker-compose -f docker-compose.gitea.prod.yml up -d
 ```
 
 ### Major Upgrades
+
 1. Create full backup
 2. Test upgrade in staging environment
 3. Schedule maintenance window
@@ -470,16 +491,19 @@ docker-compose -f docker-compose.gitea.prod.yml up -d
 ## 📞 Support
 
 ### Documentation
+
 - **Architecture**: `/docs/architecture/`
 - **API Reference**: `http://localhost:3100/api/swagger`
 - **Workflows**: `/.gitea/workflows/examples/`
 
 ### Logs & Debugging
+
 - **Application logs**: `docker-compose logs`
 - **Audit logs**: Gitea admin panel
 - **Performance logs**: Grafana dashboards
 
 ### Community
+
 - **Project Issues**: [GitHub Issues](https://github.com/ellisapotheosis/Project-Nyra/issues)
 - **Documentation**: [Project Wiki](https://github.com/ellisapotheosis/Project-Nyra/wiki)
 

@@ -48,7 +48,7 @@ done
 # Set up git configuration
 echo "📝 Configuring Git..."
 git config --global user.name "Nyra Sync Service"
-git config --global user.email "sync@ratehunter.net"
+git config --global user.email "sync@ratehunter.com"
 git config --global pull.rebase false
 git config --global init.defaultBranch main
 
