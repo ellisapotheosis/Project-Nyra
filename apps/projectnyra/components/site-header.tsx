@@ -1,13 +1,15 @@
 import Link from "next/link";
-import { Landmark, Settings } from "lucide-react";
+import { ExternalLink, Landmark, Settings } from "lucide-react";
 
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 const links = [
-  { href: "/", label: "Overview" },
+  { href: "/", label: "Home" },
+  { href: "/admin", label: "Admin" },
   { href: "/assistant", label: "Assistant" },
   { href: "/campaigns", label: "Campaigns" },
+  { href: "/campaigns/builder", label: "Builder" },
   { href: "/leads", label: "Leads" },
   { href: "/quotes", label: "Quotes" },
   { href: "/pipeline", label: "Pipeline" },
@@ -19,6 +21,12 @@ const links = [
     href:
       process.env.NEXT_PUBLIC_NEXUS_UI_URL ?? "https://nexus.projectnyra.com",
     label: "Nexus",
+    external: true,
+  },
+  {
+    href:
+      process.env.NEXT_PUBLIC_TWENTY_URL ?? "https://twenty.projectnyra.com",
+    label: "Twenty",
     external: true,
   },
 ];
@@ -33,11 +41,10 @@ export function SiteHeader() {
               <Landmark className="size-5" />
             </span>
             <span className="text-lg font-semibold tracking-tight">
-              RateHunter Nyra
+              Project Nyra
             </span>
             <span className="hidden text-sm text-muted-foreground xl:inline">
-              Broker-facing workspace for campaigns, quotes, pipeline, and CRM
-              views
+              Canonical platform home for apps, CRM, MCP, and automation
             </span>
           </Link>
           <Link
@@ -60,7 +67,10 @@ export function SiteHeader() {
                 "rounded-full"
               )}
             >
-              {link.label}
+              <span>{link.label}</span>
+              {link.external ? (
+                <ExternalLink className="size-3.5 text-muted-foreground" />
+              ) : null}
             </Link>
           ))}
         </nav>
