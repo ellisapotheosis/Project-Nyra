@@ -1,3 +1,21 @@
+## Unreleased
+
+
+### Bug Fixes
+
+* **ci:** stabilize current CI gates, repo-scoped tooling checks, and Docker matrix follow-ups ([#395](https://github.com/ellisapotheosis/Project-Nyra/pull/395)) ([#396](https://github.com/ellisapotheosis/Project-Nyra/pull/396)) ([#397](https://github.com/ellisapotheosis/Project-Nyra/pull/397)) ([#401](https://github.com/ellisapotheosis/Project-Nyra/pull/401)) ([#405](https://github.com/ellisapotheosis/Project-Nyra/pull/405)) ([#406](https://github.com/ellisapotheosis/Project-Nyra/pull/406)) ([#407](https://github.com/ellisapotheosis/Project-Nyra/pull/407))
+* **oracle:** stabilize the Cloudflare tunnel stack ([#392](https://github.com/ellisapotheosis/Project-Nyra/pull/392)) ([597214c](https://github.com/ellisapotheosis/Project-Nyra/commit/597214c07955d83d668013c8374efac1386a3614))
+* fix Letta MCP routing ([#391](https://github.com/ellisapotheosis/Project-Nyra/pull/391)) ([124d83b](https://github.com/ellisapotheosis/Project-Nyra/commit/124d83b2abb27addaca3d3da9649862fb6877489))
+
+
+### Features
+
+* **infra:** complete the Nyra foundation cleanup and runtime asset reorganization ([#394](https://github.com/ellisapotheosis/Project-Nyra/pull/394)) ([#400](https://github.com/ellisapotheosis/Project-Nyra/pull/400)) ([#403](https://github.com/ellisapotheosis/Project-Nyra/pull/403)) ([#408](https://github.com/ellisapotheosis/Project-Nyra/pull/408))
+* **nyra-admin:** keep broker webapp service calls server-side and unify the mortgage CRM command center ([#398](https://github.com/ellisapotheosis/Project-Nyra/pull/398)) ([#404](https://github.com/ellisapotheosis/Project-Nyra/pull/404))
+* **landing:** finalize lead capture integration, attribution, and audit logging ([67d142f](https://github.com/ellisapotheosis/Project-Nyra/commit/67d142f924b18af459926e86439eb270a0e4717c))
+* **webapp:** complete Campaign Builder and Quote Desk updates, including channel previews and source attribution ([e5ee598](https://github.com/ellisapotheosis/Project-Nyra/commit/e5ee5980fce362898811d0b975eb56b3311a127a)) ([eee7f7d](https://github.com/ellisapotheosis/Project-Nyra/commit/eee7f7d6f22c7c6d8c69fbdc18d83ca88f5b0bb0)) ([f1cb8a4](https://github.com/ellisapotheosis/Project-Nyra/commit/f1cb8a48780f989af39a6ad0ee2349f83eb26559))
+* **infra:** restore cluster deployment pieces for Activepieces MCP and llxprt bridge ([9041281](https://github.com/ellisapotheosis/Project-Nyra/commit/904128167d3477219d52f6019c70e5c9fc2a3b49))
+
 # [1.2.0](https://github.com/ellisapotheosis/Project-Nyra/compare/v1.1.0...v1.2.0) (2026-03-11)
 
 
