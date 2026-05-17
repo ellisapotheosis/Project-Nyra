@@ -546,6 +546,7 @@ bootstrap/
 .env.infisical
 .env.*
 !.env.example
+!.env.nyra_staging.example
 !infra/env/TEMPLATE.env.host
 # Oracle VPS live env (moved from infra/oracle/ to infra/env/)
 infra/hosts/oracle-vps/.env*
