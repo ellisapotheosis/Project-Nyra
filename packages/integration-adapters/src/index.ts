@@ -154,3 +154,4 @@ export class MockSendGridClient implements ICommunicationProvider {
 }
 
 export { ComplianceService, type ComplianceStatus } from "./compliance";
+export { AuditLogger, type IAuditProvider } from "./audit";

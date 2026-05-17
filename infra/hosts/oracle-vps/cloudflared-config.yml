@@ -11,7 +11,7 @@ originRequest:
   noHappyEyeballs: false
 
 ingress:
-  # Cloudflare Pages owns ratehunter.net and www.ratehunter.net.
+  # Cloudflare Pages owns projectnyra.com and www.projectnyra.com.
   # Do not add apex/www routes to this tunnel.
 
   # Broker/customer webapp. Keep Access-gated until app auth is fully live.

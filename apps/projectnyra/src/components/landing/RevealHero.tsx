@@ -4,7 +4,8 @@ import React from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import Link from "next/link";
 import { Bot, ChevronDown, ArrowRight } from "lucide-react";
-import { Button, Badge } from "@nyra/ui";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
 export function RevealHero() {
@@ -97,8 +98,36 @@ export function RevealHero() {
 
           <div className="relative aspect-square">
             <div className="absolute inset-0 bg-indigo-500/20 blur-[120px] rounded-full animate-pulse" />
-            <div className="relative z-10 border border-indigo-500/30 bg-card/40 backdrop-blur-3xl rounded-[48px] p-8 shadow-2xl h-full flex flex-col justify-center items-center text-center space-y-6">
-              <Bot className="size-24 text-indigo-400" />
+            <div className="relative z-10 border border-indigo-500/30 bg-card/40 backdrop-blur-3xl rounded-[48px] p-8 shadow-2xl h-full flex flex-col justify-center items-center text-center space-y-6 overflow-hidden">
+              {/* MerKaBa Pulse Scaffold */}
+              <div className="relative size-48 mb-4">
+                <motion.div
+                  animate={{
+                    rotate: 360,
+                    scale: [1, 1.1, 1],
+                  }}
+                  transition={{
+                    rotate: { repeat: Infinity, duration: 20, ease: "linear" },
+                    scale: { repeat: Infinity, duration: 4, ease: "easeInOut" },
+                  }}
+                  className="absolute inset-0 border-2 border-indigo-500/30 rounded-[20%] rotate-45"
+                />
+                <motion.div
+                  animate={{
+                    rotate: -360,
+                    scale: [1, 1.2, 1],
+                  }}
+                  transition={{
+                    rotate: { repeat: Infinity, duration: 15, ease: "linear" },
+                    scale: { repeat: Infinity, duration: 3, ease: "easeInOut" },
+                  }}
+                  className="absolute inset-0 border-2 border-turquoise-400/20 rounded-[30%] -rotate-12"
+                />
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <Bot className="size-20 text-indigo-400 drop-shadow-[0_0_15px_rgba(99,102,241,0.8)]" />
+                </div>
+              </div>
+
               <h3 className="text-2xl font-black text-white uppercase tracking-tighter italic">
                 Neural_Node_Active
               </h3>

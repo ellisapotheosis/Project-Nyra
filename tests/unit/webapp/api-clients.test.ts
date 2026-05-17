@@ -3,7 +3,7 @@ import {
   campaignApi,
   quoteApi,
   useApi,
-} from "../../../apps/projectnyra/lib/api";
+} from "../../../apps/projectnyra/src/lib/api";
 
 describe("API Client Layer Smoke Test", () => {
   it("should export all API clients", () => {
