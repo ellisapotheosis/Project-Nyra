@@ -1227,7 +1227,15 @@ importers:
         specifier: ^5.3.3
         version: 5.9.3
 
-  services/quote-service: {}
+  services/quote-service:
+    dependencies:
+      zod:
+        specifier: ^4.3.5
+        version: 4.3.6
+    devDependencies:
+      typescript:
+        specifier: ^5.7.0
+        version: 5.9.3
 
   services/rate-comparison-engine:
     dependencies:
@@ -1453,6 +1461,19 @@ importers:
       tsx:
         specifier: ^4.19.2
         version: 4.21.0
+      typescript:
+        specifier: ^5.7.0
+        version: 5.9.3
+
+  services/soft-pull-credit:
+    dependencies:
+      "@nyra/domain-models":
+        specifier: workspace:*
+        version: link:../../packages/domain-models
+      zod:
+        specifier: ^4.3.5
+        version: 4.3.6
+    devDependencies:
       typescript:
         specifier: ^5.7.0
         version: 5.9.3
