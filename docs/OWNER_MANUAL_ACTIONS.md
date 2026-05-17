@@ -14,6 +14,30 @@ Agents should always document these steps here instead of blocking.
 
 ## Cloudflare
 
+### Home Assistant command deck and projectnyra.com domain split
+
+The local prompt-pack work for the `nyra_ha_domain_prompt_pack` was completed on 2026-05-17.
+
+Generated local artifacts:
+
+- `docs/infra/PROMPT-PACK-EXECUTION-PLAN.md`
+- `docs/infra/SPACESHIP-CLOUDFLARE-DNS-CHECKLIST.md`
+- `docs/infra/DOMAIN-ROUTING-MATRIX.md`
+- `infra/service-registry.yaml`
+- `infra/hosts/homeassistant/dashboards/nyra-command-deck.yaml`
+- `services/status-bridge/`
+- `infra/hosts/orchestrator/docker-compose.status-bridge.yml`
+
+Owner-only steps:
+
+1. In Cloudflare, add or confirm separate zones for `ratehunter.net` and `projectnyra.com`.
+2. In Spaceship, check DNSSEC for both domains, disable DNSSEC first if active, then replace authoritative nameservers with Cloudflare-assigned nameservers.
+3. In Cloudflare Pages, attach `ratehunter.net` and `www.ratehunter.net` to the RateHunter Pages project.
+4. In Cloudflare Zero Trust, create or confirm Access apps for Project Nyra admin/control surfaces before exposing them.
+5. In Portainer, complete first-login/admin setup if needed and enroll the worker and Oracle environments.
+6. In Home Assistant, import `infra/hosts/homeassistant/dashboards/nyra-command-deck.yaml` or paste it into a YAML dashboard.
+7. Set `NYRA_STATUS_BRIDGE_TOKEN` in Infisical or a gitignored env file before starting `nyra-status-bridge`.
+
 ### Cloudflare Tunnel desired-state apply for Project Nyra subdomains
 
 Generated desired-state files now exist for the orchestrator and Oracle VPS tunnels:
