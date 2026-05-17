@@ -39,21 +39,6 @@ services:
       - nyra_secrets:/run/nyra-secrets
     networks: [nyra_net]
 
-  # ── Infisical Sidecar (Secret Sync) ───────────────────────────────────────
-  # Synchronizes secrets from Infisical to the local .env file.
-  infisical-sidecar:
-    profiles: ["secrets"]
-    image: infisical/cli:latest
-    container_name: nyra-network-nyra-infisical-sidecar
-    restart: unless-stopped
-    env_file: [.env.oracle]
-    entrypoint: ["/bin/sh", "-c"]
-    command:
-      - "while true; do infisical export --projectId=8374cea9-e5e8-4050-bda4-b91f25ab30ef --env=prod --path=/machines/oracle-vps --format=dotenv --silent > /repo/.env && sleep 60; done"
-    volumes:
-      - ./.env:/repo/.env
-    networks: [nyra_net]
-
   portainer-edge-agent:
     image: portainer/agent:2.27.9
     container_name: nyra-network-nyra-portainer-agent
