@@ -1,0 +1,105 @@
+name: Tailscale ACL GitOps
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - infra/tailscale/policy.hujson
+      - .github/workflows/tailscale-acl-gitops.yml
+  push:
+    branches:
+      - main
+    paths:
+      - infra/tailscale/policy.hujson
+      - .github/workflows/tailscale-acl-gitops.yml
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: Tailscale policy action to run.
+        required: true
+        default: test
+        type: choice
+        options:
+          - test
+          - apply
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tailscale-acl-gitops-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  policy:
+    name: Sync tailnet policy
+    runs-on: ubuntu-latest
+    env:
+      TS_TAILNET: ${{ secrets.TS_TAILNET || secrets.TAILSCALE_TAILNET }}
+      TS_API_KEY: ${{ secrets.TS_API_KEY || secrets.TAILSCALE_API_KEY }}
+      TS_OAUTH_ID: ${{ secrets.TS_OAUTH_ID || secrets.TS_OAUTH_CLIENT_ID || secrets.TAILSCALE_CLIENT_ID }}
+      TS_OAUTH_SECRET: ${{ secrets.TS_OAUTH_SECRET || secrets.TAILSCALE_CLIENT_SECRET || secrets.TAILSCALE_CLIENT_PW }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Resolve Tailscale GitOps mode
+        id: preflight
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [[ -z "${TS_TAILNET}" ]]; then
+            echo "::error::Set TS_TAILNET or TAILSCALE_TAILNET in GitHub Actions secrets." >&2
+            exit 1
+          fi
+
+          if [[ -n "${TS_OAUTH_ID}" && -n "${TS_OAUTH_SECRET}" ]]; then
+            auth_mode="oauth"
+          elif [[ -n "${TS_API_KEY}" ]]; then
+            auth_mode="api-key"
+          else
+            echo "::error::Set TS_OAUTH_ID/TS_OAUTH_SECRET, TS_OAUTH_CLIENT_ID/TS_OAUTH_SECRET, or TS_API_KEY/TAILSCALE_API_KEY." >&2
+            exit 1
+          fi
+
+          case "${GITHUB_EVENT_NAME}" in
+            pull_request)
+              gitops_action="test"
+              ;;
+            push)
+              gitops_action="apply"
+              ;;
+            workflow_dispatch)
+              gitops_action="${{ inputs.mode || 'test' }}"
+              ;;
+            *)
+              echo "::error::Unsupported event ${GITHUB_EVENT_NAME}." >&2
+              exit 1
+              ;;
+          esac
+
+          echo "auth_mode=${auth_mode}" >> "${GITHUB_OUTPUT}"
+          echo "gitops_action=${gitops_action}" >> "${GITHUB_OUTPUT}"
+          echo "Resolved Tailscale GitOps action=${gitops_action} auth_mode=${auth_mode}."
+
+      - name: Sync policy with OAuth client
+        if: steps.preflight.outputs.auth_mode == 'oauth'
+        uses: tailscale/gitops-acl-action@v1
+        with:
+          policy-file: infra/tailscale/policy.hujson
+          tailnet: ${{ env.TS_TAILNET }}
+          oauth-client-id: ${{ env.TS_OAUTH_ID }}
+          oauth-secret: ${{ env.TS_OAUTH_SECRET }}
+          action: ${{ steps.preflight.outputs.gitops_action }}
+
+      - name: Sync policy with API key
+        if: steps.preflight.outputs.auth_mode == 'api-key'
+        uses: tailscale/gitops-acl-action@v1
+        with:
+          policy-file: infra/tailscale/policy.hujson
+          tailnet: ${{ env.TS_TAILNET }}
+          api-key: ${{ env.TS_API_KEY }}
+          action: ${{ steps.preflight.outputs.gitops_action }}

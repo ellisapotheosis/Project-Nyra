@@ -46,3 +46,19 @@ inherit = "core"
 CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS = "1"
 LLXPRT_SOURCEGIT = "/usr/bin/sourcegit"
 SOURCEGIT_CMD = "/usr/bin/sourcegit"
+
+# OMX hook trust state for the five repo-local hooks declared in .codex/hooks.json.
+[hooks.state."/home/ellisapotheosis/repos/project-nyra/.codex/hooks.json:post_tool_use:0:0"]
+trusted_hash = "sha256:df44e7f8b8eaf14a3c72a84514827d0e804642d759e1f0b95074ed5153114288"
+
+[hooks.state."/home/ellisapotheosis/repos/project-nyra/.codex/hooks.json:pre_compact:0:0"]
+trusted_hash = "sha256:cfd45403cc0eccbd05fda7e0f000dc8d0677f0c163ab87102a085afee59e65f2"
+
+[hooks.state."/home/ellisapotheosis/repos/project-nyra/.codex/hooks.json:pre_tool_use:0:0"]
+trusted_hash = "sha256:e31c47a1ae3bb960124d9aac061d79e6b6d733f172d0b5bbe7f86f1b480ecda6"
+
+[hooks.state."/home/ellisapotheosis/repos/project-nyra/.codex/hooks.json:session_start:0:0"]
+trusted_hash = "sha256:347b83099931dc51b1afcc0e5d5f16b33fb7d323a5246f3c98380753e73b38cf"
+
+[hooks.state."/home/ellisapotheosis/repos/project-nyra/.codex/hooks.json:user_prompt_submit:0:0"]
+trusted_hash = "sha256:27aa4552dbb505cbcc8bcf8e04a732882165bf9a4a9fc813fabeed4329731e47"

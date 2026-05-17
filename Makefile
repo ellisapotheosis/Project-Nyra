@@ -269,15 +269,26 @@ tailscale-oracle-doctor:
 	@echo "Oracle Tailscale IP: $(ORACLE_TAILSCALE_IP)"
 	@echo "Expected SSH ports: $(ORACLE_SSH_PORT), 2223"
 	@zsh -lc 'source "$(TAILSCALE_SECRET_FILE)" >/dev/null 2>&1 || true; \
-		if [ -z "$$TAILSCALE_API_KEY" ]; then echo "TAILSCALE_API_KEY missing after sourcing $(TAILSCALE_SECRET_FILE)"; exit 0; fi; \
-		echo "TAILSCALE_API_KEY present in shell; probing Tailscale API without printing it"; \
+		access_token="$$TAILSCALE_API_KEY"; credential_source="TAILSCALE_API_KEY"; \
+		if [ -z "$$access_token" ]; then \
+			client_id="$${TS_API_CLIENT_ID:-$${TAILSCALE_CLIENT_ID:-$$OAUTH_CLIENT_ID}}"; \
+			client_secret="$${TS_API_CLIENT_SECRET:-$${TAILSCALE_CLIENT_SECRET:-$$OAUTH_CLIENT_SECRET}}"; \
+			if [ -n "$$client_id" ] && [ -n "$$client_secret" ]; then \
+				credential_source="OAuth client credentials"; \
+				token_resp=$$(curl -sS -d "client_id=$$client_id" -d "client_secret=$$client_secret" "https://api.tailscale.com/api/v2/oauth/token" || true); \
+				access_token=$$(printf "%s" "$$token_resp" | jq -r ".access_token // empty" 2>/dev/null); \
+				if [ -z "$$access_token" ]; then echo "Could not mint Tailscale OAuth access token"; printf "%s\n" "$$token_resp" | head -c 240; echo; exit 0; fi; \
+			fi; \
+		fi; \
+		if [ -z "$$access_token" ]; then echo "No Tailscale API credential found; set TAILSCALE_API_KEY or TS_API_CLIENT_ID/TS_API_CLIENT_SECRET in $(TAILSCALE_SECRET_FILE)"; exit 0; fi; \
+		echo "$$credential_source present; probing Tailscale API without printing secrets"; \
 		for endpoint in devices acl policy-file; do \
 			case "$$endpoint" in \
 				devices) url="https://api.tailscale.com/api/v2/tailnet/-/devices?fields=all" ;; \
 				acl) url="https://api.tailscale.com/api/v2/tailnet/-/acl" ;; \
 				policy-file) url="https://api.tailscale.com/api/v2/tailnet/-/policy-file" ;; \
 			esac; \
-			http_status=$$(curl -sS -o /tmp/nyra-tailscale-$$endpoint.json -w "%{http_code}" -H "Authorization: Bearer $$TAILSCALE_API_KEY" "$$url" || true); \
+			http_status=$$(curl -sS -o /tmp/nyra-tailscale-$$endpoint.json -w "%{http_code}" -H "Authorization: Bearer $$access_token" "$$url" || true); \
 			printf "%-12s HTTP %s " "$$endpoint" "$$http_status"; head -c 160 /tmp/nyra-tailscale-$$endpoint.json; echo; \
 			rm -f /tmp/nyra-tailscale-$$endpoint.json; \
 		done'

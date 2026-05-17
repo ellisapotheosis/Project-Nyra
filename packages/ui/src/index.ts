@@ -26,3 +26,6 @@ export * from "./components/shared/loading-skeleton";
 export * from "./components/shared/MetricCard";
 export * from "./components/shared/CommandPalette";
 export * from "./components/shared/site-header";
+export * from "./components/theme/theme-switcher";
+export * from "./lib/themes/theme-provider";
+export * from "./lib/themes/registry";

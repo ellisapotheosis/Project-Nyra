@@ -1,0 +1,83 @@
+{
+  // Project Nyra MVP ACLs
+  "groups": {
+    "group:admin": ["ellisandersen@ratehunter.net"],
+  },
+
+  "tagOwners": {
+    "tag:admin-device": ["group:admin"],
+    "tag:homeassistant": ["group:admin"],
+    "tag:orchestrator": ["group:admin"],
+    "tag:worker": ["group:admin"],
+    "tag:prod": ["group:admin"],
+    "tag:ci": ["group:admin"],
+  },
+
+  "acls": [
+    // 1. Full Admin Access: Un-tagged Admin group AND devices trapped in "tag:admin-device"
+    {
+      "action": "accept",
+      "src": ["group:admin", "tag:admin-device"],
+      "dst": ["*:*"],
+    },
+
+    // 2. Home Assistant Full Access: Can iframe, monitor, and scrape all components
+    {
+      "action": "accept",
+      "src": ["tag:homeassistant"],
+      "dst": ["*:*"],
+    },
+
+    // 3. Full Mesh for the Dev Stack (Orchestrator + Workers)
+    {
+      "action": "accept",
+      "src": ["tag:orchestrator", "tag:worker"],
+      "dst": ["tag:orchestrator:*", "tag:worker:*"],
+    },
+
+    // 4. Open Cross-Mesh SSH Access (Standard & Custom Ports)
+    // Opens up ports 22, 23, 2222, and 2223 so your Admin, Orchestrator,
+    // and Worker layers can cross-communicate via SSH seamlessly.
+    {
+      "action": "accept",
+      "src": ["tag:orchestrator", "tag:worker"],
+      "dst": ["*:22", "*:23", "*:2222", "*:2223"],
+    },
+
+    // 5. Oracle VPS (Prod) can call back to Orchestrator
+    {
+      "action": "accept",
+      "src": ["tag:prod"],
+      "dst": ["tag:orchestrator:*"],
+    },
+
+    // 6. Orchestrator/workers can reach Oracle VPS on Docker/Admin ports
+    {
+      "action": "accept",
+      "src": ["tag:orchestrator", "tag:worker"],
+      "dst": ["tag:prod:23", "tag:prod:2223"],
+    },
+
+    // 7. Letta-on-Oracle path: Oracle calls back to specific worker/orchestrator ports
+    {
+      "action": "accept",
+      "src": ["tag:prod"],
+      "dst": [
+        "tag:orchestrator:4000",
+        "tag:worker:4000",
+        "tag:orchestrator:6000",
+        "tag:worker:6000",
+        "tag:orchestrator:8000",
+        "tag:worker:8000",
+        "tag:orchestrator:8001",
+        "tag:worker:8001",
+        "tag:orchestrator:8002",
+        "tag:worker:8002",
+        "tag:orchestrator:8090",
+        "tag:worker:8090",
+        "tag:orchestrator:11434",
+        "tag:worker:11434",
+      ],
+    },
+  ],
+}

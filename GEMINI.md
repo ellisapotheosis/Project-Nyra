@@ -16,8 +16,8 @@ Use Gemini primarily for:
 
 ## Canonical Workspace Paths
 
-- `apps/cockpit` → (projectnyra.com) Primary logic scaffold and command center.
-- `apps/landing` → (ratehunter.net) Public broker landing page.
+- `apps/projectnyra` → (projectnyra.com) Primary logic scaffold and command center.
+- `apps/ratehunter` → (ratehunter.net) Public broker landing page (Isolated).
 - `packages/ui` → Shared design system and premium effects.
 - `packages/assets` → Shared media and documentation assets.
 

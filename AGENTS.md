@@ -150,8 +150,8 @@ Agents must place work in the correct location.
 
 ### Repo roots
 
-- `apps/cockpit` → (projectnyra.com) Unified broker and operations command hub.
-- `apps/landing` → (ratehunter.net) Public mortgage broker landing page.
+- `apps/projectnyra` → (projectnyra.com) Unified broker and operations command hub.
+- `apps/ratehunter` → (ratehunter.net) Public mortgage broker landing page (Isolated).
 
 - `services/*` → backend business services
 - `packages/*` → shared libraries, types, domain modules
@@ -1113,14 +1113,16 @@ Do not manually duplicate hook-owned activation state unless recovering from mis
 ---
 
 ## Nyra Non-UI Foundation (2026-05-11)
+
 - **Status**: Logic Scaffold Complete.
 - **Rules**:
-    - Strictly Dark Mode / Indigo / Seafoam palette for all UI.
-    - All outbound communication MUST pass through `ComplianceService`.
-    - All mutations MUST log an `AuditEvent` via `AuditLogger`.
-    - Use `@nyra/domain-models` for all type contracts.
-    - Use `@nyra/integration-adapters` for all 3rd party SDK calls.
-    - Follow `docs/ops/WORKER_ROUTING.md` for AI task assignment.
+  - Strictly Dark Mode / Indigo / Seafoam palette for all UI.
+  - All outbound communication MUST pass through `ComplianceService`.
+  - All mutations MUST log an `AuditEvent` via `AuditLogger`.
+  - Use `@nyra/domain-models` for all type contracts.
+  - Use `@nyra/integration-adapters` for all 3rd party SDK calls.
+  - Follow `docs/ops/WORKER_ROUTING.md` for AI task assignment.
 
 ## Development Workflow
+
 ...
