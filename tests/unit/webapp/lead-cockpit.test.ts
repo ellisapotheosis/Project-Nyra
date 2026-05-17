@@ -1,7 +1,7 @@
 import { expect, it, describe, vi, beforeEach } from "vitest";
-import { crmApi } from "../../../apps/projectnyra/lib/api";
+import { crmApi } from "../../../apps/projectnyra/src/lib/api";
 
-vi.mock("../../../apps/projectnyra/lib/api", () => ({
+vi.mock("../../../apps/projectnyra/src/lib/api", () => ({
   crmApi: {
     getLeads: vi.fn(() =>
       Promise.resolve({

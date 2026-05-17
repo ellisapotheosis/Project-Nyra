@@ -60,7 +60,9 @@ export const QuietHoursPolicySchema = z.object({
 export type QuietHoursPolicy = z.infer<typeof QuietHoursPolicySchema>;
 
 export function isStopRequest(message: string): boolean {
-  return /\b(STOP|UNSUBSCRIBE|REMOVE|CANCEL|OPT\s*OUT|DNC)\b/i.test(message);
+  return /\b(STOP|UNSUBSCRIBE|REMOVE|CANCEL|OPT\s*OUT|DNC|QUIT|END)\b/i.test(
+    message
+  );
 }
 
 export function isUnsubscribeRequest(message: string): boolean {
@@ -82,11 +84,11 @@ export function isWithinQuietHours(
   if (policy.startHour === policy.endHour) {
     return true;
   }
-  
+
   if (policy.startHour < policy.endHour) {
     return hour >= policy.startHour && hour < policy.endHour;
   }
-  
+
   return hour >= policy.startHour || hour < policy.endHour;
 }
 

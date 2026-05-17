@@ -48,6 +48,8 @@ ORACLE_CONTEXT ?= oracle
 WORKER_5090_CONTEXT ?= worker-rtx5090
 WORKER_3090TI_CONTEXT ?= worker-rtx3090ti
 WORKER_3060_CONTEXT ?= worker-rtx3060
+FLEET_SSH_TARGETS ?= orchestrator worker-rtx5090 worker-rtx3090ti worker-rtx3060 oracle
+FLEET_DOCKER_CONTEXTS ?= default worker-rtx5090 worker-rtx3090ti worker-rtx3060 orchestrator oracle oracle-vps-oci
 
 # Voice Setup Compose Files
 VOICE_3060_COMPOSE := infra/hosts/worker-rtx3060/docker-compose.voice.yml
@@ -66,7 +68,7 @@ KYUTAI_MESH_5090_COMPOSE := infra/hosts/worker-rtx5090/docker-compose.distribute
 
 DEFAULT_PROFILES ?= apps,sync,debug
 
-.PHONY: help install test lint validate up down restart logs ps pull verify-paths dev-orchestrate dev-down dev-panels dev-status dev-llxprt-jefe dev-llxprt-code llxprt-bridge-up llxprt-bridge-down llxprt-bridge-status llxprt-oracle-tunnel-up llxprt-oracle-tunnel-down llxprt-oracle-tunnel-status llxprt-oracle-subscription-up up-worker-3090ti up-worker-5090 up-worker-3060 up-all-workers down-all-workers paperclip-up paperclip-down paperclip-logs paperclip-status \
+.PHONY: verify-clis help install test lint validate up down restart logs ps pull verify-paths fleet-check fleet-ssh-check fleet-docker-check dev-orchestrate dev-down dev-panels dev-status dev-llxprt-jefe dev-llxprt-code llxprt-bridge-up llxprt-bridge-down llxprt-bridge-status llxprt-oracle-tunnel-up llxprt-oracle-tunnel-down llxprt-oracle-tunnel-status llxprt-oracle-subscription-up up-worker-3090ti up-worker-5090 up-worker-3060 up-all-workers down-all-workers paperclip-up paperclip-down paperclip-logs paperclip-status \
   up-core up-orchestrator up-apps up-dev up-workers up-oracle \
   cluster cluster-kill grid grid-kill \
   nexus-up nexus-down health stack-up stack-verify \
@@ -99,6 +101,9 @@ help:
 	@echo "make up-all             Start all services across all PC nodes"
 	@echo "make down-all           Stop all services across all nodes"
 	@echo "make cluster-status     Show running containers across the entire cluster"
+	@echo "make fleet-check        Verify SSH aliases and Docker contexts across the fleet"
+	@echo "make fleet-ssh-check    Verify SSH aliases for PCs and Oracle"
+	@echo "make fleet-docker-check Verify local and remote Docker contexts"
 	@echo "make restoration-up     🚀 RESTORE ALL MISSING SERVICES (ActivePieces, LLXPRT, Memory)"
 	@echo "make up                 Start default local stack profiles"
 	@echo "make down               Stop and remove local stack"
@@ -167,6 +172,32 @@ cluster-status:
 	@docker --context worker-rtx3090ti compose -f $(WORKER_3090TI_COMPOSE) ps
 	@echo -e "\n=== [WORKER-3060] ==="
 	@docker --context worker-rtx3060 compose -f $(WORKER_3060_COMPOSE) ps
+
+fleet-check: fleet-ssh-check fleet-docker-check
+
+fleet-ssh-check:
+	@set -u; \
+	for target in $(FLEET_SSH_TARGETS); do \
+	  printf "%-18s " "$$target"; \
+	  if out=$$(timeout 12 ssh -o BatchMode=yes -o ConnectTimeout=6 -o ConnectionAttempts=1 -o ServerAliveInterval=3 -o ServerAliveCountMax=1 "$$target" hostname 2>&1); then \
+	    printf "OK %s\n" "$$out"; \
+	  else \
+	    rc=$$?; \
+	    printf "FAIL rc=%s %s\n" "$$rc" "$$(printf "%s" "$$out" | tr "\n" " " | cut -c1-220)"; \
+	  fi; \
+	done
+
+fleet-docker-check:
+	@set -u; \
+	for ctx in $(FLEET_DOCKER_CONTEXTS); do \
+	  printf "%-18s " "$$ctx"; \
+	  if out=$$(timeout 20 docker --context "$$ctx" version --format '{{.Server.Version}}' 2>&1); then \
+	    printf "OK %s\n" "$$out"; \
+	  else \
+	    rc=$$?; \
+	    printf "FAIL rc=%s %s\n" "$$rc" "$$(printf "%s" "$$out" | tr "\n" " " | cut -c1-220)"; \
+	  fi; \
+	done
 
 up-all: sync-env up up-workers up-oracle
 
@@ -1041,3 +1072,12 @@ wave-stack-status:
 	@echo
 	@echo "=== ORACLE APPS ==="
 	@docker --context $(ORACLE_CONTEXT) compose -f $(ORACLE_COMPOSE) -f $(ORACLE_APPS_COMPOSE) ps || true
+
+verify-clis:
+	@echo "🔍 Verifying Required CLI Tools..."
+	@command -v pnpm >/dev/null 2>&1 || (echo "❌ pnpm is not installed." && exit 1)
+	@command -v docker >/dev/null 2>&1 || (echo "❌ docker is not installed." && exit 1)
+	@command -v infisical >/dev/null 2>&1 || (echo "❌ infisical is not installed." && exit 1)
+	@command -v gh >/dev/null 2>&1 || (echo "❌ gh is not installed." && exit 1)
+	@pnpm exec turbo --version >/dev/null 2>&1 || (echo "❌ turbo is not installed." && exit 1)
+	@echo "✅ All required CLI tools are present."

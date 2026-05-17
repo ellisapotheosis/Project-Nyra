@@ -26,3 +26,8 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 - [x] **Track: Assistant Hardening and Landing Lead Capture**
       _Link: [./tracks/assistant_hardening_20260505/](./tracks/assistant_hardening_20260505/)_
+
+---
+
+- [ ] **Track: Wiring & Hardening Phase**
+      *Link: [./tracks/wiring_hardening_20260516/](./tracks/wiring_hardening_20260516/)*

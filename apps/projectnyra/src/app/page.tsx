@@ -2,19 +2,11 @@
 
 import { useAuth } from "@/lib/auth-context";
 import { RevealHero } from "@/components/landing/RevealHero";
-import {
-  AnimatedCounter,
-  NyraSacredCore,
-  Badge,
-  Button,
-  buttonVariants,
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  SiteHeader,
-} from "@nyra/ui";
-import { PageHeader } from "@nyra/ui";
+import { ClusterHealthHeartbeat } from "@/components/telemetry/cluster-health";
+import { Badge } from "@/components/ui/badge";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { SiteHeader } from "@/components/site-header";
 import {
   ChromaAlertCard,
   ChromaMetricCard,
@@ -44,6 +36,33 @@ import {
   Sparkles,
   Shield,
 } from "lucide-react";
+
+function AnimatedCounter({
+  value,
+  isCurrency = false,
+}: {
+  value: number;
+  isCurrency?: boolean;
+}) {
+  return (
+    <>{isCurrency ? `$${value.toLocaleString()}` : value.toLocaleString()}</>
+  );
+}
+
+function NyraSacredCore({ className }: { className?: string }) {
+  return (
+    <div
+      className={cn(
+        "relative flex items-center justify-center rounded-[32px] border border-indigo-500/20 bg-indigo-500/5",
+        className
+      )}
+    >
+      <div className="absolute size-72 rounded-full border border-turquoise-400/20 shadow-[0_0_80px_rgba(45,212,191,0.18)]" />
+      <div className="absolute size-48 rounded-full border border-indigo-400/30 rotate-45" />
+      <div className="size-24 rounded-3xl bg-indigo-600/80 shadow-[0_0_80px_rgba(99,102,241,0.5)]" />
+    </div>
+  );
+}
 
 export default function HomePage() {
   const { user, loading } = useAuth();
@@ -157,9 +176,12 @@ export default function HomePage() {
                 System_Overview
               </h2>
             </div>
-            <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest opacity-40 italic">
-              Last Refreshed: {new Date().toLocaleTimeString()}
-            </p>
+            <div className="flex items-center gap-6">
+              <ClusterHealthHeartbeat />
+              <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest opacity-40 italic">
+                Last Refreshed: {new Date().toLocaleTimeString()}
+              </p>
+            </div>
           </div>
           <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-5">
             <MetricCard
@@ -307,14 +329,23 @@ export default function HomePage() {
                     cluster. Goal alignment: 98.5%."
                   </p>
                 </div>
-                <Link href="/memory" className="w-full">
-                  <Button
-                    variant="outline"
-                    className="w-full border-indigo-500/20 bg-indigo-500/5 text-indigo-400 font-black uppercase tracking-widest text-[10px] h-12 rounded-xl hover:bg-indigo-600 hover:text-white transition-all shadow-inner"
+                <div className="flex flex-col gap-3 w-full">
+                  <Link href="/memory" className="w-full">
+                    <Button
+                      variant="outline"
+                      className="w-full border-indigo-500/20 bg-indigo-500/5 text-indigo-400 font-black uppercase tracking-widest text-[10px] h-12 rounded-xl hover:bg-indigo-600 hover:text-white transition-all shadow-inner"
+                    >
+                      ACCESS_MEMPALACE_GRAPH
+                    </Button>
+                  </Link>
+                  <a
+                    href="https://openmemory.projectnyra.com/mcp"
+                    target="_blank"
+                    className="text-[8px] font-black text-muted-foreground/40 uppercase tracking-[0.3em] hover:text-indigo-400 transition-colors"
                   >
-                    ACCESS_MEMPALACE_GRAPH
-                  </Button>
-                </Link>
+                    OpenMemory_MCP_Diagnostic_Bridge
+                  </a>
+                </div>
               </CardContent>
             </Card>
           </div>

@@ -8,7 +8,7 @@ export async function POST(req: Request) {
     // In production, this URL comes from an ENV var
     const n8nWebhookUrl =
       process.env.N8N_INGEST_WEBHOOK_URL ||
-      "http://localhost:5678/webhook/lead-ingest";
+      "https://capture.projectnyra.com/webhook/lead-ingest";
 
     const response = await fetch(n8nWebhookUrl, {
       method: "POST",

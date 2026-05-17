@@ -29,8 +29,8 @@ Project Nyra is an intelligent mortgage automation platform designed to ingest m
 ```text
 Project-Nyra/
 ├── apps/                    # Frontend applications
-│   ├── webapp/              # Canonical broker command center
-│   └── landing/             # Marketing and lead capture
+│   ├── projectnyra/         # (projectnyra.com) Unified Broker Hub command center
+│   └── ratehunter/          # (ratehunter.net) Public Landing and lead capture
 ├── services/                # Backend microservices
 │   ├── crm-api/             # Twenty integration boundary
 │   ├── campaign-engine/     # Campaign definitions and control

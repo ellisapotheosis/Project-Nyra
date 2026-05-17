@@ -22,8 +22,9 @@ export function parseRegistryYaml(source) {
   let currentNestedKey = null;
 
   for (const line of source.split(/\r?\n/)) {
-    if (line.startsWith("- id:")) {
-      current = { id: parseScalar(line.slice("- id:".length)) };
+    const itemMatch = line.match(/^\s*-\s+id:\s*(.*)$/);
+    if (itemMatch) {
+      current = { id: parseScalar(itemMatch[1]) };
       services.push(current);
       currentNestedKey = null;
       continue;

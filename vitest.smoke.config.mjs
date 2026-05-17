@@ -18,6 +18,8 @@ export default {
       "tests/unit/swarm/regression-suite.test.ts",
       "tests/unit/webapp/api-clients.test.ts",
       "tests/unit/webapp/lead-cockpit.test.ts",
+      "tests/unit/logic/lead-normalization.test.ts",
+      "tests/unit/logic/tcpa-sentinel.test.ts",
     ],
     exclude: ["node_modules/**", "dist/**", "build/**", ".next/**"],
   },
