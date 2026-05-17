@@ -1,0 +1,26 @@
+# robots.txt for RateHunter Landing Page
+
+# Allow all crawlers
+User-agent: *
+Allow: /
+
+# Disallow specific paths if needed
+# Disallow: /admin/
+# Disallow: /api/
+
+# Sitemap location
+Sitemap: https://ratehunter.com/sitemap.xml
+
+# Crawl-delay for specific bots (optional)
+# User-agent: Googlebot
+# Crawl-delay: 0
+
+# Block bad bots (optional)
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: SemrushBot
+Disallow: /
+
+User-agent: DotBot
+Disallow: /
