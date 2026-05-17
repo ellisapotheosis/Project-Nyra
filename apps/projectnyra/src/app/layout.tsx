@@ -4,6 +4,7 @@ import { Electrolize, Michroma, Space_Mono } from "next/font/google";
 import "./globals.css";
 
 import { ThemeProvider } from "@/components/theme-provider";
+import { AuthProvider } from "@/lib/auth-context";
 
 export const metadata: Metadata = {
   title: "Project Nyra",
@@ -58,7 +59,7 @@ export default function RootLayout({
             "virtus",
           ]}
         >
-          {children}
+          <AuthProvider>{children}</AuthProvider>
         </ThemeProvider>
       </body>
     </html>

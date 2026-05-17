@@ -75,5 +75,15 @@ Recommended split:
 
 Supabase env contract lives in `apps/projectnyra/.env.example`. The browser
 should only receive `NEXT_PUBLIC_SUPABASE_URL` and
-`NEXT_PUBLIC_SUPABASE_ANON_KEY`; server-only routes may use
-`SUPABASE_SERVICE_ROLE_KEY` when needed.
+`NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`/`NEXT_PUBLIC_SUPABASE_ANON_KEY`;
+server-only routes may use `SUPABASE_SERVICE_ROLE_KEY` when needed.
+
+Auth is wired through `@supabase/ssr`:
+
+- `lib/supabase/browser.ts` creates the browser client used by forms and the
+  auth provider.
+- `lib/supabase/server.ts` creates route-handler/server clients and a guarded
+  service-role client.
+- `middleware.ts` refreshes Supabase sessions and protects non-public routes.
+- `/auth/login`, `/auth/signup`, `/auth/forgot-password`, and
+  `/auth/reset-password` are the current email/password auth surfaces.
