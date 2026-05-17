@@ -1569,7 +1569,18 @@ importers:
         specifier: ^6.3.3
         version: 6.3.4
 
-  services/lead-ingestion: {}
+  services/lead-ingestion:
+    dependencies:
+      "@nyra/domain-models":
+        specifier: workspace:*
+        version: link:../../packages/domain-models
+      "@nyra/integration-adapters":
+        specifier: workspace:*
+        version: link:../../packages/integration-adapters
+    devDependencies:
+      typescript:
+        specifier: ^5.7.0
+        version: 5.9.3
 
   services/letta-integration:
     dependencies:
