@@ -21,7 +21,7 @@ const themes = [
   {
     value: "mint-midnight-glow",
     label: "Mint Midnight Glow",
-    color: "oklch(0.8871 0.1828 166.5465)",
+    color: "oklch(0.8653 0.1475 204.0171)",
   },
   {
     value: "apotheosis",

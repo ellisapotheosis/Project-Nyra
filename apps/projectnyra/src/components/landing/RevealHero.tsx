@@ -5,6 +5,7 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import Link from "next/link";
 import { Bot, ChevronDown, ArrowRight } from "lucide-react";
 import { Button, Badge } from "@nyra/ui";
+import { ThemeSwitcher } from "@/components/theme-switcher";
 import { cn } from "@/lib/utils";
 
 export function RevealHero() {
@@ -33,6 +34,7 @@ export function RevealHero() {
         </div>
 
         <div className="flex items-center gap-4">
+          <ThemeSwitcher />
           <Link href="/auth/login">
             <Button className="bg-indigo-600 hover:bg-indigo-500 text-white font-black uppercase tracking-[0.2em] text-[10px] px-8 h-11 rounded-xl shadow-xl shadow-indigo-500/20 active:scale-95 transition-all">
               LOGIN_PORTAL
