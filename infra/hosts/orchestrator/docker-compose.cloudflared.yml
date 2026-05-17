@@ -28,6 +28,26 @@ services:
     networks:
       - nyra-network
 
+  infisical-agent:
+    build:
+      context: ../../images/infisical-secrets-init
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-cf-infisical-agent
+    restart: unless-stopped
+    entrypoint: ["/usr/local/bin/agent-sidecar.sh"]
+    depends_on:
+      secrets-init:
+        condition: service_completed_successfully
+    environment:
+      INFISICAL_TOKEN: ${INFISICAL_TOKEN:-}
+      INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
+      INFISICAL_ENV: ${INFISICAL_ENV:-prod}
+      INFISICAL_PATH: ${INFISICAL_PATH:-/machines/orchestrator}
+      INFISICAL_POLL_INTERVAL: ${INFISICAL_POLL_INTERVAL:-60}
+    volumes:
+      - cf_secrets:/run/nyra-secrets
+    networks:
+      - nyra-network
+
   cloudflared:
     build:
       context: .

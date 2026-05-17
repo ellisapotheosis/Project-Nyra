@@ -12,6 +12,34 @@ Manual tasks that AI agents cannot complete for you because they require:
 
 Agents should always document these steps here instead of blocking.
 
+## Infisical
+
+### Per-host sidecar bootstrap token
+
+The compose sidecar pattern is wired to read one machine-local bootstrap value,
+`INFISICAL_TOKEN`, then fetch host secrets into Docker volumes under
+`/run/nyra-secrets`.
+
+Set a gitignored host `.env` on each machine with the matching path:
+
+1. `infra/hosts/orchestrator/.env` -> `INFISICAL_PATH=/machines/orchestrator`
+2. `infra/hosts/oracle-vps/.env` -> `INFISICAL_PATH=/machines/oracle-vps`
+3. `infra/hosts/worker-rtx3060/.env` -> `INFISICAL_PATH=/machines/worker-rtx3060`
+4. `infra/hosts/worker-rtx3090ti/.env` -> `INFISICAL_PATH=/machines/worker-rtx3090ti`
+5. `infra/hosts/worker-rtx5090/.env` -> `INFISICAL_PATH=/machines/worker-rtx5090`
+
+Required keys:
+
+- `INFISICAL_TOKEN`
+- `INFISICAL_PROJECT_ID`
+- `INFISICAL_ENV`
+- `INFISICAL_PATH`
+- `INFISICAL_POLL_INTERVAL`
+
+Do not commit the real token. After updating each host, restart the relevant
+compose stack and confirm the init container exits successfully and the
+`infisical-agent` container stays running.
+
 ## Cloudflare
 
 ### Home Assistant command deck and projectnyra.com domain split
