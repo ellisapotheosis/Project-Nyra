@@ -1,0 +1,217 @@
+- generic [ref=e2]:
+  - banner [ref=e3]:
+    - generic [ref=e4]:
+      - generic [ref=e5]:
+        - link "Project Nyra Broker_Ops_Cockpit" [ref=e6] [cursor=pointer]:
+          - /url: /
+          - img [ref=e8]
+          - generic [ref=e12]:
+            - paragraph [ref=e13]: Project Nyra
+            - paragraph [ref=e14]: Broker_Ops_Cockpit
+        - generic [ref=e15]:
+          - button "3" [ref=e16]:
+            - img
+            - generic [ref=e17]: "3"
+          - button "SUBSCRIBER_LOGIN" [ref=e18]:
+            - img
+            - text: SUBSCRIBER_LOGIN
+          - link "Open settings" [ref=e19] [cursor=pointer]:
+            - /url: /settings
+            - img [ref=e20]
+      - group [ref=e23]:
+        - generic "Navigation Open" [ref=e24] [cursor=pointer]:
+          - generic [ref=e25]:
+            - img [ref=e26]
+            - text: Navigation
+          - generic [ref=e27]: Open
+  - main [ref=e28]:
+    - main [ref=e29]:
+      - generic [ref=e30]:
+        - generic [ref=e31]:
+          - link "Fleet Control worker-rtx5090" [ref=e32] [cursor=pointer]:
+            - /url: /fleet
+            - text: Fleet Control
+            - img [ref=e33]
+            - text: worker-rtx5090
+          - generic [ref=e35]:
+            - generic [ref=e36]:
+              - paragraph [ref=e37]: Arc Reactor
+              - heading "worker-rtx5090" [level=1] [ref=e38]
+              - paragraph [ref=e39]: Burst reasoning / code generation / quote logic / heavy inference
+            - generic [ref=e40]:
+              - generic [ref=e41]: online
+              - generic [ref=e42]: vLLM / LMCache compatible
+        - generic [ref=e43]:
+          - generic [ref=e44]:
+            - generic [ref=e45]:
+              - generic [ref=e46]:
+                - paragraph [ref=e47]:
+                  - img [ref=e48]
+                  - text: Worker identity
+                - heading "LAN + Tailscale" [level=2] [ref=e51]
+              - generic [ref=e52]:
+                - generic [ref=e53]:
+                  - paragraph [ref=e54]: VRAM used
+                  - paragraph [ref=e55]: 18.6 / 24 GB
+                - generic [ref=e56]:
+                  - paragraph [ref=e57]: GPU util
+                  - paragraph [ref=e58]: 72%
+                - generic [ref=e59]:
+                  - paragraph [ref=e60]: Temp
+                  - paragraph [ref=e61]: 66 C
+                - generic [ref=e62]:
+                  - paragraph [ref=e63]: Power
+                  - paragraph [ref=e64]: 310 W
+                - generic [ref=e65]:
+                  - paragraph [ref=e66]: Queued jobs
+                  - paragraph [ref=e67]: "7"
+                - generic [ref=e68]:
+                  - paragraph [ref=e69]: Active sessions
+                  - paragraph [ref=e70]: "3"
+                - generic [ref=e71]:
+                  - paragraph [ref=e72]: Model loaded
+                  - paragraph [ref=e73]: Qwen Coder
+                - generic [ref=e74]:
+                  - paragraph [ref=e75]: Tokens/sec
+                  - paragraph [ref=e76]: placeholder
+            - generic [ref=e77]:
+              - generic [ref=e78]:
+                - generic [ref=e79]:
+                  - paragraph [ref=e80]:
+                    - img [ref=e81]
+                    - text: GPU telemetry
+                  - heading "Live placeholder feed" [level=2] [ref=e84]
+                - generic [ref=e85]:
+                  - generic [ref=e87]:
+                    - generic [ref=e88]: VRAM used
+                    - generic [ref=e89]: 18.6 / 24 GB
+                  - generic [ref=e93]:
+                    - generic [ref=e94]: GPU util
+                    - generic [ref=e95]: 72%
+                  - generic [ref=e99]:
+                    - generic [ref=e100]: Temp
+                    - generic [ref=e101]: 66 C
+                  - generic [ref=e105]:
+                    - generic [ref=e106]: Power
+                    - generic [ref=e107]: 310 W
+                  - generic [ref=e111]:
+                    - generic [ref=e112]: Queued jobs
+                    - generic [ref=e113]: "7"
+                  - generic [ref=e117]:
+                    - generic [ref=e118]: Active sessions
+                    - generic [ref=e119]: "3"
+              - generic [ref=e122]:
+                - generic [ref=e123]:
+                  - paragraph [ref=e124]:
+                    - img [ref=e125]
+                    - text: Queue
+                  - heading "Current workload" [level=2] [ref=e127]
+                - generic [ref=e128]:
+                  - generic [ref=e130]:
+                    - generic [ref=e131]:
+                      - paragraph [ref=e132]: Loan scenario stress test
+                      - paragraph [ref=e133]: Multi-program mortgage quote comparison
+                    - generic [ref=e134]: active
+                  - generic [ref=e136]:
+                    - generic [ref=e137]:
+                      - paragraph [ref=e138]: Quote API refactor plan
+                      - paragraph [ref=e139]: Deep code architecture lane
+                    - generic [ref=e140]: queued
+                  - generic [ref=e142]:
+                    - generic [ref=e143]:
+                      - paragraph [ref=e144]: UI generation shard
+                      - paragraph [ref=e145]: Nerve worker detail panels
+                    - generic [ref=e146]: ready
+            - generic [ref=e147]:
+              - generic [ref=e148]:
+                - paragraph [ref=e149]:
+                  - img [ref=e150]
+                  - text: Logs
+                - heading "Model and queue event stream" [level=2] [ref=e153]
+              - generic [ref=e154]:
+                - generic [ref=e155]:
+                  - generic [ref=e156]: 19:44
+                  - generic [ref=e157]: Heavy reasoning route reserved for broker quote logic
+                - generic [ref=e158]:
+                  - generic [ref=e159]: 19:38
+                  - generic [ref=e160]: Model server placeholder reports vLLM compatible
+                - generic [ref=e161]:
+                  - generic [ref=e162]: 19:22
+                  - generic [ref=e163]: Drain policy protects long-running dev sessions
+          - generic [ref=e164]:
+            - generic [ref=e165]:
+              - generic [ref=e166]:
+                - paragraph [ref=e167]:
+                  - img [ref=e168]
+                  - text: Assigned agents
+                - heading "Session roster" [level=2] [ref=e171]
+              - generic [ref=e172]:
+                - generic [ref=e173]:
+                  - generic [ref=e174]:
+                    - img [ref=e175]
+                    - generic [ref=e178]: Dev/Code Agent
+                  - generic [ref=e179]: assigned
+                - generic [ref=e180]:
+                  - generic [ref=e181]:
+                    - img [ref=e182]
+                    - generic [ref=e185]: Quote Generator Agent
+                  - generic [ref=e186]: assigned
+                - generic [ref=e187]:
+                  - generic [ref=e188]:
+                    - img [ref=e189]
+                    - generic [ref=e192]: Complex Mortgage Reasoner
+                  - generic [ref=e193]: assigned
+                - generic [ref=e194]:
+                  - generic [ref=e195]:
+                    - img [ref=e196]
+                    - generic [ref=e199]: UI Generation Agent
+                  - generic [ref=e200]: assigned
+                - generic [ref=e201]:
+                  - generic [ref=e202]:
+                    - img [ref=e203]
+                    - generic [ref=e206]: Refactor Agent
+                  - generic [ref=e207]: assigned
+            - generic [ref=e208]:
+              - generic [ref=e209]:
+                - paragraph [ref=e210]:
+                  - img [ref=e211]
+                  - text: Workload routing
+                - heading "Policy cards" [level=2] [ref=e215]
+              - generic [ref=e216]:
+                - generic [ref=e217]:
+                  - img [ref=e218]
+                  - paragraph [ref=e221]: Accept complex quote generation, code generation, refactoring, deep reasoning, architecture, and advanced mortgage scenario analysis.
+                - generic [ref=e222]:
+                  - img [ref=e223]
+                  - paragraph [ref=e226]: Promote tasks here when precision or burst compute matters more than cost.
+                - generic [ref=e227]:
+                  - img [ref=e228]
+                  - paragraph [ref=e230]: Avoid always-on low-value drip parsing unless the node is idle.
+            - generic [ref=e231]:
+              - generic [ref=e232]:
+                - paragraph [ref=e233]:
+                  - img [ref=e234]
+                  - text: Actions
+                - heading "Worker controls" [level=2] [ref=e236]
+              - generic [ref=e237]:
+                - button "Launch Nerve session" [ref=e238]:
+                  - img
+                  - text: Launch Nerve session
+                - button "Open model logs" [ref=e239]:
+                  - img
+                  - text: Open model logs
+                - button "Promote task here" [ref=e240]:
+                  - img
+                  - text: Promote task here
+                - button "Drain queue" [ref=e241]:
+                  - img
+                  - text: Drain queue
+                - button "Pause worker" [ref=e242]:
+                  - img
+                  - text: Pause worker
+                - button "Restart model server" [ref=e243]:
+                  - img
+                  - text: Restart model server
+                - button "Benchmark route" [ref=e244]:
+                  - img
+                  - text: Benchmark route
