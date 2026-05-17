@@ -1,56 +1,50 @@
 # Cloudflare API Apply Report
 
-Updated: 2026-05-08
+Updated: 2026-05-17
 
-Cloudflare API apply was run through Infisical `/machines/orchestrator` using
-global API key authentication because the locally loaded bearer token did not
-have Cloudflare Tunnel read/edit permissions.
+Cloudflare API apply was run from this workspace using Infisical `/shared`
+Cloudflare credentials. The apply targeted the `projectnyra.com` zone:
+
+- Zone ID: `e745a08b7f4be9fd97363b80fcdf0551`
+- Zone status at apply time: `pending`
 
 Applied successfully:
 
-- Backed up current tunnel configs, DNS records, and Access apps to `infra/cloudflare/backups/`.
-- Updated orchestrator tunnel config.
-- Updated Oracle VPS tunnel config.
-- Upserted 22 proxied CNAME records under `ratehunter.net`.
-- Created or updated 15 Cloudflare Access self-hosted applications for UI/admin hostnames.
+- Updated the orchestrator Cloudflare Tunnel ingress config.
+- Updated the Oracle VPS Cloudflare Tunnel ingress config.
+- Upserted 22 proxied CNAME records under `projectnyra.com`.
+- Confirmed DNS now contains the expected platform/admin service records.
 
-Important applied routing:
+Applied tunnel hostnames:
 
-- `ratehunter.net` and `www.ratehunter.net` were not changed and remain Cloudflare Pages hostnames.
-- Oracle tunnel routes now include `nyra`, `api`, `hooks`, `twenty`, `crm`, `n8n`, `gitea`, `activepieces`, `grafana`, `prometheus`, `cadvisor`, `openwebui`, `nexus`, `nexus-router`, `litellm`, `paperclip`, `clawteam`, `portainer-oracle`, and `git-ssh`.
-- Orchestrator tunnel routes now include `links`, `linkwarden`, and `openclaw-gateway`.
+- Orchestrator tunnel: `links.projectnyra.com`, `linkwarden.projectnyra.com`,
+  `openclaw-gateway.projectnyra.com`
+- Oracle tunnel: `app.projectnyra.com`, `api.projectnyra.com`,
+  `hooks.projectnyra.com`, `twenty.projectnyra.com`, `crm.projectnyra.com`,
+  `n8n.projectnyra.com`, `gitea.projectnyra.com`,
+  `activepieces.projectnyra.com`, `grafana.projectnyra.com`,
+  `prometheus.projectnyra.com`, `cadvisor.projectnyra.com`,
+  `openwebui.projectnyra.com`, `nexus.projectnyra.com`,
+  `nexus-router.projectnyra.com`, `litellm.projectnyra.com`,
+  `paperclip.projectnyra.com`, `clawteam.projectnyra.com`,
+  `portainer-oracle.projectnyra.com`, `git-ssh.projectnyra.com`
 
-Cloudflare state after runtime repair:
+DNS result:
 
-- `Orchestrator Web` tunnel: healthy, 4 connector connections.
-- `Oracle-VPS` tunnel: healthy, 4 connector connections.
-- DNS records were created/updated and point at the correct tunnel IDs.
-- Access apps exist for the UI/admin hostnames checked in `infra/cloudflare/apply-results/access-apps-after.json`.
+- `dns_total`: 22
+- `dns_successes`: 22
+- `dns_failures`: 0
 
-Smoke checks:
+Access app result:
 
-- `https://ratehunter.net` returned `200`.
-- `https://www.ratehunter.net` returned `200`.
-- `https://app.projectnyra.com` returned `302` to Cloudflare Access.
-- `https://nexus.projectnyra.com` returned `302` to Cloudflare Access.
-- `https://links.projectnyra.com` returned `200` from Cloudflare Access.
-- `https://openclaw-gateway.projectnyra.com` returned `200` from Cloudflare Access.
-- `https://api.projectnyra.com/auth/v1/health` returned `200`.
-- `https://hooks.projectnyra.com` returned `200`.
-- `https://n8n.projectnyra.com` returned `302` to Cloudflare Access.
-- `https://twenty.projectnyra.com` returned `302` to Cloudflare Access.
-- `https://nexus.projectnyra.com` is the Nexus UI endpoint and `https://nexus-router.projectnyra.com` is the Nexus Router API/MCP endpoint. Both should remain Cloudflare Access-gated; the router endpoint should use service-token protection for agent traffic.
+- Attempted to create/update 15 Cloudflare Access self-hosted applications for
+  protected `projectnyra.com` hostnames.
+- Cloudflare rejected all 15 with `domain does not belong to zone`.
+- This is consistent with the zone still being `pending`; rerun
+  `bash infra/cloudflare/apply-access-apps.sh` after the zone is active.
 
-Runtime fixes applied:
+RateHunter policy:
 
-- Recreated Oracle cloudflared with the Cloudflare API token for tunnel `02fa18b6-ffcd-4b37-91ba-409642d5fb8f`.
-- Forced Oracle cloudflared to use `http2` transport and removed the token from command argv.
-- Fixed webapp deployment by moving the malformed `app/leads/\[id\]` route into `app/leads/[id]`.
-- Enabled standalone Next output for `apps/projectnyra`.
-- Avoided the webapp/Gitea host port collision by publishing webapp on host port `3002` while keeping container port `3001`.
-- Fixed n8n database env by using service alias `postgres` and adding `DB_POSTGRESDB_PASSWORD`.
-- Fixed Supabase Auth by URL-encoding the database password for GoTrue/PostgREST URLs and pointing Kong at GoTrue port `8081`.
-
-Remaining required owner action:
-
-- Replace the shared Infisical `/machines/oracle-vps` `ORACLE_TUNNEL_TOKEN`. It currently does not match `ORACLE_TUNNEL_ID`; this session used a runtime Cloudflare API token fetch because the machine identity can read secrets but cannot update/delete the existing shared secret.
+- `ratehunter.net` remains apex-only landing/Page guidance.
+- No platform, API, MCP, admin UI, worker, or tunnel hostname should use a
+  `ratehunter.net` subdomain.

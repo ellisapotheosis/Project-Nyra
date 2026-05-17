@@ -75,7 +75,7 @@ services:
     container_name: oracle-twenty-crm
     environment:
       NODE_ENV: production
-      SERVER_URL: https://crm.ratehunter.net
+      SERVER_URL: https://crm.projectnyra.com
       DATABASE_URL: postgres://postgres:${POSTGRES_PASSWORD}@postgres:5432/twenty
       REDIS_URL: redis://redis:6379
       JWT_SECRET: ${JWT_SECRET}
@@ -108,8 +108,8 @@ services:
       DATABASE_URL: postgres://postgres:${POSTGRES_PASSWORD}@postgres:5432/activepieces
       REDIS_URL: redis://redis:6379
       JWT_SECRET: ${JWT_SECRET}
-      FRONTEND_URL: https://workflows.ratehunter.net
-      API_URL: https://api-workflows.ratehunter.net
+      FRONTEND_URL: https://workflows.projectnyra.com
+      API_URL: https://api-workflows.projectnyra.com
       ENCRYPTION_KEY: ${ENCRYPTION_KEY}
     ports:
       - "3001:80"
@@ -195,7 +195,7 @@ services:
       NODE_ENV: production
       PORT: 5000
       DATABASE_URL: postgres://postgres:${POSTGRES_PASSWORD}@postgres:5432/mem0
-      LITELLM_API_URL: http://100.x.x.0:4000  # Tailscale orchestrator
+      LITELLM_API_URL: http://100.x.x.0:4000 # Tailscale orchestrator
       LITELLM_API_KEY: ${LITELLM_API_KEY}
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
     ports:

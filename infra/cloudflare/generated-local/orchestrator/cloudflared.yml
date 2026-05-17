@@ -1,4 +1,4 @@
-# Generated backup/export for the orchestrator Cloudflare Tunnel.
+# Generated source config for the orchestrator Cloudflare Tunnel.
 # Runtime preference: API/dashboard-managed tunnel with ORCHESTRATOR_TUNNEL_TOKEN.
 
 tunnel: ${ORCHESTRATOR_TUNNEL_ID}

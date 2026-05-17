@@ -1,4 +1,4 @@
-# Cloudflared backup config for the Project Nyra orchestrator tunnel.
+# Cloudflared source config for the Project Nyra orchestrator tunnel.
 # Replace ORCHESTRATOR_TUNNEL_ID before using this as a locally managed tunnel.
 # If the tunnel is dashboard-managed with a token, use this file as the source
 # of truth for Public Hostname entries in the Cloudflare Zero Trust UI.

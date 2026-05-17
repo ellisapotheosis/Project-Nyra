@@ -325,7 +325,7 @@ try {
        2. Set secrets: infisical export | grep RATEHUNTER
        3. Start services: docker-compose up -d
        4. Access UI: https://ratehunter. net
-       5. Monitor:  https://metrics.ratehunter.net
+       5. Monitor:  https://metrics.projectnyra.com
     
     📖 Documentation: https://github.com/ellisapotheosis/NYRA-AIO-Bootstrap
     💬 Support: Create an issue in GitHub

@@ -9,7 +9,7 @@
 | projectnyra.com | openwebui.projectnyra.com        | Openwebui                    | oracle / `http://openwebui:8080`                   | Tunnel/planned | required                | Nyra  | Current |
 | projectnyra.com | app.projectnyra.com              | App                          | oracle / `http://webapp:3001`                      | Tunnel/planned | required                | Nyra  | Current |
 | ratehunter.net  | ratehunter.net                   | RateHunter Landing           | cloudflare-pages / `none`                          | Pages          | not-required            | Ellis | Planned |
-| ratehunter.net  | www.ratehunter.net               | RateHunter Landing           | cloudflare-pages / `none`                          | Pages          | not-required            | Ellis | Planned |
+| ratehunter.net  | ratehunter.net                   | RateHunter Landing           | cloudflare-pages / `none`                          | Pages          | not-required            | Ellis | Planned |
 | projectnyra.com | borrower-chat.projectnyra.com    | Borrower ChatUI              | orchestrator / `none`                              | Tunnel/planned | required                | Nyra  | Planned |
 | projectnyra.com | broker-chat.projectnyra.com      | Broker ChatUI                | orchestrator / `none`                              | Tunnel/planned | required                | Nyra  | Planned |
 | projectnyra.com | campaigns.projectnyra.com        | Campaign Builder             | oracle / `none`                                    | Tunnel/planned | required                | Nyra  | Planned |

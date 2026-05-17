@@ -30,7 +30,7 @@ These are the only actions that require the owner:
 
 1. Add or confirm `ratehunter.net` and `projectnyra.com` zones in Cloudflare.
 2. Change Spaceship authoritative nameservers after checking DNSSEC.
-3. Attach `ratehunter.net` and `www.ratehunter.net` to the correct Cloudflare Pages project.
+3. Attach `ratehunter.net` and `ratehunter.net` to the correct Cloudflare Pages project.
 4. Apply Cloudflare DNS, tunnel public hostnames, and Access policies from the generated plan.
 5. Complete Portainer first-login/admin setup and enroll remote environments.
 6. Import or paste the generated Home Assistant dashboard YAML into Home Assistant.

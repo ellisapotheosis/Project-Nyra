@@ -52,11 +52,18 @@ export function AuthCard({ mode }: { mode: AuthMode }) {
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [message, setMessage] = React.useState<string | null>(null);
-  const [error, setError] = React.useState<string | null>(
-    searchParams.get("error") === "supabase_not_configured"
-      ? "Supabase is not configured for this environment yet."
-      : null
-  );
+  const initialError = searchParams.get("error");
+  const [error, setError] = React.useState<string | null>(() => {
+    if (initialError === "supabase_not_configured") {
+      return "Supabase is not configured for this environment yet.";
+    }
+
+    if (initialError === "auth_callback_failed") {
+      return "Supabase could not complete the sign-in callback. Try signing in again.";
+    }
+
+    return null;
+  });
   const [isPending, setIsPending] = React.useState(false);
   const configured = Boolean(getSupabasePublicConfig());
   const redirectTo = getSafeRedirectPath(searchParams.get("redirect"));

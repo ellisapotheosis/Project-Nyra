@@ -9,17 +9,17 @@ The marketing landing property should stay on Cloudflare Pages unless a product 
 | Item                   | Current policy                             |
 | ---------------------- | ------------------------------------------ |
 | Canonical app location | `apps/ratehunter`                          |
-| Public domain          | `ratehunter.net` / `www.ratehunter.net`    |
+| Public domain          | `ratehunter.net`                           |
 | Preferred deployment   | Cloudflare Pages project + branch previews |
 | Public access          | unauthenticated marketing surface only     |
 
 ## Current edge config note
 
-`infra/hosts/oracle-vps/cloudflared-config.yml` currently includes fallback hostname examples for `ratehunter.net` and `www.ratehunter.net` pointing to `nyra-landing:3003`.
+`infra/hosts/oracle-vps/cloudflared-config.yml` currently includes fallback hostname examples for `ratehunter.net` pointing to `nyra-landing:3003`.
 
 Use those only if the landing site is intentionally moved from Pages to a container. Otherwise:
 
-- keep the apex and `www` records on Pages,
+- keep the apex record on Pages,
 - keep app/admin/operator hostnames on the Cloudflared tunnel,
 - do not add datastore, worker inference, or raw media ports to public DNS.
 
@@ -46,7 +46,7 @@ Use those only if the landing site is intentionally moved from Pages to a contai
 ## Verification checklist
 
 - [ ] `ratehunter.net` resolves to the Pages origin when Pages is the active deployment.
-- [ ] `www.ratehunter.net` resolves consistently with the apex.
+- [ ] `ratehunter.net` resolves consistently with the apex.
 - [ ] Production deploy verification fetches `https://ratehunter.net/` and confirms the live homepage contains `Ellis Andersen`.
 - [ ] A successful Pages deploy is not treated as complete unless the custom domain serves the same landing app content as the deployment URL.
 - [ ] App/admin/operator hostnames use the Oracle or orchestrator tunnel.
@@ -60,7 +60,7 @@ it succeeded, treat it as a routing or adapter issue rather than an application 
 
 First check the Cloudflare Pages custom domain binding:
 
-1. `ratehunter.net` and `www.ratehunter.net` must be active custom domains on the `ratehunter-landing` project.
+1. `ratehunter.net` and `ratehunter.net` must be active custom domains on the `ratehunter-landing` project.
 2. No Worker route or Cloudflared tunnel route should intercept the apex hostname unless the landing site has been
    intentionally moved off Pages.
 3. The deployment URL returned by GitHub Actions must serve the homepage text `Ellis Andersen`; if it does not, inspect
