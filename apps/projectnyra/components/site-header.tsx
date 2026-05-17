@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ExternalLink, Landmark, Settings } from "lucide-react";
 
+import { ThemeSwitcher } from "@/components/theme-switcher";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -47,13 +48,16 @@ export function SiteHeader() {
               Canonical platform home for apps, CRM, MCP, and automation
             </span>
           </Link>
-          <Link
-            href="/settings"
-            className="inline-flex size-9 items-center justify-center rounded-full border border-border/60 bg-card/70 text-muted-foreground hover:text-foreground"
-            aria-label="Open settings"
-          >
-            <Settings className="size-4" />
-          </Link>
+          <div className="flex items-center gap-2">
+            <ThemeSwitcher />
+            <Link
+              href="/settings"
+              className="inline-flex size-9 items-center justify-center rounded-full border border-border/60 bg-card/70 text-muted-foreground hover:text-foreground"
+              aria-label="Open settings"
+            >
+              <Settings className="size-4" />
+            </Link>
+          </div>
         </div>
         <nav className="flex flex-wrap gap-2">
           {links.map((link) => (
