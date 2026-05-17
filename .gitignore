@@ -272,6 +272,8 @@ PIPFILE.lock
 !apps/*/src/lib/**
 !apps/*/app/lib/
 !apps/*/app/lib/**
+!apps/projectnyra/lib/
+!apps/projectnyra/lib/**
 !apps/landing/ratehunter-landing/src/lib/
 !apps/landing/ratehunter-landing/src/lib/**
 

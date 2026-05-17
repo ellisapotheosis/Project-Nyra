@@ -1,11 +1,13 @@
+import * as React from "react";
+
 import { cn } from "@/lib/utils";
 
-type ChromaMode = "critical" | "brand" | "live";
+type ChromaMode = "brand" | "critical" | "live";
 
 const modeClasses: Record<ChromaMode, string> = {
-  critical: "border-pink-500/30 bg-pink-500/10 text-pink-100",
-  brand: "border-indigo-500/30 bg-indigo-500/10 text-indigo-100",
-  live: "border-turquoise-500/30 bg-turquoise-500/10 text-turquoise-100",
+  brand: "border-primary/30 bg-primary/10 text-primary",
+  critical: "border-destructive/30 bg-destructive/10 text-destructive",
+  live: "border-accent/30 bg-accent/10 text-accent-foreground",
 };
 
 export function NyraGlowSurface({
@@ -15,7 +17,7 @@ export function NyraGlowSurface({
   return (
     <div
       className={cn(
-        "rounded-[32px] border border-indigo-500/20 bg-card/40 shadow-[0_0_80px_rgba(99,102,241,0.12)]",
+        "rounded-3xl border border-border/50 bg-card/50 shadow-2xl backdrop-blur",
         className
       )}
       {...props}
@@ -36,15 +38,11 @@ export function ChromaAlertCard({
 }) {
   return (
     <div className={cn("rounded-2xl border p-5", modeClasses[mode])}>
-      <p className="text-[10px] font-black uppercase tracking-[0.24em]">
-        {title}
-      </p>
-      <p className="mt-3 text-xs font-medium leading-relaxed opacity-75">
-        {detail}
-      </p>
-      <button className="mt-5 text-[9px] font-black uppercase tracking-[0.3em] text-white">
+      <p className="text-xs font-black uppercase tracking-widest">{title}</p>
+      <p className="mt-3 text-sm text-foreground/75">{detail}</p>
+      <p className="mt-5 text-[10px] font-black uppercase tracking-widest">
         {action}
-      </button>
+      </p>
     </div>
   );
 }
@@ -62,13 +60,13 @@ export function ChromaMetricCard({
 }) {
   return (
     <div className={cn("rounded-2xl border p-5", modeClasses[mode])}>
-      <p className="text-[9px] font-black uppercase tracking-[0.24em] opacity-70">
+      <p className="text-[10px] font-black uppercase tracking-widest opacity-70">
         {label}
       </p>
-      <p className="mt-3 text-3xl font-black tracking-tighter">{value}</p>
-      <p className="mt-3 text-xs font-medium leading-relaxed opacity-70">
-        {detail}
+      <p className="mt-2 text-2xl font-black tracking-tight text-foreground">
+        {value}
       </p>
+      <p className="mt-3 text-xs text-muted-foreground">{detail}</p>
     </div>
   );
 }

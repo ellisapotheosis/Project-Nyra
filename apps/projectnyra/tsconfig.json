@@ -19,12 +19,13 @@
       }
     ],
     "paths": {
-      "@/*": ["./src/*"],
-      "@/components/*": ["./src/components/*"],
-      "@/lib/*": ["./src/lib/*"],
-      "@/hooks/*": ["./src/hooks/*"],
-      "@/types/*": ["./src/types/*"],
-      "@/contexts/*": ["./src/contexts/*"]
+      "@/*": ["./src/*", "./*"],
+      "@nyra/ui": ["./src/components/nyra-ui.tsx"],
+      "@/components/*": ["./src/components/*", "./components/*"],
+      "@/lib/*": ["./lib/*", "./src/lib/*"],
+      "@/hooks/*": ["./hooks/*", "./src/hooks/*"],
+      "@/types/*": ["./types/*", "./src/types/*"],
+      "@/contexts/*": ["./contexts/*", "./src/contexts/*"]
     }
   },
   "include": [
@@ -34,5 +35,5 @@
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts"
   ],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules", ".next", ".next.backup-*"]
 }

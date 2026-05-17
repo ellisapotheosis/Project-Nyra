@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from "next";
+import Script from "next/script";
 import "./globals.css";
+import "./themes/apotheosis.css";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://ratehunter.net";
 
@@ -47,7 +49,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning data-nyra-theme="apotheosis">
       <head>
         <link rel="manifest" href="/manifest.json" />
         <meta name="mobile-web-app-capable" content="yes" />
@@ -57,7 +59,15 @@ export default function RootLayout({
           content="black-translucent"
         />
       </head>
-      <body>{children}</body>
+      <body>
+        {children}
+        <Script
+          async
+          crossOrigin="anonymous"
+          src="https://tweakcn.com/live-preview.min.js"
+          strategy="afterInteractive"
+        />
+      </body>
     </html>
   );
 }
