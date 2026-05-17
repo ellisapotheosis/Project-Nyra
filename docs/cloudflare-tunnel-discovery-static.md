@@ -17,7 +17,7 @@ Relevant repo files:
 
 Static findings:
 
-- `ratehunter.net` and `www.ratehunter.net` are Cloudflare Pages hostnames and must not be routed through either tunnel.
+- `ratehunter.net` and `ratehunter.net` are Cloudflare Pages hostnames and must not be routed through either tunnel.
 - Oracle VPS has the durable app/service stack: webapp, Supabase Kong/Auth/REST, Twenty, n8n, Gitea, Activepieces, observability, Open WebUI, LiteLLM, Nexus, Paperclip, and MCP sidecars.
 - Orchestrator currently has a smaller local stack in this repo: cloudflared, OpenClaw Gateway, Portainer edge agent, Syncthing.
 - `docker-compose.cloudflared.yml` on orchestrator runs a token-based remote/API-managed connector, not a local YAML-managed tunnel.

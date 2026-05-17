@@ -313,7 +313,7 @@ export default function HomePage() {
               </CardContent>
             </Card>
 
-            {/* Memory Cluster Link */}
+            {/* Nexus operator link */}
             <Card className="border-border/50 bg-card/40 backdrop-blur-md shadow-2xl rounded-[32px] overflow-hidden group">
               <CardContent className="p-10 flex flex-col items-center text-center space-y-6">
                 <div className="size-20 rounded-3xl bg-indigo-600 flex items-center justify-center shadow-2xl border border-indigo-400/30 group-hover:scale-105 transition-transform relative">
@@ -345,6 +345,20 @@ export default function HomePage() {
                   >
                     OpenMemory_MCP_Diagnostic_Bridge
                   </a>
+                  <Link
+                    href={
+                      process.env.NEXT_PUBLIC_NEXUS_UI_URL ??
+                      "https://nexus.projectnyra.com"
+                    }
+                    className="w-full"
+                  >
+                    <Button
+                      variant="outline"
+                      className="w-full border-indigo-500/20 bg-indigo-500/5 text-indigo-400 font-black uppercase tracking-widest text-[10px] h-12 rounded-xl hover:bg-indigo-600 hover:text-white transition-all shadow-inner"
+                    >
+                      OPEN_NEXUS_OPERATOR_UI
+                    </Button>
+                  </Link>
                 </div>
               </CardContent>
             </Card>

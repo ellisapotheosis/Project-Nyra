@@ -1,6 +1,6 @@
 {
   "zone_name": "projectnyra.com",
-  "note": "Create proxied CNAME records to <tunnel-id>.cfargotunnel.com. RateHunter apex/www stay in the ratehunter.net Pages project and are not managed here.",
+  "note": "Create proxied CNAME records to <tunnel-id>.cfargotunnel.com for projectnyra.com platform routes. RateHunter apex stays in the ratehunter.net Pages project and is not managed here.",
   "records": [
     {
       "name": "app",

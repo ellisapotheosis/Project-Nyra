@@ -4,8 +4,13 @@
 
 This runbook covers factual infrastructure health checks for the current
 `infra/hosts/<host>/` deployment model. It does not expose private worker
-endpoints publicly; checks use MagicDNS/Tailscale names or local operator CLI
-commands.
+endpoints publicly; checks use MagicDNS/Tailscale names, Docker contexts, or
+container-local probes.
+
+The local WSL environment is not expected to have `tailscale` or `cloudflared`
+CLIs. Tailscale reachability is checked through private MagicDNS endpoints when
+available, and Cloudflare tunnels are diagnosed as containers through the
+relevant Docker context and compose files.
 
 ## Quick Health Check
 
@@ -39,11 +44,11 @@ are modified by the check.
 ### What It Checks
 
 - Tailscale reachability for `orchestrator`, `oracle-vps`, and the three GPU workers.
-- GPU VRAM visibility over SSH for the worker nodes when SSH is available.
+- GPU VRAM visibility through Docker contexts for the worker nodes.
 - Host-scoped compose endpoints for observability, routing, CRM, automation,
   memory, and worker model services.
-- Operator CLI visibility for `tailscale status --json` and
-  `cloudflared tunnel list --json`.
+- Subscription bridge health on orchestrator and all three GPU workers.
+- Cloudflared and Tailscale are not checked through local WSL CLIs by default.
 
 Oracle VPS is checked through `oracle.trex-fiordland.ts.net`, which resolves to
 `100.64.0.3` in the current Tailscale DNS context. Keep the inventory aligned
@@ -51,9 +56,10 @@ with active compose references before adding alternate Oracle hostnames.
 
 ### Secrets
 
-This slice added no new secrets. If Cloudflare or Tailscale CLI checks fail due
-to missing local login state, authenticate the operator CLI through the normal
-owner workflow; do not commit tokens or generated credentials.
+This slice added `LLXPRT_BRIDGE_API_KEY` to host-level
+`.env.nyra_staging.example` files for orchestrator and the three GPU workers.
+Populate it from Infisical or a gitignored host env file. Do not commit real
+tokens or generated credentials.
 
 ### Useful Follow-Up
 

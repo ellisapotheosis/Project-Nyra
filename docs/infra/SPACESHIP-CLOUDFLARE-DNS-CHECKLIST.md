@@ -7,7 +7,7 @@ These steps require owner dashboard login and cannot be completed locally by the
 3. In Spaceship, inspect each domain for DNSSEC. If enabled, disable DNSSEC before changing nameservers.
 4. Replace authoritative nameservers with the Cloudflare-assigned nameservers.
 5. Wait for Cloudflare zone status `Active`.
-6. Attach `ratehunter.net` and `www.ratehunter.net` to the RateHunter Cloudflare Pages project.
+6. Attach `ratehunter.net` and `ratehunter.net` to the RateHunter Cloudflare Pages project.
 7. Do not create Nyra tunnel routes on `ratehunter.net`.
 8. Verify:
 

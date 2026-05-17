@@ -1,6 +1,6 @@
-# Generated backup/export for the Oracle VPS Cloudflare Tunnel.
+# Generated source config for the Oracle VPS Cloudflare Tunnel.
 # Runtime preference: API/dashboard-managed tunnel with ORACLE_TUNNEL_TOKEN.
-# ratehunter.net and www.ratehunter.net are Cloudflare Pages, not tunnel routes.
+# ratehunter.net is Cloudflare Pages, not a tunnel route.
 
 tunnel: ${ORACLE_TUNNEL_ID}
 credentials-file: /etc/cloudflared/${ORACLE_TUNNEL_ID}.json

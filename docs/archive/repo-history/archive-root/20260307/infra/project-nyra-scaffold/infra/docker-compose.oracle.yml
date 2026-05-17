@@ -1,4 +1,4 @@
-version: '3.9'
+version: "3.9"
 
 # ===== ORACLE CLOUD PLANE =====
 # Deploy on: Oracle Cloud ARM A1 (Always-Free tier)
@@ -71,7 +71,7 @@ services:
       infisical-agent:
         condition: service_started
     environment:
-      SERVER_URL: https://crm.ratehunter.net
+      SERVER_URL: https://crm.projectnyra.com
       DATABASE_URL: postgres://postgres:${ORACLE_DATABASE_PASSWORD}@postgres:5432/twenty
       REDIS_URL: redis://:${ORACLE_REDIS_PASSWORD}@redis:6379
       JWT_SECRET: ${ORACLE_TwentyCRM_SECRET_KEY}
@@ -98,8 +98,8 @@ services:
       redis:
         condition: service_healthy
     environment:
-      AP_WEBHOOK_URL: https://workflows.ratehunter.net
-      AP_EXTERNAL_URL: https://workflows.ratehunter.net
+      AP_WEBHOOK_URL: https://workflows.projectnyra.com
+      AP_EXTERNAL_URL: https://workflows.projectnyra.com
       DATABASE_URL: postgres://postgres:${ORACLE_DATABASE_PASSWORD}@postgres:5432/activepieces
       REDIS_URL: redis://:${ORACLE_REDIS_PASSWORD}@redis:6379
       JWT_SECRET: ${ORACLE_ACTIVEPIECES_SECRET_KEY}

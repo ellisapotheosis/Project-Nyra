@@ -12,25 +12,32 @@ clean() {
 ACCOUNT_ID="$(clean "${CF_ACCOUNT_ID:-${CLOUDFLARE_ACCOUNT_ID:-}}")"
 EMAIL="$(clean "${CLOUDFLARE_EMAIL:-${CF_EMAIL:-}}")"
 API_KEY="$(clean "${CLOUDFLARE_API_KEY:-${CF_API_KEY:-}}")"
+API_TOKEN="$(clean "${CLOUDFLARE_API_TOKEN:-${CF_API_TOKEN:-}}")"
 
 : "${ACCOUNT_ID:?missing CF_ACCOUNT_ID/CLOUDFLARE_ACCOUNT_ID}"
-: "${EMAIL:?missing CLOUDFLARE_EMAIL/CF_EMAIL}"
-: "${API_KEY:?missing CLOUDFLARE_API_KEY/CF_API_KEY}"
+if [[ -z "$API_TOKEN" ]]; then
+  : "${EMAIL:?missing CLOUDFLARE_EMAIL/CF_EMAIL when CLOUDFLARE_API_TOKEN/CF_API_TOKEN is not set}"
+  : "${API_KEY:?missing CLOUDFLARE_API_KEY/CF_API_KEY when CLOUDFLARE_API_TOKEN/CF_API_TOKEN is not set}"
+fi
 
 api() {
   local method="$1"
   local url="$2"
   local data="${3:-}"
+  local auth_headers
+  if [[ -n "$API_TOKEN" ]]; then
+    auth_headers=(-H "Authorization: Bearer ${API_TOKEN}")
+  else
+    auth_headers=(-H "X-Auth-Email: ${EMAIL}" -H "X-Auth-Key: ${API_KEY}")
+  fi
   if [[ -n "$data" ]]; then
     curl -sS -X "$method" "https://api.cloudflare.com/client/v4${url}" \
-      -H "X-Auth-Email: ${EMAIL}" \
-      -H "X-Auth-Key: ${API_KEY}" \
+      "${auth_headers[@]}" \
       -H "Content-Type: application/json" \
       --data @"$data"
   else
     curl -sS -X "$method" "https://api.cloudflare.com/client/v4${url}" \
-      -H "X-Auth-Email: ${EMAIL}" \
-      -H "X-Auth-Key: ${API_KEY}" \
+      "${auth_headers[@]}" \
       -H "Content-Type: application/json"
   fi
 }

@@ -11,7 +11,7 @@ Header checks from this WSL session were limited by DNS/timeouts. The registry t
 | Openwebui                    | https://openwebui.projectnyra.com        | unknown         | unknown         | required                | unknown-test-required | Sensitive surface                           |
 | App                          | https://app.projectnyra.com              | unknown         | unknown         | required                | unknown-test-required | Sensitive surface                           |
 | RateHunter Landing           | https://ratehunter.net                   | unknown         | unknown         | not-required            | link-first            | Public page; preview only after header test |
-| RateHunter Landing           | https://www.ratehunter.net               | unknown         | unknown         | not-required            | link-first            | Public page; preview only after header test |
+| RateHunter Landing           | https://ratehunter.net                   | unknown         | unknown         | not-required            | link-first            | Public page; preview only after header test |
 | Borrower ChatUI              | https://borrower-chat.projectnyra.com    | unknown         | unknown         | required                | unknown-test-required | Sensitive surface                           |
 | Broker ChatUI                | https://broker-chat.projectnyra.com      | unknown         | unknown         | required                | unknown-test-required | Sensitive surface                           |
 | Campaign Builder             | https://campaigns.projectnyra.com        | unknown         | unknown         | required                | unknown-test-required | Sensitive surface                           |

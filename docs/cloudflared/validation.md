@@ -56,6 +56,6 @@ tailscale ping worker-rtx3090ti.trex-fiordland.ts.net
 
 ## Cloudflare Access Checks
 
-Every hostname except `ratehunter.net` and `www.ratehunter.net` should have an
+Every hostname except `ratehunter.net` and `ratehunter.net` should have an
 Access application or a service-token-only policy. Owner-only routes should be
 more restrictive than normal operator routes.

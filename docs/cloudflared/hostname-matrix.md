@@ -10,10 +10,10 @@ Access applications. The machine-readable desired state lives in
 
 These are Cloudflare Pages custom domains. Do not add them to any tunnel.
 
-| Hostname             | Target                           | Access |
-| -------------------- | -------------------------------- | ------ |
-| `ratehunter.net`     | Cloudflare Pages landing project | Public |
-| `www.ratehunter.net` | Cloudflare Pages landing project | Public |
+| Hostname         | Target                           | Access |
+| ---------------- | -------------------------------- | ------ |
+| `ratehunter.net` | Cloudflare Pages landing project | Public |
+| `ratehunter.net` | Cloudflare Pages landing project | Public |
 
 ## Oracle VPS Tunnel
 

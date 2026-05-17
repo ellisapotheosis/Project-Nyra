@@ -71,7 +71,7 @@ If your domain DNS is managed by Cloudflare:
 
 1. Go to **Workers & Pages** > **ratehunter-landing** > **Custom domains**
 2. Click **Set up a custom domain**
-3. Enter your domain (e.g., `ratehunter.net` or `www.ratehunter.net`)
+3. Enter your domain (e.g., `ratehunter.net`)
 4. Click **Activate domain**
 5. DNS records are automatically created ✅
 
@@ -445,9 +445,6 @@ Create a `_redirects` file for URL management:
 **File: `apps/ratehunter/landing/public/_redirects`**
 
 ```
-# Redirect www to non-www (or vice versa)
-https://www.ratehunter.net/* https://ratehunter.net/:splat 301!
-
 # Redirect old URLs to new ones
 /old-page /new-page 301
 /pricing /plans 301
@@ -719,7 +716,7 @@ Before going live, verify:
 
 ---
 
-**Setup Date**: ****\_\_\_****
-**Completed By**: ****\_\_\_****
-**Custom Domain**: ****\_\_\_****
-**Production URL**: ****\_\_\_****
+**Setup Date**: \***\*\_\_\_\*\***
+**Completed By**: \***\*\_\_\_\*\***
+**Custom Domain**: \***\*\_\_\_\*\***
+**Production URL**: \***\*\_\_\_\*\***
