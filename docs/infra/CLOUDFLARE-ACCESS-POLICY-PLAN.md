@@ -3,7 +3,7 @@
 ## Public
 
 - `ratehunter.net`
-- `www.ratehunter.net`
+- `ratehunter.net`
 - Optionally `projectnyra.com` once an app portal exists
 
 ## Protected

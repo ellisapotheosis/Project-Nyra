@@ -4,7 +4,7 @@ Project Nyra uses two domains with strict separation.
 
 ## RateHunter
 
-`ratehunter.net` and `www.ratehunter.net` are reserved for the public RateHunter mortgage brokerage landing page only.
+`ratehunter.net` is reserved for the public RateHunter mortgage brokerage landing page only.
 
 - Canonical app location: `apps/ratehunter/landing`
 - Deployment target: Cloudflare Pages

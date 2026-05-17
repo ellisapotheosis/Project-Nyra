@@ -677,7 +677,7 @@ credentials-file: /etc/cloudflared/ratehunter-landing.json
 ingress:
   - hostname: ratehunter.net
     service: http://localhost:3000
-  - hostname: www.ratehunter.net
+  - hostname: ratehunter.net
     service: http://localhost:3000
   - service: http_status:404
 ```

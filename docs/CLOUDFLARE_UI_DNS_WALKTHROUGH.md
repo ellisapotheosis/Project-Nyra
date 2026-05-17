@@ -32,10 +32,10 @@ The compose files currently run Cloudflared with tunnel tokens, which means the 
 
 These should be reachable without Cloudflare Access:
 
-| Hostname             | Tunnel     | Origin service             | Compose source          | Notes                      |
-| -------------------- | ---------- | -------------------------- | ----------------------- | -------------------------- |
-| `ratehunter.net`     | Oracle VPS | `http://nyra-landing:3003` | generated Oracle config | Public landing page        |
-| `www.ratehunter.net` | Oracle VPS | `http://nyra-landing:3003` | generated Oracle config | Redirect or mirror to apex |
+| Hostname         | Tunnel     | Origin service             | Compose source          | Notes                      |
+| ---------------- | ---------- | -------------------------- | ----------------------- | -------------------------- |
+| `ratehunter.net` | Oracle VPS | `http://nyra-landing:3003` | generated Oracle config | Public landing page        |
+| `ratehunter.net` | Oracle VPS | `http://nyra-landing:3003` | generated Oracle config | Redirect or mirror to apex |
 
 Keep the broker/customer webapp private for now:
 

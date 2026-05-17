@@ -55,7 +55,7 @@ views:
             icon: mdi:open-in-new
             tap_action:
               action: url
-              url_path: https://www.ratehunter.net
+              url_path: https://ratehunter.net
           - type: button
             name: App
             icon: mdi:open-in-new

@@ -1,7 +1,7 @@
 # Project Nyra Cloudflare exposure matrix.
 # Source: project-nyra-cloudflare-final-prompt-pack plus current repo compose files.
 # Policy:
-# - ratehunter.net and www.ratehunter.net are Cloudflare Pages only.
+# - ratehunter.net is Cloudflare Pages only.
 # - UI/admin/dashboard routes require Cloudflare Access.
 # - API/MCP routes require service-token or signed-request controls unless noted.
 # - raw databases, caches, vector stores, worker model ports, and Docker sockets are not tunneled.
@@ -22,9 +22,6 @@ tunnels:
 
 pages:
   - hostname: ratehunter.net
-    target: cloudflare_pages
-    access: public
-  - hostname: www.ratehunter.net
     target: cloudflare_pages
     access: public
 

@@ -206,7 +206,7 @@ After deploying, set up a custom domain:
 
 1. In Cloudflare dashboard: Workers & Pages > ratehunter-landing > Custom domains
 2. Click "Set up a custom domain"
-3. Enter your domain (e.g., `ratehunter.net` or `www.ratehunter.net`)
+3. Enter your domain (e.g., `ratehunter.net`)
 4. Follow DNS setup instructions
 
 Update `wrangler.toml` to add routes:

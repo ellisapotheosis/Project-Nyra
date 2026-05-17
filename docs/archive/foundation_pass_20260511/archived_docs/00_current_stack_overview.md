@@ -45,38 +45,38 @@ Oracle VPS is the always-on host for business apps, Gitea CI/CD, persistent serv
 
 Primary services in `infra/hosts/oracle-vps/docker-compose.yml`:
 
-| Service              |                Port(s) | Notes                                                        |
-| -------------------- | ---------------------: | ------------------------------------------------------------ |
-| `twenty`             |                 `3000` | CRM app; canonical public hostname `crm.ratehunter.net`      |
-| `twenty-mcp`         |                 `8400` | CRM MCP/API bridge                                           |
-| `activepieces`       |           `8080 -> 80` | Internal automation UI/runtime                               |
-| `n8n`                |                 `5678` | Internal workflow automation                                 |
-| `quote-api`          |                 `7070` | Quote service API                                            |
-| `grafana`            |         `3003 -> 3000` | Observability UI                                             |
-| `prometheus`         |                 `9090` | Metrics                                                      |
-| `loki`               |                 `3100` | Logs                                                         |
-| `cadvisor`           |         `8081 -> 8080` | Container metrics                                            |
-| `openwebui`          |         `8088 -> 8080` | Internal model workbench                                     |
-| `mem0-rest`          |                 `5000` | Runtime memory REST API                                      |
-| `letta`              |                 `8283` | Memory manager UI/API                                        |
-| `mem-os`             |                 `8085` | MemoryTensor/memOS service                                   |
-| `openmemory-mcp`     |                 `8765` | OpenMemory MCP HTTP/SSE bridge                               |
-| `falkordb`           |         `6381 -> 6379` | Graph memory store                                           |
-| `qdrant`             |               internal | Vector store                                                 |
-| `infisical-mcp`      |                 `8766` | Secrets MCP bridge                                           |
-| `mempalace-mcp`      |         `8002 -> 8000` | Memory bridge                                                |
-| `paperclip`          |         `3111 -> 3100` | Document/OCR UI                                              |
-| `paperclip-mcp`      |                 `8767` | Paperclip MCP                                                |
-| `nexus`              |         `6000 -> 3000` | Oracle Nexus instance                                        |
-| `gitea`              | `3001 -> 3000`, `2222` | Git hosting and Actions UI/SSH                               |
-| `gitea-runner`       |                   none | Gitea Actions runner                                         |
-| `github-mirror-sync` |                   none | GitHub mirror sync loop                                      |
-| `gitea-mcp`          |                 `3101` | Gitea MCP bridge                                             |
-| `crm-api`            |                 `4001` | Twenty integration boundary                                  |
-| `campaign_engine`    |                 `8020` | Profile-gated app service                                    |
-| `webapp`             |                 `3001` | App overlay; canonical public hostname `nyra.ratehunter.net` |
-| `clawteam`           |         `8090 -> 8080` | Optional HKUDS/ClawTeam assistant surface                    |
-| `syncthing`          |          profile-gated | Optional sync service                                        |
+| Service              |                Port(s) | Notes                                                         |
+| -------------------- | ---------------------: | ------------------------------------------------------------- |
+| `twenty`             |                 `3000` | CRM app; canonical public hostname `crm.projectnyra.com`      |
+| `twenty-mcp`         |                 `8400` | CRM MCP/API bridge                                            |
+| `activepieces`       |           `8080 -> 80` | Internal automation UI/runtime                                |
+| `n8n`                |                 `5678` | Internal workflow automation                                  |
+| `quote-api`          |                 `7070` | Quote service API                                             |
+| `grafana`            |         `3003 -> 3000` | Observability UI                                              |
+| `prometheus`         |                 `9090` | Metrics                                                       |
+| `loki`               |                 `3100` | Logs                                                          |
+| `cadvisor`           |         `8081 -> 8080` | Container metrics                                             |
+| `openwebui`          |         `8088 -> 8080` | Internal model workbench                                      |
+| `mem0-rest`          |                 `5000` | Runtime memory REST API                                       |
+| `letta`              |                 `8283` | Memory manager UI/API                                         |
+| `mem-os`             |                 `8085` | MemoryTensor/memOS service                                    |
+| `openmemory-mcp`     |                 `8765` | OpenMemory MCP HTTP/SSE bridge                                |
+| `falkordb`           |         `6381 -> 6379` | Graph memory store                                            |
+| `qdrant`             |               internal | Vector store                                                  |
+| `infisical-mcp`      |                 `8766` | Secrets MCP bridge                                            |
+| `mempalace-mcp`      |         `8002 -> 8000` | Memory bridge                                                 |
+| `paperclip`          |         `3111 -> 3100` | Document/OCR UI                                               |
+| `paperclip-mcp`      |                 `8767` | Paperclip MCP                                                 |
+| `nexus`              |         `6000 -> 3000` | Oracle Nexus instance                                         |
+| `gitea`              | `3001 -> 3000`, `2222` | Git hosting and Actions UI/SSH                                |
+| `gitea-runner`       |                   none | Gitea Actions runner                                          |
+| `github-mirror-sync` |                   none | GitHub mirror sync loop                                       |
+| `gitea-mcp`          |                 `3101` | Gitea MCP bridge                                              |
+| `crm-api`            |                 `4001` | Twenty integration boundary                                   |
+| `campaign_engine`    |                 `8020` | Profile-gated app service                                     |
+| `webapp`             |                 `3001` | App overlay; canonical public hostname `nyra.projectnyra.com` |
+| `clawteam`           |         `8090 -> 8080` | Optional HKUDS/ClawTeam assistant surface                     |
+| `syncthing`          |          profile-gated | Optional sync service                                         |
 
 ## Worker plane
 

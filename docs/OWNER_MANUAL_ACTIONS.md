@@ -12,6 +12,34 @@ Manual tasks that AI agents cannot complete for you because they require:
 
 Agents should always document these steps here instead of blocking.
 
+## Infisical
+
+### Per-host sidecar bootstrap token
+
+The compose sidecar pattern is wired to read one machine-local bootstrap value,
+`INFISICAL_TOKEN`, then fetch host secrets into Docker volumes under
+`/run/nyra-secrets`.
+
+Set a gitignored host `.env` on each machine with the matching path:
+
+1. `infra/hosts/orchestrator/.env` -> `INFISICAL_PATH=/machines/orchestrator`
+2. `infra/hosts/oracle-vps/.env` -> `INFISICAL_PATH=/machines/oracle-vps`
+3. `infra/hosts/worker-rtx3060/.env` -> `INFISICAL_PATH=/machines/worker-rtx3060`
+4. `infra/hosts/worker-rtx3090ti/.env` -> `INFISICAL_PATH=/machines/worker-rtx3090ti`
+5. `infra/hosts/worker-rtx5090/.env` -> `INFISICAL_PATH=/machines/worker-rtx5090`
+
+Required keys:
+
+- `INFISICAL_TOKEN`
+- `INFISICAL_PROJECT_ID`
+- `INFISICAL_ENV`
+- `INFISICAL_PATH`
+- `INFISICAL_POLL_INTERVAL`
+
+Do not commit the real token. After updating each host, restart the relevant
+compose stack and confirm the init container exits successfully and the
+`infisical-agent` container stays running.
+
 ## Cloudflare
 
 ### Home Assistant command deck and projectnyra.com domain split
@@ -32,7 +60,7 @@ Owner-only steps:
 
 1. In Cloudflare, add or confirm separate zones for `ratehunter.net` and `projectnyra.com`.
 2. In Spaceship, check DNSSEC for both domains, disable DNSSEC first if active, then replace authoritative nameservers with Cloudflare-assigned nameservers.
-3. In Cloudflare Pages, attach `ratehunter.net` and `www.ratehunter.net` to the RateHunter Pages project.
+3. In Cloudflare Pages, attach `ratehunter.net` to the RateHunter Pages project.
 4. In Cloudflare Zero Trust, create or confirm Access apps for Project Nyra admin/control surfaces before exposing them.
 5. In Portainer, complete first-login/admin setup if needed and enroll the worker and Oracle environments.
 6. In Home Assistant, import `infra/hosts/homeassistant/dashboards/nyra-command-deck.yaml` or paste it into a YAML dashboard.
@@ -50,25 +78,26 @@ Generated desired-state files now exist for the orchestrator and Oracle VPS tunn
 
 Important routing decision:
 
-- `ratehunter.com` and `www.ratehunter.com` stay on Cloudflare Pages only.
+- `ratehunter.net` stays on Cloudflare Pages only.
 - App/service/MCP hostnames use subdomains such as `app.projectnyra.com`, `api.projectnyra.com`, `nexus.projectnyra.com`, and `nexus-router.projectnyra.com`.
 
 Apply status:
 
-- Applied through Cloudflare API on 2026-05-08.
+- Applied through Cloudflare API on 2026-05-17.
 - Tunnel configs applied successfully.
 - DNS records applied successfully.
-- UI/admin Access apps applied successfully.
-- `ratehunter.com` and `www.ratehunter.com` remain Cloudflare Pages hostnames.
+- UI/admin Access apps could not be created yet because Cloudflare returned
+  `domain does not belong to zone` while the `projectnyra.com` zone is still `pending`.
+- `ratehunter.net` remains the only RateHunter landing hostname in this plan.
 
 Required follow-up:
 
-1. Rotate `ORCHESTRATOR_TUNNEL_TOKEN`; a token was pasted into chat during setup.
-2. Confirm Infisical `/machines/orchestrator` contains `ORCHESTRATOR_TUNNEL_ID` and `ORCHESTRATOR_TUNNEL_TOKEN`.
-3. Replace Infisical `/machines/oracle-vps` `ORACLE_TUNNEL_TOKEN` with the token for tunnel `02fa18b6-ffcd-4b37-91ba-409642d5fb8f`.
-4. Add `SUPABASE_DB_URL_PASSWORD` as the URL-encoded form of `SUPABASE_DB_PASSWORD` if the raw password contains URL-reserved characters.
-5. Repair the stale Oracle Docker/Tailscale context so `docker --context oracle ...` works again without using the public SSH endpoint.
-6. Validate the Home Assistant Green Linkwarden origin from the orchestrator tunnel container. The route and Access apps exist, but the current Codex App session is logged out of Tailscale and cannot reach `100.64.0.2:3007`.
+1. Finish Cloudflare nameserver/domain activation for `projectnyra.com`.
+2. Re-run `bash infra/cloudflare/apply-access-apps.sh` after the zone is active.
+3. Confirm Infisical `/machines/orchestrator` contains `ORCHESTRATOR_TUNNEL_ID` and `ORCHESTRATOR_TUNNEL_TOKEN`.
+4. Replace Infisical `/machines/oracle-vps` `ORACLE_TUNNEL_TOKEN` with the token for tunnel `02fa18b6-ffcd-4b37-91ba-409642d5fb8f` if it still mismatches.
+5. Add `SUPABASE_DB_URL_PASSWORD` as the URL-encoded form of `SUPABASE_DB_PASSWORD` if the raw password contains URL-reserved characters.
+6. Validate the Home Assistant Green Linkwarden origin from the orchestrator tunnel container.
 
 Current runtime caveat:
 

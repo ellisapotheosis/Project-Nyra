@@ -48,7 +48,7 @@ Evidence in `docs/cloudflare-api-apply-report.md` states:
 - Cloudflare API accepted both tunnel configuration updates.
 - 22 proxied CNAME records were upserted.
 - 15 Cloudflare Access applications were created or updated.
-- `ratehunter.net` and `www.ratehunter.net` were left on Cloudflare Pages.
+- `ratehunter.net` and `ratehunter.net` were left on Cloudflare Pages.
 
 Evidence in `infra/cloudflare/apply-results/orchestrator-config-after.json` shows the active orchestrator tunnel routes:
 
