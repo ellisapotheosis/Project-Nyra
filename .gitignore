@@ -78,6 +78,25 @@ infra/cloudflare/apply-results/
 !**/env.template
 !**/*.tmpl
 
+# Runtime Compose source-of-truth:
+# canonical compose files are only tracked under infra/hosts/<host>/.
+docker-compose.yml
+docker-compose.yaml
+docker-compose.*.yml
+docker-compose.*.yaml
+compose.yml
+compose.yaml
+compose.*.yml
+compose.*.yaml
+!infra/hosts/**/docker-compose.yml
+!infra/hosts/**/docker-compose.yaml
+!infra/hosts/**/docker-compose.*.yml
+!infra/hosts/**/docker-compose.*.yaml
+!infra/hosts/**/compose.yml
+!infra/hosts/**/compose.yaml
+!infra/hosts/**/compose.*.yml
+!infra/hosts/**/compose.*.yaml
+
 # Historical env backups and ingest archives can contain copied secrets.
 docs/**/env-backups/
 docs/**/archived-root/

@@ -82,12 +82,12 @@ function Setup-Infisical {
     # Initialize infisical in project
     Write-Host "Run the following commands:"
     Write-Host "1. Export INFISICAL_TOKEN in your shell or runner" -ForegroundColor Yellow
-    Write-Host "2. Use project id 8374cea9-e5e8-4050-bda4-b91f25ab30ef" -ForegroundColor Yellow
+    Write-Host "2. Use project id <PROJECT_ID>" -ForegroundColor Yellow
     Write-Host "3. Choose the target environment when setting secrets" -ForegroundColor Yellow
     
     Write-Host "`n🔑 After project setup, you can batch import secrets:"
-    Write-Host "infisical secrets set --projectId=8374cea9-e5e8-4050-bda4-b91f25ab30ef --env=dev GITHUB_TOKEN=your_new_token" -ForegroundColor Yellow
-    Write-Host "infisical secrets set --projectId=8374cea9-e5e8-4050-bda4-b91f25ab30ef --env=dev OPENAI_API_KEY=your_new_key" -ForegroundColor Yellow
+    Write-Host "infisical secrets set --projectId=<PROJECT_ID> --env=dev GITHUB_TOKEN=your_new_token" -ForegroundColor Yellow
+    Write-Host "infisical secrets set --projectId=<PROJECT_ID> --env=dev OPENAI_API_KEY=your_new_key" -ForegroundColor Yellow
     Write-Host "# ... etc for all rotated secrets" -ForegroundColor Yellow
 }
 

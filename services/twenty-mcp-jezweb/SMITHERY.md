@@ -258,7 +258,7 @@ When OAuth is enabled, your Smithery deployment provides:
 curl https://your-server.smithery.ai/.well-known/oauth-protected-resource
 
 # Test with Bearer token (after OAuth flow)
-curl -H "Authorization: Bearer YOUR_TOKEN" \
+curl -H "Authorization: Bearer <TOKEN>" \
      https://your-server.smithery.ai/api/keys
 ```
 

@@ -367,7 +367,7 @@ Add your configuration to the `.env` file:
 
 ```env
 # Your Twenty CRM API Key (from Step 1)
-TWENTY_API_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+TWENTY_API_KEY=<TWENTY_API_KEY>
 
 # Your Twenty instance URL (no trailing slash!)
 TWENTY_BASE_URL=https://api.twenty.com
@@ -590,7 +590,7 @@ Configure Claude Desktop to use your Twenty MCP server:
       "command": "node",
       "args": ["REPLACE_WITH_YOUR_ABSOLUTE_PATH/dist/index.js"],
       "env": {
-        "TWENTY_API_KEY": "REPLACE_WITH_YOUR_API_KEY",
+        "TWENTY_API_KEY": "<TWENTY_API_KEY>",
         "TWENTY_BASE_URL": "REPLACE_WITH_YOUR_BASE_URL"
       }
     }
@@ -631,7 +631,7 @@ Configure Claude Desktop to use your Twenty MCP server:
       "command": "node",
       "args": ["/Users/johndoe/projects/twenty-mcp/dist/index.js"],
       "env": {
-        "TWENTY_API_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+        "TWENTY_API_KEY": "<TWENTY_API_KEY>",
         "TWENTY_BASE_URL": "https://api.twenty.com"
       }
     }
@@ -647,7 +647,7 @@ Configure Claude Desktop to use your Twenty MCP server:
       "command": "node",
       "args": ["C:\\Users\\johndoe\\projects\\twenty-mcp\\dist\\index.js"],
       "env": {
-        "TWENTY_API_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+        "TWENTY_API_KEY": "<TWENTY_API_KEY>",
         "TWENTY_BASE_URL": "https://api.twenty.com"
       }
     }
@@ -675,7 +675,7 @@ Configure Claude Desktop to use your Twenty MCP server:
      "command": "node",
      "args": ["/absolute/path/to/twenty-mcp/dist/index.js"],
      "env": {
-       "TWENTY_API_KEY": "your-api-key",
+       "TWENTY_API_KEY": "<TWENTY_API_KEY>",
        "TWENTY_BASE_URL": "https://your-instance.com"
      }
    }
@@ -711,7 +711,7 @@ Or use the deployed version:
          "command": "node",
          "args": ["/path/to/twenty-mcp/dist/index.js"],
          "env": {
-           "TWENTY_API_KEY": "your-api-key",
+           "TWENTY_API_KEY": "<TWENTY_API_KEY>",
            "TWENTY_BASE_URL": "https://your-instance.com"
          }
        }
@@ -924,7 +924,7 @@ export TWENTY_BASE_URL="https://your-instance.com"
 3. Check firewall/proxy settings
 4. Test with curl:
    ```bash
-   curl -H "Authorization: Bearer YOUR_API_KEY" \
+   curl -H "Authorization: Bearer <API_KEY>" \
         https://your-instance.com/graphql
    ```
 </details>
