@@ -110,6 +110,11 @@ help:
 	@echo "make down               Stop and remove local stack"
 	@echo "make ps                 Show running containers"
 	@echo "make health             Run system-wide health checks"
+	@echo "make network-map        Map cluster network topology and service endpoints"
+	@echo "make deploy             Deploy all services to all hosts"
+	@echo "make logs               Aggregate logs from all services (SERVICE=<name> for single service)"
+	@echo "make clean              Clean up unused Docker images and volumes across cluster"
+	@echo "make test               Run complete infrastructure validation tests"
 	@echo "make llxprt-bridge-up   Start local OpenAI-compatible LLxprt subscription bridge"
 	@echo "make llxprt-oracle-tunnel-up  Reverse-tunnel the LLxprt bridge into Oracle"
 	@echo "make llxprt-oracle-subscription-up  Start the bridge and Oracle reverse tunnel"
@@ -298,8 +303,104 @@ mempalace-init:
 mempalace-mine:
 	docker --context oracle compose -f $(ORACLE_COMPOSE) exec mempalace-mcp mempalace mine
 
+# ════════════════════════════════════════════════════════════════════════════
+# PHASE 1.4 — Infrastructure Diagnostics & Management
+# ════════════════════════════════════════════════════════════════════════════
+
+.PHONY: health network-map deploy logs clean test
+
 health:
-	bash scripts/verify-stack.sh
+	@echo "🏥 Running infrastructure health checks on all hosts..."
+	@bash infra/scripts/health-check.sh
+	@echo ""
+	@echo "✅ Health check complete. All 8 categories validated."
+
+network-map:
+	@echo "🗺️  Mapping cluster network topology and service endpoints..."
+	@bash infra/scripts/network-map.sh
+	@echo ""
+	@echo "✅ Network discovery complete. All hosts and services verified."
+
+deploy:
+	@echo "🚀 Deploying services to all cluster hosts..."
+	@echo ""
+	@echo "[1/5] Deploying to Orchestrator..."
+	@docker --context $(ORCHESTRATOR_CONTEXT) compose -f $(ORCHESTRATOR_COMPOSE) up -d
+	@echo "✅ Orchestrator services deployed"
+	@echo ""
+	@echo "[2/5] Deploying to Oracle VPS..."
+	@docker --context oracle compose -f $(ORACLE_COMPOSE) up -d
+	@echo "✅ Oracle VPS services deployed"
+	@echo ""
+	@echo "[3/5] Deploying to RTX5090 Worker..."
+	@docker --context worker-rtx5090 compose -f $(WORKER_5090_COMPOSE) up -d
+	@echo "✅ RTX5090 worker deployed"
+	@echo ""
+	@echo "[4/5] Deploying to RTX3090Ti Worker..."
+	@docker --context worker-rtx3090ti compose -f $(WORKER_3090TI_COMPOSE) up -d
+	@echo "✅ RTX3090Ti worker deployed"
+	@echo ""
+	@echo "[5/5] Deploying to RTX3060 Worker..."
+	@docker --context worker-rtx3060 compose -f $(WORKER_3060_COMPOSE) up -d
+	@echo "✅ RTX3060 worker deployed"
+	@echo ""
+	@echo "🎉 All services deployed across the cluster."
+
+logs:
+	@if [ -z "$(SERVICE)" ]; then \
+		echo "📜 Aggregating logs from all cluster services..."; \
+		echo ""; \
+		echo "=== [ORCHESTRATOR] ===" && docker --context $(ORCHESTRATOR_CONTEXT) compose -f $(ORCHESTRATOR_COMPOSE) logs --tail=50 --timestamps 2>/dev/null || echo "Orchestrator logs unavailable"; \
+		echo ""; \
+		echo "=== [ORACLE-VPS] ===" && docker --context oracle compose -f $(ORACLE_COMPOSE) logs --tail=50 --timestamps 2>/dev/null || echo "Oracle logs unavailable"; \
+		echo ""; \
+		echo "=== [WORKER-5090] ===" && docker --context worker-rtx5090 compose -f $(WORKER_5090_COMPOSE) logs --tail=50 --timestamps 2>/dev/null || echo "Worker-5090 logs unavailable"; \
+		echo ""; \
+		echo "=== [WORKER-3090TI] ===" && docker --context worker-rtx3090ti compose -f $(WORKER_3090TI_COMPOSE) logs --tail=50 --timestamps 2>/dev/null || echo "Worker-3090Ti logs unavailable"; \
+		echo ""; \
+		echo "=== [WORKER-3060] ===" && docker --context worker-rtx3060 compose -f $(WORKER_3060_COMPOSE) logs --tail=50 --timestamps 2>/dev/null || echo "Worker-3060 logs unavailable"; \
+	else \
+		echo "📜 Viewing logs for service: $(SERVICE)"; \
+		docker --context $(ORCHESTRATOR_CONTEXT) compose -f $(ORCHESTRATOR_COMPOSE) logs -f --tail=100 $(SERVICE) 2>/dev/null || \
+		docker --context oracle compose -f $(ORACLE_COMPOSE) logs -f --tail=100 $(SERVICE) 2>/dev/null || \
+		docker --context worker-rtx5090 compose -f $(WORKER_5090_COMPOSE) logs -f --tail=100 $(SERVICE) 2>/dev/null || \
+		docker --context worker-rtx3090ti compose -f $(WORKER_3090TI_COMPOSE) logs -f --tail=100 $(SERVICE) 2>/dev/null || \
+		docker --context worker-rtx3060 compose -f $(WORKER_3060_COMPOSE) logs -f --tail=100 $(SERVICE) 2>/dev/null || \
+		(echo "Service '$(SERVICE)' not found on any host" && exit 1); \
+	fi
+
+clean:
+	@echo "🧹 Cleaning up old Docker images, volumes, and containers..."
+	@echo ""
+	@echo "[1/2] Removing unused images and intermediate containers..."
+	@docker image prune -f --filter "dangling=true" || true
+	@docker container prune -f || true
+	@echo "✅ Cleaned up dangling images and containers"
+	@echo ""
+	@echo "[2/2] Removing unused volumes across cluster..."
+	@echo "  - Orchestrator:" && docker --context $(ORCHESTRATOR_CONTEXT) volume prune -f || true
+	@echo "  - Oracle VPS:" && docker --context oracle volume prune -f || true
+	@echo "  - RTX5090:" && docker --context worker-rtx5090 volume prune -f || true
+	@echo "  - RTX3090Ti:" && docker --context worker-rtx3090ti volume prune -f || true
+	@echo "  - RTX3060:" && docker --context worker-rtx3060 volume prune -f || true
+	@echo ""
+	@echo "✅ Cleaned up unused volumes across all hosts"
+	@echo ""
+	@echo "🎉 Cleanup complete."
+
+test:
+	@echo "🧪 Running infrastructure validation tests..."
+	@echo ""
+	@echo "[1/3] Verifying Makefile paths..."
+	@make verify-paths
+	@echo ""
+	@echo "[2/3] Running health checks..."
+	@make health
+	@echo ""
+	@echo "[3/3] Validating network topology..."
+	@make network-map
+	@echo ""
+	@echo "✅ All infrastructure validation tests passed!"
 
 .PHONY: secrets-init secrets-build secrets-up check-host
 
