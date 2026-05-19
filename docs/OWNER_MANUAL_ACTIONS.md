@@ -16,11 +16,17 @@ Agents should always document these steps here instead of blocking.
 
 ### Per-host sidecar bootstrap token
 
-The compose sidecar pattern is wired to read one machine-local bootstrap value,
-`INFISICAL_TOKEN`, then fetch host secrets into Docker volumes under
-`/run/nyra-secrets`.
+The compose sidecar pattern is wired to read one bootstrap value,
+`INFISICAL_TOKEN`, from the environment that invokes Docker Compose, then fetch
+host secrets into Docker volumes under `/run/nyra-secrets`.
 
-Set a gitignored host `.env` on each machine with the matching path:
+If each stack is started from an interactive shell that exports
+`INFISICAL_TOKEN` from `~/.zshrc` or the symlinked `~/.zsh` setup, a host `.env`
+file is not required. A gitignored host `.env`, Portainer stack environment,
+systemd `EnvironmentFile`, or explicit `--env-file` is only needed when the
+stack is started by a process that does not load that shell environment.
+
+Use the matching path for each host:
 
 1. `infra/hosts/orchestrator/.env` -> `INFISICAL_PATH=/machines/orchestrator`
 2. `infra/hosts/oracle-vps/.env` -> `INFISICAL_PATH=/machines/oracle-vps`
@@ -36,9 +42,9 @@ Required keys:
 - `INFISICAL_PATH`
 - `INFISICAL_POLL_INTERVAL`
 
-Do not commit the real token. After updating each host, restart the relevant
-compose stack and confirm the init container exits successfully and the
-`infisical-agent` container stays running.
+Do not commit the real token. After updating each host's compose-launch
+environment, restart the relevant compose stack and confirm the init container
+exits successfully and the `infisical-agent` container stays running.
 
 ## Cloudflare
 
