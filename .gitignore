@@ -23,6 +23,10 @@ build/
 !infra/docker/build/
 out/
 .next/
+**/.next/
+**/.next.backup-*/
+.open-next/
+**/.open-next/
 .nuxt/
 .output/
 *.log
@@ -51,7 +55,10 @@ secrets/
 credentials/
 .letta/
 .mempalace/
+.clerk/
+**/.clerk/
 data/gitea/
+data/gitea-db/
 data/app-guidance/files/nyra-stack/
 infra/env/secrets/
 infra/cloudflare/apply-results/
@@ -109,6 +116,8 @@ configs/env/.env.legacy
 ehthumbs.db
 Thumbs.db
 Desktop.ini
+*:Zone.Identifier
+*.Zone.Identifier
 
 # Local Codex/CLI root config copy; canonical repo config lives under .codex/.
 /config.toml
