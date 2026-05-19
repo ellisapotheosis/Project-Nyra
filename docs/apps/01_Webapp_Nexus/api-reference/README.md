@@ -39,7 +39,7 @@ Then open: http://localhost:8080
 ```bash
 curl -X POST http://localhost:8001/quote \
   -H "Content-Type: application/json" \
-  -H "X-API-Key: your-api-key" \
+  -H "X-API-Key: <API_KEY>" \
   -d '{"loan_amount": 450000, "property_value": 550000, "credit_score": 750, "employment_status": "full-time"}'
 ```
 
@@ -48,7 +48,7 @@ curl -X POST http://localhost:8001/quote \
 ```bash
 curl -X POST http://localhost:8002/leads \
   -H "Content-Type: application/json" \
-  -H "X-API-Key: your-api-key" \
+  -H "X-API-Key: <API_KEY>" \
   -d '{"email": "john@example.com", "firstName": "John", "lastName": "Smith", "loanAmount": 450000}'
 ```
 
@@ -59,7 +59,7 @@ curl -X POST http://localhost:8002/leads \
 All APIs require API Key authentication:
 
 ```http
-X-API-Key: your-api-key-here
+X-API-Key: <API_KEY>-here
 ```
 
 Generate dev key:

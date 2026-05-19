@@ -260,7 +260,7 @@ curl -X PATCH http://localhost:8000/api/security/permissions \
 curl -X POST http://localhost:8000/api/security/oauth2/test \
   -H "Content-Type: application/json" \
   -d '{
-    "token": "eyJhbGciOiJSUzI1NiIs...",
+    "token": "<TOKEN>",
     "expectedGroups": ["admin"]
   }'
 ```
@@ -269,7 +269,7 @@ curl -X POST http://localhost:8000/api/security/oauth2/test \
 
 ```bash
 curl -X GET http://localhost:8000/v1/models \
-  -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIs..."
+  -H "Authorization: Bearer <JWT_TOKEN>"
 ```
 
 ### 6. Apply Middleware to Protect Routes

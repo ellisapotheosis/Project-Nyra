@@ -32,7 +32,7 @@ Content-Type: application/json
 
 Response: 200 OK
 {
-  "access_token": "eyJhbGciOiJIUzI1NiIs...",
+  "access_token": "<ACCESS_TOKEN>",
   "token_type": "bearer",
   "expires_in": 86400
 }

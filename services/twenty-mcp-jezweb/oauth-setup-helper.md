@@ -7,10 +7,10 @@ When running `npm run setup:oauth`, here are the recommended responses:
 1. **Enable OAuth authentication?** → `y` (yes)
    - This adds login functionality to your server
 
-2. **Clerk Publishable Key** → `pk_test_placeholder`
+2. **Clerk Publishable Key** → `<CLERK_PUBLISHABLE_KEY>`
    - This is your public key that identifies your app
 
-3. **Clerk Secret Key** → `sk_test_placeholder`
+3. **Clerk Secret Key** → `<CLERK_SECRET_KEY>`
    - This is your private key for server-side authentication
 
 4. **Require authentication for all requests?** → Press Enter (NO)
@@ -60,5 +60,5 @@ curl "http://localhost:3000/mcp?apiKey=YOUR_KEY"
 
 ```bash
 # First authenticate with Clerk, then:
-curl -H "Authorization: Bearer YOUR_TOKEN" http://localhost:3000/mcp
+curl -H "Authorization: Bearer <TOKEN>" http://localhost:3000/mcp
 ```

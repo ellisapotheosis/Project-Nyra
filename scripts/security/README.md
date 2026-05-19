@@ -123,7 +123,7 @@ View and analyze security logs with filtering options.
    ```
 3. Verify project access:
    ```bash
-   infisical secrets list --projectId="8374cea9-e5e8-4050-bda4-b91f25ab30ef"
+   infisical secrets list --projectId="<PROJECT_ID>"
    ```
 
 ---
@@ -161,7 +161,7 @@ cat ./security-reports/summary-*.md
 
 # Restart services with new secrets
 cd infra/docker
-infisical run --token="$INFISICAL_TOKEN" --projectId="8374cea9-e5e8-4050-bda4-b91f25ab30ef" \
+infisical run --token="$INFISICAL_TOKEN" --projectId="<PROJECT_ID>" \
   --env="production" \
   --path="/shared" \
   -- docker compose -f docker-compose.orchestration.yml restart

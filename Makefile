@@ -16,6 +16,7 @@ ARCHON_ENV_FILE ?= external/archon/nyra-configs/env/archon.env
 
 # Host Specific Compose Files
 ORCHESTRATOR_LLXPRT_COMPOSE := infra/hosts/orchestrator/docker-compose.llxprt.yml
+ORCHESTRATOR_PORTAINER_EDGE_COMPOSE := infra/hosts/orchestrator/portainer-mesh/docker-compose.portainer.edge-agent.yml
 WORKER_3060_LLXPRT_COMPOSE := infra/hosts/worker-rtx3060/docker-compose.llxprt.yml
 WORKER_3090TI_LLXPRT_COMPOSE := infra/hosts/worker-rtx3090ti/docker-compose.llxprt.yml
 WORKER_5090_LLXPRT_COMPOSE := infra/hosts/worker-rtx5090/docker-compose.llxprt.yml
@@ -863,11 +864,13 @@ wave-stack-down: orchestrator-ai-down worker-5090-ai-down worker-3090ti-ai-down 
 	@zellij kill-session nyra-wave-ai 2>/dev/null || true
 
 wave-only:
-	@chmod +x scripts/nyra-wave-zellij.sh scripts/nyra-zellij-pane.sh
+	@chmod +x scripts/setup-wave-configs.sh scripts/nyra-wave-zellij.sh scripts/nyra-zellij-pane.sh
+	@scripts/setup-wave-configs.sh
 	@NYRA_INCLUDE_3060=0 scripts/nyra-wave-zellij.sh
 
 wave-only-3060:
-	@chmod +x scripts/nyra-wave-zellij.sh scripts/nyra-zellij-pane.sh
+	@chmod +x scripts/setup-wave-configs.sh scripts/nyra-wave-zellij.sh scripts/nyra-zellij-pane.sh
+	@scripts/setup-wave-configs.sh
 	@NYRA_INCLUDE_3060=1 scripts/nyra-wave-zellij.sh
 
 orchestrator-ai-up:
@@ -876,14 +879,18 @@ orchestrator-ai-up:
 	  docker --context $(ORCHESTRATOR_CONTEXT) compose --env-file /dev/null \
 	  -f $(ORCHESTRATOR_COMPOSE) \
 	  -f $(INFISICAL_RUNTIME_COMPOSE) \
+	  -f $(ORCHESTRATOR_LLXPRT_COMPOSE) \
+	  -f $(ORCHESTRATOR_PORTAINER_EDGE_COMPOSE) \
 	  --profile apps up -d \
-	  openclaw-gateway portainer-edge-agent infisical-agent infisical-sidecar
+	  openclaw-gateway portainer-edge-agent infisical-agent infisical-sidecar llxprt-jefe llxprt-code llxprt-bridge
 
 orchestrator-ai-down:
 	@NYRA_INFISICAL_PATH=/machines/orchestrator \
 	  docker --context $(ORCHESTRATOR_CONTEXT) compose --env-file /dev/null \
 	  -f $(ORCHESTRATOR_COMPOSE) \
-	  -f $(INFISICAL_RUNTIME_COMPOSE) down
+	  -f $(INFISICAL_RUNTIME_COMPOSE) \
+	  -f $(ORCHESTRATOR_LLXPRT_COMPOSE) \
+	  -f $(ORCHESTRATOR_PORTAINER_EDGE_COMPOSE) down
 
 worker-5090-ai-up:
 	@echo "Starting RTX5090 vLLM + LMCache + Redis + LiteLLM + OpenClaw + NerveUI..."
@@ -892,9 +899,10 @@ worker-5090-ai-up:
 	  -f $(WORKER_5090_COMPOSE) \
 	  -f $(INFISICAL_RUNTIME_COMPOSE) \
 	  -f $(WORKER_AI_COMMON_COMPOSE) \
+	  -f $(WORKER_5090_LLXPRT_COMPOSE) \
 	  -f $(WORKER_5090_MODEL_SWITCHER_COMPOSE) \
 	  -f $(WORKER_5090_NERVE_COMPOSE) up -d \
-	  portainer-edge-agent redis vllm litellm promtail node-exporter gpu-exporter health-monitor grafana model-switcher openclaw nerve-ui infisical-agent infisical-sidecar
+	  portainer-edge-agent redis vllm litellm promtail node-exporter gpu-exporter health-monitor grafana model-switcher openclaw nerve-ui infisical-agent infisical-sidecar llxprt-code llxprt-bridge
 
 worker-3090ti-ai-up:
 	@echo "Starting RTX3090Ti vLLM + LMCache + Redis + LiteLLM + OpenClaw + NerveUI..."
@@ -903,8 +911,9 @@ worker-3090ti-ai-up:
 	  -f $(WORKER_3090TI_COMPOSE) \
 	  -f $(INFISICAL_RUNTIME_COMPOSE) \
 	  -f $(WORKER_AI_COMMON_COMPOSE) \
+	  -f $(WORKER_3090TI_LLXPRT_COMPOSE) \
 	  -f $(WORKER_3090TI_NERVE_COMPOSE) up -d \
-	  portainer-edge-agent redis vllm litellm model-switcher promtail node-exporter gpu-exporter health-monitor grafana openclaw nerve-ui infisical-agent infisical-sidecar
+	  portainer-edge-agent redis vllm litellm model-switcher promtail node-exporter gpu-exporter health-monitor grafana openclaw nerve-ui infisical-agent infisical-sidecar llxprt-code llxprt-bridge
 
 worker-3060-ai-up:
 	@echo "Starting RTX3060 Ollama + LiteLLM + optional OpenClaw + NerveUI..."
@@ -913,8 +922,9 @@ worker-3060-ai-up:
 	  -f $(WORKER_3060_COMPOSE) \
 	  -f $(INFISICAL_RUNTIME_COMPOSE) \
 	  -f $(WORKER_AI_COMMON_COMPOSE) \
+	  -f $(WORKER_3060_LLXPRT_COMPOSE) \
 	  -f $(WORKER_3060_OPENCLAW_COMPOSE) up -d \
-	  portainer-edge-agent ollama litellm model-switcher promtail node-exporter gpu-exporter grafana openclaw nerve-ui infisical-agent infisical-sidecar
+	  portainer-edge-agent ollama litellm model-switcher promtail node-exporter gpu-exporter grafana openclaw nerve-ui infisical-agent infisical-sidecar llxprt-code llxprt-bridge
 
 worker-5090-ai-down:
 	@NYRA_INFISICAL_PATH=/machines/worker-rtx5090 WORKER_GRAFANA_PORT=3005 \
@@ -922,6 +932,7 @@ worker-5090-ai-down:
 	  -f $(WORKER_5090_COMPOSE) \
 	  -f $(INFISICAL_RUNTIME_COMPOSE) \
 	  -f $(WORKER_AI_COMMON_COMPOSE) \
+	  -f $(WORKER_5090_LLXPRT_COMPOSE) \
 	  -f $(WORKER_5090_MODEL_SWITCHER_COMPOSE) \
 	  -f $(WORKER_5090_NERVE_COMPOSE) down
 
@@ -931,6 +942,7 @@ worker-3090ti-ai-down:
 	  -f $(WORKER_3090TI_COMPOSE) \
 	  -f $(INFISICAL_RUNTIME_COMPOSE) \
 	  -f $(WORKER_AI_COMMON_COMPOSE) \
+	  -f $(WORKER_3090TI_LLXPRT_COMPOSE) \
 	  -f $(WORKER_3090TI_NERVE_COMPOSE) down
 
 worker-3060-ai-down:
@@ -939,6 +951,7 @@ worker-3060-ai-down:
 	  -f $(WORKER_3060_COMPOSE) \
 	  -f $(INFISICAL_RUNTIME_COMPOSE) \
 	  -f $(WORKER_AI_COMMON_COMPOSE) \
+	  -f $(WORKER_3060_LLXPRT_COMPOSE) \
 	  -f $(WORKER_3060_OPENCLAW_COMPOSE) down
 
 oracle-memory-manager-up:

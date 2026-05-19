@@ -200,13 +200,13 @@ curl http://localhost:3000/.well-known/oauth-protected-resource
 
 # Store API key (with valid Bearer token)
 curl -X POST http://localhost:3000/api/keys \
-  -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
+  -H "Authorization: Bearer <ACCESS_TOKEN>" \
   -H "Content-Type: application/json" \
   -d '{"apiKey":"your-twenty-api-key","baseUrl":"https://api.twenty.com"}'
 
 # Make authenticated MCP request
 curl -X POST http://localhost:3000/mcp \
-  -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
+  -H "Authorization: Bearer <ACCESS_TOKEN>" \
   -H "Content-Type: application/json" \
   -d '{"jsonrpc":"2.0","method":"initialize","params":{},"id":1}'</div>
     </div>

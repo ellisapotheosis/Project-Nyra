@@ -45,8 +45,8 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 **Response:**
 ```json
 {
-  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "access_token": "<ACCESS_TOKEN>",
+  "refresh_token": "<REFRESH_TOKEN>",
   "expires_in": 3600,
   "token_type": "Bearer"
 }
@@ -59,14 +59,14 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 **Request:**
 ```json
 {
-  "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+  "refresh_token": "<REFRESH_TOKEN>"
 }
 ```
 
 **Response:**
 ```json
 {
-  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "access_token": "<ACCESS_TOKEN>",
   "expires_in": 3600
 }
 ```
