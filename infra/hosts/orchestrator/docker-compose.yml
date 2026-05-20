@@ -18,6 +18,11 @@ services:
     restart: unless-stopped
     networks:
       - nyra-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:18789/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
     deploy:
       resources:
         limits:
@@ -82,6 +87,19 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
       - nyra-network
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--quiet",
+          "--tries=1",
+          "--spider",
+          "http://localhost:9000",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
     deploy:
       resources:
         limits:

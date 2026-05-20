@@ -1,42 +1,22 @@
-# Conductor Prompt Library
+# Project Nyra Prompt Library
 
-This directory is the canonical in-repo prompt library for Project Nyra. Root
-tool surfaces (`AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, and `.codex/*`) should
-link back to this library instead of copying prompt-pack contract text.
+This directory is the canonical location for high-level AI agent role prompts and task instructions.
 
-## Canonical Snapshots
+## 🏛 Source of Truth
 
-- [Nyra Prompt Pack](./nyra-prompt-pack/) contains the full prompt pack imported from `/mnt/z/PromptMax/nyra-prompt-pack` on 2026-05-20.
-- [5090 DLS Prompts](./5090dlsprompts/) contains the direct 5090 DLS prompt snapshot.
+1.  **Repository Operating Contract**: `AGENTS.md` (in the root) is the absolute source of truth for all agents.
+2.  **Tool Projections**: `CLAUDE.md` and `GEMINI.md` (in the root) are thin wrappers for specific tools.
+3.  **Active Role Prompts**:
+    - `prompt-03-ui.md`: Unified UI & UX instructions.
+    - `prompt-05-ops.md`: Operations, Security, and Release instructions.
+    - `prompt-06-maintenance.md`: Prompt maintenance instructions.
 
-## Execution Track
+## 🛠 Maintenance Rules
 
-Prompt execution is tracked in [../tracks/prompt_pack_execution_20260520/](../tracks/prompt_pack_execution_20260520/).
+- **No Stale Copies**: Do not copy prompt files from external packs directly into the repository root. Reconcile changes into the canonical files listed above.
+- **Conductor Alignment**: Every major track in Conductor should reference one of these guiding prompts in its `spec.md`.
+- **Syncing**: Use `scripts/setup/sync-ai-client-config.sh` to update tool-specific client configurations without overriding repository content.
 
-## Current Repo Mapping
+## 📁 Archive
 
-Some imported prompts were generated against an older repo layout. Apply this mapping before executing them:
-
-| Prompt-Pack Path                  | Current Project Nyra Path                                                 |
-| --------------------------------- | ------------------------------------------------------------------------- |
-| `apps/webapp/app`                 | `apps/projectnyra`                                                        |
-| `apps/landing/ratehunter-landing` | `apps/ratehunter`                                                         |
-| `nyra.ratehunter.net`             | `app.projectnyra.com` or another `projectnyra.com` platform subdomain     |
-| `ratehunter.net` platform routes  | Not allowed; `ratehunter.net` remains isolated to the public landing site |
-
-## Architecture Guardrails
-
-The prompt snapshots are preserved as source material. They do not override `AGENTS.md`, `docs/MASTER_ARCHITECTURE.md`, or the current repo state. If a prompt references deprecated architecture such as RuVector, Graphiti, Archon, AgentDB, Flow-Nexus, Sona, Epic SDK, claude-flow, or Clerk as the internal auth target, treat that as stale prompt-pack context and follow the current Project Nyra contract instead.
-
-## Install and Update Path
-
-Do not bulk-copy prompt-pack files into live root prompt surfaces. To update
-Project Nyra prompt surfaces:
-
-1. Update `AGENTS.md` when the shared operating contract changes.
-2. Update `CLAUDE.md`, `GEMINI.md`, or `.codex/PROJECT_PROMPT.md` only for
-   tool-specific details that cannot live in `AGENTS.md`.
-3. Keep imported prompt packs under `conductor/prompts/` as snapshots and source
-   material.
-4. Record manual owner-only setup in `docs/OWNER_MANUAL_ACTIONS.md` when a
-   desktop app, dashboard, login, or MFA step is required.
+The `nyra-prompt-pack/` directory contains historical and source-basis material. It should be used for reference only and not as a live runtime prompt.

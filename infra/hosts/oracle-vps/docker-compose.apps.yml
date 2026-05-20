@@ -20,6 +20,17 @@ services:
       - "${WEBAPP_HOST_PORT:-3002}:3001"
     networks:
       - nyra_net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          memory: 2g
+        reservations:
+          memory: 512m
 
   nexus-ui:
     profiles: ["apps"]
@@ -47,6 +58,17 @@ services:
       - nexus_ui_config:/app/config
     networks:
       - nyra_net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3016"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          memory: 1g
+        reservations:
+          memory: 256m
 
 volumes:
   nexus_ui_config:

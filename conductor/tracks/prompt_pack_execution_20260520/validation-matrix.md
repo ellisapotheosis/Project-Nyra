@@ -38,6 +38,9 @@
 - 2026-05-20: `pnpm -C apps/ratehunter lint`, `pnpm -C apps/ratehunter test:ci`, and `pnpm -C apps/ratehunter build` passed.
 - 2026-05-20: `pnpm -C apps/projectnyra lint`, `pnpm -C apps/projectnyra test --runInBand`, and `pnpm -C apps/projectnyra build` passed after deleting duplicate root route `apps/projectnyra/src/app/(public)/page.tsx`.
 - 2026-05-20: `pnpm --filter @nyra/lead-ingestion build`, `pnpm --filter @nyra/quote-service build`, `pnpm --filter nyra-crm-api build`, and `pnpm --filter @nyra/crm-types build` passed.
+- 2026-05-20: `pnpm -w test` passed: 10 Vitest files and 91 tests.
+- 2026-05-20: `pnpm -w build` passed through Turbo: 20 successful tasks, 20 total.
+- 2026-05-20: `rm -rf apps/projectnyra/.next && pnpm --filter projectnyra build` passed after stabilizing the App Router/Pages bootstrap and dynamic dashboard pipeline route.
 - 2026-05-20: Canonical n8n exports copied into `workflows/n8n/exports/`; `workflows/n8n/README.md` documents the execution-only boundary.
 - 2026-05-20: `jq empty workflows/n8n/exports/*.json` passed for all copied n8n exports.
 - 2026-05-20: `docker compose version` returned `Docker Compose version v5.1.3`.
@@ -45,3 +48,4 @@
 - 2026-05-20: Release smoke runbook added at `docs/runbooks/PROMPT_PACK_RELEASE_SMOKE.md`.
 - 2026-05-20: Assistant/OpenClaw safety boundary documented in `docs/integrations/NEXUS_OPENCLAW_NERVE.md`; memory hierarchy and deprecated Graphiti/RuVector boundary documented in `docs/integrations/MEMORY.md`.
 - 2026-05-20: Integration options matrix added at `docs/research/integration-options-20260520.md` using official/current sources.
+- 2026-05-20: Prompt-pack finish-line queue closed with current-architecture supersession notes and owner-gated provider/dashboard work left outside the local no-credential stop condition.

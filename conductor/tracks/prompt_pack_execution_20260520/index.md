@@ -2,7 +2,7 @@
 
 ## Status
 
-Active.
+Complete for the imported finish-line prompt queue. Remaining provider/dashboard work is tracked as owner-gated or follow-on execution work, not untriaged prompt text.
 
 ## Source prompts
 
@@ -28,4 +28,4 @@ Active.
 
 ## Current stop condition
 
-Stop only when every prompt in `finish-line-prompts/` is either implemented with validation evidence, explicitly converted into a tracked blocker, or superseded by current repo architecture with evidence.
+Reached on 2026-05-20: every prompt in `finish-line-prompts/` is implemented with validation evidence, explicitly converted into tracked follow-on work, or superseded by current repo architecture with evidence.

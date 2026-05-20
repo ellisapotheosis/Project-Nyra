@@ -25,7 +25,7 @@
 
 - [x] Validate `apps/ratehunter` against public landing prompt requirements.
 - [x] Validate `apps/projectnyra` against internal command hub prompt requirements.
-- [ ] Merge only useful legacy `apps/admin` and `apps/mortgage-crm` patterns into canonical routes when backed by services or explicit TODOs.
+- [x] Merge only useful legacy `apps/admin` and `apps/mortgage-crm` patterns into canonical routes when backed by services or explicit TODOs.
 
 ## P4 - Assistant, Memory, And Workflow Boundaries
 
@@ -43,10 +43,10 @@
 
 ## P6 - Final Verification
 
-- [ ] Run targeted service tests.
-- [ ] Run workspace smoke tests where feasible.
-- [ ] Run lint/build for touched apps where feasible.
-- [ ] Record blockers instead of marking unavailable external services complete.
+- [x] Run targeted service tests.
+- [x] Run workspace smoke tests where feasible.
+- [x] Run lint/build for touched apps where feasible.
+- [x] Record blockers instead of marking unavailable external services complete.
 
 ## Research
 

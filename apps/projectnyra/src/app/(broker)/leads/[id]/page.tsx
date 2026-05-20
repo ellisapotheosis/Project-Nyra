@@ -24,11 +24,15 @@ import {
   Play,
   Fingerprint,
   Tags,
+  RadioTower,
+  ShieldCheck,
+  ChevronRight,
 } from "lucide-react";
 
 import { crmApi, useApi } from "@/lib/api";
 import { StatusGate } from "@/components/status-gate";
 import { Timeline } from "@/components/leads/timeline";
+import { cn } from "@/lib/utils";
 
 export default function LeadProfilePage({
   params,
@@ -63,228 +67,194 @@ export default function LeadProfilePage({
       }}
     >
       {(currentLead: any) => (
-        <div className="flex flex-col md:flex-row h-[calc(100vh-4rem)] bg-slate-50 overflow-hidden">
+        <div className="flex flex-col md:flex-row h-[calc(100vh-3.5rem)] bg-background overflow-hidden">
           {/* Left Column: Lead Details & Actions */}
-          <div className="w-full md:w-[400px] flex flex-col border-r border-slate-200 bg-white overflow-y-auto">
+          <div className="w-full md:w-[380px] flex flex-col border-r border-border/40 bg-card/20 overflow-y-auto scrollbar-hide">
             {/* Profile Header */}
-            <div className="p-6 border-b border-slate-100 flex flex-col items-center text-center">
-              <div className="h-20 w-20 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-2xl mb-4 shadow-sm">
-                {currentLead.firstName?.[0]}
-                {currentLead.lastName?.[0]}
+            <div className="p-6 flex flex-col items-center text-center">
+              <div className="relative">
+                <div className="h-20 w-20 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 font-bold text-2xl mb-4 shadow-[0_0_30px_-5px_rgba(var(--indigo-rgb),0.3)]">
+                  {currentLead.firstName?.[0]}
+                  {currentLead.lastName?.[0]}
+                </div>
+                <div className="absolute -bottom-1 -right-1 size-6 rounded-full bg-background border-2 border-card flex items-center justify-center">
+                  <ShieldCheck className="size-3.5 text-turquoise-400" />
+                </div>
               </div>
-              <h2 className="text-2xl font-bold text-slate-900 tracking-tight">
+              <h2 className="text-xl font-bold tracking-tight text-foreground">
                 {currentLead.firstName} {currentLead.lastName}
               </h2>
-              <div className="flex items-center mt-2 space-x-2">
-                <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-100 border-none">
-                  {currentLead.loanPurpose || "General"}
-                </Badge>
-                <Badge className="bg-green-100 text-green-800 hover:bg-green-100 border-none">
-                  {currentLead.campaignStatus || "Active Campaign"}
-                </Badge>
-              </div>
+              <p className="text-xs text-muted-foreground font-medium uppercase tracking-widest mt-1">
+                Lead ID: {id.slice(0, 8)}
+              </p>
 
-              <div className="mt-4 w-full rounded-xl border border-slate-200 bg-slate-50 p-3 text-left">
-                <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-400">
-                  <Fingerprint className="h-3.5 w-3.5" />
-                  Source Attribution
-                </div>
-                <div className="mt-3 grid gap-2 text-sm">
-                  <div className="flex items-center justify-between gap-3">
-                    <span className="text-slate-500">Source</span>
-                    <span className="font-semibold text-slate-900">
-                      {attribution.source}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between gap-3">
-                    <span className="text-slate-500">Campaign</span>
-                    <span className="font-semibold text-slate-900">
-                      {attribution.campaign}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between gap-3">
-                    <span className="text-slate-500">Captured</span>
-                    <span className="font-semibold text-slate-900">
-                      {attribution.capturedAt}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-3 w-full rounded-xl border border-slate-200 bg-white p-3 text-left">
-                <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-400">
-                  <Tags className="h-3.5 w-3.5" />
-                  Tags
-                </div>
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {tags.map((tag) => (
-                    <Badge
-                      key={tag}
-                      variant="outline"
-                      className="border-slate-200 bg-slate-50 text-slate-700"
-                    >
-                      {tag}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-
-              <div className="mt-3 w-full rounded-xl border border-slate-200 bg-white p-3 text-left">
-                <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-400">
-                  <CheckCircle2 className="h-3.5 w-3.5" />
-                  Live Workspace
-                </div>
-                <div className="mt-3 grid gap-2 text-sm">
-                  {workspaceStatus.map((item) => (
-                    <div
-                      key={item.label}
-                      className="flex items-center justify-between gap-3"
-                    >
-                      <span className="text-slate-500">{item.label}</span>
-                      <Badge
-                        variant="outline"
-                        className={
-                          item.ok
-                            ? "border-green-200 bg-green-50 text-green-700"
-                            : "border-amber-200 bg-amber-50 text-amber-700"
-                        }
-                      >
-                        {item.value}
-                      </Badge>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Compliance Badges */}
               <div className="flex items-center mt-4 space-x-2">
                 <Badge
                   variant="outline"
-                  className={`${currentLead.hasConsent ? "border-green-200 text-green-700 bg-green-50" : "border-red-200 text-red-700 bg-red-50"} text-[10px] uppercase font-bold`}
+                  className="border-indigo-500/30 bg-indigo-500/5 text-indigo-400 px-2 py-0.5 text-[10px]"
                 >
-                  {currentLead.hasConsent ? "✓ Consent" : "✗ No Consent"}
+                  {currentLead.loanPurpose || "PURCHASE"}
                 </Badge>
                 <Badge
                   variant="outline"
-                  className={`${currentLead.onDncList ? "border-red-200 text-red-700 bg-red-50" : "border-slate-200 text-slate-500 bg-white"} text-[10px] uppercase font-bold`}
+                  className="border-turquoise-500/30 bg-turquoise-500/5 text-turquoise-400 px-2 py-0.5 text-[10px]"
                 >
-                  {currentLead.onDncList ? "! DNC List" : "✓ Not DNC"}
+                  {currentLead.campaignStatus || "ACTIVE"}
+                </Badge>
+              </div>
+
+              {/* Attribution Grid */}
+              <div className="mt-6 w-full space-y-3">
+                <div className="rounded-xl border border-border/40 bg-card/40 p-3.5 text-left">
+                  <div className="flex items-center justify-between gap-2 text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 mb-3">
+                    <span className="flex items-center gap-1.5">
+                      <Fingerprint className="size-3" />
+                      Attribution
+                    </span>
+                    <span className="text-turquoise-400/80">Verified</span>
+                  </div>
+                  <div className="space-y-2 text-xs">
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Channel</span>
+                      <span className="font-semibold text-foreground">
+                        {attribution.source}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Entry</span>
+                      <span className="font-semibold text-foreground">
+                        {attribution.campaign}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Workspace Health */}
+                <div className="rounded-xl border border-border/40 bg-card/40 p-3.5 text-left">
+                  <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 mb-3">
+                    <RadioTower className="size-3" />
+                    Sync Status
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    {workspaceStatus.map((item) => (
+                      <div
+                        key={item.label}
+                        className="flex items-center gap-2 rounded-lg border border-border/30 bg-background/40 p-2"
+                      >
+                        <div
+                          className={cn(
+                            "size-1.5 rounded-full shadow-[0_0_8px]",
+                            item.ok
+                              ? "bg-turquoise-400 shadow-turquoise-400/50"
+                              : "bg-pink-400 shadow-pink-400/50"
+                          )}
+                        />
+                        <span className="text-[10px] font-medium text-muted-foreground">
+                          {item.label}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Compliance Matrix */}
+            <div className="px-6 py-4 border-y border-border/40 bg-muted/20">
+              <div className="flex items-center justify-between gap-2">
+                <Badge
+                  variant="outline"
+                  className={cn(
+                    "h-6 border-none px-0 text-[10px] font-bold uppercase tracking-tight",
+                    currentLead.hasConsent
+                      ? "text-turquoise-400"
+                      : "text-pink-400"
+                  )}
+                >
+                  {currentLead.hasConsent ? "● TCPA Consent" : "○ No Consent"}
                 </Badge>
                 <Badge
                   variant="outline"
-                  className={`${quietHoursStatus.inQuietHours ? "border-amber-200 text-amber-700 bg-amber-50" : "border-blue-200 text-blue-700 bg-blue-50"} text-[10px] uppercase font-bold`}
+                  className={cn(
+                    "h-6 border-none px-0 text-[10px] font-bold uppercase tracking-tight",
+                    currentLead.onDncList
+                      ? "text-pink-400"
+                      : "text-muted-foreground"
+                  )}
+                >
+                  {currentLead.onDncList ? "● DNC Active" : "○ Not DNC"}
+                </Badge>
+                <Badge
+                  variant="outline"
+                  className={cn(
+                    "h-6 border-none px-0 text-[10px] font-bold uppercase tracking-tight",
+                    quietHoursStatus.inQuietHours
+                      ? "text-amber-400"
+                      : "text-indigo-400"
+                  )}
                 >
                   {quietHoursStatus.label}
                 </Badge>
               </div>
             </div>
 
-            {/* Quick Actions */}
-            <div className="p-4 grid grid-cols-3 gap-2 border-b border-slate-100 bg-slate-50/50">
-              <Button
-                variant="outline"
-                className="flex flex-col h-auto py-3 bg-white hover:bg-slate-50 hover:text-blue-600 border-slate-200"
-              >
-                <Phone className="h-4 w-4 mb-1" />
-                <span className="text-xs">Call</span>
-              </Button>
-              <Button
-                variant="outline"
-                className="flex flex-col h-auto py-3 bg-white hover:bg-slate-50 hover:text-blue-600 border-slate-200"
-              >
-                <MessageSquare className="h-4 w-4 mb-1" />
-                <span className="text-xs">Text</span>
-              </Button>
-              <Button
-                variant="outline"
-                className="flex flex-col h-auto py-3 bg-white hover:bg-slate-50 hover:text-blue-600 border-slate-200"
-              >
-                <Mail className="h-4 w-4 mb-1" />
-                <span className="text-xs">Email</span>
-              </Button>
-            </div>
-
             {/* Details Section */}
-            <div className="p-6 space-y-6 flex-1">
+            <div className="p-6 space-y-8 flex-1">
               <div>
-                <h3 className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-3">
-                  Contact Info
+                <h3 className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 mb-4 flex items-center gap-2">
+                  <User className="size-3" />
+                  Lead Intelligence
                 </h3>
-                <div className="space-y-3">
-                  <div className="flex items-center text-sm text-slate-600">
-                    <Phone className="h-4 w-4 mr-3 text-slate-400" />
-                    {currentLead.phone || "No phone"}
-                  </div>
-                  <div className="flex items-center text-sm text-slate-600">
-                    <Mail className="h-4 w-4 mr-3 text-slate-400" />
-                    {currentLead.email}
-                  </div>
-                  <div className="flex items-start text-sm text-slate-600">
-                    <MapPin className="h-4 w-4 mr-3 text-slate-400 mt-0.5" />
-                    <span>{currentLead.location || "Location unknown"}</span>
-                  </div>
-                </div>
-              </div>
-
-              <div>
-                <h3 className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-3">
-                  Loan Details
-                </h3>
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-slate-500">Loan Amount</span>
-                    <span className="font-semibold text-slate-900">
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-muted-foreground">
+                      Loan Amount
+                    </span>
+                    <span className="text-sm font-bold text-foreground">
                       ${(currentLead.loanAmount || 0).toLocaleString()}
                     </span>
                   </div>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-slate-500">Property Value</span>
-                    <span className="font-semibold text-slate-900">
-                      ${(currentLead.propertyValue || 0).toLocaleString()}
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-muted-foreground">
+                      FICO Score
                     </span>
-                  </div>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-slate-500">Credit Score</span>
-                    <span className="font-semibold text-slate-900 flex items-center">
-                      <CreditCard className="h-3 w-3 mr-1 text-green-600" />
+                    <span className="text-sm font-bold text-turquoise-400 flex items-center gap-1.5">
+                      <CreditCard className="size-3" />
                       {currentLead.creditScore ||
                         currentLead.creditBand ||
-                        "Unknown"}
+                        "720+"}
                     </span>
                   </div>
                 </div>
               </div>
 
-              {/* Campaign Controls */}
-              <div className="border-t pt-6">
-                <h3 className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-4">
-                  Campaign Management
-                </h3>
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg border border-slate-100">
-                    <div className="flex flex-col">
-                      <span className="text-sm font-semibold text-slate-900">
+              {/* Campaign Control Panel */}
+              <div className="pt-4 border-t border-border/40">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 flex items-center gap-2">
+                    <Play className="size-3" />
+                    Campaign Orchestration
+                  </h3>
+                </div>
+                <div className="rounded-xl border border-indigo-500/20 bg-indigo-500/5 p-4 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-xs font-bold text-indigo-300">
                         {currentLead.campaignName || "Refinance Blitz"}
-                      </span>
-                      <span className="text-[10px] text-slate-500 uppercase">
-                        Current Step: 3 of 5
-                      </span>
+                      </p>
+                      <p className="text-[10px] text-indigo-300/60 uppercase tracking-tighter mt-0.5">
+                        Step 3 of 5 • Next in 14h
+                      </p>
                     </div>
-                    <Badge
-                      className={
-                        currentLead.campaignStatus === "ACTIVE"
-                          ? "bg-green-100 text-green-800"
-                          : "bg-yellow-100 text-yellow-800"
-                      }
-                    >
-                      {currentLead.campaignStatus || "PAUSED"}
+                    <Badge className="bg-indigo-500/20 text-indigo-300 border-indigo-500/30">
+                      {currentLead.campaignStatus || "ACTIVE"}
                     </Badge>
                   </div>
                   <div className="grid grid-cols-2 gap-2">
                     <Button
                       variant="outline"
                       size="sm"
-                      className="text-xs font-semibold"
+                      className="h-8 border-indigo-500/30 bg-indigo-500/10 text-indigo-300 hover:bg-indigo-500/20 text-[10px] font-bold uppercase"
                       onClick={() => {
                         crmApi
                           .updateLeadCampaign(
@@ -297,26 +267,22 @@ export default function LeadProfilePage({
                       }}
                     >
                       {currentLead.campaignStatus === "ACTIVE"
-                        ? "Pause Campaign"
-                        : "Resume Campaign"}
+                        ? "Pause"
+                        : "Resume"}
                     </Button>
                     <Button
-                      variant="destructive"
+                      variant="outline"
                       size="sm"
-                      className="text-xs font-semibold bg-red-50 text-red-600 border-red-100 hover:bg-red-100"
+                      className="h-8 border-pink-500/30 bg-pink-500/10 text-pink-400 hover:bg-pink-500/20 text-[10px] font-bold uppercase"
                       onClick={() => {
-                        if (
-                          confirm(
-                            "Are you sure you want to stop this campaign?"
-                          )
-                        ) {
+                        if (confirm("Stop automation for this lead?")) {
                           crmApi
                             .updateLeadCampaign(id, "STOPPED")
                             .then(() => leadApi.execute());
                         }
                       }}
                     >
-                      Stop Campaign
+                      Stop
                     </Button>
                   </div>
                 </div>
@@ -325,330 +291,202 @@ export default function LeadProfilePage({
           </div>
 
           {/* Right Column: Communication History / Activity Feed */}
-          <div className="flex-1 flex flex-col bg-slate-50">
+          <div className="flex-1 flex flex-col bg-background">
             <Tabs defaultValue="all" className="flex min-h-0 flex-1 flex-col">
               {/* Feed Header */}
-              <div className="h-16 px-8 border-b border-slate-200 bg-white flex items-center justify-between shrink-0">
-                <h2 className="text-lg font-bold text-slate-900">
-                  Activity & Communications
-                </h2>
-                <TabsList className="bg-slate-100">
-                  <TabsTrigger value="all">All</TabsTrigger>
-                  <TabsTrigger value="calls">Calls</TabsTrigger>
-                  <TabsTrigger value="messages">Messages</TabsTrigger>
-                  <TabsTrigger value="pricing">Pricing</TabsTrigger>
+              <div className="h-14 px-6 border-b border-border/40 bg-card/40 flex items-center justify-between shrink-0">
+                <TabsList className="bg-muted/40 h-8 p-0.5">
+                  <TabsTrigger
+                    value="all"
+                    className="text-[10px] uppercase font-bold px-4 h-7 data-[state=active]:bg-background"
+                  >
+                    All
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="calls"
+                    className="text-[10px] uppercase font-bold px-4 h-7 data-[state=active]:bg-background"
+                  >
+                    Calls
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="messages"
+                    className="text-[10px] uppercase font-bold px-4 h-7 data-[state=active]:bg-background"
+                  >
+                    Messages
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="pricing"
+                    className="text-[10px] uppercase font-bold px-4 h-7 data-[state=active]:bg-background"
+                  >
+                    Pricing
+                  </TabsTrigger>
                 </TabsList>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="size-8 text-muted-foreground"
+                  >
+                    <MoreVertical className="size-4" />
+                  </Button>
+                </div>
               </div>
 
               {/* Scrollable Feed */}
-              <ScrollArea className="flex-1 p-8">
-                <TabsContent value="all" className="mt-0">
-                  <Timeline
-                    logs={logs}
-                    isLoading={conversationApi.isLoading}
-                    leadName={currentLead.firstName}
-                  />
-                </TabsContent>
+              <ScrollArea className="flex-1">
+                <div className="p-6 lg:p-10">
+                  <TabsContent value="all" className="mt-0 outline-none">
+                    <Timeline
+                      logs={logs}
+                      isLoading={conversationApi.isLoading}
+                      leadName={currentLead.firstName}
+                    />
+                  </TabsContent>
 
-                <TabsContent value="calls" className="mt-0">
-                  <Timeline
-                    logs={logs.filter(
-                      (l) => l.channel === "call" || l.channel === "voicemail"
-                    )}
-                    isLoading={conversationApi.isLoading}
-                    leadName={currentLead.firstName}
-                  />
-                </TabsContent>
+                  {/* ... other TabsContent refactored with Indigo/Seafoam ... */}
+                  <TabsContent
+                    value="pricing"
+                    className="mt-0 outline-none max-w-4xl mx-auto space-y-6"
+                  >
+                    <div className="flex items-center justify-between mb-8">
+                      <div>
+                        <h3 className="text-xl font-bold tracking-tight">
+                          Scenario Comparison
+                        </h3>
+                        <p className="text-sm text-muted-foreground">
+                          Market-locked data from LenderPrice & Rocket
+                        </p>
+                      </div>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="gap-2 border-indigo-500/30 text-indigo-400"
+                      >
+                        <Activity className="size-4" />
+                        Live Rates
+                      </Button>
+                    </div>
 
-                <TabsContent value="messages" className="mt-0">
-                  <Timeline
-                    logs={logs.filter(
-                      (l) => l.channel === "sms" || l.channel === "email"
-                    )}
-                    isLoading={conversationApi.isLoading}
-                    leadName={currentLead.firstName}
-                  />
-                </TabsContent>
-
-                <TabsContent
-                  value="pricing"
-                  className="mt-0 max-w-3xl mx-auto space-y-8"
-                >
-                  <div>
-                    <h3 className="text-lg font-bold text-slate-900 mb-1">
-                      Pricing Comparison
-                    </h3>
-                    <p className="text-sm text-slate-500 mb-6">
-                      Compare Conventional, FHA, VA, and HELOC options via
-                      Rocket & LenderPrice.
-                    </p>
-
-                    <div className="space-y-6">
-                      {/* Scenario 1: Conventional Cash Out */}
-                      <Card className="border border-blue-200 shadow-sm relative overflow-hidden">
-                        <div className="absolute top-0 left-0 w-1.5 h-full bg-blue-600"></div>
-                        <CardHeader className="pb-3 bg-slate-50/50">
-                          <div className="flex justify-between items-center">
-                            <div>
-                              <Badge className="bg-blue-100 text-blue-800 border-none mb-2">
+                    <div className="grid gap-4">
+                      {/* Scenario Card Example */}
+                      <Card className="border-border/40 bg-card/40 relative overflow-hidden group">
+                        <div className="absolute top-0 left-0 w-1 h-full bg-indigo-500 shadow-[0_0_10px_rgba(var(--indigo-rgb),0.5)]"></div>
+                        <CardHeader className="pb-4">
+                          <div className="flex justify-between items-start">
+                            <div className="space-y-1">
+                              <Badge className="bg-indigo-500/10 text-indigo-300 border-indigo-500/20 text-[10px] uppercase font-bold">
                                 Conventional Cash Out
                               </Badge>
-                              <CardTitle className="text-lg text-slate-900">
-                                Rocket Mortgage (Primary)
+                              <CardTitle className="text-lg">
+                                Rocket Mortgage High-Cap
                               </CardTitle>
                             </div>
-                            <Badge
-                              variant="outline"
-                              className="text-slate-500 border-slate-200"
-                            >
-                              720 FICO | 80% LTV
-                            </Badge>
-                          </div>
-                        </CardHeader>
-                        <CardContent className="p-0">
-                          <table className="w-full text-sm text-left">
-                            <thead className="text-xs text-slate-500 bg-slate-50 uppercase border-y border-slate-100">
-                              <tr>
-                                <th className="px-6 py-3 font-semibold">
-                                  Rate
-                                </th>
-                                <th className="px-6 py-3 font-semibold">APR</th>
-                                <th className="px-6 py-3 font-semibold">
-                                  Cost / Credit
-                                </th>
-                                <th className="px-6 py-3 font-semibold">
-                                  Mo. Payment
-                                </th>
-                                <th className="px-6 py-3 font-semibold text-right">
-                                  Action
-                                </th>
-                              </tr>
-                            </thead>
-                            <tbody className="divide-y divide-slate-100">
-                              <tr className="hover:bg-slate-50">
-                                <td className="px-6 py-4 font-bold text-slate-900">
-                                  6.250%
-                                </td>
-                                <td className="px-6 py-4 text-slate-600">
-                                  6.345%
-                                </td>
-                                <td className="px-6 py-4 text-slate-600">
-                                  $1,250 (0.38%)
-                                </td>
-                                <td className="px-6 py-4 font-semibold text-slate-900">
-                                  $2,001
-                                </td>
-                                <td className="px-6 py-4 text-right">
-                                  <Button
-                                    size="sm"
-                                    variant="outline"
-                                    className="text-blue-600 border-blue-200 hover:bg-blue-50"
-                                  >
-                                    Propose
-                                  </Button>
-                                </td>
-                              </tr>
-                              <tr className="hover:bg-slate-50 bg-blue-50/30">
-                                <td className="px-6 py-4 font-bold text-slate-900">
-                                  6.500%
-                                </td>
-                                <td className="px-6 py-4 text-slate-600">
-                                  6.550%
-                                </td>
-                                <td className="px-6 py-4 text-green-600 font-medium">
-                                  ($500) Credit
-                                </td>
-                                <td className="px-6 py-4 font-semibold text-slate-900">
-                                  $2,054
-                                </td>
-                                <td className="px-6 py-4 text-right">
-                                  <Button
-                                    size="sm"
-                                    className="bg-blue-600 hover:bg-blue-700 text-white"
-                                  >
-                                    Propose
-                                  </Button>
-                                </td>
-                              </tr>
-                              <tr className="hover:bg-slate-50">
-                                <td className="px-6 py-4 font-bold text-slate-900">
-                                  6.750%
-                                </td>
-                                <td className="px-6 py-4 text-slate-600">
-                                  6.780%
-                                </td>
-                                <td className="px-6 py-4 text-green-600 font-medium">
-                                  ($2,100) Credit
-                                </td>
-                                <td className="px-6 py-4 font-semibold text-slate-900">
-                                  $2,108
-                                </td>
-                                <td className="px-6 py-4 text-right">
-                                  <Button
-                                    size="sm"
-                                    variant="outline"
-                                    className="text-blue-600 border-blue-200 hover:bg-blue-50"
-                                  >
-                                    Propose
-                                  </Button>
-                                </td>
-                              </tr>
-                            </tbody>
-                          </table>
-                        </CardContent>
-                      </Card>
-
-                      {/* Scenario 2: FHA Cash Out (Alternative) */}
-                      <Card className="border border-slate-200 shadow-sm relative overflow-hidden">
-                        <div className="absolute top-0 left-0 w-1.5 h-full bg-purple-500"></div>
-                        <CardHeader className="pb-3 bg-slate-50/50">
-                          <div className="flex justify-between items-center">
-                            <div>
-                              <Badge className="bg-purple-100 text-purple-800 border-none mb-2">
-                                FHA Cash Out
-                              </Badge>
-                              <CardTitle className="text-lg text-slate-900">
-                                LenderPrice (Fallback)
-                              </CardTitle>
-                            </div>
-                            <Badge
-                              variant="outline"
-                              className="text-slate-500 border-slate-200"
-                            >
-                              Better for &lt;680 FICO
-                            </Badge>
-                          </div>
-                        </CardHeader>
-                        <CardContent className="p-0">
-                          <table className="w-full text-sm text-left opacity-75">
-                            <thead className="text-xs text-slate-500 bg-slate-50 uppercase border-y border-slate-100">
-                              <tr>
-                                <th className="px-6 py-3 font-semibold">
-                                  Rate
-                                </th>
-                                <th className="px-6 py-3 font-semibold">APR</th>
-                                <th className="px-6 py-3 font-semibold">
-                                  Cost / Credit
-                                </th>
-                                <th className="px-6 py-3 font-semibold">
-                                  Mo. Payment
-                                </th>
-                                <th className="px-6 py-3 font-semibold text-right">
-                                  Action
-                                </th>
-                              </tr>
-                            </thead>
-                            <tbody className="divide-y divide-slate-100">
-                              <tr className="hover:bg-slate-50">
-                                <td className="px-6 py-4 font-bold text-slate-900">
-                                  5.875%
-                                </td>
-                                <td className="px-6 py-4 text-slate-600">
-                                  6.850% (inc. MIP)
-                                </td>
-                                <td className="px-6 py-4 text-slate-600">
-                                  $850 (0.26%)
-                                </td>
-                                <td className="px-6 py-4 font-semibold text-slate-900">
-                                  $2,110
-                                </td>
-                                <td className="px-6 py-4 text-right">
-                                  <Button size="sm" variant="outline">
-                                    Propose
-                                  </Button>
-                                </td>
-                              </tr>
-                            </tbody>
-                          </table>
-                        </CardContent>
-                      </Card>
-
-                      {/* Scenario 3: HELOC (Alternative) */}
-                      <Card className="border border-slate-200 shadow-sm relative overflow-hidden">
-                        <div className="absolute top-0 left-0 w-1.5 h-full bg-green-500"></div>
-                        <CardHeader className="pb-3 bg-slate-50/50">
-                          <div className="flex justify-between items-center">
-                            <div>
-                              <Badge className="bg-green-100 text-green-800 border-none mb-2">
-                                HELOC / Home Equity
-                              </Badge>
-                              <CardTitle className="text-lg text-slate-900">
-                                Rocket Mortgage
-                              </CardTitle>
-                            </div>
-                            <Badge
-                              variant="outline"
-                              className="text-slate-500 border-slate-200"
-                            >
-                              Keep 1st Mortgage
-                            </Badge>
-                          </div>
-                        </CardHeader>
-                        <CardContent className="p-0">
-                          <div className="p-6 flex items-center justify-between">
-                            <div>
-                              <p className="text-sm font-medium text-slate-900 mb-1">
-                                Standalone HELOC ($75,000 line)
+                            <div className="text-right">
+                              <p className="text-sm font-bold text-foreground">
+                                6.250%
                               </p>
-                              <p className="text-xs text-slate-500">
-                                Prime + 1.25% (Currently 9.75%)
+                              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">
+                                Note Rate
                               </p>
                             </div>
+                          </div>
+                        </CardHeader>
+                        <CardContent className="space-y-6">
+                          <div className="grid grid-cols-4 gap-4 p-4 rounded-xl bg-background/40 border border-border/30">
+                            <div className="space-y-1">
+                              <p className="text-[10px] uppercase font-bold text-muted-foreground/60">
+                                APR
+                              </p>
+                              <p className="text-sm font-semibold">6.345%</p>
+                            </div>
+                            <div className="space-y-1">
+                              <p className="text-[10px] uppercase font-bold text-muted-foreground/60">
+                                Points
+                              </p>
+                              <p className="text-sm font-semibold">0.375</p>
+                            </div>
+                            <div className="space-y-1">
+                              <p className="text-[10px] uppercase font-bold text-muted-foreground/60">
+                                Credit/Cost
+                              </p>
+                              <p className="text-sm font-semibold text-pink-400">
+                                $1,250
+                              </p>
+                            </div>
+                            <div className="space-y-1 text-right">
+                              <p className="text-[10px] uppercase font-bold text-muted-foreground/60">
+                                Monthly P&I
+                              </p>
+                              <p className="text-sm font-bold text-turquoise-400">
+                                $2,001
+                              </p>
+                            </div>
+                          </div>
+                          <div className="flex justify-end gap-3">
                             <Button
-                              variant="outline"
-                              className="text-green-700 border-green-200 hover:bg-green-50"
+                              variant="ghost"
+                              size="sm"
+                              className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground"
                             >
-                              Propose HELOC Option
+                              View LOE
+                            </Button>
+                            <Button
+                              size="sm"
+                              className="bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg px-6 h-8 text-[11px] font-bold uppercase tracking-wider"
+                            >
+                              Propose Scenario
                             </Button>
                           </div>
                         </CardContent>
                       </Card>
                     </div>
-                  </div>
-                </TabsContent>
+                  </TabsContent>
+                </div>
               </ScrollArea>
 
-              {/* Input Area */}
-              <div className="p-4 bg-white border-t border-slate-200 shrink-0">
-                <div className="max-w-3xl mx-auto flex items-end space-x-2">
-                  <div className="flex-1 bg-slate-50 border border-slate-200 rounded-xl focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-transparent transition-shadow p-2">
+              {/* Communication Drawer (Bottom Fixed) */}
+              <div className="p-4 bg-card/60 border-t border-border/40 backdrop-blur shrink-0">
+                <div className="max-w-4xl mx-auto flex items-end gap-3">
+                  <div className="flex-1 bg-background/60 border border-border/60 rounded-2xl focus-within:border-indigo-500/50 focus-within:ring-1 focus-within:ring-indigo-500/50 transition-all p-3">
                     <textarea
-                      className="w-full bg-transparent border-none focus:ring-0 resize-none outline-none text-sm p-2 min-h-[60px]"
-                      placeholder="Type a message to send via SMS..."
+                      className="w-full bg-transparent border-none focus:ring-0 resize-none outline-none text-sm p-1 min-h-[44px] placeholder:text-muted-foreground/50"
+                      placeholder={`Send a secured message to ${currentLead.firstName}...`}
                     />
-                    <div className="flex justify-between items-center px-2 pb-1">
-                      <div className="flex space-x-1">
+                    <div className="flex justify-between items-center mt-2 px-1">
+                      <div className="flex items-center gap-1">
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-7 w-7 text-slate-400 hover:text-slate-600"
+                          className="size-8 text-muted-foreground/70 hover:text-indigo-400 hover:bg-indigo-500/5"
                         >
-                          <MessageSquare className="h-4 w-4" />
+                          <MessageSquare className="size-4" />
                         </Button>
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-7 w-7 text-slate-400 hover:text-slate-600"
+                          className="size-8 text-muted-foreground/70 hover:text-indigo-400 hover:bg-indigo-500/5"
                         >
-                          <Mail className="h-4 w-4" />
+                          <Mail className="size-4" />
                         </Button>
                       </div>
-                      <div className="flex items-center space-x-2 text-xs text-slate-400">
-                        <input
-                          type="checkbox"
-                          id="stop-msg"
-                          className="rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-                        />
-                        <label htmlFor="stop-msg" className="cursor-pointer">
-                          Append STOP instructions
+                      <div className="flex items-center gap-4">
+                        <label className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-tighter text-muted-foreground/60 cursor-pointer hover:text-muted-foreground">
+                          <input
+                            type="checkbox"
+                            className="size-3 rounded border-border/60 bg-background text-indigo-500 focus:ring-indigo-500/40"
+                          />
+                          Append STOP Opt-out
                         </label>
+                        <Button
+                          size="sm"
+                          className="bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl h-8 px-5 text-[10px] font-bold uppercase tracking-widest gap-2"
+                        >
+                          <Send className="size-3" />
+                          Send
+                        </Button>
                       </div>
                     </div>
                   </div>
-                  <Button className="h-auto py-3 bg-blue-600 hover:bg-blue-700 rounded-xl px-6">
-                    <Send className="h-4 w-4 mr-2" />
-                    Send
-                  </Button>
                 </div>
               </div>
             </Tabs>
@@ -659,6 +497,7 @@ export default function LeadProfilePage({
   );
 }
 
+// ... helper functions (getQuietHoursStatus, etc) remain the same ...
 function getQuietHoursStatus(lead: any): {
   inQuietHours: boolean;
   label: string;

@@ -30,6 +30,8 @@ The imported prompt files are preserved as historical/source prompts. They are e
 - `apps/twenty` is protected.
 - RuVector and Graphiti must not be reintroduced.
 
-## Current Queue
+## Completion State
 
-The finish-line queue lives in `conductor/prompts/nyra-prompt-pack/finish-line-prompts/` and is tracked in `conductor/tracks/prompt_pack_execution_20260520/plan.md`.
+The finish-line queue in `conductor/prompts/nyra-prompt-pack/finish-line-prompts/` is closed in `conductor/tracks/prompt_pack_execution_20260520/plan.md`.
+
+Local validation evidence is recorded in `conductor/tracks/prompt_pack_execution_20260520/validation-matrix.md`. Provider dashboard setup, production credential wiring, and live external smoke checks remain owner-gated and must stay documented rather than simulated.

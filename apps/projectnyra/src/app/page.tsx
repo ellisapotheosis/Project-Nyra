@@ -1,5 +1,6 @@
 "use client";
 
+import React, { useEffect } from "react";
 import Link from "next/link";
 import {
   Activity,
@@ -22,438 +23,338 @@ import {
 } from "lucide-react";
 
 import { SiteHeader } from "@/components/site-header";
+import { LeadRadar } from "@/components/leads/lead-radar";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { crmApi } from "@/lib/api/crm";
+import { useApi } from "@/lib/api/hooks";
 import { applications, campaigns, crmOverview, leads } from "@/lib/mock-data";
 import { cn } from "@/lib/utils";
 
-const commandStats = [
-  {
-    label: "New leads",
-    value: "12",
-    detail: "4 hot, 3 need same-day follow-up",
-    icon: Users,
-    tone: "text-turquoise-400",
-  },
-  {
-    label: "Active replies",
-    value: "7",
-    detail: "2 paused for broker review",
-    icon: MessageSquareReply,
-    tone: "text-pink-400",
-  },
-  {
-    label: "Quote desk",
-    value: "18",
-    detail: "3 locks expire within 7 days",
-    icon: CircleDollarSign,
-    tone: "text-indigo-400",
-  },
-  {
-    label: "Pipeline value",
-    value: crmOverview.pipelineValue,
-    detail: `${applications.length} active applications`,
-    icon: TrendingUp,
-    tone: "text-turquoise-400",
-  },
-];
+export default function Home() {
+  const {
+    data: leadData,
+    execute: fetchLeads,
+    isLoading: loadingLeads,
+  } = useApi(() => crmApi.getLeads());
+  const {
+    data: pipelineData,
+    execute: fetchPipeline,
+    isLoading: loadingPipeline,
+  } = useApi(() => crmApi.getPipeline());
 
-const priorityQueue = [
-  {
-    title: "Borrower reply waiting on HITL approval",
-    context:
-      "Jane Smith answered the Purchase Power SMS. Automation is paused.",
-    route: "/leads/2",
-    action: "Open lead",
-    severity: "critical",
-    icon: ShieldAlert,
-  },
-  {
-    title: "Rate lock expiration review",
-    context:
-      "Three quote packages need lock-status confirmation before Friday.",
-    route: "/quotes",
-    action: "Review quotes",
-    severity: "warning",
-    icon: FileClock,
-  },
-  {
-    title: "Refinance Blitz is outperforming",
-    context: "42% reply rate. Consider cloning gates before scaling volume.",
-    route: "/campaigns",
-    action: "Inspect campaign",
-    severity: "healthy",
-    icon: Workflow,
-  },
-];
+  useEffect(() => {
+    fetchLeads();
+    fetchPipeline();
+  }, [fetchLeads, fetchPipeline]);
 
-const blockerRows = [
-  [
-    "Compliance gate",
-    "Clear",
-    "No STOP, DNC, quiet-hours, or consent blocks on active hot leads.",
-  ],
-  [
-    "CRM sync",
-    "Degraded",
-    "Twenty mirror is using cached mock contracts until crm-api is reachable.",
-  ],
-  [
-    "Discord alerts",
-    "Ready",
-    "Operator notification route is configured for review-required events.",
-  ],
-  [
-    "OpenClaw tools",
-    "Guarded",
-    "Drafting and summarization enabled; direct CRM mutation remains blocked.",
-  ],
-];
+  const activeLeads = leadData?.leads || [];
+  const pipeline = pipelineData?.pipeline || [];
 
-const pipelineMovement = [
-  ["Lead capture", 12, "RateHunter intake and referral traffic"],
-  [
-    "Qualified",
-    leads.filter((lead) => lead.stage === "Qualified").length,
-    "Consent and scenario verified",
-  ],
-  ["Application", applications.length, "Docs and loan milestones active"],
-  ["Broker review", 5, "Replies, quotes, or compliance need action"],
-];
+  const commandStats = [
+    {
+      label: "New leads",
+      value: loadingLeads ? "..." : activeLeads.length.toString(),
+      detail: `${
+        activeLeads.filter((l) => l.status === "NEW").length
+      } hot, 3 need same-day follow-up`,
+      icon: Users,
+      tone: "text-turquoise-400",
+    },
+    {
+      label: "Active replies",
+      value: "7",
+      detail: "2 paused for broker review",
+      icon: MessageSquareReply,
+      tone: "text-pink-400",
+    },
+    {
+      label: "Quote desk",
+      value: "18",
+      detail: "3 locks expire within 7 days",
+      icon: CircleDollarSign,
+      tone: "text-indigo-400",
+    },
+    {
+      label: "Pipeline value",
+      value: crmOverview.pipelineValue,
+      detail: `${applications.length} active applications`,
+      icon: TrendingUp,
+      tone: "text-turquoise-400",
+    },
+  ];
 
-const assistantTools = [
-  "Lead lookup",
-  "Timeline summary",
-  "Quote-readiness check",
-  "Campaign assist",
-  "Draft note",
-  "Escalation brief",
-];
+  const priorityQueue = [
+    {
+      title: "Borrower reply waiting on HITL approval",
+      context:
+        "Jane Smith answered the Purchase Power SMS. Automation is paused.",
+      route: "/leads/2",
+      action: "Open lead",
+      severity: "critical",
+      icon: ShieldAlert,
+    },
+    {
+      title: "Rate lock expiration review",
+      context:
+        "Three quote packages need lock-status confirmation before Friday.",
+      route: "/quotes",
+      action: "Review quotes",
+      severity: "warning",
+      icon: FileClock,
+    },
+    {
+      title: "Refinance Blitz is outperforming",
+      context: "42% reply rate. Consider cloning gates before scaling volume.",
+      route: "/campaigns",
+      action: "Inspect campaign",
+      severity: "healthy",
+      icon: Workflow,
+    },
+  ];
 
-function statusClass(status: string) {
-  if (status === "Clear" || status === "Ready") {
-    return "border-turquoise-400/30 bg-turquoise-400/10 text-turquoise-300";
-  }
+  const blockerRows = [
+    [
+      "Compliance gate",
+      "Clear",
+      "No STOP, DNC, quiet-hours, or consent blocks on active hot leads.",
+    ],
+    [
+      "CRM sync",
+      "Degraded",
+      "Twenty mirror is using cached mock contracts until crm-api is reachable.",
+    ],
+    [
+      "Assistant safety",
+      "Active",
+      "Token verification and HITL approval gates are enforced for all tools.",
+    ],
+  ];
 
-  if (status === "Degraded") {
-    return "border-pink-400/35 bg-pink-400/10 text-pink-300";
-  }
-
-  return "border-indigo-400/30 bg-indigo-400/10 text-indigo-300";
-}
-
-export default function HomePage() {
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="flex min-h-screen flex-col bg-background text-foreground antialiased">
       <SiteHeader />
-      <main className="mx-auto grid w-full max-w-[1600px] gap-8 px-5 py-8 lg:px-8">
-        <section className="grid gap-6 xl:grid-cols-[1.25fr_0.75fr]">
-          <div className="overflow-hidden rounded-3xl border border-indigo-500/20 bg-card/50 shadow-2xl">
-            <div className="grid gap-8 p-6 lg:grid-cols-[1fr_0.72fr] lg:p-8">
-              <div className="space-y-7">
-                <div className="flex flex-wrap items-center gap-3">
-                  <Badge className="rounded-full bg-indigo-500/15 px-3 py-1 text-[10px] font-black uppercase text-indigo-200">
-                    Broker Command Deck
-                  </Badge>
-                  <Badge
-                    variant="outline"
-                    className="rounded-full border-turquoise-400/25 bg-turquoise-400/8 px-3 py-1 text-[10px] font-black uppercase text-turquoise-300"
-                  >
-                    System truth first
-                  </Badge>
-                </div>
 
-                <div>
-                  <h1 className="max-w-4xl text-4xl font-black uppercase leading-none tracking-normal text-balance md:text-6xl">
-                    Prioritize the mortgage work that needs Ellis now.
-                  </h1>
-                  <p className="mt-5 max-w-3xl text-base leading-8 text-muted-foreground md:text-lg">
-                    One operator surface for hot leads, replies, quote locks,
-                    campaign gates, pipeline movement, CRM sync health, and
-                    assistant-mediated work that stays inside approval and audit
-                    boundaries.
+      <main className="mx-auto w-full max-w-7xl flex-1 px-5 py-8 lg:px-8">
+        <div className="flex flex-col gap-10">
+          {/* Header Section */}
+          <section className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+            <div className="space-y-1.5">
+              <div className="flex items-center gap-2">
+                <RadioTower className="size-4 animate-pulse text-turquoise-400" />
+                <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-turquoise-400">
+                  Live System Status
+                </span>
+              </div>
+              <h1 className="text-3xl font-bold tracking-tight md:text-4xl">
+                Broker Command Deck
+              </h1>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button variant="outline" size="sm" className="h-9 gap-2">
+                <Activity className="size-4" />
+                <span>Diagnostics</span>
+              </Button>
+              <Button size="sm" className="h-9 gap-2">
+                <Sparkles className="size-4" />
+                <span>Ask Nyra</span>
+              </Button>
+            </div>
+          </section>
+
+          {/* Stats Grid */}
+          <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {commandStats.map((stat) => (
+              <Card key={stat.label} className="border-border/40 bg-card/40">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    {stat.label}
+                  </CardTitle>
+                  <stat.icon className={cn("size-4", stat.tone)} />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{stat.value}</div>
+                  <p className="mt-1 text-[11px] text-muted-foreground">
+                    {stat.detail}
                   </p>
-                </div>
+                </CardContent>
+              </Card>
+            ))}
+          </section>
 
-                <div className="flex flex-wrap gap-3">
-                  <Link
-                    href="/leads"
-                    className={cn(
-                      buttonVariants({ size: "lg" }),
-                      "rounded-xl bg-indigo-600 px-6 font-black uppercase text-white hover:bg-indigo-500"
-                    )}
+          {/* Main Workspace */}
+          <div className="grid gap-6 lg:grid-cols-[1fr_400px]">
+            <div className="space-y-6">
+              {/* Priority Queue */}
+              <section className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-sm font-bold uppercase tracking-widest text-muted-foreground">
+                    Priority Queue
+                  </h2>
+                  <Badge
+                    variant="secondary"
+                    className="bg-primary/5 text-primary"
                   >
-                    Work hot leads
-                    <ArrowRight className="size-4" />
-                  </Link>
-                  <Link
-                    href="/assistant"
-                    className={cn(
-                      buttonVariants({ variant: "outline", size: "lg" }),
-                      "rounded-xl border-turquoise-400/25 bg-turquoise-400/8 px-6 font-black uppercase text-turquoise-200 hover:bg-turquoise-400/12"
-                    )}
-                  >
-                    Ask Nyra
-                  </Link>
+                    {priorityQueue.length} items
+                  </Badge>
                 </div>
-              </div>
+                <div className="grid gap-3">
+                  {priorityQueue.map((item) => (
+                    <Card
+                      key={item.title}
+                      className="group border-border/40 bg-card/40 transition-colors hover:bg-card/60"
+                    >
+                      <CardContent className="flex items-start gap-4 p-4">
+                        <div
+                          className={cn(
+                            "mt-0.5 flex size-10 shrink-0 items-center justify-center rounded-xl border border-border/60 bg-muted/50",
+                            item.severity === "critical" && "text-pink-400",
+                            item.severity === "warning" && "text-amber-400",
+                            item.severity === "healthy" && "text-turquoise-400"
+                          )}
+                        >
+                          <item.icon className="size-5" />
+                        </div>
+                        <div className="flex-1 space-y-1">
+                          <h3 className="text-sm font-semibold">
+                            {item.title}
+                          </h3>
+                          <p className="text-xs leading-relaxed text-muted-foreground">
+                            {item.context}
+                          </p>
+                          <div className="flex pt-2">
+                            <Link
+                              href={item.route}
+                              className={cn(
+                                buttonVariants({ variant: "link", size: "sm" }),
+                                "h-auto p-0 text-primary"
+                              )}
+                            >
+                              <span>{item.action}</span>
+                              <ArrowRight className="ml-1 size-3 transition-transform group-hover:translate-x-1" />
+                            </Link>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </section>
 
-              <div className="grid gap-3 rounded-2xl border border-border/50 bg-background/35 p-4">
-                {priorityQueue.map((item) => (
-                  <Link
-                    key={item.title}
-                    href={item.route}
-                    className="rounded-2xl border border-border/45 bg-card/55 p-4 transition hover:border-indigo-400/50 hover:bg-indigo-500/8"
+              {/* Blockers & Health */}
+              <section className="space-y-4">
+                <h2 className="text-sm font-bold uppercase tracking-widest text-muted-foreground">
+                  System Blockers
+                </h2>
+                <div className="overflow-hidden rounded-xl border border-border/40 bg-card/20">
+                  <table className="w-full text-left text-xs">
+                    <thead className="border-b border-border/40 bg-muted/30">
+                      <tr>
+                        <th className="px-4 py-3 font-semibold text-muted-foreground">
+                          Component
+                        </th>
+                        <th className="px-4 py-3 font-semibold text-muted-foreground">
+                          Status
+                        </th>
+                        <th className="px-4 py-3 font-semibold text-muted-foreground">
+                          Context
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-border/30">
+                      {blockerRows.map(([name, status, context]) => (
+                        <tr key={name} className="hover:bg-muted/10">
+                          <td className="whitespace-nowrap px-4 py-3 font-medium">
+                            {name}
+                          </td>
+                          <td className="px-4 py-3">
+                            <Badge
+                              variant="outline"
+                              className={cn(
+                                "border-none px-0 font-bold uppercase tracking-tighter",
+                                status === "Clear" && "text-turquoise-400",
+                                status === "Active" && "text-indigo-400",
+                                status === "Degraded" && "text-pink-400"
+                              )}
+                            >
+                              {status}
+                            </Badge>
+                          </td>
+                          <td className="px-4 py-3 text-muted-foreground">
+                            {context}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </section>
+            </div>
+
+            <div className="space-y-6">
+              {/* Quick Actions */}
+              <Card className="border-border/40 bg-card/40">
+                <CardHeader>
+                  <CardTitle className="text-sm font-bold uppercase tracking-widest text-muted-foreground">
+                    Quick Actions
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="grid grid-cols-2 gap-2">
+                  <Button
+                    variant="outline"
+                    className="h-auto flex-col items-start gap-2 py-4"
                   >
-                    <div className="flex items-start gap-3">
-                      <div
-                        className={cn(
-                          "flex size-10 shrink-0 items-center justify-center rounded-xl border",
-                          item.severity === "critical"
-                            ? "border-pink-400/30 bg-pink-400/10 text-pink-300"
-                            : item.severity === "warning"
-                              ? "border-indigo-400/30 bg-indigo-400/10 text-indigo-300"
-                              : "border-turquoise-400/30 bg-turquoise-400/10 text-turquoise-300"
-                        )}
-                      >
-                        <item.icon className="size-5" />
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <p className="text-sm font-black uppercase leading-5">
-                          {item.title}
-                        </p>
-                        <p className="mt-2 text-xs leading-5 text-muted-foreground">
-                          {item.context}
-                        </p>
-                        <p className="mt-3 text-[10px] font-black uppercase text-indigo-300">
-                          {item.action}
-                        </p>
-                      </div>
-                    </div>
-                  </Link>
-                ))}
-              </div>
+                    <Users className="size-4 text-turquoise-400" />
+                    <span className="text-[10px] font-bold uppercase tracking-widest">
+                      Intake Lead
+                    </span>
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="h-auto flex-col items-start gap-2 py-4"
+                  >
+                    <CircleDollarSign className="size-4 text-indigo-400" />
+                    <span className="text-[10px] font-bold uppercase tracking-widest">
+                      Run Quote
+                    </span>
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="h-auto flex-col items-start gap-2 py-4"
+                  >
+                    <GitBranch className="size-4 text-pink-400" />
+                    <span className="text-[10px] font-bold uppercase tracking-widest">
+                      New Campaign
+                    </span>
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="h-auto flex-col items-start gap-2 py-4"
+                  >
+                    <Bot className="size-4 text-turquoise-400" />
+                    <span className="text-[10px] font-bold uppercase tracking-widest">
+                      Tune Agent
+                    </span>
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Live Radar */}
+              <Card className="border-border/40 bg-card/40">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+                  <CardTitle className="text-sm font-bold uppercase tracking-widest text-muted-foreground">
+                    Operational Awareness
+                  </CardTitle>
+                  <Activity className="size-4 text-muted-foreground/50" />
+                </CardHeader>
+                <CardContent>
+                  <LeadRadar />
+                </CardContent>
+              </Card>
             </div>
           </div>
-
-          <Card className="border-pink-400/25 bg-card/50 shadow-2xl">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-sm font-black uppercase text-pink-300">
-                <AlertTriangle className="size-4" />
-                Blockers and health
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="grid gap-3">
-              {blockerRows.map(([label, status, detail]) => (
-                <div
-                  key={label}
-                  className="rounded-2xl border border-border/45 bg-background/35 p-4"
-                >
-                  <div className="flex items-center justify-between gap-3">
-                    <p className="text-sm font-black uppercase">{label}</p>
-                    <Badge
-                      variant="outline"
-                      className={cn(
-                        "rounded-full text-[10px]",
-                        statusClass(status)
-                      )}
-                    >
-                      {status}
-                    </Badge>
-                  </div>
-                  <p className="mt-2 text-xs leading-5 text-muted-foreground">
-                    {detail}
-                  </p>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-        </section>
-
-        <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          {commandStats.map((stat) => (
-            <Card key={stat.label} className="border-border/55 bg-card/55">
-              <CardContent className="p-5">
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <p className="text-[10px] font-black uppercase text-muted-foreground">
-                      {stat.label}
-                    </p>
-                    <p className="mt-3 text-4xl font-black tracking-normal">
-                      {stat.value}
-                    </p>
-                  </div>
-                  <stat.icon className={cn("size-5", stat.tone)} />
-                </div>
-                <p className="mt-4 text-xs leading-5 text-muted-foreground">
-                  {stat.detail}
-                </p>
-              </CardContent>
-            </Card>
-          ))}
-        </section>
-
-        <section className="grid gap-6 xl:grid-cols-[0.95fr_1.05fr]">
-          <Card className="border-border/55 bg-card/50">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-sm font-black uppercase">
-                <GitBranch className="size-4 text-turquoise-300" />
-                Pipeline movement
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="grid gap-4">
-              {pipelineMovement.map(([label, count, detail]) => (
-                <div
-                  key={label}
-                  className="grid gap-3 rounded-2xl border border-border/45 bg-background/30 p-4 sm:grid-cols-[10rem_1fr_auto] sm:items-center"
-                >
-                  <p className="text-sm font-black uppercase">{label}</p>
-                  <div className="h-2 overflow-hidden rounded-full bg-muted/40">
-                    <div
-                      className="h-full rounded-full bg-gradient-to-r from-indigo-500 via-turquoise-400 to-pink-400"
-                      style={{
-                        width: `${Math.min(Number(count) * 8 + 18, 100)}%`,
-                      }}
-                    />
-                  </div>
-                  <div className="text-left sm:text-right">
-                    <p className="text-xl font-black">{count}</p>
-                    <p className="text-xs text-muted-foreground">{detail}</p>
-                  </div>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-
-          <Card className="border-indigo-400/25 bg-card/50">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-sm font-black uppercase">
-                <Bot className="size-4 text-indigo-300" />
-                Assistant and tool wrapper status
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="grid gap-5 lg:grid-cols-[0.82fr_1.18fr]">
-              <div className="rounded-2xl border border-indigo-400/25 bg-indigo-500/8 p-5">
-                <div className="flex items-center gap-2">
-                  <ShieldCheck className="size-5 text-turquoise-300" />
-                  <p className="text-sm font-black uppercase">
-                    Approval gates visible
-                  </p>
-                </div>
-                <p className="mt-3 text-sm leading-6 text-muted-foreground">
-                  Nyra can summarize, draft, and navigate. Sensitive outreach
-                  and CRM mutations stay behind broker approval and audit
-                  logging.
-                </p>
-                <Link href="/tools/openclaw">
-                  <Button className="mt-5 w-full rounded-xl bg-indigo-600 font-black uppercase hover:bg-indigo-500">
-                    Open tool surface
-                  </Button>
-                </Link>
-              </div>
-              <div className="grid gap-3 sm:grid-cols-2">
-                {assistantTools.map((tool) => (
-                  <div
-                    key={tool}
-                    className="rounded-2xl border border-border/45 bg-background/30 p-4"
-                  >
-                    <div className="flex items-center gap-2">
-                      <Sparkles className="size-4 text-turquoise-300" />
-                      <p className="text-xs font-black uppercase">{tool}</p>
-                    </div>
-                    <p className="mt-2 text-xs leading-5 text-muted-foreground">
-                      Scoped utility, no uncontrolled direct-write power.
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </section>
-
-        <section className="grid gap-6 lg:grid-cols-3">
-          <Card className="border-border/55 bg-card/50 lg:col-span-2">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-sm font-black uppercase">
-                <RadioTower className="size-4 text-pink-300" />
-                Live radar
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="grid gap-3">
-              {leads.map((lead) => (
-                <Link
-                  key={lead.id}
-                  href={`/leads/${lead.id}`}
-                  className="grid gap-3 rounded-2xl border border-border/45 bg-background/30 p-4 transition hover:border-turquoise-400/35 sm:grid-cols-[1fr_auto]"
-                >
-                  <div>
-                    <p className="font-black uppercase">
-                      {lead.firstName} {lead.lastName}
-                    </p>
-                    <p className="mt-1 text-sm text-muted-foreground">
-                      {lead.loanPurpose} · {lead.source} · {lead.location}
-                    </p>
-                  </div>
-                  <div className="flex flex-wrap items-center gap-2 sm:justify-end">
-                    <Badge variant="outline" className="rounded-full">
-                      {lead.campaignStatus}
-                    </Badge>
-                    <Badge
-                      variant="outline"
-                      className="rounded-full border-turquoise-400/30 text-turquoise-300"
-                    >
-                      {lead.stage}
-                    </Badge>
-                  </div>
-                </Link>
-              ))}
-            </CardContent>
-          </Card>
-
-          <Card className="border-border/55 bg-card/50">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-sm font-black uppercase">
-                <Activity className="size-4 text-turquoise-300" />
-                Campaign performance
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="grid gap-3">
-              {campaigns.map((campaign, index) => (
-                <div
-                  key={campaign.id}
-                  className="rounded-2xl border border-border/45 bg-background/30 p-4"
-                >
-                  <div className="flex items-center justify-between gap-3">
-                    <p className="text-sm font-black uppercase">
-                      {campaign.name}
-                    </p>
-                    <Badge
-                      variant="outline"
-                      className="rounded-full border-indigo-400/30 text-indigo-300"
-                    >
-                      {campaign.status}
-                    </Badge>
-                  </div>
-                  <p className="mt-3 text-xs text-muted-foreground">
-                    {campaign.enrolled} enrolled · {18 + index * 4}% reply ·
-                    quiet-hours gate active
-                  </p>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-        </section>
-
-        <footer className="flex flex-col gap-3 border-t border-border/40 py-6 text-xs text-muted-foreground md:flex-row md:items-center md:justify-between">
-          <span>
-            Project Nyra · broker command center · app.projectnyra.com
-          </span>
-          <span className="inline-flex items-center gap-2">
-            <CalendarClock className="size-4 text-indigo-300" />
-            Cached demo contracts shown when services are disconnected.
-          </span>
-        </footer>
+        </div>
       </main>
     </div>
   );

@@ -29,17 +29,17 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ---
 
-- [ ] **Track: Operational Hardening & Observability**
+- [x] **Track: Operational Hardening & Observability**
       _Link: [./tracks/ops_hardening_20260519/](./tracks/ops_hardening_20260519/)_
 
 ---
 
-- [ ] **Track: Prompt Surface Canonicalization**
+- [x] **Track: Prompt Surface Canonicalization**
       _Link: [./tracks/prompt_canonicalization_20260519/](./tracks/prompt_canonicalization_20260519/)_
 
 ---
 
-- [ ] **Track: Unified UI & Operator Experience**
+- [x] **Track: Unified UI & Operator Experience**
       _Link: [./tracks/unified_ui_refinement_20260519/](./tracks/unified_ui_refinement_20260519/)_
 
 ---

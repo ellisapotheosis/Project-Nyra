@@ -6,6 +6,7 @@ import {
   CalendarDays,
   CheckCircle2,
   ExternalLink,
+  Landmark,
   Mail,
   MapPin,
   MessageSquare,
@@ -144,62 +145,35 @@ export default function Home() {
   return (
     <main className="relative min-h-screen pb-20 text-white selection:bg-primary/20">
       <div className="mx-auto flex w-full max-w-7xl flex-col gap-8 px-4 pb-24 pt-6 md:px-6 lg:px-8">
-        <nav className="glass-panel sticky top-4 z-40 flex flex-col gap-4 rounded-[2rem] px-5 py-4 md:flex-row md:items-center md:justify-between">
-          <div className="flex items-center gap-4">
-            <Image
-              src="/ratehunter-navbar-logo.png"
-              alt="RateHunter"
-              width={220}
-              height={64}
-              className="h-auto w-full max-w-[220px]"
-              priority
-            />
-            <div className="hidden md:block">
-              <p className="eyebrow text-[11px] text-white/55">RateHunter</p>
-              <p className="text-sm text-white/72">
-                Borrower-facing mortgage and real estate advisory
-              </p>
-            </div>
+        <nav className="glass-panel sticky top-4 z-40 flex items-center justify-between gap-4 rounded-2xl border border-white/5 bg-black/60 px-6 py-3 backdrop-blur-xl">
+          <div className="flex items-center gap-3">
+            <span className="flex size-8 items-center justify-center rounded-lg border border-indigo-500/20 bg-indigo-500/10 text-indigo-400">
+              <Landmark className="size-4.5" />
+            </span>
+            <span className="text-lg font-bold tracking-tight text-white uppercase">
+              RateHunter
+            </span>
           </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <a
-              href="#quote"
-              className={cn(
-                buttonVariants({ variant: "ghost", size: "sm" }),
-                "rounded-full text-white/80"
-              )}
-            >
-              Get Quote
+          <div className="hidden items-center gap-5 text-[11px] font-semibold uppercase tracking-wider text-white/50 md:flex">
+            <a href="#quote" className="hover:text-white transition-colors">
+              Quote
             </a>
-            <a
-              href="#services"
-              className={cn(
-                buttonVariants({ variant: "ghost", size: "sm" }),
-                "rounded-full text-white/80"
-              )}
-            >
+            <a href="#services" className="hover:text-white transition-colors">
               Services
             </a>
-            <a
-              href="#contact"
-              className={cn(
-                buttonVariants({ variant: "ghost", size: "sm" }),
-                "rounded-full text-white/80"
-              )}
-            >
+            <a href="#contact" className="hover:text-white transition-colors">
               Contact
             </a>
-            <Link
-              href={contact.phoneHref}
-              className={cn(
-                buttonVariants({ variant: "outline", size: "sm" }),
-                "rounded-full border-white/10 bg-white/5 text-white hover:bg-white/10"
-              )}
-            >
-              <Phone className="size-4" />
-              {contact.phone}
-            </Link>
           </div>
+          <Link
+            href={contact.calendly}
+            className={cn(
+              buttonVariants({ variant: "outline", size: "sm" }),
+              "h-8 border-indigo-500/20 bg-indigo-500/5 px-4 text-indigo-400 hover:bg-indigo-500/10 hover:text-indigo-300"
+            )}
+          >
+            Consult
+          </Link>
         </nav>
 
         <section className="grid gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:items-start">
