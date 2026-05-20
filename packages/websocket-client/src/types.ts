@@ -27,10 +27,42 @@ export interface ConnectionInfo {
 }
 
 export interface SystemEvent {
-  type: 'mcp_status' | 'gpu_metrics' | 'tool_discovery' | 'agent_coordination' | 'swarm_update';
+  type: SystemEventType;
   source: string;
   timestamp: string;
+  correlationId?: string;
+  traceId?: string;
+  state?: string;
+  mode?: 'live' | 'mock';
   data: any;
+}
+
+export type ControlEventType =
+  | 'mcp_status'
+  | 'gpu_metrics'
+  | 'tool_discovery'
+  | 'agent_coordination'
+  | 'swarm_update'
+  | 'task_progress';
+
+export type ProductEventChannel =
+  | 'lead:updates'
+  | 'hotlead:alerts'
+  | 'quote:viewed'
+  | 'quote:lock_expiring'
+  | 'campaign:reply'
+  | 'campaign:blocked'
+  | 'pipeline:milestone'
+  | 'service:health';
+
+export type SystemEventType = ControlEventType | ProductEventChannel;
+
+export interface ProductEvent extends SystemEvent {
+  type: ProductEventChannel;
+  correlationId: string;
+  state: string;
+  mode: 'live' | 'mock';
+  data: Record<string, unknown>;
 }
 
 export interface MCPServerStatus {

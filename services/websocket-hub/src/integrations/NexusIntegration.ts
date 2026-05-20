@@ -1,4 +1,3 @@
-import axios, { AxiosInstance } from 'axios';
 import { EventBus } from '../events/EventBus';
 import { SystemEvent, MCPServerStatus, GPUMetrics } from '../types';
 import { config } from '../config';
@@ -7,7 +6,8 @@ import { createLogger } from '../utils/logger';
 const logger = createLogger('nexus-integration');
 
 export class NexusIntegration {
-  private client: AxiosInstance | null = null;
+  private baseUrl: string | null = null;
+  private headers: Record<string, string> = {};
   private pollingInterval: NodeJS.Timeout | null = null;
   private eventBus: EventBus;
 
@@ -15,13 +15,10 @@ export class NexusIntegration {
     this.eventBus = eventBus;
 
     if (config.nexusRouterUrl) {
-      this.client = axios.create({
-        baseURL: config.nexusRouterUrl,
-        timeout: 5000,
-        headers: config.nexusRouterApiKey
-          ? { 'Authorization': `Bearer ${config.nexusRouterApiKey}` }
-          : {},
-      });
+      this.baseUrl = config.nexusRouterUrl;
+      this.headers = config.nexusRouterApiKey
+        ? { Authorization: `Bearer ${config.nexusRouterApiKey}` }
+        : {};
       logger.info({ url: config.nexusRouterUrl }, 'Nexus Router integration initialized');
     } else {
       logger.warn('Nexus Router URL not configured, integration disabled');
@@ -29,7 +26,7 @@ export class NexusIntegration {
   }
 
   async startPolling(interval: number = 10000) {
-    if (!this.client) {
+    if (!this.baseUrl) {
       logger.warn('Nexus Router client not initialized, polling disabled');
       return;
     }
@@ -60,8 +57,8 @@ export class NexusIntegration {
 
   private async pollMCPStatus() {
     try {
-      const response = await this.client!.get('/mcp/status');
-      const mcpServers: MCPServerStatus[] = response.data.servers || [];
+      const response = await this.getJson<{ servers?: MCPServerStatus[] }>('/mcp/status');
+      const mcpServers: MCPServerStatus[] = response.servers || [];
 
       const event: SystemEvent = {
         type: 'mcp_status',
@@ -78,8 +75,8 @@ export class NexusIntegration {
 
   private async pollGPUMetrics() {
     try {
-      const response = await this.client!.get('/gpu/metrics');
-      const gpuMetrics: GPUMetrics[] = response.data.workers || [];
+      const response = await this.getJson<{ workers?: GPUMetrics[] }>('/gpu/metrics');
+      const gpuMetrics: GPUMetrics[] = response.workers || [];
 
       const event: SystemEvent = {
         type: 'gpu_metrics',
@@ -95,11 +92,11 @@ export class NexusIntegration {
   }
 
   async queryToolDiscovery(): Promise<void> {
-    if (!this.client) return;
+    if (!this.baseUrl) return;
 
     try {
-      const response = await this.client.get('/mcp/tools');
-      const tools = response.data.tools || [];
+      const response = await this.getJson<{ tools?: unknown[] }>('/mcp/tools');
+      const tools = response.tools || [];
 
       const event: SystemEvent = {
         type: 'tool_discovery',
@@ -115,19 +112,60 @@ export class NexusIntegration {
   }
 
   async sendCommand(command: string, params: any): Promise<any> {
-    if (!this.client) {
+    if (!this.baseUrl) {
       throw new Error('Nexus Router client not initialized');
     }
 
     try {
-      const response = await this.client.post('/command', {
+      return await this.postJson('/command', {
         command,
         params,
       });
-      return response.data;
     } catch (error: any) {
       logger.error({ error: error.message, command }, 'Failed to send command');
       throw error;
+    }
+  }
+
+  private async getJson<T>(path: string): Promise<T> {
+    const response = await this.fetchWithTimeout(path, { method: 'GET' });
+    return await response.json() as T;
+  }
+
+  private async postJson<T>(path: string, body: unknown): Promise<T> {
+    const response = await this.fetchWithTimeout(path, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    return await response.json() as T;
+  }
+
+  private async fetchWithTimeout(path: string, init: RequestInit): Promise<Response> {
+    if (!this.baseUrl) {
+      throw new Error('Nexus Router client not initialized');
+    }
+
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 5000);
+
+    try {
+      const response = await fetch(new URL(path, this.baseUrl), {
+        ...init,
+        headers: {
+          ...this.headers,
+          ...(init.headers || {}),
+        },
+        signal: controller.signal,
+      });
+
+      if (!response.ok) {
+        throw new Error(`Nexus Router request failed: ${response.status}`);
+      }
+
+      return response;
+    } finally {
+      clearTimeout(timeout);
     }
   }
 }

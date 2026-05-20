@@ -59,12 +59,12 @@ export class MetricsCollector {
   }
 
   private setupEndpoints() {
-    this.app.get('/metrics', async (req, res) => {
+    this.app.get('/metrics', async (_req, res) => {
       res.set('Content-Type', this.registry.contentType);
       res.send(await this.registry.metrics());
     });
 
-    this.app.get('/health', (req, res) => {
+    this.app.get('/health', (_req, res) => {
       res.json({
         status: 'healthy',
         uptime: process.uptime(),

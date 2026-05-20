@@ -52,6 +52,7 @@ Required configuration:
 PORT=8080
 JWT_SECRET=your-secure-secret-key
 NEXUS_ROUTER_URL=http://localhost:3100
+EVENT_INGEST_API_KEY=internal-only-shared-key
 ```
 
 ### Development
@@ -180,6 +181,45 @@ Available subscription channels:
 - `tools:discovery` - Tool discovery events
 - `agent:coordination` - Agent spawn/terminate events
 - `swarm:update` - Swarm orchestration updates
+- `lead:updates` - Lead created/updated events
+- `hotlead:alerts` - High-intent lead alerts
+- `quote:viewed` - Borrower quote view events
+- `quote:lock_expiring` - Rate lock expiration warnings
+- `campaign:reply` - Campaign reply events
+- `campaign:blocked` - Compliance or provider block events
+- `pipeline:milestone` - Loan pipeline milestone changes
+- `service:health` - Service health events
+
+### Product Event Ingest
+
+Nyra services publish operator-facing product events through the internal HTTP
+boundary:
+
+```http
+POST /events
+X-Nyra-Event-Key: internal-only-shared-key
+Content-Type: application/json
+```
+
+```json
+{
+  "type": "lead:updates",
+  "source": "lead-ingestion",
+  "correlationId": "lead_123",
+  "traceId": "trace_abc",
+  "state": "created",
+  "mode": "live",
+  "data": {
+    "leadId": "lead_123",
+    "sourceLabel": "ratehunter"
+  }
+}
+```
+
+Accepted events are broadcast to WebSocket subscribers on the matching channel.
+Every event must include `source`, `correlationId`, and `state`; `timestamp`
+defaults to the hub receive time when omitted. Use `mode: "mock"` for demo or
+synthetic events so operators can distinguish them from live borrower activity.
 
 ## Client Integration
 

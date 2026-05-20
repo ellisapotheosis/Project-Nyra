@@ -247,6 +247,38 @@ export class WebSocketClient extends EventEmitter {
     return this.on('swarm_update', callback);
   }
 
+  onLeadUpdates(callback: EventCallback): this {
+    return this.on('lead:updates', callback);
+  }
+
+  onHotLeadAlerts(callback: EventCallback): this {
+    return this.on('hotlead:alerts', callback);
+  }
+
+  onQuoteViewed(callback: EventCallback): this {
+    return this.on('quote:viewed', callback);
+  }
+
+  onQuoteLockExpiring(callback: EventCallback): this {
+    return this.on('quote:lock_expiring', callback);
+  }
+
+  onCampaignReply(callback: EventCallback): this {
+    return this.on('campaign:reply', callback);
+  }
+
+  onCampaignBlocked(callback: EventCallback): this {
+    return this.on('campaign:blocked', callback);
+  }
+
+  onPipelineMilestone(callback: EventCallback): this {
+    return this.on('pipeline:milestone', callback);
+  }
+
+  onServiceHealth(callback: EventCallback): this {
+    return this.on('service:health', callback);
+  }
+
   private log(...args: any[]) {
     if (this.options.debug) {
       console.log('[WebSocketClient]', ...args);
