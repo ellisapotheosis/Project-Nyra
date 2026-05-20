@@ -11,8 +11,9 @@
 
 - [x] Reconcile prompt-pack path/domain assumptions with current architecture.
 - [x] Quarantine stale prompt claims without deleting source snapshots.
-- [ ] Update docs to state `apps/projectnyra` and `apps/ratehunter` as canonical current app roots.
-- [ ] Keep `projectnyra.com` as the platform domain and `ratehunter.net` as the isolated public landing domain.
+- [x] Update docs to state `apps/projectnyra` and `apps/ratehunter` as canonical current app roots.
+- [x] Keep `projectnyra.com` as the platform domain and `ratehunter.net` as the isolated public landing domain.
+- [x] Review direct 5090 DLS prompt snapshot and map every canonical prompt to repo status.
 
 ## P2 - Backend Contract Hardening
 
@@ -72,3 +73,7 @@
 21. `20_qa_smoke_release.md`
 22. `21_docs_handoff_owner_actions.md`
 23. `22_integrations_research_discovery.md`
+
+## Direct 5090 DLS Queue
+
+See [5090 DLS Prompt Review](./5090dlsprompts-review.md).
