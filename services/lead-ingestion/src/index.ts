@@ -72,6 +72,10 @@ export type IngestLeadResult = {
   crmWritePlan: CrmWritePlan;
 };
 
+export interface CrmWritePlanPersistenceClient {
+  execute(plan: CrmWritePlan): Promise<unknown>;
+}
+
 export interface LeadIngestionStore {
   findByDedupeKey(dedupeKey: string): Promise<Lead | undefined>;
   saveDedupeKey(dedupeKey: string, lead: Lead): Promise<void>;
@@ -177,6 +181,13 @@ export class LeadIngestionService {
       }),
     };
   }
+}
+
+export async function persistCrmWritePlan(
+  result: IngestLeadResult,
+  client: CrmWritePlanPersistenceClient
+): Promise<unknown> {
+  return client.execute(result.crmWritePlan);
 }
 
 type NormalizeOptions = {

@@ -622,13 +622,13 @@ This document exists to give future agents and humans one top-to-bottom picture 
 <claude-mem-context>
 # Memory Context
 
-# [project-nyra] recent context, 2026-05-19 11:41pm PDT
+# [project-nyra] recent context, 2026-05-20 12:11am PDT
 
 Legend: 🎯session 🔴bugfix 🟣feature 🔄refactor ✅change 🔵discovery ⚖️decision 🚨security_alert 🔐security_note
 Format: ID TIME TYPE TITLE
 Fetch details: get_observations([IDs]) | Search: mem-search skill
 
-Stats: 50 obs (19,821t read) | 383,876t work | 95% savings
+Stats: 50 obs (20,070t read) | 386,001t work | 95% savings
 
 ### May 4, 2026
 
@@ -650,26 +650,10 @@ S6 Review WSL/Ubuntu terminal setup configuration — agent claimed to fix broke
 
 ### May 12, 2026
 
-163 7:37a 🔴 WSL/Ubuntu Shell Configuration Fixed: Broken Symlink Resolution
-164 7:38a 🔵 Windows Terminal Settings Files Located in WSL Environment
-165 " 🔵 Windows Terminal Ubuntu-24.04 Profile Correctly Configured
-166 " 🔵 Windows Terminal Preview Ubuntu Profile Also Correctly Configured
-167 " ✅ Windows Terminal Ubuntu Profiles Updated with Backslash Path Notation and --cd Flag
-169 7:39a 🔵 Windows Terminal Configuration Changes Verified and Functionally Tested
-170 7:45a 🔵 PR #408 Successfully Merged with Cherry-Pick History Issue
-171 7:46a ✅ Infrastructure Host Layout Expanded with Service and GPU Worker Specialization
-172 " 🔵 Smoke Tests Passing; Dependabot Reports 1415 Vulnerabilities on Main Branch
 S7 Infrastructure Restructure and Host Layout Documentation: Complete container name standardization, folder organization, and distributed voice architecture documentation for Project Nyra multi-host GPU orchestration. (May 12, 7:46 AM)
 
 ### May 13, 2026
 
-173 12:03p 🔵 Docker Compose validation and environment variable requirements
-174 12:04p 🔵 Infisical secret injection confirmed functional with 553 secrets
-175 12:05p 🟣 Openlit observability container and configuration added to oracle-vps stack
-176 " 🔵 Nexus Router MCP server configured but unresponsive
-178 " ✅ Gemini and Codex configuration simplified and updated to latest models
-179 " 🔵 Oracle VPS SSH connection unresponsive to connection attempts
-180 " 🔵 Oracle VPS DNS hostname resolution failure; actual internal hostname is oracle.trex-fiordland.ts.net
 181 12:06p ✅ Documentation updated to include OpenLIT in service exposure and routing matrices
 182 7:25p 🔵 Domain consolidation scope identified: 705 ratehunter.net references across infra, apps, and docs
 183 7:26p 🔵 projectnyra.com exists in only 2 files; ratehunter.net dominates all infrastructure and app configs
@@ -705,7 +689,26 @@ S7 Infrastructure Restructure and Host Layout Documentation: Complete container 
 213 " 🔵 Verification: all remaining ratehunter.net references are correct and intentional
 214 " ✅ Fixed Cloudflare configuration to manage projectnyra.com as primary DNS zone
 
-Access 384k tokens of past work via get_observations([IDs]) or mem-search skill.
+### May 19, 2026
+
+220 11:41p 🔵 System tool availability assessment for project-nyra
+222 11:42p 🔵 Cloudflare infrastructure automation present but credentials missing
+228 11:51p 🔵 OpenLIT Oracle VPS stack integration documented in owner manual
+229 11:52p ✅ Project Nyra cycle completion documented with 10 implemented features
+230 " ✅ Project Nyra production environment variables documented with mock-safe fallback pattern
+231 " 🔵 Dependency lockfile updated with significant peer dependency mismatches
+233 11:53p 🔴 TypeScript type errors in Project Nyra API routes
+235 " 🔴 TypeScript type errors fixed in campaigns and quotes API routes
+237 " ✅ Session implementation scope: 37 modified files, 19 new test and config files
+238 " ✅ Git diff shows 1573 insertions across 36 files: domain packages and service implementations
+239 " ✅ Three new conductor work streams created for hardening, canonicalization, and UI refinement
+243 11:54p ✅ Final-cut service contracts committed to final-cut-service-contracts branch
+245 " ✅ Pull request #439 created for final-cut service contracts review
+247 11:55p ✅ PR #439 merged to main with squash; final-cut service contracts integrated
+248 " 🔵 Final-cut service contracts pushed to origin/main; working directory synchronized
+249 11:56p 🔵 PR #439 confirmed MERGED; final-cut service contracts fully integrated
+
+Access 386k tokens of past work via get_observations([IDs]) or mem-search skill.
 </claude-mem-context>
 
 <!-- OMX:AGENTS:START -->
