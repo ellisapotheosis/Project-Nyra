@@ -15,6 +15,7 @@ Active.
 - [Plan](./plan.md)
 - [Risk Register](./risk-register.md)
 - [Validation Matrix](./validation-matrix.md)
+- [5090 DLS Prompt Review](./5090dlsprompts-review.md)
 - [Owner Manual Actions](./owner-manual-actions.md)
 
 ## Operating constraints
