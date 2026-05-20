@@ -2,7 +2,7 @@
 
 ## Phase 1: Security and Infra Baseline
 
-- [ ] Task: Audit `infra/` for hardcoded secrets and ensure env-driven configuration
+- [~] Task: Audit `infra/` for hardcoded secrets and ensure env-driven configuration
 - [ ] Task: Tighten host-scoped docker-compose files (restart policies, resource limits)
 - [ ] Task: Review public exposure of private workers and tunnels
 

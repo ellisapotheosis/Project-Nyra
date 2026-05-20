@@ -5,6 +5,7 @@ import {
   determineCampaignEligibility,
   getLeadDedupeKey,
   normalizeLeadPayload,
+  persistCrmWritePlan,
   type RawLeadPayload,
 } from "./index";
 
@@ -175,5 +176,30 @@ describe("lead ingestion", () => {
         currentStepIndex: 0,
       },
     });
+  });
+
+  it("hands the normalized CRM write plan to the persistence boundary", async () => {
+    const service = new LeadIngestionService({
+      now: () => fixedDate,
+      idFactory: () => leadId,
+    });
+    const result = await service.ingest({
+      firstName: "Priya",
+      lastName: "Pipeline",
+      email: "priya@example.com",
+      source: "projectnyra",
+      consentEmail: true,
+      campaignId: "speed-to-lead",
+    });
+    const calls: unknown[] = [];
+
+    await persistCrmWritePlan(result, {
+      execute: async (plan) => {
+        calls.push(plan);
+        return { accepted: true };
+      },
+    });
+
+    expect(calls).toEqual([result.crmWritePlan]);
   });
 });

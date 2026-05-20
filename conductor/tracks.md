@@ -46,3 +46,8 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 - [ ] **Track: Wiring & Hardening Phase**
       _Link: [./tracks/wiring_hardening_20260516/](./tracks/wiring_hardening_20260516/)_
+
+---
+
+- [ ] **Track: Final-Cut Product Integration Backlog**
+      _Link: [./tracks/final_cut_product_integration_20260520/](./tracks/final_cut_product_integration_20260520/)_

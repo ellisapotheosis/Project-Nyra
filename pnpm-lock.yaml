@@ -662,6 +662,9 @@ importers:
       "@nyra/crm-client":
         specifier: workspace:*
         version: link:../../packages/crm-client
+      "@nyra/crm-types":
+        specifier: workspace:*
+        version: link:../../packages/crm-types
       cors:
         specifier: ^2.8.5
         version: 2.8.6
@@ -711,6 +714,9 @@ importers:
       typescript:
         specifier: ^5.5.4
         version: 5.9.3
+      vitest:
+        specifier: 4.0.18
+        version: 4.0.18(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(jiti@2.6.1)(jsdom@26.1.0)(lightningcss@1.32.0)(msw@2.13.1(@types/node@25.6.0)(typescript@5.9.3))(terser@5.16.9)(tsx@4.21.0)(yaml@2.8.3)
 
   services/doc-management-api:
     dependencies:
