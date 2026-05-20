@@ -9,8 +9,8 @@
 
 ## P1 - Repo Truth And Prompt Canonicalization
 
-- [ ] Reconcile prompt-pack path/domain assumptions with current architecture.
-- [ ] Quarantine stale prompt claims without deleting source snapshots.
+- [x] Reconcile prompt-pack path/domain assumptions with current architecture.
+- [x] Quarantine stale prompt claims without deleting source snapshots.
 - [ ] Update docs to state `apps/projectnyra` and `apps/ratehunter` as canonical current app roots.
 - [ ] Keep `projectnyra.com` as the platform domain and `ratehunter.net` as the isolated public landing domain.
 

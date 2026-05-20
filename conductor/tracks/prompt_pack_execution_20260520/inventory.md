@@ -64,3 +64,14 @@
 ## Initial Dirty Worktree Boundary
 
 The worktree already had unrelated modifications before this prompt-pack execution began, including service/package changes and existing conductor track edits. This track treats those changes as pre-existing and avoids reverting them.
+
+## Backup Validation
+
+- `/home/ellisapotheosis/repos/webapp-merge`: missing.
+- `apps/guidance/references/webapp-merge-snapshot`: present.
+
+## Initial Deprecated Reference Findings
+
+- Active docs still contain historical/deprecated references to RuVector, Graphiti, Claude-Flow, and Clerk-era auth decisions.
+- `docs/ruvector/` now has a local README explicitly marking it as a deprecated research archive.
+- `docs/architecture/adr/ADR-002-Security-Authentication.md` was updated to remove Clerk/Auth0 as the current target decision and align with Nyra-controlled/Supabase-compatible auth boundaries.

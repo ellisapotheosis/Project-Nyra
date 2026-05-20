@@ -30,3 +30,5 @@
 
 - 2026-05-20: Imported 86 Markdown files into `conductor/prompts/nyra-prompt-pack/`.
 - 2026-05-20: Imported 30 Markdown files into `conductor/prompts/5090dlsprompts/`.
+- 2026-05-20: Backup check found `apps/guidance/references/webapp-merge-snapshot` present and `/home/ellisapotheosis/repos/webapp-merge` missing.
+- 2026-05-20: Prompt path mapping documented in `conductor/prompts/README.md` and `docs/PROMPT_PACK_EXECUTION.md`.
