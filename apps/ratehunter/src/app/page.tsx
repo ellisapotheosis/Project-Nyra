@@ -13,6 +13,7 @@ import {
   Shield,
   Sparkles,
   Star,
+  TrendingUp,
   Upload,
 } from "lucide-react";
 
@@ -116,6 +117,29 @@ const trustPoints = [
   "Licensed mortgage and real estate guidance coordinated around your scenario",
 ];
 
+const marketPulse = [
+  {
+    label: "30Y fixed watch",
+    value: "Volatile",
+    detail: "Compare points and APR, not just note rate.",
+  },
+  {
+    label: "MBS tone",
+    value: "Choppy",
+    detail: "Lock timing should match your closing risk.",
+  },
+  {
+    label: "HELOC demand",
+    value: "Elevated",
+    detail: "Useful for equity access without replacing a low first lien.",
+  },
+  {
+    label: "Purchase leverage",
+    value: "Local",
+    detail: "Seller credit strategy depends heavily on micro-market supply.",
+  },
+];
+
 export default function Home() {
   return (
     <main className="relative min-h-screen pb-20 text-white selection:bg-primary/20">
@@ -180,7 +204,7 @@ export default function Home() {
 
         <section className="grid gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:items-start">
           <div className="glass-panel overflow-hidden rounded-[2.25rem]">
-            <div className="grid gap-8 px-6 py-7 lg:grid-cols-[0.92fr_1.08fr] lg:px-8 lg:py-8">
+            <div className="grid gap-8 px-6 py-7 2xl:grid-cols-[0.92fr_1.08fr] lg:px-8 lg:py-8">
               <div className="space-y-5">
                 <div className="overflow-hidden rounded-[1.6rem] border border-white/8 bg-black/20">
                   <Image
@@ -324,12 +348,73 @@ export default function Home() {
                 Start your quote without the usual friction.
               </h2>
               <p className="mt-3 text-sm leading-7 text-white/68">
-                This keeps the stronger intake flow from the current landing
-                app, but wrapped inside your public Carrd-style experience
-                instead of a generic software landing page.
+                Share the basics for a scenario review. This is an intake
+                request for broker follow-up, not an automated approval or a
+                binding loan estimate.
+              </p>
+              <p className="mt-3 rounded-2xl border border-white/10 bg-white/[0.04] p-3 text-xs leading-6 text-white/58">
+                By submitting, you authorize contact about your mortgage request
+                by phone, SMS, and email. Consent is not required to buy
+                services. Reply STOP to texts to opt out. Your information is
+                used for mortgage review and referral attribution, then routed
+                through approved server-side intake boundaries.
               </p>
             </div>
             <LeadCaptureWizard />
+          </div>
+        </section>
+
+        <section className="glass-panel overflow-hidden rounded-[2rem]">
+          <div className="flex flex-col gap-5 border-b border-white/8 px-5 py-4 lg:flex-row lg:items-center lg:justify-between">
+            <div>
+              <p className="eyebrow text-[11px] text-white/45">Market Pulse</p>
+              <h2 className="mt-2 display-copy text-2xl tracking-[-0.04em]">
+                Rate context for better conversations, not promises.
+              </h2>
+            </div>
+            <Link
+              href={contact.calendly}
+              className={cn(
+                buttonVariants({ variant: "outline" }),
+                "rounded-full border-white/12 bg-white/5 text-white hover:bg-white/10"
+              )}
+            >
+              <CalendarDays className="size-4" />
+              Talk through timing
+            </Link>
+          </div>
+          <div className="market-ticker border-b border-white/8 bg-black/20">
+            <div className="market-ticker-track">
+              {[...marketPulse, ...marketPulse].map((item, index) => (
+                <div
+                  key={`${item.label}-${index}`}
+                  className="inline-flex min-w-max items-center gap-3 px-5 py-3 text-sm"
+                >
+                  <TrendingUp className="size-4 text-[hsl(var(--primary))]" />
+                  <span className="font-semibold text-white/86">
+                    {item.label}
+                  </span>
+                  <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-xs text-white/68">
+                    {item.value}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="grid gap-4 p-5 md:grid-cols-2 xl:grid-cols-4">
+            {marketPulse.map((item) => (
+              <div
+                key={item.label}
+                className="subtle-panel rounded-[1.4rem] p-4"
+              >
+                <p className="text-sm font-semibold text-white/86">
+                  {item.label}
+                </p>
+                <p className="mt-2 text-xs leading-6 text-white/58">
+                  {item.detail}
+                </p>
+              </div>
+            ))}
           </div>
         </section>
 

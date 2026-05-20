@@ -5,6 +5,8 @@ import { applications, leads } from "@/lib/mock-data";
 const CRM_API_URL = process.env.CRM_API_URL;
 const CRM_API_KEY = process.env.CRM_API_KEY;
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   if (CRM_API_URL) {
     try {
@@ -16,7 +18,10 @@ export async function GET() {
       });
 
       if (response.ok) {
-        return NextResponse.json(await response.json());
+        const text = await response.text();
+        if (text.trim()) {
+          return NextResponse.json(JSON.parse(text));
+        }
       }
     } catch {}
   }

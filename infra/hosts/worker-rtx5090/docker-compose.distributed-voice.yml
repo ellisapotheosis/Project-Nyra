@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   unmute-llm:
@@ -12,7 +12,7 @@ services:
       - UNMUTE_TTS_URL=http://worker-rtx3090ti:8081
       - UNMUTE_MODEL_PROVIDER=vllm
       - UNMUTE_VLLM_URL=http://vllm:8000/v1
-      - UNMUTE_OPENAI_API_KEY=${UNMUTE_OPENAI_API_KEY:-sk-dummy}
+      - UNMUTE_OPENAI_API_KEY=${UNMUTE_OPENAI_API_KEY:?UNMUTE_OPENAI_API_KEY is required}
     ports:
       - "8081:8080"
     deploy:

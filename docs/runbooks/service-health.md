@@ -69,6 +69,16 @@ Compare compose source placement before health checks:
 scripts/infra/assert-compose-source-of-truth.sh
 ```
 
+Run the local runtime-security audit before release or after host compose
+changes:
+
+```bash
+scripts/infra/audit-runtime-security.sh
+```
+
+Use the operations release checklist for the complete preflight, security, smoke,
+and rollback gate: `docs/operations/OPS_RELEASE_CHECKLIST.md`.
+
 Check Prometheus targets after the observability stack is up:
 
 ```bash
