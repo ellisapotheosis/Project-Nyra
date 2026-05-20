@@ -14,6 +14,26 @@ Agents should always document these steps here instead of blocking.
 
 ## Infisical
 
+### Runtime hardening secrets
+
+The host compose files intentionally fail closed for operational secrets that
+used to have local fallback passwords. Set these before bringing up the affected
+stacks:
+
+- `/machines/orchestrator`: `GRAFANA_ADMIN_PASSWORD`
+- `/machines/oracle-vps`: `PAPERCLIP_DB_PASSWORD`
+- `/machines/oracle-vps`: `PAPERCLIP_API_KEY`
+- `/machines/oracle-vps`: `OPENLIT_DB_PASSWORD`
+- `/machines/oracle-vps`: `OPENLIT_NEXTAUTH_SECRET`
+- `/machines/oracle-vps`: `OPENLIT_VAULT_ENCRYPTION_KEY`
+- `/machines/oracle-vps`: `GRAFANA_PASSWORD` for the migrated LiteLLM Grafana stack if it is used
+- `/machines/oracle-vps`: `N8N_BASIC_AUTH_PASSWORD` and `N8N_DB_PASSWORD` for the migrated shared n8n stack if it is used
+- `/machines/worker-rtx3060`, `/machines/worker-rtx3090ti`, `/machines/worker-rtx5090`: `UNMUTE_OPENAI_API_KEY` when voice stacks are enabled
+- `/machines/worker-rtx3090ti`, `/machines/worker-rtx5090`: `NEXUS_ADMIN_TOKEN` when worker assistant stacks are enabled
+
+Use Infisical, Portainer stack environment, systemd `EnvironmentFile`, or a
+gitignored host `.env`. Do not restore source-level fallback passwords.
+
 ### Project Nyra final-cut app/service variables
 
 Add these to the Project Nyra app/service environments before live CRM, quote,

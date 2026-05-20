@@ -221,31 +221,16 @@ print_section "6/6: Running custom security checks"
 
 echo "Checking Docker Compose security configurations..."
 
-# Check if docker-compose files exist
-if ls infra/docker/docker-compose*.yml >/dev/null 2>&1; then
-    COMPOSE_ISSUES=0
-
-    # Check for exposed ports
-    if grep -r "0\.0\.0\.0:" infra/docker/*.yml 2>/dev/null | grep -v "#"; then
-        print_warning "Found exposed ports (0.0.0.0)"
-        COMPOSE_ISSUES=$((COMPOSE_ISSUES + 1))
+if [ -x scripts/infra/audit-runtime-security.sh ]; then
+    if scripts/infra/audit-runtime-security.sh | tee "$REPORT_DIR/runtime-security-${TIMESTAMP}.txt"; then
+        print_success "Runtime security audit passed"
+    else
+        print_error "Runtime security audit failed"
+        FOUND_SECRETS=1
     fi
-
-    # Check for privileged containers
-    if grep -r "privileged: true" infra/docker/*.yml 2>/dev/null | grep -v "#"; then
-        print_error "Found privileged containers!"
-        COMPOSE_ISSUES=$((COMPOSE_ISSUES + 1))
-    fi
-
-    # Check for root users
-    if ! grep -r "user:" infra/docker/*.yml 2>/dev/null | grep -q .; then
-        print_warning "Some containers may be running as root"
-        COMPOSE_ISSUES=$((COMPOSE_ISSUES + 1))
-    fi
-
-    if [ $COMPOSE_ISSUES -eq 0 ]; then
-        print_success "Docker Compose security checks passed"
-    fi
+else
+    print_error "Missing scripts/infra/audit-runtime-security.sh"
+    FOUND_SECRETS=1
 fi
 
 echo "Checking for outdated dependencies..."

@@ -74,6 +74,12 @@ services:
       timeout: 5s
       retries: 10
     networks: [nyra_net]
+    deploy:
+      resources:
+        limits:
+          memory: 2g
+        reservations:
+          memory: 512m
 
   redis-cache:
     image: redis:7-alpine
@@ -88,6 +94,12 @@ services:
       timeout: 3s
       retries: 10
     networks: [nyra_net]
+    deploy:
+      resources:
+        limits:
+          memory: 1g
+        reservations:
+          memory: 256m
 
   twenty-db:
     image: postgres:15
@@ -109,6 +121,12 @@ services:
       timeout: 5s
       retries: 5
     networks: [nyra_net]
+    deploy:
+      resources:
+        limits:
+          memory: 2g
+        reservations:
+          memory: 512m
 
   twenty:
     image: twentycrm/twenty:latest
@@ -132,12 +150,18 @@ services:
       - twenty_docker_data:/app/docker-data
     networks: [nyra_net]
     ports:
-      - "3000:3000"
+      - "127.0.0.1:3000:3000"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
       interval: 30s
       timeout: 10s
       retries: 5
+    deploy:
+      resources:
+        limits:
+          memory: 4g
+        reservations:
+          memory: 1g
 
   twenty-worker:
     image: twentycrm/twenty:latest
@@ -369,7 +393,7 @@ services:
     restart: unless-stopped
     environment:
       CLICKHOUSE_USER: ${OPENLIT_DB_USER:-default}
-      CLICKHOUSE_PASSWORD: ${OPENLIT_DB_PASSWORD:-OPENLIT}
+      CLICKHOUSE_PASSWORD: ${OPENLIT_DB_PASSWORD:?OPENLIT_DB_PASSWORD is required}
       CLICKHOUSE_DATABASE: ${OPENLIT_DB_NAME:-openlit}
       CLICKHOUSE_ALWAYS_RUN_INITDB_SCRIPTS: "true"
     volumes:
@@ -404,13 +428,13 @@ services:
       INIT_DB_PORT: 8123
       INIT_DB_DATABASE: ${OPENLIT_DB_NAME:-openlit}
       INIT_DB_USERNAME: ${OPENLIT_DB_USER:-default}
-      INIT_DB_PASSWORD: ${OPENLIT_DB_PASSWORD:-OPENLIT}
+      INIT_DB_PASSWORD: ${OPENLIT_DB_PASSWORD:?OPENLIT_DB_PASSWORD is required}
       SQLITE_DATABASE_URL: file:/app/client/data/data.db
       PORT: 3000
       DOCKER_PORT: 3000
       NEXTAUTH_URL: ${OPENLIT_NEXTAUTH_URL:-https://openlit.projectnyra.com}
-      NEXTAUTH_SECRET: ${OPENLIT_NEXTAUTH_SECRET:-change-me-openlit-nextauth-secret}
-      OPENLIT_VAULT_ENCRYPTION_KEY: ${OPENLIT_VAULT_ENCRYPTION_KEY:-change-me-openlit-vault-key}
+      NEXTAUTH_SECRET: ${OPENLIT_NEXTAUTH_SECRET:?OPENLIT_NEXTAUTH_SECRET is required}
+      OPENLIT_VAULT_ENCRYPTION_KEY: ${OPENLIT_VAULT_ENCRYPTION_KEY:?OPENLIT_VAULT_ENCRYPTION_KEY is required}
       OPENLIT_ALLOWED_CORS_ORIGINS: ${OPENLIT_ALLOWED_CORS_ORIGINS:-https://openlit.projectnyra.com}
       GOOGLE_CLIENT_ID: ${OPENLIT_GOOGLE_CLIENT_ID:-}
       GOOGLE_CLIENT_SECRET: ${OPENLIT_GOOGLE_CLIENT_SECRET:-}
@@ -668,7 +692,7 @@ services:
     environment:
       NPM_CONFIG_CACHE: /tmp/.npm
       PAPERCLIP_API_URL: http://paperclip:3100
-      PAPERCLIP_API_KEY: ${PAPERCLIP_API_KEY:-dummy}
+      PAPERCLIP_API_KEY: ${PAPERCLIP_API_KEY:?PAPERCLIP_API_KEY is required}
     command:
       - npx
       - -y
