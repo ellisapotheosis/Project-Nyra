@@ -1,5 +1,10 @@
 # Project Nyra Prompt Pack
 
+> Deprecated as an install source for the live repo. This directory is retained
+> as a 2026-05-20 source snapshot under `conductor/prompts/`. Do not bulk-copy
+> these files into root prompt surfaces. Use `../README.md` for the current
+> prompt-surface update path.
+
 ## What this contains
 
 This ZIP contains paste-ready and repo-ready prompts for:
@@ -39,24 +44,18 @@ repo-ready/
   docs/prompts/*.md
 ```
 
-## Suggested install into repo
+## Historical install notes
 
-```bash
-cd /home/ellisapotheosis/repos/project-nyra
-mkdir -p docs/prompts .codex
-cp /path/to/nyra-prompt-pack/docs/PROJECT_NYRA_MASTER_PROMPTING_GUIDE.md docs/
-cp /path/to/nyra-prompt-pack/docs/prompts/FINISH_LINE_PROMPT_LIBRARY.md docs/prompts/
-cp /path/to/nyra-prompt-pack/finish-line-prompts/*.md docs/prompts/
-cp /path/to/nyra-prompt-pack/repo-ready/.codex/PROJECT_PROMPT.md .codex/PROJECT_PROMPT.md
-```
+The original pack included copy commands for `docs/prompts`,
+`.codex/PROJECT_PROMPT.md`, and an `AGENTS.md` fragment. Those commands are no
+longer the live repo update path because they can reintroduce stale duplicated
+contract text. Preserve this pack as source material and reconcile changes
+manually into:
 
-Do **not** blindly overwrite an existing `AGENTS.md`. Instead:
-
-```bash
-cat /path/to/nyra-prompt-pack/repo-ready/AGENTS.md.fragment >> AGENTS.md
-```
-
-or manually merge it.
+- `AGENTS.md` for shared project rules.
+- `CLAUDE.md`, `GEMINI.md`, and `.codex/PROJECT_PROMPT.md` for thin
+  tool-specific projections.
+- `conductor/prompts/` for prompt-library material.
 
 ## Where to paste
 
@@ -106,13 +105,6 @@ Generated from Ellis's current Master Build Brief and uploaded Nyra current-stat
 
 ## Current architecture enforced
 
-- Public landing stays separate at `apps/landing/ratehunter-landing`.
-- Internal app consolidates under `apps/webapp/app`.
-- `apps/admin/app` and `apps/mortgage-crm` are source material to merge.
-- `apps/twenty` is protected.
-- TwentyCRM is system of record.
-- Supabase is internal app backend/auth/storage.
-- n8n is internal execution only.
-- OpenClaw is supervised assistant surface through `assistant-service`.
-- Quote logic is deterministic and broker-approved.
-- Compliance is explicit code, not vibes.
+This section reflected the generated pack's source context. For current
+architecture, follow root `AGENTS.md`, `docs/MASTER_ARCHITECTURE.md`, and the
+current repo state.

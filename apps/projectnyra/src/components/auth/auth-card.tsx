@@ -52,7 +52,7 @@ export function AuthCard({ mode }: { mode: AuthMode }) {
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [message, setMessage] = React.useState<string | null>(null);
-  const initialError = searchParams.get("error");
+  const initialError = searchParams?.get("error") ?? null;
   const [error, setError] = React.useState<string | null>(() => {
     if (initialError === "supabase_not_configured") {
       return "Supabase is not configured for this environment yet.";
@@ -66,7 +66,7 @@ export function AuthCard({ mode }: { mode: AuthMode }) {
   });
   const [isPending, setIsPending] = React.useState(false);
   const configured = Boolean(getSupabasePublicConfig());
-  const redirectTo = getSafeRedirectPath(searchParams.get("redirect"));
+  const redirectTo = getSafeRedirectPath(searchParams?.get("redirect") ?? null);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();

@@ -356,4 +356,9 @@ if grep -q "CRITICAL" "$REPORT_DIR"/*.json 2>/dev/null; then
     exit 1
 fi
 
+if [ "${FOUND_SECRETS}" -ne 0 ]; then
+    print_error "Security scan failed; review errors above and generated reports."
+    exit 1
+fi
+
 print_success "Scan completed successfully"

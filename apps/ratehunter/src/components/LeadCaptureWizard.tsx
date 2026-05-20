@@ -342,10 +342,17 @@ export function LeadCaptureWizard() {
               <ShieldCheck className="h-8 w-8 text-primary" />
               <h2 className="text-xl font-bold">Final Verification</h2>
               <p className="text-xs text-muted-foreground leading-relaxed">
-                By clicking "Get My Quote", you authorize RateHunter and its
-                partners to contact you at the number/email provided using
-                automated technology (SMS, email, or voice) regarding mortgage
-                products. Consent is not a condition of purchase.
+                By clicking "Request Scenario Review", you authorize RateHunter,
+                Ellis Andersen, and West Capital Lending to contact you at the
+                phone number and email provided using calls, texts, email, or
+                automated technology about your mortgage request. Consent is not
+                a condition of purchase. Message/data rates may apply. Reply
+                STOP to text messages to opt out.
+              </p>
+              <p className="rounded-xl border border-primary/15 bg-background/40 p-3 text-[11px] leading-relaxed text-muted-foreground">
+                Your scenario is routed for broker review and intake logging.
+                The assistant and form do not issue official loan approvals,
+                locked rates, APR, or binding Loan Estimates.
               </p>
               <div className="space-y-2 pt-2 border-t border-primary/10">
                 <p className="text-[10px] font-bold uppercase text-primary">
@@ -371,9 +378,9 @@ export function LeadCaptureWizard() {
             </div>
             <h2 className="text-2xl font-bold">Quote Requested!</h2>
             <p className="text-muted-foreground text-sm">
-              The system is analyzing your scenario and the current rate sheets.
-              Expect an email with your professional quote in the next 2
-              minutes.
+              Your scenario was submitted for broker review. You will receive
+              follow-up after the request is checked against current pricing,
+              eligibility, and disclosure requirements.
             </p>
             <Button
               variant="outline"
@@ -422,7 +429,7 @@ export function LeadCaptureWizard() {
               onClick={handleSubmit}
               className="px-8 shadow-lg shadow-primary/20"
             >
-              Get My Quote <Sparkles className="h-4 w-4 ml-2" />
+              Request Scenario Review <Sparkles className="h-4 w-4 ml-2" />
             </Button>
           ) : (
             <Button onClick={next} className="px-8">

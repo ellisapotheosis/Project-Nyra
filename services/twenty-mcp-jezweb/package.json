@@ -9,7 +9,7 @@
     "twenty-mcp": "./dist/cli/index.js"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "node scripts/build.mjs",
     "dev": "tsx src/index.ts",
     "dev:http": "tsx src/http-server.ts",
     "start": "node dist/http-server.js",

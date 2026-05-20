@@ -99,12 +99,12 @@ else
   pass "No worker cloudflared services found"
 fi
 
-worker_public_ports=$(grep_worker_compose '0\.0\.0\.0:[0-9]+:[0-9]+')
+worker_public_ports=$(grep_worker_compose '^[[:space:]]*-[[:space:]]*["'\'']?((0\.0\.0\.0:)?[0-9]+:[0-9]+)')
 if [[ -n "$worker_public_ports" ]]; then
   printf '%s\n' "$worker_public_ports" >&2
-  note "Worker GPU ports bind 0.0.0.0 for Tailscale access; confirm host firewall/Tailscale-only reachability before deploy"
+  note "Worker GPU ports publish on host interfaces; confirm host firewall/Tailscale-only reachability before deploy"
 else
-  pass "No worker ports explicitly bind 0.0.0.0"
+  pass "No worker host port publishes found"
 fi
 
 section "Privileged Containers"

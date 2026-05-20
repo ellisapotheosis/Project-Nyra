@@ -17,29 +17,29 @@
 
 ## P2 - Backend Contract Hardening
 
-- [ ] Finish and validate CRM API write-plan/audit boundaries.
-- [ ] Finish and validate lead-ingestion normalization and dedupe behavior.
-- [ ] Harden campaign/compliance/communication/quote service contracts around STOP, approval, and audit invariants.
+- [x] Finish and validate CRM API write-plan/audit boundaries.
+- [x] Finish and validate lead-ingestion normalization and dedupe behavior.
+- [x] Harden campaign/compliance/communication/quote service contracts around STOP, approval, and audit invariants.
 
 ## P3 - App Surface Execution
 
-- [ ] Validate `apps/ratehunter` against public landing prompt requirements.
-- [ ] Validate `apps/projectnyra` against internal command hub prompt requirements.
+- [x] Validate `apps/ratehunter` against public landing prompt requirements.
+- [x] Validate `apps/projectnyra` against internal command hub prompt requirements.
 - [ ] Merge only useful legacy `apps/admin` and `apps/mortgage-crm` patterns into canonical routes when backed by services or explicit TODOs.
 
 ## P4 - Assistant, Memory, And Workflow Boundaries
 
-- [ ] Ensure assistant-service action routing cannot directly mutate CRM/databases.
-- [ ] Document OpenClaw gateway/tool approval contract.
-- [ ] Confirm n8n workflow docs/contracts keep n8n execution-only.
-- [ ] Confirm memory docs use Mem0/OpenMemory/Letta/FalkorDB only within approved boundaries and do not revive Graphiti/RuVector.
+- [x] Ensure assistant-service action routing cannot directly mutate CRM/databases.
+- [x] Document OpenClaw gateway/tool approval contract.
+- [x] Confirm n8n workflow docs/contracts keep n8n execution-only.
+- [x] Confirm memory docs use Mem0/OpenMemory/Letta/FalkorDB only within approved boundaries and do not revive Graphiti/RuVector.
 
 ## P5 - Infra, Observability, Security, Release
 
-- [ ] Validate host-scoped compose source files under `infra/hosts/`.
-- [ ] Update health check and observability docs where prompt requirements are missing.
-- [ ] Run secret/PII scans and document findings.
-- [ ] Create or update smoke/release/rollback checklist.
+- [x] Validate host-scoped compose source files under `infra/hosts/`.
+- [x] Update health check and observability docs where prompt requirements are missing.
+- [x] Run secret/PII scans and document findings.
+- [x] Create or update smoke/release/rollback checklist.
 
 ## P6 - Final Verification
 
@@ -47,6 +47,10 @@
 - [ ] Run workspace smoke tests where feasible.
 - [ ] Run lint/build for touched apps where feasible.
 - [ ] Record blockers instead of marking unavailable external services complete.
+
+## Research
+
+- [x] Document integration options matrix with free/open-source-first recommendations.
 
 ## Prompt Queue
 

@@ -33,3 +33,15 @@
 - 2026-05-20: Direct 5090 DLS prompt review recorded in `conductor/tracks/prompt_pack_execution_20260520/5090dlsprompts-review.md`; duplicate prompt files preserved but excluded from duplicate work items.
 - 2026-05-20: Backup check found `apps/guidance/references/webapp-merge-snapshot` present and `/home/ellisapotheosis/repos/webapp-merge` missing.
 - 2026-05-20: Prompt path mapping documented in `conductor/prompts/README.md` and `docs/PROMPT_PACK_EXECUTION.md`.
+- 2026-05-20: Prompt-pack `pnpm -w test --filter ...` command is stale for this workspace because Vitest receives unknown `--filter`; use `pnpm --filter <package> test`.
+- 2026-05-20: Package tests passed for `nyra-crm-api`, `@nyra/lead-ingestion`, `@nyra/campaign-service`, `@nyra/compliance-service`, `@nyra/communication-service`, `@nyra/quote-service`, `@nyra/assistant-service`, `@nyra/domain-models`, and `@nyra/integration-adapters`.
+- 2026-05-20: `pnpm -C apps/ratehunter lint`, `pnpm -C apps/ratehunter test:ci`, and `pnpm -C apps/ratehunter build` passed.
+- 2026-05-20: `pnpm -C apps/projectnyra lint`, `pnpm -C apps/projectnyra test --runInBand`, and `pnpm -C apps/projectnyra build` passed after deleting duplicate root route `apps/projectnyra/src/app/(public)/page.tsx`.
+- 2026-05-20: `pnpm --filter @nyra/lead-ingestion build`, `pnpm --filter @nyra/quote-service build`, `pnpm --filter nyra-crm-api build`, and `pnpm --filter @nyra/crm-types build` passed.
+- 2026-05-20: Canonical n8n exports copied into `workflows/n8n/exports/`; `workflows/n8n/README.md` documents the execution-only boundary.
+- 2026-05-20: `jq empty workflows/n8n/exports/*.json` passed for all copied n8n exports.
+- 2026-05-20: `docker compose version` returned `Docker Compose version v5.1.3`.
+- 2026-05-20: Secret scan metadata is recorded in `security-scan.md`; no tracked bare host `.env` files were found, and host `.env` files are gitignored.
+- 2026-05-20: Release smoke runbook added at `docs/runbooks/PROMPT_PACK_RELEASE_SMOKE.md`.
+- 2026-05-20: Assistant/OpenClaw safety boundary documented in `docs/integrations/NEXUS_OPENCLAW_NERVE.md`; memory hierarchy and deprecated Graphiti/RuVector boundary documented in `docs/integrations/MEMORY.md`.
+- 2026-05-20: Integration options matrix added at `docs/research/integration-options-20260520.md` using official/current sources.

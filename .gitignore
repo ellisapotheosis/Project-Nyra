@@ -610,6 +610,8 @@ data/gitea-db/
 mempalace.yaml
 entities.json
 .codex/*
+!.codex/AGENTS.md
+!.codex/PROJECT_PROMPT.md
 !.codex/agents/
 !.codex/agents/**
 !.codex/skills/
@@ -622,3 +624,7 @@ entities.json
 *:Zone.Identifier
 Thumbs.db*
 Desktop.ini
+
+# Prisma 7 generated clients are recreated by package prebuild/generate scripts.
+services/*/src/generated/prisma/
+packages/*/src/generated/prisma/

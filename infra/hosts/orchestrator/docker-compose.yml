@@ -18,6 +18,12 @@ services:
     restart: unless-stopped
     networks:
       - nyra-network
+    deploy:
+      resources:
+        limits:
+          memory: 1g
+        reservations:
+          memory: 256m
 
   # docker-mcp-toolkit:
   #   image: docker/mcp-toolkit:latest
@@ -38,6 +44,12 @@ services:
   #   restart: unless-stopped
   #   networks:
   #     - nyra-network
+  #   deploy:
+  #     resources:
+  #       limits:
+  #         memory: 1g
+  #       reservations:
+  #         memory: 256m
 
   postgres-client:
     image: postgres:16-alpine
@@ -70,6 +82,12 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
       - nyra-network
+    deploy:
+      resources:
+        limits:
+          memory: 2g
+        reservations:
+          memory: 512m
 
   # ── Syncthing ───────────────────────────────────────────────────────────
   syncthing:

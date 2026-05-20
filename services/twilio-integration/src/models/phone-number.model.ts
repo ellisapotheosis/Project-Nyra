@@ -1,7 +1,8 @@
-import mongoose, { Schema, Document } from 'mongoose';
-import { PhoneNumber } from '../types/twilio.types';
+import mongoose, { Schema, Document } from "mongoose";
+import { PhoneNumber } from "../types/twilio.types";
 
-export interface PhoneNumberDocument extends Omit<PhoneNumber, 'sid'>, Document {
+export interface PhoneNumberDocument
+  extends Omit<PhoneNumber, "sid">, Document {
   sid: string;
   assignedTo?: string;
   tags?: string[];
@@ -18,7 +19,12 @@ const PhoneNumberSchema = new Schema<PhoneNumberDocument>(
       mms: { type: Boolean, default: false },
       fax: { type: Boolean, default: false },
     },
-    status: { type: String, enum: ['active', 'inactive'], default: 'active', index: true },
+    status: {
+      type: String,
+      enum: ["active", "inactive"],
+      default: "active",
+      index: true,
+    },
     dateCreated: { type: Date, default: Date.now },
     monthlyPrice: { type: String },
     priceUnit: { type: String },
@@ -28,7 +34,7 @@ const PhoneNumberSchema = new Schema<PhoneNumberDocument>(
   {
     timestamps: true,
     toJSON: {
-      transform: (doc, ret) => {
+      transform: (_doc, ret: Record<string, unknown>) => {
         delete ret._id;
         delete ret.__v;
         return ret;
@@ -38,6 +44,6 @@ const PhoneNumberSchema = new Schema<PhoneNumberDocument>(
 );
 
 export const PhoneNumberModel = mongoose.model<PhoneNumberDocument>(
-  'PhoneNumber',
+  "PhoneNumber",
   PhoneNumberSchema
 );
