@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { WebSocketClient } from '../WebSocketClient';
-import { WebSocketClientOptions, SystemEvent, ConnectionInfo } from '../types';
+import { WebSocketClientOptions, SystemEvent, ConnectionInfo, ProductEventChannel } from '../types';
 
 export interface UseWebSocketOptions extends WebSocketClientOptions {
   autoConnect?: boolean;
@@ -184,4 +184,24 @@ export function useGPUMetrics(url: string, options: UseWebSocketOptions = {}) {
   }, [rest.connected, subscribe]);
 
   return rest;
+}
+
+export function useProductEventChannel(
+  url: string,
+  channel: ProductEventChannel,
+  options: UseWebSocketOptions = {}
+) {
+  const { subscribe, ...rest } = useWebSocketEvent(url, channel, options);
+
+  useEffect(() => {
+    if (rest.connected) {
+      subscribe(channel);
+    }
+  }, [channel, rest.connected, subscribe]);
+
+  return rest;
+}
+
+export function useLeadUpdates(url: string, options: UseWebSocketOptions = {}) {
+  return useProductEventChannel(url, 'lead:updates', options);
 }

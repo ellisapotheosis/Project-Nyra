@@ -1,5 +1,7 @@
 import { WebSocketServer as WSServer, WebSocket } from 'ws';
 import { IncomingMessage } from 'http';
+import http from 'http';
+import express from 'express';
 import { SessionManager } from '../session/SessionManager';
 import { JWTAuth } from '../auth/jwt';
 import { RateLimiter } from '../middleware/rateLimiter';
@@ -7,6 +9,7 @@ import { EventBus } from '../events/EventBus';
 import { MetricsCollector } from '../metrics/prometheus';
 import { NexusIntegration } from '../integrations/NexusIntegration';
 import { ClientMessage, ServerMessage, SystemEvent } from '../types';
+import { PRODUCT_EVENT_CHANNELS, isProductEventChannel, parseProductEvent, toSystemEvent } from '../events/productEvents';
 import { config } from '../config';
 import { createLogger } from '../utils/logger';
 import Redis from 'ioredis';
@@ -15,6 +18,8 @@ const logger = createLogger('websocket-server');
 
 export class WebSocketServer {
   private wss: WSServer;
+  private app: express.Application;
+  private httpServer: http.Server;
   private sessionManager: SessionManager;
   private jwtAuth: JWTAuth;
   private rateLimiter: RateLimiter;
@@ -37,10 +42,14 @@ export class WebSocketServer {
     this.eventBus = new EventBus();
     this.metrics = new MetricsCollector();
     this.nexusIntegration = new NexusIntegration(this.eventBus);
+    this.app = express();
+    this.httpServer = http.createServer(this.app);
+
+    this.setupHttpRoutes();
 
     // Create WebSocket server
     this.wss = new WSServer({
-      port: port || config.port,
+      server: this.httpServer,
       perMessageDeflate: {
         zlibDeflateOptions: {
           chunkSize: 1024,
@@ -60,6 +69,10 @@ export class WebSocketServer {
 
     this.setupEventHandlers();
     this.setupSystemEventHandlers();
+
+    this.httpServer.listen(port || config.port, () => {
+      logger.info({ port: port || config.port }, 'WebSocket server listening');
+    });
   }
 
   private setupEventHandlers() {
@@ -71,8 +84,55 @@ export class WebSocketServer {
       logger.error({ error }, 'WebSocket server error');
       this.metrics.errors.inc({ type: 'server' });
     });
+  }
 
-    logger.info({ port: config.port }, 'WebSocket server listening');
+  private setupHttpRoutes() {
+    this.app.use(express.json({ limit: '256kb' }));
+
+    this.app.get('/health', (_req, res) => {
+      res.json({
+        status: 'healthy',
+        uptime: process.uptime(),
+        timestamp: new Date().toISOString(),
+        channels: PRODUCT_EVENT_CHANNELS,
+      });
+    });
+
+    this.app.post('/events', (req, res) => {
+      if (!this.authorizeEventIngest(req)) {
+        this.metrics.errors.inc({ type: 'event_ingest_auth' });
+        res.status(401).json({ error: 'Unauthorized event ingress' });
+        return;
+      }
+
+      try {
+        const productEvent = parseProductEvent(req.body);
+        const systemEvent = toSystemEvent(productEvent);
+        this.eventBus.emit(productEvent.type, systemEvent);
+
+        res.status(202).json({
+          accepted: true,
+          channel: productEvent.type,
+          correlationId: productEvent.correlationId,
+          traceId: productEvent.traceId,
+          state: productEvent.state,
+          mode: productEvent.mode,
+          timestamp: productEvent.timestamp,
+        });
+      } catch (error) {
+        this.metrics.errors.inc({ type: 'event_ingest_validation' });
+        logger.warn({ error }, 'Invalid product event ingest request');
+        res.status(400).json({ error: 'Invalid product event payload' });
+      }
+    });
+  }
+
+  private authorizeEventIngest(req: express.Request): boolean {
+    if (!config.eventIngestApiKey) {
+      return config.nodeEnv !== 'production';
+    }
+
+    return req.header('x-nyra-event-key') === config.eventIngestApiKey;
   }
 
   private setupSystemEventHandlers() {
@@ -82,6 +142,9 @@ export class WebSocketServer {
     this.eventBus.on('tools:discovery', (event) => this.broadcastToChannel('tools:discovery', event));
     this.eventBus.on('agent:coordination', (event) => this.broadcastToChannel('agent:coordination', event));
     this.eventBus.on('swarm:update', (event) => this.broadcastToChannel('swarm:update', event));
+    for (const channel of PRODUCT_EVENT_CHANNELS) {
+      this.eventBus.on(channel, (event) => this.broadcastToChannel(channel, event));
+    }
   }
 
   private async handleConnection(ws: WebSocket, req: IncomingMessage) {
@@ -127,7 +190,13 @@ export class WebSocketServer {
         payload: {
           status: 'connected',
           version: '1.0.0',
-          features: ['mcp_status', 'gpu_metrics', 'tool_discovery', 'agent_coordination'],
+          features: [
+            'mcp_status',
+            'gpu_metrics',
+            'tool_discovery',
+            'agent_coordination',
+            ...PRODUCT_EVENT_CHANNELS,
+          ],
         },
         timestamp: new Date().toISOString(),
       });
@@ -245,9 +314,10 @@ export class WebSocketServer {
       'tools:discovery',
       'agent:coordination',
       'swarm:update',
+      ...PRODUCT_EVENT_CHANNELS,
     ];
 
-    if (!validChannels.includes(channel)) {
+    if (!validChannels.includes(channel) && !isProductEventChannel(channel)) {
       this.sendError(sessionId, `Invalid channel: ${channel}`);
       return;
     }
@@ -438,6 +508,7 @@ export class WebSocketServer {
     }
 
     this.wss.close();
+    this.httpServer.close();
 
     if (this.redis) {
       await this.redis.quit();
