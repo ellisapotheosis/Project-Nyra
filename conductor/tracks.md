@@ -51,3 +51,8 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 - [ ] **Track: Final-Cut Product Integration Backlog**
       _Link: [./tracks/final_cut_product_integration_20260520/](./tracks/final_cut_product_integration_20260520/)_
+
+---
+
+- [ ] **Track: Nyra Prompt Pack Finish-Line Execution**
+      _Link: [./tracks/prompt_pack_execution_20260520/](./tracks/prompt_pack_execution_20260520/)_
