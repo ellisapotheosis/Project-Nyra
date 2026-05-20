@@ -29,5 +29,20 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ---
 
+- [ ] **Track: Operational Hardening & Observability**
+      _Link: [./tracks/ops_hardening_20260519/](./tracks/ops_hardening_20260519/)_
+
+---
+
+- [ ] **Track: Prompt Surface Canonicalization**
+      _Link: [./tracks/prompt_canonicalization_20260519/](./tracks/prompt_canonicalization_20260519/)_
+
+---
+
+- [ ] **Track: Unified UI & Operator Experience**
+      _Link: [./tracks/unified_ui_refinement_20260519/](./tracks/unified_ui_refinement_20260519/)_
+
+---
+
 - [ ] **Track: Wiring & Hardening Phase**
-      *Link: [./tracks/wiring_hardening_20260516/](./tracks/wiring_hardening_20260516/)*
+      _Link: [./tracks/wiring_hardening_20260516/](./tracks/wiring_hardening_20260516/)_

@@ -275,3 +275,61 @@ export const AuditEventSchema = z.object({
   timestamp: z.date().default(() => new Date()),
 });
 export type AuditEvent = z.infer<typeof AuditEventSchema>;
+
+export const ComplianceDecisionSchema = z.object({
+  allowed: z.boolean(),
+  reason: z.enum([
+    "ALLOWED",
+    "MISSING_CONSENT",
+    "OPTED_OUT",
+    "DO_NOT_CONTACT",
+    "QUIET_HOURS",
+    "MISSING_DESTINATION",
+    "REQUIRES_APPROVAL",
+    "PROVIDER_POLICY_BLOCK",
+  ]),
+  channel: ChannelSchema,
+  decidedAt: z.string().datetime(),
+  policyVersion: z.string().min(1).default("v1"),
+});
+export type ComplianceDecision = z.infer<typeof ComplianceDecisionSchema>;
+
+export const QuietHoursPolicySchema = z.object({
+  timezone: z.string().min(1),
+  startHour: z.number().int().min(0).max(23).default(20),
+  endHour: z.number().int().min(0).max(23).default(8),
+  allowTransactional: z.boolean().default(false),
+});
+export type QuietHoursPolicy = z.infer<typeof QuietHoursPolicySchema>;
+
+export function isStopRequest(message: string): boolean {
+  return /\b(STOP|UNSUBSCRIBE|REMOVE|CANCEL|OPT\s*OUT|DNC|QUIT|END)\b/i.test(
+    message
+  );
+}
+
+export function isUnsubscribeRequest(message: string): boolean {
+  return /\b(UNSUBSCRIBE|OPT\s*OUT|REMOVE\s+ME|EMAIL\s+STOP)\b/i.test(message);
+}
+
+export function isWithinQuietHours(
+  date: Date,
+  policy: QuietHoursPolicy
+): boolean {
+  const hourString = new Intl.DateTimeFormat("en-US", {
+    timeZone: policy.timezone,
+    hour: "2-digit",
+    hour12: false,
+  }).format(date);
+  const hour = Number(hourString);
+
+  if (policy.startHour === policy.endHour) {
+    return true;
+  }
+
+  if (policy.startHour < policy.endHour) {
+    return hour >= policy.startHour && hour < policy.endHour;
+  }
+
+  return hour >= policy.startHour || hour < policy.endHour;
+}

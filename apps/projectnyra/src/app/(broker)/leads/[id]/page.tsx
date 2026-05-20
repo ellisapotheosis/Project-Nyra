@@ -50,6 +50,7 @@ export default function LeadProfilePage({
   const quietHoursStatus = getQuietHoursStatus(lead);
   const attribution = getSourceAttribution(lead);
   const tags = getLeadTags(lead);
+  const workspaceStatus = getWorkspaceStatus(lead);
 
   return (
     <StatusGate
@@ -124,6 +125,33 @@ export default function LeadProfilePage({
                     >
                       {tag}
                     </Badge>
+                  ))}
+                </div>
+              </div>
+
+              <div className="mt-3 w-full rounded-xl border border-slate-200 bg-white p-3 text-left">
+                <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-400">
+                  <CheckCircle2 className="h-3.5 w-3.5" />
+                  Live Workspace
+                </div>
+                <div className="mt-3 grid gap-2 text-sm">
+                  {workspaceStatus.map((item) => (
+                    <div
+                      key={item.label}
+                      className="flex items-center justify-between gap-3"
+                    >
+                      <span className="text-slate-500">{item.label}</span>
+                      <Badge
+                        variant="outline"
+                        className={
+                          item.ok
+                            ? "border-green-200 bg-green-50 text-green-700"
+                            : "border-amber-200 bg-amber-50 text-amber-700"
+                        }
+                      >
+                        {item.value}
+                      </Badge>
+                    </div>
                   ))}
                 </div>
               </div>
@@ -691,6 +719,39 @@ function getLeadTags(lead: any): string[] {
   );
 
   return Array.from(new Set([...explicitTags, ...derivedTags])).slice(0, 8);
+}
+
+function getWorkspaceStatus(
+  lead: any
+): Array<{ label: string; value: string; ok: boolean }> {
+  const workspace = lead?.workspace;
+  const compliance = workspace?.compliance;
+  const campaign = workspace?.campaign;
+  const quote = workspace?.quote;
+
+  return [
+    {
+      label: "CRM",
+      value: workspace?.crmBacked ? "Live" : "Mock",
+      ok: workspace?.crmBacked === true,
+    },
+    {
+      label: "Compliance",
+      value: compliance?.sendBlocked ? "Blocked" : "Eligible",
+      ok: compliance?.sendBlocked !== true,
+    },
+    {
+      label: "Campaign",
+      value: campaign?.status || lead?.campaignStatus || "Unassigned",
+      ok: (campaign?.status || lead?.campaignStatus) === "ACTIVE",
+    },
+    {
+      label: "Quotes",
+      value:
+        quote?.sourceOfTruth === "quote-service" ? "Service Owned" : "Pending",
+      ok: quote?.sourceOfTruth === "quote-service",
+    },
+  ];
 }
 
 function formatShortDate(value: string): string {
