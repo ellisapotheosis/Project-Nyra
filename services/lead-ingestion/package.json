@@ -11,6 +11,7 @@
     "typecheck": "tsc --noEmit -p tsconfig.json"
   },
   "dependencies": {
+    "@nyra/crm-types": "workspace:*",
     "@nyra/domain-models": "workspace:*",
     "@nyra/integration-adapters": "workspace:*"
   },

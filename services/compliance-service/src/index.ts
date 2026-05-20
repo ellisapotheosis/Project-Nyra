@@ -9,6 +9,7 @@ import {
   isUnsubscribeRequest,
   isWithinQuietHours,
 } from "@nyra/domain-models";
+import { applyInboundComplianceState } from "@nyra/compliance-domain";
 
 export interface CompliancePreflightInput {
   lead: Lead;
@@ -58,7 +59,10 @@ export function preflightOutbound(
           ? (lead as any).consentVoice
           : (lead as any).consentStatus;
 
-  if ((lead as any).consentStatus === "OPTED_OUT" || channelConsent === "OPTED_OUT") {
+  if (
+    (lead as any).consentStatus === "OPTED_OUT" ||
+    channelConsent === "OPTED_OUT"
+  ) {
     return decision(false, "OPTED_OUT", channel, now);
   }
 
@@ -74,7 +78,8 @@ export function preflightOutbound(
   }
 
   if (quietHoursPolicy && isWithinQuietHours(now, quietHoursPolicy)) {
-    const isAllowedTransactional = transactional && quietHoursPolicy.allowTransactional;
+    const isAllowedTransactional =
+      transactional && quietHoursPolicy.allowTransactional;
     if (!isAllowedTransactional) {
       return decision(false, "QUIET_HOURS", channel, now);
     }
@@ -117,5 +122,34 @@ export function classifyInboundCompliance(input: InboundComplianceInput) {
           },
         }
       : undefined,
+  };
+}
+
+export function applyInboundLeadState<TLead extends Lead>(
+  lead: TLead,
+  body: string
+): TLead {
+  const updated = applyInboundComplianceState(
+    {
+      id: lead.id ?? lead.email,
+      email: lead.email,
+      phone: lead.phone,
+      consentStatus: lead.consentStatus,
+      doNotContact: lead.doNotContact,
+    },
+    body
+  );
+
+  return {
+    ...lead,
+    consentStatus:
+      updated.consentStatus === "DO_NOT_CONTACT"
+        ? "DO_NOT_CONTACT"
+        : lead.consentStatus,
+    doNotContact: updated.doNotContact ?? lead.doNotContact,
+    metadata: {
+      ...(lead.metadata ?? {}),
+      replyPaused: updated.replyPaused === true,
+    },
   };
 }

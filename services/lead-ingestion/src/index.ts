@@ -3,6 +3,7 @@ import {
   MockTwentyClient,
   type ITwentyClient,
 } from "@nyra/integration-adapters";
+import type { CrmWritePlan } from "@nyra/crm-types";
 
 export const serviceName = "lead-ingestion";
 
@@ -68,6 +69,7 @@ export type IngestLeadResult = {
   campaignEligibility: CampaignEligibility;
   events: LeadIngestionEvent[];
   auditEvents: AuditEvent[];
+  crmWritePlan: CrmWritePlan;
 };
 
 export interface LeadIngestionStore {
@@ -142,6 +144,15 @@ export class LeadIngestionService {
       rawPayload
     );
 
+    const auditEvents = buildLeadAuditEvents({
+      lead: savedLead,
+      rawPayload,
+      dedupeKey,
+      dedupeOutcome,
+      campaignEligibility,
+      timestamp: now,
+    });
+
     return {
       lead: savedLead,
       dedupeKey,
@@ -154,12 +165,14 @@ export class LeadIngestionService {
         campaignEligibility,
         occurredAt: now.toISOString(),
       }),
-      auditEvents: buildLeadAuditEvents({
+      auditEvents,
+      crmWritePlan: buildCrmWritePlan({
         lead: savedLead,
         rawPayload,
         dedupeKey,
         dedupeOutcome,
         campaignEligibility,
+        auditEvents,
         timestamp: now,
       }),
     };
@@ -329,6 +342,62 @@ function buildLeadAuditEvents(input: BuildLeadAuditEventsInput): AuditEvent[] {
       timestamp: input.timestamp,
     },
   ];
+}
+
+type BuildCrmWritePlanInput = BuildLeadAuditEventsInput & {
+  auditEvents: AuditEvent[];
+};
+
+export function buildCrmWritePlan(input: BuildCrmWritePlanInput): CrmWritePlan {
+  const leadId = input.lead.id ?? input.dedupeKey;
+  const campaignId = cleanString(input.rawPayload.campaignId);
+
+  return {
+    lead: {
+      id: input.lead.id,
+      externalId: input.lead.externalId,
+      firstName: input.lead.firstName,
+      lastName: input.lead.lastName,
+      email: input.lead.email,
+      phone: input.lead.phone,
+      source: input.lead.source,
+      stage: input.lead.stage,
+      consentStatus: input.lead.consentStatus,
+      doNotContact: input.lead.doNotContact,
+      customFields: {
+        ...(input.lead.metadata ?? {}),
+        dedupeKey: input.dedupeKey,
+        campaignId,
+        campaignStatus: input.campaignEligibility.eligible
+          ? "ACTIVE"
+          : "STOPPED",
+      },
+    },
+    campaignEnrollment:
+      input.campaignEligibility.eligible && campaignId
+        ? {
+            leadId,
+            campaignId,
+            status: "ACTIVE",
+            currentStepIndex: 0,
+          }
+        : undefined,
+    communicationLogs: [],
+    quotes: [],
+    auditEvents: input.auditEvents.map((event) => ({
+      id: event.id,
+      entityType:
+        event.entityType === "CAMPAIGN_ENROLLMENT"
+          ? "CAMPAIGN_ENROLLMENT"
+          : "LEAD",
+      entityId: event.entityId,
+      action: event.action,
+      performer: event.performer,
+      riskLevel: event.riskLevel,
+      occurredAt: event.timestamp.toISOString(),
+      details: event.details,
+    })),
+  };
 }
 
 function deriveConsentStatus(

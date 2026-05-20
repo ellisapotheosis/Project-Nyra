@@ -14,6 +14,26 @@ Agents should always document these steps here instead of blocking.
 
 ## Infisical
 
+### Project Nyra final-cut app/service variables
+
+Add these to the Project Nyra app/service environments before live CRM, quote,
+campaign, and auth smoke tests:
+
+- `CRM_API_URL`
+- `CRM_API_KEY`
+- `LEAD_INGESTION_API_URL`
+- `LEAD_INGESTION_API_KEY`
+- `CAMPAIGN_ENGINE_URL`
+- `QUOTE_API_URL`
+- `QUOTE_API_SECRET`
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `SUPABASE_SERVICE_ROLE_KEY`
+- `NEXT_PUBLIC_APP_URL`
+
+The code now has mock-safe fallbacks for local UI work, but production writes
+must point at the audited service boundaries above.
+
 ### Per-host sidecar bootstrap token
 
 The compose sidecar pattern is wired to read one bootstrap value,

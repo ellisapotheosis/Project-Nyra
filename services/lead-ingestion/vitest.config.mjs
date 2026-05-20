@@ -16,6 +16,7 @@ export default defineConfig({
         repoRoot,
         "packages/domain-models/src/index.ts"
       ),
+      "@nyra/crm-types": resolve(repoRoot, "packages/crm-types/src/index.ts"),
       "@nyra/integration-adapters": resolve(
         repoRoot,
         "packages/integration-adapters/src/index.ts"

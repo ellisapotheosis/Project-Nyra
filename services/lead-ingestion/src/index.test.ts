@@ -128,11 +128,52 @@ describe("lead ingestion", () => {
         performer: "lead-ingestion",
       },
     ]);
+    expect(result.crmWritePlan.auditEvents).toHaveLength(2);
   });
 
   it("prefers email dedupe over phone dedupe", () => {
     expect(
       getLeadDedupeKey({ email: " Lead@Example.com ", phone: "5551234567" })
     ).toBe("email:lead@example.com");
+  });
+
+  it("builds a typed Twenty CRM write plan for eligible campaign enrollment", async () => {
+    const service = new LeadIngestionService({
+      now: () => fixedDate,
+      idFactory: () => leadId,
+    });
+
+    const result = await service.ingest({
+      firstName: "Morgan",
+      lastName: "Borrower",
+      email: "morgan@example.com",
+      source: "ratehunter",
+      consentSms: true,
+      campaignId: "speed-to-lead",
+      phone: "555-111-2222",
+      loanPurpose: "PURCHASE",
+      loanAmount: 500000,
+      propertyState: "id",
+    });
+
+    expect(result.crmWritePlan).toMatchObject({
+      lead: {
+        firstName: "Morgan",
+        customFields: {
+          dedupeKey: "email:morgan@example.com",
+          campaignId: "speed-to-lead",
+          campaignStatus: "ACTIVE",
+          loanPurpose: "PURCHASE",
+          loanAmount: 500000,
+          propertyState: "ID",
+        },
+      },
+      campaignEnrollment: {
+        leadId,
+        campaignId: "speed-to-lead",
+        status: "ACTIVE",
+        currentStepIndex: 0,
+      },
+    });
   });
 });
