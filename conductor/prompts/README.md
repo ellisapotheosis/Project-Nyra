@@ -1,16 +1,25 @@
 # Conductor Prompt Library
 
-This directory stores repo-level prompting and handoff material for Project Nyra.
+## Canonical Snapshots
 
-## Canonical Prompts
+- [Nyra Prompt Pack](./nyra-prompt-pack/) contains the full prompt pack imported from `/mnt/z/PromptMax/nyra-prompt-pack` on 2026-05-20.
+- [5090 DLS Prompts](./5090dlsprompts/) contains the direct 5090 DLS prompt snapshot.
 
-- `prompt-03-ui.md` owns UI, webapp, landing, and operator surfaces.
-- `prompt-05-ops.md` owns infra, security, runtime, release, and owner-action work.
-- `prompt-06-maintenance.md` owns prompt-surface maintenance and repo operating contract cleanup.
+## Execution Track
 
-## Imported Reference Packs
+Prompt execution is tracked in [../tracks/prompt_pack_execution_20260520/](../tracks/prompt_pack_execution_20260520/).
 
-- `nyra-prompt-pack/` is the imported full finish-line prompt pack for archival/reference use.
-- `5090dlsprompts/` is an imported source prompt set with duplicate copy files preserved as received.
+## Current Repo Mapping
 
-Do not treat imported reference packs as the active execution contract until their useful content is mapped into the canonical conductor prompts or a dated track under `conductor/tracks/`.
+Some imported prompts were generated against an older repo layout. Apply this mapping before executing them:
+
+| Prompt-Pack Path                  | Current Project Nyra Path                                                 |
+| --------------------------------- | ------------------------------------------------------------------------- |
+| `apps/webapp/app`                 | `apps/projectnyra`                                                        |
+| `apps/landing/ratehunter-landing` | `apps/ratehunter`                                                         |
+| `nyra.ratehunter.net`             | `app.projectnyra.com` or another `projectnyra.com` platform subdomain     |
+| `ratehunter.net` platform routes  | Not allowed; `ratehunter.net` remains isolated to the public landing site |
+
+## Architecture Guardrails
+
+The prompt snapshots are preserved as source material. They do not override `AGENTS.md`, `docs/MASTER_ARCHITECTURE.md`, or the current repo state. If a prompt references deprecated architecture such as RuVector, Graphiti, Archon, AgentDB, Flow-Nexus, Sona, Epic SDK, claude-flow, or Clerk as the internal auth target, treat that as stale prompt-pack context and follow the current Project Nyra contract instead.
