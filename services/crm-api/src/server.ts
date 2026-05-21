@@ -89,6 +89,85 @@ app.get("/api/leads", authenticate, async (req, res) => {
   }
 });
 
+app.get("/api/leads/:id", authenticate, async (req, res) => {
+  const id = parseIdParam(req.params.id);
+  try {
+    const lead = await twentyClient.getContact(id);
+    if (!lead) {
+      res.status(404).json({ error: "Lead not found" });
+      return;
+    }
+
+    const [quotes, campaignEnrollments, auditEvents] = await Promise.all([
+      twentyClient.getQuotesForLead(id).catch(() => []),
+      twentyClient.getActiveCampaigns(id).catch(() => []),
+      auditLedger.listForEntity("LEAD", id, 25).catch(() => []),
+    ]);
+
+    res.json({
+      lead: {
+        ...lead,
+        quotes,
+        campaignEnrollments,
+        auditEvents,
+      },
+      source: "crm-api",
+    });
+  } catch (error) {
+    logger.error("Failed to fetch lead", { error, leadId: id });
+    res.status(500).json({ error: "Failed to fetch lead from CRM" });
+  }
+});
+
+app.get("/api/leads/:id/conversation", authenticate, async (req, res) => {
+  const id = parseIdParam(req.params.id);
+  try {
+    const [logs, auditEvents] = await Promise.all([
+      twentyClient.timeline(id, 50).catch(() => []),
+      auditLedger.listForEntity("LEAD", id, 50).catch(() => []),
+    ]);
+
+    res.json({
+      logs,
+      auditEvents,
+      timeline: mergeTimeline(logs, auditEvents),
+      source: "crm-api",
+    });
+  } catch (error) {
+    logger.error("Failed to fetch lead conversation", {
+      error,
+      leadId: id,
+    });
+    res.status(500).json({ error: "Failed to fetch lead conversation" });
+  }
+});
+
+app.get("/api/dashboard/pipeline", authenticate, async (req, res) => {
+  try {
+    const limit = Number(req.query.limit ?? 500);
+    const leads = await twentyClient.searchContacts({ limit });
+    const grouped = new Map<string, number>();
+
+    for (const lead of leads) {
+      const status = getPipelineStatus(lead);
+      grouped.set(status, (grouped.get(status) ?? 0) + 1);
+    }
+
+    res.json({
+      pipeline: Array.from(grouped.entries()).map(([status, total]) => ({
+        campaign_name: "Mortgage workspace",
+        status,
+        total,
+        next_touch: null,
+      })),
+      source: "crm-api",
+    });
+  } catch (error) {
+    logger.error("Failed to fetch pipeline summary", { error });
+    res.status(500).json({ error: "Failed to fetch pipeline from CRM" });
+  }
+});
+
 app.post("/api/leads", authenticate, async (req, res) => {
   try {
     const input = z
@@ -155,6 +234,37 @@ async function handleCrmWritePlan(req: express.Request, res: express.Response) {
 app.post("/api/leads/ingest", authenticate, handleCrmWritePlan);
 app.post("/api/crm/write-plan", authenticate, handleCrmWritePlan);
 
+app.patch("/api/leads/:id/campaign", authenticate, async (req, res) => {
+  const id = parseIdParam(req.params.id);
+  try {
+    const status = z.string().min(1).parse(req.body?.status);
+    const result = await twentyClient.updateContact(id, {
+      customFields: {
+        campaignStatus: status,
+        campaignUpdatedAt: new Date().toISOString(),
+      },
+    });
+
+    await auditLedger.log({
+      action: "CAMPAIGN_STATUS_UPDATED",
+      entityId: id,
+      entityType: "LEAD",
+      performer: "crm-api",
+      riskLevel: "INTERNAL_MUTATION",
+      details: { status },
+      occurredAt: new Date().toISOString(),
+    });
+
+    res.json({ success: true, lead: result, source: "crm-api" });
+  } catch (error) {
+    logger.error("Failed to update lead campaign status", {
+      error,
+      leadId: id,
+    });
+    res.status(500).json({ error: "Failed to update lead campaign status" });
+  }
+});
+
 // Quote Engine Proxy
 app.post("/api/quotes/generate", authenticate, async (req, res) => {
   try {
@@ -168,6 +278,36 @@ app.post("/api/quotes/generate", authenticate, async (req, res) => {
       detail:
         "Deterministic pricing shard is offline. Manual override required.",
     });
+  }
+});
+
+app.post("/api/quotes/:id/approve", authenticate, async (req, res) => {
+  const id = parseIdParam(req.params.id);
+  try {
+    const approvedBy =
+      typeof req.body?.approvedBy === "string" ? req.body.approvedBy : "broker";
+    const quote = await twentyClient.request("updateQuoteStatus", {
+      id,
+      input: {
+        status: "APPROVED",
+        approvedBy,
+        approvedAt: new Date().toISOString(),
+      },
+    });
+
+    await auditLedger.log({
+      action: "QUOTE_APPROVED",
+      entityId: id,
+      entityType: "QUOTE",
+      performer: approvedBy,
+      riskLevel: "INTERNAL_MUTATION",
+      occurredAt: new Date().toISOString(),
+    });
+
+    res.json({ quote, source: "crm-api" });
+  } catch (error) {
+    logger.error("Failed to approve quote", { error, quoteId: id });
+    res.status(500).json({ error: "Failed to approve quote" });
   }
 });
 
@@ -209,6 +349,29 @@ function getCrmWritePlan(body: unknown): CrmWritePlan | undefined {
   }
 
   return plan as CrmWritePlan;
+}
+
+function parseIdParam(value: string | undefined): string {
+  return z.string().min(1).parse(value);
+}
+
+function getPipelineStatus(lead: Record<string, unknown>): string {
+  const customFields = lead.customFields;
+  const customStatus =
+    customFields &&
+    typeof customFields === "object" &&
+    "campaignStatus" in customFields
+      ? (customFields as Record<string, unknown>).campaignStatus
+      : undefined;
+
+  return String(customStatus ?? lead.status ?? "UNASSIGNED");
+}
+
+function mergeTimeline(logs: unknown[], auditEvents: unknown[]) {
+  return [
+    ...logs.map((entry) => ({ type: "communication", entry })),
+    ...auditEvents.map((entry) => ({ type: "audit", entry })),
+  ];
 }
 
 const server = app.listen(PORT, () => {

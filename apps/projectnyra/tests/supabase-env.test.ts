@@ -51,3 +51,7 @@ describe("Supabase env helpers", () => {
     expect(getSupabaseServiceRoleKey()).toBe("service-role-test-key");
   });
 });
+
+export {};
+
+export {};
