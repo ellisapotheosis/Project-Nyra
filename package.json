@@ -16,7 +16,7 @@
   "scripts": {
     "prepare": "husky",
     "dev": "turbo run dev --concurrency=30",
-    "build": "turbo run build",
+    "build": "pnpm -C apps/projectnyra build && turbo run build --concurrency=1 --filter=!projectnyra",
     "lint": "pnpm -r --if-present lint",
     "test": "pnpm exec vitest --config vitest.smoke.config.mjs run",
     "test:unit": "bash scripts/testing/run-unit-tests.sh",
