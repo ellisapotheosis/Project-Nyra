@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 
+import {
+  canUseMockFallback,
+  productionWriteUnavailable,
+} from "@/lib/api/config";
 import { leads } from "@/lib/mock-data";
 
 const CRM_API_URL = process.env.CRM_API_URL;
@@ -11,6 +15,7 @@ export async function PATCH(
 ) {
   const { id } = await params;
   const body = await req.json();
+  let upstreamError: unknown;
 
   if (CRM_API_URL) {
     try {
@@ -27,7 +32,18 @@ export async function PATCH(
         const data = await response.json();
         return NextResponse.json(data);
       }
-    } catch {}
+    } catch (error) {
+      upstreamError = error;
+    }
+  }
+
+  if (!canUseMockFallback()) {
+    return productionWriteUnavailable(
+      "Campaign mutation",
+      upstreamError
+        ? "Configured CRM API could not be reached"
+        : "CRM_API_URL must be configured for production campaign mutations"
+    );
   }
 
   const lead = leads.find((entry) => entry.id === id);

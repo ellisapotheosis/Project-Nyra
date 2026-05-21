@@ -1,5 +1,9 @@
 import { NextResponse } from "next/server";
 
+import {
+  canUseMockFallback,
+  productionWriteUnavailable,
+} from "@/lib/api/config";
 import { leads } from "@/lib/mock-data";
 
 const CRM_API_URL = process.env.CRM_API_URL;
@@ -30,6 +34,7 @@ export async function GET() {
 export async function POST(request: Request) {
   const payload = await request.json();
   const ingestionUrl = LEAD_INGESTION_API_URL ?? CRM_API_URL;
+  let upstreamError: unknown;
 
   if (ingestionUrl) {
     try {
@@ -60,7 +65,18 @@ export async function POST(request: Request) {
         },
         { status: response.status }
       );
-    } catch {}
+    } catch (error) {
+      upstreamError = error;
+    }
+  }
+
+  if (!canUseMockFallback()) {
+    return productionWriteUnavailable(
+      "Lead ingestion",
+      upstreamError
+        ? "Configured lead ingestion service could not be reached"
+        : "LEAD_INGESTION_API_URL or CRM_API_URL must be configured for production lead writes"
+    );
   }
 
   const now = new Date().toISOString();

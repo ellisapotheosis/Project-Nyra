@@ -1,10 +1,16 @@
 import { NextResponse } from "next/server";
 
+import {
+  canUseMockFallback,
+  productionWriteUnavailable,
+} from "@/lib/api/config";
+
 const QUOTE_API_URL = process.env.QUOTE_API_URL;
 const QUOTE_API_SECRET = process.env.QUOTE_API_SECRET;
 
 export async function POST(request: Request) {
   const payload = await request.json();
+  let upstreamError: unknown;
 
   if (QUOTE_API_URL) {
     try {
@@ -34,7 +40,18 @@ export async function POST(request: Request) {
         },
         { status: response.status }
       );
-    } catch {}
+    } catch (error) {
+      upstreamError = error;
+    }
+  }
+
+  if (!canUseMockFallback()) {
+    return productionWriteUnavailable(
+      "Quote service",
+      upstreamError
+        ? "Configured quote service could not be reached"
+        : "QUOTE_API_URL must be configured for production quote generation"
+    );
   }
 
   const loanAmount =

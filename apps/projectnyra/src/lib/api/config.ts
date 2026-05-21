@@ -1,4 +1,5 @@
 export const NYRA_ENABLE_MOCKS = process.env.NYRA_ENABLE_MOCKS === "true";
+export const NYRA_IS_PRODUCTION = process.env.NODE_ENV === "production";
 
 export const serviceConfig = {
   crmApiUrl: process.env.CRM_API_URL || "",
@@ -25,5 +26,21 @@ export function serviceUnavailable(
       mocksEnabled: NYRA_ENABLE_MOCKS,
     },
     { status }
+  );
+}
+
+export function canUseMockFallback() {
+  return NYRA_ENABLE_MOCKS || !NYRA_IS_PRODUCTION;
+}
+
+export function productionWriteUnavailable(
+  service: string,
+  detail: string,
+  status = 503
+) {
+  return serviceUnavailable(
+    service,
+    `${detail}. Local mock writes are disabled in production unless NYRA_ENABLE_MOCKS=true.`,
+    status
   );
 }

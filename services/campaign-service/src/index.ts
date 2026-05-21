@@ -24,8 +24,43 @@ export type CampaignServiceLead = {
 };
 
 export class CampaignService {
+  constructor(private readonly store?: CampaignEnrollmentStore) {}
+
+  async enroll(input: {
+    enrollment: CampaignEnrollment;
+    steps: CampaignStep[];
+    now?: Date;
+  }): Promise<CampaignEnrollment> {
+    const firstStep = input.steps[0];
+    const enrolledAt = input.now ?? new Date(input.enrollment.enrolledAt);
+    const enrollment = {
+      ...input.enrollment,
+      nextTouchAt: firstStep
+        ? new Date(
+            enrolledAt.getTime() + firstStep.delayMinutes * 60_000
+          ).toISOString()
+        : undefined,
+    };
+
+    await this.store?.save(enrollment, input.steps);
+    return enrollment;
+  }
+
   transition(state: CampaignState, event: CampaignEvent): CampaignState {
     return transitionCampaignState(state, event);
+  }
+
+  async transitionEnrollment(
+    enrollmentId: string,
+    event: CampaignEvent
+  ): Promise<CampaignEnrollment> {
+    const record = await this.requireRecord(enrollmentId);
+    const next = {
+      ...record.enrollment,
+      state: transitionCampaignState(record.enrollment.state, event),
+    };
+    await this.store?.save(next, record.steps);
+    return next;
   }
 
   evaluateSend(input: {
@@ -67,5 +102,62 @@ export class CampaignService {
     sentAt: Date
   ): CampaignEnrollment {
     return advanceCampaignStep(enrollment, steps, sentAt);
+  }
+
+  async recordStepSent(
+    enrollmentId: string,
+    sentAt: Date
+  ): Promise<CampaignEnrollment> {
+    const record = await this.requireRecord(enrollmentId);
+    const next = advanceCampaignStep(record.enrollment, record.steps, sentAt);
+    await this.store?.save(next, record.steps);
+    return next;
+  }
+
+  async getEnrollment(enrollmentId: string) {
+    return this.store?.get(enrollmentId);
+  }
+
+  private async requireRecord(enrollmentId: string) {
+    const record = await this.store?.get(enrollmentId);
+    if (!record) {
+      throw new Error(`Campaign enrollment ${enrollmentId} was not found`);
+    }
+
+    return record;
+  }
+}
+
+export type CampaignEnrollmentRecord = {
+  enrollment: CampaignEnrollment;
+  steps: CampaignStep[];
+};
+
+export interface CampaignEnrollmentStore {
+  get(enrollmentId: string): Promise<CampaignEnrollmentRecord | undefined>;
+  save(
+    enrollment: CampaignEnrollment,
+    steps: CampaignStep[]
+  ): Promise<CampaignEnrollmentRecord>;
+  listByLead(leadId: string): Promise<CampaignEnrollmentRecord[]>;
+}
+
+export class InMemoryCampaignEnrollmentStore implements CampaignEnrollmentStore {
+  private readonly records = new Map<string, CampaignEnrollmentRecord>();
+
+  async get(enrollmentId: string) {
+    return this.records.get(enrollmentId);
+  }
+
+  async save(enrollment: CampaignEnrollment, steps: CampaignStep[]) {
+    const record = { enrollment, steps };
+    this.records.set(enrollment.id, record);
+    return record;
+  }
+
+  async listByLead(leadId: string) {
+    return Array.from(this.records.values()).filter(
+      (record) => record.enrollment.leadId === leadId
+    );
   }
 }
