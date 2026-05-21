@@ -1,12 +1,12 @@
 {
-  "timestamp": "2026-05-20T07:43:45Z",
+  "timestamp": "2026-05-21T03:10:30Z",
   "config": "config/health-check/health-check-config.json",
   "reports": [
     {
       "service_name": "Tailscale (control-plane)",
       "endpoint": "orchestrator.trex-fiordland.ts.net",
       "status": "up",
-      "latency_ms": 1029.49,
+      "latency_ms": 1293.52,
       "details": "PING orchestrator.trex-fiordland.ts.net (100.64.0.10) 56(84) bytes of data.",
       "host": "orchestrator",
       "type": "node"
@@ -15,7 +15,7 @@
       "service_name": "Tailscale (cloud-control-services)",
       "endpoint": "oracle.trex-fiordland.ts.net",
       "status": "up",
-      "latency_ms": 1035.71,
+      "latency_ms": 1109.0,
       "details": "PING oracle.trex-fiordland.ts.net (100.64.0.3) 56(84) bytes of data.",
       "host": "oracle-vps",
       "type": "node"
@@ -24,7 +24,7 @@
       "service_name": "Tailscale (primary-vllm)",
       "endpoint": "worker-rtx5090.trex-fiordland.ts.net",
       "status": "up",
-      "latency_ms": 1023.33,
+      "latency_ms": 1126.78,
       "details": "PING worker-rtx5090.trex-fiordland.ts.net (100.64.0.11) 56(84) bytes of data.",
       "host": "worker-rtx5090",
       "type": "node"
@@ -33,7 +33,7 @@
       "service_name": "Tailscale (secondary-vllm)",
       "endpoint": "worker-rtx3090ti.trex-fiordland.ts.net",
       "status": "up",
-      "latency_ms": 1027.66,
+      "latency_ms": 1080.24,
       "details": "PING worker-rtx3090ti.trex-fiordland.ts.net (100.64.0.13) 56(84) bytes of data.",
       "host": "worker-rtx3090ti",
       "type": "node"
@@ -42,7 +42,7 @@
       "service_name": "Tailscale (subscription-api-light-worker)",
       "endpoint": "worker-rtx3060.trex-fiordland.ts.net",
       "status": "up",
-      "latency_ms": 1029.93,
+      "latency_ms": 1072.09,
       "details": "PING worker-rtx3060.trex-fiordland.ts.net (100.64.0.12) 56(84) bytes of data.",
       "host": "worker-rtx3060",
       "type": "node"
@@ -51,7 +51,7 @@
       "service_name": "orchestrator-portainer",
       "endpoint": "http://orchestrator.trex-fiordland.ts.net:9000/",
       "status": "down",
-      "latency_ms": 10172.27,
+      "latency_ms": 10347.01,
       "details": "URLError(TimeoutError('timed out'))",
       "host": "orchestrator",
       "type": "http"
@@ -60,7 +60,7 @@
       "service_name": "orchestrator-status-bridge",
       "endpoint": "http://orchestrator.trex-fiordland.ts.net:8787/health",
       "status": "down",
-      "latency_ms": 13.24,
+      "latency_ms": 7.84,
       "details": "URLError(ConnectionRefusedError(111, 'Connection refused'))",
       "host": "orchestrator",
       "type": "http"
@@ -69,7 +69,7 @@
       "service_name": "orchestrator-subscription-bridge",
       "endpoint": "http://orchestrator.trex-fiordland.ts.net:8090/health",
       "status": "down",
-      "latency_ms": 10018.35,
+      "latency_ms": 10015.25,
       "details": "URLError(TimeoutError('timed out'))",
       "host": "orchestrator",
       "type": "http"
@@ -78,7 +78,7 @@
       "service_name": "orchestrator-prometheus",
       "endpoint": "http://orchestrator.trex-fiordland.ts.net:9090/-/healthy",
       "status": "down",
-      "latency_ms": 11.51,
+      "latency_ms": 19.16,
       "details": "URLError(ConnectionRefusedError(111, 'Connection refused'))",
       "host": "orchestrator",
       "type": "http"
@@ -87,7 +87,7 @@
       "service_name": "orchestrator-grafana",
       "endpoint": "http://orchestrator.trex-fiordland.ts.net:3003/api/health",
       "status": "down",
-      "latency_ms": 6.02,
+      "latency_ms": 24.16,
       "details": "URLError(ConnectionRefusedError(111, 'Connection refused'))",
       "host": "orchestrator",
       "type": "http"
@@ -96,7 +96,7 @@
       "service_name": "orchestrator-loki",
       "endpoint": "http://orchestrator.trex-fiordland.ts.net:3100/ready",
       "status": "down",
-      "latency_ms": 5.09,
+      "latency_ms": 10.42,
       "details": "URLError(ConnectionRefusedError(111, 'Connection refused'))",
       "host": "orchestrator",
       "type": "http"
@@ -105,7 +105,7 @@
       "service_name": "worker-5090-vllm",
       "endpoint": "http://worker-rtx5090.trex-fiordland.ts.net:8000/health",
       "status": "up",
-      "latency_ms": 17.3,
+      "latency_ms": 24.15,
       "details": "HTTP 200",
       "host": "worker-rtx5090",
       "type": "http"
@@ -114,7 +114,7 @@
       "service_name": "worker-5090-gpu-docker",
       "endpoint": "docker --context worker-rtx5090 run --rm --gpus all nvidia/cuda:12.9.0-base-ubuntu22.04 nvidia-smi --query-gpu=name,memory.total,memory.used --format=csv,noheader",
       "status": "down",
-      "latency_ms": 9142.31,
+      "latency_ms": 1213.05,
       "details": "error during connect: Get \"http://docker.example.com/_ping\": command [ssh -o ConnectTimeout=30 -T -- docker-worker-rtx5090 docker system dial-stdio] has exited with exit status 255, make sure the URL is valid, and Docker 18.09 or later is i",
       "host": "worker-rtx5090",
       "type": "command"
@@ -123,7 +123,7 @@
       "service_name": "worker-5090-litellm",
       "endpoint": "http://worker-rtx5090.trex-fiordland.ts.net:4000/health",
       "status": "down",
-      "latency_ms": 10029.13,
+      "latency_ms": 10022.22,
       "details": "URLError(TimeoutError('timed out'))",
       "host": "worker-rtx5090",
       "type": "http"
@@ -132,7 +132,7 @@
       "service_name": "worker-5090-subscription-bridge",
       "endpoint": "http://worker-rtx5090.trex-fiordland.ts.net:8090/health",
       "status": "up",
-      "latency_ms": 17.14,
+      "latency_ms": 7.79,
       "details": "HTTP 200",
       "host": "worker-rtx5090",
       "type": "http"
@@ -141,7 +141,7 @@
       "service_name": "worker-3090ti-vllm",
       "endpoint": "http://worker-rtx3090ti.trex-fiordland.ts.net:8000/health",
       "status": "down",
-      "latency_ms": 10023.71,
+      "latency_ms": 10015.83,
       "details": "URLError(TimeoutError('timed out'))",
       "host": "worker-rtx3090ti",
       "type": "http"
@@ -149,9 +149,9 @@
     {
       "service_name": "worker-3090ti-gpu-docker",
       "endpoint": "docker --context worker-rtx3090ti run --rm --gpus all nvidia/cuda:12.9.0-base-ubuntu22.04 nvidia-smi --query-gpu=name,memory.total,memory.used --format=csv,noheader",
-      "status": "up",
-      "latency_ms": 1730.38,
-      "details": "NVIDIA GeForce RTX 3090, 24576 MiB, 1013 MiB",
+      "status": "down",
+      "latency_ms": 1963.36,
+      "details": "error during connect: Get \"http://docker.example.com/_ping\": command [ssh -o ConnectTimeout=30 -T -- docker-worker-rtx3090ti docker system dial-stdio] has exited with exit status 1, make sure the URL is valid, and Docker 18.09 or later is i",
       "host": "worker-rtx3090ti",
       "type": "command"
     },
@@ -159,7 +159,7 @@
       "service_name": "worker-3090ti-litellm",
       "endpoint": "http://worker-rtx3090ti.trex-fiordland.ts.net:4000/health",
       "status": "down",
-      "latency_ms": 10044.25,
+      "latency_ms": 10018.46,
       "details": "URLError(TimeoutError('timed out'))",
       "host": "worker-rtx3090ti",
       "type": "http"
@@ -167,9 +167,9 @@
     {
       "service_name": "worker-3090ti-subscription-bridge",
       "endpoint": "http://worker-rtx3090ti.trex-fiordland.ts.net:8090/health",
-      "status": "up",
-      "latency_ms": 24.92,
-      "details": "HTTP 200",
+      "status": "down",
+      "latency_ms": 10015.9,
+      "details": "URLError(TimeoutError('timed out'))",
       "host": "worker-rtx3090ti",
       "type": "http"
     },
@@ -177,7 +177,7 @@
       "service_name": "worker-3060-ollama",
       "endpoint": "http://worker-rtx3060.trex-fiordland.ts.net:11434/api/tags",
       "status": "down",
-      "latency_ms": 19.07,
+      "latency_ms": 12.14,
       "details": "URLError(ConnectionRefusedError(111, 'Connection refused'))",
       "host": "worker-rtx3060",
       "type": "http"
@@ -186,8 +186,8 @@
       "service_name": "worker-3060-gpu-docker",
       "endpoint": "docker --context worker-rtx3060 run --rm --gpus all nvidia/cuda:12.9.0-base-ubuntu22.04 nvidia-smi --query-gpu=name,memory.total,memory.used --format=csv,noheader",
       "status": "up",
-      "latency_ms": 2404.34,
-      "details": "NVIDIA GeForce RTX 3060 Laptop GPU, 6144 MiB, 944 MiB",
+      "latency_ms": 2440.39,
+      "details": "NVIDIA GeForce RTX 3060 Laptop GPU, 6144 MiB, 928 MiB",
       "host": "worker-rtx3060",
       "type": "command"
     },
@@ -195,7 +195,7 @@
       "service_name": "worker-3060-litellm",
       "endpoint": "http://worker-rtx3060.trex-fiordland.ts.net:4000/health",
       "status": "up",
-      "latency_ms": 474.11,
+      "latency_ms": 527.93,
       "details": "HTTP 401",
       "host": "worker-rtx3060",
       "type": "http"
@@ -204,7 +204,7 @@
       "service_name": "worker-3060-subscription-bridge",
       "endpoint": "http://worker-rtx3060.trex-fiordland.ts.net:8090/health",
       "status": "up",
-      "latency_ms": 39.55,
+      "latency_ms": 13.8,
       "details": "HTTP 200",
       "host": "worker-rtx3060",
       "type": "http"
@@ -213,7 +213,7 @@
       "service_name": "oracle-twenty",
       "endpoint": "http://oracle.trex-fiordland.ts.net:3000/healthz",
       "status": "down",
-      "latency_ms": 10031.94,
+      "latency_ms": 10012.84,
       "details": "URLError(TimeoutError('timed out'))",
       "host": "oracle-vps",
       "type": "http"
@@ -222,7 +222,7 @@
       "service_name": "oracle-activepieces",
       "endpoint": "http://oracle.trex-fiordland.ts.net:8080/",
       "status": "down",
-      "latency_ms": 10054.14,
+      "latency_ms": 10012.0,
       "details": "URLError(TimeoutError('timed out'))",
       "host": "oracle-vps",
       "type": "http"
@@ -231,7 +231,7 @@
       "service_name": "oracle-n8n",
       "endpoint": "http://oracle.trex-fiordland.ts.net:5678/healthz",
       "status": "down",
-      "latency_ms": 10026.0,
+      "latency_ms": 10015.92,
       "details": "URLError(TimeoutError('timed out'))",
       "host": "oracle-vps",
       "type": "http"
@@ -240,7 +240,7 @@
       "service_name": "oracle-litellm",
       "endpoint": "http://oracle.trex-fiordland.ts.net:4000/health",
       "status": "down",
-      "latency_ms": 10035.67,
+      "latency_ms": 10011.87,
       "details": "URLError(TimeoutError('timed out'))",
       "host": "oracle-vps",
       "type": "http"
@@ -249,7 +249,7 @@
       "service_name": "oracle-nexus",
       "endpoint": "http://oracle.trex-fiordland.ts.net:6000/health",
       "status": "down",
-      "latency_ms": 10047.91,
+      "latency_ms": 10020.03,
       "details": "URLError(TimeoutError('timed out'))",
       "host": "oracle-vps",
       "type": "http"
@@ -258,7 +258,7 @@
       "service_name": "oracle-quote-api",
       "endpoint": "http://oracle.trex-fiordland.ts.net:7070/health",
       "status": "down",
-      "latency_ms": 10015.83,
+      "latency_ms": 10022.53,
       "details": "URLError(TimeoutError('timed out'))",
       "host": "oracle-vps",
       "type": "http"
@@ -267,7 +267,7 @@
       "service_name": "oracle-gitea",
       "endpoint": "http://oracle.trex-fiordland.ts.net:3001/api/healthz",
       "status": "down",
-      "latency_ms": 10011.87,
+      "latency_ms": 10046.97,
       "details": "URLError(TimeoutError('timed out'))",
       "host": "oracle-vps",
       "type": "http"
@@ -276,7 +276,7 @@
       "service_name": "oracle-letta",
       "endpoint": "http://oracle.trex-fiordland.ts.net:8283/v1/health",
       "status": "down",
-      "latency_ms": 10011.86,
+      "latency_ms": 10013.93,
       "details": "URLError(TimeoutError('timed out'))",
       "host": "oracle-vps",
       "type": "http"
@@ -285,12 +285,12 @@
       "service_name": "oracle-mem0",
       "endpoint": "http://oracle.trex-fiordland.ts.net:5001/health",
       "status": "down",
-      "latency_ms": 10012.06,
+      "latency_ms": 10022.55,
       "details": "URLError(TimeoutError('timed out'))",
       "host": "oracle-vps",
       "type": "http"
     }
   ],
   "pending_services": [],
-  "failures": 20
+  "failures": 22
 }

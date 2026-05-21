@@ -50,13 +50,13 @@ _Refer to `docs/MASTER_ARCHITECTURE.md` for deep technical details._
 <claude-mem-context>
 # Memory Context
 
-# [project-nyra] recent context, 2026-05-20 6:54pm PDT
+# [project-nyra] recent context, 2026-05-20 8:01pm PDT
 
 Legend: 🎯session 🔴bugfix 🟣feature 🔄refactor ✅change 🔵discovery ⚖️decision 🚨security_alert 🔐security_note
 Format: ID TIME TYPE TITLE
 Fetch details: get_observations([IDs]) | Search: mem-search skill
 
-Stats: 50 obs (22,535t read) | 1,235,774t work | 98% savings
+Stats: 50 obs (16,090t read) | 182,904t work | 91% savings
 
 ### May 4, 2026
 
@@ -82,56 +82,56 @@ S7 Infrastructure Restructure and Host Layout Documentation: Complete container 
 
 ### May 20, 2026
 
-272 12:13a 🔵 Comprehensive filesystem search confirms 5090dlsprompts path inaccessible
-274 " 🟣 CRM write plan fully integrated into Express server with REST API endpoints
-275 " 🟣 Contract types for lead, audit, and write plan exported from crm-types shared package
-276 " 🔵 File path resolution exhausted; no 5090dlsprompts or nyra-prompt-pack found on disk
-277 12:14a 🟣 Complete CRM API Express server with endpoints, auth, quote proxy, and audit integration
-278 " 🟣 PostgreSQL audit ledger sink with lazy schema creation and JSONB details storage
-279 " 🟣 Extended CRM type contracts for campaigns, communications, and multi-option quotes
-280 12:15a 🔴 Unit tests pass but TypeScript build fails due to composite project references and rootDir mismatch
-281 " 🔵 TypeScript monorepo configuration pattern: rootDir must be project root with explicit include paths
-282 " 🟣 AuditLogger from integration-adapters provides abstraction with console fallback and error handling
-283 " 🟣 TwentyCRMClient provides GraphQL-based lead, quote, campaign, and communication operations
-284 " 🔴 Fixed server.ts TypeScript errors: removed unused imports, fixed control flow, added composite references
-285 12:16a 🔴 Fixed services/crm-api tsconfig to use project-root rootDir and explicit package includes
-286 " 🟣 CRM write plan tests passing: 2 unit tests for lead creation and dedupe scenarios
-287 " 🟣 CRM API build succeeded: TypeScript compilation passes with fixed configuration
-288 " 🟣 Session summary: CRM write plan implementation complete with tests passing and build successful
-289 12:17a 🟣 Lead-ingestion service integration with CRM write plan persistence boundary
-290 " 🔵 Dependency resolution complete: pnpm-lock.yaml updated with crm-types workspace link and vitest
-291 " ✅ Removed TypeScript devDependency from crm-types package.json
-292 " 🟣 Final verification: CRM API and lead-ingestion tests all passing; build successful
-315 12:27a 🟣 PR #441 merged: Conductor execution tracking for imported prompt packs
-316 12:28a 🔵 Infrastructure Security Audit Completed for Project-Nyra
-317 12:29a ⚖️ 5090 DLS prompt review established constraints and execution priority
-318 " ✅ Infrastructure Security Hardening: Removed Insecure Default Passwords
-319 12:30a ✅ Commit eb20580ce: 5090 prompt review merged with test validation and code formatting
-321 " 🔵 Infrastructure security audit: port exposure and insecure defaults identified on oracle-vps
-326 12:31a ✅ Infrastructure security hardening: environment variables made required via bash expansion syntax
-323 " 🟣 PR #442 merged: 148 files added; prompt packs imported into conductor/prompts with execution tracking
-329 12:33a 🔵 Docker-compose files have shared network dependencies; typecheck validation passing
-332 " 🔵 Oracle-VPS shared network nyra_net defined in main docker-compose.yml; individual service compose files reference it
-334 12:34a ✅ Docker-compose validation confirms hardening approach: required env vars enforce secret injection
-337 " ✅ Commit 46a6f2203: Infrastructure security hardening merged with tests passing
-339 12:35a 🟣 Comprehensive infrastructure security hardening across all hosts: env var requirements + resource limits
-341 " 🔵 Worker infrastructure uses modular compose architecture: worker-network defined per-host, template references it
-352 " ✅ Infrastructure security hardening: removed insecure secret defaults
-353 " ✅ Prompt surface consolidation and canonicalization
-354 " ✅ Next.js app refactoring: auth context and root page consolidation
-355 " ✅ Prisma 7 migration: PostgreSQL adapter and generated client reorganization
-356 " ✅ Authentication models: TypeScript type safety hardening
-357 " ✅ Rate limiter middleware: TypeScript type safety and proper handler signatures
-358 " 🔵 App build issues: Next.js 15.5.15 webpack module resolution with pages directory
-359 " 🔵 Prompt pack execution validation: test suite now passing at scale
-360 12:39a 🟣 Infrastructure Security Hardening: Fail-Closed Secret Enforcement
-361 6:50p 🔵 Comprehensive environment variable audit across Project Nyra monorepo
-362 6:51p 🔵 Configuration file inventory across monorepo infrastructure
-363 " 🔵 Complete environment variable audit identifying 456+ secret and configuration references
-364 6:52p 🔵 Complete .env.example inventory and secret requirements across all services and infrastructure hosts
-365 " 🔵 Project Nyra API routes and service integration patterns with environment variable dependencies
-366 " 🔵 Complete deduplicated environment variable manifest: 210 unique secrets/config parameters identified
-367 6:53p ✅ Added production safety helpers to Project Nyra API configuration layer
+372 6:56p 🔵 Test Environment Incompatibility: jsdom Lacks Web APIs for Next.js Route Handlers
+373 " 🔴 Missing Activity Icon Import in Broker Leads Page
+374 " 🔴 Fixed Test Environment and NODE_ENV Assignment in production-fail-closed Tests
+375 " 🔵 Jest Setup Configuration Conflict: jest.setup.js Assumes jsdom Environment
+376 6:57p 🔵 TypeScript ORIGINAL_ENV Redeclaration Error Resolved Partially
+377 " 🔴 Refactored Tests to Mock Next.js Server APIs Instead of Changing Environment
+378 " 🔵 Test Mock Incomplete: Response Web API Not Mocked for serviceUnavailable Function
+380 6:58p 🔴 Fixed Response polyfill in production API mutation test setup
+379 " 🔴 TypeScript Compilation Passing: All Type Errors Resolved
+381 " ✅ Conditional Response Global Mock Added to Test Setup
+383 " 🔵 CRM API architecture uses write-plan pattern with PostgreSQL audit ledger
+382 " 🔄 Refactored Response Mock Setup in Test beforeEach
+384 " 🟣 Production Safety Test Suite Now Passing: All Fail-Closed Behavior Verified
+385 " 🟣 Audit ledger now supports querying entity history
+386 6:59p ✅ Summary of Repository Changes: Production Safety Hardening Complete
+387 " ✅ Jest Setup Conditional Window Mock and Audit Provider Query Support Added
+388 " 🟣 CRM API REST endpoints for lead details, conversation timeline, pipeline, and quote approvals
+389 " 🔵 Audit Ledger Query Integration Already Active in CRM API Server Routes
+390 " 🟣 Added test coverage for PostgresAuditLedgerSink.listForEntity method
+391 " ✅ Production Hardening Changes Staged on Feature Branch
+392 " 🔵 TypeScript compilation errors in CRM API server endpoints
+393 " 🟣 All Test Suites Passing: 6 of 6 Tests Success Across Production Safety and Supabase Configuration
+394 7:00p 🔴 Fixed TypeScript compilation errors in CRM API endpoints
+396 " 🔵 TypeScript compilation and type checking now pass after fixes
+395 " 🟣 TypeScript Compilation Complete: Zero Errors on All Modified Code
+397 " 🔵 Pre-existing Type Safety Issues Exposed in CRM API Server Routes
+398 " ✅ Project plan updated to reflect completed audit ledger and workspace integration phases
+399 " 🔵 Examined quote, campaign, and compliance service architecture
+400 7:01p 🔵 Quote, campaign, and compliance services implement integrated lead marketing workflow
+401 " 🟣 Added QuoteService with approval workflow and persistent quote history
+402 " 🟣 Added QuoteService tests verifying versioning and approval workflow
+404 " 🔵 Quote service tests and build pass with new QuoteService implementation
+405 7:02p ✅ Phase 4 milestone completed: quote history and approval state storage
+406 " 🔵 Complete Feature Integration Underway: Audit Ledger and Quote Service Persistence Being Implemented
+407 " 🔵 Campaign domain implements state machine with step scheduling and approval requirements
+409 " 🟣 Added campaign enrollment persistence and state management to CampaignService
+408 " 🟣 Complete Audit System Integration Verified: CRM API Build Successful
+411 " 🟣 Complete System Verification Successful: All Tests and Builds Passing Across All Services
+410 " 🟣 Added campaign enrollment persistence tests verifying state and scheduling
+412 " 🔵 Campaign service tests pass with new enrollment persistence implementation
+414 " 🟣 Campaign Service Persistence Layer Implemented with State Tracking
+413 " ✅ Phase 4 second milestone completed: campaign enrollment persistence and scheduling
+415 " 🔵 Session work in progress on final-product-fail-closed-hardening branch
+416 7:03p 🔵 Campaign Service Tests Passing but Build Configuration Issue Detected
+417 " 🔵 Session accumulated ~860 lines of changes across CRM API, quote/campaign services, and webapp hardening
+418 " 🔵 Webapp campaign management infrastructure spans API routes, services, and broker UI
+419 " 🔵 Campaign API routes implement fail-closed pattern with mock fallback and contract enforcement
+420 " 🟣 Campaign POST route hardened with fail-closed behavior and contract normalization
+421 7:04p 🟣 Campaign detail routes hardened with fail-closed behavior and contract normalization on updates
+422 " 🔄 Extracted campaign contract normalization to shared library module
 
-Access 1236k tokens of past work via get_observations([IDs]) or mem-search skill.
+Access 183k tokens of past work via get_observations([IDs]) or mem-search skill.
 </claude-mem-context>
