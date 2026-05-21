@@ -1,0 +1,21 @@
+{
+  "name": "@nyra/discord-alerts",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/services/discord-alerts/src/index.js",
+  "types": "./dist/services/discord-alerts/src/index.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run --config vitest.config.mjs",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "zod": "^4.3.5"
+  },
+  "devDependencies": {
+    "@types/node": "^25.5.2",
+    "typescript": "^5.7.0",
+    "vitest": "^4.0.18"
+  }
+}
