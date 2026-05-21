@@ -15,7 +15,7 @@
     "start": "node dist/http-server.js",
     "start:stdio": "node dist/index.js",
     "lint": "eslint src",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc --noEmit -p tsconfig.typecheck.json",
     "test": "node tests/run-tests.js",
     "test:full": "node tests/test-suite.js",
     "test:smoke": "node tests/smoke-test.js",
