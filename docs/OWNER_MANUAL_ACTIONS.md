@@ -305,6 +305,36 @@ Likely causes:
 
 Manual only if you want to enforce additional ACLs, tags, or device policies.
 
+### Runtime health smoke follow-up — May 20, 2026
+
+`scripts/deployment/health-check.sh --allow-down --json-out reports/health/ops-hardening-smoke.json`
+confirmed Tailscale reachability for orchestrator, Oracle VPS, and all three
+GPU workers. The same smoke also showed several live services down or
+unreachable from this shell.
+
+Healthy during the smoke:
+
+- `worker-rtx5090` vLLM health endpoint
+- `worker-rtx5090` subscription bridge
+- `worker-rtx3060` Docker GPU probe
+- `worker-rtx3060` LiteLLM endpoint, returning expected auth-protected `401`
+- `worker-rtx3060` subscription bridge
+
+Owner/operator follow-up before release:
+
+1. On orchestrator, start or repair Portainer, status bridge,
+   subscription bridge, Prometheus, Grafana, and Loki.
+2. On `worker-rtx5090`, repair the Docker context SSH path used by the GPU
+   probe and start or intentionally decommission the local LiteLLM endpoint.
+3. On `worker-rtx3090ti`, repair Docker context SSH, vLLM, LiteLLM, and
+   subscription bridge reachability.
+4. On `worker-rtx3060`, start Ollama or remove it from the expected-health
+   config if the utility worker has moved to a different model endpoint.
+5. On Oracle VPS, start or repair Twenty, Activepieces, n8n, LiteLLM, Nexus,
+   Quote API, Gitea, Letta, and Mem0 reachability.
+6. Re-run the health check without `--allow-down` only after the intended
+   live services are up.
+
 ## Twilio / email providers
 
 Agents cannot:

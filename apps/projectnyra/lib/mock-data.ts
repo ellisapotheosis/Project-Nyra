@@ -129,3 +129,12 @@ export const crmOverview: CrmOverview = {
   conversionRate: "34%",
   averageCycle: "18 Days",
 };
+
+export const fleetStatus = {
+  overallHealth: "HEALTHY",
+  activeWorkers: 4,
+  availableVRAM: "62GB",
+  activeAgents: 12,
+  orchestratorOnline: true,
+  lastSyncAt: "2026-05-11T09:45:00.000Z",
+};

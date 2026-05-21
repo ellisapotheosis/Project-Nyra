@@ -491,9 +491,9 @@ export default function Home() {
             <p className="mt-4 max-w-2xl text-base leading-8 text-white/68">
               The stronger content from the newer landing app stays here:
               borrower-first messaging, secure intake, educational chat, and a
-              clearer explanation of next steps. The difference is that it now
-              sits inside your actual public identity instead of looking like a
-              startup placeholder.
+              clearer explanation of next steps. The experience now sits inside
+              your actual public identity and keeps borrower education separate
+              from internal broker tooling.
             </p>
             <div className="mt-6 grid gap-3 md:grid-cols-2">
               {[
