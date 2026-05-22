@@ -63,6 +63,36 @@ const integrations = [
     alert: "Connection to worker-3090ti timed out",
   },
   {
+    name: "OpenMemory MCP",
+    category: "Memory Diagnostics",
+    status: "Protected",
+    lastSync: "On demand",
+    health: 100,
+    secrets: ["OPENMEMORY_MCP_TOKEN", "NEXUS_TOKEN"],
+    url: "https://openmemory.projectnyra.com",
+    icon: Activity,
+  },
+  {
+    name: "Letta Memory Manager",
+    category: "Agent Memory",
+    status: "Protected",
+    lastSync: "On demand",
+    health: 100,
+    secrets: ["LETTA_SERVER_PASSWORD", "LETTA_DB_PASSWORD"],
+    url: "https://letta.projectnyra.com",
+    icon: Server,
+  },
+  {
+    name: "Mem0 Runtime Memory",
+    category: "Assistant Memory",
+    status: "Protected",
+    lastSync: "On demand",
+    health: 100,
+    secrets: ["MEM0_API_KEY", "QDRANT_API_KEY"],
+    url: "https://mem0.projectnyra.com",
+    icon: ShieldCheck,
+  },
+  {
     name: "Supabase Auth",
     category: "Identity",
     status: "Healthy",
@@ -134,7 +164,7 @@ export default function IntegrationsPage() {
                     <div
                       className={cn(
                         "size-2 rounded-full",
-                        item.status === "Healthy"
+                        item.status === "Healthy" || item.status === "Protected"
                           ? "bg-turquoise-400 shadow-[0_0_8px_rgba(var(--turquoise-rgb),0.5)]"
                           : "bg-pink-400 shadow-[0_0_8px_rgba(var(--pink-rgb),0.5)]"
                       )}
@@ -142,7 +172,7 @@ export default function IntegrationsPage() {
                     <span
                       className={cn(
                         "text-xs font-bold",
-                        item.status === "Healthy"
+                        item.status === "Healthy" || item.status === "Protected"
                           ? "text-turquoise-400"
                           : "text-pink-400"
                       )}
@@ -172,6 +202,11 @@ export default function IntegrationsPage() {
                       <p className="text-[10px] text-pink-400 font-bold flex items-center gap-1 mt-2">
                         <AlertTriangle className="size-3" />
                         {item.alert}
+                      </p>
+                    )}
+                    {item.category.includes("Memory") && (
+                      <p className="text-[10px] text-muted-foreground/60 font-bold uppercase tracking-widest mt-2">
+                        Launch opens the Access-gated diagnostic surface.
                       </p>
                     )}
                   </div>
