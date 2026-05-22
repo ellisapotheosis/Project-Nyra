@@ -29,11 +29,61 @@ if (!TWENTY_CRM_URL) throw new Error("TWENTY_CRM_URL is required");
 if (!TWENTY_CRM_API_KEY) throw new Error("TWENTY_CRM_API_KEY is required");
 
 const pool = new Pool({ connectionString: DATABASE_URL });
+const REDACTED = "[REDACTED]";
+const LOG_SECRET_PATTERNS = [
+  /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/gi,
+  /\b(?:\+?1[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}\b/g,
+  /\b\d{3}-?\d{2}-?\d{4}\b/g,
+  /\b(?:api[_-]?key|token|secret|authorization|password)\b\s*[:=]\s*["']?[^"',\s}]+/gi,
+  /\bBearer\s+[A-Za-z0-9._~+/=-]+/gi,
+];
+
+function redactLogText(value: string): string {
+  return LOG_SECRET_PATTERNS.reduce(
+    (current, pattern) => current.replace(pattern, REDACTED),
+    value
+  );
+}
+
+function redactLogValue(value: unknown, depth = 0): unknown {
+  if (depth > 4) return "[REDACTED_DEPTH]";
+  if (typeof value === "string") return redactLogText(value);
+  if (
+    typeof value === "number" ||
+    typeof value === "boolean" ||
+    value == null
+  ) {
+    return value;
+  }
+  if (value instanceof Error) {
+    return {
+      name: value.name,
+      message: redactLogText(value.message),
+      stack: value.stack ? redactLogText(value.stack) : undefined,
+    };
+  }
+  if (Array.isArray(value)) {
+    return value.map((entry) => redactLogValue(entry, depth + 1));
+  }
+  if (typeof value === "object") {
+    return Object.fromEntries(
+      Object.entries(value as Record<string, unknown>).map(([key, entry]) => [
+        key,
+        /api[_-]?key|token|secret|authorization|password/i.test(key)
+          ? REDACTED
+          : redactLogValue(entry, depth + 1),
+      ])
+    );
+  }
+  return REDACTED;
+}
+
 const logger = winston.createLogger({
   level: process.env.LOG_LEVEL || "info",
   format: winston.format.combine(
     winston.format.timestamp(),
     winston.format.errors({ stack: true }),
+    winston.format((info) => redactLogValue(info) as typeof info)(),
     winston.format.json()
   ),
   transports: [new winston.transports.Console()],

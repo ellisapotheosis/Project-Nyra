@@ -8,7 +8,7 @@
 ## Phase 2: Security & Types (The Backend Sweep)
 
 - [x] Task: Add Zod validation to `lead-ingestion` and `quote-api` boundaries
-- [ ] Task: Audit and sanitize all `console.log` and logger outputs for PII
+- [x] Task: Audit and sanitize all `console.log` and logger outputs for PII
 - [x] Task: Replace `any` types in `apps/projectnyra/src/lib/api/`
 
 ## Phase 3: UI/UX Deepening
@@ -55,7 +55,10 @@ environment validation. Do not mark the Playwright happy path or user-manual
 verification complete until the owner-gated release-candidate setup in
 `docs/user-todo/` is complete.
 
-PII log sanitization remains unchecked because the current pass hardened the
-highest-risk lead ingest, quote, campaign-provider, and internal proxy paths.
-The remaining audit still needs focused review of orchestrator, Letta, websocket,
-and Twenty MCP logging paths before it can be considered complete.
+PII log sanitization is now complete for the current active surfaces reviewed in
+this track. The final pass added logger-level redaction for CRM API, Letta
+integration, Nexus Router, WebSocket Hub, WebSocket client debug output,
+TwentyCRM MCP server logs/responses, and PocketTTS exception paths. Keep future
+provider adapters on the same rule: log operation metadata, IDs, and states, not
+borrower PII, raw authorization headers, provider tokens, or full upstream error
+payloads.
