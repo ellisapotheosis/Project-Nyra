@@ -348,9 +348,9 @@ Alerts configured for:
 
 ## Additional Resources
 
-- [Security Hardening Guide](../../docs/security/HARDENING-GUIDE.md)
+- [Infisical Setup Guide](../../docs/security/INFISICAL-SETUP-README.md)
 - [Security Runbook](../../docs/security/README.md)
-- [Incident Response Plan](../../docs/security/HARDENING-GUIDE.md#incident-response)
+- [Secret Rotation Guide](../../docs/security/SECRET_ROTATION_GUIDE.md)
 
 ---
 

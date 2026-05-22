@@ -44,6 +44,11 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ---
 
+- [ ] **Track: Finish Line Acceleration**
+      _Link: [./tracks/finish_line_acceleration_20260520/](./tracks/finish_line_acceleration_20260520/)_
+
+---
+
 - [x] **Track: Wiring & Hardening Phase**
       _Link: [./tracks/wiring_hardening_20260516/](./tracks/wiring_hardening_20260516/)_
 

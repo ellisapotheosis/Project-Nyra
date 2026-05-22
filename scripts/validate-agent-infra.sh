@@ -115,7 +115,7 @@ compose_config "worker rtx3060 overlays" \
     config
 
 if rg -n 'infra/(compose|stacks|workers)/|infra/homeassistant|infra/ingest' \
-  Makefile scripts docs/infra docs/operations docs/runbooks docs/user-todo \
+  Makefile scripts docs/architecture docs/decisions docs/infra docs/operations docs/runbook.md docs/runbooks docs/user-todo \
   --glob '!scripts/validate-agent-infra.sh' >/tmp/nyra-stale-infra-paths.txt
 then
   cat /tmp/nyra-stale-infra-paths.txt >&2

@@ -33,6 +33,7 @@ out/
 *.tsbuildinfo
 coverage/
 .nyc_output/
+security-reports/
 
 ################################################################################
 # Environment Files and Secrets

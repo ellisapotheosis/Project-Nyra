@@ -75,7 +75,9 @@ export async function executeCrmWritePlan(
   for (const event of plan.auditEvents) {
     await auditSink.log({
       ...event,
-      entityId: event.entityId === plan.lead.id ? lead.id : event.entityId,
+      entityId: shouldUsePersistedLeadId(event.entityId, plan.lead.id)
+        ? lead.id
+        : event.entityId,
     });
   }
 
@@ -86,6 +88,13 @@ export async function executeCrmWritePlan(
     quotes,
     auditEvents: plan.auditEvents,
   };
+}
+
+function shouldUsePersistedLeadId(
+  eventEntityId: string,
+  plannedLeadId: string | undefined
+): boolean {
+  return eventEntityId === plannedLeadId || eventEntityId === "pending";
 }
 
 async function upsertLeadFromPlan(

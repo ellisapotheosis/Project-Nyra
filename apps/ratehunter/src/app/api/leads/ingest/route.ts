@@ -1,14 +1,39 @@
 import { NextResponse } from "next/server";
 
+function canUseLocalMockFallback() {
+  return (
+    process.env.NODE_ENV !== "production" ||
+    process.env.NYRA_ENABLE_MOCKS === "true"
+  );
+}
+
 export async function POST(req: Request) {
   try {
     const data = await req.json();
+    const n8nWebhookUrl = process.env.N8N_INGEST_WEBHOOK_URL?.trim();
 
-    // Forward to n8n WF_LEAD_INGEST Webhook
-    // In production, this URL comes from an ENV var
-    const n8nWebhookUrl =
-      process.env.N8N_INGEST_WEBHOOK_URL ||
-      "https://capture.projectnyra.com/webhook/lead-ingest";
+    if (!n8nWebhookUrl) {
+      if (!canUseLocalMockFallback()) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: "Lead ingest is unavailable",
+            detail:
+              "Set N8N_INGEST_WEBHOOK_URL or enable NYRA_ENABLE_MOCKS=true for explicit production mock mode.",
+          },
+          { status: 503 }
+        );
+      }
+
+      return NextResponse.json(
+        {
+          success: true,
+          source: "mock",
+          message: "Lead accepted by local RateHunter mock ingest.",
+        },
+        { status: 202 }
+      );
+    }
 
     const response = await fetch(n8nWebhookUrl, {
       method: "POST",

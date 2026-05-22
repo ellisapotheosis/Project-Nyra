@@ -2,10 +2,10 @@
 
 ## Files
 
-- `infra/workers/worker-rtx3060/docker-compose.voice.yml`: base single-node Unmute runtime for Nerve UI.
-- `infra/workers/worker-rtx3060/docker-compose.kyutai-mesh.yml`: RTP/WebRTC ingress, jitter buffer, VAD, codec, fallback decode.
-- `infra/workers/worker-rtx3090ti/docker-compose.kyutai-mesh.yml`: streaming STT and LLM bridge.
-- `infra/workers/worker-rtx5090/docker-compose.kyutai-mesh.yml`: session coordinator, streaming TTS, outbound RTP mux.
+- `infra/hosts/worker-rtx3060/docker-compose.voice.yml`: base single-node Unmute runtime for Nerve UI.
+- `infra/hosts/worker-rtx3060/docker-compose.distributed-voice.yml`: RTP/WebRTC ingress, jitter buffer, VAD, codec, fallback decode.
+- `infra/hosts/worker-rtx3090ti/docker-compose.distributed-voice.yml`: streaming STT and LLM bridge.
+- `infra/hosts/worker-rtx5090/docker-compose.distributed-voice.yml`: session coordinator, streaming TTS, outbound RTP mux.
 
 ## LAN Contract
 
@@ -42,13 +42,13 @@ MEMORY_BASE_URL=http://oracle-vps.lan:5000
 
 ```bash
 # worker-rtx3060
-docker compose --env-file /srv/nyra/env/voice-mesh.env -f infra/workers/worker-rtx3060/docker-compose.kyutai-mesh.yml up -d
+docker compose --env-file /srv/nyra/env/voice-mesh.env -f infra/hosts/worker-rtx3060/docker-compose.distributed-voice.yml up -d
 
 # worker-rtx3090ti
-docker compose --env-file /srv/nyra/env/voice-mesh.env -f infra/workers/worker-rtx3090ti/docker-compose.kyutai-mesh.yml up -d
+docker compose --env-file /srv/nyra/env/voice-mesh.env -f infra/hosts/worker-rtx3090ti/docker-compose.distributed-voice.yml up -d
 
 # worker-rtx5090
-docker compose --env-file /srv/nyra/env/voice-mesh.env -f infra/workers/worker-rtx5090/docker-compose.kyutai-mesh.yml up -d
+docker compose --env-file /srv/nyra/env/voice-mesh.env -f infra/hosts/worker-rtx5090/docker-compose.distributed-voice.yml up -d
 ```
 
 ## Smoke Checks
