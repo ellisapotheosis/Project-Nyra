@@ -5,6 +5,8 @@ Last updated: 2026-05-22
 This is the active handoff for agents working while the owner clears the
 release-candidate blockers in `docs/user-todo/`.
 
+Latest docs/conductor review: `docs/CONDUCTOR_HANDOFF_REVIEW.md`.
+
 ## Current Stop Condition
 
 Do local, reversible work only. Do not claim release-candidate readiness until
@@ -25,6 +27,9 @@ Use these tasks only if they are still failing in the current checkout:
    update `docs/FINISH_LINE_PROMPTING_PLAN.md` only when a lane changes.
 5. Fix any regression exposed by lint, tests, build, Infisical static coverage,
    runtime security audit, or dry-run smoke.
+6. Continue the remaining unchecked repo-side items in
+   `conductor/tracks/finish_line_acceleration_20260520/plan.md` without
+   claiming live/dashboard work is complete.
 
 ## Work Agents Should Not Reopen
 

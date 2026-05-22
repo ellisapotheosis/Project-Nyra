@@ -5,13 +5,14 @@
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, EmailStr, Field, field_validator, model_validator
 import math
 from typing import Optional, Dict
 from datetime import datetime, timedelta
 from enum import Enum
 import logging
 import uuid
+from app.privacy import redact_sensitive
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -52,8 +53,29 @@ class QuoteRequest(BaseModel):
     loan_term: int = Field(..., description="Loan term in years (15 or 30)")
     down_payment: float = Field(..., ge=0, description="Down payment amount in dollars")
     property_state: str = Field(..., min_length=2, max_length=2, description="Two-letter state code")
-    property_zip: str = Field(..., description="Property ZIP code")
-    borrower_email: str = Field(..., description="Borrower email address")
+    property_zip: str = Field(..., pattern=r"^\d{5}(-\d{4})?$", description="Property ZIP code")
+    borrower_email: EmailStr = Field(..., description="Borrower email address")
+
+    @field_validator("loan_term")
+    @classmethod
+    def loan_term_must_be_supported(cls, value: int) -> int:
+        if value not in (15, 30):
+            raise ValueError("loan_term must be 15 or 30 years")
+        return value
+
+    @field_validator("property_state")
+    @classmethod
+    def property_state_must_be_uppercase(cls, value: str) -> str:
+        return value.upper()
+
+    @model_validator(mode="after")
+    def down_payment_must_match_loan_amount(self):
+        expected_down_payment = round(self.property_value - self.loan_amount, 2)
+        if expected_down_payment < 0:
+            raise ValueError("loan_amount cannot exceed property_value")
+        if abs(self.down_payment - expected_down_payment) > 1:
+            raise ValueError("down_payment must match property_value - loan_amount")
+        return self
 
 class QuoteResponse(BaseModel):
     """Comprehensive mortgage quote"""
@@ -306,7 +328,7 @@ def assess_approval_likelihood(credit_score: int, ltv_ratio: float, loan_type: s
 async def generate_quote(request: QuoteRequest):
     """Generate comprehensive mortgage quote"""
     try:
-        logger.info(f"Generating quote for {request.borrower_email}")
+        logger.info("Generating quote", extra={"borrower_email": "[REDACTED_EMAIL]"})
 
         # Calculate LTV
         ltv_ratio = calculate_ltv(request.loan_amount, request.property_value)
@@ -395,7 +417,7 @@ async def generate_quote(request: QuoteRequest):
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Error generating quote: {str(e)}")
+        logger.error(f"Error generating quote: {redact_sensitive(e)}")
         raise HTTPException(status_code=500, detail="Internal server error generating quote")
 
 @app.get("/rates", response_model=list[RateInfo])

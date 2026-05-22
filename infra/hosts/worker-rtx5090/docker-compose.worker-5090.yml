@@ -5,11 +5,10 @@
 # Connected via Tailscale mesh to orchestrator
 # ============================================================================
 
-version: "3.8"
-
 services:
   # ── Infisical secrets init (runs once, writes files to /run/nyra-secrets/) ─
   secrets-init:
+    profiles: ["secrets"]
     build:
       context: ../../images/infisical-secrets-init
     container_name: worker-5090-secrets-init
@@ -27,6 +26,7 @@ services:
 
   # ── Infisical agent (polls Infisical and refreshes secrets) ──────────────
   infisical-agent:
+    profiles: ["secrets"]
     build:
       context: ../../images/infisical-secrets-init
     container_name: worker-5090-infisical-agent
@@ -112,9 +112,6 @@ services:
               capabilities: [gpu]
         limits:
           memory: 48G
-    depends_on:
-      secrets-init:
-        condition: service_completed_successfully
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 30s
@@ -145,8 +142,6 @@ services:
     depends_on:
       vllm:
         condition: service_healthy
-      secrets-init:
-        condition: service_completed_successfully
     networks:
       - worker-network
 
@@ -169,8 +164,6 @@ services:
     depends_on:
       vllm:
         condition: service_healthy
-      secrets-init:
-        condition: service_completed_successfully
     networks:
       - worker-network
 
@@ -230,7 +223,6 @@ services:
     depends_on:
       - vllm
       - litellm
-      - secrets-init
     environment:
       - VLLM_URL=http://vllm:8000
       - LITELLM_URL=http://litellm:4000
@@ -268,15 +260,13 @@ services:
       - LOKI_URL=${LOKI_URL:-http://oracle.trex-fiordland.ts.net:3100}
       - WORKER_ID=worker-5090
     command: -config.file=/etc/promtail/config.yaml
-    depends_on:
-      secrets-init:
-        condition: service_completed_successfully
     networks:
       - worker-network
 
 networks:
   worker-network:
     name: nyra-worker-5090
+    external: true
     driver: bridge
     ipam:
       config:

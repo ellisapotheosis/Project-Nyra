@@ -28,7 +28,7 @@ ORACLE_ACTIVEPIECES_MCP_COMPOSE := infra/hosts/oracle-vps/docker-compose.activep
 # Canonical Host Composes
 WORKER_3060_COMPOSE := infra/hosts/worker-rtx3060/docker-compose.yml
 WORKER_3090TI_COMPOSE := infra/hosts/worker-rtx3090ti/docker-compose.yml
-WORKER_5090_COMPOSE := infra/hosts/worker-rtx5090/docker-compose.yml
+WORKER_5090_COMPOSE := infra/hosts/worker-rtx5090/docker-compose.worker-5090.yml
 ORACLE_COMPOSE := infra/hosts/oracle-vps/docker-compose.yml
 ORACLE_AGENT_UTILS_COMPOSE := infra/hosts/oracle-vps/docker-compose.oracle.yml
 ORACLE_MEMORY_COMPOSE := infra/hosts/oracle-vps/docker-compose.memory.yml
@@ -49,6 +49,9 @@ AGENT_INFRA_ENV ?= prod
 INFISICAL_PROJECT_ID ?= 8374cea9-e5e8-4050-bda4-b91f25ab30ef
 INFISICAL_LOCAL_SECRETS_FILE ?= $(HOME)/.zsh/99-secrets.zsh
 NYRA_USE_LOCAL_ENV ?= 0
+NYRA_LOCAL_VLLM_MODEL ?= Qwen/Qwen2.5-0.5B-Instruct
+NYRA_LOCAL_PLACEHOLDER_SECRET ?= local-dev-placeholder-change-me
+NYRA_COMPOSE_PARALLEL_LIMIT ?= 1
 ORCHESTRATOR_INFISICAL_PATH ?= /machines/orchestrator
 ORACLE_INFISICAL_PATH ?= /machines/oracle-vps
 WORKER_5090_INFISICAL_PATH ?= /machines/worker-rtx5090
@@ -70,35 +73,36 @@ endef
 
 define nyra_host_compose
 case "$(1)" in \
-  "$(ORCHESTRATOR_INFISICAL_PATH)") env_file="infra/hosts/orchestrator/.env";; \
-  "$(ORACLE_INFISICAL_PATH)") env_file="infra/hosts/oracle-vps/.env";; \
-  "$(WORKER_5090_INFISICAL_PATH)") env_file="infra/hosts/worker-rtx5090/.env";; \
-  "$(WORKER_3090TI_INFISICAL_PATH)") env_file="infra/hosts/worker-rtx3090ti/.env";; \
-  "$(WORKER_3060_INFISICAL_PATH)") env_file="infra/hosts/worker-rtx3060/.env";; \
+  "$(ORCHESTRATOR_INFISICAL_PATH)") env_file="infra/hosts/orchestrator/.env"; compose_project_name="nyra-network";; \
+  "$(ORACLE_INFISICAL_PATH)") env_file="infra/hosts/oracle-vps/.env"; compose_project_name="nyra-network";; \
+  "$(WORKER_5090_INFISICAL_PATH)") env_file="infra/hosts/worker-rtx5090/.env"; compose_project_name="nyra-network";; \
+  "$(WORKER_3090TI_INFISICAL_PATH)") env_file="infra/hosts/worker-rtx3090ti/.env"; compose_project_name="worker-rtx3090ti";; \
+  "$(WORKER_3060_INFISICAL_PATH)") env_file="infra/hosts/worker-rtx3060/.env"; compose_project_name="worker-rtx3060";; \
   *) echo "Unknown Infisical path '$(1)' for local env fallback." >&2; exit 64;; \
 esac; \
 if [ "$(NYRA_USE_LOCAL_ENV)" = "1" ]; then \
   test -f "$$env_file" || (echo "Missing $$env_file. $(NYRA_LOCAL_ENV_HINT)" >&2; exit 66); \
-  $(4) docker --context "$(2)" compose --env-file "$$env_file" $(3); \
+  $(4) COMPOSE_PARALLEL_LIMIT="$(NYRA_COMPOSE_PARALLEL_LIMIT)" COMPOSE_PROJECT_NAME="$$compose_project_name" VLLM_MODEL="$${VLLM_MODEL:-$(NYRA_LOCAL_VLLM_MODEL)}" TWENTY_DB_PASSWORD="$${TWENTY_DB_PASSWORD:-$(NYRA_LOCAL_PLACEHOLDER_SECRET)}" OPENCLAW_GATEWAY_TOKEN="$${OPENCLAW_GATEWAY_TOKEN:-$(NYRA_LOCAL_PLACEHOLDER_SECRET)}" PAPERCLIP_API_KEY="$${PAPERCLIP_API_KEY:-$(NYRA_LOCAL_PLACEHOLDER_SECRET)}" PAPERCLIP_DB_PASSWORD="$${PAPERCLIP_DB_PASSWORD:-$(NYRA_LOCAL_PLACEHOLDER_SECRET)}" PAPERCLIP_SESSION_SECRET="$${PAPERCLIP_SESSION_SECRET:-$(NYRA_LOCAL_PLACEHOLDER_SECRET)}" SEARXNG_SECRET="$${SEARXNG_SECRET:-$(NYRA_LOCAL_PLACEHOLDER_SECRET)}" BROWSERLESS_TOKEN="$${BROWSERLESS_TOKEN:-$(NYRA_LOCAL_PLACEHOLDER_SECRET)}" OPENLIT_DB_PASSWORD="$${OPENLIT_DB_PASSWORD:-$(NYRA_LOCAL_PLACEHOLDER_SECRET)}" OPENLIT_NEXTAUTH_SECRET="$${OPENLIT_NEXTAUTH_SECRET:-$(NYRA_LOCAL_PLACEHOLDER_SECRET)}" OPENLIT_VAULT_ENCRYPTION_KEY="$${OPENLIT_VAULT_ENCRYPTION_KEY:-$(NYRA_LOCAL_PLACEHOLDER_SECRET)}" LETTA_DB_PASSWORD="$${LETTA_DB_PASSWORD:-$(NYRA_LOCAL_PLACEHOLDER_SECRET)}" LETTA_SERVER_PASSWORD="$${LETTA_SERVER_PASSWORD:-$(NYRA_LOCAL_PLACEHOLDER_SECRET)}" docker --context "$(2)" compose --env-file "$$env_file" $(3); \
 else \
-  $(nyra_load_infisical_env) $(4) INFISICAL_TOKEN="$${INFISICAL_TOKEN:?$(NYRA_INFISICAL_TOKEN_HINT)}" INFISICAL_PROJECT_ID="$(INFISICAL_PROJECT_ID)" INFISICAL_ENV="$(AGENT_INFRA_ENV)" NYRA_INFISICAL_PATH="$(1)" infisical run --projectId="$(INFISICAL_PROJECT_ID)" --env="$(AGENT_INFRA_ENV)" --path="$(1)" -- docker --context "$(2)" compose --env-file /dev/null $(3); \
+  $(nyra_load_infisical_env) $(4) COMPOSE_PARALLEL_LIMIT="$(NYRA_COMPOSE_PARALLEL_LIMIT)" INFISICAL_TOKEN="$${INFISICAL_TOKEN:?$(NYRA_INFISICAL_TOKEN_HINT)}" INFISICAL_PROJECT_ID="$(INFISICAL_PROJECT_ID)" INFISICAL_ENV="$(AGENT_INFRA_ENV)" NYRA_INFISICAL_PATH="$(1)" infisical run --projectId="$(INFISICAL_PROJECT_ID)" --env="$(AGENT_INFRA_ENV)" --path="$(1)" -- docker --context "$(2)" compose --env-file /dev/null $(3); \
 fi
 endef
 
 define nyra_node_shell
 case "$(NODE)" in \
-  orchestrator) host_path="$(ORCHESTRATOR_INFISICAL_PATH)"; ctx="$(ORCHESTRATOR_CONTEXT)"; compose_files="-f $(ORCHESTRATOR_COMPOSE)"; env_file="infra/hosts/orchestrator/.env";; \
-  oracle|oracle-vps) host_path="$(ORACLE_INFISICAL_PATH)"; ctx="$(ORACLE_CONTEXT)"; compose_files="-f $(ORACLE_COMPOSE)"; env_file="infra/hosts/oracle-vps/.env";; \
-  worker-rtx5090) host_path="$(WORKER_5090_INFISICAL_PATH)"; ctx="$(WORKER_5090_CONTEXT)"; compose_files="-f $(WORKER_5090_COMPOSE)"; env_file="infra/hosts/worker-rtx5090/.env";; \
-  worker-rtx3090ti) host_path="$(WORKER_3090TI_INFISICAL_PATH)"; ctx="$(WORKER_3090TI_CONTEXT)"; compose_files="-f $(WORKER_3090TI_COMPOSE)"; env_file="infra/hosts/worker-rtx3090ti/.env";; \
-  worker-rtx3060) host_path="$(WORKER_3060_INFISICAL_PATH)"; ctx="$(WORKER_3060_CONTEXT)"; compose_files="-f $(WORKER_3060_COMPOSE)"; env_file="infra/hosts/worker-rtx3060/.env";; \
+  orchestrator) host_path="$(ORCHESTRATOR_INFISICAL_PATH)"; ctx="$(ORCHESTRATOR_CONTEXT)"; compose_files="-f $(ORCHESTRATOR_COMPOSE)"; env_file="infra/hosts/orchestrator/.env"; compose_project_name="nyra-network";; \
+  oracle|oracle-vps) host_path="$(ORACLE_INFISICAL_PATH)"; ctx="$(ORACLE_CONTEXT)"; compose_files="-f $(ORACLE_COMPOSE)"; env_file="infra/hosts/oracle-vps/.env"; compose_project_name="nyra-network";; \
+  worker-rtx5090) host_path="$(WORKER_5090_INFISICAL_PATH)"; ctx="$(WORKER_5090_CONTEXT)"; compose_files="-f $(WORKER_5090_COMPOSE)"; env_file="infra/hosts/worker-rtx5090/.env"; compose_project_name="nyra-network";; \
+  worker-rtx3090ti) host_path="$(WORKER_3090TI_INFISICAL_PATH)"; ctx="$(WORKER_3090TI_CONTEXT)"; compose_files="-f $(WORKER_3090TI_COMPOSE)"; env_file="infra/hosts/worker-rtx3090ti/.env"; compose_project_name="worker-rtx3090ti";; \
+  worker-rtx3060) host_path="$(WORKER_3060_INFISICAL_PATH)"; ctx="$(WORKER_3060_CONTEXT)"; compose_files="-f $(WORKER_3060_COMPOSE)"; env_file="infra/hosts/worker-rtx3060/.env"; compose_project_name="worker-rtx3060";; \
   *) echo "Unknown NODE='$(NODE)'. Expected orchestrator, oracle, worker-rtx5090, worker-rtx3090ti, or worker-rtx3060." >&2; exit 64;; \
 esac; \
 if [ "$(NYRA_USE_LOCAL_ENV)" = "1" ]; then \
   test -f "$$env_file" || (echo "Missing $$env_file. $(NYRA_LOCAL_ENV_HINT)" >&2; exit 66); \
-  docker --context "$$ctx" compose --env-file "$$env_file" $$compose_files; \
+  COMPOSE_PARALLEL_LIMIT="$(NYRA_COMPOSE_PARALLEL_LIMIT)" COMPOSE_PROJECT_NAME="$$compose_project_name" VLLM_MODEL="$${VLLM_MODEL:-$(NYRA_LOCAL_VLLM_MODEL)}" TWENTY_DB_PASSWORD="$${TWENTY_DB_PASSWORD:-$(NYRA_LOCAL_PLACEHOLDER_SECRET)}" OPENCLAW_GATEWAY_TOKEN="$${OPENCLAW_GATEWAY_TOKEN:-$(NYRA_LOCAL_PLACEHOLDER_SECRET)}" PAPERCLIP_API_KEY="$${PAPERCLIP_API_KEY:-$(NYRA_LOCAL_PLACEHOLDER_SECRET)}" PAPERCLIP_DB_PASSWORD="$${PAPERCLIP_DB_PASSWORD:-$(NYRA_LOCAL_PLACEHOLDER_SECRET)}" PAPERCLIP_SESSION_SECRET="$${PAPERCLIP_SESSION_SECRET:-$(NYRA_LOCAL_PLACEHOLDER_SECRET)}" SEARXNG_SECRET="$${SEARXNG_SECRET:-$(NYRA_LOCAL_PLACEHOLDER_SECRET)}" BROWSERLESS_TOKEN="$${BROWSERLESS_TOKEN:-$(NYRA_LOCAL_PLACEHOLDER_SECRET)}" OPENLIT_DB_PASSWORD="$${OPENLIT_DB_PASSWORD:-$(NYRA_LOCAL_PLACEHOLDER_SECRET)}" OPENLIT_NEXTAUTH_SECRET="$${OPENLIT_NEXTAUTH_SECRET:-$(NYRA_LOCAL_PLACEHOLDER_SECRET)}" OPENLIT_VAULT_ENCRYPTION_KEY="$${OPENLIT_VAULT_ENCRYPTION_KEY:-$(NYRA_LOCAL_PLACEHOLDER_SECRET)}" LETTA_DB_PASSWORD="$${LETTA_DB_PASSWORD:-$(NYRA_LOCAL_PLACEHOLDER_SECRET)}" LETTA_SERVER_PASSWORD="$${LETTA_SERVER_PASSWORD:-$(NYRA_LOCAL_PLACEHOLDER_SECRET)}" docker --context "$$ctx" compose --env-file "$$env_file" $$compose_files; \
 else \
   $(nyra_load_infisical_env) \
+  COMPOSE_PARALLEL_LIMIT="$(NYRA_COMPOSE_PARALLEL_LIMIT)" \
   INFISICAL_TOKEN="$${INFISICAL_TOKEN:?$(NYRA_INFISICAL_TOKEN_HINT)}" \
   INFISICAL_PROJECT_ID="$(INFISICAL_PROJECT_ID)" \
   INFISICAL_ENV="$(AGENT_INFRA_ENV)" \
@@ -403,12 +407,12 @@ grid-kill:
 	tmux kill-session -t nyra-grid 2>/dev/null || true
 
 up-workers:
-	$(call nyra_host_compose,$(WORKER_3060_INFISICAL_PATH),$(WORKER_3060_CONTEXT),-f $(WORKER_3060_COMPOSE) up -d)
-	$(call nyra_host_compose,$(WORKER_3090TI_INFISICAL_PATH),$(WORKER_3090TI_CONTEXT),-f $(WORKER_3090TI_COMPOSE) up -d)
-	$(call nyra_host_compose,$(WORKER_5090_INFISICAL_PATH),$(WORKER_5090_CONTEXT),-f $(WORKER_5090_COMPOSE) up -d)
+	@$(call nyra_host_compose,$(WORKER_3060_INFISICAL_PATH),$(WORKER_3060_CONTEXT),-f $(WORKER_3060_COMPOSE) up -d)
+	@$(call nyra_host_compose,$(WORKER_3090TI_INFISICAL_PATH),$(WORKER_3090TI_CONTEXT),-f $(WORKER_3090TI_COMPOSE) up -d)
+	@$(call nyra_host_compose,$(WORKER_5090_INFISICAL_PATH),$(WORKER_5090_CONTEXT),-f $(WORKER_5090_COMPOSE) up -d)
 
 up-oracle:
-	$(call nyra_host_compose,$(ORACLE_INFISICAL_PATH),$(ORACLE_CONTEXT),-f $(ORACLE_COMPOSE) -f $(ORACLE_APPS_COMPOSE) --profile apps up -d)
+	@$(call nyra_host_compose,$(ORACLE_INFISICAL_PATH),$(ORACLE_CONTEXT),-f $(ORACLE_COMPOSE) -f $(ORACLE_APPS_COMPOSE) --profile apps up -d)
 
 # --- COMPONENT TARGETS ---
 

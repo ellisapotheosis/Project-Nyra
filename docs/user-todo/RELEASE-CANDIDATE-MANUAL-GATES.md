@@ -32,6 +32,8 @@ access, MFA, physical machine access, or production credentials.
 
 ## 3. Infisical Production Secrets
 
+- [ ] Clear the current exact live-smoke secret blockers in
+      `CURRENT-BLOCKERS.md`.
 - [ ] Confirm each host has a live machine identity or bootstrap token available
       to Docker Compose at startup. A shell-injected `INFISICAL_TOKEN` is enough
       only when that shell environment actually starts the compose stack.

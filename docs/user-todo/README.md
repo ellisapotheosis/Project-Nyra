@@ -10,6 +10,8 @@ access.
 ## Files
 
 - `CHECKLIST.md` - one-page execution checklist in recommended order.
+- `CURRENT-BLOCKERS.md` - current exact owner/live-env blockers from the latest
+  local release validation.
 - `../FINISH_LINE_PROMPTING_PLAN.md` - copy-ready agent prompts and blocker
   gates for getting the repo to a shippable release candidate.
 - `../AGENT_RELEASE_HANDOFF.md` - safe local agent work and validation while
@@ -59,3 +61,5 @@ local generated-value import aid remains outside the repo at
   completion date and validation evidence.
 - If live validation fails, add the exact failing hostname, service, or provider
   error without adding secret values.
+- Infisical CLI and TruffleHog are complementary: Infisical injects/manages
+  secrets, while TruffleHog scans git/files for accidentally exposed secrets.

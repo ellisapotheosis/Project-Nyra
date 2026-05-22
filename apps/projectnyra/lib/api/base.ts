@@ -6,13 +6,14 @@
 export interface ApiClientOptions {
   baseUrl: string;
   apiKey?: string;
+  apiKeyHeader?: string;
 }
 
 export class ApiError extends Error {
   constructor(
     public status: number,
     public message: string,
-    public data?: any
+    public data?: unknown
   ) {
     super(message);
     this.name = "ApiError";
@@ -34,8 +35,7 @@ export async function request<T>(
   const headers = new Headers(init?.headers);
 
   if (options.apiKey) {
-    // Standardize on x-api-key for internal service authentication
-    headers.set("x-api-key", options.apiKey);
+    headers.set(options.apiKeyHeader ?? "x-api-key", options.apiKey);
   }
 
   if (!headers.has("Content-Type") && !(init?.body instanceof FormData)) {
@@ -81,7 +81,7 @@ export function createClient(options: ApiClientOptions) {
     get: <T>(endpoint: string, init?: RequestInit) =>
       request<T>(endpoint, options, { ...init, method: "GET" }),
 
-    post: <T>(endpoint: string, body?: any, init?: RequestInit) =>
+    post: <T>(endpoint: string, body?: unknown, init?: RequestInit) =>
       request<T>(endpoint, options, {
         ...init,
         method: "POST",
@@ -92,7 +92,7 @@ export function createClient(options: ApiClientOptions) {
           : undefined,
       }),
 
-    put: <T>(endpoint: string, body?: any, init?: RequestInit) =>
+    put: <T>(endpoint: string, body?: unknown, init?: RequestInit) =>
       request<T>(endpoint, options, {
         ...init,
         method: "PUT",
@@ -103,7 +103,7 @@ export function createClient(options: ApiClientOptions) {
           : undefined,
       }),
 
-    patch: <T>(endpoint: string, body?: any, init?: RequestInit) =>
+    patch: <T>(endpoint: string, body?: unknown, init?: RequestInit) =>
       request<T>(endpoint, options, {
         ...init,
         method: "PATCH",

@@ -1,4 +1,5 @@
 import { createClient } from "./base";
+import { serviceConfig } from "./config";
 
 export interface Lead {
   id: string;
@@ -8,13 +9,25 @@ export interface Lead {
   email?: string;
   phone?: string;
   source?: string;
+  stage?: string;
+  location?: string;
   loanPurpose?: string;
   loanAmount?: number;
   propertyState?: string;
+  state?: string;
+  creditScore?: number;
+  creditBand?: string;
+  campaignId?: string;
+  campaignName?: string;
   campaignStatus?: string;
+  hasConsent?: boolean;
+  onDncList?: boolean;
+  nextTouch?: string;
+  timeZone?: string;
+  timezone?: string;
   status?: string;
   createdAt?: string;
-  [key: string]: any; // Allow for other fields from Twenty CRM
+  [key: string]: unknown; // Allow for other fields from Twenty CRM
 }
 
 export interface ConversationLog {
@@ -31,10 +44,21 @@ export interface PipelineStats {
   next_touch: string | null;
 }
 
+export type TimelineEntry = Record<string, unknown>;
+
+export interface CrmCampaignStep {
+  id?: string;
+  name?: string;
+  channel?: "email" | "sms" | "voice" | "task" | string;
+  delayHours?: number;
+  templateId?: string;
+  metadata?: Record<string, unknown>;
+}
+
 export interface Campaign {
   id: string;
   name: string;
-  steps: any;
+  steps: CrmCampaignStep[];
   loanPurpose: string;
   active: boolean;
 }
@@ -44,13 +68,14 @@ export interface Campaign {
  */
 const CRM_API_URL =
   typeof window === "undefined"
-    ? process.env.CRM_API_URL || "http://localhost:4001"
+    ? serviceConfig.crmApiUrl || "http://localhost:4001"
     : "";
-const CRM_API_KEY = process.env.CRM_API_KEY || "";
+const CRM_API_KEY = serviceConfig.crmApiKey;
 
 const client = createClient({
   baseUrl: CRM_API_URL,
   apiKey: CRM_API_KEY,
+  apiKeyHeader: "x-crm-api-key",
 });
 
 export const crmApi = {
@@ -68,7 +93,7 @@ export const crmApi = {
    * Fetch lead conversation history and timeline.
    */
   getLeadConversation: (id: string) =>
-    client.get<{ logs: ConversationLog[]; timeline: any }>(
+    client.get<{ logs: ConversationLog[]; timeline: TimelineEntry[] }>(
       `/api/leads/${id}/conversation`
     ),
 
@@ -87,7 +112,7 @@ export const crmApi = {
   /**
    * Generate and send a quote for a lead.
    */
-  createLeadQuote: (id: string, quoteData: any) =>
+  createLeadQuote: (id: string, quoteData: Record<string, unknown>) =>
     client.post(`/api/leads/${id}/quote`, quoteData),
 
   /**

@@ -54,6 +54,35 @@ describe("RateHunter production proxy gates", () => {
     expect(body.source).toBe("mock");
   });
 
+  it("redacts lead PII from ingest proxy error logs", async () => {
+    process.env.N8N_INGEST_WEBHOOK_URL =
+      "https://n8n.example.test/webhook?token=super-secret";
+    const fetchMock = vi
+      .spyOn(globalThis, "fetch")
+      .mockResolvedValue(new Response("bad", { status: 500 }));
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    vi.resetModules();
+
+    const { POST } =
+      await import("../../../apps/ratehunter/src/app/api/leads/ingest/route.ts");
+
+    const response = await POST(
+      requestJson({
+        email: "lead@example.com",
+        phone: "555-123-4567",
+      })
+    );
+
+    const logged = errorSpy.mock.calls.flat().map(String).join(" ");
+    expect(response.status).toBe(500);
+    expect(logged).not.toContain("lead@example.com");
+    expect(logged).not.toContain("555-123-4567");
+    expect(logged).not.toContain("super-secret");
+
+    fetchMock.mockRestore();
+    errorSpy.mockRestore();
+  });
+
   it("fails closed for production borrower chat when OpenClaw is not configured", async () => {
     const { POST } =
       await import("../../../apps/ratehunter/src/app/api/openclaw/chat/route.ts");

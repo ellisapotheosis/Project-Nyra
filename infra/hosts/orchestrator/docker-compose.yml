@@ -15,6 +15,7 @@ services:
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
       DATABASE_URL: ${DATABASE_URL:-}
       QUOTE_ENGINE_URL: ${QUOTE_ENGINE_URL:-http://oracle.trex-fiordland.ts.net:8089}
+      OPENCLAW_GATEWAY_TOKEN: ${OPENCLAW_GATEWAY_TOKEN:-}
     restart: unless-stopped
     networks:
       - nyra-network

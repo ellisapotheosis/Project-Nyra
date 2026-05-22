@@ -6,6 +6,8 @@ working on local tasks, but must not mark these complete without owner evidence.
 
 ## Release Candidate
 
+- [ ] Clear the current live-env and dashboard blockers listed in
+      `CURRENT-BLOCKERS.md`.
 - [ ] Complete `RELEASE-CANDIDATE-MANUAL-GATES.md` before treating the current
       stack as release-candidate ready.
 - [ ] Run `pnpm smoke:lead-lifecycle -- --live` only after Cloudflare Access,
@@ -15,6 +17,8 @@ working on local tasks, but must not mark these complete without owner evidence.
 
 ## Infisical
 
+- [ ] Add the current minimum live-smoke variables listed in
+      `CURRENT-BLOCKERS.md`.
 - [ ] Renew or confirm the active Infisical token/session.
 - [ ] Confirm the Project Nyra project id and `prod` environment are accessible.
 - [ ] Import all variables listed in `INFISICAL-MISSING-SECRETS.md`.
@@ -79,3 +83,7 @@ working on local tasks, but must not mark these complete without owner evidence.
       then re-enable only validated MCP servers.
 - [ ] Confirm GitHub Actions, CodeQL/code scanning, Dependabot, branch
       protection, and deployment dashboard settings.
+- [ ] Decide whether to install TruffleHog locally for full repository secret
+      scanning. Infisical CLI manages/injects secrets, but it does not replace
+      a leak scanner that searches git history and files for accidentally
+      committed secrets.

@@ -3,7 +3,10 @@ from __future__ import annotations
 from datetime import date
 from typing import Literal, Optional, List
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
+
+
+MAX_REASONABLE_ANNUAL_RATE = 0.25
 
 
 Compounding = Literal["Monthly", "Semi-Annually"]
@@ -47,6 +50,16 @@ class QuoteRequest(BaseModel):
 
     # If True, return a full amortization table
     include_schedule: bool = False
+
+    @field_validator("annual_interest_rate")
+    @classmethod
+    def annual_interest_rate_must_be_decimal(cls, value: float) -> float:
+        if value > MAX_REASONABLE_ANNUAL_RATE:
+            raise ValueError(
+                "annual_interest_rate must be a decimal rate <= 0.25; use 0.07, not 7"
+            )
+
+        return value
 
 
 class QuoteSummary(BaseModel):

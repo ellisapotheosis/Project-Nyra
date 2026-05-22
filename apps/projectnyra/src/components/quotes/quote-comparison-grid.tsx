@@ -297,9 +297,9 @@ function LedgerRow({
               <span className="font-semibold text-foreground/80 group-hover:text-foreground transition-colors">
                 {val === undefined
                   ? "—"
-                  : isCurrency
-                    ? currency(val as number)
-                    : val}
+                  : isCurrency && typeof val === "number"
+                    ? currency(val)
+                    : String(val)}
               </span>
             )}
           </td>

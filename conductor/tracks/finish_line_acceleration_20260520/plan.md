@@ -2,23 +2,60 @@
 
 ## Phase 1: Foundations (Error & Notifications)
 
-- [ ] Task: Implement global `ApiError` class and Next.js Error Boundaries
-- [ ] Task: Set up a global Toast Notification system (using Shadcn)
+- [x] Task: Implement global `ApiError` class and Next.js Error Boundaries
+- [x] Task: Set up a global Toast Notification system (using Shadcn)
 
 ## Phase 2: Security & Types (The Backend Sweep)
 
-- [ ] Task: Add Zod validation to `lead-ingestion` and `quote-api` boundaries
+- [x] Task: Add Zod validation to `lead-ingestion` and `quote-api` boundaries
 - [ ] Task: Audit and sanitize all `console.log` and logger outputs for PII
-- [ ] Task: Replace `any` types in `apps/projectnyra/src/lib/api/`
+- [x] Task: Replace `any` types in `apps/projectnyra/src/lib/api/`
 
 ## Phase 3: UI/UX Deepening
 
 - [ ] Task: Refactor `LeadProfilePage` into modular components
-- [ ] Task: Add Skeleton Loaders to all dashboard views
-- [ ] Task: Apply mobile-responsive polish to the Command Deck
+- [x] Task: Add Skeleton Loaders to all dashboard views
+- [x] Task: Apply mobile-responsive polish to the Command Deck
 
 ## Phase 4: Final Hardening & Validation
 
-- [ ] Task: Implement Rate Limiting middleware for internal API routes
+- [x] Task: Implement Rate Limiting middleware for internal API routes
 - [ ] Task: Write and execute the full Playwright E2E "Happy Path" smoke test
 - [ ] Task: Conductor - User Manual Verification 'Acceleration Sprint'
+
+## 2026-05-22 Agent Review
+
+Completed items above were verified against current source:
+
+- `apps/projectnyra/src/lib/api/base.ts` exports `ApiError`.
+- `apps/projectnyra/src/components/error-boundary.tsx` is wired from
+  `apps/projectnyra/src/app/layout.tsx`.
+- `apps/projectnyra/src/components/ui/toast.tsx`,
+  `apps/projectnyra/src/components/ui/toaster.tsx`, and
+  `apps/projectnyra/src/hooks/use-toast.ts` provide the toast surface.
+- `apps/projectnyra/src/lib/api/**` no longer contains `any`.
+- `services/lead-ingestion` now validates raw lead payloads with Zod before
+  normalization, dedupe, CRM writes, or audit event creation.
+- `services/quote-api` now rejects percent-style whole-number interest rates
+  at the Pydantic boundary and uses the standard deterministic LTV formula
+  `loan_amount / property_value`.
+- `apps/projectnyra/src/app/api/internal/openclaw/**` is protected by an
+  in-process per-client rate limiter with rate-limit response headers.
+- `apps/ratehunter/src/app/api/leads/ingest/route.ts` now redacts common lead
+  PII and secret tokens from proxy error logs.
+- `apps/projectnyra/src/components/ui/page-skeleton.tsx` and route-local
+  `loading.tsx` files cover the main broker/admin dashboard views.
+- `apps/projectnyra/src/app/page.tsx` has tighter mobile spacing, responsive
+  command buttons, and horizontally safe system-blocker table behavior.
+- PII redaction helpers now protect RateHunter lead ingest, internal OpenClaw
+  proxy error responses, quote-engine logs, and campaign-engine provider logs.
+
+Remaining unchecked items are either broader product work or require browser/live
+environment validation. Do not mark the Playwright happy path or user-manual
+verification complete until the owner-gated release-candidate setup in
+`docs/user-todo/` is complete.
+
+PII log sanitization remains unchecked because the current pass hardened the
+highest-risk lead ingest, quote, campaign-provider, and internal proxy paths.
+The remaining audit still needs focused review of orchestrator, Letta, websocket,
+and Twenty MCP logging paths before it can be considered complete.

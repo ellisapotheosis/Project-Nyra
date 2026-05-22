@@ -20,7 +20,14 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { quoteApi, crmApi, useApi, type LoanType } from "@/lib/api";
+import {
+  quoteApi,
+  crmApi,
+  useApi,
+  type LoanType,
+  type QuoteRequest,
+} from "@/lib/api";
+import type { LoanTypeInfo } from "@/lib/api/quotes";
 import { StatusGate } from "@/components/status-gate";
 import { QuoteRequestForm } from "@/components/quotes/quote-request-form";
 import { QuoteComparisonGrid } from "@/components/quotes/quote-comparison-grid";
@@ -39,7 +46,7 @@ export default function QuotesPage() {
     loanTypesApi.execute();
   }, []);
 
-  const handleRunComparison = (data: any) => {
+  const handleRunComparison = (data: QuoteRequest) => {
     setNotice(null);
     comparisonApi.execute(data);
   };
@@ -194,7 +201,7 @@ export default function QuotesPage() {
               >
                 {(loanTypes) => (
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                    {loanTypes.map((product: any) => (
+                    {loanTypes.map((product: LoanTypeInfo) => (
                       <div
                         key={product.type}
                         className="p-3 rounded-xl border border-border/30 bg-background/40 hover:border-indigo-500/40 hover:bg-background/60 transition-all group"

@@ -35,7 +35,11 @@ import {
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 
-import { campaignApi, useApi } from "@/lib/api";
+import {
+  campaignApi,
+  type CampaignStep as ApiCampaignStep,
+  useApi,
+} from "@/lib/api";
 import { StatusGate } from "@/components/status-gate";
 import { ChannelPreview } from "@/components/campaigns/channel-preview";
 import { cn } from "@/lib/utils";
@@ -71,7 +75,7 @@ export default function CampaignBuilder() {
       fetchCampaignApi.execute(campaignId).then((data) => {
         setName(data.name);
         setLoanPurpose(data.loanPurpose || "PURCHASE");
-        setSteps(data.steps || []);
+        setSteps((data.steps || []).map(toBuilderStep));
       });
     } else {
       setName("New Campaign");
@@ -447,6 +451,22 @@ export default function CampaignBuilder() {
       </StatusGate>
     </div>
   );
+}
+
+function toBuilderStep(step: ApiCampaignStep, index: number): CampaignStep {
+  return {
+    id: step.id || String(index + 1),
+    day: step.day ?? Math.max(0, Math.round((step.delayHours ?? 0) / 24)),
+    channel:
+      step.channel === "email" ||
+      step.channel === "sms" ||
+      step.channel === "voice" ||
+      step.channel === "missed_call_ping"
+        ? step.channel
+        : "email",
+    templateId: step.templateId || "manual_review",
+    offsetMinutes: step.offsetMinutes,
+  };
 }
 
 function ChannelIcon({ channel }: { channel: string }) {

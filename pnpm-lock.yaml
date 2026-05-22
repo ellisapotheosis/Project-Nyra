@@ -1004,6 +1004,9 @@ importers:
       "@nyra/integration-adapters":
         specifier: workspace:*
         version: link:../../packages/integration-adapters
+      zod:
+        specifier: ^4.3.5
+        version: 4.3.6
     devDependencies:
       typescript:
         specifier: ^5.7.0

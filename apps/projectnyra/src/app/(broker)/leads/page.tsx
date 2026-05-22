@@ -4,7 +4,7 @@ import React, { useEffect } from "react";
 import { Mail, MapPin, Phone, Star } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { crmApi, useApi } from "@/lib/api";
+import { crmApi, type Lead, useApi } from "@/lib/api";
 import { StatusGate } from "@/components/status-gate";
 
 function currency(value: number) {
@@ -44,10 +44,10 @@ export default function LeadsPage() {
       >
         {(leads) => {
           const qualifiedCount = leads.filter(
-            (lead: any) => lead.stage === "Qualified"
+            (lead: Lead) => lead.stage === "Qualified"
           ).length;
           const totalLoanAmount = leads.reduce(
-            (sum: number, lead: any) => sum + (lead.loanAmount || 0),
+            (sum: number, lead: Lead) => sum + (lead.loanAmount || 0),
             0
           );
           const averageLoan =
@@ -89,7 +89,7 @@ export default function LeadsPage() {
               </div>
 
               <div className="grid gap-4">
-                {leads.map((lead: any) => (
+                {leads.map((lead: Lead) => (
                   <Card key={lead.id} className="border-border/70 bg-card/80">
                     <CardContent className="flex flex-col gap-4 p-5 lg:flex-row lg:items-center lg:justify-between">
                       <div className="flex items-start gap-4">

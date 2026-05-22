@@ -11,6 +11,57 @@ generated-value import aid remains outside the repo at:
 Use generated values only for local or isolated test smoke, then replace them
 with real provider values before production.
 
+## Current Minimum Live-Smoke Blockers
+
+The latest release validator reports these exact variables as missing from the
+current runtime environment. Add or confirm them in Infisical before live smoke.
+
+### `/apps/projectnyra`
+
+- `CRM_API_URL`
+- `CRM_API_KEY`
+- `LEAD_INGESTION_API_URL`
+- `CAMPAIGN_ENGINE_URL`
+- `QUOTE_API_URL`
+- `QUOTE_API_SECRET`
+- `COMMUNICATION_SERVICE_URL`
+- `OPENCLAW_PUBLIC_BASE_URL`
+- `OPENCLAW_GATEWAY_TOKEN`
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `SUPABASE_SERVICE_ROLE_KEY`
+- `NEXT_PUBLIC_SITE_URL`
+- `NEXT_PUBLIC_APP_URL`
+- `SUPABASE_AUTH_REDIRECT_URLS`
+
+### `/apps/ratehunter`
+
+- `N8N_INGEST_WEBHOOK_URL`
+- `OPENCLAW_BORROWER_API_URL`
+- `OPENCLAW_BORROWER_API_KEY`
+- `NEXT_PUBLIC_SITE_URL`
+- `NEXT_PUBLIC_APP_URL`
+
+### Service paths
+
+- `/services/crm-api`: `CRM_API_KEY`, `TWENTY_CRM_URL`,
+  `TWENTY_CRM_API_KEY`
+- `/services/lead-ingestion`: `LEAD_INGESTION_API_URL`,
+  `LEAD_INGESTION_API_KEY`, `CRM_API_URL`, `CRM_API_KEY`
+- `/services/campaign-service`: `CAMPAIGN_ENGINE_URL`, `CRM_API_URL`,
+  `CRM_API_KEY`, `EVENT_INGEST_API_KEY`
+- `/services/communication-service`: `COMMUNICATION_SERVICE_URL`,
+  `CRM_API_URL`, `CRM_API_KEY`, `EVENT_INGEST_API_KEY`
+- `/services/quote-service`: `QUOTE_API_URL`, `QUOTE_API_SECRET`,
+  `CRM_API_URL`, `CRM_API_KEY`
+- `/services/assistant-service`: `OPENCLAW_PUBLIC_BASE_URL`,
+  `OPENCLAW_GATEWAY_TOKEN`, `NEXUS_ROUTER_URL`, `NEXUS_ROUTER_API_KEY`
+
+`NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` and
+`NEXT_PUBLIC_SUPABASE_ANON_KEY` can both be populated. The app accepts either
+for public browser auth config.
+
 ## Project Defaults
 
 - Infisical project id: `8374cea9-e5e8-4050-bda4-b91f25ab30ef`

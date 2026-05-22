@@ -8,6 +8,7 @@ without live account access.
 
 ## Release Candidate Gate
 
+- [ ] Clear the current exact blockers in `CURRENT-BLOCKERS.md`.
 - [ ] Complete the focused owner gates in
       `RELEASE-CANDIDATE-MANUAL-GATES.md`.
 - [ ] After those gates are complete, run the release smoke:
@@ -18,6 +19,8 @@ without live account access.
 
 ## 1. Infisical And Provider Secrets
 
+- [ ] Add the minimum live-smoke variables from
+      `CURRENT-BLOCKERS.md#minimum-infisical-variables-blocking-live-smoke`.
 - [ ] Import or update the missing Infisical variables listed in
       `INFISICAL-MISSING-SECRETS.md`.
 - [ ] Use the private generated-value file outside the repo only if temporary

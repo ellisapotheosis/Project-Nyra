@@ -25,6 +25,11 @@ import {
 import { SiteHeader } from "@/components/site-header";
 import { LeadRadar } from "@/components/leads/lead-radar";
 import { Badge } from "@/components/ui/badge";
+import {
+  CommandStatsSkeleton,
+  PriorityQueueSkeleton,
+  LeadRadarSkeleton,
+} from "@/components/ui/dashboard-skeleton";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { crmApi } from "@/lib/api/crm";
@@ -136,7 +141,7 @@ export default function Home() {
     <div className="flex min-h-screen flex-col bg-background text-foreground antialiased">
       <SiteHeader />
 
-      <main className="mx-auto w-full max-w-7xl flex-1 px-5 py-8 lg:px-8">
+      <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-6 sm:px-5 sm:py-8 lg:px-8">
         <div className="flex flex-col gap-10">
           {/* Header Section */}
           <section className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
@@ -151,36 +156,45 @@ export default function Home() {
                 Broker Command Deck
               </h1>
             </div>
-            <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm" className="h-9 gap-2">
+            <div className="grid grid-cols-2 gap-2 sm:flex sm:items-center">
+              <Button variant="outline" size="sm" className="h-9 gap-2 px-3">
                 <Activity className="size-4" />
-                <span>Diagnostics</span>
+                <span className="truncate">Diagnostics</span>
               </Button>
-              <Button size="sm" className="h-9 gap-2">
+              <Button size="sm" className="h-9 gap-2 px-3">
                 <Sparkles className="size-4" />
-                <span>Ask Nyra</span>
+                <span className="truncate">Ask Nyra</span>
               </Button>
             </div>
           </section>
 
           {/* Stats Grid */}
-          <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {commandStats.map((stat) => (
-              <Card key={stat.label} className="border-border/40 bg-card/40">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                    {stat.label}
-                  </CardTitle>
-                  <stat.icon className={cn("size-4", stat.tone)} />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">{stat.value}</div>
-                  <p className="mt-1 text-[11px] text-muted-foreground">
-                    {stat.detail}
-                  </p>
-                </CardContent>
-              </Card>
-            ))}
+          <section>
+            {loadingLeads || loadingPipeline ? (
+              <CommandStatsSkeleton />
+            ) : (
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                {commandStats.map((stat) => (
+                  <Card
+                    key={stat.label}
+                    className="border-border/40 bg-card/40"
+                  >
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                      <CardTitle className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                        {stat.label}
+                      </CardTitle>
+                      <stat.icon className={cn("size-4", stat.tone)} />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold">{stat.value}</div>
+                      <p className="mt-1 text-[11px] text-muted-foreground">
+                        {stat.detail}
+                      </p>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
           </section>
 
           {/* Main Workspace */}
@@ -199,47 +213,55 @@ export default function Home() {
                     {priorityQueue.length} items
                   </Badge>
                 </div>
-                <div className="grid gap-3">
-                  {priorityQueue.map((item) => (
-                    <Card
-                      key={item.title}
-                      className="group border-border/40 bg-card/40 transition-colors hover:bg-card/60"
-                    >
-                      <CardContent className="flex items-start gap-4 p-4">
-                        <div
-                          className={cn(
-                            "mt-0.5 flex size-10 shrink-0 items-center justify-center rounded-xl border border-border/60 bg-muted/50",
-                            item.severity === "critical" && "text-pink-400",
-                            item.severity === "warning" && "text-amber-400",
-                            item.severity === "healthy" && "text-turquoise-400"
-                          )}
-                        >
-                          <item.icon className="size-5" />
-                        </div>
-                        <div className="flex-1 space-y-1">
-                          <h3 className="text-sm font-semibold">
-                            {item.title}
-                          </h3>
-                          <p className="text-xs leading-relaxed text-muted-foreground">
-                            {item.context}
-                          </p>
-                          <div className="flex pt-2">
-                            <Link
-                              href={item.route}
-                              className={cn(
-                                buttonVariants({ variant: "link", size: "sm" }),
-                                "h-auto p-0 text-primary"
-                              )}
-                            >
-                              <span>{item.action}</span>
-                              <ArrowRight className="ml-1 size-3 transition-transform group-hover:translate-x-1" />
-                            </Link>
+                {loadingLeads ? (
+                  <PriorityQueueSkeleton />
+                ) : (
+                  <div className="grid gap-3">
+                    {priorityQueue.map((item) => (
+                      <Card
+                        key={item.title}
+                        className="group border-border/40 bg-card/40 transition-colors hover:bg-card/60"
+                      >
+                        <CardContent className="flex items-start gap-4 p-4">
+                          <div
+                            className={cn(
+                              "mt-0.5 flex size-10 shrink-0 items-center justify-center rounded-xl border border-border/60 bg-muted/50",
+                              item.severity === "critical" && "text-pink-400",
+                              item.severity === "warning" && "text-amber-400",
+                              item.severity === "healthy" &&
+                                "text-turquoise-400"
+                            )}
+                          >
+                            <item.icon className="size-5" />
                           </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
+                          <div className="flex-1 space-y-1">
+                            <h3 className="text-sm font-semibold">
+                              {item.title}
+                            </h3>
+                            <p className="text-xs leading-relaxed text-muted-foreground">
+                              {item.context}
+                            </p>
+                            <div className="flex pt-2">
+                              <Link
+                                href={item.route}
+                                className={cn(
+                                  buttonVariants({
+                                    variant: "link",
+                                    size: "sm",
+                                  }),
+                                  "h-auto p-0 text-primary"
+                                )}
+                              >
+                                <span>{item.action}</span>
+                                <ArrowRight className="ml-1 size-3 transition-transform group-hover:translate-x-1" />
+                              </Link>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                )}
               </section>
 
               {/* Blockers & Health */}
@@ -247,8 +269,8 @@ export default function Home() {
                 <h2 className="text-sm font-bold uppercase tracking-widest text-muted-foreground">
                   System Blockers
                 </h2>
-                <div className="overflow-hidden rounded-xl border border-border/40 bg-card/20">
-                  <table className="w-full text-left text-xs">
+                <div className="overflow-x-auto rounded-xl border border-border/40 bg-card/20">
+                  <table className="min-w-[720px] w-full text-left text-xs">
                     <thead className="border-b border-border/40 bg-muted/30">
                       <tr>
                         <th className="px-4 py-3 font-semibold text-muted-foreground">
@@ -349,7 +371,7 @@ export default function Home() {
                   <Activity className="size-4 text-muted-foreground/50" />
                 </CardHeader>
                 <CardContent>
-                  <LeadRadar />
+                  {loadingLeads ? <LeadRadarSkeleton /> : <LeadRadar />}
                 </CardContent>
               </Card>
             </div>

@@ -277,7 +277,11 @@ services:
     ports:
       - "127.0.0.1:5678:5678"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5678/healthz"]
+      test:
+        [
+          "CMD-SHELL",
+          'node -e "require(''http'').get(''http://127.0.0.1:5678/healthz'', r => process.exit(r.statusCode < 400 ? 0 : 1)).on(''error'', () => process.exit(1))"',
+        ]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -300,7 +304,11 @@ services:
     ports:
       - "7070:7070"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:7070/health"]
+      test:
+        [
+          "CMD-SHELL",
+          'python -c "import urllib.request; urllib.request.urlopen(''http://127.0.0.1:7070/health'', timeout=5)"',
+        ]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -333,7 +341,7 @@ services:
       - "--storage.tsdb.retention.time=15d"
     volumes:
       - prometheus_data:/prometheus
-      - ${PWD}/configs/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./configs/prometheus.yml:/etc/prometheus/prometheus.yml:ro
     ports:
       - "127.0.0.1:9090:9090"
     networks: [nyra_net]
@@ -671,7 +679,11 @@ services:
       - "4001:4001"
     networks: [nyra_net]
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:4001/api/leads?limit=1"]
+      test:
+        [
+          "CMD-SHELL",
+          'node -e "require(''http'').get(''http://127.0.0.1:4001/api/leads?limit=1'', r => process.exit(r.statusCode < 500 ? 0 : 1)).on(''error'', () => process.exit(1))"',
+        ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -687,7 +699,7 @@ services:
       - "8020:8020"
     environment:
       - NODE_ENV=production
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-nyra}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-nyra}
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-nyra}:${POSTGRES_PASSWORD_URLENCODED:-${POSTGRES_PASSWORD}}@postgres:5432/${POSTGRES_DB:-nyra}
       - N8N_BASE_URL=http://n8n:5678
       - N8N_WEBHOOK_URL=http://n8n:5678/webhook/nyra/dispatch
       - ACTIVEPIECES_BASE_URL=http://activepieces:80

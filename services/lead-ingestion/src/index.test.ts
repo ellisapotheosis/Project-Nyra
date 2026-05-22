@@ -6,6 +6,7 @@ import {
   getLeadDedupeKey,
   normalizeLeadPayload,
   persistCrmWritePlan,
+  validateRawLeadPayload,
   type RawLeadPayload,
 } from "./index";
 
@@ -41,6 +42,49 @@ describe("lead ingestion", () => {
         propertyState: "CA",
       },
     });
+  });
+
+  it("rejects invalid raw payloads before normalization or CRM writes", async () => {
+    expect(() =>
+      validateRawLeadPayload({
+        email: "not-an-email",
+        phone: "555-123-4567",
+        source: "vendor-feed",
+      })
+    ).toThrow(/email/i);
+
+    expect(() =>
+      normalizeLeadPayload(
+        {
+          firstName: "Missing",
+          lastName: "Destination",
+          source: "vendor-feed",
+        },
+        { id: leadId }
+      )
+    ).toThrow(/email or phone/i);
+
+    const service = new LeadIngestionService({
+      crm: {
+        getLead: async () => {
+          throw new Error("CRM should not be called for invalid lead payloads");
+        },
+        upsertLead: async () => {
+          throw new Error("CRM should not be called for invalid lead payloads");
+        },
+        logCommunication: async () => {
+          throw new Error("CRM should not be called for invalid lead payloads");
+        },
+        checkHealth: async () => ({ status: "HEALTHY" }),
+      },
+    });
+
+    await expect(
+      service.ingest({
+        email: "bad-email",
+        source: "vendor-feed",
+      })
+    ).rejects.toThrow(/email/i);
   });
 
   it("uses a stable dedupe key and updates matching leads through the CRM boundary", async () => {

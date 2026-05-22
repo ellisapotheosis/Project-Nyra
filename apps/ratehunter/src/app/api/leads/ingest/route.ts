@@ -7,6 +7,24 @@ function canUseLocalMockFallback() {
   );
 }
 
+function redactLogText(value: string): string {
+  return value
+    .replace(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi, "[REDACTED_EMAIL]")
+    .replace(/\+?\d[\d\s().-]{8,}\d/g, "[REDACTED_PHONE]")
+    .replace(/(token|secret|key|authorization)=([^&\s]+)/gi, "$1=[REDACTED]");
+}
+
+function summarizeError(error: unknown) {
+  if (error instanceof Error) {
+    return {
+      name: error.name,
+      message: redactLogText(error.message),
+    };
+  }
+
+  return { message: redactLogText(String(error)) };
+}
+
 export async function POST(req: Request) {
   try {
     const data = await req.json();
@@ -50,7 +68,7 @@ export async function POST(req: Request) {
       message: "Lead captured and routed.",
     });
   } catch (error) {
-    console.error("Lead ingest proxy error:", error);
+    console.error("Lead ingest proxy error:", summarizeError(error));
     return NextResponse.json(
       { success: false, error: "Failed to route lead." },
       { status: 500 }

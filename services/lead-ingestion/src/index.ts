@@ -4,6 +4,7 @@ import {
   type ITwentyClient,
 } from "@nyra/integration-adapters";
 import type { CrmWritePlan } from "@nyra/crm-types";
+import { z } from "zod";
 
 export const serviceName = "lead-ingestion";
 
@@ -26,6 +27,46 @@ export type RawLeadPayload = {
   campaignId?: string;
   metadata?: Record<string, unknown>;
 };
+
+const rawLeadPayloadSchema = z
+  .object({
+    id: z.string().trim().optional(),
+    externalId: z.string().trim().optional(),
+    firstName: z.string().trim().optional(),
+    lastName: z.string().trim().optional(),
+    name: z.string().trim().optional(),
+    email: z.string().trim().email().optional(),
+    phone: z.string().trim().optional(),
+    source: z.string().trim().optional(),
+    consentEmail: z.boolean().optional(),
+    consentSms: z.boolean().optional(),
+    consentVoice: z.boolean().optional(),
+    doNotContact: z.boolean().optional(),
+    loanPurpose: z.string().trim().optional(),
+    loanAmount: z
+      .union([z.number().finite().nonnegative(), z.string()])
+      .optional(),
+    propertyState: z.string().trim().optional(),
+    campaignId: z.string().trim().optional(),
+    metadata: z.record(z.string(), z.unknown()).optional(),
+  })
+  .passthrough()
+  .superRefine((payload, context) => {
+    const hasEmail = cleanString(payload.email) !== undefined;
+    const hasPhone = cleanString(payload.phone) !== undefined;
+
+    if (!hasEmail && !hasPhone) {
+      context.addIssue({
+        code: "custom",
+        path: ["email"],
+        message: "Lead ingestion requires an email or phone for dedupe.",
+      });
+    }
+  });
+
+export function validateRawLeadPayload(rawPayload: unknown): RawLeadPayload {
+  return rawLeadPayloadSchema.parse(rawPayload) as RawLeadPayload;
+}
 
 export type LeadIngestionEvent =
   | {
@@ -114,8 +155,9 @@ export class LeadIngestionService {
   }
 
   async ingest(rawPayload: RawLeadPayload): Promise<IngestLeadResult> {
-    const normalized = normalizeLeadPayload(rawPayload, {
-      id: rawPayload.id ?? this.idFactory(),
+    const validatedPayload = validateRawLeadPayload(rawPayload);
+    const normalized = normalizeLeadPayload(validatedPayload, {
+      id: validatedPayload.id ?? this.idFactory(),
     });
     const dedupeKey = getLeadDedupeKey(normalized);
     const existingLead = await this.store.findByDedupeKey(dedupeKey);
@@ -132,9 +174,9 @@ export class LeadIngestionService {
         ...(normalized.metadata ?? {}),
         dedupeKey,
         consent: {
-          email: rawPayload.consentEmail === true,
-          sms: rawPayload.consentSms === true,
-          voice: rawPayload.consentVoice === true,
+          email: validatedPayload.consentEmail === true,
+          sms: validatedPayload.consentSms === true,
+          voice: validatedPayload.consentVoice === true,
         },
       },
     });
@@ -145,12 +187,12 @@ export class LeadIngestionService {
     const dedupeOutcome = existingLead ? "UPDATED" : "CREATED";
     const campaignEligibility = determineCampaignEligibility(
       savedLead,
-      rawPayload
+      validatedPayload
     );
 
     const auditEvents = buildLeadAuditEvents({
       lead: savedLead,
-      rawPayload,
+      rawPayload: validatedPayload,
       dedupeKey,
       dedupeOutcome,
       campaignEligibility,
@@ -172,7 +214,7 @@ export class LeadIngestionService {
       auditEvents,
       crmWritePlan: buildCrmWritePlan({
         lead: savedLead,
-        rawPayload,
+        rawPayload: validatedPayload,
         dedupeKey,
         dedupeOutcome,
         campaignEligibility,
@@ -198,28 +240,30 @@ export function normalizeLeadPayload(
   rawPayload: RawLeadPayload,
   options: NormalizeOptions
 ): Lead {
-  const nameParts = splitName(rawPayload.name);
-  const email = normalizeEmail(rawPayload.email);
-  const phone = normalizePhone(rawPayload.phone);
-  const firstName = cleanString(rawPayload.firstName) ?? nameParts.firstName;
-  const lastName = cleanString(rawPayload.lastName) ?? nameParts.lastName;
+  const validatedPayload = validateRawLeadPayload(rawPayload);
+  const nameParts = splitName(validatedPayload.name);
+  const email = normalizeEmail(validatedPayload.email);
+  const phone = normalizePhone(validatedPayload.phone);
+  const firstName =
+    cleanString(validatedPayload.firstName) ?? nameParts.firstName;
+  const lastName = cleanString(validatedPayload.lastName) ?? nameParts.lastName;
 
   return LeadSchema.parse({
     id: options.id,
-    externalId: cleanString(rawPayload.externalId),
+    externalId: cleanString(validatedPayload.externalId),
     firstName,
     lastName,
     email,
     phone,
-    source: cleanString(rawPayload.source) ?? "UNKNOWN",
-    consentStatus: deriveConsentStatus(rawPayload),
-    doNotContact: rawPayload.doNotContact === true,
+    source: cleanString(validatedPayload.source) ?? "UNKNOWN",
+    consentStatus: deriveConsentStatus(validatedPayload),
+    doNotContact: validatedPayload.doNotContact === true,
     metadata: {
-      ...(rawPayload.metadata ?? {}),
-      loanPurpose: cleanString(rawPayload.loanPurpose),
-      loanAmount: normalizeNumber(rawPayload.loanAmount),
-      propertyState: cleanString(rawPayload.propertyState)?.toUpperCase(),
-      campaignId: cleanString(rawPayload.campaignId),
+      ...(validatedPayload.metadata ?? {}),
+      loanPurpose: cleanString(validatedPayload.loanPurpose),
+      loanAmount: normalizeNumber(validatedPayload.loanAmount),
+      propertyState: cleanString(validatedPayload.propertyState)?.toUpperCase(),
+      campaignId: cleanString(validatedPayload.campaignId),
     },
   });
 }
