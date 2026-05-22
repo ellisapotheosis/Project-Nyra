@@ -2,7 +2,7 @@
 
 This webapp uses a dynamic theme system based on **next-themes** and **Shadcn UI (Tailwind CSS v4)**. Themes are defined as CSS classes containing variables that map to Shadcn tokens.
 
-## 🏛 Adding a New Theme
+## Adding a New Theme
 
 To add a new theme to the Project Nyra webapp, follow these two steps:
 
@@ -44,11 +44,11 @@ The system will automatically:
 - Register the theme with the **ThemeProvider**.
 - Allow the theme to be persisted in the user's browser.
 
-## 🛠 Default Theme
+## Default Theme
 
 The default theme is set in `apps/projectnyra/src/config/themes.ts` via the `DEFAULT_THEME` constant. Currently, it is set to **Apotheosis**.
 
-## 🎨 Best Practices
+## Best Practices
 
 - **Use Theme Variables**: When building new components, always use Tailwind classes that reference theme variables (e.g., `bg-background`, `text-primary`, `border-border`) rather than hardcoded colors (e.g., `bg-slate-900`).
 - **Dark Mode**: All Project Nyra themes are dark-mode centric by default.

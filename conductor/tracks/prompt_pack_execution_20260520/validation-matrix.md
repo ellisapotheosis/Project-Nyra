@@ -53,6 +53,12 @@
 - 2026-05-22: `git diff --check` passed.
 - 2026-05-22: `pnpm infra:check:infisical` passed with 5 primary stacks and 6 secret-consuming stacks.
 - 2026-05-22: Owner-only actions consolidated into `docs/user-todo/`; source-code TODO scan found no actionable local TODO comments outside status enum values and reference/spec checklists.
-- 2026-05-22: `pnpm test` passed with 10 files and 91 tests.
+- 2026-05-22: `pnpm test` passed with 11 files and 93 tests.
 - 2026-05-22: `pnpm -C apps/projectnyra lint` passed.
+- 2026-05-22: `pnpm -C apps/projectnyra typecheck` passed.
+- 2026-05-22: `pnpm -C apps/ratehunter lint` passed.
+- 2026-05-22: `pnpm audit --audit-level=moderate` passed with no known vulnerabilities.
+- 2026-05-22: `bash scripts/security/scan.sh --quick` passed; TruffleHog was unavailable, quick pattern secret scan passed, runtime security audit passed, and outdated dependencies were reported for review.
 - 2026-05-22: `pnpm -w build` passed; Project Nyra built successfully and Turbo reported 20 successful tasks.
+- 2026-05-22: `pnpm -C apps/projectnyra build` passed with 30 App Router routes and the legacy `/500` page generated.
+- 2026-05-22: `pnpm -C apps/ratehunter build` passed with the landing page, lead ingest proxy, and borrower chat proxy generated.

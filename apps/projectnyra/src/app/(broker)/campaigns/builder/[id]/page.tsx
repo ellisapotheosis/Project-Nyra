@@ -1,6 +1,6 @@
 "use client";
 
-import React, { use, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -33,7 +33,7 @@ import {
   CalendarDays,
 } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 
 import { campaignApi, useApi } from "@/lib/api";
 import { StatusGate } from "@/components/status-gate";
@@ -48,12 +48,9 @@ interface CampaignStep {
   offsetMinutes?: number;
 }
 
-export default function CampaignBuilder({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const { id: campaignId } = use(params);
+export default function CampaignBuilder() {
+  const params = useParams<{ id: string }>();
+  const campaignId = params?.id ?? "new";
   const [name, setName] = useState("Purchase Nurture");
   const [loanPurpose, setLoanPurpose] = useState("PURCHASE");
   const [steps, setSteps] = useState<CampaignStep[]>([]);

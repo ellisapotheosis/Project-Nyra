@@ -69,7 +69,17 @@ credential, dashboard, and live infrastructure actions are documented in
 - `pnpm infra:check:infisical` passed with 5 primary stacks and 6
   secret-consuming stacks.
 - Owner-only actions were consolidated into `docs/user-todo/` on 2026-05-22.
-- `pnpm test` passed with 10 files and 91 tests.
+- `pnpm test` passed with 11 files and 93 tests.
 - `pnpm -C apps/projectnyra lint` passed.
+- `pnpm -C apps/projectnyra typecheck` passed.
+- `pnpm -C apps/ratehunter lint` passed.
+- `pnpm audit --audit-level=moderate` passed with no known vulnerabilities.
+- `bash scripts/security/scan.sh --quick` passed; TruffleHog was unavailable,
+  quick pattern secret scan passed, runtime security audit passed, and outdated
+  dependencies were reported for review.
 - `pnpm -w build` passed; Project Nyra built successfully and Turbo reported
   20 successful tasks.
+- `pnpm -C apps/projectnyra build` passed with 30 App Router routes and the
+  legacy `/500` page generated.
+- `pnpm -C apps/ratehunter build` passed with the landing page, lead ingest
+  proxy, and borrower chat proxy generated.
