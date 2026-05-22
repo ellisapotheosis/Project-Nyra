@@ -6,6 +6,7 @@ import "./globals.css";
 
 import { ThemeProvider } from "@/components/theme-provider";
 import { AuthProvider } from "@/lib/auth-context";
+import { DEFAULT_THEME, themes } from "@/config/themes";
 
 export const metadata: Metadata = {
   title: "Project Nyra",
@@ -43,15 +44,10 @@ export default function RootLayout({
       >
         <ThemeProvider
           attribute="class"
-          defaultTheme="mint-midnight"
+          defaultTheme={DEFAULT_THEME}
           disableTransitionOnChange={false}
           enableSystem={false}
-          themes={[
-            "mint-midnight",
-            "mint-midnight-glow",
-            "apotheosis",
-            "virtus",
-          ]}
+          themes={themes.map((t) => t.value) as string[]}
         >
           <AuthProvider>{children}</AuthProvider>
         </ThemeProvider>

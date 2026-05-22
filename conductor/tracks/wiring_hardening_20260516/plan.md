@@ -68,5 +68,8 @@ credential, dashboard, and live infrastructure actions are documented in
 - `git diff --check` passed.
 - `pnpm infra:check:infisical` passed with 5 primary stacks and 6
   secret-consuming stacks.
+- Owner-only actions were consolidated into `docs/user-todo/` on 2026-05-22.
 - `pnpm test` passed with 10 files and 91 tests.
 - `pnpm -C apps/projectnyra lint` passed.
+- `pnpm -w build` passed; Project Nyra built successfully and Turbo reported
+  20 successful tasks.

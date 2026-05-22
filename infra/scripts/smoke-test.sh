@@ -24,6 +24,7 @@ SERVICES=(
   "http://localhost:9090/-/healthy|Prometheus"
   "http://localhost:3100/ready|Loki"
   "http://localhost:18789/health|OpenClaw Gateway"
+  "http://localhost:3005/health|Status Bridge"
 )
 
 FAILED=0

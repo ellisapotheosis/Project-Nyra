@@ -52,5 +52,7 @@
 - 2026-05-22: Conductor scan found no remaining unchecked conductor track items.
 - 2026-05-22: `git diff --check` passed.
 - 2026-05-22: `pnpm infra:check:infisical` passed with 5 primary stacks and 6 secret-consuming stacks.
+- 2026-05-22: Owner-only actions consolidated into `docs/user-todo/`; source-code TODO scan found no actionable local TODO comments outside status enum values and reference/spec checklists.
 - 2026-05-22: `pnpm test` passed with 10 files and 91 tests.
 - 2026-05-22: `pnpm -C apps/projectnyra lint` passed.
+- 2026-05-22: `pnpm -w build` passed; Project Nyra built successfully and Turbo reported 20 successful tasks.

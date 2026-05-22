@@ -62,8 +62,11 @@ Validation evidence:
 - `git diff --check` passed.
 - `pnpm infra:check:infisical` passed with 5 primary stacks and 6
   secret-consuming stacks.
+- Owner-only actions were consolidated into `docs/user-todo/` on 2026-05-22.
 - `pnpm test` passed with 10 files and 91 tests.
 - `pnpm -C apps/projectnyra lint` passed.
+- `pnpm -w build` passed; Project Nyra built successfully and Turbo reported
+  20 successful tasks.
 
 ## Infisical Coverage Note
 
@@ -72,3 +75,6 @@ The local operator checklist with generated test secrets was written outside the
 `/home/ellisapotheosis/repos/PROJECT_NYRA_INFISICAL_MISSING_SECRETS.md`
 
 Tracked conductor files must not contain generated secret values. Keep only variable names, paths, and execution guidance in repo history.
+
+The tracked owner-facing missing-secret checklist now lives at
+`docs/user-todo/INFISICAL-MISSING-SECRETS.md`.

@@ -62,18 +62,17 @@ export function Timeline({
             <div
               className={`flex-1 p-4 rounded-2xl shadow-sm border ${
                 isOutbound
-                  ? "bg-blue-50 border-blue-100 rounded-tr-sm"
-                  : "bg-white border-slate-100 rounded-tl-sm"
+                  ? "bg-indigo-500/10 border-indigo-500/20 rounded-tr-none"
+                  : "bg-muted/30 border-border/40 rounded-tl-none"
               }`}
             >
               <div className="flex justify-between items-center mb-2">
                 <span
-                  className={`text-sm font-semibold ${isOutbound ? "text-blue-900" : "text-slate-900"}`}
+                  className={`text-xs font-bold uppercase tracking-tighter ${isOutbound ? "text-indigo-300" : "text-foreground"}`}
                 >
-                  {isOutbound ? "System" : leadName} (
-                  {log.channel.toUpperCase()})
+                  {isOutbound ? "Nyra Engine" : leadName} • {log.channel}
                 </span>
-                <span className="text-xs text-slate-400">
+                <span className="text-[10px] font-bold text-muted-foreground/60 uppercase">
                   {new Date(log.sent_at).toLocaleString([], {
                     month: "short",
                     day: "numeric",
@@ -84,22 +83,22 @@ export function Timeline({
               </div>
               {log.channel === "email" &&
                 log.content_preview.includes("Subject:") && (
-                  <div className="text-sm text-blue-800 font-medium mb-1">
+                  <div className="text-xs text-indigo-400/80 font-bold mb-1.5 uppercase tracking-tight">
                     {log.content_preview.split("\n")[0]}
                   </div>
                 )}
               <p
-                className={`text-sm ${isOutbound ? "text-blue-700" : "text-slate-700"}`}
+                className={`text-sm leading-relaxed ${isOutbound ? "text-indigo-100/90" : "text-muted-foreground"}`}
               >
                 {log.channel === "email"
                   ? log.content_preview.split("\n").slice(1).join("\n")
                   : log.content_preview}
               </p>
               {isOutbound && (
-                <div className="mt-3 flex items-center">
-                  <CheckCircle2 className="h-3 w-3 mr-1 text-green-500" />
-                  <span className="text-[10px] text-blue-500 font-medium uppercase">
-                    Delivered
+                <div className="mt-4 flex items-center gap-1.5">
+                  <CheckCircle2 className="h-3 w-3 text-turquoise-400" />
+                  <span className="text-[9px] font-black text-turquoise-400/80 uppercase tracking-widest">
+                    Verified Sync
                   </span>
                 </div>
               )}
@@ -109,13 +108,13 @@ export function Timeline({
       })}
 
       {/* System Note Example */}
-      <div className="flex justify-center my-6">
+      <div className="flex justify-center my-8">
         <Badge
           variant="outline"
-          className="bg-white text-slate-400 border-slate-200 px-4 py-1 text-xs"
+          className="bg-card/40 text-muted-foreground/60 border-border/40 px-4 py-1 text-[10px] font-bold uppercase tracking-[0.2em]"
         >
-          <Clock className="h-3 w-3 mr-1" />
-          Timeline updated - {new Date().toLocaleDateString()}
+          <Clock className="h-3 w-3 mr-2" />
+          Timeline Pulse: {new Date().toLocaleDateString()}
         </Badge>
       </div>
     </div>
@@ -140,13 +139,13 @@ function getIconForChannel(channel: string) {
 function getColorForChannel(channel: string) {
   switch (channel.toLowerCase()) {
     case "sms":
-      return "bg-slate-200 text-slate-500";
+      return "bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 shadow-[0_0_15px_-3px_rgba(var(--indigo-rgb),0.2)]";
     case "email":
-      return "bg-blue-100 text-blue-600";
+      return "bg-pink-500/10 text-pink-400 border border-pink-500/20 shadow-[0_0_15px_-3px_rgba(var(--pink-rgb),0.2)]";
     case "voicemail":
-      return "bg-purple-100 text-purple-600";
+      return "bg-amber-500/10 text-amber-400 border border-amber-500/20";
     default:
-      return "bg-slate-200 text-slate-500";
+      return "bg-muted/40 text-muted-foreground border border-border/40";
   }
 }
 

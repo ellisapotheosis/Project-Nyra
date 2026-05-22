@@ -49,13 +49,13 @@ export function QuoteComparisonGrid({
               key={type}
               className={`relative overflow-hidden transition-all hover:shadow-lg ${
                 result.available
-                  ? "border-t-4 border-t-blue-600 shadow-md"
-                  : "opacity-60 bg-slate-50"
+                  ? "border-t-4 border-t-indigo-600 shadow-md bg-card/40"
+                  : "opacity-60 bg-muted/20"
               }`}
             >
               {result.available && type === "conventional" && (
                 <div className="absolute top-0 right-0">
-                  <Badge className="bg-blue-600 text-white rounded-none rounded-bl-lg text-[10px] font-bold">
+                  <Badge className="bg-indigo-600 text-white rounded-none rounded-bl-lg text-[10px] font-bold">
                     POPULAR
                   </Badge>
                 </div>
@@ -67,24 +67,24 @@ export function QuoteComparisonGrid({
                     variant="outline"
                     className={`uppercase text-[10px] font-black ${
                       result.available
-                        ? "bg-blue-50 text-blue-700 border-blue-100"
-                        : "bg-slate-100 text-slate-500 border-slate-200"
+                        ? "bg-indigo-500/10 text-indigo-400 border-indigo-500/20"
+                        : "bg-muted/30 text-muted-foreground border-border/40"
                     }`}
                   >
                     {type}
                   </Badge>
                   {result.available ? (
-                    <CheckCircle2 className="h-4 w-4 text-green-500" />
+                    <CheckCircle2 className="h-4 w-4 text-turquoise-400" />
                   ) : (
-                    <AlertCircle className="h-4 w-4 text-red-400" />
+                    <AlertCircle className="h-4 w-4 text-pink-400" />
                   )}
                 </div>
-                <CardTitle className="text-2xl font-black text-slate-900">
+                <CardTitle className="text-2xl font-black text-foreground">
                   {result.available
                     ? currency(result.monthly_payment || 0)
                     : "N/A"}
                 </CardTitle>
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                <p className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest">
                   Monthly PITI
                 </p>
               </CardHeader>
@@ -92,10 +92,10 @@ export function QuoteComparisonGrid({
               <CardContent className="space-y-6">
                 {!result.available ? (
                   <div className="py-8 text-center space-y-2">
-                    <p className="text-xs font-bold text-red-600 uppercase">
+                    <p className="text-xs font-bold text-pink-400 uppercase">
                       Ineligible
                     </p>
-                    <p className="text-[10px] text-slate-500 italic px-4 leading-relaxed">
+                    <p className="text-[10px] text-muted-foreground/60 italic px-4 leading-relaxed">
                       {result.error || "Does not meet program guidelines"}
                     </p>
                   </div>
@@ -103,29 +103,35 @@ export function QuoteComparisonGrid({
                   <>
                     <div className="space-y-3">
                       <div className="flex justify-between text-xs">
-                        <span className="text-slate-500">Upfront Fees</span>
-                        <span className="font-bold text-slate-900">
+                        <span className="text-muted-foreground">
+                          Upfront Fees
+                        </span>
+                        <span className="font-bold text-foreground">
                           {currency(result.upfront_fees || 0)}
                         </span>
                       </div>
                       <div className="flex justify-between text-xs">
-                        <span className="text-slate-500">Financed Amount</span>
-                        <span className="font-bold text-slate-900">
+                        <span className="text-muted-foreground">
+                          Financed Amount
+                        </span>
+                        <span className="font-bold text-foreground">
                           {currency(result.financed_amount || 0)}
                         </span>
                       </div>
                       <div className="flex justify-between text-xs">
-                        <span className="text-slate-500">Total Paid</span>
-                        <span className="font-bold text-slate-900">
+                        <span className="text-muted-foreground">
+                          Total Paid
+                        </span>
+                        <span className="font-bold text-turquoise-400">
                           {currency(result.total_paid || 0)}
                         </span>
                       </div>
                     </div>
 
-                    <div className="pt-4 border-t border-slate-100 space-y-4">
+                    <div className="pt-4 border-t border-border/40 space-y-4">
                       <div className="flex flex-col space-y-2">
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center">
-                          <ShieldCheck className="mr-1 h-3 w-3 text-blue-500" />{" "}
+                        <p className="text-[10px] font-bold text-muted-foreground/40 uppercase tracking-widest flex items-center">
+                          <ShieldCheck className="mr-1.5 h-3.5 w-3.5 text-indigo-400" />{" "}
                           Key Assumptions
                         </p>
                         <ul className="text-[10px] space-y-1.5">
@@ -135,12 +141,12 @@ export function QuoteComparisonGrid({
                               .map(([key, val]: [string, any]) => (
                                 <li
                                   key={key}
-                                  className="flex justify-between text-slate-600"
+                                  className="flex justify-between text-muted-foreground"
                                 >
                                   <span className="capitalize">
                                     {key.replace(/_/g, " ")}
                                   </span>
-                                  <span className="font-semibold text-slate-800">
+                                  <span className="font-semibold text-foreground">
                                     {typeof val === "boolean"
                                       ? val
                                         ? "Yes"
@@ -154,15 +160,17 @@ export function QuoteComparisonGrid({
 
                       <Button
                         onClick={() => onApprove(type)}
-                        className="w-full bg-blue-600 hover:bg-blue-700 h-11 rounded-xl font-bold shadow-lg shadow-blue-100"
+                        className="w-full bg-indigo-600 hover:bg-indigo-500 h-11 rounded-xl font-bold shadow-lg shadow-indigo-900/20 gap-2"
                         disabled={isApproving}
                       >
                         {isApproving ? (
                           <Loader2 className="h-4 w-4 animate-spin" />
                         ) : (
-                          <Send className="mr-2 h-4 w-4" />
+                          <Send className="size-4" />
                         )}
-                        Approve & Send
+                        <span className="uppercase tracking-widest text-[10px]">
+                          Approve & Send
+                        </span>
                       </Button>
                     </div>
                   </>
@@ -174,23 +182,26 @@ export function QuoteComparisonGrid({
       </div>
 
       {/* Assumptions Ledger / Detailed Breakdown */}
-      <Card className="border-slate-200 shadow-sm overflow-hidden">
-        <CardHeader className="bg-slate-50 border-b border-slate-100">
+      <Card className="border-border/40 shadow-sm overflow-hidden bg-card/20">
+        <CardHeader className="bg-muted/20 border-b border-border/40">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <div className="h-10 w-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center shadow-sm">
-                <FileText className="h-5 w-5 text-blue-600" />
+              <div className="size-10 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center shadow-sm">
+                <FileText className="h-5 w-5 text-indigo-400" />
               </div>
               <div>
-                <CardTitle className="text-lg font-bold text-slate-900">
+                <CardTitle className="text-lg font-bold text-foreground tracking-tight">
                   Assumptions Ledger
                 </CardTitle>
-                <p className="text-xs text-slate-500 font-medium">
+                <p className="text-xs text-muted-foreground font-medium uppercase tracking-tighter">
                   Detailed breakdown of calculated scenario parameters
                 </p>
               </div>
             </div>
-            <Badge variant="outline" className="bg-white font-mono text-[10px]">
+            <Badge
+              variant="outline"
+              className="bg-background/40 font-mono text-[10px] text-muted-foreground border-border/40"
+            >
               SCENARIO-REF:{" "}
               {Math.random().toString(36).substring(7).toUpperCase()}
             </Badge>
@@ -200,7 +211,7 @@ export function QuoteComparisonGrid({
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs border-collapse">
               <thead>
-                <tr className="bg-slate-50/50 text-slate-400 font-bold uppercase tracking-widest border-b border-slate-100">
+                <tr className="bg-muted/30 text-muted-foreground font-bold uppercase tracking-widest border-b border-border/40">
                   <th className="px-6 py-4">Parameter</th>
                   {loanTypes.map((type) => (
                     <th key={type} className="px-6 py-4 text-center">
@@ -209,7 +220,7 @@ export function QuoteComparisonGrid({
                   ))}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody className="divide-y divide-border/20">
                 <LedgerRow
                   label="Available"
                   data={data}
@@ -265,8 +276,10 @@ function LedgerRow({
   const loanTypes: LoanType[] = ["conventional", "fha", "va", "usda"];
 
   return (
-    <tr className="hover:bg-slate-50/50 transition-colors">
-      <td className="px-6 py-4 font-bold text-slate-700">{label}</td>
+    <tr className="hover:bg-muted/10 transition-colors group">
+      <td className="px-6 py-4 font-bold text-muted-foreground/80 group-hover:text-foreground transition-colors">
+        {label}
+      </td>
       {loanTypes.map((type) => {
         const val =
           data.comparison[type]?.[
@@ -276,12 +289,12 @@ function LedgerRow({
           <td key={type} className="px-6 py-4 text-center">
             {isBoolean ? (
               <span
-                className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold ${val ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}
+                className={`inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold ${val ? "bg-turquoise-500/10 text-turquoise-400 border border-turquoise-500/20" : "bg-pink-500/10 text-pink-400 border border-pink-500/20"}`}
               >
                 {val ? "YES" : "NO"}
               </span>
             ) : (
-              <span className="font-semibold text-slate-900">
+              <span className="font-semibold text-foreground/80 group-hover:text-foreground transition-colors">
                 {val === undefined
                   ? "—"
                   : isCurrency

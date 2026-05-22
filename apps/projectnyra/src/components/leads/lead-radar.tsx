@@ -1,64 +1,113 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { RadioTower, Users, Zap, TrendingUp, ChevronRight } from "lucide-react";
+import { Users, Zap, ChevronRight, Wifi, WifiOff } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-interface RadarLead {
-  id: string;
-  name: string;
-  action: string;
-  timestamp: string;
-  intensity: number; // 0-100
-}
+import {
+  mockRadarLeads,
+  parseRadarMessage,
+  radarChannels,
+  toRadarLead,
+  type RadarLead,
+} from "@/lib/leadRadarEvents";
 
 export function LeadRadar() {
-  const [leads, setLeads] = useState<RadarLead[]>([
-    {
-      id: "1",
-      name: "Sarah J.",
-      action: "Viewed Quote",
-      timestamp: "Just now",
-      intensity: 95,
-    },
-    {
-      id: "2",
-      name: "Mike D.",
-      action: "Replied to SMS",
-      timestamp: "2m ago",
-      intensity: 80,
-    },
-    {
-      id: "3",
-      name: "Alex K.",
-      action: "Opened Email",
-      timestamp: "5m ago",
-      intensity: 40,
-    },
-  ]);
+  const [leads, setLeads] = useState<RadarLead[]>(mockRadarLeads);
+  const [streamState, setStreamState] = useState<
+    "mock" | "connecting" | "live" | "offline"
+  >("mock");
 
-  // Simulate live updates
   useEffect(() => {
-    const interval = setInterval(() => {
-      // Periodic shift for demo effect
-    }, 5000);
-    return () => clearInterval(interval);
+    const wsUrl = process.env.NEXT_PUBLIC_NYRA_WEBSOCKET_URL;
+    if (!wsUrl) {
+      return;
+    }
+
+    setStreamState("connecting");
+    const socket = new WebSocket(wsUrl);
+
+    socket.addEventListener("open", () => {
+      setStreamState("live");
+      for (const channel of radarChannels) {
+        socket.send(
+          JSON.stringify({
+            type: "subscribe",
+            payload: { channel },
+          })
+        );
+      }
+    });
+
+    socket.addEventListener("message", (message) => {
+      const event = parseRadarMessage(String(message.data));
+      if (!event) {
+        return;
+      }
+
+      const lead = toRadarLead(event);
+      setLeads((current) => {
+        const deduped = current.filter((item) => item.id !== lead.id);
+        return [lead, ...deduped].slice(0, 6);
+      });
+    });
+
+    socket.addEventListener("error", () => {
+      setStreamState("offline");
+    });
+
+    socket.addEventListener("close", () => {
+      setStreamState((current) => (current === "live" ? "offline" : current));
+    });
+
+    return () => {
+      socket.close(1000, "Lead radar unmounted");
+    };
   }, []);
+
+  const isLive = streamState === "live";
+  const statusLabel =
+    streamState === "live"
+      ? `${leads.length} live`
+      : streamState === "connecting"
+        ? "connecting"
+        : streamState === "offline"
+          ? "offline"
+          : "mock mode";
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
           <div className="relative flex size-2 items-center justify-center">
-            <div className="absolute size-full rounded-full bg-turquoise-400 animate-ping opacity-75" />
-            <div className="relative size-1.5 rounded-full bg-turquoise-500" />
+            <div
+              className={cn(
+                "absolute size-full rounded-full opacity-75",
+                isLive && "animate-ping bg-turquoise-400"
+              )}
+            />
+            <div
+              className={cn(
+                "relative size-1.5 rounded-full",
+                isLive ? "bg-turquoise-500" : "bg-muted-foreground/40"
+              )}
+            />
           </div>
           <h3 className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">
             Live Radar
           </h3>
         </div>
-        <span className="text-[9px] font-bold text-turquoise-400/80 uppercase">
-          3 active now
+        <span
+          className={cn(
+            "inline-flex items-center gap-1 text-[9px] font-bold uppercase",
+            isLive ? "text-turquoise-400/80" : "text-muted-foreground/50"
+          )}
+        >
+          {isLive ? (
+            <Wifi className="size-3" />
+          ) : (
+            <WifiOff className="size-3" />
+          )}
+          {statusLabel}
         </span>
       </div>
 
@@ -84,6 +133,10 @@ export function LeadRadar() {
                   <Zap className="size-2.5 text-amber-400" />
                   {lead.action}
                 </p>
+                <p className="text-[9px] text-muted-foreground/40 uppercase tracking-widest">
+                  {lead.source}
+                  {lead.traceId ? ` · ${lead.traceId}` : ""}
+                </p>
               </div>
             </div>
 
@@ -98,7 +151,7 @@ export function LeadRadar() {
       </div>
 
       <button className="w-full py-2 rounded-lg border border-dashed border-border/40 text-[9px] font-bold uppercase tracking-[0.2em] text-muted-foreground/40 hover:text-indigo-400 hover:border-indigo-500/20 transition-all">
-        Enter Command Stream
+        {isLive ? "Enter Command Stream" : "Awaiting Live Stream"}
       </button>
     </div>
   );

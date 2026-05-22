@@ -1,5 +1,15 @@
 # OWNER_MANUAL_ACTIONS.md
 
+Current owner-facing guide package: `docs/user-todo/`.
+
+Use `docs/user-todo/CHECKLIST.md` as the concise source of truth for open
+owner-only actions. This file remains the detailed historical log and reference
+backlog.
+
+Use `docs/user-todo/INFISICAL-MISSING-SECRETS.md` for the tracked, secret-safe
+Infisical missing-variable list. Generated temporary values remain outside the
+repo at `/home/ellisapotheosis/repos/PROJECT_NYRA_INFISICAL_MISSING_SECRETS.md`.
+
 Manual tasks that AI agents cannot complete for you because they require:
 
 - dashboard login
@@ -91,6 +101,19 @@ exits successfully and the `infisical-agent` container stays running.
 ### Home Assistant command deck and projectnyra.com domain split
 
 The local prompt-pack work for the `nyra_ha_domain_prompt_pack` was completed on 2026-05-17.
+Cloudflare API follow-up was run on 2026-05-22.
+
+Completed by agent:
+
+- Verified `cloudflared` is installed (`2026.5.0`).
+- Applied Orchestrator tunnel config.
+- Applied Oracle tunnel config.
+- Upserted 22 `projectnyra.com` DNS records.
+- Validated local `cloudflared` ingress rules.
+
+Blocked:
+
+- Cloudflare Access app creation failed because `projectnyra.com` is still pending and not yet delegated to Cloudflare.
 
 Generated local artifacts:
 
@@ -105,9 +128,11 @@ Generated local artifacts:
 Owner-only steps:
 
 1. In Cloudflare, add or confirm separate zones for `ratehunter.net` and `projectnyra.com`.
-2. In Spaceship, check DNSSEC for both domains, disable DNSSEC first if active, then replace authoritative nameservers with Cloudflare-assigned nameservers.
+2. In Spaceship, check DNSSEC for `projectnyra.com`, disable DNSSEC first if active, then replace authoritative nameservers with:
+   - `mcgrory.ns.cloudflare.com`
+   - `zita.ns.cloudflare.com`
 3. In Cloudflare Pages, attach `ratehunter.net` to the RateHunter Pages project.
-4. In Cloudflare Zero Trust, create or confirm Access apps for Project Nyra admin/control surfaces before exposing them.
+4. After `projectnyra.com` becomes active in Cloudflare, re-run the Access app apply step or create/confirm Access apps for Project Nyra admin/control surfaces.
 5. In Portainer, complete first-login/admin setup if needed and enroll the worker and Oracle environments.
 6. In Home Assistant, import `infra/hosts/homeassistant/dashboards/nyra-command-deck.yaml` or paste it into a YAML dashboard.
 7. Set `NYRA_STATUS_BRIDGE_TOKEN` in Infisical or a gitignored env file before starting `nyra-status-bridge`.
@@ -129,7 +154,7 @@ Important routing decision:
 
 Apply status:
 
-- Applied through Cloudflare API on 2026-05-17.
+- Applied through Cloudflare API on 2026-05-22.
 - Tunnel configs applied successfully.
 - DNS records applied successfully.
 - UI/admin Access apps could not be created yet because Cloudflare returned
