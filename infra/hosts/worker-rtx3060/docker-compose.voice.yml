@@ -1,5 +1,3 @@
-version: '3.9'
-
 services:
   unmute-standalone:
     image: ghcr.io/kyutai-labs/unmute:latest
@@ -9,7 +7,7 @@ services:
       - UNMUTE_MODE=standalone
       - UNMUTE_MODEL_PROVIDER=ollama
       - UNMUTE_OLLAMA_URL=http://ollama:11434
-      - UNMUTE_OPENAI_API_KEY=${UNMUTE_OPENAI_API_KEY:-sk-dummy}
+      - UNMUTE_OPENAI_API_KEY=${UNMUTE_OPENAI_API_KEY:?UNMUTE_OPENAI_API_KEY is required}
       - UNMUTE_HOST_PORT=8098
     ports:
       - "8098:8080"

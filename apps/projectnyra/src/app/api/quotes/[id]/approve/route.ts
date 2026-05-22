@@ -1,5 +1,10 @@
 import { NextResponse } from "next/server";
 
+import {
+  canUseMockFallback,
+  productionWriteUnavailable,
+} from "@/lib/api/config";
+
 const CRM_API_URL = process.env.CRM_API_URL;
 const CRM_API_KEY = process.env.CRM_API_KEY;
 
@@ -9,6 +14,7 @@ export async function POST(
 ) {
   const { id } = await params;
   const body = await request.json();
+  let upstreamError: unknown;
 
   if (CRM_API_URL) {
     try {
@@ -24,7 +30,18 @@ export async function POST(
       if (response.ok) {
         return NextResponse.json(await response.json());
       }
-    } catch {}
+    } catch (error) {
+      upstreamError = error;
+    }
+  }
+
+  if (!canUseMockFallback()) {
+    return productionWriteUnavailable(
+      "Quote approval",
+      upstreamError
+        ? "Configured CRM API could not be reached"
+        : "CRM_API_URL must be configured for production quote approvals"
+    );
   }
 
   return NextResponse.json({

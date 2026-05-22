@@ -8,12 +8,12 @@ export interface WebSocketClientOptions {
 }
 
 export interface ClientMessage {
-  type: 'subscribe' | 'unsubscribe' | 'ping' | 'query' | 'command';
+  type: "subscribe" | "unsubscribe" | "ping" | "query" | "command";
   payload?: any;
 }
 
 export interface ServerMessage {
-  type: 'connection' | 'event' | 'error' | 'pong' | 'response';
+  type: "connection" | "event" | "error" | "pong" | "response";
   sessionId?: string;
   payload?: any;
   timestamp: string;
@@ -21,22 +21,54 @@ export interface ServerMessage {
 
 export interface ConnectionInfo {
   sessionId: string;
-  status: 'connected';
+  status: "connected";
   version: string;
   features: string[];
 }
 
 export interface SystemEvent {
-  type: 'mcp_status' | 'gpu_metrics' | 'tool_discovery' | 'agent_coordination' | 'swarm_update';
+  type: SystemEventType;
   source: string;
   timestamp: string;
+  correlationId?: string;
+  traceId?: string;
+  state?: string;
+  mode?: "live" | "mock";
   data: any;
+}
+
+export type ControlEventType =
+  | "mcp_status"
+  | "gpu_metrics"
+  | "tool_discovery"
+  | "agent_coordination"
+  | "swarm_update"
+  | "task_progress";
+
+export type ProductEventChannel =
+  | "lead:updates"
+  | "hotlead:alerts"
+  | "quote:viewed"
+  | "quote:lock_expiring"
+  | "campaign:reply"
+  | "campaign:blocked"
+  | "pipeline:milestone"
+  | "service:health";
+
+export type SystemEventType = ControlEventType | ProductEventChannel;
+
+export interface ProductEvent extends SystemEvent {
+  type: ProductEventChannel;
+  correlationId: string;
+  state: string;
+  mode: "live" | "mock";
+  data: Record<string, unknown>;
 }
 
 export interface MCPServerStatus {
   serverId: string;
   name: string;
-  status: 'online' | 'offline' | 'degraded';
+  status: "online" | "offline" | "degraded";
   url: string;
   toolCount: number;
   latency?: number;

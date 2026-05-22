@@ -10,6 +10,8 @@
 
 - [Workflow](./workflow.md)
 - [Code Style Guides](./code_styleguides/)
+- [Prompt Pack Snapshot](./prompts/nyra-prompt-pack/)
+- [5090 DLS Prompt Snapshot](./prompts/5090dlsprompts/)
 
 ## Management
 

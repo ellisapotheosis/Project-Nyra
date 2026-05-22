@@ -74,6 +74,12 @@ services:
       timeout: 5s
       retries: 10
     networks: [nyra_net]
+    deploy:
+      resources:
+        limits:
+          memory: 2g
+        reservations:
+          memory: 512m
 
   redis-cache:
     image: redis:7-alpine
@@ -88,6 +94,12 @@ services:
       timeout: 3s
       retries: 10
     networks: [nyra_net]
+    deploy:
+      resources:
+        limits:
+          memory: 1g
+        reservations:
+          memory: 256m
 
   twenty-db:
     image: postgres:15
@@ -109,6 +121,12 @@ services:
       timeout: 5s
       retries: 5
     networks: [nyra_net]
+    deploy:
+      resources:
+        limits:
+          memory: 2g
+        reservations:
+          memory: 512m
 
   twenty:
     image: twentycrm/twenty:latest
@@ -132,12 +150,18 @@ services:
       - twenty_docker_data:/app/docker-data
     networks: [nyra_net]
     ports:
-      - "3000:3000"
+      - "127.0.0.1:3000:3000"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
       interval: 30s
       timeout: 10s
       retries: 5
+    deploy:
+      resources:
+        limits:
+          memory: 4g
+        reservations:
+          memory: 1g
 
   twenty-worker:
     image: twentycrm/twenty:latest
@@ -204,7 +228,13 @@ services:
       AP_TELEMETRY_ENABLED: ${AP_TELEMETRY_ENABLED:-false}
     networks: [nyra_net]
     ports:
-      - "8080:80"
+      - "127.0.0.1:8080:80"
+    deploy:
+      resources:
+        limits:
+          memory: 2g
+        reservations:
+          memory: 512m
 
   n8n:
     build:
@@ -245,12 +275,22 @@ services:
       - ../../n8n-workflows:/opt/nyra/n8n-workflows:ro
     networks: [nyra_net]
     ports:
-      - "5678:5678"
+      - "127.0.0.1:5678:5678"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5678/healthz"]
+      test:
+        [
+          "CMD-SHELL",
+          'node -e "require(''http'').get(''http://127.0.0.1:5678/healthz'', r => process.exit(r.statusCode < 400 ? 0 : 1)).on(''error'', () => process.exit(1))"',
+        ]
       interval: 30s
       timeout: 10s
       retries: 5
+    deploy:
+      resources:
+        limits:
+          memory: 4g
+        reservations:
+          memory: 1g
 
   quote-api:
     build:
@@ -264,7 +304,11 @@ services:
     ports:
       - "7070:7070"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:7070/health"]
+      test:
+        [
+          "CMD-SHELL",
+          'python -c "import urllib.request; urllib.request.urlopen(''http://127.0.0.1:7070/health'', timeout=5)"',
+        ]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -297,15 +341,21 @@ services:
       - "--storage.tsdb.retention.time=15d"
     volumes:
       - prometheus_data:/prometheus
-      - ${PWD}/configs/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./configs/prometheus.yml:/etc/prometheus/prometheus.yml:ro
     ports:
-      - "9090:9090"
+      - "127.0.0.1:9090:9090"
     networks: [nyra_net]
     healthcheck:
       test: ["CMD", "wget", "-q", "--spider", "http://localhost:9090/-/healthy"]
       interval: 30s
       timeout: 10s
       retries: 3
+    deploy:
+      resources:
+        limits:
+          memory: 1g
+        reservations:
+          memory: 256m
 
   loki:
     image: grafana/loki:3.4.3
@@ -315,13 +365,19 @@ services:
     volumes:
       - loki_data:/loki
     ports:
-      - "3100:3100"
+      - "127.0.0.1:3100:3100"
     networks: [nyra_net]
     healthcheck:
       test: ["CMD", "wget", "-q", "--spider", "http://localhost:3100/ready"]
       interval: 30s
       timeout: 10s
       retries: 3
+    deploy:
+      resources:
+        limits:
+          memory: 1g
+        reservations:
+          memory: 256m
 
   grafana:
     image: grafana/grafana:latest
@@ -337,7 +393,7 @@ services:
     volumes:
       - grafana_data:/var/lib/grafana
     ports:
-      - "3003:3000"
+      - "127.0.0.1:3003:3000"
     networks: [nyra_net]
     healthcheck:
       test:
@@ -345,6 +401,12 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
+    deploy:
+      resources:
+        limits:
+          memory: 1g
+        reservations:
+          memory: 256m
 
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:latest
@@ -369,7 +431,7 @@ services:
     restart: unless-stopped
     environment:
       CLICKHOUSE_USER: ${OPENLIT_DB_USER:-default}
-      CLICKHOUSE_PASSWORD: ${OPENLIT_DB_PASSWORD:-OPENLIT}
+      CLICKHOUSE_PASSWORD: ${OPENLIT_DB_PASSWORD:?OPENLIT_DB_PASSWORD is required}
       CLICKHOUSE_DATABASE: ${OPENLIT_DB_NAME:-openlit}
       CLICKHOUSE_ALWAYS_RUN_INITDB_SCRIPTS: "true"
     volumes:
@@ -396,6 +458,8 @@ services:
     container_name: nyra-network-nyra-openlit
     restart: unless-stopped
     depends_on:
+      secrets-init:
+        condition: service_completed_successfully
       openlit-clickhouse:
         condition: service_healthy
     environment:
@@ -404,13 +468,13 @@ services:
       INIT_DB_PORT: 8123
       INIT_DB_DATABASE: ${OPENLIT_DB_NAME:-openlit}
       INIT_DB_USERNAME: ${OPENLIT_DB_USER:-default}
-      INIT_DB_PASSWORD: ${OPENLIT_DB_PASSWORD:-OPENLIT}
+      INIT_DB_PASSWORD: ${OPENLIT_DB_PASSWORD:?OPENLIT_DB_PASSWORD is required}
       SQLITE_DATABASE_URL: file:/app/client/data/data.db
       PORT: 3000
       DOCKER_PORT: 3000
       NEXTAUTH_URL: ${OPENLIT_NEXTAUTH_URL:-https://openlit.projectnyra.com}
-      NEXTAUTH_SECRET: ${OPENLIT_NEXTAUTH_SECRET:-change-me-openlit-nextauth-secret}
-      OPENLIT_VAULT_ENCRYPTION_KEY: ${OPENLIT_VAULT_ENCRYPTION_KEY:-change-me-openlit-vault-key}
+      NEXTAUTH_SECRET: ${OPENLIT_NEXTAUTH_SECRET:?OPENLIT_NEXTAUTH_SECRET is required}
+      OPENLIT_VAULT_ENCRYPTION_KEY: ${OPENLIT_VAULT_ENCRYPTION_KEY:?OPENLIT_VAULT_ENCRYPTION_KEY is required}
       OPENLIT_ALLOWED_CORS_ORIGINS: ${OPENLIT_ALLOWED_CORS_ORIGINS:-https://openlit.projectnyra.com}
       GOOGLE_CLIENT_ID: ${OPENLIT_GOOGLE_CLIENT_ID:-}
       GOOGLE_CLIENT_SECRET: ${OPENLIT_GOOGLE_CLIENT_SECRET:-}
@@ -615,7 +679,11 @@ services:
       - "4001:4001"
     networks: [nyra_net]
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:4001/api/leads?limit=1"]
+      test:
+        [
+          "CMD-SHELL",
+          'node -e "require(''http'').get(''http://127.0.0.1:4001/api/leads?limit=1'', r => process.exit(r.statusCode < 500 ? 0 : 1)).on(''error'', () => process.exit(1))"',
+        ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -631,7 +699,7 @@ services:
       - "8020:8020"
     environment:
       - NODE_ENV=production
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-nyra}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-nyra}
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-nyra}:${POSTGRES_PASSWORD_URLENCODED:-${POSTGRES_PASSWORD}}@postgres:5432/${POSTGRES_DB:-nyra}
       - N8N_BASE_URL=http://n8n:5678
       - N8N_WEBHOOK_URL=http://n8n:5678/webhook/nyra/dispatch
       - ACTIVEPIECES_BASE_URL=http://activepieces:80
@@ -668,7 +736,7 @@ services:
     environment:
       NPM_CONFIG_CACHE: /tmp/.npm
       PAPERCLIP_API_URL: http://paperclip:3100
-      PAPERCLIP_API_KEY: ${PAPERCLIP_API_KEY:-dummy}
+      PAPERCLIP_API_KEY: ${PAPERCLIP_API_KEY:?PAPERCLIP_API_KEY is required}
     command:
       - npx
       - -y
@@ -1027,7 +1095,7 @@ services:
     restart: unless-stopped
     command: ["--config", "/app/config/config.yaml", "--port", "4000"]
     ports:
-      - "4000:4000"
+      - "127.0.0.1:4000:4000"
     environment:
       LITELLM_MASTER_KEY: ${LITELLM_MASTER_KEY:-}
       LLXPRT_BRIDGE_API_KEY: ${LLXPRT_BRIDGE_API_KEY:-}
@@ -1055,6 +1123,12 @@ services:
       timeout: 10s
       retries: 5
       start_period: 30s
+    deploy:
+      resources:
+        limits:
+          memory: 2g
+        reservations:
+          memory: 512m
 
   # ── Nexus Aggregator (Grafbase Nexus) ────────────────────────────────────
   # THE single entrypoint: MCP tool aggregation + LLM proxy
@@ -1071,13 +1145,19 @@ services:
       ENABLE_YAML_CONFIG_EDITING: ${ENABLE_YAML_CONFIG_EDITING:-false}
       HAMCP_ENABLE_CUSTOM_COMPONENT_INTEGRATION: ${HAMCP_ENABLE_CUSTOM_COMPONENT_INTEGRATION:-false}
     networks: [nyra_net]
+    deploy:
+      resources:
+        limits:
+          memory: 1g
+        reservations:
+          memory: 256m
 
   nexus:
     image: ghcr.io/grafbase/nexus:stable
     container_name: nyra-network-nyra-nexus
     restart: unless-stopped
     ports:
-      - "6000:3000"
+      - "127.0.0.1:6000:3000"
     environment:
       NEXUS_LISTEN_ADDRESS: 0.0.0.0:3000
       LITELLM_MASTER_KEY: ${LITELLM_MASTER_KEY:-}
@@ -1125,6 +1205,12 @@ services:
       interval: 15s
       timeout: 5s
       retries: 5
+    deploy:
+      resources:
+        limits:
+          memory: 2g
+        reservations:
+          memory: 512m
 
   # ── Syncthing ───────────────────────────────────────────────────────────
   syncthing:

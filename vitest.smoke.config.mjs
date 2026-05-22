@@ -18,8 +18,12 @@ export default {
       "tests/unit/swarm/regression-suite.test.ts",
       "tests/unit/webapp/api-clients.test.ts",
       "tests/unit/webapp/lead-cockpit.test.ts",
+      "tests/unit/webapp/lead-radar-events.test.ts",
+      "tests/unit/webapp/ratehunter-proxies.test.ts",
       "tests/unit/logic/lead-normalization.test.ts",
       "tests/unit/logic/tcpa-sentinel.test.ts",
+      "tests/unit/scripts/lead-lifecycle-smoke.test.ts",
+      "tests/unit/scripts/finish-line-validators.test.ts",
     ],
     exclude: ["node_modules/**", "dist/**", "build/**", ".next/**"],
   },
@@ -28,6 +32,18 @@ export default {
       "@": resolve(__dirname, "./apps/projectnyra"),
       "@tests": resolve(__dirname, "./tests"),
       "@utils": resolve(__dirname, "./tests/utils"),
+      "@nyra/crm-types": resolve(
+        __dirname,
+        "./packages/crm-types/src/index.ts"
+      ),
+      "@nyra/domain-models": resolve(
+        __dirname,
+        "./packages/domain-models/src/index.ts"
+      ),
+      "@nyra/integration-adapters": resolve(
+        __dirname,
+        "./packages/integration-adapters/src/index.ts"
+      ),
       "@jest/globals": resolve(
         __dirname,
         "./tests/setup/jest-globals-compat.ts"

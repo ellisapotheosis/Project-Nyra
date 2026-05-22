@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
+  generateBorrowerQuote,
+  InMemoryQuoteHistoryStore,
+  QuoteService,
   quoteCreditAssumptions,
   requireApprovedQuoteCreditInput,
 } from "./index";
@@ -46,5 +49,64 @@ describe("quote-service credit input contract", () => {
       provider: "MOCK",
       pulledAt: "2026-05-17T18:00:00.000Z",
     });
+  });
+
+  it("generates a versioned deterministic three-option quote", () => {
+    const quote = generateBorrowerQuote({
+      leadId: "lead-abcdef12",
+      loanAmount: 400000,
+      propertyValue: 500000,
+      creditTier: "GOOD",
+      loanPurpose: "PURCHASE",
+      approvedCredit: approvedCreditInput,
+      createdAt: new Date("2026-05-19T16:00:00.000Z"),
+    });
+
+    expect(quote.options).toHaveLength(3);
+    expect(quote.quoteNumber).toBe("NYRA-LEAD-ABC-001");
+    expect(quote.assumptions).toMatchObject({
+      pricingModel: "nyra-deterministic-v1",
+      creditScoreSource: "SOFT_PULL_CREDIT_SUMMARY",
+      consentEventId: "consent-123",
+    });
+    expect(quote.history).toHaveLength(1);
+  });
+
+  it("persists quote history and approval state through the service boundary", async () => {
+    const service = new QuoteService(new InMemoryQuoteHistoryStore());
+
+    const first = await service.generate({
+      leadId: "lead-abcdef12",
+      loanAmount: 400000,
+      propertyValue: 500000,
+      creditTier: "GOOD",
+      loanPurpose: "PURCHASE",
+      approvedCredit: approvedCreditInput,
+      createdAt: new Date("2026-05-19T16:00:00.000Z"),
+    });
+    const second = await service.generate({
+      leadId: "lead-abcdef12",
+      loanAmount: 410000,
+      propertyValue: 520000,
+      creditTier: "GOOD",
+      loanPurpose: "PURCHASE",
+      approvedCredit: approvedCreditInput,
+      createdAt: new Date("2026-05-20T16:00:00.000Z"),
+    });
+    const approved = await service.approve(
+      second.quoteNumber,
+      "broker@example.com",
+      new Date("2026-05-20T17:00:00.000Z")
+    );
+
+    expect(first.version).toBe(1);
+    expect(second.version).toBe(2);
+    expect(approved).toMatchObject({
+      quoteNumber: second.quoteNumber,
+      approvalState: "APPROVED",
+      approvedBy: "broker@example.com",
+      approvedAt: "2026-05-20T17:00:00.000Z",
+    });
+    await expect(service.listByLead("lead-abcdef12")).resolves.toHaveLength(2);
   });
 });

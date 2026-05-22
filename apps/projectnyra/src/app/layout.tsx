@@ -6,6 +6,9 @@ import "./globals.css";
 
 import { ThemeProvider } from "@/components/theme-provider";
 import { AuthProvider } from "@/lib/auth-context";
+import { DEFAULT_THEME, themes } from "@/config/themes";
+import { Toaster } from "@/components/ui/toaster";
+import { ErrorBoundary } from "@/components/error-boundary";
 
 export const metadata: Metadata = {
   title: "Project Nyra",
@@ -41,20 +44,18 @@ export default function RootLayout({
       <body
         className={`${electrolize.variable} ${michroma.variable} ${spaceMono.variable} min-h-screen bg-background text-foreground antialiased`}
       >
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="mint-midnight"
-          disableTransitionOnChange={false}
-          enableSystem={false}
-          themes={[
-            "mint-midnight",
-            "mint-midnight-glow",
-            "apotheosis",
-            "virtus",
-          ]}
-        >
-          <AuthProvider>{children}</AuthProvider>
-        </ThemeProvider>
+        <ErrorBoundary>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme={DEFAULT_THEME}
+            disableTransitionOnChange={false}
+            enableSystem={false}
+            themes={themes.map((t) => t.value) as string[]}
+          >
+            <AuthProvider>{children}</AuthProvider>
+            <Toaster />
+          </ThemeProvider>
+        </ErrorBoundary>
         <Script
           async
           crossOrigin="anonymous"

@@ -15,9 +15,21 @@ services:
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
       DATABASE_URL: ${DATABASE_URL:-}
       QUOTE_ENGINE_URL: ${QUOTE_ENGINE_URL:-http://oracle.trex-fiordland.ts.net:8089}
+      OPENCLAW_GATEWAY_TOKEN: ${OPENCLAW_GATEWAY_TOKEN:-}
     restart: unless-stopped
     networks:
       - nyra-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:18789/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          memory: 1g
+        reservations:
+          memory: 256m
 
   # docker-mcp-toolkit:
   #   image: docker/mcp-toolkit:latest
@@ -38,6 +50,12 @@ services:
   #   restart: unless-stopped
   #   networks:
   #     - nyra-network
+  #   deploy:
+  #     resources:
+  #       limits:
+  #         memory: 1g
+  #       reservations:
+  #         memory: 256m
 
   postgres-client:
     image: postgres:16-alpine
@@ -70,6 +88,25 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
       - nyra-network
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--quiet",
+          "--tries=1",
+          "--spider",
+          "http://localhost:9000",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          memory: 2g
+        reservations:
+          memory: 512m
 
   # ── Syncthing ───────────────────────────────────────────────────────────
   syncthing:

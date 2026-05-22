@@ -1,4 +1,4 @@
-#!/usr/bin/env zsh
+#!/usr/bin/env bash
 
 # =============================================================================
 # Project Nyra - Infisical Mirror-Sync Script
@@ -6,51 +6,65 @@
 # Merges /shared secrets and /machines/[host] secrets into local .env files.
 # =============================================================================
 
-# Validation
-if [[ -z "${INFISICAL_TOKEN}" ]]; then
-  echo "🙀 Error: INFISICAL_TOKEN is missing from your environment!"
+set -euo pipefail
+
+LOCAL_SECRETS_FILE="${INFISICAL_LOCAL_SECRETS_FILE:-$HOME/.zsh/99-secrets.zsh}"
+if [[ -z "${INFISICAL_TOKEN:-}" && -f "$LOCAL_SECRETS_FILE" ]]; then
+  set +u
+  set -a
+  # shellcheck source=/dev/null
+  source "$LOCAL_SECRETS_FILE"
+  set +a
+  set -u
+fi
+
+if [[ -z "${INFISICAL_TOKEN:-}" ]]; then
+  echo "Error: INFISICAL_TOKEN is missing from your environment!"
   exit 1
 fi
 
-PROJECT_ID="8374cea9-e5e8-4050-bda4-b91f25ab30ef"
-BASE_DIR="/home/ellisapotheosis/repos/project-nyra/infra/hosts"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
+PROJECT_ID="${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}"
+INFISICAL_ENV_NAME="${INFISICAL_ENV:-${AGENT_INFRA_ENV:-prod}}"
+BASE_DIR="${ROOT_DIR}/infra/hosts"
 
 echo "🐾 Starting Mirror-Sync for Project Nyra..."
 
 # Loop through every directory in infra/hosts
 for dir in "$BASE_DIR"/*/; do
-    # Skip _templates directory
-    if [[ "$dir" == *"_templates"* ]]; then
+    # Skip non-host directories
+    if [[ "$dir" == *"/_templates/" ]] || [[ "$dir" == *"/homeassistant/" ]]; then
         continue
     fi
 
-    # Strip trailing slash and get the folder name (e.g., worker-rtx3060)
     folder_name=$(basename "$dir")
-    
-    # Define the target path in Infisical
-    # Logic: /machines/[folder_name]
     infisical_path="/machines/$folder_name"
-    
+    target_env="${dir}.env"
+    example_env="${dir}.env.example"
+    local_env_host="${dir}.env.host"
+
     echo "🔍 Processing $folder_name -> $infisical_path"
 
-# 1. Start with Shared Local Config
-    cat "$BASE_DIR/.env.host" > "$dir/.env"
-    echo "\n# --- Host Specific Config ---" >> "$dir/.env"
-    
-    # 2. Append Host Local Config
-    if [[ -f "$dir/.env.host" ]]; then
-        cat "$dir/.env.host" >> "$dir/.env"
+    : > "$target_env"
+
+    if [[ -f "$example_env" ]]; then
+        cat "$example_env" >> "$target_env"
     fi
 
-    echo "\n# --- Infisical Secrets (Shared + Machine) ---" >> "$dir/.env"
-    # 3. Export combined secrets from the machine path (which symlinks to /shared)
+    printf "\n# --- Host Specific Local Overrides ---\n" >> "$target_env"
+    if [[ -f "$local_env_host" ]]; then
+        cat "$local_env_host" >> "$target_env"
+    fi
+
+    printf "\n# --- Infisical Secrets (Shared + Machine) ---\n" >> "$target_env"
     infisical export \
         --projectId="$PROJECT_ID" \
-        --env="dev" \
+        --env="$INFISICAL_ENV_NAME" \
         --path="$infisical_path" \
-        --format=dotenv >> "$dir/.env"
+        --format=dotenv >> "$target_env"
 
-    echo "✅ Created $dir.env"
+    echo "✅ Created $target_env"
 done
 
 echo "🎉 Injection complete! Time to check those stack requirements. nya~"

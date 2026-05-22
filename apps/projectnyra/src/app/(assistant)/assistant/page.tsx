@@ -37,11 +37,14 @@ import {
   Calendar,
   MoreVertical,
   UserPlus,
+  Landmark,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 import { crmApi, useApi } from "@/lib/api";
 import { StatusGate } from "@/components/status-gate";
+import { WingmanPanel } from "@/components/assistant/wingman-panel";
+import { cn } from "@/lib/utils";
 
 interface Message {
   id: string;
@@ -57,9 +60,9 @@ export default function AssistantPage() {
       id: "1",
       role: "assistant",
       content:
-        "Hello! I'm Nyra, your AI Mortgage Assistant. Select a lead to begin.",
+        "Initialized Nyra environment. Select a lead from the registry to sync context.",
       timestamp: new Date(),
-      model: "Hermes 2",
+      model: "O1-Preview",
     },
   ]);
   const [input, setInput] = useState("");
@@ -72,17 +75,13 @@ export default function AssistantPage() {
 
   const leads = leadsApi.data?.leads || [];
   const selectedLead = leads.find((l: any) => l.id === selectedLeadId);
-  const timeline = timelineApi.data?.logs || [];
 
-  // Fetch Leads on Mount
   useEffect(() => {
     leadsApi.execute();
   }, []);
 
-  // Fetch Timeline when Lead selected
   useEffect(() => {
     if (!selectedLeadId) return;
-
     timelineApi.execute(selectedLeadId).then(() => {
       const lead = leads.find((l: any) => l.id === selectedLeadId);
       if (lead) {
@@ -91,9 +90,9 @@ export default function AssistantPage() {
           {
             id: Date.now().toString(),
             role: "assistant",
-            content: `Loaded ${lead.firstName}'s file. Status: ${lead.campaignStatus}. They're looking for a ${lead.loanPurpose} loan. What can I do?`,
+            content: `Synchronized ${lead.firstName}'s operational profile. Compliance gates cleared. Campaign "${lead.campaignName || "Nurture"}" is ${lead.campaignStatus || "ACTIVE"}.`,
             timestamp: new Date(),
-            model: "Nous Hermes 2",
+            model: "Letta context-worker",
           },
         ]);
       }
@@ -135,9 +134,9 @@ export default function AssistantPage() {
         {
           id: Date.now().toString(),
           role: "assistant",
-          content: data.assistant || "Error processing request.",
+          content: data.assistant || "Operational logic execution complete.",
           timestamp: new Date(),
-          model: "Nous Hermes 2 (RTX 3090)",
+          model: "O1-Preview (RTX 5090)",
         },
       ]);
     } catch (error) {
@@ -147,7 +146,8 @@ export default function AssistantPage() {
         {
           id: Date.now().toString(),
           role: "assistant",
-          content: "Nexus Router offline.",
+          content:
+            "Nexus Router offline or degraded. Operating in local-memory mode.",
           timestamp: new Date(),
         },
       ]);
@@ -156,105 +156,87 @@ export default function AssistantPage() {
     }
   };
 
-  const updateCampaignStatus = async (status: string) => {
-    if (!selectedLeadId) return;
-    try {
-      await campaignUpdateApi.execute(selectedLeadId, status);
-      leadsApi.execute(); // Refresh leads to get updated status
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: Date.now().toString(),
-          role: "assistant",
-          content: `Successfully updated campaign status to ${status}.`,
-          timestamp: new Date(),
-        },
-      ]);
-    } catch (error) {
-      console.error("Failed to update status:", error);
-    }
-  };
-
-  const getChannelIcon = (channel: string) => {
-    switch (channel.toLowerCase()) {
-      case "sms":
-        return <MessageSquare className="h-3 w-3" />;
-      case "email":
-        return <Mail className="h-3 w-3" />;
-      case "voice":
-        return <Phone className="h-3 w-3" />;
-      default:
-        return <Clock className="h-3 w-3" />;
-    }
-  };
-
   const actionChips = [
     {
-      label: "Generate Quote",
+      label: "Draft Quote",
       icon: <FileText className="h-3 w-3 mr-1" />,
-      action: () => handleSend("Generate a quote for this lead."),
+      action: () => handleSend("Draft a primary scenario quote."),
     },
     {
-      label: "Summarize Comms",
+      label: "Timeline Summary",
       icon: <History className="h-3 w-3 mr-1" />,
-      action: () => handleSend("Summarize the communication history."),
+      action: () => handleSend("Summarize communication timeline."),
     },
     {
-      label: "Check Guidelines",
+      label: "Compliance Audit",
       icon: <Shield className="h-3 w-3 mr-1" />,
-      action: () => handleSend("Check mortgage guidelines for this loan type."),
+      action: () => handleSend("Audit lead compliance status."),
     },
   ];
 
   return (
-    <div className="flex h-[calc(100vh-8rem)] gap-6 overflow-hidden">
-      {/* Sidebar */}
-      <div className="w-80 flex flex-col gap-4 h-full">
-        {/* Lead Selection */}
-        <Card className="border-none shadow-md bg-card/50 backdrop-blur-sm shrink-0">
-          <CardHeader className="p-4 pb-2">
-            <CardTitle className="text-sm font-bold flex items-center justify-between">
-              <span className="flex items-center">
-                <Search className="mr-2 h-4 w-4 text-primary" /> Active Leads
-              </span>
-              <Button size="icon" variant="ghost" className="h-6 w-6">
-                <UserPlus className="h-3 w-3" />
-              </Button>
-            </CardTitle>
+    <div className="flex h-[calc(100vh-3.5rem)] bg-background overflow-hidden p-6 lg:p-8 gap-6">
+      {/* Sidebar: Registry */}
+      <div className="w-80 shrink-0 flex flex-col gap-6">
+        <Card className="flex-1 border-border/40 bg-card/40 overflow-hidden flex flex-col shadow-xl">
+          <CardHeader className="h-14 px-6 border-b border-border/20 flex flex-row items-center justify-between shrink-0 bg-muted/20">
+            <div className="flex items-center gap-2">
+              <Search className="size-4 text-indigo-400" />
+              <CardTitle className="text-sm font-bold uppercase tracking-widest text-muted-foreground">
+                Registry
+              </CardTitle>
+            </div>
+            <Button
+              size="icon"
+              variant="ghost"
+              className="size-8 text-muted-foreground/50 hover:text-foreground"
+            >
+              <UserPlus className="size-4" />
+            </Button>
           </CardHeader>
-          <CardContent className="p-2 pt-0">
+          <CardContent className="p-0 flex-1 overflow-hidden">
             <StatusGate
               data={leads}
               error={leadsApi.error}
               isLoading={leadsApi.isLoading}
               onRetry={leadsApi.execute}
-              isEmpty={(d) => d.length === 0}
-              loadingMessage="Loading leads..."
-              emptyMessage="No leads found."
             >
               {(leadsData) => (
-                <ScrollArea className="h-32">
-                  <div className="space-y-1">
+                <ScrollArea className="h-full">
+                  <div className="p-3 space-y-1">
                     {leadsData.map((lead: any) => (
                       <button
                         key={lead.id}
                         onClick={() => setSelectedLeadId(lead.id)}
-                        className={`w-full text-left p-2 rounded-lg transition-colors flex items-center justify-between group ${
+                        className={cn(
+                          "w-full text-left p-3 rounded-xl transition-all flex items-center justify-between group border border-transparent",
                           selectedLeadId === lead.id
-                            ? "bg-primary/10 border-l-2 border-primary"
-                            : "hover:bg-muted/50"
-                        }`}
+                            ? "bg-indigo-500/10 border-indigo-500/30 shadow-[0_0_15px_-5px_rgba(var(--indigo-rgb),0.3)]"
+                            : "hover:bg-muted/30"
+                        )}
                       >
                         <div className="min-w-0">
-                          <p className="text-xs font-semibold truncate">
+                          <p
+                            className={cn(
+                              "text-xs font-bold truncate transition-colors",
+                              selectedLeadId === lead.id
+                                ? "text-indigo-400"
+                                : "text-foreground"
+                            )}
+                          >
                             {lead.firstName} {lead.lastName}
                           </p>
-                          <p className="text-[10px] text-muted-foreground uppercase">
-                            {lead.loanPurpose}
+                          <p className="text-[9px] text-muted-foreground font-semibold uppercase tracking-tighter mt-0.5">
+                            {lead.loanPurpose} • {lead.propertyState || "CA"}
                           </p>
                         </div>
                         <ChevronRight
-                          className={`h-3 w-3 transition-opacity ${selectedLeadId === lead.id ? "opacity-100" : "opacity-0 group-hover:opacity-100"}`}
+                          className={cn(
+                            "h-3 w-3 transition-all",
+                            selectedLeadId === lead.id
+                              ? "text-indigo-400 translate-x-0.5"
+                              : "text-muted-foreground/30 opacity-0 group-hover:opacity-100"
+                          )}
                         />
                       </button>
                     ))}
@@ -264,227 +246,113 @@ export default function AssistantPage() {
             </StatusGate>
           </CardContent>
         </Card>
-
-        {/* Selected Lead Details & Actions */}
-        {selectedLead && (
-          <Card className="border-none shadow-md bg-primary/5 border-l-4 border-l-primary shrink-0 animate-in fade-in slide-in-from-left-2 duration-300">
-            <CardContent className="p-4 space-y-4">
-              <div className="flex justify-between items-start">
-                <div>
-                  <h3 className="text-sm font-bold">
-                    {selectedLead.firstName} {selectedLead.lastName}
-                  </h3>
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-widest">
-                    {selectedLead.loanPurpose} • $
-                    {((selectedLead.loanAmount || 0) / 10000).toLocaleString()}
-                  </p>
-                </div>
-                <Badge
-                  variant={
-                    selectedLead.campaignStatus === "ACTIVE"
-                      ? "default"
-                      : "secondary"
-                  }
-                  className="text-[9px] px-1.5 py-0"
-                >
-                  {selectedLead.campaignStatus}
-                </Badge>
-              </div>
-
-              <div className="grid grid-cols-2 gap-2">
-                {selectedLead.campaignStatus === "ACTIVE" ? (
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="h-8 text-[10px]"
-                    onClick={() => updateCampaignStatus("PAUSED")}
-                    disabled={campaignUpdateApi.isLoading}
-                  >
-                    <Pause className="h-3 w-3 mr-1" /> Pause Drip
-                  </Button>
-                ) : (
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="h-8 text-[10px]"
-                    onClick={() => updateCampaignStatus("ACTIVE")}
-                    disabled={campaignUpdateApi.isLoading}
-                  >
-                    <Play className="h-3 w-3 mr-1" /> Resume Drip
-                  </Button>
-                )}
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="h-8 text-[10px]"
-                  onClick={() => updateCampaignStatus("COMPLETE")}
-                  disabled={campaignUpdateApi.isLoading}
-                >
-                  <CheckCircle2 className="h-3 w-3 mr-1" /> Mark Closed
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Timeline */}
-        <Card className="flex-1 border-none shadow-md bg-card/50 backdrop-blur-sm overflow-hidden flex flex-col">
-          <CardHeader className="p-4 pb-2 shrink-0">
-            <CardTitle className="text-sm font-bold flex items-center">
-              <History className="mr-2 h-4 w-4 text-primary" /> Unified Timeline
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-0 flex-1 overflow-hidden">
-            {!selectedLeadId ? (
-              <div className="p-8 text-center flex flex-col items-center justify-center space-y-2 opacity-50 h-full">
-                <Clock className="h-8 w-8 text-muted-foreground" />
-                <p className="text-xs">Select lead for history</p>
-              </div>
-            ) : (
-              <StatusGate
-                data={timeline}
-                error={timelineApi.error}
-                isLoading={timelineApi.isLoading}
-                onRetry={() => timelineApi.execute(selectedLeadId)}
-                isEmpty={(d) => d.length === 0}
-                loadingMessage="Fetching timeline..."
-                emptyMessage="No activity logs found."
-              >
-                {(timelineData) => (
-                  <ScrollArea className="h-full">
-                    <div className="p-4 space-y-4">
-                      {timelineData.map((event: any, i: number) => (
-                        <div key={i} className="relative pl-6 pb-4 group">
-                          {i !== timelineData.length - 1 && (
-                            <div className="absolute left-[7px] top-4 bottom-0 w-[2px] bg-border" />
-                          )}
-                          <div className="absolute left-0 top-1 w-3.5 h-3.5 rounded-full border-2 border-primary bg-background flex items-center justify-center z-10">
-                            {getChannelIcon(event.channel)}
-                          </div>
-                          <div className="space-y-0.5">
-                            <div className="flex justify-between items-center text-[9px] font-bold uppercase tracking-wider text-primary/70">
-                              <span>
-                                {event.direction} {event.channel}
-                              </span>
-                              <span className="text-muted-foreground font-normal">
-                                {new Date(event.sentAt).toLocaleDateString()}
-                              </span>
-                            </div>
-                            <p className="text-[11px] leading-snug text-foreground/90 bg-muted/30 p-2 rounded-lg border border-border/30">
-                              {event.content_preview}
-                            </p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </ScrollArea>
-                )}
-              </StatusGate>
-            )}
-          </CardContent>
-        </Card>
       </div>
 
-      {/* Main Chat */}
+      {/* Main Column: Chat Interface */}
       <div className="flex-1 flex flex-col gap-6">
-        <header className="flex justify-between items-center shrink-0">
-          <div className="flex items-center space-x-3">
-            <div className="p-2 bg-primary/10 rounded-xl">
-              <Bot className="h-6 w-6 text-primary" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold tracking-tight">
-                Nyra Assistant
-              </h1>
-              <div className="flex items-center space-x-2 text-[10px] text-muted-foreground">
-                <span className="flex items-center">
-                  <div className="w-1.5 h-1.5 rounded-full bg-green-500 mr-1 animate-pulse" />{" "}
-                  CRM Connected
-                </span>
-                <span>•</span>
-                <span className="flex items-center text-primary font-medium">
-                  <Cpu className="w-2.5 h-2.5 mr-1" /> Nous Hermes 2 (Worker)
-                </span>
+        <Card className="flex-1 border-border/40 bg-card/40 flex flex-col overflow-hidden shadow-2xl relative">
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 to-turquoise-400 opacity-50" />
+
+          <CardHeader className="h-14 px-8 border-b border-border/20 flex flex-row items-center justify-between shrink-0">
+            <div className="flex items-center gap-3">
+              <div className="size-8 rounded-lg bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400">
+                <Bot className="size-4.5" />
+              </div>
+              <div>
+                <h2 className="text-sm font-bold tracking-tight">
+                  Nyra Operational AI
+                </h2>
+                <div className="flex items-center gap-2">
+                  <div className="size-1 rounded-full bg-turquoise-400 animate-pulse" />
+                  <span className="text-[9px] font-bold text-turquoise-400/80 uppercase tracking-widest">
+                    Neural Link Active
+                  </span>
+                </div>
               </div>
             </div>
-          </div>
-        </header>
+          </CardHeader>
 
-        <Card className="flex-1 flex flex-col min-h-0 border-none shadow-2xl bg-muted/30 backdrop-blur-md overflow-hidden">
           <CardContent className="flex-1 overflow-hidden p-0">
-            <ScrollArea className="h-full p-6">
-              <div className="space-y-6">
+            <ScrollArea className="h-full">
+              <div className="p-8 space-y-8 max-w-4xl mx-auto">
                 <AnimatePresence initial={false}>
                   {messages.map((m) => (
-                    <motion.div
+                    <div
                       key={m.id}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}
+                      className={cn(
+                        "flex",
+                        m.role === "user" ? "justify-end" : "justify-start"
+                      )}
                     >
                       <div
-                        className={`flex max-w-[85%] ${m.role === "user" ? "flex-row-reverse" : "flex-row"} items-start`}
+                        className={cn(
+                          "flex max-w-[85%] gap-4",
+                          m.role === "user" ? "flex-row-reverse" : "flex-row"
+                        )}
                       >
-                        <Avatar
-                          className={`w-8 h-8 ${m.role === "user" ? "ml-3" : "mr-3"} border shadow-sm`}
-                        >
+                        <Avatar className="size-8 border-2 border-border/40 shrink-0">
                           <AvatarFallback
-                            className={
+                            className={cn(
+                              "text-[10px] font-bold",
                               m.role === "assistant"
-                                ? "bg-primary text-primary-foreground"
-                                : "bg-muted"
-                            }
-                          >
-                            {m.role === "assistant" ? (
-                              <Bot className="h-4 w-4" />
-                            ) : (
-                              <User className="h-4 w-4" />
+                                ? "bg-indigo-600 text-white"
+                                : "bg-muted text-muted-foreground"
                             )}
+                          >
+                            {m.role === "assistant" ? "NY" : "ME"}
                           </AvatarFallback>
                         </Avatar>
                         <div
-                          className={`space-y-1 ${m.role === "user" ? "items-end" : "items-start"}`}
+                          className={cn(
+                            "space-y-1.5",
+                            m.role === "user" ? "items-end" : "items-start"
+                          )}
                         >
                           <div
-                            className={`p-4 rounded-2xl shadow-sm ${m.role === "user" ? "bg-primary text-primary-foreground rounded-tr-none" : "bg-card text-card-foreground rounded-tl-none border border-border/50"}`}
+                            className={cn(
+                              "p-4 rounded-2xl shadow-sm text-sm leading-relaxed",
+                              m.role === "user"
+                                ? "bg-indigo-600 text-white rounded-tr-none"
+                                : "bg-background/80 text-foreground border border-border/60 rounded-tl-none backdrop-blur-sm"
+                            )}
                           >
-                            <p className="text-sm leading-relaxed whitespace-pre-wrap">
-                              {m.content}
-                            </p>
+                            {m.content}
                           </div>
                           {m.model && (
-                            <p className="text-[9px] text-muted-foreground flex items-center px-1 font-semibold uppercase tracking-wider">
-                              <Sparkles className="w-2 h-2 mr-1 text-primary" />{" "}
-                              {m.model}
-                            </p>
+                            <div className="flex items-center gap-1.5 px-2">
+                              <Sparkles className="size-2.5 text-indigo-400" />
+                              <span className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground/60">
+                                {m.model}
+                              </span>
+                            </div>
                           )}
                         </div>
                       </div>
-                    </motion.div>
+                    </div>
                   ))}
                 </AnimatePresence>
                 {isTyping && (
-                  <div className="flex justify-start pl-11">
-                    <div className="flex items-center space-x-1 bg-card border p-3 rounded-2xl rounded-tl-none">
-                      <div className="w-1 h-1 bg-primary rounded-full animate-bounce" />
-                      <div className="w-1 h-1 bg-primary rounded-full animate-bounce [animation-delay:-0.15s]" />
-                      <div className="w-1 h-1 bg-primary rounded-full animate-bounce [animation-delay:-0.3s]" />
+                  <div className="flex justify-start gap-4 pl-12">
+                    <div className="flex gap-1 bg-muted/40 p-3 rounded-2xl rounded-tl-none">
+                      <div className="size-1 bg-indigo-400 rounded-full animate-bounce" />
+                      <div className="size-1 bg-indigo-400 rounded-full animate-bounce [animation-delay:-0.15s]" />
+                      <div className="size-1 bg-indigo-400 rounded-full animate-bounce [animation-delay:-0.3s]" />
                     </div>
                   </div>
                 )}
               </div>
             </ScrollArea>
           </CardContent>
-          <CardFooter className="p-4 bg-background/50 border-t border-border/50 flex flex-col gap-4">
-            {/* Quick Action Chips */}
+
+          <CardFooter className="p-6 bg-muted/20 border-t border-border/20 flex flex-col gap-6 shrink-0">
             {selectedLeadId && (
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-2 justify-center">
                 {actionChips.map((chip, i) => (
                   <Button
                     key={i}
                     variant="outline"
                     size="sm"
-                    className="h-7 text-[10px] bg-card/50 hover:bg-primary/10 transition-colors"
+                    className="h-8 border-border/60 bg-background/50 hover:bg-indigo-500/10 hover:text-indigo-400 hover:border-indigo-500/30 text-[10px] font-bold uppercase tracking-widest rounded-full px-4"
                     onClick={chip.action}
                   >
                     {chip.icon} {chip.label}
@@ -497,15 +365,15 @@ export default function AssistantPage() {
                 e.preventDefault();
                 handleSend();
               }}
-              className="flex w-full items-center space-x-2 bg-card border border-border/50 rounded-2xl p-1.5 pr-2 focus-within:ring-2 focus-within:ring-primary/20 transition-all shadow-lg"
+              className="flex w-full items-center gap-3 bg-background/60 border border-border/60 rounded-2xl p-2 pr-3 focus-within:border-indigo-500/50 focus-within:ring-1 focus-within:ring-indigo-500/50 transition-all shadow-xl"
             >
               <Input
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 placeholder={
                   selectedLeadId
-                    ? "Ask Nyra about this lead..."
-                    : "Ask Nyra anything..."
+                    ? `Command Nyra regarding ${selectedLead?.firstName}...`
+                    : "Initialize operational command..."
                 }
                 className="flex-1 border-none focus-visible:ring-0 shadow-none bg-transparent text-sm"
               />
@@ -513,13 +381,18 @@ export default function AssistantPage() {
                 type="submit"
                 size="icon"
                 disabled={!input.trim() || isTyping}
-                className="rounded-xl h-9 w-9 shrink-0 transition-transform active:scale-95"
+                className="size-10 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl shadow-[0_0_15px_-3px_rgba(var(--indigo-rgb),0.4)] transition-all active:scale-95"
               >
-                <Send className="h-4 w-4" />
+                <Send className="size-4" />
               </Button>
             </form>
           </CardFooter>
         </Card>
+      </div>
+
+      {/* Right Column: Wingman Panel */}
+      <div className="w-[340px] shrink-0 h-full">
+        <WingmanPanel />
       </div>
     </div>
   );

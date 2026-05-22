@@ -21,7 +21,8 @@ export async function GET(
       });
 
       if (response.ok) {
-        return NextResponse.json(await response.json());
+        const data = await response.json();
+        return NextResponse.json(withWorkspace(data, "crm-api"));
       }
     } catch {}
   }
@@ -31,5 +32,49 @@ export async function GET(
     return NextResponse.json({ error: "Lead not found" }, { status: 404 });
   }
 
-  return NextResponse.json({ lead, source: "mock" });
+  return NextResponse.json(withWorkspace({ lead, source: "mock" }, "mock"));
+}
+
+function withWorkspace<
+  T extends { lead?: Record<string, unknown>; source?: string },
+>(data: T, source: string): T {
+  if (!data.lead) {
+    return data;
+  }
+
+  const lead = data.lead;
+  const campaignStatus = String(lead.campaignStatus ?? "");
+  const consentStatus = String(
+    lead.consentStatus ?? (lead.hasConsent ? "OPTED_IN" : "UNKNOWN")
+  );
+  const doNotContact = Boolean(lead.doNotContact ?? lead.onDncList);
+
+  return {
+    ...data,
+    lead: {
+      ...lead,
+      workspace: {
+        source,
+        crmBacked: source === "crm-api",
+        compliance: {
+          consentStatus,
+          doNotContact,
+          sendBlocked:
+            doNotContact ||
+            consentStatus === "OPTED_OUT" ||
+            consentStatus === "DO_NOT_CONTACT",
+        },
+        campaign: {
+          status: campaignStatus || "UNASSIGNED",
+          canResume: campaignStatus === "PAUSED",
+          canPause: campaignStatus === "ACTIVE",
+          canStop: campaignStatus !== "STOPPED",
+        },
+        quote: {
+          deterministicQuoteRequired: true,
+          sourceOfTruth: "quote-service",
+        },
+      },
+    },
+  };
 }

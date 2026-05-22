@@ -1,4 +1,15 @@
-import { KeyRound, Network, ShieldCheck, ServerCog } from "lucide-react";
+import {
+  BellRing,
+  CheckCircle2,
+  KeyRound,
+  Network,
+  RadioTower,
+  ShieldAlert,
+  ShieldCheck,
+  ServerCog,
+  Settings2,
+  ToggleLeft,
+} from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,7 +20,7 @@ const platformNotes = [
     icon: KeyRound,
     status: "planned",
     detail:
-      "Final broker auth should use the Oracle VPS Supabase stack. Clerk artifacts are not part of the target platform.",
+      "Final broker auth should use the Oracle VPS Supabase stack. Legacy auth artifacts are not the target platform contract.",
   },
   {
     title: "CRM Boundary",
@@ -35,29 +46,70 @@ const platformNotes = [
 ];
 
 const envGroups = [
-  "CRM_API_URL / CRM_API_KEY",
-  "QUOTE_API_URL / QUOTE_API_SECRET",
-  "OPENCLAW_PUBLIC_BASE_URL / OPENCLAW_GATEWAY_TOKEN",
-  "NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY",
-  "SUPABASE_SERVICE_ROLE_KEY",
-  "NEXT_PUBLIC_NEXUS_UI_URL",
+  ["CRM_API_URL / CRM_API_KEY", "server", "CRM API read/write boundary"],
+  [
+    "QUOTE_API_URL / QUOTE_API_SECRET",
+    "server",
+    "Quote service artifact generation",
+  ],
+  [
+    "OPENCLAW_PUBLIC_BASE_URL / OPENCLAW_GATEWAY_TOKEN",
+    "server",
+    "Assistant gateway proxy",
+  ],
+  [
+    "NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY",
+    "client",
+    "Broker auth bootstrap",
+  ],
+  ["SUPABASE_SERVICE_ROLE_KEY", "server", "Server-side auth administration"],
+  ["NEXT_PUBLIC_NEXUS_UI_URL", "client", "Operator launch link only"],
+];
+
+const featureFlags = [
+  ["Live lead radar", "enabled", "Shows cached/mock/live source labels"],
+  ["Assistant direct writes", "disabled", "Actions require service approval"],
+  [
+    "Mock CRM writes",
+    "guarded",
+    "Disabled in production unless explicitly enabled",
+  ],
+  [
+    "Discord operator alerts",
+    "pending",
+    "Surface status when webhook contract exists",
+  ],
 ];
 
 export default function SettingsPage() {
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-semibold tracking-tight">Settings</h1>
-        <p className="mt-2 max-w-3xl text-muted-foreground">
-          Platform notes for the consolidated broker webapp. This route records
-          the auth, CRM, assistant, and deployment assumptions from the guidance
-          folder until the live Oracle VPS services are wired end to end.
-        </p>
-      </div>
+    <main className="mx-auto flex w-full max-w-7xl flex-col gap-8 px-5 py-8 lg:px-8">
+      <section className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+        <div>
+          <div className="flex items-center gap-2 text-turquoise-400">
+            <Settings2 className="size-4" />
+            <span className="text-[11px] font-bold uppercase tracking-[0.2em]">
+              Product Configuration
+            </span>
+          </div>
+          <h1 className="mt-2 text-3xl font-bold tracking-tight md:text-4xl">
+            Settings
+          </h1>
+          <p className="mt-2 max-w-3xl text-sm leading-6 text-muted-foreground">
+            Operational assumptions for the consolidated broker webapp. These
+            settings explain boundaries, environment contracts, and feature
+            posture without exposing secrets or enabling unsafe direct actions.
+          </p>
+        </div>
+        <Badge variant="outline" className="w-fit gap-2">
+          <ShieldAlert className="size-3 text-pink-400" />
+          Secrets never rendered
+        </Badge>
+      </section>
 
-      <div className="grid gap-4 md:grid-cols-2">
+      <section className="grid gap-4 md:grid-cols-2">
         {platformNotes.map(({ title, icon: Icon, status, detail }) => (
-          <Card key={title} className="border-border/70 bg-card/80">
+          <Card key={title} className="border-border/40 bg-card/40">
             <CardHeader className="flex flex-row items-start justify-between gap-4">
               <CardTitle className="flex items-center gap-2 text-base">
                 <Icon className="size-5 text-primary" />
@@ -72,23 +124,80 @@ export default function SettingsPage() {
             </CardContent>
           </Card>
         ))}
-      </div>
+      </section>
 
-      <Card className="border-border/70 bg-card/80">
-        <CardHeader>
-          <CardTitle>Environment Contract</CardTitle>
-        </CardHeader>
-        <CardContent className="grid gap-3 sm:grid-cols-2">
-          {envGroups.map((env) => (
-            <div
-              key={env}
-              className="rounded-lg border border-border/60 bg-background/40 px-4 py-3 font-mono text-xs"
-            >
-              {env}
-            </div>
-          ))}
-        </CardContent>
-      </Card>
-    </div>
+      <section className="grid gap-6 lg:grid-cols-[1fr_380px]">
+        <Card className="border-border/40 bg-card/40">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-sm uppercase tracking-[0.18em] text-muted-foreground">
+              <RadioTower className="size-4 text-turquoise-400" />
+              Environment Contract
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="grid gap-3">
+            {envGroups.map(([env, scope, detail]) => (
+              <div
+                key={env}
+                className="grid gap-3 rounded-xl border border-border/40 bg-background/40 px-4 py-3 text-sm md:grid-cols-[1fr_100px_1.2fr]"
+              >
+                <span className="font-mono text-xs">{env}</span>
+                <Badge variant="outline" className="w-fit text-[9px]">
+                  {scope}
+                </Badge>
+                <span className="text-muted-foreground">{detail}</span>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+
+        <div className="space-y-4">
+          <Card className="border-border/40 bg-card/40">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-sm uppercase tracking-[0.18em] text-muted-foreground">
+                <ToggleLeft className="size-4 text-indigo-400" />
+                Feature Posture
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {featureFlags.map(([label, state, detail]) => (
+                <div
+                  key={label}
+                  className="rounded-xl border border-border/40 bg-background/40 p-3"
+                >
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="text-sm font-semibold">{label}</p>
+                    <Badge variant="outline" className="text-[9px]">
+                      {state}
+                    </Badge>
+                  </div>
+                  <p className="mt-1 text-xs leading-5 text-muted-foreground">
+                    {detail}
+                  </p>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+
+          <Card className="border-border/40 bg-card/40">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-sm uppercase tracking-[0.18em] text-muted-foreground">
+                <BellRing className="size-4 text-pink-400" />
+                Operator Alerts
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3 text-sm leading-6 text-muted-foreground">
+              <p>
+                Discord and other operator notifications should be surfaced here
+                when a real webhook/status contract exists.
+              </p>
+              <div className="flex items-center gap-2 rounded-xl border border-border/40 bg-background/40 p-3 text-foreground">
+                <CheckCircle2 className="size-4 text-turquoise-400" />
+                Manual-owner actions stay documented, not hidden in UI copy.
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </section>
+    </main>
   );
 }

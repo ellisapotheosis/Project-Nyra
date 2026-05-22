@@ -5,11 +5,10 @@
 # Connected via Tailscale mesh to orchestrator
 # ============================================================================
 
-version: "3.8"
-
 services:
   # ── Infisical secrets init (runs once, writes files to /run/nyra-secrets/) ─
   secrets-init:
+    profiles: ["secrets"]
     build:
       context: ../../images/infisical-secrets-init
     container_name: worker-5090-secrets-init
@@ -27,6 +26,7 @@ services:
 
   # ── Infisical agent (polls Infisical and refreshes secrets) ──────────────
   infisical-agent:
+    profiles: ["secrets"]
     build:
       context: ../../images/infisical-secrets-init
     container_name: worker-5090-infisical-agent
@@ -74,6 +74,9 @@ services:
     container_name: worker-5090-vllm
     hostname: worker-5090-vllm
     restart: unless-stopped
+    depends_on:
+      secrets-init:
+        condition: service_completed_successfully
     ports:
       - "${VLLM_PORT:-8000}:8000"
     volumes:
@@ -112,9 +115,6 @@ services:
               capabilities: [gpu]
         limits:
           memory: 48G
-    depends_on:
-      secrets-init:
-        condition: service_completed_successfully
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 30s
@@ -143,10 +143,10 @@ services:
       - SPECIALIZATION=mortgage,compliance,reasoning
     command: python /app/switcher.py
     depends_on:
-      vllm:
-        condition: service_healthy
       secrets-init:
         condition: service_completed_successfully
+      vllm:
+        condition: service_healthy
     networks:
       - worker-network
 
@@ -167,10 +167,10 @@ services:
       - nyra_secrets:/run/nyra-secrets:ro
     command: --config /app/config.yaml --port 4000
     depends_on:
-      vllm:
-        condition: service_healthy
       secrets-init:
         condition: service_completed_successfully
+      vllm:
+        condition: service_healthy
     networks:
       - worker-network
 
@@ -228,9 +228,12 @@ services:
     hostname: worker-5090-health
     restart: unless-stopped
     depends_on:
-      - vllm
-      - litellm
-      - secrets-init
+      secrets-init:
+        condition: service_completed_successfully
+      vllm:
+        condition: service_started
+      litellm:
+        condition: service_started
     environment:
       - VLLM_URL=http://vllm:8000
       - LITELLM_URL=http://litellm:4000
@@ -258,6 +261,9 @@ services:
     container_name: worker-5090-promtail
     hostname: worker-5090-promtail
     restart: unless-stopped
+    depends_on:
+      secrets-init:
+        condition: service_completed_successfully
     volumes:
       - ./promtail-config.yaml:/etc/promtail/config.yaml:ro
       - ./logs:/var/log/worker-5090:ro
@@ -268,15 +274,13 @@ services:
       - LOKI_URL=${LOKI_URL:-http://oracle.trex-fiordland.ts.net:3100}
       - WORKER_ID=worker-5090
     command: -config.file=/etc/promtail/config.yaml
-    depends_on:
-      secrets-init:
-        condition: service_completed_successfully
     networks:
       - worker-network
 
 networks:
   worker-network:
     name: nyra-worker-5090
+    external: true
     driver: bridge
     ipam:
       config:

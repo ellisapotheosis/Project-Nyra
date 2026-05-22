@@ -1,7 +1,7 @@
-import mongoose, { Schema, Document } from 'mongoose';
-import { VoiceCallResponse } from '../types/twilio.types';
+import mongoose, { Schema, Document } from "mongoose";
+import { VoiceCallResponse } from "../types/twilio.types";
 
-export interface CallDocument extends Omit<VoiceCallResponse, 'sid'>, Document {
+export interface CallDocument extends Omit<VoiceCallResponse, "sid">, Document {
   sid: string;
   recordingSid?: string;
   recordingUrl?: string;
@@ -34,7 +34,7 @@ const CallSchema = new Schema<CallDocument>(
   {
     timestamps: true,
     toJSON: {
-      transform: (doc, ret) => {
+      transform: (_doc, ret: Record<string, unknown>) => {
         delete ret._id;
         delete ret.__v;
         return ret;
@@ -46,4 +46,4 @@ const CallSchema = new Schema<CallDocument>(
 CallSchema.index({ status: 1, dateCreated: -1 });
 CallSchema.index({ direction: 1, dateCreated: -1 });
 
-export const CallModel = mongoose.model<CallDocument>('Call', CallSchema);
+export const CallModel = mongoose.model<CallDocument>("Call", CallSchema);

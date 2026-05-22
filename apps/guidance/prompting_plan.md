@@ -38,3 +38,29 @@ Use these four final lanes instead of spawning new prompt packs:
 ## Immediate Final Cut
 
 Ship items 1-7 before advanced provider integrations. Items 8-15 should follow once the lead-to-CRM, campaign/compliance, and quote paths are demonstrably working. Items 16-25 are release hardening and advanced expansion work.
+
+## Implementation Status - 2026-05-20
+
+Implemented in this cycle:
+
+1. Lead intake now returns a typed `CrmWritePlan` for Twenty lead upsert, campaign enrollment, and audit ledger events.
+2. Compliance domain/service now detects STOP/unsubscribe, pauses on borrower replies, blocks quiet hours, and applies do-not-contact state.
+3. Campaign domain/service now owns uppercase canonical states, valid transitions, send eligibility, HITL approval checks, and step advancement.
+4. Quote domain/service now produces deterministic three-option quotes with versioned quote history.
+5. Project Nyra lead detail API now annotates lead responses with a live workspace contract for CRM, compliance, campaign, and quote status.
+6. Supabase/Auth hardening remains active through the existing callback, safe redirect, session, signout, and health routes; no new auth bypass was introduced.
+7. CRM adapter contracts are expanded in `@nyra/crm-types` for leads, campaign enrollments, communication logs, quotes, and audit ledger entries.
+8. Communication callbacks now normalize provider events into borrower-communication or compliance-critical ledger entries.
+9. Assistant tool access now blocks direct CRM/database mutation unless approval and audit evidence are present.
+10. Project Nyra campaign and quote API routes now expose service-owned contracts/fallbacks instead of silent mock-only behavior.
+
+Remaining final-cut work should continue from item 14 onward after provider credentials are available:
+
+- mobile route smoke screenshots
+- hardcoded color/token cleanup
+- Infisical env coverage report
+- Oracle/Supabase/Kong/Auth smoke script
+- Cloudflare Access matrix re-apply after `projectnyra.com` zone activation
+- MCP startup runbook validation
+- Live Radar/WebSocket integration
+- LendingPad, soft-pull provider approvals, document OCR/DTI, prototype archival, and final release checklist

@@ -5,7 +5,7 @@
 # Optimized for RTX 5090 GPU inference
 # ============================================================================
 
-version: '3.8'
+version: "3.8"
 
 services:
   # ============================================================================
@@ -19,7 +19,7 @@ services:
     environment:
       - NODE_ENV=production
       - OPENAI_API_BASE=http://worker-5090-vllm:8000/v1
-      - OPENAI_API_KEY=${NEXUS_ADMIN_TOKEN:-dummy}
+      - OPENAI_API_KEY=${NEXUS_ADMIN_TOKEN:?NEXUS_ADMIN_TOKEN is required}
       - MEM0_API_KEY=${MEM0_API_KEY}
       - TWENTY_API_KEY=${TWENTY_CRM_API_KEY}
       - TWENTY_URL=${TWENTY_CRM_URL:-http://oracle.trex-fiordland.ts.net:3000}
@@ -46,7 +46,7 @@ services:
     container_name: worker-5090-nerve-ui
     restart: unless-stopped
     ports:
-      - '${NERVE_UI_PORT:-3081}:3000'
+      - "${NERVE_UI_PORT:-3081}:3000"
     environment:
       - BACKEND_URL=http://worker-5090-openclaw:18789
       - DEFAULT_MODEL=deepseek-ai/DeepSeek-V3

@@ -11,11 +11,13 @@ Automated security tools and utilities for Project Nyra.
 Comprehensive security scanning across the entire infrastructure.
 
 **Usage**:
+
 ```bash
 ./scripts/security/scan.sh [--quick|--full]
 ```
 
 **Features**:
+
 - Dependency vulnerability scanning (npm audit)
 - Container image scanning (Trivy)
 - Static application security testing (Semgrep)
@@ -26,6 +28,7 @@ Comprehensive security scanning across the entire infrastructure.
 **Reports**: Generated in `./security-reports/`
 
 **Examples**:
+
 ```bash
 # Full scan (all checks)
 ./scripts/security/scan.sh --full
@@ -41,19 +44,23 @@ Comprehensive security scanning across the entire infrastructure.
 Automated secret rotation for all Infisical-managed secrets.
 
 **Usage**:
+
 ```bash
 ./scripts/security/rotate-secrets.sh [--dry-run]
 ```
 
 **Rotates**:
+
 - Database passwords (PostgreSQL, Redis, FalkorDB, Qdrant)
 - Application secrets (JWT, Session, Encryption keys)
 - MCP server tokens
 
 **Does NOT rotate** (manual required):
+
 - External API keys (Anthropic, OpenRouter, E2B)
 
 **Examples**:
+
 ```bash
 # Preview rotation without making changes
 ./scripts/security/rotate-secrets.sh --dry-run
@@ -71,11 +78,13 @@ Automated secret rotation for all Infisical-managed secrets.
 View and analyze security logs with filtering options.
 
 **Usage**:
+
 ```bash
 ./scripts/security/view-security-logs.sh [OPTIONS]
 ```
 
 **Options**:
+
 - `--today` - Show only today's logs
 - `--failed-auth` - Show failed authentication attempts
 - `--suspicious` - Show suspicious activity
@@ -85,6 +94,7 @@ View and analyze security logs with filtering options.
 - `--summary` - Show summary statistics
 
 **Examples**:
+
 ```bash
 # View today's failed auth attempts
 ./scripts/security/view-security-logs.sh --today --failed-auth
@@ -105,14 +115,14 @@ View and analyze security logs with filtering options.
 
 ### Required Tools
 
-| Tool | Installation | Purpose |
-|------|--------------|---------|
-| **Infisical CLI** | `brew install infisical/get-cli/infisical` | Secret management |
-| **Trivy** | `brew install trivy` | Container scanning |
-| **Semgrep** | `brew install semgrep` | SAST scanning |
-| **TruffleHog** | `brew install trufflehog` | Secret scanning |
-| **Checkov** | `brew install checkov` | IaC scanning |
-| **jq** | `brew install jq` | JSON processing |
+| Tool              | Installation                               | Purpose            |
+| ----------------- | ------------------------------------------ | ------------------ |
+| **Infisical CLI** | `brew install infisical/get-cli/infisical` | Secret management  |
+| **Trivy**         | `brew install trivy`                       | Container scanning |
+| **Semgrep**       | `brew install semgrep`                     | SAST scanning      |
+| **TruffleHog**    | `brew install trufflehog`                  | Secret scanning    |
+| **Checkov**       | `brew install checkov`                     | IaC scanning       |
+| **jq**            | `brew install jq`                          | JSON processing    |
 
 ### Setup
 
@@ -174,6 +184,7 @@ infisical run --token="$INFISICAL_TOKEN" --projectId="<PROJECT_ID>" \
 ### GitHub Actions Integration
 
 Security scans run automatically on:
+
 - Every push to `main` or `develop`
 - Every pull request
 - Weekly schedule (Sundays at midnight)
@@ -196,6 +207,7 @@ fi
 ```
 
 Make executable:
+
 ```bash
 chmod +x .git/hooks/pre-commit
 ```
@@ -207,18 +219,21 @@ chmod +x .git/hooks/pre-commit
 ### Scan Script Issues
 
 **Problem**: `trivy: command not found`
+
 ```bash
 # Install Trivy
 brew install trivy
 ```
 
 **Problem**: `semgrep: command not found`
+
 ```bash
 # Install Semgrep
 brew install semgrep
 ```
 
 **Problem**: Scan reports critical vulnerabilities
+
 ```bash
 # Review the report
 cat ./security-reports/summary-*.md
@@ -232,12 +247,14 @@ cat ./security-reports/summary-*.md
 ### Secret Rotation Issues
 
 **Problem**: `Not logged in to Infisical`
+
 ```bash
 # Login to Infisical
 infisical login
 ```
 
 **Problem**: Services fail after rotation
+
 ```bash
 # Check Infisical audit log for previous values
 # Rollback if necessary
@@ -248,6 +265,7 @@ docker compose -f infra/docker/docker-compose.orchestration.yml logs -f
 ```
 
 **Problem**: External API keys not working
+
 ```bash
 # Reminder: External API keys must be rotated manually
 # Anthropic: https://console.anthropic.com/settings/keys
@@ -258,6 +276,7 @@ docker compose -f infra/docker/docker-compose.orchestration.yml logs -f
 ### Log Viewer Issues
 
 **Problem**: `Log directory not found`
+
 ```bash
 # Create log directory
 mkdir -p ./logs
@@ -267,6 +286,7 @@ mkdir -p ./logs
 ```
 
 **Problem**: Logs are not in JSON format
+
 ```bash
 # Logs should be structured JSON
 # Check winston configuration in services/shared/src/logging/logger.ts
@@ -277,12 +297,12 @@ mkdir -p ./logs
 
 ## Security Report Retention
 
-| Report Type | Retention | Location |
-|-------------|-----------|----------|
-| Scan Reports | 90 days | `./security-reports/` |
-| Security Logs | 90 days | `./logs/security-*.log` |
-| Incident Reports | 365 days | `./logs/security-incidents-*.log` |
-| Rotation Reports | 365 days | `./security-reports/secret-rotation-*.md` |
+| Report Type      | Retention | Location                                  |
+| ---------------- | --------- | ----------------------------------------- |
+| Scan Reports     | 90 days   | `./security-reports/`                     |
+| Security Logs    | 90 days   | `./logs/security-*.log`                   |
+| Incident Reports | 365 days  | `./logs/security-incidents-*.log`         |
+| Rotation Reports | 365 days  | `./security-reports/secret-rotation-*.md` |
 
 ### Cleanup Script
 
@@ -302,6 +322,7 @@ find ./logs -name "security-*.log" -mtime +90 -delete
 ### Prometheus Metrics
 
 Security metrics exposed at `/metrics`:
+
 - `security_scan_duration_seconds` - Scan execution time
 - `security_vulnerabilities_total` - Total vulnerabilities by severity
 - `security_auth_failures_total` - Failed authentication attempts
@@ -310,12 +331,14 @@ Security metrics exposed at `/metrics`:
 ### Grafana Dashboards
 
 Import security dashboard:
+
 - Dashboard ID: TBD
 - Panels: Failed auth, rate limits, vulnerabilities, scan status
 
 ### Alerting Rules
 
 Alerts configured for:
+
 - Critical vulnerabilities detected
 - High number of failed auth attempts (>10 in 5 minutes)
 - Multiple rate limit violations from single IP
@@ -325,9 +348,9 @@ Alerts configured for:
 
 ## Additional Resources
 
-- [Security Hardening Guide](../../docs/security/HARDENING-GUIDE.md)
-- [Security Checklist](../../docs/security/SECURITY-CHECKLIST.md)
-- [Incident Response Plan](../../docs/security/HARDENING-GUIDE.md#incident-response)
+- [Infisical Setup Guide](../../docs/security/INFISICAL-SETUP-README.md)
+- [Security Runbook](../../docs/security/README.md)
+- [Secret Rotation Guide](../../docs/security/SECRET_ROTATION_GUIDE.md)
 
 ---
 
@@ -347,10 +370,12 @@ When adding new security scripts:
 ## Support
 
 For security-related questions:
+
 - Email: security@nyra.ai
 - Slack: `#security` (internal)
 
 For script issues:
+
 - Create GitHub issue with `security` label
 - Include error output and environment details
 

@@ -1,7 +1,7 @@
-import { DataTypes, Model, Optional } from 'sequelize';
-import sequelize from '../config/database';
-import { UserRole } from '../types';
-import bcrypt from 'bcryptjs';
+import { DataTypes, Model, Optional } from "sequelize";
+import sequelize from "../config/database";
+import { UserRole } from "../types";
+import bcrypt from "bcryptjs";
 
 interface UserAttributes {
   id: string;
@@ -16,9 +16,15 @@ interface UserAttributes {
   updatedAt?: Date;
 }
 
-interface UserCreationAttributes extends Optional<UserAttributes, 'id' | 'role' | 'isActive' | 'lastLoginAt'> {}
+interface UserCreationAttributes extends Optional<
+  UserAttributes,
+  "id" | "role" | "isActive" | "lastLoginAt"
+> {}
 
-class User extends Model<UserAttributes, UserCreationAttributes> implements UserAttributes {
+class User
+  extends Model<UserAttributes, UserCreationAttributes>
+  implements UserAttributes
+{
   public id!: string;
   public email!: string;
   public password!: string;
@@ -34,10 +40,12 @@ class User extends Model<UserAttributes, UserCreationAttributes> implements User
     return bcrypt.compare(candidatePassword, this.password);
   }
 
-  public toJSON(): Omit<UserAttributes, 'password'> {
-    const values = { ...this.get() };
+  public toJSON(): Omit<UserAttributes, "password"> {
+    const values = { ...this.get() } as Omit<UserAttributes, "password"> & {
+      password?: string;
+    };
     delete values.password;
-    return values;
+    return values as Omit<UserAttributes, "password">;
   }
 }
 
@@ -84,7 +92,7 @@ User.init(
   },
   {
     sequelize,
-    tableName: 'users',
+    tableName: "users",
     hooks: {
       beforeCreate: async (user: User) => {
         if (user.password) {
@@ -93,7 +101,7 @@ User.init(
         }
       },
       beforeUpdate: async (user: User) => {
-        if (user.changed('password')) {
+        if (user.changed("password")) {
           const salt = await bcrypt.genSalt(10);
           user.password = await bcrypt.hash(user.password, salt);
         }

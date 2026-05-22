@@ -1,11 +1,22 @@
 import { createClient } from "./base";
 import { serviceConfig } from "./config";
 
+export interface CampaignStep {
+  id?: string;
+  name?: string;
+  channel?: "email" | "sms" | "voice" | "task" | string;
+  day?: number;
+  delayHours?: number;
+  offsetMinutes?: number;
+  templateId?: string;
+  metadata?: Record<string, unknown>;
+}
+
 export interface CampaignTemplate {
   id: string;
   name: string;
   description?: string;
-  steps: any[];
+  steps: CampaignStep[];
   loanPurpose?: string;
   active: boolean;
   createdAt: string;
