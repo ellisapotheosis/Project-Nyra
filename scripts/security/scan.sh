@@ -154,14 +154,17 @@ fi
 # ============================================================================
 print_section "4/6: Scanning for secrets"
 
+TRUFFLEHOG_SUMMARY="- TruffleHog: not installed; quick pattern scan still ran"
 if command_exists trufflehog; then
     echo "Scanning for exposed secrets..."
     if trufflehog git file://. \
         --json \
         --no-update > "$REPORT_DIR/trufflehog-${TIMESTAMP}.json" 2>&1; then
         print_success "No secrets found"
+        TRUFFLEHOG_SUMMARY="- TruffleHog report: \`trufflehog-${TIMESTAMP}.json\`"
     else
         print_error "Secrets detected! Review report immediately."
+        TRUFFLEHOG_SUMMARY="- TruffleHog report: \`trufflehog-${TIMESTAMP}.json\` detected findings"
     fi
 else
     print_error "TruffleHog not found. Install with: brew install trufflehog"
@@ -289,7 +292,7 @@ fi
 cat >> "$SUMMARY_FILE" <<EOF
 
 ### 4. Secret Scanning
-- TruffleHog report: \`trufflehog-${TIMESTAMP}.json\`
+- ${TRUFFLEHOG_SUMMARY#- }
 - Status: Review for exposed secrets
 
 ### 5. Infrastructure as Code
@@ -315,7 +318,7 @@ cat >> "$SUMMARY_FILE" <<EOF
 1. Review all generated reports in \`${REPORT_DIR}/\`
 2. Prioritize findings by severity (Critical > High > Medium > Low)
 3. Create remediation tickets for confirmed vulnerabilities
-4. Update security checklist: \`docs/security/SECURITY-CHECKLIST.md\`
+4. Update the security runbook: \`docs/security/README.md\`
 5. Re-run scans after fixes
 
 ---

@@ -5,12 +5,7 @@
 # Connected via Tailscale mesh to orchestrator
 # ============================================================================
 
-version: '3.8'
-
 services:
-
-
-
   # ── Portainer Edge Agent ────────────────────────────────────────────────
   portainer-edge-agent:
     image: portainer/agent:2.27.9
@@ -36,12 +31,12 @@ services:
     hostname: worker-3090-redis
     restart: unless-stopped
     ports:
-      - '127.0.0.1:${REDIS_PORT:-6379}:6379'
+      - "127.0.0.1:${REDIS_PORT:-6379}:6379"
     command: redis-server --maxmemory 4gb --maxmemory-policy allkeys-lru
     volumes:
       - redis_data:/data
     healthcheck:
-      test: ['CMD', 'redis-cli', 'ping']
+      test: ["CMD", "redis-cli", "ping"]
       interval: 10s
       timeout: 5s
       retries: 3
@@ -55,7 +50,7 @@ services:
     hostname: worker-3090-vllm
     restart: unless-stopped
     ports:
-      - '${VLLM_PORT:-8000}:8000'
+      - "${VLLM_PORT:-8000}:8000"
     volumes:
       - vllm_models:/root/.cache/huggingface
       - lmcache_data:/root/.cache/lmcache
@@ -86,7 +81,7 @@ services:
               count: 1
               capabilities: [gpu]
     healthcheck:
-      test: ['CMD', 'curl', '-f', 'http://localhost:8000/health']
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -100,7 +95,7 @@ services:
     hostname: worker-3090-litellm
     restart: unless-stopped
     ports:
-      - '${LITELLM_PORT:-4000}:4000'
+      - "${LITELLM_PORT:-4000}:4000"
     environment:
       - MODEL_ID=worker-3090-vllm
       - VLLM_BASE_URL=http://worker-3090-vllm:8000/v1
@@ -154,15 +149,15 @@ services:
     container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-3090-node-exporter
     restart: unless-stopped
     ports:
-      - '9100:9100'
+      - "9100:9100"
     volumes:
       - /proc:/host/proc:ro
       - /sys:/host/sys:ro
       - /:/rootfs:ro
     command:
-      - '--path.procfs=/host/proc'
-      - '--path.sysfs=/host/sys'
-      - '--path.rootfs=/rootfs'
+      - "--path.procfs=/host/proc"
+      - "--path.sysfs=/host/sys"
+      - "--path.rootfs=/rootfs"
     networks:
       - worker-network
 
@@ -171,7 +166,7 @@ services:
     container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-3090-gpu-exporter
     restart: unless-stopped
     ports:
-      - '9835:9835'
+      - "9835:9835"
     deploy:
       resources:
         reservations:
@@ -215,7 +210,6 @@ services:
       - syncthing_config:/var/syncthing
       - /home/ellisapotheosis:/var/syncthing/data/home
     restart: unless-stopped
-
 
 volumes:
   vllm_models:

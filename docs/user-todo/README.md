@@ -10,8 +10,12 @@ access.
 ## Files
 
 - `CHECKLIST.md` - one-page execution checklist in recommended order.
-- `../FINISH_LINE_ACCELERATION_PLAN.md` - release-candidate critical path and
+- `../FINISH_LINE_PROMPTING_PLAN.md` - copy-ready agent prompts and blocker
+  gates for getting the repo to a shippable release candidate.
+- `FINISH_LINE_ACCELERATION_PLAN.md` - release-candidate critical path and
   local validation gates.
+- `RELEASE-CANDIDATE-MANUAL-GATES.md` - owner-only gates that must be cleared
+  before release-candidate smoke and scope freeze.
 - `CLOUDFLARE-ACCESS-AND-DNS.md` - Cloudflare DNS, tunnel, Access, and live URL
   smoke actions.
 - `INFISICAL-MISSING-SECRETS.md` - secret paths and variable names to add to

@@ -269,7 +269,31 @@ verify-paths:
 	@test -f $(DIST_VOICE_3060) || (echo "Missing $(DIST_VOICE_3060)" && exit 1)
 	@test -f $(DIST_VOICE_5090) || (echo "Missing $(DIST_VOICE_5090)" && exit 1)
 	@test -f $(DIST_VOICE_3090TI) || (echo "Missing $(DIST_VOICE_3090TI)" && exit 1)
-	@echo "All Makefile compose paths are valid."
+	@for file in \
+	  scripts/mirror-sync-env.sh \
+	  scripts/run-llxprt-code.sh \
+	  scripts/nyra-cluster.sh \
+	  scripts/nyra-grid.sh \
+	  scripts/health-check.sh \
+	  scripts/validate-agent-infra.sh \
+	  scripts/infisical/agent-infra-secrets.sh \
+	  scripts/check-voice-mesh.sh \
+	  scripts/setup-waveterm-cyberpunk.sh \
+	  scripts/start-llxprt-bridge.sh \
+	  scripts/stop-llxprt-bridge.sh \
+	  scripts/start-llxprt-oracle-tunnel.sh \
+	  scripts/stop-llxprt-oracle-tunnel.sh \
+	  scripts/setup-wave-configs.sh \
+	  scripts/nyra-wave-zellij.sh \
+	  scripts/nyra-zellij-pane.sh \
+	  scripts/nyra-ui-install.sh \
+	  infra/zellij/nyra-swarm.kdl \
+	  infra/zellij/nyra-orchestrator-mcp.kdl \
+	  infra/images/clawteam/Dockerfile \
+	  infra/images/paperclip/Dockerfile; do \
+	  test -e "$$file" || (echo "Missing $$file" && exit 1); \
+	done
+	@echo "All Makefile compose, script, layout, and image paths are valid."
 
 dev-orchestrate:
 	@echo "🎨 Starting local development orchestration..."

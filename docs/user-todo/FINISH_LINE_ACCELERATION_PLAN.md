@@ -107,11 +107,18 @@ Suggested local command after secrets/runtime are ready:
 ```bash
 pnpm test
 pnpm -w build
-tsx scripts/smoke-test-lead-lifecycle.ts
+pnpm smoke:lead-lifecycle -- --live
 ```
 
 Stop gate: one sanitized smoke report with record IDs, audit IDs, and no raw
 secrets or borrower PII committed.
+
+Before live credentials are ready, agents can verify the write-plan shape and
+redaction behavior without touching CRM:
+
+```bash
+pnpm smoke:lead-lifecycle -- --dry-run
+```
 
 ### 4. Keep Workflow Engines Execution-Only
 
@@ -161,9 +168,8 @@ bash scripts/security/scan.sh --quick
 
 ## Immediate Next Local Work
 
-1. Commit or PR the dependency security patch and current finish-line docs.
-2. Confirm CI uses the same release gates listed above.
-3. After owner DNS/secrets are complete, run the live smoke and record sanitized
+1. Confirm CI uses the same release gates listed above.
+2. After owner DNS/secrets are complete, run the live smoke and record sanitized
    evidence.
-4. Freeze release-candidate scope unless the smoke exposes a compliance, audit,
+3. Freeze release-candidate scope unless the smoke exposes a compliance, audit,
    CRM write, or public-exposure blocker.

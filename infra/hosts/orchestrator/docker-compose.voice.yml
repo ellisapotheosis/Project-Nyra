@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   pocket-tts:
     image: bozakov/pocket_tts_api:latest

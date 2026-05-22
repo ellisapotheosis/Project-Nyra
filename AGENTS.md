@@ -50,13 +50,13 @@ _Refer to `docs/MASTER_ARCHITECTURE.md` for deep technical details._
 <claude-mem-context>
 # Memory Context
 
-# [project-nyra] recent context, 2026-05-22 8:09am PDT
+# [project-nyra] recent context, 2026-05-22 8:36am PDT
 
 Legend: 🎯session 🔴bugfix 🟣feature 🔄refactor ✅change 🔵discovery ⚖️decision 🚨security_alert 🔐security_note
 Format: ID TIME TYPE TITLE
 Fetch details: get_observations([IDs]) | Search: mem-search skill
 
-Stats: 50 obs (20,795t read) | 344,493t work | 94% savings
+Stats: 50 obs (20,812t read) | 530,580t work | 96% savings
 
 ### May 4, 2026
 
@@ -80,25 +80,9 @@ S6 Review WSL/Ubuntu terminal setup configuration — agent claimed to fix broke
 
 S7 Infrastructure Restructure and Host Layout Documentation: Complete container name standardization, folder organization, and distributed voice architecture documentation for Project Nyra multi-host GPU orchestration. (May 12, 7:46 AM)
 
-### May 20, 2026
-
-417 7:03p 🔵 Session accumulated ~860 lines of changes across CRM API, quote/campaign services, and webapp hardening
-418 " 🔵 Webapp campaign management infrastructure spans API routes, services, and broker UI
-419 " 🔵 Campaign API routes implement fail-closed pattern with mock fallback and contract enforcement
-420 " 🟣 Campaign POST route hardened with fail-closed behavior and contract normalization
-421 7:04p 🟣 Campaign detail routes hardened with fail-closed behavior and contract normalization on updates
-422 " 🔄 Extracted campaign contract normalization to shared library module
-
 ### May 22, 2026
 
-424 7:41a 🔵 Project Nyra Repository Status and GitHub Configuration
-425 7:42a 🔵 Production Validation Work Completed: Build Fix, Route Smoke, and Security Scan
-426 " 🔵 TypeScript Type Checking Passed on Project Nyra App
-427 " 🔵 Test Suite Passed: All 91 Tests Across 10 Files
-428 7:43a ✅ Prototype Migration Disposition Documented and Final-Cut Branch Created
-429 " ✅ Commit Created: Final-Cut Validation Artifacts on Feature Branch
-430 " 🚨 GitHub Dependabot: 762 Vulnerabilities Detected on Default Branch
-431 " ✅ Pull Request #449 Created for Final-Cut Validation Artifacts
+431 7:43a ✅ Pull Request #449 Created for Final-Cut Validation Artifacts
 432 7:44a 🔵 PR #449 Status: CI Failures and Pending Vercel Deployments
 433 " ✅ PR #449 Merged to Main: Final-Cut Validation Artifacts Integrated
 434 " 🔵 No Additional Open Pull Requests: Task Requirements Complete
@@ -135,6 +119,19 @@ S7 Infrastructure Restructure and Host Layout Documentation: Complete container 
 466 8:05a 🔵 WebSocket Real-Time Architecture and Product Event System
 467 " 🔵 Project Nyra Monorepo Structure: 2 Apps, 29 Services, 13 Packages
 468 " 🔵 Project Nyra Service Integration and API Client Architecture
+469 8:09a 🟣 Live Radar real-time event streaming for lead activity monitoring
+470 " 🔄 Centralized theme configuration system for Project Nyra webapp
+471 " ✅ Infrastructure validation and smoke test updates
+472 " 🟣 Lead Radar events test suite with full event parsing coverage
+473 8:11a 🔵 TypeScript compilation errors in projectnyra app due to missing Next.js type declarations
+474 " 🔵 pnpm store corruption: Next.js node_modules symlink points to non-existent package
+475 8:12a 🔵 React version mismatch: Code uses React 19 API with React 18.3.1
+476 " 🔴 Fixed React 18 compatibility by replacing React.use() with useParams() hook
+477 " 🔵 TypeScript error: useParams() returns possibly null value
+478 " 🔴 Added null-safety checks to useParams() calls in dynamic route pages
+479 " 🔴 TypeScript compilation now passes with zero errors
+480 8:15a 🔵 Peer dependency mismatches identified in monorepo installation
+481 8:16a ✅ Lockfile recomputed and frozen for consistent dependency state
 
-Access 344k tokens of past work via get_observations([IDs]) or mem-search skill.
+Access 531k tokens of past work via get_observations([IDs]) or mem-search skill.
 </claude-mem-context>

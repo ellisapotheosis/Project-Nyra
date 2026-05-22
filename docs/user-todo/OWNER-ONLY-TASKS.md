@@ -4,6 +4,15 @@ These tasks require owner login, MFA, dashboard access, physical access, account
 verification, or live credentials. Agents should document evidence here and keep
 working on local tasks, but must not mark these complete without owner evidence.
 
+## Release Candidate
+
+- [ ] Complete `RELEASE-CANDIDATE-MANUAL-GATES.md` before treating the current
+      stack as release-candidate ready.
+- [ ] Run `pnpm smoke:lead-lifecycle -- --live` only after Cloudflare Access,
+      Infisical, Twenty CRM, and provider secrets are live.
+- [ ] Record sanitized smoke evidence only: record IDs, timestamps, hostnames,
+      and pass/fail state. Do not paste borrower PII or secrets.
+
 ## Infisical
 
 - [ ] Renew or confirm the active Infisical token/session.
