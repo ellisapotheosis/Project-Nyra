@@ -13,7 +13,7 @@
 
 ## Phase 3: UI/UX Deepening
 
-- [ ] Task: Refactor `LeadProfilePage` into modular components
+- [x] Task: Refactor `LeadProfilePage` into modular components
 - [x] Task: Add Skeleton Loaders to all dashboard views
 - [x] Task: Apply mobile-responsive polish to the Command Deck
 
@@ -49,11 +49,16 @@ Completed items above were verified against current source:
   command buttons, and horizontally safe system-blocker table behavior.
 - PII redaction helpers now protect RateHunter lead ingest, internal OpenClaw
   proxy error responses, quote-engine logs, and campaign-engine provider logs.
+- `LeadProfilePage` now delegates sidebar compliance/intelligence controls and
+  activity/pricing/composer surfaces into route-independent lead profile section
+  components.
 
-Remaining unchecked items are either broader product work or require browser/live
-environment validation. Do not mark the Playwright happy path or user-manual
-verification complete until the owner-gated release-candidate setup in
-`docs/user-todo/` is complete.
+Remaining unchecked items require browser/live environment validation. Do not
+mark the Playwright happy path or user-manual verification complete until the
+owner-gated release-candidate setup in `docs/user-todo/` is complete.
+An opt-in Playwright happy-path entry point now exists at
+`tests/e2e/happy-path.test.ts`; it is skipped unless `NYRA_E2E_HAPPY_PATH=1`
+is set so normal local and CI checks do not claim live readiness prematurely.
 
 PII log sanitization is now complete for the current active surfaces reviewed in
 this track. The final pass added logger-level redaction for CRM API, Letta
