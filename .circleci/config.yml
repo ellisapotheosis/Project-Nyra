@@ -83,12 +83,21 @@ jobs:
 workflows:
   ci:
     jobs:
-      - lint
-      - typecheck
+      - lint:
+          filters:
+            branches:
+              only: main
+      - typecheck:
+          filters:
+            branches:
+              only: main
       - test:
           requires:
             - lint
             - typecheck
+          filters:
+            branches:
+              only: main
       # --- ADDED TO WORKFLOW ---
       - deploy:
           requires:

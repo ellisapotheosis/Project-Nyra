@@ -2,9 +2,19 @@
 
 Last consolidated: 2026-05-22
 
-Use `../FINISH_LINE_ACCELERATION_PLAN.md` as the release-candidate critical
+Use `FINISH_LINE_ACCELERATION_PLAN.md` as the release-candidate critical
 path. This checklist covers owner-only actions that agents cannot complete
 without live account access.
+
+## Release Candidate Gate
+
+- [ ] Complete the focused owner gates in
+      `RELEASE-CANDIDATE-MANUAL-GATES.md`.
+- [ ] After those gates are complete, run the release smoke:
+      `pnpm smoke:lead-lifecycle -- --live`.
+- [ ] Record only sanitized lead IDs, audit IDs, timestamps, and hostname
+      evidence. Do not record raw borrower PII, API keys, tokens, or provider
+      secrets.
 
 ## 1. Infisical And Provider Secrets
 

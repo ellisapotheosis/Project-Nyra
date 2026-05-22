@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   unmute-llm:
     image: ghcr.io/kyutai-labs/unmute:latest

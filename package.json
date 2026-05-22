@@ -21,6 +21,7 @@
     "test": "pnpm exec vitest --config vitest.smoke.config.mjs run",
     "test:unit": "bash scripts/testing/run-unit-tests.sh",
     "test:all": "pnpm exec vitest --config vitest.config.mjs run",
+    "smoke:lead-lifecycle": "pnpm exec tsx scripts/smoke-test-lead-lifecycle.ts",
     "infra:check:infisical": "python3 scripts/infra/validate-infisical-sidecars.py",
     "docker:up": "docker compose -f infra/hosts/oracle-vps/docker-compose.yml up -d",
     "docker:down": "docker compose -f infra/hosts/oracle-vps/docker-compose.yml down",

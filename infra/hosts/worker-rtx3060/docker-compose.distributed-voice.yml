@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   unmute-stt:
     image: ghcr.io/kyutai-labs/unmute:latest

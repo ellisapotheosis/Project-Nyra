@@ -31,7 +31,9 @@ This root directory contains the active Project Nyra architecture references, ex
 
 **Infrastructure Plan**: See [`EXECUTION_PLAN_INFRA.md`](EXECUTION_PLAN_INFRA.md)
 
-**Owner Actions**: See [`OWNER_MANUAL_ACTIONS.md`](OWNER_MANUAL_ACTIONS.md)
+**Owner Actions**: See [`OWNER_MANUAL_ACTIONS.md`](OWNER_MANUAL_ACTIONS.md) and [`user-todo/`](user-todo/)
+
+**Release Candidate Path**: See [`user-todo/FINISH_LINE_ACCELERATION_PLAN.md`](user-todo/FINISH_LINE_ACCELERATION_PLAN.md)
 
 **Prompt Pack Execution**: See [`PROMPT_PACK_EXECUTION.md`](PROMPT_PACK_EXECUTION.md)
 
@@ -56,10 +58,11 @@ See `CLAUDE.md` for complete rules.
 
 ## 🎯 Key Documents
 
-| Document                                             | Purpose                                     |
-| ---------------------------------------------------- | ------------------------------------------- |
-| [MASTER_ARCHITECTURE.md](MASTER_ARCHITECTURE.md)     | Authoritative target architecture           |
-| [EXECUTION_PLAN_APPS.md](EXECUTION_PLAN_APPS.md)     | Product/app/service implementation playbook |
-| [EXECUTION_PLAN_INFRA.md](EXECUTION_PLAN_INFRA.md)   | Infrastructure and runtime playbook         |
-| [OWNER_MANUAL_ACTIONS.md](OWNER_MANUAL_ACTIONS.md)   | Owner-only dashboard/MFA/credential tasks   |
-| [PROMPT_PACK_EXECUTION.md](PROMPT_PACK_EXECUTION.md) | Imported prompt-pack execution mapping      |
+| Document                                                                                 | Purpose                                     |
+| ---------------------------------------------------------------------------------------- | ------------------------------------------- |
+| [MASTER_ARCHITECTURE.md](MASTER_ARCHITECTURE.md)                                         | Authoritative target architecture           |
+| [EXECUTION_PLAN_APPS.md](EXECUTION_PLAN_APPS.md)                                         | Product/app/service implementation playbook |
+| [EXECUTION_PLAN_INFRA.md](EXECUTION_PLAN_INFRA.md)                                       | Infrastructure and runtime playbook         |
+| [OWNER_MANUAL_ACTIONS.md](OWNER_MANUAL_ACTIONS.md)                                       | Owner-only dashboard/MFA/credential tasks   |
+| [user-todo/FINISH_LINE_ACCELERATION_PLAN.md](user-todo/FINISH_LINE_ACCELERATION_PLAN.md) | Shortest release-candidate critical path    |
+| [PROMPT_PACK_EXECUTION.md](PROMPT_PACK_EXECUTION.md)                                     | Imported prompt-pack execution mapping      |
