@@ -44,15 +44,15 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ---
 
-- [ ] **Track: Wiring & Hardening Phase**
+- [x] **Track: Wiring & Hardening Phase**
       _Link: [./tracks/wiring_hardening_20260516/](./tracks/wiring_hardening_20260516/)_
 
 ---
 
-- [ ] **Track: Final-Cut Product Integration Backlog**
+- [x] **Track: Final-Cut Product Integration Backlog**
       _Link: [./tracks/final_cut_product_integration_20260520/](./tracks/final_cut_product_integration_20260520/)_
 
 ---
 
-- [ ] **Track: Nyra Prompt Pack Finish-Line Execution**
+- [x] **Track: Nyra Prompt Pack Finish-Line Execution**
       _Link: [./tracks/prompt_pack_execution_20260520/](./tracks/prompt_pack_execution_20260520/)_
