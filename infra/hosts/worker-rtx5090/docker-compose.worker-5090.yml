@@ -74,6 +74,9 @@ services:
     container_name: worker-5090-vllm
     hostname: worker-5090-vllm
     restart: unless-stopped
+    depends_on:
+      secrets-init:
+        condition: service_completed_successfully
     ports:
       - "${VLLM_PORT:-8000}:8000"
     volumes:
@@ -140,6 +143,8 @@ services:
       - SPECIALIZATION=mortgage,compliance,reasoning
     command: python /app/switcher.py
     depends_on:
+      secrets-init:
+        condition: service_completed_successfully
       vllm:
         condition: service_healthy
     networks:
@@ -162,6 +167,8 @@ services:
       - nyra_secrets:/run/nyra-secrets:ro
     command: --config /app/config.yaml --port 4000
     depends_on:
+      secrets-init:
+        condition: service_completed_successfully
       vllm:
         condition: service_healthy
     networks:
@@ -221,8 +228,12 @@ services:
     hostname: worker-5090-health
     restart: unless-stopped
     depends_on:
-      - vllm
-      - litellm
+      secrets-init:
+        condition: service_completed_successfully
+      vllm:
+        condition: service_started
+      litellm:
+        condition: service_started
     environment:
       - VLLM_URL=http://vllm:8000
       - LITELLM_URL=http://litellm:4000
@@ -250,6 +261,9 @@ services:
     container_name: worker-5090-promtail
     hostname: worker-5090-promtail
     restart: unless-stopped
+    depends_on:
+      secrets-init:
+        condition: service_completed_successfully
     volumes:
       - ./promtail-config.yaml:/etc/promtail/config.yaml:ro
       - ./logs:/var/log/worker-5090:ro
