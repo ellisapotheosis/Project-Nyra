@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "provider": "codex",
+  "model": "gpt-5.4",
+  "modelParams": {},
+  "ephemeralSettings": {
+    "base-url": "https://chatgpt.com/backend-api/codex",
+    "reasoning.effort": "medium",
+    "reasoning.summary": "auto",
+    "prompt-caching": "24h",
+    "context-limit": 262144
+  }
+}

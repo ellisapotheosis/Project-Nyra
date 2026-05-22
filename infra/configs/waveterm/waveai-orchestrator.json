@@ -1,75 +1,128 @@
 {
-  "letta-bridge-orchestrator": {
-    "display:name": "Letta Memory Bridge (Orchestrator)",
+  "nyra-letta-orchestrator": {
+    "display:name": "Nyra Letta Orchestrator via Nexus",
     "ai:provider": "custom",
-    "ai:model": "claude-3-opus-20240229",
-    "ai:endpoint": "http://localhost:6000/v1/chat/completions",
+    "ai:model": "nyra-letta-orchestrator",
+    "ai:endpoint": "http://orchestrator.trex-fiordland.ts.net:6000/v1/chat/completions",
     "ai:apitype": "openai-chat",
-    "ai:apitokenvar": "LLXPRT_DUMMY_KEY",
-    "memory:backend": "letta-mcp-stdio",
-    "memory:socket": "~/.nyra/letta-mcp.sock",
-    "mcp:servers": [
-      {
-        "name": "letta-mcp",
-        "type": "stdio",
-        "path": "~/target/release/letta-mcp-server",
-        "env": {
-          "LETTA_API_URL": "http://localhost:7123",
-          "LETTA_API_KEY": "${LETTA_API_KEY}",
-          "LETTA_AGENT_ID": "claude-orchestrator"
-        }
-      },
-      {
-        "name": "composio-mcp",
-        "type": "stdio",
-        "path": "docker",
-        "args": ["run", "--rm", "-e", "COMPOSIO_API_KEY=${COMPOSIO_API_KEY}", "composiohq/composio-mcp-server"],
-        "env": {
-          "COMPOSIO_API_KEY": "${COMPOSIO_API_KEY}",
-          "COMPOSIO_BASE_URL": "https://backend.composio.dev"
-        }
-      }
+    "ai:apitokensecretname": "NEXUS_MASTER_KEY",
+    "description": "Default Wave AI mode. Routes through Nexus so Letta can coordinate memory, tools, subscription CLIs, and worker OpenClaw/PicoClaw lanes."
+  },
+  "nyra-llxprt-ha": {
+    "display:name": "LLxprt Subscription HA",
+    "ai:provider": "custom",
+    "ai:model": "nyra-subscription-ha",
+    "ai:endpoint": "http://127.0.0.1:8090/v1/chat/completions",
+    "ai:apitype": "openai-chat",
+    "ai:apitokensecretname": "LLXPRT_BRIDGE_API_KEY",
+    "description": "OpenAI-compatible local bridge for subscription-backed CLI routing with failover across Codex, Claude, Gemini, Qwen, Kimi, and local Nexus."
+  },
+  "nyra-llxprt-triad": {
+    "display:name": "LLxprt CLI Triad HA",
+    "ai:provider": "custom",
+    "ai:model": "nyra-cli-triad-ha",
+    "ai:endpoint": "http://127.0.0.1:8090/v1/chat/completions",
+    "ai:apitype": "openai-chat",
+    "ai:apitokensecretname": "LLXPRT_BRIDGE_API_KEY",
+    "description": "Codex, Claude, Gemini, then Qwen/OpenRouter/Nexus fallback. This is the profile Letta should use when it needs subscription-backed agent capacity."
+  },
+  "nyra-llxprt-spread": {
+    "display:name": "LLxprt Subscription Spread",
+    "ai:provider": "custom",
+    "ai:model": "nyra-subscription-spread",
+    "ai:endpoint": "http://127.0.0.1:8090/v1/chat/completions",
+    "ai:apitype": "openai-chat",
+    "ai:apitokensecretname": "LLXPRT_BRIDGE_API_KEY",
+    "description": "Round-robin profile for short parallel tasks where provider-side prompt cache locality is less important."
+  },
+  "nyra-llxprt-codex": {
+    "display:name": "LLxprt Codex OAuth",
+    "ai:provider": "custom",
+    "ai:model": "nyra-codex-oauth",
+    "ai:endpoint": "http://127.0.0.1:8090/v1/chat/completions",
+    "ai:apitype": "openai-chat",
+    "ai:apitokensecretname": "LLXPRT_BRIDGE_API_KEY",
+    "description": "Codex CLI subscription lane."
+  },
+  "nyra-llxprt-gemini": {
+    "display:name": "LLxprt Gemini OAuth",
+    "ai:provider": "custom",
+    "ai:model": "nyra-gemini-oauth",
+    "ai:endpoint": "http://127.0.0.1:8090/v1/chat/completions",
+    "ai:apitype": "openai-chat",
+    "ai:apitokensecretname": "LLXPRT_BRIDGE_API_KEY",
+    "description": "Gemini OAuth lane for large-context exploration."
+  },
+  "nyra-llxprt-claude": {
+    "display:name": "LLxprt Claude OAuth",
+    "ai:provider": "custom",
+    "ai:model": "nyra-claude-oauth",
+    "ai:endpoint": "http://127.0.0.1:8090/v1/chat/completions",
+    "ai:apitype": "openai-chat",
+    "ai:apitokensecretname": "LLXPRT_BRIDGE_API_KEY",
+    "description": "Claude Code subscription lane through LLxprt."
+  },
+  "nyra-llxprt-openrouter-free": {
+    "display:name": "LLxprt OpenRouter Free",
+    "ai:provider": "custom",
+    "ai:model": "nyra-openrouter-free",
+    "ai:endpoint": "http://127.0.0.1:8090/v1/chat/completions",
+    "ai:apitype": "openai-chat",
+    "ai:apitokensecretname": "LLXPRT_BRIDGE_API_KEY",
+    "description": "OpenRouter fallback through LLxprt. Keep the OpenRouter model name current because free-tier models change."
+  },
+  "openrouter-qwen-wave-direct": {
+    "display:name": "OpenRouter Qwen Direct",
+    "ai:provider": "openrouter",
+    "ai:model": "qwen/qwen-2.5-coder-32b-instruct",
+    "ai:capabilities": [
+      "tools"
     ],
-    "ai:systemprompt": "You are Claude, the orchestrator AI for Project Nyra. You have access to:\n\n1. LETTA MEMORY BRIDGE: Multi-turn conversational memory via Letta MCP (stdio). Use this to maintain context across long sessions, store decisions, retrieve past learnings.\n2. COMPOSIO SaaS INTEGRATION: 100+ SaaS tools (Gmail, Slack, GitHub, Jira, Notion, etc.) via Composio MCP.\n3. NEXUS ROUTER: Local GPU worker routing on localhost:6000. Route heavy tasks to RTX5090/3090Ti.\n4. LOCAL CONTEXT: Full access to Project Nyra monorepo via stdio file tools.\n\nYour role: Orchestrate all 3 CLI agents (Claude Code, Gemini, Codex), coordinate GPU workers, manage memory, and handle SaaS integrations seamlessly.\n\nWhen you need to remember something important, use the Letta memory interface:\n- letta.memorize(key, value) → Store persistent fact\n- letta.recall(key) → Retrieve stored fact\n- letta.list() → See all stored facts\n\nWhen you need external integrations:\n- composio.execute(tool, args) → Run any Composio action\n- composio.list() → See all 100+ available tools\n\nAlways route expensive inference to Nexus Router (localhost:6000)."
+    "description": "Direct Wave AI OpenRouter mode. Store the key as OPENROUTER_KEY in Wave secrets."
   },
-
-  "ghost-proxy-llxprt": {
-    "display:name": "Ghost Proxy (llxprt-code hijack)",
+  "groq-kimi-wave-direct": {
+    "display:name": "Groq Kimi Direct",
+    "ai:provider": "groq",
+    "ai:model": "moonshotai/kimi-k2-instruct",
+    "ai:capabilities": [
+      "tools"
+    ],
+    "description": "Direct Wave AI Groq mode for Kimi-family free/low-cost fallback when available. Store the key as GROQ_KEY in Wave secrets."
+  },
+  "nyra-local-nexus": {
+    "display:name": "Nyra Local Nexus",
     "ai:provider": "custom",
-    "ai:model": "claude-3-sonnet-20240229",
-    "ai:endpoint": "http://localhost:8080/v1/chat/completions",
+    "ai:model": "nyra-auto",
+    "ai:endpoint": "http://orchestrator.trex-fiordland.ts.net:6000/v1/chat/completions",
     "ai:apitype": "openai-chat",
-    "ai:apitokenvar": "LLXPRT_DUMMY_KEY",
-    "description": "Direct passthrough to llxprt-code proxy (hijacks Claude Pro subscription)"
+    "ai:apitokensecretname": "NEXUS_MASTER_KEY",
+    "description": "Private model and MCP route through the orchestrator Nexus endpoint."
   },
-
-  "worker-5090-deepseek": {
-    "display:name": "RTX 5090 (DeepSeek R1)",
+  "worker-5090": {
+    "display:name": "RTX5090 vLLM",
     "ai:provider": "custom",
-    "ai:model": "deepseek-r1-distill",
+    "ai:model": "local-5090",
     "ai:endpoint": "http://worker-rtx5090.trex-fiordland.ts.net:8000/v1/chat/completions",
     "ai:apitype": "openai-chat",
-    "ai:apitokenvar": "OLLAMA_TOKEN",
-    "description": "Heavy metal local reasoning via RTX 5090 (48GB VRAM)"
+    "ai:apitokensecretname": "NYRA_WORKER_API_KEY",
+    "description": "Direct Tailscale-only primary worker lane."
   },
-
-  "worker-3090ti-llama": {
-    "display:name": "RTX 3090 Ti (Llama 3.1 70B)",
+  "worker-3090ti": {
+    "display:name": "RTX3090Ti vLLM",
     "ai:provider": "custom",
-    "ai:model": "llama-3.1-70b-instruct",
+    "ai:model": "local-3090ti",
     "ai:endpoint": "http://worker-rtx3090ti.trex-fiordland.ts.net:8000/v1/chat/completions",
     "ai:apitype": "openai-chat",
-    "ai:apitokenvar": "OLLAMA_TOKEN",
-    "description": "General-purpose local LLM via RTX 3090 Ti (24GB VRAM)"
+    "ai:apitokensecretname": "NYRA_WORKER_API_KEY",
+    "description": "Direct Tailscale-only secondary worker lane."
   },
-
-  "worker-3060-embeddings": {
-    "display:name": "RTX 3060 (Embeddings + Lightweight)",
+  "worker-3060": {
+    "display:name": "RTX3060 Ollama",
     "ai:provider": "custom",
-    "ai:model": "nomic-embed-text",
-    "ai:endpoint": "http://worker-rtx3060.trex-fiordland.ts.net:8000/v1/embeddings",
-    "ai:apitype": "openai-embeddings",
-    "ai:apitokenvar": "OLLAMA_TOKEN",
-    "description": "Vector embeddings + lightweight LLM tasks via RTX 3060 (12GB VRAM)"
+    "ai:model": "local-3060",
+    "ai:endpoint": "http://worker-rtx3060.trex-fiordland.ts.net:11434/v1/chat/completions",
+    "ai:apitype": "openai-chat",
+    "ai:apitokensecretname": "NYRA_WORKER_API_KEY",
+    "description": "Direct Tailscale-only utility worker lane."
   }
 }
