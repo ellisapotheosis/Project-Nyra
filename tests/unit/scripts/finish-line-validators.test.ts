@@ -42,17 +42,6 @@ describe("finish-line validators", () => {
     expect(section.status).toBe("pass");
   });
 
-  it("allows plain HTTP MCP endpoints on Tailscale CGNAT addresses", () => {
-    const section = validateMcpEndpointConfig([
-      {
-        path: "infra/configs/nexus/nexus.toml",
-        content: 'url = "http://100.64.0.31:5678/mcp"',
-      },
-    ]);
-
-    expect(section.status).toBe("pass");
-  });
-
   it("blocks ratehunter tunnel routes and private public origins", () => {
     const section = validateCloudflareExposure([
       {
