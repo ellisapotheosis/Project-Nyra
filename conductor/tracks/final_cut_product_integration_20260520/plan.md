@@ -27,10 +27,28 @@
 
 ## Phase 5: Release Hardening
 
-- [ ] Run screenshots and route smoke.
+- [x] Run screenshots and route smoke.
 - [x] Complete Infisical env coverage checklist for the current repo surface.
-- [ ] Validate Cloudflare Access and MCP runbooks.
-- [ ] Archive prototypes only after migration/rejection report.
+- [x] Validate Cloudflare Access and MCP runbooks.
+- [x] Archive prototypes only after migration/rejection report.
+
+Validation note, 2026-05-20:
+
+- Production build smoke passed for `apps/projectnyra` after setting the app
+  build script to clear `CODEX_CI` for Next.js.
+- Route smoke returned HTTP 200 for `/`, `/leads`, `/assistant`, `/quotes`,
+  `/campaigns/builder`, `/tools/openclaw`, and `/admin/integrations`.
+- Screenshots were captured under `tests/results/final-cut-smoke/`.
+- Static runbook check confirmed Cloudflare Access and MCP owner steps are
+  present in `docs/OWNER_MANUAL_ACTIONS.md`,
+  `docs/infra/CLOUDFLARE-ACCESS-POLICY-PLAN.md`,
+  `docs/deployment/INFISICAL-MCP-SETUP.md`, and
+  `docs/deployment/DOCKER-MCP-SETUP.md`.
+  Live Cloudflare/Infisical/MCP checks remain owner-gated.
+- Prototype/source-material locations were reviewed and dispositioned in
+  `prototype-migration-rejection-report.md`; no additional archive move was
+  made because the remaining folders are reference/source snapshots rather than
+  active runtime surfaces.
 
 ## Current Autonomous Execution Queue
 

@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "CODEX_CI= next build",
     "start": "next start",
     "lint": "eslint .",
     "test": "jest",
