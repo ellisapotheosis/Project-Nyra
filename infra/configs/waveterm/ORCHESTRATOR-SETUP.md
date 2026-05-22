@@ -13,10 +13,10 @@ A maximalist local development environment combining:
 ## Files Deployed
 
 ```
-infra/zellij/
+infra/configs/zellij/
   nyra-orchestrator-mcp.kdl        # Ultimate Zellij layout (4 tabs: daemon + cockpit + monitor + logs)
 
-infra/waveterm/
+infra/configs/waveterm/
   settings.orchestrator.json        # WaveTerm settings (opacity, theme, animations)
   theme-orchestrator-cyberpunk.json # Cyberpunk neon color scheme
   keybindings.orchestrator.json     # Chord keybindings (Cmd+Shift+* shortcuts)
@@ -72,12 +72,12 @@ make orchestrator-full
 
 ```bash
 # Copy settings to WaveTerm config dir
-cp infra/waveterm/settings.orchestrator.json ~/.config/waveterm/settings.json
-cp infra/waveterm/theme-orchestrator-cyberpunk.json ~/.config/waveterm/themes/
-cp infra/waveterm/keybindings.orchestrator.json ~/.config/waveterm/keybindings.json
-cp infra/waveterm/presets.orchestrator.json ~/.config/waveterm/presets.json
-cp infra/waveterm/waveai-orchestrator.json ~/.config/waveterm/waveai.json
-cp infra/waveterm/widgets.orchestrator.json ~/.config/waveterm/widgets.json
+cp infra/configs/waveterm/settings.orchestrator.json ~/.config/waveterm/settings.json
+cp infra/configs/waveterm/theme-orchestrator-cyberpunk.json ~/.config/waveterm/themes/
+cp infra/configs/waveterm/keybindings.orchestrator.json ~/.config/waveterm/keybindings.json
+cp infra/configs/waveterm/presets.orchestrator.json ~/.config/waveterm/presets.json
+cp infra/configs/waveterm/waveai-orchestrator.json ~/.config/waveterm/waveai.json
+cp infra/configs/waveterm/widgets.orchestrator.json ~/.config/waveterm/widgets.json
 ```
 
 ### Keyboard Shortcuts
@@ -209,17 +209,17 @@ ssh worker-rtx3090ti-win "nvidia-smi" | head -10
 ## Advanced Configuration
 
 ### Change Theme
-Edit `infra/waveterm/theme-orchestrator-cyberpunk.json` and run:
+Edit `infra/configs/waveterm/theme-orchestrator-cyberpunk.json` and run:
 ```bash
-cp infra/waveterm/theme-orchestrator-cyberpunk.json ~/.config/waveterm/themes/
+cp infra/configs/waveterm/theme-orchestrator-cyberpunk.json ~/.config/waveterm/themes/
 # Restart WaveTerm
 ```
 
 ### Add Custom Widget
-Edit `infra/waveterm/widgets.orchestrator.json` and add to `widgets` array.
+Edit `infra/configs/waveterm/widgets.orchestrator.json` and add to `widgets` array.
 
 ### Modify Zellij Layout
-Edit `infra/zellij/nyra-orchestrator-mcp.kdl` and restart:
+Edit `infra/configs/zellij/nyra-orchestrator-mcp.kdl` and restart:
 ```bash
 make orchestrator-down
 make orchestrator-full

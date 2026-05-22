@@ -48,6 +48,7 @@ cp .env.example .env
 ```
 
 Required configuration:
+
 ```env
 PORT=8080
 JWT_SECRET=your-secure-secret-key
@@ -75,12 +76,13 @@ pnpm start
 Connect to the WebSocket server:
 
 ```typescript
-const ws = new WebSocket('ws://localhost:8080?token=YOUR_JWT_TOKEN');
+const ws = new WebSocket("ws://localhost:8080?token=YOUR_JWT_TOKEN");
 ```
 
 ### Authentication
 
 JWT token should include:
+
 ```json
 {
   "userId": "user-id",
@@ -93,6 +95,7 @@ JWT token should include:
 #### Client Messages
 
 **Subscribe to Channel**
+
 ```json
 {
   "type": "subscribe",
@@ -103,6 +106,7 @@ JWT token should include:
 ```
 
 **Unsubscribe from Channel**
+
 ```json
 {
   "type": "unsubscribe",
@@ -113,6 +117,7 @@ JWT token should include:
 ```
 
 **Query Data**
+
 ```json
 {
   "type": "query",
@@ -123,6 +128,7 @@ JWT token should include:
 ```
 
 **Ping**
+
 ```json
 {
   "type": "ping"
@@ -132,6 +138,7 @@ JWT token should include:
 #### Server Messages
 
 **Connection Acknowledgment**
+
 ```json
 {
   "type": "connection",
@@ -146,6 +153,7 @@ JWT token should include:
 ```
 
 **Event Notification**
+
 ```json
 {
   "type": "event",
@@ -162,6 +170,7 @@ JWT token should include:
 ```
 
 **Error**
+
 ```json
 {
   "type": "error",
@@ -228,39 +237,39 @@ See `packages/websocket-client` for the TypeScript client library and React hook
 ### Basic Usage
 
 ```typescript
-import { WebSocketClient } from '@project-nyra/websocket-client';
+import { WebSocketClient } from "@project-nyra/websocket-client";
 
-const client = new WebSocketClient('ws://localhost:8080', {
-  token: 'your-jwt-token'
+const client = new WebSocketClient("ws://localhost:8080", {
+  token: "your-jwt-token",
 });
 
 await client.connect();
 
-client.on('mcp:status', (event) => {
-  console.log('MCP Status:', event.data);
+client.on("mcp:status", (event) => {
+  console.log("MCP Status:", event.data);
 });
 
-await client.subscribe('mcp:status');
+await client.subscribe("mcp:status");
 ```
 
 ### React Usage
 
 ```tsx
-import { useWebSocket } from '@project-nyra/websocket-client/react';
+import { useWebSocket } from "@project-nyra/websocket-client/react";
 
 function Dashboard() {
-  const { connected, subscribe, events } = useWebSocket('ws://localhost:8080');
+  const { connected, subscribe, events } = useWebSocket("ws://localhost:8080");
 
   useEffect(() => {
     if (connected) {
-      subscribe('mcp:status');
+      subscribe("mcp:status");
     }
   }, [connected]);
 
   return (
     <div>
-      <h1>Status: {connected ? 'Connected' : 'Disconnected'}</h1>
-      {events.map(event => (
+      <h1>Status: {connected ? "Connected" : "Disconnected"}</h1>
+      {events.map((event) => (
         <EventCard key={event.timestamp} event={event} />
       ))}
     </div>
@@ -356,6 +365,7 @@ For horizontal scaling:
 **Problem**: Connection drops frequently
 
 **Solution**:
+
 - Check WebSocket timeout settings
 - Verify network stability
 - Enable debug logging: `LOG_LEVEL=debug`
@@ -365,6 +375,7 @@ For horizontal scaling:
 **Problem**: "Invalid token" error
 
 **Solution**:
+
 - Verify JWT_SECRET matches across services
 - Check token expiration
 - Validate token payload structure
@@ -374,6 +385,7 @@ For horizontal scaling:
 **Problem**: Memory usage increasing over time
 
 **Solution**:
+
 - Enable session cleanup
 - Check for connection leaks
 - Monitor metrics at `/metrics`

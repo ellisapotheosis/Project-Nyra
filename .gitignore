@@ -204,6 +204,7 @@ _backup/
 *.backup
 backup/
 backups/
+archive/
 
 # Temporary consolidation files
 **/consolidation-temp/
@@ -553,6 +554,11 @@ docs/archive/**/*.pem
 docs/archive/**/*.key
 docs/archive/**/*.db
 bootstrap/
+!bootstrap/
+bootstrap/*
+!bootstrap/README.md
+!bootstrap/wave-ai-llxprt-zellij/
+!bootstrap/wave-ai-llxprt-zellij/**
 !infra/bootstrap/
 !infra/bootstrap/**
 
@@ -601,6 +607,10 @@ data/gitea-db/
 
 # llxprt local cache (npm prefix + jefe binary)
 .llxprt/
+
+# OMC local runtime/session state. These files are machine-local agent state and
+# must not be published with the repository.
+.omc/
 
 ################################################################################
 ################################################################################

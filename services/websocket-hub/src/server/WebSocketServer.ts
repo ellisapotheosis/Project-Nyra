@@ -1,20 +1,25 @@
-import { WebSocketServer as WSServer, WebSocket } from 'ws';
-import { IncomingMessage } from 'http';
-import http from 'http';
-import express from 'express';
-import { SessionManager } from '../session/SessionManager';
-import { JWTAuth } from '../auth/jwt';
-import { RateLimiter } from '../middleware/rateLimiter';
-import { EventBus } from '../events/EventBus';
-import { MetricsCollector } from '../metrics/prometheus';
-import { NexusIntegration } from '../integrations/NexusIntegration';
-import { ClientMessage, ServerMessage, SystemEvent } from '../types';
-import { PRODUCT_EVENT_CHANNELS, isProductEventChannel, parseProductEvent, toSystemEvent } from '../events/productEvents';
-import { config } from '../config';
-import { createLogger } from '../utils/logger';
-import Redis from 'ioredis';
+import { WebSocketServer as WSServer, WebSocket } from "ws";
+import { IncomingMessage } from "http";
+import http from "http";
+import express from "express";
+import { SessionManager } from "../session/SessionManager";
+import { JWTAuth } from "../auth/jwt";
+import { RateLimiter } from "../middleware/rateLimiter";
+import { EventBus } from "../events/EventBus";
+import { MetricsCollector } from "../metrics/prometheus";
+import { NexusIntegration } from "../integrations/NexusIntegration";
+import { ClientMessage, ServerMessage, SystemEvent } from "../types";
+import {
+  PRODUCT_EVENT_CHANNELS,
+  isProductEventChannel,
+  parseProductEvent,
+  toSystemEvent,
+} from "../events/productEvents";
+import { config } from "../config";
+import { createLogger } from "../utils/logger";
+import Redis from "ioredis";
 
-const logger = createLogger('websocket-server');
+const logger = createLogger("websocket-server");
 
 export class WebSocketServer {
   private wss: WSServer;
@@ -32,7 +37,7 @@ export class WebSocketServer {
     // Initialize Redis if enabled
     if (config.redisEnabled && config.redisUrl) {
       this.redis = new Redis(config.redisUrl);
-      logger.info('Redis connection established');
+      logger.info("Redis connection established");
     }
 
     // Initialize components
@@ -54,54 +59,54 @@ export class WebSocketServer {
         zlibDeflateOptions: {
           chunkSize: 1024,
           memLevel: 7,
-          level: 3
+          level: 3,
         },
         zlibInflateOptions: {
-          chunkSize: 10 * 1024
+          chunkSize: 10 * 1024,
         },
         clientNoContextTakeover: true,
         serverNoContextTakeover: true,
         serverMaxWindowBits: 10,
         concurrencyLimit: 10,
-        threshold: 1024
-      }
+        threshold: 1024,
+      },
     });
 
     this.setupEventHandlers();
     this.setupSystemEventHandlers();
 
     this.httpServer.listen(port || config.port, () => {
-      logger.info({ port: port || config.port }, 'WebSocket server listening');
+      logger.info({ port: port || config.port }, "WebSocket server listening");
     });
   }
 
   private setupEventHandlers() {
-    this.wss.on('connection', (ws: WebSocket, req: IncomingMessage) => {
+    this.wss.on("connection", (ws: WebSocket, req: IncomingMessage) => {
       this.handleConnection(ws, req);
     });
 
-    this.wss.on('error', (error) => {
-      logger.error({ error }, 'WebSocket server error');
-      this.metrics.errors.inc({ type: 'server' });
+    this.wss.on("error", (error) => {
+      logger.error({ error }, "WebSocket server error");
+      this.metrics.errors.inc({ type: "server" });
     });
   }
 
   private setupHttpRoutes() {
-    this.app.use(express.json({ limit: '256kb' }));
+    this.app.use(express.json({ limit: "256kb" }));
 
-    this.app.get('/health', (_req, res) => {
+    this.app.get("/health", (_req, res) => {
       res.json({
-        status: 'healthy',
+        status: "healthy",
         uptime: process.uptime(),
         timestamp: new Date().toISOString(),
         channels: PRODUCT_EVENT_CHANNELS,
       });
     });
 
-    this.app.post('/events', (req, res) => {
+    this.app.post("/events", (req, res) => {
       if (!this.authorizeEventIngest(req)) {
-        this.metrics.errors.inc({ type: 'event_ingest_auth' });
-        res.status(401).json({ error: 'Unauthorized event ingress' });
+        this.metrics.errors.inc({ type: "event_ingest_auth" });
+        res.status(401).json({ error: "Unauthorized event ingress" });
         return;
       }
 
@@ -120,30 +125,42 @@ export class WebSocketServer {
           timestamp: productEvent.timestamp,
         });
       } catch (error) {
-        this.metrics.errors.inc({ type: 'event_ingest_validation' });
-        logger.warn({ error }, 'Invalid product event ingest request');
-        res.status(400).json({ error: 'Invalid product event payload' });
+        this.metrics.errors.inc({ type: "event_ingest_validation" });
+        logger.warn({ error }, "Invalid product event ingest request");
+        res.status(400).json({ error: "Invalid product event payload" });
       }
     });
   }
 
   private authorizeEventIngest(req: express.Request): boolean {
     if (!config.eventIngestApiKey) {
-      return config.nodeEnv !== 'production';
+      return config.nodeEnv !== "production";
     }
 
-    return req.header('x-nyra-event-key') === config.eventIngestApiKey;
+    return req.header("x-nyra-event-key") === config.eventIngestApiKey;
   }
 
   private setupSystemEventHandlers() {
     // Forward system events to subscribed clients
-    this.eventBus.on('mcp:status', (event) => this.broadcastToChannel('mcp:status', event));
-    this.eventBus.on('gpu:metrics', (event) => this.broadcastToChannel('gpu:metrics', event));
-    this.eventBus.on('tools:discovery', (event) => this.broadcastToChannel('tools:discovery', event));
-    this.eventBus.on('agent:coordination', (event) => this.broadcastToChannel('agent:coordination', event));
-    this.eventBus.on('swarm:update', (event) => this.broadcastToChannel('swarm:update', event));
+    this.eventBus.on("mcp:status", (event) =>
+      this.broadcastToChannel("mcp:status", event)
+    );
+    this.eventBus.on("gpu:metrics", (event) =>
+      this.broadcastToChannel("gpu:metrics", event)
+    );
+    this.eventBus.on("tools:discovery", (event) =>
+      this.broadcastToChannel("tools:discovery", event)
+    );
+    this.eventBus.on("agent:coordination", (event) =>
+      this.broadcastToChannel("agent:coordination", event)
+    );
+    this.eventBus.on("swarm:update", (event) =>
+      this.broadcastToChannel("swarm:update", event)
+    );
     for (const channel of PRODUCT_EVENT_CHANNELS) {
-      this.eventBus.on(channel, (event) => this.broadcastToChannel(channel, event));
+      this.eventBus.on(channel, (event) =>
+        this.broadcastToChannel(channel, event)
+      );
     }
   }
 
@@ -160,63 +177,71 @@ export class WebSocketServer {
           userId = authData.userId;
           permissions = authData.permissions;
         } else {
-          ws.send(JSON.stringify({
-            type: 'error',
-            payload: { message: 'Invalid authentication token' },
-            timestamp: new Date().toISOString(),
-          }));
-          ws.close(1008, 'Invalid token');
+          ws.send(
+            JSON.stringify({
+              type: "error",
+              payload: { message: "Invalid authentication token" },
+              timestamp: new Date().toISOString(),
+            })
+          );
+          ws.close(1008, "Invalid token");
           return;
         }
-      } else if (config.nodeEnv === 'production') {
+      } else if (config.nodeEnv === "production") {
         // Require authentication in production
-        ws.send(JSON.stringify({
-          type: 'error',
-          payload: { message: 'Authentication required' },
-          timestamp: new Date().toISOString(),
-        }));
-        ws.close(1008, 'Authentication required');
+        ws.send(
+          JSON.stringify({
+            type: "error",
+            payload: { message: "Authentication required" },
+            timestamp: new Date().toISOString(),
+          })
+        );
+        ws.close(1008, "Authentication required");
         return;
       }
 
       // Create session
-      const sessionId = this.sessionManager.createSession(ws, userId, permissions);
+      const sessionId = this.sessionManager.createSession(
+        ws,
+        userId,
+        permissions
+      );
       this.metrics.connections.inc();
 
       // Send connection acknowledgment
       this.sendMessage(sessionId, {
-        type: 'connection',
+        type: "connection",
         sessionId,
         payload: {
-          status: 'connected',
-          version: '1.0.0',
+          status: "connected",
+          version: "1.0.0",
           features: [
-            'mcp_status',
-            'gpu_metrics',
-            'tool_discovery',
-            'agent_coordination',
+            "mcp_status",
+            "gpu_metrics",
+            "tool_discovery",
+            "agent_coordination",
             ...PRODUCT_EVENT_CHANNELS,
           ],
         },
         timestamp: new Date().toISOString(),
       });
 
-      logger.info({ sessionId, userId }, 'Client connected');
+      logger.info({ sessionId, userId }, "Client connected");
 
       // Setup message handler
-      ws.on('message', async (data) => {
+      ws.on("message", async (data) => {
         await this.handleMessage(sessionId, data);
       });
 
       // Setup close handler
-      ws.on('close', () => {
+      ws.on("close", () => {
         this.handleDisconnect(sessionId);
       });
 
       // Setup error handler
-      ws.on('error', (error) => {
-        logger.error({ sessionId, error }, 'WebSocket error');
-        this.metrics.errors.inc({ type: 'socket' });
+      ws.on("error", (error) => {
+        logger.error({ sessionId, error }, "WebSocket error");
+        this.metrics.errors.inc({ type: "socket" });
       });
 
       // Setup ping handler for keep-alive
@@ -226,15 +251,14 @@ export class WebSocketServer {
         }
       }, 30000);
 
-      ws.on('close', () => clearInterval(pingInterval));
-      ws.on('pong', () => {
+      ws.on("close", () => clearInterval(pingInterval));
+      ws.on("pong", () => {
         this.sessionManager.updateActivity(sessionId);
       });
-
     } catch (error: any) {
-      logger.error({ error }, 'Connection handling error');
-      ws.close(1011, 'Internal server error');
-      this.metrics.errors.inc({ type: 'connection' });
+      logger.error({ error }, "Connection handling error");
+      ws.close(1011, "Internal server error");
+      this.metrics.errors.inc({ type: "connection" });
     }
   }
 
@@ -243,9 +267,9 @@ export class WebSocketServer {
 
     try {
       const message: ClientMessage = JSON.parse(data.toString());
-      this.metrics.messages.inc({ direction: 'received', type: message.type });
+      this.metrics.messages.inc({ direction: "received", type: message.type });
 
-      logger.debug({ sessionId, type: message.type }, 'Message received');
+      logger.debug({ sessionId, type: message.type }, "Message received");
 
       // Update session activity
       this.sessionManager.updateActivity(sessionId);
@@ -257,44 +281,43 @@ export class WebSocketServer {
         const allowed = await this.rateLimiter.consume(rateLimitKey);
 
         if (!allowed) {
-          this.sendError(sessionId, 'Rate limit exceeded');
+          this.sendError(sessionId, "Rate limit exceeded");
           return;
         }
       }
 
       // Handle message types
       switch (message.type) {
-        case 'subscribe':
+        case "subscribe":
           await this.handleSubscribe(sessionId, message);
           break;
 
-        case 'unsubscribe':
+        case "unsubscribe":
           await this.handleUnsubscribe(sessionId, message);
           break;
 
-        case 'ping':
+        case "ping":
           this.sendMessage(sessionId, {
-            type: 'pong',
+            type: "pong",
             timestamp: new Date().toISOString(),
           });
           break;
 
-        case 'query':
+        case "query":
           await this.handleQuery(sessionId, message);
           break;
 
-        case 'command':
+        case "command":
           await this.handleCommand(sessionId, message);
           break;
 
         default:
           this.sendError(sessionId, `Unknown message type: ${message.type}`);
       }
-
     } catch (error: any) {
-      logger.error({ sessionId, error }, 'Message handling error');
-      this.sendError(sessionId, 'Failed to process message');
-      this.metrics.errors.inc({ type: 'message_handling' });
+      logger.error({ sessionId, error }, "Message handling error");
+      this.sendError(sessionId, "Failed to process message");
+      this.metrics.errors.inc({ type: "message_handling" });
     } finally {
       timer();
     }
@@ -304,16 +327,16 @@ export class WebSocketServer {
     const { channel } = message.payload || {};
 
     if (!channel) {
-      this.sendError(sessionId, 'Channel name required');
+      this.sendError(sessionId, "Channel name required");
       return;
     }
 
     const validChannels = [
-      'mcp:status',
-      'gpu:metrics',
-      'tools:discovery',
-      'agent:coordination',
-      'swarm:update',
+      "mcp:status",
+      "gpu:metrics",
+      "tools:discovery",
+      "agent:coordination",
+      "swarm:update",
       ...PRODUCT_EVENT_CHANNELS,
     ];
 
@@ -326,22 +349,22 @@ export class WebSocketServer {
     this.metrics.subscriptions.inc({ channel });
 
     this.sendMessage(sessionId, {
-      type: 'response',
+      type: "response",
       payload: {
-        action: 'subscribed',
+        action: "subscribed",
         channel,
       },
       timestamp: new Date().toISOString(),
     });
 
-    logger.info({ sessionId, channel }, 'Subscribed to channel');
+    logger.info({ sessionId, channel }, "Subscribed to channel");
   }
 
   private async handleUnsubscribe(sessionId: string, message: ClientMessage) {
     const { channel } = message.payload || {};
 
     if (!channel) {
-      this.sendError(sessionId, 'Channel name required');
+      this.sendError(sessionId, "Channel name required");
       return;
     }
 
@@ -349,15 +372,15 @@ export class WebSocketServer {
     this.metrics.subscriptions.dec({ channel });
 
     this.sendMessage(sessionId, {
-      type: 'response',
+      type: "response",
       payload: {
-        action: 'unsubscribed',
+        action: "unsubscribed",
         channel,
       },
       timestamp: new Date().toISOString(),
     });
 
-    logger.info({ sessionId, channel }, 'Unsubscribed from channel');
+    logger.info({ sessionId, channel }, "Unsubscribed from channel");
   }
 
   private async handleQuery(sessionId: string, message: ClientMessage) {
@@ -367,16 +390,16 @@ export class WebSocketServer {
       let data: any;
 
       switch (target) {
-        case 'mcp:servers':
+        case "mcp:servers":
           // Trigger immediate poll
           await this.nexusIntegration.queryToolDiscovery();
-          data = { status: 'requested' };
+          data = { status: "requested" };
           break;
 
-        case 'sessions:active':
+        case "sessions:active":
           data = {
             count: this.sessionManager.getActiveSessions(),
-            sessions: this.sessionManager.getAllSessions().map(s => ({
+            sessions: this.sessionManager.getAllSessions().map((s) => ({
               sessionId: s.sessionId,
               userId: s.userId,
               subscriptions: Array.from(s.subscriptions),
@@ -391,16 +414,15 @@ export class WebSocketServer {
       }
 
       this.sendMessage(sessionId, {
-        type: 'response',
+        type: "response",
         payload: {
           query: target,
           data,
         },
         timestamp: new Date().toISOString(),
       });
-
     } catch (error: any) {
-      logger.error({ sessionId, error }, 'Query handling error');
+      logger.error({ sessionId, error }, "Query handling error");
       this.sendError(sessionId, `Query failed: ${error.message}`);
     }
   }
@@ -408,13 +430,13 @@ export class WebSocketServer {
   private async handleCommand(sessionId: string, message: ClientMessage) {
     const session = this.sessionManager.getSession(sessionId);
     if (!session) {
-      this.sendError(sessionId, 'Session not found');
+      this.sendError(sessionId, "Session not found");
       return;
     }
 
     // Check permissions
-    if (!session.permissions.includes('command:execute')) {
-      this.sendError(sessionId, 'Insufficient permissions');
+    if (!session.permissions.includes("command:execute")) {
+      this.sendError(sessionId, "Insufficient permissions");
       return;
     }
 
@@ -424,16 +446,15 @@ export class WebSocketServer {
       const result = await this.nexusIntegration.sendCommand(command, params);
 
       this.sendMessage(sessionId, {
-        type: 'response',
+        type: "response",
         payload: {
           command,
           result,
         },
         timestamp: new Date().toISOString(),
       });
-
     } catch (error: any) {
-      logger.error({ sessionId, command, error }, 'Command execution error');
+      logger.error({ sessionId, command, error }, "Command execution error");
       this.sendError(sessionId, `Command failed: ${error.message}`);
     }
   }
@@ -443,12 +464,12 @@ export class WebSocketServer {
     if (session) {
       // Update metrics
       this.metrics.connections.dec();
-      session.subscriptions.forEach(channel => {
+      session.subscriptions.forEach((channel) => {
         this.metrics.subscriptions.dec({ channel });
       });
 
       this.sessionManager.deleteSession(sessionId);
-      logger.info({ sessionId, userId: session.userId }, 'Client disconnected');
+      logger.info({ sessionId, userId: session.userId }, "Client disconnected");
     }
   }
 
@@ -456,13 +477,13 @@ export class WebSocketServer {
     const session = this.sessionManager.getSession(sessionId);
     if (session && session.ws.readyState === WebSocket.OPEN) {
       session.ws.send(JSON.stringify(message));
-      this.metrics.messages.inc({ direction: 'sent', type: message.type });
+      this.metrics.messages.inc({ direction: "sent", type: message.type });
     }
   }
 
   private sendError(sessionId: string, error: string) {
     this.sendMessage(sessionId, {
-      type: 'error',
+      type: "error",
       payload: { message: error },
       timestamp: new Date().toISOString(),
     });
@@ -475,7 +496,7 @@ export class WebSocketServer {
     for (const session of sessions) {
       if (session.subscriptions.has(channel)) {
         this.sendMessage(session.sessionId, {
-          type: 'event',
+          type: "event",
           payload: event,
           timestamp: new Date().toISOString(),
         });
@@ -483,7 +504,7 @@ export class WebSocketServer {
       }
     }
 
-    logger.debug({ channel, recipients: count }, 'Broadcast to channel');
+    logger.debug({ channel, recipients: count }, "Broadcast to channel");
   }
 
   async start() {
@@ -496,7 +517,7 @@ export class WebSocketServer {
     // Start Nexus integration polling
     await this.nexusIntegration.startPolling();
 
-    logger.info({ port: config.port }, 'WebSocket Hub started');
+    logger.info({ port: config.port }, "WebSocket Hub started");
   }
 
   async stop() {
@@ -504,7 +525,7 @@ export class WebSocketServer {
 
     // Close all connections
     for (const session of this.sessionManager.getAllSessions()) {
-      session.ws.close(1001, 'Server shutting down');
+      session.ws.close(1001, "Server shutting down");
     }
 
     this.wss.close();
@@ -514,6 +535,6 @@ export class WebSocketServer {
       await this.redis.quit();
     }
 
-    logger.info('WebSocket Hub stopped');
+    logger.info("WebSocket Hub stopped");
   }
 }

@@ -177,6 +177,26 @@ Current runtime caveat:
 - The preferred Linkwarden hostname is `links.projectnyra.com`; keep `linkwarden.projectnyra.com` only as a temporary alias if desired.
 - `http://100.64.0.2:3007` timed out from this local Codex App session on 2026-05-11. Tailscale also reported this session is logged out, so final origin validation must run from the orchestrator tunnel container or a Tailscale-authenticated shell.
 
+2026-05-19 update:
+
+- Cloudflare API token auth is active but lacks Zero Trust tunnel permissions; account API-key auth was used for tunnel, DNS, and Access API calls.
+- `projectnyra.com` Cloudflare zone is still `pending`; public NS still answers `launch1.spaceship.net` and `launch2.spaceship.net`.
+- `ratehunter.net` Cloudflare zone shows `moved`; public NS still answers `dns101.registrar-servers.com` and `dns102.registrar-servers.com`.
+- Cloudflare activation checks were triggered for both zones.
+- Oracle tunnel `02fa18b6-ffcd-4b37-91ba-409642d5fb8f` is healthy with 4 connector connections.
+- Orchestrator tunnel `ae0bd53a-f22e-4414-8593-5b765dcd044b` is healthy with 4 connector connections after correcting the stale local tunnel ID and updating Infisical `/machines/orchestrator`.
+- `projectnyra.com` DNS desired state was re-applied successfully: 22 upserts succeeded, and current projectnyra tunnel CNAME coverage is 21 Oracle records plus 3 orchestrator records with no stale `5ccd2294` CNAMEs.
+- Cloudflare Access app creation for `projectnyra.com` is still blocked with `domain does not belong to zone` until registrar nameservers are delegated to Cloudflare.
+
+After registrar delegation is complete, run:
+
+```bash
+source ~/.zsh/99-secrets.zsh
+export CF_API_TOKEN=
+export CLOUDFLARE_API_TOKEN=
+bash infra/cloudflare/apply-access-apps.sh
+```
+
 Current Oracle smoke status:
 
 - `https://api.projectnyra.com/auth/v1/health` returns `200`.

@@ -1,15 +1,20 @@
-import { z } from 'zod';
-import { ProductEvent, ProductEventChannel, ProductEventPayload, SystemEvent } from '../types';
+import { z } from "zod";
+import {
+  ProductEvent,
+  ProductEventChannel,
+  ProductEventPayload,
+  SystemEvent,
+} from "../types";
 
 export const PRODUCT_EVENT_CHANNELS = [
-  'lead:updates',
-  'hotlead:alerts',
-  'quote:viewed',
-  'quote:lock_expiring',
-  'campaign:reply',
-  'campaign:blocked',
-  'pipeline:milestone',
-  'service:health',
+  "lead:updates",
+  "hotlead:alerts",
+  "quote:viewed",
+  "quote:lock_expiring",
+  "campaign:reply",
+  "campaign:blocked",
+  "pipeline:milestone",
+  "service:health",
 ] as const satisfies readonly ProductEventChannel[];
 
 const productEventSchema = z.object({
@@ -19,7 +24,7 @@ const productEventSchema = z.object({
   correlationId: z.string().min(1),
   traceId: z.string().min(1).optional(),
   state: z.string().min(1),
-  mode: z.enum(['live', 'mock']).default('live'),
+  mode: z.enum(["live", "mock"]).default("live"),
   data: z.record(z.string(), z.unknown()).default({}),
 });
 
@@ -35,7 +40,9 @@ export function parseProductEvent(input: unknown): ProductEvent {
   };
 }
 
-export function isProductEventChannel(channel: string): channel is ProductEventChannel {
+export function isProductEventChannel(
+  channel: string
+): channel is ProductEventChannel {
   return PRODUCT_EVENT_CHANNELS.includes(channel as ProductEventChannel);
 }
 
