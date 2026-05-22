@@ -61,5 +61,6 @@ local generated-value import aid remains outside the repo at
   completion date and validation evidence.
 - If live validation fails, add the exact failing hostname, service, or provider
   error without adding secret values.
-- Infisical CLI and TruffleHog are complementary: Infisical injects/manages
-  secrets, while TruffleHog scans git/files for accidentally exposed secrets.
+- Infisical CLI is the preferred local secret leak scanner for this repo. Use
+  `infisical scan --source . --redact` for git/history scans and
+  `infisical scan git-changes --redact` for current-change scans.

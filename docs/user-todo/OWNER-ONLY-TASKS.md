@@ -83,7 +83,6 @@ working on local tasks, but must not mark these complete without owner evidence.
       then re-enable only validated MCP servers.
 - [ ] Confirm GitHub Actions, CodeQL/code scanning, Dependabot, branch
       protection, and deployment dashboard settings.
-- [ ] Decide whether to install TruffleHog locally for full repository secret
-      scanning. Infisical CLI manages/injects secrets, but it does not replace
-      a leak scanner that searches git history and files for accidentally
-      committed secrets.
+- [ ] Keep using Infisical CLI for local repository leak scans:
+      `infisical scan --source . --redact` and
+      `infisical scan git-changes --redact`.
