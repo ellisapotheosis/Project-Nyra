@@ -54,9 +54,26 @@ function buildResponseHeaders(sourceHeaders: Headers) {
   return headers;
 }
 
+function canUseLocalFallback() {
+  return (
+    process.env.NODE_ENV !== "production" ||
+    process.env.NYRA_ENABLE_MOCKS === "true"
+  );
+}
+
 export async function POST(request: Request) {
   const upstreamUrl = buildUpstreamUrl();
   if (!upstreamUrl) {
+    if (!canUseLocalFallback()) {
+      return Response.json(
+        {
+          reply:
+            "Borrower chat is unavailable because OPENCLAW_BORROWER_API_URL is not configured.",
+        },
+        { status: 503 }
+      );
+    }
+
     return Response.json({ reply: FALLBACK_REPLY });
   }
 

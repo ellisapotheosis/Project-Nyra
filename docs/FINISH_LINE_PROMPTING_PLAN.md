@@ -65,6 +65,9 @@ These actions can only be completed by the owner. Keep operational details in
 
 Use these prompts verbatim after the matching blocker is cleared.
 
+While owner blockers are still pending, use `docs/AGENT_RELEASE_HANDOFF.md` and
+`pnpm release:check` for safe local verification work.
+
 ### Lane 0 - Repo Scope Freeze
 
 ```md

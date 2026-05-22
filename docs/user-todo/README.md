@@ -12,6 +12,8 @@ access.
 - `CHECKLIST.md` - one-page execution checklist in recommended order.
 - `../FINISH_LINE_PROMPTING_PLAN.md` - copy-ready agent prompts and blocker
   gates for getting the repo to a shippable release candidate.
+- `../AGENT_RELEASE_HANDOFF.md` - safe local agent work and validation while
+  owner-only blockers are pending.
 - `FINISH_LINE_ACCELERATION_PLAN.md` - release-candidate critical path and
   local validation gates.
 - `RELEASE-CANDIDATE-MANUAL-GATES.md` - owner-only gates that must be cleared
@@ -34,6 +36,8 @@ access.
   and code-scanning actions.
 - `SPACESHIP-CLOUDFLARED-PROJECTNYRA-GUIDE.md` - domain and Cloudflare tunnel
   setup guide.
+- `../../tests/results/lead-lifecycle-smoke/README.md` - ignored location for
+  sanitized dry-run and live lead lifecycle smoke evidence.
 
 ## Source Of Truth
 

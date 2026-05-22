@@ -115,6 +115,26 @@ describe("lead ingestion", () => {
       eligible: false,
       reason: "DO_NOT_CONTACT",
     });
+    expect(result.crmWritePlan).toMatchObject({
+      lead: {
+        consentStatus: "DO_NOT_CONTACT",
+        doNotContact: true,
+        customFields: {
+          campaignId: "speed-to-lead",
+          campaignStatus: "STOPPED",
+        },
+      },
+      campaignEnrollment: undefined,
+    });
+    expect(result.events).toEqual([
+      expect.objectContaining({
+        type: "lead.created",
+      }),
+      expect.objectContaining({
+        type: "campaign.ineligible",
+        reason: "DO_NOT_CONTACT",
+      }),
+    ]);
     expect(result.auditEvents).toMatchObject([
       {
         entityType: "LEAD",

@@ -48,6 +48,7 @@ WORKER_3060_OPENCLAW_COMPOSE := infra/hosts/worker-rtx3060/docker-compose.opencl
 AGENT_INFRA_ENV ?= prod
 INFISICAL_PROJECT_ID ?= 8374cea9-e5e8-4050-bda4-b91f25ab30ef
 INFISICAL_LOCAL_SECRETS_FILE ?= $(HOME)/.zsh/99-secrets.zsh
+NYRA_USE_LOCAL_ENV ?= 0
 ORCHESTRATOR_INFISICAL_PATH ?= /machines/orchestrator
 ORACLE_INFISICAL_PATH ?= /machines/oracle-vps
 WORKER_5090_INFISICAL_PATH ?= /machines/worker-rtx5090
@@ -61,31 +62,50 @@ WORKER_3060_CONTEXT ?= worker-rtx3060
 FLEET_SSH_TARGETS ?= orchestrator worker-rtx5090 worker-rtx3090ti worker-rtx3060 oracle
 FLEET_DOCKER_CONTEXTS ?= default worker-rtx5090 worker-rtx3090ti worker-rtx3060 orchestrator oracle oracle-vps-oci
 NYRA_INFISICAL_TOKEN_HINT := INFISICAL_TOKEN must be exported on this PC before running remote Docker context targets.
+NYRA_LOCAL_ENV_HINT := NYRA_USE_LOCAL_ENV=1 uses ignored infra/hosts/<host>/.env files when Infisical is unavailable.
 
 define nyra_load_infisical_env
 if [ -z "$${INFISICAL_TOKEN:-}" ] && [ -f "$(INFISICAL_LOCAL_SECRETS_FILE)" ]; then set -a; . "$(INFISICAL_LOCAL_SECRETS_FILE)"; set +a; fi;
 endef
 
 define nyra_host_compose
-$(nyra_load_infisical_env) $(4) INFISICAL_TOKEN="$${INFISICAL_TOKEN:?$(NYRA_INFISICAL_TOKEN_HINT)}" INFISICAL_PROJECT_ID="$(INFISICAL_PROJECT_ID)" INFISICAL_ENV="$(AGENT_INFRA_ENV)" NYRA_INFISICAL_PATH="$(1)" infisical run --projectId="$(INFISICAL_PROJECT_ID)" --env="$(AGENT_INFRA_ENV)" --path="$(1)" -- docker --context "$(2)" compose --env-file /dev/null $(3)
+case "$(1)" in \
+  "$(ORCHESTRATOR_INFISICAL_PATH)") env_file="infra/hosts/orchestrator/.env";; \
+  "$(ORACLE_INFISICAL_PATH)") env_file="infra/hosts/oracle-vps/.env";; \
+  "$(WORKER_5090_INFISICAL_PATH)") env_file="infra/hosts/worker-rtx5090/.env";; \
+  "$(WORKER_3090TI_INFISICAL_PATH)") env_file="infra/hosts/worker-rtx3090ti/.env";; \
+  "$(WORKER_3060_INFISICAL_PATH)") env_file="infra/hosts/worker-rtx3060/.env";; \
+  *) echo "Unknown Infisical path '$(1)' for local env fallback." >&2; exit 64;; \
+esac; \
+if [ "$(NYRA_USE_LOCAL_ENV)" = "1" ]; then \
+  test -f "$$env_file" || (echo "Missing $$env_file. $(NYRA_LOCAL_ENV_HINT)" >&2; exit 66); \
+  $(4) docker --context "$(2)" compose --env-file "$$env_file" $(3); \
+else \
+  $(nyra_load_infisical_env) $(4) INFISICAL_TOKEN="$${INFISICAL_TOKEN:?$(NYRA_INFISICAL_TOKEN_HINT)}" INFISICAL_PROJECT_ID="$(INFISICAL_PROJECT_ID)" INFISICAL_ENV="$(AGENT_INFRA_ENV)" NYRA_INFISICAL_PATH="$(1)" infisical run --projectId="$(INFISICAL_PROJECT_ID)" --env="$(AGENT_INFRA_ENV)" --path="$(1)" -- docker --context "$(2)" compose --env-file /dev/null $(3); \
+fi
 endef
 
 define nyra_node_shell
 case "$(NODE)" in \
-  orchestrator) host_path="$(ORCHESTRATOR_INFISICAL_PATH)"; ctx="$(ORCHESTRATOR_CONTEXT)"; compose_files="-f $(ORCHESTRATOR_COMPOSE)";; \
-  oracle|oracle-vps) host_path="$(ORACLE_INFISICAL_PATH)"; ctx="$(ORACLE_CONTEXT)"; compose_files="-f $(ORACLE_COMPOSE)";; \
-  worker-rtx5090) host_path="$(WORKER_5090_INFISICAL_PATH)"; ctx="$(WORKER_5090_CONTEXT)"; compose_files="-f $(WORKER_5090_COMPOSE)";; \
-  worker-rtx3090ti) host_path="$(WORKER_3090TI_INFISICAL_PATH)"; ctx="$(WORKER_3090TI_CONTEXT)"; compose_files="-f $(WORKER_3090TI_COMPOSE)";; \
-  worker-rtx3060) host_path="$(WORKER_3060_INFISICAL_PATH)"; ctx="$(WORKER_3060_CONTEXT)"; compose_files="-f $(WORKER_3060_COMPOSE)";; \
+  orchestrator) host_path="$(ORCHESTRATOR_INFISICAL_PATH)"; ctx="$(ORCHESTRATOR_CONTEXT)"; compose_files="-f $(ORCHESTRATOR_COMPOSE)"; env_file="infra/hosts/orchestrator/.env";; \
+  oracle|oracle-vps) host_path="$(ORACLE_INFISICAL_PATH)"; ctx="$(ORACLE_CONTEXT)"; compose_files="-f $(ORACLE_COMPOSE)"; env_file="infra/hosts/oracle-vps/.env";; \
+  worker-rtx5090) host_path="$(WORKER_5090_INFISICAL_PATH)"; ctx="$(WORKER_5090_CONTEXT)"; compose_files="-f $(WORKER_5090_COMPOSE)"; env_file="infra/hosts/worker-rtx5090/.env";; \
+  worker-rtx3090ti) host_path="$(WORKER_3090TI_INFISICAL_PATH)"; ctx="$(WORKER_3090TI_CONTEXT)"; compose_files="-f $(WORKER_3090TI_COMPOSE)"; env_file="infra/hosts/worker-rtx3090ti/.env";; \
+  worker-rtx3060) host_path="$(WORKER_3060_INFISICAL_PATH)"; ctx="$(WORKER_3060_CONTEXT)"; compose_files="-f $(WORKER_3060_COMPOSE)"; env_file="infra/hosts/worker-rtx3060/.env";; \
   *) echo "Unknown NODE='$(NODE)'. Expected orchestrator, oracle, worker-rtx5090, worker-rtx3090ti, or worker-rtx3060." >&2; exit 64;; \
 esac; \
-$(nyra_load_infisical_env) \
-INFISICAL_TOKEN="$${INFISICAL_TOKEN:?$(NYRA_INFISICAL_TOKEN_HINT)}" \
-INFISICAL_PROJECT_ID="$(INFISICAL_PROJECT_ID)" \
-INFISICAL_ENV="$(AGENT_INFRA_ENV)" \
-NYRA_INFISICAL_PATH="$$host_path" \
-infisical run --projectId="$(INFISICAL_PROJECT_ID)" --env="$(AGENT_INFRA_ENV)" --path="$$host_path" -- \
-docker --context "$$ctx" compose --env-file /dev/null $$compose_files
+if [ "$(NYRA_USE_LOCAL_ENV)" = "1" ]; then \
+  test -f "$$env_file" || (echo "Missing $$env_file. $(NYRA_LOCAL_ENV_HINT)" >&2; exit 66); \
+  docker --context "$$ctx" compose --env-file "$$env_file" $$compose_files; \
+else \
+  $(nyra_load_infisical_env) \
+  INFISICAL_TOKEN="$${INFISICAL_TOKEN:?$(NYRA_INFISICAL_TOKEN_HINT)}" \
+  INFISICAL_PROJECT_ID="$(INFISICAL_PROJECT_ID)" \
+  INFISICAL_ENV="$(AGENT_INFRA_ENV)" \
+  NYRA_INFISICAL_PATH="$$host_path" \
+  infisical run --projectId="$(INFISICAL_PROJECT_ID)" --env="$(AGENT_INFRA_ENV)" --path="$$host_path" -- \
+  docker --context "$$ctx" compose --env-file /dev/null $$compose_files; \
+fi
 endef
 
 # Voice Setup Compose Files
@@ -239,8 +259,12 @@ fleet-docker-check:
 up-all: sync-env up up-workers up-oracle
 
 sync-env:
-	@echo "🐾 Synchronizing cluster environment secrets from Infisical..."
-	@INFISICAL_ENV=$(AGENT_INFRA_ENV) ./scripts/mirror-sync-env.sh
+	@if [ "$(NYRA_USE_LOCAL_ENV)" = "1" ]; then \
+	  echo "Skipping Infisical mirror sync; using ignored infra/hosts/*/.env files."; \
+	else \
+	  echo "🐾 Synchronizing cluster environment secrets from Infisical..."; \
+	  INFISICAL_ENV=$(AGENT_INFRA_ENV) ./scripts/mirror-sync-env.sh; \
+	fi
 
 down-all: down
 	$(call nyra_host_compose,$(ORACLE_INFISICAL_PATH),$(ORACLE_CONTEXT),-f $(ORACLE_COMPOSE) -f $(ORACLE_APPS_COMPOSE) --profile apps down)
@@ -347,8 +371,7 @@ orchestrator-wave-launch: orchestrator-full
 up:
 	@profiles=$$(echo "$(DEFAULT_PROFILES)" | tr ',' ' '); \
 	for p in $$profiles; do args="$$args --profile $$p"; done; \
-	$(nyra_load_infisical_env) \
-	INFISICAL_TOKEN="$${INFISICAL_TOKEN:?$(NYRA_INFISICAL_TOKEN_HINT)}" INFISICAL_PROJECT_ID="$(INFISICAL_PROJECT_ID)" INFISICAL_ENV="$(AGENT_INFRA_ENV)" NYRA_INFISICAL_PATH="$(ORCHESTRATOR_INFISICAL_PATH)" infisical run --projectId="$(INFISICAL_PROJECT_ID)" --env="$(AGENT_INFRA_ENV)" --path="$(ORCHESTRATOR_INFISICAL_PATH)" -- docker --context $(ORCHESTRATOR_CONTEXT) compose --env-file /dev/null -f $(ORCHESTRATOR_COMPOSE) $$args up -d
+	$(call nyra_host_compose,$(ORCHESTRATOR_INFISICAL_PATH),$(ORCHESTRATOR_CONTEXT),-f $(ORCHESTRATOR_COMPOSE) $$args up -d)
 
 down:
 	$(call nyra_host_compose,$(ORCHESTRATOR_INFISICAL_PATH),$(ORCHESTRATOR_CONTEXT),-f $(ORCHESTRATOR_COMPOSE) down --remove-orphans)
