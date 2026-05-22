@@ -19,11 +19,25 @@ from .loan_types import (
 from .loan_calc import calculate_loan_type_quote
 from .pdf_gen import generate_quote_pdf
 
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
+
 app = FastAPI(
     title="Nyra Quote API",
     version="2.1.0",
     description="Mortgage quote API with support for Conventional, FHA, VA, and USDA loans + PDF generation",
 )
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request, exc):
+    return JSONResponse(
+        status_code=422,
+        content={
+            "error": "Validation Error",
+            "details": exc.errors(),
+            "body": exc.body
+        },
+    )
 
 # Enable CORS
 app.add_middleware(

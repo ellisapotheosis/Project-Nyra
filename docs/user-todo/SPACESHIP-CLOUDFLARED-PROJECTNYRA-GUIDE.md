@@ -18,13 +18,15 @@ codes into this file.
 - Cloudflare API apply already pushed the Project Nyra tunnel ingress configs.
 - Cloudflare API apply already upserted 22 proxied `projectnyra.com` DNS CNAMEs.
 - The last recorded Cloudflare state for `projectnyra.com` was `pending`.
+- Cloudflare assigned nameservers for `projectnyra.com`:
+  `mcgrory.ns.cloudflare.com` and `zita.ns.cloudflare.com`.
 - Cloudflare Access app creation failed while the zone was pending with:
   `domain does not belong to zone`.
 - This WSL/Codex environment will not have local `cloudflared` or Tailscale.
   Tunnels are containerized in host compose files.
-- Current Infisical access in this session returned an expired-token error, so
-  agent-side Cloudflare API work needs renewed Infisical access or exported
-  Cloudflare credentials.
+- The active Codex process may still inherit an expired `INFISICAL_TOKEN`.
+  If that happens, unset `INFISICAL_TOKEN` or refresh the export in
+  `~/.zsh/99-secrets.zsh` so the logged-in Infisical session is not overridden.
 
 ## Goal
 
@@ -46,8 +48,14 @@ Do this in Spaceship for `projectnyra.com`.
 4. If DNSSEC is enabled, disable it before changing nameservers.
 5. Open the nameserver settings.
 6. Choose custom nameservers.
-7. In Cloudflare, open the `projectnyra.com` zone and copy the exact two
-   Cloudflare nameservers assigned to that zone.
+7. In Cloudflare, open the `projectnyra.com` zone and confirm the assigned
+   nameservers are:
+
+   ```text
+   mcgrory.ns.cloudflare.com
+   zita.ns.cloudflare.com
+   ```
+
 8. Paste those two Cloudflare nameservers into Spaceship.
 9. Remove all non-Cloudflare authoritative nameservers for `projectnyra.com`.
 10. Save the nameserver change.
