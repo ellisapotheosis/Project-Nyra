@@ -61,3 +61,12 @@ working on local tasks, but must not mark these complete without owner evidence.
       vLLM, Ollama, or raw MCP internals.
 - [ ] Run live smoke from an authenticated network context after all secrets and
       Access policies are in place.
+
+## Agent Runtime And CI
+
+- [ ] Confirm Codex, Claude, and Gemini local configs use `projectnyra.com`, not
+      `ratehunter.net`, for MCP and internal service hostnames.
+- [ ] Confirm Gemini CLI starts in Windows Terminal Preview Ubuntu without MCP,
+      then re-enable only validated MCP servers.
+- [ ] Confirm GitHub Actions, CodeQL/code scanning, Dependabot, branch
+      protection, and deployment dashboard settings.

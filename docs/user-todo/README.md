@@ -10,6 +10,8 @@ access.
 ## Files
 
 - `CHECKLIST.md` - one-page execution checklist in recommended order.
+- `../FINISH_LINE_ACCELERATION_PLAN.md` - release-candidate critical path and
+  local validation gates.
 - `CLOUDFLARE-ACCESS-AND-DNS.md` - Cloudflare DNS, tunnel, Access, and live URL
   smoke actions.
 - `INFISICAL-MISSING-SECRETS.md` - secret paths and variable names to add to
@@ -22,6 +24,10 @@ access.
   and live production smoke actions.
 - `OWNER-ONLY-TASKS.md` - provider, dashboard, and physical-machine actions
   only the owner can complete.
+- `AGENT-RUNTIME-MCP-AND-GEMINI.md` - Codex/Claude/Gemini MCP startup and
+  local profile actions.
+- `GITHUB-CI-DEPLOYMENT.md` - GitHub settings, CI secrets, deployment dashboard,
+  and code-scanning actions.
 - `SPACESHIP-CLOUDFLARED-PROJECTNYRA-GUIDE.md` - domain and Cloudflare tunnel
   setup guide.
 

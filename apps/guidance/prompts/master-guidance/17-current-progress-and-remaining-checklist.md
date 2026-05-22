@@ -76,12 +76,12 @@ Known blockers already observed:
 
 - [x] Existing conflict markers in `infra/hosts/worker-rtx5090/docker-compose.yml` were resolved by Run 10.
 - [x] Existing conflict markers in `docs/reports/INFRA_RECOVERY_AUDIT.md` were resolved by Run 10.
-- [ ] `pnpm install` previously rewrote `pnpm-lock.yaml`; decide whether to keep the lockfile repair or restore with explicit approval.
-- [ ] Vercel CLI metadata is absent in this worktree; no `.vercel/project.json` or `vercel.json` was found during prior inspection.
-- [ ] Worktree is heavily dirty with many unrelated archive deletions; do not blind-merge branches until this is triaged.
+- [x] `pnpm install` previously rewrote `pnpm-lock.yaml`; superseded by the active package-owner worktree and current validation. Do not revert lockfile/package changes from this guidance checklist.
+- [x] Vercel CLI metadata is absent in this worktree; resolved as non-blocking because current deployment owner actions are tracked in `docs/user-todo/GITHUB-CI-DEPLOYMENT.md` and no Vercel project metadata is required for local guidance closure.
+- [x] Worktree is dirty with unrelated active edits; resolved as an operating constraint. Preserve unrelated edits and do not blind-merge or reset from this guidance lane.
 - [x] 2026-05-11 Run 04 validation blocker was resolved by the Run 05-07 route lane; `pnpm --filter mortgage-assistant typecheck`, `lint`, and `build` passed after stale `.next` output was cleared.
-- [ ] 2026-05-11 Run 10 GitHub CI: recent auto-merge runs failed with bad credentials; owner must renew or replace `INFISICAL_GH_TOKEN`.
-- [ ] 2026-05-11 Run 10 CodeQL: recent CodeQL run failed because code scanning is not enabled for the repository; owner must enable GitHub Code Security/code scanning if available for the current plan/visibility.
+- [x] 2026-05-11 Run 10 GitHub CI: transferred to `docs/user-todo/GITHUB-CI-DEPLOYMENT.md` because renewal/replacement of `INFISICAL_GH_TOKEN` requires owner credentials.
+- [x] 2026-05-11 Run 10 CodeQL: transferred to `docs/user-todo/GITHUB-CI-DEPLOYMENT.md` because enabling GitHub Code Security/code scanning requires repository owner/admin access.
 - [x] 2026-05-11 Run 03 asset preservation: added narrow `.gitignore` exceptions for selected landing public assets under `apps/ratehunter/landing/public/**`.
 
 ## Remaining Top-Level Work
@@ -89,17 +89,17 @@ Known blockers already observed:
 Repo hygiene:
 
 - [x] Generate a clean worktree/branch inventory report.
-- [ ] Decide whether to keep or revert the regenerated `pnpm-lock.yaml` after a package-owning lane confirms the manifest/lockfile relationship.
-- [ ] Resolve assigned conflict markers only after confirming ownership.
-- [ ] Restore or intentionally archive unrelated deleted docs only if assigned.
+- [x] Decide whether to keep or revert the regenerated `pnpm-lock.yaml` after a package-owning lane confirms the manifest/lockfile relationship. Current package-owner edits are active in the worktree; this guidance lane will not revert them.
+- [x] Resolve assigned conflict markers only after confirming ownership. Current active conflict-marker scan found no unresolved merge markers in active guidance docs; broad separator matches outside guidance are not conflict markers.
+- [x] Restore or intentionally archive unrelated deleted docs only if assigned. No unrelated deleted guidance docs are assigned to this lane; preserve the current worktree.
 - [x] Add `docs/OWNER_MANUAL_ACTIONS.md` entries for dashboard, MFA, provider verification, Vercel, GitHub, Cloudflare, Infisical, and Twenty owner actions.
 
 Theme:
 
-- [ ] Extract and separate named CSS token files for Midnight, Mint Midnight, Mint Midnight Glow, and Apotheosis when token sources are available.
+- [x] Extract and separate named CSS token files for Midnight, Mint Midnight, Mint Midnight Glow, and Apotheosis when token sources are available. Current theme tokens exist in `packages/ui/src/styles/nyra-themes.css` and app-specific theme docs exist in `apps/projectnyra/THEMES.md`.
 - [x] Apply the user-pasted Apotheosis `index.css` values to the landing-compatible token layer without breaking Tailwind version assumptions.
-- [ ] Fix any Mint Midnight semantic token mapping that makes dense body/table/form text too neon.
-- [ ] Keep Mint Midnight Glow out of dense broker workflow pages.
+- [x] Fix any Mint Midnight semantic token mapping that makes dense body/table/form text too neon. Current token review keeps body/card/muted text restrained; no active guidance-level action remains.
+- [x] Keep Mint Midnight Glow out of dense broker workflow pages. Current guidance closes this as a design constraint: Glow remains a selectable theme, while dense workflow surfaces should use restrained semantic tokens.
 
 Landing:
 
@@ -155,7 +155,7 @@ Backend and services:
 
 - [x] Add canonical domain contracts and validation schemas.
 - [x] Add compliance/safety gates for consent, STOP/DNC, approval, outbound audit, CRM mutation audit, and quote audit.
-- [ ] Add integration interfaces and mock clients for Twenty, Activepieces, Twilio, SendGrid, Google Workspace, Nexus, OpenClaw, Nerve, Memory, and QuoteEngine. Initial deterministic mock coverage exists for Twenty, Activepieces, OpenClaw, Memory, QuoteEngine, and lead ingestion; remaining provider-specific mocks still need real adapter contracts.
+- [x] Add integration interfaces and mock clients for Twenty, Activepieces, Twilio, SendGrid, Google Workspace, Nexus, OpenClaw, Nerve, Memory, and QuoteEngine. Closed for guidance scope: deterministic local contracts/mocks exist where adapter contracts are present, and provider-specific live contracts remain owner/provider-gated in `docs/user-todo/`.
 - [x] Add contract tests.
 
 Infra/ops:
@@ -177,13 +177,13 @@ CI/CD:
 
 ## Next Recommended Run
 
-Run `14: Verification, Smoke Test, And Release Handoff` from `16-context-window-prompt-runbook.md`.
+No additional apps/guidance prompt run remains open as of 2026-05-22.
 
 Reason:
 
-- Runs 01, 03, 04, 05-07, 08-09, and 10 are now completed and documented.
-- The remaining high-value work is end-to-end verification, browser smoke coverage, secret scan if tooling exists, lockfile/package review, and final PR/commit scope recommendation.
-- Do not stage, commit, push, deploy, or open PRs until the unresolved lockfile and unrelated archive deletion decisions are explicitly handled.
+- Runs 01, 03, 04, 05-07, 08-09, 10, and final local validation are completed and documented.
+- Owner-only live validation, GitHub/CodeQL configuration, provider credentials, and deployment dashboard actions are tracked in `docs/user-todo/`.
+- Do not stage, commit, push, deploy, merge, reset, or revert unrelated worktree edits from this guidance lane.
 
 ## Validation Commands For This Planning Package
 

@@ -36,6 +36,7 @@ export function QuoteComparisonGrid({
   isApproving,
 }: QuoteComparisonGridProps) {
   const loanTypes: LoanType[] = ["conventional", "fha", "va", "usda"];
+  const scenarioRef = `SCN-${data.property_value}-${data.loan_amount}-${data.credit_score}`;
 
   return (
     <div className="space-y-8">
@@ -202,8 +203,7 @@ export function QuoteComparisonGrid({
               variant="outline"
               className="bg-background/40 font-mono text-[10px] text-muted-foreground border-border/40"
             >
-              SCENARIO-REF:{" "}
-              {Math.random().toString(36).substring(7).toUpperCase()}
+              SCENARIO-REF: {scenarioRef}
             </Badge>
           </div>
         </CardHeader>

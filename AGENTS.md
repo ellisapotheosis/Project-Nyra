@@ -114,7 +114,7 @@ S7 Infrastructure Restructure and Host Layout Documentation: Complete container 
 444 " ✅ Follow-Up Feature PR #450 Created: Memory Integrations and Workflow Policy
 445 " 🔵 PR #450 Status: Open and Ready for Review/Merge
 447 7:54a 🔵 Cloudflare API authentication inconsistency and missing tunnel IDs
-448 7:55a 🟣 Owner-facing action guide package created in docs/USER-TODO
+448 7:55a 🟣 Owner-facing action guide package created in docs/user-todo
 449 " 🔵 Infisical token expired; credentials unreachable during Cloudflare zone query
 451 7:56a 🔵 Cloudflare API token has insufficient DNS permissions; 23+ CNAME records not configured
 450 " 🟣 Spaceship and Cloudflare owner setup guide created in docs/user-todo

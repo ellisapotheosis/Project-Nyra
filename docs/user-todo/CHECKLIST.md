@@ -2,6 +2,10 @@
 
 Last consolidated: 2026-05-22
 
+Use `../FINISH_LINE_ACCELERATION_PLAN.md` as the release-candidate critical
+path. This checklist covers owner-only actions that agents cannot complete
+without live account access.
+
 ## 1. Infisical And Provider Secrets
 
 - [ ] Import or update the missing Infisical variables listed in
@@ -51,3 +55,13 @@ Last consolidated: 2026-05-22
 - [ ] Run live smoke after secrets and Access policies are applied.
 - [ ] Record completion evidence in this checklist or
       `docs/OWNER_MANUAL_ACTIONS.md` without raw secrets.
+
+## 6. Agent Runtime, MCP, GitHub, And Deployment
+
+- [ ] Complete the MCP and Gemini checks in
+      `AGENT-RUNTIME-MCP-AND-GEMINI.md`.
+- [ ] Confirm GitHub Actions, CodeQL/code scanning, Dependabot, and branch
+      protection settings in `GITHUB-CI-DEPLOYMENT.md`.
+- [ ] Confirm deployment dashboards keep `ratehunter.net` isolated to the
+      RateHunter landing and `projectnyra.com` attached to Project Nyra app and
+      internal platform surfaces.
