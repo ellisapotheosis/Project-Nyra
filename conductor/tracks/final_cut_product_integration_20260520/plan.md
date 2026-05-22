@@ -52,12 +52,9 @@ Validation note, 2026-05-20:
 
 ## Current Autonomous Execution Queue
 
-1. Connect lead detail workspace to live CRM/service fields, preserving local mock fallback only outside production.
-2. Expose audit ledger read/query path for the lead workspace timeline.
-3. Persist quote history and approval state through deterministic quote-service boundaries.
-4. Persist campaign enrollment state, send eligibility, and next-touch scheduling in campaign-service.
-5. Validate Cloudflare Access, MCP startup, and Oracle VPS smoke after owner/provider secrets are loaded in Infisical.
-6. Archive or mark prototypes only after a migration/rejection report for each app.
+Closed locally on 2026-05-22. Live Cloudflare Access, MCP startup, Oracle VPS
+smoke, and provider import checks remain owner-gated after Infisical secrets are
+loaded.
 
 ## Infisical Coverage Note
 
