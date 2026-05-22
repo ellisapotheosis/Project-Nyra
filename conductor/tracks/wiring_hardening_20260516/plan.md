@@ -29,7 +29,7 @@
 - [ ] Task: Implement: Apply Cloudflare Access OAuth gating to internal subdomains
 - [x] Task: Implement: Map Clerk operator roles to application `rbac.ts` logic
 - [x] Task: Write Tests: Verify TCPA Sentinel gating for DNC/STOP keywords
-- [ ] Task: Implement: Final Secret Leak Scan across the reorganized monorepo
+- [x] Task: Implement: Final Secret Leak Scan across the reorganized monorepo
 - [ ] Task: Conductor - User Manual Verification 'Phase 4: Security & Compliance Hardening' (Protocol in workflow.md)
 
 ## Phase 5: UX Polish & Certification
@@ -38,3 +38,17 @@
 - [x] Task: Implement: Connect Dashboard "Health Heartbeats" to real service status endpoints
 - [x] Task: Implement: Persist "System Audit Trail" forensics to durable storage
 - [ ] Task: Conductor - User Manual Verification 'Phase 5: UX Polish & Certification' (Protocol in workflow.md) — verified with Playwright audit and 30+ production-state screenshots.
+
+## Validation Note
+
+2026-05-20 local validation completed:
+
+- `bash scripts/security/scan.sh --quick` completed with quick secret scan and
+  runtime security audit passing.
+- `pnpm -w test`, `pnpm -w lint`, `pnpm -w typecheck`, and `pnpm -w build`
+  passed after the current Next build-script stabilization.
+- Production route smoke returned HTTP 200 for representative Project Nyra
+  pages and refreshed screenshots in `tests/results/final-cut-smoke/`.
+
+Remaining unchecked tasks require owner/provider credentials, dashboard access,
+or live infrastructure state and should not be simulated locally.

@@ -585,3 +585,24 @@ import/reference:
 
 Create or update the two tunnels, import or enter the public hostname mappings, and apply Access
 policies to every private UI before use.
+
+---
+
+## Remaining owner-gated conductor tasks, 2026-05-20
+
+Local repo validation is complete for the prompt-surface and final-cut
+maintenance pass. The remaining unchecked conductor tasks require provider
+dashboards, live credentials, or infrastructure reachable only from the owner
+environment:
+
+1. Create or confirm Twenty CRM custom objects for `MortgageLead` and `Quote`
+   in the Twenty UI.
+2. Populate live Infisical secrets for Twilio, SendGrid, Twenty CRM, Cloudflare
+   tunnel tokens, Composio hosted MCP values, and any provider OAuth clients.
+3. Import campaign sequences into the live Activepieces runtime after secrets
+   are present.
+4. Validate Letta, mem0, FalkorDB, Qdrant, and OpenMemory MCP against the live
+   orchestrator and Oracle VPS memory stack.
+5. Apply Cloudflare Access OAuth/service-token gates in the Cloudflare Zero
+   Trust dashboard and run live URL smoke checks from a Tailscale-authenticated
+   shell.
