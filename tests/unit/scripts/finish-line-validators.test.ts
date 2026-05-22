@@ -30,6 +30,29 @@ describe("finish-line validators", () => {
     );
   });
 
+  it("allows private Tailscale, localhost, and container MCP HTTP endpoints", () => {
+    const section = validateMcpEndpointConfig([
+      {
+        path: "infra/configs/nexus/nexus.toml",
+        content:
+          "http://100.64.0.31:8765/mcp\nhttp://ha-mcp:8086/mcp\nhttp://localhost:8767/mcp",
+      },
+    ]);
+
+    expect(section.status).toBe("pass");
+  });
+
+  it("allows plain HTTP MCP endpoints on Tailscale CGNAT addresses", () => {
+    const section = validateMcpEndpointConfig([
+      {
+        path: "infra/configs/nexus/nexus.toml",
+        content: 'url = "http://100.64.0.31:5678/mcp"',
+      },
+    ]);
+
+    expect(section.status).toBe("pass");
+  });
+
   it("blocks ratehunter tunnel routes and private public origins", () => {
     const section = validateCloudflareExposure([
       {

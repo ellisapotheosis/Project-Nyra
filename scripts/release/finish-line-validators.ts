@@ -118,8 +118,7 @@ export function validateMcpEndpointConfig(
       if (
         isMcpUrl &&
         parsed.protocol === "http:" &&
-        !["localhost", "127.0.0.1"].includes(parsed.hostname) &&
-        !parsed.hostname.endsWith(".ts.net")
+        !isPrivateMcpHost(parsed.hostname)
       ) {
         issues.push({
           severity: "warning",
@@ -407,6 +406,29 @@ function parseUrl(value: string): URL | null {
   } catch {
     return null;
   }
+}
+
+function isPrivateMcpHost(hostname: string): boolean {
+  if (
+    ["localhost", "127.0.0.1", "::1"].includes(hostname) ||
+    hostname.endsWith(".ts.net") ||
+    !hostname.includes(".")
+  ) {
+    return true;
+  }
+
+  const parts = hostname.split(".").map((part) => Number(part));
+  if (parts.length !== 4 || parts.some((part) => Number.isNaN(part))) {
+    return false;
+  }
+
+  const [a, b] = parts;
+  return (
+    a === 10 ||
+    (a === 172 && b >= 16 && b <= 31) ||
+    (a === 192 && b === 168) ||
+    (a === 100 && b >= 64 && b <= 127)
+  );
 }
 
 function hasRealValue(value: string | undefined): boolean {
