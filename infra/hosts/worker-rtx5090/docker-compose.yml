@@ -65,7 +65,7 @@ services:
       --model ${VLLM_MODEL:-deepseek-ai/DeepSeek-V3}
       --host 0.0.0.0
       --port 8000
-      --gpu-memory-utilization 0.95
+      --gpu-memory-utilization ${VLLM_GPU_MEMORY_UTILIZATION:-0.85}
       --enable-prefix-caching
       --trust-remote-code
     deploy:
