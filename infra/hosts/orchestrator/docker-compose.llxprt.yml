@@ -60,4 +60,4 @@ services:
 networks:
   nyra-network:
     external: true
-    name: orchestrator_nyra-network
+    name: nyra-network_nyra-network

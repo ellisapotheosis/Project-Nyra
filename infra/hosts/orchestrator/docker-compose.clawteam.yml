@@ -3,7 +3,9 @@
 
 services:
   clawteam:
-    image: ghcr.io/claw-ai/clawteam:latest
+    build:
+      context: ../../images/clawteam
+      dockerfile: Dockerfile
     container_name: ${COMPOSE_PROJECT_NAME:-nyra}-clawteam-primary
     environment:
       - CLAWTEAM_ROLE=primary
@@ -32,3 +34,8 @@ services:
           memory: 5g
         reservations:
           memory: 3g
+
+networks:
+  nyra-network:
+    external: true
+    name: nyra-network_nyra-network

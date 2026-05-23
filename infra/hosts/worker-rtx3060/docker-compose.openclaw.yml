@@ -22,13 +22,16 @@ services:
       QUOTE_ENGINE_URL: ${QUOTE_ENGINE_URL:-http://oracle.trex-fiordland.ts.net:8089}
       RATE_QUOTING_ENABLED: "true"
       CRON_JOB_EXECUTOR: enabled
+      OPENCLAW_GATEWAY_TOKEN: ${OPENCLAW_GATEWAY_TOKEN:-local-dev-placeholder-change-me}
     depends_on:
       - litellm
     networks:
       - worker-network
 
   nerve-ui:
-    image: ghcr.io/oraios/nerve-ui:latest
+    build:
+      context: ../../images/nerve-ui
+      dockerfile: Dockerfile
     container_name: worker-3060-nerve-ui
     restart: unless-stopped
     ports:
@@ -37,6 +40,7 @@ services:
       OPENCLAW_URL: http://worker-3060-openclaw:8001
       NERVE_MODE: cron-interface
       NERVE_MORTGAGE_AUTOMATION: "true"
+      WORKER_NAME: worker-rtx3060
     depends_on:
       - openclaw
     networks:

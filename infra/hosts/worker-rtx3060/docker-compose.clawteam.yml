@@ -3,7 +3,9 @@
 
 services:
   clawteam:
-    image: ghcr.io/claw-ai/clawteam:latest
+    build:
+      context: ../../images/clawteam
+      dockerfile: Dockerfile
     container_name: worker-3060-clawteam-fallback
     environment:
       - CLAWTEAM_ROLE=standby-replica
@@ -17,7 +19,7 @@ services:
       - "9002:9000"
       - "18790:18789"
     networks:
-      - nyra-network
+      - worker-network
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9000/health"]
@@ -30,3 +32,7 @@ services:
           memory: 8g
         reservations:
           memory: 5g
+
+networks:
+  worker-network:
+    external: true

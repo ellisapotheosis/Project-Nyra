@@ -1,16 +1,18 @@
 services:
   pocket-tts:
-    image: bozakov/pocket_tts_api:latest
+    build:
+      context: ../../../services/pockettts
+      dockerfile: Dockerfile
     container_name: ${COMPOSE_PROJECT_NAME:-nyra}-orchestrator-pocket-tts
     restart: unless-stopped
     ports:
-      - "8080:8080"
+      - "8080:8000"
     environment:
-      - PORT=8080
+      - PORT=8000
     networks:
       - orchestrator-network
 
 networks:
   orchestrator-network:
     external: true
-    name: nyra-network
+    name: nyra-network_nyra-network
