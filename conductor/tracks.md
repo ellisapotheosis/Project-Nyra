@@ -64,16 +64,6 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ---
 
-- [x] **Track: Finish-Line Master Alignment**
-      _Link: [./tracks/finish_line_master_20260524/](./tracks/finish_line_master_20260524/)_
-
----
-
-- [x] **Track: Twenty CRM Integration (System of Record)**
-      _Link: [./tracks/twenty_crm_integration_20260524/](./tracks/twenty_crm_integration_20260524/)_
-
----
-
 - [x] **Track: Omni Prompting Pack V3 Execution**
       _Link: [./tracks/omni_prompting_pack_v3_20260524/](./tracks/omni_prompting_pack_v3_20260524/)_
 
