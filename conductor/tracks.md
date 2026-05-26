@@ -69,8 +69,8 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ---
 
-- [~] **Track: Twenty CRM Integration (System of Record)**
-  _Link: [./tracks/twenty_crm_integration_20260524/](./tracks/twenty_crm_integration_20260524/)_
+- [x] **Track: Twenty CRM Integration (System of Record)**
+      _Link: [./tracks/twenty_crm_integration_20260524/](./tracks/twenty_crm_integration_20260524/)_
 
 ---
 
