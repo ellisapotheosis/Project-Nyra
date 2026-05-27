@@ -16,7 +16,7 @@ import { ThemeSwitcher } from "@/components/theme-switcher";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 
 export function CommandTopbar() {
-  const pathname = usePathname();
+  const pathname = usePathname() || "/";
   const paths = pathname.split("/").filter(Boolean);
 
   return (

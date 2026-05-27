@@ -1,6 +1,8 @@
 "use client";
 
 import { FormEvent, useMemo, useState } from "react";
+import { cn } from "@/lib/utils";
+import { Bot, Send, User, X } from "lucide-react";
 import { readChatStream } from "@/utils/chatStream";
 import { resolveTenantFromHost } from "@/utils/tenant";
 

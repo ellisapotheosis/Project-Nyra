@@ -131,7 +131,7 @@ const groups = [
 ];
 
 export function NestedSidebar() {
-  const pathname = usePathname();
+  const pathname = usePathname() || "/";
   const { state } = useSidebar();
   const [activeGroup, setActiveGroup] = React.useState(groups[0]);
 

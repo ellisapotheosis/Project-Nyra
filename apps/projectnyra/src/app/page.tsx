@@ -43,8 +43,80 @@ import { SystemAlerts } from "@/components/dashboard/system-alerts";
 import { useApi } from "@/lib/api/hooks";
 import { getCrmWorkspaceSnapshot } from "@/lib/api/workspace";
 import { cn } from "@/lib/utils";
-import Link from "next/link";
 export default function Home() {
+  const {
+    data: workspaceResponse,
+    isLoading: loadingWorkspace,
+    execute: fetchWorkspace,
+  } = useApi(getCrmWorkspaceSnapshot);
+
+  useEffect(() => {
+    fetchWorkspace();
+  }, [fetchWorkspace]);
+
+  const workspace = workspaceResponse?.workspace;
+
+  const priorityQueue = (workspace?.operations.nextBestActions ?? []).map(
+    (item) => ({
+      ...item,
+      icon: item.id.startsWith("compliance")
+        ? ShieldAlert
+        : item.id.startsWith("campaign")
+          ? Workflow
+          : FileClock,
+    })
+  );
+
+  const commandStats = [
+    {
+      label: "Total Leads",
+      value: workspace?.crmOverview.activeLeads.toString() ?? "0",
+      detail: `${workspace?.leads.length ?? 0} active in CRM`,
+      icon: Users,
+      tone: "text-turquoise-400",
+    },
+    {
+      label: "Pipeline Value",
+      value: workspace?.crmOverview.pipelineValue ?? "$0.0M",
+      detail: `${workspace?.applications.length ?? 0} active files`,
+      icon: TrendingUp,
+      tone: "text-indigo-400",
+    },
+    {
+      label: "Active Applications",
+      value: workspace?.crmOverview.activeApplications.toString() ?? "0",
+      detail: workspace?.crmOverview.averageCycle ?? "14 Days Avg",
+      icon: FileClock,
+      tone: "text-pink-400",
+    },
+    {
+      label: "Conversion Rate",
+      value: workspace?.crmOverview.conversionRate ?? "0%",
+      detail: "Qualified / Total",
+      icon: CheckCircle2,
+      tone: "text-turquoise-400",
+    },
+  ];
+
+  const blockerRows = [
+    [
+      "Compliance gate",
+      "Clear",
+      "No STOP, DNC, quiet-hours, or consent blocks on active hot leads.",
+    ],
+    [
+      "CRM sync",
+      workspace?.source === "mock" ? "Degraded" : "Active",
+      workspace?.operations.syncWarnings[0] ||
+        "Twenty mirror is synchronized with crm-api.",
+    ],
+    [
+      "Assistant safety",
+      "Active",
+      "Token verification and HITL approval gates are enforced for all tools.",
+    ],
+  ];
+
   return (
     <AppShell>
       <div className="flex flex-col gap-10">
@@ -146,11 +218,11 @@ export default function Home() {
                         <div
                           className={cn(
                             "mt-0.5 flex size-12 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-white/5 shadow-xl transition-transform group-hover:scale-110",
-                            item.severity === "critical" &&
+                            item.severity === "high" &&
                               "text-pink-400 border-pink-500/20",
-                            item.severity === "warning" &&
+                            item.severity === "medium" &&
                               "text-amber-400 border-amber-500/20",
-                            item.severity === "healthy" &&
+                            item.severity === "low" &&
                               "text-turquoise-400 border-turquoise-500/20"
                           )}
                         >
@@ -161,11 +233,11 @@ export default function Home() {
                             {item.title}
                           </h3>
                           <p className="text-xs leading-relaxed text-white/40">
-                            {item.context}
+                            {item.detail}
                           </p>
                           <div className="flex pt-3">
                             <Link
-                              href={item.route}
+                              href={item.href}
                               className={cn(
                                 buttonVariants({
                                   variant: "link",

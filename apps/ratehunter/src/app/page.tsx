@@ -24,6 +24,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { ThemeSwitcher } from "@/components/theme-switcher";
 
 const contact = {
   name: "Ellis Andersen",
@@ -155,7 +156,6 @@ export default function Home() {
       </div>
 
       <div className="mx-auto flex w-full max-w-7xl flex-col gap-8 px-4 pb-24 pt-6 md:px-6 lg:px-8">
-        import {ThemeSwitcher} from "@/components/theme-switcher"; ...
         <nav className="glass-panel sticky top-4 z-40 flex items-center justify-between gap-4 rounded-[28px] border border-white/10 bg-black/40 px-6 py-3 backdrop-blur-xl shadow-2xl">
           <div className="flex items-center gap-3">
             <span className="flex size-10 items-center justify-center rounded-xl border border-indigo-500/30 bg-indigo-500/20 text-indigo-400 shadow-[0_0_20px_-5px_rgba(var(--indigo-rgb),0.5)]">

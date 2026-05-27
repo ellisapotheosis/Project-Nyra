@@ -151,7 +151,7 @@ function mergeConsentData(
 
   const finalDnc = existingDnc || plannedDnc;
   const finalConsent =
-    strength[plannedConsent] > strength[existingConsent]
+    (strength[plannedConsent] ?? 0) > (strength[existingConsent] ?? 0)
       ? plannedConsent
       : existingConsent;
 

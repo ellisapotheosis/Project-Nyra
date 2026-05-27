@@ -18,7 +18,7 @@ app.use(express.json());
 const ingestionService = new LeadIngestionService();
 
 // Health check
-app.get("/health", (req, res) => {
+app.get("/health", (_req, res) => {
   res.json({ status: "healthy", service: "lead-ingestion" });
 });
 
@@ -58,10 +58,10 @@ app.post("/api/leads/ingest", async (req, res) => {
       }
     }
 
-    res.status(200).json(result);
+    return res.status(200).json(result);
   } catch (error: any) {
     console.error("Lead ingestion error:", error);
-    res.status(400).json({
+    return res.status(400).json({
       error: "Validation failed or ingestion error",
       details: error.message,
     });
