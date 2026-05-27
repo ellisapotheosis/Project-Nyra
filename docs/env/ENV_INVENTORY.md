@@ -42,17 +42,17 @@ Total discovered keys: **516**
 ## `ADMIN_EMAIL`
 - `infra/project-nyra-scaffold/infra/config/litellm-config.yaml`
 
-## `ruvector_DB`
+## `the approved vector memory backend_DB`
 - `infra/docker-compose.yml`
 
-## `ruvector_PASSWORD`
+## `the approved vector memory backend_PASSWORD`
 - `apps/ingestion/docs/archon-os-FULL-FEATURES-CONTAINERIZATION.md`
 - `infra/docker-compose.yml`
 
-## `ruvector_PORT`
+## `the approved vector memory backend_PORT`
 - `infra/docker-compose.yml`
 
-## `ruvector_USER`
+## `the approved vector memory backend_USER`
 - `infra/docker-compose.yml`
 
 ## `AGENTIC_FLOW_IMAGE`
@@ -317,7 +317,7 @@ Total discovered keys: **516**
 - `services/archon-os/docker-compose.yml`
 - `services/archon-os/src/config/index.ts`
 
-## `CLAUDE_FLOW_ENABLE_RUVECTOR`
+## `CLAUDE_FLOW_ENABLE_APPROVED_VECTOR_MEMORY_BACKEND`
 - `services/archon-os/docker-compose.yml`
 - `services/archon-os/src/config/index.ts`
 
@@ -1705,49 +1705,49 @@ Total discovered keys: **516**
 - `services/gemini-mcp/CLAUDE.md`
 - `services/github-mcp/CLAUDE.md`
 
-## `RUVECTOR_DATABASE`
+## `APPROVED_VECTOR_MEMORY_BACKEND_DATABASE`
 - `services/archon-os/src/config/index.ts`
 
-## `RUVECTOR_HOST`
+## `APPROVED_VECTOR_MEMORY_BACKEND_HOST`
 - `services/archon-os/src/config/index.ts`
 
-## `RUVECTOR_PASSWORD`
+## `APPROVED_VECTOR_MEMORY_BACKEND_PASSWORD`
 - `services/archon-os/src/config/index.ts`
 
-## `RUVECTOR_PGADMIN_EMAIL`
+## `APPROVED_VECTOR_MEMORY_BACKEND_PGADMIN_EMAIL`
 - `infra/docker-compose.yml`
 
-## `RUVECTOR_PGADMIN_PASSWORD`
+## `APPROVED_VECTOR_MEMORY_BACKEND_PGADMIN_PASSWORD`
 - `infra/docker-compose.yml`
 
-## `RUVECTOR_PGADMIN_PORT`
+## `APPROVED_VECTOR_MEMORY_BACKEND_PGADMIN_PORT`
 - `infra/compose/overrides/docker-compose.orchestrator.override.yml`
 - `infra/docker-compose.yml`
 
-## `RUVECTOR_PORT`
+## `APPROVED_VECTOR_MEMORY_BACKEND_PORT`
 - `services/archon-os/src/config/index.ts`
 
-## `RUVECTOR_POSTGRES_DB`
+## `APPROVED_VECTOR_MEMORY_BACKEND_POSTGRES_DB`
 - `infra/docker-compose.yml`
 - `infra/docker-compose/docker-compose.archon-os.yml`
 - `services/archon-os/docker-compose.yml`
 
-## `RUVECTOR_POSTGRES_PASSWORD`
+## `APPROVED_VECTOR_MEMORY_BACKEND_POSTGRES_PASSWORD`
 - `infra/docker-compose.yml`
 - `infra/docker-compose/docker-compose.archon-os.yml`
 - `services/archon-os/docker-compose.yml`
 
-## `RUVECTOR_POSTGRES_PORT`
+## `APPROVED_VECTOR_MEMORY_BACKEND_POSTGRES_PORT`
 - `infra/compose/overrides/docker-compose.orchestrator.override.yml`
 - `infra/docker-compose.yml`
 - `infra/docs/STACK-ASSET-INVENTORY.md`
 
-## `RUVECTOR_POSTGRES_USER`
+## `APPROVED_VECTOR_MEMORY_BACKEND_POSTGRES_USER`
 - `infra/docker-compose.yml`
 - `infra/docker-compose/docker-compose.archon-os.yml`
 - `services/archon-os/docker-compose.yml`
 
-## `RUVECTOR_USER`
+## `APPROVED_VECTOR_MEMORY_BACKEND_USER`
 - `services/archon-os/src/config/index.ts`
 
 ## `S3_BUCKET`

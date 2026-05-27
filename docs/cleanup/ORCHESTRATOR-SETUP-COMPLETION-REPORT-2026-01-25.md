@@ -1,4 +1,5 @@
 # Orchestrator Setup - Completion Report
+
 **Date**: 2026-01-25
 **Device**: Minisforum UH680 (Orchestrator-Mini)
 **Status**: Ready for deployment after WSL restart
@@ -8,12 +9,15 @@
 ## Tasks Completed
 
 ### 1. Claude Code Permissions (Maximalist Configuration)
+
 **Files Modified:**
+
 - `~/.claude/settings.local.json` - Global permissions
 - `~/projects/project-nyra/.claude/settings.local.json` - Project permissions
 - `~/projects/project-nyra/.claude/experimental-features.json` - Experimental features
 
 **Configuration:**
+
 - Bypass permissions mode enabled
 - Wildcard allow all tools (`"allow": ["*"]`)
 - All experimental features enabled (ultrathinking, swarms, neural patterns)
@@ -22,9 +26,11 @@
 - Auto-accept all tools
 
 ### 2. WSL Configuration Applied
+
 **File Modified:** `/etc/wsl.conf`
 
 **Configuration:**
+
 - Systemd enabled
 - Hostname: nyra-orchestrator
 - Metadata support for proper file permissions
@@ -35,9 +41,11 @@
 **Pending:** Windows .wslconfig creation + WSL restart
 
 ### 3. Infrastructure Analysis
+
 **Master Docker Compose:** `/infra/docker-compose.yml`
 
 **Architecture:**
+
 - Modular include-based structure with 9 layers
 - Proper dependency ordering
 - Nexus Router as MCP proxy aggregator (port 6000)
@@ -45,8 +53,9 @@
 - 30+ services configured for orchestrator-mini
 
 **Services to Run on Orchestrator-Mini:**
+
 - Core: PostgreSQL, Redis, Qdrant, FalkorDB, Neo4j
-- MCP: Nexus Router, LiteLLM, Letta, Mem0, Claude Flow, ruvector, RuVector
+- MCP: Nexus Router, LiteLLM, Letta, Mem0, Claude Flow, the approved vector memory backend, the approved vector memory backend
 - Apps: TwentyCRM, n8n, Dify, Activepieces, Open-WebUI
 - Orchestration: Nyra Orchestrator, Quote Engine, Campaign Engine
 - Observability: Prometheus, Grafana, Loki
@@ -56,7 +65,9 @@
 **Verdict:** Infrastructure is well-organized, no consolidation needed.
 
 ### 4. Installation Scripts Created
+
 **Scripts:**
+
 - `/scripts/install-orchestrator-services.sh` - Installs Tailscale + Cloudflared
 - `/scripts/pre-install-check.sh` - Pre-installation validation
 
@@ -67,6 +78,7 @@
 ## Pending Actions (Blocked by WSL Restart)
 
 ### Automatic (Claude Will Execute)
+
 1. Install Tailscale
 2. Install Cloudflared
 3. Run orchestrator bootstrap scripts
@@ -75,6 +87,7 @@
 6. Validate health checks
 
 ### Manual (User Must Do)
+
 1. Create `C:\Users\YourUsername\.wslconfig` on Windows
 2. Run `wsl --shutdown` from PowerShell
 3. Reopen Ubuntu
@@ -85,6 +98,7 @@
 ## Infrastructure Summary
 
 **Well-Designed:**
+
 - Modular architecture ✅
 - Proper service layering ✅
 - MCP aggregation via Nexus ✅
@@ -92,6 +106,7 @@
 - Worker separation ✅
 
 **Needs Attention:**
+
 - WSL restart required ⚠️
 - Update `/infra/.env` with real API keys ⚠️
 
@@ -100,6 +115,7 @@
 ## Next Steps After WSL Restart
 
 Single command startup:
+
 ```bash
 cd ~/projects/project-nyra/infra && \
 docker network create nyra-network 2>/dev/null || true && \

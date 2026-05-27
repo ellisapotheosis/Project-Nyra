@@ -41,7 +41,7 @@ KEY FINDINGS
    ✓ Letta - Active (stateful memory agent)
    ⏳ letta MCP - Pending Week 3 (FalkorDB backend)
    ⏳ Mem0 MCP - Pending Week 3 (cloud/local hybrid)
-   ✓ ruvector - Production ready (150x-12500x faster)
+   ✓ the approved vector memory backend - Production ready (150x-12500x faster)
 
 7. MONITORING & OBSERVABILITY
    ✓ Prometheus - Metrics collection
@@ -109,7 +109,7 @@ WEEK 2-3:
 [ ] Deploy Nexus Router
 
 OPTIMIZATION:
-[ ] Enable ruvector HNSW indexing
+[ ] Enable the approved vector memory backend HNSW indexing
 [ ] Configure CRDT replication
 [ ] Implement ReasoningBank learning
 [ ] Performance tuning
@@ -180,7 +180,7 @@ Specific Guides:
 → docs/deployment/letta-MCP-DEPLOYMENT-PLAN.md
 → docs/deployment/MEM0-MCP-DEPLOYMENT-PLAN.md
 → docs/deployment/MCP-SERVER-SETUP.md
-→ docs/integration/ruvector-INTEGRATION-GUIDE.md
+→ docs/integration/the approved vector memory backend-INTEGRATION-GUIDE.md
 
 QUICK START COMMANDS
 ================================================================================
@@ -217,7 +217,7 @@ WHAT'S PRODUCTION-READY
 ✓ Activepieces (automation)
 ✓ TwentyCRM (CRM)
 ✓ Letta (memory)
-✓ ruvector (vector search - 150x-12500x faster)
+✓ the approved vector memory backend (vector search - 150x-12500x faster)
 ✓ Monitoring (Prometheus/Grafana/Loki)
 
 WHAT'S PENDING

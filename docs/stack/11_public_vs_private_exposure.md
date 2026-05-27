@@ -17,7 +17,7 @@ Updated: 2026-04-30
 
 ### Private (Tailscale / internal only)
 
-- Datastores: postgres, redis, mongo, ruvector-postgres
+- Datastores: postgres, redis, mongo, the approved vector memory backend-postgres
 - Worker inference lanes: 3060/3090/5090 vLLM/Ollama
 - Datastore and vector backends: FalkorDB, Qdrant, Postgres, Redis
 - Raw voice/media transport ports

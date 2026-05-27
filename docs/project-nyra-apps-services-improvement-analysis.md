@@ -77,7 +77,7 @@ files, generated Cloudflare state, and current Project Nyra architecture rules.
 
 5. Remove or quarantine stale architecture references outside archived material.
 
-   Evidence: current architecture explicitly forbids reintroducing RuVector and
+   Evidence: current architecture explicitly forbids reintroducing the approved vector memory backend and
    Graphiti, yet non-archived docs still mention older memory language in places
    such as Letta integration notes. The safe cleanup is documentation-only first:
    mark legacy references as historical or update them to Mem0/OpenMemory,

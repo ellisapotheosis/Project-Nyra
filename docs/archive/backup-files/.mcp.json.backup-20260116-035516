@@ -1,13 +1,13 @@
 {
   "mcpServers": {
-    "claude-flow": {
+    "retired orchestration tooling": {
       "command": "docker",
       "args": [
         "exec",
         "-i",
-        "nyra-claude-flow-mcp",
+        "nyra-retired orchestration tooling-mcp",
         "npx",
-        "@claude-flow/cli@latest",
+        "@retired orchestration tooling/cli@latest",
         "mcp",
         "start"
       ],

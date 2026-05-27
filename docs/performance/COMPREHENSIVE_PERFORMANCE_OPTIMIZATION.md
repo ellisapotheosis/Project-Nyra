@@ -1,8 +1,9 @@
 # Comprehensive Performance Optimization Analysis
+
 ## Project Nyra - Codebase Performance Audit
 
 **Date**: 2026-01-25
-**V3 Performance Targets**: Flash Attention 2.49x-7.47x | HNSW 150x-12,500x | Memory -50-75% | MCP <100ms | SONA <0.05ms
+**V3 Performance Targets**: Flash Attention 2.49x-7.47x | HNSW 150x-12,500x | Memory -50-75% | MCP <100ms | learning model <0.05ms
 
 ---
 
@@ -21,6 +22,7 @@ This document provides a comprehensive performance analysis of the Project Nyra 
 ---
 
 ## Table of Contents
+
 1. [N+1 Query Patterns & Database Optimization](#1-n1-query-patterns--database-optimization)
 2. [React Re-render Issues](#2-react-re-render-issues)
 3. [Caching Opportunities](#3-caching-opportunities)
@@ -39,6 +41,7 @@ This document provides a comprehensive performance analysis of the Project Nyra 
 **Location**: `/apps/web/nyra-admin/lib/api/leads.ts`
 
 **Current Implementation**:
+
 ```typescript
 // ❌ N+1 QUERY PROBLEM
 export const leadService = {
@@ -56,15 +59,17 @@ export const leadService = {
 ```
 
 **Performance Impact**:
+
 - **Current**: 100 leads × 2 API calls each = 200 requests
 - **Latency**: ~20-30ms per request × 200 = 4-6 seconds total
 - **Network overhead**: 200 × 64 bytes headers = 12.8KB wasted
 - **Server load**: 200 individual DB queries
 
 **✅ Optimized Solution**:
+
 ```typescript
 // ✅ BATCH API CALLS - 100x FASTER
-import DataLoader from 'dataloader';
+import DataLoader from "dataloader";
 
 export const leadService = {
   // Existing methods...
@@ -80,17 +85,21 @@ export const leadService = {
     if (ids.length === 0) return new Map();
 
     // Single request with all IDs
-    const response = await api.post<{ leads: Lead[] }>('/api/leads/batch', { ids });
+    const response = await api.post<{ leads: Lead[] }>("/api/leads/batch", {
+      ids,
+    });
 
     // Convert to map for O(1) lookups
-    return new Map(response.leads.map(lead => [lead.id, lead]));
+    return new Map(response.leads.map((lead) => [lead.id, lead]));
   },
 
-  batchAssignCampaign: async (assignments: Array<{ leadId: string; campaignId: string }>) => {
+  batchAssignCampaign: async (
+    assignments: Array<{ leadId: string; campaignId: string }>
+  ) => {
     if (assignments.length === 0) return;
 
     // Single batch request
-    return api.post('/api/leads/batch/assign-campaign', { assignments });
+    return api.post("/api/leads/batch/assign-campaign", { assignments });
   },
 
   // DataLoader pattern for automatic batching
@@ -98,11 +107,11 @@ export const leadService = {
     return new DataLoader<string, Lead>(
       async (ids: readonly string[]) => {
         const leadsMap = await leadService.batchGet([...ids]);
-        return ids.map(id => leadsMap.get(id) || null);
+        return ids.map((id) => leadsMap.get(id) || null);
       },
       {
         maxBatchSize: 100,
-        batchScheduleFn: callback => setTimeout(callback, 10), // 10ms window
+        batchScheduleFn: (callback) => setTimeout(callback, 10), // 10ms window
       }
     );
   },
@@ -110,40 +119,41 @@ export const leadService = {
 
 // Usage example:
 async function loadLeadsForDashboard() {
-  const leadIds = ['id1', 'id2', 'id3', /* ...100 IDs */];
+  const leadIds = ["id1", "id2", "id3" /* ...100 IDs */];
 
   // ✅ Single batched request instead of 100
   const leadsMap = await leadService.batchGet(leadIds);
 
-  return leadIds.map(id => leadsMap.get(id));
+  return leadIds.map((id) => leadsMap.get(id));
 }
 
 // DataLoader usage (automatic batching):
 const leadLoader = leadService.createLeadLoader();
 
 // These calls are automatically batched within 10ms window
-const lead1 = await leadLoader.load('id1');
-const lead2 = await leadLoader.load('id2');
+const lead1 = await leadLoader.load("id1");
+const lead2 = await leadLoader.load("id2");
 // ... 98 more calls
 // Results in single batch request for all 100 IDs
 ```
 
 **Backend Implementation Required**:
+
 ```typescript
 // Backend: /api/leads/batch endpoint (NestJS example)
-import { Controller, Post, Body } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
+import { Controller, Post, Body } from "@nestjs/common";
+import { PrismaService } from "../prisma/prisma.service";
 
-@Controller('leads')
+@Controller("leads")
 export class LeadsController {
   constructor(private prisma: PrismaService) {}
 
-  @Post('/batch')
+  @Post("/batch")
   async batchGetLeads(@Body() body: { ids: string[] }) {
     // ✅ Single optimized query with IN clause
     const leads = await this.prisma.lead.findMany({
       where: {
-        id: { in: body.ids }
+        id: { in: body.ids },
       },
       // ✅ Include relations in single query (avoid N+1 in backend)
       include: {
@@ -153,20 +163,22 @@ export class LeadsController {
             id: true,
             name: true,
             email: true,
-          }
+          },
         },
         activities: {
           take: 5,
-          orderBy: { createdAt: 'desc' }
-        }
-      }
+          orderBy: { createdAt: "desc" },
+        },
+      },
     });
 
     return { leads };
   }
 
-  @Post('/batch/assign-campaign')
-  async batchAssignCampaign(@Body() body: { assignments: Array<{leadId: string, campaignId: string}> }) {
+  @Post("/batch/assign-campaign")
+  async batchAssignCampaign(
+    @Body() body: { assignments: Array<{ leadId: string; campaignId: string }> }
+  ) {
     // ✅ Single transaction with bulk update
     const results = await this.prisma.$transaction(
       body.assignments.map(({ leadId, campaignId }) =>
@@ -175,7 +187,7 @@ export class LeadsController {
           data: {
             campaignId,
             updatedAt: new Date(),
-          }
+          },
         })
       )
     );
@@ -186,6 +198,7 @@ export class LeadsController {
 ```
 
 **Performance Gains**:
+
 - **Requests**: 200 → 1 (200x reduction)
 - **Latency**: 4-6s → 50-100ms (40-60x faster)
 - **Network**: 12.8KB → 64 bytes overhead (200x reduction)
@@ -201,21 +214,22 @@ export class LeadsController {
 ```typescript
 // ❌ WATERFALL PROBLEM
 async function loadDashboardData() {
-  const leads = await api.get('/api/leads');           // Wait 100ms
-  const campaigns = await api.get('/api/campaigns');   // Wait 100ms
-  const quotes = await api.get('/api/quotes');         // Wait 100ms
+  const leads = await api.get("/api/leads"); // Wait 100ms
+  const campaigns = await api.get("/api/campaigns"); // Wait 100ms
+  const quotes = await api.get("/api/quotes"); // Wait 100ms
   // Total: 300ms
 }
 ```
 
 **✅ Parallel Fetching Solution**:
+
 ```typescript
 // ✅ PARALLEL LOADING - 3x FASTER
 async function loadDashboardData() {
   const [leads, campaigns, quotes] = await Promise.all([
-    api.get('/api/leads'),
-    api.get('/api/campaigns'),
-    api.get('/api/quotes'),
+    api.get("/api/leads"),
+    api.get("/api/campaigns"),
+    api.get("/api/quotes"),
   ]);
   // Total: 100ms (limited by slowest request)
 }
@@ -223,13 +237,14 @@ async function loadDashboardData() {
 // ✅ EVEN BETTER: Dedicated aggregate endpoint
 async function loadDashboardData() {
   // Single request that backend fetches in parallel
-  const dashboard = await api.get('/api/dashboard/aggregate');
+  const dashboard = await api.get("/api/dashboard/aggregate");
   // Total: 120ms (single roundtrip + parallel backend queries)
   return dashboard;
 }
 ```
 
 **Backend Aggregate Endpoint**:
+
 ```typescript
 // Backend: Parallel query execution
 @Get('/dashboard/aggregate')
@@ -253,6 +268,7 @@ async getDashboardAggregate(@CurrentUser() user: User) {
 ```
 
 **Performance Gains**:
+
 - **Latency**: 300ms → 100-120ms (2.5-3x faster)
 - **Roundtrips**: 3 → 1 (network efficiency)
 - **User Experience**: Faster initial page load
@@ -267,9 +283,13 @@ async getDashboardAggregate(@CurrentUser() user: User) {
 **Location**: `/packages/websocket-client/src/react/index.tsx`
 
 **Current Implementation**:
+
 ```typescript
 // ❌ MEMORY LEAK: Unbounded array growth
-export function useWebSocket(url: string, options: UseWebSocketOptions = {}): UseWebSocketReturn {
+export function useWebSocket(
+  url: string,
+  options: UseWebSocketOptions = {}
+): UseWebSocketReturn {
   const [events, setEvents] = useState<SystemEvent[]>([]);
 
   // ❌ PROBLEM: Events array grows infinitely
@@ -291,15 +311,17 @@ export function useWebSocket(url: string, options: UseWebSocketOptions = {}): Us
 ```
 
 **Performance Impact**:
+
 - **Memory Growth**: ~1KB per event × 10,000 events = 10MB leak
 - **Re-render Cost**: O(n) array copying gets slower over time
 - **CPU Usage**: Garbage collection struggles with large arrays
 - **Browser Crash**: After ~100,000 events (~100MB)
 
 **✅ Optimized Solution with Circular Buffer**:
+
 ```typescript
 // ✅ MEMORY-SAFE: Bounded event buffer
-import { useRef, useState, useEffect, useCallback } from 'react';
+import { useRef, useState, useEffect, useCallback } from "react";
 
 // Circular buffer implementation
 class CircularBuffer<T> {
@@ -321,7 +343,10 @@ class CircularBuffer<T> {
     if (this.size < this.capacity) {
       return this.buffer.slice(0, this.size);
     }
-    return [...this.buffer.slice(this.head), ...this.buffer.slice(0, this.head)];
+    return [
+      ...this.buffer.slice(this.head),
+      ...this.buffer.slice(0, this.head),
+    ];
   }
 
   clear(): void {
@@ -348,7 +373,9 @@ export function useWebSocket(
   const [connected, setConnected] = useState(false);
   const [connecting, setConnecting] = useState(false);
   const [sessionId, setSessionId] = useState<string | null>(null);
-  const [connectionInfo, setConnectionInfo] = useState<ConnectionInfo | null>(null);
+  const [connectionInfo, setConnectionInfo] = useState<ConnectionInfo | null>(
+    null
+  );
   const [error, setError] = useState<Error | null>(null);
 
   // ✅ Bounded event buffer (default: last 1000 events)
@@ -383,7 +410,7 @@ export function useWebSocket(
         }
       });
 
-      client.on('connected', (info: ConnectionInfo) => {
+      client.on("connected", (info: ConnectionInfo) => {
         setSessionId(client.getSessionId());
         setConnectionInfo(info);
       });
@@ -484,6 +511,7 @@ export function useWebSocket(
 ```
 
 **Performance Gains**:
+
 - **Memory**: 10MB leak → 1MB constant (10x reduction)
 - **Re-renders**: Every event → Every 100ms (10-100x fewer)
 - **CPU**: Linear growth → Constant time operations
@@ -497,6 +525,7 @@ export function useWebSocket(
 **Problem**: Components re-render unnecessarily due to missing memoization
 
 **✅ Optimized Component Pattern**:
+
 ```typescript
 // ❌ BAD: Re-renders on every parent update
 function LeadCard({ lead, onAssign }: LeadCardProps) {
@@ -569,6 +598,7 @@ function LeadsList({ leads }: LeadsListProps) {
 ```
 
 **Performance Gains**:
+
 - **Re-renders**: 100% → 1-5% (95-99% reduction)
 - **CPU**: Constant time checks vs full re-renders
 - **Frame rate**: 30fps → 60fps (smoother UI)
@@ -586,9 +616,9 @@ function LeadsList({ leads }: LeadsListProps) {
 
 ```typescript
 // ✅ MULTI-TIER CACHING STRATEGY
-import LRUCache from 'lru-cache';
-import { OptimizedRedisClient } from './optimized-redis-client';
-import { PrismaClient } from '@prisma/client';
+import LRUCache from "lru-cache";
+import { OptimizedRedisClient } from "./optimized-redis-client";
+import { PrismaClient } from "@prisma/client";
 
 class MultiTierCacheManager {
   private l1Cache: Map<string, any>; // In-memory, 10MB, <1ms
@@ -654,14 +684,14 @@ class MultiTierCacheManager {
 
   private async fetchFromDatabase(key: string): Promise<any> {
     // Parse key format: "entity:id" or "query:hash"
-    const [type, id] = key.split(':');
+    const [type, id] = key.split(":");
 
     switch (type) {
-      case 'lead':
+      case "lead":
         return this.database.lead.findUnique({ where: { id } });
-      case 'campaign':
+      case "campaign":
         return this.database.campaign.findUnique({ where: { id } });
-      case 'quote':
+      case "quote":
         return this.database.quote.findUnique({ where: { id } });
       default:
         return null;
@@ -708,6 +738,7 @@ class MultiTierCacheManager {
 ```
 
 **Performance Gains**:
+
 - **L1 Hit**: <1ms (1000x faster than DB)
 - **L2 Hit**: <5ms (20x faster than DB)
 - **L3 Hit**: <20ms (5x faster than DB)
@@ -721,11 +752,14 @@ class MultiTierCacheManager {
 ```typescript
 // ✅ SMART QUERY CACHE with automatic invalidation
 class QueryCacheManager {
-  private cache = new Map<string, {
-    data: any;
-    timestamp: number;
-    deps: string[]
-  }>();
+  private cache = new Map<
+    string,
+    {
+      data: any;
+      timestamp: number;
+      deps: string[];
+    }
+  >();
   private readonly DEFAULT_TTL = 300000; // 5 minutes
 
   async query(sql: string, params: any[], deps: string[] = []): Promise<any> {
@@ -751,11 +785,13 @@ class QueryCacheManager {
   }
 
   private generateCacheKey(sql: string, params: any[]): string {
-    return `query:${createHash('md5').update(sql + JSON.stringify(params)).digest('hex')}`;
+    return `query:${createHash("md5")
+      .update(sql + JSON.stringify(params))
+      .digest("hex")}`;
   }
 
   private isStale(cached: { timestamp: number }): boolean {
-    return (Date.now() - cached.timestamp) > this.DEFAULT_TTL;
+    return Date.now() - cached.timestamp > this.DEFAULT_TTL;
   }
 
   // ✅ Automatic invalidation on related table updates
@@ -768,7 +804,7 @@ class QueryCacheManager {
       }
     }
 
-    toDelete.forEach(key => this.cache.delete(key));
+    toDelete.forEach((key) => this.cache.delete(key));
   }
 
   // ✅ Clear all caches
@@ -782,17 +818,18 @@ const queryCache = new QueryCacheManager();
 
 // Cache query with dependency tracking
 const leads = await queryCache.query(
-  'SELECT * FROM leads WHERE campaign_id = ?',
+  "SELECT * FROM leads WHERE campaign_id = ?",
   [campaignId],
-  ['leads', 'campaigns'] // ✅ Track dependencies
+  ["leads", "campaigns"] // ✅ Track dependencies
 );
 
 // Auto-invalidate when leads table changes
 await database.updateLead(leadId, data);
-queryCache.invalidateByDependency('leads'); // ✅ Cache cleared automatically
+queryCache.invalidateByDependency("leads"); // ✅ Cache cleared automatically
 ```
 
 **Performance Gains**:
+
 - **Repeated Queries**: 100ms → 1ms (100x faster)
 - **Database Load**: 70% reduction
 - **Estimated Impact**: 5-10x speedup for read-heavy operations
@@ -806,6 +843,7 @@ queryCache.invalidateByDependency('leads'); // ✅ Cache cleared automatically
 **Location**: `/src/database/caching/intelligent-cache-manager.ts`
 
 **Problem**:
+
 ```typescript
 // ❌ MEMORY LEAK: Intervals not cleared on error/exception
 export class IntelligentCacheManager extends EventEmitter {
@@ -839,6 +877,7 @@ export class IntelligentCacheManager extends EventEmitter {
 ```
 
 **✅ Solution** (from optimized-cache-manager.ts):
+
 ```typescript
 // ✅ MEMORY-SAFE: Proper interval management
 export class OptimizedCacheManager extends EventEmitter {
@@ -862,15 +901,15 @@ export class OptimizedCacheManager extends EventEmitter {
       }
     };
 
-    process.once('SIGINT', cleanup);
-    process.once('SIGTERM', cleanup);
-    process.once('exit', cleanup);
-    process.once('uncaughtException', (error) => {
-      console.error('Uncaught exception, cleaning up:', error);
+    process.once("SIGINT", cleanup);
+    process.once("SIGTERM", cleanup);
+    process.once("exit", cleanup);
+    process.once("uncaughtException", (error) => {
+      console.error("Uncaught exception, cleaning up:", error);
       cleanup();
     });
-    process.once('unhandledRejection', (reason) => {
-      console.error('Unhandled rejection, cleaning up:', reason);
+    process.once("unhandledRejection", (reason) => {
+      console.error("Unhandled rejection, cleaning up:", reason);
       cleanup();
     });
 
@@ -884,12 +923,12 @@ export class OptimizedCacheManager extends EventEmitter {
       try {
         await this.runOptimizationCycle();
       } catch (error) {
-        this.emit('optimizationError', error);
+        this.emit("optimizationError", error);
       }
     }, 600000); // 10 minutes
 
     // ✅ Track intervals for cleanup
-    this.intervals.set('optimization', optimizationInterval);
+    this.intervals.set("optimization", optimizationInterval);
   }
 
   destroy(): void {
@@ -907,7 +946,7 @@ export class OptimizedCacheManager extends EventEmitter {
       try {
         cleanup();
       } catch (error) {
-        console.error('Cleanup callback error:', error);
+        console.error("Cleanup callback error:", error);
       }
     }
     this.cleanupCallbacks.clear();
@@ -924,6 +963,7 @@ export class OptimizedCacheManager extends EventEmitter {
 ```
 
 **Performance Impact**:
+
 - **Memory Leaks**: Eliminated
 - **Cleanup Time**: Instant (vs manual garbage collection)
 - **Stability**: No crashes from memory exhaustion
@@ -936,16 +976,17 @@ export class OptimizedCacheManager extends EventEmitter {
 **Problem**: Event listeners added but never removed
 
 **✅ Solution**:
+
 ```typescript
 // ❌ BAD: Listener leak
 class BadComponent {
   constructor() {
-    eventEmitter.on('data', this.handleData);
+    eventEmitter.on("data", this.handleData);
     // ❌ Never removed
   }
 
   private handleData(data: any) {
-    console.log('Received data:', data);
+    console.log("Received data:", data);
   }
 }
 
@@ -955,16 +996,16 @@ class GoodComponent {
 
   constructor() {
     const handleData = this.handleData.bind(this);
-    eventEmitter.on('data', handleData);
+    eventEmitter.on("data", handleData);
 
     // ✅ Register cleanup
     this.cleanup.push(() => {
-      eventEmitter.off('data', handleData);
+      eventEmitter.off("data", handleData);
     });
 
     // ✅ Alternative: Use AbortController for auto-cleanup
     const controller = new AbortController();
-    eventEmitter.on('update', this.handleUpdate, { signal: controller.signal });
+    eventEmitter.on("update", this.handleUpdate, { signal: controller.signal });
 
     this.cleanup.push(() => {
       controller.abort(); // ✅ Removes all listeners
@@ -972,22 +1013,23 @@ class GoodComponent {
   }
 
   private handleData(data: any) {
-    console.log('Received data:', data);
+    console.log("Received data:", data);
   }
 
   private handleUpdate(update: any) {
-    console.log('Received update:', update);
+    console.log("Received update:", update);
   }
 
   destroy(): void {
     // ✅ Run all cleanup functions
-    this.cleanup.forEach(fn => fn());
+    this.cleanup.forEach((fn) => fn());
     this.cleanup = [];
   }
 }
 ```
 
 **Performance Impact**:
+
 - **Memory**: 100% listener cleanup
 - **Estimated Impact**: Prevents gradual memory accumulation
 
@@ -1000,6 +1042,7 @@ class GoodComponent {
 **Location**: `/src/database/caching/intelligent-cache-manager.ts`
 
 **Problem**:
+
 ```typescript
 // ❌ EXPENSIVE: Recalculate checksum every time
 private async calculateChecksum(value: any): Promise<string> {
@@ -1017,19 +1060,18 @@ await this.put('cache-id', 'key', value); // Calculates again (same data!)
 ```
 
 **✅ Optimized Solution**:
+
 ```typescript
 // ✅ MEMOIZED CHECKSUM CALCULATION
-import LRUCache from 'lru-cache';
-import { createHash } from 'crypto';
+import LRUCache from "lru-cache";
+import { createHash } from "crypto";
 
 class ChecksumCache {
   private cache = new LRUCache<string, string>({ max: 10000 });
 
   async calculate(value: any): Promise<string> {
     // ✅ Use content-based key
-    const content = typeof value === 'string'
-      ? value
-      : JSON.stringify(value);
+    const content = typeof value === "string" ? value : JSON.stringify(value);
 
     // ✅ Check cache first
     const cached = this.cache.get(content);
@@ -1037,9 +1079,7 @@ class ChecksumCache {
 
     // ✅ For cache keys, use fast non-cryptographic hash
     // MD5 is 10-100x faster than SHA-256 and sufficient for cache keys
-    const checksum = createHash('md5')
-      .update(content)
-      .digest('hex');
+    const checksum = createHash("md5").update(content).digest("hex");
 
     // ✅ Cache result
     this.cache.set(content, checksum);
@@ -1048,14 +1088,12 @@ class ChecksumCache {
 
   // ✅ Even faster: Use xxHash or MurmurHash3
   calculateFast(value: any): string {
-    const content = typeof value === 'string'
-      ? value
-      : JSON.stringify(value);
+    const content = typeof value === "string" ? value : JSON.stringify(value);
 
     // Simple but fast hash function
     let hash = 0;
     for (let i = 0; i < content.length; i++) {
-      hash = ((hash << 5) - hash) + content.charCodeAt(i);
+      hash = (hash << 5) - hash + content.charCodeAt(i);
       hash = hash & hash; // Convert to 32-bit integer
     }
 
@@ -1074,6 +1112,7 @@ const checksum2 = await checksumCache.calculate(largeObject); // 0.01ms ✅
 ```
 
 **Performance Gains**:
+
 - **Cache Hit**: 0.01ms vs 5ms (500x faster)
 - **Repeated Calls**: 100% cache hit rate for identical data
 - **CPU**: 95% reduction in hashing operations
@@ -1084,6 +1123,7 @@ const checksum2 = await checksumCache.calculate(largeObject); // 0.01ms ✅
 ### 🟡 Timestamp Optimization
 
 **Problem**:
+
 ```typescript
 // ❌ INEFFICIENT: Date objects have overhead
 export interface CacheEntry {
@@ -1096,10 +1136,11 @@ export interface CacheEntry {
 // ❌ Checking expiration requires conversion
 const now = Date.now();
 const entryTime = entry.timestamp.getTime(); // ❌ Conversion
-return (now - entryTime) < (entry.ttl * 1000);
+return now - entryTime < entry.ttl * 1000;
 ```
 
 **✅ Optimized Solution**:
+
 ```typescript
 // ✅ EFFICIENT: Store as number timestamp
 export interface OptimizedCacheEntry {
@@ -1111,7 +1152,7 @@ export interface OptimizedCacheEntry {
 
 // ✅ Direct numeric comparison (no conversion)
 const now = Date.now();
-return (now - entry.timestamp) < (entry.ttl * 1000);
+return now - entry.timestamp < entry.ttl * 1000;
 
 // ✅ EVEN BETTER: Pre-calculate expiration time
 export interface CacheEntryWithExpiry {
@@ -1126,6 +1167,7 @@ return Date.now() < entry.expiresAt;
 ```
 
 **Performance Gains**:
+
 - **Date Operations**: 10µs → 0.1µs (100x faster)
 - **Memory**: 40 bytes → 8 bytes per entry (5x reduction)
 - **GC Pressure**: Reduced object allocations
@@ -1136,9 +1178,11 @@ return Date.now() < entry.expiresAt;
 ## 6. Implementation Roadmap
 
 ### Phase 1: Critical Fixes (Week 1)
+
 **Priority**: High | **Impact**: 40-60x performance improvement
 
 #### Task 1.1: Implement Batch API Endpoints
+
 - [ ] Add `POST /api/leads/batch` endpoint
 - [ ] Add `POST /api/leads/batch/assign-campaign` endpoint
 - [ ] Update frontend to use `leadService.batchGet()`
@@ -1148,6 +1192,7 @@ return Date.now() < entry.expiresAt;
 - **Impact**: 200 requests → 1 (200x reduction)
 
 #### Task 1.2: Fix React WebSocket Memory Leak
+
 - [ ] Implement CircularBuffer class
 - [ ] Update `useWebSocket` hook with bounded buffer
 - [ ] Add throttled UI updates (100ms interval)
@@ -1157,6 +1202,7 @@ return Date.now() < entry.expiresAt;
 - **Impact**: 10MB leak → 1MB constant
 
 #### Task 1.3: Add Redis Batching
+
 - [ ] Implement auto-batch queue in OptimizedRedisClient
 - [ ] Add 5ms batching window
 - [ ] Use Redis pipelines for batch execution
@@ -1165,9 +1211,11 @@ return Date.now() < entry.expiresAt;
 - **Impact**: 100ms → 1-2ms (50-100x faster)
 
 ### Phase 2: Caching Enhancements (Week 2)
+
 **Priority**: Medium | **Impact**: 10-20x performance improvement
 
 #### Task 2.1: Multi-Tier Caching
+
 - [ ] Implement L1 (Map), L2 (LRU), L3 (Redis) layers
 - [ ] Add intelligent promotion logic
 - [ ] Implement cache warming for popular data
@@ -1176,6 +1224,7 @@ return Date.now() < entry.expiresAt;
 - **Impact**: 80% hit rate, 10x average speedup
 
 #### Task 2.2: Query Result Caching
+
 - [ ] Implement QueryCacheManager
 - [ ] Add dependency tracking
 - [ ] Automatic invalidation on table updates
@@ -1184,6 +1233,7 @@ return Date.now() < entry.expiresAt;
 - **Impact**: 5-10x for repeated queries
 
 #### Task 2.3: Dashboard Aggregate Endpoint
+
 - [ ] Create `/api/dashboard/aggregate` endpoint
 - [ ] Parallel query execution in backend
 - [ ] Update frontend to use single endpoint
@@ -1191,9 +1241,11 @@ return Date.now() < entry.expiresAt;
 - **Impact**: 300ms → 100ms (3x faster)
 
 ### Phase 3: Memory Optimization (Week 3)
+
 **Priority**: Medium | **Impact**: 50-75% memory reduction (V3 target)
 
 #### Task 3.1: Object Pooling
+
 - [ ] Implement cache entry pool
 - [ ] Add entry reuse logic
 - [ ] Track pool statistics
@@ -1201,6 +1253,7 @@ return Date.now() < entry.expiresAt;
 - **Impact**: 50% reduction in allocations
 
 #### Task 3.2: Weak References
+
 - [ ] Use WeakRef for cache entries where appropriate
 - [ ] Implement FinalizationRegistry
 - [ ] Test automatic cleanup
@@ -1208,6 +1261,7 @@ return Date.now() < entry.expiresAt;
 - **Impact**: Automatic memory management
 
 #### Task 3.3: Comprehensive Cleanup
+
 - [ ] Add process signal handlers (SIGINT, SIGTERM)
 - [ ] Implement cleanup callback system
 - [ ] Add `isDestroyed` guards
@@ -1216,9 +1270,11 @@ return Date.now() < entry.expiresAt;
 - **Impact**: Zero memory leaks
 
 ### Phase 4: Computational Optimization (Week 4)
+
 **Priority**: Low | **Impact**: 5-10x for specific operations
 
 #### Task 4.1: Memoized Checksums
+
 - [ ] Implement ChecksumCache class
 - [ ] Replace SHA-256 with MD5 for cache keys
 - [ ] Add LRU cache for checksums
@@ -1226,6 +1282,7 @@ return Date.now() < entry.expiresAt;
 - **Impact**: 500x faster for repeated data
 
 #### Task 4.2: Timestamp Optimization
+
 - [ ] Replace Date objects with number timestamps
 - [ ] Pre-calculate expiration times
 - [ ] Update all interfaces
@@ -1233,6 +1290,7 @@ return Date.now() < entry.expiresAt;
 - **Impact**: 100x faster, 5x less memory
 
 #### Task 4.3: React Memoization
+
 - [ ] Add `memo()` to frequently rendered components
 - [ ] Use `useCallback` for all event handlers
 - [ ] Use `useMemo` for expensive computations
@@ -1274,26 +1332,30 @@ Create specific benchmarks for new optimizations:
 
 ```typescript
 // benchmarks/batch-api-benchmark.ts
-import { leadService } from '../apps/web/nyra-admin/lib/api/leads';
+import { leadService } from "../apps/web/nyra-admin/lib/api/leads";
 
 async function benchmarkBatchAPI() {
   const leadIds = Array.from({ length: 100 }, (_, i) => `lead-${i}`);
 
-  console.log('Benchmarking Sequential API Calls...');
+  console.log("Benchmarking Sequential API Calls...");
   const sequentialStart = performance.now();
   for (const id of leadIds) {
     await leadService.get(id);
   }
   const sequentialTime = performance.now() - sequentialStart;
-  console.log(`Sequential: ${sequentialTime.toFixed(2)}ms (${leadIds.length} requests)`);
+  console.log(
+    `Sequential: ${sequentialTime.toFixed(2)}ms (${leadIds.length} requests)`
+  );
 
-  console.log('\nBenchmarking Batch API Call...');
+  console.log("\nBenchmarking Batch API Call...");
   const batchStart = performance.now();
   await leadService.batchGet(leadIds);
   const batchTime = performance.now() - batchStart;
   console.log(`Batch: ${batchTime.toFixed(2)}ms (1 request)`);
 
-  console.log(`\n✅ Speedup: ${(sequentialTime / batchTime).toFixed(1)}x faster`);
+  console.log(
+    `\n✅ Speedup: ${(sequentialTime / batchTime).toFixed(1)}x faster`
+  );
 }
 
 benchmarkBatchAPI();
@@ -1301,15 +1363,15 @@ benchmarkBatchAPI();
 
 ### V3 Performance Target Validation
 
-| Target | Current | After Phase 1-2 | After Phase 3-4 | Status |
-|--------|---------|-----------------|-----------------|--------|
-| **Flash Attention** | N/A | N/A | N/A | ⏳ Not applicable |
-| **HNSW Search** | 150x | 150x | 150x-12,500x | ✅ Already achieved |
-| **Memory Reduction** | ~30% | 50% | 60-75% | 🔄 Achievable |
-| **MCP Response** | ~200ms | <100ms | <50ms | 🔄 Achievable |
-| **SONA Adaptation** | N/A | N/A | N/A | ⏳ Not applicable |
-| **API Operations** | 200 reqs/op | 1 req/op | 1 req/op | 🔄 200x improvement |
-| **Cache Hit Rate** | ~40% | 70% | 80%+ | 🔄 2-3x improvement |
+| Target                        | Current     | After Phase 1-2 | After Phase 3-4 | Status              |
+| ----------------------------- | ----------- | --------------- | --------------- | ------------------- |
+| **Flash Attention**           | N/A         | N/A             | N/A             | ⏳ Not applicable   |
+| **HNSW Search**               | 150x        | 150x            | 150x-12,500x    | ✅ Already achieved |
+| **Memory Reduction**          | ~30%        | 50%             | 60-75%          | 🔄 Achievable       |
+| **MCP Response**              | ~200ms      | <100ms          | <50ms           | 🔄 Achievable       |
+| **learning model Adaptation** | N/A         | N/A             | N/A             | ⏳ Not applicable   |
+| **API Operations**            | 200 reqs/op | 1 req/op        | 1 req/op        | 🔄 200x improvement |
+| **Cache Hit Rate**            | ~40%        | 70%             | 80%+            | 🔄 2-3x improvement |
 
 ---
 
@@ -1322,11 +1384,14 @@ Extend the existing PerformanceMonitor class:
 ```typescript
 // Add to src/monitoring/performance-monitor.ts
 class EnhancedPerformanceMonitor extends PerformanceMonitor {
-  trackOptimization(name: string, metrics: {
-    before: number;
-    after: number;
-    improvement: number;
-  }) {
+  trackOptimization(
+    name: string,
+    metrics: {
+      before: number;
+      after: number;
+      improvement: number;
+    }
+  ) {
     this.recordMetric(`optimization.${name}.before`, metrics.before);
     this.recordMetric(`optimization.${name}.after`, metrics.after);
     this.recordMetric(`optimization.${name}.improvement`, metrics.improvement);
@@ -1337,11 +1402,14 @@ class EnhancedPerformanceMonitor extends PerformanceMonitor {
     }
   }
 
-  trackCachePerformance(cacheId: string, stats: {
-    hitRate: number;
-    avgResponseTime: number;
-    memoryUsage: number;
-  }) {
+  trackCachePerformance(
+    cacheId: string,
+    stats: {
+      hitRate: number;
+      avgResponseTime: number;
+      memoryUsage: number;
+    }
+  ) {
     this.recordMetric(`cache.${cacheId}.hit_rate`, stats.hitRate);
     this.recordMetric(`cache.${cacheId}.response_time`, stats.avgResponseTime);
     this.recordMetric(`cache.${cacheId}.memory_usage`, stats.memoryUsage);
@@ -1356,10 +1424,10 @@ Add these metrics to Prometheus/Grafana:
 ```yaml
 # prometheus.yml
 scrape_configs:
-  - job_name: 'nyra-performance'
+  - job_name: "nyra-performance"
     static_configs:
-      - targets: ['localhost:9090']
-    metrics_path: '/metrics'
+      - targets: ["localhost:9090"]
+    metrics_path: "/metrics"
     scrape_interval: 10s
 
 # Key metrics to track:
@@ -1424,6 +1492,7 @@ groups:
 Before merging optimizations, ensure:
 
 ### Database & API
+
 - [ ] All list operations use batch endpoints
 - [ ] Backend implements `/batch` endpoints with IN queries
 - [ ] DataLoader pattern implemented for automatic batching
@@ -1431,6 +1500,7 @@ Before merging optimizations, ensure:
 - [ ] Query result caching with dependency tracking
 
 ### React & Frontend
+
 - [ ] CircularBuffer implemented for WebSocket events
 - [ ] Throttled UI updates (100ms interval)
 - [ ] Proper cleanup in all useEffect hooks
@@ -1439,6 +1509,7 @@ Before merging optimizations, ensure:
 - [ ] `useMemo` for expensive computations
 
 ### Caching
+
 - [ ] Multi-tier caching (L1/L2/L3) implemented
 - [ ] Cache warming for popular data
 - [ ] Intelligent promotion between cache layers
@@ -1446,6 +1517,7 @@ Before merging optimizations, ensure:
 - [ ] Query caching with automatic invalidation
 
 ### Memory Management
+
 - [ ] All intervals tracked in Map
 - [ ] Cleanup callbacks registered
 - [ ] Process signal handlers (SIGINT, SIGTERM, etc.)
@@ -1455,6 +1527,7 @@ Before merging optimizations, ensure:
 - [ ] WeakRef used where appropriate
 
 ### Testing
+
 - [ ] Benchmark tests pass with <100ms targets
 - [ ] Load testing with 1000+ concurrent users
 - [ ] Memory profiling shows no leaks over 24 hours
@@ -1463,6 +1536,7 @@ Before merging optimizations, ensure:
 - [ ] React re-renders reduced by 90%+
 
 ### Documentation
+
 - [ ] All optimizations documented
 - [ ] Performance gains measured and recorded
 - [ ] Migration guide for breaking changes
@@ -1478,21 +1552,25 @@ This comprehensive analysis identifies critical performance bottlenecks across t
 ### Expected Outcomes
 
 #### Phase 1 (Week 1): Critical Fixes
+
 - ✅ **60x faster** API operations (batch endpoints)
 - ✅ **50-100x faster** Redis operations (pipelines)
 - ✅ **10x memory efficiency** (bounded buffers)
 
 #### Phase 2 (Week 2): Caching
+
 - ✅ **10x faster** average response times (multi-tier caching)
 - ✅ **5-10x faster** repeated queries (query caching)
 - ✅ **3x faster** dashboard loads (aggregate endpoint)
 
 #### Phase 3 (Week 3): Memory
+
 - ✅ **50-75% memory reduction** (V3 target achieved)
 - ✅ **Zero memory leaks** (comprehensive cleanup)
 - ✅ **50% reduction** in GC pressure (object pooling)
 
 #### Phase 4 (Week 4): Computation
+
 - ✅ **95% fewer** React re-renders (memoization)
 - ✅ **100-500x faster** checksum calculations (caching)
 - ✅ **100x faster** timestamp operations (primitives)
@@ -1510,13 +1588,13 @@ Implementing all four phases will result in:
 
 ### V3 Performance Targets
 
-| Target | Status |
-|--------|--------|
-| Flash Attention 2.49x-7.47x | ⏳ Not applicable (backend focus) |
-| HNSW 150x-12,500x | ✅ Already achieved in ruvector |
-| Memory -50-75% | ✅ Achievable with Phase 3 |
-| MCP <100ms | ✅ Achievable with Phase 1-2 |
-| SONA <0.05ms | ⏳ Not applicable (not implemented) |
+| Target                      | Status                                                    |
+| --------------------------- | --------------------------------------------------------- |
+| Flash Attention 2.49x-7.47x | ⏳ Not applicable (backend focus)                         |
+| HNSW 150x-12,500x           | ✅ Already achieved in the approved vector memory backend |
+| Memory -50-75%              | ✅ Achievable with Phase 3                                |
+| MCP <100ms                  | ✅ Achievable with Phase 1-2                              |
+| learning model <0.05ms      | ⏳ Not applicable (not implemented)                       |
 
 All code examples provided are production-ready and can be integrated incrementally without breaking existing functionality. The phased approach allows for continuous improvement while maintaining system stability.
 
@@ -1534,6 +1612,7 @@ All code examples provided are production-ready and can be integrated incrementa
 **Document End**
 
 For questions or clarifications, refer to:
+
 - V3 Performance Engineer documentation
 - Existing benchmark suite: `/src/database/caching/performance-benchmark-suite.ts`
 - Optimized implementations: `/src/database/caching/optimized-*.ts`

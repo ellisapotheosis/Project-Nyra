@@ -1,69 +1,51 @@
 # Project Nyra Documentation
 
-**Last Updated**: 2026-01-22
-**Status**: Reorganized and production-ready
+Project Nyra docs are organized by the thing you are trying to build or operate.
+The root stays small; app, component, workflow, infrastructure, security, and
+operations material lives in the folders below.
 
-## 📋 What's in This Folder (Root)
+## Start here
 
-This root directory contains **ONLY**:
-- ✅ **Completion Reports** - Status reports from major initiatives
-- ✅ **Step-by-Step Guides** - Manual procedures for you to follow
-- ✅ **To-Do Lists** - Task checklists and action items
-- ✅ **This README** - Navigation guide
+| Need                                       | Go to                                                  |
+| ------------------------------------------ | ------------------------------------------------------ |
+| Target architecture and product invariants | [`MASTER_ARCHITECTURE.md`](MASTER_ARCHITECTURE.md)     |
+| App/service build plan                     | [`EXECUTION_PLAN_APPS.md`](EXECUTION_PLAN_APPS.md)     |
+| Infrastructure bring-up plan               | [`EXECUTION_PLAN_INFRA.md`](EXECUTION_PLAN_INFRA.md)   |
+| Manual owner-only actions                  | [`OWNER_MANUAL_ACTIONS.md`](OWNER_MANUAL_ACTIONS.md)   |
+| Local dev runbook                          | [`ops/LOCAL_DEV_RUNBOOK.md`](ops/LOCAL_DEV_RUNBOOK.md) |
 
-All other documentation is organized in subdirectories below.
+## Canonical categories
 
-## 📂 Directory Structure
+| Folder                                                     | Purpose                                                                                                                 |
+| ---------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| [`apps/projectnyra/`](apps/projectnyra/)                   | Broker/customer webapp, admin/operator pages, OpenClaw-facing assistant surface, Nexus UI/API notes, and quote UI docs. |
+| [`apps/ratehunter/`](apps/ratehunter/)                     | Landing page, lead capture, RateHunter marketing surface, and Cloudflare Pages notes.                                   |
+| [`components/twenty-crm/`](components/twenty-crm/)         | Twenty CRM model, customization, CRM API boundary, and CRM integration docs.                                            |
+| [`components/automation/`](components/automation/)         | Campaign engine, n8n/Activepieces orchestration notes, compliance automation, and workflow specs.                       |
+| [`components/communications/`](components/communications/) | SendGrid, Twilio, call/text/email/voicemail communication docs.                                                         |
+| [`components/quote-service/`](components/quote-service/)   | Quote API and quote-service integration references.                                                                     |
+| [`components/memory/`](components/memory/)                 | Approved memory-plane references.                                                                                       |
+| [`workflows/n8n/`](workflows/n8n/)                         | The single docs location for n8n workflow JSON exports.                                                                 |
+| [`workflows/activepieces/`](workflows/activepieces/)       | Activepieces workflow notes.                                                                                            |
+| [`architecture/`](architecture/)                           | System architecture, ADRs, topology, diagrams, and consolidation decisions.                                             |
+| [`infra/`](infra/) and [`ops/`](ops/)                      | Host topology, canonical ports/env, service exposure, worker routing, and runbooks.                                     |
+| [`security/`](security/)                                   | Secret rotation, Infisical references, exposure reviews, and security checklists.                                       |
+| [`deployment/`](deployment/)                               | Deployment and Cloudflare/Infisical setup guides.                                                                       |
+| [`development/`](development/)                             | Repository development patterns, tooling, and Turborepo guidance.                                                       |
+| [`archive/`](archive/)                                     | Historical docs that are not current source-of-truth. Retired stack archives have been removed.                         |
 
-| Directory | Purpose | Key Files |
-|---|---|---|
-| **architecture/** | System architecture, ADRs, diagrams | ARCHITECTURE-OVERVIEW.md, ARCHITECTURE-DECISIONS.md (23 ADRs) |
-| **api/** | API documentation, OpenAPI specs | API-REFERENCE.md |
-| **deployment/** | Deployment guides, infrastructure | SETUP-GUIDE.md, DEPLOYMENT.md |
-| **manual-tasks/** | Human-required procedures | YOUR-MANUAL-SETUP-GUIDE.md, PRODUCTION-READINESS-CHECKLIST.md |
-| **ai-automatable/** | Claude-automatable tasks | AI-AUTOMATION-GUIDE.md |
-| **development/** | Development guides, templates | CLAUDE-MD-V3-TEMPLATE-GUIDE.md |
-| **configuration/** | Configuration references | CONFIGURATION.md |
-| **sparc/** | SPARC methodology specs | SPARC-SPECIFICATIONS.md |
-| **cleanup/** | Reorganization reports | Completion reports, migration logs |
-| **archive/** | Archived/obsolete files | Historical documentation |
+## Routing rules for new docs
 
-## 🚀 Quick Navigation
+- Webapp/admin/customer UI docs go in `docs/apps/projectnyra/`.
+- Landing/lead-capture docs go in `docs/apps/ratehunter/`.
+- Twenty CRM docs go in `docs/components/twenty-crm/`.
+- n8n/Activepieces/campaign automation docs go in `docs/components/automation/`.
+- n8n workflow JSON exports go only in `docs/workflows/n8n/`.
+- SendGrid/Twilio/call/text/email/voicemail docs go in `docs/components/communications/`.
+- Owner-login, MFA, OAuth, domain verification, provider-dashboard tasks go in `docs/OWNER_MANUAL_ACTIONS.md`.
 
-**Getting Started**: Start with [`manual-tasks/YOUR-MANUAL-SETUP-GUIDE.md`](manual-tasks/YOUR-MANUAL-SETUP-GUIDE.md)
+## Deprecated stack policy
 
-**Architecture**: See [`architecture/ARCHITECTURE-OVERVIEW.md`](architecture/ARCHITECTURE-OVERVIEW.md)
-
-**API Reference**: See [`api/API-REFERENCE.md`](api/API-REFERENCE.md)
-
-**Deployment**: See [`deployment/SETUP-GUIDE.md`](deployment/SETUP-GUIDE.md)
-
-**AI Automation**: See [`ai-automatable/AI-AUTOMATION-GUIDE.md`](ai-automatable/AI-AUTOMATION-GUIDE.md)
-
-## 🔍 Finding Documentation
-
-1. **Browse by category** using directories above
-2. **Check directory README files** - each subdirectory has a README with file inventory
-3. **Search by keyword** using your IDE or `grep -r "keyword" docs/`
-
-## 📝 Adding New Documentation
-
-When creating new docs, follow these rules (enforced by `docs/CLAUDE.md`):
-
-- **Completion reports** → Save to docs root
-- **Step-by-step guides for manual execution** → Save to docs root or `manual-tasks/`
-- **Architecture docs** → `architecture/`
-- **API docs** → `api/`
-- **Deployment guides** → `deployment/`
-- **Everything else** → Appropriate subdirectory
-
-See `CLAUDE.md` for complete rules.
-
-## 🎯 Key Documents
-
-| Document | Purpose |
-|---|---|
-| [WHITEPAPER.md](WHITEPAPER.md) | Complete technical whitepaper (2,900+ lines) |
-| [YOUR-MANUAL-SETUP-GUIDE.md](manual-tasks/YOUR-MANUAL-SETUP-GUIDE.md) | Hardware/network setup guide |
-| [PRODUCTION-READINESS-CHECKLIST.md](manual-tasks/PRODUCTION-READINESS-CHECKLIST.md) | Production deployment checklist |
-| [AI-AUTOMATION-GUIDE.md](ai-automatable/AI-AUTOMATION-GUIDE.md) | What Claude can automate |
+Do not add docs for retired orchestration, swarm, vector-memory, or experimental
+agent database stacks. Current architecture uses Nexus Router, LiteLLM,
+OpenClaw, Mem0, FalkorDB, Qdrant where configured, n8n, and Activepieces.

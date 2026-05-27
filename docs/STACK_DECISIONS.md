@@ -19,10 +19,10 @@
 
 The following components have been removed or superseded. **Do not reintroduce them.**
 
-- **Claude-Flow**: Superseded by Activepieces/n8n.
-- **ruv-swarm / ruflo**: Superseded by OpenClaw/Nerve.
-- **agentic-flow / flow-nexus**: Superseded by Nexus Router.
-- **agentdb / ruvector**: Superseded by mem0/FalkorDB.
+- **retired orchestration tooling**: Superseded by Activepieces/n8n.
+- **retired swarm tooling / retired flow tooling**: Superseded by OpenClaw/Nerve.
+- **retired flow tooling / n8n/Activepieces**: Superseded by Nexus Router.
+- **the approved memory stack / the approved vector memory backend**: Superseded by mem0/FalkorDB.
 - **Dify**: Not part of the core architectural vision for Nyra.
 
 ## Language & Tooling

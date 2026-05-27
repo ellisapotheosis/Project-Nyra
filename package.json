@@ -29,7 +29,8 @@
     "all:dev": "turbo run dev --parallel",
     "typecheck": "turbo run typecheck",
     "test:contracts": "pnpm -C packages/domain-models test && pnpm -C packages/integration-adapters test",
-    "docs:check": "ls docs/*.md && ls docs/ops/*.md"
+    "docs:check": "ls docs/*.md && ls docs/ops/*.md",
+    "docs:validate-consolidation": "bash ops/scripts/validate-docs-consolidation.sh"
   },
   "dependencies": {
     "zod": "^4.3.5"

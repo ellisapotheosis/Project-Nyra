@@ -20,7 +20,7 @@ Contains outdated system prompts and agent instructions.
 
 ### 3. `obsolete_infra/`
 
-Contains deprecated Docker Compose files and deployment scripts (e.g., Claude-Flow, RuVector).
+Contains deprecated Docker Compose files and deployment scripts (e.g., retired orchestration tooling, the approved vector memory backend).
 
 ## Ingestion Rules
 

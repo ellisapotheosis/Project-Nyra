@@ -33,7 +33,7 @@ tracked as follow-up implementation work.
 
 ## Critical Warnings
 
-- **DO NOT** reintroduce Claude-Flow or other deprecated stack items (see `docs/DEPRECATED_STACK_DO_NOT_USE.md`).
+- **DO NOT** reintroduce retired orchestration tooling or other deprecated stack items (see `docs/DEPRECATED_STACK_DO_NOT_USE.md`).
 - **DO NOT** perform any UI or styling work.
 - **ALWAYS** write an audit event for any CRM mutation or external communication.
 - **STRICT** adherence to STOP/DNC rules is required for all automated outreach.
