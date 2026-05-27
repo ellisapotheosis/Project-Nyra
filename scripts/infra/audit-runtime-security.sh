@@ -74,7 +74,7 @@ fi
 
 section "Secret Defaults"
 secret_default_pattern='(PASSWORD|SECRET|TOKEN|API_KEY|KEY)[^}]*:-([^}[:space:]]*)'
-insecure_default_pattern=':-((admin)|(password)|(pass)|(changeme)|(change-me[^}]*)|(dummy)|(sk-dummy)|(OPENLIT)|(paperclip))'
+insecure_default_pattern=':-((admin)|(password)|(pass)|(changeme)|(change-me[^}]*)|(dummy)|(sk-dummy)|(OPENLIT)|(gastown))'
 
 if matches=$(grep_compose "$secret_default_pattern" | grep -E "$insecure_default_pattern" || true); then
   if [[ -n "$matches" ]]; then

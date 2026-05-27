@@ -17,6 +17,15 @@ This directory is the canonical location for high-level AI agent role prompts an
 - **Conductor Alignment**: Every major track in Conductor should reference one of these guiding prompts in its `spec.md`.
 - **Syncing**: Use `scripts/setup/sync-ai-client-config.sh` to update tool-specific client configurations without overriding repository content.
 
-## 📁 Archive
+## 📁 Imported Prompt Packs
 
-The `nyra-prompt-pack/` directory contains historical and source-basis material. It should be used for reference only and not as a live runtime prompt.
+The imported prompt-pack directories are preserved as source/provenance material,
+not as live task queues:
+
+- `nyra-prompt-pack/`
+- `nyra-omni-prompting-pack-v3/`
+- `nyra-omni-prompting-pack-v3-zdrive-20260526/`
+
+Executable status lives in `conductor/tracks/`, `conductor/tracks.md`, and
+`docs/CONDUCTOR_TASKS.md`. Raw unchecked checklists inside imported prompt-pack
+source files are not active tasks unless a Conductor track promotes them.

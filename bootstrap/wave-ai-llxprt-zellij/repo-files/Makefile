@@ -32,7 +32,7 @@ ORACLE_AGENT_UTILS_COMPOSE := infra/hosts/oracle-vps/docker-compose.oracle.yml
 ORACLE_MEMORY_COMPOSE := infra/hosts/oracle-vps/docker-compose.memory.yml
 ORACLE_LETTA_MCP_COMPOSE := infra/hosts/oracle-vps/docker-compose.letta-mcp.yml
 ORACLE_MEMORY_EXTRA_COMPOSE := infra/hosts/oracle-vps/docker-compose.memory-extra.yml
-ORACLE_PAPERCLIP_COMPOSE := infra/hosts/oracle-vps/docker-compose.paperclip.yml
+ORACLE_GASTOWN_COMPOSE := infra/hosts/oracle-vps/docker-compose.gastown.yml
 ORACLE_CLAWTEAM_COMPOSE := infra/hosts/oracle-vps/docker-compose.clawteam.yml
 ORACLE_UI_FACTORY_SERVICES := nyra-ui-engine magicui-mcp shadcn-mcp
 ORACLE_MCP_TOOL_SERVICES := llxprt-bridge-proxy activepieces-mcp litellm ha-mcp twenty-mcp git-mcp sequential-thinking-mcp playwright-mcp firecrawl-mcp magicui-mcp shadcn-mcp next-devtools-mcp tavily-mcp wcgw-mcp gitingest-mcp codebase-index-mcp nexus
@@ -70,7 +70,7 @@ KYUTAI_MESH_5090_COMPOSE := infra/hosts/worker-rtx5090/docker-compose.distribute
 
 DEFAULT_PROFILES ?= apps,sync,debug
 
-.PHONY: verify-clis help install test lint validate up down restart logs ps pull verify-paths fleet-check fleet-ssh-check fleet-docker-check dev-orchestrate dev-down dev-panels dev-status dev-llxprt-jefe dev-llxprt-code llxprt-bridge-up llxprt-bridge-down llxprt-bridge-status llxprt-oracle-tunnel-up llxprt-oracle-tunnel-down llxprt-oracle-tunnel-status llxprt-oracle-subscription-up up-worker-3090ti up-worker-5090 up-worker-3060 up-all-workers down-all-workers paperclip-up paperclip-down paperclip-logs paperclip-status \
+.PHONY: verify-clis help install test lint validate up down restart logs ps pull verify-paths fleet-check fleet-ssh-check fleet-docker-check dev-orchestrate dev-down dev-panels dev-status dev-llxprt-jefe dev-llxprt-code llxprt-bridge-up llxprt-bridge-down llxprt-bridge-status llxprt-oracle-tunnel-up llxprt-oracle-tunnel-down llxprt-oracle-tunnel-status llxprt-oracle-subscription-up up-worker-3090ti up-worker-5090 up-worker-3060 up-all-workers down-all-workers gastown-up gastown-down gastown-logs gastown-status \
   up-core up-orchestrator up-apps up-dev up-workers up-oracle \
   cluster cluster-kill grid grid-kill \
   nexus-up nexus-down health stack-up stack-verify \
@@ -152,7 +152,7 @@ help:
 	@echo "--- AGENT INFRA ---"
 	@echo "make agent-infra-validate Validate new agent infra compose files"
 	@echo "make agent-secrets-audit  Audit required Infisical secrets"
-	@echo "make oracle-agent-utils-up Start Paperclip, SearXNG, Browserless"
+	@echo "make oracle-agent-utils-up Start Gastown, SearXNG, Browserless"
 	@echo "make oracle-memory-up     Start Letta, mem0, FalkorDB, Qdrant"
 	@echo "make kyutai-base-3060-up  Start base Unmute on RTX 3060"
 	@echo "make kyutai-mesh-up       Start 3-node Kyutai voice mesh"
@@ -162,7 +162,7 @@ help:
 	@echo "make wave-stack-up-3060   Start default grid plus 3060 OpenClaw/NerveUI tab"
 	@echo "make wave-stack-status    Show AI grid container status through Docker contexts"
 	@echo "make wave-only            Attach the persistent Wave/Zellij cockpit only"
-	@echo "make oracle-paperclip-up  Start Paperclip on Oracle VPS"
+	@echo "make oracle-gastown-up  Start Gastown on Oracle VPS"
 	@echo "make oracle-clawteam-up   Start ClawTeam on Oracle VPS"
 	@echo "make oracle-ui-factory-up Start UI Factory MCP/tooling containers"
 	@echo "make oracle-mcp-tools-up  Start Oracle MCP containers and Nexus aggregator"
@@ -554,7 +554,7 @@ swarm-up: .env.swarm
 swarm-oracle:
 	@echo "☁️  Deploying Asynchronous Heavy State to Oracle VPS..."
 	@docker --context oracle compose -f infra/hosts/oracle-vps/docker-compose.oracle.yml up -d
-	@echo "✅ Oracle Stack (Paperclip, SearXNG, Browserless) is LIVE."
+	@echo "✅ Oracle Stack (Gastown, SearXNG, Browserless) is LIVE."
 
 swarm-utility:
 	@echo "🛠️  Deploying Utility Node to RTX 3060..."
@@ -619,8 +619,8 @@ dev-status:
 	@echo "  [5] RTX3060 (embeddings + lightweight LLM + voice):"
 	@docker --context worker-rtx3060 ps 2>/dev/null | grep -E "embed|voice|inference" || echo "     ℹ Not running (use 'make up-workers')"
 	@echo ""
-	@echo "🗄️ PAPERCLIP (Oracle VPS):"
-	@docker compose -f $(ORACLE_COMPOSE) ps 2>/dev/null | grep paperclip || echo "     ℹ Not running (use 'make oracle-apps-up')"
+	@echo "🗄️ GASTOWN (Oracle VPS):"
+	@docker compose -f $(ORACLE_COMPOSE) ps 2>/dev/null | grep gastown || echo "     ℹ Not running (use 'make oracle-apps-up')"
 
 dev-down:
 	@echo "Shutting down Development Orchestration..."
@@ -674,22 +674,22 @@ down-all-workers:
 	@docker --context worker-rtx5090 compose -f $(WORKER_5090_COMPOSE) down
 	@docker --context worker-rtx3060 compose -f $(WORKER_3060_COMPOSE) down
 
-# PAPERCLIP (Oracle VPS)
-.PHONY: paperclip-up paperclip-down paperclip-logs paperclip-status
+# GASTOWN (Oracle VPS)
+.PHONY: gastown-up gastown-down gastown-logs gastown-status
 
-paperclip-up:
-	@echo "Starting PAPERCLIP..."
-	@docker --context oracle compose -f $(ORACLE_COMPOSE) up -d paperclip paperclip-mcp
-	@echo "PAPERCLIP: http://paperclip.projectnyra.com"
+gastown-up:
+	@echo "Starting GASTOWN..."
+	@docker --context oracle compose -f $(ORACLE_COMPOSE) up -d gastown gastown-mcp
+	@echo "GASTOWN: http://gastown.projectnyra.com"
 
-paperclip-down:
-	@docker --context oracle compose -f $(ORACLE_COMPOSE) stop paperclip paperclip-mcp
+gastown-down:
+	@docker --context oracle compose -f $(ORACLE_COMPOSE) stop gastown gastown-mcp
 
-paperclip-logs:
-	@docker --context oracle compose -f $(ORACLE_COMPOSE) logs -f paperclip
+gastown-logs:
+	@docker --context oracle compose -f $(ORACLE_COMPOSE) logs -f gastown
 
-paperclip-status:
-	@docker --context oracle compose -f $(ORACLE_COMPOSE) ps paperclip paperclip-mcp
+gastown-status:
+	@docker --context oracle compose -f $(ORACLE_COMPOSE) ps gastown gastown-mcp
 
 # ════════════════════════════════════════════════════════════════════════════
 # 🌊 ULTIMATE ORCHESTRATOR: Letta-MCP + Composio + Full Multi-CLI Cockpit
@@ -810,14 +810,14 @@ orchestrator-status:
 	@echo ""
 
 # ════════════════════════════════════════════════════════════════════════════
-# 📎 PAPERCLIP + 🦞 CLAWTEAM — Oracle-VPS Primary + RTX3060 Fallback
+# 📎 GASTOWN + 🦞 CLAWTEAM — Oracle-VPS Primary + RTX3060 Fallback
 # ════════════════════════════════════════════════════════════════════════════
 
-.PHONY: oracle-paperclip oracle-clawteam rtx3060-clawteam-fallback \
+.PHONY: oracle-gastown oracle-clawteam rtx3060-clawteam-fallback \
   clawteam-all-deploy clawteam-monitor clawteam-failover-check
 
-oracle-paperclip:
-	@$(MAKE) oracle-paperclip-up
+oracle-gastown:
+	@$(MAKE) oracle-gastown-up
 
 oracle-clawteam:
 	@$(MAKE) oracle-clawteam-up
@@ -847,8 +847,8 @@ clawteam-failover-check:
 		echo "⚠️  PRIMARY DOWN — Fallback to RTX3060 active"; \
 	fi
 
-paperclip-oracle: oracle-paperclip
-	@echo "Paperclip MCP Gateway ready at oracle-vps:8888"
+gastown-oracle: oracle-gastown
+	@echo "Gastown MCP Gateway ready at oracle-vps:8888"
 
 
 # ════════════════════════════════════════════════════════════════════════════
@@ -891,23 +891,23 @@ openclaw-status-dashboard:
 
 
 # ════════════════════════════════════════════════════════════════════════════
-# 🐳 DOCKER IMAGE BUILDS — ClawTeam + Paperclip (from Dockerfiles)
+# 🐳 DOCKER IMAGE BUILDS — ClawTeam + Gastown (from Dockerfiles)
 # ════════════════════════════════════════════════════════════════════════════
 
-.PHONY: docker-build-clawteam docker-build-paperclip docker-build-all \
-  docker-push-clawteam docker-push-paperclip
+.PHONY: docker-build-clawteam docker-build-gastown docker-build-all \
+  docker-push-clawteam docker-push-gastown
 
 docker-build-clawteam:
 	@echo "Building ClawTeam Docker image..."
 	docker build -f infra/docker/Dockerfile.clawteam -t nyra/clawteam:latest .
 	@echo "✅ ClawTeam image built: nyra/clawteam:latest"
 
-docker-build-paperclip:
-	@echo "Building Paperclip Docker image..."
-	docker build -f infra/docker/Dockerfile.paperclip -t nyra/paperclip:latest .
-	@echo "✅ Paperclip image built: nyra/paperclip:latest"
+docker-build-gastown:
+	@echo "Building Gastown Docker image..."
+	docker build -f infra/docker/Dockerfile.gastown -t nyra/gastown:latest .
+	@echo "✅ Gastown image built: nyra/gastown:latest"
 
-docker-build-all: docker-build-clawteam docker-build-paperclip
+docker-build-all: docker-build-clawteam docker-build-gastown
 	@echo "✅ All images built successfully"
 
 docker-push-clawteam:
@@ -915,10 +915,10 @@ docker-push-clawteam:
 	docker push localhost:5000/nyra/clawteam:latest
 	@echo "✅ ClawTeam image pushed to localhost:5000"
 
-docker-push-paperclip:
-	docker tag nyra/paperclip:latest localhost:5000/nyra/paperclip:latest
-	docker push localhost:5000/nyra/paperclip:latest
-	@echo "✅ Paperclip image pushed to localhost:5000"
+docker-push-gastown:
+	docker tag nyra/gastown:latest localhost:5000/nyra/gastown:latest
+	docker push localhost:5000/nyra/gastown:latest
+	@echo "✅ Gastown image pushed to localhost:5000"
 
 # ════════════════════════════════════════════════════════════════════════════
 # UPDATED DEPLOYMENT — Uses docker-compose build (instead of image:)
@@ -931,18 +931,18 @@ oracle-clawteam-deploy:
 	@echo "✅ ClawTeam deployed to Oracle-VPS (port 8080)"
 	@docker --context $(ORACLE_CONTEXT) logs nyra-clawteam-primary --tail 20
 
-oracle-paperclip-deploy:
-	@docker --context $(ORACLE_CONTEXT) compose -f $(ORACLE_COMPOSE) -f $(ORACLE_PAPERCLIP_COMPOSE) build paperclip
-	@docker --context $(ORACLE_CONTEXT) compose -f $(ORACLE_COMPOSE) -f $(ORACLE_PAPERCLIP_COMPOSE) up -d paperclip
+oracle-gastown-deploy:
+	@docker --context $(ORACLE_CONTEXT) compose -f $(ORACLE_COMPOSE) -f $(ORACLE_GASTOWN_COMPOSE) build gastown
+	@docker --context $(ORACLE_CONTEXT) compose -f $(ORACLE_COMPOSE) -f $(ORACLE_GASTOWN_COMPOSE) up -d gastown
 	@sleep 3
-	@echo "✅ Paperclip deployed to Oracle-VPS (port 3100)"
-	@docker --context $(ORACLE_CONTEXT) logs nyra-paperclip-mcp-gateway --tail 20
+	@echo "✅ Gastown deployed to Oracle-VPS (port 3100)"
+	@docker --context $(ORACLE_CONTEXT) logs nyra-gastown-mcp-gateway --tail 20
 
-oracle-clawteam-paperclip-all:
-	@echo "Building + deploying ClawTeam + Paperclip to Oracle-VPS..."
+oracle-clawteam-gastown-all:
+	@echo "Building + deploying ClawTeam + Gastown to Oracle-VPS..."
 	@$(MAKE) docker-build-all
 	@$(MAKE) oracle-clawteam-deploy
-	@$(MAKE) oracle-paperclip-deploy
+	@$(MAKE) oracle-gastown-deploy
 	@echo "✅ All services deployed to Oracle-VPS via Portainer"
 
 # ============================================================================
@@ -955,7 +955,7 @@ oracle-clawteam-paperclip-all:
   worker-5090-ai-down worker-3090ti-ai-down worker-3060-ai-down \
   oracle-memory-manager-up oracle-memory-extra-up oracle-memory-full-up \
   oracle-memory-full-down oracle-webapp-twenty-up oracle-webapp-twenty-down \
-  oracle-paperclip-up oracle-paperclip-down oracle-clawteam-up \
+  oracle-gastown-up oracle-gastown-down oracle-clawteam-up \
   oracle-clawteam-down oracle-agent-tools-up oracle-agent-tools-down
 
 wave-stack-up: llxprt-oracle-subscription-up orchestrator-ai-up worker-5090-ai-up worker-3090ti-ai-up oracle-memory-full-up oracle-webapp-twenty-up oracle-portainer-up oracle-mcp-tools-up wave-only
@@ -1103,14 +1103,14 @@ oracle-webapp-twenty-down:
 	  -f $(ORACLE_COMPOSE) \
 	  -f $(ORACLE_APPS_COMPOSE) down
 
-oracle-paperclip-up:
-	@echo "Starting Paperclip on Oracle VPS..."
+oracle-gastown-up:
+	@echo "Starting Gastown on Oracle VPS..."
 	@docker --context $(ORACLE_CONTEXT) compose --env-file /dev/null \
-	  -f $(ORACLE_COMPOSE) up -d paperclip paperclip-mcp
+	  -f $(ORACLE_COMPOSE) up -d gastown gastown-mcp
 
-oracle-paperclip-down:
+oracle-gastown-down:
 	@docker --context $(ORACLE_CONTEXT) compose --env-file /dev/null \
-	  -f $(ORACLE_COMPOSE) stop paperclip paperclip-mcp
+	  -f $(ORACLE_COMPOSE) stop gastown gastown-mcp
 
 oracle-clawteam-up:
 	@echo "Starting ClawTeam on Oracle VPS..."
@@ -1123,9 +1123,9 @@ oracle-clawteam-down:
 	  -f $(ORACLE_COMPOSE) \
 	  -f $(ORACLE_CLAWTEAM_COMPOSE) stop clawteam
 
-oracle-agent-tools-up: oracle-paperclip-up oracle-clawteam-up
+oracle-agent-tools-up: oracle-gastown-up oracle-clawteam-up
 
-oracle-agent-tools-down: oracle-paperclip-down oracle-clawteam-down
+oracle-agent-tools-down: oracle-gastown-down oracle-clawteam-down
 
 oracle-ui-factory-up:
 	@echo "Starting Oracle UI Factory containers..."
@@ -1147,22 +1147,22 @@ oracle-ui-install:
 oracle-mcp-tools-up:
 	@echo "Starting Oracle MCP tool containers and Nexus..."
 	@LLXPRT_BRIDGE_API_KEY="$$(infisical secrets get LLXPRT_BRIDGE_API_KEY --projectId=$(INFISICAL_PROJECT_ID) --env=$(AGENT_INFRA_ENV) --path=/providers/llxprt --plain --silent 2>/dev/null)" \
-	  BETTER_AUTH_SECRET="$$(infisical secrets get BETTER_AUTH_SECRET --projectId=$(INFISICAL_PROJECT_ID) --env=$(AGENT_INFRA_ENV) --path=/clients/paperclip --plain --silent 2>/dev/null)" \
-	  PAPERCLIP_AGENT_JWT_SECRET="$$(infisical secrets get PAPERCLIP_AGENT_JWT_SECRET --projectId=$(INFISICAL_PROJECT_ID) --env=$(AGENT_INFRA_ENV) --path=/clients/paperclip --plain --silent 2>/dev/null)" \
+	  BETTER_AUTH_SECRET="$$(infisical secrets get BETTER_AUTH_SECRET --projectId=$(INFISICAL_PROJECT_ID) --env=$(AGENT_INFRA_ENV) --path=/clients/gastown --plain --silent 2>/dev/null)" \
+	  GASTOWN_AGENT_JWT_SECRET="$$(infisical secrets get GASTOWN_AGENT_JWT_SECRET --projectId=$(INFISICAL_PROJECT_ID) --env=$(AGENT_INFRA_ENV) --path=/clients/gastown --plain --silent 2>/dev/null)" \
 	  infisical run --projectId=$(INFISICAL_PROJECT_ID) --env=$(AGENT_INFRA_ENV) --path=/machines/oracle-vps -- \
 	  docker --context $(ORACLE_CONTEXT) compose --env-file /dev/null \
 	  -f $(ORACLE_COMPOSE) -f $(ORACLE_ACTIVEPIECES_MCP_COMPOSE) up -d $(ORACLE_MCP_TOOL_SERVICES)
 
 oracle-mcp-tools-down:
-	@BETTER_AUTH_SECRET="$$(infisical secrets get BETTER_AUTH_SECRET --projectId=$(INFISICAL_PROJECT_ID) --env=$(AGENT_INFRA_ENV) --path=/clients/paperclip --plain --silent 2>/dev/null)" \
-	  PAPERCLIP_AGENT_JWT_SECRET="$$(infisical secrets get PAPERCLIP_AGENT_JWT_SECRET --projectId=$(INFISICAL_PROJECT_ID) --env=$(AGENT_INFRA_ENV) --path=/clients/paperclip --plain --silent 2>/dev/null)" \
+	@BETTER_AUTH_SECRET="$$(infisical secrets get BETTER_AUTH_SECRET --projectId=$(INFISICAL_PROJECT_ID) --env=$(AGENT_INFRA_ENV) --path=/clients/gastown --plain --silent 2>/dev/null)" \
+	  GASTOWN_AGENT_JWT_SECRET="$$(infisical secrets get GASTOWN_AGENT_JWT_SECRET --projectId=$(INFISICAL_PROJECT_ID) --env=$(AGENT_INFRA_ENV) --path=/clients/gastown --plain --silent 2>/dev/null)" \
 	  infisical run --projectId=$(INFISICAL_PROJECT_ID) --env=$(AGENT_INFRA_ENV) --path=/machines/oracle-vps -- \
 	  docker --context $(ORACLE_CONTEXT) compose --env-file /dev/null \
 	  -f $(ORACLE_COMPOSE) -f $(ORACLE_ACTIVEPIECES_MCP_COMPOSE) stop $(ORACLE_MCP_TOOL_SERVICES)
 
 oracle-mcp-tools-ps:
-	@BETTER_AUTH_SECRET="$$(infisical secrets get BETTER_AUTH_SECRET --projectId=$(INFISICAL_PROJECT_ID) --env=$(AGENT_INFRA_ENV) --path=/clients/paperclip --plain --silent 2>/dev/null)" \
-	  PAPERCLIP_AGENT_JWT_SECRET="$$(infisical secrets get PAPERCLIP_AGENT_JWT_SECRET --projectId=$(INFISICAL_PROJECT_ID) --env=$(AGENT_INFRA_ENV) --path=/clients/paperclip --plain --silent 2>/dev/null)" \
+	@BETTER_AUTH_SECRET="$$(infisical secrets get BETTER_AUTH_SECRET --projectId=$(INFISICAL_PROJECT_ID) --env=$(AGENT_INFRA_ENV) --path=/clients/gastown --plain --silent 2>/dev/null)" \
+	  GASTOWN_AGENT_JWT_SECRET="$$(infisical secrets get GASTOWN_AGENT_JWT_SECRET --projectId=$(INFISICAL_PROJECT_ID) --env=$(AGENT_INFRA_ENV) --path=/clients/gastown --plain --silent 2>/dev/null)" \
 	  infisical run --projectId=$(INFISICAL_PROJECT_ID) --env=$(AGENT_INFRA_ENV) --path=/machines/oracle-vps -- \
 	  docker --context $(ORACLE_CONTEXT) compose --env-file /dev/null \
 	  -f $(ORACLE_COMPOSE) -f $(ORACLE_ACTIVEPIECES_MCP_COMPOSE) ps $(ORACLE_MCP_TOOL_SERVICES)

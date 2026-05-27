@@ -14,6 +14,8 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getCrmWorkspaceData } from "@/lib/crm-data";
 
+export const dynamic = "force-dynamic";
+
 function currency(value: number) {
   return new Intl.NumberFormat("en-US", {
     style: "currency",

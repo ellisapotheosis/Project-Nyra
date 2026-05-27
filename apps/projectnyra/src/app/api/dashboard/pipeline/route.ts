@@ -1,5 +1,9 @@
 import { NextResponse } from "next/server";
 
+import {
+  canUseMockFallback,
+  productionReadUnavailable,
+} from "@/lib/api/config";
 import { applications, leads } from "@/lib/mock-data";
 
 const CRM_API_URL = process.env.CRM_API_URL;
@@ -24,6 +28,13 @@ export async function GET() {
         }
       }
     } catch {}
+  }
+
+  if (!canUseMockFallback()) {
+    return productionReadUnavailable(
+      "CRM API",
+      "CRM_API_URL must be configured for production pipeline reads"
+    );
   }
 
   const grouped = new Map<string, number>();

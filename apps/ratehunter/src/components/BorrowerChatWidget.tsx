@@ -99,56 +99,71 @@ export function BorrowerChatWidget() {
   }
 
   return (
-    <div className="fixed bottom-5 right-5 z-50">
+    <div className="fixed bottom-6 right-6 z-50">
       {open ? (
-        <section className="w-[min(92vw,380px)] rounded-[1.8rem] border border-[rgba(13,83,120,0.18)] bg-[rgba(10,28,45,0.96)] shadow-2xl backdrop-blur">
-          <header className="flex items-center justify-between border-b border-white/10 px-4 py-3">
+        <section className="w-[min(92vw,400px)] rounded-[32px] border border-white/10 bg-black/60 shadow-2xl backdrop-blur-2xl overflow-hidden flex flex-col">
+          <header className="flex items-center justify-between border-b border-white/10 px-6 py-4 bg-white/5">
             <div>
-              <p className="text-sm font-semibold text-[#f6d6c2]">Ask AI</p>
-              <p className="text-xs text-white/60">Borrower assistant</p>
+              <p className="text-xs font-bold uppercase tracking-widest text-indigo-400">
+                Ask Nyra AI
+              </p>
+              <p className="text-[10px] text-white/40 font-medium uppercase tracking-wider">
+                Mortgage Assistant
+              </p>
             </div>
             <button
               type="button"
               onClick={() => setOpen(false)}
-              className="rounded-full border border-white/15 px-3 py-1 text-xs text-white/70"
+              className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-white/60 hover:bg-white/10 hover:text-white transition-all"
             >
               Close
             </button>
           </header>
 
-          <div className="border-b border-white/10 px-4 py-3">
-            <p className="text-xs leading-6 text-white/60">
-              Educational guidance only. Final rates, APR, and approval terms
-              depend on lender review and your full scenario.
+          <div className="border-b border-white/5 bg-white/5 px-6 py-3">
+            <p className="text-[10px] leading-relaxed text-white/30 font-medium italic">
+              Educational guidance only. Final rates and approval depend on full
+              lender review and scenario analysis.
             </p>
           </div>
 
-          <div className="max-h-[360px] space-y-3 overflow-y-auto px-4 py-3">
+          <div className="h-[380px] space-y-4 overflow-y-auto p-6 custom-scrollbar bg-black/20">
             {messages.map((message, index) => (
               <div
                 key={`${message.role}-${index}`}
-                className={`rounded-xl px-3 py-2 text-sm ${
+                className={cn(
+                  "rounded-2xl px-4 py-3 text-xs font-medium leading-relaxed shadow-sm max-w-[85%]",
                   message.role === "assistant"
-                    ? "border border-[#f6d6c2]/15 bg-[#f6d6c2]/8 text-[#fff3eb]"
-                    : "border border-[#8fc4de]/20 bg-[#8fc4de]/10 text-[#dff5ff]"
-                }`}
+                    ? "bg-white/10 text-white border border-white/10 self-start rounded-bl-none"
+                    : "bg-indigo-600 text-white self-end ml-auto rounded-br-none shadow-indigo-600/20"
+                )}
               >
                 {message.content}
               </div>
             ))}
             {isLoading ? (
-              <p className="text-xs text-white/55">Assistant is typing...</p>
+              <div className="flex gap-1.5 items-center px-1">
+                <div className="size-1 rounded-full bg-white/40 animate-bounce" />
+                <div
+                  className="size-1 rounded-full bg-white/40 animate-bounce"
+                  style={{ animationDelay: "0.2s" }}
+                />
+                <div
+                  className="size-1 rounded-full bg-white/40 animate-bounce"
+                  style={{ animationDelay: "0.4s" }}
+                />
+              </div>
             ) : null}
           </div>
 
-          <div className="border-t border-white/10 px-4 py-3">
-            <div className="mb-3 flex flex-wrap gap-2">
+          <div className="border-t border-white/10 px-6 py-5 bg-black/40">
+            <div className="mb-4 flex flex-wrap gap-2">
               {DEFAULT_QUICK_PROMPTS.map((prompt) => (
                 <button
                   key={prompt}
                   type="button"
                   onClick={() => sendMessage(prompt)}
-                  className="rounded-full border border-white/14 px-3 py-1 text-xs text-white/75"
+                  className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[10px] font-bold text-white/60 hover:bg-white/10 hover:text-white transition-all"
                   disabled={isLoading}
                 >
                   {prompt}
@@ -159,13 +174,13 @@ export function BorrowerChatWidget() {
               <input
                 value={input}
                 onChange={(event) => setInput(event.target.value)}
-                placeholder="Ask about rates, docs, closing..."
-                className="flex-1 rounded-xl border border-white/12 bg-white/6 px-3 py-2 text-sm text-white outline-none focus:border-[#f6d6c2]"
+                placeholder="Ask a question..."
+                className="flex-1 rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-xs text-white outline-none focus:border-indigo-500/50 transition-all placeholder:text-white/20"
               />
               <button
                 type="submit"
                 disabled={isLoading || !input.trim()}
-                className="rounded-xl bg-[#f6d6c2] px-3 py-2 text-sm font-medium text-[#0d2d4c] disabled:opacity-60"
+                className="rounded-xl bg-indigo-600 px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-white disabled:opacity-50 shadow-lg shadow-indigo-600/20"
               >
                 Send
               </button>
@@ -176,9 +191,11 @@ export function BorrowerChatWidget() {
         <button
           type="button"
           onClick={() => setOpen(true)}
-          className="rounded-full border border-[rgba(13,83,120,0.18)] bg-[var(--brand-deep)] px-5 py-3 text-sm font-semibold text-white shadow-lg"
+          className="group relative flex items-center gap-3 rounded-full border border-indigo-500/30 bg-black/60 px-6 py-3.5 text-[11px] font-black uppercase tracking-[0.2em] text-white shadow-2xl backdrop-blur-xl hover:bg-black/80 transition-all hover:-translate-y-1"
         >
-          Ask AI
+          <div className="absolute inset-0 rounded-full bg-indigo-500/10 blur-md group-hover:bg-indigo-500/20 transition-all" />
+          <Bot className="size-4 text-indigo-400" />
+          <span className="relative">Ask AI</span>
         </button>
       )}
     </div>

@@ -1,0 +1,24 @@
+services:
+  twenty-mcp:
+    build:
+      context: ../../../../twenty-mcp-jezweb
+      dockerfile: Dockerfile
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-twenty-mcp
+    restart: unless-stopped
+    environment:
+      - TWENTY_API_KEY=${TWENTY_API_KEY}
+      - TWENTY_BASE_URL=${TWENTY_BASE_URL:-http://twenty:3000}
+      - PORT=8400
+    ports:
+      - "8400:8400"
+    networks:
+      - nyra-network
+    labels:
+      nyra.host: oracle
+      nyra.category: mcp
+      nyra.ui: "false"
+
+networks:
+  nyra-network:
+    external: true
+    name: nyra-network_nyra-network

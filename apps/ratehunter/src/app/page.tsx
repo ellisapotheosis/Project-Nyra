@@ -143,18 +143,29 @@ const marketPulse = [
 
 export default function Home() {
   return (
-    <main className="relative min-h-screen pb-20 text-white selection:bg-primary/20">
+    <main className="relative min-h-screen pb-20 text-white selection:bg-indigo-500/30 overflow-x-hidden">
+      {/* Cinematic Background */}
+      <div className="fixed inset-0 -z-10 bg-[#000000]">
+        <div className="absolute top-[-10%] left-[-10%] size-[60%] rounded-full bg-indigo-600/10 blur-[120px] animate-pulse" />
+        <div
+          className="absolute bottom-[-10%] right-[-10%] size-[60%] rounded-full bg-blue-600/10 blur-[120px] animate-pulse"
+          style={{ animationDelay: "2s" }}
+        />
+        <div className="absolute top-[30%] right-[5%] size-[40%] rounded-full bg-indigo-500/5 blur-[100px]" />
+      </div>
+
       <div className="mx-auto flex w-full max-w-7xl flex-col gap-8 px-4 pb-24 pt-6 md:px-6 lg:px-8">
-        <nav className="glass-panel sticky top-4 z-40 flex items-center justify-between gap-4 rounded-2xl border border-white/5 bg-black/60 px-6 py-3 backdrop-blur-xl">
+        import {ThemeSwitcher} from "@/components/theme-switcher"; ...
+        <nav className="glass-panel sticky top-4 z-40 flex items-center justify-between gap-4 rounded-[28px] border border-white/10 bg-black/40 px-6 py-3 backdrop-blur-xl shadow-2xl">
           <div className="flex items-center gap-3">
-            <span className="flex size-8 items-center justify-center rounded-lg border border-indigo-500/20 bg-indigo-500/10 text-indigo-400">
-              <Landmark className="size-4.5" />
+            <span className="flex size-10 items-center justify-center rounded-xl border border-indigo-500/30 bg-indigo-500/20 text-indigo-400 shadow-[0_0_20px_-5px_rgba(var(--indigo-rgb),0.5)]">
+              <Landmark className="size-5" />
             </span>
-            <span className="text-lg font-bold tracking-tight text-white uppercase">
+            <span className="text-xl font-black tracking-tighter text-white uppercase italic">
               RateHunter
             </span>
           </div>
-          <div className="hidden items-center gap-5 text-[11px] font-semibold uppercase tracking-wider text-white/50 md:flex">
+          <div className="hidden items-center gap-6 text-[11px] font-bold uppercase tracking-[0.2em] text-white/40 md:flex">
             <a href="#quote" className="hover:text-white transition-colors">
               Quote
             </a>
@@ -165,144 +176,127 @@ export default function Home() {
               Contact
             </a>
           </div>
-          <Link
-            href={contact.calendly}
-            className={cn(
-              buttonVariants({ variant: "outline", size: "sm" }),
-              "h-8 border-indigo-500/20 bg-indigo-500/5 px-4 text-indigo-400 hover:bg-indigo-500/10 hover:text-indigo-300"
-            )}
-          >
-            Consult
-          </Link>
+          <div className="flex items-center gap-3">
+            <ThemeSwitcher />
+            <Link
+              href={contact.calendly}
+              className={cn(
+                buttonVariants({ variant: "outline", size: "sm" }),
+                "h-9 rounded-xl border-indigo-500/30 bg-indigo-500/10 px-5 text-[10px] font-bold uppercase tracking-widest text-indigo-400 hover:bg-indigo-500/20 hover:text-indigo-300 transition-all"
+              )}
+            >
+              Consult
+            </Link>
+          </div>
         </nav>
-
-        <section className="grid gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:items-start">
-          <div className="glass-panel overflow-hidden rounded-[2.25rem]">
-            <div className="grid gap-8 px-6 py-7 2xl:grid-cols-[0.92fr_1.08fr] lg:px-8 lg:py-8">
-              <div className="space-y-5">
-                <div className="overflow-hidden rounded-[1.6rem] border border-white/8 bg-black/20">
+        <section className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-start">
+          <div className="glass-panel overflow-hidden rounded-[48px] border-white/10 bg-black/40 shadow-2xl">
+            <div className="grid gap-10 px-6 py-8 2xl:grid-cols-[0.92fr_1.08fr] lg:px-12 lg:py-12">
+              <div className="space-y-6">
+                <div className="overflow-hidden rounded-[32px] border border-white/10 bg-black/20 shadow-2xl">
                   <Image
                     src="/carrd-assets/images/ellis-portrait.jpg"
                     alt="Ellis Andersen portrait"
                     width={840}
                     height={840}
-                    className="aspect-square h-auto w-full object-cover"
+                    className="aspect-square h-auto w-full object-cover transition-transform duration-700 hover:scale-105"
                   />
                 </div>
-                <div className="subtle-panel rounded-[1.5rem] p-4">
-                  <p className="eyebrow text-[11px] text-white/45">
-                    Scan or Save
+                <div className="glass-card rounded-[28px] p-5">
+                  <p className="eyebrow text-[10px] text-white/30 tracking-[0.3em]">
+                    Digital Access
                   </p>
                   <Image
                     src="/carrd-assets/images/ellis-contact-card.jpg"
                     alt="Ellis Andersen contact card"
                     width={600}
                     height={600}
-                    className="mt-3 h-auto w-full rounded-[1.1rem]"
+                    className="mt-4 h-auto w-full rounded-[20px] shadow-lg"
                   />
                 </div>
               </div>
 
-              <div className="space-y-6">
-                <div className="flex flex-wrap gap-2">
+              <div className="space-y-10">
+                <div className="flex flex-wrap gap-2.5">
                   {contact.roles.map((role) => (
                     <Badge
                       key={role}
                       variant="secondary"
-                      className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-white/72"
+                      className="rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-[9px] font-bold uppercase tracking-[0.25em] text-white/60"
                     >
                       {role}
                     </Badge>
                   ))}
                 </div>
 
-                <div className="space-y-4">
-                  <p className="eyebrow text-[11px] text-white/45">
+                <div className="space-y-6">
+                  <p className="eyebrow text-[11px] text-white/40 tracking-[0.3em]">
                     {contact.company}
                   </p>
-                  <h1 className="display-copy text-4xl leading-[1.04] tracking-[-0.04em] text-balance md:text-6xl">
+                  <h1 className="display-copy text-5xl leading-[0.95] tracking-[-0.05em] text-balance md:text-7xl font-black">
                     Ellis Andersen
                   </h1>
-                  <p className="max-w-2xl text-lg leading-8 text-white/72">
+                  <p className="max-w-2xl text-xl leading-relaxed text-white/60 font-medium">
                     Your trusted mortgage partner for residential, commercial,
                     refinance, HELOC, and real estate strategy. I shop wholesale
                     lender pricing, move quickly, and tailor the loan structure
-                    around your actual financial profile instead of forcing you
-                    into a generic retail box.
+                    around your actual financial profile.
                   </p>
                 </div>
 
-                <div className="grid gap-3 sm:grid-cols-2">
+                <div className="grid gap-4 sm:grid-cols-2">
                   <Link
                     href={contact.calendly}
                     className={cn(
                       buttonVariants({ size: "lg" }),
-                      "h-12 rounded-full bg-[hsl(var(--primary))] px-5 text-sm font-semibold text-[hsl(var(--primary-foreground))] hover:opacity-90"
+                      "h-14 rounded-2xl bg-indigo-600 px-6 text-sm font-bold uppercase tracking-widest text-white shadow-xl shadow-indigo-600/40 hover:bg-indigo-500 hover:-translate-y-0.5 transition-all"
                     )}
                   >
-                    <CalendarDays className="size-4" />
-                    Schedule Time With Me
+                    <CalendarDays className="size-5" />
+                    Schedule Time
                   </Link>
                   <a
                     href="#quote"
                     className={cn(
                       buttonVariants({ variant: "outline", size: "lg" }),
-                      "h-12 rounded-full border-white/12 bg-white/5 px-5 text-sm text-white hover:bg-white/10"
+                      "h-14 rounded-2xl border-white/10 bg-white/5 px-6 text-sm font-bold uppercase tracking-widest text-white hover:bg-white/10 hover:-translate-y-0.5 transition-all"
                     )}
                   >
-                    <Sparkles className="size-4" />
-                    Start Quote Intake
+                    <Sparkles className="size-5 text-indigo-400" />
+                    Start Quote
                   </a>
-                  <Link
-                    href={contact.phoneHref}
-                    className={cn(
-                      buttonVariants({ variant: "ghost", size: "lg" }),
-                      "h-12 rounded-full bg-white/[0.04] px-5 text-sm text-white/82 hover:bg-white/[0.08]"
-                    )}
-                  >
-                    <Phone className="size-4" />
-                    Call Me
-                  </Link>
-                  <Link
-                    href={contact.smsHref}
-                    className={cn(
-                      buttonVariants({ variant: "ghost", size: "lg" }),
-                      "h-12 rounded-full bg-white/[0.04] px-5 text-sm text-white/82 hover:bg-white/[0.08]"
-                    )}
-                  >
-                    <MessageSquare className="size-4" />
-                    Text Me
-                  </Link>
                 </div>
 
-                <div className="grid gap-3 sm:grid-cols-2">
-                  <div className="subtle-panel rounded-[1.35rem] p-4">
-                    <p className="eyebrow text-[10px] text-white/40">
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="glass-card rounded-[28px] p-6">
+                    <p className="eyebrow text-[10px] text-white/30 tracking-[0.25em]">
                       Direct Contact
                     </p>
-                    <div className="mt-3 grid gap-2 text-sm text-white/75">
+                    <div className="mt-5 grid gap-4 text-sm text-white/80 font-medium">
                       <Link
                         href={contact.emailHref}
-                        className="inline-flex items-center gap-2 hover:text-white"
+                        className="inline-flex items-center gap-3 hover:text-white transition-colors"
                       >
-                        <Mail className="size-4 text-[hsl(var(--primary))]" />
-                        {contact.email}
+                        <Mail className="size-4.5 text-indigo-400" />
+                        <span className="truncate">{contact.email}</span>
                       </Link>
-                      <p className="inline-flex items-center gap-2">
-                        <Phone className="size-4 text-[hsl(var(--primary))]" />
+                      <p className="inline-flex items-center gap-3">
+                        <Phone className="size-4.5 text-indigo-400" />
                         {contact.phone}
                       </p>
-                      <p className="inline-flex items-start gap-2">
-                        <MapPin className="mt-0.5 size-4 shrink-0 text-[hsl(var(--primary))]" />
-                        {contact.address}
+                      <p className="inline-flex items-start gap-3">
+                        <MapPin className="mt-0.5 size-4.5 shrink-0 text-indigo-400" />
+                        <span className="leading-relaxed">
+                          {contact.address}
+                        </span>
                       </p>
                     </div>
                   </div>
-                  <div className="subtle-panel rounded-[1.35rem] p-4">
-                    <p className="eyebrow text-[10px] text-white/40">
-                      Licensing
+                  <div className="glass-card rounded-[28px] p-6">
+                    <p className="eyebrow text-[10px] text-white/30 tracking-[0.25em]">
+                      Credentials
                     </p>
-                    <div className="mt-3 grid gap-2 text-sm text-white/75">
+                    <div className="mt-5 grid gap-3 text-sm text-white/60 font-medium leading-relaxed">
                       <p>NMLS 1912260 | Company NMLS 1566096</p>
                       <p>DRE 02196940 | Company DRE 02022356</p>
                       <p>Fax: {contact.fax}</p>
@@ -313,101 +307,103 @@ export default function Home() {
             </div>
           </div>
 
-          <div id="quote" className="space-y-5">
-            <div className="glass-panel rounded-[2.1rem] p-5">
-              <p className="eyebrow text-[11px] text-white/45">
+          <div id="quote" className="space-y-6">
+            <div className="glass-panel rounded-[40px] p-8 border-white/10 bg-black/40 shadow-2xl">
+              <p className="eyebrow text-[10px] text-white/30 tracking-[0.3em]">
                 Borrower Intake
               </p>
-              <h2 className="mt-3 display-copy text-3xl tracking-[-0.04em]">
-                Start your quote without the usual friction.
+              <h2 className="mt-4 display-copy text-4xl font-black tracking-[-0.04em] leading-[1.1]">
+                Simple, fast scenario reviews.
               </h2>
-              <p className="mt-3 text-sm leading-7 text-white/68">
-                Share the basics for a scenario review. This is an intake
-                request for broker follow-up, not an automated approval or a
-                binding loan estimate.
+              <p className="mt-5 text-base leading-relaxed text-white/60 font-medium">
+                Share the basics for a professional scenario review. This is an
+                intake request for broker follow-up, not a binding loan
+                estimate.
               </p>
-              <p className="mt-3 rounded-2xl border border-white/10 bg-white/[0.04] p-3 text-xs leading-6 text-white/58">
-                By submitting, you authorize contact about your mortgage request
-                by phone, SMS, and email. Consent is not required to buy
-                services. Reply STOP to texts to opt out. Your information is
-                used for mortgage review and referral attribution, then routed
-                through approved server-side intake boundaries.
+              <p className="mt-6 rounded-2xl border border-white/10 bg-white/5 p-5 text-[11px] leading-relaxed text-white/40 font-medium italic">
+                By submitting, you authorize contact by phone, SMS, and email.
+                Reply STOP to texts to opt out. Your info is routed through
+                secure server-side intake boundaries.
               </p>
             </div>
             <LeadCaptureWizard />
           </div>
         </section>
-
-        <section className="glass-panel overflow-hidden rounded-[2rem]">
-          <div className="flex flex-col gap-5 border-b border-white/8 px-5 py-4 lg:flex-row lg:items-center lg:justify-between">
+        <section className="glass-panel overflow-hidden rounded-[32px] border-white/10 bg-black/40 shadow-xl">
+          <div className="flex flex-col gap-6 border-b border-white/10 px-8 py-6 lg:flex-row lg:items-center lg:justify-between">
             <div>
-              <p className="eyebrow text-[11px] text-white/45">Market Pulse</p>
-              <h2 className="mt-2 display-copy text-2xl tracking-[-0.04em]">
-                Rate context for better conversations, not promises.
+              <p className="eyebrow text-[10px] text-white/30 tracking-[0.3em]">
+                Market Pulse
+              </p>
+              <h2 className="mt-3 display-copy text-3xl font-black tracking-[-0.04em] leading-tight">
+                Rate context for better conversations.
               </h2>
             </div>
             <Link
               href={contact.calendly}
               className={cn(
                 buttonVariants({ variant: "outline" }),
-                "rounded-full border-white/12 bg-white/5 text-white hover:bg-white/10"
+                "rounded-xl border-white/10 bg-white/5 text-xs font-bold uppercase tracking-widest text-white hover:bg-white/10 transition-all"
               )}
             >
-              <CalendarDays className="size-4" />
+              <CalendarDays className="size-4 mr-2" />
               Talk through timing
             </Link>
           </div>
-          <div className="market-ticker border-b border-white/8 bg-black/20">
+          <div className="market-ticker border-b border-white/5 bg-white/5">
             <div className="market-ticker-track">
               {[...marketPulse, ...marketPulse].map((item, index) => (
                 <div
                   key={`${item.label}-${index}`}
-                  className="inline-flex min-w-max items-center gap-3 px-5 py-3 text-sm"
+                  className="inline-flex min-w-max items-center gap-4 px-8 py-4 text-xs font-bold uppercase tracking-widest"
                 >
-                  <TrendingUp className="size-4 text-[hsl(var(--primary))]" />
-                  <span className="font-semibold text-white/86">
-                    {item.label}
-                  </span>
-                  <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-xs text-white/68">
+                  <TrendingUp className="size-4 text-indigo-400" />
+                  <span className="text-white/80">{item.label}</span>
+                  <Badge
+                    variant="outline"
+                    className="rounded-full border-indigo-500/30 bg-indigo-500/10 px-3 py-1 text-[9px] text-indigo-400"
+                  >
                     {item.value}
-                  </span>
+                  </Badge>
                 </div>
               ))}
             </div>
           </div>
-          <div className="grid gap-4 p-5 md:grid-cols-2 xl:grid-cols-4">
+          <div className="grid gap-4 p-6 md:grid-cols-2 xl:grid-cols-4">
             {marketPulse.map((item) => (
               <div
                 key={item.label}
-                className="subtle-panel rounded-[1.4rem] p-4"
+                className="glass-card rounded-[24px] p-5 border-white/5"
               >
-                <p className="text-sm font-semibold text-white/86">
+                <p className="text-xs font-bold uppercase tracking-widest text-white/80">
                   {item.label}
                 </p>
-                <p className="mt-2 text-xs leading-6 text-white/58">
+                <p className="mt-3 text-[11px] leading-relaxed text-white/40 font-medium">
                   {item.detail}
                 </p>
               </div>
             ))}
           </div>
         </section>
-
-        <section className="section-divider pt-8">
+        <section className="pt-4 px-2">
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
             {trustPoints.map((point) => (
-              <Card
+              <div
                 key={point}
-                className="subtle-panel rounded-[1.7rem] border-white/8 bg-transparent py-0 text-white shadow-none"
+                className="glass-card rounded-[24px] border-white/5 bg-transparent p-6 text-white"
               >
-                <CardContent className="flex items-start gap-3 p-5">
-                  <CheckCircle2 className="mt-0.5 size-5 shrink-0 text-[hsl(var(--primary))]" />
-                  <p className="text-sm leading-7 text-white/72">{point}</p>
-                </CardContent>
-              </Card>
+                <div className="flex items-start gap-4">
+                  <div className="mt-1 size-5 shrink-0 rounded-full bg-indigo-500/20 grid place-items-center">
+                    <CheckCircle2 className="size-3 text-indigo-400" />
+                  </div>
+                  <p className="text-xs leading-relaxed text-white/60 font-medium">
+                    {point}
+                  </p>
+                </div>
+              </div>
             ))}
           </div>
         </section>
-
         <section
           id="services"
           className="grid gap-8 lg:grid-cols-[0.92fr_1.08fr]"
@@ -470,7 +466,6 @@ export default function Home() {
             ))}
           </div>
         </section>
-
         <section className="grid gap-8 lg:grid-cols-[1.06fr_0.94fr]">
           <div className="glass-panel rounded-[2.1rem] p-6 lg:p-8">
             <div className="flex flex-wrap items-center gap-3">
@@ -539,7 +534,6 @@ export default function Home() {
             ))}
           </div>
         </section>
-
         <section
           id="contact"
           className="glass-panel rounded-[2.25rem] px-6 py-7 lg:px-8"
@@ -610,7 +604,6 @@ export default function Home() {
             </div>
           </div>
         </section>
-
         <footer className="px-2 pb-2 pt-2 text-center">
           <Image
             src="/ratehunter-footer-logo.png"

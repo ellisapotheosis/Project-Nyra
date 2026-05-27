@@ -3,25 +3,16 @@
 import React, { useState, useEffect } from "react";
 import { Activity, ShieldCheck, Zap, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-interface HealthData {
-  status: string;
-  nodes: Array<{ id: string; status: string; latency: string; load: string }>;
-  services: Record<string, string>;
-}
+import { healthApi, type HeartbeatStatus } from "@/lib/api";
 
 export function ClusterHealthHeartbeat() {
-  const [data, setData] = useState<HealthData | null>(null);
+  const [data, setData] = useState<HeartbeatStatus | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchHealth() {
       try {
-        const response = await fetch("/api/health/heartbeat");
-        if (response.ok) {
-          const health = await response.json();
-          setData(health);
-        }
+        setData(await healthApi.getHeartbeat());
       } catch (error) {
         console.error("Health check failed", error);
       } finally {

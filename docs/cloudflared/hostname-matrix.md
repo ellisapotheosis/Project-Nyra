@@ -38,7 +38,7 @@ LiteLLM, and service surfaces.
 | `nexus.projectnyra.com`            | Nexus UI                           | `http://nexus-ui:3016`      | Required                                             |
 | `nexus-router.projectnyra.com`     | Nexus Router API/MCP               | `http://nexus:3000`         | Cloudflare Access service token preferred            |
 | `litellm.projectnyra.com`          | LiteLLM                            | `http://litellm:4000`       | Owner-only                                           |
-| `paperclip.projectnyra.com`        | Paperclip UI                       | `http://paperclip:3100`     | Required; confirm service health first               |
+| `gastown.projectnyra.com`          | Gastown UI                         | `http://gastown:8080`       | Required; confirm service health first               |
 | `clawteam.projectnyra.com`         | ClawTeam UI                        | `http://clawteam:8080`      | Required; optional overlay must be running           |
 | `portainer-oracle.projectnyra.com` | Oracle Portainer                   | `https://portainer:9443`    | Owner-only, no TLS verify                            |
 | `git-ssh.projectnyra.com`          | Gitea SSH                          | `ssh://gitea:2222`          | Optional Access SSH only                             |

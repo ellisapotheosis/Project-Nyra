@@ -28,7 +28,7 @@ Applied tunnel hostnames:
   `prometheus.projectnyra.com`, `cadvisor.projectnyra.com`,
   `openwebui.projectnyra.com`, `nexus.projectnyra.com`,
   `nexus-router.projectnyra.com`, `litellm.projectnyra.com`,
-  `paperclip.projectnyra.com`, `clawteam.projectnyra.com`,
+  `gastown.projectnyra.com`, `clawteam.projectnyra.com`,
   `portainer-oracle.projectnyra.com`, `git-ssh.projectnyra.com`
 
 DNS result:

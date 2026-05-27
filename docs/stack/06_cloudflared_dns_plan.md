@@ -24,7 +24,7 @@ Current package: `docs/cloudflared/`
 | `activepieces.projectnyra.com`     | `activepieces:80`                              | Access-gated workflows          |
 | `nexus.projectnyra.com`            | `nexus:3000`                                   | Access-gated AI/MCP gateway     |
 | `grafana.projectnyra.com`          | `grafana:3000`                                 | Access-gated observability      |
-| `paperclip.projectnyra.com`        | `paperclip:3100`                               | Access-gated document UI        |
+| `gastown.projectnyra.com`          | `gastown:8080`                                 | Access-gated document UI        |
 | `nerve-5090.projectnyra.com`       | `worker-rtx5090.trex-fiordland.ts.net:18789`   | Access-gated worker UI          |
 | `nerve-3090.projectnyra.com`       | `worker-rtx3090ti.trex-fiordland.ts.net:18789` | Access-gated worker UI          |
 

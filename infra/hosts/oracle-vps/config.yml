@@ -702,44 +702,31 @@ services:
         target: /app/backend/data
         type: volume
         volume: {}
-  paperclip:
-    container_name: nyra-paperclip
-    environment:
-      - PAPERCLIP_AUTH_DISABLE_SIGN_UP=true
-      - PORT=3100
-    image: ghcr.io/paperclipai/paperclip:latest
+  gastown:
+    container_name: nyra-network-gastown
+    image: nyra-gastown:latest
     networks:
       nyra_net: null
     ports:
       - mode: ingress
+        host_ip: 127.0.0.1
         protocol: tcp
-        published: "3111"
-        target: 3100
+        published: "8096"
+        target: 8080
     restart: unless-stopped
     volumes:
-      - source: paperclip_data
-        target: /paperclip
+      - source: gastown_agent_home
+        target: /home/agent
         type: volume
         volume: {}
-  paperclip-mcp:
-    command:
-      - npx
-      - -y
-      - supergateway
-      - --stdio
-      - npx -y @paperclipai/mcp-server
-      - --port
-      - "8767"
-    container_name: nyra-paperclip-mcp
-    image: node:20-alpine
-    networks:
-      nyra_net: null
-    ports:
-      - mode: ingress
-        protocol: tcp
-        published: "8767"
-        target: 8767
-    restart: unless-stopped
+      - source: gastown_workspace
+        target: /gt
+        type: volume
+        volume: {}
+      - source: gastown_dolt_data
+        target: /gt/.dolt-data
+        type: volume
+        volume: {}
   portainer:
     command:
       - --http-enabled
@@ -1064,8 +1051,12 @@ volumes:
     name: nyra-network_openclaw_workspace
   openwebui_data:
     name: nyra-network_openwebui_data
-  paperclip_data:
-    name: nyra-network_paperclip_data
+  gastown_agent_home:
+    name: nyra-network_gastown_agent_home
+  gastown_workspace:
+    name: nyra-network_gastown_workspace
+  gastown_dolt_data:
+    name: nyra-network_gastown_dolt_data
   portainer_data:
     name: nyra-network_portainer_data
   postgres_data:

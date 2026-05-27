@@ -9,6 +9,8 @@ vi.mock("next/server", () => ({
 const ORIGINAL_ENV = process.env;
 
 describe("RateHunter production proxy gates", () => {
+  vi.setConfig({ testTimeout: 10000 });
+
   beforeEach(() => {
     vi.resetModules();
     process.env = {

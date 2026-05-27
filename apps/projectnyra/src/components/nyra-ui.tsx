@@ -25,6 +25,7 @@ const buttonVariants = cva(
         destructive:
           "bg-destructive text-destructive-foreground hover:bg-destructive/90",
         link: "text-primary underline-offset-4 hover:underline",
+        glass: "glass-button border-white/10 text-white/90 hover:bg-white/20",
       },
       size: {
         default: "h-9 gap-1.5 px-3",
@@ -64,6 +65,8 @@ const badgeVariants = cva(
         destructive:
           "border-transparent bg-destructive text-destructive-foreground",
         outline: "border-border text-foreground",
+        glass:
+          "glass-panel border-white/20 bg-white/10 px-3 py-1 text-white/90",
       },
     },
     defaultVariants: {
@@ -82,11 +85,17 @@ function Badge({
   );
 }
 
-function Card({ className, ...props }: React.ComponentProps<"div">) {
+function Card({
+  className,
+  variant,
+  ...props
+}: React.ComponentProps<"div"> & { variant?: "default" | "glass" }) {
   return (
     <div
       className={cn(
         "flex flex-col gap-6 rounded-xl border bg-card py-6 text-card-foreground shadow-sm",
+        variant === "glass" &&
+          "glass-panel rounded-[32px] border-white/10 bg-black/40",
         className
       )}
       {...props}

@@ -25,7 +25,7 @@ Routes to create first:
 
 Routes to delay until service health is confirmed:
 
-- `paperclip.projectnyra.com`
+- `gastown.projectnyra.com`
 - `clawteam.projectnyra.com`
 - `prometheus.projectnyra.com`
 - `cadvisor.projectnyra.com`

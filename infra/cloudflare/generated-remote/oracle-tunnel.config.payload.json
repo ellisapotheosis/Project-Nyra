@@ -44,8 +44,8 @@
         "service": "http://litellm:4000"
       },
       {
-        "hostname": "paperclip.projectnyra.com",
-        "service": "http://paperclip:3100"
+        "hostname": "gastown.projectnyra.com",
+        "service": "http://gastown:8080"
       },
       {
         "hostname": "clawteam.projectnyra.com",

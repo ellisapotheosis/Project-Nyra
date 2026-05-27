@@ -84,7 +84,7 @@ The theme migration requires:
 1. TwentyCRM is the system of record for contacts, leads, loans/applications, campaign enrollment, communication logs, compliance state, and quote records.
 2. Supabase is the app backend/auth/storage substrate for webapp-local state such as operator settings, assistant threads, campaign drafts, feature flags, files, audit events, and app-specific relational queries.
 3. n8n is internal execution glue only. It is not the campaign source of truth, not the policy engine, and not the durable product UI.
-4. OpenClaw is the supervised assistant surface. The product should talk through `assistant-service`; the webapp must not depend directly on Paperclip, ClawTeam, terminal harness internals, or model-provider-specific details.
+4. OpenClaw is the supervised assistant surface. The product should talk through `assistant-service`; the webapp must not depend directly on Gastown, ClawTeam, terminal harness internals, or model-provider-specific details.
 5. Quotes are deterministic. The assistant may explain, compare, and format quotes returned by approved quote services. It must never invent rates, APR, fees, approvals, eligibility, or payment terms.
 6. Compliance is code, not vibes. Consent, opt-out, quiet hours, STOP/unsubscribe, DNC, reply-based pausing, audit events, and human approval gates must be explicit service logic with tests.
 7. Agents and assistants never directly mutate CRM, Postgres, Redis, FalkorDB, Supabase, or provider systems. They call typed Nyra service APIs with audit logs and authorization.

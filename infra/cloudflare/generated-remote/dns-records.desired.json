@@ -93,7 +93,7 @@
       "proxied": true
     },
     {
-      "name": "paperclip",
+      "name": "gastown",
       "type": "CNAME",
       "content": "${ORACLE_TUNNEL_ID}.cfargotunnel.com",
       "proxied": true

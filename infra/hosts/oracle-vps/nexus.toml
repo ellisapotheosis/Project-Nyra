@@ -24,3 +24,8 @@ forward_token = false
 [mcp]
 enabled = true
 path = "/mcp"
+
+# Docker MCP Toolkit runs on the orchestrator and is aggregated through Nexus.
+# Keep direct Docker socket access off public routes; agents should call Nexus /mcp.
+[mcp.servers.docker-toolkit]
+url = "http://orchestrator.trex-fiordland.ts.net:8811/mcp"

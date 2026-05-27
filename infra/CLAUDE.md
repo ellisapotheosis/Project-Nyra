@@ -48,13 +48,13 @@ container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-3060-ollama
 | File                                  | Purpose                                                   |
 | ------------------------------------- | --------------------------------------------------------- |
 | `docker-compose.memory.yml`           | Letta + mem0 + FalkorDB + Qdrant (canonical memory plane) |
-| `docker-compose.oracle.yml`           | Paperclip, SearXNG, Browserless                           |
+| `docker-compose.oracle.yml`           | Gastown replacement note, SearXNG, Browserless            |
 | `docker-compose.apps.yml`             | Next.js webapp + Nexus UI                                 |
 | `docker-compose.gitea.yml`            | Gitea + Gitea DB                                          |
 | `docker-compose.letta-mcp.yml`        | Letta MCP bridge                                          |
 | `docker-compose.memory-extra.yml`     | Optional memory companions (memos, claudemem)             |
 | `docker-compose.clawteam.yml`         | ClawTeam primary node (oracle)                            |
-| `docker-compose.paperclip.yml`        | Paperclip MCP gateway (build from images/paperclip/)      |
+| `docker-compose.gastown.yml`          | Gastown workspace manager                                 |
 | `docker-compose.activepieces-mcp.yml` | ActivePieces MCP                                          |
 | `docker-compose.restoration.yml`      | Restoration services (llxprt-bridge, activepieces-mcp)    |
 
@@ -108,6 +108,30 @@ Two roles:
 - `secrets-init` — runs once at startup, writes secrets to volume
 - `infisical-agent` — sidecar that polls and refreshes secrets
 
+## Persistent Services Architecture (CRITICAL)
+
+Portainer and Syncthing are managed by **`docker-compose.persistent.yml`** on EACH host.
+These are deployed with `make persistent-up` (or per-host variants) and use `restart: always`.
+
+**NEVER** include portainer or syncthing in any canonical `docker-compose.yml` or overlay.
+**NEVER** call `make persistent-down` — these services must run 24/7 indefinitely.
+
+| Host             | Services                                   | Compose                         |
+| ---------------- | ------------------------------------------ | ------------------------------- |
+| orchestrator     | portainer-edge-agent + syncthing           | `docker-compose.persistent.yml` |
+| oracle-vps       | portainer-CE + portainer-agent + syncthing | `docker-compose.persistent.yml` |
+| worker-rtx3060   | portainer-edge-agent + syncthing           | `docker-compose.persistent.yml` |
+| worker-rtx3090ti | portainer-edge-agent + syncthing           | `docker-compose.persistent.yml` |
+| worker-rtx5090   | portainer-edge-agent + syncthing           | `docker-compose.persistent.yml` |
+
+**Volume pinning**: All syncthing/portainer volumes use explicit `name:` fields so they
+NEVER get orphaned when compose project names change. Orchestrator syncthing uses
+`external: true, name: orchestrator_syncthing_config` to preserve existing settings.
+Workers bind-mount `/home/ellisapotheosis:/var/syncthing` (config lives in home dir).
+
+**Portainer CE lives on oracle only** (ports 9000/9443 HTTP/HTTPS, 8050 edge tunnel).
+All other hosts run portainer-edge-agent only.
+
 ## What Agents Must NOT Do
 
 1. Move compose files out of `hosts/<hostname>/` to any other location
@@ -119,3 +143,5 @@ Two roles:
 7. Place `.env` / config files in `infra/` root — use `env/` or `configs/`
 8. Merge the memory stack services back into the main `docker-compose.yml`
 9. Reference `infra/docker/` or `infra/infisical-secrets-init/` in build contexts — both moved to `images/`
+10. Add portainer or syncthing to any canonical `docker-compose.yml` — use `docker-compose.persistent.yml`
+11. Run `make down` targets that include persistent services — they must NEVER be stopped by automation
