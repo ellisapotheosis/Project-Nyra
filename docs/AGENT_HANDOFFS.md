@@ -1,48 +1,30 @@
-# AGENT_HANDOFFS.md
+# Agent Handoffs
 
-## Status: Historical Foundation Handoff
+## Current Track
 
-This file is preserved for the earlier non-UI foundation pass. The active
-release-candidate handoff is `docs/AGENT_RELEASE_HANDOFF.md`; the current
-docs/conductor handoff review is `docs/CONDUCTOR_HANDOFF_REVIEW.md`.
+Executable Conductor track: `conductor/tracks/omni_prompting_pack_v3_20260524`.
 
-Do not use this file as the current execution queue unless the task explicitly
-targets the older foundation package.
+Raw prompt pack provenance: `conductor/prompts/nyra-omni-prompting-pack-v3`.
 
-## Current Status: Non-UI Foundation Ready
+Status: prompts 00-07 are executed locally. Prompt 08 has been executed only through the explicitly assigned safe slice: dependency validation plus theme registry/provider/switcher. Owner-gated live checks remain.
 
-The foundation pass has established the core domain contracts, integration interfaces, campaign templates, and operational documentation for Project Nyra. UI work is intentionally outside this package.
+Z-drive reconciliation: `/mnt/z/nyra_omni_prompting_pack_v3` was mounted via drvfs on 2026-05-26 and preserved at `conductor/prompts/nyra-omni-prompting-pack-v3-zdrive-20260526`. Its only detected delta from the prior import was a retired workspace reference in Prompt 01, which is superseded by Gastown.
 
-## Accomplishments
+## Next Non-UI Work
 
-1. **Core Documentation**: Authored `PROJECT_NYRA_CONTEXT.md`, `ARCHITECTURE_NON_UI.md`, and `STACK_DECISIONS.md`.
-2. **Domain Models**: Created `@nyra/domain-models` with Zod schemas for leads, borrowers, campaigns, quotes, audit events, memory records, workers, and model routes.
-3. **Integration Layer**: Created `@nyra/integration-adapters` with typed interfaces and deterministic mocks for TwentyCRM, Twilio, SendGrid, quote generation, and Activepieces.
-4. **Compliance Safety**: Implemented `ComplianceService` with STOP request detection, contact-channel gating, and CRM update behavior for opt-outs.
-5. **Campaign Strategy**: Defined canonical mortgage drip campaigns in `data/campaign-templates.json`.
-6. **Operational Runbooks**: Authored runbooks for Service Exposure, Worker Routing, Local Dev, and Infisical.
+1. Continue only owner-gated live checks after Infisical and Cloudflare/domain setup is ready.
+2. Use `docs/reports/NON_UI_FOUNDATION_QA_REPORT.md` as the QA starting point.
+3. Keep broader UI work limited to explicit UI assignments; completed safe slice is theme registry/provider/switcher only.
 
-## Post-Merge Expansion
+## CRM Progress
 
-These are not blockers for this prompt-pack/foundation branch. They require
-provider credentials, running services, or broader service wiring and should be
-tracked as follow-up implementation work.
+- ProjectNyra CRM page now derives broker action queues from CRM workspace data: compliance checks, campaign reviews, quote follow-up, and sync warnings.
+- `/api/crm` now returns a generated CRM workspace snapshot instead of a deprecated placeholder.
+- Broker command deck now reads `/api/crm` for headline stats and priority queue data.
+- CRM-backed `/crm` and `/applications` pages are dynamic, preventing build-time credential failures while keeping runtime CRM reads fail-closed without `NYRA_ENABLE_MOCKS=true`.
 
-### Integration Follow-Up
+## Safety Notes
 
-- Implement production TwentyCRM, Twilio, SendGrid, and Activepieces clients behind the existing interfaces.
-- Wire `services/lead-ingestion` to `ITwentyClient` once Twenty custom objects and credentials are available.
-- Add provider contract tests that run against sandbox credentials through Infisical.
-
-### Infra / Ops Follow-Up
-
-- Apply the Infisical project structure from `docs/ops/INFISICAL_SECRETS_RUNBOOK.md` in the owner account.
-- Validate Linkwarden and Home Assistant origins from the orchestrator tunnel using the commands in `docs/homeassistant-linkwarden-links-ratehunter-report.md`.
-- Keep host compose files aligned with `docs/ops/SERVICE_EXPOSURE_MATRIX.md` and `docs/cloudflared/hostname-matrix.md`.
-
-## Critical Warnings
-
-- **DO NOT** reintroduce Claude-Flow or other deprecated stack items (see `docs/DEPRECATED_STACK_DO_NOT_USE.md`).
-- **DO NOT** perform any UI or styling work.
-- **ALWAYS** write an audit event for any CRM mutation or external communication.
-- **STRICT** adherence to STOP/DNC rules is required for all automated outreach.
+- Gastown is the active workspace replacement.
+- Activepieces is primary; n8n is constrained fallback.
+- Do not expose raw worker/model/MCP/database endpoints publicly.

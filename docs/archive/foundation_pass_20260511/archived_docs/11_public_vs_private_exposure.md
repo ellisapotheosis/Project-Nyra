@@ -32,7 +32,7 @@ Public ingress should flow through Cloudflared only. Operator and internal app s
 | `openwebui.projectnyra.com`    | `openwebui:8080`      |
 | `openmemory.projectnyra.com`   | `openmemory-mcp:8765` |
 | `letta.projectnyra.com`        | `letta:8283`          |
-| `paperclip.projectnyra.com`    | `paperclip:3100`      |
+| `gastown.projectnyra.com`      | `gastown:3100`        |
 | `clawteam.projectnyra.com`     | `clawteam:8080`       |
 
 ## Restricted non-HTTP

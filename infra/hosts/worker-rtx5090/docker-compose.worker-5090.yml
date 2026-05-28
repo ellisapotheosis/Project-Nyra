@@ -8,7 +8,6 @@
 services:
   # ── Infisical secrets init (runs once, writes files to /run/nyra-secrets/) ─
   secrets-init:
-    profiles: ["secrets"]
     build:
       context: ../../images/infisical-secrets-init
     container_name: worker-5090-secrets-init
@@ -16,6 +15,8 @@ services:
     command: ["/usr/local/bin/secrets-init.sh"]
     environment:
       INFISICAL_TOKEN: ${INFISICAL_TOKEN:-}
+      INFISICAL_UNIVERSAL_AUTH_CLIENT_ID: ${INFISICAL_UNIVERSAL_AUTH_CLIENT_ID:-}
+      INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET: ${INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET:-}
       INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
       INFISICAL_ENV: ${INFISICAL_ENV:-prod}
       INFISICAL_PATH: ${INFISICAL_PATH:-/machines/worker-rtx5090}
@@ -26,7 +27,6 @@ services:
 
   # ── Infisical agent (polls Infisical and refreshes secrets) ──────────────
   infisical-agent:
-    profiles: ["secrets"]
     build:
       context: ../../images/infisical-secrets-init
     container_name: worker-5090-infisical-agent
@@ -37,6 +37,8 @@ services:
         condition: service_completed_successfully
     environment:
       INFISICAL_TOKEN: ${INFISICAL_TOKEN:-}
+      INFISICAL_UNIVERSAL_AUTH_CLIENT_ID: ${INFISICAL_UNIVERSAL_AUTH_CLIENT_ID:-}
+      INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET: ${INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET:-}
       INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
       INFISICAL_ENV: ${INFISICAL_ENV:-prod}
       INFISICAL_PATH: ${INFISICAL_PATH:-/machines/worker-rtx5090}

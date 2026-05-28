@@ -77,6 +77,12 @@ Validation evidence:
   legacy `/500` page generated.
 - `pnpm -C apps/ratehunter build` passed with the landing page, lead ingest
   proxy, and borrower chat proxy generated.
+- Oracle memory-stack smoke passed on 2026-05-26 with Letta, Letta Postgres,
+  Letta MCP, mem0, Qdrant, FalkorDB, OpenMemory MCP, MemPalace MCP, MemOS API,
+  and MemOS MCP all reachable or container-healthy via
+  `infra/scripts/smoke-memory-stack.sh`.
+- mem0 functional add/search smoke passed after moving the RTX3060 768-dimensional
+  embedding lane to the `mem0-nyra-768` Qdrant collection.
 
 ## Infisical Coverage Note
 

@@ -19,7 +19,10 @@ async function globalSetup(config: FullConfig) {
 
   try {
     // Wait for services to be ready
-    const baseURL = config.projects[0].use.baseURL || "http://localhost:3010";
+    const baseURL =
+      process.env.BASE_URL ||
+      config.projects[0].use.baseURL ||
+      "http://localhost:3010";
 
     console.log(`Waiting for ${baseURL} to be ready...`);
 

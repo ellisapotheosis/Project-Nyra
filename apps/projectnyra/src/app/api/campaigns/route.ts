@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 
 import {
   canUseMockFallback,
+  productionReadUnavailable,
   productionWriteUnavailable,
 } from "@/lib/api/config";
 import { toCampaignContract } from "@/lib/campaign-contract";
@@ -9,7 +10,26 @@ import { campaigns } from "@/lib/mock-data";
 
 const CAMPAIGN_ENGINE_URL = process.env.CAMPAIGN_ENGINE_URL;
 
-export function GET() {
+export async function GET() {
+  if (CAMPAIGN_ENGINE_URL) {
+    try {
+      const response = await fetch(`${CAMPAIGN_ENGINE_URL}/api/campaigns`, {
+        cache: "no-store",
+      });
+
+      if (response.ok) {
+        return NextResponse.json(await response.json());
+      }
+    } catch {}
+  }
+
+  if (!canUseMockFallback()) {
+    return productionReadUnavailable(
+      "Campaign service",
+      "CAMPAIGN_ENGINE_URL must be configured for production campaign reads"
+    );
+  }
+
   return NextResponse.json({ campaigns, source: "mock" });
 }
 

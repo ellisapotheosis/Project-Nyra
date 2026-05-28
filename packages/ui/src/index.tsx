@@ -25,6 +25,8 @@ const buttonVariants = cva(
         destructive:
           "bg-destructive text-destructive-foreground hover:bg-destructive/90",
         link: "text-primary underline-offset-4 hover:underline",
+        glass:
+          "bg-white/5 backdrop-blur-md border-white/10 hover:bg-white/10 text-white shadow-xl",
       },
       size: {
         default: "h-9 gap-1.5 px-3",
@@ -64,6 +66,8 @@ const badgeVariants = cva(
         destructive:
           "border-transparent bg-destructive text-destructive-foreground",
         outline: "border-border text-foreground",
+        glass:
+          "border-white/10 bg-white/5 backdrop-blur-md text-white shadow-sm",
       },
     },
     defaultVariants: {
@@ -82,15 +86,29 @@ function Badge({
   );
 }
 
-function Card({ className, ...props }: React.ComponentProps<"div">) {
+const cardVariants = cva(
+  "flex flex-col gap-6 rounded-xl border py-6 shadow-sm",
+  {
+    variants: {
+      variant: {
+        default: "bg-card text-card-foreground border-border",
+        glass:
+          "bg-white/5 backdrop-blur-md border-white/10 text-white shadow-xl",
+      },
+    },
+    defaultVariants: {
+      variant: "default",
+    },
+  }
+);
+
+function Card({
+  className,
+  variant,
+  ...props
+}: React.ComponentProps<"div"> & VariantProps<typeof cardVariants>) {
   return (
-    <div
-      className={cn(
-        "flex flex-col gap-6 rounded-xl border bg-card py-6 text-card-foreground shadow-sm",
-        className
-      )}
-      {...props}
-    />
+    <div className={cn(cardVariants({ variant }), className)} {...props} />
   );
 }
 

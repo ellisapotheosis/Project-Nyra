@@ -1,5 +1,4 @@
-:root,
-[data-nyra-theme="apotheosis"] {
+.apotheosis {
   --font-inter:
     Electrolize, "Avenir Next", "Segoe UI", "Helvetica Neue", sans-serif;
   --font-display:

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 
 import {
   canUseMockFallback,
+  productionReadUnavailable,
   productionWriteUnavailable,
 } from "@/lib/api/config";
 import { leads } from "@/lib/mock-data";
@@ -26,6 +27,13 @@ export async function GET() {
         return NextResponse.json(data);
       }
     } catch {}
+  }
+
+  if (!canUseMockFallback()) {
+    return productionReadUnavailable(
+      "CRM API",
+      "CRM_API_URL must be configured for production lead reads"
+    );
   }
 
   return NextResponse.json({ leads, source: "mock" });

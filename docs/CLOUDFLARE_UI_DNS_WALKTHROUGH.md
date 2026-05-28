@@ -59,7 +59,7 @@ Protect every hostname in this table with Cloudflare Access. Recommended baselin
 | `openwebui.projectnyra.com`        | Oracle VPS   | `http://nyra-openwebui:8080`        | `8088 -> 8080`  | Access OIDC                      |
 | `openclaw.projectnyra.com`         | Oracle VPS   | `http://nyra-openclaw:18790`        | `18790`         | Access OIDC                      |
 | `clawteam.projectnyra.com`         | Oracle VPS   | `http://nyra-clawteam:8080`         | `8090 -> 8080`  | Access OIDC                      |
-| `paperclip.projectnyra.com`        | Oracle VPS   | `http://nyra-paperclip:3100`        | `3111 -> 3100`  | Access OIDC                      |
+| `gastown.projectnyra.com`          | Oracle VPS   | `http://nyra-network-gastown:8080`  | `8096 -> 8080`  | Access OIDC                      |
 | `portainer-oracle.projectnyra.com` | Oracle VPS   | `https://nyra-portainer:9443`       | `9443`          | Access OIDC, no public Portainer |
 | `litellm.projectnyra.com`          | Orchestrator | `http://nyra-litellm-router:4000`   | `4000`          | Access OIDC                      |
 | `nexus.projectnyra.com`            | Orchestrator | `http://nyra-nexus:3000`            | `6000 -> 3000`  | Access OIDC                      |
@@ -76,15 +76,15 @@ Optional SSH route:
 
 Do not create Cloudflare Public Hostnames for these:
 
-| Service                                                                                                                              | Reason                                                                                                         |
-| ------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------- |
-| `postgres`, `twenty-db`, `gitea-db`                                                                                                  | Datastores stay private                                                                                        |
-| `redis`, `redis-cache`                                                                                                               | Datastores stay private                                                                                        |
-| `falkordb`, `qdrant`, `loki`                                                                                                         | Data/observability backends stay private                                                                       |
-| `mem0-rest`, `openmemory-mcp`, `infisical-mcp`, `gitea-mcp`, `paperclip-mcp`, `twentycrm-mcp`, `mempalace-mcp`, `docker-mcp-toolkit` | Raw API/MCP endpoints should not be browser-exposed                                                            |
-| `activepieces`                                                                                                                       | Internal automation surface; expose only behind Cloudflare Access if an owner intentionally enables a UI route |
-| `letta`                                                                                                                              | Memory-manager agent; add a protected route only when a focused host service is deployed                       |
-| worker vLLM/Ollama endpoints                                                                                                         | Worker inference stays private over Tailscale                                                                  |
+| Service                                                                                                             | Reason                                                                                                         |
+| ------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| `postgres`, `twenty-db`, `gitea-db`                                                                                 | Datastores stay private                                                                                        |
+| `redis`, `redis-cache`                                                                                              | Datastores stay private                                                                                        |
+| `falkordb`, `qdrant`, `loki`                                                                                        | Data/observability backends stay private                                                                       |
+| `mem0-rest`, `openmemory-mcp`, `infisical-mcp`, `gitea-mcp`, `twentycrm-mcp`, `mempalace-mcp`, `docker-mcp-toolkit` | Raw API/MCP endpoints should not be browser-exposed                                                            |
+| `activepieces`                                                                                                      | Internal automation surface; expose only behind Cloudflare Access if an owner intentionally enables a UI route |
+| `letta`                                                                                                             | Memory-manager agent; add a protected route only when a focused host service is deployed                       |
+| worker vLLM/Ollama endpoints                                                                                        | Worker inference stays private over Tailscale                                                                  |
 
 For AgentMemory, the compose file already binds to the Tailscale IP by default:
 
@@ -113,7 +113,7 @@ Keep that as MagicDNS/Tailscale-only unless you add a formal Access application 
 11. For private UIs, enable Access and use one policy per sensitivity group:
     - `Nyra Admin`: admin, Twenty, n8n, Portainer, Gitea
     - `Nyra Observability`: Grafana, Prometheus, cAdvisor
-    - `Nyra Assistant Workbench`: Open WebUI, OpenClaw, Clawteam, LiteLLM, Nexus, Paperclip
+    - `Nyra Assistant Workbench`: Open WebUI, OpenClaw, Clawteam, LiteLLM, Nexus, Gastown
 12. Verify DNS records were created by the tunnel UI. They should be proxied CNAME records pointing at the tunnel target.
 13. Test each route from a browser in a clean profile.
 

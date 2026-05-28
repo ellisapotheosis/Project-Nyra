@@ -21,7 +21,7 @@ infisical login --interactive
 ./scripts/infisical-export.sh dev /shared .env
 ```
 
-### Option 2: Universal Auth (Recommended for CI/CD)
+### Option 2: Universal Auth (Recommended for CI/CD and host deploys)
 
 1. **Create a Universal Auth Identity in Infisical Dashboard:**
    - Go to https://app.infisical.com
@@ -34,9 +34,9 @@ infisical login --interactive
 2. **Store credentials securely:**
 
 ```bash
-# Add to your .bashrc or .zshrc (already in your .env)
-export INFISICAL_CLIENT_ID="your-client-id"
-export INFISICAL_CLIENT_SECRET="your-client-secret"
+# Add to your .bashrc, .zshrc, or ~/.zsh/99-secrets.zsh
+export INFISICAL_UNIVERSAL_AUTH_CLIENT_ID="your-client-id"
+export INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET="your-client-secret"
 
 # Reload shell
 source ~/.zshrc
@@ -47,15 +47,18 @@ source ~/.zshrc
 ```bash
 infisical login \
   --method=universal-auth \
-  --client-id="$INFISICAL_CLIENT_ID" \
-  --client-secret="$INFISICAL_CLIENT_SECRET"
+  --client-id="$INFISICAL_UNIVERSAL_AUTH_CLIENT_ID" \
+  --client-secret="$INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET"
 ```
 
-4. **Export secrets:**
+4. **Export secrets or deploy host stacks:**
 
 ```bash
 ./scripts/infisical-export.sh dev /shared .env
+make up-worker-3060
 ```
+
+The Makefile mints `INFISICAL_TOKEN` from Universal Auth on the controller machine, then uses Docker contexts so Compose interpolation and `infisical run` happen locally before commands are sent to the remote Docker host.
 
 ## Why PowerShell Hangs
 

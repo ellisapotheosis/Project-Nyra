@@ -14,87 +14,9 @@ x-common: &common
     - no-new-privileges:true
 
 services:
-  paperclip:
-    <<: *common
-    image: ${PAPERCLIP_IMAGE:-ghcr.io/paperclipai/paperclip:latest}
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-paperclip
-    environment:
-      NODE_ENV: production
-      PORT: 3100
-      DATABASE_URL: postgresql://${PAPERCLIP_DB_USER:-paperclip}:${PAPERCLIP_DB_PASSWORD:?set PAPERCLIP_DB_PASSWORD}@paperclip-postgres:5432/${PAPERCLIP_DB_NAME:-paperclip}
-      REDIS_URL: redis://paperclip-redis:6379/0
-      PAPERCLIP_PUBLIC_URL: ${PAPERCLIP_PUBLIC_URL:-https://paperclip.projectnyra.com}
-      PAPERCLIP_AUTH_DISABLE_SIGN_UP: ${PAPERCLIP_AUTH_DISABLE_SIGN_UP:-true}
-      PAPERCLIP_SESSION_SECRET: ${PAPERCLIP_SESSION_SECRET:?set PAPERCLIP_SESSION_SECRET}
-      PAPERCLIP_AGENT_CALLBACK_BASE_URL: ${PAPERCLIP_AGENT_CALLBACK_BASE_URL:-http://paperclip:3100}
-    depends_on:
-      paperclip-postgres:
-        condition: service_healthy
-      paperclip-redis:
-        condition: service_healthy
-    ports:
-      - 127.0.0.1:${PAPERCLIP_HOST_PORT:-3111}:3100
-    volumes:
-      - paperclip_uploads:/app/uploads
-    networks:
-      oracle_private: {}
-      oracle_edge: {}
-    healthcheck:
-      test:
-        [
-          "CMD-SHELL",
-          "wget -q -O- http://127.0.0.1:3100/health >/dev/null 2>&1 || wget -q -O- http://127.0.0.1:3100/ >/dev/null 2>&1",
-        ]
-      interval: 15s
-      timeout: 5s
-      retries: 20
-
-  paperclip-postgres:
-    <<: *common
-    image: postgres:16-alpine
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-paperclip-postgres
-    environment:
-      POSTGRES_USER: ${PAPERCLIP_DB_USER:-paperclip}
-      POSTGRES_PASSWORD: ${PAPERCLIP_DB_PASSWORD:?set PAPERCLIP_DB_PASSWORD}
-      POSTGRES_DB: ${PAPERCLIP_DB_NAME:-paperclip}
-    command:
-      - postgres
-      - -c
-      - max_connections=80
-      - -c
-      - shared_buffers=512MB
-      - -c
-      - effective_cache_size=1536MB
-      - -c
-      - wal_compression=on
-    volumes:
-      - paperclip_postgres:/var/lib/postgresql/data
-    networks:
-      oracle_private: {}
-    healthcheck:
-      test:
-        [
-          "CMD-SHELL",
-          "pg_isready -U ${PAPERCLIP_DB_USER:-paperclip} -d ${PAPERCLIP_DB_NAME:-paperclip}",
-        ]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-
-  paperclip-redis:
-    <<: *common
-    image: redis:7-alpine
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-paperclip-redis
-    command: ["redis-server", "--appendonly", "yes", "--save", "60", "1000"]
-    volumes:
-      - paperclip_redis:/data
-    networks:
-      oracle_private: {}
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 3s
-      retries: 10
+  # Gastown replaced Gastown for Oracle agent workspace coordination.
+  # Run it with docker-compose.gastown.yml so its source build and workspace
+  # volumes stay isolated from the generic Oracle utility stack.
 
   searxng:
     <<: *common
@@ -179,7 +101,4 @@ networks:
     internal: true
 
 volumes:
-  paperclip_postgres:
-  paperclip_redis:
-  paperclip_uploads:
   searxng_cache:

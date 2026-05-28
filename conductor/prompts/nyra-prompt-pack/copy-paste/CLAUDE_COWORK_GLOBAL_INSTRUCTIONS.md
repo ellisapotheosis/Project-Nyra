@@ -6,8 +6,8 @@ Default technical context: I work in Windows 11 + WSL2 + Docker Desktop and usua
 
 For Project Nyra, always remember the current source-of-truth direction:
 
-- Public borrower site is `ratehunter.net` at `apps/landing/ratehunter-landing`, deployed to Cloudflare Pages.
-- Internal app is `nyra.ratehunter.net` at `apps/webapp/app`, and it should absorb admin, CRM, assistant, campaign, quote, lead, pipeline, settings, and OpenClaw tooling routes.
+- Public borrower site is `ratehunter.net` at `apps/ratehunter`, deployed to Cloudflare Pages.
+- Internal app is `nyra.ratehunter.net` at `apps/projectnyra`, and it should absorb admin, CRM, assistant, campaign, quote, lead, pipeline, settings, and OpenClaw tooling routes.
 - Keep public landing separate from internal app.
 - Leave `apps/twenty` untouched.
 - Preserve `/home/ellisapotheosis/repos/webapp-merge` and the in-repo snapshot at `apps/guidance/references/webapp-merge-snapshot`.

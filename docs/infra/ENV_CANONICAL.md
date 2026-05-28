@@ -15,6 +15,8 @@
 ## Workers (`infra/hosts/worker-*/*.env.example`)
 
 - `OLLAMA_HOST` (3060)
+- `OLLAMA_PRELOAD_MODELS`, `OLLAMA_KEEP_ALIVE` (3060 utility model lane)
+- `PICOCLAW_IMAGE`, `PICOCLAW_HOST_PORT`, `PICOCLAW_UI_HOST_PORT` (3060 optional PicoClaw override)
 - `VLLM_MODEL`, `VLLM_PORT` (3090ti/5090)
 - `TAILSCALE_AUTHKEY`
 

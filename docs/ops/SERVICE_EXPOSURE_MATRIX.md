@@ -1,27 +1,12 @@
-# SERVICE_EXPOSURE_MATRIX.md
+# Service Exposure Matrix
 
-## Exposure Levels
+Public ingress is limited to Cloudflare Tunnel and Access-gated surfaces.
 
-| Service                  | Level     | Public Hostname                                       | Notes                                                    |
-| :----------------------- | :-------- | :---------------------------------------------------- | :------------------------------------------------------- |
-| **TwentyCRM**            | Protected | `crm.projectnyra.com`                                 | Cloudflare Access required.                              |
-| **WebApp**               | Public    | `app.projectnyra.com`                                 | Primary broker/customer interface.                       |
-| **Activepieces**         | Protected | `activepieces.projectnyra.com`                        | Internal automation dashboard.                           |
-| **n8n**                  | Protected | `n8n.projectnyra.com`                                 | Internal automation.                                     |
-| **Gitea**                | Protected | `gitea.projectnyra.com`                               | Repository hosting.                                      |
-| **Grafana**              | Protected | `grafana.projectnyra.com`                             | Monitoring.                                              |
-| **OpenLIT**              | Protected | `openlit.projectnyra.com`                             | Owner-only observability dashboard.                      |
-| **Linkwarden**           | Protected | `links.projectnyra.com`, `linkwarden.projectnyra.com` | Home Assistant Green origin through orchestrator tunnel. |
-| **Nexus UI**             | Protected | `nexus.projectnyra.com`                               | Operator UI.                                             |
-| **Nexus Router API/MCP** | Protected | `nexus-router.projectnyra.com`                        | Service-token preferred; agent entrypoint.               |
-| **LiteLLM**              | Protected | `litellm.projectnyra.com`                             | Owner-only model router.                                 |
-| **vLLM / Ollama**        | Private   | N/A                                                   | Tailscale only.                                          |
-| **Postgres / Redis**     | Private   | N/A                                                   | Never expose publicly.                                   |
-| **FalkorDB / Qdrant**    | Private   | N/A                                                   | Never expose publicly.                                   |
+Never publicly expose:
 
-## Access Policy
+- Postgres, Redis, Qdrant, FalkorDB
+- raw vLLM/Ollama endpoints
+- raw MCP internals
+- internal worker dashboards without Access/Tailscale
 
-1. **Public**: Accessible by anyone with a browser (RateHunter landing/login).
-2. **Protected**: Accessible only via Cloudflare Access (SSO/Email required).
-3. **Private**: Accessible only via Tailscale (MagicDNS/Private Mesh).
-4. **Internal**: Accessible only within the Docker network (No host port exposure).
+Admin/operator surfaces should use Cloudflare Access. Internal service-to-service traffic should prefer Tailscale/MagicDNS names.

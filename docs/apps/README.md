@@ -44,7 +44,7 @@ in the numbered child folders below.
 - The webapp should expose efficient operational pages for campaign building,
   CRM lookup/status tracking, Nexus Router visibility, and available service UI
   surfaces such as OpenMemory MCP, Letta, OpenClaw, Nerve UI, ClawTeam, and
-  Paperclip where those UIs are useful.
+  Gastown where those UIs are useful.
 - n8n remains execution glue. The mortgage lead drip campaign builder belongs
   in the webapp as a purpose-built UI over the campaign workflow pieces.
 - Twenty CRM remains the system of record. The webapp may link to Twenty CRM,

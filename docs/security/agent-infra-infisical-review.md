@@ -14,7 +14,6 @@ Local ignored export artifacts:
 
 ## Scoped Paths Created
 
-- `/clients/paperclip`
 - `/clients/searxng`
 - `/clients/browserless`
 - `/clients/letta`
@@ -32,8 +31,6 @@ Correction: top-level `/worker-rtx3060`, `/worker-rtx3090ti`, and `/worker-rtx50
 
 These did not already exist elsewhere in the export, so local cryptographic values were generated and pushed:
 
-- `/clients/paperclip/PAPERCLIP_DB_PASSWORD`
-- `/clients/paperclip/PAPERCLIP_SESSION_SECRET`
 - `/clients/searxng/SEARXNG_SECRET`
 - `/clients/browserless/BROWSERLESS_TOKEN`
 

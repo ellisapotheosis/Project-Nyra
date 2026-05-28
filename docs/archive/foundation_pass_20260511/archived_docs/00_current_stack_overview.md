@@ -65,8 +65,8 @@ Primary services in `infra/hosts/oracle-vps/docker-compose.yml`:
 | `qdrant`             |               internal | Vector store                                                  |
 | `infisical-mcp`      |                 `8766` | Secrets MCP bridge                                            |
 | `mempalace-mcp`      |         `8002 -> 8000` | Memory bridge                                                 |
-| `paperclip`          |         `3111 -> 3100` | Document/OCR UI                                               |
-| `paperclip-mcp`      |                 `8767` | Paperclip MCP                                                 |
+| `gastown`            |         `3111 -> 3100` | Document/OCR UI                                               |
+| `gastown-mcp`        |                 `8767` | Gastown MCP                                                   |
 | `nexus`              |         `6000 -> 3000` | Oracle Nexus instance                                         |
 | `gitea`              | `3001 -> 3000`, `2222` | Git hosting and Actions UI/SSH                                |
 | `gitea-runner`       |                   none | Gitea Actions runner                                          |

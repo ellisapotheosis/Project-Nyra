@@ -1,5 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 
+import {
+  canUseMockFallback,
+  productionReadUnavailable,
+} from "@/lib/api/config";
+
 const CRM_API_URL = process.env.CRM_API_URL;
 const CRM_API_KEY = process.env.CRM_API_KEY;
 
@@ -26,6 +31,13 @@ export async function GET(
         return NextResponse.json(data);
       }
     } catch {}
+  }
+
+  if (!canUseMockFallback()) {
+    return productionReadUnavailable(
+      "CRM API",
+      "CRM_API_URL must be configured for production conversation reads"
+    );
   }
 
   return NextResponse.json({ logs: [], source: "mock" });

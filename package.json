@@ -25,6 +25,7 @@
     "release:check": "bash scripts/release/check-release-candidate.sh",
     "release:validate": "pnpm exec tsx scripts/release/finish-line-validators.ts",
     "infra:check:infisical": "python3 scripts/infra/validate-infisical-sidecars.py",
+    "infra:check:repo-policy": "bash scripts/infra/validate-repo-policy.sh",
     "docker:up": "docker compose -f infra/hosts/oracle-vps/docker-compose.yml up -d",
     "docker:down": "docker compose -f infra/hosts/oracle-vps/docker-compose.yml down",
     "twenty:setup": "docker compose -f infra/hosts/oracle-vps/docker-compose.yml up -d twenty twenty-worker twenty-db",
@@ -34,7 +35,9 @@
     "all:dev": "turbo run dev --parallel",
     "typecheck": "turbo run typecheck",
     "test:contracts": "pnpm -C packages/domain-models test && pnpm -C packages/integration-adapters test",
-    "docs:check": "ls docs/*.md && ls docs/ops/*.md"
+    "docs:check": "ls docs/*.md && ls docs/ops/*.md",
+    "deps:check": "pnpm install --frozen-lockfile --prefer-offline --ignore-scripts",
+    "validate:dependencies": "pnpm deps:check"
   },
   "dependencies": {
     "zod": "^4.3.5"

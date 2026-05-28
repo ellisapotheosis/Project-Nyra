@@ -12,6 +12,8 @@ services:
     command: ["/usr/local/bin/secrets-init.sh"]
     environment:
       INFISICAL_TOKEN: ${INFISICAL_TOKEN:-}
+      INFISICAL_UNIVERSAL_AUTH_CLIENT_ID: ${INFISICAL_UNIVERSAL_AUTH_CLIENT_ID:-}
+      INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET: ${INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET:-}
       INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
       INFISICAL_ENV: ${INFISICAL_ENV:-prod}
       INFISICAL_PATH: ${INFISICAL_PATH:-/machines/oracle-vps}
@@ -31,6 +33,8 @@ services:
         condition: service_completed_successfully
     environment:
       INFISICAL_TOKEN: ${INFISICAL_TOKEN:-}
+      INFISICAL_UNIVERSAL_AUTH_CLIENT_ID: ${INFISICAL_UNIVERSAL_AUTH_CLIENT_ID:-}
+      INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET: ${INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET:-}
       INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
       INFISICAL_ENV: ${INFISICAL_ENV:-prod}
       INFISICAL_PATH: ${INFISICAL_PATH:-/machines/oracle-vps}
@@ -39,19 +43,8 @@ services:
       - nyra_secrets:/run/nyra-secrets
     networks: [nyra_net]
 
-  portainer-edge-agent:
-    image: portainer/agent:2.27.9
-    container_name: nyra-network-nyra-portainer-agent
-    restart: unless-stopped
-    environment:
-      AGENT_CLUSTER_ADDR: tasks.portainer-edge-agent
-      AGENT_TAGS: ${PORTAINER_AGENT_TAGS:-nyra,oracle,standard}
-    ports:
-      - "${ORACLE_TAILSCALE_IP:-100.64.0.3}:9001:9001"
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - /var/lib/docker/volumes:/var/lib/docker/volumes
-    networks: [nyra_net]
+  # Portainer CE+Agent and Syncthing are managed by docker-compose.persistent.yml
+  # (make persistent-up-oracle) and must never appear here.
 
   postgres:
     image: postgres:15
@@ -242,7 +235,7 @@ services:
       dockerfile: infra/images/n8n/Dockerfile
       args:
         N8N_TWENTY_NODES_GIT: ${N8N_TWENTY_NODES_GIT:-}
-        N8N_EXTRA_PACKAGES: ${N8N_EXTRA_PACKAGES:-}
+        N8N_EXTRA_PACKAGES: ${N8N_EXTRA_PACKAGES:-@linkedpromo/n8n-nodes-twenty}
     container_name: nyra-network-nyra-n8n
     restart: unless-stopped
     depends_on:
@@ -440,7 +433,7 @@ services:
       - ./configs/openlit/clickhouse-init.sh:/docker-entrypoint-initdb.d/openlit-init.sh:ro
     ports:
       - "${ORACLE_TAILSCALE_IP:-127.0.0.1}:${OPENLIT_CLICKHOUSE_HTTP_PORT:-8123}:8123"
-      - "${ORACLE_TAILSCALE_IP:-127.0.0.1}:${OPENLIT_CLICKHOUSE_NATIVE_PORT:-9000}:9000"
+      - "${ORACLE_TAILSCALE_IP:-127.0.0.1}:${OPENLIT_CLICKHOUSE_NATIVE_PORT:-19000}:9000"
     networks: [nyra_net]
     healthcheck:
       test:
@@ -492,12 +485,16 @@ services:
       - ./configs/openlit/otel-collector-config.yaml:/etc/otel/otel-collector-config.yaml:ro
       - nyra_secrets:/run/nyra-secrets:ro
     ports:
-      - "${OPENLIT_HOST_PORT:-3004}:3000"
+      - "${ORACLE_TAILSCALE_IP:-127.0.0.1}:${OPENLIT_HOST_PORT:-3004}:3000"
       - "${ORACLE_TAILSCALE_IP:-127.0.0.1}:${OPENLIT_OTLP_GRPC_PORT:-4317}:4317"
       - "${ORACLE_TAILSCALE_IP:-127.0.0.1}:${OPENLIT_OTLP_HTTP_PORT:-4318}:4318"
     networks: [nyra_net]
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      test:
+        [
+          "CMD-SHELL",
+          'node -e "require(''http'').get(''http://127.0.0.1:3000'', r => process.exit(r.statusCode < 500 ? 0 : 1)).on(''error'', () => process.exit(1))"',
+        ]
       interval: 30s
       timeout: 10s
       retries: 10
@@ -529,34 +526,6 @@ services:
   # NOTE: mem0-rest, falkordb, and qdrant are CANONICAL in
   # docker-compose.memory.yml. Do not redefine them here.
 
-  # ── OpenMemory MCP (self-hosted mem0 MCP server) ─────────────────────────
-  # Built from source: github.com/mem0ai/mem0/tree/main/openmemory/api.
-  openmemory-mcp:
-    build:
-      context: ../../../services/openmemory-mcp
-    container_name: nyra-network-nyra-openmemory-mcp
-    restart: unless-stopped
-    # NOTE: qdrant lives in docker-compose.memory.yml; reach it via Tailscale.
-    environment:
-      OPENAI_API_KEY: ${OPENAI_API_KEY}
-      QDRANT_HOST: ${OPENMEMORY_QDRANT_HOST:-memory-qdrant}
-      QDRANT_PORT: "6333"
-      QDRANT_API_KEY: ${QDRANT_API_KEY:-}
-      MEM0_API_URL: ${OPENMEMORY_MEM0_API_URL:-http://memory-mem0:5000}
-      USER: nyra
-      LLM_PROVIDER: openai
-      LLM_MODEL: gpt-4o-mini
-      EMBEDDER_PROVIDER: openai
-      EMBEDDER_MODEL: text-embedding-3-small
-    ports:
-      - "8765:8765"
-    networks: [nyra_net]
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8765/docs"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-
   # ── Infisical MCP (stdio→SSE bridge via supergateway) ────────────────────
   # Converts @infisical/mcp stdio server to HTTP/SSE so Nexus can aggregate it.
   # Exposed on port 8766; Nexus connects at http://100.64.0.3:8766/sse
@@ -565,12 +534,12 @@ services:
     container_name: nyra-network-nyra-infisical-mcp
     restart: unless-stopped
     environment:
-      INFISICAL_TOKEN: ${INFISICAL_TOKEN}
+      INFISICAL_TOKEN: ${INFISICAL_TOKEN:-}
+      INFISICAL_UNIVERSAL_AUTH_CLIENT_ID: ${INFISICAL_UNIVERSAL_AUTH_CLIENT_ID:-}
+      INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET: ${INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET:-}
       INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
       INFISICAL_ENVIRONMENT: ${INFISICAL_ENV:-prod}
       INFISICAL_FOLDER_PATH: ${INFISICAL_PATH:-/machines/oracle-vps}
-      INFISICAL_UNIVERSAL_AUTH_CLIENT_ID: ${INFISICAL_UNIVERSAL_AUTH_CLIENT_ID}
-      INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET: ${INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET}
       NPM_CONFIG_CACHE: /tmp/.npm
     command:
       - npx
@@ -582,34 +551,6 @@ services:
       - "8766"
     ports:
       - "8766:8766"
-    networks: [nyra_net]
-
-  mempalace-mcp:
-    build:
-      context: ../../../services/mempalace-mcp
-      dockerfile: Dockerfile
-    container_name: nyra-network-nyra-mempalace-mcp
-    restart: unless-stopped
-    command:
-      - /bin/sh
-      - -lc
-      - |
-        python -m mempalace.mcp_server
-        echo "mempalace stdio server exited; keeping container idle until an MCP client attaches"
-        tail -f /dev/null
-    environment:
-      PORT: 8000
-      MEMPAL_DIR: /data/vault
-    ports:
-      - "8002:8000"
-    volumes:
-      - mempalace_data:/root/.mempalace
-      - mempalace_vault:/data/vault
-    healthcheck:
-      test: ["CMD-SHELL", "python -c 'import mempalace'"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
     networks: [nyra_net]
 
   # NOTE: gitea, gitea-runner, github-mirror-sync, gitea-mcp are managed via the
@@ -706,48 +647,8 @@ services:
       - LOG_LEVEL=info
     networks: [nyra_net]
 
-  # ── Paperclip AI (Multi-Agent Orchestration) ─────────────────────────────
-  paperclip:
-    image: ghcr.io/paperclipai/paperclip:latest
-    container_name: nyra-network-nyra-paperclip
-    restart: unless-stopped
-    environment:
-      - PAPERCLIP_AUTH_DISABLE_SIGN_UP=true
-      - BETTER_AUTH_SECRET=${BETTER_AUTH_SECRET}
-      - PAPERCLIP_AGENT_JWT_SECRET=${PAPERCLIP_AGENT_JWT_SECRET}
-      - PORT=3100
-    volumes:
-      - paperclip_data:/paperclip
-    ports:
-      - "3111:3100"
-    networks: [nyra_net]
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3100/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-
-  # ── Paperclip MCP Server ─────────────────────────────────────────────────
-  # Exposes Paperclip orchestration tools to the Nexus aggregator.
-  paperclip-mcp:
-    image: node:20-alpine
-    container_name: nyra-network-nyra-paperclip-mcp
-    restart: unless-stopped
-    environment:
-      NPM_CONFIG_CACHE: /tmp/.npm
-      PAPERCLIP_API_URL: http://paperclip:3100
-      PAPERCLIP_API_KEY: ${PAPERCLIP_API_KEY:?PAPERCLIP_API_KEY is required}
-    command:
-      - npx
-      - -y
-      - supergateway
-      - --stdio
-      - "npx -y @paperclipai/mcp-server"
-      - --port
-      - "8767"
-    ports:
-      - "8767:8767"
-    networks: [nyra_net]
+  # Gastown is managed via docker-compose.gastown.yml so the source build,
+  # workspace volumes, and dashboard port stay isolated from the base stack.
 
   # ── Magic UI MCP (stdio→SSE bridge via supergateway) ──────────────────────
   # Converts @magicuidesign/mcp stdio server to HTTP/SSE so Nexus can aggregate it.
@@ -1099,6 +1000,7 @@ services:
     environment:
       LITELLM_MASTER_KEY: ${LITELLM_MASTER_KEY:-}
       LLXPRT_BRIDGE_API_KEY: ${LLXPRT_BRIDGE_API_KEY:-}
+      DATABASE_URL: ${LITELLM_DATABASE_URL:-}
       REDIS_HOST: redis-cache
       REDIS_PORT: "6379"
     extra_hosts:
@@ -1212,20 +1114,6 @@ services:
         reservations:
           memory: 512m
 
-  # ── Syncthing ───────────────────────────────────────────────────────────
-  syncthing:
-    profiles: ["sync"]
-    image: syncthing/syncthing:latest
-    container_name: nyra-network-nyra-syncthing
-    network_mode: host
-    environment:
-      - PUID=1000
-      - PGID=1000
-    volumes:
-      - syncthing_config:/var/syncthing
-      - /run/desktop/mnt/host/wsl/...:/var/syncthing/data/home
-    restart: unless-stopped
-
 networks:
   nyra_net:
 
@@ -1248,9 +1136,6 @@ volumes:
   openwebui_data:
   mempalace_data:
   mempalace_vault:
-  paperclip_data:
-  syncthing_config:
-  portainer_data:
   letta_db_data:
   letta_data:
   mem_os_data:

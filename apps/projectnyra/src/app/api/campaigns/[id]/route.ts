@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 
 import {
   canUseMockFallback,
+  productionReadUnavailable,
   productionWriteUnavailable,
 } from "@/lib/api/config";
 import { toCampaignContract } from "@/lib/campaign-contract";
@@ -28,6 +29,13 @@ export async function GET(
         return NextResponse.json(await response.json());
       }
     } catch {}
+  }
+
+  if (!canUseMockFallback()) {
+    return productionReadUnavailable(
+      "Campaign service",
+      "CAMPAIGN_ENGINE_URL must be configured for production campaign reads"
+    );
   }
 
   const campaign = campaigns.find((entry) => entry.id === id);

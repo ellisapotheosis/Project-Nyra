@@ -1,9 +1,23 @@
 import { NextResponse } from "next/server";
 
+import { getCrmWorkspaceData } from "@/lib/crm-data";
+
 export async function GET() {
-  // This route is deprecated in favor of direct crmApi calls from client components.
-  // Returning empty object to satisfy typecheck for now.
-  return NextResponse.json({
-    message: "Deprecated. Use crmApi.getPipeline() instead.",
-  });
+  try {
+    const workspace = await getCrmWorkspaceData();
+
+    return NextResponse.json({
+      workspace,
+      source: workspace.source,
+      generatedAt: new Date().toISOString(),
+    });
+  } catch (error) {
+    return NextResponse.json(
+      {
+        error: "CRM workspace data unavailable",
+        detail: error instanceof Error ? error.message : "Unknown CRM error",
+      },
+      { status: 503 }
+    );
+  }
 }

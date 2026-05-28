@@ -6,6 +6,16 @@ export interface ComplianceStatus {
   reason?: string;
 }
 
+export type ReplyClassification =
+  | "STOP_DNC"
+  | "WRONG_NUMBER"
+  | "POSITIVE_INTENT"
+  | "QUOTE_REQUEST"
+  | "DOCS_REQUEST"
+  | "ANGRY_ESCALATION"
+  | "APPOINTMENT_INTENT"
+  | "OTHER";
+
 export class ComplianceService {
   private readonly crm: ITwentyClient;
 
@@ -27,9 +37,35 @@ export class ComplianceService {
     return stopKeywords.some((keyword) => normalized.includes(keyword));
   }
 
+  static classifyReply(message: string): ReplyClassification {
+    const normalized = message.toUpperCase();
+
+    if (ComplianceService.isStopRequest(message)) return "STOP_DNC";
+    if (/\bWRONG\s+NUMBER\b/.test(normalized)) return "WRONG_NUMBER";
+    if (/\b(QUOTE|RATE|PAYMENT|APR)\b/.test(normalized)) return "QUOTE_REQUEST";
+    if (/\b(DOC|DOCUMENT|UPLOAD|PAYSTUB|W2|BANK)\b/.test(normalized)) {
+      return "DOCS_REQUEST";
+    }
+    if (/\b(MEET|CALL|APPOINTMENT|CALENDLY|SCHEDULE)\b/.test(normalized)) {
+      return "APPOINTMENT_INTENT";
+    }
+    if (/\b(ANGRY|MAD|COMPLAINT|LAWSUIT|ATTORNEY)\b/.test(normalized)) {
+      return "ANGRY_ESCALATION";
+    }
+    if (/\b(YES|INTERESTED|GO AHEAD|TELL ME MORE)\b/.test(normalized)) {
+      return "POSITIVE_INTENT";
+    }
+
+    return "OTHER";
+  }
+
   async checkConsent(lead: Lead, channel: Channel): Promise<ComplianceStatus> {
     if (lead.doNotContact) {
       return { canContact: false, reason: "DO_NOT_CONTACT_FLAG" };
+    }
+
+    if (lead.consentStatus === "UNKNOWN") {
+      return { canContact: false, reason: "MISSING_CONSENT" };
     }
 
     if (
@@ -51,6 +87,14 @@ export class ComplianceService {
     }
 
     return { canContact: true };
+  }
+
+  async assertCanSend(lead: Lead, channel: Channel): Promise<void> {
+    const status = await this.checkConsent(lead, channel);
+
+    if (!status.canContact) {
+      throw new Error(`Outbound blocked by compliance: ${status.reason}`);
+    }
   }
 
   async handleStop(lead: Lead): Promise<Lead> {

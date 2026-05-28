@@ -1,0 +1,38 @@
+# docker-compose.persistent.yml — Worker RTX 3060
+# =============================================================================
+# NEVER include this in make down, make stack-down, or any teardown target.
+# restart: always ensures Docker daemon re-launches these after reboot.
+#
+# Syncthing: uses direct bind /home/ellisapotheosis:/var/syncthing — this
+# matches the currently running container and preserves ALL existing settings
+# (device ID, peers, folder config) without any migration.
+#
+# Deploy:   make persistent-up-worker-3060
+# =============================================================================
+
+services:
+  portainer-edge-agent:
+    image: portainer/agent:2.27.9
+    container_name: nyra-persistent-worker-3060-portainer-agent
+    restart: always
+    environment:
+      EDGE: "1"
+      EDGE_ID: ${PORTAINER_EDGE_ID}
+      EDGE_KEY: ${PORTAINER_EDGE_KEY}
+      EDGE_INSECURE_POLL: ${PORTAINER_EDGE_INSECURE_POLL:-1}
+      AGENT_TAGS: ${PORTAINER_AGENT_TAGS:-nyra,edge,worker-3060}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/lib/docker/volumes:/var/lib/docker/volumes
+
+  syncthing:
+    image: syncthing/syncthing:latest
+    container_name: nyra-persistent-worker-3060-syncthing
+    hostname: syncthing-worker-3060
+    restart: always
+    network_mode: host
+    environment:
+      - PUID=1000
+      - PGID=1000
+    volumes:
+      - /home/ellisapotheosis:/var/syncthing

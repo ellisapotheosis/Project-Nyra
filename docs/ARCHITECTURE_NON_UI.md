@@ -1,42 +1,13 @@
-# ARCHITECTURE_NON_UI.md
+# Non-UI Architecture
 
-## System Topology
+Non-UI work is organized around service contracts, infrastructure, observability, compliance, and agent orchestration. UI/theme/component changes are explicitly quarantined until a dedicated UI pass.
 
-Project Nyra follows a **Control Plane / Compute Plane** architecture.
+Core lanes:
 
-### 1. Control Plane (The Brain)
+- Control plane: orchestrator plus Oracle VPS.
+- Durable services: Oracle VPS for Twenty, Gitea, Qdrant, FalkorDB, mem0, Letta, CRM/campaign/quote services, and public tunnel endpoints.
+- Compute plane: `worker-rtx5090`, `worker-rtx3090ti`, and `worker-rtx3060`.
+- Memory: Nexus Router as the gateway to Letta, mem0/Qdrant, OpenMemory, Mempalace, and related memory tools.
+- Business services: CRM API, campaign engine, quote/rate engines, lead ingestion, communication providers.
 
-- **Location**: Orchestrator (Local) + Oracle-VPS (Cloud)
-- **Core Components**:
-  - **TwentyCRM**: System of record for all entities.
-  - **Nexus Router**: The singular API gateway and MCP tool aggregator.
-  - **Activepieces / n8n**: Workflow automation engines.
-  - **LiteLLM**: Model routing and load balancing.
-  - **Memory Substrate**: mem0, FalkorDB, Redis, Postgres.
-
-### 2. Compute Plane (The Muscle)
-
-- **Location**: Local GPU Workers (RTX 5090, 3090 Ti, 3060)
-- **Core Components**:
-  - **vLLM / Ollama**: Serving local models for inference.
-  - **OpenClaw / Nerve**: Agent orchestration and local workspace control.
-
-### 3. Integration Layer
-
-- **Communication**: Twilio (SMS/Voice), SendGrid (Email), Google Workspace (Email/Calendar).
-- **Secrets**: Infisical for centralized secret management.
-- **Networking**: Tailscale (Private Mesh) + Cloudflare Tunnel (Public Ingress).
-
-## Data Flow
-
-1. **Ingestion**: Raw lead -> `lead-ingestion` service -> Normalize -> TwentyCRM.
-2. **Campaign**: CRM Trigger -> `campaign-service` -> Activepieces -> Communication Provider.
-3. **Response**: Inbound Hook -> `communication-service` -> AI Classification -> Consent Update/Broker Alert.
-4. **Quote**: Broker Request -> `quote-service` -> Deterministic Calc -> Quote Audit -> CRM/Broker UI.
-
-## Component Ownership
-
-- **TwentyCRM**: Leads, People, Companies, Opportunities, Tasks, Notes, Custom Mortgage Objects.
-- **Quote Engine**: Interest rates, Closing costs, APR calculations, PDF generation.
-- **Compliance Service**: STOP lists, Consent state, Quiet hours, Audit logs.
-- **Nexus Router**: Tool definitions, Model selection logic, Cross-service auth.
+All mutations with business impact must pass through Nyra services and create audit events.

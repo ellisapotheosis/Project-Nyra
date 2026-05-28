@@ -41,13 +41,14 @@ worker-3060/
 ### Core Setup Files
 
 #### `setup-worker-3060.ps1` (Main Setup Script)
+
 - **Purpose**: Automated installation of all dependencies
 - **Runtime**: 20-45 minutes
 - **Installs**:
   - Chocolatey package manager
   - NVIDIA drivers and CUDA 12.4
   - Docker Desktop with GPU support
-  - Ollama with 3 models (CodeLlama 34B, Qwen 2 32B, Gemma 2 27B)
+  - Ollama with utility models (`nomic-embed-text`, `llama3.2:3b`, `mistral:7b-instruct-v0.3-q4_K_M`)
   - Infisical CLI for secrets management
   - Tailscale VPN
   - Cloudflared tunnel
@@ -56,18 +57,20 @@ worker-3060/
 - **Logs**: Creates `setup.log` with detailed progress
 
 #### `docker-compose.worker-3060.yml` (Service Orchestration)
+
 - **Purpose**: Defines all Docker services and their configuration
 - **Services**:
   1. **ollama**: Primary LLM service (port 11434)
-  2. **embedding-service**: Xenova/transformers embeddings (port 8080)
-  3. **health-monitor**: Service monitoring (port 9090)
-  4. **redis**: Inference caching (port 6379)
+  2. **ollama-model-init**: Utility model preloader
+  3. **litellm**: OpenAI-compatible model gateway (port 4000)
+  4. **model-switcher**: Worker model status/selection API
   5. **node-exporter**: System metrics (port 9100)
-  7. **gpu-exporter**: GPU metrics (port 9445)
+  6. **gpu-exporter**: GPU metrics (port 9835)
 - **Networks**: Isolated `worker-network` (172.30.0.0/24)
 - **Volumes**: Persistent storage for models, cache, and data
 
 #### `.env.example` (Configuration Template)
+
 - **Purpose**: Environment variable template
 - **Sections**:
   - Worker identity and GPU specs
@@ -84,6 +87,7 @@ worker-3060/
 ### Documentation
 
 #### `README.md` (Complete Documentation)
+
 - **Sections**:
   - Overview and hardware specs
   - Quick start guide
@@ -98,6 +102,7 @@ worker-3060/
 - **Length**: ~15 pages of comprehensive documentation
 
 #### `QUICKSTART.md` (Fast Setup Guide)
+
 - **Purpose**: Get running in under 30 minutes
 - **Steps**:
   1. Run setup script (20-45 min)
@@ -109,6 +114,7 @@ worker-3060/
 - **Includes**: Quick commands cheat sheet and troubleshooting
 
 #### `TROUBLESHOOTING.md` (Problem Solving Guide)
+
 - **Categories**:
   - Installation issues
   - Docker problems
@@ -123,6 +129,7 @@ worker-3060/
 ### Operational Scripts
 
 #### `start.ps1` (Service Starter)
+
 - **Purpose**: Start all services with health checks
 - **Actions**:
   1. Verify Docker is running
@@ -134,6 +141,7 @@ worker-3060/
   7. Display access URLs
 
 #### `stop.ps1` (Service Stopper)
+
 - **Purpose**: Gracefully stop all services
 - **Actions**:
   1. Stop Docker Compose services
@@ -141,6 +149,7 @@ worker-3060/
   3. Preserve data and state
 
 #### `health-check.ps1` (Health Monitor)
+
 - **Purpose**: Comprehensive system health report
 - **Checks**:
   - GPU status (temperature, utilization, VRAM)
@@ -153,6 +162,7 @@ worker-3060/
 - **Output**: Colored status report with recommendations
 
 #### `test.ps1` (Integration Tests)
+
 - **Purpose**: Automated testing of all endpoints
 - **Tests**:
   - GPU detection via nvidia-smi
@@ -168,6 +178,7 @@ worker-3060/
 ### Service Configurations
 
 #### `cloudflared-config.yml` (Cloudflare Tunnel)
+
 - **Purpose**: Expose services via Cloudflare tunnel
 - **Ingress Rules**:
   - `ollama-worker-3060.yourdomain.com` → Ollama (port 11434)
@@ -177,6 +188,7 @@ worker-3060/
 - **Features**: QUIC protocol, HTTP/2, automatic TLS, DDoS protection
 
 #### `grafana-dashboard.json` (Monitoring Dashboard)
+
 - **Purpose**: Grafana dashboard for real-time monitoring
 - **Panels** (12 total):
   1. GPU Utilization (%)
@@ -197,12 +209,14 @@ worker-3060/
 ### Embedding Service
 
 #### `embedding-service/Dockerfile`
+
 - **Base**: node:20-slim
 - **Installs**: Python 3, Node.js, transformers, torch
 - **Exposes**: Port 8080
 - **Health Check**: /health endpoint every 30s
 
 #### `embedding-service/package.json`
+
 - **Dependencies**:
   - express (REST API)
   - @xenova/transformers (embeddings)
@@ -210,12 +224,14 @@ worker-3060/
   - redis (caching)
 
 #### `embedding-service/requirements.txt`
+
 - **Python Packages**:
   - transformers>=4.40.0
   - torch>=2.2.0 (CUDA 12.4)
   - sentencepiece>=0.2.0
 
 #### `embedding-service/server.js`
+
 - **API Endpoints**:
   - `POST /embed` - Generate embeddings (batch)
   - `POST /embed/batch` - Batch processing
@@ -232,11 +248,13 @@ worker-3060/
 ### Health Monitor
 
 #### `health-monitor/Dockerfile`
+
 - **Base**: node:20-slim
 - **Exposes**: Port 9090
 - **Health Check**: /health endpoint every 30s
 
 #### `health-monitor/package.json`
+
 - **Dependencies**:
   - express (REST API)
   - prom-client (Prometheus metrics)
@@ -244,6 +262,7 @@ worker-3060/
   - dockerode (Docker API)
 
 #### `health-monitor/monitor.js`
+
 - **API Endpoints**:
   - `GET /health` - Overall health status
   - `GET /services` - Service availability
@@ -264,23 +283,27 @@ worker-3060/
 ## 🚀 Quick Start
 
 ### 1. Run Setup
+
 ```powershell
 cd C:\Dev\Projects\Repos\Project-Nyra\infra\workers\worker-3060
 .\setup-worker-3060.ps1
 ```
 
 ### 2. Authenticate
+
 ```powershell
 infisical login
 tailscale up
 ```
 
 ### 3. Start Services
+
 ```powershell
 .\start.ps1
 ```
 
 ### 4. Verify Health
+
 ```powershell
 .\health-check.ps1
 .\test.ps1
@@ -288,29 +311,32 @@ tailscale up
 
 ## 📊 Service Endpoints
 
-| Service | Local | Tailscale | Public (Cloudflare) |
-|---------|-------|-----------|---------------------|
-| Ollama | :11434 | worker-3060.tail-net.ts.net:11434 | ollama-worker-3060.yourdomain.com |
-| Embeddings | :8080 | worker-3060.tail-net.ts.net:8080 | embeddings-worker-3060.yourdomain.com |
-| Health | :9090 | worker-3060.tail-net.ts.net:9090 | health-worker-3060.yourdomain.com |
-| Redis | :6379 | worker-3060.tail-net.ts.net:6379 | (internal only) |
-| Node Exporter | :9100 | worker-3060.tail-net.ts.net:9100 | (metrics) |
-| GPU Exporter | :9445 | worker-3060.tail-net.ts.net:9445 | (metrics) |
+| Service       | Local  | Tailscale                         | Public (Cloudflare)                   |
+| ------------- | ------ | --------------------------------- | ------------------------------------- |
+| Ollama        | :11434 | worker-3060.tail-net.ts.net:11434 | ollama-worker-3060.yourdomain.com     |
+| Embeddings    | :8080  | worker-3060.tail-net.ts.net:8080  | embeddings-worker-3060.yourdomain.com |
+| Health        | :9090  | worker-3060.tail-net.ts.net:9090  | health-worker-3060.yourdomain.com     |
+| Redis         | :6379  | worker-3060.tail-net.ts.net:6379  | (internal only)                       |
+| Node Exporter | :9100  | worker-3060.tail-net.ts.net:9100  | (metrics)                             |
+| GPU Exporter  | :9445  | worker-3060.tail-net.ts.net:9445  | (metrics)                             |
 
 ## 🔧 Configuration
 
 ### Primary Models
-- **CodeLlama 34B** - Code analysis, document parsing (Primary)
-- **Qwen 2 32B** - Document processing, classification (Secondary)
-- **Gemma 2 27B** - Lightweight inference, embeddings (Tertiary)
+
+- **nomic-embed-text** - 768-dimensional embeddings
+- **llama3.2:3b** - mem0/Letta memory extraction
+- **mistral:7b-instruct-v0.3-q4_K_M** - summarization
 
 ### GPU Configuration
-- **Model**: NVIDIA RTX 3060
-- **VRAM**: 12GB GDDR6
+
+- **Model**: NVIDIA RTX 3060 Laptop GPU
+- **VRAM**: 6GB GDDR6
 - **CUDA**: 12.4
 - **Driver**: Latest (installed by setup)
 
 ### Performance Targets
+
 - **Inference Speed**: 15-20 tokens/sec
 - **Batch Size**: 1-2 concurrent requests
 - **Memory Usage**: ~10-11GB VRAM per model
@@ -319,6 +345,7 @@ tailscale up
 ## 📈 Monitoring
 
 ### Prometheus Metrics
+
 - **Worker Health**: `worker_service_health{service="ollama|embedding"}`
 - **Latency**: `worker_service_latency_ms{service="..."}`
 - **GPU**: `nvidia_gpu_*` (utilization, memory, temperature)
@@ -326,6 +353,7 @@ tailscale up
 - **Embeddings**: `embedding_latency_seconds`, `embedding_batch_size`
 
 ### Grafana Dashboard
+
 - Import `grafana-dashboard.json`
 - 12 panels with real-time metrics
 - Auto-refresh every 10 seconds
@@ -333,12 +361,14 @@ tailscale up
 ## 🔒 Security
 
 ### Secrets Management
+
 - **Infisical**: All secrets stored in Infisical
 - **Project ID**: 8374cea9-e5e8-4050-bda4-b91f25ab30ef
 - **Environment**: dev
 - **Path**: /worker-3060
 
 ### Network Security
+
 - **Tailscale VPN**: Private mesh network
 - **Cloudflare Tunnel**: Zero Trust access
 - **Firewall**: Restricted ports via Windows Firewall
@@ -347,6 +377,7 @@ tailscale up
 ## 📦 Dependencies
 
 ### System Requirements
+
 - Windows 10/11 Pro
 - RTX 3060 GPU
 - 16GB+ RAM
@@ -354,6 +385,7 @@ tailscale up
 - Administrator access
 
 ### Software Installed
+
 - Chocolatey (package manager)
 - NVIDIA drivers (latest)
 - CUDA 12.4
@@ -376,24 +408,25 @@ tailscale up
 
 ## 📝 File Sizes (Estimated)
 
-| File | Size | Type |
-|------|------|------|
-| setup-worker-3060.ps1 | ~25 KB | Script |
-| docker-compose.worker-3060.yml | ~8 KB | Config |
-| README.md | ~45 KB | Docs |
-| QUICKSTART.md | ~8 KB | Docs |
-| TROUBLESHOOTING.md | ~35 KB | Docs |
-| health-check.ps1 | ~10 KB | Script |
-| test.ps1 | ~15 KB | Script |
-| embedding-service/server.js | ~12 KB | Code |
-| health-monitor/monitor.js | ~10 KB | Code |
-| **Total** | **~170 KB** | (excluding models) |
+| File                           | Size        | Type               |
+| ------------------------------ | ----------- | ------------------ |
+| setup-worker-3060.ps1          | ~25 KB      | Script             |
+| docker-compose.worker-3060.yml | ~8 KB       | Config             |
+| README.md                      | ~45 KB      | Docs               |
+| QUICKSTART.md                  | ~8 KB       | Docs               |
+| TROUBLESHOOTING.md             | ~35 KB      | Docs               |
+| health-check.ps1               | ~10 KB      | Script             |
+| test.ps1                       | ~15 KB      | Script             |
+| embedding-service/server.js    | ~12 KB      | Code               |
+| health-monitor/monitor.js      | ~10 KB      | Code               |
+| **Total**                      | **~170 KB** | (excluding models) |
 
 ### Model Downloads (via Ollama)
-- CodeLlama 34B: ~19 GB
-- Qwen 2 32B: ~18 GB
-- Gemma 2 27B: ~16 GB
-- **Total Models**: ~53 GB
+
+- nomic-embed-text: ~0.5 GB VRAM
+- llama3.2:3b: ~2.5 GB VRAM
+- mistral:7b-instruct-v0.3-q4_K_M: ~4.4-4.9 GB VRAM
+- Ollama keeps one model loaded at a time on the 6GB card.
 
 ## ✅ Checklist
 
@@ -416,16 +449,19 @@ Before starting production:
 ## 📅 Maintenance Schedule
 
 ### Daily
+
 - Monitor GPU temperature
 - Check service health (`.\health-check.ps1`)
 - Review error logs
 
 ### Weekly
+
 - Run integration tests (`.\test.ps1`)
 - Check disk space
 - Review Grafana dashboards
 
 ### Monthly
+
 - Update Ollama models
 - Update Docker images
 - System updates (Windows, drivers)
