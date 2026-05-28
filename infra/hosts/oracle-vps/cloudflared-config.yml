@@ -73,9 +73,6 @@ ingress:
   - hostname: paperclip.projectnyra.com
     service: http://paperclip:3100
 
-  - hostname: letta.projectnyra.com
-    service: http://oracle.trex-fiordland.ts.net:8283
-
   - hostname: portainer-oracle.projectnyra.com
     service: https://portainer:9443
     originRequest:

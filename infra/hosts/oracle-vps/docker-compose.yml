@@ -529,34 +529,6 @@ services:
   # NOTE: mem0-rest, falkordb, and qdrant are CANONICAL in
   # docker-compose.memory.yml. Do not redefine them here.
 
-  # ── OpenMemory MCP (self-hosted mem0 MCP server) ─────────────────────────
-  # Built from source: github.com/mem0ai/mem0/tree/main/openmemory/api.
-  openmemory-mcp:
-    build:
-      context: ../../../services/openmemory-mcp
-    container_name: nyra-network-nyra-openmemory-mcp
-    restart: unless-stopped
-    # NOTE: qdrant lives in docker-compose.memory.yml; reach it via Tailscale.
-    environment:
-      OPENAI_API_KEY: ${OPENAI_API_KEY}
-      QDRANT_HOST: ${OPENMEMORY_QDRANT_HOST:-memory-qdrant}
-      QDRANT_PORT: "6333"
-      QDRANT_API_KEY: ${QDRANT_API_KEY:-}
-      MEM0_API_URL: ${OPENMEMORY_MEM0_API_URL:-http://memory-mem0:5000}
-      USER: nyra
-      LLM_PROVIDER: openai
-      LLM_MODEL: gpt-4o-mini
-      EMBEDDER_PROVIDER: openai
-      EMBEDDER_MODEL: text-embedding-3-small
-    ports:
-      - "8765:8765"
-    networks: [nyra_net]
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8765/docs"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-
   # ── Infisical MCP (stdio→SSE bridge via supergateway) ────────────────────
   # Converts @infisical/mcp stdio server to HTTP/SSE so Nexus can aggregate it.
   # Exposed on port 8766; Nexus connects at http://100.64.0.3:8766/sse
@@ -582,34 +554,6 @@ services:
       - "8766"
     ports:
       - "8766:8766"
-    networks: [nyra_net]
-
-  mempalace-mcp:
-    build:
-      context: ../../../services/mempalace-mcp
-      dockerfile: Dockerfile
-    container_name: nyra-network-nyra-mempalace-mcp
-    restart: unless-stopped
-    command:
-      - /bin/sh
-      - -lc
-      - |
-        python -m mempalace.mcp_server
-        echo "mempalace stdio server exited; keeping container idle until an MCP client attaches"
-        tail -f /dev/null
-    environment:
-      PORT: 8000
-      MEMPAL_DIR: /data/vault
-    ports:
-      - "8002:8000"
-    volumes:
-      - mempalace_data:/root/.mempalace
-      - mempalace_vault:/data/vault
-    healthcheck:
-      test: ["CMD-SHELL", "python -c 'import mempalace'"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
     networks: [nyra_net]
 
   # NOTE: gitea, gitea-runner, github-mirror-sync, gitea-mcp are managed via the
@@ -1246,12 +1190,8 @@ volumes:
   openlit_data:
   nyra_secrets:
   openwebui_data:
-  mempalace_data:
-  mempalace_vault:
   paperclip_data:
   syncthing_config:
   portainer_data:
-  letta_db_data:
-  letta_data:
   mem_os_data:
   supabase_db_data:
