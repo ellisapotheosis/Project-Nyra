@@ -53,6 +53,9 @@ classes:
   `scripts/infra/validate-repo-policy.sh` and exposed as
   `pnpm infra:check:repo-policy`; the GitHub and Gitea infra workflows both
   call `scripts/ci/validate-infra.sh`, which runs those guardrails.
+- `.temp_templates/` is an approved tracked top-level template directory in the
+  repo-policy baseline. Ignored local secret work dirs such as `secrets/` remain
+  excluded from validation and must not be committed.
 - Oracle memory-stack smoke passed for Letta, Letta MCP, mem0, Qdrant,
   FalkorDB, OpenMemory MCP, MemPalace MCP, MemOS API, and MemOS MCP.
 
