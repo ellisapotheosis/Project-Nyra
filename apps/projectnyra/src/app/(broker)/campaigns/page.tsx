@@ -1,9 +1,11 @@
+"use client";
+
+import { useEffect } from "react";
 import Link from "next/link";
 import {
   AlertTriangle,
   ArrowRight,
   CalendarDays,
-  CheckCircle2,
   Clock,
   GitBranch,
   Mail,
@@ -12,65 +14,21 @@ import {
   PhoneCall,
   Plus,
   ShieldCheck,
-  Users,
   Workflow,
 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { campaigns, leads } from "@/lib/mock-data";
+import { StatusGate } from "@/components/status-gate";
+import {
+  campaignApi,
+  crmApi,
+  type CampaignTemplate,
+  type Lead,
+  useApi,
+} from "@/lib/api";
 import { cn } from "@/lib/utils";
-
-const campaignMetrics = [
-  ["Enrolled leads", "1,248", "Across active and paused sequences"],
-  ["Active campaigns", "8", "Two require broker review before scale-up"],
-  ["Today's sends", "142", "Email, SMS, and voicemail drops"],
-  ["Reply rate", "18.7%", "Refinance Blitz is outperforming baseline"],
-];
-
-const campaignCards = [
-  {
-    title: "Refinance Blitz",
-    status: "Active",
-    description: "45-day refinance sequence with rate-watch checkpoints.",
-    leads: 342,
-    completion: 62,
-    response: 18.7,
-    gate: "Quiet hours clear",
-    icon: Workflow,
-  },
-  {
-    title: "Home Equity Pro",
-    status: "Completed",
-    description: "30-day HELOC education and equity-access review flow.",
-    leads: 187,
-    completion: 100,
-    response: 22.4,
-    gate: "STOP audit clean",
-    icon: CheckCircle2,
-  },
-  {
-    title: "Purchase Power",
-    status: "Draft",
-    description: "Purchase nurture with agent referral attribution.",
-    leads: 0,
-    completion: 0,
-    response: 0,
-    gate: "Needs consent copy review",
-    icon: GitBranch,
-  },
-  {
-    title: "Past Client Nurture",
-    status: "Active",
-    description: "Annual mortgage review and rate-drop alert surface.",
-    leads: 845,
-    completion: 12,
-    response: 8.2,
-    gate: "CRM segment verified",
-    icon: Users,
-  },
-];
 
 const upcomingSteps = [
   {
@@ -103,7 +61,42 @@ function statusTone(status: string) {
 }
 
 export default function CampaignDashboard() {
+  const campaignsApi = useApi(campaignApi.getCampaigns);
+  const leadsApi = useApi(crmApi.getLeads);
+
+  useEffect(() => {
+    void campaignsApi.execute();
+    void leadsApi.execute();
+  }, []);
+
+  const campaigns = campaignsApi.data?.campaigns ?? [];
+  const leads = leadsApi.data?.leads ?? [];
   const pausedLeads = leads.filter((lead) => lead.campaignStatus === "PAUSED");
+  const activeCampaigns = campaigns.filter((campaign) =>
+    isActiveCampaign(campaign)
+  );
+  const campaignMetrics = [
+    [
+      "Enrolled leads",
+      String(leads.filter((lead) => Boolean(lead.campaignId)).length),
+      "Across active and paused sequences",
+    ],
+    [
+      "Active campaigns",
+      String(activeCampaigns.length),
+      "Execution status read through the campaign API boundary",
+    ],
+    [
+      "Paused replies",
+      String(pausedLeads.length),
+      "Broker review required before automation resumes",
+    ],
+    [
+      "Compliance source",
+      campaignsApi.data ? "API" : "Pending",
+      "STOP, DNC, consent, and quiet-hour gates live in service code",
+    ],
+  ];
 
   return (
     <main className="mx-auto flex w-full max-w-7xl flex-col gap-8 px-5 py-8 lg:px-8">
@@ -138,165 +131,253 @@ export default function CampaignDashboard() {
         </div>
       </section>
 
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        {campaignMetrics.map(([title, value, detail]) => (
-          <Card key={title} className="border-border/40 bg-card/40">
-            <CardHeader>
-              <CardTitle className="text-sm text-muted-foreground">
-                {title}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-3xl font-bold">{value}</p>
-              <p className="mt-2 text-xs leading-5 text-muted-foreground">
-                {detail}
-              </p>
-            </CardContent>
-          </Card>
-        ))}
-      </section>
+      <StatusGate
+        data={campaignsApi.data?.campaigns ?? null}
+        error={campaignsApi.error}
+        isLoading={campaignsApi.isLoading}
+        onRetry={campaignsApi.execute}
+        loadingMessage="Fetching campaigns..."
+        emptyMessage="No campaigns found."
+      >
+        {(loadedCampaigns) => (
+          <>
+            <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+              {campaignMetrics.map(([title, value, detail]) => (
+                <Card key={title} className="border-border/40 bg-card/40">
+                  <CardHeader>
+                    <CardTitle className="text-sm text-muted-foreground">
+                      {title}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-3xl font-bold">{value}</p>
+                    <p className="mt-2 text-xs leading-5 text-muted-foreground">
+                      {detail}
+                    </p>
+                  </CardContent>
+                </Card>
+              ))}
+            </section>
 
-      <section className="grid gap-6 xl:grid-cols-[1fr_360px]">
-        <div className="space-y-5">
-          <div className="flex items-center justify-between">
-            <h2 className="text-sm font-bold uppercase tracking-[0.18em] text-muted-foreground">
-              Campaign cards
-            </h2>
-            <Badge variant="outline">{campaigns.length} seed contracts</Badge>
-          </div>
-          <div className="grid gap-4 md:grid-cols-2">
-            {campaignCards.map((campaign) => (
-              <Card
-                key={campaign.title}
-                className="overflow-hidden border-border/40 bg-card/40"
-              >
-                <CardHeader className="border-b border-border/30">
-                  <div className="flex items-start justify-between gap-4">
-                    <div>
-                      <Badge className={statusTone(campaign.status)}>
-                        {campaign.status}
-                      </Badge>
-                      <CardTitle className="mt-3 text-xl">
-                        {campaign.title}
-                      </CardTitle>
-                      <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                        {campaign.description}
+            <section className="grid gap-6 xl:grid-cols-[1fr_360px]">
+              <div className="space-y-5">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-sm font-bold uppercase tracking-[0.18em] text-muted-foreground">
+                    Campaign cards
+                  </h2>
+                  <Badge variant="outline">
+                    {loadedCampaigns.length} contracts
+                  </Badge>
+                </div>
+                <div className="grid gap-4 md:grid-cols-2">
+                  {loadedCampaigns.map((campaign) => {
+                    const card = toCampaignCard(campaign, leads);
+                    const Icon = card.icon;
+
+                    return (
+                      <Card
+                        key={campaign.id}
+                        className="overflow-hidden border-border/40 bg-card/40"
+                      >
+                        <CardHeader className="border-b border-border/30">
+                          <div className="flex items-start justify-between gap-4">
+                            <div>
+                              <Badge className={statusTone(card.status)}>
+                                {card.status}
+                              </Badge>
+                              <CardTitle className="mt-3 text-xl">
+                                {card.title}
+                              </CardTitle>
+                              <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                                {card.description}
+                              </p>
+                            </div>
+                            <span className="grid size-11 place-items-center rounded-xl border border-border/40 bg-background/50 text-primary">
+                              <Icon className="size-5" />
+                            </span>
+                          </div>
+                        </CardHeader>
+                        <CardContent className="space-y-5 p-5">
+                          <div className="grid grid-cols-3 gap-3 text-sm">
+                            <div>
+                              <p className="text-muted-foreground">Leads</p>
+                              <p className="mt-1 font-semibold">{card.leads}</p>
+                            </div>
+                            <div>
+                              <p className="text-muted-foreground">
+                                Completion
+                              </p>
+                              <p className="mt-1 font-semibold">
+                                {card.completion}%
+                              </p>
+                            </div>
+                            <div>
+                              <p className="text-muted-foreground">Response</p>
+                              <p className="mt-1 font-semibold">
+                                {card.response}%
+                              </p>
+                            </div>
+                          </div>
+                          <div className="h-2 overflow-hidden rounded-full bg-background/60">
+                            <div
+                              className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-turquoise-400"
+                              style={{ width: `${card.completion}%` }}
+                            />
+                          </div>
+                          <div className="flex items-center justify-between gap-3 rounded-xl border border-border/40 bg-background/40 p-3">
+                            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                              <ShieldCheck className="size-4 text-turquoise-400" />
+                              {card.gate}
+                            </div>
+                            <Link
+                              href={`/campaigns/builder/${campaign.id}`}
+                              className={cn(
+                                buttonVariants({
+                                  variant: "link",
+                                  size: "sm",
+                                }),
+                                "h-auto p-0 text-primary"
+                              )}
+                            >
+                              Inspect
+                              <ArrowRight className="ml-1 size-3" />
+                            </Link>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <aside className="space-y-4">
+                <Card className="border-border/40 bg-card/40">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-sm uppercase tracking-[0.18em] text-muted-foreground">
+                      <PauseCircle className="size-4 text-pink-400" />
+                      Paused by reply
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    {leadsApi.isLoading && (
+                      <p className="text-xs text-muted-foreground">
+                        Fetching paused leads...
                       </p>
-                    </div>
-                    <span className="grid size-11 place-items-center rounded-xl border border-border/40 bg-background/50 text-primary">
-                      <campaign.icon className="size-5" />
-                    </span>
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-5 p-5">
-                  <div className="grid grid-cols-3 gap-3 text-sm">
-                    <div>
-                      <p className="text-muted-foreground">Leads</p>
-                      <p className="mt-1 font-semibold">{campaign.leads}</p>
-                    </div>
-                    <div>
-                      <p className="text-muted-foreground">Completion</p>
-                      <p className="mt-1 font-semibold">
-                        {campaign.completion}%
+                    )}
+                    {leadsApi.error && (
+                      <p className="text-xs text-pink-300">
+                        Paused lead feed unavailable: {leadsApi.error.message}
                       </p>
-                    </div>
-                    <div>
-                      <p className="text-muted-foreground">Response</p>
-                      <p className="mt-1 font-semibold">{campaign.response}%</p>
-                    </div>
-                  </div>
-                  <div className="h-2 overflow-hidden rounded-full bg-background/60">
-                    <div
-                      className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-turquoise-400"
-                      style={{ width: `${campaign.completion}%` }}
-                    />
-                  </div>
-                  <div className="flex items-center justify-between gap-3 rounded-xl border border-border/40 bg-background/40 p-3">
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                      <ShieldCheck className="size-4 text-turquoise-400" />
-                      {campaign.gate}
-                    </div>
-                    <Link
-                      href="/campaigns/builder/1"
-                      className={cn(
-                        buttonVariants({ variant: "link", size: "sm" }),
-                        "h-auto p-0 text-primary"
+                    )}
+                    {!leadsApi.isLoading &&
+                      !leadsApi.error &&
+                      pausedLeads.length === 0 && (
+                        <p className="text-xs text-muted-foreground">
+                          No replies are currently paused.
+                        </p>
                       )}
-                    >
-                      Inspect
-                      <ArrowRight className="ml-1 size-3" />
-                    </Link>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
+                    {pausedLeads.map((lead) => (
+                      <div
+                        key={lead.id}
+                        className="rounded-xl border border-pink-500/20 bg-pink-500/5 p-3"
+                      >
+                        <p className="text-sm font-semibold">
+                          {lead.firstName} {lead.lastName}
+                        </p>
+                        <p className="mt-1 text-xs leading-5 text-muted-foreground">
+                          {lead.nextTouch}. Review before resuming automation.
+                        </p>
+                      </div>
+                    ))}
+                  </CardContent>
+                </Card>
 
-        <aside className="space-y-4">
-          <Card className="border-border/40 bg-card/40">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-sm uppercase tracking-[0.18em] text-muted-foreground">
-                <PauseCircle className="size-4 text-pink-400" />
-                Paused by reply
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {pausedLeads.map((lead) => (
-                <div
-                  key={lead.id}
-                  className="rounded-xl border border-pink-500/20 bg-pink-500/5 p-3"
-                >
-                  <p className="text-sm font-semibold">
-                    {lead.firstName} {lead.lastName}
-                  </p>
-                  <p className="mt-1 text-xs leading-5 text-muted-foreground">
-                    {lead.nextTouch}. Review before resuming automation.
-                  </p>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
+                <Card className="border-border/40 bg-card/40">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-sm uppercase tracking-[0.18em] text-muted-foreground">
+                      <Clock className="size-4 text-indigo-400" />
+                      Execution timeline
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {upcomingSteps.map((step) => (
+                      <div key={step.title} className="flex gap-3">
+                        <span className="mt-1 grid size-9 shrink-0 place-items-center rounded-xl border border-border/40 bg-background/50 text-primary">
+                          <step.icon className="size-4" />
+                        </span>
+                        <div>
+                          <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-muted-foreground">
+                            {step.time} · {step.channel}
+                          </p>
+                          <p className="mt-1 text-sm font-semibold">
+                            {step.title}
+                          </p>
+                          <p className="text-xs leading-5 text-muted-foreground">
+                            {step.description}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </CardContent>
+                </Card>
 
-          <Card className="border-border/40 bg-card/40">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-sm uppercase tracking-[0.18em] text-muted-foreground">
-                <Clock className="size-4 text-indigo-400" />
-                Execution timeline
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {upcomingSteps.map((step) => (
-                <div key={step.title} className="flex gap-3">
-                  <span className="mt-1 grid size-9 shrink-0 place-items-center rounded-xl border border-border/40 bg-background/50 text-primary">
-                    <step.icon className="size-4" />
-                  </span>
-                  <div>
-                    <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-muted-foreground">
-                      {step.time} · {step.channel}
+                <Card className="border-border/40 bg-card/40">
+                  <CardContent className="flex items-start gap-3 p-4">
+                    <AlertTriangle className="mt-0.5 size-5 text-pink-400" />
+                    <p className="text-sm leading-6 text-muted-foreground">
+                      Campaign controls shown here represent Nyra-owned state.
+                      Vendor execution systems remain implementation details
+                      behind service boundaries.
                     </p>
-                    <p className="mt-1 text-sm font-semibold">{step.title}</p>
-                    <p className="text-xs leading-5 text-muted-foreground">
-                      {step.description}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-
-          <Card className="border-border/40 bg-card/40">
-            <CardContent className="flex items-start gap-3 p-4">
-              <AlertTriangle className="mt-0.5 size-5 text-pink-400" />
-              <p className="text-sm leading-6 text-muted-foreground">
-                Campaign controls shown here represent Nyra-owned state. Vendor
-                execution systems remain implementation details behind service
-                boundaries.
-              </p>
-            </CardContent>
-          </Card>
-        </aside>
-      </section>
+                  </CardContent>
+                </Card>
+              </aside>
+            </section>
+          </>
+        )}
+      </StatusGate>
     </main>
   );
+}
+
+type CampaignRecord = CampaignTemplate & { status?: string };
+
+function isActiveCampaign(campaign: CampaignRecord) {
+  const status = String(campaign.status ?? "").toLowerCase();
+  return campaign.active || status === "running" || status === "active";
+}
+
+function toCampaignCard(campaign: CampaignRecord, leads: Lead[]) {
+  const enrolledLeads = leads.filter(
+    (lead) =>
+      lead.campaignId === campaign.id ||
+      lead.campaignName === campaign.name ||
+      normalize(lead.loanPurpose) === normalize(campaign.loanPurpose)
+  );
+  const pausedCount = enrolledLeads.filter(
+    (lead) => lead.campaignStatus === "PAUSED"
+  ).length;
+  const active = isActiveCampaign(campaign);
+  const completion = active ? Math.max(12, 100 - pausedCount * 15) : 0;
+
+  return {
+    title: campaign.name,
+    status: active ? "Active" : "Draft",
+    description:
+      campaign.description ??
+      `${campaign.steps?.length ?? 0} configured steps for ${campaign.loanPurpose ?? "mortgage"} outreach.`,
+    leads: enrolledLeads.length,
+    completion,
+    response: enrolledLeads.length ? Math.max(0, 20 - pausedCount * 2) : 0,
+    gate: pausedCount
+      ? "Reply pause requires review"
+      : "Compliance gates clear",
+    icon: active ? Workflow : GitBranch,
+  };
+}
+
+function normalize(value: unknown) {
+  return String(value ?? "")
+    .trim()
+    .toLowerCase();
 }

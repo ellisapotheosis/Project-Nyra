@@ -149,7 +149,7 @@ Tool routes:
 - [x] Add `/tools/n8n`.
 - [x] Add `/tools/activepieces`.
 - [x] Add `/tools/openmemory`.
-- [x] Add `/tools/paperclip`.
+- [x] Add `/tools/gastown`.
 
 Backend and services:
 

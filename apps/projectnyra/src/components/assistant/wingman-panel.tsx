@@ -7,7 +7,20 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 
-export function WingmanPanel() {
+export type AssistantAuditEvent = {
+  id: string;
+  actionId: string;
+  toolName: string;
+  decision: "APPROVED" | "REJECTED";
+  actor: string;
+  timestamp: string;
+};
+
+export function WingmanPanel({
+  auditEvents = [],
+}: {
+  auditEvents?: AssistantAuditEvent[];
+}) {
   const [memoryItems, setMemoryItems] = useState([
     {
       type: "core",
@@ -101,6 +114,39 @@ export function WingmanPanel() {
               <History className="size-3" />
               Recall Full Timeline
             </button>
+          </div>
+
+          <div className="space-y-3 pt-2">
+            <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 px-1">
+              Tool Audit Trail
+            </h4>
+            {auditEvents.length === 0 ? (
+              <div className="rounded-xl border border-border/30 bg-background/30 p-3 text-[10px] font-bold uppercase tracking-widest text-muted-foreground/50">
+                No operational tool requests
+              </div>
+            ) : (
+              auditEvents.slice(0, 4).map((event) => (
+                <div
+                  key={event.id}
+                  className="rounded-xl border border-border/30 bg-background/40 p-3"
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-[10px] font-black uppercase tracking-widest text-foreground/80">
+                      {event.decision}
+                    </span>
+                    <span className="text-[9px] font-bold text-muted-foreground/50">
+                      {new Date(event.timestamp).toLocaleTimeString([], {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </span>
+                  </div>
+                  <p className="mt-1 truncate text-[10px] text-muted-foreground">
+                    {event.toolName} by {event.actor}
+                  </p>
+                </div>
+              ))
+            )}
           </div>
         </div>
       </ScrollArea>

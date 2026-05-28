@@ -1,0 +1,31 @@
+.nebula-core {
+  --font-inter:
+    Electrolize, "Avenir Next", "Segoe UI", "Helvetica Neue", sans-serif;
+  --font-display:
+    Michroma, "Martian Mono Custom", "IBM Plex Mono", "SFMono-Regular",
+    monospace;
+  --font-mono: "Space Mono", "Martian Mono Custom", ui-monospace, monospace;
+
+  --background: oklch(0.12 0.04 260);
+  --foreground: oklch(0.95 0.02 260);
+  --card: oklch(0.14 0.05 260);
+  --card-foreground: oklch(0.95 0.02 260);
+  --popover: oklch(0.1 0.04 260);
+  --popover-foreground: oklch(0.95 0.02 260);
+  --primary: oklch(0.65 0.2 260);
+  --primary-foreground: oklch(0.98 0.01 260);
+  --secondary: oklch(0.25 0.1 260);
+  --secondary-foreground: oklch(0.9 0.05 260);
+  --muted: oklch(0.18 0.05 260);
+  --muted-foreground: oklch(0.7 0.05 260);
+  --accent: oklch(0.3 0.15 260);
+  --accent-foreground: oklch(0.95 0.05 260);
+  --destructive: oklch(0.5 0.2 20);
+  --destructive-foreground: oklch(0.95 0.02 260);
+  --border: oklch(0.25 0.08 260);
+  --input: oklch(0.2 0.05 260);
+  --ring: oklch(0.65 0.2 260);
+
+  --radius: 3.14rem;
+  --spacing: 0.27rem;
+}

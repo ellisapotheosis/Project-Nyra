@@ -1,0 +1,59 @@
+# infra/hosts/oracle-vps/docker-compose.gastown.yml
+# Project Nyra - Gastown workspace manager for Oracle-VPS.
+
+services:
+  gastown:
+    build:
+      context: ../../images/gastown
+      dockerfile: Dockerfile
+      args:
+        GASTOWN_REF: ${GASTOWN_REF:-main}
+    image: ${GASTOWN_IMAGE:-nyra-gastown:latest}
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-gastown
+    restart: unless-stopped
+    environment:
+      IS_SANDBOX: "1"
+      GIT_USER: ${GASTOWN_GIT_USER:-Project Nyra}
+      GIT_EMAIL: ${GASTOWN_GIT_EMAIL:-nyra@ratehunter.net}
+    command:
+      - /bin/sh
+      - -lc
+      - |
+        cd /gt
+        exec /app/gastown/gt dashboard --bind 0.0.0.0 --port 8080
+    ports:
+      - "127.0.0.1:${GASTOWN_HOST_PORT:-8096}:8080"
+    volumes:
+      - gastown_agent_home:/home/agent
+      - gastown_workspace:/gt
+      - gastown_dolt_data:/gt/.dolt-data
+    networks:
+      - nyra_net
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -fsS http://127.0.0.1:8080/ >/dev/null && /app/gastown/gt status >/dev/null",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 45s
+    deploy:
+      resources:
+        limits:
+          memory: 4g
+        reservations:
+          memory: 1g
+
+volumes:
+  gastown_agent_home:
+    name: ${COMPOSE_PROJECT_NAME:-nyra}-gastown-agent-home
+  gastown_workspace:
+    name: ${COMPOSE_PROJECT_NAME:-nyra}-gastown-workspace
+  gastown_dolt_data:
+    name: ${COMPOSE_PROJECT_NAME:-nyra}-gastown-dolt-data
+
+networks:
+  nyra_net:
+    external: true

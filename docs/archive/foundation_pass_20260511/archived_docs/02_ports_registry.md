@@ -41,8 +41,8 @@ This registry is generated manually from `infra/hosts/*/docker-compose*.yml` and
 | `gitea-mcp`       | `infra/hosts/oracle-vps/docker-compose.yml`             |                 `3101` |                 `3101` | private                         |
 | `crm-api`         | `infra/hosts/oracle-vps/docker-compose.yml`             |                 `4001` |                 `4001` | private/API gated               |
 | `campaign_engine` | `infra/hosts/oracle-vps/docker-compose.yml`             |                 `8020` |                 `8020` | private/API gated               |
-| `paperclip`       | `infra/hosts/oracle-vps/docker-compose.yml`             |                 `3111` |                 `3100` | Access-gated                    |
-| `paperclip-mcp`   | `infra/hosts/oracle-vps/docker-compose.yml`             |                 `8767` |                 `8767` | private                         |
+| `gastown`         | `infra/hosts/oracle-vps/docker-compose.yml`             |                 `3111` |                 `3100` | Access-gated                    |
+| `gastown-mcp`     | `infra/hosts/oracle-vps/docker-compose.yml`             |                 `8767` |                 `8767` | private                         |
 | `nexus`           | `infra/hosts/oracle-vps/docker-compose.yml`             |                 `6000` |                 `3000` | private or Access-gated         |
 | `agentmemory`     | `infra/hosts/oracle-vps/docker-compose.agentmemory.yml` | `3111`, `3112`, `3113` | `3111`, `3112`, `3113` | Tailscale/private bind          |
 | `webapp`          | `infra/hosts/oracle-vps/docker-compose.apps.yml`        |                 `3001` |                 `3001` | Access-gated                    |

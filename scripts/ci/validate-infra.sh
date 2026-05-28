@@ -19,6 +19,7 @@ for file in \
   infra/hosts/worker-rtx3090ti/docker-compose.yml \
   infra/hosts/worker-rtx5090/docker-compose.yml \
   scripts/infra/assert-compose-source-of-truth.sh \
+  scripts/infra/validate-repo-policy.sh \
   scripts/gitea/bootstrap-act-runner.sh \
   scripts/setup/bootstrap-gitea.ps1
 do
@@ -57,8 +58,10 @@ ensure_env "$tmp_env" TAVILY_API_KEY ci-tavily-api-key
 
 bash -n scripts/gitea/bootstrap-act-runner.sh
 bash -n scripts/infra/assert-compose-source-of-truth.sh
+bash -n scripts/infra/validate-repo-policy.sh
 
 bash scripts/infra/assert-compose-source-of-truth.sh
+bash scripts/infra/validate-repo-policy.sh
 
 for compose_file in \
   infra/hosts/oracle-vps/docker-compose.yml \

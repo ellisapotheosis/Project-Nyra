@@ -1,16 +1,26 @@
 # Implementation Status Summary
 
-**Date**: 2026-05-19  
-**Status**: Foundation Complete — Ready for Phase 1 Execution  
-**Next Action**: Begin Prompt 01 implementation (infrastructure validation & setup)
+**Date**: 2026-05-19
+**Status**: Superseded historical status snapshot
+**Next Action**: Use `docs/CONDUCTOR_TASKS.md`, `conductor/tracks/`, and `docs/user-todo/` for current status
 
 ---
+
+## Current Status — 2026-05-26
+
+This file is retained as a May 19 implementation snapshot. It is not the active
+task ledger.
+
+Current executable status is tracked in `docs/CONDUCTOR_TASKS.md` and
+`conductor/tracks/`. Owner-only DNS, provider, credential, and live-smoke gates
+are tracked under `docs/user-todo/`. The Oracle memory stack and Conductor
+prompt-pack reconciliation have advanced beyond this snapshot.
 
 ## Deliverables Completed
 
 ### 1. ✅ Infrastructure Health Check Script
 
-**File**: `/infra/scripts/health-check.sh`  
+**File**: `/infra/scripts/health-check.sh`
 **Status**: Created & executable (16KB)
 
 **Validates**:
@@ -37,7 +47,7 @@
 
 ### 2. ✅ Complete Infrastructure Reference
 
-**File**: `/docs/INFRASTRUCTURE_REFERENCE.md`  
+**File**: `/docs/INFRASTRUCTURE_REFERENCE.md`
 **Status**: Created (15KB)
 
 **Contains**:
@@ -58,10 +68,10 @@
 
 ### 3. ✅ Memory Architecture Decision Document
 
-**File**: `/docs/decisions/MEMORY_ARCHITECTURE_DECISION.md`  
+**File**: `/docs/decisions/MEMORY_ARCHITECTURE_DECISION.md`
 **Status**: Created (18KB)
 
-**Resolves Blocker**: Memory system design (comprehensive multi-tier architecture)  
+**Resolves Blocker**: Memory system design (comprehensive multi-tier architecture)
 **Decision**: Hybrid approach (Mem0 + FalkorDB + Qdrant + Letta + OpenMemory MCP + MemPalace)
 
 **Includes**:
@@ -81,7 +91,7 @@
 
 ### 4. ✅ Phase 1 Implementation Roadmap
 
-**File**: `/docs/PHASE_1_IMPLEMENTATION_ROADMAP.md`  
+**File**: `/docs/PHASE_1_IMPLEMENTATION_ROADMAP.md`
 **Status**: Created (25KB)
 
 **Covers**:
@@ -151,8 +161,8 @@
 - [x] Hardware requirements specified
 - [x] Network requirements documented
 - [x] Success criteria defined
-- [ ] Verify all 5 hosts are reachable (first task of Phase 1.1)
-- [ ] Run baseline health check (first task of Phase 1.1)
+- [historical] Verify all 5 hosts are reachable (first task of Phase 1.1)
+- [historical] Run baseline health check (first task of Phase 1.1)
 
 ### Before Starting Prompt 02
 
@@ -160,9 +170,9 @@
 - [x] Implementation plan with code examples documented
 - [x] Testing strategy defined
 - [x] Rollback procedures documented
-- [ ] Mem0, FalkorDB, Qdrant, Letta, OpenMemory MCP, and MemPalace services installed (in Phase 2.1)
-- [ ] OpenClaw deployment plan ready (Phase 2.2)
-- [ ] LiteLLM routing configuration templates ready (Phase 2.3)
+- [historical] Mem0, FalkorDB, Qdrant, Letta, OpenMemory MCP, and MemPalace services installed (in Phase 2.1)
+- [historical] OpenClaw deployment plan ready (Phase 2.2)
+- [historical] LiteLLM routing configuration templates ready (Phase 2.3)
 
 ---
 
@@ -272,16 +282,16 @@
 
 ### Prompt 01 Complete When:
 
-✅ All 8 health-check.sh categories pass  
-✅ All 5 hosts discoverable and SSH-accessible  
-✅ Docker Compose validates and services start  
+✅ All 8 health-check.sh categories pass
+✅ All 5 hosts discoverable and SSH-accessible
+✅ Docker Compose validates and services start
 ✅ Documentation complete and tested
 
 ### Prompt 02 Complete When:
 
-✅ Memory (Mem0, FalkorDB, Qdrant, Letta, OpenMemory MCP, MemPalace) all operational  
-✅ OpenClaw agent creation and inference working  
-✅ Model routing through LiteLLM to all workers  
+✅ Memory (Mem0, FalkorDB, Qdrant, Letta, OpenMemory MCP, MemPalace) all operational
+✅ OpenClaw agent creation and inference working
+✅ Model routing through LiteLLM to all workers
 ✅ End-to-end agent inference latency <5 seconds
 
 ---
@@ -313,9 +323,9 @@
 
 ### Common Issues
 
-**Docker daemon not running**: Start Docker service  
-**Host unreachable**: Check Tailscale connection, firewall rules  
-**Service unhealthy**: Check logs, verify configuration, restart container  
+**Docker daemon not running**: Start Docker service
+**Host unreachable**: Check Tailscale connection, firewall rules
+**Service unhealthy**: Check logs, verify configuration, restart container
 **Model endpoint down**: Verify GPU worker is running, check vLLM/Ollama logs
 
 ---

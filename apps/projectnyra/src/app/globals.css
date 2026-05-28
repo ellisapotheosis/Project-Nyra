@@ -171,6 +171,41 @@
   --shadow-2xl: 0px 0px 10px -2px hsl(264 100% 50% / 1.25);
 }
 
+.nebula-core {
+  --background: oklch(0.12 0.04 260);
+  --foreground: oklch(0.95 0.02 260);
+  --primary: oklch(0.65 0.2 260);
+  --radius: 3.14rem;
+}
+
+.violet-singularity {
+  --background: oklch(0.12 0.04 300);
+  --foreground: oklch(0.95 0.02 300);
+  --primary: oklch(0.65 0.2 300);
+  --radius: 3.14rem;
+}
+
+.cyan-halo-indigo {
+  --background: oklch(0.12 0.04 220);
+  --foreground: oklch(0.95 0.02 220);
+  --primary: oklch(0.65 0.2 220);
+  --radius: 3.14rem;
+}
+
+.mint-singularity {
+  --background: oklch(0.12 0.04 160);
+  --foreground: oklch(0.95 0.02 160);
+  --primary: oklch(0.65 0.2 160);
+  --radius: 3.14rem;
+}
+
+.xulbux-neon-void {
+  --background: oklch(0.12 0.04 340);
+  --foreground: oklch(0.95 0.02 340);
+  --primary: oklch(0.65 0.2 340);
+  --radius: 3.14rem;
+}
+
 .virtus {
   --background: oklch(0.1448 0 0);
   --foreground: oklch(0.9325 0.0337 285.728);
@@ -241,6 +276,21 @@
   --sidebar-border: oklch(0.3098 0.0753 286.4544);
   --sidebar-ring: oklch(0.8653 0.1475 204.0171);
   --radius: 3.14rem;
+}
+
+@layer utilities {
+  .glass-panel {
+    @apply border border-white/10 bg-black/40 backdrop-blur-xl shadow-2xl;
+  }
+  .glass-card {
+    @apply border border-white/10 bg-white/5 backdrop-blur-md shadow-lg transition-all duration-300 hover:bg-white/10;
+  }
+  .glass-button {
+    @apply border border-white/10 bg-white/10 backdrop-blur-sm transition-all duration-300 hover:bg-white/20 active:scale-95;
+  }
+  .glass-input {
+    @apply border border-white/10 bg-white/5 backdrop-blur-sm focus:bg-white/10 focus:border-white/20 outline-none transition-all;
+  }
 }
 
 @layer base {

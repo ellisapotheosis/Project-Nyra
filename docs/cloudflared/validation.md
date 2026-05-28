@@ -42,7 +42,7 @@ curl -I http://twenty:3000
 curl -I http://n8n:5678
 curl -I http://activepieces:80
 curl -I http://grafana:3000
-curl -I http://paperclip:3100
+curl -I http://gastown:8080
 curl -I http://nexus:3000
 ```
 

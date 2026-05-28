@@ -52,6 +52,17 @@ describe("production API mutation fallbacks", () => {
     expect(body.mocksEnabled).toBe(false);
   });
 
+  it("fails closed for production lead reads without CRM config", async () => {
+    const { GET } = await import("../src/app/api/leads/route");
+
+    const response = await GET();
+    const body = await response.json();
+
+    expect(response.status).toBe(503);
+    expect(body.error).toBe("CRM API is unavailable");
+    expect(body.mocksEnabled).toBe(false);
+  });
+
   it("keeps local development lead write mocks available", async () => {
     process.env = {
       ...process.env,
@@ -82,6 +93,17 @@ describe("production API mutation fallbacks", () => {
     expect(body.mocksEnabled).toBe(false);
   });
 
+  it("fails closed for production quote reads without quote-service config", async () => {
+    const { GET } = await import("../src/app/api/quote/loan-types/route");
+
+    const response = await GET();
+    const body = await response.json();
+
+    expect(response.status).toBe(503);
+    expect(body.error).toBe("Quote service is unavailable");
+    expect(body.mocksEnabled).toBe(false);
+  });
+
   it("fails closed for production campaign writes without campaign-service config", async () => {
     const { POST } = await import("../src/app/api/campaigns/route");
 
@@ -91,6 +113,17 @@ describe("production API mutation fallbacks", () => {
         steps: [{ channel: "sms", day: 1 }],
       })
     );
+    const body = await response.json();
+
+    expect(response.status).toBe(503);
+    expect(body.error).toBe("Campaign service is unavailable");
+    expect(body.mocksEnabled).toBe(false);
+  });
+
+  it("fails closed for production campaign reads without campaign-service config", async () => {
+    const { GET } = await import("../src/app/api/campaigns/route");
+
+    const response = await GET();
     const body = await response.json();
 
     expect(response.status).toBe(503);

@@ -31,8 +31,6 @@ used to have local fallback passwords. Set these before bringing up the affected
 stacks:
 
 - `/machines/orchestrator`: `GRAFANA_ADMIN_PASSWORD`
-- `/machines/oracle-vps`: `PAPERCLIP_DB_PASSWORD`
-- `/machines/oracle-vps`: `PAPERCLIP_API_KEY`
 - `/machines/oracle-vps`: `OPENLIT_DB_PASSWORD`
 - `/machines/oracle-vps`: `OPENLIT_NEXTAUTH_SECRET`
 - `/machines/oracle-vps`: `OPENLIT_VAULT_ENCRYPTION_KEY`
@@ -247,7 +245,7 @@ OpenLIT has been added to the Oracle VPS stack as `openlit.projectnyra.com`, rou
 ### Letta owner-only subdomain and MCP access
 
 Letta can have its own owner-only subdomain without taking control away from
-Paperclip, Clawteam, or Nerve UI. Those tools should continue to control
+Gastown, Clawteam, or Nerve UI. Those tools should continue to control
 OpenClaw agents through their existing OpenClaw/Nexus endpoints; Letta adds
 persistent agent state and memory-manager orchestration, not an exclusive
 replacement control plane.

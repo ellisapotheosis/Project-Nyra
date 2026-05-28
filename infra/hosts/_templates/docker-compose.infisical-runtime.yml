@@ -15,6 +15,8 @@ services:
     restart: unless-stopped
     environment:
       INFISICAL_TOKEN: ${INFISICAL_TOKEN:-}
+      INFISICAL_UNIVERSAL_AUTH_CLIENT_ID: ${INFISICAL_UNIVERSAL_AUTH_CLIENT_ID:-}
+      INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET: ${INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET:-}
       INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-}
       INFISICAL_ENV: ${INFISICAL_ENV:-prod}
       INFISICAL_PATH: ${NYRA_INFISICAL_PATH:-/}
@@ -25,15 +27,20 @@ services:
     command: |
       mkdir -p /run/nyra-secrets
       while true; do
-        if [ -n "$$INFISICAL_TOKEN" ]; then
+        token="$$INFISICAL_TOKEN"
+        if [ -z "$$token" ] && [ -n "$$INFISICAL_UNIVERSAL_AUTH_CLIENT_ID" ] && [ -n "$$INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET" ]; then
+          token="$$(infisical login --method=universal-auth --client-id="$$INFISICAL_UNIVERSAL_AUTH_CLIENT_ID" --client-secret="$$INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET" --silent --plain)"
+        fi
+        if [ -n "$$token" ]; then
           infisical export \
+            --token "$$token" \
             --env "$$INFISICAL_ENV" \
             --path "$$INFISICAL_PATH" \
             --format dotenv > /run/nyra-secrets/runtime.env.tmp &&
             mv /run/nyra-secrets/runtime.env.tmp /run/nyra-secrets/runtime.env
         else
           : > /run/nyra-secrets/runtime.env
-          echo "INFISICAL_TOKEN is not set; wrote empty runtime env."
+          echo "Infisical auth is not set; wrote empty runtime env."
         fi
         sleep "$$INFISICAL_EXPORT_INTERVAL_SECONDS"
       done

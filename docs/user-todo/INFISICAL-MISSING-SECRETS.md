@@ -69,6 +69,28 @@ for public browser auth config.
 - Compose sidecar bootstrap variable: `INFISICAL_TOKEN`
 - Host secret volume target: `/run/nyra-secrets`
 
+## Cleared Generated Values
+
+The 2026-05-26 audit generated high-entropy values and saved them in Infisical
+for `dev`, `stag`, and `prod`.
+
+### `/shared`
+
+- `GITEA_SECRET_KEY`
+- `GITEA_INTERNAL_TOKEN`
+- `GITEA_JWT_SECRET`
+- `GITEA_DB_PASSWORD`
+
+### `/machines/oracle-vps`
+
+- `OPENLIT_DB_PASSWORD`
+- `OPENLIT_NEXTAUTH_SECRET`
+- `OPENLIT_VAULT_ENCRYPTION_KEY`
+- `GITEA_INTERNAL_TOKEN`
+
+The remaining keys below still need real URLs, provider credentials, runner
+registration tokens, or owner-issued machine tokens before live smoke.
+
 ## Machine Paths
 
 ### `/machines/oracle-vps`
@@ -107,9 +129,6 @@ for public browser auth config.
 - `OPENLIT_VAULT_ENCRYPTION_KEY`
 - `OPENLIT_DB_PASSWORD`
 - `OPENLIT_ALLOWED_CORS_ORIGINS`
-- `PAPERCLIP_API_KEY`
-- `PAPERCLIP_DB_PASSWORD`
-- `PAPERCLIP_AGENT_JWT_SECRET`
 - `GITEA_SECRET_KEY`
 - `GITEA_INTERNAL_TOKEN`
 - `GITEA_JWT_SECRET`

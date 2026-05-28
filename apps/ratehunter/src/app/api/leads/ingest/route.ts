@@ -28,16 +28,24 @@ function summarizeError(error: unknown) {
 export async function POST(req: Request) {
   try {
     const data = await req.json();
+    const leadIngestionUrl = process.env.LEAD_INGESTION_API_URL?.trim();
     const n8nWebhookUrl = process.env.N8N_INGEST_WEBHOOK_URL?.trim();
 
-    if (!n8nWebhookUrl) {
+    // Ensure source is explicitly set to ratehunter if not provided
+    if (!data.source) {
+      data.source = "ratehunter";
+    }
+
+    const targetUrl = leadIngestionUrl || n8nWebhookUrl;
+
+    if (!targetUrl) {
       if (!canUseLocalMockFallback()) {
         return NextResponse.json(
           {
             success: false,
             error: "Lead ingest is unavailable",
             detail:
-              "Set N8N_INGEST_WEBHOOK_URL or enable NYRA_ENABLE_MOCKS=true for explicit production mock mode.",
+              "Set LEAD_INGESTION_API_URL, N8N_INGEST_WEBHOOK_URL, or enable NYRA_ENABLE_MOCKS=true.",
           },
           { status: 503 }
         );
@@ -48,24 +56,38 @@ export async function POST(req: Request) {
           success: true,
           source: "mock",
           message: "Lead accepted by local RateHunter mock ingest.",
+          data: redactLogValue(data),
         },
         { status: 202 }
       );
     }
 
-    const response = await fetch(n8nWebhookUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    });
+    const response = await fetch(
+      targetUrl.endsWith("/ingest")
+        ? targetUrl
+        : `${targetUrl}/api/leads/ingest`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(process.env.LEAD_INGESTION_API_KEY
+            ? { "x-lead-ingestion-api-key": process.env.LEAD_INGESTION_API_KEY }
+            : {}),
+        },
+        body: JSON.stringify(data),
+      }
+    );
 
     if (!response.ok) {
-      throw new Error(`n8n responded with ${response.status}`);
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(
+        `Upstream responded with ${response.status}: ${JSON.stringify(errorData)}`
+      );
     }
 
     return NextResponse.json({
       success: true,
-      message: "Lead captured and routed.",
+      message: "Lead captured and routed to ingestion pipeline.",
     });
   } catch (error) {
     console.error("Lead ingest proxy error:", summarizeError(error));
@@ -74,4 +96,16 @@ export async function POST(req: Request) {
       { status: 500 }
     );
   }
+}
+
+function redactLogValue(value: any) {
+  if (typeof value === "string") return redactLogText(value);
+  if (typeof value === "object" && value !== null) {
+    const redacted: any = Array.isArray(value) ? [] : {};
+    for (const key in value) {
+      redacted[key] = redactLogValue(value[key]);
+    }
+    return redacted;
+  }
+  return value;
 }
