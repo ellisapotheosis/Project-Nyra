@@ -1,10 +1,21 @@
 # 12-Prompt Mortgage Platform — Overview & Current Status
 
-**Generated**: 2026-05-19  
-**Status**: Foundation complete, ready for Phase 1 execution  
+**Generated**: 2026-05-19
+**Status**: Superseded historical snapshot
 **Memory Stack (CORRECTED)**: Mem0 (persistent knowledge) + FalkorDB (graph backend) + Qdrant (vector backend) + Letta (session manager) + OpenMemory MCP + MemPalace (knowledge organization)
 
 ---
+
+## Current Status — 2026-05-26
+
+This file is retained as a May 19 source snapshot. It is not the active prompt
+queue or task ledger.
+
+Current executable status lives in `docs/CONDUCTOR_TASKS.md`,
+`conductor/tracks/`, and owner-only gates under `docs/user-todo/`. The
+Conductor prompt-pack reconciliation has executed/reconciled the non-UI prompt
+sequence, and Oracle memory-stack smoke now passes for Letta, Letta MCP, mem0,
+Qdrant, FalkorDB, OpenMemory MCP, MemPalace MCP, MemOS API, and MemOS MCP.
 
 ## Quick Reference: What Each Prompt Delivers
 
@@ -20,7 +31,7 @@
 - ⚠️ Hostname enforcement documentation
 - ⚠️ .gitmodules fix for external/openclaw-n8n-stack
 
-**Current Status**: ~40% complete  
+**Current Status**: ~40% complete
 **Blockers**: .gitmodules missing URL
 
 ---
@@ -38,7 +49,7 @@
 - ⚠️ vLLM endpoints on worker-rtx5090, worker-rtx3090ti
 - ⚠️ MCP tool aggregation and fuzzy search
 
-**Current Status**: ~35% complete  
+**Current Status**: ~35% complete
 **Blockers**: None (memory architecture RESOLVED)
 
 ---
@@ -53,7 +64,7 @@
 - ❌ LeadSource/LeadEvent tracking
 - ❌ Communication log modeling
 
-**Current Status**: ~20% complete  
+**Current Status**: ~20% complete
 **Blockers**: Prompt 02 (needs memory/routing foundation first)
 
 ---
@@ -70,7 +81,7 @@
 - ❌ Edge case tests (0% interest, PMI threshold, bad inputs)
 - ❌ PDF/export capability
 
-**Current Status**: ~25% complete  
+**Current Status**: ~25% complete
 **Blockers**: Prompt 03 (CRM integration needed)
 
 ---
@@ -87,7 +98,7 @@
 - ❌ Opt-out/STOP compliance enforcement
 - ❌ Unified inbox surface
 
-**Current Status**: ~20% complete  
+**Current Status**: ~20% complete
 **Blockers**: Prompts 03, 07 (CRM and APIs needed first)
 
 ---
@@ -103,7 +114,7 @@
 - ❌ Custom campaign builder specification
 - ❌ Workflow error handling and audit logging
 
-**Current Status**: ~50% complete  
+**Current Status**: ~50% complete
 **Blockers**: Prompts 05, 07 (campaigns and APIs needed)
 
 ---
@@ -122,7 +133,7 @@
 - ❌ Request/response validation (Zod/TypeBox)
 - ❌ Error response standards
 
-**Current Status**: ~15% complete  
+**Current Status**: ~15% complete
 **Blockers**: Prompts 03, 04, 05, 06 (all need APIs)
 
 ---
@@ -141,7 +152,7 @@
 - ❌ Least-privilege agent tool restrictions
 - ❌ Secret rotation procedures
 
-**Current Status**: ~30% complete  
+**Current Status**: ~30% complete
 **Blockers**: Prompt 07 (APIs needed for audit logging)
 
 ---
@@ -161,7 +172,7 @@
 - ❌ Health aggregation dashboard
 - ❌ Next.js app structure
 
-**Current Status**: ~25% complete  
+**Current Status**: ~25% complete
 **Blockers**: Prompts 07, 08 (APIs and auth needed)
 
 ---
@@ -171,16 +182,16 @@
 **Deliverables**:
 
 - ✅ Gitea deployed
-- ✅ Paperclip referenced
+- ✅ Gastown referenced
 - ❌ AI reviewer webhook for PR automation
 - ❌ WaveTerm command deck
 - ❌ Zellij layouts (agent panes, worker SSH)
 - ❌ SearXNG local search
 - ❌ Browserless headless scraping
-- ❌ Sentry-to-Paperclip auto-ticketing
+- ❌ Sentry-to-Gastown auto-ticketing
 - ❌ Lazydocker integration
 
-**Current Status**: ~20% complete  
+**Current Status**: ~20% complete
 **Blockers**: Prompts 01, 07 (foundation and APIs)
 
 ---
@@ -202,7 +213,7 @@
 - ❌ Load test baseline
 - ❌ Security hardening checklist
 
-**Current Status**: ~30% complete  
+**Current Status**: ~30% complete
 **Blockers**: Prompts 04, 05, 07 (core features need tests)
 
 ---
@@ -219,7 +230,7 @@
 - ❌ Next agent handoff instructions
 - ❌ Acceptance criteria for each prompt
 
-**Current Status**: 0% complete (cannot begin until 1-11 done)  
+**Current Status**: 0% complete (cannot begin until 1-11 done)
 **Blockers**: All other prompts
 
 ---
@@ -249,29 +260,29 @@
 
 ### 1. Memory Architecture Decision (BLOCKING)
 
-**Issue**: MEMORY_ARCHITECTURE_DECISION.md was deleted because it used wrong tech stack (RuVector)  
-**Correct Stack**: Mem0 + FalkorDB + Qdrant + Letta + OpenMemory MCP + MemPalace  
-**Action Required**: Recreate decision document with correct components  
+**Issue**: MEMORY_ARCHITECTURE_DECISION.md was deleted because it used wrong tech stack (RuVector)
+**Correct Stack**: Mem0 + FalkorDB + Qdrant + Letta + OpenMemory MCP + MemPalace
+**Action Required**: Recreate decision document with correct components
 **Impact**: BLOCKS Prompt 02, and therefore Prompts 03-11
 
 ### 2. Repo-wide Cleanup (BLOCKING)
 
-**Issue**: 548+ instances of "ruvector", "claude-flow", "ruflo", "agentic-flow" found across repo  
-**Affected Files**: Docs, scripts, YAML, JSON, TypeScript, Python  
-**Status**: Identified but not yet cleaned  
-**Action Required**: Remove all instances from entire repo  
+**Issue**: 548+ instances of "ruvector", "claude-flow", "ruflo", "agentic-flow" found across repo
+**Affected Files**: Docs, scripts, YAML, JSON, TypeScript, Python
+**Status**: Identified but not yet cleaned
+**Action Required**: Remove all instances from entire repo
 **Impact**: Prevents correct documentation and configuration
 
 ### 3. .gitmodules Missing URL (BLOCKING)
 
-**Issue**: `external/openclaw-n8n-stack` submodule missing URL in .gitmodules  
-**Action Required**: Add URL: `https://github.com/user/openclaw-n8n-stack.git`  
+**Issue**: `external/openclaw-n8n-stack` submodule missing URL in .gitmodules
+**Action Required**: Add URL: `https://github.com/user/openclaw-n8n-stack.git`
 **Impact**: Blocks Cloudflare Pages deployment, Prompt 01 completion
 
 ### 4. PHASE_1_IMPLEMENTATION_ROADMAP.md Needs Recreation
 
-**Issue**: Document was deleted because it referenced RuVector  
-**Action Required**: Recreate with correct memory stack and execution sequence  
+**Issue**: Document was deleted because it referenced RuVector
+**Action Required**: Recreate with correct memory stack and execution sequence
 **Impact**: Blocks execution planning for Prompts 01-02
 
 ---
@@ -280,7 +291,7 @@
 
 ### Phase 1: Foundation (WEEKS 1-2)
 
-**Prompts**: 01, 02  
+**Prompts**: 01, 02
 **Critical Path**:
 
 1. Fix .gitmodules (unblocks everything)
@@ -290,35 +301,35 @@
 
 ### Phase 2: Core Data (WEEKS 3-4)
 
-**Prompts**: 03, 04  
-**Requires**: Prompt 02 completion  
+**Prompts**: 03, 04
+**Requires**: Prompt 02 completion
 **Deliverables**: CRM schema, quote engine, APIs
 
 ### Phase 3: Communication & Automation (WEEKS 5-7)
 
-**Prompts**: 05, 06, 07  
-**Requires**: Prompts 02-04 completion  
-**Parallel**: Can start 05 and 06 independently  
+**Prompts**: 05, 06, 07
+**Requires**: Prompts 02-04 completion
+**Parallel**: Can start 05 and 06 independently
 **Deliverables**: Campaigns, workflows, all backend APIs
 
 ### Phase 4: Security & Portal (WEEKS 8-9)
 
-**Prompts**: 08, 09  
-**Requires**: Prompt 07 completion  
-**Parallel**: Can start simultaneously  
+**Prompts**: 08, 09
+**Requires**: Prompt 07 completion
+**Parallel**: Can start simultaneously
 **Deliverables**: Auth, audit logging, compliance, admin routes
 
 ### Phase 5: DevOps & Testing (WEEKS 10-11)
 
-**Prompts**: 10, 11  
-**Requires**: Prompts 07-08 completion  
-**Parallel**: Can start simultaneously  
+**Prompts**: 10, 11
+**Requires**: Prompts 07-08 completion
+**Parallel**: Can start simultaneously
 **Deliverables**: Operator tooling, test matrix, observability
 
 ### Phase 6: Integration (WEEK 12)
 
-**Prompt**: 12  
-**Requires**: All others 1-11  
+**Prompt**: 12
+**Requires**: All others 1-11
 **Deliverables**: Integrated diagram, final roadmap, risk assessment
 
 ---
@@ -399,7 +410,7 @@
 
 **Status**: Ready for Phase 1 execution once:
 
-- [ ] Memory architecture decision document recreated
-- [ ] .gitmodules fixed
-- [ ] Repo cleanup completed (remove 548+ instances of wrong terms)
-- [ ] Phase 1 implementation roadmap created
+- [historical] Memory architecture decision document recreated
+- [historical] .gitmodules fixed
+- [historical] Repo cleanup completed (remove 548+ instances of wrong terms)
+- [historical] Phase 1 implementation roadmap created

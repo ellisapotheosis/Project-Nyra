@@ -17,7 +17,7 @@ Updated: 2026-04-30
 | Service group               | Services                                                                                     |
 | --------------------------- | -------------------------------------------------------------------------------------------- |
 | CRM and workflow            | `twenty`, `twenty-worker`, `twenty-mcp`, `activepieces`, `n8n`, `crm-api`, `campaign_engine` |
-| Quote and document handling | `quote-api`, `quote_engine`, `paperclip`, `paperclip-mcp`                                    |
+| Quote and document handling | `quote-api`, `quote_engine`, `gastown`, `gastown-mcp`                                        |
 | CI/CD                       | `gitea`, `gitea-runner`, `github-mirror-sync`, `gitea-mcp`                                   |
 | Observability               | `prometheus`, `loki`, `grafana`, `cadvisor`                                                  |
 | Runtime memory              | `mem0-rest`, `falkordb`, `qdrant`, `letta`, `mem-os`, `openmemory-mcp`, `mempalace-mcp`      |
@@ -36,7 +36,7 @@ Updated: 2026-04-30
 | Open WebUI     | `8088 -> 8080` |
 | Quote API      |         `7070` |
 | CRM API        |         `4001` |
-| Paperclip      | `3111 -> 3100` |
+| Gastown        | `3111 -> 3100` |
 | Oracle Nexus   | `6000 -> 3000` |
 | OpenMemory MCP |         `8765` |
 | Letta          |         `8283` |
@@ -55,7 +55,7 @@ package. The canonical public app hostnames are:
 | `activepieces.projectnyra.com` | Activepieces |
 | `nexus.projectnyra.com`        | Oracle Nexus |
 | `grafana.projectnyra.com`      | Grafana      |
-| `paperclip.projectnyra.com`    | Paperclip    |
+| `gastown.projectnyra.com`      | Gastown      |
 
 ## Placement rationale
 
@@ -69,7 +69,7 @@ make oracle-apps-up
 make cicd-up
 make cicd-health
 make cicd-logs
-make paperclip-up
+make gastown-up
 ```
 
 ## Preflight checklist

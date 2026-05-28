@@ -1,4 +1,23 @@
 services:
+  secrets-init:
+    build:
+      context: ../../images/infisical-secrets-init
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-secrets-init
+    restart: "no"
+    command: ["/usr/local/bin/secrets-init.sh"]
+    environment:
+      INFISICAL_TOKEN: ${INFISICAL_TOKEN:-}
+      INFISICAL_UNIVERSAL_AUTH_CLIENT_ID: ${INFISICAL_UNIVERSAL_AUTH_CLIENT_ID:-}
+      INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET: ${INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET:-}
+      INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
+      INFISICAL_ENV: ${INFISICAL_ENV:-prod}
+      INFISICAL_PATH: ${INFISICAL_PATH:-/machines/orchestrator}
+      NYRA_SECRETS_DIR: /run/nyra-secrets
+    volumes:
+      - nyra_secrets:/run/nyra-secrets
+    networks:
+      - nyra-network
+
   openclaw-gateway:
     build:
       context: ../../../services/openclaw
@@ -31,31 +50,43 @@ services:
         reservations:
           memory: 256m
 
-  # docker-mcp-toolkit:
-  #   image: docker/mcp-toolkit:latest
-  #   container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-docker-toolkit
-  #   profiles: ["apps"]
-  #   ports:
-  #     - "8811:8811"
-  #   environment:
-  #     MCP_PORT: 8811
-  #     DOCKER_HOST: unix:///var/run/docker.sock
-  #   volumes:
-  #     - /var/run/docker.sock:/var/run/docker.sock
-  #     - ../../../:/workspace
-  #     - nyra_secrets:/run/nyra-secrets:ro
-  #   depends_on:
-  #     secrets-init:
-  #       condition: service_completed_successfully
-  #   restart: unless-stopped
-  #   networks:
-  #     - nyra-network
-  #   deploy:
-  #     resources:
-  #       limits:
-  #         memory: 1g
-  #       reservations:
-  #         memory: 256m
+  docker-mcp-toolkit:
+    image: docker:29-cli
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-docker-toolkit
+    profiles: ["apps"]
+    ports:
+      - "${DOCKER_MCP_TOOLKIT_PORT:-8811}:8811"
+    environment:
+      DOCKER_MCP_IN_CONTAINER: "1"
+      MCP_PORT: "8811"
+      DOCKER_HOST: unix:///var/run/docker.sock
+      NEXUS_ROUTER_URL: ${NEXUS_ROUTER_URL:-http://oracle.trex-fiordland.ts.net:6000}
+    command:
+      - docker
+      - mcp
+      - gateway
+      - run
+      - --transport
+      - streaming
+      - --port
+      - "8811"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /usr/local/lib/docker/cli-plugins/docker-mcp:/usr/local/lib/docker/cli-plugins/docker-mcp:ro
+      - ../../../:/workspace
+      - nyra_secrets:/run/nyra-secrets:ro
+    depends_on:
+      secrets-init:
+        condition: service_started
+    restart: unless-stopped
+    networks:
+      - nyra-network
+    deploy:
+      resources:
+        limits:
+          memory: 1g
+        reservations:
+          memory: 256m
 
   postgres-client:
     image: postgres:16-alpine
@@ -73,60 +104,13 @@ services:
   # NOT defined in this main compose so it can be stopped/started without
   # affecting LiteLLM, Nexus, or Redis.
 
-  # ── Portainer CE Server (Central Management) ────────────────────────────
-  # The central UI/API for managing every Docker host through agents.
-  portainer:
-    image: portainer/portainer-ce:2.27.9
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-portainer
-    restart: unless-stopped
-    ports:
-      - "8000:8000"
-      - "9000:9000"
-      - "9443:9443"
-    volumes:
-      - portainer_data:/data
-      - /var/run/docker.sock:/var/run/docker.sock
-    networks:
-      - nyra-network
-    healthcheck:
-      test:
-        [
-          "CMD",
-          "wget",
-          "--quiet",
-          "--tries=1",
-          "--spider",
-          "http://localhost:9000",
-        ]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    deploy:
-      resources:
-        limits:
-          memory: 2g
-        reservations:
-          memory: 512m
-
-  # ── Syncthing ───────────────────────────────────────────────────────────
-  syncthing:
-    profiles: ["sync"]
-    image: syncthing/syncthing:latest
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-syncthing
-    network_mode: host
-    environment:
-      - PUID=1000
-      - PGID=1000
-    volumes:
-      - syncthing_config:/var/syncthing
-      - /home/ellisapotheosis:/var/syncthing/data/home
-    restart: unless-stopped
+  # Portainer CE and Syncthing are managed by docker-compose.persistent.yml
+  # (make persistent-up-orchestrator) and must never appear here.
 
 volumes:
   n8n_data:
   cf_secrets:
-  syncthing_config:
-  portainer_data:
+  nyra_secrets:
 
 networks:
   nyra-network:

@@ -3,9 +3,18 @@
 import React, { useEffect } from "react";
 import { Mail, MapPin, Phone, Star } from "lucide-react";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  Button,
+  Badge,
+} from "@nyra/ui";
 import { crmApi, type Lead, useApi } from "@/lib/api";
 import { StatusGate } from "@/components/status-gate";
+import { LeadManagementTable } from "@/components/leads/lead-management-table";
+import type { LeadRecord } from "@/lib/mock-data";
 
 function currency(value: number) {
   return new Intl.NumberFormat("en-US", {
@@ -23,15 +32,17 @@ export default function LeadsPage() {
   }, []);
 
   return (
-    <div className="space-y-6 p-8">
-      <div>
-        <h1 className="text-3xl font-semibold tracking-tight">
-          Lead Management
-        </h1>
-        <p className="mt-2 text-muted-foreground">
-          Unified lead view pulling the strongest layout ideas from the old
-          admin and CRM surfaces.
-        </p>
+    <div className="space-y-8">
+      <div className="flex items-end justify-between">
+        <div className="space-y-1">
+          <h1 className="text-3xl font-black tracking-tight">
+            Lead Management
+          </h1>
+          <p className="text-sm text-white/40 font-medium">
+            Unified mortgage pipeline operations pulling from legacy admin and
+            CRM sources.
+          </p>
+        </div>
       </div>
 
       <StatusGate
@@ -54,108 +65,57 @@ export default function LeadsPage() {
             leads.length > 0 ? Math.round(totalLoanAmount / leads.length) : 0;
 
           return (
-            <>
+            <div className="space-y-10">
               <div className="grid gap-4 md:grid-cols-3">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-sm text-muted-foreground">
-                      Total Leads
+                <Card variant="glass" className="bg-white/5 border-white/5">
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 px-6">
+                    <CardTitle className="text-[10px] font-bold uppercase tracking-widest text-white/40">
+                      Total Pipeline
                     </CardTitle>
                   </CardHeader>
-                  <CardContent className="text-3xl font-semibold">
-                    {leads.length}
+                  <CardContent className="px-6">
+                    <div className="text-2xl font-black text-white">
+                      {leads.length}
+                    </div>
+                    <p className="text-[10px] text-white/30 mt-1 font-medium uppercase tracking-wider">
+                      Active leads across all sources
+                    </p>
                   </CardContent>
                 </Card>
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-sm text-muted-foreground">
-                      Qualified
+                <Card variant="glass" className="bg-white/5 border-white/5">
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 px-6">
+                    <CardTitle className="text-[10px] font-bold uppercase tracking-widest text-white/40">
+                      Qualified Leads
                     </CardTitle>
                   </CardHeader>
-                  <CardContent className="text-3xl font-semibold">
-                    {qualifiedCount}
+                  <CardContent className="px-6">
+                    <div className="text-2xl font-black text-turquoise-400">
+                      {qualifiedCount}
+                    </div>
+                    <p className="text-[10px] text-white/30 mt-1 font-medium uppercase tracking-wider">
+                      Ready for document collection
+                    </p>
                   </CardContent>
                 </Card>
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-sm text-muted-foreground">
-                      Average Loan Size
+                <Card variant="glass" className="bg-white/5 border-white/5">
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 px-6">
+                    <CardTitle className="text-[10px] font-bold uppercase tracking-widest text-white/40">
+                      Average Ticket
                     </CardTitle>
                   </CardHeader>
-                  <CardContent className="text-3xl font-semibold">
-                    {currency(averageLoan / 10000)}
+                  <CardContent className="px-6">
+                    <div className="text-2xl font-black text-indigo-400">
+                      {currency(averageLoan / 10000)}
+                    </div>
+                    <p className="text-[10px] text-white/30 mt-1 font-medium uppercase tracking-wider">
+                      Mean loan value in process
+                    </p>
                   </CardContent>
                 </Card>
               </div>
 
-              <div className="grid gap-4">
-                {leads.map((lead: Lead) => (
-                  <Card key={lead.id} className="border-border/70 bg-card/80">
-                    <CardContent className="flex flex-col gap-4 p-5 lg:flex-row lg:items-center lg:justify-between">
-                      <div className="flex items-start gap-4">
-                        <div className="flex size-12 items-center justify-center rounded-full bg-primary/15 font-semibold text-primary">
-                          {lead.firstName?.[0] || lead.name?.[0] || "?"}
-                          {lead.lastName?.[0] || ""}
-                        </div>
-                        <div className="space-y-2">
-                          <div>
-                            <p className="text-lg font-semibold">
-                              {lead.firstName
-                                ? `${lead.firstName} ${lead.lastName}`
-                                : lead.name || "Unknown Lead"}
-                            </p>
-                            <p className="text-sm text-muted-foreground">
-                              {lead.loanPurpose || "General"} •{" "}
-                              {currency((lead.loanAmount || 0) / 10000)} •{" "}
-                              {lead.stage || "New"}
-                            </p>
-                          </div>
-                          <div className="flex flex-wrap gap-3 text-sm text-muted-foreground">
-                            {lead.email && (
-                              <span className="inline-flex items-center gap-1">
-                                <Mail className="size-4" />
-                                {lead.email}
-                              </span>
-                            )}
-                            {lead.phone && (
-                              <span className="inline-flex items-center gap-1">
-                                <Phone className="size-4" />
-                                {lead.phone}
-                              </span>
-                            )}
-                            {lead.location && (
-                              <span className="inline-flex items-center gap-1">
-                                <MapPin className="size-4" />
-                                {lead.location}
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                      <div className="grid gap-2 text-sm lg:text-right">
-                        {lead.creditBand && (
-                          <span className="inline-flex items-center gap-1 text-primary">
-                            <Star className="size-4" />
-                            {lead.creditBand} credit band
-                          </span>
-                        )}
-                        <p className="text-muted-foreground">
-                          Campaign: {lead.campaignId || "None"}
-                        </p>
-                        <p className="text-muted-foreground">
-                          Source: {lead.source || "Unknown"}
-                        </p>
-                        {lead.nextTouch && (
-                          <p className="text-muted-foreground">
-                            Next touch: {lead.nextTouch}
-                          </p>
-                        )}
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </>
+              <LeadManagementTable leads={leads as unknown as LeadRecord[]} />
+            </div>
           );
         }}
       </StatusGate>

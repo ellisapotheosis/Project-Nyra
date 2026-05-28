@@ -41,9 +41,16 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
-import { crmApi, type Lead, useApi } from "@/lib/api";
+import { crmApi, openClawApi, type Lead, useApi } from "@/lib/api";
 import { StatusGate } from "@/components/status-gate";
-import { WingmanPanel } from "@/components/assistant/wingman-panel";
+import {
+  type AssistantAuditEvent,
+  WingmanPanel,
+} from "@/components/assistant/wingman-panel";
+import {
+  ProposedActionCard,
+  type ProposedAction,
+} from "@/components/assistant/proposed-action-card";
 import { cn } from "@/lib/utils";
 
 interface Message {
@@ -68,10 +75,11 @@ export default function AssistantPage() {
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const [selectedLeadId, setSelectedLeadId] = useState<string | null>(null);
+  const [proposedActions, setProposedActions] = useState<ProposedAction[]>([]);
+  const [auditEvents, setAuditEvents] = useState<AssistantAuditEvent[]>([]);
 
   const leadsApi = useApi(crmApi.getLeads);
   const timelineApi = useApi(crmApi.getLeadConversation);
-  const campaignUpdateApi = useApi(crmApi.updateLeadCampaign);
 
   const leads = leadsApi.data?.leads || [];
   const selectedLead = leads.find((l: Lead) => l.id === selectedLeadId);
@@ -115,19 +123,12 @@ export default function AssistantPage() {
     setIsTyping(true);
 
     try {
-      const response = await fetch("/api/internal/openclaw/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          messages: messages.concat(userMessage).map((m) => ({
-            role: m.role,
-            content: m.content,
-          })),
-        }),
-      });
-
-      if (!response.ok) throw new Error("Chat request failed");
-      const data = await response.json();
+      const data = await openClawApi.chat(
+        messages.concat(userMessage).map((m) => ({
+          role: m.role,
+          content: m.content,
+        }))
+      );
 
       setMessages((prev) => [
         ...prev,
@@ -156,11 +157,70 @@ export default function AssistantPage() {
     }
   };
 
+  const queueProposedAction = (
+    action: Omit<ProposedAction, "id" | "auditEventId">
+  ) => {
+    const actionId = `tool-${Date.now()}`;
+    const auditEventId = `audit-${actionId}`;
+    setProposedActions((prev) => [
+      ...prev,
+      {
+        ...action,
+        id: actionId,
+        auditEventId,
+      },
+    ]);
+    setMessages((prev) => [
+      ...prev,
+      {
+        id: `message-${actionId}`,
+        role: "assistant",
+        content: `Prepared ${action.title}. Approval is required before ${action.toolName} can execute.`,
+        timestamp: new Date(),
+        model: "assistant-service policy",
+      },
+    ]);
+  };
+
+  const recordActionDecision = (
+    actionId: string,
+    decision: AssistantAuditEvent["decision"]
+  ) => {
+    const action = proposedActions.find((item) => item.id === actionId);
+    if (!action) {
+      return;
+    }
+
+    const event: AssistantAuditEvent = {
+      id: action.auditEventId,
+      actionId,
+      toolName: action.toolName,
+      decision,
+      actor: "SYSTEM_BROKER",
+      timestamp: new Date().toISOString(),
+    };
+    setAuditEvents((prev) => [event, ...prev]);
+    setProposedActions((prev) => prev.filter((item) => item.id !== actionId));
+    void handleSend(
+      `${decision === "APPROVED" ? "Approved" : "Rejected"} audited tool request ${action.toolName} with audit event ${action.auditEventId}.`
+    );
+  };
+
   const actionChips = [
     {
       label: "Draft Quote",
       icon: <FileText className="h-3 w-3 mr-1" />,
-      action: () => handleSend("Draft a primary scenario quote."),
+      action: () =>
+        queueProposedAction({
+          type: "quote",
+          title: "Draft Primary Quote",
+          description:
+            "Generate a deterministic quote draft for broker review. Delivery to a borrower remains blocked until explicit approval.",
+          preview: "Three-option scenario with assumptions and expiration.",
+          toolName: "quote.generate",
+          risk: "INTERNAL_MUTATION",
+          metadata: { leadId: selectedLeadId },
+        }),
     },
     {
       label: "Timeline Summary",
@@ -346,18 +406,33 @@ export default function AssistantPage() {
 
           <CardFooter className="p-6 bg-muted/20 border-t border-border/20 flex flex-col gap-6 shrink-0">
             {selectedLeadId && (
-              <div className="flex flex-wrap gap-2 justify-center">
-                {actionChips.map((chip, i) => (
-                  <Button
-                    key={i}
-                    variant="outline"
-                    size="sm"
-                    className="h-8 border-border/60 bg-background/50 hover:bg-indigo-500/10 hover:text-indigo-400 hover:border-indigo-500/30 text-[10px] font-bold uppercase tracking-widest rounded-full px-4"
-                    onClick={chip.action}
-                  >
-                    {chip.icon} {chip.label}
-                  </Button>
-                ))}
+              <div className="w-full space-y-3">
+                {proposedActions.length > 0 && (
+                  <div className="grid gap-3 md:grid-cols-2">
+                    {proposedActions.map((action) => (
+                      <ProposedActionCard
+                        key={action.id}
+                        action={action}
+                        onApprove={(id) => recordActionDecision(id, "APPROVED")}
+                        onReject={(id) => recordActionDecision(id, "REJECTED")}
+                        isProcessing={isTyping}
+                      />
+                    ))}
+                  </div>
+                )}
+                <div className="flex flex-wrap gap-2 justify-center">
+                  {actionChips.map((chip, i) => (
+                    <Button
+                      key={i}
+                      variant="outline"
+                      size="sm"
+                      className="h-8 border-border/60 bg-background/50 hover:bg-indigo-500/10 hover:text-indigo-400 hover:border-indigo-500/30 text-[10px] font-bold uppercase tracking-widest rounded-full px-4"
+                      onClick={chip.action}
+                    >
+                      {chip.icon} {chip.label}
+                    </Button>
+                  ))}
+                </div>
               </div>
             )}
             <form
@@ -392,7 +467,7 @@ export default function AssistantPage() {
 
       {/* Right Column: Wingman Panel */}
       <div className="w-[340px] shrink-0 h-full">
-        <WingmanPanel />
+        <WingmanPanel auditEvents={auditEvents} />
       </div>
     </div>
   );

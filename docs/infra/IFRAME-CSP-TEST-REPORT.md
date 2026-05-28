@@ -36,7 +36,7 @@ Header checks from this WSL session were limited by DNS/timeouts. The registry t
 | Links                        | https://links.projectnyra.com            | unknown         | unknown         | required                | unknown-test-required | Sensitive surface                           |
 | Linkwarden                   | https://linkwarden.projectnyra.com       | unknown         | unknown         | required                | unknown-test-required | Sensitive surface                           |
 | N8N                          | https://n8n.projectnyra.com              | unknown         | unknown         | required                | link-first            | Sensitive surface                           |
-| Paperclip                    | https://paperclip.projectnyra.com        | unknown         | unknown         | required                | unknown-test-required | Sensitive surface                           |
+| Gastown                      | https://gastown.projectnyra.com          | unknown         | unknown         | required                | unknown-test-required | Sensitive surface                           |
 | Worker RTX3090Ti OpenClaw UI | https://claw-3090.projectnyra.com        | unknown         | unknown         | required                | link-first            | Sensitive surface                           |
 | Worker RTX5090 OpenClaw UI   | https://claw-5090.projectnyra.com        | unknown         | unknown         | required                | link-first            | Sensitive surface                           |
 | Worker RTX3060 Nerve UI      | https://nerve-3060.projectnyra.com       | unknown         | unknown         | required                | link-first            | Sensitive surface                           |

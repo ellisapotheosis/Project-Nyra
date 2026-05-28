@@ -5,7 +5,15 @@ alias dl='aria2c -x16 -s16 -k1M -c'
 alias cx='chmod +x'
 alias nyra='cd ~/repos/project-nyra'
 alias infis='infisical run --projectId="${INFISICAL_PROJECT_ID:-}" --env="${INFISICAL_ENV:-dev}" --path="${INFISICAL_FOLDER_PATH:-/shared}" -- '
-alias claude-yolo='claude --dangerously-skip-permissions'
+# claude: --yolo flag translates to --dangerously-skip-permissions
+claude() {
+  local args=()
+  for arg in "$@"; do
+    [[ "$arg" == "--yolo" ]] && arg="--dangerously-skip-permissions"
+    args+=("$arg")
+  done
+  command claude "${args[@]}"
+}
 alias warp='warp.exe .'
 alias agy='antigravity.exe .'
 alias antigravity='antigravity.exe .'

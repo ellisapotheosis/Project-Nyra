@@ -23,6 +23,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getCrmWorkspaceData, type WorkspaceData } from "@/lib/crm-data";
 import { cn } from "@/lib/utils";
 
+export const dynamic = "force-dynamic";
+
 function currency(value: number) {
   return new Intl.NumberFormat("en-US", {
     style: "currency",
@@ -69,8 +71,14 @@ function getCampaignCounts(leads: WorkspaceData["leads"]) {
 }
 
 export default async function CrmPage() {
-  const { leads, applications, crmOverview, recentActivity, source } =
-    await getCrmWorkspaceData();
+  const {
+    leads,
+    applications,
+    crmOverview,
+    recentActivity,
+    operations,
+    source,
+  } = await getCrmWorkspaceData();
   const pipelineValue = applications.reduce(
     (sum, application) => sum + application.amount,
     0
@@ -267,6 +275,97 @@ export default async function CrmPage() {
               >
                 <Activity className="mt-0.5 size-4 shrink-0 text-primary" />
                 <p className="text-sm text-muted-foreground">{activity}</p>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      </section>
+
+      <section className="grid gap-6 xl:grid-cols-[0.95fr_1.05fr]">
+        <Card className="border-border/70 bg-card/90 shadow-sm">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <ShieldCheck className="size-5 text-primary" />
+              Broker Action Queue
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {operations.nextBestActions.length ? (
+              operations.nextBestActions.map((item) => (
+                <Link
+                  key={item.id}
+                  href={item.href}
+                  className="flex items-center justify-between gap-3 rounded-xl border border-border/60 bg-background/50 p-3 transition hover:border-primary/40 hover:bg-background"
+                >
+                  <div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <p className="font-medium">{item.title}</p>
+                      <Badge
+                        variant={
+                          item.severity === "high" ? "destructive" : "outline"
+                        }
+                      >
+                        {item.action}
+                      </Badge>
+                    </div>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      {item.detail}
+                    </p>
+                  </div>
+                  <ArrowRight className="size-4 shrink-0 text-muted-foreground" />
+                </Link>
+              ))
+            ) : (
+              <p className="rounded-xl border border-border/60 bg-background/50 p-4 text-sm text-muted-foreground">
+                No broker action queue items are pending from the current CRM
+                data source.
+              </p>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card className="border-border/70 bg-card/90 shadow-sm">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Workflow className="size-5 text-primary" />
+              CRM Control Gates
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="grid gap-3 sm:grid-cols-3 xl:grid-cols-1">
+            {[
+              {
+                label: "Compliance",
+                value: operations.complianceQueue.length,
+                detail: "contact or consent checks",
+              },
+              {
+                label: "Campaign Review",
+                value: operations.campaignReviewQueue.length,
+                detail: "paused or reply-driven reviews",
+              },
+              {
+                label: "Quote Queue",
+                value: operations.quoteQueue.length,
+                detail: "qualified files needing quote attention",
+              },
+            ].map((item) => (
+              <div
+                key={item.label}
+                className="rounded-xl border border-border/60 bg-background/50 p-4"
+              >
+                <p className="text-sm text-muted-foreground">{item.label}</p>
+                <p className="mt-2 text-2xl font-semibold">{item.value}</p>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {item.detail}
+                </p>
+              </div>
+            ))}
+            {operations.syncWarnings.map((warning) => (
+              <div
+                key={warning}
+                className="rounded-xl border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive"
+              >
+                {warning}
               </div>
             ))}
           </CardContent>

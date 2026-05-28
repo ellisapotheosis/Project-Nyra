@@ -5,6 +5,7 @@ import {
   type ApplicationRecord,
   type LeadRecord,
 } from "@/lib/mock-data";
+import { NYRA_ENABLE_MOCKS } from "@/lib/api/config";
 
 type CrmOverview = typeof mockCrmOverview;
 
@@ -13,8 +14,28 @@ export type WorkspaceData = {
   applications: ApplicationRecord[];
   crmOverview: CrmOverview;
   recentActivity: string[];
+  operations: CrmOperations;
   source: "mock" | "crm-api" | "twenty-mcp" | "twenty-graphql";
 };
+
+export type CrmQueueItem = {
+  id: string;
+  title: string;
+  detail: string;
+  href: string;
+  action: string;
+  severity: "low" | "medium" | "high";
+};
+
+export type CrmOperations = {
+  complianceQueue: CrmQueueItem[];
+  campaignReviewQueue: CrmQueueItem[];
+  quoteQueue: CrmQueueItem[];
+  nextBestActions: CrmQueueItem[];
+  syncWarnings: string[];
+};
+
+type WorkspaceDataSource = WorkspaceData["source"];
 
 const CRM_API_URL = process.env.CRM_API_URL;
 const CRM_API_KEY = process.env.CRM_API_KEY;
@@ -302,6 +323,105 @@ function buildRecentActivity(
   return [...leadActivity, ...applicationActivity].slice(0, 6);
 }
 
+function fullName(lead: LeadRecord) {
+  return `${lead.firstName} ${lead.lastName}`.trim() || "Unknown borrower";
+}
+
+function isPausedCampaign(status: string) {
+  return ["PAUSED", "PAUSED_BY_REPLY", "BROKER_REVIEW", "Paused"].includes(
+    status
+  );
+}
+
+function needsQuoteReview(lead: LeadRecord) {
+  return ["Qualified", "Application", "Pre-approval"].includes(lead.stage);
+}
+
+export function buildCrmOperations(
+  leads: LeadRecord[],
+  applications: ApplicationRecord[],
+  source: WorkspaceDataSource
+): CrmOperations {
+  const complianceQueue = leads
+    .filter((lead) => {
+      const missingPhone = !lead.phone || lead.phone === "Unavailable";
+      const missingEmail = !lead.email || lead.email === "unknown@example.com";
+      const activeCampaign = lead.campaignStatus === "ACTIVE";
+
+      return activeCampaign && (missingPhone || missingEmail);
+    })
+    .slice(0, 5)
+    .map((lead) => ({
+      id: `compliance-${lead.id}`,
+      title: fullName(lead),
+      detail: "Active outreach needs contact/consent verification.",
+      href: `/leads/${lead.id}`,
+      action: "Verify lead",
+      severity: "high" as const,
+    }));
+
+  const campaignReviewQueue = leads
+    .filter(
+      (lead) =>
+        isPausedCampaign(lead.campaignStatus) ||
+        lead.nextTouch.toLowerCase().includes("review")
+    )
+    .slice(0, 5)
+    .map((lead) => ({
+      id: `campaign-${lead.id}`,
+      title: fullName(lead),
+      detail: `${lead.campaignStatus} on ${lead.campaignId}`,
+      href: `/leads/${lead.id}`,
+      action: "Review campaign",
+      severity: "medium" as const,
+    }));
+
+  const quoteQueue = leads
+    .filter(needsQuoteReview)
+    .slice(0, 5)
+    .map((lead) => ({
+      id: `quote-${lead.id}`,
+      title: fullName(lead),
+      detail: `${lead.loanPurpose} request for ${lead.loanAmount.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 })}`,
+      href: `/leads/${lead.id}`,
+      action: "Open quote panel",
+      severity: "low" as const,
+    }));
+
+  const nextBestActions = [
+    ...campaignReviewQueue,
+    ...quoteQueue,
+    ...leads
+      .filter((lead) => lead.stage === "New")
+      .slice(0, 3)
+      .map((lead) => ({
+        id: `new-${lead.id}`,
+        title: fullName(lead),
+        detail: `${lead.source} lead waiting for first qualification touch.`,
+        href: `/leads/${lead.id}`,
+        action: "Qualify lead",
+        severity: "medium" as const,
+      })),
+  ].slice(0, 6);
+
+  const syncWarnings = [
+    source === "mock"
+      ? "CRM workspace is using mock fallback data; enable live CRM credentials for production."
+      : null,
+    source === "twenty-mcp" && applications.length === 0
+      ? "Twenty MCP returned leads only; application/file data is unavailable."
+      : null,
+  ].filter((warning): warning is string => Boolean(warning));
+
+  return {
+    complianceQueue,
+    campaignReviewQueue,
+    quoteQueue,
+    nextBestActions,
+    syncWarnings,
+  };
+}
+
 async function fetchJson<T>(input: string, init?: RequestInit): Promise<T> {
   const response = await fetch(input, {
     ...init,
@@ -353,6 +473,7 @@ async function fetchFromCrmApi(): Promise<WorkspaceData | null> {
       applications,
       crmOverview: buildOverview(leads, applications),
       recentActivity: buildRecentActivity(leads, applications),
+      operations: buildCrmOperations(leads, applications, "crm-api"),
       source: "crm-api",
     };
   } catch {
@@ -388,6 +509,7 @@ async function fetchFromTwentyMcp(): Promise<WorkspaceData | null> {
       applications: [],
       crmOverview: buildOverview(leads, []),
       recentActivity: buildRecentActivity(leads, []),
+      operations: buildCrmOperations(leads, [], "twenty-mcp"),
       source: "twenty-mcp",
     };
   } catch {
@@ -478,6 +600,7 @@ async function fetchFromTwentyGraphQl(): Promise<WorkspaceData | null> {
     applications,
     crmOverview: buildOverview(leads, applications),
     recentActivity: buildRecentActivity(leads, applications),
+    operations: buildCrmOperations(leads, applications, "twenty-graphql"),
     source: "twenty-graphql",
   };
 }
@@ -498,11 +621,18 @@ export async function getCrmWorkspaceData(): Promise<WorkspaceData> {
     return twentyGraphQl;
   }
 
+  if (!NYRA_ENABLE_MOCKS) {
+    throw new Error(
+      "CRM workspace data unavailable and NYRA_ENABLE_MOCKS is not enabled"
+    );
+  }
+
   return {
     leads: mockLeads,
     applications: mockApplications,
     crmOverview: mockCrmOverview,
     recentActivity: buildRecentActivity(mockLeads, mockApplications),
+    operations: buildCrmOperations(mockLeads, mockApplications, "mock"),
     source: "mock",
   };
 }

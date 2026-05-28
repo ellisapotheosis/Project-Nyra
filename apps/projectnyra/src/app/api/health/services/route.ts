@@ -1,28 +1,11 @@
 import { NextResponse } from "next/server";
 
-import {
-  canUseMockFallback,
-  getMissingProductionServiceConfig,
-  getServiceDependencyStatus,
-  NYRA_IS_PRODUCTION,
-} from "@/lib/api/config";
+import { getIntegrationHealthSnapshot } from "@/lib/api/integrationHealth";
 
-export function GET() {
-  const dependencies = getServiceDependencyStatus();
-  const missingProductionConfig = getMissingProductionServiceConfig();
-  const ready =
-    !NYRA_IS_PRODUCTION ||
-    canUseMockFallback() ||
-    missingProductionConfig.length === 0;
+export const dynamic = "force-dynamic";
 
-  return NextResponse.json(
-    {
-      ready,
-      production: NYRA_IS_PRODUCTION,
-      mocksEnabled: canUseMockFallback(),
-      dependencies,
-      missingProductionConfig,
-    },
-    { status: ready ? 200 : 503 }
-  );
+export async function GET() {
+  const snapshot = await getIntegrationHealthSnapshot();
+
+  return NextResponse.json(snapshot, { status: snapshot.ready ? 200 : 503 });
 }

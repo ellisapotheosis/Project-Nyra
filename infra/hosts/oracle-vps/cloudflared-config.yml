@@ -70,8 +70,8 @@ ingress:
   - hostname: clawteam.projectnyra.com
     service: http://clawteam:8080
 
-  - hostname: paperclip.projectnyra.com
-    service: http://paperclip:3100
+  - hostname: gastown.projectnyra.com
+    service: http://gastown:8080
 
   - hostname: letta.projectnyra.com
     service: http://oracle.trex-fiordland.ts.net:8283

@@ -5,9 +5,31 @@ set -e
 POLL_INTERVAL="${INFISICAL_POLL_INTERVAL:-300s}"
 echo "[Infisical Agent] Starting live-rotation sidecar (interval: ${POLL_INTERVAL})"
 
+resolve_infisical_token() {
+  if [ -n "${INFISICAL_TOKEN:-}" ]; then
+    printf '%s' "$INFISICAL_TOKEN"
+    return 0
+  fi
+
+  if [ -n "${INFISICAL_UNIVERSAL_AUTH_CLIENT_ID:-}" ] && [ -n "${INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET:-}" ]; then
+    infisical login \
+      --method=universal-auth \
+      --client-id="$INFISICAL_UNIVERSAL_AUTH_CLIENT_ID" \
+      --client-secret="$INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET" \
+      --silent \
+      --plain
+    return 0
+  fi
+
+  echo "[Infisical Agent] WARNING: set INFISICAL_TOKEN or INFISICAL_UNIVERSAL_AUTH_CLIENT_ID/INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET"
+  return 1
+}
+
 refresh_secrets() {
+  INFISICAL_RESOLVED_TOKEN="$(resolve_infisical_token)" || return 1
+
   infisical export \
-    --token="$INFISICAL_TOKEN" \
+    --token="$INFISICAL_RESOLVED_TOKEN" \
     --projectId="$INFISICAL_PROJECT_ID" \
     --env="$INFISICAL_ENV" \
     --path="$INFISICAL_PATH" \

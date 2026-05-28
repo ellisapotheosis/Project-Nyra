@@ -1,93 +1,96 @@
-# Nyra Admin Dashboard - Master Build Guide
+# Nyra Web Application - Master Build Guide
 
-> **Consolidated from archived content, UI examples, and project requirements**
+> \\\*\\\*Borrower-facing mortgage application platform\\\*\\\*
+> \\\*\\\*Consolidated from archived ratehunter and mortgage-ui content\\\*\\\*
 
 ## 🎯 **MISSION STATEMENT**
 
-Build the primary operational interface for Project Nyra mortgage operations, integrating with TwentyCRM, Nexus Router, Quote Engine, and compliance systems.
+Build the primary borrower-facing application for mortgage applications, document management, real-time quotes, and loan processing workflows with full compliance integration.
 
-**Port**: 3008 (to avoid conflicts with landing:3001, webapp:3000)
-**Stack**: Next.js 15 + shadcn/ui + magicUI + TypeScript + Tailwind
+**Port**: 3000 (main borrower interface)
+**Stack**: Next.js 15 + React 19 + shadcn/ui + TypeScript + Tailwind
+**Target Users**: Mortgage borrowers, applicants, existing customers
 
----
+\---
 
 ## 📋 **COMPLETE FEATURE SPECIFICATION**
 
-### **Core Pages & Routes**
+### **Core Application Flow**
 
-#### 1. **Dashboard** (`/`)
-- **Lead metrics overview**
-  - Daily/weekly/monthly lead counts
-  - Conversion funnel visualization
-  - Pipeline value tracking
-- **Campaign performance**
-  - Active campaigns status
-  - Response rates and ROI
-- **Quote activity**
-  - Recent quotes generated
-  - Rate change alerts
-- **System health**
-  - Service status indicators
-  - Error rate monitoring
+#### 1\. **Application Portal** (`/apply`)
 
-#### 2. **Lead Management** (`/leads`)
-- **Lead grid** with filtering and sorting
-  - Source tracking (ratehunter, referral, etc.)
-  - Lead scoring visualization
-  - Contact attempts history
-  - Status progression timeline
-- **Lead detail view** with full contact history
-- **Bulk actions** (assign, tag, export)
-- **TwentyCRM sync** status and manual refresh
+- **Loan application wizard** with progressive disclosure
+- **1003 form integration** with auto-save and validation
+- **Real-time eligibility** checking and pre-qualification
+- **Loan program selection** (Conventional, FHA, VA, USDA)
+- **Rate lock interface** with expiration countdown
+- **Application status tracking** with visual timeline
 
-#### 3. **Quote Desk** (`/quotes`)
-- **Rate matrix** with live updates
-- **Quote builder** with loan scenarios
-  - Conventional, FHA, VA, USDA options
-  - HELOC and refinance calculators
-  - Compliance disclosure generation
-- **Quote history** and comparison tools
-- **Rate lock tracking** and expiration alerts
+#### 2\. **Document Center** (`/documents`)
 
-#### 4. **Campaign Builder** (`/campaigns`)
-- **Visual workflow editor** (connects to n8n)
-- **Email/SMS template management**
-- **Drip campaign sequencing**
-- **A/B test setup** and results
-- **Compliance review** before deployment
+- **Document upload interface** with drag-and-drop
+- **OCR processing** for automatic data extraction
+- **Document verification** status and requirements
+- **Secure document viewing** with watermarking
+- **E-signature integration** for disclosures and forms
+- **Compliance document** delivery and acknowledgment
 
-#### 5. **Embedded Chat** (`/chat`)
-- **Dify iframe integration** for live chat
-- **Chat history** and lead assignment
-- **Conversation transcripts** with compliance tags
-- **AI response suggestions** based on context
+#### 3\. **Quote Center** (`/quotes`)
 
-#### 6. **Audit & Compliance** (`/audit`)
-- **Full audit trail** of all operations
-- **TILA/RESPA compliance** tracking
-- **Document delivery logs**
-- **Consent management** and opt-out handling
-- **Regulatory reporting** export tools
+- **Interactive rate calculator** with loan scenarios
+- **Real-time rate updates** via WebSocket
+- **Loan comparison tools** with side-by-side analysis
+- **Payment calculator** with taxes, insurance, PMI
+- **Rate history charts** and trend analysis
+- **Quote sharing** via email and PDF export
 
----
+#### 4\. **Dashboard** (`/dashboard`)
+
+- **Application progress** overview with next steps
+- **Document checklist** with completion status
+- **Communication history** with loan team
+- **Important dates** and deadline tracking
+- **Rate alert notifications** and market updates
+- **Loan timeline** with milestone tracking
+
+#### 5\. **Communication Hub** (`/messages`)
+
+- **Secure messaging** with loan officers
+- **Video call scheduling** and integration
+- **Document sharing** within conversations
+- **Automated notifications** and reminders
+- **FAQ chatbot** with mortgage-specific knowledge
+- **Escalation workflows** for urgent requests
+
+#### 6\. **Account Management** (`/account`)
+
+- **Personal information** management
+- **Contact preferences** and communication settings
+- **Document access history** and audit trail
+- **Privacy settings** and consent management
+- **Account security** with 2FA options
+- **Data export** and deletion requests (CCPA)
+
+\---
 
 ## 🏗️ **TECHNICAL ARCHITECTURE**
 
-### **Package.json (Complete)**
+### **Package.json (From Archived Structures)**
+
 ```json
 {
-  "name": "nyra-admin",
+  "name": "nyra-webapp",
   "private": true,
-  "version": "0.1.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "next dev -p 3008",
+    "dev": "next dev -p 3000",
     "build": "next build",
-    "start": "next start -p 3008",
+    "start": "next start -p 3000",
     "lint": "next lint",
     "type-check": "tsc --noEmit",
     "test": "jest",
-    "test:watch": "jest --watch"
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "next": "15.5.10",
@@ -97,15 +100,21 @@ Build the primary operational interface for Project Nyra mortgage operations, in
     "@tanstack/react-table": "^8.11.0",
     "react-hook-form": "^7.48.0",
     "@hookform/resolvers": "^3.3.0",
+    "react-dropzone": "^14.2.0",
+    "react-pdf": "^7.6.0",
+    "socket.io-client": "^4.7.0",
     "zod": "3.23.8",
     "clsx": "2.1.1",
     "tailwind-merge": "2.5.2",
     "lucide-react": "0.427.0",
     "date-fns": "^3.0.0",
     "recharts": "^2.10.0",
-    "@radix-ui/react-toast": "^1.1.0",
-    "@radix-ui/react-dialog": "^1.0.0",
-    "@radix-ui/react-dropdown-menu": "^2.0.0"
+    "framer-motion": "^11.0.0",
+    "@radix-ui/react-progress": "^1.0.0",
+    "@radix-ui/react-tabs": "^1.0.0",
+    "react-signature-canvas": "^1.0.0",
+    "html2canvas": "^1.4.0",
+    "jspdf": "^2.5.0"
   },
   "devDependencies": {
     "@types/node": "20.14.10",
@@ -115,355 +124,575 @@ Build the primary operational interface for Project Nyra mortgage operations, in
     "tailwindcss": "3.4.7",
     "postcss": "8.4.40",
     "autoprefixer": "10.4.19",
-    "@types/jest": "^29.5.0",
-    "jest": "^29.7.0",
-    "jest-environment-jsdom": "^29.7.0"
+    "@playwright/test": "^1.40.0",
+    "jest": "^29.7.0"
   }
 }
 ```
 
 ### **File Structure (Complete)**
+
 ```
-apps/admin/
+apps/projectnyra/
 ├── app/
-│   ├── layout.tsx                 # Root layout with navigation
-│   ├── page.tsx                   # Dashboard overview
-│   ├── leads/
-│   │   ├── page.tsx               # Lead grid view
-│   │   ├── [id]/
-│   │   │   └── page.tsx           # Lead detail view
+│   ├── layout.tsx                 # Root layout with auth
+│   ├── page.tsx                   # Public homepage
+│   ├── auth/
+│   │   ├── login/page.tsx         # Borrower authentication
+│   │   ├── register/page.tsx      # Account creation
+│   │   └── verify/page.tsx        # Email/phone verification
+│   ├── dashboard/
+│   │   ├── page.tsx               # Borrower dashboard
 │   │   └── components/
-│   │       ├── LeadGrid.tsx       # Data table with filtering
-│   │       ├── LeadFilters.tsx    # Search and filter controls
-│   │       ├── LeadDetail.tsx     # Full lead information
-│   │       └── LeadActions.tsx    # Bulk action toolbar
+│   │       ├── ProgressTracker.tsx # Application progress
+│   │       ├── DeadlineAlerts.tsx  # Important dates
+│   │       ├── QuickActions.tsx    # Common tasks
+│   │       └── RecentActivity.tsx  # Activity timeline
+│   ├── apply/
+│   │   ├── page.tsx               # Application wizard start
+│   │   ├── personal/page.tsx      # Personal information
+│   │   ├── employment/page.tsx    # Employment details
+│   │   ├── assets/page.tsx        # Assets and income
+│   │   ├── property/page.tsx      # Property information
+│   │   ├── review/page.tsx        # Application review
+│   │   └── components/
+│   │       ├── ApplicationWizard.tsx # Multi-step form
+│   │       ├── FormSection.tsx     # Reusable form sections
+│   │       ├── ProgressBar.tsx     # Wizard progress
+│   │       ├── AutoSave.tsx        # Auto-save functionality
+│   │       └── ValidationSummary.tsx # Error display
+│   ├── documents/
+│   │   ├── page.tsx               # Document center main
+│   │   ├── upload/page.tsx        # Document upload interface
+│   │   ├── \\\[docId]/page.tsx       # Document viewer
+│   │   └── components/
+│   │       ├── DocumentGrid.tsx    # Document list/grid
+│   │       ├── UploadZone.tsx      # Drag-and-drop upload
+│   │       ├── DocumentViewer.tsx  # PDF/image viewer
+│   │       ├── OCRProcessor.tsx    # Auto data extraction
+│   │       ├── ESignature.tsx      # Electronic signatures
+│   │       └── ComplianceCheck.tsx # Document validation
 │   ├── quotes/
-│   │   ├── page.tsx               # Quote desk main view
-│   │   ├── builder/
-│   │   │   └── page.tsx           # Quote builder form
+│   │   ├── page.tsx               # Quote center main
+│   │   ├── calculator/page.tsx    # Interactive calculator
+│   │   ├── comparison/page.tsx    # Loan comparison tool
 │   │   └── components/
-│   │       ├── RateMatrix.tsx     # Live rates display
-│   │       ├── QuoteForm.tsx      # Loan scenario builder
-│   │       ├── ComplianceCheck.tsx # TILA/RESPA validation
-│   │       └── QuoteHistory.tsx   # Historical quotes
-│   ├── campaigns/
-│   │   ├── page.tsx               # Campaign list view
-│   │   ├── builder/
-│   │   │   └── page.tsx           # Visual workflow editor
-│   │   ├── [id]/
-│   │   │   └── page.tsx           # Campaign detail/edit
+│   │       ├── RateCalculator.tsx  # Loan calculator
+│   │       ├── RateChart.tsx       # Rate history visualization
+│   │       ├── LoanComparison.tsx  # Side-by-side comparison
+│   │       ├── PaymentBreakdown.tsx # Payment details
+│   │       ├── RateLock.tsx        # Rate locking interface
+│   │       └── QuoteExport.tsx     # PDF quote generation
+│   ├── messages/
+│   │   ├── page.tsx               # Message center
+│   │   ├── \\\[conversationId]/page.tsx # Conversation view
 │   │   └── components/
-│   │       ├── CampaignGrid.tsx   # Campaign list with metrics
-│   │       ├── WorkflowEditor.tsx # n8n integration interface
-│   │       ├── TemplateEditor.tsx # Email/SMS templates
-│   │       └── ABTestSetup.tsx    # A/B testing configuration
-│   ├── chat/
-│   │   ├── page.tsx               # Embedded Dify interface
+│   │       ├── MessageList.tsx     # Conversation list
+│   │       ├── ChatInterface.tsx   # Real-time chat
+│   │       ├── VideoCall.tsx       # Video integration
+│   │       ├── FileSharing.tsx     # Document sharing
+│   │       └── ChatBot.tsx         # AI assistant
+│   ├── account/
+│   │   ├── page.tsx               # Account overview
+│   │   ├── profile/page.tsx       # Personal information
+│   │   ├── security/page.tsx      # Security settings
+│   │   ├── privacy/page.tsx       # Privacy preferences
 │   │   └── components/
-│   │       ├── ChatEmbed.tsx      # Dify iframe wrapper
-│   │       ├── ChatHistory.tsx    # Conversation archives
-│   │       └── ChatActions.tsx    # Lead assignment tools
-│   ├── audit/
-│   │   ├── page.tsx               # Audit log viewer
-│   │   └── components/
-│   │       ├── AuditLog.tsx       # Searchable activity log
-│   │       ├── ComplianceReport.tsx # Regulatory reports
-│   │       └── ConsentTracker.tsx # Consent management
+│   │       ├── ProfileForm.tsx     # Profile editing
+│   │       ├── SecuritySettings.tsx # 2FA and passwords
+│   │       ├── ConsentManager.tsx  # Privacy controls
+│   │       └── DataExport.tsx      # CCPA compliance
 │   └── api/
-│       ├── leads/                 # Lead API endpoints
-│       ├── quotes/                # Quote API endpoints
-│       ├── campaigns/             # Campaign API endpoints
-│       └── auth/                  # Authentication endpoints
+│       ├── auth/                  # Authentication endpoints
+│       ├── application/           # Application APIs
+│       ├── documents/             # Document management
+│       ├── quotes/                # Quote generation
+│       ├── messages/              # Communication APIs
+│       └── account/               # Account management
 ├── components/
-│   ├── ui/                        # shadcn/ui components
-│   │   ├── button.tsx
-│   │   ├── card.tsx
-│   │   ├── table.tsx
-│   │   ├── form.tsx
-│   │   ├── dialog.tsx
-│   │   ├── toast.tsx
-│   │   └── data-table.tsx         # Reusable data table
+│   ├── ui/                        # shadcn/ui base components
+│   ├── forms/
+│   │   ├── FormField.tsx          # Reusable form fields
+│   │   ├── AddressInput.tsx       # Address autocomplete
+│   │   ├── PhoneInput.tsx         # Phone number formatting
+│   │   ├── SSNInput.tsx           # Secure SSN input
+│   │   ├── IncomeInput.tsx        # Income formatting
+│   │   └── DatePicker.tsx         # Date selection
 │   ├── layout/
-│   │   ├── Sidebar.tsx            # Main navigation sidebar
-│   │   ├── Header.tsx             # Top navigation bar
-│   │   ├── Breadcrumbs.tsx        # Navigation breadcrumbs
-│   │   └── UserMenu.tsx           # User profile dropdown
-│   ├── charts/
-│   │   ├── MetricsCard.tsx        # KPI display cards
-│   │   ├── LeadFunnel.tsx         # Conversion funnel chart
-│   │   ├── CampaignROI.tsx        # ROI visualization
-│   │   └── RateChart.tsx          # Rate history charts
-│   └── magicui/                   # Enhanced UI components
-│       ├── glow.tsx               # Glow effects
-│       ├── animated-counter.tsx   # Number animations
-│       └── gradient-border.tsx    # Gradient borders
+│   │   ├── Header.tsx             # Main navigation
+│   │   ├── Footer.tsx             # Footer with links
+│   │   ├── Sidebar.tsx            # Mobile navigation
+│   │   └── BreadcrumbNav.tsx      # Navigation breadcrumbs
+│   ├── mortgage/
+│   │   ├── LoanProductCard.tsx    # Loan product display
+│   │   ├── ComplianceDisclosure.tsx # Legal disclosures
+│   │   ├── RateDisplay.tsx        # Rate formatting
+│   │   ├── PaymentCalculator.tsx  # Payment computation
+│   │   └── ProgressTimeline.tsx   # Process visualization
+│   └── security/
+│       ├── PrivateRoute.tsx       # Auth protection
+│       ├── TwoFactorAuth.tsx      # 2FA implementation
+│       ├── SecureUpload.tsx       # Encrypted file upload
+│       └── DataEncryption.tsx     # Client-side encryption
 ├── lib/
-│   ├── utils.ts                   # Utility functions
-│   ├── api.ts                     # API client configuration
-│   ├── validations.ts             # Zod schemas
-│   ├── constants.ts               # App constants
-│   └── types.ts                   # TypeScript definitions
+│   ├── api/
+│   │   ├── client.ts              # API client configuration
+│   │   ├── auth.ts                # Authentication helpers
+│   │   ├── quotes.ts              # Quote API integration
+│   │   └── documents.ts           # Document management
+│   ├── validations/
+│   │   ├── application.ts         # 1003 form validation
+│   │   ├── documents.ts           # Document validation
+│   │   ├── personal.ts            # Personal info validation
+│   │   └── financial.ts           # Financial data validation
+│   ├── utils/
+│   │   ├── formatting.ts          # Data formatting utilities
+│   │   ├── calculations.ts        # Mortgage calculations
+│   │   ├── encryption.ts          # Data encryption
+│   │   └── compliance.ts          # Compliance checking
+│   └── types/
+│       ├── application.ts         # Application data types
+│       ├── documents.ts           # Document types
+│       ├── quotes.ts              # Quote and rate types
+│       └── user.ts                # User account types
 ├── hooks/
-│   ├── useLeads.ts                # Lead data management
-│   ├── useQuotes.ts               # Quote operations
-│   ├── useCampaigns.ts            # Campaign management
-│   └── useAuth.ts                 # Authentication state
+│   ├── useApplication.ts          # Application state management
+│   ├── useQuotes.ts              # Real-time quote updates
+│   ├── useDocuments.ts           # Document management
+│   ├── useMessages.ts            # Communication hooks
+│   └── useAuth.ts                # Authentication state
 ├── styles/
-│   └── globals.css                # Global styles + Tailwind
+│   └── globals.css               # Global styles + Tailwind
 ├── public/
-│   ├── icons/                     # App-specific icons
-│   └── images/                    # Static images
+│   ├── icons/                    # Mortgage-specific icons
+│   ├── documents/                # Document templates
+│   └── compliance/               # Legal document templates
 ├── package.json
 ├── next.config.mjs
 ├── tailwind.config.ts
 ├── tsconfig.json
-├── jest.config.js
+├── playwright.config.ts
 └── README.md
 ```
 
----
+\---
 
-## 🎨 **UI COMPONENT SPECIFICATIONS**
+## 🏠 **MORTGAGE-SPECIFIC FEATURES**
 
-### **Sidebar Navigation** (Primary Interface)
-```tsx
-// Navigation structure from archived content
-const navigationItems = [
-  { name: 'Dashboard', href: '/', icon: LayoutDashboard },
-  { name: 'Leads', href: '/leads', icon: Users },
-  { name: 'Quotes', href: '/quotes', icon: Calculator },
-  { name: 'Campaigns', href: '/campaigns', icon: Mail },
-  { name: 'Chat', href: '/chat', icon: MessageCircle },
-  { name: 'Audit', href: '/audit', icon: Shield }
-];
-```
+### **1003 Form Integration (Core Application)**
 
-### **Lead Grid Component** (Core Interface)
-```tsx
-// Based on archived nyra-admin structure
-interface Lead {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  source: 'ratehunter' | 'referral' | 'direct';
-  status: 'new' | 'contacted' | 'qualified' | 'application' | 'closed';
-  score: number;
+```typescript
+// Based on archived mortgage-ui content
+interface UniformApplication {
+  // Section I: Type of Mortgage and Terms
+  mortgageType: "purchase" | "refinance" | "construction" | "other";
+  amortizationType: "fixed" | "arm" | "other";
   loanAmount: number;
-  createdAt: Date;
-  lastContact?: Date;
-  assignedTo?: string;
+  interestRate: number;
+  numberOfMonths: number;
+
+  // Section II: Property Information
+  propertyAddress: Address;
+  legalDescription: string;
+  purposeOfLoan: "purchase" | "refinance" | "construction" | "other";
+  propertyType: "primary" | "secondary" | "investment";
+  propertyValue: number;
+
+  // Section III: Borrower Information
+  borrower: BorrowerInfo;
+  coBorrower?: BorrowerInfo;
+
+  // Section IV: Employment Information
+  employment: EmploymentInfo\\\[];
+
+  // Section V: Monthly Income and Combined Housing Expense
+  income: IncomeInfo;
+  housingExpense: HousingExpenseInfo;
+
+  // Section VI: Assets and Liabilities
+  assets: AssetInfo\\\[];
+  liabilities: LiabilityInfo\\\[];
+
+  // Section VIII: Declarations
+  declarations: DeclarationInfo;
 }
 ```
 
-### **Quote Builder Interface** (Revenue Center)
-```tsx
-// Integration with Quote Engine via Nexus Router
+### **Real-Time Quote Engine Integration**
+
+```typescript
+// WebSocket connection for live rate updates
+interface RateUpdate {
+  loanType: "conventional" | "fha" | "va" | "usda";
+  term: 15 | 30;
+  rate: number;
+  apr: number;
+  points: number;
+  fees: number;
+  timestamp: Date;
+  rateLockExpiration?: Date;
+}
+
 interface QuoteRequest {
   loanAmount: number;
   purchasePrice: number;
-  creditScore: number;
-  debtToIncome: number;
   downPayment: number;
-  loanType: 'conventional' | 'fha' | 'va' | 'usda';
-  term: 15 | 30;
-  propertyType: 'primary' | 'secondary' | 'investment';
+  creditScore: number;
+  debtToIncomeRatio: number;
+  propertyType: string;
+  occupancy: string;
+  loanPurpose: string;
   zipCode: string;
 }
 ```
 
----
+### **Document Requirements Engine**
 
-## 🔌 **API INTEGRATION SPECIFICATIONS**
-
-### **Nexus Router Endpoints**
 ```typescript
-// All API calls go through Nexus Router (Port 6000)
-const API_BASE = process.env.NEXT_PUBLIC_NEXUS_URL || 'http://localhost:6000';
-
-// Core endpoints from archived configurations
-const endpoints = {
-  // TwentyCRM Integration
-  leads: {
-    list: '/api/twenty/leads',
-    create: '/api/twenty/leads',
-    update: '/api/twenty/leads/{id}',
-    delete: '/api/twenty/leads/{id}'
-  },
-
-  // Quote Engine Integration
-  quotes: {
-    generate: '/api/quote-engine/generate',
-    rates: '/api/quote-engine/rates',
-    scenarios: '/api/quote-engine/scenarios'
-  },
-
-  // Campaign Engine Integration (n8n)
-  campaigns: {
-    list: '/api/campaigns',
-    create: '/api/campaigns',
-    deploy: '/api/campaigns/{id}/deploy',
-    metrics: '/api/campaigns/{id}/metrics'
-  },
-
-  // Compliance & Audit
-  audit: {
-    logs: '/api/audit/logs',
-    compliance: '/api/audit/compliance',
-    consent: '/api/audit/consent'
-  }
-};
-```
-
-### **Authentication Flow**
-```typescript
-// Based on archived auth patterns
-interface AuthUser {
+// Automated document requirement generation
+interface DocumentRequirement {
   id: string;
-  email: string;
+  category: "income" | "assets" | "property" | "insurance" | "other";
   name: string;
-  role: 'admin' | 'loan_officer' | 'processor';
-  permissions: string[];
+  description: string;
+  required: boolean;
+  status: "pending" | "uploaded" | "reviewed" | "approved" | "rejected";
+  dueDate?: Date;
+  conditions: string\\\[];
+  alternatives: string\\\[];
 }
 
-// JWT-based authentication with Nexus Router
-const authFlow = {
-  login: 'POST /api/auth/login',
-  refresh: 'POST /api/auth/refresh',
-  logout: 'POST /api/auth/logout',
-  profile: 'GET /api/auth/profile'
+const documentMatrix = {
+  // Income verification
+  income: \\\["paystubs", "w2", "tax\\\_returns", "employment\\\_letter"],
+
+  // Asset verification
+  assets: \\\["bank\\\_statements", "investment\\\_statements", "retirement\\\_accounts"],
+
+  // Property documentation
+  property: \\\[
+    "purchase\\\_contract",
+    "appraisal",
+    "homeowners\\\_insurance",
+    "title\\\_work",
+  ],
+
+  // Government loan specific
+  fha: \\\["fha\\\_case\\\_number", "upfront\\\_mip\\\_receipt"],
+  va: \\\["coe", "va\\\_appraisal"],
+  usda: \\\["usda\\\_eligibility", "income\\\_certification"],
 };
 ```
 
----
+\---
 
-## 📊 **DASHBOARD METRICS (From Archived Specs)**
+## 🔒 **COMPLIANCE \& SECURITY**
 
-### **KPI Cards**
-1. **Today's Leads**: Count + % change
-2. **Active Quotes**: Count + avg loan amount
-3. **Pipeline Value**: Total $ + conversion %
-4. **Campaign ROI**: Revenue per $ spent
+### **TILA/RESPA Implementation**
 
-### **Charts & Visualizations**
-1. **Lead Funnel**: Source → Contact → Quote → App → Close
-2. **Quote Activity**: Hourly quote generation trends
-3. **Campaign Performance**: Email open/click rates
-4. **Rate Trends**: 30-day rate movement charts
+```typescript
+// Compliance disclosure management
+interface ComplianceDisclosure {
+  type:
+    | "loan\\\_estimate"
+    | "closing\\\_disclosure"
+    | "privacy\\\_notice"
+    | "ecoa\\\_notice";
+  version: string;
+  deliveryMethod: "email" | "mail" | "pickup";
+  deliveredAt?: Date;
+  acknowledgedAt?: Date;
+  requiredBy: Date;
+  status: "pending" | "delivered" | "acknowledged" | "expired";
+}
 
----
+const complianceRules = {
+  loanEstimate: {
+    deliveryDeadline: 3, // business days after application
+    revisionTriggers: \\\["loan\\\_amount", "product\\\_change", "apr\\\_change"],
+    acknowledgmentRequired: false,
+  },
 
-## 🔒 **COMPLIANCE REQUIREMENTS**
+  closingDisclosure: {
+    deliveryDeadline: 3, // business days before closing
+    waitingPeriod: 3, // days after delivery before closing
+    revisionRules: \\\["apr\\\_tolerance", "finance\\\_charge\\\_tolerance"],
+    acknowledgmentRequired: true,
+  },
+};
+```
 
-### **TILA/RESPA Integration**
-- [ ] Automated disclosure generation
-- [ ] 3-day waiting period enforcement
-- [ ] Fee transparency tracking
-- [ ] APR calculation verification
+### **Data Security \& Privacy**
 
-### **Consent Management**
-- [ ] Opt-in/opt-out tracking
-- [ ] TCPA compliance for SMS
-- [ ] Do Not Call registry checks
-- [ ] Consent timestamp logging
+```typescript
+// Client-side encryption for sensitive data
+interface EncryptedField {
+  value: string; // Encrypted value
+  algorithm: "AES-256-GCM";
+  iv: string;
+  tag: string;
+}
 
-### **Audit Trail Requirements**
-- [ ] All user actions logged
-- [ ] Data access tracking
-- [ ] Lead assignment history
-- [ ] Quote modification trails
+const sensitiveFields = \\\[
+  "ssn",
+  "account\\\_numbers",
+  "routing\\\_numbers",
+  "employment\\\_income",
+  "asset\\\_values",
+];
 
----
+// CCPA compliance
+interface PrivacyRequest {
+  type: "access" | "deletion" | "portability" | "opt\\\_out";
+  requestedBy: string;
+  requestedAt: Date;
+  verificationStatus: "pending" | "verified" | "rejected";
+  fulfillmentDeadline: Date;
+  status: "pending" | "in\\\_progress" | "completed" | "denied";
+}
+```
+
+\---
+
+## 💾 **DATA PERSISTENCE \& STATE**
+
+### **Application Auto-Save**
+
+```typescript
+// Progressive auto-save functionality
+interface ApplicationDraft {
+  id: string;
+  userId: string;
+  sectionId: string;
+  data: Partial<UniformApplication>;
+  lastSaved: Date;
+  version: number;
+  validationErrors?: ValidationError\\\[];
+}
+
+const autoSaveConfig = {
+  interval: 30000, // 30 seconds
+  triggerOnChange: true,
+  versioning: true,
+  compression: true,
+  encryption: true,
+};
+```
+
+### **Document Metadata Management**
+
+```typescript
+interface DocumentMetadata {
+  id: string;
+  filename: string;
+  originalName: string;
+  mimeType: string;
+  size: number;
+  checksum: string;
+  category: DocumentCategory;
+  uploadedAt: Date;
+  uploadedBy: string;
+  ocrText?: string;
+  extractedData?: Record<string, any>;
+  complianceFlags: string\\\[];
+  retention: {
+    required: boolean;
+    period: number; // years
+    reason: string;
+  };
+}
+```
+
+\---
+
+## 📱 **RESPONSIVE DESIGN**
+
+### **Mobile-First Application Flow**
+
+```typescript
+// Progressive enhancement for mobile borrowers
+const responsiveFeatures = {
+  mobile: {
+    // Core features optimized for mobile
+    features: \\\["apply", "documents", "messages", "quotes"],
+    layout: "single-column",
+    navigation: "bottom-tabs",
+    gestures: \\\["swipe", "pull-to-refresh", "pinch-to-zoom"],
+  },
+
+  tablet: {
+    // Enhanced features for tablet
+    features: \\\["all-mobile", "dashboard", "comparison"],
+    layout: "adaptive-grid",
+    navigation: "side-drawer",
+    multitasking: true,
+  },
+
+  desktop: {
+    // Full feature set for desktop
+    features: \\\["all"],
+    layout: "multi-column",
+    navigation: "top-nav + sidebar",
+    shortcuts: true,
+    multipleWindows: true,
+  },
+};
+```
+
+### **Accessibility Compliance (WCAG 2.1 AA)**
+
+```typescript
+// Accessibility features for mortgage applications
+const a11yFeatures = {
+  screenReader: {
+    landmarks: true,
+    headingStructure: true,
+    formLabels: true,
+    errorMessages: true,
+  },
+
+  keyboard: {
+    navigation: true,
+    shortcuts: true,
+    focusManagement: true,
+    skipLinks: true,
+  },
+
+  visual: {
+    colorContrast: "AA",
+    textScaling: "200%",
+    motionPreference: "respect-reduced-motion",
+    darkMode: true,
+  },
+
+  cognitive: {
+    progressIndicators: true,
+    timeoutWarnings: true,
+    autoComplete: true,
+    plainLanguage: true,
+  },
+};
+```
+
+\---
 
 ## 🚀 **IMPLEMENTATION PHASES**
 
-### **Phase 1: Foundation (Week 1)**
-- [ ] Next.js project setup with proper structure
-- [ ] Authentication system with role-based access
-- [ ] Sidebar navigation and basic layout
-- [ ] Nexus Router integration and health checks
+### **Phase 1: Foundation (Week 1-2)**
 
-### **Phase 2: Core Features (Week 2)**
-- [ ] Lead grid with TwentyCRM integration
-- [ ] Basic quote desk with rate display
-- [ ] Dashboard metrics and KPI cards
-- [ ] Real-time data updates via React Query
+- \[ ] Next.js setup with authentication system
+- \[ ] Basic application wizard with form validation
+- \[ ] Document upload functionality
+- \[ ] Real-time quote integration
+- \[ ] Responsive layout implementation
 
-### **Phase 3: Advanced Features (Week 3)**
-- [ ] Quote builder with full loan scenarios
-- [ ] Campaign builder with n8n integration
-- [ ] Dify chat embedding and management
-- [ ] Bulk actions and data export tools
+### **Phase 2: Core Features (Week 3-4)**
 
-### **Phase 4: Compliance & Polish (Week 4)**
-- [ ] Full audit logging implementation
-- [ ] TILA/RESPA compliance workflows
-- [ ] Advanced filtering and search
-- [ ] Performance optimization and testing
+- \[ ] Complete 1003 form implementation
+- \[ ] Document center with OCR processing
+- \[ ] Rate calculator with live updates
+- \[ ] Borrower dashboard with progress tracking
+- \[ ] Secure messaging system
 
----
+### **Phase 3: Advanced Features (Week 5-6)**
+
+- \[ ] E-signature integration
+- \[ ] Compliance disclosure management
+- \[ ] Application status automation
+- \[ ] Advanced document requirements engine
+- \[ ] Rate lock and expiration management
+
+### **Phase 4: Polish \& Compliance (Week 7-8)**
+
+- \[ ] TILA/RESPA compliance implementation
+- \[ ] CCPA privacy controls
+- \[ ] Accessibility compliance testing
+- \[ ] Performance optimization
+- \[ ] Security audit and penetration testing
+
+\---
 
 ## 🧪 **TESTING STRATEGY**
 
-### **Unit Tests**
-- [ ] Component rendering tests
-- [ ] API integration tests
-- [ ] Form validation tests
-- [ ] Utility function tests
+### **End-to-End Testing (Playwright)**
 
-### **Integration Tests**
-- [ ] End-to-end lead management workflow
-- [ ] Quote generation and compliance
-- [ ] Campaign deployment process
-- [ ] Authentication and authorization
+```typescript
+// Critical user journeys
+const testScenarios = \\\[
+  "complete-purchase-application",
+  "refinance-application-with-cash-out",
+  "document-upload-and-verification",
+  "rate-quote-and-comparison",
+  "secure-messaging-workflow",
+  "compliance-disclosure-delivery",
+];
+```
 
-### **Performance Tests**
-- [ ] Large dataset rendering (1000+ leads)
-- [ ] Real-time update performance
-- [ ] API response time monitoring
-- [ ] Memory leak detection
+### **Security Testing**
 
----
+- \[ ] Input validation and sanitization
+- \[ ] Authentication and authorization
+- \[ ] Data encryption verification
+- \[ ] OWASP Top 10 vulnerability scanning
+- \[ ] Penetration testing for sensitive data
+
+### **Compliance Testing**
+
+- \[ ] TILA/RESPA disclosure timing
+- \[ ] CCPA privacy request workflows
+- \[ ] Document retention compliance
+- \[ ] Audit trail completeness
+- \[ ] Consent management validation
+
+\---
 
 ## 📚 **REFERENCE IMPLEMENTATIONS**
 
 ### **Archived Code Examples**
-- **Lead Grid**: `_archived/.../nyra-admin/app/leads/page.tsx`
-- **Dashboard Cards**: `_archived/.../nyra-admin/app/page.tsx`
-- **UI Components**: `_archived/.../nyra-admin/components/ui/`
-- **MagicUI Effects**: `_archived/.../nyra-admin/components/magicui/`
 
-### **Configuration Files**
-- **Nexus Config**: `_archived/.../nexus/nexus-complete.toml`
-- **Docker Setup**: `_archived/.../docker/build/apps/nyra-admin/`
-- **Grafana Dashboards**: `_archived/.../dashboards/`
+- **Application Forms**: `\\\_archived/.../ratehunter-web/src/components/forms/`
+- **Document Upload**: `\\\_archived/.../mortgage-ui/src/components/documents/`
+- **Rate Calculator**: `\\\_archived/.../ratehunter/components/calculator/`
+- **UI Components**: `\\\_archived/.../ratehunter-web/src/components/ui/`
 
----
+### **Integration Endpoints**
+
+```typescript
+// API integration with Nexus Router
+const endpoints = {
+  quotes: "http://localhost:6000/api/quotes",
+  application: "http://localhost:6000/api/application",
+  documents: "http://localhost:6000/api/documents",
+  compliance: "http://localhost:6000/api/compliance",
+  websocket: "ws://localhost:6000/ws/rates",
+};
+```
+
+\---
 
 ## 🔧 **DEVELOPMENT COMMANDS**
 
 ```bash
 # Setup
-cd apps/admin
+cd apps/projectnyra
 npm install
 
 # Development
-npm run dev              # Start dev server on port 3008
+npm run dev              # Start on port 3000
 npm run build           # Production build
-npm run lint            # ESLint checking
-npm run type-check      # TypeScript validation
 npm run test            # Unit tests
-npm run test:watch      # Watch mode testing
+npm run test:e2e        # End-to-end tests
+npm run type-check      # TypeScript validation
 
-# Docker (from archived configs)
-docker build -f ../../infra/images/apps/nyra-admin.Dockerfile .
-docker run -p 3008:3008 nyra-admin
+# Security
+npm audit               # Security vulnerability check
+npm run test:security   # Security-focused tests
 ```
 
----
+\---
 
 **Last Updated**: 2026-03-10
 **Status**: Ready for implementation
-**Dependencies**: Nexus Router, TwentyCRM, Quote Engine
+**Dependencies**: Nexus Router, Quote Engine, Document Processing, TwentyCRM
 
-This master build guide consolidates all archived content, code examples, and requirements into a single comprehensive reference for building the Nyra Admin Dashboard.
+This master build guide consolidates all archived mortgage application content, ratehunter components, and compliance requirements into a comprehensive borrower-facing web application specification.

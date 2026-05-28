@@ -1,6 +1,6 @@
 # Current Owner Blockers
 
-Last updated: 2026-05-22
+Last updated: 2026-05-26
 
 These are the remaining owner-only blockers after the latest local release gate.
 Local repo checks pass, but live release smoke still needs real account,
@@ -40,6 +40,11 @@ Remaining warnings are owner/live-env gated:
   current shell.
 - Infisical CLI secret scanning has been run locally against the repo and
   current changes. No leaks were found.
+- Oracle memory-stack local smoke is passing for Letta, Letta MCP, mem0,
+  Qdrant, FalkorDB, OpenMemory MCP, MemPalace MCP, MemOS API, and MemOS MCP.
+- The Conductor prompt-pack source directories have no remaining active
+  unchecked prompt tasks; only owner-only `docs/user-todo/` checkboxes remain
+  in the active task surface.
 
 ## Minimum Infisical Variables Blocking Live Smoke
 

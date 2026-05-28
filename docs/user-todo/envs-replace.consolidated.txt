@@ -1,0 +1,237 @@
+# Project Nyra Infisical Secrets Checklist
+
+Source requested: /mnt/z/ToDo/envs-replace.txt
+Status: source path was not mounted/writable in this Codex session, so this file
+is the consolidated replacement checklist generated from the active Oracle VPS
+compose files.
+
+Target Infisical path for stack secrets unless noted otherwise:
+- /machines/oracle-vps
+
+Do not paste placeholder values into Infisical. Generate stable production
+values for secrets and tokens.
+
+## Local shell credentials: do not save under /machines/oracle-vps
+
+INFISICAL_TOKEN
+INFISICAL_CLIENT_ID
+INFISICAL_CLIENT_SECRET
+  Keep these in the local shell secret setup, for example ~/.zsh/99-secrets.zsh.
+  Makefile remote Docker-context targets source the local shell secret file and
+  pass credentials into infisical run / docker compose at runtime. Do not store
+  these in infra/hosts/oracle-vps/.env.
+
+## Cleared in Infisical during 2026-05-26 audit
+
+OPENLIT_DB_PASSWORD
+OPENLIT_NEXTAUTH_SECRET
+OPENLIT_VAULT_ENCRYPTION_KEY
+GITEA_INTERNAL_TOKEN
+  Generated and saved under /machines/oracle-vps for dev, stag, and prod.
+  Gitea secrets were also generated and saved under /shared for dev, stag, and
+  prod: GITEA_SECRET_KEY, GITEA_INTERNAL_TOKEN, GITEA_JWT_SECRET, and
+  GITEA_DB_PASSWORD.
+
+## Required to save in Infisical for Oracle base, OpenLIT, Gitea, Gastown, memory, and MCP
+
+POSTGRES_PASSWORD
+  Shared Oracle Postgres password for nyra/n8n/Activepieces app databases.
+
+TWENTY_DB_PASSWORD
+  Dedicated Twenty CRM database password.
+
+TWENTY_APP_SECRET
+  Twenty application secret.
+
+TWENTY_API_KEY
+  Twenty MCP/API access token. TWENTY_ACCESS_TOKEN is accepted as fallback, but
+  prefer TWENTY_API_KEY as the canonical name.
+
+CRM_API_KEY
+  Internal CRM API service key.
+
+QUOTE_API_SECRET
+  Internal quote-api secret.
+
+OPENCLAW_GATEWAY_TOKEN
+  Internal OpenClaw gateway token.
+
+OPENWEBUI_SECRET_KEY
+  OpenWebUI session/app secret.
+
+LITELLM_MASTER_KEY
+  LiteLLM master key used by Nexus/OpenWebUI/Letta routing.
+
+LLXPRT_BRIDGE_API_KEY
+  Shared key for the Oracle LiteLLM proxy to call the LLxprt bridge.
+
+OPENAI_API_KEY
+  Required by mem0/OpenMemory and useful as fallback provider key. If you want
+  memory extraction to be fully local, keep this present but route via LiteLLM
+  with MEM0_OPENAI_API_BASE / OPENMEMORY_OPENAI_API_BASE.
+
+ANTHROPIC_API_KEY
+  Optional fallback for Nexus/Letta; save if Claude direct fallback is desired.
+
+OPENROUTER_API_KEY
+  Optional Nexus fallback; save only if OpenRouter fallback is desired.
+
+GRAFANA_ADMIN_PASSWORD
+  Grafana admin password.
+
+ORACLE_TUNNEL_TOKEN
+  Oracle Cloudflare Tunnel token. CLOUDFLARED_TUNNEL_TOKEN may exist elsewhere,
+  but ORACLE_TUNNEL_TOKEN is what the active Oracle compose expects.
+
+## OpenLIT
+
+OPENLIT_DB_PASSWORD
+  ClickHouse/OpenLIT database password.
+
+OPENLIT_NEXTAUTH_SECRET
+  OpenLIT auth/session secret.
+
+OPENLIT_VAULT_ENCRYPTION_KEY
+  OpenLIT vault encryption key.
+
+OPENLIT_ALLOWED_CORS_ORIGINS
+  Usually https://openlit.projectnyra.com.
+
+OPENLIT_CLICKHOUSE_NATIVE_PORT
+  Non-secret config. Set to 19000 on Oracle because Portainer already owns host
+  port 9000.
+
+ORACLE_TAILSCALE_IP
+  Non-secret config. Set this to the Oracle VPS Tailscale IP so OpenLIT and
+  Gitea bind privately over Tailscale instead of localhost fallback bindings.
+
+INFISICAL_ENV
+  Non-secret config. Set to prod for Oracle production deploys; using dev will
+  fetch the wrong environment.
+
+INFISICAL_API_URL
+  Non-secret config. Use https://app.infisical.com unless the deployment uses a
+  self-hosted Infisical server.
+
+OPENLIT_GOOGLE_CLIENT_ID
+OPENLIT_GOOGLE_CLIENT_SECRET
+  Optional. Save only if Google login is enabled.
+
+OPENLIT_GITHUB_CLIENT_ID
+OPENLIT_GITHUB_CLIENT_SECRET
+  Optional. Save only if GitHub login is enabled.
+
+## Gitea
+
+GITEA_DB_PASSWORD
+  Dedicated Gitea Postgres password.
+
+GITEA_SECRET_KEY
+  Gitea security secret key.
+
+GITEA_INTERNAL_TOKEN
+  Gitea internal token.
+
+GITEA_JWT_SECRET
+  Gitea OAuth2 JWT secret.
+
+GITEA_RUNNER_TOKEN
+  Registration token for Gitea Actions runner. Required for runner enrollment;
+  may be rotated after runner registration.
+
+GITEA_TOKEN
+  Gitea API token for GitHub mirror sync.
+
+GITHUB_TOKEN
+  GitHub token for mirror sync and GitHub MCP/tooling.
+
+## Gastown
+
+No required secret is currently needed for the Gastown compose. Keep these as
+non-secret config values in .env or Infisical if you want centralized config:
+
+GASTOWN_REF
+GASTOWN_HOST_PORT
+GASTOWN_GIT_USER
+GASTOWN_GIT_EMAIL
+
+Gastown secrets are intentionally omitted because Gastown has been removed
+in favor of Gastown:
+
+GASTOWN_API_KEY
+GASTOWN_AGENT_JWT_SECRET
+GASTOWN_DB_PASSWORD
+GASTOWN_SESSION_SECRET
+BETTER_AUTH_SECRET
+
+## Memory stack
+
+LETTA_DB_PASSWORD
+  Dedicated Letta Postgres password.
+
+LETTA_SERVER_PASSWORD
+  Letta server password used by Letta MCP.
+
+QDRANT_API_KEY
+  Optional but recommended if Qdrant is exposed beyond the private Docker
+  network/Tailscale.
+
+MEMOS_OPENAI_API_KEY
+  Optional override. If omitted, MemOS uses LITELLM_MASTER_KEY/OPENAI_API_KEY
+  per compose fallback.
+
+OPENMEMORY_OPENAI_API_KEY
+  Optional override. If omitted, OpenMemory uses LITELLM_MASTER_KEY/OPENAI_API_KEY
+  per compose fallback.
+
+## Agent utilities
+
+SEARXNG_SECRET
+  Required by oracle agent utility stack.
+
+BROWSERLESS_TOKEN
+  Required by Browserless.
+
+HOMEASSISTANT_TOKEN
+  Required if Home Assistant MCP is enabled.
+
+TAVILY_API_KEY
+  Required only if Tavily MCP is started.
+
+FIRECRAWL_API_KEY
+  Required only if Firecrawl MCP is started.
+
+INFISICAL_UNIVERSAL_AUTH_CLIENT_ID
+INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET
+  Required only if the Infisical MCP bridge uses Universal Auth.
+
+## Workflow and provider secrets
+
+AP_POSTGRES_PASSWORD
+AP_ENCRYPTION_KEY
+AP_JWT_SECRET
+  Required for Activepieces.
+
+N8N_BASIC_AUTH_PASSWORD
+N8N_ENCRYPTION_KEY
+  Required for n8n.
+
+JWT_SECRET
+SUPABASE_DB_PASSWORD
+SUPABASE_DB_URL_PASSWORD
+  Required only if the Supabase services in the Oracle compose are started.
+
+TWILIO_PHONE_NUMBER
+OFFICE_PHONE
+SMTP_FROM_EMAIL
+  Required only when outreach workflows are enabled. STOP/unsubscribe compliance
+  must remain enforced in code before any outreach runs.
+
+## Optional stacks not needed for OpenLIT/Gitea/Gastown/memory
+
+SUPERSET_ADMIN_PASSWORD
+SUPERSET_SECRET_KEY
+  Required only for the Superset overlay.
+
+CLOUDFLARE_API_TOKEN
+  Required only for automation that mutates Cloudflare config.

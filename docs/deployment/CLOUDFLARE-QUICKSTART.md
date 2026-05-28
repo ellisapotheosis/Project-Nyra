@@ -14,11 +14,13 @@
 ### Step 1: Install Infisical CLI (30 seconds)
 
 **macOS:**
+
 ```bash
 brew install infisical/get-cli/infisical
 ```
 
 **Linux:**
+
 ```bash
 curl -1sLf https://dl.cloudsmith.io/public/infisical/infisical-cli/setup.deb.sh | sudo -E bash
 sudo apt-get install infisical
@@ -63,13 +65,8 @@ nano .env
 INFISICAL_PROJECT_ID=your-project-id
 INFISICAL_ENV=production
 
-INFISICAL_CLIENT_ID_ORCHESTRATOR=your-client-id
-INFISICAL_CLIENT_SECRET_ORCHESTRATOR=your-client-secret
-
-INFISICAL_CLIENT_ID_WORKER_RTX5090=your-client-id
-INFISICAL_CLIENT_SECRET_WORKER_RTX5090=your-client-secret
-
-# ... (repeat for other workers)
+INFISICAL_UNIVERSAL_AUTH_CLIENT_ID=your-client-id
+INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET=your-client-secret
 ```
 
 ### Step 5: Store Tokens and Deploy (1 minute)
@@ -80,8 +77,8 @@ cloudflared tunnel token nyra-orchestrator > /tmp/token-orchestrator.txt
 cloudflared tunnel token nyra-worker-rtx5090 > /tmp/token-worker1.txt
 # ... (repeat for all tunnels)
 
-# Login to Infisical
-export INFISICAL_TOKEN=$(infisical login)
+# Login to Infisical with Universal Auth
+export INFISICAL_TOKEN="$(infisical login --method=universal-auth --client-id="$INFISICAL_UNIVERSAL_AUTH_CLIENT_ID" --client-secret="$INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET" --silent --plain)"
 
 # Create .env.cloudflare with your tokens
 cat > .env.cloudflare <<EOF
@@ -130,16 +127,18 @@ docker logs nyra-cloudflared-orchestrator
 
 ## Common Issues
 
-### Issue: "INFISICAL_CLIENT_ID required"
+### Issue: "INFISICAL_UNIVERSAL_AUTH_CLIENT_ID required"
 
 **Solution:** Check your `.env` file has all required credentials:
+
 ```bash
-grep INFISICAL_CLIENT .env
+grep INFISICAL_UNIVERSAL_AUTH_CLIENT .env
 ```
 
 ### Issue: "Token format validation failed"
 
 **Solution:** Ensure tunnel token is complete (200+ characters):
+
 ```bash
 echo $CLOUDFLARE_TUNNEL_TOKEN_ORCHESTRATOR | wc -c
 ```
@@ -147,6 +146,7 @@ echo $CLOUDFLARE_TUNNEL_TOKEN_ORCHESTRATOR | wc -c
 ### Issue: "Tunnel authentication failed"
 
 **Solution:** Verify token is stored correctly in Infisical:
+
 ```bash
 infisical secrets get --env=production --path=/nyra/orchestrator CLOUDFLARE_TUNNEL_TOKEN --plain
 ```
@@ -198,6 +198,7 @@ infisical secrets get --env=production --path=/nyra/orchestrator CLOUDFLARE_TUNN
 ## Full Documentation
 
 For detailed information, see:
+
 - [CLOUDFLARE-INFISICAL-INTEGRATION.md](./CLOUDFLARE-INFISICAL-INTEGRATION.md)
 - [Cloudflare Tunnel Docs](https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/)
 - [Infisical Docs](https://infisical.com/docs)
@@ -205,6 +206,7 @@ For detailed information, see:
 ## Support
 
 If you encounter issues:
+
 1. Check logs: `docker-compose logs -f cloudflared-orchestrator agent-cloudflare-orchestrator`
 2. Validate setup: `./scripts/infisical/validate-cloudflare-tokens.sh production --verbose`
 3. Review troubleshooting guide in main documentation

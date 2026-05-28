@@ -49,7 +49,7 @@ See `docs/OWNER_MANUAL_ACTIONS.md` for Cloudflare, Spaceship, Portainer UI, and 
 | projectnyra.com | links.projectnyra.com            | Links                        | orchestrator / `http://100.64.0.2:3007`            | Tunnel/planned | required                | Nyra  | Current |
 | projectnyra.com | linkwarden.projectnyra.com       | Linkwarden                   | orchestrator / `http://100.64.0.2:3007`            | Tunnel/planned | required                | Nyra  | Current |
 | projectnyra.com | n8n.projectnyra.com              | N8N                          | oracle / `http://n8n:5678`                         | Tunnel/planned | required                | Nyra  | Current |
-| projectnyra.com | paperclip.projectnyra.com        | Paperclip                    | oracle / `http://paperclip:3100`                   | Tunnel/planned | required                | Nyra  | Current |
+| projectnyra.com | gastown.projectnyra.com          | Gastown                      | oracle / `http://gastown:8080`                     | Tunnel/planned | required                | Nyra  | Current |
 | projectnyra.com | claw-3090.projectnyra.com        | Worker RTX3090Ti OpenClaw UI | worker-rtx3090ti / `none`                          | Tunnel/planned | required                | Nyra  | Planned |
 | projectnyra.com | claw-5090.projectnyra.com        | Worker RTX5090 OpenClaw UI   | worker-rtx5090 / `none`                            | Tunnel/planned | required                | Nyra  | Planned |
 | projectnyra.com | nerve-3060.projectnyra.com       | Worker RTX3060 Nerve UI      | worker-rtx3060 / `none`                            | Tunnel/planned | required                | Nyra  | Planned |

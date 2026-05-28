@@ -40,8 +40,6 @@ These values were generated locally and then pushed into Infisical.
 
 Paths:
 
-- `/clients/paperclip/PAPERCLIP_DB_PASSWORD`
-- `/clients/paperclip/PAPERCLIP_SESSION_SECRET`
 - `/clients/searxng/SEARXNG_SECRET`
 - `/clients/browserless/BROWSERLESS_TOKEN`
 
@@ -116,7 +114,6 @@ The correct active paths are:
 - `/providers/anthropic`
 - `/providers/litellm`
 - `/clients/composio`
-- `/clients/paperclip`
 - `/clients/searxng`
 - `/clients/browserless`
 - `/clients/letta`
@@ -140,7 +137,6 @@ Cleanup status:
 
 The correct active paths are:
 
-- `/clients/paperclip`
 - `/clients/searxng`
 - `/clients/browserless`
 - `/clients/letta`
@@ -223,7 +219,7 @@ I did not move Tailscale credentials such as `TAILSCALE_AUTHKEY`, `TAILSCALE_API
 Ownership notes:
 
 - `VOICE_PTP_INTERFACE` is owned by the Kyutai Unmute voice mesh. Keep it machine-local when the NIC/interface can differ per host; only move it to a voice client path if every worker uses the same interface contract.
-- `ASSISTANT_GATEWAY_URL` is owned by the assistant gateway/OpenClaw boundary. If every host consumes the same assistant gateway URL, it belongs under an assistant/OpenClaw client path, not Paperclip and not a machine path.
+- `ASSISTANT_GATEWAY_URL` is owned by the assistant gateway/OpenClaw boundary. If every host consumes the same assistant gateway URL, it belongs under an assistant/OpenClaw client path, not Gastown and not a machine path.
 
 ## Final State
 

@@ -1,5 +1,9 @@
 import { NextResponse } from "next/server";
 
+import {
+  canUseMockFallback,
+  productionReadUnavailable,
+} from "@/lib/api/config";
 import { leads } from "@/lib/mock-data";
 
 const CRM_API_URL = process.env.CRM_API_URL;
@@ -25,6 +29,13 @@ export async function GET(
         return NextResponse.json(withWorkspace(data, "crm-api"));
       }
     } catch {}
+  }
+
+  if (!canUseMockFallback()) {
+    return productionReadUnavailable(
+      "CRM API",
+      "CRM_API_URL must be configured for production lead reads"
+    );
   }
 
   const lead = leads.find((entry) => entry.id === id);
