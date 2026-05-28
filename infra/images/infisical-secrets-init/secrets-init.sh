@@ -3,8 +3,30 @@ set -e
 echo "[Nyra Secrets Init] Fetching secrets from Infisical..."
 mkdir -p /run/nyra-secrets
 
+resolve_infisical_token() {
+  if [ -n "${INFISICAL_TOKEN:-}" ]; then
+    printf '%s' "$INFISICAL_TOKEN"
+    return 0
+  fi
+
+  if [ -n "${INFISICAL_UNIVERSAL_AUTH_CLIENT_ID:-}" ] && [ -n "${INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET:-}" ]; then
+    infisical login \
+      --method=universal-auth \
+      --client-id="$INFISICAL_UNIVERSAL_AUTH_CLIENT_ID" \
+      --client-secret="$INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET" \
+      --silent \
+      --plain
+    return 0
+  fi
+
+  echo "[Nyra Secrets Init] ERROR: set INFISICAL_TOKEN or INFISICAL_UNIVERSAL_AUTH_CLIENT_ID/INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET." >&2
+  return 1
+}
+
+INFISICAL_RESOLVED_TOKEN="$(resolve_infisical_token)"
+
 infisical export \
-  --token="$INFISICAL_TOKEN" \
+  --token="$INFISICAL_RESOLVED_TOKEN" \
   --projectId="$INFISICAL_PROJECT_ID" \
   --env="$INFISICAL_ENV" \
   --path="$INFISICAL_PATH" \

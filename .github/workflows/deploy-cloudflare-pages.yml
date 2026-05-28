@@ -149,8 +149,8 @@ jobs:
           HAS_PAGES_ALIAS_TOKEN: ${{ secrets.CLOUDFLARE_PAGES_API_TOKEN != '' }}
           HAS_PAGES_ALIAS_ACCOUNT: ${{ secrets.CLOUDFLARE_PAGES_ACCOUNT_ID != '' }}
           HAS_INFISICAL_TOKEN: ${{ secrets.INFISICAL_TOKEN != '' }}
-          HAS_INFISICAL_MACHINE_ID: ${{ secrets.INFISICAL_MACHINE_IDENTITY_ID != '' || secrets.INFISICAL_CLIENT_ID != '' }}
-          HAS_INFISICAL_MACHINE_SECRET: ${{ secrets.INFISICAL_MACHINE_IDENTITY_SECRET != '' || secrets.INFISICAL_CLIENT_SECRET != '' }}
+          HAS_INFISICAL_UNIVERSAL_AUTH_CLIENT_ID: ${{ secrets.INFISICAL_UNIVERSAL_AUTH_CLIENT_ID != '' }}
+          HAS_INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET: ${{ secrets.INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET != '' }}
           GITHUB_CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           GITHUB_CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           INFISICAL_SYNC_CLOUDFLARE_API_TOKEN: ${{ secrets.INFISICAL_CLOUDFLARE_API_TOKEN }}
@@ -239,11 +239,11 @@ jobs:
           fi
 
           # Check for Infisical credentials.
-          # Machine Identities are prioritized over Service Tokens.
-          if [ "$HAS_INFISICAL_MACHINE_ID" == "true" ] && [ "$HAS_INFISICAL_MACHINE_SECRET" == "true" ]; then
+          # Universal Auth machine identities are prioritized over service tokens.
+          if [ "$HAS_INFISICAL_UNIVERSAL_AUTH_CLIENT_ID" == "true" ] && [ "$HAS_INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET" == "true" ]; then
             echo "has_infisical=true" >> $GITHUB_OUTPUT
             echo "infisical_auth_method=universal-auth" >> $GITHUB_OUTPUT
-            echo "✅ Infisical Machine Identity detected"
+            echo "✅ Infisical Universal Auth credentials detected"
           elif [ "$HAS_INFISICAL_TOKEN" == "true" ]; then
             echo "has_infisical=true" >> $GITHUB_OUTPUT
             echo "infisical_auth_method=service-token" >> $GITHUB_OUTPUT
@@ -258,9 +258,9 @@ jobs:
           if [ "$HAS_VALID_GITHUB_SYNCED_PAIR" == "true" ]; then
             echo "deploy_method=github-synced" >> $GITHUB_OUTPUT
             echo "📝 Will resolve Cloudflare credentials from GitHub secrets, including Infisical-synced aliases"
-          elif [ "$HAS_INFISICAL_MACHINE_ID" == "true" ] && [ "$HAS_INFISICAL_MACHINE_SECRET" == "true" ]; then
+          elif [ "$HAS_INFISICAL_UNIVERSAL_AUTH_CLIENT_ID" == "true" ] && [ "$HAS_INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET" == "true" ]; then
             echo "deploy_method=infisical-cli" >> $GITHUB_OUTPUT
-            echo "📝 Will use Infisical CLI with Machine Identity to fetch secrets"
+            echo "📝 Will use Infisical CLI with Universal Auth to fetch secrets"
           elif [ "$HAS_INFISICAL_TOKEN" == "true" ]; then
             echo "deploy_method=infisical-cli" >> $GITHUB_OUTPUT
             echo "📝 Will use Infisical CLI with Service Token to fetch secrets"
@@ -291,30 +291,28 @@ jobs:
         id: fetch
         env:
           INFISICAL_TOKEN: ${{ secrets.INFISICAL_TOKEN }}
-          INFISICAL_CLIENT_ID: ${{ secrets.INFISICAL_MACHINE_IDENTITY_ID || secrets.INFISICAL_CLIENT_ID }}
-          INFISICAL_CLIENT_SECRET: ${{ secrets.INFISICAL_MACHINE_IDENTITY_SECRET || secrets.INFISICAL_CLIENT_SECRET }}
+          INFISICAL_UNIVERSAL_AUTH_CLIENT_ID: ${{ secrets.INFISICAL_UNIVERSAL_AUTH_CLIENT_ID }}
+          INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET: ${{ secrets.INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET }}
         run: |
-          # Prioritize Machine Identity over Service Token
-          if [ -n "$INFISICAL_CLIENT_ID" ] && [ -n "$INFISICAL_CLIENT_SECRET" ]; then
-            echo "🔐 Using Infisical Machine Identity for authentication"
-            echo "::add-mask::$INFISICAL_CLIENT_ID"
-            echo "::add-mask::$INFISICAL_CLIENT_SECRET"
+          TOKEN="$INFISICAL_TOKEN"
 
-            # Perform login to get a session
-            infisical login --method=universal-auth --client-id="$INFISICAL_CLIENT_ID" --client-secret="$INFISICAL_CLIENT_SECRET" --silent
-
-            # Clear INFISICAL_TOKEN if present to avoid override warning/behavior
-            unset INFISICAL_TOKEN
-            TOKEN_ARG=""
-          elif [ -n "$INFISICAL_TOKEN" ]; then
+          # Prioritize Universal Auth over service tokens.
+          if [ -n "$INFISICAL_UNIVERSAL_AUTH_CLIENT_ID" ] && [ -n "$INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET" ]; then
+            echo "🔐 Using Infisical Universal Auth for authentication"
+            echo "::add-mask::$INFISICAL_UNIVERSAL_AUTH_CLIENT_ID"
+            echo "::add-mask::$INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET"
+            TOKEN="$(infisical login --method=universal-auth --client-id="$INFISICAL_UNIVERSAL_AUTH_CLIENT_ID" --client-secret="$INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET" --silent --plain)"
+            echo "::add-mask::$TOKEN"
+          elif [ -n "$TOKEN" ]; then
             echo "🔐 Using Infisical Service Token for authentication"
-            echo "::add-mask::$INFISICAL_TOKEN"
-            TOKEN_ARG="--token=$INFISICAL_TOKEN"
+            echo "::add-mask::$TOKEN"
           else
             echo "❌ No Infisical credentials available for environment: ${{ needs.preflight.outputs.environment }}"
             echo "secrets_available=false" >> $GITHUB_OUTPUT
             exit 1
           fi
+
+          TOKEN_ARG="--token=$TOKEN"
 
           # Map workflow environment to Infisical environment
           case "${{ needs.preflight.outputs.environment }}" in
