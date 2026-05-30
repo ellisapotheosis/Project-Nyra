@@ -12,6 +12,7 @@ import {
   CircleDollarSign,
   FileClock,
   GitBranch,
+  LayoutDashboard,
   MessageSquareReply,
   RadioTower,
   ShieldAlert,
@@ -31,7 +32,6 @@ import {
   LeadRadarSkeleton,
 } from "@/components/ui/dashboard-skeleton";
 import {
-  Button,
   buttonVariants,
   Card,
   CardContent,
@@ -43,6 +43,58 @@ import { SystemAlerts } from "@/components/dashboard/system-alerts";
 import { useApi } from "@/lib/api/hooks";
 import { getCrmWorkspaceSnapshot } from "@/lib/api/workspace";
 import { cn } from "@/lib/utils";
+
+const appSurfaces = [
+  {
+    title: "Lead Desk",
+    route: "/leads",
+    detail: "Unified lead intake, status, consent, and next action queue.",
+    icon: Users,
+  },
+  {
+    title: "CRM",
+    route: "/crm",
+    detail: "Broker-safe CRM workspace over the Twenty source of truth.",
+    icon: LayoutDashboard,
+  },
+  {
+    title: "Nexus UI",
+    route: "/nexus",
+    detail: "Nexus Router, LiteLLM, Grafbase, and operator service posture.",
+    icon: RadioTower,
+  },
+  {
+    title: "Admin",
+    route: "/admin",
+    detail: "Owner-only integrations, service posture, and release controls.",
+    icon: ShieldCheck,
+  },
+  {
+    title: "Assistant",
+    route: "/assistant",
+    detail: "OpenClaw-backed broker assistant and lead action workspace.",
+    icon: Bot,
+  },
+  {
+    title: "Campaigns",
+    route: "/campaigns",
+    detail: "Compliant sequence control, pause state, and campaign review.",
+    icon: Workflow,
+  },
+  {
+    title: "Quote Desk",
+    route: "/quotes",
+    detail: "Deterministic quote scenarios and lock window review.",
+    icon: CircleDollarSign,
+  },
+  {
+    title: "Pipeline",
+    route: "/pipeline",
+    detail: "Stage movement, borrower replies, and file progression.",
+    icon: GitBranch,
+  },
+];
+
 export default function Home() {
   const {
     data: workspaceResponse,
@@ -120,7 +172,6 @@ export default function Home() {
   return (
     <AppShell>
       <div className="flex flex-col gap-10">
-        {/* Header Section */}
         <section className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div className="space-y-1.5">
             <div className="flex items-center gap-2">
@@ -132,24 +183,58 @@ export default function Home() {
             <h1 className="text-3xl font-black tracking-tight md:text-4xl">
               Broker Command Deck
             </h1>
+            <p className="max-w-3xl text-sm text-white/45">
+              Broker command, CRM mirror, Nexus operations, assistant,
+              campaigns, quotes, pipeline, and admin surfaces are available
+              from this control hub.
+            </p>
           </div>
           <div className="grid grid-cols-2 gap-2 sm:flex sm:items-center">
-            <Button
-              variant="glass"
-              size="sm"
-              className="h-9 gap-2 px-3 border-white/10"
+            <Link
+              href="/nexus"
+              className={cn(
+                buttonVariants({ variant: "outline", size: "sm" }),
+                "h-9 gap-2 border-white/10 px-3"
+              )}
             >
               <Activity className="size-4" />
               <span className="truncate">Diagnostics</span>
-            </Button>
-            <Button size="sm" className="h-9 gap-2 px-3">
+            </Link>
+            <Link
+              href="/assistant"
+              className={cn(buttonVariants({ size: "sm" }), "h-9 gap-2 px-3")}
+            >
               <Sparkles className="size-4" />
               <span className="truncate">Ask Nyra</span>
-            </Button>
+            </Link>
           </div>
         </section>
 
-        {/* Stats Grid */}
+        <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          {appSurfaces.map(({ title, route, detail, icon: Icon }) => (
+            <Link
+              key={route}
+              href={route}
+              className="group rounded-2xl border border-white/5 bg-white/5 p-4 transition-colors hover:bg-white/10"
+            >
+              <div className="flex items-start justify-between gap-3">
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Icon className="size-4 text-primary" />
+                    <h2 className="text-sm font-bold text-white/90">
+                      {title}
+                    </h2>
+                  </div>
+                  <p className="text-xs leading-relaxed text-white/40">
+                    {detail}
+                  </p>
+                </div>
+                <ArrowRight className="mt-0.5 size-4 text-white/25 transition-transform group-hover:translate-x-1 group-hover:text-primary" />
+              </div>
+            </Link>
+          ))}
+        </section>
+
         <section>
           {loadingWorkspace ? (
             <CommandStatsSkeleton />
@@ -181,10 +266,8 @@ export default function Home() {
           )}
         </section>
 
-        {/* Main Workspace */}
         <div className="grid gap-6 lg:grid-cols-[1fr_400px]">
           <div className="space-y-6">
-            {/* Priority Queue */}
             <section className="space-y-4">
               <div className="flex items-center justify-between px-1">
                 <h2 className="text-[10px] font-bold uppercase tracking-widest text-white/40">
@@ -258,7 +341,6 @@ export default function Home() {
               )}
             </section>
 
-            {/* Blockers & Health */}
             <section className="space-y-4">
               <h2 className="text-[10px] font-bold uppercase tracking-widest text-white/40 px-1">
                 System Blockers
@@ -310,15 +392,12 @@ export default function Home() {
               </div>
             </section>
 
-            {/* Merged Feature: Recent Activity from Admin App */}
             <RecentActivity />
           </div>
 
           <div className="space-y-6">
-            {/* System Alerts from Admin App */}
             <SystemAlerts />
 
-            {/* Quick Actions */}
             <Card variant="glass" className="bg-white/5 border-white/5">
               <CardHeader className="px-6">
                 <CardTitle className="text-[10px] font-bold uppercase tracking-widest text-white/40">
@@ -326,46 +405,57 @@ export default function Home() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="grid grid-cols-2 gap-3 px-6">
-                <Button
-                  variant="glass"
-                  className="h-auto flex-col items-start gap-3 py-5 rounded-2xl border-white/5 hover:bg-white/10"
+                <Link
+                  href="/leads"
+                  className={cn(
+                    buttonVariants({ variant: "outline" }),
+                    "h-auto flex-col items-start gap-3 rounded-2xl border-white/5 py-5 hover:bg-white/10"
+                  )}
                 >
                   <Users className="size-5 text-turquoise-400" />
                   <span className="text-[9px] font-black uppercase tracking-widest">
                     Intake Lead
                   </span>
-                </Button>
-                <Button
-                  variant="glass"
-                  className="h-auto flex-col items-start gap-3 py-5 rounded-2xl border-white/5 hover:bg-white/10"
+                </Link>
+                <Link
+                  href="/quotes"
+                  className={cn(
+                    buttonVariants({ variant: "outline" }),
+                    "h-auto flex-col items-start gap-3 rounded-2xl border-white/5 py-5 hover:bg-white/10"
+                  )}
                 >
                   <CircleDollarSign className="size-5 text-indigo-400" />
                   <span className="text-[9px] font-black uppercase tracking-widest">
                     Run Quote
                   </span>
-                </Button>
-                <Button
-                  variant="glass"
-                  className="h-auto flex-col items-start gap-3 py-5 rounded-2xl border-white/5 hover:bg-white/10"
+                </Link>
+                <Link
+                  href="/campaigns/builder"
+                  className={cn(
+                    buttonVariants({ variant: "outline" }),
+                    "h-auto flex-col items-start gap-3 rounded-2xl border-white/5 py-5 hover:bg-white/10"
+                  )}
                 >
                   <GitBranch className="size-5 text-pink-400" />
                   <span className="text-[9px] font-black uppercase tracking-widest">
                     New Campaign
                   </span>
-                </Button>
-                <Button
-                  variant="glass"
-                  className="h-auto flex-col items-start gap-3 py-5 rounded-2xl border-white/5 hover:bg-white/10"
+                </Link>
+                <Link
+                  href="/assistant"
+                  className={cn(
+                    buttonVariants({ variant: "outline" }),
+                    "h-auto flex-col items-start gap-3 rounded-2xl border-white/5 py-5 hover:bg-white/10"
+                  )}
                 >
                   <Bot className="size-5 text-turquoise-400" />
                   <span className="text-[9px] font-black uppercase tracking-widest">
                     Tune Agent
                   </span>
-                </Button>
+                </Link>
               </CardContent>
             </Card>
 
-            {/* Live Radar */}
             <Card variant="glass" className="bg-white/5 border-white/5">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4 px-6">
                 <CardTitle className="text-[10px] font-bold uppercase tracking-widest text-white/40">

@@ -354,6 +354,8 @@ importers:
         specifier: ^4.83.0
         version: 4.83.0
 
+  apps/twentycrm: {}
+
   packages/campaign-domain:
     devDependencies:
       vitest:
