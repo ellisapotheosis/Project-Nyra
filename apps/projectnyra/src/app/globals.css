@@ -5,9 +5,6 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --font-sans: var(--font-electrolize), ui-sans-serif, system-ui, sans-serif;
-  --font-mono: var(--font-space-mono), ui-monospace, monospace;
-  --font-serif: var(--font-michroma), ui-serif, serif;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -61,6 +58,10 @@
   --tracking-wide: 0em;
   --tracking-wider: 0em;
   --tracking-widest: 0em;
+}
+
+body {
+  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
 }
 
 .mint-midnight-glow {
