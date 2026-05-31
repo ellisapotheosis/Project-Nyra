@@ -20,6 +20,10 @@
         "service": "http://grafana:3000"
       },
       {
+        "hostname": "openlit.projectnyra.com",
+        "service": "http://openlit:3000"
+      },
+      {
         "hostname": "prometheus.projectnyra.com",
         "service": "http://prometheus:9090"
       },
@@ -57,6 +61,18 @@
         "originRequest": { "noTLSVerify": true }
       },
       { "hostname": "git-ssh.projectnyra.com", "service": "ssh://gitea:2222" },
+      {
+        "hostname": "uptime.projectnyra.com",
+        "service": "http://nyra-uptime-kuma:3001"
+      },
+      {
+        "hostname": "public-status.projectnyra.com",
+        "service": "http://nyra-uptime-kuma:3001"
+      },
+      {
+        "hostname": "oracle.projectnyra.com",
+        "service": "http://nyra-caddy:80"
+      },
       { "service": "http_status:404" }
     ],
     "warp-routing": {

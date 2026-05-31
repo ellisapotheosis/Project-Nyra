@@ -8,13 +8,13 @@
 
 ## Cluster Hosts
 
-| Host                 | Role                                  | Network                     | Tailscale IP | Public Domain                          |
-| -------------------- | ------------------------------------- | --------------------------- | ------------ | -------------------------------------- |
-| **orchestrator**     | Control Plane (LAN)                   | Local LAN                   | 100.64.1.10  | (N/A — internal only)                  |
-| **worker-rtx5090**   | GPU Worker — vLLM primary (32GB)      | Local LAN                   | 100.64.1.11  | (N/A — internal only)                  |
-| **worker-rtx3090ti** | GPU Worker — vLLM secondary (24GB)    | Local LAN                   | 100.64.1.12  | (N/A — internal only)                  |
-| **worker-rtx3060**   | GPU Worker — Ollama embeddings (12GB) | Local LAN                   | 100.64.1.13  | (N/A — internal only)                  |
-| **oracle-vps**       | Cloud Backend (VPS)                   | Tailscale + Public Internet | 100.64.1.31  | api.ratehunter.net, crm.ratehunter.net |
+| Host                 | Role                                  | Network                     | Tailscale IP | Public Domain                            |
+| -------------------- | ------------------------------------- | --------------------------- | ------------ | ---------------------------------------- |
+| **orchestrator**     | Control Plane (LAN)                   | Local LAN                   | 100.64.1.10  | (N/A — internal only)                    |
+| **worker-rtx5090**   | GPU Worker — vLLM primary (32GB)      | Local LAN                   | 100.64.1.11  | (N/A — internal only)                    |
+| **worker-rtx3090ti** | GPU Worker — vLLM secondary (24GB)    | Local LAN                   | 100.64.1.12  | (N/A — internal only)                    |
+| **worker-rtx3060**   | GPU Worker — Ollama embeddings (12GB) | Local LAN                   | 100.64.1.13  | (N/A — internal only)                    |
+| **oracle-vps**       | Cloud Backend (VPS)                   | Tailscale + Public Internet | 100.64.1.31  | app.projectnyra.com, crm.projectnyra.com |
 
 ---
 
@@ -126,20 +126,23 @@ sudo launchctl restart com.tailscale.ipn.macos.daemon  # macOS
 
 ---
 
-## 3. Cloudflare Public Ingress (`*.ratehunter.net`)
+## 3. Cloudflare Public Ingress (`*.projectnyra.com`)
 
-Project Nyra uses **Cloudflare Tunnel** (cloudflared) to expose public services via the `ratehunter.net` domain. This is configured on the **orchestrator** via `docker-compose.cloudflared.yml`.
+Project Nyra uses **Cloudflare Tunnel** (cloudflared) to expose public services via the `projectnyra.com` domain. Two tunnels handle this: **oracle** (app, CRM, workflows) and **orchestrator** (control plane, workers). The `ratehunter.net` domain is served by Cloudflare Pages only (not a tunnel).
 
 ### Public Service Routes
 
-| Service                | Internal Host | Internal Port | Public Domain                    | Type |
-| ---------------------- | ------------- | ------------- | -------------------------------- | ---- |
-| **Nexus Router**       | orchestrator  | 7000          | api.ratehunter.net               | HTTP |
-| **LiteLLM**            | orchestrator  | 8000          | (routed via Nexus)               | HTTP |
-| **TwentyCRM**          | oracle-vps    | 3000          | crm.ratehunter.net               | HTTP |
-| **n8n Automation**     | orchestrator  | 5678          | (internal only)                  | N/A  |
-| **Prometheus Metrics** | orchestrator  | 9090          | (internal only — Tailscale only) | N/A  |
-| **Grafana Dashboards** | orchestrator  | 3000          | (internal only — Tailscale only) | N/A  |
+| Service                | Internal Host | Internal Port | Public Domain                      | Type |
+| ---------------------- | ------------- | ------------- | ---------------------------------- | ---- |
+| **Broker Webapp**      | oracle-vps    | 3001          | app.projectnyra.com                | HTTP |
+| **Nexus Router**       | oracle-vps    | 3000          | nexus.projectnyra.com              | HTTP |
+| **LiteLLM**            | oracle-vps    | 4000          | litellm.projectnyra.com            | HTTP |
+| **TwentyCRM**          | oracle-vps    | 3000          | crm.projectnyra.com                | HTTP |
+| **n8n Automation**     | oracle-vps    | 5678          | n8n.projectnyra.com                | HTTP |
+| **Grafana Dashboards** | oracle-vps    | 3000          | grafana.projectnyra.com            | HTTP |
+| **Admin Portal**       | orchestrator  | 3001          | admin.projectnyra.com              | HTTP |
+| **Home Assistant**     | ha-green      | 8123          | ha.projectnyra.com (orch. tunnel)  | HTTP |
+| **Prometheus Metrics** | oracle-vps    | 9090          | prometheus.projectnyra.com (gated) | HTTP |
 
 ### Cloudflare Tunnel Configuration
 
@@ -160,25 +163,30 @@ docker logs nyra-cloudflared-orchestrator
 
 ### DNS Records (Cloudflare Dashboard)
 
-The following CNAME records should point to your Cloudflare tunnel:
+The following CNAME records should point to your Cloudflare tunnel.
+See the full matrix in `infra/cloudflare/generated-remote/dns-records.desired.json`.
 
 ```
-api.ratehunter.net      → <tunnel-id>.cfargotunnel.com
-crm.ratehunter.net      → <tunnel-id>.cfargotunnel.com
+app.projectnyra.com     → <ORACLE_TUNNEL_ID>.cfargotunnel.com
+crm.projectnyra.com     → <ORACLE_TUNNEL_ID>.cfargotunnel.com
+admin.projectnyra.com   → <ORCHESTRATOR_TUNNEL_ID>.cfargotunnel.com
+ha.projectnyra.com      → <ORCHESTRATOR_TUNNEL_ID>.cfargotunnel.com
 ```
 
-Replace `<tunnel-id>` with your actual Cloudflare tunnel ID (visible in `docker logs`).
+Apply all records atomically via `bash infra/cloudflare/apply-cloudflare-desired-state.sh`.
 
 ### Testing Public Ingress
 
 ```bash
 # Test from anywhere on the internet
-curl https://api.ratehunter.net/health    # Nexus Router (via Cloudflare Tunnel)
-curl https://crm.ratehunter.net/api/health  # TwentyCRM (via Cloudflare Tunnel)
+curl https://app.projectnyra.com/health       # Webapp (via oracle tunnel)
+curl https://crm.projectnyra.com/api/health   # TwentyCRM (via oracle tunnel)
+curl https://admin.projectnyra.com/health     # Admin portal (via orchestrator tunnel)
+curl https://ha.projectnyra.com               # Home Assistant (via orchestrator tunnel)
 
 # From local machine (via Tailscale)
-curl http://orchestrator.ts.net:7000/health  # Direct Tailscale access
-curl http://oracle-vps.ts.net:3000/api/health  # Direct Tailscale access
+curl http://orchestrator.ts.net:7000/health   # Direct Tailscale access
+curl http://oracle-vps.ts.net:3000/api/health # Direct Tailscale access
 ```
 
 ---
@@ -206,7 +214,7 @@ When connecting to cluster services, use this priority order:
 2. **Tailscale `.ts.net`** (e.g., `oracle-vps.ts.net`)
    - Fallback if local hostname fails
 
-3. **Public domain** (e.g., `api.ratehunter.net`, `crm.ratehunter.net`)
+3. **Public domain** (e.g., `app.projectnyra.com`, `crm.projectnyra.com`)
    - For external/public access
    - Goes through Cloudflare Tunnel
    - Slightly higher latency (~50-100ms additional)
@@ -250,17 +258,19 @@ scutil --dns  # macOS
 # Should show Tailscale's nameserver (100.100.100.100)
 ```
 
-### "Public domain (ratehunter.net) not accessible"
+### "Public domain (projectnyra.com) not accessible"
 
 ```bash
 # Check if cloudflared is running
 docker logs nyra-cloudflared-orchestrator | grep -i "registered\|ingress"
+docker logs nyra-cloudflared-oracle | grep -i "registered\|ingress"
 
 # Verify Cloudflare DNS records
-dig api.ratehunter.net
+dig app.projectnyra.com CNAME +short     # Should resolve to oracle tunnel CNAME
+dig admin.projectnyra.com CNAME +short   # Should resolve to orchestrator tunnel CNAME
 
-# Check tunnel connectivity from orchestrator
-curl -v https://api.ratehunter.net/health  # From local machine via Cloudflare
+# Check tunnel connectivity
+curl -v https://app.projectnyra.com/health
 ```
 
 ### "Oracle VPS unreachable from workers"
@@ -341,8 +351,8 @@ Use this checklist to verify hostname configuration is complete:
 - [ ] `.ts.net` domains resolve (`ping orchestrator.ts.net` succeeds)
 - [ ] Internal services respond on local hostnames (`curl http://orchestrator:7000/health`)
 - [ ] Cloudflare tunnel is running (`docker logs nyra-cloudflared-orchestrator` shows "registered")
-- [ ] Public domains resolve (`dig api.ratehunter.net` returns Cloudflare IP)
-- [ ] Public ingress works (`curl https://api.ratehunter.net/health`)
+- [ ] Public domains resolve (`dig app.projectnyra.com` returns Cloudflare IP)
+- [ ] Public ingress works (`curl https://app.projectnyra.com/health`)
 - [ ] Oracle VPS is reachable from all workers (`ssh orchestrator ssh oracle-vps hostname`)
 
 ---
@@ -362,7 +372,7 @@ Use this checklist to verify hostname configuration is complete:
 1. Verify Tailscale is running: `tailscale status`
 2. Use local hostnames for internal services: `curl http://orchestrator:7000/health`
 3. Use `.ts.net` domains when needed: `ssh orchestrator docker ps`
-4. Use public domains for external access: `curl https://api.ratehunter.net/health`
+4. Use public domains for external access: `curl https://app.projectnyra.com/health`
 
 ---
 
