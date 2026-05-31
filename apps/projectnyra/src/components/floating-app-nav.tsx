@@ -137,6 +137,7 @@ export function FloatingAppNav() {
 
         <div
           id="floating-app-nav-links"
+          aria-hidden={!expanded}
           className={cn(
             "grid transition-[grid-template-rows] duration-300",
             expanded ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
@@ -155,6 +156,7 @@ export function FloatingAppNav() {
                     key={href}
                     href={href}
                     title={label}
+                    tabIndex={expanded ? undefined : -1}
                     className={cn(
                       "group flex min-w-0 flex-col items-center justify-center gap-1 rounded-xl px-1.5 py-2 text-center text-[9px] font-semibold uppercase tracking-wide text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground sm:text-[10px]",
                       active &&
@@ -186,6 +188,7 @@ export function FloatingAppNav() {
                     href={link.href}
                     target="_blank"
                     rel="noreferrer"
+                    tabIndex={expanded ? undefined : -1}
                     className="inline-flex h-8 items-center gap-1 rounded-lg px-2 text-[11px] font-semibold text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground"
                   >
                     {link.label}
