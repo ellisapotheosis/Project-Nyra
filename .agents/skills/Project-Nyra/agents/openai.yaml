@@ -1,6 +1,0 @@
-interface:
-  display_name: "Project Nyra"
-  short_description: "Repo-specific patterns and workflows for Project-Nyra"
-  default_prompt: "Use the Project-Nyra repo skill to follow existing architecture, testing, and workflow conventions."
-policy:
-  allow_implicit_invocation: true

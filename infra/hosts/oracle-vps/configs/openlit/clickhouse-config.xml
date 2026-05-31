@@ -1,9 +1,0 @@
-<clickhouse>
-  <logger>
-    <level>warning</level>
-  </logger>
-
-  <merge_tree>
-    <ttl_only_drop_parts>1</ttl_only_drop_parts>
-  </merge_tree>
-</clickhouse>

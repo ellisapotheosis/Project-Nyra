@@ -1,5 +1,0 @@
-# Track campaign_builder_20260505 Context
-
-- [Specification](./spec.md)
-- [Implementation Plan](./plan.md)
-- [Metadata](./metadata.json)

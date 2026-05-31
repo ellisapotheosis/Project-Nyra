@@ -1,5 +1,0 @@
-[allowlist]
-paths = [
-  '''^external/''',
-  '''^data/gitea-db/'''
-]
