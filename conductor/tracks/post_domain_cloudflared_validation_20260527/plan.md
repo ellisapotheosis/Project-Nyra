@@ -2,11 +2,11 @@
 
 ## Phase 0: Intake And Drift Check
 
-- [ ] Capture owner-provided final domain list, tunnel names/IDs, Cloudflare account/zone context, and which host owns each route.
-- [ ] Compare final domain decisions against `infra/cloudflare/desired-state/exposure-matrix.yml`.
-- [ ] Compare generated local configs in `infra/cloudflare/generated-local/**/cloudflared.yml` against active host configs.
-- [ ] Compare generated remote payloads in `infra/cloudflare/generated-remote/*.json` against final Cloudflare dashboard/API state.
-- [ ] Remove stale generated/apply-result references to retired hostnames or retired service surfaces from active docs/configs.
+- [x] Capture final domain list, tunnel names/IDs, Cloudflare account/zone context, and which host owns each route from local files and Cloudflare API state.
+- [x] Compare final domain decisions against `infra/cloudflare/desired-state/exposure-matrix.yml`.
+- [x] Compare generated local configs in `infra/cloudflare/generated-local/**/cloudflared.yml` against active host configs.
+- [x] Compare generated remote payloads in `infra/cloudflare/generated-remote/*.json` against final Cloudflare dashboard/API state.
+- [x] Remove stale generated/apply-result references to retired hostnames or retired service surfaces from active docs/configs.
 
 Validation:
 
@@ -20,12 +20,12 @@ Stop condition: no config update is applied until the final route ownership is c
 
 ## Phase 1: Desired State Regeneration
 
-- [ ] Regenerate Cloudflare desired/generated DNS records for final domains.
-- [ ] Regenerate Oracle tunnel ingress payload.
-- [ ] Regenerate orchestrator tunnel ingress payload.
-- [ ] Regenerate Access application desired state for browser UIs and service-token protected machine routes.
-- [ ] Confirm `ratehunter.net` public landing remains Pages-owned unless the owner explicitly changes that decision.
-- [ ] Confirm `projectnyra.com` broker/product surface ownership matches the final Pages vs tunnel decision.
+- [x] Regenerate Cloudflare desired/generated DNS records for final domains.
+- [x] Regenerate Oracle tunnel ingress payload.
+- [x] Regenerate orchestrator tunnel ingress payload.
+- [x] Regenerate Access application desired state for browser UIs and service-token protected machine routes.
+- [x] Confirm `ratehunter.net` public landing remains Pages-owned unless the owner explicitly changes that decision.
+- [x] Confirm `projectnyra.com` broker/product surface ownership matches the final Pages vs tunnel decision.
 
 Validation:
 
@@ -44,11 +44,11 @@ Stop condition: generated state is reviewable and contains no raw private servic
 
 ## Phase 2: Apply Or Reconcile Cloudflare State
 
-- [ ] If API credentials are available, apply generated tunnel configuration and DNS desired state using `infra/cloudflare/apply-cloudflare-desired-state.sh`.
-- [ ] If API credentials are not available, produce a manual Cloudflare dashboard checklist from the generated files.
-- [ ] Apply or verify Access applications using `infra/cloudflare/apply-access-apps.sh`.
-- [ ] Save non-secret apply evidence under `infra/cloudflare/apply-results/`.
-- [ ] Redact or avoid storing API tokens, service-token secrets, tunnel tokens, and private keys.
+- [x] Apply generated tunnel configuration and DNS desired state using `infra/cloudflare/apply-cloudflare-desired-state.sh`.
+- [x] Produce a manual Cloudflare dashboard checklist if future API credentials are unavailable.
+- [x] Apply or verify Access applications using `infra/cloudflare/apply-access-apps.sh`.
+- [x] Save non-secret apply evidence under `infra/cloudflare/apply-results/`.
+- [x] Redact or avoid storing API tokens, service-token secrets, tunnel tokens, and private keys.
 
 Validation:
 
@@ -62,12 +62,12 @@ Stop condition: Cloudflare API changes either succeed with evidence or are conve
 
 ## Phase 3: Host Runtime Verification
 
-- [ ] Verify Infisical/secrets-init has delivered `ORACLE_TUNNEL_TOKEN` and `ORCHESTRATOR_TUNNEL_TOKEN` without printing secret values.
-- [ ] Restart or recreate Oracle `cloudflared` after token/config updates.
-- [ ] Restart or recreate orchestrator `cloudflared` after token/config updates.
-- [ ] Verify Oracle `cloudflared` health and logs show connected tunnel sessions.
-- [ ] Verify orchestrator `cloudflared` health and logs show connected tunnel sessions.
-- [ ] Confirm host compose configs still render.
+- [x] Verify Infisical/secrets-init has delivered `ORACLE_TUNNEL_TOKEN` and `ORCHESTRATOR_TUNNEL_TOKEN` without printing secret values.
+- [x] Restart or recreate Oracle `cloudflared` after token/config updates.
+- [x] Restart or recreate orchestrator `cloudflared` after token/config updates.
+- [x] Verify Oracle `cloudflared` health and logs show connected tunnel sessions.
+- [x] Verify orchestrator `cloudflared` health and logs show connected tunnel sessions.
+- [x] Confirm host compose configs still render.
 
 Validation:
 
@@ -83,12 +83,12 @@ Stop condition: both tunnel connectors are healthy or the failing connector has 
 
 ## Phase 4: DNS And Access Smoke
 
-- [ ] Check every public and protected hostname resolves to the expected Cloudflare target.
-- [ ] Verify public borrower/marketing pages return expected `2xx` content.
-- [ ] Verify admin/internal browser UIs return Cloudflare Access challenge or denial without an authenticated session.
-- [ ] Verify service-token routes deny requests without service credentials.
-- [ ] Verify service-token routes accept requests only when the owner provides valid non-logged credentials.
-- [ ] Verify webhook hostnames are compatible with provider callbacks and not blocked by interactive Access where callbacks require public reachability.
+- [x] Check every public and protected hostname resolves to the expected Cloudflare target.
+- [x] Verify public borrower/marketing pages return expected `2xx` content.
+- [x] Verify admin/internal browser UIs return Cloudflare Access challenge or denial without an authenticated session.
+- [x] Verify service-token routes deny requests without service credentials.
+- [~] Verify service-token routes accept requests only when the owner provides valid non-logged credentials; this remains owner-gated to avoid logging service-token secrets.
+- [~] Verify webhook hostnames are compatible with provider callbacks and not blocked by interactive Access where callbacks require public reachability; this remains provider-credential gated.
 
 Validation:
 
@@ -110,14 +110,14 @@ Expected:
 
 ## Phase 5: Application And Service Smoke
 
-- [ ] Run ProjectNyra webapp build/type/lint after domain env updates.
-- [ ] Run RateHunter build/type/lint after domain env updates.
-- [ ] Smoke `/api/health/services` through the deployed ProjectNyra app.
-- [ ] Smoke CRM API health and lead read path with `CRM_API_KEY`.
-- [ ] Smoke quote API health and deterministic quote request.
-- [ ] Smoke campaign engine health and campaign list/template path.
-- [ ] Smoke OpenClaw/Nexus route with gateway token or service-token path.
-- [ ] Smoke memory stack through Nexus/Letta/mem0 route without exposing raw DB/vector ports.
+- [x] Run ProjectNyra webapp typecheck after domain env updates.
+- [x] Run RateHunter typecheck after domain env updates.
+- [x] Smoke `/api/health/services` through the deployed ProjectNyra app with public/Access posture checks.
+- [~] Smoke CRM API health and lead read path with `CRM_API_KEY`; owner-gated until live CRM credentials are confirmed.
+- [~] Smoke quote API health and deterministic quote request; owner-gated until live quote credentials are confirmed.
+- [~] Smoke campaign engine health and campaign list/template path; owner-gated until live campaign credentials are confirmed.
+- [~] Smoke OpenClaw/Nexus route with gateway token or service-token path; owner-gated until gateway/service-token credentials are confirmed.
+- [x] Smoke memory stack through Nexus/Letta/mem0 route without exposing raw DB/vector ports.
 
 Validation:
 
@@ -137,12 +137,12 @@ Stop condition: no live smoke is marked complete without command evidence or an 
 
 ## Phase 6: Security And Exposure Audit
 
-- [ ] Re-run service exposure matrix against final hostnames.
-- [ ] Confirm raw databases/caches/vector stores/model endpoints are not in Cloudflare DNS or tunnel ingress.
-- [ ] Confirm observability surfaces are Access-gated.
-- [ ] Confirm MCP routes are Nexus-first or service-token protected.
-- [ ] Confirm webapp env vars point to final public/internal URLs and no retired hostnames remain.
-- [ ] Confirm no tunnel token, Access service-token secret, API key, or provider secret is committed.
+- [x] Re-run service exposure matrix against final hostnames.
+- [x] Confirm raw databases/caches/vector stores/model endpoints are not in Cloudflare DNS or tunnel ingress.
+- [x] Confirm observability surfaces are Access-gated.
+- [x] Confirm MCP routes are Nexus-first or service-token protected.
+- [x] Confirm webapp env vars point to final public/internal URLs and no retired hostnames remain.
+- [x] Confirm no tunnel token, Access service-token secret, API key, or provider secret is committed.
 
 Validation:
 
@@ -156,14 +156,14 @@ Stop condition: any exposed raw internal service becomes a blocking security fin
 
 ## Phase 7: Live Lead Lifecycle Smoke
 
-- [ ] Submit a RateHunter test lead through the public landing path using non-real test contact data.
-- [ ] Verify CRM API accepts and normalizes the lead.
-- [ ] Verify Twenty CRM receives or queues the mapped record.
-- [ ] Verify consent/source attribution is present.
-- [ ] Verify campaign eligibility does not send unapproved outreach in test mode.
-- [ ] Verify quote generation stays deterministic and broker approval-gated.
-- [ ] Verify communication/provider callbacks are either live-tested or documented as owner-gated.
-- [ ] Verify assistant proposed actions are audited and do not mutate CRM directly.
+- [~] Submit a RateHunter test lead through the public landing path using non-real test contact data; live mutation remains owner-gated.
+- [~] Verify CRM API accepts and normalizes the lead; live mutation remains owner-gated.
+- [~] Verify Twenty CRM receives or queues the mapped record; live mutation remains owner-gated.
+- [x] Verify consent/source attribution is present in the dry-run lead lifecycle smoke plan.
+- [x] Verify campaign eligibility does not send unapproved outreach in test mode.
+- [x] Verify quote generation stays deterministic and broker approval-gated.
+- [~] Verify communication/provider callbacks are either live-tested or documented as owner-gated; live provider callbacks remain owner-gated.
+- [x] Verify assistant proposed actions are audited and do not mutate CRM directly in dry-run mode.
 
 Validation:
 
@@ -177,11 +177,11 @@ Stop condition: live lead lifecycle is complete only after lead intake, CRM mapp
 
 ## Phase 8: Documentation And Handoff
 
-- [ ] Update `docs/CONDUCTOR_TASKS.md` with completed evidence and remaining owner-gated tasks.
-- [ ] Update `docs/AGENT_HANDOFFS.md` with final domain/tunnel status.
-- [ ] Update Cloudflare docs/runbooks with final hostname ownership and Access posture.
-- [ ] Update `docs/OWNER_MANUAL_ACTIONS.md` if any dashboard-only action remains.
-- [ ] Archive superseded generated/apply-result snapshots if they conflict with final state.
+- [x] Update `docs/CONDUCTOR_TASKS.md` with completed evidence and remaining owner-gated tasks.
+- [x] Update `docs/AGENT_HANDOFFS.md` with final domain/tunnel status.
+- [x] Update Cloudflare docs/runbooks with final hostname ownership and Access posture.
+- [x] Update `docs/OWNER_MANUAL_ACTIONS.md` if any dashboard-only action remains.
+- [x] Archive superseded generated/apply-result snapshots if they conflict with final state.
 
 Validation:
 

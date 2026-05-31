@@ -241,6 +241,7 @@ services:
     container_name: worker-3060-promtail
     hostname: worker-3060-promtail
     restart: unless-stopped
+    network_mode: host
     volumes:
       - ./promtail-config.yml:/etc/promtail/config.yml:ro
       - ./logs:/var/log/worker-3060:ro
@@ -248,14 +249,12 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - nyra_secrets:/run/nyra-secrets:ro
     environment:
-      - LOKI_URL=${LOKI_URL:-http://oracle.trex-fiordland.ts.net:3100}
+      - LOKI_URL=${LOKI_URL:-http://100.64.0.3:3100}
       - WORKER_ID=worker-3060
-    command: -config.file=/etc/promtail/config.yml
+    command: -config.file=/etc/promtail/config.yml -config.expand-env=true
     depends_on:
       secrets-init:
         condition: service_completed_successfully
-    networks:
-      - worker-network
 
 volumes:
   ollama-data:
