@@ -67,6 +67,10 @@ working on local tasks, but must not mark these complete without owner evidence.
 ## Infrastructure And Live Smoke
 
 - [ ] Approve required Tailscale devices and confirm MagicDNS hostnames.
+- [ ] Repair worker WSL Tailscale before marking Loki complete: install or
+      enable Tailscale on RTX3060 WSL, log RTX3090Ti WSL back into the tailnet,
+      log RTX5090 WSL back into the tailnet, then confirm each worker can reach
+      Oracle Loki at `http://100.64.0.3:3100/ready`.
 - [ ] Confirm physical GPU worker hosts have NVIDIA drivers and Docker GPU
       support.
 - [ ] Confirm worker inference endpoints are private and not Cloudflare-tunneled.

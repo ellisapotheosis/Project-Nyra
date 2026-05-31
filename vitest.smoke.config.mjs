@@ -8,6 +8,8 @@ export default {
   test: {
     globals: true,
     environment: "node",
+    fileParallelism: false,
+    maxWorkers: 1,
     setupFiles: ["./tests/setup/vitest.setup.ts"],
     include: [
       "tests/unit/agents/agent-coordination.test.ts",

@@ -263,6 +263,7 @@ services:
     container_name: worker-5090-promtail
     hostname: worker-5090-promtail
     restart: unless-stopped
+    network_mode: host
     depends_on:
       secrets-init:
         condition: service_completed_successfully
@@ -273,11 +274,9 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - nyra_secrets:/run/nyra-secrets:ro
     environment:
-      - LOKI_URL=${LOKI_URL:-http://oracle.trex-fiordland.ts.net:3100}
+      - LOKI_URL=${LOKI_URL:-http://100.64.0.3:3100}
       - WORKER_ID=worker-5090
-    command: -config.file=/etc/promtail/config.yaml
-    networks:
-      - worker-network
+    command: -config.file=/etc/promtail/config.yaml -config.expand-env=true
 
 networks:
   worker-network:

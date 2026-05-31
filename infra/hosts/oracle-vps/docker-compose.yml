@@ -1135,7 +1135,7 @@ volumes:
   openwebui_data:
   mempalace_data:
   mempalace_vault:
-  letta_db_data:
-  letta_data:
+  syncthing_config:
+  portainer_data:
   mem_os_data:
   supabase_db_data:

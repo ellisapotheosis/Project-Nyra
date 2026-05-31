@@ -5,7 +5,8 @@ const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
   compress: true,
-  outputFileTracingRoot: path.resolve(__dirname, "../../.."),
+  // For Cloudflare Pages compatibility, we let OpenNext handle the monorepo structure
+  // outputFileTracingRoot: path.resolve(__dirname, "../../.."),
   eslint: {
     ignoreDuringBuilds: true,
   },

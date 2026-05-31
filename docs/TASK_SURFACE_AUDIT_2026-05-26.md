@@ -58,6 +58,13 @@ classes:
   excluded from validation and must not be committed.
 - Oracle memory-stack smoke passed for Letta, Letta MCP, mem0, Qdrant,
   FalkorDB, OpenMemory MCP, MemPalace MCP, MemOS API, and MemOS MCP.
+- Worker promtail defaults use Oracle's Tailscale IP (`100.64.0.3`) for Loki
+  because Docker DNS inside worker containers does not resolve the Oracle
+  MagicDNS hostname reliably.
+- Worker promtail containers run with host networking and private Loki delivery
+  configured, but delivery remains owner-gated until worker WSL Tailscale is
+  repaired: RTX3060 has no `tailscale` binary, and RTX3090Ti/RTX5090 report
+  logged-out Tailscale sessions.
 
 ## Stop Condition
 
