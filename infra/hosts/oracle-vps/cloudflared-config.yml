@@ -85,5 +85,20 @@ ingress:
   - hostname: git-ssh.projectnyra.com
     service: ssh://gitea:2222
 
+  # Observability — owner-only, Access-gated.
+  - hostname: openlit.projectnyra.com
+    service: http://openlit:3000
+
+  # Uptime / status monitoring (public-facing via uptime-kuma).
+  - hostname: uptime.projectnyra.com
+    service: http://nyra-uptime-kuma:3001
+
+  - hostname: public-status.projectnyra.com
+    service: http://nyra-uptime-kuma:3001
+
+  # Oracle VPS catch-all gateway (Caddy reverse proxy).
+  - hostname: oracle.projectnyra.com
+    service: http://nyra-caddy:80
+
   # Oracle catch-all. Required by cloudflared.
   - service: http_status:404

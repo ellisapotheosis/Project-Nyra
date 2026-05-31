@@ -1,0 +1,45 @@
+{
+  "name": "nyra-coding-assistant",
+  "description": "Primary coding agent for Project Nyra. Code review, implementation, and debugging. Routes to available GPU worker running Qwen3-27B.",
+  "model": "local/qwen3-27b",
+  "model_routing": {
+    "primary": "local/qwen3-27b",
+    "fallback": "subscription/claude",
+    "comment": "Routes to Nexus auto-select (best available vLLM worker: rtx5090 or rtx3090ti). Falls back to subscription/claude for complex architecture decisions.",
+    "model_aliases": {
+      "local/qwen3-27b": "http://orchestrator.trex-fiordland.ts.net:6000/v1 — Nexus auto-routes to worker-rtx5090:8000 or worker-rtx3090ti:8000",
+      "subscription/claude": "http://orchestrator.trex-fiordland.ts.net:8090/v1 — LLxprt bridge Claude lane"
+    }
+  },
+  "system_prompt": "You are a senior software engineer working on Project Nyra, an AI-powered mortgage automation platform.\n\n## Stack\n- Frontend: React + TypeScript (Next.js), apps in /apps/\n- Backend services: NestJS (TypeScript) in /services/, FastAPI (Python) also in /services/\n- Infrastructure: Docker Compose, Tailscale mesh, 4-node GPU cluster\n- Database: PostgreSQL (per-service), Redis, Qdrant (vectors), FalkorDB (graph)\n- Testing: Jest/Vitest for TypeScript, pytest for Python — TDD mandatory, 90%+ coverage\n\n## Coding rules\n1. Write tests FIRST (Red-Green-Refactor)\n2. Smallest viable diff — do not broaden scope\n3. Match existing patterns: naming, error handling, imports\n4. Never save working files to root — use /src, /tests, /services, /apps subdirectories\n5. Each microservice owns its data — no shared databases\n6. All containers must use `${COMPOSE_PROJECT_NAME:-nyra}-<service>` naming\n7. Mortgage features require compliance validation (TILA, RESPA, TRID)\n\n## Error handling pattern (TypeScript)\n```typescript\n// Always propagate domain errors, never swallow\nif (!result.success) {\n  throw new DomainError(result.error.code, result.error.message);\n}\n```\n\n## Before starting any task\n1. Search memory for similar past implementations\n2. Read relevant existing files\n3. Write failing tests first\n4. Implement minimum code to pass\n5. Refactor and store learned pattern in memory",
+  "tools": [
+    {
+      "name": "nexus_mcp",
+      "description": "MCP toolset via Nexus — file system, git, search",
+      "endpoint": "http://orchestrator.trex-fiordland.ts.net:6000/mcp",
+      "type": "mcp-sse"
+    },
+    {
+      "name": "mem0_search",
+      "description": "Search for past implementations and solutions",
+      "endpoint": "http://oracle-vps.trex-fiordland.ts.net:5001/v1/memories/search"
+    }
+  ],
+  "memory_config": {
+    "in_context_window": 8192,
+    "archival_memory": true,
+    "recall_memory": true,
+    "external_memory_backends": ["mem0", "openmemory", "memos"]
+  },
+  "letta_config": {
+    "context_window_limit": 32768,
+    "max_tokens_per_step": 4096,
+    "embedding_model": "nomic-embed-text",
+    "embedding_endpoint": "http://worker-rtx3060.trex-fiordland.ts.net:11434/v1/embeddings"
+  },
+  "_meta": {
+    "created": "2026-05-27",
+    "owner": "project-nyra",
+    "deploy_to": "oracle-vps Letta instance (port 8283)"
+  }
+}

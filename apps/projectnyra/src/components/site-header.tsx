@@ -15,13 +15,15 @@ const links = [
   { href: "/quotes", label: "Quotes" },
   { href: "/pipeline", label: "Pipeline" },
   { href: "/crm", label: "CRM" },
+  { href: "/nexus", label: "Nexus" },
   { href: "/applications", label: "Applications" },
   { href: "/settings", label: "Settings" },
   { href: "/tools/openclaw", label: "OpenClaw" },
   {
     href:
-      process.env.NEXT_PUBLIC_NEXUS_UI_URL ?? "https://nexus.projectnyra.com",
-    label: "Nexus",
+      process.env.NEXT_PUBLIC_NEXUS_ROUTER_URL ??
+      "https://nexus-router.projectnyra.com",
+    label: "Router",
     external: true,
   },
   {
@@ -97,6 +99,22 @@ export function SiteHeader() {
           </div>
         </div>
       </div>
+      <nav className="mx-auto flex max-w-7xl gap-1 overflow-x-auto border-t border-border/30 px-4 py-2 md:hidden">
+        {links.map((link) => (
+          <Link
+            key={link.href}
+            href={link.href}
+            target={link.external ? "_blank" : undefined}
+            rel={link.external ? "noreferrer" : undefined}
+            className={cn(
+              buttonVariants({ variant: "ghost", size: "sm" }),
+              "h-8 shrink-0 px-3 text-xs font-medium text-muted-foreground hover:text-foreground"
+            )}
+          >
+            {link.label}
+          </Link>
+        ))}
+      </nav>
     </header>
   );
 }

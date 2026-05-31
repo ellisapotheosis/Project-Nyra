@@ -53,7 +53,6 @@ These should use a stricter owner-only Access policy:
 | `openmemory`    | `projectnyra.com` | HTTP | `openmemory-mcp:8765`     |
 | `crm-mcp`       | `projectnyra.com` | HTTP | `twenty-mcp:8400`         |
 | `infisical-mcp` | `projectnyra.com` | HTTP | `nyra-infisical-mcp:8766` |
-| `mempalace-mcp` | `projectnyra.com` | HTTP | `nyra-mempalace-mcp:8000` |
 | `gitea-mcp`     | `projectnyra.com` | HTTP | `nyra-gitea-mcp:3101`     |
 
 ## Worker UI Routes

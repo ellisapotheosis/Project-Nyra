@@ -1,8 +1,6 @@
 # oh-my-codex top-level settings (must be before any [table])
-# `notify` is user-config only for current Codex builds; keep it in ~/.codex/config.toml.
 model_reasoning_effort = "medium"
 developer_instructions = "You have oh-my-codex installed. AGENTS.md is the orchestration brain and main control surface. Follow AGENTS.md for skill/keyword routing, $name workflow invocation, and role-specialized subagents. Use outcome-first, concise progress updates: state the target result, constraints, validation evidence, and stop condition before adding process detail. Native subagents live in .codex/agents and may handle independent parallel subtasks within one Codex session or team pane. Skills load from .codex/skills, not native-agent TOMLs. Treat installed prompts as narrower execution surfaces under AGENTS.md authority."
-suppress_unstable_features_warning = true
 
 
 # oh-my-codex seeded behavioral defaults (uninstall removes unchanged defaults)
@@ -56,7 +54,7 @@ hooks = true
 computer_use = true
 enable_request_compression = true
 enable_fanout = true
-enable_mcp_apps = false
+enable_mcp_apps = true
 exec_permission_approvals = false
 external_migration = true
 fast_mode = true
@@ -128,7 +126,6 @@ command = "npx"
 startup_timeout_sec = 120
 
 [mcp_servers.nexus-router]
-enabled = false
 startup_timeout_sec = 120
 url = "https://nexus-router.projectnyra.com/mcp"
 
@@ -240,36 +237,36 @@ command = "mempalace-mcp"
 
 # OMX State Management MCP Server
 [mcp_servers.omx_state]
-command = "/home/ellisapotheosis/.local/share/fnm/node-versions/v22.22.1/installation/bin/node"
-args = ["/home/ellisapotheosis/.local/share/fnm/node-versions/v22.22.1/installation/lib/node_modules/oh-my-codex/dist/mcp/state-server.js"]
+command = "/usr/bin/node"
+args = ["/home/ellisapotheosis/.npm-global/lib/node_modules/oh-my-codex/dist/mcp/state-server.js"]
 enabled = true
 startup_timeout_sec = 5
 
 # OMX Project Memory MCP Server
 [mcp_servers.omx_memory]
-command = "/home/ellisapotheosis/.local/share/fnm/node-versions/v22.22.1/installation/bin/node"
-args = ["/home/ellisapotheosis/.local/share/fnm/node-versions/v22.22.1/installation/lib/node_modules/oh-my-codex/dist/mcp/memory-server.js"]
+command = "/usr/bin/node"
+args = ["/home/ellisapotheosis/.npm-global/lib/node_modules/oh-my-codex/dist/mcp/memory-server.js"]
 enabled = true
 startup_timeout_sec = 5
 
 # OMX Code Intelligence MCP Server (LSP diagnostics, AST search)
 [mcp_servers.omx_code_intel]
-command = "/home/ellisapotheosis/.local/share/fnm/node-versions/v22.22.1/installation/bin/node"
-args = ["/home/ellisapotheosis/.local/share/fnm/node-versions/v22.22.1/installation/lib/node_modules/oh-my-codex/dist/mcp/code-intel-server.js"]
+command = "/usr/bin/node"
+args = ["/home/ellisapotheosis/.npm-global/lib/node_modules/oh-my-codex/dist/mcp/code-intel-server.js"]
 enabled = true
 startup_timeout_sec = 10
 
 # OMX Trace MCP Server (agent flow timeline & statistics)
 [mcp_servers.omx_trace]
-command = "/home/ellisapotheosis/.local/share/fnm/node-versions/v22.22.1/installation/bin/node"
-args = ["/home/ellisapotheosis/.local/share/fnm/node-versions/v22.22.1/installation/lib/node_modules/oh-my-codex/dist/mcp/trace-server.js"]
+command = "/usr/bin/node"
+args = ["/home/ellisapotheosis/.npm-global/lib/node_modules/oh-my-codex/dist/mcp/trace-server.js"]
 enabled = true
 startup_timeout_sec = 5
 
 # OMX Wiki MCP Server (persistent project knowledge base)
 [mcp_servers.omx_wiki]
-command = "/home/ellisapotheosis/.local/share/fnm/node-versions/v22.22.1/installation/bin/node"
-args = ["/home/ellisapotheosis/.local/share/fnm/node-versions/v22.22.1/installation/lib/node_modules/oh-my-codex/dist/mcp/wiki-server.js"]
+command = "/usr/bin/node"
+args = ["/home/ellisapotheosis/.npm-global/lib/node_modules/oh-my-codex/dist/mcp/wiki-server.js"]
 enabled = true
 startup_timeout_sec = 5
 

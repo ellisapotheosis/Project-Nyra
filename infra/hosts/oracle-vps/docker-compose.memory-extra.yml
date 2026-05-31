@@ -1,198 +1,107 @@
-# Optional memory-manager companions for the Oracle memory plane.
-# Images are overridable because these projects do not all publish under one
-# stable canonical image namespace.
+# memOS/MemoryTensor is kept as an explicit experimental layer over the core
+# Letta + mem0 + Qdrant + FalkorDB memory stack.
 
 services:
-  openmemory-mcp:
-    build:
-      context: ../../../services/openmemory-mcp
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-openmemory-mcp
-    restart: unless-stopped
-    environment:
-      OPENAI_API_KEY: ${OPENMEMORY_OPENAI_API_KEY:-${LITELLM_MASTER_KEY:-${OPENAI_API_KEY}}}
-      OPENAI_API_BASE: ${OPENMEMORY_OPENAI_API_BASE:-http://litellm:4000/v1}
-      QDRANT_HOST: qdrant
-      QDRANT_PORT: "6333"
-      QDRANT_API_KEY: ${QDRANT_API_KEY:-}
-      MEM0_API_URL: http://mem0:5000
-      USER: nyra
-      LLM_PROVIDER: openai
-      LLM_MODEL: ${OPENMEMORY_LLM_MODEL:-subscription/codex}
-      EMBEDDER_PROVIDER: openai
-      EMBEDDER_MODEL: ${OPENMEMORY_EMBEDDER_MODEL:-local/embeddings}
-    ports:
-      - "${ORACLE_TAILSCALE_IP:-127.0.0.1}:${OPENMEMORY_MCP_HOST_PORT:-8765}:8765"
-    depends_on:
-      - mem0
-      - qdrant
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8765/docs"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    networks:
-      memory_edge: {}
-      memory_private: {}
-      nyra_net:
-        aliases:
-          - memory-openmemory-mcp
-
-  mempalace-mcp:
-    build:
-      context: ../../../services/mempalace-mcp
-      dockerfile: Dockerfile
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-mempalace-mcp
+  memos-api:
+    image: ${MEMOS_IMAGE:-nyra/memorytensor-memos:local}
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-memos-api
     restart: unless-stopped
     command:
       - /bin/sh
       - -lc
-      - |
-        python -m mempalace.mcp_server
-        echo "mempalace stdio server exited; keeping container idle until an MCP client attaches"
-        tail -f /dev/null
-    environment:
-      PORT: 8000
-      MEMPAL_DIR: /data/vault
-    ports:
-      - "${ORACLE_TAILSCALE_IP:-127.0.0.1}:${MEMPALACE_MCP_HOST_PORT:-8002}:8000"
-    volumes:
-      - mempalace_data:/root/.mempalace
-      - mempalace_vault:/data/vault
-    healthcheck:
-      test: ["CMD-SHELL", "python -c 'import mempalace'"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    networks:
-      memory_edge: {}
-      nyra_net:
-        aliases:
-          - memory-mempalace-mcp
-
-  memos-api:
-    build:
-      context: ../../..
-      dockerfile: services/memos/Dockerfile
-    image: ${MEMOS_IMAGE:-nyra/memorytensor-memos:local}
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-memos-api
-    restart: unless-stopped
-    environment:
+      - mkdir -p /data/files && exec python -m memos.api.server_api --port 8001 --workers 1
+    environment: &memos-env
       MEM0_BASE_URL: http://mem0:5000
       FALKORDB_URL: redis://falkordb:6379
-      LETTA_BASE_URL: http://letta:8283
-      FILE_LOCAL_PATH: /data/files
-      OPENAI_API_KEY: ${MEMOS_OPENAI_API_KEY:-${LITELLM_MASTER_KEY:-${OPENAI_API_KEY}}}
-      OPENAI_API_BASE: ${MEMOS_OPENAI_API_BASE:-http://litellm:4000/v1}
-      QDRANT_HOST: qdrant
-      QDRANT_PORT: "6333"
       QDRANT_URL: http://qdrant:6333
-      MEMRADER_MODEL: ${MEMOS_MODEL_NAME:-subscription/codex}
-      MEMRADER_API_KEY: ${MEMOS_OPENAI_API_KEY:-${LITELLM_MASTER_KEY:-${OPENAI_API_KEY}}}
-      MEMRADER_API_BASE: ${MEMOS_OPENAI_API_BASE:-http://litellm:4000/v1}
-      MOS_CHAT_MODEL: ${MEMOS_MODEL_NAME:-subscription/codex}
-      MOS_EMBEDDER_BACKEND: universal_api
-      MOS_EMBEDDER_PROVIDER: openai
-      MOS_EMBEDDER_MODEL: ${MEMOS_EMBEDDER_MODEL:-local/embeddings}
-      MOS_EMBEDDER_API_KEY: ${MEMOS_OPENAI_API_KEY:-${LITELLM_MASTER_KEY:-${OPENAI_API_KEY}}}
-      MOS_EMBEDDER_API_BASE: ${MEMOS_OPENAI_API_BASE:-http://litellm:4000/v1}
+      QDRANT_HOST: qdrant
+      QDRANT_PORT: 6333
+      LETTA_BASE_URL: http://letta:8283
+      # The deployed memOS package does not support FalkorDB as a native graph
+      # backend. mem0 owns graph memory through FalkorDB; memOS remains an
+      # experimental lane and must not be treated as the graph source of truth.
+      OPENAI_API_KEY: ${OPENAI_API_KEY:?set OPENAI_API_KEY}
+      OPENAI_API_BASE: ${OPENAI_API_BASE:-${OPENAI_BASE_URL:-}}
+      MOS_CHAT_MODEL: ${MOS_CHAT_MODEL:-gpt-4o-mini}
       MOS_TEXT_MEM_TYPE: ${MOS_TEXT_MEM_TYPE:-general_text}
-    expose:
-      - "8001"
-    ports:
-      - "${ORACLE_TAILSCALE_IP:-127.0.0.1}:${MEMOS_API_HOST_PORT:-8001}:8001"
-    volumes:
-      - memos_data:/data/memos
-      - memos_files:/data/files
+      MOS_EMBEDDER_BACKEND: ${MOS_EMBEDDER_BACKEND:-universal_api}
+      MOS_EMBEDDER_PROVIDER: ${MOS_EMBEDDER_PROVIDER:-openai}
+      MOS_EMBEDDER_MODEL: ${MOS_EMBEDDER_MODEL:-text-embedding-3-small}
+      MOS_EMBEDDER_API_KEY: ${MOS_EMBEDDER_API_KEY:-${OPENAI_API_KEY:-}}
+      MOS_EMBEDDER_API_BASE: ${MOS_EMBEDDER_API_BASE:-${OPENAI_API_BASE:-${OPENAI_BASE_URL:-}}}
+      MEMRADER_MODEL: ${MEMRADER_MODEL:-${MOS_CHAT_MODEL:-gpt-4o-mini}}
+      MEMRADER_API_KEY: ${MEMRADER_API_KEY:-${OPENAI_API_KEY:-}}
+      MEMRADER_API_BASE: ${MEMRADER_API_BASE:-${OPENAI_API_BASE:-${OPENAI_BASE_URL:-}}}
+      FILE_LOCAL_PATH: /data/files
     depends_on:
-      - mem0
-      - falkordb
-      - qdrant
-      - letta
+      mem0:
+        condition: service_healthy
+      falkordb:
+        condition: service_healthy
+      qdrant:
+        condition: service_healthy
+      letta:
+        condition: service_healthy
+    ports:
+      - 127.0.0.1:${MEMOS_API_HOST_PORT:-8001}:8001
+    volumes:
+      - memos_data:/data
     networks:
       memory_edge: {}
       nyra_net:
         aliases:
+          - memos-api
           - memory-memos-api
-
-  memos-mcp:
-    build:
-      context: ../../..
-      dockerfile: services/memos/Dockerfile
-    image: ${MEMOS_IMAGE:-nyra/memorytensor-memos:local}
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-memos-mcp
-    restart: unless-stopped
-    command:
-      - python
-      - -m
-      - memos.api.mcp_serve
-      - --transport
-      - sse
-      - --host
-      - 0.0.0.0
-      - --port
-      - "8085"
-    environment:
-      FILE_LOCAL_PATH: /data/files
-      OPENAI_API_KEY: ${MEMOS_OPENAI_API_KEY:-${LITELLM_MASTER_KEY:-${OPENAI_API_KEY}}}
-      OPENAI_API_BASE: ${MEMOS_OPENAI_API_BASE:-http://litellm:4000/v1}
-      QDRANT_HOST: qdrant
-      QDRANT_PORT: "6333"
-      QDRANT_URL: http://qdrant:6333
-      MEMRADER_MODEL: ${MEMOS_MODEL_NAME:-subscription/codex}
-      MEMRADER_API_KEY: ${MEMOS_OPENAI_API_KEY:-${LITELLM_MASTER_KEY:-${OPENAI_API_KEY}}}
-      MEMRADER_API_BASE: ${MEMOS_OPENAI_API_BASE:-http://litellm:4000/v1}
-      MOS_CHAT_MODEL: ${MEMOS_MODEL_NAME:-subscription/codex}
-      MOS_EMBEDDER_BACKEND: universal_api
-      MOS_EMBEDDER_PROVIDER: openai
-      MOS_EMBEDDER_MODEL: ${MEMOS_EMBEDDER_MODEL:-local/embeddings}
-      MOS_EMBEDDER_API_KEY: ${MEMOS_OPENAI_API_KEY:-${LITELLM_MASTER_KEY:-${OPENAI_API_KEY}}}
-      MOS_EMBEDDER_API_BASE: ${MEMOS_OPENAI_API_BASE:-http://litellm:4000/v1}
-      MOS_TEXT_MEM_TYPE: ${MOS_TEXT_MEM_TYPE:-general_text}
-    ports:
-      - "${ORACLE_TAILSCALE_IP:-127.0.0.1}:${MEMOS_MCP_HOST_PORT:-8095}:8085"
-    volumes:
-      - memos_data:/data/memos
-      - memos_files:/data/files
-    depends_on:
-      - memos-api
-      - qdrant
-      - letta
     healthcheck:
       test:
         [
           "CMD-SHELL",
-          'python -c ''import socket; s=socket.create_connection(("127.0.0.1", 8085), 5); s.close()''',
+          "curl -fsS http://127.0.0.1:8001/health >/dev/null 2>&1",
         ]
       interval: 30s
       timeout: 10s
       retries: 3
-    networks:
-      memory_edge: {}
-      nyra_net:
-        aliases:
-          - memory-memos-mcp
 
-  claudemem:
-    image: ${CLAUDEMEM_IMAGE:-ghcr.io/ruvnet/claudemem:latest}
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-claudemem
+  memos-mcp:
+    image: ${MEMOS_IMAGE:-nyra/memorytensor-memos:local}
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-memos-mcp
     restart: unless-stopped
+    command:
+      - /bin/sh
+      - -lc
+      - mkdir -p /data/files && exec python -m memos.api.mcp_serve --transport sse --host 0.0.0.0 --port 8085
     environment:
-      MEM0_BASE_URL: http://mem0:5000
-      OPENMEMORY_MCP_URL: ${OPENMEMORY_MCP_URL:-http://oracle.trex-fiordland.ts.net:8765}
-      LETTA_BASE_URL: http://letta:8283
-    expose:
-      - "8080"
+      <<: *memos-env
     depends_on:
-      - mem0
-      - letta
+      memos-api:
+        condition: service_healthy
+      qdrant:
+        condition: service_healthy
+      letta:
+        condition: service_healthy
+    ports:
+      - 127.0.0.1:${MEMOS_MCP_HOST_PORT:-8095}:8085
+    volumes:
+      - memos_data:/data
     networks:
       memory_edge: {}
       nyra_net:
         aliases:
-          - memory-claudemem
+          - memos-mcp
+          - memory-memos-mcp
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "python -c 'import socket; s=socket.create_connection((\"127.0.0.1\", 8085), 5); s.close()'",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
 networks:
   memory_edge:
+    external: true
     name: nyra_memory_edge
   nyra_net:
     external: true
@@ -200,6 +109,3 @@ networks:
 
 volumes:
   memos_data:
-  memos_files:
-  mempalace_data:
-  mempalace_vault:

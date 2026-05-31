@@ -1,0 +1,279 @@
+# Nyra Command Deck — Home Assistant Lovelace Dashboard
+#
+# Deploy via: HA UI → Settings → Dashboards → Add Dashboard → YAML mode
+# Or place in config/ui_lovelace.yaml (manual mode) and reload.
+#
+# Sensitive portals (Portainer, Prometheus, Grafana) use url cards that
+# open in a new tab rather than iframes to avoid X-Frame-Options blocks.
+
+title: Nyra Command Deck
+views:
+
+  # ── Overview ─────────────────────────────────────────────────────────────
+  - title: Overview
+    icon: mdi:view-dashboard
+    path: overview
+    cards:
+      - type: markdown
+        content: |
+          ## Project Nyra — Mission Control
+          **Domain**: [projectnyra.com](https://app.projectnyra.com)
+          **Landing**: [ratehunter.net](https://ratehunter.net)
+
+      - type: entities
+        title: Quick Status
+        entities:
+          - entity: sensor.oracle_vps_status
+            name: Oracle VPS
+          - entity: sensor.orchestrator_status
+            name: Orchestrator
+          - entity: sensor.worker_3060_status
+            name: Worker RTX 3060 (always-on)
+          - entity: sensor.worker_3090_status
+            name: Worker RTX 3090 Ti
+          - entity: sensor.worker_5090_status
+            name: Worker RTX 5090 (mobile)
+
+      - type: horizontal-stack
+        cards:
+          - type: url
+            name: App
+            url: https://app.projectnyra.com
+            icon: mdi:application
+          - type: url
+            name: Status
+            url: https://status.projectnyra.com
+            icon: mdi:heart-pulse
+          - type: url
+            name: Uptime
+            url: https://uptime.projectnyra.com
+            icon: mdi:chart-timeline-variant
+
+  # ── Apps & Portals ────────────────────────────────────────────────────────
+  - title: Apps & Portals
+    icon: mdi:apps
+    path: apps
+    cards:
+      - type: grid
+        title: Core Applications
+        columns: 3
+        cards:
+          - type: url
+            name: App Portal
+            url: https://app.projectnyra.com
+            icon: mdi:home-city
+          - type: url
+            name: Admin Portal
+            url: https://admin.projectnyra.com
+            icon: mdi:shield-account
+          - type: url
+            name: CRM (Twenty)
+            url: https://crm.projectnyra.com
+            icon: mdi:account-group
+          - type: url
+            name: CRM UI
+            url: https://crm-ui.projectnyra.com
+            icon: mdi:account-box
+          - type: url
+            name: Chat
+            url: https://chat.projectnyra.com
+            icon: mdi:chat
+          - type: url
+            name: Borrower Chat
+            url: https://borrower-chat.projectnyra.com
+            icon: mdi:chat-question
+          - type: url
+            name: Open WebUI
+            url: https://openwebui.projectnyra.com
+            icon: mdi:robot
+          - type: url
+            name: Campaigns
+            url: https://campaigns.projectnyra.com
+            icon: mdi:bullhorn
+          - type: url
+            name: Quotes API
+            url: https://quotes.projectnyra.com
+            icon: mdi:calculator-variant
+
+      - type: grid
+        title: Workflows & Integrations
+        columns: 3
+        cards:
+          - type: url
+            name: n8n
+            url: https://n8n.projectnyra.com
+            icon: mdi:connection
+          - type: url
+            name: Activepieces
+            url: https://activepieces.projectnyra.com
+            icon: mdi:puzzle
+          - type: url
+            name: Gitea
+            url: https://gitea.projectnyra.com
+            icon: mdi:git
+          - type: url
+            name: Paperclip
+            url: https://paperclip.projectnyra.com
+            icon: mdi:paperclip
+          - type: url
+            name: Linkwarden
+            url: https://links.projectnyra.com
+            icon: mdi:bookmark-multiple
+
+  # ── AI & Workers ──────────────────────────────────────────────────────────
+  - title: AI & Workers
+    icon: mdi:brain
+    path: ai-workers
+    cards:
+      - type: grid
+        title: AI Services
+        columns: 3
+        cards:
+          - type: url
+            name: Nexus Router
+            url: https://nexus.projectnyra.com
+            icon: mdi:router-network
+          - type: url
+            name: LiteLLM
+            url: https://litellm.projectnyra.com
+            icon: mdi:robot-outline
+          - type: url
+            name: Letta
+            url: https://letta.projectnyra.com
+            icon: mdi:memory
+          - type: url
+            name: ClawTeam
+            url: https://clawteam.projectnyra.com
+            icon: mdi:paw
+          - type: url
+            name: OpenClaw Gateway
+            url: https://openclaw-gateway.projectnyra.com
+            icon: mdi:gate
+          - type: url
+            name: GasTown
+            url: https://gastown.projectnyra.com
+            icon: mdi:city
+
+      - type: markdown
+        title: Worker RTX 5090 (Mobile — may be offline)
+        content: |
+          **Tailscale**: `worker-rtx5090.trex-fiordland.ts.net`
+          **VRAM**: 32 GB | **Role**: Primary vLLM (Qwen2.5, DeepSeek-R1, Llama-3.1-70B)
+          ⚠️ This is the user's dev workstation — check before assuming online.
+      - type: horizontal-stack
+        cards:
+          - type: url
+            name: Nerve-5090
+            url: https://nerve-5090.projectnyra.com
+            icon: mdi:lightning-bolt
+          - type: url
+            name: Claw-5090
+            url: https://claw-5090.projectnyra.com
+            icon: mdi:paw
+
+      - type: markdown
+        title: Worker RTX 3090 Ti
+        content: |
+          **Tailscale**: `worker-rtx3090ti.trex-fiordland.ts.net`
+          **VRAM**: 24 GB | **Role**: vLLM inference + TTS (distributed voice)
+      - type: horizontal-stack
+        cards:
+          - type: url
+            name: Nerve-3090
+            url: https://nerve-3090.projectnyra.com
+            icon: mdi:lightning-bolt
+          - type: url
+            name: Claw-3090
+            url: https://claw-3090.projectnyra.com
+            icon: mdi:paw
+
+      - type: markdown
+        title: Worker RTX 3060 (Always-On)
+        content: |
+          **Tailscale**: `worker-rtx3060.trex-fiordland.ts.net`
+          **VRAM**: 5 GB usable | **Role**: Embeddings (nomic-embed-text) + STT
+          Always running: `nomic-embed-text` (274 MB) + `llama3.2:3b` (2 GB)
+      - type: horizontal-stack
+        cards:
+          - type: url
+            name: Nerve-3060
+            url: https://nerve-3060.projectnyra.com
+            icon: mdi:lightning-bolt
+          - type: url
+            name: PicoClaw-3060
+            url: https://picoclaw-3060.projectnyra.com
+            icon: mdi:paw-outline
+
+  # ── Observability ─────────────────────────────────────────────────────────
+  - title: Observability
+    icon: mdi:chart-line
+    path: observability
+    cards:
+      - type: grid
+        title: Dashboards
+        columns: 3
+        cards:
+          - type: url
+            name: Grafana
+            url: https://grafana.projectnyra.com
+            icon: mdi:chart-areaspline
+          - type: url
+            name: Prometheus
+            url: https://prometheus.projectnyra.com
+            icon: mdi:chart-scatter-plot
+          - type: url
+            name: OpenLIT
+            url: https://openlit.projectnyra.com
+            icon: mdi:telescope
+          - type: url
+            name: cAdvisor
+            url: https://cadvisor.projectnyra.com
+            icon: mdi:docker
+          - type: url
+            name: Uptime Kuma
+            url: https://uptime.projectnyra.com
+            icon: mdi:heart-pulse
+          - type: url
+            name: Public Status
+            url: https://public-status.projectnyra.com
+            icon: mdi:web
+
+      - type: grid
+        title: Infrastructure
+        columns: 3
+        cards:
+          - type: url
+            name: Portainer (Orchestrator)
+            url: https://portainer.projectnyra.com
+            icon: mdi:docker
+          - type: url
+            name: Portainer (Oracle)
+            url: https://portainer-oracle.projectnyra.com
+            icon: mdi:docker
+
+  # ── Tunnels & DNS ─────────────────────────────────────────────────────────
+  - title: Tunnels & DNS
+    icon: mdi:tunnel
+    path: tunnels-dns
+    cards:
+      - type: markdown
+        title: Cloudflare Tunnel Status
+        content: |
+          Check tunnel health at: [status.projectnyra.com](https://status.projectnyra.com)
+
+          **Orchestrator tunnel** serves:
+          - Control plane: admin, chat, campaigns, quotes, status, ha
+          - Worker UIs: nerve-*/claw-*/picoclaw-* (via Tailscale)
+          - Oracle proxies: litellm, nexus, letta, crm-ui (via Tailscale)
+
+          **Oracle tunnel** serves:
+          - App: app, api, hooks, crm, n8n, grafana, openwebui, openlit
+          - Storage: gitea, activepieces, paperclip, clawteam
+          - Status: uptime, public-status, oracle
+
+          **ratehunter.net** → Cloudflare Pages (not a tunnel)
+
+      - type: url
+        name: Cloudflare Zero Trust Dashboard
+        url: https://dash.cloudflare.com
+        icon: mdi:cloud-lock

@@ -89,6 +89,8 @@ services:
           memory: 256m
 
   postgres-client:
+    # Debug-only psql client. This is not an orchestrator Postgres server:
+    # it has no data volume, no host port, and sleeps until an operator execs in.
     image: postgres:16-alpine
     container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-postgres-client
     profiles: ["debug"]

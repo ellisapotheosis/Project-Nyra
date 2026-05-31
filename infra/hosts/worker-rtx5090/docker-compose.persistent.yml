@@ -1,14 +1,5 @@
-# docker-compose.persistent.yml — Worker RTX 5090
-# =============================================================================
-# NEVER include this in make down, make stack-down, or any teardown target.
-# restart: always ensures Docker daemon re-launches these after reboot.
-#
-# Syncthing: uses named volume with explicit name: field — this volume name
-# is STABLE regardless of compose project name and can never be orphaned.
-# HOST_HOME_PATH defaults to /home/ellisapotheosis if not set.
-#
-# Deploy:   make persistent-up-worker-5090
-# =============================================================================
+# Persistent services for worker-rtx5090 — Portainer edge agent + Syncthing
+name: nyra-persistent
 
 services:
   portainer-edge-agent:
@@ -17,28 +8,26 @@ services:
     restart: always
     environment:
       EDGE: "1"
-      EDGE_ID: ${PORTAINER_EDGE_ID}
+      EDGE_ID: ${PORTAINER_EDGE_ID:-}
       EDGE_KEY: ${PORTAINER_EDGE_KEY}
-      EDGE_INSECURE_POLL: ${PORTAINER_EDGE_INSECURE_POLL:-1}
+      EDGE_INSECURE_POLL: "1"
       AGENT_CLUSTER_ADDR: tasks.portainer-edge-agent
-      AGENT_TAGS: ${PORTAINER_AGENT_TAGS:-nyra,edge,worker-5090}
+      AGENT_TAGS: nyra,edge,worker-5090
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - /var/lib/docker/volumes:/var/lib/docker/volumes
+    networks:
+      - default
 
   syncthing:
     image: syncthing/syncthing:latest
     container_name: nyra-persistent-worker-5090-syncthing
-    hostname: syncthing-worker-5090
     restart: always
     network_mode: host
-    environment:
-      - PUID=1000
-      - PGID=1000
     volumes:
-      - syncthing_config:/var/syncthing
-      - ${HOST_HOME_PATH:-/home/ellisapotheosis}:/var/syncthing/data/home
+      - /home/ellisapotheosis:/var/syncthing/data/home
+      - nyra-persistent-syncthing-config-5090:/var/syncthing
 
 volumes:
-  syncthing_config:
-    name: nyra-persistent-syncthing-config-5090
+  nyra-persistent-syncthing-config-5090:
+    external: true
