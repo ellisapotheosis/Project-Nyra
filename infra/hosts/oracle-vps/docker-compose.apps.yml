@@ -15,10 +15,20 @@ services:
       - NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=${NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
       - CLERK_SECRET_KEY=${CLERK_SECRET_KEY}
       - CRM_API_URL=http://nyra-crm-api:4001
+      - NEXUS_ROUTER_URL=http://nexus:3000
+      - NEXT_PUBLIC_NEXUS_ROUTER_URL=${NEXT_PUBLIC_NEXUS_ROUTER_URL:-https://nexus-router.projectnyra.com}
+      - GRAFBASE_URL=http://grafbase-gateway:5000
+      - NEXT_PUBLIC_GRAFBASE_URL=${NEXT_PUBLIC_GRAFBASE_URL:-https://grafbase.projectnyra.com}
+      - OPENMEMORY_MCP_URL=http://openmemory-mcp:8765
+      - NEXT_PUBLIC_OPENMEMORY_URL=${NEXT_PUBLIC_OPENMEMORY_URL:-https://memory.projectnyra.com}
+      - MEM0_API_URL=http://mem0:5000
+      - MEMOS_API_URL=http://memos-api:8001
+      - QDRANT_URL=http://qdrant:6333
     ports:
       - "${WEBAPP_HOST_PORT:-3002}:3001"
     networks:
       - nyra_net
+      - memory_edge
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3001"]
       interval: 30s
@@ -70,3 +80,11 @@ services:
 
 volumes:
   nexus_ui_config:
+
+networks:
+  nyra_net:
+    external: true
+    name: nyra-network_nyra_net
+  memory_edge:
+    external: true
+    name: nyra_memory_edge

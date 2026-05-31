@@ -518,40 +518,6 @@ services:
         published: "5000"
         target: 5000
     restart: unless-stopped
-  mempalace-mcp:
-    build:
-      context: /home/ellisapotheosis/repos/project-nyra/services/mempalace-mcp
-      dockerfile: Dockerfile
-    container_name: nyra-mempalace-mcp
-    environment:
-      MEMPAL_DIR: /data/vault
-      PORT: 8000
-    healthcheck:
-      interval: 30s
-      retries: 3
-      test:
-        - CMD
-        - curl
-        - -f
-        - http://localhost:8000/health
-      timeout: 10s
-    networks:
-      nyra_net: null
-    ports:
-      - mode: ingress
-        protocol: tcp
-        published: "8002"
-        target: 8000
-    restart: unless-stopped
-    volumes:
-      - source: mempalace_data
-        target: /root/.mempalace
-        type: volume
-        volume: {}
-      - source: mempalace_vault
-        target: /data/vault
-        type: volume
-        volume: {}
   n8n:
     build:
       args:
@@ -618,7 +584,6 @@ services:
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
       GITHUB_TOKEN: ${GITHUB_TOKEN}
       LITELLM_MASTER_KEY: ${LITELLM_MASTER_KEY}
-      MEMPALACE_URL: ${MEMPALACE_URL:-}
       OPENAI_API_KEY: ${OPENAI_API_KEY}
       OPENROUTER_API_KEY: ${OPENROUTER_API_KEY}
     healthcheck:
@@ -641,10 +606,10 @@ services:
     restart: unless-stopped
     volumes:
       - bind:
-          create_host_path: true
+        create_host_path: true
         read_only: true
-        source: /home/ellisapotheosis/repos/project-nyra/infra/configs/nexus/nexus.toml
-        target: /etc/nexus/nexus.toml
+        source: /home/ubuntu/project-nyra/infra/hosts/oracle-vps/nexus.toml
+        target: /etc/nexus.toml
         type: bind
       - read_only: true
         source: nyra_secrets
@@ -1043,10 +1008,6 @@ volumes:
     name: nyra-network_grafana_data
   loki_data:
     name: nyra-network_loki_data
-  mempalace_data:
-    name: nyra-network_mempalace_data
-  mempalace_vault:
-    name: nyra-network_mempalace_vault
   n8n_data:
     name: nyra-network_n8n_data
   nyra_secrets:

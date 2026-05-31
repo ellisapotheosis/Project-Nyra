@@ -1,0 +1,56 @@
+{
+  "term:theme": "orchestrator-cyberpunk-neon",
+  "term:fontsize": 13,
+  "term:fontfamily": "'Fira Code', 'JetBrains Mono', 'CaskaydiaCove Nerd Font Mono', monospace",
+  "term:lineheight": 1.6,
+  "term:cursorstyle": "block",
+  "term:cursorshape": "block",
+  "term:cursorvisible": true,
+  "term:scrollback": 1000000,
+  "term:copyonselect": true,
+  "term:wordwrap": true,
+
+  "tab:background": "transparent",
+  "tab:showicon": true,
+  "tab:showtitle": true,
+  "tab:showactions": true,
+
+  "pane:background": "linear-gradient(180deg, rgba(9,9,14,0.95) 0%, rgba(21,10,33,0.98) 100%)",
+  "pane:bordercolor": "#ff6600",
+  "pane:borderwidth": 2,
+  "pane:showtitle": true,
+  "pane:splitdirection": "vertical",
+
+  "app:notifications": "enabled",
+  "app:notificationtimeout": 5000,
+  "app:telemetry": "disabled",
+  "app:animations": "enabled",
+  "app:animationspeed": 200,
+
+  "waveai:defaultmode": "nyra-letta-orchestrator",
+  "waveai:sidebaropen": false,
+  "waveai:sidebarlocation": "right",
+  "waveai:modelselection": "local",
+  "waveai:showcloudmodes": false,
+
+  "editor:tabsize": 2,
+  "editor:insertspaces": true,
+  "editor:wordwrap": "on",
+  "editor:minimap": false,
+
+  "window:opacity": 0.96,
+  "window:blur": true,
+  "window:blur-amount": 10,
+  "window:macos-translucent-titlebar": true,
+
+  "keybindings:enabled": true,
+  "keybindings:chordenabled": true,
+  "keybindings:chordtimeout": 800,
+
+  "developer:debugreact": false,
+  "developer:debugwaveai": false,
+  "developer:debugplugins": false,
+  "developer:hotreload": true,
+
+  "_comment_worker": "worker-rtx5090 settings — orange border theme, local primary coding workstation"
+}

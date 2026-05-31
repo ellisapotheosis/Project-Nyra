@@ -1,0 +1,201 @@
+# FalkorDB Graph Database for Project Nyra Memory Stack
+# Graph backend for mem0 enterprise memory layer
+#
+# Deployment:
+#   docker --context oracle-vps compose \
+#     -f infra/hosts/oracle-vps/docker-compose.falkordb.yml \
+#     up -d
+#
+# FalkorDB provides:
+#   - Graph data model (nodes, edges, properties)
+#   - Semantic relationships between entities (people, companies, deals)
+#   - Complex query support via Cypher-like syntax
+#   - Integration with mem0 via community plugin
+#
+# Note: This is the **canonical graph backend** for mem0.
+# Do NOT use other graph databases (Neo4j, etc.) as primary store.
+
+name: nyra-falkordb
+
+networks:
+  nyra-network:
+    name: nyra-network
+    driver: bridge
+    external: true
+
+volumes:
+  falkordb_data:
+    name: nyra_falkordb_data
+    driver: local
+
+services:
+  # ────────────────────────────────────────────────────────────────────────────
+  # FalkorDB — Multi-Model Graph Database
+  #
+  # Purpose:
+  #   - Stores semantic relationships between entities (nodes)
+  #   - Enables complex graph queries (Cypher-like)
+  #   - Integrates with mem0 via custom community plugin
+  #   - Tracks entity connections (borrower → loan → property → appraiser)
+  #
+  # Data Model:
+  #   - Nodes: People, Companies, Properties, Loans, Deals
+  #   - Edges: relationships like "borrower_of", "appraiser_for", "property_in"
+  #   - Properties: metadata attached to nodes/edges
+  #
+  # API:
+  #   - Redis protocol (compatible with redis-cli)
+  #   - Port 6379 (internal, not exposed to public)
+  # ────────────────────────────────────────────────────────────────────────────
+  falkordb:
+    image: falkordb/falkordb:latest
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-falkordb
+    restart: unless-stopped
+    networks: [nyra-network]
+
+    environment:
+      # FalkorDB runs on Redis protocol
+      # No special configuration needed; defaults are sensible for most workloads
+      # For large graphs, may need to tune memory settings (see volumes section)
+      FALKORDB_SAVE_MODE: "rdb"  # RDB snapshots for persistence
+
+    volumes:
+      # Persistent graph data (RDB snapshots)
+      - falkordb_data:/data
+
+    ports:
+      # Redis protocol (port 6379)
+      # Only exposed to local docker network, not to Tailscale
+      # Accessed via docker hostname: falkordb:6379
+      - "127.0.0.1:6379:6379"
+
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+    logging:
+      driver: json-file
+      options:
+        max-size: "20m"
+        max-file: "10"
+
+    # Resource constraints
+    # FalkorDB (Redis-based) is memory-intensive for large graphs
+    # Monitor with: docker stats
+    # Adjust based on available memory:
+    #   - For 64GB system: ~4-8GB limit
+    #   - For 32GB system: ~2-4GB limit
+    #   - For smaller: ~1GB limit
+    # cpus: "2.0"
+    # mem_limit: "4g"
+
+# ════════════════════════════════════════════════════════════════════════════════
+# NETWORK NOTE
+# ════════════════════════════════════════════════════════════════════════════════
+# nyra-network is created and managed by the main oracle-vps/docker-compose.yml
+# If deploying FalkorDB independently, create the network:
+#
+#   docker network create nyra-network
+#
+# ════════════════════════════════════════════════════════════════════════════════
+# DEPLOYMENT & VERIFICATION
+# ════════════════════════════════════════════════════════════════════════════════
+#
+# 1. Deploy:
+#    docker --context oracle-vps compose -f docker-compose.falkordb.yml up -d
+#
+# 2. Verify health:
+#    docker --context oracle-vps exec nyra-falkordb redis-cli ping
+#    Should return: PONG
+#
+# 3. Check FalkorDB version:
+#    docker --context oracle-vps exec nyra-falkordb \
+#      redis-cli CALL falkordb.list
+#
+# 4. Monitor logs:
+#    docker --context oracle-vps logs -f nyra-falkordb
+#
+# ════════════════════════════════════════════════════════════════════════════════
+# MEM0 INTEGRATION
+# ════════════════════════════════════════════════════════════════════════════════
+#
+# mem0 uses a community plugin to integrate FalkorDB as its graph backend.
+#
+# Configuration (in docker-compose.memory.yml):
+#   environment:
+#     MEM0_GRAPH_DATABASE_TYPE: falkordb
+#     MEM0_GRAPH_DATABASE_HOST: falkordb
+#     MEM0_GRAPH_DATABASE_PORT: 6379
+#     MEM0_GRAPH_DATABASE_NAME: mem0  # Graph/keyspace name in FalkorDB
+#
+# mem0 Plugin Installation:
+#   The mem0 container must install the FalkorDB plugin at startup:
+#     pip install falkordb
+#
+# Graph Structure (example):
+#   Nodes:
+#     - type: "Borrower" (properties: name, ssn, income, credit_score)
+#     - type: "LoanProduct" (properties: rate, term, amount)
+#     - type: "Property" (properties: address, appraised_value, county)
+#     - type: "Appraiser" (properties: license_number, firm)
+#
+#   Edges:
+#     - Borrower ---[applies_for]---> LoanProduct
+#     - Borrower ---[securing]---> Property
+#     - Borrower ---[employed_at]---> Company
+#     - Property ---[appraised_by]---> Appraiser
+#     - LoanProduct ---[covers]---> Property
+#
+# ════════════════════════════════════════════════════════════════════════════════
+# LETTA INTEGRATION
+# ════════════════════════════════════════════════════════════════════════════════
+#
+# Letta can query FalkorDB for entity relationships during conversation:
+#   - "What properties does John Smith have?"
+#   - "Which loans are securing which properties?"
+#   - "Who are all the appraisers for county X?"
+#
+# Configuration (in docker-compose.letta-mcp.yml):
+#   environment:
+#     LETTA_GRAPH_DATABASE: falkordb
+#     LETTA_GRAPH_HOST: falkordb
+#     LETTA_GRAPH_PORT: 6379
+#
+# ════════════════════════════════════════════════════════════════════════════════
+# BACKUP & DISASTER RECOVERY
+# ════════════════════════════════════════════════════════════════════════════════
+#
+# RDB Snapshots (automatic):
+#   FalkorDB writes RDB snapshots to /data (persisted in Docker volume)
+#   Default behavior: save on every operation (BGSAVE)
+#
+# Manual snapshot:
+#   docker --context oracle-vps exec nyra-falkordb \
+#     redis-cli BGSAVE
+#
+# List databases:
+#   docker --context oracle-vps exec nyra-falkordb \
+#     redis-cli info keyspace
+#
+# Backup volume:
+#   docker volume inspect nyra_falkordb_data  # Shows mount path
+#   Use standard Linux backup tools (rsync, tar, etc.)
+#
+# ════════════════════════════════════════════════════════════════════════════════
+# ARCHITECTURE NOTE: CANONICAL GRAPH STORE
+# ════════════════════════════════════════════════════════════════════════════════
+#
+# From infra/CLAUDE.md:
+#   "The mem0+FalkorDB integration uses a custom community plugin that enables
+#    FalkorDB as mem0's graph database backend. This is intentional and non-standard.
+#    Do NOT:
+#      - Remove FalkorDB from the memory stack
+#      - Change mem0's graph backend configuration
+#      - Duplicate these services into docker-compose.yml"
+#
+# This is the **only** graph store for the memory stack. Do not add Neo4j, ArangoDB,
+# or other alternatives unless explicitly approved and documented.
+#

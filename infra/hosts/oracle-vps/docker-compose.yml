@@ -702,7 +702,7 @@ services:
 
   # ── shadcn Registry MCP (stdio→SSE bridge via supergateway) ──────────────
   # Registry browser/search sidecar bound to the same /app workspace.
-  # Installs are executed through nyra-ui-engine with shadxn.
+  # Uses the tweakcn registry MCP for Project Nyra theme/component discovery.
   shadcn-mcp:
     image: node:20-alpine
     container_name: nyra-network-nyra-shadcn-mcp
@@ -712,15 +712,15 @@ services:
       NPM_CONFIG_CACHE: /tmp/.npm
       NYRA_UI_INSTALL_COMMAND: npx shadxn add
       SHADCN_ADD_COMMAND: npx shadxn add
-      SHADCN_REGISTRY_CLI: shadxn
+      SHADCN_REGISTRY_CLI: shadcn
+      REGISTRY_URL: https://tweakcn.com/r/themes/registry.json
     command:
       - /bin/sh
       - -lc
       - |
-        npm install -g shadxn \
-          && npx -y supergateway --stdio "npx -y shadcn@latest mcp" --port 8769
+        npx -y supergateway --stdio "npx -y shadcn@canary mcp" --port 8769
     ports:
-      - "8769:8769"
+      - "127.0.0.1:8769:8769"
     volumes:
       - ../../../apps/projectnyra:/app
     networks: [nyra_net]
@@ -1067,7 +1067,6 @@ services:
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
       OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
       GITHUB_TOKEN: ${GITHUB_TOKEN:-}
-      MEMPALACE_URL: ${MEMPALACE_URL:-}
       LLXPRT_JEFE_BASE_URL: ${LLXPRT_JEFE_BASE_URL:-}
       LLXPRT_JEFE_API_KEY: ${LLXPRT_JEFE_API_KEY:-}
     volumes:

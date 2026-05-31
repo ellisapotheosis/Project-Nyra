@@ -1,7 +1,4 @@
 # Letta MCP bridge for the Oracle-hosted memory plane.
-#
-# Uses the broad Rust Letta MCP bridge because it exposes agents, memory, tools,
-# sources, jobs, files, and MCP-server operations behind one MCP endpoint.
 
 services:
   letta-mcp:
@@ -9,17 +6,23 @@ services:
     container_name: ${COMPOSE_PROJECT_NAME:-nyra}-letta-mcp
     restart: unless-stopped
     environment:
-      # Keep the bridge pinned to the Oracle-local Letta API even if a
-      # cloud LETTA_BASE_URL exists in Infisical for other clients.
-      LETTA_BASE_URL: ${LETTA_MCP_LETTA_BASE_URL:-http://letta:8283/v1}
-      LETTA_PASSWORD: ${LETTA_PASSWORD:-${LETTA_SERVER_PASSWORD:?set LETTA_SERVER_PASSWORD}}
-      TRANSPORT: http
-      PORT: ${LETTA_MCP_PORT:-8284}
+      LETTA_BASE_URL: ${LETTA_BASE_URL:-http://letta:8283}
+      LETTA_PASSWORD: ${LETTA_SERVER_PASSWORD:-}
     ports:
-      - "${ORACLE_TAILSCALE_IP:-127.0.0.1}:${LETTA_MCP_HOST_PORT:-8284}:${LETTA_MCP_PORT:-8284}"
+      - 127.0.0.1:${LETTA_MCP_HOST_PORT:-8284}:6507
+    depends_on:
+      letta:
+        condition: service_healthy
     networks:
-      - memory_edge
+      memory_edge: {}
+      nyra_net:
+        aliases:
+          - letta-mcp
+          - memory-letta-mcp
 
 networks:
   memory_edge:
     name: nyra_memory_edge
+  nyra_net:
+    external: true
+    name: nyra-network_nyra_net
