@@ -54,6 +54,9 @@ tracked as follow-up implementation work.
   privately to `http://100.64.0.3:3100`, but worker WSL Tailscale must be
   repaired first. RTX3060 WSL lacks the `tailscale` binary; RTX3090Ti and
   RTX5090 WSL are logged out.
-- Live lead lifecycle remains owner-gated until CRM, provider, Supabase, and
-  service-token credentials are confirmed. The dry-run lead lifecycle smoke has
-  passed with sanitized evidence.
+- Live CRM/Supabase/service-token readiness passed strict validation on
+  2026-05-31 with `pnpm release:validate -- --strict-live`: 0 critical,
+  0 warnings. Live CRM mutation smoke also passed through `crm-api` against
+  Twenty CRM: created lead `7f2a2897-daf3-4208-9513-70180dcc408c` and verified
+  the campaign STOP gate with sanitized evidence. Provider callback/domain
+  live smoke remains separately owner-gated.

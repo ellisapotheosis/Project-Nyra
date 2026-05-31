@@ -47,30 +47,34 @@ export async function executeCrmWritePlan(
 ): Promise<CrmWritePlanResult> {
   const lead = await upsertLeadFromPlan(plan.lead, client);
   const campaignEnrollment = plan.campaignEnrollment
-    ? await client.enrollCampaign({
-        ...plan.campaignEnrollment,
-        leadId: lead.id,
-      })
+    ? await optionalCrmWrite(() =>
+        client.enrollCampaign({
+          ...plan.campaignEnrollment,
+          leadId: lead.id,
+        })
+      )
     : undefined;
   const communications = [];
   const quotes = [];
 
   for (const communication of plan.communicationLogs) {
-    communications.push(
-      await client.logCommunication({
+    const result = await optionalCrmWrite(() =>
+      client.logCommunication({
         ...communication,
         leadId: lead.id,
       })
     );
+    if (result !== undefined) communications.push(result);
   }
 
   for (const quote of plan.quotes) {
-    quotes.push(
-      await client.createQuote({
+    const result = await optionalCrmWrite(() =>
+      client.createQuote({
         ...quote,
         leadId: lead.id,
       })
     );
+    if (result !== undefined) quotes.push(result);
   }
 
   for (const event of plan.auditEvents) {
@@ -89,6 +93,16 @@ export async function executeCrmWritePlan(
     quotes,
     auditEvents: plan.auditEvents,
   };
+}
+
+async function optionalCrmWrite<T>(
+  write: () => Promise<T>
+): Promise<T | undefined> {
+  try {
+    return await write();
+  } catch {
+    return undefined;
+  }
 }
 
 function shouldUsePersistedLeadId(

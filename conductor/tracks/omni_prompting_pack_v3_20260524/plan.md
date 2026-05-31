@@ -68,6 +68,6 @@
 
 - [~] Renew Infisical machine tokens and run live `secrets-init` completion checks on every host — owner-gated.
 - [~] Finish Cloudflare DNS, Access, gtunnel, and service-token setup for the new domains — owner-gated.
-- [~] Run live lead lifecycle, provider callback, and domain smoke tests after secrets/domains are ready — owner-gated.
+- [~] Run live lead lifecycle, provider callback, and domain smoke tests after secrets/domains are ready — CRM live lead lifecycle passed on 2026-05-31 through Oracle `crm-api` and Twenty lead `7f2a2897-daf3-4208-9513-70180dcc408c`; provider callback and domain live smokes remain owner-gated.
 - [x] Execute the explicitly assigned prompt 08 safe slice: dependency validation and theme registry/provider/switcher.
 - [~] Continue broader UI work only after a future explicit assignment: landing polish, webapp shell, component matrices, and design artifacts.
