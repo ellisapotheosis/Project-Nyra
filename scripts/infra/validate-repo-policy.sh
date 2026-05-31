@@ -49,6 +49,7 @@ allowed_top_level_dirs=(
   "src"
   "test-results"
   "tests"
+  "templates"
   "workflows"
 )
 
@@ -67,7 +68,9 @@ printf '%s\n' "${allowed_top_level_dirs[@]}" | sort >"$allowed_file"
 {
   git ls-files | awk -F/ 'NF > 1 { print $1 }'
   git ls-files --others --exclude-standard | awk -F/ 'NF > 1 { print $1 }'
-  [ -d .git ] && printf '.git\n'
+  if [ -e .git ]; then
+    printf '.git\n'
+  fi
 } | sort -u >"$actual_file"
 
 if comm -13 "$allowed_file" "$actual_file" >/tmp/nyra-top-level-dir-diff.txt && [ -s /tmp/nyra-top-level-dir-diff.txt ]; then

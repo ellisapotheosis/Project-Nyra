@@ -1,0 +1,274 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  role      Role     @relation(fields: [roleId], references: [id])
+  roleId    String
+  leads     Lead[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([email])
+}
+
+model Role {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  permissions String[]
+  users       User[]
+}
+
+model Lead {
+  id              String          @id @default(cuid())
+  source          String
+  status          LeadStatus
+  borrowerId      String
+  borrower        Borrower        @relation(fields: [borrowerId], references: [id])
+  propertyId      String?
+  property        Property?       @relation(fields: [propertyId], references: [id])
+  loanRequest     LoanRequest?
+  documents       Document[]
+  communications  Communication[]
+  tasks           Task[]
+  timeline        Timeline[]
+  assignedToId    String?
+  assignedTo      User?           @relation(fields: [assignedToId], references: [id])
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  loanApplications LoanApplication[]
+
+  @@index([status])
+  @@index([assignedToId])
+  @@index([createdAt])
+}
+
+model Borrower {
+  id               String            @id @default(cuid())
+  firstName        String
+  lastName         String
+  email            String            @unique
+  phone            String
+  ssn              String            @unique // Encrypted
+  dateOfBirth      DateTime
+  employmentStatus String
+  employer         String?
+  jobTitle         String?
+  yearsEmployed    Float?
+  annualIncome     Float?
+  assets           Asset[]
+  liabilities      Liability[]
+  leads            Lead[]
+  applications     LoanApplication[]
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+
+  @@index([email])
+}
+
+model LoanApplication {
+  id           String            @id @default(cuid())
+  leadId       String
+  lead         Lead              @relation(fields: [leadId], references: [id])
+  borrowerId   String
+  borrower     Borrower          @relation(fields: [borrowerId], references: [id])
+  loanType     LoanType
+  amount       Float
+  term         Int // in months
+  rate         Float
+  productId    String
+  product      LoanProduct       @relation(fields: [productId], references: [id])
+  status       ApplicationStatus
+  milestones   Milestone[]
+  conditions   Condition[]
+  disclosures  Disclosure[]
+  ausResponse  AUSResponse?
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+  submittedAt  DateTime?
+  approvedAt   DateTime?
+  fundedAt     DateTime?
+
+  @@index([status])
+  @@index([borrowerId])
+  @@index([createdAt])
+}
+
+model Property {
+  id            String   @id @default(cuid())
+  address       String
+  city          String
+  state         String
+  zipCode       String
+  propertyType  String
+  estimatedValue Float?
+  leads         Lead[]
+}
+
+model LoanRequest {
+  id           String @id @default(cuid())
+  leadId       String @unique
+  lead         Lead   @relation(fields: [leadId], references: [id])
+  amount       Float
+  propertyType String
+  zipCode      String
+}
+
+model LoanProduct {
+  id          String            @id @default(cuid())
+  name        String
+  type        LoanType
+  description String?
+  applications LoanApplication[]
+}
+
+model Document {
+  id         String   @id @default(cuid())
+  name       String
+  type       String
+  url        String
+  status     String
+  leadId     String
+  lead       Lead     @relation(fields: [leadId], references: [id])
+  createdAt  DateTime @default(now())
+}
+
+model Communication {
+  id        String   @id @default(cuid())
+  type      String // email, phone, sms
+  content   String
+  direction String // inbound, outbound
+  leadId    String
+  lead      Lead     @relation(fields: [leadId], references: [id])
+  createdAt DateTime @default(now())
+}
+
+model Task {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  dueDate     DateTime?
+  status      String
+  leadId      String
+  lead        Lead     @relation(fields: [leadId], references: [id])
+  createdAt   DateTime @default(now())
+}
+
+model Timeline {
+  id        String   @id @default(cuid())
+  event     String
+  notes     String?
+  leadId    String
+  lead      Lead     @relation(fields: [leadId], references: [id])
+  createdAt DateTime @default(now())
+}
+
+model Asset {
+  id         String   @id @default(cuid())
+  type       String
+  value      Float
+  borrowerId String
+  borrower   Borrower @relation(fields: [borrowerId], references: [id])
+}
+
+model Liability {
+  id         String   @id @default(cuid())
+  type       String
+  balance    Float
+  payment    Float
+  borrowerId String
+  borrower   Borrower @relation(fields: [borrowerId], references: [id])
+}
+
+model Milestone {
+  id            String          @id @default(cuid())
+  name          String
+  status        String
+  applicationId String
+  application   LoanApplication @relation(fields: [applicationId], references: [id])
+  createdAt     DateTime        @default(now())
+}
+
+model Condition {
+  id            String          @id @default(cuid())
+  description   String
+  status        String
+  applicationId String
+  application   LoanApplication @relation(fields: [applicationId], references: [id])
+}
+
+model Disclosure {
+  id            String          @id @default(cuid())
+  name          String
+  sentAt        DateTime
+  signedAt      DateTime?
+  applicationId String
+  application   LoanApplication @relation(fields: [applicationId], references: [id])
+}
+
+model AUSResponse {
+  id            String          @id @default(cuid())
+  result        String
+  recommendation String
+  applicationId String          @unique
+  application   LoanApplication @relation(fields: [applicationId], references: [id])
+  rawResponse   Json
+  createdAt     DateTime        @default(now())
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  userId     String?
+  action     String
+  entityType String
+  entityId   String
+  changes    Json
+  ipAddress  String?
+  userAgent  String?
+  timestamp  DateTime @default(now())
+
+  @@index([timestamp])
+  @@index([userId])
+}
+
+enum LeadStatus {
+  NEW
+  CONTACTED
+  QUALIFIED
+  PRE_APPROVED
+  APPLICATION
+  PROCESSING
+  UNDERWRITING
+  APPROVED
+  CLOSING
+  FUNDED
+  CLOSED
+  LOST
+}
+
+enum ApplicationStatus {
+  DRAFT
+  SUBMITTED
+  PROCESSING
+  UNDERWRITING
+  APPROVED
+  CONDITIONALLY_APPROVED
+  DENIED
+  WITHDRAWN
+}
+
+enum LoanType {
+  CONVENTIONAL
+  FHA
+  VA
+  USDA
+  JUMBO
+}
