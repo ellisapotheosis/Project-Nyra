@@ -1,0 +1,222 @@
+[
+  {
+    "id": "frosted-authentication-page",
+    "displayName": "Frosted Authentication Page",
+    "source": {
+      "type": "uploaded-zip",
+      "originalPath": "G:\\Shared drives\\GDrive_Shared\\Vercel_Templates\\frosted-authentication-page.zip",
+      "zipName": "frosted-authentication-page.zip"
+    },
+    "kind": "uploaded-vercel-template",
+    "description": "Frosted-glass authentication template with sign-in, sign-up, social auth, and password-strength UI.",
+    "preview": {
+      "dir": "templates/vercel-uploads/frosted-authentication-page/preview",
+      "run": "cd templates/vercel-uploads/frosted-authentication-page/preview && npm install --ignore-scripts --no-fund --no-audit --legacy-peer-deps && npm exec next dev -- -p 4320",
+      "port": 4320,
+      "url": "http://localhost:4320"
+    },
+    "screenshots": {
+      "dir": "templates/vercel-uploads/frosted-authentication-page/screenshots",
+      "status": "captured",
+      "files": [
+        "home.png"
+      ],
+      "note": "Homepage screenshot captured successfully.",
+      "lastAttemptAt": "2026-05-19T18:36:12.575Z"
+    },
+    "extractedTopLevelEntries": [
+      ".gitignore",
+      "app",
+      "components",
+      "components.json",
+      "hooks",
+      "lib",
+      "next.config.mjs",
+      "package.json",
+      "pnpm-lock.yaml",
+      "postcss.config.mjs",
+      "public",
+      "styles",
+      "tsconfig.json"
+    ],
+    "extractedFileCount": 90,
+    "generatedAt": "2026-05-19T18:32:46.081Z",
+    "readme": "templates/vercel-uploads/frosted-authentication-page/README.md"
+  },
+  {
+    "id": "frosted-glass-ui-crm-dashboard",
+    "displayName": "Frosted Glass CRM Dashboard",
+    "source": {
+      "type": "uploaded-zip",
+      "originalPath": "G:\\Shared drives\\GDrive_Shared\\Vercel_Templates\\frosted-glass-ui-crm-dashboard-ui-design.zip",
+      "zipName": "frosted-glass-ui-crm-dashboard-ui-design.zip"
+    },
+    "kind": "uploaded-vercel-template",
+    "description": "Frosted-glass CRM dashboard template with dashboard shell and reusable shadcn UI components.",
+    "preview": {
+      "dir": "templates/vercel-uploads/frosted-glass-ui-crm-dashboard/preview",
+      "run": "cd templates/vercel-uploads/frosted-glass-ui-crm-dashboard/preview && npm install --ignore-scripts --no-fund --no-audit --legacy-peer-deps && npm exec next dev -- -p 4321",
+      "port": 4321,
+      "url": "http://localhost:4321"
+    },
+    "screenshots": {
+      "dir": "templates/vercel-uploads/frosted-glass-ui-crm-dashboard/screenshots",
+      "status": "captured",
+      "files": [
+        "home.png"
+      ],
+      "note": "Homepage screenshot captured successfully.",
+      "lastAttemptAt": "2026-05-19T18:37:36.642Z"
+    },
+    "extractedTopLevelEntries": [
+      ".gitignore",
+      "app",
+      "components",
+      "components.json",
+      "hooks",
+      "lib",
+      "next.config.mjs",
+      "package.json",
+      "pnpm-lock.yaml",
+      "postcss.config.mjs",
+      "public",
+      "styles",
+      "tsconfig.json"
+    ],
+    "extractedFileCount": 83,
+    "generatedAt": "2026-05-19T18:32:48.983Z",
+    "readme": "templates/vercel-uploads/frosted-glass-ui-crm-dashboard/README.md"
+  },
+  {
+    "id": "mail-template-builder",
+    "displayName": "Mail Template Builder",
+    "source": {
+      "type": "uploaded-zip",
+      "originalPath": "G:\\Shared drives\\GDrive_Shared\\Vercel_Templates\\mail-template-builder-1.0.0.zip",
+      "zipName": "mail-template-builder-1.0.0.zip"
+    },
+    "kind": "uploaded-vercel-template",
+    "description": "Email template builder app with TinyMCE editor, template management screens, and display screenshots.",
+    "preview": {
+      "dir": "templates/vercel-uploads/mail-template-builder/preview",
+      "run": "cd templates/vercel-uploads/mail-template-builder/preview && npm install --ignore-scripts --no-fund --no-audit --legacy-peer-deps && npm exec next dev -- -p 4322",
+      "port": 4322,
+      "url": "http://localhost:4322"
+    },
+    "screenshots": {
+      "dir": "templates/vercel-uploads/mail-template-builder/screenshots",
+      "status": "captured",
+      "files": [
+        "home.png"
+      ],
+      "note": "Homepage screenshot captured successfully.",
+      "lastAttemptAt": "2026-05-19T18:39:04.195Z"
+    },
+    "extractedTopLevelEntries": [
+      ".env.example",
+      ".gitignore",
+      "README.md",
+      "components.json",
+      "docs",
+      "eslint.config.mjs",
+      "next.config.ts",
+      "package-lock.json",
+      "package.json",
+      "postcss.config.mjs",
+      "public",
+      "scripts",
+      "src",
+      "tsconfig.json"
+    ],
+    "extractedFileCount": 293,
+    "generatedAt": "2026-05-19T18:33:05.719Z",
+    "readme": "templates/vercel-uploads/mail-template-builder/README.md"
+  },
+  {
+    "id": "sales-ops-dashboard",
+    "displayName": "Sales Ops Dashboard",
+    "source": {
+      "type": "uploaded-zip",
+      "originalPath": "G:\\Shared drives\\GDrive_Shared\\Vercel_Templates\\sales-ops-dashboard.zip",
+      "zipName": "sales-ops-dashboard.zip"
+    },
+    "kind": "uploaded-vercel-template",
+    "description": "Sales operations dashboard with pipeline, customers, forecasting, reports, team, and settings sections.",
+    "preview": {
+      "dir": "templates/vercel-uploads/sales-ops-dashboard/preview",
+      "run": "cd templates/vercel-uploads/sales-ops-dashboard/preview && npm install --ignore-scripts --no-fund --no-audit --legacy-peer-deps && npm exec next dev -- -p 4323",
+      "port": 4323,
+      "url": "http://localhost:4323"
+    },
+    "screenshots": {
+      "dir": "templates/vercel-uploads/sales-ops-dashboard/screenshots",
+      "status": "captured",
+      "files": [
+        "home.png"
+      ],
+      "note": "Homepage screenshot captured successfully.",
+      "lastAttemptAt": "2026-05-19T18:40:23.721Z"
+    },
+    "extractedTopLevelEntries": [
+      ".gitignore",
+      "app",
+      "components",
+      "components.json",
+      "hooks",
+      "lib",
+      "next.config.mjs",
+      "package.json",
+      "pnpm-lock.yaml",
+      "postcss.config.mjs",
+      "public",
+      "styles",
+      "tsconfig.json"
+    ],
+    "extractedFileCount": 96,
+    "generatedAt": "2026-05-19T18:33:11.173Z",
+    "readme": "templates/vercel-uploads/sales-ops-dashboard/README.md"
+  },
+  {
+    "id": "v0-sales-crm-design",
+    "displayName": "v0 Sales CRM Design",
+    "source": {
+      "type": "uploaded-zip",
+      "originalPath": "G:\\Shared drives\\GDrive_Shared\\Vercel_Templates\\v0-sales-crm-design-main.zip",
+      "zipName": "v0-sales-crm-design-main.zip"
+    },
+    "kind": "uploaded-vercel-template",
+    "description": "v0-generated sales CRM design with deals, contacts, tasks, integrations, settings, tables, and app shell.",
+    "preview": {
+      "dir": "templates/vercel-uploads/v0-sales-crm-design/preview",
+      "run": "cd templates/vercel-uploads/v0-sales-crm-design/preview && npm install --ignore-scripts --no-fund --no-audit --legacy-peer-deps && npm exec next dev -- -p 4324",
+      "port": 4324,
+      "url": "http://localhost:4324"
+    },
+    "screenshots": {
+      "dir": "templates/vercel-uploads/v0-sales-crm-design/screenshots",
+      "status": "preview-start-failed",
+      "note": "Preview failed during local rendering. Missing module 'react-is' from './node_modules/recharts/es6/util/ReactUtils.js', imported through './components/overview.tsx'.",
+      "lastAttemptAt": "2026-05-19T18:43:14.756Z"
+    },
+    "extractedTopLevelEntries": [
+      ".gitignore",
+      "README.md",
+      "app",
+      "components",
+      "components.json",
+      "hooks",
+      "lib",
+      "next.config.mjs",
+      "package.json",
+      "pnpm-lock.yaml",
+      "postcss.config.mjs",
+      "public",
+      "styles",
+      "tailwind.config.ts",
+      "tsconfig.json"
+    ],
+    "extractedFileCount": 98,
+    "generatedAt": "2026-05-19T18:33:15.156Z",
+    "readme": "templates/vercel-uploads/v0-sales-crm-design/README.md"
+  }
+]
