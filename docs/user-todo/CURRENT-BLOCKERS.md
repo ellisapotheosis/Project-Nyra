@@ -172,5 +172,14 @@ pnpm release:validate -- --strict-live
 pnpm smoke:lead-lifecycle -- --live --report-dir tests/results/lead-lifecycle-smoke
 ```
 
+2026-05-31 status:
+
+- `pnpm release:validate -- --strict-live` passed with 0 critical findings and
+  0 warnings after Infisical live credential repair.
+- `pnpm smoke:lead-lifecycle -- --live --crm-api-url http://127.0.0.1:14002
+--report-dir tests/results/lead-lifecycle-smoke` passed through an SSH tunnel
+  to Oracle `crm-api`; sanitized evidence: created Twenty lead
+  `7f2a2897-daf3-4208-9513-70180dcc408c` and verified the campaign STOP gate.
+
 Record only sanitized evidence: lead IDs, audit IDs, campaign state, timestamps,
 hostnames, and pass/fail state. Do not record raw borrower PII or secret values.

@@ -4,10 +4,10 @@
   "private": true,
   "type": "module",
   "description": "REST API and webhook layer for Nyra’s TwentyCRM operations",
-  "main": "dist/server.js",
+  "main": "dist/services/crm-api/src/server.js",
   "scripts": {
     "build": "tsc --build",
-    "start": "node dist/server.js",
+    "start": "node dist/services/crm-api/src/server.js",
     "dev": "ts-node-esm src/server.ts",
     "clean": "rm -rf dist",
     "test": "vitest run --config vitest.config.mjs"
