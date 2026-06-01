@@ -7,6 +7,7 @@
         "service": "http://supabase-kong:8000"
       },
       { "hostname": "hooks.projectnyra.com", "service": "http://n8n:5678" },
+      { "hostname": "admin.projectnyra.com", "service": "http://admin:3002" },
       { "hostname": "twenty.projectnyra.com", "service": "http://twenty:3000" },
       { "hostname": "crm.projectnyra.com", "service": "http://twenty:3000" },
       { "hostname": "n8n.projectnyra.com", "service": "http://n8n:5678" },
@@ -14,6 +15,31 @@
       {
         "hostname": "activepieces.projectnyra.com",
         "service": "http://activepieces:80"
+      },
+      {
+        "hostname": "openwebui.projectnyra.com",
+        "service": "http://openwebui:8080"
+      },
+      {
+        "hostname": "chat.projectnyra.com",
+        "service": "http://openwebui:8080"
+      },
+      {
+        "hostname": "campaigns.projectnyra.com",
+        "service": "http://campaign_engine:8020"
+      },
+      {
+        "hostname": "quotes.projectnyra.com",
+        "service": "http://quote-api:7070"
+      },
+      { "hostname": "nexus.projectnyra.com", "service": "http://nexus:3000" },
+      {
+        "hostname": "nexus-router.projectnyra.com",
+        "service": "http://nexus:3000"
+      },
+      {
+        "hostname": "litellm.projectnyra.com",
+        "service": "http://litellm:4000"
       },
       {
         "hostname": "grafana.projectnyra.com",
@@ -32,28 +58,24 @@
         "service": "http://cadvisor:8080"
       },
       {
-        "hostname": "openwebui.projectnyra.com",
-        "service": "http://openwebui:8080"
+        "hostname": "uptime.projectnyra.com",
+        "service": "http://uptime-kuma:3001"
       },
       {
-        "hostname": "nexus.projectnyra.com",
-        "service": "http://nexus-ui:3016"
+        "hostname": "public-status.projectnyra.com",
+        "service": "http://uptime-kuma:3001"
       },
       {
-        "hostname": "nexus-router.projectnyra.com",
-        "service": "http://nexus:3000"
-      },
-      {
-        "hostname": "litellm.projectnyra.com",
-        "service": "http://litellm:4000"
-      },
-      {
-        "hostname": "paperclip.projectnyra.com",
-        "service": "http://paperclip:3100"
+        "hostname": "status.projectnyra.com",
+        "service": "http://uptime-kuma:3001"
       },
       {
         "hostname": "clawteam.projectnyra.com",
         "service": "http://clawteam:8080"
+      },
+      {
+        "hostname": "paperclip.projectnyra.com",
+        "service": "http://paperclip:3100"
       },
       {
         "hostname": "portainer-oracle.projectnyra.com",
@@ -61,22 +83,9 @@
         "originRequest": { "noTLSVerify": true }
       },
       { "hostname": "git-ssh.projectnyra.com", "service": "ssh://gitea:2222" },
-      {
-        "hostname": "uptime.projectnyra.com",
-        "service": "http://nyra-uptime-kuma:3001"
-      },
-      {
-        "hostname": "public-status.projectnyra.com",
-        "service": "http://nyra-uptime-kuma:3001"
-      },
-      {
-        "hostname": "oracle.projectnyra.com",
-        "service": "http://nyra-caddy:80"
-      },
+      { "hostname": "oracle.projectnyra.com", "service": "http://caddy:80" },
       { "service": "http_status:404" }
     ],
-    "warp-routing": {
-      "enabled": false
-    }
+    "warp-routing": { "enabled": false }
   }
 }

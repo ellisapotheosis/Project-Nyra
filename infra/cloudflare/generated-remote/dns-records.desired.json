@@ -21,6 +21,12 @@
       "proxied": true
     },
     {
+      "name": "admin",
+      "type": "CNAME",
+      "content": "${ORACLE_TUNNEL_ID}.cfargotunnel.com",
+      "proxied": true
+    },
+    {
       "name": "twenty",
       "type": "CNAME",
       "content": "${ORACLE_TUNNEL_ID}.cfargotunnel.com",
@@ -51,6 +57,48 @@
       "proxied": true
     },
     {
+      "name": "openwebui",
+      "type": "CNAME",
+      "content": "${ORACLE_TUNNEL_ID}.cfargotunnel.com",
+      "proxied": true
+    },
+    {
+      "name": "chat",
+      "type": "CNAME",
+      "content": "${ORACLE_TUNNEL_ID}.cfargotunnel.com",
+      "proxied": true
+    },
+    {
+      "name": "campaigns",
+      "type": "CNAME",
+      "content": "${ORACLE_TUNNEL_ID}.cfargotunnel.com",
+      "proxied": true
+    },
+    {
+      "name": "quotes",
+      "type": "CNAME",
+      "content": "${ORACLE_TUNNEL_ID}.cfargotunnel.com",
+      "proxied": true
+    },
+    {
+      "name": "nexus",
+      "type": "CNAME",
+      "content": "${ORACLE_TUNNEL_ID}.cfargotunnel.com",
+      "proxied": true
+    },
+    {
+      "name": "nexus-router",
+      "type": "CNAME",
+      "content": "${ORACLE_TUNNEL_ID}.cfargotunnel.com",
+      "proxied": true
+    },
+    {
+      "name": "litellm",
+      "type": "CNAME",
+      "content": "${ORACLE_TUNNEL_ID}.cfargotunnel.com",
+      "proxied": true
+    },
+    {
       "name": "grafana",
       "type": "CNAME",
       "content": "${ORACLE_TUNNEL_ID}.cfargotunnel.com",
@@ -75,37 +123,31 @@
       "proxied": true
     },
     {
-      "name": "openwebui",
+      "name": "uptime",
       "type": "CNAME",
       "content": "${ORACLE_TUNNEL_ID}.cfargotunnel.com",
       "proxied": true
     },
     {
-      "name": "nexus",
+      "name": "public-status",
       "type": "CNAME",
       "content": "${ORACLE_TUNNEL_ID}.cfargotunnel.com",
       "proxied": true
     },
     {
-      "name": "nexus-router",
-      "type": "CNAME",
-      "content": "${ORACLE_TUNNEL_ID}.cfargotunnel.com",
-      "proxied": true
-    },
-    {
-      "name": "litellm",
-      "type": "CNAME",
-      "content": "${ORACLE_TUNNEL_ID}.cfargotunnel.com",
-      "proxied": true
-    },
-    {
-      "name": "paperclip",
+      "name": "status",
       "type": "CNAME",
       "content": "${ORACLE_TUNNEL_ID}.cfargotunnel.com",
       "proxied": true
     },
     {
       "name": "clawteam",
+      "type": "CNAME",
+      "content": "${ORACLE_TUNNEL_ID}.cfargotunnel.com",
+      "proxied": true
+    },
+    {
+      "name": "paperclip",
       "type": "CNAME",
       "content": "${ORACLE_TUNNEL_ID}.cfargotunnel.com",
       "proxied": true
@@ -118,18 +160,6 @@
     },
     {
       "name": "git-ssh",
-      "type": "CNAME",
-      "content": "${ORACLE_TUNNEL_ID}.cfargotunnel.com",
-      "proxied": true
-    },
-    {
-      "name": "uptime",
-      "type": "CNAME",
-      "content": "${ORACLE_TUNNEL_ID}.cfargotunnel.com",
-      "proxied": true
-    },
-    {
-      "name": "public-status",
       "type": "CNAME",
       "content": "${ORACLE_TUNNEL_ID}.cfargotunnel.com",
       "proxied": true
@@ -148,12 +178,6 @@
     },
     {
       "name": "linkwarden",
-      "type": "CNAME",
-      "content": "${ORCHESTRATOR_TUNNEL_ID}.cfargotunnel.com",
-      "proxied": true
-    },
-    {
-      "name": "openclaw-gateway",
       "type": "CNAME",
       "content": "${ORCHESTRATOR_TUNNEL_ID}.cfargotunnel.com",
       "proxied": true
@@ -183,43 +207,13 @@
       "proxied": true
     },
     {
+      "name": "openclaw-gateway",
+      "type": "CNAME",
+      "content": "${ORCHESTRATOR_TUNNEL_ID}.cfargotunnel.com",
+      "proxied": true
+    },
+    {
       "name": "router.openclaw",
-      "type": "CNAME",
-      "content": "${ORCHESTRATOR_TUNNEL_ID}.cfargotunnel.com",
-      "proxied": true
-    },
-    {
-      "name": "admin",
-      "type": "CNAME",
-      "content": "${ORCHESTRATOR_TUNNEL_ID}.cfargotunnel.com",
-      "proxied": true
-    },
-    {
-      "name": "chat",
-      "type": "CNAME",
-      "content": "${ORCHESTRATOR_TUNNEL_ID}.cfargotunnel.com",
-      "proxied": true
-    },
-    {
-      "name": "borrower-chat",
-      "type": "CNAME",
-      "content": "${ORCHESTRATOR_TUNNEL_ID}.cfargotunnel.com",
-      "proxied": true
-    },
-    {
-      "name": "campaigns",
-      "type": "CNAME",
-      "content": "${ORCHESTRATOR_TUNNEL_ID}.cfargotunnel.com",
-      "proxied": true
-    },
-    {
-      "name": "quotes",
-      "type": "CNAME",
-      "content": "${ORCHESTRATOR_TUNNEL_ID}.cfargotunnel.com",
-      "proxied": true
-    },
-    {
-      "name": "status",
       "type": "CNAME",
       "content": "${ORCHESTRATOR_TUNNEL_ID}.cfargotunnel.com",
       "proxied": true
@@ -232,6 +226,12 @@
     },
     {
       "name": "gasteam",
+      "type": "CNAME",
+      "content": "${ORCHESTRATOR_TUNNEL_ID}.cfargotunnel.com",
+      "proxied": true
+    },
+    {
+      "name": "borrower-chat",
       "type": "CNAME",
       "content": "${ORCHESTRATOR_TUNNEL_ID}.cfargotunnel.com",
       "proxied": true

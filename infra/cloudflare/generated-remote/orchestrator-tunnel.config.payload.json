@@ -47,36 +47,16 @@
         "service": "http://nyra-openclaw-gateway:8001"
       },
       {
-        "hostname": "admin.projectnyra.com",
-        "service": "http://nyra-admin:3001"
-      },
-      {
-        "hostname": "chat.projectnyra.com",
-        "service": "http://nyra-chat-ui:3000"
-      },
-      {
-        "hostname": "borrower-chat.projectnyra.com",
-        "service": "http://nyra-borrower-chat:3002"
-      },
-      {
-        "hostname": "campaigns.projectnyra.com",
-        "service": "http://nyra-campaign-engine:3003"
-      },
-      {
-        "hostname": "quotes.projectnyra.com",
-        "service": "http://nyra-quote-api:8000"
-      },
-      {
-        "hostname": "status.projectnyra.com",
-        "service": "http://nyra-uptime-kuma:3001"
-      },
-      {
         "hostname": "gastown.projectnyra.com",
         "service": "http://nyra-gastown:7000"
       },
       {
         "hostname": "gasteam.projectnyra.com",
         "service": "http://nyra-gasteam:7001"
+      },
+      {
+        "hostname": "borrower-chat.projectnyra.com",
+        "service": "http://nyra-borrower-chat:3002"
       },
       {
         "hostname": "nerve-5090.projectnyra.com",
@@ -104,8 +84,6 @@
       },
       { "service": "http_status:404" }
     ],
-    "warp-routing": {
-      "enabled": false
-    }
+    "warp-routing": { "enabled": false }
   }
 }
