@@ -7,6 +7,7 @@
   "autoApprovers": {
     "services": {
       "svc:activepieces": ["tag:prod"],
+      "svc:agent-vault": ["tag:prod"],
       "svc:cadvisor": ["tag:prod"],
       "svc:campaign-engine": ["tag:prod"],
       "svc:clawteam": ["tag:prod"],
@@ -70,6 +71,7 @@
       "src": ["autogroup:member", "group:admin", "tag:prod", "tag:orchestrator", "tag:worker"],
       "dst": [
         "svc:activepieces",
+        "svc:agent-vault",
         "svc:codebase-index-mcp",
         "svc:firecrawl-mcp",
         "svc:git-mcp",

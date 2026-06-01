@@ -40,6 +40,7 @@ WEB_SERVICE_NAMES = (
     "openmemory-mcp",
     "n8n",
     "activepieces",
+    "agent-vault",
     "portainer",
     "portainer-secure",
     "prometheus-oracle",
