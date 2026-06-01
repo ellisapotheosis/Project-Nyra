@@ -80,15 +80,19 @@ ingress:
   - hostname: cadvisor.projectnyra.com
     service: http://cadvisor:8080
 
-  # ── Status / uptime (uptime-kuma — deploy docker-compose.uptime.yml) ──────
+  # ── GasTown (running on oracle as container nyra-network-gastown) ─────────
+  - hostname: gastown.projectnyra.com
+    service: http://gastown:8080
+
+  # ── Status / uptime (uptime-kuma via docker run, no Compose alias) ────────
   - hostname: uptime.projectnyra.com
-    service: http://uptime-kuma:3001
+    service: http://nyra-network-nyra-uptime-kuma:3001
 
   - hostname: public-status.projectnyra.com
-    service: http://uptime-kuma:3001
+    service: http://nyra-network-nyra-uptime-kuma:3001
 
   - hostname: status.projectnyra.com
-    service: http://uptime-kuma:3001
+    service: http://nyra-network-nyra-uptime-kuma:3001
 
   # ── Internal tooling ──────────────────────────────────────────────────────
   - hostname: clawteam.projectnyra.com

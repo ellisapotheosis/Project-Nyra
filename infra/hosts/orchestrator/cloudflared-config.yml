@@ -61,9 +61,7 @@ ingress:
     service: http://nyra-openclaw-gateway:8001
 
   # ── GasTown / GasTeam ────────────────────────────────────────────────────
-  - hostname: gastown.projectnyra.com
-    service: http://nyra-gastown:7000
-
+  # gastown runs on oracle (nyra-network-gastown:8080) — DNS → oracle tunnel
   - hostname: gasteam.projectnyra.com
     service: http://nyra-gasteam:7001
 

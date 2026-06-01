@@ -221,7 +221,7 @@
     {
       "name": "gastown",
       "type": "CNAME",
-      "content": "${ORCHESTRATOR_TUNNEL_ID}.cfargotunnel.com",
+      "content": "${ORACLE_TUNNEL_ID}.cfargotunnel.com",
       "proxied": true
     },
     {

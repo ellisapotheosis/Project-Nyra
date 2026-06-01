@@ -47,10 +47,6 @@
         "service": "http://nyra-openclaw-gateway:8001"
       },
       {
-        "hostname": "gastown.projectnyra.com",
-        "service": "http://nyra-gastown:7000"
-      },
-      {
         "hostname": "gasteam.projectnyra.com",
         "service": "http://nyra-gasteam:7001"
       },

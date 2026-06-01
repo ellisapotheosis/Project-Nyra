@@ -59,15 +59,15 @@
       },
       {
         "hostname": "uptime.projectnyra.com",
-        "service": "http://uptime-kuma:3001"
+        "service": "http://nyra-network-nyra-uptime-kuma:3001"
       },
       {
         "hostname": "public-status.projectnyra.com",
-        "service": "http://uptime-kuma:3001"
+        "service": "http://nyra-network-nyra-uptime-kuma:3001"
       },
       {
         "hostname": "status.projectnyra.com",
-        "service": "http://uptime-kuma:3001"
+        "service": "http://nyra-network-nyra-uptime-kuma:3001"
       },
       {
         "hostname": "clawteam.projectnyra.com",
@@ -83,6 +83,10 @@
         "originRequest": { "noTLSVerify": true }
       },
       { "hostname": "git-ssh.projectnyra.com", "service": "ssh://gitea:2222" },
+      {
+        "hostname": "gastown.projectnyra.com",
+        "service": "http://gastown:8080"
+      },
       { "hostname": "oracle.projectnyra.com", "service": "http://caddy:80" },
       { "service": "http_status:404" }
     ],
