@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { headers } from "next/headers";
 import {
   Activity,
   ArrowRight,
@@ -16,7 +17,6 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { GET as getNexusStatusResponse } from "@/app/api/nexus/status/route";
 import { cn } from "@/lib/utils";
 
 type NexusStatusResponse = {
@@ -283,7 +283,16 @@ function MetricCard({
 
 async function getNexusStatus(): Promise<NexusStatusResponse> {
   try {
-    const response = await getNexusStatusResponse();
+    const requestHeaders = await headers();
+    const host = requestHeaders.get("host") ?? "127.0.0.1:3100";
+    const protocol =
+      host.startsWith("localhost") || host.startsWith("127.")
+        ? "http"
+        : "https";
+    const baseUrl = `${protocol}://${host}`;
+    const response = await fetch(`${baseUrl}/api/nexus/status`, {
+      cache: "no-store",
+    });
 
     if (!response.ok) {
       return fallbackStatus;

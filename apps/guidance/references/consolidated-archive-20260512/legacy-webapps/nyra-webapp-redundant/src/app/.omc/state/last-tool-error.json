@@ -1,7 +1,0 @@
-{
-  "tool_name": "Bash",
-  "tool_input_preview": "{\"command\":\"rtk find /home/ellisapotheosis/repos/project-nyra/apps/nyra-webapp -name \\\"tsconfig.json\\\" -not -path \\\"*node_modules*\\\" -not -path \\\"*/.next/*\\\" 2>/dev/null\"}",
-  "error": "Exit code 1",
-  "timestamp": "2026-05-13T01:12:24.834Z",
-  "retry_count": 2
-}
