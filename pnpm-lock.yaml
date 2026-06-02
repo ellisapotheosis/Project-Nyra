@@ -1355,8 +1355,8 @@ importers:
         specifier: ^8.3.2
         version: 8.3.2(express@5.2.1)
       fuse.js:
-        specifier: ^7.0.0
-        version: 7.3.0
+        specifier: ^7.4.1
+        version: 7.4.1
       helmet:
         specifier: ^8.1.0
         version: 8.1.0
@@ -8145,8 +8145,8 @@ packages:
   functions-have-names@1.2.3:
     resolution: {integrity: sha512-xckBUXyTIqT97tq2x2AMb+g163b5JFysYk0x4qxNFwbfQkmNZoiRHb6sPzI9/QV33WeuvVYBUIiD4NzNIyqaRQ==}
 
-  fuse.js@7.3.0:
-    resolution: {integrity: sha512-plz8RVjfcDedTGfVngWH1jmJvBvAwi1v2jecfDerbEnMcmOYUEEwKFTHbNoCiYyzaK2Ws8lABkTCcRSqCY1q4w==}
+  fuse.js@7.4.1:
+    resolution: {integrity: sha512-AY7lKAXK71hi3WgUvDy6oZL67UEHOOtvCAwVdOXHyJd6ZzftBy7QqxuXt4HxmmAhYjmp/YCuOELZtIvAdlZ+fw==}
     engines: {node: '>=10'}
 
   fuzzball@2.2.3:
@@ -20205,7 +20205,7 @@ snapshots:
 
   functions-have-names@1.2.3: {}
 
-  fuse.js@7.3.0: {}
+  fuse.js@7.4.1: {}
 
   fuzzball@2.2.3:
     dependencies:
