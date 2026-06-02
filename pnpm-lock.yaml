@@ -1016,8 +1016,8 @@ importers:
         specifier: ^8.3.2
         version: 8.3.2(express@5.2.1)
       fuzzball:
-        specifier: ^2.1.2
-        version: 2.2.3
+        specifier: ^2.2.6
+        version: 2.2.6
       helmet:
         specifier: ^8.1.0
         version: 8.1.0
@@ -8184,8 +8184,8 @@ packages:
     resolution: {integrity: sha512-AY7lKAXK71hi3WgUvDy6oZL67UEHOOtvCAwVdOXHyJd6ZzftBy7QqxuXt4HxmmAhYjmp/YCuOELZtIvAdlZ+fw==}
     engines: {node: '>=10'}
 
-  fuzzball@2.2.3:
-    resolution: {integrity: sha512-sQDb3kjI7auA4YyE1YgEW85MTparcSgRgcCweUK06Cn0niY5lN+uhFiRUZKN4MQVGGiHxlbrYCA4nL1QjOXBLQ==}
+  fuzzball@2.2.6:
+    resolution: {integrity: sha512-RFYKY0GGDOmocz6rYmvOk9qOnV2UCsLHbVPl5zfZVvcdBlilDg/84WSgAvOCGDq+UEnpnqjZMHk6a/hamC5VuQ==}
 
   fuzzysort@3.1.0:
     resolution: {integrity: sha512-sR9BNCjBg6LNgwvxlBd0sBABvQitkLzoVY9MYYROQVX/FvfJ4Mai9LsGhDgd8qYdds0bY77VzYd5iuB+v5rwQQ==}
@@ -19965,7 +19965,7 @@ snapshots:
 
   fuse.js@7.4.1: {}
 
-  fuzzball@2.2.3:
+  fuzzball@2.2.6:
     dependencies:
       heap: 0.2.7
       lodash: 4.18.1
