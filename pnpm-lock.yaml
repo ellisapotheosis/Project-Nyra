@@ -531,8 +531,8 @@ importers:
         specifier: ^5.2.1
         version: 5.2.1
       express-rate-limit:
-        specifier: ^8.3.2
-        version: 8.3.2(express@5.2.1)
+        specifier: ^8.5.2
+        version: 8.5.2(express@5.2.1)
       express-validator:
         specifier: ^7.0.1
         version: 7.3.2
@@ -773,8 +773,8 @@ importers:
         specifier: ^4.20.4
         version: 4.22.1
       express-rate-limit:
-        specifier: ^8.3.2
-        version: 8.3.2(express@4.22.1)
+        specifier: ^8.5.2
+        version: 8.5.2(express@4.22.1)
       helmet:
         specifier: ^7.0.0
         version: 7.2.0
@@ -865,8 +865,8 @@ importers:
         specifier: ^5.2.1
         version: 5.2.1
       express-rate-limit:
-        specifier: ^8.3.2
-        version: 8.3.2(express@5.2.1)
+        specifier: ^8.5.2
+        version: 8.5.2(express@5.2.1)
       helmet:
         specifier: ^8.1.0
         version: 8.1.0
@@ -1013,8 +1013,8 @@ importers:
         specifier: ^5.2.1
         version: 5.2.1
       express-rate-limit:
-        specifier: ^8.3.2
-        version: 8.3.2(express@5.2.1)
+        specifier: ^8.5.2
+        version: 8.5.2(express@5.2.1)
       fuzzball:
         specifier: ^2.2.6
         version: 2.2.6
@@ -1231,8 +1231,8 @@ importers:
         specifier: ^3.1.1
         version: 3.1.1(express@5.2.1)
       express-rate-limit:
-        specifier: ^8.3.2
-        version: 8.3.2(express@5.2.1)
+        specifier: ^8.5.2
+        version: 8.5.2(express@5.2.1)
       helmet:
         specifier: ^8.1.0
         version: 8.1.0
@@ -1352,8 +1352,8 @@ importers:
         specifier: ^5.2.1
         version: 5.2.1
       express-rate-limit:
-        specifier: ^8.3.2
-        version: 8.3.2(express@5.2.1)
+        specifier: ^8.5.2
+        version: 8.5.2(express@5.2.1)
       fuse.js:
         specifier: ^7.4.1
         version: 7.4.1
@@ -1462,8 +1462,8 @@ importers:
         specifier: ^5.2.1
         version: 5.2.1
       express-rate-limit:
-        specifier: ^8.3.2
-        version: 8.3.2(express@5.2.1)
+        specifier: ^8.5.2
+        version: 8.5.2(express@5.2.1)
       helmet:
         specifier: ^8.1.0
         version: 8.1.0
@@ -1520,8 +1520,8 @@ importers:
         specifier: ^5.2.1
         version: 5.2.1
       express-rate-limit:
-        specifier: ^8.3.2
-        version: 8.3.2(express@5.2.1)
+        specifier: ^8.5.2
+        version: 8.5.2(express@5.2.1)
       express-validator:
         specifier: ^7.0.1
         version: 7.3.2
@@ -1629,8 +1629,8 @@ importers:
         specifier: ^4.21.2
         version: 4.22.1
       express-rate-limit:
-        specifier: ^7.5.0
-        version: 7.5.1(express@4.22.1)
+        specifier: ^8.5.2
+        version: 8.5.2(express@4.22.1)
       helmet:
         specifier: ^8.0.0
         version: 8.1.0
@@ -7537,14 +7537,8 @@ packages:
     peerDependencies:
       express: ^4.16.2
 
-  express-rate-limit@7.5.1:
-    resolution: {integrity: sha512-7iN8iPMDzOMHPUYllBEsQdWVB6fPDMPqwjBaFrgr4Jgr/+okjvzAy+UHlYYL/Vs0OsOrMkwS6PJDkFlJwoxUnw==}
-    engines: {node: '>= 16'}
-    peerDependencies:
-      express: '>= 4.11'
-
-  express-rate-limit@8.3.2:
-    resolution: {integrity: sha512-77VmFeJkO0/rvimEDuUC5H30oqUC4EyOhyGccfqoLebB0oiEYfM7nwPrsDsBL1gsTpwfzX8SFy2MT3TDyRq+bg==}
+  express-rate-limit@8.5.2:
+    resolution: {integrity: sha512-5Kb34ipNX694DH48vN9irak1Qx30nb0PLYHXfJgw4YEjiC3ZEmZJhwOp+VfiCYwFzvFTdB9QkArYS5kXa2cx2A==}
     engines: {node: '>= 16'}
     peerDependencies:
       express: '>= 4.11'
@@ -8158,8 +8152,8 @@ packages:
     resolution: {integrity: sha512-HuEDBTI70aYdx1v6U97SbNx9F1+svQKBDo30o0b9fw055LMepzpOOd0Ccg9Q6tbqmBSJaMuY0fB7yw9/vjBYCA==}
     engines: {node: '>=12.22.0'}
 
-  ip-address@10.1.1:
-    resolution: {integrity: sha512-1FMu8/N15Ck1BL551Jf42NYIoin2unWjLQ2Fze/DXryJRl5twqtwNHlO39qERGbIOcKYWHdgRryhOC+NG4eaLw==}
+  ip-address@10.2.0:
+    resolution: {integrity: sha512-/+S6j4E9AHvW9SWMSEY9Xfy66O5PWvVEJ08O0y5JGyEKQpojb0K0GKpz/v5HJ/G0vi3D2sjGK78119oXZeE0qA==}
     engines: {node: '>= 12'}
 
   ipaddr.js@1.9.1:
@@ -13988,7 +13982,7 @@ snapshots:
       eventsource: 3.0.7
       eventsource-parser: 3.0.6
       express: 5.2.1
-      express-rate-limit: 8.3.2(express@5.2.1)
+      express-rate-limit: 8.5.2(express@5.2.1)
       hono: 4.12.21
       jose: 6.2.3
       json-schema-typed: 8.0.2
@@ -14010,7 +14004,7 @@ snapshots:
       eventsource: 3.0.7
       eventsource-parser: 3.0.6
       express: 5.2.1
-      express-rate-limit: 8.3.2(express@5.2.1)
+      express-rate-limit: 8.5.2(express@5.2.1)
       hono: 4.12.21
       jose: 6.2.3
       json-schema-typed: 8.0.2
@@ -18105,19 +18099,15 @@ snapshots:
     dependencies:
       express: 5.2.1
 
-  express-rate-limit@7.5.1(express@4.22.1):
+  express-rate-limit@8.5.2(express@4.22.1):
     dependencies:
       express: 4.22.1
+      ip-address: 10.2.0
 
-  express-rate-limit@8.3.2(express@4.22.1):
-    dependencies:
-      express: 4.22.1
-      ip-address: 10.1.1
-
-  express-rate-limit@8.3.2(express@5.2.1):
+  express-rate-limit@8.5.2(express@5.2.1):
     dependencies:
       express: 5.2.1
-      ip-address: 10.1.1
+      ip-address: 10.2.0
 
   express-validator@7.3.2:
     dependencies:
@@ -18842,7 +18832,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  ip-address@10.1.1: {}
+  ip-address@10.2.0: {}
 
   ipaddr.js@1.9.1: {}
 
