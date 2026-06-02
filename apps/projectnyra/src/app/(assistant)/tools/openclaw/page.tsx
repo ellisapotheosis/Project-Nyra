@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Bot, User, Send, Loader2, AlertCircle } from "lucide-react";
+import { openClawApi } from "@/lib/api";
 
 type ChatMessage = {
   role: "assistant" | "user";
@@ -40,19 +41,7 @@ export default function OpenClawToolsPage() {
     setError(null);
 
     try {
-      const response = await fetch("/api/internal/openclaw/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: nextMessages }),
-      });
-      const data = (await response.json()) as {
-        assistant?: string;
-        error?: string;
-      };
-
-      if (!response.ok) {
-        throw new Error(data.error || "OpenClaw proxy request failed");
-      }
+      const data = await openClawApi.chat(nextMessages);
 
       setMessages((previous) => [
         ...previous,

@@ -31,8 +31,6 @@ used to have local fallback passwords. Set these before bringing up the affected
 stacks:
 
 - `/machines/orchestrator`: `GRAFANA_ADMIN_PASSWORD`
-- `/machines/oracle-vps`: `PAPERCLIP_DB_PASSWORD`
-- `/machines/oracle-vps`: `PAPERCLIP_API_KEY`
 - `/machines/oracle-vps`: `OPENLIT_DB_PASSWORD`
 - `/machines/oracle-vps`: `OPENLIT_NEXTAUTH_SECRET`
 - `/machines/oracle-vps`: `OPENLIT_VAULT_ENCRYPTION_KEY`
@@ -247,7 +245,7 @@ OpenLIT has been added to the Oracle VPS stack as `openlit.projectnyra.com`, rou
 ### Letta owner-only subdomain and MCP access
 
 Letta can have its own owner-only subdomain without taking control away from
-Paperclip, Clawteam, or Nerve UI. Those tools should continue to control
+Gastown, Clawteam, or Nerve UI. Those tools should continue to control
 OpenClaw agents through their existing OpenClaw/Nexus endpoints; Letta adds
 persistent agent state and memory-manager orchestration, not an exclusive
 replacement control plane.
@@ -651,3 +649,21 @@ environment:
 5. Apply Cloudflare Access OAuth/service-token gates in the Cloudflare Zero
    Trust dashboard and run live URL smoke checks from a Tailscale-authenticated
    shell.
+
+## Remaining owner-gated runtime tasks, 2026-05-28
+
+Local and API-backed validation is complete for the post-domain Cloudflare and
+memory-stack pass. Remaining work requires owner credentials, live provider
+accounts, or physical/interactive device access:
+
+1. Repair worker WSL Tailscale: install or enable Tailscale on RTX3060 WSL, log
+   RTX3090Ti WSL back into the tailnet, and log RTX5090 WSL back into the
+   tailnet.
+2. After Tailscale repair, confirm each worker can reach Oracle Loki privately
+   at `http://100.64.0.3:3100/ready`, then re-check Loki labels.
+3. Confirm live CRM, Twilio, SendGrid, Activepieces, n8n, OpenClaw, quote, and
+   Supabase credentials in Infisical before any live mutation smoke.
+4. Run `pnpm smoke:lead-lifecycle -- --live --report-dir tests/results/lead-lifecycle-smoke`
+   only after those credentials and provider callback policies are ready.
+5. Review Cloudflare Access service-token routes with non-logged credentials;
+   do not paste service-token values into repo docs or chat.

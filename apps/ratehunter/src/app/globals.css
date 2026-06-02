@@ -55,6 +55,18 @@ body {
   .text-balance {
     text-wrap: balance;
   }
+  .glass-panel {
+    @apply border border-white/10 bg-black/40 backdrop-blur-xl shadow-2xl;
+  }
+  .glass-card {
+    @apply border border-white/10 bg-white/5 backdrop-blur-md shadow-lg transition-all duration-300 hover:bg-white/10;
+  }
+  .glass-button {
+    @apply border border-white/10 bg-white/10 backdrop-blur-sm transition-all duration-300 hover:bg-white/20 active:scale-95;
+  }
+  .glass-input {
+    @apply border border-white/10 bg-white/5 backdrop-blur-sm focus:bg-white/10 focus:border-white/20 outline-none transition-all;
+  }
 }
 
 @layer components {

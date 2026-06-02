@@ -8,7 +8,6 @@
 services:
   # ── Infisical secrets init (runs once, writes files to /run/nyra-secrets/) ─
   secrets-init:
-    profiles: ["secrets"]
     build:
       context: ../../images/infisical-secrets-init
     container_name: worker-5090-secrets-init
@@ -16,6 +15,8 @@ services:
     command: ["/usr/local/bin/secrets-init.sh"]
     environment:
       INFISICAL_TOKEN: ${INFISICAL_TOKEN:-}
+      INFISICAL_UNIVERSAL_AUTH_CLIENT_ID: ${INFISICAL_UNIVERSAL_AUTH_CLIENT_ID:-}
+      INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET: ${INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET:-}
       INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
       INFISICAL_ENV: ${INFISICAL_ENV:-prod}
       INFISICAL_PATH: ${INFISICAL_PATH:-/machines/worker-rtx5090}
@@ -26,7 +27,6 @@ services:
 
   # ── Infisical agent (polls Infisical and refreshes secrets) ──────────────
   infisical-agent:
-    profiles: ["secrets"]
     build:
       context: ../../images/infisical-secrets-init
     container_name: worker-5090-infisical-agent
@@ -37,6 +37,8 @@ services:
         condition: service_completed_successfully
     environment:
       INFISICAL_TOKEN: ${INFISICAL_TOKEN:-}
+      INFISICAL_UNIVERSAL_AUTH_CLIENT_ID: ${INFISICAL_UNIVERSAL_AUTH_CLIENT_ID:-}
+      INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET: ${INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET:-}
       INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
       INFISICAL_ENV: ${INFISICAL_ENV:-prod}
       INFISICAL_PATH: ${INFISICAL_PATH:-/machines/worker-rtx5090}
@@ -261,6 +263,7 @@ services:
     container_name: worker-5090-promtail
     hostname: worker-5090-promtail
     restart: unless-stopped
+    network_mode: host
     depends_on:
       secrets-init:
         condition: service_completed_successfully
@@ -271,11 +274,9 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - nyra_secrets:/run/nyra-secrets:ro
     environment:
-      - LOKI_URL=${LOKI_URL:-http://oracle.trex-fiordland.ts.net:3100}
+      - LOKI_URL=${LOKI_URL:-http://100.64.0.3:3100}
       - WORKER_ID=worker-5090
-    command: -config.file=/etc/promtail/config.yaml
-    networks:
-      - worker-network
+    command: -config.file=/etc/promtail/config.yaml -config.expand-env=true
 
 networks:
   worker-network:

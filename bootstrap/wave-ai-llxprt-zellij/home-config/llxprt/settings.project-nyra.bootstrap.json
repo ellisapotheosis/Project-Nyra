@@ -28,6 +28,13 @@
       "description": "Project Nyra singular MCP endpoint: memory, Git/Gitea, Composio, browser, UI, and infra tools.",
       "timeout": 30000,
       "trust": true
+    },
+    "shadcn": {
+      "command": "npx",
+      "args": ["-y", "shadcn@canary", "mcp"],
+      "env": {
+        "REGISTRY_URL": "https://tweakcn.com/r/themes/registry.json"
+      }
     }
   },
   "includeDirectories": ["."],

@@ -5,13 +5,20 @@
   "type": "module",
   "main": "src/index.ts",
   "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "start": "node dist/server.js",
+    "build": "tsc",
     "test": "vitest run --config vitest.config.mjs"
   },
   "dependencies": {
     "@nyra/campaign-domain": "workspace:*",
-    "@nyra/compliance-domain": "workspace:*"
+    "@nyra/compliance-domain": "workspace:*",
+    "cors": "^2.8.5",
+    "dotenv": "^17.4.2",
+    "express": "^4.19.2",
+    "helmet": "^7.1.0"
   },
   "devDependencies": {
-    "vitest": "4.0.18"
+    "vitest": "4.1.0"
   }
 }

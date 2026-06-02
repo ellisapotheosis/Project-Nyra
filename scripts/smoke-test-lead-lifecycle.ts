@@ -176,7 +176,7 @@ export async function runLeadLifecycleSmoke(
       );
     }
 
-    await assertHealth(fetchImpl, crmApiUrl);
+    await assertHealth(fetchImpl, crmApiUrl, options.crmApiKey);
     steps.push({
       name: "crm-api.health",
       status: "passed",
@@ -318,9 +318,14 @@ function getArgValue(argv: string[], key: string): string | undefined {
 
 async function assertHealth(
   fetchImpl: FetchLike,
-  crmApiUrl: string
+  crmApiUrl: string,
+  crmApiKey?: string
 ): Promise<void> {
-  const response = await fetchImpl(`${crmApiUrl}/health`);
+  const response = await fetchImpl(`${crmApiUrl}/health`, {
+    headers: {
+      ...(crmApiKey ? { "x-crm-api-key": crmApiKey } : {}),
+    },
+  });
   if (!response.ok) {
     throw new Error(`CRM API health check failed with ${response.status}`);
   }

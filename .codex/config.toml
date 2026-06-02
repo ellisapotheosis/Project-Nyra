@@ -1,5 +1,4 @@
 # oh-my-codex top-level settings (must be before any [table])
-notify = ["node", "/home/ellisapotheosis/.npm-global/lib/node_modules/oh-my-codex/dist/scripts/notify-hook.js"]
 model_reasoning_effort = "medium"
 developer_instructions = "You have oh-my-codex installed. AGENTS.md is the orchestration brain and main control surface. Follow AGENTS.md for skill/keyword routing, $name workflow invocation, and role-specialized subagents. Use outcome-first, concise progress updates: state the target result, constraints, validation evidence, and stop condition before adding process detail. Native subagents live in .codex/agents and may handle independent parallel subtasks within one Codex session or team pane. Skills load from .codex/skills, not native-agent TOMLs. Treat installed prompts as narrower execution surfaces under AGENTS.md authority."
 
@@ -43,7 +42,7 @@ description = "PR reviewer focused on security and correctness."
 apply_patch_freeform = true
 apply_patch_streaming_events = true
 apps = true
-apps_mcp_path_override = true
+apps_mcp_path_override = false
 artifact = true
 auth_elicitation = false
 autonomous_mode = true

@@ -31,10 +31,10 @@ compose_config() {
     OPENLIT_DB_PASSWORD=x \
     OPENLIT_NEXTAUTH_SECRET=x \
     OPENLIT_VAULT_ENCRYPTION_KEY=x \
-    PAPERCLIP_AGENT_JWT_SECRET=x \
-    PAPERCLIP_API_KEY=x \
-    PAPERCLIP_DB_PASSWORD=x \
-    PAPERCLIP_SESSION_SECRET=x \
+    GASTOWN_AGENT_JWT_SECRET=x \
+    GASTOWN_API_KEY=x \
+    GASTOWN_DB_PASSWORD=x \
+    GASTOWN_SESSION_SECRET=x \
     PORTAINER_EDGE_ID=x \
     PORTAINER_EDGE_KEY=x \
     QUOTE_API_SECRET=x \
@@ -67,7 +67,7 @@ compose_config "oracle memory backend" \
 compose_config "oracle tool overlays" \
   docker compose \
     -f infra/hosts/oracle-vps/docker-compose.yml \
-    -f infra/hosts/oracle-vps/docker-compose.paperclip.yml \
+    -f infra/hosts/oracle-vps/docker-compose.gastown.yml \
     -f infra/hosts/oracle-vps/docker-compose.clawteam.yml \
     -f infra/hosts/oracle-vps/docker-compose.gitea.yml \
     config

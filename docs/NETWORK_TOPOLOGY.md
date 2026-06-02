@@ -26,7 +26,7 @@ Project Nyra uses a hybrid network architecture combining:
 | **orchestrator**     | Control Plane (LiteLLM, Nexus Router, monitoring) | LAN          | None        | 192.168.x.x (LAN) | 22       | `infra/hosts/orchestrator/docker-compose.yml`     |
 | **worker-rtx5090**   | Primary vLLM inference (32GB VRAM)                | LAN          | RTX 5090    | 192.168.x.x (LAN) | 22       | `infra/hosts/worker-rtx5090/docker-compose.yml`   |
 | **worker-rtx3090ti** | Secondary vLLM inference (24GB VRAM)              | LAN          | RTX 3090 Ti | 192.168.x.x (LAN) | 22       | `infra/hosts/worker-rtx3090ti/docker-compose.yml` |
-| **worker-rtx3060**   | Ollama embeddings & STT (12GB VRAM)               | LAN          | RTX 3060    | 192.168.x.x (LAN) | 22       | `infra/hosts/worker-rtx3060/docker-compose.yml`   |
+| **worker-rtx3060**   | Ollama embeddings & STT (6GB VRAM)                | LAN          | RTX 3060    | 192.168.x.x (LAN) | 22       | `infra/hosts/worker-rtx3060/docker-compose.yml`   |
 | **oracle-vps**       | Cloud Backend (TwentyCRM, DBs, memory plane)      | Oracle Cloud | None        | Public IP         | 22       | `infra/hosts/oracle-vps/docker-compose.yml`       |
 
 ---
@@ -140,9 +140,9 @@ curl http://orchestrator.ts.net:9000/api/status  # Portainer
 
 #### worker-rtx5090 (Primary vLLM)
 
-| Service  | Port | Protocol | Health Check  | Models                         |
-| -------- | ---- | -------- | ------------- | ------------------------------ |
-| **vLLM** | 8000 | HTTP     | `GET /health` | DeepSeek-R1 236B, Qwen 2.5 72B |
+| Service  | Port | Protocol | Health Check  | Models                        |
+| -------- | ---- | -------- | ------------- | ----------------------------- |
+| **vLLM** | 8000 | HTTP     | `GET /health` | Qwen 2.5 7B/14B, Llama 3.1 8B |
 
 **Test:**
 
@@ -160,9 +160,9 @@ curl http://worker-rtx5090.ts.net:8000/v1/models
 
 #### worker-rtx3060 (Ollama + Embeddings)
 
-| Service    | Port  | Protocol | Health Check    | Models                  |
-| ---------- | ----- | -------- | --------------- | ----------------------- |
-| **Ollama** | 11434 | HTTP     | `GET /api/tags` | CodeLlama 34B, Qwen 32B |
+| Service    | Port  | Protocol | Health Check    | Models                                             |
+| ---------- | ----- | -------- | --------------- | -------------------------------------------------- |
+| **Ollama** | 11434 | HTTP     | `GET /api/tags` | nomic-embed-text, llama3.2:3b, mistral:7b-instruct |
 
 **Test:**
 
@@ -323,8 +323,8 @@ docker logs nyra-cloudflared-orchestrator | grep "Registered\|tunnel"
                                     ┌───────────────▼──────┐
                                     │ WORKER RTX3060       │
                                     │ Ollama (11434)       │
-                                    │ CodeLlama 34B        │
-                                    │ Qwen 32B (embeddings)│
+                                    │ nomic-embed-text     │
+                                    │ llama3.2, mistral 7b │
                                     └──────────────────────┘
 
                      ┌──────────────────────────────────┐

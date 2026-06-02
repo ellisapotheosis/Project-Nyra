@@ -93,20 +93,20 @@ curl -sf --max-time 5 http://homeassistant.trex-fiordland.ts.net:8123 && echo "H
 
 Visit each critical URL and confirm it loads:
 
-| URL                                   | Expected result                          |
-| ------------------------------------- | ---------------------------------------- |
-| https://ratehunter.net                | Mortgage landing page (Cloudflare Pages) |
-| https://www.ratehunter.net            | Redirects to ratehunter.net              |
-| https://app.projectnyra.com           | Broker webapp login / dashboard          |
-| https://crm.projectnyra.com           | Twenty CRM UI                            |
-| https://admin.projectnyra.com         | Admin portal                             |
-| https://chat.projectnyra.com          | Chat UI                                  |
-| https://ha.projectnyra.com            | Home Assistant dashboard                 |
-| https://status.projectnyra.com        | Status / uptime dashboard                |
-| https://oracle.projectnyra.com        | Oracle gateway (Caddy)                   |
-| https://public-status.projectnyra.com | Public uptime page                       |
-| https://grafana.projectnyra.com       | Grafana (CF Access prompt)               |
-| https://portainer.projectnyra.com     | Portainer (CF Access prompt)             |
+| URL | Expected result |
+|-----|----------------|
+| https://ratehunter.net | Mortgage landing page (Cloudflare Pages) |
+| https://www.ratehunter.net | Redirects to ratehunter.net |
+| https://app.projectnyra.com | Broker webapp login / dashboard |
+| https://crm.projectnyra.com | Twenty CRM UI |
+| https://admin.projectnyra.com | Admin portal |
+| https://chat.projectnyra.com | Chat UI |
+| https://ha.projectnyra.com | Home Assistant dashboard |
+| https://status.projectnyra.com | Status / uptime dashboard |
+| https://oracle.projectnyra.com | Oracle gateway (Caddy) |
+| https://public-status.projectnyra.com | Public uptime page |
+| https://grafana.projectnyra.com | Grafana (CF Access prompt) |
+| https://portainer.projectnyra.com | Portainer (CF Access prompt) |
 
 ---
 
@@ -131,7 +131,7 @@ Open `https://ha.projectnyra.com` → Nyra Command Deck dashboard:
 - [ ] Overview cards display correctly
 - [ ] "App Portal" button opens https://app.projectnyra.com
 - [ ] "CRM (Twenty)" button opens https://crm.projectnyra.com
-- [ ] Worker section shows nerve-_/claw-_ links
+- [ ] Worker section shows nerve-*/claw-* links
 - [ ] Tunnels & DNS section is readable
 
 ---

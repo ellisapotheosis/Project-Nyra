@@ -41,13 +41,13 @@ services:
       Planned or compatibility-gated; expose only after origin and Access policy
       validation.
   - id: gastown
-    name: GasTown
+    name: Gastown
     category: ai
-    host: unknown
-    container: unknown
-    internal_url: none
+    host: oracle
+    container: gastown
+    internal_url: http://gastown:8080
     public_url: https://gastown.projectnyra.com
-    tailnet_url: none
+    tailnet_url: http://gastown:8080
     iframe_policy: link-first
     requires_auth: true
     cloudflare_access: required
@@ -56,10 +56,9 @@ services:
     healthcheck:
       type: http
       url: https://gastown.projectnyra.com
-    ports: []
-    notes:
-      Planned or compatibility-gated; expose only after origin and Access policy
-      validation.
+    ports:
+      - 8080
+    notes: Replaces Gastown for Oracle agent workspace coordination.
   - id: openclaw-gateway
     name: Openclaw Gateway
     category: ai
@@ -672,25 +671,6 @@ services:
       url: https://n8n.projectnyra.com
     ports:
       - 5678
-    notes: ""
-  - id: paperclip
-    name: Paperclip
-    category: service
-    host: oracle
-    container: paperclip
-    internal_url: http://paperclip:3100
-    public_url: https://paperclip.projectnyra.com
-    tailnet_url: http://paperclip:3100
-    iframe_policy: unknown-test-required
-    requires_auth: true
-    cloudflare_access: required
-    contains_borrower_data: false
-    risk_level: privileged
-    healthcheck:
-      type: http
-      url: https://paperclip.projectnyra.com
-    ports:
-      - 3100
     notes: ""
   - id: claw-3090
     name: Worker RTX3090Ti OpenClaw UI

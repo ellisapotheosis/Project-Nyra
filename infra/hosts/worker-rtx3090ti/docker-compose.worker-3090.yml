@@ -17,6 +17,8 @@ services:
     command: ["/usr/local/bin/secrets-init.sh"]
     environment:
       INFISICAL_TOKEN: ${INFISICAL_TOKEN:-}
+      INFISICAL_UNIVERSAL_AUTH_CLIENT_ID: ${INFISICAL_UNIVERSAL_AUTH_CLIENT_ID:-}
+      INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET: ${INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET:-}
       INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
       INFISICAL_ENV: ${INFISICAL_ENV:-prod}
       INFISICAL_PATH: ${INFISICAL_PATH:-/machines/worker-rtx3090ti}
@@ -37,6 +39,8 @@ services:
         condition: service_completed_successfully
     environment:
       INFISICAL_TOKEN: ${INFISICAL_TOKEN:-}
+      INFISICAL_UNIVERSAL_AUTH_CLIENT_ID: ${INFISICAL_UNIVERSAL_AUTH_CLIENT_ID:-}
+      INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET: ${INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET:-}
       INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
       INFISICAL_ENV: ${INFISICAL_ENV:-prod}
       INFISICAL_PATH: ${INFISICAL_PATH:-/machines/worker-rtx3090ti}
@@ -246,6 +250,7 @@ services:
     container_name: worker-3090-promtail
     hostname: worker-3090-promtail
     restart: unless-stopped
+    network_mode: host
     volumes:
       - ./promtail-config.yml:/etc/promtail/config.yml:ro
       - ./logs:/var/log/worker-3090:ro
@@ -253,10 +258,10 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - nyra_secrets:/run/nyra-secrets:ro
     environment:
-      - LOKI_URL=${LOKI_URL:-http://oracle.trex-fiordland.ts.net:3100}
+      - LOKI_URL=${LOKI_URL:-http://100.64.0.3:3100}
       - WORKER_ID=${WORKER_ID:-worker-3090}
       - HOSTNAME=worker-3090
-    command: -config.file=/etc/promtail/config.yml
+    command: -config.file=/etc/promtail/config.yml -config.expand-env=true
     depends_on:
       secrets-init:
         condition: service_completed_successfully

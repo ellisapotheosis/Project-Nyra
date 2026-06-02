@@ -1,13 +1,12 @@
 # Cloudflared source config for the Project Nyra orchestrator tunnel.
 # Replace ORCHESTRATOR_TUNNEL_ID before using this as a locally managed tunnel.
+# If the tunnel is dashboard-managed with a token, use this file as the source
+# of truth for Public Hostname entries in the Cloudflare Zero Trust UI.
 #
 # Layout:
-#   - Orchestrator-local services: direct Docker container names
+#   - Orchestrator-local services: direct docker container names
 #   - Oracle VPS services:         proxied via oracle.trex-fiordland.ts.net (Tailscale)
 #   - Worker services:             proxied via worker-*.trex-fiordland.ts.net (Tailscale)
-#
-# Note: admin, campaigns, quotes, chat, status are served by the oracle tunnel.
-# Only worker UIs, HA, portainer, and oracle Tailscale proxies live here.
 
 tunnel: ORCHESTRATOR_TUNNEL_ID
 credentials-file: /etc/cloudflared/ORCHESTRATOR_TUNNEL_ID.json
@@ -18,26 +17,26 @@ originRequest:
 
 ingress:
   # ── HA Green / Linkwarden ─────────────────────────────────────────────────
+  # Protect with Cloudflare Access.
   - hostname: links.projectnyra.com
     service: http://100.64.0.2:3007
 
   - hostname: linkwarden.projectnyra.com
     service: http://100.64.0.2:3007
 
-  # ── Home Assistant (Nabu Casa relay — ha.projectnyra.com) ─────────────────
-  # homeassistant.trex-fiordland.ts.net resolves to 100.64.0.2 but HA Green
-  # is not responding to Tailscale pings from this host. Use homeassistant.
-  # projectnyra.com (Nabu Casa chain) as the working HA address.
+  # ── Home Assistant ────────────────────────────────────────────────────────
   - hostname: ha.projectnyra.com
     service: http://homeassistant.trex-fiordland.ts.net:8123
 
-  # ── Portainer (orchestrator — must stay local) ────────────────────────────
+  # ── Portainer (orchestrator) ──────────────────────────────────────────────
   - hostname: portainer.projectnyra.com
     service: https://nyra-portainer:9443
     originRequest:
       noTLSVerify: true
 
   # ── Oracle VPS services via Tailscale ─────────────────────────────────────
+  # These entries proxy oracle-hosted services through the orchestrator tunnel.
+  # Requires oracle.trex-fiordland.ts.net reachable via Tailscale.
   - hostname: litellm.projectnyra.com
     service: http://oracle.trex-fiordland.ts.net:4000
 
@@ -60,16 +59,36 @@ ingress:
   - hostname: router.openclaw.projectnyra.com
     service: http://nyra-openclaw-gateway:8001
 
-  # ── GasTown / GasTeam ────────────────────────────────────────────────────
-  # gastown runs on oracle (nyra-network-gastown:8080) — DNS → oracle tunnel
-  - hostname: gasteam.projectnyra.com
-    service: http://nyra-gasteam:7001
+  # ── App portals (orchestrator-local) ─────────────────────────────────────
+  - hostname: admin.projectnyra.com
+    service: http://nyra-admin:3001
 
-  # ── Borrower chat (pending dedicated service) ─────────────────────────────
+  - hostname: chat.projectnyra.com
+    service: http://nyra-chat-ui:3000
+
   - hostname: borrower-chat.projectnyra.com
     service: http://nyra-borrower-chat:3002
 
+  - hostname: campaigns.projectnyra.com
+    service: http://nyra-campaign-engine:3003
+
+  - hostname: quotes.projectnyra.com
+    service: http://nyra-quote-api:8000
+
+  # ── Status / uptime (orchestrator-local) ─────────────────────────────────
+  - hostname: status.projectnyra.com
+    service: http://nyra-uptime-kuma:3001
+
+  # ── GasTown / GasTeam ────────────────────────────────────────────────────
+  - hostname: gastown.projectnyra.com
+    service: http://nyra-gastown:7000
+
+  - hostname: gasteam.projectnyra.com
+    service: http://nyra-gasteam:7001
+
   # ── Worker RTX 5090 (mobile — may be offline) ────────────────────────────
+  # worker-rtx5090 is the user's dev workstation; tunnel routes time out
+  # gracefully when the machine is off.
   - hostname: nerve-5090.projectnyra.com
     service: http://worker-rtx5090.trex-fiordland.ts.net:7860
 

@@ -57,6 +57,14 @@ class FakeClient implements CrmWritePlanClient {
     return { id, input };
   }
 
+  async getContact(id: string) {
+    this.calls.push(`getContact:${id}`);
+    if (this.matches.find((m) => m.id === id)) {
+      return this.matches.find((m) => m.id === id);
+    }
+    return undefined;
+  }
+
   async searchContacts() {
     this.calls.push("searchContacts");
     return this.matches;
@@ -148,10 +156,10 @@ describe("executeCrmWritePlan", () => {
 
     expect(audit.events).toEqual([
       expect.objectContaining({
-        entityId: "planned-lead-id",
+        entityId: "lead-created",
       }),
     ]);
-    expect(client.calls).toContain("updateContact:planned-lead-id");
+    expect(client.calls).toContain("getContact:planned-lead-id");
   });
 
   it("propagates the persisted CRM lead id into communications and quotes", async () => {

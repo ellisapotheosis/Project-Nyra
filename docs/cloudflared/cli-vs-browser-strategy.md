@@ -106,35 +106,35 @@ done
 These require an authenticated browser session on Cloudflare's dashboard or
 third-party registrar.
 
-| Task                                           | URL                                           | Notes                                                            |
-| ---------------------------------------------- | --------------------------------------------- | ---------------------------------------------------------------- |
-| Log in to Spaceship and update nameservers     | https://spaceship.com                         | Set NS to `mcgrory.ns.cloudflare.com` + `zita.ns.cloudflare.com` |
-| Disable DNSSEC on Spaceship before NS change   | https://spaceship.com                         | Must disable before pointing to CF                               |
-| Verify projectnyra.com zone is Active in CF    | https://dash.cloudflare.com                   | Zone status → Active                                             |
-| Add ratehunter.net as a custom domain on Pages | CF Dashboard → Pages project → Custom domains | Add `ratehunter.net` + `www.ratehunter.net`                      |
-| Verify ratehunter.net Pages deployment         | https://dash.cloudflare.com → Pages           | Check deployment build logs                                      |
-| Configure Cloudflare Access policies           | CF Zero Trust → Access → Applications         | Gate internal hostnames                                          |
-| Review tunnel connector health                 | CF Zero Trust → Networks → Tunnels            | Both tunnels show green                                          |
+| Task | URL | Notes |
+|------|-----|-------|
+| Log in to Spaceship and update nameservers | https://spaceship.com | Set NS to `mcgrory.ns.cloudflare.com` + `zita.ns.cloudflare.com` |
+| Disable DNSSEC on Spaceship before NS change | https://spaceship.com | Must disable before pointing to CF |
+| Verify projectnyra.com zone is Active in CF | https://dash.cloudflare.com | Zone status → Active |
+| Add ratehunter.net as a custom domain on Pages | CF Dashboard → Pages project → Custom domains | Add `ratehunter.net` + `www.ratehunter.net` |
+| Verify ratehunter.net Pages deployment | https://dash.cloudflare.com → Pages | Check deployment build logs |
+| Configure Cloudflare Access policies | CF Zero Trust → Access → Applications | Gate internal hostnames |
+| Review tunnel connector health | CF Zero Trust → Networks → Tunnels | Both tunnels show green |
 
 ---
 
 ## Personal Manual Tasks (Owner Only)
 
-| Task                                                                | Where                          |
-| ------------------------------------------------------------------- | ------------------------------ |
-| Provide `CLOUDFLARE_API_TOKEN` with DNS:Edit + Tunnel:Edit scopes   | Infisical or `.env`            |
-| Provide tunnel credential JSON files to cloudflared containers      | `/etc/cloudflared/<UUID>.json` |
-| Approve and merge PR from Prompt 04                                 | GitHub / Gitea                 |
-| Confirm ratehunter.net landing page is correct after NS propagation | Browser                        |
+| Task | Where |
+|------|-------|
+| Provide `CLOUDFLARE_API_TOKEN` with DNS:Edit + Tunnel:Edit scopes | Infisical or `.env` |
+| Provide tunnel credential JSON files to cloudflared containers | `/etc/cloudflared/<UUID>.json` |
+| Approve and merge PR from Prompt 04 | GitHub / Gitea |
+| Confirm ratehunter.net landing page is correct after NS propagation | Browser |
 
 ---
 
 ## Task Assignment Summary
 
-| Agent Type                             | Tasks                                                                        |
-| -------------------------------------- | ---------------------------------------------------------------------------- |
-| **CLI agent (shell on orchestrator)**  | `cloudflared route dns`, config validate, systemd/Docker restart             |
-| **CLI agent (shell on oracle-vps)**    | `cloudflared route dns` for oracle hostnames, Docker restart                 |
-| **CLI agent (any)**                    | `apply-cloudflare-desired-state.sh`, git/gh PR creation, `dig` validation    |
+| Agent Type | Tasks |
+|------------|-------|
+| **CLI agent (shell on orchestrator)** | `cloudflared route dns`, config validate, systemd/Docker restart |
+| **CLI agent (shell on oracle-vps)** | `cloudflared route dns` for oracle hostnames, Docker restart |
+| **CLI agent (any)** | `apply-cloudflare-desired-state.sh`, git/gh PR creation, `dig` validation |
 | **Codex Desktop / Playwright browser** | Spaceship NS update, DNSSEC disable, CF Pages custom domain, Access policies |
-| **Owner (manual)**                     | Secret provisioning, PR merge, final visual confirmation                     |
+| **Owner (manual)** | Secret provisioning, PR merge, final visual confirmation |

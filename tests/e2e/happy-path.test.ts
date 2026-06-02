@@ -16,7 +16,10 @@ test.describe("Project Nyra - Happy Path Smoke Test", () => {
       waitUntil: "domcontentloaded",
       timeout: 30000,
     });
-    await expect(page).toHaveTitle(/RateHunter/i);
+    await expect(page.getByText(/RateHunter/i).first()).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: /Ellis Andersen/i })
+    ).toBeVisible();
 
     await page.goto(projectNyraUrl, {
       waitUntil: "domcontentloaded",

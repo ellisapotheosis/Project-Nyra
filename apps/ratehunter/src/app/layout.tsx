@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Electrolize, Michroma, Space_Mono } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
-import "./themes/apotheosis.css";
+import "./themes.css";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://ratehunter.net";
 
@@ -62,13 +62,16 @@ export const viewport: Viewport = {
   themeColor: "#242329",
 };
 
+import { ThemeProvider } from "@/components/theme-provider";
+import { DEFAULT_THEME, themes } from "@/config/themes";
+
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning data-nyra-theme="apotheosis">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <link rel="manifest" href="/manifest.json" />
         <meta name="mobile-web-app-capable" content="yes" />
@@ -79,9 +82,16 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${fontSans.variable} ${fontSerif.variable} ${fontMono.variable} antialiased`}
+        className={`${fontSans.variable} ${fontSerif.variable} ${fontMono.variable} min-h-screen bg-background text-foreground antialiased`}
       >
-        {children}
+        <ThemeProvider
+          attribute="class"
+          defaultTheme={DEFAULT_THEME}
+          enableSystem={false}
+          themes={themes.map((t) => t.value) as string[]}
+        >
+          {children}
+        </ThemeProvider>
         <Script
           async
           crossOrigin="anonymous"

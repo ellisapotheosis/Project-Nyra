@@ -265,6 +265,7 @@ async function handleCrmWritePlan(req: express.Request, res: express.Response) {
       {
         createContact: (payload) => twentyClient.createContact(payload as any),
         updateContact: (id, payload) => twentyClient.updateContact(id, payload),
+        getContact: (id) => twentyClient.getContact(id),
         searchContacts: (options) => twentyClient.searchContacts(options),
         enrollCampaign: (input) => twentyClient.enrollCampaign(input),
         logCommunication: (input) =>

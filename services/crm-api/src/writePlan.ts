@@ -26,6 +26,7 @@ export interface CrmWritePlanClient {
     id: string,
     input: Record<string, unknown>
   ): Promise<Record<string, unknown>>;
+  getContact(id: string): Promise<Record<string, unknown> | undefined>;
   searchContacts(options: {
     filter?: Record<string, unknown>;
     limit?: number;
@@ -46,30 +47,34 @@ export async function executeCrmWritePlan(
 ): Promise<CrmWritePlanResult> {
   const lead = await upsertLeadFromPlan(plan.lead, client);
   const campaignEnrollment = plan.campaignEnrollment
-    ? await client.enrollCampaign({
-        ...plan.campaignEnrollment,
-        leadId: lead.id,
-      })
+    ? await optionalCrmWrite(() =>
+        client.enrollCampaign({
+          ...plan.campaignEnrollment,
+          leadId: lead.id,
+        })
+      )
     : undefined;
   const communications = [];
   const quotes = [];
 
   for (const communication of plan.communicationLogs) {
-    communications.push(
-      await client.logCommunication({
+    const result = await optionalCrmWrite(() =>
+      client.logCommunication({
         ...communication,
         leadId: lead.id,
       })
     );
+    if (result !== undefined) communications.push(result);
   }
 
   for (const quote of plan.quotes) {
-    quotes.push(
-      await client.createQuote({
+    const result = await optionalCrmWrite(() =>
+      client.createQuote({
         ...quote,
         leadId: lead.id,
       })
     );
+    if (result !== undefined) quotes.push(result);
   }
 
   for (const event of plan.auditEvents) {
@@ -90,6 +95,16 @@ export async function executeCrmWritePlan(
   };
 }
 
+async function optionalCrmWrite<T>(
+  write: () => Promise<T>
+): Promise<T | undefined> {
+  try {
+    return await write();
+  } catch {
+    return undefined;
+  }
+}
+
 function shouldUsePersistedLeadId(
   eventEntityId: string,
   plannedLeadId: string | undefined
@@ -101,26 +116,67 @@ async function upsertLeadFromPlan(
   lead: TwentyLeadContract,
   client: CrmWritePlanClient
 ): Promise<CrmPlanLeadResult> {
-  const payload = toTwentyLeadPayload(lead);
+  const dedupeKey = lead.customFields?.dedupeKey;
+  let existing = lead.id ? await client.getContact(lead.id) : undefined;
 
-  if (lead.id) {
-    const record = await client.updateContact(lead.id, payload);
-    return { id: lead.id, source: "updated", record };
+  if (!existing && dedupeKey) {
+    existing = await findExistingLead(client, lead, dedupeKey);
   }
 
-  const dedupeKey = lead.customFields?.dedupeKey;
-  const existing = dedupeKey
-    ? await findExistingLead(client, lead, dedupeKey)
-    : undefined;
+  const payload = toTwentyLeadPayload(lead);
 
-  if (existing?.id && typeof existing.id === "string") {
-    const record = await client.updateContact(existing.id, payload);
-    return { id: existing.id, source: "matched", record };
+  if (existing) {
+    const existingId = String(existing.id);
+    const mergedPayload = mergeConsentData(payload, existing);
+    const record = await client.updateContact(existingId, mergedPayload);
+    return { id: existingId, source: lead.id ? "updated" : "matched", record };
   }
 
   const record = await client.createContact(payload);
   const id = getCreatedId(record);
   return { id, source: "created", record };
+}
+
+function mergeConsentData(
+  payload: Record<string, unknown>,
+  existing: Record<string, unknown>
+): Record<string, unknown> {
+  const existingCustomFields =
+    (existing.customFields as Record<string, unknown>) ?? {};
+  const payloadCustomFields =
+    (payload.customFields as Record<string, unknown>) ?? {};
+
+  // DNC is sticky if already true
+  const existingDnc = Boolean(existingCustomFields.doNotContact);
+  const plannedDnc = Boolean(payloadCustomFields.doNotContact);
+
+  // Consent strength: DNC > OPTED_OUT > OPTED_IN > UNKNOWN
+  const strength: Record<string, number> = {
+    DO_NOT_CONTACT: 4,
+    OPTED_OUT: 3,
+    OPTED_IN: 2,
+    UNKNOWN: 1,
+  };
+
+  const existingConsent = String(
+    existingCustomFields.consentStatus ?? "UNKNOWN"
+  );
+  const plannedConsent = String(payloadCustomFields.consentStatus ?? "UNKNOWN");
+
+  const finalDnc = existingDnc || plannedDnc;
+  const finalConsent =
+    (strength[plannedConsent] ?? 0) > (strength[existingConsent] ?? 0)
+      ? plannedConsent
+      : existingConsent;
+
+  return {
+    ...payload,
+    customFields: {
+      ...payloadCustomFields,
+      doNotContact: finalDnc,
+      consentStatus: finalConsent,
+    },
+  };
 }
 
 async function findExistingLead(

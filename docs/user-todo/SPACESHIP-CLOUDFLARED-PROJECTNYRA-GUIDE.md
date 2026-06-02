@@ -139,7 +139,7 @@ nexus-router.projectnyra.com
 nexus.projectnyra.com
 openclaw-gateway.projectnyra.com
 openwebui.projectnyra.com
-paperclip.projectnyra.com
+gastown.projectnyra.com
 portainer-oracle.projectnyra.com
 prometheus.projectnyra.com
 twenty.projectnyra.com
@@ -241,7 +241,7 @@ cadvisor.projectnyra.com
 openwebui.projectnyra.com
 nexus.projectnyra.com
 litellm.projectnyra.com
-paperclip.projectnyra.com
+gastown.projectnyra.com
 clawteam.projectnyra.com
 portainer-oracle.projectnyra.com
 links.projectnyra.com

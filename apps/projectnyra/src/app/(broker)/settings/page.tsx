@@ -63,7 +63,16 @@ const envGroups = [
     "Broker auth bootstrap",
   ],
   ["SUPABASE_SERVICE_ROLE_KEY", "server", "Server-side auth administration"],
-  ["NEXT_PUBLIC_NEXUS_UI_URL", "client", "Operator launch link only"],
+  [
+    "NEXUS_ROUTER_URL / LITELLM_PROXY_URL / GRAFBASE_URL",
+    "server",
+    "Nexus status checks",
+  ],
+  [
+    "NEXT_PUBLIC_NEXUS_ROUTER_URL / NEXT_PUBLIC_GRAFANA_URL",
+    "client",
+    "Operator launch links only",
+  ],
 ];
 
 const featureFlags = [

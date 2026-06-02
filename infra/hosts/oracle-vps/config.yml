@@ -409,6 +409,8 @@ services:
       INFISICAL_POLL_INTERVAL: ${INFISICAL_POLL_INTERVAL:-60}
       INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
       INFISICAL_TOKEN: ${INFISICAL_TOKEN}
+      INFISICAL_UNIVERSAL_AUTH_CLIENT_ID: ${INFISICAL_UNIVERSAL_AUTH_CLIENT_ID:-}
+      INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET: ${INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET:-}
     networks:
       nyra_net: null
     restart: unless-stopped
@@ -432,6 +434,8 @@ services:
       INFISICAL_FOLDER_PATH: ${INFISICAL_PATH:-/shared}
       INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
       INFISICAL_TOKEN: ${INFISICAL_TOKEN}
+      INFISICAL_UNIVERSAL_AUTH_CLIENT_ID: ${INFISICAL_UNIVERSAL_AUTH_CLIENT_ID:-}
+      INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET: ${INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET:-}
     image: node:20-alpine
     networks:
       nyra_net: null
@@ -514,40 +518,6 @@ services:
         published: "5000"
         target: 5000
     restart: unless-stopped
-  mempalace-mcp:
-    build:
-      context: /home/ellisapotheosis/repos/project-nyra/services/mempalace-mcp
-      dockerfile: Dockerfile
-    container_name: nyra-mempalace-mcp
-    environment:
-      MEMPAL_DIR: /data/vault
-      PORT: 8000
-    healthcheck:
-      interval: 30s
-      retries: 3
-      test:
-        - CMD
-        - curl
-        - -f
-        - http://localhost:8000/health
-      timeout: 10s
-    networks:
-      nyra_net: null
-    ports:
-      - mode: ingress
-        protocol: tcp
-        published: "8002"
-        target: 8000
-    restart: unless-stopped
-    volumes:
-      - source: mempalace_data
-        target: /root/.mempalace
-        type: volume
-        volume: {}
-      - source: mempalace_vault
-        target: /data/vault
-        type: volume
-        volume: {}
   n8n:
     build:
       args:
@@ -614,7 +584,6 @@ services:
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
       GITHUB_TOKEN: ${GITHUB_TOKEN}
       LITELLM_MASTER_KEY: ${LITELLM_MASTER_KEY}
-      MEMPALACE_URL: ${MEMPALACE_URL:-}
       OPENAI_API_KEY: ${OPENAI_API_KEY}
       OPENROUTER_API_KEY: ${OPENROUTER_API_KEY}
     healthcheck:
@@ -637,10 +606,10 @@ services:
     restart: unless-stopped
     volumes:
       - bind:
-          create_host_path: true
+        create_host_path: true
         read_only: true
-        source: /home/ellisapotheosis/repos/project-nyra/infra/configs/nexus/nexus.toml
-        target: /etc/nexus/nexus.toml
+        source: /home/ubuntu/project-nyra/infra/hosts/oracle-vps/nexus.toml
+        target: /etc/nexus.toml
         type: bind
       - read_only: true
         source: nyra_secrets
@@ -702,44 +671,31 @@ services:
         target: /app/backend/data
         type: volume
         volume: {}
-  paperclip:
-    container_name: nyra-paperclip
-    environment:
-      - PAPERCLIP_AUTH_DISABLE_SIGN_UP=true
-      - PORT=3100
-    image: ghcr.io/paperclipai/paperclip:latest
+  gastown:
+    container_name: nyra-network-gastown
+    image: nyra-gastown:latest
     networks:
       nyra_net: null
     ports:
       - mode: ingress
+        host_ip: 127.0.0.1
         protocol: tcp
-        published: "3111"
-        target: 3100
+        published: "8096"
+        target: 8080
     restart: unless-stopped
     volumes:
-      - source: paperclip_data
-        target: /paperclip
+      - source: gastown_agent_home
+        target: /home/agent
         type: volume
         volume: {}
-  paperclip-mcp:
-    command:
-      - npx
-      - -y
-      - supergateway
-      - --stdio
-      - npx -y @paperclipai/mcp-server
-      - --port
-      - "8767"
-    container_name: nyra-paperclip-mcp
-    image: node:20-alpine
-    networks:
-      nyra_net: null
-    ports:
-      - mode: ingress
-        protocol: tcp
-        published: "8767"
-        target: 8767
-    restart: unless-stopped
+      - source: gastown_workspace
+        target: /gt
+        type: volume
+        volume: {}
+      - source: gastown_dolt_data
+        target: /gt/.dolt-data
+        type: volume
+        volume: {}
   portainer:
     command:
       - --http-enabled
@@ -931,6 +887,8 @@ services:
       INFISICAL_PATH: ${INFISICAL_PATH:-/machines/oracle-vps}
       INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
       INFISICAL_TOKEN: ${INFISICAL_TOKEN:-}
+      INFISICAL_UNIVERSAL_AUTH_CLIENT_ID: ${INFISICAL_UNIVERSAL_AUTH_CLIENT_ID:-}
+      INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET: ${INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET:-}
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
       ORACLE_TUNNEL_TOKEN: ${ORACLE_TUNNEL_TOKEN:-}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
@@ -1050,10 +1008,6 @@ volumes:
     name: nyra-network_grafana_data
   loki_data:
     name: nyra-network_loki_data
-  mempalace_data:
-    name: nyra-network_mempalace_data
-  mempalace_vault:
-    name: nyra-network_mempalace_vault
   n8n_data:
     name: nyra-network_n8n_data
   nyra_secrets:
@@ -1064,8 +1018,12 @@ volumes:
     name: nyra-network_openclaw_workspace
   openwebui_data:
     name: nyra-network_openwebui_data
-  paperclip_data:
-    name: nyra-network_paperclip_data
+  gastown_agent_home:
+    name: nyra-network_gastown_agent_home
+  gastown_workspace:
+    name: nyra-network_gastown_workspace
+  gastown_dolt_data:
+    name: nyra-network_gastown_dolt_data
   portainer_data:
     name: nyra-network_portainer_data
   postgres_data:

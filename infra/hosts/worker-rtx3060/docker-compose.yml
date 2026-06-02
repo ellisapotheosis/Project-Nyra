@@ -6,19 +6,25 @@
 # ============================================================================
 
 services:
-  # ── Portainer Edge Agent ────────────────────────────────────────────────
-  portainer-edge-agent:
-    image: portainer/agent:2.27.9
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-3060-portainer-agent
-    restart: unless-stopped
+  # Portainer Agent and Syncthing are managed by docker-compose.persistent.yml
+  # (make persistent-up-worker-3060) and must never appear here.
+
+  secrets-init:
+    build:
+      context: ../../images/infisical-secrets-init
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-3060-secrets-init
+    restart: "no"
+    command: ["/usr/local/bin/secrets-init.sh"]
     environment:
-      EDGE: "1"
-      EDGE_ID: ${PORTAINER_EDGE_ID}
-      EDGE_KEY: ${PORTAINER_EDGE_KEY}
-      EDGE_INSECURE_POLL: ${PORTAINER_EDGE_INSECURE_POLL:-1}
+      INFISICAL_TOKEN: ${INFISICAL_TOKEN:-}
+      INFISICAL_UNIVERSAL_AUTH_CLIENT_ID: ${INFISICAL_UNIVERSAL_AUTH_CLIENT_ID:-}
+      INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET: ${INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET:-}
+      INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
+      INFISICAL_ENV: ${INFISICAL_ENV:-prod}
+      INFISICAL_PATH: ${INFISICAL_PATH:-/machines/worker-rtx3060}
+      NYRA_SECRETS_DIR: /run/nyra-secrets
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - /var/lib/docker/volumes:/var/lib/docker/volumes
+      - nyra_secrets:/run/nyra-secrets
     networks:
       - worker-network
 
@@ -35,6 +41,7 @@ services:
       - OLLAMA_NUM_PARALLEL=1
       - OLLAMA_MAX_LOADED_MODELS=1
       - OLLAMA_GPU_OVERHEAD=256
+      - OLLAMA_KEEP_ALIVE=${OLLAMA_KEEP_ALIVE:-5m}
     volumes:
       - ollama_models:/root/.ollama/models
     deploy:
@@ -56,6 +63,23 @@ services:
       - "com.nyra.vram=6gb"
       - "com.nyra.device=laptop"
 
+  # ── Model Preloader ───────────────────────────────────────────────────────
+  ollama-model-init:
+    image: ollama/ollama:latest
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-3060-model-init
+    restart: "no"
+    environment:
+      - OLLAMA_HOST=http://ollama:11434
+      - OLLAMA_PRELOAD_MODELS=${OLLAMA_PRELOAD_MODELS:-nomic-embed-text llama3.2:3b mistral:7b-instruct-v0.3-q4_K_M}
+    entrypoint: ["/bin/sh", "-lc"]
+    command:
+      - set -eu; for model in $${OLLAMA_PRELOAD_MODELS}; do echo "pulling $${model}"; ollama pull "$${model}"; done
+    depends_on:
+      ollama:
+        condition: service_healthy
+    networks:
+      - worker-network
+
   # ── LiteLLM Proxy ───────────────────────────────────────────────────────
   litellm:
     image: ghcr.io/berriai/litellm:main-latest
@@ -66,10 +90,12 @@ services:
       - "${LITELLM_PORT:-4000}:4000"
     volumes:
       - ./litellm:/app/litellm:ro
+    environment:
+      - LITELLM_MASTER_KEY=${LITELLM_MASTER_KEY:-}
     command: --config /app/litellm/config.yaml --port 4000
     depends_on:
-      ollama:
-        condition: service_healthy
+      ollama-model-init:
+        condition: service_completed_successfully
     networks:
       - worker-network
 
@@ -83,9 +109,10 @@ services:
       - ./model-switcher:/app
       - ollama_models:/models
     environment:
-      - OLLAMA_URL=http://worker-3060-ollama:11434
-      - AVAILABLE_MODELS=llama3.2:3b,phi3:mini,nomic-embed-text
+      - OLLAMA_URL=http://ollama:11434
+      - AVAILABLE_MODELS=nomic-embed-text,llama3.2:3b,mistral:7b-instruct-v0.3-q4_K_M
       - DEFAULT_MODEL=llama3.2:3b
+      - SPECIALIZATION=embeddings,extraction,summarization,mem0,letta
     command: python /app/switcher.py
     depends_on:
       ollama:
@@ -98,16 +125,15 @@ services:
     image: grafana/promtail:latest
     container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-3060-promtail
     restart: unless-stopped
+    network_mode: host
     volumes:
-      - ./promtail:/etc/promtail:ro
+      - ./promtail-config.yml:/etc/promtail/config.yml:ro
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
     environment:
-      - LOKI_URL=${LOKI_URL:-http://oracle.trex-fiordland.ts.net:3100}
+      - LOKI_URL=${LOKI_URL:-http://100.64.0.3:3100}
       - WORKER_ID=worker-3060
-    command: -config.file=/etc/promtail/config.yml
-    networks:
-      - worker-network
+    command: -config.file=/etc/promtail/config.yml -config.expand-env=true
 
   node-exporter:
     image: prom/node-exporter:latest
@@ -138,24 +164,49 @@ services:
     networks:
       - worker-network
 
-  # ── Syncthing ───────────────────────────────────────────────────────────
-  syncthing:
-    profiles: ["sync"]
-    image: syncthing/syncthing:latest
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-syncthing
-    network_mode: host
-    environment:
-      - PUID=1000
-      - PGID=1000
-    volumes:
-      - syncthing_config:/var/syncthing
-      - /home/ellisapotheosis:/var/syncthing/data/home
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-3060-cadvisor
     restart: unless-stopped
+    privileged: true
+    ports:
+      - "${CADVISOR_PORT:-8081}:8080"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker:/var/lib/docker:ro
+      - /dev/disk:/dev/disk:ro
+    networks:
+      - worker-network
+
+  health-monitor:
+    image: curlimages/curl:latest
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-3060-health
+    restart: unless-stopped
+    depends_on:
+      - ollama
+      - litellm
+      - model-switcher
+    environment:
+      - OLLAMA_URL=http://ollama:11434
+      - LITELLM_URL=http://litellm:4000
+      - SWITCHER_URL=http://model-switcher:8090
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        while true; do
+          curl -sf "$${OLLAMA_URL}/api/version" || echo "Ollama Down"
+          curl -sf "$${LITELLM_URL}/health" || echo "LiteLLM Down"
+          curl -sf "$${SWITCHER_URL}/health" || echo "Model Switcher Down"
+          sleep 60
+        done
+    networks:
+      - worker-network
 
 volumes:
   ollama_models:
-  syncthing_config:
-  portainer_data:
+  nyra_secrets:
 
 networks:
   worker-network:

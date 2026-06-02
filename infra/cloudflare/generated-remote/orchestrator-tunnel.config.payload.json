@@ -1,85 +1,39 @@
 {
   "config": {
     "ingress": [
-      {
-        "hostname": "links.projectnyra.com",
-        "service": "http://100.64.0.2:3007"
-      },
-      {
-        "hostname": "linkwarden.projectnyra.com",
-        "service": "http://100.64.0.2:3007"
-      },
-      {
-        "hostname": "ha.projectnyra.com",
-        "service": "http://homeassistant.trex-fiordland.ts.net:8123"
-      },
+      { "hostname": "links.projectnyra.com",            "service": "http://100.64.0.2:3007" },
+      { "hostname": "linkwarden.projectnyra.com",        "service": "http://100.64.0.2:3007" },
+      { "hostname": "ha.projectnyra.com",                "service": "http://homeassistant.trex-fiordland.ts.net:8123" },
       {
         "hostname": "portainer.projectnyra.com",
         "service": "https://nyra-portainer:9443",
         "originRequest": { "noTLSVerify": true }
       },
-      {
-        "hostname": "litellm.projectnyra.com",
-        "service": "http://oracle.trex-fiordland.ts.net:4000"
-      },
-      {
-        "hostname": "nexus.projectnyra.com",
-        "service": "http://oracle.trex-fiordland.ts.net:6000"
-      },
-      {
-        "hostname": "nexus-router.projectnyra.com",
-        "service": "http://oracle.trex-fiordland.ts.net:6000"
-      },
-      {
-        "hostname": "letta.projectnyra.com",
-        "service": "http://oracle.trex-fiordland.ts.net:8283"
-      },
-      {
-        "hostname": "crm-ui.projectnyra.com",
-        "service": "http://oracle.trex-fiordland.ts.net:3000"
-      },
-      {
-        "hostname": "openclaw-gateway.projectnyra.com",
-        "service": "http://nyra-openclaw-gateway:8001"
-      },
-      {
-        "hostname": "router.openclaw.projectnyra.com",
-        "service": "http://nyra-openclaw-gateway:8001"
-      },
-      {
-        "hostname": "gasteam.projectnyra.com",
-        "service": "http://nyra-gasteam:7001"
-      },
-      {
-        "hostname": "borrower-chat.projectnyra.com",
-        "service": "http://nyra-borrower-chat:3002"
-      },
-      {
-        "hostname": "nerve-5090.projectnyra.com",
-        "service": "http://worker-rtx5090.trex-fiordland.ts.net:7860"
-      },
-      {
-        "hostname": "claw-5090.projectnyra.com",
-        "service": "http://worker-rtx5090.trex-fiordland.ts.net:3000"
-      },
-      {
-        "hostname": "nerve-3090.projectnyra.com",
-        "service": "http://worker-rtx3090ti.trex-fiordland.ts.net:7860"
-      },
-      {
-        "hostname": "claw-3090.projectnyra.com",
-        "service": "http://worker-rtx3090ti.trex-fiordland.ts.net:3000"
-      },
-      {
-        "hostname": "nerve-3060.projectnyra.com",
-        "service": "http://worker-rtx3060.trex-fiordland.ts.net:7860"
-      },
-      {
-        "hostname": "picoclaw-3060.projectnyra.com",
-        "service": "http://worker-rtx3060.trex-fiordland.ts.net:3000"
-      },
+      { "hostname": "litellm.projectnyra.com",           "service": "http://oracle.trex-fiordland.ts.net:4000" },
+      { "hostname": "nexus.projectnyra.com",             "service": "http://oracle.trex-fiordland.ts.net:6000" },
+      { "hostname": "nexus-router.projectnyra.com",      "service": "http://oracle.trex-fiordland.ts.net:6000" },
+      { "hostname": "letta.projectnyra.com",             "service": "http://oracle.trex-fiordland.ts.net:8283" },
+      { "hostname": "crm-ui.projectnyra.com",            "service": "http://oracle.trex-fiordland.ts.net:3000" },
+      { "hostname": "openclaw-gateway.projectnyra.com",  "service": "http://nyra-openclaw-gateway:8001" },
+      { "hostname": "router.openclaw.projectnyra.com",   "service": "http://nyra-openclaw-gateway:8001" },
+      { "hostname": "admin.projectnyra.com",             "service": "http://nyra-admin:3001" },
+      { "hostname": "chat.projectnyra.com",              "service": "http://nyra-chat-ui:3000" },
+      { "hostname": "borrower-chat.projectnyra.com",     "service": "http://nyra-borrower-chat:3002" },
+      { "hostname": "campaigns.projectnyra.com",         "service": "http://nyra-campaign-engine:3003" },
+      { "hostname": "quotes.projectnyra.com",            "service": "http://nyra-quote-api:8000" },
+      { "hostname": "status.projectnyra.com",            "service": "http://nyra-uptime-kuma:3001" },
+      { "hostname": "gastown.projectnyra.com",           "service": "http://nyra-gastown:7000" },
+      { "hostname": "gasteam.projectnyra.com",           "service": "http://nyra-gasteam:7001" },
+      { "hostname": "nerve-5090.projectnyra.com",        "service": "http://worker-rtx5090.trex-fiordland.ts.net:7860" },
+      { "hostname": "claw-5090.projectnyra.com",         "service": "http://worker-rtx5090.trex-fiordland.ts.net:3000" },
+      { "hostname": "nerve-3090.projectnyra.com",        "service": "http://worker-rtx3090ti.trex-fiordland.ts.net:7860" },
+      { "hostname": "claw-3090.projectnyra.com",         "service": "http://worker-rtx3090ti.trex-fiordland.ts.net:3000" },
+      { "hostname": "nerve-3060.projectnyra.com",        "service": "http://worker-rtx3060.trex-fiordland.ts.net:7860" },
+      { "hostname": "picoclaw-3060.projectnyra.com",     "service": "http://worker-rtx3060.trex-fiordland.ts.net:3000" },
       { "service": "http_status:404" }
     ],
-    "warp-routing": { "enabled": false }
+    "warp-routing": {
+      "enabled": false
+    }
   }
 }

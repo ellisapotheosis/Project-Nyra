@@ -8,12 +8,12 @@
 
 ## Cluster Hosts
 
-| Host                 | Role                                  | Network                     | Tailscale IP | Public Domain                            |
-| -------------------- | ------------------------------------- | --------------------------- | ------------ | ---------------------------------------- |
-| **orchestrator**     | Control Plane (LAN)                   | Local LAN                   | 100.64.1.10  | (N/A — internal only)                    |
-| **worker-rtx5090**   | GPU Worker — vLLM primary (32GB)      | Local LAN                   | 100.64.1.11  | (N/A — internal only)                    |
-| **worker-rtx3090ti** | GPU Worker — vLLM secondary (24GB)    | Local LAN                   | 100.64.1.12  | (N/A — internal only)                    |
-| **worker-rtx3060**   | GPU Worker — Ollama embeddings (12GB) | Local LAN                   | 100.64.1.13  | (N/A — internal only)                    |
+| Host                 | Role                                  | Network                     | Tailscale IP | Public Domain                          |
+| -------------------- | ------------------------------------- | --------------------------- | ------------ | -------------------------------------- |
+| **orchestrator**     | Control Plane (LAN)                   | Local LAN                   | 100.64.1.10  | (N/A — internal only)                  |
+| **worker-rtx5090**   | GPU Worker — vLLM primary (32GB)      | Local LAN                   | 100.64.1.11  | (N/A — internal only)                  |
+| **worker-rtx3090ti** | GPU Worker — vLLM secondary (24GB)    | Local LAN                   | 100.64.1.12  | (N/A — internal only)                  |
+| **worker-rtx3060**   | GPU Worker — Ollama embeddings (12GB) | Local LAN                   | 100.64.1.13  | (N/A — internal only)                  |
 | **oracle-vps**       | Cloud Backend (VPS)                   | Tailscale + Public Internet | 100.64.1.31  | app.projectnyra.com, crm.projectnyra.com |
 
 ---

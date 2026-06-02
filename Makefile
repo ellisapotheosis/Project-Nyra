@@ -64,6 +64,12 @@ WORKER_3090TI_CONTEXT ?= worker-rtx3090ti
 WORKER_3060_CONTEXT ?= worker-rtx3060
 FLEET_SSH_TARGETS ?= orchestrator worker-rtx5090 worker-rtx3090ti worker-rtx3060 oracle
 FLEET_DOCKER_CONTEXTS ?= default worker-rtx5090 worker-rtx3090ti worker-rtx3060 orchestrator oracle oracle-vps-oci
+# Self-hosted infisical stack (oracle-vps) — separate from nyra_host_compose because it IS the secrets layer
+ORACLE_INFISICAL_STACK_COMPOSE := infra/hosts/oracle-vps/docker-compose.infisical.yml
+INFISICAL_ENV_FILE ?= infra/hosts/oracle-vps/.env.infisical
+# Agent vault (credential proxy for AI agents) — also pre-Infisical, uses its own env file
+ORACLE_AGENT_VAULT_COMPOSE := infra/hosts/oracle-vps/docker-compose.agent-vault.yml
+ORACLE_AGENT_VAULT_ENV_FILE ?= infra/hosts/oracle-vps/.env.agent-vault
 NYRA_INFISICAL_TOKEN_HINT := INFISICAL_TOKEN must be exported on this PC before running remote Docker context targets.
 NYRA_LOCAL_ENV_HINT := NYRA_USE_LOCAL_ENV=1 uses ignored infra/hosts/<host>/.env files when Infisical is unavailable.
 
@@ -266,8 +272,13 @@ sync-env:
 	@if [ "$(NYRA_USE_LOCAL_ENV)" = "1" ]; then \
 	  echo "Skipping Infisical mirror sync; using ignored infra/hosts/*/.env files."; \
 	else \
-	  echo "🐾 Synchronizing cluster environment secrets from Infisical..."; \
-	  INFISICAL_ENV=$(AGENT_INFRA_ENV) ./scripts/mirror-sync-env.sh; \
+	  echo "🔄 Syncing Infisical → local .env files for all hosts..."; \
+	  $(nyra_load_infisical_env) \
+	  INFISICAL_PROJECT_ID="$(INFISICAL_PROJECT_ID)" \
+	  INFISICAL_ENV="$(AGENT_INFRA_ENV)" \
+	  INFISICAL_ENV_NAME="$(AGENT_INFRA_ENV)" \
+	  ./scripts/mirror-sync-env.sh; \
+	  echo "✅ Secrets mirrored to infra/hosts/*/.env"; \
 	fi
 
 down-all: down
@@ -433,12 +444,6 @@ twenty-crm-up:
 twenty-crm-down:
 	$(call nyra_host_compose,$(ORACLE_INFISICAL_PATH),$(ORACLE_CONTEXT),-f $(ORACLE_COMPOSE) stop twenty twenty-worker twenty-db)
 
-mempalace-init:
-	$(call nyra_host_compose,$(ORACLE_INFISICAL_PATH),$(ORACLE_CONTEXT),-f $(ORACLE_COMPOSE) exec mempalace-mcp mempalace init)
-
-mempalace-mine:
-	$(call nyra_host_compose,$(ORACLE_INFISICAL_PATH),$(ORACLE_CONTEXT),-f $(ORACLE_COMPOSE) exec mempalace-mcp mempalace mine)
-
 health:
 	bash scripts/health-check.sh
 
@@ -494,6 +499,153 @@ oracle-quote-engine-up:
 
 oracle-campaign-engine-up:
 	$(call nyra_host_compose,$(ORACLE_INFISICAL_PATH),$(ORACLE_CONTEXT),-f $(ORACLE_COMPOSE) -f $(ORACLE_APPS_COMPOSE) --profile apps up -d campaign_engine)
+
+# --- INFISICAL SELF-HOSTED STACK ---
+# Uses direct docker commands (NOT nyra_host_compose) because this IS the secrets layer.
+# It bootstraps itself from .env.infisical, not from Infisical.
+
+.PHONY: infisical-gen-env infisical-deploy infisical-up infisical-down infisical-restart infisical-logs infisical-logs-backend infisical-logs-gateway infisical-logs-postgres infisical-health infisical-ps infisical-shell
+
+infisical-gen-env:
+	@[ ! -f $(INFISICAL_ENV_FILE) ] || (echo "⚠️  $(INFISICAL_ENV_FILE) already exists. Delete it first to regenerate."; exit 1)
+	@ENCRYPTION_KEY=$$(openssl rand -hex 32) && \
+	 AUTH_SECRET=$$(openssl rand -base64 32) && \
+	 DB_PASSWORD=$$(openssl rand -base64 24 | tr -d '/+=') && \
+	 REDIS_PASSWORD=$$(openssl rand -base64 24 | tr -d '/+=') && \
+	 sed \
+	   -e "s/REQUIRED_GENERATE_WITH_OPENSSL_RAND_HEX_32/$$ENCRYPTION_KEY/" \
+	   -e "s/REQUIRED_GENERATE_WITH_OPENSSL_RAND_BASE64_32/$$AUTH_SECRET/" \
+	   infra/hosts/oracle-vps/.env.infisical.template > $(INFISICAL_ENV_FILE) && \
+	 sed -i "0,/REQUIRED_GENERATE_STRONG_PASSWORD/s//$$DB_PASSWORD/" $(INFISICAL_ENV_FILE) && \
+	 sed -i "0,/REQUIRED_GENERATE_STRONG_PASSWORD/s//$$REDIS_PASSWORD/" $(INFISICAL_ENV_FILE) && \
+	 chmod 600 $(INFISICAL_ENV_FILE) && \
+	 echo "" && \
+	 echo "✅ Generated $(INFISICAL_ENV_FILE)" && \
+	 echo "" && \
+	 echo "⚠️  BACK THESE UP OFFLINE NOW — losing them means losing all secrets:" && \
+	 echo "   ENCRYPTION_KEY: $$ENCRYPTION_KEY" && \
+	 echo "   AUTH_SECRET:    $$AUTH_SECRET" && \
+	 echo "   DB_PASSWORD:    $$DB_PASSWORD" && \
+	 echo "   REDIS_PASSWORD: $$REDIS_PASSWORD"
+
+infisical-deploy:
+	@echo "🚀 Deploying Infisical self-hosted secrets stack..."
+	@[ -f $(INFISICAL_ENV_FILE) ] || (echo "❌ Missing $(INFISICAL_ENV_FILE). Run: make infisical-gen-env"; exit 1)
+	@docker --context $(ORACLE_CONTEXT) compose -f $(ORACLE_INFISICAL_STACK_COMPOSE) --env-file $(INFISICAL_ENV_FILE) pull
+	@docker --context $(ORACLE_CONTEXT) compose -f $(ORACLE_INFISICAL_STACK_COMPOSE) --env-file $(INFISICAL_ENV_FILE) up -d
+	@echo "✅ Infisical deployed — https://infisical.trex-fiordland.ts.net (via Caddy/Tailscale)"
+
+infisical-up:
+	@docker --context $(ORACLE_CONTEXT) compose -f $(ORACLE_INFISICAL_STACK_COMPOSE) --env-file $(INFISICAL_ENV_FILE) up -d
+
+infisical-down:
+	@docker --context $(ORACLE_CONTEXT) compose -f $(ORACLE_INFISICAL_STACK_COMPOSE) --env-file $(INFISICAL_ENV_FILE) down
+
+infisical-restart:
+	@docker --context $(ORACLE_CONTEXT) compose -f $(ORACLE_INFISICAL_STACK_COMPOSE) --env-file $(INFISICAL_ENV_FILE) restart
+
+infisical-logs:
+	@docker --context $(ORACLE_CONTEXT) compose -f $(ORACLE_INFISICAL_STACK_COMPOSE) --env-file $(INFISICAL_ENV_FILE) logs -f
+
+infisical-logs-backend:
+	@docker --context $(ORACLE_CONTEXT) compose -f $(ORACLE_INFISICAL_STACK_COMPOSE) --env-file $(INFISICAL_ENV_FILE) logs -f infisical-backend
+
+infisical-logs-gateway:
+	@docker --context $(ORACLE_CONTEXT) compose -f $(ORACLE_INFISICAL_STACK_COMPOSE) --env-file $(INFISICAL_ENV_FILE) logs -f infisical-gateway
+
+infisical-logs-postgres:
+	@docker --context $(ORACLE_CONTEXT) compose -f $(ORACLE_INFISICAL_STACK_COMPOSE) --env-file $(INFISICAL_ENV_FILE) logs -f infisical-postgres
+
+infisical-health:
+	@echo "📊 Infisical Stack Health"
+	@echo "========================="
+	@docker --context $(ORACLE_CONTEXT) compose -f $(ORACLE_INFISICAL_STACK_COMPOSE) --env-file $(INFISICAL_ENV_FILE) ps
+	@echo ""
+	@curl -sf https://infisical.trex-fiordland.ts.net/api/status 2>/dev/null | jq -r '.status // "unreachable"' 2>/dev/null || echo "(Caddy not yet routing — check caddy-health)"
+
+infisical-ps:
+	@docker --context $(ORACLE_CONTEXT) compose -f $(ORACLE_INFISICAL_STACK_COMPOSE) --env-file $(INFISICAL_ENV_FILE) ps
+
+infisical-shell:
+	@docker --context $(ORACLE_CONTEXT) compose -f $(ORACLE_INFISICAL_STACK_COMPOSE) --env-file $(INFISICAL_ENV_FILE) exec infisical-backend sh
+
+# --- AGENT VAULT ---
+# Credential proxy for AI agents. Also pre-Infisical bootstrap, uses own env file.
+
+.PHONY: agent-vault-up agent-vault-down agent-vault-restart agent-vault-logs agent-vault-health agent-vault-ps agent-vault-shell
+
+agent-vault-up:
+	@echo "🔐 Starting Agent Vault..."
+	@[ -f $(ORACLE_AGENT_VAULT_ENV_FILE) ] || (echo "❌ Missing $(ORACLE_AGENT_VAULT_ENV_FILE)"; exit 1)
+	@docker --context $(ORACLE_CONTEXT) compose -f $(ORACLE_AGENT_VAULT_COMPOSE) --env-file $(ORACLE_AGENT_VAULT_ENV_FILE) up -d
+	@echo "✅ Agent Vault running — https://agent-vault.trex-fiordland.ts.net"
+
+agent-vault-down:
+	@docker --context $(ORACLE_CONTEXT) compose -f $(ORACLE_AGENT_VAULT_COMPOSE) --env-file $(ORACLE_AGENT_VAULT_ENV_FILE) down
+
+agent-vault-restart:
+	@docker --context $(ORACLE_CONTEXT) compose -f $(ORACLE_AGENT_VAULT_COMPOSE) --env-file $(ORACLE_AGENT_VAULT_ENV_FILE) restart
+
+agent-vault-logs:
+	@docker --context $(ORACLE_CONTEXT) compose -f $(ORACLE_AGENT_VAULT_COMPOSE) --env-file $(ORACLE_AGENT_VAULT_ENV_FILE) logs -f
+
+agent-vault-health:
+	@echo "📊 Agent Vault Health"
+	@echo "====================="
+	@docker --context $(ORACLE_CONTEXT) compose -f $(ORACLE_AGENT_VAULT_COMPOSE) --env-file $(ORACLE_AGENT_VAULT_ENV_FILE) ps
+	@curl -sf https://agent-vault.trex-fiordland.ts.net/health 2>/dev/null && echo "✅ Reachable via Caddy" || echo "⚠️  Not yet reachable (Caddy or service may be starting)"
+
+agent-vault-ps:
+	@docker --context $(ORACLE_CONTEXT) compose -f $(ORACLE_AGENT_VAULT_COMPOSE) --env-file $(ORACLE_AGENT_VAULT_ENV_FILE) ps
+
+agent-vault-shell:
+	@docker --context $(ORACLE_CONTEXT) compose -f $(ORACLE_AGENT_VAULT_COMPOSE) --env-file $(ORACLE_AGENT_VAULT_ENV_FILE) exec agent-vault sh
+
+# --- INFISICAL CLOUD SYNC (self-hosted ↔ app.infisical.com) ---
+# Bidirectional sync between self-hosted Infisical and cloud Infisical.com.
+# Requires both INFISICAL_TOKEN_CLOUD and INFISICAL_TOKEN_LOCAL to be exported.
+# After self-hosted Infisical is running, create a machine identity token there
+# and export INFISICAL_TOKEN_LOCAL + INFISICAL_PROJECT_ID_LOCAL.
+#
+# Quick start:
+#   export INFISICAL_TOKEN_CLOUD=<cloud-token>        # your app.infisical.com token
+#   export INFISICAL_TOKEN_LOCAL=<self-hosted-token>  # token from infisical.trex-fiordland.ts.net
+#   export INFISICAL_PROJECT_ID_LOCAL=<project-id>   # from self-hosted project settings
+#   make infisical-cloud-sync
+
+.PHONY: infisical-cloud-sync infisical-cloud-push infisical-cloud-pull infisical-cloud-status infisical-cloud-dry-run infisical-missing-secrets memory-stack-smoke nexus-mcp-smoke compose-with-infisical
+
+infisical-cloud-sync:
+	@echo "🔄 Bidirectional sync: self-hosted ↔ cloud Infisical (cloud-wins on conflict)..."
+	@$(nyra_load_infisical_env) scripts/infisical/sync-cloud.sh sync
+
+infisical-cloud-push:
+	@echo "⬆️  Pushing self-hosted secrets → cloud Infisical..."
+	@$(nyra_load_infisical_env) scripts/infisical/sync-cloud.sh push
+
+infisical-cloud-pull:
+	@echo "⬇️  Pulling cloud Infisical secrets → self-hosted..."
+	@$(nyra_load_infisical_env) scripts/infisical/sync-cloud.sh pull
+
+infisical-cloud-status:
+	@$(nyra_load_infisical_env) scripts/infisical/sync-cloud.sh status
+
+infisical-cloud-dry-run:
+	@echo "🧪 Dry-run sync (no changes made)..."
+	@$(nyra_load_infisical_env) scripts/infisical/sync-cloud.sh sync --dry-run
+
+infisical-missing-secrets:
+	@python scripts/infra/inventory-infisical-secrets.py --write
+	@echo "Wrote docs/reports/INFISICAL_MISSING_SECRETS.md"
+
+memory-stack-smoke:
+	@scripts/infra/smoke-memory-stack.sh
+
+nexus-mcp-smoke:
+	@scripts/infra/smoke-nexus-mcp.sh
+
+compose-with-infisical:
+	@scripts/infra/compose-with-infisical.sh --help
 
 # --- AGENT INFRA TARGETS ---
 
@@ -1046,8 +1198,8 @@ oracle-memory-manager-up:
 	@$(call nyra_host_compose,$(ORACLE_INFISICAL_PATH),$(ORACLE_CONTEXT),-f $(ORACLE_MEMORY_COMPOSE) -f $(ORACLE_LETTA_MCP_COMPOSE) up -d --build)
 
 oracle-memory-extra-up:
-	@echo "Starting optional memory companions: memOS/MemoryTensor and ClaudeMem..."
-	@$(call nyra_host_compose,$(ORACLE_INFISICAL_PATH),$(ORACLE_CONTEXT),-f $(ORACLE_MEMORY_COMPOSE) -f $(ORACLE_MEMORY_EXTRA_COMPOSE) up -d memos claudemem)
+	@echo "Starting memory companions: memOS/MemoryTensor API and MCP..."
+	@$(call nyra_host_compose,$(ORACLE_INFISICAL_PATH),$(ORACLE_CONTEXT),-f $(ORACLE_MEMORY_COMPOSE) -f $(ORACLE_MEMORY_EXTRA_COMPOSE) up -d memos-api memos-mcp)
 
 oracle-memory-full-up: oracle-memory-manager-up oracle-memory-extra-up
 
@@ -1140,7 +1292,7 @@ wave-stack-status:
 	@$(call nyra_host_compose,$(WORKER_3060_INFISICAL_PATH),$(WORKER_3060_CONTEXT),-f $(WORKER_3060_COMPOSE) -f $(INFISICAL_RUNTIME_COMPOSE) -f $(WORKER_AI_COMMON_COMPOSE) -f $(WORKER_3060_LLXPRT_COMPOSE) -f $(WORKER_3060_OPENCLAW_COMPOSE) ps,WORKER_GRAFANA_PORT=3007) || true
 	@echo
 	@echo "=== ORACLE MEMORY ==="
-	@$(call nyra_host_compose,$(ORACLE_INFISICAL_PATH),$(ORACLE_CONTEXT),-f $(ORACLE_MEMORY_COMPOSE) -f $(ORACLE_LETTA_MCP_COMPOSE) ps) || true
+	@$(call nyra_host_compose,$(ORACLE_INFISICAL_PATH),$(ORACLE_CONTEXT),-f $(ORACLE_MEMORY_COMPOSE) -f $(ORACLE_LETTA_MCP_COMPOSE) -f $(ORACLE_MEMORY_EXTRA_COMPOSE) ps) || true
 	@echo
 	@echo "=== ORACLE APPS ==="
 	@$(call nyra_host_compose,$(ORACLE_INFISICAL_PATH),$(ORACLE_CONTEXT),-f $(ORACLE_COMPOSE) -f $(ORACLE_APPS_COMPOSE) ps) || true

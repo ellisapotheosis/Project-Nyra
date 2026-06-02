@@ -39,33 +39,33 @@ Project Nyra uses a distributed 4-node hybrid architecture with split brain (CPU
 │                                                                 │
 │  ┌──────────────────────────────────────────────────────────┐  │
 │  │  GPU WORKER 1 (vLLM)               [LAN]                │  │
-│  │  RTX 5090 (48GB VRAM)                                  │  │
-│  │  Models:                                               │  │
-│  │  - DeepSeek-R1 236B (complex reasoning)                │  │
-│  │  - Qwen 2.5 72B (general purpose)                      │  │
-│  │  Endpoints: vLLM (port 8000)                           │  │
+│  │  RTX 5090 (verify VRAM at runtime)                       │  │
+│  │  Models:                                                │  │
+│  │  - Qwen 2.5 7B/14B                                      │  │
+│  │  - Llama 3.1 8B                                         │  │
+│  │  Endpoints: vLLM (port 8000)                            │  │
 │  │  Hostname: worker-rtx5090                              │  │
 │  │  Syncthing: syncs ~/project-nyra                       │  │
 │  └──────────────────────────────────────────────────────────┘  │
 │                                                                 │
 │  ┌──────────────────────────────────────────────────────────┐  │
 │  │  GPU WORKER 2 (vLLM)               [LAN]                │  │
-│  │  RTX 3090 Ti (24GB VRAM)                               │  │
-│  │  Models:                                               │  │
-│  │  - Llama 3.1 70B (reasoning)                           │  │
-│  │  - Mistral 123B (vision/text)                          │  │
-│  │  Endpoints: vLLM (port 8000)                           │  │
+│  │  RTX 3090 Ti (verify VRAM at runtime)                   │  │
+│  │  Models:                                                │  │
+│  │  - Qwen 2.5 7B/14B                                      │  │
+│  │  - Llama 3.1 8B                                         │  │
+│  │  Endpoints: vLLM (port 8000)                            │  │
 │  │  Hostname: worker-rtx3090ti                            │  │
 │  │  Syncthing: syncs ~/project-nyra                       │  │
 │  └──────────────────────────────────────────────────────────┘  │
 │                                                                 │
 │  ┌──────────────────────────────────────────────────────────┐  │
 │  │  GPU WORKER 3 (Ollama + Embeddings)    [LAN]            │  │
-│  │  RTX 3060 (12GB VRAM)                                  │  │
-│  │  Models:                                               │  │
-│  │  - CodeLlama 34B (code generation)                     │  │
-│  │  - Qwen 32B (document processing)                      │  │
-│  │  Endpoints: Ollama (port 11434)                        │  │
+│  │  RTX 3060 (verify VRAM at runtime)                      │  │
+│  │  Models:                                                │  │
+│  │  - nomic-embed-text                                     │  │
+│  │  - llama3.2, mistral 7b                                 │  │
+│  │  Endpoints: Ollama (port 11434)                         │  │
 │  │  Hostname: worker-rtx3060                              │  │
 │  │  Syncthing: syncs ~/project-nyra                       │  │
 │  └──────────────────────────────────────────────────────────┘  │
@@ -120,34 +120,34 @@ All workers are in the same LAN as orchestrator and use **Syncthing** to keep `~
 | Property                | Value                                    |
 | ----------------------- | ---------------------------------------- |
 | **Hostname**            | `worker-rtx5090`                         |
-| **GPU**                 | NVIDIA RTX 5090 (48GB VRAM)              |
+| **GPU**                 | NVIDIA RTX 5090 (verify VRAM at runtime) |
 | **Inference Framework** | vLLM (OpenAI-compatible API)             |
 | **Port**                | 8000                                     |
-| **Primary Models**      | DeepSeek-R1 236B, Qwen 2.5 72B           |
+| **Primary Models**      | Qwen 2.5 7B/14B, Llama 3.1 8B            |
 | **SSH**                 | `ssh worker-rtx5090`                     |
 | **Health Check**        | `curl http://worker-rtx5090:8000/health` |
 
 #### Worker 2: RTX 3090 Ti (General Purpose)
 
-| Property                | Value                                      |
-| ----------------------- | ------------------------------------------ |
-| **Hostname**            | `worker-rtx3090ti`                         |
-| **GPU**                 | NVIDIA RTX 3090 Ti (24GB VRAM)             |
-| **Inference Framework** | vLLM (OpenAI-compatible API)               |
-| **Port**                | 8000                                       |
-| **Primary Models**      | Llama 3.1 70B, Mistral 123B                |
-| **SSH**                 | `ssh worker-rtx3090ti`                     |
-| **Health Check**        | `curl http://worker-rtx3090ti:8000/health` |
+| Property                | Value                                       |
+| ----------------------- | ------------------------------------------- |
+| **Hostname**            | `worker-rtx3090ti`                          |
+| **GPU**                 | NVIDIA RTX 3090 Ti (verify VRAM at runtime) |
+| **Inference Framework** | vLLM (OpenAI-compatible API)                |
+| **Port**                | 8000                                        |
+| **Primary Models**      | Qwen 2.5 7B/14B, Llama 3.1 8B               |
+| **SSH**                 | `ssh worker-rtx3090ti`                      |
+| **Health Check**        | `curl http://worker-rtx3090ti:8000/health`  |
 
 #### Worker 3: RTX 3060 (Document & Code)
 
 | Property                | Value                                       |
 | ----------------------- | ------------------------------------------- |
 | **Hostname**            | `worker-rtx3060`                            |
-| **GPU**                 | NVIDIA RTX 3060 (12GB VRAM)                 |
+| **GPU**                 | NVIDIA RTX 3060 (verify VRAM at runtime)    |
 | **Inference Framework** | Ollama (LLaMA.cpp compatible)               |
 | **Port**                | 11434                                       |
-| **Primary Models**      | CodeLlama 34B, Qwen 32B                     |
+| **Primary Models**      | nomic-embed-text, llama 3.2, mistral 7b     |
 | **SSH**                 | `ssh worker-rtx3060`                        |
 | **Health Check**        | `curl http://worker-rtx3060:11434/api/tags` |
 

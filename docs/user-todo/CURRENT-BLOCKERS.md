@@ -1,6 +1,6 @@
 # Current Owner Blockers
 
-Last updated: 2026-05-22
+Last updated: 2026-05-26
 
 These are the remaining owner-only blockers after the latest local release gate.
 Local repo checks pass, but live release smoke still needs real account,
@@ -40,6 +40,11 @@ Remaining warnings are owner/live-env gated:
   current shell.
 - Infisical CLI secret scanning has been run locally against the repo and
   current changes. No leaks were found.
+- Oracle memory-stack local smoke is passing for Letta, Letta MCP, mem0,
+  Qdrant, FalkorDB, OpenMemory MCP, MemPalace MCP, MemOS API, and MemOS MCP.
+- The Conductor prompt-pack source directories have no remaining active
+  unchecked prompt tasks; only owner-only `docs/user-todo/` checkboxes remain
+  in the active task surface.
 
 ## Minimum Infisical Variables Blocking Live Smoke
 
@@ -166,6 +171,15 @@ Run:
 pnpm release:validate -- --strict-live
 pnpm smoke:lead-lifecycle -- --live --report-dir tests/results/lead-lifecycle-smoke
 ```
+
+2026-05-31 status:
+
+- `pnpm release:validate -- --strict-live` passed with 0 critical findings and
+  0 warnings after Infisical live credential repair.
+- `pnpm smoke:lead-lifecycle -- --live --crm-api-url http://127.0.0.1:14002
+--report-dir tests/results/lead-lifecycle-smoke` passed through an SSH tunnel
+  to Oracle `crm-api`; sanitized evidence: created Twenty lead
+  `7f2a2897-daf3-4208-9513-70180dcc408c` and verified the campaign STOP gate.
 
 Record only sanitized evidence: lead IDs, audit IDs, campaign state, timestamps,
 hostnames, and pass/fail state. Do not record raw borrower PII or secret values.

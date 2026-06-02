@@ -117,8 +117,14 @@ worker direct diagnostics: worker profiles only over Tailscale MagicDNS
 ```
 
 RTX3060 should stay a utility/background lane by default: Ollama embeddings,
-memory extraction, summarization, and routing support. The `make
-wave-stack-up-3060` target enables its optional OpenClaw/NerveUI tab.
+memory extraction, summarization, and routing support. The default model stack is
+documented in `docs/infra/RTX3060-UTILITY-MODEL-STACK.md`. PicoClaw is preferred
+over Kyutai voice when the optional GPU overlays cannot both fit in VRAM. The
+`make wave-stack-up-3060` target enables its optional OpenClaw/NerveUI tab.
+
+Worker baseline services, Redis/LMCache scope, centralized observability, and
+voice role placement are documented in
+`docs/infra/WORKER-HOST-SERVICE-BASELINE.md`.
 
 ## Secrets
 

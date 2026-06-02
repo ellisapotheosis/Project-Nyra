@@ -1,14 +1,5 @@
 # AGENT_HANDOFFS.md
 
-## Status: Historical Foundation Handoff
-
-This file is preserved for the earlier non-UI foundation pass. The active
-release-candidate handoff is `docs/AGENT_RELEASE_HANDOFF.md`; the current
-docs/conductor handoff review is `docs/CONDUCTOR_HANDOFF_REVIEW.md`.
-
-Do not use this file as the current execution queue unless the task explicitly
-targets the older foundation package.
-
 ## Current Status: Non-UI Foundation Ready
 
 The foundation pass has established the core domain contracts, integration interfaces, campaign templates, and operational documentation for Project Nyra. UI work is intentionally outside this package.
@@ -42,7 +33,30 @@ tracked as follow-up implementation work.
 
 ## Critical Warnings
 
-- **DO NOT** reintroduce Claude-Flow or other deprecated stack items (see `docs/DEPRECATED_STACK_DO_NOT_USE.md`).
+- **DO NOT** reintroduce retired orchestration tooling or other deprecated stack items (see `docs/DEPRECATED_STACK_DO_NOT_USE.md`).
 - **DO NOT** perform any UI or styling work.
 - **ALWAYS** write an audit event for any CRM mutation or external communication.
 - **STRICT** adherence to STOP/DNC rules is required for all automated outreach.
+
+## Current Runtime Handoff, 2026-05-28
+
+- Memory, Gitea, OpenLIT, and Gastown are running on `oracle-vps`; Oracle
+  cloudflared now routes Gastown, and the retired Paperclip DNS record is gone.
+- Cloudflare desired state was applied through API: Oracle and orchestrator
+  tunnel payloads succeeded, DNS upserts were 22/22, and Access app upserts
+  were 15/15.
+- `ORCHESTRATOR_TUNNEL_TOKEN`, `ORCHESTRATOR_TUNNEL_ID`, `ORACLE_TUNNEL_TOKEN`,
+  `OPENWEBUI_SECRET_KEY`, and `GRAFANA_ADMIN_PASSWORD` are stored in Infisical
+  under the relevant shared/host paths for dev, stag, and prod.
+- Oracle and orchestrator secrets-init paths have been verified without
+  printing secret values; compose config validation passes.
+- Remaining runtime blocker: worker promtail is configured to send Loki traffic
+  privately to `http://100.64.0.3:3100`, but worker WSL Tailscale must be
+  repaired first. RTX3060 WSL lacks the `tailscale` binary; RTX3090Ti and
+  RTX5090 WSL are logged out.
+- Live CRM/Supabase/service-token readiness passed strict validation on
+  2026-05-31 with `pnpm release:validate -- --strict-live`: 0 critical,
+  0 warnings. Live CRM mutation smoke also passed through `crm-api` against
+  Twenty CRM: created lead `7f2a2897-daf3-4208-9513-70180dcc408c` and verified
+  the campaign STOP gate with sanitized evidence. Provider callback/domain
+  live smoke remains separately owner-gated.

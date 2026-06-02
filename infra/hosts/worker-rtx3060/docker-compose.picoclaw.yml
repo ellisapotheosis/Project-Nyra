@@ -1,0 +1,34 @@
+# Optional PicoClaw overlay for worker-rtx3060.
+# PicoClaw is preferred over Kyutai voice when the 6GB VRAM budget cannot fit both.
+
+services:
+  picoclaw:
+    image: ${PICOCLAW_IMAGE:-ghcr.io/project-nyra/picoclaw:latest}
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-3060-picoclaw
+    restart: unless-stopped
+    environment:
+      PICOCLAW_ROLE: ${PICOCLAW_ROLE:-worker}
+      PICOCLAW_WORKER_NAME: worker-rtx3060
+      PICOCLAW_MODE: ${PICOCLAW_MODE:-utility-agent}
+      LITELLM_API_URL: ${PICOCLAW_LITELLM_API_URL:-http://litellm:4000}
+      OLLAMA_API_URL: ${PICOCLAW_OLLAMA_API_URL:-http://ollama:11434}
+      NEXUS_ROUTER_URL: ${NEXUS_ROUTER_URL:-http://orchestrator.trex-fiordland.ts.net:6000}
+      MEM0_API_URL: ${MEM0_API_URL:-http://oracle.trex-fiordland.ts.net:5001}
+      PICOCLAW_GPU_POLICY: prefer-picoclaw-over-voice
+    ports:
+      - "${PICOCLAW_HOST_PORT:-8004}:8001"
+      - "${PICOCLAW_UI_HOST_PORT:-18792}:18789"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    networks:
+      - worker-network
+
+networks:
+  worker-network:
+    external: true
+    name: nyra-worker-3060

@@ -20,7 +20,7 @@
     "p-queue": "^8.0.1"
   },
   "devDependencies": {
-    "@types/node": "^20.14.10",
-    "typescript": "^5.5.4"
+    "@types/node": "^25.9.1",
+    "typescript": "^6.0.3"
   }
 }

@@ -106,7 +106,19 @@ export function productionWriteUnavailable(
   );
 }
 
-function hasRealEnvValue(value: string | undefined): boolean {
+export function productionReadUnavailable(
+  service: string,
+  detail: string,
+  status = 503
+) {
+  return serviceUnavailable(
+    service,
+    `${detail}. Local mock reads are disabled in production unless NYRA_ENABLE_MOCKS=true.`,
+    status
+  );
+}
+
+export function hasRealEnvValue(value: string | undefined): boolean {
   if (!value) {
     return false;
   }

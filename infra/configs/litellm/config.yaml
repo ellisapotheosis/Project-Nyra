@@ -15,18 +15,26 @@ model_list:
 
   - model_name: local/qwen2.5-4b
     litellm_params:
-      model: ollama/qwen2.5:4b
-      api_base: http://worker-rtx3060.trex-fiordland.ts.net:11434
+      model: openai/worker-3060-general
+      api_base: http://worker-rtx3060.trex-fiordland.ts.net:4000/v1
+      api_key: "not-needed"
+      timeout: 120
 
   - model_name: local/llama3.2-3b
     litellm_params:
-      model: ollama/llama3.2:3b
-      api_base: http://worker-rtx3060.trex-fiordland.ts.net:11434
+      model: openai/worker-3060-memory-extraction
+      api_base: http://worker-rtx3060.trex-fiordland.ts.net:4000/v1
+      api_key: "not-needed"
+      timeout: 120
 
   - model_name: local/embeddings
     litellm_params:
-      model: ollama/nomic-embed-text
-      api_base: http://worker-rtx3060.trex-fiordland.ts.net:11434
+      model: openai/worker-3060-embedding
+      api_base: http://worker-rtx3060.trex-fiordland.ts.net:4000/v1
+      api_key: "not-needed"
+      timeout: 120
+    model_info:
+      mode: embedding
 
   - model_name: local/vybestack-jefe
     litellm_params:
@@ -68,3 +76,4 @@ litellm_settings:
 
 general_settings:
   master_key: os.environ/LITELLM_MASTER_KEY
+  database_url: "postgresql://nyra:SA%21rMsdctQ2ThIzC5sZL%21l%26%250%40R7if3E@postgres:5432/shared-db"

@@ -155,71 +155,102 @@ export function AuthCard({ mode }: { mode: AuthMode }) {
   const showPassword = mode !== "forgot-password";
 
   return (
-    <Card className="mx-auto w-full max-w-md border-border/60 bg-card/85 shadow-2xl backdrop-blur">
-      <CardHeader className="gap-3">
-        <Badge variant="outline" className="w-fit">
-          Supabase Auth
-        </Badge>
-        <CardTitle className="text-2xl font-black tracking-tight">
-          {details.title}
-        </CardTitle>
-        <p className="text-sm text-muted-foreground">{details.helper}</p>
-      </CardHeader>
-      <CardContent>
-        <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
-          {showEmail ? (
-            <label className="flex flex-col gap-2 text-sm font-medium">
-              Email
-              <input
-                autoComplete="email"
-                className="h-11 rounded-lg border border-border bg-background px-3 text-foreground outline-none focus:border-primary focus:ring-2 focus:ring-ring/40"
-                onChange={(event) => setEmail(event.target.value)}
-                required
-                type="email"
-                value={email}
-              />
-            </label>
-          ) : null}
-          {showPassword ? (
-            <label className="flex flex-col gap-2 text-sm font-medium">
-              Password
-              <input
-                autoComplete={
-                  mode === "login" ? "current-password" : "new-password"
-                }
-                className="h-11 rounded-lg border border-border bg-background px-3 text-foreground outline-none focus:border-primary focus:ring-2 focus:ring-ring/40"
-                minLength={8}
-                onChange={(event) => setPassword(event.target.value)}
-                required
-                type="password"
-                value={password}
-              />
-            </label>
-          ) : null}
-          {error ? (
-            <p className="rounded-lg border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">
-              {error}
-            </p>
-          ) : null}
-          {message ? (
-            <p className="rounded-lg border border-primary/40 bg-primary/10 p-3 text-sm text-primary">
-              {message}
-            </p>
-          ) : null}
-          <Button disabled={isPending || !configured} size="lg" type="submit">
-            {isPending ? "Working..." : details.action}
-          </Button>
-        </form>
-        <div className="mt-5 flex flex-wrap gap-3 text-sm text-muted-foreground">
-          {mode !== "login" ? <Link href="/auth/login">Sign in</Link> : null}
-          {mode !== "signup" ? (
-            <Link href="/auth/signup">Create account</Link>
-          ) : null}
-          {mode !== "forgot-password" ? (
-            <Link href="/auth/forgot-password">Forgot password?</Link>
-          ) : null}
-        </div>
-      </CardContent>
-    </Card>
+    <div className="w-full max-w-md mx-auto">
+      <Card variant="glass" className="p-8">
+        <CardHeader className="gap-3 pb-8 px-0">
+          <div className="flex items-center justify-between">
+            <Badge variant="glass">Supabase Auth</Badge>
+          </div>
+          <CardTitle className="text-3xl font-normal text-white tracking-tight">
+            {details.title}
+          </CardTitle>
+          <p className="text-sm text-white/60">{details.helper}</p>
+        </CardHeader>
+        <CardContent className="px-0">
+          <form className="flex flex-col gap-6" onSubmit={handleSubmit}>
+            {showEmail ? (
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-white/80 ml-1">
+                  Email
+                </label>
+                <input
+                  autoComplete="email"
+                  className="glass-input h-12 w-full rounded-2xl px-4 text-white"
+                  onChange={(event) => setEmail(event.target.value)}
+                  required
+                  type="email"
+                  value={email}
+                  placeholder="name@example.com"
+                />
+              </div>
+            ) : null}
+            {showPassword ? (
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-white/80 ml-1">
+                  Password
+                </label>
+                <input
+                  autoComplete={
+                    mode === "login" ? "current-password" : "new-password"
+                  }
+                  className="glass-input h-12 w-full rounded-2xl px-4 text-white"
+                  minLength={8}
+                  onChange={(event) => setPassword(event.target.value)}
+                  required
+                  type="password"
+                  value={password}
+                  placeholder="••••••••"
+                />
+              </div>
+            ) : null}
+            {error ? (
+              <p className="rounded-2xl border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive backdrop-blur-sm">
+                {error}
+              </p>
+            ) : null}
+            {message ? (
+              <p className="rounded-2xl border border-primary/40 bg-primary/10 p-4 text-sm text-primary backdrop-blur-sm">
+                {message}
+              </p>
+            ) : null}
+            <Button
+              disabled={isPending || !configured}
+              size="lg"
+              type="submit"
+              variant="glass"
+              className="h-12 rounded-2xl font-semibold"
+            >
+              {isPending ? "Working..." : details.action}
+            </Button>
+          </form>
+          <div className="mt-8 flex flex-wrap gap-4 text-sm text-white/40 justify-center font-medium">
+            {mode !== "login" ? (
+              <Link
+                href="/auth/login"
+                className="hover:text-white transition-colors"
+              >
+                Sign in
+              </Link>
+            ) : null}
+            {mode !== "signup" ? (
+              <Link
+                href="/auth/signup"
+                className="hover:text-white transition-colors"
+              >
+                Create account
+              </Link>
+            ) : null}
+            {mode !== "forgot-password" ? (
+              <Link
+                href="/auth/forgot-password"
+                className="hover:text-white transition-colors"
+              >
+                Forgot password?
+              </Link>
+            ) : null}
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   );
 }

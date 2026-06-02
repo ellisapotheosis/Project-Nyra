@@ -6,26 +6,26 @@ Track the Project Nyra secret paths that must exist before production smoke. Thi
 
 ## Required Paths
 
-| Path                              | Purpose                                                                                       | Required before smoke                |
-| --------------------------------- | --------------------------------------------------------------------------------------------- | ------------------------------------ |
-| `/machines/oracle-vps`            | Oracle VPS host stack, Twenty, Activepieces, n8n, OpenLIT, Gitea, Paperclip, Supabase surface | Yes                                  |
-| `/machines/orchestrator`          | Nexus Router, LiteLLM, Cloudflare tunnel, Grafana, status bridge                              | Yes                                  |
-| `/machines/worker-rtx5090`        | Primary private GPU worker and bridge keys                                                    | Before worker smoke                  |
-| `/machines/worker-rtx3090ti`      | Secondary private GPU worker and bridge keys                                                  | Before worker smoke                  |
-| `/machines/worker-rtx3060`        | Utility/Ollama worker and bridge keys                                                         | Before worker smoke                  |
-| `/apps/projectnyra`               | Internal app service URLs, Supabase public config, server-side service tokens                 | Yes                                  |
-| `/apps/ratehunter`                | Public landing contact and borrower chat proxy only                                           | Before RateHunter contact/chat smoke |
-| `/services/crm-api`               | Twenty CRM write boundary and audit ledger                                                    | Yes                                  |
-| `/services/lead-ingestion`        | Lead normalization and CRM write-plan submitter                                               | Yes                                  |
-| `/services/campaign-engine`       | Campaign state machine, scheduler, n8n/Activepieces dispatch                                  | Yes                                  |
-| `/services/quote-service`         | Deterministic quote API and quote history                                                     | Yes                                  |
-| `/services/communication-service` | Twilio/SendGrid callbacks and logging                                                         | Before outbound comms smoke          |
-| `/services/auth-service`          | JWT/OAuth auth service if retained alongside Supabase                                         | Before auth-service smoke            |
-| `/providers/twilio`               | Twilio account, auth, phone, API credentials                                                  | Before SMS/voice                     |
-| `/providers/sendgrid`             | SendGrid API and verified sender/domain                                                       | Before email                         |
-| `/providers/cloudflare`           | Cloudflare account/zone/tunnel/API token                                                      | Before ingress smoke                 |
-| `/providers/github`               | GitHub token only where mirror/automation still requires it                                   | Optional                             |
-| `/providers/llm`                  | OpenAI, Anthropic, Gemini, OpenRouter keys                                                    | Before cloud routing smoke           |
+| Path                              | Purpose                                                                                     | Required before smoke                |
+| --------------------------------- | ------------------------------------------------------------------------------------------- | ------------------------------------ |
+| `/machines/oracle-vps`            | Oracle VPS host stack, Twenty, Activepieces, n8n, OpenLIT, Gitea, Gastown, Supabase surface | Yes                                  |
+| `/machines/orchestrator`          | Nexus Router, LiteLLM, Cloudflare tunnel, Grafana, status bridge                            | Yes                                  |
+| `/machines/worker-rtx5090`        | Primary private GPU worker and bridge keys                                                  | Before worker smoke                  |
+| `/machines/worker-rtx3090ti`      | Secondary private GPU worker and bridge keys                                                | Before worker smoke                  |
+| `/machines/worker-rtx3060`        | Utility/Ollama worker and bridge keys                                                       | Before worker smoke                  |
+| `/apps/projectnyra`               | Internal app service URLs, Supabase public config, server-side service tokens               | Yes                                  |
+| `/apps/ratehunter`                | Public landing contact and borrower chat proxy only                                         | Before RateHunter contact/chat smoke |
+| `/services/crm-api`               | Twenty CRM write boundary and audit ledger                                                  | Yes                                  |
+| `/services/lead-ingestion`        | Lead normalization and CRM write-plan submitter                                             | Yes                                  |
+| `/services/campaign-engine`       | Campaign state machine, scheduler, n8n/Activepieces dispatch                                | Yes                                  |
+| `/services/quote-service`         | Deterministic quote API and quote history                                                   | Yes                                  |
+| `/services/communication-service` | Twilio/SendGrid callbacks and logging                                                       | Before outbound comms smoke          |
+| `/services/auth-service`          | JWT/OAuth auth service if retained alongside Supabase                                       | Before auth-service smoke            |
+| `/providers/twilio`               | Twilio account, auth, phone, API credentials                                                | Before SMS/voice                     |
+| `/providers/sendgrid`             | SendGrid API and verified sender/domain                                                     | Before email                         |
+| `/providers/cloudflare`           | Cloudflare account/zone/tunnel/API token                                                    | Before ingress smoke                 |
+| `/providers/github`               | GitHub token only where mirror/automation still requires it                                 | Optional                             |
+| `/providers/llm`                  | OpenAI, Anthropic, Gemini, OpenRouter keys                                                  | Before cloud routing smoke           |
 
 ## Core Secret Names
 
@@ -59,8 +59,8 @@ Track the Project Nyra secret paths that must exist before production smoke. Thi
 - `OPENLIT_NEXTAUTH_SECRET`
 - `OPENLIT_VAULT_ENCRYPTION_KEY`
 - `OPENLIT_DB_PASSWORD`
-- `PAPERCLIP_API_KEY`
-- `PAPERCLIP_AGENT_JWT_SECRET`
+- `GASTOWN_API_KEY`
+- `GASTOWN_AGENT_JWT_SECRET`
 - `BETTER_AUTH_SECRET`
 - `GITEA_SECRET_KEY`
 - `GITEA_INTERNAL_TOKEN`

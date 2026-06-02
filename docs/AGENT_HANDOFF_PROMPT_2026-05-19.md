@@ -1,10 +1,21 @@
 # Agent Handoff Prompt — Project Nyra Phase 1-12 Execution
 
-**Handoff Date**: 2026-05-19  
-**Status**: Foundation complete, ready for parallel execution  
+**Handoff Date**: 2026-05-19
+**Status**: Superseded historical handoff
 **Context**: Primary agent handling infrastructure/memory layers. Secondary agent: Execute remaining prompts in parallel.
 
 ---
+
+## Current Status — 2026-05-26
+
+This file is preserved as historical handoff context only. Do not launch work
+from it as an active queue.
+
+Current executable work is tracked in `docs/CONDUCTOR_TASKS.md`,
+`conductor/tracks/`, and owner-only gates under `docs/user-todo/`. The active
+Conductor prompt-pack sequence has been reconciled, and the Oracle memory stack
+is running with Letta, Letta MCP, mem0, Qdrant, FalkorDB, OpenMemory MCP,
+MemPalace MCP, MemOS API, and MemOS MCP.
 
 ## CRITICAL CONTEXT
 
@@ -26,7 +37,7 @@ Network:          Tailscale mesh + Cloudflare Tunnel ingress
 - **Prompts 08-11** (Security, Portal, DevOps, Testing): Blocked until Prompts 03-07 start
 - **Prompt 12** (Integration): Blocked until Prompts 01-11 complete
 
-### What's READY NOW (Start immediately)
+### Historical READY NOW section (do not execute directly)
 
 - **Prompt 01** (Infrastructure) — 40% complete, 40 hours remaining
 - **Prompt 02** (Memory/AI Routing) — 35% complete, 40 hours remaining
@@ -46,31 +57,31 @@ Execute **Prompts 01-02 fully** (Phase 1, Weeks 1-2):
 1. **Phase 1.1 — Infrastructure Validation** (Done ✅)
    - [x] health-check.sh created (validates all 5 hosts, Docker, services, Tailscale, git state)
    - [x] INFRASTRUCTURE_REFERENCE.md created (complete cluster topology)
-2. **Phase 1.2 — Network Topology Mapping** (TODO)
-   - [ ] Create `network-map.sh` (DNS resolution, IP discovery, Tailscale routes, service endpoints)
-   - [ ] Document all 5 hosts: orchestrator, worker-rtx5090, worker-rtx3090ti, worker-rtx3060, oracle-vps
-   - [ ] Map Tailscale mesh (100.64.0.0/10 network)
-   - [ ] Verify Cloudflare Tunnel public ingress routes
-   - [ ] Create `docs/NETWORK_TOPOLOGY.md` with diagrams
+2. **Phase 1.2 — Network Topology Mapping** (historical TODO)
+   - [historical] Create `network-map.sh` (DNS resolution, IP discovery, Tailscale routes, service endpoints)
+   - [historical] Document all 5 hosts: orchestrator, worker-rtx5090, worker-rtx3090ti, worker-rtx3060, oracle-vps
+   - [historical] Map Tailscale mesh (100.64.0.0/10 network)
+   - [historical] Verify Cloudflare Tunnel public ingress routes
+   - [historical] Create `docs/NETWORK_TOPOLOGY.md` with diagrams
 
-3. **Phase 1.3 — Setup Documentation** (TODO)
-   - [ ] Create `README_SETUP.md` (complete setup guide for new team members)
-   - [ ] Document: prerequisites, hardware requirements, network setup, git submodules init
-   - [ ] Include: Makefile targets, health check procedures, common troubleshooting
-   - [ ] Add: SSH key setup, Tailscale config, Docker daemon verification
+3. **Phase 1.3 — Setup Documentation** (historical TODO)
+   - [historical] Create `README_SETUP.md` (complete setup guide for new team members)
+   - [historical] Document: prerequisites, hardware requirements, network setup, git submodules init
+   - [historical] Include: Makefile targets, health check procedures, common troubleshooting
+   - [historical] Add: SSH key setup, Tailscale config, Docker daemon verification
 
-4. **Phase 1.4 — Makefile Enhancements** (TODO)
-   - [ ] Add target: `make health` (runs health-check.sh on all hosts)
-   - [ ] Add target: `make deploy` (deploys services per host)
-   - [ ] Add target: `make logs` (aggregates logs from all services)
-   - [ ] Add target: `make clean` (cleanup old images, volumes, containers)
-   - [ ] Add target: `make test` (runs infrastructure validation tests)
+4. **Phase 1.4 — Makefile Enhancements** (historical TODO)
+   - [historical] Add target: `make health` (runs health-check.sh on all hosts)
+   - [historical] Add target: `make deploy` (deploys services per host)
+   - [historical] Add target: `make logs` (aggregates logs from all services)
+   - [historical] Add target: `make clean` (cleanup old images, volumes, containers)
+   - [historical] Add target: `make test` (runs infrastructure validation tests)
 
-5. **Phase 1.5 — Hostname Enforcement & DNS** (TODO)
-   - [ ] Document hostname resolution (local /etc/hosts for all 5 hosts)
-   - [ ] Verify Tailscale DNS for `.ts.net` domains
-   - [ ] Document Cloudflare DNS for public `*.ratehunter.net` routes
-   - [ ] Create `infra/hosts/HOSTNAME_CONFIG.md`
+5. **Phase 1.5 — Hostname Enforcement & DNS** (historical TODO)
+   - [historical] Document hostname resolution (local /etc/hosts for all 5 hosts)
+   - [historical] Verify Tailscale DNS for `.ts.net` domains
+   - [historical] Document Cloudflare DNS for public `*.ratehunter.net` routes
+   - [historical] Create `infra/hosts/HOSTNAME_CONFIG.md`
 
 **Success Criteria**:
 
@@ -87,43 +98,43 @@ Execute **Prompts 01-02 fully** (Phase 1, Weeks 1-2):
 
 **Deliverables** (in order):
 
-1. **Phase 2.1 — Memory Stack Setup** (TODO)
-   - [ ] Deploy Letta service (Oracle VPS, Mem0 session manager)
-   - [ ] Deploy FalkorDB (Oracle VPS, graph backend for relationships)
-   - [ ] Deploy Qdrant (Oracle VPS, vector backend for embeddings)
-   - [ ] Deploy Mem0 (Optional/Enterprise audit layer)
-   - [ ] Verify OpenMemory MCP integration (stdio-based protocol)
-   - [ ] Deploy MemPalace (knowledge organization & human discovery interface)
-   - [ ] Run integration tests (Letta ↔ FalkorDB ↔ Qdrant)
+1. **Phase 2.1 — Memory Stack Setup** (historical TODO)
+   - [historical] Deploy Letta service (Oracle VPS, Mem0 session manager)
+   - [historical] Deploy FalkorDB (Oracle VPS, graph backend for relationships)
+   - [historical] Deploy Qdrant (Oracle VPS, vector backend for embeddings)
+   - [historical] Deploy Mem0 (Optional/Enterprise audit layer)
+   - [historical] Verify OpenMemory MCP integration (stdio-based protocol)
+   - [historical] Deploy MemPalace (knowledge organization & human discovery interface)
+   - [historical] Run integration tests (Letta ↔ FalkorDB ↔ Qdrant)
    - See: `/docs/MEMORY_ARCHITECTURE_DECISION.md` (6-phase implementation plan with code examples)
 
-2. **Phase 2.2 — OpenClaw Agent Deployment** (TODO)
-   - [ ] Deploy OpenClaw Gateway on orchestrator (agent runtime)
-   - [ ] Deploy OpenClaw Studio on orchestrator (agent dashboard)
-   - [ ] Configure OpenClaw to use Nexus Router (LLM gateway)
-   - [ ] Integrate OpenClaw with Letta (session persistence)
-   - [ ] Verify agent creation & inference workflows
+2. **Phase 2.2 — OpenClaw Agent Deployment** (historical TODO)
+   - [historical] Deploy OpenClaw Gateway on orchestrator (agent runtime)
+   - [historical] Deploy OpenClaw Studio on orchestrator (agent dashboard)
+   - [historical] Configure OpenClaw to use Nexus Router (LLM gateway)
+   - [historical] Integrate OpenClaw with Letta (session persistence)
+   - [historical] Verify agent creation & inference workflows
 
-3. **Phase 2.3 — LiteLLM Model Routing** (TODO)
-   - [ ] Configure LiteLLM on orchestrator (model gateway)
-   - [ ] Add GPU worker routes: worker-rtx5090 (vLLM primary), worker-rtx3090ti (vLLM secondary), worker-rtx3060 (Ollama embeddings)
-   - [ ] Configure fallback routing: local GPU → DeepSeek-R1 (cloud) → Claude Sonnet (critical path)
-   - [ ] Load balance across workers
-   - [ ] Test latency (<500ms for local, <2s for cloud fallback)
+3. **Phase 2.3 — LiteLLM Model Routing** (historical TODO)
+   - [historical] Configure LiteLLM on orchestrator (model gateway)
+   - [historical] Add GPU worker routes: worker-rtx5090 (vLLM primary), worker-rtx3090ti (vLLM secondary), worker-rtx3060 (Ollama embeddings)
+   - [historical] Configure fallback routing: local GPU → DeepSeek-R1 (cloud) → Claude Sonnet (critical path)
+   - [historical] Load balance across workers
+   - [historical] Test latency (<500ms for local, <2s for cloud fallback)
 
-4. **Phase 2.4 — Nexus Router MCP Aggregation** (TODO)
-   - [ ] Deploy Nexus Router on orchestrator:7000
-   - [ ] Configure MCP tool aggregation (memory stack + Letta + OpenClaw + n8n + Activepieces)
-   - [ ] Implement fuzzy search for tool discovery
-   - [ ] Test: `curl http://localhost:7000/health` → 200 OK
-   - [ ] Verify agent tool routing through Nexus
+4. **Phase 2.4 — Nexus Router MCP Aggregation** (historical TODO)
+   - [historical] Deploy Nexus Router on orchestrator:7000
+   - [historical] Configure MCP tool aggregation (memory stack + Letta + OpenClaw + n8n + Activepieces)
+   - [historical] Implement fuzzy search for tool discovery
+   - [historical] Test: `curl http://localhost:7000/health` → 200 OK
+   - [historical] Verify agent tool routing through Nexus
 
-5. **Phase 2.5 — vLLM Endpoints Verification** (TODO)
-   - [ ] Verify worker-rtx5090 vLLM (port 8000, models: DeepSeek-R1 236B, Qwen 2.5 72B)
-   - [ ] Verify worker-rtx3090ti vLLM (port 8000, models: Llama 3.1 70B, Mistral 123B)
-   - [ ] Verify worker-rtx3060 Ollama (port 11434, models: CodeLlama 34B, Qwen 32B)
-   - [ ] Test inference latency from orchestrator through Nexus Router
-   - [ ] Document: Available models, token limits, context windows, throughput
+5. **Phase 2.5 — vLLM Endpoints Verification** (historical TODO)
+   - [historical] Verify worker-rtx5090 vLLM (port 8000, models: DeepSeek-R1 236B, Qwen 2.5 72B)
+   - [historical] Verify worker-rtx3090ti vLLM (port 8000, models: Llama 3.1 70B, Mistral 123B)
+   - [historical] Verify worker-rtx3060 Ollama (port 11434, models: CodeLlama 34B, Qwen 32B)
+   - [historical] Test inference latency from orchestrator through Nexus Router
+   - [historical] Document: Available models, token limits, context windows, throughput
 
 **Success Criteria**:
 
@@ -163,7 +174,7 @@ Execute **Prompts 01-02 fully** (Phase 1, Weeks 1-2):
 
 ## PARALLEL EXECUTION STRATEGY
 
-**You (Agent 2)**: Execute Prompts 01-02 (Phase 1)  
+**You (Agent 2)**: Historical instruction: Prompts 01-02 were later reconciled through Conductor
 **Primary Agent**: Stands by to support, merge conflicts, reviews, final verification
 
 **Merge strategy:**
@@ -280,19 +291,19 @@ curl -X POST http://localhost:7000/api/v1/chat \
 
 ### Prompt 01 (Infrastructure)
 
-- [ ] Phase 1.1: Infrastructure validation (health-check.sh, INFRASTRUCTURE_REFERENCE.md) ✅ DONE
-- [ ] Phase 1.2: Network topology mapping (network-map.sh, NETWORK_TOPOLOGY.md)
-- [ ] Phase 1.3: Setup documentation (README_SETUP.md)
-- [ ] Phase 1.4: Makefile enhancements (health, deploy, logs targets)
-- [ ] Phase 1.5: Hostname enforcement (HOSTNAME_CONFIG.md)
+- [historical] Phase 1.1: Infrastructure validation (health-check.sh, INFRASTRUCTURE_REFERENCE.md) ✅ DONE
+- [historical] Phase 1.2: Network topology mapping (network-map.sh, NETWORK_TOPOLOGY.md)
+- [historical] Phase 1.3: Setup documentation (README_SETUP.md)
+- [historical] Phase 1.4: Makefile enhancements (health, deploy, logs targets)
+- [historical] Phase 1.5: Hostname enforcement (HOSTNAME_CONFIG.md)
 
 ### Prompt 02 (Memory & AI Routing)
 
-- [ ] Phase 2.1: Memory stack setup (Letta, FalkorDB, Qdrant, Mem0, MemPalace, OpenMemory MCP)
-- [ ] Phase 2.2: OpenClaw deployment (Gateway + Studio)
-- [ ] Phase 2.3: LiteLLM routing (worker routes, fallback config)
-- [ ] Phase 2.4: Nexus Router MCP aggregation (tool routing, fuzzy search)
-- [ ] Phase 2.5: vLLM endpoints verification (latency testing, model availability)
+- [historical] Phase 2.1: Memory stack setup (Letta, FalkorDB, Qdrant, Mem0, MemPalace, OpenMemory MCP)
+- [historical] Phase 2.2: OpenClaw deployment (Gateway + Studio)
+- [historical] Phase 2.3: LiteLLM routing (worker routes, fallback config)
+- [historical] Phase 2.4: Nexus Router MCP aggregation (tool routing, fuzzy search)
+- [historical] Phase 2.5: vLLM endpoints verification (latency testing, model availability)
 
 ---
 

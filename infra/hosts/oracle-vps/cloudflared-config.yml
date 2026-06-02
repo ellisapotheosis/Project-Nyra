@@ -1,8 +1,7 @@
 # Cloudflared source config for the Project Nyra Oracle VPS tunnel.
 # Replace ORACLE_VPS_TUNNEL_ID before using this as a locally managed tunnel.
-#
-# Layout: all services run inside the oracle nyra-network Docker network.
-# Container DNS uses Compose service keys (not container_name values).
+# If the tunnel is dashboard-managed with a token, use this file as the source
+# of truth for Public Hostname entries in the Cloudflare Zero Trust UI.
 
 tunnel: ORACLE_VPS_TUNNEL_ID
 credentials-file: /etc/cloudflared/ORACLE_VPS_TUNNEL_ID.json
@@ -12,22 +11,23 @@ originRequest:
   noHappyEyeballs: false
 
 ingress:
-  # ── Public app surfaces ───────────────────────────────────────────────────
-  # Cloudflare Pages owns projectnyra.com apex — do not add here.
+  # Cloudflare Pages owns projectnyra.com and www.projectnyra.com.
+  # Do not add apex/www routes to this tunnel.
+
+  # Broker/customer webapp. Keep Access-gated until app auth is fully live.
   - hostname: app.projectnyra.com
     service: http://webapp:3001
 
+  # Self-hosted Supabase gateway for browser auth/API calls. Do not put a
+  # browser-blocking Access policy in front of Supabase Auth endpoints.
   - hostname: api.projectnyra.com
     service: http://supabase-kong:8000
 
+  # Webhooks should use provider allowlists, signed paths, or service tokens.
   - hostname: hooks.projectnyra.com
     service: http://n8n:5678
 
-  # ── Admin portal ──────────────────────────────────────────────────────────
-  - hostname: admin.projectnyra.com
-    service: http://admin:3002
-
-  # ── CRM & workflows ───────────────────────────────────────────────────────
+  # Private UIs - protect every hostname in this group with Cloudflare Access.
   - hostname: twenty.projectnyra.com
     service: http://twenty:3000
 
@@ -43,31 +43,6 @@ ingress:
   - hostname: activepieces.projectnyra.com
     service: http://activepieces:80
 
-  # ── Chat interfaces (openwebui) ────────────────────────────────────────────
-  - hostname: openwebui.projectnyra.com
-    service: http://openwebui:8080
-
-  - hostname: chat.projectnyra.com
-    service: http://openwebui:8080
-
-  # ── Business logic services ────────────────────────────────────────────────
-  - hostname: campaigns.projectnyra.com
-    service: http://campaign_engine:8020
-
-  - hostname: quotes.projectnyra.com
-    service: http://quote-api:7070
-
-  # ── AI / routing layer ────────────────────────────────────────────────────
-  - hostname: nexus.projectnyra.com
-    service: http://nexus:3000
-
-  - hostname: nexus-router.projectnyra.com
-    service: http://nexus:3000
-
-  - hostname: litellm.projectnyra.com
-    service: http://litellm:4000
-
-  # ── Observability — owner-only, Access-gated ──────────────────────────────
   - hostname: grafana.projectnyra.com
     service: http://grafana:3000
 
@@ -80,39 +55,50 @@ ingress:
   - hostname: cadvisor.projectnyra.com
     service: http://cadvisor:8080
 
-  # ── GasTown (running on oracle as container nyra-network-gastown) ─────────
-  - hostname: gastown.projectnyra.com
-    service: http://gastown:8080
+  - hostname: openwebui.projectnyra.com
+    service: http://openwebui:8080
 
-  # ── Status / uptime (uptime-kuma via docker run, no Compose alias) ────────
-  - hostname: uptime.projectnyra.com
-    service: http://nyra-network-nyra-uptime-kuma:3001
+  - hostname: nexus-ui.projectnyra.com
+    service: http://nexus-ui:3016
 
-  - hostname: public-status.projectnyra.com
-    service: http://nyra-network-nyra-uptime-kuma:3001
+  - hostname: litellm.projectnyra.com
+    service: http://litellm:4000
 
-  - hostname: status.projectnyra.com
-    service: http://nyra-network-nyra-uptime-kuma:3001
+  - hostname: nexus.projectnyra.com
+    service: http://nexus:3000
 
-  # ── Internal tooling ──────────────────────────────────────────────────────
   - hostname: clawteam.projectnyra.com
     service: http://clawteam:8080
 
-  - hostname: paperclip.projectnyra.com
-    service: http://paperclip:3100
+  - hostname: gastown.projectnyra.com
+    service: http://gastown:8080
+
+  - hostname: letta.projectnyra.com
+    service: http://oracle.trex-fiordland.ts.net:8283
 
   - hostname: portainer-oracle.projectnyra.com
     service: https://portainer:9443
     originRequest:
       noTLSVerify: true
 
-  # Optional SSH — use only with cloudflared access/SSH clients.
+  # Optional non-HTTP route. Use only with cloudflared access/SSH clients.
   - hostname: git-ssh.projectnyra.com
     service: ssh://gitea:2222
 
-  # Oracle VPS catch-all gateway (Caddy).
+  # Observability — owner-only, Access-gated.
+  - hostname: openlit.projectnyra.com
+    service: http://openlit:3000
+
+  # Uptime / status monitoring (public-facing via uptime-kuma).
+  - hostname: uptime.projectnyra.com
+    service: http://nyra-uptime-kuma:3001
+
+  - hostname: public-status.projectnyra.com
+    service: http://nyra-uptime-kuma:3001
+
+  # Oracle VPS catch-all gateway (Caddy reverse proxy).
   - hostname: oracle.projectnyra.com
-    service: http://caddy:80
+    service: http://nyra-caddy:80
 
   # Oracle catch-all. Required by cloudflared.
   - service: http_status:404

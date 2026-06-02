@@ -1,5 +1,10 @@
 import { NextResponse } from "next/server";
 
+import {
+  canUseMockFallback,
+  productionReadUnavailable,
+} from "@/lib/api/config";
+
 const QUOTE_API_URL = process.env.QUOTE_API_URL;
 const QUOTE_API_SECRET = process.env.QUOTE_API_SECRET;
 
@@ -24,6 +29,13 @@ export async function GET() {
         return NextResponse.json(await response.json());
       }
     } catch {}
+  }
+
+  if (!canUseMockFallback()) {
+    return productionReadUnavailable(
+      "Quote service",
+      "QUOTE_API_URL must be configured for production loan type reads"
+    );
   }
 
   return NextResponse.json({ loan_types: fallbackLoanTypes, source: "mock" });

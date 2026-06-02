@@ -15,30 +15,30 @@
   },
   "dependencies": {
     "express": "^5.2.1",
-    "pg": "^8.20.0",
-    "redis": "^5.11.0",
-    "joi": "^18.1.2",
-    "bcryptjs": "^2.4.3",
+    "pg": "^8.21.0",
+    "redis": "^6.0.0",
+    "joi": "^18.2.1",
+    "bcryptjs": "^3.0.3",
     "jsonwebtoken": "^9.0.2",
-    "dotenv": "^16.3.1",
-    "axios": "^1.15.0",
+    "dotenv": "^17.4.2",
+    "axios": "^1.16.0",
     "bull": "^4.11.5",
     "winston": "^3.11.0",
     "helmet": "^8.1.0",
     "cors": "^2.8.5",
-    "express-rate-limit": "^8.3.2",
+    "express-rate-limit": "^8.5.2",
     "morgan": "^1.10.0",
     "compression": "^1.7.4",
-    "fuzzball": "^2.1.2",
+    "fuzzball": "^2.2.6",
     "uuid": "^14.0.0",
     "date-fns": "^4.1.0"
   },
   "devDependencies": {
-    "jest": "^29.7.0",
-    "supertest": "^6.3.3",
+    "jest": "^30.4.2",
+    "supertest": "^7.2.2",
     "nodemon": "^3.0.2",
     "eslint": "^10.2.0",
-    "@types/jest": "^29.5.8"
+    "@types/jest": "^30.0.0"
   },
   "engines": {
     "node": ">=18.0.0"

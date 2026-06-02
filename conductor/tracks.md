@@ -61,3 +61,18 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 - [x] **Track: Nyra Prompt Pack Finish-Line Execution**
       _Link: [./tracks/prompt_pack_execution_20260520/](./tracks/prompt_pack_execution_20260520/)_
+
+---
+
+- [x] **Track: Omni Prompting Pack V3 Execution**
+      _Link: [./tracks/omni_prompting_pack_v3_20260524/](./tracks/omni_prompting_pack_v3_20260524/)_
+
+---
+
+- [x] **Track: Omni Prompting Pack V3 Z-Drive Reconciliation**
+      _Link: [./tracks/omni_prompting_pack_v3_zdrive_20260526/](./tracks/omni_prompting_pack_v3_zdrive_20260526/)_
+
+---
+
+- [~] **Track: Post-Domain Cloudflared Validation**
+  _Link: [./tracks/post_domain_cloudflared_validation_20260527/](./tracks/post_domain_cloudflared_validation_20260527/)_
