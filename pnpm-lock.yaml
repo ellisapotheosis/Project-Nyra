@@ -853,8 +853,8 @@ importers:
         specifier: ^1.0.1
         version: 1.0.1
       docusign-esign:
-        specifier: ^8.7.0
-        version: 8.7.0
+        specifier: ^9.0.0
+        version: 9.0.0
       dotenv:
         specifier: ^16.3.1
         version: 16.6.1
@@ -7468,8 +7468,8 @@ packages:
     resolution: {integrity: sha512-yS+Q5i3hBf7GBkd4KG8a7eBNNWNGLTaEwwYWUijIYM7zrlYDM0BFXHjjPWlWZ1Rg7UaddZeIDmi9jF3HmqiQ2w==}
     engines: {node: '>=6.0.0'}
 
-  docusign-esign@8.7.0:
-    resolution: {integrity: sha512-1ZMn3z2knn/iYI4CR6ZCr2qYjJj1xEbGm7IudS6VN8QAxmMI1h1sUaBKCGzffAJeBUOTMYhTlSxM84WMeF/cHw==}
+  docusign-esign@9.0.0:
+    resolution: {integrity: sha512-CQKduxyf+yJbqT16gRTFOKk2UXHoB5wX1sVyG+XjDLH7shTOIF/9JNLuP2LbJxa1osEBlw1Ee20nY8/89k4joQ==}
     engines: {node: '>=2.2.1'}
 
   dom-accessibility-api@0.5.16:
@@ -18585,7 +18585,7 @@ snapshots:
     dependencies:
       esutils: 2.0.3
 
-  docusign-esign@8.7.0:
+  docusign-esign@9.0.0:
     dependencies:
       '@devhigley/parse-proxy': 1.0.3
       axios: 1.15.2
