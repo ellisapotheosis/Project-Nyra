@@ -16,7 +16,7 @@
     "@nyra/crm-client": "workspace:*",
     "@nyra/crm-types": "workspace:*",
     "cors": "^2.8.5",
-    "dotenv": "^16.5.4",
+    "dotenv": "^17.4.2",
     "express": "^4.20.4",
     "express-rate-limit": "^8.3.2",
     "helmet": "^7.0.0",
