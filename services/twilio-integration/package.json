@@ -17,7 +17,7 @@
   "author": "Project Nyra",
   "license": "MIT",
   "dependencies": {
-    "twilio": "^4.20.0",
+    "twilio": "^6.0.2",
     "express": "^5.2.1",
     "express-validator": "^7.0.1",
     "dotenv": "^17.4.2",
