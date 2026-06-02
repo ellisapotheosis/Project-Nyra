@@ -36,8 +36,8 @@ importers:
   .:
     dependencies:
       zod:
-        specifier: ^4.3.5
-        version: 4.3.6
+        specifier: ^4.4.3
+        version: 4.4.3
     devDependencies:
       '@jest/globals':
         specifier: ^30.2.0
@@ -293,8 +293,8 @@ importers:
         specifier: ^3.6.0
         version: 3.6.0
       zod:
-        specifier: ^4.3.6
-        version: 4.3.6
+        specifier: ^4.4.3
+        version: 4.4.3
     devDependencies:
       '@opennextjs/cloudflare':
         specifier: 1.19.11
@@ -410,8 +410,8 @@ importers:
   packages/domain-models:
     dependencies:
       zod:
-        specifier: ^4.3.5
-        version: 4.3.6
+        specifier: ^4.4.3
+        version: 4.4.3
     devDependencies:
       typescript:
         specifier: ^6.0.3
@@ -788,8 +788,8 @@ importers:
         specifier: ^3.10.0
         version: 3.19.0
       zod:
-        specifier: ^3.23.8
-        version: 3.25.76
+        specifier: ^4.4.3
+        version: 4.4.3
     devDependencies:
       '@types/cors':
         specifier: ^2.8.13
@@ -819,8 +819,8 @@ importers:
   services/discord-alerts:
     dependencies:
       zod:
-        specifier: ^4.3.5
-        version: 4.3.6
+        specifier: ^4.4.3
+        version: 4.4.3
     devDependencies:
       '@types/node':
         specifier: ^25.9.1
@@ -1083,8 +1083,8 @@ importers:
         specifier: ^7.1.0
         version: 7.2.0
       zod:
-        specifier: ^4.3.5
-        version: 4.3.6
+        specifier: ^4.4.3
+        version: 4.4.3
     devDependencies:
       '@types/cors':
         specifier: ^2.8.19
@@ -1144,8 +1144,8 @@ importers:
         specifier: 8.20.1
         version: 8.20.1
       zod:
-        specifier: ^4.3.6
-        version: 4.3.6
+        specifier: ^4.4.3
+        version: 4.4.3
     devDependencies:
       '@types/cors':
         specifier: ^2.8.17
@@ -1385,8 +1385,8 @@ importers:
         specifier: ^8.20.1
         version: 8.20.1
       zod:
-        specifier: ^4.3.6
-        version: 4.3.6
+        specifier: ^4.4.3
+        version: 4.4.3
     devDependencies:
       '@types/cors':
         specifier: ^2.8.17
@@ -1434,8 +1434,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/quote-domain
       zod:
-        specifier: ^4.3.5
-        version: 4.3.6
+        specifier: ^4.4.3
+        version: 4.4.3
     devDependencies:
       typescript:
         specifier: ^6.0.3
@@ -1641,8 +1641,8 @@ importers:
         specifier: ^3.17.0
         version: 3.19.0
       zod:
-        specifier: ^4.3.5
-        version: 4.3.6
+        specifier: ^4.4.3
+        version: 4.4.3
     devDependencies:
       '@types/bcrypt':
         specifier: ^6.0.0
@@ -1681,8 +1681,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/domain-models
       zod:
-        specifier: ^4.3.5
-        version: 4.3.6
+        specifier: ^4.4.3
+        version: 4.4.3
     devDependencies:
       typescript:
         specifier: ^6.0.3
@@ -1734,7 +1734,7 @@ importers:
         version: 4.26.0
       '@modelcontextprotocol/sdk':
         specifier: ^1.25.2
-        version: 1.29.0(zod@3.25.76)
+        version: 1.29.0(zod@4.4.3)
       '@types/inquirer':
         specifier: ^9.0.8
         version: 9.0.9
@@ -1754,8 +1754,8 @@ importers:
         specifier: ^14.0.2
         version: 14.0.2(@types/node@25.9.1)
       zod:
-        specifier: ^3.22.4
-        version: 3.25.76
+        specifier: ^4.4.3
+        version: 4.4.3
     devDependencies:
       '@types/node':
         specifier: ^25.9.1
@@ -1972,8 +1972,8 @@ importers:
         specifier: 8.20.1
         version: 8.20.1
       zod:
-        specifier: ^4.3.6
-        version: 4.3.6
+        specifier: ^4.4.3
+        version: 4.4.3
     devDependencies:
       '@types/express':
         specifier: ^5.0.6
@@ -11723,9 +11723,6 @@ packages:
 
   zod@3.25.76:
     resolution: {integrity: sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ==}
-
-  zod@4.3.6:
-    resolution: {integrity: sha512-rftlrkhHZOcjDwkGlnUtZZkvaPHCsDATp4pGpuOOMDaTdDDXF91wuVDJoWoPsKX/3YPQ5fHuF3STjcYyKr+Qhg==}
 
   zod@4.4.3:
     resolution: {integrity: sha512-ytENFjIJFl2UwYglde2jchW2Hwm4GJFLDiSXWdTrJQBIN9Fcyp7n4DhxJEiWNAJMV1/BqWfW/kkg71UDcHJyTQ==}
@@ -23278,8 +23275,6 @@ snapshots:
       zod: 4.4.3
 
   zod@3.25.76: {}
-
-  zod@4.3.6: {}
 
   zod@4.4.3: {}
 
