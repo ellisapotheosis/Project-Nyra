@@ -68,7 +68,7 @@
   "homepage": "https://github.com/jezweb/twenty-mcp#readme",
   "dependencies": {
     "@clerk/clerk-sdk-node": "^5.0.0",
-    "@clerk/types": "^4.0.0",
+    "@clerk/types": "^4.101.20",
     "@modelcontextprotocol/sdk": "^1.25.2",
     "@types/inquirer": "^9.0.8",
     "chalk": "^5.4.1",
