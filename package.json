@@ -46,7 +46,7 @@
     "@jest/globals": "^30.4.1",
     "@playwright/test": "^1.58.2",
     "@typescript-eslint/eslint-plugin": "^7.0.0",
-    "@typescript-eslint/parser": "^8.58.2",
+    "@typescript-eslint/parser": "^8.60.1",
     "eslint": "^10.0.3",
     "husky": "^9.1.7",
     "lint-staged": "^16.4.0",
