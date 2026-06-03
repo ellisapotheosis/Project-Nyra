@@ -34,6 +34,8 @@ ORACLE_AGENT_UTILS_COMPOSE := infra/hosts/oracle-vps/docker-compose.oracle.yml
 ORACLE_MEMORY_COMPOSE := infra/hosts/oracle-vps/docker-compose.memory.yml
 ORACLE_LETTA_MCP_COMPOSE := infra/hosts/oracle-vps/docker-compose.letta-mcp.yml
 ORACLE_MEMORY_EXTRA_COMPOSE := infra/hosts/oracle-vps/docker-compose.memory-extra.yml
+ORACLE_GASTOWN_COMPOSE := infra/hosts/oracle-vps/docker-compose.gastown.yml
+ORACLE_GITEA_COMPOSE := infra/hosts/oracle-vps/docker-compose.gitea.yml
 ORACLE_PAPERCLIP_COMPOSE := infra/hosts/oracle-vps/docker-compose.paperclip.yml
 ORACLE_CLAWTEAM_COMPOSE := infra/hosts/oracle-vps/docker-compose.clawteam.yml
 ORACLE_UI_FACTORY_SERVICES := nyra-ui-engine magicui-mcp shadcn-mcp
@@ -44,7 +46,13 @@ WORKER_AI_COMMON_COMPOSE := infra/hosts/_templates/docker-compose.worker-ai-comm
 WORKER_5090_NERVE_COMPOSE := infra/hosts/worker-rtx5090/docker-compose.nerve.yml
 WORKER_5090_MODEL_SWITCHER_COMPOSE := infra/hosts/worker-rtx5090/docker-compose.model-switcher.yml
 WORKER_3090TI_NERVE_COMPOSE := infra/hosts/worker-rtx3090ti/docker-compose.nerve.yml
-WORKER_3060_OPENCLAW_COMPOSE := infra/hosts/worker-rtx3060/docker-compose.openclaw.yml
+WORKER_3060_OPENCLAW_COMPOSE       := infra/hosts/worker-rtx3060/docker-compose.openclaw.yml
+WORKER_3060_CLAWTEAM_COMPOSE       := infra/hosts/worker-rtx3060/docker-compose.clawteam.yml
+ORACLE_PERSISTENT_COMPOSE          := infra/hosts/oracle-vps/docker-compose.persistent.yml
+ORCHESTRATOR_PERSISTENT_COMPOSE    := infra/hosts/orchestrator/docker-compose.persistent.yml
+WORKER_5090_PERSISTENT_COMPOSE     := infra/hosts/worker-rtx5090/docker-compose.persistent.yml
+WORKER_3090TI_PERSISTENT_COMPOSE   := infra/hosts/worker-rtx3090ti/docker-compose.persistent.yml
+WORKER_3060_PERSISTENT_COMPOSE     := infra/hosts/worker-rtx3060/docker-compose.persistent.yml
 AGENT_INFRA_ENV ?= prod
 INFISICAL_PROJECT_ID ?= 8374cea9-e5e8-4050-bda4-b91f25ab30ef
 INFISICAL_LOCAL_SECRETS_FILE ?= $(HOME)/.zsh/99-secrets.zsh
@@ -145,9 +153,13 @@ DEFAULT_PROFILES ?= apps,sync,debug
   oracle-apps-up oracle-apps-down oracle-quote-engine-up oracle-campaign-engine-up \
   oracle-ui-factory-up oracle-ui-factory-down oracle-ui-factory-ps oracle-ui-install \
   oracle-mcp-tools-up oracle-mcp-tools-down oracle-mcp-tools-ps \
-  oracle-portainer-up oracle-portainer-down oracle-portainer-ps \
+  oracle-portainer-up oracle-portainer-down oracle-portainer-ps oracle-portainer-sync \
   sync-env sync-env-all \
-  up-all down-all cluster-status
+  up-all down-all cluster-status \
+  oracle-gastown-up oracle-gastown-down oracle-gastown-ps \
+  persistent-up persistent-oracle-up persistent-orchestrator-up \
+  persistent-worker-5090-up persistent-worker-3090ti-up persistent-worker-3060-up \
+  default-stack-up default-stack-status
 
 restoration-up: oracle-mcp-tools-up oracle-memory-full-up
 	@echo "🚀 Bringing up LLXPRT cluster..."
@@ -227,6 +239,13 @@ help:
 	@echo "make oracle-ui-factory-up Start UI Factory MCP/tooling containers"
 	@echo "make oracle-mcp-tools-up  Start Oracle MCP containers and Nexus aggregator"
 	@echo "make oracle-portainer-up  Start Oracle Portainer CE + local agent"
+	@echo "make oracle-portainer-sync Sync the Oracle stack bundle into Portainer"
+	@echo "make oracle-gastown-up    Start Gastown workspace manager on Oracle VPS"
+	@echo
+	@echo "--- DEFAULT CLUSTER STACK ---"
+	@echo "make default-stack-up     Full cluster with role-assigned services (recommended)"
+	@echo "make default-stack-status Show status across all hosts in the default topology"
+	@echo "make persistent-up        Start Portainer + Syncthing on all 5 hosts (run once; never stop)"
 
 cluster-status:
 	@echo "=== [ORCHESTRATOR] ==="
@@ -297,6 +316,8 @@ verify-paths:
 	@test -f $(ORACLE_APPS_COMPOSE) || (echo "Missing $(ORACLE_APPS_COMPOSE)" && exit 1)
 	@test -f $(ORACLE_MEMORY_COMPOSE) || (echo "Missing $(ORACLE_MEMORY_COMPOSE)" && exit 1)
 	@test -f $(ORACLE_AGENT_UTILS_COMPOSE) || (echo "Missing $(ORACLE_AGENT_UTILS_COMPOSE)" && exit 1)
+	@test -f $(ORACLE_GASTOWN_COMPOSE) || (echo "Missing $(ORACLE_GASTOWN_COMPOSE)" && exit 1)
+	@test -f $(ORACLE_GITEA_COMPOSE) || (echo "Missing $(ORACLE_GITEA_COMPOSE)" && exit 1)
 	@test -f $(INFISICAL_RUNTIME_COMPOSE) || (echo "Missing $(INFISICAL_RUNTIME_COMPOSE)" && exit 1)
 	@test -f $(WORKER_AI_COMMON_COMPOSE) || (echo "Missing $(WORKER_AI_COMMON_COMPOSE)" && exit 1)
 	@test -f $(WORKER_3090TI_NERVE_COMPOSE) || (echo "Missing $(WORKER_3090TI_NERVE_COMPOSE)" && exit 1)
@@ -325,6 +346,7 @@ verify-paths:
 	  scripts/setup-wave-configs.sh \
 	  scripts/nyra-wave-zellij.sh \
 	  scripts/nyra-zellij-pane.sh \
+	  infra/scripts/portainer-sync-stack.py \
 	  scripts/nyra-ui-install.sh \
 	  infra/zellij/nyra-swarm.kdl \
 	  infra/zellij/nyra-orchestrator-mcp.kdl \
@@ -426,8 +448,6 @@ up-oracle:
 	@$(call nyra_host_compose,$(ORACLE_INFISICAL_PATH),$(ORACLE_CONTEXT),-f $(ORACLE_COMPOSE) -f $(ORACLE_APPS_COMPOSE) --profile apps up -d)
 
 # --- COMPONENT TARGETS ---
-
-ORACLE_GITEA_COMPOSE := infra/hosts/oracle-vps/docker-compose.gitea.yml
 
 gitea-up:
 	$(call nyra_host_compose,$(ORACLE_INFISICAL_PATH),$(ORACLE_CONTEXT),-f $(ORACLE_GITEA_COMPOSE) up -d)
@@ -1278,6 +1298,32 @@ oracle-portainer-down:
 oracle-portainer-ps:
 	@$(call nyra_host_compose,$(ORACLE_INFISICAL_PATH),$(ORACLE_CONTEXT),-f $(ORACLE_COMPOSE) ps $(ORACLE_PORTAINER_SERVICES))
 
+oracle-portainer-sync:
+	@echo "Syncing Oracle stack bundle into Portainer..."
+	@PORTAINER_TLS_ARG=""; \
+	if [ "$${PORTAINER_INSECURE_TLS:-1}" = "1" ]; then PORTAINER_TLS_ARG="--insecure-tls"; fi; \
+	$(nyra_load_infisical_env) \
+	  COMPOSE_PROJECT_NAME="nyra-network" \
+	  INFISICAL_TOKEN="$${INFISICAL_TOKEN:?$(NYRA_INFISICAL_TOKEN_HINT)}" \
+	  infisical run --projectId=$(INFISICAL_PROJECT_ID) --env=$(AGENT_INFRA_ENV) --path=$(ORACLE_INFISICAL_PATH) -- \
+	  python3 infra/scripts/portainer-sync-stack.py \
+	    --url "$${PORTAINER_URL:-https://100.64.0.3:9443}" \
+	    --api-key "$${PORTAINER_API_KEY:?set PORTAINER_API_KEY}" \
+	    --stack-name "$${PORTAINER_STACK_NAME:-nyra-oracle}" \
+	    --endpoint-name "$${PORTAINER_ENDPOINT_NAME:-oracle-vps}" \
+	    $$PORTAINER_TLS_ARG \
+	    --profile apps \
+	    --compose-file $(ORACLE_COMPOSE) \
+	    --compose-file $(ORACLE_APPS_COMPOSE) \
+	    --compose-file $(ORACLE_MEMORY_COMPOSE) \
+	    --compose-file $(ORACLE_MEMORY_EXTRA_COMPOSE) \
+	    --compose-file $(ORACLE_LETTA_MCP_COMPOSE) \
+	    --compose-file $(ORACLE_ACTIVEPIECES_MCP_COMPOSE) \
+	    --compose-file $(ORACLE_AGENT_UTILS_COMPOSE) \
+	    --compose-file $(ORACLE_GASTOWN_COMPOSE) \
+	    --compose-file $(ORACLE_GITEA_COMPOSE) \
+	    --compose-file $(ORACLE_CLAWTEAM_COMPOSE)
+
 wave-stack-status:
 	@echo "=== ORCHESTRATOR ==="
 	@$(call nyra_host_compose,$(ORCHESTRATOR_INFISICAL_PATH),$(ORCHESTRATOR_CONTEXT),-f $(ORCHESTRATOR_COMPOSE) -f $(INFISICAL_RUNTIME_COMPOSE) -f $(ORCHESTRATOR_LLXPRT_COMPOSE) -f $(ORCHESTRATOR_PORTAINER_EDGE_COMPOSE) ps) || true
@@ -1305,3 +1351,113 @@ verify-clis:
 	@command -v gh >/dev/null 2>&1 || (echo "❌ gh is not installed." && exit 1)
 	@pnpm exec turbo --version >/dev/null 2>&1 || (echo "❌ turbo is not installed." && exit 1)
 	@echo "✅ All required CLI tools are present."
+
+# ════════════════════════════════════════════════════════════════════════════
+# 🏚️ GASTOWN — Oracle VPS agent workspace manager
+# ════════════════════════════════════════════════════════════════════════════
+
+oracle-gastown-up:
+	@echo "Starting Gastown workspace manager on Oracle VPS..."
+	@$(call nyra_host_compose,$(ORACLE_INFISICAL_PATH),$(ORACLE_CONTEXT),-f $(ORACLE_COMPOSE) -f $(ORACLE_GASTOWN_COMPOSE) up -d gastown)
+	@echo "Gastown: https://gastown.trex-fiordland.ts.net"
+
+oracle-gastown-down:
+	@$(call nyra_host_compose,$(ORACLE_INFISICAL_PATH),$(ORACLE_CONTEXT),-f $(ORACLE_COMPOSE) -f $(ORACLE_GASTOWN_COMPOSE) stop gastown)
+
+oracle-gastown-ps:
+	@$(call nyra_host_compose,$(ORACLE_INFISICAL_PATH),$(ORACLE_CONTEXT),-f $(ORACLE_COMPOSE) -f $(ORACLE_GASTOWN_COMPOSE) ps gastown)
+
+# ════════════════════════════════════════════════════════════════════════════
+# 🔒 PERSISTENT SERVICES — Portainer + Syncthing (restart:always, NEVER stop)
+# Run once after a host is first provisioned or rebuilt.
+# Uses direct docker commands (no Infisical) — these are the pre-secrets layer.
+# NEVER call a persistent-down target. These services run 24/7 indefinitely.
+# ════════════════════════════════════════════════════════════════════════════
+
+persistent-oracle-up:
+	@echo "Starting persistent services on oracle-vps (Portainer CE + agent + Syncthing)..."
+	@docker --context $(ORACLE_CONTEXT) compose -f $(ORACLE_PERSISTENT_COMPOSE) up -d
+
+persistent-orchestrator-up:
+	@echo "Starting persistent services on orchestrator (Portainer edge-agent + Syncthing)..."
+	@docker --context $(ORCHESTRATOR_CONTEXT) compose -f $(ORCHESTRATOR_PERSISTENT_COMPOSE) up -d
+
+persistent-worker-5090-up:
+	@echo "Starting persistent services on worker-rtx5090 (Portainer edge-agent + Syncthing)..."
+	@docker --context $(WORKER_5090_CONTEXT) compose -f $(WORKER_5090_PERSISTENT_COMPOSE) up -d
+
+persistent-worker-3090ti-up:
+	@echo "Starting persistent services on worker-rtx3090ti (Portainer edge-agent + Syncthing)..."
+	@docker --context $(WORKER_3090TI_CONTEXT) compose -f $(WORKER_3090TI_PERSISTENT_COMPOSE) up -d
+
+persistent-worker-3060-up:
+	@echo "Starting persistent services on worker-rtx3060 (Portainer edge-agent + Syncthing)..."
+	@docker --context $(WORKER_3060_CONTEXT) compose -f $(WORKER_3060_PERSISTENT_COMPOSE) up -d
+
+persistent-up: persistent-oracle-up persistent-orchestrator-up persistent-worker-5090-up persistent-worker-3090ti-up persistent-worker-3060-up
+	@echo "✅ Portainer + Syncthing running on all 5 hosts."
+
+# ════════════════════════════════════════════════════════════════════════════
+# 🚀 DEFAULT CLUSTER STACK — role-aware topology for daily operation
+#
+# Role assignments:
+#   oracle-vps       → core services + memory plane + Gastown + ClawTeam
+#   worker-rtx3090ti → vLLM + OpenClaw (primary, 24/7) + Nerve UI (primary, 24/7)
+#   worker-rtx3060   → Ollama/embeddings + PicoClaw (clawteam-fallback, no openclaw)
+#   worker-rtx5090   → vLLM only (openclaw/nerve overrides exist but not default)
+#
+# To add paperclip: make oracle-paperclip-up
+# To add 3090ti nerveUI overrides to 5090: make worker-5090-ai-up
+# Persistent services (Portainer, Syncthing): make persistent-up (run once)
+# ════════════════════════════════════════════════════════════════════════════
+
+default-stack-up:
+	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+	@echo " NYRA DEFAULT CLUSTER STACK"
+	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+	@echo ""
+	@echo "[1/5] Oracle VPS — memory plane..."
+	@$(MAKE) oracle-memory-full-up
+	@echo ""
+	@echo "[2/5] Oracle VPS — core apps + Gastown + ClawTeam..."
+	@$(call nyra_host_compose,$(ORACLE_INFISICAL_PATH),$(ORACLE_CONTEXT),-f $(ORACLE_COMPOSE) -f $(ORACLE_APPS_COMPOSE) --profile apps up -d)
+	@$(call nyra_host_compose,$(ORACLE_INFISICAL_PATH),$(ORACLE_CONTEXT),-f $(ORACLE_COMPOSE) -f $(ORACLE_GASTOWN_COMPOSE) up -d gastown)
+	@$(call nyra_host_compose,$(ORACLE_INFISICAL_PATH),$(ORACLE_CONTEXT),-f $(ORACLE_COMPOSE) -f $(ORACLE_CLAWTEAM_COMPOSE) up -d clawteam)
+	@echo ""
+	@echo "[3/5] Worker RTX3090Ti — vLLM + OpenClaw (primary) + Nerve UI (primary)..."
+	@$(call nyra_host_compose,$(WORKER_3090TI_INFISICAL_PATH),$(WORKER_3090TI_CONTEXT),-f $(WORKER_3090TI_COMPOSE) -f $(INFISICAL_RUNTIME_COMPOSE) -f $(WORKER_AI_COMMON_COMPOSE) -f $(WORKER_3090TI_LLXPRT_COMPOSE) -f $(WORKER_3090TI_NERVE_COMPOSE) up -d portainer-edge-agent redis vllm litellm model-switcher promtail node-exporter gpu-exporter health-monitor grafana openclaw nerve-ui infisical-agent infisical-sidecar llxprt-code llxprt-bridge,WORKER_GRAFANA_PORT=3006)
+	@echo ""
+	@echo "[4/5] Worker RTX3060 — Ollama embeddings + PicoClaw (no openclaw)..."
+	@$(call nyra_host_compose,$(WORKER_3060_INFISICAL_PATH),$(WORKER_3060_CONTEXT),-f $(WORKER_3060_COMPOSE) -f $(WORKER_3060_CLAWTEAM_COMPOSE) -f $(INFISICAL_RUNTIME_COMPOSE) -f $(WORKER_AI_COMMON_COMPOSE) -f $(WORKER_3060_LLXPRT_COMPOSE) up -d portainer-edge-agent ollama litellm model-switcher promtail node-exporter gpu-exporter grafana clawteam infisical-agent infisical-sidecar llxprt-code llxprt-bridge,WORKER_GRAFANA_PORT=3007)
+	@echo ""
+	@echo "[5/5] Worker RTX5090 — vLLM only (no openclaw/nerve by default)..."
+	@$(call nyra_host_compose,$(WORKER_5090_INFISICAL_PATH),$(WORKER_5090_CONTEXT),-f $(WORKER_5090_COMPOSE) -f $(INFISICAL_RUNTIME_COMPOSE) -f $(WORKER_AI_COMMON_COMPOSE) -f $(WORKER_5090_LLXPRT_COMPOSE) -f $(WORKER_5090_MODEL_SWITCHER_COMPOSE) up -d portainer-edge-agent redis vllm litellm model-switcher promtail node-exporter gpu-exporter health-monitor grafana infisical-agent infisical-sidecar llxprt-code llxprt-bridge,WORKER_GRAFANA_PORT=3005)
+	@echo ""
+	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+	@echo " CLUSTER LIVE"
+	@echo "  OpenClaw:  https://openclaw.trex-fiordland.ts.net"
+	@echo "  Nerve UI:  https://nerve-ui.trex-fiordland.ts.net"
+	@echo "  PicoClaw:  https://picoclaw.trex-fiordland.ts.net"
+	@echo "  Gastown:   https://gastown.trex-fiordland.ts.net"
+	@echo "  ClawTeam:  https://clawteam.trex-fiordland.ts.net"
+	@echo "  Letta:     https://letta.trex-fiordland.ts.net"
+	@echo ""
+	@echo "  To add Paperclip:          make oracle-paperclip-up"
+	@echo "  To add OpenClaw on 5090:   make worker-5090-ai-up"
+	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+default-stack-status:
+	@echo "=== [ORACLE — core + Gastown + ClawTeam] ==="
+	@$(call nyra_host_compose,$(ORACLE_INFISICAL_PATH),$(ORACLE_CONTEXT),-f $(ORACLE_COMPOSE) -f $(ORACLE_APPS_COMPOSE) -f $(ORACLE_GASTOWN_COMPOSE) -f $(ORACLE_CLAWTEAM_COMPOSE) ps) 2>/dev/null || true
+	@echo ""
+	@echo "=== [ORACLE — memory plane] ==="
+	@$(call nyra_host_compose,$(ORACLE_INFISICAL_PATH),$(ORACLE_CONTEXT),-f $(ORACLE_MEMORY_COMPOSE) -f $(ORACLE_LETTA_MCP_COMPOSE) -f $(ORACLE_MEMORY_EXTRA_COMPOSE) ps) 2>/dev/null || true
+	@echo ""
+	@echo "=== [WORKER RTX3090Ti — vLLM + OpenClaw + Nerve UI] ==="
+	@$(call nyra_host_compose,$(WORKER_3090TI_INFISICAL_PATH),$(WORKER_3090TI_CONTEXT),-f $(WORKER_3090TI_COMPOSE) -f $(WORKER_AI_COMMON_COMPOSE) -f $(WORKER_3090TI_NERVE_COMPOSE) ps,WORKER_GRAFANA_PORT=3006) 2>/dev/null || true
+	@echo ""
+	@echo "=== [WORKER RTX3060 — Ollama + PicoClaw] ==="
+	@$(call nyra_host_compose,$(WORKER_3060_INFISICAL_PATH),$(WORKER_3060_CONTEXT),-f $(WORKER_3060_COMPOSE) -f $(WORKER_3060_CLAWTEAM_COMPOSE) -f $(WORKER_AI_COMMON_COMPOSE) ps,WORKER_GRAFANA_PORT=3007) 2>/dev/null || true
+	@echo ""
+	@echo "=== [WORKER RTX5090 — vLLM only] ==="
+	@$(call nyra_host_compose,$(WORKER_5090_INFISICAL_PATH),$(WORKER_5090_CONTEXT),-f $(WORKER_5090_COMPOSE) -f $(WORKER_AI_COMMON_COMPOSE) ps,WORKER_GRAFANA_PORT=3005) 2>/dev/null || true

@@ -95,6 +95,9 @@ docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
 
 # Or operate remotely via Docker context from orchestrator
 docker --context oracle-vps compose -f docker-compose.yml up -d
+
+# Sync the repo-rendered Oracle bundle into Portainer
+PORTAINER_API_KEY=... PORTAINER_INSECURE_TLS=1 make oracle-portainer-sync
 ```
 
 ---

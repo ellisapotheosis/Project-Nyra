@@ -40,7 +40,14 @@ docker compose -f docker-compose.persistent.yml up -d
 # Deploy agent on a worker (example: worker-rtx5090)
 docker --context worker-5090 compose \
   -f docker-compose.persistent.yml up -d
+
+# Sync the Oracle application bundle into Portainer from the repo
+PORTAINER_API_KEY=... PORTAINER_INSECURE_TLS=1 make oracle-portainer-sync
 ```
+
+The sync target renders the Oracle compose bundle from Git and pushes it into the
+Portainer CE API. Keep the live stack in Portainer, but keep the compose files in
+Git as the source of truth.
 
 ### Volume Pinning
 

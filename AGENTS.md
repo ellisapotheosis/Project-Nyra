@@ -105,24 +105,16 @@ _For current stack truth, prefer `docs/CURRENT_STACK_TRUTH_V3.md`, `docs/PROJECT
 <claude-mem-context>
 # Memory Context
 
-# [project-nyra] recent context, 2026-05-27 7:02am PDT
+# [project-nyra] recent context, 2026-06-03 5:32am PDT
 
 Legend: 🎯session 🔴bugfix 🟣feature 🔄refactor ✅change 🔵discovery ⚖️decision 🚨security_alert 🔐security_note
 Format: ID TIME TYPE TITLE
 Fetch details: get_observations([IDs]) | Search: mem-search skill
 
-Stats: 50 obs (17,288t read) | 345,948t work | 95% savings
-
-### May 23, 2026
-
-S14 Configure multi-host Syncthing mesh with worker-rtx5090 as source of truth; decommission oracle; clarify sync behavior and whitelist strategy; provide Codex prompt for browser-based UI completion (May 23, 6:02 AM)
-S15 SSH into worker-rtx5090 Windows PC and diagnose/fix WSL access errors (ubuntu not accessible, invalid address, permission issues) (May 23, 9:19 AM)
+Stats: 50 obs (14,575t read) | 376,555t work | 96% savings
 
 ### May 24, 2026
 
-S16 Investigate and fix Hyper-V/WSL/Docker Desktop failure on worker-rtx5090 (AlienApoth51): wsl commands timing out with "CommandTimedOut" error, Docker Desktop unable to restart, system unresponsive. (May 24, 3:20 AM)
-S17 Disable fgfast (fast startup) on all PCs via SSH, apply hardening recommendations, and set up autonomous power management for a 4-node GPU cluster via WoL magic packets controlled by the orchestrator's bitnet.cpp LLM (May 24, 3:50 AM)
-S18 Troubleshoot WSL access errors on worker-rtx5090, leading to comprehensive memory orchestration system upgrade and Nyra agent deployment (May 24, 4:44 AM)
 S19 Troubleshoot worker-rtx5090 WSL/Ubuntu access issues; evolved into documenting LiteLLM + Letta routing architecture for cluster orchestration (May 24, 6:28 AM)
 S20 Infrastructure audit of Project Nyra to verify deployment matches canonical specification, including verification of Gitea, LiteLLM, LLXPRT, Nexus router, secrets, and network topology (May 24, 7:00 AM)
 S21 Continue execution of Project Nyra omni-prompting-pack-v3 non-UI foundation work (prompts 00-07) through validation and QA reporting. (May 24, 7:46 AM)
@@ -130,68 +122,71 @@ S22 User asked for guidance on routing fresh domains from spaceship.com to Cloud
 
 ### May 26, 2026
 
-1190 5:06a ⚖️ UI/theme/design work explicitly quarantined as separate concern; three themes configured (apotheosis, mint-midnight, mint-midnight-glow)
-1191 5:09a 🟣 CRM operations queue system for compliance and task prioritization
-1192 5:10a ✅ Integrated CRM operations builder into all workspace data sources
-1193 " 🟣 Broker action queue and CRM control gates UI components
-1194 " 🟣 Test suite for CRM operations queue system
-1196 5:11a 🔵 TypeScript compilation error: operations property missing from WorkspaceData type
-1197 " 🔵 Stale duplicate crm-data.ts file blocking TypeScript compilation
-1198 " 🔴 Updated stale crm-data.ts file with CRM operations feature
-1200 5:12a 🔵 Oracle memory-stack smoke tests passing on 2026-05-26
-1201 " 🟣 Reactivated /api/crm route to serve CRM workspace data
-1202 " ✅ Infrastructure refactoring: Paperclip → Gastown, OpenLIT observability, PicoClaws addition
-1204 " 🔴 Vector dimension mismatch in mem0-Qdrant integration during memory stack smoke test
-1211 5:14a 🔵 CRM operations fully integrated into existing CRM, campaign, and quote infrastructure
-1212 " ✅ Memory stack successfully rebuilt and redeployed after vector dimension fix
-1213 " 🔵 Broker command deck dashboard fully integrated with CRM operations
-1214 5:15a 🔵 Memory stack partial operational status: ADD succeeds but SEARCH still fails on mem0
-1215 5:16a 🔵 mem0 search endpoint API compatibility bug: user_id parameter placement
-1216 " 🔵 mem0 library API asymmetry: search/get_all require filters dict, add/delete_all accept top-level params
-1217 " 🔴 mem0 wrapper API compatibility layer fixed for v2.0.2 filters requirement
-1218 5:17a 🔵 Memory stack smoke tests now passing: both ADD and SEARCH endpoints operational
-1219 5:25a ✅ Consolidated executable work inventory and demoted superseded backlog documentation
-1220 5:26a ✅ Recorded validation evidence for backlog consolidation completion in CONDUCTOR_TASKS.md
-1221 " ✅ Consolidated external secret inventory and removed stale infrastructure guidance
-1222 5:28a ✅ Updated current blockers with completion status of Conductor reconciliation and memory-stack validation
-1223 " ✅ Session plan transitioned to inventory and classify remaining unchecked task markers
-1224 " 🔵 Inventoried task, prompt, status, and handoff files across project
-1225 7:46a 🔵 Dual Syncthing Instances on Orchestrator Causing Configuration Ambiguity
-1226 " 🔵 Worker-rtx5090 Disconnected From Syncthing Mesh
-1227 " 🔵 Portainer Accessibility Issues Across Network Segments
-1228 " ✅ User Provided Tailscale and Credential Configuration Specifics
-1229 7:47a 🔵 Persistent Orchestrator Syncthing Container Confirmed Running
-1230 " 🔵 Two Native Syncthing Processes Running Outside Docker
-1231 " 🔵 Persistent Docker Container Has Wrong Device Identity
-1232 7:48a 🔵 Persistent Container Runtime Identity Corrected Despite Mismatched Config
-1233 " 🔵 Only One Native Syncthing Process Actively Listening; Other Process Dormant
-1234 7:49a 🔵 PID 2158 is Orphaned/Headless Syncthing Process Without Configuration
-1235 7:50a 🔵 Port 8384 Serves MiniApotheosis, Not Real Orchestrator ZANXEPD
-1236 " 🔵 Native Syncthing Process Uses Same Config as Persistent Docker Container
-1238 7:51a ✅ Added Three Worker Devices to MiniApotheosis Configuration
-1237 7:52a 🔵 MiniApotheosis Instance Completely Unconfigured—No Devices or Folders
-1239 7:53a ✅ Worker-rtx3060 Reconfigured from ZANXEPD to OBN2HMP Orchestrator
-1240 7:54a 🔵 Docker Context for Worker-rtx5090 Unreachable
-1241 " 🔵 Docker Context for Worker-rtx5090 Configured via SSH but SSH Connection Failing
-1242 " ✅ Created ubuntu-home Folder on MiniApotheosis Orchestrator
-1243 " ✅ Updated ubuntu-home Folder on Worker-rtx3060 to Include OBN2HMP
-1244 7:55a ✅ Orchestrator Device Renamed and GUI Credentials Set
-1245 " 🔵 Worker-rtx5090 Unreachable via SSH; Device Reconfiguration Failed
-1246 7:56a ✅ Set GUI Credentials on Worker-rtx3060
-1247 " 🔵 Orchestrator Final Configuration State Verified
-1248 " 🔵 Worker-rtx3060 Final Configuration State Verified
-S23 Diagnose and complete Syncthing/Portainer infrastructure setup across orchestrator, 3 workers, and oracle VPS using corrected credentials and Tailscale network topology (May 26, 7:57 AM)
-**Investigated**: - Dual Syncthing instances on orchestrator: MiniApotheosis (OBN2HMP, unconfigured) vs ZANXEPD (real, relay-connected) - Device configuration state: config.xml mismatches, device ID discovery across all nodes - Network accessibility: browser reaches only MiniApotheosis; workers connect to ZANXEPD via oracle relay - Docker context connectivity: worker-rtx3060 accessible via Docker context; worker-rtx5090 SSH available but Docker daemon down - Port conflicts between native Syncthing processes (PID 2205) and persistent Docker container - Worker topology and device registration state
+S23 Diagnose and complete Syncthing/Portainer infrastructure setup across orchestrator, 3 workers, and oracle VPS using corrected credentials and Tailscale network topology (May 26, 3:41 AM)
+S24 Should INFISICAL_TOKEN be removed after switching to INFISICAL_UNIVERSAL_AUTH_CLIENT_ID and INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET? (May 26, 7:57 AM)
 
-**Learned**: - Orchestrator has three Syncthing instances: Docker persistent container (ZANXEPD) + 2 native processes (PID 2158 orphaned, PID 2205 active MiniApotheosis) - MiniApotheosis (OBN2HMP) is fresh/isolated, browser-accessible at localhost:8384; serves as new topology anchor - ZANXEPD is real orchestrator but only reachable via relay at oracle VPS (216.146.25.26:22067) - Earlier configuration attempts applied to wrong instance (MiniApotheosis instead of ZANXEPD) - Device identity corruption: config.xml had worker-rtx5090 ID but runtime reports ZANXEPD (environment override in effect) - Worker-rtx3060 successfully transitioned from ZANXEPD to OBN2HMP topology - Worker paths differ: orchestrator /var/syncthing/data/home vs workers /var/syncthing
+### May 27, 2026
 
-**Completed**: - Configured orchestrator (OBN2HMP): added 3 worker devices (5QAPMTU, ZE3VRPG, UDR6IHT), created ubuntu-home folder with all 4 devices (paused), set GUI user/password (ellisapotheosis/1th7aa6ch8oA1!), renamed device to "orchestrator" - Reconfigured worker-rtx3060: deleted ZANXEPD, added OBN2HMP as orchestrator, updated ubuntu-home folder devices, set GUI credentials - Verified worker-rtx3060 final state: all devices registered, folder configured, ready to sync (paused) - Diagnosed worker-rtx5090 unreachability: Docker context SSH alias exists (5090-wsl) but Docker daemon not running, attempted reconfiguration failed (HTTP 000) - Created comprehensive browser prompt with all device IDs, API keys, credentials, Tailscale addresses, and step-by-step tasks
+S25 Test Infisical universal auth secrets in ~/.zsh/99-secrets.zsh to determine if they are stale (May 27, 7:07 AM)
+S26 Fix Syncthing cluster connectivity issues affecting Chrome extension connection to orchestrator and workers (May 27, 7:16 AM)
 
-**Next Steps**: Task A (active): Restart Docker daemon on worker-rtx5090 (via Docker Desktop or WSL systemctl/service)
-Task B: Configure worker-rtx5090 Syncthing UI (remove ZANXEPD, add OBN2HMP, verify ubuntu-home folder is active/not-paused as source of truth)
-Task C: Begin initial sync from worker-rtx5090 → orchestrator → worker-rtx3060 (in sequence, with paused states managed per step)
-Task D: Configure worker-rtx3090ti when it comes online (currently offline)
-Task E: Set up Portainer CE on oracle VPS with edge agents for all 4 hosts
+### May 28, 2026
 
-Access 346k tokens of past work via get_observations([IDs]) or mem-search skill.
+S27 User requested review of Cloudflared tunnel setup and verification that everything is configured correctly post-domain migration (May 28, 10:44 AM)
+
+### May 31, 2026
+
+1570 6:45a 🔵 Critical: ZANXEPD is the orchestrator container's own device ID, not a peer device
+1561 " 🔵 ZANXEPD still has 1 remaining occurrence in config.xml after XML removal
+1562 " 🔵 ZANXEPD device definition still present at line 149 in config.xml
+1563 " 🔵 ZANXEPD exists in defaults template folder, not global device list
+1564 6:46a ✅ ZANXEPD removed from defaults folder template via recursive XML search
+1565 " 🔵 ZANXEPD completely removed from config.xml; verification successful
+1567 " 🔵 CRM API deployment successful but leads endpoint returning 500 errors
+1566 " 🔵 ZANXEPD reappears after Syncthing restart; XML modifications not persisted
+1568 " 🔵 Syncthing running config diverged from config.xml; ZANXEPD loaded from cache/backup
+1569 6:47a 🔵 CRM API container running but producing no application logs
+1571 " 🔵 Syncthing stores configuration in both config.xml and index-v2 database
+1572 " 🔵 Upstream Twenty CRM GraphQL service is working correctly
+1573 " 🔵 GET /api/leads calls twentyClient.searchContacts() which likely fails in crm-client package
+1574 6:48a 🔴 Duplicate "PATCH" string literal in smoke test script causes syntax error
+1575 " 🔵 CrmWritePlanClient interface defines searchContacts but TwentyCRMClient implementation is missing
+1576 " 🔵 Twenty CRM schema uses mortgageLeads and people queries, not generic contacts or leads
+1578 " 🔵 MortgageLead enums in Twenty CRM have only "DEFAULT" values
+1577 " 🔵 ZANXEPD device restored to ubuntu-home folder after restart
+1580 6:49a 🔵 Workers do not have ZANXEPD (orchestrator) in their peer device configurations
+1579 " 🔴 Fixed TwentyCRMClient to use correct MortgageLead schema instead of non-existent Lead operations
+1581 " 🔵 TypeScript compilation error in toMortgageLeadInput function mixing ?? and ||
+1582 " 🔵 CRM API unit tests all passing after schema fixes
+1583 6:50a 🔴 Fixed TypeScript operator precedence error in toMortgageLeadInput by using helper function
+1584 " ✅ CRM API successfully rebuilt and redeployed to Oracle VPS with fixed TwentyCRMClient
+1588 6:51a ✅ Worker-3090ti Syncthing config updated to recognize ZANXEPD as orchestrator peer
+1585 " 🔴 CRM API /api/leads endpoint now returns HTTP 200 with valid response structure
+1586 6:52a 🔵 GET /api/leads returns single lead object instead of array of leads
+1587 " 🔴 Added defensive array normalization to searchMortgageLeads to handle single object responses
+1589 " ✅ All 3 worker Syncthing containers restarted to load updated configurations
+1591 6:53a 🔵 Smoke test fails: POST /api/crm/write-plan returns 500 error during lead creation
+1590 " 🔵 Orchestrator sync active with 2 of 3 workers connected; 3090ti offline
+1592 " 🔵 All 3 workers actively syncing ubuntu-home; significant file transfers in progress
+1593 " 🔵 Direct GraphQL createMortgageLead succeeds but crm-api fails: likely double transformation in createContact flow
+1594 6:54a ✅ Added optional error handling to secondary CRM operations in write plan execution
+1596 " 🔵 Smoke test still fails after error handling improvements: double transformation issue persists
+1595 " 🔵 Worker-5090 sync error: permission denied on gitea SSH directory
+1597 6:55a 🔵 Syncthing mesh final state: 2 of 3 workers connected to orchestrator via relay
+1599 " 🔵 Database connection from crm-api container is working: connected as user 'nyra'
+1598 6:56a 🔵 All 3 workers successfully connected to ZANXEPD orchestrator and actively syncing
+S28 Investigate and fix Syncthing device connectivity issues in the Nyra infrastructure cluster; establish working bidirectional sync between orchestrator and 3 GPU worker nodes (May 31, 6:56 AM)
+1600 " 🔵 TwentyCRMClient.createContact works when called directly from container
+1601 " 🔵 Root cause found: executeCrmWritePlan works correctly but writePlan.ts passes wrong data format to createContact
+1603 6:58a 🔵 Root cause identified but not yet fixed: writePlan.ts needs data format conversion
+1604 " 🔵 Data format issue confirmed: TwentyLeadContract with nested structures fails in writePlan flow
+1605 6:59a ✅ Added graceful handling for NOT_FOUND errors in getContact method
+1606 " 🔴 Resolved 500 error on POST /api/crm/write-plan by aligning GraphQL schema
+1607 " 🟣 Implemented data transformation layer for TwentyCRM GraphQL mutations
+1608 " 🔴 Added error handling for secondary CRM operations in write plan execution
+1609 " 🔴 Added isRecordNotFoundError() handler for graceful NOT_FOUND responses
+1610 " ✅ Fixed TypeScript compilation in Docker by including crm-types package
+1611 " 🔵 Live lead lifecycle smoke test validates complete CRM data pipeline
+
+Access 377k tokens of past work via get_observations([IDs]) or mem-search skill.
 </claude-mem-context>
