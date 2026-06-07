@@ -49,8 +49,8 @@ docs_diff="$tmp_dir/docs.diff"
 write_docs_diff >"$docs_diff"
 
 if rg -n -i "^\\+[^+].*\\b${banned_terms}\\b" "$docs_diff" >"$tmp_dir/deprecated-docs-hits.txt"; then
-  echo "[FAIL] New deprecated stack references were added to docs:"
-  cat "$tmp_dir/deprecated-docs-hits.txt"
+  echo "[FAIL] New deprecated stack references were added to docs:" >&2
+  cat "$tmp_dir/deprecated-docs-hits.txt" >&2
   exit 1
 fi
 
@@ -77,8 +77,8 @@ awk -F '\t' '
   }
   END { exit fail }
 ' "$name_status" >"$tmp_dir/n8n-json-outside.txt" || {
-  echo "[FAIL] New or renamed n8n JSON docs must stay under docs/n8n-consolidation/, docs/workflows/n8n/, or docs/archive/:"
-  cat "$tmp_dir/n8n-json-outside.txt"
+  echo "[FAIL] New or renamed n8n JSON docs must stay under docs/n8n-consolidation/, docs/workflows/n8n/, or docs/archive/:" >&2
+  cat "$tmp_dir/n8n-json-outside.txt" >&2
   exit 1
 }
 
