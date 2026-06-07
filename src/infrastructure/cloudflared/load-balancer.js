@@ -4,9 +4,9 @@
  * Manages load balancing and failover for worker nodes
  */
 
-const axios = require('axios');
-const fs = require('fs').promises;
-const path = require('path');
+const axios = require("axios");
+const fs = require("fs").promises;
+const path = require("path");
 
 class CloudflareLoadBalancer {
   constructor() {
@@ -14,10 +14,10 @@ class CloudflareLoadBalancer {
     this.email = process.env.CLOUDFLARE_EMAIL;
     this.zoneId = process.env.CLOUDFLARE_ZONE_ID;
     this.accountId = process.env.CLOUDFLARE_ACCOUNT_ID;
-    this.baseURL = 'https://api.cloudflare.com/client/v4';
+    this.baseURL = "https://api.cloudflare.com/client/v4";
     this.headers = {
-      'Authorization': `Bearer ${this.apiKey}`,
-      'Content-Type': 'application/json'
+      Authorization: `Bearer ${this.apiKey}`,
+      "Content-Type": "application/json",
     };
   }
 
@@ -27,38 +27,38 @@ class CloudflareLoadBalancer {
   getWorkerConfigs() {
     return [
       {
-        name: 'worker1-rtx3060',
-        address: 'worker1.ratehunter.net',
+        name: "worker1-rtx3060",
+        address: "worker1.projectnyra.com",
         weight: 0.7, // Lower weight for RTX 3060
         enabled: true,
         gpu: {
-          model: 'RTX 3060',
-          vram: '12GB',
-          performance_score: 70
-        }
+          model: "RTX 3060",
+          vram: "12GB",
+          performance_score: 70,
+        },
       },
       {
-        name: 'worker2-rtx5090',
-        address: 'worker2.ratehunter.net',
+        name: "worker2-rtx5090",
+        address: "worker2.projectnyra.com",
         weight: 1.0, // Maximum weight for RTX 5090
         enabled: true,
         gpu: {
-          model: 'RTX 5090',
-          vram: '32GB',
-          performance_score: 100
-        }
+          model: "RTX 5090",
+          vram: "32GB",
+          performance_score: 100,
+        },
       },
       {
-        name: 'worker3-rtx3090ti',
-        address: 'worker3.ratehunter.net',
+        name: "worker3-rtx3090ti",
+        address: "worker3.projectnyra.com",
         weight: 0.9, // High weight for RTX 3090Ti
         enabled: true,
         gpu: {
-          model: 'RTX 3090Ti',
-          vram: '24GB',
-          performance_score: 90
-        }
-      }
+          model: "RTX 3090Ti",
+          vram: "24GB",
+          performance_score: 90,
+        },
+      },
     ];
   }
 
@@ -69,45 +69,46 @@ class CloudflareLoadBalancer {
     const workers = this.getWorkerConfigs();
 
     const poolConfig = {
-      name: 'nyra-gpu-workers',
-      description: 'Nyra Distributed GPU Compute Workers',
+      name: "nyra-gpu-workers",
+      description: "Nyra Distributed GPU Compute Workers",
       enabled: true,
       minimum_origins: 1,
-      notification_email: process.env.CLOUDFLARE_EMAIL || 'admin@ratehunter.net',
-      origins: workers.map(worker => ({
+      notification_email:
+        process.env.CLOUDFLARE_EMAIL || "admin@ratehunter.com",
+      origins: workers.map((worker) => ({
         name: worker.name,
         address: worker.address,
         enabled: worker.enabled,
         weight: worker.weight,
         header: {
-          "Host": [worker.address]
-        }
+          Host: [worker.address],
+        },
       })),
       monitor: {
-        description: 'GPU Worker Health Monitor',
-        type: 'https',
-        method: 'GET',
-        path: '/health',
+        description: "GPU Worker Health Monitor",
+        type: "https",
+        method: "GET",
+        path: "/health",
         header: {
-          "User-Agent": ["Cloudflare-Health-Check/1.0"]
+          "User-Agent": ["Cloudflare-Health-Check/1.0"],
         },
         timeout: 10,
         retries: 3,
         interval: 60,
-        expected_codes: '200',
-        follow_redirects: false
+        expected_codes: "200",
+        follow_redirects: false,
       },
-      check_regions: ['ENAM', 'WNAM', 'EEUR', 'WEU'],
+      check_regions: ["ENAM", "WNAM", "EEUR", "WEU"],
       notification_filter: {
         pool: {
           disable: false,
-          healthy: true
+          healthy: true,
         },
         origin: {
           disable: false,
-          healthy: true
-        }
-      }
+          healthy: true,
+        },
+      },
     };
 
     try {
@@ -117,7 +118,7 @@ class CloudflareLoadBalancer {
         { headers: this.headers }
       );
 
-      console.log('✅ Origin pool created successfully');
+      console.log("✅ Origin pool created successfully");
       console.log(`   Pool ID: ${response.data.result.id}`);
       console.log(`   Pool Name: ${response.data.result.name}`);
 
@@ -126,7 +127,10 @@ class CloudflareLoadBalancer {
 
       return response.data.result;
     } catch (error) {
-      console.error('❌ Failed to create origin pool:', error.response?.data || error.message);
+      console.error(
+        "❌ Failed to create origin pool:",
+        error.response?.data || error.message
+      );
       throw error;
     }
   }
@@ -136,27 +140,27 @@ class CloudflareLoadBalancer {
    */
   async createLoadBalancer(poolId) {
     const lbConfig = {
-      name: 'api.ratehunter.net',
+      name: "api.projectnyra.com",
       fallback_pool: poolId,
       default_pools: [poolId],
-      description: 'Nyra GPU Compute API Load Balancer',
+      description: "Nyra GPU Compute API Load Balancer",
       ttl: 30,
-      steering_policy: 'dynamic_latency',
+      steering_policy: "dynamic_latency",
       proxied: false, // Direct connection through tunnel
       enabled: true,
-      session_affinity: 'none',
+      session_affinity: "none",
       session_affinity_ttl: 5,
       adaptive_routing: {
-        failover_across_pools: true
+        failover_across_pools: true,
       },
       location_strategy: {
-        mode: 'pop',
-        prefer_ecs: "proximity"
+        mode: "pop",
+        prefer_ecs: "proximity",
       },
       random_steering: {
         default_weight: 1,
-        pool_weights: {}
-      }
+        pool_weights: {},
+      },
     };
 
     try {
@@ -166,7 +170,7 @@ class CloudflareLoadBalancer {
         { headers: this.headers }
       );
 
-      console.log('✅ Load balancer created successfully');
+      console.log("✅ Load balancer created successfully");
       console.log(`   Load Balancer ID: ${response.data.result.id}`);
       console.log(`   Hostname: ${response.data.result.name}`);
 
@@ -175,7 +179,10 @@ class CloudflareLoadBalancer {
 
       return response.data.result;
     } catch (error) {
-      console.error('❌ Failed to create load balancer:', error.response?.data || error.message);
+      console.error(
+        "❌ Failed to create load balancer:",
+        error.response?.data || error.message
+      );
       throw error;
     }
   }
@@ -187,10 +194,10 @@ class CloudflareLoadBalancer {
     // Create regional pools for better performance
     const regionalPools = [
       {
-        name: 'nyra-gpu-primary',
-        region: 'WNAM',
-        origins: this.getWorkerConfigs()
-      }
+        name: "nyra-gpu-primary",
+        region: "WNAM",
+        origins: this.getWorkerConfigs(),
+      },
       // Could add more regions in the future
     ];
 
@@ -202,13 +209,13 @@ class CloudflareLoadBalancer {
         description: `Nyra GPU Workers - ${regionalPool.region}`,
         enabled: true,
         minimum_origins: 1,
-        origins: regionalPool.origins.map(worker => ({
+        origins: regionalPool.origins.map((worker) => ({
           name: worker.name,
           address: worker.address,
           enabled: worker.enabled,
-          weight: worker.weight
+          weight: worker.weight,
         })),
-        check_regions: [regionalPool.region]
+        check_regions: [regionalPool.region],
       };
 
       try {
@@ -219,9 +226,14 @@ class CloudflareLoadBalancer {
         );
 
         createdPools.push(response.data.result);
-        console.log(`✅ Regional pool created: ${regionalPool.name} (${regionalPool.region})`);
+        console.log(
+          `✅ Regional pool created: ${regionalPool.name} (${regionalPool.region})`
+        );
       } catch (error) {
-        console.error(`❌ Failed to create regional pool ${regionalPool.name}:`, error.response?.data || error.message);
+        console.error(
+          `❌ Failed to create regional pool ${regionalPool.name}:`,
+          error.response?.data || error.message
+        );
       }
     }
 
@@ -240,7 +252,10 @@ class CloudflareLoadBalancer {
 
       return response.data.result;
     } catch (error) {
-      console.error('Failed to get load balancers:', error.response?.data || error.message);
+      console.error(
+        "Failed to get load balancers:",
+        error.response?.data || error.message
+      );
       throw error;
     }
   }
@@ -257,7 +272,10 @@ class CloudflareLoadBalancer {
 
       return response.data.result;
     } catch (error) {
-      console.error('Failed to get origin pools:', error.response?.data || error.message);
+      console.error(
+        "Failed to get origin pools:",
+        error.response?.data || error.message
+      );
       throw error;
     }
   }
@@ -268,19 +286,22 @@ class CloudflareLoadBalancer {
   async updatePoolHealth(poolId, healthData) {
     // Get current pool configuration
     const pools = await this.getOriginPools();
-    const pool = pools.find(p => p.id === poolId);
+    const pool = pools.find((p) => p.id === poolId);
 
     if (!pool) {
       throw new Error(`Pool ${poolId} not found`);
     }
 
     // Update origin weights based on health and performance
-    const updatedOrigins = pool.origins.map(origin => {
+    const updatedOrigins = pool.origins.map((origin) => {
       const workerHealth = healthData[origin.name];
       if (workerHealth) {
         // Adjust weight based on health score and GPU utilization
         const healthFactor = workerHealth.healthScore / 100;
-        const utilizationFactor = Math.max(0.1, 1 - (workerHealth.gpuUtilization / 100));
+        const utilizationFactor = Math.max(
+          0.1,
+          1 - workerHealth.gpuUtilization / 100
+        );
         origin.weight = origin.weight * healthFactor * utilizationFactor;
         origin.enabled = workerHealth.healthScore > 50;
       }
@@ -294,10 +315,13 @@ class CloudflareLoadBalancer {
         { headers: this.headers }
       );
 
-      console.log('✅ Pool health updated successfully');
+      console.log("✅ Pool health updated successfully");
       return response.data.result;
     } catch (error) {
-      console.error('❌ Failed to update pool health:', error.response?.data || error.message);
+      console.error(
+        "❌ Failed to update pool health:",
+        error.response?.data || error.message
+      );
       throw error;
     }
   }
@@ -305,19 +329,22 @@ class CloudflareLoadBalancer {
   /**
    * Get load balancer analytics
    */
-  async getAnalytics(since = '7d') {
+  async getAnalytics(since = "7d") {
     try {
       const response = await axios.get(
         `${this.baseURL}/zones/${this.zoneId}/load_balancers/analytics/events`,
         {
           headers: this.headers,
-          params: { since }
+          params: { since },
         }
       );
 
       return response.data.result;
     } catch (error) {
-      console.error('Failed to get analytics:', error.response?.data || error.message);
+      console.error(
+        "Failed to get analytics:",
+        error.response?.data || error.message
+      );
       throw error;
     }
   }
@@ -326,7 +353,7 @@ class CloudflareLoadBalancer {
    * Setup complete load balancing infrastructure
    */
   async setupComplete() {
-    console.log('🚀 Setting up Cloudflare Load Balancing for Nyra...');
+    console.log("🚀 Setting up Cloudflare Load Balancing for Nyra...");
 
     try {
       // Step 1: Create origin pool
@@ -338,24 +365,24 @@ class CloudflareLoadBalancer {
       // Step 3: Setup geographic steering (optional)
       // const regionalPools = await this.createGeographicSteering();
 
-      console.log('\n🎯 Load Balancing Setup Complete!');
-      console.log('─'.repeat(50));
+      console.log("\n🎯 Load Balancing Setup Complete!");
+      console.log("─".repeat(50));
       console.log(`Pool ID: ${pool.id}`);
       console.log(`Load Balancer ID: ${loadBalancer.id}`);
-      console.log(`API Endpoint: https://api.ratehunter.net`);
-      console.log('\n📊 Features Enabled:');
-      console.log('   - Dynamic latency steering');
-      console.log('   - Health monitoring');
-      console.log('   - Automatic failover');
-      console.log('   - Geographic optimization');
+      console.log(`API Endpoint: https://api.projectnyra.com`);
+      console.log("\n📊 Features Enabled:");
+      console.log("   - Dynamic latency steering");
+      console.log("   - Health monitoring");
+      console.log("   - Automatic failover");
+      console.log("   - Geographic optimization");
 
       return {
         pool,
         loadBalancer,
-        apiEndpoint: 'https://api.ratehunter.net'
+        apiEndpoint: "https://api.projectnyra.com",
       };
     } catch (error) {
-      console.error('❌ Load balancing setup failed:', error.message);
+      console.error("❌ Load balancing setup failed:", error.message);
       throw error;
     }
   }
@@ -364,7 +391,10 @@ class CloudflareLoadBalancer {
    * Save pool configuration to file
    */
   async savePoolConfig(poolData) {
-    const configPath = path.join(__dirname, '../../../config/load-balancer-pool.json');
+    const configPath = path.join(
+      __dirname,
+      "../../../config/load-balancer-pool.json"
+    );
     await fs.writeFile(configPath, JSON.stringify(poolData, null, 2));
     console.log(`📁 Pool configuration saved to: ${configPath}`);
   }
@@ -373,7 +403,10 @@ class CloudflareLoadBalancer {
    * Save load balancer configuration to file
    */
   async saveLoadBalancerConfig(lbData) {
-    const configPath = path.join(__dirname, '../../../config/load-balancer.json');
+    const configPath = path.join(
+      __dirname,
+      "../../../config/load-balancer.json"
+    );
     await fs.writeFile(configPath, JSON.stringify(lbData, null, 2));
     console.log(`📁 Load balancer configuration saved to: ${configPath}`);
   }
@@ -382,13 +415,13 @@ class CloudflareLoadBalancer {
    * Test load balancer functionality
    */
   async testLoadBalancer() {
-    console.log('🧪 Testing load balancer functionality...');
+    console.log("🧪 Testing load balancer functionality...");
 
     const testEndpoints = [
-      'https://api.ratehunter.net/health',
-      'https://worker1.ratehunter.net/health',
-      'https://worker2.ratehunter.net/health',
-      'https://worker3.ratehunter.net/health'
+      "https://api.projectnyra.com/health",
+      "https://worker1.projectnyra.com/health",
+      "https://worker2.projectnyra.com/health",
+      "https://worker3.projectnyra.com/health",
     ];
 
     const results = [];
@@ -401,17 +434,17 @@ class CloudflareLoadBalancer {
 
         results.push({
           endpoint,
-          status: 'healthy',
+          status: "healthy",
           statusCode: response.status,
-          responseTime
+          responseTime,
         });
 
         console.log(`✅ ${endpoint} - ${response.status} (${responseTime}ms)`);
       } catch (error) {
         results.push({
           endpoint,
-          status: 'error',
-          error: error.message
+          status: "error",
+          error: error.message,
         });
 
         console.log(`❌ ${endpoint} - ${error.message}`);
@@ -430,32 +463,36 @@ if (require.main === module) {
   (async () => {
     try {
       switch (command) {
-        case 'setup':
+        case "setup":
           await lb.setupComplete();
           break;
 
-        case 'test':
+        case "test":
           await lb.testLoadBalancer();
           break;
 
-        case 'analytics':
+        case "analytics":
           const analytics = await lb.getAnalytics();
           console.log(JSON.stringify(analytics, null, 2));
           break;
 
-        case 'pools':
+        case "pools":
           const pools = await lb.getOriginPools();
-          console.log('Origin Pools:');
-          pools.forEach(pool => {
-            console.log(`  ${pool.name} (${pool.id}) - ${pool.enabled ? 'Enabled' : 'Disabled'}`);
+          console.log("Origin Pools:");
+          pools.forEach((pool) => {
+            console.log(
+              `  ${pool.name} (${pool.id}) - ${pool.enabled ? "Enabled" : "Disabled"}`
+            );
           });
           break;
 
-        case 'balancers':
+        case "balancers":
           const balancers = await lb.getLoadBalancers();
-          console.log('Load Balancers:');
-          balancers.forEach(balancer => {
-            console.log(`  ${balancer.name} (${balancer.id}) - ${balancer.enabled ? 'Enabled' : 'Disabled'}`);
+          console.log("Load Balancers:");
+          balancers.forEach((balancer) => {
+            console.log(
+              `  ${balancer.name} (${balancer.id}) - ${balancer.enabled ? "Enabled" : "Disabled"}`
+            );
           });
           break;
 
@@ -472,7 +509,7 @@ Commands:
           `);
       }
     } catch (error) {
-      console.error('Command failed:', error.message);
+      console.error("Command failed:", error.message);
       process.exit(1);
     }
   })();

@@ -2,20 +2,20 @@
 
 ## High Priority
 
-- Normalize duplicate worker directory naming (`worker-3060`, `worker-3090`, `worker-rtx3060`, `worker-rtx3090ti`) behind a single canonical path convention in `infra/workers/`.
+- Keep duplicate worker directory naming retired. The canonical path convention is now `infra/hosts/worker-*`.
 - Reduce root-level compose sprawl by formally deprecating non-canonical compose files in favor of:
-  - `infra/oracle/docker-compose.oracle.yml`
-  - `infra/orchestrator/docker-compose.orchestrator.yml`
-  - `infra/workers/<worker>/docker-compose.worker.yml`
+  - `infra/hosts/oracle-vps/docker-compose*.yml`
+  - `infra/hosts/orchestrator/docker-compose*.yml`
+  - `infra/hosts/worker-*/docker-compose*.yml`
 - Consolidate active infra documentation under `docs/infra` and keep historical references under `docs/archive` only.
 
 ## Medium Priority
 
 - Move remaining legacy ingestion bundles (`ingest/`, `apps/ingestion/`) into dated archive slices when provenance retention is sufficient.
 - Add per-stack `.env.example` templates under:
-  - `infra/oracle/.env.example`
-  - `infra/orchestrator/.env.example`
-  - `infra/workers/*/.env.example`
+  - `infra/hosts/oracle-vps/.env.example`
+  - `infra/hosts/orchestrator/.env.example`
+  - `infra/hosts/worker-*/.env.example`
 - Publish a single source of truth for Cloudflared hostname mapping and Tailscale ACL routing in `docs/infra`.
 
 ## Low Priority

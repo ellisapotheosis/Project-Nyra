@@ -3,6 +3,7 @@
 ## Frozen Source Material From `webapp-merge`
 
 All copied into:
+
 - [apps/guidance/references/webapp-merge-snapshot](/home/ellisapotheosis/repos/project-nyra/apps/guidance/references/webapp-merge-snapshot)
 
 Primary references:
@@ -31,33 +32,33 @@ Primary references:
 ## Current Public Landing App
 
 - Current public app:
-  [apps/landing/ratehunter-landing](/home/ellisapotheosis/repos/project-nyra/apps/landing/ratehunter-landing)
+  [apps/ratehunter/landing](/home/ellisapotheosis/repos/project-nyra/apps/ratehunter/landing)
 
 - Current landing homepage:
-  [apps/landing/ratehunter-landing/src/app/page.tsx](/home/ellisapotheosis/repos/project-nyra/apps/landing/ratehunter-landing/src/app/page.tsx)
+  [apps/ratehunter/landing/src/app/page.tsx](/home/ellisapotheosis/repos/project-nyra/apps/ratehunter/landing/src/app/page.tsx)
 
 - Current borrower lead wizard:
-  [apps/landing/ratehunter-landing/src/components/LeadCaptureWizard.tsx](/home/ellisapotheosis/repos/project-nyra/apps/landing/ratehunter-landing/src/components/LeadCaptureWizard.tsx)
+  [apps/ratehunter/landing/src/components/LeadCaptureWizard.tsx](/home/ellisapotheosis/repos/project-nyra/apps/ratehunter/landing/src/components/LeadCaptureWizard.tsx)
 
 - Current borrower chat widget:
-  [apps/landing/ratehunter-landing/src/components/BorrowerChatWidget.tsx](/home/ellisapotheosis/repos/project-nyra/apps/landing/ratehunter-landing/src/components/BorrowerChatWidget.tsx)
+  [apps/ratehunter/landing/src/components/BorrowerChatWidget.tsx](/home/ellisapotheosis/repos/project-nyra/apps/ratehunter/landing/src/components/BorrowerChatWidget.tsx)
 
 ## Current Internal App Candidates
 
 - Main internal webapp candidate:
-  [apps/webapp/app](/home/ellisapotheosis/repos/project-nyra/apps/webapp/app)
+  [apps/projectnyra](/home/ellisapotheosis/repos/project-nyra/apps/projectnyra)
 
 - Current internal homepage:
-  [apps/webapp/app/app/page.tsx](/home/ellisapotheosis/repos/project-nyra/apps/webapp/app/app/page.tsx)
+  [apps/projectnyra/app/page.tsx](/home/ellisapotheosis/repos/project-nyra/apps/projectnyra/app/page.tsx)
 
 - Current assistant page:
-  [apps/webapp/app/app/assistant/page.tsx](/home/ellisapotheosis/repos/project-nyra/apps/webapp/app/app/assistant/page.tsx)
+  [apps/projectnyra/app/assistant/page.tsx](/home/ellisapotheosis/repos/project-nyra/apps/projectnyra/app/assistant/page.tsx)
 
 - Current campaigns page:
-  [apps/webapp/app/app/campaigns/page.tsx](/home/ellisapotheosis/repos/project-nyra/apps/webapp/app/app/campaigns/page.tsx)
+  [apps/projectnyra/app/campaigns/page.tsx](/home/ellisapotheosis/repos/project-nyra/apps/projectnyra/app/campaigns/page.tsx)
 
 - OpenClaw tool page:
-  [apps/webapp/app/app/tools/openclaw/page.tsx](/home/ellisapotheosis/repos/project-nyra/apps/webapp/app/app/tools/openclaw/page.tsx)
+  [apps/projectnyra/app/tools/openclaw/page.tsx](/home/ellisapotheosis/repos/project-nyra/apps/projectnyra/app/tools/openclaw/page.tsx)
 
 - Admin prototype:
   [apps/admin/app](/home/ellisapotheosis/repos/project-nyra/apps/admin/app)
@@ -90,4 +91,3 @@ Primary references:
 
 - Original exported token CSS:
   [apps/guidance/references/webapp-merge-snapshot/ellisapotheosis-apotheosis-mortgage-lead-campaign/index.css](/home/ellisapotheosis/repos/project-nyra/apps/guidance/references/webapp-merge-snapshot/ellisapotheosis-apotheosis-mortgage-lead-campaign/index.css)
-

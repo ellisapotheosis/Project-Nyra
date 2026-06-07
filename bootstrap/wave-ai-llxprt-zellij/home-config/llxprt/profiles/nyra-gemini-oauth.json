@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "provider": "gemini",
+  "model": "gemini-2.5-pro",
+  "auth": {
+    "type": "oauth",
+    "buckets": ["default"]
+  },
+  "ephemeralSettings": {
+    "context-limit": 1000000,
+    "compression-threshold": 0.72,
+    "max-prompt-tokens": 220000,
+    "tool-output-max-items": 60,
+    "tool-output-max-tokens": 50000,
+    "tool-output-truncate-mode": "sample",
+    "shell-default-timeout-seconds": 120,
+    "shell-max-timeout-seconds": 900,
+    "task-default-timeout-seconds": 900,
+    "task-max-timeout-seconds": 2400,
+    "reasoning.enabled": false
+  }
+}

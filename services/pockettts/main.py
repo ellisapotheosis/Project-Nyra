@@ -4,6 +4,7 @@
 
 import io
 import os
+import re
 import uvicorn
 import scipy.io.wavfile
 import logging
@@ -15,6 +16,23 @@ from pathlib import Path
 # --- Logging Configuration ---
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("pocket-tts-wrapper")
+SENSITIVE_PATTERNS = (
+    re.compile(r"\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b", re.IGNORECASE),
+    re.compile(r"\b(?:\+?1[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}\b"),
+    re.compile(r"\b\d{3}-?\d{2}-?\d{4}\b"),
+    re.compile(
+        r"\b(?:api[_-]?key|token|secret|authorization|password)\b\s*[:=]\s*[\"']?[^\"',\s}]+",
+        re.IGNORECASE,
+    ),
+    re.compile(r"\bBearer\s+[A-Za-z0-9._~+/=-]+", re.IGNORECASE),
+)
+
+
+def redact_sensitive(value) -> str:
+    text = str(value)
+    for pattern in SENSITIVE_PATTERNS:
+        text = pattern.sub("[REDACTED]", text)
+    return text
 
 # --- Configuration (Standardized) ---
 VOICE_DIR = Path(os.getenv("VOICE_DIR", "/app/voices"))
@@ -26,7 +44,7 @@ try:
     logger.info(f"🚀 Initializing Kyutai PocketTTS ({MODEL_ID}) on {DEVICE}...")
     tts_model = TTSModel.load_model(MODEL_ID)
 except Exception as e:
-    logger.error(f"❌ Failed to load Kyutai model: {e}")
+    logger.error(f"❌ Failed to load Kyutai model: {redact_sensitive(e)}")
     # We allow the app to start so the health endpoint can report the error, 
     # but actual TTS calls will fail.
     tts_model = None
@@ -72,8 +90,8 @@ def get_voice_state(voice_name: str):
         voice_state_cache[voice_name] = state
         return state
     except Exception as e:
-        logger.error(f"❌ Failed to extract voice state for {voice_name}: {e}")
-        raise HTTPException(status_code=500, detail=f"Voice extraction failed: {str(e)}")
+        logger.error(f"❌ Failed to extract voice state for {voice_name}: {redact_sensitive(e)}")
+        raise HTTPException(status_code=500, detail="Voice extraction failed")
 
 @app.get("/health")
 async def health():
@@ -115,8 +133,8 @@ async def speech(request: Request):
         
         return StreamingResponse(buffer, media_type="audio/wav")
     except Exception as e:
-        logger.error(f"❌ Synthesis failed: {e}")
-        raise HTTPException(status_code=500, detail=f"Synthesis failed: {str(e)}")
+        logger.error(f"❌ Synthesis failed: {redact_sensitive(e)}")
+        raise HTTPException(status_code=500, detail="Synthesis failed")
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)

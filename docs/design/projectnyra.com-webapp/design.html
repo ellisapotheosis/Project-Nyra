@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ProjectNyra.com Webapp Design Brief</title>
+    <style>
+      body {
+        margin: 0;
+        background: #07070a;
+        color: #f0edf8;
+        font-family: "Segoe UI", sans-serif;
+        line-height: 1.6;
+      }
+      main {
+        max-width: 980px;
+        margin: 0 auto;
+        padding: 48px 20px;
+      }
+      h1 {
+        color: #9ca3ff;
+      }
+      h2 {
+        margin-top: 32px;
+        color: #7df4d2;
+      }
+      li {
+        margin: 6px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>ProjectNyra.com Webapp Design Brief</h1>
+      <p>
+        Subscriber and operator command center for daily broker work. It is
+        dense, functional, and separate from the public marketing landing page.
+      </p>
+      <h2>Product Boundary</h2>
+      <ul>
+        <li>Twenty CRM is the system of record.</li>
+        <li>Nyra services own business logic.</li>
+        <li>n8n and Activepieces are execution glue only.</li>
+        <li>
+          Assistant surfaces propose safe actions but do not mutate
+          CRM/databases directly.
+        </li>
+        <li>Quote values come from deterministic quote services.</li>
+      </ul>
+      <h2>Experience Goals</h2>
+      <ul>
+        <li>
+          Fast scanning of lead urgency, compliance state, campaign progress,
+          quote status, and CRM sync.
+        </li>
+        <li>Clear live, cached, mock, degraded, and blocked labels.</li>
+        <li>
+          Risky actions show approval, compliance, audit, and rollback context.
+        </li>
+      </ul>
+      <h2>Routes</h2>
+      <ul>
+        <li>Home: command deck, priority queue, lead radar, service state.</li>
+        <li>
+          Leads: queue, detail, timeline, conversation, compliance, audit.
+        </li>
+        <li>Campaigns: operations dashboard and gated sequence builder.</li>
+        <li>
+          Quotes: deterministic quote desk with assumptions and lock state.
+        </li>
+        <li>
+          Pipeline and Applications: stage, document, milestone, and blocker
+          workflows.
+        </li>
+        <li>CRM: Twenty-backed overview and sync state.</li>
+        <li>Assistant/OpenClaw: bounded proposed actions.</li>
+        <li>
+          Admin/Integrations/Settings: provider health, required secrets, owner
+          actions.
+        </li>
+      </ul>
+      <h2>Component Rules</h2>
+      <p>
+        Use shadcn tokens, compact icons, badges, tabs, skeletons, stable list
+        heights, disabled action reasons, and no marketing hero sections after
+        login.
+      </p>
+      <h2>Success Criteria</h2>
+      <ul>
+        <li>
+          Daily broker workflow can be completed inside the webapp except for
+          protected external CRM/tool links.
+        </li>
+        <li>Compliance blockers are impossible to miss.</li>
+        <li>Quote, campaign, assistant, and CRM boundaries are visible.</li>
+      </ul>
+    </main>
+  </body>
+</html>

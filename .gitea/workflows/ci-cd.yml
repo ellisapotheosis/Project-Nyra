@@ -39,7 +39,7 @@ jobs:
       - name: Test
         run: pnpm test
 
-  cd-orchestrator:
+  oracle-ci-health:
     needs: ci
     if: ${{ github.ref == 'refs/heads/main' }}
     runs-on: self-hosted
@@ -47,18 +47,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Guard deployment switch
+      - name: Verify Oracle Gitea CI host
         run: |
-          if [ "${{ secrets.NYRA_DEPLOY_ENABLED }}" != "true" ]; then
-            echo "NYRA_DEPLOY_ENABLED is not true; skipping deploy."
-            exit 0
-          fi
-
-      - name: Deploy Gitea + runner stack on orchestrator
-        env:
-          INFISICAL_PROJECT_ID: 8374cea9-e5e8-4050-bda4-b91f25ab30ef
-          INFISICAL_TOKEN: ${{ secrets.INFISICAL_TOKEN }}
-        run: |
-          chmod +x scripts/gitea/bootstrap-orchestrator-gitea.sh
-          ENABLE_ACTIONS=true ENABLE_AI=false ENABLE_INFISICAL_AGENT=true \
-            ./scripts/gitea/bootstrap-orchestrator-gitea.sh
+          chmod +x infra/hosts/oracle-vps/scripts/gitea-ci-health.sh
+          ROOT_DIR="$PWD" infra/hosts/oracle-vps/scripts/gitea-ci-health.sh

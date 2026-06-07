@@ -35,19 +35,16 @@ start_service() {
 echo ">>> CORE SERVICES" | tee -a $LOG_FILE
 echo "" | tee -a $LOG_FILE
 
-start_service "landing" "$PROJECT_ROOT/apps/landing/ratehunter-landing" "3001" "npm run dev -- -p 3001"
+start_service "landing" "$PROJECT_ROOT/apps/ratehunter/landing" "3001" "npm run dev -- -p 3001"
 start_service "webapp" "$PROJECT_ROOT/apps/web/webapp" "3002" "npm run dev -- -p 3002"
-start_service "archon-os" "$PROJECT_ROOT/services/archon-os" "4000" "npm run dev -- -p 4000"
 start_service "nexus-router" "$PROJECT_ROOT/services/nexus-router" "6000" "npm start"
 start_service "orchestrator" "$PROJECT_ROOT/services/nyra-orchestrator" "8000" "npm start"
-
 echo ">>> BACKEND APIs" | tee -a $LOG_FILE
 echo "" | tee -a $LOG_FILE
 
 start_service "lead-capture-api" "$PROJECT_ROOT/services/lead-capture-api" "8010" "npm start"
 start_service "quote-api" "$PROJECT_ROOT/services/quote-api" "8020" "npm start"
 start_service "rate-comparison" "$PROJECT_ROOT/services/rate-comparison-engine" "8030" "npm start"
-start_service "doc-management" "$PROJECT_ROOT/services/doc-management-api" "8040" "npm start"
 start_service "campaign-engine" "$PROJECT_ROOT/services/campaign-engine" "8050" "npm start"
 start_service "auth-service" "$PROJECT_ROOT/services/auth-service" "8080" "npm start"
 start_service "security-service" "$PROJECT_ROOT/services/security-service" "8090" "npm start"

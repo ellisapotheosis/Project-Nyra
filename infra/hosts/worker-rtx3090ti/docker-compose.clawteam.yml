@@ -1,0 +1,16 @@
+# infra/hosts/worker-rtx3090ti/docker-compose.clawteam.yml
+# 🦞 Project Nyra - ClawTeam Node Override for RTX 3090 Ti
+
+services:
+  openclaw:
+    container_name: worker-3090-clawteam
+    environment:
+      - CLAWTEAM_ROLE=node
+      - WORKER_NAME=rtx3090ti
+      - NERVE_UI_ENABLED=true
+    ports:
+      - "8001:8001"
+      - "18789:18789"
+    # Ensure it can communicate with the local vLLM
+    depends_on:
+      - litellm

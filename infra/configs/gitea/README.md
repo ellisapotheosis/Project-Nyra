@@ -1,80 +1,47 @@
-# Gitea Actions Bootstrap Package (Orchestrator)
+# Gitea Actions Bootstrap Package (Oracle)
 
 This folder is the canonical bootstrap package for self-hosted Gitea CI/CD in Project Nyra.
+Oracle VPS is the always-on standard CI host. GPU/large jobs belong on worker hosts.
 
 ## Canonical locations
 
 - Gitea workflow files (repo): `.gitea/workflows/`
-- Runner config (orchestrator compose mount): `infra/configs/gitea/runner-config.yaml`
+- Runner config (Oracle compose mount): `infra/configs/gitea/runner-config.oracle.yaml`
 - Large runner config (heavy builds): `infra/configs/gitea/runner-config-large.yaml`
-- Runner bootstrap script (compose entrypoint): `scripts/gitea/bootstrap-act-runner.sh`
-- Orchestrator one-shot bootstrap: `scripts/gitea/bootstrap-orchestrator-gitea.sh`
 
 ## What this package configures
 
 - Gitea server with Actions enabled
 - Postgres-backed Gitea persistence
 - `act_runner` self-hosted runner container
-- Runner auto-registration using token file: `/run/nyra-secrets/gitea_runner_token`
+- Runner auto-registration using `GITEA_RUNNER_TOKEN` injected from Infisical
 - Native Gitea pipelines in `.gitea/workflows/ci-cd.yml`
 - Internal image publish on tags in `.gitea/workflows/publish-images.yml`
 
 ## Required prerequisites
 
-- Docker + Docker Compose on orchestrator host
-- Existing `nyra-net` Docker network (script can create it)
-- `.env.gitea` file (auto-created from `.env.gitea.template` if missing)
-- Secret file in Docker volume `nyra-secrets`:
-  - `gitea_runner_token`
+- Docker + Docker Compose on Oracle VPS
+- `~/.zsh/99-secrets.zsh` on the operator/agent machine with Infisical auth variables
+- Gitea runtime secrets stored in Infisical, not in repo-local `.env` files
 
-## Bootstrap commands (orchestrator)
+## Bootstrap commands (Oracle)
 
-From repo root on orchestrator:
+From `/home/ubuntu/project-nyra` on Oracle:
 
 ```bash
-chmod +x scripts/gitea/bootstrap-orchestrator-gitea.sh
-ENABLE_ACTIONS=true ENABLE_INFISICAL_AGENT=true ./scripts/gitea/bootstrap-orchestrator-gitea.sh
+make gitea-up
 ```
 
-Enable both standard + large runners:
-
-```bash
-ENABLE_ACTIONS=true ENABLE_ACTIONS_LARGE=true ENABLE_INFISICAL_AGENT=true ./scripts/gitea/bootstrap-orchestrator-gitea.sh
-```
-
-Or via Make target:
-
-```bash
-make gitea-bootstrap-orchestrator
-```
+The Makefile sources `~/.zsh/99-secrets.zsh` when needed, then runs Docker Compose through `infisical run` with `--env-file /dev/null`.
 
 ## Service compose integration
 
-The following compose files are integrated with this package:
-
-- `docker-compose.gitea.yml`
-- `docker-compose.gitea.bootstrap.yml`
-
-Both mount:
-
-- `./infra/configs/gitea/runner-config.yaml:/config.template.yaml:ro`
-- `./scripts/gitea/bootstrap-act-runner.sh:/usr/local/bin/bootstrap-act-runner.sh:ro`
-
-Large profile additionally mounts:
-
-- `./infra/configs/gitea/runner-config-large.yaml:/config.template.yaml:ro`
-
-And start runner with entrypoint:
-
-```yaml
-entrypoint: ["/bin/sh", "/usr/local/bin/bootstrap-act-runner.sh"]
-```
+The active compose file is `infra/hosts/oracle-vps/docker-compose.gitea.yml`.
 
 ## Health checks
 
 ```bash
-docker compose -f docker-compose.gitea.bootstrap.yml --env-file .env.gitea ps
-curl -fsS http://localhost:3100/api/healthz
+infra/hosts/oracle-vps/scripts/gitea-ci-health.sh
 ```
 
 ## Notes on workflow portability
@@ -90,3 +57,7 @@ curl -fsS http://localhost:3100/api/healthz
 - `GITEA_REGISTRY`
 - `GITEA_REGISTRY_USER`
 - `GITEA_REGISTRY_TOKEN`
+
+## Secret storage
+
+Project Nyra does not use `.env.gitea` or host-local `.env` files for Gitea runtime. Store Gitea service credentials in Infisical at `/clients/gitea`, and keep host-level compose inputs under `/machines/oracle-vps`.

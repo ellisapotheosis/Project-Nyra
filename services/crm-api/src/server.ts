@@ -1,473 +1,431 @@
-import express from 'express'
-import cors from 'cors'
-import helmet from 'helmet'
-import dotenv from 'dotenv'
-import { rateLimit } from 'express-rate-limit'
-import pg from 'pg'
-const { Pool } = pg
-import fetch from 'node-fetch'
-import winston from 'winston'
-import { z } from 'zod'
-import { TwentyCRMClient, type QuoteInput, type MortgageLeadInput } from '@nyra/crm-client'
+import express from "express";
+import cors from "cors";
+import helmet from "helmet";
+import dotenv from "dotenv";
+import { rateLimit } from "express-rate-limit";
+import pg from "pg";
+const { Pool } = pg;
+import fetch from "node-fetch";
+import winston from "winston";
+import { z } from "zod";
+import { TwentyCRMClient, type QuoteInput } from "@nyra/crm-client";
+import type { CrmWritePlan } from "@nyra/crm-types";
+import { PostgresAuditLedgerSink } from "./auditProvider.js";
+import { executeCrmWritePlan } from "./writePlan.js";
 
-dotenv.config()
+dotenv.config();
 
 const {
-  PORT = '4001',
+  PORT = "4001",
   DATABASE_URL,
   TWENTY_CRM_URL,
   TWENTY_CRM_API_KEY,
-  N8N_WEBHOOK_URL,
   QUOTE_ENGINE_URL,
-  CRM_API_KEY
-} = process.env
+  CRM_API_KEY,
+} = process.env;
 
-if (!DATABASE_URL) throw new Error('DATABASE_URL is required')
-if (!TWENTY_CRM_URL) throw new Error('TWENTY_CRM_URL is required')
-if (!TWENTY_CRM_API_KEY) throw new Error('TWENTY_CRM_API_KEY is required')
+if (!DATABASE_URL) throw new Error("DATABASE_URL is required");
+if (!TWENTY_CRM_URL) throw new Error("TWENTY_CRM_URL is required");
+if (!TWENTY_CRM_API_KEY) throw new Error("TWENTY_CRM_API_KEY is required");
 
-const pool = new Pool({ connectionString: DATABASE_URL })
+const pool = new Pool({ connectionString: DATABASE_URL });
+const REDACTED = "[REDACTED]";
+const LOG_SECRET_PATTERNS = [
+  /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/gi,
+  /\b(?:\+?1[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}\b/g,
+  /\b\d{3}-?\d{2}-?\d{4}\b/g,
+  /\b(?:api[_-]?key|token|secret|authorization|password)\b\s*[:=]\s*["']?[^"',\s}]+/gi,
+  /\bBearer\s+[A-Za-z0-9._~+/=-]+/gi,
+];
+
+function redactLogText(value: string): string {
+  return LOG_SECRET_PATTERNS.reduce(
+    (current, pattern) => current.replace(pattern, REDACTED),
+    value
+  );
+}
+
+function redactLogValue(value: unknown, depth = 0): unknown {
+  if (depth > 4) return "[REDACTED_DEPTH]";
+  if (typeof value === "string") return redactLogText(value);
+  if (
+    typeof value === "number" ||
+    typeof value === "boolean" ||
+    value == null
+  ) {
+    return value;
+  }
+  if (value instanceof Error) {
+    return {
+      name: value.name,
+      message: redactLogText(value.message),
+      stack: value.stack ? redactLogText(value.stack) : undefined,
+    };
+  }
+  if (Array.isArray(value)) {
+    return value.map((entry) => redactLogValue(entry, depth + 1));
+  }
+  if (typeof value === "object") {
+    return Object.fromEntries(
+      Object.entries(value as Record<string, unknown>).map(([key, entry]) => [
+        key,
+        /api[_-]?key|token|secret|authorization|password/i.test(key)
+          ? REDACTED
+          : redactLogValue(entry, depth + 1),
+      ])
+    );
+  }
+  return REDACTED;
+}
+
 const logger = winston.createLogger({
-  level: process.env.LOG_LEVEL || 'info',
+  level: process.env.LOG_LEVEL || "info",
   format: winston.format.combine(
     winston.format.timestamp(),
     winston.format.errors({ stack: true }),
+    winston.format((info) => redactLogValue(info) as typeof info)(),
     winston.format.json()
   ),
-  transports: [new winston.transports.Console()]
-})
+  transports: [new winston.transports.Console()],
+});
 
 const twentyClient = new TwentyCRMClient({
-  endpoint: `${TWENTY_CRM_URL.replace(/\/$/, '')}/graphql`,
-  apiKey: TWENTY_CRM_API_KEY
-})
+  endpoint: `${TWENTY_CRM_URL.replace(/\/$/, "")}/graphql`,
+  apiKey: TWENTY_CRM_API_KEY,
+});
 
-const app = express()
+const auditLedger = new PostgresAuditLedgerSink(pool);
 
-app.use(helmet())
-app.use(cors({ origin: process.env.CORS_ALLOWED_ORIGINS?.split(',') || '*' }))
-app.use(express.json())
+const app = express();
 
-// Rate Limiting
+app.use(helmet());
+app.use(cors());
+app.use(express.json());
+
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 100,
-  standardHeaders: true,
-  legacyHeaders: false,
-})
+});
+app.use(limiter as unknown as express.RequestHandler);
 
-app.use('/api/', limiter)
-
-app.use((req, res, next) => {
-  if (CRM_API_KEY && req.headers['x-crm-api-key'] !== CRM_API_KEY) {
-    res.status(401).json({ error: 'Invalid API key' })
-    return
+// Auth middleware
+const authenticate = (
+  req: express.Request,
+  res: express.Response,
+  next: express.NextFunction
+) => {
+  const apiKey = req.headers["x-api-key"] ?? req.headers["x-crm-api-key"];
+  if (CRM_API_KEY && apiKey !== CRM_API_KEY) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
   }
-  next()
-})
+  next();
+};
 
-const quotePayloadSchema = z.object({
-  loanAmount: z.number(),
-  interestRate: z.number(),
-  loanTermYears: z.number().optional(),
-  propertyValue: z.number().optional(),
-  downPayment: z.number().optional(),
-  metadata: z.record(z.any()).optional()
-})
+// Health check
+app.get("/health", (_req, res) => {
+  res.json({ status: "healthy", timestamp: new Date().toISOString() });
+});
 
-const statusPayloadSchema = z.object({
-  status: z.string(),
-  notes: z.string().optional()
-})
-
-async function getLoanIdForLead(leadId: string) {
-  const result = await pool.query(
-    `SELECT id FROM nyra_integration.loans WHERE twenty_lead_id = $1 ORDER BY created_at DESC LIMIT 1`,
-    [leadId]
-  )
-  return result.rows[0]?.id ?? null
-}
-
-async function enrollCampaign(contactLeadId: string, campaignName = 'New Lead Nurture') {
-  const query = `
-    INSERT INTO nyra_integration.campaign_enrollments (contact_id, campaign_name, status, channel_preferences)
-    SELECT id, $2, 'active', ARRAY['email','sms']::VARCHAR[]
-    FROM nyra_integration.lead_metadata
-    WHERE twenty_lead_id = $1
-    RETURNING *
-  `
-  const { rows } = await pool.query(query, [contactLeadId, campaignName])
-  return rows[0]
-}
-
-async function fetchQuoteEngine(input: QuoteInput) {
-  if (!QUOTE_ENGINE_URL) {
-    const monthlyRate = input.interestRate / 100 / 12
-    const months = (input.loanTermYears ?? 30) * 12
-    const payment =
-      (input.loanAmount * monthlyRate * Math.pow(1 + monthlyRate, months)) /
-      (Math.pow(1 + monthlyRate, months) - 1)
-    return {
-      ...input,
-      monthlyPayment: Math.round(payment * 100) / 100,
-      scenarios: [
-        {
-          label: 'Primary',
-          interestRate: input.interestRate,
-          monthlyPayment: Math.round(payment * 100) / 100
-        }
-      ]
-    }
-  }
-
-  const response = await fetch(`${QUOTE_ENGINE_URL.replace(/\/$/, '')}/api/quotes/generate`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(input)
-  })
-
-  if (!response.ok) {
-    throw new Error('Quote engine returned an error')
-  }
-
-  return response.json() as Promise<any>
-}
-
-function normalizePhone(phone: string) {
-  if (!phone) return null
-  const cleaned = phone.replace(/\D/g, '')
-  if (cleaned.length === 10) return '+1' + cleaned
-  return '+' + cleaned
-}
-
-function mapLoanPurpose(purpose: string) {
-  const p = (purpose || '').toUpperCase()
-  if (p.includes('PURCHASE')) return 'PURCHASE'
-  if (p.includes('CASH')) return 'REFI_CASH'
-  if (p.includes('REFI') || p.includes('RATE')) return 'REFI_RATE'
-  if (p.includes('HELOC')) return 'HELOC'
-  return 'PURCHASE'
-}
-
-// Canonical Lead Ingestion (PRD-001)
-app.post('/api/leads', async (req, res, next) => {
+// CRM Proxy Routes
+app.get("/api/leads", authenticate, async (req, res) => {
   try {
-    const raw = req.body
-    
-    // Normalize to E.164 and Micros (PRD-001)
-    const lead = {
-      firstName: raw.firstName || raw.first_name || raw.fname,
-      lastName: raw.lastName || raw.last_name || raw.lname,
-      email: raw.email || raw.email_address,
-      phone: normalizePhone(raw.phone || raw.phone_number),
-      loanPurpose: mapLoanPurpose(raw.loanPurpose || raw.loan_purpose || raw.loanType),
-      loanAmount: (parseFloat(raw.loanAmount || raw.loan_amount) || 0) * 10000, // micros
-      propertyState: raw.propertyState || raw.state || raw.property_state,
-      creditScore: parseInt(raw.creditScore || raw.credit_score || raw.fico) || null,
-      source: raw.source || 'ratehunter',
-      consentTimestamp: new Date().toISOString()
-    }
-
-    if (!lead.firstName || !lead.lastName || (!lead.email && !lead.phone)) {
-      res.status(400).json({ error: 'Missing required lead fields' })
-      return
-    }
-
-    // Deduplication Logic (PRD-001)
-    const existing = await twentyClient.searchContacts({
-      filter: {
-        or: [
-          lead.email ? { email: { eq: lead.email } } : null,
-          lead.phone ? { phoneNumber: { eq: lead.phone } } : null
-        ].filter((x): x is any => x !== null)
-      }
-    })
-
-    let personId: string
-    if (existing && existing.length > 0) {
-      personId = existing[0].id
-      await twentyClient.updateContact(personId, {
-        firstName: lead.firstName,
-        lastName: lead.lastName,
-        phoneNumber: lead.phone
-      })
-    } else {
-      const contact = await twentyClient.createContact({
-        name: `${lead.firstName} ${lead.lastName}`,
-        email: lead.email || '',
-        phone: lead.phone || '',
-        source: lead.source,
-        customFields: { firstName: lead.firstName, lastName: lead.lastName }
-      })
-      personId = contact.id
-    }
-
-    // Create MortgageLead (PRD-001)
-    const mortgageLead = await twentyClient.createMortgageLead({
-      personId,
-      loanPurpose: lead.loanPurpose,
-      loanAmount: lead.loanAmount,
-      propertyState: lead.propertyState,
-      source: lead.source,
-      campaignStatus: 'PENDING'
-    } as MortgageLeadInput)
-
-    // Trigger n8n Workflow
-    if (N8N_WEBHOOK_URL) {
-      fetch(`${N8N_WEBHOOK_URL.replace(/\/$/, '')}/webhook/lead-ingest`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...lead, mortgageLeadId: mortgageLead.id, personId })
-      }).catch(err => logger.error('Failed to trigger n8n', err))
-    }
-
-    res.status(201).json({ success: true, personId, mortgageLeadId: mortgageLead.id })
-  } catch (error) {
-    next(error)
-  }
-})
-
-// Quote Generation API (PRD-003)
-app.post('/api/quotes', async (req, res, next) => {
-  try {
-    const request = req.body
-    
-    // 1. Validate scenario
-    if (!request.leadId || !request.scenario?.loanAmount) {
-      res.status(400).json({ error: 'Invalid quote request' })
-      return
-    }
-
-    // 2. Delegate to Quote Engine (or internal logic)
-    const options = await fetchQuoteEngine(request.scenario)
-    
-    // 3. Create Quote in CRM as PENDING (PRD-003)
-    const quote = await twentyClient.createQuote({
-      leadId: request.leadId,
-      loanAmount: request.scenario.loanAmount * 10000, // micros
-      interestRate: options[0]?.rate || 0,
-      status: 'pending',
-      metadata: { options, scenario: request.scenario }
-    })
-
-    res.status(201).json(quote)
-  } catch (error) {
-    next(error)
-  }
-})
-
-app.post('/api/quotes/:id/approve', async (req, res, next) => {
-  try {
-    const { approvedBy } = req.body
-    const quoteId = req.params.id
-    
-    const quote = await twentyClient.request<{ updateQuote: any }>('updateQuoteStatus', {
-      id: quoteId,
-      input: { status: 'approved', approvedBy, approvedAt: new Date().toISOString() }
-    })
-    
-    res.json(quote)
-  } catch (error) {
-    next(error)
-  }
-})
-
-app.get('/api/leads', async (_req, res, next) => {
-  try {
-    const leads = await twentyClient.searchMortgageLeads({}, 100);
+    const limit = Number(req.query.limit ?? 50);
+    const leads = await twentyClient.searchContacts({ limit });
     res.json({ leads });
   } catch (error) {
-    next(error);
+    logger.error("Failed to fetch leads", { error });
+    res.status(500).json({ error: "Failed to fetch leads from CRM" });
   }
 });
 
-app.get('/api/leads/:id/conversation', async (req, res, next) => {
+app.get("/api/leads/:id", authenticate, async (req, res) => {
+  const id = parseIdParam(req.params.id);
   try {
-    const leadId = req.params.id
-    const dbRes = await pool.query('SELECT id FROM nyra_integration.lead_metadata WHERE twenty_lead_id = $1', [leadId])
-    const contactId = dbRes.rows[0]?.id
-    if (!contactId) {
-      res.status(404).json({ error: 'Lead metadata not found' })
-      return
+    const lead = await twentyClient.getContact(id);
+    if (!lead) {
+      res.status(404).json({ error: "Lead not found" });
+      return;
     }
 
-    const logs = await pool.query(
-      `SELECT channel, direction, content_preview, sent_at FROM nyra_integration.communication_logs WHERE contact_id = $1 ORDER BY sent_at DESC LIMIT 50`,
-      [contactId]
-    )
+    const [quotes, campaignEnrollments, auditEvents] = await Promise.all([
+      twentyClient.getQuotesForLead(id).catch(() => []),
+      twentyClient.getActiveCampaigns(id).catch(() => []),
+      auditLedger.listForEntity("LEAD", id, 25).catch(() => []),
+    ]);
 
-    const timeline = await twentyClient.timeline(leadId)
-
-    res.json({ logs: logs.rows, timeline })
+    res.json({
+      lead: {
+        ...lead,
+        quotes,
+        campaignEnrollments,
+        auditEvents,
+      },
+      source: "crm-api",
+    });
   } catch (error) {
-    next(error)
+    logger.error("Failed to fetch lead", { error, leadId: id });
+    res.status(500).json({ error: "Failed to fetch lead from CRM" });
   }
-})
+});
 
-app.post('/api/leads/:id/quote', async (req, res, next) => {
+app.get("/api/leads/:id/conversation", authenticate, async (req, res) => {
+  const id = parseIdParam(req.params.id);
   try {
-    const leadId = req.params.id
-    const parsed = quotePayloadSchema.parse(req.body)
-    const enriched = (await fetchQuoteEngine(parsed as any)) as any
+    const [logs, auditEvents] = await Promise.all([
+      twentyClient.timeline(id, 50).catch(() => []),
+      auditLedger.listForEntity("LEAD", id, 50).catch(() => []),
+    ]);
 
-    const quoteResult = await twentyClient.createQuote({
-      leadId,
-      loanAmount: enriched.loanAmount,
-      interestRate: enriched.interestRate,
-      loanTermYears: enriched.loanTermYears,
-      downPayment: enriched.downPayment,
-      propertyValue: enriched.propertyValue,
-      status: 'sent',
-      metadata: { scenarios: enriched.scenarios }
-    })
-
-    await pool.query(
-      `INSERT INTO nyra_integration.quotes (loan_id, twenty_lead_id, scenarios, status, metadata, sent_to_borrower)
-       VALUES ($1, $2, $3, 'sent', $4, true)`,
-      [await getLoanIdForLead(leadId), leadId, JSON.stringify(enriched.scenarios), JSON.stringify(enriched)]
-    )
-
-    res.status(201).json({ quote: quoteResult })
+    res.json({
+      logs,
+      auditEvents,
+      timeline: mergeTimeline(logs, auditEvents),
+      source: "crm-api",
+    });
   } catch (error) {
-    next(error)
+    logger.error("Failed to fetch lead conversation", {
+      error,
+      leadId: id,
+    });
+    res.status(500).json({ error: "Failed to fetch lead conversation" });
   }
-})
+});
 
-app.patch('/api/leads/:id/status', async (req, res, next) => {
+app.get("/api/dashboard/pipeline", authenticate, async (req, res) => {
   try {
-    const leadId = req.params.id
-    const parsed = statusPayloadSchema.parse(req.body)
+    const limit = Number(req.query.limit ?? 500);
+    const leads = await twentyClient.searchContacts({ limit });
+    const grouped = new Map<string, number>();
 
-    const update = await pool.query(
-      `UPDATE nyra_integration.loans SET status = $1, notes = COALESCE(notes || '\n', '') || $2 WHERE twenty_lead_id = $3 RETURNING *`,
-      [parsed.status, parsed.notes ?? '', leadId]
-    )
-
-    if (update.rowCount === 0) {
-      res.status(404).json({ error: 'Loan not found for lead' })
-      return
+    for (const lead of leads) {
+      const status = getPipelineStatus(lead);
+      grouped.set(status, (grouped.get(status) ?? 0) + 1);
     }
 
-    if (N8N_WEBHOOK_URL) {
-      await fetch(`${N8N_WEBHOOK_URL.replace(/\/$/, '')}/webhook/loan-status`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ leadId, status: parsed.status })
+    res.json({
+      pipeline: Array.from(grouped.entries()).map(([status, total]) => ({
+        campaign_name: "Mortgage workspace",
+        status,
+        total,
+        next_touch: null,
+      })),
+      source: "crm-api",
+    });
+  } catch (error) {
+    logger.error("Failed to fetch pipeline summary", { error });
+    res.status(500).json({ error: "Failed to fetch pipeline from CRM" });
+  }
+});
+
+app.post("/api/leads", authenticate, async (req, res) => {
+  try {
+    const input = z
+      .object({
+        name: z.string().min(1),
+        email: z.string().email(),
+        phone: z.string().min(1),
+        source: z.string().optional(),
+        customFields: z.record(z.string(), z.unknown()).optional(),
       })
+      .parse(req.body);
+    const result = await twentyClient.createContact(input);
+
+    // Log audit event
+    await auditLedger.log({
+      action: "LEAD_CREATE",
+      entityId: result.id,
+      entityType: "LEAD",
+      performer: "SYSTEM_API",
+      riskLevel: "INTERNAL_MUTATION",
+      occurredAt: new Date().toISOString(),
+    });
+
+    res.status(201).json(result);
+  } catch (error) {
+    logger.error("Failed to create lead", { error });
+    res.status(500).json({ error: "Failed to create lead in CRM" });
+  }
+});
+
+async function handleCrmWritePlan(req: express.Request, res: express.Response) {
+  try {
+    const plan = getCrmWritePlan(req.body);
+    if (!plan) {
+      res.status(400).json({
+        error: "CrmWritePlan is required",
+        detail:
+          "Submit the normalized lead-ingestion result as { crmWritePlan } or a raw CrmWritePlan.",
+      });
+      return;
     }
 
-    res.json({ loan: update.rows[0] })
+    const result = await executeCrmWritePlan(
+      plan,
+      {
+        createContact: (payload) => twentyClient.createContact(payload as any),
+        updateContact: (id, payload) => twentyClient.updateContact(id, payload),
+        searchContacts: (options) => twentyClient.searchContacts(options),
+        enrollCampaign: (input) => twentyClient.enrollCampaign(input),
+        logCommunication: (input) =>
+          twentyClient.logCommunication(input as any),
+        createQuote: (input) => twentyClient.createQuote(input as any),
+      },
+      auditLedger
+    );
+
+    res.status(202).json(result);
   } catch (error) {
-    next(error)
+    logger.error("Failed to execute CRM write plan", { error });
+    res.status(500).json({ error: "Failed to execute CRM write plan" });
   }
-})
+}
 
-app.patch('/api/leads/:id/campaign', async (req, res, next) => {
+app.post("/api/leads/ingest", authenticate, handleCrmWritePlan);
+app.post("/api/crm/write-plan", authenticate, handleCrmWritePlan);
+
+app.patch("/api/leads/:id/campaign", authenticate, async (req, res) => {
+  const id = parseIdParam(req.params.id);
   try {
-    const { status } = req.body
-    const leadId = req.params.id
+    const status = z.string().min(1).parse(req.body?.status);
+    const result = await twentyClient.updateContact(id, {
+      customFields: {
+        campaignStatus: status,
+        campaignUpdatedAt: new Date().toISOString(),
+      },
+    });
 
-    const update = await twentyClient.updateMortgageLead(leadId, {
-      campaignStatus: status
-    })
+    await auditLedger.log({
+      action: "CAMPAIGN_STATUS_UPDATED",
+      entityId: id,
+      entityType: "LEAD",
+      performer: "crm-api",
+      riskLevel: "INTERNAL_MUTATION",
+      details: { status },
+      occurredAt: new Date().toISOString(),
+    });
 
-    if (N8N_WEBHOOK_URL) {
-      fetch(`${N8N_WEBHOOK_URL.replace(/\/$/, '')}/webhook/campaign-control`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ leadId, status })
-      }).catch(err => logger.error('Failed to trigger n8n campaign-control', err))
+    res.json({ success: true, lead: result, source: "crm-api" });
+  } catch (error) {
+    logger.error("Failed to update lead campaign status", {
+      error,
+      leadId: id,
+    });
+    res.status(500).json({ error: "Failed to update lead campaign status" });
+  }
+});
+
+// Quote Engine Proxy
+app.post("/api/quotes/generate", authenticate, async (req, res) => {
+  try {
+    const input = req.body as QuoteInput;
+    const quote = await fetchQuoteEngine(input);
+    res.json(quote);
+  } catch (error) {
+    logger.error("Quote generation failed", { error });
+    res.status(502).json({
+      error: "Quote engine unavailable",
+      detail:
+        "Deterministic pricing shard is offline. Manual override required.",
+    });
+  }
+});
+
+app.post("/api/quotes/:id/approve", authenticate, async (req, res) => {
+  const id = parseIdParam(req.params.id);
+  try {
+    const approvedBy =
+      typeof req.body?.approvedBy === "string" ? req.body.approvedBy : "broker";
+    const quote = await twentyClient.request("updateQuoteStatus", {
+      id,
+      input: {
+        status: "APPROVED",
+        approvedBy,
+        approvedAt: new Date().toISOString(),
+      },
+    });
+
+    await auditLedger.log({
+      action: "QUOTE_APPROVED",
+      entityId: id,
+      entityType: "QUOTE",
+      performer: approvedBy,
+      riskLevel: "INTERNAL_MUTATION",
+      occurredAt: new Date().toISOString(),
+    });
+
+    res.json({ quote, source: "crm-api" });
+  } catch (error) {
+    logger.error("Failed to approve quote", { error, quoteId: id });
+    res.status(500).json({ error: "Failed to approve quote" });
+  }
+});
+
+async function fetchQuoteEngine(input: QuoteInput) {
+  // Fixed: Fail closed when the quote engine is unavailable.
+  // Removed local calculation fallback to prevent AI-generated term fabrication.
+  if (!QUOTE_ENGINE_URL) {
+    throw new Error(
+      "QUOTE_ENGINE_URL is not configured. Deterministic math required."
+    );
+  }
+
+  const response = await fetch(
+    `${QUOTE_ENGINE_URL.replace(/\/$/, "")}/api/quotes/generate`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(input),
     }
+  );
 
-    res.json({ success: true, update })
-  } catch (error) {
-    next(error)
+  if (!response.ok) {
+    throw new Error(`Quote engine returned status ${response.status}`);
   }
-})
 
-app.get('/api/dashboard/pipeline', async (_req, res, next) => {
-  try {
-    const query = `
-      SELECT campaign_name, status, COUNT(*)::int AS total, MAX(next_touch) AS next_touch
-      FROM nyra_integration.campaign_enrollments
-      GROUP BY campaign_name, status
-      ORDER BY campaign_name, status
-    `
-    const { rows } = await pool.query(query)
-    res.json({ pipeline: rows })
-  } catch (error) {
-    next(error)
+  return response.json() as Promise<unknown>;
+}
+
+function getCrmWritePlan(body: unknown): CrmWritePlan | undefined {
+  if (!body || typeof body !== "object") {
+    return undefined;
   }
-})
 
-const webhookSchema = z.object({
-  leadId: z.string(),
-  payload: z.record(z.any())
-})
+  const candidate = body as { crmWritePlan?: unknown; lead?: unknown };
+  const plan = candidate.crmWritePlan ?? body;
 
-app.post('/webhooks/twenty/contact-created', async (req, res, next) => {
-  try {
-    const parsed = webhookSchema.parse(req.body)
-    await enrollCampaign(parsed.leadId, 'New Lead Nurture')
-    res.json({ success: true })
-  } catch (error) {
-    next(error)
+  if (!plan || typeof plan !== "object" || !("lead" in plan)) {
+    return undefined;
   }
-})
 
-app.post('/webhooks/twenty/loan-status', async (req, res, next) => {
-  try {
-    const parsed = webhookSchema.parse(req.body)
-    const status = parsed.payload?.status
-    if (status) {
-      await pool.query('UPDATE nyra_integration.loans SET status = $1 WHERE twenty_lead_id = $2', [status, parsed.leadId])
-    }
-    res.json({ success: true })
-  } catch (error) {
-    next(error)
-  }
-})
+  return plan as CrmWritePlan;
+}
 
-app.post('/webhooks/twenty/contact-updated', (_req, res) => {
-  res.json({ success: true })
-})
+function parseIdParam(value: string | undefined): string {
+  return z.string().min(1).parse(value);
+}
 
-app.post('/api/campaigns', async (req, res, next) => {
-  try {
-    const { name, steps, loanPurpose } = req.body
-    const campaign = await twentyClient.request<{ createCampaign: any }>('createCampaign', {
-      input: { name, steps: JSON.stringify(steps), loanPurpose, active: true }
-    })
-    res.status(201).json(campaign)
-  } catch (error) {
-    next(error)
-  }
-})
+function getPipelineStatus(lead: Record<string, unknown>): string {
+  const customFields = lead.customFields;
+  const customStatus =
+    customFields &&
+    typeof customFields === "object" &&
+    "campaignStatus" in customFields
+      ? (customFields as Record<string, unknown>).campaignStatus
+      : undefined;
 
-app.get('/api/campaigns/:id', async (req, res, next) => {
-  try {
-    const campaign = await twentyClient.request<{ campaign: any }>('getCampaign', { id: req.params.id })
-    res.json(campaign)
-  } catch (error) {
-    next(error)
-  }
-})
+  return String(customStatus ?? lead.status ?? "UNASSIGNED");
+}
 
-app.get('/api/campaigns', async (_req, res, next) => {
-  try {
-    const campaigns = await twentyClient.request<{ campaigns: any[] }>('getCampaigns', {})
-    res.json({ campaigns })
-  } catch (error) {
-    next(error)
-  }
-})
+function mergeTimeline(logs: unknown[], auditEvents: unknown[]) {
+  return [
+    ...logs.map((entry) => ({ type: "communication", entry })),
+    ...auditEvents.map((entry) => ({ type: "audit", entry })),
+  ];
+}
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-app.use((error: unknown, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
-  logger.error('Unhandled error', error)
-  res.status(500).json({ error: 'Internal server error' })
-})
+const server = app.listen(PORT, () => {
+  logger.info(`CRM API listening on port ${PORT}`);
+});
 
-app.listen(Number(PORT), () => {
-  logger.info(`Nyra CRM API listening on http://localhost:${PORT}`)
-})
+export default server;

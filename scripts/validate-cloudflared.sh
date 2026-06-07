@@ -26,10 +26,10 @@ run_validate() {
   echo "Validating ${cfg}"
   if command -v cloudflared >/dev/null 2>&1; then
     cloudflared tunnel ingress validate --config "$CF_DIR/$cfg"
-    cloudflared tunnel ingress rule https://nyra.ratehunter.net --config "$CF_DIR/$cfg" >/dev/null || true
+    cloudflared tunnel ingress rule https://app.projectnyra.com --config "$CF_DIR/$cfg" >/dev/null || true
   elif command -v docker >/dev/null 2>&1; then
     validate_with_docker "$cfg"
-    validate_rule_with_docker "$cfg" "https://nyra.ratehunter.net" || true
+    validate_rule_with_docker "$cfg" "https://app.projectnyra.com" || true
   else
     echo "ERROR: neither cloudflared nor docker is available for validation." >&2
     exit 1

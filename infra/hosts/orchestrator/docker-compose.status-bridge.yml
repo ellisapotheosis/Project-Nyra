@@ -1,0 +1,27 @@
+services:
+  nyra-status-bridge:
+    build:
+      context: ../../..
+      dockerfile: services/status-bridge/Dockerfile
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-status-bridge
+    restart: unless-stopped
+    environment:
+      NYRA_STATUS_BRIDGE_INTERNAL_PORT: ${NYRA_STATUS_BRIDGE_INTERNAL_PORT:-8787}
+      NYRA_STATUS_BRIDGE_TOKEN: ${NYRA_STATUS_BRIDGE_TOKEN:?set NYRA_STATUS_BRIDGE_TOKEN}
+      NYRA_SERVICE_REGISTRY_PATH: /app/infra/service-registry.yaml
+    ports:
+      - "8787:8787"
+    volumes:
+      - ../../service-registry.yaml:/app/infra/service-registry.yaml:ro
+    networks:
+      - nyra-network
+    labels:
+      nyra.host: orchestrator
+      nyra.category: ops
+      nyra.ui: "false"
+      nyra.public_url: https://status.projectnyra.com
+
+networks:
+  nyra-network:
+    external: true
+    name: nyra-network_nyra-network

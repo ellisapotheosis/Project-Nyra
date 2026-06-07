@@ -1,4 +1,5 @@
-import { Twilio } from 'twilio';
+import { Twilio } from "twilio";
+import { Request } from "express";
 
 export interface TwilioConfig {
   accountSid: string;
@@ -35,9 +36,9 @@ export interface VoiceCallParams {
   to: string;
   from: string;
   url: string;
-  method?: 'GET' | 'POST';
+  method?: "GET" | "POST";
   statusCallback?: string;
-  statusCallbackMethod?: 'GET' | 'POST';
+  statusCallbackMethod?: "GET" | "POST";
   timeout?: number;
   record?: boolean;
   recordingStatusCallback?: string;
@@ -65,7 +66,7 @@ export interface IVRConfig {
 
 export interface IVRMenuOption {
   digit: string;
-  action: 'forward' | 'voicemail' | 'hangup' | 'submenu' | 'queue';
+  action: "forward" | "voicemail" | "hangup" | "submenu" | "queue";
   destination?: string;
   message?: string;
   submenu?: IVRConfig;
@@ -90,7 +91,7 @@ export interface ConversationMessage {
   from: string;
   to: string;
   body: string;
-  direction: 'inbound' | 'outbound';
+  direction: "inbound" | "outbound";
   status: string;
   timestamp: Date;
   mediaUrls?: string[];
@@ -100,7 +101,7 @@ export interface Conversation {
   id: string;
   phoneNumber: string;
   contactName?: string;
-  status: 'active' | 'closed';
+  status: "active" | "closed";
   messages: ConversationMessage[];
   startedAt: Date;
   lastMessageAt: Date;
@@ -117,7 +118,7 @@ export interface PhoneNumber {
     mms: boolean;
     fax: boolean;
   };
-  status: 'active' | 'inactive';
+  status: "active" | "inactive";
   dateCreated: Date;
   monthlyPrice?: string;
   priceUnit?: string;
@@ -191,7 +192,7 @@ export interface CostTracking {
   totalCost: number;
 }
 
-export interface TwilioWebhookRequest extends Express.Request {
+export interface TwilioWebhookRequest extends Request {
   twilioSignature?: string;
   body: WebhookPayload;
 }

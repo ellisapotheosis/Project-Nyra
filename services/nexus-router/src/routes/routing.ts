@@ -1,15 +1,19 @@
-import { Router, Request, Response } from 'express';
-import { z } from 'zod';
-import { WorkerManager } from '../services/worker-manager';
-import { RedisClient } from '../services/redis-client';
-import { createLogger } from '../utils/logger';
-import { config } from '../config';
+import { Router, Request, Response } from "express";
+import { z } from "zod";
+import { WorkerManager } from "../services/worker-manager";
+import { RedisClient } from "../services/redis-client";
+import { createLogger } from "../utils/logger";
+import { config } from "../config";
 
-const logger = createLogger('routing-route');
+const logger = createLogger("routing-route");
 const router = Router();
 
 // Zod Schemas for validation
-const RoutingStrategySchema = z.enum(['cost-optimized', 'latency-optimized', 'quality-optimized']);
+const RoutingStrategySchema = z.enum([
+  "cost-optimized",
+  "latency-optimized",
+  "quality-optimized",
+]);
 
 const RoutingConfigSchema = z.object({
   strategy: RoutingStrategySchema.optional(),
@@ -20,7 +24,13 @@ const RoutingConfigSchema = z.object({
 
 const CustomRoutingRuleSchema = z.object({
   pattern: z.string().min(1),
-  targetProvider: z.enum(['local', 'openai', 'google-gemini', 'anthropic', 'openrouter']),
+  targetProvider: z.enum([
+    "local",
+    "openai",
+    "google-gemini",
+    "anthropic",
+    "openrouter",
+  ]),
   targetModel: z.string().optional(),
   priority: z.number().int().default(0),
   enabled: z.boolean().default(true),
@@ -28,11 +38,15 @@ const CustomRoutingRuleSchema = z.object({
 
 const SimulateRequestSchema = z.object({
   model: z.string(),
-  taskType: z.enum(['reasoning', 'analysis', 'coding', 'general']).optional(),
-  messages: z.array(z.object({
-    role: z.enum(['system', 'user', 'assistant']),
-    content: z.string(),
-  })).optional(),
+  taskType: z.enum(["reasoning", "analysis", "coding", "general"]).optional(),
+  messages: z
+    .array(
+      z.object({
+        role: z.enum(["system", "user", "assistant"]),
+        content: z.string(),
+      })
+    )
+    .optional(),
 });
 
 export type RoutingConfig = z.infer<typeof RoutingConfigSchema>;
@@ -40,17 +54,22 @@ export type CustomRoutingRule = z.infer<typeof CustomRoutingRuleSchema>;
 export type SimulateRequest = z.infer<typeof SimulateRequestSchema>;
 
 // In-memory storage for custom rules (could be moved to Redis for persistence)
-const customRules: Map<string, CustomRoutingRule & { id: string; createdAt: Date }> = new Map();
+const customRules: Map<
+  string,
+  CustomRoutingRule & { id: string; createdAt: Date }
+> = new Map();
 
 /**
  * GET /api/routing/config
  * Get current routing configuration
  */
-router.get('/config', async (_req: Request, res: Response) => {
+router.get("/config", async (_req: Request, res: Response) => {
   try {
     const workerManager = WorkerManager.getInstance();
     const currentConfig = workerManager.getRoutingConfig();
-    const rules = Array.from(customRules.values()).sort((a, b) => b.priority - a.priority);
+    const rules = Array.from(customRules.values()).sort(
+      (a, b) => b.priority - a.priority
+    );
 
     res.json({
       config: currentConfig,
@@ -62,10 +81,10 @@ router.get('/config', async (_req: Request, res: Response) => {
       },
     });
   } catch (error) {
-    logger.error('Error getting routing config:', error);
+    logger.error("Error getting routing config:", error);
     res.status(500).json({
-      error: 'Failed to retrieve routing configuration',
-      message: error instanceof Error ? error.message : 'Unknown error',
+      error: "Failed to retrieve routing configuration",
+      message: error instanceof Error ? error.message : "Unknown error",
     });
   }
 });
@@ -74,7 +93,7 @@ router.get('/config', async (_req: Request, res: Response) => {
  * PATCH /api/routing/config
  * Update routing configuration
  */
-router.patch('/config', async (req: Request, res: Response) => {
+router.patch("/config", async (req: Request, res: Response) => {
   try {
     const validatedConfig = RoutingConfigSchema.parse(req.body);
     const workerManager = WorkerManager.getInstance();
@@ -86,32 +105,32 @@ router.patch('/config', async (req: Request, res: Response) => {
     const redis = RedisClient.getInstance();
     if (redis.isConnected()) {
       await redis.set(
-        'routing:config',
+        "routing:config",
         JSON.stringify(validatedConfig),
         3600 * 24 * 30 // 30 days TTL
       );
     }
 
-    logger.info('Routing configuration updated:', validatedConfig);
+    logger.info("Routing configuration updated:", validatedConfig);
 
     res.json({
       success: true,
       config: workerManager.getRoutingConfig(),
-      message: 'Routing configuration updated successfully',
+      message: "Routing configuration updated successfully",
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
       res.status(400).json({
-        error: 'Validation error',
-        details: error.errors,
+        error: "Validation error",
+        details: error.issues,
       });
       return;
     }
 
-    logger.error('Error updating routing config:', error);
+    logger.error("Error updating routing config:", error);
     res.status(500).json({
-      error: 'Failed to update routing configuration',
-      message: error instanceof Error ? error.message : 'Unknown error',
+      error: "Failed to update routing configuration",
+      message: error instanceof Error ? error.message : "Unknown error",
     });
   }
 });
@@ -120,7 +139,7 @@ router.patch('/config', async (req: Request, res: Response) => {
  * POST /api/routing/rules
  * Add a custom routing rule
  */
-router.post('/rules', async (req: Request, res: Response) => {
+router.post("/rules", async (req: Request, res: Response) => {
   try {
     const validatedRule = CustomRoutingRuleSchema.parse(req.body);
 
@@ -146,7 +165,11 @@ router.post('/rules', async (req: Request, res: Response) => {
 
       // Store rule IDs list
       const ruleIds = Array.from(customRules.keys());
-      await redis.set('routing:rule:ids', JSON.stringify(ruleIds), 3600 * 24 * 30);
+      await redis.set(
+        "routing:rule:ids",
+        JSON.stringify(ruleIds),
+        3600 * 24 * 30
+      );
     }
 
     logger.info(`Custom routing rule created: ${id}`, validatedRule);
@@ -154,21 +177,21 @@ router.post('/rules', async (req: Request, res: Response) => {
     res.status(201).json({
       success: true,
       rule: ruleWithMetadata,
-      message: 'Custom routing rule created successfully',
+      message: "Custom routing rule created successfully",
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
       res.status(400).json({
-        error: 'Validation error',
-        details: error.errors,
+        error: "Validation error",
+        details: error.issues,
       });
       return;
     }
 
-    logger.error('Error creating routing rule:', error);
+    logger.error("Error creating routing rule:", error);
     res.status(500).json({
-      error: 'Failed to create routing rule',
-      message: error instanceof Error ? error.message : 'Unknown error',
+      error: "Failed to create routing rule",
+      message: error instanceof Error ? error.message : "Unknown error",
     });
   }
 });
@@ -177,13 +200,13 @@ router.post('/rules', async (req: Request, res: Response) => {
  * DELETE /api/routing/rules/:id
  * Delete a custom routing rule
  */
-router.delete('/rules/:id', async (req: Request, res: Response) => {
+router.delete("/rules/:id", async (req: Request, res: Response) => {
   try {
-    const { id } = req.params;
+    const id = String(req.params.id);
 
     if (!customRules.has(id)) {
       res.status(404).json({
-        error: 'Rule not found',
+        error: "Rule not found",
         message: `No routing rule found with id: ${id}`,
       });
       return;
@@ -199,7 +222,11 @@ router.delete('/rules/:id', async (req: Request, res: Response) => {
 
       // Update rule IDs list
       const ruleIds = Array.from(customRules.keys());
-      await redis.set('routing:rule:ids', JSON.stringify(ruleIds), 3600 * 24 * 30);
+      await redis.set(
+        "routing:rule:ids",
+        JSON.stringify(ruleIds),
+        3600 * 24 * 30
+      );
     }
 
     logger.info(`Custom routing rule deleted: ${id}`);
@@ -207,13 +234,13 @@ router.delete('/rules/:id', async (req: Request, res: Response) => {
     res.json({
       success: true,
       deletedRule,
-      message: 'Routing rule deleted successfully',
+      message: "Routing rule deleted successfully",
     });
   } catch (error) {
-    logger.error('Error deleting routing rule:', error);
+    logger.error("Error deleting routing rule:", error);
     res.status(500).json({
-      error: 'Failed to delete routing rule',
-      message: error instanceof Error ? error.message : 'Unknown error',
+      error: "Failed to delete routing rule",
+      message: error instanceof Error ? error.message : "Unknown error",
     });
   }
 });
@@ -222,7 +249,7 @@ router.delete('/rules/:id', async (req: Request, res: Response) => {
  * GET /api/routing/simulate
  * Simulate routing for a request without executing it
  */
-router.get('/simulate', async (req: Request, res: Response) => {
+router.get("/simulate", async (req: Request, res: Response) => {
   try {
     // Parse query parameters
     const model = req.query.model as string;
@@ -230,8 +257,8 @@ router.get('/simulate', async (req: Request, res: Response) => {
 
     if (!model) {
       res.status(400).json({
-        error: 'Validation error',
-        message: 'model parameter is required',
+        error: "Validation error",
+        message: "model parameter is required",
       });
       return;
     }
@@ -295,16 +322,16 @@ router.get('/simulate', async (req: Request, res: Response) => {
   } catch (error) {
     if (error instanceof z.ZodError) {
       res.status(400).json({
-        error: 'Validation error',
-        details: error.errors,
+        error: "Validation error",
+        details: error.issues,
       });
       return;
     }
 
-    logger.error('Error simulating routing:', error);
+    logger.error("Error simulating routing:", error);
     res.status(500).json({
-      error: 'Failed to simulate routing',
-      message: error instanceof Error ? error.message : 'Unknown error',
+      error: "Failed to simulate routing",
+      message: error instanceof Error ? error.message : "Unknown error",
     });
   }
 });
@@ -312,7 +339,9 @@ router.get('/simulate', async (req: Request, res: Response) => {
 /**
  * Helper function to find matching custom routing rule
  */
-function findMatchingRule(model: string): (CustomRoutingRule & { id: string }) | null {
+function findMatchingRule(
+  model: string
+): (CustomRoutingRule & { id: string }) | null {
   const enabledRules = Array.from(customRules.values())
     .filter((rule) => rule.enabled)
     .sort((a, b) => b.priority - a.priority);
@@ -320,7 +349,7 @@ function findMatchingRule(model: string): (CustomRoutingRule & { id: string }) |
   for (const rule of enabledRules) {
     try {
       // Try regex match first
-      const regex = new RegExp(rule.pattern, 'i');
+      const regex = new RegExp(rule.pattern, "i");
       if (regex.test(model)) {
         return rule;
       }
@@ -342,14 +371,14 @@ export async function initializeRoutingRules(): Promise<void> {
   try {
     const redis = RedisClient.getInstance();
     if (!redis.isConnected()) {
-      logger.info('Redis not connected, skipping routing rules initialization');
+      logger.info("Redis not connected, skipping routing rules initialization");
       return;
     }
 
     // Load rule IDs
-    const ruleIdsJson = await redis.get('routing:rule:ids');
+    const ruleIdsJson = await redis.get("routing:rule:ids");
     if (!ruleIdsJson) {
-      logger.info('No custom routing rules found in Redis');
+      logger.info("No custom routing rules found in Redis");
       return;
     }
 
@@ -369,7 +398,7 @@ export async function initializeRoutingRules(): Promise<void> {
 
     logger.info(`Loaded ${customRules.size} custom routing rules from Redis`);
   } catch (error) {
-    logger.error('Error initializing routing rules:', error);
+    logger.error("Error initializing routing rules:", error);
   }
 }
 

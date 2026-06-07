@@ -1,19 +1,55 @@
 {
   "general": {
     "defaultApprovalMode": "auto_edit",
+    "autonomousMode": true,
+    "yoloMode": true,
     "enableNotifications": true
   },
+  "tools": {
+    "shell": {
+      "enableInteractiveShell": true,
+      "showColor": true,
+      "pager": "cat",
+      "dangerouslySkipPrompts": true
+    },
+    "fileSystem": {
+      "dangerouslySkipPrompts": true
+    },
+    "disableLLMCorrection": false
+  },
+  "security": {
+    "auth": {},
+    "disableYoloMode": false,
+    "toolSandboxing": false,
+    "enablePermanentToolApproval": true,
+    "skipPermissionChecks": true,
+    "autoAddToPolicyByDefault": true
+  },
+  "hooksConfig": {
+    "enabled": true
+  },
+  "mcpServers": {
+    "nexus-router": {
+      "type": "http",
+      "url": "https://nexus.trex-fiordland.ts.net/mcp",
+      "startup_timeout_sec": 90
+    }
+  },
   "ui": {
-    "inlineThinkingMode": "full",
+    "inlineThinkingMode": "off",
     "showStatusInTitle": true,
     "footer": {
+      "hideSandboxStatus": false,
       "hideContextPercentage": false
     },
     "showMemoryUsage": true,
     "showLineNumbers": false,
+    "showCitations": false,
     "showModelInfoInChat": true,
+    "useAlternateBuffer": true,
     "terminalBuffer": true,
-    "loadingPhrases": "tips"
+    "loadingPhrases": "tips",
+    "errorVerbosity": "full"
   },
   "context": {
     "loadMemoryFromIncludeDirectories": true,
@@ -21,20 +57,15 @@
       "respectGitIgnore": false
     }
   },
-  "tools": {
-    "sandboxNetworkAccess": true
-  },
-  "security": {
-    "enablePermanentToolApproval": true,
-    "autoAddToPolicyByDefault": true
-  },
   "experimental": {
-    "worktrees": true,
+    "voiceMode": true,
+    "voice": {
+      "backend": "whisper",
+      "whisperModel": "ggml-large-v3-turbo-q8_0.bin"
+    },
     "modelSteering": true,
-    "directWebFetch": false,
-    "memoryManager": true,
+    "autoMemory": true,
     "generalistProfile": true,
-    "contextManagement": true,
-    "topicUpdateNarration": true
+    "contextManagement": true
   }
 }

@@ -1,41 +1,21 @@
 # Oracle VPS Host
 
-## Role
+Oracle VPS is the canonical always-on host for Project Nyra server workloads, including Twenty CRM, Gitea, memory services, and public/private ingress support.
 
-- External cloud host.
-- Intended for internet-facing and persistent core services that should not depend on local LAN availability.
+## Secrets Contract
 
-## Portainer stack inputs
+Do not create or depend on repo-local `.env` files in this directory. Runtime secrets belong in Infisical and are injected at process start by repo-root Makefile targets.
 
-- `infra/oracle/docker-compose.oracle.yml`
+The expected flow is:
 
-## AgentMemory
+1. The operator or agent runs `make <target>` from the repo root.
+2. The Makefile sources `~/.zsh/99-secrets.zsh` only when the current shell has no `INFISICAL_TOKEN`.
+3. The Makefile runs `infisical run --projectId ... --env ... --path /machines/oracle-vps -- docker --context oracle compose --env-file /dev/null ...`.
+4. Docker Compose receives secrets only through that `infisical run` environment.
+5. Host services that need sidecar secrets use the `secrets-init` / `infisical-agent` volume pattern defined in compose, not checked-in or local `.env` files.
 
-- Compose override: [docker-compose.agentmemory.yml](/home/ellisapotheosis/repos/project-nyra/infra/hosts/oracle-vps/docker-compose.agentmemory.yml)
-- Build wrapper: [agentmemory/Dockerfile](/home/ellisapotheosis/repos/project-nyra/infra/hosts/oracle-vps/agentmemory/Dockerfile)
-- Client wiring guide: [AGENTMEMORY-CLIENTS.md](/home/ellisapotheosis/repos/project-nyra/infra/hosts/oracle-vps/AGENTMEMORY-CLIENTS.md)
+The only local secret-bearing file for normal operations should be the user shell secret file outside the repo: `~/.zsh/99-secrets.zsh`.
 
-Recommended private exposure pattern:
+## Gitea
 
-- bind `AGENTMEMORY_BIND_IP` to the Oracle host's Tailscale IP
-- keep the REST/viewer ports off public `0.0.0.0`
-- share the single Oracle endpoint with Hermes, Claude Code, Gemini CLI, Codex CLI, and other MCP-capable agents via `AGENTMEMORY_URL`
-
-Current Oracle Tailscale target:
-
-- `100.64.0.3`
-- `oracle.trex-fiordland.ts.net`
-
-Launch example:
-
-```bash
-docker compose \
-  -f infra/hosts/oracle-vps/docker-compose.yml \
-  -f infra/hosts/oracle-vps/docker-compose.agentmemory.yml \
-  up -d agentmemory
-```
-
-## Guardrails
-
-- Keep secrets out of repo (`.env`, certs, keys).
-- Document exposed ports and DNS mapping in `docs/infra/` and `docs/network/`.
+Gitea is managed through `make gitea-up`, `make gitea-down`, and `make gitea-ps`. Its secret path is `/clients/gitea` in Infisical for service credentials and `/machines/oracle-vps` for host-level runtime composition.

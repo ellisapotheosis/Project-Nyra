@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from "zod";
 
 // ============================================================================
 // OAuth2 Configuration Types
@@ -13,7 +13,7 @@ export const OAuth2ConfigSchema = z.object({
   cacheJwks: z.boolean().default(true),
   jwksCacheTtl: z.number().default(3600000), // 1 hour
   clockTolerance: z.number().default(60), // 60 seconds
-  algorithms: z.array(z.string()).default(['RS256', 'RS384', 'RS512']),
+  algorithms: z.array(z.string()).default(["RS256", "RS384", "RS512"]),
 });
 
 export type OAuth2Config = z.infer<typeof OAuth2ConfigSchema>;
@@ -54,9 +54,7 @@ export const PermissionOverrideSchema = z.object({
 export const ToolPermissionsSchema = z.object({
   allowGroups: z.array(z.string()).default([]),
   denyGroups: z.array(z.string()).default([]),
-  toolOverrides: z
-    .record(z.string(), PermissionOverrideSchema)
-    .default({}),
+  toolOverrides: z.record(z.string(), PermissionOverrideSchema).default({}),
 });
 
 export const PermissionsMatrixSchema = z.record(
@@ -80,7 +78,7 @@ export const UserGroupSchema = z.object({
   memberCount: z.number().default(0),
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
-  metadata: z.record(z.any()).optional(),
+  metadata: z.record(z.string(), z.any()).optional(),
 });
 
 export type UserGroup = z.infer<typeof UserGroupSchema>;
@@ -103,7 +101,7 @@ export interface AuthorizationDecision {
   reason?: string;
   matchedGroups?: string[];
   deniedBy?: string;
-  appliedRule?: 'allow' | 'deny' | 'default';
+  appliedRule?: "allow" | "deny" | "default";
 }
 
 // ============================================================================
@@ -113,11 +111,11 @@ export interface AuthorizationDecision {
 export interface SecurityAuditLog {
   id: string;
   timestamp: string;
-  eventType: 'auth' | 'access' | 'config_change' | 'violation';
+  eventType: "auth" | "access" | "config_change" | "violation";
   userId?: string;
   action: string;
   resource?: string;
-  result: 'success' | 'failure' | 'denied';
+  result: "success" | "failure" | "denied";
   reason?: string;
   ipAddress?: string;
   userAgent?: string;

@@ -3,6 +3,7 @@ FROM node:20-alpine
 ENV NODE_ENV=production
 WORKDIR /app
 
+COPY package.json ./
 COPY tsconfig.base.json ./
 COPY pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY services/crm-api/package.json services/crm-api/tsconfig.json ./services/crm-api/

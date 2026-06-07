@@ -113,6 +113,7 @@ infisical init
 ```
 
 This script creates:
+
 - Environment-specific secrets for each PC
 - Docker environment files
 - Access policies and role bindings
@@ -170,6 +171,7 @@ export CLOUDFLARE_ZONE_ID="your-zone-id"
 ```
 
 This creates:
+
 - Cloudflared tunnels for each PC
 - DNS records pointing to tunnels
 - Tunnel credentials stored in Infisical
@@ -193,6 +195,7 @@ infisical run --env=production --path=/nyra/orchestrator -- \
 ### Worker PC Deployment
 
 **Worker 1 (RTX 3060):**
+
 ```bash
 export NYRA_PC_ID=worker-1
 export NYRA_ENVIRONMENT=production
@@ -203,6 +206,7 @@ infisical run --env=production --path=/nyra/worker-1 -- \
 ```
 
 **Worker 2 (RTX 5090):**
+
 ```bash
 export NYRA_PC_ID=worker-2
 export NYRA_ENVIRONMENT=production
@@ -213,6 +217,7 @@ infisical run --env=production --path=/nyra/worker-2 -- \
 ```
 
 **Worker 3 (RTX 3090Ti):**
+
 ```bash
 export NYRA_PC_ID=worker-3
 export NYRA_ENVIRONMENT=production
@@ -300,12 +305,14 @@ infisical run --env=production -- \
 Each PC has its own environment configuration stored in Infisical:
 
 **Orchestrator:**
+
 - Database connection strings
 - Master API keys
 - Cluster coordination secrets
 - Web UI configuration
 
 **Worker PCs:**
+
 - GPU-specific settings
 - Worker authentication tokens
 - Resource allocation limits
@@ -314,6 +321,7 @@ Each PC has its own environment configuration stored in Infisical:
 ### Docker Compose Profiles
 
 Services are organized by deployment profiles:
+
 - `orchestrator`: Main coordination services
 - `worker-1`, `worker-2`, `worker-3`: Worker-specific services
 - `shared`: Database and storage services
@@ -340,6 +348,7 @@ Services are organized by deployment profiles:
 ### Common Issues
 
 **1. Infisical Authentication Fails**
+
 ```bash
 # Re-authenticate
 infisical login --interactive
@@ -349,6 +358,7 @@ infisical secrets get __health_check__
 ```
 
 **2. Docker Containers Not Starting**
+
 ```bash
 # Check secret injection
 infisical run --env=production --path=/nyra/orchestrator -- env | grep NYRA
@@ -358,6 +368,7 @@ docker-compose -f docker-compose.infisical.yml logs infisical-mcp
 ```
 
 **3. Tunnel Connection Issues**
+
 ```bash
 # Check tunnel status
 cloudflared tunnel list
@@ -366,10 +377,11 @@ cloudflared tunnel list
 cloudflared tunnel --config /path/to/config.yml ingress validate
 
 # Check DNS propagation
-dig nyra-orchestrator.ratehunter.net
+dig nyra-orchestrator.projectnyra.com
 ```
 
 **4. MCP Server Registration Fails**
+
 ```bash
 # Check MCP server health
 curl -f http://localhost:8006/health
@@ -398,11 +410,13 @@ tail -f logs/infisical/infisical-mcp.log
 ### Resource Allocation
 
 **Orchestrator PC:**
+
 - CPU: 16 cores (Ryzen 7 6800H)
 - Memory: 16GB DDR5
 - Storage: 1TB SSD
 
 **Worker PCs:**
+
 - GPU-optimized containers
 - NVIDIA runtime configuration
 - Memory limits based on GPU VRAM
@@ -410,9 +424,10 @@ tail -f logs/infisical/infisical-mcp.log
 ### Monitoring
 
 Access monitoring dashboards:
-- **Orchestrator**: https://nyra.ratehunter.net
-- **GPU Metrics**: https://gpu-1.ratehunter.net, https://gpu-2.ratehunter.net, https://gpu-3.ratehunter.net
-- **MCP Gateway**: https://mcp.ratehunter.net
+
+- **Orchestrator**: https://nyra.projectnyra.com
+- **GPU Metrics**: https://gpu-1.projectnyra.com, https://gpu-2.projectnyra.com, https://gpu-3.projectnyra.com
+- **MCP Gateway**: https://mcp.projectnyra.com
 
 ## Backup and Recovery
 
@@ -446,7 +461,7 @@ tar czf nyra-config-backup.tar.gz config/ logs/ scripts/
 app.use(async (req, res, next) => {
   const secrets = await secretManager.getAllSecrets({
     env: config.infisical.environment,
-    path: config.infisical.path
+    path: config.infisical.path,
   });
 
   // Inject as headers
@@ -463,7 +478,7 @@ app.use(async (req, res, next) => {
 ```yaml
 # Enhanced load balancing in MetaMCP Gateway
 load_balancing:
-  strategy: "round_robin"  # round_robin, least_connections, weighted
+  strategy: "round_robin" # round_robin, least_connections, weighted
   health_check:
     interval: 30s
     timeout: 10s
@@ -483,9 +498,9 @@ load_balancing:
 
 ### Support Contacts
 
-- **Infrastructure**: infrastructure@nyra.ratehunter.net
-- **Security**: security@nyra.ratehunter.net
-- **Emergency**: emergency@nyra.ratehunter.net
+- **Infrastructure**: infrastructure@nyra.projectnyra.com
+- **Security**: security@nyra.projectnyra.com
+- **Emergency**: emergency@nyra.projectnyra.com
 
 ---
 

@@ -127,7 +127,8 @@ export class CampaignService {
         })),
         metadata: {
           contactName: `${contact.firstName} ${contact.lastName}`,
-          campaignName: campaign.name
+          campaignName: campaign.name,
+          contactSnapshot: contact
         }
       });
 
@@ -212,7 +213,27 @@ export class CampaignService {
     execution.status = 'active';
     execution.pausedAt = null;
 
-    // TODO: Reschedule remaining steps
+    const campaignResult = await this.getCampaign(execution.campaignId);
+    if (!campaignResult.success) {
+      return campaignResult;
+    }
+
+    const campaign = Campaign.fromJSON(campaignResult.campaign);
+    const contact = execution.metadata?.contactSnapshot;
+    if (!contact) {
+      return {
+        success: false,
+        error: 'Cannot resume execution without contact snapshot'
+      };
+    }
+
+    const scheduleResult = await this.scheduler.scheduleRemainingSteps(execution, campaign, contact);
+    if (!scheduleResult.success) {
+      execution.status = 'paused';
+      execution.pausedAt = new Date();
+      return scheduleResult;
+    }
+
     logger.info('Campaign execution resumed', { executionId });
 
     return {

@@ -1,6 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
-import axios, { AxiosError } from 'axios';
+import axios from 'axios';
 import { RedisClient } from './redis-client';
+import { MetricsCollectorService } from './metrics-collector';
 import { createLogger } from '../utils/logger';
 import {
   ProviderConfig,
@@ -16,6 +17,7 @@ const logger = createLogger('provider-manager');
 export class ProviderManager {
   private static instance: ProviderManager;
   private redis: RedisClient;
+  private metricsCollector: MetricsCollectorService;
   private providers: Map<string, ProviderConfig> = new Map();
   private readonly PROVIDERS_KEY = 'providers:all';
   private readonly PROVIDER_KEY_PREFIX = 'providers:';
@@ -75,6 +77,7 @@ export class ProviderManager {
 
   private constructor() {
     this.redis = RedisClient.getInstance();
+    this.metricsCollector = MetricsCollectorService.getInstance();
   }
 
   public static getInstance(): ProviderManager {
@@ -148,6 +151,7 @@ export class ProviderManager {
         this.providers.clear();
         providers.forEach(provider => {
           this.providers.set(provider.id, provider);
+          this.metricsCollector.registerProviderName(provider.id, provider.name);
         });
         logger.info(`Loaded ${providers.length} providers from Redis`);
       }
@@ -193,6 +197,7 @@ export class ProviderManager {
     };
 
     this.providers.set(id, provider);
+    this.metricsCollector.registerProviderName(provider.id, provider.name);
     await this.saveProviders();
 
     logger.info(`Created provider: ${provider.name} (${provider.type})`);
@@ -238,6 +243,7 @@ export class ProviderManager {
     };
 
     this.providers.set(id, updated);
+    this.metricsCollector.registerProviderName(updated.id, updated.name);
     await this.saveProviders();
 
     logger.info(`Updated provider: ${updated.name} (${updated.type})`);
@@ -254,6 +260,7 @@ export class ProviderManager {
     }
 
     this.providers.delete(id);
+    this.metricsCollector.unregisterProviderName(id);
     await this.saveProviders();
 
     logger.info(`Deleted provider: ${provider.name} (${provider.type})`);

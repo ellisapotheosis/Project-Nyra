@@ -2,7 +2,7 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "outDir": "dist",
-    "rootDir": "src",
+    "rootDir": "../..",
     "composite": true,
     "declaration": true,
     "declarationMap": true,
@@ -10,8 +10,9 @@
     "moduleResolution": "NodeNext",
     "tsBuildInfoFile": "dist/.tsbuildinfo"
   },
-  "include": ["src"],
+  "include": ["src/**/*.ts", "../../packages/crm-types/src/**/*.ts"],
   "references": [
-    { "path": "../../packages/crm-client" }
+    { "path": "../../packages/crm-client" },
+    { "path": "../../packages/crm-types" }
   ]
 }

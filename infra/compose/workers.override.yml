@@ -1,6 +1,0 @@
-services:
-  vllm-worker:
-    image: vllm/vllm-openai:latest
-    profiles: ["workers"]
-    ports:
-      - "127.0.0.1:${VLLM_HOST_PORT:-8000}:8000"
