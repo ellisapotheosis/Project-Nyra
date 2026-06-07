@@ -157,6 +157,32 @@ describe("executeCrmWritePlan", () => {
     expect(client.calls).not.toContain("enrollCampaign");
   });
 
+  it("does not enroll a campaign when a CRM dedupe match is opted out", async () => {
+    const client = new FakeClient([
+      {
+        id: "lead-opted-out",
+        customFields: {
+          dedupeKey: "email:morgan@example.com",
+          doNotContact: false,
+          consentStatus: "OPTED_OUT",
+        },
+      },
+    ]);
+    const audit = new FakeAuditSink();
+
+    const result = await executeCrmWritePlan(plan, client, audit);
+
+    expect(result.lead).toMatchObject({
+      id: "lead-opted-out",
+      source: "matched",
+      doNotContact: false,
+      consentStatus: "OPTED_OUT",
+    });
+    expect(result.campaignEnrollment).toBeUndefined();
+    expect(client.calls).toContain("updateContact:lead-opted-out");
+    expect(client.calls).not.toContain("enrollCampaign");
+  });
+
   it("rekeys explicit planned audit ids to the CRM lead id", async () => {
     const client = new FakeClient();
     const audit = new FakeAuditSink();

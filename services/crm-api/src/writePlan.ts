@@ -132,7 +132,11 @@ async function upsertLeadFromPlan(
 }
 
 function isLeadBlocked(lead: Pick<CrmPlanLeadResult, "doNotContact" | "consentStatus">) {
-  return lead.doNotContact || lead.consentStatus === "DO_NOT_CONTACT";
+  return (
+    lead.doNotContact ||
+    lead.consentStatus === "DO_NOT_CONTACT" ||
+    lead.consentStatus === "OPTED_OUT"
+  );
 }
 
 function mergeConsentData(

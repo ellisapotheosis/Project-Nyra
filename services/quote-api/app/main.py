@@ -5,6 +5,7 @@ Supports: Conventional, FHA, VA, and USDA loans with PDF generation.
 from __future__ import annotations
 
 from fastapi import FastAPI, HTTPException, Response
+from fastapi.encoders import jsonable_encoder
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional
 
@@ -34,7 +35,7 @@ async def validation_exception_handler(request, exc):
         status_code=422,
         content={
             "error": "Validation Error",
-            "details": exc.errors(),
+            "details": jsonable_encoder(exc.errors()),
             "body": exc.body
         },
     )
@@ -110,7 +111,11 @@ def price_quote(loan_type: LoanType, req: LoanTypeRequest):
     
     # Calculate adjusted rate
     req.annual_interest_rate = get_adjusted_rate(
-        loan_type, req.term_years, req.credit_score, req.ltv, loan_purpose=req.loan_purpose
+        loan_type,
+        req.term_years,
+        req.credit_score,
+        req.ltv,
+        loan_purpose=getattr(req, "loan_purpose", "PURCHASE"),
     )
     
     return quote_specific(loan_type, req)

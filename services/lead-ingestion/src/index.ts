@@ -304,7 +304,7 @@ export function determineCampaignEligibility(
     return { eligible: false, reason: "MISSING_CAMPAIGN" };
   }
 
-  if (lead.doNotContact || lead.consentStatus === "DO_NOT_CONTACT") {
+  if (isContactBlocked(lead)) {
     return { eligible: false, reason: "DO_NOT_CONTACT" };
   }
 
@@ -330,18 +330,31 @@ export function determineCampaignEligibility(
 function preserveComplianceBlock(
   existingLead: Lead | undefined
 ): Partial<Pick<Lead, "consentStatus" | "doNotContact">> {
-  if (
-    !existingLead ||
-    (!existingLead.doNotContact &&
-      existingLead.consentStatus !== "DO_NOT_CONTACT")
-  ) {
+  if (!existingLead || !isContactBlocked(existingLead)) {
     return {};
   }
 
+  if (existingLead.doNotContact || existingLead.consentStatus === "DO_NOT_CONTACT") {
+    return {
+      consentStatus: "DO_NOT_CONTACT",
+      doNotContact: true,
+    };
+  }
+
   return {
-    consentStatus: "DO_NOT_CONTACT",
-    doNotContact: true,
+    consentStatus: "OPTED_OUT",
+    doNotContact: false,
   };
+}
+
+function isContactBlocked(
+  lead: Pick<Lead, "consentStatus" | "doNotContact">
+): boolean {
+  return (
+    lead.doNotContact ||
+    lead.consentStatus === "DO_NOT_CONTACT" ||
+    lead.consentStatus === "OPTED_OUT"
+  );
 }
 
 type BuildLeadEventsInput = {
