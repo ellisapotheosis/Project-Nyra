@@ -175,6 +175,7 @@ export class LeadIngestionService {
     const lead = LeadSchema.parse({
       ...existingLead,
       ...normalized,
+      ...preserveComplianceBlock(existingLead),
       id: existingLead?.id ?? normalized.id,
       createdAt: existingLead?.createdAt ?? now,
       updatedAt: now,
@@ -325,6 +326,23 @@ export function determineCampaignEligibility(
   };
 }
 
+function preserveComplianceBlock(
+  existingLead: Lead | undefined
+): Pick<Lead, "consentStatus" | "doNotContact"> | undefined {
+  if (
+    !existingLead ||
+    (!existingLead.doNotContact &&
+      existingLead.consentStatus !== "DO_NOT_CONTACT")
+  ) {
+    return undefined;
+  }
+
+  return {
+    consentStatus: "DO_NOT_CONTACT",
+    doNotContact: true,
+  };
+}
+
 type BuildLeadEventsInput = {
   lead: Lead;
   dedupeKey: string;
@@ -413,12 +431,13 @@ type BuildCrmWritePlanInput = BuildLeadAuditEventsInput & {
 };
 
 export function buildCrmWritePlan(input: BuildCrmWritePlanInput): CrmWritePlan {
-  const leadId = input.lead.id ?? input.dedupeKey;
+  const isCreate = input.dedupeOutcome === "CREATED";
+  const leadId = isCreate ? "pending" : (input.lead.id ?? input.dedupeKey);
   const campaignId = cleanString(input.rawPayload.campaignId);
 
   return {
     lead: {
-      id: input.lead.id,
+      id: isCreate ? undefined : input.lead.id,
       externalId: input.lead.externalId,
       firstName: input.lead.firstName,
       lastName: input.lead.lastName,
