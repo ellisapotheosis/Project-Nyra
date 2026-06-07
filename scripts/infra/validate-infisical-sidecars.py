@@ -3,7 +3,8 @@
 
 This is a static check. It does not contact Infisical and it never reads real
 secret values. Runtime smoke still requires running the target compose stack on
-the target host with INFISICAL_TOKEN exported in that shell.
+the target host with Universal Auth credentials available, or INFISICAL_TOKEN
+as fallback.
 """
 
 from __future__ import annotations
@@ -21,6 +22,8 @@ HOSTS_ROOT = REPO_ROOT / "infra" / "hosts"
 SECRETS_TARGET = "/run/nyra-secrets"
 REQUIRED_INIT_ENV = {
     "INFISICAL_TOKEN",
+    "INFISICAL_UNIVERSAL_AUTH_CLIENT_ID",
+    "INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET",
     "INFISICAL_PROJECT_ID",
     "INFISICAL_ENV",
     "INFISICAL_PATH",

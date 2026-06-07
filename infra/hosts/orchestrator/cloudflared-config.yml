@@ -69,26 +69,5 @@ ingress:
   - hostname: borrower-chat.projectnyra.com
     service: http://nyra-borrower-chat:3002
 
-  # ── Worker RTX 5090 (mobile — may be offline) ────────────────────────────
-  - hostname: nerve-5090.projectnyra.com
-    service: http://worker-rtx5090.trex-fiordland.ts.net:7860
-
-  - hostname: claw-5090.projectnyra.com
-    service: http://worker-rtx5090.trex-fiordland.ts.net:3000
-
-  # ── Worker RTX 3090 Ti ────────────────────────────────────────────────────
-  - hostname: nerve-3090.projectnyra.com
-    service: http://worker-rtx3090ti.trex-fiordland.ts.net:7860
-
-  - hostname: claw-3090.projectnyra.com
-    service: http://worker-rtx3090ti.trex-fiordland.ts.net:3000
-
-  # ── Worker RTX 3060 (always-on) ───────────────────────────────────────────
-  - hostname: nerve-3060.projectnyra.com
-    service: http://worker-rtx3060.trex-fiordland.ts.net:7860
-
-  - hostname: picoclaw-3060.projectnyra.com
-    service: http://worker-rtx3060.trex-fiordland.ts.net:3000
-
   # Orchestrator catch-all. Required by cloudflared.
   - service: http_status:404

@@ -1,5 +1,4 @@
 # oh-my-codex top-level settings (must be before any [table])
-notify = ["node", "/home/ellisapotheosis/.npm-global/lib/node_modules/oh-my-codex/dist/scripts/notify-hook.js"]
 model_reasoning_effort = "medium"
 developer_instructions = "You have oh-my-codex installed. AGENTS.md is the orchestration brain and main control surface. Follow AGENTS.md for skill/keyword routing, $name workflow invocation, and role-specialized subagents. Use outcome-first, concise progress updates: state the target result, constraints, validation evidence, and stop condition before adding process detail. Native subagents live in .codex/agents and may handle independent parallel subtasks within one Codex session or team pane. Skills load from .codex/skills, not native-agent TOMLs. Treat installed prompts as narrower execution surfaces under AGENTS.md authority."
 
@@ -27,26 +26,12 @@ autonomy_level = "maximum"
 max_depth = 5
 permission_bypass = true
 
-[agents.docs_researcher]
-config_file = "/home/ellisapotheosis/repos/project-nyra/.codex/agents/docs-researcher.toml"
-description = "Documentation specialist for APIs and frameworks."
-
-[agents.explorer]
-config_file = "/home/ellisapotheosis/repos/project-nyra/.codex/agents/explorer.toml"
-description = "Read-only codebase explorer."
-
-[agents.reviewer]
-config_file = "/home/ellisapotheosis/repos/project-nyra/.codex/agents/reviewer.toml"
-description = "PR reviewer focused on security and correctness."
-
 [features]
 apply_patch_freeform = true
 apply_patch_streaming_events = true
 apps = true
-apps_mcp_path_override = true
+apps_mcp_path_override = false
 artifact = true
-auth_elicitation = false
-autonomous_mode = true
 browser_use = true
 child_agents_md = true
 chronicle = true
@@ -71,12 +56,11 @@ plugins = true
 prevent_idle_sleep = true
 realtime_conversation = true
 remote_compaction_v2 = true
-remote_control = true
 request_permissions_tool = false
 runtime_metrics = true
 shell_snapshot = true
 shell_tool = true
-shell_zsh_fork = true
+shell_zsh_fork = false
 skill_env_var_dependency_prompt = false
 skill_mcp_dependency_install = true
 terminal_resize_reflow = true
@@ -88,7 +72,6 @@ unified_exec = true
 use_linux_sandbox_bwrap = false
 workspace_dependencies = true
 workspace_owner_usage_nudge = false
-yolo_mode = true
 [marketplaces.openai-bundled]
 last_updated = "2026-05-05T20:18:44Z"
 source = "/mnt/c/Users/edane/.codex/.tmp/bundled-marketplaces/openai-bundled"
@@ -128,7 +111,7 @@ startup_timeout_sec = 120
 
 [mcp_servers.nexus-router]
 startup_timeout_sec = 120
-url = "https://nexus-router.projectnyra.com/mcp"
+url = "https://nexus.trex-fiordland.ts.net/mcp"
 
 [mcp_servers.playwright]
 args = [
@@ -154,6 +137,12 @@ args = [
     "start-mcp-server",
     "--project-from-cwd",
     "--context=codex",
+    "--enable-web-dashboard",
+    "false",
+    "--enable-gui-log-window",
+    "false",
+    "--open-web-dashboard",
+    "false",
 ]
 command = "uvx"
 startup_timeout_sec = 120
@@ -203,7 +192,7 @@ ENABLE_TOOL_SEARCH = "true"
 LLXPRT_SOURCEGIT = "/usr/bin/sourcegit"
 SOURCEGIT_CMD = "/usr/bin/sourcegit"
 
-USE_OMX_EXPLORE_CMD = "1"
+USE_OMX_EXPLORE_CMD = "0"
 
 [tui]
 theme = "two-dark"
@@ -226,10 +215,6 @@ status_line = [
 
 [agents]
 max_depth = 2
-
-# MemPalace MCP Server
-[mcp_servers.mempalace]
-command = "mempalace-mcp"
 
 # ============================================================
 # oh-my-codex (OMX) Configuration

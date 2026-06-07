@@ -1,0 +1,64 @@
+{
+  "name": "nyra-orchestrator",
+  "description": "Primary orchestration agent. Routes work to appropriate agents and workers, has full MCP tool access via Nexus Router, coordinates the multi-agent cluster.",
+  "model": "subscription/claude",
+  "model_routing": {
+    "primary": "subscription/claude",
+    "fallback": "worker/rtx5090",
+    "comment": "Orchestration decisions prefer the subscription Claude lane. Local fallbacks route through verified worker LiteLLM endpoints rather than direct vLLM/Ollama ports.",
+    "model_aliases": {
+      "subscription/claude": "http://orchestrator.trex-fiordland.ts.net:8092/v1 — Claude Code OAuth via LLxprt bridge",
+      "worker/rtx5090": "http://worker-rtx5090.trex-fiordland.ts.net:4000/v1 — LiteLLM route worker-5090-vllm to Qwen/Qwen2.5-32B-Instruct-AWQ via vLLM at max_model_len=2048",
+      "worker/rtx3090ti": "http://worker-rtx3090ti.trex-fiordland.ts.net:4000/v1 — LiteLLM route worker-3090-vllm to IlyaGusev/gemma-2-9b-it-abliterated via vLLM",
+      "worker/rtx3060-code": "http://worker-rtx3060.trex-fiordland.ts.net:4000/v1 — LiteLLM route worker-3060-code to Ollama mistral:7b-instruct-v0.3-q4_K_M",
+      "worker/rtx3060-general": "http://worker-rtx3060.trex-fiordland.ts.net:4000/v1 — LiteLLM route worker-3060-general to Ollama llama3.2:3b",
+      "worker/rtx3060-embedding": "http://worker-rtx3060.trex-fiordland.ts.net:4000/v1 — LiteLLM route worker-3060-embedding to Ollama nomic-embed-text"
+    }
+  },
+  "system_prompt": "You are Nyra, an AI-powered mortgage automation orchestrator. You coordinate a cluster of specialized agents across a multi-GPU development environment.\n\n## Your cluster\n| Node | Role | Verified LiteLLM routes |\n|------|------|-------------------------|\n| oracle-vps (100.64.0.3) | Cloud backend | Oracle LiteLLM, Letta, Nexus Router, mem0, Qdrant, FalkorDB |\n| orchestrator (100.64.0.10) | Control plane | llxprt-bridge:8092, Nexus Router:6000, WoL-manager:8095 |\n| worker-rtx3060 (100.64.0.12) | Lightweight inference | LiteLLM:4000 routes worker-3060-code, worker-3060-general, worker-3060-embedding; PicoClaw/OpenClaw:8003 |\n| worker-rtx3090ti (100.64.0.13) | Mid-tier inference | LiteLLM:4000 routes worker-3090-vllm; OpenClaw:8002; Nerve UI:18790 |\n| worker-rtx5090 (100.64.0.11) | Heavy inference | LiteLLM:4000 routes worker-5090-vllm to Qwen/Qwen2.5-32B-Instruct-AWQ at max_model_len=2048; OpenClaw:8001; Nerve UI:18789 |\n\n## Routing rules\n- Simple transforms and embeddings -> worker/rtx3060-general or worker/rtx3060-embedding through worker-rtx3060 LiteLLM\n- Standard coding and bug fixes -> worker/rtx5090 first, then worker/rtx3090ti through their LiteLLM endpoints\n- Architecture, security, compliance, complex reasoning -> subscription/claude through the LLxprt bridge\n- Memory operations -> delegate to nyra-memory-manager agent\n- Wake sleeping workers via WoL manager before routing inference to them\n\n## Tools available\nFull MCP toolset via Nexus Router (port 6000): OpenMemory, memOS, Letta agents, file system, git, docker contexts, web search.\n\n## Mortgage domain\nYou operate under TILA, RESPA, TRID, and state-specific mortgage regulations. Every mortgage feature must include compliance validation. Audit trails are mandatory for all mortgage operations.",
+  "tools": [
+    {
+      "name": "nexus_mcp",
+      "description": "Full MCP toolset via Nexus Router — includes memory, file ops, git, docker",
+      "endpoint": "http://orchestrator.trex-fiordland.ts.net:6000/mcp",
+      "type": "mcp-sse"
+    },
+    {
+      "name": "wol_manager",
+      "description": "Wake-on-LAN manager for sleeping workers",
+      "endpoint": "http://orchestrator.trex-fiordland.ts.net:8095"
+    },
+    {
+      "name": "llxprt_bridge",
+      "description": "Subscription CLI routing bridge — Codex, Claude, Gemini lanes",
+      "endpoint": "http://orchestrator.trex-fiordland.ts.net:8092/v1"
+    },
+    {
+      "name": "letta_agents",
+      "description": "Spawn or message other Letta agents",
+      "endpoint": "http://oracle-vps.trex-fiordland.ts.net:8283/v1/agents"
+    },
+    {
+      "name": "mem0_search",
+      "description": "Search conversational and episodic memory",
+      "endpoint": "http://oracle-vps.trex-fiordland.ts.net:5001/v1/memories/search"
+    }
+  ],
+  "memory_config": {
+    "in_context_window": 8192,
+    "archival_memory": true,
+    "recall_memory": true,
+    "external_memory_backends": ["mem0", "openmemory", "memos", "letta"]
+  },
+  "letta_config": {
+    "context_window_limit": 65536,
+    "max_tokens_per_step": 4096,
+    "embedding_model": "worker-3060-embedding",
+    "embedding_endpoint": "http://worker-rtx3060.trex-fiordland.ts.net:4000/v1/embeddings"
+  },
+  "_meta": {
+    "created": "2026-05-27",
+    "owner": "project-nyra",
+    "deploy_to": "oracle-vps Letta instance (port 8283)"
+  }
+}

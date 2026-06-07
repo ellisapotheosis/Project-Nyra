@@ -14,8 +14,8 @@ NYRA_WORKER_3090TI_HOST=worker-rtx3090ti.trex-fiordland.ts.net
 NYRA_WORKER_3060_HOST=worker-rtx3060.trex-fiordland.ts.net
 
 # Router/orchestrator endpoints.
-NYRA_NEXUS_BASE_URL=http://orchestrator.trex-fiordland.ts.net:6000/v1
-NYRA_NEXUS_MCP_URL=http://orchestrator.trex-fiordland.ts.net:6000/mcp
+NYRA_NEXUS_BASE_URL=https://nexus.trex-fiordland.ts.net/v1
+NYRA_NEXUS_MCP_URL=https://nexus.trex-fiordland.ts.net/mcp
 NYRA_LITELLM_BASE_URL=http://orchestrator.trex-fiordland.ts.net:4000/v1
 NYRA_OPENCLAW_GATEWAY_URL=http://orchestrator.trex-fiordland.ts.net:5678
 

@@ -24,10 +24,17 @@
   },
   "mcpServers": {
     "nyra-nexus": {
-      "httpUrl": "http://orchestrator.trex-fiordland.ts.net:6000/mcp",
+      "httpUrl": "https://nexus.trex-fiordland.ts.net/mcp",
       "description": "Project Nyra singular MCP endpoint: memory, Git/Gitea, Composio, browser, UI, and infra tools.",
       "timeout": 30000,
       "trust": true
+    },
+    "shadcn": {
+      "command": "npx",
+      "args": ["-y", "shadcn@canary", "mcp"],
+      "env": {
+        "REGISTRY_URL": "https://tweakcn.com/r/themes/registry.json"
+      }
     }
   },
   "includeDirectories": ["."],

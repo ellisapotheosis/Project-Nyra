@@ -7,8 +7,8 @@
     "memoryManager": true
   },
   "routes": {
-    "subscriptionBridge": "http://127.0.0.1:8090/v1",
-    "nexusRouter": "http://orchestrator.trex-fiordland.ts.net:6000",
+    "subscriptionBridge": "http://127.0.0.1:8092/v1",
+    "nexusRouter": "https://nexus.trex-fiordland.ts.net",
     "litellm": "http://orchestrator.trex-fiordland.ts.net:4000/v1",
     "openclawGateway": "http://orchestrator.trex-fiordland.ts.net:5678"
   },

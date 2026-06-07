@@ -65,8 +65,6 @@ ingress:
     service: http://twenty-mcp:8400
   - hostname: infisical-mcp.projectnyra.com
     service: http://infisical-mcp:8766
-  - hostname: mempalace-mcp.projectnyra.com
-    service: http://mempalace-mcp:8000
   - hostname: gitea-mcp.projectnyra.com
     service: http://gitea-mcp:3101
   - hostname: paperclip-mcp.projectnyra.com

@@ -29,16 +29,17 @@ This guide walks you through setting up a production-ready Cloudflare Pages depl
 
 ```
 Framework preset: Next.js
-Root directory: apps/ratehunter/landing
+Root directory: apps/ratehunter
 Build command: npm run build:cf
 Build output directory: .open-next
 Install command: npm install
 Node version: 20
+Build env: GIT_LFS_SKIP_SMUDGE=1
 ```
 
 **Required file in repo**:
 
-- `apps/ratehunter/landing/wrangler.toml` (prevents interactive OpenNext/Wrangler prompts in CI)
+- `apps/ratehunter/wrangler.toml` (prevents interactive OpenNext/Wrangler prompts in CI)
 
 **Important**:
 
@@ -117,7 +118,7 @@ Go to **Workers & Pages** > **ratehunter-landing** > **Settings** > **Functions*
 Create a `_headers` file in your project:
 
 ```bash
-# File: apps/ratehunter/landing/public/_headers
+# File: apps/ratehunter/public/_headers
 
 /*
   X-Frame-Options: SAMEORIGIN
@@ -208,7 +209,7 @@ Already enabled automatically! View in **Analytics** tab:
 Add Sentry for error monitoring:
 
 ```bash
-cd apps/ratehunter/landing
+cd apps/ratehunter
 pnpm add @sentry/nextjs
 ```
 
@@ -335,7 +336,7 @@ Create custom error pages for better user experience:
 
 ### Create Error Pages
 
-**File: `apps/ratehunter/landing/public/404.html`**
+**File: `apps/ratehunter/public/404.html`**
 
 ```html
 <!DOCTYPE html>
@@ -385,7 +386,7 @@ Create custom error pages for better user experience:
 </html>
 ```
 
-**File: `apps/ratehunter/landing/public/500.html`**
+**File: `apps/ratehunter/public/500.html`**
 
 ```html
 <!DOCTYPE html>
@@ -442,7 +443,7 @@ Create custom error pages for better user experience:
 
 Create a `_redirects` file for URL management:
 
-**File: `apps/ratehunter/landing/public/_redirects`**
+**File: `apps/ratehunter/public/_redirects`**
 
 ```
 # Redirect old URLs to new ones
@@ -545,7 +546,7 @@ git push origin main --force
 
 Add PWA support for mobile users:
 
-**File: `apps/ratehunter/landing/public/manifest.json`**
+**File: `apps/ratehunter/public/manifest.json`**
 
 ```json
 {
@@ -587,7 +588,7 @@ Add to `layout.tsx`:
 Add GA4 to track visitors:
 
 ```bash
-cd apps/ratehunter/landing
+cd apps/ratehunter
 pnpm add @next/third-parties
 ```
 

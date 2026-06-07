@@ -271,6 +271,180 @@
       "type": "CNAME",
       "content": "${ORCHESTRATOR_TUNNEL_ID}.cfargotunnel.com",
       "proxied": true
+    },
+    {
+      "name": "grafbase",
+      "type": "CNAME",
+      "content": "${ORACLE_TUNNEL_ID}.cfargotunnel.com",
+      "proxied": true
+    },
+    {
+      "name": "superset",
+      "type": "CNAME",
+      "content": "${ORACLE_TUNNEL_ID}.cfargotunnel.com",
+      "proxied": true
+    },
+    {
+      "name": "infisical",
+      "type": "CNAME",
+      "content": "${ORACLE_TUNNEL_ID}.cfargotunnel.com",
+      "proxied": true
+    },
+    {
+      "name": "agent-vault",
+      "type": "CNAME",
+      "content": "${ORACLE_TUNNEL_ID}.cfargotunnel.com",
+      "proxied": true
+    },
+    {
+      "name": "letta-mcp",
+      "type": "CNAME",
+      "content": "${ORACLE_TUNNEL_ID}.cfargotunnel.com",
+      "proxied": true
+    },
+    {
+      "name": "mem0",
+      "type": "CNAME",
+      "content": "${ORACLE_TUNNEL_ID}.cfargotunnel.com",
+      "proxied": true
+    },
+    {
+      "name": "memos",
+      "type": "CNAME",
+      "content": "${ORACLE_TUNNEL_ID}.cfargotunnel.com",
+      "proxied": true
+    },
+    {
+      "name": "openmemory",
+      "type": "CNAME",
+      "content": "${ORACLE_TUNNEL_ID}.cfargotunnel.com",
+      "proxied": true
+    },
+    {
+      "name": "searxng",
+      "type": "CNAME",
+      "content": "${ORACLE_TUNNEL_ID}.cfargotunnel.com",
+      "proxied": true
+    },
+    {
+      "name": "openmemory-mcp",
+      "type": "CNAME",
+      "content": "${ORACLE_TUNNEL_ID}.cfargotunnel.com",
+      "proxied": true
+    },
+    {
+      "name": "activepieces-mcp",
+      "type": "CNAME",
+      "content": "${ORACLE_TUNNEL_ID}.cfargotunnel.com",
+      "proxied": true
+    },
+    {
+      "name": "tailscale-mcp",
+      "type": "CNAME",
+      "content": "${ORACLE_TUNNEL_ID}.cfargotunnel.com",
+      "proxied": true
+    },
+    {
+      "name": "twenty-mcp",
+      "type": "CNAME",
+      "content": "${ORACLE_TUNNEL_ID}.cfargotunnel.com",
+      "proxied": true
+    },
+    {
+      "name": "infisical-mcp",
+      "type": "CNAME",
+      "content": "${ORACLE_TUNNEL_ID}.cfargotunnel.com",
+      "proxied": true
+    },
+    {
+      "name": "gitea-mcp",
+      "type": "CNAME",
+      "content": "${ORACLE_TUNNEL_ID}.cfargotunnel.com",
+      "proxied": true
+    },
+    {
+      "name": "git-mcp",
+      "type": "CNAME",
+      "content": "${ORACLE_TUNNEL_ID}.cfargotunnel.com",
+      "proxied": true
+    },
+    {
+      "name": "paperclip-mcp",
+      "type": "CNAME",
+      "content": "${ORACLE_TUNNEL_ID}.cfargotunnel.com",
+      "proxied": true
+    },
+    {
+      "name": "magicui-mcp",
+      "type": "CNAME",
+      "content": "${ORACLE_TUNNEL_ID}.cfargotunnel.com",
+      "proxied": true
+    },
+    {
+      "name": "shadcn-mcp",
+      "type": "CNAME",
+      "content": "${ORACLE_TUNNEL_ID}.cfargotunnel.com",
+      "proxied": true
+    },
+    {
+      "name": "sequential-thinking-mcp",
+      "type": "CNAME",
+      "content": "${ORACLE_TUNNEL_ID}.cfargotunnel.com",
+      "proxied": true
+    },
+    {
+      "name": "playwright-mcp",
+      "type": "CNAME",
+      "content": "${ORACLE_TUNNEL_ID}.cfargotunnel.com",
+      "proxied": true
+    },
+    {
+      "name": "firecrawl-mcp",
+      "type": "CNAME",
+      "content": "${ORACLE_TUNNEL_ID}.cfargotunnel.com",
+      "proxied": true
+    },
+    {
+      "name": "next-devtools-mcp",
+      "type": "CNAME",
+      "content": "${ORACLE_TUNNEL_ID}.cfargotunnel.com",
+      "proxied": true
+    },
+    {
+      "name": "tavily-mcp",
+      "type": "CNAME",
+      "content": "${ORACLE_TUNNEL_ID}.cfargotunnel.com",
+      "proxied": true
+    },
+    {
+      "name": "wcgw-mcp",
+      "type": "CNAME",
+      "content": "${ORACLE_TUNNEL_ID}.cfargotunnel.com",
+      "proxied": true
+    },
+    {
+      "name": "gitingest-mcp",
+      "type": "CNAME",
+      "content": "${ORACLE_TUNNEL_ID}.cfargotunnel.com",
+      "proxied": true
+    },
+    {
+      "name": "codebase-index-mcp",
+      "type": "CNAME",
+      "content": "${ORACLE_TUNNEL_ID}.cfargotunnel.com",
+      "proxied": true
+    },
+    {
+      "name": "@",
+      "type": "TXT",
+      "content": "cloudflare_dashboard_sso=12e9e7340d465d8521325dfe104254ca",
+      "proxied": false
+    },
+    {
+      "name": "ha-mcp",
+      "type": "CNAME",
+      "content": "${ORACLE_TUNNEL_ID}.cfargotunnel.com",
+      "proxied": true
     }
   ]
 }

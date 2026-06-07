@@ -32,7 +32,10 @@
         "hostname": "quotes.projectnyra.com",
         "service": "http://quote-api:7070"
       },
-      { "hostname": "nexus.projectnyra.com", "service": "http://nexus:3000" },
+      {
+        "hostname": "nexus.projectnyra.com",
+        "service": "http://nexus-ui:3016"
+      },
       {
         "hostname": "nexus-router.projectnyra.com",
         "service": "http://nexus:3000"

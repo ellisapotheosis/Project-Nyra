@@ -17,6 +17,8 @@ services:
     command: ["/usr/local/bin/secrets-init.sh"]
     environment:
       INFISICAL_TOKEN: ${INFISICAL_TOKEN:-}
+      INFISICAL_UNIVERSAL_AUTH_CLIENT_ID: ${INFISICAL_UNIVERSAL_AUTH_CLIENT_ID:-}
+      INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET: ${INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET:-}
       INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
       INFISICAL_ENV: ${INFISICAL_ENV:-prod}
       INFISICAL_PATH: ${INFISICAL_PATH:-/machines/worker-rtx3090ti}
@@ -37,6 +39,8 @@ services:
         condition: service_completed_successfully
     environment:
       INFISICAL_TOKEN: ${INFISICAL_TOKEN:-}
+      INFISICAL_UNIVERSAL_AUTH_CLIENT_ID: ${INFISICAL_UNIVERSAL_AUTH_CLIENT_ID:-}
+      INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET: ${INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET:-}
       INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
       INFISICAL_ENV: ${INFISICAL_ENV:-prod}
       INFISICAL_PATH: ${INFISICAL_PATH:-/machines/worker-rtx3090ti}
@@ -139,16 +143,23 @@ services:
       - LMCACHE_STORAGE_BACKEND=local
       - LMCACHE_LOCAL_DEVICE=cuda
       - LMCACHE_MAX_LOCAL_CACHE_SIZE=8G
-    command: >
-      --model meta-llama/Llama-3.1-8B-Instruct
-      --host 0.0.0.0
-      --port 8000
-      --tensor-parallel-size 1
-      --gpu-memory-utilization 0.90
-      --max-model-len 8192
-      --enable-prefix-caching
-      --enable-chunked-prefill
-      --quantization awq
+    entrypoint: []
+    command:
+      - /bin/sh
+      - -c
+      - |
+        model=$$(cat /root/.cache/huggingface/current_model.txt 2>/dev/null || echo "$${VLLM_MODEL:-cyankiwi/Qwen3.6-27B-AWQ-INT4}")
+        echo "Starting vLLM with model: $$model"
+        exec python3 -m vllm.entrypoints.openai.api_server \
+          --model "$$model" \
+          --host 0.0.0.0 \
+          --port 8000 \
+          --tensor-parallel-size 1 \
+          --gpu-memory-utilization 0.90 \
+          --max-model-len 8192 \
+          --enable-prefix-caching \
+          --enable-chunked-prefill \
+          --quantization awq
     deploy:
       resources:
         reservations:
@@ -192,11 +203,12 @@ services:
     volumes:
       - ./model-switcher:/app
       - vllm-models:/models
+      - /var/run/docker.sock:/var/run/docker.sock
       - nyra_secrets:/run/nyra-secrets:ro
     environment:
       - VLLM_URL=http://worker-3090-vllm:8000
-      - AVAILABLE_MODELS=meta-llama/Llama-3.1-8B-Instruct,Qwen/Qwen2.5-32B-Instruct,mistralai/Mixtral-8x22B-Instruct-v0.1
-      - DEFAULT_MODEL=meta-llama/Llama-3.1-8B-Instruct
+      - AVAILABLE_MODELS=cyankiwi/Qwen3.6-27B-AWQ-INT4,lhca521/Huihui-Qwen3.6-27B-abliterated-AWQ,cyankiwi/gemma-4-31B-it-AWQ-4bit,alonsoko/gemma-4-31b-it-abliterated-heretic-AWQ-W4A16,cyankiwi/gemma-4-26B-A4B-it-AWQ-4bit
+      - DEFAULT_MODEL=cyankiwi/Qwen3.6-27B-AWQ-INT4
       - SPECIALIZATION=analysis,reasoning,code
     command: python /app/switcher.py
     depends_on:

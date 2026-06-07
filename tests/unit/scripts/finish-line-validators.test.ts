@@ -33,7 +33,7 @@ describe("finish-line validators", () => {
   it("allows private Tailscale, localhost, and container MCP HTTP endpoints", () => {
     const section = validateMcpEndpointConfig([
       {
-        path: "infra/configs/nexus/nexus.toml",
+        path: "infra/hosts/oracle-vps/nexus.toml",
         content:
           "http://100.64.0.31:8765/mcp\nhttp://ha-mcp:8086/mcp\nhttp://localhost:8767/mcp",
       },

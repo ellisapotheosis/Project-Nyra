@@ -120,6 +120,41 @@ describe("lead ingestion", () => {
     ]);
   });
 
+  it("preserves existing do-not-contact blocks on dedupe updates", async () => {
+    const service = new LeadIngestionService({
+      now: () => fixedDate,
+      idFactory: () => leadId,
+    });
+
+    await service.ingest({
+      firstName: "Casey",
+      lastName: "Stopped",
+      email: "casey-stopped@example.com",
+      source: "unsubscribe",
+      doNotContact: true,
+      campaignId: "speed-to-lead",
+    });
+
+    const updated = await service.ingest({
+      firstName: "Casey",
+      lastName: "Stopped",
+      email: "casey-stopped@example.com",
+      source: "vendor-refresh",
+      consentSms: true,
+      campaignId: "speed-to-lead",
+    });
+
+    expect(updated.dedupeOutcome).toBe("UPDATED");
+    expect(updated.lead).toMatchObject({
+      consentStatus: "DO_NOT_CONTACT",
+      doNotContact: true,
+    });
+    expect(updated.campaignEligibility).toEqual({
+      eligible: false,
+      reason: "DO_NOT_CONTACT",
+    });
+  });
+
   it("blocks campaign eligibility when consent is missing", () => {
     const lead = normalizeLeadPayload(
       {
@@ -234,12 +269,13 @@ describe("lead ingestion", () => {
         },
       },
       campaignEnrollment: {
-        leadId,
+        leadId: "pending",
         campaignId: "speed-to-lead",
         status: "ACTIVE",
         currentStepIndex: 0,
       },
     });
+    expect(result.crmWritePlan.lead.id).toBeUndefined();
   });
 
   it("hands the normalized CRM write plan to the persistence boundary", async () => {

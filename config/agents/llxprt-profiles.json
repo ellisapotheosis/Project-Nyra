@@ -76,7 +76,7 @@
     "nyra-local-nexus": {
       "provider": "openai-compatible",
       "model": "nyra-auto",
-      "baseUrl": "http://orchestrator.trex-fiordland.ts.net:6000/v1",
+      "baseUrl": "https://nexus.trex-fiordland.ts.net/v1",
       "auth": "Keyring via /key save nyra-nexus <key-or-placeholder>"
     },
     "nyra-local-workers": {

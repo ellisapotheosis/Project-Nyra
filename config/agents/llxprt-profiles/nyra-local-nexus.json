@@ -4,7 +4,7 @@
   "model": "nyra-auto",
   "ephemeralSettings": {
     "auth-key-name": "nyra-nexus",
-    "base-url": "http://orchestrator.trex-fiordland.ts.net:6000/v1",
+    "base-url": "https://nexus.trex-fiordland.ts.net/v1",
     "context-limit": 128000,
     "compression-threshold": 0.78,
     "max-prompt-tokens": 100000,

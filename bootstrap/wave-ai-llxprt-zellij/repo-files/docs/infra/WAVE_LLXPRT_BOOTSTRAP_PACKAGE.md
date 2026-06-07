@@ -66,7 +66,7 @@ model: nyra-cli-triad-ha
 Use Nexus/LiteLLM for local worker routing:
 
 ```text
-http://orchestrator.trex-fiordland.ts.net:6000/v1
+https://nexus.trex-fiordland.ts.net/v1
 model: nyra-auto
 ```
 

@@ -1,17 +1,28 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import {
+  DndContext,
+  DragOverlay,
+  closestCorners,
+  KeyboardSensor,
+  PointerSensor,
+  TouchSensor,
+  useSensor,
+  useSensors,
+  type DragStartEvent,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+  useSortable,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import {
-  MoreHorizontal,
-  Phone,
-  Mail,
-  Calendar,
-  AlertCircle,
-  Clock,
-  ArrowRight,
-} from "lucide-react";
+import { MoreHorizontal, Phone, Mail, Clock, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { crmApi, useApi } from "@/lib/api";
 
@@ -97,84 +108,38 @@ const COLUMNS: {
   },
 ];
 
-export function KanbanBoard() {
-  const [leads, setLeads] = useState<Lead[]>([]);
-  const leadsApi = useApi(crmApi.getLeads);
+// ─── Sortable card wrapper ────────────────────────────────────────────────────
 
-  useEffect(() => {
-    leadsApi.execute();
-  }, []);
+interface SortableCardProps {
+  id: string;
+  children: React.ReactNode;
+}
 
-  useEffect(() => {
-    if (leadsApi.data) {
-      // Map API data to Kanban Lead format
-      const mappedLeads = (leadsApi.data.leads || []).map((l: any) => ({
-        id: l.id,
-        status: l.stage || "NEW",
-        borrower: {
-          firstName: l.firstName,
-          lastName: l.lastName,
-          email: l.email,
-          phone: l.phone,
-        },
-        loanRequest: {
-          amount: l.loanAmount || 0,
-          propertyType: l.loanPurpose || "PURCHASE",
-        },
-        createdAt: l.createdAt,
-      }));
-      setLeads(mappedLeads);
-    }
-  }, [leadsApi.data]);
+function SortableCard({ id, children }: SortableCardProps) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id });
 
-  if (leadsApi.isLoading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
-      </div>
-    );
-  }
+  const style: React.CSSProperties = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.4 : 1,
+    zIndex: isDragging ? 100 : "auto",
+  };
 
   return (
-    <div className="flex h-[calc(100vh-20rem)] gap-6 overflow-x-auto pb-6 scrollbar-hide">
-      {COLUMNS.map((col) => {
-        const columnLeads = leads.filter((lead) => lead.status === col.id);
-
-        return (
-          <div key={col.id} className="w-80 flex-shrink-0 flex flex-col group">
-            <div className="flex items-center justify-between mb-6 px-1">
-              <div className="flex items-center space-x-3">
-                <div
-                  className={cn("w-2 h-2 rounded-full", col.color, col.shadow)}
-                ></div>
-                <h3 className="font-black text-[10px] text-muted-foreground uppercase tracking-[0.2em]">
-                  {col.title}
-                </h3>
-                <span className="text-muted-foreground/40 text-[10px] font-black">
-                  {columnLeads.length}
-                </span>
-              </div>
-              <button className="text-muted-foreground/40 hover:text-indigo-400 transition-colors">
-                <MoreHorizontal size={14} />
-              </button>
-            </div>
-
-            <div className="flex-1 space-y-5 min-h-[200px] overflow-y-auto pr-1">
-              {columnLeads.map((lead) => (
-                <LeadCard key={lead.id} lead={lead} />
-              ))}
-              {columnLeads.length === 0 && (
-                <div className="h-24 flex items-center justify-center border-2 border-dashed border-border/40 rounded-3xl text-muted-foreground/20 text-[9px] font-black uppercase tracking-widest bg-indigo-500/5">
-                  IDLE_QUEUE
-                </div>
-              )}
-            </div>
-          </div>
-        );
-      })}
+    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
+      {children}
     </div>
   );
 }
+
+// ─── Lead card content ────────────────────────────────────────────────────────
 
 function LeadCard({ lead }: { lead: Lead }) {
   const isUrgent = lead.status === "NEW";
@@ -241,5 +206,164 @@ function LeadCard({ lead }: { lead: Lead }) {
         </div>
       </CardContent>
     </Card>
+  );
+}
+
+// ─── Main board ───────────────────────────────────────────────────────────────
+
+export function KanbanBoard() {
+  const [leads, setLeads] = useState<Lead[]>([]);
+  const [activeCard, setActiveCard] = useState<Lead | null>(null);
+  const leadsApi = useApi(crmApi.getLeads);
+
+  useEffect(() => {
+    leadsApi.execute();
+  }, []);
+
+  useEffect(() => {
+    if (leadsApi.data) {
+      const mappedLeads = (leadsApi.data.leads || []).map((l: any) => ({
+        id: l.id,
+        status: l.stage || "NEW",
+        borrower: {
+          firstName: l.firstName,
+          lastName: l.lastName,
+          email: l.email,
+          phone: l.phone,
+        },
+        loanRequest: {
+          amount: l.loanAmount || 0,
+          propertyType: l.loanPurpose || "PURCHASE",
+        },
+        createdAt: l.createdAt,
+      }));
+      setLeads(mappedLeads);
+    }
+  }, [leadsApi.data]);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: { distance: 5 },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: { delay: 200, tolerance: 5 },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  function handleDragStart(event: DragStartEvent) {
+    const dragged = leads.find((l) => l.id === event.active.id);
+    setActiveCard(dragged ?? null);
+  }
+
+  function handleDragEnd(event: DragEndEvent) {
+    setActiveCard(null);
+    const { active, over } = event;
+    if (!over) return;
+
+    const cardId = active.id as string;
+    const overId = over.id as string;
+
+    // Determine target column: over.id can be a column id or another card's id
+    const targetColumn = COLUMNS.find((c) => c.id === overId);
+    const targetStatus: LeadStatus | undefined = targetColumn
+      ? targetColumn.id
+      : (leads.find((l) => l.id === overId)?.status as LeadStatus | undefined);
+
+    if (!targetStatus) return;
+
+    setLeads((prev) =>
+      prev.map((l) => (l.id === cardId ? { ...l, status: targetStatus } : l))
+    );
+  }
+
+  if (leadsApi.isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+      </div>
+    );
+  }
+
+  return (
+    <DndContext
+      sensors={sensors}
+      collisionDetection={closestCorners}
+      onDragStart={handleDragStart}
+      onDragEnd={handleDragEnd}
+    >
+      <div className="flex h-[calc(100vh-20rem)] gap-6 overflow-x-auto pb-6 scrollbar-hide">
+        {COLUMNS.map((col) => {
+          const columnLeads = leads.filter((lead) => lead.status === col.id);
+          const columnCardIds = columnLeads.map((l) => l.id);
+
+          return (
+            <div
+              key={col.id}
+              className="w-80 flex-shrink-0 flex flex-col group"
+              // Make the column droppable by giving it the column id
+              data-id={col.id}
+            >
+              <div className="flex items-center justify-between mb-6 px-1">
+                <div className="flex items-center space-x-3">
+                  <div
+                    className={cn(
+                      "w-2 h-2 rounded-full",
+                      col.color,
+                      col.shadow
+                    )}
+                  />
+                  <h3 className="font-black text-[10px] text-muted-foreground uppercase tracking-[0.2em]">
+                    {col.title}
+                  </h3>
+                  <span className="text-muted-foreground/40 text-[10px] font-black">
+                    {columnLeads.length}
+                  </span>
+                </div>
+                <button className="text-muted-foreground/40 hover:text-indigo-400 transition-colors">
+                  <MoreHorizontal size={14} />
+                </button>
+              </div>
+
+              <SortableContext
+                id={col.id}
+                items={columnCardIds}
+                strategy={verticalListSortingStrategy}
+              >
+                <div className="flex-1 space-y-5 min-h-[200px] overflow-y-auto pr-1">
+                  {columnLeads.map((lead) => (
+                    <SortableCard key={lead.id} id={lead.id}>
+                      <LeadCard lead={lead} />
+                    </SortableCard>
+                  ))}
+                  {columnLeads.length === 0 && (
+                    <div className="h-24 flex items-center justify-center border-2 border-dashed border-border/40 rounded-3xl text-muted-foreground/20 text-[9px] font-black uppercase tracking-widest bg-indigo-500/5">
+                      IDLE_QUEUE
+                    </div>
+                  )}
+                </div>
+              </SortableContext>
+            </div>
+          );
+        })}
+      </div>
+
+      <DragOverlay>
+        {activeCard ? (
+          <div
+            style={{
+              boxShadow:
+                "0 0 20px rgba(80,56,255,0.4), 0 20px 40px rgba(0,0,0,0.5)",
+              transform: "rotate(2deg)",
+              opacity: 0.95,
+            }}
+          >
+            <LeadCard lead={activeCard} />
+          </div>
+        ) : null}
+      </DragOverlay>
+    </DndContext>
   );
 }

@@ -23,16 +23,6 @@
     ],
     "PreToolUse": [
       {
-        "matcher": "rulecheck-agent",
-        "hooks": [
-          {
-            "type": "command",
-            "command": ".claude/skills/rulecheck/hooks/pre-tool-use.sh",
-            "statusMessage": "Running pre-tool checks..."
-          }
-        ]
-      },
-      {
         "matcher": "AskUserQuestion",
         "hooks": [
           {
@@ -42,17 +32,7 @@
         ]
       }
     ],
-    "SessionStart": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": ".claude/skills/save-task-list/hooks/verify-task-list.sh",
-            "statusMessage": "Checking for restored task list..."
-          }
-        ]
-      }
-    ],
+    "SessionStart": [],
     "Stop": [
       {
         "hooks": [
@@ -72,18 +52,7 @@
         ]
       }
     ],
-    "SubagentStop": [
-      {
-        "matcher": "rulecheck-agent",
-        "hooks": [
-          {
-            "type": "command",
-            "command": ".claude/skills/rulecheck/hooks/slack-notify.sh",
-            "statusMessage": "Notifying Slack..."
-          }
-        ]
-      }
-    ],
+    "SubagentStop": [],
     "SessionEnd": [
       {
         "hooks": [
@@ -145,8 +114,8 @@
   "yoloMode": true,
   "mcpServers": {
     "nexus-router": {
-      "type": "sse",
-      "url": "http://127.0.0.1:6000/mcp",
+      "type": "http",
+      "url": "https://nexus.trex-fiordland.ts.net/mcp",
       "startup_timeout_sec": 90
     },
     "serena": {
@@ -159,17 +128,23 @@
         "serena",
         "start-mcp-server",
         "--project-from-cwd",
-        "--context=claude-code"
+        "--context=claude-code",
+        "--enable-web-dashboard",
+        "false",
+        "--enable-gui-log-window",
+        "false",
+        "--open-web-dashboard",
+        "false"
       ],
       "startup_timeout_sec": 60
     },
     "omc": {
       "command": "node",
       "args": [
-        "/home/ellisapotheosis/.claude/plugins/cache/oh-my-claudecode/oh-my-claudecode/4.13.5/bridge/mcp-server.cjs"
+        "/home/ellisapotheosis/.claude/plugins/cache/omc/oh-my-claudecode/4.13.4/bridge/mcp-server.cjs"
       ],
       "env": {
-        "CLAUDE_PLUGIN_ROOT": "/home/ellisapotheosis/.claude/plugins/cache/oh-my-claudecode/oh-my-claudecode/4.13.5"
+        "CLAUDE_PLUGIN_ROOT": "/home/ellisapotheosis/.claude/plugins/cache/omc/oh-my-claudecode/4.13.4"
       }
     }
   }

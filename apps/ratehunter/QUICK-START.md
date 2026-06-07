@@ -50,10 +50,11 @@ git push origin main
 **Build settings**:
 
 - Framework preset: **Next.js**
-- Root directory: **apps/ratehunter/landing**
+- Root directory: **apps/ratehunter**
 - Install command: `npm install`
 - Build command: `npm run build:cf`
 - Build output directory: `.open-next`
+- Build environment variable: `GIT_LFS_SKIP_SMUDGE=1`
 
 **Environment variables** (click "Add variable"):
 
@@ -61,6 +62,7 @@ git push origin main
 NODE_VERSION = 20
 NODE_ENV = production
 NEXT_TELEMETRY_DISABLED = 1
+GIT_LFS_SKIP_SMUDGE = 1
 NEXT_PUBLIC_SITE_URL = https://ratehunter-landing.pages.dev
 NEXT_PUBLIC_SITE_NAME = RateHunter
 ```
@@ -193,7 +195,7 @@ Cloudflare automatically:
 
 - Check build logs in Cloudflare dashboard
 - Verify environment variables
-- Test locally: `cd apps/ratehunter/landing && npm install && npm run build:cf`
+- Test locally: `cd apps/ratehunter && npm install && npm run build:cf`
 
 **Domain not working?**
 

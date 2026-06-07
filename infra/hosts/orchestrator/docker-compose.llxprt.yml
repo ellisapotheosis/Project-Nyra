@@ -34,12 +34,12 @@ services:
     container_name: ${COMPOSE_PROJECT_NAME:-nyra}-orchestrator-llxprt-bridge
     restart: unless-stopped
     environment:
-      LLXPRT_BRIDGE_PORT: 8090
+      LLXPRT_BRIDGE_PORT: 8092
       LLXPRT_BRIDGE_API_KEY: ${LLXPRT_BRIDGE_API_KEY:-}
       LLXPRT_BRIDGE_WORKDIR: /workspace
       HOME: /tmp
     ports:
-      - "${LLXPRT_BRIDGE_PORT:-8090}:8090"
+      - "${LLXPRT_BRIDGE_PORT:-8092}:8090"
     volumes:
       - ../../..:/workspace
       - ${HOME:-/home/ellisapotheosis}/.config:/tmp/.config:ro
