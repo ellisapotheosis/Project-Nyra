@@ -1,0 +1,1744 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Nyra — Design Playground</title>
+    <style>
+      :root {
+        --bg: oklch(0.1448 0 0);
+        --fg: oklch(0.9325 0.0337 285.728);
+        --card: oklch(0.1569 0.0191 294.2843);
+        --primary: oklch(0.5038 0.2937 285.3753);
+        --primary-fg: oklch(0.9325 0.0337 285.728);
+        --secondary: oklch(0.2351 0.0581 285.4183);
+        --secondary-fg: oklch(0.8871 0.1828 166.5465);
+        --muted: oklch(0.2023 0.0412 288.7106);
+        --muted-fg: oklch(0.6938 0.0758 289.553);
+        --accent: oklch(0.3451 0.2089 279.922);
+        --accent-fg: oklch(0.8871 0.1828 166.5465);
+        --border: oklch(0.3098 0.0753 286.4544);
+        --input-bg: oklch(0.2268 0.0585 285.1315);
+        --ring: oklch(0.8653 0.1475 204.0171);
+        --seafoam: oklch(0.8871 0.1828 166.5465);
+        --neon-pink: oklch(0.667 0.295 322.15);
+        --radius: 3.14rem;
+        --density: 1;
+        --card-shadow: none;
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family:
+          ui-sans-serif,
+          system-ui,
+          -apple-system,
+          sans-serif;
+        background: var(--bg);
+        color: var(--fg);
+        height: 100vh;
+        display: grid;
+        grid-template-columns: 272px 1fr;
+        overflow: hidden;
+      }
+      #ctrl {
+        background: var(--card);
+        border-right: 1px solid var(--border);
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+      }
+      .ctrl-head {
+        padding: 14px 16px;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .ctrl-head h1 {
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+      .glow-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--primary);
+        box-shadow: 0 0 6px var(--primary);
+      }
+      .section {
+        padding: 12px 16px;
+        border-bottom: 1px solid var(--border);
+      }
+      .sec-label {
+        font-size: 10px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--muted-fg);
+        margin-bottom: 9px;
+      }
+      .two-col {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 4px;
+      }
+      .pill-btn {
+        padding: 6px 0;
+        text-align: center;
+        font-size: 11px;
+        font-weight: 500;
+        border-radius: 6px;
+        border: 1px solid var(--border);
+        cursor: pointer;
+        background: transparent;
+        color: var(--muted-fg);
+        transition: 0.12s all;
+        width: 100%;
+      }
+      .pill-btn.on {
+        background: var(--primary);
+        color: var(--primary-fg);
+        border-color: var(--primary);
+      }
+      .pill-btn:hover:not(.on) {
+        border-color: var(--primary);
+        color: var(--fg);
+      }
+      .theme-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 5px;
+      }
+      .swatch {
+        padding: 7px 8px;
+        border-radius: 6px;
+        border: 2px solid transparent;
+        cursor: pointer;
+        transition: 0.12s border-color;
+      }
+      .swatch.on {
+        border-color: var(--fg);
+      }
+      .swatch:hover:not(.on) {
+        border-color: var(--border);
+      }
+      .sw-colors {
+        display: flex;
+        gap: 2px;
+        height: 9px;
+        margin-bottom: 3px;
+      }
+      .sw-colors span {
+        flex: 1;
+        border-radius: 2px;
+      }
+      .sw-name {
+        font-size: 10px;
+        color: var(--muted-fg);
+        font-weight: 500;
+      }
+      .comp-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 4px;
+      }
+      .comp-btn {
+        padding: 5px 7px;
+        font-size: 11px;
+        border-radius: 5px;
+        border: 1px solid var(--border);
+        background: transparent;
+        color: var(--muted-fg);
+        cursor: pointer;
+        transition: 0.12s all;
+        text-align: left;
+      }
+      .comp-btn.on {
+        background: var(--accent);
+        color: var(--accent-fg);
+        border-color: var(--accent);
+      }
+      .comp-btn:hover:not(.on) {
+        border-color: var(--primary);
+        color: var(--fg);
+      }
+      .sl-row {
+        margin-bottom: 9px;
+      }
+      .sl-row:last-child {
+        margin-bottom: 0;
+      }
+      .sl-meta {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 5px;
+      }
+      .sl-name {
+        font-size: 11px;
+        color: var(--fg);
+      }
+      .sl-val {
+        font-size: 11px;
+        color: var(--primary);
+        font-variant-numeric: tabular-nums;
+        min-width: 36px;
+        text-align: right;
+      }
+      input[type="range"] {
+        width: 100%;
+        height: 3px;
+        -webkit-appearance: none;
+        background: var(--border);
+        border-radius: 2px;
+        outline: none;
+      }
+      input[type="range"]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 13px;
+        height: 13px;
+        border-radius: 50%;
+        background: var(--primary);
+        cursor: pointer;
+        box-shadow: 0 0 5px color-mix(in oklch, var(--primary) 55%, transparent);
+      }
+      .preset-list {
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+      }
+      .preset {
+        padding: 6px 10px;
+        border-radius: 5px;
+        border: 1px solid var(--border);
+        background: transparent;
+        color: var(--fg);
+        font-size: 11px;
+        font-weight: 500;
+        cursor: pointer;
+        text-align: left;
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        transition: 0.12s all;
+      }
+      .preset:hover {
+        background: var(--muted);
+        border-color: var(--primary);
+      }
+      .pdot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        flex-shrink: 0;
+      }
+      /* aurora-specific section coloring */
+      #aurora-section .sl-val {
+        color: oklch(0.8871 0.1828 166.5465);
+      }
+      #aurora-section input[type="range"]::-webkit-slider-thumb {
+        background: oklch(0.5038 0.2937 285.3753);
+      }
+      #main {
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+      #preview {
+        flex: 1;
+        overflow: auto;
+        padding: 32px;
+        background:
+          radial-gradient(
+            circle at top left,
+            color-mix(in oklch, var(--primary) 11%, transparent) 0%,
+            transparent 38%
+          ),
+          radial-gradient(
+            circle at bottom right,
+            color-mix(in oklch, var(--accent) 13%, transparent) 0%,
+            transparent 30%
+          ),
+          var(--bg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+      }
+      #aurora-canvas {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        display: none;
+      }
+      #preview-frame {
+        width: 100%;
+        max-width: 700px;
+        position: relative;
+        z-index: 1;
+      }
+      #prompt-row {
+        border-top: 1px solid var(--border);
+        padding: 12px 16px;
+        background: var(--card);
+        display: flex;
+        gap: 12px;
+        align-items: flex-start;
+        min-height: 72px;
+        max-height: 110px;
+      }
+      #prompt-txt {
+        flex: 1;
+        font-size: 12px;
+        line-height: 1.65;
+        color: var(--fg);
+      }
+      #copy-btn {
+        padding: 6px 14px;
+        border-radius: 5px;
+        background: var(--primary);
+        color: var(--primary-fg);
+        font-size: 11px;
+        font-weight: 600;
+        border: none;
+        cursor: pointer;
+        white-space: nowrap;
+        flex-shrink: 0;
+        transition: 0.12s;
+      }
+      #copy-btn:hover {
+        opacity: 0.85;
+      }
+      #copy-btn.ok {
+        background: oklch(0.8871 0.1828 166.5465);
+        color: oklch(0.15 0 0);
+      }
+      .c-card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: calc(var(--radius) * 0.28);
+        padding: calc(14px * var(--density));
+        box-shadow: var(--card-shadow);
+        transition: 0.15s box-shadow;
+      }
+      .c-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 2px 8px;
+        border-radius: calc(var(--radius) * 0.14);
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+      }
+      .b-active {
+        background: color-mix(in oklch, var(--seafoam) 18%, transparent);
+        color: var(--seafoam);
+      }
+      .b-proc {
+        background: color-mix(in oklch, var(--primary) 18%, transparent);
+        color: var(--primary);
+      }
+      .b-new {
+        background: color-mix(in oklch, var(--neon-pink) 18%, transparent);
+        color: var(--neon-pink);
+      }
+      .b-closed {
+        background: color-mix(in oklch, var(--muted-fg) 18%, transparent);
+        color: var(--muted-fg);
+      }
+      .c-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: calc(7px * var(--density)) calc(14px * var(--density));
+        border-radius: calc(var(--radius) * 0.18);
+        font-size: 12px;
+        font-weight: 500;
+        border: none;
+        cursor: pointer;
+        transition: 0.12s;
+        gap: 5px;
+      }
+      .btn-p {
+        background: var(--primary);
+        color: var(--primary-fg);
+      }
+      .btn-p:hover {
+        opacity: 0.88;
+      }
+      .btn-s {
+        background: var(--secondary);
+        color: var(--secondary-fg);
+      }
+      .btn-g {
+        background: transparent;
+        color: var(--fg);
+        border: 1px solid var(--border);
+      }
+      .btn-g:hover {
+        background: var(--muted);
+      }
+      .btn-d {
+        background: color-mix(in oklch, var(--neon-pink) 14%, transparent);
+        color: var(--neon-pink);
+        border: 1px solid color-mix(in oklch, var(--neon-pink) 28%, transparent);
+      }
+      .c-input {
+        background: var(--input-bg);
+        border: 1px solid var(--border);
+        color: var(--fg);
+        border-radius: calc(var(--radius) * 0.14);
+        padding: calc(7px * var(--density)) 11px;
+        font-size: 12px;
+        outline: none;
+        width: 100%;
+        transition: 0.12s border-color;
+        font-family: inherit;
+      }
+      .c-input:focus {
+        border-color: var(--ring);
+        box-shadow: 0 0 0 2px color-mix(in oklch, var(--ring) 22%, transparent);
+      }
+      .c-input::placeholder {
+        color: var(--muted-fg);
+      }
+      /* colour weight rows */
+      .color-row {
+        display: grid;
+        grid-template-columns: 10px 1fr auto;
+        gap: 7px;
+        align-items: center;
+        margin-bottom: 8px;
+      }
+      .color-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="ctrl">
+      <div class="ctrl-head">
+        <div class="glow-dot"></div>
+        <h1>Design Playground</h1>
+      </div>
+
+      <div class="section">
+        <div class="sec-label">Presets</div>
+        <div class="preset-list">
+          <button class="preset" onclick="applyPreset('default')">
+            <span
+              class="pdot"
+              style="
+                background: oklch(0.5038 0.2937 285.3753);
+                box-shadow: 0 0 4px oklch(0.5038 0.2937 285.3753);
+              "
+            ></span
+            >Apotheosis Default
+          </button>
+          <button class="preset" onclick="applyPreset('mint')">
+            <span
+              class="pdot"
+              style="background: oklch(0.8871 0.1828 166.5465)"
+            ></span
+            >Mint Midnight
+          </button>
+          <button class="preset" onclick="applyPreset('glow')">
+            <span
+              class="pdot"
+              style="
+                background: oklch(0.8653 0.1475 204.0171);
+                box-shadow: 0 0 5px oklch(0.8653 0.1475 204.0171);
+              "
+            ></span
+            >Glow Mode
+          </button>
+          <button class="preset" onclick="applyPreset('dense')">
+            <span
+              class="pdot"
+              style="background: oklch(0.5038 0.2937 285.3753)"
+            ></span
+            >Broker Dense
+          </button>
+          <button class="preset" onclick="applyPreset('cta')">
+            <span
+              class="pdot"
+              style="
+                background: oklch(0.667 0.295 322.15);
+                box-shadow: 0 0 4px oklch(0.667 0.295 322.15);
+              "
+            ></span
+            >RateHunter CTA
+          </button>
+          <button class="preset" onclick="applyPreset('aurora-soft')">
+            <span
+              class="pdot"
+              style="
+                background: linear-gradient(135deg, #3817d9, #00ccb2);
+                width: 14px;
+                height: 14px;
+                border-radius: 4px;
+              "
+            ></span
+            >Aurora – Soft
+          </button>
+          <button class="preset" onclick="applyPreset('aurora-bold')">
+            <span
+              class="pdot"
+              style="
+                background: linear-gradient(135deg, #f20d7a, #3817d9);
+                width: 14px;
+                height: 14px;
+                border-radius: 4px;
+              "
+            ></span
+            >Aurora – Bold
+          </button>
+          <button class="preset" onclick="applyPreset('aurora-water')">
+            <span
+              class="pdot"
+              style="
+                background: linear-gradient(135deg, #00a6bf, #8f14ed);
+                width: 14px;
+                height: 14px;
+                border-radius: 4px;
+              "
+            ></span
+            >Aurora – Deep Water
+          </button>
+          <button class="preset" onclick="applyPreset('glass')">
+            <span
+              class="pdot"
+              style="
+                background: linear-gradient(
+                  135deg,
+                  rgba(80, 56, 255, 0.9),
+                  rgba(0, 204, 178, 0.9)
+                );
+                width: 14px;
+                height: 14px;
+                border-radius: 4px;
+                box-shadow: 0 0 5px rgba(80, 56, 255, 0.6);
+              "
+            ></span
+            >Glassmorphism
+          </button>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="sec-label">App</div>
+        <div class="two-col">
+          <button class="pill-btn on" id="tab-pn" onclick="setApp('pn')">
+            projectnyra
+          </button>
+          <button class="pill-btn" id="tab-rh" onclick="setApp('rh')">
+            ratehunter
+          </button>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="sec-label">Theme</div>
+        <div class="theme-grid">
+          <div class="swatch on" id="sw-apo" onclick="setTheme('apo')">
+            <div class="sw-colors">
+              <span style="background: oklch(0.1448 0 0)"></span
+              ><span style="background: oklch(0.5038 0.2937 285.3753)"></span
+              ><span style="background: oklch(0.8871 0.1828 166.5465)"></span
+              ><span style="background: oklch(0.667 0.295 322.15)"></span>
+            </div>
+            <span class="sw-name">Apotheosis</span>
+          </div>
+          <div class="swatch" id="sw-mm" onclick="setTheme('mm')">
+            <div class="sw-colors">
+              <span style="background: oklch(0.1696 0.0017 17.3207)"></span
+              ><span style="background: oklch(0.5038 0.2937 285.3753)"></span
+              ><span style="background: oklch(0.8871 0.1828 166.5465)"></span
+              ><span style="background: oklch(0.8871 0.1828 166.5465)"></span>
+            </div>
+            <span class="sw-name">Mint Midnight</span>
+          </div>
+          <div class="swatch" id="sw-mmg" onclick="setTheme('mmg')">
+            <div class="sw-colors">
+              <span style="background: oklch(0.1278 0.0652 308.2878)"></span
+              ><span style="background: oklch(0.5038 0.2937 285.3753)"></span
+              ><span style="background: oklch(0.8653 0.1475 204.0171)"></span
+              ><span style="background: oklch(0.8871 0.1828 166.5465)"></span>
+            </div>
+            <span class="sw-name">Mint Glow</span>
+          </div>
+          <div class="swatch" id="sw-vir" onclick="setTheme('vir')">
+            <div class="sw-colors">
+              <span style="background: oklch(0.1278 0.0652 308.2878)"></span
+              ><span style="background: oklch(0.5038 0.2937 285.3753)"></span
+              ><span style="background: oklch(0.9325 0.0337 285.728)"></span
+              ><span style="background: oklch(0.8871 0.1828 166.5465)"></span>
+            </div>
+            <span class="sw-name">Virtus</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="sec-label">Component</div>
+        <div class="comp-grid" id="comp-grid"></div>
+      </div>
+
+      <!-- Regular visual tuning (hidden when aurora selected) -->
+      <div class="section" id="visual-section">
+        <div class="sec-label">Visual Tuning</div>
+        <div class="sl-row">
+          <div class="sl-meta">
+            <span class="sl-name">Density</span
+            ><span class="sl-val" id="vd">100%</span>
+          </div>
+          <input
+            type="range"
+            id="sl-d"
+            min="60"
+            max="140"
+            value="100"
+            oninput="syncSliders()"
+          />
+        </div>
+        <div class="sl-row">
+          <div class="sl-meta">
+            <span class="sl-name">Glow Intensity</span
+            ><span class="sl-val" id="vg">30%</span>
+          </div>
+          <input
+            type="range"
+            id="sl-g"
+            min="0"
+            max="100"
+            value="30"
+            oninput="syncSliders()"
+          />
+        </div>
+        <div class="sl-row">
+          <div class="sl-meta">
+            <span class="sl-name">Radius Override</span
+            ><span class="sl-val" id="vr">theme</span>
+          </div>
+          <input
+            type="range"
+            id="sl-r"
+            min="0"
+            max="50"
+            value="0"
+            oninput="syncSliders()"
+          />
+        </div>
+      </div>
+
+      <!-- Aurora tuning (shown only when aurora-bg selected) -->
+      <div class="section" id="aurora-section" style="display: none">
+        <div class="sec-label" style="color: oklch(0.8871 0.1828 166.5465)">
+          &#9889; Aurora Shader Knobs
+        </div>
+
+        <div class="sl-row">
+          <div class="sl-meta">
+            <span class="sl-name">Animation Speed</span
+            ><span class="sl-val" id="va-speed">1.0×</span>
+          </div>
+          <input
+            type="range"
+            id="sl-a-speed"
+            min="10"
+            max="300"
+            value="100"
+            oninput="syncAurora()"
+          />
+        </div>
+        <div class="sl-row">
+          <div class="sl-meta">
+            <span class="sl-name">Aurora Height</span
+            ><span class="sl-val" id="va-height">65%</span>
+          </div>
+          <input
+            type="range"
+            id="sl-a-height"
+            min="20"
+            max="90"
+            value="65"
+            oninput="syncAurora()"
+          />
+        </div>
+        <div class="sl-row">
+          <div class="sl-meta">
+            <span class="sl-name">Gravity Warp</span
+            ><span class="sl-val" id="va-gravity">1.0</span>
+          </div>
+          <input
+            type="range"
+            id="sl-a-gravity"
+            min="0"
+            max="200"
+            value="100"
+            oninput="syncAurora()"
+          />
+        </div>
+        <div class="sl-row">
+          <div class="sl-meta">
+            <span class="sl-name">Water Pool Depth</span
+            ><span class="sl-val" id="va-water">1.0</span>
+          </div>
+          <input
+            type="range"
+            id="sl-a-water"
+            min="0"
+            max="200"
+            value="100"
+            oninput="syncAurora()"
+          />
+        </div>
+        <div class="sl-row">
+          <div class="sl-meta">
+            <span class="sl-name">Water Ripple Detail</span
+            ><span class="sl-val" id="va-ripple">1.0</span>
+          </div>
+          <input
+            type="range"
+            id="sl-a-ripple"
+            min="0"
+            max="200"
+            value="100"
+            oninput="syncAurora()"
+          />
+        </div>
+
+        <div
+          style="
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--muted-fg);
+            margin: 10px 0 7px;
+          "
+        >
+          Colour Weights
+        </div>
+
+        <div class="color-row">
+          <div
+            class="color-dot"
+            style="background: oklch(0.5038 0.2937 285.3753)"
+          ></div>
+          <input
+            type="range"
+            id="sl-a-indigo"
+            min="0"
+            max="200"
+            value="100"
+            oninput="syncAurora()"
+          /><span
+            class="sl-val"
+            id="va-indigo"
+            style="color: oklch(0.7 0.2 285)"
+            >1.0</span
+          >
+        </div>
+        <div
+          style="
+            font-size: 9px;
+            color: var(--muted-fg);
+            margin: -5px 0 8px 17px;
+          "
+        >
+          Indigo / Purple
+        </div>
+
+        <div class="color-row">
+          <div
+            class="color-dot"
+            style="background: oklch(0.8871 0.1828 166.5465)"
+          ></div>
+          <input
+            type="range"
+            id="sl-a-seafoam"
+            min="0"
+            max="200"
+            value="100"
+            oninput="syncAurora()"
+          /><span
+            class="sl-val"
+            id="va-seafoam"
+            style="color: oklch(0.8871 0.1828 166.5465)"
+            >1.0</span
+          >
+        </div>
+        <div
+          style="
+            font-size: 9px;
+            color: var(--muted-fg);
+            margin: -5px 0 8px 17px;
+          "
+        >
+          Seafoam / Teal
+        </div>
+
+        <div class="color-row">
+          <div
+            class="color-dot"
+            style="background: oklch(0.667 0.295 322.15)"
+          ></div>
+          <input
+            type="range"
+            id="sl-a-pink"
+            min="0"
+            max="200"
+            value="100"
+            oninput="syncAurora()"
+          /><span class="sl-val" id="va-pink" style="color: oklch(0.8 0.2 322)"
+            >1.0</span
+          >
+        </div>
+        <div
+          style="
+            font-size: 9px;
+            color: var(--muted-fg);
+            margin: -5px 0 8px 17px;
+          "
+        >
+          Neon Pink / Hot Pink
+        </div>
+
+        <div class="sl-row">
+          <div class="sl-meta">
+            <span class="sl-name">Film Grain</span
+            ><span class="sl-val" id="va-grain">0</span>
+          </div>
+          <input
+            type="range"
+            id="sl-a-grain"
+            min="0"
+            max="60"
+            value="0"
+            oninput="syncAurora()"
+          />
+        </div>
+      </div>
+    </div>
+
+    <div id="main">
+      <div id="preview">
+        <canvas id="aurora-canvas"></canvas>
+        <div id="preview-frame"></div>
+      </div>
+      <div id="prompt-row">
+        <div id="prompt-txt"></div>
+        <button id="copy-btn" onclick="copyPrompt()">Copy Prompt</button>
+      </div>
+    </div>
+
+    <script>
+      /* ── Tokens ── */
+      const T = {
+        apo: {
+          bg: "oklch(0.1448 0 0)",
+          fg: "oklch(0.9325 0.0337 285.728)",
+          card: "oklch(0.1569 0.0191 294.2843)",
+          primary: "oklch(0.5038 0.2937 285.3753)",
+          primaryFg: "oklch(0.9325 0.0337 285.728)",
+          secondary: "oklch(0.2351 0.0581 285.4183)",
+          secondaryFg: "oklch(0.8871 0.1828 166.5465)",
+          muted: "oklch(0.2023 0.0412 288.7106)",
+          mutedFg: "oklch(0.6938 0.0758 289.553)",
+          accent: "oklch(0.3451 0.2089 279.922)",
+          accentFg: "oklch(0.8871 0.1828 166.5465)",
+          border: "oklch(0.3098 0.0753 286.4544)",
+          inputBg: "oklch(0.2268 0.0585 285.1315)",
+          ring: "oklch(0.8653 0.1475 204.0171)",
+          radius: "3.14rem",
+          shadowHue: "285 100% 50%",
+          name: "Apotheosis",
+        },
+        mm: {
+          bg: "oklch(0.1448 0 0)",
+          fg: "oklch(0.8871 0.1828 166.5465)",
+          card: "oklch(0.1696 0.0017 17.3207)",
+          primary: "oklch(0.5038 0.2937 285.3753)",
+          primaryFg: "oklch(0.8871 0.1828 166.5465)",
+          secondary: "oklch(0.5038 0.2937 285.3753)",
+          secondaryFg: "oklch(0.8871 0.1828 166.5465)",
+          muted: "oklch(0.1888 0.1055 292.075)",
+          mutedFg: "oklch(0.8871 0.1828 166.5465)",
+          accent: "oklch(0.1888 0.1055 292.075)",
+          accentFg: "oklch(0.8871 0.1828 166.5465)",
+          border: "oklch(0.5038 0.2937 285.3753)",
+          inputBg: "oklch(0.5038 0.2937 285.3753)",
+          ring: "oklch(0.8871 0.1828 166.5465)",
+          radius: "0.625rem",
+          shadowHue: "264 100% 50%",
+          name: "Mint Midnight",
+        },
+        mmg: {
+          bg: "oklch(0.1448 0 0)",
+          fg: "oklch(0.8871 0.1828 166.5465)",
+          card: "oklch(0.1278 0.0652 308.2878)",
+          primary: "oklch(0.5038 0.2937 285.3753)",
+          primaryFg: "oklch(0.8871 0.1828 166.5465)",
+          secondary: "oklch(0.3451 0.2089 279.922)",
+          secondaryFg: "oklch(0.8653 0.1475 204.0171)",
+          muted: "oklch(0.1888 0.1055 292.075)",
+          mutedFg: "oklch(0.8653 0.1475 204.0171)",
+          accent: "oklch(0.3451 0.2089 279.922)",
+          accentFg: "oklch(0.8653 0.1475 204.0171)",
+          border: "oklch(0.3451 0.2089 279.922)",
+          inputBg: "oklch(0.1888 0.1055 292.075)",
+          ring: "oklch(0.8871 0.1828 166.5465)",
+          radius: "3.14rem",
+          shadowHue: "199 100% 73%",
+          name: "Mint Midnight Glow",
+        },
+        vir: {
+          bg: "oklch(0.1448 0 0)",
+          fg: "oklch(0.9325 0.0337 285.728)",
+          card: "oklch(0.1278 0.0652 308.2878)",
+          primary: "oklch(0.5038 0.2937 285.3753)",
+          primaryFg: "oklch(0.9325 0.0337 285.728)",
+          secondary: "oklch(0.3451 0.2089 279.922)",
+          secondaryFg: "oklch(0.8653 0.1475 204.0171)",
+          muted: "oklch(0.1888 0.1055 292.075)",
+          mutedFg: "oklch(0.7196 0.0665 289.5968)",
+          accent: "oklch(0.3451 0.2089 279.922)",
+          accentFg: "oklch(0.8871 0.1828 166.5465)",
+          border: "oklch(0.3451 0.2089 279.922)",
+          inputBg: "oklch(0.1888 0.1055 292.075)",
+          ring: "oklch(0.8871 0.1828 166.5465)",
+          radius: "3.14rem",
+          shadowHue: "285 100% 50%",
+          name: "Virtus",
+        },
+      };
+
+      const COMPS = {
+        pn: [
+          { id: "lead-card", l: "Lead Card" },
+          { id: "pipeline", l: "Pipeline" },
+          { id: "quotes", l: "Quote Grid" },
+          { id: "buttons", l: "Buttons" },
+          { id: "form", l: "Form" },
+          { id: "sidebar", l: "Sidebar Nav" },
+          { id: "glass-preview", l: "&#9671; Glass" },
+          { id: "aurora-bg", l: "&#9889; Aurora BG" },
+        ],
+        rh: [
+          { id: "chat", l: "Chat Widget" },
+          { id: "wizard", l: "Lead Wizard" },
+          { id: "hero", l: "Hero CTA" },
+          { id: "buttons", l: "Buttons" },
+          { id: "form", l: "Form" },
+          { id: "lead-card", l: "Lead Card" },
+          { id: "aurora-bg", l: "&#9889; Aurora BG" },
+        ],
+      };
+
+      const PRESETS = {
+        default: {
+          app: "pn",
+          theme: "apo",
+          comp: "lead-card",
+          density: 100,
+          glow: 30,
+          radius: 0,
+          aurora: {
+            speed: 100,
+            height: 65,
+            gravity: 100,
+            water: 100,
+            ripple: 100,
+            indigo: 100,
+            seafoam: 100,
+            pink: 100,
+            grain: 0,
+          },
+        },
+        mint: {
+          app: "pn",
+          theme: "mm",
+          comp: "pipeline",
+          density: 100,
+          glow: 20,
+          radius: 0,
+          aurora: {
+            speed: 100,
+            height: 65,
+            gravity: 100,
+            water: 100,
+            ripple: 100,
+            indigo: 100,
+            seafoam: 100,
+            pink: 100,
+            grain: 0,
+          },
+        },
+        glow: {
+          app: "pn",
+          theme: "mmg",
+          comp: "quotes",
+          density: 110,
+          glow: 80,
+          radius: 0,
+          aurora: {
+            speed: 100,
+            height: 65,
+            gravity: 100,
+            water: 100,
+            ripple: 100,
+            indigo: 100,
+            seafoam: 100,
+            pink: 100,
+            grain: 0,
+          },
+        },
+        dense: {
+          app: "pn",
+          theme: "apo",
+          comp: "lead-card",
+          density: 68,
+          glow: 15,
+          radius: 4,
+          aurora: {
+            speed: 100,
+            height: 65,
+            gravity: 100,
+            water: 100,
+            ripple: 100,
+            indigo: 100,
+            seafoam: 100,
+            pink: 100,
+            grain: 0,
+          },
+        },
+        cta: {
+          app: "rh",
+          theme: "apo",
+          comp: "hero",
+          density: 120,
+          glow: 40,
+          radius: 0,
+          aurora: {
+            speed: 100,
+            height: 65,
+            gravity: 100,
+            water: 100,
+            ripple: 100,
+            indigo: 100,
+            seafoam: 100,
+            pink: 100,
+            grain: 0,
+          },
+        },
+        "aurora-soft": {
+          app: "rh",
+          theme: "apo",
+          comp: "aurora-bg",
+          density: 100,
+          glow: 30,
+          radius: 0,
+          aurora: {
+            speed: 70,
+            height: 70,
+            gravity: 60,
+            water: 80,
+            ripple: 80,
+            indigo: 130,
+            seafoam: 140,
+            pink: 60,
+            grain: 10,
+          },
+        },
+        "aurora-bold": {
+          app: "rh",
+          theme: "apo",
+          comp: "aurora-bg",
+          density: 100,
+          glow: 30,
+          radius: 0,
+          aurora: {
+            speed: 130,
+            height: 55,
+            gravity: 140,
+            water: 120,
+            ripple: 140,
+            indigo: 160,
+            seafoam: 80,
+            pink: 180,
+            grain: 25,
+          },
+        },
+        "aurora-water": {
+          app: "rh",
+          theme: "apo",
+          comp: "aurora-bg",
+          density: 100,
+          glow: 30,
+          radius: 0,
+          aurora: {
+            speed: 80,
+            height: 50,
+            gravity: 180,
+            water: 200,
+            ripple: 190,
+            indigo: 80,
+            seafoam: 200,
+            pink: 40,
+            grain: 15,
+          },
+        },
+        glass: {
+          app: "pn",
+          theme: "apo",
+          comp: "glass-preview",
+          density: 100,
+          glow: 75,
+          radius: 0,
+          aurora: {
+            speed: 100,
+            height: 65,
+            gravity: 100,
+            water: 100,
+            ripple: 100,
+            indigo: 100,
+            seafoam: 100,
+            pink: 100,
+            grain: 0,
+          },
+        },
+      };
+
+      const S = {
+        app: "pn",
+        theme: "apo",
+        comp: "lead-card",
+        density: 100,
+        glow: 30,
+        radius: 0,
+        aurora: {
+          speed: 100,
+          height: 65,
+          gravity: 100,
+          water: 100,
+          ripple: 100,
+          indigo: 100,
+          seafoam: 100,
+          pink: 100,
+          grain: 0,
+        },
+      };
+
+      /* ── Aurora WebGL setup ── */
+      const VERT = `attribute vec2 a;void main(){gl_Position=vec4(a,0.,1.);}`;
+      const FRAG = `
+precision highp float;
+uniform float u_t,u_speed,u_height,u_gravity,u_water,u_ripple,u_indigo,u_seafoam,u_pink,u_grain;
+uniform vec2 u_res;
+vec3 m289v3(vec3 x){return x-floor(x*(1./289.))*289.;}
+vec2 m289v2(vec2 x){return x-floor(x*(1./289.))*289.;}
+vec3 perm(vec3 x){return m289v3(((x*34.)+1.)*x);}
+float sn(vec2 v){
+  const vec4 C=vec4(.211324865405187,.366025403784439,-.577350269189626,.024390243902439);
+  vec2 i=floor(v+dot(v,C.yy)),x0=v-i+dot(i,C.xx);
+  vec2 i1=x0.x>x0.y?vec2(1.,0.):vec2(0.,1.);
+  vec4 x12=x0.xyxy+C.xxzz;x12.xy-=i1;i=m289v2(i);
+  vec3 p=perm(perm(i.y+vec3(0.,i1.y,1.))+i.x+vec3(0.,i1.x,1.));
+  vec3 m=max(.5-vec3(dot(x0,x0),dot(x12.xy,x12.xy),dot(x12.zw,x12.zw)),0.);
+  m=m*m*m*m;
+  vec3 x2=2.*fract(p*C.www)-1.,h=abs(x2)-.5,ox=floor(x2+.5),a0=x2-ox;
+  m*=1.79284291400159-.85373472095314*(a0*a0+h*h);
+  vec3 g;g.x=a0.x*x0.x+h.x*x0.y;g.yz=a0.yz*x12.xz+h.yz*x12.yw;
+  return 130.*dot(m,g);
+}
+void main(){
+  vec2 uv=gl_FragCoord.xy/u_res;
+  float t=u_t*u_speed*.22;
+  /* water / gravity warp */
+  float wx=sn(vec2(uv.x*1.7+t*.13,uv.y*1.1-t*.07))*.13;
+  float wy=sn(vec2(uv.x*2.3-t*.09,uv.y*.85+t*.05))*.09;
+  wy+=sin(uv.x*6.2832+t*.38)*(.025+(1.-uv.y)*.045)*u_gravity;
+  wx+=sn(vec2(uv.x*5.-t*.22,uv.y*4.+t*.18))*.025;
+  vec2 wuv=uv+vec2(wx,wy);
+  /* noise layers */
+  float n1=sn(vec2(wuv.x*2.1+t*.19,wuv.y*2.9+t*.11));
+  float n2=sn(vec2(wuv.x*3.6-t*.15,wuv.y*1.7-t*.08));
+  float n3=sn(vec2(wuv.x*1.25+t*.07,wuv.y*3.6+t*.1));
+  float n4=sn(vec2(wuv.x*5.1-t*.21,wuv.y*2.3+t*.14));
+  /* height mask */
+  float h=u_height;
+  float mask=smoothstep(0.,h,uv.y+.05)*smoothstep(1.1,h*.43,uv.y+.05);
+  mask*=.75+sn(vec2(uv.x*1.4,t*.14))*.25;
+  float b1=smoothstep(-.28,.58,n1)*mask;
+  float b2=smoothstep(-.32,.47,n2)*mask*.78;
+  float b3=smoothstep(-.22,.52,n3)*mask*.58;
+  float b4=smoothstep(-.38,.32,n4)*mask*.38;
+  /* palette */
+  vec3 bg=vec3(.038,.038,.052);
+  vec3 indigo=vec3(.22,.09,.86),purple=vec3(.40,.06,.74),violet=vec3(.56,.08,.93);
+  vec3 seafoam=vec3(.0,.80,.70),teal=vec3(.0,.62,.72);
+  vec3 neonPink=vec3(.96,.05,.50),hotPink=vec3(.98,.24,.72),paleBlue=vec3(.44,.63,.99);
+  /* colour weights applied */
+  float wI=u_indigo,wS=u_seafoam,wP=u_pink;
+  float ct=sin(t*.42)*.5+.5,ct2=cos(t*.31)*.5+.5,ct3=sin(t*.57+1.3)*.5+.5,ct4=cos(t*.23+.8)*.5+.5;
+  vec3 c1=mix(indigo,seafoam,ct)*(b1*.95*wI);
+  vec3 c2=mix(purple,neonPink,ct2)*(b2*.75*wP);
+  vec3 c3=mix(violet,paleBlue,ct3)*(b3*.65*wS);
+  vec3 c4=mix(teal,hotPink,ct4)*(b4*.48*wP);
+  vec3 aurora=c1+c2+c3+c4;
+  /* water reflection */
+  float wy2=smoothstep(.22,.0,uv.y)*u_water;
+  float rip=sn(vec2(uv.x*7.5+t*.52,uv.y*5.2+t*.31))*.014*u_ripple;
+  float shim=sn(vec2(uv.x*13.-t*.9,uv.y*10.))*.007*u_ripple;
+  vec3 waterHue=mix(indigo,teal,sin(uv.x*9.42+t*.42)*.5+.5);
+  vec3 water=waterHue*(wy2*.55+rip+shim)*(.55+ct*.45)*wS;
+  /* vignette */
+  vec2 vig=(uv-.5)*1.6;
+  float vignette=smoothstep(.95,.05,dot(vig,vig));
+  vec3 col=bg+aurora+water;
+  col=mix(col*.55,col,vignette);
+  /* grain */
+  float grain=sn(vec2(uv.x*820.+t*33.,uv.y*820.))*u_grain;
+  col+=grain;
+  gl_FragColor=vec4(clamp(col,0.,1.),1.);
+}`;
+
+      let glCtx = null,
+        glProg = null,
+        glUniforms = {},
+        glRaf = 0,
+        glStart = 0;
+
+      function initAurora() {
+        const canvas = document.getElementById("aurora-canvas");
+        if (glCtx) return;
+        const gl = canvas.getContext("webgl", {
+          alpha: false,
+          antialias: false,
+        });
+        if (!gl) {
+          console.warn("WebGL not available");
+          return;
+        }
+        glCtx = gl;
+        function compile(type, src) {
+          const s = gl.createShader(type);
+          gl.shaderSource(s, src);
+          gl.compileShader(s);
+          if (!gl.getShaderParameter(s, gl.COMPILE_STATUS))
+            console.error(gl.getShaderInfoLog(s));
+          return s;
+        }
+        glProg = gl.createProgram();
+        gl.attachShader(glProg, compile(gl.VERTEX_SHADER, VERT));
+        gl.attachShader(glProg, compile(gl.FRAGMENT_SHADER, FRAG));
+        gl.linkProgram(glProg);
+        gl.useProgram(glProg);
+        const buf = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+        gl.bufferData(
+          gl.ARRAY_BUFFER,
+          new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]),
+          gl.STATIC_DRAW
+        );
+        const loc = gl.getAttribLocation(glProg, "a");
+        gl.enableVertexAttribArray(loc);
+        gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+        [
+          "u_t",
+          "u_res",
+          "u_speed",
+          "u_height",
+          "u_gravity",
+          "u_water",
+          "u_ripple",
+          "u_indigo",
+          "u_seafoam",
+          "u_pink",
+          "u_grain",
+        ].forEach((n) => {
+          glUniforms[n] = gl.getUniformLocation(glProg, n);
+        });
+        resizeAurora();
+        glStart = performance.now();
+      }
+
+      function resizeAurora() {
+        const canvas = document.getElementById("aurora-canvas");
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        const preview = document.getElementById("preview");
+        canvas.width = preview.clientWidth * dpr;
+        canvas.height = preview.clientHeight * dpr;
+        if (glCtx) glCtx.viewport(0, 0, canvas.width, canvas.height);
+      }
+
+      function drawAurora() {
+        const gl = glCtx;
+        if (!gl) return;
+        const a = S.aurora,
+          c = document.getElementById("aurora-canvas");
+        gl.uniform1f(glUniforms.u_t, (performance.now() - glStart) / 1000);
+        gl.uniform2f(glUniforms.u_res, c.width, c.height);
+        gl.uniform1f(glUniforms.u_speed, a.speed / 100);
+        gl.uniform1f(glUniforms.u_height, a.height / 100);
+        gl.uniform1f(glUniforms.u_gravity, a.gravity / 100);
+        gl.uniform1f(glUniforms.u_water, a.water / 100);
+        gl.uniform1f(glUniforms.u_ripple, a.ripple / 100);
+        gl.uniform1f(glUniforms.u_indigo, a.indigo / 100);
+        gl.uniform1f(glUniforms.u_seafoam, a.seafoam / 100);
+        gl.uniform1f(glUniforms.u_pink, a.pink / 100);
+        gl.uniform1f(glUniforms.u_grain, a.grain / 1000);
+        gl.drawArrays(gl.TRIANGLES, 0, 6);
+        glRaf = requestAnimationFrame(drawAurora);
+      }
+
+      function startAurora() {
+        initAurora();
+        document.getElementById("aurora-canvas").style.display = "block";
+        document.getElementById("preview-frame").style.display = "none";
+        if (!glRaf) drawAurora();
+      }
+
+      function stopAurora() {
+        cancelAnimationFrame(glRaf);
+        glRaf = 0;
+        document.getElementById("aurora-canvas").style.display = "none";
+        document.getElementById("preview-frame").style.display = "block";
+      }
+
+      /* ── Aurora sync from sliders ── */
+      function syncAurora() {
+        const a = S.aurora;
+        a.speed = +document.getElementById("sl-a-speed").value;
+        a.height = +document.getElementById("sl-a-height").value;
+        a.gravity = +document.getElementById("sl-a-gravity").value;
+        a.water = +document.getElementById("sl-a-water").value;
+        a.ripple = +document.getElementById("sl-a-ripple").value;
+        a.indigo = +document.getElementById("sl-a-indigo").value;
+        a.seafoam = +document.getElementById("sl-a-seafoam").value;
+        a.pink = +document.getElementById("sl-a-pink").value;
+        a.grain = +document.getElementById("sl-a-grain").value;
+        document.getElementById("va-speed").textContent =
+          (a.speed / 100).toFixed(1) + "×";
+        document.getElementById("va-height").textContent = a.height + "%";
+        document.getElementById("va-gravity").textContent = (
+          a.gravity / 100
+        ).toFixed(1);
+        document.getElementById("va-water").textContent = (
+          a.water / 100
+        ).toFixed(1);
+        document.getElementById("va-ripple").textContent = (
+          a.ripple / 100
+        ).toFixed(1);
+        document.getElementById("va-indigo").textContent = (
+          a.indigo / 100
+        ).toFixed(1);
+        document.getElementById("va-seafoam").textContent = (
+          a.seafoam / 100
+        ).toFixed(1);
+        document.getElementById("va-pink").textContent = (a.pink / 100).toFixed(
+          1
+        );
+        document.getElementById("va-grain").textContent = a.grain;
+        buildPrompt();
+      }
+
+      function setAuroraSliders() {
+        const a = S.aurora;
+        document.getElementById("sl-a-speed").value = a.speed;
+        document.getElementById("sl-a-height").value = a.height;
+        document.getElementById("sl-a-gravity").value = a.gravity;
+        document.getElementById("sl-a-water").value = a.water;
+        document.getElementById("sl-a-ripple").value = a.ripple;
+        document.getElementById("sl-a-indigo").value = a.indigo;
+        document.getElementById("sl-a-seafoam").value = a.seafoam;
+        document.getElementById("sl-a-pink").value = a.pink;
+        document.getElementById("sl-a-grain").value = a.grain;
+        syncAurora();
+      }
+
+      /* ── CSS var injection ── */
+      function applyVars() {
+        const t = T[S.theme],
+          r = document.documentElement,
+          set = (k, v) => r.style.setProperty(k, v);
+        set("--bg", t.bg);
+        set("--fg", t.fg);
+        set("--card", t.card);
+        set("--primary", t.primary);
+        set("--primary-fg", t.primaryFg);
+        set("--secondary", t.secondary);
+        set("--secondary-fg", t.secondaryFg);
+        set("--muted", t.muted);
+        set("--muted-fg", t.mutedFg);
+        set("--accent", t.accent);
+        set("--accent-fg", t.accentFg);
+        set("--border", t.border);
+        set("--input-bg", t.inputBg);
+        set("--ring", t.ring);
+        set("--seafoam", "oklch(0.8871 0.1828 166.5465)");
+        set("--neon-pink", "oklch(0.667 0.295 322.15)");
+        set("--radius", S.radius > 0 ? `${S.radius}px` : t.radius);
+        set("--density", S.density / 100);
+        const g = S.glow;
+        set(
+          "--card-shadow",
+          g < 5
+            ? "none"
+            : `0 0 ${g * 0.22 + 2}px hsl(${t.shadowHue} / ${g / 100}), 0 2px ${g * 0.12}px hsl(${t.shadowHue} / ${(g * 0.6) / 100})`
+        );
+      }
+
+      /* ── Component renderers ── */
+      function leadCard() {
+        return `<div style="display:flex;flex-direction:column;gap:10px;max-width:460px;margin:0 auto"><div class="c-card" style="display:flex;flex-direction:column;gap:11px"><div style="display:flex;align-items:center;justify-content:space-between"><div style="display:flex;align-items:center;gap:10px"><div style="width:36px;height:36px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--accent-fg);flex-shrink:0">JS</div><div><div style="font-size:13px;font-weight:600">John Smith</div><div style="font-size:11px;color:var(--muted-fg)">Conv 30yr · Purchase</div></div></div><span class="c-badge b-active">Active</span></div><div style="border-top:1px solid var(--border);padding-top:10px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px"><div><div style="font-size:9px;color:var(--muted-fg);text-transform:uppercase;letter-spacing:.07em">Loan</div><div style="font-size:14px;font-weight:700">$485K</div></div><div><div style="font-size:9px;color:var(--muted-fg);text-transform:uppercase;letter-spacing:.07em">Credit</div><div style="font-size:14px;font-weight:700;color:var(--seafoam)">742</div></div><div><div style="font-size:9px;color:var(--muted-fg);text-transform:uppercase;letter-spacing:.07em">DTI</div><div style="font-size:14px;font-weight:700">38%</div></div></div><div style="display:flex;align-items:center;justify-content:space-between"><span style="font-size:11px;color:var(--muted-fg)">Last contact: 2h ago</span><div style="display:flex;gap:5px"><button class="c-btn btn-g" style="font-size:10px">Timeline</button><button class="c-btn btn-p" style="font-size:10px">View Profile</button></div></div></div><div class="c-card" style="display:flex;align-items:center;justify-content:space-between;opacity:.6"><div style="display:flex;align-items:center;gap:10px"><div style="width:36px;height:36px;border-radius:50%;background:var(--secondary);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--secondary-fg)">MR</div><div><div style="font-size:13px;font-weight:600">Maria Rodriguez</div><div style="font-size:11px;color:var(--muted-fg)">FHA 30yr · $390K</div></div></div><span class="c-badge b-new">New</span></div></div>`;
+      }
+      function pipeline() {
+        const cols = [
+          {
+            label: "New Lead",
+            n: 4,
+            col: "var(--neon-pink)",
+            items: ["Alex T · $320K", "Sam P · $580K"],
+          },
+          {
+            label: "Processing",
+            n: 6,
+            col: "var(--primary)",
+            items: ["John S · $485K", "Chen W · $750K"],
+          },
+          {
+            label: "Approved",
+            n: 2,
+            col: "var(--seafoam)",
+            items: ["Lisa M · $290K"],
+          },
+          {
+            label: "Closing",
+            n: 1,
+            col: "var(--ring)",
+            items: ["Bob K · $415K"],
+          },
+        ];
+        return `<div style="display:flex;gap:10px;overflow-x:auto;padding-bottom:4px">${cols.map((c) => `<div style="min-width:155px;display:flex;flex-direction:column;gap:7px"><div style="display:flex;align-items:center;justify-content:space-between;padding:0 2px"><span style="font-size:10px;font-weight:600;color:var(--muted-fg);text-transform:uppercase;letter-spacing:.06em">${c.label}</span><span style="font-size:10px;font-weight:700;color:${c.col};background:color-mix(in oklch,${c.col} 15%,transparent);padding:1px 6px;border-radius:10px">${c.n}</span></div>${c.items.map((i) => `<div class="c-card" style="cursor:pointer"><div style="font-size:12px;font-weight:500">${i.split("·")[0]}</div><div style="font-size:10px;color:var(--muted-fg)">${(i.split("·")[1] || "").trim()}</div><div style="margin-top:6px;height:2px;border-radius:2px;background:color-mix(in oklch,${c.col} 35%,transparent);width:55%"></div></div>`).join("")}</div>`).join("")}</div>`;
+      }
+      function quotes() {
+        const rows = [
+          { t: "Conv 30yr", r: "6.875%", p: "$2,847", apr: "6.92%", hi: false },
+          { t: "Conv 15yr", r: "6.250%", p: "$3,641", apr: "6.31%", hi: false },
+          { t: "FHA 30yr", r: "6.500%", p: "$2,781", apr: "7.12%", hi: true },
+          { t: "VA 30yr", r: "6.125%", p: "$2,706", apr: "6.19%", hi: false },
+        ];
+        return `<div style="border:1px solid var(--border);border-radius:calc(var(--radius)*.28);overflow:hidden"><div style="display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr 72px;background:var(--muted);padding:7px 12px;gap:8px">${["Loan Type", "Rate", "Mo. Payment", "APR", ""].map((h) => `<span style="font-size:9px;color:var(--muted-fg);text-transform:uppercase;letter-spacing:.07em">${h}</span>`).join("")}</div>${rows.map((r) => `<div style="display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr 72px;padding:calc(9px*var(--density)) 12px;gap:8px;border-top:1px solid var(--border);align-items:center;background:${r.hi ? "color-mix(in oklch,var(--primary) 7%,transparent)" : "transparent"}"><span style="font-size:12px;font-weight:500;display:flex;align-items:center;gap:5px">${r.hi ? '<span style="width:5px;height:5px;border-radius:50%;background:var(--seafoam);display:inline-block"></span>' : ""} ${r.t}</span><span style="font-size:12px;font-weight:700;color:${r.hi ? "var(--seafoam)" : "var(--fg)"}">${r.r}</span><span style="font-size:12px">${r.p}</span><span style="font-size:11px;color:var(--muted-fg)">${r.apr}</span><button class="c-btn ${r.hi ? "btn-p" : "btn-g"}" style="font-size:10px;width:100%">Select</button></div>`).join("")}</div>`;
+      }
+      function buttons() {
+        return `<div style="display:flex;flex-direction:column;gap:18px;max-width:400px;margin:0 auto"><div><div style="font-size:9px;color:var(--muted-fg);text-transform:uppercase;letter-spacing:.09em;margin-bottom:9px">Variants</div><div style="display:flex;flex-wrap:wrap;gap:7px"><button class="c-btn btn-p">Primary</button><button class="c-btn btn-s">Secondary</button><button class="c-btn btn-g">Ghost</button><button class="c-btn btn-d">Destructive</button></div></div><div><div style="font-size:9px;color:var(--muted-fg);text-transform:uppercase;letter-spacing:.09em;margin-bottom:9px">Badges</div><div style="display:flex;flex-wrap:wrap;gap:5px"><span class="c-badge b-active">Active</span><span class="c-badge b-proc">Processing</span><span class="c-badge b-new">New Lead</span><span class="c-badge b-closed">Closed</span></div></div></div>`;
+      }
+      function form() {
+        return `<div class="c-card" style="max-width:400px;margin:0 auto;display:flex;flex-direction:column;gap:14px"><div><div style="font-size:14px;font-weight:700;margin-bottom:2px">Loan Application</div><div style="font-size:11px;color:var(--muted-fg)">Complete your borrower information</div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><div style="display:flex;flex-direction:column;gap:4px"><label style="font-size:10px;font-weight:500">First Name</label><input class="c-input" placeholder="John"></div><div style="display:flex;flex-direction:column;gap:4px"><label style="font-size:10px;font-weight:500">Last Name</label><input class="c-input" placeholder="Smith"></div></div><div style="display:flex;flex-direction:column;gap:4px"><label style="font-size:10px;font-weight:500">Email</label><input class="c-input" placeholder="john@example.com" type="email"></div><div style="display:flex;flex-direction:column;gap:4px"><label style="font-size:10px;font-weight:500">Loan Amount</label><input class="c-input" placeholder="$485,000"></div><div style="display:flex;gap:7px;padding-top:4px"><button class="c-btn btn-g" style="flex:1">Cancel</button><button class="c-btn btn-p" style="flex:2">Submit</button></div></div>`;
+      }
+      function sidebar() {
+        const items = [
+          { i: "▦", l: "Dashboard", a: false },
+          { i: "◉", l: "Leads", a: true, b: "24" },
+          { i: "⊞", l: "Pipeline", a: false },
+          { i: "❝", l: "Campaigns", a: false, b: "3" },
+          { i: "◈", l: "Quotes", a: false },
+        ];
+        return `<div style="display:flex;gap:14px;max-width:460px;margin:0 auto"><div style="width:188px;background:var(--card);border:1px solid var(--border);border-radius:calc(var(--radius)*.22);padding:12px 7px;display:flex;flex-direction:column;gap:2px;flex-shrink:0"><div style="padding:7px 9px;margin-bottom:7px;display:flex;align-items:center;gap:7px;border-bottom:1px solid var(--border)"><div style="width:22px;height:22px;border-radius:50%;background:var(--primary);box-shadow:0 0 7px color-mix(in oklch,var(--primary) 50%,transparent)"></div><span style="font-size:12px;font-weight:700">Nyra</span></div>${items.map((item) => `<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 9px;border-radius:calc(var(--radius)*.14);cursor:pointer;background:${item.a ? "var(--accent)" : "transparent"};color:${item.a ? "var(--accent-fg)" : "var(--muted-fg)"}"><div style="display:flex;align-items:center;gap:7px"><span style="font-size:11px">${item.i}</span><span style="font-size:11px;font-weight:${item.a ? 600 : 400}">${item.l}</span></div>${item.b ? `<span style="font-size:9px;font-weight:700;padding:1px 5px;border-radius:9px;background:color-mix(in oklch,var(--primary) 18%,transparent);color:var(--primary)">${item.b}</span>` : ""}</div>`).join("")}</div><div style="flex:1;display:flex;flex-direction:column;gap:8px"><div class="c-card"><div style="font-size:11px;font-weight:600;margin-bottom:6px">Active Leads</div><div style="font-size:26px;font-weight:700;color:var(--seafoam)">24</div><div style="font-size:10px;color:var(--muted-fg)">+3 this week</div></div><div class="c-card"><div style="font-size:11px;font-weight:600;margin-bottom:6px">Pipeline</div><div style="font-size:26px;font-weight:700;color:var(--primary)">$8.2M</div><div style="font-size:10px;color:var(--muted-fg)">12 active deals</div></div></div></div>`;
+      }
+      function chat() {
+        return `<div style="max-width:360px;margin:0 auto"><div class="c-card" style="padding:0;overflow:hidden;display:flex;flex-direction:column;height:400px"><div style="padding:10px 14px;background:var(--muted);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px"><div style="width:26px;height:26px;border-radius:50%;background:var(--primary);display:flex;align-items:center;justify-content:center;box-shadow:0 0 7px color-mix(in oklch,var(--primary) 55%,transparent)"><span style="font-size:11px;color:var(--primary-fg)">&#9733;</span></div><div><div style="font-size:12px;font-weight:600">RateHunter AI</div><div style="font-size:9px;color:var(--seafoam)">&#9679; Online</div></div></div><div style="flex:1;padding:14px;display:flex;flex-direction:column;gap:10px;overflow:auto"><div style="display:flex;gap:7px;align-items:flex-end"><div style="width:22px;height:22px;border-radius:50%;background:var(--primary);flex-shrink:0"></div><div style="background:var(--muted);border-radius:0 calc(var(--radius)*.28) calc(var(--radius)*.28) calc(var(--radius)*.28);padding:9px 11px;max-width:78%"><div style="font-size:12px;line-height:1.55">Hi! What type of loan are you looking for?</div></div></div><div style="display:flex;gap:5px;margin-left:29px;flex-wrap:wrap"><button class="c-btn btn-g" style="font-size:10px">&#127968; Purchase</button><button class="c-btn btn-g" style="font-size:10px">&#128260; Refi</button></div><div style="display:flex;gap:7px;align-items:flex-end;flex-direction:row-reverse"><div style="background:var(--primary);border-radius:calc(var(--radius)*.28) 0 calc(var(--radius)*.28) calc(var(--radius)*.28);padding:9px 11px;max-width:78%"><div style="font-size:12px;color:var(--primary-fg);line-height:1.55">Purchase &#8212; $485K</div></div></div></div><div style="padding:9px 11px;border-top:1px solid var(--border);display:flex;gap:7px;align-items:center"><input class="c-input" placeholder="Type a message&#8230;" style="font-size:11px"><button class="c-btn btn-p" style="padding:7px 11px;flex-shrink:0">&#8594;</button></div></div></div>`;
+      }
+      function wizard() {
+        return `<div style="max-width:420px;margin:0 auto"><div class="c-card" style="display:flex;flex-direction:column;gap:18px"><div><div style="display:flex;gap:3px;margin-bottom:12px">${[1, 2, 3, 4, 5].map((_, i) => `<div style="flex:1;height:3px;border-radius:2px;background:${i < 2 ? "var(--primary)" : "var(--border)"}"></div>`).join("")}</div><div style="font-size:10px;color:var(--muted-fg)">Step 2 of 5 &#8212; Loan Details</div></div><div><div style="font-size:19px;font-weight:700;line-height:1.3;margin-bottom:5px">What&#39;s your estimated home purchase price?</div><div style="font-size:12px;color:var(--muted-fg)">We&#39;ll find rates you actually qualify for.</div></div><div style="display:flex;flex-direction:column;gap:8px"><input class="c-input" placeholder="$450,000" style="font-size:15px;padding:11px 13px"><div style="display:flex;gap:5px;flex-wrap:wrap">${["$300K", "$400K", "$500K", "$600K+"].map((v) => `<button class="c-btn btn-g" style="font-size:11px">${v}</button>`).join("")}</div></div><div style="display:flex;gap:7px"><button class="c-btn btn-g" style="flex:1">&#8592; Back</button><button class="c-btn btn-p" style="flex:2">Next &#8594;</button></div><div style="display:flex;align-items:center;gap:5px"><div style="width:8px;height:8px;border-radius:50%;background:var(--seafoam);flex-shrink:0"></div><span style="font-size:10px;color:var(--muted-fg)">Your info is encrypted and never shared.</span></div></div></div>`;
+      }
+      function hero() {
+        return `<div style="max-width:460px;margin:0 auto;text-align:center"><div style="margin-bottom:22px"><div style="font-size:10px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--seafoam);margin-bottom:9px">AI-Powered Mortgage Search</div><div style="font-size:30px;font-weight:800;line-height:1.2;margin-bottom:11px">Find Your Best Rate<br><span style="color:var(--primary)">In 90 Seconds</span></div><div style="font-size:13px;color:var(--muted-fg);line-height:1.65">Compare rates from 40+ lenders without the hard credit pull.</div></div><div class="c-card" style="margin-bottom:14px;display:flex;gap:7px"><input class="c-input" placeholder="Enter your purchase price&#8230;" style="font-size:13px"><button class="c-btn btn-p" style="white-space:nowrap;padding:9px 18px">Get Rates &#8594;</button></div><div style="display:flex;justify-content:center;gap:22px"><div style="text-align:center"><div style="font-size:19px;font-weight:700;color:var(--seafoam)">6.25%</div><div style="font-size:10px;color:var(--muted-fg)">Best Rate</div></div><div style="width:1px;background:var(--border)"></div><div style="text-align:center"><div style="font-size:19px;font-weight:700;color:var(--fg)">40+</div><div style="font-size:10px;color:var(--muted-fg)">Lenders</div></div><div style="width:1px;background:var(--border)"></div><div style="text-align:center"><div style="font-size:19px;font-weight:700;color:var(--neon-pink)">$0</div><div style="font-size:10px;color:var(--muted-fg)">Broker Fees</div></div></div></div>`;
+      }
+      function glassPreview() {
+        const gc = (
+          html,
+          g = "135deg,rgba(80,56,255,0.32),rgba(0,204,178,0.16)"
+        ) =>
+          `<div style="background:linear-gradient(${g});padding:1px;border-radius:14px;margin-bottom:10px"><div style="background:rgba(4,4,14,0.62);backdrop-filter:blur(22px) saturate(160%);-webkit-backdrop-filter:blur(22px) saturate(160%);border-radius:13px;padding:13px">${html}</div></div>`;
+        const blobs = `<div style="position:absolute;top:-70px;left:-50px;width:340px;height:340px;border-radius:50%;background:radial-gradient(circle,rgba(80,56,255,0.5) 0%,transparent 70%);filter:blur(35px);pointer-events:none;z-index:0"></div><div style="position:absolute;bottom:-50px;right:-20px;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(0,204,178,0.35) 0%,transparent 70%);filter:blur(45px);pointer-events:none;z-index:0"></div><div style="position:absolute;top:38%;left:42%;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle,rgba(242,13,122,0.22) 0%,transparent 70%);filter:blur(55px);pointer-events:none;z-index:0"></div>`;
+        const nav = gc(
+          `<div style="display:flex;align-items:center;justify-content:space-between"><div style="display:flex;align-items:center;gap:16px"><div style="display:flex;align-items:center;gap:7px"><div style="width:22px;height:22px;border-radius:7px;background:linear-gradient(135deg,#5038FF,#00CCB2);box-shadow:0 0 14px rgba(80,56,255,0.75);flex-shrink:0"></div><span style="font-size:13px;font-weight:800;letter-spacing:-.02em">Nyra</span></div><div style="display:flex;gap:2px">${["Dashboard", "Leads", "Pipeline", "Quotes"].map((l, i) => `<span style="font-size:10px;padding:4px 9px;border-radius:6px;cursor:pointer;${i === 0 ? "background:rgba(80,56,255,0.22);color:#00CCB2;font-weight:600" : "color:rgba(255,255,255,0.42)"}">${l}</span>`).join("")}</div></div><div style="display:flex;align-items:center;gap:8px"><span style="font-size:10px;padding:3px 8px;border-radius:6px;background:rgba(0,204,178,0.1);color:#00CCB2;border:1px solid rgba(0,204,178,0.22)">⌘K</span><div style="width:27px;height:27px;border-radius:50%;background:linear-gradient(135deg,#5038FF,#F20D7A);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;box-shadow:0 0 10px rgba(242,13,122,0.4)">E</div></div></div>`,
+          "135deg,rgba(80,56,255,0.16),rgba(0,204,178,0.08)"
+        );
+        const metrics = `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:10px">${[
+          { l: "Pipeline Value", v: "$8.2M", s: "+12% mo.", c: "#00CCB2" },
+          { l: "Active Leads", v: "24", s: "3 urgent", c: "#5038FF" },
+          { l: "Conv Rate", v: "31%", s: "above avg ↑", c: "#F20D7A" },
+        ]
+          .map((m) =>
+            gc(
+              `<div style="font-size:8px;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,0.32);margin-bottom:5px">${m.l}</div><div style="font-size:22px;font-weight:800;color:${m.c};line-height:1;text-shadow:0 0 22px ${m.c}55;margin-bottom:3px">${m.v}</div><div style="font-size:9px;color:rgba(255,255,255,0.32)">${m.s}</div>`,
+              "135deg,rgba(80,56,255,0.1),rgba(0,0,0,0)"
+            )
+          )
+          .join("")}</div>`;
+        const leads = gc(
+          `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><span style="font-size:11px;font-weight:700">Active Leads</span><span style="font-size:9px;padding:2px 7px;border-radius:8px;background:rgba(80,56,255,0.2);color:#a78bfa">24 total</span></div>${[
+            {
+              n: "John Smith",
+              d: "Conv 30yr · $485K",
+              s: 92,
+              b: "Active",
+              c: "#00CCB2",
+            },
+            {
+              n: "Maria Rodriguez",
+              d: "FHA 30yr · $390K",
+              s: 78,
+              b: "New",
+              c: "#F20D7A",
+            },
+            {
+              n: "Chen Wei",
+              d: "Jumbo · $850K",
+              s: 88,
+              b: "Processing",
+              c: "#5038FF",
+            },
+          ]
+            .map(
+              (l) =>
+                `<div style="display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:10px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);margin-bottom:6px"><div style="width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#5038FF,#00CCB2);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0">${l.n
+                  .split(" ")
+                  .map((w) => w[0])
+                  .join(
+                    ""
+                  )}</div><div style="flex:1;min-width:0"><div style="font-size:11px;font-weight:600">${l.n}</div><div style="font-size:9px;color:rgba(255,255,255,0.36)">${l.d}</div></div><div style="text-align:right;flex-shrink:0"><div style="font-size:8px;padding:2px 6px;border-radius:7px;background:color-mix(in srgb,${l.c} 14%,transparent);color:${l.c};margin-bottom:3px">${l.b}</div><div style="font-size:9px;color:rgba(255,255,255,0.36)">Score ${l.s}</div></div></div>`
+            )
+            .join("")}`
+        );
+        const pipe = gc(
+          `<div style="font-size:11px;font-weight:700;margin-bottom:11px">Pipeline</div>${[
+            { s: "New", n: 4, c: "#F20D7A", p: 40 },
+            { s: "Processing", n: 6, c: "#5038FF", p: 60 },
+            { s: "Approved", n: 2, c: "#00CCB2", p: 20 },
+            { s: "Closing", n: 1, c: "#FFD700", p: 10 },
+          ]
+            .map(
+              (s) =>
+                `<div style="margin-bottom:9px"><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:10px;color:rgba(255,255,255,0.48)">${s.s}</span><span style="font-size:10px;font-weight:700;color:${s.c}">${s.n}</span></div><div style="height:3px;border-radius:2px;background:rgba(255,255,255,0.07)"><div style="height:100%;border-radius:2px;background:${s.c};width:${s.p}%;box-shadow:0 0 8px ${s.c}90"></div></div></div>`
+            )
+            .join(
+              ""
+            )}<div style="margin-top:14px;padding-top:11px;border-top:1px solid rgba(255,255,255,0.07)"><div style="font-size:8px;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,0.28);margin-bottom:5px">Total Pipeline</div><div style="font-size:20px;font-weight:800;background:linear-gradient(135deg,#5038FF,#00CCB2);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">$8.2M</div></div>`
+        );
+        return `<div style="position:relative;width:100%;padding:14px;border-radius:16px;background:radial-gradient(ellipse at 22% 22%,rgba(80,56,255,0.4) 0%,transparent 52%),radial-gradient(ellipse at 82% 78%,rgba(0,204,178,0.28) 0%,transparent 48%),radial-gradient(ellipse at 58% 52%,rgba(242,13,122,0.17) 0%,transparent 42%),#04040e;overflow:hidden">${blobs}<div style="position:relative;z-index:1">${nav}${metrics}<div style="display:grid;grid-template-columns:1.35fr 1fr;gap:9px">${leads}${pipe}</div></div></div>`;
+      }
+      const RENDERS = {
+        "glass-preview": glassPreview,
+        "lead-card": leadCard,
+        pipeline,
+        quotes,
+        buttons,
+        form,
+        sidebar,
+        chat,
+        wizard,
+        hero,
+      };
+
+      /* ── Render ── */
+      function render() {
+        if (S.comp === "aurora-bg") {
+          startAurora();
+        } else {
+          stopAurora();
+          const fn = RENDERS[S.comp] || leadCard;
+          document.getElementById("preview-frame").innerHTML = fn();
+        }
+      }
+
+      function buildPrompt() {
+        if (S.comp === "aurora-bg") {
+          const a = S.aurora;
+          const parts = [];
+          if (a.speed !== 100)
+            parts.push(`speed ${(a.speed / 100).toFixed(1)}×`);
+          if (a.height !== 65) parts.push(`aurora height ${a.height}%`);
+          if (a.gravity !== 100)
+            parts.push(`gravity warp ${(a.gravity / 100).toFixed(1)}`);
+          if (a.water !== 100)
+            parts.push(`water pool depth ${(a.water / 100).toFixed(1)}`);
+          if (a.ripple !== 100)
+            parts.push(`water ripple ${(a.ripple / 100).toFixed(1)}`);
+          if (a.indigo !== 100)
+            parts.push(`indigo/purple weight ${(a.indigo / 100).toFixed(1)}`);
+          if (a.seafoam !== 100)
+            parts.push(`seafoam/teal weight ${(a.seafoam / 100).toFixed(1)}`);
+          if (a.pink !== 100)
+            parts.push(`neon-pink weight ${(a.pink / 100).toFixed(1)}`);
+          if (a.grain > 0) parts.push(`film grain ${a.grain}`);
+          const base =
+            "Update the AuroraBackground.tsx shader with these values";
+          document.getElementById("prompt-txt").textContent = parts.length
+            ? `${base}: ${parts.join(", ")}.`
+            : "Aurora at default settings — all uniforms at baseline.";
+          return;
+        }
+        const t = T[S.theme],
+          cl = {
+            "lead-card": "lead cards",
+            pipeline: "pipeline board",
+            quotes: "quote comparison grid",
+            buttons: "button set",
+            form: "form components",
+            sidebar: "sidebar navigation",
+            chat: "chat widget",
+            wizard: "lead capture wizard",
+            hero: "hero CTA section",
+          };
+        const app = S.app === "pn" ? "projectnyra" : "ratehunter";
+        let base = `Update the ${app} ${cl[S.comp] || S.comp} to use the ${t.name} theme`;
+        const notes = [];
+        if (S.radius > 0)
+          notes.push(
+            S.radius < 6
+              ? `sharp corners (${S.radius}px)`
+              : S.radius < 16
+                ? `${S.radius}px border-radius`
+                : `very rounded corners (${S.radius}px)`
+          );
+        if (S.density < 82)
+          notes.push(
+            `compact spacing ~${Math.round((1 - S.density / 100) * 100)}% reduction`
+          );
+        else if (S.density > 115)
+          notes.push(
+            `spacious layout ~${Math.round((S.density / 100 - 1) * 100)}% more padding`
+          );
+        if (S.glow > 65) notes.push("strong glow shadows");
+        else if (S.glow > 40) notes.push("moderate glow shadows");
+        else if (S.glow < 8) notes.push("no glow");
+        document.getElementById("prompt-txt").textContent = notes.length
+          ? `${base}. Apply: ${notes.join(", ")}.`
+          : `${base}.`;
+      }
+
+      function updateAll() {
+        applyVars();
+        render();
+        buildPrompt();
+        document.getElementById("vd").textContent = `${S.density}%`;
+        document.getElementById("vg").textContent = `${S.glow}%`;
+        document.getElementById("vr").textContent =
+          S.radius > 0 ? `${S.radius}px` : "theme";
+      }
+
+      /* ── Controls ── */
+      function setApp(a) {
+        S.app = a;
+        ["pn", "rh"].forEach((id) =>
+          document.getElementById(`tab-${id}`).classList.toggle("on", id === a)
+        );
+        const comps = COMPS[a].map((c) => c.id);
+        if (!comps.includes(S.comp)) S.comp = comps[0];
+        rebuildCompGrid();
+        updateAll();
+      }
+      function setTheme(th) {
+        S.theme = th;
+        ["apo", "mm", "mmg", "vir"].forEach((id) =>
+          document.getElementById(`sw-${id}`).classList.toggle("on", id === th)
+        );
+        updateAll();
+      }
+      function rebuildCompGrid() {
+        document.getElementById("comp-grid").innerHTML = COMPS[S.app]
+          .map(
+            (c) =>
+              `<button class="comp-btn${S.comp === c.id ? " on" : ""}" onclick="pickComp('${c.id}')">${c.l}</button>`
+          )
+          .join("");
+      }
+      function pickComp(id) {
+        S.comp = id;
+        const isAurora = id === "aurora-bg";
+        document.getElementById("visual-section").style.display = isAurora
+          ? "none"
+          : "";
+        document.getElementById("aurora-section").style.display = isAurora
+          ? ""
+          : "none";
+        rebuildCompGrid();
+        updateAll();
+        if (isAurora) {
+          resizeAurora();
+          setAuroraSliders();
+        }
+      }
+      function syncSliders() {
+        S.density = +document.getElementById("sl-d").value;
+        S.glow = +document.getElementById("sl-g").value;
+        S.radius = +document.getElementById("sl-r").value;
+        updateAll();
+      }
+      function applyPreset(name) {
+        const p = PRESETS[name];
+        if (!p) return;
+        const { aurora, ...rest } = p;
+        Object.assign(S, rest);
+        Object.assign(S.aurora, aurora);
+        ["pn", "rh"].forEach((id) =>
+          document
+            .getElementById(`tab-${id}`)
+            .classList.toggle("on", id === S.app)
+        );
+        ["apo", "mm", "mmg", "vir"].forEach((id) =>
+          document
+            .getElementById(`sw-${id}`)
+            .classList.toggle("on", id === S.theme)
+        );
+        document.getElementById("sl-d").value = S.density;
+        document.getElementById("sl-g").value = S.glow;
+        document.getElementById("sl-r").value = S.radius;
+        const isAurora = S.comp === "aurora-bg";
+        document.getElementById("visual-section").style.display = isAurora
+          ? "none"
+          : "";
+        document.getElementById("aurora-section").style.display = isAurora
+          ? ""
+          : "none";
+        rebuildCompGrid();
+        updateAll();
+        if (isAurora) {
+          resizeAurora();
+          setAuroraSliders();
+        }
+      }
+      function copyPrompt() {
+        navigator.clipboard
+          .writeText(document.getElementById("prompt-txt").textContent)
+          .then(() => {
+            const btn = document.getElementById("copy-btn");
+            btn.textContent = "Copied!";
+            btn.classList.add("ok");
+            setTimeout(() => {
+              btn.textContent = "Copy Prompt";
+              btn.classList.remove("ok");
+            }, 1500);
+          });
+      }
+      window.addEventListener("resize", () => {
+        if (S.comp === "aurora-bg") resizeAurora();
+      });
+      rebuildCompGrid();
+      updateAll();
+    </script>
+  </body>
+</html>
