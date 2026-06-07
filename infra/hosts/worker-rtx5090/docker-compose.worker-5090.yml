@@ -1,5 +1,5 @@
 # ============================================================================
-# Worker RTX 5090 - Alienware Area-51 Laptop (32GB VRAM)
+# Worker RTX 5090 - Alienware Area-51 Laptop (24GB GDDR7)
 # ============================================================================
 # vLLM + LMCache for high-performance large model inference
 # Connected via Tailscale mesh to orchestrator
@@ -16,6 +16,8 @@ services:
     command: ["/usr/local/bin/secrets-init.sh"]
     environment:
       INFISICAL_TOKEN: ${INFISICAL_TOKEN:-}
+      INFISICAL_UNIVERSAL_AUTH_CLIENT_ID: ${INFISICAL_UNIVERSAL_AUTH_CLIENT_ID:-}
+      INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET: ${INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET:-}
       INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
       INFISICAL_ENV: ${INFISICAL_ENV:-prod}
       INFISICAL_PATH: ${INFISICAL_PATH:-/machines/worker-rtx5090}
@@ -26,7 +28,6 @@ services:
 
   # ── Infisical agent (polls Infisical and refreshes secrets) ──────────────
   infisical-agent:
-    profiles: ["secrets"]
     build:
       context: ../../images/infisical-secrets-init
     container_name: worker-5090-infisical-agent
@@ -37,6 +38,8 @@ services:
         condition: service_completed_successfully
     environment:
       INFISICAL_TOKEN: ${INFISICAL_TOKEN:-}
+      INFISICAL_UNIVERSAL_AUTH_CLIENT_ID: ${INFISICAL_UNIVERSAL_AUTH_CLIENT_ID:-}
+      INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET: ${INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET:-}
       INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
       INFISICAL_ENV: ${INFISICAL_ENV:-prod}
       INFISICAL_PATH: ${INFISICAL_PATH:-/machines/worker-rtx5090}
@@ -67,7 +70,7 @@ services:
       - worker-network
 
   # ============================================================================
-  # vLLM Server with LMCache (32GB VRAM - Maximum Performance)
+  # vLLM Server with LMCache (24GB GDDR7 - High Performance)
   # ============================================================================
   vllm:
     image: vllm/vllm-openai:latest
@@ -77,6 +80,7 @@ services:
     depends_on:
       secrets-init:
         condition: service_completed_successfully
+
     ports:
       - "${VLLM_PORT:-8000}:8000"
     volumes:
@@ -94,18 +98,25 @@ services:
       - LMCACHE_ENABLED=true
       - LMCACHE_STORAGE_BACKEND=local
       - LMCACHE_LOCAL_DEVICE=cuda
-      - LMCACHE_MAX_LOCAL_CACHE_SIZE=12G
-    command: >
-      --model Qwen/Qwen2.5-Coder-3B-Instruct
-      --host 0.0.0.0
-      --port 8000
-      --tensor-parallel-size 1
-      --gpu-memory-utilization 0.70
-      --max-model-len 8192
-      --enable-prefix-caching
-      --enable-chunked-prefill
-      --trust-remote-code
-      --enforce-eager
+      - LMCACHE_MAX_LOCAL_CACHE_SIZE=8G
+    entrypoint: []
+    command:
+      - /bin/sh
+      - -c
+      - |
+        model=$$(cat /root/.cache/huggingface/current_model.txt 2>/dev/null || echo "$${VLLM_MODEL:-cyankiwi/Qwen3.6-27B-AWQ-INT4}")
+        echo "Starting vLLM with model: $$model"
+        exec python3 -m vllm.entrypoints.openai.api_server \
+          --model "$$model" \
+          --host 0.0.0.0 \
+          --port 8000 \
+          --tensor-parallel-size 1 \
+          --gpu-memory-utilization 0.88 \
+          --max-model-len 2048 \
+          --enable-prefix-caching \
+          --enable-chunked-prefill \
+          --trust-remote-code \
+          --quantization awq
     deploy:
       resources:
         reservations:
@@ -135,13 +146,15 @@ services:
     volumes:
       - ./model-switcher:/app
       - vllm-models:/models
+      - /var/run/docker.sock:/var/run/docker.sock
       - nyra_secrets:/run/nyra-secrets:ro
     environment:
-      - VLLM_URL=http://vllm:8000
-      - AVAILABLE_MODELS=meta-llama/Llama-3.1-70B-Instruct-AWQ,deepseek-ai/DeepSeek-R1-Distill-Llama-70B,Qwen/Qwen2.5-72B-Instruct-AWQ,mistralai/Mixtral-8x22B-Instruct-v0.1-AWQ
-      - DEFAULT_MODEL=meta-llama/Llama-3.1-70B-Instruct-AWQ
+      - VLLM_URL=http://worker-5090-vllm:8000
+      - AVAILABLE_MODELS=cyankiwi/Qwen3.6-27B-AWQ-INT4,lhca521/Huihui-Qwen3.6-27B-abliterated-AWQ,cyankiwi/gemma-4-31B-it-AWQ-4bit,alonsoko/gemma-4-31b-it-abliterated-heretic-AWQ-W4A16,cyankiwi/gemma-4-26B-A4B-it-AWQ-4bit
+      - DEFAULT_MODEL=cyankiwi/Qwen3.6-27B-AWQ-INT4
       - SPECIALIZATION=mortgage,compliance,reasoning
     command: python /app/switcher.py
+
     depends_on:
       secrets-init:
         condition: service_completed_successfully
@@ -166,6 +179,7 @@ services:
       - ./litellm-config.yaml:/app/config.yaml:ro
       - nyra_secrets:/run/nyra-secrets:ro
     command: --config /app/config.yaml --port 4000
+
     depends_on:
       secrets-init:
         condition: service_completed_successfully
@@ -261,9 +275,6 @@ services:
     container_name: worker-5090-promtail
     hostname: worker-5090-promtail
     restart: unless-stopped
-    depends_on:
-      secrets-init:
-        condition: service_completed_successfully
     volumes:
       - ./promtail-config.yaml:/etc/promtail/config.yaml:ro
       - ./logs:/var/log/worker-5090:ro
@@ -273,6 +284,9 @@ services:
     environment:
       - LOKI_URL=${LOKI_URL:-http://oracle.trex-fiordland.ts.net:3100}
       - WORKER_ID=worker-5090
+    depends_on:
+      secrets-init:
+        condition: service_completed_successfully
     command: -config.file=/etc/promtail/config.yaml
     networks:
       - worker-network

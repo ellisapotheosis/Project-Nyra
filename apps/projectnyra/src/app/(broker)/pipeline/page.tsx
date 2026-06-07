@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 
 import { KanbanBoard } from "@/components/pipeline/kanban-board";
+import { AnimatedCounter } from "@/components/ui/animated-counter";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { applications, crmOverview, leads } from "@/lib/mock-data";
@@ -115,7 +116,22 @@ export default function PipelinePage() {
               <Icon className="size-4 text-primary" />
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-semibold">{value}</div>
+              <div className="text-3xl font-semibold">
+                {typeof value === "string" &&
+                /^[\d,]+$/.test(
+                  value.replace(/[$%]/g, "").replace(/,/g, "")
+                ) ? (
+                  <AnimatedCounter
+                    value={parseFloat(
+                      value.replace(/[$,%]/g, "").replace(/,/g, "")
+                    )}
+                    prefix={value.startsWith("$") ? "$" : ""}
+                    suffix={value.endsWith("%") ? "%" : ""}
+                  />
+                ) : (
+                  value
+                )}
+              </div>
               <p className="mt-2 text-sm text-muted-foreground">{detail}</p>
             </CardContent>
           </Card>

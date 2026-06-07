@@ -157,7 +157,7 @@ make llxprt-oracle-subscription-up
 
 Letta should use `http://127.0.0.1:8090/v1` with model
 `nyra-cli-triad-ha` for subscription-powered orchestration, and use
-`http://orchestrator.trex-fiordland.ts.net:6000/v1` for private local
+`https://nexus.trex-fiordland.ts.net/v1` for private local
 Nexus/LiteLLM routing.
 
 ## Secret Policy

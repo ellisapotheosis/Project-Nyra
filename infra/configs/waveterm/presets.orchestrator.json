@@ -132,7 +132,7 @@
             "type": "terminal",
             "name": "Nexus",
             "cwd": "~/repos/project-nyra",
-            "cmd": "while true; do clear; date; curl -fsS http://orchestrator.trex-fiordland.ts.net:6000/health || true; sleep 5; done"
+            "cmd": "while true; do clear; date; curl -fsS https://nexus.trex-fiordland.ts.net/health || true; sleep 5; done"
           },
           {
             "type": "terminal",

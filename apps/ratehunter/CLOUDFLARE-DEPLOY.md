@@ -55,11 +55,12 @@ npm run cf:deploy
 Use the landing app as the Cloudflare project root so Pages only installs and builds this app:
 
 - **Framework preset**: `Next.js`
-- **Root directory**: `apps/ratehunter/landing`
+- **Root directory**: `apps/ratehunter`
 - **Install command**: `npm install`
 - **Build command**: `npm run build:cf`
 - **Build output directory**: `.open-next`
 - **Node version**: `20`
+- **Build environment variable**: `GIT_LFS_SKIP_SMUDGE=1`
 
 Do not use `/` as the project root in this monorepo. A repo-root install can fail on unrelated workspace packages before the landing app build starts.
 
@@ -69,12 +70,12 @@ only static assets and will serve the branded 404 for `/`.
 
 #### If your Cloudflare project keeps using repo root (v2 root directory strategy)
 
-If the Cloudflare UI is currently configured with an empty root directory and a `cd ...` build command, use this exact fallback. **Note:** This is a legacy fallback for existing projects that cannot be easily migrated. New Cloudflare Pages projects should always prefer the explicit `apps/ratehunter/landing` root configuration (Option 1) to avoid monorepo isolation issues.
+If the Cloudflare UI is currently configured with an empty root directory and a `cd ...` build command, use this exact fallback. **Note:** This is a legacy fallback for existing projects that cannot be easily migrated. New Cloudflare Pages projects should always prefer the explicit `apps/ratehunter` root configuration (Option 1) to avoid monorepo isolation issues.
 
 - **Root directory**: _(leave blank)_
-- **Install command**: `cd apps/ratehunter/landing && npm install`
-- **Build command**: `cd apps/ratehunter/landing && npm run build:cf`
-- **Build output directory**: `apps/ratehunter/landing/.open-next`
+- **Install command**: `cd apps/ratehunter && npm install`
+- **Build command**: `cd apps/ratehunter && npm run build:cf`
+- **Build output directory**: `apps/ratehunter/.open-next`
 
 This avoids `pnpm install` running at monorepo root and prevents frozen-lockfile failures caused by unrelated workspace packages.
 
@@ -99,10 +100,11 @@ npm run deploy
 The `wrangler.toml` file contains all Cloudflare-specific configuration:
 
 - **name**: `ratehunter-landing`
-- **compatibility_date**: `2026-01-20`
+- **pages_build_output_dir**: `.open-next`
+- **compatibility_date**: `2026-03-06`
 - **compatibility_flags**: `["nodejs_compat"]` (enables Node.js APIs)
-- **main**: `.open-next/worker.js` (entry point)
-- **assets**: `.open-next/assets` (static assets)
+
+This is a Pages configuration. Do not add Worker-only keys such as `main`, `assets`, or `build` to this file.
 
 ### Environment Variables
 
@@ -129,6 +131,7 @@ Recommended values (**Required for Build/Runtime**):
 NODE_ENV=production
 NODE_VERSION=20
 NEXT_TELEMETRY_DISABLED=1
+GIT_LFS_SKIP_SMUDGE=1
 ```
 
 Optional Project Branding (**Customizable**):
@@ -162,12 +165,12 @@ After running `npm run build:cf`, the `.open-next` directory contains:
 
 If the build fails, check:
 
-1. **Root directory**: Confirm the Cloudflare project root is `apps/ratehunter/landing`, not `/`
+1. **Root directory**: Confirm the Cloudflare project root is `apps/ratehunter`, not `/`
 
 2. **Dependencies**: Ensure app dependencies are installed
 
    ```bash
-   cd apps/ratehunter/landing
+   cd apps/ratehunter
    npm install
    ```
 

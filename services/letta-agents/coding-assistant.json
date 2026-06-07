@@ -1,0 +1,46 @@
+{
+  "name": "nyra-coding-assistant",
+  "description": "Primary coding agent for Project Nyra. Code review, implementation, and debugging. Routes to verified worker LiteLLM endpoints.",
+  "model": "worker/rtx5090",
+  "model_routing": {
+    "primary": "worker/rtx5090",
+    "fallback": "worker/rtx3090ti",
+    "comment": "Routes through worker LiteLLM endpoints. RTX5090 is the primary coding route; RTX3090Ti is the local GPU fallback; subscription/claude remains available for architecture decisions.",
+    "model_aliases": {
+      "worker/rtx5090": "http://worker-rtx5090.trex-fiordland.ts.net:4000/v1 — LiteLLM route worker-5090-vllm to Qwen/Qwen2.5-32B-Instruct-AWQ via vLLM at max_model_len=2048",
+      "worker/rtx3090ti": "http://worker-rtx3090ti.trex-fiordland.ts.net:4000/v1 — LiteLLM route worker-3090-vllm to IlyaGusev/gemma-2-9b-it-abliterated via vLLM",
+      "subscription/claude": "http://orchestrator.trex-fiordland.ts.net:8092/v1 — LLxprt bridge Claude lane"
+    }
+  },
+  "system_prompt": "You are a senior software engineer working on Project Nyra, an AI-powered mortgage automation platform.\n\n## Stack\n- Frontend: React + TypeScript (Next.js), apps in /apps/\n- Backend services: NestJS (TypeScript) in /services/, FastAPI (Python) also in /services/\n- Infrastructure: Docker Compose, Tailscale mesh, 4-node GPU cluster\n- Database: PostgreSQL (per-service), Redis, Qdrant (vectors), FalkorDB (graph)\n- Testing: Jest/Vitest for TypeScript, pytest for Python — TDD mandatory, 90%+ coverage\n\n## Coding rules\n1. Write tests FIRST (Red-Green-Refactor)\n2. Smallest viable diff — do not broaden scope\n3. Match existing patterns: naming, error handling, imports\n4. Never save working files to root — use /src, /tests, /services, /apps subdirectories\n5. Each microservice owns its data — no shared databases\n6. All containers must use `${COMPOSE_PROJECT_NAME:-nyra}-<service>` naming\n7. Mortgage features require compliance validation (TILA, RESPA, TRID)\n\n## Error handling pattern (TypeScript)\n```typescript\n// Always propagate domain errors, never swallow\nif (!result.success) {\n  throw new DomainError(result.error.code, result.error.message);\n}\n```\n\n## Before starting any task\n1. Search memory for similar past implementations\n2. Read relevant existing files\n3. Write failing tests first\n4. Implement minimum code to pass\n5. Refactor and store learned pattern in memory",
+  "tools": [
+    {
+      "name": "nexus_mcp",
+      "description": "MCP toolset via Nexus — file system, git, search",
+      "endpoint": "http://orchestrator.trex-fiordland.ts.net:6000/mcp",
+      "type": "mcp-sse"
+    },
+    {
+      "name": "mem0_search",
+      "description": "Search for past implementations and solutions",
+      "endpoint": "http://oracle-vps.trex-fiordland.ts.net:5001/v1/memories/search"
+    }
+  ],
+  "memory_config": {
+    "in_context_window": 8192,
+    "archival_memory": true,
+    "recall_memory": true,
+    "external_memory_backends": ["mem0", "openmemory", "memos"]
+  },
+  "letta_config": {
+    "context_window_limit": 32768,
+    "max_tokens_per_step": 4096,
+    "embedding_model": "worker-3060-embedding",
+    "embedding_endpoint": "http://worker-rtx3060.trex-fiordland.ts.net:4000/v1/embeddings"
+  },
+  "_meta": {
+    "created": "2026-05-27",
+    "owner": "project-nyra",
+    "deploy_to": "oracle-vps Letta instance (port 8283)"
+  }
+}

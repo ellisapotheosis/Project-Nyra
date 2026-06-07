@@ -1,0 +1,192 @@
+{
+  "nyra-worker-3090ti": {
+    "display:name": "worker-rtx3090ti Shell",
+    "description": "Direct SSH shell into worker-rtx3090ti. Green tab — inference worker.",
+    "tabs": [
+      {
+        "name": "3090Ti",
+        "tabcolor": "#00cc44",
+        "blocks": [
+          {
+            "type": "terminal",
+            "name": "worker-rtx3090ti",
+            "cwd": "~/repos/project-nyra",
+            "cmd": "ssh -A -t -o ConnectTimeout=8 worker-rtx3090ti.trex-fiordland.ts.net 'bash -l' || bash"
+          },
+          {
+            "type": "terminal",
+            "name": "3090Ti GPU",
+            "cwd": "~/repos/project-nyra",
+            "cmd": "ssh -A -t -o ConnectTimeout=8 worker-rtx3090ti.trex-fiordland.ts.net 'nvidia-smi -l 2' || bash"
+          },
+          {
+            "type": "terminal",
+            "name": "3090Ti OpenClaw",
+            "cwd": "~/repos/project-nyra",
+            "cmd": "ssh -A -t -o ConnectTimeout=8 worker-rtx3090ti.trex-fiordland.ts.net 'docker logs -f worker-3090-openclaw 2>&1' || bash"
+          }
+        ]
+      }
+    ]
+  },
+  "nyra-worker-3060": {
+    "display:name": "worker-rtx3060 Shell",
+    "description": "Direct SSH shell into worker-rtx3060. Yellow tab — embeddings + PicoClaw + Ollama.",
+    "tabs": [
+      {
+        "name": "3060",
+        "tabcolor": "#e0b956",
+        "blocks": [
+          {
+            "type": "terminal",
+            "name": "worker-rtx3060",
+            "cwd": "~/repos/project-nyra",
+            "cmd": "ssh -A -t -o ConnectTimeout=8 worker-rtx3060.trex-fiordland.ts.net 'bash -l' || bash"
+          },
+          {
+            "type": "terminal",
+            "name": "Ollama Models",
+            "cwd": "~/repos/project-nyra",
+            "cmd": "ssh -A -t -o ConnectTimeout=8 worker-rtx3060.trex-fiordland.ts.net 'curl -fsS http://127.0.0.1:11434/api/tags | python3 -m json.tool || docker ps' || bash"
+          }
+        ]
+      }
+    ]
+  },
+  "nyra-oracle-vps": {
+    "display:name": "oracle-vps Shell",
+    "description": "SSH into oracle-vps cloud backend. Blue tab — memory plane, CRM, public ingress.",
+    "tabs": [
+      {
+        "name": "oracle-vps",
+        "tabcolor": "#2255cc",
+        "blocks": [
+          {
+            "type": "terminal",
+            "name": "oracle-vps shell",
+            "cwd": "~/repos/project-nyra",
+            "cmd": "ssh -A -t -o ConnectTimeout=10 oracle-vps.trex-fiordland.ts.net 'bash -l' || bash"
+          },
+          {
+            "type": "terminal",
+            "name": "Memory Stack",
+            "cwd": "~/repos/project-nyra",
+            "cmd": "ssh -A -t -o ConnectTimeout=10 oracle-vps.trex-fiordland.ts.net 'docker ps --filter name=letta --filter name=mem0 --filter name=qdrant --filter name=falkordb --format \"table {{.Names}}\\t{{.Status}}\\t{{.Ports}}\"' || bash"
+          },
+          {
+            "type": "terminal",
+            "name": "Letta Logs",
+            "cwd": "~/repos/project-nyra",
+            "cmd": "ssh -A -t -o ConnectTimeout=10 oracle-vps.trex-fiordland.ts.net 'docker logs -f nyra-letta --tail 100 2>&1' || bash"
+          },
+          {
+            "type": "terminal",
+            "name": "mem0 Logs",
+            "cwd": "~/repos/project-nyra",
+            "cmd": "ssh -A -t -o ConnectTimeout=10 oracle-vps.trex-fiordland.ts.net 'docker logs -f nyra-mem0 --tail 100 2>&1' || bash"
+          }
+        ]
+      }
+    ]
+  },
+  "nyra-orchestrator": {
+    "display:name": "Orchestrator Shell",
+    "description": "SSH into orchestrator (Minisforum). Purple tab — LiteLLM, Nexus, llxprt-bridge, WoL.",
+    "tabs": [
+      {
+        "name": "orchestrator",
+        "tabcolor": "#9944cc",
+        "blocks": [
+          {
+            "type": "terminal",
+            "name": "orchestrator shell",
+            "cwd": "~/repos/project-nyra",
+            "cmd": "ssh -A -t -o ConnectTimeout=8 orchestrator.trex-fiordland.ts.net 'bash -l' || bash"
+          },
+          {
+            "type": "terminal",
+            "name": "Nexus Router",
+            "cwd": "~/repos/project-nyra",
+            "cmd": "while true; do clear; date; curl -fsS https://nexus.trex-fiordland.ts.net/health | python3 -m json.tool 2>/dev/null || echo offline; sleep 5; done"
+          },
+          {
+            "type": "terminal",
+            "name": "llxprt-bridge",
+            "cwd": "~/repos/project-nyra",
+            "cmd": "while true; do clear; date; curl -fsS http://orchestrator.trex-fiordland.ts.net:8090/health 2>/dev/null || echo offline; sleep 5; done"
+          },
+          {
+            "type": "terminal",
+            "name": "BitNet",
+            "cwd": "~/repos/project-nyra",
+            "cmd": "while true; do clear; date; curl -fsS http://orchestrator.trex-fiordland.ts.net:8087/health 2>/dev/null || echo offline; sleep 8; done"
+          }
+        ]
+      }
+    ]
+  },
+  "nyra-gpu-mesh": {
+    "display:name": "GPU Mesh Monitor",
+    "description": "Live nvidia-smi across all three GPU workers.",
+    "tabs": [
+      {
+        "name": "GPU MESH",
+        "blocks": [
+          {
+            "type": "terminal",
+            "name": "RTX5090 [primary]",
+            "cwd": "~/repos/project-nyra",
+            "cmd": "ssh -A -t -o ConnectTimeout=8 worker-rtx5090.trex-fiordland.ts.net 'nvidia-smi -l 2' || bash"
+          },
+          {
+            "type": "terminal",
+            "name": "RTX3090Ti",
+            "cwd": "~/repos/project-nyra",
+            "cmd": "ssh -A -t -o ConnectTimeout=8 worker-rtx3090ti.trex-fiordland.ts.net 'nvidia-smi -l 2' || bash"
+          },
+          {
+            "type": "terminal",
+            "name": "RTX3060",
+            "cwd": "~/repos/project-nyra",
+            "cmd": "ssh -A -t -o ConnectTimeout=8 worker-rtx3060.trex-fiordland.ts.net 'nvidia-smi -l 2' || bash"
+          }
+        ]
+      }
+    ]
+  },
+  "nyra-memory-view": {
+    "display:name": "Memory View",
+    "description": "Letta agents, mem0 stats, OpenMemory MCP, memOS MCP, and Qdrant collections.",
+    "tabs": [
+      {
+        "name": "MEMORY",
+        "blocks": [
+          {
+            "type": "terminal",
+            "name": "Letta Agents",
+            "cwd": "~/repos/project-nyra",
+            "cmd": "while true; do clear; printf '=== Letta Agents ===\\n'; curl -fsS http://oracle-vps.trex-fiordland.ts.net:8283/v1/agents 2>/dev/null | python3 -m json.tool || echo offline; sleep 12; done"
+          },
+          {
+            "type": "terminal",
+            "name": "mem0 Stats",
+            "cwd": "~/repos/project-nyra",
+            "cmd": "while true; do clear; printf '=== mem0 ===\\n'; curl -fsS http://oracle-vps.trex-fiordland.ts.net:5001/v1/memories/stats 2>/dev/null | python3 -m json.tool || curl -fsS http://oracle-vps.trex-fiordland.ts.net:5001/health 2>/dev/null || echo offline; sleep 10; done"
+          },
+          {
+            "type": "terminal",
+            "name": "OpenMemory + Qdrant",
+            "cwd": "~/repos/project-nyra",
+            "cmd": "while true; do clear; printf '=== OpenMemory MCP ===\\n'; curl -fsS http://oracle-vps.trex-fiordland.ts.net:8765/docs 2>/dev/null | head -20 || echo offline; printf '\\n=== Qdrant Collections ===\\n'; curl -fsS http://oracle-vps.trex-fiordland.ts.net:6333/collections 2>/dev/null | python3 -c \"import sys,json; d=json.load(sys.stdin); [print(' ', c['name']) for c in d.get('result',{}).get('collections',[])]\" || echo offline; sleep 15; done"
+          },
+          {
+            "type": "terminal",
+            "name": "memOS MCP",
+            "cwd": "~/repos/project-nyra",
+            "cmd": "while true; do clear; printf '=== memOS API ===\\n'; curl -fsS http://oracle-vps.trex-fiordland.ts.net:8001/health 2>/dev/null | python3 -m json.tool || echo offline; printf '\\n=== memOS MCP ===\\n'; curl -fsS --max-time 2 http://oracle-vps.trex-fiordland.ts.net:8085/sse 2>/dev/null | head -5 || echo offline; sleep 15; done"
+          }
+        ]
+      }
+    ]
+  }
+}

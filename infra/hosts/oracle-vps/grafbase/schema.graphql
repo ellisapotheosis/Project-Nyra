@@ -1,0 +1,14 @@
+schema {
+  query: Query
+}
+
+type Query {
+  health: GatewayHealth!
+}
+
+type GatewayHealth {
+  status: String!
+  facade: String!
+  nexusRouterCanonical: Boolean!
+  mcpEnabled: Boolean!
+}

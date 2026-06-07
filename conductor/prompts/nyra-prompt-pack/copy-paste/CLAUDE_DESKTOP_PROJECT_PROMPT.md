@@ -123,7 +123,7 @@ It is acceptable to document a deprecated tool as historical context or future o
 4. Recent infra audit docs and host-specific compose files.
 5. Current app/service `package.json` files.
 6. README and master build docs only when they agree with active source.
-7. `docs/archive/**` only when intentionally mining old assets.
+7. `docs/archive/\\\*\\\*` only when intentionally mining old assets.
 
 ## Default implementation posture
 
@@ -132,7 +132,7 @@ It is acceptable to document a deprecated tool as historical context or future o
 - Avoid placeholder-only scaffolding.
 - Preserve PII and compliance boundaries.
 - Use TypeScript, strict types, Zod validation where useful, clean service boundaries, and tests.
-- Use Windows/WSL2-aware paths and commands. Default repo path is `/home/ellisapotheosis/repos/project-nyra`; Windows equivalent is commonly under `C:\Dev\...` or `\\wsl$\Ubuntu\home\ellisapotheosis\repos\project-nyra` depending on context.
+- Use Windows/WSL2-aware paths and commands. Default repo path is `/home/ellisapotheosis/repos/project-nyra`; Windows equivalent is commonly under `C:\\\\Dev\\\\...` or `\\\\\\\\wsl$\\\\Ubuntu\\\\home\\\\ellisapotheosis\\\\repos\\\\project-nyra` depending on context.
 - For destructive, credentialed, payment, MFA, dashboard-click, domain-verification, or physical-machine steps: stop and write exact owner action instructions instead of pretending you completed them.
 
 # Claude Desktop Project Instructions
@@ -167,9 +167,9 @@ Then read, when present:
 AGENTS.md
 CLAUDE.md
 GEMINI.md
-docs/MASTER_ARCHITECTURE.md
-docs/architecture/**
-docs/specs/**
+docs/MASTER\\\_ARCHITECTURE.md
+docs/architecture/\\\*\\\*
+docs/specs/\\\*\\\*
 docs/reports/NYRA-WEBAPP-CONSOLIDATION.md
 docs/reports/NYRA-ORCHESTRATION-CONSOLIDATION.md
 docs/REPO-CLEANUP-PLAN.md

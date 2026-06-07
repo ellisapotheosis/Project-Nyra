@@ -48,8 +48,8 @@ These actions can only be completed by the owner. Keep operational details in
 
 - Domains: Cloudflare zones/nameservers for `projectnyra.com` and
   `ratehunter.net`; Cloudflare Access apps and service tokens.
-- Secrets: Infisical imports for `/machines/*`, `/apps/*`, `/services/*`, and
-  `/providers/*`; real provider values before production smoke.
+- Secrets: Infisical imports for `/machines/\\\\\\\*`, `/apps/\\\\\\\*`, `/services/\\\\\\\*`, and
+  `/providers/\\\\\\\*`; real provider values before production smoke.
 - Auth: Supabase URL/keys/JWT secret, redirect URLs, OAuth/email settings, and
   RLS confirmation before real borrower data.
 - CRM: Twenty workspace URL/API key plus mortgage lead, quote, communication,
@@ -65,7 +65,7 @@ These actions can only be completed by the owner. Keep operational details in
 
 Use these prompts verbatim after the matching blocker is cleared.
 
-While owner blockers are still pending, use `docs/AGENT_RELEASE_HANDOFF.md` and
+While owner blockers are still pending, use `docs/AGENT\\\\\\\_RELEASE\\\\\\\_HANDOFF.md` and
 `pnpm release:check` for safe local verification work.
 
 ### Lane 0 - Repo Scope Freeze
@@ -80,8 +80,8 @@ Scope:
 
 - Inspect `git status --short --untracked-files=all`.
 - Preserve unrelated active edits.
-- Review `docs/FINISH_LINE_PROMPTING_PLAN.md`,
-  `docs/user-todo/FINISH_LINE_ACCELERATION_PLAN.md`, `docs/user-todo/`, and active
+- Review `docs/FINISH\\\\\\\_LINE\\\\\\\_PROMPTING\\\\\\\_PLAN.md`,
+  `docs/user-todo/FINISH\\\\\\\_LINE\\\\\\\_ACCELERATION\\\\\\\_PLAN.md`, `docs/user-todo/`, and active
   conductor tracks.
 - Produce a concise release note listing blockers, safe local lanes,
   owner-gated lanes, validation commands, and rollback notes.
@@ -94,7 +94,7 @@ Rules:
 Validation:
 
 - `git diff --check`
-- `rg -n "^- \\[ \\]" conductor/tracks --glob 'plan.md' --glob 'index.md' --glob 'validation-matrix.md' || true`
+- `rg -n "^- \\\\\\\\\\\\\\\\\\\\\\\[ \\\\\\\\\\\\\\\\]" conductor/tracks --glob 'plan.md' --glob 'index.md' --glob 'validation-matrix.md' || true`
 
 Stop condition:
 Release scope is current and no owner-gated task is represented as complete.
@@ -112,7 +112,7 @@ Scope:
 
 - Review `docs/user-todo/CHECKLIST.md` and referenced files.
 - For owner-completed items, add completion date and non-secret evidence.
-- Name the next runnable lane from `docs/FINISH_LINE_PROMPTING_PLAN.md`.
+- Name the next runnable lane from `docs/FINISH\\\\\\\_LINE\\\\\\\_PROMPTING\\\\\\\_PLAN.md`.
 
 Rules:
 
@@ -122,7 +122,7 @@ Rules:
 
 Validation:
 
-- `git diff --check -- docs/user-todo docs/FINISH_LINE_PROMPTING_PLAN.md`
+- `git diff --check -- docs/user-todo docs/FINISH\\\\\\\_LINE\\\\\\\_PROMPTING\\\\\\\_PLAN.md`
 - secret-pattern scan over touched docs
 
 Stop condition:
@@ -205,7 +205,7 @@ Prove and harden CRM write/read paths through Nyra service boundaries.
 
 Scope:
 
-- Work in `packages/crm-*`, `services/crm-api`, `services/lead-ingestion`, and
+- Work in `packages/crm-\\\\\\\*`, `services/crm-api`, `services/lead-ingestion`, and
   Project Nyra lead workspace routes.
 - Validate lead create/update/dedupe behavior.
 - Confirm audit events write to CRM timeline or durable audit ledger.

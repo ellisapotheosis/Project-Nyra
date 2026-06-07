@@ -11,6 +11,7 @@ Current live state:
 - The active orchestrator tunnel config has:
   - `links.projectnyra.com -> http://100.64.0.2:3007`
   - `linkwarden.projectnyra.com -> http://100.64.0.2:3007`
+
 - DNS records for both hostnames point to the orchestrator tunnel ID `ae0bd53a-f22e-4414-8593-5b765dcd044b.cfargotunnel.com`.
 - Cloudflare Access apps exist for both hostnames.
 - The origin still needs validation from a Tailscale-authenticated machine or from inside the orchestrator tunnel container.
@@ -46,4 +47,4 @@ curl -I https://links.projectnyra.com
 curl -I https://linkwarden.projectnyra.com
 ```
 
-If `100.64.0.2:3007` continues to time out from the orchestrator tunnel container, validate the Home Assistant Green Tailscale IP, service port, and whether Linkwarden is bound to LAN/Tailscale interfaces. If orchestrator-to-Home-Assistant routing cannot be made reliable, use the prompt-pack fallback: approve a dedicated Home Assistant tunnel and provision `HOMEASSISTANT_TUNNEL_ID` / `HOMEASSISTANT_TUNNEL_TOKEN` in Infisical.
+If `100.64.0.2:3007` continues to time out from the orchestrator tunnel container, validate the Home Assistant Green Tailscale IP, service port, and whether Linkwarden is bound to LAN/Tailscale interfaces. If orchestrator-to-Home-Assistant routing cannot be made reliable, use the prompt-pack fallback: approve a dedicated Home Assistant tunnel and provision `HOMEASSISTANT\\\_TUNNEL\\\_ID` / `HOMEASSISTANT\\\_TUNNEL\\\_TOKEN` in Infisical.

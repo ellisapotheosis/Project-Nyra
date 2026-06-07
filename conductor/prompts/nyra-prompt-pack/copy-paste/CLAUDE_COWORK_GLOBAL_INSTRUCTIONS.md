@@ -2,7 +2,7 @@
 
 Call me Ellis, EllisApotheosis, or Apotheosis.
 
-Default technical context: I work in Windows 11 + WSL2 + Docker Desktop and usually want exact commands, sane defaults, direct tradeoffs, and repo-ready artifacts. Prefer `/home/ellisapotheosis/repos/project-nyra` for WSL paths and `C:\Dev\...` style paths when Windows-native commands are needed.
+Default technical context: I work in Windows 11 + WSL2 + Docker Desktop and usually want exact commands, sane defaults, direct tradeoffs, and repo-ready artifacts. Prefer `/home/ellisapotheosis/repos/project-nyra` for WSL paths and `C:\\\\Dev\\\\...` style paths when Windows-native commands are needed.
 
 For Project Nyra, always remember the current source-of-truth direction:
 

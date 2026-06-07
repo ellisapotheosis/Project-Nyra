@@ -1,0 +1,71 @@
+# Caddy Reverse Proxy for Oracle VPS
+# Port-free endpoint mapping via Tailscale MagicDNS
+#
+# Deployment:
+#   docker --context oracle-vps compose \
+#     -f infra/hosts/oracle-vps/docker-compose.caddy.yml \
+#     up -d
+#
+# The Caddyfile (infra/hosts/oracle-vps/Caddyfile) is mounted read-only.
+# Caddy handles automatic HTTPS on the Tailscale mesh.
+# Admin API available at http://127.0.0.1:2019 (loopback only).
+
+name: nyra-caddy
+
+networks:
+  nyra-network:
+    name: nyra-network
+    driver: bridge
+
+volumes:
+  caddy_data:
+    name: nyra_caddy_data
+  caddy_config:
+    name: nyra_caddy_config
+
+services:
+  caddy:
+    image: caddy:latest
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-caddy
+    restart: unless-stopped
+    networks: [nyra-network]
+    environment:
+      # Logging
+      CADDY_INGRESS_METRICS: "true"
+    volumes:
+      # Configuration (bind-mounted from oracle-vps local checkout)
+      - /home/ubuntu/project-nyra/infra/hosts/oracle-vps/Caddyfile:/etc/caddy/Caddyfile:ro
+
+      # Certificate and metadata storage
+      - caddy_data:/data
+      - caddy_config:/config
+
+      # Access logs
+      - /var/log/caddy:/var/log/caddy
+    ports:
+      # HTTP and HTTPS on Tailscale interface (100.64.0.3)
+      # Accessible internally via Tailscale mesh only
+      - "100.64.0.3:80:80"
+      - "100.64.0.3:443:443"
+
+      # Admin API on loopback (local diagnostics)
+      - "127.0.0.1:2019:2019"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--quiet",
+          "--tries=1",
+          "--spider",
+          "http://127.0.0.1:2019/config/",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    logging:
+      driver: json-file
+      options:
+        max-size: "20m"
+        max-file: "10"

@@ -1,19 +1,25 @@
 {
   "mcpServers": {
     "nexus-router": {
-      "type": "sse",
-      "url": "https://nexus.projectnyra.com/mcp",
-      "headers": {
-        "Authorization": "Bearer ${ORCHESTRATOR_TUNNEL_TOKEN}"
-      },
+      "type": "http",
+      "url": "https://nexus.trex-fiordland.ts.net/mcp",
       "startup_timeout_sec": 90
     },
     "serena": {
-      "command": "serena",
+      "command": "/home/ellisapotheosis/.local/bin/uvx",
       "args": [
+        "--from",
+        "git+https://github.com/oraios/serena",
+        "serena",
         "start-mcp-server",
         "--project-from-cwd",
-        "--context=claude-code"
+        "--context=claude-code",
+        "--enable-web-dashboard",
+        "false",
+        "--enable-gui-log-window",
+        "false",
+        "--open-web-dashboard",
+        "false"
       ],
       "startup_timeout_sec": 60
     },

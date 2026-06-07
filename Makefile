@@ -28,7 +28,7 @@ ORACLE_ACTIVEPIECES_MCP_COMPOSE := infra/hosts/oracle-vps/docker-compose.activep
 # Canonical Host Composes
 WORKER_3060_COMPOSE := infra/hosts/worker-rtx3060/docker-compose.yml
 WORKER_3090TI_COMPOSE := infra/hosts/worker-rtx3090ti/docker-compose.yml
-WORKER_5090_COMPOSE := infra/hosts/worker-rtx5090/docker-compose.worker-5090.yml
+WORKER_5090_COMPOSE := infra/hosts/worker-rtx5090/docker-compose.yml
 ORACLE_COMPOSE := infra/hosts/oracle-vps/docker-compose.yml
 ORACLE_AGENT_UTILS_COMPOSE := infra/hosts/oracle-vps/docker-compose.oracle.yml
 ORACLE_MEMORY_COMPOSE := infra/hosts/oracle-vps/docker-compose.memory.yml
@@ -48,6 +48,8 @@ WORKER_3060_OPENCLAW_COMPOSE := infra/hosts/worker-rtx3060/docker-compose.opencl
 AGENT_INFRA_ENV ?= prod
 INFISICAL_PROJECT_ID ?= 8374cea9-e5e8-4050-bda4-b91f25ab30ef
 INFISICAL_LOCAL_SECRETS_FILE ?= $(HOME)/.zsh/99-secrets.zsh
+INFISICAL_CLOUD_BOOTSTRAP_PATH ?= /security/infisical
+INFISICAL_LOCAL_BOOTSTRAP_PATH ?= /security/infisical/local
 NYRA_USE_LOCAL_ENV ?= 0
 NYRA_LOCAL_VLLM_MODEL ?= Qwen/Qwen2.5-0.5B-Instruct
 NYRA_LOCAL_PLACEHOLDER_SECRET ?= local-dev-placeholder-change-me
@@ -64,27 +66,34 @@ WORKER_3090TI_CONTEXT ?= worker-rtx3090ti
 WORKER_3060_CONTEXT ?= worker-rtx3060
 FLEET_SSH_TARGETS ?= orchestrator worker-rtx5090 worker-rtx3090ti worker-rtx3060 oracle
 FLEET_DOCKER_CONTEXTS ?= default worker-rtx5090 worker-rtx3090ti worker-rtx3060 orchestrator oracle oracle-vps-oci
-NYRA_INFISICAL_TOKEN_HINT := INFISICAL_TOKEN must be exported on this PC before running remote Docker context targets.
-NYRA_LOCAL_ENV_HINT := NYRA_USE_LOCAL_ENV=1 uses ignored infra/hosts/<host>/.env files when Infisical is unavailable.
+# Self-hosted infisical stack (oracle-vps) — separate from nyra_host_compose because it IS the secrets layer
+ORACLE_INFISICAL_STACK_COMPOSE := infra/hosts/oracle-vps/docker-compose.infisical.yml
+INFISICAL_ENV_FILE ?= infra/hosts/oracle-vps/.env.infisical
+# Agent vault (credential proxy for AI agents) — also pre-Infisical, uses its own env file
+ORACLE_AGENT_VAULT_COMPOSE := infra/hosts/oracle-vps/docker-compose.agent-vault.yml
+ORACLE_AGENT_VAULT_ENV_FILE ?= infra/hosts/oracle-vps/.env.agent-vault
+NYRA_INFISICAL_TOKEN_HINT := INFISICAL_UNIVERSAL_AUTH_CLIENT_ID/SECRET or INFISICAL_TOKEN must be exported on this PC before running remote Docker context targets.
+NYRA_LOCAL_ENV_HINT := repo-local infra/hosts/<host>/.env files are disabled; use ~/.zsh/99-secrets.zsh plus Infisical injection.
 
 define nyra_load_infisical_env
-if [ -z "$${INFISICAL_TOKEN:-}" ] && [ -f "$(INFISICAL_LOCAL_SECRETS_FILE)" ]; then set -a; . "$(INFISICAL_LOCAL_SECRETS_FILE)"; set +a; fi;
+if [ -f "$(INFISICAL_LOCAL_SECRETS_FILE)" ] && { [ -z "$${INFISICAL_UNIVERSAL_AUTH_CLIENT_ID:-}" ] || [ -z "$${INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET:-}" ]; } && [ -z "$${INFISICAL_TOKEN:-}" ]; then set -a; . "$(INFISICAL_LOCAL_SECRETS_FILE)"; set +a; fi;
 endef
 
 define nyra_host_compose
 case "$(1)" in \
   "$(ORCHESTRATOR_INFISICAL_PATH)") env_file="infra/hosts/orchestrator/.env"; compose_project_name="nyra-network";; \
   "$(ORACLE_INFISICAL_PATH)") env_file="infra/hosts/oracle-vps/.env"; compose_project_name="nyra-network";; \
-  "$(WORKER_5090_INFISICAL_PATH)") env_file="infra/hosts/worker-rtx5090/.env"; compose_project_name="nyra-network";; \
+  "$(WORKER_5090_INFISICAL_PATH)") env_file="infra/hosts/worker-rtx5090/.env"; compose_project_name="worker-rtx5090";; \
   "$(WORKER_3090TI_INFISICAL_PATH)") env_file="infra/hosts/worker-rtx3090ti/.env"; compose_project_name="worker-rtx3090ti";; \
   "$(WORKER_3060_INFISICAL_PATH)") env_file="infra/hosts/worker-rtx3060/.env"; compose_project_name="worker-rtx3060";; \
   *) echo "Unknown Infisical path '$(1)' for local env fallback." >&2; exit 64;; \
 esac; \
 if [ "$(NYRA_USE_LOCAL_ENV)" = "1" ]; then \
-  test -f "$$env_file" || (echo "Missing $$env_file. $(NYRA_LOCAL_ENV_HINT)" >&2; exit 66); \
+  echo "$(NYRA_LOCAL_ENV_HINT)" >&2; exit 66; \
   $(4) COMPOSE_PARALLEL_LIMIT="$(NYRA_COMPOSE_PARALLEL_LIMIT)" COMPOSE_PROJECT_NAME="$$compose_project_name" VLLM_MODEL="$${VLLM_MODEL:-$(NYRA_LOCAL_VLLM_MODEL)}" TWENTY_DB_PASSWORD="$${TWENTY_DB_PASSWORD:-$(NYRA_LOCAL_PLACEHOLDER_SECRET)}" OPENCLAW_GATEWAY_TOKEN="$${OPENCLAW_GATEWAY_TOKEN:-$(NYRA_LOCAL_PLACEHOLDER_SECRET)}" PAPERCLIP_API_KEY="$${PAPERCLIP_API_KEY:-$(NYRA_LOCAL_PLACEHOLDER_SECRET)}" PAPERCLIP_DB_PASSWORD="$${PAPERCLIP_DB_PASSWORD:-$(NYRA_LOCAL_PLACEHOLDER_SECRET)}" PAPERCLIP_SESSION_SECRET="$${PAPERCLIP_SESSION_SECRET:-$(NYRA_LOCAL_PLACEHOLDER_SECRET)}" SEARXNG_SECRET="$${SEARXNG_SECRET:-$(NYRA_LOCAL_PLACEHOLDER_SECRET)}" BROWSERLESS_TOKEN="$${BROWSERLESS_TOKEN:-$(NYRA_LOCAL_PLACEHOLDER_SECRET)}" OPENLIT_DB_PASSWORD="$${OPENLIT_DB_PASSWORD:-$(NYRA_LOCAL_PLACEHOLDER_SECRET)}" OPENLIT_NEXTAUTH_SECRET="$${OPENLIT_NEXTAUTH_SECRET:-$(NYRA_LOCAL_PLACEHOLDER_SECRET)}" OPENLIT_VAULT_ENCRYPTION_KEY="$${OPENLIT_VAULT_ENCRYPTION_KEY:-$(NYRA_LOCAL_PLACEHOLDER_SECRET)}" LETTA_DB_PASSWORD="$${LETTA_DB_PASSWORD:-$(NYRA_LOCAL_PLACEHOLDER_SECRET)}" LETTA_SERVER_PASSWORD="$${LETTA_SERVER_PASSWORD:-$(NYRA_LOCAL_PLACEHOLDER_SECRET)}" docker --context "$(2)" compose --env-file "$$env_file" $(3); \
 else \
-  $(nyra_load_infisical_env) $(4) COMPOSE_PARALLEL_LIMIT="$(NYRA_COMPOSE_PARALLEL_LIMIT)" INFISICAL_TOKEN="$${INFISICAL_TOKEN:?$(NYRA_INFISICAL_TOKEN_HINT)}" INFISICAL_PROJECT_ID="$(INFISICAL_PROJECT_ID)" INFISICAL_ENV="$(AGENT_INFRA_ENV)" NYRA_INFISICAL_PATH="$(1)" infisical run --projectId="$(INFISICAL_PROJECT_ID)" --env="$(AGENT_INFRA_ENV)" --path="$(1)" -- docker --context "$(2)" compose --env-file /dev/null $(3); \
+  $(nyra_load_infisical_env) nyra_infisical_auth_token="$$(INFISICAL_LOCAL_SECRETS_FILE="$(INFISICAL_LOCAL_SECRETS_FILE)" scripts/infra/infisical-auth-token.sh)" || { echo "$(NYRA_INFISICAL_TOKEN_HINT)" >&2; exit 1; }; \
+  $(4) COMPOSE_PARALLEL_LIMIT="$(NYRA_COMPOSE_PARALLEL_LIMIT)" INFISICAL_TOKEN="$$nyra_infisical_auth_token" INFISICAL_UNIVERSAL_AUTH_CLIENT_ID="$${INFISICAL_UNIVERSAL_AUTH_CLIENT_ID:-}" INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET="$${INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET:-}" INFISICAL_PROJECT_ID="$(INFISICAL_PROJECT_ID)" INFISICAL_ENV="$(AGENT_INFRA_ENV)" NYRA_INFISICAL_PATH="$(1)" infisical run --token="$$nyra_infisical_auth_token" --projectId="$(INFISICAL_PROJECT_ID)" --env="$(AGENT_INFRA_ENV)" --path="$(1)" -- env -u DOCKER_HOST docker --context "$(2)" compose --env-file /dev/null $(3); \
 fi
 endef
 
@@ -92,23 +101,26 @@ define nyra_node_shell
 case "$(NODE)" in \
   orchestrator) host_path="$(ORCHESTRATOR_INFISICAL_PATH)"; ctx="$(ORCHESTRATOR_CONTEXT)"; compose_files="-f $(ORCHESTRATOR_COMPOSE)"; env_file="infra/hosts/orchestrator/.env"; compose_project_name="nyra-network";; \
   oracle|oracle-vps) host_path="$(ORACLE_INFISICAL_PATH)"; ctx="$(ORACLE_CONTEXT)"; compose_files="-f $(ORACLE_COMPOSE)"; env_file="infra/hosts/oracle-vps/.env"; compose_project_name="nyra-network";; \
-  worker-rtx5090) host_path="$(WORKER_5090_INFISICAL_PATH)"; ctx="$(WORKER_5090_CONTEXT)"; compose_files="-f $(WORKER_5090_COMPOSE)"; env_file="infra/hosts/worker-rtx5090/.env"; compose_project_name="nyra-network";; \
+  worker-rtx5090) host_path="$(WORKER_5090_INFISICAL_PATH)"; ctx="$(WORKER_5090_CONTEXT)"; compose_files="-f $(WORKER_5090_COMPOSE)"; env_file="infra/hosts/worker-rtx5090/.env"; compose_project_name="worker-rtx5090";; \
   worker-rtx3090ti) host_path="$(WORKER_3090TI_INFISICAL_PATH)"; ctx="$(WORKER_3090TI_CONTEXT)"; compose_files="-f $(WORKER_3090TI_COMPOSE)"; env_file="infra/hosts/worker-rtx3090ti/.env"; compose_project_name="worker-rtx3090ti";; \
   worker-rtx3060) host_path="$(WORKER_3060_INFISICAL_PATH)"; ctx="$(WORKER_3060_CONTEXT)"; compose_files="-f $(WORKER_3060_COMPOSE)"; env_file="infra/hosts/worker-rtx3060/.env"; compose_project_name="worker-rtx3060";; \
   *) echo "Unknown NODE='$(NODE)'. Expected orchestrator, oracle, worker-rtx5090, worker-rtx3090ti, or worker-rtx3060." >&2; exit 64;; \
 esac; \
 if [ "$(NYRA_USE_LOCAL_ENV)" = "1" ]; then \
-  test -f "$$env_file" || (echo "Missing $$env_file. $(NYRA_LOCAL_ENV_HINT)" >&2; exit 66); \
+  echo "$(NYRA_LOCAL_ENV_HINT)" >&2; exit 66; \
   COMPOSE_PARALLEL_LIMIT="$(NYRA_COMPOSE_PARALLEL_LIMIT)" COMPOSE_PROJECT_NAME="$$compose_project_name" VLLM_MODEL="$${VLLM_MODEL:-$(NYRA_LOCAL_VLLM_MODEL)}" TWENTY_DB_PASSWORD="$${TWENTY_DB_PASSWORD:-$(NYRA_LOCAL_PLACEHOLDER_SECRET)}" OPENCLAW_GATEWAY_TOKEN="$${OPENCLAW_GATEWAY_TOKEN:-$(NYRA_LOCAL_PLACEHOLDER_SECRET)}" PAPERCLIP_API_KEY="$${PAPERCLIP_API_KEY:-$(NYRA_LOCAL_PLACEHOLDER_SECRET)}" PAPERCLIP_DB_PASSWORD="$${PAPERCLIP_DB_PASSWORD:-$(NYRA_LOCAL_PLACEHOLDER_SECRET)}" PAPERCLIP_SESSION_SECRET="$${PAPERCLIP_SESSION_SECRET:-$(NYRA_LOCAL_PLACEHOLDER_SECRET)}" SEARXNG_SECRET="$${SEARXNG_SECRET:-$(NYRA_LOCAL_PLACEHOLDER_SECRET)}" BROWSERLESS_TOKEN="$${BROWSERLESS_TOKEN:-$(NYRA_LOCAL_PLACEHOLDER_SECRET)}" OPENLIT_DB_PASSWORD="$${OPENLIT_DB_PASSWORD:-$(NYRA_LOCAL_PLACEHOLDER_SECRET)}" OPENLIT_NEXTAUTH_SECRET="$${OPENLIT_NEXTAUTH_SECRET:-$(NYRA_LOCAL_PLACEHOLDER_SECRET)}" OPENLIT_VAULT_ENCRYPTION_KEY="$${OPENLIT_VAULT_ENCRYPTION_KEY:-$(NYRA_LOCAL_PLACEHOLDER_SECRET)}" LETTA_DB_PASSWORD="$${LETTA_DB_PASSWORD:-$(NYRA_LOCAL_PLACEHOLDER_SECRET)}" LETTA_SERVER_PASSWORD="$${LETTA_SERVER_PASSWORD:-$(NYRA_LOCAL_PLACEHOLDER_SECRET)}" docker --context "$$ctx" compose --env-file "$$env_file" $$compose_files; \
 else \
   $(nyra_load_infisical_env) \
+  nyra_infisical_auth_token="$$(INFISICAL_LOCAL_SECRETS_FILE="$(INFISICAL_LOCAL_SECRETS_FILE)" scripts/infra/infisical-auth-token.sh)" || { echo "$(NYRA_INFISICAL_TOKEN_HINT)" >&2; exit 1; }; \
   COMPOSE_PARALLEL_LIMIT="$(NYRA_COMPOSE_PARALLEL_LIMIT)" \
-  INFISICAL_TOKEN="$${INFISICAL_TOKEN:?$(NYRA_INFISICAL_TOKEN_HINT)}" \
+  INFISICAL_TOKEN="$$nyra_infisical_auth_token" \
+  INFISICAL_UNIVERSAL_AUTH_CLIENT_ID="$${INFISICAL_UNIVERSAL_AUTH_CLIENT_ID:-}" \
+  INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET="$${INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET:-}" \
   INFISICAL_PROJECT_ID="$(INFISICAL_PROJECT_ID)" \
   INFISICAL_ENV="$(AGENT_INFRA_ENV)" \
   NYRA_INFISICAL_PATH="$$host_path" \
-  infisical run --projectId="$(INFISICAL_PROJECT_ID)" --env="$(AGENT_INFRA_ENV)" --path="$$host_path" -- \
-  docker --context "$$ctx" compose --env-file /dev/null $$compose_files; \
+  infisical run --token="$$nyra_infisical_auth_token" --projectId="$(INFISICAL_PROJECT_ID)" --env="$(AGENT_INFRA_ENV)" --path="$$host_path" -- \
+  env -u DOCKER_HOST docker --context "$$ctx" compose --env-file /dev/null $$compose_files; \
 fi
 endef
 
@@ -264,10 +276,16 @@ up-all: sync-env up up-workers up-oracle
 
 sync-env:
 	@if [ "$(NYRA_USE_LOCAL_ENV)" = "1" ]; then \
-	  echo "Skipping Infisical mirror sync; using ignored infra/hosts/*/.env files."; \
+	  echo "$(NYRA_LOCAL_ENV_HINT)" >&2; \
+	  exit 66; \
 	else \
-	  echo "🐾 Synchronizing cluster environment secrets from Infisical..."; \
-	  INFISICAL_ENV=$(AGENT_INFRA_ENV) ./scripts/mirror-sync-env.sh; \
+	  echo "Checking Infisical auth; secrets stay in Infisical and are injected at compose runtime."; \
+	  $(nyra_load_infisical_env) \
+	  INFISICAL_PROJECT_ID="$(INFISICAL_PROJECT_ID)" \
+	  INFISICAL_ENV="$(AGENT_INFRA_ENV)" \
+	  INFISICAL_ENV_NAME="$(AGENT_INFRA_ENV)" \
+	  infisical login status --silent >/dev/null; \
+	  echo "Infisical auth available for make targets."; \
 	fi
 
 down-all: down
@@ -433,12 +451,6 @@ twenty-crm-up:
 twenty-crm-down:
 	$(call nyra_host_compose,$(ORACLE_INFISICAL_PATH),$(ORACLE_CONTEXT),-f $(ORACLE_COMPOSE) stop twenty twenty-worker twenty-db)
 
-mempalace-init:
-	$(call nyra_host_compose,$(ORACLE_INFISICAL_PATH),$(ORACLE_CONTEXT),-f $(ORACLE_COMPOSE) exec mempalace-mcp mempalace init)
-
-mempalace-mine:
-	$(call nyra_host_compose,$(ORACLE_INFISICAL_PATH),$(ORACLE_CONTEXT),-f $(ORACLE_COMPOSE) exec mempalace-mcp mempalace mine)
-
 health:
 	bash scripts/health-check.sh
 
@@ -495,6 +507,153 @@ oracle-quote-engine-up:
 oracle-campaign-engine-up:
 	$(call nyra_host_compose,$(ORACLE_INFISICAL_PATH),$(ORACLE_CONTEXT),-f $(ORACLE_COMPOSE) -f $(ORACLE_APPS_COMPOSE) --profile apps up -d campaign_engine)
 
+# --- INFISICAL SELF-HOSTED STACK ---
+# Uses direct docker commands (NOT nyra_host_compose) because this IS the secrets layer.
+# It bootstraps itself from .env.infisical, not from Infisical.
+
+.PHONY: infisical-gen-env infisical-deploy infisical-up infisical-down infisical-restart infisical-logs infisical-logs-backend infisical-logs-gateway infisical-logs-postgres infisical-health infisical-ps infisical-shell
+
+infisical-gen-env:
+	@[ ! -f $(INFISICAL_ENV_FILE) ] || (echo "⚠️  $(INFISICAL_ENV_FILE) already exists. Delete it first to regenerate."; exit 1)
+	@ENCRYPTION_KEY=$$(openssl rand -hex 16) && \
+	 AUTH_SECRET=$$(openssl rand -base64 32) && \
+	 DB_PASSWORD=$$(openssl rand -base64 24 | tr -d '/+=') && \
+	 REDIS_PASSWORD=$$(openssl rand -base64 24 | tr -d '/+=') && \
+	 sed \
+	   -e "s/REQUIRED_GENERATE_WITH_OPENSSL_RAND_HEX_16/$$ENCRYPTION_KEY/" \
+	   -e "s/REQUIRED_GENERATE_WITH_OPENSSL_RAND_BASE64_32/$$AUTH_SECRET/" \
+	   infra/hosts/oracle-vps/.env.infisical.template > $(INFISICAL_ENV_FILE) && \
+	 sed -i "0,/REQUIRED_GENERATE_STRONG_PASSWORD/s//$$DB_PASSWORD/" $(INFISICAL_ENV_FILE) && \
+	 sed -i "0,/REQUIRED_GENERATE_STRONG_PASSWORD/s//$$REDIS_PASSWORD/" $(INFISICAL_ENV_FILE) && \
+	 chmod 600 $(INFISICAL_ENV_FILE) && \
+	 echo "" && \
+	 echo "✅ Generated $(INFISICAL_ENV_FILE)" && \
+	 echo "" && \
+	 echo "⚠️  BACK THESE UP OFFLINE NOW — losing them means losing all secrets:" && \
+	 echo "   ENCRYPTION_KEY: $$ENCRYPTION_KEY" && \
+	 echo "   AUTH_SECRET:    $$AUTH_SECRET" && \
+	 echo "   DB_PASSWORD:    $$DB_PASSWORD" && \
+	 echo "   REDIS_PASSWORD: $$REDIS_PASSWORD"
+
+infisical-deploy:
+	@echo "🚀 Deploying Infisical self-hosted secrets stack..."
+	@[ -f $(INFISICAL_ENV_FILE) ] || (echo "❌ Missing $(INFISICAL_ENV_FILE). Run: make infisical-gen-env"; exit 1)
+	@docker --context $(ORACLE_CONTEXT) compose -f $(ORACLE_INFISICAL_STACK_COMPOSE) --env-file $(INFISICAL_ENV_FILE) pull
+	@docker --context $(ORACLE_CONTEXT) compose -f $(ORACLE_INFISICAL_STACK_COMPOSE) --env-file $(INFISICAL_ENV_FILE) up -d
+	@echo "✅ Infisical deployed — https://infisical.trex-fiordland.ts.net (via Caddy/Tailscale)"
+
+infisical-up:
+	@docker --context $(ORACLE_CONTEXT) compose -f $(ORACLE_INFISICAL_STACK_COMPOSE) --env-file $(INFISICAL_ENV_FILE) up -d
+
+infisical-down:
+	@docker --context $(ORACLE_CONTEXT) compose -f $(ORACLE_INFISICAL_STACK_COMPOSE) --env-file $(INFISICAL_ENV_FILE) down
+
+infisical-restart:
+	@docker --context $(ORACLE_CONTEXT) compose -f $(ORACLE_INFISICAL_STACK_COMPOSE) --env-file $(INFISICAL_ENV_FILE) restart
+
+infisical-logs:
+	@docker --context $(ORACLE_CONTEXT) compose -f $(ORACLE_INFISICAL_STACK_COMPOSE) --env-file $(INFISICAL_ENV_FILE) logs -f
+
+infisical-logs-backend:
+	@docker --context $(ORACLE_CONTEXT) compose -f $(ORACLE_INFISICAL_STACK_COMPOSE) --env-file $(INFISICAL_ENV_FILE) logs -f infisical-backend
+
+infisical-logs-gateway:
+	@docker --context $(ORACLE_CONTEXT) compose -f $(ORACLE_INFISICAL_STACK_COMPOSE) --env-file $(INFISICAL_ENV_FILE) logs -f infisical-gateway
+
+infisical-logs-postgres:
+	@docker --context $(ORACLE_CONTEXT) compose -f $(ORACLE_INFISICAL_STACK_COMPOSE) --env-file $(INFISICAL_ENV_FILE) logs -f infisical-postgres
+
+infisical-health:
+	@echo "📊 Infisical Stack Health"
+	@echo "========================="
+	@docker --context $(ORACLE_CONTEXT) compose -f $(ORACLE_INFISICAL_STACK_COMPOSE) --env-file $(INFISICAL_ENV_FILE) ps
+	@echo ""
+	@curl -sf https://infisical.trex-fiordland.ts.net/api/status 2>/dev/null | jq -r '.status // "unreachable"' 2>/dev/null || echo "(Caddy not yet routing — check caddy-health)"
+
+infisical-ps:
+	@docker --context $(ORACLE_CONTEXT) compose -f $(ORACLE_INFISICAL_STACK_COMPOSE) --env-file $(INFISICAL_ENV_FILE) ps
+
+infisical-shell:
+	@docker --context $(ORACLE_CONTEXT) compose -f $(ORACLE_INFISICAL_STACK_COMPOSE) --env-file $(INFISICAL_ENV_FILE) exec infisical-backend sh
+
+# --- AGENT VAULT ---
+# Credential proxy for AI agents. Also pre-Infisical bootstrap, uses own env file.
+
+.PHONY: agent-vault-up agent-vault-down agent-vault-restart agent-vault-logs agent-vault-health agent-vault-ps agent-vault-shell
+
+agent-vault-up:
+	@echo "🔐 Starting Agent Vault..."
+	@[ -f $(ORACLE_AGENT_VAULT_ENV_FILE) ] || (echo "❌ Missing $(ORACLE_AGENT_VAULT_ENV_FILE)"; exit 1)
+	@docker --context $(ORACLE_CONTEXT) compose -f $(ORACLE_AGENT_VAULT_COMPOSE) --env-file $(ORACLE_AGENT_VAULT_ENV_FILE) up -d
+	@echo "✅ Agent Vault running — https://agent-vault.trex-fiordland.ts.net"
+
+agent-vault-down:
+	@docker --context $(ORACLE_CONTEXT) compose -f $(ORACLE_AGENT_VAULT_COMPOSE) --env-file $(ORACLE_AGENT_VAULT_ENV_FILE) down
+
+agent-vault-restart:
+	@docker --context $(ORACLE_CONTEXT) compose -f $(ORACLE_AGENT_VAULT_COMPOSE) --env-file $(ORACLE_AGENT_VAULT_ENV_FILE) restart
+
+agent-vault-logs:
+	@docker --context $(ORACLE_CONTEXT) compose -f $(ORACLE_AGENT_VAULT_COMPOSE) --env-file $(ORACLE_AGENT_VAULT_ENV_FILE) logs -f
+
+agent-vault-health:
+	@echo "📊 Agent Vault Health"
+	@echo "====================="
+	@docker --context $(ORACLE_CONTEXT) compose -f $(ORACLE_AGENT_VAULT_COMPOSE) --env-file $(ORACLE_AGENT_VAULT_ENV_FILE) ps
+	@curl -sf https://agent-vault.trex-fiordland.ts.net/health 2>/dev/null && echo "✅ Reachable via Caddy" || echo "⚠️  Not yet reachable (Caddy or service may be starting)"
+
+agent-vault-ps:
+	@docker --context $(ORACLE_CONTEXT) compose -f $(ORACLE_AGENT_VAULT_COMPOSE) --env-file $(ORACLE_AGENT_VAULT_ENV_FILE) ps
+
+agent-vault-shell:
+	@docker --context $(ORACLE_CONTEXT) compose -f $(ORACLE_AGENT_VAULT_COMPOSE) --env-file $(ORACLE_AGENT_VAULT_ENV_FILE) exec agent-vault sh
+
+# --- INFISICAL CLOUD SYNC (self-hosted ↔ app.infisical.com) ---
+# Bidirectional sync between self-hosted Infisical and cloud Infisical.com.
+# Requires both INFISICAL_TOKEN_CLOUD and INFISICAL_TOKEN_LOCAL to be exported.
+# After self-hosted Infisical is running, create a machine identity token there
+# and export INFISICAL_TOKEN_LOCAL + INFISICAL_PROJECT_ID_LOCAL.
+#
+# Quick start:
+#   export INFISICAL_TOKEN_CLOUD=<cloud-token>        # your app.infisical.com token
+#   export INFISICAL_TOKEN_LOCAL=<self-hosted-token>  # token from infisical.trex-fiordland.ts.net
+#   export INFISICAL_PROJECT_ID_LOCAL=<project-id>   # from self-hosted project settings
+#   make infisical-cloud-sync
+
+.PHONY: infisical-cloud-sync infisical-cloud-push infisical-cloud-pull infisical-cloud-status infisical-cloud-dry-run infisical-missing-secrets memory-stack-smoke nexus-mcp-smoke compose-with-infisical
+
+infisical-cloud-sync:
+	@echo "🔄 Bidirectional sync: self-hosted ↔ cloud Infisical (cloud-wins on conflict)..."
+	@$(nyra_load_infisical_env) INFISICAL_CLOUD_BOOTSTRAP_PATH="$(INFISICAL_CLOUD_BOOTSTRAP_PATH)" INFISICAL_LOCAL_BOOTSTRAP_PATH="$(INFISICAL_LOCAL_BOOTSTRAP_PATH)" scripts/infisical/sync-cloud.sh sync
+
+infisical-cloud-push:
+	@echo "⬆️  Pushing self-hosted secrets → cloud Infisical..."
+	@$(nyra_load_infisical_env) INFISICAL_CLOUD_BOOTSTRAP_PATH="$(INFISICAL_CLOUD_BOOTSTRAP_PATH)" INFISICAL_LOCAL_BOOTSTRAP_PATH="$(INFISICAL_LOCAL_BOOTSTRAP_PATH)" scripts/infisical/sync-cloud.sh push
+
+infisical-cloud-pull:
+	@echo "⬇️  Pulling cloud Infisical secrets → self-hosted..."
+	@$(nyra_load_infisical_env) INFISICAL_CLOUD_BOOTSTRAP_PATH="$(INFISICAL_CLOUD_BOOTSTRAP_PATH)" INFISICAL_LOCAL_BOOTSTRAP_PATH="$(INFISICAL_LOCAL_BOOTSTRAP_PATH)" scripts/infisical/sync-cloud.sh pull
+
+infisical-cloud-status:
+	@$(nyra_load_infisical_env) INFISICAL_CLOUD_BOOTSTRAP_PATH="$(INFISICAL_CLOUD_BOOTSTRAP_PATH)" INFISICAL_LOCAL_BOOTSTRAP_PATH="$(INFISICAL_LOCAL_BOOTSTRAP_PATH)" scripts/infisical/sync-cloud.sh status
+
+infisical-cloud-dry-run:
+	@echo "🧪 Dry-run sync (no changes made)..."
+	@$(nyra_load_infisical_env) INFISICAL_CLOUD_BOOTSTRAP_PATH="$(INFISICAL_CLOUD_BOOTSTRAP_PATH)" INFISICAL_LOCAL_BOOTSTRAP_PATH="$(INFISICAL_LOCAL_BOOTSTRAP_PATH)" scripts/infisical/sync-cloud.sh sync --dry-run
+
+infisical-missing-secrets:
+	@python scripts/infra/inventory-infisical-secrets.py --write
+	@echo "Wrote docs/reports/INFISICAL_MISSING_SECRETS.md"
+
+memory-stack-smoke:
+	@scripts/infra/smoke-memory-stack.sh
+
+nexus-mcp-smoke:
+	@scripts/infra/smoke-nexus-mcp.sh
+
+compose-with-infisical:
+	@scripts/infra/compose-with-infisical.sh --help
+
 # --- AGENT INFRA TARGETS ---
 
 .PHONY: agent-infra-validate agent-secrets-generate agent-secrets-audit oracle-agent-utils-up oracle-agent-utils-down oracle-memory-up oracle-memory-down kyutai-base-3060-up kyutai-mesh-up kyutai-mesh-down kyutai-mesh-check
@@ -537,24 +696,18 @@ kyutai-mesh-check:
 	bash scripts/check-voice-mesh.sh
 
 secrets-init: check-host
-	@if [ -z "$(TOKEN)" ]; then echo "🚨 Error: TOKEN is required."; exit 1; fi
-	@mkdir -p infra/hosts/$(HOST)
-	@echo "INFISICAL_TOKEN=$(TOKEN)" > infra/hosts/$(HOST)/.env.host
-	@echo "INFISICAL_PROJECT_ID=8374cea9-e5e8-4050-bda4-b91f25ab30ef" >> infra/hosts/$(HOST)/.env.host
-	@echo "INFISICAL_ENV=prod" >> infra/hosts/$(HOST)/.env.host
-	@echo "INFISICAL_PATH=/workers/$(HOST)" >> infra/hosts/$(HOST)/.env.host
-	@if [ "$(HOST)" = "homeassistant" ]; then echo "INFISICAL_PATH=/homeassistant" >> infra/hosts/$(HOST)/.env.host; fi
-	@echo "INFISICAL_API_URL=https://app.infisical.com" >> infra/hosts/$(HOST)/.env.host
-	@echo "NYRA_FORCE_SECRETS=false" >> infra/hosts/$(HOST)/.env.host
-	@echo "🐾 ✅ Successfully generated infra/hosts/$(HOST)/.env.host"
+	@echo "$(NYRA_LOCAL_ENV_HINT)" >&2
+	@echo "Use make targets from the repo root; they source $(INFISICAL_LOCAL_SECRETS_FILE) and run docker compose under infisical run." >&2
+	@exit 66
 
 secrets-build: check-host
 	@echo "🐾 🛠️  Building secrets sidecar for $(HOST)..."
 	docker compose -f infra/hosts/$(HOST)/docker-compose.yml --profile secrets build
 
 secrets-up: check-host
-	@echo "🐾 🚀 Starting secrets sidecar for $(HOST)..."
-	docker compose -f infra/hosts/$(HOST)/docker-compose.yml --env-file infra/hosts/$(HOST)/.env.host --profile secrets up -d
+	@echo "$(NYRA_LOCAL_ENV_HINT)" >&2
+	@echo "Use the host-specific make target so secrets are injected by Infisical at runtime." >&2
+	@exit 66
 
 # ════════════════════════════════════════════════════════════════════════════
 # MAXIMALIST SWARM ORCHESTRATION: WAVE + ZELLIJ + INFISICAL
@@ -562,12 +715,7 @@ secrets-up: check-host
 
 .PHONY: swarm-setup swarm-up swarm-oracle swarm-utility swarm-down swarm-logs swarm-ghost swarm-grid nerve-ui-3090ti nerve-ui-5090 claw-team-up
 
-# Infisical integration: export secrets to .env.swarm
-.env.swarm:
-	@echo "🔐 Pulling secrets from Infisical CLI..."
-	@infisical export --env=prod --path=/workers/orchestrator --format=dotenv > .env.swarm || \
-		(echo "⚠️ Failed to pull Infisical secrets. Creating empty .env.swarm..." && touch .env.swarm)
-
+# Infisical integration: local swarm inherits auth from ~/.zsh/99-secrets.zsh; no repo-local .env file.
 swarm-setup:
 	@echo "🌊 Bootstrapping Maximalist Wave AI (Waveterm) & Zellij Swarm..."
 	@curl -fsSL https://dl.waveterm.dev/get-waveterm.sh | sh
@@ -575,13 +723,13 @@ swarm-setup:
 	@./scripts/setup-waveterm-cyberpunk.sh
 	@echo "✅ Configuration written. Restart WaveTerm to apply."
 
-swarm-up: .env.swarm
+swarm-up:
 	@echo "🌊 Booting Maximalist Zellij Swarm..."
 	@if zellij list-sessions 2>/dev/null | grep -q "nyra-swarm"; then \
 		echo "⚡ Swarm already active. Attaching via WaveTerm..."; \
 	else \
 		echo "🚀 Spawning detached Zellij Swarm (nyra-swarm)..."; \
-		set -a; source .env.swarm; set +a; \
+		$(nyra_load_infisical_env) \
 		zellij --layout infra/zellij/nyra-swarm.kdl --session nyra-swarm -d; \
 		echo "⏳ Waiting 3s for Ghost Layer (llxprt) proxy to stabilize on :8080..."; \
 		sleep 3; \
@@ -671,7 +819,8 @@ dev-llxprt-jefe:
 	@cd ./external/llxprt-jefe && jefe
 
 llxprt-bridge-up:
-	@infisical run --projectId=$(INFISICAL_PROJECT_ID) --env=$(AGENT_INFRA_ENV) --path=/providers/llxprt -- ./scripts/start-llxprt-bridge.sh
+	@$(nyra_load_infisical_env) nyra_infisical_auth_token="$$(INFISICAL_LOCAL_SECRETS_FILE="$(INFISICAL_LOCAL_SECRETS_FILE)" scripts/infra/infisical-auth-token.sh)" || { echo "$(NYRA_INFISICAL_TOKEN_HINT)" >&2; exit 1; }; \
+	  infisical run --token="$$nyra_infisical_auth_token" --projectId=$(INFISICAL_PROJECT_ID) --env=$(AGENT_INFRA_ENV) --path=/providers/llxprt -- ./scripts/start-llxprt-bridge.sh
 
 llxprt-bridge-down:
 	@./scripts/stop-llxprt-bridge.sh
@@ -745,7 +894,8 @@ orchestrator-setup:
 	@mkdir -p ~/.nyra
 	@if command -v infisical &>/dev/null; then \
 		$(nyra_load_infisical_env) \
-		INFISICAL_TOKEN="$${INFISICAL_TOKEN:?$(NYRA_INFISICAL_TOKEN_HINT)}" infisical export --projectId="$(INFISICAL_PROJECT_ID)" --env="$(AGENT_INFRA_ENV)" --path="$(ORCHESTRATOR_INFISICAL_PATH)" --format=dotenv > ~/.nyra/.env.orchestrator 2>/dev/null || \
+		nyra_infisical_auth_token="$$(INFISICAL_LOCAL_SECRETS_FILE="$(INFISICAL_LOCAL_SECRETS_FILE)" scripts/infra/infisical-auth-token.sh)" && \
+		infisical export --token="$$nyra_infisical_auth_token" --projectId="$(INFISICAL_PROJECT_ID)" --env="$(AGENT_INFRA_ENV)" --path="$(ORCHESTRATOR_INFISICAL_PATH)" --format=dotenv > ~/.nyra/.env.orchestrator 2>/dev/null || \
 		(echo "⚠️  Infisical offline. Creating minimal .env..." && echo "LLXPRT_DUMMY_KEY=local_dev" > ~/.nyra/.env.orchestrator); \
 	else \
 		echo "⚠️  Infisical CLI not installed. Skipping secret pull."; \
@@ -1022,11 +1172,11 @@ orchestrator-ai-down:
 
 worker-5090-ai-up:
 	@echo "Starting RTX5090 vLLM + LMCache + Redis + LiteLLM + OpenClaw + NerveUI..."
-	@$(call nyra_host_compose,$(WORKER_5090_INFISICAL_PATH),$(WORKER_5090_CONTEXT),-f $(WORKER_5090_COMPOSE) -f $(INFISICAL_RUNTIME_COMPOSE) -f $(WORKER_AI_COMMON_COMPOSE) -f $(WORKER_5090_LLXPRT_COMPOSE) -f $(WORKER_5090_MODEL_SWITCHER_COMPOSE) -f $(WORKER_5090_NERVE_COMPOSE) up -d portainer-edge-agent redis vllm litellm promtail node-exporter gpu-exporter health-monitor grafana model-switcher openclaw nerve-ui infisical-agent infisical-sidecar llxprt-code llxprt-bridge,WORKER_GRAFANA_PORT=3005)
+	@$(call nyra_host_compose,$(WORKER_5090_INFISICAL_PATH),$(WORKER_5090_CONTEXT),-f $(WORKER_5090_COMPOSE) -f $(INFISICAL_RUNTIME_COMPOSE) -f $(WORKER_AI_COMMON_COMPOSE) -f $(WORKER_5090_LLXPRT_COMPOSE) -f $(WORKER_5090_MODEL_SWITCHER_COMPOSE) -f $(WORKER_5090_NERVE_COMPOSE) up -d portainer-edge-agent vllm litellm promtail node-exporter gpu-exporter health-monitor grafana model-switcher openclaw nerve-ui infisical-agent infisical-sidecar llxprt-code llxprt-bridge,WORKER_GRAFANA_PORT=3005)
 
 worker-3090ti-ai-up:
 	@echo "Starting RTX3090Ti vLLM + LMCache + Redis + LiteLLM + OpenClaw + NerveUI..."
-	@$(call nyra_host_compose,$(WORKER_3090TI_INFISICAL_PATH),$(WORKER_3090TI_CONTEXT),-f $(WORKER_3090TI_COMPOSE) -f $(INFISICAL_RUNTIME_COMPOSE) -f $(WORKER_AI_COMMON_COMPOSE) -f $(WORKER_3090TI_LLXPRT_COMPOSE) -f $(WORKER_3090TI_NERVE_COMPOSE) up -d portainer-edge-agent redis vllm litellm model-switcher promtail node-exporter gpu-exporter health-monitor grafana openclaw nerve-ui infisical-agent infisical-sidecar llxprt-code llxprt-bridge,WORKER_GRAFANA_PORT=3006)
+	@$(call nyra_host_compose,$(WORKER_3090TI_INFISICAL_PATH),$(WORKER_3090TI_CONTEXT),-f $(WORKER_3090TI_COMPOSE) -f $(INFISICAL_RUNTIME_COMPOSE) -f $(WORKER_AI_COMMON_COMPOSE) -f $(WORKER_3090TI_LLXPRT_COMPOSE) -f $(WORKER_3090TI_NERVE_COMPOSE) up -d portainer-edge-agent vllm litellm model-switcher promtail node-exporter gpu-exporter health-monitor grafana openclaw nerve-ui infisical-agent infisical-sidecar llxprt-code llxprt-bridge,WORKER_GRAFANA_PORT=3006)
 
 worker-3060-ai-up:
 	@echo "Starting RTX3060 Ollama + LiteLLM + optional OpenClaw + NerveUI..."
@@ -1046,8 +1196,8 @@ oracle-memory-manager-up:
 	@$(call nyra_host_compose,$(ORACLE_INFISICAL_PATH),$(ORACLE_CONTEXT),-f $(ORACLE_MEMORY_COMPOSE) -f $(ORACLE_LETTA_MCP_COMPOSE) up -d --build)
 
 oracle-memory-extra-up:
-	@echo "Starting optional memory companions: memOS/MemoryTensor and ClaudeMem..."
-	@$(call nyra_host_compose,$(ORACLE_INFISICAL_PATH),$(ORACLE_CONTEXT),-f $(ORACLE_MEMORY_COMPOSE) -f $(ORACLE_MEMORY_EXTRA_COMPOSE) up -d memos claudemem)
+	@echo "Starting memory companions: memOS/MemoryTensor API and MCP..."
+	@$(call nyra_host_compose,$(ORACLE_INFISICAL_PATH),$(ORACLE_CONTEXT),-f $(ORACLE_MEMORY_COMPOSE) -f $(ORACLE_MEMORY_EXTRA_COMPOSE) up -d memos-api memos-mcp)
 
 oracle-memory-full-up: oracle-memory-manager-up oracle-memory-extra-up
 
@@ -1056,7 +1206,7 @@ oracle-memory-full-down:
 
 oracle-webapp-twenty-up:
 	@echo "Starting Oracle webapp + Twenty CRM + Twenty MCP..."
-	@$(call nyra_host_compose,$(ORACLE_INFISICAL_PATH),$(ORACLE_CONTEXT),-f $(ORACLE_COMPOSE) -f $(ORACLE_APPS_COMPOSE) --profile apps up -d postgres redis-cache twenty-db twenty twenty-worker twenty-mcp crm-api webapp cloudflared portainer-edge-agent infisical-agent infisical-sidecar)
+	@$(call nyra_host_compose,$(ORACLE_INFISICAL_PATH),$(ORACLE_CONTEXT),-f $(ORACLE_COMPOSE) -f $(ORACLE_APPS_COMPOSE) --profile apps up -d postgres-cache twenty-db twenty twenty-worker twenty-mcp crm-api webapp cloudflared portainer-edge-agent infisical-agent infisical-sidecar)
 
 oracle-webapp-twenty-down:
 	@$(call nyra_host_compose,$(ORACLE_INFISICAL_PATH),$(ORACLE_CONTEXT),-f $(ORACLE_COMPOSE) -f $(ORACLE_APPS_COMPOSE) down)
@@ -1095,25 +1245,28 @@ oracle-ui-install:
 
 oracle-mcp-tools-up:
 	@echo "Starting Oracle MCP tool containers and Nexus..."
-	@LLXPRT_BRIDGE_API_KEY="$$(infisical secrets get LLXPRT_BRIDGE_API_KEY --projectId=$(INFISICAL_PROJECT_ID) --env=$(AGENT_INFRA_ENV) --path=/providers/llxprt --plain --silent 2>/dev/null)" \
-	  BETTER_AUTH_SECRET="$$(infisical secrets get BETTER_AUTH_SECRET --projectId=$(INFISICAL_PROJECT_ID) --env=$(AGENT_INFRA_ENV) --path=/clients/paperclip --plain --silent 2>/dev/null)" \
-	  PAPERCLIP_AGENT_JWT_SECRET="$$(infisical secrets get PAPERCLIP_AGENT_JWT_SECRET --projectId=$(INFISICAL_PROJECT_ID) --env=$(AGENT_INFRA_ENV) --path=/clients/paperclip --plain --silent 2>/dev/null)" \
-	  infisical run --projectId=$(INFISICAL_PROJECT_ID) --env=$(AGENT_INFRA_ENV) --path=/machines/oracle-vps -- \
-	  docker --context $(ORACLE_CONTEXT) compose --env-file /dev/null \
+	@$(nyra_load_infisical_env) nyra_infisical_auth_token="$$(INFISICAL_LOCAL_SECRETS_FILE="$(INFISICAL_LOCAL_SECRETS_FILE)" scripts/infra/infisical-auth-token.sh)" || { echo "$(NYRA_INFISICAL_TOKEN_HINT)" >&2; exit 1; }; \
+	  LLXPRT_BRIDGE_API_KEY="$$(infisical secrets get LLXPRT_BRIDGE_API_KEY --token="$$nyra_infisical_auth_token" --projectId=$(INFISICAL_PROJECT_ID) --env=$(AGENT_INFRA_ENV) --path=/providers/llxprt --plain --silent 2>/dev/null)" \
+	  BETTER_AUTH_SECRET="$$(infisical secrets get BETTER_AUTH_SECRET --token="$$nyra_infisical_auth_token" --projectId=$(INFISICAL_PROJECT_ID) --env=$(AGENT_INFRA_ENV) --path=/clients/paperclip --plain --silent 2>/dev/null)" \
+	  PAPERCLIP_AGENT_JWT_SECRET="$$(infisical secrets get PAPERCLIP_AGENT_JWT_SECRET --token="$$nyra_infisical_auth_token" --projectId=$(INFISICAL_PROJECT_ID) --env=$(AGENT_INFRA_ENV) --path=/clients/paperclip --plain --silent 2>/dev/null)" \
+	  infisical run --token="$$nyra_infisical_auth_token" --projectId=$(INFISICAL_PROJECT_ID) --env=$(AGENT_INFRA_ENV) --path=/machines/oracle-vps -- \
+	  env -u DOCKER_HOST docker --context $(ORACLE_CONTEXT) compose --env-file /dev/null \
 	  -f $(ORACLE_COMPOSE) -f $(ORACLE_ACTIVEPIECES_MCP_COMPOSE) up -d $(ORACLE_MCP_TOOL_SERVICES)
 
 oracle-mcp-tools-down:
-	@BETTER_AUTH_SECRET="$$(infisical secrets get BETTER_AUTH_SECRET --projectId=$(INFISICAL_PROJECT_ID) --env=$(AGENT_INFRA_ENV) --path=/clients/paperclip --plain --silent 2>/dev/null)" \
-	  PAPERCLIP_AGENT_JWT_SECRET="$$(infisical secrets get PAPERCLIP_AGENT_JWT_SECRET --projectId=$(INFISICAL_PROJECT_ID) --env=$(AGENT_INFRA_ENV) --path=/clients/paperclip --plain --silent 2>/dev/null)" \
-	  infisical run --projectId=$(INFISICAL_PROJECT_ID) --env=$(AGENT_INFRA_ENV) --path=/machines/oracle-vps -- \
-	  docker --context $(ORACLE_CONTEXT) compose --env-file /dev/null \
+	@$(nyra_load_infisical_env) nyra_infisical_auth_token="$$(INFISICAL_LOCAL_SECRETS_FILE="$(INFISICAL_LOCAL_SECRETS_FILE)" scripts/infra/infisical-auth-token.sh)" || { echo "$(NYRA_INFISICAL_TOKEN_HINT)" >&2; exit 1; }; \
+	  BETTER_AUTH_SECRET="$$(infisical secrets get BETTER_AUTH_SECRET --token="$$nyra_infisical_auth_token" --projectId=$(INFISICAL_PROJECT_ID) --env=$(AGENT_INFRA_ENV) --path=/clients/paperclip --plain --silent 2>/dev/null)" \
+	  PAPERCLIP_AGENT_JWT_SECRET="$$(infisical secrets get PAPERCLIP_AGENT_JWT_SECRET --token="$$nyra_infisical_auth_token" --projectId=$(INFISICAL_PROJECT_ID) --env=$(AGENT_INFRA_ENV) --path=/clients/paperclip --plain --silent 2>/dev/null)" \
+	  infisical run --token="$$nyra_infisical_auth_token" --projectId=$(INFISICAL_PROJECT_ID) --env=$(AGENT_INFRA_ENV) --path=/machines/oracle-vps -- \
+	  env -u DOCKER_HOST docker --context $(ORACLE_CONTEXT) compose --env-file /dev/null \
 	  -f $(ORACLE_COMPOSE) -f $(ORACLE_ACTIVEPIECES_MCP_COMPOSE) stop $(ORACLE_MCP_TOOL_SERVICES)
 
 oracle-mcp-tools-ps:
-	@BETTER_AUTH_SECRET="$$(infisical secrets get BETTER_AUTH_SECRET --projectId=$(INFISICAL_PROJECT_ID) --env=$(AGENT_INFRA_ENV) --path=/clients/paperclip --plain --silent 2>/dev/null)" \
-	  PAPERCLIP_AGENT_JWT_SECRET="$$(infisical secrets get PAPERCLIP_AGENT_JWT_SECRET --projectId=$(INFISICAL_PROJECT_ID) --env=$(AGENT_INFRA_ENV) --path=/clients/paperclip --plain --silent 2>/dev/null)" \
-	  infisical run --projectId=$(INFISICAL_PROJECT_ID) --env=$(AGENT_INFRA_ENV) --path=/machines/oracle-vps -- \
-	  docker --context $(ORACLE_CONTEXT) compose --env-file /dev/null \
+	@$(nyra_load_infisical_env) nyra_infisical_auth_token="$$(INFISICAL_LOCAL_SECRETS_FILE="$(INFISICAL_LOCAL_SECRETS_FILE)" scripts/infra/infisical-auth-token.sh)" || { echo "$(NYRA_INFISICAL_TOKEN_HINT)" >&2; exit 1; }; \
+	  BETTER_AUTH_SECRET="$$(infisical secrets get BETTER_AUTH_SECRET --token="$$nyra_infisical_auth_token" --projectId=$(INFISICAL_PROJECT_ID) --env=$(AGENT_INFRA_ENV) --path=/clients/paperclip --plain --silent 2>/dev/null)" \
+	  PAPERCLIP_AGENT_JWT_SECRET="$$(infisical secrets get PAPERCLIP_AGENT_JWT_SECRET --token="$$nyra_infisical_auth_token" --projectId=$(INFISICAL_PROJECT_ID) --env=$(AGENT_INFRA_ENV) --path=/clients/paperclip --plain --silent 2>/dev/null)" \
+	  infisical run --token="$$nyra_infisical_auth_token" --projectId=$(INFISICAL_PROJECT_ID) --env=$(AGENT_INFRA_ENV) --path=/machines/oracle-vps -- \
+	  env -u DOCKER_HOST docker --context $(ORACLE_CONTEXT) compose --env-file /dev/null \
 	  -f $(ORACLE_COMPOSE) -f $(ORACLE_ACTIVEPIECES_MCP_COMPOSE) ps $(ORACLE_MCP_TOOL_SERVICES)
 
 oracle-portainer-up:
@@ -1140,7 +1293,7 @@ wave-stack-status:
 	@$(call nyra_host_compose,$(WORKER_3060_INFISICAL_PATH),$(WORKER_3060_CONTEXT),-f $(WORKER_3060_COMPOSE) -f $(INFISICAL_RUNTIME_COMPOSE) -f $(WORKER_AI_COMMON_COMPOSE) -f $(WORKER_3060_LLXPRT_COMPOSE) -f $(WORKER_3060_OPENCLAW_COMPOSE) ps,WORKER_GRAFANA_PORT=3007) || true
 	@echo
 	@echo "=== ORACLE MEMORY ==="
-	@$(call nyra_host_compose,$(ORACLE_INFISICAL_PATH),$(ORACLE_CONTEXT),-f $(ORACLE_MEMORY_COMPOSE) -f $(ORACLE_LETTA_MCP_COMPOSE) ps) || true
+	@$(call nyra_host_compose,$(ORACLE_INFISICAL_PATH),$(ORACLE_CONTEXT),-f $(ORACLE_MEMORY_COMPOSE) -f $(ORACLE_LETTA_MCP_COMPOSE) -f $(ORACLE_MEMORY_EXTRA_COMPOSE) ps) || true
 	@echo
 	@echo "=== ORACLE APPS ==="
 	@$(call nyra_host_compose,$(ORACLE_INFISICAL_PATH),$(ORACLE_CONTEXT),-f $(ORACLE_COMPOSE) -f $(ORACLE_APPS_COMPOSE) ps) || true

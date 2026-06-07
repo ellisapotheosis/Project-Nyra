@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import confetti from "canvas-confetti";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Home,
@@ -113,6 +114,12 @@ export function LeadCaptureWizard() {
 
       if (response.ok) {
         setStep("SUCCESS");
+        confetti({
+          particleCount: 120,
+          spread: 80,
+          origin: { y: 0.6 },
+          colors: ["#5038FF", "#00CCB2", "#F20D7A", "#8F14ED"],
+        });
       } else {
         alert("Something went wrong. Please try again.");
       }

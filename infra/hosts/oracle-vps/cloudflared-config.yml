@@ -94,6 +94,95 @@ ingress:
   - hostname: status.projectnyra.com
     service: http://nyra-network-nyra-uptime-kuma:3001
 
+  # ── AI routing & Grafbase gateway ────────────────────────────────────────
+  - hostname: grafbase.projectnyra.com
+    service: http://grafbase:5050
+
+  - hostname: superset.projectnyra.com
+    service: http://superset:8088
+
+  # ── Infisical secrets manager ─────────────────────────────────────────────
+  - hostname: infisical.projectnyra.com
+    service: http://100.64.0.3:8200
+
+  # ── Agent Vault ───────────────────────────────────────────────────────────
+  - hostname: agent-vault.projectnyra.com
+    service: http://agent-vault:14321
+
+  # ── Memory plane ──────────────────────────────────────────────────────────
+  - hostname: letta.projectnyra.com
+    service: http://letta:8283
+
+  - hostname: letta-mcp.projectnyra.com
+    service: http://letta-mcp:8284
+
+  - hostname: mem0.projectnyra.com
+    service: http://mem0:5000
+
+  - hostname: memos.projectnyra.com
+    service: http://memos-api:8001
+
+  - hostname: openmemory.projectnyra.com
+    service: http://openmemory-mcp:8765
+
+  - hostname: searxng.projectnyra.com
+    service: http://searxng:8080
+
+  # ── MCP servers (direct endpoints, Access-gated) ─────────────────────────
+  - hostname: openmemory-mcp.projectnyra.com
+    service: http://openmemory-mcp:8765
+
+  - hostname: activepieces-mcp.projectnyra.com
+    service: http://activepieces-mcp:3333
+
+  - hostname: tailscale-mcp.projectnyra.com
+    service: http://tailscale-mcp:8780
+
+  - hostname: twenty-mcp.projectnyra.com
+    service: http://twenty-mcp:8400
+
+  - hostname: infisical-mcp.projectnyra.com
+    service: http://infisical-mcp:8766
+
+  - hostname: gitea-mcp.projectnyra.com
+    service: http://gitea-mcp:3101
+
+  - hostname: git-mcp.projectnyra.com
+    service: http://git-mcp:8773
+
+  - hostname: paperclip-mcp.projectnyra.com
+    service: http://paperclip-mcp:8767
+
+  - hostname: magicui-mcp.projectnyra.com
+    service: http://magicui-mcp:8768
+
+  - hostname: shadcn-mcp.projectnyra.com
+    service: http://shadcn-mcp:8769
+
+  - hostname: sequential-thinking-mcp.projectnyra.com
+    service: http://sequential-thinking-mcp:8770
+
+  - hostname: playwright-mcp.projectnyra.com
+    service: http://playwright-mcp:8771
+
+  - hostname: firecrawl-mcp.projectnyra.com
+    service: http://firecrawl-mcp:8772
+
+  - hostname: next-devtools-mcp.projectnyra.com
+    service: http://next-devtools-mcp:8774
+
+  - hostname: tavily-mcp.projectnyra.com
+    service: http://tavily-mcp:8775
+
+  - hostname: wcgw-mcp.projectnyra.com
+    service: http://wcgw-mcp:8776
+
+  - hostname: gitingest-mcp.projectnyra.com
+    service: http://gitingest-mcp:8777
+
+  - hostname: codebase-index-mcp.projectnyra.com
+    service: http://codebase-index-mcp:8778
+
   # ── Internal tooling ──────────────────────────────────────────────────────
   - hostname: clawteam.projectnyra.com
     service: http://clawteam:8080

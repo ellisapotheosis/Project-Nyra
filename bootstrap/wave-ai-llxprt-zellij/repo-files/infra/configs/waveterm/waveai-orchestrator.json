@@ -3,7 +3,7 @@
     "display:name": "Nyra Letta Orchestrator via Nexus",
     "ai:provider": "custom",
     "ai:model": "nyra-letta-orchestrator",
-    "ai:endpoint": "http://orchestrator.trex-fiordland.ts.net:6000/v1/chat/completions",
+    "ai:endpoint": "https://nexus.trex-fiordland.ts.net/v1/chat/completions",
     "ai:apitype": "openai-chat",
     "ai:apitokensecretname": "NEXUS_MASTER_KEY",
     "description": "Default Wave AI mode. Routes through Nexus so Letta can coordinate memory, tools, subscription CLIs, and worker OpenClaw/PicoClaw lanes."
@@ -89,7 +89,7 @@
     "display:name": "Nyra Local Nexus",
     "ai:provider": "custom",
     "ai:model": "nyra-auto",
-    "ai:endpoint": "http://orchestrator.trex-fiordland.ts.net:6000/v1/chat/completions",
+    "ai:endpoint": "https://nexus.trex-fiordland.ts.net/v1/chat/completions",
     "ai:apitype": "openai-chat",
     "ai:apitokensecretname": "NEXUS_MASTER_KEY",
     "description": "Private model and MCP route through the orchestrator Nexus endpoint."

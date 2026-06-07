@@ -112,7 +112,7 @@ Letta should prefer these routes:
 
 ```text
 subscription capacity: http://127.0.0.1:8090/v1 model=nyra-cli-triad-ha
-private local routing: http://orchestrator.trex-fiordland.ts.net:6000/v1 model=nyra-auto
+private local routing: https://nexus.trex-fiordland.ts.net/v1 model=nyra-auto
 worker direct diagnostics: worker profiles only over Tailscale MagicDNS
 ```
 

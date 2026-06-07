@@ -15,88 +15,88 @@ After DNS/Tailscale resolution is restored, compare Infisical key names against
 
 ## Project Nyra Required Keys
 
-- `CRM_API_URL`
-- `CRM_API_KEY`
-- `LEAD_INGESTION_API_URL`
-- `LEAD_INGESTION_API_KEY`
-- `CAMPAIGN_ENGINE_URL`
-- `QUOTE_API_URL`
-- `QUOTE_API_SECRET`
-- `NEXUS_ROUTER_URL`
-- `LITELLM_PROXY_URL`
-- `GRAFBASE_URL`
-- `GRAFANA_URL`
-- `LITELLM_MASTER_KEY`
-- `OPENCLAW_PUBLIC_BASE_URL`
-- `OPENCLAW_CHAT_PATH`
-- `OPENCLAW_GATEWAY_TOKEN`
-- `OPENCLAW_DEFAULT_MODEL`
-- `NYRA_CHAT_INTERNAL_PROXY_TOKEN`
-- `NYRA_INTERNAL_API_RATE_LIMIT`
-- `NYRA_INTERNAL_PROXY_EXPOSE_UPSTREAM_BODY`
-- `NEXT_PUBLIC_SUPABASE_URL`
-- `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-- `SUPABASE_SERVICE_ROLE_KEY`
-- `SUPABASE_JWT_SECRET`
-- `TWENTY_CRM_URL`
-- `TWENTY_CRM_API_KEY`
-- `TWENTY_MCP_URL`
-- `TWENTY_API_KEY`
-- `TWENTY_ACCESS_TOKEN`
-- `TWENTY_APP_SECRET`
-- `TWENTY_DB_USER`
-- `TWENTY_DB_PASSWORD`
-- `TWENTY_DB_NAME`
+- `CRM\\\\\\\_API\\\\\\\_URL`
+- `CRM\\\\\\\_API\\\\\\\_KEY`
+- `LEAD\\\\\\\_INGESTION\\\\\\\_API\\\\\\\_URL`
+- `LEAD\\\\\\\_INGESTION\\\\\\\_API\\\\\\\_KEY`
+- `CAMPAIGN\\\\\\\_ENGINE\\\\\\\_URL`
+- `QUOTE\\\\\\\_API\\\\\\\_URL`
+- `QUOTE\\\\\\\_API\\\\\\\_SECRET`
+- `NEXUS\\\\\\\_ROUTER\\\\\\\_URL`
+- `LITELLM\\\\\\\_PROXY\\\\\\\_URL`
+- `GRAFBASE\\\\\\\_URL`
+- `GRAFANA\\\\\\\_URL`
+- `LITELLM\\\\\\\_MASTER\\\\\\\_KEY`
+- `OPENCLAW\\\\\\\_PUBLIC\\\\\\\_BASE\\\\\\\_URL`
+- `OPENCLAW\\\\\\\_CHAT\\\\\\\_PATH`
+- `OPENCLAW\\\\\\\_GATEWAY\\\\\\\_TOKEN`
+- `OPENCLAW\\\\\\\_DEFAULT\\\\\\\_MODEL`
+- `NYRA\\\\\\\_CHAT\\\\\\\_INTERNAL\\\\\\\_PROXY\\\\\\\_TOKEN`
+- `NYRA\\\\\\\_INTERNAL\\\\\\\_API\\\\\\\_RATE\\\\\\\_LIMIT`
+- `NYRA\\\\\\\_INTERNAL\\\\\\\_PROXY\\\\\\\_EXPOSE\\\\\\\_UPSTREAM\\\\\\\_BODY`
+- `NEXT\\\\\\\_PUBLIC\\\\\\\_SUPABASE\\\\\\\_URL`
+- `NEXT\\\\\\\_PUBLIC\\\\\\\_SUPABASE\\\\\\\_PUBLISHABLE\\\\\\\_KEY`
+- `NEXT\\\\\\\_PUBLIC\\\\\\\_SUPABASE\\\\\\\_ANON\\\\\\\_KEY`
+- `SUPABASE\\\\\\\_SERVICE\\\\\\\_ROLE\\\\\\\_KEY`
+- `SUPABASE\\\\\\\_JWT\\\\\\\_SECRET`
+- `TWENTY\\\\\\\_CRM\\\\\\\_URL`
+- `TWENTY\\\\\\\_CRM\\\\\\\_API\\\\\\\_KEY`
+- `TWENTY\\\\\\\_MCP\\\\\\\_URL`
+- `TWENTY\\\\\\\_API\\\\\\\_KEY`
+- `TWENTY\\\\\\\_ACCESS\\\\\\\_TOKEN`
+- `TWENTY\\\\\\\_APP\\\\\\\_SECRET`
+- `TWENTY\\\\\\\_DB\\\\\\\_USER`
+- `TWENTY\\\\\\\_DB\\\\\\\_PASSWORD`
+- `TWENTY\\\\\\\_DB\\\\\\\_NAME`
 
 ## Project Nyra Browser-Safe URLs
 
 These may be exposed to the browser but should still be managed consistently:
 
-- `NEXT_PUBLIC_APP_URL`
-- `NEXT_PUBLIC_NYRA_DEMO_AUTH`
-- `NEXT_PUBLIC_NEXUS_ROUTER_URL`
-- `NEXT_PUBLIC_LITELLM_URL`
-- `NEXT_PUBLIC_GRAFBASE_URL`
-- `NEXT_PUBLIC_GRAFANA_URL`
-- `NEXT_PUBLIC_ACTIVEPIECES_URL`
-- `NEXT_PUBLIC_N8N_URL`
-- `NEXT_PUBLIC_TWENTY_URL`
-- `NEXT_PUBLIC_OPENMEMORY_URL`
-- `NEXT_PUBLIC_PAPERCLIP_URL`
-- `NEXT_PUBLIC_OPENCLAW_URL`
-- `NEXT_PUBLIC_NYRA_WEBSOCKET_URL`
+- `NEXT\\\\\\\_PUBLIC\\\\\\\_APP\\\\\\\_URL`
+- `NEXT\\\\\\\_PUBLIC\\\\\\\_NYRA\\\\\\\_DEMO\\\\\\\_AUTH`
+- `NEXT\\\\\\\_PUBLIC\\\\\\\_NEXUS\\\\\\\_ROUTER\\\\\\\_URL`
+- `NEXT\\\\\\\_PUBLIC\\\\\\\_LITELLM\\\\\\\_URL`
+- `NEXT\\\\\\\_PUBLIC\\\\\\\_GRAFBASE\\\\\\\_URL`
+- `NEXT\\\\\\\_PUBLIC\\\\\\\_GRAFANA\\\\\\\_URL`
+- `NEXT\\\\\\\_PUBLIC\\\\\\\_ACTIVEPIECES\\\\\\\_URL`
+- `NEXT\\\\\\\_PUBLIC\\\\\\\_N8N\\\\\\\_URL`
+- `NEXT\\\\\\\_PUBLIC\\\\\\\_TWENTY\\\\\\\_URL`
+- `NEXT\\\\\\\_PUBLIC\\\\\\\_OPENMEMORY\\\\\\\_URL`
+- `NEXT\\\\\\\_PUBLIC\\\\\\\_PAPERCLIP\\\\\\\_URL`
+- `NEXT\\\\\\\_PUBLIC\\\\\\\_OPENCLAW\\\\\\\_URL`
+- `NEXT\\\\\\\_PUBLIC\\\\\\\_NYRA\\\\\\\_WEBSOCKET\\\\\\\_URL`
 
 ## RateHunter Required Keys
 
-- `NEXT_PUBLIC_SITE_NAME`
-- `NEXT_PUBLIC_SITE_URL`
-- `OPENCLAW_BORROWER_API_URL`
-- `OPENCLAW_BORROWER_API_KEY`
-- `N8N_INGEST_WEBHOOK_URL`
+- `NEXT\\\\\\\_PUBLIC\\\\\\\_SITE\\\\\\\_NAME`
+- `NEXT\\\\\\\_PUBLIC\\\\\\\_SITE\\\\\\\_URL`
+- `OPENCLAW\\\\\\\_BORROWER\\\\\\\_API\\\\\\\_URL`
+- `OPENCLAW\\\\\\\_BORROWER\\\\\\\_API\\\\\\\_KEY`
+- `N8N\\\\\\\_INGEST\\\\\\\_WEBHOOK\\\\\\\_URL`
 
 ## RateHunter Optional Keys
 
-- `NEXT_PUBLIC_GA_ID`
-- `NEXT_PUBLIC_PLAUSIBLE_DOMAIN`
-- `NEXT_PUBLIC_BORROWER_CHAT_ENDPOINT`
-- `NEXT_PUBLIC_BORROWER_CHAT_API_URL`
-- `BORROWER_CHAT_API_URL`
-- `DATABASE_URL`
-- `SMTP_HOST`
-- `SMTP_PORT`
-- `SMTP_USER`
-- `SMTP_PASSWORD`
-- `CONTACT_EMAIL`
-- `API_SECRET_KEY`
-- `ENABLE_ANALYTICS`
-- `ENABLE_PWA`
+- `NEXT\\\\\\\_PUBLIC\\\\\\\_GA\\\\\\\_ID`
+- `NEXT\\\\\\\_PUBLIC\\\\\\\_PLAUSIBLE\\\\\\\_DOMAIN`
+- `NEXT\\\\\\\_PUBLIC\\\\\\\_BORROWER\\\\\\\_CHAT\\\\\\\_ENDPOINT`
+- `NEXT\\\\\\\_PUBLIC\\\\\\\_BORROWER\\\\\\\_CHAT\\\\\\\_API\\\\\\\_URL`
+- `BORROWER\\\\\\\_CHAT\\\\\\\_API\\\\\\\_URL`
+- `DATABASE\\\\\\\_URL`
+- `SMTP\\\\\\\_HOST`
+- `SMTP\\\\\\\_PORT`
+- `SMTP\\\\\\\_USER`
+- `SMTP\\\\\\\_PASSWORD`
+- `CONTACT\\\\\\\_EMAIL`
+- `API\\\\\\\_SECRET\\\\\\\_KEY`
+- `ENABLE\\\\\\\_ANALYTICS`
+- `ENABLE\\\\\\\_PWA`
 
 ## Platform / Deploy Keys
 
-- `CLOUDFLARE_API_TOKEN`
-- `CLOUDFLARE_ACCOUNT_ID`
-- `OPENLIT_DB_PASSWORD`
-- `OPENLIT_NEXTAUTH_SECRET`
-- `OPENLIT_VAULT_ENCRYPTION_KEY`
-- `PAPERCLIP_API_KEY`
+- `CLOUDFLARE\\\\\\\_API\\\\\\\_TOKEN`
+- `CLOUDFLARE\\\\\\\_ACCOUNT\\\\\\\_ID`
+- `OPENLIT\\\\\\\_DB\\\\\\\_PASSWORD`
+- `OPENLIT\\\\\\\_NEXTAUTH\\\\\\\_SECRET`
+- `OPENLIT\\\\\\\_VAULT\\\\\\\_ENCRYPTION\\\\\\\_KEY`
+- `PAPERCLIP\\\\\\\_API\\\\\\\_KEY`

@@ -1,46 +1,133 @@
 model_list:
   - model_name: local/gemma-4
     litellm_params:
-      model: openai/google/gemma-4-26B-A4B-it
-      api_base: http://worker-rtx5090.trex-fiordland.ts.net:8000/v1
-      api_key: "not-needed"
+      model: openai/worker-3090-vllm
+      api_base: http://worker-rtx3090ti.trex-fiordland.ts.net:4000/v1
+      api_key: os.environ/LITELLM_MASTER_KEY
       timeout: 120
 
   - model_name: local/qwen-coder-32b
     litellm_params:
-      model: openai/Qwen/Qwen2.5-Coder-32B-Instruct
-      api_base: http://worker-rtx3090ti.trex-fiordland.ts.net:8000/v1
-      api_key: "not-needed"
+      model: openai/worker-5090-vllm
+      api_base: http://worker-rtx5090.trex-fiordland.ts.net:4000/v1
+      api_key: os.environ/LITELLM_MASTER_KEY
       timeout: 120
 
   - model_name: local/qwen2.5-4b
     litellm_params:
-      model: ollama/qwen2.5:4b
-      api_base: http://worker-rtx3060.trex-fiordland.ts.net:11434
+      model: openai/worker-3060-general
+      api_base: http://worker-rtx3060.trex-fiordland.ts.net:4000/v1
+      api_key: os.environ/LITELLM_MASTER_KEY
 
   - model_name: local/llama3.2-3b
     litellm_params:
-      model: ollama/llama3.2:3b
-      api_base: http://worker-rtx3060.trex-fiordland.ts.net:11434
+      model: openai/worker-3060-general
+      api_base: http://worker-rtx3060.trex-fiordland.ts.net:4000/v1
+      api_key: os.environ/LITELLM_MASTER_KEY
 
   - model_name: local/embeddings
     litellm_params:
-      model: ollama/nomic-embed-text
-      api_base: http://worker-rtx3060.trex-fiordland.ts.net:11434
+      model: openai/worker-3060-embedding
+      api_base: http://worker-rtx3060.trex-fiordland.ts.net:4000/v1
+      api_key: os.environ/LITELLM_MASTER_KEY
 
   - model_name: local/vybestack-jefe
     litellm_params:
-      model: openai/google/gemma-4-26B-A4B-it
-      api_base: http://worker-rtx5090.trex-fiordland.ts.net:8000/v1
-      api_key: "not-needed"
+      model: openai/worker-5090-vllm
+      api_base: http://worker-rtx5090.trex-fiordland.ts.net:4000/v1
+      api_key: os.environ/LITELLM_MASTER_KEY
       timeout: 120
 
   - model_name: local/vybestack-coder
     litellm_params:
-      model: openai/Qwen/Qwen2.5-Coder-32B-Instruct
-      api_base: http://worker-rtx3090ti.trex-fiordland.ts.net:8000/v1
-      api_key: "not-needed"
+      model: openai/worker-3090-vllm
+      api_base: http://worker-rtx3090ti.trex-fiordland.ts.net:4000/v1
+      api_key: os.environ/LITELLM_MASTER_KEY
       timeout: 120
+
+  - model_name: openrouter/deepseek-r1-free
+    litellm_params:
+      model: openrouter/deepseek/deepseek-r1:free
+      api_key: os.environ/OPENROUTER_API_KEY
+      timeout: 180
+    model_info:
+      mode: chat
+      input_cost_per_token: 0
+      output_cost_per_token: 0
+      max_input_tokens: 164000
+
+  - model_name: openrouter/deepseek-v3-free
+    litellm_params:
+      model: openrouter/deepseek/deepseek-chat:free
+      api_key: os.environ/OPENROUTER_API_KEY
+      timeout: 180
+    model_info:
+      mode: chat
+      input_cost_per_token: 0
+      output_cost_per_token: 0
+
+  - model_name: openrouter/nemotron-4-340b
+    litellm_params:
+      model: openrouter/nvidia/nemotron-4-340b-instruct
+      api_key: os.environ/OPENROUTER_API_KEY
+      timeout: 180
+    model_info:
+      mode: chat
+      max_input_tokens: 4096
+
+  - model_name: openrouter/llama-3-8b-free
+    litellm_params:
+      model: openrouter/meta-llama/llama-3-8b-instruct:free
+      api_key: os.environ/OPENROUTER_API_KEY
+      timeout: 120
+    model_info:
+      mode: chat
+      input_cost_per_token: 0
+      output_cost_per_token: 0
+      max_input_tokens: 8192
+
+  - model_name: openrouter/llama-3-70b-free
+    litellm_params:
+      model: openrouter/meta-llama/llama-3-70b-instruct:free
+      api_key: os.environ/OPENROUTER_API_KEY
+      timeout: 180
+    model_info:
+      mode: chat
+      input_cost_per_token: 0
+      output_cost_per_token: 0
+      max_input_tokens: 8192
+
+  - model_name: openrouter/llama-3-3-70b-free
+    litellm_params:
+      model: openrouter/meta-llama/llama-3.3-70b-instruct:free
+      api_key: os.environ/OPENROUTER_API_KEY
+      timeout: 180
+    model_info:
+      mode: chat
+      input_cost_per_token: 0
+      output_cost_per_token: 0
+      max_input_tokens: 131000
+
+  - model_name: openrouter/phi-3-medium-128k-free
+    litellm_params:
+      model: openrouter/microsoft/phi-3-medium-128k-instruct:free
+      api_key: os.environ/OPENROUTER_API_KEY
+      timeout: 180
+    model_info:
+      mode: chat
+      input_cost_per_token: 0
+      output_cost_per_token: 0
+      max_input_tokens: 128000
+
+  - model_name: openrouter/free
+    litellm_params:
+      model: openrouter/openrouter/free
+      api_key: os.environ/OPENROUTER_API_KEY
+      timeout: 180
+    model_info:
+      mode: chat
+      input_cost_per_token: 0
+      output_cost_per_token: 0
 
   - model_name: subscription/codex
     litellm_params:
@@ -65,6 +152,36 @@ model_list:
 
 litellm_settings:
   set_verbose: false
+  num_retries: 2
+  request_timeout: 180
+  fallbacks:
+    - local/gemma-4:
+        - openrouter/deepseek-r1-free
+        - openrouter/deepseek-v3-free
+        - openrouter/llama-3-3-70b-free
+        - openrouter/free
+    - local/vybestack-jefe:
+        - openrouter/deepseek-r1-free
+        - openrouter/nemotron-4-340b
+        - openrouter/llama-3-3-70b-free
+        - openrouter/free
+    - local/vybestack-coder:
+        - openrouter/deepseek-v3-free
+        - openrouter/llama-3-70b-free
+        - openrouter/llama-3-8b-free
+        - openrouter/free
+    - local/qwen-coder-32b:
+        - openrouter/deepseek-v3-free
+        - openrouter/llama-3-70b-free
+        - openrouter/llama-3-8b-free
+        - openrouter/free
+    - local/qwen2.5-4b:
+        - openrouter/phi-3-medium-128k-free
+        - openrouter/llama-3-8b-free
+        - openrouter/free
+    - local/llama3.2-3b:
+        - openrouter/llama-3-8b-free
+        - openrouter/free
 
 general_settings:
   master_key: os.environ/LITELLM_MASTER_KEY

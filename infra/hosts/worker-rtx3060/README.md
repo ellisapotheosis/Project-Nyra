@@ -5,6 +5,7 @@
 ## Overview
 
 Worker-3060 is a GPU-accelerated worker node in the Project Nyra infrastructure optimized for:
+
 - Document OCR and processing
 - Embedding generation (Xenova/transformers)
 - Code analysis (CodeLlama 34B)
@@ -13,14 +14,14 @@ Worker-3060 is a GPU-accelerated worker node in the Project Nyra infrastructure 
 
 ## Hardware Specifications
 
-| Component | Specification |
-|-----------|---------------|
-| GPU | NVIDIA RTX 3060 |
-| VRAM | 12GB GDDR6 |
-| CUDA Version | 12.4 |
-| Primary Model | CodeLlama 34B |
-| Secondary Model | Qwen 2 32B |
-| Tertiary Model | Gemma 2 27B |
+| Component       | Specification   |
+| --------------- | --------------- |
+| GPU             | NVIDIA RTX 3060 |
+| VRAM            | 12GB GDDR6      |
+| CUDA Version    | 12.4            |
+| Primary Model   | CodeLlama 34B   |
+| Secondary Model | Qwen 2 32B      |
+| Tertiary Model  | Gemma 2 27B     |
 
 ## Quick Start
 
@@ -32,6 +33,7 @@ Worker-3060 is a GPU-accelerated worker node in the Project Nyra infrastructure 
 ```
 
 This installs:
+
 - Docker Desktop with GPU support
 - NVIDIA drivers and CUDA 12.4
 - Ollama with 3 models
@@ -125,11 +127,13 @@ docker-compose -f docker-compose.worker-3060.yml logs -f
 **Port**: 11434
 **URL**: http://localhost:11434
 **Models**:
+
 - `codellama:34b` - Code analysis, document structure parsing
 - `qwen2:32b` - General text processing, classification
 - `gemma2:27b` - Embeddings, lightweight inference
 
 **Usage**:
+
 ```bash
 # Generate text
 curl http://localhost:11434/api/generate -d '{
@@ -151,6 +155,7 @@ curl http://localhost:11434/api/show -d '{"name": "codellama:34b"}'
 **Model**: Xenova/all-MiniLM-L6-v2
 
 **Usage**:
+
 ```bash
 # Health check
 curl http://localhost:8080/health
@@ -178,12 +183,14 @@ curl -X POST http://localhost:8080/embed/batch \
 **URL**: http://localhost:9090
 
 **Endpoints**:
+
 - `/health` - Overall health status
 - `/metrics` - Prometheus metrics
 - `/services` - Service availability
 - `/gpu` - GPU utilization
 
 **Usage**:
+
 ```bash
 # Overall health
 curl http://localhost:9090/health
@@ -201,6 +208,7 @@ curl http://localhost:9090/services
 **Max Memory**: 2GB (LRU eviction)
 
 **Usage**:
+
 ```bash
 # Connect
 redis-cli -h localhost -p 6379
@@ -219,12 +227,14 @@ redis-cli info memory
 **Size**: ~19GB
 **Context**: 16K tokens
 **Use Cases**:
+
 - Code analysis and generation
 - Document structure parsing
 - OCR post-processing
 - Technical document understanding
 
 **Performance**:
+
 - Inference speed: ~15 tokens/sec
 - Memory usage: ~11GB VRAM
 - Batch size: 1-2
@@ -234,12 +244,14 @@ redis-cli info memory
 **Size**: ~18GB
 **Context**: 32K tokens
 **Use Cases**:
+
 - Document classification
 - Information extraction
 - Text summarization
 - General NLP tasks
 
 **Performance**:
+
 - Inference speed: ~18 tokens/sec
 - Memory usage: ~10GB VRAM
 - Batch size: 1-2
@@ -249,12 +261,14 @@ redis-cli info memory
 **Size**: ~16GB
 **Context**: 8K tokens
 **Use Cases**:
+
 - Lightweight inference
 - Embedding generation
 - Quick classification
 - Fallback model
 
 **Performance**:
+
 - Inference speed: ~20 tokens/sec
 - Memory usage: ~9GB VRAM
 - Batch size: 1-2
@@ -267,6 +281,7 @@ redis-cli info memory
 **Network**: Private mesh VPN
 
 **Setup**:
+
 ```powershell
 tailscale up
 tailscale status
@@ -278,6 +293,7 @@ tailscale status
 **Public URL**: https://worker-3060.yourdomain.com
 
 **Setup**:
+
 ```powershell
 # Create tunnel
 cloudflared tunnel create worker-3060
@@ -309,6 +325,7 @@ New-NetFirewallRule -DisplayName "Health Monitor" -Direction Inbound -LocalPort 
 Exposed on port 9090 by health-monitor service.
 
 **Key Metrics**:
+
 - `worker_ollama_requests_total` - Total Ollama requests
 - `worker_ollama_latency_seconds` - Request latency
 - `worker_gpu_utilization` - GPU usage %
@@ -320,6 +337,7 @@ Exposed on port 9090 by health-monitor service.
 Import dashboard from: `./grafana-dashboard.json`
 
 **Panels**:
+
 - GPU utilization over time
 - Model inference latency
 - Request rate per model
@@ -380,6 +398,7 @@ docker exec worker-3060-redis redis-cli BGSAVE
 ### Performance Tuning
 
 **Ollama**:
+
 ```powershell
 # Increase parallel requests (if memory allows)
 $env:OLLAMA_NUM_PARALLEL = "3"
@@ -389,6 +408,7 @@ $env:OLLAMA_MAX_LOADED_MODELS = "2"
 ```
 
 **Redis**:
+
 ```powershell
 # Increase cache size
 docker-compose -f docker-compose.worker-3060.yml exec redis \
@@ -458,12 +478,12 @@ Add authentication to Ollama (via reverse proxy):
 ```yaml
 # nginx.conf
 server {
-  listen 11434;
-  location / {
-    auth_basic "Ollama API";
-    auth_basic_user_file /etc/nginx/.htpasswd;
-    proxy_pass http://localhost:11434;
-  }
+listen 11434;
+location / {
+auth_basic "Ollama API";
+auth_basic_user_file /etc/nginx/.htpasswd;
+proxy_pass http://localhost:11434;
+}
 }
 ```
 
@@ -503,6 +523,7 @@ infisical secrets set WORKER_API_KEY "new-key" --env=dev --path=/worker-3060
 Worker-3060 is registered in Nexus Router for automatic load balancing.
 
 **Router Config** (`nexus-router.yml`):
+
 ```yaml
 workers:
   - name: worker-3060
@@ -521,39 +542,45 @@ workers:
 
 ```javascript
 // Send document to Worker-3060
-const response = await fetch('http://worker-3060.tail-net.ts.net:11434/api/generate', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({
-    model: 'codellama:34b',
-    prompt: `Extract information from this mortgage document: ${documentText}`,
-    stream: false
-  })
-});
+const response = await fetch(
+  "http://worker-3060.tail-net.ts.net:11434/api/generate",
+  {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      model: "codellama:34b",
+      prompt: `Extract information from this mortgage document: ${documentText}`,
+      stream: false,
+    }),
+  }
+);
 ```
 
 ### Embedding Generation
 
 ```javascript
 // Generate embeddings via Worker-3060
-const embeddings = await fetch('http://worker-3060.tail-net.ts.net:8080/embed', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({
-    texts: documents,
-    batch_size: 32
-  })
-});
+const embeddings = await fetch(
+  "http://worker-3060.tail-net.ts.net:8080/embed",
+  {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      texts: documents,
+      batch_size: 32,
+    }),
+  }
+);
 ```
 
 ## Performance Benchmarks
 
-| Task | Model | Tokens/sec | Latency (p95) | Memory |
-|------|-------|------------|---------------|--------|
-| Code Analysis | CodeLlama 34B | 15 | 3.2s | 11GB |
-| Document Classification | Qwen 2 32B | 18 | 2.8s | 10GB |
-| Text Generation | Gemma 2 27B | 20 | 2.5s | 9GB |
-| Embeddings (batch=32) | Xenova | - | 250ms | 2GB |
+| Task                    | Model         | Tokens/sec | Latency (p95) | Memory |
+| ----------------------- | ------------- | ---------- | ------------- | ------ |
+| Code Analysis           | CodeLlama 34B | 15         | 3.2s          | 11GB   |
+| Document Classification | Qwen 2 32B    | 18         | 2.8s          | 10GB   |
+| Text Generation         | Gemma 2 27B   | 20         | 2.5s          | 9GB    |
+| Embeddings (batch=32)   | Xenova        | -          | 250ms         | 2GB    |
 
 ## Support
 
@@ -564,3 +591,17 @@ const embeddings = await fetch('http://worker-3060.tail-net.ts.net:8080/embed', 
 ## License
 
 Proprietary - Project Nyra Internal Use Only
+
+## Secrets Contract
+
+Do not create or depend on repo-local `.env` files in this directory. Runtime secrets belong in Infisical and are injected at process start by repo-root Makefile targets.
+
+The expected flow is:
+
+1. The operator or agent runs `make <target>` from the repo root.
+2. The Makefile sources `~/.zsh/99-secrets.zsh` only when the current shell has no `INFISICAL_TOKEN`.
+3. The Makefile runs worker compose commands under `infisical run` for `/machines/worker-rtx3060`.
+4. Docker Compose receives secrets only through that runtime environment.
+5. Sidecar-managed services consume secrets from their runtime volume, not local env files.
+
+The only local secret-bearing file for normal operations should be the user shell secret file outside the repo: `~/.zsh/99-secrets.zsh`.

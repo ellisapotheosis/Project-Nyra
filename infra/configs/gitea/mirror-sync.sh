@@ -9,7 +9,7 @@ set -e
 echo "=== GitHub Mirror Sync ==="
 echo "GitHub Repo: ${GITHUB_REPO}"
 echo "Gitea URL: ${GITEA_URL}"
-echo "Gitea Repo: ${GITEA_REPO:-nyra-admin/Project-Nyra}"
+echo "Gitea Repo: ${GITEA_REPO:-ellisapotheosis/Project-Nyra}"
 
 # Check for required environment variables
 if [ -z "$GITHUB_TOKEN" ]; then
@@ -17,7 +17,7 @@ if [ -z "$GITHUB_TOKEN" ]; then
   exit 0
 fi
 
-GITEA_REPO="${GITEA_REPO:-nyra-admin/Project-Nyra}"
+GITEA_REPO="${GITEA_REPO:-ellisapotheosis/Project-Nyra}"
 GITEA_OWNER="${GITEA_REPO%%/*}"
 GITEA_NAME="${GITEA_REPO#*/}"
 GITEA_CLONE_URL="${GITEA_URL}/${GITEA_REPO}.git"
