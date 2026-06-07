@@ -75,13 +75,15 @@ export async function executeCrmWritePlan(
     );
   }
 
-  for (const event of plan.auditEvents) {
-    await auditSink.log({
-      ...event,
-      entityId: shouldUsePersistedLeadId(event.entityId, plan.lead.id)
-        ? lead.id
-        : event.entityId,
-    });
+  const auditEvents = plan.auditEvents.map((event) => ({
+    ...event,
+    entityId: shouldUsePersistedLeadId(event.entityId, plan.lead.id)
+      ? lead.id
+      : event.entityId,
+  }));
+
+  for (const event of auditEvents) {
+    await auditSink.log(event);
   }
 
   return {
@@ -89,7 +91,7 @@ export async function executeCrmWritePlan(
     campaignEnrollment,
     communications,
     quotes,
-    auditEvents: plan.auditEvents,
+    auditEvents,
   };
 }
 
@@ -149,8 +151,10 @@ function mergeConsentData(
     (payload.customFields as Record<string, unknown>) ?? {};
 
   // DNC is sticky if already true
-  const existingDnc = Boolean(existingCustomFields.doNotContact);
-  const plannedDnc = Boolean(payloadCustomFields.doNotContact);
+  const existingDnc =
+    existing.doNotContact === true || existingCustomFields.doNotContact === true;
+  const plannedDnc =
+    payload.doNotContact === true || payloadCustomFields.doNotContact === true;
 
   // Consent strength: DNC > OPTED_OUT > OPTED_IN > UNKNOWN
   const strength: Record<string, number> = {
@@ -161,9 +165,11 @@ function mergeConsentData(
   };
 
   const existingConsent = String(
-    existingCustomFields.consentStatus ?? "UNKNOWN"
+    existing.consentStatus ?? existingCustomFields.consentStatus ?? "UNKNOWN"
   );
-  const plannedConsent = String(payloadCustomFields.consentStatus ?? "UNKNOWN");
+  const plannedConsent = String(
+    payload.consentStatus ?? payloadCustomFields.consentStatus ?? "UNKNOWN"
+  );
 
   const finalDnc = existingDnc || plannedDnc;
   const finalConsent =

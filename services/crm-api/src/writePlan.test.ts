@@ -115,6 +115,11 @@ describe("executeCrmWritePlan", () => {
         entityId: "lead-created",
       }),
     ]);
+    expect(result.auditEvents).toEqual([
+      expect.objectContaining({
+        entityId: "lead-created",
+      }),
+    ]);
   });
 
   it("updates a dedupe match instead of creating a duplicate", async () => {
@@ -183,6 +188,49 @@ describe("executeCrmWritePlan", () => {
     expect(client.calls).not.toContain("enrollCampaign");
   });
 
+  it("preserves top-level do-not-contact state from a CRM dedupe match", async () => {
+    const client = new FakeClient([
+      {
+        id: "lead-top-level-dnc",
+        doNotContact: true,
+        consentStatus: "DO_NOT_CONTACT",
+      },
+    ]);
+    const audit = new FakeAuditSink();
+
+    const result = await executeCrmWritePlan(plan, client, audit);
+
+    expect(result.lead).toMatchObject({
+      id: "lead-top-level-dnc",
+      doNotContact: true,
+      consentStatus: "DO_NOT_CONTACT",
+    });
+    expect(result.campaignEnrollment).toBeUndefined();
+    expect(client.calls).toContain("updateContact:lead-top-level-dnc");
+    expect(client.calls).not.toContain("enrollCampaign");
+  });
+
+  it("preserves top-level opted-out state from a CRM dedupe match", async () => {
+    const client = new FakeClient([
+      {
+        id: "lead-top-level-opted-out",
+        consentStatus: "OPTED_OUT",
+      },
+    ]);
+    const audit = new FakeAuditSink();
+
+    const result = await executeCrmWritePlan(plan, client, audit);
+
+    expect(result.lead).toMatchObject({
+      id: "lead-top-level-opted-out",
+      doNotContact: false,
+      consentStatus: "OPTED_OUT",
+    });
+    expect(result.campaignEnrollment).toBeUndefined();
+    expect(client.calls).toContain("updateContact:lead-top-level-opted-out");
+    expect(client.calls).not.toContain("enrollCampaign");
+  });
+
   it("rekeys explicit planned audit ids to the CRM lead id", async () => {
     const client = new FakeClient();
     const audit = new FakeAuditSink();
@@ -204,9 +252,14 @@ describe("executeCrmWritePlan", () => {
       ],
     };
 
-    await executeCrmWritePlan(planWithPlannedId, client, audit);
+    const result = await executeCrmWritePlan(planWithPlannedId, client, audit);
 
     expect(audit.events).toEqual([
+      expect.objectContaining({
+        entityId: "lead-created",
+      }),
+    ]);
+    expect(result.auditEvents).toEqual([
       expect.objectContaining({
         entityId: "lead-created",
       }),
