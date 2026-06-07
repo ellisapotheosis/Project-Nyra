@@ -14,7 +14,7 @@ export async function POST(request: Request) {
 
   if (QUOTE_API_URL) {
     try {
-      const response = await fetch(`${QUOTE_API_URL}/api/quotes/generate`, {
+      const response = await fetch(buildQuoteEndpoint(QUOTE_API_URL), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -22,7 +22,7 @@ export async function POST(request: Request) {
             ? { Authorization: `Bearer ${QUOTE_API_SECRET}` }
             : {}),
         },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(buildQuoteRequest(payload)),
         cache: "no-store",
       });
 
@@ -82,6 +82,58 @@ export async function POST(request: Request) {
     },
     { status: 202 }
   );
+}
+
+function buildQuoteEndpoint(baseUrl: string) {
+  const trimmed = baseUrl.trim().replace(/\/$/, "");
+  return trimmed.endsWith("/quote") ? trimmed : `${trimmed}/quote`;
+}
+
+function buildQuoteRequest(payload: any) {
+  return {
+    loan_amount:
+      numberOrUndefined(payload.loan_amount) ??
+      numberOrUndefined(payload.loanAmount) ??
+      centsToDollars(payload.loanScenario?.loanAmount?.amountCents) ??
+      400000,
+    annual_interest_rate: normalizeRate(
+      numberOrUndefined(payload.annual_interest_rate) ??
+        numberOrUndefined(payload.rate) ??
+        numberOrUndefined(payload.interestRate) ??
+        numberOrUndefined(payload.loanScenario?.interestRate)
+    ),
+    term_years:
+      numberOrUndefined(payload.term_years) ??
+      numberOrUndefined(payload.termYears) ??
+      numberOrUndefined(payload.loanScenario?.termYears) ??
+      30,
+    start_date:
+      typeof payload.start_date === "string"
+        ? payload.start_date
+        : new Date().toISOString().slice(0, 10),
+    annual_property_tax:
+      numberOrUndefined(payload.annual_property_tax) ??
+      numberOrUndefined(payload.annualPropertyTax) ??
+      0,
+    annual_home_insurance:
+      numberOrUndefined(payload.annual_home_insurance) ??
+      numberOrUndefined(payload.annualHomeInsurance) ??
+      0,
+    monthly_hoa:
+      numberOrUndefined(payload.monthly_hoa) ??
+      numberOrUndefined(payload.monthlyHoa) ??
+      0,
+    monthly_pmi:
+      numberOrUndefined(payload.monthly_pmi) ??
+      numberOrUndefined(payload.monthlyPmi) ??
+      0,
+    include_schedule: payload.include_schedule === true,
+  };
+}
+
+function normalizeRate(value: number | undefined) {
+  if (value === undefined) return 0.065;
+  return value > 1 ? value / 100 : value;
 }
 
 function option(

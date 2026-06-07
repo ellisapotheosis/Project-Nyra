@@ -3,10 +3,13 @@ const FALLBACK_REPLY =
   "Borrower chat is not configured yet. Add OPENCLAW_BORROWER_API_URL to enable the OpenClaw relay.";
 
 function buildUpstreamUrl() {
-  const configuredBase =
-    process.env.OPENCLAW_BORROWER_API_URL?.trim() ||
-    process.env.BORROWER_CHAT_API_URL?.trim() ||
-    "";
+  const configuredBorrowerUrl = process.env.OPENCLAW_BORROWER_API_URL?.trim();
+
+  if (configuredBorrowerUrl) {
+    return configuredBorrowerUrl;
+  }
+
+  const configuredBase = process.env.BORROWER_CHAT_API_URL?.trim() || "";
 
   if (!configuredBase) {
     return null;

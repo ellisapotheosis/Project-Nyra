@@ -133,6 +133,50 @@ describe("production API mutation fallbacks", () => {
     expect(body.mocksEnabled).toBe(false);
   });
 
+  it("routes production quote generation to the quote service contract", async () => {
+    const fetchMock = jest.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => ({ summary: { periodic_payment_pi: 2528.27 } }),
+    });
+    global.fetch = fetchMock;
+    process.env = {
+      ...process.env,
+      QUOTE_API_URL: "https://quote.example.test",
+    };
+    jest.resetModules();
+    const { POST } = await import("../src/app/api/quotes/generate/route");
+
+    const response = await POST(
+      requestJson({
+        leadId: "lead_123",
+        loanScenario: {
+          loanAmount: { amountCents: 42500000 },
+          termYears: 30,
+        },
+        interestRate: 6.5,
+      })
+    );
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(body.summary.periodic_payment_pi).toBe(2528.27);
+    expect(fetchMock).toHaveBeenCalledWith(
+      "https://quote.example.test/quote",
+      expect.objectContaining({
+        method: "POST",
+      })
+    );
+    const forwardedBody = JSON.parse(fetchMock.mock.calls[0][1].body);
+    expect(forwardedBody).toEqual(
+      expect.objectContaining({
+        loan_amount: 425000,
+        annual_interest_rate: 0.065,
+        term_years: 30,
+      })
+    );
+  });
+
   it("fails closed for production campaign writes without campaign-service config", async () => {
     const { POST } = await import("../src/app/api/campaigns/route");
 
@@ -172,6 +216,27 @@ describe("production API mutation fallbacks", () => {
     expect(response.status).toBe(503);
     expect(body.error).toBe("Campaign service is unavailable");
     expect(body.mocksEnabled).toBe(false);
+  });
+
+  it("does not proxy production campaign deletes to unsupported service routes", async () => {
+    const fetchMock = jest.fn();
+    global.fetch = fetchMock;
+    process.env = {
+      ...process.env,
+      CAMPAIGN_ENGINE_URL: "https://campaign.example.test",
+    };
+    jest.resetModules();
+    const { DELETE } = await import("../src/app/api/campaigns/[id]/route");
+
+    const response = await DELETE(requestJson({}), {
+      params: Promise.resolve({ id: "campaign-123" }),
+    });
+    const body = await response.json();
+
+    expect(response.status).toBe(503);
+    expect(fetchMock).not.toHaveBeenCalled();
+    expect(body.error).toBe("Campaign service is unavailable");
+    expect(body.detail).toContain("Campaign deletes are not supported");
   });
 });
 
