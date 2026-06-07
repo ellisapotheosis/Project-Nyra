@@ -18,6 +18,7 @@
     "lint": "pnpm -r --if-present lint",
     "test": "pnpm exec vitest --config vitest.smoke.config.mjs run",
     "test:all": "pnpm exec vitest --config vitest.config.mjs run",
+    "docs:validate-consolidation": "bash scripts/ci/validate-docs-consolidation.sh",
     "docker:up": "docker compose -f infra/docker-compose.yml up -d",
     "docker:down": "docker compose -f infra/docker-compose.yml down",
     "twenty:setup": "docker compose -f infra/docker-compose.twenty.yml up -d",
